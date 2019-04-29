@@ -74,6 +74,7 @@
 */
 
 
+// $ 局部化！
 (function( $ ) {
 
     const
@@ -93,10 +94,6 @@
             attr: new Set(),  // 特性名集
             prop: new Set(),  // 属性名集
         };
-
-
-    // 当前代理存储
-    let $Proxy = null;
 
 
 //
@@ -431,43 +428,42 @@ function pushStack( obj ) {
 
 
 /**
- * 代理调用。
- * - 代理调用返回false表示未被代理，
- *   或明确要求返回原调用结果；
- * - 若调用返回代理操作实例，也返回原调用结果；
- * - 被代理时，默认返回嵌入代理的$对象；
- * 注：
- * __Handles中的代理仅追踪修改操作（追踪变化）。
- *
- * @param  {...Mixed} args 原生参数序列
- * @return {Proxy$|Value}
- */
-function proxyCall( ...args ) {
-    let _x = __Handles[this](...args),
-        _v = $[this](...args);
-
-    if (_x === false) {
-        // 未被代理|要求原结果返回
-        return _v;
-    }
-    // 代理返回操作实例时也返回原调用结果。
-    // 默认返回$代理对象
-    return _x ? (_x.value = _v) : $Proxy;
-}
-
-
-/**
  * 名称清理。
  * - 清除包含在排除名单中的条目；
  * @param  {Array} names 名称集
  * @param  {String} type 名称类型（attr|prop）
  * @return {Array}
  */
-function cleanList( names, type ) {
+ function cleanList( names, type ) {
     if (!$.isArray(names)) {
         return names;
     }
-    return names.filter( n => !this.has(n), __Exclude[type] );
+    let _set = __Exclude[type];
+
+    return names.filter( n => _set && !_set.has(n) );
+}
+
+
+/**
+ * 代理调用。
+ * __Handles中的代理仅追踪修改操作（追踪变化）。
+ * @param  {Mixed} args 原生参数序列
+ * @return {Value|$}
+ */
+function proxyCall( ...args ) {
+    let _x = __Handles[this](...args),
+        _v = $[this](...args);
+
+    // 未拦截
+    if (_x === false) {
+        return _v;
+    }
+    // 代理返回操作实例
+    if (_x) {
+        _x.value = _v; // 从外赋值
+        return _v;     // 返回原调用结果
+    }
+    return $;  // 默认行为，x == undefined
 }
 
 
@@ -497,14 +493,11 @@ class History {
 
 
     /**
-     * 开启追踪。
-     * 代理存储在私有域全局变量$Proxy中。
+     * 嵌入代理并开启追踪。
      * @return {$Proxy}
      */
-    start() {
-        $Proxy = $.proxyOwner({
-            get: (its, k, r) => proxyHandle(k) || Reflect.get(its, k, r)
-        });
+    startup() {
+        $.embedProxy(proxyHandle);
         return this;
     }
 
@@ -641,7 +634,7 @@ class Node {
 // 节点双操作。
 // - 包含新内容的移除和原节点的恢复；
 // @data  {Array} 节点集
-// @value {Node[s]} 调用返回值存储
+// @value {Node[s]} 调用返回值存储（外部赋值）
 //
 class Node2 {
     /**
@@ -872,7 +865,7 @@ class Event {
 // Expose
 ///////////////////////////////////////////////////////////////////////////////
 
-$.Fx.Tracker = new History().start();
+$.Fx.Tracker = new History().startup();
 
 
-})( tQuery.proxyOwner() );
+})( window.$ );

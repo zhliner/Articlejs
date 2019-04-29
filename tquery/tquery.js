@@ -25,6 +25,11 @@
     在下面的参数说明中，原生元素集统一称为 NodeList（不再区分 HtmlCollection）。
     用户使用本库 $() 检索的元素集命名为 Elements，继承于 Array 类型。
 
+    提示：
+    您可以在浏览器的控制台执行：
+    - console.dir($)  查看 $ 的成员情况（单元素操作版）。
+    - console.dir($('').constructor.prototype)  查看 Elements 的成员情况。
+
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 */
@@ -331,64 +336,44 @@ function hackAttrClear( ctx ) {
  * @param  {Element|Elements} ctx 查询上下文
  * @return {Elements}
  */
-function $( its, ctx, _$ ) {
+let $ = function( its, ctx ) {
     its = its || '';
-    _$ = _$ || tQuery;
-
     // 最优先
     if (typeof its == 'string') {
-        return new Elements( $all(its.trim(), ctx), null, _$ );
+        return new Elements( $all(its.trim(), ctx), null );
     }
     if (isElements(its)) {
         return its;
     }
     // 初始就绪
     if ( isFunc(its) ) {
-        return _$.ready(its);
+        return $.ready(its);
     }
-    return new Elements( its, null, _$ );
-}
-
-
-// 原始$存储。
-const tQuery = $;
-
-
-// 代理存储。
-let $Proxy = $;
-
-
-/**
- * 应用代理设置。
- * - 设置对 $() 调用的代理；
- * @param  {Object} handles 代理定义集
- * @return {Object} handles
- */
-function proxyApply( handles ) {
-    handles.apply = (fn, self, a) =>
-        Reflect.apply(fn, self, [a[0], a[1], $Proxy]);
-
-    return handles;
+    return new Elements( its, null );
 }
 
 
 /**
- * 获取/设置嵌入代理。
- * - 由外部定义内部$的代理配置；
- * - 代理应用到 $ 和 Elements 实例上，其行为由外部控制；
- * - 无参数调用时返回先前的代理实例；
+ * 嵌入代理。
+ * - 由外部定义内部 $ 的调用集覆盖。
+ * - 代理会更新外部全局的 $ 成员，tQuery 则原样保持。
+ * - 代理调用接受函数名参数，应当返回一个与目标函数相同声明的函数。
  * 注：
- * - 这是一个特别的接口，允许外部嵌入代理控制；
- * - 可用于$系和$()系的操作跟踪；
+ * 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。
  *
- * @param  {Object} handles 代理定义集
- * @return {Proxy} 代理器实例
+ * @param  {Function} handler 代理调用
+ * @return {void}
  */
-$.proxyOwner = function( handles ) {
-    if (handles === undefined) {
-        return $Proxy;
+$.embedProxy = function( handler ) {
+    if (! isFunc(handler)) {
+        return false;
     }
-    return ( $Proxy = new Proxy($Proxy, proxyApply(handles)) );
+    // 运行时修改顶层$
+    // eslint-disable-next-line no-func-assign
+    $ = new Proxy($, {
+        get: ($, fn, rec) => handler(fn) || Reflect.get($, fn, rec)
+    });
+    window.$ = $; // export
 };
 
 
@@ -1201,7 +1186,7 @@ const $Methods = {
     },
 
 
-    //-- DOM 属性操作 ---------------------------------------------------------
+    //-- 属性操作 -------------------------------------------------------------
 
 
     /**
@@ -2533,6 +2518,7 @@ elsExfn([
 /**
  * 是否在数组中。
  * @param {Array|LikeArray} arr 数组/类数组
+ * @param {Value} val 对比值
  * @return {Boolean}
  */
 function inArray( arr, val ) {
@@ -4723,7 +4709,7 @@ $.noConflict = function( all ) {
 };
 
 
-window.$ = window.tQuery = tQuery;
+window.$ = window.tQuery = $;
 
 
 })( window );
