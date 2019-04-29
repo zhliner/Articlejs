@@ -8,16 +8,22 @@
 
     节点查询器
 
-    类似jQuery接口，但仅包含：DOM选择、DOM操作、CSS属性、Event。
-    即省略jQuery里的Ajax（Fetch）、$.Deferred（Promise）、Effect（CSS3）等。
-    注：括号里为JS/HTML5原生技术。
+    应用 ES6 支持的新语法和API重构一个类jQuery的工具。
+
+    接口类似jQuery（略有增强），但仅包含：DOM选择、DOM操作、CSS属性、Event。
+    即省略了jQuery里的Ajax、$.Deferred、Effect等。
+    上面省略的部分分别由浏览器自身支持的：Fetch、Promise、CSS3 实现。
 
     实现：
-    事件为DOM原生事件（无侵入），元素上不存储任何数据（垃圾回收）。
+    事件为DOM原生事件（无侵入），元素上不存储任何数据（便于JS垃圾回收）。
 
     注：
-    IE/Edge 的 NodeList/HtmlCollection 不支持 Symbol.iterator，
-    因此有关元素的原生集合，统一为Array形式。
+    DOM原生的元素集有两类：
+        - NodeList，来源于 querySelectorAll()
+        - HtmlCollection，来源于 getElementsBy... 系列
+
+    在下面的参数说明中，原生元素集统一称为 NodeList（不再区分 HtmlCollection）。
+    用户使用本库 $() 检索的元素集命名为 Elements，继承于 Array 类型。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -45,17 +51,17 @@
 
         // 单一目标。
         // slr: 包含前置#字符。
-        // @return {Element|0}
+        // @return {Element|null}
         $id = slr => Doc.getElementById(slr.substring(1)),
 
         // 简单选择器。
         // @return {Array}
-        $tag = ( tag, ctx ) => Arr( ctx.getElementsByTagName(tag) ),
+        $tag = ( tag, ctx ) => ctx.getElementsByTagName(tag),
 
         // 简单选择器。
         // slr: 包含前置.字符
         // @return {Array}
-        $class = ( slr, ctx ) => Arr( ctx.getElementsByClassName(slr.substring(1)) ),
+        $class = ( slr, ctx ) => ctx.getElementsByClassName(slr.substring(1)),
 
         // 检索元素或元素集。
         // 选择器支持“>”表示上下文元素直接子元素。
@@ -103,7 +109,7 @@
         // @return {String} 类型名（如 "String", "Array"）
         $type = function( val ) {
             return (val === null || val === undefined) ?
-                val + '' :
+                String(val):
                 val.constructor.name;
         },
 
@@ -120,7 +126,7 @@
         },
 
         // 去除重复并排序。
-        // @param {Elements|Iterator} els
+        // @param {NodeList|Iterator} els
         // @return {Array} 结果集（新数组）
         uniqueSort = Sizzle && Sizzle.uniqueSort || function( els ) {
             return els.length > 1 ?
@@ -133,7 +139,7 @@
         whitespace = "[\\x20\\t\\r\\n\\f]",
 
         // identifier: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
-        identifier 	= "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
+        identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
 
         // otherwise createTextNode.
         rhtml = /<|&#?\w+;/,
@@ -168,7 +174,7 @@
 
 
     const
-        version = 'tQuery-0.1/tpb-0.3',
+        version = 'tQuery-0.1.1',
 
         // 内部标识
         // 临时属性名（合法怪异）
@@ -313,17 +319,17 @@ function hackAttrClear( ctx ) {
  * DOM查询器（Query）。
  * - 查询结果为集合，如果仅需一个元素可用.One；
  * its: {
- *  	Selector 	选择器查询
- *  	Element 	元素包装
- *  	Elements 	元素集（类数组）包装
- *  	.values 	支持values接口的迭代器（如Set）
- *  	Function 	DOM ready回调
- *  	Queue		当前实例或已封装对象
- *  	...... 		无效参数，构造一个空集
+ *  	Selector    选择器查询
+ *  	Element     元素包装
+ *  	NodeList    元素集（类数组）包装
+ *  	.values     支持values接口的迭代器（如Set）
+ *  	Function    DOM ready回调
+ *  	Elements    当前实例或已封装对象
+ *  	...... 	    无效参数，构造一个空集
  * }
  * @param  {Mixed} its
- * @param  {Element|Queue} ctx 查询上下文
- * @return {Queue}
+ * @param  {Element|Elements} ctx 查询上下文
+ * @return {Elements}
  */
 function $( its, ctx, _$ ) {
     its = its || '';
@@ -331,16 +337,16 @@ function $( its, ctx, _$ ) {
 
     // 最优先
     if (typeof its == 'string') {
-        return new Queue( $all(its.trim(), ctx), null, _$ );
+        return new Elements( $all(its.trim(), ctx), null, _$ );
     }
-    if (isQueue(its)) {
+    if (isElements(its)) {
         return its;
     }
     // 初始就绪
     if ( isFunc(its) ) {
         return _$.ready(its);
     }
-    return new Queue( its, null, _$ );
+    return new Elements( its, null, _$ );
 }
 
 
@@ -354,7 +360,7 @@ let $Proxy = $;
 
 /**
  * 应用代理设置。
- * - 设置对$调用的代理；
+ * - 设置对 $() 调用的代理；
  * @param  {Object} handles 代理定义集
  * @return {Object} handles
  */
@@ -369,7 +375,7 @@ function proxyApply( handles ) {
 /**
  * 获取/设置嵌入代理。
  * - 由外部定义内部$的代理配置；
- * - 代理应用到$和Queue实例上，其行为由外部控制；
+ * - 代理应用到 $ 和 Elements 实例上，其行为由外部控制；
  * - 无参数调用时返回先前的代理实例；
  * 注：
  * - 这是一个特别的接口，允许外部嵌入代理控制；
@@ -574,7 +580,7 @@ const $Methods = {
      * 通用遍历。
      * - 回调返回false终止遍历，其它值为continue逻辑；
      * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例；
-     * - 注：Queue集合版可直接使用该接口；
+     * - 注：Elements 集合版可直接使用该接口；
      * handle：(
      *  	值/元素,
      *  	键/下标,
@@ -663,9 +669,11 @@ const $Methods = {
 
 
     /**
-     * 就绪把持。
-     * - 只在文档载入后才会就绪调用（可能释放较早）；
-     * - 如果文档已经就绪调用，本操作无效（同jQuery）；
+     * 暂停或恢复.ready()注册的执行。
+     * - 应当在页面加载的前段调用，传递true暂停.ready()注册的执行。
+     * - 如果需要恢复.ready()调用，传递false实参即可。
+     * - 可能有多个.ready()的注册，一次.holdReady()对应一次.ready()。
+     * 注：如果文档已经就绪并.ready()调用，本操作无效（同jQuery）。
      * @param {Boolean} hold 持有或释放
      */
     holdReady( hold ) {
@@ -694,7 +702,7 @@ const $Methods = {
                     this.Element('script', { text: code }),
                     box || Doc.head
                 );
-            return box ? _el : detach(_el);
+            return box ? _el : remove(_el);
         }
         return code.nodeType == 1 &&
             loadElement(this, code, box || Doc.head, null, !box);
@@ -949,14 +957,14 @@ const $Methods = {
 
 
     //-- DOM 节点过滤 ---------------------------------------------------------
-    // 集合操作，也即Queue的免实例化版。
+    // 集合操作，也即 Elements 的免实例化版。
 
 
     /**
      * 过滤元素集。
      * - 如果没有过滤条件，返回原始集；
      * - 如果目标集不为数组或类数组，原样返回；
-     * @param  {Elements} els 目标元素集
+     * @param  {NodeList} els 目标元素集
      * @param  {Selector|Function|Element|Array} fltr 筛选条件
      * @return {Array}
      */
@@ -964,7 +972,7 @@ const $Methods = {
         if (!fltr || !els.length) {
             return $A(els);
         }
-        if ( isQueue(els) ) {
+        if ( isElements(els) ) {
             els = els.get();
         }
         return $A(els).filter( getFltr(fltr) );
@@ -976,7 +984,7 @@ const $Methods = {
      * - 目标元素（集）被本集合中元素作为子级元素包含；
      * - 或目标选择器与集合中元素的子级元素匹配；
      * 测试调用：func(el)
-     * @param  {Elements} els 目标元素集
+     * @param  {NodeList} els 目标元素集
      * @param  {Filter} slr 筛选器
      * @return {Array}
      */
@@ -1002,7 +1010,7 @@ const $Methods = {
     /**
      * 排除过滤。
      * - 从集合中移除匹配的元素；
-     * @param  {Elements} els 目标元素集
+     * @param  {NodeList} els 目标元素集
      * @param  {Filter} slr 筛选器
      * @return {Array|false}
      */
@@ -1142,8 +1150,8 @@ const $Methods = {
             _des = [_new];
 
         if (deep) {
-            _src.push( ...$tag('*', el) );
-            _des.push( ...$tag('*', _new) );
+            _src.push( ...Arr($tag('*', el)) );
+            _des.push( ...Arr($tag('*', _new)) );
         }
         for (let i = 0; i < _src.length; i++) {
             Event.clone(_des[i], _src[i]);
@@ -1154,8 +1162,9 @@ const $Methods = {
 
     /**
      * 获取/转换元素内容。
-     * - 可传递一个加工函数对内容做定制处理；
-     * - 默认的加工函数返回子元素、文本和注释节点；
+     * - 可传递一个加工函数对内容做定制处理。
+     * - 默认的加工函数返回子元素、文本和注释节点。
+     * - proc 传递非函数时简单返回 childNodes。
      * 加工函数：
      * - 参数：直接子节点；
      * - 返回数组时成员被提取，返回null被忽略；
@@ -1163,8 +1172,10 @@ const $Methods = {
      * @param  {Function} proc 加工函数
      * @return {Array}
      */
-    contents( el, proc ) {
-        proc = proc || usualNode;
+    contents( el, proc = usualNode ) {
+        if (typeof proc !== 'function') {
+            return el.childNodes;
+        }
         return this.map( el.childNodes, nd => proc(nd) );
     },
 
@@ -1430,7 +1441,7 @@ const $Methods = {
      * - 返回的节点数据取其outerHTML源码；
      *
      * @param  {Element} el 容器元素
-     * @param  {String|Node[s]|Array|Function} code 数据源或取值函数
+     * @param  {String|Node|NodeList|Array|Function} code 数据源或取值函数
      * @param  {String|Number} where 插入位置
      * @param  {String} sep 多段连接符
      * @return {String|Array} 源码或插入的节点集
@@ -1755,10 +1766,10 @@ Object.assign($, $Methods);
      * - 仅元素适用于事件克隆（event参数）；
      * 取值回调：
      * - 取值函数接受原节点作为参数；
-     * - 取值函数可返回节点或节点集（含Queue），不支持字符串；
+     * - 取值函数可返回节点或节点集（含 Elements），不支持字符串；
      *
      * @param  {Element} el 目标元素
-     * @param  {Node[s]|Queue|Function|Set|Iterator} cons 数据节点（集）或回调
+     * @param  {Node|NodeList|Elements|Function|Set|Iterator} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆注册事件
      * @return {Node|Array} 新插入的节点（集）
@@ -1979,12 +1990,12 @@ function _nextUntil( el, slr, dir ) {
 // 继承自数组。
 // 部分功能函数重定义，大部分保留。
 //
-class Queue extends Array {
+class Elements extends Array {
     /**
      * 构造结果队列。
      * - 如果没有元素传入，obj应当为数值0；
-     * @param {Element[s]|Array|0} obj 元素（集）
-     * @param {Queue} prev 前一个实例引用
+     * @param {Element|NodeList|Array|0} obj 元素（集）
+     * @param {Elements} prev 前一个实例引用
      * @param {tQuery} $ 当前$引用
      */
     constructor( obj, prev, $ ) {
@@ -1994,7 +2005,7 @@ class Queue extends Array {
         super(
             ...(superArgs(obj) || [0])
         );
-        this.prevQueue = prev;
+        this.prevElements = prev;
         // 代理嵌入用
         this.$ = $ || prev && prev.$;
     }
@@ -2069,7 +2080,7 @@ class Queue extends Array {
      * 注记：
      * - 调用$系成员，使得$的代理有效（如果有）；
      * @param  {Element|String|Function} box 目标容器
-     * @return {Queue}
+     * @return {Elements}
      */
     wrapAll( box ) {
         if (isFunc(box)) box = box(this);
@@ -2082,7 +2093,7 @@ class Queue extends Array {
         }
         this.$.append( deepChild(box), this );
 
-        return new Queue( box, this );
+        return new Elements( box, this );
     }
 
 
@@ -2091,13 +2102,13 @@ class Queue extends Array {
      * - 脱离的元素会作为一个新集合被压入栈；
      * 注记：（同上）
      * @param  {Filter} fltr 筛选器
-     * @return {Queue}
+     * @return {Elements}
      */
     detach( fltr ) {
         let _els = fltr ?
             this.$.filter(this, fltr) : this;
 
-        return new Queue( removes(this.$, _els), this );
+        return new Elements( removes(this.$, _els), this );
     }
 
 
@@ -2107,12 +2118,12 @@ class Queue extends Array {
      *   否则新的集合为空（只有addBack、end操作有意义）。
      * 注记：（同上）
      * @param  {Filter} fltr 筛选器
-     * @return {Queue}
+     * @return {Elements}
      */
     remove( fltr ) {
         let _els = fltr ? this.$.filter(this, fltr) : this;
 
-        return new Queue(
+        return new Elements(
             exclude( this, removes(this.$, _els) ),
              this
         );
@@ -2126,31 +2137,31 @@ class Queue extends Array {
      * 用特定下标的成员构造一个新实例。
      * - 下标超出集合大小时构造一个空集合；
      * @param  {Number} idx 下标值，支持负数
-     * @return {Queue}
+     * @return {Elements}
      */
     eq( idx ) {
          if (idx >= this.length) {
-             return new Queue(0, this);
+             return new Elements(0, this);
          }
-        return new Queue( this[idx < 0 ? this.length+idx : idx], this );
+        return new Elements( this[idx < 0 ? this.length+idx : idx], this );
     }
 
 
     /**
      * 用集合的首个成员构造一个新集合。
-     * @return {Queue}
+     * @return {Elements}
      */
     first() {
-        return new Queue( this[0], this );
+        return new Elements( this[0], this );
     }
 
 
     /**
      * 用集合的最后一个成员构造一个新集合。
-     * @return {Queue}
+     * @return {Elements}
      */
     last() {
-        return new Queue( this[this.length-1], this );
+        return new Elements( this[this.length-1], this );
     }
 
 
@@ -2159,13 +2170,13 @@ class Queue extends Array {
      * - 返回一个添加了新成员的新集合；
      * - 仅在添加了新成员后才需要重新排序；
      * - 总是会构造一个新的实例返回（同jQuery）；
-     * @param {Selector|Element[s]|Queue} its 目标内容
+     * @param {Selector|Element|NodeList|Elements} its 目标内容
      */
     add( its, ctx = Doc ) {
         let _els = $(its, ctx);
         _els = _els.length ? uniqueSort( this.concat(_els) ) : this;
 
-        return new Queue( _els, this );
+        return new Elements( _els, this );
     }
 
 
@@ -2174,19 +2185,19 @@ class Queue extends Array {
      * @param {Selector|Function} slr 选择器或过滤函数
      */
     addBack( slr ) {
-        let _new = this.$.filter(this.prevQueue, slr);
+        let _new = this.$.filter(this.prevElements, slr);
         _new = _new.length ? uniqueSort( _new.concat(this) ) : this;
 
-        return new Queue( _new, this );
+        return new Elements( _new, this );
     }
 
 
     /**
-     * 返回上一个集合（Queue封装）。
-     * @return {Queue}
+     * 返回上一个集合（Elements 封装）。
+     * @return {Elements}
      */
     end() {
-        return this.prevQueue;
+        return this.prevElements;
     }
 
 
@@ -2195,7 +2206,7 @@ class Queue extends Array {
      * - 对集合内每一个元素应用回调（el, i, this）；
      * @param  {Function} handle 回调函数
      * @param  {Object} self 回调函数内的this
-     * @return {Queue} this
+     * @return {Elements} this
      */
     each( handle, self ) {
         return this.$.each(this, handle, self);
@@ -2205,7 +2216,7 @@ class Queue extends Array {
     /**
      * 获取元素或集合。
      * - 获取特定下标位置的元素，支持负数倒数计算；
-     * - 未指定下标返回集合的一个新的数组表示（Queue继承自数组）；
+     * - 未指定下标返回集合的一个新的数组表示（Elements 继承自数组）；
      * @param  {Number} idx 下标值（支持负数）
      * @return {Element|Array}
      */
@@ -2218,28 +2229,28 @@ class Queue extends Array {
 }
 
 
-Queue.prototype.version = version;
+Elements.prototype.version = version;
 
 // 已封装标志。
-Queue.prototype[ ownerToken ] = true;
+Elements.prototype[ ownerToken ] = true;
 
 
 
 /**
- * Queue原型扩展。
+ * Elements 取节点方法集成。
  * 获取的节点集入栈，返回一个新实例。
- * - 由$.xx单元素版扩展到Queue原型空间；
+ * - 由 $.xx 单元素版扩展到 Elements 原型空间；
  * - 保持类声明里函数不可枚举特性（enumerable）；
- * - 仅用于$.xx返回节点（集）的调用；
+ * - 仅用于 $.xx 返回节点（集）的调用；
  * @param {Array} list 定义名清单（方法）
  * @param {Function} get 获取元素回调
  */
-function QuEx( list, get ) {
+function elsEx( list, get ) {
     list
     .forEach(function( fn ) {
-        Object.defineProperty(Queue.prototype, fn, {
+        Object.defineProperty(Elements.prototype, fn, {
             value: function(...rest) {
-                return new Queue( get(this.$, fn, this, ...rest), this );
+                return new Elements( get(this.$, fn, this, ...rest), this );
             },
             enumerable: false,
         });
@@ -2248,10 +2259,10 @@ function QuEx( list, get ) {
 
 
 //
-// 过滤：封装版
-// 源数据即为集合，封装为实例。
-///////////////////////////////////////
-QuEx([
+// 过滤：简单封装。
+// $.xx 成员调用结果即为集合，封装为实例。
+/////////////////////////////////////////////////
+elsEx([
         'has',
         'not',
         'filter',
@@ -2261,11 +2272,11 @@ QuEx([
 
 
 //
-// 检索：单入版
-// 结果集去重排序。
-// 注：成员调用返回单个元素或null。
-///////////////////////////////////////
-QuEx([
+// 元素检索。
+// $.xx 成员调用返回单个元素或 null。
+// 注：结果集会去重排序。
+/////////////////////////////////////////////////
+elsEx([
         'next',
         'prev',
         'parent',
@@ -2283,11 +2294,12 @@ QuEx([
 
 
 //
-// 检索：集合版（排序）
-// 结果集去重排序。
-// 注：成员调用返回集合或节点。
-///////////////////////////////////
-QuEx([
+// 元素集检索。
+// $.xx 成员调用返回一个集合。
+// 各元素返回的节点集会被合并到单一集合（扁平化）。
+// 注：结果集会去重排序。
+/////////////////////////////////////////////////
+elsEx([
         'find',
         'nextAll',
         'nextUntil',
@@ -2296,23 +2308,24 @@ QuEx([
         'siblings',
         'parentsUntil',
     ],
-    // 可能重复，排序清理
     ($, fn, els, ...rest) => {
             let _buf = els.reduce(
                 (buf, el) => buf.concat( $[fn](el, ...rest) ),
                 []
             );
+            // 可能有重复。
             return els.length > 1 ? uniqueSort(_buf) : _buf;
         }
 );
 
 
 //
-// 取值：集合版（无需排序）
-// - 返回的数据被合并（同jQuery）；
-// 注：成员调用返回集合或节点。
-///////////////////////////////////
-QuEx([
+// 简单求值。
+// $.xx 成员调用返回一个节点集或单个节点。
+// 各元素返回的节点集会被合并到单一集合（扁平化）。
+// 注：假定 els 不会重复，因此无需排序。
+/////////////////////////////////////////////////
+elsEx([
         'clone',
         'children',
         'contents',
@@ -2324,15 +2337,15 @@ QuEx([
 
 
 /**
- * Queue原型扩展。
- * 在原型上直接赋值一个函数，设置为不可枚举。
+ * Elements 普通方法集成。
+ * 将单元素版非节点获取类操作集成到 Elements 上，设置为不可枚举。
  * @param {Array} list 定义名清单（方法）
  * @param {Function} get 获取目标函数
  */
-function QuExf( list, get ) {
+function elsExfn( list, get ) {
     list
     .forEach(function( fn ) {
-        Object.defineProperty(Queue.prototype, fn, {
+        Object.defineProperty(Elements.prototype, fn, {
             value: get(fn),
             enumerable: false,
         });
@@ -2341,12 +2354,12 @@ function QuExf( list, get ) {
 
 
 //
-// 取值。
-// 获取的数据为值，返回一个值集合。
+// 简单取值。
+// 获取的数据为值，返回一个值集合（普通数组）。
 // 值的位置与原集合中元素位置一一对应。
-///////////////////////////////////////
-QuExf([
-        'is',  	// 返回集合，用.every(x=>x)或.some(x=>x)判断
+/////////////////////////////////////////////////
+elsExfn([
+        'is',  	// 返回一个布尔值集合
         'hasClass',
         'innerHeight',
         'outerHeight',
@@ -2354,12 +2367,13 @@ QuExf([
         'outerWidth',
         'position',
 
-        // 纯操作，但取返回值
+        // 纯操作，但取返回值（Animation）
         'animate',
     ],
     fn =>
     function(...rest) {
-        return this.map( el => this.$[fn](el, ...rest) );
+        // 转为普通数组。
+        return [...this.map( el => this.$[fn](el, ...rest) )];
     }
 );
 
@@ -2367,8 +2381,8 @@ QuExf([
 //
 // 单纯操作。
 // 返回当前实例本身。
-///////////////////////////////////////
-QuExf([
+/////////////////////////////////////////////////
+elsExfn([
         'empty',
         'addClass',
         'removeClass',
@@ -2409,9 +2423,9 @@ QuExf([
 //
 // 设置/获取值（有目标）。
 // 设置与获取两种操作合二为一的成员。
-// 返回的数组成员与集合元素一一对应。
-///////////////////////////////////////
-QuExf([
+// 取值时返回一个普通数组，成员与集合元素一一对应。
+/////////////////////////////////////////////////
+elsExfn([
         'attr',
         'prop',
         'css',
@@ -2421,7 +2435,7 @@ QuExf([
         let _buf = this.map(
             el => this.$[fn](el, its, val)
         );
-        return _buf[0] === this.$ ? this : _buf;
+        return _buf[0] === this.$ ? this : [..._buf];
     }
 );
 
@@ -2429,9 +2443,9 @@ QuExf([
 //
 // 取值/属性修改。
 // 设置与获取两种操作合二为一的成员。
-// 返回的数组成员与集合元素一一对应。
-///////////////////////////////////////
-QuExf([
+// 取值时返回一个普通数组，成员与集合元素一一对应。
+/////////////////////////////////////////////////
+elsExfn([
         'val',
         'height',
         'width',
@@ -2441,11 +2455,9 @@ QuExf([
     ],
     fn =>
     function( val ) {
-        return val === undefined ? this.map( el => this.$[fn](el) ) :
-            (
-                this.forEach( el => this.$[fn](el, val) ),
-                this
-            );
+        return val === undefined ?
+            [ ...this.map( el => this.$[fn](el) ) ] :
+            ( this.forEach( el => this.$[fn](el, val) ), this );
     }
 );
 
@@ -2453,11 +2465,13 @@ QuExf([
 //
 // 取值/内容修改。
 // 设置与获取两种操作合二为一。
-// 取值返回的数组成员与集合元素一一对应。
-// 设置时返回的新节点构造为一个一维数组。
-// @return {[Value|Node]}
-////////////////////////////////////////////
-QuExf([
+//
+// 设置时：返回的新节点构造为一个新的Elements实例。
+// 取值时：返回一个普通数组，成员与集合元素一一对应。
+//
+// @return {[Value]|Elements}
+/////////////////////////////////////////////////
+elsExfn([
         'html',
         'text',
     ],
@@ -2466,8 +2480,11 @@ QuExf([
         let _vs = this.map(
             el => this.$[fn](el, val, ...rest)
         );
-        // 节点集扁平化（设置时）。
-        return val === undefined ? _vs : [].concat(..._vs);
+        if (val === undefined) {
+            return [..._vs];
+        }
+        // 扁平化，构造为 Elements
+        return new Elements([].concat(..._vs), this);
     }
 );
 
@@ -2477,7 +2494,7 @@ QuExf([
 // 集合版6种插入方式。
 // 与单元素版对应但主从关系互换。
 // （多对一）
-///////////////////////////////////////
+/////////////////////////////////////////////////
 [
     ['insertBefore', 	'before'],
     ['insertAfter', 	'after'],
@@ -2487,7 +2504,7 @@ QuExf([
     ['fillTo', 			'fill'],
 ]
 .forEach(function( names ) {
-    Object.defineProperty(Queue.prototype, [names[0]], {
+    Object.defineProperty(Elements.prototype, [names[0]], {
         /**
          * 将集合中的元素插入相应位置。
          * - 默认不会采用克隆方式（原节点会脱离DOM）；
@@ -2496,7 +2513,7 @@ QuExf([
          * @param  {Element} to 目标元素
          * @param  {Boolean} clone 数据节点克隆
          * @param  {Boolean} event 是否克隆注册事件
-         * @return {Queue} 实例自身
+         * @return {Elements} 实例自身
          */
         value: function( to, clone, event = true ) {
             this.$[ names[1] ]( to, this, clone, event );
@@ -2613,17 +2630,17 @@ function getFltr( its ) {
 
 
 /**
- * 是否为Queue实例。
+ * 是否为 Elements 实例。
  * @param  {Mixed} obj 测试对象
  * @return {LikeBool}
  */
-function isQueue( obj ) {
+function isElements( obj ) {
     return obj && obj[ ownerToken ];
 }
 
 
 /**
- * 测试构造Queue基类参数。
+ * 测试构造 Elements 基类参数。
  * - 返回false表示参数不合法；
  * @param  {Array|LikeArray|Element|[.values]} obj 目标对象
  * @return {Iterator|false} 可迭代对象
@@ -2935,13 +2952,13 @@ function switchInsert( node, box, next ) {
  * @param  {Element} el  目标元素
  * @param  {Element} box 容器元素
  * @param  {Element} next 下一个参考元素
- * @param  {Boolean} tmp 临时插入（成功后移除）
+ * @param  {Boolean} tmp 为临时插入（成功后移除）
  * @return {Promise}
  */
 function loadElement( self, el, box, next, tmp ) {
     return new Promise( function(resolve, reject) {
         self.on(el, {
-            'load':  () => resolve( tmp && detach(el) || el ),
+            'load':  () => resolve( tmp && remove(el, true) || el ),
             'error': err => reject(err),
         });
         switchInsert(el, box, next);
@@ -3038,7 +3055,7 @@ function exclude( list, sets ) {
  * @param  {Object} self 当前调用域
  * @param  {Node} rep 替换点节点
  * @param  {Element|String|Function} box 包裹容器或取值函数
- * @param  {Node[s]} data 被包裹数据
+ * @param  {Node|NodeList} data 被包裹数据
  * @return {Element} 包裹容器元素
  */
 function wrapData( self, rep, box, data ) {
@@ -3270,7 +3287,7 @@ function usualNode( node ) {
  * - 适用于元素节点和文本节点；
  * - 多个节点取值简单连接；
  * - 非节点类型被字符串化；
- * @param  {Node[s]|[String]|Set|Iterator} nodes 节点（集）
+ * @param  {Node|NodeList|[String]|Set|Iterator} nodes 节点（集）
  * @param  {String} sep 连接字符
  * @return {String}
  */
@@ -3291,7 +3308,7 @@ function outerHtml( nodes, sep ) {
 
 /**
  * 提取节点文本。
- * @param  {Node[s]|[String]|Set|Iterator} nodes 节点（集）
+ * @param  {Node|NodeList|[String]|Set|Iterator} nodes 节点（集）
  * @param  {String} sep 连接字符
  * @return {String}
  */
@@ -3414,13 +3431,13 @@ const insertHandles = {
  *   注：取值函数仅允许一个；
  * 注：
  * - args也可以是一个可迭代的节点序列，如：
- *   NodeList，HTMLCollection，Array，Queue等。
+ *   NodeList，HTMLCollection，Array，Elements 等。
  *
  * - 取值回调可返回节点或节点集，但不能再是函数；
  *
  * @param  {Object} self 当前调用域
  * @param  {Node} node 目标节点（元素或文本节点）
- * @param  {Node[s]|Queue|Function|Set|Iterator} cons 内容
+ * @param  {Node|NodeList|Elements|Function|Set|Iterator} cons 内容
  * @param  {Function} callback 操作回调
  * @return {Node|Fragment|null} 待插入节点或文档片段
  */

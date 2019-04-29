@@ -1,0 +1,25 @@
+{
+  "name": "articlejs",
+  "version": "0.1.0",
+  "description": "交互文档生成器。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhliner/Articlejs.git"
+  },
+  "author": "zhliner@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhliner/Articlejs/issues"
+  },
+  "homepage": "https://github.com/zhliner/Articlejs#readme",
+  "devDependencies": {
+    "eslint": "^5.16.0"
+  }
+}
