@@ -7,7 +7,8 @@
 大部分接口与 `jQuery` 中相似，少部分地方略有变化，也有一些小的扩展和增强，如支持嵌入代理（见 `$.embedProxy`），用户可以修改 `$` 的默认行为。
 
 > **注：**<br>
-> 如果您想先简单浏览一下 `tQuery` 的接口情况，可以打开 `test.html` 文件或自己导入 `tquery.js` 后，在浏览器控制台执行 `console.dir($)` 和 `console.dir($(''))` 试试。
+> `tQuery` 名称里的 `t` 来源于 `Tpb` 里的 `Template`，但也可以视为 `tiny-Query` 吧。<br>
+> 如果您想先简单浏览一下 `tQuery` 的接口情况，可以打开 `test.html` 然后在浏览器控制台执行 `console.dir($)` 或 `console.dir($(''))` 看看。<br>
 
 
 
