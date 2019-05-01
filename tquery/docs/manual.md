@@ -8,7 +8,7 @@
 
 > **注：**<br>
 > `tQuery` 名称里的 `t` 来源于 `Tpb` 里的 `Template`，但也可以视之为 `tiny-Query`。<br>
-> 如果您想先简单浏览一下 `tQuery` 的接口情况，可以打开 `test.html` 然后在浏览器控制台执行 `console.dir($)` 或 `console.dir($(''))` 看看。<br>
+> 如果您想先简单浏览一下 `tQuery` 的接口情况，可以打开 `test.html` 然后在浏览器控制台执行 `console.dir($)` 或 `console.dir($(''))` 试试。<br>
 
 
 
