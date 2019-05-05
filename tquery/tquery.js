@@ -1722,12 +1722,11 @@ class Table {
      * @param {Boolean} th0 首列是否为<th>单元格
      */
     constructor( rows, cols, th0 ) {
-        let _tbl = Doc.createElement('table');
-        _tbl.createTBody();
+        let _tbl = Doc.createElement('table'),
+            _body = _tbl.createTBody();
 
         for (let r = 0; r < rows; r++) {
-            let _tr = _tbl.createTBody().insertRow();
-            buildTR(_tr, cols, '', 'td', th0);
+            buildTR(_body.insertRow(), cols, '', 'td', th0);
         }
         this._tbl = _tbl;
         this._cols = cols;
