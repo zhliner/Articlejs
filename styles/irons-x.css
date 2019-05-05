@@ -1,9 +1,8 @@
-/** irons-x.css 2014.10.30 tQui.Style $
- * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- *  @name   铁树开花
- *  @Author qchen.zh@gmail.com @2019.04.16
- * ////////////////////////////////////////////////////////////////////////////
- */
+/* irons-x.css 2014.10.30 Articlejs.Style $
+ *****************************************************************************
+    @name   铁树开花
+    @Author zhliner@gmail.com @2019.04.16
+ *****************************************************************************/
 
 
 /* block */
@@ -23,7 +22,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 
 
 /* [ 全局 ]
- * ***************************************************************************/
+ ****************************************************************************/
 
 .Main {
     font-size: 11pt;
@@ -56,7 +55,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 
 
 /* [ 固定 ] - 慎改
- * ***************************************************************************/
+ ****************************************************************************/
 
 /* 表格边框 */
 .Main table {
@@ -103,7 +102,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 
 
 /* [ 行块 ]
- * ***************************************************************************/
+ ****************************************************************************/
 
 .Main p {
     margin: 15px auto;
@@ -165,7 +164,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 
 
 /* 多级编号级联表
- * ---------------------------
+ ****************************
  * ol.cascade/ li>ol/ li>ol...
 */
 .Main ol.cascade,
@@ -321,7 +320,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 
 
 /* [ 内联 ]
- * ***************************************************************************/
+ ****************************************************************************/
 
 .Main img {
     margin: 4px 6px;
@@ -355,7 +354,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 
 
 /* [ 独立单元 ]
- * ***************************************************************************/
+ ****************************************************************************/
 
 /* 摘要
  * header.summary/p
@@ -386,10 +385,16 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 /* 页面固定 */
 .Main nav.toc {
     position: fixed;
-    top: 80px;
+    top: 5px;
     left: 20px;
     background-color: rgba(245,245,245,0.7);
+    height: 96%;
 }
+.Main nav.toc>ol.cascade {
+    height: calc(100% - 80px);
+    overflow-y: auto;
+}
+
 .Main nav.toc h4 {
     margin: 5px 2px;
     padding-bottom: 10px;
@@ -402,16 +407,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
     text-decoration: none;
 }
 
-.Main nav.toc a {
-    display: block;
-    text-decoration: none;
-    color: #039;
-    line-height: 150%;
-}
-.Main nav.toc a:hover {
-    text-decoration: underline;
-}
-.Main nav.toc > ol {
+.Main nav.toc>ol {
     margin: 2px 0;
     padding: 5px 2px;
     padding-bottom: 11pt;
@@ -423,7 +419,15 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 .Main nav.toc > ol li {
     margin-left: 2em;
 }
-
+.Main nav.toc a {
+    display: block;
+    text-decoration: none;
+    color: #039;
+    line-height: 150%;
+}
+.Main nav.toc a:hover {
+    text-decoration: underline;
+}
 
 /* 另参见 */
 .Main ul.seealso {}
@@ -442,7 +446,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 
 
 /* [ 代码：高亮 ]
- * ***************************************************************************/
+ ****************************************************************************/
 
 /* 代码全局 */
 .Main code {
@@ -504,7 +508,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 }
 
 /* 高亮着色：通用
- * --------------------
+ ****************************
 */
 code b {
     font-weight: normal;
@@ -595,7 +599,7 @@ code b.non {
 }
 
 /* 高亮覆盖
- * --------------------
+ ****************************
 */
 code[data-lang="css"] b.tag {
     color: #f0b;
