@@ -36,9 +36,9 @@
 
 (function( window, undefined ) {
 
-    const
-        Doc = window.document,
+    let Doc = window.document;
 
+    const
         // 主要用于扩展选择器。
         Sizzle = window.Sizzle,
 
@@ -57,7 +57,7 @@
         // 单一目标。
         // slr: 包含前置#字符。
         // @return {Element|null}
-        $id = slr => Doc.getElementById(slr.substring(1)),
+        $id = (slr, doc) => doc.getElementById(slr.substring(1)),
 
         // 简单选择器。
         // @return {Array}
@@ -77,21 +77,23 @@
         // slr首字符>表示当前上下文子元素限定。
         // 如“>p”表示ctx的直接子元素里的p元素。
         // @return {Element|null}
-        $one = function( slr, ctx ) {
+        $one = function( slr, ctx, doc = Doc ) {
+            ctx = ctx || doc;
+
             if (__reID.test(slr)) {
-                return $id(slr);
+                return $id(slr, doc);
             }
-            return $find(slr, ctx || Doc, 'querySelector');
+            return $find(slr, ctx, 'querySelector');
         },
 
         // 多目标。
         // slr首字符>表示当前上下文子元素限定。
         // @return {Array|Element}
-        $all = Sizzle || function( slr, ctx ) {
-            ctx = ctx || Doc;
+        $all = Sizzle || function( slr, ctx, doc = Doc ) {
+            ctx = ctx || doc;
 
             if (__reID.test(slr)) {
-                return $id(slr) || [];
+                return $id(slr, doc) || [];
             }
             let _els;
             if (__reTAG.test(slr)) {
@@ -146,8 +148,11 @@
         // identifier: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
         identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
 
-        // otherwise createTextNode.
-        rhtml = /<|&#?\w+;/,
+        // 否则创建文本节点（createTextNode）
+        ihtml = /<|&#?\w+;/,
+
+        // HTML节点标志
+        xhtml = /HTML$/i,
 
         // 像素值表示
         rpixel = /^[+-]?\d[\d.e]*px$/i,
@@ -192,23 +197,23 @@
         // 位置值定义。
         // 用于插入元素的位置指定，可以混用名称与数值。
         // {
-        //  	before 	= 1 	参考元素之前
-        //  	after  	= -1 	参考元素之后
-        //  	begin  	= 2 	参考元素内起始点（头部）
-        //  	prepend = 2 	同上
-        //  	end 	= -2  	参考元素内结束点（末尾）
+        //  	before 	=  1	元素之前
+        //  	after  	= -1 	元素之后
+        //  	begin  	=  2	元素内起始点（头部）
+        //  	prepend =  2	同上
+        //  	end 	= -2  	元素内结束点（末尾）
         //  	append 	= -2	同上
         //  	fill 	= 0 	内容填充（覆盖，清除原有）
         //  	replace = '' 	替换
         // }
         // 示意：
-        //   // 1
+        //   <!-- 1 -->
         //   <p>
-        //    	// 2
+        //      <!-- 2 -->
         //    	<span>...</span>
-        //    	// -2
+        //    	<!-- -2 -->
         //   </p>
-        //   // -1
+        //   <!-- -1 -->
         //
         // 理解（记忆）：
         //   1： 表示与目标同级，只有1个层次。负值反向取末尾。
@@ -233,27 +238,25 @@
 
 /**
  * 子级限定检索。
- * - 会对上下文元素设置临时唯一属性；
- * - 子级限定兼容“>*”非标准选择器；
+ * - 会对上下文元素设置临时的唯一属性。
+ * - 子级限定兼容“>*”非标准选择器。
  * 例：
  *  	ol/li/ol/li，ctx 假设为第一个<ol>
  * 检索：
  *   - Sizzle('>li', ctx)  => 返回上级<li>
  *   - ctx.querySelectorAll('>li')  => 语法错误
- *   - $sub('>li', ctx, 'querySelectorAll')  => 同Slizzle（在$all中调用）
- *
+ *   - $sub('>li', ctx, 'querySelectorAll')  => 同Slizzle（$all用）
  * 注意：
- * 与jQuery/Sizzle的细微不同：
- * - Sizzle('ol>li', ctx)  => 返回末尾一个<li>（ctx:ol不检测匹配）
- * - ctx.querySelectorAll('ol>li')  => 返回两级<li>（ctx:ol参与检测匹配）
+ * 与jQuery/Sizzle的细微不同，假设上级<ol>为ctx：
+ * - Sizzle('ol>li', ctx)  => 返回下级<li>，上级<ol>不参与匹配。
+ * - ctx.querySelectorAll('ol>li')  => 返回两级<li>，上级<ol>参与匹配。
  *
- * - Sizzle('>li', ctx) =>
- * 	 	返回ctx子级<li>元素集，无孙级<li>
- * - $all('>li', ctx) =>
- *  	会尝试匹配孙级<li>，但ctx已被hack一个临时属性，选择器变形如：
+ * - Sizzle('>li', ctx) => 返回ctx直接子元素<li>集
+ * - $all('>li', ctx)   => 效果同上。
+ *      注：
+ *      因采用 ctx.querySelectorAll 调用，所以ctx需注入一个临时属性，选择器形如：
  * 		'OL[__tquery20161227--1492870889566] >li'
- *   	即便二级<ol>有属性，其<li>匹配成功可能性也极低，
- *   	因此视为与 Sizzle 等同。
+ *   	临时属性名是即时生成的，现实中重名的可能性应该极低。
  *
  * @param  {Selector} slr 目标选择器
  * @param  {Element} ctx  父容器元素
@@ -277,25 +280,16 @@ function $sub( slr, ctx, handle ) {
 
 
 /**
- * 临时hack属性标记。
- * - 针对选择器首个字符为“>”时的非标准选择器；
- * - 添加临时属性名，便于构造合法准确的选择器；
- * 注记：
- * - 简单的前置标签名存在误差，需插入一个临时属性名限定；
- * - 检索前添加属性名，检索后即时删除（finally）；
- *
- * querySelector[All]特性：
- * - ctx.querySelector('>li') => 语法错误。
- * - ctx.querySelector('ol>li') => 也匹配子级“ol>li”结构
- *
- * Hack：
- * - ctx.querySelector('ol[tempXXX] >li ...') => 合法
+ * 临时属性标记。
+ * - 针对选择器首个字符为“>”时的非标准选择器。
+ * - 检索前添加属性名，检索后即时删除（finally）。
  *
  * @param  {Element} ctx 上下文容器元素
- * @return {String} 属性选择器
+ * @return {String} 临时属性名
  */
 function hackAttr( ctx ) {
     if (!ctx.hasAttribute( hackFix )) {
+        // 用ownerToken更安全
         ctx[ ownerToken ] = true;
         ctx.setAttribute( hackFix, '' );
     }
@@ -304,11 +298,8 @@ function hackAttr( ctx ) {
 
 
 /**
- * 临时hack属性清除。
- * - 与hackAttr配套使用；
- * 注记：
- *   另用ownerToken设置可靠标识，
- *   预防原始节点存在hackFix属性名的情况。
+ * 临时属性清除。
+ * - 与hackAttr配套使用。
  *
  * @param {Element} ctx 上下文容器元素
  */
@@ -322,7 +313,7 @@ function hackAttrClear( ctx ) {
 
 /**
  * DOM 查询器。
- * - 查询结果为集合，如果仅需一个元素可用.One；
+ * - 查询结果为集合，如果仅需一个元素可用 $.One。
  * its: {
  *  	Selector    选择器查询
  *  	Element     元素包装
@@ -355,15 +346,10 @@ function tQuery( its, ctx ) {
 
 
 //
-// 私有不变存储。
-//
-const _$ = tQuery;
-
-//
 // 对外接口。
 // 可被外部代理，是一个可变的值。
 //
-let $ = _$;
+let $ = tQuery;
 
 
 /**
@@ -377,7 +363,7 @@ let $ = _$;
  * @param  {Function} handler 代理调用
  * @return {void}
  */
-_$.embedProxy = function( handler ) {
+tQuery.embedProxy = function( handler ) {
     if (! isFunc(handler)) {
         return false;
     }
@@ -393,18 +379,14 @@ _$.embedProxy = function( handler ) {
 // 功能扩展区
 // 外部扩展用，名称空间约定。
 //
-_$.Fx = {};
+tQuery.Fx = {};
 
 
 
 //
-// 集中定义。
-// - 基本工具；
-// - DOM相关操作的单元素版；
-// 注：
-// - 返回this和返回$是不同的，因为$可能被代理；
+// 单元素版基础集定义。
 //
-const $Methods = {
+Object.assign(tQuery, {
 
     //== 基本工具 =============================================================
     // 该部分没有集合版。
@@ -412,24 +394,22 @@ const $Methods = {
 
     /**
      * 创建DOM元素。
-     * - 传递data为数组表示内容填充[String|Node]；
-     * - data字符串数据作为源码html方式插入；
-     * - data节点数据作为内容被简单的插入（移动）；
-     * - 支持名称空间。如创建SVG元素（http://www.w3.org/2000/svg）；
-     * - data配置对象支持3个特别属性：html|text|node；
+     * - 传递data为数组表示内容填充[String|Node]。
+     * - data为字符串数据时作为源码html方式插入。
+     * - data为节点或包含节点时是简单地移动插入。
+     * - data为配置对象时支持3个特别属性：html|text|node。
+     * - 支持名称空间，如创建SVG元素（http://www.w3.org/2000/svg）。
      * data配置: {
      *  	html: 	值为源码
      *  	text: 	值为文本
-     *  	node: 	值为节点/集（移动插入）
-     *  	.... 	特性（Attribute）值
+     *  	node: 	值为节点/集，移动插入
+     *  	.... 	特性（Attribute）定义
      * }
      * data数组: [
-     *  	{String} html方式填充
-     *  	{Node}   节点移动插入
-     *  	// 混合：
-     *  	// 取首个成员类型
-     *  	{Node, String} 节点。节点仍为移动
-     *  	{String, Node} 字符串。节点为取其outerHTML
+     *  	{String}        html方式填充
+     *  	{Node}          节点移动插入
+     *  	{Node,String}   混合。首个成员为节点类型，节点为移动
+     *  	{String,Node}   混合。首个成员为字符串类型，节点取outerHTML
      * ]
      * @param  {String} tag   标签名
      * @param  {Object|Array|LikeArray|String|Node} data 配置对象或数据（集）
@@ -442,7 +422,7 @@ const $Methods = {
             doc.createElementNS(ns, tag) :
             doc.createElement(tag);
 
-        return _$.type(data) == 'Object' ? setElem(_el, data) : fillElem(_el, data);
+        return $type(data) == 'Object' ? setElem(_el, data) : fillElem(_el, data);
     },
 
 
@@ -468,9 +448,9 @@ const $Methods = {
      * @param  {Element} ctx 查询上下文
      * @return {Element|null}
      */
-    One( slr, ctx ) {
+    One( slr, ctx, doc = Doc ) {
         try {
-            return $one(slr.trim(), ctx);
+            return $one(slr.trim(), ctx, doc);
         }
         catch(e) {
             window.console.warn(e);
@@ -508,7 +488,7 @@ const $Methods = {
      *  	node: 	值为节点/集（移动插入）
      *  	.... 	特性（Attribute）值
      * }
-     * @param  {String} tag SVG子元素标签或svg元素配置，可选
+     * @param  {String|Object} tag SVG子元素标签或svg元素配置，可选
      * @param  {Object} opts 元素特性配置（Attribute），可选
      * @return {Element} 新元素
      */
@@ -532,13 +512,64 @@ const $Methods = {
      * @param  {Boolean} th0 首列是否为<th>，可选
      * @return {Table} 表格实例
      */
-    table(rows, cols, caption, th0) {
-        let _tbl = new Table(rows, cols, th0);
+    table(rows, cols, caption, th0, doc = Doc) {
+        let _tbl = new Table(rows, cols, th0, doc);
 
         if (caption) {
             _tbl.caption(caption);
         }
         return _tbl;
+    },
+
+
+    /**
+     * 插入脚本元素。
+     * - 用源码构建脚本元素并插入容器元素，返回脚本元素本身。
+     * - 也可直接传递一个脚本元素，返回Promise对象，then参数为脚本元素。
+     * - 指定容器会保留插入的脚本元素，否则自动移除（脚本正常执行）。
+     * 注记：
+     * - 其它节点插入方法排除脚本源码，因此单独支持。
+     * - 克隆的脚本元素修改属性后再插入，浏览器不会再次执行。
+     *
+     * @param  {String|Element} code 脚本代码或脚本元素
+     * @param  {Element} box DOM容器元素，可选
+     * @return {Element|Promise} 脚本元素或承诺对象
+     */
+    script( code, box, doc = Doc ) {
+        if (typeof code == 'string') {
+            let _el = switchInsert(
+                    tQuery.Element('script', { text: code }),
+                    box || doc.head
+                );
+            return box ? _el : remove(_el);
+        }
+        return code.nodeType == 1 && loadElement(code, box || doc.head, null, !box);
+    },
+
+
+    /**
+     * 插入样式元素。
+     * - 构建样式元素填入内容并插入DOM。
+     * - 默认插入head内部末尾，否则插入next之前。
+     * - 也可直接传递构造好的样式元素，返回一个Promise对象。
+     * - 用源码构造插入时，返回构造的样式元素。
+     *
+     * @param  {String|Element} code 样式代码或样式元素
+     * @param  {Element} next 参考元素，可选
+     * @return {Element|Promise} 样式元素或承诺对象
+     */
+    style( code, next, doc = Doc ) {
+        if (next === undefined) {
+            next = doc.head;
+        }
+        if (typeof code == 'string') {
+            return switchInsert(
+                tQuery.Element('style', { text: code }),
+                doc.head,
+                next
+            );
+        }
+        return code.nodeType == 1 && loadElement(code, doc.head, next);
     },
 
 
@@ -573,17 +604,17 @@ const $Methods = {
 
     /**
      * 构造范围序列
-     * - 序列为[beg:end]，end作为最后一个值存在；
-     * - 如果beg为字符串，则构造字符Uncode范围序列；
-     * - 构造字符范围时，数值end表示长度而非终点值；
+     * - 序列为[beg:end)，半开区间。
+     * - 如果beg为字符，则构造Uncode范围序列。
+     * - 构造字符范围时，size可为终点字符（包含本身）。
      * @param  {Number|String} beg 起始值
-     * @param  {Number|String} end 末尾值或长度
+     * @param  {Number|String} size 序列长度或终点字符
      * @param  {Boolean} toArr 直接生成数组
-     * @return {Iterator} 范围生成器
+     * @return {Iterator|Array|null} 范围生成器
      */
-    range( beg, end = beg, toArr = false ) {
+    range( beg, size, toArr = false ) {
         let _iter = typeof beg == 'number' ?
-            rangeNumber( beg, end-beg + 1 ) : rangeChar( beg.codePointAt(0), end );
+            rangeNumber( beg, size ) : rangeChar( beg.codePointAt(0), size );
 
         return toArr ? [..._iter] : _iter;
     },
@@ -602,15 +633,19 @@ const $Methods = {
 
 
     /**
-     * 检查XML节点。
-     * - 是否在XML文档中，或者是一个XML文档；
-     * 注：copy from Sizzle.isXML
-     * @param  {Element|Document} el
-     * @return {Boolean}
+     * 检测 XML 节点。
+     * 注：from jquery-3.4.
+     * @param {Element|Object} el An element or a document
+     * @returns {Boolean} True iff el is a non-HTML XML node
      */
     isXML( el ) {
-        let _docElem = el && (el.ownerDocument || el).documentElement;
-        return _docElem ? _docElem.nodeName !== "HTML" : false;
+        let namespace = el.namespaceURI,
+            docElem = (el.ownerDocument || el).documentElement;
+
+        // Support: IE <=8
+        // Assume HTML when documentElement doesn't yet exist, such as inside loading iframes
+        // https://bugs.jquery.com/ticket/4833
+        return !xhtml.test( namespace || docElem && docElem.nodeName || "HTML" );
     },
 
 
@@ -645,76 +680,6 @@ const $Methods = {
     holdReady( hold ) {
         domReady.waits += hold ? 1 : -1;
         return domReady.loaded && domReady.ready();
-    },
-
-
-    /**
-     * 插入脚本元素。
-     * - 用源码构建脚本元素并插入容器元素，返回脚本元素本身；
-     * - 也可直接传递一个脚本元素，返回Promise对象，then参数为脚本元素；
-     * - 如果未指定容器，导入之后会被移出DOM；
-     *   容器基本上只是一个保留标志，脚本导入位置并不重要。
-     * 注记：
-     * - 其它节点插入方法排除脚本源码，因此单独支持；
-     * - 克隆的脚本元素修改属性后再插入，浏览器不会执行；
-     *
-     * @param  {String|Element} code 脚本代码或脚本元素
-     * @param  {Element} box DOM容器元素，可选
-     * @return {Element|Promise} 脚本元素或承诺对象
-     */
-    script( code, box ) {
-        if (typeof code == 'string') {
-            let _el = switchInsert(
-                    _$.Element('script', { text: code }),
-                    box || Doc.head
-                );
-            return box ? _el : remove(_el);
-        }
-        return code.nodeType == 1 &&
-            loadElement(code, box || Doc.head, null, !box);
-    },
-
-
-    /**
-     * 插入样式元素。
-     * - 构建样式元素填入内容并插入DOM；
-     * - 默认插入head内部末尾，否则插入next之前；
-     * - 也可直接传递构造好的样式元素，返回一个Promise对象；
-     * - 用源码构造插入时，返回构造的样式元素；
-     *
-     * @param  {String|Element} code 样式代码或样式元素
-     * @param  {Element} next 参考元素，可选
-     * @return {Element|Promise} 样式元素或承诺对象
-     */
-    style( code, next = Doc.head ) {
-        if (typeof code == 'string') {
-            return switchInsert(
-                _$.Element('style', { text: code }),
-                Doc.head,
-                next
-            );
-        }
-        return code.nodeType == 1 && loadElement(code, Doc.head, next);
-    },
-
-
-    /**
-     * 元素动画启动。
-     * - 对Element.animate()接口的简单封装；
-     *   （提供简单常用的默认值）
-     * @param  {Element} el  动画元素
-     * @param  {Array|Object} kfs 关键帧配置集/对象
-     * @param  {Object} opts 动画配置选项
-     * @return {Animation} 动画实例
-     */
-    animate( el, kfs, opts ) {
-        return el.animate(
-            kfs,
-            Object.assign(
-                { duration: 2000, iterations: Infinity },
-                opts
-            )
-        );
     },
 
 
@@ -768,7 +733,7 @@ const $Methods = {
      * @return {Array}
      */
     nextUntil( el, slr, fltr ) {
-        return _$.filter(
+        return tQuery.filter(
             _nextUntil(el, slr, 'nextElementSibling'), fltr
         );
     },
@@ -806,7 +771,7 @@ const $Methods = {
      * @return {Array}
      */
     prevUntil( el, slr, fltr ) {
-        return _$.filter(
+        return tQuery.filter(
             _nextUntil(el, slr, 'previousElementSibling'), fltr
         );
     },
@@ -818,7 +783,7 @@ const $Methods = {
      * @return {Array}
      */
     children( el, fltr ) {
-        return _$.filter( el.children, fltr );
+        return tQuery.filter( el.children, fltr );
     },
 
 
@@ -832,7 +797,7 @@ const $Methods = {
         let _els = Arr(el.parentElement.children);
         _els.splice(_els.indexOf(el), 1);
 
-        return _$.filter(_els, fltr);
+        return tQuery.filter(_els, fltr);
     },
 
 
@@ -869,7 +834,7 @@ const $Methods = {
         while ( (el = el.parentElement) && (!_fun || !_fun(el)) ) {
             _buf.push(el);
         }
-        return _$.filter(_buf, fltr);
+        return tQuery.filter(_buf, fltr);
     },
 
 
@@ -958,13 +923,13 @@ const $Methods = {
             return els;
         }
         if (typeof slr == 'string') {
-            _f = el => _$.find(el, slr).length;
+            _f = el => tQuery.find(el, slr).length;
         }
         else if (isArr(slr)) {
-            _f = el => slr.some( e => _$.contains(el, e) );
+            _f = el => slr.some( e => tQuery.contains(el, e) );
         }
         else if (slr.nodeType) {
-            _f = el => slr !== el && _$.contains(el, slr);
+            _f = el => slr !== el && tQuery.contains(el, slr);
         }
         return isFunc(_f) && $A(els).filter(_f);
     },
@@ -1034,7 +999,7 @@ const $Methods = {
      * @return {Array} 容器子节点集
      */
     unwrap( el ) {
-        return el.nodeType == 1 && _$.replace(el, _$.contents(el));
+        return el.nodeType == 1 && tQuery.replace(el, tQuery.contents(el));
     },
 
 
@@ -1139,7 +1104,7 @@ const $Methods = {
         if (typeof proc !== 'function') {
             return el.childNodes;
         }
-        return _$.map( el.childNodes, nd => proc(nd) );
+        return tQuery.map( el.childNodes, nd => proc(nd) );
     },
 
 
@@ -1180,7 +1145,7 @@ const $Methods = {
         }
         names.trim()
             .split(__chSpace)
-            .forEach( function(it) { _$.add(it); }, el.classList );
+            .forEach( function(it) { tQuery.add(it); }, el.classList );
 
         return this;
     },
@@ -1238,7 +1203,7 @@ const $Methods = {
             // 私有存储
             __classNames.set(el, _cls);
         }
-        _$.attr( el, 'class',
+        tQuery.attr( el, 'class',
             !val && _cls ? null : __classNames.get(el) || null
         );
         return this;
@@ -1528,11 +1493,11 @@ const $Methods = {
         }
         val = useOffset( _cur, val, calcOffset(el) );
 
-        if (_$.css(el, 'position') == 'static') {
+        if (tQuery.css(el, 'position') == 'static') {
             el.style.position = "relative";
         }
         // val: Object
-        return _$.css(el, val);
+        return tQuery.css(el, val);
     },
 
 
@@ -1554,8 +1519,8 @@ const $Methods = {
             // - 此时已与滚动无关；
             return toPosition(el.getBoundingClientRect(), _cso);
         }
-        let _cur = _$.offset(),
-            _pel = _$.offsetParent(el),
+        let _cur = tQuery.offset(),
+            _pel = tQuery.offsetParent(el),
             _pot = _pel.offset(),
             _pcs = getStyles(_pel),
             _new = {
@@ -1703,15 +1668,13 @@ const $Methods = {
         return this;
     },
 
-};
-
-// 合并入...
-Object.assign(_$, $Methods);
+});
 
 
 //
 // 简单表格类。
 // 仅为规范行列的表格，不支持单元格合并拆分。
+// 不涉及单元格内容的修改操作，需提取后自行操作。
 //
 class Table {
     /**
@@ -1721,125 +1684,167 @@ class Table {
      * @param {Number} cols 列数
      * @param {Boolean} th0 首列是否为<th>单元格
      */
-    constructor( rows, cols, th0 ) {
-        let _tbl = Doc.createElement('table'),
+    constructor( rows, cols, th0, doc = Doc ) {
+        let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
 
         for (let r = 0; r < rows; r++) {
-            buildTR(_body.insertRow(), cols, '', 'td', th0);
+            buildTR(_body.insertRow(), cols, 'td', th0);
         }
         this._tbl = _tbl;
+        this._th0 = th0;
         this._cols = cols;
+        this._body = _body;
     }
 
 
     /**
      * 表标题操作。
-     * text: {
-     * - null       删除标题，ishtml 无用
-     * - undefined  返回标题元素，ishtml 无用
-     * - ''         返回标题内容，返回文本或源码视 ishtml 而定
-     * - '...'      改写标题，改写方式由 ishtml 而定
+     * exist: {
+     *      true        返回表标题，不存在则新建
+     *      false       删除表标题
+     *      undefined   返回表标题，不存在则返回null
      * }
-     * @param {String|null|undefined} text 标题内容
-     * @param {Boolean} ishtml 是否为html方式
+     * @param {Boolean} exist 存在性
+     * @return {Elements} 表标题元素
      */
-    caption( text, ishtml ) {
-        //
+    caption( exist ) {
+        let _cel = null;
+
+        switch (exist) {
+            case true:
+                _cel = this._tbl.createCaption();
+                break;
+            case undefined:
+                _cel = this._tbl.caption;
+                break;
+            case false:
+                return this._tbl.deleteCaption();
+        }
+        return _cel && new Elements(_cel);
     }
 
 
     /**
-     * 添加表格行（主体部分）。
-     * data: {
-     * - null   删除表格行，pos可指定目标行，默认全部
-     * - Array  添加表格行，二维数组视为多行，ishtml指定插入方式。
-     * }
-     * 注：
-     * 保持列数合法，data多余部分会丢弃，不足部分为空单元格。
-     *
-     * @param {[String]} data 字符串数组
-     * @param {Number} pos 插入位置
-     * @param {Boolean} ishtml 是否为html方式
-     * @return {Table} 实例自身
+     * 添加表格行（TBody）。
+     * 会保持列数合法，全部为空单元格。
+     * idx为-1或表体的行数，则新行插入到末尾。
+     * @param {Number} idx 插入位置
+     * @param {Number} rows 行数
+     * @return {Elements} 新添加的行元素集
      */
-    body( data, pos, ishtml ) {
-        //
+    body( idx, rows ) {
+        return this._insertRows(this._body, idx, rows);
     }
 
 
     /**
-     * 插入表头行。
-     * @param {[String]} data 字符串数组
-     * @param {Number} pos 插入位置
-     * @param {Boolean} ishtml 是否为html方式
-     * @return {Table} 实例自身
+     * 添加表头行。
+     * 如果不存在表头元素（THead）则新建。
+     * @param {Number} idx 插入位置
+     * @param {Number} rows 行数
+     * @return {Elements} 新添加的行元素集
      */
-    head( data, pos, ishtml ) {
-        //
+    head( idx = 0, rows = 1 ) {
+        return this._insertRows(this._tbl.createTHead(), idx, rows);
     }
 
 
     /**
-     * 插入表脚行。
-     * @param {[String]} data 字符串内容集
-     * @param {Number} pos 插入位置
-     * @param {Boolean} ishtml 是否为html方式
+     * 添加表脚行。
+     * 如果不存在表脚元素（TFoot）则新建。
+     * @param {Number} idx 插入位置
+     * @param {Number} rows 行数
+     * @return {Elements} 新添加的行元素集
      */
-    foot( data, pos, ishtml ) {
-        //
+    foot( idx = 0, rows = 1 ) {
+        return this._insertRows(this._tbl.createTFoot(), idx, rows);
     }
 
 
     /**
      * 删除多个表格行。
      * 行计数指整个表格，不区分head/body/foot。
-     * @param {Number} pos 起始位置（从0开始）
+     * size为-1或undefined表示起始位置之后全部行。
+     * size计数大于剩余行数，取剩余行数（容错超出范围）。
+     * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 删除数量
      * @return {Elements} 删除的行元素集
      */
-    removes( pos, size ) {
-        //
+    removes( idx, size ) {
+        let _max = this._tbl.rows.length;
+
+        if (idx >= _max) {
+            return null
+        }
+        if (size === -1 || size === undefined || idx+size > _max) {
+            size = _max - idx;
+        }
+        let _buf = [];
+
+        // 集合改变，固定下标
+        for (let i = 0; i < size; i++) {
+            _buf.push( this._remove(idx) );
+        }
+        return new Elements(_buf);
     }
 
 
     /**
      * 删除表格行。
-     * @param {Number} pos 目标位置（从0开始）
-     * @return {Element} 删除的行元素
+     * @param {Number} idx 目标位置（从0开始）
+     * @return {Elements} 删除的行元素
      */
-    remove( pos ) {
-        //
+    remove( idx ) {
+        let _rs = this._tbl.rows;
+
+        if (idx >= _rs.length) {
+            return null;
+        }
+        if (idx === -1) {
+            idx = _rs.length - 1;
+        }
+        return new Elements( this._remove(idx) );
     }
 
 
     /**
-     * 获取目标行/内容。
+     * 获取目标行集。
      * 表格行计数包含表头和表尾部分（不区分三者）。
-     * ishtml: {
-     * - false      返回单元格内容文本集，是一个二维数组。
-     * - true       返回单元格内容源码集，二维数组。
-     * - undefined  返回行元素集，Elements实例。
-     * @param {Number} pos 起始位置（从0开始）
+     * 不合适的参数会返回一个空集。
+     * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 获取行数（0表示全部）
-     * @param {Boolen} ishtml 是否为html源码
-     * @return {Elements|[String]} 行元素集（Elements）或行单元格集数组（二维）
+     * @return {Elements} 行元素集
      */
-    gets( pos, size, ishtml ) {
-        //
+    gets( idx, size ) {
+        let _max = this._tbl.rows.length;
+
+        if (idx < -1 || size === undefined || idx+size > _max) {
+            size = _max - idx;
+        }
+        if (size === 0) {
+            return new Elements(null);
+        }
+        return new Elements(
+            tQuery.range(idx, size).map( i => this._tbl.rows[i] )
+        )
     }
 
 
     /**
-     * 获取目标行/内容。
+     * 获取目标行元素。
      * 表格行计数包含表头和表尾部分。
-     * ishtml 参数含义参考 gets 方法。
-     * @param {Number} pos 目标行（从0计数）
-     * @param {Boolean} ishtml 是否为html源码
-     * @return {Element|[String]} 原始表格行或单元格内容数组
+     * @param {Number} idx 目标行（从0计数）
+     * @return {Elements} 表格行
      */
-    get( pos, ishtml ) {
-        //
+    get( idx ) {
+        if (idx < -1 || idx >= this._tbl.rows.length) {
+            return null;
+        }
+        if (idx === -1) {
+            idx = this._tbl.rows.length - 1;
+        }
+        return new Elements(this._tbl.rows[idx]);
     }
 
 
@@ -1859,6 +1864,46 @@ class Table {
     Elem() {
         return this._tbl;
     }
+
+
+    //-- 私有辅助 -------------------------------------------------------------
+
+    /**
+     * 插入表格行。
+     * 保持合法的列数，全部为空单元格。
+     * idx为-1或表体的行数，则新行插入到末尾。
+     * @param {TableSection} tsec 表格区域（TBody|THead|TFoot）
+     * @param {Number} idx 插入位置
+     * @param {Number} rows 插入行数
+     */
+     _insertRows( tsec, idx = 0, rows = 1 ) {
+        if (idx < 0 || idx > tsec.rows.length) {
+            idx = tsec.rows.length;
+        }
+        for (let r = 0; r < rows; r++) {
+            buildTR(tsec.insertRow(idx), this._cols, 'td', this._th0);
+        }
+        if (rows === 1) {
+            return new Elements(tsec.rows[idx]);
+        }
+        return new Elements(
+            tQuery.range(idx, rows, true).map( i => tsec.rows[i] )
+        );
+    }
+
+
+    /**
+     * 删除目标行。
+     * 假设idx参数已合法。
+     * @param {Number} idx 目标位置
+     * @return {Element} 删除的元素
+     */
+    _remove( idx ) {
+        let _row = this._tbl.rows[idx];
+        this._tbl.deleteRow(idx);
+        return _row;
+    }
+
 }
 
 
@@ -1891,7 +1936,7 @@ class Table {
      * @param  {Boolean} event 是否克隆注册事件
      * @return {Node|Array} 新插入的节点（集）
      */
-    _$[name] = function ( el, cons, clone, event = true ) {
+    tQuery[name] = function ( el, cons, clone, event = true ) {
         return Insert(
             el,
             domManip( el, cons, clone, event ),
@@ -1916,7 +1961,7 @@ class Table {
     let _t = its[0].toLowerCase(),
         _n = its[1] + its[0];
 
-    _$[_n] = function( el, margin ) {
+    tQuery[_n] = function( el, margin ) {
         return _rectWin(el, its[0], its[1]) || _rectDoc(el, its[0]) || _rectElem(el, _t, _n, margin);
     };
 });
@@ -1945,7 +1990,7 @@ class Table {
      * @param  {String|Number} val 设置值
      * @return {Number|this}
      */
-    _$[_n] = function( el, val ) {
+    tQuery[_n] = function( el, val ) {
         if (val !== undefined) {
             return _elemRectSet(el, _n, val), this;
         }
@@ -1967,7 +2012,7 @@ class Table {
     'reset',
 ]
 .forEach(function( name ) {
-    _$[name] = el => (name in el) && el[name]() || this;
+    tQuery[name] = el => (name in el) && el[name]() || this;
 });
 
 
@@ -2285,7 +2330,7 @@ class Elements extends Array {
      * @param {Selector|Element|NodeList|Elements} its 目标内容
      */
     add( its, ctx = Doc ) {
-        let _els = _$(its, ctx);
+        let _els = tQuery(its, ctx);
         _els = _els.length ? uniqueSort( this.concat(_els) ) : this;
 
         return new Elements( _els, this );
@@ -2399,8 +2444,7 @@ elsEx([
     (fn, els, ...rest) =>
         uniqueSort(
             // 可代理调用 $
-            els.map( el => $[fn](el, ...rest) )
-            .filter( el => el != null )
+            els.map( el => $[fn](el, ...rest) ).filter( el => el !== null )
         )
 );
 
@@ -2479,9 +2523,6 @@ elsExfn([
         'innerWidth',
         'outerWidth',
         'position',
-
-        // 纯操作，但取返回值（Animation）
-        'animate',
     ],
     fn =>
     function(...rest) {
@@ -2536,7 +2577,7 @@ elsExfn([
 
 //
 // 设置/获取值（有目标）。
-// 设置与获取两种操作合二为一的成员。
+// 设置与获取两种操作合二为一的成员，val支持数组分别赋值。
 // 取值时返回一个普通数组，成员与集合元素一一对应。
 /////////////////////////////////////////////////
 elsExfn([
@@ -2546,18 +2587,21 @@ elsExfn([
     ],
     fn =>
     function( its, val ) {
-        let _buf = this.map(
+        if (val === undefined) {
+            return [...this.map( el => $[fn](el, its) )];
+        }
+        this.forEach(
             // 可代理调用 $
-            el => $[fn](el, its, val)
+            (el, i) => $[fn](el, isArr(val) ? val[i] || '' : val)
         );
-        return _buf[0] === this ? this : [..._buf];
+        return this;
     }
 );
 
 
 //
 // 取值/属性修改。
-// 设置与获取两种操作合二为一的成员。
+// 设置与获取两种操作合二为一的成员，val支持数组分别赋值。
 // 取值时返回一个普通数组，成员与集合元素一一对应。
 /////////////////////////////////////////////////
 elsExfn([
@@ -2570,17 +2614,23 @@ elsExfn([
     ],
     fn =>
     function( val ) {
-        return val === undefined ?
-            // 可代理调用 $
-            [ ...this.map( el => $[fn](el) ) ] :
-            ( this.forEach( el => $[fn](el, val) ), this );
+        if (val === undefined) {
+            return [ ...this.map( el => $[fn](el) ) ];
+        }
+        this.forEach(
+            (el, i) => {
+                // 可代理调用 $
+                $[fn](el, isArr(val) ? val[i] || '' : val);
+            }
+        );
+        return this;
     }
 );
 
 
 //
 // 取值/内容修改。
-// 设置与获取两种操作合二为一。
+// 设置与获取两种操作合二为一，val支持数组分别赋值。
 //
 // 设置时：返回的新节点构造为一个新的Elements实例。
 // 取值时：返回一个普通数组，成员与集合元素一一对应。
@@ -2594,8 +2644,10 @@ elsExfn([
     fn =>
     function( val, ...rest ) {
         let _vs = this.map(
-            // 可代理调用 $
-            el => $[fn](el, val, ...rest)
+            (el, i) => {
+                // 可代理调用 $
+                return $[fn](el, isArr(val) ? val[i] || '' : val, ...rest);
+            }
         );
         if (val === undefined) {
             return [..._vs];
@@ -2796,6 +2848,9 @@ function pixelNumber( val ) {
  * @return {Iterator} 范围生成器
  */
 function* rangeNumber( beg, len ) {
+    if (len === 0) {
+        return null;
+    }
     if (len > 0) while (len--) yield beg++;
 }
 
@@ -2808,6 +2863,9 @@ function* rangeNumber( beg, len ) {
  * @return {Iterator} 范围生成器
  */
 function* rangeChar( beg, len ) {
+    if (len === 0) {
+        return null;
+    }
     if (typeof len == 'string') {
         len = len.codePointAt(0) - beg + 1;
     }
@@ -2860,7 +2918,7 @@ function fillElem( el, data ) {
         'fill' :
         'html';
 
-    return _$[_fn](el, data), el;
+    return tQuery[_fn](el, data), el;
 }
 
 
@@ -2882,7 +2940,7 @@ function setElem( el, conf ) {
         case 'text':
             el.textContent = v; break;
         case 'node':
-            _$.fill(el, v); break;
+            tQuery.fill(el, v); break;
         default:
             elemAttr.set(el, k, v);
         }
@@ -2893,15 +2951,14 @@ function setElem( el, conf ) {
 
 /**
  * 制作表格行。
- * data数据集展开为数组时，长度超出列数的会被忽略。
+ * 仅创建包含空单元格的行（内容处理交给外部）。
  * @param {Element} tr 表格行容器（空）
  * @param {Numbel} cols 列数
- * @param {Array|.values} data 单元格数据集
  * @param {String} tag 单元格标签名
  * @param {Boolean} th0 首列为 TH 单元格
  * @return {Element} tr 原表格行
  */
-function buildTR( tr, cols, data, tag, th0 ) {
+function buildTR( tr, cols, tag, th0 ) {
     let cells = [];
 
     if (th0 && cols > 0) {
@@ -2913,12 +2970,6 @@ function buildTR( tr, cols, data, tag, th0 ) {
     }
     tr.append(...cells);
 
-    if (data) {
-        data = [...values(data)]
-        cells.forEach( (e, i) => {
-            e.append(data[i] || '');
-        });
-    }
     return tr;
 }
 
@@ -3072,7 +3123,7 @@ function switchInsert( node, box, next ) {
  */
 function loadElement( el, box, next, tmp ) {
     return new Promise( function(resolve, reject) {
-        _$.on(el, {
+        tQuery.on(el, {
             'load':  () => resolve( tmp && remove(el, true) || el ),
             'error': err => reject(err),
         });
@@ -3166,7 +3217,7 @@ function wrapData( rep, box, data ) {
         box = buildFragment(box).firstElementChild;
         _end = deepChild(box);
     }
-    _$.replace(rep, box).prepend(_end, data);
+    tQuery.replace(rep, box).prepend(_end, data);
 
     return box;
 }
@@ -3182,9 +3233,9 @@ function wrapData( rep, box, data ) {
 function clsToggle( el, name, force ) {
     if (typeof force == 'boolean') {
         if (force) {
-            _$.addClass(el, name);
+            tQuery.addClass(el, name);
         } else {
-            _$.removeClass(el, name);
+            tQuery.removeClass(el, name);
         }
     }
     name.split(__chSpace)
@@ -3322,7 +3373,7 @@ function calcOffset( el ) {
     // 包含定位属性，获取明确值。
     if ((_cso.position == 'absolute' || _cso.position == 'fixed') &&
         [_cso.top, _cso.left].includes('auto')) {
-        let _pos = _$.position(el);
+        let _pos = tQuery.position(el);
         return {
             top:  _pos.top,
             left: _pos.left
@@ -3542,14 +3593,14 @@ const insertHandles = {
 function domManip( node, cons, clone, event ) {
     // 优先处理单节点
     if (cons.nodeType) {
-        return clone ? _$.clone(cons, event, true) : cons;
+        return clone ? tQuery.clone(cons, event, true) : cons;
     }
     if ( isFunc(cons) ) {
         cons = cons(node);
     }
     return fragmentNodes(
         cons,
-        nd => clone && _$.clone(nd, event, true),
+        nd => clone && tQuery.clone(nd, event, true),
         node.ownerDocument
     );
 }
@@ -3595,7 +3646,7 @@ function fragmentNodes( nodes, get, doc ) {
 function buildFragment( code, doc, xbuf ) {
     let _frag = doc.createDocumentFragment();
 
-    if (!rhtml.test( code )) {
+    if (!ihtml.test( code )) {
         _frag.appendChild( doc.createTextNode(code) );
         return _frag;
     }
@@ -4627,7 +4678,7 @@ const domReady = {
     completed( handle, bound ) {
         window.removeEventListener( "load", bound );
         document.removeEventListener( "DOMContentLoaded", bound );
-        return handle && handle(_$);
+        return handle && handle(tQuery);
     },
 
 };
@@ -4638,13 +4689,13 @@ const domReady = {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-_$.isArray = isArr;
-_$.isNumeric = isNumeric;
-_$.is = $is;
-_$.type = $type;
-_$.inArray = inArray;
-_$.some = iterSome;
-_$.unique = uniqueSort;
+tQuery.isArray = isArr;
+tQuery.isNumeric = isNumeric;
+tQuery.is = $is;
+tQuery.type = $type;
+tQuery.inArray = inArray;
+tQuery.some = iterSome;
+tQuery.unique = uniqueSort;
 
 
 /**
@@ -4655,7 +4706,7 @@ _$.unique = uniqueSort;
  * - -abc-def => abcDef 支持前置-（省略data）
  * @return {String}
  */
-_$.dataName = function( str = '' ) {
+tQuery.dataName = function( str = '' ) {
     let _ns = str.match(__dataName);
     return _ns && camelCase( _ns[1] ) || '';
 };
@@ -4677,7 +4728,7 @@ _$.dataName = function( str = '' ) {
  * @param  {String} op   属性匹配符
  * @return {String}
  */
-_$.selector = function( tag, attr, val = '', op = '' ) {
+tQuery.selector = function( tag, attr, val = '', op = '' ) {
     if (!attr) return tag;
 
     let _ns = attr.match(__dataName);
@@ -4697,7 +4748,7 @@ _$.selector = function( tag, attr, val = '', op = '' ) {
  * @param  {...Array} src 数据源集序列
  * @return {Array} des
  */
-_$.merge = (des, ...src) => (des.push( ...[].concat(...src) ), des);
+tQuery.merge = (des, ...src) => (des.push( ...[].concat(...src) ), des);
 
 
 /**
@@ -4705,7 +4756,7 @@ _$.merge = (des, ...src) => (des.push( ...[].concat(...src) ), des);
  * @param  {Map} map Map实例
  * @return {Object}
  */
-_$.mapObj = function( map ) {
+tQuery.mapObj = function( map ) {
     let _o = {};
     if (map) {
         for ( let [k, v] of map ) _o[k] = v;
@@ -4722,7 +4773,7 @@ _$.mapObj = function( map ) {
  * @param  {Object} thisObj 回调内的this
  * @return {Boolean}
  */
-_$.every = function( iter, comp, thisObj ) {
+tQuery.every = function( iter, comp, thisObj ) {
     if (thisObj) {
         comp = comp.bind(thisObj);
     }
@@ -4747,7 +4798,7 @@ _$.every = function( iter, comp, thisObj ) {
  * @param  {Object} thisObj 回调内的this
  * @return {Array}
  */
-_$.map = function( iter, fun, thisObj ) {
+tQuery.map = function( iter, fun, thisObj ) {
     if (thisObj) {
         fun = fun.bind(thisObj);
     }
@@ -4772,7 +4823,7 @@ _$.map = function( iter, fun, thisObj ) {
  * @param  {...Object} data 源数据序列
  * @return {Object}
  */
-_$.object = function( base, ...data ) {
+tQuery.object = function( base, ...data ) {
     return Object.assign( Object.create(base || null), ...data );
 };
 
@@ -4784,7 +4835,7 @@ _$.object = function( base, ...data ) {
  * @param  {Object} base 原型对象
  * @return {Object} obj
  */
-_$.proto = function( obj, base ) {
+tQuery.proto = function( obj, base ) {
     return base === undefined ?
         Object.getPrototypeOf(obj) : Object.setPrototypeOf(obj, base);
 };
@@ -4803,14 +4854,14 @@ let _w$ = window.$;
  * 收回外部引用赋值。
  * @return {$}
  */
-_$.noConflict = function() {
+tQuery.noConflict = function() {
     // $ 可能被代理
     if ( window.$ === $ ) window.$ = _w$;
     return $;
 };
 
 
-window.$ = _$;
+window.$ = tQuery;
 
 
 })( window );
