@@ -1,4 +1,4 @@
-# tQuery（类 jQuery）使用手册
+# tQuery 使用手册
 
 ## 前言
 
@@ -28,37 +28,37 @@
 
 #### [$.Element( tag: string, data: any, ns: string, doc?: Document ): Element](docs/$.Element.md)
 
-> 创建 `tag` 指定的DOM元素，可指定所属名称空间和所属文档对象。
-> `data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node}`。
+创建 `tag` 指定的DOM元素，可指定所属名称空间和所属文档对象。
+`data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node}`。
 
 
 #### [$.Text( data: any, doc?: Document ): Node](docs/$.Text.md)
 
-> 创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元间以空格串联。可指定所属文档对象。
+创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元间以空格串联。可指定所属文档对象。
 
 
 #### [$.create( html: string, exclude: any[], doc?: Document ): DocumentFragment](docs/$.create.md)
 
-> 创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被清理并存储到 `exclude` 空间中。
+创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被清理并存储到 `exclude` 空间中。
 
 
 #### [$.svg( tag: any, opts: any, doc?: Document ): Element](docs/$.svg.md)
 
-> 创建SVG系元素（自动采用 `http://www.w3.org/2000/svg` 名称空间）。
-> 创建SVG根元素 `<svg>` 时 `tag` 参数为属性配置对象而不是标签名，如：`$.svg({width: 200, height: 100})` 创建一个宽200像素，高100像素的 `<svg>` 根容器元素。
+创建SVG系元素（自动采用 `http://www.w3.org/2000/svg` 名称空间）。
+创建SVG根元素 `<svg>` 时 `tag` 参数为属性配置对象而不是标签名，如：`$.svg({width: 200, height: 100})` 创建一个宽200像素，高100像素的 `<svg>` 根容器元素。
 
 
 #### [$.table( rows: number | Element, cols: number, caption: string, th0: boolean, doc?: Document ): Table](docs/$.table.md)
 
-> 创建一个指定行列数的空表格（`Table` 实例），或封装一个规范的表格元素（无单元格合并或拆分）为 `Table` 实例。
-> `Table` 仅提供最简单的表格操作：表标题设置，表头、表脚和主体表格行的添加、删除等，自动保持列数不变（也不能修改）。
+创建一个指定行列数的空表格（`Table` 实例），或封装一个规范的表格元素（无单元格合并或拆分）为 `Table` 实例。
+`Table` 仅提供最简单的表格操作：表标题设置，表头、表脚和主体表格行的添加、删除等，自动保持列数不变（也不能修改）。
 
 
 ### 节点查询
 
 #### [$.get( slr: string, ctx: Element ): Element](docs/$.get.md)
 
-> 查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
+查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
 
 
 ### 节点遍历
