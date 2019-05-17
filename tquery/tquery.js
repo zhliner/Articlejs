@@ -23,12 +23,12 @@
         - HtmlCollection，来源于 getElementsBy... 系列
 
     在下面的参数说明中，原生元素集统一称为 NodeList（不再区分 HtmlCollection）。
-    用户使用本库 $() 检索的元素集命名为 Elements，继承于 Array 类型。
+    用户使用本库 $() 检索的元素集命名为 Collector，继承于 Array 类型。
 
     提示：
     您可以在浏览器的控制台执行：
     - console.dir($)  查看 $ 的成员情况（单元素操作版）。
-    - console.dir($('').constructor.prototype)  查看 Elements 的成员情况。
+    - console.dir($('').constructor.prototype)  查看 Collector 的成员情况。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -123,7 +123,7 @@
         // 元素匹配判断。
         // - 如果不存在matches，外部提供polyfill；
         // @param  {Element} el
-        // @param  {Selector|Element} slr
+        // @param  {String|Element} slr
         // @return {Boolean}
         $is = Sizzle && Sizzle.matchesSelector || function( el, slr ) {
             if (typeof slr != 'string') {
@@ -258,7 +258,7 @@
  * 		'OL[__tquery20161227--1492870889566] >li'
  *   	临时属性名是即时生成的，现实中重名的可能性应该极低。
  *
- * @param  {Selector} slr 目标选择器
+ * @param  {String} slr 目标选择器
  * @param  {Element} ctx  父容器元素
  * @param  {Function} handle 检索回调
  * @return {Value} handle 的返回值
@@ -315,23 +315,23 @@ function hackAttrClear( ctx ) {
  * DOM 查询器。
  * - 查询结果为集合，如果仅需一个元素可用 $.One。
  * its: {
- *  	Selector    选择器查询
+ *  	String    选择器查询
  *  	Element     元素包装
  *  	NodeList    元素集（类数组）包装
  *  	.values     支持values接口的迭代器（如Set）
  *  	Function    DOM ready回调
- *  	Elements    当前实例或已封装对象
+ *  	Collector    当前实例或已封装对象
  *  	...... 	    无效参数，构造一个空集
  * }
  * @param  {Mixed} its
- * @param  {Element|Elements} ctx 查询上下文
- * @return {Elements}
+ * @param  {Element|Collector} ctx 查询上下文
+ * @return {Collector}
  */
 function tQuery( its, ctx ) {
     its = its || '';
     // 最优先
     if (typeof its == 'string') {
-        return new Elements( $all(its.trim(), ctx) );
+        return new Collector( $all(its.trim(), ctx) );
     }
     if (isElements(its)) {
         return its;
@@ -341,7 +341,7 @@ function tQuery( its, ctx ) {
         // $ 可能被代理。
         return $.ready(its);
     }
-    return new Elements( its );
+    return new Collector( its );
 }
 
 
@@ -356,20 +356,20 @@ let $ = tQuery;
  * 嵌入代理。
  * - 由外部定义内部 $ 的调用集覆盖。
  * - 代理会更新外部全局的 $ 对象。
- * - 代理调用接受函数名参数，应当返回一个与目标函数相同声明的函数。
+ * - getter接受函数名参数，应当返回一个与目标接口声明相同的函数。
  * 注：
  * 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。
  *
- * @param  {Function} handler 代理调用
+ * @param  {Function} getter 接口获取器
  * @return {void}
  */
-tQuery.embedProxy = function( handler ) {
-    if (! isFunc(handler)) {
-        return false;
+tQuery.embedProxy = function( getter ) {
+    if (! isFunc(getter)) {
+        throw new Error('must be a function');
     }
     // 运行时修改顶层 $
     $ = new Proxy($, {
-        get: (target, fn, rec) => handler(fn) || Reflect.get(target, fn, rec)
+        get: (target, fn, rec) => getter(fn) || Reflect.get(target, fn, rec)
     });
     window.$ = $; // export
 };
@@ -394,25 +394,21 @@ Object.assign(tQuery, {
 
     /**
      * 创建DOM元素。
-     * - 传递data为数组表示内容填充[String|Node]。
-     * - data为字符串数据时作为源码html方式插入。
-     * - data为节点或包含节点时是简单地移动插入。
-     * - data为配置对象时支持3个特别属性：html|text|node。
-     * - 支持名称空间，如创建SVG元素（http://www.w3.org/2000/svg）。
+     *
+     * data 为数据源。
+     * - 数据源为节点时，简单的移动插入新建的元素内。
+     * - 数据源为字符串时，作为HTML源码插入（可能会构造新的元素）。
+     * - 数据源为数组或类数组时，数组成员应为字符串或节点，插入行为与上面两种类型相对应。
+     * - 数据源为配置对象时，支持元素属性配置和 html|text|node 三种特殊属性指定。
+     *
      * data配置: {
-     *  	html: 	值为源码
-     *  	text: 	值为文本
-     *  	node: 	值为节点/集，移动插入
+     *  	html: 	取值为源码，节点数据取 outerHTML 插入，可为数组（下同）。
+     *  	text: 	取值为文本，节点数据取 textContent 插入。
+     *  	node: 	取值为节点，移动插入后节点会脱离原位置。
      *  	.... 	特性（Attribute）定义
      * }
-     * data数组: [
-     *  	{String}        html方式填充
-     *  	{Node}          节点移动插入
-     *  	{Node,String}   混合。首个成员为节点类型，节点为移动
-     *  	{String,Node}   混合。首个成员为字符串类型，节点取outerHTML
-     * ]
      * @param  {String} tag   标签名
-     * @param  {Object|Array|LikeArray|String|Node} data 配置对象或数据（集）
+     * @param  {Object|Array|LikeArray|String|Node|Collector} data 配置对象或数据（集）
      * @param  {String} ns    所属名称空间
      * @param  {Document} doc 所属文档
      * @return {Element} 新元素
@@ -428,67 +424,49 @@ Object.assign(tQuery, {
 
     /**
      * 创建一个文本节点。
-     * - 如果参数为节点元素，取其文本创建；
-     * @param  {String|Node} code 文本或节点元素
+     * - 如果data参数为节点元素，取其文本创建。
+     * - data支持字符串或节点的数组，数组单元转为字符串后以空格串联。
+     *
+     * @param  {String|Node|Array|Collector} data 文本或节点元素或其数组
      * @param  {Document} doc 所属文档
      * @return {Node} 新文本节点
      */
-    Text( code, doc = Doc ) {
-        return doc.createTextNode(
-            code.nodeType ? code.textContent : code
-        );
-    },
-
-
-    /**
-     * 查询单个元素。
-     * - 先尝试$one（querySelector或ID定位）；
-     * - 失败后尝试Sizzle（非标准CSS选择器时）；
-     * @param  {Selector} slr 选择器
-     * @param  {Element} ctx 查询上下文
-     * @return {Element|null}
-     */
-    One( slr, ctx, doc = Doc ) {
-        try {
-            return $one(slr.trim(), ctx, doc);
+    Text( data, doc = Doc ) {
+        if (typeof data !== 'string') {
+            data = nodeText(data);
         }
-        catch(e) {
-            window.console.warn(e);
-        }
-        return Sizzle && Sizzle(slr, ctx)[0] || null;
+        return doc.createTextNode( data );
     },
 
 
     /**
      * 创建文档片段。
-     * - 脚本元素被强制清理，存储至script中；
-     * - 脚本元素包括：script, style, link三种类型；
+     * <script>,<style>,<link>三种元素会被清理并存储到exclude中。
      * @param  {String} html 源码
-     * @param  {Array} script 脚本元素存储
+     * @param  {Array} exclude 清理的元素存储
      * @param  {Document} doc 所属文档
      * @return {DocumentFragment} 文档片段
      */
-    create( html, script, doc = Doc ) {
+    create( html, exclude, doc = Doc ) {
         if (typeof html != 'string') {
             return null;
         }
-        return buildFragment(html, doc, script);
+        return buildFragment(html, doc, exclude);
     },
 
 
     /**
      * SVG系元素创建。
-     * - opts特性配置参数同.Element；
-     * - 若配置内容包含节点，注意名称空间的一致性；
-     * - 创建svg元素本身时标签名可省略，即首个参数为配置对象；
-     *   如：$.svg( {width: ...} )
+     * - 创建svg元素本身时标签名可省略，即首个参数为配置对象。
+     *   如：$.svg( {width: 100, height: 200} )
+     * - opts特性配置与 .Element 接口中的 data 参数类似，支持 html|text|node 特殊名称。
      * opts: {
-     *  	html: 	值为源码
-     *  	text: 	值为文本
-     *  	node: 	值为节点/集（移动插入）
+     *  	html: 	取值为源码
+     *  	text: 	取值为文本
+     *  	node: 	取值为节点/集，移动插入。需注意名称空间的一致性
      *  	.... 	特性（Attribute）值
      * }
-     * @param  {String|Object} tag SVG子元素标签或svg元素配置，可选
+     * @param  {String|Object} tag SVG子元素标签或svg元素配置
      * @param  {Object} opts 元素特性配置（Attribute），可选
      * @return {Element} 新元素
      */
@@ -502,21 +480,25 @@ Object.assign(tQuery, {
 
 
     /**
-     * 创建表格。
-     * 返回一个满足目标行列的Table实例，外部需依此进一步操作。
-     * Table是一个简单的表格封装，仅支持行操作，列数不能改变。
+     * 创建或封装表格（Table实例）。
+     * 创建的Table是一个简单的表格，列数不能改变。
+     * 表标题内容为text格式（非html方式插入）。
+     * 可以传递一个表格元素进行简单封装，以便于操作。
      * 注：修改表格是一个复杂的行为。
-     * @param  {Number} rows 表格行数
+     * @param  {Number|Element} rows 表格行数或表格元素
      * @param  {Number} cols 表格列数
      * @param  {String} caption 表标题，可选
      * @param  {Boolean} th0 首列是否为<th>，可选
      * @return {Table} 表格实例
      */
     table(rows, cols, caption, th0, doc = Doc) {
+        if ($type(rows) !== 'Number') {
+            return new Table(rows);
+        }
         let _tbl = new Table(rows, cols, th0, doc);
 
         if (caption) {
-            _tbl.caption(caption);
+            _tbl.caption(caption, false);
         }
         return _tbl;
     },
@@ -577,7 +559,7 @@ Object.assign(tQuery, {
      * 通用遍历。
      * - 回调返回false终止遍历，其它值为continue逻辑；
      * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例；
-     * - 注：Elements 集合版可直接使用该接口；
+     * - 注：Collector 集合版可直接使用该接口；
      * handle：(
      *  	值/元素,
      *  	键/下标,
@@ -683,29 +665,51 @@ Object.assign(tQuery, {
     },
 
 
-    //== DOM 节点遍历 =========================================================
+    //== DOM 节点查询 =========================================================
+
+    /**
+     * 查询单个元素。
+     * - 先尝试$one（querySelector或ID定位）。
+     * - 失败后尝试Sizzle（非标准CSS选择器时）。
+     * @param  {String} slr 选择器
+     * @param  {Element} ctx 查询上下文
+     * @return {Element|null}
+     */
+     get( slr, ctx = Doc.body ) {
+        try {
+            return $one(slr.trim(), ctx, ctx.ownerDocument);
+        }
+        catch(e) {
+            window.console.warn(e);
+        }
+        return Sizzle && Sizzle(slr, ctx)[0] || null;
+    },
+
 
     /**
      * 查找匹配的元素集。
-     * @param  {Selector} slr 选择器
+     * @param  {String} slr 选择器
      * @param  {Boolean} andOwn 包含自身匹配
+     * @param  {Element} ctx 查询上下文
      * @return {Array}
      */
-    find( el, slr, andOwn ) {
-        let _els = $all(slr.trim(), el),
+    find( slr, ctx = Doc.body, andOwn = false ) {
+        let _els = $all(slr.trim(), ctx, ctx.ownerDocument),
             _box = [];
 
-        if (andOwn && $is(el, slr)) {
-            _box = [el];
+        if (andOwn && $is(ctx, slr)) {
+            _box = [ctx];
         }
         return _box.concat(_els);
     },
 
 
+    //-- DOM 节点遍历 ---------------------------------------------------------
+
     /**
      * 下一个兄弟元素。
      * - 可能没有或不匹配；
-     * @param  {Selector} slr 选择器，可选
+     * @param  {String} slr 选择器，可选
      * @return {Element|null}
      */
     next( el, slr ) {
@@ -716,7 +720,7 @@ Object.assign(tQuery, {
     /**
      * 后续全部兄弟。
      * - 可选的用slr进行匹配过滤；
-     * @param  {Selector} slr 选择器，可选
+     * @param  {String} slr 选择器，可选
      * @return {Array}
      */
     nextAll( el, slr ) {
@@ -728,21 +732,18 @@ Object.assign(tQuery, {
      * 后续兄弟...直到。
      * - 获取后续全部兄弟元素，直到slr但不包含。
      * - 过滤调用原始_$成员，外部若需代理，需直接处理本方法。下同。
-     * @param  {Selector|Element} slr 选择器或元素，可选
-     * @param  {Selector|Function|Element|Array} fltr 进阶筛选，可选
+     * @param  {String|Element} slr 选择器或元素，可选
      * @return {Array}
      */
-    nextUntil( el, slr, fltr ) {
-        return tQuery.filter(
-            _nextUntil(el, slr, 'nextElementSibling'), fltr
-        );
+    nextUntil( el, slr ) {
+        return _nextUntil(el, slr, 'nextElementSibling');
     },
 
 
     /**
      * 前一个兄弟元素。
      * - 可能没有或不匹配；
-     * @param  {Selector} slr 选择器，可选
+     * @param  {String} slr 选择器，可选
      * @return {Element|null}
      */
     prev( el, slr ) {
@@ -754,7 +755,7 @@ Object.assign(tQuery, {
      * 前部全部兄弟。
      * - 可选的用slr进行匹配过滤；
      * 注：结果集会保持逆向顺序（靠近起点的元素在前）；
-     * @param  {Selector} slr 选择器，可选
+     * @param  {String} slr 选择器，可选
      * @return {Array}
      */
     prevAll( el, slr ) {
@@ -766,45 +767,45 @@ Object.assign(tQuery, {
      * 前端兄弟...直到。
      * - 获取前端全部兄弟元素，直到slr但不包含；
      * 注：结果集成员会保持逆向顺序；
-     * @param  {Selector|Element} slr 选择器或元素，可选
-     * @param  {Selector|Function|Element|Array} fltr 进阶筛选，可选
+     * @param  {String|Element} slr 选择器或元素，可选
      * @return {Array}
      */
-    prevUntil( el, slr, fltr ) {
-        return tQuery.filter(
-            _nextUntil(el, slr, 'previousElementSibling'), fltr
-        );
+    prevUntil( el, slr ) {
+        return _nextUntil(el, slr, 'previousElementSibling');
     },
 
 
     /**
      * 获取直接子元素集。
-     * @param  {Selector|Function|Element|Array} fltr 过滤器，可选
+     * Element:children 的简单调用，接口完整性。
      * @return {Array}
      */
-    children( el, fltr ) {
-        return tQuery.filter( el.children, fltr );
+    children( el ) {
+        return Arr(el.children);
     },
 
 
     /**
      * 获取当前元素的兄弟元素。
-     * - 目标元素需要在一个父元素之内才有意义；
-     * @param  {Selector|Function|Element|Array} fltr 过滤器，可选
-     * @return {Array}
+     * 目标元素需要在一个父元素内，否则返回null（游离节点）。
+     * @return {Array|null}
      */
-    siblings( el, fltr ) {
-        let _els = Arr(el.parentElement.children);
+    siblings( el ) {
+        let _pel = el.parentElement;
+        if (_pel === null) {
+            return null;
+        }
+        let _els = Arr(_pel.children);
         _els.splice(_els.indexOf(el), 1);
 
-        return tQuery.filter(_els, fltr);
+        return _els;
     },
 
 
     /**
      * 获取直接父元素。
      * - 会用可选的选择器或回调或元素检查是否匹配；
-     * @param  {Selector|Element|Function} slr 选择器或元素或测试函数，可选
+     * @param  {String|Element|Function} slr 选择器或元素或测试函数，可选
      * @return {Element|null}
      */
     parent( el, slr ) {
@@ -813,7 +814,7 @@ Object.assign(tQuery, {
         if ( isFunc(slr) ) {
             return slr(_pel) ? _pel : null;
         }
-        return !slr || $is(_pel, slr) ? _pel : null;
+        return slr && $is(_pel, slr) ? _pel : null;
     },
 
 
@@ -823,18 +824,17 @@ Object.assign(tQuery, {
      * - 不包含终止匹配的父级元素；
      * - 允许slr为空无需匹配（同jQ.parents）；
      * @param  {Element} el  当前元素
-     * @param  {Selector|Function|Element|Array} slr  终止匹配
-     * @param  {Selector|Function|Element|Array} fltr 进阶过滤器
+     * @param  {String|Function|Element|Array} slr  终止匹配
      * @return {Array}
      */
-    parentsUntil( el, slr, fltr ) {
+    parentsUntil( el, slr ) {
         let _buf = [],
             _fun = getFltr(slr);
 
         while ( (el = el.parentElement) && (!_fun || !_fun(el)) ) {
             _buf.push(el);
         }
-        return tQuery.filter(_buf, fltr);
+        return _buf;
     },
 
 
@@ -843,7 +843,7 @@ Object.assign(tQuery, {
      * - 向上逐级检查父级元素是否匹配；
      * - 从当前元素自身开始测试；
      * - 如果抵达document或DocumentFragment会返回null；
-     * @param  {Selector|Function|Element|Array} slr 匹配选择器
+     * @param  {String|Function|Element|Array} slr 匹配选择器
      * @return {Element|null}
      */
     closest( el, slr ) {
@@ -885,7 +885,7 @@ Object.assign(tQuery, {
 
 
     //-- DOM 节点过滤 ---------------------------------------------------------
-    // 集合操作，也即 Elements 的免实例化版。
+    // 集合操作，也即 Collector 的免实例化版。
 
 
     /**
@@ -893,7 +893,7 @@ Object.assign(tQuery, {
      * - 如果没有过滤条件，返回原始集；
      * - 如果目标集不为数组或类数组，原样返回；
      * @param  {NodeList} els 目标元素集
-     * @param  {Selector|Function|Element|Array} fltr 筛选条件
+     * @param  {String|Function|Element|Array} fltr 筛选条件
      * @return {Array}
      */
     filter( els, fltr ) {
@@ -913,7 +913,7 @@ Object.assign(tQuery, {
      * - 或目标选择器与集合中元素的子级元素匹配；
      * 测试调用：func(el)
      * @param  {NodeList} els 目标元素集
-     * @param  {Selector|Function|Element|Array} slr 筛选器
+     * @param  {String|Function|Element|Array} slr 筛选器
      * @return {Array}
      */
     has( els, slr ) {
@@ -923,7 +923,7 @@ Object.assign(tQuery, {
             return els;
         }
         if (typeof slr == 'string') {
-            _f = el => tQuery.find(el, slr).length;
+            _f = el => tQuery.find(slr, el).length;
         }
         else if (isArr(slr)) {
             _f = el => slr.some( e => tQuery.contains(el, e) );
@@ -939,7 +939,7 @@ Object.assign(tQuery, {
      * 排除过滤。
      * - 从集合中移除匹配的元素；
      * @param  {NodeList} els 目标元素集
-     * @param  {Selector|Function|Element|Array} slr 筛选器
+     * @param  {String|Function|Element|Array} slr 筛选器
      * @return {Array|false}
      */
     not( els, slr ) {
@@ -976,7 +976,7 @@ Object.assign(tQuery, {
      * @return {Element|false} 包裹容器元素
      */
     wrap( node, box ) {
-        return node.nodeType <= 3 && wrapData(this, node, box, node);
+        return node.nodeType <= 3 && wrapData(node, box, node, node.ownerDocument);
     },
 
 
@@ -988,7 +988,7 @@ Object.assign(tQuery, {
      * @return {Element|false} 包裹容器元素
      */
     wrapInner( el, box ) {
-        return el.nodeType == 1 && wrapData(this, el, box, el.childNodes);
+        return el.nodeType == 1 && wrapData(el, box, el.childNodes, el.ownerDocument);
     },
 
 
@@ -1102,7 +1102,7 @@ Object.assign(tQuery, {
      */
     contents( el, proc = usualNode ) {
         if (typeof proc !== 'function') {
-            return el.childNodes;
+            return Arr(el.childNodes);
         }
         return tQuery.map( el.childNodes, nd => proc(nd) );
     },
@@ -1357,13 +1357,12 @@ Object.assign(tQuery, {
 
     /**
      * 提取/设置元素源码。
-     * - 禁止脚本<script>，样式<style>，连接<link>元素插入；
-     * - 源数据为节点时，取其outerHTML，多个节点取值串接；
-     * - 数据源也可为字符串数组或字符串与节点的混合数组；
-     * - where值含义详见上Wheres注释；
+     * - 禁止脚本<script>，样式<style>，连接<link>元素插入。
+     * - 源数据为节点时，取其outerHTML，多个节点取值串接。
+     * - 数据源也可为字符串数组或字符串与节点的混合数组。
+     * - where值含义详见上Wheres注释。
      * 另：
-     * - 若传递el实参为假值，返回转义后的html。
-     *   如：< 转义为‘&lt;’
+     * - 若传递el实参为假值，返回转义后的html。如：< 转义为 &lt;
      *
      * 取值回调：
      * - 取值函数接收原节点为参数，可返回字符串、节点或节点集；
@@ -1416,7 +1415,7 @@ Object.assign(tQuery, {
      * 但对待节点的方式不同。
      *
      * @param  {Element} el 容器元素
-     * @param  {String|Nodes[s]|Array|Function} code 源数据或取值函数
+     * @param  {String|NodeList|Array|Function} code 源数据或取值函数
      * @param  {String|Number} where 插入位置
      * @param  {String} sep 多段连接符
      * @return {String|Node} 源码或插入的文本节点
@@ -1685,6 +1684,10 @@ class Table {
      * @param {Boolean} th0 首列是否为<th>单元格
      */
     constructor( rows, cols, th0, doc = Doc ) {
+        if ($type(rows) !== 'Number') {
+            this._newTable(rows);
+            return;
+        }
         let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
 
@@ -1700,28 +1703,26 @@ class Table {
 
     /**
      * 表标题操作。
-     * exist: {
-     *      true        返回表标题，不存在则新建
-     *      false       删除表标题
+     * text: {
      *      undefined   返回表标题，不存在则返回null
+     *      null        删除表标题
+     *      {String}    设置并返回表标题（不存在则新建）
      * }
-     * @param {Boolean} exist 存在性
-     * @return {Elements} 表标题元素
+     * @param {String|null} text 标题内容
+     * @param {Boolean} ishtml 是否为html方式插入
+     * @return {Element|null} 表标题元素
      */
-    caption( exist ) {
-        let _cel = null;
-
-        switch (exist) {
-            case true:
-                _cel = this._tbl.createCaption();
-                break;
+    caption( text, ishtml ) {
+        switch (text) {
             case undefined:
-                _cel = this._tbl.caption;
-                break;
-            case false:
+                return this._tbl.caption;
+            case null:
                 return this._tbl.deleteCaption();
         }
-        return _cel && new Elements(_cel);
+        let _cel = this._tbl.createCaption();
+        _cel[ishtml ? 'innerHTML' : 'textContent'] = text;
+
+        return _cel;
     }
 
 
@@ -1729,35 +1730,55 @@ class Table {
      * 添加表格行（TBody）。
      * 会保持列数合法，全部为空单元格。
      * idx为-1或表体的行数，则新行插入到末尾。
+     * 简单的无参数调用返回唯一的表体元素。
      * @param {Number} idx 插入位置
      * @param {Number} rows 行数
-     * @return {Elements} 新添加的行元素集
+     * @return {Collector} 新添加的行元素集
      */
     body( idx, rows ) {
+        if (idx === undefined) {
+            return this._tbl.tBodies[0];
+        }
         return this._insertRows(this._body, idx, rows);
     }
 
 
     /**
      * 添加表头行。
-     * 如果不存在表头元素（THead）则新建。
+     * 简单的无参数调用返回表头元素，无表头元素时返回null。
+     * 传递创建参数时，如果不存在表头元素（THead）会新建。
+     * 传递idx参数为null时删除表头元素。
      * @param {Number} idx 插入位置
      * @param {Number} rows 行数
-     * @return {Elements} 新添加的行元素集
+     * @return {Collector} 新添加的行元素集
      */
-    head( idx = 0, rows = 1 ) {
-        return this._insertRows(this._tbl.createTHead(), idx, rows);
+    head( idx, rows = 1 ) {
+        if (idx === undefined) {
+            return this._tbl.tHead;
+        }
+        if (idx === null) {
+            return this._tbl.deleteTHead();
+        }
+        return this._insertRows(this._tbl.createTHead(), idx, rows, 'th');
     }
 
 
     /**
      * 添加表脚行。
-     * 如果不存在表脚元素（TFoot）则新建。
+     * 简单的无参数调用返回表脚元素，无表脚元素时返回null。
+     * 传递创建参数时，如果不存在表脚元素（TFoot）会新建。
+     * 传递idx参数为null时删除表脚元素。
      * @param {Number} idx 插入位置
      * @param {Number} rows 行数
-     * @return {Elements} 新添加的行元素集
+     * @return {Collector} 新添加的行元素集
      */
-    foot( idx = 0, rows = 1 ) {
+    foot( idx, rows = 1 ) {
+        if (idx === undefined) {
+            return this._tbl.tFoot;
+        }
+        if (idx === null) {
+            return this._tbl.deleteTFoot();
+        }
         return this._insertRows(this._tbl.createTFoot(), idx, rows);
     }
 
@@ -1765,20 +1786,20 @@ class Table {
     /**
      * 删除多个表格行。
      * 行计数指整个表格，不区分head/body/foot。
-     * size为-1或undefined表示起始位置之后全部行。
+     * size为undefined表示起始位置之后全部行。
      * size计数大于剩余行数，取剩余行数（容错超出范围）。
      * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 删除数量
-     * @return {Elements} 删除的行元素集
+     * @return {Collector} 删除的行元素集
      */
     removes( idx, size ) {
-        let _max = this._tbl.rows.length;
+        let _len = this._tbl.rows.length;
 
-        if (idx >= _max) {
+        if (idx >= _len) {
             return null
         }
-        if (size === -1 || size === undefined || idx+size > _max) {
-            size = _max - idx;
+        if (size === undefined || idx+size > _len) {
+            size = _len - idx;
         }
         let _buf = [];
 
@@ -1786,14 +1807,14 @@ class Table {
         for (let i = 0; i < size; i++) {
             _buf.push( this._remove(idx) );
         }
-        return new Elements(_buf);
+        return new Collector(_buf);
     }
 
 
     /**
      * 删除表格行。
      * @param {Number} idx 目标位置（从0开始）
-     * @return {Elements} 删除的行元素
+     * @return {Element} 删除的行元素
      */
     remove( idx ) {
         let _rs = this._tbl.rows;
@@ -1804,7 +1825,7 @@ class Table {
         if (idx === -1) {
             idx = _rs.length - 1;
         }
-        return new Elements( this._remove(idx) );
+        return this._remove(idx);
     }
 
 
@@ -1814,7 +1835,7 @@ class Table {
      * 不合适的参数会返回一个空集。
      * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 获取行数（0表示全部）
-     * @return {Elements} 行元素集
+     * @return {Collector} 行元素集
      */
     gets( idx, size ) {
         let _max = this._tbl.rows.length;
@@ -1823,10 +1844,10 @@ class Table {
             size = _max - idx;
         }
         if (size === 0) {
-            return new Elements(null);
+            return new Collector(null);
         }
-        return new Elements(
-            tQuery.range(idx, size).map( i => this._tbl.rows[i] )
+        return new Collector(
+            tQuery.range(idx, size, true).map( i => this._tbl.rows[i] )
         )
     }
 
@@ -1835,7 +1856,7 @@ class Table {
      * 获取目标行元素。
      * 表格行计数包含表头和表尾部分。
      * @param {Number} idx 目标行（从0计数）
-     * @return {Elements} 表格行
+     * @return {Element|null} 表格行
      */
     get( idx ) {
         if (idx < -1 || idx >= this._tbl.rows.length) {
@@ -1844,16 +1865,17 @@ class Table {
         if (idx === -1) {
             idx = this._tbl.rows.length - 1;
         }
-        return new Elements(this._tbl.rows[idx]);
+        return this._tbl.rows[idx];
     }
 
 
     /**
-     * 包装表格元素为 Elements 对象。
+     * 包装表格元素为 Collector 对象。
      * 便于后续的链式调用。
+     * @return {Collector} 对表格元素进行Elements封装
      */
     $() {
-        return new Elements(this._tbl);
+        return new Collector(this._tbl);
     }
 
 
@@ -1861,7 +1883,7 @@ class Table {
      * 返回原始的表格元素。
      * @return {Element}
      */
-    Elem() {
+    elem() {
         return this._tbl;
     }
 
@@ -1875,20 +1897,19 @@ class Table {
      * @param {TableSection} tsec 表格区域（TBody|THead|TFoot）
      * @param {Number} idx 插入位置
      * @param {Number} rows 插入行数
+     * @return {Array|Element} 新插入的行元素（集）
      */
-     _insertRows( tsec, idx = 0, rows = 1 ) {
+     _insertRows( tsec, idx, rows = 1, tag = 'td' ) {
         if (idx < 0 || idx > tsec.rows.length) {
             idx = tsec.rows.length;
         }
         for (let r = 0; r < rows; r++) {
-            buildTR(tsec.insertRow(idx), this._cols, 'td', this._th0);
+            buildTR(tsec.insertRow(idx), this._cols, tag, this._th0);
         }
         if (rows === 1) {
-            return new Elements(tsec.rows[idx]);
+            return tsec.rows[idx];
         }
-        return new Elements(
-            tQuery.range(idx, rows, true).map( i => tsec.rows[i] )
-        );
+        return tQuery.range(idx, rows, true).map( i => tsec.rows[i] );
     }
 
 
@@ -1902,6 +1923,23 @@ class Table {
         let _row = this._tbl.rows[idx];
         this._tbl.deleteRow(idx);
         return _row;
+    }
+
+
+    /**
+     * 封装一个Table 实例。
+     * 传入的tbl参数必须是一个表格元素，否则返回null。
+     * @param {Element} tbl 表格元素
+     * @return {Table} Table实例
+     */
+    _newTable( tbl ) {
+        if (tbl.tagName.toLowerCase() !== 'table') {
+            return null;
+        }
+        this._body = tbl.tBodies[0];
+        this._cols = tbl.rows[0].cells.length;
+        this._th0 = this._body.rows[0].cells[0].tagName.toLowerCase() === 'th';
+        this._tbl = tbl;
     }
 
 }
@@ -1928,10 +1966,10 @@ class Table {
      * - 仅元素适用于事件克隆（event参数）；
      * 取值回调：
      * - 取值函数接受原节点作为参数；
-     * - 取值函数可返回节点或节点集（含 Elements），不支持字符串；
+     * - 取值函数可返回节点或节点集（含 Collector），不支持字符串；
      *
      * @param  {Element} el 目标元素
-     * @param  {Node|NodeList|Elements|Function|Set|Iterator} cons 数据节点（集）或回调
+     * @param  {Node|NodeList|Collector|Function|Set|Iterator} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆注册事件
      * @return {Node|Array} 新插入的节点（集）
@@ -2101,7 +2139,7 @@ function _elemRectSet( el, name, val ) {
 /**
  * 获取兄弟元素。
  * - 可能没有或不匹配；
- * @param  {Selector} slr 选择器，可选
+ * @param  {String} slr 选择器，可选
  * @param  {String} dir 方向（nextElementSibling|previousElementSibling）
  * @return {Element|null}
  */
@@ -2115,7 +2153,7 @@ function _next( el, slr, dir ) {
 /**
  * dir方向全部兄弟。
  * - 可选的用slr进行匹配过滤；
- * @param  {Selector} slr 选择器，可选
+ * @param  {String} slr 选择器，可选
  * @param  {String} dir 方向（同上）
  * @return {Array}
  */
@@ -2132,7 +2170,7 @@ function _nextAll( el, slr, dir ) {
 /**
  * dir方向兄弟元素...直到。
  * - 获取dir方向全部兄弟元素，直到slr但不包含；
- * @param  {Selector|Element} slr 选择器或元素，可选
+ * @param  {String|Element} slr 选择器或元素，可选
  * @param  {String} dir 方向（同上）
  * @return {Array}
  */
@@ -2149,24 +2187,23 @@ function _nextUntil( el, slr, dir ) {
 
 
 //
-// 继承自数组。
-// 部分功能函数重定义，大部分保留。
+// 元素收集器。
+// 继承自数组，部分数组的函数被重定义，但大部分保留。
 //
-class Elements extends Array {
+class Collector extends Array {
     /**
-     * 构造结果队列。
-     * - 如果没有元素传入，obj应当为数值0；
+     * 构造收集器实例。
      * @param {Element|NodeList|Array|0} obj 元素（集）
-     * @param {Elements} prev 前一个实例引用
+     * @param {Collector} prev 前一个实例引用
      */
     constructor( obj, prev ) {
         // 注记：
         // 某些实现中，Array原生map类调用会再次调用此构造，
         // 故预构造为数组（容错）
         super(
-            ...(superArgs(obj) || [0])
+            ...(obj && superArgs(obj) || [0])
         );
-        this.prevElements = prev || null;
+        this.prevCollector = prev || null;
     }
 
 
@@ -2232,27 +2269,48 @@ class Elements extends Array {
 
 
     /**
+     * 查找匹配的元素集。
+     * 注：单个元素的find查找结果不存在重复可能。
+     * @param  {String} slr 选择器
+     * @param  {Boolean} andOwn 包含自身匹配
+     * @return {Array}
+     */
+     find( slr, andOwn ) {
+        let _buf = this.reduce(
+            (buf, el) => buf.concat( $.find(slr, el, andOwn) ),
+            []
+        );
+        if (this.length > 1) {
+            _buf = uniqueSort(_buf);
+        }
+        return new Collector(_buf, this);
+    }
+
+
+    /**
      * 用一个容器包裹集合里的元素。
-     * - 目标容器可以是一个元素或HTML结构字符串或取值函数；
-     * - 取值函数需要返回一个HTML结构字符串或元素；
-     * - 如果目标元素没有父元素（游离），其将替换集合中的首个元素；
+     * - 目标容器可以是一个元素或HTML结构字符串或取值函数。
+     * - 取值函数需要返回一个HTML结构字符串或元素。
+     * - 如果目标元素没有父元素（游离），其将替换集合中的首个元素。
+     * - 如果box是一个字符串或返回字符串的函数，可以传递容器元素所属的文档对象（Document）。
      * 注记：
      * - 调用$系成员，使得$的代理有效（如果有）；
      * @param  {Element|String|Function} box 目标容器
-     * @return {Elements}
+     * @return {Collector}
      */
-    wrapAll( box ) {
-        if (isFunc(box)) box = box(this);
-
+    wrapAll( box, doc = Doc ) {
+        if (isFunc(box)) {
+            box = box(this);
+        }
         if (typeof box == 'string') {
-            box = buildFragment(box).firstElementChild;
+            box = buildFragment(box, doc).firstElementChild;
         }
         if (!box.parentNode) {
             $.replace(this[0], box);
         }
         $.append( deepChild(box), this );
 
-        return new Elements( box, this );
+        return new Collector( box, this );
     }
 
 
@@ -2260,14 +2318,15 @@ class Elements extends Array {
      * 让集合中的元素脱离DOM。
      * - 脱离的元素会作为一个新集合被压入栈；
      * 注记：（同上）
-     * @param  {Selector|Function|Element|Array} fltr 筛选器
-     * @return {Elements} 脱离的元素集
+     * @param  {String|Function|Element|Array} fltr 筛选器
+     * @return {Collector} 脱离的元素集
      */
     detach( fltr ) {
         let _els = fltr ?
-            $.filter(this, fltr) : this;
+            $.filter(this, fltr) :
+            this;
 
-        return new Elements( _els.map(e => remove(e)), this );
+        return new Collector( _els.map(e => remove(e)), this );
     }
 
 
@@ -2276,14 +2335,15 @@ class Elements extends Array {
      * - 如果传递slr进行筛选，剩余的元素作为一个集合压入栈。
      *   否则新的集合为空（只有addBack、end操作有意义）。
      * 注记：（同上）
-     * @param  {Selector|Function|Element|Array} fltr 筛选器
-     * @return {Elements}
+     * @param  {String|Function|Element|Array} fltr 筛选器
+     * @return {Collector}
      */
     remove( fltr ) {
         let _els = fltr ?
-            $.filter(this, fltr) : this;
+            $.filter(this, fltr) :
+            this;
 
-        return new Elements( exclude( this, removes(_els) ), this );
+        return new Collector( exclude( this, removes(_els) ), this );
     }
 
 
@@ -2294,31 +2354,31 @@ class Elements extends Array {
      * 用特定下标的成员构造一个新实例。
      * - 下标超出集合大小时构造一个空集合；
      * @param  {Number} idx 下标值，支持负数
-     * @return {Elements}
+     * @return {Collector}
      */
     eq( idx ) {
          if (idx >= this.length) {
-             return new Elements(0, this);
+             return new Collector(0, this);
          }
-        return new Elements( this[idx < 0 ? this.length+idx : idx], this );
+        return new Collector( this[idx < 0 ? this.length+idx : idx], this );
     }
 
 
     /**
      * 用集合的首个成员构造一个新集合。
-     * @return {Elements}
+     * @return {Collector}
      */
     first() {
-        return new Elements( this[0], this );
+        return new Collector( this[0], this );
     }
 
 
     /**
      * 用集合的最后一个成员构造一个新集合。
-     * @return {Elements}
+     * @return {Collector}
      */
     last() {
-        return new Elements( this[this.length-1], this );
+        return new Collector( this[this.length-1], this );
     }
 
 
@@ -2327,34 +2387,34 @@ class Elements extends Array {
      * - 返回一个添加了新成员的新集合；
      * - 仅在添加了新成员后才需要重新排序；
      * - 总是会构造一个新的实例返回（同jQuery）；
-     * @param {Selector|Element|NodeList|Elements} its 目标内容
+     * @param {String|Element|NodeList|Collector} its 目标内容
      */
     add( its, ctx = Doc ) {
         let _els = tQuery(its, ctx);
         _els = _els.length ? uniqueSort( this.concat(_els) ) : this;
 
-        return new Elements( _els, this );
+        return new Collector( _els, this );
     }
 
 
     /**
      * 构造上一个集合和当前集合的新集合。
-     * @param {Selector|Function} slr 选择器或过滤函数
+     * @param {String|Function} slr 选择器或过滤函数
      */
     addBack( slr ) {
-        let _new = $.filter(this.prevElements, slr);
+        let _new = $.filter(this.prevCollector, slr);
         _new = _new.length ? uniqueSort( _new.concat(this) ) : this;
 
-        return new Elements( _new, this );
+        return new Collector( _new, this );
     }
 
 
     /**
-     * 返回上一个集合（Elements 封装）。
-     * @return {Elements}
+     * 返回上一个集合（Collector 封装）。
+     * @return {Collector}
      */
     end() {
-        return this.prevElements;
+        return this.prevCollector;
     }
 
 
@@ -2363,7 +2423,7 @@ class Elements extends Array {
      * - 对集合内每一个元素应用回调（el, i, this）；
      * @param  {Function} handle 回调函数
      * @param  {Object} thisObj 回调函数内的this
-     * @return {Elements} this
+     * @return {Collector} this
      */
     each( handle, thisObj ) {
         return $.each(this, handle, thisObj);
@@ -2373,7 +2433,7 @@ class Elements extends Array {
     /**
      * 获取元素或集合。
      * - 获取特定下标位置的元素，支持负数倒数计算；
-     * - 未指定下标返回集合的一个新的数组表示（Elements 继承自数组）；
+     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）；
      * @param  {Number} idx 下标值（支持负数）
      * @return {Element|Array}
      */
@@ -2386,17 +2446,22 @@ class Elements extends Array {
 }
 
 
-Elements.prototype.version = version;
+Reflect.defineProperty(Collector.prototype, 'version', {
+    value: version,
+    enumerable: false,
+});
 
 // 已封装标志。
-Elements.prototype[ ownerToken ] = true;
-
+Reflect.defineProperty(Collector.prototype, ownerToken, {
+    value: true,
+    enumerable: false,
+});
 
 
 /**
- * Elements 取节点方法集成。
+ * Collector 取节点方法集成。
  * 获取的节点集入栈，返回一个新实例。
- * - 由 $.xx 单元素版扩展到 Elements 原型空间；
+ * - 由 $.xx 单元素版扩展到 Collector 原型空间；
  * - 仅用于 $.xx 返回节点（集）的调用；
  * @param {Array} list 定义名清单（方法）
  * @param {Function} get 获取元素句柄
@@ -2404,9 +2469,9 @@ Elements.prototype[ ownerToken ] = true;
 function elsEx( list, get ) {
     list
     .forEach(function( fn ) {
-        Reflect.defineProperty(Elements.prototype, fn, {
+        Reflect.defineProperty(Collector.prototype, fn, {
             value: function(...rest) {
-                return new Elements( get(fn, this, ...rest), this );
+                return new Collector( get(fn, this, ...rest), this );
             },
             enumerable: false,
         });
@@ -2456,7 +2521,6 @@ elsEx([
 // 注：结果集会去重排序。
 /////////////////////////////////////////////////
 elsEx([
-        'find',
         'nextAll',
         'nextUntil',
         'prevAll',
@@ -2495,15 +2559,15 @@ elsEx([
 
 
 /**
- * Elements 普通方法集成。
- * 将单元素版非节点获取类操作集成到 Elements 上，设置为不可枚举。
+ * Collector 普通方法集成。
+ * 将单元素版非节点获取类操作集成到 Collector 上，设置为不可枚举。
  * @param {Array} list 定义名清单（方法）
  * @param {Function} get 获取目标函数
  */
 function elsExfn( list, get ) {
     list
     .forEach(function( fn ) {
-        Reflect.defineProperty(Elements.prototype, fn, {
+        Reflect.defineProperty(Collector.prototype, fn, {
             value: get(fn),
             enumerable: false,
         });
@@ -2635,7 +2699,7 @@ elsExfn([
 // 设置时：返回的新节点构造为一个新的Elements实例。
 // 取值时：返回一个普通数组，成员与集合元素一一对应。
 //
-// @return {[Value]|Elements}
+// @return {[Value]|Collector}
 /////////////////////////////////////////////////
 elsExfn([
         'html',
@@ -2652,8 +2716,8 @@ elsExfn([
         if (val === undefined) {
             return [..._vs];
         }
-        // 扁平化，构造为 Elements
-        return new Elements([].concat(..._vs), this);
+        // 扁平化，构造为 Collector
+        return new Collector([].concat(..._vs), this);
     }
 );
 
@@ -2673,7 +2737,7 @@ elsExfn([
     ['fillTo', 			'fill'],
 ]
 .forEach(function( names ) {
-    Reflect.defineProperty(Elements.prototype, [names[0]], {
+    Reflect.defineProperty(Collector.prototype, [names[0]], {
         /**
          * 将集合中的元素插入相应位置。
          * - 默认不会采用克隆方式（原节点会脱离DOM）；
@@ -2682,7 +2746,7 @@ elsExfn([
          * @param  {Element} to 目标元素
          * @param  {Boolean} clone 数据节点克隆
          * @param  {Boolean} event 是否克隆注册事件
-         * @return {Elements} 实例自身
+         * @return {Collector} 实例自身
          */
         value: function( to, clone, event = true ) {
             // 可代理调用 $
@@ -2806,7 +2870,7 @@ function getFltr( its ) {
 
 
 /**
- * 是否为 Elements 实例。
+ * 是否为 Collector 实例。
  * @param  {Mixed} obj 测试对象
  * @return {Boolean}
  */
@@ -2816,7 +2880,7 @@ function isElements( obj ) {
 
 
 /**
- * 测试构造 Elements 基类参数。
+ * 测试构造 Collector 基类参数。
  * - 返回false表示参数不合法；
  * @param  {Array|LikeArray|Element|[.values]} obj 目标对象
  * @return {Iterator|false} 可迭代对象
@@ -2905,8 +2969,11 @@ function values( obj ) {
 
 /**
  * 元素内容填充。
- * - 检查数据成员类型以首个成员为依据；
- * - 节点数据会导致其从原位置脱离；
+ * - 检查数据成员类型以首个成员为依据。
+ * - 节点数据会导致其从原位置脱离。
+ * 注：
+ * 由Element调用，el是一个新元素，因此无需清空内容。
+ *
  * @param  {Element} el 目标元素
  * @param  {Array|Node|String} data 数据集
  * @return {Element} el
@@ -2924,8 +2991,8 @@ function fillElem( el, data ) {
 
 /**
  * 从配置设置元素。
- * - 支持text/html/node名称设置元素文本/源码/节点；
- * - 设置到元素的特性上（Attribute）；
+ * - 属性配置设置到元素的特性上（Attribute）。
+ * - 支持 text|html|node 特殊属性名设置元素内容，数据源可为数组。
  * @param  {Element} el 目标元素
  * @param  {Object|Map|.entries} conf 配置对象
  * @return {Element} el
@@ -2936,9 +3003,9 @@ function setElem( el, conf ) {
     for ( let [k, v] of entries(conf) ) {
         switch (k) {
         case 'html':
-            el.innerHTML = v; break;
+            tQuery.html(el, v); break;
         case 'text':
-            el.textContent = v; break;
+            tQuery.text(el, v); break;
         case 'node':
             tQuery.fill(el, v); break;
         default:
@@ -3205,16 +3272,17 @@ function exclude( list, sets ) {
  * @param  {Node} rep 替换点节点
  * @param  {Element|String|Function} box 包裹容器或取值函数
  * @param  {Node|NodeList} data 被包裹数据
+ * @param  {Document} doc 元素所属文档对象
  * @return {Element} 包裹容器元素
  */
-function wrapData( rep, box, data ) {
+function wrapData( rep, box, data, doc = Doc ) {
     if ( isFunc(box) ) {
         box = box(data);
     }
     let _end = box;
 
     if (typeof box == 'string') {
-        box = buildFragment(box).firstElementChild;
+        box = buildFragment(box, doc).firstElementChild;
         _end = deepChild(box);
     }
     tQuery.replace(rep, box).prepend(_end, data);
@@ -3461,15 +3529,18 @@ function outerHtml( nodes, sep ) {
  * @param  {String} sep 连接字符
  * @return {String}
  */
-function nodeText( nodes, sep ) {
+function nodeText( nodes, sep = ' ' ) {
     if (nodes.nodeType) {
         return nodes.textContent;
     }
     let _buf = [];
 
     for ( let nd of values(nodes) ) {
-        // 字符串化
-        _buf.push(nd.textContent || '' + nd);
+        if (typeof nd === 'string') {
+            _buf.push(nd);
+        } else {
+            _buf.push(nd.textContent || '');
+        }
     }
     return _buf.join(sep);
 }
@@ -3546,7 +3617,7 @@ const insertHandles = {
     '': ( node, ref, box ) => box && box.replaceChild(node, ref),
 
     // fill
-    '0': function( node, ref /*, box*/) {
+    '0': ( node, ref /*, box*/) => {
         if (ref.nodeType == 1) {
             ref.textContent = '';
             return ref.appendChild(node);
@@ -3560,7 +3631,7 @@ const insertHandles = {
     '-1': ( node, ref, box ) => box && box.insertBefore(node, ref.nextSibling),
 
     // end/append
-    '-2': function( node, ref, box, _pos ) {
+    '-2': ( node, ref, box, _pos ) => {
         if (ref.nodeType == 1) {
             ref = trParent(ref, node.firstChild);
             return ref.insertBefore(node, _pos || null);
@@ -3580,12 +3651,12 @@ const insertHandles = {
  *   注：取值函数仅允许一个；
  * 注：
  * - args也可以是一个可迭代的节点序列，如：
- *   NodeList，HTMLCollection，Array，Elements 等。
+ *   NodeList，HTMLCollection，Array，Collector 等。
  *
  * - 取值回调可返回节点或节点集，但不能再是函数；
  *
  * @param  {Node} node 目标节点（元素或文本节点）
- * @param  {Node|NodeList|Elements|Function|Set|Iterator} cons 内容
+ * @param  {Node|NodeList|Collector|Function|Set|Iterator} cons 内容
  * @param  {Boolean} clone 是否克隆
  * @param  {Boolean} event 是否克隆注册事件
  * @return {Node|Fragment|null} 待插入节点或文档片段
@@ -3609,7 +3680,7 @@ function domManip( node, cons, clone, event ) {
 /**
  * 节点集构造文档片段。
  * - 只接受元素、文本节点、注释和文档片段数据；
- * @param  {Nodes|Set|Iterator} nodes 节点集/迭代器
+ * @param  {NodeList|Set|Iterator} nodes 节点集/迭代器
  * @param  {Function} get 取值回调
  * @param  {Document} doc 文档对象
  * @return {Fragment|null}
@@ -3638,21 +3709,21 @@ function fragmentNodes( nodes, get, doc ) {
  * - 源码中的脚本元素被提取出来，存储在exbuf中（如果提供）；
  * - 脚本元素包含“script，style，link”三种；
  * - 源码解析异常会静默失败，返回null；
- * @param  {String} code 源码
+ * @param  {String} html 源码
  * @param  {Document} doc 文档对象
  * @param  {Array} xbuf 脚本存储空间
  * @return {Fragment|Node} 节点/片段
  */
-function buildFragment( code, doc, xbuf ) {
+function buildFragment( html, doc, xbuf ) {
     let _frag = doc.createDocumentFragment();
 
-    if (!ihtml.test( code )) {
-        _frag.appendChild( doc.createTextNode(code) );
+    if (!ihtml.test( html )) {
+        _frag.appendChild( doc.createTextNode(html) );
         return _frag;
     }
     let _box = doc.createElement("div");
     try {
-        _box.innerHTML = code;
+        _box.innerHTML = html;
     }
     catch (e) {
         window.console.error(e);
@@ -4565,7 +4636,7 @@ const Event = {
      * - 如果抵达容器元素，返回null；
      * - 外部应保证根容器元素包含起点元素；
      *
-     * @param  {Selector} slr 选择器
+     * @param  {String} slr 选择器
      * @param  {Element} cur  起点元素
      * @param  {Element} root 限制根容器
      * @return {Element|null}
