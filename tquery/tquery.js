@@ -429,7 +429,7 @@ Object.assign(tQuery, {
      *
      * @param  {String|Node|Array|Collector} data 文本或节点元素或其数组
      * @param  {Document} doc 所属文档
-     * @return {Node} 新文本节点
+     * @return {Text} 新文本节点
      */
     Text( data, doc = Doc ) {
         if (typeof data !== 'string') {
@@ -513,19 +513,19 @@ Object.assign(tQuery, {
      * - 其它节点插入方法排除脚本源码，因此单独支持。
      * - 克隆的脚本元素修改属性后再插入，浏览器不会再次执行。
      *
-     * @param  {String|Element} code 脚本代码或脚本元素
+     * @param  {String|Element} data 脚本代码或脚本元素
      * @param  {Element} box DOM容器元素，可选
      * @return {Element|Promise} 脚本元素或承诺对象
      */
-    script( code, box, doc = Doc ) {
-        if (typeof code == 'string') {
+    script( data, box, doc = Doc ) {
+        if (typeof data == 'string') {
             let _el = switchInsert(
-                    tQuery.Element('script', { text: code }),
+                    tQuery.Element('script', { text: data }),
                     box || doc.head
                 );
             return box ? _el : remove(_el);
         }
-        return code.nodeType == 1 && loadElement(code, box || doc.head, null, !box);
+        return data.nodeType == 1 && loadElement(data, box || doc.head, null, !box);
     },
 
 
@@ -533,25 +533,25 @@ Object.assign(tQuery, {
      * 插入样式元素。
      * - 构建样式元素填入内容并插入DOM。
      * - 默认插入head内部末尾，否则插入next之前。
-     * - 也可直接传递构造好的样式元素，返回一个Promise对象。
+     * - 也可以先构造一个<link>元素传递进来插入，此时返回一个Promise对象。
      * - 用源码构造插入时，返回构造的样式元素。
      *
-     * @param  {String|Element} code 样式代码或样式元素
+     * @param  {String|Element} data 样式代码或样式元素
      * @param  {Element} next 参考元素，可选
      * @return {Element|Promise} 样式元素或承诺对象
      */
-    style( code, next, doc = Doc ) {
+    style( data, next, doc = Doc ) {
         if (next === undefined) {
             next = doc.head;
         }
-        if (typeof code == 'string') {
+        if (typeof data == 'string') {
             return switchInsert(
-                tQuery.Element('style', { text: code }),
+                tQuery.Element('style', { text: data }),
                 doc.head,
                 next
             );
         }
-        return code.nodeType == 1 && loadElement(code, doc.head, next);
+        return data.nodeType == 1 && loadElement(data, doc.head, next);
     },
 
 
@@ -1405,8 +1405,7 @@ Object.assign(tQuery, {
      * - 源数据为节点时，提取其文本（textContent）插入；
      * - 数据源也可为字符串或节点或其混合的数组；
      * 另：
-     * - 若传递el实参为假值，返回解析html后的文本。
-     *   如：&lt; 解析为‘<’
+     * 若传递el实参为假值，返回解析html后的文本。如：&lt; 解析为‘<’
      *
      * 注：
      * 新的DOM规范中有类似Api：
@@ -1727,7 +1726,7 @@ class Table {
 
 
     /**
-     * 添加表格行（TBody）。
+     * 添加表格行（TBody/tr）。
      * 会保持列数合法，全部为空单元格。
      * idx为-1或表体的行数，则新行插入到末尾。
      * 简单的无参数调用返回唯一的表体元素。
@@ -1834,7 +1833,7 @@ class Table {
      * 表格行计数包含表头和表尾部分（不区分三者）。
      * 不合适的参数会返回一个空集。
      * @param {Number} idx 起始位置（从0开始）
-     * @param {Number} size 获取行数（0表示全部）
+     * @param {Number} size 获取行数（undefined表示全部）
      * @return {Collector} 行元素集
      */
     gets( idx, size ) {

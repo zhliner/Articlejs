@@ -2,7 +2,7 @@
 
 ## 前言
 
-传统的 `jQuery` 使用十分方便友好，但随着 `ES6`、`HTML5/CSS3` 的逐步成熟，我们可以编写一个轻量级的类 `jQuery` 工具，这就是 `tQuery`。它采用 `ES6` 语法编写，仅包含 `jQuery` 中有关 `DOM`、`CSS` 和 `Event` 的部分，即省略了 `Ajax`、`Deferred` 和 `Effect` 等，这些部分由 `ES6/HTML5` 中原生的 `Fetch`、`Promise` 和 `CSS3` 来实现。
+传统的 `jQuery` 使用十分方便友好，但随着 `ES6`、`HTML5/CSS3` 的逐步成熟，我们可以编写一个轻量级的类 `jQuery` 工具，这就是 `tQuery`。它采用 `ES6` 语法编写，仅包含 `jQuery` 中有关 `DOM`、`CSS` 和 `Event` 的部分，即省略了 `Ajax`、`Deferred` 和 `Effect` 等，这些部分由 `ES6/HTML5` 中原生的 `Fetch`、`Promise` 和 `CSS3` 来支持。
 
 大部分接口与 `jQuery` 相似，少数地方略有变化，也有一些扩展和增强，如支持嵌入代理（见 `$.embedProxy`），用户可以修改接口的默认行为。`tQuery` 名称里的 `t` 来源于 `Tpb` 里的 `Template`，但也可以理解为 `tiny`。
 
@@ -13,11 +13,11 @@
 
 ## Api 设计
 
-`jQuery` 中对检索结果集的操作，在这里都有一个**单元素**的版本，如：`$.next(el, slr)`、`$.hasClass(el, names)` ，以及相应的集合版本：`$('xx').next(...)`、`$('xx').hasClass(...)`。单元素版通常返回 `$` 本身，集合版会返回一个 `Collector` 实例或值数组，与 `jQuery` 中类似，集合版的返回值 `Collector` 实例可以链式调用。
+`jQuery` 中对检索结果集的操作，在这里都有一个**单元素**的版本，如：`$.next(el, slr)`、`$.hasClass(el, names)` ，以及相应的集合版本：`$('xx').next(...)`、`$('xx').hasClass(...)`。单元素版通常返回 `$` 自身，集合版会返回一个 `Collector` 实例或值数组。与 `jQuery` 中类似，集合版的返回值 `Collector` 实例可以链式调用。
 
-与 `jQuery` 对比，大多数情况下同名接口的行为都相似，但少数地方依然有明显区别。如对元素集的属性取值，`jQuery` 中是仅取集合内**首个元素**的值，如 `$('a').attr('href')` 取首个 `<a>` 元素的 `href` 属性值，而 `tQuery` 中则会返回集合里全部元素的属性值（作为一个数组）。
+与 `jQuery` 对比，大多数情况下同名接口的行为相似，但少数地方依然有明显区别。如对元素集的属性取值，`jQuery` 中是仅取集合内**首个元素**的值，如 `$('a').attr('href')` 取首个 `<a>` 元素的 `href` 属性值，而 `tQuery` 中则会返回集合里全部元素的属性值（作为一个数组）。
 
-又如 `$.html` 接口，`jQuery` 中它既可以处理文本，也可以处理节点元素，效果与连续的 `$.empty().append()` 调用相似。但在 `tQuery` 中该接口只负责文本的逻辑：设置元素内容时接收文本参数，获取源码时接收节点参数，另外也扩展了一些关联性的功能，如转换源码。
+又如 `$.html` 接口，`jQuery` 中它既可以处理文本，也处理节点元素，效果与连续的 `$.empty().append()` 调用相似。但在 `tQuery` 中该接口只负责文本的逻辑：设置元素内容时接收文本或提取元素的 `outerHTML` 文本，获取源码时提取元素的 `innerHTML` 值。另外也扩展了文本关联的功能，如转换源码。
 
 本设计的接口参数中仅有类名和事件名支持空格分隔的多名称指定，其它元素属性必须用数组形式传递多个名称。另外在实现上，`Event` 为无侵入的 `DOM` 原生事件，元素上也不存储任何额外数据。总体上，这里的设计尽量精简，只要有可能就把任务交给原生的 `ES6`、`HTML5/CSS3` 等处理。
 
@@ -32,7 +32,7 @@
 `data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node}`。
 
 
-#### [$.Text( data: any, doc?: Document ): Node](docs/$.Text.md)
+#### [$.Text( data: any, doc?: Document ): Text](docs/$.Text.md)
 
 创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元间以空格串联。可指定所属文档对象。
 
@@ -54,11 +54,29 @@
 `Table` 仅提供最简单的表格操作：表标题设置，表头、表脚和主体表格行的添加、删除等，自动保持列数不变（也不能修改）。
 
 
+#### [$.script(data: string | Element, box: Element, doc?: Document): Element | Promise](docs/$.script.md)
+
+插入一个脚本元素 `<script>`。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以用 `$.Element()` 创建一个引入外部脚本（通过 src 属性）的 `<script>` 元素后在此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
+
+`box` 是脚本元素插入的目标容器，可选。默认插入 `document.head` 元素内。
+
+
+#### [$.style(data: string | Element, next: Element, doc?: Document): Element | Promise](docs/$.style.md)
+
+插入一个包含内容的样式元素 `<style>`，也可以用 `$.Element()` 创建一个引入外部样式的 `<link>` 元素由此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册样式导入完成后的处理函数。
+
+`next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
+
+
+
 ### 节点查询
 
 #### [$.get( slr: string, ctx: Element ): Element](docs/$.get.md)
 
 查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
+
+
+#### [$.find( slr: string, ctx?: Element, andOwn?: boolean ): Array](docs/$.find.md)
 
 
 ### 节点遍历
