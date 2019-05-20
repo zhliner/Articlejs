@@ -568,10 +568,10 @@ Object.assign(tQuery, {
      * - 与jQuery不同，因箭头函数的出现，不自动绑定this；
      * - 参数与数组forEach标准接口相似，this也由外部传入；
      *
-     * @param  {Array|LikeArray|Object|[.entries]} obj 迭代目标
+     * @param  {Array|LikeArray|Object|[.entries]|Collector} obj 迭代目标
      * @param  {Function} handle 迭代回调（val, key）
-     * @param  {Object} thisObj 迭代回调内的this
-     * @return {Object} 迭代的目标对象
+     * @param  {Any} thisObj 迭代回调内的this
+     * @return {obj} 迭代的目标对象
      */
     each( obj, handle, thisObj ) {
         if (thisObj) {
@@ -586,9 +586,9 @@ Object.assign(tQuery, {
 
     /**
      * 构造范围序列
-     * - 序列为[beg:end)，半开区间。
+     * - 序列为[beg : beg+size)，半开区间。
      * - 如果beg为字符，则构造Uncode范围序列。
-     * - 构造字符范围时，size可为终点字符（包含本身）。
+     * - 构造字符范围时，size可为终点字符（包含自身）。
      * @param  {Number|String} beg 起始值
      * @param  {Number|String} size 序列长度或终点字符
      * @param  {Boolean} toArr 直接生成数组
@@ -604,7 +604,7 @@ Object.assign(tQuery, {
 
     /**
      * 当前时间毫秒数。
-     * - 自纪元开始后的毫秒数（与时区无关）；
+     * - 自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）；
      * - 传递json为真，返回JSON标准格式串；
      * @param  {Boolean} json JSON格式串
      * @return {Number|String}
@@ -616,7 +616,7 @@ Object.assign(tQuery, {
 
     /**
      * 检测 XML 节点。
-     * 注：from jquery-3.4.
+     * 注：from Sizzle CSS Selector Engine v2.3.4
      * @param {Element|Object} el An element or a document
      * @returns {Boolean} True iff el is a non-HTML XML node
      */
@@ -636,7 +636,7 @@ Object.assign(tQuery, {
      * - 可以绑定多个，将会按绑定先后逐个调用；
      * - 若文档已载入并且未被hold，会立即执行；
      *
-     * @param  {Function} handle 用户调用
+     * @param  {Function} handle 就绪回调
      * @return {this}
      */
     ready( handle ) {
@@ -4711,7 +4711,7 @@ const domReady = {
 
 
     /**
-     * 就绪调用。
+     * 文档载入就绪调用。
      * 如果就绪调用已实施，新的绑定立即执行。
      */
     ready() {

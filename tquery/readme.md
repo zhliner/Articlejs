@@ -54,19 +54,47 @@
 `Table` 仅提供最简单的表格操作：表标题设置，表头、表脚和主体表格行的添加、删除等，自动保持列数不变（也不能修改）。
 
 
-#### [$.script(data: string | Element, box: Element, doc?: Document): Element | Promise](docs/$.script.md)
+#### [$.script( data: string | Element, box: Element, doc?: Document ): Element | Promise](docs/$.script.md)
 
 插入一个脚本元素 `<script>`。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以用 `$.Element()` 创建一个引入外部脚本（通过 src 属性）的 `<script>` 元素后在此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
 
 `box` 是脚本元素插入的目标容器，可选。默认插入 `document.head` 元素内。
 
 
-#### [$.style(data: string | Element, next: Element, doc?: Document): Element | Promise](docs/$.style.md)
+#### [$.style( data: string | Element, next: Element, doc?: Document ): Element | Promise](docs/$.style.md)
 
 插入一个包含内容的样式元素 `<style>`，也可以用 `$.Element()` 创建一个引入外部样式的 `<link>` 元素由此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册样式导入完成后的处理函数。
 
 `next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
 
+
+#### [$.each( obj: any, handle: Function, thisObj: any ): any](docs/$.each.md)
+
+通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
+
+传入迭代回调处理器的实参分别为：`value`（值），`key`（键），`obj`（迭代对象自身）。**注**：类似于数组的 `forEach` 标准接口定义。
+
+
+#### [$.range( beg: string | number, size: string | number, toArr?: boolean ): Array | Iterator](docs/$.range.md)
+
+构造目标范围内一个连续的值序列，适用于数值和 `Unicode` 码点类型。通常会返回一个迭代器，除非明确指定返回数组（`toArr` 为 `true`）。
+
+
+#### [$.now( json: boolean ): string | number](docs/$.now.md)
+
+返回当前时间：自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）。如果传递 `json` 为真，则表示为标准的 JSON 格式。
+
+这基本上就是对 `new Date().getTime()` 或 `Date.now()` 接口的简单封装（附带包含了 `.toJSON()` 的逻辑）。
+
+
+#### [$.isXML( el: Element | Object ): boolean](docs/$.isXML.md)
+
+检查目标是否为一个 XML 节点。
+
+
+#### [$.ready( handle: Function ): this](docs/$.ready.md)
+
+文档载入就绪后的回调绑定。
 
 
 ### 节点查询
