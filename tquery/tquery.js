@@ -520,12 +520,13 @@ Object.assign(tQuery, {
     script( data, box, doc = Doc ) {
         if (typeof data == 'string') {
             let _el = switchInsert(
-                    tQuery.Element('script', { text: data }),
+                    tQuery.Element('script', { text: data }, null, doc),
+                    null,
                     box || doc.head
                 );
             return box ? _el : remove(_el);
         }
-        return data.nodeType == 1 && loadElement(data, box || doc.head, null, !box);
+        return data.nodeType == 1 && loadElement(data, null, box || doc.head, !box);
     },
 
 
@@ -541,17 +542,29 @@ Object.assign(tQuery, {
      * @return {Element|Promise} 样式元素或承诺对象
      */
     style( data, next, doc = Doc ) {
-        if (next === undefined) {
-            next = doc.head;
-        }
         if (typeof data == 'string') {
             return switchInsert(
-                tQuery.Element('style', { text: data }),
-                doc.head,
-                next
+                tQuery.Element('style', { text: data }, null, doc),
+                next,
+                doc.head
             );
         }
-        return data.nodeType == 1 && loadElement(data, doc.head, next);
+        return data.nodeType == 1 && loadElement(data, next, doc.head);
+    },
+
+
+    /**
+     * 载入元素的外部资源。
+     * 用于能够触发 load 事件的元素，如<img>。
+     * 承诺对象的 resolve 回调由 load 事件触发，reject 回调由 error 事件触发。
+     * 注：通常需要元素插入DOM树后才会执行资源载入。
+     * @param  {Element} el 载入的目标元素
+     * @param  {Element} next 插入参考位置（下一个）
+     * @param  {Element} box 插入的目标容器，可选
+     * @return {Promise} 载入承诺
+     */
+    load( el, next, box ) {
+        return loadElement(el, next, box, false);
     },
 
 
@@ -633,18 +646,20 @@ Object.assign(tQuery, {
 
     /**
      * 文档就绪绑定。
-     * - 可以绑定多个，将会按绑定先后逐个调用；
-     * - 若文档已载入并且未被hold，会立即执行；
+     * - 可以绑定多个，会按绑定先后逐个调用。
+     * - 若文档已载入并且未被hold，会立即执行。
      *
      * @param  {Function} handle 就绪回调
      * @return {this}
      */
     ready( handle ) {
         if (handle === this) {
-            return;
+            throw new Error('bad bind for ready');
         }
         domReady.bind(
             handle,
+            // 如果被holdReady，不会实际执行handle，但可标记loaded
+            // 然后hold释放完就会调用handle了
             () => (domReady.ready(), domReady.loaded = true)
         );
         return this;
@@ -656,11 +671,16 @@ Object.assign(tQuery, {
      * - 应当在页面加载的前段调用，传递true暂停.ready()注册的执行。
      * - 如果需要恢复.ready()调用，传递false实参即可。
      * - 可能有多个.ready()的注册，一次.holdReady()对应一次.ready()。
-     * 注：如果文档已经就绪并.ready()调用，本操作无效（同jQuery）。
+     * - 如果文档已就绪并已调用ready()，本操作无效（同jQuery）。
      * @param {Boolean} hold 持有或释放
      */
     holdReady( hold ) {
+        if (domReady.passed) {
+            return;
+        }
         domReady.waits += hold ? 1 : -1;
+
+        // load 限定！
         return domReady.loaded && domReady.ready();
     },
 
@@ -675,7 +695,7 @@ Object.assign(tQuery, {
      * @param  {Element} ctx 查询上下文
      * @return {Element|null}
      */
-     get( slr, ctx = Doc.body ) {
+     get( slr, ctx = Doc.documentElement ) {
         try {
             return $one(slr.trim(), ctx, ctx.ownerDocument);
         }
@@ -693,7 +713,7 @@ Object.assign(tQuery, {
      * @param  {Element} ctx 查询上下文
      * @return {Array}
      */
-    find( slr, ctx = Doc.body, andOwn = false ) {
+    find( slr, ctx = Doc.documentElement, andOwn = false ) {
         let _els = $all(slr.trim(), ctx, ctx.ownerDocument),
             _box = [];
 
@@ -3161,39 +3181,38 @@ function cssFunc( its, cso, key, el ) {
 
 /**
  * 选择性插入。
- * - 首选插入next之前，否则box内末尾添加；
- * - 主要用于样式元素选择性插入；
+ * 首选插入next之前，否则box内末尾添加。
  * @param  {Node} node 待插入节点
- * @param  {Element} box 容器元素
  * @param  {Element} next 下一个参考元素
+ * @param  {Element} box 容器元素，可选
  * @return {Node} 插入节点
  */
-function switchInsert( node, box, next ) {
-    if (!next || next === box) {
-        return box.appendChild(node);
+function switchInsert( node, next, box ) {
+    if (next) {
+        return next.parentNode.insertBefore(node, next);
     }
-    return next.parentNode.insertBefore(node, next);
+    return box.appendChild(node);
 }
 
 
 /**
  * 载入元素。
- * - 绑定载入成功与错误的处理，返回一个承诺对象；
- * - 主要用于脚本/样式元素的载入回调；
- * 承诺.then(el)
+ * - 绑定载入成功与错误的处理，返回一个承诺对象。
+ * - 主要用于脚本/样式元素的载入回调。
+ * 承诺.then(el | undefined)
  * @param  {Element} el  目标元素
- * @param  {Element} box 容器元素
  * @param  {Element} next 下一个参考元素
+ * @param  {Element} box 容器元素，可选
  * @param  {Boolean} tmp 为临时插入（成功后移除）
  * @return {Promise}
  */
-function loadElement( el, box, next, tmp ) {
+function loadElement( el, next, box, tmp ) {
     return new Promise( function(resolve, reject) {
         tQuery.on(el, {
-            'load':  () => resolve( tmp && remove(el, true) || el ),
+            'load':  () => resolve( tmp ? remove(el, true) : el ),
             'error': err => reject(err),
         });
-        switchInsert(el, box, next);
+        switchInsert(el, next, box);
     });
 }
 
@@ -4707,7 +4726,7 @@ const domReady = {
     bounds: [], 	// 绑定句柄集
     waits: 	0,  	// 就绪等待
     passed: false, 	// 就绪已调用
-    loaded: false, 	// 文档已载入
+    loaded: false,  // 文档已载入（DOMContentLoaded）
 
 
     /**
@@ -4715,7 +4734,7 @@ const domReady = {
      * 如果就绪调用已实施，新的绑定立即执行。
      */
     ready() {
-        if (this.waits && !this.passed) {
+        if (this.waits) {
             return;
         }
         while (this.bounds.length) this.bounds.shift()();

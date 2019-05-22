@@ -68,6 +68,14 @@
 `next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
 
 
+#### [$.load(el: Element, next: Element, box: Element): Promise](docs/$.load.md)
+
+载入元素的外部资源，元素需要能够触发 load 和 error 事件，如 `<img>`。返回一个承诺对象，其中的 resolve 回调由 load 事件触发，reject 回调由 error 事件触发。通常需要元素插入DOM树后才会执行资源的载入。
+
+> **注：**<br>
+> `<script>` 和 `<link>` 元素实际上也符合本接口，但前者执行后可以删除，后者实际上属于 style 范畴（可并入 `$.style` 接口）。
+
+
 #### [$.each( obj: any, handle: Function, thisObj: any ): any](docs/$.each.md)
 
 通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
@@ -94,7 +102,10 @@
 
 #### [$.ready( handle: Function ): this](docs/$.ready.md)
 
-文档载入就绪后的回调绑定。
+文档载入就绪后的回调绑定。可以绑定多个，会按绑定先后逐个调用。若文档已载入并且未被hold，会立即执行绑定的handle。
+
+> **注：**<br>
+> 仅适用于文档的初始载入就绪。其它元素的载入就绪请使用 $.load() 接口。
 
 
 ### 节点查询
