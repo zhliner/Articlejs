@@ -108,17 +108,70 @@
 > 仅适用于文档的初始载入就绪。其它元素的载入就绪请使用 $.load() 接口。
 
 
+#### [$.holdReady( hold: boolean ): void](docs/$.holdReady.md)
+
+暂停或恢复 `.ready()` 注册的用户调用的执行。应当在页面加载的前段调用，传递 `true` 暂停 `.ready()` 注册的用户调用的执行，传递 `false` 则恢复，可能有多个 `.ready()` 的注册，一次 `.holdReady()` 调用对应一次 `.ready()`。
+
+如果文档已就绪并已调用 `ready()` 注册的用户函数，本操作无效（同jQuery）。
+
+
 ### 节点查询
 
-#### [$.get( slr: string, ctx: Element ): Element](docs/$.get.md)
+#### [$.get( slr: string, ctx?: Element ): Element](docs/$.get.md)
 
 查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
 
 
-#### [$.find( slr: string, ctx?: Element, andOwn?: boolean ): Array](docs/$.find.md)
+#### [$.find( slr: string, ctx?: Element, andOwn?: boolean ): [Element]](docs/$.find.md)
+
+在上下文元素内查找和选择器匹配的子元素集，如果传递 `andOwn` 实参为 `true`，则选择器匹配包含上下文元素自身。
 
 
 ### 节点遍历
+
+#### $.next(el: Element, slr: string): Element | null
+
+获取 `el` 的下一个兄弟元素。可用 `slr` 进行匹配测试，匹配不成功则返回 null，可选。
+
+
+#### $.nextAll(el: Element, slr: string): [Element]
+
+获取 `el` 的后续全部兄弟元素。可用 `slr` 进行匹配过滤，可选。
+
+
+#### $.nextUntil(el: Element, slr: string | Element): [Element]
+
+获取 `el` 的后续兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
+
+
+#### $.prev(el: Element, slr: string): Element | null
+
+获取 `el` 的前一个兄弟元素。可用 `slr` 进行匹配测试，匹配不成功则返回 null，可选。这是 `$.next` 方法的反向查询。
+
+
+#### $.prevAll(el: Element, slr: string): [Element]
+
+获取 `el` 前部的全部兄弟。可用 `slr` 进行匹配过滤。**注**：结果集保持逆向顺序（靠近 `el` 的元素在前）。
+
+
+#### $.prevUntil(el: Element, slr: string | Element): [Element]
+
+获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。**注**：结果集成员保持逆向顺序。
+
+
+#### $.children(el: Element): [Element]
+
+获取 `el` 的直接子元素集。原生 Element.children 的简单封装，返回一个元素的数组。**注**：接口完整性考虑。
+
+
+#### $.siblings(el: Element): [Element] | null
+
+获取 `el` 元素的兄弟元素。`el` 需要在一个父元素内，否则返回 null（游离节点）。
+
+
+#### $.parent(el: Element, slr: string | Function): Element | null
+
+获取 `el` 的直接父元素。`slr` 为选择器或测试函数，用于测试父元素是否匹配。
 
 
 ### 节点过滤

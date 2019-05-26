@@ -673,6 +673,7 @@ Object.assign(tQuery, {
      * - 可能有多个.ready()的注册，一次.holdReady()对应一次.ready()。
      * - 如果文档已就绪并已调用ready()，本操作无效（同jQuery）。
      * @param {Boolean} hold 持有或释放
+     * @return {void}
      */
     holdReady( hold ) {
         if (domReady.passed) {
@@ -709,9 +710,9 @@ Object.assign(tQuery, {
     /**
      * 查找匹配的元素集。
      * @param  {String} slr 选择器
-     * @param  {Boolean} andOwn 包含自身匹配
      * @param  {Element} ctx 查询上下文
-     * @return {Array}
+     * @param  {Boolean} andOwn 包含自身匹配
+     * @return {[Element]}
      */
     find( slr, ctx = Doc.documentElement, andOwn = false ) {
         let _els = $all(slr.trim(), ctx, ctx.ownerDocument),
@@ -727,8 +728,9 @@ Object.assign(tQuery, {
     //-- DOM 节点遍历 ---------------------------------------------------------
 
     /**
-     * 下一个兄弟元素。
-     * - 可能没有或不匹配；
+     * 获取下一个兄弟元素。
+     * 可用slr进行匹配测试，匹配不成功返回null。可选。
+     * @param  {Element} el 参考元素
      * @param  {String} slr 选择器，可选
      * @return {Element|null}
      */
@@ -738,10 +740,11 @@ Object.assign(tQuery, {
 
 
     /**
-     * 后续全部兄弟。
-     * - 可选的用slr进行匹配过滤；
+     * 获取后续全部兄弟元素。
+     * 可用slr进行匹配过滤，可选。
+     * @param  {Element} el 参考元素
      * @param  {String} slr 选择器，可选
-     * @return {Array}
+     * @return {[Element]}
      */
     nextAll( el, slr ) {
         return _nextAll(el, slr, 'nextElementSibling');
@@ -749,11 +752,10 @@ Object.assign(tQuery, {
 
 
     /**
-     * 后续兄弟...直到。
-     * - 获取后续全部兄弟元素，直到slr但不包含。
-     * - 过滤调用原始_$成员，外部若需代理，需直接处理本方法。下同。
+     * 获取后续兄弟元素，直到slr匹配（不包含匹配的元素）。
+     * @param  {Element} el 参考元素
      * @param  {String|Element} slr 选择器或元素，可选
-     * @return {Array}
+     * @return {[Element]}
      */
     nextUntil( el, slr ) {
         return _nextUntil(el, slr, 'nextElementSibling');
@@ -761,8 +763,8 @@ Object.assign(tQuery, {
 
 
     /**
-     * 前一个兄弟元素。
-     * - 可能没有或不匹配；
+     * 获取前一个兄弟元素，可能没有或不匹配。
+     * @param  {Element} el 参考元素
      * @param  {String} slr 选择器，可选
      * @return {Element|null}
      */
@@ -772,11 +774,12 @@ Object.assign(tQuery, {
 
 
     /**
-     * 前部全部兄弟。
-     * - 可选的用slr进行匹配过滤；
-     * 注：结果集会保持逆向顺序（靠近起点的元素在前）；
+     * 获取前部全部兄弟。
+     * 可选的用slr进行匹配过滤。
+     * 注：结果集保持逆向顺序（靠近起点的元素在前）。
+     * @param  {Element} el 参考元素
      * @param  {String} slr 选择器，可选
-     * @return {Array}
+     * @return {[Element]}
      */
     prevAll( el, slr ) {
         return _nextAll(el, slr, 'previousElementSibling');
@@ -784,11 +787,11 @@ Object.assign(tQuery, {
 
 
     /**
-     * 前端兄弟...直到。
-     * - 获取前端全部兄弟元素，直到slr但不包含；
-     * 注：结果集成员会保持逆向顺序；
+     * 获取前端兄弟元素，直到slr匹配（不包含匹配的元素）。
+     * 注：结果集成员保持逆向顺序。
+     * @param  {Element} el 参考元素
      * @param  {String|Element} slr 选择器或元素，可选
-     * @return {Array}
+     * @return {[Element]}
      */
     prevUntil( el, slr ) {
         return _nextUntil(el, slr, 'previousElementSibling');
@@ -798,7 +801,8 @@ Object.assign(tQuery, {
     /**
      * 获取直接子元素集。
      * Element:children 的简单调用，接口完整性。
-     * @return {Array}
+     * @param  {Element} el 参考元素
+     * @return {[Element]}
      */
     children( el ) {
         return Arr(el.children);
@@ -808,7 +812,8 @@ Object.assign(tQuery, {
     /**
      * 获取当前元素的兄弟元素。
      * 目标元素需要在一个父元素内，否则返回null（游离节点）。
-     * @return {Array|null}
+     * @param  {Element} el 参考元素
+     * @return {[Element]|null}
      */
     siblings( el ) {
         let _pel = el.parentElement;
@@ -824,8 +829,9 @@ Object.assign(tQuery, {
 
     /**
      * 获取直接父元素。
-     * - 会用可选的选择器或回调或元素检查是否匹配；
-     * @param  {String|Element|Function} slr 选择器或元素或测试函数，可选
+     * 会用可选的选择器或回调或元素检查是否匹配。
+     * @param  {Element} el 参考元素
+     * @param  {String|Function} slr 选择器或测试函数，可选
      * @return {Element|null}
      */
     parent( el, slr ) {
@@ -863,6 +869,7 @@ Object.assign(tQuery, {
      * - 向上逐级检查父级元素是否匹配；
      * - 从当前元素自身开始测试；
      * - 如果抵达document或DocumentFragment会返回null；
+     * @param  {Element} el 参考元素
      * @param  {String|Function|Element|Array} slr 匹配选择器
      * @return {Element|null}
      */
@@ -891,6 +898,7 @@ Object.assign(tQuery, {
      * 元素原生拥有offsetParent属性。
      * 不管是否隐藏，只要position被设置为非static即是。
      *
+     * @param  {Element} el 参考元素
      * @return {Element|null}
      */
     offsetParent( el ) {
@@ -1118,7 +1126,7 @@ Object.assign(tQuery, {
      * - 返回数组时成员被提取，返回null被忽略；
      * @param  {Element} el 容器元素
      * @param  {Function} proc 加工函数
-     * @return {Array}
+     * @return {[Node]}
      */
     contents( el, proc = usualNode ) {
         if (typeof proc !== 'function') {
@@ -2180,7 +2188,7 @@ function _nextAll( el, slr, dir ) {
     let _els = [];
 
     while ( (el = el[dir]) ) {
-        if (! slr) _els.push(el);
+        if (!slr) _els.push(el);
         else if ($is(el, slr)) _els.push(el);
     }
     return _els;
@@ -3208,7 +3216,7 @@ function switchInsert( node, next, box ) {
  */
 function loadElement( el, next, box, tmp ) {
     return new Promise( function(resolve, reject) {
-        tQuery.on(el, {
+        tQuery.one(el, {
             'load':  () => resolve( tmp ? remove(el, true) : el ),
             'error': err => reject(err),
         });
@@ -4572,7 +4580,7 @@ const Event = {
      * 注：仅在委托模式下才需要调整事件名和捕获模式；
      * @param  {String} evn 原始事件名
      * @param  {String} slr 选择器
-     * @return {Array} 值对
+     * @return {[String, Boolean]} [事件名，是否为捕获]
      */
     _evncap( evn, slr ) {
         if (slr) {
@@ -4630,9 +4638,9 @@ const Event = {
 
     /**
      * 原生事件调用。
-     * - 用于trigger激发元素上原生事件的调用；
-     * - submit调用不会激发submit事件，故排除；
-     * - 记忆当前事件默认行为是否取消，以向后延续；
+     * - 用于trigger激发元素上原生事件的调用。
+     * - submit调用不会激发submit事件，故排除（先返回）。
+     * - 记忆当前事件默认行为是否取消，以向后延续。
      * @param {Event} ev 原生事件对象
      */
     _nativeCall( ev, el ) {
