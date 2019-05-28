@@ -854,15 +854,17 @@ Object.assign(tQuery, {
     /**
      * 获取参考元素的上级元素集。
      * 可用可选的选择器或测试函数进行过滤。
-     * @param {Elememt} el 当前元素
-     * @param {String|Function} slr 选择器或测试函数，可选
+     * @param  {Element} el 当前元素
+     * @param  {String|Function} slr 选择器或测试函数，可选
+     * @return {[Element]}
      */
     parents( el, slr ) {
         let _buf = [],
-            _fun = getFltr(slr);
+            _fun = getFltr(slr),
+            _i = 0;
 
         while ( (el = el.parentElement) ) {
-            if (!_fun || _fun(el)) {
+            if (!_fun || _fun(el, ++_i)) {
                 _buf.push(el);
             }
         }
@@ -880,9 +882,10 @@ Object.assign(tQuery, {
      */
     parentsUntil( el, slr ) {
         let _buf = [],
-            _fun = getFltr(slr);
+            _fun = getFltr(slr),
+            _i = 0;
 
-        while ( (el = el.parentElement) && (!_fun || !_fun(el)) ) {
+        while ( (el = el.parentElement) && (!_fun || !_fun(el, ++_i)) ) {
             _buf.push(el);
         }
         return _buf;
@@ -890,10 +893,10 @@ Object.assign(tQuery, {
 
 
     /**
-     * 最近匹配父级元素。
-     * - 向上逐级检查父级元素是否匹配；
-     * - 从当前元素自身开始测试；
-     * - 如果抵达document或DocumentFragment会返回null；
+     * 获取最近的匹配的父级元素。
+     * - 向上逐级检查父级元素是否匹配。
+     * - 从当前元素自身开始测试（同标准 Element:closest）。
+     * - 如果抵达document或DocumentFragment会返回null。
      * @param  {Element} el 参考元素
      * @param  {String|Function|Element|Array} slr 匹配选择器
      * @return {Element|null}
@@ -902,9 +905,10 @@ Object.assign(tQuery, {
         if (el.closest && typeof slr == 'string') {
             return el.closest( slr );
         }
-        let _fun = getFltr(slr);
+        let _fun = getFltr(slr),
+            _i = 0;
 
-        while (el && !_fun(el)) {
+        while (el && !_fun(el, _i++)) {
             el = el.parentElement;
         }
         return el;
@@ -912,16 +916,13 @@ Object.assign(tQuery, {
 
 
     /**
-     * 获取最近父级定位元素。
-     * - 从父元素开始检查匹配；
-     * - 如果最终没有匹配返回文档根（同jQuery）；
-     * - 如果当前元素属于SVG子节点，会返回svg元素本身；
-     *   （SVG节点定位由属性配置，与style无关）
-     * 最近上级定位元素：
-     *   CSS::position: relative|absolute|fixed
+     * 获取最近父级定位元素（css::position: relative|absolute|fixed）。
+     * - 从父元素开始检查匹配。
+     * - 如果最终没有匹配返回文档根（同jQuery）。
+     * - 如果当前元素属于SVG子节点，会返回svg元素本身。注：SVG节点定位由属性配置，与style无关。
      * 注记：
-     * 元素原生拥有offsetParent属性。
-     * 不管是否隐藏，只要position被设置为非static即是。
+     * 元素原生拥有offsetParent属性，但若元素隐藏（display:none），该属性值为null。
+     * 此接口不管元素是否隐藏，都会返回position为非static的容器元素。
      *
      * @param  {Element} el 参考元素
      * @return {Element|null}
@@ -943,11 +944,10 @@ Object.assign(tQuery, {
 
     /**
      * 过滤元素集。
-     * - 如果没有过滤条件，返回原始集；
-     * - 如果目标集不为数组或类数组，原样返回；
-     * @param  {NodeList} els 目标元素集
+     * 如果没有过滤条件，返回原始集。
+     * @param  {NodeList|Array} els 目标元素集
      * @param  {String|Function|Element|Array} fltr 筛选条件
-     * @return {Array}
+     * @return {[Element]}
      */
     filter( els, fltr ) {
         if (!fltr || !els.length) {
@@ -965,9 +965,9 @@ Object.assign(tQuery, {
      * - 目标元素（集）被本集合中元素作为子级元素包含；
      * - 或目标选择器与集合中元素的子级元素匹配；
      * 测试调用：func(el)
-     * @param  {NodeList} els 目标元素集
+     * @param  {NodeList|Array} els 目标元素集
      * @param  {String|Function|Element|Array} slr 筛选器
-     * @return {Array}
+     * @return {[Element]}
      */
     has( els, slr ) {
         let _f = slr;
@@ -991,9 +991,9 @@ Object.assign(tQuery, {
     /**
      * 排除过滤。
      * - 从集合中移除匹配的元素；
-     * @param  {NodeList} els 目标元素集
+     * @param  {NodeList|Array} els 目标元素集
      * @param  {String|Function|Element|Array} slr 筛选器
-     * @return {Array|false}
+     * @return {[Element]}
      */
     not( els, slr ) {
         let _f = slr;
@@ -1010,7 +1010,7 @@ Object.assign(tQuery, {
         else if (slr.nodeType) {
             _f = el => el !== slr;
         }
-        return isFunc(_f) && $A(els).filter(_f);
+        return $A(els).filter(_f);
     },
 
 
