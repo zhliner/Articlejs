@@ -88,7 +88,7 @@
 
         // 多目标。
         // slr首字符>表示当前上下文子元素限定。
-        // @return {Array|Element}
+        // @return {[Element]}
         $all = Sizzle || function( slr, ctx, doc = Doc ) {
             ctx = ctx || doc;
 
@@ -315,16 +315,16 @@ function hackAttrClear( ctx ) {
  * DOM 查询器。
  * - 查询结果为集合，如果仅需一个元素可用 $.One。
  * its: {
- *  	String    选择器查询
+ *  	String      选择器查询
  *  	Element     元素包装
  *  	NodeList    元素集（类数组）包装
  *  	.values     支持values接口的迭代器（如Set）
  *  	Function    DOM ready回调
- *  	Collector    当前实例或已封装对象
+ *  	Collector   当前实例或已封装对象
  *  	...... 	    无效参数，构造一个空集
  * }
  * @param  {Mixed} its
- * @param  {Element|Collector} ctx 查询上下文
+ * @param  {Element|Document} ctx 查询上下文
  * @return {Collector}
  */
 function tQuery( its, ctx ) {
@@ -333,7 +333,7 @@ function tQuery( its, ctx ) {
     if (typeof its == 'string') {
         return new Collector( $all(its.trim(), ctx) );
     }
-    if (isElements(its)) {
+    if (isCollector(its)) {
         return its;
     }
     // 初始就绪
@@ -802,10 +802,16 @@ Object.assign(tQuery, {
      * 获取直接子元素集。
      * Element:children 的简单调用，接口完整性。
      * @param  {Element} el 参考元素
+     * @param  {String} slr 过滤选择器，可选
      * @return {[Element]}
      */
-    children( el ) {
-        return Arr(el.children);
+    children( el, slr ) {
+        let _els = Arr(el.children);
+
+        if (!slr) {
+            return _els;
+        }
+        return _els.filter( e => $is(e, slr) );
     },
 
 
@@ -813,9 +819,10 @@ Object.assign(tQuery, {
      * 获取当前元素的兄弟元素。
      * 目标元素需要在一个父元素内，否则返回null（游离节点）。
      * @param  {Element} el 参考元素
+     * @param  {String} slr 过滤选择器，可选
      * @return {[Element]|null}
      */
-    siblings( el ) {
+    siblings( el, slr ) {
         let _pel = el.parentElement;
         if (_pel === null) {
             return null;
@@ -823,13 +830,13 @@ Object.assign(tQuery, {
         let _els = Arr(_pel.children);
         _els.splice(_els.indexOf(el), 1);
 
-        return _els;
+        return slr ? _els.filter(e => $is(e, slr)) : _els;
     },
 
 
     /**
      * 获取直接父元素。
-     * 会用可选的选择器或回调或元素检查是否匹配。
+     * 可用可选的选择器或测试函数检查是否匹配。
      * @param  {Element} el 参考元素
      * @param  {String|Function} slr 选择器或测试函数，可选
      * @return {Element|null}
@@ -840,18 +847,36 @@ Object.assign(tQuery, {
         if ( isFunc(slr) ) {
             return slr(_pel) ? _pel : null;
         }
-        return slr && $is(_pel, slr) ? _pel : null;
+        return !slr || $is(_pel, slr) ? _pel : null;
+    },
+
+
+    /**
+     * 获取参考元素的上级元素集。
+     * 可用可选的选择器或测试函数进行过滤。
+     * @param {Elememt} el 当前元素
+     * @param {String|Function} slr 选择器或测试函数，可选
+     */
+    parents( el, slr ) {
+        let _buf = [],
+            _fun = getFltr(slr);
+
+        while ( (el = el.parentElement) ) {
+            if (!_fun || _fun(el)) {
+                _buf.push(el);
+            }
+        }
+        return _buf;
     },
 
 
     /**
      * 汇集当前元素的全部上级元素，直到匹配。
-     * - 从父元素开始检查匹配；
-     * - 不包含终止匹配的父级元素；
-     * - 允许slr为空无需匹配（同jQ.parents）；
+     * - 从父元素开始检查匹配。
+     * - 不包含终止匹配的父级元素。
      * @param  {Element} el  当前元素
      * @param  {String|Function|Element|Array} slr  终止匹配
-     * @return {Array}
+     * @return {[Element]}
      */
     parentsUntil( el, slr ) {
         let _buf = [],
@@ -928,7 +953,7 @@ Object.assign(tQuery, {
         if (!fltr || !els.length) {
             return $A(els);
         }
-        if ( isElements(els) ) {
+        if ( isCollector(els) ) {
             els = els.get();
         }
         return $A(els).filter( getFltr(fltr) );
@@ -2234,65 +2259,7 @@ class Collector extends Array {
     }
 
 
-    // next( slr ) {}
-    // nextAll( slr ) {}
-    // nextUntil( se, flr ) {}
-    // prev( slr ) {}
-    // prevAll( slr ) {}
-    // prevUntil( slr, flr ) {}
-    // children( sf ) {}
-    // contents() {}
-    // siblings( sf ) {}
-    // parent( sf ) {}
-    // parentsUntil
-    // closest( sf /*, ctx*/ ) {}
-    // offsetParent() {}
-    // filter( slr ) {}
-    // has( slr ) {}
-    // not( slr ) {}
-    // is( slr ) { /* 占位：后续覆盖 */ }
-
-    // map( fun ) {}
-    // slice( start, end ) {}
-
-    // appendTo( to, clone, event = true ) {}
-    // prependTo( to, clone, event = true ) {}
-    // insertAfter( to, clone, event = true ) {}
-    // insertBefore( to, clone, event = true ) {}
-    // replaceAll( to, clone, event = true ) {}
-    // fillTo( to, clone, event = true ) {}
-
-    // empty() {}
-    // clone( event, deep = true ) {}
-
-    // addClass( sf ) {}
-    // removeClass( sf ) {}
-    // toggleClass( its, force ) {}
-    // hasClass( str ) {}
-
-    // attr( its, value = undefined ) {}
-    // removeAttr( names ) {}
-    // prop( its, value = undefined ) {}
-
-    // val( values = undefined) {}
-    // html( code = undefined ) {}
-    // text( code = undefined ) {}
-    // css( name, value = undefined ) {}
-    // height( val = undefined ) {}
-    // innerHeight() {}
-    // outerHeight( margin ) {}
-    // width( val = undefined ) {}
-    // innerWidth() {}
-    // outerWidth( margin ) {}
-    // offset( val = undefined ) {}
-    // position() {}
-    // scrollLeft( val ) {}
-    // scrollTop( val = undefined ) {}
-
-    // on( evn, slr, data, handler ) {}
-    // off( evn, slr, handler = false ) {}
-    // one( evn, slr, data, handler ) {}
-    // trigger( evn, extra ) {}
+    //-- 定制部分 -------------------------------------------------------------
 
 
     /**
@@ -2551,6 +2518,7 @@ elsEx([
         'nextAll',
         'nextUntil',
         'prevAll',
+        'parents',
         'prevUntil',
         'siblings',
         'parentsUntil',
@@ -2892,7 +2860,7 @@ function getFltr( its ) {
     if (its.nodeType || typeof its == 'string') {
         return e => $is(e, its);
     }
-    return ( e => its.indexOf(e) >= 0 );
+    return ( e => its.includes(e) );
 }
 
 
@@ -2901,7 +2869,7 @@ function getFltr( its ) {
  * @param  {Mixed} obj 测试对象
  * @return {Boolean}
  */
-function isElements( obj ) {
+function isCollector( obj ) {
     return !!obj && obj[ ownerToken ];
 }
 

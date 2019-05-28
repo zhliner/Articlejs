@@ -32,17 +32,17 @@
 `data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node}`。
 
 
-#### [$.Text( data: any, doc?: Document ): Text](docs/$.Text.md)
+#### [$.Text( data: String | Node | Array | Collector, doc?: Document ): Text](docs/$.Text.md)
 
 创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元间以空格串联。可指定所属文档对象。
 
 
-#### [$.create( html: string, exclude: any[], doc?: Document ): DocumentFragment](docs/$.create.md)
+#### [$.create( html: string, exclude: Array, doc?: Document ): DocumentFragment](docs/$.create.md)
 
 创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被清理并存储到 `exclude` 空间中。
 
 
-#### [$.svg( tag: any, opts: any, doc?: Document ): Element](docs/$.svg.md)
+#### [$.svg( tag: String | Object, opts: Object, doc?: Document ): Element](docs/$.svg.md)
 
 创建SVG系元素（自动采用 `http://www.w3.org/2000/svg` 名称空间）。
 创建SVG根元素 `<svg>` 时 `tag` 参数为属性配置对象而不是标签名，如：`$.svg({width: 200, height: 100})` 创建一个宽200像素，高100像素的 `<svg>` 根容器元素。
@@ -129,49 +129,52 @@
 
 ### 节点遍历
 
-#### $.next(el: Element, slr: string): Element | null
+#### [$.next( el: Element, slr: string ): Element | null](docs/$.next.md)
 
 获取 `el` 的下一个兄弟元素。可用 `slr` 进行匹配测试，匹配不成功则返回 null，可选。
 
 
-#### $.nextAll(el: Element, slr: string): [Element]
+#### [$.nextAll( el: Element, slr: string ): [Element]](docs/$.nextAll.md)
 
-获取 `el` 的后续全部兄弟元素。可用 `slr` 进行匹配过滤，可选。
+获取 `el` 的后续全部兄弟元素。可用 `slr` 进行匹配过滤（符合者入选）。
 
 
-#### $.nextUntil(el: Element, slr: string | Element): [Element]
+#### [$.nextUntil( el: Element, slr: string | Element ): [Element]](docs/$.nextUntil.md)
 
 获取 `el` 的后续兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
 
 
-#### $.prev(el: Element, slr: string): Element | null
+#### [$.prev( el: Element, slr: string ): Element | null](docs/$.prev.md)
 
 获取 `el` 的前一个兄弟元素。可用 `slr` 进行匹配测试，匹配不成功则返回 null，可选。这是 `$.next` 方法的反向查询。
 
 
-#### $.prevAll(el: Element, slr: string): [Element]
+#### [$.prevAll( el: Element, slr: string ): [Element]](docs/$.prevAll.md)
 
-获取 `el` 前部的全部兄弟。可用 `slr` 进行匹配过滤。**注**：结果集保持逆向顺序（靠近 `el` 的元素在前）。
+获取 `el` 前部的全部兄弟。可用 `slr` 进行匹配过滤（符合者入选）。**注**：结果集保持逆向顺序（靠近 `el` 的元素在前）。
 
 
-#### $.prevUntil(el: Element, slr: string | Element): [Element]
+#### [$.prevUntil( el: Element, slr: string | Element ): [Element]](docs/$.prevUntil.md)
 
 获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。**注**：结果集成员保持逆向顺序。
 
 
-#### $.children(el: Element): [Element]
+#### [$.children( el: Element, slr: string ): [Element]](docs/$.children.md)
 
-获取 `el` 的直接子元素集。原生 Element.children 的简单封装，返回一个元素的数组。**注**：接口完整性考虑。
-
-
-#### $.siblings(el: Element): [Element] | null
-
-获取 `el` 元素的兄弟元素。`el` 需要在一个父元素内，否则返回 null（游离节点）。
+获取 `el` 的直接子元素集，可用 `slr` 进行匹配过滤（符合者入选）。返回一个子元素的数组（Array类型）。
 
 
-#### $.parent(el: Element, slr: string | Function): Element | null
+#### [$.siblings( el: Element, slr: string ): [Element] | null](docs/$.siblings.md)
+
+获取 `el` 元素的兄弟元素，可用 `slr` 进行匹配过滤（符合者入选）。`el` 需要在一个父元素内，否则返回 null（游离节点）。
+
+
+#### [$.parent( el: Element, slr: string | Function ): Element | null](docs/$.parent.md)
 
 获取 `el` 的直接父元素。`slr` 为选择器或测试函数，用于测试父元素是否匹配。
+
+
+#### [$.parentsUntil(el: Element, slr: string | Function | Array | Element): [Element]](docs/parentsUntil.md)
 
 
 ### 节点过滤
