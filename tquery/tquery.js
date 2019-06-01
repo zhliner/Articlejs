@@ -425,15 +425,17 @@ Object.assign(tQuery, {
     /**
      * 创建一个文本节点。
      * - 如果data参数为节点元素，取其文本创建。
-     * - data支持字符串或节点的数组，数组单元转为字符串后以空格串联。
+     * - data支持字符串或节点的数组，数组单元转为字符串后连接。
+     * - 串连字符串sep仅在data为数组时才有意义。
      *
      * @param  {String|Node|Array|Collector} data 文本或节点元素或其数组
+     * @param  {String} sep 数组成员间链接符，可选
      * @param  {Document} doc 所属文档
      * @return {Text} 新文本节点
      */
-    Text( data, doc = Doc ) {
+    Text( data, sep = ' ', doc = Doc ) {
         if (typeof data !== 'string') {
-            data = nodeText(data);
+            data = nodeText(data, sep);
         }
         return doc.createTextNode( data );
     },
@@ -1189,6 +1191,7 @@ Object.assign(tQuery, {
      * 类名添加。
      * - 支持空格分隔的类名序列；
      * - 支持回调函数获取类名：func(oldName)；
+     * @param  {Element} el 目标元素
      * @param  {String|Function} names
      * @return {this}
      */
@@ -1209,6 +1212,7 @@ Object.assign(tQuery, {
      * - 支持空格分隔的类名序列；
      * - 支持回调函数获取类名：func(oldName)；
      * - 未指定名称移除全部类名（删除class属性）；
+     * @param  {Element} el 目标元素
      * @param  {String|Function} names
      * @return {this}
      */
@@ -1238,6 +1242,7 @@ Object.assign(tQuery, {
      * - 暂不依赖toggle的第二个参数；
      * - 可正确处理SVG元素的class类属性；
      *
+     * @param  {Element} el 目标元素
      * @param  {String|Boolean|Function} val 目标值，可选
      * @param  {Boolean} force 强制设定，可选
      * @return {this}
@@ -1268,7 +1273,8 @@ Object.assign(tQuery, {
      * - 空格分隔的多个类名为And关系；
      * 注：
      * - jQuery中同名方法里空格没有分隔符作用；
-     * @param  {String} names
+     * @param  {Element} el 目标元素
+     * @param  {String} names 类名（序列）
      * @return {Boolean}
      */
     hasClass( el, names ) {
@@ -1446,7 +1452,7 @@ Object.assign(tQuery, {
         return Insert(
             el,
             // 会忽略脚本代码
-            code && buildFragment(code, el.ownerDocument, null),
+            buildFragment(code, el.ownerDocument, null),
             Wheres[where]
         );
     },
@@ -1487,7 +1493,7 @@ Object.assign(tQuery, {
         }
         return Insert(
             el,
-            code && el.ownerDocument.createTextNode(code),
+            el.ownerDocument.createTextNode(code),
             Wheres[where]
         );
     },
@@ -1749,7 +1755,7 @@ class Table {
         this._tbl = _tbl;
         this._th0 = th0;
         this._cols = cols;
-        this._body = _body;
+        this._body1 = _body;
     }
 
 
@@ -1760,8 +1766,8 @@ class Table {
      *      null        删除表标题
      *      {String}    设置并返回表标题（不存在则新建）
      * }
-     * @param {String|null} text 标题内容
-     * @param {Boolean} ishtml 是否为html方式插入
+     * @param  {String|null} text 标题内容
+     * @param  {Boolean} ishtml 是否为html方式插入
      * @return {Element|null} 表标题元素
      */
     caption( text, ishtml ) {
@@ -1779,19 +1785,34 @@ class Table {
 
 
     /**
+     * 创建一个新的<tbody>元素插入到最后。
+     * 表格中允许多个<tbody>，因此可模拟表格的分段效果。
+     * 这里只是一个简单封装，需配合body()使用。
+     * @return {Element} 已插入的<tbody>元素
+     */
+    newBody() {
+        return this._tbl.createTBody();
+    }
+
+
+    /**
      * 添加表格行（TBody/tr）。
      * 会保持列数合法，全部为空单元格。
      * idx为-1或表体的行数，则新行插入到末尾。
-     * 简单的无参数调用返回唯一的表体元素。
-     * @param {Number} idx 插入位置
-     * @param {Number} rows 行数
-     * @return {Collector} 新添加的行元素集
+     * 简单的无参数调用返回表体元素集（数组）。
+     * @param  {Number} idx 插入位置
+     * @param  {Number} rows 行数
+     * @param  {Element} sect 目标<tbody>元素，可选
+     * @return {[Element]|Collector} 表体元素集或新添加的行元素集
      */
-    body( idx, rows ) {
+    body( idx, rows, sect ) {
         if (idx === undefined) {
-            return this._tbl.tBodies[0];
+            return $A(this._tbl.tBodies);
         }
-        return this._insertRows(this._body, idx, rows);
+        if (sect === undefined) {
+            sect = this._body1;
+        }
+        return this._insertRows(sect, idx, rows);
     }
 
 
@@ -1800,9 +1821,9 @@ class Table {
      * 简单的无参数调用返回表头元素，无表头元素时返回null。
      * 传递创建参数时，如果不存在表头元素（THead）会新建。
      * 传递idx参数为null时删除表头元素。
-     * @param {Number} idx 插入位置
-     * @param {Number} rows 行数
-     * @return {Collector} 新添加的行元素集
+     * @param  {Number} idx 插入位置
+     * @param  {Number} rows 行数
+     * @return {Element|Collector} 表头元素或新添加的行元素集
      */
     head( idx, rows = 1 ) {
         if (idx === undefined) {
@@ -1820,9 +1841,9 @@ class Table {
      * 简单的无参数调用返回表脚元素，无表脚元素时返回null。
      * 传递创建参数时，如果不存在表脚元素（TFoot）会新建。
      * 传递idx参数为null时删除表脚元素。
-     * @param {Number} idx 插入位置
-     * @param {Number} rows 行数
-     * @return {Collector} 新添加的行元素集
+     * @param  {Number} idx 插入位置
+     * @param  {Number} rows 行数
+     * @return {Element|Collector} 表脚元素或新添加的行元素集
      */
     foot( idx, rows = 1 ) {
         if (idx === undefined) {
@@ -1949,7 +1970,7 @@ class Table {
      * @param {TableSection} tsec 表格区域（TBody|THead|TFoot）
      * @param {Number} idx 插入位置
      * @param {Number} rows 插入行数
-     * @return {Array|Element} 新插入的行元素（集）
+     * @return {Collector} 新插入的行元素（集）
      */
      _insertRows( tsec, idx, rows = 1, tag = 'td' ) {
         if (idx < 0 || idx > tsec.rows.length) {
@@ -1959,9 +1980,9 @@ class Table {
             buildTR(tsec.insertRow(idx), this._cols, tag, this._th0);
         }
         if (rows === 1) {
-            return tsec.rows[idx];
+            return new Collector( tsec.rows[idx] );
         }
-        return tQuery.range(idx, rows, true).map( i => tsec.rows[i] );
+        return new Collector( tQuery.range(idx, rows, true).map( i => tsec.rows[i] ) );
     }
 
 
@@ -1988,9 +2009,9 @@ class Table {
         if (tbl.tagName.toLowerCase() !== 'table') {
             return null;
         }
-        this._body = tbl.tBodies[0];
+        this._body1 = tbl.tBodies[0];
         this._cols = tbl.rows[0].cells.length;
-        this._th0 = this._body.rows[0].cells[0].tagName.toLowerCase() === 'th';
+        this._th0 = this._body1.rows[0].cells[0].tagName.toLowerCase() === 'th';
         this._tbl = tbl;
     }
 
@@ -2610,6 +2631,7 @@ elsExfn([
         'normalize',
 
         // 节点插入（多对多）
+        // 若集合有多个元素，通常采用克隆模式（clone实参为true）
         'before',
         'after',
         'prepend',
@@ -2650,9 +2672,10 @@ elsExfn([
         if (val === undefined) {
             return [...this.map( el => $[fn](el, its) )];
         }
+        let _ia = isArr(val);
         this.forEach(
             // 可代理调用 $
-            (el, i) => $[fn](el, isArr(val) ? val[i] || '' : val)
+            (el, i) => $[fn](el, _ia ? val[i] || '' : val)
         );
         return this;
     }
@@ -2677,10 +2700,11 @@ elsExfn([
         if (val === undefined) {
             return [ ...this.map( el => $[fn](el) ) ];
         }
+        let _ia = isArr(val);
         this.forEach(
             (el, i) => {
                 // 可代理调用 $
-                $[fn](el, isArr(val) ? val[i] || '' : val);
+                $[fn](el, _ia ? val[i] || '' : val);
             }
         );
         return this;
@@ -2703,10 +2727,11 @@ elsExfn([
     ],
     fn =>
     function( val, ...rest ) {
-        let _vs = this.map(
+        let _ia = isArr(val),
+            _vs = this.map(
             (el, i) => {
                 // 可代理调用 $
-                return $[fn](el, isArr(val) ? val[i] || '' : val, ...rest);
+                return $[fn](el, _ia ? val[i] || '' : val, ...rest);
             }
         );
         if (val === undefined) {
@@ -3605,7 +3630,7 @@ function Insert( ref, data, where = 0 ) {
 
 //
 // 6类插入函数集。
-// frag可以是文档片段或元素或文本节点。
+// node可以是文档片段或元素或文本节点。
 //
 const insertHandles = {
     // replace

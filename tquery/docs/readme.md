@@ -8,9 +8,9 @@
 `data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node}`。
 
 
-### [$.Text( data: String | Node | Array | Collector, doc?: Document ): Text]($.Text.md)
+### [$.Text( data: String | Node | Array | Collector, sep?: string, doc?: Document ): Text]($.Text.md)
 
-创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元间以空格串联。可指定所属文档对象。
+创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元取值为字符串后以 `sep` 串联。可指定所属文档对象。
 
 
 ### [$.create( html: string, exclude: Array, doc?: Document ): DocumentFragment]($.create.md)
@@ -21,7 +21,7 @@
 ### [$.svg( tag: String | Object, opts: Object, doc?: Document ): Element]($.svg.md)
 
 创建SVG系元素（自动采用 `http://www.w3.org/2000/svg` 名称空间）。
-创建SVG根元素 `<svg>` 时 `tag` 参数为属性配置对象而不是标签名，如：`$.svg({width: 200, height: 100})` 创建一个宽200像素，高100像素的 `<svg>` 根容器元素。
+创建SVG根元素 `<svg>` 时，`tag` 参数为属性配置对象而不是标签名，如：`$.svg({width: 200, height: 100})` 创建一个宽200像素，高100像素的 `<svg>` 根容器元素。
 
 
 ### [$.table( rows: number | Element, cols: number, caption: string, th0: boolean, doc?: Document ): Table]($.table.md)
@@ -91,6 +91,20 @@
 如果文档已就绪并已调用 `ready()` 注册的用户函数，本操作无效（同jQuery）。
 
 
+### [$.embedProxy( getter: Function ): void]($.embedProxy.md)
+
+嵌入代理。由外部定义 $ 的调用集覆盖，`getter` 接受函数名参数，应当返回一个与目标接口声明相同的函数。
+
+> **注：**<br>
+> 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。<br>
+> 代理会更新外部全局的 $ 对象。<br>
+
+
+### $.Fx = {}
+
+一个空的功能扩展区，供外部扩展使用。此为名称空间约定。
+
+
 ## 节点查询
 
 ### [$.get( slr: string, ctx?: Element ): Element]($.get.md)
@@ -103,7 +117,19 @@
 在上下文元素内查找和选择器匹配的子元素集，如果传递 `andOwn` 实参为 `true`，则选择器匹配包含上下文元素自身。
 
 
+### [$( its: any, ctx: Element | Document ): Collector]($.md)
+
+通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。
+
+`its` 支持选择器、元素（简单打包）、节点集、支持 `.values()` 接口的对象（如：Set），以及用户处理函数（即初始 `$.ready()` 的实参）等。无效的 `its` 实参会构造一个空的 `Collector` 实例。
+
+
 ## 节点遍历
+
+> **集合版：**<br>
+> 以下接口存在集合版，即集合中的每个元素会被执行相同的操作。最后的结果集已被排序和清理，以排除可能重复的元素。<br>
+> 集合版的接口定义与单元素版（见下）相似，只是不包含单元素版中首个 `el:{Element}` 参数（该值由集合内的每个元素自动充当）。<br>
+
 
 ### [$.next( el: Element, slr: string ): Element | null]($.next.md)
 
