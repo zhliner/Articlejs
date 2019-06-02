@@ -1732,6 +1732,7 @@ Object.assign(tQuery, {
 // 简单表格类。
 // 仅为规范行列的表格，不支持单元格合并拆分。
 // 不涉及单元格内容的修改操作，需提取后自行操作。
+// 接口的重点在于对表格行的操作。
 //
 class Table {
     /**
@@ -1785,17 +1786,6 @@ class Table {
 
 
     /**
-     * 创建一个新的<tbody>元素插入到最后。
-     * 表格中允许多个<tbody>，因此可模拟表格的分段效果。
-     * 这里只是一个简单封装，需配合body()使用。
-     * @return {Element} 已插入的<tbody>元素
-     */
-    newBody() {
-        return this._tbl.createTBody();
-    }
-
-
-    /**
      * 添加表格行（TBody/tr）。
      * 会保持列数合法，全部为空单元格。
      * idx为-1或表体的行数，则新行插入到末尾。
@@ -1813,6 +1803,31 @@ class Table {
             sect = this._body1;
         }
         return this._insertRows(sect, idx, rows);
+    }
+
+
+    /**
+     * 创建一个新的<tbody>元素插入到最后。
+     * 表格中允许多个<tbody>，因此可模拟表格的分段效果。
+     * 这里只是一个简单封装，需配合body()使用。
+     * @return {Element} 已插入的<tbody>元素
+     */
+    newBody() {
+        return this._tbl.createTBody();
+    }
+
+
+    /**
+     * 删除一个表体元素<tbody>。
+     * @param  {Number} idx 目标元素的下标位置
+     * @return {Element} 删除的<tbody>元素
+     */
+    delBody( idx ) {
+        let _body = this._tbl.tBodies[idx];
+        if (_body) {
+            this._tbl.removeChild(_body);
+        }
+        return _body;
     }
 
 
@@ -2016,6 +2031,12 @@ class Table {
     }
 
 }
+
+
+//
+// 导出供外部复用（如继承）。
+//
+tQuery.Table = Table;
 
 
 //

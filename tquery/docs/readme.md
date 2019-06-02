@@ -27,7 +27,8 @@
 ### [$.table( rows: number | Element, cols: number, caption: string, th0: boolean, doc?: Document ): Table]($.table.md)
 
 创建一个指定行列数的空表格（`Table` 实例），或封装一个规范的表格元素（无单元格合并或拆分）为 `Table` 实例。
-`Table` 仅提供最简单的表格操作：表标题设置，表头、表脚和主体表格行的添加、删除等，自动保持列数不变（也不能修改）。
+
+`Table` 仅提供最简单的表格操作，除了表标题的设置或删除，主要是对表头（`<thead>`）、表脚（`<tfoot>`）和表主体（`<tbody>`）内表格行的添加、删除等，并且自动保持列数不变（也不能修改）。
 
 
 ### [$.script( data: string | Element, box: Element, doc?: Document ): Element | Promise]($.script.md)
@@ -103,6 +104,11 @@
 ### $.Fx = {}
 
 一个空的功能扩展区，供外部扩展使用。此为名称空间约定。
+
+
+### [$.Table]($.table.md#tableClass)
+
+一个简单的表格类（`class`），主要提供对表格行的操作，也是 `$.table()` 的返回值的类型。这是一个被导出的内部类，主要用于外部继承复用，普通的使用通常用 `$.table` 工具函数。
 
 
 ## 节点查询
