@@ -41,6 +41,10 @@
     - jQuery: 存储与目标元素关联的任意数据，或者返回集合中匹配首个元素的存储的值。
     - tQuery: 没有该接口。元素的data-xx系属性融入在 `attr` 和 `prop` 接口中，支持名称简写（`-xx` 即为 `data-xx`）。
 
+- `$.get`
+    - jQuery: 用 `Ajax` 方式通过 `GET` 方法获取目标网站的内容。
+    - tQuery: 获取文档元素的单元素版本，如通过 `id` 定位或 `querySelector` 检索。
+
 
 
 ## 附：嵌入代理（$.embedProxy）的应用

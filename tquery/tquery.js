@@ -30,6 +30,37 @@
     - console.dir($)  查看 $ 的成员情况（单元素操作版）。
     - console.dir($('').constructor.prototype)  查看 Collector 的成员情况。
 
+    注意！
+    例：
+        <p>
+            <b>Bold, <i>Italic</i></b>
+            <a>Link</a>
+        </p>
+        假设 p 为元素 <p>
+    检索：
+        Sizzle('>b', p)           => [<b>]
+        p.querySelectorAll('>b')  => 语法错误
+        Sizzle('p>b', p)          => []
+        p.querySelectorAll('p>b') => [<b>]
+    说明：
+        Sizzle 的子级检索选择器不含上下文元素自身的父级限定能力。
+        querySelectorAll 依靠上下文元素自身来限定直接子元素匹配。
+
+    实现：
+    有限支持 '>*' 选择器格式：开启直接子元素模式，后续选择器用于子元素过滤。
+    例：
+        $.find('>b', p)      => [<b>]      // 简单支持
+        $.find('>b i', p)    => []         // 多级选择无效
+        $.find('p>b i', p)   => [<i>]      // querySelectorAll特性
+        $.find('>b, >a', p)  => 语法错误    // `b,>a` 为无效选择器
+        $.find('>b, a', p)   => [<b>,<a>]  // 子元素用 `b,a` 过滤，仅需首个 `>`
+    另：
+        Sizzle('>b, >a', p)  => [<b>,<a>]  // 两个限定各自独立
+
+    建议：
+    介于 '>*' 选择器的这种细微差别，如果您需要大量使用该选择器，
+    或者对 Sizzle 的扩展选择器需求不高，考虑通用性，建议不使用 Sizzle 库。
+
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 */
@@ -71,10 +102,10 @@
         // 检索元素或元素集。
         // 选择器支持“>”表示上下文元素直接子元素。
         // fn: {String} querySelector[All]
-        $find = ( slr, ctx, fn ) => slr[0] == '>' ? $sub( slr, ctx, s => ctx[fn](s) ) : ctx[fn]( slr || null ),
+        $find = ( slr, ctx, fn ) => slr[0] == '>' ? $sub(slr.substring(1), ctx, fn === 'querySelector') : ctx[fn](slr || null),
 
         // 单一目标。
-        // slr首字符>表示当前上下文子元素限定。
+        // slr首字符>表示当前上下文直接子元素限定。
         // 如“>p”表示ctx的直接子元素里的p元素。
         // @return {Element|null}
         $one = function( slr, ctx, doc = Doc ) {
@@ -186,12 +217,8 @@
     const
         version = 'tQuery-0.2.0',
 
-        // 内部标识
-        // 临时属性名（合法怪异）
-        hackFix = '__tquery20161227--' + Date.now(),
-
         // 自我标志
-        ownerToken = Symbol && Symbol() || hackFix,
+        ownerToken = Symbol && Symbol() || ( '__tquery20161227--' + Date.now() ),
 
         //
         // 位置值定义。
@@ -237,77 +264,40 @@
 
 
 /**
- * 子级限定检索。
- * - 会对上下文元素设置临时的唯一属性。
- * - 子级限定兼容“>*”非标准选择器。
+ * 直接子元素选择。
+ * 实现顶级直接子元素“>*”选择器的支持（非标准）。
  * 例：
- *  	ol/li/ol/li，ctx 假设为第一个<ol>
+ * <ol> <!-- ctx -->
+ *     <li></li>
+ *     <li>
+ *         <ol>
+ *             <li></li>
+ *             <li></li>
+ *         </ol>
+ *     </li>
+ * </ol>
+ * 假设ctx为上层<ol>
  * 检索：
- *   - Sizzle('>li', ctx)  => 返回上级<li>
- *   - ctx.querySelectorAll('>li')  => 语法错误
- *   - $sub('>li', ctx, 'querySelectorAll')  => 同Slizzle（$all用）
- * 注意：
- * 与jQuery/Sizzle的细微不同，假设上级<ol>为ctx：
- * - Sizzle('ol>li', ctx)  => 返回下级<li>，上级<ol>不参与匹配。
- * - ctx.querySelectorAll('ol>li')  => 返回两级<li>，上级<ol>参与匹配。
+ * - Sizzle('>li', ctx)  => 返回上级<li>
+ * - ctx.querySelectorAll('>li')  => 语法错误
+ * - $sub('>li', ctx)  => 返回上级<li>，同 Slizzle
  *
- * - Sizzle('>li', ctx) => 返回ctx直接子元素<li>集
- * - $all('>li', ctx)   => 效果同上。
- *      注：
- *      因采用 ctx.querySelectorAll 调用，所以ctx需注入一个临时属性，选择器形如：
- * 		'OL[__tquery20161227--1492870889566] >li'
- *   	临时属性名是即时生成的，现实中重名的可能性应该极低。
+ * 注意：
+ * '>'仅限于直接子元素检索，而不是直接子元素限定，如 '>li li' 是无效的。
+ * 原因：
+ * 检索子级以下元素时，上级元素可以作为限定。这种限定并不精确，但可以促进标签结构设计的扁平化。
+ * 另外，也可以通过调整上级限定元素的属性来明确子孙级定位。
  *
  * @param  {String} slr 目标选择器
- * @param  {Element} ctx  父容器元素
- * @param  {Function} handle 检索回调
- * @return {Value} handle 的返回值
+ * @param  {Element} ctx 父容器元素
+ * @param  {Boolean} first 是否仅首个匹配
+ * @return {Element|[Element]|null} 匹配的子元素（集）
  */
-function $sub( slr, ctx, handle ) {
+function $sub( slr, ctx, first ) {
     if (ctx.nodeType != 1) {
         return null;
     }
-    try {
-        return handle( `${ctx.nodeName}[${hackAttr(ctx)}] ` + slr );
-    }
-    catch (e) {
-        window.console.error(e);
-    }
-    finally {
-        hackAttrClear(ctx);
-    }
-}
-
-
-/**
- * 临时属性标记。
- * - 针对选择器首个字符为“>”时的非标准选择器。
- * - 检索前添加属性名，检索后即时删除（finally）。
- *
- * @param  {Element} ctx 上下文容器元素
- * @return {String} 临时属性名
- */
-function hackAttr( ctx ) {
-    if (!ctx.hasAttribute( hackFix )) {
-        // 用ownerToken更安全
-        ctx[ ownerToken ] = true;
-        ctx.setAttribute( hackFix, '' );
-    }
-    return hackFix;
-}
-
-
-/**
- * 临时属性清除。
- * - 与hackAttr配套使用。
- *
- * @param {Element} ctx 上下文容器元素
- */
-function hackAttrClear( ctx ) {
-    if (ctx[ ownerToken ]) {
-        delete ctx[ ownerToken ];
-        ctx.removeAttribute( hackFix );
-    }
+    return first ? _first(ctx.children, slr) : tQuery.children(ctx, slr);
 }
 
 
@@ -561,7 +551,7 @@ Object.assign(tQuery, {
      * 承诺对象的 resolve 回调由 load 事件触发，reject 回调由 error 事件触发。
      * 注：通常需要元素插入DOM树后才会执行资源载入。
      * @param  {Element} el 载入的目标元素
-     * @param  {Element} next 插入参考位置（下一个）
+     * @param  {Node} next 插入参考位置（下一个节点）
      * @param  {Element} box 插入的目标容器，可选
      * @return {Promise} 载入承诺
      */
@@ -1797,7 +1787,7 @@ class Table {
      */
     body( idx, rows, sect ) {
         if (idx === undefined) {
-            return $A(this._tbl.tBodies);
+            return Arr(this._tbl.tBodies);
         }
         if (sect === undefined) {
             sect = this._body1;
@@ -2279,6 +2269,20 @@ function _nextUntil( el, slr, dir ) {
 }
 
 
+/**
+ * 返回首个匹配的元素。
+ * @param  {[Element]} els 元素集（数组）
+ * @param  {String|Element} slr 选择器或匹配元素
+ * @return {Element|null}
+ */
+function _first( els, slr ) {
+    for (let _el of els) {
+        if ($is(_el, slr)) return _el;
+    }
+    return null;
+}
+
+
 
 //
 // 元素收集器。
@@ -2401,20 +2405,30 @@ class Collector extends Array {
 
 
     /**
-     * 用集合的首个成员构造一个新集合。
+     * 用集合的首个匹配成员构造一个新集合。
+     * @param  {String|Function} slr 匹配选择器
      * @return {Collector}
      */
-    first() {
-        return new Collector( this[0], this );
+    first( slr ) {
+        let _el = slr ?
+            _first(this, slr) :
+            this[0];
+
+        return new Collector( _el, this );
     }
 
 
     /**
-     * 用集合的最后一个成员构造一个新集合。
+     * 用集合的最后一个匹配成员构造一个新集合。
+     * @param  {String|Function} slr 匹配选择器
      * @return {Collector}
      */
-    last() {
-        return new Collector( this[this.length-1], this );
+    last( slr ) {
+        let _el = slr ?
+            _first(this.reverse(), slr) :
+            this[this.length - 1];
+
+        return new Collector( _el, this );
     }
 
 
@@ -2954,10 +2968,10 @@ function pixelNumber( val ) {
  * @return {Iterator} 范围生成器
  */
 function* rangeNumber( beg, len ) {
-    if (len === 0) {
+    if (len <= 0) {
         return null;
     }
-    if (len > 0) while (len--) yield beg++;
+    while (len--) yield beg++;
 }
 
 
@@ -2969,7 +2983,7 @@ function* rangeNumber( beg, len ) {
  * @return {Iterator} 范围生成器
  */
 function* rangeChar( beg, len ) {
-    if (len === 0) {
+    if (len <= 0) {
         return null;
     }
     if (typeof len == 'string') {
@@ -3224,7 +3238,7 @@ function switchInsert( node, next, box ) {
  * - 主要用于脚本/样式元素的载入回调。
  * 承诺.then(el | undefined)
  * @param  {Element} el  目标元素
- * @param  {Element} next 下一个参考元素
+ * @param  {Node} next 下一个参考节点
  * @param  {Element} box 容器元素，可选
  * @param  {Boolean} tmp 为临时插入（成功后移除）
  * @return {Promise}
@@ -4447,22 +4461,26 @@ const Event = {
 
     /**
      * 匹配委托目标。
-     * - slr限于子级匹配，支持“>*”直接子元素选择器；
-     * - 只返回最深的匹配元素，因此外部调用最多一次；
+     * - slr限于子级匹配，支持“>*”直接子元素选择器。
+     * - 只返回最深的匹配元素，因此外部调用最多一次。
      * 注记：
-     *   仅匹配一次可对节点树的嵌套产生约束，鼓励设计师
-     *   尽量构造浅的节点树层次。
+     * 仅匹配一次可对节点树的嵌套产生约束，鼓励设计师尽量构造浅的节点树层次。
      *
      * @param  {Event} ev 原生事件对象
      * @param  {String} slr 选择器
      * @return {Element|null} 匹配元素
      */
     delegate( ev, slr ) {
-        let _box = ev.currentTarget;
+        let _box = ev.currentTarget,
+            _fun = null;
 
-        return $sub( slr, _box,
-            ss => this._closest( ss, ev.target, _box )
-        );
+        if (slr[0] === '>') {
+            let _els = tQuery.children(_box, slr.substring(1));
+            _fun = el => _els.includes(el);
+        } else {
+            _fun = el => $is(el, slr);
+        }
+        return this._closest( _fun, ev.target, _box )
     },
 
 
@@ -4611,8 +4629,8 @@ const Event = {
     /**
      * 封装调用。
      * 注记：
-     *   trigger激发的事件与原生事件同名时，
-     *   临时存储该原生调用状态，避免重复调用处理函数。
+     * trigger激发的事件与原生事件同名时，
+     * 临时存储该原生调用状态，避免重复调用处理函数。
      *
      * @param  {Function} handle 用户处理函数
      * @param  {String} slr 委托选择器
@@ -4673,18 +4691,18 @@ const Event = {
 
     /**
      * 向上匹配父级元素。
-     * - 从自身开始匹配测试；
-     * - 如果抵达容器元素，返回null；
-     * - 外部应保证根容器元素包含起点元素；
+     * - 从自身开始匹配测试。
+     * - 如果抵达容器元素，返回null。
+     * - 外部应保证根容器元素包含起点元素。
      *
-     * @param  {String} slr 选择器
+     * @param  {Function} match 匹配测试函数 function(Element): Boolean
      * @param  {Element} cur  起点元素
      * @param  {Element} root 限制根容器
      * @return {Element|null}
      */
-    _closest( slr, cur, root ) {
+    _closest( match, cur, root ) {
         while (cur !== root) {
-            if ($is(cur, slr)) return cur;
+            if (match(cur)) return cur;
             cur = cur.parentNode;
         }
         return null;

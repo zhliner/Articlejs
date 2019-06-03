@@ -33,9 +33,9 @@
 
 ### [$.script( data: string | Element, box: Element, doc?: Document ): Element | Promise]($.script.md)
 
-插入一个脚本元素 `<script>`。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以用 `$.Element()` 创建一个引入外部脚本（通过 src 属性）的 `<script>` 元素后在此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
+插入一个脚本元素 `<script>`。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以用 `$.Element()` 创建一个引入外部脚本的 `<script src="...">` 元素后在此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
 
-`box` 是脚本元素插入的目标容器，可选。默认插入 `document.head` 元素内。
+`box` 是脚本元素插入的目标容器，可选。默认插入 `document.head` 元素内。未明确指定 `box` 时，插入的 `<script>` 执行后会自动移除。
 
 
 ### [$.style( data: string | Element, next: Element, doc?: Document ): Element | Promise]($.style.md)
@@ -45,12 +45,12 @@
 `next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
 
 
-### [$.load(el: Element, next: Element, box: Element): Promise]($.load.md)
+### [$.load(el: Element, next: Node, box: Element): Promise]($.load.md)
 
 载入元素的外部资源，元素需要能够触发 load 和 error 事件，如 `<img>`。返回一个承诺对象，其中的 resolve 回调由 load 事件触发，reject 回调由 error 事件触发。通常需要元素插入DOM树后才会执行资源的载入。
 
 > **注：**<br>
-> `<script>` 和 `<link>` 元素实际上也符合本接口，但前者执行后可以删除，后者实际上属于 style 范畴（可并入 `$.style` 接口）。
+> `<script>` 和 `<link>` 元素实际上也符合本接口，但前者执行后可以删除，后者实际上属于 style 范畴，故纳入 `$.style` 接口。
 
 
 ### [$.each( obj: any, handle: Function, thisObj: any ): any]($.each.md)
