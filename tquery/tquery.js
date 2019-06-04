@@ -314,7 +314,7 @@ function $sub( slr, ctx, first ) {
  *  	...... 	    无效参数，构造一个空集
  * }
  * @param  {Mixed} its
- * @param  {Element|Document} ctx 查询上下文
+ * @param  {Element} ctx 查询上下文
  * @return {Collector}
  */
 function tQuery( its, ctx ) {
@@ -351,17 +351,21 @@ let $ = tQuery;
  * 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。
  *
  * @param  {Function} getter 接口获取器
- * @return {void}
+ * @return {tQuery|Proxy}
  */
 tQuery.embedProxy = function( getter ) {
     if (! isFunc(getter)) {
         throw new Error('must be a function');
     }
+    let _$ = $;
+
     // 运行时修改顶层 $
     $ = new Proxy($, {
         get: (target, fn, rec) => getter(fn) || Reflect.get(target, fn, rec)
     });
     window.$ = $; // export
+
+    return _$;
 };
 
 
@@ -424,7 +428,7 @@ Object.assign(tQuery, {
      * @return {Text} 新文本节点
      */
     Text( data, sep = ' ', doc = Doc ) {
-        if (typeof data !== 'string') {
+        if (typeof data === 'object' && data !== null) {
             data = nodeText(data, sep);
         }
         return doc.createTextNode( data );
@@ -3591,11 +3595,10 @@ function nodeText( nodes, sep = ' ' ) {
     let _buf = [];
 
     for ( let nd of values(nodes) ) {
-        if (typeof nd === 'string') {
-            _buf.push(nd);
-        } else {
-            _buf.push(nd.textContent || '');
+        if (nd && nd.nodeType) {
+            nd = nd.textContent;
         }
+        _buf.push(nd + '');
     }
     return _buf.join(sep);
 }
@@ -3612,12 +3615,7 @@ function nodeText( nodes, sep = ' ' ) {
  */
 function textHtml( code, doc = Doc ) {
     let _box = doc.createElement('div');
-
-    if (_box.append) {
-        _box.append(code);
-    } else {
-        _box.textContent = code;
-    }
+    _box.textContent = code;
     return _box.innerHTML;
 }
 

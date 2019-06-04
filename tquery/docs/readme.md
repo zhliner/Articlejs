@@ -92,7 +92,7 @@
 如果文档已就绪并已调用 `ready()` 注册的用户函数，本操作无效（同jQuery）。
 
 
-### [$.embedProxy( getter: Function ): void]($.embedProxy.md)
+### [$.embedProxy( getter: Function ): tQuery | Proxy]($.embedProxy.md)
 
 嵌入代理。由外部定义 $ 的调用集覆盖，`getter` 接受函数名参数，应当返回一个与目标接口声明相同的函数。
 
@@ -113,7 +113,7 @@
 
 ## 节点查询
 
-### [$.get( slr: string, ctx?: Element ): Element]($.get.md)
+### [$.get( slr: string, ctx?: Element ): Element | null]($.get.md)
 
 查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
 
@@ -123,7 +123,7 @@
 在上下文元素内查找和选择器匹配的子元素集，如果传递 `andOwn` 实参为 `true`，则选择器匹配包含上下文元素自身。
 
 
-### [$( its: any, ctx: Element | Document ): Collector]($.md)
+### [$( its: any, ctx: Element ): Collector]($().md)
 
 通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。
 
