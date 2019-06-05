@@ -2305,7 +2305,7 @@ class Collector extends Array {
         super(
             ...(obj && superArgs(obj) || [0])
         );
-        this.prevCollector = prev || null;
+        this.previous = prev || null;
     }
 
 
@@ -2410,6 +2410,7 @@ class Collector extends Array {
 
     /**
      * 用集合的首个匹配成员构造一个新集合。
+     * 注：CSS:first-child 是测试是否为首个，不同。
      * @param  {String|Function} slr 匹配选择器
      * @return {Collector}
      */
@@ -2456,7 +2457,7 @@ class Collector extends Array {
      * @param {String|Function} slr 选择器或过滤函数
      */
     addBack( slr ) {
-        let _new = $.filter(this.prevCollector, slr);
+        let _new = $.filter(this.previous, slr);
         _new = _new.length ? uniqueSort( _new.concat(this) ) : this;
 
         return new Collector( _new, this );
@@ -2468,7 +2469,7 @@ class Collector extends Array {
      * @return {Collector}
      */
     end() {
-        return this.prevCollector;
+        return this.previous;
     }
 
 
@@ -3569,14 +3570,20 @@ function usualNode( node ) {
  */
 function outerHtml( nodes, sep ) {
     let _buf = [];
-    nodes = nodes.nodeType ?
-        [nodes] : values(nodes);
+    nodes = nodes.nodeType ? [nodes] : values(nodes);
 
     for ( let nd of nodes ) {
-        if (nd.nodeType == 1) _buf.push( nd.outerHTML );
-        else if (nd.nodetyp == 3) _buf.push( nd.textContent );
-        // 字符串化
-        else _buf.push('' + nd);
+        if (nd) {
+            switch (nd.nodeType) {
+            case 1:
+                nd = nd.outerHTML;
+                break;
+            case 3:
+                nd =  nd.textContent;
+                break;
+            }
+        }
+        _buf.push('' + nd);
     }
     return _buf.join(sep);
 }
@@ -3598,7 +3605,7 @@ function nodeText( nodes, sep = ' ' ) {
         if (nd && nd.nodeType) {
             nd = nd.textContent;
         }
-        _buf.push(nd + '');
+        _buf.push('' + nd);
     }
     return _buf.join(sep);
 }
