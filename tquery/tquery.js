@@ -964,7 +964,7 @@ Object.assign(tQuery, {
      * - 目标元素（集）被本集合中元素作为子级元素包含；
      * - 或目标选择器与集合中元素的子级元素匹配；
      * 测试调用：func(el)
-     * @param  {NodeList|Array} els 目标元素集
+     * @param  {NodeList|Array|LikeArray} els 目标元素集
      * @param  {String|Function|Element|Array} slr 筛选器
      * @return {[Element]}
      */
@@ -990,7 +990,7 @@ Object.assign(tQuery, {
     /**
      * 排除过滤。
      * - 从集合中移除匹配的元素；
-     * @param  {NodeList|Array} els 目标元素集
+     * @param  {NodeList|Array|LikeArray} els 目标元素集
      * @param  {String|Function|Element|Array} slr 筛选器
      * @return {[Element]}
      */

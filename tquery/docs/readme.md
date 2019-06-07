@@ -132,11 +132,11 @@
 
 ## 前置说明
 
-> ### 关于单元素版和集合版
+> #### 关于单元素版和集合版
 >
 > 以下接口是单元素版，即对单个元素执行的操作，它被直接定义在 `$` 函数对象上。对 `$()` 的检索调用返回一个 `Collector` 实例，也即一个集合，大部分单元素版的接口在该集合上也存在，它们被称为集合版接口。
 >
-> 集合版接口的行为通常是单元素版重复调用后执行合并（会排序去重），因此通常效率稍低。其接口声明也与单元素版相同，除了没有单元素版的首个元素参数外。
+> 集合版接口的行为通常是单元素版重复调用后执行合并（会排序去重），因此通常效率稍低。其接口声明与单元素版基本相同，除了没有单元素版的首个元素参数外。
 >
 > 如 `.nextAll`：
 > - 单元素版：`$.nextAll( el, slr )` 返回元素 `el` 的后续兄弟元素，`slr` 为匹配过滤。
@@ -225,9 +225,15 @@
 
 ## 节点过滤
 
-### [$.filter(els: NodeList | Array | LikeArray, fltr: string | Function | Array | Element): [Element]]($.filter.md)
+### [$.filter( els: NodeList | Array | LikeArray, fltr: string | Function | Array | Element ): [Element]]($.filter.md)
 
 对 `els` 中的元素用 `fltr` 匹配过滤，返回一个匹配元素的新的集合。如果没有过滤条件，返回原始集（已转换为数组）。
+
+
+### [$.has( els: NodeList | Array | LikeArray, slr: string | Function | Array | Element ): [Element]]($.has.md)
+
+
+### [$.not( els: NodeList | Array | LikeArray, slr: string | Function | Array | Element ): [Element]]($.not.md)
 
 
 ## 节点操作
