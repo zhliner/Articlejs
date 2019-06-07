@@ -904,6 +904,9 @@ Object.assign(tQuery, {
         let _fun = getFltr(slr),
             _i = 0;
 
+        if (!isFunc(_fun)) {
+            return null;
+        }
         while (el && !_fun(el, _i++)) {
             el = el.parentElement;
         }
@@ -921,7 +924,7 @@ Object.assign(tQuery, {
      * 此接口不管元素是否隐藏，都会返回position为非static的容器元素。
      *
      * @param  {Element} el 参考元素
-     * @return {Element|null}
+     * @return {Element}
      */
     offsetParent( el ) {
         // html
@@ -941,7 +944,7 @@ Object.assign(tQuery, {
     /**
      * 过滤元素集。
      * 如果没有过滤条件，返回原始集。
-     * @param  {NodeList|Array} els 目标元素集
+     * @param  {NodeList|Array|LikeArray} els 目标元素集
      * @param  {String|Function|Element|Array} fltr 筛选条件
      * @return {[Element]}
      */
@@ -2590,8 +2593,9 @@ elsEx([
                 (buf, el) => buf.concat( $[fn](el, ...rest) ),
                 []
             );
-            // 可能有重复。
-            return els.length > 1 ? uniqueSort(_buf) : _buf;
+            // 无条件排序。
+            // 注：不对单成员免于排序，统一约定。
+            return uniqueSort(_buf);
         }
 );
 
@@ -2923,10 +2927,13 @@ function getFltr( its ) {
     if (!its || isFunc(its)) {
         return its;
     }
-    if (its.nodeType || typeof its == 'string') {
+    if (typeof its == 'string') {
         return e => $is(e, its);
     }
-    return ( e => its.includes(e) );
+    if (isArr(its)) {
+        return ( e => its.includes(e) );
+    }
+    return ( e => e === its );
 }
 
 

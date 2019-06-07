@@ -110,20 +110,40 @@ p.ani {
 }
 </style>
 <script>
-    $.holdReady(true);
-    $.ready(function () {
-        console.info('All finished.');
-    });
-    // $(function(){
-    //     console.info('tQuery load and DOMContentLoaded.');
+    // $.holdReady(true);
+    // $.ready(function () {
+    //     console.info('All finished.');
     // });
+    $(function(){
+        console.info('tQuery load and DOMContentLoaded.');
+    });
 </script>
 </head>
 
-<body lang="" class="Body">
+<body lang="">
     <div style="font-size:1em;width:10em;border:1px #999 solid;background-color:#fff;">1em字体</div>
     <div style="font-size:1ex;width:10ex;border:1px #999 solid;background-color:#fff;">1ex字体</div>
     <div style="font-size:1ch;width:10ch;border:1px #999 solid;background-color:#fff;">1ch字体</div>
+
+    <section class="Content" style="position: relative;">
+        <p id="test" class="Test Hai">
+            这是一个<strong>通用的</strong><em>测试段落</em>。包含了一些<em class="fix">行内元素</em>。
+        </p>
+        <p class="Test">
+            这是第二个<em>测试</em>段落。包含了一些<em class="fix">行内</em>元素。
+        </p>
+        <p>
+            这是<strong>另一个</strong>段落。
+        </p>
+    </section>
+    <p id="test2">这是另一个<em>段落</em>。</p>
+    <ul id="ulist">
+        <li>Item 1</li>
+        <li class="Item">Item 2</li>
+        <li>Item 3</li>
+        <li class="End">Item 4</li>
+    </ul>
+
     <article class="___Text" style="font-size:10pt;">
         <div style="font-size:1em;width:10em;border:1px #999 solid;background-color:green;">1em字体</div>
         <div style="font-size:1ex;width:10ex;border:1px #999 solid;background-color:#fff;">1ex字体</div>
@@ -150,15 +170,6 @@ p.ani {
           <text x="150" y="125" font-size="60" text-anchor="middle" fill="white">SVG</text>
         </svg>
         </p>
-
-        <p id="test" class="Test Hai">这是一个<strong>通用的</strong><em>测试段落</em>。包含了一些<em>行内元素</em>。</p>
-        <ul id="ulist">
-            <li>Item 1</li>
-            <li class="Item">Item 2</li>
-            <li>Item 3</li>
-            <li class="End">Item 4</li>
-        </ul>
-
         <h3></h3>
         <h4></h4>
         <h5></h5>
@@ -277,11 +288,11 @@ p.ani {
     </div>
 </body>
 <script>
-    let sel = $.Element('link', {rel: 'stylesheet', href: 'https://api.jquery.com/jquery-wp-content/themes/jquery/css/base.css?v=1'});
-    $.style(sel).then(el => {
-        console.info('holdReady(false)');
-        $.holdReady(false);
-    });
-    console.info('DOM first loaded.');
+    // let sel = $.Element('link', {rel: 'stylesheet', href: 'https://api.jquery.com/jquery-wp-content/themes/jquery/css/base.css?v=1'});
+    // $.style(sel).then(el => {
+    //     console.info('holdReady(false)');
+    //     $.holdReady(false);
+    // });
+    // console.info('DOM first loaded.');
 </script>
 </html>

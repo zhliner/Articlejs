@@ -184,12 +184,16 @@
 
 ### [$.parents( el: Element, slr: string | Function ): [Element]]($.parents.md)
 
-获取 `el` 元素的上级元素集。`slr` 为可选的选择器或测试函数，用于过滤。
+获取 `el` 元素的上级元素集。`slr` 为可选的选择器或测试函数，从父元素开始匹配测试，结果集保持从内向外的逐层顺序。
+
+`slr` 若为测试函数，接受两个参数：`(el:Element, i:Number)`，前者为上级元素，后者为向上的层级计数（父元素时为1）。
 
 
 ### [$.parentsUntil( el: Element, slr: string | Function | Array | Element ): [Element]]($.parentsUntil.md)
 
 汇集 `el` 元素的全部上级元素，直到 `slr` 匹配（不含匹配的元素）。从父元素开始匹配测试，结果集保持从内向外的逐层顺序。
+
+`slr` 若为测试函数，接受两个参数：`(el:Element, i:Number)`，前者为上级元素，后者为向上的层级计数（父元素时为1）。
 
 
 ### [$.closest( el: Element, slr: string | Function | Array | Element ): Element]($.closest.md)
@@ -201,20 +205,20 @@
 
 ### [$.offsetParent( el: Element ): Element]($.offsetParent.md)
 
-获取 `el` 最近的父级定位元素。从父元素开始检查，如果最终没有匹配返回文档根元素（即 `<html>`，同 jQuery）。如果当前元素属于 `<svg>` 的子节点，则返回 `<svg>` 元素本身。
+获取 `el` 最近的父级定位元素。从父元素开始检查，如果最终没有匹配返回文档根元素（即 `<html>`，同 jQuery）。如果当前元素属于 `<svg>` 的子节点，则返回 `<svg>` 根容器元素。
 
 此接口与元素原生的 `offsetParent` 属性稍有不同，不管元素是否隐藏，都会返回 `position` 为非 `static` 的容器元素。
 
 > **注：**<br>
-> 元素的 `position` 样式被设置为：`relative`、`absolute`、`fixed` 时即为定位元素。<br>
 > 元素原生的 `offsetParent` 属性在元素隐藏（`display:none`）时值为 null。<br>
+> 元素的 `position` 样式被设置为：`relative`、`absolute`、`fixed` 时即为定位元素。<br>
 
 
 ## 节点过滤
 
-### [$.filter(els: Array | NodeList, fltr: string | Function | Array | Element): [Element]]($.filter.md)
+### [$.filter(els: NodeList | Array | LikeArray, fltr: string | Function | Array | Element): [Element]]($.filter.md)
 
-对 `els` 中的元素用 `fltr` 匹配过滤，返回一个匹配元素的新的集合。如果没有过滤条件，返回原始集。
+对 `els` 中的元素用 `fltr` 匹配过滤，返回一个匹配元素的新的集合。如果没有过滤条件，返回原始集（已转换为数组）。
 
 
 ## 节点操作
