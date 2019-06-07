@@ -28,28 +28,28 @@
 ### 与 jQuery 同名接口的差异简表
 
 - `.contains`
-    - jQuery: 仅针对内部子孙元素，不含容器元素自身测试。
-    - tQuery: 包含容器元素自身测试，与DOM同名接口行为相同。
+    - *jQuery*: 仅针对内部子孙元素，不含容器元素自身测试。
+    - *tQuery*: 包含容器元素自身测试，与DOM同名接口行为相同。
 
 - `.hasClass`
-    - jQuery: 对空格分隔的名称序列视为一个整体。
-    - tQuery: 空格分隔的名称序列被视为多个名称，逐个判断，因此 `class="A B"` 与 `class="B A"` 是一样的。
+    - *jQuery*: 对空格分隔的名称序列视为一个整体。
+    - *tQuery*: 空格分隔的名称序列被视为多个名称，逐个判断，因此 `class="A B"` 与 `class="B A"` 是一样的。
 
 - `.is`
-    - jQuery: 只要集合中有一个匹配即为true，且可接受多种类型的参数。
-    - tQuery: 对集合中每一个元素判断，返回一个true和false值混合的集合（数组），参数类型较为简单。
+    - *jQuery*: 只要集合中有一个匹配即为true，且可接受多种类型的参数。
+    - *tQuery*: 对集合中每一个元素判断，返回一个true和false值混合的集合（数组），参数类型较为简单。
 
 - `.first/.last`
-    - jQuery: 简单返回集合中首个或最后一个成员。
-    - tQuery: 返回集合中首个或最后一个**匹配**的成员。接受一个可选的选择器匹配参数，无实参调用时与jQuery相同。
+    - *jQuery*: 简单返回集合中首个或最后一个成员。
+    - *tQuery*: 返回集合中首个或最后一个**匹配**的成员。接受一个可选的选择器匹配参数，无实参调用时与jQuery相同。
 
 - `$.data/.data`
-    - jQuery: 存储与目标元素关联的任意数据，或者返回集合中匹配首个元素的存储的值。
-    - tQuery: 没有该接口。元素的data-xx系属性融入在 `attr` 和 `prop` 接口中，支持名称简写（`-xx` 即为 `data-xx`）。
+    - *jQuery*: 存储与目标元素关联的任意数据，或者返回集合中匹配首个元素的存储的值。
+    - *tQuery*: 没有该接口。元素的data-xx系属性融入在 `attr` 和 `prop` 接口中，支持名称简写（`-xx` 即为 `data-xx`）。
 
 - `$.get`
-    - jQuery: 用 `Ajax` 方式通过 `GET` 方法获取目标网站的内容。
-    - tQuery: 获取文档元素的单元素版本，如通过 `id` 定位或 `querySelector` 检索。
+    - *jQuery*: 用 `Ajax` 方式通过 `GET` 方法获取目标网站的内容。
+    - *tQuery*: 获取文档元素的单元素版本，如通过 `id` 定位或 `querySelector` 检索。
 
 
 ### 与 jQuery 的其它差异
@@ -57,8 +57,8 @@
 > **注**：tQuery 只涉及 jQuery 中与 DOM 相关的一个子集，因此差异说明也仅指这一部分。
 
 - 元素/节点创建。
-    - jQuery: 通过 `$( html )` 方式创建元素，但仅能创建元素（`Element`）而无法创建单纯的文本节点（`Text`）。
-    - tQuery: 通过 `$.Element( tag, data, conf )` 创建元素，通过 `$.Text( data )` 创建文本节点。另外还有 `$.svg()`、`$.table()`、`$.script()`、`$.style()` 等创建特定的元素。
+    - *jQuery*: 通过 `$( html )` 方式创建元素，但仅能创建元素（`Element`）而无法创建单纯的文本节点（`Text`）。
+    - *tQuery*: 通过 `$.Element( tag, data, conf )` 创建元素，通过 `$.Text( data )` 创建文本节点。另外还有 `$.svg()`、`$.table()`、`$.script()`、`$.style()` 等创建特定的元素。
 
 - 工具函数。
 
