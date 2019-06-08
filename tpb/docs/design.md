@@ -19,6 +19,7 @@
 
 **To:**
 从流程取值对目标赋值，展现结果（如样式）。支持后续联动事件触发和元素状态PB（如：focus/select等）。
+如果目标为多个：源数据为数组时，分别赋值，否则为复制赋值。
 > {ToPB}
 
 to = "Query | Method | Next-Stage"
@@ -28,10 +29,16 @@ Query:
     - xxxx 单元素检索，$.get(): Element
     - [xx] 多元素检索，$(...): Collector
 
+    扩展
+    - [xx]:(beg, end) 多元素检索并过滤，beg为起点下标，end为终点下标（不包含），可选。
+    - [xx]:[x,y,z...] 多元素检索并过滤，[...] 为目标位置数组。
+    - [xx]:{function} 多元素检索并过滤，{} 内为过滤函数，参数：(Element, index)。
+
 
 Method:
 
     [node]
+    // 下面的方法种中流程数据为数据，当前检索为目标。
     - before
     - after
     - begin
@@ -40,6 +47,14 @@ Method:
     - append
     - fill
     - replace
+
+    // 下面的方法中流程数据为目标，当前检索的值为数据。
+    - beforeTo
+    - afterTo
+    - prependTo
+    - appendTo
+    - replaceTo
+    - fillTo
 
     [attr]
     - #[name]
@@ -64,6 +79,23 @@ Next-Stage:
 
     - fire
     - goto ?
+    - trigger
+
+    // 默认在流程元素上触发。
+    // 注：在 Method 后被替换为当前检索。
+    - focus
+    - blur
+    - select
+    - click
+    - dblclick
+    - submit
+    - reset
+    - change
+    - contextmenu
+    - scroll
+    - scrollLeft
+    - scrollTop
+    - ...
 
 
 **By:**
