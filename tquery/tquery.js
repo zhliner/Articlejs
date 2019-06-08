@@ -2691,6 +2691,8 @@ elsExfn([
         'blur',
         'submit',
         'reset',
+        'change',
+        'scroll',
     ],
     fn =>
     function(...rest) {
