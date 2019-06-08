@@ -2139,6 +2139,8 @@ tQuery.Table = Table;
     'blur',
     'submit',
     'reset',
+    'change',
+    'scroll',
 ]
 .forEach(function( name ) {
     tQuery[name] = el => (name in el) && el[name]() || this;
