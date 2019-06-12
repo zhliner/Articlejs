@@ -2,7 +2,7 @@
 *******************************************************************************
             Copyright (c) 铁皮工作室 2017 MIT License
 
-                @Project: tQuery v0.2.x
+                @Project: tQuery v0.3.x
                 @Author:  风林子 zhliner@gmail.com
 *******************************************************************************
 
@@ -215,7 +215,7 @@
 
 
     const
-        version = 'tQuery-0.2.0',
+        version = 'tQuery-0.3.0',
 
         // 自我标志
         ownerToken = Symbol && Symbol() || ( '__tquery20161227--' + Date.now() ),
@@ -641,6 +641,30 @@ Object.assign(tQuery, {
 
 
     /**
+     * 包含检查。
+     * - 检查容器节点是否包含目标节点。
+     * - 目标即是容器本身也为真（与DOM标准兼容）。
+     * 注：与jQuery.contains有所不同；
+     * @param  {Element} box 容器节点
+     * @param  {Node} node 检查目标
+     * @return {Boolean}
+     */
+    contains( box, node ) {
+        if (! node) {
+            return false;
+        }
+        let _nt = node.nodeType;
+
+        if (_nt != 1 && _nt != 3) {
+            return false;
+        }
+        return box.contains ?
+            box.contains(node) :
+            box === node || box.compareDocumentPosition(node) & 16;
+    },
+
+
+    /**
      * 文档就绪绑定。
      * - 可以绑定多个，会按绑定先后逐个调用。
      * - 若文档已载入并且未被hold，会立即执行。
@@ -965,25 +989,22 @@ Object.assign(tQuery, {
      * - 或目标选择器与集合中元素的子级元素匹配；
      * 测试调用：func(el)
      * @param  {NodeList|Array|LikeArray} els 目标元素集
-     * @param  {String|Function|Element|Array} slr 筛选器
+     * @param  {String|Function|Element} slr 筛选器
      * @return {[Element]}
      */
     has( els, slr ) {
         let _f = slr;
 
         if (!slr || !els.length) {
-            return els;
+            return $A(els);
         }
         if (typeof slr == 'string') {
             _f = el => tQuery.find(slr, el).length;
         }
-        else if (isArr(slr)) {
-            _f = el => slr.some( e => tQuery.contains(el, e) );
-        }
         else if (slr.nodeType) {
             _f = el => slr !== el && tQuery.contains(el, slr);
         }
-        return isFunc(_f) && $A(els).filter(_f);
+        return $A(els).filter(_f);
     },
 
 
@@ -991,16 +1012,16 @@ Object.assign(tQuery, {
      * 排除过滤。
      * - 从集合中移除匹配的元素；
      * @param  {NodeList|Array|LikeArray} els 目标元素集
-     * @param  {String|Function|Element|Array} slr 筛选器
+     * @param  {String|Function|Element|Array} slr 排除条件
      * @return {[Element]}
      */
     not( els, slr ) {
         let _f = slr;
 
         if (!slr || !els.length) {
-            return els;
+            return $A(els);
         }
-        if (typeof slr == 'string') {
+        if (typeof slr === 'string') {
             _f = el => !$is(el, slr);
         }
         else if (isArr(slr)) {
@@ -1008,6 +1029,9 @@ Object.assign(tQuery, {
         }
         else if (slr.nodeType) {
             _f = el => el !== slr;
+        }
+        else if (isFunc(slr)) {
+            _f = (el, i, arr) => !slr(el, i, arr);
         }
         return $A(els).filter(_f);
     },
@@ -1019,39 +1043,59 @@ Object.assign(tQuery, {
 
     /**
      * 外层包裹。
-     * - 在目标节点外包一层元素（容器）；
-     * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数；
-     * - 包裹采用结构字符串时，会递进至最深层子元素为容器；
-     * - 直接提供或返回元素，会被视为父容器，内容插入前端（与jQuery异）；
+     * - 在目标节点外包一层元素（容器）。
+     * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数。
+     * - 取值函数：function(Node): Element|string
+     * - 包裹采用结构字符串时，会递进至最深层子元素为容器。
+     * - 被包裹的内容插入到容器元素的前端（与jQuery不同）。
      * @param  {Node} node 目标节点
-     * @param  {Html|Element|Function} box 包裹容器
-     * @return {Element|false} 包裹容器元素
+     * @param  {html|Element|Function} box 包裹容器
+     * @return {Element|false} 包裹的容器元素
      */
     wrap( node, box ) {
-        return node.nodeType <= 3 && wrapData(node, box, node, node.ownerDocument);
+        if (node.nodeType > 3) {
+            throw new Error('node must be a Element or Text');
+        }
+        return wrapData(node, box, node, node.ownerDocument);
     },
 
 
     /**
      * 内层包裹。
-     * - 在目标元素内嵌一层包裹元素（即对内容wrap）；
+     * - 在目标元素内嵌一层包裹元素（即对内容wrap）。
+     * - 取值函数：function(NodeList): Element|string
      * @param  {Element} el 目标元素
-     * @param  {Html|Element|Function} box 包裹容器
+     * @param  {html|Element|Function} box 包裹容器
      * @return {Element|false} 包裹容器元素
      */
     wrapInner( el, box ) {
-        return el.nodeType == 1 && wrapData(el, box, el.childNodes, el.ownerDocument);
+        if (el.nodeType != 1) {
+            throw new Error('el must be a Element');
+        }
+        let _cons = Arr(el.childNodes);
+
+        return wrapData(_cons[0], box, _cons, el.ownerDocument);
     },
 
 
     /**
      * 元素解包裹。
-     * - 用元素内容替换元素本身（内容上升到父级）；
+     * - 用元素内容替换元素本身（内容上升到父级）。
+     * - 内容节点可能包含注释节点，会从返回集中清除。
      * @param  {Element} el 容器元素
      * @return {Array} 容器子节点集
      */
     unwrap( el ) {
-        return el.nodeType == 1 && tQuery.replace(el, tQuery.contents(el));
+        if (el.nodeType != 1) {
+            throw new Error('el must be a Element');
+        }
+        let _cons = Arr(el.childNodes);
+
+        el.parentElement.replaceChild(
+            fragmentNodes(_cons, null, el.ownerDocument),
+            el
+        );
+        return _cons.filter( masterNode );
     },
 
 
@@ -1141,43 +1185,19 @@ Object.assign(tQuery, {
 
 
     /**
-     * 获取/转换元素内容。
-     * - 可传递一个加工函数对内容做定制处理。
-     * - 默认的加工函数返回子元素、文本和注释节点。
-     * - proc 传递非函数时简单返回 childNodes。
-     * 加工函数：
-     * - 参数：直接子节点；
-     * - 返回数组时成员被提取，返回null被忽略；
+     * 获取元素内容。
+     * - 默认返回元素内的子元素和文本节点。
+     * - 传递 comment 为真表示包含注释节点。
      * @param  {Element} el 容器元素
-     * @param  {Function} proc 加工函数
+     * @param  {Boolean} comment 包含注释节点
      * @return {[Node]}
      */
-    contents( el, proc = usualNode ) {
-        if (typeof proc !== 'function') {
-            return Arr(el.childNodes);
-        }
-        return tQuery.map( el.childNodes, nd => proc(nd) );
-    },
+    contents( el, comment = false ) {
+        let _proc = comment ?
+            usualNode :
+            masterNode;
 
-
-    /**
-     * 包含检查。
-     * - 检查容器节点是否包含目标节点；
-     * - 目标即是容器本身也为真（与DOM标准相同）；
-     * 注：与jQuery.contains有所不同；
-     * @param  {Node} box 容器节点
-     * @param  {Node} node 检查目标
-     * @return {Boolean}
-     */
-    contains( box, node ) {
-        let _nt = node.nodeType;
-
-        if (_nt != 1 && _nt != 3) {
-            return false;
-        }
-        return box.contains ?
-            box.contains(node) :
-            box === node || box.compareDocumentPosition(node) & 16;
+        return Arr(el.childNodes).filter(_proc);
     },
 
 
@@ -1722,6 +1742,13 @@ Object.assign(tQuery, {
         return this;
     },
 
+});
+
+
+// 版本说明。
+Reflect.defineProperty(tQuery, 'version', {
+    value: version,
+    enumerable: false,
 });
 
 
@@ -2319,7 +2346,9 @@ class Collector extends Array {
 
     /**
      * 查找匹配的元素集。
-     * 注：单个元素的find查找结果不存在重复可能。
+     * 注：
+     * - 单个元素的find查找结果不存在重复可能。
+     * - 调用 $.find 使得外部嵌入的代理可延伸至此。
      * @param  {String} slr 选择器
      * @param  {Boolean} andOwn 包含自身匹配
      * @return {Array}
@@ -2339,25 +2368,27 @@ class Collector extends Array {
     /**
      * 用一个容器包裹集合里的元素。
      * - 目标容器可以是一个元素或HTML结构字符串或取值函数。
-     * - 取值函数需要返回一个HTML结构字符串或元素。
+     * - 取值函数可以返回一个容器元素或html字符串。
+     * - 传递或返回字符串时，容器元素会递进选取为最深层子元素。
+     * - 传递或返回元素时，元素直接作为容器，包裹内容为前插（prepend）方式。
      * - 如果目标元素没有父元素（游离），其将替换集合中的首个元素。
-     * - 如果box是一个字符串或返回字符串的函数，可以传递容器元素所属的文档对象（Document）。
-     * 注记：
-     * - 调用$系成员，使得$的代理有效（如果有）；
      * @param  {Element|String|Function} box 目标容器
      * @return {Collector}
      */
     wrapAll( box, doc = Doc ) {
-        if (isFunc(box)) {
+        if ( isFunc(box) ) {
             box = box(this);
         }
+        let _end = box;
+
         if (typeof box == 'string') {
             box = buildFragment(box, doc).firstElementChild;
+            _end = deepChild(box);
         }
         if (!box.parentNode) {
-            $.replace(this[0], box);
+            tQuery.replace(this[0], box);
         }
-        $.append( deepChild(box), this );
+        _end.prepend(...this);
 
         return new Collector( box, this );
     }
@@ -2366,33 +2397,25 @@ class Collector extends Array {
     /**
      * 让集合中的元素脱离DOM。
      * - 脱离的元素会作为一个新集合被压入栈；
-     * 注记：（同上）
-     * @param  {String|Function|Element|Array} fltr 筛选器
+     * 注记：
+     * 调用 $ 系同名成员使得外部嵌入的代理可作用于此。
      * @return {Collector} 脱离的元素集
      */
-    detach( fltr ) {
-        let _els = fltr ?
-            $.filter(this, fltr) :
-            this;
-
-        return new Collector( _els.map(e => remove(e)), this );
+    detach() {
+        return new Collector( this.map(e => $.detach(e)), this );
     }
 
 
     /**
      * 删除节点集。
-     * - 如果传递slr进行筛选，剩余的元素作为一个集合压入栈。
-     *   否则新的集合为空（只有addBack、end操作有意义）。
+     *   返回的新集合为空（只有addBack、end操作有意义）。
      * 注记：（同上）
-     * @param  {String|Function|Element|Array} fltr 筛选器
-     * @return {Collector}
+     * @return {Collector} 一个空集
      */
-    remove( fltr ) {
-        let _els = fltr ?
-            $.filter(this, fltr) :
-            this;
+    remove() {
+        this.forEach( el => $.remove(el) );
 
-        return new Collector( exclude( this, removes(_els) ), this );
+        return new Collector( null, this );
     }
 
 
@@ -2506,11 +2529,6 @@ class Collector extends Array {
 }
 
 
-Reflect.defineProperty(Collector.prototype, 'version', {
-    value: version,
-    enumerable: false,
-});
-
 // 已封装标志。
 Reflect.defineProperty(Collector.prototype, ownerToken, {
     value: true,
@@ -2603,12 +2621,15 @@ elsEx([
 
 
 //
-// 简单求值。
+// 简单调用&求值。
 // $.xx 成员调用返回一个节点集或单个节点。
 // 各元素返回的节点集会被合并到单一集合（扁平化）。
 // 注：假定 els 不会重复，因此无需排序。
 /////////////////////////////////////////////////
 elsEx([
+        'wrap',
+        'wrapInner',
+        'unwrap',
         'clone',
         'children',
         'contents',
@@ -3304,45 +3325,17 @@ function remove( node, deleted ) {
 
 
 /**
- * 删除元素集。
- * @param  {Array} list  元素集
- * @return {Array} list
- */
-function removes( list ) {
-    return $.each( list, el => remove(el, true) );
-}
-
-
-/**
- * 集合排除。
- * 专用：子集必然在总集之内。
- * @param  {Array} list 总集
- * @param  {Array} sets 欲排除子集
- * @return {Array}
- */
-function exclude( list, sets ) {
-    if (list.length == sets.length) {
-        return [];
-    }
-    if (sets.length == 0) {
-        return list;
-    }
-    return list.filter( it => sets.includes(it) );
-}
-
-
-/**
  * 内容包裹。
- * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数；
- * - 包裹采用结构字符串时，会递进至最深层子元素为容器；
- * - box直接传递或返回元素时被视为父容器，但内容前插（与jQuery异）；
- * - 取值函数参数：将被包裹的数据（Node|NodeList）
+ * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数。
+ * - 包裹采用结构字符串时，会递进至首个最深层的子元素为容器。
+ * - box直接传递或返回元素时被视为父容器，但内容前插（与jQuery异）。
+ * - 取值函数：function(Node|[Node]): Element|string
  * 注记：
- * - 对提供的容器支持为前部插入有更好的可用性；
+ * - 对提供的容器支持为前部插入有更好的可用性（可变CSS选择器）。
  *
  * @param  {Node} rep 替换点节点
  * @param  {Element|String|Function} box 包裹容器或取值函数
- * @param  {Node|NodeList} data 被包裹数据
+ * @param  {Node|[Node]} data 被包裹数据
  * @param  {Document} doc 元素所属文档对象
  * @return {Element} 包裹容器元素
  */
@@ -3356,8 +3349,13 @@ function wrapData( rep, box, data, doc = Doc ) {
         box = buildFragment(box, doc).firstElementChild;
         _end = deepChild(box);
     }
-    tQuery.replace(rep, box).prepend(_end, data);
+    tQuery.replace(rep, box);
 
+    if (isArr(data)) {
+        _end.prepend(...data);
+    } else {
+        _end.prepend(data);
+    }
     return box;
 }
 
@@ -3562,11 +3560,23 @@ function scrollSet( dom, val, xy ) {
  * 检查并返回普通节点。
  * - 普通节点包含元素/文本/注释节点；
  * @param  {Node} node 目标节点
- * @return {Node|null}
+ * @return {Boolean}
  */
 function usualNode( node ) {
     let _nt = node.nodeType;
-    return (_nt == 1 || _nt == 3 || _nt == 8) ? node : null;
+    return _nt == 1 || (_nt == 3 && node.textContent.trim()) || _nt == 8;
+}
+
+
+/**
+ * 过滤出有效的节点集。
+ * - 仅包含元素和非空文本节点。
+ * @param  {Node} node 节点
+ * @return {Nude|null}
+ */
+function masterNode( node ) {
+    let _nt = node.nodeType;
+    return _nt == 1 || _nt == 3 && node.textContent.trim();
 }
 
 
@@ -3752,7 +3762,7 @@ function domManip( node, cons, clone, event ) {
  * 节点集构造文档片段。
  * - 只接受元素、文本节点、注释和文档片段数据；
  * @param  {NodeList|Set|Iterator} nodes 节点集/迭代器
- * @param  {Function} get 取值回调
+ * @param  {Function} get 取值回调，可选
  * @param  {Document} doc 文档对象
  * @return {Fragment|null}
  */
@@ -3767,7 +3777,7 @@ function fragmentNodes( nodes, get, doc ) {
     for ( let n of nodes ) {
         let _nd = get && get(n) || n;
 
-        if (_nd && (usualNode(_nd) || _nd.nodeType == 11)) {
+        if ( _nd && (usualNode(_nd) || _nd.nodeType == 11) ) {
             _all.appendChild(_nd);
         }
     }
@@ -4932,10 +4942,10 @@ tQuery.every = function( iter, comp, thisObj ) {
 
 /**
  * 集合转换。
- * - 支持.entries接口的内置对象包括Map,Set系列；
- * - 回调返回undefined或null的条目被忽略；
- * - 回调可以返回一个数组，其成员被提取添加；
- * - 最终返回一个转换后的值数组；
+ * - 支持.entries接口的内置对象包括Map,Set系列。
+ * - 回调返回undefined或null的条目被忽略。
+ * - 回调可以返回一个数组，其成员被提取添加。
+ * - 最终返回一个转换后的值数组。
  *
  * 注：功能与jQuery.map相同，接口略有差异。
  *

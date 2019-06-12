@@ -31,6 +31,11 @@
 `Table` 仅提供最简单的表格操作，除了表标题的设置或删除，主要是对表头（`<thead>`）、表脚（`<tfoot>`）和表主体（`<tbody>`）内表格行的添加、删除等，并且自动保持列数不变（也不能修改）。
 
 
+### [$.Table]($.table.md#tableClass)
+
+一个简单的表格类（`class`），主要提供对表格行的操作，也是 `$.table()` 的返回值的类型。这是一个被导出的内部类，主要用于外部继承复用，普通的场景请使用 `$.table` 接口。
+
+
 ### [$.script( data: string | Element, box: Element, doc?: Document ): Element | Promise]($.script.md)
 
 插入一个脚本元素 `<script>`。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以用 `$.Element()` 创建一个引入外部脚本的 `<script src="...">` 元素后在此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
@@ -50,7 +55,7 @@
 载入元素的外部资源，元素需要能够触发 load 和 error 事件，如 `<img>`。返回一个承诺对象，其中的 resolve 回调由 load 事件触发，reject 回调由 error 事件触发。通常需要元素插入DOM树后才会执行资源的载入。
 
 > **注：**<br>
-> `<script>` 和 `<link>` 元素实际上也符合本接口，但前者执行后可以删除，后者实际上属于 style 范畴，故纳入 `$.style` 接口。
+> `<script>` 和 `<link>` 元素实际上也符合本接口，但前者执行后可以删除，故单独为一个 `$.script` 接口，后者实际上属于 style 范畴，故由 `$.style` 接口负责。
 
 
 ### [$.each( obj: any, handle: Function, thisObj: any ): any]($.each.md)
@@ -75,6 +80,13 @@
 ### [$.isXML( el: Element | Object ): boolean]($.isXML.md)
 
 检查目标是否为一个 XML 节点。
+
+
+### [$.contains( box: Element, node: Node ): boolean]($.contains.md)
+
+检查目标节点 `node` 是否包含在 `box` 元素之内。与 DOM 标准兼容，匹配检查包含容器元素自身。
+
+> **注**：jQuery.contains 的行为稍有不同。
 
 
 ### [$.ready( handle: Function ): this]($.ready.md)
@@ -106,10 +118,6 @@
 一个空的功能扩展区，供外部扩展使用。此为名称空间约定。
 
 
-### [$.Table]($.table.md#tableClass)
-
-一个简单的表格类（`class`），主要提供对表格行的操作，也是 `$.table()` 的返回值的类型。这是一个被导出的内部类，主要用于外部继承复用，普通的使用通常用 `$.table` 工具函数。
-
 
 ## 节点查询
 
@@ -130,6 +138,7 @@
 `its` 支持选择器、元素（简单打包）、节点集、支持 `.values()` 接口的对象（如：Set），以及用户处理函数（即初始 `$.ready()` 的实参）等。无效的 `its` 实参会构造一个空的 `Collector` 实例。
 
 
+
 ## 前置说明
 
 > #### 关于单元素版和集合版
@@ -141,6 +150,7 @@
 > 如 `.nextAll`：
 > - 单元素版：`$.nextAll( el, slr )` 返回元素 `el` 的后续兄弟元素，`slr` 为匹配过滤。
 > - 集 合 版：`$(...).nextAll( slr )` 检索集合内每一个元素的后续兄弟元素，`slr` 为匹配过滤。返回一个排序并去除了重复元素的集合。
+
 
 
 ## 节点遍历
@@ -223,29 +233,59 @@
 > 元素的 `position` 样式被设置为：`relative`、`absolute`、`fixed` 时即为定位元素。<br>
 
 
+
 ## 节点过滤
 
 ### [$.filter( els: NodeList | Array | LikeArray, fltr: string | Function | Array | Element ): [Element]]($.filter.md)
 
-对 `els` 中的元素用 `fltr` 匹配过滤，返回一个匹配元素的新的集合。如果没有过滤条件，返回原始集（已转换为数组）。
+对 `els` 中的元素用 `fltr` 匹配过滤，返回一个匹配元素的新的集合。如果没有过滤条件（为假值），返回一个已转换为数组的原始集。
 
 
-### [$.has( els: NodeList | Array | LikeArray, slr: string | Function | Array | Element ): [Element]]($.has.md)
+### [$.has( els: NodeList | Array | LikeArray, slr: string | Function | Element ): [Element]]($.has.md)
+
+对 `els` 中的元素用 `slr` 执行 **包含** 匹配过滤。包含的意思是 **`slr` 作为子级元素匹配**，`slr` 也可以是一个匹配函数。传递一个假值的 `slr` 实参时，返回一个已转换为数组的原始集。
 
 
 ### [$.not( els: NodeList | Array | LikeArray, slr: string | Function | Array | Element ): [Element]]($.not.md)
 
+对 `els` 中的元素用 `slr` 匹配排除，返回排除匹配元素之后的新集合。如果没有过滤条件（为假值），返回一个已转换为数组的原始集。
+
+
 
 ## 节点操作
+
+### [$.wrap( node: Node, box: html | Element | Function ): Element | false]($.wrap.md)
+
+在 `node` 之外包裹一个元素，该元素替换 `node` 原来的位置。包裹元素可以是一个现有的元素、一个html字符串、或一个返回包裹元素或html字符串的函数。
+
+如果包裹元素还包含子元素，`node` 会插入包裹元素的前端（注：与jQuery不同）。如果包裹采用结构化的html字符串，则会递进至最深层子元素为包裹容器。
+
+
+### [$.wrapInner( el: Element, box: html | Element | Function ): Element | false]($.wrapInner.md)
+
+在 `el` 的内容之外包裹一个元素（容器）。容器元素可以是一个现有的元素、一个html字符串、或一个返回容器元素或html字符串的函数。
+
+如果容器元素还包含子元素，`el` 的内容会插入容器元素内的前端（注：与jQuery不同）。如果包裹采用结构化的html字符串，则会递进至首个最深层子元素为包裹容器。
+
+
+### [$.unwrap( el: Element ): [Node]]($.unwrap.md)
+
+将 `el` 元素的内容提升到 `el` 的位置，其中包含的注释节点会一并提升，但会从返回集中清除。
+
+
+### [$.detach( node: Node ): Node]($.detach.md)
 
 
 ## 元素属性
 
 
+
 ## 文本操作
 
 
+
 ## CSS 相关
+
 
 
 ## 事件扩展
