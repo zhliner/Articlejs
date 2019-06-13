@@ -1101,7 +1101,6 @@ Object.assign(tQuery, {
 
     /**
      * 节点移出DOM。
-     * - 仅文本节点和元素有效；
      * @param  {Node} node 节点元素
      * @return {Node} 原节点引用
      */
@@ -1112,7 +1111,7 @@ Object.assign(tQuery, {
 
     /**
      * 删除节点。
-     * - 删除后不再返回原节点引用；
+     * 注：删除后不再返回原节点引用。
      * @param  {Node} node 节点元素
      * @return {this}
      */
@@ -1123,7 +1122,7 @@ Object.assign(tQuery, {
 
     /**
      * 清空元素内容。
-     * - 仅适用于元素节点；
+     * 注：仅适用于元素节点。
      * @param  {Element} el 目标元素
      * @return {this}
      */
@@ -1135,52 +1134,40 @@ Object.assign(tQuery, {
 
     /**
      * 内容节点规范化。
-     * - 元素同名Api的封装，清理相邻文本节点；
-     * - 此为节点修改操作，封装供代理嵌入使用；
-     * one参数：
-     * - 它是一个告知，说明实际仅有子元素层级会被修改；
-     * - 它用于告知嵌入的代理，以便于优化性能；
-     * - 如果你不明白它的具体用意，简单忽略即可；
-     * 注记：
-     *   没有办法控制DOM原生normalize接口合并哪些节点，
-     *   因此只能籍由用户主动告知。
+     * - 合并相邻文本节点，元素同名Api的简单封装。
+     * - level参数是一个告知，说明实际影响的子孙元素的层级（子元素为1，0表示全部）。
+     * - 如果您不理解level参数的用途，简单忽略即可。
+     * 说明：
+     * - DOM原生normalize接口会处理所有子孙节点，没有办法由用户控制。
+     * - 这是一个对DOM树进行修改的接口，因此需要向嵌入的代理提供信息。
+     * - 这里只能设计为由用户主动告知（主要用于优化）。
+     *
      * @param  {Element} el  目标元素
-     * @param  {Boolean} one 仅直接子节点有合并
-     * @return {this|one} this或告知值
+     * @param  {Number} level 影响的子元素层级
+     * @return {this|level} this或告知
      */
-    normalize( el, one ) {
-        if (el.nodeType == 1) el.normalize();
-        return one || this;
+    normalize( el, level = 0 ) {
+        if (el.nodeType == 1) {
+            el.normalize();
+        }
+        return level || this;
     },
 
 
     /**
      * 节点克隆。
-     * - event和deep两个参数仅适用于元素节点；
-     * - 元素节点默认深层克隆（包含子节点一起）；
-     * - 可选注册事件是否一起克隆；
-     * @param  {Node}  el 目标节点
-     * @param  {Boolean}  event 事件克隆，可选
-     * @param  {Boolean} deep 深层克隆，可选
+     * - event和deep两个参数仅适用于元素节点。
+     * - 元素节点默认深层克隆（包含子节点一起）。
+     * - 可选注册事件是否一起克隆。
+     * @param  {Node}    el 目标节点
+     * @param  {Boolean} event 事件克隆
+     * @param  {Boolean} deep 深层克隆
      * @return {Node} 克隆的新节点
      */
     clone( el, event, deep = true ) {
         let _new = el.cloneNode(deep);
 
-        if (!event || el.nodeType != 1) {
-            return _new;
-        }
-        let _src = [el],
-            _des = [_new];
-
-        if (deep) {
-            _src.push( ...Arr($tag('*', el)) );
-            _des.push( ...Arr($tag('*', _new)) );
-        }
-        for (let i = 0; i < _src.length; i++) {
-            Event.clone(_des[i], _src[i]);
-        }
-        return _new;
+        return event && el.nodeType == 1 ? _cloneEvent(el, _new, deep) : _new;
     },
 
 
@@ -1272,7 +1259,7 @@ Object.assign(tQuery, {
         }
         if (val && typeof val == 'string') {
             clsToggle(el, val.trim(), force);
-            return this
+            return this;
         }
         if (_cls) {
             // 私有存储
@@ -2319,6 +2306,28 @@ function _first( els, slr ) {
 }
 
 
+/**
+ * 元素事件克隆。
+ * @param  {Element} src 源元素
+ * @param  {Element} to 目标元素
+ * @param  {Boolean} deep 是否深层克隆
+ * @return {Element} 目标元素
+ */
+function _cloneEvent( src, to, deep ) {
+    Event.clone(to, src);
+    if (!deep) {
+        return to;
+    }
+    let _to = $tag('*', to);
+
+    Arr($tag('*', src))
+    .forEach(
+        (el, i) => Event.clone(_to[i], el)
+    );
+    return to;
+}
+
+
 
 //
 // 元素收集器。
@@ -2385,7 +2394,7 @@ class Collector extends Array {
             box = buildFragment(box, doc).firstElementChild;
             _end = deepChild(box);
         }
-        if (!box.parentNode) {
+        if (!box.parentElement) {
             tQuery.replace(this[0], box);
         }
         _end.prepend(...this);
@@ -2397,8 +2406,7 @@ class Collector extends Array {
     /**
      * 让集合中的元素脱离DOM。
      * - 脱离的元素会作为一个新集合被压入栈；
-     * 注记：
-     * 调用 $ 系同名成员使得外部嵌入的代理可作用于此。
+     * 注：调用 $ 系同名成员使得外部嵌入的代理可作用于此。
      * @return {Collector} 脱离的元素集
      */
     detach() {
@@ -2416,6 +2424,20 @@ class Collector extends Array {
         this.forEach( el => $.remove(el) );
 
         return new Collector( null, this );
+    }
+
+
+    /**
+     * 元素内容规范化。
+     * 返回值逻辑与单元素版相同。
+     * 注：调用 $ 的接口便于嵌入代理可影响至此。
+     * @param  {Number} level 影响的子元素层级
+     * @return {this|level}
+     */
+    normalize( level ) {
+        this.forEach( el => $.normalize(el, level) );
+
+        return level || this;
     }
 
 
@@ -2695,7 +2717,6 @@ elsExfn([
         'one',
         'once',
         'trigger',
-        'normalize',
 
         // 节点插入（多对多）
         // 若集合有多个元素，通常采用克隆模式（clone实参为true）

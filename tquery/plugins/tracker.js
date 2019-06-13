@@ -142,8 +142,8 @@
 // 自身内部
 // 原始返回代理$
 //
-__Handles.normalize = function( el, one ) {
-    let _val = abutTexts(el, !one);
+__Handles.normalize = function( el, level ) {
+    let _val = abutTexts(el, !level);
     if (_val) pushStack( new NormText(_val) );
 };
 

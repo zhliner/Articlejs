@@ -275,6 +275,34 @@
 
 ### [$.detach( node: Node ): Node]($.detach.md)
 
+将节点（通常为元素或文本节点）移出文档树，返回被移出的节点。**注**：注释节点也适用。
+
+
+### [$.remove( node: Node ): this]($.remove.md)
+
+删除文档树中的节点（元素或文本节点），返回调用者自身（`$`）。**注**：效果类似于未保存返回值的 `$.detach` 接口。
+
+
+### [$.empty( el: Element ): this]($.empty.md)
+
+清空 `el` 元素的内容，包括子元素、文本节点和注释节点等任意子节点。
+
+
+### [$.normalize( el: Element, level?: number ): this | Number]($.normalize.md)
+
+对元素 `el` 的内容执行规范化（normalize），合并相邻的文本节点。
+
+这是元素原生同名接口的简单封装，但包含一个用户通告参数 `level`，用于指明 `normalize` 操作影响的子元素层级。
+
+> **注：**<br>
+> DOM原生的 `normalize` 调用会处理目标元素的所有子孙节点，用户没有办法控制节点改变的细节，该操作实际上修改了DOM节点树。<br>
+> tQuery支持嵌入代理，代理有时候需要知道 `normalize` 的影响范围（可能用于性能优化），因此这里设计为由用户主动告知（没有其它办法）。<br>
+
+
+### [$.clone( el: Node, event: boolean, deep?: boolean ): Node]($.clone.md)
+
+对 `el` 节点进行克隆，返回克隆的新节点。`event` 和 `deep` 两个参数仅适用于元素，如果需要对注册的事件一并克隆，传递 `event` 为 true 即可。默认深层克隆（`deep` 为真）。
+
 
 ## 元素属性
 
