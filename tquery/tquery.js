@@ -1631,13 +1631,13 @@ Object.assign(tQuery, {
 
 
     //== 事件扩展 =============================================================
-    // 事件名支持空格分隔的名称序列；
-    // 事件名暂不支持名称空间；
+    // 事件名支持空格分隔的名称序列。
+    // 事件名不支持名称空间。
 
 
     /**
      * 绑定事件处理。
-     * - 多次绑定同一个事件名和相同的调用函数是有效的；
+     * 多次绑定同一个事件名和相同的调用函数是有效的。
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名（序列）
      * @param  {String} slr 委托选择器，可选
@@ -1674,21 +1674,6 @@ Object.assign(tQuery, {
      */
     one( el, evn, slr, handle ) {
         eventBinds('one', el, evn, slr, handle);
-        return this;
-    },
-
-
-    /**
-     * 排他性单次绑定。
-     * - 在事件触发执行之前不会再绑定相同evn和slr处理；
-     * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名（序列）
-     * @param  {String} slr 委托选择器，可选
-     * @param  {Function} handle 处理函数
-     * @return {this}
-     */
-    once( el, evn, slr, handle ) {
-        eventBinds('once', el, evn, slr, handle);
         return this;
     },
 
@@ -2052,8 +2037,8 @@ tQuery.Table = Table;
 
 //
 // 6种插入方式。
-// 注：数据仅为节点。
-///////////////////////
+// 数据仅为节点，与DOM原生方法稍有差异。
+///////////////////////////////////////
 [
     'before',
     'after',
@@ -2065,13 +2050,11 @@ tQuery.Table = Table;
 .forEach(function( name ) {
     /**
      * 在元素的相应位置添加节点（集）。
-     * - 默认不会采用克隆方式（原节点会脱离DOM）；
-     * - 传递clone为真，会克隆节点（默认包含注册事件）；
-     * - 如果无需包含事件，需明确传递event为false；
-     * - 仅元素适用于事件克隆（event参数）；
+     * - 数据源为节点或节点集，不支持html字符串。
+     * - 仅元素适用于事件克隆（event参数）。
      * 取值回调：
-     * - 取值函数接受原节点作为参数；
-     * - 取值函数可返回节点或节点集（含 Collector），不支持字符串；
+     * - 取值函数接受原节点作为参数。
+     * - 取值函数可返回节点或节点集（含 Collector），不支持字符串。
      *
      * @param  {Element} el 目标元素
      * @param  {Node|NodeList|Collector|Function|Set|Iterator} cons 数据节点（集）或回调
@@ -2079,7 +2062,7 @@ tQuery.Table = Table;
      * @param  {Boolean} event 是否克隆注册事件
      * @return {Node|Array} 新插入的节点（集）
      */
-    tQuery[name] = function ( el, cons, clone, event = true ) {
+    tQuery[name] = function ( el, cons, clone, event ) {
         return Insert(
             el,
             domManip( el, cons, clone, event ),
@@ -2093,7 +2076,7 @@ tQuery.Table = Table;
 // 数值尺寸取值（Float）
 // innerHeight/innerWidth
 // outerHeight/outerWidth
-/////////////////////////////
+///////////////////////////////////////
 [
     ['Height', 	'inner'],
     ['Width', 	'inner'],
@@ -2113,7 +2096,7 @@ tQuery.Table = Table;
 //
 // 数值尺寸设置/取值（Float）
 // height/width
-/////////////////////////////
+///////////////////////////////////////
 [
     ['height', 	'Height'],
     ['width', 	'Width'],
@@ -2144,7 +2127,7 @@ tQuery.Table = Table;
 
 //
 // 可调用事件。
-///////////////////
+///////////////////////////////////////
 [
     'click',
     'dblclick',
@@ -2715,7 +2698,6 @@ elsExfn([
         'on',
         'off',
         'one',
-        'once',
         'trigger',
 
         // 节点插入（多对多）
@@ -3747,15 +3729,14 @@ const insertHandles = {
 
 /**
  * DOM 通用操作。
- * - 取参数序列构造文档片段，向回调传递（node, Fragment）；
- * - 回调完成各种逻辑的插入行为（append，after...）；
- * - 参数序列可以是一个取值函数，参数为目标元素；
- *   注：取值函数仅允许一个；
+ * - 取参数序列构造文档片段，向回调传递（node, Fragment）。
+ * - 回调完成各种逻辑的插入行为（append，after...）。
+ * - 参数序列可以是一个取值函数，参数为目标元素。
  * 注：
  * - args也可以是一个可迭代的节点序列，如：
  *   NodeList，HTMLCollection，Array，Collector 等。
  *
- * - 取值回调可返回节点或节点集，但不能再是函数；
+ * - 取值回调可返回节点或节点集，但不能再是函数。
  *
  * @param  {Node} node 目标节点（元素或文本节点）
  * @param  {Node|NodeList|Collector|Function|Set|Iterator} cons 内容
@@ -4283,8 +4264,8 @@ function rectSize( el, name ) {
 
 //
 // 事件处理。
-// 注：也适用于非元素上事件的绑定，如Animation实例。
-///////////////////////////////////////////////////////////////////////////////
+// 也适用于非元素上事件的绑定，如Animation实例。
+//////////////////////////////////////////////////////////////////////////////
 
 const Event = {
     //
@@ -4292,12 +4273,14 @@ const Event = {
     // 以元素为键的弱引用存储 {Element: Map}
     // Map(
     //    key 				value
-    //    ----------------------------------------------
-    //    bound-handler: 	{ event, handle, selector }
+    //    ---------------------------------------------------
+    //    bound-handler: 	{ event, handle, selector, once }
+    //    ---------------------------------------------------
+    //    实际绑定句柄:      { 事件名, 用户句柄, 选择器, 为单次 }
     // )
     // 注记：
-    // 因为一个元素上的事件调用量属于小规模，
-    // 简单处理，用有唯一性的绑定调用句柄作为键索引。
+    // 用具备唯一性的绑定调用句柄作为键索引。
+    // 一个元素上的事件调用量属于小规模，故可用性尚可。
     //
     store: new WeakMap(),
 
@@ -4308,13 +4291,6 @@ const Event = {
     // {Element: ev.defaultPrevented}
     //
     called: new WeakMap(),
-
-
-    //
-    // 单次排他性绑定标记（once）
-    // { Element: Map{flag: count} }
-    //
-    onces: new WeakMap(),
 
 
     //
@@ -4344,7 +4320,7 @@ const Event = {
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
      * @param {String} slr 委托选择器，可选
-     * @param {Function|Object} handle 处理函数/对象
+     * @param {Function|Object} handle 用户处理函数/对象
      */
     on( el, evn, slr, handle ) {
         let [_evn, _cap] = this._evncap(evn, slr);
@@ -4359,8 +4335,9 @@ const Event = {
 
 
     /**
-     * 移除事件绑定。
-     * - 同时会删除对应的存储记录；
+     * 解除事件绑定。
+     * 解除绑定的同时会移除相应的存储记录（包括单次绑定）。
+     * 即：单次绑定在调用之前可以被解除绑定。
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
      * @param {String} slr 委托选择器，可选
@@ -4382,37 +4359,22 @@ const Event = {
 
     /**
      * 单次绑定执行。
-     * - 执行一次之后删除绑定；
-     * - 连续的多次绑定是有效的，排他性单次绑定参考.once；
-     * 注：记录绑定以便检查状态；
+     * - 执行一次之后自动删除绑定。
+     * - 连续的多次绑定是有效的。
+     * @param {Element} el 目标元素
+     * @param {String} evn 事件名
+     * @param {String} slr 委托选择器，可选
+     * @param {Function|Object} handle 用户处理函数/对象
      */
     one( el, evn, slr, handle ) {
-        let [_evn, _cap] = this._evncap(evn, slr),
-            _fun = this._handler(handle, slr),
-            _map = this._boundMap(el, this.onces),
-            _flg = evn + slr;
+        let [_evn, _cap] = this._evncap(evn, slr);
 
         el.addEventListener(
             _evn,
-            function _one(...a) {
-                el.removeEventListener(_evn, _one, _cap);
-                this._onceFlag(_map, _flg, null);
-                return _fun(...a);
-            }.bind(this),
+            this.oneBuffer(el, _evn, slr, handle, _cap),
             _cap
         );
-        return this._onceFlag(_map, _flg);
-    },
-
-
-    /**
-     * 排他性单次绑定。
-     * - 以事件名和选择器为标识，在事件触发前不再绑定；
-     * - 事件触发后绑定自动删除，然后可再次被绑定；
-     * - 仅适用one/once绑定方式，与on方式无关；
-     */
-    once( el, evn, slr, handle ) {
-        return this._matchOnce(el, evn, slr) || this.one( el, evn, slr, handle );
+        return this;
     },
 
 
@@ -4423,13 +4385,17 @@ const Event = {
      * @return {Element} 目标元素
      */
     clone( to, src ) {
+        if (to === src) {
+            throw new Error('Cannot clone events on the same element');
+        }
         let _fns = this.store.get(src);
 
-        if (_fns) {
-            for ( let [f, v] of _fns ) {
-                let _evn = v.event;
-                to.addEventListener(_evn, f, !!this.captures[_evn]);
-            }
+        if (!_fns) {
+            return to;
+        }
+        for ( let v of _fns.values() ) {
+            let _fn = v.once ? 'one' : 'on';
+            this[_fn](to, v.event, v.selector, v.handle);
         }
         return to;
     },
@@ -4437,50 +4403,79 @@ const Event = {
 
     /**
      * 是否已绑定事件处理。
-     * - 无检查条件时返回真，检查是否绑定任意事件；
-     * 注：暂不支持处理函数本身的检查匹配；
+     * - 无检查条件时返回真，检查是否绑定任意事件。
+     * 注：暂不支持处理函数本身的检查匹配。
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名，可选
      * @param  {String} slr 委托选择器，可选
      * @return {Boolean}
      */
     inBound( el, evn, slr ) {
-        return this._matchOnce(el, evn, slr) || this._matchOn(el, evn, slr);
+        let _map = this.store.get(el);
+        return _map && iterSome(_map, this._filter(evn, slr));
+
     },
 
 
     /**
      * 缓存调用句柄。
-     * - 在绑定记录区用两个键（evn, handle）分别存储；
-     * - 事件名键为字符串，调用句柄键为函数；
      * @param  {Element} el 事件目标元素
      * @param  {String} evn 事件名
      * @param  {String} slr 委托选择器
-     * @param  {Function} handle 用户调用
-     * @return {Function} 实际绑定调用
+     * @param  {Function|Object} handle 用户调用句柄/对象
+     * @return {Function} 实际绑定的调用对象
      */
     buffer( el, evn, slr, handle ) {
         return this.addItem(
             this._boundMap(el, this.store),
-            this._handler(handle, slr), evn, handle, slr
+            this._handler(handle, slr),
+            evn,
+            handle,
+            slr,
+            false
         );
+    },
+
+
+    /**
+     * 缓存单次调用的句柄。
+     * 单次调用句柄会自动移除绑定。
+     * @param  {Element} el 事件目标元素
+     * @param  {String} evn 事件名
+     * @param  {String} slr 委托选择器
+     * @param  {Function|Object} handle 用户调用句柄/对象
+     * @param  {Boolean} cap 是否为捕获
+     * @return {Function} 实际绑定的调用对象
+     */
+    oneBuffer( el, evn, slr, handle, cap ) {
+        let _fun = this._handler(handle, slr),
+            _map = this._boundMap(el, this.store);
+
+        let _bound = function(...args) {
+            el.removeEventListener(evn, _bound, cap);
+            _map.delete(_bound);
+            return _fun(...args);
+        };
+        return this.addItem(_map, _bound, evn, handle, slr, true);
     },
 
 
     /**
      * 添加值存储。
      * @param  {Map} buf 当前元素存储区
-     * @param  {Function} bound 绑定调用
+     * @param  {Function} bound 绑定调用对象
      * @param  {String} evn 事件名
      * @param  {Function} handle 用户调用
      * @param  {String} slr 选择器
-     * @return {Function|Object} 绑定调用/对象
+     * @param  {Boolean} once 是否单次调用
+     * @return {Function} 绑定调用对象
      */
-    addItem( buf, bound, evn, handle, slr ) {
+    addItem( buf, bound, evn, handle, slr, once ) {
         buf.set(bound, {
             event: evn,
             handle: handle,
             selector: slr,
+            once: once,
         });
         return bound;
     },
@@ -4492,7 +4487,7 @@ const Event = {
      * @param  {String} evn 事件名
      * @param  {String} slr 选择器
      * @param  {Function|Object} handle 用户调用句柄/对象
-     * @return {Array} 绑定集[Function]
+     * @return {[Function]} 绑定集
      */
     handles( buf, evn, slr, handle ) {
         let _list = [],
@@ -4551,9 +4546,9 @@ const Event = {
 
     /**
      * 构造事件处理句柄。
-     * - 返回函数由事件触发调用：func(ev)
-     * - 每次返回的是一个新的处理函数；
-     * - 支持EventListener接口，此时this为接口实现者本身；
+     * - 返回的函数由事件实际触发调用：func(ev)
+     * - 每次返回的是一个新的处理函数。
+     * - 支持EventListener接口，此时this为接口实现者本身。
      * @param  {Function} handle 用户调用
      * @param  {String} slr 选择器串，可选
      * @return {Function} 处理函数
@@ -4587,53 +4582,6 @@ const Event = {
         if (handle) _fns.push(_f3);
 
         return it => _fns.every( fn => fn(it) );
-    },
-
-
-    /**
-     * On绑定匹配检查。
-     * - 无检查条件时返回真，检查是否绑定任意事件；
-     * 注：暂不支持处理函数本身的检查匹配；
-     * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名，可选
-     * @param  {String} slr 委托选择器，可选
-     * @return {Boolean}
-     */
-    _matchOn( el, evn, slr ) {
-        let _map = this.store.get(el);
-        return _map && iterSome( _map, this._filter(evn, slr) );
-    },
-
-
-    /**
-     * one/once绑定匹配检查。
-     * （说明同_matchOn）
-     * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名，可选
-     * @param  {String} slr 委托选择器，可选
-     * @return {Boolean} 是否存在
-     */
-    _matchOnce( el, evn, slr ) {
-        let _map = this.onces.get(el);
-        return _map && _map.has( evn + slr );
-    },
-
-
-    /**
-     * 单次绑定标记操作。
-     * - 设置state为null表示减除计数；
-     * - 计数减为1时删除标记记录本身；
-     * @param {Map} map 标记计数映射
-     * @param {String} flg 标记串
-     * @param {undefined|null} state 减除或递增（默认递增）
-     */
-    _onceFlag( map, flg, state ) {
-        let _cnt = map.get(flg) || 0;
-
-        if (state !== null) {
-            return map.set(flg, _cnt + 1);
-        }
-        return _cnt > 1 ? map.set(flg, _cnt-1) : map.delete(flg);
     },
 
 

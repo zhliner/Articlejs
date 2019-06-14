@@ -297,6 +297,7 @@
 > **注：**<br>
 > DOM原生的 `normalize` 调用会处理目标元素的所有子孙节点，用户没有办法控制节点改变的细节，该操作实际上修改了DOM节点树。<br>
 > tQuery支持嵌入代理，代理有时候需要知道 `normalize` 的影响范围（可能用于性能优化），因此这里设计为由用户主动告知（没有其它办法）。<br>
+> 如果您不理解 `level` 参数的用途，说明您不需要它，简单忽略即可。<br>
 
 
 ### [$.clone( el: Node, event: boolean, deep?: boolean ): Node]($.clone.md)
