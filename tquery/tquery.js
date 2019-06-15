@@ -1135,7 +1135,7 @@ Object.assign(tQuery, {
     /**
      * 内容节点规范化。
      * - 合并相邻文本节点，元素同名Api的简单封装。
-     * - level参数是一个告知，说明实际影响的子孙元素的层级（子元素为1，0表示全部）。
+     * - level参数是一个告知，说明实际会影响的子孙元素的层级（子元素为1，0表示全部）。
      * - 如果您不理解level参数的用途，简单忽略即可。
      * 说明：
      * - DOM原生normalize接口会处理所有子孙节点，没有办法由用户控制。
@@ -4267,6 +4267,7 @@ function rectSize( el, name ) {
 //
 // 事件处理。
 // 也适用于非元素上事件的绑定，如Animation实例。
+// 事件处理器：function(event, targets, selector)
 //////////////////////////////////////////////////////////////////////////////
 
 const Event = {
@@ -4629,6 +4630,7 @@ const Event = {
 
     /**
      * 封装调用。
+     * 用户处理器返回false可以终止原生事件函数（如 click()）的调用。
      * @param  {Function} handle 用户处理函数
      * @param  {String} slr 委托选择器
      * @param  {Event} ev 原生事件对象
@@ -4652,19 +4654,19 @@ const Event = {
      * isTrigger标记用于避免原生事件的无限循环触发。
      * 注：
      * 对于会触发原生事件的调用，其名称应当在this.triggers中排除。
-     * 这里isTrigger是一个保险措施（注：事件名太多有待厘清）。
+     * 这里的isTrigger更多的是一个保险措施。
      *
      * @param {Event} ev 事件对象
      * @param {Element} el 目标元素
      */
     _nativeCall( ev, el ) {
         let _evn = ev.type,
-            _arg = ev.detail;
+            _fun = el[_evn];
 
-        if (ev.isTrigger && _evn in el) {
-            // 支持原生任意实参传递
-            el[_evn]( ...(isArr(_arg) ? _arg : [_arg]) );
+        if (!ev.isTrigger || !isFunc(_fun) ) {
+            return;
         }
+        return el[_evn]( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
     },
 
 
