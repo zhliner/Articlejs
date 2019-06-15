@@ -1652,6 +1652,7 @@ Object.assign(tQuery, {
 
     /**
      * 移除事件绑定。
+     * 仅能移除 on/one 方式绑定的处理器。
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名（序列）
      * @param  {String} slr 委托选择器，可选
@@ -1666,6 +1667,7 @@ Object.assign(tQuery, {
 
     /**
      * 单次绑定。
+     * 在事件被触发（然后自动解绑）之前，off 可以移除该绑定。
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名（序列）
      * @param  {String} slr 委托选择器，可选
@@ -4270,7 +4272,7 @@ function rectSize( el, name ) {
 const Event = {
     //
     // 绑定记录。
-    // 以元素为键的弱引用存储 {Element: Map}
+    // 以元素为键的弱引用存储 { Element: Map }
     // Map(
     //    key 				value
     //    ---------------------------------------------------
@@ -4286,11 +4288,24 @@ const Event = {
 
 
     //
-    // 原生已调用标记。
-    // 用于trigger激发时调用元素上原生事件状态。
-    // {Element: ev.defaultPrevented}
+    // trigger可激发的原生事件名清单。
+    // 说明：
+    // 对于部分DOM原生事件，需要调用元素原生方法来获得DOM实现，如：
+    // - select 选取表单控件内的文本。
+    // - click 选中或取消选中checkbox表单控件条目。
     //
-    called: new WeakMap(),
+    // 但这些原生调用会触发原生事件，从而导致绑定的处理器被重复执行。
+    // 所以本设计中让trigger仅支持有限数量的原生事件激发。
+    //
+    // 这是一个白名单，将根据实际的需求逐渐增补。
+    //
+    triggers: new Set([
+        'click',
+        'select',
+        'focus',
+        'blur',
+        'scroll',
+    ]),
 
 
     //
@@ -4637,22 +4652,48 @@ const Event = {
             ev.currentTarget : this.delegate(ev, slr);
 
         if (this.called.has(_cur)) {
-            // 原生事件调用导致的激发...
+            // trigger中原生事件调用导致的触发...
             // 事件处理逻辑已经执行过一次
             return this._nativeCalled(ev, _cur);
         }
         return _cur &&
             handle.bind(_cur)(ev, this.targets(ev, _cur), slr) !== false &&
             // 可能trigger的事件为原生事件
+            // 需要执行原生事件完成浏览器逻辑。
             this._nativeCall(ev, _cur);
     },
 
 
     /**
-     * 原生事件已调用处理。
-     * 用于trigger激发与原生事件同名的自定义事件时。
-     * - 停止冒泡，因为取而代之的自定义事件会冒泡；
-     * - 事件处理函数里的默认行为取消延伸执行；
+     * trigger原生事件的DOM逻辑完成。
+     * 因为调用原生事件函数会触发原生事件本身，所以需要记录状态，
+     * 以便于再次进入事件处理器时可以被排除。
+     * 注：
+     * 非trigger激发的原生事件已经被处理，此处简单返回即可。
+     *
+     * @param {Event} ev 事件对象
+     */
+     _nativeCall( ev, el ) {
+        let _evn = ev.type;
+
+        if (!ev.isTrigger || !(_evn in el)) {
+            return;
+        }
+        if (!this.noevCall.has(_evn)) {
+            // 处理器内是否已执行 preventDefault。
+            this.called.set(el, ev.defaultPrevented);
+        }
+        // e.g. click, focus...
+        el[_evn]();
+    },
+
+
+    /**
+     * trigger中原生事件已调用处理。
+     * - 停止冒泡，因为取而代之的自定义事件会冒泡。
+     * - 事件处理函数里的 preventDefault 延伸执行。
+     * 注：
+     * - 仅用于trigger激发与原生事件同名的自定义事件时。
      */
     _nativeCalled( ev, el ) {
         ev.stopPropagation();
@@ -4661,26 +4702,6 @@ const Event = {
             ev.preventDefault();
         }
         this.called.delete( el );
-    },
-
-
-    /**
-     * 原生事件调用。
-     * - 用于trigger激发元素上原生事件的调用。
-     * - submit调用不会激发submit事件，故排除（先返回）。
-     * - 记忆当前事件默认行为是否取消，以向后延续。
-     * @param {Event} ev 原生事件对象
-     */
-    _nativeCall( ev, el ) {
-        if (!ev.isTrigger || !(ev.type in el)) {
-            return;
-        }
-        if (ev.type == 'submit') {
-            return el.submit();
-        }
-        this.called.set(el, ev.defaultPrevented);
-        // e.g. click focus blur...
-        el[ ev.type ]();
     },
 
 

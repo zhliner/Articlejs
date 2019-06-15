@@ -206,21 +206,21 @@ p.ani {
         </ol>
     </article>
     <p @on="test-on" $by="by-attr">
-        <input type="text" id="curpos" value="" />
-        <input type="submit" onClick="setCursor('#medbox', '#curpos');" value="提交">
+        <input type="text" id="curpos" value="Hello..." />
+        <input type="submit" id="submit" value="提交">
     </p>
     <form name="frm01">
-        <input type="checkbox" name="cbs" onclick="check(this.value)" value="Internet Explorer">Internet Explorer<br>
-        <input type="checkbox" name="cbs" onclick="check(this.value)" value="Firefox...">Firefox<br>
+        <input type="checkbox" name="cbs" value="Internet Explorer">Internet Explorer<br>
+        <input type="checkbox" name="cbs" value="Firefox...">Firefox<br>
         <br>
-        <input type="radio" name="res" onclick="check(this.value)" value="Netscape">Netscape<br>
+        <input type="radio" name="res" value="Netscape">Netscape<br>
         <br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Internet Explorer">Internet Explorer<br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Firefox...">Firefox<br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Netscape">Netscape<br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Opera">Opera<br>
+        <input type="radio" name="browser" value="Internet Explorer">Internet Explorer<br>
+        <input type="radio" name="browser" value="Firefox...">Firefox<br>
+        <input type="radio" name="browser" value="Netscape">Netscape<br>
+        <input type="radio" name="browser" value="Opera">Opera<br>
         <br>
-        <input type="color" name="color1" onclick="check(this.value)" value="#99ff00">Colors<br>
+        <input type="color" name="color1" value="#99ff00">Colors<br>
         Select your favorite fruit:
         <select name="msel" id="mySelect" multiple>
           <option value="Apple">Apple</option>
@@ -299,5 +299,8 @@ p.ani {
     //     $.holdReady(false);
     // });
     // console.info('DOM first loaded.');
+    function check(ev) {
+        console.info(ev, this.value);
+    }
 </script>
 </html>

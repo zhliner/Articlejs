@@ -109,8 +109,7 @@ Method:
 
 Next-Stage:
 
-    - fire(target, data?)
-    - once
+    - fire(target, data?)  // $.trigger
 
     // 默认在流程元素上触发。
     // 注：在 Method 后被替换为当前检索。
@@ -127,6 +126,7 @@ Next-Stage:
     - scrollLeft
     - scrollTop
     - ...
+    - call([name], rid, ...rest)  // 元素属性方法调用
 
 
 **By:**
@@ -137,6 +137,11 @@ Next-Stage:
 
 > **注：**
 > 对于动画或特效，`On` 负责初始数据，`By` 则负责后续的连续行为。
+
+
+**系统方法集**
+
+- 数据处理类。
 
 
 
