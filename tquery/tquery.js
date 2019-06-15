@@ -1699,7 +1699,10 @@ Object.assign(tQuery, {
         }
         if (typeof evn == 'string') {
             if (evn in el && Event.nativeTrigger(evn)) {
-                return el[evn](), this;
+                // 原生参数支持，
+                // 如：el.scroll(x, y)
+                el[evn]( ...(isArr(extra) ? extra : [extra]) );
+                return this;
             }
             evn = new CustomEvent(evn, {
                 detail: 	extra,
