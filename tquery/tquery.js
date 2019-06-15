@@ -1710,6 +1710,8 @@ Object.assign(tQuery, {
                 cancelable: cancelable,
             });
         }
+        evn.isTrigger = true;  // 唯一的侵入
+
         el.dispatchEvent( evn );
         return this;
     },
@@ -4637,7 +4639,32 @@ const Event = {
             ev.currentTarget :
             this.delegate(ev, slr);
 
-        return _cur && handle.bind(_cur)(ev, this.targets(ev, _cur), slr);
+        return _cur &&
+            handle.bind(_cur)(ev, this.targets(ev, _cur), slr) !== false &&
+            // 可能trigger的事件为原生事件
+            // 需要执行原生事件完成浏览器逻辑，如：submit()。
+            this._nativeCall(ev, _cur);
+    },
+
+
+    /**
+     * trigger激发原生事件的DOM逻辑完成。
+     * isTrigger标记用于避免原生事件的无限循环触发。
+     * 注：
+     * 对于会触发原生事件的调用，其名称应当在this.triggers中排除。
+     * 这里isTrigger是一个保险措施（注：事件名太多有待厘清）。
+     *
+     * @param {Event} ev 事件对象
+     * @param {Element} el 目标元素
+     */
+    _nativeCall( ev, el ) {
+        let _evn = ev.type,
+            _arg = ev.detail;
+
+        if (ev.isTrigger && _evn in el) {
+            // 支持原生任意实参传递
+            el[_evn]( ...(isArr(_arg) ? _arg : [_arg]) );
+        }
     },
 
 
