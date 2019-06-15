@@ -1682,13 +1682,10 @@ Object.assign(tQuery, {
 
     /**
      * 事件激发。
-     * - evn可以是一个已经构造好的事件对象（仅发送）；
-     * - 事件默认冒泡并且可被取消；
-     * - 支持原生事件的处理，并可获取传递数据；
-     * - 事件处理函数返回false，可取消原生事件的激发；
-     * 注记：
-     * isTrigger标志为对原生事件对象唯一的侵入。
-     *
+     * - evn可以是一个已经构造好的事件对象（仅发送）。
+     * - 事件默认冒泡并且可被取消。
+     * - 支持原生事件的处理，并可获取传递数据。
+     * - 事件处理函数返回false，可取消原生事件的激发。
      * @param  {Element} el 目标元素
      * @param  {String|Event..} evn 事件名或事件对象
      * @param  {Mixed} extra 发送数据
@@ -1701,7 +1698,7 @@ Object.assign(tQuery, {
             return;
         }
         if (typeof evn == 'string') {
-            if (evn in el && !Event.inBound(el, evn)) {
+            if (evn in el && Event.nativeTrigger(evn)) {
                 return el[evn](), this;
             }
             evn = new CustomEvent(evn, {
@@ -1710,8 +1707,6 @@ Object.assign(tQuery, {
                 cancelable: cancelable,
             });
         }
-        evn.isTrigger = true;
-
         el.dispatchEvent( evn );
         return this;
     },
@@ -4293,11 +4288,9 @@ const Event = {
     // 对于部分DOM原生事件，需要调用元素原生方法来获得DOM实现，如：
     // - select 选取表单控件内的文本。
     // - click 选中或取消选中checkbox表单控件条目。
+    // - focus 表单空间聚焦。
     //
-    // 但这些原生调用会触发原生事件，从而导致绑定的处理器被重复执行。
-    // 所以本设计中让trigger仅支持有限数量的原生事件激发。
-    //
-    // 这是一个白名单，将根据实际的需求逐渐增补。
+    // trigger会直接调用它们，而不会构造一个自定义的事件发送。
     //
     triggers: new Set([
         'click',
@@ -4413,22 +4406,6 @@ const Event = {
             this[_fn](to, v.event, v.selector, v.handle);
         }
         return to;
-    },
-
-
-    /**
-     * 是否已绑定事件处理。
-     * - 无检查条件时返回真，检查是否绑定任意事件。
-     * 注：暂不支持处理函数本身的检查匹配。
-     * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名，可选
-     * @param  {String} slr 委托选择器，可选
-     * @return {Boolean}
-     */
-    inBound( el, evn, slr ) {
-        let _map = this.store.get(el);
-        return _map && iterSome(_map, this._filter(evn, slr));
-
     },
 
 
@@ -4556,6 +4533,15 @@ const Event = {
     },
 
 
+    /**
+     * 是否为原生调用可触发事件的事件名。
+     * @param {String} evn 事件名
+     */
+    nativeTrigger( evn ) {
+        return this.triggers.has(evn);
+    },
+
+
     //-- 私有辅助 -------------------------------------------------------------
 
 
@@ -4638,10 +4624,6 @@ const Event = {
 
     /**
      * 封装调用。
-     * 注记：
-     * trigger激发的事件与原生事件同名时，
-     * 临时存储该原生调用状态，避免重复调用处理函数。
-     *
      * @param  {Function} handle 用户处理函数
      * @param  {String} slr 委托选择器
      * @param  {Event} ev 原生事件对象
@@ -4649,59 +4631,10 @@ const Event = {
      */
     _wrapCall( handle, slr, ev ) {
         let _cur = slr === null ?
-            ev.currentTarget : this.delegate(ev, slr);
+            ev.currentTarget :
+            this.delegate(ev, slr);
 
-        if (this.called.has(_cur)) {
-            // trigger中原生事件调用导致的触发...
-            // 事件处理逻辑已经执行过一次
-            return this._nativeCalled(ev, _cur);
-        }
-        return _cur &&
-            handle.bind(_cur)(ev, this.targets(ev, _cur), slr) !== false &&
-            // 可能trigger的事件为原生事件
-            // 需要执行原生事件完成浏览器逻辑。
-            this._nativeCall(ev, _cur);
-    },
-
-
-    /**
-     * trigger原生事件的DOM逻辑完成。
-     * 因为调用原生事件函数会触发原生事件本身，所以需要记录状态，
-     * 以便于再次进入事件处理器时可以被排除。
-     * 注：
-     * 非trigger激发的原生事件已经被处理，此处简单返回即可。
-     *
-     * @param {Event} ev 事件对象
-     */
-     _nativeCall( ev, el ) {
-        let _evn = ev.type;
-
-        if (!ev.isTrigger || !(_evn in el)) {
-            return;
-        }
-        if (!this.noevCall.has(_evn)) {
-            // 处理器内是否已执行 preventDefault。
-            this.called.set(el, ev.defaultPrevented);
-        }
-        // e.g. click, focus...
-        el[_evn]();
-    },
-
-
-    /**
-     * trigger中原生事件已调用处理。
-     * - 停止冒泡，因为取而代之的自定义事件会冒泡。
-     * - 事件处理函数里的 preventDefault 延伸执行。
-     * 注：
-     * - 仅用于trigger激发与原生事件同名的自定义事件时。
-     */
-    _nativeCalled( ev, el ) {
-        ev.stopPropagation();
-
-        if ( this.called.get(el) ) {
-            ev.preventDefault();
-        }
-        this.called.delete( el );
+        return _cur && handle.bind(_cur)(ev, this.targets(ev, _cur), slr);
     },
 
 
