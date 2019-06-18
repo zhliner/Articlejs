@@ -480,7 +480,9 @@ Object.assign(tQuery, {
      * 创建的Table是一个简单的表格，列数不能改变。
      * 表标题内容为text格式（非html方式插入）。
      * 可以传递一个表格元素进行简单封装，以便于操作。
-     * 注：修改表格是一个复杂的行为。
+     * 注：
+     * - th0并不标准，但它可以无需样式就获得列表头的效果。
+     * - 修改表格是一种复杂行为，应单独支持。
      * @param  {Number|Element} rows 表格行数或表格元素
      * @param  {Number} cols 表格列数
      * @param  {String} caption 表标题，可选
@@ -503,13 +505,13 @@ Object.assign(tQuery, {
     /**
      * 插入脚本元素。
      * - 用源码构建脚本元素并插入容器元素，返回脚本元素本身。
-     * - 也可直接传递一个脚本元素，返回Promise对象，then参数为脚本元素。
+     * - 也可直接传递一个配置对象或脚本元素，返回Promise对象，then参数为脚本元素。
      * - 指定容器会保留插入的脚本元素，否则自动移除（脚本正常执行）。
      * 注记：
      * - 其它节点插入方法排除脚本源码，因此单独支持。
      * - 克隆的脚本元素修改属性后再插入，浏览器不会再次执行。
      *
-     * @param  {String|Element} data 脚本代码或脚本元素
+     * @param  {String|Object|Element} data 脚本代码或配置对象或脚本元素
      * @param  {Element} box DOM容器元素，可选
      * @return {Element|Promise} 脚本元素或承诺对象
      */
@@ -522,6 +524,9 @@ Object.assign(tQuery, {
                 );
             return box ? _el : remove(_el);
         }
+        if (typeof data == 'object') {
+            data = tQuery.Element('script', data, null, doc);
+        }
         return data.nodeType == 1 && loadElement(data, null, box || doc.head, !box);
     },
 
@@ -530,10 +535,10 @@ Object.assign(tQuery, {
      * 插入样式元素。
      * - 构建样式元素填入内容并插入DOM。
      * - 默认插入head内部末尾，否则插入next之前。
-     * - 也可以先构造一个<link>元素传递进来插入，此时返回一个Promise对象。
+     * - 可以传递一个<link>的配置对象或先构造出来作为实参，此时返回一个Promise对象。
      * - 用源码构造插入时，返回构造的样式元素。
      *
-     * @param  {String|Element} data 样式代码或样式元素
+     * @param  {String|Object|Element} data 样式代码或href配置或样式元素
      * @param  {Element} next 参考元素，可选
      * @return {Element|Promise} 样式元素或承诺对象
      */
@@ -544,6 +549,12 @@ Object.assign(tQuery, {
                 next,
                 doc.head
             );
+        }
+        if (typeof data == 'object') {
+            if (! data.rel) {
+                data.rel = 'stylesheet';
+            }
+            data = tQuery.Element('link', data, null, doc)
         }
         return data.nodeType == 1 && loadElement(data, next, doc.head);
     },
@@ -1682,10 +1693,18 @@ Object.assign(tQuery, {
 
     /**
      * 事件激发。
-     * - evn可以是一个已经构造好的事件对象（仅发送）。
-     * - 事件默认冒泡并且可被取消。
-     * - 支持原生事件的处理，并可获取传递数据。
-     * - 事件处理函数返回false，可取消原生事件的激发。
+     * - evn可以是一个事件名或一个已经构造好的事件对象。
+     * - 事件默认冒泡并且可以被取消。
+     * - 如果元素上的同名方法被绑定（on），处理器返回false可以阻止它们的调用。
+     * - 支持元素上原生事件调用的触发（如 .click()），而无需事先绑定处理器。
+     * 注：
+     * - 元素上非事件的普通方法也可以触发，但需要先绑定处理器且返回非false。
+     * - 表单上的submit()和audio,video上的load()调用并不会触发原生事件，
+     *   因此这两个事件需要注册绑定才能由此触发（作为普通方法对待）。
+     * 例：
+     * trigger(box, scroll, [x, y])
+     * 滚动条滚动到指定位置。实际上只是简单调用box.scroll(x, y)触发scroll事件。
+     *
      * @param  {Element} el 目标元素
      * @param  {String|Event..} evn 事件名或事件对象
      * @param  {Mixed} extra 发送数据
@@ -1699,8 +1718,7 @@ Object.assign(tQuery, {
         }
         if (typeof evn == 'string') {
             if (evn in el && Event.nativeTrigger(evn)) {
-                // 原生参数支持，
-                // 如：el.scroll(x, y)
+                // 原始参数传递
                 el[evn]( ...(isArr(extra) ? extra : [extra]) );
                 return this;
             }
@@ -4289,21 +4307,25 @@ const Event = {
 
 
     //
-    // trigger可激发的原生事件名清单。
+    // 由trigger激发的原生事件名清单。
     // 说明：
     // 对于部分DOM原生事件，需要调用元素原生方法来获得DOM实现，如：
     // - select 选取表单控件内的文本。
     // - click 选中或取消选中checkbox表单控件条目。
     // - focus 表单空间聚焦。
-    //
-    // trigger会直接调用它们，而不会构造一个自定义的事件发送。
+    // 注：
+    // trigger会直接调用它们触发原生事件，而不会构造一个自定义事件发送。
+    // form:submit() 和 video:load() 不会触发相应事件，在此排除。
     //
     triggers: new Set([
-        'click',
-        'select',
-        'focus',
         'blur',
+        'click',
+        'focus',
+        'pause',    // audio,video
+        'play',     // audio,video
+        'reset',    // form
         'scroll',
+        'select',   // textarea,input:text
     ]),
 
 
@@ -4644,17 +4666,18 @@ const Event = {
         return _cur &&
             handle.bind(_cur)(ev, this.targets(ev, _cur), slr) !== false &&
             // 可能trigger的事件为原生事件
-            // 需要执行原生事件完成浏览器逻辑，如：submit()。
+            // 需要执行原生事件完成浏览器逻辑，如：
+            // form.submit(), video.load()。此类调用不会触发事件。
             this._nativeCall(ev, _cur);
     },
 
 
     /**
      * trigger激发原生事件的DOM逻辑完成。
-     * isTrigger标记用于避免原生事件的无限循环触发。
+     * 元素上普通的方法名如果被绑定为事件，也会传递到此。
      * 注：
      * 对于会触发原生事件的调用，其名称应当在this.triggers中排除。
-     * 这里的isTrigger更多的是一个保险措施。
+     * 这里的isTrigger更多的是一个保险措施（触发循环）。
      *
      * @param {Event} ev 事件对象
      * @param {Element} el 目标元素
@@ -4666,7 +4689,8 @@ const Event = {
         if (!ev.isTrigger || !isFunc(_fun) ) {
             return;
         }
-        return el[_evn]( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
+        // 原始参数传递。
+        return el[_evn](...(isArr(ev.detail) ? ev.detail : [ev.detail]));
     },
 
 
@@ -4807,6 +4831,7 @@ tQuery.type = $type;
 tQuery.inArray = inArray;
 tQuery.some = iterSome;
 tQuery.unique = uniqueSort;
+tQuery.isFunction = isFunc;
 
 
 /**

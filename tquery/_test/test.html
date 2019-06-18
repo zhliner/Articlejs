@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta http-equiv="no-cache">
-<title>jQuery reference...</title>
-<script src="./_refs/jquery-3.4.1.js"></script>
+<title>tQuery test...</title>
+<!-- <script src="jced/base/tquery/sizzle.js"></script> -->
+<script src="../tquery.js"></script>
+<!-- <script src="jced/base/tquery/tracker.js"></script> -->
 <style>
     div#root {
         display: inline-block;
@@ -107,12 +109,46 @@ p.ani {
   }
 }
 </style>
+<script>
+    // $.holdReady(true);
+    // $.ready(function () {
+    //     console.info('All finished.');
+    // });
+    $(function(){
+        console.info('tQuery load and DOMContentLoaded.');
+    });
+</script>
 </head>
 
 <body lang="">
     <div style="font-size:1em;width:10em;border:1px #999 solid;background-color:#fff;">1em字体</div>
     <div style="font-size:1ex;width:10ex;border:1px #999 solid;background-color:#fff;">1ex字体</div>
     <div style="font-size:1ch;width:10ch;border:1px #999 solid;background-color:#fff;">1ch字体</div>
+
+    <section class="Content" style="position: relative;">
+        <p id="test" class="Test Hai">
+            这是一个<strong>通用的</strong><em>测试段落</em>。包含了一些<em class="line">行内元素</em>。
+        </p>
+        <p class="Test">
+            这是第二个<em>测试</em>段落。包含了一些<em class="line">行内</em>元素。
+        </p>
+        <p>
+            这是第三个测试<em>段落</em>。
+        </p>
+    </section>
+    <p id="test2">这是另一个<em>段落</em>。</p>
+    <ul id="ulist">
+        <li>Item 1</li>
+        <li class="Item">Item 2</li>
+        <li>Item 3</li>
+        <li class="End">Item 4</li>
+    </ul>
+    <p id="wrap">
+        <!-- Hai. -->
+        <em>Hello</em> The <strong>World</strong>!
+        <!-- 这是一个注释 -->
+    </p>
+
     <article class="___Text" style="font-size:10pt;">
         <div style="font-size:1em;width:10em;border:1px #999 solid;background-color:green;">1em字体</div>
         <div style="font-size:1ex;width:10ex;border:1px #999 solid;background-color:#fff;">1ex字体</div>
@@ -139,8 +175,6 @@ p.ani {
           <text x="150" y="125" font-size="60" text-anchor="middle" fill="white">SVG</text>
         </svg>
         </p>
-	    <p id="test" class="Test">这是一个<strong>通用的</strong><em>测试段落</em>。包含了一些<em>行内元素</em>。</p>
-
         <h3></h3>
         <h4></h4>
         <h5></h5>
@@ -172,21 +206,21 @@ p.ani {
         </ol>
     </article>
     <p @on="test-on" $by="by-attr">
-        <input type="text" id="curpos" value="" />
-        <input type="submit" onClick="setCursor('#medbox', '#curpos');" value="提交">
+        <input type="text" id="curpos" value="Hello..." />
+        <input type="submit" id="submit" value="提交">
     </p>
     <form name="frm01">
-        <input type="checkbox" name="cbs" onclick="check(this.value)" value="Internet Explorer">Internet Explorer<br>
-        <input type="checkbox" name="cbs" onclick="check(this.value)" value="Firefox...">Firefox<br>
+        <input type="checkbox" name="cbs" value="Internet Explorer">Internet Explorer<br>
+        <input type="checkbox" name="cbs" value="Firefox...">Firefox<br>
         <br>
-        <input type="radio" name="res" onclick="check(this.value)" value="Netscape">Netscape<br>
+        <input type="radio" name="res" value="Netscape">Netscape<br>
         <br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Internet Explorer">Internet Explorer<br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Firefox...">Firefox<br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Netscape">Netscape<br>
-        <input type="radio" name="browser" onclick="check(this.value)" value="Opera">Opera<br>
+        <input type="radio" name="browser" value="Internet Explorer">Internet Explorer<br>
+        <input type="radio" name="browser" value="Firefox...">Firefox<br>
+        <input type="radio" name="browser" value="Netscape">Netscape<br>
+        <input type="radio" name="browser" value="Opera">Opera<br>
         <br>
-        <input type="color" name="color1" onclick="check(this.value)" value="#99ff00">Colors<br>
+        <input type="color" name="color1" value="#99ff00">Colors<br>
         Select your favorite fruit:
         <select name="msel" id="mySelect" multiple>
           <option value="Apple">Apple</option>
@@ -259,9 +293,14 @@ p.ani {
     </div>
 </body>
 <script>
-    console.info('at end...');
+    // let sel = $.Element('link', {rel: 'stylesheet', href: 'https://api.jquery.com/jquery-wp-content/themes/jquery/css/base.css?v=1'});
+    // $.style(sel).then(el => {
+    //     console.info('holdReady(false)');
+    //     $.holdReady(false);
+    // });
+    // console.info('DOM first loaded.');
+    function check(ev) {
+        console.info(ev, this.value);
+    }
 </script>
-<!--
-<script src="hello.js"></script>
--->
 </html>

@@ -38,14 +38,14 @@
 
 ### [$.script( data: string | Element, box: Element, doc?: Document ): Element | Promise]($.script.md)
 
-插入一个脚本元素 `<script>`。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以用 `$.Element()` 创建一个引入外部脚本的 `<script src="...">` 元素后在此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
+插入一个 `<script>` 脚本元素。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以传递一个 `<script src="...">` 元素的配置对象（`{src:...}`）或用 `$.Element()` 先创建一个脚本元素后插入。引入外部脚本的创建方式返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
 
 `box` 是脚本元素插入的目标容器，可选。默认插入 `document.head` 元素内。未明确指定 `box` 时，插入的 `<script>` 执行后会自动移除。
 
 
 ### [$.style( data: string | Element, next: Element, doc?: Document ): Element | Promise]($.style.md)
 
-插入一个包含内容的样式元素 `<style>`，也可以用 `$.Element()` 创建一个引入外部样式的 `<link>` 元素由此插入。后一种方式会返回一个承诺对象（Promise），用户可以注册样式导入完成后的处理函数。
+插入一个包含内容的 `<style>` 样式元素，也可以传递一个 `<link href=...>` 元素的配置对象（`{href:...}`）或用 `$.Element()` 先创建一个样式元素后插入。引入外部CSS样式文件的方式会返回一个承诺对象（Promise），用户可以注册样式导入完成后的处理函数。
 
 `next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
 
