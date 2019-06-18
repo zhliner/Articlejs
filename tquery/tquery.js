@@ -4832,6 +4832,7 @@ tQuery.inArray = inArray;
 tQuery.some = iterSome;
 tQuery.unique = uniqueSort;
 tQuery.isFunction = isFunc;
+tQuery.isCollector = isCollector;
 
 
 /**

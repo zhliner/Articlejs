@@ -108,25 +108,35 @@ Method:
 
 
 Next-Stage:
+    $   // 单元素检索（Element）
+    $$  // 多元素检索（Collector）
 
-    - fire(target, data?)  // $.trigger
+    // $.trigger
+    - fire(name, data)
 
     // 默认在流程元素上触发。
     // 注：在 Method 后被替换为当前检索。
-    - focus
-    - blur
-    - select
-    - click
-    - dblclick
-    - submit
-    - reset
-    - change
-    - contextmenu
-    - scroll
-    - scrollLeft
-    - scrollTop
+    - blur()
+    - click()
+    - focus()
+    - pause()
+    - play()
+    - reset()
+    - scroll(x, y)
+    - select()
+    - load()
+    - submit()
+    - change()
     - ...
-    - call([name], rid, ...rest)  // 元素属性方法调用
+
+    // 流程元素上方法的无条件调用。
+    // - fire()的触发调用需要先有注册绑定。
+    // - 不支持rid参数指定非流程元素。
+    - call( [name], ...rest )
+
+> **注：**
+> 该阶段的取值仅支持元素检索，避免可选的rid参数。
+
 
 
 **By:**
