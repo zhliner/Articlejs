@@ -752,7 +752,7 @@ T.pbs({
 	 * @param {String} $name 属性名
 	 * @param {String|Number} $val 待赋值
 	 */
-	 prop( ev, $name, $val ) {
+	prop( ev, $name, $val ) {
 		return this.set(ev, $name, $val, 'prop');
 		// already next()
 	},
@@ -846,7 +846,7 @@ T.pbs({
 	 * @param {String} name 赋值键名，可选
 	 * @param {String} type 操作类型，可选
 	 */
-	 swap( ev, v1, v2, name = 'value', type = 'prop' ) {
+	swap( ev, v1, v2, name = 'value', type = 'prop' ) {
 		let _el = this.data,
 			_v0 = Util.$get(_el, type, name);
 
@@ -871,7 +871,7 @@ T.pbs({
 	 * @param {String} key  目标键名，可选
 	 * @param {String} type 操作类型（css|prop|attr），可选
 	 */
-	 cssto( ev, rid, name, key = name, type = 'css' ) {
+	cssto( ev, rid, name, key = name, type = 'css' ) {
 		T.proxy(this)
 			.style(ev, name)
 			.put(ev, key, rid, type);
@@ -1061,7 +1061,7 @@ T.pbs({
 	 */
 	flag( ev, name, $val ) {
 		if ($val === undefined) {
-			return tihs.next( values(this.Marks, name) );
+			return this.next( values(this.Marks, name) );
 		}
 		if ($val === null) {
 			delete this.Marks[name];
