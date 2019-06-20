@@ -28,17 +28,30 @@ PB:next( data, method, index )
 **方法集：**
 
 ```js
-$( rid, ctx|method, ...rest ): Element
+$( rid, ctx|method, ...rest ): Element | Any
 // tQuery.get(...)
+// rid: {String|null} 相对ID，值null或undefined时取流程数据。
 // ctx: {Element|String}
 // .get() 的查询上下文或进阶的tQuery方法。如果为方法，rest即为方法的实参序列。
 // ctx为上下文时，rest也可以有效，此时其首个值为方法名。
+// 注：
+// 如果进阶调用方法，则可能返回任意值。下同。
 
-$$( rid, ctx|method, ...rest ): Collector
+$$( rid, ctx|method, ...rest ): Collector | Any
 // tQuery(...)
+// rid: {String|null} 同上。取流程数据时，非字符串可被封装为Collector。
 // ctx: {Element|String}
 // tQuery() 的查询上下文或进阶的Collector方法。
 // rest 参数说明同上。
+
+$E( flag ): Element
+// 提取事件关联的3个元素之一。
+// flag: {String|Number} 目标标记
+// targets: {
+//     origin|0     事件起点元素
+//     current|1    冒泡到的当前元素
+//     delegate|2   定义委托的元素
+// }
 
 
 
@@ -62,9 +75,10 @@ tpl( $name ): Element   // 请求模板节点
 
 // 简单数据操作类（简单）
 
-RE( flag, str ): RegExp     // 构造正则表达式
-scam( ev ): Object          // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
-date( v1, ...rest ): Date   // 构造日期/时间对象
+RE( flag, str ): RegExp         // 构造正则表达式
+slr( attr, val, op, tag )       // 构造CSS选择器串
+scam( ev ): Object              // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
+date( v1, ...rest ): Date       // 构造日期/时间对象
 
 Arr( op ): Array                // 转换为数组
 Str( prefix, suffix ): String   // 转换为字符串

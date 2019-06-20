@@ -50,7 +50,7 @@
 `next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
 
 
-### [$.load(el: Element, next: Node, box: Element): Promise]($.load.md)
+### [$.loadin(el: Element, next: Node, box: Element): Promise]($.loadin.md)
 
 载入元素的外部资源，元素需要能够触发 load 和 error 事件，如 `<img>`。返回一个承诺对象，其中的 resolve 回调由 load 事件触发，reject 回调由 error 事件触发。通常需要元素插入DOM树后才会执行资源的载入。
 
@@ -94,7 +94,7 @@
 文档载入就绪后的回调绑定。可以绑定多个，会按绑定先后逐个调用。若文档已载入并且未被hold，会立即执行绑定的handle。
 
 > **注：**<br>
-> 仅适用于文档的初始载入就绪。其它元素的载入就绪请使用 $.load() 接口。
+> 仅适用于文档的初始载入就绪。其它元素的载入就绪请使用 $.loadin() 接口。
 
 
 ### [$.holdReady( hold: boolean ): void]($.holdReady.md)
@@ -302,11 +302,22 @@
 
 ### [$.clone( el: Node, event: boolean, deep?: boolean ): Node]($.clone.md)
 
-对 `el` 节点进行克隆，返回克隆的新节点。`event` 和 `deep` 两个参数仅适用于元素，如果需要对注册的事件一并克隆，传递 `event` 为 true 即可。默认深层克隆（`deep` 为真）。
+对 `el` 节点进行克隆，返回克隆的新节点。`event` 和 `deep` 两个参数仅适用于元素，如果需要对注册的事件处理器一并克隆，传递 `event` 为 `true` 即可。默认深层克隆（`deep` 为真）。
+
+
+### [$.contents( el: Element, comment?: boolean ): [Node]]($.contents.md)
+
+获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。**注**：全部为空白的文本节点会被忽略。
 
 
 ## 元素属性
 
+### [$.addClass( el: Element, names: string | Function ): this]($.addClass.md)
+
+在 `el` 元素上添加类名，多个类名采用空格分隔。支持回调函数获取类名，接口：`function( className ): String`。
+
+
+### [$.removeClass( el: Element, names: string | Function ): this]($.removeClass.md)
 
 
 ## 文本操作

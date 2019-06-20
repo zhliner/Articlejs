@@ -259,7 +259,26 @@
             'replace': 	'',
 
             '1': 1,  '-1': -1,  '2': 2,  '-2': -2, '0': 0, '': '',
-        };
+        },
+
+        //
+        // 可调用原生事件名。
+        // 它们被定义在元素上，包含 onXXX 属性和 XXX() 调用方法。
+        // 注：
+        // 其中 submit() 和 load() 调用不会触发原生事件。
+        //
+        eventCallable = [
+            'blur',
+            'click',
+            'focus',
+            'load',
+            'pause',
+            'play',
+            'reset',
+            'scroll',
+            'select',
+            'submit',
+        ];
 
 
 
@@ -570,7 +589,7 @@ Object.assign(tQuery, {
      * @param  {Element} box 插入的目标容器，可选
      * @return {Promise} 载入承诺
      */
-    load( el, next, box ) {
+    loadin( el, next, box ) {
         return loadElement(el, next, box, false);
     },
 
@@ -742,7 +761,7 @@ Object.assign(tQuery, {
      * 查找匹配的元素集。
      * @param  {String} slr 选择器
      * @param  {Element} ctx 查询上下文
-     * @param  {Boolean} andOwn 包含自身匹配
+     * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {[Element]}
      */
     find( slr, ctx = Doc.documentElement, andOwn = false ) {
@@ -1204,8 +1223,8 @@ Object.assign(tQuery, {
 
     /**
      * 类名添加。
-     * - 支持空格分隔的类名序列；
-     * - 支持回调函数获取类名：func(oldName)；
+     * - 支持空格分隔的类名序列。
+     * - 支持回调函数获取类名：function(className):String。
      * @param  {Element} el 目标元素
      * @param  {String|Function} names
      * @return {this}
@@ -1216,7 +1235,7 @@ Object.assign(tQuery, {
         }
         names.trim()
             .split(__chSpace)
-            .forEach( function(it) { tQuery.add(it); }, el.classList );
+            .forEach( function(it) { this.add(it); }, el.classList );
 
         return this;
     },
@@ -1243,6 +1262,9 @@ Object.assign(tQuery, {
             .split(__chSpace)
             .forEach( function(it) { this.remove(it); }, el.classList );
 
+        if (el.classList.length == 0) {
+            el.removeAttribute('class');
+        }
         return this;
     },
 
@@ -2148,17 +2170,7 @@ tQuery.Table = Table;
 //
 // 可调用事件。
 ///////////////////////////////////////
-[
-    'click',
-    'dblclick',
-    'select',
-    'focus',
-    'blur',
-    'submit',
-    'reset',
-    'change',
-    'scroll',
-]
+eventCallable
 .forEach(function( name ) {
     tQuery[name] = el => (name in el) && el[name]() || this;
 });
@@ -2362,7 +2374,7 @@ class Collector extends Array {
      * - 单个元素的find查找结果不存在重复可能。
      * - 调用 $.find 使得外部嵌入的代理可延伸至此。
      * @param  {String} slr 选择器
-     * @param  {Boolean} andOwn 包含自身匹配
+     * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {Array}
      */
      find( slr, andOwn ) {
@@ -2711,10 +2723,7 @@ elsExfn([
 /////////////////////////////////////////////////
 elsExfn([
         'empty',
-        'addClass',
-        'removeClass',
         'toggleClass',
-        'removeAttr',
         'on',
         'off',
         'one',
@@ -2730,16 +2739,10 @@ elsExfn([
         'fill',
 
         // 元素原生事件激发
-        'click',
-        'dblclick',
-        'select',
-        'focus',
-        'blur',
-        'submit',
-        'reset',
-        'change',
-        'scroll',
-    ],
+        // 'blur'
+        // 'click'
+        // ...
+    ].concat(eventCallable),
     fn =>
     function(...rest) {
         // 可代理调用 $
@@ -2750,9 +2753,33 @@ elsExfn([
 
 
 //
-// 设置/获取值（有目标）。
+// 简单操作
+// 支持数组分别对应。
+// 返回当前实例自身。
+/////////////////////////////////////////////////
+elsExfn([
+        'addClass',
+        'removeClass',
+        'removeAttr',
+    ],
+    fn =>
+    function( names ) {
+        let _ia = isArr(names);
+        // 可代理调用 $
+        this.forEach(
+            (el, i) => $[fn](el, _ia ? names[i] || '' : names)
+        );
+        return this;
+    }
+);
+
+
+//
+// 目标属性设置/取值。
 // 设置与获取两种操作合二为一的成员，val支持数组分别赋值。
-// 取值时返回一个普通数组，成员与集合元素一一对应。
+//
+// 取值时：返回一个普通数组，成员与集合元素一一对应。
+// 设置时：返回实例自身。
 /////////////////////////////////////////////////
 elsExfn([
         'attr',
@@ -2775,9 +2802,11 @@ elsExfn([
 
 
 //
-// 取值/属性修改。
+// 特定属性取值/修改。
 // 设置与获取两种操作合二为一的成员，val支持数组分别赋值。
-// 取值时返回一个普通数组，成员与集合元素一一对应。
+//
+// 取值时：返回一个普通数组，成员与集合元素一一对应。
+// 设置时：返回实例自身。
 /////////////////////////////////////////////////
 elsExfn([
         'val',
@@ -2805,7 +2834,7 @@ elsExfn([
 
 
 //
-// 取值/内容修改。
+// 内容取值/修改。
 // 设置与获取两种操作合二为一，val支持数组分别赋值。
 //
 // 设置时：返回的新节点构造为一个新的Elements实例。
