@@ -241,7 +241,7 @@ call( method, ...rest )
 > 对于动画或特效，`On` 负责初始数据，`By` 则负责后续的连续行为。
 
 
-**系统方法集**
+#### 系统方法集（X）
 
 ```js
 call( meth, ...rest ): Any  // tQuery 方法调用。
