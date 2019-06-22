@@ -34,14 +34,14 @@
     let buf = [],
         els = {};
     $(function() {
-        tags.forEach( tag => els[tag] = $.get(tag) );
-        for (const k of Object.keys(els)) {
-            let el = els[k];
-            namesCaller(el)
-            .forEach(
-                n => el['on'+n] = eventsRaised.bind(null, buf)
-            );
-        }
+        // tags.forEach( tag => els[tag] = $.get(tag) );
+        // for (const k of Object.keys(els)) {
+        //     let el = els[k];
+        //     namesCaller(el)
+        //     .forEach(
+        //         n => el['on'+n] = eventsRaised.bind(null, buf)
+        //     );
+        // }
         // setTimeout( calls.bind(Object.values(els)), 5000 );
     });
 </script>
@@ -225,6 +225,7 @@ X<small>small: 附注</small>
         <legend>Title</legend>
         <label><input name="radio2" type="radio" value="input:radio1" /> Click me</label>
         <label><input name="radio2" type="radio" value="input:radio2" />input radio2 </label>
+        <label><input name="radio2" type="radio" value="input:radio3" disabled />input radio3 </label>
         <label><input type="checkbox" value="input:checkbox" />input checkbox</label>
     </fieldset>
     <select multiple>

@@ -319,6 +319,23 @@
 
 ### [$.removeClass( el: Element, names: string | Function ): this]($.removeClass.md)
 
+移除 `el` 元素上的类名，多个类名采用空格分隔，未指定名称（undefined|null）时移除全部类名。支持回调函数获取需要移除的类名，接口：`function( className ): String`。
+
+> **注：**
+> 如果元素上已无类名，class属性会被删除。
+
+
+### [$.toggleClass( el: Element, val: string | boolean | Function, force: boolean ): this]($.toggleClass.md)
+
+对 `el` 元素上的类名进行切换（有则删除无则添加）。支持空格分隔的多个类名，支持回调函数获取类名，接口：`function( className ): String|Boolean`。
+
+未指定类名时，切换针对整个类名（`class` 属性），可以传递 `val` 为布尔值，明确设置或删除整个类名（`class` 属性），而非有无切换。`force` 的作用类似，但明确设置或删除指定的类名（`val`）。
+
+
+### [$.hasClass( el: Element, names: string ): boolean]($.hasClass.md)
+
+
+
 
 ## 文本操作
 

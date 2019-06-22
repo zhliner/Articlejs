@@ -67,9 +67,19 @@ clss( rid ): [String]                   // 取类名集
 pba( rid ): [String]                    // PB属性取值（参数）
 pbo( rid ): [String]                    // PB属性取值（选项）
 
-pull( idx ): Value      // 从流程集合中取值。
-env( ev, name ): Value  // 从环境取值
-tpl( $name ): Element   // 请求模板节点
+pull( idx ): Value       // 从流程集合中取值
+env( ev, name ): Value   // 从环境取值
+tpl( $name ): Element    // 请求模板节点
+
+
+form( exclude, ...rest ): [Value]
+// 获取表单内控件的值。
+// exclude: {false|String} 黑名单模式或白名单控件名
+// ...rest: {String} 控件名序列，取用或排除的
+// 注：
+// 默认为白名单模式，首个实参为正常的控件名。
+// 如果无控件名传递，表示取表单内全部的控件（submit提交的）。
+// 如：form() 取全部，form(false) 取空集。
 
 
 

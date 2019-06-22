@@ -193,6 +193,14 @@
         // See https://connect.microsoft.com/IE/feedback/details/1736512/
         noInnerhtml = /<script|<style|<link/i,
 
+        // 表单控件值序列化。
+        // from: jQuery-3.4.1 .serializeArray...
+        rbracket = /\[\]$/,
+        rCRLF = /\r?\n/g,
+        rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
+        rsubmittable = /^(?:input|select|textarea|keygen)/i,
+        rcheckableType = /^(?:checkbox|radio)$/i,
+
         // SVG元素名称空间。
         svgNS = 'http://www.w3.org/2000/svg',
 
@@ -691,6 +699,53 @@ Object.assign(tQuery, {
         return box.contains ?
             box.contains(node) :
             box === node || box.compareDocumentPosition(node) & 16;
+    },
+
+
+    /**
+     * 提取表单内可提交控件为一个名值对数组。
+     * 名值对：[
+     *      name,   // {String} 控件名
+     *      value   // {String} 控件值
+     * ]
+     * @param  {Element} form 表单元素
+     * @param  {[String]|Function} exclude 排除控件名集
+     * @return {[Array]} 键值对数组
+     */
+    serialize( form, exclude = [] ) {
+        let _els = form.elements;
+
+        if (!_els || _els.length == 0) {
+            return [];
+        }
+        if (isFunc(exclude)) {
+            exclude = exclude(_els);
+        }
+        _els = Arr(_els).filter(submitControl);
+
+        if (exclude.length > 0) {
+            _els = _els.filter( el => !exclude.includes(el.name) );
+        }
+        return mapArray2(_els, submitValues);
+    },
+
+
+    /**
+     * 名值对数组/对象构造URL查询串。
+     * 名值对：[name, value]
+     * @param  {[Array]|Object|Map|Element} target 名值对象数组或表单元素
+     * @return {String} URL查询串
+     */
+    queryURL( target ) {
+        if (target == null) {
+            return '';
+        }
+        if (target.nodeType) {
+            target = tQuery.serialize(target);
+        } else {
+            target = entries(target);
+        }
+        return [...target].map( wordPairURI ).join('&');
     },
 
 
@@ -1235,23 +1290,25 @@ Object.assign(tQuery, {
         }
         names.trim()
             .split(__chSpace)
-            .forEach( function(it) { this.add(it); }, el.classList );
-
+            .forEach(
+                function(it) { it && this.add(it); },
+                el.classList
+            );
         return this;
     },
 
 
     /**
      * 移除类名。
-     * - 支持空格分隔的类名序列；
-     * - 支持回调函数获取类名：func(oldName)；
-     * - 未指定名称移除全部类名（删除class属性）；
+     * - 支持空格分隔的类名序列。
+     * - 支持回调函数获取类名：func(oldName)。
+     * - 未指定名称移除全部类名（删除class属性）。
      * @param  {Element} el 目标元素
      * @param  {String|Function} names
      * @return {this}
      */
     removeClass( el, names ) {
-        if (! names) {
+        if (names === null) {
             el.removeAttribute('class');
             return this;
         }
@@ -1260,7 +1317,7 @@ Object.assign(tQuery, {
         }
         names.trim()
             .split(__chSpace)
-            .forEach( function(it) { this.remove(it); }, el.classList );
+            .forEach( function(it) { it && this.remove(it); }, el.classList );
 
         if (el.classList.length == 0) {
             el.removeAttribute('class');
@@ -1271,36 +1328,26 @@ Object.assign(tQuery, {
 
     /**
      * 类名切换。
-     * - 支持空格分隔的多个类名；
-     * - 支持回调函数获取类名：func(oldName)；
-     * - 无参数调用时，操作针对整个类名集；
-     * - val也作为整体操作时的强制设定（Boolean）；
-     * 注记：
-     * - 暂不依赖toggle的第二个参数；
-     * - 可正确处理SVG元素的class类属性；
+     * - 支持空格分隔的多个类名。
+     * - 支持回调函数获取类名：func(oldName)。
+     * - 无参数调用时，操作针对整个类名集。
+     * - val也作为整体操作时的强制设定（Boolean）。
+     * - 可正确处理SVG元素的class类属性。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|Boolean|Function} val 目标值，可选
+     * @param  {String|Function|Boolean} val 目标值，可选
      * @param  {Boolean} force 强制设定，可选
      * @return {this}
      */
     toggleClass( el, val, force ) {
-        let _cls = el.getAttribute('class');
-
-        if ( isFunc(val) ) {
-            val = val(_cls);
+        if (isFunc(val)) {
+            val = val(el.getAttribute('class'));
         }
-        if (val && typeof val == 'string') {
-            clsToggle(el, val.trim(), force);
-            return this;
+        if (typeof val === 'string') {
+            classToggle(el, val.trim(), force);
+        } else {
+            classAttrToggle(el, val);
         }
-        if (_cls) {
-            // 私有存储
-            __classNames.set(el, _cls);
-        }
-        tQuery.attr( el, 'class',
-            !val && _cls ? null : __classNames.get(el) || null
-        );
         return this;
     },
 
@@ -1318,7 +1365,7 @@ Object.assign(tQuery, {
         return names.trim()
             .split(__chSpace)
             .every(
-                it => el.classList.contains(it)
+                it => it && el.classList.contains(it)
             );
     },
 
@@ -1394,7 +1441,7 @@ Object.assign(tQuery, {
 
     /**
      * 获取/设置元素值。
-     * - 基本针对表单控件的value操作（val或可视为value简写）；
+     * - 基本针对表单控件的value操作（val可视为value简写）；
      * 特例：
      * select {
      *   	set: 选中同值的option项（清除其它），
@@ -1427,7 +1474,7 @@ Object.assign(tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {Mixed|Array|Function} value 匹配值/集或回调
-     * @return {Value|this}
+     * @return {Value|[Value]|this}
      */
     val( el, value ) {
         let _hook = valHooks[el.type] ||
@@ -2753,8 +2800,8 @@ elsExfn([
 
 
 //
-// 简单操作
-// 支持数组分别对应。
+// 简单操作。
+// 支持数组分别一一对应。
 // 返回当前实例自身。
 /////////////////////////////////////////////////
 elsExfn([
@@ -3414,24 +3461,119 @@ function wrapData( rep, box, data, doc = Doc ) {
 
 /**
  * 类名切换。
- * - 支持空格分隔的多个类名；
+ * 支持空格分隔的多个类名。
  * @param  {Element} el  目标元素
  * @param  {String} name 类名称
  * @param  {Boolean} force 强制设定，可选
  */
-function clsToggle( el, name, force ) {
+function classToggle( el, name, force ) {
     if (typeof force == 'boolean') {
-        if (force) {
-            tQuery.addClass(el, name);
-        } else {
-            tQuery.removeClass(el, name);
-        }
+        return force ?
+            tQuery.addClass(el, name) : tQuery.removeClass(el, name);
     }
     name.split(__chSpace)
         .forEach(
-            function(it) { this.toggle(it); },
+            function(it) { it && this.toggle(it); },
             el.classList
         );
+}
+
+
+/**
+ * 元素类属性切换。
+ * @param {Element} el 目标元素
+ * @param {Boolean|Value} force 是否强制指定
+ */
+function classAttrToggle( el, force ) {
+    let _cls = el.getAttribute('class');
+
+    if (_cls) {
+        // 私有存储
+        __classNames.set(el, _cls);
+    }
+    if (typeof force == 'boolean') {
+        _cls = !force;
+    }
+    tQuery.attr( el, 'class', _cls ? null : __classNames.get(el) || null );
+}
+
+
+/**
+ * 是否为可提交控件元素。
+ * from: jQuery-3.4.1 serializeArray:filter
+ * @param  {Element} ctrl 控件元素
+ * @return {Boolean}
+ */
+function submitControl( ctrl ) {
+    let _typ = ctrl.type;
+
+    // Use $is( ":disabled" ) so that fieldset[disabled] works
+    return ctrl.name && !$is( ":disabled" ) &&
+        rsubmittable.test( ctrl.nodeName ) && !rsubmitterTypes.test( _typ ) &&
+        ( ctrl.checked || !rcheckableType.test( _typ ) );
+}
+
+
+/**
+ * 提取可提交控件元素的名值对（集）。
+ * 名值对：[name, value]
+ * @param  {Element} ctrl 可提交控件元素
+ * @return {Object|[Object]}
+ */
+function submitValues( ctrl ) {
+    let _v = tQuery.val(ctrl);
+
+    // null|undefined
+    if ( _v == null ) {
+        return null;
+    }
+    return isArr(_v) ? _v.map( v => submitValue(ctrl, v) ) : submitValue(ctrl, _v);
+}
+
+
+/**
+ * 构造控件名值对。
+ * @param {Element} ctrl 可提交控件
+ * @param {String} value 控件值
+ */
+function submitValue( ctrl, value ) {
+    return [
+        ctrl.name,
+        value.replace( rCRLF, "\r\n" )
+    ];
+}
+
+
+/**
+ * 回调返回值为二维数组才展开的map操作。
+ * 主要用于返回键值对（[key, value]）或键值对数组的合并处理。
+ * 注：回调返回null或undefined时忽略。
+ * callback: function(its): Value|[Value]
+ * @param {Array} arr 处理源数组
+ * @param {Function} callback 回调函数
+ */
+function mapArray2( arr, callback ) {
+    let _tmp = [];
+
+    for (let it of arr) {
+        let _v = callback(it);
+        if (_v != null) _tmp.push(_v);
+    }
+    // 二维数组才展开。
+    return _tmp.reduce(
+        (buf, its) => isArr(its[0]) ? buf.concat(its) : (buf.push(its), buf),
+        []
+    );
+}
+
+
+/**
+ * 编码为URL查询键值对。
+ * @param {String} name 变量（控件）名
+ * @param {String} value 变量（控件）值
+ */
+function wordPairURI([name, value]) {
+    return `${encodeURIComponent(name)}=${encodeURIComponent(value == null ? '' : value)}`;
 }
 
 
@@ -4074,8 +4216,7 @@ const valHooks = {
     },
 
     checkbox: {
-        // 单一成员时返回值或null（未选中）；
-        // 重名多成员时返回值数组（可能为空）；
+        // 选中时返回值或值数组（重名），未选中返回null。
         // 注：返回undefined是因为缺乏name定义。
         get: function( el ) {
             let _cbs = el.form[el.name];
@@ -4088,7 +4229,7 @@ const valHooks = {
             for (let _cb of _cbs) {
                 if (_cb.checked) _buf.push(_cb.value);
             }
-            return _buf;
+            return _buf.length ? _buf : null;
         },
 
         // 支持同名多复选。
@@ -4118,13 +4259,12 @@ const valHooks = {
     },
 
     optgroup: {
-        // 始终返回一个数组。
         get: function(el) {
             let _buf = [];
             for (let _op of el.children) {
                 if (_op.selected) _buf.push(_op.value);
             }
-            return _buf;
+            return _buf.length ? _buf : null;
         },
 
         // 支持值数组匹配。
@@ -4140,20 +4280,21 @@ const valHooks = {
     },
 
     select: {
-        // 单选列表返回一个值，
-        // 多选列表返回一个值数组（可能为空）。
+        // 选中时返回一个值或值数组，否则返回null。
         get: function( el ) {
             if (el.type == 'select-one') {
                 return el.options[el.selectedIndex].value;
             }
-            if (el.selectedOptions) {
-                return Arr(el.selectedOptions).map( o => o.value );
-            }
             let _vals = [];
-            for (let _op of el.options) {
-                if (_op.selected) _vals.push(_op.value);
+
+            if (el.selectedOptions) {
+                _vals = Arr(el.selectedOptions).map( o => o.value );
+            } else {
+                for (let _op of el.options) {
+                    if (_op.selected) _vals.push(_op.value);
+                }
             }
-            return _vals;
+            return _vals.length ? _vals : null;
         },
 
         // 多选列表支持一个匹配值数组。
@@ -4955,7 +5096,7 @@ tQuery.every = function( iter, comp, thisObj ) {
  * - 支持.entries接口的内置对象包括Map,Set系列。
  * - 回调返回undefined或null的条目被忽略。
  * - 回调可以返回一个数组，其成员被提取添加。
- * - 最终返回一个转换后的值数组。
+ * - 回调接口：function(val, key): Value|[Value]
  *
  * 注：功能与jQuery.map相同，接口略有差异。
  *
