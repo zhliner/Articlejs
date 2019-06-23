@@ -195,11 +195,18 @@
 
         // 表单控件值序列化。
         // from: jQuery-3.4.1 .serializeArray...
-        rbracket = /\[\]$/,
         rCRLF = /\r?\n/g,
         rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
         rsubmittable = /^(?:input|select|textarea|keygen)/i,
         rcheckableType = /^(?:checkbox|radio)$/i,
+
+        // Unicode版非字母数字匹配。
+        // 用于URI编码时保留字母数字显示友好性。
+        // 参考 https://github.com/tc39/proposal-regexp-unicode-property-escapes
+        // 注：
+        // - 放宽数字匹配范围（Number）。
+        // - 允许常用全角标点符号（，、。：；？「」『』‘’“”等）。
+        uriComponentX = /[^\p{Alphabetic}\p{Mark}\p{Number}\p{Connector_Punctuation}\p{Join_Control}，、。：；？「」『』‘’“”]/gu,
 
         // SVG元素名称空间。
         svgNS = 'http://www.w3.org/2000/svg',
@@ -745,7 +752,7 @@ Object.assign(tQuery, {
         } else {
             target = entries(target);
         }
-        return [...target].map( wordPairURI ).join('&');
+        return [...target].map( uriKeyValue ).join('&');
     },
 
 
@@ -3572,8 +3579,18 @@ function mapArray2( arr, callback ) {
  * @param {String} name 变量（控件）名
  * @param {String} value 变量（控件）值
  */
-function wordPairURI([name, value]) {
-    return `${encodeURIComponent(name)}=${encodeURIComponent(value == null ? '' : value)}`;
+function uriKeyValue([name, value]) {
+    return `${encURICompX(name)}=${value == null ? '' : encURICompX(value)}`;
+}
+
+
+/**
+ * 保留字母和数字的URI转换。
+ * @param  {String} str 目标字符串
+ * @return {String}
+ */
+function encURICompX( str ) {
+    return str.replace(uriComponentX, encodeURIComponent);
 }
 
 

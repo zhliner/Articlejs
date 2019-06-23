@@ -247,15 +247,15 @@ p.ani {
             <option value ="audi">Audi</option>
           </optgroup>
         </select>
-        <input type="button" onclick="getIndex()" value="Alert index of selected option">
+        <input name="button" type="button" onclick="getIndex()" value="Alert index of selected option">
+        <div id="box1" style="position:relative; width:400px; height:200px; border:1px #666 solid;">
+            <textarea name="txtbox" id="txtbox" rows="5" cols="50">第一行。
+这是第二行。</textarea>
+        </div>
     <br>
     您喜欢的浏览器是：<input name="answer" type="text" id="answer" size="20">
     <input type="submit" value="提交" />
     </form>
-    <div id="box1" style="position:relative; width:400px; height:200px; border:1px #666 solid;">
-        <textarea id="txtbox" rows="5" cols="50">这里是多行文本内容的容器。。
-        这是第二行，This is the second line.</textarea>
-    </div>
 
     <table border="1" id="tbl">
         <caption>这是一个表格的标题</caption>
@@ -277,9 +277,6 @@ p.ani {
         </tr>
         <tr class="_even">
             <th>4</th>
-            <td>----</td>
-            <td>----</td>
-            <td>----</td>
             <td>----</td>
         </tr>
     </table>
