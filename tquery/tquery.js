@@ -205,8 +205,8 @@
         // 参考 https://github.com/tc39/proposal-regexp-unicode-property-escapes
         // 注：
         // - 放宽数字匹配范围（Number）。
-        // - 允许常用全角标点符号（，、。：；？「」『』‘’“”等）。
-        uriComponentX = /[^\p{Alphabetic}\p{Mark}\p{Number}\p{Connector_Punctuation}\p{Join_Control}，、。：；？「」『』‘’“”]/gu,
+        // - 允许常用全角标点符号（，、。：；！？「」『』‘’“”等）。
+        uriComponentX = /[^\p{Alphabetic}\p{Mark}\p{Number}\p{Connector_Punctuation}\p{Join_Control}，、。：；！？「」『』‘’“”]/gu,
 
         // SVG元素名称空间。
         svgNS = 'http://www.w3.org/2000/svg',
@@ -1448,40 +1448,32 @@ Object.assign(tQuery, {
 
     /**
      * 获取/设置元素值。
-     * - 基本针对表单控件的value操作（val可视为value简写）；
+     * - 针对表单控件的value操作（val可视为value简写）。
+     * - 遵循严格的表单提交逻辑，disabled的控件取值返回null。
+     * - 无名称定义的单选或复选按钮返回undefined。
      * 特例：
-     * select {
-     *   	set: 选中同值的option项（清除其它），
-     *   	 	 Array：multiple时支持数组多选。
-     *   	get: 获取选中项的值（option），multiple时为数组。
-     * }
      * input:radio {
      *  	set: 检索同组元素，选中与值匹配的项。
      *  	get: 检索同组元素，返回选中的项的值。
-     *  	 	 注：同组指同一form下同名的控件元素。
      * }
      * input:checkbox {
-     *  	set: 检索同组元素，匹配项选中（非匹配项取消选中）。
+     *  	set: 检索同组元素，匹配项选中，非匹配项取消选中。
      *  	 	 Array：支持同名多复选框（组）。
      *  	 	 注：单纯的取消选中，传递value为null即可。
-     *  	get: 检索同组元素，返回选中的项的值或值数组（重名时）。
+     *  	get: 检索同组元素，返回选中项的值或值数组（重名时）。
      * }
-     * optgroup {
-     *  	set: 选中该组内匹配的option元素，
-     *  		 Array：支持数组多匹配。
-     *  		 注：如果是单选表，实际是最后一项匹配有效。
-     *  	get: 获取该组内选中的option元素的值。
-     *  		 注：返回值数组，与上级select是否定义多选无关。
+     * select {
+     *   	set: 选中同值的option项（清除其它），多选时支持值数组匹配。
+     *   	get: 获取选中项的值，多选时返回一个数组（无选中时为空）。
      * }
-     * option {
-     *  	set/get: 空操作。不可单独设置/获取。
-     *  	 		 如果需要修改value，应当使用prop。
-     * }
-     * 注：对于单选/复选的同组控件，只需对其中任一元素操作。
+     * 使用：
+     * - 仅适用表单控件。如：<option>可用于<datalist>内，此时非表单控件。
+     * - 只要是同组单选按钮，可以从其中任一个控件上取选中的值。
+     * - 重名的复选按钮取值时，从其中任一个控件上都可以取到全部选中项的值。
      *
      * @param  {Element} el 目标元素
      * @param  {Mixed|Array|Function} value 匹配值/集或回调
-     * @return {Value|[Value]|this}
+     * @return {Value|[Value]|null|this}
      */
     val( el, value ) {
         let _hook = valHooks[el.type] ||
@@ -1490,7 +1482,7 @@ Object.assign(tQuery, {
         if (value === undefined) {
             return _hook ? _hook.get(el) : el.value;
         }
-        if ( isFunc(value) ) {
+        if (isFunc(value)) {
             value = value(_hook ? _hook.get(el) : el.value);
         }
         if (_hook) {
@@ -2967,10 +2959,10 @@ elsExfn([
  * @return {Boolean}
  */
 function inArray( arr, val ) {
-    for ( let i = 0; i < arr.length; i++ ) {
-        if (arr[i] === val) return true;
+    if (arr.includes) {
+        return arr.includes(val);
     }
-    return false;
+    return arr.indexOf(val) >= 0;
 }
 
 
@@ -3525,16 +3517,16 @@ function submitControl( ctrl ) {
  * 提取可提交控件元素的名值对（集）。
  * 名值对：[name, value]
  * @param  {Element} ctrl 可提交控件元素
- * @return {Object|[Object]}
+ * @return {Array|[Array]}
  */
 function submitValues( ctrl ) {
     let _v = tQuery.val(ctrl);
 
-    // null|undefined
-    if ( _v == null ) {
-        return null;
+    if (isArr(_v)) {
+        return _v.length ? _v.map( v => submitValue(ctrl, v) ) : null;
     }
-    return isArr(_v) ? _v.map( v => submitValue(ctrl, v) ) : submitValue(ctrl, _v);
+    // null|undefined
+    return _v == null ? null : submitValue(ctrl, _v);
 }
 
 
@@ -4187,15 +4179,13 @@ const propHooks = {
 
 
 //
-// val操作特例。
+// 表单控件的取值/设置。
 //
-// 单选按钮有组属性值，且没有“包容”元素可操作，
-// 所以操作目标只能是按钮本身（任一成员皆可）。
+// 与元素的 value 属性或特性不同，这里的取值遵循表单提交逻辑。
+// 即：即便条目被选中，如果自身处于 disabled 状态，也返回 null。
 //
-// 复选框按钮允许同名成组，因此需要考虑组操作。
-//
-// option也有组属特点，但其有包容元素（select），
-// 因此设计仅允许操作其容器元素，而屏蔽单独操作。
+// 对控件的设置是选择与值匹配的条目，而不是改变控件值本身。
+// 与取值相似，如果控件已 disabled 则会忽略。
 //
 const valHooks = {
 
@@ -4209,12 +4199,12 @@ const valHooks = {
             if (_res.nodeType) {
                 _res = [_res];
             }
-            else if (_res.value !== undefined) {
-                return _res.value;
-            }
             for (let _re of _res) {
-                if (_re.checked) return _re.value;
+                if (_re.checked) {
+                    return $is(_re, ':disabled') ? null : _re.value;
+                }
             }
+            return null;
         },
 
         // val仅为值，不支持数组。
@@ -4227,26 +4217,28 @@ const valHooks = {
                 _res = [_res];
             }
             for (let _re of _res) {
-                if (val === _re.value) return (_re.checked = true);
+                if (val === _re.value) {
+                    return !$is(_re, ':disabled') && (_re.checked = true);
+                }
             }
         }
     },
 
+    // 可能存在同名复选框。
     checkbox: {
-        // 选中时返回值或值数组（重名），未选中返回null。
-        // 注：返回undefined是因为缺乏name定义。
+        // 未选中时返回null或一个空数组（重名时）。
         get: function( el ) {
             let _cbs = el.form[el.name];
             if (!_cbs) return;
 
             if (_cbs.nodeType) {
-                return _cbs.checked ? _cbs.value : null;
+                return _cbs.checked && !$is(_cbs, ':disabled') ? _cbs.value : null;
             }
             let _buf = [];
             for (let _cb of _cbs) {
-                if (_cb.checked) _buf.push(_cb.value);
+                if (_cb.checked && !$is(_cb, ':disabled')) _buf.push(_cb.value);
             }
-            return _buf.length ? _buf : null;
+            return _buf;
         },
 
         // 支持同名多复选。
@@ -4256,42 +4248,19 @@ const valHooks = {
             if (!_cbs) return;
 
             if (_cbs.nodeType) {
-                _cbs.checked = val === _cbs.value;
+                if (!$is(_cbs, ':disabled')) {
+                    _cbs.checked = (val === _cbs.value);
+                }
                 return;
             }
             if (!isArr(val)) {
                 val = [val];
             }
             for (let _cb of _cbs) {
+                if ($is(_cb, ':disabled')) {
+                    continue;
+                }
                 _cb.checked = inArray(val, _cb.value);
-            }
-        }
-    },
-
-    // 空操作占位。
-    // 不可单独选取/取消选取。
-    option: {
-        get: function() {},
-        set: function() {}
-    },
-
-    optgroup: {
-        get: function(el) {
-            let _buf = [];
-            for (let _op of el.children) {
-                if (_op.selected) _buf.push(_op.value);
-            }
-            return _buf.length ? _buf : null;
-        },
-
-        // 支持值数组匹配。
-        // 不检测上级select类型。
-        set: function( el, val ) {
-            if (typeof val == 'string') {
-                val = [val];
-            }
-            for (let _op of el.children) {
-                if (inArray(val, _op.value)) _op.selected = true;
             }
         }
     },
@@ -4299,32 +4268,43 @@ const valHooks = {
     select: {
         // 选中时返回一个值或值数组，否则返回null。
         get: function( el ) {
+            if ($is(el, ':disabled')) {
+                return null;
+            }
             if (el.type == 'select-one') {
-                return el.options[el.selectedIndex].value;
+                let _op = el.options[el.selectedIndex];
+                return _op && !$is(_op, ':disabled') ? _op.value : null;
             }
             let _vals = [];
 
             if (el.selectedOptions) {
-                _vals = Arr(el.selectedOptions).map( o => o.value );
+                _vals = tQuery.map(
+                    el.selectedOptions,
+                    o => $is(o, ':disabled') ? null : o.value
+                );
             } else {
                 for (let _op of el.options) {
-                    if (_op.selected) _vals.push(_op.value);
+                    if (_op.selected && !$is(_op, ':disabled')) {
+                        _vals.push(_op.value);
+                    }
                 }
             }
-            return _vals.length ? _vals : null;
+            return _vals;
         },
 
         // 多选列表支持一个匹配值数组。
         // 会清除其它已选取项。
         set: function( el, val ) {
+            if ($is(el, ':disabled')) {
+                return;
+            }
             el.selectedIndex = -1;
 
             if (el.type == 'select-one') {
-                if (el.value !== undefined) {
-                    return (el.value = val);
-                }
                 for (let _op of el.options) {
-                    if (_op.value == val) return (_op.selected = true);
+                    if (_op.value == val && !$is(_op, ':disabled')) {
+                        return (_op.selected = true);
+                    }
                 }
                 return;
             }
@@ -4332,9 +4312,18 @@ const valHooks = {
                 val = [val];
             }
             for (let _op of el.options) {
-                if (inArray(val, _op.value)) _op.selected = true;
+                if (inArray(val, _op.value) && !$is(_op, ':disabled')) {
+                    _op.selected = true;
+                }
             }
-        }
+        },
+
+        // 占位。
+        // 表单逻辑下不直接取值（由上层<select>取值）。
+        option: {
+            get: function() {},
+            set: function() {},
+        },
     }
 };
 
