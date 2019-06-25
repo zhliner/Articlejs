@@ -1361,9 +1361,9 @@ Object.assign(tQuery, {
 
     /**
      * 类名匹配检查。
-     * - 空格分隔的多个类名为And关系；
+     * 空格分隔的多个类名为And关系。
      * 注：
-     * - jQuery中同名方法里空格没有分隔符作用；
+     * - jQuery中同名方法里空格没有分隔符作用。
      * @param  {Element} el 目标元素
      * @param  {String} names 类名（序列）
      * @return {Boolean}
@@ -1378,48 +1378,56 @@ Object.assign(tQuery, {
 
 
     /**
-     * 特性获取/修改（Attribute）
-     * name: {
+     * 特性（Attribute）获取/修改。
+     * name: {String}
      *  	xx 		普通名称
      *  	data-x 	data系名称
      *  	-xx 	data系名称简写
-     *  	{Array} 	名称集（获取时）
-     *  	{Object} 	名/值对象（设置时）
-     * }
-     * - value未定义时为获取。支持名称数组，返回一个Map；
-     * - value有值时为设置，value支持回调取得新值；
-     * - name为名值对对象时，内部值也可为回调函数，与其键对应；
-     * - value回调参数（oldval, el）；
-     * - value传递null会删除目标特性；
+     * name: [String] 	    名称集（获取时）
+     * name: {Object|Map} 	名/值对象（设置时）
      *
-     * @param  {String|Array|Object} name 名称（集）或名/值对象
-     * @param  {String|Number|Boolean|Function|null} value 新值或回调函数
+     * - value未定义时为获取。支持名称数组（返回一个Map）。
+     * - value有值时为设置，value支持回调取得新值。
+     * - name为名值对对象或Map时也为设置，内部值可为回调函数，与键对应。
+     * - 回调接口：function( oldval, el )。
+     * - value传递null会删除目标特性。
+     *
+     * 注记：
+     * - Attribute 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法。
+     * - Property 下面译为属性，表示运行时计算出现的。可直接赋值修改。
+     *
+     * @param  {Element} el 目标元素
+     * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
+     * @param  {String|Number|Boolean|Function|null} value 新值或回调函数，可选
      * @return {Value|Map|this}
      */
     attr( el, name, value ) {
-        if (value !== undefined || $type(name) == 'Object') {
-            hookSets(el, name, value, elemAttr);
-            return this;
+        if (isArr(name) ||
+            (value === undefined && typeof name == 'string')) {
+            return hookGets(el, name, elemAttr);
         }
-        return hookGets(el, name, elemAttr);
+        hookSets(el, name, value, elemAttr);
+        return this;
     },
 
 
     /**
-     * 属性获取/修改（Property）。
-     * - name说明同attr；
-     * - 与attr不同，value传递null会赋值为null（而非删除）；
+     * 属性（Property）获取/修改。
+     * - name说明同attr。
+     * - 与attr不同，value传递null会赋值为null（而非删除）。
      *
-     * @param  {String|Array|Object} name
-     * @param  {String|Number|Boolean|Function|null} value
+     * @param  {Element} el 目标元素
+     * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
+     * @param  {String|Number|Boolean|Function|null} value 新值或回调函数，可选
      * @return {Value|Map|this}
      */
     prop( el, name, value ) {
-        if (value !== undefined || $type(name) == 'Object') {
-            hookSets(el, name, value, elemProp);
-            return this;
+        if (isArr(name) ||
+            (value === undefined && typeof name == 'string')) {
+                return hookGets(el, name, elemProp);
         }
-        return hookGets(el, name, elemProp);
+        hookSets(el, name, value, elemProp);
+        return this;
     },
 
 
@@ -1466,6 +1474,10 @@ Object.assign(tQuery, {
      *   	set: 选中同值的option项（清除其它），多选时支持值数组匹配。
      *   	get: 获取选中项的值，多选时返回一个数组（无选中时为空）。
      * }
+     * _default {
+     *      set: 对目标元素的value属性直接赋值。
+     *      get: 获取目标元素的value属性值。
+     * }
      * 使用：
      * - 仅适用表单控件。如：<option>可用于<datalist>内，此时非表单控件。
      * - 只要是同组单选按钮，可以从其中任一个控件上取选中的值。
@@ -1477,20 +1489,16 @@ Object.assign(tQuery, {
      */
     val( el, value ) {
         let _hook = valHooks[el.type] ||
-            valHooks[el.nodeName.toLowerCase()];
+            valHooks[el.nodeName.toLowerCase()] ||
+            valHooks._default;
 
         if (value === undefined) {
-            return _hook ? _hook.get(el) : el.value;
+            return _hook.get(el);
         }
         if (isFunc(value)) {
-            value = value(_hook ? _hook.get(el) : el.value);
+            value = value( _hook.get(el) );
         }
-        if (_hook) {
-            _hook.set(el, value);
-        } else {
-            el.value = value;
-        }
-        return this;
+        return _hook.set(el, value), this;
     },
 
 
@@ -3591,14 +3599,15 @@ function encURICompX( str ) {
  * - 调用目标域内的set设置值，接口：set(el, key, value)
  * - 值可为回调取值，接口：value( get(el, key), el )
  * 参数：
- * - name支持字符串或一个名/值对象（Object）；
- * - value为一个新值或获取新值的回调函数；
- * - 名/值对象中的值依然可以是回调函数（与键对应）；
+ * - name支持字符串或一个名/值对象（Object|Map）。
+ * - value为一个新值或获取新值的回调函数。
+ * - 名/值对象中的值依然可以是回调函数（与键对应）。
+ *
  * 注记：
- * - 设置时name不存在空格分隔序列的形式；
+ * name不支持空格分隔多个名称的序列形式。
  *
  * @param {Element} el 目标元素
- * @param {String|Object} name 名称或名/值对象
+ * @param {String|Object|Map} name 名称或名/值对象
  * @param {Mixed|Function} value 设置值或回调函数
  * @param {Object} scope 适用域对象
  */
@@ -3606,7 +3615,7 @@ function hookSets( el, name, value, scope ) {
     if (typeof name == 'string') {
         name = { [name]: value };
     }
-    for (let [_k, _v] of Object.entries(name)) {
+    for (let [_k, _v] of entries(name)) {
         if (isFunc(_v)) {
             _v = _v(scope.get(el, _k), el);
         }
@@ -3629,7 +3638,8 @@ function hookGets( el, name, scope ) {
         return scope.get(el, name);
     }
     return name.reduce(
-        (map, n) => map.set(n, scope.get(el, n)), new Map()
+        (map, n) => map.set( n, scope.get(el, n) ),
+        new Map()
     );
 }
 
@@ -4323,6 +4333,18 @@ const valHooks = {
         option: {
             get: function() {},
             set: function() {},
+        },
+
+        // 默认操作。
+        // 对目标元素value属性的直接操作。
+        _default: {
+            get: function( el ) {
+                return $is(el, ':disabled') ? null : el.value;
+            },
+
+            set: function( el, val ) {
+                return !$is(el, ':disabled') && (el.value = val);
+            },
         },
     }
 };
