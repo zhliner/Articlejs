@@ -118,16 +118,16 @@ T.pbs({
 
 
 	/**
-	 * 简单停止。
-	 * - 默认仅停止事件冒泡；
-	 * - over为真会终止当前执行流；
-	 * - all为真会结束后续同类绑定的调用；
+	 * 简单停止（无条件）。
+	 * - 默认仅停止事件冒泡。
+	 * - end为真会终止当前执行流。
+	 * - all为真会结束后续同类绑定的调用。
 	 *
-	 * @param {Boolean} over 终止执行流
-	 * @param {Boolean} all  全部终止（同类事件）
+	 * @param {Boolean} end 终止执行流
+	 * @param {Boolean} all 同类事件全部终止
 	 */
-	stop( ev, over, all ) {
-		if (over) {
+	stop( ev, end, all ) {
+		if (end) {
 			return all && ev.stopImmediatePropagation();
 		}
 		ev.stopPropagation();

@@ -191,6 +191,11 @@
 获取 `el` 的直接子元素集，可用 `slr` 进行匹配过滤（符合者入选）。返回一个子元素的数组（Array类型）。
 
 
+### [$.contents( el: Element, comment?: boolean ): [Node]]($.contents.md)
+
+获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。**注**：全部为空白的文本节点会被忽略。
+
+
 ### [$.siblings( el: Element, slr: string ): [Element] | null]($.siblings.md)
 
 获取 `el` 元素的兄弟元素，可用 `slr` 进行匹配过滤（符合者入选）。`el` 需要在一个父元素内，否则返回 null（游离节点）。
@@ -305,11 +310,6 @@
 对 `el` 节点进行克隆，返回克隆的新节点。`event` 和 `deep` 两个参数仅适用于元素，如果需要对注册的事件处理器一并克隆，传递 `event` 为 `true` 即可。默认深层克隆（`deep` 为真）。
 
 
-### [$.contents( el: Element, comment?: boolean ): [Node]]($.contents.md)
-
-获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。**注**：全部为空白的文本节点会被忽略。
-
-
 ## 元素属性
 
 ### [$.addClass( el: Element, names: string | Function ): this]($.addClass.md)
@@ -348,8 +348,8 @@
 - 设置时：`name` 支持字符串名称或**名/值对**配置对象（`Object|Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
 
 > **附注：**<br>
-> `Attribute` 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法。<br>
-> 后面的 `Property` 译为属性，表示运行时计算出现的。可直接赋值修改。<br>
+> `Attribute` 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法（元素的 `setAttribute()` 接口）。<br>
+> 后面的 `Property` 译为属性，表示运行时计算出现的。可通过直接赋值修改。<br>
 
 
 ## 文本操作

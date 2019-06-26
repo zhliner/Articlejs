@@ -63,13 +63,13 @@ get( meth, name, rid ): Value|[Value]   // 通用取值（children, text...）
 attr( name, rid ): Value|[Value]        // 特性取值
 prop( name, rid ): Value|[Value]        // 属性取值
 style( name, rid ): Value|[Value]       // 样式取值（计算后）
-clss( rid ): [String]                   // 取类名集
+clss( rid ): [String]                   // 取类名集，注意与 attr('class') 的区别
 pba( rid ): [String]                    // PB属性取值（参数）
 pbo( rid ): [String]                    // PB属性取值（选项）
 
-pull( idx ): Value       // 从流程集合中取值
-env( ev, name ): Value   // 从环境取值
-tpl( $name ): Element    // 请求模板节点
+pick( ...idx ): Value                   // 从流程集合中取值
+env( ev, name ): Value                  // 从环境取值
+tpl( $name ): Element                   // 请求模板节点
 
 
 form( exclude, ...rest ): [Value]
@@ -83,7 +83,7 @@ form( exclude, ...rest ): [Value]
 
 
 
-// 简单数据操作类（简单）
+// 数据构造（简单）
 
 RE( flag, str ): RegExp         // 构造正则表达式
 slr( attr, val, op, tag )       // 构造CSS选择器串
@@ -97,10 +97,41 @@ Bool(): Boolean                 // 转换为布尔值（false|true）
 
 
 
+// 简单操作类。
+// 该部分操作对象就是流程元素自身，无to目标。
+// 当然它们实际上可通过 $/$$ 延伸调用实现。
+wrap()          // 包裹流程元素（集）
+wrapInner()     // 流程元素（单个）内包裹
+unwrap()        // 流程元素（集）解包裹
+remove()        // 移除流程元素
+empty()         // 流程元素清空（同 to:fill 空数据）
+normalize()     // 流程元素规范化
+clone()         // 流程元素（集）克隆。
+
+
+
 // 全局方法。
+// 也可用于 By 段内。
 
 flag( name, $val )  // 标志取值&设置
-pass( ...flags )    // 通过检测（流程继续）。注：适合flag域和流程数据
+
+pass( ...flags )
+// 通过检测（流程继续）。
+// 多个flag之间为Or关系，And关系可用多个pass拦截。
+// flag:
+//     {String} 测试全局的flag标记，是否存在。
+//     {Number} 测试流程数据（数组）下标位置值，是否非假（false,'',null,0,undefined）。
+//
+//     true     流程数据本身 true 时通过（严格类型）。
+//     false    流程数据本身为 false 时通过（严格类型）。
+//     null     流程数据本身为 null 时通过（严格类型）。
+//     ''       流程数据本身为空串时通过（严格匹配）。
+//
+//     ---      无实参，流程数据非假（含义同上）时通过。
+
+then( meth, ...rest )
+// 流程数据非假时执行PB:meth，rest为meth的参数序列。
+// 注：类似于条件取值。
 ```
 
 
@@ -171,12 +202,20 @@ xxxx   // 单元素检索，$.get(): Element
 // 例：[3@li]|&style|fire('...')
 // $(...).attr('style', xxx)
 // 注：这里的 style 是元素的样式属性，即 cssText 值。
+// 例：
+// &class：赋值元素的class属性值。
+// &-val： 同 &data-val
 
 [prop]
 - $[name]
 // 例：.Test|$value|fire('...')
 // let el = $.get('.Test')
 // $.prop( el, 'value', xxx )
+// 特例：
+// $class+  添加类名。默认，+字符可省略。
+// $class-  删除类名。
+// $class^  切换类名。
+// $class=  全部替换。与 &class 效果相同。
 
 [css]
 - %[name]
@@ -218,8 +257,10 @@ xxxx   // 单元素检索，$.get(): Element
 #### Next-Stage
 
 ```js
-$( rid )   // 单元素检索（Element）
-$$( rid )  // 多元素检索（Collector）
+// 共享支持
+$(...)
+$$(...)
+$E(...)
 
 // $.trigger
 fire( evn, data )
@@ -245,9 +286,9 @@ tips( msg, time )  // 消息提示。注：计时器ID记录在消息容器上
 ...
 
 // 方法调用。
-// - 流程元素上方法的无条件调用。
+// 流程元素上方法的无条件调用。
 // 注：fire()的触发调用需要先有注册绑定。
-call( method, ...rest )
+method( name, ...rest )
 ```
 
 > **注：**
@@ -256,23 +297,33 @@ call( method, ...rest )
 
 ### By
 
-对 `On` 采集的流程数据进行处理。系统有一个简单的默认处理集。
-`By` 处理器同样可以串连，逗号分隔。
+对 `On` 采集的流程数据进行处理。
 
-通常来说，在 `By` 阶段的定制扩展会比较多。注：因为 `On` 的种类和方式有限，`To` 的规格基本确定。
+系统有一个简单的默认处理集（X.[meth]），处理器同样可以串连（逗号分隔）使用。通常来说，此阶段的定制扩展比较多。
+注：因为 `On` 的种类和方式有限，`To` 的规格基本确定。
 
 > **注：**
 > 对于动画或特效，`On` 负责初始数据，`By` 则负责后续的连续行为。
 
 
-#### 系统方法集（X）
+#### 系统方法集
+
+**注**：属于名称空间 `X` 或 `x`，表示综合的意思。
 
 ```js
-call( meth, ...rest ): Any  // tQuery 方法调用。
-$call( meth, ...rest ): Any // Collector 方法调用。
+func( ...code ): Function
+// 创建函数：new Function()
+// 函数体内 $ 表示流程数据（即屏蔽了外部 $）。
+// 实现：
+// new Function('$', ...code).bind(null, this.data)
 
-expr( ev, code = null, run = true )
-// 数据处理类。
+call( ...rest ): Any
+// 视流程数据为函数，传递实参并调用
+// 通常在 func 之后使用。
+
+
+// 数据处理 ///////////
+
 ```
 
 

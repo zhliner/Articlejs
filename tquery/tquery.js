@@ -928,6 +928,23 @@ Object.assign(tQuery, {
 
 
     /**
+     * 获取元素内容。
+     * - 默认返回元素内的子元素和文本节点。
+     * - 传递 comment 为真表示包含注释节点。
+     * @param  {Element} el 容器元素
+     * @param  {Boolean} comment 包含注释节点
+     * @return {[Node]}
+     */
+    contents( el, comment = false ) {
+        let _proc = comment ?
+            usualNode :
+            masterNode;
+
+        return Arr(el.childNodes).filter(_proc);
+    },
+
+
+    /**
      * 获取当前元素的兄弟元素。
      * 目标元素需要在一个父元素内，否则返回null（游离节点）。
      * @param  {Element} el 参考元素
@@ -1260,23 +1277,6 @@ Object.assign(tQuery, {
         let _new = el.cloneNode(deep);
 
         return event && el.nodeType == 1 ? _cloneEvent(el, _new, deep) : _new;
-    },
-
-
-    /**
-     * 获取元素内容。
-     * - 默认返回元素内的子元素和文本节点。
-     * - 传递 comment 为真表示包含注释节点。
-     * @param  {Element} el 容器元素
-     * @param  {Boolean} comment 包含注释节点
-     * @return {[Node]}
-     */
-    contents( el, comment = false ) {
-        let _proc = comment ?
-            usualNode :
-            masterNode;
-
-        return Arr(el.childNodes).filter(_proc);
     },
 
 
