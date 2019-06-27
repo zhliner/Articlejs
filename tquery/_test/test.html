@@ -210,42 +210,40 @@ p.ani {
         <input type="submit" id="submit" value="提交">
     </p>
     <form name="frm01">
-        <input type="checkbox" name="cbs" value="Internet Explorer">Internet Explorer<br>
-        <input type="checkbox" name="cbs" value="Firefox...">Firefox<br>
+        <fieldset id="fset">
+            <label><input type="checkbox" name="cbs" value="chrome">Chrome</label>
+            <label><input type="checkbox" name="cbs" value="edge">Edge</label>
+            <label><input type="checkbox" name="cbs" value="firefox">Firefox</label>
+        </fieldset>
         <br>
-        <input type="radio" name="res" value="Netscape">Netscape<br>
-        <br>
-        <input type="radio" name="browser" value="Internet Explorer">Internet Explorer<br>
-        <input type="radio" name="browser" value="Firefox...">Firefox<br>
-        <input type="radio" name="browser" value="Netscape">Netscape<br>
-        <input type="radio" name="browser" value="Opera">Opera<br>
+        <label><input id="chk1" type="checkbox" checked="checked" />Click me</label>
         <br>
         <input type="color" name="color1" value="#99ff00">Colors<br>
         Select your favorite fruit:
         <select name="msel" id="mySelect" multiple>
-          <option value="Apple">Apple</option>
-          <option>(empty)</option>
-          <option value="Pineapple">Pineapple</option>
-          <option value="Banana">Banana</option>
+            <option value="Apple">Apple</option>
+            <option>(empty)</option>
+            <option value="Pineapple">Pineapple</option>
+            <option value="Banana">Banana</option>
         </select>
         <br>
         <select name="sel" id="mySelect1">
-          <option value="Apple">Apple</option>
-          <option value="Orange">Orange</option>
-          <option value="Pineapple">Pineapple</option>
-          <option value="Banana">Banana</option>
+            <option value="Apple">Apple</option>
+            <option value="Orange">Orange</option>
+            <option value="Pineapple">Pineapple</option>
+            <option value="Banana">Banana</option>
         </select>
         <br /><br />
         <select name="mselg" id="opts" multiple>
-          <optgroup label="Swedish Cars">
-            <option value ="volvo">Volvo</option>
-            <option value ="saab">Saab</option>
-          </optgroup>
+            <optgroup label="Swedish Cars">
+                <option value ="volvo">Volvo</option>
+                <option value ="saab">Saab</option>
+            </optgroup>
 
-          <optgroup label="German Cars">
-            <option value ="mercedes">Mercedes</option>
-            <option value ="audi">Audi</option>
-          </optgroup>
+            <optgroup label="German Cars">
+                <option value ="mercedes">Mercedes</option>
+                <option value ="audi">Audi</option>
+            </optgroup>
         </select>
         <input name="button" type="button" onclick="getIndex()" value="Alert index of selected option">
         <div id="box1" style="position:relative; width:400px; height:200px; border:1px #666 solid;">

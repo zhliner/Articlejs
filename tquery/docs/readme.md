@@ -340,16 +340,27 @@
 > jQuery中的同名方法里，类名实参是一个整体（空格不是分隔符），即如：`A B` 与 `B A` 并不相同。
 
 
-### [$.attr( el: Element, name: String | [String] | Object | Map, value: any ): Value | Map | this]($.attr.md)
+### [$.attr( el: Element, name: String | [String] | Object | Map, value: any ): Value | Object | this]($.attr.md)
 
 获取或修改 `el` 元素的特性（Attribute）值。`value` 未定义或 `name` 为「字符串/字符串数组」时为获取（取值），否则为设置操作。
 
-- 取值时：`name` 支持字符串名称或字符串名称数组（非空格分隔的名称序列）。支持 `data-xx` 系的名称简写形式（`-xx`）。返回一个值或 Map 实例。
+- 取值时：`name` 支持字符串名称或字符串名称数组（非空格分隔的名称序列）。支持 `data-xx` 系的名称简写形式（`-xx`）。返回一个值或**名/值对**对象。
 - 设置时：`name` 支持字符串名称或**名/值对**配置对象（`Object|Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
 
 > **附注：**<br>
 > `Attribute` 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法（元素的 `setAttribute()` 接口）。<br>
 > 后面的 `Property` 译为属性，表示运行时计算出现的。可通过直接赋值修改。<br>
+
+
+### [$.prop( el: Element, name: String | [String] | Object | Map, value: any ): Value | Object | this]($.prop.md)
+
+获取或修改 `el` 元素的属性（Property）值。`value` 未定义或 `name` 为「字符串/字符串数组」时为获取（取值），否则为设置操作。
+
+- 取值时：`name` 支持字符串名称或字符串名称数组（非空格分隔的名称序列）。支持 `data-xx` 系的名称简写形式（`-xx`）。返回一个值或**名/值对**对象。
+- 设置时：`name` 支持字符串名称或**名/值对**配置对象（`Object|Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+
+> **注：**<br>
+> 部分属性名会自动转换（如：`class` => `clasName`），设置逻辑与元素原生赋值逻辑相同。
 
 
 ## 文本操作

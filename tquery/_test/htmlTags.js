@@ -1,3 +1,14 @@
+/*! $Id: htmlTags.js 2016.03.08 tQuery $
+*******************************************************************************
+            Copyright (c) 铁皮工作室 2017 MIT License
+
+                @Project: tQuery v0.3.x
+                @Author:  风林子 zhliner@gmail.com
+*******************************************************************************
+*/
+
+(function( window, undefined ) {
+
 let tags = [
     // 主结构（单独测试）
     // 'html',
@@ -223,3 +234,5 @@ function callEvents( el, evns ) {
 function calls() {
     this.forEach( el => callEvents(el, namesCaller(el)) );
 }
+
+})();

@@ -206,6 +206,8 @@
         // 注：
         // - 放宽数字匹配范围（Number）。
         // - 允许常用全角标点符号（，、。：；！？「」『』‘’“”等）。
+        // 注记：
+        // \p{} 的 Unicode 属性类在 ES2018 中引入，部分浏览器（Firefox）暂不支持。
         uriComponentX = /[^\p{Alphabetic}\p{Mark}\p{Number}\p{Connector_Punctuation}\p{Join_Control}，、。：；！？「」『』‘’“”]/gu,
 
         // SVG元素名称空间。
@@ -222,7 +224,7 @@
 
         // data系属性包含简写的匹配。
         // 如：-val => data-val
-        __dataName 	= new RegExp( "^(?:data)?-(" + identifier + ")+$" ),
+        __dataName 	= new RegExp( "^(?:data)?-(" + identifier + ")$" ),
 
         // 私有存储 {Element: String}
         // 用于toggleClass整体切换元素类名。
@@ -1386,7 +1388,7 @@ Object.assign(tQuery, {
      * name: [String] 	    名称集（获取时）
      * name: {Object|Map} 	名/值对象（设置时）
      *
-     * - value未定义时为获取。支持名称数组（返回一个Map）。
+     * - value未定义时为获取。支持名称数组（返回一个名值对 Object）。
      * - value有值时为设置，value支持回调取得新值。
      * - name为名值对对象或Map时也为设置，内部值可为回调函数，与键对应。
      * - 回调接口：function( oldval, el )。
@@ -1399,7 +1401,7 @@ Object.assign(tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
      * @param  {String|Number|Boolean|Function|null} value 新值或回调函数，可选
-     * @return {Value|Map|this}
+     * @return {Value|Object|this}
      */
     attr( el, name, value ) {
         if (isArr(name) ||
@@ -1419,7 +1421,7 @@ Object.assign(tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
      * @param  {String|Number|Boolean|Function|null} value 新值或回调函数，可选
-     * @return {Value|Map|this}
+     * @return {Value|Object|this}
      */
     prop( el, name, value ) {
         if (isArr(name) ||
@@ -2821,7 +2823,7 @@ elsExfn([
         let _ia = isArr(names);
         // 可代理调用 $
         this.forEach(
-            (el, i) => $[fn](el, _ia ? names[i] || '' : names)
+            (el, i) => $[fn](el, _ia ? names[i] : names)
         );
         return this;
     }
@@ -2848,7 +2850,7 @@ elsExfn([
         let _ia = isArr(val);
         this.forEach(
             // 可代理调用 $
-            (el, i) => $[fn](el, _ia ? val[i] || '' : val)
+            (el, i) => $[fn](el, its, _ia ? val[i] : val)
         );
         return this;
     }
@@ -2879,7 +2881,7 @@ elsExfn([
         this.forEach(
             (el, i) => {
                 // 可代理调用 $
-                $[fn](el, _ia ? val[i] || '' : val);
+                $[fn](el, _ia ? val[i] : val);
             }
         );
         return this;
@@ -2906,7 +2908,7 @@ elsExfn([
             _vs = this.map(
             (el, i) => {
                 // 可代理调用 $
-                return $[fn](el, _ia ? val[i] || '' : val, ...rest);
+                return $[fn](el, _ia ? val[i] : val, ...rest);
             }
         );
         if (val === undefined) {
@@ -3585,12 +3587,15 @@ function uriKeyValue([name, value]) {
 
 
 /**
- * 保留字母和数字的URI转换。
+ * 可视友好的URI转换。
+ * 保留Unicode字母和数字以及常用的全角标点符号。
  * @param  {String} str 目标字符串
  * @return {String}
  */
 function encURICompX( str ) {
-    return str.replace(uriComponentX, encodeURIComponent);
+    return str.replace(uriComponentX, encodeURIComponent).
+        // 空格替换为+
+        replace('%20', '+');
 }
 
 
@@ -3631,15 +3636,15 @@ function hookSets( el, name, value, scope ) {
  * @param  {Element} el 目标元素
  * @param  {String|Array} name 名称（集）
  * @param  {Object} scope 适用域对象
- * @return {String|Map} 值或Map实例
+ * @return {String|Object} 值或名值对对象
  */
 function hookGets( el, name, scope ) {
     if (typeof name == 'string') {
         return scope.get(el, name);
     }
     return name.reduce(
-        (map, n) => map.set( n, scope.get(el, n) ),
-        new Map()
+        (obj, n) => ( obj[n] = scope.get(el, n), obj ),
+        {}
     );
 }
 
@@ -4056,7 +4061,11 @@ const elemAttr = {
      * @return {Mixed} 特性值
      */
     get( el, name ) {
+        if (boolAttr.test(name)) {
+            return boolHook.get(el, name);
+        }
         let _ns = name.match(__dataName);
+
         return el.getAttribute( _ns ? 'data-' + _ns[1] : name );
     },
 
@@ -4073,7 +4082,7 @@ const elemAttr = {
      */
     set( el, name, value ) {
         return boolAttr.test(name) ?
-            boolHook.set(el, value, name) : this.setAttr(el, name, value);
+            boolHook.set(el, name, value) : this.setAttr(el, name, value);
     },
 
 
@@ -4146,7 +4155,7 @@ const elemProp = {
 
 
 
-//!from jQuery 2.x or 3.x
+// from jQuery 3.x
 const
     focusable = /^(?:input|select|textarea|button)$/i,
     propFix = {
@@ -4168,12 +4177,15 @@ const
     booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
     boolHook = {
-        set: function( el, val, name ) {
-            if ( val === false ) {
+        set: function( el, name, val ) {
+            if ( val == null || val === false ) {
                 el.removeAttribute(name);
             } else {
                 el.setAttribute(name, name);
             }
+        },
+        get: function( el, name ) {
+            return el.getAttribute(name) == null ? null : name;
         }
     };
 

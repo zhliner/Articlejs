@@ -176,15 +176,13 @@ p.ani {
         <input type="submit" onClick="setCursor('#medbox', '#curpos');" value="提交">
     </p>
     <form name="frm01">
-        <input type="checkbox" name="cbs" value="Internet Explorer">Internet Explorer<br>
-        <input type="checkbox" name="cbs" value="Firefox...">Firefox<br>
+        <fieldset id="fset">
+            <label><input type="checkbox" name="cbs" value="chrome">Chrome</label>
+            <label><input type="checkbox" name="cbs" value="edge">Edge</label>
+            <label><input type="checkbox" name="cbs" value="firefox">Firefox</label>
+        </fieldset>
         <br>
-        <input type="radio" name="res" value="Netscape">Netscape<br>
-        <br>
-        <input type="radio" name="browser" value="Internet Explorer">Internet Explorer<br>
-        <input type="radio" name="browser" value="Firefox...">Firefox<br>
-        <input type="radio" name="browser" value="Netscape">Netscape<br>
-        <input type="radio" name="browser" value="Opera">Opera<br>
+        <label><input id="chk1" type="checkbox" checked="checked" />Click me</label>
         <br>
         <input type="color" name="color1" value="#99ff00">Colors<br>
         Select your favorite fruit:
