@@ -188,6 +188,22 @@
         // 像素值表示
         rpixel = /^[+-]?\d[\d.e]*px$/i,
 
+        // 伪Tag开始字符匹配（[）
+        // 注：前置\时为转义，不匹配，偶数\\时匹配。
+        tagLeft = /(^|[^\\]|(?:\\\\)+)\[/g,
+
+        // 转义脱出 \[ => [
+        // 注：在tagLeft替换之后采用。
+        tagLeft0 = /\\\[/g,
+
+        // 伪Tag结束字符匹配（]）
+        // 注：同上
+        tagRight = /([^\\]|(?:\\\\)+)\]/g,
+
+        // 转义脱出 \] => ]
+        // 注：在tagRight替换之后采用。
+        tagRight0 = /\\\]/g,
+
         // Support: IE <=10 - 11, Edge 12 - 13
         // In IE/Edge using regex groups here causes severe slowdowns.
         // See https://connect.microsoft.com/IE/feedback/details/1736512/
@@ -712,6 +728,21 @@ Object.assign(tQuery, {
 
 
     /**
+     * 源码标签化。
+     * 将非 <> 包围的代码转为正常的HTML标签源码。
+     * 如：[a href="#"]some link[/a] 转为 <a href="#">some link</a>
+     * 注：仅仅就是对包围字符进行简单的替换。
+     * @param  {String} code 待转换代码
+     * @return {String} 包含标签的字符串
+     */
+    tags( code ) {
+        return code.
+            replace(tagLeft, '$1<').replace(tagLeft0, '[').
+            replace(tagRight, '$1>').replace(tagRight0, ']');
+    },
+
+
+    /**
      * 提取表单内可提交控件为一个名值对数组。
      * 名值对：[
      *      name,   // {String} 控件名
@@ -1106,11 +1137,11 @@ Object.assign(tQuery, {
     has( els, slr ) {
         let _f = slr;
 
-        if (!slr || !els.length) {
+        if (!slr || els.length == 0) {
             return $A(els);
         }
         if (typeof slr == 'string') {
-            _f = el => tQuery.find(slr, el).length;
+            _f = el => !!tQuery.get(slr, el);
         }
         else if (slr.nodeType) {
             _f = el => slr !== el && tQuery.contains(el, slr);
@@ -1511,16 +1542,16 @@ Object.assign(tQuery, {
      * 提取/设置元素源码。
      * - 禁止脚本<script>，样式<style>，连接<link>元素插入。
      * - 源数据为节点时，取其outerHTML，多个节点取值串接。
-     * - 数据源也可为字符串数组或字符串与节点的混合数组。
+     * - 数据也可为字符串数组或字符串与节点的混合数组。
      * - where值含义详见上Wheres注释。
      * 另：
-     * - 若传递el实参为假值，返回转义后的html。如：< 转义为 &lt;
+     * el实参也可为文本，会转义为HTML源码表示，如 < 到 &lt;
      *
      * 取值回调：
-     * - 取值函数接收原节点为参数，可返回字符串、节点或节点集；
-     * - 返回的节点数据取其outerHTML源码；
+     * - 取值函数接收原节点为参数，可返回字符串、节点或节点集。
+     * - 返回的节点数据取其outerHTML源码。
      *
-     * @param  {Element} el 容器元素
+     * @param  {Element|String} el 容器元素或待转换文本
      * @param  {String|Node|NodeList|Array|Function} code 数据源或取值函数
      * @param  {String|Number} where 插入位置
      * @param  {String} sep 多段连接符
@@ -1528,7 +1559,7 @@ Object.assign(tQuery, {
      */
     html( el, code, where = 0, sep = ' ' ) {
         if (code === undefined) {
-            return el.innerHTML;
+            return typeof el == 'string' ? htmlCode(el) : el.innerHTML;
         }
         if ( isFunc(code) ) {
             code = code( el );
@@ -1538,9 +1569,6 @@ Object.assign(tQuery, {
         }
         if (noInnerhtml.test(code)) {
             window.console.error(`the code contains forbidden tag`);
-        }
-        if (! el) {
-            return textHtml(code);
         }
         return Insert(
             el,
@@ -1553,19 +1581,17 @@ Object.assign(tQuery, {
 
     /**
      * 提取/设置元素文本内容。
-     * - 设置时以文本方式插入，HTML视为文本；
-     * - 源数据为节点时，提取其文本（textContent）插入；
-     * - 数据源也可为字符串或节点或其混合的数组；
+     * - 设置时以文本方式插入，HTML源码视为文本。
+     * - 源数据为节点时，提取其文本（textContent）插入。
+     * - 数据源也可为字符串或节点或其混合的数组。
      * 另：
-     * 若传递el实参为假值，返回解析html后的文本。如：&lt; 解析为‘<’
+     * el实参也可为待解析源码，解码为文本表现。如 &lt; 到 <
      *
-     * 注：
-     * 新的DOM规范中有类似Api：
-     *   > ParentNode.append/prepend
-     *   > ChildNode.after/before
-     * 但对待节点的方式不同。
+     * 取值回调：
+     * - 取值函数接收原节点为参数，可返回字符串、节点或节点集；
+     * - 返回的节点数据取其outerHTML源码；
      *
-     * @param  {Element} el 容器元素
+     * @param  {Element|String} el 容器元素或待解析源码
      * @param  {String|NodeList|Array|Function} code 源数据或取值函数
      * @param  {String|Number} where 插入位置
      * @param  {String} sep 多段连接符
@@ -1573,16 +1599,13 @@ Object.assign(tQuery, {
      */
     text( el, code, where = 0, sep = ' ' ) {
         if (code === undefined) {
-            return el.textContent;
+            return typeof el == 'string' ? htmlText(el) : el.textContent;
         }
         if ( isFunc(code) ) {
             code = code( el );
         }
         if (typeof code != 'string') {
             code = nodeText(code, sep);
-        }
-        if (! el) {
-            return htmlText(code);
         }
         return Insert(
             el,
@@ -1609,18 +1632,19 @@ Object.assign(tQuery, {
      * 注记：
      * - Edge/Chrome/FF已支持短横线样式属性名；
      *
-     * @param  {String|Array|Object} names 样式名（集）或名值对象
+     * @param  {String|[String]|Object|Map} name 样式名（集）或名/值配置对象
      * @param  {String|Number|Function} val 设置值或取值函数
      * @return {String|Map|this}
      */
-    css( el, names, val ) {
+    css( el, name, val ) {
         let _cso = getStyles(el);
 
-        if (val !== undefined || $type(names) == 'Object') {
-            cssSets(el, names, val, _cso);
-            return this;
+        if (isArr(name) ||
+            (val === undefined && typeof name == 'string')) {
+            return cssGets(_cso, name);
         }
-        return cssGets(_cso, names);
+        cssSets(el, name, val, _cso);
+        return this;
     },
 
 
@@ -2425,13 +2449,27 @@ class Collector extends Array {
 
 
     /**
+     * 在集合内的每一个元素中查询单个目标。
+     * 返回有效目标的一个新集合。
+     * @param  {String} slr 选择器
+     * @return {Collector}
+     */
+    get( slr ) {
+        let _buf = this.map(
+                el => tQuery.get(slr, el)
+            );
+        return new Collector( Arr(_buf).filter(e => !!e), this );
+    }
+
+
+    /**
      * 查找匹配的元素集。
      * 注：
      * - 单个元素的find查找结果不存在重复可能。
      * - 调用 $.find 使得外部嵌入的代理可延伸至此。
      * @param  {String} slr 选择器
      * @param  {Boolean} andOwn 包含上下文自身匹配
-     * @return {Array}
+     * @return {Collector}
      */
      find( slr, andOwn ) {
         let _buf = this.reduce(
@@ -2607,13 +2645,13 @@ class Collector extends Array {
 
 
     /**
-     * 获取元素或集合。
+     * 获取集合内元素。
      * - 获取特定下标位置的元素，支持负数倒数计算；
      * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）；
      * @param  {Number} idx 下标值（支持负数）
      * @return {Element|Array}
      */
-    get( idx ) {
+    item( idx ) {
         return idx === undefined ?
             Array.from(this) :
             this[ idx < 0 ? this.length+idx : idx ];
@@ -2660,7 +2698,7 @@ elsEx([
         'filter',
     ],
     // 可代理调用 $
-    (fn, els, slr) => $[fn](els, slr)
+    (fn, els, slr) => $[fn]( els, slr )
 );
 
 
@@ -2912,6 +2950,7 @@ elsExfn([
             }
         );
         if (val === undefined) {
+            // 普通数组
             return [..._vs];
         }
         // 扁平化，构造为 Collector
@@ -3314,21 +3353,24 @@ function camelCase( name ) {
 /**
  * 获取样式值（集）。
  * @param  {CSSStyleDeclaration} cso 计算样式集
- * @param  {String|Array} names 样式名（集）
- * @return {String|Map}
+ * @param  {String|[String]} names 样式名（集）
+ * @return {String|Object} 值或名值对对象
  */
 function cssGets( cso, names ) {
     if (typeof names == 'string') {
         return cso[names];
     }
-    return names.reduce( (map, n) => map.set(n, cso[n]), new Map() );
+    return names.reduce(
+        (obj, n) => ( obj[n] = cso[n], obj ),
+        {}
+    );
 }
 
 
 /**
  * 设置样式值。
  * @param  {Element} el 目标元素
- * @param  {String|Object} name 样式名或名值对对象
+ * @param  {String|Object|Map} name 样式名或名值对对象
  * @param  {String|Number|Function} val 设置值或取值回调
  * @param  {CSSStyleDeclaration} cso 计算样式集
  * @return {void}
@@ -3337,7 +3379,7 @@ function cssSets( el, name, val, cso ) {
     if (typeof name == 'string') {
         return ( el.style[name] = cssFunc(val, cso, name, el) );
     }
-    for (let [n, v] of Object.entries(name)) {
+    for (let [n, v] of entries(name)) {
         el.style[n] = cssFunc(v, cso, n, el);
     }
 }
@@ -3634,7 +3676,7 @@ function hookSets( el, name, value, scope ) {
  * - 循环名称集取值，返回一个名称为键的Map实例；
  * - Map内成员的顺序与属性名一致，可能有用；
  * @param  {Element} el 目标元素
- * @param  {String|Array} name 名称（集）
+ * @param  {String|[String]} name 名称（集）
  * @param  {Object} scope 适用域对象
  * @return {String|Object} 值或名值对对象
  */
@@ -3851,15 +3893,13 @@ function nodeText( nodes, sep = ' ' ) {
 
 
 /**
- * 将文本转义为html源码。
- * - 转义HTML特殊字符为实体表示；
- * - 返回值按html方式插入获得原样文本；
- *
- * @param  {String} code 任意文本
+ * 将文本转义为HTML源码表示。
+ * 如：< to &lt;
+ * @param  {String} code 表现文本
  * @param  {Document} doc 文档对象
  * @return {String} 转义后源码
  */
-function textHtml( code, doc = Doc ) {
+function htmlCode( code, doc = Doc ) {
     let _box = doc.createElement('div');
     _box.textContent = code;
     return _box.innerHTML;
@@ -3867,15 +3907,14 @@ function textHtml( code, doc = Doc ) {
 
 
 /**
- * 将html源码解析为文本。
- * 如： &lt; 解析为‘<’
- * @param  {String} code 源码
+ * 将HTML实体表示解码为文本。
+ * 如： &lt; to <
+ * @param  {String} code HTML源码
  * @param  {Document} doc 文档对象
  * @return {String}
  */
 function htmlText( code, doc = Doc ) {
     let _box = doc.createElement('div');
-
     try {
         _box.innerHTML = code;
     }
@@ -4185,7 +4224,7 @@ const
             }
         },
         get: function( el, name ) {
-            return el.getAttribute(name) == null ? null : name;
+            return el.hasAttribute(name) ? name : null;
         }
     };
 

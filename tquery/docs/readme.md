@@ -89,6 +89,16 @@
 > **注**：jQuery.contains 的行为稍有不同。
 
 
+### [$.tags( code: string ): string]($.tags.md)
+
+
+### [$.serialize( form: Element, exclude?: Function | [string] ): [Array]]($.serialize.md)
+
+
+### [$.queryURL( target: Element | [Array] | Object | Map ): string]($.queryURL.md)
+
+
+
 ### [$.ready( handle: Function ): this]($.ready.md)
 
 文档载入就绪后的回调绑定。可以绑定多个，会按绑定先后逐个调用。若文档已载入并且未被hold，会立即执行绑定的handle。
@@ -119,17 +129,7 @@
 
 
 
-## 节点查询
-
-### [$.get( slr: string, ctx?: Element ): Element | null]($.get.md)
-
-查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
-
-
-### [$.find( slr: string, ctx?: Element, andOwn?: boolean ): [Element]]($.find.md)
-
-在上下文元素内查找和选择器匹配的子元素集，如果传递 `andOwn` 实参为 `true`，则选择器匹配包含上下文元素自身。
-
+## 基本查询
 
 ### [$( its: any, ctx: Element ): Collector]($().md)
 
@@ -150,6 +150,19 @@
 > 如 `.nextAll`：
 > - 单元素版：`$.nextAll( el, slr )` 返回元素 `el` 的后续兄弟元素，`slr` 为匹配过滤。
 > - 集 合 版：`$(...).nextAll( slr )` 检索集合内每一个元素的后续兄弟元素，`slr` 为匹配过滤。返回一个排序并去除了重复元素的集合。
+
+
+
+## 节点查询
+
+### [$.get( slr: string, ctx?: Element ): Element | null]($.get.md)
+
+查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
+
+
+### [$.find( slr: string, ctx?: Element, andOwn?: boolean ): [Element]]($.find.md)
+
+在上下文元素内查找和选择器匹配的子元素集，如果传递 `andOwn` 实参为 `true`，则选择器匹配包含上下文元素自身。
 
 
 

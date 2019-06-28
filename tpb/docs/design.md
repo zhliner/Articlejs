@@ -22,65 +22,84 @@ PB:next( data, method, index )
 
 ### On
 
-关联事件，求取各种值，值进入流程向后传递。支持事件触发？（注：可能取消）
-> {OnPB}
+关联事件，求取各种值，值进入流程向后传递。`tQuery|Collector` 中的方法仅限于取值（注：赋值在 `To:method` 中）。
 
 **方法集：**
 
 ```js
-$( rid, ctx|method, ...rest ): Element | Any
+$( rid ): Element
 // tQuery.get(...)
-// rid: {String|null} 相对ID，值null或undefined时取流程数据。
-// ctx: {Element|String}
-// .get() 的查询上下文或进阶的tQuery方法。如果为方法，rest即为方法的实参序列。
-// ctx为上下文时，rest也可以有效，此时其首个值为方法名。
-// 注：
-// 如果进阶调用方法，则可能返回任意值。下同。
-
-$$( rid, ctx|method, ...rest ): Collector | Any
-// tQuery(...)
-// rid: {String|null} 同上。取流程数据时，非字符串可被封装为Collector。
-// ctx: {Element|String}
-// tQuery() 的查询上下文或进阶的Collector方法。
-// rest 参数说明同上。
-
-$E( flag ): Element
-// 提取事件关联的3个元素之一。
-// flag: {String|Number} 目标标记
-// targets: {
-//     origin|0     事件起点元素
-//     current|1    冒泡到的当前元素
-//     delegate|2   定义委托的元素
+// rid: {String|Number|null}
+// - 相对ID，null为取流程数据（String）。
+// - 数值表示取事件关联的元素或值：{
+//      0   origin 事件起点元素
+//      1   current 冒泡到的当前元素
+//      2   delegate 定义委托的元素
+//      3   ev.detail 自定义事件传递的数据
 // }
 
+$$( rid ): Collector
+// tQuery(...)
+// rid: {String|Number|null}
+// - 含义同上。非字符串也可被封装为Collector。
+// - 数值实参含义同上，事件关联元素被打包为Collector。
+
+$Z( meth:String, index:Number, len:Number ): void
+// 设置数据游标，供后续数据添加判断。
+// meth:
+//     append/appends   追加，单个或集合展开。游标会自动后移。（a/a+）
+//     insert/inserts   前插，单个或集合展开。游标不变，总是前插。（i/i+）
+//     splice/splices   删除并拼接，单个或集合展开。游标不变，len参数有效。（s/s+）
+//     fill/fills       填充，新数据复制或扩展逐一填充到流程数组。（f/f+）
+//     null             清除数据游标和状态（meth）。
+// 注：
+// 主要用于在数组中间插入，流程数据若非数组，会被转为数组。
+// 未设置时为简单替换（this.next() 默认）。
+// 新数据即便是一个集合，也可以作为单体添加（不展开）。
+
+body()      // 赋值流程数据为 document.body
+nil()       // 一个空行为，占位
+put( val )  // 向流程内直接传值
+
+
+// tQuery取值成员
+
+Elem()      // 创建元素（tQuery.Element）
+Text()      // 创建文本节点（tQuery.Text）
+create()    // 创建文档片段（DocumentFragment）
+svg()       // 创建SVG元素（tQuery.svg）
+
+range()     // 构造范围序列
+now()       // 获取时间戳
+isXML()     // 是否为XML节点
+tags()      // 转为标签字符串（[] to <>）
+queryURL()  // 构建URL查询串
+get( slr )  // 在流程元素（集）上下文中查询单个目标
+find( slr ) // 在流程元素（集）上下文中查询多个目标并合并
+
+next()
+
+html()      // 转换为HTML源码（< 到 &lt;）
+text()      // 转换为文本（&lt; 到 <）
+val()       // 按表单逻辑取值（disabled者为null）
+
+
+form( rid, ...exclude ): [Array]    // 获取表单内可提交的控件[名,值]。exclude 排除的控件名序列
 
 
 // 元素（集）简单取值类
-// meth: {String} 取值方法，如 prop, attr, text
-// name: {String} 目标键名
 
-get( meth, name, rid ): Value|[Value]   // 通用取值（children, text...）
-attr( name, rid ): Value|[Value]        // 特性取值
-prop( name, rid ): Value|[Value]        // 属性取值
-style( name, rid ): Value|[Value]       // 样式取值（计算后）
-clss( rid ): [String]                   // 取类名集，注意与 attr('class') 的区别
-pba( rid ): [String]                    // PB属性取值（参数）
-pbo( rid ): [String]                    // PB属性取值（选项）
+attr( name, rid ): Value|[Value]    // 特性取值
+prop( name, rid ): Value|[Value]    // 属性取值
+css( name, rid ): Value|[Value]     // 样式取值（计算后）
 
-pick( ...idx ): Value                   // 从流程集合中取值
-env( ev, name ): Value                  // 从环境取值
-tpl( $name ): Element                   // 请求模板节点
+clss( rid ): [String]               // 取类名集，非 attr('class') 的值
+pba( rid ): [String]                // PB属性取值（参数）
+pbo( rid ): [String]                // PB属性取值（选项）
 
-
-form( exclude, ...rest ): [Value]
-// 获取表单内控件的值。
-// exclude: {false|String} 黑名单模式或白名单控件名
-// ...rest: {String} 控件名序列，取用或排除的
-// 注：
-// 默认为白名单模式，首个实参为正常的控件名。
-// 如果无控件名传递，表示取表单内全部的控件（submit提交的）。
-// 如：form() 取全部，form(false) 取空集。
-
+pick( ...idx ): Value               // 从流程集合中取值
+env( ev, name ): Value              // 从环境取值
+tpl( $name ): Element               // 请求模板节点
 
 
 // 数据构造（简单）
@@ -100,8 +119,6 @@ Bool(): Boolean                 // 转换为布尔值（false|true）
 // 简单操作类。
 // 该部分操作对象就是流程元素自身，无to目标。
 // 当然它们实际上可通过 $/$$ 延伸调用实现。
-wrap()          // 包裹流程元素（集）
-wrapInner()     // 流程元素（单个）内包裹
 unwrap()        // 流程元素（集）解包裹
 remove()        // 移除流程元素
 empty()         // 流程元素清空（同 to:fill 空数据）
@@ -174,21 +191,31 @@ xxxx   // 单元素检索，$.get(): Element
 ```js
 [node]
 // 下面的方法种中流程数据为数据，当前检索为目标。
-- before
-- after
-- begin
-- prepend
-- end
-- append
-- fill
-- replace
-- html
-- text
+// 遵循tQuery相应接口规则。
 
-// 下面的方法中流程数据为目标，当前检索的元素为数据。
-// 注意：
-// 这里没有复制控制，因此数据元素是移动模式。
-// 这不应当是常用的方法，是提供一种选择的可能。
+// 节点数据
+- before    // 插入目标之前
+- after     // 插入目标之后
+- begin     // 插入目标内前端
+- prepend   // 同上
+- end       // 插入目标内末尾
+- append    // 同上
+- fill      // 填充目标内容（替换）
+- replace   // 替换目标本身
+
+// 标量数据
+- html      // 填充源码构造的节点
+- text      // 填充文本
+- val       // 按表单逻辑赋值
+
+// 元素或文本数据
+- wrap      // 目标被（各自）包裹
+- wrapInner // 目标被（各自）内包裹
+- wrapAll   // 包裹目标节点（集）
+
+// 下面的方法中流程数据为目标，当前检索为数据。
+// 注：
+// 这里没有复制控制，因此数据元素是移动方式。
 - beforeWith
 - afterWith
 - prependWith
@@ -222,6 +249,7 @@ xxxx   // 单元素检索，$.get(): Element
 // 例：.Test|%font-size|fire('...')
 // let el = $.get('.Test')
 // $.css(el, 'font-size', xxx)
+// 注：名称 fontSize 同样可行。
 ```
 
 
@@ -249,7 +277,7 @@ xxxx   // 单元素检索，$.get(): Element
 // 即：将两个方法视为一个独立单元。
 ```
 
-> **提示：**<br>
+> **说明：**<br>
 > 如果数据源、目标元素、方法三者都为数组，则前两者的数组属性优先。<br>
 > 然后数据源的成员（可能也是一个数组）应用到方法数组上。即：若存在数组，则一一对应。<br>
 
@@ -257,10 +285,23 @@ xxxx   // 单元素检索，$.get(): Element
 #### Next-Stage
 
 ```js
-// 共享支持
-$(...)
-$$(...)
-$E(...)
+// 元素检索/求值。
+// 注：不支持更多的On方法，但扩展能力。
+$( rid, method, ...rest ): Element | Any
+// tQuery.get(...)
+// rid: {String|Number|null}
+// method: {String}
+// - tQuery的方法，rest为方法的实参序列。
+// - 调用进阶方法，返回值可能为任意值。下同。
+// - 进阶的方法名仅限于On中已经定义的成员（与tQuery的交集）。
+
+$$( rid, method, ...rest ): Collector | Any
+// tQuery(...)
+// rid: {String|Number|null}
+// method: {String}
+// - Collector的方法，rest为方法的实参序列。
+// - 方法名限定同上。
+
 
 // $.trigger
 fire( evn, data )
@@ -290,9 +331,6 @@ tips( msg, time )  // 消息提示。注：计时器ID记录在消息容器上
 // 注：fire()的触发调用需要先有注册绑定。
 method( name, ...rest )
 ```
-
-> **注：**
-> 该阶段的取值仅支持元素检索，避免可选的rid参数。
 
 
 ### By
@@ -324,6 +362,8 @@ call( ...rest ): Any
 
 // 数据处理 ///////////
 
+
+// 本地存储 ///////////
 ```
 
 
