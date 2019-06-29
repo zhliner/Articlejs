@@ -3,15 +3,6 @@
 > **注**：tpb: Template Presentational Behavior
 
 
-```js
-PB:next( data, method, index )
-// 流程接续调用。
-// data: {Any} 续传数据
-// method: {String|Number} 添加方法（replace|0, push|1, insert|2, set|3, fill|4）
-// index: {Number} insert/set 的位置
-```
-
-
 ## OnByTo 逻辑重构
 
 > 仔细划分逻辑区域，简化PB集。
@@ -62,23 +53,24 @@ nil()       // 一个空行为，占位
 put( val )  // 向流程内直接传值
 
 
-// tQuery取值成员
+// tQuery：数据创建
 
 Elem()      // 创建元素（tQuery.Element）
 Text()      // 创建文本节点（tQuery.Text）
 create()    // 创建文档片段（DocumentFragment）
 svg()       // 创建SVG元素（tQuery.svg）
-
+table()     // 创建表格实例（$.Table）
 range()     // 构造范围序列
 now()       // 获取时间戳
+
 isXML()     // 是否为XML节点
-tags()      // 转为标签字符串（[] to <>）
 queryURL()  // 构建URL查询串
 get( slr )  // 在流程元素（集）上下文中查询单个目标
 find( slr ) // 在流程元素（集）上下文中查询多个目标并合并
 
 next()
 
+tags()      // 转为标签字符串（[] to <>）
 html()      // 转换为HTML源码（< 到 &lt;）
 text()      // 转换为文本（&lt; 到 <）
 val()       // 按表单逻辑取值（disabled者为null）

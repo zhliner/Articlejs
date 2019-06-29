@@ -125,6 +125,20 @@ p.ani {
     <div style="font-size:1ex;width:10ex;border:1px #999 solid;background-color:#fff;">1ex字体</div>
     <div style="font-size:1ch;width:10ch;border:1px #999 solid;background-color:#fff;">1ch字体</div>
 
+    <form name="frm">
+        <fieldset id="fset">
+            <label><input type="checkbox" name="cbs" value="chrome" data-type="browser" checked>Chrome</label>
+            <label><input type="checkbox" name="cbs" value="edge" data-type="browser">Edge</label>
+            <label><input type="checkbox" name="cbs" value="firefox" data-type="browser">Firefox</label>
+        </fieldset>
+        <br>
+        <input type="color" name="color" value="#99ff00">Colors<br>
+        <input type="text" name="txt" value="Hello"><br>
+        <input type="submit" value="提交">
+    </form>
+
+    <p><a href="#" title="[a] is a \[link\]">Click me</a></p>
+
     <section class="Content" style="position: relative;">
         <p id="test" class="Test Hai">
             这是一个<strong>通用的</strong><em>测试段落</em>。包含了一些<em class="line">行内元素</em>。
@@ -213,13 +227,13 @@ p.ani {
         <input type="submit" id="submit" value="提交">
     </p>
     <form name="frm01">
-        <fieldset id="fset">
+        <fieldset>
             <label><input type="checkbox" name="cbs" value="chrome">Chrome</label>
             <label><input type="checkbox" name="cbs" value="edge">Edge</label>
             <label><input type="checkbox" name="cbs" value="firefox">Firefox</label>
         </fieldset>
         <br>
-        <label><input id="chk1" type="checkbox" checked="checked" />Click me</label>
+        <label><input name="chk1" id="chk1" type="checkbox" value="hai" />Click me</label>
         <br>
         <input type="color" name="color1" value="#99ff00">Colors<br>
         Select your favorite fruit:

@@ -5,7 +5,7 @@
 ### [$.Element( tag: string, data: any, ns: string, doc?: Document ): Element]($.Element.md)
 
 创建 `tag` 指定的DOM元素，可指定所属名称空间和所属文档对象。
-`data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node}`。
+`data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node|Collector}`。如果数据源为节点，源节点可能会被移出原来的位置。
 
 
 ### [$.Text( data: String | Node | Array | Collector, sep?: string, doc?: Document ): Text]($.Text.md)
@@ -91,12 +91,23 @@
 
 ### [$.tags( code: string ): string]($.tags.md)
 
+伪标签源码（由 `[]` 包围标签）转化为正常的HTML源码，可用于元素属性值中直观地包含标签源码。
+
+这里只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置字符 `\` 转义。
+
 
 ### [$.serialize( form: Element, exclude?: Function | [string] ): [Array]]($.serialize.md)
+
+序列化表单内控件的名称和值，返回一个**名/值对**双成员数组（`[name, value]`）的数组。
+
+仅处理有 `name` 属性的控件，正常情况下它们会在表单提交时作为**名/值对**被提交到服务器（或出现在URL的查询部分）。
 
 
 ### [$.queryURL( target: Element | [Array] | Object | Map ): string]($.queryURL.md)
 
+用一个**名/值对**数组（`[name, value]`）的数组、或一个**键/值对**对象、或一个 `Map实例` 构造 `URL` 中查询串的部分（即 `URL` 中 `?` 之后的部分）。可以直接传入一个表单元素，这样会自动提取表单内可提交控件的**名/值对**作为源数据。
+
+考虑可视友好性，Unicode字符、数字和一些常用的全角标点符号不会被转换，这与现代浏览器地址栏中实际的表现一致。
 
 
 ### [$.ready( handle: Function ): this]($.ready.md)
@@ -129,13 +140,13 @@
 
 
 
-## 基本查询
+## 基本操作
 
 ### [$( its: any, ctx: Element ): Collector]($().md)
 
-通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。
+通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。`its` 支持选择器、元素（简单打包）、节点集、支持拥有 `.values()` 接口的对象（如：Set）。无效的 `its` 实参会构造一个空的 `Collector` 实例。
 
-`its` 支持选择器、元素（简单打包）、节点集、支持 `.values()` 接口的对象（如：Set），以及用户处理函数（即初始 `$.ready()` 的实参）等。无效的 `its` 实参会构造一个空的 `Collector` 实例。
+本接口还用作页面载入完毕后的用户处理函数绑定，即初始 `$.ready(...)` 的实参。
 
 
 
@@ -374,6 +385,17 @@
 
 > **注：**<br>
 > 部分属性名会自动转换（如：`class` => `clasName`），设置逻辑与元素原生赋值逻辑相同。
+
+
+### [$.removeAttr( el: Element, names: string | Function ): this]($.removeAttr.md)
+
+删除 `el` 元素上某个或多个特性（Attribute）本身。这实际上是 `$.attr(el, null)` 调用的专用版，可批量删除，效率也更高一些。支持 `data-` 系特性名的简写形式和空格分隔的多名称序列。
+
+> **注：**<br>
+> 作为除事件名和类名之外唯一一个支持空格分隔多个名称的接口，这也与 jQuery 的同名接口一致。
+
+
+### [$.val( el: Element, value: Value | [Value] | Function ): Value | [Value] | this]($.val.md)
 
 
 ## 文本操作

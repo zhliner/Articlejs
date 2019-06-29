@@ -782,8 +782,9 @@ Object.assign(tQuery, {
         }
         if (target.nodeType) {
             target = tQuery.serialize(target);
-        } else {
-            target = entries(target);
+        }
+        else if (!isArr(target)) {
+            target = Arr( entries(target) );
         }
         return [...target].map( uriKeyValue ).join('&');
     },
@@ -1115,11 +1116,11 @@ Object.assign(tQuery, {
      * @return {[Element]}
      */
     filter( els, fltr ) {
-        if (!fltr || !els.length) {
+        if (!fltr || els.length == 0) {
             return $A(els);
         }
         if ( isCollector(els) ) {
-            els = els.get();
+            els = els.item();
         }
         return $A(els).filter( getFltr(fltr) );
     },
@@ -1325,15 +1326,17 @@ Object.assign(tQuery, {
      * @return {this}
      */
     addClass( el, names ) {
-        if ( isFunc(names) ) {
+        if (isFunc(names)) {
             names = names( el.getAttribute('class') );
         }
-        names.trim()
-            .split(__chSpace)
-            .forEach(
-                function(it) { it && this.add(it); },
-                el.classList
-            );
+        if (typeof names == 'string') {
+            names.trim().
+                split(__chSpace).
+                forEach(
+                    function(it) { it && this.add(it); },
+                    el.classList
+                );
+        }
         return this;
     },
 
@@ -1341,23 +1344,23 @@ Object.assign(tQuery, {
     /**
      * 移除类名。
      * - 支持空格分隔的类名序列。
-     * - 支持回调函数获取类名：func(oldName)。
+     * - 支持回调函数获取类名：function( oldName )。
      * - 未指定名称移除全部类名（删除class属性）。
      * @param  {Element} el 目标元素
      * @param  {String|Function} names
      * @return {this}
      */
     removeClass( el, names ) {
-        if (names === null) {
-            el.removeAttribute('class');
-            return this;
-        }
         if ( isFunc(names) ) {
             names = names( el.getAttribute('class') );
         }
-        names.trim()
-            .split(__chSpace)
-            .forEach( function(it) { it && this.remove(it); }, el.classList );
+        if (names == null) {
+            el.removeAttribute('class');
+            return this;
+        }
+        names.trim().
+            split(__chSpace).
+            forEach( function(it) { it && this.remove(it); }, el.classList );
 
         if (el.classList.length == 0) {
             el.removeAttribute('class');
@@ -1388,6 +1391,9 @@ Object.assign(tQuery, {
         } else {
             classAttrToggle(el, val);
         }
+        if (el.classList.length == 0) {
+            el.removeAttribute('class');
+        }
         return this;
     },
 
@@ -1402,9 +1408,9 @@ Object.assign(tQuery, {
      * @return {Boolean}
      */
     hasClass( el, names ) {
-        return names.trim()
-            .split(__chSpace)
-            .every(
+        return names.trim().
+            split(__chSpace).
+            every(
                 it => it && el.classList.contains(it)
             );
     },
@@ -1466,40 +1472,44 @@ Object.assign(tQuery, {
 
     /**
      * 删除特性（集）。
-     * - 支持data系特性名的简写形式；
-     * 注：与jQuery不同，多个名称传递一个数组（而非空格分隔）；
+     * - 支持空格分隔的名称序列，以及data-系名称的简写。
+     * - 支持返回名称序列的取值函数，接口：function(el): String
      * @param  {Element} el 目标元素
-     * @param  {String|Array} names 名称（集）
+     * @param  {String|Function} names 名称序列
      * @return {this}
      */
     removeAttr( el, names ) {
-        if (!names) return this;
-
-        if (typeof names == 'string') {
-            names = [names.trim()];
+        if (isFunc(names)) {
+            names = names(el);
         }
-        for (let ss of names) {
-            let _dn = ss.match(__dataName);
-            if (_dn) ss = 'data-' + _dn[1];
-            el.removeAttribute( ss );
+        if (typeof names == 'string') {
+            names.trim().
+                split(__chSpace).
+                forEach( function( n ) {
+                    let _dn = n.match(__dataName);
+                    if (_dn) {
+                        n = 'data-' + _dn[1];
+                    }
+                    el.removeAttribute( n );
+                });
         }
         return this;
     },
 
 
     /**
-     * 获取/设置元素值。
-     * - 针对表单控件的value操作（val可视为value简写）。
-     * - 遵循严格的表单提交逻辑，disabled的控件取值返回null。
-     * - 无名称定义的单选或复选按钮返回undefined。
+     * 表单控件的取值或设置（状态）。
+     * - 遵循严格的表单提交逻辑，disabled的控件取值返回null，设置不起作用。
+     * - 无名称定义的单选或复选控件返回 undefined。
+     * - 仅适用于表单逻辑，如在<option>上其实无法取值（可用.attr/.prop接口）。
      * 特例：
+     * 注：下面控件的设置为修改状态而非改变value特性值本身。
      * input:radio {
      *  	set: 检索同组元素，选中与值匹配的项。
      *  	get: 检索同组元素，返回选中的项的值。
      * }
      * input:checkbox {
-     *  	set: 检索同组元素，匹配项选中，非匹配项取消选中。
-     *  	 	 Array：支持同名多复选框（组）。
+     *  	set: 检索同组元素，匹配项选中，非匹配项取消选中。支持数组参数。
      *  	 	 注：单纯的取消选中，传递value为null即可。
      *  	get: 检索同组元素，返回选中项的值或值数组（重名时）。
      * }
@@ -1507,17 +1517,17 @@ Object.assign(tQuery, {
      *   	set: 选中同值的option项（清除其它），多选时支持值数组匹配。
      *   	get: 获取选中项的值，多选时返回一个数组（无选中时为空）。
      * }
+     * 普通控件：
      * _default {
      *      set: 对目标元素的value属性直接赋值。
      *      get: 获取目标元素的value属性值。
      * }
-     * 使用：
-     * - 仅适用表单控件。如：<option>可用于<datalist>内，此时非表单控件。
-     * - 只要是同组单选按钮，可以从其中任一个控件上取选中的值。
+     * 注意：
+     * - 只要是同组单选按钮，可以从其中任一控件上获取选中的值。
      * - 重名的复选按钮取值时，从其中任一个控件上都可以取到全部选中项的值。
      *
      * @param  {Element} el 目标元素
-     * @param  {Mixed|Array|Function} value 匹配值/集或回调
+     * @param  {Value|[Value]|Function} value 匹配测试的值/集或回调
      * @return {Value|[Value]|null|this}
      */
     val( el, value ) {
@@ -2450,15 +2460,19 @@ class Collector extends Array {
 
     /**
      * 在集合内的每一个元素中查询单个目标。
-     * 返回有效目标的一个新集合。
+     * 返回目标的一个新集合。
+     * 注：
+     * 传递clear为false可以保留无目标时的null值，这可能有用。
+     *
      * @param  {String} slr 选择器
+     * @param  {Boolean} clear 是否清理null，可选
      * @return {Collector}
      */
-    get( slr ) {
-        let _buf = this.map(
-                el => tQuery.get(slr, el)
-            );
-        return new Collector( Arr(_buf).filter(e => !!e), this );
+    get( slr, clear = true ) {
+        let _buf = Arr(this).
+            map( el => tQuery.get(slr, el) );
+
+        return new Collector( clear ? _buf.filter(e => !!e) : _buf, this );
     }
 
 
@@ -2550,6 +2564,49 @@ class Collector extends Array {
     }
 
 
+    /**
+     * 表单控件值操作。
+     * 获取有效的值或与目标值对比并设置状态。
+     * @param  {Value|[Value]|Function} value 对比值
+     * @return {this}
+     */
+    val( value ) {
+        if (value === undefined) {
+            return Arr(this).map( el => $.val(el) );
+        }
+        this.forEach(
+            el => $.val( el, value )
+        );
+        return this;
+    }
+
+
+    /**
+     * 获取集合内元素。
+     * - 获取特定下标位置的元素，支持负数倒数计算；
+     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）；
+     * @param  {Number} idx 下标值（支持负数）
+     * @return {Element|Array}
+     */
+    item( idx ) {
+        return idx === undefined ?
+            Arr(this) :
+            this[ idx < 0 ? this.length+idx : idx ];
+    }
+
+
+    /**
+     * 迭代回调。
+     * - 对集合内每一个元素应用回调（el, i, this）；
+     * @param  {Function} handle 回调函数
+     * @param  {Object} thisObj 回调函数内的this
+     * @return {Collector} this
+     */
+    each( handle, thisObj ) {
+        return $.each(this, handle, thisObj);
+    }
+
+
     //-- 集合/栈操作 ----------------------------------------------------------
 
 
@@ -2629,32 +2686,6 @@ class Collector extends Array {
      */
     end() {
         return this.previous;
-    }
-
-
-    /**
-     * 迭代回调。
-     * - 对集合内每一个元素应用回调（el, i, this）；
-     * @param  {Function} handle 回调函数
-     * @param  {Object} thisObj 回调函数内的this
-     * @return {Collector} this
-     */
-    each( handle, thisObj ) {
-        return $.each(this, handle, thisObj);
-    }
-
-
-    /**
-     * 获取集合内元素。
-     * - 获取特定下标位置的元素，支持负数倒数计算；
-     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）；
-     * @param  {Number} idx 下标值（支持负数）
-     * @return {Element|Array}
-     */
-    item( idx ) {
-        return idx === undefined ?
-            Array.from(this) :
-            this[ idx < 0 ? this.length+idx : idx ];
     }
 
 }
@@ -2857,7 +2888,7 @@ elsExfn([
         'removeAttr',
     ],
     fn =>
-    function( names ) {
+    function( names, force ) {
         let _ia = isArr(names);
         // 可代理调用 $
         this.forEach(
@@ -2882,13 +2913,20 @@ elsExfn([
     ],
     fn =>
     function( its, val ) {
-        if (val === undefined) {
-            return [...this.map( el => $[fn](el, its) )];
+        if (isArr(its) ||
+            (val === undefined && typeof its == 'string')) {
+            return Arr(this).map( el => $[fn](el, its) );
         }
         let _ia = isArr(val);
         this.forEach(
-            // 可代理调用 $
-            (el, i) => $[fn](el, its, _ia ? val[i] : val)
+            (el, i) => {
+                let _v = val;
+                if (_ia) {
+                    _v = val[i] === undefined ? null : val[i];
+                }
+                // 可代理调用 $
+                $[fn](el, its, _v);
+            }
         );
         return this;
     }
@@ -2903,7 +2941,6 @@ elsExfn([
 // 设置时：返回实例自身。
 /////////////////////////////////////////////////
 elsExfn([
-        'val',
         'height',
         'width',
         'offset',
@@ -2913,13 +2950,13 @@ elsExfn([
     fn =>
     function( val ) {
         if (val === undefined) {
-            return [ ...this.map( el => $[fn](el) ) ];
+            return Arr(this).map( el => $[fn](el) );
         }
         let _ia = isArr(val);
         this.forEach(
             (el, i) => {
                 // 可代理调用 $
-                $[fn](el, _ia ? val[i] : val);
+                $[fn](el, _ia ? val[i] || 0 : val);
             }
         );
         return this;
@@ -2946,12 +2983,12 @@ elsExfn([
             _vs = this.map(
             (el, i) => {
                 // 可代理调用 $
-                return $[fn](el, _ia ? val[i] : val, ...rest);
+                return $[fn](el, _ia ? val[i] || '' : val, ...rest);
             }
         );
         if (val === undefined) {
             // 普通数组
-            return [..._vs];
+            return Arr(_vs);
         }
         // 扁平化，构造为 Collector
         return new Collector([].concat(..._vs), this);
@@ -3234,13 +3271,13 @@ function fillElem( el, data ) {
  * - 属性配置设置到元素的特性上（Attribute）。
  * - 支持 text|html|node 特殊属性名设置元素内容，数据源可为数组。
  * @param  {Element} el 目标元素
- * @param  {Object|Map|.entries} conf 配置对象
+ * @param  {Object} conf 配置对象
  * @return {Element} el
  */
 function setElem( el, conf ) {
     if (!conf) return el;
 
-    for ( let [k, v] of entries(conf) ) {
+    for ( let [k, v] of Object.entries(conf) ) {
         switch (k) {
         case 'html':
             tQuery.html(el, v); break;
@@ -3538,6 +3575,8 @@ function classToggle( el, name, force ) {
 function classAttrToggle( el, force ) {
     let _cls = el.getAttribute('class');
 
+    _cls = _cls && _cls.trim();
+
     if (_cls) {
         // 私有存储
         __classNames.set(el, _cls);
@@ -3558,8 +3597,7 @@ function classAttrToggle( el, force ) {
 function submitControl( ctrl ) {
     let _typ = ctrl.type;
 
-    // Use $is( ":disabled" ) so that fieldset[disabled] works
-    return ctrl.name && !$is( ":disabled" ) &&
+    return ctrl.name &&
         rsubmittable.test( ctrl.nodeName ) && !rsubmitterTypes.test( _typ ) &&
         ( ctrl.checked || !rcheckableType.test( _typ ) );
 }
@@ -4111,9 +4149,9 @@ const elemAttr = {
 
     /**
      * 设置特性。
-     * - name不存在空格分隔序列的形式；
-     * - 部分属性为Boolean性质，特别处理（boolHook）；
-     * - 特性名可能为data系简写形式；
+     * - name不存在空格分隔序列的形式。
+     * - 部分属性为Boolean性质，特别处理（boolHook）。
+     * - 特性名可能为data系简写形式。
      *
      * @param {Element} el 目标元素
      * @param {String} name 特性名
@@ -4240,7 +4278,7 @@ const propHooks = {
 
 
 //
-// 表单控件的取值/设置。
+// 表单控件的取值/状态修改。
 //
 // 与元素的 value 属性或特性不同，这里的取值遵循表单提交逻辑。
 // 即：即便条目被选中，如果自身处于 disabled 状态，也返回 null。
@@ -4302,17 +4340,13 @@ const valHooks = {
             return _buf;
         },
 
-        // 支持同名多复选。
-        // 支持值数组匹配。
+        // 支持同名多复选，支持值数组匹配。
         set: function( el, val ) {
             let _cbs = el.form[el.name];
             if (!_cbs) return;
 
             if (_cbs.nodeType) {
-                if (!$is(_cbs, ':disabled')) {
-                    _cbs.checked = (val === _cbs.value);
-                }
-                return;
+                _cbs = [_cbs];
             }
             if (!isArr(val)) {
                 val = [val];
@@ -4369,7 +4403,7 @@ const valHooks = {
                 }
                 return;
             }
-            if (typeof val == 'string') {
+            if (!isArr(val)) {
                 val = [val];
             }
             for (let _op of el.options) {
@@ -4378,26 +4412,26 @@ const valHooks = {
                 }
             }
         },
+    },
 
-        // 占位。
-        // 表单逻辑下不直接取值（由上层<select>取值）。
-        option: {
-            get: function() {},
-            set: function() {},
+    // 占位。
+    // 表单逻辑下不直接取值（由上层<select>取值）。
+    option: {
+        get: function() {},
+        set: function() {},
+    },
+
+    // 默认操作。
+    // 对目标元素value属性的直接操作。
+    _default: {
+        get: function( el ) {
+            return $is(el, ':disabled') ? null : el.value;
         },
 
-        // 默认操作。
-        // 对目标元素value属性的直接操作。
-        _default: {
-            get: function( el ) {
-                return $is(el, ':disabled') ? null : el.value;
-            },
-
-            set: function( el, val ) {
-                return !$is(el, ':disabled') && (el.value = val);
-            },
+        set: function( el, val ) {
+            return !$is(el, ':disabled') && (el.value = val);
         },
-    }
+    },
 };
 
 
@@ -4479,8 +4513,12 @@ const boxSizing = {
          * 设置高宽值。
          * @param {Element} el 目标元素
          * @param {String} name 设置类型名（height|width）
+         * @param {Number} val 设置的值
          */
         set: (el, name, val) => {
+            if ( val == null || isNaN(val) ) {
+                return;
+            }
             el.style[name] = isNumeric(val) ? val+'px' : val;
         },
     },
@@ -4506,6 +4544,9 @@ const boxSizing = {
          * @return {Number}
          */
         set: (el, name, val, css) => {
+            if ( val == null || isNaN(val) ) {
+                return;
+            }
             let _pb2 = boxPadding[name](css) + boxBorder[name](css),
                 _num = pixelNumber(val);
 
