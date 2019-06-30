@@ -397,8 +397,21 @@
 
 ### [$.val( el: Element, value: Value | [Value] | Function ): Value | [Value] | this]($.val.md)
 
+表单控件的取值或状态设置：部分控件设置为选中或取消选中（`input:radio`, `input:checkbox`, `<section>`），部分控件为设置 `value` 值本身（`input:text`, `input:password`, `<textarea>` 等）。取值和设置都遵循严格的表单提交（`submit`）逻辑：
+
+- 未选中的的控件（如单个复选框）不会被提交，因此取值时返回 `null`。
+- `disabled` 的控件值也不会提交，因此取值时返回 `null`，设置会被忽略。
+- 无名称（`name` 属性）定义的控件不会提交，取值时返回 `undefined`。
+
+> **注：**<br>
+> 该接口应当仅用于表单内的控件，如 `<option>` 元素其实也可以在表单之外（如作为 `<datalist>` 的子元素）。<br>
+> 如果需要无条件获取或设置控件的 `value` 属性值，应当使用 `.attr/.prop` 接口。<br>
+
 
 ## 文本操作
+
+
+### [$.html( el: string | Element, code: string | [string] | Node | [Node] | Function, where?: string | number, sep?: string ): string | [Node]]($.html.md)
 
 
 

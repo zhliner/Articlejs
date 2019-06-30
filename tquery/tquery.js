@@ -1498,12 +1498,12 @@ Object.assign(tQuery, {
 
 
     /**
-     * 表单控件的取值或设置（状态）。
-     * - 遵循严格的表单提交逻辑，disabled的控件取值返回null，设置不起作用。
-     * - 无名称定义的单选或复选控件返回 undefined。
-     * - 仅适用于表单逻辑，如在<option>上其实无法取值（可用.attr/.prop接口）。
-     * 特例：
-     * 注：下面控件的设置为修改状态而非改变value特性值本身。
+     * 表单控件的取值或设置。
+     * 遵循严格的表单提交逻辑：
+     * - 未选中的的控件（如单个复选框）不会被提交，取值时返回 null。
+     * - disabled 的控件值不会提交，取值时返回 null，设置被忽略。
+     * - 无名称（name属性）定义的控件不会提交，取值时返回 undefined。
+     * 状态控件：
      * input:radio {
      *  	set: 检索同组元素，选中与值匹配的项。
      *  	get: 检索同组元素，返回选中的项的值。
@@ -1562,10 +1562,10 @@ Object.assign(tQuery, {
      * - 返回的节点数据取其outerHTML源码。
      *
      * @param  {Element|String} el 容器元素或待转换文本
-     * @param  {String|Node|NodeList|Array|Function} code 数据源或取值函数
+     * @param  {String|[String]|Node|[Node]|Function} code 数据源或取值函数
      * @param  {String|Number} where 插入位置
      * @param  {String} sep 多段连接符
-     * @return {String|Array} 源码或插入的节点集
+     * @return {String|[Node]} 源码或插入的节点集
      */
     html( el, code, where = 0, sep = ' ' ) {
         if (code === undefined) {
@@ -4363,8 +4363,8 @@ const valHooks = {
     select: {
         // 选中时返回一个值或值数组，否则返回null。
         get: function( el ) {
-            if ($is(el, ':disabled')) {
-                return null;
+            if ( !(el = valPass(el)) ) {
+                return el; // null/undefined
             }
             if (el.type == 'select-one') {
                 let _op = el.options[el.selectedIndex];
@@ -4390,7 +4390,7 @@ const valHooks = {
         // 多选列表支持一个匹配值数组。
         // 会清除其它已选取项。
         set: function( el, val ) {
-            if ($is(el, ':disabled')) {
+            if (!valPass(el)) {
                 return;
             }
             el.selectedIndex = -1;
@@ -4424,13 +4424,8 @@ const valHooks = {
     // 默认操作。
     // 对目标元素value属性的直接操作。
     _default: {
-        get: function( el ) {
-            return $is(el, ':disabled') ? null : el.value;
-        },
-
-        set: function( el, val ) {
-            return !$is(el, ':disabled') && (el.value = val);
-        },
+        get: el => valPass(el) && el.value,
+        set: (el, val) => valPass(el) && (el.value = val)
     },
 };
 
@@ -4555,6 +4550,20 @@ const boxSizing = {
         },
     }
 };
+
+
+/**
+ * 测试元素val接口通过性。
+ * 注：无name属性和被disabled返回值不同。
+ * @param  {Element} el 测试元素
+ * @return {Element|null|undefined}
+ */
+function valPass( el ) {
+    if (!el.hasAttribute('name')) {
+        return;
+    }
+    return $is(el, ':disabled') ? null : el;
+}
 
 
 /**
