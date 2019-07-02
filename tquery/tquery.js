@@ -257,14 +257,14 @@
         // 位置值定义。
         // 用于插入元素的位置指定，可以混用名称与数值。
         // {
-        //  	before 	=  1	元素之前
-        //  	after  	= -1 	元素之后
-        //  	begin  	=  2	元素内起始点（头部）
-        //  	prepend =  2	同上
-        //  	end 	= -2  	元素内结束点（末尾）
-        //  	append 	= -2	同上
-        //  	fill 	= 0 	内容填充（覆盖，清除原有）
-        //  	replace = '' 	替换
+        //  	before 	=  1    元素之前
+        //  	after  	= -1    元素之后
+        //  	begin  	=  2    元素内起始点（头部）
+        //  	prepend =  2    同上
+        //  	end 	= -2    元素内结束点（末尾）
+        //  	append 	= -2    同上
+        //  	fill 	=  0    内容填充（覆盖，清除原有）
+        //  	replace = ''    替换
         // }
         // 示意：
         //   <!-- 1 -->
@@ -1320,14 +1320,14 @@ Object.assign(tQuery, {
     /**
      * 类名添加。
      * - 支持空格分隔的类名序列。
-     * - 支持回调函数获取类名：function(className):String。
+     * - 支持回调函数获取类名，接口：function([name]):String。
      * @param  {Element} el 目标元素
      * @param  {String|Function} names
      * @return {this}
      */
     addClass( el, names ) {
         if (isFunc(names)) {
-            names = names( el.getAttribute('class') );
+            names = names( Arr(el.classList) );
         }
         if (typeof names == 'string') {
             names.trim().
@@ -1344,7 +1344,7 @@ Object.assign(tQuery, {
     /**
      * 移除类名。
      * - 支持空格分隔的类名序列。
-     * - 支持回调函数获取类名：function( oldName )。
+     * - 支持回调函数获取类名，接口：function([name]):String。
      * - 未指定名称移除全部类名（删除class属性）。
      * @param  {Element} el 目标元素
      * @param  {String|Function} names
@@ -1352,7 +1352,7 @@ Object.assign(tQuery, {
      */
     removeClass( el, names ) {
         if ( isFunc(names) ) {
-            names = names( el.getAttribute('class') );
+            names = names( Arr(el.classList) );
         }
         if (names == null) {
             el.removeAttribute('class');
@@ -1372,7 +1372,7 @@ Object.assign(tQuery, {
     /**
      * 类名切换。
      * - 支持空格分隔的多个类名。
-     * - 支持回调函数获取类名：func(oldName)。
+     * - 支持回调函数获取类名，接口：function([name]):String。
      * - 无参数调用时，操作针对整个类名集。
      * - val也作为整体操作时的强制设定（Boolean）。
      * - 可正确处理SVG元素的class类属性。
@@ -1384,7 +1384,7 @@ Object.assign(tQuery, {
      */
     toggleClass( el, val, force ) {
         if (isFunc(val)) {
-            val = val(el.getAttribute('class'));
+            val = val( Arr(el.classList) );
         }
         if (typeof val === 'string') {
             classToggle(el, val.trim(), force);
@@ -1562,7 +1562,7 @@ Object.assign(tQuery, {
      * - 返回的节点数据取其outerHTML源码。
      *
      * @param  {Element|String} el 容器元素或待转换文本
-     * @param  {String|[String]|Node|[Node]|Function} code 数据源或取值函数
+     * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数
      * @param  {String|Number} where 插入位置
      * @param  {String} sep 多段连接符
      * @return {String|[Node]} 源码或插入的节点集
@@ -1602,7 +1602,7 @@ Object.assign(tQuery, {
      * - 返回的节点数据取其outerHTML源码；
      *
      * @param  {Element|String} el 容器元素或待解析源码
-     * @param  {String|NodeList|Array|Function} code 源数据或取值函数
+     * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数
      * @param  {String|Number} where 插入位置
      * @param  {String} sep 多段连接符
      * @return {String|Node} 源码或插入的文本节点
@@ -1633,18 +1633,19 @@ Object.assign(tQuery, {
 
     /**
      * 获取/设置元素样式。
-     * - 设置为内联样式（style），获取计算后的样式；
-     * - 支持一个名称数组获取属性，返回一个Map实例；
-     * - 设置样式值为空串，会删除该样式；
-     * - 名称传递一个键值对象，依键值定义设置样式；
-     * - 键值定义中的值依然可以为回调取值函数；
+     * - 设置为内联样式（style），获取计算后的样式。
+     * - 支持一个名称数组获取属性，返回一个键值对对象。
+     * - 设置样式值为空串或null，会删除该样式。
+     * - 可以传递name为一个键值对象，依键值定义设置样式。
+     * - 键值定义中的值依然可以为回调取值函数。
      * - 取值函数：fn.bind(el)( oldval, cso )
      * 注记：
      * - Edge/Chrome/FF已支持短横线样式属性名；
      *
+     * @param  {Element} el 目标元素
      * @param  {String|[String]|Object|Map} name 样式名（集）或名/值配置对象
      * @param  {String|Number|Function} val 设置值或取值函数
-     * @return {String|Map|this}
+     * @return {String|Object|this}
      */
     css( el, name, val ) {
         let _cso = getStyles(el);
@@ -1654,6 +1655,10 @@ Object.assign(tQuery, {
             return cssGets(_cso, name);
         }
         cssSets(el, name, val, _cso);
+
+        if (el.style.cssText.trim() == '') {
+            el.removeAttribute('style');
+        }
         return this;
     },
 
@@ -3883,7 +3888,7 @@ function masterNode( node ) {
  * - 适用于元素节点和文本节点；
  * - 多个节点取值简单连接；
  * - 非节点类型被字符串化；
- * @param  {Node|NodeList|[String]|Set|Iterator} nodes 节点（集）
+ * @param  {Node|[Node]|[String]|Set|Iterator} nodes 节点（集）
  * @param  {String} sep 连接字符
  * @return {String}
  */
@@ -3910,11 +3915,11 @@ function outerHtml( nodes, sep ) {
 
 /**
  * 提取节点文本。
- * @param  {Node|NodeList|[String]|Set|Iterator} nodes 节点（集）
+ * @param  {Node|[Node]|[String]|Set|Iterator} nodes 节点（集）
  * @param  {String} sep 连接字符
  * @return {String}
  */
-function nodeText( nodes, sep = ' ' ) {
+function nodeText( nodes, sep ) {
     if (nodes.nodeType) {
         return nodes.textContent;
     }
@@ -5135,6 +5140,26 @@ tQuery.isCollector = isCollector;
 
 
 /**
+ * 封装用户函数包含一个自动计数器。
+ * - 用户函数的首个实参为计数值，会自动递增。
+ * - 接口：function( count, ... )
+ *
+ * 注记：
+ * 单元素版接口中部分参数支持用户回调处理器，
+ * 但这些处理器难以获得集合版的当前单元计数（集合版通常只是单元素版的简单重复），
+ * 所以这里提供一个封装工具，用于集合版中用户的回调处理。
+ *
+ * @param {Function} fn 用户处理器
+ * @param {Number} n 计数起始值，可选
+ * @param {Number} step 计数步进值，可选
+ */
+tQuery.Counter = function( fn, n = 1, step = 1 ) {
+    n -= step;
+    return (...rest) => fn( (n += step), ...rest );
+};
+
+
+/**
  * data属性名匹配。
  * 返回“data-”之后的prop格式名（驼峰）。
  * 如：
@@ -5184,7 +5209,10 @@ tQuery.selector = function( tag, attr, val = '', op = '' ) {
  * @param  {...Array} src 数据源集序列
  * @return {Array} des
  */
-tQuery.merge = (des, ...src) => (des.push( ...[].concat(...src) ), des);
+tQuery.mergeArray = function(des, ...src) {
+    des.push( ...[].concat(...src) );
+    return des;
+};
 
 
 /**
@@ -5192,7 +5220,7 @@ tQuery.merge = (des, ...src) => (des.push( ...[].concat(...src) ), des);
  * @param  {Map} map Map实例
  * @return {Object}
  */
-tQuery.mapObj = function( map ) {
+tQuery.objMap = function( map ) {
     let _o = {};
     if (map) {
         for ( let [k, v] of map ) _o[k] = v;

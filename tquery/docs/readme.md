@@ -8,7 +8,7 @@
 `data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node|Collector}`。如果数据源为节点，源节点可能会被移出原来的位置。
 
 
-### [$.Text( data: String | Node | Array | Collector, sep?: string, doc?: Document ): Text]($.Text.md)
+### [$.Text( data: String | Node | Array | Collector, sep?: string, doc?: Document ): Text]($.TextNode.md)
 
 创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元取值为字符串后以 `sep` 串联。可指定所属文档对象。
 
@@ -410,13 +410,48 @@
 
 ## 文本操作
 
+### [$.html( el: string | Element, code: string | [string] | Node | [Node] | Function | .values, where?: string | number, sep?: string ): string | [Node]]($.html.md)
 
-### [$.html( el: string | Element, code: string | [string] | Node | [Node] | Function, where?: string | number, sep?: string ): string | [Node]]($.html.md)
+提取或设置 `el` 元素的HTML源码，如果传递 `el` 为字符串，则为源码转换（如 `<` 到 `&lt;`）。设置源码时，数据源支持字符串、节点元素或其数组形式，也支持取值回调（接口：`function(el): Any`）。
 
+**设置时：**
+
+- 数据源为字符串时，禁止脚本元素 `<script>`、样式元素 `<style>`、以及链接元素 `<link>` 的源码文本，它们会被自动滤除。
+- 源数据为文本节点或元素时，取其 `textContent` 或 `outerHTML` 值作为赋值源码（因此是一种简单的克隆方式）。
+- 数据源也可是字符串/节点/元素的数组或集合（需支持 `.values` 接口），取值成员之间以指定的分隔符串连（默认空格）。集合成员也可以是多种类型值的混合。
+
+与 jQuery 中同名接口不同，这里可以指定内容插入的位置（相对于 `el` 元素）：`before|after|begin|end|prepend|append|fill|replace` 等。另外，如果数据源为元素或节点，不会对原节点造成影响（文本逻辑）。
+
+**返回值**：返回新创建的节点集（数组）或转换后的HTML源码。
+
+
+### [$.text( el: string | Element, code: string | [string] | Node | [Node] | Function | .values, where?: string | number, sep?: string ): string | Node]($.text.md)
+
+提取或设置 `el` 元素的内容文本，如果传递 `el` 为字符串，则为将源码解码为文本（如 `&lt;` 到 `<`）。与 `.html` 接口类似，设置时支持的数据源类型相同，但取值行为稍有不同。
+
+**设置时：**
+
+- 字符串以文本方式插入，HTML源码视为文本（原样展示在页面中）。
+- 源数据为文本节点或元素时，都是提取其文本（`textContent`）内容。
+- 数据源也可是字符串/节点/元素的数组或集合（支持 `.values` 接口），集合成员也可以是多种类型值的混合。
+
+与 `.html` 接口类似，取值回调的接口为：`function(el): Any`，也支持在指定的位置（`before|after|begin|end|prepend|append|fill|replace`）插入文本（**注**：实际上是一个文本节点）。
+
+**返回值**：源码解码后的文本或新创建的文本节点。
 
 
 ## CSS 相关
 
+### [$.css( el: Element, name: String | [String] | Object | Map, val: string | number | Function ): String | Object | this]($.css.md)
+
+获取或设置 `el` 元素的样式，可以一次获取多个，也可以一次设置多个。设置时为设置元素的内联样式（`style` 属性），获取时为元素计算后的样式值。
+
+第二个 `name` 参数可以充当两种角色：
+
+1. 取值时：样式名称或名称数组。指定单个名称时返回一个单一的值，指定一个名称数组时返回一个名值对对象（`Object`）。
+2. 设置时：一个名/值对对象 `Object` 或映射 `Map`，键为样式名，值为样式值或取值回调。如果值为 `null` 或空串，会删除该内联样式。
+
+样式值的取值回调接口为：`function( oldval, cso ): Value`，回调内的 `this` 为目标元素，首个参数为当前的样式值，第二个参数为只读的计算样式集（`CSSStyleDeclaration`），可以获取实时的样式。
 
 
 ## 事件扩展
