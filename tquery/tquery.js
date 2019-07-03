@@ -1437,15 +1437,19 @@ Object.assign(tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
-     * @param  {String|Number|Boolean|Function|null} value 新值或回调函数，可选
+     * @param  {String|Number|Boolean|Function|null} val 新值或回调函数，可选
      * @return {Value|Object|this}
      */
-    attr( el, name, value ) {
-        if (isArr(name) ||
-            (value === undefined && typeof name == 'string')) {
+    attr( el, name, val ) {
+        // 集合版友好
+        if (name == null) {
+            return;
+        }
+        if (_isGetter(name, val)) {
             return hookGets(el, name, elemAttr);
         }
-        hookSets(el, name, value, elemAttr);
+        hookSets(el, name, val, elemAttr);
+
         return this;
     },
 
@@ -1457,15 +1461,19 @@ Object.assign(tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
-     * @param  {String|Number|Boolean|Function|null} value 新值或回调函数，可选
+     * @param  {String|Number|Boolean|Function|null} val 新值或回调函数，可选
      * @return {Value|Object|this}
      */
-    prop( el, name, value ) {
-        if (isArr(name) ||
-            (value === undefined && typeof name == 'string')) {
+    prop( el, name, val ) {
+        // 集合版友好
+        if (name == null) {
+            return;
+        }
+        if (_isGetter(name, val)) {
                 return hookGets(el, name, elemProp);
         }
-        hookSets(el, name, value, elemProp);
+        hookSets(el, name, val, elemProp);
+
         return this;
     },
 
@@ -1638,6 +1646,7 @@ Object.assign(tQuery, {
      * - 设置样式值为空串或null，会删除该样式。
      * - 可以传递name为一个键值对象，依键值定义设置样式。
      * - 键值定义中的值依然可以为回调取值函数。
+     * - 传递name为null会删除全部的内联样式（删除style特性本身)。
      * - 取值函数：fn.bind(el)( oldval, cso )
      * 注记：
      * - Edge/Chrome/FF已支持短横线样式属性名；
@@ -1648,10 +1657,12 @@ Object.assign(tQuery, {
      * @return {String|Object|this}
      */
     css( el, name, val ) {
+        if (name === null) {
+            return el.removeAttribute('style'), this;
+        }
         let _cso = getStyles(el);
 
-        if (isArr(name) ||
-            (val === undefined && typeof name == 'string')) {
+        if (_isGetter(name, val)) {
             return cssGets(_cso, name);
         }
         cssSets(el, name, val, _cso);
@@ -1665,38 +1676,41 @@ Object.assign(tQuery, {
 
     /**
      * 获取/设置元素偏移。
-     * - 相对于文档根元素；
-     * - 返回值格式：{top, left}；
-     * - 设置值也用同样格式指定；
-     * @param  {Object} val 设置配置
+     * - 相对于文档根元素，返回值格式：{top, left}。
+     * - 设置值也用同样格式指定。
+     * - 传递值为null会清除偏移设置并返回之前的值。
+     *
+     * @param  {Object|Function} pair 配置对象或取值回调
      * @return {Object|this}
      */
-    offset( el, val ) {
+    offset( el, pair ) {
         let _cur = getOffset(el);
 
-        if (val === undefined) {
-            return _cur;
+        if (pair == null) {
+            return pair === null && clearOffset(el) ||
+                _cur;
         }
-        if ( isFunc(val) ) {
-            val = val( _cur );
+        if ( isFunc(pair) ) {
+            pair = pair( _cur );
         }
-        val = useOffset( _cur, val, calcOffset(el) );
+        pair = useOffset( _cur, pair, calcOffset(el) );
 
         if (tQuery.css(el, 'position') == 'static') {
             el.style.position = "relative";
         }
-        // val: Object
-        return tQuery.css(el, val);
+
+        return tQuery.css(el, pair);
     },
 
 
     /**
      * 获取相对位置。
-     * - 相对于上层含定位属性的元素；
-     * - 包含元素外边距（从外边距左上角算）；
+     * - 相对于上层含定位属性的元素。
+     * - 包含元素外边距（从外边距左上角计算）。
      * 注记：
      * - 元素相关属性el.offsetTop/Left（未用）。
-     * - 不处理元素为window/document的情况（同jQuery）；
+     * - 不处理元素为window/document的情况（同jQuery）。
+     * @param  {Element} 目标元素
      * @return {Object} {top, left}
      */
     position( el ) {
@@ -1728,6 +1742,10 @@ Object.assign(tQuery, {
      * @return {Number|this}
      */
     scrollLeft( el, val ) {
+        // 集合版友好
+        if (val === null) {
+            return;
+        }
         let _win = getWindow(el);
 
         if (val === undefined) {
@@ -1746,6 +1764,10 @@ Object.assign(tQuery, {
      * @return {Number|this}
      */
     scrollTop( el, val ) {
+        // 集合版友好
+        if (val === null) {
+            return;
+        }
         let _win = getWindow(el);
 
         if (val === undefined) {
@@ -2254,10 +2276,11 @@ tQuery.Table = Table;
      * @return {Number|this}
      */
     tQuery[_n] = function( el, val ) {
-        if (val !== undefined) {
-            return _elemRectSet(el, _n, val), this;
+        if (val == null) {
+            return val === undefined &&
+                (_rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n));
         }
-        return _rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n);
+        return _elemRectSet(el, _n, val), this;
     };
 });
 
@@ -2265,6 +2288,7 @@ tQuery.Table = Table;
 //
 // 可调用事件。
 ///////////////////////////////////////
+
 eventCallable
 .forEach(function( name ) {
     tQuery[name] = el => (name in el) && el[name]() || this;
@@ -2587,6 +2611,29 @@ class Collector extends Array {
 
 
     /**
+     * 获取/设置集合内元素的偏移。
+     * - 相对于文档根元素，返回值格式：{top, left}。
+     * - 传递值为null会清除偏移设置并返回之前的值。
+     *
+     * @param {Object|[Object]|Function} val 设置偏移值的数据源
+     */
+    offset( val ) {
+        if (val === undefined) {
+            return Arr(this).map( el => $.offset(el) );
+        }
+        let _ia = isArr(val);
+        this.forEach(
+            (el, i) => {
+                // 数组成员可能为undefined，
+                // 对设置无影响。
+                $.offset( el, _ia ? val[i] : val );
+            }
+        );
+        return this;
+    }
+
+
+    /**
      * 获取集合内元素。
      * - 获取特定下标位置的元素，支持负数倒数计算；
      * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）；
@@ -2893,7 +2940,7 @@ elsExfn([
         'removeAttr',
     ],
     fn =>
-    function( names, force ) {
+    function( names ) {
         let _ia = isArr(names);
         // 可代理调用 $
         this.forEach(
@@ -2917,25 +2964,31 @@ elsExfn([
         'css',
     ],
     fn =>
-    function( its, val ) {
-        if (isArr(its) ||
-            (val === undefined && typeof its == 'string')) {
-            return Arr(this).map( el => $[fn](el, its) );
+    function( name, val ) {
+        if (_isGetter(name, val)) {
+            return Arr(this).map( el => $[fn](el, name) );
         }
-        let _ia = isArr(val);
+        let _na = isArr(name),
+            _va = isArr(val);
         this.forEach(
             (el, i) => {
-                let _v = val;
-                if (_ia) {
-                    _v = val[i] === undefined ? null : val[i];
-                }
                 // 可代理调用 $
-                $[fn](el, its, _v);
+                // 值数组成员可能为undefined，对设置无影响。
+                $[fn]( el, (_na ? name[i] : name), (_va ? val[i] : val) );
             }
         );
         return this;
     }
 );
+
+
+//
+// 判断是否为获取状态。
+// 注：仅用于 .attr/.prop/.css 接口。
+//
+function _isGetter( name, val ) {
+    return (isArr(name) && typeof name[0] == 'string') || (val === undefined && typeof name == 'string');
+}
 
 
 //
@@ -2948,7 +3001,6 @@ elsExfn([
 elsExfn([
         'height',
         'width',
-        'offset',
         'scrollLeft',
         'scrollTop',
     ],
@@ -2960,8 +3012,13 @@ elsExfn([
         let _ia = isArr(val);
         this.forEach(
             (el, i) => {
+                let _v = val;
+                if (_ia) {
+                    // 由单元素版优化null（不再无效取值）。
+                    _v = val[i] === undefined ? null : val[i];
+                }
                 // 可代理调用 $
-                $[fn](el, _ia ? val[i] || 0 : val);
+                $[fn]( el, _v );
             }
         );
         return this;
@@ -2985,16 +3042,19 @@ elsExfn([
     fn =>
     function( val, ...rest ) {
         let _ia = isArr(val),
-            _vs = this.map(
+            _vs = Arr(this).map(
             (el, i) => {
                 // 可代理调用 $
-                return $[fn](el, _ia ? val[i] || '' : val, ...rest);
+                return $[fn](el, _ia ? val[i] : val, ...rest);
             }
         );
         if (val === undefined) {
-            // 普通数组
-            return Arr(_vs);
+            return _vs;
         }
+        // val为数组时未定义项为取值，滤除。
+        _vs = _vs.filter(
+            v => typeof v != 'string'
+        );
         // 扁平化，构造为 Collector
         return new Collector([].concat(..._vs), this);
     }
@@ -3752,7 +3812,7 @@ function toPosition( offset, css ) {
 
 /**
  * 获取元素的偏移坐标。
- * - 相对于文档根元素；
+ * 相对于文档根元素。
  * 返回值格式：{
  *  	top:  number,
  *  	left: number
@@ -3781,7 +3841,7 @@ function getOffset( el ) {
 
 /**
  * 计算最终使用偏移坐标。
- * - 用户指定的非法坐标值忽略；
+ * 用户指定的非法坐标值忽略。
  * @param  {Object} cur  当前实际偏移
  * @param  {Object} conf 用户坐标配置
  * @param  {Object} self 元素样式坐标
@@ -3797,6 +3857,20 @@ function useOffset( cur, conf, self ) {
         _use.left = (conf.left - cur.left) + self.left;
     }
     return _use;
+}
+
+
+/**
+ * 清除目标元素的偏移样式。
+ * 注：这不是撤消之前的设置，而是清除（包括定位样式）。
+ * @param {Element} el 目标元素
+ */
+function clearOffset( el ) {
+    tQuery.css(el, {
+        top: null,
+        left: null,
+        position: null,
+    });
 }
 
 

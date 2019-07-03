@@ -106,6 +106,9 @@ Str( prefix, suffix ): String   // 转换为字符串
 Num( spec ): Number             // 转换为数值
 Bool(): Boolean                 // 转换为布尔值（false|true）
 
+Int( str, radix )               // 将字符串转为整数。即 parseInt()
+Float( str )                    // 将字符串转为浮点数。即 parseFloat()
+
 
 
 // 简单操作类。
