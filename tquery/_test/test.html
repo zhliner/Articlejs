@@ -121,12 +121,12 @@ p.ani {
 </head>
 
 <body lang="">
-    <section id="s0">
+    <section id="s0" style="position: relative;">
         <p>首个段落。</p>
         <p id="p2">第二个段落。</p>
         <p id="p3">The third paragraph.</p>
     </section>
-    <form name="frm">
+    <form name="frm" id="frm">
         <fieldset id="fset">
             <label><input type="checkbox" name="cbs" value="chrome" data-type="browser" checked>Chrome</label>
             <label><input type="checkbox" name="cbs" value="edge" data-type="browser">Edge</label>
@@ -136,11 +136,17 @@ p.ani {
         <input type="color" name="color" value="#99ff00">Colors<br>
         <input type="text" name="txt" value="Hello"><br>
         <input type="submit" value="提交">
+        <p>
+            <textarea name="tt1" style="height: 100px; width: 200px; overflow: scroll; white-space: pre;">第一个编辑框。</textarea>
+        </p>
+        <p>
+            <textarea name="tt2" style="height: 100px; width: 200px; overflow: scroll; white-space: pre;">The second editbox.</textarea>
+        </p>
     </form>
 
     <p><a href="#" title="[a] is a \[link\]">Click me</a></p>
 
-    <section class="Content" style="position: relative;">
+    <section id="s1" class="Content" style="position: relative;">
         <p id="test" class="Test Hai">
             这是一个<strong>通用的</strong><em>测试段落</em>。包含了一些<em class="line">行内元素</em>。
         </p>

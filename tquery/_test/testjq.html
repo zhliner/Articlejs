@@ -110,9 +110,56 @@ p.ani {
 </head>
 
 <body lang="">
-    <p>首个段落。</p>
-    <p id="p2">第二个段落。</p>
-    <p id="p3">The third paragraph.</p>
+    <section id="s0" style="position: relative;">
+        <p>首个段落。</p>
+        <p id="p2">第二个段落。</p>
+        <p id="p3">The third paragraph.</p>
+    </section>
+    <form name="frm">
+        <fieldset id="fset">
+            <label><input type="checkbox" name="cbs" value="chrome" data-type="browser" checked>Chrome</label>
+            <label><input type="checkbox" name="cbs" value="edge" data-type="browser">Edge</label>
+            <label><input type="checkbox" name="cbs" value="firefox" data-type="browser">Firefox</label>
+        </fieldset>
+        <br>
+        <input type="color" name="color" value="#99ff00">Colors<br>
+        <input type="text" name="txt" value="Hello"><br>
+        <input type="submit" value="提交">
+    </form>
+
+    <p><a href="#" title="[a] is a \[link\]">Click me</a></p>
+
+    <section id="s1" class="Content" style="position: relative;">
+        <p id="test" class="Test Hai">
+            这是一个<strong>通用的</strong><em>测试段落</em>。包含了一些<em class="line">行内元素</em>。
+        </p>
+        <p class="Test">
+            这是第二个<em>测试</em>段落。包含了一些<em class="line">行内</em>元素。
+        </p>
+        <p>
+            这是第三个测试<em>段落</em>。
+        </p>
+    </section>
+    <section id="sect">
+        <p style="font-size:1em; border:1px #999 solid; background-color:#ccc;">
+            测试段落的样式。
+        </p>
+        <p>
+            第二个段落。
+        </p>
+    </section>
+    <p id="test2">这是另一个<em>段落</em>。</p>
+    <ul id="ulist">
+        <li>Item 1</li>
+        <li class="Item">Item 2</li>
+        <li>Item 3</li>
+        <li class="End">Item 4</li>
+    </ul>
+    <p id="wrap">
+        <!-- Hai. -->
+        <em>Hello</em> The <strong>World</strong>!
+        <!-- 这是一个注释 -->
+    </p>
     <article class="___Text" style="font-size:10pt;">
         <div style="font-size:1em;width:10em;border:1px #999 solid;background-color:green;">1em字体</div>
         <div style="font-size:1ex;width:10ex;border:1px #999 solid;background-color:#fff;">1ex字体</div>

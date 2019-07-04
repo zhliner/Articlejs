@@ -253,7 +253,7 @@
 
 ### [$.offsetParent( el: Element ): Element]($.offsetParent.md)
 
-获取 `el` 最近的父级定位元素。从父元素开始检查，如果最终没有匹配返回文档根元素（即 `<html>`，同 jQuery）。如果当前元素属于 `<svg>` 的子节点，则返回 `<svg>` 根容器元素。
+获取 `el` 最近的父级定位元素。从父元素开始检查，如果最终没有匹配返回文档根元素（即 `<html>`，同 jQuery）。如果当前元素属于 `<svg>` 的子节点，则返回 `<svg>` 根容器元素（以与普通的HTML节点相区别）。
 
 此接口与元素原生的 `offsetParent` 属性稍有不同，不管元素是否隐藏，都会返回 `position` 为非 `static` 的容器元素。
 
@@ -282,6 +282,25 @@
 
 
 ## 节点操作
+
+### [$.before( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.before.md)
+
+
+### [$.after( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.after.md)
+
+
+### [$.prepend( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.prepend.md)
+
+
+### [$.append( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.append.md)
+
+
+### [$.replace( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.replace.md)
+
+
+### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.fill.md)
+
+
 
 ### [$.wrap( node: Node, box: html | Element | Function ): Element | false]($.wrap.md)
 
@@ -389,7 +408,7 @@
 
 ### [$.removeAttr( el: Element, names: string | Function ): this]($.removeAttr.md)
 
-删除 `el` 元素上某个或多个特性（Attribute）本身。这实际上是 `$.attr(el, null)` 调用的专用版，可批量删除，效率也更高一些。支持 `data-` 系特性名的简写形式和空格分隔的多名称序列。
+删除 `el` 元素上某个或多个特性（Attribute）本身。这实际上是 `$.attr(el, name, null)` 调用的专用版，但可批量删除，效率也更高一些。支持 `data-` 系特性名的简写形式和空格分隔的多名称序列。
 
 > **注：**<br>
 > 作为除事件名和类名之外唯一一个支持空格分隔多个名称的接口，这也与 jQuery 的同名接口一致。
@@ -449,7 +468,7 @@
 第二个 `name` 参数可以充当两种角色：
 
 1. 取值时：样式名称或名称数组。指定单个名称时返回一个单一的值，指定一个名称数组时返回一个名值对对象（`Object`）。
-2. 设置时：一个名/值对对象 `Object` 或 `Map`，键为样式名，值为样式值或取值回调，如果值为 `null` 或空串，会删除该内联样式。如果名称本身为 `null`，会删除全部样式（`style` 特性本身）。
+2. 设置时：一个名/值对对象 `Object` 或 `Map`，键为样式名，值为样式值或取值回调，如果值为 `null` 或空串，会删除该内联样式，如果名称本身为 `null`，则会删除全部样式（删除 `style` 特性）。
 
 样式值的取值回调接口为：`function( oldval, cso ): Value`，回调内的 `this` 为目标元素，首个参数为当前的样式值，第二个参数为只读的计算样式集（`CSSStyleDeclaration`），可以获取实时的样式。
 
@@ -462,6 +481,44 @@
 
 
 ### [$.position( el: Element ): Object]($.position.md)
+
+获取 `el` 元素相对于上层定位元素（顶部）的位置，计算的起点是 `el` 元素的外边距处（与 `.offsetTop/.offsetLeft` 属性值相差一个边距值）。
+
+不能在 `window/document` 上调用本方法（同 jQuery）。对于SVG的子节点来说，调用本方法可以获得子节点相对于 `<svg>` 根容器的偏移值。
+
+> **注：**<br>
+> 上层定位元素是指上层容器元素的样式中 `position` 值非默认的 `static`。<br>
+> 计算被隐藏的元素（样式：`display:none`）的相对位置没有意义。<br>
+
+
+### [$.scrollTop( el: Document | Window | Element, val: number ): this]($.scrollTop.md)
+
+获取或设置 `el` 元素（文档或窗口）的垂直滚动条位置。
+
+
+### [$.scrollLeft( el: Document | Window | Element, val: number ): this]($.scrollLeft.md)
+
+获取或设置 `el` 元素（文档或窗口）的水平滚动条位置。
+
+
+### [$.height( el: Element, val: string | number ): number | this]($.height.md)
+
+
+### [$.width( el: Element, val: string | number ): number | this]($.width.md)
+
+
+### [$.innerHeight( el: Element ): number]($.innerHeight.md)
+
+
+### [$.innerWidth( el: Element ): number]($.innerWidth.md)
+
+
+### [$.outerHeight( el: Element, margin: boolean ): number]($.outerHeight.md)
+
+
+### [$.outerWidth( el: Element, margin: boolean ): number]($.outerWidth.md)
+
+
 
 
 ## 事件扩展

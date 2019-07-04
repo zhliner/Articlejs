@@ -1441,15 +1441,10 @@ Object.assign(tQuery, {
      * @return {Value|Object|this}
      */
     attr( el, name, val ) {
-        // 集合版友好
-        if (name == null) {
-            return;
-        }
         if (_isGetter(name, val)) {
             return hookGets(el, name, elemAttr);
         }
         hookSets(el, name, val, elemAttr);
-
         return this;
     },
 
@@ -1465,15 +1460,10 @@ Object.assign(tQuery, {
      * @return {Value|Object|this}
      */
     prop( el, name, val ) {
-        // 集合版友好
-        if (name == null) {
-            return;
-        }
         if (_isGetter(name, val)) {
                 return hookGets(el, name, elemProp);
         }
         hookSets(el, name, val, elemProp);
-
         return this;
     },
 
@@ -1707,9 +1697,10 @@ Object.assign(tQuery, {
      * 获取相对位置。
      * - 相对于上层含定位属性的元素。
      * - 包含元素外边距（从外边距左上角计算）。
-     * 注记：
-     * - 元素相关属性el.offsetTop/Left（未用）。
      * - 不处理元素为window/document的情况（同jQuery）。
+     * 注记：
+     * - 元素相关属性.offsetTop/.offsetLeft未使用（仅工作草案）。
+     *   上面的两个属性计算时不包含外边距。
      * @param  {Element} 目标元素
      * @return {Object} {top, left}
      */
@@ -1722,9 +1713,9 @@ Object.assign(tQuery, {
             // - 此时已与滚动无关；
             return toPosition(el.getBoundingClientRect(), _cso);
         }
-        let _cur = tQuery.offset(),
+        let _cur = tQuery.offset(el),
             _pel = tQuery.offsetParent(el),
-            _pot = _pel.offset(),
+            _pot = tQuery.offset(_pel),
             _pcs = getStyles(_pel),
             _new = {
                 top:  _cur.top - (_pot ? _pot.top + parseFloat(_pcs.borderTopWidth) : 0),
@@ -1736,44 +1727,36 @@ Object.assign(tQuery, {
 
 
     /**
-     * 获取/设置水平滚动条。
-     * @param  {Element|Window|Document} el
-     * @param  {Number} val
-     * @return {Number|this}
-     */
-    scrollLeft( el, val ) {
-        // 集合版友好
-        if (val === null) {
-            return;
-        }
-        let _win = getWindow(el);
-
-        if (val === undefined) {
-            return _win ? _win.pageXOffset : el.scrollLeft;
-        }
-        scrollSet(_win || el, val, _win ? 'X' : 'L');
-
-        return this;
-    },
-
-
-    /**
      * 获取/设置垂直滚动条。
      * @param  {Element|Window|Document} el
      * @param  {Number} val
      * @return {Number|this}
      */
     scrollTop( el, val ) {
-        // 集合版友好
-        if (val === null) {
-            return;
-        }
         let _win = getWindow(el);
 
         if (val === undefined) {
             return _win ? _win.pageYOffset : el.scrollTop;
         }
         scrollSet(_win || el, val, _win ? 'Y' : 'T');
+
+        return this;
+    },
+
+
+    /**
+     * 获取/设置水平滚动条。
+     * @param  {Element|Window|Document} el
+     * @param  {Number} val
+     * @return {Number|this}
+     */
+    scrollLeft( el, val ) {
+        let _win = getWindow(el);
+
+        if (val === undefined) {
+            return _win ? _win.pageXOffset : el.scrollLeft;
+        }
+        scrollSet(_win || el, val, _win ? 'X' : 'L');
 
         return this;
     },
@@ -2216,10 +2199,10 @@ tQuery.Table = Table;
      * - 取值函数可返回节点或节点集（含 Collector），不支持字符串。
      *
      * @param  {Element} el 目标元素
-     * @param  {Node|NodeList|Collector|Function|Set|Iterator} cons 数据节点（集）或回调
+     * @param  {Node|[Node]|Collector|Function|Set|Iterator} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆注册事件
-     * @return {Node|Array} 新插入的节点（集）
+     * @return {Node|[Node]} 新插入的节点（集）
      */
     tQuery[name] = function ( el, cons, clone, event ) {
         return Insert(
@@ -2227,27 +2210,6 @@ tQuery.Table = Table;
             domManip( el, cons, clone, event ),
             Wheres[name]
         );
-    };
-});
-
-
-//
-// 数值尺寸取值（Float）
-// innerHeight/innerWidth
-// outerHeight/outerWidth
-///////////////////////////////////////
-[
-    ['Height', 	'inner'],
-    ['Width', 	'inner'],
-    ['Height', 	'outer'],
-    ['Width', 	'outer'],
-]
-.forEach(function( its ) {
-    let _t = its[0].toLowerCase(),
-        _n = its[1] + its[0];
-
-    tQuery[_n] = function( el, margin ) {
-        return _rectWin(el, its[0], its[1]) || _rectDoc(el, its[0]) || _rectElem(el, _t, _n, margin);
     };
 });
 
@@ -2272,15 +2234,60 @@ tQuery.Table = Table;
      *  	content-box: css:height = con-height（默认）
      *  	border-box:  css:height = con-height + padding + border
      * }
+     * @param  {Element} el 目标元素
      * @param  {String|Number} val 设置值
      * @return {Number|this}
      */
     tQuery[_n] = function( el, val ) {
-        if (val == null) {
-            return val === undefined &&
-                (_rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n));
+        if (val === undefined) {
+            return _rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n);
         }
         return _elemRectSet(el, _n, val), this;
+    };
+});
+
+
+//
+// 数值尺寸取值（Float）
+// innerHeight/innerWidth
+///////////////////////////////////////
+[
+    ['Height', 	'inner'],
+    ['Width', 	'inner'],
+]
+.forEach(function( its ) {
+    let _t = its[0].toLowerCase(),
+        _n = its[1] + its[0];
+    /**
+     * 获取内部高/宽度。
+     * @param  {Element} el 目标元素
+     * @return {Number}
+     */
+    tQuery[_n] = function( el ) {
+        return _rectWin(el, its[0], its[1]) || _rectDoc(el, its[0]) || _rectElem(el, _t, _n);
+    };
+});
+
+
+//
+// 数值尺寸取值（Float）
+// outerHeight/outerWidth
+///////////////////////////////////////
+[
+    ['Height', 	'outer'],
+    ['Width', 	'outer'],
+]
+.forEach(function( its ) {
+    let _t = its[0].toLowerCase(),
+        _n = its[1] + its[0];
+    /**
+     * 获取包含外围的高/宽度。
+     * @param  {Element} el 目标元素
+     * @param  {Boolean} margin 是否包含外边距
+     * @return {Number}
+     */
+    tQuery[_n] = function( el, margin ) {
+        return _rectWin(el, its[0], its[1]) || _rectDoc(el, its[0]) || _rectElem(el, _t, _n, margin);
     };
 });
 
@@ -2362,7 +2369,7 @@ function _elemRect( el, name ) {
 
 /**
  * 设置元素尺寸（height|width）。
- * - 支持非像素单位设置；
+ * - 支持非像素单位设置。
  * @param  {Element} el  目标元素
  * @param  {String} name 设置类型/名称
  * @param  {String|Number} val 尺寸值
@@ -2943,6 +2950,7 @@ elsExfn([
     function( names ) {
         let _ia = isArr(names);
         // 可代理调用 $
+        // 未定义值自然忽略或有其含义（removeClass）。
         this.forEach(
             (el, i) => $[fn](el, _ia ? names[i] : names)
         );
@@ -2965,18 +2973,22 @@ elsExfn([
     ],
     fn =>
     function( name, val ) {
+        // 可代理调用 $
         if (_isGetter(name, val)) {
             return Arr(this).map( el => $[fn](el, name) );
         }
-        let _na = isArr(name),
-            _va = isArr(val);
-        this.forEach(
-            (el, i) => {
-                // 可代理调用 $
-                // 值数组成员可能为undefined，对设置无影响。
-                $[fn]( el, (_na ? name[i] : name), (_va ? val[i] : val) );
-            }
-        );
+        if (isArr(name)) {
+            // val 无意义
+            this.forEach( (el, i) => name[i] !== undefined && $[fn](el, name[i]) );
+        }
+        else if (isArr(val)) {
+            // name 必然为一个字符串
+            this.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
+        }
+        else {
+            // 简单名称简单值
+            this.forEach( el => $[fn](el, name, val) );
+        }
         return this;
     }
 );
@@ -3001,26 +3013,22 @@ function _isGetter( name, val ) {
 elsExfn([
         'height',
         'width',
+        'offset',
         'scrollLeft',
         'scrollTop',
     ],
     fn =>
     function( val ) {
+        // 可代理调用 $
         if (val === undefined) {
             return Arr(this).map( el => $[fn](el) );
         }
-        let _ia = isArr(val);
-        this.forEach(
-            (el, i) => {
-                let _v = val;
-                if (_ia) {
-                    // 由单元素版优化null（不再无效取值）。
-                    _v = val[i] === undefined ? null : val[i];
-                }
-                // 可代理调用 $
-                $[fn]( el, _v );
-            }
-        );
+        if (isArr(val)) {
+            this.forEach( (el, i) => val[i] !== undefined && $[fn](el, val[i]) );
+        }
+        else {
+            this.forEach( el => $[fn](el, val) );
+        }
         return this;
     }
 );
@@ -3041,24 +3049,38 @@ elsExfn([
     ],
     fn =>
     function( val, ...rest ) {
-        let _ia = isArr(val),
-            _vs = Arr(this).map(
-            (el, i) => {
-                // 可代理调用 $
-                return $[fn](el, _ia ? val[i] : val, ...rest);
-            }
-        );
         if (val === undefined) {
-            return _vs;
+            return Arr(this).map( el => $[fn](el) );
         }
-        // val为数组时未定义项为取值，滤除。
-        _vs = _vs.filter(
-            v => typeof v != 'string'
-        );
+        // 可代理调用 $
+        let _vs = isArr(val) ?
+            _arrSets( fn, this, val, ...rest ) :
+            this.map( el => $[fn](el, val, ...rest) );
+
         // 扁平化，构造为 Collector
         return new Collector([].concat(..._vs), this);
     }
 );
+
+
+/**
+ * 上面集合版设置调用辅助。
+ * 在设置值为一个数组时，一一对应但忽略未定义项。
+ * @param  {String} fn 调用名
+ * @param  {Collector} els 目标集合
+ * @param  {[Value]} val 值数组
+ * @param  {[Value]} rest 剩余参数
+ * @return {[Node]} 节点（集）数组
+ */
+function _arrSets( fn, els, val, ...rest ) {
+    let _buf = [];
+
+    els.forEach(
+        // 可代理调用 $
+        (el, i) => val[i] !== undefined && _buf.push( $[fn](el, val[i], ...rest) )
+    );
+    return _buf;
+}
 
 
 
@@ -4514,18 +4536,18 @@ const valHooks = {
 // boxSizing相关值。
 //
 const boxMargin = {
-    height: css => parseFloat(css.marginTop) + parseFloat(css.marginBottom),
-    width:  css => parseFloat(css.marginLeft) + parseFloat(css.marginRight)
+    height: cso => parseFloat(cso.marginTop) + parseFloat(cso.marginBottom),
+    width:  cso => parseFloat(cso.marginLeft) + parseFloat(cso.marginRight)
 };
 
 const boxBorder = {
-    height: css => parseFloat(css.borderTopWidth) + parseFloat(css.borderBottomWidth),
-    width:  css => parseFloat(css.borderLeftWidth) + parseFloat(css.borderRightWidth)
+    height: cso => parseFloat(cso.borderTopWidth) + parseFloat(cso.borderBottomWidth),
+    width:  cso => parseFloat(cso.borderLeftWidth) + parseFloat(cso.borderRightWidth)
 };
 
 const boxPadding = {
-    height: css => parseFloat(css.paddingTop) + parseFloat(css.paddingBottom),
-    width:  css => parseFloat(css.paddingLeft) + parseFloat(css.paddingRight)
+    height: cso => parseFloat(cso.paddingTop) + parseFloat(cso.paddingBottom),
+    width:  cso => parseFloat(cso.paddingLeft) + parseFloat(cso.paddingRight)
 };
 
 
@@ -4533,13 +4555,13 @@ const boxPadding = {
 // 矩形取值：目标差距。
 //
 const withRect = {
-    height: 	 css => boxPadding.height(css) + boxBorder.height(css),
-    innerHeight: css => boxBorder.height(css),
-    outerHeight: (css, margin) => margin ? -boxMargin.height(css) : 0,
+    height: 	 cso => boxPadding.height(cso) + boxBorder.height(cso),
+    innerHeight: cso => boxBorder.height(cso),
+    outerHeight: (cso, margin) => margin ? -boxMargin.height(cso) : 0,
 
-    width: 	 	 css => boxPadding.width(css) + boxBorder.width(css),
-    innerWidth:  css => boxBorder.width(css),
-    outerWidth:  (css, margin) => margin ? -boxMargin.width(css) : 0,
+    width: 	 	 cso => boxPadding.width(cso) + boxBorder.width(cso),
+    innerWidth:  cso => boxBorder.width(cso),
+    outerWidth:  (cso, margin) => margin ? -boxMargin.width(cso) : 0,
 };
 
 
@@ -4548,12 +4570,12 @@ const withRect = {
 //
 const withCss = {
     height: 	 () => 0,
-    innerHeight: css => boxPadding.height(css),
-    outerHeight: (css, margin) => boxPadding.height(css) + boxBorder.height(css) + (margin ? boxMargin.height(css) : 0),
+    innerHeight: cso => boxPadding.height(cso),
+    outerHeight: (cso, margin) => boxPadding.height(cso) + boxBorder.height(cso) + (margin ? boxMargin.height(cso) : 0),
 
     width: 	 	 () => 0,
-    innerWidth:  css => boxPadding.width(css),
-    outerWidth:  (css, margin) => boxPadding.width(css) + boxBorder.width(css) + (margin ? boxMargin.width(css) : 0),
+    innerWidth:  cso => boxPadding.width(cso),
+    outerWidth:  (cso, margin) => boxPadding.width(cso) + boxBorder.width(cso) + (margin ? boxMargin.width(cso) : 0),
 };
 
 
@@ -4573,13 +4595,13 @@ const boxSizing = {
          * @param  {Element} el 目标元素
          * @param  {String} type 取值类型（height|width）
          * @param  {String} name 求值名称
-         * @param  {CSSStyleDeclaration} css 样式声明实例
+         * @param  {CSSStyleDeclaration} cso 样式声明实例
          * @param  {Boolean} margin 包含Margin
          * @return {Number}
          */
-        get: function( el, type, name, css, margin ) {
-            let _cv = parseFloat( css[type] );
-            return _cv ? _cv + withCss[name](css, margin) : rectSize(el, type) - withRect[name](css, margin);
+        get: function( el, type, name, cso, margin ) {
+            let _cv = parseFloat( cso[type] );
+            return _cv ? _cv + withCss[name](cso, margin) : rectSize(el, type) - withRect[name](cso, margin);
         },
 
 
@@ -4589,8 +4611,8 @@ const boxSizing = {
          * @param {String} name 设置类型名（height|width）
          * @param {Number} val 设置的值
          */
-        set: (el, name, val) => {
-            if ( val == null || isNaN(val) ) {
+        set: ( el, name, val ) => {
+            if ( val == null ) {
                 return;
             }
             el.style[name] = isNumeric(val) ? val+'px' : val;
@@ -4603,8 +4625,8 @@ const boxSizing = {
         /**
          * 通用取值（参数说明同上）。
          */
-        get: function( el, type, name, css, margin ) {
-            return ( parseFloat( css[type] ) || rectSize(el, type) ) - withRect[name](css, margin);
+        get: function( el, type, name, cso, margin ) {
+            return ( parseFloat( cso[type] ) || rectSize(el, type) ) - withRect[name](cso, margin);
         },
 
 
@@ -4617,11 +4639,11 @@ const boxSizing = {
          * @param  {String|Number} val
          * @return {Number}
          */
-        set: (el, name, val, css) => {
-            if ( val == null || isNaN(val) ) {
+        set: ( el, name, val, cso ) => {
+            if ( val == null ) {
                 return;
             }
-            let _pb2 = boxPadding[name](css) + boxBorder[name](css),
+            let _pb2 = boxPadding[name](cso) + boxBorder[name](cso),
                 _num = pixelNumber(val);
 
             el.style[name] = _num ? (_num + _pb2 + 'px') : val;
