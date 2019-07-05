@@ -503,6 +503,16 @@
 
 ### [$.height( el: Element, val: string | number ): number | this]($.height.md)
 
+获取或设置 `el` 元素的内容高度，设置值可包含任意单位，纯数值视为像素（`px`）。获取的值为纯数值（像素），以便于数学计算。
+
+> **注：**
+> 始终针对元素的内容部分，与 `box-sizing` 值无关。
+
+**背景知识：**
+
+- `box-sizing` 值为 `content-box` 时： **CSS**: height = 内容高度（默认）
+- `box-sizing` 值为 `border-box` 时：**CSS**: height = 内容高度 + padding宽度 + border宽度
+
 
 ### [$.width( el: Element, val: string | number ): number | this]($.width.md)
 

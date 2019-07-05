@@ -28,7 +28,9 @@
     提示：
     您可以在浏览器的控制台执行：
     - console.dir($)  查看 $ 的成员情况（单元素操作版）。
-    - console.dir($('').constructor.prototype)  查看 Collector 的成员情况。
+      Object.keys($)  获取方法名集（可枚举）。
+    - console.dir($('').__proto__)  查看 Collector 的成员情况。
+      Object.getOwnPropertyNames($('').__proto__)  获取方法名集（不可枚举）。
 
     注意！
     例：
@@ -300,7 +302,7 @@
         // 注：
         // 其中 submit() 和 load() 调用不会触发原生事件。
         //
-        eventCallable = [
+        callableEvents = [
             'blur',
             'click',
             'focus',
@@ -2296,7 +2298,7 @@ tQuery.Table = Table;
 // 可调用事件。
 ///////////////////////////////////////
 
-eventCallable
+callableEvents
 .forEach(function( name ) {
     tQuery[name] = el => (name in el) && el[name]() || this;
 });
@@ -2926,7 +2928,7 @@ elsExfn([
         // 'blur'
         // 'click'
         // ...
-    ].concat(eventCallable),
+    ].concat(callableEvents),
     fn =>
     function(...rest) {
         // 可代理调用 $
