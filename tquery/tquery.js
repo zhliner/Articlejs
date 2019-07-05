@@ -1316,6 +1316,42 @@ Object.assign(tQuery, {
     },
 
 
+    /**
+     * 获取/设置垂直滚动条。
+     * @param  {Element|Window|Document} el
+     * @param  {Number} val
+     * @return {Number|this}
+     */
+     scrollTop( el, val ) {
+        let _win = getWindow(el);
+
+        if (val === undefined) {
+            return _win ? _win.pageYOffset : el.scrollTop;
+        }
+        scrollSet(_win || el, val, _win ? 'Y' : 'T');
+
+        return this;
+    },
+
+
+    /**
+     * 获取/设置水平滚动条。
+     * @param  {Element|Window|Document} el
+     * @param  {Number} val
+     * @return {Number|this}
+     */
+    scrollLeft( el, val ) {
+        let _win = getWindow(el);
+
+        if (val === undefined) {
+            return _win ? _win.pageXOffset : el.scrollLeft;
+        }
+        scrollSet(_win || el, val, _win ? 'X' : 'L');
+
+        return this;
+    },
+
+
     //-- 属性操作 -------------------------------------------------------------
 
 
@@ -1678,7 +1714,7 @@ Object.assign(tQuery, {
     offset( el, pair ) {
         let _cur = getOffset(el);
 
-        if (pair == null) {
+        if (! pair) {
             return pair === null && clearOffset(el) ||
                 _cur;
         }
@@ -1725,42 +1761,6 @@ Object.assign(tQuery, {
             };
 
         return toPosition(_new, _cso);
-    },
-
-
-    /**
-     * 获取/设置垂直滚动条。
-     * @param  {Element|Window|Document} el
-     * @param  {Number} val
-     * @return {Number|this}
-     */
-    scrollTop( el, val ) {
-        let _win = getWindow(el);
-
-        if (val === undefined) {
-            return _win ? _win.pageYOffset : el.scrollTop;
-        }
-        scrollSet(_win || el, val, _win ? 'Y' : 'T');
-
-        return this;
-    },
-
-
-    /**
-     * 获取/设置水平滚动条。
-     * @param  {Element|Window|Document} el
-     * @param  {Number} val
-     * @return {Number|this}
-     */
-    scrollLeft( el, val ) {
-        let _win = getWindow(el);
-
-        if (val === undefined) {
-            return _win ? _win.pageXOffset : el.scrollLeft;
-        }
-        scrollSet(_win || el, val, _win ? 'X' : 'L');
-
-        return this;
     },
 
 
@@ -2228,23 +2228,34 @@ tQuery.Table = Table;
     let _n = its[0];
     /**
      * 获取/设置元素的高宽度。
-     * - 始终针对内容部分（不管box-sizing）；
-     * - 设置值可包含任意单位，纯数值视为像素单位；
-     * - 获取时返回数值。便于数学计算；
+     * - 始终针对内容部分（不管box-sizing）。
+     * - 设置值可包含任意单位，纯数值视为像素单位。
+     * - 传递val为null或一个空串会删除样式（与.css保持一致）。
+     * - 获取时返回数值。便于数学计算。
      * 注记：
      * box-sizing {
      *  	content-box: css:height = con-height（默认）
      *  	border-box:  css:height = con-height + padding + border
      * }
      * @param  {Element} el 目标元素
-     * @param  {String|Number} val 设置值
+     * @param  {String|Number|Function} val 设置值
      * @return {Number|this}
      */
     tQuery[_n] = function( el, val ) {
+        let _h = _rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n);
+
         if (val === undefined) {
-            return _rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n);
+            return _h;
         }
-        return _elemRectSet(el, _n, val), this;
+        if (isFunc(val)) {
+            _h = val.bind(el)(_h);
+        }
+        _elemRectSet(el, _n, val);
+
+        if (!val && el.style.cssText.trim() == '') {
+            el.removeAttribute('style');
+        }
+        return this;
     };
 });
 
@@ -3261,8 +3272,8 @@ function superArgs( obj ) {
 
 /**
  * 像素值转换数值。
- * - 像素单位转为纯数值；
- * - 非像素或数值返回null；
+ * - 像素单位转为纯数值。
+ * - 非像素或数值返回null。
  * @param  {String|Number} val
  * @return {Number|null}
  */
@@ -3895,6 +3906,9 @@ function clearOffset( el ) {
         left: null,
         position: null,
     });
+    if (el.style.cssText.trim() == '') {
+        el.removeAttribute('style');
+    }
 }
 
 
@@ -4614,9 +4628,6 @@ const boxSizing = {
          * @param {Number} val 设置的值
          */
         set: ( el, name, val ) => {
-            if ( val == null ) {
-                return;
-            }
             el.style[name] = isNumeric(val) ? val+'px' : val;
         },
     },
@@ -4634,17 +4645,14 @@ const boxSizing = {
 
         /**
          * 返回非0值表示需要二次设置。
-         * - val非数值或像素单位时先试探性设置，返回补充高度；
-         * - 仅用于height/width；
+         * - val非数值或像素单位时先试探性设置，返回补充高度。
+         * - 仅用于height/width。
          * 注：非像素单位难以转换计算，故用此方法。
          * @param  {String} name 设置类型名（height|width）
          * @param  {String|Number} val
          * @return {Number}
          */
         set: ( el, name, val, cso ) => {
-            if ( val == null ) {
-                return;
-            }
             let _pb2 = boxPadding[name](cso) + boxBorder[name](cso),
                 _num = pixelNumber(val);
 

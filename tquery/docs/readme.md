@@ -353,6 +353,16 @@
 对 `el` 节点进行克隆，返回克隆的新节点。`event` 和 `deep` 两个参数仅适用于元素，如果需要对注册的事件处理器一并克隆，传递 `event` 为 `true` 即可。默认深层克隆（`deep` 为真）。
 
 
+### [$.scrollTop( el: Document | Window | Element, val: number ): this]($.scrollTop.md)
+
+获取或设置 `el` 元素（文档或窗口）的垂直滚动条位置。
+
+
+### [$.scrollLeft( el: Document | Window | Element, val: number ): this]($.scrollLeft.md)
+
+获取或设置 `el` 元素（文档或窗口）的水平滚动条位置。
+
+
 ## 元素属性
 
 ### [$.addClass( el: Element, names: string | Function ): this]($.addClass.md)
@@ -491,22 +501,13 @@
 > 计算被隐藏的元素（样式：`display:none`）的相对位置没有意义。<br>
 
 
-### [$.scrollTop( el: Document | Window | Element, val: number ): this]($.scrollTop.md)
+### [$.height( el: Element, val: string | number | Function ): number | this]($.height.md)
 
-获取或设置 `el` 元素（文档或窗口）的垂直滚动条位置。
+获取或设置 `el` 元素的内容高度，设置值可包含任意单位，纯数值视为像素（`px`），传递 `val` 值为一个空串或 `null` 会删除高度样式。获取的值为纯数值（像素），以便于数学计算。`val` 也可以为取值回调函数，接口：`function( curr-height ): String | Number`。
 
-
-### [$.scrollLeft( el: Document | Window | Element, val: number ): this]($.scrollLeft.md)
-
-获取或设置 `el` 元素（文档或窗口）的水平滚动条位置。
-
-
-### [$.height( el: Element, val: string | number ): number | this]($.height.md)
-
-获取或设置 `el` 元素的内容高度，设置值可包含任意单位，纯数值视为像素（`px`）。获取的值为纯数值（像素），以便于数学计算。
-
-> **注：**
-> 始终针对元素的内容部分，与 `box-sizing` 值无关。
+> **注：**<br>
+> 始终针对元素的内容部分，与 `box-sizing` 值无关。<br>
+> 与 jQuery 稍有不同，jQuery 中 val 传递 null 并不会删除高度样式（只是忽略）。<br>
 
 **背景知识：**
 

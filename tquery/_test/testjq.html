@@ -87,7 +87,12 @@
     ._emot th {
         text-align: right;
     }
-
+    #frm {
+        box-sizing: border-box;
+        padding: 20px;
+        border: 10px #ccc solid;
+        margin: 30px;
+    }
     </style>
 <style>
 p.ani {
@@ -115,7 +120,7 @@ p.ani {
         <p id="p2">第二个段落。</p>
         <p id="p3">The third paragraph.</p>
     </section>
-    <form name="frm">
+    <form name="frm" id="frm">
         <fieldset id="fset">
             <label><input type="checkbox" name="cbs" value="chrome" data-type="browser" checked>Chrome</label>
             <label><input type="checkbox" name="cbs" value="edge" data-type="browser">Edge</label>
@@ -125,6 +130,14 @@ p.ani {
         <input type="color" name="color" value="#99ff00">Colors<br>
         <input type="text" name="txt" value="Hello"><br>
         <input type="submit" value="提交">
+        <p>
+            <textarea name="tt1"
+                style="height: 100px; width: 200px; overflow: scroll; white-space: pre;">第一个编辑框。</textarea>
+        </p>
+        <p>
+            <textarea name="tt2"
+                style="height: 100px; width: 200px; overflow: scroll; white-space: pre;">The second editbox.</textarea>
+        </p>
     </form>
 
     <p><a href="#" title="[a] is a \[link\]">Click me</a></p>
