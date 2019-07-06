@@ -365,7 +365,6 @@ function $sub( slr, ctx, first ) {
  *  	.values     支持values接口的迭代器（如Set）
  *  	Function    DOM ready回调
  *  	Collector   当前实例或已封装对象
- *  	...... 	    无效参数，构造一个空集
  * }
  * @param  {Mixed} its
  * @param  {Element} ctx 查询上下文
@@ -581,7 +580,7 @@ Object.assign(tQuery, {
         if (typeof data == 'object') {
             data = tQuery.Element('script', data, null, doc);
         }
-        return data.nodeType == 1 && loadElement(data, null, box || doc.head, !box);
+        return loadElement(data, null, box || doc.head, !box);
     },
 
 
@@ -589,10 +588,15 @@ Object.assign(tQuery, {
      * 插入样式元素。
      * - 构建样式元素填入内容并插入DOM。
      * - 默认插入head内部末尾，否则插入next之前。
-     * - 可以传递一个<link>的配置对象或先构造出来作为实参，此时返回一个Promise对象。
+     * - 可以传递一个配置对象或已构造好的样式元素，此时返回一个Promise对象。
      * - 用源码构造插入时，返回构造的样式元素。
-     *
-     * @param  {String|Object|Element} data 样式代码或href配置或样式元素
+     * 配置对象：{
+     *      href:  {String}  <link>元素的CSS资源定位。
+     *      rel:   {String}  <link>元素的属性（stylesheet）。
+     *      text:  {String}  <style>元素的内容，也是决定创建<style>或<link>的判断依据
+     *      scope: {Boolean} <style>元素的一个可选属性。
+     * }
+     * @param  {String|Object|Element} data 样式代码或配置对象或样式元素
      * @param  {Element} next 参考元素，可选
      * @return {Element|Promise} 样式元素或承诺对象
      */
@@ -605,12 +609,12 @@ Object.assign(tQuery, {
             );
         }
         if (typeof data == 'object') {
-            if (! data.rel) {
-                data.rel = 'stylesheet';
-            }
-            data = tQuery.Element('link', data, null, doc)
+            let _tag = data.text == null ?
+                'link' :
+                'style';
+            data = tQuery.Element(_tag, data, null, doc);
         }
-        return data.nodeType == 1 && loadElement(data, next, doc.head);
+        return loadElement(data, next, doc.head);
     },
 
 
@@ -2237,7 +2241,7 @@ tQuery.Table = Table;
      *  	content-box: css:height = con-height（默认）
      *  	border-box:  css:height = con-height + padding + border
      * }
-     * @param  {Element} el 目标元素
+     * @param  {Element|Document|Window} el 目标元素
      * @param  {String|Number|Function} val 设置值
      * @return {Number|this}
      */
@@ -2248,7 +2252,7 @@ tQuery.Table = Table;
             return _h;
         }
         if (isFunc(val)) {
-            _h = val.bind(el)(_h);
+            val = val.bind(el)(_h);
         }
         _elemRectSet(el, _n, val);
 
@@ -2273,7 +2277,8 @@ tQuery.Table = Table;
         _n = its[1] + its[0];
     /**
      * 获取内部高/宽度。
-     * @param  {Element} el 目标元素
+     * 注：包含padding，但不包含border。
+     * @param  {Element|Document|Window} el 目标元素
      * @return {Number}
      */
     tQuery[_n] = function( el ) {
@@ -2294,8 +2299,9 @@ tQuery.Table = Table;
     let _t = its[0].toLowerCase(),
         _n = its[1] + its[0];
     /**
-     * 获取包含外围的高/宽度。
-     * @param  {Element} el 目标元素
+     * 获取外围的高/宽度。
+     * 注：包含border，可选的包含margin。
+     * @param  {Element|Document|Window} el 目标元素
      * @param  {Boolean} margin 是否包含外边距
      * @return {Number}
      */
@@ -2317,6 +2323,11 @@ callableEvents
 
 /**
  * 获取窗口尺寸。
+ * 注意！
+ * - 这与浏览器原生的innerXXX/outerXXX逻辑不同。
+ * - innerXXX 表示内容部分，不含滚动条。
+ * - outerXXX 只是包含了滚动条的内容部分，而不是浏览器窗口本身。
+ * 注：这与 jQuery 的逻辑一致。
  * @param  {Window} el   获取目标
  * @param  {String} name 尺寸名称（Height|Width）
  * @param  {String} type 取值类型（inner|outer）
@@ -2325,8 +2336,8 @@ callableEvents
 function _rectWin( el, name, type ) {
     return isWindow(el) && (
         type == 'outer' ?
-        el['inner' + name] :
-        el.document.documentElement['client' + name]
+        el[ `inner${name}` ] :
+        el.document.documentElement[ `client${name}` ]
     );
 }
 
@@ -2346,9 +2357,9 @@ function _rectDoc( el, name ) {
     let _html = el.documentElement;
 
     return Math.max(
-        el.body[ "scroll" + name ], _html[ "scroll" + name ],
-        el.body[ "offset" + name ], _html[ "offset" + name ],
-        _html[ "client" + name ]
+        el.body[ `scroll${name}` ], _html[ `scroll${name}` ],
+        el.body[ `offset${name}` ], _html[ `offset${name}` ],
+        _html[ `client${name}` ]
     );
 }
 
@@ -2490,6 +2501,7 @@ function _cloneEvent( src, to, deep ) {
 class Collector extends Array {
     /**
      * 构造收集器实例。
+     * 注：无效的参数会构造为一个空集。
      * @param {Element|NodeList|Array|0} obj 元素（集）
      * @param {Collector} prev 前一个实例引用
      */
@@ -2625,29 +2637,6 @@ class Collector extends Array {
         }
         this.forEach(
             el => $.val( el, value )
-        );
-        return this;
-    }
-
-
-    /**
-     * 获取/设置集合内元素的偏移。
-     * - 相对于文档根元素，返回值格式：{top, left}。
-     * - 传递值为null会清除偏移设置并返回之前的值。
-     *
-     * @param {Object|[Object]|Function} val 设置偏移值的数据源
-     */
-    offset( val ) {
-        if (val === undefined) {
-            return Arr(this).map( el => $.offset(el) );
-        }
-        let _ia = isArr(val);
-        this.forEach(
-            (el, i) => {
-                // 数组成员可能为undefined，
-                // 对设置无影响。
-                $.offset( el, _ia ? val[i] : val );
-            }
         );
         return this;
     }
@@ -2995,7 +2984,7 @@ elsExfn([
             this.forEach( (el, i) => name[i] !== undefined && $[fn](el, name[i]) );
         }
         else if (isArr(val)) {
-            // name 必然为一个字符串
+            // name 肯定为一个单名称
             this.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
         }
         else {
@@ -3062,10 +3051,10 @@ elsExfn([
     ],
     fn =>
     function( val, ...rest ) {
+        // 可代理调用 $
         if (val === undefined) {
             return Arr(this).map( el => $[fn](el) );
         }
-        // 可代理调用 $
         let _vs = isArr(val) ?
             _arrSets( fn, this, val, ...rest ) :
             this.map( el => $[fn](el, val, ...rest) );
@@ -3088,9 +3077,9 @@ elsExfn([
 function _arrSets( fn, els, val, ...rest ) {
     let _buf = [];
 
-    els.forEach(
-        // 可代理调用 $
-        (el, i) => val[i] !== undefined && _buf.push( $[fn](el, val[i], ...rest) )
+    // 可代理调用 $
+    els.forEach( (el, i) =>
+        val[i] !== undefined && _buf.push( $[fn](el, val[i], ...rest) )
     );
     return _buf;
 }
@@ -3263,7 +3252,7 @@ function isCollector( obj ) {
  * @return {Iterator|false} 可迭代对象
  */
 function superArgs( obj ) {
-    if (obj.nodeType) {
+    if (obj.nodeType || isWindow(obj)) {
         return [ obj ];
     }
     return isFunc(obj.values) ? obj.values() : $A(obj);
@@ -3568,6 +3557,9 @@ function switchInsert( node, next, box ) {
  * @return {Promise}
  */
 function loadElement( el, next, box, tmp ) {
+    if (el.nodeType != 1) {
+        throw new Error('el not a element');
+    }
     return new Promise( function(resolve, reject) {
         tQuery.one(el, {
             'load':  () => resolve( tmp ? remove(el, true) : el ),

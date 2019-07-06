@@ -45,7 +45,16 @@
 
 ### [$.style( data: string | Element, next: Element, doc?: Document ): Element | Promise]($.style.md)
 
-插入一个包含内容的 `<style>` 样式元素，也可以传递一个 `<link href=...>` 元素的配置对象（`{href:...}`）或用 `$.Element()` 先创建一个样式元素后插入。引入外部CSS样式文件的方式会返回一个承诺对象（Promise），用户可以注册样式导入完成后的处理函数。
+构造并插入一个包含内容的 `<style>` 样式元素，或者一个引入外部CSS资源的 `<link href=...>` 元素，或者一个已经创建好的 `<style>` 或 `<link>` 元素。`data` 可以是一个配置对象：
+
+```js
+href:  {String}     // <link>元素的CSS资源定位。
+rel:   {String}     // <link>元素的属性（stylesheet）。
+text:  {String}     // <style>元素的CSS代码，也是决定创建<style>或<link>的判断依据
+scope: {Boolean}    // <style>元素的一个可选属性。
+```
+
+传入配置对象构建或一个构建好的元素插入时，返回一个承诺对象（Promise），否则返回创建的 `<style>` 元素本身。
 
 `next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
 
@@ -501,9 +510,11 @@
 > 计算被隐藏的元素（样式：`display:none`）的相对位置没有意义。<br>
 
 
-### [$.height( el: Element, val: string | number | Function ): number | this]($.height.md)
+### [$.height( el: Element | Document | Window, val: string | number | Function ): number | this]($.height.md)
 
-获取或设置 `el` 元素的内容高度，设置值可包含任意单位，纯数值视为像素（`px`），传递 `val` 值为一个空串或 `null` 会删除高度样式。获取的值为纯数值（像素），以便于数学计算。`val` 也可以为取值回调函数，接口：`function( curr-height ): String | Number`。
+获取或设置 `el` 元素的内容高度，设置值可包含任意单位，纯数值视为像素（`px`），传递 `val` 值为一个空串或 `null` 会删除高度样式。获取的值为纯数值（像素单位），方便直接用于计算。`val` 也可以为取值回调函数，接口：`function( curr-height ): String | Number`。
+
+如果 `el` 是文档对象（如 document）或窗口（如 window），可以获取其高度（但不可设置）。
 
 > **注：**<br>
 > 始终针对元素的内容部分，与 `box-sizing` 值无关。<br>
@@ -515,19 +526,25 @@
 - `box-sizing` 值为 `border-box` 时：**CSS**: height = 内容高度 + padding宽度 + border宽度
 
 
-### [$.width( el: Element, val: string | number ): number | this]($.width.md)
+### [$.width( el: Element | Document | Window, val: string | number ): number | this]($.width.md)
+
+获取或设置 `el` 元素的内容宽度，设置值可包含任意单位，纯数值视为像素（`px`），传递 `val` 值为一个空串或 `null` 会删除宽度样式。获取的值为纯数值（像素单位），方便直接用于计算。`val` 也可以为取值回调函数，接口：`function( curr-width ): String | Number`。
+
+如果 `el` 是文档对象（如 document）或窗口（如 window），可以获取其宽度（但不可设置）。与 `$.height` 接口相同，始终针对元素的内容部分，与 `box-sizing` 值无关。
 
 
-### [$.innerHeight( el: Element ): number]($.innerHeight.md)
+### [$.innerHeight( el: Element | Document | Window ): number]($.innerHeight.md)
+
+获取 `el` 元素的内部高度（包含 `padding` 部分但不包含 `border` 部分）。该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口（需要减去 `padding` 部分）。
 
 
-### [$.innerWidth( el: Element ): number]($.innerWidth.md)
+### [$.innerWidth( el: Element | Document | Window ): number]($.innerWidth.md)
 
 
-### [$.outerHeight( el: Element, margin: boolean ): number]($.outerHeight.md)
+### [$.outerHeight( el: Element | Document | Window, margin: boolean ): number]($.outerHeight.md)
 
 
-### [$.outerWidth( el: Element, margin: boolean ): number]($.outerWidth.md)
+### [$.outerWidth( el: Element | Document | Window, margin: boolean ): number]($.outerWidth.md)
 
 
 
