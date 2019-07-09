@@ -45,23 +45,12 @@
         Sizzle('p>b', p)          => []
         p.querySelectorAll('p>b') => [<b>]
     说明：
-        Sizzle 的子级检索选择器不含上下文元素自身的父级限定能力。
-        querySelectorAll 依靠上下文元素自身来限定直接子元素匹配。
+        Sizzle 的子级检索选择器不含上下文元素自身的限定。
+        querySelectorAll 拥有上下文元素自身的父级限定能力。
 
     实现：
-    有限支持 '>*' 选择器格式：开启直接子元素模式，后续选择器用于子元素过滤。
-    例：
-        $.find('>b', p)      => [<b>]      // 简单支持
-        $.find('>b i', p)    => []         // 多级选择无效
-        $.find('p>b i', p)   => [<i>]      // querySelectorAll特性
-        $.find('>b, >a', p)  => 语法错误    // `b,>a` 为无效选择器
-        $.find('>b, a', p)   => [<b>,<a>]  // 子元素用 `b,a` 过滤，仅需首个 `>`
-    另：
-        Sizzle('>b, >a', p)  => [<b>,<a>]  // 两个限定各自独立
-
-    建议：
-    介于 '>*' 选择器的这种细微差别，如果您需要大量使用该选择器，
-    或者对 Sizzle 的扩展选择器需求不高，考虑通用性，建议不使用 Sizzle 库。
+        支持 '>...' 选择器形式（同 Sizzle）。
+        支持并列的 `>...` 格式，如：'>b, >a' 上下文元素内的 <b> 或 <a>（同 Sizzle）。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -102,25 +91,23 @@
         $class = ( slr, ctx ) => ctx.getElementsByClassName(slr.substring(1)),
 
         // 检索元素或元素集。
-        // 选择器支持“>”表示上下文元素直接子元素。
+        // 选择器支持“>”表示上下文元素限定。
         // fn: {String} querySelector[All]
-        $find = ( slr, ctx, fn ) => slr[0] == '>' ? $sub(slr.substring(1), ctx, fn === 'querySelector') : ctx[fn](slr || null),
+        $find = ( slr, ctx, fn ) => subslr.test(slr) ? $sub( slr, ctx, s => ctx[fn](s) ) : ctx[fn](slr || null),
 
         // 单一目标。
-        // slr首字符>表示当前上下文直接子元素限定。
-        // 如“>p”表示ctx的直接子元素里的p元素。
+        // slr 首字符 > 表示当前上下文父级限定。
         // @return {Element|null}
         $one = function( slr, ctx, doc = Doc ) {
-            ctx = ctx || doc;
-
             if (__reID.test(slr)) {
                 return $id(slr, doc);
             }
-            return $find(slr, ctx, 'querySelector');
+            return $find(slr, ctx || doc, 'querySelector');
         },
 
         // 多目标。
-        // slr首字符>表示当前上下文子元素限定。
+        // slr 首字符 > 表示当前上下文父级限定。
+        // slr 会被测试是否包含起始 > 限定（包括逗号分隔的并列方式）。
         // @return {[Element]}
         $all = Sizzle || function( slr, ctx, doc = Doc ) {
             ctx = ctx || doc;
@@ -190,6 +177,11 @@
         // 像素值表示
         rpixel = /^[+-]?\d[\d.e]*px$/i,
 
+        // 并列选择器起始 > 模式
+        // 如：`>p > em, >b a`
+        // 注：正则表达的后行断言在 ES2018 中引入，仅部分浏览器支持。
+        subslr = /^>|(?<=,\s*)>/g,
+
         // 伪Tag开始字符匹配（[）
         // 注：前置\时为转义，不匹配，偶数\\时匹配。
         tagLeft = /(^|[^\\]|(?:\\\\)+)\[/g,
@@ -225,7 +217,7 @@
         // - 放宽数字匹配范围（Number）。
         // - 允许常用全角标点符号（，、。：；！？「」『』‘’“”等）。
         // 注记：
-        // \p{} 的 Unicode 属性类在 ES2018 中引入，部分浏览器（Firefox）暂不支持。
+        // \p{} 的 Unicode 属性类在 ES2018 中引入，目前仅部分浏览器支持。
         uriComponentX = /[^\p{Alphabetic}\p{Mark}\p{Number}\p{Connector_Punctuation}\p{Join_Control}，、。：；！？「」『』‘’“”]/gu,
 
         // SVG元素名称空间。
@@ -252,8 +244,12 @@
     const
         version = 'tQuery-0.3.0',
 
+		// 临时属性名
+		// 注：动态+异样，以避免应用冲突。
+		hackFix = `___tquery_${Date.now()}_`,
+
         // 自我标志
-        ownerToken = Symbol && Symbol() || ( '__tquery20161227--' + Date.now() ),
+        ownerToken = Symbol && Symbol() || hackFix,
 
         //
         // 位置值定义。
@@ -318,8 +314,11 @@
 
 
 /**
- * 直接子元素选择。
- * 实现顶级直接子元素“>*”选择器的支持（非标准）。
+ * 子级限定检索。
+ * 对选择器首字符为 > 者实现上下文直接子元素限定检索。
+ * 实现：
+ * - 会对上下文元素添加一临时属性（如：___tquery_1562676388588_），
+ * - 同时修改选择器（支持并列），形如：OL[___tquery_1562676388588_]>...
  * 例：
  * <ol> <!-- ctx -->
  *     <li></li>
@@ -334,24 +333,62 @@
  * 检索：
  * - Sizzle('>li', ctx)  => 返回上级<li>
  * - ctx.querySelectorAll('>li')  => 语法错误
- * - $sub('>li', ctx)  => 返回上级<li>，同 Slizzle
+ * - $sub('>li', ctx, 'querySelectorAll')  => 同 Slizzle
  *
- * 注意：
- * '>'仅限于直接子元素检索，而不是直接子元素限定，如 '>li li' 是无效的。
- * 原因：
- * 检索子级以下元素时，上级元素可以作为限定。这种限定并不精确，但可以促进标签结构设计的扁平化。
- * 另外，也可以通过调整上级限定元素的属性来明确子孙级定位。
+ * 另注意：
+ * - Sizzle('ol>li', ctx)  => 返回末尾一个<li>（ctx:ol不检测匹配）
+ * - ctx.querySelectorAll('ol>li')  => 返回两级<li>（ctx:ol参与检测匹配）
  *
- * @param  {String} slr 目标选择器
- * @param  {Element} ctx 父容器元素
- * @param  {Boolean} first 是否仅首个匹配
- * @return {Element|[Element]|null} 匹配的子元素（集）
+ * @param  {Selector} slr 目标选择器
+ * @param  {Element} ctx  父容器元素
+ * @param  {Function} handle 检索回调
+ * @return {Value} handle 的返回值
  */
-function $sub( slr, ctx, first ) {
-    if (ctx.nodeType != 1) {
-        return null;
-    }
-    return first ? _first(ctx.children, slr) : tQuery.children(ctx, slr);
+function $sub( slr, ctx, handle ) {
+	if (ctx.nodeType != 1) {
+		return null;
+	}
+	try {
+        hackAttr(ctx, hackFix);
+
+        return handle(
+            slr.replace( subslr, `${ctx.nodeName}[${hackFix}]>`)
+        );
+	}
+	catch (e) {
+		window.console.error(e);
+	}
+	finally {
+		hackAttrClear(ctx, hackFix);
+	}
+}
+
+
+/**
+ * 临时hack属性标记。
+ * 针对选择器首字符为“>”的非标选择器构造元素属性限定。
+ * @param  {Element} ctx 上下文容器元素
+ * @param  {String} attr 属性名
+ * @return {String} 属性选择器
+ */
+function hackAttr( ctx, attr ) {
+	if (! ctx[ownerToken] ) {
+        ctx[ ownerToken ] = true;
+		ctx.setAttribute( attr, '' );
+	}
+}
+
+
+/**
+ * 临时hack属性清除。
+ * 注：与hackAttr配套使用。
+ * @param {Element} ctx 上下文容器元素
+ */
+function hackAttrClear( ctx, attr ) {
+	if ( ctx[ownerToken] ) {
+		delete ctx[ ownerToken ];
+		ctx.removeAttribute( attr );
+	}
 }
 
 
@@ -1122,7 +1159,7 @@ Object.assign(tQuery, {
      * @return {[Element]}
      */
     filter( els, fltr ) {
-        if (!fltr || els.length == 0) {
+        if (!fltr || !els.length) {
             return $A(els);
         }
         if ( isCollector(els) ) {
@@ -1144,7 +1181,7 @@ Object.assign(tQuery, {
     has( els, slr ) {
         let _f = slr;
 
-        if (!slr || els.length == 0) {
+        if (!slr || !els.length) {
             return $A(els);
         }
         if (typeof slr == 'string') {
@@ -1305,18 +1342,22 @@ Object.assign(tQuery, {
 
     /**
      * 节点克隆。
-     * - event和deep两个参数仅适用于元素节点。
+     * - event/deep/eventdeep参数仅适用于元素节点。
      * - 元素节点默认深层克隆（包含子节点一起）。
-     * - 可选注册事件是否一起克隆。
-     * @param  {Node}    el 目标节点
-     * @param  {Boolean} event 事件克隆
-     * @param  {Boolean} deep 深层克隆
-     * @return {Node} 克隆的新节点
+     * - 事件处理器也可以克隆，并且可以包含子孙元素的绑定。
+     * @param  {Node} el 目标节点/元素
+     * @param  {Boolean} event 是否克隆事件处理器
+     * @param  {Boolean} deep 节点深层克隆，可选。默认为真
+     * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素），可选
+     * @return {Node} 克隆的新节点/元素
      */
-    clone( el, event, deep = true ) {
+    clone( el, event, deep = true, eventdeep = false ) {
         let _new = el.cloneNode(deep);
 
-        return event && el.nodeType == 1 ? _cloneEvent(el, _new, deep) : _new;
+        if (el.nodeType != 1) {
+            return _new;
+        }
+        return event || eventdeep ? _cloneEvent(el, _new, event, eventdeep) : _new;
     },
 
 
@@ -2204,20 +2245,38 @@ tQuery.Table = Table;
      * - 取值函数接受原节点作为参数。
      * - 取值函数可返回节点或节点集（含 Collector），不支持字符串。
      *
-     * @param  {Element} el 目标元素
-     * @param  {Node|[Node]|Collector|Function|Set|Iterator} cons 数据节点（集）或回调
+     * @param  {Node} el 目标元素或文本节点
+     * @param  {Node|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
-     * @param  {Boolean} event 是否克隆注册事件
+     * @param  {Boolean} event 是否克隆事件处理器（容器）
+     * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
      * @return {Node|[Node]} 新插入的节点（集）
      */
-    tQuery[name] = function ( el, cons, clone, event ) {
+    tQuery[name] = function ( el, cons, clone, event, eventdeep ) {
+        let _meth = Wheres[name];
+
+        if (!_validMeth(el, _meth)) {
+            throw new Error(`${name} method is invalid.`);
+        }
         return Insert(
             el,
-            domManip( el, cons, clone, event ),
-            Wheres[name]
+            domManip( el, cons, clone, event, eventdeep ),
+            _meth
         );
     };
 });
+
+
+/**
+ * 是否为非法方法。
+ * 文本节点不适用内部插入类方法。
+ * 注：专用于上面6个插入方法测试。
+ * @param {Node} node 参考节点
+ * @param {Number} meth 方法/位置值
+ */
+function _validMeth( node, meth ) {
+    return node.nodeType == 1 || !inArray([2, -2, 0], meth);
+}
 
 
 //
@@ -2316,9 +2375,9 @@ tQuery.Table = Table;
 ///////////////////////////////////////
 
 callableEvents
-.forEach(function( name ) {
-    tQuery[name] = el => (name in el) && el[name]() || this;
-});
+.forEach( name =>
+    tQuery[name] = function (el, ...rest) { return (name in el) && el[name](...rest), this; }
+);
 
 
 /**
@@ -2464,8 +2523,8 @@ function _nextUntil( el, slr, dir ) {
  * @return {Element|null}
  */
 function _first( els, slr ) {
-    for (let _el of els) {
-        if ($is(_el, slr)) return _el;
+    for (let _i=0; _i<els.length; ++_i) {
+        if ( $is(els[_i], slr) ) return els[_i];
     }
     return null;
 }
@@ -2473,22 +2532,25 @@ function _first( els, slr ) {
 
 /**
  * 元素事件克隆。
+ * 源保证：to必须是src克隆的结果。
  * @param  {Element} src 源元素
- * @param  {Element} to 目标元素
+ * @param  {Element} to  目标元素
+ * @param  {Boolean} top 根级克隆
  * @param  {Boolean} deep 是否深层克隆
  * @return {Element} 目标元素
  */
-function _cloneEvent( src, to, deep ) {
-    Event.clone(to, src);
-    if (!deep) {
+function _cloneEvent( src, to, top, deep ) {
+    if (top) {
+        Event.clone(to, src);
+    }
+    if (!deep || src.childElementCount == 0) {
         return to;
     }
     let _to = $tag('*', to);
 
-    Arr($tag('*', src))
-    .forEach(
-        (el, i) => Event.clone(_to[i], el)
-    );
+    Arr($tag('*', src)).
+    forEach( (el, i) => Event.clone(_to[i], el) );
+
     return to;
 }
 
@@ -3103,18 +3165,25 @@ function _arrSets( fn, els, val, ...rest ) {
     Reflect.defineProperty(Collector.prototype, [names[0]], {
         /**
          * 将集合中的元素插入相应位置。
-         * - 默认不会采用克隆方式（原节点会脱离DOM）；
-         * - 传递clone为真，会克隆节点（默认包含注册事件）；
-         * - 如果无需包含事件，需明确传递event为false；
-         * @param  {Element} to 目标元素
+         * - 默认不会采用克隆方式（原节点会脱离DOM）。
+         * - 传递clone为真，会克隆集合内的节点后插入。
+         * - 如果需同时包含事件克隆，传递event为true。
+         * 注：
+         * 如果克隆，新的节点集被打包为一个Collector实例并进入链式栈。
+         * 否则返回原集合（Collector）自身。
+         * @param  {Node|Element} to 参考节点或元素
          * @param  {Boolean} clone 数据节点克隆
-         * @param  {Boolean} event 是否克隆注册事件
-         * @return {Collector} 实例自身
+         * @param  {Boolean} event 是否克隆事件处理器（容器）
+         * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
+         * @return {Collector} 克隆插入的节点集或实例自身
          */
-        value: function( to, clone, event = true ) {
+        value: function( to, clone, event, eventdeep ) {
             // 可代理调用 $
-            $[ names[1] ]( to, this, clone, event );
-            return this;
+            let _ret = $[ names[1] ]( to, this, clone, event, eventdeep );
+
+            return clone ?
+                new Collector(_ret, this) :
+                this;
         },
         enumerable: false,
     });
@@ -3729,7 +3798,7 @@ function submitValue( ctrl, value ) {
  * 回调返回值为二维数组才展开的map操作。
  * 主要用于返回键值对（[key, value]）或键值对数组的合并处理。
  * 注：回调返回null或undefined时忽略。
- * callback: function(its): Value|[Value]
+ * callback: function(its): Array{2}|[Array{2}]
  * @param {Array} arr 处理源数组
  * @param {Function} callback 回调函数
  */
@@ -3740,7 +3809,6 @@ function mapArray2( arr, callback ) {
         let _v = callback(it);
         if (_v != null) _tmp.push(_v);
     }
-    // 二维数组才展开。
     return _tmp.reduce(
         (buf, its) => isArr(its[0]) ? buf.concat(its) : (buf.push(its), buf),
         []
@@ -4142,20 +4210,20 @@ const insertHandles = {
  * @param  {Node} node 目标节点（元素或文本节点）
  * @param  {Node|NodeList|Collector|Function|Set|Iterator} cons 内容
  * @param  {Boolean} clone 是否克隆
- * @param  {Boolean} event 是否克隆注册事件
+ * @param  {Boolean} event 是否克隆事件处理器（容器）
+ * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
  * @return {Node|Fragment|null} 待插入节点或文档片段
  */
-function domManip( node, cons, clone, event ) {
-    // 优先处理单节点
-    if (cons.nodeType) {
-        return clone ? tQuery.clone(cons, event, true) : cons;
-    }
+function domManip( node, cons, clone, event, eventdeep ) {
     if ( isFunc(cons) ) {
         cons = cons(node);
     }
+    if (cons.nodeType) {
+        return clone ? tQuery.clone(cons, event, true, eventdeep) : cons;
+    }
     return fragmentNodes(
         cons,
-        nd => clone && tQuery.clone(nd, event, true),
+        nd => clone && tQuery.clone(nd, event, true, eventdeep),
         node.ownerDocument
     );
 }
@@ -4163,7 +4231,7 @@ function domManip( node, cons, clone, event ) {
 
 /**
  * 节点集构造文档片段。
- * - 只接受元素、文本节点、注释和文档片段数据；
+ * 只接受元素、文本节点、注释和文档片段数据。
  * @param  {NodeList|Set|Iterator} nodes 节点集/迭代器
  * @param  {Function} get 取值回调，可选
  * @param  {Document} doc 文档对象
@@ -4171,7 +4239,7 @@ function domManip( node, cons, clone, event ) {
  */
 function fragmentNodes( nodes, get, doc ) {
     // 注记：
-    // 因存在节点移出可能，不可用values原生迭代；
+    // 因存在节点移出可能，不可用values原生迭代（改变迭代次数）。
     // 扩展运算符用于Set数据。
     nodes = $A(nodes) || [...nodes];
 
@@ -4824,7 +4892,8 @@ const Event = {
      */
     clone( to, src ) {
         if (to === src) {
-            throw new Error('Cannot clone events on the same element');
+            window.console.error('Clone events on a same element.');
+            return;
         }
         let _fns = this.store.get(src);
 

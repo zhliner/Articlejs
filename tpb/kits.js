@@ -69,7 +69,8 @@
 
 const Util = {
     /**
-     * 相对定位检索。
+     * 二阶检索/爬树搜寻。
+     *
      * 原理：
      * - 通过与目标元素最近的共同祖先容器为起点，向下检索目标元素；
      * - 格式：box@val slr
@@ -121,18 +122,49 @@ const Util = {
      *   这是便于无需该属性的检索，如："form@ slr"，无data-id约束。
      *   如果需要基于单纯data-id属性的约束，可构造如 "box@ [data-id]"。
      *
+     *
+     * 修订：@2019.0709
+     * - UpSlr/DownSlr  用 / 分隔上下向选择器
+     * - :XX  前置 : 表示相对ID，即 [data-id='XX']
+     *
+     * 例：
+     * /            单独的 / 表示起点元素自身
+     * 2/           祖父元素（2级，父的父）
+     * form/        起点元素上层首个<form>元素
+     * :xxx/        起点元素上层首个相对ID为 xxx 的元素。[data-id='xxx']
+     *
+     * />b          起点元素的<b>子元素
+     * /:xyz        起点元素内相对ID为 xyz 的元素。[data-id='xyz']
+     * /p:xyz       起点元素内相对ID为 xyz 的<p>元素。p[data-id='xyz']
+     * /p: >b       起点元素内存在相对ID属性的<p>元素的<b>子元素。p[data-id]>b
+     * /p:xyz >b    起点元素内相对ID为 xyz 的<p>元素的<b>子元素。p[data-id='xyz']>b
+     * /p >b        起点元素内匹配 p>b 选择器的元素
+     *
+     * div/:xyz     起点元素之上首个<div>内相对ID为 xyz 的元素
+     * 3/:xyz       起点元素之上第3层父节点内相对ID为 xyz 的元素
+     *
+     * #some        全局ID检索
+     * /.name       起点元素内普通类名检索
+     * /:name       起点元素内相对ID为 name 的元素。[data-id='name']
+     *
+     * 注记：
+     * 相对ID不再有“准唯一性”的逻辑，只是 [data-id=XX] 的简写形式，
+     * 目标是否多选，由用户使用不同的接口决定（query）。
+     *
      * @param  {String}  fmt 标识串（外部trim）
      * @param  {Element} beg 起点元素
-     * @param  {Boolean} one 单一匹配，可选
-     * @return {Queue|Element|null} 目标元素（集）
+     * @param  {Function} query 检索方法，window.$ 或 window.$.get
+     * @return {Collector|Element|null} 目标元素（集）
      */
-    $find( fmt, beg, one ) {
+    $find( fmt, beg, query ) {
+        //? ...
+
         if (fmt == '@') return beg;
 
         let _pair = beg && ridSplit(fmt);
 
         if (!_pair) {
-            return query(beg, fmt, one);
+            return querys(beg, fmt, one);
         }
         return ridFind( ..._pair, beg, one );
     },
@@ -1167,7 +1199,7 @@ function ridChildren( id, ext, ctx, one ) {
     if (ext) {
         _slr += ' ' + ext;
     }
-    return query( ctx, _slr, one === undefined ? !ext : one );
+    return querys( ctx, _slr, one === undefined ? !ext : one );
 }
 
 
@@ -1178,7 +1210,7 @@ function ridChildren( id, ext, ctx, one ) {
  * @param  {Boolean} one 单一检索
  * @return {Element|Queue|null}
  */
-function query( ctx, slr, one ) {
+function querys( ctx, slr, one ) {
     return one ? $.One(slr, ctx) : $(slr, ctx);
 }
 

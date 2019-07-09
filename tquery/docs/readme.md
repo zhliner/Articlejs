@@ -292,23 +292,58 @@ scope: {Boolean}    // <style>元素的一个可选属性。
 
 ## 节点操作
 
-### [$.before( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.before.md)
+### [$.before( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.before.md)
+
+在 `node` 元素或文本节点的前面插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+
+取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
+
+> **注：**<br>
+> 集合版有不一样的名称：`.insertBefore( to: node, clone: boolean, event: boolean, eventdeep: boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
 
 
-### [$.after( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.after.md)
+### [$.after( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.after.md)
+
+在 `node` 元素或文本节点的后面插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+
+取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
+
+> **注：**<br>
+> 集合版有不一样的名称：`.insertAfter( to: node, clone: boolean, event: boolean, eventdeep: boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
 
 
-### [$.prepend( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.prepend.md)
+### [$.prepend( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.prepend.md)
+
+在 `el` 元素内的前端插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+
+取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
+
+> **注：**<br>
+> 集合版有不一样的名称：`.prependTo( to: Element, clone: boolean, event: boolean, eventdeep: boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
 
 
-### [$.append( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.append.md)
+### [$.append( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.append.md)
+
+在 `el` 元素内的末尾插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+
+取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
+
+> **注：**<br>
+> 集合版有不一样的名称：`.appendTo( to: Element, clone: boolean, event: boolean, eventdeep: boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
 
 
-### [$.replace( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.replace.md)
+### [$.replace( el: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.replace.md)
+
+用数据源节点/集替换 `el` 元素或文本节点。数据源节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+
+取值回调接口：`function( el ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
 
 
-### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set<any> | Iterator<any>, clone: boolean, event: boolean ): Node | [Node]]($.fill.md)
+### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.fill.md)
 
+在 `el` 元素内填充节点/集，清除原来的内容。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+
+取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
 
 
 ### [$.wrap( node: Node, box: html | Element | Function ): Element | false]($.wrap.md)
@@ -357,9 +392,9 @@ scope: {Boolean}    // <style>元素的一个可选属性。
 > 如果您不理解 `level` 参数的用途，说明您不需要它，简单忽略即可。<br>
 
 
-### [$.clone( el: Node, event: boolean, deep?: boolean ): Node]($.clone.md)
+### [$.clone( el: Node, event: boolean, deep?: boolean, eventdeep?: boolean ): Node]($.clone.md)
 
-对 `el` 节点进行克隆，返回克隆的新节点。`event` 和 `deep` 两个参数仅适用于元素，如果需要对注册的事件处理器一并克隆，传递 `event` 为 `true` 即可。默认深层克隆（`deep` 为真）。
+对 `el` 节点/元素进行克隆，返回克隆的新节点/元素。`event`、`deep` 和 `eventdeep` 三个参数仅适用于元素，分别表示 `el` 元素事件处理器的克隆、元素节点的深层克隆（可选，默认为 `true`）、以及对深度克隆后子孙元素上事件处理器的克隆（可选，默认为 `false`）。
 
 
 ### [$.scrollTop( el: Document | Window | Element, val: number ): this]($.scrollTop.md)
@@ -533,20 +568,30 @@ scope: {Boolean}    // <style>元素的一个可选属性。
 如果 `el` 是文档对象（如 document）或窗口（如 window），可以获取其宽度（但不可设置）。与 `$.height` 接口相同，始终针对元素的内容部分，与 `box-sizing` 值无关。
 
 
-### [$.innerHeight( el: Element | Document | Window ): number]($.innerHeight.md)
+### [$.innerHeight( el: Element ): number]($.innerHeight.md)
 
-获取 `el` 元素的内部高度（包含 `padding` 部分但不包含 `border` 部分）。该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口（需要减去 `padding` 部分）。
-
-
-### [$.innerWidth( el: Element | Document | Window ): number]($.innerWidth.md)
+获取 `el` 元素的内部高度（包含 `padding` 部分但不包含 `border` 部分）。该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口。
 
 
-### [$.outerHeight( el: Element | Document | Window, margin: boolean ): number]($.outerHeight.md)
+### [$.innerWidth( el: Element ): number]($.innerWidth.md)
+
+获取 `el` 元素的内部宽度（包含 `padding` 部分但不包含 `border` 部分）。该接口不包含设置目标宽度的功能，如果需要请使用 `$.width` 接口。
 
 
-### [$.outerWidth( el: Element | Document | Window, margin: boolean ): number]($.outerWidth.md)
+### [$.outerHeight( el: Element, margin?: boolean ): number]($.outerHeight.md)
+
+获取 `el` 元素的外围高度（包含 `border` 部分，可选的包含 `margin` 部分）。该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口。
 
 
+### [$.outerWidth( el: Element, margin?: boolean ): number]($.outerWidth.md)
+
+获取 `el` 元素的外围宽度（包含 `border` 部分，可选的包含 `margin` 部分）。该接口不包含设置目标宽度的功能，如果需要请使用 `$.width` 接口。
 
 
 ## 事件扩展
+
+
+## 原生事件调用
+
+
+## 实用小工具
