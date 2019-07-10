@@ -332,11 +332,11 @@ scope: {Boolean}    // <style>元素的一个可选属性。
 > 集合版有不一样的名称：`.appendTo( to: Element, clone: boolean, event: boolean, eventdeep: boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
 
 
-### [$.replace( el: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.replace.md)
+### [$.replace( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.replace.md)
 
-用数据源节点/集替换 `el` 元素或文本节点。数据源节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+用数据源节点/集替换 `node` 元素或文本节点。数据源节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
 
-取值回调接口：`function( el ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
+取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
 
 
 ### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.fill.md)

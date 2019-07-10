@@ -93,7 +93,7 @@
         // 检索元素或元素集。
         // 选择器支持“>”表示上下文元素限定。
         // fn: {String} querySelector[All]
-        $find = ( slr, ctx, fn ) => subslr.test(slr) ? $sub( slr, ctx, s => ctx[fn](s) ) : ctx[fn](slr || null),
+        $find = ( slr, ctx, fn ) => subslr.test(slr) ? $sub(slr, ctx, s => ctx[fn](s)) : ctx[fn](slr || null),
 
         // 单一目标。
         // slr 首字符 > 表示当前上下文父级限定。
@@ -179,8 +179,10 @@
 
         // 并列选择器起始 > 模式
         // 如：`>p > em, >b a`
-        // 注：正则表达的后行断言在 ES2018 中引入，仅部分浏览器支持。
-        subslr = /^>|(?<=,\s*)>/g,
+        // 注：后行断言在 ES2018 中引入，仅部分浏览器支持。
+        subslr = /^>|(?<=,\s*)>/,
+        // 用于替换（+g）
+        gsubslr = new RegExp(subslr, 'g'),
 
         // 伪Tag开始字符匹配（[）
         // 注：前置\时为转义，不匹配，偶数\\时匹配。
@@ -217,7 +219,7 @@
         // - 放宽数字匹配范围（Number）。
         // - 允许常用全角标点符号（，、。：；！？「」『』‘’“”等）。
         // 注记：
-        // \p{} 的 Unicode 属性类在 ES2018 中引入，目前仅部分浏览器支持。
+        // \p{} 的Unicode属性类在 ES2018 中引入，仅部分浏览器支持。
         uriComponentX = /[^\p{Alphabetic}\p{Mark}\p{Number}\p{Connector_Punctuation}\p{Join_Control}，、。：；！？「」『』‘’“”]/gu,
 
         // SVG元素名称空间。
@@ -352,7 +354,7 @@ function $sub( slr, ctx, handle ) {
         hackAttr(ctx, hackFix);
 
         return handle(
-            slr.replace( subslr, `${ctx.nodeName}[${hackFix}]>`)
+            slr.replace( gsubslr, `${ctx.nodeName}[${hackFix}]>`)
         );
 	}
 	catch (e) {
@@ -372,7 +374,8 @@ function $sub( slr, ctx, handle ) {
  * @return {String} 属性选择器
  */
 function hackAttr( ctx, attr ) {
-	if (! ctx[ownerToken] ) {
+    // 属性测试容错同名
+	if ( !ctx.hasAttribute(attr) ) {
         ctx[ ownerToken ] = true;
 		ctx.setAttribute( attr, '' );
 	}
@@ -1043,7 +1046,7 @@ Object.assign(tQuery, {
     /**
      * 获取直接父元素。
      * 可用可选的选择器或测试函数检查是否匹配。
-     * @param  {Element} el 参考元素
+     * @param  {Element} el 目标元素
      * @param  {String|Function} slr 选择器或测试函数，可选
      * @return {Element|null}
      */
@@ -1058,9 +1061,9 @@ Object.assign(tQuery, {
 
 
     /**
-     * 获取参考元素的上级元素集。
+     * 获取目标元素的上级元素集。
      * 可用可选的选择器或测试函数进行过滤。
-     * @param  {Element} el 当前元素
+     * @param  {Element} el 目标元素
      * @param  {String|Function} slr 选择器或测试函数，可选
      * @return {[Element]}
      */
@@ -1117,7 +1120,7 @@ Object.assign(tQuery, {
         if (!isFunc(_fun)) {
             return null;
         }
-        while (el && !_fun(el, _i++)) {
+        while ( el && !_fun(el, _i++) ) {
             el = el.parentElement;
         }
         return el;

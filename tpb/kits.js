@@ -26,13 +26,29 @@
 (function( $, K ) {
 
     const
-        // 相对ID
-        // 详见下面 $find 说明。
-        __Rid = 'data-id',
+        // 二阶选择器分隔符（/）。
+        // 支持前置奇数个\转义字符转义为普通/字符。
+        // 注：后行断言（ES2018）。
+        __reSplit = /(?<!\\)\/|(?<=[^\\](?:\\\\)+)\//,
 
         // 相对ID标志匹配
-        // 结果：'x@' 或 '\\@'
-        __reRID = /(?:[^\\]|\\.)@/,
+        // 用于提取相对ID（包含前置冒号），支持前置一个反斜线转义冒号为普通字符。
+        // 如 `div/p:xyz >b` => `:xyz`
+        //
+        // CSS标识值匹配：/(?:\\.|[\w-]|[^\0-\xa0])+/
+        // http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
+        //
+        // 注：
+        // 增加冒号后空白匹配，以支持无值的相对ID：
+        //      `div/p: >b`  => `:` => `div/p[data-id]>b`
+        //      `div/p:>b`   => `:` => 同上
+        //      'div/p:`    => `:` => `div/p[data-id]`
+        //      'div/p:xyz` => `:` => `div/p[data-id="xyz"]`
+        // 使用后行断言（ES2018）。
+        // g标记仅用于替换操作。
+        __reRID = /(?<!\\):(?:\\.|[\w-]|[^\0-\xa0]|\s*)+/g,
+
+
 
         // 单引号匹配
         // 前置偶数\时匹配，奇数时不匹配。
@@ -72,63 +88,22 @@ const Util = {
      * 二阶检索/爬树搜寻。
      *
      * 原理：
-     * - 通过与目标元素最近的共同祖先容器为起点，向下检索目标元素；
-     * - 格式：box@val slr
-     * - “@”为相对ID标志符，前段父级定位，后为子级元素相对ID属性值，
-     *   空格之后可跟普通选择器（slr），用于进一步检索；
-     * - 如不包含该字符，视为普通选择器，在起点元素内检索；
-     * - 未指定起点元素或为ID（#xxx）检索时，为全局检索（忽略@）；
+     * 通过与目标元素最近的共同祖先容器为起点，向下检索目标元素。
+     * 这可以缩小搜索范围、提高效率，还可以降低目标标识名的非重复性要求（可以更简单）。
      *
-     * box@val slr {
-     *  	box 向上至共同祖先容器的层级数或目标选择器
-     *  	val 共同容器之内，目标元素相对ID属性值（不含空格）
-     *  	slr 从目标元素再向下检索的选择器（扩展查询）
-     *  		如：'@abc >b' => '[data-id="abc"] >b'；
-     * }
-     * box 值 {
-     *  	0:  当前元素即为共同祖先容器，目标元素在内部；
-     *  	1:  上升一级，父元素为共同容器，即检索兄弟元素；
-     *  	x:  若为非数值，视为目标容器选择器，如上级表单 form@；
-     * }
-     * 注意：
-     * - box 的0值可省略不写，即“@val”的形式也可；
-     * - 如果目标就是祖先容器本身，val无值，即“box@”；
-     * - 单字符“@”返回起点元素本身，假值返回一个空集或null；
+     * 格式：UpSlr/DownSlr
+     * UpSlr:
+     *      {Number}    表示递升的层级。
+     *      {String}    向上检索匹配的CSS选择器，不含起点元素。
+     * DownSlr:
+     *      {String}    普通的CSS选择器，支持相对ID。
      *
-     * 返回：
-     * - 如果指定val部分（data-id）且为终端匹配，默认返回首个匹配；
-     *   （注：data-id被赋予一个“准唯一性”概念）
-     * - 未指定val或还包含slr部分时，根据one参数匹配全部或单一检索；
-     * 例：
-     *   "@"    	起点元素本身
-     *   "@val"  	起点元素内data-id为“val”的首个元素（单一）
-     *   "@@xx" 	起点元素内data-id值为“@xx”的首个元素，第二个@无特殊含义
-     *   "2@" 		父元素的父元素
-     *   "1@abc" 	兄弟元素中首个data-id为“abc”的元素
-     *   "form@" 	最近的父级表单元素本身
-     *   "div@ >i" 	最近的父级div元素的<i>直接子元素集
-     *   "@ >b" 	起点元素内的直接<b>子元素集。注意空格
-     *   "@xx i" 	起点元素内data-id=xx的元素的<i>子孙元素集
-     *   "#xyz >i" 	ID为xyz的元素的<i>直接子元素集（常规查询）
-     *   "div p" 	常规选择器查询
-     *
-     * 记忆要点：
-     * 1. @之前向上检索，@之后向下检索。ID直接检索。空格扩展查询。
-     * 2. 纯粹的相对ID检索单个元素，data-id拥有准“唯一性”。
-     * 3. 复合型选择器检索多个元素，或由one参数强制规定。
-     *
-     * 注记：
-     * - "@ xx" 中的空白不设计为属性的存在性约束（[data-id]），
-     *   这是便于无需该属性的检索，如："form@ slr"，无data-id约束。
-     *   如果需要基于单纯data-id属性的约束，可构造如 "box@ [data-id]"。
-     *
-     *
-     * 修订：@2019.0709
-     * - UpSlr/DownSlr  用 / 分隔上下向选择器
-     * - :XX  前置 : 表示相对ID，即 [data-id='XX']
+     * 相对ID：
+     *      :XX     前置冒号（:）表示相对ID，即data-id属性的值。如：[data-id='XX']
      *
      * 例：
      * /            单独的 / 表示起点元素自身
+     * 0/           0上级，当前起点（同上）
      * 2/           祖父元素（2级，父的父）
      * form/        起点元素上层首个<form>元素
      * :xxx/        起点元素上层首个相对ID为 xxx 的元素。[data-id='xxx']
@@ -148,26 +123,27 @@ const Util = {
      * /:name       起点元素内相对ID为 name 的元素。[data-id='name']
      *
      * 注记：
-     * 相对ID不再有“准唯一性”的逻辑，只是 [data-id=XX] 的简写形式，
-     * 目标是否多选，由用户使用不同的接口决定（query）。
+     * 相对ID表达一定范围内的唯一性逻辑，这只是一种松散的概念约定。
+     * 在更宽的范围内，通常可以检索多个相同ID的目标元素，这由检索方法确定（query）。
      *
      * @param  {String}  fmt 标识串（外部trim）
-     * @param  {Element} beg 起点元素
+     * @param  {Element} beg 起点元素，可为null
      * @param  {Function} query 检索方法，window.$ 或 window.$.get
      * @return {Collector|Element|null} 目标元素（集）
      */
     $find( fmt, beg, query ) {
-        //? ...
-
-        if (fmt == '@') return beg;
-
-        let _pair = beg && ridSplit(fmt);
+        if (fmt == '/' || fmt == '0/') {
+            return beg;
+        }
+        let _pair = beg && fmtSplit(fmt);
 
         if (!_pair) {
-            return querys(beg, fmt, one);
+            return query( parseRID(fmt), beg );
         }
-        return ridFind( ..._pair, beg, one );
+        return query(_pair[1], closest(beg, _pair[0]));
     },
+
+
 
 
     /**
@@ -176,7 +152,7 @@ const Util = {
      * - 默认取属性值（prop）；
      * fmt：{
      *  	'=xx' 	attr('xx')。元素特性值，
-     *  	'~xx' 	css('xx')。元素样式值（计算）
+     *  	'%xx' 	css('xx')。元素样式值（计算）
      *  	'$xx' 	$系获取。如 $.text(el)
      *  	'-xx' 	prop('-xx')。data-xx属性值（tQuery支持）
      *  	'xxx' 	prop('xxx')。元素属性值
@@ -232,7 +208,7 @@ const Util = {
 
         switch (fmt[0]) {
             case '=': return $.attr(el, _n);
-            case '~': return $.css(el, _n);
+            case '%': return $.css(el, _n);
             case '$': return $[_n](el);
         }
         return $.prop(el, fmt);
@@ -386,26 +362,6 @@ const Util = {
                 str.substring(0, _pos),
                 str.substring(_pos).replace(sep, '')
             ];
-    },
-
-
-    /**
-     * 后行断言求下标。
-     * - 对特定后行断言匹配式求真正目标位置；
-     * 匹配式：
-     * - 匹配目标字符但不包含前置反斜线的情况；
-     * - 格式如：/(?:[^\\]|\\.)A/
-     *   => 匹配 A 但不包含 \A 的情况；
-     * - 必然有一个前置字符，不处理A在首位的情况；
-     *
-     * @param  {String} fmt 格式串
-     * @param  {RegExp} re  特定格式后行匹配式
-     * @return {Number}
-     */
-    behindIndex( fmt, re ) {
-        let _idx = fmt.search(re);
-
-        return _idx < 0 ? -1 : _idx + (fmt[_idx] == '\\' ? 2 : 1);
     },
 
 
@@ -759,7 +715,7 @@ class Spliter {
 // - 一般地，参数用于描述“是什么”，“-”用于分级；
 // - 选项通常用于表达一种“开关”（设置或取消），动态；
 //
-class PbVal {
+class PBval {
     /**
      * @param {String} val 混合值串
      */
@@ -896,7 +852,7 @@ class PbVal {
 //
 // PB元素操作类。
 //
-class PbElem {
+class PBelem {
     /**
      * @param {Element} el 目标元素
      * @param {String} attr PB属性名
@@ -1100,118 +1056,61 @@ function argsParse( args ) {
 }
 
 
-//-- 相对ID辅助 ---------------------------------------------------------------
 
 
 /**
- * 相对ID解构。
- * - 支持反斜线转义@字符（无特殊含义）；
- * 注记：首字符为@时单独检测，否则反斜线无法判断。
- * @param  {String} slr 选择器格式串
- * @return {[String, String]} 选择器对[上，下]
+ * 向上检索目标元素。
+ * @param {Element} el 起点元素
+ * @param {String|Number} slr 选择器或递升层数
  */
-function ridSplit( fmt ) {
-    let _pos = passRID(fmt) ? ridIndex(fmt) : -1;
+ function closest( el, slr ) {
+    if (! slr) {
+        return el;
+    }
+    return typeof slr == 'number' ?
+        $.closest( el, (el, i) => i == slr ) :
+        // 从父级开始匹配（实用）
+        $.closest(el.parentElement, slr);
+}
 
-    return _pos >= 0 &&
-    [
-        fmt.substring(0, _pos),
-        fmt.substring(_pos + 1)
+
+/**
+ * 二阶检索选择器解构。
+ * - 上向选择器可能是一个数值。
+ * - 会解析替换相对ID。
+ * - 无法切分时返回 false。
+ * @param  {String} slr 选择器格式串
+ * @return {[String|Number, String]|false} 选择器对[上，下]
+ */
+function fmtSplit( fmt ) {
+    if (!__reSplit.test(fmt)) {
+        return false;
+    }
+    let _i = fmt.match(__reSplit).index,
+        _u = fmt.substring(0, _i++);
+
+    return [
+        Math.abs(_u) || parseRID(_u),
+        parseRID( fmt.substring(_i) )
     ];
 }
 
 
 /**
- * 有效分隔符@下标。
- * - 排除前置反斜线转义的情况；
- * @param  {String} fmt 格式串
- * @return {Number}
+ * 解析相对ID。
+ * 返回解析替换后的选择器串。
+ * 注：正则匹配结果首字符为冒号（:）
+ * @param  {String} fmt 二阶选择器串
+ * @return {String} 正常选择器
  */
-function ridIndex( fmt ) {
-    return fmt[0] == '@' ? 0 : Util.behindIndex(fmt, __reRID);
-}
-
-
-/**
- * 是否提取RID。
- * @param  {String} fmt 格式串
- * @return {Boolean}
- */
-function passRID( fmt ) {
-    let _ch = fmt[0];
-    return _ch && _ch != '#' && _ch != '>';
-}
-
-
-/**
- * 用相对ID检索。
- * @param  {String} up   向上检索标识
- * @param  {String} down 向下检索标识
- * @param  {Element} ctx 起点元素
- * @param  {Boolean} one 检索单个元素
- * @return {Queue|Element|null} 结果（集）
- */
-function ridFind( up, down, ctx, one ) {
-    ctx = ridParent( up, ctx );
-
-    return down ? ridChildren(...Util.rePair(down, /\s+/), ctx, one) : ctx;
-}
-
-
-/**
- * 向上定位父级目标元素。
- * - 上溯层次支持数值指定，0表示当前元素；
- * - 字符串选择器从父元素开始测试匹配；
- *
- * @param  {Selector|Number} slr 上溯选择器或层次值
- * @param  {Element} cur 当前元素
- * @return {Element} 目标容器元素
- */
-function ridParent( slr, cur ) {
-    let _n = slr ? parseInt(slr) : 0;
-
-    if (_n > 0) {
-        while (_n--) cur = cur.parentNode;
-        // 注记：
-        // 层级数应当准确指定，不检查超出文档错误。
-        // if cur == null... error
-    }
-    // NaN => closest
-    return _n <= 0 ? cur : $.closest(cur.parentNode, slr);
-}
-
-
-/**
- * 获取子元素（集）。
- * - 根据相对ID和可选的扩展选择器检索元素；
- * @param  {String} id    相对ID值
- * @param  {Element} ctx  容器元素
- * @param  {Selector} ext 进阶选择器
- * @param  {Boolean} one  单一检索
- * @return {Queue|Element|null} 目标元素（集）
- */
-function ridChildren( id, ext, ctx, one ) {
-    let _slr = '';
-
-    if (id) {
-        _slr = `[${__Rid}="${id}"]`;
-    }
-    if (ext) {
-        _slr += ' ' + ext;
-    }
-    return querys( ctx, _slr, one === undefined ? !ext : one );
-}
-
-
-/**
- * 单一或多检索。
- * @param  {Element} ctx 检索上下文
- * @param  {String} slr  选择器
- * @param  {Boolean} one 单一检索
- * @return {Element|Queue|null}
- */
-function querys( ctx, slr, one ) {
-    return one ? $.One(slr, ctx) : $(slr, ctx);
+function parseRID( fmt ) {
+    return fmt.replace(
+        __reRID,
+        v => {
+            v = v.substring(1).trim();
+            return v ? `[data-id="${v}"]` : "[data-id]";
+        }
+    );
 }
 
 
@@ -1220,9 +1119,9 @@ function querys( ctx, slr, one ) {
 /////////////////////////////
 K.Util 		= Util;
 K.Spliter 	= Spliter;
-K.PbVal 	= PbVal;
-K.PbElem 	= PbElem;
+K.PBval 	= PBval;
+K.PBelem 	= PBelem;
 K.Loader 	= Loader;
 
 
-})( tQuery.proxyOwner(), Tpb.Kits );
+})( window.$, Tpb.Kits );
