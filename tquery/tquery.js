@@ -5222,10 +5222,7 @@ const Event = {
         if (slr) {
             evn = this.sendon[evn] || evn;
         }
-        return [
-            evn,
-            slr ? !!this.captures[evn] : false
-        ];
+        return [ evn, slr ? !!this.captures[evn] : false ];
     },
 
 
