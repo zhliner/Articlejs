@@ -338,12 +338,18 @@ scope: {Boolean}    // <style>元素的一个可选属性。
 
 取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
 
+> **注：**<br>
+> 集合版有不一样的名称：`.replaceAll( node: Node, clone: boolean, event: boolean, eventdeep: boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆替换的节点集或集合自身。
+
 
 ### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: boolean, event: boolean, eventdeep: boolean ): Node | [Node]]($.fill.md)
 
 在 `el` 元素内填充节点/集，清除原来的内容。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
 
 取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
+
+> **注：**<br>
+> 集合版有不一样的名称：`.fillTo( el: Element, clone: boolean, event: boolean, eventdeep: boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆填充的节点集或集合自身。
 
 
 ### [$.wrap( node: Node, box: html | Element | Function ): Element | false]($.wrap.md)
@@ -589,6 +595,22 @@ scope: {Boolean}    // <style>元素的一个可选属性。
 
 
 ## 事件扩展
+
+### [$.on( el: Element, evn: string | Object, slr: string, handle: Function ): this]($.on.md)
+
+在 `el` 元素上绑定 `evn` 事件的处理器。`evn` 支持空格分隔的多个事件名，也可以是一个**事件名/处理器**对的配置对象。如果传递 `slr` 实参非假则为委托（`delegate`）模式，事件在冒泡到匹配该选择器的元素时触发。`handle` 可以是一个简单的函数，也可以是一个支持 `EventListener` 接口的对象（包含 `handleEvent` 方法），或者作为特例可以传递 `false` 和 `null` 两个值，分别表示「停止事件默认行为」的处理器，和「停止事件默认行为并停止事件冒泡」的处理器。
+
+> **注：**
+> 多次绑定同一个事件名和相同的处理器函数是有效的。
+
+
+### [$.off( el: Element, evn: string | Object, slr: string, handle: Function ): this]($.off.md)
+
+
+### [$.one( el: Element, evn: string | Object, slr: string, handle: Function ): this]($.one.md)
+
+
+### [$.trigger( el: Element, evn: string | CustomEvent , extra: any, bubble?: boolean, cancelable?: boolean ): this]($.trigger.md)
 
 
 ## 原生事件调用

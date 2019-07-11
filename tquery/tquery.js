@@ -352,10 +352,7 @@ function $sub( slr, ctx, handle ) {
 	}
 	try {
         hackAttr(ctx, hackFix);
-
-        return handle(
-            slr.replace( gsubslr, `${ctx.nodeName}[${hackFix}]>`)
-        );
+        return handle( hackSelector(ctx, slr, hackFix) );
 	}
 	catch (e) {
 		window.console.error(e);
@@ -392,6 +389,17 @@ function hackAttrClear( ctx, attr ) {
 		delete ctx[ ownerToken ];
 		ctx.removeAttribute( attr );
 	}
+}
+
+
+/**
+ * 选择器串hack处理。
+ * @param {Element} ctx 上下文元素
+ * @param {String} slr 选择器（可能包含>）
+ * @param {String} fix Hack标识串
+ */
+function hackSelector( ctx, slr, fix ) {
+    return slr.replace( gsubslr, `${ctx.nodeName}[${fix}]>`);
 }
 
 
@@ -1174,8 +1182,8 @@ Object.assign(tQuery, {
 
     /**
      * 包含过滤。
-     * - 目标元素（集）被本集合中元素作为子级元素包含；
-     * - 或目标选择器与集合中元素的子级元素匹配；
+     * - 目标元素（集）被本集合中元素作为子级元素包含。
+     * - 或目标选择器与集合中元素的子级元素匹配。
      * 测试调用：func(el)
      * @param  {NodeList|Array|LikeArray} els 目标元素集
      * @param  {String|Function|Element} slr 筛选器
@@ -1815,20 +1823,25 @@ Object.assign(tQuery, {
 
     //== 事件扩展 =============================================================
     // 事件名支持空格分隔的名称序列。
-    // 事件名不支持名称空间。
+    // 事件名位置实参支持「事件名/处理器」名值对的配置对象。
+    // 用户处理器支持实现了 EventListener 接口的对象（包含 handleEvent 方法）。
 
 
     /**
      * 绑定事件处理。
      * 多次绑定同一个事件名和相同的调用函数是有效的。
      * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名（序列）
+     * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器，可选
      * @param  {Function} handle 处理函数
      * @return {this}
      */
     on( el, evn, slr, handle ) {
-        eventBinds('on', el, evn, slr, handle);
+        handle = eventHandle(handle);
+
+        if (handle) {
+            eventBinds('on', el, evn, slr, handle);
+        }
         return this;
     },
 
@@ -1837,13 +1850,19 @@ Object.assign(tQuery, {
      * 移除事件绑定。
      * 仅能移除 on/one 方式绑定的处理器。
      * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名（序列）
+     * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器，可选
      * @param  {Function} handle 事件处理函数，可选
      * @return {this}
      */
     off( el, evn, slr, handle ) {
-        eventBinds('off', el, evn, slr, handle);
+        eventBinds(
+            'off',
+            el,
+            evn,
+            slr,
+            eventHandle(handle)
+        );
         return this;
     },
 
@@ -1852,13 +1871,17 @@ Object.assign(tQuery, {
      * 单次绑定。
      * 在事件被触发（然后自动解绑）之前，off 可以移除该绑定。
      * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名（序列）
+     * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器，可选
      * @param  {Function} handle 处理函数
      * @return {this}
      */
     one( el, evn, slr, handle ) {
-        eventBinds('one', el, evn, slr, handle);
+        handle = eventHandle(handle);
+
+        if (handle) {
+            eventBinds('one', el, evn, slr, handle);
+        }
         return this;
     },
 
@@ -1878,10 +1901,10 @@ Object.assign(tQuery, {
      * 滚动条滚动到指定位置。实际上只是简单调用box.scroll(x, y)触发scroll事件。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|Event..} evn 事件名或事件对象
+     * @param  {String|CustomEvent} evn 事件名或事件对象
      * @param  {Mixed} extra 发送数据
-     * @param  {Bollean} bubble 是否冒泡
-     * @param  {Bollean} cancelable 是否可取消
+     * @param  {Boolean} bubble 是否冒泡
+     * @param  {Boolean} cancelable 是否可取消
      * @return {this}
      */
     trigger( el, evn, extra, bubble = true, cancelable = true ) {
@@ -1889,7 +1912,7 @@ Object.assign(tQuery, {
             return;
         }
         if (typeof evn == 'string') {
-            if (evn in el && Event.nativeTrigger(evn)) {
+            if (evn in el && Event.byNative(evn)) {
                 // 原始参数传递
                 el[evn]( ...(isArr(extra) ? extra : [extra]) );
                 return this;
@@ -2379,7 +2402,10 @@ function _validMeth( node, meth ) {
 
 callableEvents
 .forEach( name =>
-    tQuery[name] = function (el, ...rest) { return (name in el) && el[name](...rest), this; }
+    // 接受参数传递，如 scroll(...)
+    tQuery[name] = function (el, ...rest) {
+        return (name in el) && el[name](...rest), this;
+    }
 );
 
 
@@ -4215,7 +4241,7 @@ const insertHandles = {
  * @param  {Boolean} clone 是否克隆
  * @param  {Boolean} event 是否克隆事件处理器（容器）
  * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
- * @return {Node|Fragment|null} 待插入节点或文档片段
+ * @return {Node|Fragment|null} 节点或文档片段
  */
 function domManip( node, cons, clone, event, eventdeep ) {
     if ( isFunc(cons) ) {
@@ -4788,7 +4814,7 @@ const Event = {
     // - focus 表单空间聚焦。
     // 注：
     // trigger会直接调用它们触发原生事件，而不会构造一个自定义事件发送。
-    // form:submit() 和 video:load() 不会触发相应事件，在此排除。
+    // form:submit() 和 video:load() 不触发相应事件，在此排除。
     //
     triggers: new Set([
         'blur',
@@ -4845,21 +4871,25 @@ const Event = {
 
     /**
      * 解除事件绑定。
-     * 解除绑定的同时会移除相应的存储记录（包括单次绑定）。
-     * 即：单次绑定在调用之前可以被解除绑定。
+     * - 解除绑定的同时会移除相应的存储记录（包括单次绑定）。
+     *   即：单次绑定在调用之前可以被解除绑定。
+     * - 传递事件名为假值会解除元素全部的事件绑定。
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
      * @param {String} slr 委托选择器，可选
      * @param {Function|Object} handle 处理函数/对象，可选
      */
     off( el, evn, slr, handle ) {
-        let [_evn, _cap] = this._evncap(evn, slr),
-            _map = this.store.get(el);
+        let _map = this.store.get(el);
 
         if (_map) {
-            for ( let fn of this.handles(_map, _evn, slr, handle) ) {
-                el.removeEventListener(_evn, fn, _cap);
-                _map.delete(fn);
+            if (! evn) {
+                this._clearAll( el, _map );
+            } else {
+                this._clearSome( el, _map, evn, slr, handle );
+            }
+            if (_map.size == 0) {
+                this.store.delete(el);
             }
         }
         return this;
@@ -4997,8 +5027,8 @@ const Event = {
 
     /**
      * 匹配委托目标。
-     * - slr限于子级匹配，支持“>*”直接子元素选择器。
-     * - 只返回最深的匹配元素，因此外部调用最多一次。
+     * 只返回最深的匹配元素，因此外部调用最多一次。
+     * 委托匹配不测试绑定元素自身（仅限子级元素）。
      * 注记：
      * 仅匹配一次可对节点树的嵌套产生约束，鼓励设计师尽量构造浅的节点树层次。
      *
@@ -5007,16 +5037,12 @@ const Event = {
      * @return {Element|null} 匹配元素
      */
     delegate( ev, slr ) {
-        let _box = ev.currentTarget,
-            _fun = null;
+        let _box = ev.currentTarget;
 
-        if (slr[0] === '>') {
-            let _els = tQuery.children(_box, slr.substring(1));
-            _fun = el => _els.includes(el);
-        } else {
-            _fun = el => $is(el, slr);
+        if (subslr.test(slr)) {
+            slr = hackSelector(_box, slr, hackFix);
         }
-        return this._closest( _fun, ev.target, _box )
+        return this._closest( el => $is(el, slr), ev.target, _box )
     },
 
 
@@ -5036,11 +5062,32 @@ const Event = {
 
 
     /**
-     * 是否为原生调用可触发事件的事件名。
-     * @param {String} evn 事件名
+     * 是否由原生调用触发。
+     * @param  {String} evn 事件名
+     * @return {Boolean}
      */
-    nativeTrigger( evn ) {
+    byNative( evn ) {
         return this.triggers.has(evn);
+    },
+
+
+    /**
+     * 特例：false处理器。
+     * 停止事件默认行为，用于用户简单注册。
+     */
+    falseHandle( ev ) {
+        ev.preventDefault();
+    },
+
+
+    /**
+     * 特例：null处理器。
+     * 停止事件默认行为并停止冒泡，用于用户简单注册。
+     * @param {Event} ev 事件对象
+     */
+    nullHandle( ev ) {
+        ev.preventDefault();
+        ev.stopPropagation();
     },
 
 
@@ -5066,6 +5113,29 @@ const Event = {
 
 
     /**
+     * 封装调用。
+     * - 普通函数处理器内的 this 为触发事件的当前元素。
+     * - 处理器返回false可以终止原生方法的调用（by trigger）。
+     * @param  {Function} handle 用户处理函数
+     * @param  {String} slr 委托选择器
+     * @param  {Event} ev 原生事件对象
+     * @return {Boolean}
+     */
+     _wrapCall( handle, slr, ev ) {
+        let _cur = slr ?
+            this.delegate(ev, slr) :
+            ev.currentTarget;
+
+        return _cur &&
+            handle.bind(_cur)(ev, this.targets(ev, _cur), slr) !== false &&
+            // 可能trigger的事件为原生事件
+            // 需要执行原生事件完成浏览器逻辑，如：
+            // form.submit(), video.load()。此类调用不会触发事件。
+            this._nativeCall(ev, _cur);
+    },
+
+
+    /**
      * 构造检测过滤函数。
      * - 三个检查条件可任意组合；
      * - 无参数调用返回真（是否绑定任意事件）；
@@ -5084,6 +5154,7 @@ const Event = {
         if (slr) _fns.push(_f2);
         if (handle) _fns.push(_f3);
 
+        // it: {event, handle, selector, once}
         return it => _fns.every( fn => fn(it) );
     },
 
@@ -5106,6 +5177,40 @@ const Event = {
 
 
     /**
+     * 解除事件绑定（全部）。
+     * @param  {Element} el 目标元素
+     * @param  {Map} map 目标元素的绑定记录
+     * @return {this}
+     */
+    _clearAll( el, map ) {
+        for (let [fn, obj] of map) {
+            let [_evn, _cap] = this._evncap(obj.event, obj.selector);
+            el.removeEventListener(_evn, fn, _cap);
+        }
+    },
+
+
+    /**
+     * 解除事件绑定（指定事件名）。
+     * Map: { bound-handler: {event, handle, selector, once} }
+     * @param  {Element} el 目标元素
+     * @param  {Map} map 目标元素的绑定记录
+     * @param  {String} evn 事件名
+     * @param  {String} slr 委托选择器，可选
+     * @param  {Function|Object} handle 处理函数/对象，可选
+     * @return {this}
+     */
+    _clearSome( el, map, evn, slr, handle ) {
+        let [_evn, _cap] = this._evncap(evn, slr);
+
+        for ( let fn of this.handles(map, _evn, slr, handle) ) {
+            el.removeEventListener(_evn, fn, _cap);
+            map.delete(fn);
+        }
+    },
+
+
+    /**
      * 获取事件名与捕获模式。
      * - 根据是否委托返回调整后的值；
      * 注：仅在委托模式下才需要调整事件名和捕获模式；
@@ -5121,28 +5226,6 @@ const Event = {
             evn,
             slr ? !!this.captures[evn] : false
         ];
-    },
-
-
-    /**
-     * 封装调用。
-     * 用户处理器返回false可以终止原生事件函数（如 click()）的调用。
-     * @param  {Function} handle 用户处理函数
-     * @param  {String} slr 委托选择器
-     * @param  {Event} ev 原生事件对象
-     * @return {Boolean}
-     */
-    _wrapCall( handle, slr, ev ) {
-        let _cur = slr === null ?
-            ev.currentTarget :
-            this.delegate(ev, slr);
-
-        return _cur &&
-            handle.bind(_cur)(ev, this.targets(ev, _cur), slr) !== false &&
-            // 可能trigger的事件为原生事件
-            // 需要执行原生事件完成浏览器逻辑，如：
-            // form.submit(), video.load()。此类调用不会触发事件。
-            this._nativeCall(ev, _cur);
     },
 
 
@@ -5175,14 +5258,16 @@ const Event = {
      * - 外部应保证根容器元素包含起点元素。
      *
      * @param  {Function} match 匹配测试函数 function(Element): Boolean
-     * @param  {Element} cur  起点元素
+     * @param  {Element} beg  起点元素
      * @param  {Element} root 限制根容器
      * @return {Element|null}
      */
-    _closest( match, cur, root ) {
-        while (cur !== root) {
-            if (match(cur)) return cur;
-            cur = cur.parentNode;
+    _closest( match, beg, root ) {
+        while (beg !== root) {
+            if ( match(beg) ) {
+                return beg;
+            }
+            beg = beg.parentNode;
         }
         return null;
     },
@@ -5191,9 +5276,26 @@ const Event = {
 
 
 /**
+ * 友好封装用户处理器。
+ * 对两个简单的值（false|null）封装为相应的处理器。
+ * 这是一个友好的语法糖。
+ * @param {Function|false|null} handle 用户处理器
+ */
+ function eventHandle( handle ) {
+    switch (handle) {
+        case null:
+            return Event.nullHandle;
+        case false:
+            return Event.falseHandle;
+    }
+    return handle;
+}
+
+
+/**
  * 事件批量绑定/解绑。
- * - 用于事件的on/off/one批量操作；
- * - evn支持“事件名序列: 处理函数”配置对象；
+ * - 用于事件的on/off/one批量操作。
+ * - evn支持“事件名序列: 处理函数”配置对象。
  *   此时slr依然有效（全局适用）。
  * @param {String} type 操作类型（on|off|one）
  * @param {Element} el  目标元素
