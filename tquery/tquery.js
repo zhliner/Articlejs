@@ -2098,24 +2098,16 @@ class Table {
      * @return {Collector|null} 删除的行元素集
      */
     removes( idx, size ) {
-        let _len = this._tbl.rows.length;
+        let _val = this._idxSize( idx, size || this._tbl.rows.length ),
+            _buf = [];
 
-        if (idx < 0) {
-            idx += _len;
+        if (_val == null) {
+            size = 0;
+        } else {
+            [idx, size] = _val;
         }
-        if (idx < 0 || idx >= _len) {
-            return null
-        }
-        if (size === undefined || idx+size > _len) {
-            size = _len - idx;
-        }
-        if (size === 0) {
-            return null;
-        }
-        let _buf = [];
-
-        // 集合会改变，故下标固定
         for (let i = 0; i < size; i++) {
+            // 集合会改变，故下标固定
             _buf.push( this._remove(idx) );
         }
         return new Collector(_buf);
@@ -2129,15 +2121,8 @@ class Table {
      * @return {Element|null} 删除的行元素
      */
     remove( idx ) {
-        let _rs = this._tbl.rows;
-
-        if (idx < 0) {
-            idx += _rs.length;
-        }
-        if (idx < 0 || idx >= _rs.length) {
-            return null;
-        }
-        return this._remove(idx);
+        idx = this._idxSize( idx );
+        return idx && this._remove(idx);
     }
 
 
@@ -2151,23 +2136,16 @@ class Table {
      * @return {Collector|null} 行元素集
      */
     gets( idx, size ) {
-        let _max = this._tbl.rows.length;
+        let _val = this._idxSize( idx, size || this._tbl.rows.length );
 
-        if (idx < 0) {
-            idx += _max;
-        }
-        if (idx < 0 || idx >= _max) {
-            return null;
-        }
-        if (size === undefined || idx+size > _max) {
-            size = _max - idx;
-        }
-        if (size === 0) {
-            return null;
+        if (_val == null) {
+            size = 0;
+        } else {
+            [idx, size] = _val;
         }
         return new Collector(
             tQuery.range(idx, size, true).map( i => this._tbl.rows[i] )
-        )
+        );
     }
 
 
@@ -2178,15 +2156,8 @@ class Table {
      * @return {Element|null} 表格行
      */
     get( idx ) {
-        let _rs = this._tbl.rows;
-
-        if (idx < 0) {
-            idx += _rs.length;
-        }
-        if (idx < 0 || idx >= _rs.length) {
-            return null;
-        }
-        return this._tbl.rows[idx];
+        idx = this._idxSize( idx );
+        return idx && this._tbl.rows[idx];
     }
 
 
@@ -2231,6 +2202,30 @@ class Table {
             return new Collector( tsec.rows[idx] );
         }
         return new Collector( tQuery.range(idx, rows, true).map( i => tsec.rows[i] ) );
+    }
+
+
+    /**
+     * 计算合法的起点和行数实参。
+     * @param {Number} idx 起点位置
+     * @param {Number} size 获取行数
+     */
+    _idxSize( idx, size ) {
+        let _max = this._tbl.rows.length;
+
+        if (idx < 0) {
+            idx += _max;
+        }
+        if (idx < 0 || idx >= _max) {
+            return null;
+        }
+        if (size === undefined) {
+            return idx;
+        }
+        if (idx + size > _max) {
+            size = _max - idx;
+        }
+        return [ idx, size > 0 ? size : 0];
     }
 
 
