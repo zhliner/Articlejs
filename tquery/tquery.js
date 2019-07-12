@@ -1208,8 +1208,8 @@ Object.assign(tQuery, {
     /**
      * 排除过滤。
      * - 从集合中移除匹配的元素；
-     * @param  {NodeList|Array|LikeArray} els 目标元素集
-     * @param  {String|Function|Element|Array} slr 排除条件
+     * @param  {NodeList|[Element]|LikeArray|Collector} els 目标元素集
+     * @param  {String|Function|Element|[Element]|Collector} slr 排除条件
      * @return {[Element]}
      */
     not( els, slr ) {
@@ -1832,12 +1832,12 @@ Object.assign(tQuery, {
      * 多次绑定同一个事件名和相同的调用函数是有效的。
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
-     * @param  {String} slr 委托选择器，可选
-     * @param  {Function} handle 处理函数
+     * @param  {String} slr 委托选择器
+     * @param  {Function|Object|false|null} handle 处理器函数或对象或特殊值
      * @return {this}
      */
     on( el, evn, slr, handle ) {
-        handle = eventHandle(handle);
+        handle = customHandle(handle);
 
         if (handle) {
             eventBinds('on', el, evn, slr, handle);
@@ -1852,7 +1852,7 @@ Object.assign(tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器，可选
-     * @param  {Function} handle 事件处理函数，可选
+     * @param  {Function|Object|false|null} handle 处理器函数或对象或特殊值，可选
      * @return {this}
      */
     off( el, evn, slr, handle ) {
@@ -1861,7 +1861,7 @@ Object.assign(tQuery, {
             el,
             evn,
             slr,
-            eventHandle(handle)
+            customHandle(handle)
         );
         return this;
     },
@@ -1872,12 +1872,12 @@ Object.assign(tQuery, {
      * 在事件被触发（然后自动解绑）之前，off 可以移除该绑定。
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
-     * @param  {String} slr 委托选择器，可选
-     * @param  {Function} handle 处理函数
+     * @param  {String} slr 委托选择器
+     * @param  {Function|Object|false|null} handle 处理器函数或对象或特殊值
      * @return {this}
      */
     one( el, evn, slr, handle ) {
-        handle = eventHandle(handle);
+        handle = customHandle(handle);
 
         if (handle) {
             eventBinds('one', el, evn, slr, handle);
@@ -5047,21 +5047,6 @@ const Event = {
 
 
     /**
-     * 事件目标对象集。
-     * @param  {Event} ev 事件对象（原生）
-     * @param  {Element} cur 当前目标元素
-     * @return {Object}
-     */
-    targets( ev, cur ) {
-        return {
-            origin:   ev.target,
-            delegate: ev.currentTarget,
-            current:  cur,
-        };
-    },
-
-
-    /**
      * 是否由原生调用触发。
      * @param  {String} evn 事件名
      * @return {Boolean}
@@ -5101,7 +5086,7 @@ const Event = {
      * - 支持EventListener接口，此时this为接口实现者本身。
      * @param  {Function} handle 用户调用
      * @param  {String} slr 选择器串，可选
-     * @return {Function} 处理函数
+     * @return {Function} 处理器函数
      */
     _handler( handle, slr = null ) {
         if ( !isFunc(handle) ) {
@@ -5113,24 +5098,29 @@ const Event = {
 
 
     /**
-     * 封装调用。
+     * 处理器封装。
      * - 普通函数处理器内的 this 为触发事件的当前元素。
-     * - 处理器返回false可以终止原生方法的调用（by trigger）。
+     * - 处理器返回false可以终止原生方法的调用（仅限trigger激发的元素上的方法）。
+     * 注：如果不是委托方式，targets.delegate 为未定义。
      * @param  {Function} handle 用户处理函数
      * @param  {String} slr 委托选择器
      * @param  {Event} ev 原生事件对象
      * @return {Boolean}
      */
-     _wrapCall( handle, slr, ev ) {
-        let _cur = slr ?
-            this.delegate(ev, slr) :
-            ev.currentTarget;
+    _wrapCall( handle, slr, ev ) {
+        let _cur = ev.currentTarget,
+            _evo = { origin: ev.target, current: _cur };
+
+        if ( slr ) {
+            _evo.delegate = _cur;
+            _cur = this.delegate(ev, slr);
+            _evo.current = _cur;
+        }
 
         return _cur &&
-            handle.bind(_cur)(ev, this.targets(ev, _cur), slr) !== false &&
-            // 可能trigger的事件为原生事件
-            // 需要执行原生事件完成浏览器逻辑，如：
-            // form.submit(), video.load()。此类调用不会触发事件。
+            handle.bind(_cur)(ev, _evo, slr) !== false &&
+            // trigger激发不触发原生事件的事件（submit/video:load），
+            // 调用事件执行函数完成浏览器逻辑。
             this._nativeCall(ev, _cur);
     },
 
@@ -5273,12 +5263,12 @@ const Event = {
 
 
 /**
- * 友好封装用户处理器。
+ * 惯用处理器封装。
  * 对两个简单的值（false|null）封装为相应的处理器。
- * 这是一个友好的语法糖。
+ * 仅用户友好（语法糖）。
  * @param {Function|false|null} handle 用户处理器
  */
- function eventHandle( handle ) {
+ function customHandle( handle ) {
     switch (handle) {
         case null:
             return Event.nullHandle;
