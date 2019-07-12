@@ -48,10 +48,10 @@
 构造并插入一个包含内容的 `<style>` 样式元素，或者一个引入外部CSS资源的 `<link href=...>` 元素，或者一个已经创建好的 `<style>` 或 `<link>` 元素。`data` 可以是一个配置对象：
 
 ```js
-href:  {String}     // <link>元素的CSS资源定位。
-rel:   {String}     // <link>元素的属性（stylesheet）。
-text:  {String}     // <style>元素的CSS代码，也是决定创建<style>或<link>的判断依据
-scope: {Boolean}    // <style>元素的一个可选属性。
+href:  String   // <link>元素的CSS资源定位。
+rel:   String   // <link>元素的属性（stylesheet）。
+text:  String   // <style>元素的CSS代码，也是决定创建<style>或<link>的判断依据
+scope: Boolean  // <style>元素的一个可选属性。
 ```
 
 传入配置对象构建或一个构建好的元素插入时，返回一个承诺对象（Promise），否则返回创建的 `<style>` 元素本身。

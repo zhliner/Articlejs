@@ -1983,16 +1983,21 @@ class Table {
      * @return {Element|null} 表标题元素
      */
     caption( text, ishtml ) {
+        let _cap = this._tbl.caption;
+
         switch (text) {
             case undefined:
-                return this._tbl.caption;
+                return _cap;
             case null:
-                return this._tbl.deleteCaption();
+                this._tbl.deleteCaption();
+                return _cap;
         }
-        let _cel = this._tbl.createCaption();
-        _cel[ishtml ? 'innerHTML' : 'textContent'] = text;
+        if (!_cap) {
+            _cap = this._tbl.createCaption();
+        }
+        _cap[ishtml ? 'innerHTML' : 'textContent'] = text;
 
-        return _cel;
+        return _cap;
     }
 
 
@@ -2044,9 +2049,9 @@ class Table {
 
     /**
      * 添加表头行。
-     * 简单的无参数调用返回表头元素，无表头元素时返回null。
+     * 无参数调用返回表头元素，无表头元素时返回null。
      * 传递创建参数时，如果不存在表头元素（THead）会新建。
-     * 传递idx参数为null时删除表头元素。
+     * 传递idx参数为null时删除表头元素，-1表示末尾之后。
      * @param  {Number} idx 插入位置
      * @param  {Number} rows 行数
      * @return {Element|Collector} 表头元素或新添加的行元素集
@@ -2066,7 +2071,7 @@ class Table {
      * 添加表脚行。
      * 简单的无参数调用返回表脚元素，无表脚元素时返回null。
      * 传递创建参数时，如果不存在表脚元素（TFoot）会新建。
-     * 传递idx参数为null时删除表脚元素。
+     * 传递idx参数为null时删除表脚元素，-1表示末尾之后。
      * @param  {Number} idx 插入位置
      * @param  {Number} rows 行数
      * @return {Element|Collector} 表脚元素或新添加的行元素集
@@ -2085,24 +2090,31 @@ class Table {
     /**
      * 删除多个表格行。
      * 行计数指整个表格，不区分head/body/foot。
-     * size为undefined表示起始位置之后全部行。
-     * size计数大于剩余行数，取剩余行数（容错超出范围）。
+     * - idx支持负数从末尾算起。
+     * - size为undefined表示起始位置之后全部行。
+     * - size计数大于剩余行数，取剩余行数（容错超出范围）。
      * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 删除数量
-     * @return {Collector} 删除的行元素集
+     * @return {Collector|null} 删除的行元素集
      */
     removes( idx, size ) {
         let _len = this._tbl.rows.length;
 
-        if (idx >= _len) {
+        if (idx < 0) {
+            idx += _len;
+        }
+        if (idx < 0 || idx >= _len) {
             return null
         }
         if (size === undefined || idx+size > _len) {
             size = _len - idx;
         }
+        if (size === 0) {
+            return null;
+        }
         let _buf = [];
 
-        // 集合改变，固定下标
+        // 集合会改变，故下标固定
         for (let i = 0; i < size; i++) {
             _buf.push( this._remove(idx) );
         }
@@ -2112,17 +2124,18 @@ class Table {
 
     /**
      * 删除表格行。
+     * idx支持负数从末尾算起。
      * @param {Number} idx 目标位置（从0开始）
-     * @return {Element} 删除的行元素
+     * @return {Element|null} 删除的行元素
      */
     remove( idx ) {
         let _rs = this._tbl.rows;
 
-        if (idx >= _rs.length) {
-            return null;
+        if (idx < 0) {
+            idx += _rs.length;
         }
-        if (idx === -1) {
-            idx = _rs.length - 1;
+        if (idx < 0 || idx >= _rs.length) {
+            return null;
         }
         return this._remove(idx);
     }
@@ -2131,19 +2144,26 @@ class Table {
     /**
      * 获取目标行集。
      * 表格行计数包含表头和表尾部分（不区分三者）。
+     * idx支持负数从末尾算起。
      * 不合适的参数会返回一个空集。
      * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 获取行数（undefined表示全部）
-     * @return {Collector} 行元素集
+     * @return {Collector|null} 行元素集
      */
     gets( idx, size ) {
         let _max = this._tbl.rows.length;
 
-        if (idx < -1 || size === undefined || idx+size > _max) {
+        if (idx < 0) {
+            idx += _max;
+        }
+        if (idx < 0 || idx >= _max) {
+            return null;
+        }
+        if (size === undefined || idx+size > _max) {
             size = _max - idx;
         }
         if (size === 0) {
-            return new Collector(null);
+            return null;
         }
         return new Collector(
             tQuery.range(idx, size, true).map( i => this._tbl.rows[i] )
@@ -2158,11 +2178,13 @@ class Table {
      * @return {Element|null} 表格行
      */
     get( idx ) {
-        if (idx < -1 || idx >= this._tbl.rows.length) {
-            return null;
+        let _rs = this._tbl.rows;
+
+        if (idx < 0) {
+            idx += _rs.length;
         }
-        if (idx === -1) {
-            idx = this._tbl.rows.length - 1;
+        if (idx < 0 || idx >= _rs.length) {
+            return null;
         }
         return this._tbl.rows[idx];
     }
