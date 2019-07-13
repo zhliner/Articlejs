@@ -296,9 +296,9 @@
 
         //
         // 可调用原生事件名。
-        // 它们被定义在元素上，包含 onXXX 属性和 XXX() 调用方法。
+        // 它们被定义在元素上，同时存在如 xxx() 方法和 onxxx 属性。
         // 注：
-        // 其中 submit() 和 load() 调用不会触发原生事件。
+        // 其中 submit() 和 load() 调用不会触发相应事件。
         //
         callableEvents = [
             'blur',
@@ -591,7 +591,7 @@ Object.assign(tQuery, {
      * @return {Table} 表格实例
      */
     table(rows, cols, caption, th0, doc = Doc) {
-        if ($type(rows) !== 'Number') {
+        if (rows.nodeType == 1) {
             return new Table(rows);
         }
         let _tbl = new Table(rows, cols, th0, doc);
@@ -1837,6 +1837,9 @@ Object.assign(tQuery, {
      * @return {this}
      */
     on( el, evn, slr, handle ) {
+        if (! evn) {
+            return;
+        }
         handle = customHandle(handle);
 
         if (handle) {
@@ -1859,7 +1862,7 @@ Object.assign(tQuery, {
         eventBinds(
             'off',
             el,
-            evn,
+            evn || '',
             slr,
             customHandle(handle)
         );
@@ -1877,6 +1880,9 @@ Object.assign(tQuery, {
      * @return {this}
      */
     one( el, evn, slr, handle ) {
+        if (! evn) {
+            return;
+        }
         handle = customHandle(handle);
 
         if (handle) {
@@ -1890,12 +1896,12 @@ Object.assign(tQuery, {
      * 事件激发。
      * - evn可以是一个事件名或一个已经构造好的事件对象。
      * - 事件默认冒泡并且可以被取消。
-     * - 如果元素上的同名方法被绑定（on），处理器返回false可以阻止它们的调用。
-     * - 支持元素上原生事件调用的触发（如 .click()），而无需事先绑定处理器。
+     * - 可以激发元素上的非事件类普通方法，但它们需要有绑定处理器（on），
+     *   这些处理器返回false或执行event.preventDefault()可以阻止方法被调用。
+     * - 元素上原生的事件类函数可以直接被激发（如 click, focus）。
      * 注：
-     * - 元素上非事件的普通方法也可以触发，但需要先绑定处理器且返回非false。
-     * - 表单上的submit()和audio,video上的load()调用并不会触发原生事件，
-     *   因此这两个事件需要注册绑定才能由此触发（作为普通方法对待）。
+     * - form.submit 不是事件类方法，虽然存在submit事件（input:submit）。
+     * - 另一个是video.load和audio.load方法，它们的情况类似。
      * 例：
      * trigger(box, scroll, [x, y])
      * 滚动条滚动到指定位置。实际上只是简单调用box.scroll(x, y)触发scroll事件。
@@ -1912,7 +1918,7 @@ Object.assign(tQuery, {
             return;
         }
         if (typeof evn == 'string') {
-            if (evn in el && Event.byNative(evn)) {
+            if (evn in el && Event.callable(evn)) {
                 // 原始参数传递
                 el[evn]( ...(isArr(extra) ? extra : [extra]) );
                 return this;
@@ -1923,8 +1929,6 @@ Object.assign(tQuery, {
                 cancelable: cancelable,
             });
         }
-        evn.isTrigger = true;  // 唯一的侵入
-
         el.dispatchEvent( evn );
         return this;
     },
@@ -1941,7 +1945,7 @@ Reflect.defineProperty(tQuery, 'version', {
 
 //
 // 简单表格类。
-// 仅为规范行列的表格，不支持单元格合并拆分。
+// 仅适用规范行列的表格，不支持单元格合并拆分。
 // 不涉及单元格内容的修改操作，需提取后自行操作。
 // 接口的重点在于对表格行的操作。
 //
@@ -1954,9 +1958,8 @@ class Table {
      * @param {Boolean} th0 首列是否为<th>单元格
      */
     constructor( rows, cols, th0, doc = Doc ) {
-        if ($type(rows) !== 'Number') {
-            this._newTable(rows);
-            return;
+        if (rows.nodeType == 1) {
+            return this._newTable(rows);
         }
         let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
@@ -2101,7 +2104,7 @@ class Table {
         let _val = this._idxSize( idx, size || this._tbl.rows.length ),
             _buf = [];
 
-        if (_val == null) {
+        if (_val === null) {
             size = 0;
         } else {
             [idx, size] = _val;
@@ -2122,7 +2125,7 @@ class Table {
      */
     remove( idx ) {
         idx = this._idxSize( idx );
-        return idx && this._remove(idx);
+        return idx !== null && this._remove(idx);
     }
 
 
@@ -2138,7 +2141,7 @@ class Table {
     gets( idx, size ) {
         let _val = this._idxSize( idx, size || this._tbl.rows.length );
 
-        if (_val == null) {
+        if (_val === null) {
             size = 0;
         } else {
             [idx, size] = _val;
@@ -2157,7 +2160,7 @@ class Table {
      */
     get( idx ) {
         idx = this._idxSize( idx );
-        return idx && this._tbl.rows[idx];
+        return idx !== null && this._tbl.rows[idx];
     }
 
 
@@ -2256,6 +2259,8 @@ class Table {
         this._cols = tbl.rows[0].cells.length;
         this._th0 = this._body1.rows[0].cells[0].tagName.toLowerCase() === 'th';
         this._tbl = tbl;
+
+        return this;
     }
 
 }
@@ -4817,7 +4822,7 @@ const Event = {
     // )
     // 注记：
     // 用具备唯一性的绑定调用句柄作为键索引。
-    // 一个元素上的事件调用量属于小规模，故可用性尚可。
+    // 一个元素上的事件调用量属于小规模，可用性可接受。
     //
     store: new WeakMap(),
 
@@ -4829,11 +4834,12 @@ const Event = {
     // - select 选取表单控件内的文本。
     // - click 选中或取消选中checkbox表单控件条目。
     // - focus 表单空间聚焦。
+    // trigger会直接调用它们触发原生事件，而不是构造一个自定义事件发送。
     // 注：
-    // trigger会直接调用它们触发原生事件，而不会构造一个自定义事件发送。
-    // form:submit() 和 video:load() 不触发相应事件，在此排除。
+    // form:submit() 和 video:load() 只是普通方法，不触发事件。
+    // 元素的其它普通方法也可以被激发，但都需要存在绑定（它们不应在此列出）。
     //
-    triggers: new Set([
+    nativeEvents: new Set([
         'blur',
         'click',
         'focus',
@@ -5064,12 +5070,13 @@ const Event = {
 
 
     /**
-     * 是否由原生调用触发。
+     * 是否为可调用事件。
+     * 即由元素上原生事件函数调用触发的事件。
      * @param  {String} evn 事件名
      * @return {Boolean}
      */
-    byNative( evn ) {
-        return this.triggers.has(evn);
+    callable( evn ) {
+        return this.nativeEvents.has(evn);
     },
 
 
@@ -5079,6 +5086,7 @@ const Event = {
      */
     falseHandle( ev ) {
         ev.preventDefault();
+        return false;
     },
 
 
@@ -5090,6 +5098,7 @@ const Event = {
     nullHandle( ev ) {
         ev.preventDefault();
         ev.stopPropagation();
+        return false;
     },
 
 
@@ -5132,13 +5141,35 @@ const Event = {
             _evo.delegate = _cur;
             _cur = this.delegate(ev, slr);
             _evo.current = _cur;
+            _evo.selector = slr;
         }
 
         return _cur &&
-            handle.bind(_cur)(ev, _evo, slr) !== false &&
-            // trigger激发不触发原生事件的事件（submit/video:load），
-            // 调用事件执行函数完成浏览器逻辑。
-            this._nativeCall(ev, _cur);
+            handle.bind(_cur)(ev, _evo) !== false &&
+            // 调用元素的原生方法完成浏览器逻辑，
+            // 如：form:submit, video:load 等。
+            this._methodCall(ev, _cur);
+    },
+
+
+    /**
+     * trigger激发原生方法的DOM逻辑完成。
+     * 如：form:submit()，它不会产生一个submit事件。
+     * 对于会产生事件的调用，应当在nativeEvents中列名。
+     * @param {Event} ev 事件对象
+     * @param {Element} el 目标元素
+     */
+     _methodCall( ev, el ) {
+        let _evn = ev.type,
+            _fun = el[_evn];
+
+        if (ev.defaultPrevented ||
+            // 避免循环触发。
+            this.callable(_evn) ||
+            !isFunc(_fun) ) {
+            return;
+        }
+        return _fun(...(isArr(ev.detail) ? ev.detail : [ev.detail]));
     },
 
 
@@ -5234,28 +5265,6 @@ const Event = {
 
 
     /**
-     * trigger激发原生事件的DOM逻辑完成。
-     * 元素上普通的方法名如果被绑定为事件，也会传递到此。
-     * 注：
-     * 对于会触发原生事件的调用，其名称应当在this.triggers中排除。
-     * 这里的isTrigger更多的是一个保险措施（触发循环）。
-     *
-     * @param {Event} ev 事件对象
-     * @param {Element} el 目标元素
-     */
-    _nativeCall( ev, el ) {
-        let _evn = ev.type,
-            _fun = el[_evn];
-
-        if (!ev.isTrigger || !isFunc(_fun) ) {
-            return;
-        }
-        // 原始参数传递。
-        return el[_evn](...(isArr(ev.detail) ? ev.detail : [ev.detail]));
-    },
-
-
-    /**
      * 向上匹配父级元素。
      * - 从自身开始匹配测试。
      * - 如果抵达容器元素，返回null。
@@ -5308,8 +5317,8 @@ const Event = {
  * @param {Function} handle 事件处理函数
  */
 function eventBinds( type, el, evn, slr, handle ) {
-    if (!el || !evn) {
-        return;
+    if (! el) {
+        throw new Error(`el is ${el}.`);
     }
     if (typeof evn == 'string') {
         evnsBatch(type, el, evn, slr, handle);
@@ -5331,11 +5340,9 @@ function eventBinds( type, el, evn, slr, handle ) {
  * @param {Function} handle 事件处理函数
  */
 function evnsBatch( type, el, evn, slr, handle ) {
-    if (! evn) return;
-
-    for ( let name of evn.split(__chSpace) ) {
-        Event[type](el, name, slr, handle);
-    }
+    evn.
+    split(__chSpace).
+    forEach( name => Event[type](el, name, slr, handle) );
 }
 
 
@@ -5428,6 +5435,7 @@ tQuery.isCollector = isCollector;
  * @param {Function} fn 用户处理器
  * @param {Number} n 计数起始值，可选
  * @param {Number} step 计数步进值，可选
+ * @return {Function} 含计数器的处理器
  */
 tQuery.Counter = function( fn, n = 1, step = 1 ) {
     n -= step;

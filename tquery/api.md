@@ -33,7 +33,7 @@
 
 ### [$.Table](docs/$.table.md#table-接口)
 
-一个简单的表格类（`class`），主要提供对表格行的操作，也是 `$.table()` 的返回值的类型。这是一个被导出的内部类，主要用于外部继承复用，普通的场景请使用 `$.table` 接口。
+一个简单的表格类（`class`），主要提供对表格行的操作。仅适用于规范行列的表格，不支持单元格的合并和拆分，也不支持对单元格内容的操作。它是 `$.table()` 创建的实例的类型，是一个被导出的内部类，可用于外部继承复用。普通的场景请使用 `$.table` 接口。
 
 
 ### [$.script( data: String | Element, box: Element, doc?: Document ): Element | Promise](docs/$.script.md)
@@ -71,7 +71,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
 
-传入迭代回调处理器的实参分别为：`value`（值），`key`（键），`obj`（迭代对象自身）。**注**：类似于数组的 `forEach` 标准接口定义。
+传入迭代回调处理器的实参分别为：值，键，迭代对象自身（类似数组 `forEach` 接口）。回调返回 `false` 会中断迭代。
 
 
 ### [$.range( beg: String | Number, size: String | Number, toArr?: Boolean ): Array | Iterator](docs/$.range.md)

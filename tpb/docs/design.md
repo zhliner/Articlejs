@@ -1,6 +1,10 @@
 # Tpb 详细设计
 
-> **注**：tpb: Template Presentational Behavior
+> **缩写：**
+> `tpb`: Template Presentational Behavior
+> `OBT`: `On-By-To` @html
+> `GPS`: `Get, Process, Set`
+> `EMR`: `Entry, Model, Render` @ Process
 
 
 ## OnByTo 逻辑重构
