@@ -140,17 +140,23 @@ p.ani {
     <form name="frm" id="frm">
         <p>常用的几个浏览器：</p>
         <fieldset id="fset">
-            <label><input type="checkbox" name="browser" value="chrome" checked="checked">Chrome</label>
-            <label><input type="checkbox" name="browser" value="edge">Edge</label>
-            <label><input type="checkbox" name="browser" value="firefox">Firefox</label>
-            <label><input type="checkbox" name="browser" value="opera">Opera</label>
-            <label><input type="checkbox" name="browser" value="starx">Starx</label>
-            <p>这是一个段落：<input type="text" name="abc" value="Hello." /></p>
+            <label><input type="checkbox" name="browsers" value="chrome" checked="checked">Chrome</label>
+            <label><input type="checkbox" name="browsers" value="edge">Edge</label>
+            <label><input type="checkbox" name="browsers" value="firefox">Firefox</label>
+            <label><input type="checkbox" name="browsers" value="opera">Opera</label>
+            <label><input type="checkbox" name="browsers" value="starx">Starx</label>
+            <hr>
+            <label><input type="radio" name="browser" value="chrome" checked="checked">Chrome</label>
+            <label><input type="radio" name="browser" value="edge">Edge</label>
+            <label><input type="radio" name="browser" value="firefox">Firefox</label>
+            <label><input type="radio" name="browser" value="opera">Opera</label>
         </fieldset>
+        <p>这是一个段落：<input type="text" name="abc" value="Hello." /></p>
         <br>
         <input type="color" name="color" value="#99ff00">Colors<br>
         <input type="text" name="txt" value="Hello"><br>
         <input type="submit" value="提交">
+        <input type="reset" value="重置">
         <p>
             <textarea name="tt1" style="height: 100px; width: 200px; overflow: scroll; white-space: pre;">第一个编辑框。</textarea>
         </p>

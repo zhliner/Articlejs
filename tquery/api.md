@@ -105,11 +105,21 @@ scope: Boolean  // <style>元素的一个可选属性。
 这里只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置字符 `\` 转义。
 
 
-### [$.serialize( form: Element, exclude?: Function | [String] ): [Array]](docs/$.serialize.md)
+### [$.controls( form: Element ): [Element]](docs/$.controls.md)
+
+获取表单元素 `form` 内可提交类控件元素集。同名的控件只保留最后一个（**注**：`.val` 接口可从同名控件中任一控件获取值集）。
+
+**注意**：即便 `input:checkbox` 类控件一个都没有选中，它们也属于可提交类控件，虽然最后它们并没有值提交上去。
+
+
+### [$.serialize( form: Element, exclude?: [String] ): [Array]](docs/$.serialize.md)
 
 序列化表单内控件的名称和值，返回一个**名/值对**双成员数组（`[name, value]`）的数组。
 
-仅处理有 `name` 属性的控件，正常情况下它们会在表单提交时作为**名/值对**被提交到服务器（或出现在URL的查询部分）。
+仅会处理有 `name` 属性的控件，正常情况下它们会在表单提交时作为**名/值对**被提交到服务器（或出现在URL的查询部分）。
+
+> **注：**<br>
+> 实际上，此接口是在 `$.controls` 返回的控件集基础上进行名值提取，但会排除掉无值（不应被提交）的控件。
 
 
 ### [$.queryURL( target: Element | [Array] | Object | Map ): String](docs/$.queryURL.md)

@@ -206,11 +206,10 @@
         noInnerhtml = /<script|<style|<link/i,
 
         // 表单控件值序列化。
-        // from: jQuery-3.4.1 .serializeArray...
+        // 参考：jQuery-3.4.1 .serializeArray...
         rCRLF = /\r?\n/g,
         rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
         rsubmittable = /^(?:input|select|textarea|keygen)/i,
-        rcheckableType = /^(?:checkbox|radio)$/i,
 
         // Unicode版非字母数字匹配。
         // 用于URI编码时保留字母数字显示友好性。
@@ -797,26 +796,37 @@ Object.assign(tQuery, {
 
 
     /**
-     * 提取表单内可提交控件为一个名值对数组。
-     * 名值对：[
-     *      name,   // {String} 控件名
-     *      value   // {String} 控件值
-     * ]
+     * 获取表单元素内可提交类控件集。
+     * 同名控件中用最后一个控件代表（用.val可获取值集）。
      * @param  {Element} form 表单元素
-     * @param  {[String]|Function} exclude 排除控件名集
-     * @return {[Array]} 键值对数组
+     * @return {[Element]} 控件集
      */
-    serialize( form, exclude = [] ) {
+    controls( form ) {
         let _els = form.elements;
 
         if (!_els || _els.length == 0) {
             return [];
         }
-        if (isFunc(exclude)) {
-            exclude = exclude(_els);
-        }
-        _els = Arr(_els).filter(submitControl);
+        return uniqueNamed( Arr(_els).filter( submittable ) );
+    },
 
+
+    /**
+     * 提取表单内可提交控件值为一个名值对数组。
+     * 名值对：[
+     *      name,   // {String} 控件名
+     *      value   // {String} 控件值
+     * ]
+     * @param  {Element} form 表单元素
+     * @param  {[String]} exclude 排除的控件名集
+     * @return {[Array]} 键值对数组
+     */
+    serialize( form, exclude = [] ) {
+        let _els = tQuery.controls(form);
+
+        if (_els.length == 0) {
+            return _els;
+        }
         if (exclude.length > 0) {
             _els = _els.filter( el => !exclude.includes(el.name) );
         }
@@ -1888,6 +1898,56 @@ Object.assign(tQuery, {
         if (handle) {
             eventBinds('one', el, evn, slr, handle);
         }
+        return this;
+    },
+
+
+    /**
+     * 串连两个事件。
+     * 源事件激发后根据衔接处理器决定是否触发后续事件。
+     * 源事件处理器中调用 ev.preventDefault() 或返回假值表示不激发。
+     * 这是一个应用类接口（替用户实现了）。
+     * handle接口: function(ev, elo): Element|[Element]|Object|[Object]|false
+     * Object: {elem:Element, data:Value}
+     * 注：
+     * - 不支持 handle 传递 false|null（没有意义）。
+     * - 如果 this.on 被代理，本接口也会受影响。
+     * @param  {Element} el 目标元素
+     * @param  {String} to 待激发事件（单名称）
+     * @param  {String} env 源事件（支持事件名序列，同.on:evn）
+     * @param  {String} slr 委托选择器
+     * @param  {Function|Object} handle 衔接处理器
+     * @return {this}
+     */
+    tie( el, to, env, slr, handle ) {
+        this.on(
+            el,
+            env,
+            slr,
+            (ev, elo) => tiedHandle(ev, elo, to, handle)
+        );
+        return this;
+    },
+
+
+    /**
+     * 串连两个事件。
+     * - tie的单次绑定版本，说明同上。
+     * - 如果 this.one 被代理，本接口也会受影响。
+     * @param  {Element} el 目标元素
+     * @param  {String} to 待激发事件（单名称）
+     * @param  {String} env 源事件（支持事件名序列，同.on:evn）
+     * @param  {String} slr 委托选择器
+     * @param  {Function|Object} handle 衔接处理器
+     * @return {this}
+     */
+    tieOne( el, to, env, slr, handle ) {
+        this.one(
+            el,
+            env,
+            slr,
+            (ev, elo) => tiedHandle(ev, elo, to, handle)
+        );
         return this;
     },
 
@@ -3801,17 +3861,30 @@ function classAttrToggle( el, force ) {
 
 
 /**
- * 是否为可提交控件元素。
- * from: jQuery-3.4.1 serializeArray:filter
+ * 是否为可提交类控件元素。
+ * 即便input:checkbox|radio为未选中状态，它们也是可提交类控件。
+ * 注：.val 取值为空的控件会被排除，因此不会影响提交逻辑。
  * @param  {Element} ctrl 控件元素
  * @return {Boolean}
  */
-function submitControl( ctrl ) {
-    let _typ = ctrl.type;
-
+function submittable( ctrl ) {
     return ctrl.name &&
-        rsubmittable.test( ctrl.nodeName ) && !rsubmitterTypes.test( _typ ) &&
-        ( ctrl.checked || !rcheckableType.test( _typ ) );
+        !$is(ctrl, ':disabled') &&
+        rsubmittable.test( ctrl.nodeName ) && !rsubmitterTypes.test( ctrl.type );
+}
+
+
+/**
+ * 按名称合并元素。
+ * 注：相同名称的元素会重复获取值，故排除。
+ * @param {[Element]} els 元素集
+ */
+function uniqueNamed( els ) {
+    let _map = els.reduce(
+            (buf, el) => buf.set(el.name, el),
+            new Map()
+        );
+    return [..._map.values()];
 }
 
 
@@ -3849,9 +3922,10 @@ function submitValue( ctrl, value ) {
  * 回调返回值为二维数组才展开的map操作。
  * 主要用于返回键值对（[key, value]）或键值对数组的合并处理。
  * 注：回调返回null或undefined时忽略。
- * callback: function(its): Array{2}|[Array{2}]
- * @param {Array} arr 处理源数组
- * @param {Function} callback 回调函数
+ * callback: function(its): Array2|[Array2]
+ * @param  {Array} arr 处理源数组
+ * @param  {Function} callback 回调函数
+ * @return {Array2|[Array2]}
  */
 function mapArray2( arr, callback ) {
     let _tmp = [];
@@ -5135,7 +5209,11 @@ const Event = {
      */
     _wrapCall( handle, slr, ev ) {
         let _cur = ev.currentTarget,
-            _evo = { origin: ev.target, current: _cur };
+            _evo = {
+                origin: ev.target,
+                current: _cur,
+                related: ev.relatedTarget
+            };
 
         if ( slr ) {
             _evo.delegate = _cur;
@@ -5302,6 +5380,62 @@ const Event = {
             return Event.falseHandle;
     }
     return handle;
+}
+
+
+/**
+ * 衔接处理器封装。
+ * 前阶事件处理器可以返回一个元素（数组）或一个配置对象（数组）。
+ * 配置对象：{
+ *      elem: 目标元素
+ *      data: 激发附加数据
+ * }
+ * 前阶事件处理器返回假值会中止目标事件触发。
+ *
+ * @param {Event} ev 事件对象
+ * @param {Object} elo 事件目标对象（含selector）
+ * @param {String} evn 待激发的事件名
+ * @param {Function|Object} handle 衔接处理器
+ */
+function tiedHandle( ev, elo, evn, handle ) {
+    let _ret = handle(ev, elo);
+
+    if (!_ret || ev.defaultPrevented) {
+        return false;
+    }
+    return isArr(_ret) ? tieTriggers(_ret, evn) : tieTrigger(_ret, evn);
+}
+
+
+/**
+ * 单目标激发。
+ * @param {Element|Object} it 激发目标
+ * @param {String} evn 事件名
+ */
+function tieTrigger( it, evn ) {
+    let _el, _val;
+
+    if ( it.nodeType ) {
+        _el = it;
+    } else {
+        _el = it.elem;
+        _val = it.data;
+    }
+    tQuery.trigger( _el, evn, _val );
+}
+
+
+/**
+ * 多目标激发。
+ * 按数组的首个成员类型判断。
+ * @param {[Element]|[Object]} its 激发目标集
+ * @param {String} evn 事件名
+ */
+function tieTriggers( its, evn ) {
+    if ( its[0].nodeType ) {
+        return its.forEach( el => tQuery.trigger(el, evn) );
+    }
+    its.forEach( it => tQuery.trigger(it.elem, evn, it.data) );
 }
 
 
