@@ -1840,6 +1840,15 @@ Object.assign(tQuery, {
     /**
      * 绑定事件处理。
      * 多次绑定同一个事件名和相同的调用函数是有效的。
+     * 处理器接口：function( ev, elo ): false|undefined
+     * ev: Event 原生的事件对象。
+     * elo: {
+     *      origin: Element   事件起源元素（event.target）
+     *      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
+     *      related: Element  事件相关的元素（event.relatedTarget）
+     *      delegate: Element 绑定委托的元素（event.currentTarget），可选
+     *      selector: String  委托匹配选择器，可选
+     * }
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器
