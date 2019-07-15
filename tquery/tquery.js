@@ -2343,7 +2343,7 @@ tQuery.Table = Table;
 
 //
 // 6种插入方式。
-// 数据仅为节点，与DOM原生方法稍有差异。
+// 数据源仅为节点类型，不支持String。
 ///////////////////////////////////////
 [
     'before',
@@ -3095,16 +3095,9 @@ elsExfn([
         'on',
         'off',
         'one',
+        'tie',
+        'tieOne',
         'trigger',
-
-        // 节点插入（多对多）
-        // 若集合有多个元素，通常采用克隆模式（clone实参为true）
-        'before',
-        'after',
-        'prepend',
-        'append',
-        'replace',
-        'fill',
 
         // 元素原生事件激发
         // 'blur'
@@ -3116,6 +3109,42 @@ elsExfn([
         // 可代理调用 $
         for ( let el of this ) $[fn](el, ...rest);
         return this;
+    }
+);
+
+
+//
+// 节点插入（多对多）。
+// 返回克隆的节点集或当前实例本身。
+/////////////////////////////////////////////////
+elsExfn([
+        'before',
+        'after',
+        'prepend',
+        'append',
+        'replace',
+        'fill',
+    ],
+    /**
+     * 集合版节点内容插入。
+     * @param  {Node|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
+     * @param  {Boolean} clone 数据节点克隆
+     * @param  {Boolean} event 是否克隆事件处理器（容器）
+     * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
+     * @return {Collector} 新插入的节点集
+     */
+    fn => function( cons, clone, event, eventdeep ) {
+        // 可代理调用 $
+        let _buf = [],
+            _ret;
+
+        for ( let el of this ) {
+            _ret = $[fn]( el, cons, clone, event, eventdeep );
+            if (clone) {
+                _buf = _buf.concat(_ret);
+            }
+        }
+        return new Collector( clone ? _buf : _ret, this );
     }
 );
 
@@ -3269,9 +3298,8 @@ function _arrSets( fn, els, val, ...rest ) {
 
 
 //
-// 集合版6种插入方式。
+// 集合版6种插入方式（多对一）。
 // 与单元素版对应但主从关系互换。
-// （多对一）
 /////////////////////////////////////////////////
 [
     ['insertBefore', 	'before'],
@@ -4357,7 +4385,7 @@ function domManip( node, cons, clone, event, eventdeep ) {
     }
     return fragmentNodes(
         cons,
-        nd => clone && tQuery.clone(nd, event, true, eventdeep),
+        nd => clone ? tQuery.clone(nd, event, true, eventdeep) : nd,
         node.ownerDocument
     );
 }
@@ -4379,11 +4407,11 @@ function fragmentNodes( nodes, get, doc ) {
 
     let _all = doc.createDocumentFragment();
 
-    for ( let n of nodes ) {
-        let _nd = get && get(n) || n;
+    for ( let nd of nodes ) {
+        nd = get ? get(nd) : nd;
 
-        if ( _nd && (usualNode(_nd) || _nd.nodeType == 11) ) {
-            _all.appendChild(_nd);
+        if ( nd && (usualNode(nd) || nd.nodeType == 11) ) {
+            _all.appendChild(nd);
         }
     }
     return _all.childNodes.length ? _all : null;

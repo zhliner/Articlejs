@@ -308,8 +308,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
 
-> **注：**<br>
-> 集合版有不一样的名称：`.insertBefore( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
+> **关联：**<br>
+> `Collector: insertBefore( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
+> 将集合自身作为数据源，插入到目标节点之前。返回克隆插入的节点集或集合自身。<br>
 
 
 ### [$.after( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.after.md)
@@ -318,8 +319,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
 
-> **注：**<br>
-> 集合版有不一样的名称：`.insertAfter( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
+> **关联：**<br>
+> `Collector: insertAfter( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
+> 将集合自身作为数据源，插入到目标节点之后。返回克隆插入的节点集或集合自身。<br>
 
 
 ### [$.prepend( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.prepend.md)
@@ -328,8 +330,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
 
-> **注：**<br>
-> 集合版有不一样的名称：`.prependTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
+> **关联：**<br>
+> `Collector: prependTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
+> 将集合自身作为数据源，插入目标元素内的前端。返回克隆插入的节点集或集合自身。<br>
 
 
 ### [$.append( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.append.md)
@@ -338,8 +341,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
 
-> **注：**<br>
-> 集合版有不一样的名称：`.appendTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆插入的节点集或集合自身。
+> **关联：**<br>
+> `Collector: appendTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
+> 将集合自身作为数据源，添加到目标元素内的末尾。返回克隆插入的节点集或集合自身。<br>
 
 
 ### [$.replace( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.replace.md)
@@ -348,8 +352,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
 
-> **注：**<br>
-> 集合版有不一样的名称：`.replaceAll( node: Node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆替换的节点集或集合自身。
+> **关联：**<br>
+> `Collector: replaceAll( node: Node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
+> 将集合自身作为数据源，替换目标节点。返回克隆替换的节点集或集合自身。<br>
 
 
 ### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.fill.md)
@@ -358,8 +363,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
 
-> **注：**<br>
-> 集合版有不一样的名称：`.fillTo( el: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`，行为是简单的将集合自身作为数据源使用，返回克隆填充的节点集或集合自身。
+> **关联：**<br>
+> `Collector: fillTo( el: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
+> 将集合自身作为数据源，填充到目标元素内（清除原有）。返回克隆填充的节点集或集合自身。<br>
 
 
 ### [$.wrap( node: Node, box: html | Element | Function ): Element | false](docs/$.wrap.md)
@@ -604,11 +610,13 @@ scope: Boolean  // <style>元素的一个可选属性。
 获取 `el` 元素的外围宽度（包含 `border` 部分，可选的包含 `margin` 部分）。该接口不包含设置目标宽度的功能，如果需要请使用 `$.width` 接口。
 
 
-## 事件扩展
+## 事件接口
 
 ### [$.on( el: Element, evn: String | Object, slr: String, handle: Function | Object | false | null ): this](docs/$.on.md)
 
-在 `el` 元素上绑定 `evn` 事件的处理器。`evn` 支持空格分隔的多个事件名，也可以是一个**事件名:处理器**的配置对象。如果传递 `slr` 为一非空字符串则为委托（`delegate`）方式，事件冒泡到匹配该选择器的元素时触发调用。`handle` 可以是一个简单的函数，也可以是一个实现了 `EventListener` 接口的对象（包含 `handleEvent` 方法），或者作为特例：传递 `false` 和 `null` 两个值，分别表示「停止事件默认行为」的处理器，和「停止事件默认行为并停止事件冒泡」的处理器。
+在 `el` 元素上绑定 `evn` 事件的处理器 `handle`。`evn` 支持空格分隔的多个事件名，也可以是一个**事件名:处理器**的配置对象。如果传递 `slr` 为一非空字符串则为委托（`delegate`）方式，事件冒泡到匹配该选择器的元素时触发调用。
+
+`handle` 可以是一个简单的函数，也可以是一个实现了 `EventListener` 接口的对象（包含 `handleEvent` 方法），或者作为特例：传递 `false` 和 `null` 两个值，分别表示「停止事件默认行为」的处理器，和「停止事件默认行为并停止事件冒泡」的处理器。
 
 > **注：**<br>
 > 在一个元素上多次绑定同一个事件名和相同的处理器函数是有效的。
@@ -616,8 +624,13 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ### [$.off( el: Element, evn: String | Object, slr: String, handle: Function ): this](docs/$.off.md)
 
+移除 `el` 元素上事件绑定的处理器，可选地，可以传递 `evn`、`slr`、`handle` 限定移除需要匹配的条件（相等比较）。只能移除用本库中相关接口绑定的事件处理器，共4个：`$.on`、`$.one`、`$.tie`、`$.tieOne`（**注**：后两个实际上是前两个的应用封装）。如果不传入任何匹配条件，会移除 `el` 元素上全部的事件处理器。
+
 
 ### [$.one( el: Element, evn: String | Object, slr: String, handle: Function ): this](docs/$.one.md)
+
+单次绑定。
+在事件被触发（然后自动解绑）之前，off 可以移除该绑定。
 
 
 ### [$.trigger( el: Element, evn: String | CustomEvent , extra: Any, bubble?: Boolean, cancelable?: Boolean ): this](docs/$.trigger.md)
