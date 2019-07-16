@@ -906,7 +906,8 @@ Object.assign(tQuery, {
      * @param  {Element} ctx 查询上下文
      * @return {Element|null}
      */
-     get( slr, ctx = Doc.documentElement ) {
+    get( slr, ctx = Doc.documentElement ) {
+        slr = slr || '';
         try {
             return $one(slr.trim(), ctx, ctx.ownerDocument);
         }
@@ -925,6 +926,8 @@ Object.assign(tQuery, {
      * @return {[Element]}
      */
     find( slr, ctx = Doc.documentElement, andOwn = false ) {
+        slr = slr || '';
+
         let _els = $all(slr.trim(), ctx, ctx.ownerDocument),
             _box = [];
 
@@ -1388,7 +1391,7 @@ Object.assign(tQuery, {
      * @param  {Number} val
      * @return {Number|this}
      */
-     scrollTop( el, val ) {
+    scrollTop( el, val ) {
         let _win = getWindow(el);
 
         if (val === undefined) {
@@ -1831,7 +1834,7 @@ Object.assign(tQuery, {
 
 
 
-    //== 事件扩展 =============================================================
+    //== 事件接口 =============================================================
     // 事件名支持空格分隔的名称序列。
     // 事件名位置实参支持「事件名/处理器」名值对的配置对象。
     // 用户处理器支持实现了 EventListener 接口的对象（包含 handleEvent 方法）。
@@ -1856,14 +1859,15 @@ Object.assign(tQuery, {
      * @return {this}
      */
     on( el, evn, slr, handle ) {
-        if (! evn) {
+        if (!evn) {
             return;
         }
-        handle = customHandle(handle);
-
-        if (handle) {
-            eventBinds('on', el, evn, slr, handle);
-        }
+        eventBinds(
+            'on',
+            el,
+            slr,
+            ...customHandles(evn, handle)
+        );
         return this;
     },
 
@@ -1878,12 +1882,14 @@ Object.assign(tQuery, {
      * @return {this}
      */
     off( el, evn, slr, handle ) {
+        if (!evn) {
+            evn = '';
+        }
         eventBinds(
             'off',
             el,
-            evn || '',
             slr,
-            customHandle(handle)
+            ...customHandles(evn, handle)
         );
         return this;
     },
@@ -1899,81 +1905,30 @@ Object.assign(tQuery, {
      * @return {this}
      */
     one( el, evn, slr, handle ) {
-        if (! evn) {
+        if (!evn) {
             return;
         }
-        handle = customHandle(handle);
-
-        if (handle) {
-            eventBinds('one', el, evn, slr, handle);
-        }
-        return this;
-    },
-
-
-    /**
-     * 串连两个事件。
-     * 源事件激发后根据衔接处理器决定是否触发后续事件。
-     * 源事件处理器中调用 ev.preventDefault() 或返回假值表示不激发。
-     * 这是一个应用类接口（替用户实现了）。
-     * handle接口: function(ev, elo): Element|[Element]|Object|[Object]|false
-     * Object: {elem:Element, data:Value}
-     * 注：
-     * - 不支持 handle 传递 false|null（没有意义）。
-     * - 如果 this.on 被代理，本接口也会受影响。
-     * @param  {Element} el 目标元素
-     * @param  {String} to 待激发事件（单名称）
-     * @param  {String} env 源事件（支持事件名序列，同.on:evn）
-     * @param  {String} slr 委托选择器
-     * @param  {Function|Object} handle 衔接处理器
-     * @return {this}
-     */
-    tie( el, to, env, slr, handle ) {
-        this.on(
+        eventBinds(
+            'one',
             el,
-            env,
             slr,
-            (ev, elo) => tiedHandle(ev, elo, to, handle)
+            ...customHandles(evn, handle)
         );
         return this;
     },
 
 
     /**
-     * 串连两个事件。
-     * - tie的单次绑定版本，说明同上。
-     * - 如果 this.one 被代理，本接口也会受影响。
-     * @param  {Element} el 目标元素
-     * @param  {String} to 待激发事件（单名称）
-     * @param  {String} env 源事件（支持事件名序列，同.on:evn）
-     * @param  {String} slr 委托选择器
-     * @param  {Function|Object} handle 衔接处理器
-     * @return {this}
-     */
-    tieOne( el, to, env, slr, handle ) {
-        this.one(
-            el,
-            env,
-            slr,
-            (ev, elo) => tiedHandle(ev, elo, to, handle)
-        );
-        return this;
-    },
-
-
-    /**
-     * 事件激发。
+     * 手动事件激发。
      * - evn可以是一个事件名或一个已经构造好的事件对象。
      * - 事件默认冒泡并且可以被取消。
-     * - 可以激发元素上的非事件类普通方法，但它们需要有绑定处理器（on），
-     *   这些处理器返回false或执行event.preventDefault()可以阻止方法被调用。
      * - 元素上原生的事件类函数可以直接被激发（如 click, focus）。
+     * - 几个可前置on的非事件类方法（submit，load等）可以被激发，但需预先注册绑定。
+     *
+     * 原生事件激发也可以携带参数，例：
+     * trigger(box, scroll, [x, y]) 滚动条滚动到指定位置。
      * 注：
-     * - form.submit 不是事件类方法，虽然存在submit事件（input:submit）。
-     * - 另一个是video.load和audio.load方法，它们的情况类似。
-     * 例：
-     * trigger(box, scroll, [x, y])
-     * 滚动条滚动到指定位置。实际上只是简单调用box.scroll(x, y)触发scroll事件。
+     * 实际上只是简单调用 box.scroll(x, y) 触发scroll事件。
      *
      * @param  {Element} el 目标元素
      * @param  {String|CustomEvent} evn 事件名或事件对象
@@ -2263,7 +2218,7 @@ class Table {
      * @param {Number} rows 插入行数
      * @return {Collector} 新插入的行元素（集）
      */
-     _insertRows( tsec, idx, rows = 1, tag = 'td' ) {
+    _insertRows( tsec, idx, rows = 1, tag = 'td' ) {
         if (idx < 0 || idx > tsec.rows.length) {
             idx = tsec.rows.length;
         }
@@ -2728,7 +2683,7 @@ class Collector extends Array {
      * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {Collector}
      */
-     find( slr, andOwn ) {
+    find( slr, andOwn ) {
         let _buf = this.reduce(
             (buf, el) => buf.concat( $.find(slr, el, andOwn) ),
             []
@@ -3095,8 +3050,6 @@ elsExfn([
         'on',
         'off',
         'one',
-        'tie',
-        'tieOne',
         'trigger',
 
         // 元素原生事件激发
@@ -5059,7 +5012,7 @@ const Event = {
      */
     clone( to, src ) {
         if (to === src) {
-            window.console.error('Clone events on a same element.');
+            window.console.error('Clone events on same element.');
             return;
         }
         let _fns = this.store.get(src);
@@ -5263,7 +5216,7 @@ const Event = {
             handle.bind(_cur)(ev, _evo) !== false &&
             // 调用元素的原生方法完成浏览器逻辑，
             // 如：form:submit, video:load 等。
-            this._methodCall(ev, _cur);
+            this._nativeCall(ev, _cur);
     },
 
 
@@ -5274,17 +5227,16 @@ const Event = {
      * @param {Event} ev 事件对象
      * @param {Element} el 目标元素
      */
-     _methodCall( ev, el ) {
-        let _evn = ev.type,
-            _fun = el[_evn];
+    _nativeCall( ev, el ) {
+        let _evn = ev.type;
 
-        if (ev.defaultPrevented ||
-            // 避免循环触发。
-            this.callable(_evn) ||
-            !isFunc(_fun) ) {
+        // 避免循环触发。
+        if (ev.defaultPrevented || this.callable(_evn) ) {
             return;
         }
-        return _fun(...(isArr(ev.detail) ? ev.detail : [ev.detail]));
+        // 仅支持可以on的方法。
+        // 实际上就是表单的 submit 和音视频的 load，都无实参。
+        return `on${_evn}` in el && el[_evn]( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
     },
 
 
@@ -5407,9 +5359,26 @@ const Event = {
  * 惯用处理器封装。
  * 对两个简单的值（false|null）封装为相应的处理器。
  * 仅用户友好（语法糖）。
- * @param {Function|false|null} handle 用户处理器
+ * @param  {String|Object} 事件名或配置对象
+ * @param  {Function|false|null} handle 用户处理器
+ * @return {[String, Function|Object]}
  */
- function customHandle( handle ) {
+ function customHandles( evn, handle ) {
+    return typeof evn == 'string' ?
+        [ evn, customHandle( handle ) ] :
+        [ tQuery.each( evn, (fn, k) => evn[k] = customHandle(fn) ), handle ];
+}
+
+
+/**
+ * 惯用处理器封装。
+ * 对两个简单的值（false|null）封装为相应的处理器。
+ * 仅用户友好（语法糖）。
+ * @param  {String|Object} 事件名或配置对象
+ * @param  {Function|false|null} handle 用户处理器
+ * @return {Function|Object}
+ */
+function customHandle( handle ) {
     switch (handle) {
         case null:
             return Event.nullHandle;
@@ -5424,23 +5393,34 @@ const Event = {
  * 衔接处理器封装。
  * 前阶事件处理器可以返回一个元素（数组）或一个配置对象（数组）。
  * 配置对象：{
- *      elem: 目标元素
- *      data: 激发附加数据
+ *      elem: Element,  // 目标元素
+ *      data: Value     // 激发附加数据
  * }
  * 前阶事件处理器返回假值会中止目标事件触发。
  *
- * @param {Event} ev 事件对象
- * @param {Object} elo 事件目标对象（含selector）
- * @param {String} evn 待激发的事件名
- * @param {Function|Object} handle 衔接处理器
+ * @param  {Event} ev 事件对象
+ * @param  {Object} elo 事件目标对象（含selector）
+ * @param  {String} evn 待激发的事件名
+ * @param  {Function|Object} handle 衔接处理器
+ * @return {false|undefined}
  */
 function tiedHandle( ev, elo, evn, handle ) {
     let _ret = handle(ev, elo);
 
-    if (!_ret || ev.defaultPrevented) {
+    if (_ret === false || ev.defaultPrevented) {
         return false;
     }
-    return isArr(_ret) ? tieTriggers(_ret, evn) : tieTrigger(_ret, evn);
+    return _ret && setTimeout( tieDelayCall, 0, _ret, evn );
+}
+
+
+/**
+ * Tie的延迟调用封装。
+ * @param {Element|Object|[Element]|[Object]} its 前阶处理器返回结果
+ * @param {String} evn 待激发事件名
+ */
+function tieDelayCall( its, evn ) {
+    return isArr(its) ? tieTriggers(its, evn) : tieTrigger(its, evn);
 }
 
 
@@ -5458,7 +5438,8 @@ function tieTrigger( it, evn ) {
         _el = it.elem;
         _val = it.data;
     }
-    tQuery.trigger( _el, evn, _val );
+    // 支持代理嵌入。
+    $.trigger( _el, evn, _val );
 }
 
 
@@ -5469,31 +5450,31 @@ function tieTrigger( it, evn ) {
  * @param {String} evn 事件名
  */
 function tieTriggers( its, evn ) {
+    // 支持代理嵌入。
     if ( its[0].nodeType ) {
-        return its.forEach( el => tQuery.trigger(el, evn) );
+        return its.forEach( el => $.trigger(el, evn) );
     }
-    its.forEach( it => tQuery.trigger(it.elem, evn, it.data) );
+    its.forEach( it => $.trigger(it.elem, evn, it.data) );
 }
 
 
 /**
  * 事件批量绑定/解绑。
  * - 用于事件的on/off/one批量操作。
- * - evn支持“事件名序列: 处理函数”配置对象。
- *   此时slr依然有效（全局适用）。
- * @param {String} type 操作类型（on|off|one）
- * @param {Element} el  目标元素
- * @param {String|Object} evn 事件名（序列）或配置对象
- * @param {String} slr  委托选择器
- * @param {Function} handle 事件处理函数
+ * - evn支持“事件名序列: 处理函数”配置对象，此时slr依然有效（全局适用）。
+ * @param  {String} type 操作类型（on|off|one）
+ * @param  {Element} el  目标元素
+ * @param  {String} slr  委托选择器
+ * @param  {String|Object} evn 事件名（序列）或配置对象
+ * @param  {Function} handle 事件处理函数
+ * @return {void}
  */
-function eventBinds( type, el, evn, slr, handle ) {
+function eventBinds( type, el, slr, evn, handle ) {
     if (! el) {
         throw new Error(`el is ${el}.`);
     }
     if (typeof evn == 'string') {
-        evnsBatch(type, el, evn, slr, handle);
-        return;
+        return evnsBatch(type, el, evn, slr, handle);
     }
     for ( let [n, f] of Object.entries(evn) ) {
         evnsBatch(type, el, n, slr, f);
@@ -5594,6 +5575,32 @@ tQuery.isCollector = isCollector;
 
 
 /**
+ * 封装事件处理器的进阶激发。
+ * 主要用于两个事件间的联动，根据前阶处理器的返回值决定后续行为。
+ * 说明：
+ * - 如果前阶事件处理器中调用了 ev.preventDefault() 或返回假值则不激发。
+ * handle接口:
+ * - function(ev, elo): Element|[Element]|Object|[Object]|false
+ * - Object: { elem: Element, data: Value }
+ *
+ * 返回值：
+ * 返回一个封装了相关逻辑的处理器函数。
+ * 如果前阶处理器返回false或调用了ev.preventDefault()，则该处理器返回false，
+ * 否则返回undefined。
+ *
+ * @param  {String} evn 待激发的事件名
+ * @param  {Function|EventListener} 事件处理器
+ * @return {Function} 事件处理器
+ */
+tQuery.Later = function( evn, handle ) {
+    if ( !isFunc(handle) ) {
+        handle = handle.handleEvent.bind( handle );
+    }
+    return (ev, elo) => tiedHandle( ev, elo, evn, handle.bind(elo.current) );
+}
+
+
+/**
  * 封装用户函数包含一个自动计数器。
  * - 用户函数的首个实参为计数值，会自动递增。
  * - 接口：function( count, ... )
@@ -5672,16 +5679,41 @@ tQuery.mergeArray = function(des, ...src) {
 
 /**
  * Map转换为Object对象。
+ * - 键为键，值为值。
+ * 注：仅适用于键为字符串或数值的Map实例。
  * @param  {Map} map Map实例
  * @return {Object}
  */
 tQuery.objMap = function( map ) {
     let _o = {};
     if (map) {
-        for ( let [k, v] of map ) _o[k] = v;
+        for ( const [k, v] of map ) _o[k] = v;
     }
     return _o;
 };
+
+
+/**
+ * Map转换为对象数组。
+ * 每一个键值对转换为一个对象，键为键名的值，值为值名的值。
+ * 全部的键值对对象构成一个数组。
+ * @param  {Map} map Map实例
+ * @param  {String} kname 键名称
+ * @param  {String} vname 值名称
+ * @return {[Object]} 键值对对象数组
+ */
+tQuery.kvsMap = function( map, kname = 'name', vname = 'value' ) {
+    let _buf = [];
+
+    for (const [k, v] of map) {
+        _buf.push({
+            [kname]: k,
+            [vname]: v,
+        });
+    }
+    return _buf;
+    // return [...map].map( kv => ({ [kname]: kv[0], [vname]: kv[1] }) );
+}
 
 
 /**
@@ -5726,7 +5758,6 @@ tQuery.map = function( iter, fun, thisObj ) {
     for ( let [k, v] of entries(iter) ) {
         v = fun(v, k);
         // undefined == null
-        // jshint eqnull:true
         if (v != null) _tmp.push(v);
     }
     // 一级扁平化

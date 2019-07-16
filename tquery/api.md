@@ -622,15 +622,16 @@ scope: Boolean  // <style>元素的一个可选属性。
 > 在一个元素上多次绑定同一个事件名和相同的处理器函数是有效的。
 
 
-### [$.off( el: Element, evn: String | Object, slr: String, handle: Function ): this](docs/$.off.md)
+### [$.off( el: Element, evn: String | Object, slr: String, handle: Function | Object | false | null ): this](docs/$.off.md)
 
 移除 `el` 元素上事件绑定的处理器，可选地，可以传递 `evn`、`slr`、`handle` 限定移除需要匹配的条件（相等比较）。只能移除用本库中相关接口绑定的事件处理器，共4个：`$.on`、`$.one`、`$.tie`、`$.tieOne`（**注**：后两个实际上是前两个的应用封装）。如果不传入任何匹配条件，会移除 `el` 元素上全部的事件处理器。
 
 
-### [$.one( el: Element, evn: String | Object, slr: String, handle: Function ): this](docs/$.one.md)
+### [$.one( el: Element, evn: String | Object, slr: String, handle: Function | Object | false | null ): this](docs/$.one.md)
 
-单次绑定。
-在事件被触发（然后自动解绑）之前，off 可以移除该绑定。
+在 `el` 元素上单次绑定一个处理器，该处理器一旦执行就自动解绑。各个参数的含义与 `$.on` 接口相同。
+
+**注**：在事件触发（然后自动解绑）之前，用 `$.off` 可以移除该绑定。
 
 
 ### [$.trigger( el: Element, evn: String | CustomEvent , extra: Any, bubble?: Boolean, cancelable?: Boolean ): this](docs/$.trigger.md)
@@ -639,4 +640,12 @@ scope: Boolean  // <style>元素的一个可选属性。
 ## 原生事件调用
 
 
-## 实用小工具
+## 实用工具
+
+### [$.Later( evn: String, handle: Function | Object ): Function](docs/$.Later.md)
+
+封装事件处理器（`handle`）的进一步事件（`evn`）激发。**注**：主要用于两个事件间的联动。
+
+根据 `handle` 的返回值决定后续行为：如果 `handle` 中调用了 `ev.preventDefault()` 或返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件（`evn`）。本接口返回一个封装了相关逻辑的处理器函数，该处理器函数的返回值规则为：如果 `handle` 中调用了 `ev.preventDefault()` 或返回 `false` 则返回 `false`，否则返回 `undefined`。
+
+

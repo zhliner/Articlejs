@@ -93,11 +93,12 @@
     #frm {
         box-sizing: border-box;
         padding: 20px;
-        border: 10px #ccc solid;
+        border: 1px #ccc solid;
         margin: 30px;
-        width: 1200px;
     }
-
+    fieldset {
+        border: 1px #6cc solid;
+    }
     </style>
 <style>
 p.ani {
@@ -139,18 +140,18 @@ p.ani {
         <p>The second paragraph.</p>
     </section>
     <form name="frm" id="frm">
-        <p>常用的几个浏览器：</p>
+        <p>请选择操作系统&浏览器：</p>
+        <fieldset id="fos">
+            <label><input type="radio" name="os" value="windows" data-val="edge">Windows</label>
+            <label><input type="radio" name="os" value="macos" data-val="safari">MacOS</label>
+            <label><input type="radio" name="os" value="linux" data-val="chrome">GNU/Linux</label>
+        </fieldset>
+        <br>
         <fieldset id="fset">
-            <label><input type="checkbox" name="browsers" value="chrome" checked="checked">Chrome</label>
-            <label><input type="checkbox" name="browsers" value="edge">Edge</label>
-            <label><input type="checkbox" name="browsers" value="firefox">Firefox</label>
-            <label><input type="checkbox" name="browsers" value="opera">Opera</label>
-            <label><input type="checkbox" name="browsers" value="starx">Starx</label>
-            <hr>
-            <label><input type="radio" name="browser" value="chrome" checked="checked">Chrome</label>
-            <label><input type="radio" name="browser" value="edge">Edge</label>
-            <label><input type="radio" name="browser" value="firefox">Firefox</label>
-            <label><input type="radio" name="browser" value="opera">Opera</label>
+            <label><input type="checkbox" name="browser" value="chrome">Chrome</label>
+            <label><input type="checkbox" name="browser" value="edge">Edge</label>
+            <label><input type="checkbox" name="browser" value="firefox">Firefox</label>
+            <label><input type="checkbox" name="browser" value="safari">Safari</label>
         </fieldset>
         <p>这是一个段落：<input type="text" name="abc" value="Hello." /></p>
         <br>
