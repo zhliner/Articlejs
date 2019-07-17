@@ -634,7 +634,13 @@ scope: Boolean  // <style>元素的一个可选属性。
 **注**：在事件触发（然后自动解绑）之前，用 `$.off` 可以移除该绑定。
 
 
-### [$.trigger( el: Element, evn: String | CustomEvent , extra: Any, bubble?: Boolean, cancelable?: Boolean ): this](docs/$.trigger.md)
+### [$.trigger( el: Element, evn: String | CustomEvent, extra: Any, bubble?: Boolean, cancelable?: Boolean ): this](docs/$.trigger.md)
+
+手动激发 `el` 元素上的 `evn` 事件。`evn` 可以是一个事件名或一个已经构造好的事件对象，事件默认冒泡并且不可被取消。
+
+元素上几个可直接调用原生事件函数（如 `click`, `focus` 等）创建事件的事件可以直接激发，绑定的处理器可以中止事件的默认行为。几个不创建事件的事件函数（如 `submit`, `load` 等）不能直接激发，需要在目标元素上绑定该事件的处理器才能激发，处理器内可以通过调用 `ev.preventDefault()` 或返回 `false` 阻断该事件方法的调用（不执行提交或载入的操作）。
+
+原生事件激发也可以携带参数，如：`trigger(box, scroll, [x, y])` 让滚动条滚动到指定的位置。**注**：实际上只是调用 `box.scroll(x, y)` 并触发 `scroll` 事件。
 
 
 ## 原生事件调用
@@ -642,10 +648,8 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ## 实用工具
 
-### [$.Later( evn: String, handle: Function | Object ): Function](docs/$.Later.md)
+### [$.Later( evn: String, handle: Function | Object, over?: Boolean ): Function](docs/$.Later.md)
 
-封装事件处理器（`handle`）的进一步事件（`evn`）激发。**注**：主要用于两个事件间的联动。
+封装事件处理器（`handle`）的进一步事件（`evn`）激发，主要用于两个事件间的联动：根据 `handle` 的返回值决定后续行为，如果 `handle` 返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件（`evn`）。
 
-根据 `handle` 的返回值决定后续行为：如果 `handle` 中调用了 `ev.preventDefault()` 或返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件（`evn`）。本接口返回一个封装了相关逻辑的处理器函数，该处理器函数的返回值规则为：如果 `handle` 中调用了 `ev.preventDefault()` 或返回 `false` 则返回 `false`，否则返回 `undefined`。
-
-
+本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 返回了假值，则返回该假值本身，如果返回了真值（元素/配置对象或其数组），则返回 `undefined` 或一个定时器ID。

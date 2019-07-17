@@ -1937,7 +1937,7 @@ Object.assign(tQuery, {
      * @param  {Boolean} cancelable 是否可取消
      * @return {this}
      */
-    trigger( el, evn, extra, bubble = true, cancelable = true ) {
+    trigger( el, evn, extra, bubble = true, cancelable = false ) {
         if (!el || !evn) {
             return;
         }
@@ -5402,30 +5402,32 @@ function customHandle( handle ) {
  * @param  {Object} elo 事件目标对象（含selector）
  * @param  {String} evn 待激发的事件名
  * @param  {Function|Object} handle 衔接处理器
- * @return {false|undefined}
+ * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
+ * @return {false|Value}
  */
-function tiedHandle( ev, elo, evn, handle ) {
+function tiedHandle( ev, elo, evn, handle, over ) {
     let _ret = handle(ev, elo);
 
-    if (_ret === false || ev.defaultPrevented) {
-        return false;
+    if (!_ret) {
+        return _ret;
     }
-    return _ret && setTimeout( tieDelayCall, 0, _ret, evn );
+    return over ? setTimeout(tieProcess, 0, _ret, evn) : tieProcess(_ret, evn);
 }
 
 
 /**
- * Tie的延迟调用封装。
+ * Later的执行封装。
  * @param {Element|Object|[Element]|[Object]} its 前阶处理器返回结果
  * @param {String} evn 待激发事件名
  */
-function tieDelayCall( its, evn ) {
+ function tieProcess( its, evn ) {
     return isArr(its) ? tieTriggers(its, evn) : tieTrigger(its, evn);
 }
 
 
 /**
  * 单目标激发。
+ * 注：支持代理嵌入。
  * @param {Element|Object} it 激发目标
  * @param {String} evn 事件名
  */
@@ -5438,7 +5440,6 @@ function tieTrigger( it, evn ) {
         _el = it.elem;
         _val = it.data;
     }
-    // 支持代理嵌入。
     $.trigger( _el, evn, _val );
 }
 
@@ -5446,11 +5447,14 @@ function tieTrigger( it, evn ) {
 /**
  * 多目标激发。
  * 按数组的首个成员类型判断。
+ * 注：支持代理嵌入。
  * @param {[Element]|[Object]} its 激发目标集
  * @param {String} evn 事件名
  */
 function tieTriggers( its, evn ) {
-    // 支持代理嵌入。
+    if (its.length == 0) {
+        return;
+    }
     if ( its[0].nodeType ) {
         return its.forEach( el => $.trigger(el, evn) );
     }
@@ -5476,7 +5480,7 @@ function eventBinds( type, el, slr, evn, handle ) {
     if (typeof evn == 'string') {
         return evnsBatch(type, el, evn, slr, handle);
     }
-    for ( let [n, f] of Object.entries(evn) ) {
+    for ( let [n, f] of entries(evn) ) {
         evnsBatch(type, el, n, slr, f);
     }
 }
@@ -5577,26 +5581,25 @@ tQuery.isCollector = isCollector;
 /**
  * 封装事件处理器的进阶激发。
  * 主要用于两个事件间的联动，根据前阶处理器的返回值决定后续行为。
- * 说明：
- * - 如果前阶事件处理器中调用了 ev.preventDefault() 或返回假值则不激发。
+ * 如果前阶事件处理器返回了假值则不激发，否则对返回的元素或配置对象（集）逐一激发。
  * handle接口:
  * - function(ev, elo): Element|[Element]|Object|[Object]|false
  * - Object: { elem: Element, data: Value }
  *
  * 返回值：
  * 返回一个封装了相关逻辑的处理器函数。
- * 如果前阶处理器返回false或调用了ev.preventDefault()，则该处理器返回false，
- * 否则返回undefined。
+ * 如果前阶处理器返回假值则返回该假值，否则返回undefined或一个定时器ID。
  *
  * @param  {String} evn 待激发的事件名
  * @param  {Function|EventListener} 事件处理器
+ * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
  * @return {Function} 事件处理器
  */
-tQuery.Later = function( evn, handle ) {
+tQuery.Later = function( evn, handle, over = false ) {
     if ( !isFunc(handle) ) {
         handle = handle.handleEvent.bind( handle );
     }
-    return (ev, elo) => tiedHandle( ev, elo, evn, handle.bind(elo.current) );
+    return (ev, elo) => tiedHandle( ev, elo, evn, handle.bind(elo.current), over );
 }
 
 
