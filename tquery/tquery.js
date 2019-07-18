@@ -30,7 +30,7 @@
     - console.dir($)  查看 $ 的成员情况（单元素操作版）。
       Object.keys($)  获取方法名集（可枚举）。
     - console.dir($('').__proto__)  查看 Collector 的成员情况。
-      Object.getOwnPropertyNames($('').__proto__)  获取方法名集（不可枚举）。
+      Object.getOwnPropertyNames($('').__proto__)  获取方法名集（不可枚举类）。
 
     注意！
     例：
@@ -153,11 +153,13 @@
         },
 
         // 去除重复并排序。
-        // @param {NodeList|Iterator} els
+        // @param  {NodeList|Iterator} els
+        // @param  {Function} comp 比较函数，可选
         // @return {Array} 结果集（新数组）
-        uniqueSort = Sizzle && Sizzle.uniqueSort || function( els ) {
+        uniqueSort = Sizzle && Sizzle.uniqueSort || function( els, comp = sortElements ) {
             return els.length > 1 ?
-                [...new Set( values(els) )].sort(sortElements) : els;
+                // 非元素支持：comp传递null获取默认排序。
+                [...new Set( values(els) )].sort( comp || undefined ) : els;
         };
 
 
@@ -480,7 +482,7 @@ tQuery.Fx = {};
 //
 // 单元素版基础集定义。
 //
-Object.assign(tQuery, {
+Object.assign( tQuery, {
 
     //== 基本工具 =============================================================
     // 该部分没有集合版。
@@ -681,65 +683,6 @@ Object.assign(tQuery, {
 
 
     /**
-     * 通用遍历。
-     * - 回调返回false终止遍历，其它值为continue逻辑；
-     * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例；
-     * - 注：Collector 集合版可直接使用该接口；
-     * handle：(
-     *  	值/元素,
-     *  	键/下标,
-     *  	迭代对象自身
-     * )
-     * - 与jQuery不同，因箭头函数的出现，不自动绑定this；
-     * - 参数与数组forEach标准接口相似，this也由外部传入；
-     *
-     * @param  {Array|LikeArray|Object|[.entries]|Collector} obj 迭代目标
-     * @param  {Function} handle 迭代回调（val, key）
-     * @param  {Any} thisObj 迭代回调内的this
-     * @return {obj} 迭代的目标对象
-     */
-    each( obj, handle, thisObj ) {
-        if (thisObj) {
-            handle = handle.bind(thisObj);
-        }
-        for ( let [k, v] of entries(obj) ) {
-            if (handle(v, k, obj) === false) break;
-        }
-        return obj;
-    },
-
-
-    /**
-     * 构造范围序列
-     * - 序列为[beg : beg+size)，半开区间。
-     * - 如果beg为字符，则构造Uncode范围序列。
-     * - 构造字符范围时，size可为终点字符（包含自身）。
-     * @param  {Number|String} beg 起始值
-     * @param  {Number|String} size 序列长度或终点字符
-     * @param  {Boolean} toArr 直接生成数组
-     * @return {Iterator|Array|null} 范围生成器
-     */
-    range( beg, size, toArr = false ) {
-        let _iter = typeof beg == 'number' ?
-            rangeNumber( beg, size ) : rangeChar( beg.codePointAt(0), size );
-
-        return toArr ? [..._iter] : _iter;
-    },
-
-
-    /**
-     * 当前时间毫秒数。
-     * - 自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）；
-     * - 传递json为真，返回JSON标准格式串；
-     * @param  {Boolean} json JSON格式串
-     * @return {Number|String}
-     */
-    now( json ) {
-        return json ? new Date().toJSON() : Date.now();
-    },
-
-
-    /**
      * 检测 XML 节点。
      * 注：from Sizzle CSS Selector Engine v2.3.4
      * @param {Element|Object} el An element or a document
@@ -777,21 +720,6 @@ Object.assign(tQuery, {
         return box.contains ?
             box.contains(node) :
             box === node || box.compareDocumentPosition(node) & 16;
-    },
-
-
-    /**
-     * 源码标签化。
-     * 将非 <> 包围的代码转为正常的HTML标签源码。
-     * 如：[a href="#"]some link[/a] 转为 <a href="#">some link</a>
-     * 注：仅仅就是对包围字符进行简单的替换。
-     * @param  {String} code 待转换代码
-     * @return {String} 包含标签的字符串
-     */
-    tags( code ) {
-        return code.
-            replace(tagLeft, '$1<').replace(tagLeft0, '[').
-            replace(tagRight, '$1>').replace(tagRight0, ']');
     },
 
 
@@ -1843,9 +1771,9 @@ Object.assign(tQuery, {
     /**
      * 绑定事件处理。
      * 多次绑定同一个事件名和相同的调用函数是有效的。
-     * 处理器接口：function( ev, elo ): false|undefined
+     * 处理器接口：function( ev, targets ): false|Any
      * ev: Event 原生的事件对象。
-     * elo: {
+     * targets: {
      *      origin: Element   事件起源元素（event.target）
      *      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
      *      related: Element  事件相关的元素（event.relatedTarget）
@@ -1937,7 +1865,7 @@ Object.assign(tQuery, {
      * @param  {Boolean} cancelable 是否可取消
      * @return {this}
      */
-    trigger( el, evn, extra, bubble = true, cancelable = false ) {
+    trigger( el, evn, extra, bubble = true, cancelable = true ) {
         if (!el || !evn) {
             return;
         }
@@ -2593,13 +2521,19 @@ function _nextUntil( el, slr, dir ) {
 
 /**
  * 返回首个匹配的元素。
+ * 测试匹配函数接口：function(el): Boolean
  * @param  {[Element]} els 元素集（数组）
- * @param  {String|Element} slr 选择器或匹配元素
+ * @param  {String|Element|Function} slr 选择器或匹配测试
  * @return {Element|null}
  */
 function _first( els, slr ) {
-    for (let _i=0; _i<els.length; ++_i) {
-        if ( $is(els[_i], slr) ) return els[_i];
+    let _fn = slr;
+
+    if ( !isFunc(_fn) ) {
+        _fn = el => $is(el, slr);
+    }
+    for (const el of els) {
+        if ( _fn(el) ) return el;
     }
     return null;
 }
@@ -2653,24 +2587,68 @@ class Collector extends Array {
     }
 
 
+    //-- 重载父类方法 ---------------------------------------------------------
+    // 注：便于栈链操作。
+
+
+    /**
+     * 片段提取构建子集。
+     * @param  {Number} beg 起始下标
+     * @param  {Number} end 终点下标（不含）
+     * @return {Collector}
+     */
+    slice( beg, end ) {
+        return new Collector( super.slice(beg, end), this );
+    }
+
+
+    /**
+     * 数组连接。
+     * 注：不会自动去重排序。
+     * @param  {Value|[Value]} rest 待连接成员（数组）
+     * @return {Collector}
+     */
+    concat( ...rest ) {
+        return new Collector( super.concat(...rest), this );
+    }
+
+
+    /**
+     * 排序（可去重）。
+     * - comp为null以获得默认的排序规则（非元素支持）。
+     * - 总是会返回一个新的实例。
+     * @param  {Boolean} unique 是否去除重复
+     * @param  {Function} comp 排序函数，可选
+     * @return {Collector}
+     */
+    sort( unique, comp = null ) {
+        if ( this[0].nodeType && !comp ) {
+            comp = sortElements;
+        }
+        return new Collector(
+            // 注意comp的null值
+            unique ? uniqueSort(this, comp) : [...this].sort(comp || undefined),
+            this
+        );
+    }
+
+
     //-- 定制部分 -------------------------------------------------------------
 
 
     /**
      * 在集合内的每一个元素中查询单个目标。
      * 返回目标的一个新集合。
-     * 注：
-     * 传递clear为false可以保留无目标时的null值，这可能有用。
-     *
+     * 注记：父子关系的元素可能获取到重复的元素。
      * @param  {String} slr 选择器
-     * @param  {Boolean} clear 是否清理null，可选
      * @return {Collector}
      */
-    get( slr, clear = true ) {
+    get( slr ) {
         let _buf = Arr(this).
-            map( el => tQuery.get(slr, el) );
+            map( el => tQuery.get(slr, el) ).
+            filter( e => !!e );
 
-        return new Collector( clear ? _buf.filter(e => !!e) : _buf, this );
+        return new Collector( uniqueSort(_buf), this );
     }
 
 
@@ -2757,7 +2735,6 @@ class Collector extends Array {
      */
     normalize( level ) {
         this.forEach( el => $.normalize(el, level) );
-
         return level || this;
     }
 
@@ -2766,15 +2743,13 @@ class Collector extends Array {
      * 表单控件值操作。
      * 获取有效的值或与目标值对比并设置状态。
      * @param  {Value|[Value]|Function} value 对比值
-     * @return {this}
+     * @return {[Value]|this}
      */
     val( value ) {
         if (value === undefined) {
             return Arr(this).map( el => $.val(el) );
         }
-        this.forEach(
-            el => $.val( el, value )
-        );
+        this.forEach( el => $.val( el, value ) );
         return this;
     }
 
@@ -2801,7 +2776,7 @@ class Collector extends Array {
      * @return {Collector} this
      */
     each( handle, thisObj ) {
-        return $.each(this, handle, thisObj);
+        return $.each( this, handle, thisObj );
     }
 
 
@@ -2810,80 +2785,89 @@ class Collector extends Array {
 
     /**
      * 用特定下标的成员构造一个新实例。
-     * - 下标超出集合大小时构造一个空集合；
+     * - 下标超出集合大小时构造一个空集合。
+     * - 支持负下标从末尾算起。
      * @param  {Number} idx 下标值，支持负数
      * @return {Collector}
      */
     eq( idx ) {
-         if (idx >= this.length) {
-             return new Collector(0, this);
-         }
-        return new Collector( this[idx < 0 ? this.length+idx : idx], this );
+        if (idx < 0) {
+            idx += this.length;
+        }
+        return new Collector( this[idx], this );
     }
 
 
     /**
      * 用集合的首个匹配成员构造一个新集合。
-     * 注：CSS:first-child 是测试是否为首个，不同。
-     * @param  {String|Function} slr 匹配选择器
+     * 注：如果当前集合已为空，返回当前空集合。
+     * @param  {String|Element|Function} slr 匹配选择器
      * @return {Collector}
      */
     first( slr ) {
-        let _el = slr ?
-            _first(this, slr) :
-            this[0];
-
-        return new Collector( _el, this );
+        if (this.length == 0) {
+            return this;
+        }
+        return new Collector( (slr ? _first(this, slr) : this[0]), this );
     }
 
 
     /**
      * 用集合的最后一个匹配成员构造一个新集合。
-     * @param  {String|Function} slr 匹配选择器
+     * 注：如果当前集合已为空，返回当前空集合。
+     * @param  {String|Element|Function} slr 匹配选择器
      * @return {Collector}
      */
     last( slr ) {
-        let _el = slr ?
-            _first(this.reverse(), slr) :
-            this[this.length - 1];
-
-        return new Collector( _el, this );
+        if (this.length == 0) {
+            return this;
+        }
+        return new Collector(
+            (slr ? _first(Arr(this).reverse(), slr) : this[this.length-1]),
+            this
+        );
     }
 
 
     /**
      * 添加新元素。
-     * - 返回一个添加了新成员的新集合；
-     * - 仅在添加了新成员后才需要重新排序；
-     * - 总是会构造一个新的实例返回（同jQuery）；
-     * @param {String|Element|NodeList|Collector} its 目标内容
+     * - 返回一个添加了新成员的新集合。
+     * - 总是会构造一个新的实例返回（同jQuery）。
+     * 注：不会自动去重排序。
+     * @param  {String|Element|NodeList|Collector} its 目标内容
+     * @return {Collector}
      */
     add( its, ctx = Doc ) {
-        let _els = tQuery(its, ctx);
-        _els = _els.length ? uniqueSort( this.concat(_els) ) : this;
-
-        return new Collector( _els, this );
+        return this.concat( tQuery(its, ctx) );
     }
 
 
     /**
      * 构造上一个集合和当前集合的新集合。
-     * @param {String|Function} slr 选择器或过滤函数
+     * - 可选的选择器用于在上一个集合中进行筛选。
+     * - 总是会返回一个新实例，即便加入集为空。
+     * 注：不会自动去重排序。
+     * @param  {String|Function} slr 选择器或过滤函数
+     * @return {Collector}
      */
     addBack( slr ) {
-        let _new = $.filter(this.previous, slr);
-        _new = _new.length ? uniqueSort( _new.concat(this) ) : this;
-
-        return new Collector( _new, this );
+        return this.concat( tQuery.filter(this.previous, slr) );
     }
 
 
     /**
-     * 返回上一个集合（Collector 封装）。
+     * 返回集合栈末尾第n个集合。
+     * 注意：n 值不能为负。
      * @return {Collector}
      */
-    end() {
-        return this.previous;
+    end( n = 1) {
+        if (n < 0) {
+            throw new Error(`${n} is invalid.`);
+        }
+        let _it = this;
+        while ( _it && n-- ) _it = _it.previous;
+
+        return _it;
     }
 
 }
@@ -4868,9 +4852,18 @@ function rectSize( el, name ) {
 
 
 //
-// 事件处理。
-// 也适用于非元素上事件的绑定，如Animation实例。
-// 事件处理器：function(event, targets, selector)
+// 事件处理接口。
+// 事件处理器：function( event, targets ): false | Any
+// targets: {
+//      origin: Element   事件起源元素（event.target）
+//      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
+//      related: Element  事件相关的元素（event.relatedTarget）
+//      delegate: Element 绑定委托的元素（event.currentTarget），可选
+//      selector: String  委托匹配选择器，可选
+// }
+// 注：
+// 如果绑定不是委托方式，则 delegate 和 selector 两个成员是未定义的。
+//
 //////////////////////////////////////////////////////////////////////////////
 
 const Event = {
@@ -4892,26 +4885,27 @@ const Event = {
 
 
     //
-    // 由trigger激发的原生事件名清单。
+    // 会创建原生事件的方法。
     // 说明：
-    // 对于部分DOM原生事件，需要调用元素原生方法来获得DOM实现，如：
+    // 元素上的部分方法调用会创建一个原生方法，它们需在此明列。
+    // 这些方法通常有着相应的浏览器/DOM逻辑，如：
     // - select 选取表单控件内的文本。
-    // - click 选中或取消选中checkbox表单控件条目。
-    // - focus 表单空间聚焦。
+    // - click  选中或取消选中checkbox/radio表单控件条目。
+    // - focus  表单控件的聚焦。
     // trigger会直接调用它们触发原生事件，而不是构造一个自定义事件发送。
-    // 注：
-    // form:submit() 和 video:load() 只是普通方法，不触发事件。
-    // 元素的其它普通方法也可以被激发，但都需要存在绑定（它们不应在此列出）。
+    // 注意：
+    // form:submit() 和 video:load() 只是普通方法，不创建事件。
+    // 元素的其它普通方法也可以被激发，但都需要预先绑定处理器（不可出现在此）。
     //
     nativeEvents: new Set([
         'blur',
         'click',
         'focus',
-        'pause',    // audio,video
-        'play',     // audio,video
+        'pause',    // audio, video
+        'play',     // audio, video
         'reset',    // form
         'scroll',
-        'select',   // textarea,input:text
+        'select',   // textarea, input:text
     ]),
 
 
@@ -5190,7 +5184,7 @@ const Event = {
     /**
      * 处理器封装。
      * - 普通函数处理器内的 this 为触发事件的当前元素。
-     * - 处理器返回false可以终止原生方法的调用（仅限trigger激发的元素上的方法）。
+     * - 处理器返回false可以终止原生方法的调用（仅适用trigger）。
      * 注：如果不是委托方式，targets.delegate 为未定义。
      * @param  {Function} handle 用户处理函数
      * @param  {String} slr 委托选择器
@@ -5216,7 +5210,7 @@ const Event = {
             handle.bind(_cur)(ev, _evo) !== false &&
             // 调用元素的原生方法完成浏览器逻辑，
             // 如：form:submit, video:load 等。
-            this._nativeCall(ev, _cur);
+            this._methodCall(ev, _cur);
     },
 
 
@@ -5227,16 +5221,18 @@ const Event = {
      * @param {Event} ev 事件对象
      * @param {Element} el 目标元素
      */
-    _nativeCall( ev, el ) {
-        let _evn = ev.type;
+    _methodCall( ev, el ) {
+        let _evn = ev.type,
+            _fun = el[_evn];
 
-        // 避免循环触发。
-        if (ev.defaultPrevented || this.callable(_evn) ) {
+        if (ev.defaultPrevented ||
+            // 避免循环触发。
+            this.callable(_evn) ||
+            !isFunc(_fun) ) {
             return;
         }
-        // 仅支持可以on的方法。
-        // 实际上就是表单的 submit 和音视频的 load，都无实参。
-        return `on${_evn}` in el && el[_evn]( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
+        // 可为普通方法，实参传递。
+        return _fun( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
     },
 
 
@@ -5567,231 +5563,308 @@ const domReady = {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-tQuery.isArray = isArr;
-tQuery.isNumeric = isNumeric;
-tQuery.is = $is;
-tQuery.type = $type;
-tQuery.inArray = inArray;
-tQuery.some = iterSome;
-tQuery.unique = uniqueSort;
-tQuery.isFunction = isFunc;
-tQuery.isCollector = isCollector;
+tQuery.isArray      = isArr;
+tQuery.isNumeric    = isNumeric;
+tQuery.isFunction   = isFunc;
+tQuery.isCollector  = isCollector;
+tQuery.is           = $is;
+tQuery.type         = $type;
+tQuery.some         = iterSome;
+tQuery.unique       = uniqueSort;
+tQuery.inArray      = inArray;
 
 
-/**
- * 封装事件处理器的进阶激发。
- * 主要用于两个事件间的联动，根据前阶处理器的返回值决定后续行为。
- * 如果前阶事件处理器返回了假值则不激发，否则对返回的元素或配置对象（集）逐一激发。
- * handle接口:
- * - function(ev, elo): Element|[Element]|Object|[Object]|false
- * - Object: { elem: Element, data: Value }
- *
- * 返回值：
- * 返回一个封装了相关逻辑的处理器函数。
- * 如果前阶处理器返回假值则返回该假值，否则返回undefined或一个定时器ID。
- *
- * @param  {String} evn 待激发的事件名
- * @param  {Function|EventListener} 事件处理器
- * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
- * @return {Function} 事件处理器
- */
-tQuery.Later = function( evn, handle, over = false ) {
-    if ( !isFunc(handle) ) {
-        handle = handle.handleEvent.bind( handle );
-    }
-    return (ev, elo) => tiedHandle( ev, elo, evn, handle.bind(elo.current), over );
-}
+Object.assign( tQuery, {
+    /**
+     * 通用遍历。
+     * - 回调返回false终止遍历，其它值为continue逻辑；
+     * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例；
+     * - 注：Collector 集合版可直接使用该接口；
+     * handle：(
+     *  	值/元素,
+     *  	键/下标,
+     *  	迭代对象自身
+     * )
+     * - 与jQuery不同，因箭头函数的出现，不自动绑定this；
+     * - 参数与数组forEach标准接口相似，this也由外部传入；
+     *
+     * @param  {Array|LikeArray|Object|[.entries]|Collector} obj 迭代目标
+     * @param  {Function} handle 迭代回调（val, key）
+     * @param  {Any} thisObj 迭代回调内的this
+     * @return {obj} 迭代的目标对象
+     */
+    each( obj, handle, thisObj ) {
+        if (thisObj) {
+            handle = handle.bind(thisObj);
+        }
+        for ( let [k, v] of entries(obj) ) {
+            if (handle(v, k, obj) === false) break;
+        }
+        return obj;
+    },
 
 
-/**
- * 封装用户函数包含一个自动计数器。
- * - 用户函数的首个实参为计数值，会自动递增。
- * - 接口：function( count, ... )
- *
- * 注记：
- * 单元素版接口中部分参数支持用户回调处理器，
- * 但这些处理器难以获得集合版的当前单元计数（集合版通常只是单元素版的简单重复），
- * 所以这里提供一个封装工具，用于集合版中用户的回调处理。
- *
- * @param {Function} fn 用户处理器
- * @param {Number} n 计数起始值，可选
- * @param {Number} step 计数步进值，可选
- * @return {Function} 含计数器的处理器
- */
-tQuery.Counter = function( fn, n = 1, step = 1 ) {
-    n -= step;
-    return (...rest) => fn( (n += step), ...rest );
-};
+    /**
+     * 集合操作。
+     * - 支持.entries接口的内置对象包括Map,Set系列。
+     * - 回调返回undefined或null的条目被忽略。
+     * - 回调可以返回一个数组，其成员被提取添加。
+     * - 回调接口：function(val, key): Value|[Value]
+     *
+     * 注：功能与jQuery.map相同，接口略有差异。
+     *
+     * @param  {Array|LikeArray|Object|.entries} iter 迭代目标
+     * @param  {Function} fun 转换函数
+     * @param  {Object} thisObj 回调内的this
+     * @return {Array}
+     */
+    map( iter, fun, thisObj ) {
+        if (thisObj) {
+            fun = fun.bind(thisObj);
+        }
+        let _tmp = [];
+
+        for ( let [k, v] of entries(iter) ) {
+            v = fun(v, k);
+            // undefined == null
+            if (v != null) _tmp.push(v);
+        }
+        // 一级扁平化
+        return [].concat(..._tmp);
+    },
 
 
-/**
- * data属性名匹配。
- * 返回“data-”之后的prop格式名（驼峰）。
- * 如：
- * - data-abc-def => abcDef
- * - -abc-def => abcDef 支持前置-（省略data）
- * @return {String}
- */
-tQuery.dataName = function( str = '' ) {
-    let _ns = str.match(__dataName);
-    return _ns && camelCase( _ns[1] ) || '';
-};
+    /**
+     * 通用全部为真。
+     * - 参考iterSome；
+     * @param  {Array|LikeArray|Object|.entries} iter 迭代目标
+     * @param  {Function} comp 比较函数
+     * @param  {Object} thisObj 回调内的this
+     * @return {Boolean}
+     */
+    every( iter, comp, thisObj ) {
+        if (thisObj) {
+            comp = comp.bind(thisObj);
+        }
+        for ( let [k, v] of entries(iter) ) {
+            if (!comp(v, k)) return false;
+        }
+        return true;
+    },
 
 
-/**
- * 构造选择器。
- * - 仅支持标签&属性选择器；
- * 匹配符：{
- *  	~ 	空格分隔的单词匹配
- *  	| 	-分隔的词组前置匹配
- *  	* 	字串包含匹配
- *  	^ 	头部字串匹配
- *  	$ 	尾部字串匹配
- * }
- * @param  {String} tag  标签名
- * @param  {String} attr 属性名
- * @param  {String} val  属性值
- * @param  {String} op   属性匹配符
- * @return {String}
- */
-tQuery.selector = function( tag, attr, val = '', op = '' ) {
-    if (!attr) return tag;
-
-    let _ns = attr.match(__dataName);
-    if (_ns) {
-        attr = 'data-' + _ns[1];
-    }
-    return `${tag || ''}[${attr}` + (val && `${op}="${val}"`) + ']';
-};
+    /**
+     * 封装事件处理器的进阶激发。
+     * 主要用于两个事件间的联动，根据前阶处理器的返回值决定后续行为。
+     * 如果前阶事件处理器返回了假值则不激发，否则对返回的元素或配置对象（集）逐一激发。
+     * handle接口:
+     * - function(ev, elo): Element|[Element]|Object|[Object]|false
+     * - Object: { elem: Element, data: Value }
+     *
+     * 返回值：
+     * 返回一个封装了相关逻辑的处理器函数。
+     * 如果前阶处理器返回假值则返回该假值，否则返回undefined或一个定时器ID。
+     *
+     * @param  {String} evn 待激发的事件名
+     * @param  {Function|EventListener} 事件处理器
+     * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
+     * @return {Function} 事件处理器
+     */
+    Later( evn, handle, over = false ) {
+        if ( !isFunc(handle) ) {
+            handle = handle.handleEvent.bind( handle );
+        }
+        return (ev, elo) => tiedHandle( ev, elo, evn, handle.bind(elo.current), over );
+    },
 
 
-/**
- * 多数组合并。
- * - 将后续数组或数据合并到第一个数组；
- * - 如果数据来源不是数组，直接添加为成员；
- * - 返回首个参数数组本身；
- * @param  {Array} des 目标数组
- * @param  {...Array} src 数据源集序列
- * @return {Array} des
- */
-tQuery.mergeArray = function(des, ...src) {
-    des.push( ...[].concat(...src) );
-    return des;
-};
+    /**
+     * 封装用户函数包含一个自动计数器。
+     * - 用户函数的首个实参为计数值，会自动递增。
+     * - 接口：function( count, ... )
+     *
+     * 注记：
+     * 单元素版接口中部分参数支持用户回调处理器，
+     * 但这些处理器难以获得集合版的当前单元计数（集合版通常只是单元素版的简单重复），
+     * 所以这里提供一个封装工具，用于集合版中用户的回调处理。
+     *
+     * @param {Function} fn 用户处理器
+     * @param {Number} n 计数起始值，可选
+     * @param {Number} step 计数步进值，可选
+     * @return {Function} 含计数器的处理器
+     */
+    Counter( fn, n = 1, step = 1 ) {
+        n -= step;
+        return (...rest) => fn( (n += step), ...rest );
+    },
 
 
-/**
- * Map转换为Object对象。
- * - 键为键，值为值。
- * 注：仅适用于键为字符串或数值的Map实例。
- * @param  {Map} map Map实例
- * @return {Object}
- */
-tQuery.objMap = function( map ) {
-    let _o = {};
-    if (map) {
-        for ( const [k, v] of map ) _o[k] = v;
-    }
-    return _o;
-};
+    /**
+     * data属性名匹配。
+     * 返回“data-”之后的prop格式名（驼峰）。
+     * 如：
+     * - data-abc-def => abcDef
+     * - -abc-def => abcDef 支持前置-（省略data）
+     * @return {String}
+     */
+    dataName( str = '' ) {
+        let _ns = str.match(__dataName);
+        return _ns && camelCase( _ns[1] ) || '';
+    },
 
 
-/**
- * Map转换为对象数组。
- * 每一个键值对转换为一个对象，键为键名的值，值为值名的值。
- * 全部的键值对对象构成一个数组。
- * @param  {Map} map Map实例
- * @param  {String} kname 键名称
- * @param  {String} vname 值名称
- * @return {[Object]} 键值对对象数组
- */
-tQuery.kvsMap = function( map, kname = 'name', vname = 'value' ) {
-    let _buf = [];
+    /**
+     * 构造选择器。
+     * - 仅支持标签&属性选择器；
+     * 匹配符：{
+     *  	~ 	空格分隔的单词匹配
+     *  	| 	-分隔的词组前置匹配
+     *  	* 	字串包含匹配
+     *  	^ 	头部字串匹配
+     *  	$ 	尾部字串匹配
+     * }
+     * @param  {String} tag  标签名
+     * @param  {String} attr 属性名
+     * @param  {String} val  属性值
+     * @param  {String} op   属性匹配符
+     * @return {String}
+     */
+    selector( tag, attr, val = '', op = '' ) {
+        if (!attr) return tag;
 
-    for (const [k, v] of map) {
-        _buf.push({
-            [kname]: k,
-            [vname]: v,
-        });
-    }
-    return _buf;
-    // return [...map].map( kv => ({ [kname]: kv[0], [vname]: kv[1] }) );
-}
-
-
-/**
- * 通用全部为真。
- * - 参考iterSome；
- * @param  {Array|LikeArray|Object|.entries} iter 迭代目标
- * @param  {Function} comp 比较函数
- * @param  {Object} thisObj 回调内的this
- * @return {Boolean}
- */
-tQuery.every = function( iter, comp, thisObj ) {
-    if (thisObj) {
-        comp = comp.bind(thisObj);
-    }
-    for ( let [k, v] of entries(iter) ) {
-        if (!comp(v, k)) return false;
-    }
-    return true;
-};
+        let _ns = attr.match(__dataName);
+        if (_ns) {
+            attr = 'data-' + _ns[1];
+        }
+        return `${tag || ''}[${attr}` + (val && `${op}="${val}"`) + ']';
+    },
 
 
-/**
- * 集合转换。
- * - 支持.entries接口的内置对象包括Map,Set系列。
- * - 回调返回undefined或null的条目被忽略。
- * - 回调可以返回一个数组，其成员被提取添加。
- * - 回调接口：function(val, key): Value|[Value]
- *
- * 注：功能与jQuery.map相同，接口略有差异。
- *
- * @param  {Array|LikeArray|Object|.entries} iter 迭代目标
- * @param  {Function} fun 转换函数
- * @param  {Object} thisObj 回调内的this
- * @return {Array}
- */
-tQuery.map = function( iter, fun, thisObj ) {
-    if (thisObj) {
-        fun = fun.bind(thisObj);
-    }
-    let _tmp = [];
-
-    for ( let [k, v] of entries(iter) ) {
-        v = fun(v, k);
-        // undefined == null
-        if (v != null) _tmp.push(v);
-    }
-    // 一级扁平化
-    return [].concat(..._tmp);
-};
+    /**
+     * 源码标签化。
+     * 将非 <> 包围的代码转为正常的HTML标签源码。
+     * 如：[a href="#"]some link[/a] 转为 <a href="#">some link</a>
+     * 注：仅仅就是对包围字符进行简单的替换。
+     * @param  {String} code 待转换代码
+     * @return {String} 包含标签的字符串
+     */
+    tags( code ) {
+        return code.
+            replace(tagLeft, '$1<').replace(tagLeft0, '[').
+            replace(tagRight, '$1>').replace(tagRight0, ']');
+    },
 
 
-/**
- * 创建一个新的对象。
- * - 新对象基于首个参数base为原型；
- * - 新对象是后续对象的浅拷贝合并；
- * @param  {Object} base 原型对象
- * @param  {...Object} data 源数据序列
- * @return {Object}
- */
-tQuery.object = function( base, ...data ) {
-    return Object.assign( Object.create(base || null), ...data );
-};
+    /**
+     * Map转换为Object对象。
+     * - 键为键，值为值。
+     * 注：仅适用于键为字符串或数值的Map实例。
+     * @param  {Map} map Map实例
+     * @return {Object}
+     */
+    objMap( map ) {
+        let _o = {};
+        if (map) {
+            for ( const [k, v] of map ) _o[k] = v;
+        }
+        return _o;
+    },
 
 
-/**
- * 获取：对象的原型
- * 设置：设置对象的原型并返回该对象。
- * @param  {Object} obj  目标对象
- * @param  {Object} base 原型对象
- * @return {Object} obj
- */
-tQuery.proto = function( obj, base ) {
-    return base === undefined ?
-        Object.getPrototypeOf(obj) : Object.setPrototypeOf(obj, base);
-};
+    /**
+     * Map转换为对象数组。
+     * 每一个键值对转换为一个对象，键为键名的值，值为值名的值。
+     * 全部的键值对对象构成一个数组。
+     * @param  {Map} map Map实例
+     * @param  {String} kname 键名称
+     * @param  {String} vname 值名称
+     * @return {[Object]} 键值对对象数组
+     */
+    kvsMap( map, kname = 'name', vname = 'value' ) {
+        let _buf = [];
+
+        for (const [k, v] of map) {
+            _buf.push({
+                [kname]: k,
+                [vname]: v,
+            });
+        }
+        return _buf;
+        // return [...map].map( kv => ({ [kname]: kv[0], [vname]: kv[1] }) );
+    },
+
+
+    /**
+     * 多数组合并。
+     * - 将后续数组或数据合并到第一个数组；
+     * - 如果数据来源不是数组，直接添加为成员；
+     * - 返回首个参数数组本身；
+     * @param  {Array} des 目标数组
+     * @param  {...Array} src 数据源集序列
+     * @return {Array} des
+     */
+    mergeArray(des, ...src) {
+        des.push( ...[].concat(...src) );
+        return des;
+    },
+
+
+    /**
+     * 创建一个新的对象。
+     * - 新对象基于首个参数base为原型；
+     * - 新对象是后续对象的浅拷贝合并；
+     * @param  {Object} base 原型对象
+     * @param  {...Object} data 源数据序列
+     * @return {Object}
+     */
+    object( base, ...data ) {
+        return Object.assign( Object.create(base || null), ...data );
+    },
+
+
+    /**
+     * 获取：对象的原型
+     * 设置：设置对象的原型并返回该对象。
+     * @param  {Object} obj  目标对象
+     * @param  {Object} base 原型对象
+     * @return {Object} obj
+     */
+    proto( obj, base ) {
+        return base === undefined ?
+            Object.getPrototypeOf(obj) : Object.setPrototypeOf(obj, base);
+    },
+
+
+    /**
+     * 当前时间毫秒数。
+     * - 自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）；
+     * - 传递json为真，返回JSON标准格式串；
+     * @param  {Boolean} json JSON格式串
+     * @return {Number|String}
+     */
+    now( json ) {
+        return json ? new Date().toJSON() : Date.now();
+    },
+
+
+    /**
+     * 构造范围序列
+     * - 序列为[beg : beg+size)，半开区间。
+     * - 如果beg为字符，则构造Uncode范围序列。
+     * - 构造字符范围时，size可为终点字符（包含自身）。
+     * @param  {Number|String} beg 起始值
+     * @param  {Number|String} size 序列长度或终点字符
+     * @param  {Boolean} toArr 直接生成数组
+     * @return {Iterator|Array|null} 范围生成器
+     */
+    range( beg, size, toArr = false ) {
+        let _iter = typeof beg == 'number' ?
+            rangeNumber( beg, size ) : rangeChar( beg.codePointAt(0), size );
+
+        return toArr ? [..._iter] : _iter;
+    },
+
+});
 
 
 

@@ -74,18 +74,6 @@ scope: Boolean  // <style>元素的一个可选属性。
 传入迭代回调处理器的实参分别为：值，键，迭代对象自身（类似数组 `forEach` 接口）。回调返回 `false` 会中断迭代。
 
 
-### [$.range( beg: String | Number, size: String | Number, toArr?: Boolean ): Array | Iterator](docs/$.range.md)
-
-构造目标范围内一个连续的值序列，适用于数值和 `Unicode` 码点类型。通常会返回一个迭代器，除非明确指定返回数组（`toArr` 为 `true`）。
-
-
-### [$.now( json: Boolean ): String | Number](docs/$.now.md)
-
-返回当前时间：自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）。如果传递 `json` 为真，则表示为标准的 JSON 格式。
-
-这基本上就是对 `new Date().getTime()` 或 `Date.now()` 接口的简单封装（附带包含了 `.toJSON()` 的逻辑）。
-
-
 ### [$.isXML( el: Element | Object ): Boolean](docs/$.isXML.md)
 
 检查目标是否为一个 XML 节点。
@@ -96,13 +84,6 @@ scope: Boolean  // <style>元素的一个可选属性。
 检查目标节点 `node` 是否包含在 `box` 元素之内。与 DOM 标准兼容，匹配检查包含容器元素自身。
 
 > **注**：jQuery.contains 的行为稍有不同。
-
-
-### [$.tags( code: String ): String](docs/$.tags.md)
-
-伪标签源码（由 `[]` 包围标签）转化为正常的HTML源码，可用于元素属性值中直观地包含标签源码。
-
-这里只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置字符 `\` 转义。
 
 
 ### [$.controls( form: Element ): [Element]](docs/$.controls.md)
@@ -636,20 +617,77 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ### [$.trigger( el: Element, evn: String | CustomEvent, extra: Any, bubble?: Boolean, cancelable?: Boolean ): this](docs/$.trigger.md)
 
-手动激发 `el` 元素上的 `evn` 事件。`evn` 可以是一个事件名或一个已经构造好的事件对象，事件默认冒泡并且不可被取消。
+手动激发 `el` 元素上的 `evn` 事件。`evn` 可以是一个事件名或一个已经构造好的事件对象，事件默认冒泡并且可以被取消。
 
-元素上几个可直接调用原生事件函数（如 `click`, `focus` 等）创建事件的事件可以直接激发，绑定的处理器可以中止事件的默认行为。几个不创建事件的事件函数（如 `submit`, `load` 等）不能直接激发，需要在目标元素上绑定该事件的处理器才能激发，处理器内可以通过调用 `ev.preventDefault()` 或返回 `false` 阻断该事件方法的调用（不执行提交或载入的操作）。
+元素上几个可直接调用原生事件函数（如 `click`, `focus` 等）创建事件的事件可以直接激发，绑定的处理器可以中止事件的默认行为。不创建事件的事件函数（如 `submit`, `load` 等）不能直接激发，像元素上的普通方法一样，需要预先绑定与方法同名的事件的处理器才能激发，处理器内可以通过调用 `ev.preventDefault()` 或返回 `false` 阻断该方法的调用。
 
 原生事件激发也可以携带参数，如：`trigger(box, scroll, [x, y])` 让滚动条滚动到指定的位置。**注**：实际上只是调用 `box.scroll(x, y)` 并触发 `scroll` 事件。
 
 
 ## 原生事件调用
 
+在浏览器的 DOM 元素中，有 `10` 个事件是可以在元素上直接调用的，它们分别是：
 
-## 实用工具
+- `click()`: 模拟用户对元素的点击。
+- `blur()`: 让元素失去焦点。
+- `focus()`: 让元素获得焦点。
+- `select()`: 对于可输入文本的控件，让文本被选中。
+- `load()`: 载入元素引用的媒体文件，主要适用 `<video>` 和 `<audio>` 元素。
+- `play()`: 媒体继续播放，适用元素同上。
+- `pause()`: 媒体播放暂停，适用元素同上。
+- `scroll(x, y)`: 包含滚动条的元素滚动到目标位置。
+- `reset()`: 表单重置。
+- `submit()`: 提交表单。
+
+其中除了 `load()` 和 `submit()` 外，其它调用都会在元素上触发一个同名的事件。如果你愿意，这些方法可以直接在元素上调用，但这里也把它们作为基本接口纳入。
+
+对于单元素版，实现上就是在元素上简单的调用而已（可能传入参数）。对于集合版，遵循通常一致的逻辑，就是对集合内各个元素上分别调用该方法。
+
+
+## 集合版定制
+
+### .concat( ...rest: Value | [Value] ): Collector
+
+集合连接，覆盖继承于数组的同名方法。与 `Array.concat` 的差异就是对连接返回的新数组进行了封装，以支持对集合栈的操作（如：`.end()`）。
+
+
+### .slice( beg: Number, end: Number ): Collector
+
+集合切片，覆盖继承于数组的同名方法。与 `Array.slice` 的差异就是对切片返回的子集进行了封装，以支持对集合栈的操作。
+
+
+### [.sort( unique: Boolean, comp?: Function ): Collector](docs/$().sort.md)
+
+集合内成员排序去重，覆盖继承于数组的同名方法。因为集合主要用于元素，这里附带了一个去重的功能（也适用于普通值）。传递 `unique` 为真就会去除集合中重复的成员。默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的元素比较按元素在 DOM 中的位置排序，如果集合中首个成员不是元素，则按 `Array.sort` 方法的排序规则执行。
+
+
+### [.wrapAll( box: String | Function | Element, doc?: Document ): Collector](docs/$().wrapAll.md)
+
+
+
+## 实用小工具
 
 ### [$.Later( evn: String, handle: Function | Object, over?: Boolean ): Function](docs/$.Later.md)
 
 封装事件处理器（`handle`）的进一步事件（`evn`）激发，主要用于两个事件间的联动：根据 `handle` 的返回值决定后续行为，如果 `handle` 返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件（`evn`）。
 
 本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 返回了假值，则返回该假值本身，如果返回了真值（元素/配置对象或其数组），则返回 `undefined` 或一个定时器ID。
+
+
+### [$.tags( code: String ): String](docs/$.tags.md)
+
+伪标签源码（由 `[]` 包围标签）转化为正常的HTML源码，可用于元素属性值中直观地包含标签源码。
+
+这里只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置字符 `\` 转义。
+
+
+### [$.now( json: Boolean ): String | Number](docs/$.now.md)
+
+返回当前时间：自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）。如果传递 `json` 为真，则表示为标准的 JSON 格式。
+
+这基本上就是对 `new Date().getTime()` 或 `Date.now()` 接口的简单封装（附带包含了 `.toJSON()` 的逻辑）。
+
+
+### [$.range( beg: String | Number, size: String | Number, toArr?: Boolean ): Array | Iterator](docs/$.range.md)
+
+构造目标范围内一个连续的值序列，适用于数值和 `Unicode` 码点类型。通常会返回一个迭代器，除非明确指定返回数组（`toArr` 为 `true`）。
