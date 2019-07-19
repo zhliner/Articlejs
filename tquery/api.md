@@ -67,13 +67,6 @@ scope: Boolean  // <style>元素的一个可选属性。
 > `<script>` 和 `<link>` 元素实际上也符合本接口，但前者执行后可以删除，故单独为一个 `$.script` 接口，后者实际上属于 style 范畴，故由 `$.style` 接口负责。
 
 
-### [$.each( obj: Any, handle: Function, thisObj: Any ): Any](docs/$.each.md)
-
-通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
-
-传入迭代回调处理器的实参分别为：值，键，迭代对象自身（类似数组 `forEach` 接口）。回调返回 `false` 会中断迭代。
-
-
 ### [$.isXML( el: Element | Object ): Boolean](docs/$.isXML.md)
 
 检查目标是否为一个 XML 节点。
@@ -665,7 +658,14 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 
 
-## 实用小工具
+## 实用工具
+
+### [$.each( obj: Any, handle: Function, thisObj: Any ): Any](docs/$.each.md)
+
+通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
+
+传入迭代回调处理器的实参分别为：值，键，迭代对象自身（类似数组 `forEach` 接口）。回调返回 `false` 会中断迭代。
+
 
 ### [$.Later( evn: String, handle: Function | Object, over?: Boolean ): Function](docs/$.Later.md)
 

@@ -116,10 +116,10 @@
                 return $id(slr, doc) || [];
             }
             let _els;
-            if (__reTAG.test(slr)) {
+            if (__reTAG.test(slr) && ctx.nodeType != 11) {
                 _els = $tag(slr, ctx);
             }
-            else if (__reCLASS.test(slr)) {
+            else if (__reCLASS.test(slr) && ctx.nodeType != 11) {
                 _els = $class(slr, ctx);
             }
             else {
@@ -2703,26 +2703,44 @@ class Collector extends Array {
 
 
     /**
-     * 让集合中的元素脱离DOM。
-     * - 脱离的元素会作为一个新集合被压入栈；
-     * 注：调用 $ 系同名成员使得外部嵌入的代理可作用于此。
+     * 移出节点集（脱离DOM）。
+     * - 匹配选择器 slr 的会被移出。
+     * - 移出的元素会作为一个新集合返回。
+     * @param  {String|Function} 过滤选择器
      * @return {Collector} 脱离的元素集
      */
-    detach() {
-        return new Collector( this.map(e => $.detach(e)), this );
+    detach( slr ) {
+        let _fn = getFltr(slr),
+            _els;
+
+        // $ 允许嵌入代理
+        if ( _fn ) {
+            _els = super.filter( el => _fn(el) ? $.detach(el) : false );
+        } else {
+            this.forEach( el => $.detach(el) );
+        }
+        return new Collector( _els || this, this );
     }
 
 
     /**
      * 删除节点集。
-     *   返回的新集合为空（只有addBack、end操作有意义）。
-     * 注记：（同上）
+     * - 匹配选择器 slr 的元素才会移除。
+     * - 返回剩余节点集的一个集合（可能为空集）。
+     * @param  {String|Function} 过滤选择器
      * @return {Collector} 一个空集
      */
-    remove() {
-        this.forEach( el => $.remove(el) );
+    remove( slr ) {
+        let _fn = getFltr(slr),
+            _els;
 
-        return new Collector( null, this );
+        // $ 允许嵌入代理
+        if ( _fn ) {
+            _els = super.filter( el => _fn(el) ? ($.remove(el), false) : true );
+        } else {
+            this.forEach( el => $.remove(el) );
+        }
+        return new Collector( _els, this );
     }
 
 
@@ -3739,8 +3757,6 @@ function deepChild( el ) {
 
 /**
  * 删除节点元素。
- * - 默认保持引用（不被垃圾回收）；
- * - 引用存储在__nodeDetach空间；
  * @param {Node} node 目标节点
  * @param {Boolean} deleted 彻底删除
  */
@@ -4357,22 +4373,16 @@ function fragmentNodes( nodes, get, doc ) {
 
 /**
  * 构建文档片段。
- * - 源码中的脚本元素被提取出来，存储在exbuf中（如果提供）；
- * - 脚本元素包含“script，style，link”三种；
- * - 源码解析异常会静默失败，返回null；
+ * - 源码中的脚本元素会被强制剔除，存储在exbuf中（如果提供）。
+ * - 脚本元素包含“script，style，link”三种。
+ * - 源码解析异常会静默失败，返回null。
  * @param  {String} html 源码
  * @param  {Document} doc 文档对象
  * @param  {Array} xbuf 脚本存储空间
  * @return {Fragment|Node} 节点/片段
  */
 function buildFragment( html, doc, xbuf ) {
-    let _frag = doc.createDocumentFragment();
-
-    if (!ihtml.test( html )) {
-        _frag.appendChild( doc.createTextNode(html) );
-        return _frag;
-    }
-    let _box = doc.createElement("div");
+    let _box = doc.createElement("template");
     try {
         _box.innerHTML = html;
     }
@@ -4380,22 +4390,17 @@ function buildFragment( html, doc, xbuf ) {
         window.console.error(e);
         return null;
     }
+    _box = doc.adoptNode(_box.content);
+
+    if (!ihtml.test( html )) {
+        return _box;
+    }
     // pick script...
     for ( let _tmp of $all('script, style, link', _box)) {
-        if (xbuf) xbuf.push(_tmp);
         remove(_tmp);
+        if (xbuf) xbuf.push(_tmp);
     }
-    // force remove.
-    for (let _del of $all('html, head, body', _box)) {
-        remove(_del);
-        window.console.warn('html, head, body was denied.');
-    }
-    // 注记：
-    // 不可用values迭代，节点的移出会影响迭代次数！
-    for ( let _node of Arr(_box.childNodes) ) {
-        _frag.appendChild( _node );
-    }
-    return _frag;
+    return _box;
 }
 
 
@@ -5836,18 +5841,6 @@ Object.assign( tQuery, {
 
 
     /**
-     * 当前时间毫秒数。
-     * - 自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）；
-     * - 传递json为真，返回JSON标准格式串；
-     * @param  {Boolean} json JSON格式串
-     * @return {Number|String}
-     */
-    now( json ) {
-        return json ? new Date().toJSON() : Date.now();
-    },
-
-
-    /**
      * 构造范围序列
      * - 序列为[beg : beg+size)，半开区间。
      * - 如果beg为字符，则构造Uncode范围序列。
@@ -5862,6 +5855,18 @@ Object.assign( tQuery, {
             rangeNumber( beg, size ) : rangeChar( beg.codePointAt(0), size );
 
         return toArr ? [..._iter] : _iter;
+    },
+
+
+    /**
+     * 当前时间毫秒数。
+     * - 自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）；
+     * - 传递json为真，返回JSON标准格式串；
+     * @param  {Boolean} json JSON格式串
+     * @return {Number|String}
+     */
+    now( json ) {
+        return json ? new Date().toJSON() : Date.now();
     },
 
 });
