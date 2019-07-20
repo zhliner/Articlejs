@@ -1455,50 +1455,59 @@ Object.assign( tQuery, {
      * 特性（Attribute）获取/修改。
      * name: {String}
      *  	xx 		普通名称
-     *  	data-x 	data系名称
+     *  	data-xx data系名称
      *  	-xx 	data系名称简写
      * name: [String] 	    名称集（获取时）
      * name: {Object|Map} 	名/值对象（设置时）
      *
-     * - value未定义时为获取。支持名称数组（返回一个名值对 Object）。
-     * - value有值时为设置，value支持回调取得新值。
-     * - name为名值对对象或Map时也为设置，内部值可为回调函数，与键对应。
-     * - 回调接口：function( oldval, el )。
+     * - value未定义时为获取，name支持空格分隔的名称序列。
+     * - value有值时为设置，支持回调获取目标值，接口：function(oldval, el)。
+     * - 设置时name也可为名值对对象或Map，其中值同样支持取值回调。
      * - value传递null会删除目标特性。
+     * - 支持两个特殊特性名：text、html，设置时为填充方式。
      *
      * 注记：
      * - Attribute 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法。
      * - Property 下面译为属性，表示运行时计算出现的。可直接赋值修改。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
+     * @param  {String|Object|Map} name 名称（序列）或名/值对象
      * @param  {String|Number|Boolean|Function|null} val 新值或回调函数，可选
      * @return {Value|Object|this}
      */
     attr( el, name, val ) {
-        if (_isGetter(name, val)) {
+        if (name == null) {
+            return; // 集合版友好
+        }
+        if (val === undefined && typeof name == 'string') {
             return hookGets(el, name, elemAttr);
         }
         hookSets(el, name, val, elemAttr);
+
         return this;
     },
 
 
     /**
      * 属性（Property）获取/修改。
-     * - name说明同attr。
-     * - 与attr不同，value传递null会赋值为null（而非删除）。
+     * - 参数说明同.attr接口。
+     * - 与attr不同，value传递null会赋值为null（可能导致元素回到默认状态）。
+     * - 支持两个特殊属性名：text、html，设置时为填充方式。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|[String]|Object|Map} name 名称（集）或名/值对象
+     * @param  {String|Object|Map} name 名称（序列）或名/值对象
      * @param  {String|Number|Boolean|Function|null} val 新值或回调函数，可选
      * @return {Value|Object|this}
      */
     prop( el, name, val ) {
-        if (_isGetter(name, val)) {
-                return hookGets(el, name, elemProp);
+        if (name == null) {
+            return; // 集合版友好
+        }
+        if (val === undefined && typeof name == 'string') {
+            return hookGets(el, name, elemProp);
         }
         hookSets(el, name, val, elemProp);
+
         return this;
     },
 
@@ -1597,7 +1606,7 @@ Object.assign( tQuery, {
      * @param  {Element|String} el 容器元素或待转换文本
      * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数
      * @param  {String|Number} where 插入位置
-     * @param  {String} sep 多段连接符
+     * @param  {String} sep 多段连接符（设置时）
      * @return {String|[Node]} 源码或插入的节点集
      */
     html( el, code, where = 0, sep = ' ' ) {
@@ -1637,7 +1646,7 @@ Object.assign( tQuery, {
      * @param  {Element|String} el 容器元素或待解析源码
      * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数
      * @param  {String|Number} where 插入位置
-     * @param  {String} sep 多段连接符
+     * @param  {String} sep 多段连接符（设置时）
      * @return {String|Node} 源码或插入的文本节点
      */
     text( el, code, where = 0, sep = ' ' ) {
@@ -1666,28 +1675,30 @@ Object.assign( tQuery, {
 
     /**
      * 获取/设置元素样式。
-     * - 设置为内联样式（style），获取计算后的样式。
-     * - 支持一个名称数组获取属性，返回一个键值对对象。
-     * - 设置样式值为空串或null，会删除该样式。
-     * - 可以传递name为一个键值对象，依键值定义设置样式。
-     * - 键值定义中的值依然可以为回调取值函数。
-     * - 传递name为null会删除全部的内联样式（删除style特性本身)。
-     * - 取值函数：fn.bind(el)( oldval, cso )
+     * - 设置为内联样式（style），获取计算后的样式值。
+     * - 单个名称时返回一个值，支持空格分隔的名称序列，返回一个键值对象。
+     * - 设置样式值为空串或null，会删除目标样式。
+     * - val值支持取值回调，接口：fn.bind(el)( oldval, cso )。
+     * - 设置时可以传递name为一个键值对象或Map，值依然可以为一个取值回调。
+     * - 若name为null会删除全部的内联样式（即删除style本身)。
      * 注记：
-     * - Edge/Chrome/FF已支持短横线样式属性名；
+     * Edge/Chrome/FF已支持短横线样式属性名。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|[String]|Object|Map} name 样式名（集）或名/值配置对象
+     * @param  {String|Object|Map} name 样式名（序列）或名/值配置对象
      * @param  {String|Number|Function} val 设置值或取值函数
      * @return {String|Object|this}
      */
     css( el, name, val ) {
+        if (name === undefined) {
+            return; // 集合版友好
+        }
         if (name === null) {
             return el.removeAttribute('style'), this;
         }
         let _cso = getStyles(el);
 
-        if (_isGetter(name, val)) {
+        if (val === undefined && typeof name == 'string') {
             return cssGets(_cso, name);
         }
         cssSets(el, name, val, _cso);
@@ -2119,7 +2130,7 @@ class Table {
     /**
      * 包装表格元素为 Collector 对象。
      * 便于后续的链式调用。
-     * @return {Collector} 对表格元素进行Elements封装
+     * @return {Collector} 对表格元素进行 Collector 封装
      */
     $() {
         return new Collector(this._tbl);
@@ -3140,21 +3151,22 @@ elsExfn([
         'css',
     ],
     fn =>
+    // 可代理调用 $
     function( name, val ) {
-        // 可代理调用 $
         if (_isGetter(name, val)) {
-            return Arr(this).map( el => $[fn](el, name) );
+            return _customGets( fn, Arr(this), name );
         }
         if (isArr(name)) {
             // val 无意义
-            this.forEach( (el, i) => name[i] !== undefined && $[fn](el, name[i]) );
+            this.forEach( (el, i) => $[fn](el, name[i]) );
         }
+        // 仅支持单一名称
         else if (isArr(val)) {
-            // name 肯定为一个单名称
+            // 无值时忽略
             this.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
         }
         else {
-            // 简单名称简单值
+            // 统一赋相同值。
             this.forEach( el => $[fn](el, name, val) );
         }
         return this;
@@ -3162,12 +3174,31 @@ elsExfn([
 );
 
 
+/**
+ * 获取元素特性/属性/样式值（集）。
+ * 集合版专用：支持名称（序列）数组的一一对应。
+ * 注：
+ * 名称数组成员本身可能是空格分隔的名称序列。
+ *
+ * @param {String} fn 方法名
+ * @param {[Element]} els 元素集
+ * @param {String|[String]} name 名称序列（集）
+ */
+function _customGets( fn, els, name ) {
+    if ( isArr(name) ) {
+        return els.map( (el, i) => $[fn](el, name[i]) );
+    }
+    return els.map( el => $[fn](el, name) );
+}
+
+
 //
 // 判断是否为获取状态。
+// name 为字符串、字符串数组时有效。
 // 注：仅用于 .attr/.prop/.css 接口。
 //
 function _isGetter( name, val ) {
-    return (isArr(name) && typeof name[0] == 'string') || (val === undefined && typeof name == 'string');
+    return (typeof name == 'string' && val === undefined) || (isArr(name) && typeof name[0] == 'string');
 }
 
 
@@ -3206,7 +3237,7 @@ elsExfn([
 // 内容取值/修改。
 // 设置与获取两种操作合二为一，val支持数组分别赋值。
 //
-// 设置时：返回的新节点构造为一个新的Elements实例。
+// 设置时：返回的新节点构造为一个新的 Collector 实例。
 // 取值时：返回一个普通数组，成员与集合元素一一对应。
 //
 // @return {[Value]|Collector}
@@ -3651,22 +3682,22 @@ function camelCase( name ) {
 /**
  * 获取样式值（集）。
  * @param  {CSSStyleDeclaration} cso 计算样式集
- * @param  {String|[String]} names 样式名（集）
+ * @param  {String} name 样式名（序列）
  * @return {String|Object} 值或名值对对象
  */
-function cssGets( cso, names ) {
-    if (typeof names == 'string') {
-        return cso[names];
+function cssGets( cso, name ) {
+    name = name.trim().split(__chSpace);
+
+    if (name.length == 1) {
+        return cso[ name[0] ];
     }
-    return names.reduce(
-        (obj, n) => ( obj[n] = cso[n], obj ),
-        {}
-    );
+    return name.reduce( (obj, n) => ( obj[n] = cso[n], obj ), {} );
 }
 
 
 /**
  * 设置样式值。
+ * name为字符串时仅支持单个名称。
  * @param  {Element} el 目标元素
  * @param  {String|Object|Map} name 样式名或名值对对象
  * @param  {String|Number|Function} val 设置值或取值回调
@@ -3962,25 +3993,55 @@ function encURICompX( str ) {
  * - name支持字符串或一个名/值对象（Object|Map）。
  * - value为一个新值或获取新值的回调函数。
  * - 名/值对象中的值依然可以是回调函数（与键对应）。
- *
- * 注记：
- * name不支持空格分隔多个名称的序列形式。
+ * - 设置时name若为字符串，仅支持单个名称（简单赋值）。
  *
  * @param {Element} el 目标元素
  * @param {String|Object|Map} name 名称或名/值对象
- * @param {Mixed|Function} value 设置值或回调函数
+ * @param {Value|Function} value 设置值或回调函数
  * @param {Object} scope 适用域对象
  */
 function hookSets( el, name, value, scope ) {
     if (typeof name == 'string') {
-        name = { [name]: value };
+        return hookSet(el, name.trim(), value, scope);
     }
     for (let [_k, _v] of entries(name)) {
-        if (isFunc(_v)) {
-            _v = _v(scope.get(el, _k), el);
-        }
-        scope.set(el, _k, _v);
+        hookSet(el, _k, _v, scope);
     }
+}
+
+
+/**
+ * hookSets 的简单设置版。
+ * @param {Element} el 目标元素
+ * @param {String} name 名称
+ * @param {Value} val 设置值
+ * @param {Object} scope 适用域对象
+ */
+function hookSet( el, name, val, scope ) {
+    if ( isFunc(val) ) {
+        val = val( customGet(el, name, scope), el );
+    }
+    return customSet( el, name, val, scope );
+}
+
+
+/**
+ * 定制版设置。
+ * 支持2个特别的属性：text 和 html。
+ * 支持外部嵌入代理的影响。
+ * @param {Element} el 设置的目标元素
+ * @param {String} name 属性名
+ * @param {Value} value 属性值
+ * @param {Object} scope 适用域对象
+ */
+function customSet( el, name, value, scope ) {
+    switch (name) {
+        case 'text':
+            return $.text(el, value);
+        case 'html':
+            return $.html(el, value);
+    }
+    return scope.set(el, name, value);
 }
 
 
@@ -3994,13 +4055,34 @@ function hookSets( el, name, value, scope ) {
  * @return {String|Object} 值或名值对对象
  */
 function hookGets( el, name, scope ) {
-    if (typeof name == 'string') {
-        return scope.get(el, name);
+    name = name.trim().split(__chSpace);
+
+    if (name.length == 1) {
+        return customGet(el, name, scope);
     }
     return name.reduce(
-        (obj, n) => ( obj[n] = scope.get(el, n), obj ),
+        (obj, n) => ( obj[n] = customGet(el, n, scope), obj ),
         {}
     );
+}
+
+
+/**
+ * 定制版取值。
+ * 支持2个特别属性：text 和 html。
+ * 支持外部嵌入代理的影响。
+ * @param {Element} el 取值目标元素
+ * @param {String} name 属性名
+ * @param {Object} scope 适用域对象
+ */
+function customGet( el, name, scope ) {
+    switch (name) {
+        case 'text':
+            return $.text(el);
+        case 'html':
+            return $.html(el);
+    }
+    return scope.get(el, name);
 }
 
 
