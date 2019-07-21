@@ -263,14 +263,14 @@ scope: Boolean  // <style>元素的一个可选属性。
 对 `els` 中的元素用 `fltr` 匹配过滤，返回一个匹配元素的新的集合。如果没有过滤条件（为假值），返回一个已转换为数组的原始集。
 
 
-### [$.has( els: NodeList | Array | LikeArray, slr: String | Function | Element ): [Element]](docs/$.has.md)
-
-对 `els` 中的元素用 `slr` 执行 **包含** 匹配过滤。包含的意思是 **`slr` 作为子级元素匹配**，`slr` 也可以是一个匹配函数。传递一个假值的 `slr` 实参时，返回一个已转换为数组的原始集。
-
-
 ### [$.not( els: NodeList | Array | LikeArray, slr: String | Function | Array | Element ): [Element]](docs/$.not.md)
 
 对 `els` 中的元素用 `slr` 匹配排除，返回排除匹配元素之后的新集合。如果没有过滤条件（为假值），返回一个已转换为数组的原始集。
+
+
+### [$.has( els: NodeList | Array | LikeArray, slr: String | Function | Element ): [Element]](docs/$.has.md)
+
+对 `els` 中的元素用 `slr` 执行 **包含** 匹配过滤。包含的意思是 **`slr` 作为子级元素匹配**，`slr` 也可以是一个匹配函数。传递一个假值的 `slr` 实参时，返回一个已转换为数组的原始集。
 
 
 

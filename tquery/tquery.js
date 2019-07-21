@@ -1122,31 +1122,6 @@ Object.assign( tQuery, {
 
 
     /**
-     * 包含过滤。
-     * - 目标元素（集）被本集合中元素作为子级元素包含。
-     * - 或目标选择器与集合中元素的子级元素匹配。
-     * 测试调用：func(el)
-     * @param  {NodeList|Array|LikeArray} els 目标元素集
-     * @param  {String|Function|Element} slr 筛选器
-     * @return {[Element]}
-     */
-    has( els, slr ) {
-        let _f = slr;
-
-        if (!slr || !els.length) {
-            return $A(els);
-        }
-        if (typeof slr == 'string') {
-            _f = el => !!tQuery.get(slr, el);
-        }
-        else if (slr.nodeType) {
-            _f = el => slr !== el && tQuery.contains(el, slr);
-        }
-        return $A(els).filter(_f);
-    },
-
-
-    /**
      * 排除过滤。
      * - 从集合中移除匹配的元素；
      * @param  {NodeList|[Element]|LikeArray|Collector} els 目标元素集
@@ -1170,6 +1145,31 @@ Object.assign( tQuery, {
         }
         else if (isFunc(slr)) {
             _f = (el, i, arr) => !slr(el, i, arr);
+        }
+        return $A(els).filter(_f);
+    },
+
+
+    /**
+     * 包含过滤。
+     * - 目标元素（集）被本集合中元素作为子级元素包含。
+     * - 或目标选择器与集合中元素的子级元素匹配。
+     * 测试调用：func(el)
+     * @param  {NodeList|Array|LikeArray} els 目标元素集
+     * @param  {String|Function|Element} slr 筛选器
+     * @return {[Element]}
+     */
+     has( els, slr ) {
+        let _f = slr;
+
+        if (!slr || !els.length) {
+            return $A(els);
+        }
+        if (typeof slr == 'string') {
+            _f = el => !!tQuery.get(slr, el);
+        }
+        else if (slr.nodeType) {
+            _f = el => slr !== el && tQuery.contains(el, slr);
         }
         return $A(els).filter(_f);
     },
@@ -1453,18 +1453,24 @@ Object.assign( tQuery, {
 
     /**
      * 特性（Attribute）获取/修改。
-     * name: {String}
-     *  	xx 		普通名称
-     *  	data-xx data系名称
-     *  	-xx 	data系名称简写
-     * name: [String] 	    名称集（获取时）
-     * name: {Object|Map} 	名/值对象（设置时）
+     * name: String
+     * - "xx"       普通名称
+     * - "data-xx"  data系名称
+     * - "-xx" 	    data系名称简写
+     * - "aa bb"    名称序列，空格分隔多个名称
+     * - "text"     特殊名称，针对元素内文本
+     * - "html"     特殊名称，针对元素内源码
      *
-     * - value未定义时为获取，name支持空格分隔的名称序列。
-     * - value有值时为设置，支持回调获取目标值，接口：function(oldval, el)。
-     * - 设置时name也可为名值对对象或Map，其中值同样支持取值回调。
+     * 取值：
+     * - value为未定义，name为字符串。
+     * - name支持空格分隔多个名称，支持data-系简写名，返回一个键值对象。
+     * - 支持两个特殊特性名：text、html，下同。
+     *
+     * 设置：
+     * - value有值时，name为名称，可空格分隔的多个名称赋相同值。
+     * - value支持取值回调获取目标值，接口：function(oldval, el)。
      * - value传递null会删除目标特性。
-     * - 支持两个特殊特性名：text、html，设置时为填充方式。
+     * - value无值时，name为名值对象或Map，其中值同样支持取值回调。
      *
      * 注记：
      * - Attribute 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法。
@@ -1472,18 +1478,14 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {String|Number|Boolean|Function|null} val 新值或回调函数，可选
+     * @param  {Value|Function|null} value 新值或取值回调，可选
      * @return {Value|Object|this}
      */
-    attr( el, name, val ) {
-        if (name == null) {
-            return; // 集合版友好
-        }
-        if (val === undefined && typeof name == 'string') {
+    attr( el, name, value ) {
+        if (value === undefined && typeof name == 'string') {
             return hookGets(el, name, elemAttr);
         }
-        hookSets(el, name, val, elemAttr);
-
+        hookSets(el, name, value, elemAttr);
         return this;
     },
 
@@ -1496,18 +1498,14 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {String|Number|Boolean|Function|null} val 新值或回调函数，可选
+     * @param  {Value|Function|null} value 新值或取值回调，可选
      * @return {Value|Object|this}
      */
-    prop( el, name, val ) {
-        if (name == null) {
-            return; // 集合版友好
-        }
-        if (val === undefined && typeof name == 'string') {
+    prop( el, name, value ) {
+        if (value === undefined && typeof name == 'string') {
             return hookGets(el, name, elemProp);
         }
-        hookSets(el, name, val, elemProp);
-
+        hookSets(el, name, value, elemProp);
         return this;
     },
 
@@ -1675,24 +1673,24 @@ Object.assign( tQuery, {
 
     /**
      * 获取/设置元素样式。
-     * - 设置为内联样式（style），获取计算后的样式值。
+     * 设置为内联样式（style），获取计算后的样式值。
+     * 取值：
      * - 单个名称时返回一个值，支持空格分隔的名称序列，返回一个键值对象。
-     * - 设置样式值为空串或null，会删除目标样式。
+     * 设置：
      * - val值支持取值回调，接口：fn.bind(el)( oldval, cso )。
-     * - 设置时可以传递name为一个键值对象或Map，值依然可以为一个取值回调。
-     * - 若name为null会删除全部的内联样式（即删除style本身)。
+     * - val为空串或null，会删除目标样式。
+     * - name可以为一个键值对象或Map，值依然可以为一个取值回调。
+     * - name若为空格分隔的名称序列，会被设置为相同的样式值。
+     * - name为null可以删除全部的内联样式（即删除style本身)。
      * 注记：
      * Edge/Chrome/FF已支持短横线样式属性名。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|Object|Map} name 样式名（序列）或名/值配置对象
-     * @param  {String|Number|Function} val 设置值或取值函数
+     * @param  {String|Object|Map|null} name 样式名（序列）或名/值配置对象
+     * @param  {String|Number|Function|null} val 设置值或取值函数
      * @return {String|Object|this}
      */
     css( el, name, val ) {
-        if (name === undefined) {
-            return; // 集合版友好
-        }
         if (name === null) {
             return el.removeAttribute('style'), this;
         }
@@ -2771,6 +2769,9 @@ class Collector extends Array {
     /**
      * 表单控件值操作。
      * 获取有效的值或与目标值对比并设置状态。
+     * 注记：
+     * 单元素版支持值数组匹配，因此这里无法支持与集合成员的一一对应。
+     *
      * @param  {Value|[Value]|Function} value 对比值
      * @return {[Value]|this}
      */
@@ -3153,23 +3154,12 @@ elsExfn([
     fn =>
     // 可代理调用 $
     function( name, val ) {
-        if (_isGetter(name, val)) {
-            return _customGets( fn, Arr(this), name );
+        let _nia = isArr(name);
+
+        if ( (val === undefined && typeof name == 'string') || (_nia && typeof name[0] == 'string') ) {
+            return _customGets( fn, Arr(this), name, _nia );
         }
-        if (isArr(name)) {
-            // val 无意义
-            this.forEach( (el, i) => $[fn](el, name[i]) );
-        }
-        // 仅支持单一名称
-        else if (isArr(val)) {
-            // 无值时忽略
-            this.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
-        }
-        else {
-            // 统一赋相同值。
-            this.forEach( el => $[fn](el, name, val) );
-        }
-        return this;
+        return _customSets( fn, this, name, val, _nia ), this;
     }
 );
 
@@ -3180,25 +3170,47 @@ elsExfn([
  * 注：
  * 名称数组成员本身可能是空格分隔的名称序列。
  *
- * @param {String} fn 方法名
- * @param {[Element]} els 元素集
- * @param {String|[String]} name 名称序列（集）
+ * @param  {String} fn 方法名
+ * @param  {[Element]} els 元素集
+ * @param  {String|[String]} name 名称序列（集）
+ * @param  {Boolean} nia 名称为数组
+ * @return {Value} 结果值
  */
-function _customGets( fn, els, name ) {
-    if ( isArr(name) ) {
-        return els.map( (el, i) => $[fn](el, name[i]) );
+function _customGets( fn, els, name, nia ) {
+    if (! nia) {
+        return els.map( el => $[fn](el, name) );
     }
-    return els.map( el => $[fn](el, name) );
+    let _buf = [];
+
+    els.forEach( (el, i) =>
+        name[i] !== undefined && _buf.push( $[fn](el, name[i]) )
+    )
+    return _buf;
 }
 
 
-//
-// 判断是否为获取状态。
-// name 为字符串、字符串数组时有效。
-// 注：仅用于 .attr/.prop/.css 接口。
-//
-function _isGetter( name, val ) {
-    return (typeof name == 'string' && val === undefined) || (isArr(name) && typeof name[0] == 'string');
+/**
+ * 设置元素特性/属性/样式值（集）。
+ * 集合版专用：支持name为配置对象数组与成员一一对应。
+ * 集合成员无值数组成员对应时简单忽略。
+ * @param {String} fn 方法名
+ * @param {[Element]} els 元素集
+ * @param {String|[String]} name 名称序列（集）
+ * @param {Value|Function} val 设置的值或取值回调
+ * @param {Boolean} nia 名称为数组
+ */
+function _customSets( fn, els, name, val, nia ) {
+    if ( nia ) {
+        // val 无意义
+        return els.forEach( (el, i) => name[i] !== undefined && $[fn](el, name[i]) );
+    }
+    if ( isArr(val) ) {
+        // name支持空格分隔的多名称
+        // 但都赋值相同（应该不常用）
+        return els.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
+    }
+    // 全部相同赋值。
+    return els.forEach( el => $[fn](el, name, val) );
 }
 
 
@@ -3667,7 +3679,7 @@ function sortElements( a, b ) {
 
 //
 // 名称转换。
-// 用于CSS属性名和data系prop名称。
+// 可用于CSS属性名和data系prop名称。
 //
 function camelCase( name ) {
     return name
@@ -3706,7 +3718,9 @@ function cssGets( cso, name ) {
  */
 function cssSets( el, name, val, cso ) {
     if (typeof name == 'string') {
-        return ( el.style[name] = cssFunc(val, cso, name, el) );
+        return name.trim().
+            split(__chSpace).
+            forEach( n => el.style[n] = cssFunc(val, cso, n, el) );
     }
     for (let [n, v] of entries(name)) {
         el.style[n] = cssFunc(v, cso, n, el);
@@ -3993,7 +4007,6 @@ function encURICompX( str ) {
  * - name支持字符串或一个名/值对象（Object|Map）。
  * - value为一个新值或获取新值的回调函数。
  * - 名/值对象中的值依然可以是回调函数（与键对应）。
- * - 设置时name若为字符串，仅支持单个名称（简单赋值）。
  *
  * @param {Element} el 目标元素
  * @param {String|Object|Map} name 名称或名/值对象
@@ -4002,7 +4015,9 @@ function encURICompX( str ) {
  */
 function hookSets( el, name, value, scope ) {
     if (typeof name == 'string') {
-        return hookSet(el, name.trim(), value, scope);
+        return name.trim().
+            split(__chSpace).
+            forEach( n => hookSet(el, n, value, scope) );
     }
     for (let [_k, _v] of entries(name)) {
         hookSet(el, _k, _v, scope);
@@ -4058,7 +4073,7 @@ function hookGets( el, name, scope ) {
     name = name.trim().split(__chSpace);
 
     if (name.length == 1) {
-        return customGet(el, name, scope);
+        return customGet(el, name[0], scope);
     }
     return name.reduce(
         (obj, n) => ( obj[n] = customGet(el, n, scope), obj ),
