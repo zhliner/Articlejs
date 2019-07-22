@@ -2635,7 +2635,7 @@ class Collector extends Array {
             comp = sortElements;
         }
         return new Collector(
-            // 注意comp的null值
+            // comp的null值有用
             unique ? uniqueSort(this, comp) : [...this].sort(comp || undefined),
             this
         );
@@ -3740,7 +3740,7 @@ function cssSets( el, name, val, cso ) {
  */
 function cssFunc( its, cso, key, el ) {
     let _val = isFunc(its) ?
-        its.bind(el)( cso[key], cso ) : its;
+        its( cso[key], el ) : its;
 
     return isNumeric(_val) ? +_val + 'px' : _val;
 }

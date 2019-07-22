@@ -433,24 +433,24 @@ scope: Boolean  // <style>元素的一个可选属性。
 > jQuery中的同名方法里，类名实参是一个整体（空格不是分隔符），即如：`A B` 与 `B A` 并不相同。
 
 
-### [$.attr( el: Element, name: String | [String] | Object | Map, value: Any ): Value | Object | this](docs/$.attr.md)
+### [$.attr( el: Element, name: String | Object | Map, value: Any ): Value | Object | this](docs/$.attr.md)
 
-获取或修改 `el` 元素的特性（Attribute）值。`value` 未定义或 `name` 为「字符串/字符串数组」时为获取（取值），否则为设置操作。
+获取或修改 `el` 元素的特性（Attribute）值。`value` 未定义且 `name` 为字符串（支持空格分隔的多个名称）时为取值，否则为设置操作。支持两个特别的特性名：`html` 和 `text` 用于表达元素内的源码和文本，支持 `data-xx` 系的名称简写形式（`-xx`）。
 
-- 取值时：`name` 支持空格分隔的字符串名称序列，支持 `data-xx` 系的名称简写形式（`-xx`）。返回一个值或**名/值对**对象。
-- 设置时：`name` 支持字符串名称或**名/值对**配置对象（`Object|Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
+- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
 
 > **附注：**<br>
 > `Attribute` 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法（元素的 `setAttribute()` 接口）。<br>
 > 后面的 `Property` 译为属性，表示运行时计算出现的。可通过直接赋值修改。<br>
 
 
-### [$.prop( el: Element, name: String | [String] | Object | Map, value: Any ): Value | Object | this](docs/$.prop.md)
+### [$.prop( el: Element, name: String | Object | Map, value: Any ): Value | Object | this](docs/$.prop.md)
 
-获取或修改 `el` 元素的属性（Property）值。`value` 未定义或 `name` 为「字符串/字符串数组」时为获取（取值），否则为设置操作。
+获取或修改 `el` 元素的属性（Property）值。`value` 未定义且 `name` 为字符串（支持空格分隔的多个名称）时为取值，否则为设置操作。支持两个特别的属性名：`html` 和 `text` 用于表达元素内的源码和文本，支持 `data-xx` 系的名称简写形式（`-xx`）。
 
-- 取值时：`name` 支持空格分隔的字符串名称序列，支持 `data-xx` 系的名称简写形式（`-xx`）。返回一个值或**名/值对**对象。
-- 设置时：`name` 支持字符串名称或**名/值对**配置对象（`Object|Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
+- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
 
 > **注：**<br>
 > 部分属性名会自动转换（如：`class` => `clasName`），设置逻辑与元素原生赋值逻辑相同。
@@ -508,16 +508,14 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ## CSS 相关
 
-### [$.css( el: Element, name: String | [String] | Object | Map, val: String | Number | Function ): String | Object | this](docs/$.css.md)
+### [$.css( el: Element, name: String | Object | Map | null, val: String | Number | Function ): String | Object | this](docs/$.css.md)
 
 获取或设置 `el` 元素的样式，可以一次获取多个，也可以一次设置多个。设置时为设置元素的内联样式（`style` 属性），获取时为元素计算后的样式值。
 
-第二个 `name` 参数可以充当两种角色：
+`name` 参数的含义：
 
-1. 取值时：样式名称或名称数组。指定单个名称时返回一个单一的值，指定一个名称数组时返回一个名值对对象（`Object`）。
-2. 设置时：一个名/值对对象 `Object` 或 `Map`，键为样式名，值为样式值或取值回调，如果值为 `null` 或空串，会删除该内联样式，如果名称本身为 `null`，则会删除全部样式（删除 `style` 特性）。
-
-样式值的取值回调接口为：`function( oldval, cso ): Value`，回调内的 `this` 为目标元素，首个参数为当前的样式值，第二个参数为只读的计算样式集（`CSSStyleDeclaration`），可以获取实时的样式。
+- **取值时**：样式名称或空格分隔的名称序列。指定单个名称返回单一的值，指定多个名称返回一个 `样式名:值` 的对象（`Object`）。
+- **设置时**：除了普通的单个或多个名称，还可以是一个 `样式名:值` 对象（`Object` | `Map`），键为样式名，值为样式值或取值回调（接口：`function( oldval, el ): Value`）。
 
 
 ### [$.offset( el: Any, pair: Object | null ): Object | this](docs/$.offset.md)
@@ -648,11 +646,17 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ### [.sort( unique: Boolean, comp?: Function ): Collector](docs/$().sort.md)
 
-集合内成员排序去重，覆盖继承于数组的同名方法。因为集合主要用于元素，这里附带了一个去重的功能（也适用于普通值）。传递 `unique` 为真就会去除集合中重复的成员。默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的元素比较按元素在 DOM 中的位置排序，如果集合中首个成员不是元素，则按 `Array.sort` 方法的排序规则执行。
+集合内成员排序去重，覆盖继承于数组的同名方法。因为集合主要用于元素，这里附带了一个去重的功能（也适用于普通值）。传递 `unique` 为真就会去除集合中重复的成员。默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的元素比较按元素在 DOM 中的位置排序，如果集合中首个成员不是元素，则按父类 `Array.sort()` 方法的排序规则执行。
 
 
 ### [.wrapAll( box: String | Function | Element, doc?: Document ): Collector](docs/$().wrapAll.md)
 
+用一个容器包裹集合里的元素。
+- 目标容器可以是一个元素或HTML结构字符串或取值函数。
+- 取值函数可以返回一个容器元素或html字符串。
+- 传递或返回字符串时，容器元素会递进选取为最深层子元素。
+- 传递或返回元素时，元素直接作为容器，包裹内容为前插（prepend）方式。
+- 如果目标元素没有父元素（游离），其将替换集合中的首个元素。
 
 
 ## 实用工具
