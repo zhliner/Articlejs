@@ -117,23 +117,21 @@ Float( str )                    // 将字符串转为浮点数。即 parseFloat(
 
 // 简单操作类。
 // 该部分操作对象就是流程元素自身，无to目标。
-// 当然它们实际上可通过 $/$$ 延伸调用实现。
 unwrap()        // 流程元素（集）解包裹
 remove()        // 移除流程元素
 empty()         // 流程元素清空（同 to:fill 空数据）
 normalize()     // 流程元素规范化
-clone()         // 流程元素（集）克隆。
+clone( event )  // 流程元素（集）克隆。
 
 
 
 // 全局方法。
-// 也可用于 By 段内。
+// 可用于 On/By/To 段内！
 
 flag( name, $val )  // 标志取值&设置
 
-pass( ...flags )
-// 通过检测（流程继续）。
-// 多个flag之间为Or关系，And关系可用多个pass拦截。
+pass( flag )
+// 通过检测（执行流继续）。
 // flag:
 //     {String} 测试全局的flag标记，是否存在。
 //     {Number} 测试流程数据（数组）下标位置值，是否非假（false,'',null,0,undefined）。
@@ -143,11 +141,21 @@ pass( ...flags )
 //     null     流程数据本身为 null 时通过（严格类型）。
 //     ''       流程数据本身为空串时通过（严格匹配）。
 //
-//     ---      无实参，流程数据非假（含义同上）时通过。
+//     ---      无实参，流程数据非假（false,'',null,0,undefined）时通过。
+
+every( ...flag )
+// 全部真值为真，flag 含义同上。
+
+some( ...flag )
+// 部分真值为真，flag 含义同上。
+
 
 then( meth, ...rest )
-// 流程数据非假时执行PB:meth，rest为meth的参数序列。
-// 注：类似于条件取值。
+// 流程数据非假时执行 meth，rest为meth的参数序列。
+// 注：流程数据为meth的首个参数。
+
+fault( meth, ...rest )
+// 流程数据为假时执行 meth。
 ```
 
 
