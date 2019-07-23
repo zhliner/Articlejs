@@ -342,9 +342,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 > 将集合自身作为数据源，填充到目标元素内（清除原有）。返回克隆填充的节点集或集合自身。<br>
 
 
-### [$.wrap( node: Node, box: html | Element | Function ): Element | false](docs/$.wrap.md)
+### [$.wrap( node: Node | String, box: html | Element | Function, doc?: Document ): Element | false](docs/$.wrap.md)
 
-在 `node` 之外包裹一个元素，该元素替换 `node` 原来的位置。包裹元素可以是一个现有的元素、一个html字符串、或一个返回包裹元素或html字符串的函数。
+在 `node` 之外包裹一个元素，该元素将替换 `node` 原来的位置（如果 `node` 是一个节点的话）。包裹元素可以是一个现有的元素、一个html字符串、或一个返回包裹元素或html字符串的函数。
 
 如果包裹元素还包含子元素，`node` 会插入包裹元素的前端（注：与jQuery不同）。如果包裹采用结构化的html字符串，则会递进至最深层子元素为包裹容器。
 
@@ -518,7 +518,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 - **设置时**：除了普通的单个或多个名称，还可以是一个 `样式名:值` 对象（`Object` | `Map`），键为样式名，值为样式值或取值回调（接口：`function( oldval, el ): Value`）。
 
 
-### [$.offset( el: Any, pair: Object | null ): Object | this](docs/$.offset.md)
+### [$.offset( el: Element, pair: Object | Function | null ): Object | this](docs/$.offset.md)
 
 获取或设置 `el` 元素相对于文档的位置偏移，偏移定义采用一个包含 `top` 和 `left` 键名的对象（如 `{top:200, left:10}`）。获取的值可能不是一个整数，位置计算也不包含元素的外边距（`margin`），但包含边框。
 

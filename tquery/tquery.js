@@ -152,6 +152,16 @@
             return slr[0] != '>' && el.matches(slr);
         },
 
+        // 是否包含判断。
+        // @param  {Element} box 容器元素
+        // @param  {node} 子节点
+        // @return {Boolean}
+        $contains = function( box, sub ) {
+            return box.contains ?
+                box.contains( sub ) :
+                box === sub || box.compareDocumentPosition( sub ) & 16;
+        },
+
         // 去除重复并排序。
         // @param  {NodeList|Iterator} els
         // @param  {Function} comp 比较函数，可选
@@ -530,7 +540,7 @@ Object.assign( tQuery, {
      * @return {Text} 新文本节点
      */
     Text( data, sep = ' ', doc = Doc ) {
-        if (typeof data === 'object' && data !== null) {
+        if (typeof data === 'object') {
             data = nodeText(data, sep);
         }
         return doc.createTextNode( data );
@@ -714,12 +724,7 @@ Object.assign( tQuery, {
         }
         let _nt = node.nodeType;
 
-        if (_nt != 1 && _nt != 3) {
-            return false;
-        }
-        return box.contains ?
-            box.contains(node) :
-            box === node || box.compareDocumentPosition(node) & 16;
+        return (_nt == 1 || _nt == 3) && $contains(box, node);
     },
 
 
@@ -1169,7 +1174,7 @@ Object.assign( tQuery, {
             _f = el => !!tQuery.get(slr, el);
         }
         else if (slr.nodeType) {
-            _f = el => slr !== el && tQuery.contains(el, slr);
+            _f = el => slr !== el && $contains(el, slr);
         }
         return $A(els).filter(_f);
     },
@@ -1186,15 +1191,18 @@ Object.assign( tQuery, {
      * - 取值函数：function(Node): Element|string
      * - 包裹采用结构字符串时，会递进至最深层子元素为容器。
      * - 被包裹的内容插入到容器元素的前端（与jQuery不同）。
-     * @param  {Node} node 目标节点
+     *
+     * @param  {Node|String} node 目标节点或文本内容
      * @param  {html|Element|Function} box 包裹容器
-     * @return {Element|false} 包裹的容器元素
+     * @return {Element} 包裹的容器元素
      */
-    wrap( node, box ) {
-        if (node.nodeType > 3) {
-            throw new Error('node must be a Element or Text');
+    wrap( node, box, doc = Doc ) {
+        if (typeof node == 'string') {
+            node = doc.createTextNode(node);
         }
-        return wrapData(node, box, node, node.ownerDocument);
+        let _ref = node.parentElement && node;
+
+        return wrapData(_ref, box, [node], node.ownerDocument);
     },
 
 
@@ -1204,11 +1212,17 @@ Object.assign( tQuery, {
      * - 取值函数：function(NodeList): Element|string
      * @param  {Element} el 目标元素
      * @param  {html|Element|Function} box 包裹容器
-     * @return {Element|false} 包裹容器元素
+     * @return {Element} 包裹的容器元素
      */
     wrapInner( el, box ) {
         if (el.nodeType != 1) {
             throw new Error('el must be a Element');
+        }
+        if (el === box) {
+            return el;
+        }
+        if (box.nodeType && $contains(el, box)) {
+            box = remove(box);
         }
         let _cons = Arr(el.childNodes);
 
@@ -1714,26 +1728,27 @@ Object.assign( tQuery, {
      * - 设置值也用同样格式指定。
      * - 传递值为null会清除偏移设置并返回之前的值。
      *
-     * @param  {Object|Function} pair 配置对象或取值回调
+     * @param  {Element} 目标元素
+     * @param  {Object|Function|null} pair 配置对象或取值回调
      * @return {Object|this}
      */
     offset( el, pair ) {
         let _cur = getOffset(el);
 
         if (! pair) {
-            return pair === null && clearOffset(el) ||
-                _cur;
+            return pair === null && clearOffset(el) || _cur;
         }
         if ( isFunc(pair) ) {
             pair = pair( _cur );
         }
         pair = useOffset( _cur, pair, calcOffset(el) );
+        let _cso = getStyles(el);
 
-        if (tQuery.css(el, 'position') == 'static') {
+        if ( _cso.position == 'static' ) {
             el.style.position = "relative";
         }
 
-        return tQuery.css(el, pair);
+        return cssSets(el, pair, null, _cso), this;
     },
 
 
@@ -1757,9 +1772,9 @@ Object.assign( tQuery, {
             // - 此时已与滚动无关；
             return toPosition(el.getBoundingClientRect(), _cso);
         }
-        let _cur = tQuery.offset(el),
+        let _cur = getOffset(el),
             _pel = tQuery.offsetParent(el),
-            _pot = tQuery.offset(_pel),
+            _pot = getOffset(_pel),
             _pcs = getStyles(_pel),
             _new = {
                 top:  _cur.top - (_pot ? _pot.top + parseFloat(_pcs.borderTopWidth) : 0),
@@ -2108,7 +2123,7 @@ class Table {
             [idx, size] = _val;
         }
         return new Collector(
-            tQuery.range(idx, size, true).map( i => this._tbl.rows[i] )
+            [...rangeNumber(idx, size)].map( i => this._tbl.rows[i] )
         );
     }
 
@@ -2165,7 +2180,7 @@ class Table {
         if (rows === 1) {
             return new Collector( tsec.rows[idx] );
         }
-        return new Collector( tQuery.range(idx, rows, true).map( i => tsec.rows[i] ) );
+        return new Collector( [...rangeNumber(idx, rows)].map(i => tsec.rows[i]) );
     }
 
 
@@ -2703,9 +2718,9 @@ class Collector extends Array {
             _end = deepChild(box);
         }
         if (!box.parentElement) {
-            tQuery.replace(this[0], box);
+            this[0].parentNode.replaceChild(box, this[0]);
         }
-        _end.prepend(...this);
+        _end.prepend( ...this );
 
         return new Collector( box, this );
     }
@@ -2881,7 +2896,12 @@ class Collector extends Array {
      * @return {Collector}
      */
     addBack( slr ) {
-        return this.concat( tQuery.filter(this.previous, slr) );
+        let _els = this.previous;
+
+        if (!_els) {
+            return this;
+        }
+        return this.concat( [..._els].filter(getFltr(slr)) );
     }
 
 
@@ -3001,8 +3021,6 @@ elsEx([
 // 注：假定 els 不会重复，因此无需排序。
 /////////////////////////////////////////////////
 elsEx([
-        'wrap',
-        'wrapInner',
         'unwrap',
         'clone',
         'children',
@@ -3012,6 +3030,52 @@ elsEx([
         // 可代理调用 $
         els.reduce( (buf, el) => buf.concat( $[fn](el, ...rest) ), [] )
 );
+
+
+//
+// 简单调用&求值。
+// $.xx 成员调用返回一个节点集或单个节点。
+// 各元素返回的节点集会被合并到单一集合（扁平化）。
+// 注：
+// - 假定 els 不会重复，因此无需排序。
+// - 支持集合成员与值数组的一一对应，无对应者取前一个值对应。
+//   若需停止默认前值对应，可明确设置值成员为一个null值。
+// 注记：
+// 这种前值保留的特性特定于本接口的优化。
+///////////////////////////////////////////////////////////
+elsEx([
+        'wrap',
+        'wrapInner',
+    ],
+    (fn, els, box) => {
+        let _buf = [];
+
+        // 可代理调用 $
+        if ( isArr(box) ) {
+            let _box = null;
+            els.forEach(
+                (el, i) => (_box = validBox(box, i, _box)) && _buf.push( $[fn](el, _box) )
+            );
+        } else {
+            els.forEach( el => _buf.push( $[fn](el, box) ) );
+        }
+        return _buf;
+    }
+);
+
+
+/**
+ * 提取有效的成员值。
+ * 如果成员为undefined，返回前一次暂存值。
+ * 优化集合版wrap的未定义容器行为。
+ *
+ * @param {[String|Element]} box 容器元素或HTML结构串数组
+ * @param {Number} i 当前下标
+ * @param {String|Element} prev 前一个暂存值
+ */
+function validBox( box, i, prev ) {
+    return box[i] === undefined ? prev : box[i];
+}
 
 
 
@@ -3076,42 +3140,6 @@ elsExfn([
         // 可代理调用 $
         for ( let el of this ) $[fn](el, ...rest);
         return this;
-    }
-);
-
-
-//
-// 节点插入（多对多）。
-// 返回克隆的节点集或当前实例本身。
-/////////////////////////////////////////////////
-elsExfn([
-        'before',
-        'after',
-        'prepend',
-        'append',
-        'replace',
-        'fill',
-    ],
-    /**
-     * 集合版节点内容插入。
-     * @param  {Node|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
-     * @param  {Boolean} clone 数据节点克隆
-     * @param  {Boolean} event 是否克隆事件处理器（容器）
-     * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
-     * @return {Collector} 新插入的节点集
-     */
-    fn => function( cons, clone, event, eventdeep ) {
-        // 可代理调用 $
-        let _buf = [],
-            _ret;
-
-        for ( let el of this ) {
-            _ret = $[fn]( el, cons, clone, event, eventdeep );
-            if (clone) {
-                _buf = _buf.concat(_ret);
-            }
-        }
-        return new Collector( clone ? _buf : _ret, this );
     }
 );
 
@@ -3292,6 +3320,42 @@ function _arrSets( fn, els, val, ...rest ) {
     );
     return _buf;
 }
+
+
+//
+// 节点插入（多对多）。
+// 返回克隆的节点集或当前实例本身。
+/////////////////////////////////////////////////
+elsExfn([
+        'before',
+        'after',
+        'prepend',
+        'append',
+        'replace',
+        'fill',
+    ],
+    /**
+     * 集合版节点内容插入。
+     * @param  {Node|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
+     * @param  {Boolean} clone 数据节点克隆
+     * @param  {Boolean} event 是否克隆事件处理器（容器）
+     * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
+     * @return {Collector} 新插入的节点集
+     */
+    fn => function( cons, clone, event, eventdeep ) {
+        // 可代理调用 $
+        let _buf = [],
+            _ret;
+
+        for ( let el of this ) {
+            _ret = $[fn]( el, cons, clone, event, eventdeep );
+            if (clone) {
+                _buf = _buf.concat(_ret);
+            }
+        }
+        return new Collector( clone ? _buf : _ret, this );
+    }
+);
 
 
 
@@ -3829,7 +3893,7 @@ function remove( node, deleted ) {
  *
  * @param  {Node} rep 替换点节点
  * @param  {Element|String|Function} box 包裹容器或取值函数
- * @param  {Node|[Node]} data 被包裹数据
+ * @param  {[Node]} data 被包裹数据
  * @param  {Document} doc 元素所属文档对象
  * @return {Element} 包裹容器元素
  */
@@ -3843,13 +3907,11 @@ function wrapData( rep, box, data, doc = Doc ) {
         box = buildFragment(box, doc).firstElementChild;
         _end = deepChild(box);
     }
-    tQuery.replace(rep, box);
-
-    if (isArr(data)) {
-        _end.prepend(...data);
-    } else {
-        _end.prepend(data);
+    if (rep) {
+        rep.parentNode.replaceChild(box, rep);
     }
+    _end.prepend( ...data );
+
     return box;
 }
 
@@ -3891,7 +3953,7 @@ function classAttrToggle( el, force ) {
     if (typeof force == 'boolean') {
         _cls = !force;
     }
-    tQuery.attr( el, 'class', _cls ? null : __classNames.get(el) || null );
+    elemAttr.setAttr(el, 'class', _cls ? null : __classNames.get(el) || null);
 }
 
 
@@ -4173,12 +4235,13 @@ function useOffset( cur, conf, self ) {
  * @param {Element} el 目标元素
  */
 function clearOffset( el ) {
-    tQuery.css(el, {
-        top: null,
-        left: null,
-        position: null,
-    });
-    if (el.style.cssText.trim() == '') {
+    let _cso = el.style;
+
+    _cso.top = null;
+    _cso.left = null;
+    _cso.position = null;
+
+    if (_cso.cssText.trim() == '') {
         el.removeAttribute('style');
     }
 }
@@ -4304,6 +4367,9 @@ function outerHtml( nodes, sep ) {
  * @return {String}
  */
 function nodeText( nodes, sep ) {
+    if ( !nodes ) {
+        return '' + nodes;
+    }
     if (nodes.nodeType) {
         return nodes.textContent;
     }
