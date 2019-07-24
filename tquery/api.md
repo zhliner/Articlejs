@@ -2,7 +2,7 @@
 
 ## 基本工具
 
-### [$.Element( tag: String, data: Any, ns: String, doc?: Document ): Element](docs/$.Element.md)
+### [$.Element( tag: String, data: Object | Node | [Node] | String | [String] | Function | Collector, ns: String, doc?: Document ): Element](docs/$.Element.md)
 
 创建 `tag` 指定的DOM元素，可指定所属名称空间和所属文档对象。
 `data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node|Collector}`。如果数据源为节点，源节点可能会被移出原来的位置。
@@ -26,14 +26,14 @@
 
 ### [$.table( rows: Number | Element, cols: Number, caption: String, th0: Boolean, doc?: Document ): Table](docs/$.table.md)
 
-创建一个指定行列数的空表格（`Table` 实例），或封装一个规范的表格元素（无单元格合并或拆分）为 `Table` 实例。
+创建一个指定行列数的空表格（`Table` 实例），或封装一个规范的表格元素为 `Table` 实例。（**注**：规范指无单元格合并或拆分。）
 
-`Table` 仅提供最简单的表格操作，除了表标题的设置或删除，主要是对表头（`<thead>`）、表脚（`<tfoot>`）和表主体（`<tbody>`）内表格行的添加、删除等，并且自动保持列数不变（也不能修改）。
+注意：`Table` 仅提供极简单的表格操作，主要是针对表格行逻辑，包括添加、删除、获取等。表格的列数不能改变，因此添加/删除的逻辑十分简单，这是一个极轻量级的表格实现。
 
 
 ### [$.Table](docs/$.table.md#table-接口)
 
-一个简单的表格类（`class`），主要提供对表格行的操作。仅适用于规范行列的表格，不支持单元格的合并和拆分，也不支持对单元格内容的操作。它是 `$.table()` 创建的实例的类型，是一个被导出的内部类，可用于外部继承复用。普通的场景请使用 `$.table` 接口。
+即 `$.table()` 接口创建并返回的实例所属的类，被导出用于外部可能需要的继承复用。
 
 
 ### [$.script( data: String | Element, box: Element, doc?: Document ): Element | Promise](docs/$.script.md)

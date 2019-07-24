@@ -180,10 +180,10 @@
         // identifier: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
         identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
 
-        // 否则创建文本节点（createTextNode）
+        // 元素/实体类。
         ihtml = /<|&#?\w+;/,
 
-        // HTML节点标志
+        // HTML节点标志。
         xhtml = /HTML$/i,
 
         // 像素值表示
@@ -216,6 +216,10 @@
         // In IE/Edge using regex groups here causes severe slowdowns.
         // See https://connect.microsoft.com/IE/feedback/details/1736512/
         noInnerhtml = /<script|<style|<link/i,
+
+        // 创建文档片段排除的元素。
+        // 这是一个多元素选择器。
+        noFragment = 'script, style, link',
 
         // 表单控件值序列化。
         // 参考：jQuery-3.4.1 .serializeArray...
@@ -514,7 +518,7 @@ Object.assign( tQuery, {
      *  	.... 	特性（Attribute）定义
      * }
      * @param  {String} tag   标签名
-     * @param  {Object|Array|LikeArray|String|Node|Collector} data 配置对象或数据（集）
+     * @param  {Object|Node|[Node]|String|[String]|Function} data 配置对象或数据（集）
      * @param  {String} ns    所属名称空间
      * @param  {Document} doc 所属文档
      * @return {Element} 新元素
@@ -534,7 +538,7 @@ Object.assign( tQuery, {
      * - data支持字符串或节点的数组，数组单元转为字符串后连接。
      * - 串连字符串sep仅在data为数组时才有意义。
      *
-     * @param  {String|Node|Array|Collector} data 文本或节点元素或其数组
+     * @param  {String|[String]|Node|[Node]} data 文本或节点元素或其数组
      * @param  {String} sep 数组成员间链接符，可选
      * @param  {Document} doc 所属文档
      * @return {Text} 新文本节点
@@ -549,9 +553,10 @@ Object.assign( tQuery, {
 
     /**
      * 创建文档片段。
-     * <script>,<style>,<link>三种元素会被清理并存储到exclude中。
+     * <script>,<style>,<link>三种元素会默认被清理。
+     * 如果需要提取或保留上面几种元素，请明确传递exclude为一个数组或null。
      * @param  {String} html 源码
-     * @param  {Array} exclude 清理的元素存储
+     * @param  {[Element]} exclude 被清理的元素存储
      * @param  {Document} doc 所属文档
      * @return {DocumentFragment} 文档片段
      */
@@ -601,14 +606,14 @@ Object.assign( tQuery, {
      * @param  {Boolean} th0 首列是否为<th>，可选
      * @return {Table} 表格实例
      */
-    table(rows, cols, caption, th0, doc = Doc) {
+    table( rows, cols, caption, th0, doc = Doc ) {
         if (rows.nodeType == 1) {
             return new Table(rows);
         }
         let _tbl = new Table(rows, cols, th0, doc);
 
         if (caption) {
-            _tbl.caption(caption, false);
+            _tbl.caption(caption);
         }
         return _tbl;
     },
@@ -1197,6 +1202,9 @@ Object.assign( tQuery, {
      * @return {Element} 包裹的容器元素
      */
     wrap( node, box, doc = Doc ) {
+        if (node === box) {
+            return null;
+        }
         if (typeof node == 'string') {
             node = doc.createTextNode(node);
         }
@@ -1219,7 +1227,7 @@ Object.assign( tQuery, {
             throw new Error('el must be a Element');
         }
         if (el === box) {
-            return el;
+            return null;
         }
         if (box.nodeType && $contains(el, box)) {
             box = remove(box);
@@ -1944,9 +1952,9 @@ class Table {
             buildTR(_body.insertRow(), cols, 'td', th0);
         }
         this._tbl = _tbl;
-        this._th0 = th0;
+        this._th0 = !!th0;
         this._cols = cols;
-        this._body1 = _body;
+        this._body0 = _body;
     }
 
 
@@ -1958,10 +1966,9 @@ class Table {
      *      {String}    设置并返回表标题（不存在则新建）
      * }
      * @param  {String|null} text 标题内容
-     * @param  {Boolean} ishtml 是否为html方式插入
      * @return {Element|null} 表标题元素
      */
-    caption( text, ishtml ) {
+    caption( text ) {
         let _cap = this._tbl.caption;
 
         switch (text) {
@@ -1974,7 +1981,7 @@ class Table {
         if (!_cap) {
             _cap = this._tbl.createCaption();
         }
-        _cap[ishtml ? 'innerHTML' : 'textContent'] = text;
+        _cap.textContent = text;
 
         return _cap;
     }
@@ -1987,17 +1994,17 @@ class Table {
      * 简单的无参数调用返回表体元素集（数组）。
      * @param  {Number} idx 插入位置
      * @param  {Number} rows 行数
-     * @param  {Element} sect 目标<tbody>元素，可选
+     * @param  {Element} body 目标<tbody>元素，可选
      * @return {[Element]|Collector} 表体元素集或新添加的行元素集
      */
-    body( idx, rows, sect ) {
+    body( idx, rows, body ) {
         if (idx === undefined) {
             return Arr(this._tbl.tBodies);
         }
-        if (sect === undefined) {
-            sect = this._body1;
+        if (body === undefined) {
+            body = this._body0;
         }
-        return this._insertRows(sect, idx, rows);
+        return this._insertRows(body, idx, rows);
     }
 
 
@@ -2036,11 +2043,13 @@ class Table {
      * @return {Element|Collector} 表头元素或新添加的行元素集
      */
     head( idx, rows = 1 ) {
-        if (idx === undefined) {
-            return this._tbl.tHead;
-        }
-        if (idx === null) {
-            return this._tbl.deleteTHead();
+        let _head = this._tbl.tHead;
+
+        if (idx == null) {
+            if (idx === null) {
+                this._tbl.deleteTHead();
+            }
+            return _head;
         }
         return this._insertRows(this._tbl.createTHead(), idx, rows, 'th');
     }
@@ -2056,11 +2065,13 @@ class Table {
      * @return {Element|Collector} 表脚元素或新添加的行元素集
      */
     foot( idx, rows = 1 ) {
-        if (idx === undefined) {
-            return this._tbl.tFoot;
-        }
-        if (idx === null) {
-            return this._tbl.deleteTFoot();
+        let _foot = this._tbl.tFoot;
+
+        if (idx == null) {
+            if (idx === null) {
+                this._tbl.deleteTFoot();
+            }
+            return _foot;
         }
         return this._insertRows(this._tbl.createTFoot(), idx, rows);
     }
@@ -2074,7 +2085,7 @@ class Table {
      * - size计数大于剩余行数，取剩余行数（容错超出范围）。
      * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 删除数量
-     * @return {Collector|null} 删除的行元素集
+     * @return {Collector} 删除的行元素集
      */
     removes( idx, size ) {
         let _val = this._idxSize( idx, size || this._tbl.rows.length ),
@@ -2089,7 +2100,7 @@ class Table {
             // 集合会改变，故下标固定
             _buf.push( this._remove(idx) );
         }
-        return new Collector(_buf);
+        return new Collector( _buf );
     }
 
 
@@ -2101,7 +2112,7 @@ class Table {
      */
     remove( idx ) {
         idx = this._idxSize( idx );
-        return idx !== null && this._remove(idx);
+        return idx === null ? null : this._remove(idx);
     }
 
 
@@ -2112,7 +2123,7 @@ class Table {
      * 不合适的参数会返回一个空集。
      * @param {Number} idx 起始位置（从0开始）
      * @param {Number} size 获取行数（undefined表示全部）
-     * @return {Collector|null} 行元素集
+     * @return {Collector} 行元素集
      */
     gets( idx, size ) {
         let _val = this._idxSize( idx, size || this._tbl.rows.length );
@@ -2136,7 +2147,34 @@ class Table {
      */
     get( idx ) {
         idx = this._idxSize( idx );
-        return idx !== null && this._tbl.rows[idx];
+        return idx === null ? null : this._tbl.rows[idx];
+    }
+
+
+    /**
+     * 返回表格的行数。
+     * @return {Number}
+     */
+    rows() {
+        return this._tbl.rows.length;
+    }
+
+
+    /**
+     * 返回表格的列数。
+     * @return {Number}
+     */
+    cols() {
+        return this._cols;
+    }
+
+
+    /**
+     * 是否包含首列表头。
+     * @return {Boolean}
+     */
+    vth() {
+        return this._th0;
     }
 
 
@@ -2146,7 +2184,7 @@ class Table {
      * @return {Collector} 对表格元素进行 Collector 封装
      */
     $() {
-        return new Collector(this._tbl);
+        return new Collector( this._tbl );
     }
 
 
@@ -2165,22 +2203,22 @@ class Table {
      * 插入表格行。
      * 保持合法的列数，全部为空单元格。
      * idx为-1或表体的行数，则新行插入到末尾。
-     * @param {TableSection} tsec 表格区域（TBody|THead|TFoot）
+     * @param {TableSection} sect 表格区域（TBody|THead|TFoot）
      * @param {Number} idx 插入位置
      * @param {Number} rows 插入行数
      * @return {Collector} 新插入的行元素（集）
      */
-    _insertRows( tsec, idx, rows = 1, tag = 'td' ) {
-        if (idx < 0 || idx > tsec.rows.length) {
-            idx = tsec.rows.length;
+    _insertRows( sect, idx, rows = 1, tag = 'td' ) {
+        if (idx < 0 || idx > sect.rows.length) {
+            idx = sect.rows.length;
         }
         for (let r = 0; r < rows; r++) {
-            buildTR(tsec.insertRow(idx), this._cols, tag, this._th0);
+            buildTR(sect.insertRow(idx), this._cols, tag, this._th0);
         }
         if (rows === 1) {
-            return new Collector( tsec.rows[idx] );
+            return new Collector( sect.rows[idx] );
         }
-        return new Collector( [...rangeNumber(idx, rows)].map(i => tsec.rows[i]) );
+        return new Collector( [...rangeNumber(idx, rows)].map(i => sect.rows[i]) );
     }
 
 
@@ -2231,9 +2269,9 @@ class Table {
         if (tbl.tagName.toLowerCase() !== 'table') {
             return null;
         }
-        this._body1 = tbl.tBodies[0];
+        this._body0 = tbl.tBodies[0];
         this._cols = tbl.rows[0].cells.length;
-        this._th0 = this._body1.rows[0].cells[0].tagName.toLowerCase() === 'th';
+        this._th0 = this._body0.rows[0].cells[0].tagName.toLowerCase() === 'th';
         this._tbl = tbl;
 
         return this;
@@ -2703,7 +2741,7 @@ class Collector extends Array {
      * - 取值函数可以返回一个容器元素或html字符串。
      * - 传递或返回字符串时，容器元素会递进选取为最深层子元素。
      * - 传递或返回元素时，元素直接作为容器，包裹内容为前插（prepend）方式。
-     * - 如果目标元素没有父元素（游离），其将替换集合中的首个元素。
+     * - 如果目标容器没有父元素（游离），其将替换集合中的首个元素。
      * @param  {Element|String|Function} box 目标容器
      * @return {Collector}
      */
@@ -2718,7 +2756,8 @@ class Collector extends Array {
             _end = deepChild(box);
         }
         if (!box.parentElement) {
-            this[0].parentNode.replaceChild(box, this[0]);
+            let _pel = this[0].parentNode;
+            if (_pel) _pel.replaceChild(box, this[0]);
         }
         _end.prepend( ...this );
 
@@ -3620,7 +3659,7 @@ function values( obj ) {
  * 由Element调用，el是一个新元素，因此无需清空内容。
  *
  * @param  {Element} el 目标元素
- * @param  {Array|Node|String} data 数据集
+ * @param  {Node|[Node]|String|[String]|Function} data 数据集
  * @return {Element} el
  */
 function fillElem( el, data ) {
@@ -4536,15 +4575,15 @@ function fragmentNodes( nodes, get, doc ) {
 
 /**
  * 构建文档片段。
- * - 源码中的脚本元素会被强制剔除，存储在exbuf中（如果提供）。
- * - 脚本元素包含“script，style，link”三种。
+ * - 部分元素（script,style,link）默认会被排除。
  * - 源码解析异常会静默失败，返回null。
+ * - 如果需要包含被排除的元素，可明确传递exclude为false。
  * @param  {String} html 源码
  * @param  {Document} doc 文档对象
- * @param  {Array} xbuf 脚本存储空间
- * @return {Fragment|Node} 节点/片段
+ * @param  {Array} exclude 排除元素暂存空间
+ * @return {DocumentFragment} 文档片段
  */
-function buildFragment( html, doc, xbuf ) {
+function buildFragment( html, doc, exclude = [] ) {
     let _box = doc.createElement("template");
     try {
         _box.innerHTML = html;
@@ -4558,10 +4597,8 @@ function buildFragment( html, doc, xbuf ) {
     if (!ihtml.test( html )) {
         return _box;
     }
-    // pick script...
-    for ( let _tmp of $all('script, style, link', _box)) {
-        remove(_tmp);
-        if (xbuf) xbuf.push(_tmp);
+    if ( isArr(exclude) ) {
+        $all(noFragment, _box).forEach( el => exclude.push(remove(el)) );
     }
     return _box;
 }
