@@ -58,9 +58,9 @@
 
 (function( window, undefined ) {
 
-    let Doc = window.document;
-
     const
+        Doc = window.document,
+
         // 主要用于扩展选择器。
         Sizzle = window.Sizzle,
 
@@ -78,8 +78,9 @@
 
         // 单一目标。
         // slr: 包含前置#字符。
+        // @param  {Element|Document} ctx 上下文
         // @return {Element|null}
-        $id = (slr, doc) => doc.getElementById(slr.substring(1)),
+        $id = ( slr, ctx ) => [ctx.ownerDocument || ctx].getElementById( slr.substring(1) ),
 
         // 简单选择器。
         // @return {Array}
@@ -98,24 +99,23 @@
         // 单一目标。
         // slr 首字符 > 表示当前上下文父级限定。
         // @return {Element|null}
-        $one = function( slr, ctx, doc = Doc ) {
+        $one = function( slr, ctx ) {
             if (__reID.test(slr)) {
-                return $id(slr, doc);
+                return $id(slr, ctx);
             }
-            return $find(slr, ctx || doc, 'querySelector');
+            return $find(slr, ctx, 'querySelector');
         },
 
         // 多目标。
         // slr 首字符 > 表示当前上下文父级限定。
         // slr 会被测试是否包含起始 > 限定（包括逗号分隔的并列方式）。
         // @return {[Element]}
-        $all = Sizzle || function( slr, ctx, doc = Doc ) {
-            ctx = ctx || doc;
-
+        $all = Sizzle || function( slr, ctx ) {
             if (__reID.test(slr)) {
-                return $id(slr, doc) || [];
+                return $id(slr, ctx) || [];
             }
             let _els;
+
             if (__reTAG.test(slr) && ctx.nodeType != 11) {
                 _els = $tag(slr, ctx);
             }
@@ -217,9 +217,9 @@
         // See https://connect.microsoft.com/IE/feedback/details/1736512/
         noInnerhtml = /<script|<style|<link/i,
 
-        // 创建文档片段排除的元素。
+        // 创建文档片段时清除的元素。
         // 这是一个多元素选择器。
-        noFragment = 'script, style, link',
+        clearTags = 'script, style, link',
 
         // 表单控件值序列化。
         // 参考：jQuery-3.4.1 .serializeArray...
@@ -433,7 +433,7 @@ function hackSelector( ctx, slr, fix ) {
  * @param  {Element} ctx 查询上下文
  * @return {Collector}
  */
-function tQuery( its, ctx ) {
+function tQuery( its, ctx = Doc ) {
     its = its || '';
     // 最优先
     if (typeof its == 'string') {
@@ -553,18 +553,24 @@ Object.assign( tQuery, {
 
     /**
      * 创建文档片段。
-     * <script>,<style>,<link>三种元素会默认被清理。
-     * 如果需要提取或保留上面几种元素，请明确传递exclude为一个数组或null。
+     * - <script>,<style>,<link>三种元素会默认被清除。
+     * - 如果需要保留上面几种元素，请明确传递clean为一个false。
+     * - 如果需要保留默认的清理，可用null作为clean的占位附。
+     * - 可以传递一个函数自己处理尚未导入（document.adoptNode）的文档片段。
+     *   接口：function(DocumentFragment): void。
+     * 注：
+     * 文档片段在被导入当前文档对象之前，非法的脚本不会执行。
+     *
      * @param  {String} html 源码
-     * @param  {[Element]} exclude 被清理的元素存储
+     * @param  {Function|null|false} clean 文档片段清理器
      * @param  {Document} doc 所属文档
      * @return {DocumentFragment} 文档片段
      */
-    create( html, exclude, doc = Doc ) {
+    create( html, clean, doc = Doc ) {
         if (typeof html != 'string') {
             return null;
         }
-        return buildFragment(html, doc, exclude);
+        return buildFragment(html, doc, clean === null && undefined);
     },
 
 
@@ -604,6 +610,7 @@ Object.assign( tQuery, {
      * @param  {Number} cols 表格列数
      * @param  {String} caption 表标题，可选
      * @param  {Boolean} th0 首列是否为<th>，可选
+     * @param  {Document} doc 所属文档对象
      * @return {Table} 表格实例
      */
     table( rows, cols, caption, th0, doc = Doc ) {
@@ -841,16 +848,16 @@ Object.assign( tQuery, {
      * - 先尝试$one（querySelector或ID定位）。
      * - 失败后尝试Sizzle（非标准CSS选择器时）。
      * @param  {String} slr 选择器
-     * @param  {Element} ctx 查询上下文
+     * @param  {Element|Document} ctx 查询上下文
      * @return {Element|null}
      */
     get( slr, ctx = Doc.documentElement ) {
         slr = slr || '';
         try {
-            return $one(slr.trim(), ctx, ctx.ownerDocument);
+            return $one(slr.trim(), ctx);
         }
-        catch(e) {
-            window.console.warn(e);
+        catch( err ) {
+            window.console.warn(err);
         }
         return Sizzle && Sizzle(slr, ctx)[0] || null;
     },
@@ -866,7 +873,7 @@ Object.assign( tQuery, {
     find( slr, ctx = Doc.documentElement, andOwn = false ) {
         slr = slr || '';
 
-        let _els = $all(slr.trim(), ctx, ctx.ownerDocument),
+        let _els = $all(slr.trim(), ctx),
             _box = [];
 
         if (andOwn && $is(ctx, slr)) {
@@ -1193,24 +1200,29 @@ Object.assign( tQuery, {
      * 外层包裹。
      * - 在目标节点外包一层元素（容器）。
      * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数。
-     * - 取值函数：function(Node): Element|string
+     * - 取值函数：function([Node]): Element|string
      * - 包裹采用结构字符串时，会递进至最深层子元素为容器。
      * - 被包裹的内容插入到容器元素的前端（与jQuery不同）。
+     * - 克隆参数部分不作用于取值函数返回的元素。
      *
-     * @param  {Node|String} node 目标节点或文本内容
-     * @param  {html|Element|Function} box 包裹容器
+     * @param  {Node|String} node 目标节点或文本
+     * @param  {HTML|Element|Function} box 包裹容器
+     * @param  {Boolean} clone 包裹元素是否克隆
+     * @param  {Boolean} event 包裹元素上注册的事件处理器是否克隆
+     * @param  {Boolean} eventdeep 包裹元素子孙元素上注册的事件处理器是否克隆
      * @return {Element} 包裹的容器元素
      */
-    wrap( node, box, doc = Doc ) {
-        if (node === box) {
-            return null;
+    wrap( node, box, clone, event, eventdeep ) {
+        if ( clone ) {
+            // 支持代理嵌入 $
+            box = $.clone(box, event, true, eventdeep);
         }
-        if (typeof node == 'string') {
-            node = doc.createTextNode(node);
+        if (node.nodeType && box === node) {
+            return null;
         }
         let _ref = node.parentElement && node;
 
-        return wrapData(_ref, box, [node], node.ownerDocument);
+        return wrapData(_ref, box, [node], node.ownerDocument || Doc);
     },
 
 
@@ -1219,14 +1231,15 @@ Object.assign( tQuery, {
      * - 在目标元素内嵌一层包裹元素（即对内容wrap）。
      * - 取值函数：function(NodeList): Element|string
      * @param  {Element} el 目标元素
-     * @param  {html|Element|Function} box 包裹容器
+     * @param  {HTML|Element|Function} box 包裹容器
      * @return {Element} 包裹的容器元素
      */
-    wrapInner( el, box ) {
-        if (el.nodeType != 1) {
-            throw new Error('el must be a Element');
+    wrapInner( el, box, clone, event, eventdeep ) {
+        if ( clone ) {
+            // 支持代理嵌入 $
+            box = $.clone(box, event, true, eventdeep);
         }
-        if (el === box) {
+        if ( el === box ) {
             return null;
         }
         if (box.nodeType && $contains(el, box)) {
@@ -1241,7 +1254,7 @@ Object.assign( tQuery, {
     /**
      * 元素解包裹。
      * - 用元素内容替换元素本身（内容上升到父级）。
-     * - 内容节点可能包含注释节点，会从返回集中清除。
+     * - 内容可能包含注释节点和空文本节点，会从返回集中清除。
      * @param  {Element} el 容器元素
      * @return {Array} 容器子节点集
      */
@@ -1251,7 +1264,7 @@ Object.assign( tQuery, {
         }
         let _cons = Arr(el.childNodes);
 
-        el.parentElement.replaceChild(
+        el.parentNode.replaceChild(
             fragmentNodes(_cons, null, el.ownerDocument),
             el
         );
@@ -1645,7 +1658,7 @@ Object.assign( tQuery, {
         return Insert(
             el,
             // 会忽略脚本代码
-            buildFragment(code, el.ownerDocument, null),
+            buildFragment( code, el.ownerDocument ),
             Wheres[where]
         );
     },
@@ -1940,6 +1953,7 @@ class Table {
      * @param {Number} rows 行数
      * @param {Number} cols 列数
      * @param {Boolean} th0 首列是否为<th>单元格
+     * @param {Document} 所属文档对象，可选
      */
     constructor( rows, cols, th0, doc = Doc ) {
         if (rows.nodeType == 1) {
@@ -2695,6 +2709,16 @@ class Collector extends Array {
     }
 
 
+    /**
+     * 集合成员顺序逆转。
+     * 在一个新集合上逆转，保持链栈上的可回溯性。
+     * @return {Collector}
+     */
+    reverse() {
+        return new Collector( [...this].reverse(), this );
+    }
+
+
     //-- 定制部分 -------------------------------------------------------------
 
 
@@ -2736,30 +2760,31 @@ class Collector extends Array {
 
 
     /**
-     * 用一个容器包裹集合里的元素。
+     * 用一个容器包裹集合里的全部成员。
      * - 目标容器可以是一个元素或HTML结构字符串或取值函数。
-     * - 取值函数可以返回一个容器元素或html字符串。
+     * - 取值函数可以返回一个容器元素或HTML字符串。
      * - 传递或返回字符串时，容器元素会递进选取为最深层子元素。
      * - 传递或返回元素时，元素直接作为容器，包裹内容为前插（prepend）方式。
-     * - 如果目标容器没有父元素（游离），其将替换集合中的首个元素。
+     * - 目标容器会替换集合中首个节点的位置。
+     * 注：
+     * 集合内可以是字符串成员，因为el.prepend本身就支持字符串。
+     *
      * @param  {Element|String|Function} box 目标容器
-     * @return {Collector}
+     * @param  {Boolean} clone 容器元素是否克隆
+     * @param  {Boolean} event 容器元素上的事件绑定是否克隆
+     * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆
+     * @return {Collector} 包裹容器
      */
-    wrapAll( box, doc = Doc ) {
-        if ( isFunc(box) ) {
-            box = box(this);
+    wrapAll( box, clone, event, eventdeep ) {
+        if (this.length == 0) {
+            return this;
         }
-        let _end = box;
+        if ( clone ) {
+            box = $.clone(box, event, true, eventdeep);
+        }
+        let _nd = this[0];
 
-        if (typeof box == 'string') {
-            box = buildFragment(box, doc).firstElementChild;
-            _end = deepChild(box);
-        }
-        if (!box.parentElement) {
-            let _pel = this[0].parentNode;
-            if (_pel) _pel.replaceChild(box, this[0]);
-        }
-        _end.prepend( ...this );
+        box = wrapData(_nd.parentElement && _nd, box, this, _nd.ownerDocument || Doc);
 
         return new Collector( box, this );
     }
@@ -2921,7 +2946,7 @@ class Collector extends Array {
      * @param  {String|Element|NodeList|Collector} its 目标内容
      * @return {Collector}
      */
-    add( its, ctx = Doc ) {
+    add( its, ctx ) {
         return this.concat( tQuery(its, ctx) );
     }
 
@@ -2945,18 +2970,21 @@ class Collector extends Array {
 
 
     /**
-     * 返回集合栈末尾第n个集合。
-     * 注意：n 值不能为负。
+     * 返回集合链栈末尾第n个集合。
+     * - 传递任意负值返回起始集。
+     * - 0回溯返回当前集。
+     * @param  {Number} n 回溯的层数
      * @return {Collector}
      */
     end( n = 1) {
-        if (n < 0) {
-            throw new Error(`${n} is invalid.`);
-        }
-        let _it = this;
-        while ( _it && n-- ) _it = _it.previous;
+        let _it = this,
+            _c0;
 
-        return _it;
+        while ( n-- && _it ) {
+            _c0 = _it;
+            _it = _it.previous;
+        }
+        return n < -1 ? _c0 : _it;
     }
 
 }
@@ -2972,10 +3000,11 @@ Reflect.defineProperty(Collector.prototype, ownerToken, {
 /**
  * Collector 取节点方法集成。
  * 获取的节点集入栈，返回一个新实例。
- * - 由 $.xx 单元素版扩展到 Collector 原型空间；
- * - 仅用于 $.xx 返回节点（集）的调用；
- * @param {Array} list 定义名清单（方法）
- * @param {Function} get 获取元素句柄
+ * - 由 $.xx 单元素版扩展到 Collector 原型空间。
+ * - 仅用于 $.xx 返回节点（集）的调用。
+ * @param  {Array} list 定义名清单（方法）
+ * @param  {Function} get 获取元素句柄
+ * @return {Collector} 目标节点集
  */
 function elsEx( list, get ) {
     list
@@ -3086,17 +3115,30 @@ elsEx([
         'wrap',
         'wrapInner',
     ],
-    (fn, els, box) => {
-        let _buf = [];
+    /**
+     * 集合版的内外包裹。
+     * - 克隆和事件绑定的克隆仅适用于既有元素容器。
+     * @param  {String} fn 方法名称
+     * @param  {Collector} els 节点/元素集
+     * @param  {Element|String} box 容器元素或html字符串
+     * @param  {Boolean} clone 容器元素是否克隆
+     * @param  {Boolean} event 容器元素上的事件绑定是否克隆
+     * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆
+     * @return {[Element]} 包裹的容器元素集
+     */
+    ( fn, els, box, clone, event, eventdeep ) => {
+        let _buf = [],
+            _fun = $[fn];  // 可代理调用 $
 
-        // 可代理调用 $
         if ( isArr(box) ) {
             let _box = null;
             els.forEach(
-                (el, i) => (_box = validBox(box, i, _box)) && _buf.push( $[fn](el, _box) )
+                (el, i) => (_box = _validBox(box, i, _box)) && _buf.push( _fun(el, _box, clone, event, eventdeep) )
             );
         } else {
-            els.forEach( el => _buf.push( $[fn](el, box) ) );
+            els.forEach(
+                el => _buf.push( _fun(el, box, clone, event, eventdeep) )
+            );
         }
         return _buf;
     }
@@ -3112,7 +3154,7 @@ elsEx([
  * @param {Number} i 当前下标
  * @param {String|Element} prev 前一个暂存值
  */
-function validBox( box, i, prev ) {
+function _validBox( box, i, prev ) {
     return box[i] === undefined ? prev : box[i];
 }
 
@@ -3137,8 +3179,7 @@ function elsExfn( list, get ) {
 
 //
 // 简单取值。
-// 获取的数据为值，返回一个值集合（普通数组）。
-// 值的位置与原集合中元素位置一一对应。
+// 返回一个值数组，值位置与集合中元素位置一一对应。
 /////////////////////////////////////////////////
 elsExfn([
         'is',  	// 返回一个布尔值集合
@@ -3316,8 +3357,8 @@ elsExfn([
 // 内容取值/修改。
 // 设置与获取两种操作合二为一，val支持数组分别赋值。
 //
-// 设置时：返回的新节点构造为一个新的 Collector 实例。
 // 取值时：返回一个普通数组，成员与集合元素一一对应。
+// 设置时：返回的新节点构造为一个新的 Collector 实例。
 //
 // @return {[Value]|Collector}
 /////////////////////////////////////////////////
@@ -3416,23 +3457,25 @@ elsExfn([
          * 将集合中的元素插入相应位置。
          * - 默认不会采用克隆方式（原节点会脱离DOM）。
          * - 传递clone为真，会克隆集合内的节点后插入。
-         * - 如果需同时包含事件克隆，传递event为true。
-         * 注：
-         * 如果克隆，新的节点集被打包为一个Collector实例并进入链式栈。
-         * 否则返回原集合（Collector）自身。
+         * - 如果需同时包含事件克隆，传递event/eventdeep为true。
+         * 注意：
+         * 如果克隆，会创建新节点集的Collector实例进入链式栈，
+         * 用户可通过.end()获得该集合。
          * @param  {Node|Element} to 参考节点或元素
          * @param  {Boolean} clone 数据节点克隆
          * @param  {Boolean} event 是否克隆事件处理器（容器）
          * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
-         * @return {Collector} 克隆插入的节点集或实例自身
+         * @return {Collector} 目标参考节点的Collector实例
          */
         value: function( to, clone, event, eventdeep ) {
             // 可代理调用 $
             let _ret = $[ names[1] ]( to, this, clone, event, eventdeep );
 
-            return clone ?
-                new Collector(_ret, this) :
-                this;
+            return new Collector(
+                    to,
+                    // 可能加入一个中间层
+                    clone ? new Collector(_ret, this) : this
+                );
         },
         enumerable: false,
     });
@@ -3710,14 +3753,15 @@ function setElem( el, conf ) {
  * @return {Element} tr 原表格行
  */
 function buildTR( tr, cols, tag, th0 ) {
-    let cells = [];
+    let _doc = tr.ownerDocument,
+        cells = [];
 
     if (th0 && cols > 0) {
-        cells.push(Doc.createElement('th'));
+        cells.push(_doc.createElement('th'));
         cols --;
     }
     for (let n = 0; n < cols; n++) {
-        cells.push(Doc.createElement(tag));
+        cells.push(_doc.createElement(tag));
     }
     tr.append(...cells);
 
@@ -3932,11 +3976,11 @@ function remove( node, deleted ) {
  *
  * @param  {Node} rep 替换点节点
  * @param  {Element|String|Function} box 包裹容器或取值函数
- * @param  {[Node]} data 被包裹数据
+ * @param  {[Node|String]} data 被包裹数据集
  * @param  {Document} doc 元素所属文档对象
  * @return {Element} 包裹容器元素
  */
-function wrapData( rep, box, data, doc = Doc ) {
+function wrapData( rep, box, data, doc ) {
     if ( isFunc(box) ) {
         box = box(data);
     }
@@ -4428,11 +4472,10 @@ function nodeText( nodes, sep ) {
  * 将文本转义为HTML源码表示。
  * 如：< to &lt;
  * @param  {String} code 表现文本
- * @param  {Document} doc 文档对象
  * @return {String} 转义后源码
  */
-function htmlCode( code, doc = Doc ) {
-    let _box = doc.createElement('div');
+function htmlCode( code ) {
+    let _box = Doc.createElement('div');
     _box.textContent = code;
     return _box.innerHTML;
 }
@@ -4442,18 +4485,17 @@ function htmlCode( code, doc = Doc ) {
  * 将HTML实体表示解码为文本。
  * 如： &lt; to <
  * @param  {String} code HTML源码
- * @param  {Document} doc 文档对象
  * @return {String}
  */
-function htmlText( code, doc = Doc ) {
-    let _box = doc.createElement('div');
+function htmlText( code ) {
+    let _tpl = Doc.createElement('template');
     try {
-        _box.innerHTML = code;
+        _tpl.innerHTML = code;
     }
     catch (e) {
         return window.console.error(e);
     }
-    return _box.textContent;
+    return _tpl.content.textContent;
 }
 
 
@@ -4535,12 +4577,14 @@ function domManip( node, cons, clone, event, eventdeep ) {
     if ( isFunc(cons) ) {
         cons = cons(node);
     }
+    // 支持克隆的代理嵌入（$）。
+    // 因为克隆是由用户参数明确指定的。
     if (cons.nodeType) {
-        return clone ? tQuery.clone(cons, event, true, eventdeep) : cons;
+        return clone ? $.clone(cons, event, true, eventdeep) : cons;
     }
     return fragmentNodes(
         cons,
-        nd => clone ? tQuery.clone(nd, event, true, eventdeep) : nd,
+        nd => clone ? $.clone(nd, event, true, eventdeep) : nd,
         node.ownerDocument
     );
 }
@@ -4580,27 +4624,32 @@ function fragmentNodes( nodes, get, doc ) {
  * - 如果需要包含被排除的元素，可明确传递exclude为false。
  * @param  {String} html 源码
  * @param  {Document} doc 文档对象
- * @param  {Array} exclude 排除元素暂存空间
+ * @param  {Function} clean 文档片段清理器
  * @return {DocumentFragment} 文档片段
  */
-function buildFragment( html, doc, exclude = [] ) {
-    let _box = doc.createElement("template");
+function buildFragment( html, doc, clean = cleanFragment ) {
+    let _tpl = doc.createElement("template");
     try {
-        _box.innerHTML = html;
+        _tpl.innerHTML = html;
     }
-    catch (e) {
-        window.console.error(e);
+    catch (err) {
+        window.console.error(err);
         return null;
     }
-    _box = doc.adoptNode(_box.content);
+    if (ihtml.test(html) && isFunc(clean)) {
+        clean(_tpl.content);
+    }
+    return doc.adoptNode(_tpl.content);
+}
 
-    if (!ihtml.test( html )) {
-        return _box;
-    }
-    if ( isArr(exclude) ) {
-        $all(noFragment, _box).forEach( el => exclude.push(remove(el)) );
-    }
-    return _box;
+
+/**
+ * 默认的文档片段清理器。
+ * 主要移除几个脚本类元素（script, style, link）。
+ * @param {DocumentFragment} frg 文档片段
+ */
+function cleanFragment( frg ) {
+    $all( clearTags, frg ).forEach( el => remove(el) );
 }
 
 

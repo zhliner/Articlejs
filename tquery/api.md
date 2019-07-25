@@ -13,9 +13,11 @@
 创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元取值为字符串后以 `sep` 串联。可指定所属文档对象。
 
 
-### [$.create( html: String, exclude: Array, doc?: Document ): DocumentFragment](docs/$.create.md)
+### [$.create( html: String, clean: Function | null | false, doc?: Document ): DocumentFragment](docs/$.create.md)
 
-创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被清理并存储到 `exclude` 空间中。
+创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被自动清理，如果需要保留，可传递 `clean` 值为 `false`。传递 `clean` 实参为 `null` 与 `undefined` 等效，会执行默认的清理器函数。
+
+用户可以自己执行文档片段的预处理，处理器接口：`function( frag: DocumentFragment ): void`，其中 `frag` 为尚未导入当前文档的文档片段（非法脚本不会执行）。
 
 
 ### [$.svg( tag: String | Object, opts: Object, doc?: Document ): Element](docs/$.svg.md)
@@ -284,7 +286,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 > **关联：**<br>
 > `Collector: insertBefore( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，插入到目标节点之前。返回克隆插入的节点集或集合自身。<br>
+> 将集合自身作为数据源，插入到目标节点之前。返回目标节点的 `Collector` 封装。<br>
 
 
 ### [$.after( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.after.md)
@@ -295,7 +297,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 > **关联：**<br>
 > `Collector: insertAfter( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，插入到目标节点之后。返回克隆插入的节点集或集合自身。<br>
+> 将集合自身作为数据源，插入到目标节点之后。返回目标节点的 `Collector` 封装。<br>
 
 
 ### [$.prepend( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.prepend.md)
@@ -306,7 +308,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 > **关联：**<br>
 > `Collector: prependTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，插入目标元素内的前端。返回克隆插入的节点集或集合自身。<br>
+> 将集合自身作为数据源，插入目标元素内的前端。返回目标元素的 `Collector` 封装。<br>
 
 
 ### [$.append( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.append.md)
@@ -317,7 +319,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 > **关联：**<br>
 > `Collector: appendTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，添加到目标元素内的末尾。返回克隆插入的节点集或集合自身。<br>
+> 将集合自身作为数据源，添加到目标元素内的末尾。返回目标元素的 `Collector` 封装。<br>
 
 
 ### [$.replace( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.replace.md)
@@ -328,7 +330,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 > **关联：**<br>
 > `Collector: replaceAll( node: Node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，替换目标节点。返回克隆替换的节点集或集合自身。<br>
+> 将集合自身作为数据源，替换目标节点。返回目标节点的 `Collector` 封装。<br>
 
 
 ### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.fill.md)
@@ -339,21 +341,21 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 > **关联：**<br>
 > `Collector: fillTo( el: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，填充到目标元素内（清除原有）。返回克隆填充的节点集或集合自身。<br>
+> 将集合自身作为数据源，填充到目标元素内（清除原有）。返回目标元素的 `Collector` 封装。<br>
 
 
-### [$.wrap( node: Node | String, box: html | Element | Function, doc?: Document ): Element | false](docs/$.wrap.md)
+### [$.wrap( node: Node | String, box: html | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrap.md)
 
-在 `node` 之外包裹一个元素，该元素将替换 `node` 原来的位置（如果 `node` 是一个节点的话）。包裹元素可以是一个现有的元素、一个html字符串、或一个返回包裹元素或html字符串的函数。
+在 `node` 之外包裹一个元素，该元素将替换 `node` 原来的位置（如果 `node` 在DOM树中的话）。包裹元素可以是一个现有的元素、一个HTML字符串、或一个返回包裹元素或HTML字符串的函数。
 
-如果包裹元素还包含子元素，`node` 会插入包裹元素的前端（注：与jQuery不同）。如果包裹采用结构化的html字符串，则会递进至最深层子元素为包裹容器。
+如果包裹容器是既有元素并且还包含子元素，`node` 会插入包裹元素的前端（与jQuery不同）。如果包裹容器是结构化的HTML字符串，则会创建节点树并递进到首个最深层子元素作为包裹容器，而节点树的根元素会替换 `node` 节点原来的位置。
 
 
-### [$.wrapInner( el: Element, box: html | Element | Function ): Element | false](docs/$.wrapInner.md)
+### [$.wrapInner( el: Element, box: html | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrapInner.md)
 
 在 `el` 的内容之外包裹一个元素（容器）。容器元素可以是一个现有的元素、一个html字符串、或一个返回容器元素或html字符串的函数。
 
-如果容器元素还包含子元素，`el` 的内容会插入容器元素内的前端（注：与jQuery不同）。如果包裹采用结构化的html字符串，则会递进至首个最深层子元素为包裹容器。
+如果包裹容器是一个既有的元素且还包含子元素，`el` 的内容会插入容器元素内的前端（与jQuery不同）。如果包裹容器是结构化的html字符串，则会创建节点树并递进到首个最深层子元素为包裹容器，而节点树的根元素将成为 `el` 的直接子元素。
 
 
 ### [$.unwrap( el: Element ): [Node]](docs/$.unwrap.md)
