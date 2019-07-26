@@ -959,19 +959,21 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取直接子元素集。
-     * Element:children 的简单调用，接口完整性。
-     * @param  {Element} el 参考元素
-     * @param  {String} slr 过滤选择器，可选
-     * @return {[Element]}
+     * 获取直接子元素（集）。
+     * 可以指定具体位置获取单个元素（优于选择器）。
+     * 数字位置支持负数从末尾算起。
+     * 注：兼容字符串数字，但空串不为0。
+     * @param  {Element} el 容器元素
+     * @param  {String|Number} slr 过滤选择器或下标，可选
+     * @return {[Element]|Element}
      */
     children( el, slr ) {
         let _els = Arr(el.children);
 
-        if (!slr) {
-            return _els;
+        if (! slr) {
+            return slr === 0 ? _els[0] : _els;
         }
-        return _els.filter( e => $is(e, slr) );
+        return isNaN(slr) ? _els.filter(e => $is(e, slr)) : indexItem(_els, +slr);
     },
 
 
@@ -992,9 +994,8 @@ Object.assign( tQuery, {
                 masterNode,
             _nds = Arr(el.childNodes).filter(_proc);
 
-        return idx == null ?
-            _nds :
-            _nds[ idx < 0 ? _nds.length + idx : idx ];
+        // 兼容字符串数字，但空串不为0。
+        return idx ? indexItem(_nds, +idx) : (idx === 0 ? _nds[0] : _nds);
     },
 
 
@@ -2870,15 +2871,14 @@ class Collector extends Array {
 
     /**
      * 获取集合内元素。
-     * - 获取特定下标位置的元素，支持负数倒数计算；
-     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）；
-     * @param  {Number} idx 下标值（支持负数）
+     * - 获取特定下标位置的元素，支持负数倒数计算。
+     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）。
+     * 注：兼容字符串数字，但空串不为0。
+     * @param  {Number} idx 下标值，支持负数
      * @return {Element|Array}
      */
     item( idx ) {
-        return idx === undefined ?
-            Arr(this) :
-            this[ idx < 0 ? this.length+idx : idx ];
+        return idx ? indexItem(this, +idx) : ( idx === 0 ? this[0] : Arr(this) );
     }
 
 
@@ -2901,14 +2901,15 @@ class Collector extends Array {
      * 用特定下标的成员构造一个新实例。
      * - 下标超出集合大小时构造一个空集合。
      * - 支持负下标从末尾算起。
+     * 注：兼容字符串数字，但空串不为0。
      * @param  {Number} idx 下标值，支持负数
      * @return {Collector}
      */
     eq( idx ) {
-        if (idx < 0) {
-            idx += this.length;
-        }
-        return new Collector( this[idx], this );
+        return new Collector(
+            idx ? indexItem(this, +idx) : idx === 0 && this[0],
+            this
+        );
     }
 
 
@@ -3525,6 +3526,16 @@ function isNumeric( obj ) {
 //
 function isWindow( obj ) {
     return obj !== null && obj === obj.window;
+}
+
+
+/**
+ * 获取数组成员，支持负数。
+ * @param {Array} list 数据数组
+ * @param {Number} idx 位置下标
+ */
+function indexItem( list, idx ) {
+    return list[ idx < 0 ? list.length + idx : idx ];
 }
 
 

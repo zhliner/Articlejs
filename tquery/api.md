@@ -205,9 +205,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。**注**：结果集成员保持逆向顺序。
 
 
-### [$.children( el: Element, slr: String ): [Element]](docs/$.children.md)
+### [$.children( el: Element, slr: String ): [Element] | Element](docs/$.children.md)
 
-获取 `el` 的直接子元素集，可用 `slr` 进行匹配过滤（符合者入选）。返回一个子元素的数组（Array类型）。
+获取 `el` 的直接子元素（集），可用 `slr` 进行匹配过滤，或者指定一个具体的下标位置获取单个子元素。
 
 
 ### [$.contents( el: Element, comment?: Boolean ): [Node] | Node](docs/$.contents.md)
