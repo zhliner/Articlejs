@@ -141,15 +141,16 @@
         },
 
         // 元素匹配判断。
-        // - 如果不存在matches，外部提供polyfill；
+        // - 如果不存在matches，外部提供polyfill。
+        // - 可以辅助过滤掉非元素值。
         // @param  {Element} el
         // @param  {String|Element} slr
         // @return {Boolean}
         $is = Sizzle && Sizzle.matchesSelector || function( el, slr ) {
             if (typeof slr != 'string') {
-                return el === slr;
+                return el && el === slr;
             }
-            return slr[0] != '>' && el.matches(slr);
+            return el && slr[0] != '>' && el.matches(slr);
         },
 
         // 是否包含判断。
