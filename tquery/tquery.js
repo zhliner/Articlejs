@@ -80,7 +80,7 @@
         // slr: 包含前置#字符。
         // @param  {Element|Document} ctx 上下文
         // @return {Element|null}
-        $id = ( slr, ctx ) => [ctx.ownerDocument || ctx].getElementById( slr.substring(1) ),
+        $id = ( slr, ctx ) => (ctx.ownerDocument || ctx).getElementById( slr.substring(1) ),
 
         // 简单选择器。
         // @return {Array}
@@ -212,14 +212,15 @@
         // 注：在tagRight替换之后采用。
         tagRight0 = /\\\]/g,
 
-        // Support: IE <=10 - 11, Edge 12 - 13
-        // In IE/Edge using regex groups here causes severe slowdowns.
-        // See https://connect.microsoft.com/IE/feedback/details/1736512/
-        noInnerhtml = /<script|<style|<link/i,
-
+        // 安全性：
         // 创建文档片段时清除的元素。
-        // 这是一个多元素选择器。
-        clearTags = 'script, style, link',
+        // 注：用户应当使用 $.script()/$.style() 接口来导入资源。
+        clearTags = ['script', 'style', 'link'],
+
+        // 安全性：
+        // 创建文档片段时清除的脚本类属性。
+        // 注：用户应当使用 $.on 来绑定处理器。
+        clearAttrs = ['onerror', 'onload', 'onabort'],
 
         // 表单控件值序列化。
         // 参考：jQuery-3.4.1 .serializeArray...
@@ -554,12 +555,13 @@ Object.assign( tQuery, {
     /**
      * 创建文档片段。
      * - <script>,<style>,<link>三种元素会默认被清除。
-     * - 如果需要保留上面几种元素，请明确传递clean为一个false。
-     * - 如果需要保留默认的清理，可用null作为clean的占位附。
-     * - 可以传递一个函数自己处理尚未导入（document.adoptNode）的文档片段。
+     * - [onerror],[onload],[onabort] 三个属性会被默认清除。
+     * - 如果需要避免上面的清除行为，请明确传递clean为一个非null值。
+     * - 如果需要保留默认的清理且传递文档实参，clean可为null值（占位）。
+     * - 可以传递一个自己的函数自己处理尚未导入（document.adoptNode）的文档片段。
      *   接口：function(DocumentFragment): void。
      * 注：
-     * 文档片段在被导入当前文档对象之前，非法的脚本不会执行。
+     * 文档片段在被导入当前文档（document）之前，其中的脚本不会运行。
      *
      * @param  {String} html 源码
      * @param  {Function|null|false} clean 文档片段清理器
@@ -570,7 +572,7 @@ Object.assign( tQuery, {
         if (typeof html != 'string') {
             return null;
         }
-        return buildFragment(html, doc, clean === null && undefined);
+        return buildFragment( html, doc, clean );
     },
 
 
@@ -975,18 +977,24 @@ Object.assign( tQuery, {
 
     /**
      * 获取元素内容。
-     * - 默认返回元素内的子元素和文本节点。
+     * - 默认返回元素内的全部子元素和非空文本节点。
      * - 传递 comment 为真表示包含注释节点。
+     * - 可以指定仅返回目标位置的一个子节点。
+     * - 位置计数不含空文本节点，支持负值从末尾算起。
      * @param  {Element} el 容器元素
+     * @param  {Number|null} idx 子节点位置（从0开始）
      * @param  {Boolean} comment 包含注释节点
-     * @return {[Node]}
+     * @return {[Node]|Node}
      */
-    contents( el, comment = false ) {
+    contents( el, idx, comment = false ) {
         let _proc = comment ?
-            usualNode :
-            masterNode;
+                usualNode :
+                masterNode,
+            _nds = Arr(el.childNodes).filter(_proc);
 
-        return Arr(el.childNodes).filter(_proc);
+        return idx == null ?
+            _nds :
+            _nds[ idx < 0 ? _nds.length + idx : idx ];
     },
 
 
@@ -1242,6 +1250,7 @@ Object.assign( tQuery, {
         if ( el === box ) {
             return null;
         }
+        // 包裹容器可以是子元素。
         if (box.nodeType && $contains(el, box)) {
             box = remove(box);
         }
@@ -1297,11 +1306,11 @@ Object.assign( tQuery, {
      * 清空元素内容。
      * 注：仅适用于元素节点。
      * @param  {Element} el 目标元素
-     * @return {this}
+     * @return {Element}
      */
     empty( el ) {
         if (el.nodeType == 1) el.textContent = '';
-        return this;
+        return el;
     },
 
 
@@ -1317,13 +1326,13 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el  目标元素
      * @param  {Number} level 影响的子元素层级
-     * @return {this|level} this或告知
+     * @return {Element|level} 目标元素或告知
      */
     normalize( el, level = 0 ) {
         if (el.nodeType == 1) {
             el.normalize();
         }
-        return level || this;
+        return level || el;
     },
 
 
@@ -1652,12 +1661,8 @@ Object.assign( tQuery, {
         if (typeof code != 'string') {
             code = outerHtml(code, sep);
         }
-        if (noInnerhtml.test(code)) {
-            window.console.error(`the code contains forbidden tag`);
-        }
         return Insert(
             el,
-            // 会忽略脚本代码
             buildFragment( code, el.ownerDocument ),
             Wheres[where]
         );
@@ -3127,17 +3132,17 @@ elsEx([
      * @return {[Element]} 包裹的容器元素集
      */
     ( fn, els, box, clone, event, eventdeep ) => {
-        let _buf = [],
-            _fun = $[fn];  // 可代理调用 $
+        let _buf = [];
 
+        // 可代理调用 $
         if ( isArr(box) ) {
             let _box = null;
             els.forEach(
-                (el, i) => (_box = _validBox(box, i, _box)) && _buf.push( _fun(el, _box, clone, event, eventdeep) )
+                (el, i) => (_box = _validBox(box, i, _box)) && _buf.push( $[fn](el, _box, clone, event, eventdeep) )
             );
         } else {
             els.forEach(
-                el => _buf.push( _fun(el, box, clone, event, eventdeep) )
+                el => _buf.push( $[fn](el, box, clone, event, eventdeep) )
             );
         }
         return _buf;
@@ -3984,16 +3989,13 @@ function wrapData( rep, box, data, doc ) {
     if ( isFunc(box) ) {
         box = box(data);
     }
-    let _end = box;
-
     if (typeof box == 'string') {
         box = buildFragment(box, doc).firstElementChild;
-        _end = deepChild(box);
     }
     if (rep) {
         rep.parentNode.replaceChild(box, rep);
     }
-    _end.prepend( ...data );
+    deepChild(box).prepend(...data);
 
     return box;
 }
@@ -4627,7 +4629,10 @@ function fragmentNodes( nodes, get, doc ) {
  * @param  {Function} clean 文档片段清理器
  * @return {DocumentFragment} 文档片段
  */
-function buildFragment( html, doc, clean = cleanFragment ) {
+function buildFragment( html, doc, clean ) {
+    if (clean == null) {
+        clean = cleanFragment
+    }
     let _tpl = doc.createElement("template");
     try {
         _tpl.innerHTML = html;
@@ -4643,13 +4648,36 @@ function buildFragment( html, doc, clean = cleanFragment ) {
 }
 
 
+// 待清除的元素和属性选择器。
+// 专用于下面的清理函数：cleanFragment()。
+const
+    _cleanTags = clearTags.join(', '),
+    _cleanAttrs = clearAttrs.map( v => `[${v}]` ).join(', ');
+
+
 /**
  * 默认的文档片段清理器。
- * 主要移除几个脚本类元素（script, style, link）。
+ * 移除几个脚本类元素和有安全风险的脚本属性。
+ * 见：clearTags/clearAttrs 定义。
  * @param {DocumentFragment} frg 文档片段
  */
 function cleanFragment( frg ) {
-    $all( clearTags, frg ).forEach( el => remove(el) );
+    let _els = $all( _cleanTags, frg );
+
+    if (_els.length) {
+        _els.forEach(
+            el => remove( el )
+        );
+        window.console.warn('html-code contains forbidden tag! removed.');
+    }
+    _els = $all( _cleanAttrs, frg );
+
+    if (_els.length) {
+        _els.forEach(
+            el => clearAttrs.forEach( n => el.removeAttribute(n) )
+        );
+        window.console.warn('html-code contains forbidden attribute! removed.');
+    }
 }
 
 

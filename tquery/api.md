@@ -15,9 +15,9 @@
 
 ### [$.create( html: String, clean: Function | null | false, doc?: Document ): DocumentFragment](docs/$.create.md)
 
-创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被自动清理，如果需要保留，可传递 `clean` 值为 `false`。传递 `clean` 实参为 `null` 与 `undefined` 等效，会执行默认的清理器函数。
+创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被自动清除，如果需要保留，可传递 `clean` 为一个非 `null` 值（**注**：`null` 是一个占位实参，与 `undefined` 等效）。
 
-用户可以自己执行文档片段的预处理，处理器接口：`function( frag: DocumentFragment ): void`，其中 `frag` 为尚未导入当前文档的文档片段（非法脚本不会执行）。
+用户也可以自己执行文档片段的预处理，处理器接口：`function( frag: DocumentFragment ): void`，其中 `frag` 为尚未导入当前文档（`document`）的文档片段。
 
 
 ### [$.svg( tag: String | Object, opts: Object, doc?: Document ): Element](docs/$.svg.md)
@@ -210,9 +210,11 @@ scope: Boolean  // <style>元素的一个可选属性。
 获取 `el` 的直接子元素集，可用 `slr` 进行匹配过滤（符合者入选）。返回一个子元素的数组（Array类型）。
 
 
-### [$.contents( el: Element, comment?: Boolean ): [Node]](docs/$.contents.md)
+### [$.contents( el: Element, comment?: Boolean ): [Node] | Node](docs/$.contents.md)
 
-获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。**注**：全部为空白的文本节点会被忽略。
+获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。可以指定仅返回一个目标位置的子节点，位置计数从0开始，支持负值从末尾算起。
+
+> **注**：全部为空白的文本节点会被忽略，计数也不包含。
 
 
 ### [$.siblings( el: Element, slr: String ): [Element] | null](docs/$.siblings.md)
@@ -346,16 +348,14 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ### [$.wrap( node: Node | String, box: html | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrap.md)
 
-在 `node` 之外包裹一个元素，该元素将替换 `node` 原来的位置（如果 `node` 在DOM树中的话）。包裹元素可以是一个现有的元素、一个HTML字符串、或一个返回包裹元素或HTML字符串的函数。
+在 `node` 之外包裹一个容器元素，该容器元素将替换 `node` 原来的位置（如果 `node` 在DOM树中的话）。包裹容器可以是一个现有的元素、一个HTML字符串、或一个返回包裹元素或HTML字符串的函数。
 
-如果包裹容器是既有元素并且还包含子元素，`node` 会插入包裹元素的前端（与jQuery不同）。如果包裹容器是结构化的HTML字符串，则会创建节点树并递进到首个最深层子元素作为包裹容器，而节点树的根元素会替换 `node` 节点原来的位置。
+如果包裹容器包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会替换 `node` 节点原来的位置。
 
 
 ### [$.wrapInner( el: Element, box: html | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrapInner.md)
 
-在 `el` 的内容之外包裹一个元素（容器）。容器元素可以是一个现有的元素、一个html字符串、或一个返回容器元素或html字符串的函数。
-
-如果包裹容器是一个既有的元素且还包含子元素，`el` 的内容会插入容器元素内的前端（与jQuery不同）。如果包裹容器是结构化的html字符串，则会创建节点树并递进到首个最深层子元素为包裹容器，而节点树的根元素将成为 `el` 的直接子元素。
+在 `el` 的内容之外包裹一个容器元素。包裹容器可以是一个现有的元素、一个html字符串、或一个返回包裹元素或HTML字符串的函数。如果包裹容器还包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会成为 `el` 的直接子元素。
 
 
 ### [$.unwrap( el: Element ): [Node]](docs/$.unwrap.md)
@@ -373,20 +373,20 @@ scope: Boolean  // <style>元素的一个可选属性。
 删除文档树中的节点（元素或文本节点），返回调用者自身（`$`）。**注**：效果类似于未保存返回值的 `$.detach` 接口。
 
 
-### [$.empty( el: Element ): this](docs/$.empty.md)
+### [$.empty( el: Element ): Element](docs/$.empty.md)
 
-清空 `el` 元素的内容，包括子元素、文本节点和注释节点等任意子节点。
+清空 `el` 元素的内容，包括子元素、文本节点和注释节点等任意子节点。返回被清空的元素。
 
 
-### [$.normalize( el: Element, level?: Number ): this | Number](docs/$.normalize.md)
+### [$.normalize( el: Element, level?: Number ): Number | Element](docs/$.normalize.md)
 
-对元素 `el` 的内容执行规范化（normalize），合并相邻的文本节点。
+对元素 `el` 的内容执行规范化（normalize），即：合并相邻的文本节点。返回 `level` 值或操作的目标元素 `el`。
 
 这是元素原生同名接口的简单封装，但包含一个用户通告参数 `level`，用于指明 `normalize` 操作会影响的子元素层级。
 
 > **注：**<br>
 > DOM原生的 `normalize` 调用会处理目标元素的所有子孙节点，用户没有办法控制节点改变的细节，该操作实际上修改了DOM节点树。<br>
-> tQuery支持嵌入代理，代理有时候需要知道 `normalize` 的影响范围（可能用于性能优化），因此这里设计为由用户主动告知（没有其它办法）。<br>
+> tQuery支持嵌入代理，代理有时候需要知道 `normalize` 的影响范围（可能用于性能优化），因此这里设计为由用户主动告知（没有其它的办法）。<br>
 > 如果您不理解 `level` 参数的用途，说明您不需要它，简单忽略即可。<br>
 
 

@@ -7,6 +7,18 @@
 > `EMR`: `Entry, Model, Render` @ Process
 
 
+**事件：**
+- `tplend`: 模板读取完毕。在 `document` 上触发。
+- `tpldone`: 模板构建完毕，包括 `OBT` 解析绑定。在有 `OBT` 配置上的每一个元素上触发，不冒泡。
+
+
+**全局对象：**
+
+- `OBT.on`： On 的方法集。
+- `OBT.by`： By 的方法集。
+- `OBT.to`： To 的方法集。
+
+
 ## OnByTo 逻辑重构
 
 > 仔细划分逻辑区域，简化PB集。
