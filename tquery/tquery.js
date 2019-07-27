@@ -148,9 +148,9 @@
         // @return {Boolean}
         $is = Sizzle && Sizzle.matchesSelector || function( el, slr ) {
             if (typeof slr != 'string') {
-                return el && el === slr;
+                return el === slr;
             }
-            return el && slr[0] != '>' && el.matches(slr);
+            return slr[0] != '>' && el.matches(slr);
         },
 
         // 是否包含判断。
@@ -1038,20 +1038,19 @@ Object.assign( tQuery, {
 
     /**
      * 获取目标元素的上级元素集。
-     * 可用可选的选择器或测试函数进行过滤。
+     * - 可用可选的选择器或测试函数进行过滤。
+     * - 自定义测试函数支持向上递进的层计数（_i）。
      * @param  {Element} el 目标元素
      * @param  {String|Function} slr 选择器或测试函数，可选
      * @return {[Element]}
      */
     parents( el, slr ) {
         let _buf = [],
-            _fun = getFltr(slr),
+            _fun = slr && getFltr(slr),
             _i = 0;
 
-        while ( (el = el.parentElement) ) {
-            if (!_fun || _fun(el, ++_i)) {
-                _buf.push(el);
-            }
+        while ( (el = el.parentNode) ) {
+            if (!_fun || _fun(el, ++_i) ) _buf.push(el);
         }
         return _buf;
     },
@@ -1061,16 +1060,18 @@ Object.assign( tQuery, {
      * 汇集当前元素的全部上级元素，直到匹配。
      * - 从父元素开始检查匹配。
      * - 不包含终止匹配的父级元素。
-     * @param  {Element} el  当前元素
-     * @param  {String|Function|Element|Array} slr  终止匹配
+     * - 自定义测试函数支持向上递进的层计数（_i）。
+     * @param  {Element} el 当前元素
+     * @param  {String|Function|Element|Array} slr 终止匹配
      * @return {[Element]}
      */
     parentsUntil( el, slr ) {
         let _buf = [],
-            _fun = getFltr(slr),
+            _fun = slr && getFltr(slr),
             _i = 0;
 
-        while ( (el = el.parentElement) && (!_fun || !_fun(el, ++_i)) ) {
+        while ( (el = el.parentElement) ) {
+            if (_fun && _fun(el, ++_i)) break;
             _buf.push(el);
         }
         return _buf;
@@ -1082,6 +1083,7 @@ Object.assign( tQuery, {
      * - 向上逐级检查父级元素是否匹配。
      * - 从当前元素自身开始测试（同标准 Element:closest）。
      * - 如果抵达document或DocumentFragment会返回null。
+     * - 自定义匹配函数支持向上递进的层数（_i）。
      * @param  {Element} el 参考元素
      * @param  {String|Function|Element|Array} slr 匹配选择器
      * @return {Element|null}
@@ -1090,12 +1092,12 @@ Object.assign( tQuery, {
         if (el.closest && typeof slr == 'string') {
             return el.closest( slr );
         }
+        if (! slr) {
+            return null;
+        }
         let _fun = getFltr(slr),
             _i = 0;
 
-        if (!isFunc(_fun)) {
-            return null;
-        }
         while ( el && !_fun(el, _i++) ) {
             el = el.parentElement;
         }
@@ -1123,82 +1125,6 @@ Object.assign( tQuery, {
             if (getStyles(el).position != 'static' || el.nodeName == 'svg') break;
         }
         return el || _end;
-    },
-
-
-    //-- DOM 节点过滤 ---------------------------------------------------------
-    // 集合操作，也即 Collector 的免实例化版。
-
-
-    /**
-     * 过滤元素集。
-     * 如果没有过滤条件，返回原始集。
-     * @param  {NodeList|Array|LikeArray} els 目标元素集
-     * @param  {String|Function|Element|Array} fltr 筛选条件
-     * @return {[Element]}
-     */
-    filter( els, fltr ) {
-        if (!fltr || !els.length) {
-            return $A(els);
-        }
-        if ( isCollector(els) ) {
-            els = els.item();
-        }
-        return $A(els).filter( getFltr(fltr) );
-    },
-
-
-    /**
-     * 排除过滤。
-     * - 从集合中移除匹配的元素；
-     * @param  {NodeList|[Element]|LikeArray|Collector} els 目标元素集
-     * @param  {String|Function|Element|[Element]|Collector} slr 排除条件
-     * @return {[Element]}
-     */
-    not( els, slr ) {
-        let _f = slr;
-
-        if (!slr || !els.length) {
-            return $A(els);
-        }
-        if (typeof slr === 'string') {
-            _f = el => !$is(el, slr);
-        }
-        else if (isArr(slr)) {
-            _f = el => !slr.includes(el);
-        }
-        else if (slr.nodeType) {
-            _f = el => el !== slr;
-        }
-        else if (isFunc(slr)) {
-            _f = (el, i, arr) => !slr(el, i, arr);
-        }
-        return $A(els).filter(_f);
-    },
-
-
-    /**
-     * 包含过滤。
-     * - 目标元素（集）被本集合中元素作为子级元素包含。
-     * - 或目标选择器与集合中元素的子级元素匹配。
-     * 测试调用：func(el)
-     * @param  {NodeList|Array|LikeArray} els 目标元素集
-     * @param  {String|Function|Element} slr 筛选器
-     * @return {[Element]}
-     */
-     has( els, slr ) {
-        let _f = slr;
-
-        if (!slr || !els.length) {
-            return $A(els);
-        }
-        if (typeof slr == 'string') {
-            _f = el => !!tQuery.get(slr, el);
-        }
-        else if (slr.nodeType) {
-            _f = el => slr !== el && $contains(el, slr);
-        }
-        return $A(els).filter(_f);
     },
 
 
@@ -2308,6 +2234,28 @@ tQuery.Table = Table;
 
 
 //
+// 集合过滤的单列版。
+// 接受普通数组/类数组/Map/Set集合参数。
+///////////////////////////////////////
+[
+    'filter',   // 集合匹配
+    'not',      // 集合排除
+    'has',      // 元素包含（子孙级）
+]
+.forEach(function( name ) {
+    /**
+     * @param  {NodeList|Array|LikeArray|Iterator} list 普通集合
+     * @param  {String|Array|Function|Value} fltr 过滤器
+     * @param  {String|Element} fltr 过滤器（has）
+     * @return {[Value]} 结果集（普通数组）
+     */
+    tQuery[name] = function( list, fltr ) {
+        return [ ...new Collector(list)[name]( fltr ) ];
+    };
+});
+
+
+//
 // 6种插入方式。
 // 数据源仅为节点类型，不支持String。
 ///////////////////////////////////////
@@ -2335,7 +2283,7 @@ tQuery.Table = Table;
      * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
      * @return {Node|[Node]} 新插入的节点（集）
      */
-    tQuery[name] = function ( el, cons, clone, event, eventdeep ) {
+    tQuery[name] = function( el, cons, clone, event, eventdeep ) {
         let _meth = Wheres[name];
 
         if (!_validMeth(el, _meth)) {
@@ -2726,6 +2674,65 @@ class Collector extends Array {
     }
 
 
+    //-- 集合过滤 -------------------------------------------------------------
+    // 空集返回空集本身，不会加长栈链。
+
+
+    /**
+     * 匹配过滤（通用）。
+     * 支持任意值的集合。
+     * fltr为过滤条件，可以是任意类型：
+     * - String: 作为元素的CSS选择器，集合内成员必须是元素。
+     * - Array: 集合内成员必须在数组内，值任意。实际上就是两个集合的交由。
+     * - Function: 用户的自定义测试函数，接口：function(Value, Index, this): Boolean。
+     * - Value: 任意其它类型的值，相等即为匹配（===）。
+     * @param  {String|Array|Function|Value} fltr 匹配条件
+     * @return {Collector} 过滤后的集合
+     */
+    filter( fltr ) {
+        if ( this.length == 0 ) {
+            return this;
+        }
+        return new Collector( super.filter( getFltr(fltr) ), this );
+    }
+
+
+    /**
+     * 排除过滤（通用）。
+     * - 从集合中移除匹配的元素。
+     * - 可简单地从集合中移除指定的值条目。
+     * - 自定义测试函数接口同上。
+     * @param  {String|Array|Function|Value} fltr 排除条件
+     * @return {[Element]}
+     */
+    not( fltr ) {
+        if ( this.length == 0 ) {
+            return this;
+        }
+        let _fun = getFltr(fltr);
+
+        return new Collector(
+            super.filter( (v, i, o) => !_fun(v, i, o) ),
+            this
+        );
+    }
+
+
+    /**
+     * 元素包含过滤。
+     * 检查目标是否为集合中元素的子级元素或可与子级元素匹配（选择器）。
+     * 仅支持由元素构成的集合，测试目标可以是元素或选择器。
+     * @param  {String|Element} slr 测试目标
+     * @return {[Element]}
+     */
+    has( slr ) {
+        if ( this.length == 0 ) {
+            return this;
+        }
+        return new Collector( super.filter( hasFltr(slr) ), this );
+    }
+
+
     //-- 定制部分 -------------------------------------------------------------
 
 
@@ -2805,12 +2812,12 @@ class Collector extends Array {
      * @return {Collector} 脱离的元素集
      */
     detach( slr ) {
-        let _fn = getFltr(slr),
+        let _fun = slr && getFltr(slr),
             _els;
 
         // $ 允许嵌入代理
-        if ( _fn ) {
-            _els = super.filter( el => _fn(el) ? $.detach(el) : false );
+        if ( _fun ) {
+            _els = super.filter( el => _fun(el) ? $.detach(el) : false );
         } else {
             this.forEach( el => $.detach(el) );
         }
@@ -2826,12 +2833,13 @@ class Collector extends Array {
      * @return {Collector} 一个空集
      */
     remove( slr ) {
-        let _fn = getFltr(slr),
+        let _fun = slr && getFltr(slr),
             _els;
 
         // $ 允许嵌入代理
-        if ( _fn ) {
-            _els = super.filter( el => _fn(el) ? ($.remove(el), false) : true );
+        if ( _fun ) {
+            // 注：不依赖代理的返回值
+            _els = super.filter( el => _fun(el) ? ($.remove(el), false) : true );
         } else {
             this.forEach( el => $.remove(el) );
         }
@@ -2972,7 +2980,9 @@ class Collector extends Array {
         if (!_els) {
             return this;
         }
-        return this.concat( [..._els].filter(getFltr(slr)) );
+        _els = slr ? [..._els].filter(getFltr(slr)) : _els;
+
+        return this.concat( _els );
     }
 
 
@@ -3024,20 +3034,6 @@ function elsEx( list, get ) {
         });
     });
 }
-
-
-//
-// 过滤：简单封装。
-// $.xx 成员调用结果即为集合，封装为实例。
-/////////////////////////////////////////////////
-elsEx([
-        'has',
-        'not',
-        'filter',
-    ],
-    // 可代理调用 $
-    (fn, els, slr) => $[fn]( els, slr )
-);
 
 
 //
@@ -3594,22 +3590,38 @@ function arrLike( obj ) {
 
 
 //
-// 选择器判断函数构造。
-// 测试调用：func(elem)
-// @param  {String|Function|Element|Array}
+// 创建过滤器函数。
+// @param  {String|Function|Array|Value}
 // @return {Function}
 //
 function getFltr( its ) {
-    if (!its || isFunc(its)) {
+    if ( isFunc(its) ) {
         return its;
     }
-    if (typeof its == 'string') {
-        return e => $is(e, its);
+    if ( typeof its == 'string' ) {
+        return e => e && $is(e, its);
     }
-    if (isArr(its)) {
+    if ( isArr(its) ) {
         return ( e => its.includes(e) );
     }
     return ( e => e === its );
+}
+
+
+//
+// 创建包含测试函数。
+// 注：仅支持字符串选择器和元素测试。
+// @param  {String|Element}
+// @return {Function}
+//
+function hasFltr( its ) {
+    if (typeof its == 'string') {
+        return e => !!tQuery.get(its, e);
+    }
+    if (its && its.nodeType) {
+        return e => its !== e && $contains(e, its);
+    }
+    return ( () => false );
 }
 
 

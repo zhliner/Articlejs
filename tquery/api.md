@@ -205,12 +205,12 @@ scope: Boolean  // <style>元素的一个可选属性。
 获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。**注**：结果集成员保持逆向顺序。
 
 
-### [$.children( el: Element, slr: String ): [Element] | Element](docs/$.children.md)
+### [$.children( el: Element, slr: String | Number ): [Element] | Element](docs/$.children.md)
 
 获取 `el` 的直接子元素（集），可用 `slr` 进行匹配过滤，或者指定一个具体的下标位置获取单个子元素。
 
 
-### [$.contents( el: Element, comment?: Boolean ): [Node] | Node](docs/$.contents.md)
+### [$.contents( el: Element, idx: Number, comment?: Boolean ): [Node] | Node](docs/$.contents.md)
 
 获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。可以指定仅返回一个目标位置的子节点，位置计数从0开始，支持负值从末尾算起。
 
@@ -260,21 +260,25 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 
 
-## 节点过滤
+## 集合过滤
 
-### [$.filter( els: NodeList | Array | LikeArray, fltr: String | Function | Array | Element ): [Element]](docs/$.filter.md)
+### [$.filter( list: NodeList | Array | LikeArray | Collector, fltr: String | Array | Function | Value ): [Element]](docs/$.filter.md)
 
-对 `els` 中的元素用 `fltr` 匹配过滤，返回一个匹配元素的新的集合。如果没有过滤条件（为假值），返回一个已转换为数组的原始集。
+对 `list` 集合中的元素用 `fltr` 匹配过滤，返回一个匹配成员的新集合。`slr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
 
-
-### [$.not( els: NodeList | Array | LikeArray, slr: String | Function | Array | Element ): [Element]](docs/$.not.md)
-
-对 `els` 中的元素用 `slr` 匹配排除，返回排除匹配元素之后的新集合。如果没有过滤条件（为假值），返回一个已转换为数组的原始集。
+**注**：这是一个通用的匹配过滤接口，可用于任意值的集合（不只是元素集）。
 
 
-### [$.has( els: NodeList | Array | LikeArray, slr: String | Function | Element ): [Element]](docs/$.has.md)
+### [$.not( list: NodeList | Array | LikeArray | Collector, slr: String | Array | Function | Value ): [Element]](docs/$.not.md)
 
-对 `els` 中的元素用 `slr` 执行 **包含** 匹配过滤。包含的意思是 **`slr` 作为子级元素匹配**，`slr` 也可以是一个匹配函数。传递一个假值的 `slr` 实参时，返回一个已转换为数组的原始集。
+对 `list` 集合中的元素用 `slr` 匹配排除，返回排除匹配项之后的新集合。`slr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
+
+**注**：这是一个通用的排除过滤接口，可用于任意值的集合（不只是元素集）。
+
+
+### [$.has( els: NodeList | Array | LikeArray, slr: String | Element ): [Element]](docs/$.has.md)
+
+对 `els` 中的元素用 `slr` 执行 **包含** 匹配过滤。包含的意思是 **`slr` 作为子级元素存在，或者是与子级元素匹配的选择器**。
 
 
 
