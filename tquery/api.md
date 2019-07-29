@@ -260,28 +260,6 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 
 
-## 集合过滤
-
-### [$.filter( list: NodeList | Array | LikeArray | Collector, fltr: String | Array | Function | Value ): [Element]](docs/$.filter.md)
-
-对 `list` 集合中的元素用 `fltr` 匹配过滤，返回一个匹配成员的新集合。`slr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
-
-**注**：这是一个通用的匹配过滤接口，可用于任意值的集合（不只是元素集）。
-
-
-### [$.not( list: NodeList | Array | LikeArray | Collector, slr: String | Array | Function | Value ): [Element]](docs/$.not.md)
-
-对 `list` 集合中的元素用 `slr` 匹配排除，返回排除匹配项之后的新集合。`slr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
-
-**注**：这是一个通用的排除过滤接口，可用于任意值的集合（不只是元素集）。
-
-
-### [$.has( els: NodeList | Array | LikeArray, slr: String | Element ): [Element]](docs/$.has.md)
-
-对 `els` 中的元素用 `slr` 执行 **包含** 匹配过滤。包含的意思是 **`slr` 作为子级元素存在，或者是与子级元素匹配的选择器**。
-
-
-
 ## 节点操作
 
 ### [$.before( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.before.md)
@@ -350,16 +328,16 @@ scope: Boolean  // <style>元素的一个可选属性。
 > 将集合自身作为数据源，填充到目标元素内（清除原有）。返回目标元素的 `Collector` 封装。<br>
 
 
-### [$.wrap( node: Node | String, box: html | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrap.md)
+### [$.wrap( node: Node | String, box: HTML | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrap.md)
 
 在 `node` 之外包裹一个容器元素，该容器元素将替换 `node` 原来的位置（如果 `node` 在DOM树中的话）。包裹容器可以是一个现有的元素、一个HTML字符串、或一个返回包裹元素或HTML字符串的函数。
 
 如果包裹容器包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会替换 `node` 节点原来的位置。
 
 
-### [$.wrapInner( el: Element, box: html | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrapInner.md)
+### [$.wrapInner( el: Element, box: HTML | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrapInner.md)
 
-在 `el` 的内容之外包裹一个容器元素。包裹容器可以是一个现有的元素、一个html字符串、或一个返回包裹元素或HTML字符串的函数。如果包裹容器还包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会成为 `el` 的直接子元素。
+在 `el` 的内容之外包裹一个容器元素。包裹容器可以是一个现有的元素、一个HTML字符串、或一个返回包裹元素或HTML字符串的函数。如果包裹容器还包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会成为 `el` 的直接子元素。
 
 
 ### [$.unwrap( el: Element ): [Node]](docs/$.unwrap.md)
@@ -638,31 +616,79 @@ scope: Boolean  // <style>元素的一个可选属性。
 对于单元素版，实现上就是在元素上简单的调用而已（可能传入参数）。对于集合版，遵循通常一致的逻辑，就是对集合内各个元素上分别调用该方法。
 
 
-## 集合版定制
+
+## 集合专用
+
+### [.filter( fltr: String | Array | Function | Value ): Collector](docs/$.filter.md)
+
+对集合中的成员用 `fltr` 匹配过滤，返回一个匹配成员的新集合。`fltr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
+
+**注**：这是一个通用的匹配过滤方法，可用于任意值的集合。
+
+
+### [.not( fltr: String | Array | Function | Value ): Collector](docs/$.not.md)
+
+对集合中的成员用 `fltr` 匹配排除，返回排除匹配项之后（剩余）的新集合。`fltr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
+
+**注**：这是一个通用的排除过滤接口，可用于任意值的集合。
+
+
+### [.has( sub: String | Node ): Collector](docs/$.has.md)
+
+对集合中的元素用 `sub` 执行 **包含** 匹配过滤。包含的意思是 **`sub` 作为子级节点存在，或者是与子级元素匹配的选择器**。
+
 
 ### .concat( ...rest: Value | [Value] ): Collector
 
-集合连接，覆盖继承于数组的同名方法。与 `Array.concat` 的差异就是对连接返回的新数组进行了封装，以支持对集合栈的操作（如：`.end()`）。
+集合连接，覆盖继承于数组的同名方法。与 `Array.concat()` 的差异就是对连接返回的新数组进行了封装，以支持对集合栈的操作（如：`.end()`）。
 
 
 ### .slice( beg: Number, end: Number ): Collector
 
-集合切片，覆盖继承于数组的同名方法。与 `Array.slice` 的差异就是对切片返回的子集进行了封装，以支持对集合栈的操作。
+集合切片，覆盖继承于数组的同名方法。与 `Array.slice()` 的差异就是对切片返回的子集进行了封装，以支持对集合栈的操作。
 
 
 ### [.sort( unique: Boolean, comp?: Function ): Collector](docs/$().sort.md)
 
-集合内成员排序去重，覆盖继承于数组的同名方法。因为集合主要用于元素，这里附带了一个去重的功能（也适用于普通值）。传递 `unique` 为真就会去除集合中重复的成员。默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的元素比较按元素在 DOM 中的位置排序，如果集合中首个成员不是元素，则按父类 `Array.sort()` 方法的排序规则执行。
+集合内成员排序去重，覆盖继承于数组的同名方法。集合内成员可以是元素也可以是普通的值，但主要用于元素，所以这里附带了一个去重的功能。传递 `unique` 为真就会去除集合中重复的成员。默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的元素比较按元素在 DOM 中的位置排序。如果集合中首个成员不是元素，则按父类 `Array.sort()` 接口的普通排序规则执行。
 
 
-### [.wrapAll( box: String | Function | Element, doc?: Document ): Collector](docs/$().wrapAll.md)
+### .reverse(): Collector
 
-用一个容器包裹集合里的元素。
-- 目标容器可以是一个元素或HTML结构字符串或取值函数。
-- 取值函数可以返回一个容器元素或html字符串。
-- 传递或返回字符串时，容器元素会递进选取为最深层子元素。
-- 传递或返回元素时，元素直接作为容器，包裹内容为前插（prepend）方式。
-- 如果目标元素没有父元素（游离），其将替换集合中的首个元素。
+集合成员反转，覆盖继承于数组的同名方法。与 `Array.reverse()` 原生方法不同，这里不会修改集合自身，而是返回一个新的集合，并且支持栈链操作。
+
+
+### [.wrapAll( box: HTML | Element | Function, clone: boolean, event: boolean, eventdeep: boolean ): Collector](docs/$().wrapAll.md)
+
+用一个容器 `box` 包裹集合里的节点/元素/文本，被包裹的节点/元素会脱离DOM原位置，容器元素会替换集合中首个节点在DOM中的位置。
+
+容器可以是一个既有的元素或HTML结构字符串或取值函数，如果容器包含子元素，最终的实际包裹元素会被递进到首个最深层子元素。如果包裹容器是一个已经存在的元素，该元素会被直接使用，若克隆参数为假，该包裹容器会移出DOM树。容器元素包裹内容时为前插（`.prepend`）方式，因此包裹元素内原来的文本节点会被保留。
+
+> **注：**<br>
+> 集合内可以是字符串成员，它们会被自动作为文本节点逐个插入（`el.prepend()` 的特性）。<br>
+> 取值函数返回的元素需要自行克隆（如果需要），接口里的克隆参数仅适用于作为实参传递的元素。<br>
+
+
+### .item( idx: Number )
+
+
+### .eq( idx: Number )
+
+
+### .first( slr: String | Element | Function )
+
+
+### .last( slr: String | Element | Function )
+
+
+### .add( its: String | Element | NodeList | Collector )
+
+
+### .addBack( slr: String | Function )
+
+
+### .end( n: Number )
+
 
 
 ## 实用工具

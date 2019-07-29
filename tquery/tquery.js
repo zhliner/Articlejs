@@ -882,7 +882,7 @@ Object.assign( tQuery, {
         if (andOwn && $is(ctx, slr)) {
             _box = [ctx];
         }
-        return _box.concat(_els);
+        return _box.length ? _box.concat(_els) : _els;
     },
 
 
@@ -2234,7 +2234,7 @@ tQuery.Table = Table;
 
 
 //
-// 集合过滤的单列版。
+// 集合过滤的工具版。
 // 接受普通数组/类数组/Map/Set集合参数。
 ///////////////////////////////////////
 [
@@ -2774,37 +2774,6 @@ class Collector extends Array {
 
 
     /**
-     * 用一个容器包裹集合里的全部成员。
-     * - 目标容器可以是一个元素或HTML结构字符串或取值函数。
-     * - 取值函数可以返回一个容器元素或HTML字符串。
-     * - 传递或返回字符串时，容器元素会递进选取为最深层子元素。
-     * - 传递或返回元素时，元素直接作为容器，包裹内容为前插（prepend）方式。
-     * - 目标容器会替换集合中首个节点的位置。
-     * 注：
-     * 集合内可以是字符串成员，因为el.prepend本身就支持字符串。
-     *
-     * @param  {Element|String|Function} box 目标容器
-     * @param  {Boolean} clone 容器元素是否克隆
-     * @param  {Boolean} event 容器元素上的事件绑定是否克隆
-     * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆
-     * @return {Collector} 包裹容器
-     */
-    wrapAll( box, clone, event, eventdeep ) {
-        if (this.length == 0) {
-            return this;
-        }
-        if ( clone ) {
-            box = $.clone(box, event, true, eventdeep);
-        }
-        let _nd = this[0];
-
-        box = wrapData(_nd.parentElement && _nd, box, this, _nd.ownerDocument || Doc);
-
-        return new Collector( box, this );
-    }
-
-
-    /**
      * 移出节点集（脱离DOM）。
      * - 匹配选择器 slr 的会被移出。
      * - 移出的元素会作为一个新集合返回。
@@ -2879,19 +2848,6 @@ class Collector extends Array {
 
 
     /**
-     * 获取集合内元素。
-     * - 获取特定下标位置的元素，支持负数倒数计算。
-     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）。
-     * 注：兼容字符串数字，但空串不为0。
-     * @param  {Number} idx 下标值，支持负数
-     * @return {Element|Array}
-     */
-    item( idx ) {
-        return idx ? indexItem(this, +idx) : ( idx === 0 ? this[0] : Arr(this) );
-    }
-
-
-    /**
      * 迭代回调。
      * - 对集合内每一个元素应用回调（el, i, this）；
      * @param  {Function} handle 回调函数
@@ -2904,6 +2860,49 @@ class Collector extends Array {
 
 
     //-- 集合/栈操作 ----------------------------------------------------------
+
+
+    /**
+     * 用一个容器包裹集合里的全部成员。
+     * - 目标容器可以是一个元素或HTML结构字符串或取值函数。
+     * - 取值函数可以返回一个容器元素或HTML字符串。
+     * - 如果容器元素包含子元素，最终的包裹元素会被递进到首个最深层子元素。
+     * - 目标容器会替换集合中首个节点的位置。
+     * 注：
+     * 集合内可以是字符串成员，因为el.prepend本身就支持字符串。
+     *
+     * @param  {Element|String|Function} box 目标容器
+     * @param  {Boolean} clone 容器元素是否克隆
+     * @param  {Boolean} event 容器元素上的事件绑定是否克隆
+     * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆
+     * @return {Collector} 包裹容器
+     */
+     wrapAll( box, clone, event, eventdeep ) {
+        if (this.length == 0) {
+            return this;
+        }
+        if ( clone ) {
+            box = $.clone(box, event, true, eventdeep);
+        }
+        let _nd = this[0];
+
+        box = wrapData(_nd.parentElement && _nd, box, this, _nd.ownerDocument || Doc);
+
+        return new Collector( box, this );
+    }
+
+
+    /**
+     * 获取集合内元素。
+     * - 获取特定下标位置的元素，支持负数倒数计算。
+     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）。
+     * 注：兼容字符串数字，但空串不为0。
+     * @param  {Number} idx 下标值，支持负数
+     * @return {Element|Array}
+     */
+     item( idx ) {
+        return idx ? indexItem(this, +idx) : ( idx === 0 ? this[0] : Arr(this) );
+    }
 
 
     /**
@@ -2924,6 +2923,7 @@ class Collector extends Array {
 
     /**
      * 用集合的首个匹配成员构造一个新集合。
+     * 取值接口：function( Element ): Boolean
      * 注：如果当前集合已为空，返回当前空集合。
      * @param  {String|Element|Function} slr 匹配选择器
      * @return {Collector}
@@ -2938,6 +2938,7 @@ class Collector extends Array {
 
     /**
      * 用集合的最后一个匹配成员构造一个新集合。
+     * 取值接口：function( Element ): Boolean
      * 注：如果当前集合已为空，返回当前空集合。
      * @param  {String|Element|Function} slr 匹配选择器
      * @return {Collector}
@@ -2961,8 +2962,8 @@ class Collector extends Array {
      * @param  {String|Element|NodeList|Collector} its 目标内容
      * @return {Collector}
      */
-    add( its, ctx ) {
-        return this.concat( tQuery(its, ctx) );
+    add( its ) {
+        return this.concat( tQuery(its) );
     }
 
 
@@ -2975,13 +2976,11 @@ class Collector extends Array {
      * @return {Collector}
      */
     addBack( slr ) {
-        let _els = this.previous;
+        let _els = this.previous || [];
 
-        if (!_els) {
-            return this;
+        if ( slr ) {
+            _els = Arr(_els).filter( getFltr(slr) );
         }
-        _els = slr ? [..._els].filter(getFltr(slr)) : _els;
-
         return this.concat( _els );
     }
 
@@ -2994,8 +2993,7 @@ class Collector extends Array {
      * @return {Collector}
      */
     end( n = 1) {
-        let _it = this,
-            _c0;
+        let _it = this, _c0;
 
         while ( n-- && _it ) {
             _c0 = _it;
