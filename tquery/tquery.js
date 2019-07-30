@@ -744,6 +744,34 @@ Object.assign( tQuery, {
 
 
     /**
+     * 元素的事件克隆。
+     * - 支持不同种类元素之间的事件克隆，但仅限于元素自身。
+     * - 可以指定克隆的目标事件（名称序列），不区分是否为委托。
+     * - 如果需要准确的委托匹配，evns可以是一个配置对数组：[Array2]。
+     *   Array2: [evname, selector]
+     * 注意：
+     * 委托选择器为空时应设定为null值，否则不会匹配。
+     * 如果没有目标事件被克隆，返回null值。
+     *
+     * @param  {Element} src 事件源元素
+     * @param  {Element} to 克隆目标元素
+     * @param  {String|[Array2]} evns 事件名序列或配置集，可选
+     * @return {Element|null} 克隆的目标元素（to）
+     */
+    cloneEvent( src, to, evns ) {
+        if (src === to) {
+            window.console.error('Clone events on same element.');
+            return;
+        }
+        if (typeof evns == 'string') {
+            evns = evns.trim()
+                .split(__chSpace);
+        }
+        return Event.clone(to, src, evns);
+    },
+
+
+    /**
      * 获取表单元素内可提交类控件集。
      * 同名控件中用最后一个控件代表（用.val可获取值集）。
      * @param  {Element} form 表单元素
@@ -1281,7 +1309,7 @@ Object.assign( tQuery, {
         if (el.nodeType != 1) {
             return _new;
         }
-        return event || eventdeep ? _cloneEvent(el, _new, event, eventdeep) : _new;
+        return event || eventdeep ? _cloneEvents(el, _new, event, eventdeep) : _new;
     },
 
 
@@ -2579,7 +2607,7 @@ function _first( els, slr ) {
  * @param  {Boolean} deep 是否深层克隆
  * @return {Element} 目标元素
  */
-function _cloneEvent( src, to, top, deep ) {
+function _cloneEvents( src, to, top, deep ) {
     if (top) {
         Event.clone(to, src);
     }
@@ -2658,7 +2686,8 @@ class Collector extends Array {
         }
         return new Collector(
             // comp的null值有用
-            unique ? uniqueSort(this, comp) : [...this].sort(comp || undefined),
+            // 在一个新的集合上排序（不影响原集合）
+            unique ? uniqueSort(this, comp) : Arr(this).sort(comp || undefined),
             this
         );
     }
@@ -2670,7 +2699,7 @@ class Collector extends Array {
      * @return {Collector}
      */
     reverse() {
-        return new Collector( [...this].reverse(), this );
+        return new Collector( Arr(this).reverse(), this );
     }
 
 
@@ -2895,7 +2924,7 @@ class Collector extends Array {
     /**
      * 获取集合内元素。
      * - 获取特定下标位置的元素，支持负数倒数计算。
-     * - 未指定下标返回集合的一个新的数组表示（Collector 继承自数组）。
+     * - 未指定下标返回整个集合的一个普通数组表示。
      * 注：兼容字符串数字，但空串不为0。
      * @param  {Number} idx 下标值，支持负数
      * @return {Element|Array}
@@ -2963,7 +2992,7 @@ class Collector extends Array {
      * @return {Collector}
      */
     add( its ) {
-        return this.concat( tQuery(its) );
+        return this.concat( $(its) );
     }
 
 
@@ -2987,8 +3016,8 @@ class Collector extends Array {
 
     /**
      * 返回集合链栈末尾第n个集合。
+     * - 0值表示末端的当前集。
      * - 传递任意负值返回起始集。
-     * - 0回溯返回当前集。
      * @param  {Number} n 回溯的层数
      * @return {Collector}
      */
@@ -3474,7 +3503,7 @@ elsExfn([
 
             return new Collector(
                     to,
-                    // 可能加入一个中间层
+                    // 克隆时会嵌入一个新节点集
                     clone ? new Collector(_ret, this) : this
                 );
         },
@@ -5304,23 +5333,24 @@ const Event = {
 
     /**
      * 事件绑定克隆。
+     * 如果传递事件名序列，则只有目标事件的绑定会被克隆。
+     * 如果需要匹配委托，evns应该是一个配置对数组：[Array2]。
+     * Array2: [evname, selector]
+     * 如果没有目标事件被克隆，返回null。
      * @param  {Element} to  目标元素
      * @param  {Element} src 事件源元素
-     * @return {Element} 目标元素
+     * @param  {[String]|[Array2]} evns 事件名或配置集，可选
+     * @return {Element|null} 目标元素
      */
-    clone( to, src ) {
-        if (to === src) {
-            window.console.error('Clone events on same element.');
-            return;
-        }
-        let _fns = this.store.get(src);
+    clone( to, src, evns ) {
+        let _list = this.record(src, evns);
 
-        if (!_fns) {
-            return to;
+        if (!_list || _list.length == 0) {
+            return null;
         }
-        for ( let v of _fns.values() ) {
-            let _fn = v.once ? 'one' : 'on';
-            this[_fn](to, v.event, v.selector, v.handle);
+        for ( let o of _list ) {
+            let _fn = o.once ? 'one' : 'on';
+            this[_fn](to, o.event, o.selector, o.handle);
         }
         return to;
     },
@@ -5371,6 +5401,7 @@ const Event = {
 
     /**
      * 添加值存储。
+     * 选择器为假时统一为null值存储。
      * @param  {Map} buf 当前元素存储区
      * @param  {Function} bound 绑定调用对象
      * @param  {String} evn 事件名
@@ -5383,30 +5414,10 @@ const Event = {
         buf.set(bound, {
             event: evn,
             handle: handle,
-            selector: slr,
+            selector: slr || null,
             once: once,
         });
         return bound;
-    },
-
-
-    /**
-     * 提取匹配的绑定调用集。
-     * @param  {Map} buf 存储集
-     * @param  {String} evn 事件名
-     * @param  {String} slr 选择器
-     * @param  {Function|Object} handle 用户调用句柄/对象
-     * @return {[Function]} 绑定集
-     */
-    handles( buf, evn, slr, handle ) {
-        let _list = [],
-            _fltr = this._filter(evn, slr, handle);
-
-        // 遍历查询
-        for ( let [f, v] of buf ) {
-            if ( _fltr(v) ) _list.push(f);
-        }
-        return _list;
     },
 
 
@@ -5428,6 +5439,24 @@ const Event = {
             slr = hackSelector(_box, slr, hackFix);
         }
         return this._closest( el => $is(el, slr), ev.target, _box )
+    },
+
+
+    /**
+     * 绑定事件原始记录获取。
+     * 检索元素目标事件名的原始绑定信息。
+     * 返回匹配的信息集，主要用于事件克隆。
+     * @param  {Element} el 目标元素
+     * @param  {[String]|[Array2]} evns 事件名或配置集，可选
+     * @return {[Object]|Iterator}
+     */
+    record( el, evns ) {
+        let _its = this.store.get(el);
+
+        if (!_its || !evns) {
+            return _its && _its.values();
+        }
+        return [..._its.values()].filter( this._compRecord(evns) );
     },
 
 
@@ -5565,6 +5594,22 @@ const Event = {
 
 
     /**
+     * 事件原始记录匹配器。
+     * 根据事件名或 [事件名, 选择器] 配置匹配。
+     * @param {[String]|[Array2]} evns 匹配事件名或配置集
+     */
+    _compRecord( evns ) {
+        if ( isArr(evns[0]) ) {
+            return o => evns.some( c => o.event == c[0] && o.selector == c[1] );
+        }
+        if ( evns.length == 1 ) {
+            return o => o.event == evns[0];
+        }
+        return o => evns.includes( o.event );
+    },
+
+
+    /**
      * 获取元素绑定存储映射。
      * @param  {Element} el 关联元素
      * @param  {WeakMap} store 存储区
@@ -5608,10 +5653,30 @@ const Event = {
     _clearSome( el, map, evn, slr, handle ) {
         let [_evn, _cap] = this._evncap(evn, slr);
 
-        for ( let fn of this.handles(map, _evn, slr, handle) ) {
+        for ( let fn of this._boundHandles(map, _evn, slr, handle) ) {
             el.removeEventListener(_evn, fn, _cap);
             map.delete(fn);
         }
+    },
+
+
+    /**
+     * 提取匹配的绑定调用集。
+     * @param  {Map} buf 存储集
+     * @param  {String} evn 事件名
+     * @param  {String} slr 选择器
+     * @param  {Function|Object} handle 用户调用句柄/对象
+     * @return {[Function]} 绑定集
+     */
+     _boundHandles( buf, evn, slr, handle ) {
+        let _list = [],
+            _fltr = this._filter(evn, slr, handle);
+
+        // 遍历查询
+        for ( let [f, v] of buf ) {
+            if ( _fltr(v) ) _list.push(f);
+        }
+        return _list;
     },
 
 
@@ -5917,10 +5982,10 @@ Object.assign( tQuery, {
      *
      * 注：功能与jQuery.map相同，接口略有差异。
      *
-     * @param  {Array|LikeArray|Object|.entries} iter 迭代目标
+     * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
      * @param  {Function} fun 转换函数
-     * @param  {Object} thisObj 回调内的this
-     * @return {Array}
+     * @param  {Any} thisObj 回调内的this
+     * @return {[Value]}
      */
     map( iter, fun, thisObj ) {
         if (thisObj) {

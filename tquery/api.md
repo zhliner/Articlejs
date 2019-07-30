@@ -81,6 +81,17 @@ scope: Boolean  // <style>元素的一个可选属性。
 > **注**：jQuery.contains 的行为稍有不同。
 
 
+### [$.cloneEvent( src: Element, to: Element, evns: string | [Array2] ): Element | null](docs/$.cloneEvent.md)
+
+把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。支持不同种类元素之间的事件处理器克隆（不含子孙元素）。可以指定想要克隆的目标事件名序列（空格分隔，不区分是否为委托），或者传递一个**配置对**（`[evname, selector]`）的数组，准确指定事件名和相应的委托选择器。
+
+返回克隆了事件处理器的目标元素，如果没有事件处理器被克隆，会返回 `null`。
+
+> **注意：**<br>
+> 传递名称序列（不指定选择器）时，仅仅是忽略选择器检查，源上原有的选择器依然会起作用。<br>
+> 如果传递配置对以包含委托选择器检查，则其中空的选择器应当设置为 `null`（或 `undefined`），否则不会匹配。<br>
+
+
 ### [$.controls( form: Element ): [Element]](docs/$.controls.md)
 
 获取表单元素 `form` 内可提交类控件元素集。同名的控件只保留最后一个（**注**：`.val` 接口可从同名控件中任一控件获取值集）。
@@ -147,7 +158,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ## 前置说明
 
-> #### 关于单元素版和集合版
+> ### 关于单元素版和集合版
 >
 > 以下接口是单元素版，即对单个元素执行的操作，它被直接定义在 `$` 函数对象上。对 `$()` 的检索调用返回一个 `Collector` 实例，也即一个集合，大部分单元素版的接口在该集合上也存在，它们被称为集合版接口。
 >
@@ -387,6 +398,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 获取或设置 `el` 元素（文档或窗口）的水平滚动条位置。
 
 
+
 ## 元素属性
 
 ### [$.addClass( el: Element, names: String | Function ): this](docs/$.addClass.md)
@@ -458,6 +470,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 > 如果需要无条件获取或设置控件的 `value` 属性值，应当使用 `.attr/.prop` 接口。<br>
 
 
+
 ## 文本操作
 
 ### [$.html( el: String | Element, code: String | [String] | Node | [Node] | Function | .values, where?: String | Number, sep?: String ): String | [Node]](docs/$.html.md)
@@ -488,6 +501,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 与 `.html` 接口类似，取值回调的接口为：`function(el): Any`，也支持在指定的位置（`before|after|begin|end|prepend|append|fill|replace`）插入文本（**注**：实际上是一个文本节点）。
 
 **返回值**：源码解码后的文本或新创建的文本节点。
+
 
 
 ## CSS 相关
@@ -669,25 +683,49 @@ scope: Boolean  // <style>元素的一个可选属性。
 > 取值函数返回的元素需要自行克隆（如果需要），接口里的克隆参数仅适用于作为实参传递的元素。<br>
 
 
-### .item( idx: Number )
+### .item( idx: Number ): Value | [Value]
+
+获取集合内的某个成员或整个集合（普通数组）。下标支持负数从末尾算起（-1表示最后一个）。**注**：兼容字符串数字，但空串不为0值。
 
 
-### .eq( idx: Number )
+### .eq( idx: Number ): Collector
+
+获取集合中特定下标的成员构造的一个 `Collector` 实例。下标支持负数从末尾算起（-1表示最后一个），超出集合范围时构造为一个空的集合。**注**：兼容字符串数字，但空串不为0值。
 
 
-### .first( slr: String | Element | Function )
+### .first( slr: String | Element | Function ): Collector
+
+获取集合内的首个匹配成员构造的一个新的 `Collector` 实例。匹配参数 `slr` 支持选择器、元素和匹配测试函数。测试函数接口：`function( Element ): Boolean`。
+
+> **注**：如果当前集合已为空，返回当前的空集。
 
 
-### .last( slr: String | Element | Function )
+### .last( slr: String | Element | Function ): Collector
+
+获取集合内最后一个匹配成员构造的一个新的 `Collector` 实例。匹配参数 `slr` 支持选择器、元素和匹配测试函数。测试函数接口：`function( Element ): Boolean`。
+
+> **注**：如果当前集合已为空，返回当前的空集。
 
 
-### .add( its: String | Element | NodeList | Collector )
+### .add( its: String | Element | NodeList | Collector ): Collector
+
+往当前集合中添加新的元素，返回一个添加了新成员的新 `Collector` 实例。总是会构造一个新的集合返回。
+
+> **注：**<br>
+> 返回的集合不会自动去重排序，如果用户觉得需要，可以简单调用 `.sort(true)` 即可。
 
 
-### .addBack( slr: String | Function )
+### .addBack( slr: String | Function ): Collector
+
+在当前集合的基础上添加（实例链栈上）前一个集合的成员，可选的选择器或筛选函数用于筛选前一个集合。总是会返回一个新的 `Collector` 实例，即便加入的集合为空。
+
+> **注：**
+> 与 `.add()` 相同，返回集不会自动去重排序，如果必要可以简单调用 `.sort(true)` 即可。
 
 
-### .end( n: Number )
+### .end( n: Number ): Collector
+
+返回集合内 `Collector` 实例链栈上的倒数第 `n` 个集合。`0` 表示末端的当前集，传递任意负值返回起始集。
 
 
 
@@ -698,6 +736,9 @@ scope: Boolean  // <style>元素的一个可选属性。
 通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
 
 传入迭代回调处理器的实参分别为：值，键，迭代对象自身（类似数组 `forEach` 接口）。回调返回 `false` 会中断迭代。
+
+
+### [$.map( iter: [Value] | LikeArray | Object | .entries, fun: Function, thisObj: Any ): [Value]](docs/$.map.md)
 
 
 ### [$.Later( evn: String, handle: Function | Object, over?: Boolean ): Function](docs/$.Later.md)
