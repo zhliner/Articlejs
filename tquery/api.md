@@ -765,6 +765,10 @@ scope: Boolean  // <style>元素的一个可选属性。
 本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 返回了假值，则返回该假值本身，如果返回了真值（元素/配置对象或其数组），则返回 `undefined` 或一个定时器ID。
 
 
+### [$.Counter( fn: Function, n?: number, step?: number ): Function](docs/$.Counter.md)
+
+
+
 ### [$.tags( code: String ): String](docs/$.tags.md)
 
 伪标签源码（由 `[]` 包围标签）转化为正常的HTML源码，可用于元素属性值中直观地包含标签源码。

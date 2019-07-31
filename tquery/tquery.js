@@ -5968,7 +5968,6 @@ Object.assign( tQuery, {
 
         for ( let [k, v] of entries(iter) ) {
             v = fun(v, k);
-            // undefined == null
             if (v != null) _tmp.push(v);
         }
         // 一级扁平化
