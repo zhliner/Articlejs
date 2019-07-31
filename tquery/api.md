@@ -150,7 +150,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ### [$( its: Any, ctx: Element ): Collector](docs/$().md)
 
-通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。`its` 支持选择器、元素（简单打包）、节点集、支持拥有 `.values()` 接口的对象（如：Set）。无效的 `its` 实参会构造一个空的 `Collector` 实例。
+通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。`its` 支持选择器、元素（简单打包）、节点集、支持拥有 `.values()` 接口的对象（如：Set）。无效的 `its` 实参会构造一个仅包含该实参的 `Collector` 实例，如：`$(false)` => `Collector[false, previous: null]`
 
 本接口还用作页面载入完毕后的用户处理函数绑定，即初始 `$.ready(...)` 的实参。
 
@@ -712,7 +712,8 @@ scope: Boolean  // <style>元素的一个可选属性。
 往当前集合中添加新的元素，返回一个添加了新成员的新 `Collector` 实例。总是会构造一个新的集合返回。
 
 > **注：**<br>
-> 返回的集合不会自动去重排序，如果用户觉得需要，可以简单调用 `.sort(true)` 即可。
+> 返回的集合不会自动去重排序，如果用户觉得需要，可以简单调用 `.sort(true)` 即可。<br>
+> 本接口的字符串实参会被视为选择器，因此并不能直接添加字符串成员（作为普通集合时）。<br>
 
 
 ### .addBack( slr: String | Function ): Collector
@@ -738,7 +739,23 @@ scope: Boolean  // <style>元素的一个可选属性。
 传入迭代回调处理器的实参分别为：值，键，迭代对象自身（类似数组 `forEach` 接口）。回调返回 `false` 会中断迭代。
 
 
-### [$.map( iter: [Value] | LikeArray | Object | .entries, fun: Function, thisObj: Any ): [Value]](docs/$.map.md)
+### [$.map( iter: [Value] | LikeArray | Object | .entries, callback: Function, thisObj: Any ): Value | [Value]](docs/$.map.md)
+
+对集合内的成员逐一自行回调函数，返回回调函数返回的值的集合，如果回调返回 `null` 或 `undefined`，它们会被忽略（不进入返回集合内），如果回调返回一个集合，它们会被扁平化合并。
+
+操作目标可以是数组、类数组、可以生成集合的迭代器（支持 `.entries` 接口）、`Map` 或 `Set` 实例甚至是普通的对象（`Object`）等。
+
+**回调接口**：`function(val, key): Value | [Value]`。
+
+
+### $.every( iter: [Value] | LikeArray | Object | .entries, callback: Function, thisObj: Any ): Boolean
+
+迭代集合内的每一个成员执行回调函数，如果都返回真则最终结果为真，支持比较广泛的集合类型。回调接口：`function(val, key): Boolean`。
+
+
+### $.some( iter: [Value] | LikeArray | Object | .entries, callback: Function, thisObj: Any ): Boolean
+
+迭代集合内的每一个成员执行回调函数，如果有一个返回真则最终结果为真，支持比较广泛的集合类型。回调接口：`function(val, key): Boolean`。
 
 
 ### [$.Later( evn: String, handle: Function | Object, over?: Boolean ): Function](docs/$.Later.md)

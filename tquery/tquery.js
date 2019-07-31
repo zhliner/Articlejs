@@ -422,7 +422,8 @@ function hackSelector( ctx, slr, fix ) {
 
 /**
  * DOM 查询器。
- * - 查询结果为集合，如果仅需一个元素可用 $.One。
+ * - 查询结果为集合，如果仅需一个元素可用 $.get()。
+ * - 传递一个无效的实参返回仅包含该实参的集合。
  * its: {
  *  	String      选择器查询
  *  	Element     元素包装
@@ -435,19 +436,16 @@ function hackSelector( ctx, slr, fix ) {
  * @param  {Element} ctx 查询上下文
  * @return {Collector}
  */
-function tQuery( its, ctx = Doc ) {
-    its = its || '';
-    // 最优先
-    if (typeof its == 'string') {
-        return new Collector( $all(its.trim(), ctx) );
-    }
-    if (isCollector(its)) {
+function tQuery( its = '', ctx = Doc ) {
+    if ( isCollector(its) ) {
         return its;
     }
-    // 初始就绪
     if ( isFunc(its) ) {
-        // $ 可能被代理。
-        return $.ready(its);
+        // 允许嵌入代理$
+        return $.ready( its );
+    }
+    if (typeof its == 'string') {
+        its = $all( its.trim(), ctx );
     }
     return new Collector( its );
 }
@@ -2334,7 +2332,8 @@ tQuery.Table = Table;
  * @param {Number} meth 方法/位置值
  */
 function _validMeth( node, meth ) {
-    return node.nodeType == 1 || !inArray([2, -2, 0], meth);
+    return node.nodeType == 1 ||
+        (meth === '' || meth == 1 && meth == -1);
 }
 
 
@@ -2637,10 +2636,13 @@ class Collector extends Array {
      */
     constructor( obj, prev ) {
         // 注记：
-        // 某些实现中，Array原生map类调用会再次调用此构造，
-        // 故预构造为数组（容错）
-        super(
-            ...(obj && superArgs(obj) || [0])
+        // 原生方法中生成新数组的方法会再次调用本构造，
+        // 并传递一个成员数量实参。这里需要避免该参数影响。
+        super();
+        // window.console.info(obj);
+
+        this.push(
+            ...( arrayArgs(obj) || [obj] )
         );
         this.previous = prev || null;
     }
@@ -2669,6 +2671,16 @@ class Collector extends Array {
      */
     concat( ...rest ) {
         return new Collector( super.concat(...rest), this );
+    }
+
+
+    /**
+     * 父类覆盖。
+     * 支持内部的实例链栈。
+     * @param {Function} proc 回调函数
+     */
+    map( proc ) {
+        return new Collector( super.map(proc), this );
     }
 
 
@@ -3519,20 +3531,6 @@ elsExfn([
 
 
 /**
- * 是否在数组中。
- * @param {Array|LikeArray} arr 数组/类数组
- * @param {Value} val 对比值
- * @return {Boolean}
- */
-function inArray( arr, val ) {
-    if (arr.includes) {
-        return arr.includes(val);
-    }
-    return arr.indexOf(val) >= 0;
-}
-
-
-/**
  * 是否为纯数字。
  * from jQuery 3.x
  * @param  {Mixed}  obj 测试目标
@@ -3560,30 +3558,6 @@ function isWindow( obj ) {
  */
 function indexItem( list, idx ) {
     return list[ idx < 0 ? list.length + idx : idx ];
-}
-
-
-/**
- * 通用某一为真。
- * - 类似数组同名函数功能，扩展到普通对象；
- * - 适用数组/类数组/普通对象/.entries接口对象；
- * - 比较函数接收值/键两个参数，类似each；
- * 注记：
- * - 原则上为只读接口，不传递目标自身；
- *
- * @param  {Array|LikeArray|Object|.entries} iter 迭代目标
- * @param  {Function} comp 比较函数
- * @param  {Object} thisObj 回调内的this
- * @return {Boolean}
- */
-function iterSome( iter, comp, thisObj ) {
-    if (thisObj) {
-        comp = comp.bind(thisObj);
-    }
-    for ( let [k, v] of entries(iter) ) {
-        if (comp(v, k)) return true;
-    }
-    return false;
 }
 
 
@@ -3658,18 +3632,19 @@ function hasFltr( its ) {
  * @return {Boolean}
  */
 function isCollector( obj ) {
-    return !!obj && obj[ ownerToken ];
+    return obj && obj[ ownerToken ];
 }
 
 
 /**
- * 测试构造 Collector 基类参数。
- * - 返回false表示参数不合法；
+ * 构造Collector成员实参。
+ * - 用于基类构造后添加初始成员。
+ * - 返回false表示参数不合法。
  * @param  {Array|LikeArray|Element|[.values]} obj 目标对象
- * @return {Iterator|false} 可迭代对象
+ * @return {Iterator|[Value]|false} 可迭器或数组
  */
-function superArgs( obj ) {
-    if (obj.nodeType || isWindow(obj)) {
+function arrayArgs( obj ) {
+    if (!obj || isWindow(obj)) {
         return [ obj ];
     }
     return isFunc(obj.values) ? obj.values() : $A(obj);
@@ -4964,7 +4939,7 @@ const valHooks = {
                 if ($is(_cb, ':disabled')) {
                     continue;
                 }
-                _cb.checked = inArray(val, _cb.value);
+                _cb.checked = val.includes(_cb.value);
             }
         }
     },
@@ -5016,7 +4991,7 @@ const valHooks = {
                 val = [val];
             }
             for (let _op of el.options) {
-                if (inArray(val, _op.value) && !$is(_op, ':disabled')) {
+                if (val.includes(_op.value) && !$is(_op, ':disabled')) {
                     _op.selected = true;
                 }
             }
@@ -5938,9 +5913,7 @@ tQuery.isFunction   = isFunc;
 tQuery.isCollector  = isCollector;
 tQuery.is           = $is;
 tQuery.type         = $type;
-tQuery.some         = iterSome;
 tQuery.unique       = uniqueSort;
-tQuery.inArray      = inArray;
 
 
 Object.assign( tQuery, {
@@ -6006,7 +5979,7 @@ Object.assign( tQuery, {
     /**
      * 通用全部为真。
      * - 参考iterSome；
-     * @param  {Array|LikeArray|Object|.entries} iter 迭代目标
+     * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
      * @param  {Function} comp 比较函数
      * @param  {Object} thisObj 回调内的this
      * @return {Boolean}
@@ -6019,6 +5992,30 @@ Object.assign( tQuery, {
             if (!comp(v, k)) return false;
         }
         return true;
+    },
+
+
+    /**
+     * 通用某一为真。
+     * - 类似数组同名函数功能，扩展到普通对象；
+     * - 适用数组/类数组/普通对象/.entries接口对象；
+     * - 比较函数接收值/键两个参数，类似each；
+     * 注记：
+     * - 原则上为只读接口，不传递目标自身；
+     *
+     * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
+     * @param  {Function} comp 比较函数
+     * @param  {Object} thisObj 回调内的this
+     * @return {Boolean}
+     */
+    some( iter, comp, thisObj ) {
+        if (thisObj) {
+            comp = comp.bind(thisObj);
+        }
+        for ( let [k, v] of entries(iter) ) {
+            if (comp(v, k)) return true;
+        }
+        return false;
     },
 
 
