@@ -135,9 +135,7 @@
         // @param  {mixed} val 目标数据
         // @return {String} 类型名（如 "String", "Array"）
         $type = function( val ) {
-            return (val === null || val === undefined) ?
-                String(val):
-                val.constructor.name;
+            return (val == null) ? String(val): val.constructor.name;
         },
 
         // 元素匹配判断。
@@ -164,13 +162,14 @@
         },
 
         // 去除重复并排序。
+        // 非元素支持：comp传递null获取默认排序。
         // @param  {NodeList|Iterator} els
         // @param  {Function} comp 比较函数，可选
         // @return {Array} 结果集（新数组）
         uniqueSort = Sizzle && Sizzle.uniqueSort || function( els, comp = sortElements ) {
-            return els.length > 1 ?
-                // 非元素支持：comp传递null获取默认排序。
-                [...new Set( values(els) )].sort( comp || undefined ) : els;
+            return els.length === 1 ?
+                Arr(els) :
+                [...new Set( values(els) )].sort( comp || undefined );
         };
 
 
@@ -1612,8 +1611,8 @@ Object.assign( tQuery, {
         if ( isFunc(code) ) {
             code = code( el );
         }
-        if (typeof code != 'string') {
-            code = outerHtml(code, sep);
+        if (typeof code == 'object') {
+            code = code && outerHTML(code, sep);
         }
         return Insert(
             el,
@@ -1648,7 +1647,7 @@ Object.assign( tQuery, {
         if ( isFunc(code) ) {
             code = code( el );
         }
-        if (typeof code != 'string') {
+        if (typeof code == 'object') {
             code = nodeText(code, sep);
         }
         return Insert(
@@ -3739,7 +3738,7 @@ function values( obj ) {
 function fillElem( el, data ) {
     if (!data) return el;
 
-    let _fn = data.nodeType || data[0].nodeType ?
+    let _fn = data.nodeType || ( isArr(data) && data[0].nodeType ) ?
         'fill' :
         'html';
 
@@ -4450,7 +4449,7 @@ function masterNode( node ) {
  * @param  {String} sep 连接字符
  * @return {String}
  */
-function outerHtml( nodes, sep ) {
+function outerHTML( nodes, sep ) {
     let _buf = [];
     nodes = nodes.nodeType ? [nodes] : values(nodes);
 
@@ -6149,10 +6148,7 @@ Object.assign( tQuery, {
         let _buf = [];
 
         for (const [k, v] of map) {
-            _buf.push({
-                [kname]: k,
-                [vname]: v,
-            });
+            _buf.push({ [kname]: k, [vname]: v });
         }
         return _buf;
         // return [...map].map( kv => ({ [kname]: kv[0], [vname]: kv[1] }) );
@@ -6165,10 +6161,10 @@ Object.assign( tQuery, {
      * - 如果数据来源不是数组，直接添加为成员；
      * - 返回首个参数数组本身；
      * @param  {Array} des 目标数组
-     * @param  {...Array} src 数据源集序列
+     * @param  {Array} src 数据源集序列
      * @return {Array} des
      */
-    mergeArray(des, ...src) {
+    mergeArray( des, ...src ) {
         des.push( ...[].concat(...src) );
         return des;
     },
@@ -6176,10 +6172,10 @@ Object.assign( tQuery, {
 
     /**
      * 创建一个新的对象。
-     * - 新对象基于首个参数base为原型；
-     * - 新对象是后续对象的浅拷贝合并；
+     * - 新对象基于首个参数base为原型。
+     * - 新对象是后续对象的浅拷贝合并。
      * @param  {Object} base 原型对象
-     * @param  {...Object} data 源数据序列
+     * @param  {Object} data 源数据序列
      * @return {Object}
      */
     object( base, ...data ) {
