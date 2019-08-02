@@ -752,7 +752,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} src 事件源元素
      * @param  {Element} to 克隆目标元素
-     * @param  {String|[Array2]} evns 事件名序列或配置集，可选
+     * @param  {String|Array2|[Array2]} evns 事件名序列或配置集，可选
      * @return {Element|null} 克隆的目标元素（to）
      */
     cloneEvent( src, to, evns ) {
@@ -763,6 +763,9 @@ Object.assign( tQuery, {
         if (typeof evns == 'string') {
             evns = evns.trim()
                 .split(__chSpace);
+        }
+        else if (!isArr(evns[0])) {
+            evns = [evns];
         }
         return Event.clone(to, src, evns);
     },

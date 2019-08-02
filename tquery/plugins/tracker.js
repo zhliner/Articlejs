@@ -8,8 +8,7 @@
 
     节点修改跟踪器
 
-    覆盖有改变节点（移动，属性/样式修改）能力的API，记录相关参考，
-    提供节点数据恢复的能力。
+    覆盖有改变节点（移动，属性/样式修改）能力的API，记录相关参考，提供节点数据恢复的能力。
     节点树的变化可回溯，可用于交互文档演示中的回退，或节点树编辑撤销。
 
     接口：
@@ -21,10 +20,10 @@
     --------
         API:
             before, after, prepend, append, fill, replace,
-            html, text, table, detach, remove, empty, normalize
+            html, text, detach, remove, empty, normalize
         注：
-        - wrap系列由上面操作完成；
-        - 元素参考前兄弟节点或父元素；
+        - wrap系列由上面操作完成。
+        - 元素参考前兄弟节点或父元素。
     属性变化
     --------
         API: addClass, removeClass, toggleClass, attr, prop, removeAttr, val
@@ -63,9 +62,6 @@
         }
         ChildNode: {
             before, after, remove, replaceWith
-        }
-        EventTarget: {
-            addEventListener, removeEventListener
         }
         style：CSSStyleDeclaration
 
@@ -110,7 +106,7 @@
     'replace',
 ]
 .forEach( function(fn) {
-    __Handles[fn] = function( el, cons/*, clone, event*/ ) {
+    __Handles[fn] = function( el, cons/*, clone, event, eventdeep*/ ) {
         if (typeof cons == 'function') {
             cons = cons(el);
         }

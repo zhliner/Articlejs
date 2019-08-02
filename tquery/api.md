@@ -81,15 +81,15 @@ scope: Boolean  // <style>元素的一个可选属性。
 > **注**：jQuery.contains 的行为稍有不同。
 
 
-### [$.cloneEvent( src: Element, to: Element, evns: string | [Array2] ): Element | null](docs/$.cloneEvent.md)
+### [$.cloneEvent( src: Element, to: Element, evns: string | Array2 | [Array2] ): Element | null](docs/$.cloneEvent.md)
 
-把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。支持不同种类元素之间的事件处理器克隆（不含子孙元素）。可以指定想要克隆的目标事件名序列（空格分隔，不区分是否为委托），或者传递一个**配置对**（`[evname, selector]`）的数组，准确指定事件名和相应的委托选择器。
+把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。支持不同种类元素之间的事件处理器克隆（不含子孙元素）。可以指定想要克隆的目标事件名序列（空格分隔，不区分是否为委托），或者传递一个**配置对**（`[evname, selector]`）的数组，准确指定事件名和相应的委托选择器。配置对中的事件名不再支持空格分隔多个名称。
 
 返回克隆了事件处理器的目标元素，如果没有事件处理器被克隆，会返回 `null`。
 
 > **注意：**<br>
 > 传递名称序列（不指定选择器）时，仅仅是忽略选择器检查，源上原有的选择器依然会起作用。<br>
-> 如果传递配置对以包含委托选择器检查，则其中空的选择器应当设置为 `null`（或 `undefined`），否则不会匹配。<br>
+> 如果传递配置对以包含委托选择器检查，则其中空的选择器应当设置为 `null` 或 `undefined`，否则不会匹配。<br>
 
 
 ### [$.controls( form: Element ): [Element]](docs/$.controls.md)
@@ -744,6 +744,11 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ## 实用工具
 
+### [$.embedProxy( getter: Function )](docs/$.embedProxy.md)
+
+对 `window.$` 嵌入 `get` 代理。由外部定义 `$` 成员的调用集覆盖，`getter` 接受函数名参数，应当返回一个与目标方法声明相同的函数。接口：`function( name ): Function`。
+
+
 ### [$.each( obj: Any, handle: Function, thisObj: Any ): Any](docs/$.each.md)
 
 通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
@@ -846,6 +851,8 @@ $.kvsMap(map, 'name', 'value');
 //     { name: 'a', value: 'aaa' },
 //     { name: 'b', value: 'bbb' },
 // ]
+// 注：
+// 上面的 name 和 value 其实是默认的名称，可不传递。
 ```
 
 
