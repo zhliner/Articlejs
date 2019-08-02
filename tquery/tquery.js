@@ -1615,6 +1615,7 @@ Object.assign( tQuery, {
             code = code( el );
         }
         if (typeof code == 'object') {
+            // maybe null
             code = code && outerHTML(code, sep);
         }
         return Insert(
