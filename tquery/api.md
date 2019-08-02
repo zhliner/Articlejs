@@ -652,14 +652,24 @@ scope: Boolean  // <style>元素的一个可选属性。
 对集合中的元素用 `sub` 执行 **包含** 匹配过滤。包含的意思是 **`sub` 作为子级节点存在，或者是与子级元素匹配的选择器**。
 
 
+### .slice( beg: Number, end: Number ): Collector
+
+集合切片，覆盖继承于数组的同名方法。与 `Array.slice()` 的差异就是对切片返回的子集进行了封装，以支持对集合栈的操作。
+
+
 ### .concat( ...rest: Value | [Value] ): Collector
 
 集合连接，覆盖继承于数组的同名方法。与 `Array.concat()` 的差异就是对连接返回的新数组进行了封装，以支持对集合栈的操作（如：`.end()`）。
 
 
-### .slice( beg: Number, end: Number ): Collector
+### .map( proc: Function ): Collector
 
-集合切片，覆盖继承于数组的同名方法。与 `Array.slice()` 的差异就是对切片返回的子集进行了封装，以支持对集合栈的操作。
+针对集合内成员逐一调用处理函数，返回处理函数的返回值的集合。函数接口：`function( val, index, this ): Value`。
+
+这是对 `Array.map()` 的简单封装，只是加入了对 `Collector` 实例链栈的支持。
+
+> **注意：**<br>
+> 与工具版的 `$.map()` 稍有不同，本接口并不和并（扁平化）处理函数返回的集合，也不会排除 `null` 和 `undefined` 的返回值。
 
 
 ### [.sort( unique: Boolean, comp?: Function ): Collector](docs/$().sort.md)
@@ -719,6 +729,8 @@ scope: Boolean  // <style>元素的一个可选属性。
 ### .addBack( slr: String | Function ): Collector
 
 在当前集合的基础上添加（实例链栈上）前一个集合的成员，可选的选择器或筛选函数用于筛选前一个集合。总是会返回一个新的 `Collector` 实例，即便加入的集合为空。
+
+筛选函数接口：`function( v:Value, i:Number, o:Collector ): Boolean`。
 
 > **注：**
 > 与 `.add()` 相同，返回集不会自动去重排序，如果必要可以简单调用 `.sort(true)` 即可。
@@ -793,7 +805,12 @@ $.dataName('-abc-def-xxx');  // 'abcDefXxx'
 
 ### $.selector( tag: String, attr: String, val?: String, op?: String ): String
 
-根据选择器的各个组成部分构造一个完整的 **标签[特性]** 选择器，支持 `data-` 系特性名的简写形式。如：`$.selector( 'p', '-val', 'xyz')` 创建并返回 `p[data-val="xyz"]`。
+根据选择器的各个组成部分构造一个完整的 **标签[特性]** 选择器，支持 `data-` 系特性名的简写形式。
+
+```js
+$.selector( 'p', '-val', 'xyz');
+// "p[data-val="xyz"]"
+```
 
 
 ### [$.tags( code: String ): String](docs/$.tags.md)
@@ -806,6 +823,14 @@ $.dataName('-abc-def-xxx');  // 'abcDefXxx'
 ### $.objMap( map: Map ): Object
 
 将一个 `Map` 实例转换为普通对象（`Object`）表示。注意 `Map` 实例的键需要是基本数据类型（字符串或数字）。
+
+```js
+let map = new Map();
+map.set('a', 'aaa').set('b', 'bbb');
+
+$.objMap(map);
+// {a: "aaa", b: "bbb"}
+```
 
 
 ### $.kvsMap( map: Map, kname?: String, vname?: String ): [Object]
@@ -861,12 +886,31 @@ B.C;  // 'ccc'
 
 构造目标范围内一个连续的值序列，适用于数值和 `Unicode` 码点类型。通常会返回一个迭代器，除非明确指定返回数组（`toArr` 为 `true`）。
 
+```js
+$.range(10, 10, true);
+// [ 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+
+$.range('①', 10, true);
+// [ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩" ]
+
+$.range('Ⅰ', 10, true);
+// [ "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ" ]
+```
+
 
 ### [$.now( json: Boolean ): String | Number](docs/$.now.md)
 
 返回当前时间：自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）。如果传递 `json` 为真，则表示为标准的 JSON 格式。
 
-这基本上就是对 `new Date().getTime()` 或 `Date.now()` 接口的简单封装（附带包含了 `.toJSON()` 的逻辑）。
+这基本上就是对 `new Date().getTime()` 或 `Date.now()` 接口的简单封装，附带包含了 `.toJSON()` 的逻辑。
+
+```js
+$.now();
+// 1564744242828
+
+$.now(true);
+// "2019-08-02T11:10:42.828Z"
+```
 
 
 ### $.isArray( obj: Any ): Boolean
@@ -886,7 +930,7 @@ B.C;  // 'ccc'
 
 ### $.isCollector( obj: Any ): Boolean
 
-测试实参目标是否为一个 `Collector` 实例。当然用 `$.type(obj) == 'Collector'` 也可以判断出来，但这里没有名称冲突的风险。
+测试实参目标是否为一个 `Collector` 实例。当然用 `$.type(obj) == 'Collector'` 也可以判断出来，但这里效率更高也没有名称冲突的风险。
 
 
 ### $.is( el: Element, slr: String | Element ): Boolean

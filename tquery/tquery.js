@@ -2583,14 +2583,16 @@ function _nextUntil( el, slr, dir ) {
  * @param  {String|Element|Function} slr 选择器或匹配测试
  * @return {Element|null}
  */
-function _first( els, slr ) {
-    let _fn = slr;
+function _first( els, slr, beg = 0, step = 1 ) {
+    let _fun = slr,
+        _cnt = els.length;
 
-    if ( !isFunc(_fn) ) {
-        _fn = el => $is(el, slr);
+    if ( !isFunc(_fun) ) {
+        _fun = el => $is(el, slr);
     }
-    for (const el of els) {
-        if ( _fn(el) ) return el;
+    while ( _cnt-- ) {
+        if ( _fun(els[beg]) ) return els[beg];
+        beg += step;
     }
     return null;
 }
@@ -2648,7 +2650,7 @@ class Collector extends Array {
 
 
     //-- 重载父类方法 ---------------------------------------------------------
-    // 注：便于栈链操作。
+    // 注：便于链栈操作。
 
 
     /**
@@ -2676,7 +2678,8 @@ class Collector extends Array {
     /**
      * 父类覆盖。
      * 支持内部的实例链栈。
-     * @param {Function} proc 回调函数
+     * @param  {Function} proc 回调函数
+     * @return {Collector}
      */
     map( proc ) {
         return new Collector( super.map(proc), this );
@@ -2984,13 +2987,12 @@ class Collector extends Array {
      * @return {Collector}
      */
     last( slr ) {
-        if (this.length == 0) {
+        let _len = this.length;
+
+        if (_len == 0) {
             return this;
         }
-        return new Collector(
-            (slr ? _first(Arr(this).reverse(), slr) : this[this.length-1]),
-            this
-        );
+        return new Collector( (slr ? _first(this, slr, _len-1, -1) : this[_len-1]), this );
     }
 
 
@@ -3016,12 +3018,12 @@ class Collector extends Array {
      * @return {Collector}
      */
     addBack( slr ) {
-        let _els = this.previous || [];
+        let _els = this.previous;
 
-        if ( slr ) {
-            _els = Arr(_els).filter( getFltr(slr) );
+        if ( _els && slr ) {
+            _els = _els.filter( slr );
         }
-        return this.concat( _els );
+        return this.concat( _els || [] );
     }
 
 
@@ -3090,7 +3092,7 @@ elsEx([
     (fn, els, ...rest) =>
         uniqueSort(
             // 可代理调用 $
-            els.map( el => $[fn](el, ...rest) ).filter( el => el !== null )
+            els.map( el => $[fn](el, ...rest) ).filter( el => el != null )
         )
 );
 
@@ -3644,7 +3646,7 @@ function isCollector( obj ) {
  */
 function arrayArgs( obj ) {
     if (!obj || isWindow(obj)) {
-        return [ obj ];
+        return obj == null ? [] : [obj];
     }
     return isFunc(obj.values) ? obj.values() : $A(obj);
 }
