@@ -516,9 +516,9 @@ Object.assign( tQuery, {
      *  	node: 	取值为节点，移动插入后节点会脱离原位置。
      *  	.... 	特性（Attribute）定义
      * }
-     * @param  {String} tag   标签名
-     * @param  {Object|Node|[Node]|String|[String]|Function} data 配置对象或数据（集）
-     * @param  {String} ns    所属名称空间
+     * @param  {String} tag 标签名
+     * @param  {Node|[Node]|String|[String]|Object} data 数据（集）或配置对象
+     * @param  {String} ns 所属名称空间
      * @param  {Document} doc 所属文档
      * @return {Element} 新元素
      */
@@ -640,16 +640,17 @@ Object.assign( tQuery, {
      * @return {Element|Promise} 脚本元素或承诺对象
      */
     script( data, box, doc = Doc ) {
-        if (typeof data == 'string') {
+        if ( typeof data == 'string' ) {
             let _el = switchInsert(
-                    tQuery.Element('script', { text: data }, null, doc),
+                    setElem(doc.createElement('script'), {text: data}),
                     null,
                     box || doc.head
                 );
             return box ? _el : remove(_el);
         }
-        if (typeof data == 'object') {
-            data = tQuery.Element('script', data, null, doc);
+        if ( $type(data) == 'Object' ) {
+            // Element
+            data = setElem(doc.createElement('script'), data);
         }
         return loadElement(data, null, box || doc.head, !box);
     },
@@ -3738,7 +3739,7 @@ function values( obj ) {
  * 由Element调用，el是一个新元素，因此无需清空内容。
  *
  * @param  {Element} el 目标元素
- * @param  {Node|[Node]|String|[String]|Function} data 数据集
+ * @param  {Node|[Node]|String|[String]} data 数据集
  * @return {Element} el
  */
 function fillElem( el, data ) {
@@ -4460,7 +4461,7 @@ function outerHTML( nodes, sep ) {
     nodes = nodes.nodeType ? [nodes] : values(nodes);
 
     for ( let nd of nodes ) {
-        if (nd) {
+        if ( nd ) {
             switch (nd.nodeType) {
             case 1:
                 nd = nd.outerHTML;
@@ -4470,7 +4471,7 @@ function outerHTML( nodes, sep ) {
                 break;
             }
         }
-        _buf.push('' + nd);
+        _buf.push( '' + nd );
     }
     return _buf.join(sep);
 }

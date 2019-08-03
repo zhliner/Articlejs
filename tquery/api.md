@@ -1,45 +1,71 @@
 # 接口参考
 
-<style>
-.markdown-body h3 {
-    background-color: #e3e3e3;
-    border-radius: 3px;
-    padding: 5px 10px;
-    font-size: 1.12em;
-}
-</style>
-
 ## 基本工具
 
-### [$.Element( tag: String, data: Object | Node | [Node] | String | [String] | Function | Collector, ns: String, doc?: Document ): Element](docs/$.Element.md)
+### [$.Element( tag, data, ns, doc? ): Element](docs/$.Element.md)
 
-创建 `tag` 指定的DOM元素，可指定所属名称空间和所属文档对象。
-`data` 为数据配置对象或简单的数据集，支持类型：`{Object|Array|LikeArray|String|Node|Collector}`。如果数据源为节点，源节点可能会被移出原来的位置。
+创建 `tag` 指定的元素。
 
+- `tag: String` 标签名称。
+- `data: Node | [Node] | String | [String] | Object` 元素内容的数据集或配置对象。
+- `ns: String` 元素的名称空间，可选。
+- `doc?: Document` 元素所属文档，可选。
 
-### [$.Text( data: String | Node | Array | Collector, sep?: String, doc?: Document ): Text](docs/$.TextNode.md)
-
-创建一个文本节点。`data` 可为字符串、节点元素或其数组，节点取文本（`textContent`）数据，数组单元取值为字符串后以 `sep` 串联。可指定所属文档对象。
-
-
-### [$.create( html: String, clean: Function | null | false, doc?: Document ): DocumentFragment](docs/$.create.md)
-
-创建文档片段。`<script>`、`<style>`、`<link>` 三种元素会被自动清除，如果需要保留，可传递 `clean` 为一个非 `null` 值（**注**：`null` 是一个占位实参，与 `undefined` 等效）。
-
-用户也可以自己执行文档片段的预处理，处理器接口：`function( frag: DocumentFragment ): void`，其中 `frag` 为尚未导入当前文档（`document`）的文档片段。
+可指定所属名称空间和所属文档对象。如果数据源 `data` 包含节点，源节点通常会被移出DOM原来的位置。
 
 
-### [$.svg( tag: String | Object, opts: Object, doc?: Document ): Element](docs/$.svg.md)
+### [$.Text( data, sep?, doc? ): Text](docs/$.TextNode.md)
 
-创建SVG系元素（自动采用 `http://www.w3.org/2000/svg` 名称空间）。
-创建SVG根元素 `<svg>` 时，`tag` 参数为属性配置对象而不是标签名，如：`$.svg({width: 200, height: 100})` 创建一个宽200像素，高100像素的 `<svg>` 根容器元素。
+创建一个文本节点。
+
+- `data: String | [String] | Node | [Node]` 文本节点的数据内容。
+- `sep?: String` 数据源为数组时各单元的连接符，可选。默认值为一个空格。
+- `doc?: Document` 文本节点所属文档，可选。
+
+数据源为节点时取其文本（`textContent`）值，数组单元取值为字符串后以 `sep` 串连。
 
 
-### [$.table( rows: Number | Element, cols: Number, caption: String, th0: Boolean, doc?: Document ): Table](docs/$.table.md)
+### [$.create( html, clean, doc? ): DocumentFragment](docs/$.create.md)
 
-创建一个指定行列数的空表格（`Table` 实例），或封装一个规范的表格元素为 `Table` 实例。（**注**：规范指无单元格合并或拆分。）
+创建一个文档片段。
 
-注意：`Table` 仅提供极简单的表格操作，主要是针对表格行逻辑，包括添加、删除、获取等。表格的列数不能改变，因此添加/删除的逻辑十分简单，这是一个极轻量级的表格实现。
+- `html: String` 文档片段的HTML内容。
+- `clean: Function | null | false` 节点清理函数，可选。
+- `doc?: Document` 文档片段所属文档，可选。
+
+默认的节点清理函数会移除 `<script>`、`<style>`、`<link>` 三种元素，同时也会清除掉 `onerror`, `onload`, `onabort` 三个脚本类特性定义。如果不需要对创建的文档片段做任何清理，可传递 `clean` 为 `false`，如果需要传递后续的文档实参，`clean` 可传递为 `null`（占位）。
+
+节点清理函数接口：`function( DocumentFragment ): void`，其中唯一的实参为尚未导入当前文档（`document.adoptNode()`）的文档片段。
+
+
+### [$.svg( tag, opts, doc? ): Element](docs/$.svg.md)
+
+创建SVG系元素。
+
+- `tag: String | Object` SVG系元素标签名或 `<svg>` 根元素配置对象。
+- `opts: Object` SVG系元素配置对象，可选。
+- `doc?: Document` 元素所属文档，可选。
+
+创建 `<svg>` 根元素时，`tag` 参数为特性配置对象而不是标签名，如：`$.svg({width: 200, height: 100})` 创建一个宽200像素，高100像素的 `<svg>` 根容器元素。
+
+> **注：**
+> 系统会自动采用 `http://www.w3.org/2000/svg` 名称空间创建SVG元素。
+
+
+### [$.table( rows, cols, caption, th0, doc? ): Table](docs/$.table.md)
+
+创建一个指定行列数的空表格（封装为 `Table` 实例），或封装一个已有的规范表格元素为 `Table` 实例。
+
+- `rows: Number | Element` 表格的行数或一个已有的规范表格元素。
+- `cols: Number` 表格的列数。
+- `caption: String` 表格标题的内容，仅支持文本。
+- `th0: Boolean` 首列是否为 `<th>` 单元格（列表头）。
+- `doc?: Document` 表格元素所属文档。
+
+返回的 `Table` 类实例仅提供极简单的表格操作，主要是针对 `行` 的逻辑，如：添加行、删除行、获取行等。表格的列数保持不变，也不提供修改的方法，因此表格的操作可以极大简化。另外也不提供单元格的内容操作，它们交由外部的 `.html()` 或 `.text()` 等接口实现，这样 `Table` 的实现就非常的简单和轻量。
+
+> **注：**
+> 规范的表格指无单元格合并的情况，即所有单元格的 `colSpan` 和 `rowSpan` 值都为 `1`。
 
 
 ### [$.Table](docs/$.table.md#table-接口)
@@ -47,11 +73,17 @@
 即 `$.table()` 接口创建并返回的实例所属的类，被导出用于外部可能需要的继承复用。
 
 
-### [$.script( data: String | Element, box: Element, doc?: Document ): Element | Promise](docs/$.script.md)
+### [$.script( data, box, doc? ): Element | Promise](docs/$.script.md)
 
-插入一个 `<script>` 脚本元素。可以传入脚本内容创建一个内联的 `<script>` 元素，也可以传递一个 `<script src="...">` 元素的配置对象（`{src:...}`）或用 `$.Element()` 先创建一个脚本元素后插入。引入外部脚本的创建方式返回一个承诺对象（Promise），用户可以注册脚本导入完成后的处理函数。
+插入一个 `<script>` 脚本元素。
 
-`box` 是脚本元素插入的目标容器，可选。默认插入 `document.head` 元素内。未明确指定 `box` 时，插入的 `<script>` 执行后会自动移除。
+- `data: String | Element | Object` 脚本代码或一个已有的脚本元素或一个配置对象。
+- `box: Element` 包含脚本元素的容器元素，可选。
+- `doc?: Document` 脚本元素所属文档，可选。
+
+传入文本内容时创建一个内联的 `<script>` 元素并返回该元素。传递一个元素的配置对象（`{src:...}`）或一个已有的脚本元素时，插入容器并返回一个承诺（`Promise`）对象，`Promise.then()` 的实参为脚本元素。
+
+脚本插入的目标容器 `box` 可选，默认插入 `document.head` 元素内，未明确指定 `box` 时，插入的 `<script>` 是临时的，执行后会自动移除。
 
 
 ### [$.style( data: String | Element, next: Element, doc?: Document ): Element | Promise](docs/$.style.md)
@@ -827,11 +859,21 @@ $.selector( 'p', '-val', 'xyz');
 ```
 
 
-### [$.tags( code: String ): String](docs/$.tags.md)
+### $.tags( code: String ): String
 
-伪标签源码（由 `[]` 包围标签）转化为正常的HTML源码，可用于元素属性值中直观地包含标签源码。
+伪标签源码（由 `[]` 包围标签）转化为正常的HTML源码，可用于元素属性值中直观地包含标签源码。这里只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置字符 `\` 转义。
 
-这里只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置字符 `\` 转义。
+```html
+<a id="testa" href="#" title="[a] is a \[link\]">Click me</a>
+```
+
+```js
+let ttl = $.attr( $.get('#testa'), 'title');
+// "[a] is a \[link\]"
+
+$.tags( ttl );
+// "<a> is a [link]"
+```
 
 
 ### $.objMap( map: Map ): Object
