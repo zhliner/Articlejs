@@ -1,5 +1,14 @@
 # 接口参考
 
+<style>
+.markdown-body h3 {
+    background-color: #e3e3e3;
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-size: 1.12em;
+}
+</style>
+
 ## 基本工具
 
 ### [$.Element( tag: String, data: Object | Node | [Node] | String | [String] | Function | Collector, ns: String, doc?: Document ): Element](docs/$.Element.md)
@@ -150,7 +159,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ### [$( its: Any, ctx: Element ): Collector](docs/$().md)
 
-通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。`its` 支持选择器、元素（简单打包）、节点集、支持拥有 `.values()` 接口的对象（如：Set）。无效的 `its` 实参会构造一个仅包含该实参的 `Collector` 实例，如：`$(false)` => `Collector[false, previous: null]`
+通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。`its` 支持选择器、元素（简单打包）、节点集、支持拥有 `.values()` 接口的对象（如：Set）。除 `null` 和 `undefined` 外，无效的 `its` 实参会构造一个仅包含该实参的 `Collector` 实例，如：`$(false)` => `Collector[false, previous: null]`。
 
 本接口还用作页面载入完毕后的用户处理函数绑定，即初始 `$.ready(...)` 的实参。
 
@@ -158,7 +167,7 @@ scope: Boolean  // <style>元素的一个可选属性。
 
 ## 前置说明
 
-> ### 关于单元素版和集合版
+> #### 关于单元素版和集合版
 >
 > 以下接口是单元素版，即对单个元素执行的操作，它被直接定义在 `$` 函数对象上。对 `$()` 的检索调用返回一个 `Collector` 实例，也即一个集合，大部分单元素版的接口在该集合上也存在，它们被称为集合版接口。
 >
