@@ -86,124 +86,180 @@
 脚本插入的目标容器 `box` 可选，默认插入 `document.head` 元素内，未明确指定 `box` 时，插入的 `<script>` 是临时的，执行后会自动移除。
 
 
-### [$.style( data: String | Element, next: Element, doc?: Document ): Element | Promise](docs/$.style.md)
+### [$.style( data, next, doc? ): Element | Promise](docs/$.style.md)
 
-构造并插入一个包含内容的 `<style>` 样式元素，或者一个引入外部CSS资源的 `<link href=...>` 元素，或者一个已经创建好的 `<style>` 或 `<link>` 元素。`data` 可以是一个配置对象：
+构造并插入一个包含内容的 `<style>` 样式元素，或者一个引入外部CSS资源的 `<link href=...>` 元素，或者一个已经创建好的 `<style>` 或 `<link>` 元素。
+
+- `data: String | Element | Object` 样式代码或样式元素或一个配置对象。
+- `next: Element` 样式元素插入参考的**下一个**元素（插入它的前面），可选。默认插入到 `document.head` 内末尾。
+- `doc?: Document` 元素元素所属文档，可选。
+
+如果 `data` 是一个配置对象，通常包含如下成员：
 
 ```js
 href:  String   // <link>元素的CSS资源定位。
 rel:   String   // <link>元素的属性（stylesheet）。
-text:  String   // <style>元素的CSS代码，也是决定创建<style>或<link>的判断依据
+text:  String   // <style>元素的CSS代码。这也是创建<style>或<link>的判断依据。
 scope: Boolean  // <style>元素的一个可选属性。
 ```
 
 传入配置对象构建或一个构建好的元素插入时，返回一个承诺对象（Promise），否则返回创建的 `<style>` 元素本身。
 
-`next` 是 `<style>` 或 `<link>` 元素插入的参考元素，可选。默认插入到 `document.head` 元素内的末尾。
+
+### [$.loadin( el, next, box ): Promise](docs/$.loadin.md)
+
+载入元素的外部资源。
+
+- `el: Element` 待载入资源的目标元素，比如一个 `<img>`。
+- `next: Node` 目标元素插入的 **下一个** 元素/节点参考。
+- `box: Element` 目标元素插入的容器元素，当无法用 `next` 指定位置时采用，可选。
+
+注意：元素需要能够触发 `load` 和 `error` 事件。返回一个承诺对象，其中的 `resolve` 回调由 `load` 事件触发，`reject` 回调由 `error` 事件触发。
 
 
-### [$.loadin(el: Element, next: Node, box: Element): Promise](docs/$.loadin.md)
-
-载入元素的外部资源，元素需要能够触发 load 和 error 事件，如 `<img>`。返回一个承诺对象，其中的 resolve 回调由 load 事件触发，reject 回调由 error 事件触发。通常需要元素插入DOM树后才会执行资源的载入。
-
-> **注：**<br>
-> `<script>` 和 `<link>` 元素实际上也符合本接口，但前者执行后可以删除，故单独为一个 `$.script` 接口，后者实际上属于 style 范畴，故由 `$.style` 接口负责。
-
-
-### [$.isXML( el: Element | Object ): Boolean](docs/$.isXML.md)
+### $.isXML( it ): Boolean
 
 检查目标是否为一个 XML 节点。
 
+- `it: Element | Object` 待检测的目标，一个元素或其它文档对象。
 
-### [$.contains( box: Element, node: Node ): Boolean](docs/$.contains.md)
+```html
+<svg baseProfile="full" width="300" height="200">
+    <rect width="50%" height="100%" fill="orangered"></rect>
+</svg>
+```
 
-检查目标节点 `node` 是否包含在 `box` 元素之内。与 DOM 标准兼容，匹配检查包含容器元素自身。
+```js
+let rect = $.get('rect');
+$.isXML( rect );  // true
+$.isXML( document.body );  // false
+```
 
-> **注**：jQuery.contains 的行为稍有不同。
+
+### [$.contains( box, node ): Boolean](docs/$.contains.md)
+
+检查目标节点 `node` 是否包含在 `box` 元素之内。
+
+- `box: Element` 是否包含目标节点的容器元素。
+- `node: Node` 待检测的目标节点。
+
+这只是一个对元素 `.contains` 接口的简单封装，匹配检查包含容器元素自身。**注**：`jQuery.contains()` 的行为稍有不同。
 
 
-### [$.cloneEvent( src: Element, to: Element, evns: string | Array2 | [Array2] ): Element | null](docs/$.cloneEvent.md)
+### [$.cloneEvent( src, to, evns ): Element | null](docs/$.cloneEvent.md)
 
-把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。支持不同种类元素之间的事件处理器克隆（不含子孙元素）。可以指定想要克隆的目标事件名序列（空格分隔，不区分是否为委托），或者传递一个**配置对**（`[evname, selector]`）的数组，准确指定事件名和相应的委托选择器。配置对中的事件名不再支持空格分隔多个名称。
+把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。
 
-返回克隆了事件处理器的目标元素，如果没有事件处理器被克隆，会返回 `null`。
+- `src: Element` 事件处理器克隆的来源元素（其上绑定的事件处理器将被克隆）。
+- `to: Element` 事件处理器克隆到的目标元素，不影响它上面原有的事件处理器。
+- `evns: String | Array2 | [Array2]` 克隆的目标配置。可以是事件名（序列）、**事件/委托选择器值对** 或该值对的数组。
 
-> **注意：**<br>
+事件处理器的克隆与元素的种类无关（如：`<input>` 上的事件处理器可克隆到 `<p>` 上，即便该事件并不会在 `<p>` 上发生）。克隆仅限于元素自身上的绑定，不包含子元素上的事件处理器。
+
+返回克隆了事件处理器的目标元素，如果没有事件处理器被克隆，返回 `null`。
+
+> **注：**<br>
 > 传递名称序列（不指定选择器）时，仅仅是忽略选择器检查，源上原有的选择器依然会起作用。<br>
 > 如果传递配置对以包含委托选择器检查，则其中空的选择器应当设置为 `null` 或 `undefined`，否则不会匹配。<br>
 
 
-### [$.controls( form: Element ): [Element]](docs/$.controls.md)
+### [$.controls( form ): [Element]](docs/$.controls.md)
 
-获取表单元素 `form` 内可提交类控件元素集。同名的控件只保留最后一个（**注**：`.val` 接口可从同名控件中任一控件获取值集）。
+获取表单元素 `form` 内可提交类控件元素的集合。
 
-**注意**：即便 `input:checkbox` 类控件一个都没有选中，它们也属于可提交类控件，虽然最后它们并没有值提交上去。
+- `form: Element` 目标表单元素。
 
-
-### [$.serialize( form: Element, exclude?: [String] ): [Array]](docs/$.serialize.md)
-
-序列化表单内控件的名称和值，返回一个**名/值对**双成员数组（`[name, value]`）的数组。
-
-仅会处理有 `name` 属性的控件，正常情况下它们会在表单提交时作为**名/值对**被提交到服务器（或出现在URL的查询部分）。
+可提交类控件是指包含 `name` 特性（`Attribute`）定义的控件元素。对于 `input:checkbox` 类控件，即便它们中一个都没有被选中，也不影响它们是可提交类控件。
 
 > **注：**<br>
-> 实际上，此接口是在 `$.controls` 返回的控件集基础上进行名值提取，但会排除掉无值（不应被提交）的控件。
+> 同名的控件在表单中是一个**数组**的逻辑，返回集合中只会保留其中最后一个（`.val()` 方法可正常取值）。
 
 
-### [$.queryURL( target: Element | [Array] | Object | Map ): String](docs/$.queryURL.md)
+### [$.serialize( form, exclude? ): [Array2]](docs/$.serialize.md)
 
-用一个**名/值对**数组（`[name, value]`）的数组、或一个**键/值对**对象、或一个 `Map实例` 构造 `URL` 中查询串的部分（即 `URL` 中 `?` 之后的部分）。可以直接传入一个表单元素，这样会自动提取表单内可提交控件的**名/值对**作为源数据。
+序列化表单内可提交类控件的名称和值。
 
-考虑可视友好性，Unicode字符、数字和一些常用的全角标点符号不会被转换，这与现代浏览器地址栏中实际的表现一致。
+- `form: Element` 目标表单元素。
+- `exclude?: [String]` 需要排除的控件名序列，可选。
 
-
-### [$.ready( handle: Function ): this](docs/$.ready.md)
-
-文档载入就绪后的回调绑定。可以绑定多个，会按绑定先后逐个调用。若文档已载入并且未被hold，会立即执行绑定的handle。
-
-> **注：**<br>
-> 仅适用于文档的初始载入就绪。其它元素的载入就绪请使用 $.loadin() 接口。
+注意：这与表单的提交逻辑相关，因此只有实际会提交的值才会被序列化。实际上，内部实现是调用 `$.controls()` 获取控件集，然后提取控件的名值对但忽略无选中值的控件。
+返回一个**名/值对**（`[name, value]`）双成员数组（`Array2`）的数组。
 
 
-### [$.holdReady( hold: Boolean ): void](docs/$.holdReady.md)
+### [$.queryURL( target ): String](docs/$.queryURL.md)
 
-暂停或恢复 `.ready()` 注册的用户调用的执行。应当在页面加载的前段调用，传递 `true` 暂停 `.ready()` 注册的用户调用的执行，传递 `false` 则恢复，可能有多个 `.ready()` 的注册，一次 `.holdReady()` 调用对应一次 `.ready()`。
+用数据源构造 `URL` 查询串（即 `URL` 中 `?` 之后的部分）。
 
-如果文档已就绪并已调用 `ready()` 注册的用户函数，本操作无效（同jQuery）。
+- `target: Element | [Array2] | Object | Map` 构造查询串的数据源。
 
-
-### [$.embedProxy( getter: Function ): tQuery | Proxy](docs/$.embedProxy.md)
-
-嵌入代理。由外部定义 $ 的调用集覆盖，`getter` 接受函数名参数，应当返回一个与目标接口声明相同的函数。
+数据源可以是一个表单元素、一个**名/值对**数组的数组（`$.serialize()` 的返回值）、一个**键/值对**对象、或者是一个 `Map实例`。可直接传入一个表单元素，系统会自动提取表单内可提交控件的**名/值对**集合。
 
 > **注：**<br>
-> 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。<br>
-> 代理会更新外部全局的 $ 对象。<br>
+> 出于可视性友好，Unicode字符、数字和一些常用的全角标点符号不会被转换。这与现代浏览器地址栏中的实际表现一致。
+
+
+### [$.ready( handle ): this](docs/$.ready.md)
+
+文档载入就绪后的回调绑定。
+
+- `handle: Function` 就绪回调函数。
+
+可以绑定多个回调，系统会按绑定的先后顺序逐个执行。若文档已载入并且未被 `hold`（`$.holdReady(true)` 执行后），会立即执行该回调。
+
+本接口仅适用于文档的初始载入就绪，不适用其它元素的载入就绪，如 `<img>`。
+
+
+### [$.holdReady( hold ): void](docs/$.holdReady.md)
+
+暂停或恢复 `.ready()` 注册的就绪回调的执行。
+
+- `hold: Boolean` 停止/恢复通知，`true` 表示 `hold`，`false` 表示释放。
+
+应当在页面加载的前段调用，传递 `true` 暂停 `.ready()` 注册的就绪回调的执行，传递 `false` 则恢复，可以多次调用 `.holdReady(true)`，但恢复时则需要调用等量次数的 `.holdReady(false)`。
+
+如果文档已就绪并已调用 `ready()` 注册的回调，本操作无效（同 jQuery）。
+
+
+### [$.embedProxy( getter ): tQuery | Proxy](docs/$.embedProxy.md)
+
+在 `$` 中嵌入代理。
+
+- `getter: Function` 代理方法获取器。
+
+由外部定义 `$` 的方法集实现覆盖。`getter` 接口：`function(name): Function`，接受方法名参数，返回一个与目标方法声明相同的函数。如覆盖：`$.hasClass(el, name)` 方法时，`getter` 的实参为 `hasClass`，返回的函数应当能够处理 `function(el: Element, name: String)` 的参数序列。
+
+返回嵌入之前的 `$` 对象。可能是原始的 `tQuery` 实现，也可能是上一次嵌入之后更新了的 `$` 对象（`Proxy`）。
+
+> **注：**<br>
+> 这个接口可以为一些库类应用提供特别的方便，比如DOM树操作追踪（见：`plugins/tracker.js`）。
 
 
 ### $.Fx = {}
 
-一个空的功能扩展区，供外部扩展使用。此为名称空间约定。
+一个空的功能扩展区，由外部扩展使用。这只是一个名称空间约定。
 
 
 
 ## 基本操作
 
-### [$( its: Any, ctx: Element ): Collector](docs/$().md)
+### [$( its, ctx ): Collector](docs/$().md)
 
-通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。例：`$('a')` 返回页面中所有链接元素（`<a>`）的集合。`its` 支持选择器、元素（简单打包）、节点集、支持拥有 `.values()` 接口的对象（如：Set）。除 `null` 和 `undefined` 外，无效的 `its` 实参会构造一个仅包含该实参的 `Collector` 实例，如：`$(false)` => `Collector[false, previous: null]`。
+通用的节点元素查询器，即 `$(...)` 调用，返回一个 `Collector` 实例。
 
-本接口还用作页面载入完毕后的用户处理函数绑定，即初始 `$.ready(...)` 的实参。
+- `its: String | Node | [Node] | .values | Value` 待查询/封装的值或集合。
+- `ctx: Element | Document` 元素查询上下文，可选。默认为 `document`。
 
+查询目标 `its` 支持CSS选择器、节点/元素集（简单打包）、拥有 `.values()` 接口的对象（如：`Set`）等。传递CSS选择器时返回一个元素集合，传递其它集合时返回该集合的 `Collector` 封装。
+
+也可以传递一个单纯的值，除 `null` 和 `undefined` 外，非字符串的 `its` 实参会构造一个仅包含该值的 `Collector` 实例，如：`$(false)` => `Collector[false]` （**注**：这与jQuery稍有不同）。
 
 
 ## 前置说明
 
 > #### 关于单元素版和集合版
 >
-> 以下接口是单元素版，即对单个元素执行的操作，它被直接定义在 `$` 函数对象上。对 `$()` 的检索调用返回一个 `Collector` 实例，也即一个集合，大部分单元素版的接口在该集合上也存在，它们被称为集合版接口。
->
-> 集合版接口的行为通常是单元素版重复调用后执行合并（会排序去重），因此通常效率稍低。其接口声明与单元素版基本相同，除了没有单元素版的首个元素参数外。
+> 以下接口以单元素版（仅针对单个元素）的方法为索引，它们被定义在 `$` 函数对象上。集合版是指 `$()` 调用的返回值类型（`Collector`）的方法，它们作为类方法存在。
+> 两者有部分接口名称和功能相同，集合版仅仅是单元素版的简单重复执行，它们的详细使用说明会被书写在同一个文档中。
 >
 > 如 `.nextAll`：
 > - 单元素版：`$.nextAll( el, slr )` 返回元素 `el` 的后续兄弟元素，`slr` 为匹配过滤。

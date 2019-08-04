@@ -108,24 +108,19 @@
 
         // 多目标。
         // slr 首字符 > 表示当前上下文父级限定。
-        // slr 会被测试是否包含起始 > 限定（包括逗号分隔的并列方式）。
-        // @return {[Element]}
+        // @return {[Element]|NodeList|HTMLCollection}
         $all = Sizzle || function( slr, ctx ) {
             if (__reID.test(slr)) {
-                return $id(slr, ctx) || [];
+                let _el = $id(slr, ctx);
+                return _el ? [_el] : [];
             }
-            let _els;
-
             if (__reTAG.test(slr) && ctx.nodeType != 11) {
-                _els = $tag(slr, ctx);
+                return $tag(slr, ctx);
             }
-            else if (__reCLASS.test(slr) && ctx.nodeType != 11) {
-                _els = $class(slr, ctx);
+            if (__reCLASS.test(slr) && ctx.nodeType != 11) {
+                return $class(slr, ctx);
             }
-            else {
-                _els = $find(slr, ctx, 'querySelectorAll');
-            }
-            return Arr(_els);
+            return $find(slr, ctx, 'querySelectorAll');
         };
 
 
@@ -438,10 +433,6 @@ function hackSelector( ctx, slr, fix ) {
 function tQuery( its = '', ctx = Doc ) {
     if ( isCollector(its) ) {
         return its;
-    }
-    if ( isFunc(its) ) {
-        // 允许嵌入代理$
-        return $.ready( its );
     }
     if (typeof its == 'string') {
         its = $all( its.trim(), ctx );
@@ -911,7 +902,7 @@ Object.assign( tQuery, {
         if (andOwn && $is(ctx, slr)) {
             _box = [ctx];
         }
-        return _box.length ? _box.concat(_els) : _els;
+        return _els.length ? _box.concat( [..._els] ) : _box;
     },
 
 
@@ -3646,12 +3637,16 @@ function isCollector( obj ) {
  * 构造Collector成员实参。
  * - 用于基类构造后添加初始成员。
  * - 返回false表示参数不合法。
- * @param  {Array|LikeArray|Element|[.values]} obj 目标对象
+ * @param  {Element|Iterator|Array|LikeArray|.values} obj 目标对象
  * @return {Iterator|[Value]|false} 可迭器或数组
  */
 function arrayArgs( obj ) {
     if (!obj || isWindow(obj)) {
         return obj == null ? [] : [obj];
+    }
+    // 常用优先。
+    if (obj[Symbol.iterator]) {
+        return obj;
     }
     return isFunc(obj.values) ? obj.values() : $A(obj);
 }
@@ -4634,7 +4629,7 @@ function domManip( node, cons, clone, event, eventdeep ) {
  */
 function fragmentNodes( nodes, get, doc ) {
     // 注记：
-    // 因存在节点移出可能，不可用values原生迭代（改变迭代次数）。
+    // 因存在节点移出可能，不可用for/of原生迭代（影响迭代次数）。
     // 扩展运算符用于Set数据。
     nodes = $A(nodes) || [...nodes];
 
@@ -4697,17 +4692,17 @@ function cleanFragment( frg ) {
     let _els = $all( _cleanTags, frg );
 
     if (_els.length) {
-        _els.forEach(
-            el => remove( el )
-        );
+        for (const el of _els) {
+            remove( el );
+        }
         window.console.warn('html-code contains forbidden tag! removed.');
     }
     _els = $all( _cleanAttrs, frg );
 
     if (_els.length) {
-        _els.forEach(
-            el => clearAttrs.forEach( n => el.removeAttribute(n) )
-        );
+        for (const el of _els) {
+            clearAttrs.forEach( n => el.removeAttribute(n) );
+        }
         window.console.warn('html-code contains forbidden attribute! removed.');
     }
 }
