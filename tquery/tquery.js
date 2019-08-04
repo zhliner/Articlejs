@@ -98,6 +98,8 @@
 
         // 单一目标。
         // slr 首字符 > 表示当前上下文父级限定。
+        // @param  {String} slr 选择器。
+        // @param  {Element|Document|DocumentFragment} ctx 上下文
         // @return {Element|null}
         $one = function( slr, ctx ) {
             if (__reID.test(slr)) {
@@ -108,6 +110,8 @@
 
         // 多目标。
         // slr 首字符 > 表示当前上下文父级限定。
+        // @param  {String} slr 选择器。
+        // @param  {Element|Document|DocumentFragment} ctx 上下文
         // @return {[Element]|NodeList|HTMLCollection}
         $all = Sizzle || function( slr, ctx ) {
             if (__reID.test(slr)) {
