@@ -461,86 +461,146 @@ $.isXML( document.body );  // false
 
 在 `node` 元素或文本节点的前面插入节点/集。
 
-- `node: Node`
-- `cons: Function | Node | [Node] | Collector | Set | Iterator`
-- `clone: Boolean`
-- `event: Boolean`
-- `eventdeep: Boolean`
+- `node: Node` 插入参考的目标节点/元素。
+- `cons: Node | [Node] | Set | Iterator | Function` 插入的数据源（支持 `Collector`，下同）。
+- `clone: Boolean` 内容节点是否为克隆方式。可选，默认 `false`。
+- `event: Boolean` 内容元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+- `eventdeep: Boolean` 内容元素的子孙元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
 
-节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+数据源支持节点、节点集、`Set` 集合、返回节点的迭代器，或是一个返回节点/集的取值回调。回调接口：`function( node ): Node | [Node]`，实参为参考节点 `node`。与jQuery不同，这里不支持HTML源码实时构建元素节点（**注**：应使用 `.html()` 接口），仅支持现成的节点/元素。
 
-取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
-
-> **关联：**<br>
-> `Collector: insertBefore( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，插入到目标节点之前。返回目标节点的 `Collector` 封装。<br>
-
-
-### [$.after( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.after.md)
-
-在 `node` 元素或文本节点的后面插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
-
-取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
+克隆参数（`clone`）适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event` 和 `eventdeep` 仅适用于元素。接口返回插入的内容节点/元素（集），它们可能克隆而来。
 
 > **关联：**<br>
-> `Collector: insertAfter( to: node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，插入到目标节点之后。返回目标节点的 `Collector` 封装。<br>
+> `Collector.insertBefore( to, clone, event, eventdeep ): Collector`<br>
+> 将集合自身作为数据源，插入到目标节点 `to` 之前，返回目标节点的 `Collector` 封装。<br>
+> 如果传递克隆实参为真，克隆的节点集会构造一个 `Collector` 实例嵌入原集合和返回集合之间（链栈上多一个中间层）。<br>
 
 
-### [$.prepend( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.prepend.md)
+### [$.after( node, cons, clone, event, eventdeep ): Node | [Node]](docs/$.after.md)
 
-在 `el` 元素内的前端插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+在 `node` 元素或文本节点的后面插入节点/集。
 
-取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
+- `node: Node` 插入参考的目标节点/元素。
+- `cons: Node | [Node] | Set | Iterator | Function` 插入的数据源。
+- `clone: Boolean` 内容节点是否为克隆方式。可选，默认 `false`。
+- `event: Boolean` 内容元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+- `eventdeep: Boolean` 内容元素的子孙元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
 
-> **关联：**<br>
-> `Collector: prependTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，插入目标元素内的前端。返回目标元素的 `Collector` 封装。<br>
+数据源支持节点、节点集、`Set` 集合、返回节点的迭代器，或是一个返回节点/集的取值回调。回调接口：`function( node ): Node | [Node]`，实参为参考节点 `node`。
 
-
-### [$.append( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.append.md)
-
-在 `el` 元素内的末尾插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
-
-取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
+不支持HTML源码实时构建元素节点，仅支持现成的节点/元素。克隆参数（`clone`）适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event` 和 `eventdeep` 仅适用于元素。接口返回插入的内容节点/元素（集），它们可能克隆而来。
 
 > **关联：**<br>
-> `Collector: appendTo( to: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，添加到目标元素内的末尾。返回目标元素的 `Collector` 封装。<br>
+> `Collector.insertAfter( to, clone, event, eventdeep ): Collector`<br>
+> 将集合自身作为数据源，插入到目标节点 `to` 之后，返回目标节点的 `Collector` 封装。<br>
+> 如果传递克隆实参为真，克隆的节点集会构造一个 `Collector` 实例嵌入原集合和返回集合之间（链栈上多一个中间层）。<br>
 
 
-### [$.replace( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.replace.md)
+### [$.prepend( el, cons, clone, event, eventdeep ): Node | [Node]](docs/$.prepend.md)
 
-用数据源节点/集替换 `node` 元素或文本节点。数据源节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+在 `el` 元素内的前端插入节点/集。
 
-取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
+- `el: Element` 插入到的目标容器元素。
+- `cons: Node | [Node] | Set | Iterator | Function` 插入的数据源。
+- `clone: Boolean` 内容节点是否为克隆方式。可选，默认 `false`。
+- `event: Boolean` 内容元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+- `eventdeep: Boolean` 内容元素的子孙元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
 
-> **关联：**<br>
-> `Collector: replaceAll( node: Node, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，替换目标节点。返回目标节点的 `Collector` 封装。<br>
+数据源支持节点、节点集、`Set` 集合、返回节点的迭代器，或是一个返回节点/集的取值回调。回调接口：`function( el ): Node | [Node]`，实参为目标容器元素 `el`。
 
-
-### [$.fill( el: Element, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.fill.md)
-
-在 `el` 元素内填充节点/集，清除原来的内容。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
-
-取值回调接口：`function( el ): Node | [Node]`，会传递目标元素为实参，返回值也不支持 `html` 源码形式。
+不支持HTML源码实时构建元素节点，仅支持现成的节点/元素。克隆参数（`clone`）适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event` 和 `eventdeep` 仅适用于元素。接口返回插入的内容节点/元素（集），它们可能克隆而来。
 
 > **关联：**<br>
-> `Collector: fillTo( el: Element, clone: Boolean, event: Boolean, eventdeep: Boolean ): Collector`<br>
-> 将集合自身作为数据源，填充到目标元素内（清除原有）。返回目标元素的 `Collector` 封装。<br>
+> `Collector.prependTo( to, clone, event, eventdeep ): Collector`<br>
+> 将集合自身作为数据源，插入目标元素 `to` 内的前端，返回目标元素的 `Collector` 封装。<br>
+> 如果传递克隆实参为真，克隆的节点集会构造一个 `Collector` 实例嵌入原集合和返回集合之间（链栈上多一个中间层）。<br>
 
 
-### [$.wrap( node: Node | String, box: HTML | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrap.md)
+### [$.append( el, cons, clone, event, eventdeep ): Node | [Node]](docs/$.append.md)
 
-在 `node` 之外包裹一个容器元素，该容器元素将替换 `node` 原来的位置（如果 `node` 在DOM树中的话）。包裹容器可以是一个现有的元素、一个HTML字符串、或一个返回包裹元素或HTML字符串的函数。
+在 `el` 元素内的末尾插入节点/集。
 
-如果包裹容器包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会替换 `node` 节点原来的位置。
+- `el: Element` 插入到的目标容器元素。
+- `cons: Node | [Node] | Set | Iterator | Function` 插入的数据源。
+- `clone: Boolean` 内容节点是否为克隆方式。可选，默认 `false`。
+- `event: Boolean` 内容元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+- `eventdeep: Boolean` 内容元素的子孙元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+
+数据源支持节点、节点集、`Set` 集合、返回节点的迭代器，或是一个返回节点/集的取值回调。回调接口：`function( el ): Node | [Node]`，实参为目标容器元素 `el`。
+
+不支持HTML源码实时构建元素节点，仅支持现成的节点/元素。克隆参数（`clone`）适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event` 和 `eventdeep` 仅适用于元素。接口返回插入的内容节点/元素（集），它们可能克隆而来。
+
+> **关联：**<br>
+> `Collector.appendTo( to, clone, event, eventdeep ): Collector`<br>
+> 将集合自身作为数据源，添加到目标元素 `to` 内的末尾，返回目标元素的 `Collector` 封装。<br>
+> 如果传递克隆实参为真，克隆的节点集会构造一个 `Collector` 实例嵌入原集合和返回集合之间（链栈上多一个中间层）。<br>
 
 
-### [$.wrapInner( el: Element, box: HTML | Element | Function, clone: Boolean, event: Boolean, eventdeep: Boolean ): Element](docs/$.wrapInner.md)
+### [$.replace( node, cons, clone, event, eventdeep ): Node | [Node]](docs/$.replace.md)
 
-在 `el` 的内容之外包裹一个容器元素。包裹容器可以是一个现有的元素、一个HTML字符串、或一个返回包裹元素或HTML字符串的函数。如果包裹容器还包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会成为 `el` 的直接子元素。
+用数据源节点/集替换 `node` 元素或文本节点。
+
+- `node: Node` 被替换的目标节点/元素。
+- `cons: Node | [Node] | Set | Iterator | Function` 替换用的内容数据。
+- `clone: Boolean` 内容节点是否为克隆方式。可选，默认 `false`。
+- `event: Boolean` 内容元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+- `eventdeep: Boolean` 内容元素的子孙元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+
+数据源支持节点、节点集、`Set` 集合、返回节点的迭代器，或是一个返回节点/集的取值回调。回调接口：`function( node ): Node | [Node]`，实参为替换的目标节点 `node`。
+
+不支持HTML源码实时构建元素节点，仅支持现成的节点/元素。克隆参数（`clone`）适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event` 和 `eventdeep` 仅适用于元素。接口返回替换成的内容节点/元素（集），它们可能克隆而来。
+
+> **关联：**<br>
+> `Collector.replaceAll( node, clone, event, eventdeep ): Collector`<br>
+> 将集合自身作为数据源，替换目标节点 `node`，返回目标节点的 `Collector` 封装。<br>
+> 如果传递克隆实参为真，克隆的节点集会构造一个 `Collector` 实例嵌入原集合和返回集合之间（链栈上多一个中间层）。<br>
+
+
+### [$.fill( el, cons, clone, event, eventdeep ): Node | [Node]](docs/$.fill.md)
+
+在 `el` 元素内填充节点/集，会清除原来的内容。
+
+- `el: Element` 填充到的目标容器元素。
+- `cons: Node | [Node] | Set | Iterator | Function` 填充的数据源。
+- `clone: Boolean` 内容节点是否为克隆方式。可选，默认 `false`。
+- `event: Boolean` 内容元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+- `eventdeep: Boolean` 内容元素的子孙元素上绑定的事件处理器是否同时克隆。可选，默认 `false`。
+
+数据源支持节点、节点集、`Set` 集合、返回节点的迭代器，或是一个返回节点/集的取值回调。回调接口：`function( el ): Node | [Node]`，实参为填充到的容器元素 `el`。
+
+不支持HTML源码实时构建元素节点，仅支持现成的节点/元素。克隆参数（`clone`）适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event` 和 `eventdeep` 仅适用于元素。接口返回填充的内容节点/元素（集），它们可能克隆而来。
+
+> **关联：**<br>
+> `Collector.fillTo( el, clone, event, eventdeep ): Collector`<br>
+> 将集合自身作为数据源，填充到目标元素 `el` 内（清除原有），返回目标元素的 `Collector` 封装。<br>
+> 如果传递克隆实参为真，克隆的节点集会构造一个 `Collector` 实例嵌入原集合和返回集合之间（链栈上多一个中间层）。<br>
+
+
+### [$.wrap( node, box, clone, event, eventdeep ): Element](docs/$.wrap.md)
+
+在 `node` 之外包裹一个容器元素，该容器元素将替换 `node` 原来的位置，如果 `node` 在DOM树中的话。
+
+- `node: Node | String` 节点/元素或文本内容。
+- `box: HTML | Element | Function` 包裹目标内容的容器元素、HTML结构源码或取值回调。
+- `clone: Boolean` 是否克隆容器元素。可选，默认 `false`。
+- `event: Boolean` 是否克隆容器元素上绑定的事件处理器。可选，默认 `false`。
+- `eventdeep: Boolean` 是否克隆容器元素子孙元素上绑定的事件处理器。可选，默认 `false`。
+
+被包裹的内容也可以是文本，它们会被自动创建为文本节点。包裹容器可以是一个现有的元素、一个HTML字符串（将被创建为元素）、或一个返回包裹元素或HTML字符串的函数。如果包裹容器包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会替换 `node` 节点原来的位置。返回包裹内容的（根）容器元素。
+
+
+### [$.wrapInner( el, box, clone, event, eventdeep ): Element](docs/$.wrapInner.md)
+
+在 `el` 的内容之外包裹一个容器元素，包裹容器会成为 `el` 唯一的子元素。
+
+- `el: Element` 内容被包含的元素。
+- `box: HTML | Element | Function` 包裹目标内容的容器元素、或HTML结构字符串、或一个取值回调。
+- `clone: Boolean` 是否克隆容器元素。可选，默认 `false`。
+- `event: Boolean` 是否克隆容器元素上绑定的事件处理器。可选，默认 `false`。
+- `eventdeep: Boolean` 是否克隆容器元素子孙元素上绑定的事件处理器。可选，默认 `false`。
+
+包裹容器可以是一个现有的元素、一个HTML字符串（将被创建为元素）、或一个返回包裹元素或HTML字符串的函数。如果包裹容器还包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会成为 `el` 唯一的子元素。返回包裹内容的（根）容器元素。
 
 
 ### [$.unwrap( el: Element ): [Node]](docs/$.unwrap.md)
