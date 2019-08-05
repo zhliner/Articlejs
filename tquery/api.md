@@ -269,110 +269,205 @@ $.isXML( document.body );  // false
 
 ## 节点查询
 
-### [$.get( slr: String, ctx?: Element ): Element | null](docs/$.get.md)
+### [$.get( slr, ctx? ): Element | null](docs/$.get.md)
 
-查询单个元素的优化版（ID定位或 `.querySelector` 检索）。预先导入Sizzle时支持非标准CSS选择器。
+查询单个元素（ID定位或 `.querySelector` 检索，效率较高）。
+
+- `slr: String` 目标元素选择器。
+- `ctx?: Element | Document` 查询目标元素的上下文元素或文档。可选，默认为 `<html>` 根元素。
+
+**注**：预先导入Sizzle时支持非标准的CSS选择器。
 
 
-### [$.find( slr: String, ctx?: Element, andOwn?: Boolean ): [Element]](docs/$.find.md)
+### [$.find( slr, ctx?, andOwn? ): [Element]](docs/$.find.md)
 
-在上下文元素内查找和选择器匹配的子元素集，如果传递 `andOwn` 实参为 `true`，则选择器匹配包含上下文元素自身。
+在上下文元素内查询和选择器匹配的元素集。
+
+- `slr: String` 目标元素选择器。
+- `ctx?: Element | Document` 查询目标元素的上下文元素或文档。可选，默认为 `<html>` 根元素。
+- `andOwn?: Boolean` 是否包含上下文元素自身的匹配测试。可选，默认为 `false`。
+
+传递 `andOwn` 实参为 `true` 会测试选择器是否匹配上下文元素自身，这在某些场景下会更方便使用。
 
 
 
 ## 节点遍历
 
 
-### [$.next( el: Element, slr: String ): Element | null](docs/$.next.md)
+### [$.next( el, slr ): Element | null](docs/$.next.md)
 
-获取 `el` 的下一个兄弟元素。可用 `slr` 进行匹配测试，匹配不成功则返回 null，可选。
+获取 `el` 的下一个兄弟元素。
+
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String` 匹配测试的选择器，可选。
+
+如果 `el` 的下一个兄弟元素不匹配 `slr`，会返回 `null`。
 
 
-### [$.nextAll( el: Element, slr: String ): [Element]](docs/$.nextAll.md)
+### [$.nextAll( el, slr ): [Element]](docs/$.nextAll.md)
 
-获取 `el` 的后续全部兄弟元素。可用 `slr` 进行匹配过滤（符合者入选）。
+获取 `el` 的后续全部兄弟元素。
+
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String` 匹配测试的选择器，可选。
+
+可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配（此时为一个空数组）。
 
 
-### [$.nextUntil( el: Element, slr: String | Element ): [Element]](docs/$.nextUntil.md)
+### [$.nextUntil( el, slr ): [Element]](docs/$.nextUntil.md)
 
 获取 `el` 的后续兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
 
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String | Element` 终点匹配测试的选择器或元素，可选。
 
-### [$.prev( el: Element, slr: String ): Element | null](docs/$.prev.md)
-
-获取 `el` 的前一个兄弟元素。可用 `slr` 进行匹配测试，匹配不成功则返回 null，可选。这是 `$.next` 方法的反向查询。
-
-
-### [$.prevAll( el: Element, slr: String ): [Element]](docs/$.prevAll.md)
-
-获取 `el` 前部的全部兄弟。可用 `slr` 进行匹配过滤（符合者入选）。**注**：结果集保持逆向顺序（靠近 `el` 的元素在前）。
+始终会返回一个数组，如果最开始的下一个元素就匹配或为 `null`，会返回一个空数组。
 
 
-### [$.prevUntil( el: Element, slr: String | Element ): [Element]](docs/$.prevUntil.md)
+### [$.prev( el, slr ): Element | null](docs/$.prev.md)
 
-获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。**注**：结果集成员保持逆向顺序。
+获取 `el` 的前一个兄弟元素。
 
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String` 匹配测试的选择器，可选。
 
-### [$.children( el: Element, slr: String | Number ): [Element] | Element](docs/$.children.md)
-
-获取 `el` 的直接子元素（集），可用 `slr` 进行匹配过滤，或者指定一个具体的下标位置获取单个子元素。
-
-
-### [$.contents( el: Element, idx: Number, comment?: Boolean ): [Node] | Node](docs/$.contents.md)
-
-获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。可以指定仅返回一个目标位置的子节点，位置计数从0开始，支持负值从末尾算起。
-
-> **注**：全部为空白的文本节点会被忽略，计数也不包含。
+这是 `$.next()` 方法的逆向版。可用 `slr` 进行匹配测试，匹配不成功时返回 `null`。
 
 
-### [$.siblings( el: Element, slr: String ): [Element] | null](docs/$.siblings.md)
+### [$.prevAll( el, slr ): [Element]](docs/$.prevAll.md)
 
-获取 `el` 元素的兄弟元素，可用 `slr` 进行匹配过滤（符合者入选）。`el` 需要在一个父元素内，否则返回 null（游离节点）。
+获取 `el` 前部的全部兄弟元素。
 
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String` 匹配测试的选择器，可选。
 
-### [$.parent( el: Element, slr: String | Function ): Element | null](docs/$.parent.md)
+这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配。
 
-获取 `el` 元素的直接父元素。`slr` 为选择器或测试函数，用于测试父元素是否匹配。
-
-
-### [$.parents( el: Element, slr: String | Function ): [Element]](docs/$.parents.md)
-
-获取 `el` 元素的上级元素集。`slr` 为可选的选择器或测试函数，从父元素开始匹配测试，结果集保持从内向外的逐层顺序。
-
-`slr` 若为测试函数，接受两个参数：`(el:Element, i:Number)`，前者为上级元素，后者为向上的层级计数（父元素时为1）。
+> **注：**
+> 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
 
 
-### [$.parentsUntil( el: Element, slr: String | Function | Array | Element ): [Element]](docs/$.parentsUntil.md)
+### [$.prevUntil( el, slr ): [Element]](docs/$.prevUntil.md)
 
-汇集 `el` 元素的全部上级元素，直到 `slr` 匹配（不含匹配的元素）。从父元素开始匹配测试，结果集保持从内向外的逐层顺序。
+获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
 
-`slr` 若为测试函数，接受两个参数：`(el:Element, i:Number)`，前者为上级元素，后者为向上的层级计数（父元素时为1）。
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String | Element` 终点匹配测试的选择器或元素，可选。
+
+始终会返回一个数组，如果最开始的前一个元素就匹配或为 `null`，会返回一个空数组。
+
+> **注：**
+> 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
 
 
-### [$.closest( el: Element, slr: String | Function | Array | Element ): Element](docs/$.closest.md)
+### [$.children( el, slr ): [Element] | Element](docs/$.children.md)
 
-获取 `el` 最近的匹配的父级元素。向上逐级检查父级元素是否匹配，返回最先匹配的目标元素。
+获取 `el` 的直接子元素（集）。
 
-会从 `el` 元素自身开始测试匹配（同标准 Element:closest），如果抵达 `document` 或 `DocumentFragment` 会返回 null。
+- `el: Element` 取值的目标父元素。
+- `slr: String | Number` 子元素匹配选择器或指定的位置下标，可选。
+
+可用 `slr` 对子元素集进行匹配过滤，匹配者入选。也可以指定一个具体的下标位置获取单个子元素（支持负数从末尾算起），但这样可能导致位置超出范围，此时会返回一个 `undefined` 值。
+
+允许直接指定位置下标可能更高效，这样就避免了使用位置选择器过滤，并且会直接返回一个元素。
 
 
-### [$.offsetParent( el: Element ): Element](docs/$.offsetParent.md)
+### [$.contents( el, idx, comment? ): [Node] | Node](docs/$.contents.md)
 
-获取 `el` 最近的父级定位元素。从父元素开始检查，如果最终没有匹配返回文档根元素（即 `<html>`，同 jQuery）。如果当前元素属于 `<svg>` 的子节点，则返回 `<svg>` 根容器元素（以与普通的HTML节点相区别）。
+获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。
 
-此接口与元素原生的 `offsetParent` 属性稍有不同，不管元素是否隐藏，都会返回 `position` 为非 `static` 的容器元素。
+- `el: Element` 取值的目标父元素。
+- `idx: Number | null` 子节点的位置下标（相对于取值的集合）。可选。
+- `comment?: Boolean` 是否包含注释节点。可选，默认 `false`。
+
+可指定仅返回某个具体位置的子节点，位置计数针对取值的集合（可能包含注释节点），从0开始，支持负值从末尾算起。位置下标可能超出范围，此时会返回一个 `undefined` 值。
+
+如果需要传递包含注释节点的实参 `true` 而又不需要指定位置下标，`idx` 可设置为 `null`（占位）。
 
 > **注：**<br>
-> 元素原生的 `offsetParent` 属性在元素隐藏（`display:none`）时值为 null。<br>
-> 元素的 `position` 样式被设置为：`relative`、`absolute`、`fixed` 时即为定位元素。<br>
+> 内容全部为空白（如换行、空格等）的文本节点会被忽略，因此计数也不会包含。
+
+
+### [$.siblings( el, slr ): [Element] | null](docs/$.siblings.md)
+
+获取 `el` 元素的兄弟元素。
+
+- `el: Element` 取值的参考元素。
+- `slr: String` 匹配过滤选择器，可选。
+
+可用 `slr` 进行匹配过滤，匹配者入选。`el` 需要存在一个父元素，否则兄弟的逻辑不成立，此时会返回 `null`。
+
+
+### [$.parent( el, slr ): Element | null](docs/$.parent.md)
+
+获取 `el` 元素的直接父元素。
+
+- `el: Element` 取值的目标元素。
+- `slr: String | Function` 测试是否匹配的选择器或自定义的测试函数，可选。
+
+如果父元素匹配 `slr` 选择器，或自定义的测试函数返回真，则测试成功，返回该父元素，否则返回 `null`。
+
+
+### [$.parents( el, slr ): [Element]](docs/$.parents.md)
+
+获取 `el` 元素的上级元素集。
+
+- `el: Element` 取值的目标元素。
+- `slr: String | Function` 测试是否匹配的选择器或自定义的测试函数，可选。
+
+从父元素开始匹配测试，结果集保持从内向外的逐层顺序。如果 `slr` 为测试函数，接口为：`function(el:Element, i:Number): Boolean`，首个实参为上级元素自身，第二个实参为向上递进的层级计数（直接父元素为 `1`）。
+
+
+### [$.parentsUntil( el, slr ): [Element]](docs/$.parentsUntil.md)
+
+汇集 `el` 元素的全部上级元素，直到 `slr` 匹配（不含匹配的元素）。
+
+- `el: Element` 取值的目标元素。
+- `slr: String | Function | Element | [Element]` 测试终点匹配的选择器、或自定义的测试函数、或一个目标元素或一个元素的数组，可选。
+
+从父元素开始匹配测试，结果集保持从内向外的逐层顺序。如果 `slr` 为测试函数，接口为：`function(el:Element, i:Number): Boolean`，首个实参为上级元素自身，第二个实参为向上递进的层级计数（直接父元素为 `1`）。
+
+
+### [$.closest( el, slr ): Element | null](docs/$.closest.md)
+
+获取 `el` 最近的父级匹配元素。
+
+- `el: Element` 取值的目标元素。
+- `slr: String | Function | Element | [Element]` 目标匹配选择器、或自定义的测试函数、或一个目标元素或一个元素的数组，可选。
+
+向上逐级检查父级元素是否匹配，返回最先匹配的目标元素。会从 `el` 元素自身开始测试匹配（同标准 Element:closest），如果抵达 `document` 或 `DocumentFragment` 会返回 `null`。
+
+如果 `slr` 是一个自定义的测试函数，接口为：`function(el:Element, i:Number): Boolean`，首个实参为递进的元素自身，第二个实参为向上递进的层级计数（当前元素时为 `0`）。
+
+
+### [$.offsetParent( el ): Element](docs/$.offsetParent.md)
+
+获取 `el` 最近的父级定位元素。
+
+- `el: Element` 取值的目标源元素。
+
+从父元素开始检查，如果最终没有匹配返回文档根元素（`<html>`，同 jQuery）。如果当前元素属于 `<svg>` 的子元素，则返回 `<svg>` 根容器元素（与普通的HTML节点相区分）。
+
+与元素原生的 `offsetParent` 属性稍有不同，不管元素是否隐藏（`display:none`），都会返回 `position` 为非 `static` 的容器元素。
+
+> **注：**
+> 元素原生的 `offsetParent` 属性在元素隐藏时值为 `null`。
 
 
 
 ## 节点操作
 
-### [$.before( node: Node, cons: Function | Node | [Node] | Collector | Set | Iterator, clone: Boolean, event: Boolean, eventdeep: Boolean ): Node | [Node]](docs/$.before.md)
+### [$.before( node, cons, clone, event, eventdeep ): Node | [Node]](docs/$.before.md)
 
-在 `node` 元素或文本节点的前面插入节点/集。节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
+在 `node` 元素或文本节点的前面插入节点/集。
+
+- `node: Node`
+- `cons: Function | Node | [Node] | Collector | Set | Iterator`
+- `clone: Boolean`
+- `event: Boolean`
+- `eventdeep: Boolean`
+
+节点集支持数组、`Set` 集合、`Collector` 实例、或是一个返回节点的迭代器，也可以是一个返回节点/集的取值回调。不支持 `html` 字符串形式（请使用 `.html` 接口）。后续的节点克隆 `clone` 适用于文本节点和元素，元素为深层克隆。事件克隆参数 `event/eventdeep` 仅适用于元素。
 
 取值回调接口：`function( node ): Node | [Node]`，会传递目标节点为实参，返回值也不支持 `html` 源码形式。
 

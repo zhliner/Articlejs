@@ -115,8 +115,7 @@
         // @return {[Element]|NodeList|HTMLCollection}
         $all = Sizzle || function( slr, ctx ) {
             if (__reID.test(slr)) {
-                let _el = $id(slr, ctx);
-                return _el ? [_el] : [];
+                return new Array($id(slr, ctx) || 0);
             }
             if (__reTAG.test(slr) && ctx.nodeType != 11) {
                 return $tag(slr, ctx);
@@ -1033,7 +1032,7 @@ Object.assign( tQuery, {
      */
     siblings( el, slr ) {
         let _pel = el.parentElement;
-        if (_pel === null) {
+        if (_pel == null) {
             return null;
         }
         let _els = Arr(_pel.children);
@@ -1053,6 +1052,9 @@ Object.assign( tQuery, {
     parent( el, slr ) {
         let _pel = el.parentNode;
 
+        if ( !_pel ) {
+            return null;
+        }
         if ( isFunc(slr) ) {
             return slr(_pel) ? _pel : null;
         }
@@ -1086,7 +1088,7 @@ Object.assign( tQuery, {
      * - 不包含终止匹配的父级元素。
      * - 自定义测试函数支持向上递进的层计数（_i）。
      * @param  {Element} el 当前元素
-     * @param  {String|Function|Element|Array} slr 终止匹配
+     * @param  {String|Function|Element|[Element]} slr 终止匹配
      * @return {[Element]}
      */
     parentsUntil( el, slr ) {
@@ -1109,7 +1111,7 @@ Object.assign( tQuery, {
      * - 如果抵达document或DocumentFragment会返回null。
      * - 自定义匹配函数支持向上递进的层数（_i）。
      * @param  {Element} el 参考元素
-     * @param  {String|Function|Element|Array} slr 匹配选择器
+     * @param  {String|Function|Element|[Element]} slr 匹配选择器
      * @return {Element|null}
      */
     closest( el, slr ) {
