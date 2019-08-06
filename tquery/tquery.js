@@ -1258,13 +1258,19 @@ Object.assign( tQuery, {
 
     /**
      * 清空元素内容。
-     * 注：仅适用于元素节点。
+     * 仅适用于元素节点。
+     * 返回集中不包含注释节点和纯空白文本节点。
      * @param  {Element} el 目标元素
-     * @return {Element}
+     * @return {[Node]|null} 被清除的节点集
      */
     empty( el ) {
-        if (el.nodeType == 1) el.textContent = '';
-        return el;
+        if (el.nodeType != 1) {
+            return null;
+        }
+        let _cons = Arr( el.childNodes );
+        el.textContent = '';
+
+        return _cons.filter( masterNode );
     },
 
 
@@ -1476,7 +1482,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {Value|Function|null} value 新值或取值回调，可选
+     * @param  {String|Number|Boolean|Function|null} value 新值或取值回调，可选
      * @return {Value|Object|this}
      */
     attr( el, name, value ) {
@@ -1496,7 +1502,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {Value|Function|null} value 新值或取值回调，可选
+     * @param  {String|Number|Boolean|Function|null} value 新值或取值回调，可选
      * @return {Value|Object|this}
      */
     prop( el, name, value ) {
@@ -1517,7 +1523,7 @@ Object.assign( tQuery, {
      * @return {this}
      */
     removeAttr( el, names ) {
-        if (isFunc(names)) {
+        if ( isFunc(names) ) {
             names = names(el);
         }
         if (typeof names == 'string') {
@@ -1785,10 +1791,12 @@ Object.assign( tQuery, {
      *      delegate: Element 绑定委托的元素（event.currentTarget），可选
      *      selector: String  委托匹配选择器，可选
      * }
+     * 事件配置对象：{ evn: handle }
+     *
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器
-     * @param  {Function|Object|false|null} handle 处理器函数或对象或特殊值
+     * @param  {Function|EventListener|false|null} handle 事件处理器或特殊值
      * @return {this}
      */
     on( el, evn, slr, handle ) {
@@ -1811,7 +1819,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器，可选
-     * @param  {Function|Object|false|null} handle 处理器函数或对象或特殊值，可选
+     * @param  {Function|EventListener|false|null} handle 处理器函数或对象或特殊值，可选
      * @return {this}
      */
     off( el, evn, slr, handle ) {
@@ -1834,7 +1842,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器
-     * @param  {Function|Object|false|null} handle 处理器函数或对象或特殊值
+     * @param  {Function|EventListener|false|null} handle 处理器函数或对象或特殊值
      * @return {this}
      */
     one( el, evn, slr, handle ) {
@@ -3138,6 +3146,7 @@ elsEx([
         'clone',
         'children',
         'contents',
+        'empty',
     ],
     (fn, els, ...rest) =>
         // 可代理调用 $
@@ -3248,11 +3257,10 @@ elsExfn([
 // 返回当前实例本身。
 /////////////////////////////////////////////////
 elsExfn([
-        'empty',
         'toggleClass',
         'on',
-        'off',
         'one',
+        'off',
         'trigger',
 
         // 元素原生事件激发
@@ -3994,7 +4002,7 @@ function remove( node, deleted ) {
     let _box = node.parentNode;
 
     if (!_box || node.nodeType > 8) {
-        return;
+        return node;
     }
     if (! deleted) {
         return _box.removeChild(node);
@@ -4874,7 +4882,7 @@ const propHooks = {
 // 与元素的 value 属性或特性不同，这里的取值遵循表单提交逻辑。
 // 即：即便条目被选中，如果自身处于 disabled 状态，也返回 null。
 //
-// 对控件的设置是选择与值匹配的条目，而不是改变控件值本身。
+// 对部分控件的设置是选中与值匹配的条目，而不是改变控件的值本身。
 // 与取值相似，如果控件已 disabled 则会忽略。
 //
 const valHooks = {
@@ -4884,8 +4892,9 @@ const valHooks = {
         // 返回选中项的值，仅一项。
         get: function( el ) {
             let _res = el.form[el.name];
-            if (!_res) return;
-
+            if (!_res || !el.name) {
+                return;
+            }
             if (_res.nodeType) {
                 _res = [_res];
             }
@@ -4901,8 +4910,9 @@ const valHooks = {
         // 注：采用严格相等比较。
         set: function( el, val ) {
             let _res = el.form[el.name];
-            if (!_res) return;
-
+            if (!_res || !el.name) {
+                return;
+            }
             if (_res.nodeType) {
                 _res = [_res];
             }
@@ -4919,8 +4929,9 @@ const valHooks = {
         // 未选中时返回null或一个空数组（重名时）。
         get: function( el ) {
             let _cbs = el.form[el.name];
-            if (!_cbs) return;
-
+            if (!_cbs || !el.name) {
+                return;
+            }
             if (_cbs.nodeType) {
                 return _cbs.checked && !$is(_cbs, ':disabled') ? _cbs.value : null;
             }
@@ -4934,8 +4945,9 @@ const valHooks = {
         // 支持同名多复选，支持值数组匹配。
         set: function( el, val ) {
             let _cbs = el.form[el.name];
-            if (!_cbs) return;
-
+            if (!_cbs || !el.name) {
+                return;
+            }
             if (_cbs.nodeType) {
                 _cbs = [_cbs];
             }
@@ -5708,7 +5720,7 @@ const Event = {
  * 仅用户友好（语法糖）。
  * @param  {String|Object} 事件名或配置对象
  * @param  {Function|false|null} handle 用户处理器
- * @return {[String, Function|Object]}
+ * @return {[String|Object, Function|EventListener]}
  */
  function customHandles( evn, handle ) {
     return typeof evn == 'string' ?
@@ -5743,19 +5755,19 @@ function customHandle( handle ) {
  *      elem: Element,  // 目标元素
  *      data: Value     // 激发附加数据
  * }
- * 前阶事件处理器返回假值会中止目标事件触发。
+ * 前阶事件处理器返回假值或调用了event.preventDefault()会中止目标事件触发。
  *
  * @param  {Event} ev 事件对象
  * @param  {Object} elo 事件目标对象（含selector）
- * @param  {String} evn 待激发的事件名
- * @param  {Function|Object} handle 衔接处理器
+ * @param  {String} evn 待激发的事件名（序列）
+ * @param  {Function|EventListener} handle 衔接处理器
  * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
  * @return {false|Value}
  */
 function tiedHandle( ev, elo, evn, handle, over ) {
     let _ret = handle(ev, elo);
 
-    if (!_ret) {
+    if (!_ret || ev.defaultPrevented) {
         return _ret;
     }
     return over ? setTimeout(tieProcess, 0, _ret, evn) : tieProcess(_ret, evn);
@@ -5767,7 +5779,8 @@ function tiedHandle( ev, elo, evn, handle, over ) {
  * @param {Element|Object|[Element]|[Object]} its 前阶处理器返回结果
  * @param {String} evn 待激发事件名
  */
- function tieProcess( its, evn ) {
+function tieProcess( its, evn ) {
+    evn = evn.split(__chSpace);
     return isArr(its) ? tieTriggers(its, evn) : tieTrigger(its, evn);
 }
 
@@ -5776,9 +5789,9 @@ function tiedHandle( ev, elo, evn, handle, over ) {
  * 单目标激发。
  * 注：支持代理嵌入。
  * @param {Element|Object} it 激发目标
- * @param {String} evn 事件名
+ * @param {[String]} evns 事件名集
  */
-function tieTrigger( it, evn ) {
+function tieTrigger( it, evns ) {
     let _el, _val;
 
     if ( it.nodeType ) {
@@ -5787,7 +5800,7 @@ function tieTrigger( it, evn ) {
         _el = it.elem;
         _val = it.data;
     }
-    $.trigger( _el, evn, _val );
+    evnsTrigger( _el, evns, _val );
 }
 
 
@@ -5796,16 +5809,27 @@ function tieTrigger( it, evn ) {
  * 按数组的首个成员类型判断。
  * 注：支持代理嵌入。
  * @param {[Element]|[Object]} its 激发目标集
- * @param {String} evn 事件名
+ * @param {[String]} evns 事件名集
  */
-function tieTriggers( its, evn ) {
+function tieTriggers( its, evns ) {
     if (its.length == 0) {
         return;
     }
     if ( its[0].nodeType ) {
-        return its.forEach( el => $.trigger(el, evn) );
+        return its.forEach( el => evnsTrigger(el, evns) );
     }
-    its.forEach( it => $.trigger(it.elem, evn, it.data) );
+    its.forEach( it => evnsTrigger(it.elem, evns, it.data) );
+}
+
+
+/**
+ * 多事件名激发。
+ * @param {Element} el 激发事件的元素
+ * @param {[String]} evns 事件名集
+ * @param {Value} val 激发附加的数据
+ */
+function evnsTrigger( el, evns, val ) {
+    evns.forEach( n => $.trigger( el, n, val ) );
 }
 
 
@@ -5825,10 +5849,10 @@ function eventBinds( type, el, slr, evn, handle ) {
         throw new Error(`el is ${el}.`);
     }
     if (typeof evn == 'string') {
-        return evnsBatch(type, el, evn, slr, handle);
+        return evnsBatch( type, el, evn, slr, handle );
     }
     for ( let [n, f] of entries(evn) ) {
-        evnsBatch(type, el, n, slr, f);
+        evnsBatch( type, el, n, slr, f );
     }
 }
 
@@ -5843,9 +5867,8 @@ function eventBinds( type, el, slr, evn, handle ) {
  * @param {Function} handle 事件处理函数
  */
 function evnsBatch( type, el, evn, slr, handle ) {
-    evn.
-    split(__chSpace).
-    forEach( name => Event[type](el, name, slr, handle) );
+    evn.split(__chSpace)
+        .forEach( name => Event[type](el, name, slr, handle) );
 }
 
 
@@ -6028,7 +6051,8 @@ Object.assign( tQuery, {
     /**
      * 封装事件处理器的进阶激发。
      * 主要用于两个事件间的联动，根据前阶处理器的返回值决定后续行为。
-     * 如果前阶事件处理器返回了假值则不激发，否则对返回的元素或配置对象（集）逐一激发。
+     * 如果前阶事件处理器返回了假值或调用了event.preventDefault()则不激发，
+     * 否则对返回的元素或配置对象（集）逐一激发。
      * handle接口:
      * - function(ev, elo): Element|[Element]|Object|[Object]|false
      * - Object: { elem: Element, data: Value }
@@ -6037,7 +6061,7 @@ Object.assign( tQuery, {
      * 返回一个封装了相关逻辑的处理器函数。
      * 如果前阶处理器返回假值则返回该假值，否则返回undefined或一个定时器ID。
      *
-     * @param  {String} evn 待激发的事件名
+     * @param  {String} evn 待激发的事件名，支持空格分隔多个事件名
      * @param  {Function|EventListener} 事件处理器
      * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
      * @return {Function} 事件处理器
@@ -6046,7 +6070,7 @@ Object.assign( tQuery, {
         if ( !isFunc(handle) ) {
             handle = handle.handleEvent.bind( handle );
         }
-        return (ev, elo) => tiedHandle( ev, elo, evn, handle.bind(elo.current), over );
+        return (ev, elo) => tiedHandle( ev, elo, evn.trim(), handle.bind(elo.current), over );
     },
 
 

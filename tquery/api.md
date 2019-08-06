@@ -151,16 +151,16 @@ $.isXML( document.body );  // false
 把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。
 
 - `src: Element` 事件处理器克隆的来源元素（其上绑定的事件处理器将被克隆）。
-- `to: Element` 事件处理器克隆到的目标元素，不影响它上面原有的事件处理器。
-- `evns: String | Array2 | [Array2]` 克隆的目标配置。可以是事件名（序列）、**事件/委托选择器值对** 或该值对的数组。
+- `to: Element` 事件处理器克隆到的目标元素，不影响它上面原有绑定的事件处理器。
+- `evns: String | Array2 | [Array2]` 克隆的目标配置。可以是事件名（序列）、**[事件名, 委托选择器]**值对或该值对的数组。
 
-事件处理器的克隆与元素的种类无关（如：`<input>` 上的事件处理器可克隆到 `<p>` 上，即便该事件并不会在 `<p>` 上发生）。克隆仅限于元素自身上的绑定，不包含子元素上的事件处理器。
+事件处理器的克隆与元素的种类无关（如：`<input>` 上的事件处理器可克隆到 `<p>` 上，即便该事件并不会在 `<p>` 上发生）。克隆仅限于元素自身上的绑定，不包含子孙元素上的事件处理器克隆。
 
 返回克隆了事件处理器的目标元素，如果没有事件处理器被克隆，返回 `null`。
 
 > **注：**<br>
 > 传递名称序列（不指定选择器）时，仅仅是忽略选择器检查，源上原有的选择器依然会起作用。<br>
-> 如果传递配置对以包含委托选择器检查，则其中空的选择器应当设置为 `null` 或 `undefined`，否则不会匹配。<br>
+> 如果传递配置对以包含准确的委托选择器检查，则其中空的选择器应当设置为 `null` 或 `undefined`，否则不会匹配。<br>
 
 
 ### [$.controls( form ): [Element]](docs/$.controls.md)
@@ -603,123 +603,200 @@ $.isXML( document.body );  // false
 包裹容器可以是一个现有的元素、一个HTML字符串（将被创建为元素）、或一个返回包裹元素或HTML字符串的函数。如果包裹容器还包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会成为 `el` 唯一的子元素。返回包裹内容的（根）容器元素。
 
 
-### [$.unwrap( el: Element ): [Node]](docs/$.unwrap.md)
+### [$.unwrap( el ): [Node]](docs/$.unwrap.md)
 
-将 `el` 元素的内容提升到 `el` 的位置，其中包含的注释节点会一并提升，但会从返回集中清除。
+将 `el` 元素的内容解包裹提升到 `el` 原来的位置。
 
+- `el: Element` 内容被解包的容器元素。
 
-### [$.detach( node: Node ): Node](docs/$.detach.md)
-
-将节点（通常为元素或文本节点）移出文档树，返回被移出的节点。**注**：注释节点也适用。
-
-
-### [$.remove( node: Node ): this](docs/$.remove.md)
-
-删除文档树中的节点（元素或文本节点），返回调用者自身（`$`）。**注**：效果类似于未保存返回值的 `$.detach` 接口。
+元素所包含的任何内容（包括注释节点）会一并提升，但返回集中不含注释节点和纯空白的文本节点。
 
 
-### [$.empty( el: Element ): Element](docs/$.empty.md)
+### [$.detach( node ): Node](docs/$.detach.md)
 
-清空 `el` 元素的内容，包括子元素、文本节点和注释节点等任意子节点。返回被清空的元素。
+将节点（通常为元素或文本节点）移出DOM文档树。
+
+- `node: Node` 将被移出的节点。
+
+返回被移出DOM文档树的节点。**注**：注释节点也适用。
 
 
-### [$.normalize( el: Element, level?: Number ): Number | Element](docs/$.normalize.md)
+### [$.remove( node ): this](docs/$.remove.md)
 
-对元素 `el` 的内容执行规范化（normalize），即：合并相邻的文本节点。返回 `level` 值或操作的目标元素 `el`。
+删除DOM文档树中的节点（元素或文本节点）。
 
-这是元素原生同名接口的简单封装，但包含一个用户通告参数 `level`，用于指明 `normalize` 操作会影响的子元素层级。
+- `node: Node` 将被移除的节点。
+
+返回调用者自身（即 `$`）。**注**：效果类似于丢弃返回值的 `$.detach()`。
+
+
+### [$.empty( el ): [Node] | null](docs/$.empty.md)
+
+清空 `el` 元素的内容。
+
+- `el: Element` 内容将被清除的容器元素。
+
+清空的内容包括子元素、文本节点和注释节点等任意内容。返回被清除的节点内容，但仅包含子元素和非空文本节点。仅对元素类型有效，传递其它实参返回 `null`。
+
+
+### [$.normalize( el, level? ): Number | Element](docs/$.normalize.md)
+
+对元素 `el` 的内容执行规范化（normalize），即合并内容中的相邻文本节点。
+
+- `el: Element` 执行操作的容器元素。
+- `level?: Number` 影响的子元素层级告知，可选。这是一个特别参数，由用户传递。
+
+这是元素原生同名接口的简单封装，但包含一个用户通告参数 `level`，用于指明 `normalize` 操作会影响的子元素层级。返回 `level` 值或操作的目标元素 `el`。
 
 > **注：**<br>
-> DOM原生的 `normalize` 调用会处理目标元素的所有子孙节点，用户没有办法控制节点改变的细节，该操作实际上修改了DOM节点树。<br>
-> tQuery支持嵌入代理，代理有时候需要知道 `normalize` 的影响范围（可能用于性能优化），因此这里设计为由用户主动告知（没有其它的办法）。<br>
-> 如果您不理解 `level` 参数的用途，说明您不需要它，简单忽略即可。<br>
+> DOM原生的 `.normalize()` 调用会处理目标元素的所有子孙节点，用户没有办法控制节点改变的细节，但该操作实际上修改了DOM节点树。<br>
+> tQuery支持嵌入代理，代理有时候想要知道 `normalize` 影响的大概范围，因此这里设计一个由用户主动告知的渠道（没有其它办法了）。如果您不理解 `level`，简单忽略即可。<br>
 
 
-### [$.clone( el: Node, event: Boolean, deep?: Boolean, eventdeep?: Boolean ): Node](docs/$.clone.md)
+### [$.clone( node, event, deep?, eventdeep? ): Node](docs/$.clone.md)
 
-对 `el` 节点/元素进行克隆，返回克隆的新节点/元素。`event`、`deep` 和 `eventdeep` 三个参数仅适用于元素，分别表示 `el` 元素事件处理器的克隆、元素节点的深层克隆（可选，默认为 `true`）、以及对深度克隆后子孙元素上事件处理器的克隆（可选，默认为 `false`）。
+对 `node` 节点/元素进行克隆。
+
+- `node: Node` 待克隆的目标节点或元素。
+- `event: Boolean` 是否同时克隆元素上绑定的事件处理器。可选，默认 `false`。
+- `deep?: Boolean` 是否深层克隆子孙节点/元素。可选，默认 `true`。
+- `eventdeep?: Boolean` 是否同时克隆子孙元素上绑定的事件处理器。需要在 `deep` 为 `true` 时才有意义。可选，默认 `false`。
+
+三个布尔值参数 `event`、`deep` 和 `eventdeep` 仅适用于元素。返回新克隆的节点/元素。
 
 
-### [$.scrollTop( el: Document | Window | Element, val: Number ): this](docs/$.scrollTop.md)
+### [$.scrollTop( el, val ): this](docs/$.scrollTop.md)
 
 获取或设置 `el` 元素（文档或窗口）的垂直滚动条位置。
 
+- `el: Document | Window | Element` 包含滚动条的文档、窗口或元素。
+- `val: Number` 滚动到的目标位置，从顶部算起，单位为像素。
 
-### [$.scrollLeft( el: Document | Window | Element, val: Number ): this](docs/$.scrollLeft.md)
+本接口返回调用者自身（`$`）。
+
+
+### [$.scrollLeft( el, val ): this](docs/$.scrollLeft.md)
 
 获取或设置 `el` 元素（文档或窗口）的水平滚动条位置。
 
+- `el: Document | Window | Element` 包含滚动条的文档、窗口或元素。
+- `val: Number` 滚动到的目标位置，从左侧端算起，单位为像素。
+
+本接口返回调用者自身（`$`）。
 
 
 ## 元素属性
 
-### [$.addClass( el: Element, names: String | Function ): this](docs/$.addClass.md)
+### [$.addClass( el, names ): this](docs/$.addClass.md)
 
-在 `el` 元素上添加类名，多个类名采用空格分隔。支持回调函数获取类名，接口：`function( className ): String`。
+在 `el` 元素上添加类名，多个类名可用空格分隔。
+
+- `el: Element` 操作的目标元素。
+- `names: String | Function` 类名称或一个返回类名称的取值回调。
+
+获取类名称的取值回调函数接口：`function( [name] ): String`，实参为当前已有类名数组。本接口返回调用者自身（`$`）。
 
 
-### [$.removeClass( el: Element, names: String | Function ): this](docs/$.removeClass.md)
+### [$.removeClass( el, names ): this](docs/$.removeClass.md)
 
-移除 `el` 元素上的类名，多个类名采用空格分隔，未指定名称（undefined|null）时移除全部类名。支持回调函数获取需要移除的类名，接口：`function( className ): String`。
+移除 `el` 元素上的类名，多个类名可用空格分隔，未指定名称（`undefined | null`）时移除全部类名。
+
+- `el: Element` 操作的目标元素。
+- `names: String | Function` 类名称或一个返回类名称的取值回调。
+
+支持回调函数获取需要移除的类名，接口：`function( [name] ): String`，实参为当前已有类名数组。如果元素上已无类名，`class` 特性（Attribute）本身会被删除。
+
+本接口返回调用者自身（`$`）。
+
+
+### [$.toggleClass( el, val, force ): this](docs/$.toggleClass.md)
+
+对 `el` 元素上的类名进行切换（有则删除无则添加）。
+
+- `el: Element` 操作的目标元素。
+- `val: String | Boolean | Function` 欲切换的类名称（序列）或取值回调，也可以是一个布尔值，表示显示（`true`）或隐藏（`false`）整个 `className` 值。
+- `force: Boolean` 目标名称的类名直接显示（`true`）或隐藏（`false`）。
+
+支持空格分隔的多个类名，支持回调函数获取类名，接口：`function( [name] ): String | Boolean`，实参为当前已有类名数组。
+
+未指定类名时，切换针对整个类特性（`class`），可以传递 `val` 为布尔值，明确设置或删除整个类特性（而非有无切换）。本接口返回调用者自身（`$`）。
+
+
+### [$.hasClass( el, names ): Boolean](docs/$.hasClass.md)
+
+检查 `el` 元素是否包含目标类名。返回一个布尔值。
+
+- `el: Element` 待检查的目标元素。
+- `names: String` 待测试的目标类名（序列）。
+
+类名实参 `names` 支持空格分隔的多个类名指定，其间关系为 `And` 的逻辑，即：`AA BB` 与 `BB AA` 效果相同。
+
+
+### [$.attr( el, name, value ): Value | Object | this](docs/$.attr.md)
+
+获取或修改 `el` 元素的特性（Attribute）值。**注**：`Attribute` 这里译为特性，后面的 `Property` 译为属性。
+
+- `el: Element` 操作的目标元素。
+- `name: String | Object | Map` 名称序列或**名/值**对配置对象。
+- `value: String | Number | Boolean | Function | null` 设置的特性值或返回值的取值回调。传递 `null` 值会删除目标特性。
+
+当 `value` 未定义且 `name` 为字符串时为获取特性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `name` 为**名/值**对配置对象时为设置特性值。
+
+- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
+- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+
+支持两个特别的特性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
+
+
+### [$.prop( el, name, value ): Value | Object | this](docs/$.prop.md)
+
+获取或修改 `el` 元素的属性（Property）值。
+
+- `el: Element` 操作的目标元素。
+- `name: String | Object | Map` 名称序列或**名/值**对配置对象。
+- `value: String | Number | Boolean | Function | null` 设置的属性值或返回值的取值回调。
+
+当 `value` 未定义且 `name` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `name` 为**名/值**对配置对象时为设置属性值。
+
+- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
+- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+
+与 `$.attr()` 相同，支持两个特别的属性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
+
+> **注：**<br>
+> 需要转换的属性名会自动转换（如：`class` => `clasName`），用户无需操心，两种形式皆可使用。
+
+
+### [$.removeAttr( el, names ): this](docs/$.removeAttr.md)
+
+删除 `el` 元素上一个或多个特性（Attribute）。
+
+- `el: Element` 操作的目标元素。
+- `names: String | Function` 要删除的目标特性名（序列）或取值回调。
+
+这实际上是 `$.attr(el, name, null)` 调用的简化版，效率稍高一些。支持 `data-` 系特性名的简写形式和空格分隔的多名称序列。取值回调接口：`function( el ): String`。
 
 > **注：**
-> 如果元素上已无类名，class属性会被删除。
+> 不支持特殊的特性名 `html` 和 `text`。
 
 
-### [$.toggleClass( el: Element, val: String | Boolean | Function, force: Boolean ): this](docs/$.toggleClass.md)
+### [$.val( el, value ): Value | [Value] | this](docs/$.val.md)
 
-对 `el` 元素上的类名进行切换（有则删除无则添加）。支持空格分隔的多个类名，支持回调函数获取类名，接口：`function( className ): String|Boolean`。
+表单控件的取值或状态设置。
 
-未指定类名时，切换针对整个类名（`class` 属性），可以传递 `val` 为布尔值，明确设置或删除整个类名（`class` 属性），而非有无切换。`force` 的作用类似，但明确设置或删除指定的类名（`val`）。
+- `el: Element` 操作的表单控件元素。
+- `value: Value | [Value] | Function` 设置的值或值集，或返回值（集）的回调。
 
+部分控件（如 `input:radio`, `input:checkbox`, `<section>`）的设置为选中或取消选中逻辑，部分控件（如 `input:text`, `input:password`, `<textarea>`）为设置 `value` 值本身。对于多选控件（如 `<select multiple>`），`value` 可以传递为一个值数组，用于同时选定多个条目。
 
-### [$.hasClass( el: Element, names: String ): Boolean](docs/$.hasClass.md)
-
-检查 `el` 元素的类名是否与 `nammes` 匹配，`names` 支持空格分隔的多个类名指定，其间关系为 `And` 的逻辑。
-
-> **注：**<br>
-> jQuery中的同名方法里，类名实参是一个整体（空格不是分隔符），即如：`A B` 与 `B A` 并不相同。
-
-
-### [$.attr( el: Element, name: String | Object | Map, value: Any ): Value | Object | this](docs/$.attr.md)
-
-获取或修改 `el` 元素的特性（Attribute）值。`value` 未定义且 `name` 为字符串（支持空格分隔的多个名称）时为取值，否则为设置操作。支持两个特别的特性名：`html` 和 `text` 用于表达元素内的源码和文本，支持 `data-xx` 系的名称简写形式（`-xx`）。
-
-- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
-- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
-
-> **附注：**<br>
-> `Attribute` 这里译为特性，表示一开始就固定的（源码中）。修改需借助于方法（元素的 `setAttribute()` 接口）。<br>
-> 后面的 `Property` 译为属性，表示运行时计算出现的。可通过直接赋值修改。<br>
-
-
-### [$.prop( el: Element, name: String | Object | Map, value: Any ): Value | Object | this](docs/$.prop.md)
-
-获取或修改 `el` 元素的属性（Property）值。`value` 未定义且 `name` 为字符串（支持空格分隔的多个名称）时为取值，否则为设置操作。支持两个特别的属性名：`html` 和 `text` 用于表达元素内的源码和文本，支持 `data-xx` 系的名称简写形式（`-xx`）。
-
-- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
-- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
-
-> **注：**<br>
-> 部分属性名会自动转换（如：`class` => `clasName`），设置逻辑与元素原生赋值逻辑相同。
-
-
-### [$.removeAttr( el: Element, names: String | Function ): this](docs/$.removeAttr.md)
-
-删除 `el` 元素上某个或多个特性（Attribute）本身。这实际上是 `$.attr(el, name, null)` 调用的专用版，但可批量删除，效率也更高一些。支持 `data-` 系特性名的简写形式和空格分隔的多名称序列。
-
-
-### [$.val( el: Element, value: Value | [Value] | Function ): Value | [Value] | this](docs/$.val.md)
-
-表单控件的取值或状态设置：部分控件设置为选中或取消选中（`input:radio`, `input:checkbox`, `<section>`），部分控件为设置 `value` 值本身（`input:text`, `input:password`, `<textarea>` 等）。取值和设置都遵循严格的表单提交（`submit`）逻辑：
+取值和设置都会依循严格的表单提交（`submit`）逻辑：
 
 - 未选中的的控件（如单个复选框）不会被提交，因此取值时返回 `null`。
-- `disabled` 的控件值也不会提交，因此取值时返回 `null`，设置会被忽略。
-- 无名称（`name` 属性）定义的控件不会提交，取值时返回 `undefined`。
+- `disabled` 的控件值也不会被提交，因此取值时返回 `null`，设置时被忽略。
+- 无名称（`name` 属性）定义的控件不会被提交，因此取值时返回 `undefined`，设置时被忽略。
 
 > **注：**<br>
-> 该接口应当仅用于表单内的控件，如 `<option>` 元素其实也可以在表单之外（如作为 `<datalist>` 的子元素）。<br>
-> 如果需要无条件获取或设置控件的 `value` 属性值，应当使用 `.attr/.prop` 接口。<br>
+> 该接口应当仅用于表单内控件，如需无条件获取或设置控件的 `value` 特性（或属性），请使用 `.attr()/.prop()` 接口。
 
 
 
@@ -1027,11 +1104,17 @@ $.isXML( document.body );  // false
 迭代集合内的每一个成员执行回调函数，如果有一个返回真则最终结果为真，支持比较广泛的集合类型。回调接口：`function(val, key): Boolean`。
 
 
-### [$.Later( evn: String, handle: Function | Object, over?: Boolean ): Function](docs/$.Later.md)
+### [$.Later( evn, handle, over? ): Function](docs/$.Later.md)
 
-封装事件处理器（`handle`）的进一步事件（`evn`）激发，主要用于两个事件间的联动：根据 `handle` 的返回值决定后续行为，如果 `handle` 返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件（`evn`）。
+封装事件处理器（`handle`）的进一步事件（`evn`）激发，主要用于前后连续事件间的联动。
 
-本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 返回了假值，则返回该假值本身，如果返回了真值（元素/配置对象或其数组），则返回 `undefined` 或一个定时器ID。
+- `evn: String` 未来将要激发的事件名（序列）。
+- `handle: Function | Object` 待封装的当前事件的处理器或EventListener实例。
+- `over?: Boolean` 是否跳过当前调用栈（调用 `setTimeout()` 延后激发）。可选，默认为 `false`。
+
+根据 `handle` 的执行情况和返回值决定后续行为，如果 `handle` 中调用了 `event.preventDefault()` 或返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件，`evn` 支持空格分隔的多个事件名序列。
+
+本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 中调用了 `event.preventDefault()` 或返回了假值，则返回该返回值本身，如果封装的处理器激发了目标事件，则返回 `undefined` 或一个定时器ID。
 
 
 ### [$.Counter( fn: Function, n?: number, step?: number ): Function](docs/$.Counter.md)
