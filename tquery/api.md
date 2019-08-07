@@ -802,141 +802,231 @@ $.isXML( document.body );  // false
 
 ## 文本操作
 
-### [$.html( el: String | Element, code: String | [String] | Node | [Node] | Function | .values, where?: String | Number, sep?: String ): String | [Node]](docs/$.html.md)
+### [$.html( el, code, where?, sep? ): String | [Node]](docs/$.html.md)
 
-提取或设置 `el` 元素的HTML源码，如果传递 `el` 为字符串，则为源码转换（如 `<` 到 `&lt;`）。设置源码时，数据源支持字符串、节点元素或其数组形式，也支持取值回调（接口：`function(el): Any`）。
+提取或设置 `el` 元素的HTML源码，如果传递 `el` 为字符串，则为源码转换（如 `<` 到 `&lt;`）。
 
-**设置时：**
+- `el: String | Element` 待操作的目标元素，或待转换的文本。
+- `code: String | [String] | Node | [Node] | Function | .values` 待设置的HTML源码或节点数据源，或返回源码/节点的取值回调。可选，未定义时为取值。
+- `where?: String | Number` 源码插入的位置或代码。可选，默认为 `fill`（值 `0`）。
+- `sep?: String` 数据源为数组时各单元的连接符。可选，默认为一个空格。
 
-- 数据源为字符串时，禁止脚本元素 `<script>`、样式元素 `<style>`、以及链接元素 `<link>` 的源码文本，它们会被自动滤除。
-- 源数据为文本节点或元素时，取其 `textContent` 或 `outerHTML` 值作为赋值源码（因此是一种简单的克隆方式）。
-- 数据源也可是字符串/节点/元素的数组或集合（需支持 `.values` 接口），取值成员之间以指定的分隔符串连（默认空格）。集合成员也可以是多种类型值的混合。
+设置源码时的取值回调接口：`function( el ): String | [String] | Node | [Node] | .values`。
 
-与 jQuery 中同名接口不同，这里可以指定内容插入的位置（相对于 `el` 元素）：`before|after|begin|end|prepend|append|fill|replace` 等。另外，如果数据源为元素或节点，不会对原节点造成影响（文本逻辑）。
+**设置行为：**
 
-**返回值**：返回新创建的节点集（数组）或转换后的HTML源码。
+- 数据源为字符串时，会自动移除脚本类元素 `<script>`、`<style>`、`<link>` 和元素上的脚本类特性：`onerror`, `onload`, `onabort`。
+- 源数据为文本节点或元素时，取其 `textContent` 或 `outerHTML` 值作为赋值源码（可视为一种简单的克隆）。
+- 数据源也可是字符串/节点/元素的数组或集合（需支持 `.values` 接口），取值成员之间以指定的分隔符串连（默认空格）。
+
+与 jQuery 中同名接口不同，这里可以指定内容插入的位置（相对于 `el` 元素）：`before|after|begin|end|prepend|append|fill|replace` 等，并且因为只是**文本逻辑**，原节点不受影响。
+
+返回新创建的节点集（数组）或转换后的HTML源码。
 
 
-### [$.text( el: String | Element, code: String | [String] | Node | [Node] | Function | .values, where?: String | Number, sep?: String ): String | Node](docs/$.text.md)
+### [$.text( el, code, where?, sep? ): String | Node](docs/$.text.md)
 
-提取或设置 `el` 元素的内容文本，如果传递 `el` 为字符串，则为将源码解码为文本（如 `&lt;` 到 `<`）。与 `.html` 接口类似，设置时支持的数据源类型相同，但取值行为稍有不同。
+提取或设置 `el` 元素的文本内容，如果传递 `el` 为字符串，则为将源码解码为文本（如 `&lt;` 到 `<`）。
 
-**设置时：**
+- `el: String | Element` 待操作的目标元素，或待解码的HTML源码。
+- `code: String | [String] | Node | [Node] | Function | .values` 待设置的内容文本或节点数据源，或返回文本/节点的取值回调。可选，未定义时为取值。
+- `where?: String | Number` 内容文本插入的位置或代码。可选，默认为 `fill`（值 `0`）。
+- `sep?: String` 数据源为数组时各单元的连接符。可选，默认为一个空格。
+
+设置内容时的取值回调接口：`function( el ): String | [String] | Node | [Node] | .values`。
+
+**设置行为：**
 
 - 字符串以文本方式插入，HTML源码视为文本（原样展示在页面中）。
-- 源数据为文本节点或元素时，都是提取其文本（`textContent`）内容。
-- 数据源也可是字符串/节点/元素的数组或集合（支持 `.values` 接口），集合成员也可以是多种类型值的混合。
+- 源数据为文本节点或元素时，提取其文本（`textContent`）内容。**注**：与 `.html()` 接口稍有不同。
+- 数据源也可是字符串/节点/元素的数组或集合（支持 `.values`），集合成员间以目标连接符串连。
 
-与 `.html` 接口类似，取值回调的接口为：`function(el): Any`，也支持在指定的位置（`before|after|begin|end|prepend|append|fill|replace`）插入文本（**注**：实际上是一个文本节点）。
+与 `.html()` 接口类似，同样支持在指定的位置（`before|after|begin|end|prepend|append|fill|replace`）插入文本（**注**：实际上已被创建为一个文本节点）。
 
-**返回值**：源码解码后的文本或新创建的文本节点。
+返回新创建的文本节点或源码解码后的文本。
 
 
 
 ## CSS 相关
 
-### [$.css( el: Element, name: String | Object | Map | null, val: String | Number | Function ): String | Object | this](docs/$.css.md)
+### [$.css( el, name, val ): String | Object | this](docs/$.css.md)
 
-获取或设置 `el` 元素的样式，可以一次获取多个，也可以一次设置多个。设置时为设置元素的内联样式（`style` 属性），获取时为元素计算后的样式值。
+获取或设置 `el` 元素的样式，可以一次获取多个，也可以一次设置多个。
 
-`name` 参数的含义：
+- `el: Element` 操作的目标元素。
+- `name: String | Object | Map | null` 待取值的样式名称（序列）或设置的名称或**名:值**对配置对象。
+- `val: String | Number | Function` 设置的样式值或取值回调，空串表示删除目标样式。可选。
+
+实参 `name` 的作用有两种情况：
 
 - **取值时**：样式名称或空格分隔的名称序列。指定单个名称返回单一的值，指定多个名称返回一个 `样式名:值` 的对象（`Object`）。
-- **设置时**：除了普通的单个或多个名称，还可以是一个 `样式名:值` 对象（`Object` | `Map`），键为样式名，值为样式值或取值回调（接口：`function( oldval, el ): Value`）。
+- **设置时**：除了普通的单个或多个名称，还可以是一个 `样式名:值` 配置对象（`Object` | `Map`），键为样式名，值为样式值或取值回调（接口：`function( oldval, el ): Value`）。
+
+注意：获取时为元素计算后的样式值，设置时为设置元素的内联样式（`style` 特性），传递 `name` 为值 `null` 会删除 `style` 特性值本身（全部样式）。
 
 
-### [$.offset( el: Element, pair: Object | Function | null ): Object | this](docs/$.offset.md)
+### [$.offset( el, pair ): Object | this](docs/$.offset.md)
 
-获取或设置 `el` 元素相对于文档的位置偏移，偏移定义采用一个包含 `top` 和 `left` 键名的对象（如 `{top:200, left:10}`）。获取的值可能不是一个整数，位置计算也不包含元素的外边距（`margin`），但包含边框。
+获取或设置 `el` 元素相对于文档的位置偏移。
 
-设置元素的偏移时，如果元素的 `position` 值是浏览器默认的 `static`，则会自动修改为 `relative`（**注**：与jQuery版行为相同）。传递 `pair` 为 `null` 会清除偏移设置并返回之前的偏移值。
+- `el: Element` 操作的目标元素。
+- `pair: Object | Function | null` 设置的位置配置对象或取值回调。
+
+偏移定义采用一个包含 `top` 和 `left` 键名的对象（如 `{top:200, left:10}`），位置计算不包含元素的外边距（`margin`），但包含边框。获取的值可能不是一个整数。
+
+设置元素的偏移时，如果元素的 `position` 值是浏览器默认的 `static`，则会自动修改为 `relative`。`pair` 也可以是一个取值回调，接口：`function( curVal ): Object`。传递 `pair` 为 `null` 会清除偏移设置并返回之前的偏移值。
 
 
-### [$.position( el: Element ): Object](docs/$.position.md)
+### [$.position( el ): Object](docs/$.position.md)
 
-获取 `el` 元素相对于上层定位元素（顶部）的位置，计算的起点是 `el` 元素的外边距处（与 `.offsetTop/.offsetLeft` 属性值相差一个边距值）。
+获取 `el` 元素相对于上层定位元素边框内左上角的位置（不含边框和外边距）。
 
-不能在 `window/document` 上调用本方法（同 jQuery）。对于SVG的子节点来说，调用本方法可以获得子节点相对于 `<svg>` 根容器的偏移值。
+- `el: Element` 取值的目标元素。
+
+计算的起点是 `el` 元素的外边距左上角（**注**：元素的 `.offsetTop/.offsetLeft` 属性值计算不包含外边距）。不能在 `window/document` 上调用本方法。对于SVG的子节点，调用本方法可以获得子节点相对于 `<svg>` 根容器的偏移值。
+
+返回一个包含 `top` 和 `left` 键名及其值的对象，值为浮点数（单位像素）。
 
 > **注：**<br>
-> 上层定位元素是指上层容器元素的样式中 `position` 值非默认的 `static`。<br>
-> 计算被隐藏的元素（样式：`display:none`）的相对位置没有意义。<br>
+> 上层定位元素是指上层容器元素的样式中 `position` 值非默认的 `static`。
 
 
-### [$.height( el: Element | Document | Window, val: String | Number | Function ): Number | this](docs/$.height.md)
+### [$.height( el, val ): Number | this](docs/$.height.md)
 
-获取或设置 `el` 元素的内容高度，设置值可包含任意单位，纯数值视为像素（`px`），传递 `val` 值为一个空串或 `null` 会删除高度样式。获取的值为纯数值（像素单位），方便直接用于计算。`val` 也可以为取值回调函数，接口：`function( curr-height ): String | Number`。
+获取或设置 `el` 元素的内容高度（与 `box-sizing` 无关）。
 
-如果 `el` 是文档对象（如 document）或窗口（如 window），可以获取其高度（但不可设置）。
+- `el: Element | Document | Window` 操作的目标元素、文档或窗口。
+- `val: String | Number | Function | null` 要设置的高度值，数值的单位为像素，可以是一个取值回调。
+
+设置的字符串值可以包含任意单位，传递 `val` 值为一个空串或 `null` 会删除高度样式。获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置高度。
+
+如果 `val` 是取值回调，接口为：`function( curr-height ): String | Number`，实参为当前的高度值，`this` 为当前元素。
 
 > **注：**<br>
-> 始终针对元素的内容部分，与 `box-sizing` 值无关。<br>
-> 与 jQuery 稍有不同，jQuery 中 val 传递 null 并不会删除高度样式（只是忽略）。<br>
+> 与jQuery稍有不同，传递 `val` 为 `null` 会删除高度样式，而jQuery中只是忽略。
 
 **背景知识：**
 
-- `box-sizing` 值为 `content-box` 时： **CSS**: height = 内容高度（默认）
-- `box-sizing` 值为 `border-box` 时：**CSS**: height = 内容高度 + padding宽度 + border宽度
+- `box-sizing` 值为 `content-box` 时： **CSS:height** = 内容高度（默认）
+- `box-sizing` 值为 `border-box` 时：**CSS:height** = 内容高度 + padding宽度 + border宽度
 
 
-### [$.width( el: Element | Document | Window, val: String | Number ): Number | this](docs/$.width.md)
+### [$.width( el, val ): Number | this](docs/$.width.md)
 
-获取或设置 `el` 元素的内容宽度，设置值可包含任意单位，纯数值视为像素（`px`），传递 `val` 值为一个空串或 `null` 会删除宽度样式。获取的值为纯数值（像素单位），方便直接用于计算。`val` 也可以为取值回调函数，接口：`function( curr-width ): String | Number`。
+获取或设置 `el` 元素的内容宽度（与 `box-sizing` 无关）。
 
-如果 `el` 是文档对象（如 document）或窗口（如 window），可以获取其宽度（但不可设置）。与 `$.height` 接口相同，始终针对元素的内容部分，与 `box-sizing` 值无关。
+- `el: Element | Document | Window` 操作的目标元素、文档或窗口。
+- `val: String | Number | Function | null` 要设置的宽度值，数值的单位为像素，可以是一个取值回调。
 
+设置的字符串值可以包含任意单位，传递 `val` 值为一个空串或 `null` 会删除宽度样式。获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置宽度。
 
-### [$.innerHeight( el: Element ): Number](docs/$.innerHeight.md)
-
-获取 `el` 元素的内部高度（包含 `padding` 部分但不包含 `border` 部分）。该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口。
-
-
-### [$.innerWidth( el: Element ): Number](docs/$.innerWidth.md)
-
-获取 `el` 元素的内部宽度（包含 `padding` 部分但不包含 `border` 部分）。该接口不包含设置目标宽度的功能，如果需要请使用 `$.width` 接口。
+如果 `val` 是取值回调，接口为：`function( curr-width ): String | Number`，实参为当前的宽度值，`this` 为当前元素。
 
 
-### [$.outerHeight( el: Element, margin?: Boolean ): Number](docs/$.outerHeight.md)
+### [$.innerHeight( el ): Number](docs/$.innerHeight.md)
 
-获取 `el` 元素的外围高度（包含 `border` 部分，可选的包含 `margin` 部分）。该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口。
+获取 `el` 元素的内部高度（包含 `padding` 部分但不包含 `border` 部分）。
+
+- `el: Element` 取值的目标元素。
+
+**注**：该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口。
 
 
-### [$.outerWidth( el: Element, margin?: Boolean ): Number](docs/$.outerWidth.md)
+### [$.innerWidth( el ): Number](docs/$.innerWidth.md)
 
-获取 `el` 元素的外围宽度（包含 `border` 部分，可选的包含 `margin` 部分）。该接口不包含设置目标宽度的功能，如果需要请使用 `$.width` 接口。
+获取 `el` 元素的内部宽度（包含 `padding` 部分但不包含 `border` 部分）。
+
+- `el: Element` 取值的目标元素。
+
+**注**：该接口不包含设置目标宽度的功能，如果需要请使用 `$.width` 接口。
+
+
+### [$.outerHeight( el, margin? ): Number](docs/$.outerHeight.md)
+
+获取 `el` 元素的外围高度（包含 `border` 部分，可选的包含 `margin` 部分）。
+
+- `el: Element` 取值的目标元素。
+- `margin?: Boolean` 是否包含 `margin` 部分。
+
+**注**：该接口不包含设置目标高度的功能，如果需要请使用 `$.height` 接口。
+
+
+### [$.outerWidth( el, margin? ): Number](docs/$.outerWidth.md)
+
+获取 `el` 元素的外围宽度（包含 `border` 部分，可选的包含 `margin` 部分）。
+
+- `el: Element` 取值的目标元素。
+- `margin?: Boolean` 是否包含 `margin` 部分。
+
+**注**：该接口不包含设置目标宽度的功能，如果需要请使用 `$.width` 接口。
 
 
 ## 事件接口
 
-### [$.on( el: Element, evn: String | Object, slr: String, handle: Function | Object | false | null ): this](docs/$.on.md)
+### [$.on( el, evn, slr, handle ): this](docs/$.on.md)
 
-在 `el` 元素上绑定 `evn` 事件的处理器 `handle`。`evn` 支持空格分隔的多个事件名，也可以是一个**事件名:处理器**的配置对象。如果传递 `slr` 为一非空字符串则为委托（`delegate`）方式，事件冒泡到匹配该选择器的元素时触发调用。
+在 `el` 元素（文档或窗口）上绑定 `evn` 事件的处理器 `handle`。
 
-`handle` 可以是一个简单的函数，也可以是一个实现了 `EventListener` 接口的对象（包含 `handleEvent` 方法），或者作为特例：传递 `false` 和 `null` 两个值，分别表示「停止事件默认行为」的处理器，和「停止事件默认行为并停止事件冒泡」的处理器。
+- `el: Element | Document | Window` 绑定到的目标元素、文档或窗口。
+- `evn: String | Object` 目标事件名（序列）或 **事件名:处理器** 配置对象。
+- `slr: String` 委托绑定的选择器。可选，默认 `null`。
+- `handle: Function | EventListener | false | null` 事件处理器、实现了 `EventListener` 接口的对象或2个特殊值。
+
+实参 `evn` 支持空格分隔的多个事件名同时指定。实参 `slr` 为一非空字符串时则为委托绑定（`delegate`）方式，事件冒泡到匹配该选择器的元素时触发调用。`handle` 可以是两个特殊值，它们分别对应两个预定义的处理器：
+
+- `false` 表示「**停止事件默认行为**」的处理器。
+- `null` 表示「**停止事件默认行为并停止事件冒泡**」的处理器。
+
+在一个元素上多次绑定同一个事件名和相同的处理器函数是有效的，因为内部会对每一个处理器进行 `.bind()` 封装。`handle` 处理器的接口：`function( ev, elo ): Value | false`，其中：`ev` 为原生的事件对象，`elo` 为事件相关元素对象，定义如下：
+
+```js
+elo: {
+    origin: Element     // 事件起源元素（event.target）
+    current: Element    // 触发处理器调用的元素（event.currentTarget 或 slr 匹配的元素）
+    related: Element    // 事件相关的元素（event.relatedTarget）
+    delegate: Element   // 绑定委托的元素（event.currentTarget），仅在委托模式下有值。
+    selector: String    // 委托匹配选择器，仅在委托模式下有值。
+}
+```
 
 > **注：**<br>
-> 在一个元素上多次绑定同一个事件名和相同的处理器函数是有效的。
+> 实现 `EventListener` 接口是指对象中包含 `.handleEvent()` 方法的实现。<br>
+> 函数处理器内的 `this` 为触发事件的当前元素（`elo.current`），`EventListener` 处理器内的 `this` 为该对象自身。<br>
 
 
-### [$.off( el: Element, evn: String | Object, slr: String, handle: Function | Object | false | null ): this](docs/$.off.md)
+### [$.off( el, evn, slr ): this](docs/$.off.md)
 
-移除 `el` 元素上事件绑定的处理器，可选地，可以传递 `evn`、`slr`、`handle` 限定移除需要匹配的条件（相等比较）。只能移除用本库中相关接口绑定的事件处理器，共4个：`$.on`、`$.one`、`$.tie`、`$.tieOne`（**注**：后两个实际上是前两个的应用封装）。如果不传入任何匹配条件，会移除 `el` 元素上全部的事件处理器。
+移除 `el` 上绑定的事件处理器。可选地，可以传递 `evn`、`slr`、`handle` 限定移除需要匹配的条件（`===` 比较）。
+
+- `el: Element | Document | Window` 移除绑定的目标元素、文档或窗口。
+- `evn: String | Object` 目标事件名（序列）或 **事件名:处理器** 配置对象限定。可选。
+- `slr: String` 委托绑定时的选择器限定。可选。
+- `handle: Function | EventListener | false | null` 事件处理器匹配限定。可选。
+
+只能移除用 `.on()` 和 `.one()` 接口绑定的事件处理器。传递匹配条件时，应当传递绑定时原始的值，如果不传入任何匹配条件，会移除 `el` 上绑定的全部事件处理器。
 
 
-### [$.one( el: Element, evn: String | Object, slr: String, handle: Function | Object | false | null ): this](docs/$.one.md)
+### [$.one( el, evn, slr, handle ): this](docs/$.one.md)
 
-在 `el` 元素上单次绑定一个处理器，该处理器一旦执行就自动解绑。各个参数的含义与 `$.on` 接口相同。
+在 `el` 上绑定一个单次执行的处理器（执行后自动解绑）。各个参数的含义与 `$.on()` 接口相同，此略。
 
-**注**：在事件触发（然后自动解绑）之前，用 `$.off` 可以移除该绑定。
+> **注**：<br>
+> 在事件触发（然后自动解绑）之前，用 `$.off()` 可以移除该绑定。
 
 
-### [$.trigger( el: Element, evn: String | CustomEvent, extra: Any, bubble?: Boolean, cancelable?: Boolean ): this](docs/$.trigger.md)
+### [$.trigger( el, evn, extra, bubble?, cancelable? ): this](docs/$.trigger.md)
 
-手动激发 `el` 元素上的 `evn` 事件。`evn` 可以是一个事件名或一个已经构造好的事件对象，事件默认冒泡并且可以被取消。
+手动激发 `el` 上的 `evn` 事件。
 
-元素上几个可直接调用原生事件函数（如 `click`, `focus` 等）创建事件的事件可以直接激发，绑定的处理器可以中止事件的默认行为。不创建事件的事件函数（如 `submit`, `load` 等）不能直接激发，像元素上的普通方法一样，需要预先绑定与方法同名的事件的处理器才能激发，处理器内可以通过调用 `ev.preventDefault()` 或返回 `false` 阻断该方法的调用。
+- `el: Element | Document | Window` 激发事件的目标元素、文档或窗口对象。
+- `evn: String | CustomEvent` 激发的事件名（单个）、或一个已经构建好的自定义事件对象。
+- `extra: Value` 激发事件附带的额外数据，它们会存放在事件对象的 `detail` 属性上。
+- `bubble?: Boolean` 激发的事件是否可以冒泡。可选，默认 `true`（可以冒泡）。
+- `cancelable?: Boolean` 激发的事件是否可以取消（调用 `.preventDefault()`）。可选，默认 `true`（可以取消）。
 
-原生事件激发也可以携带参数，如：`trigger(box, scroll, [x, y])` 让滚动条滚动到指定的位置。**注**：实际上只是调用 `box.scroll(x, y)` 并触发 `scroll` 事件。
+> **注：**<br>
+> 元素上的普通方法（如 `submit`, `load`）也可以激发，但需要预先绑定同名的自定义事件处理器。处理器内部可以调用 `ev.preventDefault()` 或返回 `false` 阻断该方法的调用。<br>
+> 原生事件激发也可以携带参数，如：`trigger(box, scroll, [x, y])`，激发滚动条滚动到指定的位置（实际上只是调用了 `box.scroll(x, y)` 并触发 `scroll` 事件）。<br>
 
 
 ## 原生事件调用
@@ -956,118 +1046,187 @@ $.isXML( document.body );  // false
 
 其中除了 `load()` 和 `submit()` 外，其它调用都会在元素上触发一个同名的事件。如果你愿意，这些方法可以直接在元素上调用，但这里也把它们作为基本接口纳入。
 
-对于单元素版，实现上就是在元素上简单的调用而已（可能传入参数）。对于集合版，遵循通常一致的逻辑，就是对集合内各个元素上分别调用该方法。
+对于单元素版，实现上就是在元素上简单的调用而已。对于集合版，遵循通常一致的逻辑：对集合内每一个元素分别调用它们。
 
 
 
 ## 集合专用
 
-### [.filter( fltr: String | Array | Function | Value ): Collector](docs/$.filter.md)
+### [.filter( fltr ): Collector](docs/$.filter.md)
 
-对集合中的成员用 `fltr` 匹配过滤，返回一个匹配成员的新集合。`fltr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
+对集合中的成员用 `fltr` 匹配过滤，返回一个匹配成员的新集合。
 
-**注**：这是一个通用的匹配过滤方法，可用于任意值的集合。
+- `fltr: String | Array | Function | Value` 匹配过滤的条件，可以是一个选择器、数组、测试函数或一个具体的值。
 
+这是一个通用的匹配过滤方法，可用于任意值的集合。各种匹配条件的含义：
 
-### [.not( fltr: String | Array | Function | Value ): Collector](docs/$.not.md)
-
-对集合中的成员用 `fltr` 匹配排除，返回排除匹配项之后（剩余）的新集合。`fltr` 可以是任意值：字符串表示选择器，数组表示成员包含，函数表示自定义判断，其它值表示全等测试。
-
-**注**：这是一个通用的排除过滤接口，可用于任意值的集合。
-
-
-### [.has( sub: String | Node ): Collector](docs/$.has.md)
-
-对集合中的元素用 `sub` 执行 **包含** 匹配过滤。包含的意思是 **`sub` 作为子级节点存在，或者是与子级元素匹配的选择器**。
+- 字符串表示CSS选择器，仅适用于元素集。
+- 数组表示成员包含，可用于任意值的集合。
+- 测试函数表示自定义判断，返回真时为匹配。
+- 其它值用于全等测试，相等则为匹配。
 
 
-### .slice( beg: Number, end: Number ): Collector
+### [.not( fltr ): Collector](docs/$.not.md)
 
-集合切片，覆盖继承于数组的同名方法。与 `Array.slice()` 的差异就是对切片返回的子集进行了封装，以支持对集合栈的操作。
+对集合中的成员用 `fltr` 匹配排除，返回排除匹配项之后剩余成员的新集合。
+
+- `fltr: String | Array | Function | Value` 匹配排除条件。
+
+类似 `$.filter()`，这也是一个通用的方法，可用于任意值的集合。各种匹配条件的含义：
+
+- 字符串表示CSS选择器，仅适用于元素集。匹配则排除。
+- 数组表示成员包含，可用于任意值的集合。包含则排除。
+- 测试函数表示自定义排除，返回真时成员被排除。
+- 其它值用于全等测试，相等的项被排除。
 
 
-### .concat( ...rest: Value | [Value] ): Collector
+### [.has( sub ): Collector](docs/$.has.md)
 
-集合连接，覆盖继承于数组的同名方法。与 `Array.concat()` 的差异就是对连接返回的新数组进行了封装，以支持对集合栈的操作（如：`.end()`）。
+对集合中的元素用 `sub` 执行**包含**匹配过滤。返回一个测试成功成员的新集合。
+
+- `sub: String | Node` 用于包含测试的选择器或子节点。
+
+> **注：**<br>
+> 包含的意思是 **`sub` 作为子级节点存在，或者作为选择器可与子级元素匹配**。
 
 
-### .map( proc: Function ): Collector
+### .slice( beg, end ): Collector
 
-针对集合内成员逐一调用处理函数，返回处理函数的返回值的集合。函数接口：`function( val, index, this ): Value`。
+集合切片，覆盖继承于数组的同名方法。
 
-这是对 `Array.map()` 的简单封装，只是加入了对 `Collector` 实例链栈的支持。
+- `beg: Number` 切片位置的起始下标。
+- `end: Number` 切片位置的终点下标（不含终点位置的成员）。
+
+与父类 `Array.slice()` 的差异就是对切片返回的子集进行了封装，支持对 `Collector` 实例链栈的操作（如：`.end()` 获取前一个集合）。
+
+
+### .concat( ...rest ): Collector
+
+集合连接，覆盖继承于数组的同名方法。
+
+- `rest: Value | [Value]` 不定数量的实参，支持简单值和值数组。
+
+与父类 `Array.concat()` 的差异就是对连接返回的新数组进行了封装，支持对 `Collector` 实例链栈的操作。
+
+
+### .map( proc ): Collector
+
+针对集合内成员逐一调用处理函数，返回处理函数的返回值的集合。
+
+- `proc: Function` 成员处理函数，接口：`function( val, index, this ): Value`。
+
+这是对父类 `Array.map()` 的简单封装，以支持对 `Collector` 实例链栈的操作。
 
 > **注意：**<br>
-> 与工具版的 `$.map()` 稍有不同，本接口并不和并（扁平化）处理函数返回的集合，也不会排除 `null` 和 `undefined` 的返回值。
+> 与工具版的 `$.map()` 有所不同，本方法并不和并（扁平化）处理函数返回的集合，也不会排除 `null` 和 `undefined` 的返回值。
 
 
-### [.sort( unique: Boolean, comp?: Function ): Collector](docs/$().sort.md)
+### [.sort( unique, comp? ): Collector](docs/$().sort.md)
 
-集合内成员排序去重，覆盖继承于数组的同名方法。集合内成员可以是元素也可以是普通的值，但主要用于元素，所以这里附带了一个去重的功能。传递 `unique` 为真就会去除集合中重复的成员。默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的元素比较按元素在 DOM 中的位置排序。如果集合中首个成员不是元素，则按父类 `Array.sort()` 接口的普通排序规则执行。
+集合内成员排序去重，覆盖继承于数组的同名方法。
+
+- `unique: Boolean` 集合成员是否去除重复。
+- `comp?: Function` 集合内成员排序比较的回调函数。可选，默认为 `null` 值。
+
+集合内成员可以是元素也可以是普通的值，但主要用于元素，因此这里附带了一个去重的功能。传递 `unique` 为真就会去除集合中重复的成员。
+
+默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的比较按元素在DOM中的位置排序。如果集合中首个成员不是元素，则默认按父类 `Array.sort()` 接口的普通排序规则执行。
 
 
 ### .reverse(): Collector
 
-集合成员反转，覆盖继承于数组的同名方法。与 `Array.reverse()` 原生方法不同，这里不会修改集合自身，而是返回一个新的集合，并且支持栈链操作。
+集合成员反转，覆盖继承于数组的同名方法。
+
+与父类 `Array.reverse()` 原生方法不同，这里不会修改集合自身，而是返回一个新的成员已反转的集合，支持链栈操作。
 
 
-### [.wrapAll( box: HTML | Element | Function, clone: boolean, event: boolean, eventdeep: boolean ): Collector](docs/$().wrapAll.md)
+### [.wrapAll( box, clone, event, eventdeep ): Collector](docs/$().wrapAll.md)
 
-用一个容器 `box` 包裹集合里的节点/元素/文本，被包裹的节点/元素会脱离DOM原位置，容器元素会替换集合中首个节点在DOM中的位置。
+用一个容器 `box` 包裹集合里的节点、元素或文本（会被自动创建为文本节点）。
 
-容器可以是一个既有的元素或HTML结构字符串或取值函数，如果容器包含子元素，最终的实际包裹元素会被递进到首个最深层子元素。如果包裹容器是一个已经存在的元素，该元素会被直接使用，若克隆参数为假，该包裹容器会移出DOM树。容器元素包裹内容时为前插（`.prepend`）方式，因此包裹元素内原来的文本节点会被保留。
+- `box: HTML | Element | Function` 包容集合成员的容器元素、HTML结构串、或返回容器元素或HTML的取值回调。
+- `clone: boolean` 容器元素是否克隆，仅限于直接传递的元素实参（不针对取值回调返回的元素）。可选，默认 `false`。
+- `event: boolean` 是否同时克隆容器元素上绑定的事件处理器。可选，默认 `false`。
+- `eventdeep: boolean` 是否同时克隆容器元素子孙元素上绑定的事件处理器。可选，默认 `false`。
 
-> **注：**<br>
-> 集合内可以是字符串成员，它们会被自动作为文本节点逐个插入（`el.prepend()` 的特性）。<br>
-> 取值函数返回的元素需要自行克隆（如果需要），接口里的克隆参数仅适用于作为实参传递的元素。<br>
+被包裹的节点/元素会脱离DOM原位置，容器元素会替换集合中首个节点在DOM中的位置。
 
-
-### .item( idx: Number ): Value | [Value]
-
-获取集合内的某个成员或整个集合（普通数组）。下标支持负数从末尾算起（-1表示最后一个）。**注**：兼容字符串数字，但空串不为0值。
+如果容器元素或构造出来的容器元素包含子元素，最终的实际包裹元素会递进到首个最深层子元素。如果包裹容器是一个已经存在的元素，该元素会被直接使用（可能会移出DOM树）。容器元素包裹内容时为前插（`.prepend()`）方式，因此包裹元素内原来的文本节点会被保留。
 
 
-### .eq( idx: Number ): Collector
+### .item( idx ): Value | [Value]
 
-获取集合中特定下标的成员构造的一个 `Collector` 实例。下标支持负数从末尾算起（-1表示最后一个），超出集合范围时构造为一个空的集合。**注**：兼容字符串数字，但空串不为0值。
+获取集合内的某个成员或整个集合（作为普通数组）。
 
-
-### .first( slr: String | Element | Function ): Collector
-
-获取集合内的首个匹配成员构造的一个新的 `Collector` 实例。匹配参数 `slr` 支持选择器、元素和匹配测试函数。测试函数接口：`function( Element ): Boolean`。
-
-> **注**：如果当前集合已为空，返回当前的空集。
-
-
-### .last( slr: String | Element | Function ): Collector
-
-获取集合内最后一个匹配成员构造的一个新的 `Collector` 实例。匹配参数 `slr` 支持选择器、元素和匹配测试函数。测试函数接口：`function( Element ): Boolean`。
-
-> **注**：如果当前集合已为空，返回当前的空集。
-
-
-### .add( its: String | Element | NodeList | Collector ): Collector
-
-往当前集合中添加新的元素，返回一个添加了新成员的新 `Collector` 实例。总是会构造一个新的集合返回。
-
-> **注：**<br>
-> 返回的集合不会自动去重排序，如果用户觉得需要，可以简单调用 `.sort(true)` 即可。<br>
-> 本接口的字符串实参会被视为选择器，因此并不能直接添加字符串成员（作为普通集合时）。<br>
-
-
-### .addBack( slr: String | Function ): Collector
-
-在当前集合的基础上添加（实例链栈上）前一个集合的成员，可选的选择器或筛选函数用于筛选前一个集合。总是会返回一个新的 `Collector` 实例，即便加入的集合为空。
-
-筛选函数接口：`function( v:Value, i:Number, o:Collector ): Boolean`。
+- `idx: Number` 目标成员的位置下标，支持负数从末尾算起。
 
 > **注：**
-> 与 `.add()` 相同，返回集不会自动去重排序，如果必要可以简单调用 `.sort(true)` 即可。
+> 兼容字符串数字，但空串不为0值。-1表示末尾最后一个。
 
 
-### .end( n: Number ): Collector
+### .eq( idx ): Collector
 
-返回集合内 `Collector` 实例链栈上的倒数第 `n` 个集合。`0` 表示末端的当前集，传递任意负值返回起始集。
+获取集合中特定下标的成员构造的一个 `Collector` 实例。
+
+- `idx: Number` 目标成员的位置下标，支持负数从末尾算起。
+
+下标位置超出集合范围时构造为一个空的集合。**注**：兼容字符串数字，但空串不为0值。
+
+
+### .first( slr ): Collector
+
+获取集合内首个匹配的成员构造为一个新的 `Collector` 实例返回。
+
+- `slr: String | Element | Function` 用于匹配测试的选择器、元素或测试函数。可选。
+
+测试函数接口为：`function( Element ): Boolean`，返回真时为匹配。无匹配测试实参时返回集合首个成员。
+
+> **注：**
+> 如果当前集合已为空，返回当前空集（而不是构造一个新的空集）。
+
+
+### .last( slr ): Collector
+
+获取集合内逆向首个匹配的成员构造为一个新的 `Collector` 实例返回。
+
+- `slr: String | Element | Function` 用于匹配测试的选择器、元素或测试函数。可选。
+
+测试函数接口：`function( Element ): Boolean`，返回真时为匹配。无匹配测试实参时返回集合最后一个成员。
+
+> **注：**
+> 同 `.first()`，如果当前集合已为空，返回当前空集。
+
+
+### .add( its ): Collector
+
+往当前集合中添加新的成员，返回一个添加了新成员的新 `Collector` 实例。
+
+- `its: String | Element | NodeList | Collector` 待添加元素的选择器或值成员或一个值集合。
+
+总是会构造一个新的集合返回。返回的集合不会自动去重排序，如果需要，您可以调用 `.sort(true)` 实现。
+
+> **注：**<br>
+> 字符串实参会被视为CSS选择器，因此并不能直接添加字符串成员（作为普通集合时）。
+
+
+### .addBack( slr ): Collector
+
+在当前集合的基础上添加前一个集合的成员。
+
+- `slr: String | Function` 前一个集合成员的选择器或筛选函数。
+
+总是会返回一个新的 `Collector` 实例，即便新加入的集合为空。筛选函数接口：`function( v:Value, i:Number, o:Collector ): Boolean`。
+
+与 `.add()` 相同，返回集不会自动去重排序，如果必要可以调用 `.sort(true)`。
+
+
+### .end( n? ): Collector
+
+返回集合内 `Collector` 实例链栈上的倒数第 `n` 个集合。
+
+- `n?: Number` 倒数计数的层级数。可选，默认值为 `1`。
+
+值 `0` 表示末端的当前集，传递任意负值返回集合链栈的起始集。
 
 
 

@@ -1594,7 +1594,8 @@ Object.assign( tQuery, {
 
     /**
      * 提取/设置元素源码。
-     * - 禁止脚本<script>，样式<style>，连接<link>元素插入。
+     * - 禁止脚本类元素 <script>, <style>, <link> 插入。
+     * - 会自动移除元素上的脚本类特性：'onerror', 'onload', 'onabort'。
      * - 源数据为节点时，取其outerHTML，多个节点取值串接。
      * - 数据也可为字符串数组或字符串与节点的混合数组。
      * - where值含义详见上Wheres注释。
@@ -4482,7 +4483,7 @@ function outerHTML( nodes, sep ) {
         }
         _buf.push( '' + nd );
     }
-    return _buf.join(sep);
+    return _buf.join( sep );
 }
 
 
@@ -4892,6 +4893,7 @@ const valHooks = {
         // 返回选中项的值，仅一项。
         get: function( el ) {
             let _res = el.form[el.name];
+            // 检查name，预防被作弊
             if (!_res || !el.name) {
                 return;
             }
@@ -5573,8 +5575,8 @@ const Event = {
      * @return {Function} 过滤函数
      */
     _filter( evn, slr, handle ) {
-        let _f1 = it => it.event == evn,
-            _f2 = it => it.selector == slr,
+        let _f1 = it => it.event === evn,
+            _f2 = it => it.selector === slr,
             _f3 = it => it.handle === handle,
             _fns = [];
 
