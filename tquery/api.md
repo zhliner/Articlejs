@@ -968,7 +968,7 @@ $.isXML( document.body );  // false
 在 `el` 元素（文档或窗口）上绑定 `evn` 事件的处理器 `handle`。
 
 - `el: Element | Document | Window` 绑定到的目标元素、文档或窗口。
-- `evn: String | Object` 目标事件名（序列）或 **事件名:处理器** 配置对象。
+- `evn: String | Object` 目标事件名（序列）或 {事件名: 处理器} 配置对象。
 - `slr: String` 委托绑定的选择器。可选，默认 `null`。
 - `handle: Function | EventListener | false | null` 事件处理器、实现了 `EventListener` 接口的对象或2个特殊值。
 
@@ -999,7 +999,7 @@ elo: {
 移除 `el` 上绑定的事件处理器。可选地，可以传递 `evn`、`slr`、`handle` 限定移除需要匹配的条件（`===` 比较）。
 
 - `el: Element | Document | Window` 移除绑定的目标元素、文档或窗口。
-- `evn: String | Object` 目标事件名（序列）或 **事件名:处理器** 配置对象限定。可选。
+- `evn: String | Object` 目标事件名（序列）或 {事件名: 处理器} 配置对象限定。可选。
 - `slr: String` 委托绑定时的选择器限定。可选。
 - `handle: Function | EventListener | false | null` 事件处理器匹配限定。可选。
 
