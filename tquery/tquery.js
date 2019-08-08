@@ -2931,7 +2931,7 @@ class Collector extends Array {
      * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆
      * @return {Collector} 包裹容器
      */
-     wrapAll( box, clone, event, eventdeep ) {
+    wrapAll( box, clone, event, eventdeep ) {
         if (this.length == 0) {
             return this;
         }
@@ -2954,7 +2954,7 @@ class Collector extends Array {
      * @param  {Number} idx 下标值，支持负数
      * @return {Element|Array}
      */
-     item( idx ) {
+    item( idx ) {
         return idx ? indexItem(this, +idx) : ( idx === 0 ? this[0] : Arr(this) );
     }
 
@@ -5664,7 +5664,7 @@ const Event = {
      * @param  {Function|Object} handle 用户调用句柄/对象
      * @return {[Function]} 绑定集
      */
-     _boundHandles( buf, evn, slr, handle ) {
+    _boundHandles( buf, evn, slr, handle ) {
         let _list = [],
             _fltr = this._filter(evn, slr, handle);
 
