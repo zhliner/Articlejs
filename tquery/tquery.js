@@ -260,9 +260,9 @@
     const
         version = 'tQuery-0.3.0',
 
-		// 临时属性名
-		// 注：动态+异样，以避免应用冲突。
-		hackFix = `___tquery_${Date.now()}_`,
+        // 临时属性名
+        // 注：动态+异样，以避免应用冲突。
+        hackFix = `___tquery_${Date.now()}_`,
 
         // 自我标志
         ownerToken = Symbol && Symbol() || hackFix,
@@ -361,19 +361,19 @@
  * @return {Value} handle 的返回值
  */
 function $sub( slr, ctx, handle ) {
-	if (ctx.nodeType != 1) {
-		return null;
-	}
-	try {
+    if (ctx.nodeType != 1) {
+        return null;
+    }
+    try {
         hackAttr(ctx, hackFix);
         return handle( hackSelector(ctx, slr, hackFix) );
-	}
-	catch (e) {
-		window.console.error(e);
-	}
-	finally {
-		hackAttrClear(ctx, hackFix);
-	}
+    }
+    catch (e) {
+        window.console.error(e);
+    }
+    finally {
+        hackAttrClear(ctx, hackFix);
+    }
 }
 
 
@@ -386,10 +386,10 @@ function $sub( slr, ctx, handle ) {
  */
 function hackAttr( ctx, attr ) {
     // 属性测试容错同名
-	if ( !ctx.hasAttribute(attr) ) {
+    if ( !ctx.hasAttribute(attr) ) {
         ctx[ ownerToken ] = true;
-		ctx.setAttribute( attr, '' );
-	}
+        ctx.setAttribute( attr, '' );
+    }
 }
 
 
@@ -399,10 +399,10 @@ function hackAttr( ctx, attr ) {
  * @param {Element} ctx 上下文容器元素
  */
 function hackAttrClear( ctx, attr ) {
-	if ( ctx[ownerToken] ) {
-		delete ctx[ ownerToken ];
-		ctx.removeAttribute( attr );
-	}
+    if ( ctx[ownerToken] ) {
+        delete ctx[ ownerToken ];
+        ctx.removeAttribute( attr );
+    }
 }
 
 
