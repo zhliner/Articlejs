@@ -241,16 +241,16 @@
 
         // 简单选择器。
         // 用于原生ID/Class/Tag优先检索。
-        __reID 		= new RegExp( "^#(" + identifier + ")$" ),
-        __reCLASS 	= new RegExp( "^\\.(" + identifier + ")$" ),
-        __reTAG 	= new RegExp( "^(" + identifier + "|[*])$" ),
+        __reID      = new RegExp( "^#(" + identifier + ")$" ),
+        __reCLASS   = new RegExp( "^\\.(" + identifier + ")$" ),
+        __reTAG     = new RegExp( "^(" + identifier + "|[*])$" ),
 
         // 空白匹配
-        __chSpace 	= new RegExp( whitespace + "+", "g" ),
+        __chSpace   = new RegExp( whitespace + "+", "g" ),
 
         // data系属性包含简写的匹配。
         // 如：-val => data-val
-        __dataName 	= new RegExp( "^(?:data)?-(" + identifier + ")$" ),
+        __dataName  = new RegExp( "^(?:data)?-(" + identifier + ")$" ),
 
         // 私有存储 {Element: String}
         // 用于toggleClass整体切换元素类名。
@@ -271,21 +271,21 @@
         // 位置值定义。
         // 用于插入元素的位置指定，可以混用名称与数值。
         // {
-        //  	before 	=  1    元素之前
-        //  	after  	= -1    元素之后
-        //  	begin  	=  2    元素内起始点（头部）
-        //  	prepend =  2    同上
-        //  	end 	= -2    元素内结束点（末尾）
-        //  	append 	= -2    同上
-        //  	fill 	=  0    内容填充（覆盖，清除原有）
-        //  	replace = ''    替换
+        //      before  =  1    元素之前
+        //      after   = -1    元素之后
+        //      begin   =  2    元素内起始点（头部）
+        //      prepend =  2    同上
+        //      end     = -2    元素内结束点（末尾）
+        //      append  = -2    同上
+        //      fill    =  0    内容填充（覆盖，清除原有）
+        //      replace = ''    替换
         // }
         // 示意：
         //   <!-- 1 -->
         //   <p>
         //      <!-- 2 -->
-        //    	<span>...</span>
-        //    	<!-- -2 -->
+        //      <span>...</span>
+        //      <!-- -2 -->
         //   </p>
         //   <!-- -1 -->
         //
@@ -422,12 +422,12 @@ function hackSelector( ctx, slr, fix ) {
  * - 查询结果为集合，如果仅需一个元素可用 $.get()。
  * - 传递一个无效的实参返回仅包含该实参的集合。
  * its: {
- *  	String      选择器查询
- *  	Element     元素包装
- *  	NodeList    元素集（类数组）包装
- *  	.values     支持values接口的迭代器（如Set）
- *  	Function    DOM ready回调
- *  	Collector   当前实例或已封装对象
+ *      String      选择器查询
+ *      Element     元素包装
+ *      NodeList    元素集（类数组）包装
+ *      .values     支持values接口的迭代器（如Set）
+ *      Function    DOM ready回调
+ *      Collector   当前实例或已封装对象
  * }
  * @param  {Mixed} its
  * @param  {Element} ctx 查询上下文
@@ -505,10 +505,10 @@ Object.assign( tQuery, {
      * - 数据源为配置对象时，支持元素属性配置和 html|text|node 三种特殊属性指定。
      *
      * data配置: {
-     *  	html: 	取值为源码，节点数据取 outerHTML 插入，可为数组（下同）。
-     *  	text: 	取值为文本，节点数据取 textContent 插入。
-     *  	node: 	取值为节点，移动插入后节点会脱离原位置。
-     *  	.... 	特性（Attribute）定义
+     *      html:   取值为源码，节点数据取 outerHTML 插入，可为数组（下同）。
+     *      text:   取值为文本，节点数据取 textContent 插入。
+     *      node:   取值为节点，移动插入后节点会脱离原位置。
+     *      ....    特性（Attribute）定义
      * }
      * @param  {String} tag 标签名
      * @param  {Node|[Node]|String|[String]|Object} data 数据（集）或配置对象
@@ -574,10 +574,10 @@ Object.assign( tQuery, {
      *   如：$.svg( {width: 100, height: 200} )
      * - opts特性配置与 .Element 接口中的 data 参数类似，支持 html|text|node 特殊名称。
      * opts: {
-     *  	html: 	取值为源码
-     *  	text: 	取值为文本
-     *  	node: 	取值为节点/集，移动插入。需注意名称空间的一致性
-     *  	.... 	特性（Attribute）值
+     *      html:   取值为源码
+     *      text:   取值为文本
+     *      node:   取值为节点/集，移动插入。需注意名称空间的一致性
+     *      ....    特性（Attribute）值
      * }
      * @param  {String|Object} tag SVG子元素标签或svg元素配置
      * @param  {Object} opts 元素特性配置（Attribute），可选
@@ -1460,7 +1460,7 @@ Object.assign( tQuery, {
      * name: String
      * - "xx"       普通名称
      * - "data-xx"  data系名称
-     * - "-xx" 	    data系名称简写
+     * - "-xx"      data系名称简写
      * - "aa bb"    名称序列，空格分隔多个名称
      * - "text"     特殊名称，针对元素内文本
      * - "html"     特殊名称，针对元素内源码
@@ -1549,17 +1549,17 @@ Object.assign( tQuery, {
      * - 无名称（name属性）定义的控件不会提交，取值时返回 undefined。
      * 状态控件：
      * input:radio {
-     *  	set: 检索同组元素，选中与值匹配的项。
-     *  	get: 检索同组元素，返回选中的项的值。
+     *      set: 检索同组元素，选中与值匹配的项。
+     *      get: 检索同组元素，返回选中的项的值。
      * }
      * input:checkbox {
-     *  	set: 检索同组元素，匹配项选中，非匹配项取消选中。支持数组参数。
-     *  	 	 注：单纯的取消选中，传递value为null即可。
-     *  	get: 检索同组元素，返回选中项的值或值数组（重名时）。
+     *      set: 检索同组元素，匹配项选中，非匹配项取消选中。支持数组参数。
+     *           注：单纯的取消选中，传递value为null即可。
+     *      get: 检索同组元素，返回选中项的值或值数组（重名时）。
      * }
      * select {
-     *   	set: 选中同值的option项（清除其它），多选时支持值数组匹配。
-     *   	get: 获取选中项的值，多选时返回一个数组（无选中时为空）。
+     *      set: 选中同值的option项（清除其它），多选时支持值数组匹配。
+     *      get: 获取选中项的值，多选时返回一个数组（无选中时为空）。
      * }
      * 普通控件：
      * _default {
@@ -1890,8 +1890,8 @@ Object.assign( tQuery, {
                 return this;
             }
             evn = new CustomEvent(evn, {
-                detail: 	extra,
-                bubbles: 	bubble,
+                detail:     extra,
+                bubbles:    bubble,
                 cancelable: cancelable,
             });
         }
@@ -2301,7 +2301,7 @@ tQuery.Table = Table;
     'prepend',
     'append',
     'replace',  //jQuery: replaceWith
-    'fill',  	//jQuery: html(elem)
+    'fill',     //jQuery: html(elem)
 ]
 .forEach(function( name ) {
     /**
@@ -2352,8 +2352,8 @@ function _validMeth( node, meth ) {
 // height/width
 ///////////////////////////////////////
 [
-    ['height', 	'Height'],
-    ['width', 	'Width'],
+    ['height',  'Height'],
+    ['width',   'Width'],
 ]
 .forEach(function( its ) {
     let _n = its[0];
@@ -2365,8 +2365,8 @@ function _validMeth( node, meth ) {
      * - 获取时返回数值。便于数学计算。
      * 注记：
      * box-sizing {
-     *  	content-box: css:height = con-height（默认）
-     *  	border-box:  css:height = con-height + padding + border
+     *      content-box: css:height = con-height（默认）
+     *      border-box:  css:height = con-height + padding + border
      * }
      * @param  {Element|Document|Window} el 目标元素
      * @param  {String|Number|Function} val 设置值
@@ -2396,8 +2396,8 @@ function _validMeth( node, meth ) {
 // innerHeight/innerWidth
 ///////////////////////////////////////
 [
-    ['Height', 	'inner'],
-    ['Width', 	'inner'],
+    ['Height',  'inner'],
+    ['Width',   'inner'],
 ]
 .forEach(function( its ) {
     let _t = its[0].toLowerCase(),
@@ -2419,8 +2419,8 @@ function _validMeth( node, meth ) {
 // outerHeight/outerWidth
 ///////////////////////////////////////
 [
-    ['Height', 	'outer'],
-    ['Width', 	'outer'],
+    ['Height',  'outer'],
+    ['Width',   'outer'],
 ]
 .forEach(function( its ) {
     let _t = its[0].toLowerCase(),
@@ -3237,7 +3237,7 @@ function elsExfn( list, get ) {
 // 返回一个值数组，值位置与集合中元素位置一一对应。
 /////////////////////////////////////////////////
 elsExfn([
-        'is',  	// 返回一个布尔值集合
+        'is',   // 返回一个布尔值集合
         'hasClass',
         'innerHeight',
         'outerHeight',
@@ -3498,12 +3498,12 @@ elsExfn([
 // 与单元素版对应但主从关系互换。
 /////////////////////////////////////////////////
 [
-    ['insertBefore', 	'before'],
-    ['insertAfter', 	'after'],
-    ['prependTo', 		'prepend'],
-    ['appendTo', 		'append'],
-    ['replaceAll', 		'replace'],
-    ['fillTo', 			'fill'],
+    ['insertBefore',    'before'],
+    ['insertAfter',     'after'],
+    ['prependTo',       'prepend'],
+    ['appendTo',        'append'],
+    ['replaceAll',      'replace'],
+    ['fillTo',          'fill'],
 ]
 .forEach(function( names ) {
     Reflect.defineProperty(Collector.prototype, [names[0]], {
@@ -4310,8 +4310,8 @@ function toPosition( offset, css ) {
  * 获取元素的偏移坐标。
  * 相对于文档根元素。
  * 返回值格式：{
- *  	top:  number,
- *  	left: number
+ *      top:  number,
+ *      left: number
  * }
  * @param  {Element} el 目标元素
  * @return {Object}
@@ -4840,16 +4840,16 @@ const
         'class': 'className',
         // 取消支持。
         // 由用户提供正确名称。一致性（驼峰名称不止这些）。
-        // 'tabindex': 			'tabIndex',
-        // 'readonly': 			'readOnly',
-        // 'maxlength': 		'maxLength',
-        // 'cellspacing': 		'cellSpacing',
-        // 'cellpadding': 		'cellPadding',
-        // 'rowspan': 			'rowSpan',
-        // 'colspan': 			'colSpan',
-        // 'usemap': 			'useMap',
-        // 'frameborder': 		'frameBorder',
-        // 'contenteditable': 	'contentEditable',
+        // 'tabindex':          'tabIndex',
+        // 'readonly':          'readOnly',
+        // 'maxlength':         'maxLength',
+        // 'cellspacing':       'cellSpacing',
+        // 'cellpadding':       'cellPadding',
+        // 'rowspan':           'rowSpan',
+        // 'colspan':           'colSpan',
+        // 'usemap':            'useMap',
+        // 'frameborder':       'frameBorder',
+        // 'contenteditable':   'contentEditable',
     },
     booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
@@ -5059,11 +5059,11 @@ const boxPadding = {
 // 矩形取值：目标差距。
 //
 const withRect = {
-    height: 	 cso => boxPadding.height(cso) + boxBorder.height(cso),
+    height:      cso => boxPadding.height(cso) + boxBorder.height(cso),
     innerHeight: cso => boxBorder.height(cso),
     outerHeight: (cso, margin) => margin ? -boxMargin.height(cso) : 0,
 
-    width: 	 	 cso => boxPadding.width(cso) + boxBorder.width(cso),
+    width:       cso => boxPadding.width(cso) + boxBorder.width(cso),
     innerWidth:  cso => boxBorder.width(cso),
     outerWidth:  (cso, margin) => margin ? -boxMargin.width(cso) : 0,
 };
@@ -5073,11 +5073,11 @@ const withRect = {
 // CSS取值：目标差距。
 //
 const withCss = {
-    height: 	 () => 0,
+    height:      () => 0,
     innerHeight: cso => boxPadding.height(cso),
     outerHeight: (cso, margin) => boxPadding.height(cso) + boxBorder.height(cso) + (margin ? boxMargin.height(cso) : 0),
 
-    width: 	 	 () => 0,
+    width:       () => 0,
     innerWidth:  cso => boxPadding.width(cso),
     outerWidth:  (cso, margin) => boxPadding.width(cso) + boxBorder.width(cso) + (margin ? boxMargin.width(cso) : 0),
 };
@@ -5200,9 +5200,9 @@ const Event = {
     // 绑定记录。
     // 以元素为键的弱引用存储 { Element: Map }
     // Map(
-    //    key 				value
+    //    key               value
     //    ---------------------------------------------------
-    //    bound-handler: 	{ event, handle, selector, once }
+    //    bound-handler:    { event, handle, selector, once }
     //    ---------------------------------------------------
     //    实际绑定句柄:      { 事件名, 用户句柄, 选择器, 为单次 }
     // )
@@ -5243,8 +5243,8 @@ const Event = {
     // 非冒泡事件，委托时注册为捕获。
     //
     captures: {
-        focus: 		true,
-        blur: 		true,
+        focus:      true,
+        blur:       true,
         mouseenter: true,
         mouseleave: true,
     },
@@ -5255,8 +5255,8 @@ const Event = {
     // 部分浏览器不支持focusin/focusout。
     //
     sendon: {
-        focusin: 	'focus',
-        focusout: 	'blur',
+        focusin:    'focus',
+        focusout:   'blur',
     },
 
 
@@ -5724,7 +5724,7 @@ const Event = {
  * @param  {Function|false|null} handle 用户处理器
  * @return {[String|Object, Function|EventListener]}
  */
- function customHandles( evn, handle ) {
+function customHandles( evn, handle ) {
     return typeof evn == 'string' ?
         [ evn, customHandle( handle ) ] :
         [ tQuery.each( evn, (fn, k) => evn[k] = customHandle(fn) ), handle ];
@@ -5887,9 +5887,9 @@ const domReady = {
     //
     // 基本成员/状态。
     //
-    bounds: [], 	// 绑定句柄集
-    waits: 	0,  	// 就绪等待
-    passed: false, 	// 就绪已调用
+    bounds: [],     // 绑定句柄集
+    waits:  0,      // 就绪等待
+    passed: false,  // 就绪已调用
     loaded: false,  // 文档已载入（DOMContentLoaded）
 
 
@@ -5958,9 +5958,9 @@ Object.assign( tQuery, {
      * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例；
      * - 注：Collector 集合版可直接使用该接口；
      * handle：(
-     *  	值/元素,
-     *  	键/下标,
-     *  	迭代对象自身
+     *      值/元素,
+     *      键/下标,
+     *      迭代对象自身
      * )
      * - 与jQuery不同，因箭头函数的出现，不自动绑定this；
      * - 参数与数组forEach标准接口相似，this也由外部传入；
@@ -6120,11 +6120,11 @@ Object.assign( tQuery, {
      * 构造选择器。
      * - 仅支持标签&属性选择器；
      * 匹配符：{
-     *  	~ 	空格分隔的单词匹配
-     *  	| 	-分隔的词组前置匹配
-     *  	* 	字串包含匹配
-     *  	^ 	头部字串匹配
-     *  	$ 	尾部字串匹配
+     *      ~   空格分隔的单词匹配
+     *      |   -分隔的词组前置匹配
+     *      *   字串包含匹配
+     *      ^   头部字串匹配
+     *      $   尾部字串匹配
      * }
      * @param  {String} tag  标签名
      * @param  {String} attr 属性名
