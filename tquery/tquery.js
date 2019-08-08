@@ -5769,7 +5769,7 @@ function customHandle( handle ) {
 function tiedHandle( ev, elo, evn, handle, over ) {
     let _ret = handle(ev, elo);
 
-    if (!_ret || ev.defaultPrevented) {
+    if (!_ret || ev.defaultPrevented || !evn) {
         return _ret;
     }
     return over ? setTimeout(tieProcess, 0, _ret, evn) : tieProcess(_ret, evn);
@@ -5831,6 +5831,9 @@ function tieTriggers( its, evns ) {
  * @param {Value} val 激发附加的数据
  */
 function evnsTrigger( el, evns, val ) {
+    if ( evns.length == 1 ) {
+        return $.trigger( el, evns[0], val );
+    }
     evns.forEach( n => $.trigger( el, n, val ) );
 }
 
@@ -6059,6 +6062,8 @@ Object.assign( tQuery, {
      * - function(ev, elo): Element|[Element]|Object|[Object]|false
      * - Object: { elem: Element, data: Value }
      *
+     * 传递一个空的事件名依然会执行事件处理器，只是不会激发事件。
+     *
      * 返回值：
      * 返回一个封装了相关逻辑的处理器函数。
      * 如果前阶处理器返回假值则返回该假值，否则返回undefined或一个定时器ID。
@@ -6127,7 +6132,7 @@ Object.assign( tQuery, {
      * @param  {String} op   属性匹配符
      * @return {String}
      */
-    selector( tag, attr, val = '', op = '' ) {
+    selector( tag, attr = '', val = '', op = '' ) {
         if (!attr) return tag;
 
         let _ns = attr.match(__dataName);

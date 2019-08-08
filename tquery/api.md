@@ -1232,35 +1232,60 @@ elo: {
 
 ## 实用工具
 
-### [$.embedProxy( getter: Function )](docs/$.embedProxy.md)
+### [$.embedProxy( getter ): tQuery | Proxy](docs/$.embedProxy.md)
 
-对 `window.$` 嵌入 `get` 代理。由外部定义 `$` 成员的调用集覆盖，`getter` 接受函数名参数，应当返回一个与目标方法声明相同的函数。接口：`function( name ): Function`。
+对 `window.$` 嵌入 `get` 代理。
 
+- `getter: Function` 成员方法获取函数，接口：`function( name ): Function`，实参 `name` 即为当前调用的目标方法。
 
-### [$.each( obj: Any, handle: Function, thisObj: Any ): Any](docs/$.each.md)
+这使得可由外部定义 `$` 成员的调用集覆盖，从而替换 `$` 成员方法的默认行为。如覆盖默认的 `$.hasClass()` 方法：
 
-通用的遍历工具，支持数组、类数组、普通对象和包含 `.entries` 接口（如：Map、Set）的任意对象。Collector 继承于数组，故也可直接使用。
+```js
+let hasClassX = function( el, name ) {};
+$.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
+```
 
-传入迭代回调处理器的实参分别为：值，键，迭代对象自身（类似数组 `forEach` 接口）。回调返回 `false` 会中断迭代。
-
-
-### [$.map( iter: [Value] | LikeArray | Object | .entries, callback: Function, thisObj: Any ): Value | [Value]](docs/$.map.md)
-
-对集合内的成员逐一自行回调函数，返回回调函数返回的值的集合，如果回调返回 `null` 或 `undefined`，它们会被忽略（不进入返回集合内），如果回调返回一个集合，它们会被扁平化合并。
-
-操作目标可以是数组、类数组、可以生成集合的迭代器（支持 `.entries` 接口）、`Map` 或 `Set` 实例甚至是普通的对象（`Object`）等。
-
-**回调接口**：`function(val, key): Value | [Value]`。
+`getter` 返回的方法应当与目标方法有相同的声明和兼容的功能实现。
 
 
-### $.every( iter: [Value] | LikeArray | Object | .entries, callback: Function, thisObj: Any ): Boolean
+### [$.each( obj, handle, thisObj ): obj](docs/$.each.md)
 
-迭代集合内的每一个成员执行回调函数，如果都返回真则最终结果为真，支持比较广泛的集合类型。回调接口：`function(val, key): Boolean`。
+通用的遍历执行工具。返回遍历的对象自身。
+
+- `obj: Array | LikeArray | Object | .entries` 遍历的目标集合，包括 `Collector` 实例。
+- `handle: Function` 遍历迭代执行的处理函数。
+- `thisObj: Any` 处理函数内的 `this` 绑定目标。
+
+处理函数接口：`function(value, key, obj)`，实参分别为：值，键，迭代对象自身。处理函数返回 `false` 时会中断迭代。
 
 
-### $.some( iter: [Value] | LikeArray | Object | .entries, callback: Function, thisObj: Any ): Boolean
+### [$.map( obj, proc, thisObj ): [Value]](docs/$.map.md)
 
-迭代集合内的每一个成员执行回调函数，如果有一个返回真则最终结果为真，支持比较广泛的集合类型。回调接口：`function(val, key): Boolean`。
+对集合内的成员逐一自行回调函数，返回回调函数返回的值的集合。
+
+- `obj: Array | LikeArray | Object | .entries` 迭代处理的目标集合，包括 `Collector` 实例。
+- `proc: Function` 回调处理器函数，接口：`function( val, key ): Value | [Value]`。
+- `thisObj: Any` 回调处理器函数内的 `this` 绑定目标。
+
+**注意**：回调返回的 `null` 和 `undefined` 值会被忽略（不进入返回集内），如果返回的是一个集合，集合内成员会被合并（1级扁平化）。
+
+
+### $.every( obj, test, thisObj ): Boolean
+
+迭代集合内的每一个成员执行测试函数，如果都返回真则最终结果为真。
+
+- `obj: Array | LikeArray | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
+- `test: Function` 回调测试函数，接口：`function( val, key ): Boolean`。
+- `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
+
+
+### $.some( obj, test, thisObj ): Boolean
+
+迭代集合内的每一个成员执行测试函数，如果有一个返回真则最终结果为真。
+
+- `obj: Array | LikeArray | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
+- `test: Function` 回调测试函数，接口：`function( val, key ): Boolean`。
+- `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
 
 ### [$.Later( evn, handle, over? ): Function](docs/$.Later.md)
@@ -1271,29 +1296,30 @@ elo: {
 - `handle: Function | Object` 待封装的当前事件的处理器或EventListener实例。
 - `over?: Boolean` 是否跳过当前调用栈（调用 `setTimeout()` 延后激发）。可选，默认为 `false`。
 
-根据 `handle` 的执行情况和返回值决定后续行为，如果 `handle` 中调用了 `event.preventDefault()` 或返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件，`evn` 支持空格分隔的多个事件名序列。
+根据 `handle` 的执行情况和返回值决定后续行为，如果 `handle` 中调用了 `event.preventDefault()` 或返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件，`evn` 支持空格分隔的多个事件名序列。传递一个空的事件名依然会执行事件处理器，只是不会激发事件（无事件可激发）。
 
-本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 中调用了 `event.preventDefault()` 或返回了假值，则返回该返回值本身，如果封装的处理器激发了目标事件，则返回 `undefined` 或一个定时器ID。
-
-
-### [$.Counter( fn: Function, n?: number, step?: number ): Function](docs/$.Counter.md)
-
-封装用户的函数包含一个自动计数器，用户函数的首个实参为自动递增的计数值。计数起始值可以在封装中指定，并且也可以指定每次迭代的步进值（增量）。返回的封装函数接口：`function( count, ... )`，省略号处为原始函数的参数序列。
-
-这主要用在为 **单元素版接口中的回调函数** 提供集合版调用时的成员迭代计数。如：
-
-```js
-$('p').text(
-    // 在每个文本段落前端添加序号
-    // n 参数不是单元素版回调所拥有的
-    $.Counter( (n, e) => n + ': ' + e.textContent )
-);
-```
+本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 中调用了 `event.preventDefault()` 或返回了假值，或者事件名是一个空白串，则返回该返回值本身，如果封装的处理器激发了目标事件，则返回 `undefined` 或一个定时器ID。
 
 
-### $.dataName( str: String ): String
+### [$.Counter( proc, n, step ): Function](docs/$.Counter.md)
 
-转换元素的 `data-` 系特性名为标准的驼峰式名称，不含 `data-` 前缀，即返回值可直接用于元素的 `.dataset` 对象的成员取值。
+封装用户的处理器函数包含一个自动计数器，返回一个封装后的处理器函数，接口：`function( count, ... )`。
+
+- `proc: Function` 被封装的处理器函数，首个实参将变为递增的计数值。
+- `n?: Number` 递增计数的起始值。可选，默认值为 `1`。
+- `step?: Number` 计数递增的幅度（步进值）。可选，默认值为 `1`。
+
+这会要求用户的处理器函数的首个实参为计数值（自动递增）设计。计数的起始值可以在封装中指定，每次递增的幅度（步进值）也可以由用户指定。
+
+> **注：**<br>
+> 主要用在封装单元素版方法的回调函数，提供集合版调用时的成员迭代计数。
+
+
+### $.dataName( attr ): String
+
+转换元素的 `data-` 系特性名为标准的驼峰式名称（不含 `data-` 前缀），即返回的值可以直接用于元素的 `.dataset` 成员取值。
+
+- `attr: String` 待处理的data特性名，可以是完整（如 `data-id-val`）或简写的形式（如 `-id-val`）。
 
 例：
 ```js
@@ -1302,19 +1328,30 @@ $.dataName('-abc-def-xxx');  // 'abcDefXxx'
 ```
 
 
-### $.selector( tag: String, attr: String, val?: String, op?: String ): String
+### $.selector( tag, attr, val?, op? ): String
 
-根据选择器的各个组成部分构造一个完整的 **标签[特性]** 选择器，支持 `data-` 系特性名的简写形式。
+根据选择器的各个组成部分构造一个完整的 `标签[特性]` 选择器。
+
+- `tag: String` 标签名。
+- `attr?: String` 特性名。可选。
+- `val?: String` 特性值。可选。
+- `op?: String` 匹配方式（`~ | * ^ $`）。可选。
+
+支持 `data-` 系特性名的简写形式。
 
 ```js
-$.selector( 'p', '-val', 'xyz');
-// "p[data-val="xyz"]"
+$.selector( 'p', '-val', 'xyz');         // "p[data-val="xyz"]"
+$.selector( 'p', 'title', 'test', '*');  // "p[title*="test"]"
 ```
 
 
-### $.tags( code: String ): String
+### $.tags( code ): String
 
-伪标签源码（由 `[]` 包围标签）转化为正常的HTML源码，可用于元素属性值中直观地包含标签源码。这里只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置字符 `\` 转义。
+伪标签源码（由 `[]` 包围）转化为正常的HTML源码。
+
+- `code: String` 待转换的代码。
+
+可用于元素属性值中直观地包含标签源码，这只是一种简单的替换。如果代码中需要包含 `[]` 本身，可以前置 `\` 转义。
 
 ```html
 <a id="testa" href="#" title="[a] is a \[link\]">Click me</a>
@@ -1329,40 +1366,51 @@ $.tags( ttl );
 ```
 
 
-### $.objMap( map: Map ): Object
+### $.objMap( map ): Object
 
-将一个 `Map` 实例转换为普通对象（`Object`）表示。注意 `Map` 实例的键需要是基本数据类型（字符串或数字）。
+将一个 `Map` 实例转换为普通对象（`Object`）表示。
+
+- `map: Map` 一个 `Map` 实例。
+
+**注意**：`Map` 实例的键需要是字符串或数字类型。这只是一个简单的便捷工具。
 
 ```js
-let map = new Map();
-map.set('a', 'aaa').set('b', 'bbb');
-
+let map = new Map().set('A', 'aaa').set('B', 'bbb');
 $.objMap(map);
-// {a: "aaa", b: "bbb"}
+// { A: "aaa", B: "bbb" }
 ```
 
 
-### $.kvsMap( map: Map, kname?: String, vname?: String ): [Object]
+### $.kvsMap( map, kname?, vname? ): [Object]
 
-将一个 `Map` 实例转换为用目标键/值名称索引实例内键和值的对象的数组，即 `Map` 实例内的每一个键/值用 `{ [kname]: key, [vname]: value }` 引用，全部的键/值对引用形成一个该二元对象的数组。如：
+将一个 `Map` 实例转换为用目标键/值名称索引实例内键和值的对象的数组。
+
+- `map: Map` 待转换的 `Map` 实例。
+- `kname?: String` 实例内键的索引键名。可选，默认值为 `name`。
+- `vname?: String` 实例内值的索引键名。可选，默认值为 `value`。
+
+即 `Map` 实例内每一个键/值用 `{ [kname]: key, [vname]: value }` 引用，全部的键/值对引用形成一个二元对象的数组。如：
 
 ```js
-let map = new Map();
-map.set('a', 'aaa').set('b', 'bbb');
+let map = new Map().set('A', 'aaa').set('B', 'bbb');
 
 $.kvsMap(map, 'name', 'value');
 // [
-//     { name: 'a', value: 'aaa' },
-//     { name: 'b', value: 'bbb' },
+//     { name: 'A', value: 'aaa' },
+//     { name: 'B', value: 'bbb' },
 // ]
-// 注：
-// 上面的 name 和 value 其实是默认的名称，可不传递。
+
+$.kvsMap(map);
+// 同上，直接采用默认的键/值索引名。
 ```
 
 
-### $.mergeArray( des: Array, ...src: Array ): Array
+### $.mergeArray( des, ...src ): Array
 
-合并多个数组成员到首个实参数组内，返回合并后的首个实参数组。**注：**后续实参实际上也可以是单个的值，它们会被添加到首个实参数组内。如：
+合并多个数组成员到首个实参数组内。返回合并后的首个实参数组。
+
+- `des: Array` 合并到的目标数组。
+- `...src: Array | Value` 不定数量的待合并值或数组。
 
 ```js
 $.mergeArray( [], 123, [1,3,5], 'xyz' );
@@ -1370,16 +1418,26 @@ $.mergeArray( [], 123, [1,3,5], 'xyz' );
 ```
 
 
-### $.object( base: Object, ...data: Object ): Object
+### $.object( base, ...data ): Object
 
-基于首个实参对象为原型，克隆后续对象成员创建一个新的对象。注意克隆是浅层的，复制操作调用的是 `Object.assign()` 方法。
+基于首个实参对象为原型，创建一个新的对象。后续对象的成员将被复制到新对象上。
+
+- `base: Object` 新对象的原型。
+- `...data: Object` 待复制成员的任意对象。
+
+注意复制是浅层的（采用 `Object.assign()` 赋值的结果）。传递首个实参为 `null` 可以创建一个没有原型的简单对象。
 
 
-### $.proto( target: Object, base: Object ): Object
+### $.proto( target, base ): Object
 
-获取或设置目标对象 `target` 的原型对象。`base` 未定义时为获取，返回原型对象，否则为设置 `target` 的原型对象为 `base`，返回被设置的目标对象 `target`。
+获取或设置目标对象 `target` 的原型对象。
 
-这种设置可能在需要自定义对象的取值作用域链时有用，比如设置内部成员的原型对象为当前对象，就可以从子成员对象上直接获取其它兄弟成员的值。如：
+- `target: Object` 取值或操作的目标对象。
+- `base: Object` 待设置的原型对象。可选。
+
+第二个实参 `base` 未定义时为获取，返回 `target` 的原型对象。否则为设置 `base` 为 `target` 的原型对象，返回被设置的 `target` 对象。
+
+这种设置可能在需要自定义对象的取值作用域链时有用，比如从子对象上读取父对象的其它成员：
 
 ```js
 let A = { B: { x: 10, y: 20 }, C: 'ccc' },
@@ -1393,9 +1451,15 @@ B.C;  // 'ccc'
 ```
 
 
-### [$.range( beg: String | Number, size: String | Number, toArr?: Boolean ): Array | Iterator](docs/$.range.md)
+### [$.range( beg, size, toArr? ): Array | Iterator](docs/$.range.md)
 
-构造目标范围内一个连续的值序列，适用于数值和 `Unicode` 码点类型。通常会返回一个迭代器，除非明确指定返回数组（`toArr` 为 `true`）。
+构造目标范围内一个连续的值序列。
+
+- `beg: Number | String` 范围的起始值或 `Unicode` 码点。
+- `size: Number | String` 范围的大小或终止的 `Unicode` 码点。
+- `toArr?: Boolean` 是否返回一个数组。
+
+适用于数值和 `Unicode` 码点值类型，通常返回一个迭代器，如果明确指定返回数组，可传递 `toArr` 实参为 `true`。
 
 ```js
 $.range(10, 10, true);
@@ -1404,16 +1468,16 @@ $.range(10, 10, true);
 $.range('①', 10, true);
 // [ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩" ]
 
-$.range('Ⅰ', 10, true);
-// [ "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ" ]
+$.range('A', 'F', true);
+// ["A", "B", "C", "D", "E", "F"]
 ```
 
 
 ### [$.now( json: Boolean ): String | Number](docs/$.now.md)
 
-返回当前时间：自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）。如果传递 `json` 为真，则表示为标准的 JSON 格式。
+返回当前时间的时间戳：自 `1970-01-01T00:00:00` 开始后的毫秒数（与时区无关）。
 
-这基本上就是对 `new Date().getTime()` 或 `Date.now()` 接口的简单封装，附带包含了 `.toJSON()` 的逻辑。
+- `json: Boolean` 是否返回为标准的JSON格式串（ISO-8601）。
 
 ```js
 $.now();
@@ -1424,40 +1488,74 @@ $.now(true);
 ```
 
 
-### $.isArray( obj: Any ): Boolean
+### $.isArray( obj ): Boolean
 
-测试目标对象 `obj` 是否为数组，本方法只是 `Array.isArray()` 的简单封装。
+测试目标对象 `obj` 是否为数组。
 
+- `obj: Any` 待测试的任意目标。
 
-### $.isNumeric( val: Any ): Boolean
-
-测试目标值是否为纯数字。空串虽然与0相等（`==`），但空串并不是数字。即：`$.isNumeric('') => false`。
-
-
-### $.isFunction( obj: Any ): Boolean
-
-测试实参目标是否一个函数，主要用于容错某些浏览器对 `<object>` 元素的错误类型判断（`typeof`）。
+这只是对 `Array.isArray()` 的简单封装而已。
 
 
-### $.isCollector( obj: Any ): Boolean
+### $.isNumeric( val ): Boolean
 
-测试实参目标是否为一个 `Collector` 实例。当然用 `$.type(obj) == 'Collector'` 也可以判断出来，但这里效率更高也没有名称冲突的风险。
+测试目标值是否为纯数字。
 
+- `val: Any` 待测试的任意值。
 
-### $.is( el: Element, slr: String | Element ): Boolean
-
-测试元素 `el` 是否与 `slr` 选择器匹配。`slr` 也可以是一个元素，此时判断两者是否为同一个元素。
-
-
-### $.type( val: Any ): String
-
-返回实参值的具体构造类型，这不是 `typeof` 的返回值，而是值的构造函数名，如：`$.type(123) => "Number"`，注意名称是首字母大写。另外有两个特例：`null => "null"`、`undefined => "undefined"`。
+空串虽然与0相等（`==`），但空串并不是数字。
 
 
-### $.unique( nodes: [Node] | Iterator | .values, comp: Function | null ): Array
+### $.isFunction( obj ): Boolean
 
-集合去重排序，主要应用于DOM树上的节点/元素集（默认，无需 `comp` 值），但也可以用于普通的值集合。集合支持普通数组、迭代器、支持 `.values()` 接口的任何实例甚至普通的对象（`Object`，取值）。
+测试实参目标是否为一个函数。
 
-> **注意：**<br>
-> 非节点集需传递 `comp` 为 `null` 获取默认的排序规则（按字符串 `Unicode` 码点），如：`$.unique( [3, 11, 2], null )` 结果：`[11, 2, 3]`。<br>
-> 如果是数值集需要按数值大小来排序，应当传递一个比较函数，如：`$.unique( [3, 11, 2], (a, b) => a - b )` 结果：`[2, 3, 11]`。<br>
+- `obj: Any` 待测试的任意目标。
+
+可容错某些浏览器对 `<object>` 元素的错误判断（`typeof`）。
+
+
+### $.isCollector( obj ): Boolean
+
+测试实参目标是否为一个 `Collector` 实例。
+
+- `obj: Any` 待测试的任意目标。
+
+用 `$.type(obj) == 'Collector'` 也可以判断出来，但这里没有名称冲突且效率也更高一些。
+
+
+### $.is( el, slr ): Boolean
+
+测试元素 `el` 是否与 `slr` 匹配。
+
+- `el: Element` 待测试的目标元素。
+- `slr: String | Element` 匹配测试用的CSS选择器或一个元素，为元素是指与目标相同（`===`）。
+
+
+### $.type( val ): String
+
+返回实参值的具体构造类型。
+
+- `val: Any` 获取其类型的任意目标值。
+
+求取的是目标值的构造函数名，如：`$.type(123) => "Number"`，而不是 `typeof` 运算符的返回值。另外有两个特例：`null => "null"`、`undefined => "undefined"`。
+
+
+### $.unique( nodes, comp? ): Array
+
+集合去重排序。
+
+- `nodes: [Node] | Iterator | Object | .values` 待去重排序的集合。
+- `comp?: Function | null` 排序时用的比较函数。可选，非节点时传递 `null` 获取默认的规则。
+
+主要用于DOM树上的节点/元素集合，此时无需传递 `comp` 值。也可以用于普通的值集合，此时默认的比较规则为按字符串比较（`UTF-16` 代码单元值序列）。
+
+```js
+$.unique( [3, 11, 2, 11, 12], null );
+// [11, 12, 2, 3]
+// 注：普通值集合需传递 comp 实参为 null。
+
+$.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
+// [2, 3, 11, 12]
+// 注：传递数值比较函数。
+```
