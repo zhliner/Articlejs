@@ -12,10 +12,10 @@
 
     接口类似jQuery（略有增强），但仅包含：DOM选择、DOM操作、CSS属性、Event。
     即省略了jQuery里的Ajax、$.Deferred、Effect等。
-    上面省略的部分分别由浏览器自身支持的：Fetch、Promise、CSS3 实现。
+    省略的这三个部分将由浏览器自身所支持的 Fetch、Promise、CSS3 完成。
 
     实现：
-    事件为DOM原生事件（无侵入），元素上不存储任何数据（便于JS垃圾回收）。
+    事件为DOM原生事件（无侵入），元素上也不存储任何数据，便于JS垃圾回收。
 
     注：
     DOM原生的元素集有两类：
@@ -296,14 +296,14 @@
         //   '': 替换，脱离但有所保持（位置）。
         //
         Wheres = {
-            'before': 	 1,
-            'after': 	-1,
-            'begin': 	 2,
-            'prepend': 	 2,
-            'end': 		-2,
-            'append': 	-2,
-            'fill': 	 0,
-            'replace': 	'',
+            'before':   1,
+            'after':   -1,
+            'begin':    2,
+            'prepend':  2,
+            'end':     -2,
+            'append':  -2,
+            'fill':     0,
+            'replace':  '',
 
             '1': 1,  '-1': -1,  '2': 2,  '-2': -2, '0': 0, '': '',
         },
