@@ -261,8 +261,9 @@
         version = 'tQuery-0.3.0',
 
         // 临时属性名
-        // 注：动态+异样，以避免应用冲突。
-        hackFix = `___tquery_${Date.now()}_`,
+        // 动态+异样，以避免应用冲突。
+        // 注：限制长度，约50天（0xffffffff）。
+        hackFix = `___tquery_${Date.now() % 0xffffffff}_`,
 
         // 自我标志
         ownerToken = Symbol && Symbol() || hackFix,
