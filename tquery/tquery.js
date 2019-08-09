@@ -824,6 +824,16 @@ Object.assign( tQuery, {
 
 
     /**
+     * 获取元素的类名集。
+     * @param  {Element} el 目标元素
+     * @return {[String]} 类名集
+     */
+    classes( el ) {
+        return el.nodeType == 1 ? Arr( el.classList ) : null;
+    },
+
+
+    /**
      * 文档就绪绑定。
      * - 可以绑定多个，会按绑定先后逐个调用。
      * - 若文档已载入并且未被hold，会立即执行。

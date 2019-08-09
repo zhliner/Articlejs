@@ -198,6 +198,11 @@ $.isXML( document.body );  // false
 > 出于可视性友好，Unicode字符、数字和一些常用的全角标点符号不会被转换。这与现代浏览器地址栏中的实际表现一致。
 
 
+### $.classes( el ): [String] | null
+
+获取元素 `el` 的类名集。注意不是 `$.attr(el, 'class')` 的结果，是一个名称集。非元素类会返回 `null`。
+
+
 ### [$.ready( handle ): this](docs/$.ready.md)
 
 文档载入就绪后的回调绑定。
