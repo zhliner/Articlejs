@@ -3708,10 +3708,23 @@ function* rangeChar( beg, len, step ) {
         return null;
     }
     if (typeof len == 'string') {
-        len = len.codePointAt(0) - beg + 1;
+        [len, step] = charLenStep(len, beg);
     }
     beg -= step;
-    if (len > 0) while (len--) yield String.fromCodePoint(beg += step);
+    while (len--) yield String.fromCodePoint(beg += step);
+}
+
+
+/**
+ * 计算字符的范围和步进值。
+ * 起点比终点值低为逆序，步进值-1。
+ * @param  {String} ch 终点字符
+ * @param  {Number} beg 起始码点值
+ * @return {[len, step]}
+ */
+function charLenStep( ch, beg ) {
+    let _d = ch.codePointAt(0) - beg;
+    return _d < 0 ? [-_d + 1, -1] : [_d + 1, 1];
 }
 
 
