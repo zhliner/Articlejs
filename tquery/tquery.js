@@ -261,7 +261,7 @@
         version = 'tQuery-0.3.0',
 
         // 临时属性名
-        // 动态+异样，以避免应用冲突。
+        // 固定异样+动态，避免应用冲突。
         // 注：限制长度，约50天（0xffffffff）。
         hackFix = `___tquery_${ (Date.now() % 0xffffffff).toString(16) }_`,
 
