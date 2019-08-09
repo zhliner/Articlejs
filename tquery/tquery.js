@@ -369,9 +369,6 @@ function $sub( slr, ctx, handle ) {
         hackAttr(ctx, hackFix);
         return handle( hackSelector(ctx, slr, hackFix) );
     }
-    catch (e) {
-        window.console.error(e);
-    }
     finally {
         hackAttrClear(ctx, hackFix);
     }
