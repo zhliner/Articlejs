@@ -2,12 +2,13 @@
 
 ## 前言
 
-传统的 `jQuery` 使用十分方便友好，但随着 `ES6`、`HTML5/CSS3` 的逐步成熟，我们可以编写一个轻量级的类 `jQuery` 工具，这就是 `tQuery`。它采用 `ES6` 语法编写，仅包含 `jQuery` 中有关 `DOM`、`CSS` 和 `Event` 的部分，即省略了 `Ajax`、`Deferred` 和 `Effect` 等，这些部分由 `ES6/HTML5` 中原生的 `Fetch`、`Promise` 和 `CSS3` 来支持。
+传统的 `jQuery` 使用十分方便友好，但随着 `ES6`、`HTML5/CSS3` 的逐步成熟，我们可以编写一个轻量级的类 `jQuery` 工具，这就是 `tQuery`。它采用 `ES6` 语法编写，仅包含 `jQuery` 中有关 `DOM`、`CSS` 和 `Event` 的部分，即省略了 `Ajax`、`Deferred` 和 `Effect` 等，因为这些部分可由 `ES6/HTML5` 中原生的 `Fetch`、`Promise` 和 `CSS3` 来支持。
 
-`tQuery` 名称里的 `t` 来源于 `Tpb` 里的 `Template`，但也可以视为 `tiny`。**注意**：本设计中的接口虽然与 jQuery 中的相似，但并不兼容，同名的接口只是在功能上相似而已。
+`tQuery` 名称里的 `t` 来源于 `Tpb` 里的 `Template`，但也可以认为是 `tiny`。
 
 > **注：**<br>
-> 可以打开 `test.html` 在浏览器控制台执行 `console.dir($)` 或 `console.dir($())` 简单查看接口的情况。
+> 本设计的接口虽然大部分与 `jQuery` 相似，但并不兼容，同名的接口只是在功能上相似而已。<br>
+> 可以打开 `test.html` 在浏览器控制台执行 `console.dir($)` 或 `console.dir($())` 简单地查看接口分布情况。<br>
 
 
 
@@ -88,7 +89,11 @@
     - *jQuery*: 全部方法既支持节点/元素、也支持HTML字符串即时创建元素。
     - *tQuery*: `before/after/append/prepend/replace/fill` 六个方法被限定为仅支持节点/元素，因此也就支持节点/元素的克隆，以及元素上绑定的事件处理器的克隆。`html/text` 被严格限定为文本类操作，且支持插入位置参数和源码编解码的简单功能，条理更清晰一些。
 
-4. 关于嵌入代理（$.embedProxy）。
+4. 事件委托绑定（`delegate`）的触发区别。
+    - *jQuery*: 事件处理器的绑定可以用一个选择器限定事件触发的目标。从事件的触发起始元素（`target`）开始到委托绑定的元素，如果有多个目标元素匹配，就会触发多次事件处理器的调用。
+    - *tQuery*: 委托绑定的规则与jQuery相同，但事件的触发仅有一次：触发的目标元素是从起始元素（`target`）开始，逆向向上第一个匹配的元素。**注意**：由于实现没有对原始事件对象做任何侵入，因此请从事件处理器（`function(event, elo): Any`）的第二个实参上取当前元素（`elo.current`）。
+
+5. 关于嵌入代理（$.embedProxy）。
 
     tQuery 中支持外部对 `window.$` 嵌入 `get` 代理。即由外部定义 `$` 成员的调用覆盖，`getter` 接受函数名参数，应当返回一个与目标方法声明相同的函数。接口：`function( name ): Function`。如：
     ```js

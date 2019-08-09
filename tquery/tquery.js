@@ -883,8 +883,8 @@ Object.assign( tQuery, {
         try {
             return $one(slr.trim(), ctx);
         }
-        catch( err ) {
-            window.console.warn(err);
+        catch( e ) {
+            if (!Sizzle) throw e;
         }
         return Sizzle && Sizzle(slr, ctx)[0] || null;
     },
