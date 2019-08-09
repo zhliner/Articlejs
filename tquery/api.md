@@ -1451,7 +1451,7 @@ B.C;  // 'ccc'
 ```
 
 
-### [$.range( beg, size, step? ): Iterator | null | undefined](docs/$.range.md)
+### [$.range( beg, size, step? ): Iterator | null](docs/$.range.md)
 
 构造目标范围内一个连续的值序列。
 

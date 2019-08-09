@@ -6261,7 +6261,7 @@ Object.assign( tQuery, {
      * @param  {Number|String} beg 起始值
      * @param  {Number|String} size 序列长度或终点字符
      * @param  {Number} step 增量步进值，可选
-     * @return {Iterator|null|undefined} 序列生成器
+     * @return {Iterator|null} 序列生成器
      */
     range( beg, size, step = 1 ) {
         return typeof beg == 'number' ?
