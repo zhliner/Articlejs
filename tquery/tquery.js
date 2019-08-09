@@ -883,7 +883,7 @@ Object.assign( tQuery, {
         catch( e ) {
             if (!Sizzle) throw e;
         }
-        return Sizzle && Sizzle(slr, ctx)[0] || null;
+        return Sizzle( slr, ctx )[0] || null;
     },
 
 

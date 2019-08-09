@@ -8,7 +8,7 @@
 
 > **注：**<br>
 > 本设计的接口虽然大部分与 `jQuery` 相似，但并不兼容，同名的接口只是在功能上相似而已。<br>
-> 可以打开 `test.html` 在浏览器控制台执行 `console.dir($)` 或 `console.dir($())` 简单地查看接口分布情况。<br>
+> 可以打开 `test.html` 在浏览器控制台执行 `console.dir($)` 或 `console.dir($().__proto__)` 简单地查看接口分布情况。<br>
 
 
 
