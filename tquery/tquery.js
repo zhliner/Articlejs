@@ -1621,7 +1621,7 @@ Object.assign( tQuery, {
         }
         if (typeof code == 'object') {
             // maybe null
-            code = code && outerHTML(code, sep);
+            code = code && outerHtml(code, sep);
         }
         return Insert(
             el,
@@ -3683,31 +3683,35 @@ function pixelNumber( val ) {
  * 构造范围数字序列。
  * @param  {Number} beg 起始值
  * @param  {Number} len 长度
+ * @param  {Number} step 步进增量
  * @return {Iterator} 范围生成器
  */
-function* rangeNumber( beg, len ) {
+function* rangeNumber( beg, len, step ) {
     if (len <= 0) {
         return null;
     }
-    while (len--) yield beg++;
+    beg -= step;
+    while (len--) yield beg += step;
 }
 
 
 /**
  * 构造Unicode范围字符序列。
- * - len为终点字符时，其本身包含在范围内（末尾）；
+ * - len为终点字符时，其本身包含在范围内（末尾）。
  * @param  {Number} beg 起始字符码值
  * @param  {Number|String} len 长度或终点字符
+ * @param  {Number} step 步进增量
  * @return {Iterator} 范围生成器
  */
-function* rangeChar( beg, len ) {
+function* rangeChar( beg, len, step ) {
     if (len <= 0) {
         return null;
     }
     if (typeof len == 'string') {
         len = len.codePointAt(0) - beg + 1;
     }
-    if (len > 0) while (len--) yield String.fromCodePoint(beg++);
+    beg -= step;
+    if (len > 0) while (len--) yield String.fromCodePoint(beg += step);
 }
 
 
@@ -3718,7 +3722,7 @@ function* rangeChar( beg, len ) {
  * @return {Iterator} 迭代器
  */
 function entries( obj ) {
-    if (obj.entries) {
+    if ( isFunc(obj.entries) ) {
         return obj.entries();
     }
     let _arr = $A(obj);
@@ -3733,11 +3737,11 @@ function entries( obj ) {
  * @return {Iterator} 迭代器
  */
 function values( obj ) {
-    if (obj.values) {
+    if ( isFunc(obj.values) ) {
         return obj.values();
     }
     let _arr = $A(obj);
-    return _arr && _arr[Symbol.iterator]() || Object.values(obj);
+    return _arr && _arr.values() || Object.values(obj);
 }
 
 
@@ -4462,11 +4466,11 @@ function masterNode( node ) {
  * - 适用于元素节点和文本节点；
  * - 多个节点取值简单连接；
  * - 非节点类型被字符串化；
- * @param  {Node|[Node]|[String]|Set|Iterator} nodes 节点（集）
+ * @param  {Node|[Node]|[String]|Set} nodes 节点（集）
  * @param  {String} sep 连接字符
  * @return {String}
  */
-function outerHTML( nodes, sep ) {
+function outerHtml( nodes, sep ) {
     let _buf = [];
     nodes = nodes.nodeType ? [nodes] : values(nodes);
 
@@ -4489,7 +4493,7 @@ function outerHTML( nodes, sep ) {
 
 /**
  * 提取节点文本。
- * @param  {Node|[Node]|[String]|Set|Iterator} nodes 节点（集）
+ * @param  {Node|[Node]|[String]|Set} nodes 节点（集）
  * @param  {String} sep 连接字符
  * @return {String}
  */
@@ -5596,6 +5600,7 @@ const Event = {
      */
     _compRecord( evns ) {
         if ( isArr(evns[0]) ) {
+            // selector: null | undefined.
             return o => evns.some( c => o.event == c[0] && o.selector == c[1] );
         }
         if ( evns.length == 1 ) {
@@ -6242,14 +6247,12 @@ Object.assign( tQuery, {
      * - 构造字符范围时，size可为终点字符（包含自身）。
      * @param  {Number|String} beg 起始值
      * @param  {Number|String} size 序列长度或终点字符
-     * @param  {Boolean} toArr 直接生成数组
-     * @return {Iterator|Array|null} 范围生成器
+     * @param  {Number} step 增量步进值，可选
+     * @return {Iterator|null|undefined} 序列生成器
      */
-    range( beg, size, toArr = false ) {
-        let _iter = typeof beg == 'number' ?
-            rangeNumber( beg, size ) : rangeChar( beg.codePointAt(0), size );
-
-        return toArr ? [..._iter] : _iter;
+    range( beg, size, step = 1 ) {
+        return typeof beg == 'number' ?
+            rangeNumber( beg, size, step ) : rangeChar( beg.codePointAt(0), size, step );
     },
 
 

@@ -1451,24 +1451,26 @@ B.C;  // 'ccc'
 ```
 
 
-### [$.range( beg, size, toArr? ): Array | Iterator](docs/$.range.md)
+### [$.range( beg, size, step? ): Iterator | null | undefined](docs/$.range.md)
 
 构造目标范围内一个连续的值序列。
 
 - `beg: Number | String` 范围的起始值或 `Unicode` 码点。
-- `size: Number | String` 范围的大小或终止的 `Unicode` 码点。
-- `toArr?: Boolean` 是否返回一个数组。
+- `size: Number | String` 范围的大小或终止的 `Unicode` 码点（包括该码点）。
+- `step?: Boolean` 序列成员间的步进值（增量）。可选，默认为 `1`。
 
-适用于数值和 `Unicode` 码点值类型，通常返回一个迭代器，如果明确指定返回数组，可传递 `toArr` 实参为 `true`。
+适用于数值和 `Unicode` 码点值类型，返回一个迭代器。
+
+如果 `size` 小于零，返回 `null`；如果 `size` 为 `Unicode` 码点但小于 `beg`，返回 `undefined`（**注**：此时 `step` 无意义）。
 
 ```js
-$.range(10, 10, true);
+[...$.range(10, 10)];
 // [ 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
 
-$.range('①', 10, true);
+[...$.range('①', 10)];
 // [ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩" ]
 
-$.range('A', 'F', true);
+[...$.range('A', 'F')];
 // ["A", "B", "C", "D", "E", "F"]
 ```
 
