@@ -55,8 +55,29 @@
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 */
+(function( global, factory ) {
 
-(function( window, undefined ) {
+	"use strict";
+
+	if ( typeof module === "object" && typeof module.exports === "object" ) {
+
+		// See jQuery v3.4.1.
+		module.exports = global.document ?
+			factory( global, true ) :
+			function( w ) {
+				if ( !w.document ) {
+					throw new Error( "tQuery requires a window with a document" );
+				}
+				return factory( w );
+			};
+	} else {
+		factory( global );
+	}
+
+// Pass this if window is not defined yet
+})( typeof window !== "undefined" ? window : this, function( window, noGlobal, undefined ) {
+
+    "use strict";
 
     const
         Doc = window.document,
@@ -424,7 +445,6 @@ function hackSelector( ctx, slr, fix ) {
  *      Element     元素包装
  *      NodeList    元素集（类数组）包装
  *      .values     支持values接口的迭代器（如Set）
- *      Function    DOM ready回调
  *      Collector   当前实例或已封装对象
  * }
  * @param  {Mixed} its
@@ -5547,21 +5567,21 @@ const Event = {
      */
     _wrapCall( handle, slr, ev ) {
         let _cur = ev.currentTarget,
-            _evo = {
+            _elo = {
                 origin: ev.target,
                 current: _cur,
                 related: ev.relatedTarget
             };
 
         if ( slr ) {
-            _evo.delegate = _cur;
+            _elo.delegate = _cur;
             _cur = this.delegate(ev, slr);
-            _evo.current = _cur;
-            _evo.selector = slr;
+            _elo.current = _cur;
+            _elo.selector = slr;
         }
 
         return _cur &&
-            handle.bind(_cur)(ev, _evo) !== false &&
+            handle.bind(_cur)(ev, _elo) !== false &&
             // 调用元素的原生方法完成浏览器逻辑，
             // 如：form:submit, video:load 等。
             this._methodCall(ev, _cur);
@@ -6293,7 +6313,7 @@ Object.assign( tQuery, {
 
 
 //
-// Expose
+// Expose only $
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -6311,7 +6331,11 @@ tQuery.noConflict = function() {
 };
 
 
-window.$ = tQuery;
+if ( !noGlobal ) {
+    window.$ = tQuery;
+}
 
 
-})( window );
+return tQuery;
+
+} );
