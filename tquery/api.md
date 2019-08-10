@@ -77,44 +77,44 @@
 
 插入一个 `<script>` 脚本元素。
 
-- `data: String | Element | Object` 脚本代码或一个已有的脚本元素或一个配置对象。
+- `data: String | Object` 脚本代码或一个配置对象。
 - `box: Element` 包含脚本元素的容器元素，可选。
 - `doc?: Document` 脚本元素所属文档，可选。
 
-传入文本内容时创建一个内联的 `<script>` 元素并返回该元素。传递一个元素的配置对象（`{src:...}`）或一个已有的脚本元素时，插入容器并返回一个承诺（`Promise`）对象，`Promise.then()` 的实参为脚本元素。
+传入文本内容或一个包含 `text` 属性及其值的配置对象时，创建一个内联的 `<script>` 元素插入容器并返回该元素。传递一个包含 `.src` 属性及其值的配置对象时，创建一个引入外部资源的脚本元素插入到容器，返回一个 `Promise` 实例。`Promise.then()` 的实参为新创建的脚本元素。
 
 脚本插入的目标容器 `box` 可选，默认插入 `document.head` 元素内，未明确指定 `box` 时，插入的 `<script>` 是临时的，执行后会自动移除。
 
 
 ### [$.style( data, next, doc? ): Element | Promise](docs/$.style.md)
 
-构造并插入一个包含内容的 `<style>` 样式元素，或者一个引入外部CSS资源的 `<link href=...>` 元素，或者一个已经创建好的 `<style>` 或 `<link>` 元素。
+构造并插入一个包含内容的 `<style>` 样式元素，或者一个引入外部CSS资源的 `<link href=...>` 元素。
 
-- `data: String | Element | Object` 样式代码或样式元素或一个配置对象。
-- `next: Element` 样式元素插入参考的**下一个**元素（插入它的前面），可选。默认插入到 `document.head` 内末尾。
+- `data: String | Object` 样式代码或一个配置对象。
+- `next: Element` 样式元素插入参考的下一个元素（插入之前），可选。默认插入到 `document.head` 内末尾。
 - `doc?: Document` 元素元素所属文档，可选。
 
 如果 `data` 是一个配置对象，通常包含如下成员：
 
 ```js
 href:  String   // <link>元素的CSS资源定位。
-rel:   String   // <link>元素的属性（stylesheet）。
+rel:   String   // <link>元素的属性（stylesheet）。可选。
 text:  String   // <style>元素的CSS代码。这也是创建<style>或<link>的判断依据。
 scope: Boolean  // <style>元素的一个可选属性。
 ```
 
-传入配置对象构建或一个构建好的元素插入时，返回一个承诺对象（Promise），否则返回创建的 `<style>` 元素本身。
+传入配置对象创建一个 `<link>` 元素时插入时，返回一个承诺对象（Promise），否则返回创建的 `<style>` 元素本身。
 
 
 ### [$.loadin( el, next, box ): Promise](docs/$.loadin.md)
 
-载入元素的外部资源。
+载入元素的外部资源（通用）。
 
 - `el: Element` 待载入资源的目标元素，比如一个 `<img>`。
-- `next: Node` 目标元素插入的 **下一个** 元素/节点参考。
+- `next: Node` 目标元素插入的下一个元素/节点参考。
 - `box: Element` 目标元素插入的容器元素，当无法用 `next` 指定位置时采用，可选。
 
-注意：元素需要能够触发 `load` 和 `error` 事件。返回一个承诺对象，其中的 `resolve` 回调由 `load` 事件触发，`reject` 回调由 `error` 事件触发。
+**注意**：元素需要能够触发 `load` 和 `error` 事件。返回一个承诺对象，其中的 `resolve` 回调由 `load` 事件触发，`reject` 回调由 `error` 事件触发。
 
 
 ### $.isXML( it ): Boolean

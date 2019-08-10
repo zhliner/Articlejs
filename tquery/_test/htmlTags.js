@@ -7,7 +7,7 @@
 *******************************************************************************
 */
 
-(function( window, undefined ) {
+(function() {
 
 let tags = [
     // 主结构（单独测试）
@@ -234,5 +234,7 @@ function callEvents( el, evns ) {
 function calls() {
     this.forEach( el => callEvents(el, namesCaller(el)) );
 }
+
+window.console.info('loaded htmlTags.js');
 
 })();

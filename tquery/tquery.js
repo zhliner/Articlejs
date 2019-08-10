@@ -22,7 +22,7 @@
         - NodeList，来源于 querySelectorAll()
         - HtmlCollection，来源于 getElementsBy... 系列
 
-    在下面的参数说明中，原生元素集统一称为 NodeList（不再区分 HtmlCollection）。
+    在下面的参数说明中，原生元素集统一称为 NodeList 或 [Node]（不再区分 HtmlCollection）。
     用户使用本库 $() 检索的元素集命名为 Collector，继承于 Array 类型。
 
     提示：
@@ -641,64 +641,61 @@ Object.assign( tQuery, {
     /**
      * 插入脚本元素。
      * - 用源码构建脚本元素并插入容器元素，返回脚本元素本身。
-     * - 也可直接传递一个配置对象或脚本元素，返回Promise对象，then参数为脚本元素。
+     * - 也可直接传递一个配置对象，返回一个Promise实例，then参数为脚本元素。
      * - 指定容器会保留插入的脚本元素，否则自动移除（脚本正常执行）。
      * 注记：
      * - 其它节点插入方法排除脚本源码，因此单独支持。
      * - 克隆的脚本元素修改属性后再插入，浏览器不会再次执行。
      *
-     * @param  {String|Object|Element} data 脚本代码或配置对象或脚本元素
+     * @param  {String|Object} data 脚本代码或配置对象
      * @param  {Element} box DOM容器元素，可选
      * @return {Element|Promise} 脚本元素或承诺对象
      */
     script( data, box, doc = Doc ) {
         if ( typeof data == 'string' ) {
+            data = { text: data };
+        }
+        if ( data.text != null ) {
             let _el = switchInsert(
-                    setElem(doc.createElement('script'), {text: data}),
+                    setElem(doc.createElement('script'), data),
                     null,
                     box || doc.head
                 );
             return box ? _el : remove(_el);
         }
-        if ( $type(data) == 'Object' ) {
-            // Element
-            data = setElem(doc.createElement('script'), data);
-        }
-        return loadElement(data, null, box || doc.head, !box);
+        return loadElement( setElem(doc.createElement('script'), data), null, box || doc.head, !box );
     },
 
 
     /**
      * 插入样式元素。
-     * - 构建样式元素填入内容并插入DOM。
+     * - 用源码构建样式元素插入DOM，返回样式元素自身。
+     * - 可以传递一个包含href配置的对象插入<link>元素，返回一个Promise对象。
      * - 默认插入head内部末尾，否则插入next之前。
-     * - 可以传递一个配置对象或已构造好的样式元素，此时返回一个Promise对象。
-     * - 用源码构造插入时，返回构造的样式元素。
      * 配置对象：{
      *      href:  {String}  <link>元素的CSS资源定位。
-     *      rel:   {String}  <link>元素的属性（stylesheet）。
+     *      rel:   {String}  <link>元素的属性（stylesheet）。可选
      *      text:  {String}  <style>元素的内容，也是决定创建<style>或<link>的判断依据
      *      scope: {Boolean} <style>元素的一个可选属性。
      * }
-     * @param  {String|Object|Element} data 样式代码或配置对象或样式元素
+     * @param  {String|Object} data 样式代码或配置对象
      * @param  {Element} next 参考元素，可选
      * @return {Element|Promise} 样式元素或承诺对象
      */
     style( data, next, doc = Doc ) {
-        if (typeof data == 'string') {
+        if ( typeof data == 'string' ) {
+            data = { text: data };
+        }
+        if ( data.text != null ) {
             return switchInsert(
-                tQuery.Element('style', { text: data }, null, doc),
+                setElem(doc.createElement('style'), data),
                 next,
                 doc.head
             );
         }
-        if (typeof data == 'object') {
-            let _tag = data.text == null ?
-                'link' :
-                'style';
-            data = tQuery.Element(_tag, data, null, doc);
-        }
-        return loadElement(data, next, doc.head);
+        data.rel = data.rel || 'stylesheet';
+
+        return loadElement( setElem(doc.createElement('link'), data), next, doc.head );
     },
 
 
@@ -3817,8 +3814,9 @@ function fillElem( el, data ) {
  * @return {Element} el
  */
 function setElem( el, conf ) {
-    if (!conf) return el;
-
+    if ( !conf ) {
+        return el;
+    }
     for ( let [k, v] of Object.entries(conf) ) {
         switch (k) {
         case 'html':
