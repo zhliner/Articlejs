@@ -472,28 +472,52 @@ let $ = tQuery;
 /**
  * 嵌入代理。
  * - 由外部定义内部 $ 的调用集覆盖。
- * - 代理会更新外部全局的 $ 对象。
  * - getter接受函数名参数，应当返回一个与目标接口声明相同的函数。
- * 注：
- * 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。
+ * - caller即为$的调用，但首个参数为之前的 $ 对象。
+ * 注意：
+ * - 外部全局的 $ 会被更新，因此代理中应当使用之前的 $，否则会无限循环。
+ * - 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。
+ * - getter可以返回一个假值（null），表示不代理目标方法。
  *
- * @param  {Function} getter 接口获取器
+ * 接口：
+ * - getter: function( fn, $ ): Function
+ * - caller: function( $, slr, ctx, doc ): Collector
+ * 其中：
+ * 实参 $ 为嵌入代理之前的 $，是代理中正常使用的目标。
+ *
+ * @param  {Function} getter 成员方法获取器
+ * @param  {Function} caller 对象自身调用代理，可选
  * @return {tQuery|Proxy}
  */
-tQuery.embedProxy = function( getter ) {
-    if (! isFunc(getter)) {
-        throw new Error('must be a function');
-    }
-    let _$ = $;
+tQuery.embedProxy = function( getter, caller ) {
+    let _prev = $;
 
-    // 运行时修改顶层 $
-    $ = new Proxy($, {
-        get: (target, fn, rec) => getter(fn) || Reflect.get(target, fn, rec)
-    });
-    window.$ = $; // export
+    // 顶层 $ 存储
+    $ = new Proxy( $, proxyHandler(getter, caller) );
+    // $ 导出
+    window.$ = $;
 
-    return _$;
+    return _prev;
 };
+
+
+/**
+ * 构造代理对象。
+ * @param  {Function} getter 成员方法获取器
+ * @param  {Function} caller 对象自身调用代理
+ * @return {Object} 代理器实现
+ */
+function proxyHandler( getter, caller ) {
+    let _obj = {};
+
+    if ( getter ) {
+        _obj.get = (target, fn, rec) => getter(fn, target) || Reflect.get(target, fn, rec);
+    }
+    if ( caller ) {
+        _obj.apply = (target, ctx, args) => caller.bind(ctx)(target, ...args);
+    }
+    return _obj;
+}
 
 
 //

@@ -70,7 +70,10 @@
 */
 
 
-// $ 局部化！
+//
+// 注意：
+// $ 需要局部化，保留之前的值。
+//
 (function( $ ) {
 
     const
@@ -465,13 +468,13 @@ function proxyCall( ...args ) {
 
 /**
  * 获取代理调用函数。
- * - 仅部分函数可被代理；
- * - 仅对白名单里的函数进行代理；
+ * - 仅对白名单里的函数进行代理。
+ * - 已存储先前的 $，故忽略第二个参数。
  *
  * @param  {String} fn 目标函数名
  * @return {Function} 代理函数
  */
-function proxyHandle( fn ) {
+function proxyHandle( fn/*, $*/ ) {
     return !__Exclude.func.has(fn) && __Handles[fn] && proxyCall.bind(fn);
 }
 

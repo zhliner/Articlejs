@@ -225,15 +225,16 @@ $.isXML( document.body );  // false
 如果文档已就绪并已调用 `ready()` 注册的回调，本操作无效（同 jQuery）。
 
 
-### [$.embedProxy( getter ): tQuery | Proxy](docs/$.embedProxy.md)
+### [$.embedProxy( getter, caller ): tQuery | Proxy](docs/$.embedProxy.md)
 
-在 `$` 中嵌入代理。
+在 `$` 中嵌入方法获取代理和检索调用（`$(...)`）自身的代理。
 
-- `getter: Function` 代理方法获取器。
+- `getter: Function` 代理方法获取器，接口：`function( fn, $ ): Function | null`。
+- `caller: Function` $ 自身调用代理，接口：`function( $, slr, ctx, doc ): Collector`。
 
-由外部定义 `$` 的方法集实现覆盖。`getter` 接口：`function(name): Function`，接受方法名参数，返回一个与目标方法声明相同的函数。如覆盖：`$.hasClass(el, name)` 方法时，`getter` 的实参为 `hasClass`，返回的函数应当能够处理 `function(el: Element, name: String)` 的参数序列。
+`getter` 中的 `fn` 为方法名实参，应当返回一个与目标方法声明相同的函数或者一个假值，返回假值时表示不代理该方法（系统会自动采用原先的方法）。如覆盖：`$.hasClass(el, name)` 方法时，`getter` 的实参为 `hasClass`，返回的函数应当能够处理 `function(el: Element, name: String)` 的参数序列。第二个实参 `$` 为嵌入代理之前的 `$`，它是代理中正常使用的目标（否则会导致自我循环）。
 
-返回嵌入之前的 `$` 对象。可能是原始的 `tQuery` 实现，也可能是上一次嵌入之后更新了的 `$` 对象（`Proxy`）。
+`caller` 中的首个实参为嵌入代理之前的 `$`，其作用与 `getter` 中第二个实参的意义相同。后续的实参实际上就是 `$` 本身的参数定义。本接口返回嵌入之前的 `$` 对象，可能是原始的 `tQuery`，也可能是上一次嵌入之后更新了的 `$` 对象（`Proxy`）。
 
 > **注：**<br>
 > 这个接口可以为一些库类应用提供特别的方便，比如DOM树操作追踪（见：`plugins/tracker.js`）。
