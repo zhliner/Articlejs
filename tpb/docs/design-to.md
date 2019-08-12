@@ -3,7 +3,7 @@
 从流程取值对目标赋值，展现结果（如样式）。支持后续联动事件触发和元素状态PB（如：focus/select等）。
 如果目标为多个：源数据为数组时，分别赋值，否则为相同赋值。
 
-`to = "Query | Method | Next-Stage"`
+`to = "Query | Method/Where | Next-Stage"`
 
 
 ### Query
@@ -33,7 +33,7 @@ xxxx   // 单元素检索，$.get(): Element
 ```
 
 
-### Method
+### Method/Where
 
 ```js
 [node]
@@ -72,24 +72,24 @@ xxxx   // 单元素检索，$.get(): Element
 
 
 [attr]
-- &[name]
-// 例：[3@li]|&style|fire('...')
+- @[name]
+// 例：[3/li]|@style|fire('...')
 // $(...).attr('style', xxx)
-// 注：这里的 style 是元素的样式属性，即 cssText 值。
+// 注：这里的 style 是元素的样式特性，即 cssText 值。
 // 例：
-// &class：赋值元素的class属性值。
-// &-val： 同 &data-val
+// @class：赋值元素的class特性值。实参为null时删除特性值。
+// @-val： 赋值元素的data-val特性值，同 @data-val。
 
 [prop]
-- $[name]
-// 例：.Test|$value|fire('...')
+- &[name]
+// 例：.Test|&value|fire('...')
 // let el = $.get('.Test')
 // $.prop( el, 'value', xxx )
 // 特例：
-// $class+  添加类名。默认，+字符可省略。
-// $class-  删除类名。
-// $class^  切换类名。
-// $class=  全部替换。与 &class 效果相同。
+// &class+  添加类名。
+// &class-  删除类名。
+// &class^  切换类名。实参为null时完整切换。
+// &class=  全部替换。与 @class 效果相同。
 
 [css]
 - %[name]
@@ -109,24 +109,23 @@ xxxx   // 单元素检索，$.get(): Element
 例：
 
 ```js
-#test|&value, $value|...
-// 对id为test的目标元素同时设置其value属性和value特性。
-// 数据源可能为数组，也可能为单个值。为数组时采用一一对应方式。
+#test|&value, @-val|...
+// 对id为test的目标元素同时设置其value属性和data-val特性。
+// 实参可能为数组（对应方法段多个位置），此时为一一对应。
 
-[.Test]|&title|...
+[.Test]|@title|...
 // 对class为Test的元素设置其title属性。
-// 通常来说，数据源可能是一个数组，以便不同的元素有不同的提示。
+// 通常来说，实参可能是一个数组，以便不同的元素有不同的提示。
 
-[.Test]|&title, $value|...
+[.Test]|@title, &value|...
 // 对class为Test的元素设置其title特性和value属性。
-// 数据源几乎肯定是一个数组，以对应不同的方法。
-// 如果数据源是一个二维数组（双值数组的数组），其与元素一一对应赋值（应用到两个方法）。
-// 即：将两个方法视为一个独立单元。
+// 如果实参是一个二维数组（双值数组的数组），其与元素一一对应赋值。
+// 即：将方法段视为一个独立单元。
 ```
 
 > **说明：**<br>
-> 如果数据源、目标元素、方法三者都为数组，则前两者的数组属性优先。<br>
-> 然后数据源的成员（可能也是一个数组）应用到方法数组上。即：若存在数组，则一一对应。<br>
+> 如果实参、目标元素、方法段三者都为数组，则前两者的对应关系优先。<br>
+> 然后实参的成员（可能也是一个数组）应用到方法段的不同位置上。<br>
 
 
 ### Next-Stage

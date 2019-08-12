@@ -151,25 +151,24 @@ const Util = {
      * - tQuery原生支持data系属性的简写（-xx => data-xx）；
      * - 默认取属性值（prop）；
      * fmt：{
-     *  	'=xx' 	attr('xx')。元素特性值，
+     *  	'@xx' 	attr('xx')。元素特性值，
+     *  	'&xx' 	prop('xx')。元素属性值
+     *  	'-xx' 	prop('-xx')。data-xx属性值（tQuery支持）
      *  	'%xx' 	css('xx')。元素样式值（计算）
      *  	'$xx' 	$系获取。如 $.text(el)
-     *  	'-xx' 	prop('-xx')。data-xx属性值（tQuery支持）
-     *  	'xxx' 	prop('xxx')。元素属性值
-     *  	'=-xx' 	attr('-xx')，即attr('data-xx')
+     *  	'@-xx' 	attr('-xx')，即attr('data-xx')
      * }
      * 示例：{
-     *  	'=value' 	=> $.attr(e, 'value')
-     *  	'value' 	=> $.prop(e, 'value')
-     *  	'=style' 	=> $.attr(e, 'style') // style.cssText
-     *  	'style' 	=> $.prop(e, 'style') // style对象（CSSStyleDeclaration）
-     *  	'=-val' 	=> $.attr(e, '-val')
-     *  	'-val'  	=> $.prop(e, '-val')  // e.dataset.val
-     *  	'~color' 	=> $.css(e, 'color')
+     *  	'@value' 	=> $.attr(e, 'value')
+     *  	'@style' 	=> $.attr(e, 'style') // style.cssText
+     *  	'@-val' 	=> $.attr(e, '-val')
+     *  	'&value' 	=> $.prop(e, 'value')
+     *  	'&-val'  	=> $.prop(e, '-val')  // e.dataset.val
+     *  	'%color' 	=> $.css(e, 'color')
      *  	'$html' 	=> $.html(e)   // 取源码
      *  	'$parent' 	=> $.parent(e) // 取父元素
      * }
-     * $系直接取值：{
+     * $系直接取值参考：{
      *  	text
      *  	html
      *  	height
