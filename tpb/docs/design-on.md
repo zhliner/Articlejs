@@ -2,7 +2,7 @@
 
 关联事件，求取各种值，值进入流程数据栈向后传递。数据入栈为 `Array.push` 方式，如果数组成员需要展开，可跟随 `flat()` 调用。
 
-**条目空间**是一个即时的栈内数据取出临时存放区，用于向后面的方法提供操作目标，它们是即时和一次性的（全用即空）。方法首先向条目空间寻求操作目标，如果为空，则自动取数据栈顶端的条目（通常是取出而不是引用/复制）。这一设计可以让操作目标的选取独立出来，更灵活也让方法的参数更少。所有的方法的返回值（除了 `undefined`）都会自动入栈。
+通常，栈内数据需要取出以作为后续方法操作的目标，取出的数据被称为**即时条目**，存放该条目的地方称为**暂存区**。暂存区是一次性使用逻辑，用过即空。如果暂存区没有操作目标，系统会自动从栈顶取值（是取出而不是引用）。这一设计可以让操作目标的选取独立出来，更灵活也让方法的参数更少。所有的方法的返回值（除了 `undefined`）都会自动入栈。
 
 事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器包含在括号内，如：`click(p[data-id="xxx"])`，选择器本身**不用**引号包围。
 
@@ -39,19 +39,65 @@ $$( rid ): Collector
 // - 数值实参含义同上，事件关联元素被打包为Collector。
 
 
-// 普通取值方法
+// 取值&构造
 //===============================================
 
 env( name ): Value
 // 从环境取值入栈。
 
 tpl( name ): Collector
-// 封装条目空间条目为命名模板。创建一个集合入栈。
+// 封装即时条目为命名模板。创建一个Collector入栈。
 // 主要用于By部分对可原地更新的元素（集）执行渲染。
 
+RE( flag, str ): RegExp     // 构造正则表达式
+scam( ev ): Object          // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
+date( v1, ...rest ): Date   // 构造日期/时间对象
 
-// tQuery：数据创建
+pba( rid ): [String]        // PB属性取值（参数）
+pbo( rid ): [String]        // PB属性取值（选项）
 
+
+get( $val ): Value | [Value]
+// 通用取值入栈。
+// 如果$val为特殊指引，针对即时条目取值（可能是一个集合）。
+// 注意！
+// 暂存区无值时不自动取栈，特殊的$val值视为字面量。
+//
+// tQuery|Collector可用成员清单
+//-----------------------------------------------
+// 如果目标非Collector对象，视为tQuery方法，目标为首个实参
+//
+// attr( name ): Value|[Value]
+// prop( name ): Value|[Value]
+// css( name ): Value|[Value]
+// text(): String | [Node]
+// html(): String | [Node]
+height()
+width()
+val()
+children( slr )
+clone( ...rest )
+contents( slr)
+innerHeight()
+innerWidth()
+outerWidth()
+outerHeight()
+get( slr )
+find( slr )
+next()
+prev()
+prevAll()
+nextAll()
+siblings()
+offset()
+position()
+scrollLeft()
+scrollTop()
+parent()
+offsetParent()
+
+// tQuery专有提供
+//-----------------------------------------------
 Elem()      // 创建元素（tQuery.Element）
 Text()      // 创建文本节点（tQuery.Text）
 create()    // 创建文档片段（DocumentFragment）
@@ -59,40 +105,11 @@ svg()       // 创建SVG元素（tQuery.svg）
 table()     // 创建表格实例（$.Table）
 range()     // 构造范围序列
 now()       // 获取时间戳
+classes()
 
 isXML()     // 是否为XML节点
 queryURL()  // 构建URL查询串
-get( slr )  // 在流程元素（集）上下文中查询单个目标
-find( slr ) // 在流程元素（集）上下文中查询多个目标并合并
-
-next()
-
 tags()      // 转为标签字符串（[] to <>）
-html()      // 转换为HTML源码（< 到 &lt;）
-text()      // 转换为文本（&lt; 到 <）
-val()       // 按表单逻辑取值（disabled者为null）
-
-
-form( rid, ...exclude ): [Array]    // 获取表单内可提交的控件[名,值]。exclude 排除的控件名序列
-
-
-// 元素（集）简单取值类
-
-attr( name, rid ): Value|[Value]    // 特性取值
-prop( name, rid ): Value|[Value]    // 属性取值
-css( name, rid ): Value|[Value]     // 样式取值（计算后）
-
-clss( rid ): [String]               // 取类名集，非 attr('class') 的值
-pba( rid ): [String]                // PB属性取值（参数）
-pbo( rid ): [String]                // PB属性取值（选项）
-
-
-// 数据构造（简单）
-
-RE( flag, str ): RegExp         // 构造正则表达式
-slr( attr, val, op, tag )       // 构造CSS选择器串
-scam( ev ): Object              // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
-date( v1, ...rest ): Date       // 构造日期/时间对象
 
 
 
@@ -104,14 +121,13 @@ date( v1, ...rest ): Date       // 构造日期/时间对象
 
 flag( name, $val? ): void
 // 标志设置或取值。
-// $val支持首字符特殊指引，针对条目空间目标取值。
+// $val支持首字符特殊指引，针对即时条目取值。
 // $val未定义时为取值入栈。
 // 注意！
-// 条目空间空值不自动取栈，特殊的$val值视为字面量。
+// 暂存区无值时不自动取栈，特殊的$val值视为字面量。
 
 pass( val?, $name? ): void
-// 通过性检测，否则中断执行流。
-// 条目空间有值则该值为测试目标，否则取出栈顶成员测试。
+// 即时条目通过性检测，否则中断执行流。
 // val:
 //      有值则为相等（===）测试，否则为真值测试。
 // $name:
@@ -119,25 +135,18 @@ pass( val?, $name? ): void
 
 nil(): void
 // 一个空行为，占位。
-// 既不从条目空间取值，也不向数据栈添加值。
+// 既不从暂存区取值，也不向数据栈添加值。
 // 通常在On无需取值时作为视觉友好使用。如：click|nil;
 
-put( $val ): Value | [Value]
-// 简单传值入栈。
-// 如果$val为特殊指引，针对条目空间目标取值。
-// 条目空间里的条目本身可能是一个集合。
-// 注意！
-// 条目空间空值不自动取栈，特殊的$val值视为字面量。
 
-
-// 条目空间赋值
+// 暂存区赋值
 //===============================================
 
 pop( n ): void
 // 弹出栈顶 n 个条目，构建为一个Collector赋值。
 // 无实参调用弹出末尾条目，作为单个值赋值。
 // 即：pop() 和 pop(1) 的返回值不一样。
-// pop(0) 不会弹出任何内容，但会在条目空间创建一个空集。
+// pop(0) 不会弹出任何内容，但会创建一个空集赋值。
 //
 // 弹出：单值|集合。
 
@@ -148,7 +157,7 @@ slice( begin, end ): void
 // 克隆：任意区段，集合。
 
 item( idx ): void
-// 引用数据栈idx位置的单个值赋值到条目空间。
+// 引用数据栈idx位置的单个值赋值到暂存区。
 //
 // 克隆：任意位置，单值。
 
@@ -172,7 +181,7 @@ splice( start, count ): void
 // 移除：任意区段，集合。
 
 pick( idx ): void
-// 移除数据栈idx位置的单个值赋值到条目空间。
+// 移除数据栈idx位置的单个值赋值到暂存区。
 // 效果同：splice(idx, 1)[0]
 //
 // 移除：任意位置，单值。
@@ -199,7 +208,7 @@ del( start, count ): void
 // 删除栈任意位置段条目，位置指定支持负数从末尾算起。
 // count 可选，默认删除到末尾。
 // 即 splice() 的纯删除版。
-// 注：移除的值不会进入条目空间。
+// 注：移除的值不会进入暂存区。
 
 
 
@@ -221,14 +230,14 @@ Float( str ): Number            // 将字符串转为浮点数。即 parseFloat(
 // - vtrue(..., xxx) 可模拟 switch/case 逻辑，后跟比较类方法。
 
 vtrue( $code, vback ): Value | vback
-// 条目空间/队尾值为真时执行，否则跳过。
+// 即时条目为真时执行，否则跳过。
 // $code 为函数体代码（无实参），支持首字符特殊指引。
 // 注：
 // vback 为跳过状态时回送入栈的值，可选。
 // 执行状态时回送值无效，因为此时是代码的执行结果入栈。
 
 vfalse( $ccode, vback ): Value | vback
-// 条目空间/队尾值为假时执行，否则跳过。
+// 即时条目为假时执行，否则跳过。
 // $code 为函数体代码（无实参），支持首字符特殊指引。
 // vback 参数含义同上。
 
@@ -281,20 +290,22 @@ gte(): Boolean      // 条目2项：(x, y) => x >= y
 within( min, max ): Boolean
 // 条目1项：val in [min, max]
 
-both( $code ): Boolean
+isAnd( $code ): Boolean
 // 条目2项为真测试，结果入栈。
 // $code 测试代码或函数索引，可选。默认简单真值判断。
 
-every( $code ): Boolean
-// 条目空间目标全部为真测试，结果入栈。
-// $code 测试代码或函数索引，可选同上。
-
-either( $code ): Boolean
+isOr( $code ): Boolean
 // 条目2项任一为真测试，结果入栈。
 // $code 测试代码或函数索引，可选同上。
 
-some( n, $code ): Boolean
-// 条目空间至少 n 项为真测试，结果入栈。
+every( $code ): Boolean
+// 集合成员全部为真测试，结果入栈。
 // $code 测试代码或函数索引，可选同上。
+// 注：即时条目需要是一个集合。
+
+some( n, $code ): Boolean
+// 集合成员至少 n 项为真测试，结果入栈。
+// $code 测试代码或函数索引，可选同上。
+// 注：即时条目需要是一个集合。
 
 ```
