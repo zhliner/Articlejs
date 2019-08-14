@@ -344,7 +344,7 @@
             'pause',
             'play',
             'reset',
-            'scroll',
+            // 'scroll',  // 定制
             'select',
             'submit',
         ];
@@ -1183,7 +1183,7 @@ Object.assign( tQuery, {
     /**
      * 获取最近父级定位元素（css::position: relative|absolute|fixed）。
      * - 从父元素开始检查匹配。
-     * - 如果最终没有匹配返回文档根（同jQuery）。
+     * - 如果最终没有匹配返回文档根（<html>，同jQuery）。
      * - 如果当前元素属于SVG子节点，会返回svg元素本身。注：SVG节点定位由属性配置，与style无关。
      * 注记：
      * 元素原生拥有offsetParent属性，但若元素隐藏（display:none），该属性值为null。
@@ -2493,11 +2493,26 @@ function _validMeth( node, meth ) {
 
 callableEvents
 .forEach( name =>
-    // 接受参数传递，如 scroll(...)
-    tQuery[name] = function (el, ...rest) {
-        return (name in el) && el[name](...rest), this;
+    tQuery[name] = function( el ) {
+        return (name in el) && el[name](), this;
     }
 );
+
+
+/**
+ * 滚动方法定制。
+ * 包含无参数调用返回滚动条的位置对象 {top, left}。
+ * 传递实参时调用原生滚动方法（会触发滚动事件）。
+ *
+ * @param  {Element} el 包含滚动条的容器元素
+ * @param  {Object} pair 滚动位置配置对象。
+ */
+tQuery.scroll = function( el, pair ) {
+    if (pair !== undefined) {
+        return el.scroll(pair), this
+    }
+    return { top:  tQuery.scrollTop(el), left: tQuery.scrollLeft(el) };
+}
 
 
 /**
@@ -3321,7 +3336,7 @@ elsExfn([
     fn =>
     function(...rest) {
         // 可代理调用 $
-        for ( let el of this ) $[fn](el, ...rest);
+        for ( let el of this ) $[fn]( el, ...rest );
         return this;
     }
 );
@@ -3436,6 +3451,7 @@ elsExfn([
         'height',
         'width',
         'offset',
+        'scroll',
         'scrollLeft',
         'scrollTop',
     ],

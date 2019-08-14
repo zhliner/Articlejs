@@ -2,82 +2,50 @@
 
 关联事件，求取各种值，值进入流程数据栈向后传递。数据入栈为 `Array.push` 方式，如果数组成员需要展开，可跟随 `flat()` 调用。
 
-通常，栈内数据需要取出以作为后续方法操作的目标，取出的数据被称为**即时条目**，存放该条目的地方称为**暂存区**。暂存区是一次性使用逻辑，用过即空。如果暂存区没有操作目标，系统会自动从栈顶取值（是取出而不是引用）。这一设计可以让操作目标的选取独立出来，更灵活也让方法的参数更少。所有的方法的返回值（除了 `undefined`）都会自动入栈。
+通常，栈内数据需要取出以作为后续方法操作的目标，取出的数据被称为**当前条目**，存放该条目的地方称为**暂存区**。暂存区是一次性使用逻辑，用过即空。如果暂存区没有操作目标，系统会自动从栈顶取值（取出而不是引用），除非明确禁止这样做（取值数量为 `-1`）。这一设计可以让操作目标的选取独立出来，更灵活也让方法的参数更少。所有的方法的返回值（除了 `undefined`）都会自动入栈。
 
 事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器包含在括号内，如：`click(p[data-id="xxx"])`，选择器本身**不用**引号包围。
 
-> **注**：<br>
-> `tQuery|Collector` 中的方法仅限于取值（赋值被设计在 `To:method` 中）。
-
-
-**方法集：**
+注意：下面的方法中，首个实参必为 `evo`，它们是方法调用时自动传入的，但在模板中不可见。因此这里的定义不包含它（在程序代码中包含）。
 
 ```js
-/////////////////////////////////////////////////
-// 局部方法。
-// 仅适用于 On 部分。
-/////////////////////////////////////////////////
+evo: {
+    event: {Event}                  // 原生事件对象（未侵入）
+    origin: {Element}               // 事件起点元素（event.target）
+    current: {Element}              // 触发事件的当前元素（event.currentTarget|matched）
+    related: {Element|null}         // 事件相关联元素（event.relatedTarget）
+    delegate: {Element|undefined}   // 委托绑定的元素（event.currentTarget）
+    selector: {String|undefined}    // 委托匹配选择器（for match）
+}
+```
 
-// 元素检索取值（基础）
+
+### 方法集
+
+`tQuery|Collector` 中的方法仅限于取值（**注**：赋值被设计在 `To:method` 中）。
+
+
+```js
+// 常用取值
 //===============================================
 
-$( rid ): Element
-// tQuery.get(...)
-// rid: {String|Number|null}
-// - 相对ID，null为取流程数据（String）。
-// - 数值表示取事件关联的元素或值：{
-//      0   origin 事件起点元素
-//      1   current 冒泡到的当前元素
-//      2   delegate 定义委托的元素
-//      3   ev.detail 自定义事件传递的数据
-// }
-
-$$( rid ): Collector
-// tQuery(...)
-// rid: {String|Number|null}
-// - 含义同上。非字符串也可被封装为Collector。
-// - 数值实参含义同上，事件关联元素被打包为Collector。
-
-
-// 取值&构造
-//===============================================
-
-env( name ): Value
-// 从环境取值入栈。
-
-tpl( name ): Collector
-// 封装即时条目为命名模板。创建一个Collector入栈。
-// 主要用于By部分对可原地更新的元素（集）执行渲染。
-
-RE( flag, str ): RegExp     // 构造正则表达式
-scam( ev ): Object          // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
-date( v1, ...rest ): Date   // 构造日期/时间对象
+attr( name: String ): String
+prop( name: String ): String | Number | Boolean
+css( name: String ): String
 
 pba( rid ): [String]        // PB属性取值（参数）
 pbo( rid ): [String]        // PB属性取值（选项）
 
 
-get( $val ): Value | [Value]
-// 通用取值入栈。
-// 如果$val为特殊指引，针对即时条目取值（可能是一个集合）。
-// 注意！
-// 暂存区无值时不自动取栈，特殊的$val值视为字面量。
-//
-// tQuery|Collector可用成员清单
+get( meth: String, ...rest ): Value | [Value]
+// tQuery|Collector 取值入栈。
 //-----------------------------------------------
 // 如果目标非Collector对象，视为tQuery方法，目标为首个实参
 //
-// attr( name ): Value|[Value]
-// prop( name ): Value|[Value]
-// css( name ): Value|[Value]
-// text(): String | [Node]
-// html(): String | [Node]
 height()
 width()
 val()
-children( slr )
 clone( ...rest )
-contents( slr)
 innerHeight()
 innerWidth()
 outerWidth()
@@ -88,13 +56,24 @@ next()
 prev()
 prevAll()
 nextAll()
-siblings()
-offset()
-position()
-scrollLeft()
-scrollTop()
-parent()
-offsetParent()
+children( slr ): [Element] | Element
+contents( idx, comment ): [Node] | Node
+siblings( slr ): [Element]
+parent(): Element | null
+parents( slr ): [Element]
+parentUntil( slr ): [Element]
+closest( slr ): [Element] | null
+offsetParent(): Element
+clone( event, deep, eventdeep ): Element
+scrollTop(): Number
+scrollLeft(): Number
+hasClass( name ): Boolean
+val(): Value | [Value] | null
+html(): String          // 当前条目支持元素（集）或文本。
+text(): String          // 当前条目支持元素（集）或HTML源码
+css( name ): String
+offset(): Object
+position(): Object
 
 // tQuery专有提供
 //-----------------------------------------------
@@ -112,26 +91,90 @@ queryURL()  // 构建URL查询串
 tags()      // 转为标签字符串（[] to <>）
 
 
+// 简单取值。
+//===============================================
+
+scroll(): {top, left}
+
+
+// 数据创建
+//===============================================
+
+re( str, flag ): RegExp     // 构造正则表达式
+date( v1, ...rest ): Date   // 构造日期/时间对象
+scam( ev ): Object          // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
+
+
+// 简单处理
+// 操作目标就是当前条目自身，无需By逻辑。
+//===============================================
+
+unwrap()
+detach()
+remove()
+empty()
+normalize()
+
 
 
 /////////////////////////////////////////////////
-// 全局方法。
-// 可用于 On/By 段内。
+// 顶层全局
+// 可用于 On/By/To 段内。
 /////////////////////////////////////////////////
 
-flag( name, $val? ): void
-// 标志设置或取值。
-// $val支持首字符特殊指引，针对即时条目取值。
-// $val未定义时为取值入栈。
-// 注意！
-// 暂存区无值时不自动取栈，特殊的$val值视为字面量。
+$( rid: String | Number | null ): Element
+// 取元素入栈。检索：tQuery.get( down, up )
+// rid:
+// - String 相对ID，以当前元素为参考，上/下检索目标元素。
+// - null   取当前条目为rid。可能为字符串或数值。
+// - Number 取事件相关元素：{
+// -     0  evo.origin 触发事件的起始元素
+// -     1  evo.current 触发处理器调用的元素
+// -     2  evo.delegate 绑定委托的元素
+// - }
 
-pass( val?, $name? ): void
-// 即时条目通过性检测，否则中断执行流。
+$$( rid: String | Number | Value | null ): Collector
+// 取集合入栈。检索：tQuery(...)
+// rid:
+// - ...    含义同上。
+// - Value  非预设类型，封装为Collector，通常从当前条目取值时出现。
+
+evo( name: String ): Value
+// 从当前evo对象上取值（事件相关）入栈。
+// name: {
+//      'event'     evo.event
+//      'origin'    evo.origin
+//      'current'   evo.current
+//      'related'   evo.related
+//      'delegate'  evo.delegate
+//      'selector'  evo.selector
+//
+//      'detail':   evo.event.detail
+//      '...':      evo.event[...]
+// }
+
+env( name: String, $val?: String | Value | null ): void
+// 全局环境设置或取值入栈。
+// $val 有值时为设置，未定义时为取值入栈。
+// $val:
+// - String 字符串值，支持首字符特殊指引（对当前条目）。
+// - Value  其它普通值。
+// - null   取当前条目自身为设置值（可能为undefined）。
+// 注意：
+// 暂存区无值时不自动取栈条目，特殊的$val字符串视为字面量。
+// 即：自动取条目数为0。
+//
+// 提示：
+// 暂存区无值时，null指定会让name设置为undefined。
+// 如果需要设置name为null值本身，可前置 'get(null), pop'。
+
+pass( val?: Value, $name?: String ): void
+// 当前条目通过性检测，否则中断执行流。
 // val:
 //      有值则为相等（===）测试，否则为真值测试。
 // $name:
-//      进阶取目标的值用于对比，支持首字符特殊指引。
+//      定位进阶目标，取目标的值用于对比，支持首字符特殊指引。
+//      未定义时取当前条目整体对比，默认。
 
 nil(): void
 // 一个空行为，占位。
@@ -139,7 +182,20 @@ nil(): void
 // 通常在On无需取值时作为视觉友好使用。如：click|nil;
 
 
+put( val ): Value
+// 简单赋值入栈。
+// 注：null/undefined 有效。
+
+
+
+/////////////////////////////////////////////////
+// 运算全局（半全局）
+// 仅可用于 On/By 段内。
+/////////////////////////////////////////////////
+
+
 // 暂存区赋值
+// 赋值为单值或Collector。
 //===============================================
 
 pop( n ): void
@@ -148,13 +204,13 @@ pop( n ): void
 // 即：pop() 和 pop(1) 的返回值不一样。
 // pop(0) 不会弹出任何内容，但会创建一个空集赋值。
 //
-// 弹出：单值|集合。
+// 弹出：单值|Collector。
 
 slice( begin, end ): void
 // 复制数据栈某区段条目，构造为一个Collector赋值。
 // 两个下标位置支持负数。
 //
-// 克隆：任意区段，集合。
+// 克隆：任意区段，Collector。
 
 item( idx ): void
 // 引用数据栈idx位置的单个值赋值到暂存区。
@@ -172,13 +228,13 @@ shift( n ): void
 // 无实参调用移除首个条目，作为单个值赋值。
 // 即：shift() 和 shift(1) 返回值不同。
 //
-// 移除：单值|集合。
+// 移除：单值|Collector。
 
 splice( start, count ): void
 // 移除数据栈某区段条目，构造为一个Collector赋值。
 // start下标位置支持负数。
 //
-// 移除：任意区段，集合。
+// 移除：任意区段，Collector。
 
 pick( idx ): void
 // 移除数据栈idx位置的单个值赋值到暂存区。
@@ -230,14 +286,14 @@ Float( str ): Number            // 将字符串转为浮点数。即 parseFloat(
 // - vtrue(..., xxx) 可模拟 switch/case 逻辑，后跟比较类方法。
 
 vtrue( $code, vback ): Value | vback
-// 即时条目为真时执行，否则跳过。
+// 当前条目为真时执行，否则跳过。
 // $code 为函数体代码（无实参），支持首字符特殊指引。
 // 注：
 // vback 为跳过状态时回送入栈的值，可选。
 // 执行状态时回送值无效，因为此时是代码的执行结果入栈。
 
 vfalse( $ccode, vback ): Value | vback
-// 即时条目为假时执行，否则跳过。
+// 当前条目为假时执行，否则跳过。
 // $code 为函数体代码（无实参），支持首字符特殊指引。
 // vback 参数含义同上。
 
@@ -246,66 +302,78 @@ vfalse( $ccode, vback ): Value | vback
 // 简单运算
 //===============================================
 
-add(): Number     // 条目2项：(x, y) => x + y
-sub(): Number     // 条目2项：(x, y) => x - y
-mul(): Number     // 条目2项：(x, y) => x * y
-div(): Number     // 条目2项：(x, y) => x / y
-mod(): Number     // 条目2项：(x, y) => x % y
+add(): Number     // 2条目：(x, y) => x + y
+sub(): Number     // 2条目：(x, y) => x - y
+mul(): Number     // 2条目：(x, y) => x * y
+div(): Number     // 2条目：(x, y) => x / y
+mod(): Number     // 2条目：(x, y) => x % y
 
 divmod( flat:Number ): [Number, Number]
 // 除并求余。
-// 条目2项：(x, y) => [x/y, x%y]
-// flat 表示扁平化展开的层级，通常为1，0值不展开（集合入栈）。
+// 2条目：(x, y) => [x/y, x%y]
+// flat 表示扁平化展开的层级，应当为1，0值不展开（默认）。
 
-negate( n:Number, flat:Number ): Number | [Number]
+negate( flat:Number ): Number | [Number]
 // 取负（-x）。
-// 取出 n 个条目取负后入栈。
-// 无实参调用返回单个值，否则返回一个集合。
+// 不定条目数，自动取1。各条目取负后入栈。
+// 当前条目为Collector时返回一个数组。
 // flat 含义同上。
 
-not( n:Number, flat:Number ): Boolean | [Boolean]
+not( flat:Number ): Boolean | [Boolean]
 // 取反（!x）。
-// 取出 n 个条目取反后入栈。
-// 无实参调用返回单个值，否则返回一个集合。
+// 不定条目数，自动取1。各条目取反后入栈。
+// 当前条目为Collector时返回一个数组。
 // flat 含义同上。
 
-dup( n:Number, flat:Number ): Value | [Value]
+dup( flat:Number ): Value | [Value]
 // 复制。
-// 引用 n 个条目克隆后入栈。
-// 无实参调用返回单个值，否则返回一个集合。
+// 不定条目数，自动取1。克隆后入栈。
+// 当前条目为Collector时返回一个Collector。
 // flat 含义同上。
+// 注：
+// 自动取条目克隆时，返回值类型与源值类型相同。
 
 
 // 比较&逻辑运算
 //===============================================
 
-equal(): Boolean    // 条目2项：(x, y) => x === y
-nequal(): Boolean   // 条目2项：(x, y) => x !== y
-lt(): Boolean       // 条目2项：(x, y) => x < y
-lte(): Boolean      // 条目2项：(x, y) => x <= y
-gt(): Boolean       // 条目2项：(x, y) => x > y
-gte(): Boolean      // 条目2项：(x, y) => x >= y
+equal(): Boolean    // 2条目：(x, y) => x === y
+nequal(): Boolean   // 2条目：(x, y) => x !== y
+lt(): Boolean       // 2条目：(x, y) => x < y
+lte(): Boolean      // 2条目：(x, y) => x <= y
+gt(): Boolean       // 2条目：(x, y) => x > y
+gte(): Boolean      // 2条目：(x, y) => x >= y
 
 
 within( min, max ): Boolean
-// 条目1项：val in [min, max]
+// 1条目：val in [min, max]
 
 isAnd( $code ): Boolean
-// 条目2项为真测试，结果入栈。
+// 2条目为真测试，结果入栈。
 // $code 测试代码或函数索引，可选。默认简单真值判断。
 
 isOr( $code ): Boolean
-// 条目2项任一为真测试，结果入栈。
-// $code 测试代码或函数索引，可选同上。
+// 2条目任一为真测试，结果入栈。
+// $code 测试代码或函数索引，可选。默认简单真值判断。
 
 every( $code ): Boolean
-// 集合成员全部为真测试，结果入栈。
-// $code 测试代码或函数索引，可选同上。
-// 注：即时条目需要是一个集合。
+// 集合成员全为真测试，结果入栈。
+// 不定条目数，自动取0。
+// $code 测试代码或函数索引，可选。默认简单真值判断。
+// 注：当前条目未定义时出错。
 
 some( n, $code ): Boolean
 // 集合成员至少 n 项为真测试，结果入栈。
-// $code 测试代码或函数索引，可选同上。
-// 注：即时条目需要是一个集合。
+// 不定条目数，自动取0。
+// $code 测试代码或函数索引，可选。默认简单真值判断。
+// 注：当前条目未定义时出错。
 
+
+tpl( name ): void
+// 创建命名模板。
+// 将当前条目命名为name模板添加到全局模板空间（供By检索使用）。
+// 通常用于可原地更新的元素（集）。
+// 注：
+// 用户需要知道哪些元素是由模板创建（包含渲染配置），否则没有效果。
+// 这一方法可能在By阶段即时组合使用，也可能由On阶段收集。
 ```

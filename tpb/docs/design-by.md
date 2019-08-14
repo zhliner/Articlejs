@@ -9,15 +9,13 @@
 ### 系统方法集
 
 ```js
-// 简单处理
-// 该部分操作对象就是流程元素自身，无to目标。
+// 事件操作
+// 除模板On固定配置之外的即时使用场景。
 //===============================================
 
-unwrap()        // 流程元素（集）解包裹
-remove()        // 移除流程元素
-empty()         // 流程元素清空（同 to:fill 空数据）
-normalize()     // 流程元素规范化
-clone( event )  // 流程元素（集）克隆。
+on( evn: String, slr, $code ): void
+off( evn: String, slr, $code ): void
+one( evn: String, slr, $code ): void
 
 
 // 集合执行

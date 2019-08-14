@@ -37,8 +37,7 @@ xxxx   // 单元素检索，$.get(): Element
 
 ```js
 [node]
-// 下面的方法种中流程数据为数据，当前检索为目标。
-// 遵循tQuery相应接口规则。
+// 当前条目为数据，检索结果为操作目标。
 
 // 节点数据
 - before    // 插入目标之前
@@ -50,25 +49,36 @@ xxxx   // 单元素检索，$.get(): Element
 - fill      // 填充目标内容（替换）
 - replace   // 替换目标本身
 
+
 // 标量数据
-- html      // 填充源码构造的节点
-- text      // 填充文本
-- val       // 按表单逻辑赋值
+- val           // 按表单逻辑赋值
+- html          // 填充源码构造的节点
+- text          // 填充文本
+- offset        // 偏移设置
+- removeAttr    // 目标属性（集）移除
+- scrollTop     // 设置垂直滚动条
+- ScrollLeft    // 设置水平滚动条
+
+- scroll        // 定制：设置滚动条 {top, left}
+
 
 // 元素或文本数据
-- wrap      // 目标被（各自）包裹
-- wrapInner // 目标被（各自）内包裹
-- wrapAll   // 包裹目标节点（集）
+- wrap          // 目标被（各自）包裹
+- wrapInner     // 目标被（各自）内包裹
+- wrapAll       // 包裹目标集，替换首个目标成员（位置）
 
-// 下面的方法中流程数据为目标，当前检索为数据。
-// 注：
-// 这里没有复制控制，因此数据元素是移动方式。
-- beforeWith
-- afterWith
-- prependWith
-- appendWith
-- replaceWith
-- fillWith
+
+// 当前条目为插入参考，检索结果为插入内容。
+// 这是一种反向逻辑，可能有用。比如目标无法通过检索获取。
+// 注意：
+// 这里无法定义克隆控制，因此内容元素是移动方式。
+
+- beforeWith    // 检索目标插入当前条目（节点）之前
+- afterWith     // 检索目标插入当前条目（节点）之后
+- prependWith   // 检索目标插入当前条目（元素）内前端
+- appendWith    // 检索目标插入当前条目（元素）内末尾
+- replaceWith   // 检索目标替换当前条目（节点）
+- fillWith      // 检索目标填充到当前条目（元素）之内
 
 
 [attr]
@@ -88,7 +98,7 @@ xxxx   // 单元素检索，$.get(): Element
 // 特例：
 // &class+  添加类名。
 // &class-  删除类名。
-// &class^  切换类名。实参为null时完整切换。
+// &class^  切换类名。数据为null时完整切换。
 // &class=  全部替换。与 @class 效果相同。
 
 [css]
@@ -130,25 +140,9 @@ xxxx   // 单元素检索，$.get(): Element
 
 ### Next-Stage
 
+可用顶层全局成员方法，包含 `$/$$/evo/env/pass/nil` 等。
+
 ```js
-// 元素检索/求值。
-// 注：不支持更多的On方法，但扩展能力。
-$( rid, method, ...rest ): Element | Any
-// tQuery.get(...)
-// rid: {String|Number|null}
-// method: {String}
-// - tQuery的方法，rest为方法的实参序列。
-// - 调用进阶方法，返回值可能为任意值。下同。
-// - 进阶的方法名仅限于On中已经定义的成员（与tQuery的交集）。
-
-$$( rid, method, ...rest ): Collector | Any
-// tQuery(...)
-// rid: {String|Number|null}
-// method: {String}
-// - Collector的方法，rest为方法的实参序列。
-// - 方法名限定同上。
-
-
 // $.trigger
 fire( evn, data )
 
