@@ -61,3 +61,8 @@ call( $meth, ...rest ): Value
 // $meth 为方法名，支持首字符特殊指引。
 // 注：$meth 不支持代码。
 ```
+
+
+### X扩展库
+
+`Tpb.OBT.by.x = Tpb.OBT.by.X = {}`

@@ -19,11 +19,11 @@ xxxx   // 单元素检索，$.get(): Element
 // 范围过滤。
 // beg为起点下标，end为终点下标（不包含），可选。
 
-[xx]:[x,y,z...]
+[xx]:[x, y, z...]
 // 定点过滤。[...] 为目标位置数组。
 
-[xx]:{function}
-// 处理过滤。{} 内为处理函数，参数：(Element, index)。
+[xx]:{expression}
+// 处理过滤。{} 内为处理函数，参数：(e:Element, i:Number, $:tQuery)。
 // 返回值：
 // - 返回true，保留源成员。
 // - 返回false，移除源成员。
@@ -39,53 +39,62 @@ xxxx   // 单元素检索，$.get(): Element
 [node]
 // 当前条目为数据，检索结果为操作目标。
 
-// 节点数据
+// 当前条目为数据
+// {Node|[Node]|Collector|Set|Iterator|Function} /cons
 - before    // 插入目标之前
 - after     // 插入目标之后
 - begin     // 插入目标内前端
 - prepend   // 同上
 - end       // 插入目标内末尾
 - append    // 同上
-- fill      // 填充目标内容（替换）
-- replace   // 替换目标本身
+- fill      // 填充目标内容（清空原有）
+- replace   // 替换目标自身
 
-- cloneEvent    // 事件克隆
+- cloneEvent    // {Element} /src 全事件克隆
 
 
 // 标量数据
-- val           // 按表单逻辑赋值
-- html          // 填充源码构造的节点
-- text          // 填充文本
-- offset        // 偏移设置
-- removeAttr    // 目标属性（集）移除
-- scroll        // 定制：设置滚动条 {top, left}
-- scrollTop     // 设置垂直滚动条
-- ScrollLeft    // 设置水平滚动条
-- pba           // PB参数设置
-- pbo           // PB选项设置
+- html          // {String|[String]|Node|[Node]|Function} /cons
+- text          // {String|[String]|Node|[Node]|Function} /cons
+- height        // Number/px
+- width         // Number/px
+- scroll        // {top:Number/px, left:Number/px}
+- scrollTop     // {Number} /px
+- ScrollLeft    // {Number} /px
+- addClass      // {String|Function} /names
+- removeClass   // {String|Function} /names
+- toggleClass   // {String|Function|Boolean}
+- removeAttr    // {String|Function} /names
+- val           // {Value|[Value]|Function}
+- html          // {String|[String]|Node|[Node]|Function|.values} /fill
+- text          // {String|[String]|Node|[Node]|Function|.values} /fill
+- offset        // {top:Number/px, left:Number/px}
+
+- pba           // [String]
+- pbo           // [String]
 
 
-// 元素或文本数据
-- wrap          // 目标被（各自）包裹
-- wrapInner     // 目标被（各自）内包裹
-- wrapAll       // 包裹目标集，替换首个目标成员（位置）
+// 当前条目为容器，简单包裹。
+- wrap          // {Element|String} /box 各自包裹
+- wrapInner     // {Element|String} /box 各自内包裹
+- wrapAll       // {Element|String} /box 包裹全部目标（汇集到一起）
 
 
+// 反向插入。
 // 当前条目为插入参考，检索结果为插入内容。
-// 这是一种反向逻辑，可能有用。比如目标无法通过检索获取。
-// 注意：
-// 这里无法定义克隆控制，因此内容元素是移动方式。
+// 注：无克隆，移动式插入。
 
-- beforeWith    // 检索目标插入当前条目（节点）之前
-- afterWith     // 检索目标插入当前条目（节点）之后
-- prependWith   // 检索目标插入当前条目（元素）内前端
-- appendWith    // 检索目标插入当前条目（元素）内末尾
-- replaceWith   // 检索目标替换当前条目（节点）
-- fillWith      // 检索目标填充到当前条目（元素）之内
+- beforeWith    // {Node} /ref
+- afterWith     // {Node} /ref
+- prependWith   // {Element} /box
+- appendWith    // {Element} /box
+- replaceWith   // {Node} /ref
+- fillWith      // {Element} /box
 
 
 [attr]
 - @[name]
+// 源数据：{String|Number|Boolean|Function|null}
 // 例：[3/li]|@style|fire('...')
 // $(...).attr('style', xxx)
 // 注：这里的 style 是元素的样式特性，即 cssText 值。
@@ -95,6 +104,7 @@ xxxx   // 单元素检索，$.get(): Element
 
 [prop]
 - &[name]
+// 源数据：{String|Number|Boolean|Function|null}
 // 例：.Test|&value|fire('...')
 // let el = $.get('.Test')
 // $.prop( el, 'value', xxx )
@@ -106,6 +116,7 @@ xxxx   // 单元素检索，$.get(): Element
 
 [css]
 - %[name]
+// 源数据：{String|Number|Function|null}
 // 例：.Test|%font-size|fire('...')
 // let el = $.get('.Test')
 // $.css(el, 'font-size', xxx)
@@ -113,7 +124,7 @@ xxxx   // 单元素检索，$.get(): Element
 ```
 
 
-扩展：
+#### 扩展
 
 - 支持多方法定义，逗号分隔。
 - 多方法主要用于多目标或多数据的情况，此时按数组成员一一对应。
@@ -147,6 +158,7 @@ xxxx   // 单元素检索，$.get(): Element
 
 ```js
 // $.trigger
+// 暂时仅支持单个事件。
 fire( evn, data )
 
 // 默认在流程元素上触发。
