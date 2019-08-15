@@ -829,7 +829,7 @@ Object.assign( tQuery, {
      * ]
      * @param  {Element} form 表单元素
      * @param  {[String]} exclude 排除的控件名集
-     * @return {[Array]} 键值对数组
+     * @return {[Array2]} 键值对数组
      */
     serialize( form, exclude = [] ) {
         let _els = tQuery.controls(form);
@@ -928,6 +928,7 @@ Object.assign( tQuery, {
      */
     get( slr, ctx = Doc.documentElement ) {
         slr = slr || '';
+
         try {
             return $one(slr.trim(), ctx);
         }
@@ -941,12 +942,13 @@ Object.assign( tQuery, {
     /**
      * 查找匹配的元素集。
      * @param  {String} slr 选择器
-     * @param  {Element} ctx 查询上下文
+     * @param  {Element|null} ctx 查询上下文
      * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {[Element]}
      */
-    find( slr, ctx = Doc.documentElement, andOwn = false ) {
+    find( slr, ctx, andOwn = false ) {
         slr = slr || '';
+        ctx = ctx || Doc.documentElement;
 
         let _els = $all(slr.trim(), ctx),
             _box = [];
@@ -6259,13 +6261,18 @@ Object.assign( tQuery, {
 
 
     /**
-     * Map转换为对象数组。
-     * 每一个键值对转换为一个对象，键为键名的值，值为值名的值。
-     * 全部的键值对对象构成一个数组。
+     * Map转换为键值索引对二元对象数组。
+     * 每一个键/值对转换为一个二元对象。
+     * 即：{
+     *      [name]: map.key,
+     *      [value]: map.value
+     * }
+     * 全部的键/值对的二元对象构成一个数组。
+     *
      * @param  {Map} map Map实例
      * @param  {String} kname 键名称
      * @param  {String} vname 值名称
-     * @return {[Object]} 键值对对象数组
+     * @return {[Object2]} 键值索引对对象数组
      */
     kvsMap( map, kname = 'name', vname = 'value' ) {
         let _buf = [];

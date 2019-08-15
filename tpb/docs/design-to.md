@@ -13,7 +13,7 @@ xxxx   // 单元素检索，$.get(): Element
 [xx]   // 多元素检索，$(...): Collector
 
 
-// 多元素过滤|处理
+// 多元素过滤/处理
 
 [xx]:(beg, end)
 // 范围过滤。
@@ -49,6 +49,8 @@ xxxx   // 单元素检索，$.get(): Element
 - fill      // 填充目标内容（替换）
 - replace   // 替换目标本身
 
+- cloneEvent    // 事件克隆
+
 
 // 标量数据
 - val           // 按表单逻辑赋值
@@ -56,10 +58,11 @@ xxxx   // 单元素检索，$.get(): Element
 - text          // 填充文本
 - offset        // 偏移设置
 - removeAttr    // 目标属性（集）移除
+- scroll        // 定制：设置滚动条 {top, left}
 - scrollTop     // 设置垂直滚动条
 - ScrollLeft    // 设置水平滚动条
-
-- scroll        // 定制：设置滚动条 {top, left}
+- pba           // PB参数设置
+- pbo           // PB选项设置
 
 
 // 元素或文本数据

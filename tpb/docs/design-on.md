@@ -26,75 +26,16 @@ evo: {
 
 
 ```js
-// 常用取值
+// 定制取值
 //===============================================
 
-attr( name: String ): String
-prop( name: String ): String | Number | Boolean
-css( name: String ): String
+pba( rid ): [String]
+// PB参数取值。
+// 注：元素 data-pb 格式化属性值（-分隔）。
 
-pba( rid ): [String]        // PB属性取值（参数）
-pbo( rid ): [String]        // PB属性取值（选项）
-
-
-get( meth: String, ...rest ): Value | [Value]
-// tQuery|Collector 取值入栈。
-//-----------------------------------------------
-// 如果目标非Collector对象，视为tQuery方法，目标为首个实参
-//
-height()
-width()
-val()
-clone( ...rest )
-innerHeight()
-innerWidth()
-outerWidth()
-outerHeight()
-get( slr )
-find( slr )
-next()
-prev()
-prevAll()
-nextAll()
-children( slr ): [Element] | Element
-contents( idx, comment ): [Node] | Node
-siblings( slr ): [Element]
-parent(): Element | null
-parents( slr ): [Element]
-parentUntil( slr ): [Element]
-closest( slr ): [Element] | null
-offsetParent(): Element
-clone( event, deep, eventdeep ): Element
-scrollTop(): Number
-scrollLeft(): Number
-hasClass( name ): Boolean
-val(): Value | [Value] | null
-html(): String          // 当前条目支持元素（集）或文本。
-text(): String          // 当前条目支持元素（集）或HTML源码
-css( name ): String
-offset(): Object
-position(): Object
-
-// tQuery专有提供
-//-----------------------------------------------
-Elem()      // 创建元素（tQuery.Element）
-Text()      // 创建文本节点（tQuery.Text）
-create()    // 创建文档片段（DocumentFragment）
-svg()       // 创建SVG元素（tQuery.svg）
-table()     // 创建表格实例（$.Table）
-range()     // 构造范围序列
-now()       // 获取时间戳
-classes()
-
-isXML()     // 是否为XML节点
-queryURL()  // 构建URL查询串
-tags()      // 转为标签字符串（[] to <>）
-
-
-// 简单取值。
-//===============================================
-
-scroll(): {top, left}
+pbo( rid ): [String]
+// PB选项取值。
+// 注：元素 data-pb 格式化属性值（空格分隔）。
 
 
 // 数据创建
@@ -105,8 +46,80 @@ date( v1, ...rest ): Date   // 构造日期/时间对象
 scam( ev ): Object          // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
 
 
+// tQuery|Collector 取值
+//-----------------------------------------------
+// 如果目标非Collector对象，视为tQuery方法，目标为首个实参
+//
+attr( name ): String
+prop( name ): String | Number | Boolean
+css( name ): String
+
+height(): Number
+width(): Number
+innerHeight(): Number
+innerWidth(): Number
+outerWidth(): Number
+outerHeight(): Number
+get( slr ): Element | null
+find( slr, ctx:null, andOwn ): [Element] | null
+next( slr ): Element | null
+nextAll( slr ): [Element]
+nextUntil( slr ): [Element]
+prev( slr ): Element | null
+prevAll( slr ): [Element]
+prevUntil( slr ): [Element]
+children( slr ): [Element] | Element
+contents( idx, comment ): [Node] | Node
+siblings( slr ): [Element]
+parent(): Element | null
+parents( slr ): [Element]
+parentUntil( slr ): [Element]
+closest( slr ): [Element] | null
+offsetParent(): Element
+clone( event, deep, eventdeep ): Element
+scroll(): {top, left}
+scrollTop(): Number
+scrollLeft(): Number
+hasClass( name ): Boolean
+val(): Value | [Value] | null
+html(): String          // 当前条目支持元素（集）或文本。
+text(): String          // 当前条目支持元素（集）或HTML源码
+css( name ): String
+offset(): {top, left}
+position(): {top, left}
+
+// tQuery专有
+//-----------------------------------------------
+Element(): Element
+Text(): Text
+create(): DocumentFragment
+svg(): Element
+table(): Table
+is(): Boolean
+isXML(): Boolean
+isArray(): Boolean
+isNumeric(): Boolean
+isFunction(): Boolean
+isCollector(): Boolean
+type(): String
+contains(): Boolean
+controls(): [Element]
+serialize(): [Array2]
+queryURL(): String
+classes(): [String]
+
+dataName(): String
+selector(): String
+tags(): String
+objMap(): Object
+kvsMap(): [Object2]
+range(): [Number] | [String]
+now(): Number | String
+
+
+
 // 简单处理
-// 操作目标就是当前条目自身，无需By逻辑。
+// 操作目标就是当前条目自身，无需By/To逻辑。
 //===============================================
 
 unwrap()
@@ -180,7 +193,6 @@ nil(): void
 // 一个空行为，占位。
 // 既不从暂存区取值，也不向数据栈添加值。
 // 通常在On无需取值时作为视觉友好使用。如：click|nil;
-
 
 put( val ): Value
 // 简单赋值入栈。
@@ -267,8 +279,32 @@ del( start, count ): void
 // 注：移除的值不会进入暂存区。
 
 
+// 集合筛选
+//===============================================
+// $fltr为过滤器代码，回调参数名固定：（v, i, o）。
+// 注：
+// $fltr如果为代码，执行结果自动返回，无需return。
+// $fltr支持首字符特殊指引，引用X函数库成员（此时$fltr为名称）。
 
-// 基本类型转换
+filter( $fltr, flat: Number = 0 ): [Value]
+// 值集过滤，匹配者构建一个新集合入栈。
+// flat为集合扁平化层级：
+// 0    整体入栈，默认
+// 1    一维展开
+// n    n 维展开
+// 注：取当前条目或栈顶项，它们应当是一个集合。
+
+not( $fltr, flat: Number = 0 ): [Value]
+// 值集排除。符合者被排除集合，剩余的创建为一个新集合入栈。
+// flat 含义同上。
+
+has( $fltr, flat: Number = 0 ): [Element]
+// 子元素包含。
+// 仅适用于元素集，普通值集无效。
+
+
+
+// 类型转换
 //===============================================
 
 Arr( op ): Array                // 转换为数组
@@ -276,27 +312,6 @@ Str( prefix, suffix ): String   // 转换为字符串
 Bool(): Boolean                 // 转换为布尔值（false|true）
 Int( str, radix ): Number       // 将字符串转为整数。即 parseInt()
 Float( str ): Number            // 将字符串转为浮点数。即 parseFloat()
-
-
-// 判断执行。
-//===============================================
-// - vtrue(...) 简单的 if 逻辑。
-// - vtrue(..., true)  模拟 else 逻辑，后跟 vtrue()。
-// - vtrue(..., false) 模拟 else 逻辑，后跟 vfalse()。
-// - vtrue(..., xxx) 可模拟 switch/case 逻辑，后跟比较类方法。
-
-vtrue( $code, vback ): Value | vback
-// 当前条目为真时执行，否则跳过。
-// $code 为函数体代码（无实参），支持首字符特殊指引。
-// 注：
-// vback 为跳过状态时回送入栈的值，可选。
-// 执行状态时回送值无效，因为此时是代码的执行结果入栈。
-
-vfalse( $ccode, vback ): Value | vback
-// 当前条目为假时执行，否则跳过。
-// $code 为函数体代码（无实参），支持首字符特殊指引。
-// vback 参数含义同上。
-
 
 
 // 简单运算
@@ -368,6 +383,29 @@ some( n, $code ): Boolean
 // $code 测试代码或函数索引，可选。默认简单真值判断。
 // 注：当前条目未定义时出错。
 
+
+// 判断执行。
+//===============================================
+// - vtrue(...) 简单的 if 逻辑。
+// - vtrue(..., true)  模拟 else 逻辑，后跟 vtrue()。
+// - vtrue(..., false) 模拟 else 逻辑，后跟 vfalse()。
+// - vtrue(..., xxx) 可模拟 switch/case 逻辑，后跟比较类方法。
+
+vtrue( $code, vback ): Value | vback
+// 当前条目为真时执行，否则跳过。
+// $code 为函数体代码（无实参），支持首字符特殊指引。
+// 注：
+// vback 为跳过状态时回送入栈的值，可选。
+// 执行状态时回送值无效，因为此时是代码的执行结果入栈。
+
+vfalse( $ccode, vback ): Value | vback
+// 当前条目为假时执行，否则跳过。
+// $code 为函数体代码（无实参），支持首字符特殊指引。
+// vback 参数含义同上。
+
+
+// 其它
+//===============================================
 
 tpl( name ): void
 // 创建命名模板。
