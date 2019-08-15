@@ -61,7 +61,7 @@ innerWidth(): Number
 outerWidth(): Number
 outerHeight(): Number
 get( slr ): Element | null
-find( slr, ctx:null, andOwn ): [Element] | null
+find( slr, andOwn ): [Element] | null
 next( slr ): Element | null
 nextAll( slr ): [Element]
 nextUntil( slr ): [Element]
@@ -116,6 +116,14 @@ kvsMap(): [Object2]
 range(): [Number] | [String]
 now(): Number | String
 
+// Collector专有
+//-----------------------------------------------
+
+item( idx ): Value
+eq( idx ): Collector
+first( slr ): Collector
+last( slr ): Collector
+
 
 
 // 简单处理
@@ -123,8 +131,8 @@ now(): Number | String
 //===============================================
 
 unwrap()
-detach()
-remove()
+detach( slr )
+remove( slr )
 empty()
 normalize()
 
@@ -198,6 +206,17 @@ put( val ): Value
 // 简单赋值入栈。
 // 注：null/undefined 有效。
 
+data( name, $val ): void
+// 关联当前条目存储/取出数据。
+// name为数据$val的索引键名，$val字符串支持首字符特殊指引。
+// 注：
+// 内部采用WeakMap存储，当前条目应当是一个对象。
+
+del( start, count ): void
+// 删除栈任意位置段条目，位置指定支持负数从末尾算起。
+// count 可选，默认删除到末尾。
+// 注：移除的值不会进入暂存区。
+
 
 
 /////////////////////////////////////////////////
@@ -255,16 +274,17 @@ pick( idx ): void
 // 移除：任意位置，单值。
 
 
-// 数据栈原地操作
+// 集合操作
+// 取当前条目（集合）操作后自动入栈。
 //===============================================
 
-sort( $code ): void
+sort( unique, $comp ): Collector
 // 数据栈排序。
-// $code为比较函数体，null表示采用默认规则。
+// $comp为比较函数体，null表示采用默认规则。
 // 参数名固定：(a, b)。
-// $code支持首字符（!）特殊指引，引用X函数库成员。
+// $comp支持首字符（!）特殊指引，引用X函数库成员。
 
-flat( depth = 1, all = false): void
+flat( depth = 1, all = false): Collector
 // 数据栈扁平化，可指定最深层级。
 // all为真表示整个数据栈，否则默认指上一次添加的集合。
 // 实现：Arr.push( ...Arr.pop() )
@@ -272,11 +292,8 @@ flat( depth = 1, all = false): void
 // 注：
 // 这是入栈模式由concat改为push的细粒度分解要求。
 
-del( start, count ): void
-// 删除栈任意位置段条目，位置指定支持负数从末尾算起。
-// count 可选，默认删除到末尾。
-// 即 splice() 的纯删除版。
-// 注：移除的值不会进入暂存区。
+reverse(): Collector
+// 集合成员序位反转。
 
 
 // 集合筛选

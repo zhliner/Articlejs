@@ -3018,7 +3018,7 @@ class Collector extends Array {
      * - 未指定下标返回整个集合的一个普通数组表示。
      * 注：兼容字符串数字，但空串不为0。
      * @param  {Number} idx 下标值，支持负数
-     * @return {Element|Array}
+     * @return {Value|[Value]}
      */
     item( idx ) {
         return idx ? indexItem(this, +idx) : ( idx === 0 ? this[0] : Arr(this) );

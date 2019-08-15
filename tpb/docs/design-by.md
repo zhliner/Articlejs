@@ -8,6 +8,8 @@
 
 ### 系统方法集
 
+当前条目为操作的目标对象。
+
 ```js
 // 事件操作
 // 除模板On固定配置之外的即时使用场景。
@@ -29,7 +31,7 @@ one( evn: String, slr, $code ): void
 // $code的执行结果自动返回，无需return语句。
 // $code支持首字符特殊指引，引用X函数库成员（此时$code为名称）。
 
-map( $code, flat: Number = 0 )
+map( $code, flat: Number = 0 ): Collector
 // 值集映射，返回值构建一个新集合入栈。
 // flat为集合扁平化层级：
 // 0    整体入栈，默认
@@ -39,7 +41,7 @@ map( $code, flat: Number = 0 )
 // 取当前条目或栈顶项，它们应当是一个集合。
 // 返回的 null/undefined 值会被忽略。
 
-each( $code )
+each( $code ): void
 // 取当前条目/栈顶项迭代处理。
 // 目标应该是一个集合，没有返回值入栈。
 // 回调函数内返回false会中断迭代。
