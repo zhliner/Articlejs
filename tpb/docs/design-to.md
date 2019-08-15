@@ -41,14 +41,14 @@ xxxx   // 单元素检索，$.get(): Element
 
 // 当前条目为数据
 // {Node|[Node]|Collector|Set|Iterator|Function} /cons
-- before    // 插入目标之前
-- after     // 插入目标之后
-- begin     // 插入目标内前端
-- prepend   // 同上
-- end       // 插入目标内末尾
-- append    // 同上
-- fill      // 填充目标内容（清空原有）
-- replace   // 替换目标自身
+- before        // 插入目标之前
+- after         // 插入目标之后
+- begin         // 插入目标内前端
+- prepend       // 同上
+- end           // 插入目标内末尾
+- append        // 同上
+- fill          // 填充目标内容（清空原有）
+- replace       // 替换目标自身
 
 - cloneEvent    // {Element} /src 全事件克隆
 
@@ -108,11 +108,6 @@ xxxx   // 单元素检索，$.get(): Element
 // 例：.Test|&value|fire('...')
 // let el = $.get('.Test')
 // $.prop( el, 'value', xxx )
-// 特例：
-// &class+  添加类名。
-// &class-  删除类名。
-// &class^  切换类名。数据为null时完整切换。
-// &class=  全部替换。与 @class 效果相同。
 
 [css]
 - %[name]
