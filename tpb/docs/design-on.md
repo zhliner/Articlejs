@@ -2,7 +2,7 @@
 
 关联事件，求取各种值，值进入流程数据栈向后传递。数据入栈为 `Array.push` 方式，如果数组成员需要展开，可跟随 `flat()` 调用。
 
-通常，栈内数据需要取出以作为后续方法操作的目标，取出的数据被称为**当前条目**，存放该条目的地方称为**暂存区**。暂存区是一次性使用逻辑，用过即空。如果暂存区没有操作目标，系统会自动从栈顶取值（取出而不是引用），除非明确禁止这样做（取值数量为 `-1`）。这一设计可以让操作目标的选取独立出来，更灵活也让方法的参数更少。所有的方法的返回值（除了 `undefined`）都会自动入栈。
+通常，栈内数据需要取出以作为后续方法操作的目标，取出的数据被称为**当前条目**（取出多个条目会构成一个集合），存放该条目的地方称为**暂存区**。暂存区是一次性使用逻辑，用过即空。如果暂存区没有操作目标，系统会自动从栈顶取值（取出而不是引用），除非取出数量被定义为 `0`。这一设计可以让操作目标的选取独立出来，更灵活也让方法的参数更少。所有方法的返回值（除了 `undefined`）都会自动入栈。
 
 事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器包含在括号内，如：`click(p[data-id="xxx"])`，选择器本身**不用**引号包围。
 
@@ -26,7 +26,7 @@ evo: {
 
 
 ```js
-// 定制取值
+// 普通取值
 //===============================================
 
 pba( rid ): [String]
@@ -46,8 +46,20 @@ date( v1, ...rest ): Date   // 构造日期/时间对象
 scam( ev ): Object          // 修饰键状态封装（Alt/Ctrl/Shift/Meta）
 
 
+// 类型转换
+//===============================================
+
+Arr( op ): Array                // 转换为数组
+Str( prefix, suffix ): String   // 转换为字符串
+Bool(): Boolean                 // 转换为布尔值（false|true）
+Int( str, radix ): Number       // 将字符串转为整数。即 parseInt()
+Float( str ): Number            // 将字符串转为浮点数。即 parseFloat()
+
+
+
 // tQuery|Collector 取值
 //-----------------------------------------------
+// 目标：当前条目/栈顶项。
 // 如果目标非Collector对象，视为tQuery方法，目标为首个实参
 //
 attr( name ): String
@@ -143,79 +155,124 @@ normalize()
 // 可用于 On/By/To 段内。
 /////////////////////////////////////////////////
 
-$( rid: String | Number | null ): Element
-// 取元素入栈。检索：tQuery.get( down, up )
+$( rid: String | null ): Element
+// 检索元素入栈：tQuery.get( down, up )
+// 目标：当前条目。不自动取栈。
 // rid:
-// - String 相对ID，以当前元素为参考，上/下检索目标元素。
-// - null   取当前条目为rid。可能为字符串或数值。
-// - Number 取事件相关元素：{
-// -     0  evo.origin 触发事件的起始元素
-// -     1  evo.current 触发处理器调用的元素
-// -     2  evo.delegate 绑定委托的元素
-// - }
+// - String 以当前条目或事件当前元素为起点，上/下检索目标元素。
+// - null   以当前条目为rid。
+// 注：
+// 当前条目充当2种角色，起点元素或rid替代。
 
-$$( rid: String | Number | Value | null ): Collector
-// 取集合入栈。检索：tQuery(...)
+$$( rid: String | Value | null ): Collector
+// 检索元素集入栈：tQuery(...)
+// 目标：当前条目。不自动取栈。
 // rid:
-// - ...    含义同上。
-// - Value  非预设类型，封装为Collector，通常从当前条目取值时出现。
+// - String （同上）
+// - null   （同上）
+// - Value  非预设类型/值时，封装为Collector。
+// 注：
+// 当前条目充当2种角色：起点元素和rid替代（实参为null时）。
+// 如果rid实参为null而当前条目非字符串时，当前条目值封装为Collector。
 
-evo( name: String ): Value
-// 从当前evo对象上取值（事件相关）入栈。
+evo( name: String | Number ): Value
+// 从当前evo对象上取值入栈。
 // name: {
-//      'event'     evo.event
-//      'origin'    evo.origin
-//      'current'   evo.current
-//      'related'   evo.related
-//      'delegate'  evo.delegate
-//      'selector'  evo.selector
-//
+//     -1|'event'     evo.event
+//      0|'origin'    evo.origin
+//      1|'current'   evo.current
+//      2|'delegate'  evo.delegate
+//      3|'related'   evo.related
+//      9|'selector'  evo.selector
+// }
+// 目标：从（隐藏的）首个实参上取值。无需当前条目。
+
+ev( ...name: String | [String] ): Value | [Value]
+// 从事件对象上取值入栈。
+// name为事件对象内的成员名，多个实参取值会自动展开入栈。
+// name: {
+//      'key':      evo.event.key
 //      'detail':   evo.event.detail
 //      '...':      evo.event[...]
 // }
+// 目标：实参事件对象。无需当前条目。
+// 注：
+// 如果需要入栈一个值集，实参自身需要是一个数组。
 
-env( name: String, $val?: String | Value | null ): void
-// 全局环境设置或取值入栈。
+env( name: String, $val?: Value ): void | Value
+// 全局环境设置或取值。
 // $val 有值时为设置，未定义时为取值入栈。
-// $val:
-// - String 字符串值，支持首字符特殊指引（对当前条目）。
-// - Value  其它普通值。
-// - null   取当前条目自身为设置值（可能为undefined）。
-// 注意：
-// 暂存区无值时不自动取栈条目，特殊的$val字符串视为字面量。
-// 即：自动取条目数为0。
-//
-// 提示：
-// 暂存区无值时，null指定会让name设置为undefined。
-// 如果需要设置name为null值本身，可前置 'get(null), pop'。
+// 设置时：
+// 目标：当前条目。不自动取栈。
+// 如果当前条目非空，$val字符串支持首字符特殊指引，null指当前条目自身。
+// 否则任意的$val只是一个字面值。
 
-pass( val?: Value, $name?: String ): void
-// 当前条目通过性检测，否则中断执行流。
-// val:
-//      有值则为相等（===）测试，否则为真值测试。
-// $name:
-//      定位进阶目标，取目标的值用于对比，支持首字符特殊指引。
-//      未定义时取当前条目整体对比，默认。
+put( ...$val: Value | [Value] ): Value | [Value]
+// 简单赋值。
+// 目标：当前条目。不自动取栈。
+// 若目标非空，$val字符串支持首字符特殊指引。
+// 注：
+// 多个实参会自动展开入栈。如果要入栈数组，实参需为数组。
+// 无实参调用入栈 undefined。
+
+data( name, $val ): void | Value
+// 关联数据存储/取出。
+// 目标：当前条目/栈顶项。
+// 在一个WeakMap实例中存储目标关联的数据项或取出数据项入栈。
+// 数据本身是一个Map对象：
+// - name 数据项名称（键）。
+// - $val 数据项值，字符串支持首字符特殊指引。
+// 注：
+// 如果当前条目为空，$val的任意值都为字面量。
+// 当然，关联对象本身（作为WeakMap的键）是需要自动取栈的。
 
 nil(): void
 // 一个空行为，占位。
 // 既不从暂存区取值，也不向数据栈添加值。
 // 通常在On无需取值时作为视觉友好使用。如：click|nil;
 
-put( val ): Value
-// 简单赋值入栈。
-// 注：null/undefined 有效。
-
-data( name, $val ): void
-// 关联当前条目存储/取出数据。
-// name为数据$val的索引键名，$val字符串支持首字符特殊指引。
-// 注：
-// 内部采用WeakMap存储，当前条目应当是一个对象。
-
 del( start, count ): void
 // 删除栈任意位置段条目，位置指定支持负数从末尾算起。
 // count 可选，默认删除到末尾。
 // 注：移除的值不会进入暂存区。
+
+
+// 控制类
+//===============================================
+
+pass( val?, name? ): void
+// 通过性检测（是否中断执行流）。
+// 目标：当前条目/栈顶项。
+// val:
+// - 有值则为相等（===）测试，否则为真值测试。
+// name:
+// - 进阶目标定位，取当前条目内name键的值用于对比。
+// - 未定义时取当前条目整体对比，默认。
+// 注记：
+// name的进阶定位主要用于普通对象的成员值获取。
+// 元素对象可通过attr()/prop()/css()等取值，因此name不支持首字符特殊指引。
+
+avoid(): void
+// 停止事件默认的行为。
+// 即调用：event.preventDefault()
+// 目标：当前条目。
+// - 如果当前条目为空，无条件执行。
+// - 否则为条件执行：真值执行，假值跳过。
+
+stop( end ): void
+// 停止事件冒泡，如果end为真，同时停止执行流。
+// 即调用：stopPropagation()
+// 目标：当前条目。
+// - 如果当前条目为空，无条件执行。
+// - 否则为条件执行：真值执行，假值跳过。
+
+stopAll( end ): void
+// 停止事件冒泡并阻止本事件其它处理器的执行。
+// 如果end为真，同时停止当前执行流。
+// 内部调用：event.stopImmediatePropagation()
+// 目标：当前条目。
+// - 如果当前条目为空，无条件执行。
+// - 否则为条件执行：真值执行，假值跳过。
 
 
 
@@ -298,10 +355,10 @@ reverse(): Collector
 
 // 集合筛选
 //===============================================
-// $fltr为过滤器代码，回调参数名固定：（v, i, o）。
+// $fltr为过滤表达式或函数名，表达式可用参数名：（v, i, o）。
 // 注：
-// $fltr如果为代码，执行结果自动返回，无需return。
-// $fltr支持首字符特殊指引，引用X函数库成员（此时$fltr为名称）。
+// $fltr如果为表达式，执行结果自动返回（无需return）。
+// $fltr支持首字符特殊指引，引用X函数库成员。
 
 filter( $fltr, flat: Number = 0 ): [Value]
 // 值集过滤，匹配者构建一个新集合入栈。
@@ -321,84 +378,88 @@ has( $fltr, flat: Number = 0 ): [Element]
 
 
 
-// 类型转换
-//===============================================
-
-Arr( op ): Array                // 转换为数组
-Str( prefix, suffix ): String   // 转换为字符串
-Bool(): Boolean                 // 转换为布尔值（false|true）
-Int( str, radix ): Number       // 将字符串转为整数。即 parseInt()
-Float( str ): Number            // 将字符串转为浮点数。即 parseFloat()
-
-
 // 简单运算
 //===============================================
 
-add(): Number     // 2条目：(x, y) => x + y
-sub(): Number     // 2条目：(x, y) => x - y
-mul(): Number     // 2条目：(x, y) => x * y
-div(): Number     // 2条目：(x, y) => x / y
-mod(): Number     // 2条目：(x, y) => x % y
+add(): Number     // (x, y) => x + y
+sub(): Number     // (x, y) => x - y
+mul(): Number     // (x, y) => x * y
+div(): Number     // (x, y) => x / y
+mod(): Number     // (x, y) => x % y
+// 标准算术。
+// 目标：当前条目/栈顶2项。
 
 divmod( flat:Number ): [Number, Number]
-// 除并求余。
-// 2条目：(x, y) => [x/y, x%y]
-// flat 表示扁平化展开的层级，应当为1，0值不展开（默认）。
+// 除并求余。(x, y) => [x/y, x%y]
+// 目标：当前条目/栈顶2项。
+// flat：扁平化展开的层级，最多为1，0值不展开（默认）。
 
-negate( flat:Number ): Number | [Number]
-// 取负（-x）。
-// 不定条目数，自动取1。各条目取负后入栈。
-// 当前条目为Collector时返回一个数组。
+nneg( flat:Number ): Number | [Number]
+// 数值取负（-x）。
+// 目标：当前条目（不定成员数）/栈顶1项。
 // flat 含义同上。
+// 注：
+// 当前条目为集合时返回一个Collector。
 
-not( flat:Number ): Boolean | [Boolean]
-// 取反（!x）。
-// 不定条目数，自动取1。各条目取反后入栈。
-// 当前条目为Collector时返回一个数组。
+vnot( flat:Number ): Boolean | [Boolean]
+// 逻辑取反（!x）。
+// 目标：当前条目（不定成员数）/栈顶1项。
 // flat 含义同上。
+// 注：
+// 当前条目为集合时返回一个Collector。
 
 dup( flat:Number ): Value | [Value]
 // 复制。
-// 不定条目数，自动取1。克隆后入栈。
-// 当前条目为Collector时返回一个Collector。
+// 目标：当前条目（不定成员数）/栈顶1项。
 // flat 含义同上。
 // 注：
+// 当前条目为集合时返回一个Collector。
 // 自动取条目克隆时，返回值类型与源值类型相同。
 
 
 // 比较&逻辑运算
 //===============================================
+// 下面的 $expr 为测试表达式或函数名，表达式可用参数名：（v, i, o）。
+// $expr 支持首字符特殊指引，引用X函数库成员。
 
-equal(): Boolean    // 2条目：(x, y) => x === y
-nequal(): Boolean   // 2条目：(x, y) => x !== y
-lt(): Boolean       // 2条目：(x, y) => x < y
-lte(): Boolean      // 2条目：(x, y) => x <= y
-gt(): Boolean       // 2条目：(x, y) => x > y
-gte(): Boolean      // 2条目：(x, y) => x >= y
+equal(): Boolean    // (x, y) => x === y
+nequal(): Boolean   // (x, y) => x !== y
+lt(): Boolean       // (x, y) => x < y
+lte(): Boolean      // (x, y) => x <= y
+gt(): Boolean       // (x, y) => x > y
+gte(): Boolean      // (x, y) => x >= y
+// 标准比较。
+// 目标：当前条目/栈顶2项。
 
 
 within( min, max ): Boolean
-// 1条目：val in [min, max]
+// 是否在 [min, max] 的范围内（包含边界值）。
+// 目标：当前条目/栈顶项。
 
-isAnd( $code ): Boolean
-// 2条目为真测试，结果入栈。
-// $code 测试代码或函数索引，可选。默认简单真值判断。
+inSet( ...val ): Boolean
+// 是否在集合内。
+// 目标：当前条目/栈顶项。
+// 实现：实参数组的简单存在性测试（Array.includes）。
 
-isOr( $code ): Boolean
-// 2条目任一为真测试，结果入栈。
-// $code 测试代码或函数索引，可选。默认简单真值判断。
+isAnd( $expr ): Boolean
+// 二者为真判断。
+// $expr 可选，默认简单真值判断。
+// 目标：当前条目/栈顶2项。
 
-every( $code ): Boolean
-// 集合成员全为真测试，结果入栈。
-// 不定条目数，自动取0。
-// $code 测试代码或函数索引，可选。默认简单真值判断。
-// 注：当前条目未定义时出错。
+isOr( $expr ): Boolean
+// 二者任一为真测试。
+// $expr 可选，默认简单真值判断。
+// 目标：当前条目/栈顶2项。
 
-some( n, $code ): Boolean
-// 集合成员至少 n 项为真测试，结果入栈。
-// 不定条目数，自动取0。
-// $code 测试代码或函数索引，可选。默认简单真值判断。
-// 注：当前条目未定义时出错。
+every( $expr ): Boolean
+// 集合成员全为真测试。
+// $expr 可选，默认简单真值判断。
+// 目标：当前条目。不自动取栈。
+
+some( n, $expr ): Boolean
+// 集合成员至少 n 项为真测试。
+// $expr 可选，默认简单真值判断。
+// 目标：当前条目。不自动取栈。
 
 
 // 判断执行。
@@ -406,19 +467,21 @@ some( n, $code ): Boolean
 // - vtrue(...) 简单的 if 逻辑。
 // - vtrue(..., true)  模拟 else 逻辑，后跟 vtrue()。
 // - vtrue(..., false) 模拟 else 逻辑，后跟 vfalse()。
-// - vtrue(..., xxx) 可模拟 switch/case 逻辑，后跟比较类方法。
+// - vtrue(..., xxx) 可模拟 switch/case 逻辑，后跟进一步比较。
 
 vtrue( $code, vback ): Value | vback
-// 当前条目为真时执行，否则跳过。
-// $code 为函数体代码（无实参），支持首字符特殊指引。
+// 真值执行，否则跳过。
+// $code 为函数体代码（无实参），支持首字符特殊指引（X函数库成员）。
+// 目标：当前条目/栈顶1项。
 // 注：
 // vback 为跳过状态时回送入栈的值，可选。
-// 执行状态时回送值无效，因为此时是代码的执行结果入栈。
+// vback 在执行状态下无效，因为此时是代码的执行结果入栈。
 
 vfalse( $ccode, vback ): Value | vback
-// 当前条目为假时执行，否则跳过。
-// $code 为函数体代码（无实参），支持首字符特殊指引。
-// vback 参数含义同上。
+// 假值执行，否则跳过。
+// $code 为函数体代码（无实参），支持首字符特殊指引（X函数库成员）。
+// 目标：当前条目/栈顶1项。
+// 注：vback 参数含义同上。
 
 
 // 其它
@@ -426,9 +489,11 @@ vfalse( $ccode, vback ): Value | vback
 
 tpl( name ): void
 // 创建命名模板。
-// 将当前条目命名为name模板添加到全局模板空间（供By检索使用）。
-// 通常用于可原地更新的元素（集）。
+// 将目标命名为name模板并添加到全局模板空间存储。
+// 目标：当前条目。不自动取栈。
 // 注：
+// 通常用于可原地更新的元素（集）。
 // 用户需要知道哪些元素是由模板创建（包含渲染配置），否则没有效果。
+// 注记：
 // 这一方法可能在By阶段即时组合使用，也可能由On阶段收集。
 ```
