@@ -1620,6 +1620,7 @@ Object.assign( tQuery, {
      * 注意：
      * - 只要是同组单选按钮，可以从其中任一控件上获取选中的值。
      * - 重名的复选按钮取值时，从其中任一个控件上都可以取到全部选中项的值。
+     * - 选取类控件设置为null时，会清除全部选取（包括 disabled 控件）。
      *
      * @param  {Element} el 目标元素
      * @param  {Value|[Value]|Function} value 匹配测试的值/集或回调
@@ -4971,6 +4972,8 @@ const propHooks = {
 // 对部分控件的设置是选中与值匹配的条目，而不是改变控件的值本身。
 // 与取值相似，如果控件已 disabled 则会忽略。
 //
+// 对于选取类控件，设置时传递 null 值会清除全部选取。
+//
 const valHooks = {
 
     // 会依所属组判断操作。
@@ -4979,36 +4982,37 @@ const valHooks = {
         get: function( el ) {
             let _res = el.form[el.name];
             // 检查name，预防被作弊
-            if (!_res || !el.name) {
-                return;
-            }
-            if (_res.nodeType) {
-                _res = [_res];
-            }
-            for (let _re of _res) {
-                if (_re.checked) {
-                    return $is(_re, ':disabled') ? null : _re.value;
+            return _res && el.name && this._get(_res.nodeType ? [_res] : _res);
+        },
+
+        _get: els => {
+            for ( let e of els ) {
+                if ( e.checked ) {
+                    return $is( e, ':disabled' ) ? null : e.value;
                 }
             }
             return null;
         },
 
+
         // val仅为值，不支持数组。
         // 注：采用严格相等比较。
         set: function( el, val ) {
             let _res = el.form[el.name];
+
             if (!_res || !el.name) {
                 return;
             }
-            if (_res.nodeType) {
-                _res = [_res];
-            }
-            for (let _re of _res) {
-                if (val === _re.value) {
-                    return !$is(_re, ':disabled') && (_re.checked = true);
+            return val === null ? _clearChecked(_res) : this._set(_res.nodeType ? [_res] : _res, val);
+        },
+
+        _set: (els, val) => {
+            for ( let e of els ) {
+                if ( val === e.value ) {
+                    return !$is(e, ':disabled') && (e.checked = true);
                 }
             }
-        }
+        },
     },
 
     // 可能存在同名复选框。
@@ -5016,38 +5020,37 @@ const valHooks = {
         // 未选中时返回null或一个空数组（重名时）。
         get: function( el ) {
             let _cbs = el.form[el.name];
-            if (!_cbs || !el.name) {
-                return;
-            }
-            if (_cbs.nodeType) {
-                return _cbs.checked && !$is(_cbs, ':disabled') ? _cbs.value : null;
-            }
-            let _buf = [];
-            for (let _cb of _cbs) {
-                if (_cb.checked && !$is(_cb, ':disabled')) _buf.push(_cb.value);
-            }
-            return _buf;
+            // 检查name，预防被作弊
+            return _cbs && el.name && this._get(_cbs.nodeType ? [_cbs] : _cbs, []);
         },
+
+        _get: (els, buf) => {
+            for ( let e of els ) {
+                if ( e.checked && !$is(e, ':disabled') ) {
+                    buf.push( e.value );
+                }
+            }
+            return buf.length ? (buf.length == 1 ? buf[0] : buf) : null;
+        },
+
 
         // 支持同名多复选，支持值数组匹配。
         set: function( el, val ) {
             let _cbs = el.form[el.name];
+
             if (!_cbs || !el.name) {
                 return;
             }
-            if (_cbs.nodeType) {
-                _cbs = [_cbs];
+            return val === null ? _clearChecked(_cbs) : this._set(_cbs.nodeType ? [_cbs] : _cbs, isArr(val) ? val : [val]);
+        },
+
+        _set: (els, val) => {
+            for ( let e of els ) {
+                if ( !$is(e, ':disabled') ) e.checked = val.includes(e.value);
             }
-            if (!isArr(val)) {
-                val = [val];
-            }
-            for (let _cb of _cbs) {
-                if ($is(_cb, ':disabled')) {
-                    continue;
-                }
-                _cb.checked = val.includes(_cb.value);
-            }
-        }
+        },
+
+
     },
 
     select: {
@@ -5056,26 +5059,20 @@ const valHooks = {
             if ( !(el = valPass(el)) ) {
                 return el; // null/undefined
             }
-            if (el.type == 'select-one') {
-                let _op = el.options[el.selectedIndex];
-                return _op && !$is(_op, ':disabled') ? _op.value : null;
-            }
-            let _vals = [];
-
-            if (el.selectedOptions) {
-                _vals = tQuery.map(
-                    el.selectedOptions,
-                    o => $is(o, ':disabled') ? null : o.value
-                );
-            } else {
-                for (let _op of el.options) {
-                    if (_op.selected && !$is(_op, ':disabled')) {
-                        _vals.push(_op.value);
-                    }
-                }
-            }
-            return _vals;
+            return el.type == 'select-one' ?
+                this._get( el.options[el.selectedIndex] ) :
+                this._gets( el.selectedOptions || el.options, [] );
         },
+
+        _get: el => el && !$is(el, ':disabled') ? el.value : null,
+
+        _gets: (els, buf) => {
+            for ( const e of els ) {
+                if ( e.selected && !$is(e, ':disabled') ) buf.push(e.value);
+            }
+            return buf;
+        },
+
 
         // 多选列表支持一个匹配值数组。
         // 会清除其它已选取项。
@@ -5084,24 +5081,28 @@ const valHooks = {
                 return;
             }
             el.selectedIndex = -1;
+            if (val === null) return;
 
-            if (el.type == 'select-one') {
-                for (let _op of el.options) {
-                    if (_op.value == val && !$is(_op, ':disabled')) {
-                        return (_op.selected = true);
-                    }
-                }
-                return;
-            }
-            if (!isArr(val)) {
-                val = [val];
-            }
-            for (let _op of el.options) {
-                if (val.includes(_op.value) && !$is(_op, ':disabled')) {
-                    _op.selected = true;
+            return el.type == 'select-one' ?
+                this._set( el.options, val ) :
+                this._sets( el.options, isArr(val) ? val : [val] );
+        },
+
+        _set: (els, val) => {
+            for ( const e of els ) {
+                if (e.value === val && !$is(e, ':disabled')) {
+                    return e.selected = true;
                 }
             }
         },
+
+        _sets: (els, val) => {
+            for ( const e of els ) {
+                if ( val.includes(e.value) && !$is(e, ':disabled') ) {
+                    e.selected = true;
+                }
+            }
+        }
     },
 
     // 占位。
@@ -5118,6 +5119,11 @@ const valHooks = {
         set: (el, val) => valPass(el) && (el.value = val)
     },
 };
+
+
+function _clearChecked( els ) {
+    for ( let e of els ) e.checked = false;
+}
 
 
 
