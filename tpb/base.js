@@ -1,248 +1,184 @@
-//! $Id: base.js 2016.01.06 Tpb.Base $
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//			Copyright (c) 铁皮工作室 2017 MIT License
+//! $Id: base.js 2019.08.18 Tpb.Base $
 //
-//				@project: Tpb v0.3.2
-//				@author:  风林子 zhliner@gmail.com
-//////////////////////////////////////////////////////////////////////////////
-//
-//	核心部件
-//
-//	构建基本的OBT（On/By/To）逻辑。
-//	脱胎于jcEd项目的Teas框架，基于“模板驱动”设计。
-//
-//	On：定义事件对应的PB操作链，表达外观/表象行为；
-//	By：定义响应事件的业务板块调用，可能复杂到需要ECMU四分层逻辑；
-//	To：定义业务处理数据的更新目标和方法，可能包含进一步的PB行为；
-//
-//	格式
-//		on="事件序列|PB序列; ..."
-//		by="板块调用; ..."
-//		to="输出元素标识|赋值方式|PB序列（可选）; ..."
-//
-//	说明
-//		T:  模板 Template
-//		PB：表象行为（Presentational Behavior）
+// 	Project: Tpb v0.4.0
+//  E-Mail:  zhliner@gmail.com
+// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//	交互文档
-//  --------
-//	最简单的使用方式，普通网页包含互动，但不涉及向服务器请求新的数据。
-//	可为本地文件（file://），Core实例本身实现。
+//	基础实现。
 //
-//		库文件：
-//			tpb.js 		// 基本定义
-//			kits.js 	// 基本工具集
-//			core.js  	// 核心支持
-//			pbs.js 		// 基本PB集
-//			render.js 	// 节点渲染，可选
+//	解析/构建OBT（On/By/To）的基础逻辑。
 //
-// 		用法：
-// 			Tpb.run(...);
-//
-//
-//	动态页（Taker）
-//  --------------
-//		由Taker实例向服务器请求数据，更新页面，但不含外部模板请求。
-//
-//		库文件：
-//			...
-//			base.js 	// App基类定义
-//			taker.js 	// 服务端数据获取器
-//
-// 		用法：
-// 			let App = new Tpb.Taker();
-// 			App.run(...);
-//
-//
-//	页程序（WebApp）
-//  ---------------
-//	页面应用，复杂的App可能采用四分层逻辑（ECMU: Entry/Control/Model/Update）。
-//	模板管理器（templater.js）支持子模板内容规划。
-//
-//		库文件：
-//			...
-//			base.js
-//			webapp.js   // App应用
-//			templater.js
-//
-// 		用法：
-// 			let App = new Tpb.WebApp();
-// 			App.run(...);
 //
 //
 //	依赖：tQuery
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-(function( $, T ) {
-    //
-    // 便捷引用。
-    //
-    const
-        Util = T.Kits.Util,
-        Spliter = T.Kits.Spliter;
+const
+    Util = T.Kits.Util,
+    Spliter = T.Kits.Spliter;
 
 
-    //
-    // 基本定义。
-    //
-    const
-        // OBT默认属性名
-        __obtAttr = {
-            on: 'on', 		// 触发事件和PB行为
-            by: 'by', 		// 板块调用（传送器）
-            to: 'to', 		// To输出目标
+//
+// 基本定义。
+//
+const
+    // OBT默认属性名
+    __obtAttr = {
+        on: 'on', 		// 触发事件和PB行为
+        by: 'by', 		// 板块调用（传送器）
+        to: 'to', 		// To输出目标
+    },
+
+    // 标识字符
+    __chrDlmt = ';',  	// 并列分组
+    __chrCall = ',', 	// 调用单元分隔
+    __chrZero = '-',  	// 空白占位符
+
+
+    // 管道分隔模式
+    // 排除属性选择器里的|字符。
+    __rePipe 	= /\|(?!=)/,
+
+    // 简单词组
+    // 如多个空格分隔的事件名。
+    // 友好：支持句点字符。
+    __reWords 	= /^[\w][\w\s.]*$/,
+
+    // 字符串格式
+    // 单双引号/反撇号
+    __reString 	= /^".*"$|^'.*'$|^`.*`$/,
+
+    // To:rid 格式
+    // 可能包含第二个true参数。
+    __reTorid = /^(.*?)(,\s*true)?$/;
+
+
+const
+    __Gobj = $.object( null, {$}, T.Config.DATA ),
+
+    // 基础PB集原型
+    PB = {
+
+        //-- 全局对象 -----------------------------------------------------
+        // 首字母大写表示特别（不易重名），用于下层取用。
+
+        // 标志位集。
+        // 由flag实施置标和取消置标。
+        // 用于各PB实现全局状态共享。
+        Marks: $.object(),
+
+        // 元素关联数据。
+        // 取值：this.Store(el).key;
+        // 赋值：this.Store(el).key = value;
+        Store: T.Kits.Privater(),
+
+        // 全局对象。
+        // env环境取值可用。
+        Global: __Gobj,
+
+        // 用户全局域。
+        // 用于代码的执行，全局对象为顶级域。
+        Scoper: new T.Kits.Scoper(__Gobj),
+
+
+        //-- 全局方法 -----------------------------------------------------
+        // 前置$字符表示特别（不易重名），用于下层调用。
+
+        /**
+         * 获取目标元素。
+         * - 只有在rid未定义时返回null；
+         * - 检索的结果可能是一个空集；
+         * @param  {String} rid  目标元素标识
+         * @param  {Boolean} one 单一检索，可选
+         * @return {Queue|null}
+         */
+        $elem( rid, one ) {
+            if (rid === undefined) {
+                return null;
+            }
+            return $( Util.evel(this.targets, rid, one) );
         },
 
-        // 标识字符
-        __chrDlmt = ';',  	// 并列分组
-        __chrCall = ',', 	// 调用单元分隔
-        __chrZero = '-',  	// 空白占位符
+        /**
+         * 取格式值。
+         * 前置“@”字符标识，用于灵活获取值参数；
+         * 1. 支持Util.$val的“值格式”；
+         * 2. 支持@后跟随数字取流程数组成员值；
+         * 3. 格式值默认取值目标为事件当前元素；
+         * fmt: {
+         *  	'@xxx' 	prop('xxx')。元素属性值，
+         *  	'@=xx' 	attr('xx')。元素特性值，
+         *  	'@~xx' 	css('xx')。元素样式值（计算）
+         *  	'@$xx' 	$系获取。如 $.text(el)
+         *  	'@-xx'  prop('-xx')。data-xx属性值（tQuery支持）
+         *
+         *  	'@12'   流程数据成员。this.data[12]
+         *  	'@-1'   同上，负数为字面键名。this.data[-1]
+         *  	'@@xx' 	@字面值标识，即“@xx”本身
+         *  	'xxx'   普通字符串值
+         * }
+         * @param  {String} fmt 格式值
+         * @return {Mixed} 结果值
+         */
+        $value( fmt ) {
+            if (!fmt || typeof fmt != 'string' || fmt[0] != '@') {
+                return fmt;
+            }
+            fmt = fmt.substring(1);
+            if (fmt[0] == '@') return fmt;
 
-
-        // 管道分隔模式
-        // 排除属性选择器里的|字符。
-        __rePipe 	= /\|(?!=)/,
-
-        // 简单词组
-        // 如多个空格分隔的事件名。
-        // 友好：支持句点字符。
-        __reWords 	= /^[\w][\w\s.]*$/,
-
-        // 字符串格式
-        // 单双引号/反撇号
-        __reString 	= /^".*"$|^'.*'$|^`.*`$/,
-
-        // To:rid 格式
-        // 可能包含第二个true参数。
-        __reTorid = /^(.*?)(,\s*true)?$/;
-
-
-    const
-        __Gobj = $.object( null, {$}, T.Config.DATA ),
-
-        // 基础PB集原型
-        PB = {
-
-            //-- 全局对象 -----------------------------------------------------
-            // 首字母大写表示特别（不易重名），用于下层取用。
-
-            // 标志位集。
-            // 由flag实施置标和取消置标。
-            // 用于各PB实现全局状态共享。
-            Marks: $.object(),
-
-            // 元素关联数据。
-            // 取值：this.Store(el).key;
-            // 赋值：this.Store(el).key = value;
-            Store: T.Kits.Privater(),
-
-            // 全局对象。
-            // env环境取值可用。
-            Global: __Gobj,
-
-            // 用户全局域。
-            // 用于代码的执行，全局对象为顶级域。
-            Scoper: new T.Kits.Scoper(__Gobj),
-
-
-            //-- 全局方法 -----------------------------------------------------
-            // 前置$字符表示特别（不易重名），用于下层调用。
-
-            /**
-             * 获取目标元素。
-             * - 只有在rid未定义时返回null；
-             * - 检索的结果可能是一个空集；
-             * @param  {String} rid  目标元素标识
-             * @param  {Boolean} one 单一检索，可选
-             * @return {Queue|null}
-             */
-            $elem( rid, one ) {
-                if (rid === undefined) {
-                    return null;
-                }
-                return $( Util.evel(this.targets, rid, one) );
-            },
-
-            /**
-             * 取格式值。
-             * 前置“@”字符标识，用于灵活获取值参数；
-             * 1. 支持Util.$val的“值格式”；
-             * 2. 支持@后跟随数字取流程数组成员值；
-             * 3. 格式值默认取值目标为事件当前元素；
-             * fmt: {
-             *  	'@xxx' 	prop('xxx')。元素属性值，
-             *  	'@=xx' 	attr('xx')。元素特性值，
-             *  	'@~xx' 	css('xx')。元素样式值（计算）
-             *  	'@$xx' 	$系获取。如 $.text(el)
-             *  	'@-xx'  prop('-xx')。data-xx属性值（tQuery支持）
-             *
-             *  	'@12'   流程数据成员。this.data[12]
-             *  	'@-1'   同上，负数为字面键名。this.data[-1]
-             *  	'@@xx' 	@字面值标识，即“@xx”本身
-             *  	'xxx'   普通字符串值
-             * }
-             * @param  {String} fmt 格式值
-             * @return {Mixed} 结果值
-             */
-            $value( fmt ) {
-                if (!fmt || typeof fmt != 'string' || fmt[0] != '@') {
-                    return fmt;
-                }
-                fmt = fmt.substring(1);
-                if (fmt[0] == '@') return fmt;
-
-                if ( $.isNumeric(fmt) ) {
-                    return this.data[ +fmt ];
-                }
-                return Util.$val( this.targets.current, fmt );
-            },
-
-            /**
-             * 模板节点获取。
-             * @param  {String} name 模板名称
-             * @return {Element}
-             */
-            $node( name ) {
-                return T.Config.Templater.get(name);
-            },
-
-            /**
-             * 单一取值。
-             * - 单一成员取成员值，否则取集合本身；
-             * - 空集返回null；
-             * @param  {Array|Value} obj 目标集
-             * @return {Array|Mixed}
-             */
-            $alone( obj ) {
-                if (!$.isArray(obj)) {
-                    return obj;
-                }
-                return obj.length == 1 ? obj[0] : obj.length && obj || null;
-            },
-
+            if ( $.isNumeric(fmt) ) {
+                return this.data[ +fmt ];
+            }
+            return Util.$val( this.targets.current, fmt );
         },
 
+        /**
+         * 模板节点获取。
+         * @param  {String} name 模板名称
+         * @return {Element}
+         */
+        $node( name ) {
+            return T.Config.Templater.get(name);
+        },
 
-        // 分组切分器。
-        // 仅需调用内不切分。
-        DlmtSpliter = new Spliter(__chrDlmt, true),
+        /**
+         * 单一取值。
+         * - 单一成员取成员值，否则取集合本身；
+         * - 空集返回null；
+         * @param  {Array|Value} obj 目标集
+         * @return {Array|Mixed}
+         */
+        $alone( obj ) {
+            if (!$.isArray(obj)) {
+                return obj;
+            }
+            return obj.length == 1 ? obj[0] : obj.length && obj || null;
+        },
 
-        // 调用单元切分器。
-        // 用于PB调用序列的切分。
-        CallSpliter = new Spliter(__chrCall, true, true),
+    },
 
-        // 事件名分离器。
-        // 单个空格分隔，仅排除参数模式。
-        // 注：选择器定义在字符串里。
-        EvnSpliter = new Spliter(' ', true),
 
-        // 调用链存储（延迟绑定）。
-        // 注：OBT是静态配置逻辑，但有时需要即时绑定（如 move 临时绑定）。
-        // Element: [{name, selector, chain}]
-        ChainStore = new WeakMap();
+    // 分组切分器。
+    // 仅需调用内不切分。
+    DlmtSpliter = new Spliter(__chrDlmt, true),
+
+    // 调用单元切分器。
+    // 用于PB调用序列的切分。
+    CallSpliter = new Spliter(__chrCall, true, true),
+
+    // 事件名分离器。
+    // 单个空格分隔，仅排除参数模式。
+    // 注：选择器定义在字符串里。
+    EvnSpliter = new Spliter(' ', true),
+
+    // 调用链存储（延迟绑定）。
+    // 注：OBT是静态配置逻辑，但有时需要即时绑定（如 move 临时绑定）。
+    // Element: [{name, selector, chain}]
+    ChainStore = new WeakMap();
 
 
 
@@ -1361,21 +1297,6 @@ class Updater {
 }
 
 
-//
-// 命名位置/操作方法映射。
-//
-Updater._Wheres = {
-    'before': 	'before',
-    'after': 	'after',
-    'begin': 	'prepend',
-    'prepend': 	'prepend',
-    'end': 		'append',
-    'append': 	'append',
-    'fill': 	'fill',
-    'replace': 	'replace',
-};
-
-
 
 //
 // Debug
@@ -1531,18 +1452,3 @@ class Debug {
     }
 
 }
-
-
-
-//
-// Expose
-//
-///////////////////////////////////////////////////////////////////////////////
-
-T.Core = new _Core();
-
-// 一个全局调试实例
-T.debug = new Debug();
-
-
-})( tQuery.proxyOwner(), Tpb );

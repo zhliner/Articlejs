@@ -181,3 +181,19 @@ tips( msg, time )  // 消息提示。注：计时器ID记录在消息容器上
 // 注：fire()的触发调用需要先有注册绑定。
 method( name, ...rest )
 ```
+
+
+代码实现参考：
+
+```js
+// 提示计时器存储键。
+const __TIMER = 'BASE::elem-timer';
+
+// 创建提示信息。
+function tips( els, msg, time ) {
+    for ( let e of els ) {
+        clearTimeout( this.Store(e)[__TIMER] );
+        this.Store(e)[__TIMER] = setTimeout( () => $.empty(e), time );
+    }
+}
+```

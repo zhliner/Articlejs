@@ -1,15 +1,14 @@
-//! $Id: tpb.js 2016.12.22 Tpb.Base $
+//! $Id: tpb.js 2019.08.18 Tpb.Base $
 //
-// 	Project: Tpb v0.3.1
+// 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2017 铁皮工作室  MIT License
+// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-// 	Tpb 构成：{
-// 		Kits 		基础：实用函数/工具类
-// 		Config 		基础：项目全局配置
-// 		Core 		基础：基本服务实例
+// 	Tpb {
+// 		Kits 		工具箱
+// 		Kits.Util	实用函数集
 //
 // 		TplBase 	辅助：模板管理器通用基类
 // 		Templater 	辅助：当前模板管理器
