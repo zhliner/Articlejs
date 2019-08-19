@@ -455,12 +455,12 @@ function hackSelector( ctx, slr, fix ) {
  * @param  {Element} ctx 查询上下文
  * @return {Collector}
  */
-function tQuery( its = '', ctx = Doc ) {
+function tQuery( its, ctx ) {
     if ( isCollector(its) ) {
         return its;
     }
     if (typeof its == 'string') {
-        its = $all( its.trim(), ctx );
+        its = $all( its.trim(), ctx || Doc );
     }
     return new Collector( its );
 }
@@ -931,8 +931,9 @@ Object.assign( tQuery, {
      * @param  {Element|Document} ctx 查询上下文
      * @return {Element|null}
      */
-    get( slr, ctx = Doc.documentElement ) {
+    get( slr, ctx ) {
         slr = slr || '';
+        ctx = ctx || Doc.documentElement;
 
         try {
             return $one(slr.trim(), ctx);
