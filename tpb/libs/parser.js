@@ -43,15 +43,29 @@ const
 // 基础解析。
 //
 class Parser {
-    /**
-     * @param {String} obt 定义格式串
-     */
-    constructor( obt = __obts ) {
-        this._obt = obt;
-        this._PB = Object.create(PB);
+    constructor() {
+        //
     }
 
 }
+
+
+class On {
+    constructor() {
+        //
+    }
+}
+
+
+class By {
+    //
+}
+
+
+class To {
+    //
+}
+
 
 const _Parser = {
     /**
