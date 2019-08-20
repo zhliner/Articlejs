@@ -1550,7 +1550,7 @@ Object.assign( NS.Element, {
 	 * @param {Selector} rid 相对选择器
 	 * @next: {Element|null}
 	 */
-	 one( ev, rid = '' ) {
+	one( ev, rid = '' ) {
 		return this.next(
 			Util.$find( rid.trim(), this.data, true)
 		);
@@ -1683,6 +1683,8 @@ Object.assign( NS.Element, {
 //
 // UI相关。
 // 在WebApp中会大量使用。
+//
+// 后注：可以作为 By:X 外部库提供。
 //
 Object.assign( NS.UI, {
 	/**

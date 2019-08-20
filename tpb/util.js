@@ -143,7 +143,7 @@ const Util = {
      * - tQuery原生支持data系属性的简写（-xx => data-xx）；
      * - 默认取属性值（prop）；
      * fmt：{
-     *  	'@xx' 	attr('xx')。元素特性值，
+     *  	'@xx' 	attr('xx')。元素特性值
      *  	'&xx' 	prop('xx')。元素属性值
      *  	'-xx' 	prop('-xx')。data-xx属性值（tQuery支持）
      *  	'%xx' 	css('xx')。元素样式值（计算）
