@@ -16,7 +16,7 @@
 <ul
     on="click |nil;
         click(li) |$('div/?xxx >b'), attr('-val'), pass('abcd');
-        .mouserover keyup |$('div/?xxx'), pop, hello('$text')"
+        .mouserover keyup |$('div/?xxx'), text, hello"
 >
 ```
 
@@ -55,10 +55,12 @@ re( str, flag ): RegExp
 // 传递 str 为 null 时取目标值。
 // 目标：当前条目/栈顶1项。
 
-date( ...v ): Date
+date( ...v? ): Date
 // 构造日期对象入栈。
-// 传递 v 为 null 时，取目标解包传递。
-// 目标：当前条目/栈顶1项。
+// 目标：当前条目。不自动取栈。
+// 目标有值时解包传递 new Data() 实参。
+// 注：
+// v无值并且目标为空时构造一个当前时间对象。
 
 scam(): Object
 // 修饰键是否按下封装（名称简化）。
