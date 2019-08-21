@@ -81,7 +81,7 @@ class Spliter {
      */
     *partSplit( fmt ) {
         let _ss = '',
-            _fs = this._test[0] && this._test || false,
+            _fs = this._test.length && this._test,
             _beg,
             _inc;
         this.reset();
