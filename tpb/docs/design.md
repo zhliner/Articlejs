@@ -382,29 +382,36 @@ mod(): Number     // (x, y) => x % y
 divmod( flat:Number ): [Number, Number]
 // 除并求余。(x, y) => [x/y, x%y]
 // 目标：当前条目/栈顶2项。
-// flat：扁平化展开的层级，最多为1，0值不展开（默认）。
+// flat：返回值扁平化展开层级，0值不展开（默认）。
+// 注：
+// 此处结果为一个二元数组，展开层级最多为1。
 
 nneg( flat:Number ): Number | [Number]
 // 数值取负（-x）。
 // 目标：当前条目（不定成员数）/栈顶1项。
-// flat 含义同上。
+// flat 含义同上，仅返回集合时有效。
 // 注：
 // 当前条目为集合时返回一个Collector。
 
 vnot( flat:Number ): Boolean | [Boolean]
 // 逻辑取反（!x）。
 // 目标：当前条目（不定成员数）/栈顶1项。
-// flat 含义同上。
+// flat 含义同上，仅返回集合时有效。
 // 注：
 // 当前条目为集合时返回一个Collector。
 
 dup( flat:Number ): Value | [Value]
-// 复制。
+// 复制（浅层）。
 // 目标：当前条目（不定成员数）/栈顶1项。
-// flat 含义同上。
+// flat 含义同上，仅返回集合时有效。
 // 注：
 // 当前条目为集合时返回一个Collector。
 // 自动取条目克隆时，返回值类型与源值类型相同。
+//
+// 浅复制：
+// - 数组：Array.from()
+// - 对象：Object.assign({}, ...)
+// - 其它：v2 = v1
 
 
 // 比较&逻辑运算
