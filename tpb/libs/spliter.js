@@ -14,12 +14,9 @@
 //  - 属性/数组段。中括号（[]）包围。
 //  - 语句块段。花括号（{}）包围。
 //
-//  解析由分隔符隔开的独立单元，需要理解上面的语法单元，它们不能被切分开。
+//  解析由分隔符隔开的独立单元，需要理解上面的语法结构，它们不能被切分。
 //  认可哪些语法单元是可以配置的，但其中字符串属于天然不应切分，故没有提供配置。
-//  即：
-//  字符串内的分隔符是字面的，不会被视为分隔符。
-//
-//  另：支持按区段切分，如字符串、参数段、普通段等。
+//  即：字符串内的分隔符是字面的，不是分隔符。
 //
 //  局限：分隔符只能是单个字符，但支持4字节Unicode字符。
 //
@@ -64,12 +61,11 @@ class Spliter {
      */
     *split( fmt, sep, fltr ) {
         let _ss = '',
-            _fs = this._test[0] && this._test || false;
+            _fs = this._test.length && this._test;
 
         this.reset();
-        let cnt = 0;
 
-        while ( fmt && cnt++ < 100 ) {
+        while ( fmt ) {
             [_ss, fmt] = this._pair(fmt, sep, _fs);
             yield fltr ? fltr(_ss) : _ss;
         }
@@ -88,11 +84,9 @@ class Spliter {
             _fs = this._test[0] && this._test || false,
             _beg,
             _inc;
-
         this.reset();
-        let cnt = 0
 
-        while ( fmt && cnt++ < 100 ) {
+        while ( fmt ) {
             [_ss, _beg, fmt, _inc] = this._part(fmt, _fs, _beg, _inc);
             // 忽略起始空白
             if ( !_ss ) {
@@ -100,10 +94,8 @@ class Spliter {
             }
             yield _ss;
         }
-        // 末尾字符回收。
+        // 末尾遗漏字符回收。
         if ( _beg ) yield _beg;
-
-        window.console.info(cnt);
     }
 
 
@@ -135,7 +127,7 @@ class Spliter {
             _pos = 0;
 
         for ( let ch of fmt ) {
-            let _inc = this._canSkip(_pch, ch, test);
+            let _inc = this._skip(_pch, ch, test);
             _pch = ch;
             if (_inc) {
                 _pos += ch.length;
@@ -164,12 +156,12 @@ class Spliter {
             _inc = inc;
 
         for ( let ch of fmt ) {
-            _inc = this._canSkip(_pch, ch, test);
+            _inc = this._skip(_pch, ch, test);
             _pch = ch;
             if (_inc != inc) break;
             _pos += ch.length;
         }
-        // 末尾边界退出。
+        // 末尾边界结束。
         if (_inc == inc) {
             _pch = '';
         }
@@ -179,13 +171,13 @@ class Spliter {
 
 
     /**
-     * 可否忽略跳过。
+     * 是否忽略跳过。
      * @param  {String} prev 前一个字符
      * @param  {String} ch 当前字符
-     * @param  {Array} test 测试集
+     * @param  {Array} test 忽略判断集
      * @return {Booleam}
      */
-    _canSkip( prev, ch, test ) {
+    _skip( prev, ch, test ) {
         return this._inStr(prev, ch) || test && test.some( fn => fn(prev, ch) );
     }
 
