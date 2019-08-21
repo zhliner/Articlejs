@@ -56,9 +56,11 @@ exec( ...rest ): Value
 // 目标：当前条目/栈顶1项。
 // 注：通常配合 func 使用。
 
-X( meth, ...rest ): Value
+x.[meth]( ...rest ): Value
 // 调用外部扩展函数库（X）成员执行。
 // 目标：无。
+// 实现：
+// X的一个代理会嵌入PB调用集，实现this.next()逻辑。
 
 
 // 集合执行

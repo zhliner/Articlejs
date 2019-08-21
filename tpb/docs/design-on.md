@@ -14,8 +14,9 @@
 
 ```html
 <ul
-    on="click |nil;
-        click(li) |$('div/?xxx >b'), attr('-val'), pass('abcd');
+    on="click mouseup;
+        click mouseup |nil;
+        click(li) contextmenu |$('div/?xxx >b'), attr('-val'), pass('abcd');
         .mouserover keyup |$('div/?xxx'), text, hello"
 >
 ```
@@ -23,10 +24,10 @@
 **说明：**
 
 - 事件名可用空格分隔多个同时定义。
-- 委托模式与普通模式可混合在一起。
-- 前置句点号（`.`）的事件名表示单次执行绑定（`$.one`）。
-- 无实参传递的方法可省略括号。
-- 除事件名定义外，其它空格是可选的。
+- 事件名与后续的PB方法序列之间用竖线（`|`）分隔。PB方法序列可选。
+- 前置句点（`.`）的事件名表示单次执行绑定（`$.one`）。
+- 各PB方法之间用逗号（`,`）分隔，逗号前后的空格可选（视觉友好）。
+- 无实参传递的PB方法可省略括号。
 
 
 ### 方法集

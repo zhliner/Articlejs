@@ -8,18 +8,20 @@
 //
 //	字符串序列切分器
 //
-//  格式串本身是字符串，但这里视它们为某种语法表达，因此语句中的字符串有规定的格式。
-//  其中包含：字符串、参数段、属性/数组段、语句块段等。
+//  格式串本身是字符串，但这里视它们为某种语法表达，包含了一些固定的逻辑：
+//  - 字符串。单/双引号（"'）和撇号（`）包围。
+//  - 参数段。小括号（()）包围。
+//  - 属性/数组段。中括号（[]）包围。
+//  - 语句块段。花括号（{}）包围。
 //
-//  - 解析并分离出由分隔符隔开的独立单元。
-//  - 可以配置忽略参数段/属性段/块段不切分。
-//  - 字符串类型是一个整体，天然不切分。
-//  - 语句中的字符串内的分隔符是字面的，不会被视为分隔符。
-//  - 支持按区段切分，如字符串、参数段、普通段等。
+//  解析由分隔符隔开的独立单元，需要理解上面的语法单元，它们不能被切分开。
+//  认可哪些语法单元是可以配置的，但其中字符串属于天然不应切分，故没有提供配置。
+//  即：
+//  字符串内的分隔符是字面的，不会被视为分隔符。
 //
-//  注：
-//  - 参数段由 () 包围，属性/数组段由 [] 包围，块段由 {} 包围。
-//  - 字符串由单/双引号（'"）和模板字符串标识符撇号（'）包围。
+//  另：支持按区段切分，如字符串、参数段、普通段等。
+//
+//  局限：分隔符只能是单个字符，但支持4字节Unicode字符。
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -28,45 +30,47 @@
 class Spliter {
     /**
      * 构造切分器。
-     * - 切分符号只能是单个字符；
-     * - 切分符号为任意字符，包括4字节Unicode；
-     * @param {String} sep 切分符号
      * @param {Boolean} args 参数段忽略（()）
      * @param {Boolean} attr 属性段忽略（[]）
      * @param {Boolean} block 块段忽略（{}）
      */
-    constructor( sep, args, attr, block ) {
-        this._sep = sep;
-
-        // 当前引号标识符
-        // 初始为空，表示在引号外
+    constructor( args, attr, block ) {
+        // 当前引号。
+        // 初始为空，表示在引号外。
         this._qch = '';
 
-        // 排除集。
-        // 可包含 参数/属性/块 段。
+        // 忽略集。
         let _buf = [];
-
         if (args)  _buf.push( this._inArgs.bind(this) );
         if (attr)  _buf.push( this._inAttr.bind(this) );
         if (block) _buf.push( this._inBlock.bind(this) );
+
+        this._attr = false;
+        this._args = false;
+        this._block = false;
 
         this._test = _buf;
     }
 
 
     /**
-     * 按分隔符切分。
+     * 普通切分。
      * 可以传递一个进阶过滤函数处理当前切分的串。
+     * 接口：function( s:String ): String
      * @param  {String} fmt 格式串
-     * @param  {Function} fltr 进阶处理回调
+     * @param  {String} sep 切分字符
+     * @param  {Function} fltr 进阶处理器
      * @return {Iterator} 切分迭代器
      */
-    *split( fmt, fltr ) {
+    *split( fmt, sep, fltr ) {
         let _ss = '',
-            _fs = this._test[0] && this._test;
+            _fs = this._test[0] && this._test || false;
 
-        while (fmt) {
-            [_ss, fmt] = this._pair(fmt, this._sep, _fs);
+        this.reset();
+        let cnt = 0;
+
+        while ( fmt && cnt++ < 100 ) {
+            [_ss, fmt] = this._pair(fmt, sep, _fs);
             yield fltr ? fltr(_ss) : _ss;
         }
     }
@@ -74,21 +78,32 @@ class Spliter {
 
     /**
      * 按区段切分。
-     * - 把不同区段的边界视为一个抽象的分隔符，区段包含：字符串/参数段等。
-     * - 只有普通段才存在首尾空白，具体类型的区段首尾为包围字符。
+     * - 把普通区段和忽略区段分隔开来。
+     * - 忽略的不同区段被整体视为一个单元（不分彼此）。
      * @param  {String} fmt 格式串
      * @return {Iterator} 切分迭代器
      */
     *partSplit( fmt ) {
         let _ss = '',
+            _fs = this._test[0] && this._test || false,
+            _beg,
             _inc;
 
-        while (fmt) {
-            [_ss, fmt, _inc] = this._part(fmt, this._test, _inc);
-            // 起始或连续类型区段会切分出一个空串，忽略
-            if (!_ss) continue;
+        this.reset();
+        let cnt = 0
+
+        while ( fmt && cnt++ < 100 ) {
+            [_ss, _beg, fmt, _inc] = this._part(fmt, _fs, _beg, _inc);
+            // 忽略起始空白
+            if ( !_ss ) {
+                continue;
+            }
             yield _ss;
         }
+        // 末尾字符回收。
+        if ( _beg ) yield _beg;
+
+        window.console.info(cnt);
     }
 
 
@@ -129,10 +144,8 @@ class Spliter {
             if (ch == sep) break;
             _pos += ch.length;
         }
-        return [
-            fmt.substring(0, _pos),
-            fmt.substring(_pos + sep.length)
-        ];
+
+        return [ fmt.substring(0, _pos), fmt.substring(_pos + sep.length) ];
     }
 
 
@@ -145,70 +158,69 @@ class Spliter {
      * @param  {Boolean} inc 在某类型段内
      * @return [String, String, Booleam]
      */
-    _part( fmt, test, inc = false ) {
-        let _pch = '',
+    _part( fmt, test, beg = '', inc = false ) {
+        let _pch = beg,
             _pos = 0,
             _inc = inc;
 
         for ( let ch of fmt ) {
             _inc = this._canSkip(_pch, ch, test);
-            if (_inc != inc) break;
             _pch = ch;
+            if (_inc != inc) break;
             _pos += ch.length;
         }
-        return [
-            fmt.substring(0, _pos),
-            fmt.substring(_pos),
-            _inc,
-        ];
+        // 末尾边界退出。
+        if (_inc == inc) {
+            _pch = '';
+        }
+        // 已到边界。
+        return [ beg + fmt.substring(0, _pos), _pch, fmt.substring(_pos+1), _inc ];
     }
 
 
     /**
-     * 是否需要跳过忽略。
-     * @param  {String} prev 之前一个字符
-     * @param  {String} cur 当前字符
+     * 可否忽略跳过。
+     * @param  {String} prev 前一个字符
+     * @param  {String} ch 当前字符
      * @param  {Array} test 测试集
      * @return {Booleam}
      */
-    _canSkip( prev, cur, test ) {
-        return this._inStr(prev, cur) || test.length && test.every( f => f(prev, cur) );
+    _canSkip( prev, ch, test ) {
+        return this._inStr(prev, ch) || test && test.some( fn => fn(prev, ch) );
     }
 
 
     /**
      * 是否在字符串内。
-     * - 会同时进行判断和处理；
-     * - 引号包含：双引号/单引号/模板字符串撇号；
-     * @param  {String} prev 之前一个字符
+     * - 会同时进行判断和处理。
+     * - 引号包含：双引号/单引号/模板字符串撇号。
+     * @param  {String} prev 前一个字符
      * @param  {string} ch 当前字符
-     * @return {bool}
+     * @return {Boolean}
      */
     _inStr( prev, ch ) {
         if (ch == '"' || ch == "'" || ch == '`') {
             if (prev == '\\') {
-                return !! this._qch;
+                return !!this._qch;
             }
             // 开始
-            if (this._qch == '') {
-                this._qch = ch;
-                return true;
-            }
+            if (this._qch == '') this._qch = ch;
             // 结束
-            if (this._qch == ch) {
-                this._qch = '';
-                return true;
-            }
+            else if (this._qch == ch) this._qch = '';
+
+            // 开始或末尾引号
+            return true;
         }
         return !!this._qch;
     }
 
 
     /**
-     * 进入参数段。
-     * - 不考虑字符串内情形；
+     * 是否在参数段内。
+     * 连续的参数段视为一体。
+     * @param  {String} prev 前一个字符
      * @param  {String} ch 当前字符
-     * @return {Boolean} 是否进入
+     * @return {Boolean}
      */
     _inArgs( prev, ch ) {
         if (ch == '(') {
@@ -222,9 +234,10 @@ class Spliter {
 
 
     /**
-     * 进入属性段。
+     * 是否在属性段内。
+     * @param  {String} prev 前一个字符
      * @param  {String} ch 当前字符
-     * @return {Boolean} 是否进入
+     * @return {Boolean}
      */
     _inAttr( prev, ch ) {
         if (ch == '[') {
@@ -238,9 +251,10 @@ class Spliter {
 
 
     /**
-     * 进入块段。
+     * 是否在块段内。
+     * @param  {String} prev 前一个字符
      * @param  {String} ch 当前字符
-     * @return {Boolean} 是否进入
+     * @return {Boolean}
      */
     _inBlock( prev, ch ) {
         if (ch == '{') {
@@ -252,3 +266,6 @@ class Spliter {
         return this._block;
     }
 }
+
+
+export { Spliter };
