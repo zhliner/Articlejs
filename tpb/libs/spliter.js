@@ -88,10 +88,6 @@ class Spliter {
 
         while ( fmt ) {
             [_ss, _beg, fmt, _inc] = this._part(fmt, _fs, _beg, _inc);
-            // 忽略起始空白
-            if ( !_ss ) {
-                continue;
-            }
             yield _ss;
         }
         // 末尾遗漏字符回收。
