@@ -27,27 +27,22 @@ const
     __chrCall = ',', 	// 调用单元分隔
     __chrZero = '-',  	// 空白占位符
 
+    // On事件定义模式。
+    // 支持委托选择器，可前置 [.-] 标识字符。
+    // 事件名支持字母、数字和 [._-] 字符。
+    // 注：支持参数段内换行。
+    __onEvent = /^[.-]?([\w.-]+)(?:\(([^]*)\))?$/,
 
-    // 管道分隔模式
-    // 排除属性选择器里的|字符。
-    __rePipe    = /\|(?!=)/,
+    // 调用模式匹配。
+    // 方法名支持字母、数字和 [._-] 字符。
+    // 参数段支持任意字符（包括换行），可选。
+    __obtCall = /^([\w][\w.-]*)(?:\(([^]*)\))?$/,
 
     // 简单词组
     // 如空格分隔的多个事件名序列（可简单$.on绑定）。
     // 友好：支持句点字符。
     __reWords   = /^[\w][\w\s.]*$/;
 
-
-
-//
-// 基础解析。
-//
-class Parser {
-    constructor() {
-        //
-    }
-
-}
 
 
 class On {
@@ -65,6 +60,86 @@ class By {
 class To {
     //
 }
+
+
+//
+// On事件名定义。
+// 针对单个事件的定义，由外部分解提取。
+//
+class Evn {
+    /**
+     * 解析格式化事件名。
+     * - 前置句点（.）表示绑定单次执行。
+     * - 前置短横线（-）表示延迟绑定事件处理器。
+     * - 支持括号内指定委托选择器。
+     * @param {String} name 格式化名称
+     */
+    constructor( name ) {
+        let _vs = name.match(__onEvent);
+        if ( !_vs ) {
+            throw new Error('on-attr config is invalid.');
+        }
+        this.name     = _vs[1];
+        this.selector = _vs[2] || null;
+        this.one      = name[0] == '.';
+        this.delay    = name[0] == '-';
+    }
+}
+
+
+//
+// 调用定义。
+// 模板中指令/方法调用的配置存储。
+//
+class Call {
+    /**
+     * call支持句点引用子集成员。
+     * 如：x.math.abs()
+     * @param {String} call 调用格式串
+     */
+    constructor( call ) {
+        let _vs = call.match(__obtCall);
+        if ( !_vs ) {
+            throw new Error('call-attr config is invalid.');
+        }
+        this.args = args;
+        this.oper = name.split('.');
+    }
+
+
+    /**
+     * 应用到目标方法集。
+     * 如果指令属于一个子集（.引用），方法会绑定this到该子集。
+     * @param {Object} pbs PB指令集
+     */
+    apply( pbs ) {
+        let _host = this._host( this.oper.slice(0, -1), pbs ),
+            _meth = this.oper[ this.oper.length - 1 ];
+
+        // 更新为函数。
+        this.oper = _host == null ? pbs[_meth] : _host[_meth].bind(_host);
+    }
+
+
+    /**
+     * 提取指令集成员。
+     * 是提取末端方法的上级宿主对象，而非最终方法本身。
+     * 返回null表示方法为顶层成员。
+     * @param  {[String]} names 引用链
+     * @param  {Object} pbs 指令集
+     * @return {Object|null}
+     */
+    _host( names, pbs ) {
+        return names.length ? names.reduce( (o, k) => o[k], pbs ) : null;
+    }
+}
+
+
+//
+// 工具函数。
+///////////////////////////////////////////////////////////////////////////////
+
+
 
 
 const _Parser = {

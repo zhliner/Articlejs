@@ -1,9 +1,10 @@
 ## Tpb: To
 
-从流程取值对目标赋值，展现结果（如样式）。支持后续联动事件触发和元素状态PB（如：focus/select等）。
-如果目标为多个：源数据为数组时，分别赋值，否则为相同赋值。
+用流程传递来的数据对目标赋值（UI结果），支持后续联动的事件触发和少量指令操作。
 
 `to = "Query | Method/Where | Next-Stage"`
+
+如果目标检索为一个集合，当数据源也为数组时，为分别一一对应赋值的逻辑。注意，此处的目标指 `Query` 的结果，而流程数据栈中的当前条目称为内容数据。
 
 
 ### Query
@@ -36,11 +37,6 @@ xxxx   // 单元素检索，$.get(): Element
 ### Method/Where
 
 ```js
-[node]
-// 当前条目为数据，检索结果为操作目标。
-
-// 当前条目为数据
-// {Node|[Node]|Collector|Set|Iterator|Function} /cons
 - before        // 插入目标之前
 - after         // 插入目标之后
 - begin         // 插入目标内前端
@@ -49,16 +45,22 @@ xxxx   // 单元素检索，$.get(): Element
 - append        // 同上
 - fill          // 填充目标内容（清空原有）
 - replace       // 替换目标自身
+// 节点插入/替换。
+// {Node|[Node]|Collector|Set|Iterator|Function} /cons
+// 当前条目为数据，检索结果为操作目标。
+// 因数据本身可为数组，不支持后续（克隆等）参数传递。
+// 注：可提前独立克隆。
 
-- cloneEvent    // {Element} /src 全事件克隆
+
+- wrap          // {Element|String} /box 各自包裹
+- wrapInner     // {Element|String} /box 各自内包裹
+- wrapAll       // {Element|String} /box 包裹全部目标（汇集到一起）
+// 当前条目为容器，包裹目标。
 
 
-// 标量数据
-- html          // {String|[String]|Node|[Node]|Function} /cons
-- text          // {String|[String]|Node|[Node]|Function} /cons
-- height        // Number/px
-- width         // Number/px
-- scroll        // {top:Number/px, left:Number/px}
+- height        // {Number} /px
+- width         // {Number} /px
+- scroll        // {top:Number, left:Number} /px
 - scrollTop     // {Number} /px
 - ScrollLeft    // {Number} /px
 - addClass      // {String|Function} /names
@@ -69,53 +71,62 @@ xxxx   // 单元素检索，$.get(): Element
 - html          // {String|[String]|Node|[Node]|Function|.values} /fill
 - text          // {String|[String]|Node|[Node]|Function|.values} /fill
 - offset        // {top:Number/px, left:Number/px}
-
-- pba           // [String]
-- pbo           // [String]
-
-
-// 当前条目为容器，简单包裹。
-- wrap          // {Element|String} /box 各自包裹
-- wrapInner     // {Element|String} /box 各自内包裹
-- wrapAll       // {Element|String} /box 包裹全部目标（汇集到一起）
+// 简单设置。
+// 流程数据作为唯一实参。
 
 
+- cloneEvent
+// 事件克隆。{Element} /src | [...]
+// 注：
+// 事件源为单个元素，因此支持多实参扩展（支持后续参数）。
+// [ Element, String|Array2|[Array2] ]
+
+
+- beforeWith    // {Node} /ref | [...]
+- afterWith     // {Node} /ref | [...]
+- prependWith   // {Element} /box | [...]
+- appendWith    // {Element} /box | [...]
+- replaceWith   // {Node} /ref | [...]
+- fillWith      // {Element} /box | [...]
 // 反向插入。
 // 当前条目为插入参考，检索结果为插入内容。
-// 注：无克隆，移动式插入。
+// 注：
+// 插入参考为单个节点或元素，因此支持多实参扩展（传递后续克隆参数）。
+// [ Node|Element, Boolean?, Boolean?, Boolean? ]
 
-- beforeWith    // {Node} /ref
-- afterWith     // {Node} /ref
-- prependWith   // {Element} /box
-- appendWith    // {Element} /box
-- replaceWith   // {Node} /ref
-- fillWith      // {Element} /box
 
+- pba   // {[String]}
+- pbo   // {[String]}
+// PB属性专有操作。
+
+
+// 下面为常用方法。
+// 流程数据支持数组成员与目标集成员一一对应。
+// 采用前置特殊字符来简化实现。
 
 [attr]
 - @[name]
-// 源数据：{String|Number|Boolean|Function|null}
-// 例：[3/li]|@style|fire('...')
-// $(...).attr('style', xxx)
-// 注：这里的 style 是元素的样式特性，即 cssText 值。
+// 特性设置。即：.attr([name], ...)
+// {String|Number|Boolean|Function|null}
 // 例：
-// @class：赋值元素的class特性值。实参为null时删除特性值。
-// @-val： 赋值元素的data-val特性值，同 @data-val。
+// @style： 设置元素的style特性值（cssText）。
+// @class： 设置元素的class特性值。实参为null时删除特性值。
 
 [prop]
 - &[name]
-// 源数据：{String|Number|Boolean|Function|null}
-// 例：.Test|&value|fire('...')
-// let el = $.get('.Test')
-// $.prop( el, 'value', xxx )
+// 属性设置。即：.prop([name], ...)
+// {String|Number|Boolean|Function|null}
+// 例：
+// &value   设置元素的value属性值。
+// &-val：  设置元素的data-val属性值（dataset.val），同 &data-val。
 
 [css]
 - %[name]
-// 源数据：{String|Number|Function|null}
-// 例：.Test|%font-size|fire('...')
-// let el = $.get('.Test')
-// $.css(el, 'font-size', xxx)
-// 注：名称 fontSize 同样可行。
+// 样式设置。即：.css([name], ...)
+// {String|Number|Function|null}
+// 例：
+// %font-size 设置元素的font-size内联样式。
+// %fontSize  效果同上。
 ```
 
 
@@ -149,7 +160,11 @@ xxxx   // 单元素检索，$.get(): Element
 
 ### Next-Stage
 
-可用顶层全局成员方法有限地获取新的流程数据。**注**：`Query` 的目标依然保持为此处的目标。
+可用顶层全局成员方法有限地获取新的流程数据。
+
+> **注：**<br>
+> `Query` 段的目标依然为此处的目标。目标不进入流程，以方便流程捕获需要发送的数据。
+
 
 ```js
 target()

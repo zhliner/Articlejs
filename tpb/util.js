@@ -338,25 +338,6 @@ const Util = {
 
 
     /**
-     * 正则切分两片。
-     * - 注意正则表达式不可为g模式；
-     * @param  {String} str 源字符串
-     * @param  {RegExp} sep 分割正则式
-     * @return {[String, String]}
-     */
-    rePair( str, sep ) {
-        var _pos = str.search(sep);
-
-        return _pos < 0 ?
-            [str, ''] :
-            [
-                str.substring(0, _pos),
-                str.substring(_pos).replace(sep, '')
-            ];
-    },
-
-
-    /**
      * 解析多层子对象引用。
      * @param  {Array} refs 引用名集
      * @param  {Object} data 源对象

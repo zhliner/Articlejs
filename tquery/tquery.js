@@ -785,7 +785,7 @@ Object.assign( tQuery, {
      * - 如果需要准确的委托匹配，evns可以是一个配置对数组：[Array2]。
      *   Array2: [evname, selector]
      * 注意：
-     * 委托选择器为空时应设定为null值，否则不会匹配。
+     * 委托选择器为空时应设置为null或undefined，否则不会匹配。
      * 如果没有目标事件被克隆，返回null值。
      *
      * @param  {Element} src 事件源元素

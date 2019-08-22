@@ -35,6 +35,7 @@ class Spliter {
         // 当前引号。
         // 初始为空，表示在引号外。
         this._qch = '';
+        this._esc = false;
 
         // 忽略集。
         let _buf = [];
@@ -52,23 +53,24 @@ class Spliter {
 
     /**
      * 普通切分。
-     * 可以传递一个进阶过滤函数处理当前切分的串。
-     * 接口：function( s:String ): String
+     * 可以限制切分的最大次数，如：1次两片，2次3片。
      * @param  {String} fmt 格式串
      * @param  {String} sep 切分字符
-     * @param  {Function} fltr 进阶处理器
+     * @param  {Number} cnt 切分的最大计数，可选
      * @return {Iterator} 切分迭代器
      */
-    *split( fmt, sep, fltr ) {
+    *split( fmt, sep, cnt = -1 ) {
         let _ss = '',
             _fs = this._test.length && this._test;
 
         this.reset();
 
-        while ( fmt ) {
+        while ( fmt && cnt-- ) {
             [_ss, fmt] = this._pair(fmt, sep, _fs);
-            yield fltr ? fltr(_ss) : _ss;
+            yield _ss;
         }
+        // 未完全切分的末段。
+        if ( fmt ) yield fmt;
     }
 
 
@@ -101,7 +103,7 @@ class Spliter {
      */
      reset() {
         this._qch = '';
-        this._args = this._attr = this._block = false;
+        this._esc = this._args = this._attr = this._block = false;
         return this;
     }
 
@@ -180,26 +182,53 @@ class Spliter {
 
     /**
      * 是否在字符串内。
-     * - 会同时进行判断和处理。
-     * - 引号包含：双引号/单引号/模板字符串撇号。
+     * 引号包含：双引号/单引号/模板字符串撇号。
      * @param  {String} prev 前一个字符
      * @param  {string} ch 当前字符
      * @return {Boolean}
      */
     _inStr( prev, ch ) {
-        if (ch == '"' || ch == "'" || ch == '`') {
-            if (prev == '\\') {
-                return !!this._qch;
-            }
-            // 开始
-            if (this._qch == '') this._qch = ch;
-            // 结束
-            else if (this._qch == ch) this._qch = '';
+        this._escape( ch );
 
-            // 开始或末尾引号
+        if (ch == '"' || ch == "'" || ch == '`') {
+            this._qchSet(prev, ch);
             return true;
         }
+        // 结束重置。
+        if (ch != '\\') this._esc = false;
+
         return !!this._qch;
+    }
+
+
+    /**
+     * 引号设置。
+     * @param {String} prev 前一个字符
+     * @param {String} ch 当前字符
+     */
+    _qchSet( prev, ch ) {
+        // 可能转义
+        if (prev == '\\' && this._esc) {
+            return this._esc = false;
+        }
+        // 开始
+        if (this._qch == '') {
+            return this._qch = ch;
+        }
+        // 结束
+        if (this._qch == ch) this._qch = '';
+    }
+
+
+    /**
+     * 处理转义字符。
+     * @param {String} ch 当前字符
+     */
+    _escape( ch ) {
+        if ( !this._qch ) {
+            return this._esc = false;
+        }
+        if ( ch == '\\' ) this._esc = !this._esc;
     }
 
 
