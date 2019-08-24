@@ -12,7 +12,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-// import { On, By, To } from "./pbs.js";
+import { On, By, To } from "./pbs.js";
+import { Spliter } from "./spliter.js";
+
+
+const $ = window.$;
+
 
 const
     // OBT默认属性名
@@ -38,27 +43,195 @@ const
     // 参数段支持任意字符（包括换行），可选。
     __obtCall = /^([\w][\w.-]*)(?:\(([^]*)\))?$/,
 
+    // To:Query
+    // 集合范围筛选匹配：( beg, end )。
+    __toSlice = /^\(([\d,\s]*)\)$/,
+
+    // To:Query
+    // 集合定位取值匹配：[ 0, 2, 5... ]。
+    __toIndex = /^\[([\d,\s]*)\]$/,
+
+    // To:Query
+    // 集合过滤表达式匹配：{ filter-expr }。
+    __toFilter = /^\{([^]*)\}$/,
+
     // 简单词组
     // 如空格分隔的多个事件名序列（可简单$.on绑定）。
     // 友好：支持句点字符。
     __reWords   = /^[\w][\w\s.]*$/;
 
 
+const
+    SSpliter    = new Spliter(),
+    ASpliter    = new Spliter(true),
+    AASpliter   = new Spliter(true, true),
+    AABSpliter  = new Spliter(true, true, true);
 
-class On {
+
+
+//
+// 流程数据栈。
+// 每一个执行流对应一个数据栈实例。
+//
+class Stack {
+    //
     constructor() {
-        //
+        this._buf = [];     // 数据栈
+        this._item;         // 当前条目
+        this._done = false; // 是否已暂存
+    }
+
+
+    push( ...its ) {
+        this._buf.push(...its);
+    }
+
+
+    /**
+     * 暂存区取数据。
+     * 可能自动取栈顶项，视n值而定：{
+     *      0   暂存区有值则返回，不自动取栈
+     *      1   暂存区有值则返回，否则取栈顶1项（值）
+     *      n   暂存区有值则返回，否则取栈顶n项（Collector）
+     * }
+     * @param {Number} n 取栈条目数
+     */
+    data( n ) {
+        try {
+            if ( this._done ) {
+                return this._item;
+            }
+            // 自动取栈
+            if ( n == 1 ) this.pop();
+            else if ( n > 1 ) this.pops(n);
+
+            return this._item;
+        }
+        finally {
+            this._done = false;
+            this._item = undefined;
+        }
+    }
+
+
+    /**
+     * 弹出栈顶值暂存。
+     * @return {void}
+     */
+    pop() {
+        this._done = true;
+        this._item = this._buf.pop();
+    }
+
+
+    /**
+     * 弹出栈顶多个条目暂存。
+     * 会构造为一个 Collector 实例。
+     * @param  {Number} n 弹出数量
+     * @return {void}
+     */
+    pops( n ) {
+        this._done = true;
+        this._item = $( n > 0 ? this._buf.splice(-n) : null );
     }
 }
 
 
-class By {
-    //
-}
+//
+// 指令调用单元。
+// 包含一个双向链表结构，实现执行流的链式调用逻辑。
+//
+class Cell {
+    /**
+     * 构造指令单元。
+     * @param {Stack} stack 当前链数据栈
+     * @param {Cell} prev 前一个单元
+     */
+    constructor( stack, prev = null ) {
+        this._data = stack;
+        this._func = null;
+        this._prev = prev;
+        this._next = null;
+
+        if (prev) prev.next( this );
+    }
 
 
-class To {
-    //
+    /**
+     * 执行调用。
+     * @param {Value|Promise} val 上一个指令方法的返回值
+     */
+    call( val ) {
+        if ( val !== undefined ) {
+            // 前值入栈。
+            this._data.push(val);
+        }
+        return this._next && this._proxy( this._func );
+    }
+
+
+    pop( n ) {
+        //
+    }
+
+
+    /**
+     * 设置上一个调用单元。
+     * @param {Cell} cell 调用单元
+     */
+    prev( cell ) {
+        this._prev = cell;
+    }
+
+
+    /**
+     * 设置下一个调用单元。
+     * @param {Cell} cell 调用单元
+     */
+    next( cell ) {
+        this._next = cell;
+    }
+
+
+    /**
+     * 获取当前条目。
+     * 注：数据栈同名方法封装。
+     * @param {Number} n 取栈条目数（参考）
+     */
+    data( n ) {
+        return this._data.data(n);
+    }
+
+
+    /**
+     * 移除当前单元。
+     * 让当前指令调用单元脱离调用链（如一次性使用）。
+     */
+    dispose() {
+        this._prev.next(this._next);
+        this._next.prev(this._prev);
+    }
+
+
+    /**
+     * 方法绑定（bound-function）。
+     * @param {Function} meth 目标方法（外部定义）
+     * @param {Array} args 模板配置的参数序列
+     */
+    bind( meth, args ) {
+        this._func = meth.bind( this, ...args );
+    }
+
+
+    /**
+     * 代理调用。
+     * @param {bound-Function} handle 方法实现
+     */
+    _proxy( handle ) {
+        let _v = handle(); // bound-function
+        return $.type(_v) == 'Promise' ? _v.then( o => this._next.call(o) ) : this._next.call(_v);
+    }
+
 }
 
 
@@ -95,29 +268,33 @@ class Call {
     /**
      * call支持句点引用子集成员。
      * 如：x.math.abs()
-     * @param {String} call 调用格式串
+     * @param {String} fmt 调用格式串
      */
-    constructor( call ) {
-        let _vs = call.match(__obtCall);
+    constructor( fmt ) {
+        let _vs = fmt.match(__obtCall);
         if ( !_vs ) {
             throw new Error('call-attr config is invalid.');
         }
-        this.args = args;
-        this.oper = name.split('.');
+        this._meth = _vs[1].split('.');
+        this._args = _vs[2] ? JSON.parse(`[${_vs[2]}]`) : [];
     }
 
 
     /**
-     * 应用到目标方法集。
-     * 如果指令属于一个子集（.引用），方法会绑定this到该子集。
-     * @param {Object} pbs PB指令集
+     * 应用到指令集。
+     * 方法可能属于一个子集（x.y.m）。
+     * 所有的方法都会绑定内部的this到cell对象，以方便调用必要的接口。
+     * 注：
+     * 如果你不需要上面的接口，可以自己先绑定（.bind()）。
+     *
+     * @param {Object} pbs 指令集
+     * @param {Cell} cell 指令单元
      */
-    apply( pbs ) {
-        let _host = this._host( this.oper.slice(0, -1), pbs ),
-            _meth = this.oper[ this.oper.length - 1 ];
+    apply( pbs, cell ) {
+        let _m = this._meth.pop(),
+            _host = this._host(this._meth, pbs) || pbs;
 
-        // 更新为函数。
-        this.oper = _host == null ? pbs[_meth] : _host[_meth].bind(_host);
+        cell.bind( _host[_m], this._args );
     }
 
 
@@ -130,8 +307,43 @@ class Call {
      * @return {Object|null}
      */
     _host( names, pbs ) {
-        return names.length ? names.reduce( (o, k) => o[k], pbs ) : null;
+        return names.length && names.reduce( (o, k) => o[k], pbs );
     }
+
+}
+
+
+//
+// To查询配置。
+// 格式 {
+//      - xxx   // 单元素检索：$.get(): Element | null
+//      - [xxx] // 多元素检索：$(): Collector
+//
+//      - [xxx]:( Number, Number )      // 范围：slice()
+//      - [xxx]:[ Number, Number, ... ] // 定点取值：[n]
+//      - [xxx]:{ Expression-Filter }   // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
+// }
+//
+class Query {
+    constructor( qs ) {
+        //
+    }
+}
+
+
+//
+// To设置配置。
+//
+class Set {
+    //
+}
+
+
+//
+// To下一阶配置。
+//
+class Next {
+    //
 }
 
 

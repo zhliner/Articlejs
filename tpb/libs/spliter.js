@@ -203,6 +203,7 @@ class Spliter {
 
     /**
      * 引号设置。
+     * 注意：该操作在 ch 为单/双引号和撇号时才调用。
      * @param {String} prev 前一个字符
      * @param {String} ch 当前字符
      */

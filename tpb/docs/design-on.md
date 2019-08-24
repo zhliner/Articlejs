@@ -1,6 +1,6 @@
 ## Tpb: On
 
-关联事件，求取各种值，值进入流程数据栈向后传递。数据入栈为 `Array.push` 方式，如果数组成员需要展开，可跟随 `flat()` 调用。
+关联事件，获取各种值。值进入流程数据栈向后传递，数据入栈为 `Array.push` 方式，除了 `undefined` 外，每一个指令（方法）的返回值都会自动入栈。
 
 事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器包含在括号内，如：`click(p[data-id="xxx"])`。**注**：选择器本身不用引号包围。
 
@@ -106,6 +106,7 @@ scroll(): {top, left}
 scrollTop(): Number
 scrollLeft(): Number
 hasClass( name ): Boolean
+classAll(): [String]
 val(): Value | [Value] | null
 html(): String          // 当前条目支持元素（集）或文本。
 text(): String          // 当前条目支持元素（集）或HTML源码
@@ -131,7 +132,6 @@ contains(): Boolean
 controls(): [Element]
 serialize(): [Array2]
 queryURL(): String
-classes(): [String]
 
 dataName(): String
 selector(): String

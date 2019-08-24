@@ -49,8 +49,8 @@
         querySelectorAll 拥有上下文元素自身的父级限定能力。
 
     实现：
-        支持 '>...' 选择器形式（类似 Sizzle，包括多个并列如：'>a, >b'）。
-        但注意：无法分辨属性值中的 ',>` 序列，如：'>[value=",>xxx"]' 将无法正常工作。
+        同 Sizzle，支持 '>...' 选择器形式，包括多个并列如：'>a, >b'。
+        $.find('>a, >b', p) => [<b>, <a>]
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -211,14 +211,11 @@
         // 并列选择器起始 > 模式
         // 如：`>p > em, >b a`
         // 注意！无法区分属性选择器属性值内包含的 ,> 字符序列。
-        // subslr = /^>|(?<=,\s*)>/,  // in ES2018
         subslr = /^>|,\s*>/,
-        // 用于替换（+g）
-        gsubslr = new RegExp(subslr, 'g'),
 
         // 伪Tag开始字符匹配（[）
         // 注：前置\时为转义，不匹配，偶数\\时匹配。
-        tagLeft = /(^|[^\\]|(?:\\\\)+)\[/g,
+        tagLeft = /(^|[^\\]|[^\\](?:\\\\)+)\[/g,
 
         // 转义脱出 \[ => [
         // 注：在tagLeft替换之后采用。
@@ -226,7 +223,7 @@
 
         // 伪Tag结束字符匹配（]）
         // 注：同上
-        tagRight = /([^\\]|(?:\\\\)+)\]/g,
+        tagRight = /([^\\]|[^\\](?:\\\\)+)\]/g,
 
         // 转义脱出 \] => ]
         // 注：在tagRight替换之后采用。
@@ -435,8 +432,15 @@ function hackAttrClear( ctx, attr ) {
  * @param {String} fix Hack标识串
  */
 function hackSelector( ctx, slr, fix ) {
-    // return slr.replace( gsubslr, `${ctx.nodeName}[${fix}]>`);
-    return slr.replace( gsubslr, s => `${s.slice(0, -1)}${ctx.nodeName}[${fix}]>`);
+    let _buf = [],
+        _fix = `${ctx.nodeName}[${fix}]`;
+
+    for ( let ss of splitf(slr, ',') ) {
+        ss = ss.trimLeft();
+        _buf.push( (ss[0] == '>' && _fix || '') + ss );
+    }
+
+    return _buf.join(', ');
 }
 
 
@@ -866,16 +870,6 @@ Object.assign( tQuery, {
             target = Arr( entries(target) );
         }
         return target.map( ([n, v]) => uriKeyValue(n, v, match) ).join('&');
-    },
-
-
-    /**
-     * 获取元素的类名集。
-     * @param  {Element} el 目标元素
-     * @return {[String]} 类名集
-     */
-    classes( el ) {
-        return el.nodeType == 1 ? Arr( el.classList ) : null;
     },
 
 
@@ -1509,6 +1503,21 @@ Object.assign( tQuery, {
             every(
                 it => it && el.classList.contains(it)
             );
+    },
+
+
+    /**
+     * 获取元素的类名集。
+     * 元素类型始终返回一个数组，非元素类型返回一个null。
+     * @param  {Element} el 目标元素
+     * @return {[String]} 类名集
+     */
+    classAll( el ) {
+        if (el.nodeType != 1) {
+            window.console.error('el is not a element.');
+            return null;
+        }
+        return Arr( el.classList );
     },
 
 
@@ -2783,8 +2792,7 @@ class Collector extends Array {
             comp = sortElements;
         }
         return new Collector(
-            // comp的null值有用
-            // 在一个新的集合上排序（不影响原集合）
+            // comp的null值：普通值去重排序。
             unique ? uniqueSort(this, comp) : Arr(this).sort(comp || undefined),
             this
         );
@@ -2953,6 +2961,21 @@ class Collector extends Array {
     normalize( level ) {
         this.forEach( el => $.normalize(el, level) );
         return level || this;
+    }
+
+
+    /**
+     * 获取类名集。
+     * 不同元素的类名扁平化地汇集到一起，无类名的忽略。
+     * @return {[String]} 类名集。
+     */
+    classAll() {
+        let _buf = [];
+        for (const el of this) {
+            // 支持 $ 代理嵌入
+            _buf.push( ...$.classAll(el) );
+        }
+        return new Collector( _buf, this );
     }
 
 
@@ -3152,7 +3175,7 @@ function elsEx( list, get ) {
     .forEach(function( fn ) {
         Reflect.defineProperty(Collector.prototype, fn, {
             value: function(...rest) {
-                return new Collector( get(fn, this, ...rest), this );
+                return new Collector( get(fn, Arr(this), ...rest), this );
             },
             enumerable: false,
         });
@@ -3321,7 +3344,7 @@ elsExfn([
     fn =>
     function(...rest) {
         // 转为普通数组。可代理调用 $
-        return [...this.map( el => $[fn](el, ...rest) )];
+        return Arr(this).map( el => $[fn](el, ...rest) );
     }
 );
 
@@ -3502,7 +3525,7 @@ elsExfn([
         }
         let _vs = isArr(val) ?
             _arrSets( fn, this, val, ...rest ) :
-            this.map( el => $[fn](el, val, ...rest) );
+            Arr(this).map( el => $[fn](el, val, ...rest) );
 
         // 扁平化，构造为 Collector
         return new Collector([].concat(..._vs), this);
@@ -3614,6 +3637,117 @@ elsExfn([
 //
 // 基本工具。
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 格式串切分。
+ * 可识别字符串类型，字符串内的分隔符被忽略。
+ * 可以限制切分的最大次数，如：1次两片，2次3片。
+ * @param  {String} fmt 格式串
+ * @param  {String} sep 切分字符
+ * @param  {Number} cnt 切分的最大计数，可选
+ * @return {Iterator} 切分迭代器
+ */
+function *_splitf( fmt, sep, cnt = -1 ) {
+    let _ss = '';
+
+    this._esc = false;
+    this._qch = '';
+
+    while ( fmt && cnt-- ) {
+        [_ss, fmt] = this._pair(fmt, sep);
+        yield _ss;
+    }
+    // 未完全切分的末段。
+    if ( fmt ) yield fmt;
+}
+
+
+Object.assign(_splitf, {
+    /**
+     * 简单的2片切分。
+     * - 假定检查起点在字符串之外，因此无需检查转义字符（\x）。
+     * - 可以正确处理4字节Unicude字符序列。
+     * @param  {String} fmt 格式串
+     * @param  {String} sep 分隔符
+     * @return [String, String] 前段和后段
+     */
+    _pair( fmt, sep ) {
+        let _pch = '',
+            _pos = 0;
+
+        for ( let ch of fmt ) {
+            let _inc = this._inStr(_pch, ch);
+            _pch = ch;
+            if (_inc) {
+                _pos += ch.length;
+                continue;
+            }
+            if (ch == sep) break;
+            _pos += ch.length;
+        }
+
+        return [ fmt.substring(0, _pos), fmt.substring(_pos + sep.length) ];
+    },
+
+
+    /**
+     * 是否在字符串内。
+     * 引号包含：双引号/单引号/模板字符串撇号。
+     * @param  {String} prev 前一个字符
+     * @param  {string} ch 当前字符
+     * @return {Boolean}
+     */
+    _inStr( prev, ch ) {
+        this._escape( ch );
+
+        if (ch == '"' || ch == "'" || ch == '`') {
+            this._qchSet(prev, ch);
+            return true;
+        }
+        // 结束重置。
+        if (ch != '\\') this._esc = false;
+
+        return !!this._qch;
+    },
+
+
+    /**
+     * 引号设置。
+     * 注：该操作在 ch 为单/双引号和撇号时才调用。
+     * @param {String} prev 前一个字符
+     * @param {String} ch 当前字符
+     */
+    _qchSet( prev, ch ) {
+        // 可能转义
+        if (prev == '\\' && this._esc) {
+            return this._esc = false;
+        }
+        // 开始
+        if (this._qch == '') {
+            return this._qch = ch;
+        }
+        // 结束
+        if (this._qch == ch) this._qch = '';
+    },
+
+
+    /**
+     * 处理转义字符。
+     * @param {String} ch 当前字符
+     */
+    _escape( ch ) {
+        if ( !this._qch ) {
+            return this._esc = false;
+        }
+        if ( ch == '\\' ) this._esc = !this._esc;
+    },
+
+});
+
+
+// 绑定this封装。
+const splitf = _splitf.bind(_splitf);
 
 
 /**
@@ -6049,6 +6183,7 @@ tQuery.isCollector  = isCollector;
 tQuery.is           = $is;
 tQuery.type         = $type;
 tQuery.unique       = uniqueSort;
+tQuery.splitf       = splitf;
 
 
 Object.assign( tQuery, {

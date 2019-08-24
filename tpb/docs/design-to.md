@@ -2,9 +2,9 @@
 
 用流程传递来的数据对目标赋值（UI结果），支持后续联动的事件触发和少量指令操作。
 
-`to = "Query | Method/Where | Next-Stage"`
+`to = "Query | Method/Where/Set | Next-Stage"`
 
-如果目标检索为一个集合，当数据源也为数组时，为分别一一对应赋值的逻辑。注意，此处的目标指 `Query` 的结果，而流程数据栈中的当前条目称为内容数据。
+如果目标检索为一个集合，当数据源也为数组时，为分别一一对应赋值的逻辑。**注意**：此处的目标指 `Query` 的结果，而流程数据栈中的当前条目称为内容数据。
 
 
 ### Query
@@ -14,27 +14,22 @@ xxxx   // 单元素检索，$.get(): Element
 [xx]   // 多元素检索，$(...): Collector
 
 
-// 多元素过滤/处理
+// 多元素过滤
 
 [xx]:(beg, end)
-// 范围过滤。
+// 范围选取。
 // beg为起点下标，end为终点下标（不包含），可选。
 
 [xx]:[x, y, z...]
-// 定点过滤。[...] 为目标位置数组。
+// 定点选取。[...] 为目标位置数组。
 
-[xx]:{expression}
-// 处理过滤。{} 内为处理函数，参数：(e:Element, i:Number, $:tQuery)。
-// 返回值：
-// - 返回true，保留源成员。
-// - 返回false，移除源成员。
-// - 返回元素或其它值，替换源成员。
-// 注：
-// filter 和 map 的合并。
+[xx]:{filter}
+// 回调过滤。{} 内为过滤表达式，实参固定：(v:Element, i:Number, o:Collector): Boolean。
+// 注：即 filter 的逻辑。
 ```
 
 
-### Method/Where
+### Method/Where/Set
 
 ```js
 - before        // 插入目标之前
