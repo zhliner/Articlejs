@@ -74,7 +74,7 @@ const
 // 每一个执行流对应一个数据栈实例。
 //
 class Stack {
-    //
+
     constructor() {
         this._buf = [];     // 数据栈
         this._item;         // 当前条目
@@ -82,19 +82,27 @@ class Stack {
     }
 
 
-    push( ...its ) {
-        this._buf.push(...its);
+    /**
+     * 接口：指令调用返回值入栈。
+     * 规则：不接受 undefined 值入栈。
+     * @param  {Value} val 入栈数据
+     */
+    push( val ) {
+        if ( val !== undefined ) this._buf.push( val );
     }
 
 
     /**
-     * 暂存区取数据。
+     * 接口：暂存区取值。
      * 可能自动取栈顶项，视n值而定：{
      *      0   暂存区有值则返回，不自动取栈
      *      1   暂存区有值则返回，否则取栈顶1项（值）
-     *      n   暂存区有值则返回，否则取栈顶n项（Collector）
+     *      n   暂存区有值则返回，否则取栈顶n项（Array）
      * }
-     * @param {Number} n 取栈条目数
+     * 注：取值完后暂存区重置。
+     *
+     * @param  {Number} n 取栈条目数
+     * @return {Value|[Value]} 值/值集
      */
     data( n ) {
         try {
@@ -102,8 +110,8 @@ class Stack {
                 return this._item;
             }
             // 自动取栈
-            if ( n == 1 ) this.pop();
-            else if ( n > 1 ) this.pops(n);
+            if ( n == 1 ) this._pop();
+            else if ( n > 1 ) this._pops( n );
 
             return this._item;
         }
@@ -115,10 +123,23 @@ class Stack {
 
 
     /**
+     * 接口：多态弹出。
+     * 无实参传递时取栈赋值为单值。
+     * 实参为一个数值时（0值有效），取栈n项构造为数组赋值。
+     *
+     * @param  {Number|null} n 弹出数量
+     * @return {void}
+     */
+    pop( n ) {
+        return n == null ? this._pop() : this._pops(n);
+    }
+
+
+    /**
      * 弹出栈顶值暂存。
      * @return {void}
      */
-    pop() {
+    _pop() {
         this._done = true;
         this._item = this._buf.pop();
     }
@@ -126,20 +147,23 @@ class Stack {
 
     /**
      * 弹出栈顶多个条目暂存。
-     * 会构造为一个 Collector 实例。
+     * 0项或负值（非法）会构造为一个空集。
      * @param  {Number} n 弹出数量
      * @return {void}
      */
-    pops( n ) {
+    _pops( n ) {
         this._done = true;
-        this._item = $( n > 0 ? this._buf.splice(-n) : null );
+        this._item = n > 0 ? this._buf.splice(-n) : [];
     }
 }
 
 
 //
 // 指令调用单元。
-// 包含一个双向链表结构，实现执行流的链式调用逻辑。
+// 包含一个单向链表结构，实现执行流的链式调用逻辑。
+//
+// 注记：
+// 取消原有脱链（dispose）设计，由单次事件绑定完成类似需求。
 //
 class Cell {
     /**
@@ -148,88 +172,67 @@ class Cell {
      * @param {Cell} prev 前一个单元
      */
     constructor( stack, prev = null ) {
-        this._data = stack;
-        this._func = null;
-        this._prev = prev;
-        this._next = null;
+        this.next = null;
+        this._stack = stack;
+        this._meth = null;
+        this._args = null;
 
-        if (prev) prev.next( this );
+        if (prev) prev.next = this;
     }
 
 
     /**
-     * 执行调用。
-     * @param {Value|Promise} val 上一个指令方法的返回值
+     * 方法/参数设置。
+     * 传入方法内的this会自然转换。
+     * @param  {Function} meth 目标方法（外部定义）
+     * @param  {Array} args 模板配置的参数序列
+     * @return {this}
      */
-    call( val ) {
-        if ( val !== undefined ) {
-            // 前值入栈。
-            this._data.push(val);
+    init( meth, args ) {
+        this._meth = meth;
+        // (...'') 无实参
+        this._args = args || '';
+
+        return this;
+    }
+
+
+    /**
+     * 调用执行。
+     * @param  {Object} evo 事件相关对象
+     * @param  {Value} val 上一指令的结果
+     * @return {Promise|void}
+     */
+    call( evo, val ) {
+        this._stack.push(val);
+        let _v = this._meth(evo, ...this._args);
+
+        if ( this.next ) {
+            return $.type(_v) == 'Promise' ? _v.then( o => this.next.call(evo, o) ) : this.next.call(evo, _v);
         }
-        return this._next && this._proxy( this._func );
     }
 
 
+    /**
+     * 接口：当前条目取栈。
+     * 封装数据栈同名方法（用于pop指令）。
+     * @param  {Number|null} n 弹出数量
+     * @return {void}
+     */
     pop( n ) {
-        //
+        this._stack.pop( n );
     }
 
 
     /**
-     * 设置上一个调用单元。
-     * @param {Cell} cell 调用单元
-     */
-    prev( cell ) {
-        this._prev = cell;
-    }
-
-
-    /**
-     * 设置下一个调用单元。
-     * @param {Cell} cell 调用单元
-     */
-    next( cell ) {
-        this._next = cell;
-    }
-
-
-    /**
-     * 获取当前条目。
-     * 注：数据栈同名方法封装。
-     * @param {Number} n 取栈条目数（参考）
+     * 接口：获取当前条目。
+     * 数据栈同名方法封装，由指令内使用。
+     * 注：包含了栈取值规则。
+     * @param  {Number} n 取栈条目数（参考）
+     * @return {Value|[Value]} 值/值集
      */
     data( n ) {
-        return this._data.data(n);
-    }
-
-
-    /**
-     * 移除当前单元。
-     * 让当前指令调用单元脱离调用链（如一次性使用）。
-     */
-    dispose() {
-        this._prev.next(this._next);
-        this._next.prev(this._prev);
-    }
-
-
-    /**
-     * 方法绑定（bound-function）。
-     * @param {Function} meth 目标方法（外部定义）
-     * @param {Array} args 模板配置的参数序列
-     */
-    bind( meth, args ) {
-        this._func = meth.bind( this, ...args );
-    }
-
-
-    /**
-     * 代理调用。
-     * @param {bound-Function} handle 方法实现
-     */
-    _proxy( handle ) {
-        let _v = handle(); // bound-function
-        return $.type(_v) == 'Promise' ? _v.then( o => this._next.call(o) ) : this._next.call(_v);
+        return this._stack.data( n );
     }
 
 }
@@ -257,6 +260,7 @@ class Evn {
         this.one      = name[0] == '.';
         this.delay    = name[0] == '-';
     }
+
 }
 
 
@@ -276,7 +280,7 @@ class Call {
             throw new Error('call-attr config is invalid.');
         }
         this._meth = _vs[1].split('.');
-        this._args = _vs[2] ? JSON.parse(`[${_vs[2]}]`) : [];
+        this._args = _vs[2] && JSON.parse(`[${_vs[2]}]`);
     }
 
 
@@ -287,24 +291,24 @@ class Call {
      * 注：
      * 如果你不需要上面的接口，可以自己先绑定（.bind()）。
      *
-     * @param {Object} pbs 指令集
-     * @param {Cell} cell 指令单元
+     * @param  {Object} pbs 指令集
+     * @param  {Cell} cell 指令单元
+     * @return {Cell} cell
      */
     apply( pbs, cell ) {
-        let _m = this._meth.pop(),
-            _host = this._host(this._meth, pbs) || pbs;
+        let _m = this._meth.pop();
+        pbs = this._host(this._meth, pbs) || pbs;
 
-        cell.bind( _host[_m], this._args );
+        return cell.init(pbs[_m], this._args);
     }
 
 
     /**
-     * 提取指令集成员。
-     * 是提取末端方法的上级宿主对象，而非最终方法本身。
-     * 返回null表示方法为顶层成员。
+     * 获取最终子集。
+     * 提取末端方法的上级宿主对象，而非最终方法本身。
      * @param  {[String]} names 引用链
      * @param  {Object} pbs 指令集
-     * @return {Object|null}
+     * @return {Object|0}
      */
     _host( names, pbs ) {
         return names.length && names.reduce( (o, k) => o[k], pbs );
