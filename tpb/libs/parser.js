@@ -12,8 +12,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { On, By, To } from "./pbs.js";
+import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
+import { On, By, To } from "./pbs.js";
 
 
 const $ = window.$;
@@ -27,10 +28,16 @@ const
         to: 'to', 		// To输出目标
     },
 
+
     // 标识字符
-    __chrDlmt = ';',  	// 并列分组
-    __chrCall = ',', 	// 调用单元分隔
-    __chrZero = '-',  	// 空白占位符
+    __chrDlmt   = ';',  // 并列分组
+    __chrCall   = ',',  // 指令单元分隔
+    __chrZero   = '-',  // 空白占位符
+
+    // To:Query
+    __toqMore   = '+',  // 多元素检索前置标志
+    __toqExtra  = '!',  // 进阶提取标志
+
 
     // On事件定义模式。
     // 支持委托选择器，可前置 [.-] 标识字符。
@@ -44,15 +51,18 @@ const
     __obtCall = /^([\w][\w.-]*)(?:\(([^]*)\))?$/,
 
     // To:Query
-    // 集合范围筛选匹配：( beg, end )。
-    __toSlice = /^\(([\d,\s]*)\)$/,
+    // 集合范围子集匹配：( beg, end )。
+    // 取值：[1]
+    __toRange = /^\(([\d,\s]*)\)$/,
 
     // To:Query
     // 集合定位取值匹配：[ 0, 2, 5... ]。
-    __toIndex = /^\[([\d,\s]*)\]$/,
+    // 取值：[0]
+    __toIndex = /^\[[\d,\s]*\]$/,
 
     // To:Query
     // 集合过滤表达式匹配：{ filter-expr }。
+    // 取值：[1]
     __toFilter = /^\{([^]*)\}$/,
 
     // 简单词组
@@ -79,16 +89,7 @@ class Stack {
         this._buf = [];     // 数据栈
         this._item;         // 当前条目
         this._done = false; // 是否已暂存
-    }
-
-
-    /**
-     * 接口：指令调用返回值入栈。
-     * 规则：不接受 undefined 值入栈。
-     * @param  {Value} val 入栈数据
-     */
-    push( val ) {
-        if ( val !== undefined ) this._buf.push( val );
+        this._target;       // To 目标
     }
 
 
@@ -99,8 +100,7 @@ class Stack {
      *      1   暂存区有值则返回，否则取栈顶1项（值）
      *      n   暂存区有值则返回，否则取栈顶n项（Array）
      * }
-     * 注：取值完后暂存区重置。
-     *
+     * 注：取值后暂存区会重置。
      * @param  {Number} n 取栈条目数
      * @return {Value|[Value]} 值/值集
      */
@@ -126,12 +126,36 @@ class Stack {
      * 接口：多态弹出。
      * 无实参传递时取栈赋值为单值。
      * 实参为一个数值时（0值有效），取栈n项构造为数组赋值。
-     *
+     * 注：用于pop指令。
      * @param  {Number|null} n 弹出数量
      * @return {void}
      */
     pop( n ) {
         return n == null ? this._pop() : this._pops(n);
+    }
+
+
+    /**
+     * 获取/设置更新目标。
+     * 注：由To段指令使用。
+     * @param  {Element|Collector} to 更新目标
+     * @return {Element|Collector}
+     */
+    target( to ) {
+        if ( to === undefined ) {
+            return this._target;
+        }
+        this._target = to;
+    }
+
+
+    /**
+     * 指令调用返回值入栈。
+     * 内部接口：不接受 undefined 值入栈。
+     * @param  {Value} val 入栈数据
+     */
+    _push( val ) {
+        if ( val !== undefined ) this._buf.push( val );
     }
 
 
@@ -183,15 +207,15 @@ class Cell {
 
     /**
      * 方法/参数设置。
-     * 传入方法内的this会自然转换。
+     * 传入方法内的this转换到数据栈。
      * @param  {Function} meth 目标方法（外部定义）
      * @param  {Array} args 模板配置的参数序列
      * @return {this}
      */
-    init( meth, args ) {
-        this._meth = meth;
+    bind( meth, args ) {
         // (...'') 无实参
         this._args = args || '';
+        this._meth = meth.bind(this._stack);
 
         return this;
     }
@@ -204,35 +228,12 @@ class Cell {
      * @return {Promise|void}
      */
     call( evo, val ) {
-        this._stack.push(val);
+        this._stack._push(val);
         let _v = this._meth(evo, ...this._args);
 
         if ( this.next ) {
             return $.type(_v) == 'Promise' ? _v.then( o => this.next.call(evo, o) ) : this.next.call(evo, _v);
         }
-    }
-
-
-    /**
-     * 接口：当前条目取栈。
-     * 封装数据栈同名方法（用于pop指令）。
-     * @param  {Number|null} n 弹出数量
-     * @return {void}
-     */
-    pop( n ) {
-        this._stack.pop( n );
-    }
-
-
-    /**
-     * 接口：获取当前条目。
-     * 数据栈同名方法封装，由指令内使用。
-     * 注：包含了栈取值规则。
-     * @param  {Number} n 取栈条目数（参考）
-     * @return {Value|[Value]} 值/值集
-     */
-    data( n ) {
-        return this._stack.data( n );
     }
 
 }
@@ -257,7 +258,7 @@ class Evn {
         }
         this.name     = _vs[1];
         this.selector = _vs[2] || null;
-        this.one      = name[0] == '.';
+        this.once     = name[0] == '.';
         this.delay    = name[0] == '-';
     }
 
@@ -291,15 +292,15 @@ class Call {
      * 注：
      * 如果你不需要上面的接口，可以自己先绑定（.bind()）。
      *
-     * @param  {Object} pbs 指令集
      * @param  {Cell} cell 指令单元
+     * @param  {Object} pbs 指令集
      * @return {Cell} cell
      */
-    apply( pbs, cell ) {
+    apply( cell, pbs ) {
         let _m = this._meth.pop();
         pbs = this._host(this._meth, pbs) || pbs;
 
-        return cell.init(pbs[_m], this._args);
+        return cell.bind(pbs[_m], this._args);
     }
 
 
@@ -320,17 +321,135 @@ class Call {
 //
 // To查询配置。
 // 格式 {
-//      - xxx   // 单元素检索：$.get(): Element | null
-//      - [xxx] // 多元素检索：$(): Collector
+//      xxx   // 单元素检索：$.get(): Element | null
+//      +xxx  // 前置+字符，多元素检索：$(): Collector
 //
-//      - [xxx]:( Number, Number )      // 范围：slice()
-//      - [xxx]:[ Number, Number, ... ] // 定点取值：[n]
-//      - [xxx]:{ Expression-Filter }   // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
+//      +xxx!( Number, Number )       // 范围：slice()
+//      +xxx![ Number, Number, ... ]  // 定点取值：[n]
+//      +xxx!{ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
 // }
 //
 class Query {
-    constructor( qs ) {
+    /**
+     * 构造查询配置。
+     * 注：空值合法。
+     * @param {String} qs 查询串
+     */
+    constructor( qs = '' ) {
+        this._slr = qs;
+        this._one = true;
+
+        // 进阶获取。
+        // function( Collector ): Collector
+        this._fltr = null;
+
+        if (qs[0] == __toqMore) {
+            this._slr = qs.substring(1);
+            this._one = false;
+        }
+        this.init( this._slr );
+    }
+
+
+    /**
+     * 初始解析构造。
+     * 需要处理进阶成员提取部分的定义。
+     * @param {String} slr 选择器串
+     */
+    init( slr ) {
+        if ( !slr ) {
+            return;
+        }
+        let _vs = SSpliter.split(slr, __toqExtra, 1);
+        if (_vs.length == 1) {
+            return;
+        }
+        this._slr = _vs[0];
+        this._fltr = this._handle( _vs[1].trim() ) || null;
+    }
+
+
+    /**
+     * 应用查询。
+     * 绑定指令的方法和参数。
+     * @param  {Cell} cell 指令单元
+     * @return {Cell} cell
+     */
+    apply( cell ) {
         //
+    }
+
+
+    /**
+     * 目标检索。
+     * 支持二阶检索和相对ID属性（Util.$find）。
+     * this 为 Stack 实例。
+     * 支持暂存区当前条目为目标（由前阶末端指令遗留）。
+     *
+     * @param {Object} evo 事件关联对象
+     * @param {String} slr 选择器串
+     * @param {Boolean} one 是否单元素版
+     * @param {Function} fltr 进阶过滤提取
+     */
+    query( evo, slr, one, fltr ) {
+        let _beg = this.data(0);
+    }
+
+
+    /**
+     * 创建提取函数。
+     * 接口：function( all:Collector ): Collector
+     * @param {String} fmt 格式串
+     * @return {Function} 取值函数
+     */
+    _handle( fmt ) {
+        if ( !fmt ) {
+            return;
+        }
+        if ( __toRange.test(fmt) ) {
+            return this._range( fmt.match(__toRange)[1] );
+        }
+        if ( __toIndex.test(fmt) ) {
+            return this._index( fmt.match(__toIndex)[0] );
+        }
+        if ( __toFilter.test(fmt) ) {
+            return this._filter( fmt.match(__toFilter)[1] );
+        }
+    }
+
+
+    /**
+     * 范围成员提取。
+     * @param  {String} fmt 参数串：beg, end
+     * @return {Function}
+     */
+    _range( fmt ) {
+        let _n2 = JSON.parse( `[${fmt}]` );
+        return all => all.slice( _n2[0], _n2[1] );
+    }
+
+
+    /**
+     * 定点成员提取。
+     * @param  {String} fmt 定位串：[m, n, ...]
+     * @return {Function}
+     */
+    _index( fmt ) {
+        let _nx = JSON.parse( fmt );
+        return all => _nx.map( i => all[i] ).filter( v => v );
+    }
+
+
+    /**
+     * 过滤器提取。
+     * @param  {String} fmt 过滤表达式
+     * @return {Function}
+     */
+    _filter( fmt ) {
+        let _fn = new Function(
+                'v', 'i', 'o', `return ${fmt};`
+            );
+        return all => all.filter( _fn );
     }
 }
 
@@ -339,14 +458,17 @@ class Query {
 // To设置配置。
 //
 class Set {
-    //
+
+    constructor( fmt ) {
+        //
+    }
 }
 
 
 //
 // To下一阶配置。
 //
-class Next {
+class Stage {
     //
 }
 

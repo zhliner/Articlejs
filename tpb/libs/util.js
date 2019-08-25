@@ -6,15 +6,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  Kits {
-//      Util        实用函数集
-//      Spliter     序列分离器
-//      Scoper      净域生成器
-//      PBval  	    PB串值类
-//      PBelem      PB元素操作类
-//      Loader      文件载入器
-//  }
-//
 //  命名：
 //  前置 $ 字符的名称表示有特别的约定。
 //
@@ -22,12 +13,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-const $ = window.$;
+import { Spliter } from "./spliter.js";
+
 
 const
+    $ = window.$,
+
+    SSpliter = new Spliter();
+
+
+const
+    __chrSplit = '/',
+
     // 二阶选择器分隔符（/）。
-    // 匹配首个/字符，且后续字符合法即可。
-    // 注意：不能区分属性选择器值内的 /.. 字符序列。
+    // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
+    // 注：仅存在性测试。
     __reSplit = /\/(?=$|[\w>:#.?])/,
 
     // 相对ID匹配提取。
@@ -37,13 +37,13 @@ const
     // http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
     //
     // 注：
-    // 增加冒号后空白匹配，以支持无值的相对ID：
+    // 增加?后空白匹配，以支持无值的相对ID：
     //      'p? >b`  => `? `    => `p[data-id]>b`
     //      'p?>b`   => `?`     => 同上
     //      'p?`     => `?`     => `p[data-id]`
     //      'p?xyz`  => `?xyz`  => `p[data-id="xyz"]`
     //      '?xyz`   => `?xyz`  => `[data-id="xyz"]`
-    // g标记仅用于替换操作。
+    // g标记用于替换操作。
     // 注意：不能区分属性选择器值内的 ?.. 字符序列。
     __reRID = /\?(?:\\.|[\w-]|[^\0-\xa0]|\s*)+/g,
 
@@ -130,9 +130,9 @@ const Util = {
         if (fmt == '/' || fmt == '0/') {
             return beg;
         }
-        let ss = beg && fmtSplit(fmt);
+        let s2 = beg && fmtSplit(fmt);
 
-        return ss ? query( ridslr(ss[1]), closest(ss[0].trim(), beg) ) : query( ridslr(fmt), beg );
+        return s2 ? query( ridslr(s2[1]), closest(s2[0].trim(), beg) ) : query( ridslr(fmt), beg );
     },
 
 
@@ -567,12 +567,19 @@ function argsParse( args ) {
 /**
  * 二阶检索选择器解构。
  * 非二阶选择器会返回false，否则返回一个双成员数组。
+ * 注：
+ * 用SSpliter实现准确切分。
  *
  * @param  {String} slr 选择器串
  * @return {Array2|false} 选择器对[上，下]或false
  */
 function fmtSplit( fmt ) {
-    return __reSplit.test(fmt) && fmt.split(__reSplit);
+    if ( !__reSplit.test(fmt) ) {
+        return false;
+    }
+    let _s2 = SSpliter.split(fmt, __chrSplit, 1);
+
+    return _s2.length > 1 && _s2;
 }
 
 
@@ -587,3 +594,7 @@ function ridslr( fmt ) {
         ( s = s.substring(1).trim() ) && `[data-id="${s}"]` || "[data-id]"
     );
 }
+
+
+
+export { Util };
