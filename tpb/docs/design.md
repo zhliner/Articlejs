@@ -376,6 +376,10 @@ dup( n:Number ): Value | [Value]
 // - 对象：Object.assign({}, ...)
 // - 其它：v2 = v1
 
+clone( event, deep, eventdeep ): Element
+// 专用：元素克隆。
+// 注：不专属于On，公用。
+
 
 // 比较&逻辑运算
 //===============================================

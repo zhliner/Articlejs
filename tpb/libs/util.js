@@ -28,7 +28,7 @@ const
     // 二阶选择器分隔符（/）。
     // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
     // 注：仅存在性测试。
-    __reSplit = /\/(?=$|[\w>:#.?])/,
+    __reSplit = /\/(?=$|[\w>:#.*?])/,
 
     // 相对ID匹配提取。
     // 如 `p?xyz >b` => `?xyz`
@@ -89,50 +89,58 @@ const Util = {
      * 格式：UpSlr/DownSlr
      * UpSlr:
      *      {Number}    表示递升的层级。
-     *      {String}    向上检索匹配的CSS选择器，不含起点元素。
+     *      -n          负值，直接返回null，在DownSlr包含复合ID选择器时很有用。
+     *      {String}    向上检索匹配的CSS选择器（不含起点元素）。
      * DownSlr:
      *      {String}    普通的CSS选择器，支持相对ID。
      *
      * 相对ID：
-     *      ?XX     前置问号（?）表示相对ID，即data-id属性的值。如：[data-id='XX']
+     *      ?xx     前置问号（?）表示相对ID，即data-id属性的值。如：[data-id='xx']
      *
      * 例：
-     * /            单独的 / 表示起点元素自身
-     * 0/           0上级，当前起点（同上）
+     * /            单独的 / 表示起点元素自身。
+     * 0/           0上级，当前起点（同上）。
      * 2/           祖父元素（2级，父的父）
-     * form/        起点元素上层首个<form>元素
+     * form/        起点元素上层首个<form>元素。
      * ?xxx/        起点元素上层首个相对ID为 xxx 的元素。[data-id='xxx']
      *
-     * />b          起点元素的<b>子元素
+     * />b          起点元素的<b>子元素。
      * /?xyz        起点元素内相对ID为 xyz 的元素。[data-id='xyz']
      * /p?xyz       起点元素内相对ID为 xyz 的<p>元素。p[data-id='xyz']
      * /p? >b       起点元素内存在相对ID属性的<p>元素的<b>子元素。p[data-id]>b
      * /p?xyz >b    起点元素内相对ID为 xyz 的<p>元素的<b>子元素。p[data-id='xyz']>b
-     * /p >b        起点元素内匹配 p>b 选择器的元素
+     * /p >b        起点元素内匹配 p>b 选择器的元素。
+     * /.name       起点元素内普通类名检索。
      *
-     * div/?xyz     起点元素之上首个<div>内相对ID为 xyz 的元素
-     * 3/?xyz       起点元素之上第3层父节点内相对ID为 xyz 的元素
+     * div/?xyz     起点元素之上首个<div>内相对ID为 xyz 的元素。
+     * 3/?xyz       起点元素之上第3层父节点内相对ID为 xyz 的元素。
      *
-     * #some        全局ID检索
-     * /.name       起点元素内普通类名检索
-     * /?name       起点元素内相对ID为 name 的元素。[data-id='name']
+     * #some        tQuery全局ID检索，与起点元素无关。
+     * /#some       同上（注：简单ID）。
+     * /#ab li      复合ID选择器：#ab被限定在起点元素内，这可能不是您想要的。
+     * html/#ab li  正常的向上迭代至<html>后向下检索。
+     * -1/#ab li    向上检索直接返回null（快速），tQuery向下检索采用默认上下文。
      *
      * 注记：
      * 相对ID表达一定范围内的唯一性逻辑，这只是一种松散的概念约定。
-     * 在更宽的范围内，通常可以检索多个相同ID的目标元素，这由检索方法确定（query）。
+     * 单元素检索指用$.get()获取单个元素返回，多元素检索依然可能只有一个元素，但返回Collector。
      *
-     * @param  {String}  fmt 标识串（外部trim）
-     * @param  {Element} beg 起点元素，可为null
-     * @param  {Function} query 检索方法，window.$ 或 window.$.get
+     * @param  {String}  slr 选择器串（外部trim）
+     * @param  {Element|null} beg 起点元素
+     * @param  {Boolean} one 是否单元素检索
      * @return {Collector|Element|null} 目标元素（集）
      */
-    $find( fmt, beg, query ) {
-        if (fmt == '/' || fmt == '0/') {
+    $find( slr, beg, one ) {
+        if ( !slr || slr == '/' ) {
             return beg;
         }
-        let s2 = beg && fmtSplit(fmt);
+        let s2 = beg && fmtSplit( slr );
 
-        return s2 ? query( ridslr(s2[1]), closest(s2[0].trim(), beg) ) : query( ridslr(fmt), beg );
+        if ( s2 ) {
+            slr = s2[1];
+            beg = closest( s2[0].trimRight(), beg );
+        }
+        return one ? query1( slr, beg ) : query2( slr, beg );
     },
 
 
@@ -550,25 +558,12 @@ function argsParse( args ) {
 
 
 
-
-/**
- * 向上检索目标元素。
- * @param {String} slr 向上选择器
- * @param {Element} el 起点元素
- * @return {Element} 目标元素
- */
- function closest( slr, el ) {
-    return isNaN( slr ) ?
-        $.closest( el.parentNode, slr ) :
-        $.closest( el, (_, i) => i == slr );
-}
-
-
 /**
  * 二阶检索选择器解构。
  * 非二阶选择器会返回false，否则返回一个双成员数组。
  * 注：
  * 用SSpliter实现准确切分。
+ * __reSplit不能区分属性值内的分隔符，因此可能并无切分。
  *
  * @param  {String} slr 选择器串
  * @return {Array2|false} 选择器对[上，下]或false
@@ -593,6 +588,48 @@ function ridslr( fmt ) {
         // 去除前置?字符
         ( s = s.substring(1).trim() ) && `[data-id="${s}"]` || "[data-id]"
     );
+}
+
+
+
+/**
+ * 向上检索目标元素。
+ * @param {String} slr 向上选择器或递进层级数
+ * @param {Element} beg 起点元素
+ * @return {Element} 目标元素
+ */
+function closest( slr, beg ) {
+    if ( !slr ) {
+        return beg;
+    }
+    if ( slr < 0 ) {
+        return null;
+    }
+    return isNaN(slr) ? $.closest(beg.parentNode, ridslr(slr)) : $.closest(beg, (_, i) => i == slr);
+}
+
+
+/**
+ * 向下单元素检索。
+ * 注：若无选择器，返回上下文元素本身。
+ * @param  {String} slr 选择器
+ * @param  {Element} beg 上下文元素
+ * @return {Element|null}
+ */
+function query1( slr, beg ) {
+    return slr ? $.get( ridslr(slr), beg ) : beg;
+}
+
+
+/**
+ * 向下多元素检索。
+ * 注：若无选择器，返回上下文元素本身（封装）。
+ * @param  {String} slr 选择器
+ * @param  {Element|null} beg 上下文元素
+ * @return {Collector}
+ */
+function query2( slr, beg ) {
+    return slr ? $( ridslr(slr), beg ) : $(beg);
 }
 
 

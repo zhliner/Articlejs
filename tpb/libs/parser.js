@@ -31,12 +31,15 @@ const
 
     // 标识字符
     __chrDlmt   = ';',  // 并列分组
-    __chrCall   = ',',  // 指令单元分隔
+    __chrList   = ',',  // 指令/方法并列分隔
     __chrZero   = '-',  // 空白占位符
 
-    // To:Query
+    // To
     __toqMore   = '+',  // 多元素检索前置标志
     __toqExtra  = '!',  // 进阶提取标志
+    __tosAttr   = '@',  // 特性指定
+    __tosProp   = '&',  // 属性指定
+    __tosCSS    = '%',  // 样式指定
 
 
     // On事件定义模式。
@@ -146,6 +149,18 @@ class Stack {
             return this._target;
         }
         this._target = to;
+    }
+
+
+    /**
+     * 数据栈重置。
+     * 用于执行流再次开启前使用。
+     */
+    reset() {
+        this._buf.length = 0;
+        this._done = false;
+        this._item = this._target = undefined;
+
     }
 
 
@@ -360,51 +375,60 @@ class Query {
         if ( !slr ) {
             return;
         }
-        let _vs = SSpliter.split(slr, __toqExtra, 1);
+        let _vs = [...SSpliter.split(slr, __toqExtra, 1)];
         if (_vs.length == 1) {
             return;
         }
         this._slr = _vs[0];
-        this._fltr = this._handle( _vs[1].trim() ) || null;
+        this._fltr = this._handle( _vs[1].trim() );
     }
 
 
     /**
      * 应用查询。
-     * 绑定指令的方法和参数。
+     * 绑定指令的方法和参数序列。
      * @param  {Cell} cell 指令单元
      * @return {Cell} cell
      */
     apply( cell ) {
-        //
+        return cell.bind(
+            this.query,
+            [ this._slr, this._one, this._fltr ]
+        );
     }
 
 
     /**
      * 目标检索。
-     * 支持二阶检索和相对ID属性（Util.$find）。
+     * 支持二阶检索和相对ID属性（见 Util.$find）。
      * this 为 Stack 实例。
      * 支持暂存区当前条目为目标（由前阶末端指令遗留）。
      *
-     * @param {Object} evo 事件关联对象
-     * @param {String} slr 选择器串
-     * @param {Boolean} one 是否单元素版
-     * @param {Function} fltr 进阶过滤提取
+     * @param  {Object} evo 事件关联对象
+     * @param  {String} slr 选择器串（二阶）
+     * @param  {Boolean} one 是否单元素版
+     * @param  {Function} fltr 进阶过滤提取
+     * @return {void}
      */
     query( evo, slr, one, fltr ) {
         let _beg = this.data(0);
+
+        if (_beg === undefined) {
+            _beg = evo.current;
+        }
+        this.target( query2(slr, _beg, one, fltr) );
     }
 
 
     /**
      * 创建提取函数。
      * 接口：function( all:Collector ): Collector
-     * @param {String} fmt 格式串
+     * @param  {String} fmt 格式串
      * @return {Function} 取值函数
      */
     _handle( fmt ) {
         if ( !fmt ) {
-            return;
+            return null;
         }
         if ( __toRange.test(fmt) ) {
             return this._range( fmt.match(__toRange)[1] );
@@ -454,14 +478,78 @@ class Query {
 }
 
 
+/**
+ * 检索目标元素。
+ * 从起点元素上下检索目标元素（集）。
+ * 进阶过滤：function( Collector ): Collector
+ * 注记：
+ * beg可能从暂存区取值为一个集合，已要求slr部分为空。
+ * 因此代码工作正常。
+ *
+ * @param  {String} slr 双阶选择器
+ * @param  {Element|null} beg 起点元素
+ * @param  {Boolean} one 是否单元素查询
+ * @param  {Function} fltr 进阶过滤函数
+ * @return {Element|Collector}
+ */
+function query2( slr, beg, one, fltr ) {
+    let _v = Util.$find( slr, beg, one );
+    return one ? _v : ( fltr ? fltr(_v) : _v );
+}
+
+
 //
-// To设置配置。
+// To设置配置（多）。
+// 即 Where/Method/Set 段配置。
+// 大多数方法为简单的规范名称，如：before, after, wrap, height 等。
+// 特性/属性/样式三种配置较为特殊，采用前置标志字符表达：{
+//      @   特性（attr），如：@title => $.attr(el, 'title', ...)
+//      &   属性（prop），如：&value => $.prop(el, 'value', ...)
+//      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
+// }
+// 支持多方法并列定义，用逗号（__chrList）分隔。
+// 注记：
+// 并列的方法可视为独立作用，但内容数据取值需要考虑是否为数组。
 //
-class Set {
+class Sets {
+
+    constructor( fmt ) {
+        let _ns = fmt.split(__chrList);
+        //
+        // 提供数据、目标，构建并列的单方法封装，
+    }
+
+
+    /**
+     * 应用设置。
+     * @param {Cell} cell 指令单元
+     * @param {Object} mset 方法集（Where/Method/Set）
+     */
+    apply( cell, mset ) {
+        //
+        // 绑定到链式指令（对外）
+    }
+
+
+    update( evo, ...rest ) {
+        //
+        // 各个单方法封装打包执行。
+    }
+
+}
+
+
+//
+// To设置配置（单）
+// 为Sets提供单个方法调用封装，数据/目标由Sets提供。
+// 注：不对外（Cell）。
+//
+class Method {
 
     constructor( fmt ) {
         //
     }
+
 }
 
 

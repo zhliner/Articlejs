@@ -61,6 +61,7 @@ class Spliter {
      */
     *split( fmt, sep, cnt = -1 ) {
         let _ss = '',
+            _ew = fmt.endsWith(sep),
             _fs = this._test.length && this._test;
 
         this.reset();
@@ -69,8 +70,8 @@ class Spliter {
             [_ss, fmt] = this._pair(fmt, sep, _fs);
             yield _ss;
         }
-        // 未完全切分的末段。
-        if ( fmt ) yield fmt;
+        // 末端分隔符有效切分空串。
+        if ( fmt || _ew ) yield fmt;
     }
 
 

@@ -10,10 +10,10 @@
 - 短横线（`-`）：表示该事件为延迟绑定，绑定方法未知（`$.on` 或 `$.one`）。后续的指令序列会被预解析并存储。**注意**：不存在句点（`.`）和短横线（`-`）同时需要的情形。
 
 
-### 格式
+### 格式用例
 
 ```html
-<ul
+<ul id="test" ...
     on="click mouseup;
         click mouseup |nil;
         click(li[data-val='xyz']) contextmenu |$('div/?xxx >b'), attr('-val'), pass('abcd');
@@ -101,7 +101,6 @@ parents( slr ): [Element]
 parentUntil( slr ): [Element]
 closest( slr ): [Element] | null
 offsetParent(): Element
-clone( event, deep, eventdeep ): Element
 scroll(): {top, left}
 scrollTop(): Number
 scrollLeft(): Number
