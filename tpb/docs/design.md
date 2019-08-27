@@ -76,34 +76,33 @@ HTML源码不应当脱离设计师的视野，**源码**这一逻辑也并不就
 
 ### 隐形的首个实参
 
-所有方法中的首个实参都为 `evo`，它们是在方法调用时自动传入的，在模板中并不可见（在程序代码中定义）。
+所有方法中的首个实参都为 `evo`（event-value-object），它们是在方法调用时自动传入的，在模板中并不可见。
 
 ```js
 evo: {
+    data: {Value|[Value]}           // 自动获取的流程数据
     event: {Event}                  // 原生事件对象（未侵入）
     origin: {Element}               // 事件起点元素（event.target）
     current: {Element}              // 触发事件的当前元素（event.currentTarget|matched）
     related: {Element|null}         // 事件相关联元素（event.relatedTarget）
     delegate: {Element|undefined}   // 委托绑定的元素（event.currentTarget）
-    selector: {String|undefined}    // 委托匹配选择器（for match）
+    selector: {String|undefined}    // 委托匹配选择器（for match）]
 }
 ```
 
-### 暂存区与自动取栈
+其中 `evo.data` 是由数据栈中取出的条目，通常是方法操作的目标。是否从数据栈中取值或取值的特性由方法的 `targetCount` 属性配置，含义如下：
 
-当前条目由暂存区取值函数操作，接口：`function( n ): Value | [Value]`，它在方法内被自行调用，实参 `n` 的含义：
+- `0`  暂存区有值则返回，不自动取栈
+- `1`  暂存区有值则返回，否则取栈顶1项（值）
+- `n`  暂存区有值则返回，否则取栈顶n项（Array）
+- `null|undefined` 无需流程数据。`evo.data` 为 `undefined`。
 
-- `0|null|undefined` 若暂存区有值则返回值，否则返回 `undefined`。不自动取栈。
-- `x:Number` 一个大于零的数，若暂存区有值则返回值，否则取栈顶 `x` 项：如果 `x > 1`，返回一个数组，否则返回值本身。
 
-在方法内部，对于是否自动取栈条目，通常的逻辑是：
+#### 附：流程数据依赖的三种情形
 
-- 如果**明确需要**有操作目标，则会要求自动取栈。
-- 如果目标**可有可无**，则目标自身会成为一种可选项，此时不会自动取栈。
-
-> **另：**<br>
-> 对于部分方法的实参 `null` 值有一个约定俗成：如果 `当前条目` 有效，取条目本身替代实参传值。
-> 这样的方法并不多见，通常是需要当前条目充当多元的角色时才会出现。
+1. 如果方法**明确需要**有操作目标，此时应当要求自动取栈。`targetCount` 配置为需要的流程数据条目数。
+2. 如果目标**可有可无**，此时目标应该是可选的，不应当要求自动取栈。`targetCount` 配置值为 `0`。
+3. 如果方法没有对流程数据的要求，即无需操作目标。此时 `targetCount` 配置值应该为 `null`。
 
 
 
@@ -164,7 +163,8 @@ nil(): void
 del( start = -1, count = -1 ): void
 // 删除栈任意位置段条目，位置指定支持负数从末尾算起。
 // count 可选，默认删除末尾全部（-1）。
-// 注：移除的值不会进入暂存区。
+// 注：
+// 纯粹删除功能，被删除的值不进入暂存区。
 
 hello( msg: Value ): void
 // 向控制台打印消息。
@@ -305,11 +305,14 @@ data( name, its?: Value | String ): void | Value
 // 注：
 // 设置时的目标对象和its的逻辑同env指令。
 
-put( ...val: Value | [Value] ): Value | [Value]
+push( ...val: Value | [Value] ): Value | [Value]
 // 直接赋值入栈。
-// 目标：无。
-// 多个实参会自动展开入栈。如果要入栈数组，实参需为数组。
-// 无实参调用入栈 undefined。
+// 目标：可选当前条目。不取栈（0）。
+// 多个实参会自动展开入栈，数组实参视为单个值。
+// 无实参调用时入栈当前条目（作为单一值）。
+// 注记：
+// 入栈当前条目的能力使得可以组合多个栈数据为单一条目。
+// 这在打包多个实参作单一递送时有用。
 
 value( ...name: String | [String] ): Value | [Value]
 // 取目标属性值入栈。
@@ -356,35 +359,38 @@ mod(): Number     // (x, y) => x % y
 // 标准算术。
 // 目标：当前条目/栈顶2项。
 
-divmod( n:Number ): [Number, Number]
+divmod(): [Number, Number]
 // 除并求余。(x, y) => [x/y, x%y]
-// 目标：当前条目/栈顶n项。
+// 目标：当前条目/栈顶2项。
 
-nneg( n:Number ): Number | [Number]
+nneg(): Number | [Number]
 // 数值取负（-x）。
-// 目标：当前条目/栈顶n项。
+// 目标：当前条目/栈顶1项。
+// 注：
+// 兼容集合处理（每一个成员取负）。
 
-vnot( n:Number ): Boolean | [Boolean]
+vnot(): Boolean | [Boolean]
 // 逻辑取反（!x）。
-// 目标：当前条目/栈顶n项。
+// 目标：当前条目/栈顶1项。
+// 注：兼容集合处理。
 
-dup( n:Number ): Value | [Value]
+dup(): Value | [Value]
 // 复制（浅层）。
-// 目标：当前条目/栈顶n项。
+// 目标：当前条目/栈顶1项。
 // 浅复制：
 // - 数组：Array.from()
 // - 对象：Object.assign({}, ...)
 // - 其它：v2 = v1
 
-clone( event, deep, eventdeep ): Element
+clone( event, deep, eventdeep ): Element | Collector
 // 专用：元素克隆。
-// 注：不专属于On，公用。
+// 目标：当前条目/栈顶3项。
+// 注：兼容集合处理。
 
 
-// 比较&逻辑运算
+// 比较运算
+// 目标：当前条目/栈顶2项。
 //===============================================
-// 下面的 $expr 为测试表达式或函数名，表达式可用参数名：（v, i, o）。
-// $expr 支持首字符问号（?）引用X函数库成员。
 
 equal(): Boolean    // (x, y) => x === y
 nequal(): Boolean   // (x, y) => x !== y
@@ -392,18 +398,22 @@ lt(): Boolean       // (x, y) => x < y
 lte(): Boolean      // (x, y) => x <= y
 gt(): Boolean       // (x, y) => x > y
 gte(): Boolean      // (x, y) => x >= y
-// 标准比较。
-// 目标：当前条目/栈顶2项。
+
+
+// 逻辑运算
+//===============================================
+// 下面的 $expr 为测试表达式或函数名，表达式可用参数名：（v, i, o）。
+// $expr 支持首字符问号（?）引用X函数库成员。
 
 
 within( min, max ): Boolean
 // 是否在 [min, max] 的范围内（包含边界值）。
 // 目标：当前条目/栈顶1项。
 
-inSet( ...val ): Boolean
-// 是否在集合内。
+inside( ...val ): Boolean
+// 是否在实参数组内。
+// 实现：Array.includes。
 // 目标：当前条目/栈顶1项。
-// 实现：实参数组的简单存在性测试（Array.includes）。
 
 both(): Boolean
 // 二者为真判断。

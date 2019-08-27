@@ -93,9 +93,13 @@ xxxx   // 单元素检索，$.get(): Element
 - replace       // 替换目标自身
 // 节点插入/替换。
 // {Node|[Node]|Collector|Set|Iterator|Function} /cons
-// 当前条目为数据，检索结果为操作目标。
-// 因数据本身可为数组，不支持后续（克隆等）参数传递。
-// 提示：可提前自行克隆。
+// 注：
+// 因数据本身可为数组，故不支持后续克隆等参数。
+// 这可以通过提前克隆解决，但仅适用于单个目标点（多对一）。
+// 注记：
+// 同一组节点一次插入到多个位置的场景可能并不多见，但如果必需，
+// 通过分解设计和联动事件激发，或许可以解决？
+// 如：一个逐次递减的目标清单往返传递（fire）。
 
 
 - wrap          // {Element|String} /box 各自包裹
@@ -118,18 +122,21 @@ xxxx   // 单元素检索，$.get(): Element
 - text          // {String|[String]|Node|[Node]|Function|.values} /fill
 - offset        // {top:Number/px, left:Number/px}
 // 简单设置。
-// 流程数据作为唯一实参。
+// 流程数据为唯一实参，数据本身可能为数组。
 
 
 - cloneEvent
 // 事件克隆。{Element} /src | [...]
-// 注：
-// 事件源为单个元素，因此支持多实参扩展（支持后续参数）。
+// 事件源为单个元素，因此支持多实参扩展传递后续配置。
 // [ Element, String|Array2|[Array2] ]
+// 实现：
+// 检查传入的流程数据是否为数组，决定是否展开。
 
 
 // 逆向设置
 // 流程数据为目标，当前检索为内容。
+// 插入参考为单个节点/元素，因此支持多实参扩展传递后续克隆定义。
+// [ Node|Element, Boolean?, Boolean?, Boolean? ]
 /////////////////////////////////////////////////
 
 - beforeWith    // {Node} /ref | [...]
@@ -138,9 +145,8 @@ xxxx   // 单元素检索，$.get(): Element
 - appendWith    // {Element} /box | [...]
 - replaceWith   // {Node} /ref | [...]
 - fillWith      // {Element} /box | [...]
-// 注：
-// 插入参考为单个节点或元素，因此支持多实参扩展（传递后续克隆参数）。
-// [ Node|Element, Boolean?, Boolean?, Boolean? ]
+// 实现：
+// 检查传入的流程数据是否为数组，决定是否展开。
 
 
 - pba   // {[String]}
@@ -194,11 +200,11 @@ xxxx   // 单元素检索，$.get(): Element
 // 如果定义了多个方法，数据内容通常为数组形式。
 // 同样的数据应用到不同的方法上并不常见（当然也有这样的需求）。
 
-[.Test]|@title|...
++.Test|@title|...
 // 对class为Test的元素设置其title属性。
 // 通常来说，实参可能是一个数组，以便不同的元素有不同的提示。
 
-[.Test]|@title, &value|...
++.Test|@title, &value|...
 // 对class为Test的元素设置其title特性和value属性。
 // 如果实参是一个二维数组（双值数组的数组），其与元素一一对应赋值。
 // 即：将方法段视为一个独立单元。
@@ -219,7 +225,7 @@ xxxx   // 单元素检索，$.get(): Element
 ```js
 usurp( n:Number )
 // 更换To目标。
-// 用当前条目/栈顶n项设置为To目标。
+// 用当前条目/栈顶项设置为To目标。
 // 这是一个To专有方法。
 
 

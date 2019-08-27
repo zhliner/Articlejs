@@ -97,7 +97,7 @@ class Stack {
 
 
     /**
-     * 接口：暂存区取值。
+     * 暂存区取值。
      * 可能自动取栈顶项，视n值而定：{
      *      0   暂存区有值则返回，不自动取栈
      *      1   暂存区有值则返回，否则取栈顶1项（值）
@@ -107,7 +107,7 @@ class Stack {
      * @param  {Number} n 取栈条目数
      * @return {Value|[Value]} 值/值集
      */
-    data( n ) {
+    data( n = 1 ) {
         try {
             if ( this._done ) {
                 return this._item;
@@ -126,12 +126,22 @@ class Stack {
 
 
     /**
-     * 接口：多态弹出。
-     * 无实参传递时取栈赋值为单值。
-     * 实参为一个数值时（0值有效），取栈n项构造为数组赋值。
+     * 指令调用返回值入栈。
+     * 不接受 undefined 值入栈。
+     * @param {Value} val 入栈数据
+     */
+    push( ...val ) {
+        val.forEach ( v => v !== undefined && this._buf.push(v) );
+    }
+
+
+    /**
+     * 栈顶弹出赋值。
+     * 无实参传调用取出单个值。
+     * 否则取出n个（0有效）值并构造为一个数组赋值。
      * 注：用于pop指令。
-     * @param  {Number|null} n 弹出数量
-     * @return {void}
+     * @param {Number|null} n 弹出数量
+     * @data: Value | [Value]
      */
     pop( n ) {
         return n == null ? this._pop() : this._pops(n);
@@ -139,9 +149,62 @@ class Stack {
 
 
     /**
-     * 获取/设置更新目标。
-     * 注：由To段指令使用。
-     * @param  {Element|Collector} to 更新目标
+     * 引用范围值赋值。
+     * @param {Number} beg 起始位置
+     * @param {Number} end 结束位置（不含）
+     */
+    slice( beg, end ) {
+        this._done = true;
+        this._item = this._buf.slice( beg, end );
+    }
+
+
+    /**
+     * 引用目标位置值赋值。
+     * @param {Number} i 下标位置
+     */
+    index( i ) {
+        this._done = true;
+        this._item = this._buf[i];
+    }
+
+
+    /**
+     * 栈底移出赋值。
+     * 无实参调用移出单个值。
+     * 否则移出n个（0有效）值并构造为一个数组赋值。
+     * @param {Number} n 移出条目数
+     * @data: Value | [Value]
+     */
+    shift( n ) {
+        return n == null ? this._shift() : this._shifts(n);
+    }
+
+
+    /**
+     * 移除任意范围条目赋值。
+     * @param {Number} start 起始位置
+     * @param {Number} count 移除数量
+     */
+    splice( start, count ) {
+        this._done = true;
+        this._item = this._buf.splice( start, count );
+    }
+
+
+    /**
+     * 移除任意位置值赋值。
+     * @param {Number} i 下标位置
+     */
+    pick( i ) {
+        this._done = true;
+        this._item = this._buf.splice(i, 1)[0];
+    }
+
+
+    /**
+     * 获取/设置To目标。
+     * @param  {Element|Collector} to 目标元素/集合
      * @return {Element|Collector}
      */
     target( to ) {
@@ -165,18 +228,41 @@ class Stack {
 
 
     /**
-     * 指令调用返回值入栈。
-     * 内部接口：不接受 undefined 值入栈。
-     * @param  {Value} val 入栈数据
+     * 数据栈成员删除。
+     * 注：纯删除功能，被删除的数据不进入暂存区。
+     * @param {Number} start 起始下标
+     * @param {Number} count 删除数量
      */
-    _push( val ) {
-        if ( val !== undefined ) this._buf.push( val );
+    del( start, count ) {
+        this._buf.splice( start, count );
+    }
+
+
+    /**
+     * 移除栈底项暂存。
+     * @data: Value
+     */
+    _shift() {
+        this._done = true;
+        this._item = this._buf.shift();
+    }
+
+
+    /**
+     * 移除栈底多个条目暂存。
+     * 0项或负值（非法）会构造为一个空集。
+     * @param {Number} n 移除数量
+     * @data: [Value]
+     */
+    _shifts( n ) {
+        this._done = true;
+        this._item = n > 0 ? this._buf.splice(0, n) : [];
     }
 
 
     /**
      * 弹出栈顶值暂存。
-     * @return {void}
+     * @data: Value
      */
     _pop() {
         this._done = true;
@@ -187,8 +273,8 @@ class Stack {
     /**
      * 弹出栈顶多个条目暂存。
      * 0项或负值（非法）会构造为一个空集。
-     * @param  {Number} n 弹出数量
-     * @return {void}
+     * @param {Number} n 弹出数量
+     * @data: [Value]
      */
     _pops( n ) {
         this._done = true;
@@ -200,6 +286,7 @@ class Stack {
 //
 // 指令调用单元。
 // 包含一个单向链表结构，实现执行流的链式调用逻辑。
+// 调用的方法是一个bound-function，包含一个count属性指定取栈数量。
 //
 // 注记：
 // 取消原有脱链（dispose）设计，由单次事件绑定完成类似需求。
@@ -222,15 +309,21 @@ class Cell {
 
     /**
      * 方法/参数设置。
-     * 传入方法内的this转换到数据栈。
-     * @param  {Function} meth 目标方法（外部定义）
+     * 特权方法内的this会绑定到数据栈。
      * @param  {Array} args 模板配置的参数序列
+     * @param  {Function} meth 目标方法
+     * @param  {Boolean} isx 是否为特权方法。
+     * @param  {Number|null} n 取栈条目数
      * @return {this}
      */
-    bind( meth, args ) {
-        // (...'') 无实参
+    bind( args, meth, isx, n ) {
+        // ...'' ok
         this._args = args || '';
-        this._meth = meth.bind(this._stack);
+
+        this._meth = isx ?
+            // targetCount 外部定义
+            setCount( meth.bind(this._stack), n ) :
+            meth;
 
         return this;
     }
@@ -243,11 +336,24 @@ class Cell {
      * @return {Promise|void}
      */
     call( evo, val ) {
-        this._stack._push(val);
-        let _v = this._meth(evo, ...this._args);
+        this._stack.push( val );
+        evo.data = this._data( this._meth.count );
+
+        let _v = this._meth( evo, ...this._args );
 
         if ( this.next ) {
             return $.type(_v) == 'Promise' ? _v.then( o => this.next.call(evo, o) ) : this.next.call(evo, _v);
+        }
+    }
+
+
+    /**
+     * 获取流程数据。
+     * @return {Value|undefined}
+     */
+    _data( n ) {
+        if ( n != null ) {
+            return this._stack.data( n );
         }
     }
 
@@ -302,20 +408,22 @@ class Call {
 
     /**
      * 应用到指令集。
-     * 方法可能属于一个子集（x.y.m）。
-     * 所有的方法都会绑定内部的this到cell对象，以方便调用必要的接口。
+     * 普通方法可能属于一个子集（x.y.m）。
+     * 普通方法内的this会绑定到所属集合自身（覆盖后阶cell.bind）。
      * 注：
-     * 如果你不需要上面的接口，可以自己先绑定（.bind()）。
+     * 特权方法指需要操作数据栈的部分系统方法。
+     * 普通bound方法会添加一个count属性，标记方法取栈条目数。
      *
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 指令集
+     * @param  {Object} pbx 特权指令集（pop等）
      * @return {Cell} cell
      */
-    apply( cell, pbs ) {
+    apply( cell, pbs, pbx ) {
         let _m = this._meth.pop();
         pbs = this._host(this._meth, pbs) || pbs;
 
-        return cell.bind(pbs[_m], this._args);
+        return cell.bind( this._args, ...pbCall(_m, pbs, pbx) );
     }
 
 
@@ -392,31 +500,9 @@ class Query {
      */
     apply( cell ) {
         return cell.bind(
-            this.query,
-            [ this._slr, this._one, this._fltr ]
+            // n:0 支持当前条目，不自动取栈。
+            [ this._slr, this._one, this._fltr ], query, true, 0
         );
-    }
-
-
-    /**
-     * 目标检索。
-     * 支持二阶检索和相对ID属性（见 Util.$find）。
-     * this 为 Stack 实例。
-     * 支持暂存区当前条目为目标（由前阶末端指令遗留）。
-     *
-     * @param  {Object} evo 事件关联对象
-     * @param  {String} slr 选择器串（二阶）
-     * @param  {Boolean} one 是否单元素版
-     * @param  {Function} fltr 进阶过滤提取
-     * @return {void}
-     */
-    query( evo, slr, one, fltr ) {
-        let _beg = this.data(0);
-
-        if (_beg === undefined) {
-            _beg = evo.current;
-        }
-        this.target( query2(slr, _beg, one, fltr) );
     }
 
 
@@ -478,28 +564,8 @@ class Query {
 }
 
 
-/**
- * 检索目标元素。
- * 从起点元素上下检索目标元素（集）。
- * 进阶过滤：function( Collector ): Collector
- * 注记：
- * beg可能从暂存区取值为一个集合，已要求slr部分为空。
- * 因此代码工作正常。
- *
- * @param  {String} slr 双阶选择器
- * @param  {Element|null} beg 起点元素
- * @param  {Boolean} one 是否单元素查询
- * @param  {Function} fltr 进阶过滤函数
- * @return {Element|Collector}
- */
-function query2( slr, beg, one, fltr ) {
-    let _v = Util.$find( slr, beg, one );
-    return one ? _v : ( fltr ? fltr(_v) : _v );
-}
-
-
 //
-// To设置配置（多）。
+// To设置配置。
 // 即 Where/Method/Set 段配置。
 // 大多数方法为简单的规范名称，如：before, after, wrap, height 等。
 // 特性/属性/样式三种配置较为特殊，采用前置标志字符表达：{
@@ -508,46 +574,65 @@ function query2( slr, beg, one, fltr ) {
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 // }
 // 支持多方法并列定义，用逗号（__chrList）分隔。
-// 注记：
-// 并列的方法可视为独立作用，但内容数据取值需要考虑是否为数组。
 //
 class Sets {
-
+    /**
+     * @param {String} fmt 定义格式串
+     */
     constructor( fmt ) {
-        let _ns = fmt.split(__chrList);
-        //
-        // 提供数据、目标，构建并列的单方法封装，
+        let _ns = fmt
+            .split(__chrList)
+            .map( s => s.trim() );
+
+        this._names = _ns;
+        this._count = _ns.length;
     }
 
 
     /**
-     * 应用设置。
+     * 应用更新设置。
+     * 提供绑定的参数为一个更新函数集。
+     * 更新函数接口：function(Element | Collector, Value): void
+     *
      * @param {Cell} cell 指令单元
-     * @param {Object} mset 方法集（Where/Method/Set）
+     * @param {Object} pbs 更新方法集（Where/Method/Set）
      */
-    apply( cell, mset ) {
-        //
-        // 绑定到链式指令（对外）
+    apply( cell, pbs ) {
+        let _fs = this._names
+            .map( ss => this._method(ss, pbs) );
+
+        return cell.bind(_fs, update, true, this._count);
     }
 
 
-    update( evo, ...rest ) {
-        //
-        // 各个单方法封装打包执行。
-    }
-
-}
-
-
-//
-// To设置配置（单）
-// 为Sets提供单个方法调用封装，数据/目标由Sets提供。
-// 注：不对外（Cell）。
-//
-class Method {
-
-    constructor( fmt ) {
-        //
+    /**
+     * 构造更新方法封装。
+     * 接口：function(Element | Collector, Value): void
+     * 三个特殊方法名：{
+     *      @   特性（attr）
+     *      &   属性（prop）
+     *      %   样式（css）
+     * }
+     * @param  {String} name 方法名
+     * @param  {Object} pbs 更新方法集
+     * @return {Function} 更新方法
+     */
+    _method( name, pbs ) {
+        let _key;
+        switch ( name[0] ) {
+            case '@':
+                name = 'attr';
+                _key = name.substring(1);
+                break;
+            case '&':
+                name = 'prop';
+                _key = name.substring(1);
+                break;
+            case '%':
+                name = 'css';
+                _key = name.substring(1);
+        }
+        return (its, val) => pbs[name]( its, val, _key );
     }
 
 }
@@ -564,6 +649,108 @@ class Stage {
 //
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 设置方法的取栈条目数。
+ * 数值设置在方法的 count 属性上。
+ * @param  {Bound-Function} fobj 方法对象
+ * @param  {Number|null} n 条目数
+ * @return {fobj}
+ */
+function setCount(fobj, n) {
+    n = parseInt( n );
+    return fobj.count = n || null, fobj;
+}
+
+
+/**
+ * 获取调用方法/性质。
+ * 返回的第二个值表示是否为特权方法。
+ * 注：
+ * 特权方法会被绑定内部的this到数据栈，故需标记。
+ * 普通方法绑定到其所属的上级对象。
+ *
+ * @param  {String} k 方法名（键）
+ * @param  {Object} pbs 普通方法集
+ * @param  {Object} pbx 特权方法集
+ * @return [Function, Boolean]
+ */
+function pbCall( k, pbs, pbx ) {
+    let _m = pbx[k];
+
+    if ( _m ) {
+        return [ _m, true, _m.targetCount ];
+    }
+    _m = pbs[k];
+
+    return [ setCount(_m.bind(pbs), _m.targetCount), false ];
+}
+
+
+/**
+ * To：目标检索方法。
+ * 支持二阶检索和相对ID属性（见 Util.$find）。
+ * 支持暂存区当前条目为目标/起点（应由前阶末端指令取栈）。
+ * 注：
+ * 特权方法，this 为 Stack 实例（设置 Stack.target）。
+ *
+ * @param  {Object} evo 事件关联对象
+ * @param  {String} slr 选择器串（二阶）
+ * @param  {Boolean} one 是否单元素版
+ * @param  {Function} fltr 进阶过滤提取
+ * @return {void}
+ */
+function query( evo, slr, one, fltr ) {
+    let _beg = evo.data;
+
+    if (_beg === undefined) {
+        _beg = evo.current;
+    }
+    this.target( query2(slr, _beg, one, fltr) );
+}
+
+
+/**
+ * To：元素检索（辅助）。
+ * 从起点元素上下检索目标元素（集）。
+ * 进阶过滤：function( Collector ): Collector
+ * 注记：
+ * beg可能从暂存区取值为一个集合，已要求slr部分为空，因此代码工作正常。
+ *
+ * @param  {String} slr 双阶选择器
+ * @param  {Element|null} beg 起点元素
+ * @param  {Boolean} one 是否单元素查询
+ * @param  {Function} fltr 进阶过滤函数
+ * @return {Element|Collector}
+ */
+function query2( slr, beg, one, fltr ) {
+    let _v = Util.$find( slr, beg, one );
+    return one ? _v : ( fltr ? fltr(_v) : _v );
+}
+
+
+/**
+ * To：更新方法（总）。
+ * 如果有并列多个更新，流程数据为数组时会分别对应。
+ * 注：
+ * 特权方法，this 为 Stack 实例（读取 Stack.target）。
+ *
+ * @param {Object} evo 事件关联对象
+ * @param {[Function]} funs 更新方法集
+ */
+function update ( evo, funs ) {
+    let _its = this.target(),
+        _val = evo.data;
+
+    if ( funs.length == 1 ) {
+        return funs[0]( _its, _val );
+    }
+    if ( Array.isArray(_val) ) {
+        return funs.forEach( (f, i) => f(_its, _val[i]) );
+    }
+    funs.forEach( f => f(_its, _val) );
+}
 
 
 
