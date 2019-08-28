@@ -80,13 +80,15 @@ HTML源码不应当脱离设计师的视野，**源码**这一逻辑也并不就
 
 ```js
 evo: {
-    data: {Value|[Value]}           // 自动获取的流程数据
-    event: {Event}                  // 原生事件对象（未侵入）
     origin: {Element}               // 事件起点元素（event.target）
     current: {Element}              // 触发事件的当前元素（event.currentTarget|matched）
     related: {Element|null}         // 事件相关联元素（event.relatedTarget）
     delegate: {Element|undefined}   // 委托绑定的元素（event.currentTarget）
+
     selector: {String|undefined}    // 委托匹配选择器（for match）]
+    event: {Event}                  // 原生事件对象（未侵入）
+    data: {Value|[Value]}           // 自动获取的流程数据
+    targets: {Element|Collector}    // To目标元素（集）向后延续
 }
 ```
 
@@ -140,8 +142,11 @@ evo( name: String | Number ): Value
 //      3|'related'   evo.related
 //      8|'selector'  evo.selector
 //      9|'event'     evo.event
+//     10|'data'      evo.data （前端最后取出值遗留）
+//     11|'targets'   evo.targets （To检索目标延续传递）
 // }
 // 目标：从（隐藏的）首个实参上取值。无需当前条目。
+// 实现：name:[n => s]; evo[ name[x] || x ]
 
 ev( ...name: String | [String] ): Value | [Value]
 // 从事件对象上取值入栈。
@@ -158,11 +163,12 @@ ev( ...name: String | [String] ): Value | [Value]
 nil(): void
 // 一个空行为，占位。
 // 既不从暂存区取值，也不向数据栈添加值。
+// 目标：无。
 // 通常在On无需取值时作为视觉友好使用。如：click|nil;
 
-del( start = -1, count = -1 ): void
+del( start, count ): void
 // 删除栈任意位置段条目，位置指定支持负数从末尾算起。
-// count 可选，默认删除末尾全部（-1）。
+// 目标：无。
 // 注：
 // 纯粹删除功能，被删除的值不进入暂存区。
 
@@ -179,21 +185,21 @@ hello( msg: Value ): void
 
 pass( val? ): void
 // 通过性检测（是否中断执行流）。
-// 目标：当前条目/栈顶项。
+// 目标：当前条目/栈顶1项。
 // val:
 // - 有值则为相等（===）测试，否则为真值测试。
 
 avoid(): void
 // 停止事件默认的行为。
 // 即调用：event.preventDefault()
-// 目标：当前条目。
+// 目标：当前条目可选判断。
 // - 如果当前条目为空，无条件执行。
 // - 否则为条件执行：真值执行，假值跳过。
 
 stop( end ): void
 // 停止事件冒泡，如果end为真，同时停止执行流。
 // 即调用：stopPropagation()
-// 目标：当前条目。
+// 目标：当前条目可选判断。
 // - 如果当前条目为空，无条件执行。
 // - 否则为条件执行：真值执行，假值跳过。
 
@@ -201,17 +207,19 @@ stopAll( end ): void
 // 停止事件冒泡并阻止本事件其它处理器的执行。
 // 如果end为真，同时停止当前执行流。
 // 内部调用：event.stopImmediatePropagation()
-// 目标：当前条目。
+// 目标：当前条目可选判断。
 // - 如果当前条目为空，无条件执行。
 // - 否则为条件执行：真值执行，假值跳过。
 
 
 // 暂存区赋值
 // 赋值为单值或数组。
+// 目标：无。
 //===============================================
 
 pop( n ): void
-// 弹出栈顶 n 个条目，可能构建为一个数组。
+// 弹出栈顶 n 个条目。
+// 明确指定n值构建为一个数组。
 // 无实参调用弹出末尾条目，作为单个值赋值。
 // 即：pop() 和 pop(1) 的返回值不一样。
 // pop(0) 不会弹出任何内容，但会创建一个空集赋值。
@@ -291,8 +299,8 @@ env( name: String, its?: Value | String ): void | Value
 // 目标：当前条目。不自动取栈。
 // 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
 // 设置时：
-// - 目标非空：its有值，its指属性名，取该属性值设置。
 // - 目标为空：its必然有值，否则为取值逻辑。
+// - 目标非空：its有值，its指属性名，取该属性值设置。
 
 data( name, its?: Value | String ): void | Value
 // 关联数据存储/取出。
@@ -301,7 +309,7 @@ data( name, its?: Value | String ): void | Value
 // 通常实现为一个WeakMap存储当前元素的关联数据。
 // 数据本身是一个Map对象：
 // - 数据项键：name。
-// - 数据项值：目标对象、its、或目标对象的val属性值。
+// - 数据项值：目标对象、its、或目标对象的[its]属性值。
 // 注：
 // 设置时的目标对象和its的逻辑同env指令。
 
@@ -310,6 +318,7 @@ push( ...val: Value | [Value] ): Value | [Value]
 // 目标：可选当前条目。不取栈（0）。
 // 多个实参会自动展开入栈，数组实参视为单个值。
 // 无实参调用时入栈当前条目（作为单一值）。
+// 如果暂存区有值但又传入了实参，实参优先入栈，当前条目作废（丢弃）。
 // 注记：
 // 入栈当前条目的能力使得可以组合多个栈数据为单一条目。
 // 这在打包多个实参作单一递送时有用。
@@ -318,33 +327,35 @@ value( ...name: String | [String] ): Value | [Value]
 // 取目标属性值入栈。
 // 目标：当前条目/栈顶1项。
 // name为目标的属性名或无参数方法名。
-// 即：如果name是一个方法，简单调用取值，否则取属性值。
+// 即：如果name是一个方法，简单无实参调用取值。
 // 注：
 // 多个实参名称时返回一个值集合，会自动展开入栈。
 // 要入栈一个集合本身，可传递一个键数组取值。
 
 
-// 集合筛选
+// 集合操作
 //===============================================
-// $fltr为过滤表达式或函数名，表达式可用参数名：（v, i, o）。
+// $expr为过滤表达式或函数名，表达式可用参数名：（v, i, o）。
 // 目标：当前条目/栈顶1项。需要是一个集合。
 // 注：
 // $fltr如果为表达式，执行结果自动返回（无需return）。
 // $fltr支持首字符问号（?）引用X函数库成员。
 
-filter( $fltr ): [Value]
+filter( $expr ): [Value]
 // 值集过滤，匹配者构建一个新集合入栈。
 
-not( $fltr ): [Value]
+not( $expr ): [Value]
 // 值集排除。符合者被排除集合，剩余的创建为一个新集合入栈。
 
-has( $fltr ): [Element]
+has( $expr ): [Element]
 // 子元素包含。
 // 仅适用于元素集，普通值集无效。
 
-flat( deep: Number = 1 )
+flat( deep: Number, ext: Boolean = false )
 // 集合扁平化。
 // 将目标内可能嵌套的数组扁平化处理。
+// ext指示是否展开入栈。
+// deep可为0，这时通常ext为true，表示单纯的集合展开入栈。
 
 
 
@@ -426,12 +437,14 @@ either(): Boolean
 every( $expr ): Boolean
 // 集合成员全为真测试。
 // $expr 可选，默认简单真值判断。
-// 目标：当前条目。不自动取栈。
+// 目标：当前条目/栈顶1项。
+// 注：目标必须是一个集合。
 
 some( n, $expr ): Boolean
 // 集合成员至少 n 项为真测试。
 // $expr 可选，默认简单真值判断。
-// 目标：当前条目。不自动取栈。
+// 目标：当前条目/栈顶1项。
+// 注：目标必须是一个集合。
 
 
 // 判断执行。
@@ -456,8 +469,9 @@ vfalse( $expr, ...rest ): Value
 
 tpl( name: String | null, timeout: Number ): Element | false
 // 从全局模板空间获取name模板。
-// 目标：当前条目/栈顶1项。
-// 如果设置 name 为 null 值，表示从目标获取模板名称。这在动态指定模板名时有用。
+// 目标：当前条目，不自动取栈。
+// 如果目标非空，则目标为模板名称，此时应当为无实参调用，或name为null占位。
+// 这在动态指定模板名时有用。
 // 注：
 // 模板请求可能是异步的，如果异步超时返回false入栈。
 ```

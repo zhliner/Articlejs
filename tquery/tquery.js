@@ -152,9 +152,13 @@
         // 返回目标的类型。
         // 注：返回的是目标对象构造函数的名称，不会转为小写；
         // @param  {mixed} val 目标数据
-        // @return {String} 类型名（如 "String", "Array"）
+        // @return {String} 类型名（如 "Array"）
         $type = function( val ) {
-            return (val == null) ? String(val): val.constructor.name;
+            if ( val == null ) {
+                return String( val );
+            }
+            // Object.create(null) with no prototype.
+            return Object.getPrototypeOf( val ) ? val.constructor.name : 'Object';
         },
 
         // 元素匹配判断。
@@ -6204,7 +6208,7 @@ Object.assign( tQuery, {
      * @return {obj} 迭代的目标对象
      */
     each( obj, handle, thisObj ) {
-        if (thisObj) {
+        if ( thisObj ) {
             handle = handle.bind(thisObj);
         }
         for ( let [k, v] of entries(obj) ) {
@@ -6229,14 +6233,14 @@ Object.assign( tQuery, {
      * @return {[Value]}
      */
     map( iter, fun, thisObj ) {
-        if (thisObj) {
+        if ( thisObj ) {
             fun = fun.bind(thisObj);
         }
         let _tmp = [];
 
         for ( let [k, v] of entries(iter) ) {
             v = fun(v, k);
-            if (v != null) _tmp.push(v);
+            if ( v != null ) _tmp.push(v);
         }
         // 一级扁平化
         return [].concat(..._tmp);
@@ -6444,6 +6448,30 @@ Object.assign( tQuery, {
     mergeArray( des, ...src ) {
         des.push( ...[].concat(...src) );
         return des;
+    },
+
+
+    /**
+     * 对象赋值（可经加工）。
+     * 对数据源的每个成员进行处理，结果赋值到目标对象（键不变）。
+     * 处理器返回 undefined 时被忽略。
+     * 处理器接口：function(key, value, object): Value
+     * 注：
+     * 仅简单支持一个数据源对象，返回目标对象自身。
+     * @param  {Object} target 目标对象
+     * @param  {Object} source 数据源对象
+     * @param  {Function} proc 处理器
+     * @return {Object} target
+     */
+    assign( target, source, proc ) {
+        if ( !proc ) {
+            return Object.assign(target, source);
+        }
+        for ( const [k, v] of Object.entries(source) ) {
+            let _val = proc(k, v, source);
+            if ( _val !== undefined ) target[k] = _val;
+        }
+        return target;
     },
 
 

@@ -1426,6 +1426,29 @@ $.mergeArray( [], 123, [1,3,5], 'xyz' );
 ```
 
 
+### $.assign( target, source, proc ): Object
+
+对数据源 `source` 对象的每个键/值用 `proc` 进行加工，结果赋值到目标对象 `target`（键不变）。
+
+- `target: Object` 被赋值的目标对象。
+- `source: Object` 数据源对象。
+- `proc: Function` 加工处理函数，接口：`function(key, value, object): Value`。
+
+如果处理器返回 `undefined`，则略过对该键的赋值。仅支持一个数据源对象，返回目标对象（`target`）自身。
+
+```js
+let src = {
+    a: 'aaa', b: 'bbb', _a: 'AAA', _b: 'BBB'
+};
+
+$.assign( {}, src, (k, v) => k[0] == '_' ? v : undefined );
+// { _a: "AAA", _b: "BBB" }
+
+$.assign( {}, src, (k, v) => k[0] != '_' ? v : null );
+// { a: "aaa", b: "bbb", _a: null, _b: null }
+```
+
+
 ### $.object( base, ...data ): Object
 
 基于首个实参对象为原型，创建一个新的对象。后续对象的成员将被复制到新对象上。

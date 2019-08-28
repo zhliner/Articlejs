@@ -15,9 +15,20 @@
 const $ = window.$;
 
 
-const To = {
+const _To = {
     //
 };
 
 
-export { To };
+//
+// To目标更换。
+// 取值：当前条目/栈顶1项。
+// this为Stack实例。
+// 注：
+// To下一阶唯一特权方法。
+//
+const usurp = function( evo ) { this.target( evo.data ) };
+usurp.targetCount = 1;
+
+
+export { _To };

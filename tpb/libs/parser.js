@@ -302,6 +302,7 @@ class Cell {
         this._stack = stack;
         this._meth = null;
         this._args = null;
+        this._count = null;
 
         if (prev) prev.next = this;
     }
@@ -319,11 +320,8 @@ class Cell {
     bind( args, meth, isx, n ) {
         // ...'' ok
         this._args = args || '';
-
-        this._meth = isx ?
-            // targetCount 外部定义
-            setCount( meth.bind(this._stack), n ) :
-            meth;
+        this._meth = isx ? meth.bind(this._stack) : meth;
+        this._count = $.isNumeric(n) ? +n : null;
 
         return this;
     }
@@ -337,7 +335,10 @@ class Cell {
      */
     call( evo, val ) {
         this._stack.push( val );
-        evo.data = this._data( this._meth.count );
+
+        evo.data = this._data( this._count );
+        // To 之前为 undefined
+        evo.targets = this._stack.target();
 
         let _v = this._meth( evo, ...this._args );
 
@@ -574,9 +575,11 @@ class Query {
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 // }
 // 支持多方法并列定义，用逗号（__chrList）分隔。
+// 注：并列的方法数量即是自动取栈的数量。
 //
 class Sets {
     /**
+     * 构造设置器。
      * @param {String} fmt 定义格式串
      */
     constructor( fmt ) {
@@ -585,6 +588,7 @@ class Sets {
             .map( s => s.trim() );
 
         this._names = _ns;
+        // 自动取栈数
         this._count = _ns.length;
     }
 
@@ -601,7 +605,7 @@ class Sets {
         let _fs = this._names
             .map( ss => this._method(ss, pbs) );
 
-        return cell.bind(_fs, update, true, this._count);
+        return cell.bind(_fs, update, false, this._count);
     }
 
 
@@ -638,13 +642,6 @@ class Sets {
 }
 
 
-//
-// To下一阶配置。
-//
-class Stage {
-    //
-}
-
 
 //
 // 工具函数。
@@ -652,24 +649,11 @@ class Stage {
 
 
 /**
- * 设置方法的取栈条目数。
- * 数值设置在方法的 count 属性上。
- * @param  {Bound-Function} fobj 方法对象
- * @param  {Number|null} n 条目数
- * @return {fobj}
- */
-function setCount(fobj, n) {
-    n = parseInt( n );
-    return fobj.count = n || null, fobj;
-}
-
-
-/**
  * 获取调用方法/性质。
  * 返回的第二个值表示是否为特权方法。
  * 注：
  * 特权方法会被绑定内部的this到数据栈，故需标记。
- * 普通方法绑定到其所属的上级对象。
+ * 普通方法应该预先绑定到其所属的上级对象。
  *
  * @param  {String} k 方法名（键）
  * @param  {Object} pbs 普通方法集
@@ -684,7 +668,7 @@ function pbCall( k, pbs, pbx ) {
     }
     _m = pbs[k];
 
-    return [ setCount(_m.bind(pbs), _m.targetCount), false ];
+    return [ _m, false, _m.targetCount ];
 }
 
 
@@ -733,14 +717,13 @@ function query2( slr, beg, one, fltr ) {
 /**
  * To：更新方法（总）。
  * 如果有并列多个更新，流程数据为数组时会分别对应。
- * 注：
- * 特权方法，this 为 Stack 实例（读取 Stack.target）。
+ * 注记：this无关性，可被共享。
  *
  * @param {Object} evo 事件关联对象
  * @param {[Function]} funs 更新方法集
  */
-function update ( evo, funs ) {
-    let _its = this.target(),
+function _update ( evo, funs ) {
+    let _its = evo.targets,
         _val = evo.data;
 
     if ( funs.length == 1 ) {
@@ -751,6 +734,11 @@ function update ( evo, funs ) {
     }
     funs.forEach( f => f(_its, _val) );
 }
+
+//
+// 共享方法（bound）。
+//
+const update = _update.bind(null);
 
 
 
