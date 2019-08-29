@@ -223,7 +223,6 @@ class Stack {
         this._buf.length = 0;
         this._done = false;
         this._item = this._target = undefined;
-
     }
 
 
@@ -409,22 +408,17 @@ class Call {
 
     /**
      * 应用到指令集。
-     * 普通方法可能属于一个子集（x.y.m）。
-     * 普通方法内的this会绑定到所属集合自身（覆盖后阶cell.bind）。
-     * 注：
-     * 特权方法指需要操作数据栈的部分系统方法。
-     * 普通bound方法会添加一个count属性，标记方法取栈条目数。
-     *
+     * 普通方法可能属于一个子集（x.y.m），应该已被绑定（bind）。
+     * 特权方法需要访问数据栈（bind），因此应当是一个未bound函数。
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 指令集
-     * @param  {Object} pbx 特权指令集（pop等）
      * @return {Cell} cell
      */
-    apply( cell, pbs, pbx ) {
+    apply( cell, pbs ) {
         let _m = this._meth.pop();
         pbs = this._host(this._meth, pbs) || pbs;
 
-        return cell.bind( this._args, ...pbCall(_m, pbs, pbx) );
+        return cell.bind( this._args, ...pbCall(_m, pbs) );
     }
 
 
@@ -649,26 +643,30 @@ class Sets {
 
 
 /**
- * 获取调用方法/性质。
- * 返回的第二个值表示是否为特权方法。
- * 注：
- * 特权方法会被绑定内部的this到数据栈，故需标记。
- * 普通方法应该预先绑定到其所属的上级对象。
+ * 获取方法和属性。
+ * 原方法上的两个属性：{
+ *      .targetCount 自动取栈条目数
+ *      .stackAccess 可访问数据栈（特权）
+ * }
+ * 返回值：[
+ *      0 方法引用
+ *      1 是否为特权方法
+ *      2 取栈条目数
+ * ]
+ * 注记：
+ * 特权方法会被绑定内部的this到数据栈，故有标记。
  *
- * @param  {String} k 方法名（键）
- * @param  {Object} pbs 普通方法集
- * @param  {Object} pbx 特权方法集
- * @return [Function, Boolean]
+ * @param  {String} name 方法名
+ * @param  {Object} pbs  指令/方法集
+ * @return [Function, Boolean, Number]
  */
-function pbCall( k, pbs, pbx ) {
-    let _m = pbx[k];
+function pbCall( name, pbs ) {
+    let _f = pbs[ name ];
 
-    if ( _m ) {
-        return [ _m, true, _m.targetCount ];
+    if ( !_f ) {
+        throw new Error(`${name} is not in the PB sets.`)
     }
-    _m = pbs[k];
-
-    return [ _m, false, _m.targetCount ];
+    return [ _f, _f.stackAccess || false, _f.targetCount ];
 }
 
 

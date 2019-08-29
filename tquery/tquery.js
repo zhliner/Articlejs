@@ -6452,12 +6452,14 @@ Object.assign( tQuery, {
 
 
     /**
-     * 对象赋值（可经加工）。
-     * 对数据源的每个成员进行处理，结果赋值到目标对象（键不变）。
-     * 处理器返回 undefined 时被忽略。
-     * 处理器接口：function(key, value, object): Value
-     * 注：
-     * 仅简单支持一个数据源对象，返回目标对象自身。
+     * 对象处理赋值。
+     * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
+     * 处理器：
+     *      function(v, k, source, target): [v, k] | null
+     * 返回值：
+     * - [v，k] 值/键的二元数组，其中键可选。
+     * - null   也可以是其它假值，该条目的赋值会被忽略。
+     *
      * @param  {Object} target 目标对象
      * @param  {Object} source 数据源对象
      * @param  {Function} proc 处理器
@@ -6468,8 +6470,12 @@ Object.assign( tQuery, {
             return Object.assign(target, source);
         }
         for ( const [k, v] of Object.entries(source) ) {
-            let _val = proc(k, v, source);
-            if ( _val !== undefined ) target[k] = _val;
+
+            let _v2 = proc( v, k, source, target );
+
+            if ( _v2 ) {
+                target[ _v2[1] == null ? k : _v2[1] ] = _v2[0];
+            }
         }
         return target;
     },

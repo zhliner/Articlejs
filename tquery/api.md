@@ -1428,24 +1428,26 @@ $.mergeArray( [], 123, [1,3,5], 'xyz' );
 
 ### $.assign( target, source, proc ): Object
 
-对数据源 `source` 对象的每个键/值用 `proc` 进行加工，结果赋值到目标对象 `target`（键不变）。
+对数据源 `source` 对象的每个键/值用 `proc` 进行处理，结果赋值到目标对象 `target` 并返回该对象。
 
 - `target: Object` 被赋值的目标对象。
 - `source: Object` 数据源对象。
-- `proc: Function` 加工处理函数，接口：`function(key, value, object): Value`。
+- `proc: Function` 加工处理函数，接口：`function( value, key, source, target ): [v, k] | null`。
 
-如果处理器返回 `undefined`，则略过对该键的赋值。仅支持一个数据源对象，返回目标对象（`target`）自身。
+处理器应当返回一个 `[值, 键]` 的二元数组，其中键成员是可选的（如果为 `null|undefined` 则延用原来的键名）。如果返回一个假值，则会略过该条目的赋值。
 
 ```js
 let src = {
     a: 'aaa', b: 'bbb', _a: 'AAA', _b: 'BBB'
 };
 
-$.assign( {}, src, (k, v) => k[0] == '_' ? v : undefined );
+$.assign( {}, src, (v, k) => k[0] == '_' && [v] );
 // { _a: "AAA", _b: "BBB" }
+// 注：未修改键名。
 
-$.assign( {}, src, (k, v) => k[0] != '_' ? v : null );
-// { a: "aaa", b: "bbb", _a: null, _b: null }
+$.assign( {}, src, (v, k) => k[0] != '_' && [v, k.toUpperCase()] );
+// {A: "aaa", B: "bbb"}
+// 注：键名被修改了。
 ```
 
 

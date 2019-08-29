@@ -17,7 +17,14 @@ import { _By } from "./pbs.by.js";
 import { _To } from "./pbs.to.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // 指令属性名
+    // 用于配置指令特性。
+    __fxCount   = 'targetCount',    // 自动取栈计数
+    __fxAccess  = 'stackAccess';    // 特权方法
+
 
 
 //
@@ -33,47 +40,47 @@ const _Base = {
         //
     },
 
-    __$: 0,
+    __$_n: 0,
 
 
     $$( evo, rid ) {
         //
     },
 
-    __$$: 0,
+    __$$_n: 0,
 
 
     evo( evo, name ) {
         //
     },
 
-    __evo: null,
+    __evo_n: null,
 
 
     ev( evo, ...name ) {
         //
     },
 
-    __ev: null,
+    __ev_n: null,
 
 
     nil( evo ) {},
 
-    __nil: null,
+    __nil_n: null,
 
 
     del( evo, start, count ) {
         //
     },
 
-    __del: null,
+    __del_n: null,
 
 
     hello( evo, msg ) {
         //
     },
 
-    __hello: 1,
+    __hello_n: 1,
 
 
     // 控制类
@@ -83,28 +90,28 @@ const _Base = {
         //
     },
 
-    __pass: 1,
+    __pass_n: 1,
 
 
     avoid( evo ) {
         //
     },
 
-    __avoid: 0,
+    __avoid_n: 0,
 
 
     stop( evo, end ) {
         //
     },
 
-    __stop: 0,
+    __stop_n: 0,
 
 
     stopAll( evo, end ) {
         //
     },
 
-    __stopAll: 0,
+    __stopAll_n: 0,
 
 
     // 暂存区赋值
@@ -115,47 +122,53 @@ const _Base = {
         //
     },
 
-    __pop: null,
+    __pop_x: true,
+    __pop_n: null,
 
 
     slice( evo, beg, end ) {
         //
     },
 
-    __slice: null,
+    __slice_x: true,
+    __slice_n: null,
 
 
     index( evo, n ) {
         //
     },
 
-    __index: null,
+    __index_x: true,
+    __index_n: null,
 
 
     shift( evo, n ) {
         //
     },
 
-    __shift: null,
+    __shift_x: true,
+    __shift_n: null,
 
 
     splice( evo, start, count ) {
         //
     },
 
-    __splice: null,
+    __splice_x: true,
+    __splice_n: null,
 
 
     pick( evo, i ) {
         //
     },
 
-    __pick: null,
+    __pick_x: true,
+    __pick_n: null,
 
 };
 
 
-const Base = $.assign( {}, _Base, bindMethod );
+const Base = $.assign( {}, _Base, getMethod );
 
 
 
@@ -172,35 +185,35 @@ const _Base2 = {
         //
     },
 
-    __Arr: 1,
+    __Arr_n: 1,
 
 
     Str( evo, prefix = '', suffix = '' ) {
         //
     },
 
-    __Str: 1,
+    __Str_n: 1,
 
 
     Bool( evo ) {
         //
     },
 
-    __Bool: 1,
+    __Bool_n: 1,
 
 
     Int( evo, radix ) {
         //
     },
 
-    __Int: 1,
+    __Int_n: 1,
 
 
     Float( evo ) {
         //
     },
 
-    __Float: 1,
+    __Float_n: 1,
 
 
     // 简单值操作
@@ -210,28 +223,28 @@ const _Base2 = {
         //
     },
 
-    __evn: 0,
+    __evn_n: 0,
 
 
     data( evo, name, its ) {
         //
     },
 
-    __data: 0,
+    __data_n: 0,
 
 
     push( evo, ...val ) {
         //
     },
 
-    __push: 0,
+    __push_n: 0,
 
 
     value( evo, ...name ) {
         //
     },
 
-    __value: 1,
+    __value_n: 1,
 
 
     // 集合筛选
@@ -241,28 +254,28 @@ const _Base2 = {
         //
     },
 
-    __filter: 1,
+    __filter_n: 1,
 
 
     not( evo, $expr ) {
         //
     },
 
-    __not: 1,
+    __not_n: 1,
 
 
     has( evo, $expr ) {
         //
     },
 
-    __has: 1,
+    __has_n: 1,
 
 
     flat( evo, deep ) {
         //
     },
 
-    __flat: 1,
+    __flat_n: 1,
 
 
     // 简单运算
@@ -272,70 +285,70 @@ const _Base2 = {
         //
     },
 
-    __add: 2,
+    __add_n: 2,
 
 
     sub( evo ) {
         //
     },
 
-    __sub: 2,
+    __sub_n: 2,
 
 
     mul( evo ) {
         //
     },
 
-    __mul: 2,
+    __mul_n: 2,
 
 
     div( evo ) {
         //
     },
 
-    __div: 2,
+    __div_n: 2,
 
 
     mod( evo ) {
         //
     },
 
-    __mod: 2,
+    __mod_n: 2,
 
 
     divmod( evo ) {
         //
     },
 
-    __divmod: 2,
+    __divmod_n: 2,
 
 
     nneg( evo ) {
         //
     },
 
-    __nneg: 1,
+    __nneg_n: 1,
 
 
     vnot( evo ) {
         //
     },
 
-    __vnot: 1,
+    __vnot_n: 1,
 
 
     dup( evo ) {
         //
     },
 
-    __dup: 1,
+    __dup_n: 1,
 
 
     clone( evo, event, deep, eventdeep ) {
         //
     },
 
-    __clone: 3,
+    __clone_n: 3,
 
 
     // 比较运算
@@ -345,42 +358,42 @@ const _Base2 = {
         //
     },
 
-    __equal: 2,
+    __equal_n: 2,
 
 
     nequal( evo ) {
         //
     },
 
-    __nequal: 2,
+    __nequal_n: 2,
 
 
     lt( evo ) {
         //
     },
 
-    __lt: 2,
+    __lt_n: 2,
 
 
     lte( evo ) {
         //
     },
 
-    __lte: 2,
+    __lte_n: 2,
 
 
     gt( evo ) {
         //
     },
 
-    __gt: 2,
+    __gt_n: 2,
 
 
     gte( evo ) {
         //
     },
 
-    __gte: 2,
+    __gte_n: 2,
 
 
     // 逻辑运算
@@ -390,42 +403,42 @@ const _Base2 = {
         //
     },
 
-    __within: 1,
+    __within_n: 1,
 
 
     inside( evo ) {
         //
     },
 
-    __inside: 1,
+    __inside_n: 1,
 
 
     both( evo ) {
         //
     },
 
-    __both: 2,
+    __both_n: 2,
 
 
     either( evo ) {
         //
     },
 
-    __either: 2,
+    __either_n: 2,
 
 
     every( evo ) {
         //
     },
 
-    __every: 1,
+    __every_n: 1,
 
 
     some( evo, n ) {
         //
     },
 
-    __some: 1,
+    __some_n: 1,
 
 
     // 判断执行。
@@ -435,14 +448,14 @@ const _Base2 = {
         //
     },
 
-    __vtrue: 1,
+    __vtrue_n: 1,
 
 
     vfalse( evo, $expr, ...rest ) {
         //
     },
 
-    __vfalse: 1,
+    __vfalse_n: 1,
 
 
     // 其它
@@ -452,12 +465,12 @@ const _Base2 = {
         //
     },
 
-    __tpl: 0,
+    __tpl_n: 0,
 
 };
 
 
-const Base2 = $.assing( {}, _Base2, bindMethod );
+const Base2 = $.assing( {}, _Base2, getMethod );
 
 
 
@@ -467,9 +480,9 @@ const Base2 = $.assing( {}, _Base2, bindMethod );
 
 
 /**
- * 创建绑定方法。
- * 会同时在bound方法上设置取值条目数（.targetCount）。
- * 取栈条目数命名约定：前置2个下划线。
+ * 获取指令/方法。
+ * 非特权方法会绑定方法内this为原生宿主对象。
+ * 会在目标方法上设置取值条目数（.targetCount）。
  * 注记：
  * 创建已绑定的全局方法，可以节省内存。
  *
@@ -477,12 +490,29 @@ const Base2 = $.assing( {}, _Base2, bindMethod );
  * @param {Function} f 方法
  * @param {Object} obj 宿主对象
  */
-function bindMethod( k, f, obj ) {
+function getMethod( k, f, obj ) {
 
-    if ( !k.startsWith('__') ) {
-        let _bf = f.bind( obj );
-        return ( _bf.targetCount = obj[ `__${k}` ], _bf );
+    if ( k.startsWith('__') ) {
+        return;
     }
+    let _n = obj[ `__${k}_n` ];
+
+    return [ obj[ `__${k}_x` ] ? funcSets( f, _n, true ) : funcSets( f.bind(obj), _n ) ];
+}
+
+
+/**
+ * 指令/方法属性设置：{
+ *  - stackAccess 是否为特权方法。
+ *  - targetCount 自动取栈条目数。
+ * }
+ * @param {Function} f 目标指令
+ * @param {Number} n 自动取栈数量
+ * @param {Boolean} ix 是否为特权指令
+ */
+function funcSets( f, n, ix ) {
+    if ( ix ) f[__fxAccess] = true;
+    return ( f[__fxCount] = n, f );
 }
 
 
