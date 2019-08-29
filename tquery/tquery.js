@@ -2731,9 +2731,6 @@ class Collector extends Array {
      * @param {Collector} prev 前一个实例引用
      */
     constructor( obj, prev ) {
-        // 注记：
-        // 原生方法中生成新数组的方法会再次调用本构造，
-        // 并传递一个成员数量实参。这里需要避免该参数影响。
         super();
         // window.console.info(obj);
 
@@ -2742,6 +2739,13 @@ class Collector extends Array {
         );
         this.previous = prev || null;
     }
+
+
+    //
+    // 衍生对象直接上层构造。
+    // 如：.map() .filter() 等。
+    //
+    static get [Symbol.species]() { return Array }
 
 
     //-- 重载父类方法 ---------------------------------------------------------
@@ -5963,7 +5967,7 @@ const Event = {
 function customHandles( evn, handle ) {
     return typeof evn == 'string' ?
         [ evn, customHandle( handle ) ] :
-        [ tQuery.each( evn, (fn, k) => evn[k] = customHandle(fn) ), handle ];
+        [ tQuery.each( evn, (fn, k) => evn[k] = customHandle(fn) ), null ];
 }
 
 
@@ -6113,7 +6117,6 @@ function evnsBatch( type, el, evn, slr, handle ) {
 }
 
 
-
 //
 // 就绪载入部分。
 // 相关接口：$.ready, $.holdReady
@@ -6171,6 +6174,62 @@ const domReady = {
     },
 
 };
+
+
+
+/**
+ * 对象成员处理赋值。
+ * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
+ * 接口：function(v, k, source, target): [v, k] | null
+ * @param  {Object} to 目标对象
+ * @param  {Object} src 数据源对象
+ * @param  {Function} proc 处理器函数
+ * @return {Object} to
+ */
+ function assignProc( to, src, proc ) {
+
+    // 不含 Symbol 类型。
+    for ( const [k, v] of Object.entries(src) ) {
+        let _v = proc( v, k, src, to );
+        if ( _v ) to[ _v[1] == null ? k : _v[1] ] = _v[0];
+    }
+    return to;
+}
+
+
+/**
+ * 对象的Symbol属性赋值（经处理）。
+ * @param  {Object} target 目标对象
+ * @param  {Object} sources 数据源对象
+ * @param  {Function} proc 处理器
+ * @return {Object} target
+ */
+function assignSymbolProc( to, src, proc ) {
+
+    Object.getOwnPropertySymbols(src)
+        .forEach( k => {
+            let _v = proc( src[k], k, src, to );
+            if ( _v ) to[ _v[1] == null ? k : _v[1] ] = _v[0];
+        });
+    return to;
+}
+
+
+/**
+ * 对象的Symbol属性赋值。
+ * @param  {Object} to 目标对象
+ * @param  {Object} src 数据源对象
+ * @return {Object} to
+ */
+function assignSymbol( to, src ) {
+
+    Object.getOwnPropertySymbols(src)
+        .forEach(
+            k => to[k] = src[k]
+        );
+    return to;
+}
+
 
 
 //
@@ -6396,22 +6455,6 @@ Object.assign( tQuery, {
 
 
     /**
-     * Map转换为Object对象。
-     * - 键为键，值为值。
-     * 注：仅适用于键为字符串或数值的Map实例。
-     * @param  {Map} map Map实例
-     * @return {Object}
-     */
-    objMap( map ) {
-        let _o = {};
-        if (map) {
-            for ( const [k, v] of map ) _o[k] = v;
-        }
-        return _o;
-    },
-
-
-    /**
      * Map转换为键值索引对二元对象数组。
      * 每一个键/值对转换为一个二元对象。
      * 即：{
@@ -6452,32 +6495,58 @@ Object.assign( tQuery, {
 
 
     /**
-     * 对象处理赋值。
+     * 对象成员赋值（可经处理）。
      * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
      * 处理器：
      *      function(v, k, source, target): [v, k] | null
      * 返回值：
      * - [v，k] 值/键的二元数组，其中键可选。
      * - null   也可以是其它假值，该条目的赋值会被忽略。
+     * 注：
+     * 最后一个实参为处理器，但也可以是普通对象（即普通赋值）。
+     * 处理器不处理 Symbol 类型的属性，它们不会被拷贝。
      *
      * @param  {Object} target 目标对象
-     * @param  {Object} source 数据源对象
-     * @param  {Function} proc 处理器
+     * @param  {...Object} sources 数据源对象序列
+     * @param  {Object|Function} _fx 数据源对象或处理器
      * @return {Object} target
      */
-    assign( target, source, proc ) {
-        if ( !proc ) {
-            return Object.assign(target, source);
-        }
-        for ( const [k, v] of Object.entries(source) ) {
+    assign( target, ...sources ) {
+        let _fx = sources.pop();
 
-            let _v2 = proc( v, k, source, target );
-
-            if ( _v2 ) {
-                target[ _v2[1] == null ? k : _v2[1] ] = _v2[0];
-            }
+        if ( isFunc(_fx) && sources.length ) {
+            return sources.reduce( (to, src) => assignProc(to, src, _fx), target );
         }
-        return target;
+        // 包含 Symbol 类型。
+        return Object.assign( target, ...sources, _fx );
+    },
+
+
+    /**
+     * 对象Symbol成员赋值（可经处理）。
+     * 对数据源的每个Symbol类型成员用处理器处理，结果赋值到目标对象。
+     * 处理器：
+     *      function(v, k, source, target): [v, k] | null
+     * 返回值：
+     * - [v，k] 值/键的二元数组，其中键可选。
+     * - null   也可以是其它假值，该条目的赋值会被忽略。
+     * 注：
+     * 最后一个实参为处理器，但也可以是普通对象（正常拷贝赋值）。
+     *
+     * @param  {Object} target 目标对象
+     * @param  {...Object} sources 数据源对象序列
+     * @param  {Object|Function} _fx 数据源对象或处理器
+     * @return {Object} target
+     */
+    assignSymbol( target, ...sources ) {
+        let _fx = null,
+            _call = assignSymbol;
+
+        if ( isFunc(sources[sources.length-1]) && sources.length > 1 ) {
+            _fx = sources.pop();
+            _call = assignSymbolProc;
+        }
+        return sources.reduce( (to, src) => _call(to, src, _fx), target );
     },
 
 

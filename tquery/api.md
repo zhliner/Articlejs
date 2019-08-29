@@ -1374,21 +1374,6 @@ $.tags( ttl );
 ```
 
 
-### $.objMap( map ): Object
-
-将一个 `Map` 实例转换为普通对象（`Object`）表示。
-
-- `map: Map` 一个 `Map` 实例。
-
-**注意**：`Map` 实例的键需要是字符串或数字类型。这只是一个简单的便捷工具。
-
-```js
-let map = new Map().set('A', 'aaa').set('B', 'bbb');
-$.objMap(map);
-// { A: "aaa", B: "bbb" }
-```
-
-
 ### $.kvsMap( map, kname?, vname? ): [Object]
 
 将一个 `Map` 实例转换为用目标键/值名称索引实例内键和值的对象的数组。
@@ -1426,28 +1411,77 @@ $.mergeArray( [], 123, [1,3,5], 'xyz' );
 ```
 
 
-### $.assign( target, source, proc ): Object
+### $.assign( target, ...sources ): target
 
-对数据源 `source` 对象的每个键/值用 `proc` 进行处理，结果赋值到目标对象 `target` 并返回该对象。
+用 `sources` 中的最后一个实参为处理器，接收 `sources` 中其它对象的每个属性（不包含 `Symbol`）及其值进行处理，返回的结果（`[v, k]`）赋值到 `target` 目标对象上。
 
-- `target: Object` 被赋值的目标对象。
-- `source: Object` 数据源对象。
-- `proc: Function` 加工处理函数，接口：`function( value, key, source, target ): [v, k] | null`。
+- `target: Object` 被赋值的目标对象。也是方法的返回值。
+- `...sources: [Object]` 数据源对象序列。
+- `sources[-1]: Object|Function` 数据源对象或处理器函数，接口：`function(v, k, src, target): [v, k] | null`。
 
-处理器应当返回一个 `[值, 键]` 的二元数组，其中键成员是可选的（如果为 `null|undefined` 则延用原来的键名）。如果返回一个假值，则会略过该条目的赋值。
+最后一个实参被当作处理器是可选的，如果它不是函数或 `sources` 只有一个成员，则只是普通的 `Object.assign()` 赋值（也因此，对象内的 `Symbol` 类属性也会被拷贝）。如果你不希望拷贝 `Symbol` 属性，可以传递一个简单的处理器如 `v => [v]` 作为最后一个实参。
+
+> **注：**
+> 内部实现采用 `Object.entries()` 遍历对象成员。
+
+处理器应当返回一个 `[值, 键]` 的二元数组，其中键成员是可选的（如为 `null|undefined` 则延用原来的名称）。如果返回一个假值，会略过该条目的赋值。
 
 ```js
 let src = {
     a: 'aaa', b: 'bbb', _a: 'AAA', _b: 'BBB'
 };
 
-$.assign( {}, src, (v, k) => k[0] == '_' && [v] );
-// { _a: "AAA", _b: "BBB" }
-// 注：未修改键名。
+$.assign(
+    {}, src,
+    (v, k) => k[0] == '_' && [v, k.toUpperCase()]
+);
+// { _A: "AAA", _B: "BBB" }
+// 注：过滤并修改了键名。
 
-$.assign( {}, src, (v, k) => k[0] != '_' && [v, k.toUpperCase()] );
-// {A: "aaa", B: "bbb"}
-// 注：键名被修改了。
+
+src[Symbol('x')] = 'test';
+
+$.assign( {}, src, { a: 10 } );
+// {
+//     a: 10, b: 'bbb', _a: "AAA", _b: "BBB", Symbol(x): "test"
+// }
+// 注：无处理器。即普通的赋值，同名覆盖。
+
+
+$.assign( {}, src, v => [v] );
+// {
+//     a: "aaa", b: "bbb", _a: "AAA", _b: "BBB"
+// }
+// 注：Symbol(x) 属性被忽略掉了。
+```
+
+
+### $.assignSymbol( target, ...sources ): target
+
+用 `sources` 中的最后一个实参为处理器，接收 `sources` 中其它对象的每个 `Symbol` 属性及其值进行处理，返回的结果如果不为 `undefined`，则赋值到 `target` 目标对象上。
+
+- `target: Object` 被赋值的目标对象。也是方法的返回值。
+- `...sources: [Object]` 数据源对象序列。
+- `sources[-1]: Object|Function` 数据源对象或处理器函数，接口：`function(v, k, src, target): [v, k] | null`。
+
+最后一个实参被当作处理器是可选的，如果它不是函数或 `sources` 只有一个成员，则只是简单的复制源对象上的 `Symbol` 成员（键和值）。
+
+处理器应当返回一个 `[值, 键]` 的二元数组，其中键成员是可选的（如为 `null|undefined` 则延用原来的键）。如果返回一个假值，会略过该条目的赋值。
+
+```js
+let src = { a: 'aaa', b: 'bbb' };
+
+$.assignSymbol( {}, src );
+// {}
+
+src[Symbol('x')] = 'test';
+src[Symbol('y')] = 'hello';
+
+$.assignSymbol( {}, src );
+// { Symbol(x): "test", Symbol(y): "hello" }
+
+$.assignSymbol( {}, src, v => [v.toUpperCase()] );
+// { Symbol(x): "TEST", Symbol(y): "HELLO" }
 ```
 
 
