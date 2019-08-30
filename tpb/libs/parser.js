@@ -14,10 +14,12 @@
 
 import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
-import { On, By, To } from "./pbs.js";
+import * as pbx from "./pbs.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+    DEBUG = true;
 
 
 const
@@ -107,7 +109,7 @@ class Stack {
      * @param  {Number} n 取栈条目数
      * @return {Value|[Value]} 值/值集
      */
-    data( n = 1 ) {
+    data( n ) {
         try {
             if ( this._done ) {
                 return this._item;
@@ -127,7 +129,7 @@ class Stack {
 
     /**
      * 指令调用返回值入栈。
-     * 不接受 undefined 值入栈。
+     * 注：undefined 表示无返回值，不入栈。
      * @param {Value} val 入栈数据
      */
     push( ...val ) {
@@ -327,28 +329,46 @@ class Cell {
 
 
     /**
-     * 调用执行。
+     * 承接前阶结果，调用当前。
+     * val是前阶方法执行的结果，应该是一个具体的值（进入数据栈）。
      * @param  {Object} evo 事件相关对象
      * @param  {Value} val 上一指令的结果
-     * @return {Promise|void}
+     * @return {void}
      */
     call( evo, val ) {
-        this._stack.push( val );
-
+        if ( val !== undefined) {
+            this._stack.push( val );
+        }
         evo.data = this._data( this._count );
         // To 之前为 undefined
         evo.targets = this._stack.target();
 
-        let _v = this._meth( evo, ...this._args );
+        // 当前方法执行/续传。
+        this._call( evo, this._meth(evo, ...this._args) );
+    }
 
-        if ( this.next ) {
-            return $.type(_v) == 'Promise' ? _v.then( o => this.next.call(evo, o) ) : this.next.call(evo, _v);
+
+    /**
+     * 下一阶方法调用。
+     * 当前方法调用的返回值可能是一个Promise对象。
+     * @param  {Object} evo 事件相关对象
+     * @param  {Value} val 当前方法执行的结果
+     * @return {void}
+     */
+    _call( evo, val ) {
+        if ( !this.next ) return;
+
+        if ( $.type(val) != 'Promise' ) {
+            return this.next.call(evo, val);
         }
+        val.then( v => this.next.call(evo, v), rejectInfo );
     }
 
 
     /**
      * 获取流程数据。
+     * 注：非数值表示无暂存区取值需求。
+     * @param  {Number} 取栈条目数
      * @return {Value|undefined}
      */
     _data( n ) {
@@ -643,17 +663,36 @@ class Sets {
 
 
 /**
+ * Promise失败显示。
+ * 按前置标志字符串识别层级。
+ * 注：无信息不显示。
+ * @param {String} msg 显示的消息
+ */
+function rejectInfo( msg ) {
+    if ( !msg || !DEBUG ) {
+        return;
+    }
+    if ( typeof msg != 'string' ) {
+        return window.console.dir( msg );
+    }
+    if ( msg.startsWith('warn:') ) {
+        return window.console.warn( msg.substring(5) );
+    }
+    if ( msg.startsWith('err:') ) {
+        return window.console.error( msg.substring(4) );
+    }
+    window.console.info( msg );
+}
+
+
+/**
  * 获取方法和属性。
- * 原方法上的两个属性：{
- *      .targetCount 自动取栈条目数
- *      .stackAccess 可访问数据栈（特权）
+ * 原方法上的两个特殊属性：{
+ *      [pbx.EXTENT] 自动取栈条目数
+ *      [pbx.ACCESS] 可访问数据栈（特权）
  * }
- * 返回值：[
- *      0 方法引用
- *      1 是否为特权方法
- *      2 取栈条目数
- * ]
- * 注记：
+ * 返回值：[ 方法引用, 是否特权, 取栈数量 ]
+ * 注：
  * 特权方法会被绑定内部的this到数据栈，故有标记。
  *
  * @param  {String} name 方法名
@@ -666,13 +705,13 @@ function pbCall( name, pbs ) {
     if ( !_f ) {
         throw new Error(`${name} is not in the PB sets.`)
     }
-    return [ _f, _f.stackAccess || false, _f.targetCount ];
+    return [ _f, _f[ pbx.ACCESS ] || false, _f[ pbx.EXTENT ] ];
 }
 
 
 /**
  * To：目标检索方法。
- * 支持二阶检索和相对ID属性（见 Util.$find）。
+ * 支持二阶检索和相对ID属性（见 Util.find）。
  * 支持暂存区当前条目为目标/起点（应由前阶末端指令取栈）。
  * 注：
  * 特权方法，this 为 Stack 实例（设置 Stack.target）。
@@ -707,7 +746,7 @@ function query( evo, slr, one, fltr ) {
  * @return {Element|Collector}
  */
 function query2( slr, beg, one, fltr ) {
-    let _v = Util.$find( slr, beg, one );
+    let _v = Util.find( slr, beg, one );
     return one ? _v : ( fltr ? fltr(_v) : _v );
 }
 

@@ -23,29 +23,32 @@ const
 
 
 const
-    __chrSplit = '/',
+    __chrSplit = '/',   // 二阶选择器切分字符
+    __chrRID   = '?',   // 相对ID标志字符
 
     // 二阶选择器分隔符（/）。
     // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
     // 注：仅存在性测试。
     __reSplit = /\/(?=$|[\w>:#.*?])/,
 
-    // 相对ID匹配提取。
-    // 如 `p?xyz >b` => `?xyz`
+    // 相对ID匹配测试。
+    // 注意：不能区分属性选择器值内的 ?.. 序列。
     //
     // CSS标识值匹配：/(?:\\.|[\w-]|[^\0-\xa0])+/
     // http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
     //
-    // 注：
     // 增加?后空白匹配，以支持无值的相对ID：
-    //      'p? >b`  => `? `    => `p[data-id]>b`
-    //      'p?>b`   => `?`     => 同上
-    //      'p?`     => `?`     => `p[data-id]`
-    //      'p?xyz`  => `?xyz`  => `p[data-id="xyz"]`
-    //      '?xyz`   => `?xyz`  => `[data-id="xyz"]`
-    // g标记用于替换操作。
-    // 注意：不能区分属性选择器值内的 ?.. 字符序列。
-    __reRID = /\?(?:\\.|[\w-]|[^\0-\xa0]|\s*)+/g,
+    //  'p? >b`  => `? `    => `p[data-id]>b`
+    //  'p?>b`   => `?`     => 同上
+    //  'p?`     => `?`     => `p[data-id]`
+    //  'p?xyz`  => `?xyz`  => `p[data-id="xyz"]`
+    //  '?xyz`   => `?xyz`  => `[data-id="xyz"]`
+    //
+    __hasRID = /\?(?:\\.|[\w-]|[^\0-\xa0]|\s*)+/,
+
+    // RID取值匹配。
+    // 切分后存在于首位，单次替换。
+    __ridVal = /^(?:\\.|[\w-]|[^\0-\xa0])+/,
 
 
     // 单引号匹配
@@ -130,7 +133,7 @@ const Util = {
      * @param  {Boolean} one 是否单元素检索
      * @return {Collector|Element|null} 目标元素（集）
      */
-    $find( slr, beg, one ) {
+    find( slr, beg, one ) {
         if ( !slr || slr == '/' ) {
             return beg;
         }
@@ -572,7 +575,7 @@ function fmtSplit( fmt ) {
     if ( !__reSplit.test(fmt) ) {
         return false;
     }
-    let _s2 = SSpliter.split(fmt, __chrSplit, 1);
+    let _s2 = [ ...SSpliter.split(fmt, __chrSplit, 1) ];
 
     return _s2.length > 1 && _s2;
 }
@@ -580,14 +583,31 @@ function fmtSplit( fmt ) {
 
 /**
  * 相对ID转为正常选择器。
+ * 注：
+ * 正则可能匹配属性值内的 ?... 序列，
+ * 因此采用 SSpliter 以实现正常切分。
+ *
  * @param  {String} fmt 选择器串
  * @return {String} 结果选择器
  */
 function ridslr( fmt ) {
-    return fmt.replace(__reRID, s =>
-        // 去除前置?字符
-        ( s = s.substring(1).trim() ) && `[data-id="${s}"]` || "[data-id]"
-    );
+    if ( !__hasRID.test(fmt) ) {
+        return fmt;
+    }
+    let _ss = [ ...SSpliter.split(fmt, __chrRID) ],
+        _s0 = _ss.shift();
+
+    return _s0 + _ss.map( ridone ).join('');
+}
+
+
+/**
+ * 构造单个相对ID选择器。
+ * @param {String} str 相对ID切分串
+ */
+function ridone( str ) {
+    return str.trim() ?
+        str.replace(__ridVal, '[data-id="$&"]') : "[data-id]";
 }
 
 

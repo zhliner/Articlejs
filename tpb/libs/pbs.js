@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Util } from "./util.js";
 import { _On } from "./pbs.on.js";
 import { _By } from "./pbs.by.js";
 import { _To } from "./pbs.to.js";
@@ -20,10 +21,24 @@ import { _To } from "./pbs.to.js";
 const
     $ = window.$,
 
-    // 指令属性名
-    // 用于配置指令特性。
-    __fxCount   = 'targetCount',    // 自动取栈计数
-    __fxAccess  = 'stackAccess';    // 特权方法
+    // 指令配置属性
+    EXTENT = Symbol('stack-amount'),  // 自动取栈计数
+    ACCESS = Symbol('stack-access');  // 特权方法
+
+
+//
+// 友好：evo成员名数值键。
+//
+const evoIndex = {
+        0:  'origin',       // 事件起点元素（event.target）
+        1:  'current',      // 触发事件的当前元素（event.currentTarget|matched）
+        2:  'delegate',     // 事件相关联元素（event.relatedTarget）
+        3:  'related',      // 委托绑定的元素（event.currentTarget）
+        8:  'selector',     // 委托匹配选择器（for match）]
+        9:  'event',        // 原生事件对象（未侵入）
+        10: 'data',         // 自动获取的流程数据
+        11: 'target',       // To目标元素（集）向后延续
+    };
 
 
 
@@ -36,86 +51,185 @@ const _Base = {
     // 基础集
     /////////////////////////////////////////////////
 
+    /**
+     * 单元素检索入栈。
+     * 目标：当前条目，不自动取栈。
+     * rid: {
+     *      String  以当前条目（如果有）或事件当前元素（ev.current）为起点。
+     *      null    以当前条目为rid，事件当前元素为起点。
+     * }
+     * @param {Object} evo 事件关联对象
+     * @param  {String|null} rid 相对ID
+     * @return {Element}
+     */
     $( evo, rid ) {
-        //
+        let _beg = evo.current;
+
+        if ( rid == null ) {
+            rid = evo.data;
+        } else {
+            _beg = evo.data || _beg;
+        }
+        return Util.find( rid, _beg, true );
     },
 
-    __$_n: 0,
+    __$: 0,
 
 
+    /**
+     * 多元素检索入栈。
+     * 目标：当前条目，不自动取栈。
+     * rid: {
+     *      String  同上。
+     *      null    同上，但当前条目也可能非字符串类型。
+     *      Value   Collector封装，支持数组。
+     * }
+     * 当前条目的权重低于rid实参，因此如果rid为Collector封装，当前条目会被忽略。
+     * 明确取当前条目时，也可能为Collector封装。
+
+     * @param  {Object} evo 事件关联对象
+     * @param  {String|null|Value} rid 相对ID或待封装值
+     * @return {Collector}
+     */
     $$( evo, rid ) {
-        //
+        let _beg = evo.current;
+
+        if ( rid == null ) {
+            rid = evo.data;
+        } else {
+            _beg = evo.data || _beg;
+        }
+        return typeof rid == 'string' ? Util.find( rid, _beg ) : $(rid);
     },
 
-    __$$_n: 0,
+    __$$: 0,
 
 
+    /**
+     * evo成员取值入栈。
+     * 目标：无。
+     * @param  {String|Number} name 成员名称或代码
+     * @return {Element|Collector|Value}
+     */
     evo( evo, name ) {
-        //
+        return evo[ evoIndex[name] || name ];
     },
 
-    __evo_n: null,
+    __evo: null,
 
 
-    ev( evo, ...name ) {
-        //
+    /**
+     * 从事件对象上取值。
+     * 多个实参取值会自动展开入栈。
+     * 如果需要入栈一个属性值集合，可以传递名称数组。
+     * 目标：无。
+     * 特权：是。this为数据栈实例。
+     * @param  {...String} names 事件属性名
+     * @return {void} 自操作入栈
+     */
+    ev( evo, ...names ) {
+        let _vs = names.map( name =>
+            $.isArray(name) ? name.map( n => evo.event[n] ) : evo.event[name]
+        );
+        this.push( ..._vs );
     },
 
-    __ev_n: null,
+    __ev: null,
+    __ev_x: true,
 
 
+    // 空指令。
+    // 目标：无。
     nil( evo ) {},
 
-    __nil_n: null,
+    __nil: null,
 
 
+    /**
+     * 删除数据栈任意区段条目。
+     * 目标：无。
+     * 特权：是。this为数据栈实例。
+     * 注：
+     * 与暂存区赋值类指令不同，这只是纯粹的删除功能。
+     * 可能并不常用。
+     * @param  {Number} start 起始位置
+     * @param  {Number} count 删除数量
+     * @return {void}
+     */
     del( evo, start, count ) {
-        //
+        this.del( start, count );
     },
 
-    __del_n: null,
+    __del: null,
+    __del_x: true,
 
 
-    hello( evo, msg ) {
-        //
+    /**
+     * 向控制台打印消息。
+     * 目标：当前条目，不自动取栈。
+     * 实参显示在前（如果有），当前条目显示在后（如果有）。
+     * 注：测试用途。
+     * @param  {...String} msg 消息序列
+     * @return {void}
+     */
+    hello( evo, ...msg ) {
+        if ( evo.data !== undefined ) {
+            msg.push( evo.data );
+        }
+        window.console.info( ...msg );
     },
 
-    __hello_n: 1,
+    __hello: 0,
+
 
 
     // 控制类
     //===============================================
 
+    /**
+     * 通过性检查。
+     * 目标：当前条目/栈顶1项。
+     * 检查目标值是否为真（非假）或是否与val相等（===）。
+     * 结果为假会中断执行流。
+     * @param  {Value} val 对比值，可选
+     * @return {Promise:void}
+     */
     pass( evo, val ) {
-        //
+        let _v = evo.data;
+
+        if ( val !== undefined ) {
+            _v = val === _v;
+        }
+        return new Promise( (ok, fail) => _v ? ok() : fail(_v) );
     },
 
-    __pass_n: 1,
+    __pass: 1,
 
 
     avoid( evo ) {
         //
     },
 
-    __avoid_n: 0,
+    __avoid: 0,
 
 
     stop( evo, end ) {
         //
     },
 
-    __stop_n: 0,
+    __stop: 0,
 
 
     stopAll( evo, end ) {
         //
     },
 
-    __stopAll_n: 0,
+    __stopAll: 0,
 
 
     // 暂存区赋值
     // 目标：赋值非取值，无。
+    // __[name]: null （略）
     //===============================================
 
     pop( evo, n ) {
@@ -123,7 +237,6 @@ const _Base = {
     },
 
     __pop_x: true,
-    __pop_n: null,
 
 
     slice( evo, beg, end ) {
@@ -131,7 +244,6 @@ const _Base = {
     },
 
     __slice_x: true,
-    __slice_n: null,
 
 
     index( evo, n ) {
@@ -139,7 +251,6 @@ const _Base = {
     },
 
     __index_x: true,
-    __index_n: null,
 
 
     shift( evo, n ) {
@@ -147,7 +258,6 @@ const _Base = {
     },
 
     __shift_x: true,
-    __shift_n: null,
 
 
     splice( evo, start, count ) {
@@ -155,7 +265,6 @@ const _Base = {
     },
 
     __splice_x: true,
-    __splice_n: null,
 
 
     pick( evo, i ) {
@@ -163,7 +272,6 @@ const _Base = {
     },
 
     __pick_x: true,
-    __pick_n: null,
 
 };
 
@@ -185,35 +293,35 @@ const _Base2 = {
         //
     },
 
-    __Arr_n: 1,
+    __Arr: 1,
 
 
     Str( evo, prefix = '', suffix = '' ) {
         //
     },
 
-    __Str_n: 1,
+    __Str: 1,
 
 
     Bool( evo ) {
         //
     },
 
-    __Bool_n: 1,
+    __Bool: 1,
 
 
     Int( evo, radix ) {
         //
     },
 
-    __Int_n: 1,
+    __Int: 1,
 
 
     Float( evo ) {
         //
     },
 
-    __Float_n: 1,
+    __Float: 1,
 
 
     // 简单值操作
@@ -223,28 +331,28 @@ const _Base2 = {
         //
     },
 
-    __evn_n: 0,
+    __evn: 0,
 
 
     data( evo, name, its ) {
         //
     },
 
-    __data_n: 0,
+    __data: 0,
 
 
     push( evo, ...val ) {
         //
     },
 
-    __push_n: 0,
+    __push: 0,
 
 
     value( evo, ...name ) {
         //
     },
 
-    __value_n: 1,
+    __value: 1,
 
 
     // 集合筛选
@@ -254,28 +362,28 @@ const _Base2 = {
         //
     },
 
-    __filter_n: 1,
+    __filter: 1,
 
 
     not( evo, $expr ) {
         //
     },
 
-    __not_n: 1,
+    __not: 1,
 
 
     has( evo, $expr ) {
         //
     },
 
-    __has_n: 1,
+    __has: 1,
 
 
     flat( evo, deep ) {
         //
     },
 
-    __flat_n: 1,
+    __flat: 1,
 
 
     // 简单运算
@@ -285,70 +393,70 @@ const _Base2 = {
         //
     },
 
-    __add_n: 2,
+    __add: 2,
 
 
     sub( evo ) {
         //
     },
 
-    __sub_n: 2,
+    __sub: 2,
 
 
     mul( evo ) {
         //
     },
 
-    __mul_n: 2,
+    __mul: 2,
 
 
     div( evo ) {
         //
     },
 
-    __div_n: 2,
+    __div: 2,
 
 
     mod( evo ) {
         //
     },
 
-    __mod_n: 2,
+    __mod: 2,
 
 
     divmod( evo ) {
         //
     },
 
-    __divmod_n: 2,
+    __divmod: 2,
 
 
     nneg( evo ) {
         //
     },
 
-    __nneg_n: 1,
+    __nneg: 1,
 
 
     vnot( evo ) {
         //
     },
 
-    __vnot_n: 1,
+    __vnot: 1,
 
 
     dup( evo ) {
         //
     },
 
-    __dup_n: 1,
+    __dup: 1,
 
 
     clone( evo, event, deep, eventdeep ) {
         //
     },
 
-    __clone_n: 3,
+    __clone: 3,
 
 
     // 比较运算
@@ -358,42 +466,42 @@ const _Base2 = {
         //
     },
 
-    __equal_n: 2,
+    __equal: 2,
 
 
     nequal( evo ) {
         //
     },
 
-    __nequal_n: 2,
+    __nequal: 2,
 
 
     lt( evo ) {
         //
     },
 
-    __lt_n: 2,
+    __lt: 2,
 
 
     lte( evo ) {
         //
     },
 
-    __lte_n: 2,
+    __lte: 2,
 
 
     gt( evo ) {
         //
     },
 
-    __gt_n: 2,
+    __gt: 2,
 
 
     gte( evo ) {
         //
     },
 
-    __gte_n: 2,
+    __gte: 2,
 
 
     // 逻辑运算
@@ -403,42 +511,42 @@ const _Base2 = {
         //
     },
 
-    __within_n: 1,
+    __within: 1,
 
 
     inside( evo ) {
         //
     },
 
-    __inside_n: 1,
+    __inside: 1,
 
 
     both( evo ) {
         //
     },
 
-    __both_n: 2,
+    __both: 2,
 
 
     either( evo ) {
         //
     },
 
-    __either_n: 2,
+    __either: 2,
 
 
     every( evo ) {
         //
     },
 
-    __every_n: 1,
+    __every: 1,
 
 
     some( evo, n ) {
         //
     },
 
-    __some_n: 1,
+    __some: 1,
 
 
     // 判断执行。
@@ -448,14 +556,14 @@ const _Base2 = {
         //
     },
 
-    __vtrue_n: 1,
+    __vtrue: 1,
 
 
     vfalse( evo, $expr, ...rest ) {
         //
     },
 
-    __vfalse_n: 1,
+    __vfalse: 1,
 
 
     // 其它
@@ -465,7 +573,7 @@ const _Base2 = {
         //
     },
 
-    __tpl_n: 0,
+    __tpl: 0,
 
 };
 
@@ -482,7 +590,7 @@ const Base2 = $.assing( {}, _Base2, getMethod );
 /**
  * 获取指令/方法。
  * 非特权方法会绑定方法内this为原生宿主对象。
- * 会在目标方法上设置取值条目数（.targetCount）。
+ * 会在目标方法上设置取栈条目数（[EXTENT]）。
  * 注记：
  * 创建已绑定的全局方法，可以节省内存。
  *
@@ -490,12 +598,14 @@ const Base2 = $.assing( {}, _Base2, getMethod );
  * @param {Function} f 方法
  * @param {Object} obj 宿主对象
  */
-function getMethod( k, f, obj ) {
-
-    if ( k.startsWith('__') ) {
-        return;
+function getMethod( f, k, obj ) {
+    try {
+        if ( k.startsWith('__') ) return;
     }
-    let _n = obj[ `__${k}_n` ];
+    catch (e) {
+        return; // Symbol
+    }
+    let _n = obj[ `__${k}` ];
 
     return [ obj[ `__${k}_x` ] ? funcSets( f, _n, true ) : funcSets( f.bind(obj), _n ) ];
 }
@@ -503,16 +613,16 @@ function getMethod( k, f, obj ) {
 
 /**
  * 指令/方法属性设置：{
- *  - stackAccess 是否为特权方法。
- *  - targetCount 自动取栈条目数。
+ *  - [ACCESS] 是否为特权方法。
+ *  - [EXTENT] 自动取栈条目数。
  * }
  * @param {Function} f 目标指令
  * @param {Number} n 自动取栈数量
  * @param {Boolean} ix 是否为特权指令
  */
 function funcSets( f, n, ix ) {
-    if ( ix ) f[__fxAccess] = true;
-    return ( f[__fxCount] = n, f );
+    if ( ix ) f[ACCESS] = true;
+    return ( f[EXTENT] = n, f );
 }
 
 
@@ -529,4 +639,10 @@ const
     To  = $.proto( _To, Base );
 
 
-export { On, By, To };
+export {
+    On,
+    By,
+    To,
+    EXTENT,
+    ACCESS,
+};
