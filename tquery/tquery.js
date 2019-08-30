@@ -6188,45 +6188,11 @@ const domReady = {
  */
  function assignProc( to, src, proc ) {
 
-    // 不含 Symbol 类型。
-    for ( const [k, v] of Object.entries(src) ) {
-        let _v = proc( v, k, src, to );
-        if ( _v ) to[ _v[1] == null ? k : _v[1] ] = _v[0];
-    }
-    return to;
-}
-
-
-/**
- * 对象的Symbol属性赋值（经处理）。
- * @param  {Object} target 目标对象
- * @param  {Object} sources 数据源对象
- * @param  {Function} proc 处理器
- * @return {Object} target
- */
-function assignSymbolProc( to, src, proc ) {
-
-    Object.getOwnPropertySymbols(src)
-        .forEach( k => {
+    Reflect.ownKeys(src).forEach(
+        k => {
             let _v = proc( src[k], k, src, to );
             if ( _v ) to[ _v[1] == null ? k : _v[1] ] = _v[0];
         });
-    return to;
-}
-
-
-/**
- * 对象的Symbol属性赋值。
- * @param  {Object} to 目标对象
- * @param  {Object} src 数据源对象
- * @return {Object} to
- */
-function assignSymbol( to, src ) {
-
-    Object.getOwnPropertySymbols(src)
-        .forEach(
-            k => to[k] = src[k]
-        );
     return to;
 }
 
@@ -6504,7 +6470,7 @@ Object.assign( tQuery, {
      * - null   也可以是其它假值，该条目的赋值会被忽略。
      * 注：
      * 最后一个实参为处理器，但也可以是普通对象（即普通赋值）。
-     * 处理器不处理 Symbol 类型的属性，它们不会被拷贝。
+     * 迭代源对象的每一个属性，包括 Symbol 类型的属性。
      *
      * @param  {Object} target 目标对象
      * @param  {...Object} sources 数据源对象序列
@@ -6517,36 +6483,7 @@ Object.assign( tQuery, {
         if ( isFunc(_fx) && sources.length ) {
             return sources.reduce( (to, src) => assignProc(to, src, _fx), target );
         }
-        // 包含 Symbol 类型。
         return Object.assign( target, ...sources, _fx );
-    },
-
-
-    /**
-     * 对象Symbol成员赋值（可经处理）。
-     * 对数据源的每个Symbol类型成员用处理器处理，结果赋值到目标对象。
-     * 处理器：
-     *      function(v, k, source, target): [v, k] | null
-     * 返回值：
-     * - [v，k] 值/键的二元数组，其中键可选。
-     * - null   也可以是其它假值，该条目的赋值会被忽略。
-     * 注：
-     * 最后一个实参为处理器，但也可以是普通对象（正常拷贝赋值）。
-     *
-     * @param  {Object} target 目标对象
-     * @param  {...Object} sources 数据源对象序列
-     * @param  {Object|Function} _fx 数据源对象或处理器
-     * @return {Object} target
-     */
-    assignSymbol( target, ...sources ) {
-        let _fx = null,
-            _call = assignSymbol;
-
-        if ( isFunc(sources[sources.length-1]) && sources.length > 1 ) {
-            _fx = sources.pop();
-            _call = assignSymbolProc;
-        }
-        return sources.reduce( (to, src) => _call(to, src, _fx), target );
     },
 
 
