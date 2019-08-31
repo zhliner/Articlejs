@@ -351,17 +351,17 @@ push( ...val: Value | [Value] ): Value | [Value]
 // 集合操作
 //===============================================
 
-filter( fltr: String, isjs: Boolean ): [Value]
+filter( fltr: String, js: Boolean ): [Value]
 // 值集过滤。
 // 匹配者构建一个新数组入栈。适用元素和普通值集。
 // 目标：当前条目/栈顶1项。
-// isjs 说明fltr是否是一个JS表达式。
+// js 说明fltr是否是一个JS表达式。
 // fltr 若为表达式，固定参数名：(v, i, o)。
 // 注：
 // 表达式无需包含 return。
 // 目标需要是一个集合。
 
-not( fltr: String, isjs: Boolean ): [Value]
+not( fltr: String, js: Boolean ): [Value]
 // 值集排除。符合者被排除，剩余的创建为一个新集合入栈。
 // 适用元素和普通值集。
 // 目标：当前条目/栈顶1项。

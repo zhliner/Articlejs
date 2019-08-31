@@ -582,11 +582,11 @@ const _Base2 = {
      * 注：
      * 表达式无需包含 return。
      * @param  {String} fltr 选择器或表达式
-     * @param  {Boolean} isjs fltr为JS表达式
+     * @param  {Boolean} js fltr为JS表达式
      * @return {[Value]}
      */
-    filter( evo, fltr, isjs ) {
-        if ( isjs ) {
+    filter( evo, fltr, js ) {
+        if ( js ) {
             fltr = new Function(
                 'v',
                 'i',
@@ -606,11 +606,11 @@ const _Base2 = {
      * 目标：当前条目/栈顶1项（集合）。
      * 参数说明同 filter。
      * @param  {String} fltr 选择器或排除表达式
-     * @param  {Boolean} isjs fltr为JS表达式
+     * @param  {Boolean} js fltr为JS表达式
      * @return {[Value]}
      */
-    not( evo, fltr, isjs ) {
-        if ( isjs ) {
+    not( evo, fltr, js ) {
+        if ( js ) {
             fltr = new Function(
                 'v',
                 'i',
