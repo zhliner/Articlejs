@@ -49,7 +49,7 @@ const evoIndex = {
 const _Base = {
 
     // 基础集
-    /////////////////////////////////////////////////
+    //===============================================
 
     /**
      * 单元素检索入栈。
@@ -206,25 +206,87 @@ const _Base = {
     __pass: 1,
 
 
-    avoid( evo ) {
-        //
+    /**
+     * 停止事件默认行为。
+     * 目标：当前条目，不自动取值。
+     * 如果当前条目非空，则真值停止，否则无条件停止。
+     * back为执行之后的返回值（入栈），如果未执行则无用。
+     * @param  {Value} back 执行结果，可选
+     * @return {back|void}
+     */
+    avoid( evo, back ) {
+        let _v = this.data;
+
+        if ( _v === undefined || _v ) {
+            evo.event.preventDefault();
+            return back;
+        }
     },
 
     __avoid: 0,
 
 
-    stop( evo, end ) {
-        //
+    /**
+     * 停止事件冒泡。
+     * 目标：当前条目，不自动取栈。
+     * 如果当前条目非空，则真值执行（停止），否则无条件执行。
+     * back为执行之后的返回值，如果未执行则无用。
+     * 例：
+     * 执行后同时终止执行流：stop(false) pass
+     *
+     * @param  {Value} back 执行结果，可选
+     * @return {back|void}
+     */
+    stop( evo, back ) {
+        let _v = this.data;
+
+        if ( _v === undefined || _v ) {
+            evo.event.stopPropagation();
+            return back;
+        }
     },
 
     __stop: 0,
 
 
-    stopAll( evo, end ) {
-        //
+    /**
+     * 停止事件冒泡并阻止本事件其它处理器的执行。
+     * 目标：当前条目，不自动取栈。
+     * 如果当前条目非空，则真值执行（停止），否则无条件执行。
+     * back为执行之后的返回值，如果未执行则无用。
+     *
+     * @param  {Value} back 执行结果，可选
+     * @return {back|void}
+     */
+     stopAll( evo, back ) {
+        let _v = this.data;
+
+        if ( _v === undefined || _v ) {
+            evo.event.stopImmediatePropagation();
+            return back;
+        }
     },
 
     __stopAll: 0,
+
+
+    /**
+     * 流程终止。
+     * 目标：当前条目，不自动取栈。
+     * 如果当前条目非空，则真值终止，否则无条件终止。
+     * @return {void}
+     */
+    end( evo ) {
+        let _v = evo.data;
+
+        if ( _v !== undefined && _v ) {
+            return;
+        }
+        return new Promise( (_, fail) => fail() );
+    },
+
+    __end: 0,
+
 
 
     // 暂存区赋值
