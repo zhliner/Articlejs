@@ -2844,7 +2844,7 @@ class Collector extends Array {
      * - 可简单地从集合中移除指定的值条目。
      * - 自定义测试函数接口同上。
      * @param  {String|Array|Function|Value} fltr 排除条件
-     * @return {[Element]}
+     * @return {Collector}
      */
     not( fltr ) {
         if ( this.length == 0 ) {
@@ -2864,7 +2864,7 @@ class Collector extends Array {
      * 检查目标是否为集合中元素的子级元素或可与子级元素匹配（选择器）。
      * 仅支持由元素构成的集合，测试目标可以是元素或选择器。
      * @param  {String|Element} slr 测试目标
-     * @return {[Element]}
+     * @return {Collector}
      */
     has( slr ) {
         if ( this.length == 0 ) {

@@ -167,7 +167,17 @@ class Stack {
      */
     index( i ) {
         this._done = true;
-        this._item = this._buf[i];
+        this._item = this._index( i );
+    }
+
+
+    /**
+     * 引用多个目标位置值。
+     * @param  {...Number} ii 下标序列
+     */
+    indexes( ...ii ) {
+        this._done = true;
+        this._item = ii.map( i => this._index(i) );
     }
 
 
@@ -236,6 +246,16 @@ class Stack {
      */
     del( start, count ) {
         this._buf.splice( start, count );
+    }
+
+
+    /**
+     * 获取目标位置值。
+     * 支持负值下标从末尾算起。
+     * @param {Number} i 下标位置
+     */
+    _index( i ) {
+        return this._buf[ i < 0 ? this._buf.length+i : i ];
     }
 
 
