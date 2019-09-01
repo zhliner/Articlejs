@@ -92,7 +92,7 @@ class Stack {
 
     constructor() {
         this._buf = [];     // 数据栈
-        this._item;         // 当前条目
+        this._item;         // 当前条目（暂存区）
         this._done = false; // 是否已暂存
         this._target;       // To 目标
     }
@@ -136,6 +136,53 @@ class Stack {
         val.forEach ( v => v !== undefined && this._buf.push(v) );
     }
 
+
+    /**
+     * 栈顶多项引用。
+     * @param  {Number} n 条目数
+     * @return {[Value]}
+     */
+    tops( n ) {
+        return this._buf.slice( -n );
+    }
+
+
+    /**
+     * 获取/设置To目标。
+     * @param  {Element|Collector} to 目标元素/集合
+     * @return {Element|Collector}
+     */
+    target( to ) {
+        if ( to === undefined ) {
+            return this._target;
+        }
+        this._target = to;
+    }
+
+
+    /**
+     * 数据栈成员删除。
+     * 注：纯删除功能，被删除的数据不进入暂存区。
+     * @param {Number} start 起始下标
+     * @param {Number} count 删除数量
+     */
+    del( start, count ) {
+        this._buf.splice( start, count );
+    }
+
+
+    /**
+     * 数据栈重置。
+     * 用于执行流再次开启前使用。
+     */
+    reset() {
+        this._buf.length = 0;
+        this._done = false;
+        this._item = this._target = undefined;
+    }
+
+
+    //-- 暂存区赋值 -----------------------------------------------------------
 
     /**
      * 栈顶弹出赋值。
@@ -214,40 +261,7 @@ class Stack {
     }
 
 
-    /**
-     * 获取/设置To目标。
-     * @param  {Element|Collector} to 目标元素/集合
-     * @return {Element|Collector}
-     */
-    target( to ) {
-        if ( to === undefined ) {
-            return this._target;
-        }
-        this._target = to;
-    }
-
-
-    /**
-     * 数据栈重置。
-     * 用于执行流再次开启前使用。
-     */
-    reset() {
-        this._buf.length = 0;
-        this._done = false;
-        this._item = this._target = undefined;
-    }
-
-
-    /**
-     * 数据栈成员删除。
-     * 注：纯删除功能，被删除的数据不进入暂存区。
-     * @param {Number} start 起始下标
-     * @param {Number} count 删除数量
-     */
-    del( start, count ) {
-        this._buf.splice( start, count );
-    }
-
+    //-- 私有辅助 -------------------------------------------------------------
 
     /**
      * 获取目标位置值。

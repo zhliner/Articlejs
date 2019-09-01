@@ -6233,7 +6233,7 @@ Object.assign( tQuery, {
      * @return {obj} 迭代的目标对象
      */
     each( obj, handle, thisObj ) {
-        if ( thisObj ) {
+        if ( thisObj !== undefined ) {
             handle = handle.bind(thisObj);
         }
         for ( let [k, v] of entries(obj) ) {
@@ -6258,7 +6258,7 @@ Object.assign( tQuery, {
      * @return {[Value]}
      */
     map( iter, fun, thisObj ) {
-        if ( thisObj ) {
+        if ( thisObj !== undefined ) {
             fun = fun.bind(thisObj);
         }
         let _tmp = [];
@@ -6281,7 +6281,7 @@ Object.assign( tQuery, {
      * @return {Boolean}
      */
     every( iter, comp, thisObj ) {
-        if (thisObj) {
+        if ( thisObj !== undefined ) {
             comp = comp.bind(thisObj);
         }
         for ( let [k, v] of entries(iter) ) {
@@ -6305,7 +6305,7 @@ Object.assign( tQuery, {
      * @return {Boolean}
      */
     some( iter, comp, thisObj ) {
-        if (thisObj) {
+        if ( thisObj !== undefined ) {
             comp = comp.bind(thisObj);
         }
         for ( let [k, v] of entries(iter) ) {

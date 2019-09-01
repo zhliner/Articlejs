@@ -111,10 +111,6 @@ sort( unique, $comp ): Collector
 // 参数名固定：(a, b)。
 // $comp支持首字符（?）引用X函数库成员。
 
-flat( depth = 1 ): Collector
-// 数组扁平化。
-// 可指定最深层级，如果目标不是集合会出错。
-
 reverse(): Collector
 // 成员序位反转。
 ```

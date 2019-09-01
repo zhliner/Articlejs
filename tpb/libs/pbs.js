@@ -21,6 +21,9 @@ import { _To } from "./pbs.to.js";
 const
     $ = window.$,
 
+    // X函数库名称引用标识。
+    chrXmethod  = '?',
+
     // 指令配置属性
     EXTENT = Symbol('stack-amount'),  // 自动取栈计数
     ACCESS = Symbol('stack-access'),  // 特权方法
@@ -120,7 +123,7 @@ const _Base = {
         return evo[ evoIndex[name] || name ];
     },
 
-    __evo: null,
+    __evo: 0,
 
 
     /**
@@ -139,7 +142,7 @@ const _Base = {
         this.push( ..._vs );
     },
 
-    __ev: null,
+    __ev: 0,
     __ev_x: true,
 
 
@@ -147,7 +150,7 @@ const _Base = {
     // 目标：无。
     nil() {},
 
-    __nil: null,
+    __nil: 0,
 
 
     /**
@@ -165,7 +168,7 @@ const _Base = {
         this.del( start, count );
     },
 
-    __del: null,
+    __del: 0,
     __del_x: true,
 
 
@@ -317,10 +320,10 @@ const _Base = {
 
 
     /**
-     * 复制（引用）数据栈区段。
-     * 注：两个位置下标支持负值从末尾倒算。
-     * @param {Number} beg 起始位置
-     * @param {Number} end 结束位置（不含）
+     * 复制（浅）数据栈区段。
+     * 两个位置下标支持负值从末尾倒算。
+     * @param {Number} beg 起始位置，可选
+     * @param {Number} end 结束位置（不含），可选
      */
     slice( evo, beg, end ) {
         this.slice( beg, end );
@@ -332,7 +335,7 @@ const _Base = {
 
     /**
      * 引用数据栈目标值。
-     * 注：下标位置支持负值指定。
+     * 下标位置支持负值指定。
      * @param {Number} n 位置下标
      */
     index( evo, n ) {
@@ -398,9 +401,6 @@ const _Base = {
     __pick_x: true,
 
 };
-
-
-const Base = $.assign( {}, _Base, getMethod );
 
 
 
@@ -771,130 +771,277 @@ const _Base2 = {
     __vnot: 1,
 
 
-    dup( evo ) {
-        //
+    /**
+     * 栈顶复制。
+     * 为引用浅复制，支持多项（自动展开）。
+     * 目标：无。
+     * 特权：是。多条目获取并展开压入。
+     * 注记：不支持暂存区条目（可用push实现）。
+     * @param  {Number} n 条目数
+     * @return {void}
+     */
+    dup( evo, n = 1 ) {
+        this.push( ...this.tops(n) );
     },
 
-    __dup: 1,
+    __dup: 0,
+    __dup_x: true,
 
 
+    /**
+     * 元素克隆。
+     * 可同时克隆元素上绑定的事件处理器。
+     * 目标：当前条目/栈顶1项。
+     * 注：目标需要是元素类型（Element|[Element]|Collector）。
+     * @param {Boolean} event 包含事件处理器
+     * @param {Boolean} deep 深层克隆（含子元素）
+     * @param {Boolean} eventdeep 包含子元素的事件处理器
+     */
     clone( evo, event, deep, eventdeep ) {
-        //
+        let _el = evo.data;
+
+        if ( _el.nodeType == 1 ) {
+            return $.clone( _el, event, deep, eventdeep );
+        }
+        if ( $.isArray(_el) ) {
+            return $(_el).clone( event, deep, eventdeep );
+        }
     },
 
-    __clone: 3,
+    __clone: 1,
 
 
-    calc( expr ) {
-        //
-    }
+    /**
+     * 计算JS表达式。
+     * 目标：当前条目，不自动取栈。
+     * 表达式内可通过vn定义的变量名引用当前条目数据。
+     * 注：如果表达式出错，会返回null值。
+     * 例：calc('($[0] + $[1]) * $[2]')
+     * @param  {String} expr JS表达式
+     * @param  {String} varn 流程数据变量名。可选，默认 $
+     * @return {Value|null}
+     */
+    calc( evo, expr, varn = '$' ) {
+        try {
+            return new Function( varn, `return ${expr}` )( evo.data );
+        }
+        // 不终止执行流。
+        catch (e) {
+            window.console.error(e);
+        }
+        return null;
+    },
+
+    __calc: 0,
+
+
+    /**
+     * 对象赋值。
+     * 数据源对象内的属性/值赋值到接收对象。
+     * 目标：当前条目，不自动取栈。
+     * 当前条目可为对象的集合，会被展开赋值。
+     * @param {Object} to 接收对象
+     */
+    assign( evo, to ) {
+        let _v = evo.data;
+        return $.assign( to, ...( $.isArray(_v) ? _v : [_v] ) );
+    },
+
+    __assign: 1,
+
 
 
     // 比较运算
-    //===============================================
+    // 目标：当前条目/栈顶2项。
+    // @return {Boolean}
+   //===============================================
 
+    /**
+     * 相等比较（===）。
+     */
     equal( evo ) {
-        //
+        return evo.data[0] === evo.data[1];
     },
 
     __equal: 2,
 
 
+    /**
+     * 不相等比较（!==）。
+     */
     nequal( evo ) {
-        //
+        return evo.data[0] !== evo.data[1];
     },
 
     __nequal: 2,
 
 
+    /**
+     * 小于比较。
+     */
     lt( evo ) {
-        //
+        return evo.data[0] < evo.data[1];
     },
 
     __lt: 2,
 
 
+    /**
+     * 小于等于比较。
+     */
     lte( evo ) {
-        //
+        return evo.data[0] <= evo.data[1];
     },
 
     __lte: 2,
 
 
+    /**
+     * 大于比较。
+     */
     gt( evo ) {
-        //
+        return evo.data[0] > evo.data[1];
     },
 
     __gt: 2,
 
 
+    /**
+     * 大于等于比较。
+     */
     gte( evo ) {
-        //
+        return evo.data[0] >= evo.data[1];
     },
 
     __gte: 2,
 
 
+
     // 逻辑运算
+    // @return {Boolean}
     //===============================================
 
-    within( evo ) {
-        //
+    /**
+     * 是否在[min, max]之内（包含边界）。
+     * 目标：当前条目/栈顶1项。
+     * @param {Number} min 最小值
+     * @param {Number} max 最大值
+     */
+    within( evo, min, max ) {
+        return min <= evo.data && evo.data <= max;
     },
 
     __within: 1,
 
 
-    inside( evo ) {
-        //
+    /**
+     * 是否在实参序列中。
+     * 注：与其中任一值相等。
+     * @param {*} evo
+     * @param  {...Value} vals 实参序列
+     */
+    inside( evo, ...vals ) {
+        return vals.includes( evo.data );
     },
 
     __inside: 1,
 
 
+    /**
+     * 是否都为真。
+     * 目标：当前条目/栈顶2项。
+     */
     both( evo ) {
-        //
+        return evo.data[0] && evo.data[1];
     },
 
     __both: 2,
 
 
+    /**
+     * 是否任一为真。
+     * 目标：当前条目/栈顶2项。
+     */
     either( evo ) {
-        //
+        return evo.data[0] || evo.data[1];
     },
 
     __either: 2,
 
 
-    every( evo ) {
-        //
+    /**
+     * 是否每一项都为真。
+     * 目标：当前条目/栈顶1项。
+     * 测试表达式返回真，该项即为真。接口：function(v, i, o): Boolean。
+     * 注：
+     * 目标需要是一个集合，支持各种集合（参考$.every）。
+     * 表达式无需return语法词。
+     *
+     * @param {String} expr 测试表达式，可选
+     */
+    every( evo, expr ) {
+        return $.every( evo.data, boolTester(expr), null );
     },
 
     __every: 1,
 
 
-    some( evo, n ) {
-        //
+    /**
+     * 是否有任一项为真。
+     * 目标：当前条目/栈顶1项。
+     * 测试表达式返回真该项即为真，接口：function(v, i, o): Boolean。
+     * 注：参考同上。
+     * @param {String} expr 测试表达式，可选
+     */
+    some( evo, expr ) {
+        return $.some( evo.data, boolTester(expr), null );
     },
 
     __some: 1,
 
 
+
     // 判断执行。
     //===============================================
 
-    vtrue( evo, $expr, ...rest ) {
-        //
+    /**
+     * 真值执行，否则跳过。
+     * 目标：当前条目/栈顶1项。
+     * 目标值为真值时执行表达式或方法，执行结果入栈。
+     *
+     * expr 可以为X函数库方法名引用（前置?字符标识）。
+     * rest 为X函数库方法调用时的实参序列。
+     *
+     * @param  {String} expr 执行体表达式
+     * @param  {...Value} rest 实参序列
+     * @return {Value}
+     */
+    vtrue( evo, expr, ...rest ) {
+        if ( evo.data ) {
+            return exprCall( expr, rest );
+        }
     },
 
     __vtrue: 1,
 
 
-    vfalse( evo, $expr, ...rest ) {
-        //
+    /**
+     * 假值执行，否则跳过。
+     * 目标：当前条目/栈顶1项。
+     * 目标值为假值时执行表达式或方法，执行结果入栈。
+     * expr/rest 说明同上。
+     * @param  {String} expr 执行体表达式
+     * @param  {...Value} rest 实参序列
+     * @return {Value}
+     */
+    vfalse( evo, expr, ...rest ) {
+        if ( !evo.data ) {
+            return exprCall( expr, rest );
+        }
     },
 
     __vfalse: 1,
+
 
 
     // 其它
@@ -907,9 +1054,6 @@ const _Base2 = {
     __tpl: 0,
 
 };
-
-
-const Base2 = $.assing( {}, _Base2, getMethod );
 
 
 
@@ -1001,6 +1145,43 @@ function saveStore( el, name, val ) {
 }
 
 
+/**
+ * 创建布尔测试函数。
+ * 如果表达式未定义，则为真值测试。
+ * @param  {String} expr 测试表达式
+ * @return {Function}
+ */
+function boolTester( expr ) {
+    if ( expr === undefined ) {
+        return v => v;
+    }
+    return new Function( 'v', 'i', 'o', `return ${expr}` );
+}
+
+
+/**
+ * 执行表达式。
+ * 支持前置?引用X函数库方法调用。
+ * rest 为X函数库方法的实参序列。
+ * @param  {String} str 表达式串
+ * @param  {Value} rest 实参序列
+ * @return {Value}
+ */
+function exprCall( str, rest ) {
+    if ( str[0] == chrXmethod ) {
+        return _By.X[str.substring(1)]( ...rest );
+    }
+    try {
+        return new Function( `return ${str}` )();
+    }
+    // 容许出错，返回null。
+    catch (e) {
+        window.console.error(e);
+    }
+    return null;
+}
+
+
 
 //
 // 合并/导出
@@ -1008,9 +1189,21 @@ function saveStore( el, name, val ) {
 
 
 const
+    //
+    // 构造指令方法。
+    // 普通方法绑定宿主对象，避免this误用。
+    // 特权方法标记但不绑定（解析应用时会被绑定到数据栈）。
+    //
+    Base = $.assign( {}, _Base, getMethod ),
+    Base2 = $.assign( {}, _Base2, getMethod ),
+
+
+    // 支持顶层和次顶层。
     PB2 = Object.assign( Base2, Base ),
     On  = $.proto( _On, PB2 ),
     By  = $.proto( _By, PB2 ),
+
+    // 仅支持顶层方法。
     To  = $.proto( _To, Base );
 
 
