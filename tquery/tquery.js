@@ -610,8 +610,8 @@ Object.assign( tQuery, {
      * 文档片段在被导入当前文档（document）之前，其中的脚本不会运行。
      *
      * @param  {String} html 源码
-     * @param  {Function|null|false} clean 文档片段清理器
-     * @param  {Document} doc 所属文档
+     * @param  {Function|null|false} clean 文档片段清理器，可选
+     * @param  {Document} doc 所属文档，可选
      * @return {DocumentFragment} 文档片段
      */
     create( html, clean, doc = Doc ) {
@@ -926,7 +926,7 @@ Object.assign( tQuery, {
      * - 先尝试$one（querySelector或ID定位）。
      * - 失败后尝试Sizzle（非标准CSS选择器时）。
      * @param  {String} slr 选择器
-     * @param  {Element|Document} ctx 查询上下文
+     * @param  {Element|Document|DocumentFragment|null} ctx 查询上下文
      * @return {Element|null}
      */
     get( slr, ctx ) {
@@ -944,7 +944,7 @@ Object.assign( tQuery, {
     /**
      * 查找匹配的元素集。
      * @param  {String} slr 选择器
-     * @param  {Element|null} ctx 查询上下文
+     * @param  {Element|Document|DocumentFragment|null} ctx 查询上下文
      * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {[Element]}
      */
@@ -3870,10 +3870,9 @@ function isCollector( obj ) {
  * @return {Iterator|[Value]|false} 可迭器或数组
  */
 function arrayArgs( obj ) {
-    if (!obj || isWindow(obj)) {
+    if (!obj || isWindow(obj) || obj.nodeType) {
         return obj == null ? [] : [obj];
     }
-    // 常用优先。
     if (obj[Symbol.iterator]) {
         return obj;
     }
@@ -6249,8 +6248,6 @@ Object.assign( tQuery, {
      * - 回调返回undefined或null的条目被忽略。
      * - 回调可以返回一个数组，其成员被提取添加。
      * - 回调接口：function(val, key): Value|[Value]
-     *
-     * 注：功能与jQuery.map相同，接口略有差异。
      *
      * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
      * @param  {Function} fun 转换函数

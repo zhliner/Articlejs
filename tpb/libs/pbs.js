@@ -13,6 +13,8 @@
 //
 
 import { Util } from "./util.js";
+import { Templater } from "./templater.js";
+
 import { _On } from "./pbs.on.js";
 import { _By } from "./pbs.by.js";
 import { _To } from "./pbs.to.js";
@@ -46,7 +48,14 @@ const
     Globals     = {},
 
     // 关联数据空间。
-    WeakStore   = new WeakMap();
+    DataStore   = new WeakMap();
+
+
+//
+// 全局模板存储。
+// init: new Templater(...)
+//
+let TplStore = null;
 
 
 
@@ -285,12 +294,9 @@ const _Base = {
      * @return {void}
      */
     end( evo ) {
-        let _v = evo.data;
-
-        if ( _v !== undefined && _v ) {
-            return;
+        if ( evo.data === undefined || evo.data ) {
+            return new Promise.reject();
         }
-        return new Promise( (_, fail) => fail() );
     },
 
     __end: 0,
@@ -1047,8 +1053,20 @@ const _Base2 = {
     // 其它
     //===============================================
 
-    tpl( evo, name, timeout ) {
-        //
+    /**
+     * 从模板管理器获取模板。
+     * 目标：当前条目，不自动取栈。
+     * 实参名优先于当前条目传递的名称，如果想采用当前条目，实参可为任意假值。
+     * @param  {String} name 模板名称
+     * @return {Promise}
+     */
+    tpl( evo, name ) {
+        let _n = name || evo.data;
+
+        if ( !_n ) {
+            return Promise.reject(`invalid tpl-name: ${_n}`);
+        }
+        return TplStore.get( _n );
     },
 
     __tpl: 0,
@@ -1123,7 +1141,7 @@ function objectItem( obj, its ) {
  * @param {String} name 取值名称
  */
 function getStore( el, name ) {
-    let _map = WeakStore.get( el );
+    let _map = DataStore.get( el );
     return _map && _map.get( name );
 }
 
@@ -1136,10 +1154,10 @@ function getStore( el, name ) {
  * @param {Value} val 存储的值
  */
 function saveStore( el, name, val ) {
-    let _map = WeakStore.get( el );
+    let _map = DataStore.get( el );
 
     if ( !_map ) {
-        _map = WeakStore.set( el, new Map() );
+        _map = DataStore.set( el, new Map() );
     }
     _map.set( name, val );
 }
@@ -1188,6 +1206,23 @@ function exprCall( str, rest ) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
+/**
+ * PB环境初始化。
+ * loader: function( name:String ): Promise:then(Element)
+ * obter: function( Element ): Boolean
+ *
+ * @param {Function} loader 模板元素载入函数
+ * @param {Function} obter OBT解析函数
+ */
+function init( loader, obter ) {
+    if ( TplStore ) {
+        return false;
+    }
+    return TplStore = new Templater( loader, obter );
+}
+
+
+
 const
     //
     // 构造指令方法。
@@ -1213,4 +1248,5 @@ export {
     To,
     EXTENT,
     ACCESS,
+    init,
 };
