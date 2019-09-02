@@ -386,7 +386,7 @@ class Cell {
      * 下一阶方法调用。
      * 当前方法调用的返回值可能是一个Promise对象。
      * @param  {Object} evo 事件相关对象
-     * @param  {Value} val 当前方法执行的结果
+     * @param  {Value|Promise} val 当前方法执行的结果
      * @return {void}
      */
     _call( evo, val ) {

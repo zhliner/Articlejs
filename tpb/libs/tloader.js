@@ -95,7 +95,7 @@ class TplLoader {
 	 */
 	_load( file ) {
         return fetch( this._root + '/' + file )
-            .then( resp => resp.ok ? resp.text() : Promise.reject() )
+            .then( resp => resp.ok ? resp.text() : Promise.reject(resp.statusText) )
             .then( html => $.create(html) );
 	}
 
