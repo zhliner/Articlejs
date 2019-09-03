@@ -143,7 +143,7 @@ now(): Number | String
 // Collector专有
 //-----------------------------------------------
 
-item( idx ): Value
+item( idx ): Value | [Value]
 eq( idx ): Collector
 first( slr ): Collector
 last( slr ): Collector
@@ -155,9 +155,9 @@ last( slr ): Collector
 // 注：只是目标自身的操作，无需By/To逻辑。
 //===============================================
 
-unwrap()
 detach( slr )
 remove( slr )
+unwrap()
 empty()
 normalize()
 ```

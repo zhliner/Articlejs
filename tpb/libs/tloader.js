@@ -8,6 +8,12 @@
 //
 //  模板文件载入器。
 //
+// 	用法：
+//  let loader = new TplLoader(...);
+// 	loader.init(...);
+//
+// 	const tpl = new Templater( loader.load.bind(loader), ... );
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -51,6 +57,7 @@ class TplLoader {
 	/**
 	 * 载入节点组并提取目标节点。
 	 * 如果已经载入，返回缓存的承诺对象。
+	 * Promise:then( DocumentFragment )
 	 * @param  {String} name 节点名称
 	 * @return {Promise} 承诺对象
 	 */

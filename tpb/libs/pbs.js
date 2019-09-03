@@ -545,7 +545,9 @@ const _Base2 = {
      */
     gets( evo, ...names ) {
         let _vs = names.map( name =>
-            $.isArray(name) ? name.map( n => evo.data[n] ) : evo.data[name]
+            $.isArray(name) ?
+                name.map( n => itemValue(evo.data, n) ) :
+                itemValue(evo.data, name)
         );
         this.push( ..._vs );
     },
@@ -560,7 +562,7 @@ const _Base2 = {
      * 特权：是。自行入栈操作。
      * 多个实参会自动展开入栈，数组实参视为单个值。
      * 无实参调用时入栈当前条目（作为单一值）。
-     * 如果暂存区有值同时也传入了实参，则实参有效，当前条目作废。
+     * 如果暂存区有值同时也传入了实参，则实参有效，当前条目忽略。
      * 注：
      * 可以入栈当前条目，使得可以将栈条目重新整理打包。
      * @param  {...Value} vals 值序列
@@ -780,14 +782,19 @@ const _Base2 = {
     /**
      * 栈顶复制。
      * 为引用浅复制，支持多项（自动展开）。
-     * 目标：无。
+     * 目标：当前条目，不取栈。
      * 特权：是。多条目获取并展开压入。
-     * 注记：不支持暂存区条目（可用push实现）。
+     * 注：
+     * 无实参调用取默认值1，即复制栈顶1项。
+     * 若实参n明确传递为null，从当前条目获取克隆数。
      * @param  {Number} n 条目数
      * @return {void}
      */
     dup( evo, n = 1 ) {
-        this.push( ...this.tops(n) );
+        if ( n === null ) {
+            n = evo.data;
+        }
+        if ( n ) this.push( ...this.tops(n) );
     },
 
     __dup: 0,
@@ -798,7 +805,7 @@ const _Base2 = {
      * 元素克隆。
      * 可同时克隆元素上绑定的事件处理器。
      * 目标：当前条目/栈顶1项。
-     * 注：目标需要是元素类型（Element|[Element]|Collector）。
+     * 注：目标需要是元素（集）类型（Element|[Element]|Collector）。
      * @param {Boolean} event 包含事件处理器
      * @param {Boolean} deep 深层克隆（含子元素）
      * @param {Boolean} eventdeep 包含子元素的事件处理器
@@ -820,22 +827,17 @@ const _Base2 = {
     /**
      * 计算JS表达式。
      * 目标：当前条目，不自动取栈。
-     * 表达式内可通过vn定义的变量名引用当前条目数据。
-     * 注：如果表达式出错，会返回null值。
+     * 表达式内可通过自定义的变量名引用当前条目数据。
      * 例：calc('($[0] + $[1]) * $[2]')
      * @param  {String} expr JS表达式
-     * @param  {String} varn 流程数据变量名。可选，默认 $
+     * @param  {String} dn 流程数据变量名。可选，默认 $
      * @return {Value|null}
      */
-    calc( evo, expr, varn = '$' ) {
-        try {
-            return new Function( varn, `return ${expr}` )( evo.data );
-        }
-        // 不终止执行流。
-        catch (e) {
-            window.console.error(e);
-        }
-        return null;
+    calc( evo, expr, dn = '$' ) {
+        return new Function(
+                dn,
+                `return ${expr}`
+            )( evo.data );
     },
 
     __calc: 0,
@@ -845,7 +847,7 @@ const _Base2 = {
      * 对象赋值。
      * 数据源对象内的属性/值赋值到接收对象。
      * 目标：当前条目，不自动取栈。
-     * 当前条目可为对象的集合，会被展开赋值。
+     * 当前条目可为对象的集合，会自动展开取值。
      * @param {Object} to 接收对象
      */
     assign( evo, to ) {
@@ -1056,17 +1058,18 @@ const _Base2 = {
     /**
      * 从模板管理器获取模板。
      * 目标：当前条目，不自动取栈。
-     * 实参名优先于当前条目传递的名称，如果想采用当前条目，实参可为任意假值。
+     * 优先取实参传递的名称，如果name未定义，则取当前条目为名称。
      * @param  {String} name 模板名称
      * @return {Promise}
      */
     tpl( evo, name ) {
-        let _n = name || evo.data;
-
-        if ( !_n ) {
-            return Promise.reject(`invalid tpl-name: ${_n}`);
+        if ( name == null ) {
+            name = evo.data;
         }
-        return TplStore.get( _n );
+        if ( typeof name != 'string' ) {
+            return Promise.reject(`invalid tpl-name: ${name}`);
+        }
+        return TplStore.get( name );
     },
 
     __tpl: 0,
@@ -1081,23 +1084,38 @@ const _Base2 = {
 
 
 /**
- * 获取指令/方法。
- * 非特权方法会绑定方法内this为原生宿主对象。
- * 会在目标方法上设置取栈条目数（[EXTENT]）。
+ * 获取指令/方法（基础集）。
+ * 处理取栈条目数（[EXTENT]）。
+ * 处理特权设置（[ACCESS]），不锁定this（由解析者绑定到数据栈对象）。
  * 注记：
- * 创建已绑定的全局方法，可以节省内存。
+ * 创建已绑定的全局方法共享，以节省内存。
  *
- * @param {String} k 方法名
  * @param {Function} f 方法
+ * @param {String} k 方法名
  * @param {Object} obj 宿主对象
  */
-function getMethod( f, k, obj ) {
+function baseMethod( f, k, obj ) {
     if ( !k.length || k.startsWith('__') ) {
         return;
     }
     let _n = obj[ `__${k}` ];
 
     return [ obj[ `__${k}_x` ] ? funcSets( f, _n, true ) : funcSets( f.bind(obj), _n ) ];
+}
+
+
+/**
+ * 获取普通指令/方法。
+ * 仅处理取栈条目数，无特权逻辑。
+ * @param {Function} f 方法
+ * @param {String} k 方法名
+ * @param {Object} obj 宿主对象
+ */
+function bindMethod( f, k, obj ) {
+    if ( !k.length || k.startsWith('__') ) {
+        return;
+    }
+    return funcSets( f.bind(obj), obj[ `__${k}` ] );
 }
 
 
@@ -1115,6 +1133,17 @@ function funcSets( f, n, ix ) {
     return ( f[EXTENT] = n, f );
 }
 
+
+/**
+ * 获取对象的目标值。
+ * 如果属性为方法，则无参数调用取值。
+ * @param {Object} obj 目标对象
+ * @param {String} attr 属性/方法名
+ */
+ function itemValue( obj, attr ) {
+    let _it = obj[ attr ];
+    return $.isFunction(_it) ? obj[attr]() : _it;
+}
 
 
 /**
@@ -1222,24 +1251,42 @@ function init( loader, obter ) {
 }
 
 
-
 const
     //
     // 构造指令方法。
     // 普通方法绑定宿主对象，避免this误用。
-    // 特权方法标记但不绑定（解析应用时会被绑定到数据栈）。
+    // 特权方法标记但不绑定（会被绑定到数据栈）。
     //
-    Base = $.assign( {}, _Base, getMethod ),
-    Base2 = $.assign( {}, _Base2, getMethod ),
+    Base = $.assign( {}, _Base, baseMethod ),
+    Base2 = $.assign( {}, _Base2, baseMethod ),
 
+    //
+    // 普通方法绑定宿主对象。
+    //
+    On = $.assign( {}, _On, bindMethod ),
+    By = $.assign( {}, _By, bindMethod ),
+    To = $.assign( {}, _To, bindMethod ),
 
+    //
     // 支持顶层和次顶层。
-    PB2 = Object.assign( Base2, Base ),
-    On  = $.proto( _On, PB2 ),
-    By  = $.proto( _By, PB2 ),
+    // 适用：On/By。
+    //
+    PB2 = Object.assign( Base2, Base );
 
-    // 仅支持顶层方法。
-    To  = $.proto( _To, Base );
+
+
+//
+// 基础集继承（原型）。
+//
+$.proto( On, PB2 ),
+$.proto( By, PB2 ),
+$.proto( To, Base );
+
+
+// To特例。
+// 特权允许：target更新。
+To.usurp = funcSets( _To.usurp, _To['__usurp'], true );
+
 
 
 export {
