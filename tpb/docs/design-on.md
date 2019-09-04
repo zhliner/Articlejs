@@ -42,14 +42,18 @@
 pba(): [String]
 // PB参数取值。
 // 目标：当前条目/栈顶1项。
+// 返回值：有序的参数词序列。
 // 注：
-// 即元素data-pb属性的格式化值处理（由-分隔）。
+// 即元素data-pb属性的格式化值处理（-后缀）。
+// 属性选择器：|=
 
 pbo(): [String]
 // PB选项取值。
 // 目标：当前条目/栈顶1项。
+// 返回值：无序的选项词序列。
 // 注：
-// 即元素data-pb属性的格式化值处理（由空格分隔）。
+// 即元素data-pb属性的格式化值处理（空格分隔）。
+// 属性选择器：~=
 
 re( str, flag ): RegExp
 // 构造正则表达式入栈。
@@ -85,8 +89,6 @@ innerHeight(): Number
 innerWidth(): Number
 outerWidth(): Number
 outerHeight(): Number
-get( slr ): Element | null
-find( slr, andOwn ): [Element] | null
 next( slr ): Element | null
 nextAll( slr ): [Element]
 nextUntil( slr ): [Element]

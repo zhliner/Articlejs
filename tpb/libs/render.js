@@ -728,14 +728,16 @@ class Grammar {
      * @return {Mixed} 过滤处理结果
      */
     _filter( data, call ) {
-        if (!call) return data;
-
-        let _fns = Util.funcArgs(call);
-        if (!_fns) {
-            console.error(`the filter [${call}] is invalid`);
+        if ( !call ) {
             return data;
         }
-        return Filter[_fns.name].apply(data, _fns.args);
+        let _fns = Util.funcArgs(call);
+
+        if ( !_fns ) {
+            window.console.error(`[${call}] filter is invalid.`);
+            return data;
+        }
+        return Filter[ _fns[0] ].apply( data, _fns[1] );
     }
 
 

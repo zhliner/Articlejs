@@ -23,9 +23,6 @@ import { _To } from "./pbs.to.js";
 const
     $ = window.$,
 
-    // X函数库名称引用标识。
-    chrXmethod  = '?',
-
     // 指令配置属性
     EXTENT = Symbol('stack-amount'),  // 自动取栈计数
     ACCESS = Symbol('stack-access'),  // 特权方法
@@ -532,31 +529,6 @@ const _Base2 = {
 
 
     /**
-     * 从目标上取值入栈。
-     * 如果name是方法，会无参数调用取值。
-     * 目标：当前条目/栈顶1项。
-     * 特权：是。自行压入数据栈。
-     * 注：
-     * 多个名称取值会自动展开入栈。
-     * 如果需要入栈值集合，需要明确传递名称数组。
-     *
-     * @param  {...String} names 属性或方法名序列
-     * @return {void} 自行入栈
-     */
-    gets( evo, ...names ) {
-        let _vs = names.map( name =>
-            $.isArray(name) ?
-                name.map( n => itemValue(evo.data, n) ) :
-                itemValue(evo.data, name)
-        );
-        this.push( ..._vs );
-    },
-
-    __gets: 1,
-    __gets_x: true,
-
-
-    /**
      * 直接数据入栈。
      * 目标：可选当前条目，不自动取栈。
      * 特权：是。自行入栈操作。
@@ -576,6 +548,65 @@ const _Base2 = {
 
     __push: 0,
     __push_x: true,
+
+
+    /**
+     * 从目标上取值入栈。
+     * 目标：当前条目/栈顶1项。
+     * 特权：是。自行压入数据栈。
+     * 注：
+     * 多个名称取值会自动展开入栈。
+     * 如果需要入栈值集合，需要明确传递名称数组。
+     *
+     * @param  {...String} names 属性名序列
+     * @return {void} 自行入栈
+     */
+     get( evo, ...names ) {
+        let _vs = names.map( name =>
+            $.isArray(name) ? name.map( n => evo.data[n] ) : evo.data[name]
+        );
+        this.push( ..._vs );
+    },
+
+    __gets: 1,
+    __gets_x: true,
+
+
+    /**
+     * 调用目标的方法执行。
+     * 目标：当前条目/栈顶1项。
+     * @param {*} evo
+     * @param {String} meth 方法名
+     * @param  {...any} rest 实参序列
+     */
+    call( evo, meth, ...rest ) {
+        return evo.data[meth]( ...rest );
+    },
+
+    __call: 1,
+
+
+    /**
+     * 条件赋值。
+     * 如果目标值为真，返回val入栈，否则跳过。
+     * 目标：当前条目/栈顶1项。
+     * 特权：是。可能两次赋值。
+     * ielse：是否构造else逻辑（后续再跟一个$if）。
+     * - 目标为真，赋值。补充追加一个false（待后续$if取值）。
+     * - 目标为假，不赋值val。赋值一个true（后续$if必然执行）。
+     * @param  {Value} val 待赋值
+     * @param  {Boolean} ielse 是否构造else结构，可选
+     * @return {Value|Boolean}
+     */
+    $if( evo, val, ielse ) {
+        if ( evo.data ) {
+            this.push( val );
+        }
+        if ( ielse ) return !evo.data;
+    },
+
+    __$if: 1,
+    __$if_x: true,
 
 
 
@@ -948,7 +979,7 @@ const _Base2 = {
      * @param {*} evo
      * @param  {...Value} vals 实参序列
      */
-    inside( evo, ...vals ) {
+    include( evo, ...vals ) {
         return vals.includes( evo.data );
     },
 
@@ -1006,49 +1037,6 @@ const _Base2 = {
     },
 
     __some: 1,
-
-
-
-    // 判断执行。
-    //===============================================
-
-    /**
-     * 真值执行，否则跳过。
-     * 目标：当前条目/栈顶1项。
-     * 目标值为真值时执行表达式或方法，执行结果入栈。
-     *
-     * expr 可以为X函数库方法名引用（前置?字符标识）。
-     * rest 为X函数库方法调用时的实参序列。
-     *
-     * @param  {String} expr 执行体表达式
-     * @param  {...Value} rest 实参序列
-     * @return {Value}
-     */
-    vtrue( evo, expr, ...rest ) {
-        if ( evo.data ) {
-            return exprCall( expr, rest );
-        }
-    },
-
-    __vtrue: 1,
-
-
-    /**
-     * 假值执行，否则跳过。
-     * 目标：当前条目/栈顶1项。
-     * 目标值为假值时执行表达式或方法，执行结果入栈。
-     * expr/rest 说明同上。
-     * @param  {String} expr 执行体表达式
-     * @param  {...Value} rest 实参序列
-     * @return {Value}
-     */
-    vfalse( evo, expr, ...rest ) {
-        if ( !evo.data ) {
-            return exprCall( expr, rest );
-        }
-    },
-
-    __vfalse: 1,
 
 
 
@@ -1135,18 +1123,6 @@ function funcSets( f, n, ix ) {
 
 
 /**
- * 获取对象的目标值。
- * 如果属性为方法，则无参数调用取值。
- * @param {Object} obj 目标对象
- * @param {String} attr 属性/方法名
- */
- function itemValue( obj, attr ) {
-    let _it = obj[ attr ];
-    return $.isFunction(_it) ? obj[attr]() : _it;
-}
-
-
-/**
  * 获取对象/成员/值。
  * - 如果成员名未定义，返回容器对象自身。
  * - 如果容器对象未定义，成员名视为值返回。
@@ -1203,29 +1179,6 @@ function boolTester( expr ) {
         return v => v;
     }
     return new Function( 'v', 'i', 'o', `return ${expr}` );
-}
-
-
-/**
- * 执行表达式。
- * 支持前置?引用X函数库方法调用。
- * rest 为X函数库方法的实参序列。
- * @param  {String} str 表达式串
- * @param  {Value} rest 实参序列
- * @return {Value}
- */
-function exprCall( str, rest ) {
-    if ( str[0] == chrXmethod ) {
-        return _By.X[str.substring(1)]( ...rest );
-    }
-    try {
-        return new Function( `return ${str}` )();
-    }
-    // 容许出错，返回null。
-    catch (e) {
-        window.console.error(e);
-    }
-    return null;
 }
 
 

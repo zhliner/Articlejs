@@ -307,8 +307,6 @@ Float(): Number
 
 
 // 简单值操作。
-// 会操作全局变量和关联数据空间。
-// 注：Globals, WeakStore
 //===============================================
 
 env( name: String, its?: Value | String ): void | Value
@@ -317,7 +315,9 @@ env( name: String, its?: Value | String ): void | Value
 // 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
 // 设置时：
 // - 目标为空：its必然有值，否则为取值逻辑。
-// - 目标非空：its有值，its指属性名，取该属性值设置。
+// - 目标非空：its有值，its指属性名，取该属性值设置。‘
+//
+// 注：操作Globals对象。
 
 data( name, its?: Value | String ): void | Value
 // 关联数据存储/取出。
@@ -329,15 +329,7 @@ data( name, its?: Value | String ): void | Value
 // - 数据项值：目标对象、its、或目标对象的[its]属性值。
 // 注：
 // 设置时的目标对象和its的逻辑同env指令。
-
-gets( ...name: String | [String] ): Value | [Value]
-// 取目标成员值入栈。
-// 目标：当前条目/栈顶1项。
-// 特权：是。自行入栈操作。
-// name为属性或方法名，方法会自动调用（无实参）。
-// 注：
-// 多个名称取值会自动展开入栈。
-// 如果需要入栈值集合，需要明确传递名称数组。
+// 操作WeakStore存储空间。
 
 push( ...val: Value | [Value] ): Value | [Value]
 // 直接赋值入栈。
@@ -349,6 +341,34 @@ push( ...val: Value | [Value] ): Value | [Value]
 // 注记：
 // 入栈当前条目的能力使得可以组合多个栈数据为单一条目。
 // 这在打包多个实参作单一递送时有用。
+
+get( ...name: String | [String] ): Value | [Value]
+// 取目标成员值入栈。
+// 目标：当前条目/栈顶1项。
+// 特权：是。自行入栈操作。
+// 注：
+// 多个名称取值会自动展开入栈。
+// 如果需要入栈值集合，需要明确传递名称数组。
+
+call( meth, ...rest ): Value
+// 调用目标的方法执行。
+// 目标：当前条目/栈顶1项。
+
+
+$if( val, else ): Value
+// 条件赋值。
+// 如果目标值为真，返回val入栈，否则跳过。
+// 目标：当前条目/栈顶1项。
+// else：是否构造else逻辑。
+// - 目标为真，赋值。补充追加一个false（待后续$if取值）。
+// - 目标为假，不赋值val。赋值一个true（后续$if必然执行）。
+// 例1：
+// $if('console.info(msg);')
+// 如果目标为真，返回打印字符串。简单if。
+// 注：后续需配合func/exec指令执行代码：func(null, 'msg') exec('hai')
+// 例2：
+// $if('AAA', true) $if('BBB')
+// 如果目标为真赋值AAA，补充赋值一个false，第二个$if必然跳过。
 
 
 // 集合操作
@@ -462,10 +482,10 @@ within( min, max ): Boolean
 // 是否在 [min, max] 的范围内（包含边界值）。
 // 目标：当前条目/栈顶1项。
 
-inside( ...val ): Boolean
-// 是否在实参数组内。
-// 实现：Array.includes。
+include( ...vals ): Boolean
+// 是否在实参序列内。
 // 目标：当前条目/栈顶1项。
+// 实现：Array.includes。
 
 both(): Boolean
 // 二者为真判断。
@@ -486,23 +506,6 @@ some( $expr ): Boolean
 // $expr 可选，默认简单真值判断。
 // 目标：当前条目/栈顶1项。
 // 注：目标必须是一个集合。
-
-
-// 判断执行。
-//===============================================
-// 可模拟简单的 if 逻辑。
-// 如果需要模拟 else，可前置一个 dup，然后 vfalse()。
-
-vtrue( $expr, ...rest ): Value
-// 真值执行，否则跳过。
-// $expr 为函数体表达式，支持首字符?引用X函数库。
-// ...rest 为 $expr 的实参序列，这在引用外部方法时有用。
-// 目标：当前条目/栈顶1项。
-
-vfalse( $expr, ...rest ): Value
-// 假值执行，否则跳过。
-// $expr 为函数体表达式，支持首字符?引用X函数库。
-// 目标：当前条目/栈顶1项。
 
 
 // 其它

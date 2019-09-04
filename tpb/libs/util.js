@@ -23,8 +23,19 @@ const
 
 
 const
-    __chrSplit = '/',   // 二阶选择器切分字符
-    __chrRID   = '?',   // 相对ID标志字符
+    __chrSplit  = '/',  // 二阶选择器切分字符
+    __chrRID    = '?',  // 相对ID标志字符
+
+    // PB属性名。
+    __attrPB    = 'data-pb',
+
+    // PB参数模式。
+    // 末尾必须为一个短横线。
+    __pbArgs    = /^[\w-]*-(?=\s|$)/,
+
+    // PB选项模式。
+    // 前端可包含空格。
+    __pbOpts    = /(?:\s+|^)[\w\s]+$/,
 
     // 二阶选择器分隔符（/）。
     // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
@@ -38,7 +49,7 @@ const
     // http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
     //
     // 增加?后空白匹配，以支持无值的相对ID：
-    //  'p? >b`  => `? `    => `p[data-id]>b`
+    //  'p? >b'  => `? `    => `p[data-id]>b`
     //  'p?>b`   => `?`     => 同上
     //  'p?`     => `?`     => `p[data-id]`
     //  'p?xyz`  => `?xyz`  => `p[data-id="xyz"]`
@@ -46,28 +57,20 @@ const
     //
     __hasRID = /\?(?:\\.|[\w-]|[^\0-\xa0]|\s*)+/,
 
-    // RID取值匹配。
-    // 切分后存在于首位，单次替换。
+    // RID值匹配。
+    // 已经切分（无?），值必然在首位。单次替换。
     __ridVal = /^(?:\\.|[\w-]|[^\0-\xa0])+/,
 
-
-    // 单引号匹配
-    // 前置偶数\时匹配，奇数时不匹配。
-    // \\' 引号未被转义
-    // \'  引号被转义
-    __reSQuote = /(^|[^\\]|(?:\\\\)+)'/g,
-
-    // 去除单引号转义
-    // 注：外围单引号已被替换为双引号后，内部转义的单引号不能用转义。
-    // str.replace(..., "$1'")
+    // 单/撇引号转义清除。
+    // 注：JSON中，双引号字符串内的单/撇号转义不再合法。
+    // str.replace(..., "$1$2")
     // \' => '
-    // \\' => \\' 不是转义单引号
-    // \\\' => \\'
-    __reSQuoteESC = /((\\\\)*)(\\?')/g,
+    // \\' => \\'   未转义引号
+    // \\\' => \\'  清除一个\
+    __reQuoteESC = /([^\\]|[^\\](?:\\\\)+)\\(['`])/g,
 
     // 调用表达式
-    // 注：特别支持前置-（On事件名）。
-    __reCall = /^(-?\w[\w.]*)(\([^]*\))*$/;
+    __reCall = /^(\w+)(?:\(([^]*)\))?$/;
 
 
 const
@@ -147,204 +150,34 @@ const Util = {
     },
 
 
-
-
     /**
-     * “值格式”取值。
-     * - tQuery原生支持data系属性的简写（-xx => data-xx）；
-     * - 默认取属性值（prop）；
-     * fmt：{
-     *  	'@xx' 	attr('xx')。元素特性值
-     *  	'&xx' 	prop('xx')。元素属性值
-     *  	'-xx' 	prop('-xx')。data-xx属性值（tQuery支持）
-     *  	'%xx' 	css('xx')。元素样式值（计算）
-     *  	'$xx' 	$系获取。如 $.text(el)
-     *  	'@-xx' 	attr('-xx')，即attr('data-xx')
-     * }
-     * 示例：{
-     *  	'@value' 	=> $.attr(e, 'value')
-     *  	'@style' 	=> $.attr(e, 'style') // style.cssText
-     *  	'@-val' 	=> $.attr(e, '-val')
-     *  	'&value' 	=> $.prop(e, 'value')
-     *  	'&-val'  	=> $.prop(e, '-val')  // e.dataset.val
-     *  	'%color' 	=> $.css(e, 'color')
-     *  	'$html' 	=> $.html(e)   // 取源码
-     *  	'$parent' 	=> $.parent(e) // 取父元素
-     * }
-     * $系直接取值参考：{
-     *  	text
-     *  	html
-     *  	height
-     *  	width
-     *  	val
-     *  	children
-     *  	clone
-     *  	contents
-     *  	innerHeight
-     *  	innerWidth
-     *  	outerWidth
-     *  	outerHeight
-     *  	next
-     *  	prev
-     *  	prevAll
-     *  	nextAll
-     *  	siblings
-     *  	offset
-     *  	position
-     *  	scrollLeft
-     *  	scrollTop
-     *  	parent
-     *  	offsetParent
-     * }
-     * 注记：
-     * - 出于简单性应该仅支持单目标元素；
-     * - 因为支持$.xx系接口，多目标会涉及元素重复问题；
+     * 获取/设置PB参数序列。
+     * wds未定义时为获取，否则为设置。
+     * 传递wds为null或假值时会移除参数序列。
+     * 注：
+     * 它们会被赋值到 data-pb 属性。
+     *
+     * 技术：
+     * 单词之间以短横线（-）分隔，含末尾的-分隔符。
+     * 即用 |= 属性选择器匹配的部分。
+     * 注意：不能破坏PB中的选项部分。
      *
      * @param  {Element} el 目标元素
-     * @param  {String} fmt 格式值串
-     * @return {Mixed} 结果值
+     * @param  {[String]} wds 参数词序列
+     * @return {[String]|void}
      */
-    $val( el, fmt ) {
-        if (!fmt) return el;
-        let _n = fmt.substring(1);
+    pba( el, wds ) {
+        let _v = el.getAttribute(__attrPB);
 
-        switch (fmt[0]) {
-            case '=': return $.attr(el, _n);
-            case '%': return $.css(el, _n);
-            case '$': return $[_n](el);
+        if ( wds === undefined ) {
+            return _v ? pbArgs( _v.split(' ', 1)[0] ) : null;
         }
-        return $.prop(el, fmt);
+        el.setAttribute( _v.replace(__pbArgs, pbArgs(wds, true)) );
     },
 
 
-    /**
-     * 设置元素特定类型值。
-     * 类型名type：[
-     *  	prop 	特性值
-     *  	attr 	属性值
-     *  	css 	内联样式
-     *  	$ 		$系操作
-     * ]
-     * tQ系赋值name：{
-     *   	html
-     *   	text
-     *   	height
-     *   	width
-     *  	val
-     *   	offset
-     *   	scrollLeft
-     *   	scrollTop
-     *   	empty
-     *    	addClass
-     *    	removeClass
-     *    	toggleClass
-     *    	removeAttr
-     *
-     *    	// 集合多对多
-     *    	// val需为节点数据
-     *    	before
-     *     	after
-     *   	prepend
-     *   	append
-     *   	replace
-     *   	fill
-     *   	// 反向赋值
-     *   	// val容器元素或html结构
-     *   	wrap
-     *   	wrapInner
-     *
-     *   	// 集合反向赋值
-     *   	// val需为容器元素
-     *   	insertBefore
-     *    	insertAfter
-     *    	prependTo
-     *    	appendTo
-     *    	replaceAll
-     *    	fillTo
-     *    	wrapAll  // val容器元素或html结构
-     * }
-     * @param {Queue} $el 目标元素
-     * @param {String} name 键名
-     * @param {Value|Node[s]} val 数据值（集）
-     * @param {String} type 类型名
-     */
-    $set( $el, type, name, ...val ) {
-        if (!$el || !$el.length) {
-            return;
-        }
-        if (type == '$') {
-            return $el[name](...val);
-        }
-        // prop|attr|css
-        return $el[type](name, val[0]);
-    },
-
-
-    /**
-     * 元素属性取值。
-     * type: [prop|attr|css|$]
-     * @param  {Element} el  目标元素
-     * @param  {String} name 取值键
-     * @param  {String} type 取值类型
-     * @return {Mixed}
-     */
-    $get( el, type, name, ...rest ) {
-        return type == '$' ?
-            $[name](el, ...rest) : $[type](el, name);
-    },
-
-
-    /**
-     * 获取事件目标元素。
-     * rid可能为已检索元素本身，直接返回。
-     * rid：{
-     *  	'@' 	委托元素（事件绑定）
-     *  	null  	当前元素，默认
-     *  	0    	事件起点元素（ev.target）
-     *  	'' 		To目标元素（target）或当前元素
-     * }
-     * 事件元素集map: {
-     *  	origin  	事件起始元素（event.target）
-     *  	delegate 	事件委托绑定元素（event.currentTarget）
-     *  	current 	事件委托目标元素或
-     *  				无委托绑定元素（event.currentTarget）
-     *  	target  	To定位目标元素
-     * }
-     * 友好：
-     * 空串定位To目标元素，但依然备用当前元素。
-     *
-     * @param  {Object} map 事件元素集
-     * @param  {String} rid 标识串
-     * @param  {Boolean} one 单一检索
-     * @return {Element|Array|Queue|rid|null} 目标元素（集）
-     */
-    evel( map, rid = null, one = undefined ) {
-        switch (rid) {
-            case 0: return map.origin;
-            case null: return map.current;
-        }
-        if (typeof rid != 'string') {
-            return rid;
-        }
-        return rid ? this.$find(rid.trim(), map.delegate, one) : map.target || map.current;
-    },
-
-
-    /**
-     * 字符串切分两片。
-     * @param  {String} str 源字符串
-     * @param  {String} sep 分割字符串
-     * @return {[String, String]}
-     */
-    strPair( str, sep ) {
-        var _pos = str.indexOf(sep);
-
-        return _pos < 0 ?
-            [str, ''] :
-            [
-                str.substring(0, _pos),
-                str.substring(_pos + sep.length)
-            ];
+    pbo( el, wds ) {
+        //
     },
 
 
@@ -382,14 +215,29 @@ const Util = {
     funcArgs( fmt ) {
         var _pair = fmt.match(__reCall);
 
-        if (!_pair) {
-            console.error(`this ${fmt} call is invalid`);
+        if ( !_pair ) {
+            window.console.error(`this ${fmt} call is invalid`);
             return '';
         }
         return {
             'name': _pair[1],
-            'args': argsParse( _pair[2] && _pair[2].slice(1, -1).trim() )
+            'args': this.argsJSON( _pair[2] && _pair[2].trim() )
         };
+    },
+
+
+    /**
+     * 解析参数序列。
+     * 参数里的字符串可能用单引号包围。
+     * 注记：
+     * HTML模板中属性值需要用引号包围，
+     * 所以值中的字符串所用引号必然相同（不会单/双混用）。
+     *
+     * @param {String} fmt 参数序列串
+     * @return {Array|null}
+     */
+    argsJSON( fmt ) {
+        return fmt ? JSON.parse( `[${jsonArgs(fmt)}]` ) : null;
     },
 
 
@@ -539,26 +387,39 @@ class Loader {
 
 
 
-/**
- * 参数解析（优先JSON）。
- * - 参数里的字符串可用单引号包围；
- * - 参数可为函数定义；
- * 注记：
- *   Html模板中属性值需要用引号包围，
- *   故值中的字符串所用引号必然同类（和串内引号）。
- *
- * @param  {String} args 参数定义序列
- * @return {Array|null}
- */
-function argsParse( args ) {
-    if (!args) {
-        return null;
-    }
-    args = args.replace(__reSQuote, '$1"').replace(__reSQuoteESC, "$1'");
+//
+// 辅助工具
+///////////////////////////////////////////////////////////////////////////////
 
-    return JSON.parse(`[${args}]`);
+
+/**
+ * 参数串JSON合法化。
+ * 切分格式串内的字符串和非字符串部分。
+ * 注：偶数单元为字符串。
+ * @param  {String} fmt 参数格式串
+ * @return {String} 合法串
+ */
+function jsonArgs( fmt ) {
+    return [...SSpliter.partSplit(fmt)]
+        .map( (s, i) => i%2 ? jsonString(s) : s )
+        .join('');
 }
 
+
+/**
+ * 清理JSON字符串表达。
+ * - 强制采用双引号包围字符串。
+ * - 清理双引号字符串内的单/撇引号转义。
+ * 注记：
+ * 双引号内单撇号合法，无需转义，否则反而出错。
+ * 模板中元素属性值由引号包围，可能包含单/撇号的转义书写。
+ *
+ * @param  {String} fmt 格式串
+ * @return {String} 合法串
+ */
+function jsonString( fmt ) {
+    return `"${fmt.slice(1, -1)}"`.replace(__reQuoteESC, "$1$2");
+}
 
 
 /**
@@ -603,6 +464,7 @@ function ridslr( fmt ) {
 
 /**
  * 构造单个相对ID选择器。
+ * str已经用?正确切分，仅首段匹配替换即可。
  * @param {String} str 相对ID切分串
  */
 function ridone( str ) {
@@ -650,6 +512,32 @@ function query1( slr, beg ) {
  */
 function query2( slr, beg ) {
     return slr ? $( ridslr(slr), beg ) : $(beg);
+}
+
+
+/**
+ * 解析/构造PB参数序列。
+ * 解析返回词序列，构造返回串值。
+ * @param  {String|[String]} val 参数串或词序列
+ * @param  {Boolean} mk 为构造
+ * @return {[String]|String}
+ */
+function pbArgs( val, mk ) {
+    return mk ?
+        // 添加末尾短横线
+        val.join('-') + '-' :
+        // 排除末尾空串单元
+        val.split('-').slice(0, -1);
+}
+
+
+/**
+ * 解析提取PB选项序列。
+ * @param  {String} val 选项串值
+ * @return {[String]}
+ */
+function pbOpts( val ) {
+
 }
 
 
