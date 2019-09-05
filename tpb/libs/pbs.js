@@ -70,7 +70,7 @@ const _Base = {
      * 目标：当前条目，不自动取栈。
      * rid: {
      *      String  以当前条目（如果有）或事件当前元素（ev.current）为起点。
-     *      null    以当前条目为rid，事件当前元素为起点。
+     *      null|undefined  以当前条目为rid，事件当前元素为起点。
      * }
      * @param {Object} evo 事件关联对象
      * @param  {String|null} rid 相对ID
@@ -94,9 +94,9 @@ const _Base = {
      * 多元素检索入栈。
      * 目标：当前条目，不自动取栈。
      * rid: {
-     *      String  同上。
-     *      null    同上，但当前条目也可能非字符串类型。
-     *      Value   Collector封装，支持数组。
+     *      String          同上。
+     *      null|undefined  同上，但当前条目也可能非字符串类型。
+     *      Value           Collector封装，支持数组。
      * }
      * 当前条目的权重低于rid实参，因此如果rid为Collector封装，当前条目会被忽略。
      * 明确取当前条目时，也可能为Collector封装。
@@ -507,9 +507,9 @@ const _Base2 = {
 
     /**
      * 关联数据存储/取出。
-     * 存储元素（evo.delegate）关联的数据项或取出数据项入栈。
+     * 存储元素（evo.delegate）关联的数据项或取出数据项。
      * 目标：当前条目，不自动取栈。
-     * 目标非空或its有值时为存储，目标为空且its未定义时为取值。
+     * 目标非空或its有值时为存储，目标为空且its未定义时为取值入栈。
      * 存储时状况参考env设置说明。
      * @param  {String} name 变量名
      * @param  {Value|String} its 变量值/成员名，可选
@@ -555,7 +555,7 @@ const _Base2 = {
      * 目标：当前条目/栈顶1项。
      * 特权：是。自行压入数据栈。
      * 注：
-     * 多个名称取值会自动展开入栈。
+     * 多个名称实参取值会自动展开入栈。
      * 如果需要入栈值集合，需要明确传递名称数组。
      *
      * @param  {...String} names 属性名序列
@@ -844,12 +844,10 @@ const _Base2 = {
     clone( evo, event, deep, eventdeep ) {
         let _el = evo.data;
 
-        if ( _el.nodeType == 1 ) {
-            return $.clone( _el, event, deep, eventdeep );
-        }
         if ( $.isArray(_el) ) {
             return $(_el).clone( event, deep, eventdeep );
         }
+        return $.clone( _el, event, deep, eventdeep );
     },
 
     __clone: 1,
@@ -858,10 +856,10 @@ const _Base2 = {
     /**
      * 计算JS表达式。
      * 目标：当前条目，不自动取栈。
-     * 表达式内可通过自定义的变量名引用当前条目数据。
+     * 目标可成为数据源，表达式内通过dn定义的变量名引用。
      * 例：calc('($[0] + $[1]) * $[2]')
      * @param  {String} expr JS表达式
-     * @param  {String} dn 流程数据变量名。可选，默认 $
+     * @param  {String} dn 数据源变量名。可选，默认 $
      * @return {Value|null}
      */
     calc( evo, expr, dn = '$' ) {
@@ -877,7 +875,7 @@ const _Base2 = {
     /**
      * 对象赋值。
      * 数据源对象内的属性/值赋值到接收对象。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目/栈顶1项。
      * 当前条目可为对象的集合，会自动展开取值。
      * @param {Object} to 接收对象
      */
@@ -974,7 +972,8 @@ const _Base2 = {
 
 
     /**
-     * 是否在实参序列中。
+     * 目标是否在实参序列中。
+     * 目标：当前条目/栈顶1项。
      * 注：与其中任一值相等。
      * @param {*} evo
      * @param  {...Value} vals 实参序列
@@ -1012,6 +1011,7 @@ const _Base2 = {
      * 是否每一项都为真。
      * 目标：当前条目/栈顶1项。
      * 测试表达式返回真，该项即为真。接口：function(v, i, o): Boolean。
+     * 测试表达式可选，默认真值测试。
      * 注：
      * 目标需要是一个集合，支持各种集合（参考$.every）。
      * 表达式无需return语法词。
@@ -1029,6 +1029,7 @@ const _Base2 = {
      * 是否有任一项为真。
      * 目标：当前条目/栈顶1项。
      * 测试表达式返回真该项即为真，接口：function(v, i, o): Boolean。
+     * 测试表达式可选，默认真值测试。
      * 注：参考同上。
      * @param {String} expr 测试表达式，可选
      */

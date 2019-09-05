@@ -23,24 +23,25 @@ const
 
 
 const
-    __chrSplit  = '/',  // 二阶选择器切分字符
+    __chr2Split = '/',  // 二阶选择器切分字符
     __chrRID    = '?',  // 相对ID标志字符
 
     // PB属性名。
     __attrPB    = 'data-pb',
 
     // PB参数模式。
-    // 末尾必须为一个短横线。
+    // 尾部短横线，限定末尾空白或结束。
     __pbArgs    = /^[\w-]*-(?=\s|$)/,
 
     // PB选项模式。
-    // 前端可包含空格。
+    // 前端空格或起始限定，避免匹配参数段。
+    // 注：选项词不能包含短横线。
     __pbOpts    = /(?:\s+|^)[\w\s]+$/,
 
     // 二阶选择器分隔符（/）。
     // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
     // 注：仅存在性测试。
-    __reSplit = /\/(?=$|[\w>:#.*?])/,
+    __re2Split  = /\/(?=$|[\w>:#.*?])/,
 
     // 相对ID匹配测试。
     // 注意：不能区分属性选择器值内的 ?.. 序列。
@@ -153,7 +154,8 @@ const Util = {
     /**
      * 获取/设置PB参数序列。
      * wds未定义时为获取，否则为设置。
-     * 传递wds为null或假值时会移除参数序列。
+     * 传递wds为null或非数组时会移除参数序列。
+     * 取值时都会返回一个数组（可能为空）。
      * 注：
      * 它们会被赋值到 data-pb 属性。
      *
@@ -170,15 +172,61 @@ const Util = {
         let _v = el.getAttribute(__attrPB);
 
         if ( wds === undefined ) {
-            return _v ? pbArgs( _v.split(' ', 1)[0] ) : null;
+            return _v ? pbArgs( attrArgs(_v) ) : [];
         }
-        el.setAttribute( _v.replace(__pbArgs, pbArgs(wds, true)) );
+        if ( $.isArray(wds) ) {
+            return el.setAttribute( pbaAttr(pbArgs(wds, true), _v) );
+        }
+        // 移除参数部分。
+        // 保留PB属性原始状态。
+        if ( _v ) el.setAttribute( _v.replace(__pbArgs, '').trim() );
     },
 
 
+    /**
+     * 获取/设置PB选项序列。
+     * wds未定义时为获取，否则为设置。
+     * 传递wds为null或非数组时会移除选项序列。
+     * 取值时都会返回一个数组（可能为空）。
+     *
+     * 技术：
+     * 选项词之间以空格分隔，可用 ~= 属性选择器匹配。
+     * 注意：不破坏前端可能有的参数部分。
+     *
+     * @param  {Element} el 目标元素
+     * @param  {[String]} wds 选项词序列
+     * @return {[String]|void}
+     */
     pbo( el, wds ) {
-        //
+        let _v = el.getAttribute(__attrPB);
+
+        if ( wds === undefined ) {
+            return _v ? pbOpts( attrOpts(_v) ) : [];
+        }
+        if ( $.isArray(wds) ) {
+            return el.setAttribute( pboAttr(pbOpts(wds, true), _v) );
+        }
+        // 移除选项部分。
+        // 保留PB属性原始状态。
+        if ( _v ) el.setAttribute( _v.replace(__pbOpts, '') );
     },
+
+
+    /**
+     * 解析参数序列。
+     * 参数里的字符串可能用单引号包围。
+     * 注记：
+     * HTML模板中属性值需要用引号包围，
+     * 所以值中的字符串所用引号必然相同（不会单/双混用）。
+     *
+     * @param {String} fmt 参数序列串
+     * @return {Array|null}
+     */
+     argsJSON( fmt ) {
+        return fmt ? JSON.parse( `[${jsonArgs(fmt)}]` ) : null;
+    },
+
+
 
 
     /**
@@ -223,21 +271,6 @@ const Util = {
             'name': _pair[1],
             'args': this.argsJSON( _pair[2] && _pair[2].trim() )
         };
-    },
-
-
-    /**
-     * 解析参数序列。
-     * 参数里的字符串可能用单引号包围。
-     * 注记：
-     * HTML模板中属性值需要用引号包围，
-     * 所以值中的字符串所用引号必然相同（不会单/双混用）。
-     *
-     * @param {String} fmt 参数序列串
-     * @return {Array|null}
-     */
-    argsJSON( fmt ) {
-        return fmt ? JSON.parse( `[${jsonArgs(fmt)}]` ) : null;
     },
 
 
@@ -433,10 +466,10 @@ function jsonString( fmt ) {
  * @return {Array2|false} 选择器对[上，下]或false
  */
 function fmtSplit( fmt ) {
-    if ( !__reSplit.test(fmt) ) {
+    if ( !__re2Split.test(fmt) ) {
         return false;
     }
-    let _s2 = [ ...SSpliter.split(fmt, __chrSplit, 1) ];
+    let _s2 = [ ...SSpliter.split(fmt, __chr2Split, 1) ];
 
     return _s2.length > 1 && _s2;
 }
@@ -515,6 +548,20 @@ function query2( slr, beg ) {
 }
 
 
+//
+// PB辅助（pba/pbo）
+///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 提取参数串部分。
+ * @param {String} attr 属性值
+ */
+function attrArgs( attr ) {
+    return __pbArgs.test(attr) ? attr.split(' ', 1)[0] : '';
+}
+
+
 /**
  * 解析/构造PB参数序列。
  * 解析返回词序列，构造返回串值。
@@ -523,21 +570,67 @@ function query2( slr, beg ) {
  * @return {[String]|String}
  */
 function pbArgs( val, mk ) {
-    return mk ?
-        // 添加末尾短横线
-        val.join('-') + '-' :
-        // 排除末尾空串单元
-        val.split('-').slice(0, -1);
+    if ( mk ) {
+        // String: 添加末尾短横线
+        return val.join('-') + '-';
+    }
+    // Array: 排除末尾空串单元
+    return val ? val.split('-').slice(0, -1) : [];
 }
 
 
 /**
- * 解析提取PB选项序列。
- * @param  {String} val 选项串值
- * @return {[String]}
+ * 构造data-pb属性值。
+ * - 替换或前端新插入。
+ * @param {String} args PB参数串
+ * @param {String} attr 原属性值
  */
-function pbOpts( val ) {
+function pbaAttr( args, attr ) {
+    if ( !attr ) {
+        return args;
+    }
+    return __pbArgs.test(attr) ? attr.replace(__pbArgs, args) : `${args} ${attr}`;
+}
 
+
+/**
+ * 提取选项串部分。
+ * @param {String} attr 属性值
+ */
+function attrOpts( attr ) {
+    return __pbOpts.test(attr) ? attr.match(__pbOpts)[0] : '';
+}
+
+
+/**
+ * 解析/提取PB选项序列。
+ * 解析返回词序列，构造返回串值。
+ * @param  {String|[String]} val 选项串或词序列
+ * @param  {Boolean} mk 为构造
+ * @return {[String]|String}
+ */
+function pbOpts( val, mk ) {
+    if ( mk ) {
+        // String: 前置空格
+        return ' ' + val.join(' ');
+    }
+    // Array: 无空串成员
+    return val ? val.trim().split(/\s+/) : [];
+}
+
+
+/**
+ * 构造data-pb属性值。
+ * - 替换或后段新添加。
+ * @param {String} opts PB选项串
+ * @param {String} attr 原属性值
+ */
+function pboAttr( opts, attr ) {
+    if ( !attr ) {
+        return opts;
+    }
+    // opts已含前置空格。
+    return __pbOpts.test(attr) ? attr.replace(__pbOpts, opts) : `${attr}${opts}`;
 }
 
 

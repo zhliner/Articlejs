@@ -359,13 +359,14 @@ $if( val, else ): Value
 // 条件赋值。
 // 如果目标值为真，返回val入栈，否则跳过。
 // 目标：当前条目/栈顶1项。
+// 特权：是。可能两次赋值（入栈）。
 // else：是否构造else逻辑。
 // - 目标为真，赋值。补充追加一个false（待后续$if取值）。
 // - 目标为假，不赋值val。赋值一个true（后续$if必然执行）。
 // 例1：
-// $if('console.info(msg);')
-// 如果目标为真，返回打印字符串。简单if。
-// 注：后续需配合func/exec指令执行代码：func(null, 'msg') exec('hai')
+// $if('alert(msg);')
+// 如果目标为真，入栈弹出消息代码。简单if。
+// 注：后续需配合func/exec指令执行代码：func('msg') exec('hai')
 // 例2：
 // $if('AAA', true) $if('BBB')
 // 如果目标为真赋值AAA，补充赋值一个false，第二个$if必然跳过。

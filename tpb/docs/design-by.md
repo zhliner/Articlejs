@@ -73,11 +73,11 @@ xfalse( meth, ...rest ): Value
 // 通用执行
 //===============================================
 
-func( expr: String, ...argn: String ): Function
+func( ...argn: String ): Function
 // 创建函数入栈。
-// 目标：当前条目，不自动取栈。
-// expr为函数体表达式，无需return。
-// 如果expr为null，取目标为表达式代码。
+// 取目标为函数体表达式（无需return）。
+// 目标：当前条目/栈顶1项。
+// 可以传递函数的参数名序列。
 
 exec( ...rest ): Value
 // 把目标视为函数，传递实参执行后结果入栈。
