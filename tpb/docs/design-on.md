@@ -55,9 +55,8 @@ pbo(): [String]
 // 即元素data-pb属性的格式化值处理（空格分隔）。
 // 属性选择器：~=
 
-re( str, flag ): RegExp
+re( flag ): RegExp
 // 构造正则表达式入栈。
-// 传递 str 为 null 时取目标值。
 // 目标：当前条目/栈顶1项。
 
 date( ...v? ): Date

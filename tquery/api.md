@@ -745,7 +745,7 @@ $.isXML( document.body );  // false
 
 - `el: Element` 操作的目标元素。
 - `name: String | Object | Map` 名称序列或**名/值**对配置对象。
-- `value: String | Number | Boolean | Function | null` 设置的特性值或返回值的取值回调。传递 `null` 值会删除目标特性。
+- `value: String | Number | Boolean | Function | null | [Value]` 设置的特性值（集）或返回单个值的取值回调。传递 `null` 值会删除目标特性。
 
 当 `value` 未定义且 `name` 为字符串时为获取特性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `name` 为**名/值**对配置对象时为设置特性值。
 
@@ -761,7 +761,7 @@ $.isXML( document.body );  // false
 
 - `el: Element` 操作的目标元素。
 - `name: String | Object | Map` 名称序列或**名/值**对配置对象。
-- `value: String | Number | Boolean | Function | null` 设置的属性值或返回值的取值回调。
+- `value: String | Number | Boolean | Function | null | [Value]` 设置的属性值（集）或返回单个值的取值回调。
 
 当 `value` 未定义且 `name` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `name` 为**名/值**对配置对象时为设置属性值。
 

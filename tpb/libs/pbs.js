@@ -121,11 +121,15 @@ const _Base = {
 
     /**
      * evo成员取值入栈。
+     * 如果name未定义或为null，取evo自身入栈。
      * 目标：无。
      * @param  {String|Number} name 成员名称或代码
      * @return {Element|Collector|Value}
      */
     evo( evo, name ) {
+        if ( name == null ) {
+            return evo;
+        }
         return evo[ evoIndex[name] || name ];
     },
 
@@ -136,12 +140,16 @@ const _Base = {
      * 从事件对象上取值。
      * 多个实参取值会自动展开入栈。
      * 如果需要入栈一个属性值集合，可以传递名称数组。
+     * 无实参调用取事件对象自身入栈。
      * 目标：无。
      * 特权：是。this为数据栈实例。
      * @param  {...String} names 事件属性名
      * @return {void} 自操作入栈
      */
     ev( evo, ...names ) {
+        if ( names.length == 0 ) {
+            return evo.event;
+        }
         let _vs = names.map( name =>
             $.isArray(name) ? name.map( n => evo.event[n] ) : evo.event[name]
         );
@@ -150,50 +158,6 @@ const _Base = {
 
     __ev: 0,
     __ev_x: true,
-
-
-    // 空指令。
-    // 目标：无。
-    nil() {},
-
-    __nil: 0,
-
-
-    /**
-     * 删除数据栈任意区段条目。
-     * 目标：无。
-     * 特权：是。this为数据栈实例。
-     * 注：
-     * 与暂存区赋值类指令不同，这只是纯粹的删除功能。
-     * 可能并不常用。
-     * @param  {Number} start 起始位置
-     * @param  {Number} count 删除数量
-     * @return {void}
-     */
-    del( evo, start, count ) {
-        this.del( start, count );
-    },
-
-    __del: 0,
-    __del_x: true,
-
-
-    /**
-     * 向控制台打印消息。
-     * 目标：当前条目，不自动取栈。
-     * 实参显示在前（如果有），当前条目显示在后（如果有）。
-     * 注：测试用途。
-     * @param  {...String} msg 消息序列
-     * @return {void}
-     */
-    hello( evo, ...msg ) {
-        if ( evo.data !== undefined ) {
-            msg.push( evo.data );
-        }
-        window.console.info( ...msg );
-    },
-
-    __hello: 0,
 
 
 
@@ -272,7 +236,7 @@ const _Base = {
      * @param  {Value} back 执行结果，可选
      * @return {back|void}
      */
-     stopAll( evo, back ) {
+    stopAll( evo, back ) {
         let _v = this.data;
 
         if ( _v === undefined || _v ) {
@@ -403,6 +367,80 @@ const _Base = {
     __pick: null,
     __pick_x: true,
 
+
+
+    // 其它
+    //===============================================
+
+    // 空指令，无目标。
+    nil() {},
+
+    __nil: 0,
+
+
+    /**
+     * 删除数据栈任意区段条目。
+     * 目标：无。
+     * 特权：是。this为数据栈实例。
+     * 注：
+     * 与暂存区赋值类指令不同，这只是纯粹的删除功能。
+     * 可能并不常用。
+     * @param  {Number} start 起始位置
+     * @param  {Number} count 删除数量
+     * @return {void}
+     */
+    del( evo, start, count ) {
+        this.del( start, count );
+    },
+
+    __del: 0,
+    __del_x: true,
+
+
+    /**
+     * 设置目标成员值。
+     * 目标：当前条目/栈顶1项。
+     * 如果名称和值都为数组，则为一一对应设置。
+     * 否则为一对多（单值对多名称），或一对一设置（值数组视为一个单元）。
+     * 注：操作目标本身，无返回值入栈。
+     * @param  {String|[String]} name 名称或名称集
+     * @param  {Value|[Value]} val 目标值或值集
+     * @return {void}
+     */
+    set( evo, name, val ) {
+        let _o = evo.data;
+
+        if ( !$.isArray(name) ) {
+            _o[name] = val;
+        }
+        else if ( $.isArray(val) ) {
+            name.forEach( (n, i) => _o[n] = val[i] );
+        }
+        else {
+            name.forEach( n => _o[n] = val );
+        }
+    },
+
+    __set: 1,
+
+
+    /**
+     * 向控制台打印消息。
+     * 目标：当前条目，不自动取栈。
+     * 实参显示在前（如果有），当前条目显示在后（如果有）。
+     * 注：测试用途。
+     * @param  {...String} msg 消息序列
+     * @return {void}
+     */
+    hello( evo, ...msg ) {
+        if ( evo.data !== undefined ) {
+            msg.push( evo.data );
+        }
+        window.console.info( ...msg );
+    },
+
+    __hello: 0,
+
 };
 
 
@@ -421,6 +459,7 @@ const _Base2 = {
      * 将目标转换为数组。
      * 如果ext为真，表示调用Array.from()展开为一个数组。
      * 否则调用Array.of()简单转为数组（单个成员）。
+     * @data: {Value|LikeArray}
      * @param  {Boolean} ext 扩展模式
      * @return {Array}
      */
@@ -433,6 +472,7 @@ const _Base2 = {
 
     /**
      * 将目标转为字符串。
+     * @data: {Value}
      * @param  {String} prefix 前缀，可选
      * @param  {String} suffix 后缀，可选
      * @return {String}
@@ -446,6 +486,7 @@ const _Base2 = {
 
     /**
      * 将目标转为布尔值（true|false）。
+     * @data: {Value}
      * @return {Boolean}
      */
     Bool( evo ) {
@@ -457,6 +498,7 @@ const _Base2 = {
 
     /**
      * 将目标转为整数（parseInt）。
+     * @data: {String}
      * @param  {Number} radix 进制基数
      * @return {Number}
      */
@@ -469,6 +511,7 @@ const _Base2 = {
 
     /**
      * 将目标转为浮点数（parseFloat）。
+     * @data: {String}
      * @return {Number}
      */
     Float( evo ) {
@@ -476,6 +519,37 @@ const _Base2 = {
     },
 
     __Float: 1,
+
+
+    /**
+     * 转化为正则表达式。
+     * 如果提供了flag，肯定会返回一个新的正则对象。
+     * 否则如果源本来就是一个正则对象，则不变。
+     * @data: {String|RegExp}
+     * @param  {String} flag 正则修饰符
+     * @return {RegExp}
+     */
+    RE( evo, flag ) {
+        return flag ? RegExp( evo.data, flag ) : RegExp( evo.data );
+    },
+
+    __RE: 1,
+
+
+    /**
+     * 将目标转换为普通对象。
+     * 仅适用包含entries接口的对象，如：Set/Map实例。
+     * 如果目标不包含entries成员，返回Object()的简单封装。
+     * @return {Object}
+     */
+    Obj( evo ) {
+        if ( !$.isFunction(evo.data.entries) ) {
+            return Object(evo.data);
+        }
+        return Object.fromEntries( evo.data.entries() );
+    },
+
+    __Obj: 1,
 
 
 
@@ -561,7 +635,7 @@ const _Base2 = {
      * @param  {...String} names 属性名序列
      * @return {void} 自行入栈
      */
-     get( evo, ...names ) {
+    get( evo, ...names ) {
         let _vs = names.map( name =>
             $.isArray(name) ? name.map( n => evo.data[n] ) : evo.data[name]
         );
@@ -610,7 +684,7 @@ const _Base2 = {
 
 
 
-    // 集合筛选
+    // 集合操作
     //===============================================
 
     /**
@@ -630,7 +704,7 @@ const _Base2 = {
                 'v',
                 'i',
                 'o',
-                `return ${fltr}`
+                `return ${fltr};`
             );
         }
         return $.filter( evo.data, fltr );
@@ -654,7 +728,7 @@ const _Base2 = {
                 'v',
                 'i',
                 'o',
-                `return ${fltr}`
+                `return ${fltr};`
             );
         }
         return $.not( evo.data, fltr );
@@ -700,6 +774,19 @@ const _Base2 = {
 
     __flat: 1,
     __flat_x: true,
+
+
+    /**
+     * 数组成员序位反转。
+     * 目标：当前条目/栈顶1项。
+     * 注：
+     * 简单操作。返回一个新的数组入栈。
+     */
+    reverse( evo ) {
+        return Array.from(evo.data).reverse();
+    },
+
+    __reverse: 1,
 
 
 
@@ -810,6 +897,10 @@ const _Base2 = {
     __vnot: 1,
 
 
+
+    // 简单克隆
+    //===============================================
+
     /**
      * 栈顶复制。
      * 为引用浅复制，支持多项（自动展开）。
@@ -854,25 +945,6 @@ const _Base2 = {
 
 
     /**
-     * 计算JS表达式。
-     * 目标：当前条目，不自动取栈。
-     * 目标可成为数据源，表达式内通过dn定义的变量名引用。
-     * 例：calc('($[0] + $[1]) * $[2]')
-     * @param  {String} expr JS表达式
-     * @param  {String} dn 数据源变量名。可选，默认 $
-     * @return {Value|null}
-     */
-    calc( evo, expr, dn = '$' ) {
-        return new Function(
-                dn,
-                `return ${expr}`
-            )( evo.data );
-    },
-
-    __calc: 0,
-
-
-    /**
      * 对象赋值。
      * 数据源对象内的属性/值赋值到接收对象。
      * 目标：当前条目/栈顶1项。
@@ -891,7 +963,7 @@ const _Base2 = {
     // 比较运算
     // 目标：当前条目/栈顶2项。
     // @return {Boolean}
-   //===============================================
+    //===============================================
 
     /**
      * 相等比较（===）。
@@ -982,7 +1054,7 @@ const _Base2 = {
         return vals.includes( evo.data );
     },
 
-    __inside: 1,
+    __include: 1,
 
 
     /**
@@ -1038,6 +1110,96 @@ const _Base2 = {
     },
 
     __some: 1,
+
+
+    /**
+     * 目标对象内成员测试。
+     * 检查name或name数组单元是否在目标对象内，且与val相等。
+     * 目标：当前条目/栈顶1项。
+     * 如果name和val都为数组，则一一对应比较。
+     * 如果val未定义，则为存在性检查（非undefined）。
+     * 注：
+     * 当所有的检查/比较都为真时，返回真。
+     * 例：
+     * - inside(['shift', 'ctrl'], true) // 是否shift和ctrl成员值为真。
+     * - inside('selector') // 是否selector成员在目标内。
+     * - inside(['AA', 'BB'], [1, 2]) // 是否AA成员值为1且BB成员值为2。
+     *
+     * @param {String|[String]} name 成员名称或名称集
+     * @param {Value|[Value]} val 对比值或值集
+     */
+    inside( evo, name, val ) {
+        let _o = evo.data;
+
+        if ( !$.isArray(name) ) {
+            return val === undefined ? _o[name] !== undefined : _o[name] === val;
+        }
+        let _f = val === undefined ?
+            ( n => _o[n] !== undefined ) :
+            ( n => _o[n] === val );
+
+        return name.every( _f );
+    },
+
+    __inside: 1,
+
+
+
+    // 增强运算
+    //===============================================
+
+    /**
+     * 创建函数入栈。
+     * 目标：当前条目/栈顶1项。
+     * 取目标为函数体表达式（无需return）构造函数。
+     * 可以传递参数名序列。
+     * @param  {...String} argn 参数名序列
+     * @return {Function}
+     */
+    func( evo, ...argn ) {
+        return new Function(
+                ...argn,
+                `return ${evo.data};`
+            );
+    },
+
+    __func: 1,
+
+
+    /**
+     * 函数执行。
+     * 把目标视为函数，传递实参执行并返回结果。
+     * 目标：当前条目/栈顶1项。
+     * 注：通常配合func使用。
+     * @param  {...Value} rest 实参序列
+     * @return {Value}
+     */
+    exec( evo, ...rest ) {
+        if ( $.isFunction(evo.data) ) {
+            return evo.data( ...rest );
+        }
+        throw new Error( `${evo.data} is not a function.` );
+    },
+
+    __exec: 1,
+
+
+    /**
+     * 计算JS表达式。
+     * 目标：当前条目，不自动取栈。
+     * 目标可成为数据源，表达式内通过dn定义的变量名引用。
+     * 例：calc('($[0] + $[1]) * $[2]')
+     * @param  {String} expr JS表达式
+     * @param  {String} varn 数据源变量名。可选，默认 $
+     * @return {Value}
+     */
+    calc( evo, expr, varn = '$' ) {
+        return new Function(
+            varn,
+            `return ${expr};` )( evo.data );
+    },
+
+    __calc: 0,
 
 
 
@@ -1179,7 +1341,7 @@ function boolTester( expr ) {
     if ( expr === undefined ) {
         return v => v;
     }
-    return new Function( 'v', 'i', 'o', `return ${expr}` );
+    return new Function( 'v', 'i', 'o', `return ${expr};` );
 }
 
 

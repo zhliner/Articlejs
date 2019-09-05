@@ -1550,7 +1550,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {String|Number|Boolean|Function|null} value 新值或取值回调，可选
+     * @param  {String|Number|Boolean|Function|null|[Value]} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
     attr( el, name, value ) {
@@ -1570,7 +1570,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {String|Number|Boolean|Function|null} value 新值或取值回调，可选
+     * @param  {String|Number|Boolean|Function|null|[Value]} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
     prop( el, name, value ) {
@@ -4427,23 +4427,40 @@ function encURICompX( str, match ) {
  * - 值可为回调取值，接口：value( get(el, key), el )
  * 参数：
  * - name支持字符串或一个名/值对象（Object|Map）。
- * - value为一个新值或获取新值的回调函数。
+ * - value为一个值集或新值或获取新值的回调函数。
  * - 名/值对象中的值依然可以是回调函数（与键对应）。
  *
  * @param {Element} el 目标元素
  * @param {String|Object|Map} name 名称或名/值对象
- * @param {Value|Function} value 设置值或回调函数
+ * @param {[Value]|Value|Function} value 设置值（集）或取值回调
  * @param {Object} scope 适用域对象
  */
 function hookSets( el, name, value, scope ) {
     if (typeof name == 'string') {
-        return name.trim().
-            split(__chSpace).
-            forEach( n => hookSet(el, n, value, scope) );
+        return hookArrSet(
+            el,
+            name.trim().split(__chSpace),
+            value,
+            scope
+        );
     }
-    for (let [_k, _v] of entries(name)) {
-        hookSet(el, _k, _v, scope);
+    for (let [k, v] of entries(name)) hookSet(el, k, v, scope);
+}
+
+
+/**
+ * 多名称值集设置。
+ * 属性/特性值可能为数组，需一一对应（未对应忽略）。
+ * @param {Element} el 目标元素
+ * @param {[String]} names 名称集
+ * @param {Value|[Value]} val 值或值集
+ * @param {Object} scope 适用域对象
+ */
+function hookArrSet( el, names, val, scope ) {
+    if ( !isArr(val) ) {
+        return names.forEach( n => hookSet(el, n, val, scope) );
     }
+    names.forEach( (n, i) => val[i] !== undefined && hookSet(el, n, val[i], scope) );
 }
 
 
@@ -4451,7 +4468,7 @@ function hookSets( el, name, value, scope ) {
  * hookSets 的简单设置版。
  * @param {Element} el 目标元素
  * @param {String} name 名称
- * @param {Value} val 设置值
+ * @param {Value|Function} val 设置值
  * @param {Object} scope 适用域对象
  */
 function hookSet( el, name, val, scope ) {
@@ -4484,12 +4501,11 @@ function customSet( el, name, value, scope ) {
 
 /**
  * 通用多取值。
- * - 循环名称集取值，返回一个名称为键的Map实例；
- * - Map内成员的顺序与属性名一致，可能有用；
+ * 多个名称时返回一个名/值对象，否则返回单个值。
  * @param  {Element} el 目标元素
  * @param  {String|[String]} name 名称（集）
  * @param  {Object} scope 适用域对象
- * @return {String|Object} 值或名值对对象
+ * @return {String|Object} 值或名/值对象
  */
 function hookGets( el, name, scope ) {
     name = name.trim().split(__chSpace);
