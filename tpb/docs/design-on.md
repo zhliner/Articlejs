@@ -81,65 +81,86 @@ scam(): Object
 attr( name ): String
 prop( name ): String | Number | Boolean
 css( name ): String
+// 参数固定：1。
 
 height(): Number
 width(): Number
-innerHeight(): Number
-innerWidth(): Number
-outerWidth(): Number
-outerHeight(): Number
-next( slr ): Element | null
-nextAll( slr ): [Element]
-nextUntil( slr ): [Element]
-prev( slr ): Element | null
-prevAll( slr ): [Element]
-prevUntil( slr ): [Element]
-children( slr ): [Element] | Element
-contents( idx, comment ): [Node] | Node
-siblings( slr ): [Element]
-parent(): Element | null
-parents( slr ): [Element]
-parentUntil( slr ): [Element]
-closest( slr ): [Element] | null
-offsetParent(): Element
 scroll(): {top, left}
 scrollTop(): Number
 scrollLeft(): Number
+offset(): {top, left}
+val(): Value | [Value] | null
+html(): String      // 目标支持文本。
+text(): String      // 目标支持HTML源码
+// 参数固定：0。
+
+innerHeight(): Number
+innerWidth(): Number
+outerWidth( margin? ): Number
+outerHeight( margin? ): Number
+next( slr? ): Element | null
+nextAll( slr? ): [Element]
+nextUntil( slr? ): [Element]
+prev( slr? ): Element | null
+prevAll( slr? ): [Element]
+prevUntil( slr? ): [Element]
+children( slr? ): [Element] | Element
+contents( idx?, comment? ): [Node] | Node
+siblings( slr? ): [Element]
+parent( slr? ): Element | null
+parents( slr? ): [Element]
+parentsUntil( slr ): [Element]
+closest( slr ): Element | null
+offsetParent(): Element
 hasClass( name ): Boolean
 classAll(): [String]
-val(): Value | [Value] | null
-html(): String          // 当前条目支持元素（集）或文本。
-text(): String          // 当前条目支持元素（集）或HTML源码
-css( name ): String
-offset(): {top, left}
 position(): {top, left}
+// 参数不定。
+// 多余实参无副作用。
+
 
 // tQuery专有
 //-----------------------------------------------
-Element(): Element
-Text(): Text
-create(): DocumentFragment
-svg(): Element
-table(): Table
-is(): Boolean
-isXML(): Boolean
-isArray(): Boolean
-isNumeric(): Boolean
-isFunction(): Boolean
-isCollector(): Boolean
-type(): String
-contains(): Boolean
-controls(): [Element]
-serialize(): [Array2]
-queryURL(): String
 
-dataName(): String
-selector(): String
-tags(): String
-objMap(): Object
-kvsMap(): [Object2]
-range(): [Number] | [String]
-now(): Number | String
+Element( tag: String, data: String|[String]|Object ): Element
+svg( tag: String, opts: Object ): SVG:Element
+// 目标/参数：2，可选。
+
+Text( text: String ): Text
+create( html: String ): DocumentFragment
+dataName( attr: String ): String
+tags( code: String ): String
+// 目标/参数：1，可选。
+
+is( el: Element, slr: String ): Boolean
+isXML( el: Element ): Boolean
+controls( frm: Element ): [Element]
+serialize( frm: Element, excl: [String] ): [Array2]
+queryURL( its: Object|Element ): String
+isArray( val: Value ): Boolean
+isNumeric( val: Value ): Boolean
+isFunction( its: Any ): Boolean
+isCollector( its: Value ): Boolean
+type( its: Any ): String
+kvsMap( map: Map, kname?, vname?: String ): [Object2]
+// 目标/参数：1，当前条目/栈顶1项。
+// 多余实参无副作用。
+
+
+table( rows, cols: Number, cap: String, th0: Boolean ): Table
+selector( tag, attr?, val?, op?: String ): String
+now( json: Boolean ): Number | String
+// 目标：无。
+
+
+contains( box: Element, node: Node ): Boolean
+// 目标/参数：[1, 2]，当前条目/栈顶2项。
+// 定制。
+
+range( beg, size: Number|String, step: Number ): [Number] | [String]
+// 目标/参数：1，可选。
+// 定制：迭代器扩展为数组。
+
 
 // Collector专有
 //-----------------------------------------------
@@ -148,17 +169,19 @@ item( idx ): Value | [Value]
 eq( idx ): Collector
 first( slr ): Collector
 last( slr ): Collector
+// 目标：调用者，当前条目/栈顶1项。
 
 
 
-// 简单处理
-// 目标：当前条目/栈顶1项。
-// 注：只是目标自身的操作，无需By/To逻辑。
+// 简单处理。
+// 只是目标自身的操作，无需By/To逻辑。
 //===============================================
 
-detach( slr )
-remove( slr )
-unwrap()
-empty()
-normalize()
+detach( node, slr )
+remove( node, slr )
+unwrap( el )
+empty( el )
+normalize( el )
+// 目标/参数：1，当前条目/栈顶1项。
+// 需要兼容Collector实例。
 ```

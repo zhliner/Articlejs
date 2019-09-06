@@ -96,7 +96,7 @@ const _Base = {
      * rid: {
      *      String          同上。
      *      null|undefined  同上，但当前条目也可能非字符串类型。
-     *      Value           Collector封装，支持数组。
+     *      Value           Collector封装，支持单值和数组。
      * }
      * 当前条目的权重低于rid实参，因此如果rid为Collector封装，当前条目会被忽略。
      * 明确取当前条目时，也可能为Collector封装。
@@ -158,6 +158,26 @@ const _Base = {
 
     __ev: 0,
     __ev_x: true,
+
+
+    /**
+     * 从模板管理器获取模板。
+     * 目标：当前条目，不自动取栈。
+     * 模板名称优先从实参获取，如果name未定义则从目标获取。
+     * @param  {String} name 模板名称
+     * @return {Promise}
+     */
+    tpl( evo, name ) {
+        if ( name == null ) {
+            name = evo.data;
+        }
+        if ( typeof name != 'string' ) {
+            return Promise.reject(`invalid tpl-name: ${name}`);
+        }
+        return TplStore.get( name );
+    },
+
+    __tpl: 0,
 
 
 
@@ -530,7 +550,7 @@ const _Base2 = {
      * @return {RegExp}
      */
     RE( evo, flag ) {
-        return flag ? RegExp( evo.data, flag ) : RegExp( evo.data );
+        return RegExp( evo.data, flag );
     },
 
     __RE: 1,
@@ -945,6 +965,20 @@ const _Base2 = {
 
 
     /**
+     * 数组合并。
+     * 目标：当前条目/栈顶1项。
+     * 注：目标需要是一个数组。
+     * @param  {Array|Value} src 数据源（数组或值）
+     * @return {Array}
+     */
+     merge( evo, src ) {
+        return evo.data.concat( src );
+    },
+
+    __merge: 1,
+
+
+    /**
      * 对象赋值。
      * 数据源对象内的属性/值赋值到接收对象。
      * 目标：当前条目/栈顶1项。
@@ -1200,30 +1234,6 @@ const _Base2 = {
     },
 
     __calc: 0,
-
-
-
-    // 其它
-    //===============================================
-
-    /**
-     * 从模板管理器获取模板。
-     * 目标：当前条目，不自动取栈。
-     * 优先取实参传递的名称，如果name未定义，则取当前条目为名称。
-     * @param  {String} name 模板名称
-     * @return {Promise}
-     */
-    tpl( evo, name ) {
-        if ( name == null ) {
-            name = evo.data;
-        }
-        if ( typeof name != 'string' ) {
-            return Promise.reject(`invalid tpl-name: ${name}`);
-        }
-        return TplStore.get( name );
-    },
-
-    __tpl: 0,
 
 };
 

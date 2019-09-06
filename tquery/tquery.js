@@ -1047,7 +1047,7 @@ Object.assign( tQuery, {
     children( el, slr ) {
         let _els = Arr(el.children);
 
-        if (! slr) {
+        if ( !slr ) {
             return slr === 0 ? _els[0] : _els;
         }
         return isNaN(slr) ? _els.filter(e => $is(e, slr)) : indexItem(_els, +slr);
@@ -3441,7 +3441,7 @@ elsExfn([
  * @return {Value} 结果值
  */
 function _customGets( fn, els, name, nia ) {
-    if (! nia) {
+    if ( !nia ) {
         return els.map( el => $[fn](el, name) );
     }
     let _buf = [];
@@ -6385,7 +6385,7 @@ Object.assign( tQuery, {
      * - -abc-def => abcDef 支持前置-（省略data）
      * @return {String}
      */
-    dataName( str = '' ) {
+    dataName( str ) {
         let _ns = str.match(__dataName);
         return _ns && camelCase( _ns[1] ) || '';
     },

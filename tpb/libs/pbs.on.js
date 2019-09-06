@@ -75,88 +75,307 @@ const _On = {
 
 
 
-    // Collector专有
+    // tQuery定制
     //===========================================
 
-    item( evo ) {
-        //
+    /**
+     * 测试是否包含。
+     * 前者是否为后者的上级容器元素。
+     * 目标：当前条目/栈顶2项。
+     * @return {Boolean}
+     */
+    contains( evo ) {
+        return $.contains( evo.data[0], evo.data[1] );
     },
 
+    __contains: 2,
 
-    eq( evo ) {
-        //
+
+    /**
+     * 创建数值/字符范围序列。
+     * 明确传递beg为null，表示取流程数据。
+     * @param  {Number|String} beg 起始数值/字符
+     * @param  {Number|String} size 范围大小/终止字符
+     * @param  {Number} step 步进值
+     * @return {[Number|String]}
+     */
+    range( evo, beg, size, step ) {
+        if ( beg == null ) {
+            beg = evo.data;
+        }
+        return [...$.range( beg, size, step )];
     },
 
+    __range: 0,
 
-    first( evo ) {
-        //
-    },
-
-
-    last( evo ) {
-        //
-    },
-
-
-
-    // 简单处理
-    // 目标：当前条目/栈顶1项。
-    // 注：只是目标自身的操作，无需By/To逻辑。
-    //===========================================
-
-    detach( evo, slr ) {
-        //
-    },
-
-
-    remove( evo, slr ) {
-        //
-    },
-
-
-    unwrap( evo ) {
-        //
-    },
-
-
-    empty( evo ) {
-        //
-    },
-
-
-    normalize( evo ) {
-        //
-    },
 };
 
 
+
+//
+// pba/pbo专项取值。
+// 目标：当前条目/栈顶1项。
+// 注：简单调用 Util.pba/pbo 即可。
+///////////////////////////////////////////////////////////////////////////////
 [
-    'pba',
-    'pbo',
+    'pba',  // (): [String] | [[String]] 有序的参数词序列
+    'pbo',  // (): [String] | [[String]] 选项词序列
 ]
 .forEach(function( name ) {
-    /**
-     * PB参数/选项取值。
-     * 目标：当前条目/栈顶1项。
-     * @return {[String]} 有序的参数词序列
-     * @return {[String]} 选项词序列
-     */
-     _On[name] = function( evo ) {
+
+    // 集合时返回一个值数组的数组。
+    _On[name] = function( evo ) {
         if ( evo.data.nodeType == 1 ) return Util[name]( evo.data );
         if ( $.isArray(evo.data) ) return evo.data.map( el => Util[name](el) );
     };
 
-    // 取栈条目数。
     _On[`__${name}`] = 1;
+
 });
 
 
 
 //
-// 工具函数
+// tQuery|Collector通用
+///////////////////////////////////////////////////////////////////////////////
+// 如果目标为元素，返回一个值、值集或null。
+// 如果目标为Collector，返回一个值数组或一个新的Collector实例。
+// 注：
+// 下面注释中仅说明了目标为元素时的情况。
+
+//
+// 参数固定：1
+// 目标：当前条目/栈顶1项。
+//===============================================
+[
+    'attr',     // ( name ): String | null
+    'prop',     // ( name ): String | Number | Boolean | undefined
+    'css',      // ( name ): String
+]
+.forEach(function( meth ) {
+
+    _On[meth] = function( evo, name ) {
+        if ( $.isCollector(evo.data) ) return evo.data[meth]( name );
+        if ( evo.data.nodeType == 1 ) return $[meth]( evo.data, name );
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+
+//
+// 参数固定：0
+// 目标：当前条目/栈顶1项。
+//===============================================
+[
+    'height',       // (): Number
+    'width',        // (): Number
+    'scroll',       // (): {top, left}
+    'scrollTop',    // (): Number
+    'scrollLeft',   // (): Number
+    'offset',       // (): {top, left}
+    'val',          // (): Value | [Value]
+    'html',         // (): String   // 目标可为字符串（源码转换）
+    'text',         // (): String   // 同上
+]
+.forEach(function( meth ) {
+
+    _On[meth] = function( evo ) {
+        if ( $.isCollector(evo.data) ) return evo.data[meth]();
+        if ( evo.data.nodeType == 1 ) return $[meth]( evo.data );
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+
+//
+// 参数不定。
+// 目标：当前条目/栈顶1项。
+//===============================================
+[
+    'innerHeight',  // (): Number
+    'innerWidth',   // (): Number
+    'outerWidth',   // ( margin? ): Number
+    'outerHeight',  // ( margin? ): Number
+    'next',         // ( slr? ): Element | null
+    'nextAll',      // ( slr? ): [Element]
+    'nextUntil',    // ( slr? ): [Element]
+    'prev',         // ( slr? ): Element | null
+    'prevAll',      // ( slr? ): [Element]
+    'prevUntil',    // ( slr? ): [Element]
+    'children',     // ( slr? ): [Element] | Element
+    'contents',     // ( idx? ): [Node] | Node
+    'siblings',     // ( slr? ): [Element]
+    'parent',       // ( slr? ): Element | null
+    'parents',      // ( slr? ): [Element]
+    'parentsUntil', // ( slr ): [Element]
+    'closest',      // ( slr ): Element | null
+    'offsetParent', // (): Element
+    'hasClass',     // ( name ): Boolean
+    'classAll',     // (): [String]
+    'position',     // (): {top, left}
+]
+.forEach(function( meth ) {
+
+    // 多余实参无副作用
+    _On[meth] = function( evo, ...rest ) {
+        if ( $.isCollector(evo.data) ) return evo.data[meth]( ...rest );
+        if ( evo.data.nodeType == 1 ) return $[meth]( evo.data, ...rest );
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+
+
+//
+// tQuery专有
 ///////////////////////////////////////////////////////////////////////////////
 
+//
+// 原始调用。
+// 目标：无。
+//===============================================
+[
+    'table',        // ( rows, cols, caption?, th0? ): $.Table
+    'selector',     // ( tag, attr?, val?, op? ): String
+    'now',          // ( json? ): Number | String
+]
+.forEach(function( meth ) {
 
+    // 多余实参无副作用
+    _On[meth] = function( evo, ...rest ) { return $[meth]( ...rest ); };
+
+    _On[`__${meth}`] = 0;
+
+});
+
+
+//
+// 目标：当前条目，可选。
+// 固定参数。
+//===============================================
+[
+    'Element',  // ( tag, data? ): Element
+    'svg',      // ( tag, opts? ): Element
+]
+.forEach(function( meth ) {
+    // 目标实参：its
+    _On[meth] = function( evo, tag, its ) {
+        if ( its === undefined ) its = evo.data;
+        return $[meth]( tag, its );
+    };
+
+    _On[`__${meth}`] = 0;
+
+});
+
+
+//
+// 目标：当前条目，可选。
+// 固定参数。
+//===============================================
+[
+    'Text',     // ( text? ): Text
+    'create',   // ( html? ): DocumentFragment
+    'dataName', // ( attr? ): String
+    'tags',     // ( code? ): String
+]
+.forEach(function( meth ) {
+
+    _On[meth] = function( evo, code ) {
+        if ( code === undefined ) code = evo.data;
+        return $[meth]( code );
+    };
+
+    _On[`__${meth}`] = 0;
+
+});
+
+
+//
+// 目标：当前条目/栈顶1项。
+//===============================================
+[
+    'is',           // ( slr ): Boolean
+    'isXML',        // (): Boolean
+    'controls',     // (): [Element]
+    'serialize',    // ( exclude? ): [Array2]
+    'queryURL',     // (): String
+    'isArray',      // (): Boolean
+    'isNumeric',    // (): Boolean
+    'isFunction',   // (): Boolean
+    'isCollector',  // (): Boolean
+    'type',         // (): String
+    'kvsMap',       // ( kname?, vname? ): [Object2]
+]
+.forEach(function( meth ) {
+    // 多余实参无副作用。
+    _On[meth] = function( evo, its ) { return $[meth]( evo.data, its ); };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+
+
+//
+// Collector专有
+// 目标：当前条目/栈顶1项。
+///////////////////////////////////////////////////////////////////////////////
+[
+    'item',     // ( idx? ): Value | [Value]
+    'eq',       // ( idx ):  Collector
+    'first',    // ( slr? ): Collector
+    'last',     // ( slr? ): Collector
+]
+.forEach(function( meth ) {
+    /**
+     * 集合成员取值。
+     * @param {Number} its:idx 位置下标（支持负数）
+     * @param {String} its:slr 成员选择器
+     */
+    _On[meth] = function( evo, its ) {
+        if ( $.isCollector(evo.data) ) evo.data[meth]( its );
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+
+
+//
+// 自我修改。
+// 目标：当前条目/栈顶1项。
+// 注：目标元素自身操作，无需 By/To 逻辑。
+///////////////////////////////////////////////////////////////////////////////
+[
+    'detach',       // ( slr? )
+    'remove',       // ( slr? )
+    'unwrap',       // ()
+    'empty',        // ()
+    'normalize',    // ()
+]
+.forEach(function( meth ) {
+    /**
+     * 部分方法需要slr实参。
+     * 多余实参无副作用。
+     * 注：外部可能需要预先封装为Collector实例。
+     * @return {void}
+     */
+    _On[meth] = function( evo, slr ) {
+        if ( $.isCollector(evo.data) ) evo.data[meth]( slr );
+        if ( evo.data.nodeType ) $[meth]( evo.data, slr );
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
 
 
 
