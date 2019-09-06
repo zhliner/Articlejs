@@ -340,7 +340,7 @@ const _On = {
      * @param {String} its:slr 成员选择器
      */
     _On[meth] = function( evo, its ) {
-        if ( $.isCollector(evo.data) ) evo.data[meth]( its );
+        if ( $.isCollector(evo.data) ) return evo.data[meth]( its );
     };
 
     _On[`__${meth}`] = 1;
@@ -355,11 +355,11 @@ const _On = {
 // 注：目标元素自身操作，无需 By/To 逻辑。
 ///////////////////////////////////////////////////////////////////////////////
 [
-    'detach',       // ( slr? )
-    'remove',       // ( slr? )
-    'unwrap',       // ()
-    'empty',        // ()
-    'normalize',    // ()
+    'detach',       // ( slr? ): void
+    'remove',       // ( slr? ): void
+    'unwrap',       // (): void
+    'empty',        // (): void
+    'normalize',    // (): void
 ]
 .forEach(function( meth ) {
     /**
