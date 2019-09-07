@@ -89,7 +89,6 @@ class Stack {
         this._buf = [];     // 数据栈
         this._item;         // 当前条目（暂存区）
         this._done = false; // 是否已暂存
-        this._target;       // To 目标
     }
 
 
@@ -143,19 +142,6 @@ class Stack {
 
 
     /**
-     * 获取/设置To目标。
-     * @param  {Element|Collector} to 目标元素/集合
-     * @return {Element|Collector}
-     */
-    target( to ) {
-        if ( to === undefined ) {
-            return this._target;
-        }
-        this._target = to;
-    }
-
-
-    /**
      * 数据栈成员删除。
      * 注：纯删除功能，被删除的数据不进入暂存区。
      * @param {Number} start 起始下标
@@ -173,7 +159,7 @@ class Stack {
     reset() {
         this._buf.length = 0;
         this._done = false;
-        this._item = this._target = undefined;
+        this._item = undefined;
     }
 
 
@@ -316,7 +302,7 @@ class Stack {
 //
 // 指令调用单元。
 // 包含一个单向链表结构，实现执行流的链式调用逻辑。
-// 调用的方法是一个bound-function，包含一个count属性指定取栈数量。
+// 调用的方法是一个bound-function，另有一个count值指定取栈数量。
 //
 // 注记：
 // 取消原有脱链（dispose）设计，由单次事件绑定完成类似需求。
@@ -369,8 +355,6 @@ class Cell {
             this._stack.push( val );
         }
         evo.data = this._data( this._count );
-        // To 之前为 undefined
-        evo.targets = this._stack.target();
 
         // 当前方法执行/续传。
         this._call( evo, this._meth(evo, ...this._args) );
@@ -545,7 +529,7 @@ class Query {
     apply( cell ) {
         return cell.bind(
             // n:0 支持当前条目，不自动取栈。
-            [ this._slr, this._one, this._fltr ], query, true, 0
+            [ this._slr, this._one, this._fltr ], query.bind(null), false, 0
         );
     }
 
@@ -757,7 +741,7 @@ function query( evo, slr, one, fltr ) {
     if (_beg === undefined) {
         _beg = evo.current;
     }
-    this.target( query2(slr, _beg, one, fltr) );
+    evo.targets = query2(slr, _beg, one, fltr);
 }
 
 

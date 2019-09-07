@@ -91,7 +91,9 @@ evo: {
     selector: {String|undefined}    // 委托匹配选择器（for match）]
     event: {Event}                  // 原生事件对象（未侵入）
     data: {Value|[Value]}           // 自动获取的流程数据
-    targets: {Element|Collector}    // To目标元素（集）向后延续
+
+    entry: {Cell.call}              // By段入口启动函数，由 entry 指令创建
+    targets: {Element|Collector}    // To目标元素（集）向后延续，在 To:Query 之后存在
 }
 ```
 

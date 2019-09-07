@@ -36,7 +36,7 @@ const
         8:  'selector',     // 委托匹配选择器（for match）]
         9:  'event',        // 原生事件对象（未侵入）
         10: 'data',         // 自动获取的流程数据
-        11: 'target',       // To目标元素（集）向后延续
+        11: 'targets',      // To目标元素（集）向后延续
     };
 
 
@@ -971,7 +971,7 @@ const _Base2 = {
      * @param  {Array|Value} src 数据源（数组或值）
      * @return {Array}
      */
-     merge( evo, src ) {
+    merge( evo, src ) {
         return evo.data.concat( src );
     },
 
@@ -1148,31 +1148,30 @@ const _Base2 = {
 
     /**
      * 目标对象内成员测试。
-     * 检查name或name数组单元是否在目标对象内，且与val相等。
+     * 检查name是否在目标对象内，且与val相等。
      * 目标：当前条目/栈顶1项。
-     * 如果name和val都为数组，则一一对应比较。
+     * name支持空格分隔的多个名称指定。
      * 如果val未定义，则为存在性检查（非undefined）。
+     * ext只有在val为数组时才有意义，指定val成员与多个名称一一对应测试。
      * 注：
      * 当所有的检查/比较都为真时，返回真。
      * 例：
-     * - inside(['shift', 'ctrl'], true) // 是否shift和ctrl成员值为真。
+     * - inside('shift ctrl', true) // 是否shift和ctrl成员值为真。
      * - inside('selector') // 是否selector成员在目标内。
-     * - inside(['AA', 'BB'], [1, 2]) // 是否AA成员值为1且BB成员值为2。
+     * - inside('AA BB', [1, 2], true) // 是否AA成员值为1且BB成员值为2。
      *
-     * @param {String|[String]} name 成员名称或名称集
+     * @param {String} name 成员名称（集）
      * @param {Value|[Value]} val 对比值或值集
+     * @param {Boolean} ext val是否扩展一一对应匹配
      */
-    inside( evo, name, val ) {
-        let _o = evo.data;
+    inside( evo, name, val, ext ) {
+        let _o = evo.data,
+            _f = n => existValue(_o, n, val);
 
-        if ( !$.isArray(name) ) {
-            return val === undefined ? _o[name] !== undefined : _o[name] === val;
+        if ( ext ) {
+            _f = (n, i) => existValue(_o, n, val[i]);
         }
-        let _f = val === undefined ?
-            ( n => _o[n] !== undefined ) :
-            ( n => _o[n] === val );
-
-        return name.every( _f );
+        return name.split(/\s+/).every(_f);
     },
 
     __inside: 1,
@@ -1355,6 +1354,19 @@ function boolTester( expr ) {
 }
 
 
+/**
+ * 对象属性值测试。
+ * 检查目标属性是否在目标对象内或是否与测试值相等。
+ * 注：如果测试值未定义，则为存在性检查。
+ * @param {Object} obj 目标对象
+ * @param {String} name 属性名
+ * @param {Value} val 测试值
+ */
+function existValue( obj, name, val ) {
+    return val === undefined ? obj[name] !== undefined : obj[name] === val;
+}
+
+
 
 //
 // 合并/导出
@@ -1409,9 +1421,21 @@ $.proto( By, PB2 ),
 $.proto( To, Base );
 
 
-// To特例。
-// 特权允许：target更新。
-To.usurp = funcSets( _To.usurp, _To['__usurp'], true );
+
+//
+// 特例：By入口定义。
+//===============================================
+// 创建一个方法，用于从By阶段某处自行启动执行流。
+// 可用于动画类场景：On阶段收集初始数据，后期的循环迭代则由By开始。
+// 使用：
+//      evo.entry(...)
+//      简单调用，传递可能的入栈值即可
+// 注记：
+// 方法不作预绑定，由Call解析应用，this为当前指令单元（Cell）。
+//
+By.entry = function( evo ) {
+    evo.entry = this.call.bind( this, evo );
+};
 
 
 

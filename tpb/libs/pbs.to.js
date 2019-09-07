@@ -18,21 +18,15 @@ const $ = window.$;
 
 
 const _To = {
-
-
-    // 特权特例
-    //===============================================
-
     /**
      * 更新To目标。
      * 取值：当前条目/栈顶1项。
-     * 注：this为数据栈（Stack）对象。
      */
-    usurp( evo ) {
-        this.target( evo.data );
+    target( evo ) {
+        evo.targets = evo.data;
     },
 
-    __usurp: 1,
+    __target: 1,
 
 };
 

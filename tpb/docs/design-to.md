@@ -233,12 +233,9 @@ xxxx   // 单元素检索，$.get(): Element
 
 
 ```js
-usurp()
-// 更换To目标。
+target()
+// 更新To目标。
 // 用当前条目/栈顶1项设置为To目标。
-// 注：特权方法（写 Stack.target）。
-// 附：
-// 可用 evo('targets') 将目标引用入栈。
 
 
 fire( evn, data )
