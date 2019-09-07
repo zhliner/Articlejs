@@ -626,13 +626,13 @@ class Sets {
      * 更新函数接口：function(Element | Collector, Value): void
      *
      * @param {Cell} cell 指令单元
-     * @param {Object} pbs 更新方法集（Where/Method/Set）
+     * @param {Object} wms 更新方法集（Where/Method/Set）
      */
-    apply( cell, pbs ) {
+    apply( cell, wms ) {
         let _fs = this._names
-            .map( ss => this._method(ss, pbs) );
+            .map( ss => this._method(ss, wms) );
 
-        return cell.bind(_fs, update, false, this._count);
+        return cell.bind( _fs, update, false, this._count );
     }
 
 
@@ -770,9 +770,9 @@ function query2( slr, beg, one, fltr ) {
  * 注记：this无关性，可被共享。
  *
  * @param {Object} evo 事件关联对象
- * @param {[Function]} funs 更新方法集
+ * @param {...Function} funs 更新方法集
  */
-function _update ( evo, funs ) {
+function _update ( evo, ...funs ) {
     let _its = evo.targets,
         _val = evo.data;
 

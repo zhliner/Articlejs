@@ -17,7 +17,26 @@
 const $ = window.$;
 
 
-const _To = {
+//
+// 目标更新方法集。
+// 被封装调用，因此不含首个evo实参。
+//
+const _Sets = {
+
+    attr( its, val, name ) {
+        //
+    },
+
+    __attr: 1,
+
+};
+
+
+//
+// 下一阶处理。
+// 类似普通的 PB:Call 逻辑。
+//
+const _Stage = {
     /**
      * 更新To目标。
      * 取值：当前条目/栈顶1项。
@@ -28,6 +47,12 @@ const _To = {
 
     __target: 1,
 
+};
+
+
+const _To = {
+    method: _Sets,
+    stagex: _Stage,
 };
 
 

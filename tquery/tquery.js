@@ -1539,7 +1539,7 @@ Object.assign( tQuery, {
      * - 支持两个特殊特性名：text、html，下同。
      *
      * 设置：
-     * - value有值时，name为名称，可空格分隔的多个名称赋相同值。
+     * - value有值时，name为名称，支持空格分隔的多个名称与值数组一一对应。
      * - value支持取值回调获取目标值，接口：function(oldval, el)。
      * - value传递null会删除目标特性。
      * - value无值时，name为名值对象或Map，其中值同样支持取值回调。
@@ -1751,14 +1751,14 @@ Object.assign( tQuery, {
      * - val值支持取值回调，接口：fn.bind(el)( oldval, cso )。
      * - val为空串或null，会删除目标样式。
      * - name可以为一个键值对象或Map，值依然可以为一个取值回调。
-     * - name若为空格分隔的名称序列，会被设置为相同的样式值。
+     * - name若为空格分隔的名称序列，val可以为值数组分别一一对应。
      * - name为null可以删除全部的内联样式（即删除style本身)。
      * 注记：
      * Edge/Chrome/FF已支持短横线样式属性名。
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map|null} name 样式名（序列）或名/值配置对象
-     * @param  {String|Number|Function|null} val 设置值或取值函数
+     * @param  {String|Number|Function|null|[Value]} val 设置值（集）或取值函数
      * @return {String|Object|this}
      */
     css( el, name, val ) {
@@ -4143,31 +4143,53 @@ function cssGets( cso, name ) {
  */
 function cssSets( el, name, val, cso ) {
     if (typeof name == 'string') {
-        return name.trim().
-            split(__chSpace).
-            forEach( n => el.style[n] = cssFunc(val, cso, n, el) );
+        return cssArrSet(
+            el,
+            name.trim().split(__chSpace),
+            val,
+            cso
+        );
     }
-    for (let [n, v] of entries(name)) {
-        el.style[n] = cssFunc(v, cso, n, el);
-    }
+    for (let [n, v] of entries(name)) cssSet(el, n, v, cso);
 }
 
 
 /**
- * 样式回调取值。
- * - 若为函数才取值计算；
- * - 若为纯数值构造为像素值表示；
- * @param  {Function|Value} its 回调函数或简单值
- * @param  {CSSStyleDeclaration} cso 计算样式集
- * @param  {String} key 样式键名
- * @return {String|Number} 计算样式值
- * @return {Element} 当前元素
+ * 多名称样式设置。
+ * 样式值可能为一个数组，需一一对应设置（无对应者忽略）。
+ * @param {Element} el 目标元素
+ * @param {[String]} names 名称集
+ * @param {Value|[Value]} val 值或值集
+ * @param {CSSStyleDeclaration} cso 计算样式集
  */
-function cssFunc( its, cso, key, el ) {
-    let _val = isFunc(its) ?
-        its( cso[key], el ) : its;
+function cssArrSet( el, names, val, cso ) {
+    // 单名称时忽略值数组可能。
+    if ( names.length == 1 ) {
+        return cssSet( el, names[0], val, cso );
+    }
+    if ( !isArr(val) ) {
+        return names.forEach( n => cssSet(el, n, val, cso) );
+    }
+    names.forEach(
+        (n, i) => val[i] !== undefined && cssSet(el, n, val[i], cso)
+    );
+}
 
-    return isNumeric(_val) ? +_val + 'px' : _val;
+
+/**
+ * 设置单个元素的单个样式值。
+ * 样式值可能为纯数字（视为像素）或取值回调。
+ * @param {Element} el 目标元素
+ * @param {String} name 样式名
+ * @param {Value|Function} val 样式值
+ * @param {CSSStyleDeclaration} cso 计算样式集
+ */
+function cssSet( el, name, val, cso ) {
+    let _v = isFunc(val) ?
+        val( cso[name], el ) :
+        val;
+
+    el.style[name] = isNumeric(_v) ? `${+_v}px` : _v;
 }
 
 
@@ -4457,10 +4479,16 @@ function hookSets( el, name, value, scope ) {
  * @param {Object} scope 适用域对象
  */
 function hookArrSet( el, names, val, scope ) {
+    // 单名称时应当忽略值特性！
+    if ( names.length == 1 ) {
+        return hookSet( el, names[0], val, scope );
+    }
     if ( !isArr(val) ) {
         return names.forEach( n => hookSet(el, n, val, scope) );
     }
-    names.forEach( (n, i) => val[i] !== undefined && hookSet(el, n, val[i], scope) );
+    names.forEach(
+        (n, i) => val[i] !== undefined && hookSet(el, n, val[i], scope)
+    );
 }
 
 

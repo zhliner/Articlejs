@@ -862,15 +862,15 @@ $.isXML( document.body );  // false
 获取或设置 `el` 元素的样式，可以一次获取多个，也可以一次设置多个。
 
 - `el: Element` 操作的目标元素。
-- `name: String | Object | Map | null` 待取值的样式名称（序列）或设置的名称或**名:值**对配置对象。
-- `val: String | Number | Function` 设置的样式值或取值回调，空串表示删除目标样式。可选。
+- `name: String | Object | Map | null` 待取值的样式名称（序列）或设置时的名称或**名:值**对配置对象。
+- `val: String | Number | Function | [Value]` 设置的样式值（集）或取值回调，空串表示删除目标样式。可选。
 
 实参 `name` 的作用有两种情况：
 
 - **取值时**：样式名称或空格分隔的名称序列。指定单个名称返回单一的值，指定多个名称返回一个 `样式名:值` 的对象（`Object`）。
 - **设置时**：除了普通的单个或多个名称，还可以是一个 `样式名:值` 配置对象（`Object` | `Map`），键为样式名，值为样式值或取值回调（接口：`function( oldval, el ): Value`）。
 
-注意：获取时为元素计算后的样式值，设置时为设置元素的内联样式（`style` 特性），传递 `name` 为值 `null` 会删除 `style` 特性值本身（全部样式）。
+获取时为元素计算后的样式值，设置时为设置元素的内联样式（`style` 特性）。传递 `name` 为值 `null` 会删除 `style` 特性值本身（全部样式），如果 `name` 是一个空格分隔的多个样式名序列，`val` 可以是一个数组，分别对应到不同的样式设置。
 
 
 ### [$.offset( el, pair ): Object | this](docs/$.offset.md)
