@@ -787,6 +787,19 @@ $.isXML( document.body );  // false
 > 不支持特殊的特性名 `html` 和 `text`。
 
 
+### $.toggleAttr( el, name, val ): this
+
+在 `el` 元素上切换 `name` 特性的值。
+
+- `el: Element` 目标元素。
+- `name: String` 目标特性，仅支持单个名称。
+- `val: Value | [Value] | Function` 切换对比值（对）或取值回调。
+
+如果 `val` 为简单值（非数组），目标特性值为有无切换（相等则移除，没有则添加）。`val` 可以是一个二元数组，其 `val[0]` 成员用于对比，`val[1]` 用于候选：如果原值与 `val[0]` 相等则设置为 `val[1]`，否则设置为 `val[0]` 自身。`val` 也可以是一个取值回调，接口：`function( old, el ): Value | [Value]`，返回值用于切换对比。
+
+**集合版**中对每一个元素执行该对比/设置操作，因为单元素版的值本身可以为数组，所以不支持元素成员与值数组的一一对应模式。
+
+
 ### [$.val( el, value ): Value | [Value] | this](docs/$.val.md)
 
 表单控件的取值或状态设置。

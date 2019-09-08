@@ -1610,6 +1610,30 @@ Object.assign( tQuery, {
 
 
     /**
+     * 切换目标特性值。
+     * 如果val是一个数组，就在前两个成员间切换。
+     * 如果val只是一个值，则在有无间切换（val|null）。
+     * 注：
+     * 数组形式时以val[0]为对比目标，并不检查val[1]值。
+     *
+     * @param  {Element} el 目标元素
+     * @param  {String} name 特性名
+     * @param  {Value|[Value]|Function} val 切换值获取值回调
+     * @return {this}
+     */
+    toggleAttr( el, name, val ) {
+        let _old = elemAttr.get( el, name );
+
+        if ( isFunc(val) ) {
+            val = val( _old, el );
+        }
+        elemAttr.set( el, name, toggleValue( val, _old ) );
+
+        return this;
+    },
+
+
+    /**
      * 表单控件的取值或设置。
      * 遵循严格的表单提交逻辑：
      * - 未选中的的控件（如单个复选框）不会被提交，取值时返回 null。
@@ -3360,6 +3384,7 @@ elsExfn([
 // 返回当前实例本身。
 /////////////////////////////////////////////////
 elsExfn([
+        'toggleAttr',
         'toggleClass',
         'on',
         'one',
@@ -3382,7 +3407,7 @@ elsExfn([
 
 //
 // 简单操作。
-// 支持数组分别一一对应。
+// 支持名称数组分别一一对应。
 // 返回当前实例自身。
 /////////////////////////////////////////////////
 elsExfn([
@@ -3420,6 +3445,7 @@ elsExfn([
     function( name, val ) {
         let _nia = isArr(name);
 
+        // 取值支持名称数组与元素成员一一对应。
         if ( (val === undefined && typeof name == 'string') || (_nia && typeof name[0] == 'string') ) {
             return _customGets( fn, Arr(this), name, _nia );
         }
@@ -3460,7 +3486,7 @@ function _customGets( fn, els, name, nia ) {
  * @param {String} fn 方法名
  * @param {[Element]} els 元素集
  * @param {String|[String]} name 名称序列（集）
- * @param {Value|Function} val 设置的值或取值回调
+ * @param {Value|Function|[Value]} val 设置的值（集）或取值回调
  * @param {Boolean} nia 名称为数组
  */
 function _customSets( fn, els, name, val, nia ) {
@@ -3470,7 +3496,7 @@ function _customSets( fn, els, name, val, nia ) {
     }
     if ( isArr(val) ) {
         // name支持空格分隔的多名称
-        // 但都赋值相同（应该不常用）
+        // val可为二维数组分别对应赋值。
         return els.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
     }
     // 全部相同赋值。
@@ -3561,7 +3587,7 @@ function _arrSets( fn, els, val, ...rest ) {
 
 //
 // 节点插入（多对多）。
-// 返回克隆的节点集或当前实例本身。
+// 因为节点数据会移动，所以通常应该是克隆模式。
 /////////////////////////////////////////////////
 elsExfn([
         'before',
@@ -4568,6 +4594,21 @@ function customGet( el, name, scope ) {
 
 
 /**
+ * 获取切换值。
+ * 如果val为数组，则在[0-1]单元间切换（以[0]为对比目标）。
+ * 如果val为普通的值，则在有无间切换（val|null）。
+ * @param {Value|[Value]} val 值（集）
+ * @param {Value} old 原来的值
+ */
+function toggleValue( val, old ) {
+    if ( !isArr(val) ) {
+        return val == old ? null : val;
+    }
+    return old == val[0] ? val[1] : val[0];
+}
+
+
+/**
  * 偏移坐标转为位置坐标。
  * - 偏移坐标不含外边距，位置坐标从外边距左上角算起；
  * - 两者坐标都用 {top, left} 表示；
@@ -5012,7 +5053,7 @@ const elemAttr = {
      * - 如果属性不存在，返回null；
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名
-     * @return {Mixed} 特性值
+     * @return {Value|null} 特性值
      */
     get( el, name ) {
         if (boolAttr.test(name)) {

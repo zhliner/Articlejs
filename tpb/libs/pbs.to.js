@@ -29,6 +29,27 @@ const _Sets = {
 
     __attr: 1,
 
+
+    prop( its, val, name ) {
+        //
+    },
+
+    __prop: 1,
+
+
+    css( its, val, name ) {
+        //
+    },
+
+    __css: 1,
+
+
+    toggleAttr( its, val, name ) {
+        //
+    },
+
+    __toggleAttr: 1,
+
 };
 
 
@@ -52,7 +73,7 @@ const _Stage = {
 
 const _To = {
     method: _Sets,
-    stagex: _Stage,
+    stage:  _Stage,
 };
 
 

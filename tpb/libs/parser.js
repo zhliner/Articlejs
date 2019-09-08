@@ -42,6 +42,7 @@ const
     __tosAttr   = '@',  // 特性指定
     __tosProp   = '&',  // 属性指定
     __tosCSS    = '%',  // 样式指定
+    __tosToggle = '^',  // 特性（Attribute）切换
 
 
     // On事件定义模式。
@@ -638,11 +639,12 @@ class Sets {
 
     /**
      * 构造更新方法封装。
-     * 接口：function(Element | Collector, Value): void
-     * 三个特殊方法名：{
+     * 接口：function( Element | Collector, Value ): void
+     * 四个特殊方法名：{
      *      @   特性（attr）
      *      &   属性（prop）
      *      %   样式（css）
+     *      ^   特性切换（toggleAttr）
      * }
      * @param  {String} name 方法名
      * @param  {Object} pbs 更新方法集
@@ -661,6 +663,10 @@ class Sets {
                 break;
             case __tosCSS: // %
                 name = 'css';
+                _key = name.substring(1);
+                break;
+            case __tosToggle: // ^
+                name = 'toggleAttr';
                 _key = name.substring(1);
         }
         return (its, val) => pbs[name]( its, val, _key );
