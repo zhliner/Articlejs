@@ -8,17 +8,30 @@
 //
 //	OBT:By 方法集。
 //
+//  主要操作依赖于X扩展函数库。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { X } from "./lib.x.js";
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // X扩展函数库引用标识
+    __chrXname  = '?';
 
 
 const By = {
-    //
+    on( evo, evn, slr, $expr ) {
+        //
+    },
+
+
+    off( evo, evn, slr, $expr ) {
+        //
+    },
 };
 
 

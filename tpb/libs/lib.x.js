@@ -16,18 +16,7 @@ const $ = window.$;
 
 
 const Libx = {
-    /**
-     * 切换属性的值。
-     * 目标：当前条目/栈顶1项。
-     * @param {String} name 属性名
-     * @param {Value} v1 切换值1
-     * @param {Value} v2 切换值2
-     */
-    swap( evo, name, v1, v2 ) {
-        //
-    },
-
-    __swap: 1,
+    //
 };
 
 export { Libx as X };
