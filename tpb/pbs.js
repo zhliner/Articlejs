@@ -12,12 +12,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./util.js";
-import { Templater } from "./templater.js";
+import { Util } from "./libs/util.js";
+import { Templater } from "./libs/templater.js";
 
-import { _On } from "./pbs.on.js";
-import { _By } from "./pbs.by.js";
-import { _To } from "./pbs.to.js";
+import { _On } from "./libs/pbs.on.js";
+import { _By } from "./libs/pbs.by.js";
+import { _To } from "./libs/pbs.to.js";
 
 
 const

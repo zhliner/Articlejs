@@ -267,13 +267,13 @@ class Stack {
 
     /**
      * 移除栈底多个条目暂存。
-     * 0项或负值（非法）会构造为一个空集。
+     * 0数量会创建一个空集，负值数量无效。
      * @param {Number} n 移除数量
      * @data: [Value]
      */
     _shifts( n ) {
         this._done = true;
-        this._item = n > 0 ? this._buf.splice(0, n) : [];
+        this._item = n > 0 ? this._buf.splice( 0, n ) : [];
     }
 
 
@@ -289,13 +289,13 @@ class Stack {
 
     /**
      * 弹出栈顶多个条目暂存。
-     * 0项或负值（非法）会构造为一个空集。
+     * 0数量会创建一个空集，负值数量无效。
      * @param {Number} n 弹出数量
      * @data: [Value]
      */
     _pops( n ) {
         this._done = true;
-        this._item = n > 0 ? this._buf.splice(-n) : [];
+        this._item = n > 0 ? this._buf.splice( -n ) : [];
     }
 }
 
@@ -722,7 +722,7 @@ function pbCall( name, pbs ) {
     let _f = pbs[ name ];
 
     if ( !_f ) {
-        throw new Error(`${name} is not in the PB sets.`)
+        throw new Error(`${name} is not in the sets.`)
     }
     return [ _f, _f[ pbx.ACCESS ] || false, _f[ pbx.EXTENT ] ];
 }
