@@ -102,36 +102,99 @@ const _By = {
     __once: 1,
 
 
+    /**
+     * 真值执行。
+     * 目标：当前条目/栈顶1项。
+     * 比较目标是否为true（===），是则执行，否则跳过。
+     *
+     * 引用X扩展函数库里的方法执行。
+     * 支持句点（.）连接的递进引用（如：'x.y.z'）。
+     * 注：
+     * X中的方法已经过bind处理，可直接引用。
+     *
+     * @param  {String} meth X库方法名
+     * @param  {...Value} rest 实参序列
+     * @return {Value|void}
+     */
     xtrue( evo, meth, ...rest ) {
-        //
+        if ( evo.data === true ) {
+            return Util.subObj(meth, X)( ...rest );
+        }
     },
 
     __xtrue: 1,
 
 
+    /**
+     * 假值执行。
+     * 目标：当前条目/栈顶1项。
+     * 比较目标是否为false（===），是则执行，否则跳过。
+     * 参数说明同 xtrue()
+     * @param  {String} meth X库方法名
+     * @param  {...Value} rest 实参序列
+     * @return {Value|void}
+     */
     xfalse( evo, meth, ...rest ) {
-        //
+        if ( evo.data === false ) {
+            return Util.subObj(meth, X)( ...rest );
+        }
     },
 
     __xfalse: 1,
 
 
+
+    // 集合操作
+    //===============================================
+    // expr为函数体表达式（无效return），参数名固定：（v, i, o）。
+    // expr支持首字符问号引用X函数库，之后为方法名。
+
+    /**
+     * 迭代执行。
+     * 目标：当前条目/栈顶1项，需要是一个集合。
+     * 执行代码返回false会中断迭代。
+     * @param  {String} expr 表达式串或方法引用
+     * @return {void}
+     */
     each( evo, expr ) {
-        //
+        $.each(
+            evo.data,
+            getFunc( expr, 'v', 'i', 'o' )
+        );
     },
 
     __each: 1,
 
 
+    /**
+     * 映射调用。
+     * 目标：当前条目/栈顶1项，需要是一个集合。
+     * 返回值构建为一个新集合，返回的null/undefined会被忽略。
+     * @param  {String} expr 表达式串或方法引用
+     * @return {Array}
+     */
     map( evo, expr ) {
-        //
+        return $.map( evo.data, getFunc(expr, 'v', 'i', 'o') );
     },
 
     __map: 1,
 
 
+    /**
+     * 集合排序。
+     * 目标：当前条目/栈顶1项，需要是一个集合。
+     * comp为比较表达式（不含return），参数名固定：(a, b)。
+     * comp支持首字符（?）引用X函数库成员。
+     * 支持元素集的去重排序（无需comp）。
+     * @param  {Boolean} unique 是否去除重复
+     * @param  {String} comp 比较表达式，可选
+     * @return {Array}
+     */
     sort( evo, unique, comp ) {
-        //
+        if ( typeof comp == 'string' ) {
+            comp = getFunc(comp, 'a', 'b');
+        }
+        return $(evo.data).sort( unique, comp ).item();
     },
 
     __sort: 1,

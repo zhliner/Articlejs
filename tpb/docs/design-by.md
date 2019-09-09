@@ -101,14 +101,8 @@ each( $expr ): void
 
 map( $expr, flat: Number = 0 ): Collector
 // 值集映射。
-// 返回值构建一个新集合入栈。
-// flat为集合扁平化层级：
-// 0    整体入栈，默认
-// 1    一维展开
-// n    n 维展开
-// 注：
-// 取当前条目或栈顶项，它们应当是一个集合。
-// 返回的 null/undefined 值会被忽略。
+// 目标应当是一个集合。
+// 返回值构建一个新集合入栈，返回的null/undefined会被忽略。
 
 sort( unique, $comp ): Collector
 // 集合排序。
