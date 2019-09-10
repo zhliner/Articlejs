@@ -775,15 +775,17 @@ function query2( slr, beg, one, fltr ) {
  * 如果有并列多个更新，流程数据为数组时会分别对应。
  * 注记：this无关性，可被共享。
  *
- * @param {Object} evo 事件关联对象
- * @param {...Function} funs 更新方法集
+ * @param  {Object} evo 事件关联对象
+ * @param  {...Function} funs 更新方法集
+ * @return {void}
  */
 function _update ( evo, ...funs ) {
     let _its = evo.targets,
         _val = evo.data;
 
     if ( funs.length == 1 ) {
-        return funs[0]( _its, _val );
+        funs[0]( _its, _val );
+        return;
     }
     if ( Array.isArray(_val) ) {
         return funs.forEach( (f, i) => f(_its, _val[i]) );

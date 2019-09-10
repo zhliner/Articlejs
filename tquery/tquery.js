@@ -796,12 +796,12 @@ Object.assign( tQuery, {
      * 委托选择器为空时应设置为null或undefined，否则不会匹配。
      * 如果没有目标事件被克隆，返回null值。
      *
-     * @param  {Element} src 事件源元素
      * @param  {Element} to 克隆目标元素
+     * @param  {Element} src 事件源元素
      * @param  {String|Array2|[Array2]} evns 事件名序列或配置集，可选
      * @return {Element|null} 克隆的目标元素（to）
      */
-    cloneEvent( src, to, evns ) {
+    cloneEvent( to, src, evns ) {
         if (src === to) {
             window.console.error('Clone events on same element.');
             return;
@@ -3639,9 +3639,9 @@ elsExfn([
         /**
          * 将集合中的元素插入相应位置。
          * - 默认不会采用克隆方式（原节点会脱离DOM）。
-         * - 传递clone为真，会克隆集合内的节点后插入。
+         * - 传递clone为真，会克隆集合内的节点后插入（强制深层克隆）。
          * - 如果需同时包含事件克隆，传递event/eventdeep为true。
-         * 注意：
+         * 注：
          * 如果克隆，会创建新节点集的Collector实例进入链式栈，
          * 用户可通过.end()获得该集合。
          * @param  {Node|Element} to 参考节点或元素

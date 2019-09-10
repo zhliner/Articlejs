@@ -84,10 +84,8 @@ xxxx   // 单元素检索，$.get(): Element
 
 - before        // 插入目标之前
 - after         // 插入目标之后
-- begin         // 插入目标内前端
-- prepend       // 同上
-- end           // 插入目标内末尾
-- append        // 同上
+- prepend       // 插入目标内前端
+- append        // 插入目标内末尾
 - fill          // 填充目标内容（清空原有）
 - replace       // 替换目标自身
 // 节点插入/替换。
@@ -132,7 +130,7 @@ xxxx   // 单元素检索，$.get(): Element
 // 检查传入的流程数据是否为数组，决定是否展开。
 
 
-// 逆向设置
+// 逆向设置。
 // 流程数据为目标，当前检索为内容。
 // 插入参考为单个节点/元素，因此支持多实参扩展传递后续克隆定义。
 // [ Node|Element, Boolean?, Boolean?, Boolean? ]
@@ -253,8 +251,7 @@ xfire( evn, data )
 // 注：此时流程数据无法成为发送数据。
 
 
-// 默认在流程元素上触发。
-// 注：在 Method 后被替换为当前检索。
+// 在目标元素上触发。
 blur()
 click()
 focus()
@@ -268,8 +265,8 @@ submit()
 
 // 定制事件。
 change()           // 主动触发表单控件的change事件
-clear()            // <select>取消选取，单选按钮取消选取
-tips( msg, time )  // 消息提示。注：计时器ID记录在消息容器上
+clear()            // 表单控件取消选取（<select>, <input:radio>, <input:checkbox>）
+tips( long, msg )  // 消息提示。注：计时器ID记录在消息容器上
 ```
 
 

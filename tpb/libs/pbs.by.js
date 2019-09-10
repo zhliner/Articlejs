@@ -43,9 +43,10 @@ const
 
 const _By = {
     /**
-     * 调用链绑定到事件。
+     * 延迟的调用链绑定到事件。
      * 目标：当前条目/栈顶1项。
-     * 注：支持关联元素为一个元素集。
+     * 目标为关联元素，可以是一个元素集（虽然逻辑上并不自然）。
+     * 注：延迟的调用链存储与元素紧耦合。
      * @param  {String} name 事件名
      * @param  {String} slr 委托选择器
      * @return {void}
@@ -225,7 +226,7 @@ const _By = {
             f = getFunc(expr, 'ev', 'elo');
 
         if ( $.isCollector(x) ) x.on( name, slr, f );
-        else $.on( x, name, slr, f );
+        else if ( x.nodeType == 1 ) $.on( x, name, slr, f );
     };
 
     _By[`__${name}`] = 0;

@@ -146,12 +146,12 @@ $.isXML( document.body );  // false
 这只是一个对元素 `.contains` 接口的简单封装，匹配检查包含容器元素自身。**注**：`jQuery.contains()` 的行为稍有不同。
 
 
-### [$.cloneEvent( src, to, evns ): Element | null](docs/$.cloneEvent.md)
+### [$.cloneEvent( to, src, evns ): Element | null](docs/$.cloneEvent.md)
 
 把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。
 
-- `src: Element` 事件处理器克隆的来源元素（其上绑定的事件处理器将被克隆）。
 - `to: Element` 事件处理器克隆到的目标元素，不影响它上面原有绑定的事件处理器。
+- `src: Element` 事件处理器克隆的来源元素（其上绑定的事件处理器将被克隆）。
 - `evns: String | Array2 | [Array2]` 克隆的目标配置。可以是事件名（序列）、**[事件名, 委托选择器]**值对或该值对的数组。
 
 事件处理器的克隆与元素的种类无关（如：`<input>` 上的事件处理器可克隆到 `<p>` 上，即便该事件并不会在 `<p>` 上发生）。克隆仅限于元素自身上的绑定，不包含子孙元素上的事件处理器克隆。

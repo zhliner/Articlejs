@@ -52,5 +52,5 @@ function assign( exts ) {
 }
 
 
-// 用原型存储/引用。
+// 原型上存储。
 export const X = $.proto( assign, _X );
