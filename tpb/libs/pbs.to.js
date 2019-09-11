@@ -15,6 +15,7 @@
 //
 
 import { Util } from "./util.js";
+import { bindMethod } from "./globals.js";
 
 
 const $ = window.$;
@@ -26,7 +27,7 @@ const $ = window.$;
 // 内容：由流程数据提供。
 ///////////////////////////////////////////////////////////////////////////////
 
-const _Sets = {
+const _Where = {
     /**
      * 事件处理器克隆。
      * 将内容数据中元素上的事件处理器克隆到目标元素（集）上。
@@ -72,14 +73,14 @@ const _Sets = {
      * @param  {String} name 特性/属性/样式名
      * @return {Any:ignore} 调用者忽略
      */
-    _Sets[meth] = function( its, val, name ) {
+    _Where[meth] = function( its, val, name ) {
         if ( its.nodeType == 1 ) {
             return $[meth]( its, name, val );
         }
         if ( $.isCollector(its) ) its[meth]( name, val );
     };
 
-    _Sets[`__${meth}`] = 1;
+    _Where[`__${meth}`] = 1;
 
 });
 
@@ -124,14 +125,14 @@ const _Sets = {
      * @param  {...} con|box|val|name|code 更新内容
      * @return {Any:ignore} 调用者忽略
      */
-    _Sets[meth] = function( its, con ) {
+    _Where[meth] = function( its, con ) {
         if ( its.nodeType ) {
             return $[meth]( its, con );
         }
         if ( $.isCollector(its) ) its[meth]( con );
     };
 
-    _Sets[`__${meth}`] = 1;
+    _Where[`__${meth}`] = 1;
 
 });
 
@@ -156,14 +157,14 @@ const _Sets = {
      * @param {Element|Collector} 内容元素（集）
      * @param {Node|Element, Boolean?, Boolean?, Boolean?} args 目标节点/元素和更多实参序列。
      */
-    _Sets[ fns[0] ] = function( con, args ) {
+    _Where[ fns[0] ] = function( con, args ) {
         if ( !$.isArray(args) ) {
             args = [args];
         }
         $( con )[ fns[1] ]( ...args );
     };
 
-    _Sets[`__${fns[0]}`] = 1;
+    _Where[`__${fns[0]}`] = 1;
 
 });
 
@@ -180,7 +181,7 @@ const _Sets = {
 ]
 .forEach(function( name ) {
 
-    _Sets[name] = function( its, wds ) {
+    _Where[name] = function( its, wds ) {
         if ( its.nodeType == 1 ) {
             return Util[name]( its, wds );
         }
@@ -189,7 +190,7 @@ const _Sets = {
         }
     };
 
-    _Sets[`__${name}`] = 1;
+    _Where[`__${name}`] = 1;
 
 });
 
@@ -198,6 +199,7 @@ const _Sets = {
 //
 // 下一阶处理。
 // 类似普通的 PB:Call 逻辑。
+// @return {void}
 ///////////////////////////////////////////////////////////////////////////////
 
 const _Stage = {
@@ -226,6 +228,40 @@ const _Stage = {
     __xfire: 1,
 
 
+    /**
+     * 表单控件默认值改变通知。
+     * 目标：仅适用表单元素（集）。
+     * 内容：当前条目，可选发送。
+     * 检查表单控件值是否不再为默认值，激发目标控件上的evn事件。
+     * 注：如果都没有改变，不会激发事件。
+     */
+    changes( evo, evn = 'changed' ) {
+        let _frm = evo.targets;
+
+        if ( _frm.nodeType == 1) {
+            return changedTrigger( $.controls(_frm), evn, evo.data );
+        }
+        _frm.forEach(
+            el => changedTrigger( $.controls(el), evn, evo.data )
+        );
+    },
+
+    __changes: 0,
+
+
+    /**
+     * 表单控件清空。
+     * 选取类控件为取消选取，其它为清除value值。
+     * 内容：无。
+     * 参考.select(), .focus()用途。
+     */
+    clear( its ) {
+        $(its).val( null );
+    },
+
+    __clear: 0,
+
+
     tips( evo, long, msg ) {
         //
     },
@@ -237,12 +273,75 @@ const _Stage = {
 
 
 //
-// 导出封装。
+// 工具函数
+///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 表单控件默认值改变检查。
+ * 如果改变，触发目标控件上的evn事件（通常为changed）。
+ * @param {[Element]} els 控件集
+ * @param {String} evn 触发的事件名
+ * @param {Value} data 发送的数据，可选
+ */
+function changedTrigger( els, evn, data = null ) {
+    for ( const el of els ) {
+        if ( el.options ) {
+            if ( selectChanged(el) ) $.trigger( el, evn, data );
+        }
+        else if ( controlChanged(el) ) $.trigger( el, evn, data );
+    }
+}
+
+
+/**
+ * 普通表单控件元素是否改变默认值。
+ * @param {Element} el 控件元素
+ */
+function controlChanged( el ) {
+    return el.defaultChecked !== el.checked || el.defaultValue !== el.value;
+}
+
+
+/**
+ * 选单控件是否改变默认选取。
+ * @param {Element} sel 选单控件<select>
+ */
+function selectChanged( sel ) {
+    for ( const oe of sel.options ) {
+        if ( oe.defaultSelected !== oe.selected ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+//
+// 预处理，导出。
 // 设置和下一阶用两个子集表达。
 ///////////////////////////////////////////////////////////////////////////////
 
-export const _To =
-{
-    method: _Sets,
-    stage:  _Stage,
+const To = {};
+
+To.Where = $.assign( {}, _Where, bindMethod );
+To.Stage = $.assign( {}, _Stage, bindMethod );
+
+
+
+// 接口：
+// 提供预处理方法。
+//===============================================
+To.Where.method = function( name ) {
+    return name != 'method' && To.Where[name];
 };
+
+
+To.Stage.method = function( name ) {
+    return name != 'method' && To.Stage[name];
+};
+
+
+
+export { To };

@@ -16,6 +16,7 @@
 
 import { Util } from "./util.js";
 import { X } from "./lib.x.js";
+import { bindMethod } from "./globals.js";
 
 const
     $ = window.$,
@@ -259,16 +260,18 @@ function getFunc( expr, ...vns ) {
 
 
 //
-// 延迟绑定存储
+// 延迟绑定存储。
+// 调用链：一个解析构造后的执行流指令序列。
 //===============================================
 
 
 /**
  * 存储延迟绑定的调用链。
+ * 实际上是存储初始启动执行流的函数（cell.call()封装）。
  * @param  {Element} el 关联元素
  * @param  {String} evn 事件名
  * @param  {String} slr 委托选择器
- * @param  {Function} chain 调用链（启动函数）
+ * @param  {Function} chain 启动函数
  * @return {void}
  */
 function chainStore( el, evn, slr, chain ) {
@@ -391,13 +394,45 @@ function onceBind( el, evn, slr = null ) {
 
 
 //
-// 导出
+// 预处理，导出。
 ///////////////////////////////////////////////////////////////////////////////
 
+const By = $.assign( {}, _By, bindMethod );
 
+
+//
+// 中段入口。
+// 创建一个方法，使得可以从By阶段某处自行启动执行流。
+// 可用于动画类场景：On阶段收集初始数据，后期的循环迭代则由By开始。
+// 使用：
+//      evo.entry(...) 传递可能的入栈值
+// 注：
+// 不作预绑定，Call解析后this为当前指令单元（Cell）。
+//
+By.entry = function( evo ) {
+    evo.entry = this.call.bind( this, evo );
+};
+
+
+//
 // X引入。
 // 模板中使用小写形式。
-_By.x = X;
+//
+By.x = X;
 
 
-export { _By, chainStore };
+//
+// 接口：提供已预处理的方法。
+// 方法名支持句点（.）分隔的多级调用。
+//
+By.method = function( name ) {
+    if ( name == 'method') {
+        throw new Error('method name is invalid.');
+    }
+    name = name.split('.');
+
+    return name.length > 1 ? Util.subObj(name, By) : By[name[0]];
+};
+
+
+export { By, chainStore };

@@ -14,7 +14,7 @@
 
 import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
-import * as pbx from "./pbs.js";
+import { ACCESS, EXTENT } from "./globals.js";
 
 
 const
@@ -435,36 +435,28 @@ class Call {
         if ( !_vs ) {
             throw new Error('call-attr config is invalid.');
         }
-        this._meth = _vs[1].split('.');
+        this._meth = _vs[1];
         this._args = Util.argsJSON(_vs[2]);
     }
 
 
     /**
      * 应用到指令集。
-     * 普通方法可能属于一个子集（x.y.m），应该已被绑定（bind）。
-     * 特权方法需要访问数据栈（bind），因此应当是一个未bound函数。
+     * 方法由接口 .method(name) 提供。
+     * 注：特权方法需要绑定数据栈，因此应当是一个未bound函数。
+     * - [EXTENT] 自动取栈条目数
+     * - [ACCESS] 可访问数据栈（特权）
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 指令集
      * @return {Cell} cell
      */
     apply( cell, pbs ) {
-        let _m = this._meth.pop();
-        pbs = this._host(this._meth, pbs) || pbs;
+        let _f = pbs.method( this._meth );
 
-        return cell.bind( this._args, ...pbCall(_m, pbs) );
-    }
-
-
-    /**
-     * 获取最终子集。
-     * 提取末端方法的上级宿主对象，而非最终方法本身。
-     * @param  {[String]} names 引用链
-     * @param  {Object} pbs 指令集
-     * @return {Object|0}
-     */
-    _host( names, pbs ) {
-        return names.length && names.reduce( (o, k) => o[k], pbs );
+        if ( !_f ) {
+            throw new Error(`${this._meth} is not in the sets.`);
+        }
+        return cell.bind( this._args, _f, _f[ACCESS] || false, _f[EXTENT] );
     }
 
 }
@@ -605,7 +597,7 @@ class Query {
 // 支持多方法并列定义，用逗号（__chrList）分隔。
 // 注：并列的方法数量即是自动取栈的数量。
 //
-class Sets {
+class Where {
     /**
      * 构造设置器。
      * @param {String} fmt 定义格式串
@@ -701,30 +693,6 @@ function rejectInfo( msg ) {
         return window.console.error( msg.substring(4) );
     }
     window.console.info( msg );
-}
-
-
-/**
- * 获取方法和属性。
- * 原方法上的两个特殊属性：{
- *      [pbx.EXTENT] 自动取栈条目数
- *      [pbx.ACCESS] 可访问数据栈（特权）
- * }
- * 返回值：[ 方法引用, 是否特权, 取栈数量 ]
- * 注：
- * 特权方法会被绑定内部的this到数据栈，故有标记。
- *
- * @param  {String} name 方法名
- * @param  {Object} pbs  指令/方法集
- * @return [Function, Boolean, Number]
- */
-function pbCall( name, pbs ) {
-    let _f = pbs[ name ];
-
-    if ( !_f ) {
-        throw new Error(`${name} is not in the sets.`)
-    }
-    return [ _f, _f[ pbx.ACCESS ] || false, _f[ pbx.EXTENT ] ];
 }
 
 

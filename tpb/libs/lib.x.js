@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { EXTENT } from "../pbs.js";
+import { EXTENT } from "./globals.js";
 
 const $ = window.$;
 
@@ -27,7 +27,7 @@ const _X = {};
 
 //
 // 方法绑定宿主对象。
-// 对普通对象会递进处理（绑定）。
+// 支持对象子集嵌套，会递进预处理。
 //
 function bindMethod( f, k, obj ) {
     if ( $.type(f) == 'Object' ) {
@@ -38,19 +38,21 @@ function bindMethod( f, k, obj ) {
         return;
     }
     f = f.bind( obj );
+
     return (f[EXTENT] = obj[`__${k}`] || 0), f;
 }
 
 
 /**
- * 外部扩展赋值接口。
+ * 接口：外部扩展。
+ * 扩展被预处理后存储到 _X 局部空间。
  * @param  {Object} exts 扩展集
  * @return {void}
  */
-function assign( exts ) {
+function extend( exts ) {
     $.assign( _X, exts, bindMethod );
 }
 
 
-// 原型上存储。
-export const X = $.proto( assign, _X );
+// 原型空间（X）。
+export const X = $.proto( extend, _X );

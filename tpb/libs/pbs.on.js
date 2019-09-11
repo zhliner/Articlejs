@@ -13,6 +13,7 @@
 //
 
 import { Util } from "./util.js";
+import { bindMethod } from "./globals.js";
 
 
 const $ = window.$;
@@ -388,4 +389,19 @@ const _On = {
 
 
 
-export { _On };
+//
+// 预处理，导出。
+///////////////////////////////////////////////////////////////////////////////
+
+const On = $.assign( {}, _On, bindMethod );
+
+
+//
+// 接口：提供预处理方法。
+//
+On.method = function( name ) {
+    return name != 'method' && On[name];
+};
+
+
+export { On };
