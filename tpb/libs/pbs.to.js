@@ -22,7 +22,7 @@ const
     $ = window.$,
 
     // 消息定时器存储键。
-    TipsTimer = Symbol('tips-timer');
+    __TIMER = Symbol('tips-timer');
 
 
 
@@ -395,8 +395,8 @@ function selectChanged( sel ) {
  */
 function message( el, msg, long ) {
     if ( long > 0 ) {
-        clearTimeout( el[TipsTimer] );
-        el[TipsTimer] = setTimeout( () => $.empty(el), long * 1000 );
+        clearTimeout( el[__TIMER] );
+        el[__TIMER] = setTimeout( () => $.empty(el), long * 1000 );
     }
     el.textContent = msg;
 }
