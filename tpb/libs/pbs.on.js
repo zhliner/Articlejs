@@ -22,7 +22,7 @@ const $ = window.$;
 const _On = {
     /**
      * 构建正则表达式。
-     * 目标：可选当前条目，不取栈。
+     * 目标：当前条目，可选。
      * 如果val明确传递null，采用目标值构建。
      * 参考：RE() 正则转换。
      * @param {String} val 字符串表示
@@ -40,7 +40,7 @@ const _On = {
 
     /**
      * 构造日期对象。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 目标有值时自动解包（如果为数组）传递到构造函数。
      * 注：无实参无目标时构造一个当前时间对象。
      * @param  {...Value} vals 实参值
@@ -62,6 +62,7 @@ const _On = {
      * 修饰键状态封装。
      * 即：shift/ctrl/alt/meta 键是否按下。
      * 按下为true，否则为false。
+     * 目标：无。
      * 例：
      * scam, inside('shift ctrl', true)
      * 捕获键盘修饰键状态，检查是否同时按下了Shift和Ctrl键。
@@ -97,6 +98,7 @@ const _On = {
 
     /**
      * 创建数值/字符范围序列。
+     * 目标：当前条目，可选。
      * 明确传递beg为null，表示取流程数据。
      * @param  {Number|String} beg 起始数值/字符
      * @param  {Number|String} size 范围大小/终止字符
@@ -247,8 +249,10 @@ const _On = {
 ///////////////////////////////////////////////////////////////////////////////
 
 //
-// 原始调用。
-// 目标：无。
+// 灵活创建。
+// 目标如果有值，跟随在实参之后。
+// 目标：当前条目，可选。
+// 实参数：不定。
 //===============================================
 [
     'table',        // ( rows, cols, caption?, th0? ): $.Table
@@ -258,7 +262,10 @@ const _On = {
 .forEach(function( meth ) {
 
     // 多余实参无副作用
-    _On[meth] = function( evo, ...rest ) { return $[meth]( ...rest ); };
+    _On[meth] = function( evo, ...rest ) {
+        if ( evo.data !== undefined ) rest = rest.concat(evo.data);
+        return $[meth]( ...rest );
+    };
 
     _On[`__${meth}`] = 0;
 
@@ -267,14 +274,15 @@ const _On = {
 
 //
 // 目标：当前条目，可选。
-// 固定参数。
+// 固定参数：2。
 //===============================================
 [
     'Element',  // ( tag, data? ): Element
     'svg',      // ( tag, opts? ): Element
 ]
 .forEach(function( meth ) {
-    // 目标实参：its
+
+    // 实参可选：its
     _On[meth] = function( evo, tag, its ) {
         if ( its === undefined ) its = evo.data;
         return $[meth]( tag, its );
@@ -287,7 +295,7 @@ const _On = {
 
 //
 // 目标：当前条目，可选。
-// 固定参数。
+// 固定参数：1。
 //===============================================
 [
     'Text',     // ( text? ): Text
@@ -297,6 +305,7 @@ const _On = {
 ]
 .forEach(function( meth ) {
 
+    // 实参可选：code
     _On[meth] = function( evo, code ) {
         if ( code === undefined ) code = evo.data;
         return $[meth]( code );

@@ -18,21 +18,25 @@ import { Util } from "./util.js";
 import { bindMethod } from "./globals.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // 消息定时器存储键。
+    TipsTimer = Symbol('tips-timer');
+
 
 
 //
 // 目标更新方法集。
 // 目标：由Query部分检索获取。
-// 内容：由流程数据提供。
+// 内容：由单个流程数据提供（取值已被parse.js/update封装）。
 ///////////////////////////////////////////////////////////////////////////////
 
 const _Where = {
     /**
      * 事件处理器克隆。
      * 将内容数据中元素上的事件处理器克隆到目标元素（集）上。
-     * 内容：当前条目/栈顶1项。
-     * 内容据可以只是一个元素，也可以是一个实参序列的数组。
+     * 内容可以只是一个元素，也可以是一个实参序列的数组。
      * args[0]：源元素（事件源）。
      * args[1]：事件名序列或配置（集）。
      * @param {Element|Collector} its 目标元素（集）
@@ -48,14 +52,12 @@ const _Where = {
         its.forEach( to => $.cloneEvent( to, ...args ) );
     },
 
-    __cloneEvent: 1,
-
 };
 
 
 //
 // 特性/属性/样式设置。
-// 内容：当前条目/栈顶1项。
+// 内容：update封装取值。
 //===============================================
 // 注：名称前置特殊字符，用于方法辨识。
 [
@@ -74,20 +76,16 @@ const _Where = {
      * @return {Any:ignore} 调用者忽略
      */
     _Where[meth] = function( its, val, name ) {
-        if ( its.nodeType == 1 ) {
-            return $[meth]( its, name, val );
-        }
-        if ( $.isCollector(its) ) its[meth]( name, val );
+        return its.nodeType == 1 ?
+            $[meth]( its, name, val ) : $(its)[meth]( name, val );
     };
-
-    _Where[`__${meth}`] = 1;
 
 });
 
 
 //
 // tQuery|Collector通用设置。
-// 内容：当前条目/栈顶1项。单个实参传递。
+// 内容：update封装取值。单个实参传递。
 //===============================================
 // 注：下面注释中为对内容的描述（可能的类型）。
 [
@@ -105,7 +103,7 @@ const _Where = {
 
     'height',       // val: Number /px
     'width',        // val: Number /px
-    'scroll',       // val: {top:Number, left:Number} /px
+    'scroll',       // val: {top:Number, left:Number}|[left, top] /px
     'scrollTop',    // val: Number /px
     'ScrollLeft',   // val: Number /px
     'addClass',     // name: {String|Function}
@@ -126,13 +124,9 @@ const _Where = {
      * @return {Any:ignore} 调用者忽略
      */
     _Where[meth] = function( its, con ) {
-        if ( its.nodeType ) {
-            return $[meth]( its, con );
-        }
-        if ( $.isCollector(its) ) its[meth]( con );
+        return its.nodeType ?
+            $[meth]( its, con ) : $(its)[meth]( con );
     };
-
-    _Where[`__${meth}`] = 1;
 
 });
 
@@ -141,8 +135,8 @@ const _Where = {
 //
 // 逆向设置。
 // 流程数据为插入参考目标，当前检索为内容（多对一）。
-// 目标：当前条目/栈顶1项。
-// 目标可能为一个实参序列，首个成员为节点/元素，之后为克隆配置。
+// 目标：update封装取值，实为内容。
+// 内容：可能为一个实参序列，首个成员为目标节点/元素，之后为克隆配置。
 //===============================================
 [
     ['beforeWith',   'insertBefore'],
@@ -154,17 +148,15 @@ const _Where = {
 ]
 .forEach(function( fns ) {
     /**
-     * @param {Element|Collector} 内容元素（集）
+     * @param {Element|Collector} its 内容元素（集）
      * @param {Node|Element, Boolean?, Boolean?, Boolean?} args 目标节点/元素和更多实参序列。
      */
-    _Where[ fns[0] ] = function( con, args ) {
+    _Where[ fns[0] ] = function( its, args ) {
         if ( !$.isArray(args) ) {
             args = [args];
         }
-        $( con )[ fns[1] ]( ...args );
+        $( its )[ fns[1] ]( ...args );
     };
-
-    _Where[`__${fns[0]}`] = 1;
 
 });
 
@@ -172,7 +164,7 @@ const _Where = {
 
 //
 // pba/pbo专项设置。
-// 目标：当前条目/栈顶1项。
+// 内容：update封装取值。
 // 注：简单调用 Util.pba/pbo。
 ///////////////////////////////////////////////////////////////////////////////
 [
@@ -185,12 +177,8 @@ const _Where = {
         if ( its.nodeType == 1 ) {
             return Util[name]( its, wds );
         }
-        if ( $.isArray(its) ) {
-            its.forEach( el => Util[name](el, wds) );
-        }
+        its.forEach( el => Util[name](el, wds) );
     };
-
-    _Where[`__${name}`] = 1;
 
 });
 
@@ -214,18 +202,58 @@ const _Stage = {
     __target: 1,
 
 
+    /**
+     * 在目标元素（集）上激发事件。
+     * 内容：当前条目，可选。
+     * 如果data未定义，则采用当前条目（如果有）为数据。
+     * @param {String} name 事件名
+     * @param {Value} data 发送数据
+     */
     fire( evo, name, data ) {
-        //
+        if ( data === undefined ) {
+            data = evo.data;
+        }
+        $( evo.targets ).trigger( name, data );
     },
 
-    __fire: 1,
+    __fire: 0,
 
 
+    /**
+     * 条件激发。
+     * 内容：当前条目/栈顶1项。
+     * 仅当内容为真时才激发目标事件，否则忽略。
+     * 注：内容无法成为被发送的数据。
+     * @param {String} name 事件名
+     * @param {Value} data 发送数据
+     */
     xfire( evo, name, data ) {
-        //
+        if ( evo.data ) {
+            $( evo.targets ).trigger( name, data );
+        }
     },
 
     __xfire: 1,
+
+
+    /**
+     * 设置滚动条位置。
+     * 内容：当前条目，可选。
+     * x 支持配置对象格式：{top, left}。
+     * @param {Number|Object} x 水平滚动条位置或配置对象
+     * @param {Number} y 垂直滚动条位置
+     */
+    scroll( evo, x, y ) {
+        if ( y !== undefined ) {
+            x = [x, y];
+        }
+        if ( x == null ) {
+            x = evo.data;
+        }
+        $( evo.targets ).scroll( x );
+    },
+
+    __scroll: 0,
 
 
     /**
@@ -234,14 +262,12 @@ const _Stage = {
      * 内容：当前条目，可选发送。
      * 检查表单控件值是否不再为默认值，激发目标控件上的evn事件。
      * 注：如果都没有改变，不会激发事件。
+     *
+     * @param {String} evn 控件上激发的事件名，可选
      */
     changes( evo, evn = 'changed' ) {
-        let _frm = evo.targets;
-
-        if ( _frm.nodeType == 1) {
-            return changedTrigger( $.controls(_frm), evn, evo.data );
-        }
-        _frm.forEach(
+        $( evo.targets )
+        .forEach(
             el => changedTrigger( $.controls(el), evn, evo.data )
         );
     },
@@ -255,20 +281,59 @@ const _Stage = {
      * 内容：无。
      * 参考.select(), .focus()用途。
      */
-    clear( its ) {
-        $(its).val( null );
+    clear( evo ) {
+        $( evo.targets ).val( null );
     },
 
-    __clear: 0,
+    __clear: null,
 
 
+    /**
+     * 发送提示消息。
+     * 在目标元素上显示文本，持续时间由long定义，0表示永久。
+     * 内容：当前条目，可选。
+     * 注意：long单位为秒，支持浮点数。
+     * @param {Number} long 持续时间（秒）
+     * @param {String} msg 消息文本，可选
+     */
     tips( evo, long, msg ) {
-        //
+        let _its = evo.targets;
+
+        if ( !$.isArray(_its) ) {
+            _its = [_its];
+        }
+        if ( msg == null ) {
+            msg = evo.data;
+        }
+        _its.forEach( el => message(el, msg, long) );
     },
 
     __tips: 0,
 
 };
+
+
+//
+// 原生事件触发。
+//===============================================
+[
+    'blur',
+    'click',
+    'focus',
+    'pause',
+    'play',
+    'reset',
+    'select',
+    'load',
+    'submit',
+]
+.forEach(function( meth ) {
+
+    _Stage[meth] = function( evo ) { $( evo.targets )[meth]() };
+
+    // _Stage[`__${meth}`] = null;
+
+});
 
 
 
@@ -280,11 +345,12 @@ const _Stage = {
 /**
  * 表单控件默认值改变检查。
  * 如果改变，触发目标控件上的evn事件（通常为changed）。
- * @param {[Element]} els 控件集
- * @param {String} evn 触发的事件名
- * @param {Value} data 发送的数据，可选
+ * @param  {[Element]} els 控件集
+ * @param  {String} evn 触发的事件名
+ * @param  {Value} data 发送的数据，可选
+ * @return {void}
  */
-function changedTrigger( els, evn, data = null ) {
+function changedTrigger( els, evn, data ) {
     for ( const el of els ) {
         if ( el.options ) {
             if ( selectChanged(el) ) $.trigger( el, evn, data );
@@ -296,7 +362,8 @@ function changedTrigger( els, evn, data = null ) {
 
 /**
  * 普通表单控件元素是否改变默认值。
- * @param {Element} el 控件元素
+ * @param  {Element} el 控件元素
+ * @return {Boolean}
  */
 function controlChanged( el ) {
     return el.defaultChecked !== el.checked || el.defaultValue !== el.value;
@@ -305,7 +372,8 @@ function controlChanged( el ) {
 
 /**
  * 选单控件是否改变默认选取。
- * @param {Element} sel 选单控件<select>
+ * @param  {Element} sel 选单控件<select>
+ * @return {Boolean}
  */
 function selectChanged( sel ) {
     for ( const oe of sel.options ) {
@@ -314,6 +382,23 @@ function selectChanged( sel ) {
         }
     }
     return false;
+}
+
+
+/**
+ * 在元素上显示消息。
+ * 仅支持纯文本显示（非html方式）。
+ * @param  {Element} el 目标元素
+ * @param  {String} msg 消息文本
+ * @param  {Number} long 持续时间（秒），支持浮点数。
+ * @return {void}
+ */
+function message( el, msg, long ) {
+    if ( long > 0 ) {
+        clearTimeout( el[TipsTimer] );
+        el[TipsTimer] = setTimeout( () => $.empty(el), long * 1000 );
+    }
+    el.textContent = msg;
 }
 
 

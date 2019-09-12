@@ -319,7 +319,7 @@ class Cell {
         this._stack = stack;
         this._meth = null;
         this._args = null;
-        this._count = null;
+        this._want = null;
 
         if (prev) prev.next = this;
     }
@@ -327,7 +327,7 @@ class Cell {
 
     /**
      * 方法/参数设置。
-     * 特权方法内的this会绑定到数据栈。
+     * 特权方法的数据栈实参插入到首位。
      * @param  {Array} args 模板配置的参数序列
      * @param  {Function} meth 目标方法
      * @param  {Boolean} isx 是否为特权方法。
@@ -335,10 +335,12 @@ class Cell {
      * @return {this}
      */
     bind( args, meth, isx, n ) {
-        // ...'' ok
-        this._args = args || '';
-        this._meth = isx ? meth.bind(this._stack) : meth;
-        this._count = $.isNumeric(n) ? +n : null;
+        if ( isx ) {
+            args.unshift[this._stack];
+        }
+        this._args = args;
+        this._meth = meth;
+        this._want = $.isNumeric(n) ? +n : null;
 
         return this;
     }
@@ -355,7 +357,7 @@ class Cell {
         if ( val !== undefined) {
             this._stack.push( val );
         }
-        evo.data = this._data( this._count );
+        evo.data = this._data( this._want );
 
         // 当前方法执行/续传。
         this._call( evo, this._meth(evo, ...this._args) );
@@ -436,7 +438,7 @@ class Call {
             throw new Error('call-attr config is invalid.');
         }
         this._meth = _vs[1];
-        this._args = Util.argsJSON(_vs[2]);
+        this._args = Util.argsJSON(_vs[2]) || [];
     }
 
 
@@ -472,11 +474,12 @@ class Call {
 //      +xxx![ Number, Number, ... ]  // 定点取值：[n]
 //      +xxx!{ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
 // }
+// 起点元素：支持当前条目（Element），否则为事件当前元素。
 //
 class Query {
     /**
      * 构造查询配置。
-     * 注：空值合法。
+     * 注：空值合法（目标将为起点元素）。
      * @param {String} qs 查询串
      */
     constructor( qs = '' ) {
@@ -491,25 +494,7 @@ class Query {
             this._slr = qs.substring(1);
             this._one = false;
         }
-        this.init( this._slr );
-    }
-
-
-    /**
-     * 初始解析构造。
-     * 需要处理进阶成员提取部分的定义。
-     * @param {String} slr 选择器串
-     */
-    init( slr ) {
-        if ( !slr ) {
-            return;
-        }
-        let _vs = [...SSpliter.split(slr, __toqExtra, 1)];
-        if (_vs.length == 1) {
-            return;
-        }
-        this._slr = _vs[0];
-        this._fltr = this._handle( _vs[1].trim() );
+        this._init( this._slr );
     }
 
 
@@ -528,8 +513,25 @@ class Query {
 
 
     /**
+     * 初始解析构造。
+     * 需要处理进阶成员提取部分的定义。
+     * @param {String} slr 选择器串
+     */
+     _init( slr ) {
+        if ( !slr ) return;
+
+        let _vs = [...SSpliter.split(slr, __toqExtra, 1)];
+        if (_vs.length == 1) {
+            return;
+        }
+        this._slr = _vs[0];
+        this._fltr = this._handle( _vs[1].trim() );
+    }
+
+
+    /**
      * 创建提取函数。
-     * 接口：function( all:Collector ): Collector
+     * 接口：function( all:Collector ): Collector|[Element]
      * @param  {String} fmt 格式串
      * @return {Function} 取值函数
      */
@@ -608,7 +610,7 @@ class Where {
             .map( s => s.trim() );
 
         this._names = _ns;
-        // 自动取栈数
+        // 即自动取栈数
         this._count = _ns.length;
     }
 
@@ -699,9 +701,8 @@ function rejectInfo( msg ) {
 /**
  * To：目标检索方法。
  * 支持二阶检索和相对ID属性（见 Util.find）。
- * 支持暂存区当前条目为目标/起点（应由前阶末端指令取栈）。
- * 注：
- * 特权方法，this 为 Stack 实例（设置 Stack.target）。
+ * 支持暂存区当前条目为目标/起点（应由前阶末端指令取栈），
+ * 否则检索起点元素为事件当前元素。
  *
  * @param  {Object} evo 事件关联对象
  * @param  {String} slr 选择器串（二阶）
@@ -750,6 +751,8 @@ function query2( slr, beg, one, fltr ) {
 function _update ( evo, ...funs ) {
     let _its = evo.targets,
         _val = evo.data;
+
+    if ( _its == null ) return;
 
     if ( funs.length == 1 ) {
         funs[0]( _its, _val );

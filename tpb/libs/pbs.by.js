@@ -207,13 +207,14 @@ const _By = {
 //
 // 事件绑定。
 // 目标：当前条目/栈顶1项。
+// 目标为待绑定事件处理器元素（集）。
 //===============================================
 [
     'on',
     'off',
     'one',
 ]
-.forEach(function( name ) {
+.forEach(function( meth ) {
     /**
      * expr表达式可用参数名：'ev', 'elo'。
      * expr支持?引用X函数库方法。
@@ -222,7 +223,7 @@ const _By = {
      * @param  {Function|false|null} 事件处理器
      * @return {void}
      */
-    _By[name] = function( evo, name, slr, expr ) {
+    _By[meth] = function( evo, name, slr, expr ) {
         let x = evo.data,
             f = getFunc(expr, 'ev', 'elo');
 
@@ -230,7 +231,7 @@ const _By = {
         else if ( x.nodeType == 1 ) $.on( x, name, slr, f );
     };
 
-    _By[`__${name}`] = 0;
+    _By[`__${meth}`] = 1;
 
 });
 
@@ -392,6 +393,25 @@ function onceBind( el, evn, slr = null ) {
 }
 
 
+//
+// 特殊：By入口。
+// 创建一个方法，使得可以从By阶段某处自行启动执行流。
+// 目标：无。
+// 可用于动画类场景：On阶段收集初始数据，后期的循环迭代则由By开始。
+// 使用：
+//      evo.entry(val)  // 指令中使用，传递可能的入栈值。
+//      entry           // 模板中使用，需主动设置。
+// 注：
+// 不作预绑定，this为当前指令单元（Cell）。
+//
+function entry( evo ) {
+    evo.entry = this.call.bind( this, evo );
+}
+
+// 目标：无。
+// entry[EXTENT] = null;
+
+
 
 //
 // 预处理，导出。
@@ -400,24 +420,13 @@ function onceBind( el, evn, slr = null ) {
 const By = $.assign( {}, _By, bindMethod );
 
 
-//
-// 中段入口。
-// 创建一个方法，使得可以从By阶段某处自行启动执行流。
-// 可用于动画类场景：On阶段收集初始数据，后期的循环迭代则由By开始。
-// 使用：
-//      evo.entry(...) 传递可能的入栈值
-// 注：
-// 不作预绑定，Call解析后this为当前指令单元（Cell）。
-//
-By.entry = function( evo ) {
-    evo.entry = this.call.bind( this, evo );
-};
+// 特殊入口引入。
+// this: {Cell}
+By.entry = entry;
 
 
-//
 // X引入。
 // 模板中使用小写形式。
-//
 By.x = X;
 
 

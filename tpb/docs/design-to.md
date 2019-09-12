@@ -41,7 +41,7 @@
 
 
 ```js
-xxxx   // 单元素检索，$.get(): Element
+xxxx   // 单元素检索，$.get(): Element | null
 +xxx   // 多元素检索，$(...): Collector
 // 例：
 // [class]  => $.get('[class]')
@@ -54,7 +54,7 @@ xxxx   // 单元素检索，$.get(): Element
 // 仅适用于 +xxx 类多元素选择器。
 
 +xxx!(beg, end)
-// 范围选取。
+// 范围选取：Collector
 // beg为起点下标，end为终点下标（不包含），可选。
 // 下标支持负数从末尾算起。
 // 例：
@@ -62,12 +62,14 @@ xxxx   // 单元素检索，$.get(): Element
 // +[class]!(10)     同上。
 
 +xxx![x, y, z...]
-// 定点选取。[...] 为目标位置数组。
+// 定点选取：[Element]
+// [...] 为目标位置数组。
 // 例：
 // +[class]![1,3,5] 取集合内奇数位前3个成员。
 
 +xxx!{filter}
-// 回调过滤。{} 内为过滤表达式，实参固定：(v:Element, i:Number, o:Collector): Boolean。
+// 回调过滤：Collector
+// {} 内为过滤表达式，实参固定：(v:Element, i:Number, o:Collector): Boolean。
 // 注：即 filter 的逻辑。
 // 例：
 // +[class]!{ v.id }  取集合内包含id属性的元素。
@@ -242,13 +244,16 @@ target()
 
 fire( evn, data )
 // 对目标元素触发事件，即 $.trigger。
+// 内容：当前条目，可选。
 // 如果data未定义，且当前条目非空，则采用当前条目为数据。
 // 数据优先级：data > evo.data | void
 
 xfire( evn, data )
 // 判断激发。
-// 仅当当前条目或栈顶项为真时才激发目标事件。
-// 注：此时流程数据无法成为发送数据。
+// 内容：当前条目/栈顶1项。
+// 仅当内容为真时才激发目标事件，否则忽略。
+// 注：
+// 此时流程数据无法成为发送数据。
 
 
 // 在目标元素上触发。
@@ -258,10 +263,15 @@ focus()
 pause()
 play()
 reset()
-scroll( top, left ) // Where中也包含。
 select()
 load()
 submit()
+
+scroll( x, y )
+// 滚动条获取或设置。
+// 内容：当前条目，可选。
+// 注：Where中也包含。
+
 
 
 // 友好定制。
@@ -284,21 +294,4 @@ tips( long, msg )
 // 发送提示消息。
 // 内容：当前条目，可选。
 // 在目标元素上显示文本信息，通常仅持续一小段时间（long，毫秒）。
-// 注：计时器ID记录在消息容器上。
-```
-
-
-代码实现参考：
-
-```js
-// 提示计时器存储键。
-const __TIMER = 'BASE::elem-timer';
-
-// 创建提示信息。
-function tips( els, msg, time ) {
-    for ( let e of els ) {
-        clearTimeout( this.Store(e)[__TIMER] );
-        this.Store(e)[__TIMER] = setTimeout( () => $.empty(e), time );
-    }
-}
 ```

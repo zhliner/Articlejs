@@ -24,17 +24,19 @@ const $ = window.$;
 //
 // 运算全局。
 // 适用：On/By。
-// 注：赋值方式减少一个搜寻层级。
+// 注：Base是一个代理对象。
 //
-const PB2 = Object.assign( Base2, Base );
+$.proto( Base2, Base );
 
 
 //
 // 基础集继承（原型）。
 //
-$.proto( On, PB2 ),
-$.proto( By, PB2 ),
-$.proto( To, Base );
+$.proto( On, Base2 ),
+$.proto( By, Base2 ),
+
+$.proto( To.Where, Base );
+$.proto( To.Stage, Base );
 
 
 

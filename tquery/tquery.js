@@ -1966,7 +1966,7 @@ Object.assign( tQuery, {
      * 实际上只是简单调用 box.scroll(x, y) 触发scroll事件。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|CustomEvent} evn 事件名或事件对象
+     * @param  {String|CustomEvent} evn 事件名（单个）或事件对象
      * @param  {Mixed} extra 发送数据
      * @param  {Boolean} bubble 是否冒泡
      * @param  {Boolean} cancelable 是否可取消
@@ -2545,17 +2545,22 @@ callableEvents
 
 /**
  * 滚动方法定制。
- * 包含无参数调用返回滚动条的位置对象 {top, left}。
+ * 包含无参数调用返回滚动条的位置对象：{top, left}。
  * 传递实参时调用原生滚动方法（会触发滚动事件）。
+ * pair可以是一个配置对象，也可以是一个水平/垂直坐标的二元数组。
  *
  * @param  {Element} el 包含滚动条的容器元素
- * @param  {Object} pair 滚动位置配置对象。
+ * @param  {Object|[x, y]} pair 滚动位置配置对象。
+ * @return {Object|this}
  */
 tQuery.scroll = function( el, pair ) {
-    if (pair !== undefined) {
-        return el.scroll(pair), this
+    if (pair === undefined) {
+        return {
+            top: tQuery.scrollTop(el),
+            left: tQuery.scrollLeft(el)
+        };
     }
-    return { top:  tQuery.scrollTop(el), left: tQuery.scrollLeft(el) };
+    return ( isArr(pair) ? el.scroll(...pair) : el.scroll(pair) ), this;
 }
 
 

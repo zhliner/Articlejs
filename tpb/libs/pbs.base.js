@@ -14,7 +14,7 @@
 
 import { Util } from "./libs/util.js";
 import { Templater } from "./libs/templater.js";
-import { baseMethod, bindMethod } from "./globals.js";
+import { bindMethod } from "./globals.js";
 
 
 const
@@ -60,7 +60,7 @@ const _Base = {
 
     /**
      * 单元素检索入栈。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * rid: {
      *      String  以当前条目（如果有）或事件当前元素（ev.current）为起点。
      *      null|undefined  以当前条目为rid，事件当前元素为起点。
@@ -85,7 +85,7 @@ const _Base = {
 
     /**
      * 多元素检索入栈。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * rid: {
      *      String          同上。
      *      null|undefined  同上，但当前条目也可能非字符串类型。
@@ -115,7 +115,7 @@ const _Base = {
     /**
      * evo成员取值入栈。
      * 如果name未定义或为null，取evo自身入栈。
-     * 目标：无。
+     * 目标：当前条目，可选。
      * @param  {String|Number} name 成员名称或代码
      * @return {Element|Collector|Value}
      */
@@ -135,27 +135,28 @@ const _Base = {
      * 如果需要入栈一个属性值集合，可以传递名称数组。
      * 无实参调用取事件对象自身入栈。
      * 目标：无。
-     * 特权：是。this为数据栈实例。
+     * 特权：是。需要展开入栈。
+     * @param  {Stack} stack 数据栈
      * @param  {...String} names 事件属性名
      * @return {void} 自操作入栈
      */
-    ev( evo, ...names ) {
+    ev( evo, stack, ...names ) {
         if ( names.length == 0 ) {
             return evo.event;
         }
         let _vs = names.map( name =>
             $.isArray(name) ? name.map( n => evo.event[n] ) : evo.event[name]
         );
-        this.push( ..._vs );
+        stack.push( ..._vs );
     },
 
-    __ev: 0,
+    __ev: null,
     __ev_x: true,
 
 
     /**
      * 从模板管理器获取模板。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 模板名称优先从实参获取，如果name未定义则从目标获取。
      * @param  {String} name 模板名称
      * @return {Promise}
@@ -199,7 +200,7 @@ const _Base = {
 
     /**
      * 停止事件默认行为。
-     * 目标：当前条目，不自动取值。
+     * 目标：当前条目，可选。
      * 如果当前条目非空，则真值停止，否则无条件停止。
      * back为执行之后的返回值（入栈），如果未执行则无用。
      * @param  {Value} back 执行结果，可选
@@ -219,7 +220,7 @@ const _Base = {
 
     /**
      * 停止事件冒泡。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 如果当前条目非空，则真值执行（停止），否则无条件执行。
      * back为执行之后的返回值，如果未执行则无用。
      * 例：
@@ -242,7 +243,7 @@ const _Base = {
 
     /**
      * 停止事件冒泡并阻止本事件其它处理器的执行。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 如果当前条目非空，则真值执行（停止），否则无条件执行。
      * back为执行之后的返回值，如果未执行则无用。
      *
@@ -263,7 +264,7 @@ const _Base = {
 
     /**
      * 流程终止。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 如果当前条目非空，则真值终止，否则无条件终止。
      * @return {void}
      */
@@ -276,17 +277,10 @@ const _Base = {
     __end: 0,
 
 
-    prune( evo, cnt ) {
-        //
-    },
-
-    __prune: 0,
-
-
 
     // 暂存区赋值
     // 目标：赋值非取值，无。
-    // 特权：是。this为Stack实例，直接操作数据栈。
+    // 特权：是。需要直接操作数据栈。
     // 注：简单调用Stack实例相应接口方法即可。
     // @return {void}
     //===============================================
@@ -296,10 +290,11 @@ const _Base = {
      * 无实参调用弹出单项赋值，否则构造为一个数组赋值。
      * 即：pop() 和 pop(1) 是不一样的。
      * pop(0) 有效，构造一个空集赋值。
+     * @param {Stack} stack 数据栈
      * @param {Number} n 弹出的条目数
      */
-    pop( evo, n ) {
-        this.pop( n );
+    pop( evo, stack, n ) {
+        stack.pop( n );
     },
 
     __pop: null,
@@ -309,11 +304,12 @@ const _Base = {
     /**
      * 复制（浅）数据栈区段。
      * 两个位置下标支持负值从末尾倒算。
+     * @param {Stack} stack 数据栈
      * @param {Number} beg 起始位置，可选
      * @param {Number} end 结束位置（不含），可选
      */
-    slice( evo, beg, end ) {
-        this.slice( beg, end );
+    slice( evo, stack, beg, end ) {
+        stack.slice( beg, end );
     },
 
     __slice: null,
@@ -323,10 +319,11 @@ const _Base = {
     /**
      * 引用数据栈目标值。
      * 下标位置支持负值指定。
+     * @param {Stack} stack 数据栈
      * @param {Number} n 位置下标
      */
-    index( evo, n ) {
-        this.index ( n );
+    index( evo, stack, n ) {
+        stack.index ( n );
     },
 
     __index: null,
@@ -337,10 +334,11 @@ const _Base = {
      * 引用数据栈多个位置值。
      * 仅支持简单的位置下标序列（非数组）。
      * 注：下标位置支持负值。
+     * @param {Stack} stack 数据栈
      * @param {...Number} ns 位置下标序列
      */
-    indexes( evo, ...ns ) {
-        this.indexes( ...ns );
+    indexes( evo, stack, ...ns ) {
+        stack.indexes( ...ns );
     },
 
     __indexes: null,
@@ -351,10 +349,11 @@ const _Base = {
      * 移除栈底n项。
      * 无实参调用移除单项赋值，否则构造为一个数组赋值。
      * 即：shift() 和 shift(1) 是不一样的。
+     * @param {Stack} stack 数据栈
      * @param {Number} n 移除条目数
      */
-    shift( evo, n ) {
-        this.shift( n );
+    shift( evo, stack, n ) {
+        stack.shift( n );
     },
 
     __shift: null,
@@ -364,11 +363,12 @@ const _Base = {
     /**
      * 移除数据栈区段条目。
      * 起始下标支持负数从末尾倒算。
+     * @param {Stack} stack 数据栈
      * @param {Number} start 起始位置
      * @param {Number} count 移除数量
      */
-    splice( evo, start, count ) {
-        this.splice( start, count );
+    splice( evo, stack, start, count ) {
+        stack.splice( start, count );
     },
 
     __splice: null,
@@ -378,10 +378,11 @@ const _Base = {
     /**
      * 移除数据栈目标位置条目。
      * 位置下标支持负数倒数。
+     * @param {Stack} stack 数据栈
      * @param {Number} i 位置下标
      */
-    pick( evo, i ) {
-        this.pick( i );
+    pick( evo, stack, i ) {
+        stack.pick( i );
     },
 
     __pick: null,
@@ -392,7 +393,9 @@ const _Base = {
     // 其它
     //===============================================
 
-    // 空指令，无目标。
+    // 空指令。
+    // 目标：无。
+    // 包含清空暂存区的唯一功能。
     nil() {},
 
     __nil: 0,
@@ -401,19 +404,20 @@ const _Base = {
     /**
      * 删除数据栈任意区段条目。
      * 目标：无。
-     * 特权：是。this为数据栈实例。
+     * 特权：是。需要直接操作数据栈。
      * 注：
      * 与暂存区赋值类指令不同，这只是纯粹的删除功能。
-     * 可能并不常用。
+     * 应该不常用。
+     * @param  {Stack} stack 数据栈
      * @param  {Number} start 起始位置
      * @param  {Number} count 删除数量
      * @return {void}
      */
-    del( evo, start, count ) {
-        this.del( start, count );
+    del( evo, stack, start, count ) {
+        stack.del( start, count );
     },
 
-    __del: 0,
+    __del: null,
     __del_x: true,
 
 
@@ -446,7 +450,7 @@ const _Base = {
 
     /**
      * 向控制台打印消息。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 实参显示在前（如果有），当前条目显示在后（如果有）。
      * 注：测试用途。
      * @param  {...String} msg 消息序列
@@ -578,7 +582,7 @@ const _Base2 = {
 
     /**
      * 设置/获取全局变量。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
      * 设置时：
      * - 目标为空：取its本身为值（必然存在）。
@@ -602,7 +606,7 @@ const _Base2 = {
     /**
      * 关联数据存储/取出。
      * 存储元素（evo.delegate）关联的数据项或取出数据项。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 目标非空或its有值时为存储，目标为空且its未定义时为取值入栈。
      * 存储时状况参考env设置说明。
      * @param  {String} name 变量名
@@ -624,18 +628,19 @@ const _Base2 = {
 
     /**
      * 直接数据入栈。
-     * 目标：可选当前条目，不自动取栈。
+     * 目标：可选当前条目，可选。
      * 特权：是。自行入栈操作。
      * 多个实参会自动展开入栈，数组实参视为单个值。
      * 无实参调用时入栈当前条目（作为单一值）。
      * 如果暂存区有值同时也传入了实参，则实参有效，当前条目忽略。
      * 注：
      * 可以入栈当前条目，使得可以将栈条目重新整理打包。
+     * @param  {Stack} stack 数据栈
      * @param  {...Value} vals 值序列
      * @return {void} 自行入栈
      */
-    push( evo, ...vals ) {
-        this.push(
+    push( evo, stack, ...vals ) {
+        stack.push(
             ...(vals.length ? vals : [evo.data])
         );
     },
@@ -651,15 +656,15 @@ const _Base2 = {
      * 注：
      * 多个名称实参取值会自动展开入栈。
      * 如果需要入栈值集合，需要明确传递名称数组。
-     *
+     * @param  {Stack} stack 数据栈
      * @param  {...String} names 属性名序列
      * @return {void} 自行入栈
      */
-    get( evo, ...names ) {
+    get( evo, stack, ...names ) {
         let _vs = names.map( name =>
             $.isArray(name) ? name.map( n => evo.data[n] ) : evo.data[name]
         );
-        this.push( ..._vs );
+        stack.push( ..._vs );
     },
 
     __gets: 1,
@@ -684,17 +689,18 @@ const _Base2 = {
      * 条件赋值。
      * 如果目标值为真，返回val入栈，否则跳过。
      * 目标：当前条目/栈顶1项。
-     * 特权：是。可能两次赋值。
+     * 特权：是。可能两次入栈。
      * ielse：是否构造else逻辑（后续再跟一个$if）。
      * - 目标为真，赋值。补充追加一个false（待后续$if取值）。
      * - 目标为假，不赋值val。赋值一个true（后续$if必然执行）。
+     * @param  {Stack} stack 数据栈
      * @param  {Value} val 待赋值
      * @param  {Boolean} ielse 是否构造else结构，可选
      * @return {Value|Boolean}
      */
-    $if( evo, val, ielse ) {
+    $if( evo, stack, val, ielse ) {
         if ( evo.data ) {
-            this.push( val );
+            stack.push( val );
         }
         if ( ielse ) return !evo.data;
     },
@@ -778,18 +784,18 @@ const _Base2 = {
      * 特权：是。自行展开入栈。
      * 注：
      * deep零值有效，此时ext应当为true，表示目标展开入栈。
-     *
+     * @param  {Stack} stack 数据栈
      * @param  {Number} deep 深度
      * @param  {Boolean} ext 展开入栈
      * @return {[Value]|void}
      */
-    flat( evo, deep, ext ) {
+    flat( evo, stack, deep, ext ) {
         let _vs = evo.data.flat( deep );
 
         if ( !ext ) {
             return _vs;
         }
-        this.push( ..._vs );
+        stack.push( ..._vs );
     },
 
     __flat: 1,
@@ -924,19 +930,20 @@ const _Base2 = {
     /**
      * 栈顶复制。
      * 为引用浅复制，支持多项（自动展开）。
-     * 目标：当前条目，不取栈。
+     * 目标：当前条目，可选。
      * 特权：是。多条目获取并展开压入。
      * 注：
      * 无实参调用取默认值1，即复制栈顶1项。
      * 若实参n明确传递为null，从当前条目获取克隆数。
+     * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数
      * @return {void}
      */
-    dup( evo, n = 1 ) {
+    dup( evo, stack, n = 1 ) {
         if ( n === null ) {
-            n = evo.data;
+            n = +evo.data;
         }
-        if ( n ) this.push( ...this.tops(n) );
+        if ( n ) stack.push( ...stack.tops(n) );
     },
 
     __dup: 0,
@@ -1219,7 +1226,7 @@ const _Base2 = {
 
     /**
      * 计算JS表达式。
-     * 目标：当前条目，不自动取栈。
+     * 目标：当前条目，可选。
      * 目标可成为数据源，表达式内通过dn定义的变量名引用。
      * 例：calc('($[0] + $[1]) * $[2]')
      * @param  {String} expr JS表达式
@@ -1318,12 +1325,45 @@ function existValue( obj, name, val ) {
 
 
 //
+// 特殊指令。
+// 会操作调用链本身，需要访问指令单元（this:Cell）。
+//===============================================
+// 实现：创建专有成员变量存储cnt状态。
+
+const pruneCount  = Symbol('prune-count');
+
+
+/**
+ * 剪除后端跟随指令（单次）。
+ * 允许后端指令执行cnt次，之后再移除。
+ * 目标：无。
+ * 注：cnt传递负值没有效果，传递0值立即移除。
+ * @param  {Number} cnt 执行次数
+ * @return {void}
+ */
+function prune( evo, cnt = 1 ) {
+    if ( this[pruneCount] < 0 ) {
+        return;
+    }
+    if ( this[pruneCount] == null ) {
+        this[pruneCount] = +cnt || 0;
+    }
+    if ( this[pruneCount] == 0 ) {
+        // 后阶移除
+        if (this.next) this.next = this.next.next;
+    }
+    this[pruneCount] --;
+}
+
+
+
+//
 // 合并/导出
 ///////////////////////////////////////////////////////////////////////////////
 
 const
-    Base = $.assign( {}, _Base, baseMethod ),
-    Base2 = $.assign( {}, _Base2, baseMethod );
+    Base = $.assign( {}, _Base, bindMethod ),
+    Base2 = $.assign( {}, _Base2, bindMethod );
 
 
 /**
@@ -1340,6 +1380,11 @@ Base.init = function( loader, obter ) {
     }
     return TplStore = new Templater( loader, obter );
 };
+
+
+// 特殊指令引入。
+// this: {Cell}
+Base.prune = prune;
 
 
 export { Base, Base2 };
