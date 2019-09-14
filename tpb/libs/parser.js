@@ -748,7 +748,7 @@ function query2( slr, beg, one, fltr ) {
  * @param  {...Function} funs 更新方法集
  * @return {void}
  */
-function _update ( evo, ...funs ) {
+function _update( evo, ...funs ) {
     let _its = evo.targets,
         _val = evo.data;
 
