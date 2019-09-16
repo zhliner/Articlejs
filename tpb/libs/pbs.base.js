@@ -1,20 +1,24 @@
 //! $Id: pbs.js 2019.08.19 Tpb.Core $
 //
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
+//  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//	OBT 基础集定义。
+//  OBT 基础集定义。
 //
+//  约定：{
+//      __[name]    表达[name]方法的取栈条目数。
+//      __[name]_x  指定[name]是否为特权方法。
+//  }
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { Util } from "./libs/util.js";
 import { Templater } from "./libs/templater.js";
-import { bindMethod } from "./globals.js";
+import { bindMethod } from "../globals.js";
 
 
 const
@@ -1331,7 +1335,9 @@ function existValue( obj, name, val ) {
 //===============================================
 // 实现：创建专有成员变量存储cnt状态。
 
-const pruneCount  = Symbol('prune-count');
+
+// 单次剪除属性。
+const __PRUNE = Symbol('prune-count');
 
 
 /**
@@ -1343,17 +1349,44 @@ const pruneCount  = Symbol('prune-count');
  * @return {void}
  */
 function prune( evo, cnt = 1 ) {
-    if ( this[pruneCount] < 0 ) {
+    if ( this[__PRUNE] < 0 ) {
         return;
     }
-    if ( this[pruneCount] == null ) {
-        this[pruneCount] = +cnt || 0;
+    if ( this[__PRUNE] == null ) {
+        this[__PRUNE] = +cnt || 0;
     }
-    if ( this[pruneCount] == 0 ) {
+    if ( this[__PRUNE] == 0 && this.next ) {
         // 后阶移除
-        if (this.next) this.next = this.next.next;
+        this.next = this.next.next;
     }
-    this[pruneCount] --;
+    this[__PRUNE] --;
+}
+
+
+// 持续剪除属性。
+const __PRUNES = Symbol('prunes-count');
+
+
+/**
+ * 剪除后端跟随指令（持续）。
+ * 允许后端指令执行cnt次，之后再移除。
+ * 目标：无。
+ * 注：cnt传递负值没有效果，传递0值单次立即移除（同prune）。
+ * @param  {Number} cnt 执行次数
+ * @return {void}
+ */
+ function prunes( evo, cnt = 1 ) {
+    if ( this[__PRUNES] < 0 ) {
+        return;
+    }
+    if ( this[__PRUNES] == null ) {
+        this[__PRUNES] = +cnt || 0;
+    }
+    if ( this[__PRUNES] == 0 && this.next ) {
+        this.next = this.next.next;
+        this[__PRUNES] = +cnt || 0;
+    }
+    this[__PRUNES] --;
 }
 
 
@@ -1386,6 +1419,7 @@ Base.init = function( loader, obter ) {
 // 特殊指令引入。
 // this: {Cell}
 Base.prune = prune;
+Base.prunes = prunes;
 
 
 export { Base, Base2 };

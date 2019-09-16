@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { EXTENT } from "./globals.js";
+import { EXTENT } from "../globals.js";
 
 const $ = window.$;
 

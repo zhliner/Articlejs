@@ -1,4 +1,4 @@
-//! $Id: parser.js 2019.08.19 Tpb.Core $
+//! $Id: obter.js 2019.08.19 Tpb.Core $
 //
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
@@ -14,23 +14,20 @@
 
 import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
-import { ACCESS, EXTENT } from "./globals.js";
+import { OBTA, ACCESS, EXTENT } from "../globals.js";
 
 
 const
-    $ = window.$,
-    DEBUG = true;
+    $           = window.$,
+    DEBUG       = true,
+
+    SSpliter    = new Spliter(),
+    ASpliter    = new Spliter(true),
+    AASpliter   = new Spliter(true, true),
+    AABSpliter  = new Spliter(true, true, true);
 
 
 const
-    // OBT默认属性名
-    __obts = {
-        on: 'on', 		// 触发事件和PB行为
-        by: 'by', 		// 板块调用（传送器）
-        to: 'to', 		// To输出目标
-    },
-
-
     // 标识字符
     __chrDlmt   = ';',  // 并列分组
     __chrList   = ',',  // 指令/方法并列分隔
@@ -43,6 +40,10 @@ const
     __tosProp   = '&',  // 属性指定
     __tosCSS    = '%',  // 样式指定
     __tosToggle = '^',  // 特性（Attribute）切换
+
+
+    // OBT属性取值序列。
+    __obts = `${OBTA.on} ${OBTA.by} ${OBTA.to}`,
 
 
     // On事件定义模式。
@@ -72,12 +73,178 @@ const
     __toFilter = /^\{([^]*)\}$/;
 
 
-const
-    SSpliter    = new Spliter(),
-    ASpliter    = new Spliter(true),
-    AASpliter   = new Spliter(true, true),
-    AABSpliter  = new Spliter(true, true, true);
 
+//
+// OBT解析器（单元素）。
+//
+const Parser = {
+    /**
+     * 提取分组对应集。
+     * 以On为前置依据，By/To依赖于On的存在。
+     * 单组：[
+     *      on: String
+     *      by: String
+     *      to: String
+     * ]
+     * @param  {Element} el 目标元素
+     * @return {Iterator<Array3>} 单组配置迭代器
+     */
+    obts( el ) {
+        let [on, by, to] = this._obtAttr( el );
+
+        return this._teams(
+            ASpliter.split(on, __chrDlmt),
+            by && [...ASpliter.split(by, __chrDlmt)] || [],
+            to && [...ASpliter.split(to, __chrDlmt)] || []
+        );
+    },
+
+
+    /**
+     * On解析。
+     * @param  {String} fmt On配置串
+     * @return {[Evn, Call]}
+     */
+    on( fmt ) {
+        //
+    },
+
+
+    /**
+     * By解析。
+     * @param  {String} fmt By配置串
+     * @return {Call}
+     */
+    by( fmt ) {
+        //
+    },
+
+
+    /**
+     * To解析。
+     * @param  {String} fmt To配置串
+     * @return {[Query, Where, Call]}
+     */
+    to( fmt ) {
+        //
+    },
+
+
+    //-- 私有辅助 -------------------------------------------------------------
+
+    /**
+     * 提取元素的OBT属性值。
+     * 返回值：[on, by, to]
+     * @param  {Element} 目标元素
+     * @return {Array3|null}
+     */
+    _obtAttr( el ) {
+        if ( !el.hasAttribute(OBTA.on) ) {
+            return null;
+        }
+        let _vs = $.attr( el, __obts );
+
+        return [
+            _vs[OBTA.on], _vs[OBTA.by] || '', _vs[OBTA.to] || ''
+        ];
+    },
+
+
+    /**
+     * 提取分组对应集。
+     * 以On为前置依据，By/To依赖于On的存在。
+     * 单组：[
+     *      on: String
+     *      by: String
+     *      to: String
+     * ]
+     * @param  {Iterator<String>} ons On属性值提取器
+     * @param  {[String]} bys By属性值定义
+     * @param  {[String]} tos To属性值定义
+     * @return {Iterator<Array3>} 单组配置迭代器
+     */
+    *_teams( ons, bys, tos ) {
+        let _i = 0;
+
+        for ( const on of ons ) {
+            let by = bys[_i],
+                to = tos[_i];
+
+            yield [
+                on && on != __chrZero ? on : null,
+                by && by != __chrZero ? by : null,
+                to && to != __chrZero ? to : null,
+            ];
+            _i++;
+        }
+    },
+
+}
+
+
+
+//
+// OBT 构造器。
+// 内部使用 Parser 等工具。
+//
+class Builder {
+    /**
+     * 创建一个OBT构造器。
+     * 执行元素OBT配置的构造：创建调用链，存储延迟绑定等。
+     * @param {Object} onpbs On指令集
+     * @param {Object} bypbs By指令集
+     * @param {Object} where To:Where更新集
+     * @param {Object} stage to:Stage方法集
+     */
+    constructor( onpbs, bypbs, where, stage ) {
+        //
+    }
+
+
+    /**
+     * 构建OBT逻辑（元素自身）
+     * @param {Element} el 目标元素
+     */
+    build( el ) {
+        //
+    }
+
+
+    /**
+     * 构建调用链。
+     * @param  {String} on On配置
+     * @param  {String} by By配置
+     * @param  {String} to To配置
+     * @return {Cell:EventListener} 事件处理器
+     */
+    chain( on, by, to ) {
+        //
+    }
+
+
+    //-- 私有辅助 -------------------------------------------------------------
+
+    /**
+     * On构建。
+     * @param  {Cell} cell 指令单元
+     * @param  {Evn} evn 事件名配置
+     * @param  {Call} call 调用配置实例
+     * @return {Cell} cell
+     */
+    _on( cell, evn, call ) {
+        //
+    }
+
+
+    _by( cell, call ) {
+        //
+    }
+
+
+    _to( cell, query, where, stage ) {
+        //
+    }
+}
 
 
 //
@@ -305,9 +472,6 @@ class Stack {
 // 包含一个单向链表结构，实现执行流的链式调用逻辑。
 // 调用的方法是一个bound-function，另有一个count值指定取栈数量。
 //
-// 注记：
-// 取消原有脱链（dispose）设计，由单次事件绑定完成类似需求。
-//
 class Cell {
     /**
      * 构造指令单元。
@@ -322,6 +486,17 @@ class Cell {
         this._want = null;
 
         if (prev) prev.next = this;
+    }
+
+
+    /**
+     * 事件处理器接口。
+     * 即：EventListener.handleEvent()
+     * @param {Event} ev 事件对象
+     * @param {Object} elo 事件关联对象
+     */
+    handleEvent( ev, elo ) {
+        //
     }
 
 
@@ -768,3 +943,12 @@ function _update( evo, ...funs ) {
 // 共享方法（bound）。
 //
 const update = _update.bind(null);
+
+
+
+//
+// 导出
+///////////////////////////////////////////////////////////////////////////////
+
+
+export { Builder }

@@ -1,11 +1,19 @@
 //
-// 指令配置属性。
-//
+// 全局配置。
+///////////////////////////////////////////////////////////////////////////////
+
 const
-    // 自动取栈计数
+    // OBT属性名定义
+    OBTA = {
+        on:     'on',   // On-Attr
+        by:     'by',   // By-Attr
+        to:     'to',   // To-Attr
+    },
+
+    // 指令属性：自动取栈计数
     EXTENT = Symbol('stack-amount'),
 
-    // 特权方法（操作数据栈）
+    // 指令属性：特权方法（操作数据栈）
     ACCESS = Symbol('stack-access');
 
 
@@ -17,8 +25,8 @@ const
 
 /**
  * 获取绑定的（bound）方法。
- * - 处理取栈条目数（[EXTENT]）。
- * - 处理特权设置（[ACCESS]）。
+ * - 处理取栈条目数（[EXTENT]），由前置两个下划线的属性表达。
+ * - 处理特权设置（[ACCESS]），由前置两个下划线和_x结尾的属性表达。
  * 注记：
  * 创建已绑定的全局方法共享，节省内存。
  *
@@ -52,6 +60,7 @@ function funcSets( f, n, ix ) {
 
 
 export {
+    OBTA,
     EXTENT,
     ACCESS,
     bindMethod,

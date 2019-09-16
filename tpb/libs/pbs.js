@@ -12,10 +12,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Base, Base2 } from "./libs/pbs.base.js";
-import { On } from "./libs/pbs.on.js";
-import { By } from "./libs/pbs.by.js";
-import { To } from "./libs/pbs.to.js";
+import { Base, Base2 } from "./pbs.base.js";
+import { On } from "./pbs.on.js";
+import { By, chainStore } from "./pbs.by.js";
+import { To } from "./pbs.to.js";
 
 
 const $ = window.$;
@@ -40,4 +40,4 @@ $.proto( To.Stage, Base );
 
 
 
-export { On, By, To };
+export { On, By, To, chainStore };

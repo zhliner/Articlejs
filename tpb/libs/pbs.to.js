@@ -15,7 +15,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod } from "./globals.js";
+import { bindMethod } from "../globals.js";
 
 
 const
