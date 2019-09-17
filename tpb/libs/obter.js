@@ -22,9 +22,7 @@ const
     DEBUG       = true,
 
     SSpliter    = new Spliter(),
-    ASpliter    = new Spliter(true),
-    AASpliter   = new Spliter(true, true),
-    AABSpliter  = new Spliter(true, true, true);
+    ASpliter    = new Spliter(true);
 
 
 const
@@ -32,6 +30,7 @@ const
     __chrDlmt   = ';',  // 并列分组
     __chrList   = ',',  // 指令/方法并列分隔
     __chrZero   = '-',  // 空白占位符
+    __chrPipe   = '|',  // 进阶分隔（事件名|指令链）
 
     // To
     __toqMore   = '+',  // 多元素检索前置标志
@@ -81,16 +80,18 @@ const Parser = {
     /**
      * 提取分组对应集。
      * 以On为前置依据，By/To依赖于On的存在。
-     * 单组：[
+     * 单组：{
      *      on: String
      *      by: String
      *      to: String
-     * ]
+     * }
      * @param  {Element} el 目标元素
+     * @param  {Boolean} clear 是否清除OBT特性
      * @return {Iterator<Array3>} 单组配置迭代器
      */
-    obts( el ) {
-        let [on, by, to] = this._obtAttr( el );
+    obts( el, clear ) {
+        let [on, by, to] = this._obtAttr( el, clear );
+        if ( !on ) return [];
 
         return this._teams(
             ASpliter.split(on, __chrDlmt),
@@ -102,31 +103,50 @@ const Parser = {
 
     /**
      * On解析。
+     * 格式：evn(slr) evn|call(...),call...
+     * 返回值：[
+     *      [Evn]       // 事件名定义集
+     *      [Call]|null // 指令调用定义集
+     * ]
      * @param  {String} fmt On配置串
-     * @return {[Evn, Call]}
+     * @return {Array2}
      */
     on( fmt ) {
-        //
+        let _v2 = ASpliter.split(fmt, __chrPipe, 1);
+
+        return [
+            this._evns( _v2[0].trim() ),
+            _v2[1] ? this._calls( _v2[1].trim() ) : null
+        ];
     },
 
 
     /**
      * By解析。
      * @param  {String} fmt By配置串
-     * @return {Call}
+     * @return {[Call]|null}
      */
     by( fmt ) {
-        //
+        return fmt ? this._calls( fmt.trim() ) : null;
     },
 
 
     /**
      * To解析。
+     * 注：空串合法但无用。
      * @param  {String} fmt To配置串
-     * @return {[Query, Where, Call]}
+     * @return {[Query, Where|null, [Call]|null]}
      */
     to( fmt ) {
-        //
+        let _vs = ASpliter.split(fmt, __chrPipe).map( s => s.trim() ),
+            _v2 = _vs[1] || '',
+            _v3 = _vs[2] || '';
+
+        return [
+            new Query(_vs[0]),
+            _v2 && _v2 != __chrZero ? new Where(_v2) : null,
+            _v3 && _v3 != __chrZero ? this._calls(_v3) : null,
+        ];
     },
 
 
@@ -134,34 +154,33 @@ const Parser = {
 
     /**
      * 提取元素的OBT属性值。
+     * 注：取值后会移除这3个特性定义。
      * 返回值：[on, by, to]
      * @param  {Element} 目标元素
      * @return {Array3|null}
      */
-    _obtAttr( el ) {
-        if ( !el.hasAttribute(OBTA.on) ) {
-            return null;
-        }
+    _obtAttr( el, clear ) {
         let _vs = $.attr( el, __obts );
 
-        return [
-            _vs[OBTA.on], _vs[OBTA.by] || '', _vs[OBTA.to] || ''
-        ];
+        if ( clear ) {
+            $.removeAttr( el, __obts );
+        }
+        return [ _vs[OBTA.on],_vs[OBTA.by], _vs[OBTA.to] ];
     },
 
 
     /**
      * 提取分组对应集。
      * 以On为前置依据，By/To依赖于On的存在。
-     * 单组：[
+     * 单组：{
      *      on: String
      *      by: String
      *      to: String
-     * ]
+     * }
      * @param  {Iterator<String>} ons On属性值提取器
      * @param  {[String]} bys By属性值定义
      * @param  {[String]} tos To属性值定义
-     * @return {Iterator<Array3>} 单组配置迭代器
+     * @return {Iterator<Object3>} 单组配置迭代器
      */
     *_teams( ons, bys, tos ) {
         let _i = 0;
@@ -170,13 +189,39 @@ const Parser = {
             let by = bys[_i],
                 to = tos[_i];
 
-            yield [
-                on && on != __chrZero ? on : null,
-                by && by != __chrZero ? by : null,
-                to && to != __chrZero ? to : null,
-            ];
+            yield {
+                on: on && on != __chrZero ? on : null,
+                by: by && by != __chrZero ? by : null,
+                to: to && to != __chrZero ? to : null,
+            };
             _i++;
         }
+    },
+
+
+    /**
+     * 分解事件名定义。
+     * @param  {String} fmt 事件名定义序列
+     * @return {[Evn]}
+     */
+    _evns( fmt ) {
+        return ASpliter.split(fmt, ' ')
+            .map(
+                s => new Evn(s.trim())
+            );
+    },
+
+
+    /**
+     * 分解指令调用定义。
+     * @param  {String} fmt 指令调用序列
+     * @return {[Call]}
+     */
+    _calls( fmt ) {
+        return ASpliter.split(fmt, __chrList)
+            .map(
+                s => new Call(s.trim())
+            );
     },
 
 }
@@ -185,40 +230,100 @@ const Parser = {
 
 //
 // OBT 构造器。
-// 内部使用 Parser 等工具。
+// 用法：
+// 外部创建一个实例后，即可应用任意元素。
 //
 class Builder {
     /**
      * 创建一个OBT构造器。
-     * 执行元素OBT配置的构造：创建调用链，存储延迟绑定等。
-     * @param {Object} onpbs On指令集
-     * @param {Object} bypbs By指令集
-     * @param {Object} where To:Where更新集
-     * @param {Object} stage to:Stage方法集
+     * 基础库引用存储。pbs: {
+     *      on: Object,
+     *      by: Object,
+     *      to: {Where, Stage}
+     * }
+     * @param {Object} pbs OBT指令集
+     * @param {Function} store 调用链存储回调
      */
-    constructor( onpbs, bypbs, where, stage ) {
-        //
+    constructor( pbs, store ) {
+        this._pbson = pbs.on;
+        this._pbsby = pbs.by;
+        this._where = pbs.to.Where;
+        this._stage = pbs.to.Stage;
+        this._store = store;
     }
 
 
     /**
      * 构建OBT逻辑（元素自身）
-     * @param {Element} el 目标元素
+     * OBT解析、创建调用链、绑定，存储延迟绑定等。
+     * 返回已解析绑定好的原始元素。
+     * @param  {Element} el 目标元素
+     * @param  {Boolean} keep 是否保留OBT特性
+     * @return {Element} el
      */
-    build( el ) {
-        //
+    build( el, keep ) {
+        if ( !el.hasAttribute(OBTA.on) ) {
+            return;
+        }
+        for (const obt of Parser.obts(el, !keep) ) {
+            let _on = Parser.on(obt.on),
+                _by = Parser.by(obt.by),
+                _to = Parser.to(obt.to);
+
+            this.bind(
+                el,
+                _on[0],
+                this.chain(_on[1], _by, _to[0], _to[1], _to[2])
+            );
+        }
+        return el;
     }
 
 
     /**
      * 构建调用链。
-     * @param  {String} on On配置
-     * @param  {String} by By配置
-     * @param  {String} to To配置
-     * @return {Cell:EventListener} 事件处理器
+     * @param  {[Call]} on On调用序列
+     * @param  {[Call]} by By调用序列
+     * @param  {Query} query To查询配置实例
+     * @param  {Where} where To设置配置实例
+     * @param  {[Call]} stage To下一阶调用序列
+     * @return {Cell} EventListener
      */
-    chain( on, by, to ) {
-        //
+    chain( on, by, query, where, stage ) {
+        let _stack = new Stack(),
+            _first = new Cell(_stack),
+            _prev = null;
+
+        _prev = this._on( _first, _stack, on );
+        _prev = this._by( _prev, _stack, by );
+
+        _prev = this._query( _prev, _stack, query );
+        _prev = this._where( _prev, _stack, where );
+        this._stage( _prev, _stack, stage );
+
+        return _first;
+    }
+
+
+    /**
+     * 绑定事件到调用链。
+     * 可能多个事件名定义对应一个调用链。
+     * @param  {Element} el 目标元素
+     * @param  {[Evn]} evns 事件名定义序列
+     * @param  {Cell} chain 起始指令单元
+     * @return {void}
+     */
+    bind( el, evns, chain ) {
+        for (const evn of evns) {
+            if ( evn.delay ) {
+                this._store(el, evn.name, evn.selector, chain);
+                continue;
+            }
+            let _fn = evn.once ?
+                'one' :
+                'on';
+            $[_fn](el, evn.name, evn.selector, chain);
+        }
     }
 
 
@@ -226,24 +331,85 @@ class Builder {
 
     /**
      * On构建。
-     * @param  {Cell} cell 指令单元
-     * @param  {Evn} evn 事件名配置
-     * @param  {Call} call 调用配置实例
-     * @return {Cell} cell
+     * 返回最后一个Cell实例，接续By/To。
+     * @param  {Cell} prev 前一个指令单元（首个）
+     * @param  {Stack} stack 数据栈实例
+     * @param  {[Call]} calls 调用配置序列
+     * @return {Cell} prev
      */
-    _on( cell, evn, call ) {
-        //
+    _on( prev, stack, calls ) {
+        if ( calls ) {
+            for (const call of calls) {
+                prev = call.apply( new Cell(stack, prev), this._pbson );
+            }
+        }
+        return prev;
     }
 
 
-    _by( cell, call ) {
-        //
+    /**
+     * By构建。
+     * 返回最后一个Cell实例，接续To。
+     * @param  {Cell} prev 前一个指令单元
+     * @param  {Stack} stack 数据栈实例
+     * @param  {[Call]} calls 调用配置序列
+     * @return {Cell}
+     */
+    _by( prev, stack, calls ) {
+        if ( calls ) {
+            for (const call of calls) {
+                prev = call.apply( new Cell(stack, prev), this._pbsby );
+            }
+        }
+        return prev;
     }
 
 
-    _to( cell, query, where, stage ) {
-        //
+    /**
+     * To:Query构造。
+     * 返回最后一个Cell实例，接续To:Where。
+     * @param  {Cell} prev 前一个指令单元
+     * @param  {Stack} stack 数据栈实例
+     * @param  {Query} query To查询配置实例
+     * @return {Cell}
+     */
+    _query( prev, stack, query ) {
+        return query ?
+            query.apply( new Cell(stack, prev) ) : prev;
     }
+
+
+    /**
+     * To:Where构造。
+     * 返回最后一个Cell实例，接续To:Stage。
+     * @param  {Cell} prev 前一个指令单元
+     * @param  {Stack} stack 数据栈实例
+     * @param  {Where} where To设置配置实例
+     * @return {Cell}
+     */
+    _where( prev, stack, where ) {
+        return where ?
+            where.apply( new Cell(stack, prev), this._where ) : prev;
+    }
+
+
+    /**
+     * To:Stage构造。
+     * 返回最后一个Cell实例（结束）。
+     * @param  {Cell} prev 前一个指令单元
+     * @param  {Stack} stack 数据栈实例
+     * @param  {[Call]} stages To下一阶实例集
+     * @return {Cell}
+     */
+    _stage( prev, stack, stages ) {
+        if ( stages ) {
+            for (const stage of stages) {
+                prev = stage.apply( new Cell(stack, prev), this._stage );
+            }
+        }
+        return prev;
+    }
+
 }
 
 
@@ -496,7 +662,8 @@ class Cell {
      * @param {Object} elo 事件关联对象
      */
     handleEvent( ev, elo ) {
-        //
+        elo.event = ev;
+        return this.call( elo );
     }
 
 
@@ -770,6 +937,7 @@ class Query {
 //      @   特性（attr），如：@title => $.attr(el, 'title', ...)
 //      &   属性（prop），如：&value => $.prop(el, 'value', ...)
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
+//      ^   特性切换，如：^-val => $.toggleAttr(el, '-val', ...)
 // }
 // 支持多方法并列定义，用逗号（__chrList）分隔。
 // 注：并列的方法数量即是自动取栈的数量。
