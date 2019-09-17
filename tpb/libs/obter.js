@@ -8,6 +8,12 @@
 //
 //	OBT 解析器。
 //
+//  完成元素（单个）的OBT逻辑，
+//  包括：
+//  - On/By/To配置解析。
+//  - 创建调用链绑定到元素事件定义。
+//  - 存储延迟绑定的调用链。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -74,7 +80,7 @@ const
 
 
 //
-// OBT解析器（单元素）。
+// 元素OBT解析器。
 //
 const Parser = {
     /**
@@ -236,13 +242,13 @@ const Parser = {
 class Builder {
     /**
      * 创建一个OBT构造器。
-     * 基础库引用存储。pbs: {
+     * 基础库 pbs: {
      *      on: Object,
      *      by: Object,
      *      to: {Where, Stage}
      * }
      * @param {Object} pbs OBT指令集
-     * @param {Function} store 调用链存储回调
+     * @param {Function} store 调用链存储回调（chainStore）
      */
     constructor( pbs, store ) {
         this._pbson = pbs.on;
