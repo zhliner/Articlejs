@@ -1,8 +1,8 @@
 # 模板渲染
 
-用于模板渲染的属性有 `10` 个（`tpb-[for|each|if|elseif|else|with|var|switch|case|default]`），渲染属性的值是JS表达式，表达式运算的结果成为该语法结构的数据。表达式会作为函数体代码封装，调用时传入一个名称为 `$` 的实参，该实参就是对外部数据的引用。
+用于模板渲染的语法/属性有 `10` 个（`tpb-[for|each|if|elseif|else|with|var|switch|case|default]`），渲染属性的值是JS表达式，表达式运算的结果成为该语法结构的数据。表达式会被封装为函数执行，调用时传入一个名称为 `$` 的实参，引用外部的数据。
 
-正常的元素属性前置一个下划线是一种赋值语法，其值也是一个JS表达式，这一结构表示对相应属性赋值为表达式计算的值，如：`<a _href="$.url">`，表示对 `href` 属性赋值为 `$.url` 的值。
+正常的元素属性前置一个下划线是一种赋值语法，表示相应的属性会被赋值为其表达式的运算结果，如：`<a _href="$.url">`，表示 `$.url` 将赋值到 `href` 属性。
 
 
 ## 语法优先级
@@ -21,10 +21,10 @@
 ```js
 $ = {
     student: {
-        name: '张三',
+        name: '王小二',
         age: 14,
         school: {
-            name: "xx市一中",
+            name: "xx市第一中学",
             class: "初三（1）班",
         },
     },
@@ -32,189 +32,224 @@ $ = {
 }
 ```
 
-渲染表达式中从一个特殊变量 `$` 上引用数据，`$` 可能是一个对象、数组、或基本类型的值。如：`$.language` 引用值为 `chinese`。
+渲染表达式中从一个特殊变量 `$` 上引用数据，如上：`$.language` 引用 `chinese` 值。在渲染结构的每一层子级递进中，子对象也会被赋值到当前域的 `$` 上，从而让表达式依然用 `$` 引用数据。
 
-在渲染结构的每一层子级递进中，子对象会被赋值到当前域的 `$` 变量上，从而让表达式依然可以使用 `$` 引用数据。但为了在子级中引用上级成员（并不常用），当前域的 `$` 上有一个特殊变量 `$`（即：`$.$`），它引用了当前域的父域对象，因此我们就可以通过 `$.$.xxx` 的方式来引用父级的其它成员。
+子对象中引用上级成员有时会需要，作为一种便捷设计，当前域中的 `$` 上有一个特殊变量 `$`，它引用了当前域的父域对象（即：`$.$`），因此我们可以简单地通过 `$.$.xxx` 的形式来引用父域的其它成员。如假设当前域是 `school`（即：`$ = student.school`），`$.$.age` 可以引用年龄数据（即：`$.$ = student`）。
 
-如假设当前域是 `school`（即：`$ = student.school`），`$.$.age` 就引用了年龄数据（注：`$.$ = student`）。
+另外，为了更简单地引用父域数据，子对象的原型还会被设置为父域对象，这样，从子对象上就可以直接访问父域对象里的其它成员了。如上面的 `$.$.age` 可以简化为 `$.age`，这有点不合逻辑，但却很方便。
 
-另外，为了引用父级数据更简单，子对象的原型对象还会被设置为其父对象，这样从子对象上就可以直接引用父对象的其它子成员了。如上面的 `$.$.age` 就可以简化为 `$.age`，虽然 `school` 中并不包含 `age` 成员（它实际上是从原型 `student` 上获取的）。但这种原型修改仅限于纯 `Object` 对象。
-
-这种可以从子级逆向访问父级成员的结构，称为 **父域链**。它使得在模板中访问上级变量简单可行。
+这种可以从子级向上逆向访问父域成员的结构，称为 **父域链**。
 
 
 ## tpb-for
 
-定义子元素的循环逻辑。格式：`tpb-for="data;start:end"`，其中：
+定义子元素的迭代循环。格式：`tpb-for="data;start,end"`，其中：
 
-- `data`  循环取值的数组，每一个单元会成为每一次循环的当前域。可选，默认当前域对象。
+- `data`  循环取值的数组，每一个单元会成为每一次循环的当前域。可选，默认当前域本身。
 - `start` 取值单元起始下标，可选。默认值 `0`。
 - `end`   取值单元终点下标（不含终点），可选，默认 `data.length`。
 
-> **注：**<br>
-> 如果全部都取默认值，则可省略属性值（仅 `tpb-for` 属性本身）。<br>
-> 当前域对象用 `$` 引用，父域对象被设置在了 `$` 中，依然用 `$` 表示（即 `$.$`）。模板的入栈数据为顶层的当前域对象。<br>
+> **注：**
+> 如果全部都取默认值，可省略 `tpb-for` 属性的值（仅属性名本身即可）。
 
-循环内支持如下临时变量。
+循环内支持6个临时变量：
 
-- `$._BEGIN_`  循环开始的下标值
-- `$._END_`    循环终点的下标值。
-- `$._SIZE_`   循环集的原始大小（与非零起点无关）。
-- `$._INDEX_`  当前循环条目下标（原始数组条目下标）。
-- `$._COUNT_`  当前循环的计数（从1开始）
+- `$._BEGIN_`   循环起始下标值。
+- `$._END_`     循环终点下标值。
+- `$._LENGTH_`  循环长度。
+- `$._TOTAL_`   循环集原始大小。
+- `$._COUNT_`   当前循环计数（从1开始）
+- `$._INDEX_`   当前循环条目原始下标（从0开始）。
+
+
+### 示例1
 
 ```html
-<dl tpb-for="$.news; 0:10">   <!-- news: [{topic, about, summary}, ...] -->
-    <dt _="$.topic"></dt>     <!-- news[i].topic -->
+<!-- 父域包含一个news数组
+    news: [{topic, about, summary}, ...] -->
+<dl tpb-for="$.news; 0, 10">
+    <!-- 子域中的$被赋值为news[i] -->
+    <dt _="$.topic"></dt>       <!-- news[i].topic -->
     <dd>
-        <p _="$.about"></p>   <!-- news[i].about -->
-        <p _="$.summary"></p> <!-- news[i].summary -->
+        <p _="$.about"></p>     <!-- news[i].about -->
+        <p _="$.summary"></p>   <!-- news[i].summary -->
     </dd>
 </dl>
 
-<!-- 如果是输出数组的全部单元，可省略范围指定。 -->
+<!-- 简化形式：输出全部 -->
 <dl tpb-for="$.news">
-    ... （同上）
+    ......
 </dl>
 ```
 
-如果当前域对象就是循环目标，且全部输出，可以省略属性值。
+
+### 示例2
+
+如果当前域对象就是一个数组，且全部输出，可仅简单设置 `tpb-for` 属性名。
 
 ```html
-<!-- 无需属性值 -->
-<dl tpb-for>            <!-- [[aaa, bbb], ...] -->
-    <dt _="$[0]"></dt>  <!-- [i][0]: <dt>aaa</dt> -->
-    <dd _="$[1]"></dd>  <!-- [i][1]: <dd>bbb</dd> -->
+<!-- $: [
+    ['c++', 'print("hello, world!");'],
+    ['golang', 'fmt.Println("hello, world!")'],
+    ['javascript', 'console.info("hello, world!")']
+] -->
+<dl tpb-for>
+    <!-- $: [i] -->
+    <dt _="$[0]"></dt>  <!-- [i][0]: <dt>c++</dt> -->
+    <dd _="$[1]"></dd>  <!-- [i][1]: <dd>print("hello, world!");</dd> -->
 </dl>
 
-<!-- 有名称引用 -->
-<dl tpb-for="$">
-    ... （同上）
-</dl>
+
+<!-- 同上 -->
+<dl tpb-for="$"> ... </dl>
 ```
 
-可以取目标集的任意范围，终点为数组的最大长度。
+
+### 示例3
+
+数组的单元就是一个简单值。
 
 ```html
-<ol tpb-for="$; 10:">
+<!-- $: [ 'Java', 'C/C++', 'JavaScript' ] -->
+<ol tpb-for>
+    <!-- $: [i] -->
     <li><code _="$"></code></li>
-    <!-- 注：此处的 $ 是上层 for 引用的 $ 的子成员 -->
+</ol>
+```
+
+输出：
+
+```html
+<!-- 渲染属性会被自动清除 -->
+<ol>
+    <li><code>Java</code></li>
+    <li><code>C/C++</code></li>
+    <li><code>JavaScript</code></li>
 </ol>
 ```
 
 
 ## tpb-each
 
-另一种循环逻辑，循环目标为当前元素自身（包含子元素）。格式：`tpb-for="list"`，其中 `list` 为循环迭代取值的数组。
+当前元素自我迭代循环（含子元素）。格式：`tpb-each="data;start,end"`。**注**：参数说明参考 `tpb-for` 结构。
 
-每一次迭代中，取值数组的单元为当前域对象。
+
+### 示例
 
 ```html
 <dl>
-    <dt>定义列表标题</dt>
-    <dd tpb-each="$.list" _data-val="$.sn">  <!-- list: [{sn, label, value}, ...] -->
+    <dt>请在如下选项中勾选</dt>
+    <!-- list: [{sn, label, value}, ...] -->
+    <dd tpb-each="$.list" _data-sn="$.sn">
         <label>
+            <input name="books" type="checkbox" _value="$.value" />
             <span _="$.label"></span>
-            <input _name="`item_${$.sn}`" type="checkbox" _value="$.value" />
         </label>
     </dd>
-    <!--<dd>元素自身被克隆，数据条目逐个应用。
-        注意：
-        $.list 和 $.sn 中的 $ 不同，前者先解析，是循环外的当前域对象，后者是循环内的当前域对象。
-        也即：提取当前域 $ 中的 list 数组，构建循环迭代，赋值子域中的新 $ -->
+    <!--注：<dd>元素自身被克隆，数据条目逐个应用。-->
+</dl>
+```
+
+或者：
+
+```html
+<dl>
+    <dt>请在如下选项中勾选</dt>
+    <!-- list: [{sn, label, value}, ...] -->
+    <dd tpb-each="$.list" _data-sn="$.sn">
+        <!-- id: 使用模板字符串（撇字符包围） -->
+        <input name="books" _id="`book_${$.sn}`" type="checkbox" _value="$.value" />
+        <!-- 文本说明 -->
+        <label _for="`book_${$.sn}`" _="$.label"></label>
+    </dd>
 </dl>
 ```
 
 
 ## tpb-if / tpb-elseif / tpb-else
 
-存在性测试。属性值为JS表达式，取运算结果决定当前元素是否显示。`tpb-elsif` 和 `tpb-else` 与 `tpb-if` 匹配使用，但 if/else 逻辑仅限于同级元素（兄弟关系）范围。
-各语法词的定义之间可以插入任意其它兄弟元素，这些兄弟元素与 if/else 逻辑无关。
+存在性测试，取属性值的运算结果决定当前元素是否显示。
 
-多个 `if` 间是平级关系，没有嵌套逻辑，一个 `if` 的开始就是前一个 `if/elseif/else` 逻辑的结束。因此 `elseif/else` 对 `if` 就是就近匹配的关系。
+注意：`tpb-elsif、tpb-else` 需要与 `tpb-if` 匹配使用，并且仅限于同级元素（兄弟关系）的范围。语法词所在元素之间可以插入其它兄弟元素，它们与 `if/elseif/else` 的逻辑无关，即：`if-else` 的测试显示逻辑仅限于元素自身。
 
-属性值中的比较运算符不能采用 `<` 或 `>`，由下面的关键词代替：
+在同一个DOM层级上（同级兄弟元素），多个的 `if` 是平级关系，没有嵌套的逻辑，一个 `if` 的开始就是前一个 `if-else` 的结束，因此 `elseif/else` 对 `if` 的配对是就近匹配的逻辑。
+
+属性值中的比较运算符不采用 `<` 或 `>` 字符，它们由下面的关键词代替：
 
 - **LT**： 小于（<）
 - **LTE**： 小于等于（<=）
 - **GT**： 大于（>）
 - **GTE**： 大于等于（>=）
 
-```html
-<p tpb-if="$.Person.age LT 12"> <!-- 如果为假，本段落不会显示。 -->
-    亲爱的 <strong _="$.Person.name"></strong> 小朋友
-</p>
-```
+> **实现**：平级顺序检查。
+> - 如果 `if` 为真，移除后续 `elseif/else` 元素，直到下一个新的 `if` 或容器元素结束。
+> - 如果 `if` 为假，移除当前元素。后续 `elseif/else` 无需检查，碰到 `else` 无条件显示，碰到 `elseif` 沿用 `if` 逻辑。
+
+
+### 示例
 
 ```html
-<p tpb-with="$.Person">
-    <span tpb-if="$.age LT 12">
-        亲爱的 <strong _="$.name">[孩子]</strong> 小朋友
-    </span>
-
-    <hr /> <!-- 这里可插入任意内容，虽然没啥道理。 -->
-
-    <span tpb-else>
-        <strong _="$.name">[先生/女士]</strong> 您好！
-    </span>
-    <!--带中括号的文字是模板说明，最终会被替换掉。这种友好性可方便模板编写时预览样式。 -->
-</p>
-```
-
-```html
-<p tpb-with="$.Person">
-    <span tpb-if="$.age LT 12">
-        欢迎 <strong _="$.name">[孩子]</strong> 小朋友
-    </span>
-    <span tpb-elseif="$.age LT 21">
-        嗨，<strong _="$.name">[青少年]</strong>！
-    </span>
-    <span tpb-else>
-        尊敬的<strong _="$.name">[成年人]</strong>您好！
-    </span>
-</p>
+<div tpb-with="$.student">
+    <!-- 如果 tpb-if 为假，段落不会显示 -->
+    <p tpb-if="$.age LT 7">
+        欢迎 <strong _="$.name">[孩子]</strong> 小朋友！
+    </p>
+    <!-- 中间段：可插入任意内容 -->
+    <p tpb-else>
+        <!-- 中括号内的文字为模板友好提示（会被替换） -->
+        欢迎 <strong _="$.name">[男/女]</strong> 同学！
+    </p>
+</div>
 ```
 
 
 ## tpb-switch / tpb-case / tpb-default
 
-switch{case/default} 语法结构，表达多个子元素平行分支判断。`tpb-case` 和 `tpb-default` 针对所在元素自身，匹配则显示，语法逻辑限于平级的兄弟元素范围。分支自然结束，没有 break 语法。
-如果没有任何一个子元素分支匹配，`tpb-switch` 自身所在的元素也无效。
+`switch{}` 语法结构，表达多个子元素的分支判断。与 `tpb-if/else` 类似，`tpb-case/default` 仅对元素自身进行匹配测试，匹配则显示，否则隐藏。语法的作用域仅限于平级的兄弟元素，`switch` 的结束随着元素的封闭自然结束，无需 `break`。
 
-这是 if/elseif/else 的多分支友好版。
+如果没有任何一个子元素分支匹配且未定义 `tpb-default`，`tpb-switch` 所在的容器元素也将无效（隐藏）。
+
+
+### 示例
 
 ```html
-<p tpb-with="$.Person" tpb-switch="true">
-    <span tpb-case="$.age LT 12">
-        欢迎 <strong _="$.name">[孩子]</strong> 小朋友
-    </span>
-    <span tpb-case="$.age LTE 21">
-        嗨，<strong _="$.name">[青少年]</strong>！
-    </span>
-    <span tpb-default>
-        尊敬的<strong _="$.name">[成年人]</strong>您好！
-    </span>
-</p>
+<div tpb-with="$.student" tpb-switch="true">
+    <p tpb-case="$.age LT 7">
+        欢迎 <strong _="$.name">[孩子]</strong> 小朋友！
+    </p>
+    <!-- 中间段：任意内容 -->
+    <p tpb-case="$.age LTE 18">
+        你好，<strong _="$.name">[青少年]</strong>！
+    </p>
+    <!-- 中间段：任意内容 -->
+    <p tpb-default>
+        嗨，<strong _="$.name">[其他]</strong>！
+    </p>
+</div>
 ```
 
 
 ## tpb-with
 
-创建一个当前域并设置域对象，改变渲染变量的当前域环境。域的有效范围包括元素自身及其子元素。
+用目标对象创建一个新的当前域。这会改变当前元素及子元素上渲染变量的当前域定义，主要用于缩短子孙级成员变量引用。
 
-该语法在 `tpb-each` 之后、其它语法之前处理，因此有较高的优先级，影响其它大部分渲染结构（`tpb-var`、`tpb-if`、`tpb-switch`、`tpb-for` 等）。
+该语法词的优先级在 `tpb-each` 之后、其它语法词之前，因此会影响大部分渲染结构（`tpb-var`、`tpb-if`、`tpb-switch`、`tpb-for` 等）。
+
+
+### 示例
 
 ```html
-<em tpb-with="$.info" tpb-if="(Date.now() - $.time) LE 86400"> <!-- info: { time, ... } -->
-    （今日更新）
-</em>
+<!-- info: { time, ... } -->
+<em tpb-with="$.info" tpb-if="(Date.now() - $.time) LE 86400">（今日更新）</em>
 ```
 
 域声明支持任意JS表达式，因此实际上可以组合创建一个新的对象用于之后的域环境。
 
 ```html
-<p tpb-with="{info: $.info, tips: '最近更新'}">
-    更新时间：<strong _="$.time"></strong>
+<!-- info: { time, ... } -->
+<p tpb-with="{topic: $.info.title, time: $.info.time, tips: '更新'}">
+    <span _="$.topic"></span>
+    更新时间：<strong _="$.time|date('yyyy-MM-dd')"></strong>
     <em tpb-if="$.time LT 86400" _="$.tips">[最新提示]</em>
 </p>
 ```
@@ -222,125 +257,92 @@ switch{case/default} 语法结构，表达多个子元素平行分支判断。`t
 
 ## tpb-var
 
-在当前域中新建变量来存储数据，供同域中其它渲染结构使用，通常用于提取某深层数据成员，便于引用。采用解构赋值表达式通常可以缩短语句长度。
-新的变量需要明确设置到当前域中，即用 `$.xxx` 进行赋值。
+在当前域中新建变量来存储数据，供同域中其它渲染结构使用，可用于提取某些深层数据成员或简单计算，然后其它地方直接引用。新的变量用赋值的方式明确设置到当前域中，即如：`$.desc = $.from.value` 的形式。
 
-假设模板处理的数据结构如下：
+赋值表达式实际上是合法的JS语法，因此支持ES6中新的赋值语法，如解构赋值。
 
-```js
-cities:
-{
-    ShangHai: {
-        tvs: [
-            {
-                name: "时论天下",
-                info: "主要针对当前最新时事，深度探讨和分析并与您共同观察。",
-                founded: 2099,
-            },
-            {
-                name: "人机世代",
-                info: "立足于机器人与人类的关系，追踪最新人机新闻和前沿话题。",
-                founded: 2041,
-            }
-        ],
-        magazines: [
-            "梦幻时代",
-            "爱你不容易",
-            "探险",
-            "机器虫",
-            "天涯浪客",
-        ],
-    },
 
-    HongKong: {
-        tvs: [
-            {
-                name: "呈现",
-                info: "向您展示我们的观察、我们的思考，与您一道深度分析。",
-                founded: 2025,
-            },
-            {
-                name: "深蓝探索",
-                info: "海底的精彩世界，与您分享，与您一道探索未知的边界。",
-                founded: 1940,
-            },
-        ],
-        magazines: [
-            "文艺范儿",
-            "经济观察",
-            "赛马",
-            "铁甲雄鹰",
-            "探底",
-        ]
-    },
-}
-```
+### 示例
 
 ```html
-<!-- 解构赋值：数组只取到首个成员。 -->
-<p tpb-var="{ city: [{ cname: $.cname, school: $.school }] } = $.country">
-    城市：<strong _="$.cname">[GuangZhou]</strong>
-    <hr />
-    学校：<strong tpb-each="$.school" _="$.name">[yizhong...]</strong>
+<!-- 没啥道理哈 -->
+<p tpb-var="$.schoolName = '(^,^)' + $.student.school.name">
+    毕业学校：<strong _="$.schoolName"><strong>
 </p>
-
-<!-- 对比 -->
-<p tpb-with="$.country">
-    城市：<strong _="$.city[0].cname">[GuangZhou]</strong>
-    <hr />
-    学校：<strong tpb-each="$.city[0].school" _="$.name">[yizhong...]</strong>
-</p>
-<!--tpb-with 会创建一个新域，该域会加入子域的父域链，即子域中需用 $.$ 引用。
-    而上面的解构赋值不会多出这个层级 -->
 ```
 
 
 ## _[attrName]
 
-对元素属性进行赋值，属性名即为去除前置下划线部分。前置的下划线是一个标志，表示会被渲染处理。单纯的 `_` 表示元素的内容，赋值方式为 `html` 填充（假定内容由设计师构造，而源数据安全）。
+对元素特性/属性的赋值进行定义。名称采用属性名前置一个下划线。单纯的 `_` 表示对元素内容赋值，赋值方式为 `html` 填充（可用 `text` 过滤器输出纯文本）。
 
-> **注：**<br>
-> 如果不放心服务器端提供的源数据，可以使用 `$.html()` 预处理一次（`<` to `&lt;`），或采用 `|text` 过滤器。
+
+### 示例
 
 ```html
 <header class="summary">
     <p class="info" _title="$.tips">
+        <!-- 限制文本长度 -->
         文章来源：<a _href="url" _="$.label|cut(40, '...')"></a>
-        <!-- 属性前置下划线，输出支持过滤。 -->
-
-        作者：<em _=" `${$.firstName} ${$.lastName} 你好！` "></em>
-        <!-- 模板字符串：可同时输出多个变量。 -->
-
-        Vip 积分：<strong _=" `${$.points + 1000}` "></strong>
-        <!-- 模板字符串：支持表达式运算。 -->
+        <!-- 输出全名 -->
+        作者：<em _=" `${$.firstName} ${$.lastName}` "></em>
     </p>
     <hr />
-    <p _="$.summary|text('br')">[摘要为纯文本]</p>
-    <!-- 内容为html赋值，text过滤转义。 -->
+    <!-- 内容为html填充，用text转义 -->
+    <p _="$.summary|text('br')">[摘要为纯文本，允许换行标签]</p>
 </header>
 ```
 
 
-## 补：关于当前域
+## 关于当前域
 
-当前域是模板变量取值的父环境，循环内的当前域最初由 `for/each` 循环克隆元素时动态设置，用户无法干涉，该域最先被赋值为循环内的当前域。
+当前域是模板变量取值的当前环境，它在模板导入数据的初始阶段形成，这一初始的当前域也称为顶层域。
 
-在 `tpb-each` 中，循环针对的是当前元素，因此 `tpb-with` 的优先级在 `tpb-each` 之后（与在元素中定义的先后顺序无关）。
-而在 `tpb-for` 中，因为循环是针对子元素，所以 `tpb-with` 的优先级在前（**注**：即便在后，也无法获取循环内的当前域对象）。
+随着元素节点树的深入，在 `for/each` 循环结构中会创建新的子域，这个子域就会成为当前迭代的当前域。另外，还可以通过专用的 `tpb-with` 手动创建一个子域，以便于更简单地引用目标数据。
+
+在 `tpb-each` 中，循环针对的是当前元素自身，因此 `tpb-with` 的优先级被设计在 `tpb-each` 之后（与元素中的先后顺序无关）。在 `tpb-for` 中，因为循环的是子元素，所以 `tpb-with` 并不能取到子域中的值，故其优先级在 `tpb-for` 之前。
+
+
+### 示例
+
+示例数据：
+
+```js
+$: {
+    list: [{ about: { author, cite }, text: 'some-value' }, ...],
+    title: '...'
+}
+```
+
+普通Each子域引用（`tpb-each`）。
 
 ```html
-<!-- {
-    list: [{ about: { author, cite } }, ...],
-    title: 'xxx'
-} -->
 <section>
-    <h3 _="$.title">[xxx]</h3>
+    <h3 _="$.title"></h3>
     <ul>
-        <li tpb-with="$.about" tpb-each="$.list">
-            <!--tpb-each 先执行。
-                tpb-with 实际上引用的是 $.list[i].about -->
-            <strong _="$.author"></strong>
-            <em _="$.cite"></em>
+        <!-- 未用 tpb-with -->
+        <li tpb-each="$.list">
+            <label _="$.text"></label> <!-- 子域成员引用 -->
+
+            作者：<strong _="$.about.author"></strong>
+            来源：<em _="$.about.cite"></em>
+        </li>
+    </ul>
+</section>
+```
+
+Each子域中增加新的子域（`tpb-with`）。
+
+```html
+<section>
+    <h3 _="$.title"></h3>
+    <ul>
+        <!-- each先执行，with引用 list[i].about -->
+        <li tpb-each="$.list" tpb-with="$.about">
+            <label _="$.text"></label> <!-- 通过父域链引用，同 $.$.text -->
+
+            作者：<strong _="$.author"></strong>
+            来源：<em _="$.cite"></em>
         </li>
     </ul>
 </section>

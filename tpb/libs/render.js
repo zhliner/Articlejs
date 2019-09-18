@@ -26,106 +26,96 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 
-(function( $, T ) {
-    //
-    // 便捷引用
-    //
-    const
-        Util = T.Kits.Util,
-        Spliter = T.Kits.Spliter;
+
+// 渲染属性名定义。
+const
+    __Each      = 'tpb-each',       // 元素自身循环
+    __With      = 'tpb-with',       // 创建新域
+    __Var       = 'tpb-var',        // 新建变量/赋值
+    __If        = 'tpb-if',         // if （当前元素，下同）
+    __Elseif    = 'tpb-elseif',     // else if
+    __Else      = 'tpb-else',       // else
+    __Switch    = 'tpb-switch',     // switch （子元素分支）
+    __Case      = 'tpb-case',       // switch/case
+    __Default   = 'tpb-default',    // switch/default
+    __For       = 'tpb-for';        // 子元素循环
 
 
-    //
-    // 语法词属性名定义
-    //
-    const
-        __tpbFor 	    = 'tpb-for',        // 子元素循环
-        __tpbEach 	    = 'tpb-each',       // 元素自身循环
-        __tpbIf 	    = 'tpb-if',         // if （当前元素，下同）
-        __tpbElif 	    = 'tpb-elseif',     // else if
-        __tpbElse 	    = 'tpb-else',       // else
-        __tpbSwitch     = 'tpb-switch',     // switch （子元素分支）
-        __tpbCase       = 'tpb-case',       // switch/case
-        __tpbDefault    = 'tpb-default',    // switch/default
-        __tpbWith 	    = 'tpb-with',       // 创建新域
-        __tpbVar 	    = 'tpb-var';        // 新建变量/赋值
+// 分隔标识字符。
+const
+    __chrDlmt	= ';',  	// 并列分组
+    __chrRange 	= ',',  	// 范围定义
+    __chrPipe 	= '|';  	// 进阶处理（输出过滤）
 
 
-    //
-    // 特殊字符
-    // @为循环内即时变量标识（见__Kit.arrVars）
-    //
-    const
-        __chrDlmt	= ';',  	// 并列分组
-        __chrRange 	= ':',  	// 范围定义
-        __chrPipe 	= '|';  	// 进阶处理（输出过滤）
+const
+    // 属性赋值处理器名
+    // 注：最后单独处理。
+    __attrPuts = 'Puts',
+
+    // 循环父域文法词
+    // 仅在循环内私用
+    __loopScope = 'Scope',
+
+    // 循环内父域链
+    // 用于各层子级元素的父域传递
+    __loopChain = '$$_SCOPE_$$',
+
+    // 合法变量名
+    __reVarname = /^[a-zA-Z_$][\w$]*$/,
+
+    // 渲染配置标记属性。
+    // 用于快速检索有渲染配置的源模板节点。
+    // 注：DOM中该属性会被清除，因此冲突时原名称会失效。
+    __rndAttr = 'tpb_render20170206-' + $.now(),
+
+    // 渲染配置元素选择器
+    __slrBlind = `[${__rndAttr}]`;
 
 
-    const
-        // 属性赋值处理器名
-        // 属性赋值单独处理（最后）。
-        __attrPuts = 'Puts',
+const
+    // 渲染配置存储
+    // 仅用于源模板节点。
+    // { Element: Blinder }
+    Blindes = new WeakMap(),
 
-        // 循环父域文法词
-        // 仅在循环内私用
-        __loopScope = 'Scope',
+    // 结构语法处理序列（优先级）
+    Queue = [
+        __Each,
+        __With,
+        __Var,
+        __Else,
+        __Elif,
+        __If,
+        __For,
+        __Case,
+        __Default,
+        __Switch,
+    ],
 
-        // 循环内父域链
-        // 用于各层子级元素的父域传递
-        __loopChain = '$$_SCOPE_$$',
-
-
-        // 合法变量名
-        __reVarname = /^[a-zA-Z_$][\w$]*$/,
-
-
-        // 渲染配置标记属性。
-        // 用于快速检索有渲染配置的源模板节点。
-        // 注：DOM中该属性会被清除，因此冲突时原名称会失效。
-        __rndAttr = 'tpb_render20170206-' + $.now(),
-
-        // 渲染配置元素选择器
-        __slrBlind = `[${__rndAttr}]`;
-
-
-    const
-        // 渲染配置存储
-        // 仅用于源模板节点。
-        // { Element: Blinder }
-        Blindes = new WeakMap(),
-
-        // 结构语法处理序列
-        // （含优先逻辑）
-        Queue = [
-            __tpbEach,
-            __tpbWith,
-            __tpbVar,
-            __tpbElse,
-            __tpbElif,
-            __tpbIf,
-            __tpbFor,
-        ],
-
-        // 结构语法处理器名
-        Opers = {
-            [__tpbEach]:  'Each',
-            [__tpbWith]:  'With',
-            [__tpbVar]:   'Var',
-            [__tpbElse]:  'Else',
-            [__tpbElif]:  'Elseif',
-            [__tpbIf]: 	  'If',
-            [__tpbFor]:   'For',
-        },
+    // 结构语法处理器名
+    Opers = {
+        [__Each]:       'Each',
+        [__With]:       'With',
+        [__Var]:        'Var',
+        [__Else]:       'Else',
+        [__Elif]:       'Elseif',
+        [__If]:         'If',
+        [__For]:        'For',
+        [__Switch]:     'Switch',
+        [__Case]:       'Case',
+        [__Default]:    'Default',
+    },
 
 
-        // 分组切分器。
-        // 用于循环配置表达式。
-        DlmtSpliter = new Spliter(__chrDlmt),
+    // 分组切分器。
+    // 用于循环配置表达式。
+    DlmtSpliter = new Spliter(__chrDlmt),
 
-        // 过滤切分器。
-        // 用于属性赋值中的过滤序列。
-        // 调用/数组内不切分。
-        PipeSpliter = new Spliter(__chrPipe, true, true);
+    // 过滤切分器。
+    // 用于属性赋值中的过滤序列。
+    // 调用/数组内不切分。
+    PipeSpliter = new Spliter(__chrPipe, true, true);
 
 
 
@@ -765,218 +755,6 @@ class Grammar {
         return $.html(el, val + '');
     }
 
-}
-
-
-
-//
-// 过滤器函数集。
-// - this绑定为待处理的数据（字符串或元素节点）；
-// - 返回处理后的结果（文本或节点元素）；
-//
-const Filter = {
-    /**
-     * 文本截断。
-     * - 按视觉字节（单字节）计算，全角字符记为2个字节；
-     * - 若有截断，尾部跟随的标志串长度计算在内（误差1）；
-     * this: {String}
-     * @param {Number} len 单字节长度
-     * @param {String} fix 截断标志串
-     */
-    cut( len, fix = '...') {
-        let _chs = [];
-
-        for ( let ch of this ) {
-            len -= viewByte(ch);
-            if (len < 0) break;
-            _chs.push(ch);
-        }
-        return len < 0 ? viewEndpad(_chs, fix) : _chs.join('');
-    },
-
-
-    /**
-     * Html源码文本化。
-     * - 转义文本中Html字符（< => &lt;）；
-     * - 数据可为节点元素，转换整个标签（元素自身）；
-     * 注：
-     * - 结果应当用html方式插入；
-     *
-     * this {String|Element|Array|Queue}
-     * @param {Boolean} br 保留换行标签
-     * @param {String} sep 多组连接符
-     */
-    text( sep = ' ' ) {
-        let _txt = this;
-
-        if (typeof _txt == 'string') {
-            return $.html(null, _txt);
-        }
-        return $(_txt).prop('outerHTML').map(txt => $.html(null, txt)).join(sep);
-    },
-
-
-    /**
-     * 格式化日期和时间。
-     * this {String|Number|Date} Date对象或绝对毫秒数。
-     * - 如果now为true，则指当前时间（忽略来源值）；
-     * - 格式：{
-     *  	yy|yyyy 年
-     *  	M|MM 	月
-     *  	d|dd 	日
-     *  	h|hh 	时
-     *  	m|mm 	分
-     *  	s|ss 	秒
-     *  	S 	    毫秒
-     * }
-     * 例：
-     *   yyyy-MM-dd hh:mm:ss.S => 2017-02-08 16:49:09.643
-     *   yy-M-d h:m:s => 17-2-8 16:49:9
-     *
-     * 注记：
-     * - 借用Date的JSON标准格式分解合成；
-     * - 输出的是本地时间。JSON仅为借用（假借）；
-     *
-     * @param {String} fmt 格式串
-     * @param {Boolean} now 用当前时间
-     */
-    date( fmt, now ) {
-        let _ss = dateCells(
-                now ? Date.now() : getTime(this)
-            );
-        return fmt.replace(__dateFormat, w => _ss[w] || w );
-    },
-
-
-    /**
-     * 首尾空白清除。
-     */
-    trim() {
-        return this.trim();
-    },
-
-
-    /**
-     * 空白清理（减为单个空格）。
-     */
-    clean() {
-        return this.trim().replace(/\s+/g, ' ');
-    },
-
-
-    /**
-     * 节点封装（通用）。
-     * - 不指定标签名时创建一个文本节点；
-     * @param  {String} tag 元素标签名
-     * @return {Element|TextNode}
-     */
-    node( tag ) {
-        return tag ? $.Element( tag, this ) : $.Text( this );
-    },
-
-};
-
-
-// 友好：
-// 内联元素封装（也可由node创建）
-[
-    'strong',
-    'em',
-    'q',
-    'abbr',
-    'cite',
-    'small',
-    'time',
-    'del',
-    'ins',
-    'sub',
-    'sup',
-    'mark',
-    'code',
-    'dfn',
-    'samp',
-    'kbd',
-    's',
-    'u',
-    'var',
-    'bdo',
-    'b',
-    'i',
-].forEach(function( name ) {
-    Filter[name] = function() { return $.Element( name, this ); };
-});
-
-
-// date过滤器辅助数据。
-const
-    // JSON日期格式
-    // 2017-02-06T15:29:01.933Z
-    __dateJSON = /^(\d{4})-(\d{2})-(\d{2})T(\d+):(\d+):(\d+)\.(\d+)Z$/,
-
-    // 时区与UTC毫秒差
-    __timeOffset = new Date().getTimezoneOffset() * 60000,
-
-    // date格式合法词匹配
-    __dateFormat = /\by+\b|\bM+\b|\bd+\b|\bh+\b|\bm+\b|\bs+\b|\bS\b/g,
-
-    // 提取对象时间值
-    getTime = obj => obj.getTime ? obj.getTime() : parseInt(obj) || __timeOffset;
-
-
-/**
- * 分解提取Date各部分。
- * @param  {Number} tm 标准毫秒数
- * @return {Object} 各配置组成对象
- */
-function dateCells( tm ) {
-    tm -= __timeOffset;
-    let [ _, yyyy, MM, dd, hh, mm, ss, S ] = new Date(tm).toJSON().match(__dateJSON);
-    return {
-        yyyy, yy: yyyy.slice(2),
-        MM,   M:  +MM,
-        dd,   d:  +dd,
-        hh,   h:  +hh,
-        mm,   m:  +mm,
-        ss,   s:  +ss,
-        S, _,
-    };
-}
-
-
-// cut文本截断辅助。
-const
-    /**
-     * 计算字符的视觉字节。
-     * 全角字符记为2个字节。
-     * @return {Number}
-     */
-    viewByte = ch => ch.codePointAt() < 0xff ? 1 : 2,
-
-    /**
-     * 计算字符串看起来的字节数。
-     * 全角字符按2字节计算，可以正确处理4字节字符。
-     * @return {Number}
-     */
-    viewBytes = str => [...str].reduce( (n, ch) => n + viewByte(ch), 0 );
-
-
-/**
- * 末尾截断填充。
- * - 按视觉字节计算（单字节）；
- * - 最少截断原则（字符完整）；
- * @param  {Array} chs  字符序列
- * @param  {String} fix 填充字符串
- * @return {String}
- */
-function viewEndpad( chs, fix ) {
-    let _fix = viewBytes(fix);
-
-    for ( let i = chs.length - 1; i >= 0; i-- ) {
-        _fix -= viewByte(chs[i]);
-        if (_fix < 0) break;
-        chs.pop();
-    }
-    return chs.join('') + fix;
 }
 
 
