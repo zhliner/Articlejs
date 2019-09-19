@@ -67,7 +67,6 @@ const
     // 合法变量名
     __reVarname = /^[a-zA-Z_$][\w$]*$/,
 
-
     // 渲染配置标记属性。
     // 用于快速检索有渲染配置的源模板节点。
     // 注：DOM中该属性会被清除，因此冲突时原名称会失效。
@@ -114,7 +113,12 @@ const
 
     // 分组切分器。
     // 用于循环配置表达式。
-    SSpliter = new Spliter();
+    DlmtSpliter = new Spliter(__chrDlmt),
+
+    // 过滤切分器。
+    // 用于属性赋值中的过滤序列。
+    // 调用/数组内不切分。
+    PipeSpliter = new Spliter(__chrPipe, true, true);
 
 
 
@@ -758,120 +762,104 @@ class Grammar {
 
 
 //
-// 表达式处理构造。
-// 返回一个目标渲染类型的表达式执行函数。
-// 注：表达式无return关键词。
-// @param  {String} expr 表达式串
-// @return {Function}
+// 表达式执行器。
 //
-const Expr = {
+class Expr {
     /**
-     * 赋值表达式。
-     * 适用：_[name], tpb-with, tpb-switch.
-     * @return function(data): Value
+     * @param {Scoper} scoper 净域实例
      */
-    assign( expr ) {
-        return new Function( '$', `return ${expr};` );
-    },
+    constructor( scoper ) {
+        this._scoper = scoper;
+    }
 
 
     /**
-     * 变量创建表达式。
-     * 适用：tpb-var.
-     * @return function(data): null
-     */
-    setvar( expr ) {
-        return new Function( '$', `return (${expr}, null);` );
-    },
-
-
-    /**
-     * 条件比较表达式。
-     * 支持 LT/LTE/GT/GTE 四个命名操作符。
-     * 适用：tpb-if/elseif, tpb-case.
-     * @return function(data): Boolean
-     */
-    compare( expr ) {
-        return new Function( '$', `return ${this._checkComp(expr)};` );
-    },
-
-
-    /**
-     * 循环表达式。
-     * 需要处理规定格式的循环定义。
-     * 格式：(data; start?, end?)?
-     * 适用：tpb-each, tpb-for.
-     * @return function(data): Array
-     */
-    loop( expr ) {
-        if ( !expr ) {
-            return v => v;
-        }
-        let _vs = expr.split(expr, 2);
-
-        return new Function(
-            '$',
-            `return ${_vs[0]}.slice(${_vs[1]});`
-        );
-    },
-
-
-    /**
-     * 简单执行即可。
-     * 适用：tpb-else, tpb-default.
-     */
-    excute( expr ) {
-        //
-    },
-
-
-    //-- 私有辅助 -------------------------------------------------------------
-
-    /**
-     * 预处理比较表达式。
-     * 对普通段的文本执行可能需要的比较词替换。
+     * 执行表达式。
+     * - 立即编译执行表达式（每次都重新编译）；
      * @param  {String} expr 目标表达式
-     * @return {String} 合法的表达式
+     * @param  {Object} data 当前域数据
+     * @return {Mixed} 表达式执行结果
      */
-    _checkComp( expr ) {
-        return [...SSpliter.partSplit(expr)]
-            // 处理奇数单元
-            .map( (s, i) => i%2 ? s : this._validComp(s) )
-            .join('');
-    },
+    exec( expr, data ) {
+        let _fun = this.build(expr);
+        return _fun && _fun(data);
+    }
 
 
     /**
-     * 比较词替换。
-     * 如：" LT " => " < " 等。
-     * @param  {String} 源串
-     * @return {String} 结果串
+     * 构建表达式代理函数。
+     * - 代理函数接受一个当前域数据参数，可多次执行；
+     * - 这是与exec功能相似的一个接口，但结果可复用；
+     * @param  {String} expr 目标表达式
+     * @return {Function} 执行器
      */
-    _validComp( str ) {
-        if ( !this.hasComp.test(str) ) {
-            return str;
+    build( expr ) {
+        expr = expr && this._parse(expr, this._worder);
+        if (! expr) return null;
+
+        return this._scoper.runner(expr);
+    }
+
+
+    //-- 私有辅助 -----------------------------------------------------------------
+
+
+    /**
+     * 关键词替换（e.g. " LT " => " < "）。
+     * @return {string} 结果串
+     */
+    _worder( str ) {
+        return Expr.Words.reduce( (s, kv) => s.replace(kv[0], kv[1]), str );
+    }
+
+
+    /**
+     * 解析表达式。
+     * - 对普通段的文本传递到回调处理；
+     * - 若无需替换则简单返回；
+     * @param  {String} expr 目标表达式
+     * @param  {Function} handle 处理函数
+     * @return {String} 合法表达式
+     */
+    _parse( expr, handle ) {
+        if (!Expr.Repl.test(expr)) {
+            return expr;
         }
-        return this.compWords.reduce( (s, kv) => s.replace(kv[0], kv[1]), str );
-    },
+        let _str = '';
+        for ( let s of Expr.Spliter.partSplit(expr) ) {
+            // 字符串可由3种字符包围。
+            _str += (s[0] == '"' || s[0] == "'" || s[0] == '`') ? s : handle(s);
+        }
+        return _str;
+    }
+}
 
 
-    //
-    // 比较操作词（替换映射）。
-    //
-    compWords: [
-        [ /\bLT\b/g,    '<' ],
-        [ /\bLTE\b/g,   '<=' ],
-        [ /\bGT\b/g,    '>' ],
-        [ /\bGTE\b/g,   '>=' ],
-    ],
+//
+// 表达式切分解析器。
+// 用于在非字符串内的替换操作（Words）。
+//
+Expr.Spliter = new Spliter();
 
 
-    //
-    // 包含比较词测试。
-    //
-    hasComp: /\b(?:LT|LTE|GT|GTE)\b/i,
+//
+// 待替换测试式。
+//
+Expr.Repl = /[@\s]/;
 
-};
+
+//
+// 关键词集。
+// 仅含部分影响html格式的比较操作符。
+//
+Expr.Words = [
+    // 运算符别名
+    [ /\bLT\b/g,    '<' ],
+    [ /\bLTE\b/g,   '<=' ],
+    [ /\bGT\b/g,    '>' ],
+    [ /\bGTE\b/g,   '>=' ],
+];
+
 
 
 
@@ -906,7 +894,14 @@ function renders( grammar, el, map, _data ) {
 //
 // 不支持原地更新的语法词。
 //
-const __mustClones = [ Opers[__Each], Opers[__For] ];
+const __mustClones =
+[
+    Opers[__tpbEach],
+    Opers[__tpbFor],
+    Opers[__tpbIf],
+    Opers[__tpbElif],
+    Opers[__tpbElse],
+];
 
 
 /**

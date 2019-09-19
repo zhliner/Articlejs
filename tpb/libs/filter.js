@@ -224,3 +224,6 @@ function viewEndpad( chs, fix ) {
     }
     return chs.join('') + fix;
 }
+
+
+export { Filter };
