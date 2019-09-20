@@ -21,13 +21,16 @@
 //      _[attr]             属性赋值（系列）
 //  }
 //  注：
-//  模板中若无循环（for/each）逻辑，则元素可以“原地更新”。
+//  模板中若无循环（for/each）逻辑，则元素可以简单地原地更新。
 //
 //////////////////////////////////////////////////////////////////////////////
 //
 
 import { Filter } from "./filter.js";
+import { Spliter } from "./spliter";
 
+
+const $ = window.$;
 
 //
 // 基本配置/定义。
@@ -43,15 +46,21 @@ const
     __Switch    = 'tpb-switch',     // switch （子元素分支）
     __Case      = 'tpb-case',       // switch/case
     __Default   = 'tpb-default',    // switch/default
-    __For       = 'tpb-for',        // 子元素循环
-
-    // 分隔标识字符。
-    __chrDlmt	= ';',      // 并列分组
-    __chrRange 	= ',',      // 范围定义
-    __chrPipe 	= '|';      // 进阶处理（输出过滤）
+    __For       = 'tpb-for';        // 子元素循环
 
 
 const
+    // 进阶处理（输出过滤）
+    __chrPipe   = '|',
+
+    // 循环内临时变量名
+    __loopIndex = '_I_',   // 当前条目下标（从0开始）
+    __loopCount = '_C_',   // 当前循环计数（从1开始）
+    __loopSize  = '_S_',   // 循环集大小
+
+    __scopeData = Symbol('scope-data'),
+
+
     // 属性赋值处理器名
     // 注：最后单独处理。
     __attrPuts = 'Puts',
@@ -78,38 +87,77 @@ const
 
 
 const
-    // 渲染配置存储
-    // 仅用于源模板节点。
-    // { Element: Blinder }
-    Blindes = new WeakMap(),
-
-    // 结构语法处理序列（优先级）
+    // 文法处理序列（含优先级）
     Queue = [
         __Each,
         __With,
         __Var,
         __Else,
-        __Elif,
+        __Elseif,
         __If,
-        __For,
         __Case,
         __Default,
-        __Switch,
+        __Switch,   // 子元素Case测试
+        __For,      // 子元素循环
     ],
 
-    // 结构语法处理器名
+    // 文法处理器名
     Opers = {
         [__Each]:       'Each',
         [__With]:       'With',
         [__Var]:        'Var',
         [__Else]:       'Else',
-        [__Elif]:       'Elseif',
+        [__Elseif]:     'Elseif',
         [__If]:         'If',
         [__For]:        'For',
         [__Switch]:     'Switch',
         [__Case]:       'Case',
         [__Default]:    'Default',
     },
+
+
+    // 节点渲染映射集（模板）
+    // 模板根元素对应其所包含的存在渲染配置的子元素集。
+    // Object2 {
+    //      elem: Element       // 渲染子元素
+    //      tree: [             // DOM树位置索引（相对于模板根）
+    //          index: Nunber   // 平级序位（兄弟）
+    //          deep:  Number   // 纵深层级（父子）
+    //      ]
+    // }
+    // 用法：如果 UpdateMap 中不存在，则查询此集合（含克隆逻辑）。
+    //
+    // { Root: [Object2] }
+    OriginMap = new WeakMap(),
+
+
+    // 节点更新映射集（页面）
+    // 被首先查询的渲染配置，含原地更新逻辑。
+    // Object3 {
+    //      elem: Element       // 渲染子元素
+    //      tree: [             // DOM树位置索引（相对于渲染根）
+    //          0:index:Nunber  // 平级序位（兄弟）
+    //          1:deep:Number   // 纵深层级（父子）
+    //      ]
+    //      refer: [            // 插入参考（恢复）
+    //          0:box:Element   // 位置参考容器
+    //          1:next:Node     // 位置参考兄弟节点
+    //      ]
+    // }
+    // 注：外部先查询此集合，如果不存在则查询 OriginMap。
+    // { Root: [Object3] }
+    UpdateMap = new WeakMap(),
+
+    // 元素文法存储。
+    // 包含原始模板中和页面中采用渲染处理的元素。
+    // Object {
+    //      grammar: String     // 渲染语法词（Each/If...）
+    //      apply: Function     // 应用方法，function(data): Value|Boolean
+    // }
+    // 每个元素对应一个渲染配置对象的有序数组。
+    // 属性赋值文法可能有多个，它们之间的顺序不重要（在最后）。
+    // { Element: [Object2] }
+    Grammers = new WeakMap(),
 
 
     // 分组切分器。
@@ -233,6 +281,7 @@ const Parser = {
 };
 
 
+
 //
 // 渲染配置（文法影射）。
 // 仅针对当前单个元素，不含子元素。
@@ -293,62 +342,48 @@ class Blinder extends Map {
 
 
 //
-// 文法执行器。
-// - 因大多数与JS关键字同名，故首字母大写；
-// - 表达式为原生JS语法，支持任意JS表达式（因此十分强大）；
-// - 部分影响Html格式的操作符用“操作词”替换；
-// 注：
-// - If/Elseif返回null，表示判断为假；
-// - Each克隆后需要移除参考源，也返回null；
-// 操作词：{
-//  	< 	-> LT 	小于比较
-//  	<= 	-> LE 	小于等于比较
-//  	> 	-> GT 	大于比较
-//  	>= 	-> GE 	大于等于比较
-// }
-// 执行器参数：
-// @param  {Element} el 目标元素（部分未用，占位）
-// @param  {Object} data 当前域数据
-// @param  {String} expr 属性值
-// @return {Object|null} 当前域数据或null
+// 渲染文法。
+// 按文法固有的逻辑更新目标元素（集）。
 //
-class Grammar {
+const Grammar = {
     /**
-     * 构造执行器。
-     * - 循环结构会创建新元素，故需store；
-     * - scoper为打包入栈数据的域执行器；
-     * - 循环结构会创建新元素，故需buf引用；
-     * @param {Scoper} scoper 净域实例
-     * @param {WeakMap} buf 渲染映射存储 {Element: Blinder}
+     * 自迭代循环。
+     * 用数据集更新原始集，并按数据集大小删除或增长原始集。
+     * 增长元素集时会存储新元素的渲染配置。
+     * @param  {[Element]} els 原始集
+     * @param  {[Value]} data 迭代数据集
+     * @return {void}
      */
-    constructor( scoper, buf ) {
-        this._scoper = scoper;
-        this._buf = buf;
-        this._Expror = new Expr(scoper);
-    }
+    Each( els, data ) {
+        let _sz = els.length - data.length;
 
-
-    /**
-     * 定义当前数据域。
-     * 格式：{
-     *  	tpl-with="member"
-     *  	tpl-with="{ xyz: 'new-value', old: member }"
-     * }
-     * - 支持任意合法的JS表达式，下同；
-     * - 如果在循环内，合并即时变量成员；
-     * - 循环内父域对象需要向下延续传递；
-     */
-    With( el, expr, data ) {
-        if (!expr) return data;
-
-        let _data = this._exec(expr, data),
-            _loop = data[__loopChain];
-
-        if (!_loop) {
-            return _data;
+        if ( _sz > 0 ) {
+            // 移除超出部分。
+            els.splice(-_sz).forEach( e => $.remove(e) );
         }
-        return $.object(_data, _loop, { [__loopChain]: _loop });
-    }
+        else if ( _sz < 0 ) {
+            // 补齐不足部分。
+            els.push( ...this._eachClone(els[els.length-1], -_sz) );
+        }
+        // 设置当前域对象。
+        els.forEach(
+            (el, i) => el[__scopeData] = loopCell(data[i], i, data.length, data)
+        );
+    },
+
+
+    /**
+     * 创建新的当前域。
+     * 应用数据可能是简单的基本类型。
+     * @param {Element} el 当前元素
+     * @param {Object} data 应用数据
+     */
+    With( el, data ) {
+        if ( typeof data != 'object' ) {
+            data = Object(data);
+        }
+        el[__scopeData] = Object.assign( data, {$: el[__scopeData]} );
+    },
 
 
     /**
@@ -377,7 +412,7 @@ class Grammar {
             }
         }
         return data;
-    }
+    },
 
 
     /**
@@ -398,7 +433,7 @@ class Grammar {
         this._elseDrop( $.next(el) );
 
         return data;
-    }
+    },
 
 
     /**
@@ -407,7 +442,7 @@ class Grammar {
      */
     Elseif( el, expr, data ) {
         return this.If(el, data, expr);
-    }
+    },
 
 
     /**
@@ -421,7 +456,7 @@ class Grammar {
      */
     Else( el, expr, data ) {
         return this.With(el, expr, data);
-    }
+    },
 
 
     /**
@@ -458,35 +493,9 @@ class Grammar {
         // 返回原当前域
         // 表达式内data成员已对子元素设置父域。
         return data;
-    }
+    },
 
 
-    /**
-     * 当前循环。
-     * 格式：{
-     *  	tpl-each="links[; start, end]"
-     *  	tpl-each="links"
-     *  	......
-     *  	tpl-each
-     * }
-     * - 类似For，但针对当前元素克隆循环；
-     */
-    Each( el, expr, data ) {
-        let _cfg = this._loopObj(expr, data);
-        if (!_cfg) return data;
-
-        let _buf = [],
-            _cnt = 1;
-
-        for ( let i = _cft.start; i < _cfg.end; i++ ) {
-            let _dt = this._loopData(_cfg.data[i], i, _cnt++, _cfg.end);
-            _buf.push( this._clone(el, _dt, true) );
-        }
-        $.after(el, _buf);
-
-        // 移除克隆源并停止解析
-        return null;
-    }
 
 
     /**
@@ -517,7 +526,7 @@ class Grammar {
         this._setAttr( el, attr, data, _vlst );
 
         return true;
-    }
+    },
 
 
     /**
@@ -529,10 +538,29 @@ class Grammar {
      */
     Scope( el, store/*, data*/ ) {
         return Object.assign(store, { [__loopChain]: store });
-    }
+    },
 
 
     //-- 私有辅助 -----------------------------------------------------------------
+
+    /**
+     * Each克隆新元素。
+     * 会存储新元素的渲染配置。
+     * @param  {Element} ref 参考元素（克隆源）
+     * @param  {Number} size 迭代数据集
+     * @return {[Element]} 新元素集
+     */
+    _eachClone( ref, size ) {
+        let _els = [],
+            _i = 1;
+
+        for (let i=0; i<size; i++) {
+            _els.push(
+                cloneGrammar( $.clone(ref, true, true, true), ref )
+            );
+        }
+        return $.after( ref, _els );
+    },
 
 
     /**
@@ -552,7 +580,7 @@ class Grammar {
         }
         return this._Expror.exec(expr, data);
 
-    }
+    },
 
 
     /**
@@ -579,7 +607,7 @@ class Grammar {
             }
             el = $.next(el);
         }
-    }
+    },
 
 
     /**
@@ -608,7 +636,7 @@ class Grammar {
             _gm.delete(Opers[__tpbEach]);
         }
         return _new;
-    }
+    },
 
 
     /**
@@ -625,85 +653,7 @@ class Grammar {
             _gm2 = new Blinder([ [__loopScope, data], ..._gm ]);
 
         return map.set(el, _gm2), _gm2;
-    }
-
-
-    /**
-     * 解析循环配置对象。
-     * 返回值：{
-     *  	data:  {Array}
-     *  	start: {Number}
-     *  	end:   {Number}
-     * }
-     * @param  {String} expr 表达式
-     * @param  {Object|Array} data 当前域数据
-     * @return {Object|null}
-     */
-    _loopObj( expr, data ) {
-        let start = 0, end;
-
-        if (!expr) {
-            if (!$.isArray(data)) return null;
-            end = data.length;
-        }
-        else {
-            let [_d, _n2] = DlmtSpliter.split(expr, s => s.trim());
-            if (_d) {
-                data = this._exec(_d, data);
-            }
-            if (!$.isArray(data)) {
-                return null;
-            }
-            [start, end] = this._range(_n2, __chrRange, data.length);
-        }
-        return { data, start, end };
-    }
-
-
-    /**
-     * 创建循环单元域数据。
-     * - 创建一个继承data的新对象；
-     * - 新对象内声明4个即时变量；
-     * @param  {Mixed} data 单元数据
-     * @param  {Number} i   数组当前下标
-     * @param  {Number} cnt 当前计数
-     * @param  {Number} sz  数组大小（实际上是循环最大值）
-     * @return {Object} 设置变量后的对象
-     */
-    _loopData( data, i, cnt, sz) {
-        // 原型继承
-        return $.object(data, {
-            [__loopIndex]: i,
-            [__loopCount]: cnt,
-            [__loopSize]:  sz,
-            [__loopValue]: data,
-        });
-    }
-
-
-    /**
-     * 解析数值范围。
-     * - 返回数组的成员为有效的范围值；
-     * - 格式串：start,end （支持单项指定）；
-     * - 支持无值默认指定（0,max）；
-     * @param  {string} str 待解析串
-     * @param  {string} sep 分隔符
-     * @param  {number} max 最大有效值
-     * @return {array} [min, max]
-     */
-    _range( str, sep, max ) {
-        if (!str) {
-            return [0, max];
-        }
-        let _tmp = Util.pair(str, sep),
-            _beg = parseInt(_tmp[0]) || 0,
-            _end = parseInt(_tmp[1]) || max;
-
-        return [
-            Math.max(0, _beg),
-            Math.min(_end, max),
-        ];
-    }
+    },
 
 
     /**
@@ -725,7 +675,7 @@ class Grammar {
             return data;
         }
         return Filter[ _fns[0] ].apply( data, _fns[1] );
-    }
+    },
 
 
     /**
@@ -751,7 +701,7 @@ class Grammar {
             return $.fill(el, val);
         }
         return $.html(el, val + '');
-    }
+    },
 
 }
 
@@ -760,17 +710,24 @@ class Grammar {
 //
 // 表达式处理构造。
 // 返回一个目标渲染类型的表达式执行函数。
-// 注：表达式无return关键词。
+// 函数返回值：{
+//      true    元素显示
+//      false   元素隐藏（脱离DOM，但有参考点）
+//      Value   使用值或新域对象
+// }
+// 注：
+// - 非条件表达式不支持定制比较词（LT/GT 等）。
+// - 表达式无return关键词。
 // @param  {String} expr 表达式串
 // @return {Function}
 //
 const Expr = {
     /**
-     * 赋值表达式。
+     * 取值表达式。
      * 适用：_[name], tpb-with, tpb-switch.
      * @return function(data): Value
      */
-    assign( expr ) {
+    value( expr ) {
         return new Function( '$', `return ${expr};` );
     },
 
@@ -778,15 +735,15 @@ const Expr = {
     /**
      * 变量创建表达式。
      * 适用：tpb-var.
-     * @return function(data): null
+     * @return function(data): true
      */
     setvar( expr ) {
-        return new Function( '$', `return (${expr}, null);` );
+        return new Function( '$', `return (${expr}, true);` );
     },
 
 
     /**
-     * 条件比较表达式。
+     * 比较表达式。
      * 支持 LT/LTE/GT/GTE 四个命名操作符。
      * 适用：tpb-if/elseif, tpb-case.
      * @return function(data): Boolean
@@ -798,8 +755,7 @@ const Expr = {
 
     /**
      * 循环表达式。
-     * 需要处理规定格式的循环定义。
-     * 格式：(data; start?, end?)?
+     * 空值返回传入的数据本身。
      * 适用：tpb-each, tpb-for.
      * @return function(data): Array
      */
@@ -807,21 +763,16 @@ const Expr = {
         if ( !expr ) {
             return v => v;
         }
-        let _vs = expr.split(expr, 2);
-
-        return new Function(
-            '$',
-            `return ${_vs[0]}.slice(${_vs[1]});`
-        );
+        return new Function( '$', `return ${expr};` );
     },
 
 
     /**
-     * 简单执行即可。
+     * 简单通过。
      * 适用：tpb-else, tpb-default.
      */
-    excute( expr ) {
-        //
+    pass() {
+        return () => true;
     },
 
 
@@ -875,6 +826,72 @@ const Expr = {
 
 
 
+//
+// 工具函数
+///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 返回目标元素的参考节点。
+ * 用于比较文法中假植隐藏（移出）元素的可能恢复（原地更新）。
+ * 恢复：box.insertBefore(el, next);
+ * @param  {Element} el 目标元素
+ * @return {box:Element, next:Node}
+ */
+function referenceNodes( el ) {
+    let _box = el.parentNode,
+        // 忽略可能被清理的注释节点
+        _nds = $.contents( _box ),
+        _pos = _nds.indexOf( el );
+
+    return { box: _box, next: _pos >= 0 && _nds[_pos+1] || null };
+}
+
+
+/**
+ * 文法克隆&存储。
+ * 如果源元素上不存在文法定义，抛出错误。
+ * 用于循环中新建元素的文法存储。
+ *
+ * @param  {Element} to 目标元素
+ * @param  {Element} src 源元素
+ * @return {Element} 目标元素
+ */
+function cloneGrammar( to, src ) {
+    if ( !Grammers.has(src) ) {
+        throw new Error(`${src} is not in Grammar buffer.`);
+    }
+    Grammers.set( to, Grammers.get(src) );
+    return to;
+}
+
+
+/**
+ * 构造循环单元当前域对象。
+ * 简单的基本类型需要转换为Object，否则无法添加属性。
+ * 设置3个即时成员变量和父域链$。
+ * @param  {Object} data 单元数据
+ * @param  {Number} i    当前下标（>= 0）
+ * @param  {Number} size 循环迭代数
+ * @param  {Object} supObj 父域对象
+ * @return {Object} 设置后的数据对象
+ */
+function loopCell( data, i, size, supObj ) {
+    if ( typeof data != 'object' ) {
+        data = Object(data);
+    }
+    return Object.assign(
+        data,
+        {
+            [__loopIndex]: i,
+            [__loopCount]: i + 1,
+            [__loopSize]: size,
+            $: supObj,
+        }
+    );
+}
+
+
 /**
  * 渲染节点树。
  * - scoper为打包入栈数据的域执行器；
@@ -901,31 +918,6 @@ function renders( grammar, el, map, _data ) {
     }
     return el;
 }
-
-
-//
-// 不支持原地更新的语法词。
-//
-const __mustClones = [ Opers[__Each], Opers[__For] ];
-
-
-/**
- * 是否循环或判断渲染。
- * @param  {Blinder} gm 渲染配置实例
- * @return {Boolean}
- */
-const loopIfs = gm => gm && __mustClones.some( n => gm.has(n) );
-
-
-const __Cache = {
-    // 可否原地更新状态存储。
-    // { Element: Boolean|null }
-    situes: new WeakMap(),
-
-    // 克隆节点渲染配置存储。
-    // { Element: Blinder|null }
-    cloned: new WeakMap(),
-};
 
 
 //
@@ -1021,7 +1013,39 @@ const Render = {
 
 
 
-// Expose
+//
+// 导出
 ///////////////////////////////////////////////////////////////////////////////
 
-T.Render = Render;
+/**
+ * 用源数据更新节点树。
+ * 仅适用页面中既有渲染元素的原地更新。
+ * 返回false表示未检索到渲染配置，外部可以尝试render()。
+ * @param  {Element} root 渲染根（模板副本根）
+ * @param  {Object} data 数据源对象
+ * @return {Element|false} root
+ */
+function update( root, data ) {
+    //
+}
+
+
+/**
+ * 创建新的节点树（待渲染）。
+ * 克隆并检索模板元素上的渲染配置，存储副本备用（原地更新）。
+ * 用于初始插入时的创建。
+ * 注：之后需要调用update执行渲染。
+ * @param  {Element} tpl 模板根
+ * @return {Element} 待渲染的模板副本
+ */
+function create( tpl ) {
+    let _map = OriginMap.get(tpl);
+
+    if ( !_map ) {
+        // 模板初始解析并存储
+    }
+    //
+}
+
+
+export const Render = { create, update };

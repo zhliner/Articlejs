@@ -2436,7 +2436,7 @@ tQuery.Table = Table;
  */
 function _validMeth( node, meth ) {
     return node.nodeType == 1 ||
-        (meth === '' || meth == 1 && meth == -1);
+        (meth === '' || meth == 1 || meth == -1);
 }
 
 
