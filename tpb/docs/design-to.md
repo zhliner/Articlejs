@@ -242,13 +242,14 @@ target()
 // 用当前条目/栈顶1项设置为To目标。
 
 
-fire( evn, data )
-// 对目标元素触发事件，即 $.trigger。
+fire( evn, data, delay )
+// 触发事件，即 $.trigger。
 // 内容：当前条目，可选。
 // 如果data未定义，且当前条目非空，则采用当前条目为数据。
 // 数据优先级：data > evo.data | void
+// delay: 激发延迟，默认无延迟。
 
-xfire( evn, data )
+xfire( evn, data, delay )
 // 判断激发。
 // 内容：当前条目/栈顶1项。
 // 仅当内容为真时才激发目标事件，否则忽略。

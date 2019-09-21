@@ -972,7 +972,7 @@ Object.assign( tQuery, {
      * @return {Element|null}
      */
     next( el, slr ) {
-        return _next(el, slr, 'nextElementSibling');
+        return _sibling(el, slr, 'nextElementSibling');
     },
 
 
@@ -984,18 +984,18 @@ Object.assign( tQuery, {
      * @return {[Element]}
      */
     nextAll( el, slr ) {
-        return _nextAll(el, slr, 'nextElementSibling');
+        return _siblingAll(el, slr, 'nextElementSibling');
     },
 
 
     /**
      * 获取后续兄弟元素，直到slr匹配（不包含匹配的元素）。
      * @param  {Element} el 参考元素
-     * @param  {String|Element} slr 选择器或元素，可选
+     * @param  {String|Element|Function} slr 终止条件，可选
      * @return {[Element]}
      */
     nextUntil( el, slr ) {
-        return _nextUntil(el, slr, 'nextElementSibling');
+        return _siblingUntil(el, slr, 'nextElementSibling');
     },
 
 
@@ -1006,7 +1006,7 @@ Object.assign( tQuery, {
      * @return {Element|null}
      */
     prev( el, slr ) {
-        return _next(el, slr, 'previousElementSibling');
+        return _sibling(el, slr, 'previousElementSibling');
     },
 
 
@@ -1019,7 +1019,7 @@ Object.assign( tQuery, {
      * @return {[Element]}
      */
     prevAll( el, slr ) {
-        return _nextAll(el, slr, 'previousElementSibling');
+        return _siblingAll(el, slr, 'previousElementSibling');
     },
 
 
@@ -1031,7 +1031,7 @@ Object.assign( tQuery, {
      * @return {[Element]}
      */
     prevUntil( el, slr ) {
-        return _nextUntil(el, slr, 'previousElementSibling');
+        return _siblingUntil(el, slr, 'previousElementSibling');
     },
 
 
@@ -1125,11 +1125,11 @@ Object.assign( tQuery, {
      */
     parents( el, slr ) {
         let _buf = [],
-            _fun = slr && getFltr(slr),
+            _fun = getFltr( slr ),
             _i = 0;
 
         while ( (el = el.parentNode) ) {
-            if (!_fun || _fun(el, ++_i) ) _buf.push(el);
+            if ( _fun(el, ++_i) ) _buf.push(el);
         }
         return _buf;
     },
@@ -1146,11 +1146,11 @@ Object.assign( tQuery, {
      */
     parentsUntil( el, slr ) {
         let _buf = [],
-            _fun = slr && getFltr(slr),
+            _fun = getFltr( slr ),
             _i = 0;
 
         while ( (el = el.parentElement) ) {
-            if (_fun && _fun(el, ++_i)) break;
+            if ( _fun(el, ++_i) ) break;
             _buf.push(el);
         }
         return _buf;
@@ -1163,6 +1163,7 @@ Object.assign( tQuery, {
      * - 从当前元素自身开始测试（同标准 Element:closest）。
      * - 如果抵达document或DocumentFragment会返回null。
      * - 自定义匹配函数支持向上递进的层数（_i）。
+     * - 未传入slr时匹配当前元素（与Element.closest稍有不同）。
      * @param  {Element} el 参考元素
      * @param  {String|Function|Element|[Element]} slr 匹配选择器
      * @return {Element|null}
@@ -1171,10 +1172,7 @@ Object.assign( tQuery, {
         if (el.closest && typeof slr == 'string') {
             return el.closest( slr );
         }
-        if (! slr) {
-            return null;
-        }
-        let _fun = getFltr(slr),
+        let _fun = getFltr( slr ),
             _i = 0;
 
         while ( el && !_fun(el, _i++) ) {
@@ -2658,7 +2656,7 @@ function _elemRectSet( el, name, val ) {
  * @param  {String} dir 方向（nextElementSibling|previousElementSibling）
  * @return {Element|null}
  */
-function _next( el, slr, dir ) {
+function _sibling( el, slr, dir ) {
     let _el = el[dir];
     if (! slr) return _el;
 
@@ -2667,33 +2665,36 @@ function _next( el, slr, dir ) {
 
 /**
  * dir方向全部兄弟。
- * - 可选的用slr进行匹配过滤；
+ * 可选的用slr进行匹配过滤。
  * @param  {String} slr 选择器，可选
  * @param  {String} dir 方向（同上）
  * @return {Array}
  */
-function _nextAll( el, slr, dir ) {
-    let _els = [];
+function _siblingAll( el, slr, dir ) {
+    let _els = [],
+        _fun = getFltr( slr ),
+        _i = 0;
 
     while ( (el = el[dir]) ) {
-        if (!slr) _els.push(el);
-        else if ($is(el, slr)) _els.push(el);
+        if ( _fun(el, ++_i) ) _els.push(el);
     }
     return _els;
 }
 
 /**
  * dir方向兄弟元素...直到。
- * - 获取dir方向全部兄弟元素，直到slr但不包含；
- * @param  {String|Element} slr 选择器或元素，可选
+ * 获取dir方向全部兄弟元素，直到slr但不包含。
+ * @param  {String|Element|Function} slr 终止判断，可选
  * @param  {String} dir 方向（同上）
  * @return {Array}
  */
-function _nextUntil( el, slr, dir ) {
-    let _els = [];
+function _siblingUntil( el, slr, dir ) {
+    let _els = [],
+        _fun = getFltr( slr ),
+        _i = 0;
 
     while ( (el = el[dir]) ) {
-        if (slr && $is(el, slr)) break;
+        if ( _fun(el, ++_i) ) break;
         _els.push(el);
     }
     return _els;
@@ -2879,7 +2880,7 @@ class Collector extends Array {
         if ( this.length == 0 ) {
             return this;
         }
-        let _fun = getFltr(fltr);
+        let _fun = getFltr( fltr );
 
         return new Collector(
             super.filter( (v, i, o) => !_fun(v, i, o) ),
@@ -2951,16 +2952,11 @@ class Collector extends Array {
      * @return {Collector} 脱离的元素集
      */
     detach( slr ) {
-        let _fun = slr && getFltr(slr),
-            _els;
+        let _fun = getFltr( slr ),
+            // $ 允许嵌入代理
+            _els = super.filter( (e, i, o) => _fun(e, i, o) ? $.detach(e) : false );
 
-        // $ 允许嵌入代理
-        if ( _fun ) {
-            _els = super.filter( el => _fun(el) ? $.detach(el) : false );
-        } else {
-            this.forEach( el => $.detach(el) );
-        }
-        return new Collector( _els || this, this );
+        return new Collector( _els, this );
     }
 
 
@@ -2972,16 +2968,11 @@ class Collector extends Array {
      * @return {Collector} 一个空集
      */
     remove( slr ) {
-        let _fun = slr && getFltr(slr),
-            _els;
+        let _fun = getFltr( slr ),
+            // $ 允许嵌入代理
+            // 不依赖代理的返回值
+            _els = super.filter( (e, i, o) => _fun(e, i, o) ? ($.remove(e), false) : true );
 
-        // $ 允许嵌入代理
-        if ( _fun ) {
-            // 注：不依赖代理的返回值
-            _els = super.filter( el => _fun(el) ? ($.remove(el), false) : true );
-        } else {
-            this.forEach( el => $.remove(el) );
-        }
         return new Collector( _els, this );
     }
 
@@ -3849,13 +3840,16 @@ function arrLike( obj ) {
 
 //
 // 创建过滤器函数。
+// 返回值：function(Element): Boolean
 // @param  {String|Function|Array|Value}
 // @return {Function}
 //
 function getFltr( its ) {
-    if ( isFunc(its) ) {
-        return its;
+    if ( its == undefined ) {
+        return () => true;
     }
+    if ( isFunc(its) ) return its;
+
     if ( typeof its == 'string' ) {
         return e => e && $is(e, its);
     }

@@ -311,9 +311,9 @@ $.isXML( document.body );  // false
 获取 `el` 的后续全部兄弟元素。
 
 - `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String` 匹配测试的选择器，可选。
+- `slr: String | Function` 匹配测试的选择器或函数，可选。
 
-可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配（此时为一个空数组）。
+可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配（此时为一个空数组）。匹配测试函数接口为：`function( el:Element, i:Number ): Boolean`，`i` 为后续元素顺序计数（从 `el` 开始计数为 `0`）。
 
 
 ### [$.nextUntil( el, slr ): [Element]](docs/$.nextUntil.md)
@@ -321,9 +321,9 @@ $.isXML( document.body );  // false
 获取 `el` 的后续兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
 
 - `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String | Element` 终点匹配测试的选择器或元素，可选。
+- `slr: String | Element | Function` 终点匹配测试的选择器或元素或测试函数，可选。
 
-始终会返回一个数组，如果最开始的下一个元素就匹配或为 `null`，会返回一个空数组。
+始终会返回一个数组，如果最开始的下一个元素就匹配或为 `null`，会返回一个空数组。匹配测试函数接口为：`function( el:Element, i:Number ): Boolean`，`i` 为后续元素顺序计数（从 `el` 开始计数为 `0`）。
 
 
 ### [$.prev( el, slr ): Element | null](docs/$.prev.md)
@@ -341,9 +341,9 @@ $.isXML( document.body );  // false
 获取 `el` 前部的全部兄弟元素。
 
 - `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String` 匹配测试的选择器，可选。
+- `slr: String | Function` 匹配测试的选择器或函数，可选。
 
-这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配。
+这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配。测试函数接口和说明同前。
 
 > **注：**
 > 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
@@ -354,9 +354,9 @@ $.isXML( document.body );  // false
 获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
 
 - `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String | Element` 终点匹配测试的选择器或元素，可选。
+- `slr: String | Element | Function` 终点匹配测试的选择器或元素或测试函数，可选。
 
-始终会返回一个数组，如果最开始的前一个元素就匹配或为 `null`，会返回一个空数组。
+这是方法 `$.nextUntil` 的逆向版。始终会返回一个数组，如果最开始的前一个元素就匹配或为 `null`，会返回一个空数组。测试函数接口和说明同前。
 
 > **注：**
 > 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
@@ -437,7 +437,7 @@ $.isXML( document.body );  // false
 - `el: Element` 取值的目标元素。
 - `slr: String | Function | Element | [Element]` 目标匹配选择器、或自定义的测试函数、或一个目标元素或一个元素的数组，可选。
 
-向上逐级检查父级元素是否匹配，返回最先匹配的目标元素。会从 `el` 元素自身开始测试匹配（同标准 Element:closest），如果抵达 `document` 或 `DocumentFragment` 会返回 `null`。
+向上逐级检查父级元素是否匹配，返回最先匹配的目标元素。会从 `el` 元素自身开始测试匹配（同标准 Element:closest），如果抵达 `document` 或 `DocumentFragment` 会返回 `null`。如果未传入 `slr`，匹配当前元素自身（与 Element.closest 稍有不同）。
 
 如果 `slr` 是一个自定义的测试函数，接口为：`function(el:Element, i:Number): Boolean`，首个实参为递进的元素自身，第二个实参为向上递进的层级计数（当前元素时为 `0`）。
 

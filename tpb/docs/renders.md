@@ -1,12 +1,8 @@
 # 模板渲染
 
-用于模板渲染的语法/属性有 `10` 个（`tpb-[for|each|if|elseif|else|with|var|switch|case|default]`），渲染属性的值是JS表达式，表达式运算的结果成为该语法结构的数据。表达式会被封装为函数执行，调用时传入一个名称为 `$` 的实参，引用外部的数据。
+用于模板渲染的语法/属性有 `10` 个（`tpb-[for|each|if|elseif|else|with|var|switch|case|default]`），渲染属性的值是JS表达式，表达式运算的结果成为该语法结构的数据。表达式会被封装为函数调用，有一个名称为 `$` 的形参，用于引用外部的数据。
 
-正常的元素属性前置一个下划线是一种赋值语法，表示相应的属性会被赋值为其表达式的运算结果，如：`<a _href="$.url">`，表示 `$.url` 将赋值到 `href` 属性。
-
-> 实现：<br>
-> `for/each` 是一种循环结构，模板中的定义只是表达了单次循环的结果，因此这种结构必然是动态的。<br>
-> 表达静态渲染的结构是可以**原地更新**的，因此除了上面两种必须动态构造的循环，其它都是原地更新的，包括 `if/switch` 等。<br>
+正常的元素属性前置一个下划线是一种赋值语法，表示相应的属性会被赋值为其表达式运算的结果，如：`<a _href="$.url">`，表示 `$.url` 将赋值到 `href` 属性。
 
 
 ## 语法优先级
@@ -73,10 +69,10 @@ $ = {
     news: [{topic, about, summary}, ...] -->
 <dl tpb-for="$.news">
     <!-- 子域中的$被赋值为news[i] -->
-    <dt _="$.topic"></dt>       <!-- news[i].topic -->
+    <dt _text="$.topic"></dt>       <!-- news[i].topic -->
     <dd>
-        <p _="$.about"></p>     <!-- news[i].about -->
-        <p _="$.summary"></p>   <!-- news[i].summary -->
+        <h4 _text="$.about"></h4>     <!-- news[i].about -->
+        <p _html="$.summary"></p>   <!-- news[i].summary -->
     </dd>
 </dl>
 ```
@@ -93,9 +89,11 @@ $ = {
     ['javascript', 'console.info("hello, world!")']
 ] -->
 <dl tpb-for>
-    <!-- $: [i] -->
-    <dt _="$[0]"></dt>  <!-- [i][0]: <dt>c++</dt> -->
-    <dd _="$[1]"></dd>  <!-- [i][1]: <dd>print("hello, world!");</dd> -->
+    <!-- 全部子元素循环 $: [i] -->
+    <dt _text="$[0]"></dt>          <!-- [0][0]: <dt>c++</dt> -->
+    <dd>
+        <code _text="$[1]"></code>  <!-- [0][1]: <code>print("hello, world!");</code> -->
+    </dd>
 </dl>
 
 
@@ -112,7 +110,7 @@ $ = {
 <!-- $: [ 'Java', 'C/C++', 'JavaScript' ] -->
 <ol tpb-for>
     <!-- $: [i] -->
-    <li><code _="$"></code></li>
+    <li><code _text="$"></code></li>
     <!-- $.$ 有效，引用数组本身 -->
 </ol>
 ```
@@ -143,7 +141,7 @@ $ = {
     <dd tpb-each="$.list" _data-sn="$.sn">
         <label>
             <input name="books" type="checkbox" _value="$.value" />
-            <span _="$.label"></span>
+            <span _text="$.label"></span>
         </label>
     </dd>
     <!--注：<dd>元素自身被克隆，数据条目逐个应用。-->
@@ -160,7 +158,7 @@ $ = {
         <!-- id: 使用模板字符串（撇字符包围） -->
         <input name="books" _id="`book_${$.sn}`" type="checkbox" _value="$.value" />
         <!-- 文本说明 -->
-        <label _for="`book_${$.sn}`" _="$.label"></label>
+        <label _for="`book_${$.sn}`" _text="$.label"></label>
     </dd>
 </dl>
 ```
@@ -194,12 +192,12 @@ $ = {
 <div tpb-with="$.student">
     <!-- 如果 tpb-if 为假，段落不会显示 -->
     <p tpb-if="$.age LT 7">
-        欢迎 <strong _="$.name">[孩子]</strong> 小朋友！
+        欢迎 <strong _text="$.name">[孩子]</strong> 小朋友！
     </p>
     <!-- 中间段：可插入任意内容 -->
     <p tpb-else>
         <!-- 中括号内的文字为模板友好提示（会被替换） -->
-        欢迎 <strong _="$.name">[男/女]</strong> 同学！
+        欢迎 <strong _text="$.name">[男/女]</strong> 同学！
     </p>
 </div>
 ```
@@ -217,15 +215,15 @@ $ = {
 ```html
 <div tpb-with="$.student" tpb-switch="true">
     <p tpb-case="$.age LT 7">
-        欢迎 <strong _="$.name">[孩子]</strong> 小朋友！
+        欢迎 <strong _text="$.name">[孩子]</strong> 小朋友！
     </p>
     <!-- 中间段：任意内容 -->
     <p tpb-case="$.age LTE 18">
-        你好，<strong _="$.name">[青少年]</strong>！
+        你好，<strong _text="$.name">[青少年]</strong>！
     </p>
     <!-- 中间段：任意内容 -->
     <p tpb-default>
-        嗨，<strong _="$.name">[其他]</strong>！
+        嗨，<strong _text="$.name">[其他]</strong>！
     </p>
 </div>
 ```
@@ -250,9 +248,9 @@ $ = {
 ```html
 <!-- info: { time, ... } -->
 <p tpb-with="{topic: $.info.title, time: $.info.time, tips: '更新'}">
-    <span _="$.topic"></span>
-    更新时间：<strong _="$.time|date('yyyy-MM-dd')"></strong>
-    <em tpb-if="$.time LT 86400" _="$.tips">[最新提示]</em>
+    <span _text="$.topic"></span>
+    更新时间：<strong _text="$.time|date('yyyy-MM-dd')"></strong>
+    <em tpb-if="$.time LT 86400" _text="$.tips">[最新提示]</em>
 </p>
 ```
 
@@ -269,14 +267,14 @@ $ = {
 ```html
 <!-- 没啥道理哈 -->
 <p tpb-var="$.schoolName = '(^,^)' + $.student.school.name">
-    毕业学校：<strong _="$.schoolName"><strong>
+    毕业学校：<strong _text="$.schoolName"><strong>
 </p>
 ```
 
 
 ## _[attrName]
 
-对元素特性/属性的赋值进行定义。名称采用属性名前置一个下划线。单纯的 `_` 表示对元素内容赋值，赋值方式为 `html` 填充（可用 `text` 过滤器输出纯文本）。
+对元素特性/属性的赋值进行定义，名称采用属性名前置一个下划线（`_`）。支持两个特殊的特性名：`text` 和 `html`，表示对元素的内容赋值，插入方式分别为 `$.text()` 和 `$.html()` 的填充（`fill`）模式。
 
 
 ### 示例
@@ -285,13 +283,13 @@ $ = {
 <header class="summary">
     <p class="info" _title="$.tips">
         <!-- 限制文本长度 -->
-        文章来源：<a _href="url" _="$.label|cut(40, '...')"></a>
+        文章来源：<a _href="url" _text="$.label|cut(40, '...')"></a>
         <!-- 输出全名 -->
-        作者：<em _=" `${$.firstName} ${$.lastName}` "></em>
+        作者：<em _text=" `${$.firstName} ${$.lastName}` "></em>
     </p>
     <hr />
     <!-- 内容为html填充，用text转义 -->
-    <p _="$.summary|text('br')">[摘要为纯文本，允许换行标签]</p>
+    <p _html="$.summary|text('br')">[摘要为纯文本，允许换行标签]</p>
 </header>
 ```
 
@@ -320,14 +318,14 @@ $: {
 
 ```html
 <section>
-    <h3 _="$.title"></h3>
+    <h3 _text="$.title"></h3>
     <ul>
         <!-- 未用 tpb-with -->
         <li tpb-each="$.list">
-            <label _="$.text"></label> <!-- 子域成员引用 -->
+            <label _text="$.text"></label> <!-- 子域成员引用 -->
 
-            作者：<strong _="$.about.author"></strong>
-            来源：<em _="$.about.cite"></em>
+            作者：<strong _text="$.about.author"></strong>
+            来源：<em _text="$.about.cite"></em>
         </li>
     </ul>
 </section>
@@ -337,14 +335,14 @@ Each子域中增加新的子域（`tpb-with`）。
 
 ```html
 <section>
-    <h3 _="$.title"></h3>
+    <h3 _text="$.title"></h3>
     <ul>
         <!-- each先执行，with引用 list[i].about -->
         <li tpb-each="$.list" tpb-with="$.about">
-            <label _="$.text"></label> <!-- 通过父域链引用，同 $.$.text -->
+            <label _text="$.text"></label> <!-- 通过父域链引用，同 $.$.text -->
 
-            作者：<strong _="$.author"></strong>
-            来源：<em _="$.cite"></em>
+            作者：<strong _text="$.author"></strong>
+            来源：<em _text="$.cite"></em>
         </li>
     </ul>
 </section>

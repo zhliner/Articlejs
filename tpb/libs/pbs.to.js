@@ -207,13 +207,14 @@ const _Stage = {
      * 内容：当前条目，可选。
      * 如果data未定义，则采用当前条目（如果有）为数据。
      * @param {String} name 事件名
-     * @param {Value} data 发送数据
+     * @param {Value} extra 发送数据
+     * @param {Number} delay 延迟毫秒数。可选，默认无延迟
      */
-    fire( evo, name, data ) {
-        if ( data === undefined ) {
-            data = evo.data;
+    fire( evo, name, extra, delay ) {
+        if ( extra === undefined ) {
+            extra = evo.data;
         }
-        $( evo.targets ).trigger( name, data );
+        Util.fireEvent( $(evo.targets), name, extra, delay );
     },
 
     __fire: 0,
@@ -225,11 +226,12 @@ const _Stage = {
      * 仅当内容为真时才激发目标事件，否则忽略。
      * 注：内容无法成为被发送的数据。
      * @param {String} name 事件名
-     * @param {Value} data 发送数据
+     * @param {Value} extra 发送数据
+     * @param {Number} delay 延迟毫秒数。可选，默认无延迟
      */
-    xfire( evo, name, data ) {
+    xfire( evo, name, extra, delay ) {
         if ( evo.data ) {
-            $( evo.targets ).trigger( name, data );
+            Util.fireEvent( $(evo.targets), name, extra, delay );
         }
     },
 

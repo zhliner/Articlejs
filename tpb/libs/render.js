@@ -28,6 +28,7 @@
 
 import { Filter } from "./filter.js";
 import { Spliter } from "./spliter";
+import { Util } from "./util.js";
 
 
 const $ = window.$;
@@ -58,6 +59,9 @@ const
     __loopCount = '_C_',   // 当前循环计数（从1开始）
     __loopSize  = '_S_',   // 循环集大小
 
+    // 当前域数据存储键。
+    // 用于循环中在元素上存储当前域数据。
+    // 注：调用者取当前域先从元素上检索。
     __scopeData = Symbol('scope-data'),
 
 
@@ -151,17 +155,22 @@ const
     // 元素文法存储。
     // 包含原始模板中和页面中采用渲染处理的元素。
     // Object {
-    //      grammar: String     // 渲染语法词（Each/If...）
-    //      apply: Function     // 应用方法，function(data): Value|Boolean
+    //      [grammar]: [...]    // [文法词]: [参数序列]
     // }
-    // 每个元素对应一个渲染配置对象的有序数组。
-    // 属性赋值文法可能有多个，它们之间的顺序不重要（在最后）。
-    // { Element: [Object2] }
-    Grammers = new WeakMap(),
+    // 参数序列通常包含：
+    // - handle: Function 表达式执行器
+    // - ...: Value 文法特定的其它参数
+    // 参数序列应该可以直接解构传入文法操作函数（从第二个实参开始）。
+    //
+    // { Element: Object }
+    Grammars = new WeakMap(),
+
+    EachGrammars = new WeakMap(),
+
+    LoopGrammars = new WeakMap(),
 
 
-    // 分组切分器。
-    // 用于循环配置表达式。
+    // 简单切分器。
     SSpliter = new Spliter();
 
 
@@ -344,30 +353,31 @@ class Blinder extends Map {
 //
 // 渲染文法。
 // 按文法固有的逻辑更新目标元素（集）。
+// 注：尽量采用原地更新（包括each/for结构）。
+// @data {Object} 当前域数据
+// @return {void}
 //
 const Grammar = {
     /**
      * 自迭代循环。
      * 用数据集更新原始集，并按数据集大小删除或增长原始集。
-     * 增长元素集时会存储新元素的渲染配置。
-     * @param  {[Element]} els 原始集
-     * @param  {[Value]} data 迭代数据集
-     * @return {void}
+     * 增长元素集时会存储新元素的渲染配置（无Each）。
+     * 会存储当前域数据到每一个元素的 [__scopeData] 属性上。
+     * @param {Element} el 起始元素
+     * @param {Number} size 原始集大小
+     * @param {Object} data 当前域数据
      */
-    Each( els, data ) {
-        let _sz = els.length - data.length;
+    Each( el, size, handle, data ) {
+        data = handle(data);
+        if ( !$.isArray(data) ) {
+            throw new Error(`the scope data is not Array.`);
+        }
+        let _els = $.nextUntil( el, (_, i) => i == size ),
+            _sz = size - data.length;
 
-        if ( _sz > 0 ) {
-            // 移除超出部分。
-            els.splice(-_sz).forEach( e => $.remove(e) );
-        }
-        else if ( _sz < 0 ) {
-            // 补齐不足部分。
-            els.push( ...this._eachClone(els[els.length-1], -_sz) );
-        }
-        // 设置当前域对象。
-        els.forEach(
-            (el, i) => el[__scopeData] = loopCell(data[i], i, data.length, data)
+        this._eachAlign(_els, _sz).forEach(
+            // 设置当前域对象。
+            (el, i) => el[__scopeData] = loopCell(data[i], i, data)
         );
     },
 
@@ -461,19 +471,12 @@ const Grammar = {
 
     /**
      * 子元素循环。
-     * - data/start/end 各部分都为可选（前置分隔符不可省略）；
-     * 格式：{
-     *  	tpl-for="data[; start, end]"
-     *  	tpl-for="data[; start]"
-     *  	tpl-for="data[; , end]"
-     *  	tpl-for="; start[, end]"
-     *  	......
-     *  	tpl-for
-     * }
-     * - data 部分支持任意表达式；
-     * - start/end 部分仅支持数值常量；
+     * @param {Element} el for容器元素
+     * @param {Object} data 迭代数据集
+     * @param {Number} count 循环的子元素数量
      */
-    For( el, expr, data ) {
+    For( el, data, count ) {
+        // ?
         let _cfg = this._loopObj(expr, data);
         if (!_cfg) return data;
 
@@ -499,33 +502,19 @@ const Grammar = {
 
 
     /**
-     * 属性赋值/数据输出。
-     * 特例：{
-     *  	<p _="...">  // 内容
-     *  	<p _>  		 // 域数据本身即为内容
-     *  	<p _="|a()">
-     * }
-     * - 支持多个过滤器的连用，如：text|a()|b()；
-     * - 前一个过滤器的结果作为后一个的输入；
-     * - 支持空值指定（即当前域数据本身）；
-     * 注：
-     * - 各个属性赋值之间没有联系，因此无当前域的递进逻辑；
-     * - 外部单独批量处理，无需此处的域环境，因此简单返回；
-     *
-     * @param {String} attr 属性名
+     * 属性（特性）赋值。
+     * 支持两个特殊属性名：text, html。
+     * 多个属性名之间空格分隔，与 handles 成员一一对应。
+     * @param {String} name 属性名（序列）
+     * @param {[Function]} handles 处理器（集）
+     * @param {Object} data 当前域数据
      */
-    Puts( el, attr, expr, data ) {
-        let _vlst = [];
-
-        if (expr) {
-            _vlst = [
-                ...PipeSpliter.split( expr, s => s.trim() )
-            ];
-            data = this._exec(_vlst.shift(), data) || data;
-        }
-        this._setAttr( el, attr, data, _vlst );
-
-        return true;
+    Assign( el, name, handles, data ) {
+        $.attr(
+            el,
+            name,
+            handles.map( f => f(data) )
+        );
     },
 
 
@@ -545,7 +534,7 @@ const Grammar = {
 
     /**
      * Each克隆新元素。
-     * 会存储新元素的渲染配置。
+     * 会存储新元素的渲染配置，并插入参考元素之后。
      * @param  {Element} ref 参考元素（克隆源）
      * @param  {Number} size 迭代数据集
      * @return {[Element]} 新元素集
@@ -556,10 +545,24 @@ const Grammar = {
 
         for (let i=0; i<size; i++) {
             _els.push(
-                cloneGrammar( $.clone(ref, true, true, true), ref )
+                // 克隆元素不再有Each文法。
+                // 注：在克隆模板元素时需要移除。
+                cloneGrammar( $.clone(ref, true, true, true), ref, 'Each' )
             );
         }
         return $.after( ref, _els );
+    },
+
+
+    _eachAlign( els, size ) {
+        if ( size > 0 ) {
+            // 移除超出部分。
+            els.splice(-size).forEach( e => $.remove(e) );
+        } else {
+            // 补齐不足部分。
+            els.push( ...this._eachClone(els[els.length-1], -size) );
+        }
+        return els;
     },
 
 
@@ -724,7 +727,7 @@ const Grammar = {
 const Expr = {
     /**
      * 取值表达式。
-     * 适用：_[name], tpb-with, tpb-switch.
+     * 适用：tpb-with, tpb-switch.
      * @return function(data): Value
      */
     value( expr ) {
@@ -776,7 +779,40 @@ const Expr = {
     },
 
 
+    /**
+     * 属性赋值。
+     * 支持可能有的过滤器序列，如：...|a()|b()，a()的结果作为b()的输入。
+     * 适用：_[name].
+     * @return function(data): Value
+     */
+    assign( expr ) {
+        let _ss = SSpliter.split(expr, __chrPipe),
+            _fn = new Function( '$', `return ${_ss.shift()};` );
+
+        if ( _ss.length == 0 ) {
+            return _fn;
+        }
+        let _fxs = _ss.map( filterHandle );
+
+        return data => _fxs.reduce( (d, fx) => fx.func.bind(d)(...fx.args), _fn(data) );
+    },
+
+
     //-- 私有辅助 -------------------------------------------------------------
+
+    /**
+     * 解析构造过滤器序列。
+     * Object {
+     *      func: String    // 过滤器名
+     *      args: [Value]   // 过滤器实参序列
+     * }
+     * @param  {[String]} calls 调用表达式数组
+     * @return {[Object]}
+     */
+    _filters( calls ) {
+        return calls.map( call => Util.funcArgs( call.trim() ) );
+    },
+
 
     /**
      * 预处理比较表达式。
@@ -832,6 +868,26 @@ const Expr = {
 
 
 /**
+ * 提取过滤器句柄。
+ * Object {
+ *      func: Function
+ *      args: [Value]|''
+ * }
+ * @param  {String} call 调用表达式
+ * @return {Object} 过滤器对象
+ */
+function filterHandle( call ) {
+    let _fn2 = Util.funcArgs( call.trim() ),
+        _fun = Filter[_fn2.name];
+
+    if ( !_fun ) {
+        throw new Error(`not found ${_fn2.name} filter-method.`);
+    }
+    return { func: _fun, args: _fn2.args };
+}
+
+
+/**
  * 返回目标元素的参考节点。
  * 用于比较文法中假植隐藏（移出）元素的可能恢复（原地更新）。
  * 恢复：box.insertBefore(el, next);
@@ -855,13 +911,18 @@ function referenceNodes( el ) {
  *
  * @param  {Element} to 目标元素
  * @param  {Element} src 源元素
+ * @param  {String} ignore 忽略的文法
  * @return {Element} 目标元素
  */
-function cloneGrammar( to, src ) {
-    if ( !Grammers.has(src) ) {
+function cloneGrammar( to, src, ignore ) {
+    let _gram = Grammars.get(src);
+    if ( !_gram ) {
         throw new Error(`${src} is not in Grammar buffer.`);
     }
-    Grammers.set( to, Grammers.get(src) );
+    if ( ignore ) {
+        delete _gram[ignore];
+    }
+    Grammars.set( to, _gram );
     return to;
 }
 
@@ -872,11 +933,10 @@ function cloneGrammar( to, src ) {
  * 设置3个即时成员变量和父域链$。
  * @param  {Object} data 单元数据
  * @param  {Number} i    当前下标（>= 0）
- * @param  {Number} size 循环迭代数
  * @param  {Object} supObj 父域对象
  * @return {Object} 设置后的数据对象
  */
-function loopCell( data, i, size, supObj ) {
+function loopCell( data, i, supObj ) {
     if ( typeof data != 'object' ) {
         data = Object(data);
     }
@@ -885,7 +945,7 @@ function loopCell( data, i, size, supObj ) {
         {
             [__loopIndex]: i,
             [__loopCount]: i + 1,
-            [__loopSize]: size,
+            [__loopSize]: supObj.length,
             $: supObj,
         }
     );

@@ -71,6 +71,8 @@ const
     __reQuoteESC = /([^\\]|[^\\](?:\\\\)+)\\(['`])/g,
 
     // 调用表达式
+    // 首尾空白需要预先清除。
+    // 支持参数内的任意字符和换行。
     __reCall = /^(\w+)(?:\(([^]*)\))?$/;
 
 
@@ -102,14 +104,14 @@ const Util = {
      *      {String}    普通的CSS选择器，支持相对ID。
      *
      * 相对ID：
-     *      ?xx     前置问号（?）表示相对ID，即data-id属性的值。如：[data-id='xx']
+     *      前置一个问号（?）表示相对ID，即data-id属性的值。如：?xx => [data-id='xx']
      *
      * 例：
      * /            单独的 / 表示起点元素自身。
      * 0/           0上级，当前起点（同上）。
      * 2/           祖父元素（2级，父的父）
      * form/        起点元素上层首个<form>元素。
-     * ?xxx/        起点元素上层首个相对ID为 xxx 的元素。[data-id='xxx']
+     * div?/        起点元素上层首个包含相对ID定义的元素，div[data-id]
      *
      * />b          起点元素的<b>子元素。
      * /?xyz        起点元素内相对ID为 xyz 的元素。[data-id='xyz']
@@ -246,21 +248,14 @@ const Util = {
     },
 
 
-
-
     /**
      * 提取调用句法的函数名和参数列表。
-     * - 支持无参数时省略调用括号；
-     * - 调用名支持句点连接的多级引用；
-     *   如：fn(...), Md.fn(), fn, Md.fn 等。
-     * - 支持调用串内部任意位置换行；
-     * - 参数序列串需符合JSON格式（容忍单引号）；
-     * - 无法匹配返回undefined；
-     * 注：
-     * - 特别支持前置-字符用于事件名（延迟绑定）；
-     * 返回值：{
-     *  	name: {String} 调用名（可含句点）
-     *  	args: {Array|null} 参数值序列
+     * - 支持无参数时省略调用括号。
+     * - 参数序列串需符合JSON格式（容忍单引号）。
+     * - 无法匹配时抛出异常。
+     * Object {
+     *  	name: {String} 调用名
+     *  	args: {Array|''} 实参序列
      * }
      * @param  {String} fmt 调用格式串
      * @return {Object} 解析结果
@@ -269,36 +264,31 @@ const Util = {
         var _pair = fmt.match(__reCall);
 
         if ( !_pair ) {
-            window.console.error(`this ${fmt} call is invalid`);
-            return '';
+            throw new Error(`${fmt} is not a call().`);
         }
         return {
             'name': _pair[1],
-            'args': this.argsJSON( _pair[2] && _pair[2].trim() )
+            'args': this.argsJSON( _pair[2] && _pair[2].trim() ) || ''
         };
     },
 
 
     /**
      * 激发目标事件。
-     * - 默认的延迟时间足够短，仅为跳过当前执行流；
-     * @param {Queue} $el 目标元素
+     * @param {Collector} $el 目标元素集
      * @param {String} name 事件名
-     * @param {Mixed} extra 附加数据
+     * @param {Value} extra 附加数据
      * @param {Number} delay 延迟毫秒数
      */
     fireEvent( $el, name, extra, delay ) {
-        if (!$el.length || !name) {
-            return;
-        }
-        let _fn = () => $el.trigger(name, extra);
-
         if (!delay) {
-            return _fn();
+            return $el.trigger(name, extra);
         }
-        // <= 20，可能的习惯值
-        return isNaN(delay) || delay < 21 ? requestAnimationFrame(_fn) : setTimeout(_fn, delay);
+        return setTimeout( () => $el.trigger(name, extra), delay );
     },
+
+
+
 
 
     /**
