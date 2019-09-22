@@ -353,29 +353,34 @@ class Blinder extends Map {
 //
 // 渲染文法。
 // 按文法固有的逻辑更新目标元素（集）。
-// 注：尽量采用原地更新（包括each/for结构）。
-// @data {Object} 当前域数据
+// 元素上存储的当前域数据（[__scopeData]）拥有最高的优先级。
+// 注：
+// 尽量采用原地更新，包括each/for结构。
+//
+// @data {Object} 应用前的当前域数据
 // @return {void}
 //
 const Grammar = {
     /**
      * 自迭代循环。
      * 用数据集更新原始集，并按数据集大小删除或增长原始集。
+     * 文法：{ Each: [handle, size] }
      * 增长元素集时会存储新元素的渲染配置（无Each）。
      * 会存储当前域数据到每一个元素的 [__scopeData] 属性上。
      * @param {Element} el 起始元素
-     * @param {Number} size 原始集大小
+     * @param {Function} handle 表达式取值函数
+     * @param {Number} size 原始集大小（循环次数）
      * @param {Object} data 当前域数据
      */
-    Each( el, size, handle, data ) {
-        data = handle(data);
+    Each( el, handle, size, data ) {
+        data = handle( data );
 
         if ( !$.isArray(data) ) {
-            throw new Error(`the scope data is not Array.`);
+            throw new Error(`the scope data is not a Array.`);
         }
         let _els = $.nextUntil(el, (_, i) => i == size);
 
-        this._eachAlign(_els, data.length)
+        this._alignEach(_els, data.length)
         .forEach(
             // 设置当前域对象。
             (el, i) => el[__scopeData] = loopCell(data[i], i, data)
@@ -385,121 +390,139 @@ const Grammar = {
 
     /**
      * 创建新的当前域。
-     * 应用数据可能是简单的基本类型。
+     * 文法：{ With: [handle] }
+     * 新的当前域数据存储在元素的 [__scopeData] 属性上。
      * @param {Element} el 当前元素
-     * @param {Object} data 应用数据
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
      */
-    With( el, data ) {
-        if ( typeof data != 'object' ) {
-            data = Object(data);
+    With( el, handle, data ) {
+        data = handle( data );
+
+        if ( data == null ) {
+            data = Object.create(null);
         }
         el[__scopeData] = Object.assign( data, {$: el[__scopeData]} );
     },
 
 
     /**
-     * 新建变量。
-     * 格式：{
-     *  	tpl-var="var1='expr1'; var2='expr2'"
-     * }
-     * - 分号隔离多个变量声明，表达式任意；
-     * - 变量会合并存储在当前域中，注意重名覆盖；
-     * 注：
-     * - 表达式内的字符串可用模板字符串表达（`...`）；
-     *
-     * 注记：
-     * 可能修改为仅支持变量的解构赋值（数组和对象），缩短引用。
-     * 因为其它表达式都可以直接使用JS字符串模板组合内容。
+     * 子元素循环。
+     * 文法：{ For: [handle, size] }
+     * 迭代子元素的当前域数据存储在每个子元素上（[__scopeData]）。
+     * @param {Element} el For容器元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Number} size 单次循环子元素数量
+     * @param {Object} data 当前域数据
      */
-    Var( el, expr, data ) {
-        if (! expr) return data;
+    For( el, handle, size, data ) {
+        data = handle( data );
 
-        for ( let its of DlmtSpliter.split(expr, s => s.trim()) ) {
-            let [vn, val] = Util.pair(its, __chrVars);
+        if ( !$.isArray(data) ) {
+            throw new Error(`the scope data is not a Array.`);
+        }
+        let _all = this._alignFor( $.children(el), size, data.length );
 
-            if (__reVarname.test(vn)) {
-                // 去除引号
-                data[vn] = this._exec(val.slice(1, -1), data);
+        // 在每一个直接子元素上设置当前域。
+        _all.forEach(
+            (el, n) => {
+                let _i = parseInt( n / size );
+                el[__scopeData] = loopCell( data[_i], _i, data )
             }
-        }
-        return data;
+        );
     },
 
 
     /**
-     * If 逻辑。
-     * 格式：{
-     *  	tpl-if="age LE 18" 	// LE 小于比较
-     *  	tpl-if="pass" 		// 简单值
-     * }
-     * - 针对元素自身的存在性；
-     * - 如果为真，会向后查找 Elseif/Else 并删除其元素；
-     * - 空属性值视为条件判断为假，返回由外部处理；
-     *   注：牵涉的 Elseif/Else 逻辑需外部处理。
+     * 新建变量。
+     * 文法：{ Var: [handle] }
+     * 表达式应该是在当前域对象上添加新的变量，简单执行即可。
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
      */
-    If( el, expr, data ) {
-        if (! this._exec(expr, data)) {
-            return null;
-        }
-        this._elseDrop( $.next(el) );
-
-        return data;
+    Var( el, handle, data ) {
+        handle( data );
     },
 
 
     /**
-     * ElseIf 逻辑（同If）。
-     * 格式：tpl-elseif="..."
+     * 测试确定显示/隐藏。
+     * 文法：{ If: [handle] }
+     * 仅针对元素自身，隐藏采用样式 display:none。
+     * 实现：
+     * - 如果为真，向后查找 Elseif/Else 隐藏，直到另一个 if 或结束。
+     * - 如果为假，隐藏当前元素（后续 Elseif/Else 原样保持）。
+     * 注：
+     * 需要支持原地更新，所以保持DOM中的存在以便再测试。
+     * 不支持 if/else 嵌套逻辑，可用 elseif 获得该效果。
+     *
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
      */
-    Elseif( el, expr, data ) {
-        return this.If(el, data, expr);
+    If( el, handle, data ) {
+        let _show = handle( data );
+
+        if ( !_show ) {
+            el.style.display = 'none';
+            return;
+        }
+        this._hideElse( el.nextElementSibling );
+    },
+
+
+    /**
+     * 测试确定显示/隐藏（ElseIf 逻辑）。
+     * 文法：{ Elseif: [handle] }
+     * 注：处理逻辑与 IF 相同。
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
+     */
+    Elseif( el, handle, data ) {
+        this.If( el, handle, data );
     },
 
 
     /**
      * Else 逻辑。
-     * 格式：{
-     *  	tpl-else
-     *  	tpl-else="with-data"
-     * }
-     * - 可以像With一样设置一个域表达式；
-     * - 仅影响后续for文法词当前域；
+     * 文法：{ Else: [handle] }
+     * 注：实际上只是简单通过。
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
      */
-    Else( el, expr, data ) {
-        return this.With(el, expr, data);
+    Else( el, handle, data ) {
+        handle( data );
     },
 
 
     /**
-     * 子元素循环。
-     * @param {Element} el for容器元素
-     * @param {Object} data 迭代数据集
-     * @param {Number} count 循环的子元素数量
+     * 分支选择。
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
      */
-    For( el, data, count ) {
-        // ?
-        let _cfg = this._loopObj(expr, data);
-        if (!_cfg) return data;
-
-        let _buf = [],
-            _els = $.children(el),
-            _cnt = 1;
-
-        for (let i = _cfg.start; i < _cfg.end; i++) {
-            // 当前域数据构造
-            let _dt = this._loopData(_cfg.data[i], i, _cnt++, _cfg.end);
-            for ( let _el of _els ) {
-                _buf.push( this._clone(_el, _dt) );
-            }
-        }
-        $.empty(el).append(el, _buf);
-
-        // 返回原当前域
-        // 表达式内data成员已对子元素设置父域。
-        return data;
+    Switch( el, handle, data ) {
+        //
     },
 
 
+    /**
+     * 分支测试执行。
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
+     */
+    Case( el, handle, data ) {
+        //
+    },
+
+
+    Default( el, handle, data ) {
+        //
+    },
 
 
     /**
@@ -534,13 +557,14 @@ const Grammar = {
     //-- 私有辅助 -----------------------------------------------------------------
 
     /**
-     * Each克隆新元素。
-     * 会存储新元素的渲染配置，并插入参考元素之后。
+     * 指定数量的元素克隆。
+     * 会存储新元素的渲染配置（文法）。
+     * 注：用于Each中不足部分的批量克隆。
      * @param  {Element} ref 参考元素（克隆源）
-     * @param  {Number} size 迭代数据集
+     * @param  {Number} size 克隆的数量
      * @return {[Element]} 新元素集
      */
-    _eachClone( ref, size ) {
+    _sizeClone( ref, size ) {
         let _els = [],
             _i = 1;
 
@@ -551,73 +575,113 @@ const Grammar = {
                 cloneGrammar( $.clone(ref, true, true, true), ref, 'Each' )
             );
         }
-        return $.after( ref, _els );
+        return _els;
     },
 
 
     /**
-     * Each元素集数量适配。
+     * 元素集克隆。
+     * 存在渲染配置的元素会进行文法克隆存储。
+     * 注：用于For循环的子元素单次迭代。
+     * @param  {[Element]} els 子元素集
+     * @return {[Element]} 克隆的新元素集
+     */
+     _listClone( els ) {
+        let _new = els.map(
+            el => $.clone(el, true, true, true)
+        );
+        _new.forEach(
+            (e, i) => cloneGrammar( e, els[i] )
+        );
+        return _new;
+    },
+
+
+    /**
+     * 循环克隆元素集。
+     * @param  {[Element]} els 源元素集
+     * @param  {Number} cnt 克隆次数
+     * @return {[Element]} 克隆总集
+     */
+    _loopClone( els, cnt ) {
+        let _buf = [];
+
+        for (let i=0; i<cnt; i++) {
+            _buf = _buf.concat( this._listClone(els) );
+        }
+        return _buf;
+    },
+
+
+    /**
+     * Each元素集数量适配处理。
+     * 如果目标大小超过原始集，新的元素插入到末尾。
      * @param  {[Element]} els 原始集
-     * @param  {Number} size 目标大小
+     * @param  {Number} count 循环迭代的目标次数
      * @return {[Element]} 大小适合的元素集
      */
-    _eachAlign( els, size ) {
-        let _sz = els.length - size;
+    _alignEach( els, count ) {
+        let _sz = count - els.length;
 
-        if ( _sz > 0 ) {
+        if ( _sz == 0 ) return els;
+
+        if ( _sz < 0 ) {
             // 移除超出部分。
-            els.splice(-_sz).forEach( e => $.remove(e) );
+            els.splice(_sz).forEach( e => $.remove(e) );
         } else {
             // 补齐不足部分。
-            els.push( ...this._eachClone(els[els.length-1], -_sz) );
+            let _ref = els[els.length-1];
+            els.push(
+                ...$.after( ref, this._sizeClone(_ref, _sz) )
+            );
         }
         return els;
     },
 
 
     /**
-     * 表达式执行。
-     * - 如果为变量的简单引用，则简单执行；
-     * - 否则调用表达式类（Expr）解析执行；
-     * @param  {String} expr 表达式
-     * @param  {Object} data 当前域数据
-     * @return {Mixed|null} 执行结果
+     * For子元素数量适配处理。
+     * @param  {[Element]} els For子元素集（全部）
+     * @param  {Number} size 单次循环子元素数量
+     * @param  {Number} count 循环迭代的目标次数
+     * @return {[Element]} 数量适合的子元素集
      */
-    _exec( expr, data ) {
-        if (!expr) return null;
+    _alignFor( els, size, count ) {
+        let _loop = parseInt(els.length / size),
+            _dist = count - _loop;
 
-        if (__reVarname.test(expr)) {
-            // 简单情形
-            return this._scoper.get(expr, data);
+        if ( _dist == 0 ) return els;
+
+        if ( _dist < 0 ) {
+            // 移除超出部分。
+            els.splice(_dist * size).forEach( e => $.remove(e) );
+        } else {
+            // 补齐不足部分。
+            let _new = this._loopClone( els.slice(-size), _dist );
+            els.push(
+                ...$.after( els[els.length-1], _new )
+            );
         }
-        return this._Expror.exec(expr, data);
-
+        return els;
     },
 
 
     /**
-     * 清除同级匹配elseif和else元素。
-     * - 会跳过if/else的正常嵌套匹配；
+     * 隐藏同级elseif和else配置元素。
+     * 不支持 if/else 的嵌套，所以一旦碰到 if 即结束。
      * @param {Element} el 起始元素
      */
-    _elseDrop( el ) {
-        let _deep = 1;
+    _hideElse( el ) {
+        while ( el ) {
+            let _gram = Grammars.get(el);
 
-        while (el) {
-            if (el.hasAttribute(__tpbIf)) {
-                ++_deep;
+            if ( !_gram ) continue;
+            if ( _gram['If'] ) return;
+
+            if ( _gram['Else'] || _gram['Elseif'] ) {
+                el.style.display = 'none';
             }
-            if (el.hasAttribute(__tpbElse)) {
-                --_deep;
-                if (!_deep) {
-                    $.remove(el);
-                    break;
-                }
-            }
-            if (el.hasAttribute(__tpbElif) && _deep == 1) {
-                $.remove(el);
-            }
-            el = $.next(el);
+            el = el.nextElementSibling;
         }
     },
 
@@ -746,6 +810,7 @@ const Expr = {
 
     /**
      * 变量创建表达式。
+     * 就是简单的赋值表达式，多个赋值通常用逗号分隔。
      * 适用：tpb-var.
      * @return function(data): true
      */
@@ -790,7 +855,7 @@ const Expr = {
 
     /**
      * 属性赋值。
-     * 支持可能有的过滤器序列，如：...|a()|b()，a()的结果作为b()的输入。
+     * 支持可能有的过滤器序列，如：...|a()|b()。
      * 适用：_[name].
      * @return function(data): Value
      */
@@ -801,6 +866,7 @@ const Expr = {
         if ( _ss.length == 0 ) {
             return _fn;
         }
+        // 包含过滤器。
         let _fxs = _ss.map( filterHandle );
 
         return data => _fxs.reduce( (d, fx) => fx.func.bind(d)(...fx.args), _fn(data) );
@@ -830,6 +896,9 @@ const Expr = {
      * @return {String} 合法的表达式
      */
     _checkComp( expr ) {
+        if ( !expr ) {
+            return 'false';
+        }
         return [...SSpliter.partSplit(expr)]
             // 处理奇数单元
             .map( (s, i) => i%2 ? s : this._validComp(s) )
@@ -877,7 +946,7 @@ const Expr = {
 
 
 /**
- * 提取过滤器句柄。
+ * 提取赋值过滤器句柄。
  * Object {
  *      func: Function
  *      args: [Value]|''
@@ -897,42 +966,39 @@ function filterHandle( call ) {
 
 
 /**
- * 返回目标元素的参考节点。
- * 用于比较文法中假植隐藏（移出）元素的可能恢复（原地更新）。
- * 恢复：box.insertBefore(el, next);
- * @param  {Element} el 目标元素
- * @return {box:Element, next:Node}
+ * 文法克隆&存储。
+ * 用于克隆的新元素的文法存储。
+ * 限制：to必须是src的克隆。
+ * @param  {Element} to 目标元素
+ * @param  {Element} src 源元素
+ * @param  {String} ignore 忽略的文法（限于顶层）
+ * @return {Element|null} 目标元素
  */
-function referenceNodes( el ) {
-    let _box = el.parentNode,
-        // 忽略可能被清理的注释节点
-        _nds = $.contents( _box ),
-        _pos = _nds.indexOf( el );
+function cloneGrammar( to, src, ignore ) {
+    let _gram = Grammars.get(src);
 
-    return { box: _box, next: _pos >= 0 && _nds[_pos+1] || null };
+    if ( _gram ) {
+        if ( ignore ) delete _gram[ignore];
+        Grammars.set( to, _gram );
+    }
+    cloneGrammars( $.find(to, '*'), $.find(src, '*') );
+
+    return to;
 }
 
 
 /**
- * 文法克隆&存储。
- * 如果源元素上不存在文法定义，抛出错误。
- * 用于循环中新建元素的文法存储。
- *
- * @param  {Element} to 目标元素
- * @param  {Element} src 源元素
- * @param  {String} ignore 忽略的文法
- * @return {Element} 目标元素
+ * 批量克隆文法配置存储。
+ * 注：to和src是两个大小一致的集合。
+ * @param  {[Element]} to 新节点集
+ * @param  {[Element]} src 源节点集
+ * @return {void}
  */
-function cloneGrammar( to, src, ignore ) {
-    let _gram = Grammars.get(src);
-    if ( !_gram ) {
-        throw new Error(`${src} is not in Grammar buffer.`);
-    }
-    if ( ignore ) {
-        delete _gram[ignore];
-    }
-    Grammars.set( to, _gram );
-    return to;
+function cloneGrammars( to, src ) {
+    src
+    .forEach( (el, i) =>
+        Grammars.has(el) && Grammars.set( to[i], Grammars.get(el) )
+    );
 }
 
 
