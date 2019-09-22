@@ -369,13 +369,14 @@ const Grammar = {
      */
     Each( el, size, handle, data ) {
         data = handle(data);
+
         if ( !$.isArray(data) ) {
             throw new Error(`the scope data is not Array.`);
         }
-        let _els = $.nextUntil( el, (_, i) => i == size ),
-            _sz = size - data.length;
+        let _els = $.nextUntil(el, (_, i) => i == size);
 
-        this._eachAlign(_els, _sz).forEach(
+        this._eachAlign(_els, data.length)
+        .forEach(
             // 设置当前域对象。
             (el, i) => el[__scopeData] = loopCell(data[i], i, data)
         );
@@ -554,13 +555,21 @@ const Grammar = {
     },
 
 
+    /**
+     * Each元素集数量适配。
+     * @param  {[Element]} els 原始集
+     * @param  {Number} size 目标大小
+     * @return {[Element]} 大小适合的元素集
+     */
     _eachAlign( els, size ) {
-        if ( size > 0 ) {
+        let _sz = els.length - size;
+
+        if ( _sz > 0 ) {
             // 移除超出部分。
-            els.splice(-size).forEach( e => $.remove(e) );
+            els.splice(-_sz).forEach( e => $.remove(e) );
         } else {
             // 补齐不足部分。
-            els.push( ...this._eachClone(els[els.length-1], -size) );
+            els.push( ...this._eachClone(els[els.length-1], -_sz) );
         }
         return els;
     },

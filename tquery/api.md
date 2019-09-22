@@ -298,12 +298,15 @@ $.isXML( document.body );  // false
 
 ### [$.next( el, slr ): Element | null](docs/$.next.md)
 
-获取 `el` 的下一个兄弟元素。
+获取 `el` 的下一个匹配的兄弟元素。
 
 - `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String` 匹配测试的选择器，可选。
+- `slr: String | Function` 匹配测试的选择器或函数，可选。
 
-如果 `el` 的下一个兄弟元素不匹配 `slr`，会返回 `null`。
+如果为传递 `slr`，则无条件匹配 `el` 的下一个兄弟元素。如果最终未找到匹配，返回 `null`。测试函数接口：`function(el:Element, i:Number): Boolean`，`i` 为顺序迭代的兄弟元素序位（从 `el` 开始计数为 `0`）。
+
+> **注：**
+> `slr` 的行为与 `jQuery.next(slr)` 不同，后者仅测试 `el` 的下一个兄弟元素。
 
 
 ### [$.nextAll( el, slr ): [Element]](docs/$.nextAll.md)
@@ -328,12 +331,12 @@ $.isXML( document.body );  // false
 
 ### [$.prev( el, slr ): Element | null](docs/$.prev.md)
 
-获取 `el` 的前一个兄弟元素。
+获取 `el` 的前一个匹配的兄弟元素。
 
 - `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String` 匹配测试的选择器，可选。
+- `slr: String | Function` 匹配测试的选择器或函数，可选。
 
-这是 `$.next()` 方法的逆向版。可用 `slr` 进行匹配测试，匹配不成功时返回 `null`。
+这是 `$.next()` 方法的逆向版。可用 `slr` 进行匹配测试，如果最终未找到匹配，返回 `null`。
 
 
 ### [$.prevAll( el, slr ): [Element]](docs/$.prevAll.md)
@@ -343,7 +346,7 @@ $.isXML( document.body );  // false
 - `el: Element` 取值的目标源元素，不适用文本节点。
 - `slr: String | Function` 匹配测试的选择器或函数，可选。
 
-这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配。测试函数接口和说明同前。
+这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，如果没有任何匹配。测试函数接口和说明同前。
 
 > **注：**
 > 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。

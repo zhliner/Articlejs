@@ -965,8 +965,9 @@ Object.assign( tQuery, {
     //-- DOM 节点遍历 ---------------------------------------------------------
 
     /**
-     * 获取下一个兄弟元素。
-     * 可用slr进行匹配测试，匹配不成功返回null。可选。
+     * 获取下一个匹配的兄弟元素。
+     * 如果最终未找到匹配，返回null。
+     * 注：与 jQuery.next(slr) 行为不同。
      * @param  {Element} el 参考元素
      * @param  {String} slr 选择器，可选
      * @return {Element|null}
@@ -1000,7 +1001,9 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取前一个兄弟元素，可能没有或不匹配。
+     * 获取前一个匹配的兄弟元素。
+     * 如果最终未找到匹配，返回null。
+     * 注：与 jQuery.prev(slr) 行为不同。
      * @param  {Element} el 参考元素
      * @param  {String} slr 选择器，可选
      * @return {Element|null}
@@ -2652,15 +2655,18 @@ function _elemRectSet( el, name, val ) {
 /**
  * 获取兄弟元素。
  * - 可能没有或不匹配；
- * @param  {String} slr 选择器，可选
+ * @param  {String|Function} slr 匹配器，可选
  * @param  {String} dir 方向（nextElementSibling|previousElementSibling）
  * @return {Element|null}
  */
 function _sibling( el, slr, dir ) {
-    let _el = el[dir];
-    if (! slr) return _el;
+    let _fun = getFltr(slr),
+        _i = 0;
 
-    return _el && $is(_el, slr) ? _el : null;
+    while ( (el = el[dir]) ) {
+        if ( _fun(el, ++_i) ) return el;
+    }
+    return null;
 }
 
 /**
