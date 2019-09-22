@@ -64,6 +64,17 @@ const
     // 注：调用者取当前域先从元素上检索。
     __scopeData = Symbol('scope-data'),
 
+    // 元素初始display样式存储。
+    __displayValue = Symbol('display-value'),
+
+    // 元素隐藏标记。
+    // 用于elseif/else和case/default文法。
+    __hiddenFlag = Symbol('hidden-flag'),
+
+    // switch标的值存储键。
+    // 存储在case/default元素上备用。
+    __switchValue = Symbol('switch-value'),
+
 
     // 属性赋值处理器名
     // 注：最后单独处理。
@@ -451,8 +462,8 @@ const Grammar = {
      * 文法：{ If: [handle] }
      * 仅针对元素自身，隐藏采用样式 display:none。
      * 实现：
-     * - 如果为真，向后查找 Elseif/Else 隐藏，直到另一个 if 或结束。
-     * - 如果为假，隐藏当前元素（后续 Elseif/Else 原样保持）。
+     * - 如果为真，向后查找 Elseif/Else，标记隐藏，直到另一个 if 或结束。
+     * - 如果为假，隐藏当前元素，后续 Elseif/Else 隐藏标记为假。
      * 注：
      * 需要支持原地更新，所以保持DOM中的存在以便再测试。
      * 不支持 if/else 嵌套逻辑，可用 elseif 获得该效果。
@@ -462,55 +473,79 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     If( el, handle, data ) {
+        // 初始记忆。
+        if ( el[__displayValue] === undefined) {
+            el[__displayValue] = el.style.display;
+        }
         let _show = handle( data );
 
-        if ( !_show ) {
-            el.style.display = 'none';
+        if ( _show ) {
+            el.style.display = el[__displayValue];
+            this._hideElse( el.nextElementSibling, true );
             return;
         }
-        this._hideElse( el.nextElementSibling );
+        el.style.display = 'none';
+        this._hideElse( el.nextElementSibling, false );
     },
 
 
     /**
-     * 测试确定显示/隐藏（ElseIf 逻辑）。
+     * 测试确定显示/隐藏。
      * 文法：{ Elseif: [handle] }
-     * 注：处理逻辑与 IF 相同。
+     * 显隐逻辑已由If文法标记，如果未隐藏，执行If逻辑。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     Elseif( el, handle, data ) {
-        this.If( el, handle, data );
+        if ( !el[__hiddenFlag] ) {
+            return this.If( el, handle, data );
+        }
+        el.style.display = 'none';
     },
 
 
     /**
      * Else 逻辑。
      * 文法：{ Else: [handle] }
-     * 注：实际上只是简单通过。
+     * 显隐逻辑已由If文法标记，此处仅是简单执行。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     Else( el, handle, data ) {
-        handle( data );
+        if ( !el[__hiddenFlag] ) {
+            return handle( data );
+        }
+        el.style.display = 'none';
     },
 
 
     /**
      * 分支选择。
+     * 子元素分支条件判断，决定显示或隐藏。
+     * 检索拥有case配置的子元素，存储标的值备用。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     Switch( el, handle, data ) {
-        //
+        let _val = handle( data );
+
+        for ( const e of $.children(el) ) {
+            let _gram = Grammars.get(e);
+
+            if ( _gram && _gram['Case'] ) {
+                e[__switchValue] = _val;
+            }
+        }
     },
 
 
     /**
      * 分支测试执行。
+     * 与Switch标的值比较（===），真为显示假为隐藏。
+     * - 真：向后检索其它Case/Default文法元素，设置隐藏。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
@@ -667,11 +702,12 @@ const Grammar = {
 
 
     /**
-     * 隐藏同级elseif和else配置元素。
+     * 同级elseif和else元素标记隐藏。
      * 不支持 if/else 的嵌套，所以一旦碰到 if 即结束。
      * @param {Element} el 起始元素
+     * @param {Boolean} sure 确认隐藏
      */
-    _hideElse( el ) {
+    _hideElse( el, sure ) {
         while ( el ) {
             let _gram = Grammars.get(el);
 
@@ -679,7 +715,25 @@ const Grammar = {
             if ( _gram['If'] ) return;
 
             if ( _gram['Else'] || _gram['Elseif'] ) {
-                el.style.display = 'none';
+                el[__hiddenFlag] = sure;
+            }
+            el = el.nextElementSibling;
+        }
+    },
+
+
+    /**
+     * 同级case/default元素标记隐藏。
+     * @param {Element} el 起始元素
+     * @param {Boolean} sure 确认隐藏
+     */
+    _hideCase( el, sure ) {
+        while ( el ) {
+            let _gram = Grammars.get(el);
+            if ( !_gram ) continue;
+
+            if ( _gram['Case'] || _gram['Default'] ) {
+                el[__hiddenFlag] = sure;
             }
             el = el.nextElementSibling;
         }

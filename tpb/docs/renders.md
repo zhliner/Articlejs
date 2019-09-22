@@ -205,9 +205,12 @@ $ = {
 
 ## tpb-switch / tpb-case / tpb-default
 
-`switch{}` 语法结构，表达多个子元素的分支判断。与 `tpb-if/else` 类似，`tpb-case/default` 仅对元素自身进行匹配测试，匹配则显示，否则隐藏。语法的作用域仅限于平级的兄弟元素，`switch` 的结束随着元素的封闭自然结束，无需 `break`。
+`switch{}` 语法结构，表达多个子元素的分支判断。与 `tpb-if/else` 类似，`tpb-case/default` 仅对元素自身进行匹配测试，匹配则显示，否则隐藏。语法的作用域仅限于平级的兄弟元素，`switch` 的结束随着元素的封闭自然结束，`case/default` 无需 `break`。
 
 如果没有任何一个子元素分支匹配且未定义 `tpb-default`，`tpb-switch` 所在的容器元素也将无效（隐藏）。
+
+> **注意：**<br>
+> `case/default` 不能和 `if/elseif/else` 同时定义在同一个元素上，否则后者会覆盖前者。
 
 
 ### 示例
