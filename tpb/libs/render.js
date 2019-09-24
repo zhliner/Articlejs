@@ -15,8 +15,8 @@
 //      each                当前迭代
 //      with                当前域声明
 //      var                 新变量定义
-//      if/elseif/else      逻辑判断
-//      switch/case/default 分支选择
+//      if/else             逻辑判断（含 elseif）
+//      switch/case/last    分支选择
 //      for                 子元素循环
 //      _[attr]             属性赋值（系列）
 //  }
@@ -31,7 +31,37 @@ import { Spliter } from "./spliter";
 import { Util } from "./util.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // 比较操作词（替换映射）。
+    compWords = [
+        [ /\bLT\b/g,    '<' ],
+        [ /\bLTE\b/g,   '<=' ],
+        [ /\bGT\b/g,    '>' ],
+        [ /\bGTE\b/g,   '>=' ],
+    ],
+
+    // 包含比较词测试。
+    hasComp = /\b(?:LT|LTE|GT|GTE)\b/i,
+
+
+    // 简单切分器。
+    SSpliter = new Spliter(),
+
+    // 元素文法存储。
+    // 包含原始模板中和页面中采用渲染处理的元素。
+    // Object {
+    //      [grammar]: [...]    // [文法词]: [参数序列]
+    // }
+    // 参数序列通常包含：
+    // - handle: Function 表达式执行器
+    // - ...: Value 文法特定的其它参数
+    // 参数序列应该可以直接解构传入文法操作函数（从第二个实参开始）。
+    //
+    // { Element: Object }
+    Grammars = new WeakMap();
+
 
 //
 // 基本配置/定义。
@@ -42,11 +72,10 @@ const
     __With      = 'tpb-with',       // 创建新域
     __Var       = 'tpb-var',        // 新建变量/赋值
     __If        = 'tpb-if',         // if （当前元素，下同）
-    __Elseif    = 'tpb-elseif',     // else if
     __Else      = 'tpb-else',       // else
     __Switch    = 'tpb-switch',     // switch （子元素分支）
     __Case      = 'tpb-case',       // switch/case
-    __Default   = 'tpb-default',    // switch/default
+    __Last      = 'tpb-last',       // switch/last（含 default）
     __For       = 'tpb-for';        // 子元素循环
 
 
@@ -68,296 +97,207 @@ const
     __displayValue = Symbol('display-value'),
 
     // 元素隐藏标记。
-    // 用于elseif/else和case/default文法。
+    // 用于else和case/last文法。
     __hiddenFlag = Symbol('hidden-flag'),
 
     // switch标的值存储键。
-    // 存储在case/default元素上备用。
-    __switchValue = Symbol('switch-value'),
-
-
-    // 属性赋值处理器名
-    // 注：最后单独处理。
-    __attrPuts = 'Puts',
-
-    // 循环父域文法词
-    // 仅在循环内私用
-    __loopScope = 'Scope',
-
-    // 循环内父域链
-    // 用于各层子级元素的父域传递
-    __loopChain = '$$_SCOPE_$$',
-
-    // 合法变量名
-    __reVarname = /^[a-zA-Z_$][\w$]*$/,
-
-
-    // 渲染配置标记属性。
-    // 用于快速检索有渲染配置的源模板节点。
-    // 注：DOM中该属性会被清除，因此冲突时原名称会失效。
-    __rndAttr = 'tpb_render20170206-' + $.now(),
-
-    // 渲染配置元素选择器
-    __slrBlind = `[${__rndAttr}]`;
-
-
-const
-    // 文法处理序列（含优先级）
-    Queue = [
-        __Each,
-        __With,
-        __Var,
-        __Else,
-        __Elseif,
-        __If,
-        __Case,
-        __Default,
-        __Switch,   // 子元素Case测试
-        __For,      // 子元素循环
-    ],
-
-    // 文法处理器名
-    Opers = {
-        [__Each]:       'Each',
-        [__With]:       'With',
-        [__Var]:        'Var',
-        [__Else]:       'Else',
-        [__Elseif]:     'Elseif',
-        [__If]:         'If',
-        [__For]:        'For',
-        [__Switch]:     'Switch',
-        [__Case]:       'Case',
-        [__Default]:    'Default',
-    },
-
-
-    // 节点渲染映射集（模板）
-    // 模板根元素对应其所包含的存在渲染配置的子元素集。
-    // Object2 {
-    //      elem: Element       // 渲染子元素
-    //      tree: [             // DOM树位置索引（相对于模板根）
-    //          index: Nunber   // 平级序位（兄弟）
-    //          deep:  Number   // 纵深层级（父子）
-    //      ]
-    // }
-    // 用法：如果 UpdateMap 中不存在，则查询此集合（含克隆逻辑）。
-    //
-    // { Root: [Object2] }
-    OriginMap = new WeakMap(),
-
-
-    // 节点更新映射集（页面）
-    // 被首先查询的渲染配置，含原地更新逻辑。
-    // Object3 {
-    //      elem: Element       // 渲染子元素
-    //      tree: [             // DOM树位置索引（相对于渲染根）
-    //          0:index:Nunber  // 平级序位（兄弟）
-    //          1:deep:Number   // 纵深层级（父子）
-    //      ]
-    //      refer: [            // 插入参考（恢复）
-    //          0:box:Element   // 位置参考容器
-    //          1:next:Node     // 位置参考兄弟节点
-    //      ]
-    // }
-    // 注：外部先查询此集合，如果不存在则查询 OriginMap。
-    // { Root: [Object3] }
-    UpdateMap = new WeakMap(),
-
-    // 元素文法存储。
-    // 包含原始模板中和页面中采用渲染处理的元素。
-    // Object {
-    //      [grammar]: [...]    // [文法词]: [参数序列]
-    // }
-    // 参数序列通常包含：
-    // - handle: Function 表达式执行器
-    // - ...: Value 文法特定的其它参数
-    // 参数序列应该可以直接解构传入文法操作函数（从第二个实参开始）。
-    //
-    // { Element: Object }
-    Grammars = new WeakMap(),
-
-    EachGrammars = new WeakMap(),
-
-    LoopGrammars = new WeakMap(),
-
-
-    // 简单切分器。
-    SSpliter = new Spliter();
+    // 存储在case/last元素上备用。
+    __switchValue = Symbol('switch-value');
 
 
 
 //
 // 渲染配置解析。
+// 构造 {文法: 参数序列} 的存储（Grammars）。
 //
 const Parser = {
-    /**
-     * 解析节点树渲染配置。
-     * - 解析创建渲染器并存储在store集合中；
-     * 注：通过元素属性值解析的为源模板。
-     * @param  {Element} root 根容器元素
-     * @return {Array|0} 需要渲染的元素集
-     */
-    all( root ) {
-        let _buf = [];
+    //
+    // 文法解析方法映射：[
+    //      [ 属性名, 解析方法名 ]
+    // ]
+    // 数组顺序包含优先级逻辑。
+    // 同一组文法不应在单一元素上同时存在（如if/else同时定义）。
+    //
+    gramQueue: [
+        [__Each,    '$each'],
+        [__With,    '$with'],
+        [__Var,     '$var'],
+        [__If,      '$if'],
+        [__Else,    '$else'],
+        [__Switch,  '$switch'],
+        [__Case,    '$case'],
+        [__Last,    '$last'],
+        [__For,     '$for'],
+    ],
 
-        for ( let el of $.find(root, '*', true) ) {
-            let _obj = this.one(el);
-            if (_obj) {
-                _buf.push(el);
-                Blindes.set(el, _obj);
+
+    /**
+     * 解析文法配置。
+     * @param  {Element} el 目标元素
+     * @return {Object} 文法配置集
+     */
+    grammar( el ) {
+        let _buf = {};
+
+        for ( const [an, fn] of this.gramQueue ) {
+            if ( el.hasAttribute(an) ) {
+                Object.assign(
+                    _buf,
+                    this[fn]( el.getAttribute(an), el.childElementCount )
+                );
+                el.removeAttribute( an );
             }
         }
-        return _buf.length && _buf;
+        return Object.assign( _buf, this.assign(el) );
     },
 
 
     /**
-     * 解析单个元素的渲染配置。
+     * Each文法解析。
+     * Object {
+     *      Each: [handle, size]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $each( val ) {
+        return { Each: [ Expr.loop(val), 1 ] };
+    },
+
+
+    /**
+     * For文法解析。
+     * Object {
+     *      For: [handle, size]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $for( val, count ) {
+        return { For: [ Expr.loop(val), count ] };
+    },
+
+
+    /**
+     * With文法解析。
+     * Object {
+     *      With: [handle]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $with( val ) {
+        return { With: [ Expr.value(val) ] };
+    },
+
+
+    /**
+     * Var文法解析。
+     * Object {
+     *      Var: [handle]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $var( val ) {
+        return { Var: [ Expr.value(val) ] };
+    },
+
+
+    /**
+     * If文法解析。
+     * Object {
+     *      If: [handle]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $if( val ) {
+        return { If: [ Expr.value(val) ] };
+    },
+
+
+    /**
+     * Else文法解析。
+     * 含 elseif 逻辑。
+     * Object {
+     *      Else: [handle|pass]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $else( val ) {
+        return { Else: [ val ? Expr.value(val) : Expr.pass() ] };
+    },
+
+
+    /**
+     * Switch文法解析。
+     * Object {
+     *      Switch: [handle]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $switch( val ) {
+        return { Switch: [ Expr.value(val) ] };
+    },
+
+
+    /**
+     * Case文法解析。
+     * Object {
+     *      Case: [handle]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $case( val ) {
+        return { Case: [ Expr.value(val) ] };
+    },
+
+
+    /**
+     * case/default 文法解析。
+     * Object {
+     *      Last: [handle|pass]
+     * }
+     * @param  {String} val 属性值
+     * @return {Object} 文法配置
+     */
+    $last( val ) {
+        return { Last: [ val ? Expr.value(val) : Expr.pass() ] };
+    },
+
+
+    /**
+     * 属性赋值文法解析。
+     * 需要渲染的属性名前置一个下划线，支持单个下划线（空名称）。
+     * Object {
+     *      Assign: [names, [handle]]
+     * }
      * @param  {Element} el 目标元素
-     * @param  {Array} qu  文法词属性名队列
-     * @return {Blinder} 渲染器实例
+     * @return {Object} 文法配置
      */
-    one( el ) {
-        let _buf = new Blinder();
-
-        for ( let n of Queue ) {
-            if (el.hasAttribute(n)) {
-                // 空白/换行清理
-                _buf.set( Opers[n], el.getAttribute(n).trim().replace(/\s+/g, ' ') );
-                el.removeAttribute(n);
-            }
-        }
-        let _puts = this._puts(el);
-        if (_puts) {
-            _buf.set(__attrPuts, _puts);
-        }
-
-        return _buf.size && this._token(el) && _buf;
-    },
-
-
-    /**
-     * 渲染配置克隆。
-     * - 克隆的元素引用同一个渲染配置；
-     * - 如果源树中没有渲染配置，返回null；
-     * @param  {Element} src 源元素
-     * @param  {Element} des 新元素（src的全克隆）
-     * @param  {WeakMap} buf 外部渲染存储
-     * @return {WeakMap|null} 渲染映射{Element: Blinder}
-     */
-    clone( src, des, buf = new WeakMap() ) {
-        src = $.find(src, __slrBlind, true);
-        if (!src.length) {
-            return null;
-        }
-        des = $.find(des, __slrBlind, true);
-
-        for (var i = 0; i < des.length; i++) {
-            this._token(des[i], 'clean');
-            buf.set(des[i], Blindes.get(src[i]));
-        }
-        return buf;
-    },
-
-
-    //-- 私有辅助 -----------------------------------------------------------------
-
-    /**
-     * 解析赋值属性（Puts）。
-     * - 需要渲染的属性名会前置一个下划线；
-     * - 值格式支持普通文本与变量混合书写；
-     * - 变量名前置$字符；
-     * 注记：变量替换为模板字符串形式执行。
-     * @param  {Element} el 目标元素
-     * @return {Map} { name: val }
-     */
-    _puts( el ) {
-        let _buf = new Map();
+    assign( el ) {
+        let _ats = [],
+            _fns = [];
 
         for ( let at of Array.from(el.attributes) ) {
-            if (at.name[0] == '_') {
-                _buf.set(at.name.substring(1), at.value);
-                el.removeAttribute(at.name);
+            let _n = at.name;
+            if ( _n[0] == '_' ) {
+                _ats.push( _n.substring(1) );
+                _fns.push( Expr.assign(at.value) );
+                el.removeAttribute( _n );
             }
         }
-        return _buf.size && _buf;
-    },
-
-
-    /**
-     * 节点标记。
-     * - 设置时返回真，清除时返回假；
-     * @param  {Element} el 渲染元素
-     * @param  {Boolean} clean 清除标记
-     * @return {Boolean} 标记状态
-     */
-    _token( el, clean ) {
-        if (clean) {
-            return el.removeAttribute(__rndAttr), false;
+        if ( _ats.length == 0 ) {
+            return null;
         }
-        return el.setAttribute(__rndAttr, ''), true;
+        return { Assign: [_ats.join(' '), _fns] };
     },
 
 };
-
-
-
-//
-// 渲染配置（文法影射）。
-// 仅针对当前单个元素，不含子元素。
-// 文法词有序队列：{
-//  	[grammarName]:  expr（配置表达式）
-//  	'Puts':         Map{ attr: expr }
-// }
-// 注记：
-// 没有采用简单对象存储和原型链继承共享，
-// 一是概念清晰，二是文法的处理是有序的。
-//
-class Blinder extends Map {
-    /**
-     * 应用文法集渲染。
-     * - 依文法配置队列，渲染目标元素；
-     * - 返回false表示舍弃当前元素；
-     * 注：
-     * - If/Elseif为假和Each源会返回null；
-     * - Puts为最后的渲染操作；
-     * @param  {Grammar} grammar 文法执行器
-     * @param  {Element} el 目标元素
-     * @param  {Object} data 当前域数据
-     * @return {Object|false} 应用后的当前域
-     */
-    apply( grammar, el, data ) {
-        for ( let [n, v] of this ) {
-            if (n == __attrPuts) {
-                return this._puts(el, grammar, v, data);
-            }
-            data = grammar[n](el, v, data);
-            if (!data) return false;
-        }
-        return data;
-    }
-
-
-    //-- 私有辅助 -----------------------------------------------------------------
-
-
-    /**
-     * 输出数据渲染。
-     * @param  {Element} el 目标元素
-     * @param  {Grammar} gram 文法执行器
-     * @param  {Object} data  当前域数据
-     * @param  {Map} attrs 输出属性配置集
-     * @return {Object} 原当前域
-     */
-    _puts( el, gram, attrs, data ) {
-        for ( let [name, expr] of attrs ) {
-            // name为正常名称
-            gram.Puts(el, name, expr, data);
-        }
-        return data;
-    }
-
-}
 
 
 
@@ -380,7 +320,7 @@ const Grammar = {
      * 会存储当前域数据到每一个元素的 [__scopeData] 属性上。
      * @param {Element} el 起始元素
      * @param {Function} handle 表达式取值函数
-     * @param {Number} size 原始集大小（循环次数）
+     * @param {Number} size 原始集大小（迭代）
      * @param {Object} data 当前域数据
      */
     Each( el, handle, size, data ) {
@@ -396,6 +336,8 @@ const Grammar = {
             // 设置当前域对象。
             (el, i) => el[__scopeData] = loopCell(data[i], i, data)
         );
+        // 更新计数。
+        Grammars.get(el).Each[1] = data.length;
     },
 
 
@@ -441,6 +383,8 @@ const Grammar = {
                 el[__scopeData] = loopCell( data[_i], _i, data )
             }
         );
+        // 可能的修改。
+        Grammars.get(el).For[1] = size;
     },
 
 
@@ -461,107 +405,114 @@ const Grammar = {
      * 测试确定显示/隐藏。
      * 文法：{ If: [handle] }
      * 仅针对元素自身，隐藏采用样式 display:none。
+     * 不支持 if/else 嵌套逻辑，else 添加条件即可获得 elseif 效果。
      * 实现：
-     * - 如果为真，向后查找 Elseif/Else，标记隐藏，直到另一个 if 或结束。
-     * - 如果为假，隐藏当前元素，后续 Elseif/Else 隐藏标记为假。
-     * 注：
-     * 需要支持原地更新，所以保持DOM中的存在以便再测试。
-     * 不支持 if/else 嵌套逻辑，可用 elseif 获得该效果。
+     * - 如果为真，向后查找 Else，标记隐藏，直到另一个 if 或结束。
+     * - 如果为假，隐藏当前元素，后续 Else 隐藏标记为假。
+     *
+     * 注记：
+     * 因为需要支持原地更新，所以保持DOM中的存在使得可以再测试。
      *
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     If( el, handle, data ) {
-        // 初始记忆。
-        if ( el[__displayValue] === undefined) {
-            el[__displayValue] = el.style.display;
-        }
         let _show = handle( data );
 
         if ( _show ) {
-            el.style.display = el[__displayValue];
-            this._hideElse( el.nextElementSibling, true );
-            return;
+            showElem( el );
+            hideElse( el.nextElementSibling, true );
+        } else {
+            hideElem( el );
+            hideElse( el.nextElementSibling, false );
         }
-        el.style.display = 'none';
-        this._hideElse( el.nextElementSibling, false );
-    },
-
-
-    /**
-     * 测试确定显示/隐藏。
-     * 文法：{ Elseif: [handle] }
-     * 显隐逻辑已由If文法标记，如果未隐藏，执行If逻辑。
-     * @param {Element} el 当前元素
-     * @param {Function} handle 表达式取值函数
-     * @param {Object} data 当前域数据
-     */
-    Elseif( el, handle, data ) {
-        if ( !el[__hiddenFlag] ) {
-            return this.If( el, handle, data );
-        }
-        el.style.display = 'none';
     },
 
 
     /**
      * Else 逻辑。
-     * 文法：{ Else: [handle] }
-     * 显隐逻辑已由If文法标记，此处仅是简单执行。
+     * 文法：{ Else: [handle|null] }
+     * 显隐逻辑已由If文法标记。
+     * 如果 handle 有值，表示 elseif 逻辑。
      * @param {Element} el 当前元素
-     * @param {Function} handle 表达式取值函数
+     * @param {Function} handle 表达式函数
      * @param {Object} data 当前域数据
      */
     Else( el, handle, data ) {
-        if ( !el[__hiddenFlag] ) {
-            return handle( data );
+        if ( el[__hiddenFlag] ) {
+            return hideElem( el );
         }
-        el.style.display = 'none';
+        if ( handle ) {
+            return this.If( el, handle, data );
+        }
+        showElem( el );
     },
 
 
     /**
      * 分支选择。
+     * 文法：{ Switch: [handle] }
      * 子元素分支条件判断，决定显示或隐藏。
-     * 检索拥有case配置的子元素，存储标的值备用。
+     * 实现：在当前元素上存储标的值。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     Switch( el, handle, data ) {
-        let _val = handle( data );
-
-        for ( const e of $.children(el) ) {
-            let _gram = Grammars.get(e);
-
-            if ( _gram && _gram['Case'] ) {
-                e[__switchValue] = _val;
-            }
-        }
+        el[__switchValue] = handle( data );
     },
 
 
     /**
      * 分支测试执行。
+     * 文法：{ Case: [handle] }
      * 与Switch标的值比较（===），真为显示假为隐藏。
-     * - 真：向后检索其它Case/Default文法元素，设置隐藏。
+     * - 真：向后检索其它Case/Last文法元素，标记隐藏。
+     * - 假：隐藏当前元素，向后检索其它Case/Last隐藏标记设置为假。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     Case( el, handle, data ) {
-        //
+        let _v = el.parentElement[__switchValue];
+
+        if ( el[__hiddenFlag] || _v !== handle(data) ) {
+            hideElem( el );
+            hideCase( el.nextElementSibling, false );
+        } else {
+            showElem( el );
+            hideCase( el.nextElementSibling, true );
+        }
     },
 
 
-    Default( el, handle, data ) {
-        //
+    /**
+     * 默认分支。
+     * 文法：{ Last: [handle|null] }
+     * 如果已标记视隐（前段Case匹配），简单隐藏。
+     * 如果文法配置非null，最后Case逻辑，不匹配时还会隐藏父级Switch。
+     * 否则为Default逻辑，无条件显示。
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式函数
+     * @param {Object} data 当前域数据
+     */
+    Last( el, handle, data ) {
+        if ( el[__hiddenFlag] ) {
+            return hideElem( el );
+        }
+        if ( handle &&
+            el.parentElement[__switchValue] !== handle(data) ) {
+            hideElem( el );
+            return hideElem( el.parentElement );
+        }
+        showElem( el );
     },
 
 
     /**
      * 属性（特性）赋值。
+     * 文法：{ Assign: [names, [handle]] }
      * 支持两个特殊属性名：text, html。
      * 多个属性名之间空格分隔，与 handles 成员一一对应。
      * @param {String} name 属性名（序列）
@@ -571,21 +522,9 @@ const Grammar = {
     Assign( el, name, handles, data ) {
         $.attr(
             el,
-            name,
+            name || 'text',
             handles.map( f => f(data) )
         );
-    },
-
-
-    /**
-     * 当前父域数据。
-     * - 父域是比当前域更高一层的抽象，仅在循环中使用；
-     *   （私用结构，用户无法定义）
-     * - 循环内With的新域定义需要合并即时变量，故此标记存储；
-     * - 父元素传递下来的当前域（data）被忽略；
-     */
-    Scope( el, store/*, data*/ ) {
-        return Object.assign(store, { [__loopChain]: store });
     },
 
 
@@ -600,8 +539,7 @@ const Grammar = {
      * @return {[Element]} 新元素集
      */
     _sizeClone( ref, size ) {
-        let _els = [],
-            _i = 1;
+        let _els = [];
 
         for (let i=0; i<size; i++) {
             _els.push(
@@ -667,7 +605,7 @@ const Grammar = {
             // 补齐不足部分。
             let _ref = els[els.length-1];
             els.push(
-                ...$.after( ref, this._sizeClone(_ref, _sz) )
+                ...$.after( _ref, this._sizeClone(_ref, _sz) )
             );
         }
         return els;
@@ -700,187 +638,31 @@ const Grammar = {
         return els;
     },
 
-
-    /**
-     * 同级elseif和else元素标记隐藏。
-     * 不支持 if/else 的嵌套，所以一旦碰到 if 即结束。
-     * @param {Element} el 起始元素
-     * @param {Boolean} sure 确认隐藏
-     */
-    _hideElse( el, sure ) {
-        while ( el ) {
-            let _gram = Grammars.get(el);
-
-            if ( !_gram ) continue;
-            if ( _gram['If'] ) return;
-
-            if ( _gram['Else'] || _gram['Elseif'] ) {
-                el[__hiddenFlag] = sure;
-            }
-            el = el.nextElementSibling;
-        }
-    },
-
-
-    /**
-     * 同级case/default元素标记隐藏。
-     * @param {Element} el 起始元素
-     * @param {Boolean} sure 确认隐藏
-     */
-    _hideCase( el, sure ) {
-        while ( el ) {
-            let _gram = Grammars.get(el);
-            if ( !_gram ) continue;
-
-            if ( _gram['Case'] || _gram['Default'] ) {
-                el[__hiddenFlag] = sure;
-            }
-            el = el.nextElementSibling;
-        }
-    },
-
-
-    /**
-     * 克隆元素。
-     * - 克隆元素及其可能有的渲染配置；
-     * - 如果是Each克隆，清除新元素的Each配置；
-     * - 但凡含有渲染配置，设置新元素的父域（Scope）；
-     * - 元素为深度克隆且包含事件；
-     * 注记：
-     * - Each清理仅对根元素，其内部的Each逻辑依然有效；
-     *
-     * @param  {Element} src 源元素
-     * @param  {Array} data  当前域数据
-     * @param  {Boolean} each 是否Each操作
-     * @return {Element} 克隆的新元素
-     */
-    _clone( src, data, each ) {
-        let _new = $.clone(src, true, true),
-            _map = Parser.clone(src, _new, this._buf);
-
-        // 全无渲染配置
-        if (!_map) return _new;
-        let _gm = this._newScope(_new, data, _map);
-
-        if (each) {
-            _gm.delete(Opers[__tpbEach]);
-        }
-        return _new;
-    },
-
-
-    /**
-     * 设置Scope（父域）。
-     * - 仅用于循环结构中克隆的新元素；
-     * - Scope设置在队列的最前端以获得优先处理；
-     * @param {Element} el  目标元素
-     * @param {Object} data 当前域数据
-     * @param {WeakMap} map 渲染映射存储
-     * @return {Blinder} 新的渲染配置对象
-     */
-    _newScope( el, data, map ) {
-        let _gm = map.get(el) || [],
-            _gm2 = new Blinder([ [__loopScope, data], ..._gm ]);
-
-        return map.set(el, _gm2), _gm2;
-    },
-
-
-    /**
-     * 过滤器。
-     * - data可能是文本，也可以是节点元素；
-     * - call为一个函数调用表达式（字符串）；
-     * @param  {Mixed} data 待处理数据
-     * @param  {String} call 调用表示
-     * @return {Mixed} 过滤处理结果
-     */
-    _filter( data, call ) {
-        if ( !call ) {
-            return data;
-        }
-        let _fns = Util.funcArgs(call);
-
-        if ( !_fns ) {
-            window.console.error(`[${call}] filter is invalid.`);
-            return data;
-        }
-        return Filter[ _fns[0] ].apply( data, _fns[1] );
-    },
-
-
-    /**
-     * 设置元素属性。
-     * - 属性名为空值，视为元素内容操作；
-     * - 元素内容为fill逻辑，会清除原内容；
-     * 注记：
-     * - 若用prepend，无法原地更新，临时说明也无法清除；
-     * - fill强制用户用单个标签包含内容，结构良好；
-     * @param {Element} el  当前元素
-     * @param {String} name 属性名
-     * @param {Mixed} val   属性值（Element|Array|String|Number...）
-     * @param {Array} handles 过滤表达式集
-     */
-    _setAttr( el, name, val, handles ) {
-        if (handles.length) {
-            val = handles.reduce( (v, f) => this._filter(v, f), val );
-        }
-        if (name) {
-            return $.attr(el, name, val);
-        }
-        if (val.nodeType || $.isArray && val[0].nodeType) {
-            return $.fill(el, val);
-        }
-        return $.html(el, val + '');
-    },
-
-}
+};
 
 
 
 //
 // 表达式处理构造。
+// 支持 LT/LTE, GT/GTE 四个命名操作符。
 // 返回一个目标渲染类型的表达式执行函数。
 // 函数返回值：{
 //      true    元素显示
-//      false   元素隐藏（脱离DOM，但有参考点）
+//      false   元素隐藏（display:none）
 //      Value   使用值或新域对象
 // }
-// 注：
-// - 非条件表达式不支持定制比较词（LT/GT 等）。
-// - 表达式无return关键词。
+// 注：表达式无return关键词。
 // @param  {String} expr 表达式串
 // @return {Function}
 //
 const Expr = {
     /**
      * 取值表达式。
-     * 适用：tpb-with, tpb-switch.
+     * 适用：tpb-with|switch|var|if/else|case,
      * @return function(data): Value
      */
     value( expr ) {
-        return new Function( '$', `return ${expr};` );
-    },
-
-
-    /**
-     * 变量创建表达式。
-     * 就是简单的赋值表达式，多个赋值通常用逗号分隔。
-     * 适用：tpb-var.
-     * @return function(data): true
-     */
-    setvar( expr ) {
-        return new Function( '$', `return (${expr}, true);` );
-    },
-
-
-    /**
-     * 比较表达式。
-     * 支持 LT/LTE/GT/GTE 四个命名操作符。
-     * 适用：tpb-if/elseif, tpb-case.
-     * @return function(data): Boolean
-     */
-    compare( expr ) {
-        return new Function( '$', `return ${this._checkComp(expr)};` );
+        return new Function( '$', `return ${validExpr(expr)};` );
     },
 
 
@@ -894,16 +676,16 @@ const Expr = {
         if ( !expr ) {
             return v => v;
         }
-        return new Function( '$', `return ${expr};` );
+        return new Function( '$', `return ${validExpr(expr)};` );
     },
 
 
     /**
      * 简单通过。
-     * 适用：tpb-else, tpb-default.
+     * 适用：tpb-else, tpb-last 无值的情况。
      */
     pass() {
-        return () => true;
+        return null;
     },
 
 
@@ -911,11 +693,12 @@ const Expr = {
      * 属性赋值。
      * 支持可能有的过滤器序列，如：...|a()|b()。
      * 适用：_[name].
+     * 注：初始取值部分支持命名比较操作词。
      * @return function(data): Value
      */
     assign( expr ) {
         let _ss = SSpliter.split(expr, __chrPipe),
-            _fn = new Function( '$', `return ${_ss.shift()};` );
+            _fn = new Function( '$', `return ${validExpr(_ss.shift())};` );
 
         if ( _ss.length == 0 ) {
             return _fn;
@@ -925,70 +708,6 @@ const Expr = {
 
         return data => _fxs.reduce( (d, fx) => fx.func.bind(d)(...fx.args), _fn(data) );
     },
-
-
-    //-- 私有辅助 -------------------------------------------------------------
-
-    /**
-     * 解析构造过滤器序列。
-     * Object {
-     *      func: String    // 过滤器名
-     *      args: [Value]   // 过滤器实参序列
-     * }
-     * @param  {[String]} calls 调用表达式数组
-     * @return {[Object]}
-     */
-    _filters( calls ) {
-        return calls.map( call => Util.funcArgs( call.trim() ) );
-    },
-
-
-    /**
-     * 预处理比较表达式。
-     * 对普通段的文本执行可能需要的比较词替换。
-     * @param  {String} expr 目标表达式
-     * @return {String} 合法的表达式
-     */
-    _checkComp( expr ) {
-        if ( !expr ) {
-            return 'false';
-        }
-        return [...SSpliter.partSplit(expr)]
-            // 处理奇数单元
-            .map( (s, i) => i%2 ? s : this._validComp(s) )
-            .join('');
-    },
-
-
-    /**
-     * 比较词替换。
-     * 如：" LT " => " < " 等。
-     * @param  {String} 源串
-     * @return {String} 结果串
-     */
-    _validComp( str ) {
-        if ( !this.hasComp.test(str) ) {
-            return str;
-        }
-        return this.compWords.reduce( (s, kv) => s.replace(kv[0], kv[1]), str );
-    },
-
-
-    //
-    // 比较操作词（替换映射）。
-    //
-    compWords: [
-        [ /\bLT\b/g,    '<' ],
-        [ /\bLTE\b/g,   '<=' ],
-        [ /\bGT\b/g,    '>' ],
-        [ /\bGTE\b/g,   '>=' ],
-    ],
-
-
-    //
-    // 包含比较词测试。
-    //
-    hasComp: /\b(?:LT|LTE|GT|GTE)\b/i,
 
 };
 
@@ -1016,6 +735,37 @@ function filterHandle( call ) {
         throw new Error(`not found ${_fn2.name} filter-method.`);
     }
     return { func: _fun, args: _fn2.args };
+}
+
+
+/**
+ * 预处理表达式。
+ * 对普通段的文本执行可能需要的比较词替换。
+ * @param  {String} expr 目标表达式
+ * @return {String} 合法的表达式
+ */
+function validExpr( expr ) {
+    if ( !expr ) {
+        return '';
+    }
+    return [...SSpliter.partSplit(expr)]
+        // 字符串外。
+        .map( (s, i) => i%2 ? s : validComp(s) )
+        .join('');
+}
+
+
+/**
+ * 比较词替换。
+ * 如：" LT " => " < " 等。
+ * @param  {String} 源串
+ * @return {String} 结果串
+ */
+function validComp( str ) {
+    if ( !hasComp.test(str) ) {
+        return str;
+    }
+    return compWords.reduce( (s, kv) => s.replace(kv[0], kv[1]), str );
 }
 
 
@@ -1082,6 +832,75 @@ function loopCell( data, i, supObj ) {
 
 
 /**
+ * 显示元素（CSS）。
+ * @param {Element} el 目标元素
+ */
+function showElem( el ) {
+    // 初始值存储。
+    if ( el[__displayValue] === undefined ) {
+        el[__displayValue] = el.style.display;
+    }
+    let _v = el[__displayValue];
+    // 容错初始隐藏。
+    el.style.display = (_v != 'none' ? _v : '');
+}
+
+
+/**
+ * 隐藏元素（CSS）。
+ * @param {Element} el 目标元素
+ */
+function hideElem( el ) {
+    // 初始值存储。
+    if ( el[__displayValue] === undefined ) {
+        el[__displayValue] = el.style.display;
+    }
+    el.style.display = 'none';
+}
+
+
+/**
+ * 同级else元素标记隐藏。
+ * 不支持 if/else 的嵌套，所以一旦碰到 if 即结束。
+ * @param {Element} el 起始元素
+ * @param {Boolean} sure 确认隐藏
+ */
+function hideElse( el, sure ) {
+    while ( el ) {
+        let _gram = Grammars.get(el);
+
+        if ( !_gram ) continue;
+        if ( _gram['If'] ) return;
+
+        if ( _gram['Else'] ) {
+            el[__hiddenFlag] = sure;
+        }
+        el = el.nextElementSibling;
+    }
+}
+
+
+/**
+ * 同级case/last元素标记隐藏。
+ * @param {Element} el 起始元素
+ * @param {Boolean} sure 确认隐藏
+ */
+function hideCase( el, sure ) {
+    while ( el ) {
+        let _gram = Grammars.get(el);
+        if ( !_gram ) continue;
+
+        if ( _gram['Case'] || _gram['Last'] ) {
+            el[__hiddenFlag] = sure;
+        }
+        el = el.nextElementSibling;
+    }
+}
+
+
+
+
+/**
  * 渲染节点树。
  * - scoper为打包入栈数据的域执行器；
  * @param  {Grammar} grammar 文法执行器
@@ -1114,7 +933,7 @@ function renders( grammar, el, map, _data ) {
 // @param {Element} root 根元素
 // @param {Object} data  入栈数据
 //
-const Render = {
+const _Render = {
     /**
      * 渲染配置解析。
      * - 状态缓存，不会重新再次解析；

@@ -22,21 +22,20 @@ HTML源码不应当脱离设计师的视野，**源码**这一逻辑也并不就
 1. **行为定义：**<br>
     由三个属性 `on`、`by`、`to` 定义，在元素上配置需要处理的事件和相应的行为链。其中：
     - `on`：事件绑定和取值逻辑。
-    - `by`：具体的业务处理。可以在内部划分为 `EMR`（`Entry`, `Model`, `Render`）三个环节，可选。
+    - `by`：具体的业务处理，可选。**注**：可以划分为 `EMR`（`Entry`, `Model`, `Render`）三个环节。
     - `to`：用业务环节来的数据更新UI。逻辑上可选，但通常是必需的。
 
 2. **节点渲染：**<br>
-    由十个渲染属性 `tpb-[for|each|if|elseif|else|with|var|switch|case|default]` 表达模板的语法结构，以及一个 **属性名前置下划线** 指定属性赋值的规则，如：`_href="$.url"` 表示对 `href` 属性赋值为变量 `url` 的值，单独的属性名 `_` 指对元素内容赋值。
+    由十个渲染属性 `tpb-[for|each|if|else|with|var|switch|case|last]` 表达模板的语法结构，以及一个 **属性名前置下划线** 指定属性赋值的规则，如：`_href="$.url"` 表示对 `href` 属性赋值为变量 `url` 的值，单独的属性名 `_` 指对元素内容赋值。
     - `tpb-for`: 子元素的循环。
     - `tpb-each`: 当前元素的循环迭代。
-    - `tpb-if`: 当前元素 if 测试，真值显示，假值移除。下同。
-    - `tpb-elseif`: 当前元素 `elseif` 测试，与 `if` 匹配使用。
-    - `tpb-else`: 当前元素 `else` 测试，与 `if` 匹配使用。
+    - `tpb-if`: 当前元素 if 测试，真值显示，假值隐藏。
+    - `tpb-else`: 当前元素 else 测试，与 `if` 匹配使用。可以包含条件，此时即为 elseif 逻辑。
     - `tpb-with`: 新建局部域，变量引用为局部域成员。
     - `tpb-var`: 新建变量，方便后续简化使用。
     - `tpb-switch`: 创建子元素 `switch` 逻辑。
-    - `tpb-case`: 当前元素 `case` 测试，与 `switch` 标的值比较，相等则显示，否则移除。
-    - `tpb-default`: 当前元素的 `switch` 默认分支，其它 `case` 不匹配时显示，否则移除。
+    - `tpb-case`: 当前元素 `case` 测试，与 `switch` 标的值比较，相等则显示，否则隐藏。
+    - `tpb-last`: `switch` 的最后分支，无值时为 default 逻辑，有值时为 `case` 逻辑，但不匹配时会隐藏整个 `switch` 结构。
 
 3. **模板管理：**<br>
     由两个属性 `tpl-[name|load]` 配置。
@@ -172,12 +171,13 @@ ev( ...name: String | [String] ): Value | [Value]
 // 注：
 // 如果需要入栈一个值集，实参自身需要是一个数组。
 
-tpl( name: String | null ): Element | false
+tpl( name: String | null ): Element
 // 从模板管理器获取name模板。
 // 目标：当前条目，不自动取栈。
 // 实参名优先于当前条目传递的名称，如果想采用当前条目，实参可为任意假值。
 // 注：
 // 模板请求通常是异步的。
+
 
 
 // 控制类
@@ -222,6 +222,10 @@ prune( cnt:Number ): void
 // 允许跟随指令执行cnt次。
 // 注：
 // 可以传递cnt为0，但基本没有意义。负值忽略（无操作）。
+
+prunes( cnt:Number ): void
+// 持续移除后端跟随指令。
+// 允许跟随指令执行cnt次。
 
 
 // 暂存区赋值

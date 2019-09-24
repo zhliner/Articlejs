@@ -163,7 +163,7 @@ const _Base = {
      * 从模板管理器获取模板。
      * 目标：当前条目，可选。
      * 模板名称优先从实参获取，如果name未定义则从目标获取。
-     * @param  {String} name 模板名称
+     * @param  {String} name 模板名
      * @return {Promise}
      */
     tpl( evo, name ) {
