@@ -20,13 +20,11 @@
 
 import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
-import { OBTA, ACCESS, EXTENT } from "../globals.js";
+import { OBTA, ACCESS, EXTENT, DEBUG } from "../globals.js";
 
 
 const
     $           = window.$,
-    DEBUG       = true,
-
     SSpliter    = new Spliter(),
     ASpliter    = new Spliter(true);
 

@@ -18,10 +18,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Dir, tplsMap, DEBUG } from "../globals.js";
 
-const
-    $ = window.$,
-    log = window.console.log;
+
+const $ = window.$;
 
 
 class TplLoader {
@@ -70,9 +70,11 @@ class TplLoader {
 		if ( !this._pool.has(_file) ) {
             this._pool.set(
                 _file, this._load(_file)
-            );
-            // debug:
-            log(`"${_file}" loading with [${name}]`);
+			);
+			//:debug
+			if ( DEBUG ) {
+				window.console.log(`"${_file}" loading with [${name}]`);
+			}
         }
         return this._pool.get( _file );
     }
@@ -109,4 +111,13 @@ class TplLoader {
 }
 
 
-export { TplLoader };
+//
+// 导出
+///////////////////////////////////////////////////////////////////////////////
+
+const loader = new TplLoader( `${Dir.setup}/${Dir.template}`);
+
+loader.init( tplsMap );
+
+
+export const tplLoad = loader.load.bind(loader);

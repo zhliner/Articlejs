@@ -1,19 +1,30 @@
 //
-// 全局配置。
+//  全局配置。
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 const
+    DEBUG = true,   // 测试模式
+
+    // 根目录配置
+    Dir = {
+        setup:      '/',            // 网站安装根目录
+        template:   'templates/',   // 模板根目录
+    },
+
     // 特性支持
     Support = {
         template: false,    // 模板（tpl-name|load）
         render:   false,    // 渲染（tpb-each|if...）
     },
 
-    // 根目录配置
-    Dir = {
-        setup:      '/',            // 网站安装根目录
-        template:   'templates/',   // 模板根目录
+    // 模板映射
+    // 用于从模板名查询所属文件（导入）。
+    // { 文件名：[模板名] }
+    tplsMap = {
+        // 'file-name.js': [tpl-name1, tpl-name2],
     };
+
 
 
 const
@@ -31,21 +42,10 @@ const
     ACCESS = Symbol('stack-access');
 
 
+
 //
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 载入模板回调函数。
- * file 可包含子目录（相对于模板根目录）。
- * 返回值：Promise.then( tpl:Element )
- * @param  {String} file 模板文件名
- * @return {Promise}
- */
-function tplLoad( file ) {
-    return fetch( `${Dir.setup}/${Dir.template}/${file}` );
-}
 
 
 /**
@@ -85,10 +85,12 @@ function funcSets( f, n, ix ) {
 
 
 export {
+    Dir,
+    DEBUG,
     OBTA,
     EXTENT,
     ACCESS,
     bindMethod,
-    tplLoad,
     Support,
+    tplsMap,
 };

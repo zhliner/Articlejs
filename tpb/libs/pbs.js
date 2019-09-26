@@ -22,7 +22,8 @@ import { To } from "./pbs.to.js";
 import { Builder } from "./obter.js";
 import { Templater } from "./templater.js";
 import { Render } from "./render.js";
-import { Support, tplLoad } from "../globals.js";
+import { tplLoad } from "./tloader.js";
+import { Support } from "../globals.js";
 
 
 const $ = window.$;
