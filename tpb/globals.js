@@ -3,6 +3,20 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 const
+    // 特性支持
+    Support = {
+        template: false,    // 模板（tpl-name|load）
+        render:   false,    // 渲染（tpb-each|if...）
+    },
+
+    // 根目录配置
+    Dir = {
+        setup:      '/',            // 网站安装根目录
+        template:   'templates/',   // 模板根目录
+    };
+
+
+const
     // OBT属性名定义
     OBTA = {
         on:     'on',   // On-Attr
@@ -17,10 +31,21 @@ const
     ACCESS = Symbol('stack-access');
 
 
-
 //
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 载入模板回调函数。
+ * file 可包含子目录（相对于模板根目录）。
+ * 返回值：Promise.then( tpl:Element )
+ * @param  {String} file 模板文件名
+ * @return {Promise}
+ */
+function tplLoad( file ) {
+    return fetch( `${Dir.setup}/${Dir.template}/${file}` );
+}
 
 
 /**
@@ -64,4 +89,6 @@ export {
     EXTENT,
     ACCESS,
     bindMethod,
+    tplLoad,
+    Support,
 };

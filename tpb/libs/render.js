@@ -115,10 +115,9 @@ const Parser = {
     // 文法解析方法映射：[
     //      [ 属性名, 解析方法名 ]
     // ]
-    // 数组顺序包含优先级逻辑。
     // 同一组文法不应在单一元素上同时存在（如if/else同时定义）。
     //
-    gramQueue: [
+    Method: [
         [__Each,    '$each'],
         [__With,    '$with'],
         [__Var,     '$var'],
@@ -139,10 +138,11 @@ const Parser = {
     grammar( el ) {
         let _buf = {};
 
-        for ( const [an, fn] of this.gramQueue ) {
+        for ( const [an, fn] of this.Method ) {
             if ( el.hasAttribute(an) ) {
                 Object.assign(
                     _buf,
+                    // $for 需要第二个实参
                     this[fn]( el.getAttribute(an), el.childElementCount )
                 );
                 el.removeAttribute( an );
@@ -302,7 +302,7 @@ const Parser = {
 
 
 //
-// 渲染文法。
+// 渲染文法执行。
 // 按文法固有的逻辑更新目标元素（集）。
 // 元素上存储的当前域数据（[__scopeData]）拥有最高的优先级。
 // 注：
@@ -312,6 +312,21 @@ const Parser = {
 // @return {void}
 //
 const Grammar = {
+    //
+    // 文法处理队列。
+    // 按优先级排列。
+    //
+    Queue: [
+        'Each',
+        'With',
+        'Var',
+        'Else', 'If',
+        'Case', 'Last', 'Switch',
+        'For',
+        'Assign',
+    ],
+
+
     /**
      * 自迭代循环。
      * 用数据集更新原始集，并按数据集大小删除或增长原始集。
@@ -544,11 +559,30 @@ const Grammar = {
         for (let i=0; i<size; i++) {
             _els.push(
                 // 克隆元素不再有Each文法。
-                // 注：在克隆模板元素时需要移除。
-                cloneGrammar( $.clone(ref, true, true, true), ref, 'Each' )
+                // 注：对模板元素有效。
+                this._eachGrammar( $.clone(ref, true, true, true), ref )
             );
         }
         return _els;
+    },
+
+
+    /**
+     * Each文法克隆。
+     * 注：会去除新元素的Each文法（顶层）。
+     * @param {Element} to 目标元素
+     * @param {Element} src 文法源元素
+     */
+    _eachGrammar( to, src ) {
+        let _gram = Grammars.get(src);
+
+        if ( _gram ) {
+            delete _gram.Each;
+            Grammars.set( to, _gram );
+        }
+        cloneGrammars( $.find(to, '*'), $.find(src, '*') );
+
+        return to;
     },
 
 
@@ -572,6 +606,7 @@ const Grammar = {
 
     /**
      * 循环克隆元素集。
+     * 用于For循环中子元素集的迭代。
      * @param  {[Element]} els 源元素集
      * @param  {Number} cnt 克隆次数
      * @return {[Element]} 克隆总集
@@ -775,18 +810,13 @@ function validComp( str ) {
  * 限制：to必须是src的克隆。
  * @param  {Element} to 目标元素
  * @param  {Element} src 源元素
- * @param  {String} ignore 忽略的文法（限于顶层）
- * @return {Element|null} 目标元素
+ * @return {Element} 目标元素
  */
-function cloneGrammar( to, src, ignore ) {
-    let _gram = Grammars.get(src);
-
-    if ( _gram ) {
-        if ( ignore ) delete _gram[ignore];
-        Grammars.set( to, _gram );
-    }
-    cloneGrammars( $.find(to, '*'), $.find(src, '*') );
-
+function cloneGrammar( to, src ) {
+    cloneGrammars(
+        $.find( to, '*', true ),
+        $.find( src, '*', true )
+    );
     return to;
 }
 
@@ -898,126 +928,24 @@ function hideCase( el, sure ) {
 }
 
 
-
-
 /**
- * 渲染节点树。
- * - scoper为打包入栈数据的域执行器；
- * @param  {Grammar} grammar 文法执行器
+ * 渲染目标元素（单个）。
+ * 按规定的文法优先级渲染元素。
  * @param  {Element} el 目标元素
- * @param  {WeakMap} map 渲染映射存储{Element: Blinder}
- * @param  {Object} _data 当前域数据
- * @return {Element} 渲染后的节点根
+ * @param  {Object} data 当前域数据
+ * @return {Element} el
  */
-function renders( grammar, el, map, _data ) {
-    let _gmit = map.get(el),
-        _subs = el.children;
+function render( el, data ) {
+    let _gram = Grammars.get(el)
 
-    if (_gmit) {
-        _data = _gmit.apply(grammar, el, _data);
-    }
-    if (_data === false) {
-        return $.remove(el), null;
-    }
-    // 使用children的动态集
-    // 因Each会在平级克隆添加元素。
-    for ( let i = 0; i < _subs.length; i++ ) {
-        renders(grammar, _subs[i], map, _data);
+    if ( _gram ) {
+        for (const fn of Grammar.Queue) {
+            let _args = _gram[fn];
+            if ( _args ) Grammar[fn]( el, ..._args, data );
+        }
     }
     return el;
 }
-
-
-//
-// 渲染器。
-// @param {Element} root 根元素
-// @param {Object} data  入栈数据
-//
-const _Render = {
-    /**
-     * 渲染配置解析。
-     * - 状态缓存，不会重新再次解析；
-     * - 返回值中也包含对root本身的匹配；
-     * - 无渲染配置时返回null；
-     * @param  {Element} root 模板节点
-     * @return {Boolean} 可否原地更新
-     */
-    parse( root ) {
-        let _map = __Cache.situes;
-
-        if (!_map.has(root)) {
-            let _els = Parser.all(root);
-            _map.set(
-                root,
-                _els ? !_els.some( e => loopIfs(Blindes.get(e)) ) : null
-            );
-        }
-        return _map.get(root);
-
-    },
-
-
-    /**
-     * 渲染配置克隆。
-     * - tpl应当已经解析过（parse）；
-     * - des必须是tpl的克隆版，内部结构一致；
-     * - 克隆的配置内部存储，外部链式调用即可；
-     * @param  {Element} tpl 源模板节点
-     * @param  {Element} des 克隆的节点
-     * @return {this} Render自身
-     */
-    clone( tpl, des ) {
-        let _map = __Cache.cloned;
-
-        if (_map.has(des) || Parser.clone(tpl, des, _map)) {
-            return this;
-        }
-        return _map.set(des, null), this;
-    },
-
-
-    /**
-     * 节点树渲染
-     * - 通常用于模板节点的完整克隆树；
-     * - 也适用于局部子树，但注意入栈数据的匹配；
-     * 注：仅适用于克隆后的元素集。
-     * @param  {Element} el 目标节点
-     * @param  {Object|...} data 渲染数据（入栈数据）
-     * @return {Element} el（渲染后）
-     */
-    show( el, data ) {
-        let _map = __Cache.cloned,
-            _gramer = new Grammar(
-                new T.Kits.Scoper( data, T.Config.DATA ),
-                _map
-            );
-        // 可能直接输出data
-        return renders( _gramer, el, _map, data );
-    },
-
-
-    /**
-     * 查询可否原地更新。
-     * - 针对目标节点树整体查询检测；
-     * - 无渲染配置的元素视为可原地更新；
-     * 注：会缓存查询结果。
-     * @param  {Element} root 目标节点树根
-     * @return {Boolean}
-     */
-    insitu( root ) {
-        let _map = __Cache.situes;
-
-        if (!_map.has(root)) {
-            _map.set(
-                root,
-                !$.find(root, '*', true)
-                .some( el =>loopIfs( __Cache.cloned.get(el) ) )
-            );
-        }
-        return _map.get(root);
-    },
-
-};
 
 
 
@@ -1025,35 +953,62 @@ const _Render = {
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
 
+
+/**
+ * 解析渲染配置。
+ * 通常用于源模板节点初始导入之后。
+ * @param  {Element} tpl 模板节点
+ * @return {Element} tpl
+ */
+function parse( tpl ) {
+    let _gram;
+
+    for ( const el of $.find(tpl, '*', true) ) {
+        _gram = Parser.grammar(el);
+
+        if ( Object.keys(_gram).length > 0 ) {
+            Grammars.set( el, _gram );
+        }
+    }
+    return tpl;
+}
+
+
+/**
+ * 渲染克隆。
+ * 通常用于克隆源模板节点时。
+ * 注：应当在 parse 之后使用。
+ * @param  {Element} tpl 模板节点
+ * @return {Element} 包含源渲染配置的新节点
+ */
+function clone( tpl ) {
+    return cloneGrammar( $.clone(tpl, true, true, true), tpl );
+}
+
+
 /**
  * 用源数据更新节点树。
- * 仅适用页面中既有渲染元素的原地更新。
- * 返回false表示未检索到渲染配置，外部可以尝试render()。
- * @param  {Element} root 渲染根（模板副本根）
- * @param  {Object} data 数据源对象
- * @return {Element|false} root
+ * 适用页面中既有渲染元素的原地更新。
+ * 注：应当应用于 clone() 的元素。
+ * @param  {Element} root 模板副本根/渲染根
+ * @param  {Object} data  源数据对象
+ * @return {Element} root
  */
 function update( root, data ) {
-    //
-}
-
-
-/**
- * 创建新的节点树（待渲染）。
- * 克隆并检索模板元素上的渲染配置，存储副本备用（原地更新）。
- * 用于初始插入时的创建。
- * 注：之后需要调用update执行渲染。
- * @param  {Element} tpl 模板根
- * @return {Element} 待渲染的模板副本
- */
-function create( tpl ) {
-    let _map = OriginMap.get(tpl);
-
-    if ( !_map ) {
-        // 模板初始解析并存储
+    if ( !root ) {
+        return;
     }
-    //
+    let _sd = root[__scopeData] || data;
+    render( root, _sd );
+
+    // 深度优先。
+    if ( root.childElementCount ) {
+        update( root.firstElementChild, _sd )
+    } else {
+        update( root.nextElementSibling, data );
+    }
+    return root;
 }
 
 
-export const Render = { create, update };
+export const Render = { parse, clone, update };

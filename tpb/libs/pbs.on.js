@@ -59,24 +59,30 @@ const _On = {
 
 
     /**
-     * 修饰键状态封装。
-     * 即：shift/ctrl/alt/meta 键是否按下。
-     * 按下为true，否则为false。
-     * 目标：无。
+     * 修饰键状态封装/检查。
+     * 即：shift/ctrl/alt/meta 键是否按下。按下为true，否则为false。
+     * 目标：当前条目，可选。
+     * 如果传递键名或暂存区有值，则为检查，否则简单封装4个键的状态。
      * 例：
-     * scam, inside('shift ctrl', true)
-     * 捕获键盘修饰键状态，检查是否同时按下了Shift和Ctrl键。
+     * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
+     * scam, inside('shift ctrl', true)  // 捕获修饰键状态，检查同上
+     *
+     * @param {String} names 键名序列
      */
-    scam( evo ) {
-        return {
+    scam( evo, names ) {
+        let _map = {
             'shift': evo.event.shiftKey,
             'ctrl':  evo.event.ctrlKey,
             'alt':   evo.event.altKey,
             'meta':  evo.event.metaKey,
         };
+        if ( !names ) {
+            names = evo.data;
+        }
+        return names ? name.trim().split(/\s+/).every( n => _map[n] ) : _map;
     },
 
-    __scam: null,
+    __scam: 0,
 
 
 

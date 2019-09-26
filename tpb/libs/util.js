@@ -6,8 +6,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  命名：
-//  前置 $ 字符的名称表示有特别的约定。
+//  基本工具集。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,16 +73,6 @@ const
     // 首尾空白需要预先清除。
     // 支持参数内的任意字符和换行。
     __reCall = /^(\w+)(?:\(([^]*)\))?$/;
-
-
-const
-    // 修饰键名映射。
-    __Modifier = {
-        shift:  'shiftKey',
-        alt: 	'altKey',
-        ctrl: 	'ctrlKey',
-        meta: 	'metaKey',
-    };
 
 
 
@@ -285,25 +274,6 @@ const Util = {
             return $el.trigger(name, extra);
         }
         return setTimeout( () => $el.trigger(name, extra), delay );
-    },
-
-
-
-
-
-    /**
-     * 修饰键按下检查。
-     * - 检查names中设定的键是否按下；
-     * - 多个键名为And关系（同时按下）；
-     * - 修饰键：Alt，Ctrl，Shift，Meta，键名小写；
-     *
-     * @param  {Event} ev 事件对象（原生）
-     * @param  {String|Array} names 键名称（集）
-     * @return {Boolean}
-     */
-    scamMasked( ev, names ) {
-        return [].concat(names)
-            .every( ns => ev[ __Modifier[ns.toLowerCase()] ] );
     },
 
 };

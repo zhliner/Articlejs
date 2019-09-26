@@ -243,9 +243,10 @@ class Builder {
     /**
      * 创建一个OBT构造器。
      * 基础库 pbs: {
-     *      on: Object,
-     *      by: Object,
-     *      to: {Where, Stage}
+     *      on:     Object,
+     *      by:     Object,
+     *      where:  Object,
+     *      stage:  Object,
      * }
      * @param {Object} pbs OBT指令集
      * @param {Function} store 调用链存储回调（chainStore）
@@ -253,8 +254,8 @@ class Builder {
     constructor( pbs, store ) {
         this._pbson = pbs.on;
         this._pbsby = pbs.by;
-        this._where = pbs.to.Where;
-        this._stage = pbs.to.Stage;
+        this._where = pbs.where;
+        this._stage = pbs.stage;
         this._store = store;
     }
 
@@ -1107,10 +1108,8 @@ function _update( evo, ...funs ) {
         funs[0]( _its, _val );
         return;
     }
-    if ( Array.isArray(_val) ) {
-        return funs.forEach( (f, i) => f(_its, _val[i]) );
-    }
-    funs.forEach( f => f(_its, _val) );
+    // 必然为数组（Query清空暂存）。
+    return funs.forEach( (f, i) => f(_its, _val[i]) );
 }
 
 //

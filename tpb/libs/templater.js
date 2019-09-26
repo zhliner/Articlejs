@@ -29,29 +29,62 @@ class Templater {
      * 构造模板管理器实例。
      * loader: function( String ): Promise:then(Element)
      * obter: function( Element ): Boolean
+     * render: function( Element ): Element
+     *
      * @param {Function} loader 节点载入回调
      * @param {Function} obter OBT解析回调
+     * @param {Function} render 渲染器（Render.parse），可选
      */
-    constructor( loader, obter ) {
+    constructor( loader, obter, render ) {
         this._load = loader;
         this._obtx = obter;
-        this._store = new Map();
+        this._render = render;
+
+        // 原始模板
+        this._tpls = new Map();
+        // 副本存储
+        this._copy = new Map();
     }
 
 
     /**
      * 获取模板节点。
-     * @param  {String} name 模板节点名
+     * @param  {String} name 模板名
+     * @param  {String} from 原始模板名
      * @return {Promise} 承诺对象
      */
-    get( name ) {
-        let _tpl = this._store.get(name);
+    get( name, orig ) {
+        let _root = this._copy.get(name);
+
+        if (_root) {
+            return Promise.resolve(_root);
+        }
+        // 取原始模板
+        return this.tpl( orig )
+            // 克隆&存储
+            .then( el => this._copy.set(name, $.clone(el, true, true, true)) )
+            // 再提取
+            .then( () => this.get(name) );
+    }
+
+
+    /**
+     * 获取原始模板节点。
+     * @param  {String} name 模板名
+     * @return {Promise} 承诺对象
+     */
+    tpl( name ) {
+        let _tpl = this._tpls.get(name);
 
         if (_tpl) {
             return Promise.resolve(_tpl);
         }
-        // 载入/解析并存储。
-        return this._load(name).then(el => this.build(el)).then(() => this._store.get(name));
+        // 载入
+        return this._load( name )
+            // 解析&存储
+            .then( el => this.build(el) )
+            // 再提取
+            .then( () => this._tpls.get(name) );
     }
 
 
@@ -64,8 +97,11 @@ class Templater {
      * @return {Promise}
      */
     build( root ) {
-        this._obtx(root);
+        this._obtx( root );
 
+        if ( this._render ) {
+            this._render( root );
+        }
         $.find(root, __slrName, true).forEach(
             el => this.add( el )
         )
@@ -77,9 +113,10 @@ class Templater {
 
     /**
      * 解析/载入子模板。
-     * 注意：匹配检查包含容器元素自身。
+     * 匹配检查包含容器元素自身。
+     * 返回null表示无子模版需要载入。
      * @param  {Element|DocumentFragment} box 根容器
-     * @return {[Promise]} 子模版载入承诺集
+     * @return {[Promise]|null} 子模版载入承诺集
      */
     subs( box ) {
         let _els = $.find(box, __slrLoad, true);
@@ -102,9 +139,10 @@ class Templater {
         box.removeAttribute(__tplLoad);
 
         if ( !_n ) {
+            // 忽略空定义。
             return null;
         }
-        return this.get( _n ).then( el => box.prepend(el) );
+        return this.tpl( _n ).then( el => box.prepend(el) );
     }
 
 
@@ -117,10 +155,10 @@ class Templater {
         let _n = el.getAttribute(__tplName);
         el.removeAttribute(__tplName);
 
-        if ( this._store.has(_n) ) {
+        if ( this._tpls.has(_n) ) {
             window.console.warn(`[${_n}] template node was overwritten.`);
         }
-        this._store.set( _n, el );
+        this._tpls.set( _n, el );
     }
 
 
@@ -131,7 +169,8 @@ class Templater {
         return {
             name: __tplName,
             load: __tplLoad,
-            tpls: this._store,
+            tpls: this._tpls,
+            copy: this._copy,
         };
     }
 

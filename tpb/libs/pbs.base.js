@@ -48,7 +48,6 @@ const
 
 //
 // 全局模板存储。
-// init: new Templater(...)
 //
 let TplStore = null;
 
@@ -160,20 +159,26 @@ const _Base = {
 
 
     /**
-     * 从模板管理器获取模板。
+     * 获取模板并命名。
      * 目标：当前条目，可选。
-     * 模板名称优先从实参获取，如果name未定义则从目标获取。
-     * @param  {String} name 模板名
+     * name优先从实参获取，如果未定义或为null，则取目标值。
+     * 行为：
+     * 从原始源模板获取一个副本，这个副本被命名为name的值，
+     * 如果在其它地方需要再次引用这个副本，仅传递name即可。
+     * name可与from相同，但不同的副本应当名称不同。
+     *
+     * @param  {String} name 模板名/命名
+     * @param  {String} from 原始来源模板名，可选
      * @return {Promise}
      */
-    tpl( evo, name ) {
+    tpl( evo, name, from ) {
         if ( name == null ) {
             name = evo.data;
         }
         if ( typeof name != 'string' ) {
             return Promise.reject(`invalid tpl-name: ${name}`);
         }
-        return TplStore.get( name );
+        return TplStore.get( name, from );
     },
 
     __tpl: 0,
@@ -1395,31 +1400,27 @@ const __PRUNES = Symbol('prunes-count');
 // 合并/导出
 ///////////////////////////////////////////////////////////////////////////////
 
-const
-    Base = $.assign( {}, _Base, bindMethod ),
-    Base2 = $.assign( {}, _Base2, bindMethod );
+
+const Base = {}, Base2 = {};
 
 
-/**
- * PB环境初始化。
- * loader: function( name:String ): Promise:then(Element)
- * obter: function( Element ): Boolean
- *
- * @param {Function} loader 模板元素载入函数
- * @param {Function} obter OBT解析函数
- */
-Base.init = function( loader, obter ) {
-    if ( TplStore ) {
-        return false;
-    }
-    return TplStore = new Templater( loader, obter );
-};
+//
+// PB环境初始化。
+// @param {Templater} tplstore 模板管理器
+//
+Base.init = function( tplstore ) {
+    // 绑定共享。
+    $.assign( Base, _Base, bindMethod );
+    $.assign( Base2, _Base2, bindMethod );
 
+    // 特殊指令引入。
+    // this: {Cell}
+    Base.prune = prune;
+    Base.prunes = prunes;
 
-// 特殊指令引入。
-// this: {Cell}
-Base.prune = prune;
-Base.prunes = prunes;
+    // 设置模板管理器。
+    if ( tplstore ) TplStore = tplstore;
+}
 
 
 export { Base, Base2 };
