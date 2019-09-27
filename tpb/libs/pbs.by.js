@@ -408,6 +408,11 @@ function onceBind( el, evn, slr = null ) {
 }
 
 
+
+// entry/animate标记属性。
+const __ANIMATE = Symbol('animate-count');
+
+
 /**
  * 特殊：By入口。
  * 创建一个方法，使得可以从By阶段某处自行启动执行流。
@@ -421,15 +426,15 @@ function onceBind( el, evn, slr = null ) {
  * evo.entry() 启动从下一个指令开始。
  */
 function entry( evo ) {
+    // 初始标记。
+    evo[__ANIMATE] = true;
+
     // 容错next无值。
     evo.entry = this.call.bind( this.next, evo );
 }
 
 // 目标：无。
 // entry[EXTENT] = null;
-
-
-const __ANIMATE = Symbol('animate-count');
 
 
 /**
@@ -449,15 +454,16 @@ function animate( evo, count, val ) {
     if ( this[__ANIMATE] == 0 ) {
         return;
     }
-    if ( this[__ANIMATE] == null ) {
+    if ( evo[__ANIMATE] ) {
         if ( val !== undefined ) {
             evo.data = val;
         }
         this[__ANIMATE] = +count || 0;
+        delete evo[__ANIMATE];
     }
     if ( this[__ANIMATE] > 0 ) this[__ANIMATE] --;
 
-    if (evo.entry) evo.entry(evo.data);
+    evo.entry(evo.data);
 }
 
 // 目标：当前条目，可选。
