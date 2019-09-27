@@ -8,14 +8,16 @@
 //
 //	OBT:To 方法集。
 //
-//  格式：前置双下划线定义取栈条目数。
+//  Where：取栈数量固定为1（已被obter.js/update封装）。
+//  Stage：前置双下划线定义取栈条目数，无返回值。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { Util } from "./util.js";
-import { bindMethod } from "../globals.js";
+import { bindMethod, method } from "../globals.js";
+import { Render } from "./render.js";
 
 
 const
@@ -29,7 +31,7 @@ const
 //
 // 目标更新方法集。
 // 目标：由Query部分检索获取。
-// 内容：由单个流程数据提供（取值已被parse.js/update封装）。
+// 内容：由单个流程数据提供（取值已被obter.js/update封装）。
 ///////////////////////////////////////////////////////////////////////////////
 
 const _Where = {
@@ -50,6 +52,28 @@ const _Where = {
             return $.cloneEvent( its, ...args );
         }
         its.forEach( to => $.cloneEvent( to, ...args ) );
+    },
+
+
+    /**
+     * 用流程数据更新目标元素（集）。
+     * 更新为渲染逻辑，但目标元素可能不是模板副本根。
+     * 如果目标是多个元素，它们采用相同的源数据渲染。
+     * 注：
+     * 与 By.render 效果类似，但支持局部渲染和多目标渲染。
+     *
+     * 局部渲染：
+     * - 根元素如果是Each语法，该元素必须是Each的起始元素。
+     * - 根元素不应当是For循环内包含Each语法的子元素，这会破坏For的结构。
+     *
+     * @param {Element|Collector} its 目标元素（集）
+     * @param {Object} data 渲染源数据
+     */
+    update( its, data ) {
+        if ( its.nodeType == 1 ) {
+            return Render.update( its, data );
+        }
+        its.forEach( el => Render.update(el, data) );
     },
 
 };
@@ -420,14 +444,10 @@ To.Stage = $.assign( {}, _Stage, bindMethod );
 // 接口：
 // 提供预处理方法。
 //===============================================
-To.Where.method = function( name ) {
-    return name != 'method' && To.Where[name];
-};
 
+To.Where[method] = name => To.Where[name];
 
-To.Stage.method = function( name ) {
-    return name != 'method' && To.Stage[name];
-};
+To.Stage[method] = name => To.Stage[name];
 
 
 

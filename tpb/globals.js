@@ -8,22 +8,26 @@ const
 
     // 根目录配置
     Dir = {
-        setup:      '/',            // 网站安装根目录
-        template:   'templates/',   // 模板根目录
+        // 网站安装根目录
+        setup:      '/',
+
+        // 模板根目录
+        template:   'templates/',
     },
 
     // 特性支持
     Support = {
-        template: false,    // 模板（tpl-name|load）
-        render:   false,    // 渲染（tpb-each|if...）
+        // 模板（tpl-name|load）
+        template: true,
+
+        // 渲染（tpb-each|if...）
+        render:   true,
     },
 
-    // 模板映射
+    // 模板映射文件路径
     // 用于从模板名查询所属文件（导入）。
-    // { 文件名：[模板名] }
-    tplsMap = {
-        // 'file-name.js': [tpl-name1, tpl-name2],
-    };
+    // 映射格式：{ 文件名：[模板名] }
+    tplsMap = `${Dir.setup}/${Dir.template}/_tplmap.json`;
 
 
 
@@ -39,7 +43,11 @@ const
     EXTENT = Symbol('stack-amount'),
 
     // 指令属性：特权方法（操作数据栈）
-    ACCESS = Symbol('stack-access');
+    ACCESS = Symbol('stack-access'),
+
+    // PBS方法获取接口键。
+    // 使用Symbol避免名称冲突。
+    method = Symbol('api-method');
 
 
 
@@ -90,6 +98,7 @@ export {
     OBTA,
     EXTENT,
     ACCESS,
+    method,
     bindMethod,
     Support,
     tplsMap,

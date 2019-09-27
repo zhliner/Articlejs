@@ -13,7 +13,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod } from "../globals.js";
+import { bindMethod, method } from "../globals.js";
 
 
 const $ = window.$;
@@ -412,11 +412,10 @@ const On = $.assign( {}, _On, bindMethod );
 
 
 //
-// 接口：提供预处理方法。
+// 接口：
+// 提供预处理方法。
 //
-On.method = function( name ) {
-    return name != 'method' && On[name];
-};
+On[method] = name => On[name];
 
 
 export { On };

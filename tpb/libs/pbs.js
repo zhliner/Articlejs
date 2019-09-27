@@ -64,7 +64,7 @@ if ( Support.template ) {
     tplStore = new Templater(
         tplLoad,
         obter.build.bind(obter),
-        Support.render && Render.parse
+        Support.render && Render
     );
 }
 

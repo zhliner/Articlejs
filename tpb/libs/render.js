@@ -807,7 +807,9 @@ function validComp( str ) {
 /**
  * 文法克隆&存储。
  * 用于克隆的新元素的文法存储。
- * 限制：to必须是src的克隆。
+ * 注：
+ * to应当是src的克隆（相同DOM结构）。
+ *
  * @param  {Element} to 目标元素
  * @param  {Element} src 源元素
  * @return {Element} 目标元素
@@ -933,7 +935,7 @@ function hideCase( el, sure ) {
  * 按规定的文法优先级渲染元素。
  * @param  {Element} el 目标元素
  * @param  {Object} data 当前域数据
- * @return {Element} el
+ * @return {[Element, Object]} [el, data]
  */
 function render( el, data ) {
     let _gram = Grammars.get(el)
@@ -944,7 +946,20 @@ function render( el, data ) {
             if ( _args ) Grammar[fn]( el, ..._args, data );
         }
     }
-    return el;
+    return [el, data];
+}
+
+
+/**
+ * 渲染下一个元素。
+ * @param {Element} el 目标元素
+ * @param {Object} scope 当前域数据
+ * @param {Object} data 父域数据
+ */
+function nextRender( el, scope, data ) {
+    let _sub = el.firstElementChild;
+    // 深度优先。
+    return _sub ? update(_sub, scope) : update(el.nextElementSibling, data);
 }
 
 
@@ -975,15 +990,10 @@ function parse( tpl ) {
 
 
 /**
- * 渲染克隆。
- * 通常用于克隆源模板节点时。
- * 注：应当在 parse 之后使用。
- * @param  {Element} tpl 模板节点
- * @return {Element} 包含源渲染配置的新节点
+ * 渲染文法克隆。
+ * 应当在 parse 之后使用，用于克隆源模板节点时。
  */
-function clone( tpl ) {
-    return cloneGrammar( $.clone(tpl, true, true, true), tpl );
-}
+const clone = cloneGrammar;
 
 
 /**
@@ -995,17 +1005,13 @@ function clone( tpl ) {
  * @return {Element} root
  */
 function update( root, data ) {
-    if ( !root ) {
-        return;
-    }
-    let _sd = root[__scopeData] || data;
-    render( root, _sd );
+    if ( root ) {
+        let _sd = data;
 
-    // 深度优先。
-    if ( root.childElementCount ) {
-        update( root.firstElementChild, _sd )
-    } else {
-        update( root.nextElementSibling, data );
+        if ( root[__scopeData] != null ) {
+            _sd = root[__scopeData];
+        }
+        nextRender( ...render(root, _sd), data );
     }
     return root;
 }

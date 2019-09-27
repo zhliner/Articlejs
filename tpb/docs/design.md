@@ -81,14 +81,14 @@ HTML源码不应当脱离设计师的视野，**源码**这一逻辑也并不就
 evo: {
     origin: {Element}               // 事件起点元素（event.target）
     current: {Element}              // 触发事件的当前元素（event.currentTarget|matched）
-    related: {Element|null}         // 事件相关联元素（event.relatedTarget）
     delegate: {Element|undefined}   // 委托绑定的元素（event.currentTarget）
+    related: {Element|null}         // 事件相关联元素（event.relatedTarget）
 
-    selector: {String|undefined}    // 委托匹配选择器（for match）]
     event: {Event}                  // 原生事件对象（未侵入）
+    selector: {String|undefined}    // 委托匹配选择器（for match）]
     data: {Value|[Value]}           // 自动获取的流程数据
 
-    entry: {Cell.call}              // By段入口启动函数，由 entry 指令创建
+    entry: {Function}               // By段入口函数，由entry指令创建。其它指令内部可直接调用：evo.entry(...)
     targets: {Element|Collector}    // To目标元素（集）向后延续，在 To:Query 之后存在
 }
 ```

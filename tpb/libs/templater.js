@@ -33,7 +33,7 @@ class Templater {
      *
      * @param {Function} loader 节点载入回调
      * @param {Function} obter OBT解析回调
-     * @param {Function} render 渲染器（Render.parse），可选
+     * @param {Object} render 渲染器 {parse, clone}，可选
      */
     constructor( loader, obter, render ) {
         this._load = loader;
@@ -59,12 +59,8 @@ class Templater {
         if (_root) {
             return Promise.resolve(_root);
         }
-        // 取原始模板
-        return this.tpl( orig )
-            // 克隆&存储
-            .then( el => this._copy.set(name, $.clone(el, true, true, true)) )
-            // 再提取
-            .then( () => this.get(name) );
+        // 取原始模板，克隆&存储。
+        return this.tpl( orig ).then( el => this.clone(el, name) );
     }
 
 
@@ -79,12 +75,8 @@ class Templater {
         if (_tpl) {
             return Promise.resolve(_tpl);
         }
-        // 载入
-        return this._load( name )
-            // 解析&存储
-            .then( el => this.build(el) )
-            // 再提取
-            .then( () => this._tpls.get(name) );
+        // 载入，解析&存储，再提取。
+        return this._load(name).then(el => this.build(el)).then(() => this.tpl(name));
     }
 
 
@@ -100,14 +92,34 @@ class Templater {
         this._obtx( root );
 
         if ( this._render ) {
-            this._render( root );
+            this._render.parse( root );
         }
-        $.find(root, __slrName, true).forEach(
+        $.find(root, __slrName, true)
+        .forEach(
             el => this.add( el )
         )
         let _ps = this.subs(root);
 
         return (_ps && _ps.length > 0) ? Promise.all(_ps) : Promise.resolve();
+    }
+
+
+    /**
+     * 克隆&存储模板节点。
+     * 会同时克隆渲染文法（如果有）。
+     * @param  {Element} tpl 源模板节点
+     * @param  {String} name 副本名称定义
+     * @return {Element} 克隆的新元素
+     */
+    clone( tpl, name ) {
+        let _new = $.clone( tpl, true, true, true );
+
+        if ( this._render ) {
+            this._render.clone( _new, tpl );
+        }
+        this._copy.set( name, _new );
+
+        return _new;
     }
 
 
@@ -130,7 +142,7 @@ class Templater {
 
     /**
      * 载入一个子模版。
-     * 注：调用者已选择器匹配。
+     * 注：元素已是选择器匹配的。
      * @param  {Element} box 容器元素
      * @return {Promise}
      */
@@ -139,7 +151,6 @@ class Templater {
         box.removeAttribute(__tplLoad);
 
         if ( !_n ) {
-            // 忽略空定义。
             return null;
         }
         return this.tpl( _n ).then( el => box.prepend(el) );
@@ -148,7 +159,7 @@ class Templater {
 
     /**
      * 添加模板节点。
-     * 注：调用者已选择器匹配。
+     * 注：元素已是选择器匹配的。
      * @param {Element} el 节点元素
      */
     add( el ) {

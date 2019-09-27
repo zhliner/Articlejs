@@ -17,7 +17,6 @@
 //
 
 import { Util } from "./libs/util.js";
-import { Templater } from "./libs/templater.js";
 import { bindMethod } from "../globals.js";
 
 
@@ -26,15 +25,15 @@ const
 
     // evo成员名数值键。
     evoIndex = {
-        0:  'origin',       // 事件起点元素（event.target）
-        1:  'current',      // 触发事件的当前元素（event.currentTarget|matched）
-        2:  'delegate',     // 事件相关联元素（event.relatedTarget）
-        3:  'related',      // 委托绑定的元素（event.currentTarget）
-        8:  'selector',     // 委托匹配选择器（for match）]
-        9:  'event',        // 原生事件对象（未侵入）
+        0:  'event',        // 原生事件对象（未侵入）
+        1:  'origin',       // 事件起点元素（event.target）
+        2:  'current',      // 触发事件的当前元素（event.currentTarget|matched）
+        3:  'delegate',     // 事件相关联元素（event.relatedTarget）
+        4:  'related',      // 委托绑定的元素（event.currentTarget）
+        5:  'selector',     // 委托匹配选择器（for match）]
         10: 'data',         // 自动获取的流程数据
-        11: 'targets',      // To目标元素（集）向后延续
-        12: 'entry',        // By入口函数（迭代重入）
+        11: 'entry',        // By入口函数（迭代重入）
+        12: 'targets',      // To目标元素（集）向后延续
     };
 
 
@@ -43,6 +42,7 @@ const
     Globals     = {},
 
     // 关联数据空间。
+    // Element: Map{ String: Value }
     DataStore   = new WeakMap();
 
 
@@ -194,7 +194,7 @@ const _Base = {
      * 检查目标值是否为真（非假）或是否与val相等（===）。
      * 结果为假会中断执行流。
      * @param  {Value} val 对比值，可选
-     * @return {Promise:void}
+     * @return {Promise|void}
      */
     pass( evo, val ) {
         let _v = evo.data;
@@ -202,7 +202,7 @@ const _Base = {
         if ( val !== undefined ) {
             _v = val === _v;
         }
-        return new Promise( (ok, fail) => _v ? ok() : fail(_v) );
+        if ( !_v ) return new Promise.reject();
     },
 
     __pass: 1,
@@ -1380,7 +1380,7 @@ const __PRUNES = Symbol('prunes-count');
  * @param  {Number} cnt 执行次数
  * @return {void}
  */
- function prunes( evo, cnt = 1 ) {
+function prunes( evo, cnt = 1 ) {
     if ( this[__PRUNES] < 0 ) {
         return;
     }

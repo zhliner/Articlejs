@@ -20,7 +20,7 @@
 
 import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
-import { OBTA, ACCESS, EXTENT, DEBUG } from "../globals.js";
+import { OBTA, ACCESS, EXTENT, DEBUG, method } from "../globals.js";
 
 
 const
@@ -791,7 +791,7 @@ class Call {
 
     /**
      * 应用到指令集。
-     * 方法由接口 .method(name) 提供。
+     * 方法由接口 [method](name) 提供。
      * 注：特权方法需要绑定数据栈，因此应当是一个未bound函数。
      * - [EXTENT] 自动取栈条目数
      * - [ACCESS] 可访问数据栈（特权）
@@ -800,12 +800,12 @@ class Call {
      * @return {Cell} cell
      */
     apply( cell, pbs ) {
-        let _f = pbs.method( this._meth );
+        let _f = pbs[method]( this._meth );
 
         if ( !_f ) {
             throw new Error(`${this._meth} is not in the sets.`);
         }
-        return cell.bind( this._args, _f, _f[ACCESS] || false, _f[EXTENT] );
+        return cell.bind( this._args, _f, _f[ACCESS], _f[EXTENT] );
     }
 
 }
