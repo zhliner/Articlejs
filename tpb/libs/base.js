@@ -1,4 +1,4 @@
-//! $Id: pbs.js 2019.08.19 Tpb.Core $
+//! $Id: base.js 2019.08.19 Tpb.Core $
 //
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
@@ -42,31 +42,34 @@ $.proto( To.Where, Base );
 $.proto( To.Stage, Base );
 
 
+// OBT 构造器
+const obter = new Builder(
+    {
+        on:     On,
+        by:     By,
+        where:  To.Where,
+        stage:  To.Stage,
+    },
+    chainStore
+);
 
-let tplStore;
 
-//
+let tplStore = null,
+
 // 模板支持。
-//
 if ( Support.template ) {
-    // OBT 构造器
-    const obter = new Builder(
-            {
-                on:     On,
-                by:     By,
-                where:  To.Where,
-                stage:  To.Stage,
-            },
-            chainStore
-        );
-
-    // 模板管理器
     tplStore = new Templater(
-        tplLoad,
-        obter.build.bind(obter),
-        Support.render && Render
+        tplLoad, obter.build.bind(obter), Support.render && Render
     );
 }
 
 
 Base.init( tplStore );
+
+
+//
+// 导出。
+// 用于正常的初始页面解析&构建。
+///////////////////////////////////////////////////////////////////////////////
+
+export { obter };
