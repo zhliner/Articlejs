@@ -10,14 +10,14 @@
 //
 //  约定：{
 //      __[name]    表达[name]方法的取栈条目数。
-//      __[name]_x  指定[name]是否为特权方法。
+//      __[name]_x  指定[name]是否为特权方法（可取用数据栈stack）。
 //  }
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { Util } from "./libs/util.js";
-import { bindMethod } from "../globals.js";
+import { bindMethod, EXTENT } from "../globals.js";
 
 
 const
@@ -32,8 +32,8 @@ const
         4:  'related',      // 委托绑定的元素（event.currentTarget）
         5:  'selector',     // 委托匹配选择器（for match）]
         10: 'data',         // 自动获取的流程数据
-        11: 'entry',        // By入口函数（迭代重入）
-        12: 'targets',      // To目标元素（集）向后延续
+        11: 'entry',        // 中段入口（迭代重入）
+        12: 'targets',      // To目标元素/集，向后延续
     };
 
 
@@ -1338,7 +1338,6 @@ function existValue( obj, name, val ) {
 // 特殊指令。
 // 会操作调用链本身，需要访问指令单元（this:Cell）。
 //===============================================
-// 实现：创建专有成员变量存储cnt状态。
 
 
 // 单次剪除属性。
@@ -1364,8 +1363,11 @@ function prune( evo, cnt = 1 ) {
         // 后阶移除
         this.next = this.next.next;
     }
-    this[__PRUNE] --;
+    -- this[__PRUNE];
 }
+
+// 目标：无。
+// prune[EXTENT] = null;
 
 
 // 持续剪除属性。
@@ -1391,8 +1393,77 @@ function prunes( evo, cnt = 1 ) {
         this.next = this.next.next;
         this[__PRUNES] = +cnt || 0;
     }
-    this[__PRUNES] --;
+    -- this[__PRUNES];
 }
+
+// 目标：无。
+// prunes[EXTENT] = null;
+
+
+
+// entry/animate标记属性。
+const __ANIMATE = Symbol('animate-count');
+
+
+/**
+ * 创建入口。
+ * 创建一个方法，使得可以从该处开启执行流。
+ * 目标：无。
+ * 主要用于动画类场景：前阶段收集初始数据，后阶段循环迭代执行动画。
+ * 使用：
+ *      entry           // 模板中主动设置（前提）。
+ *      animate(...)    // 从entry下一指令开始执行。
+ *      evo.entry(val)  // 指令/方法内使用。
+ * 注：
+ * 不作预绑定，this为当前指令单元（Cell）。
+ * 一个执行流中只能有一个入口（多个时，后面的有效）。
+ * @return {void}
+ */
+function entry( evo ) {
+    // 初始标记。
+    // 注记：执行流重启时复位。
+    evo[__ANIMATE] = true;
+
+    // 容错next无值。
+    evo.entry = this.call.bind( this.next, evo );
+}
+
+// 目标：无。
+// entry[EXTENT] = null;
+
+
+/**
+ * 开启动画。
+ * 实际上就是执行 entry 入口函数。
+ * count 为迭代次数，负值表示无限。
+ * val 为初次迭代传入 evo.entry() 的值（如果有，否则为当前条目）。
+ * 每次重入会传入当前条目数据（如果有）。
+ * 注：
+ * 不作预绑定，this为当前指令单元（Cell）。
+ *
+ * @param  {Value} val 初始值
+ * @param  {Number} count 迭代次数
+ * @return {void}
+ */
+function animate( evo, count, val ) {
+    if ( evo[__ANIMATE] ) {
+        if ( val !== undefined ) {
+            evo.data = val;
+        }
+        delete evo[__ANIMATE];
+        this[__ANIMATE] = +count || 0;
+    }
+    if ( this[__ANIMATE] == 0 ) {
+        return;
+    }
+    if ( this[__ANIMATE] > 0 ) {
+        -- this[__ANIMATE];
+    }
+    requestAnimationFrame( () => evo.entry(evo.data) );
+}
+
+// 目标：当前条目，可选。
+animate[EXTENT] = 0;
 
 
 
@@ -1415,8 +1486,10 @@ Base.init = function( tplstore ) {
 
     // 特殊指令引入。
     // this: {Cell}
-    Base.prune = prune;
-    Base.prunes = prunes;
+    Base.prune   = prune;
+    Base.prunes  = prunes;
+    Base.entry   = entry;
+    Base.animate = animate;
 
     // 设置模板管理器。
     if ( tplstore ) TplStore = tplstore;

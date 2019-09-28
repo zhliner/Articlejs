@@ -409,84 +409,11 @@ function onceBind( el, evn, slr = null ) {
 
 
 
-// entry/animate标记属性。
-const __ANIMATE = Symbol('animate-count');
-
-
-/**
- * 特殊：By入口。
- * 创建一个方法，使得可以从By阶段某处自行启动执行流。
- * 目标：无。
- * 可用于动画类场景：On阶段收集初始数据，后期的循环迭代则由By开始。
- * 使用：
- *      entry           // 模板中主动设置（前提）。
- *      evo.entry(val)  // 指令中使用，传递可能的入栈值。
- * 注：
- * 不作预绑定，this为当前指令单元（Cell）。
- * evo.entry() 启动从下一个指令开始。
- */
-function entry( evo ) {
-    // 初始标记。
-    evo[__ANIMATE] = true;
-
-    // 容错next无值。
-    evo.entry = this.call.bind( this.next, evo );
-}
-
-// 目标：无。
-// entry[EXTENT] = null;
-
-
-/**
- * 开启动画。
- * 注：实际上就是执行 entry 入口函数。
- * count 为迭代次数，负值表示无限。
- * val 为初次迭代传入 evo.entry() 的值（如果有）。
- * 每次重入（entry）会传入当前条目数据（如果有，除了第一次）。
- * 注：
- * 不作预绑定，this为当前指令单元（Cell）。
- *
- * @param  {Value} val 初始值
- * @param  {Number} count 迭代次数
- * @return {void}
- */
-function animate( evo, count, val ) {
-    if ( this[__ANIMATE] == 0 ) {
-        return;
-    }
-    if ( evo[__ANIMATE] ) {
-        if ( val !== undefined ) {
-            evo.data = val;
-        }
-        this[__ANIMATE] = +count || 0;
-        // 迭代正常化
-        delete evo[__ANIMATE];
-    }
-    if ( this[__ANIMATE] > 0 ) this[__ANIMATE] --;
-
-    requestAnimationFrame( () => evo.entry(evo.data) );
-}
-
-// 目标：当前条目，可选。
-animate[EXTENT] = 0,
-
-
-
 //
 // 预处理，导出。
 ///////////////////////////////////////////////////////////////////////////////
 
 const By = $.assign( {}, _By, bindMethod );
-
-
-// 特殊入口引入。
-// this: {Cell}
-By.entry = entry;
-
-
-// 启动entry。
-// this: {Cell}
-By.animate = animate;
 
 
 // X引入。
