@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { EXTENT } from "../globals.js";
+import { EXTENT } from "../config.js";
 
 const $ = window.$;
 
@@ -31,7 +31,7 @@ const _X = {};
 //
 function bindMethod( f, k, obj ) {
     if ( $.type(f) == 'Object' ) {
-        return $.assign({}, f, bindMethod);
+        return [$.assign({}, f, bindMethod)];
     }
     // 排除Symbol类型
     if ( k.length == null || k.startsWith('__') || !$.isFunction(f) ) {
@@ -39,7 +39,7 @@ function bindMethod( f, k, obj ) {
     }
     f = f.bind( obj );
 
-    return (f[EXTENT] = obj[`__${k}`] || 0), f;
+    return (f[EXTENT] = obj[`__${k}`] || 0), [f];
 }
 
 

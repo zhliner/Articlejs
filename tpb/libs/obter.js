@@ -20,7 +20,7 @@
 
 import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
-import { OBTA, ACCESS, EXTENT, DEBUG, method } from "../globals.js";
+import { OBTA, ACCESS, EXTENT, DEBUG, method } from "../config.js";
 
 
 const

@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { tplRoot, tplsMap, DEBUG } from "../globals.js";
+import { tplRoot, tplsMap, DEBUG } from "../config.js";
 
 
 const $ = window.$;

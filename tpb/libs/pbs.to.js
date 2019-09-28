@@ -16,7 +16,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, method } from "../globals.js";
+import { bindMethod, method } from "../config.js";
 import { Render } from "./render.js";
 
 

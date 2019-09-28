@@ -1,117 +1,108 @@
-//! $Id: tpb.js 2019.08.18 Tpb.Base $
+//! $Id: tpb.js 2019.08.19 Tpb.Base $
 //
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
+//  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-// 	Tpb {
-// 		Kits 		工具箱
-// 		Kits.Util	实用函数集
+//  基础定义集。
 //
-// 		TplBase 	辅助：模板管理器通用基类
-// 		Templater 	辅助：当前模板管理器
-// 		Localer 	辅助：本地化处理器
-// 		Plater 		辅助：板块载入器
-// 		Render 		辅助：渲染器
+//  Tpb {
+//      Build: {Function}   节点树OBT构建函数
+//      Lib:   {Object}     库空间，包含扩展库X接口，X(...)
+//  }
 //
-// 		Base 		应用：基类，基本应用
-// 		Taker 		应用：动态页，数据内容可变，但不含模板处理
-// 		WebApp 		应用：页程序，Web App，含模板处理
+//  可能支持模板和模板渲染（视全局配置而定）。
 //
-// 		Easing 		动画：缓动函数库
 //
-// 		run 		方法：基础实例运行
-// 		pbs 		方法：基础PB扩展接口
-// 		proxy 		方法：PB代理调用
-// 		combine 	方法：PB组合调用
-// 	}
-//
-// 	依赖：tQuery
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-// import { X } from "./libs/lib.x.js";
-// Tpb.Libs.X = X;
+import { Base, Base2 } from "./libs/pbs.base.js";
+import { On } from "./libs/pbs.on.js";
+import { By, chainStore } from "./libs/pbs.by.js";
+import { To } from "./libs/pbs.to.js";
+
+import { Builder } from "./libs/obter.js";
+import { Templater } from "./libs/templater.js";
+import { Render } from "./libs/render.js";
+import { tplLoad } from "./libs/tloader.js";
+import { X } from "./libs/lib.x.js";
+import { Support, OBTA } from "./config.js";
 
 
-(function( window, undefined ) {
+const
+    $ = window.$,
+
+    // 库空间。
+    Lib = { X },
+
+    // On属性选择器
+    _onSlr = `[${OBTA.on}]`;
+
+
+// 运算全局。
+// 适用：On/By。
+$.proto( Base2, Base );
+
+
+// 基础集继承（原型）。
+$.proto( On, Base2 ),
+$.proto( By, Base2 ),
+
+$.proto( To.Where, Base );
+$.proto( To.Stage, Base );
+
 
 //
-// 名称空间。
-// 基本成员定义/声明。
-//
-const Tpb = {
-
-	Util:  	{}, 	// namespace
-	Config: null, 	// Object
-	Core: 	null, 	// Instance
+// 基础支持。
+//===============================================
 
 
-	TplBase: 	null, 	// Class/Base Class
-	Templater: 	null, 	// Class
-	Localer: 	null, 	// Class
-	Plater: 	null, 	// Class
+// OBT 构造器
+const _obter = new Builder( {
+        on:     On,
+        by:     By,
+        where:  To.Where,
+        stage:  To.Stage,
+    },
+    chainStore
+);
 
-
-	// 渲染器：{
-	//   parse( Element ) Boolean
-	//   clone( Element, Element ) this
-	//   show( Element, Data ) Element
-	//   insitu( Element ) Boolean
-	// }
-	Render: null,
-
-
-	Base: 	null, 	// Base Class
-	Taker: 	null, 	// Class
-	WebApp: null, 	// Class
-
-
-	Easing: {},  	// 缓动函数库
-
-
-	/**
-	 * 基础实例运行。
-	 * 此为单独运行，提供静态交互服务。
-	 * @param {Element} root 起始根容器
-	 */
-	run: root => Tpb.Core.run(root),
-
-	/**
-	 * 基础PB扩展。
-	 */
-	pbs: obj => Tpb.Core.pbs(obj),
-
-	/**
-	 * PB组合调用。
-	 */
-	combine: (...a) => Tpb.Core.combine(...a),
-
-	/**
-	 * PB代理调用。
-	 */
-	proxy: self => Tpb.Core.proxy(self),
-
-};
-
-
-// Expose
-///////////////////////////////////////////////////////////////////////////////
-
-
-let _Tpb = window.Tpb;
 
 /**
- * 恢复页面初始Tpb占用。
- * @returns 当前Tpb对象
+ * 节点树OBT构建。
+ * 注：OBT配置独立，无DOM树逻辑关联。
+ * @param  {Element|DocumentFragment} root 根容器
+ * @return {void}
  */
-Tpb.noConflict = function() {
-	if ( window.Tpb === Tpb ) window.Tpb = _Tpb;
-	return Tpb;
-};
+function Build( root ) {
+    $.find( root, _onSlr, true )
+    .forEach( el => _obter.build( el ) );
+}
 
-window.Tpb = Tpb;
 
-})( window );
+let tplStore = null;
+
+
+(function () {
+
+    // 模板支持。
+    if ( Support.template ) {
+        tplStore = new Templater(
+            tplLoad, Build, Support.render && Render
+        );
+    }
+
+    Base.init( tplStore );
+
+})();
+
+
+//
+// 导出。
+// 用于正常的初始页面解析&构建。
+///////////////////////////////////////////////////////////////////////////////
+
+export const Tpb = { Build, Lib };

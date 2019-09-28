@@ -89,7 +89,7 @@ const
     __loopSize  = '_S_',   // 循环集大小
 
     // 当前域数据存储键。
-    // 用于循环中在元素上存储当前域数据。
+    // 用于循环中或With在元素上存储当前域数据。
     // 注：调用者取当前域先从元素上检索。
     __scopeData = Symbol('scope-data'),
 
@@ -365,12 +365,17 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     With( el, handle, data ) {
-        data = handle( data );
+        let _sub = handle( data );
 
-        if ( data == null ) {
-            data = Object.create(null);
+        if ( _sub == null ) {
+            _sub = Object.create(null);
         }
-        el[__scopeData] = Object.assign( data, {$: el[__scopeData]} );
+        _sub.$ = data;
+
+        if ( $.type(_sub) == 'Object' && $.type(data) == 'Object' ) {
+            $.proto( _sub, data );
+        }
+        el[ __scopeData ] = _sub;
     },
 
 

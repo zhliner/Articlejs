@@ -17,7 +17,7 @@
 import { Util } from "./util.js";
 import { X } from "./lib.x.js";
 import { Render } from "./render.js";
-import { bindMethod, method, EXTENT } from "../globals.js";
+import { bindMethod, method } from "../config.js";
 
 const
     $ = window.$,

@@ -13,7 +13,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, method } from "../globals.js";
+import { bindMethod, method } from "../config.js";
 
 
 const $ = window.$;
