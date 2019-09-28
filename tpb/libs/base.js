@@ -23,10 +23,14 @@ import { Builder } from "./obter.js";
 import { Templater } from "./templater.js";
 import { Render } from "./render.js";
 import { tplLoad } from "./tloader.js";
-import { Support } from "../globals.js";
+import { Support, OBTA } from "../globals.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // On属性选择器
+    _onSlr = `[${OBTA.on}]`;
 
 
 // 运算全局。
@@ -54,17 +58,33 @@ const obter = new Builder(
 );
 
 
-let tplStore = null,
-
-// 模板支持。
-if ( Support.template ) {
-    tplStore = new Templater(
-        tplLoad, obter.build.bind(obter), Support.render && Render
-    );
+/**
+ * 节点树OBT构建。
+ * 注：OBT配置独立，无DOM树逻辑关联。
+ * @param  {Element|DocumentFragment} root 根容器
+ * @return {void}
+ */
+function OBTBuild( root ) {
+    $.find( root, _onSlr, true )
+    .forEach( el => obter.build( el ) );
 }
 
 
-Base.init( tplStore );
+let tplStore = null;
+
+
+(function () {
+
+    // 模板支持。
+    if ( Support.template ) {
+        tplStore = new Templater(
+            tplLoad, OBTBuild, Support.render && Render
+        );
+    }
+
+    Base.init( tplStore );
+
+})();
 
 
 //
@@ -72,4 +92,4 @@ Base.init( tplStore );
 // 用于正常的初始页面解析&构建。
 ///////////////////////////////////////////////////////////////////////////////
 
-export { obter };
+export { OBTBuild };

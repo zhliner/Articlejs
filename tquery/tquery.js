@@ -171,7 +171,7 @@
             if (typeof slr != 'string') {
                 return el === slr;
             }
-            return slr[0] != '>' && el.matches && el.matches(slr);
+            return slr[0] != '>' && !!el.matches && el.matches(slr);
         },
 
         // 是否包含判断。

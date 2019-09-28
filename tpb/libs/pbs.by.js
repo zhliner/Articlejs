@@ -459,11 +459,12 @@ function animate( evo, count, val ) {
             evo.data = val;
         }
         this[__ANIMATE] = +count || 0;
+        // 迭代正常化
         delete evo[__ANIMATE];
     }
     if ( this[__ANIMATE] > 0 ) this[__ANIMATE] --;
 
-    evo.entry(evo.data);
+    requestAnimationFrame( () => evo.entry(evo.data) );
 }
 
 // 目标：当前条目，可选。

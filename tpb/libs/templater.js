@@ -33,7 +33,7 @@ class Templater {
      *
      * @param {Function} loader 节点载入回调
      * @param {Function} obter OBT解析回调
-     * @param {Object} render 渲染器 {parse, clone}，可选
+     * @param {Render} render 渲染器 {parse, clone}，可选
      */
     constructor( loader, obter, render ) {
         this._load = loader;
@@ -44,6 +44,10 @@ class Templater {
         this._tpls = new Map();
         // 副本存储
         this._copy = new Map();
+
+        // 子模版承诺存储（同步点）
+        // {root: Promise}
+        this._pool = new WeakMap();
     }
 
 
@@ -76,31 +80,21 @@ class Templater {
             return Promise.resolve(_tpl);
         }
         // 载入，解析&存储，再提取。
-        return this._load(name).then(el => this.build(el)).then(() => this.tpl(name));
+        return this._load(name).then( el => this.build(el) ).then( () => this._tpls.get(name) );
     }
 
 
     /**
      * 模板构建。
-     * - 需要处理OBT的解析/绑定逻辑。
-     * - 存储构建好的模板节点备用。
-     * 注：可能需要多次异步载入（tpl-load指令）。
-     * @param  {Element|DocumentFragment} root 根元素或文档片段
+     * 如果已经开始构建，返回子模版的承诺对象。
+     * @param  {DocumentFragment} root 根容器
      * @return {Promise}
      */
     build( root ) {
-        this._obtx( root );
-
-        if ( this._render ) {
-            this._render.parse( root );
+        if ( !this._pool.has(root) ) {
+            this._pool.set( root, this._build(root) );
         }
-        $.find(root, __slrName, true)
-        .forEach(
-            el => this.add( el )
-        )
-        let _ps = this.subs(root);
-
-        return (_ps && _ps.length > 0) ? Promise.all(_ps) : Promise.resolve();
+        return this._pool.get(root);
     }
 
 
@@ -124,19 +118,58 @@ class Templater {
 
 
     /**
+     * 调试用数据。
+     */
+    debug() {
+        return {
+            name: __tplName,
+            load: __tplLoad,
+            tpls: this._tpls,
+            copy: this._copy,
+        };
+    }
+
+
+    //-- 私有辅助 -------------------------------------------------------------
+
+    /**
+     * 模板构建。
+     * - 需要处理OBT的解析/绑定逻辑。
+     * - 存储构建好的模板节点备用。
+     * - 可能需要多次异步载入（tpl-load指令）。
+     * @param  {DocumentFragment} root 文档片段
+     * @return {Promise}
+     */
+    _build( root ) {
+        this._obtx( root );
+
+        if ( this._render ) {
+            this._render.parse( root );
+        }
+        $.find(root, __slrName)
+        .forEach(
+            el => this._add( el )
+        )
+        let _ps = this._subs(root);
+
+        return (_ps && _ps.length > 0) ? Promise.all(_ps) : Promise.resolve();
+    }
+
+
+    /**
      * 解析/载入子模板。
      * 匹配检查包含容器元素自身。
      * 返回null表示无子模版需要载入。
-     * @param  {Element|DocumentFragment} box 根容器
+     * @param  {DocumentFragment} root 根容器
      * @return {[Promise]|null} 子模版载入承诺集
      */
-    subs( box ) {
-        let _els = $.find(box, __slrLoad, true);
+     _subs( root ) {
+        let _els = $.find(root, __slrLoad, true);
 
         if ( _els.length == 0 ) {
             return null;
         }
-        return $.map( _els, el => this.loadsub(el) );
+        return $.map( _els, el => this._loadsub(el) );
     }
 
 
@@ -146,7 +179,7 @@ class Templater {
      * @param  {Element} box 容器元素
      * @return {Promise}
      */
-    loadsub( box ) {
+    _loadsub( box ) {
         let _n = box.getAttribute(__tplLoad);
         box.removeAttribute(__tplLoad);
 
@@ -162,7 +195,7 @@ class Templater {
      * 注：元素已是选择器匹配的。
      * @param {Element} el 节点元素
      */
-    add( el ) {
+     _add( el ) {
         let _n = el.getAttribute(__tplName);
         el.removeAttribute(__tplName);
 
@@ -171,20 +204,6 @@ class Templater {
         }
         this._tpls.set( _n, el );
     }
-
-
-    /**
-     * 调试用数据。
-     */
-    debug() {
-        return {
-            name: __tplName,
-            load: __tplLoad,
-            tpls: this._tpls,
-            copy: this._copy,
-        };
-    }
-
 }
 
 

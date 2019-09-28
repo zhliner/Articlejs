@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Dir, tplsMap, DEBUG } from "../globals.js";
+import { tplRoot, tplsMap, DEBUG } from "../globals.js";
 
 
 const $ = window.$;
@@ -31,33 +31,37 @@ class TplLoader {
 	constructor( dir ) {
         this._root = dir;
 
-        // 已载入缓存 {file: Promise}
+        // 已载入存储 {file: Promise}
         // 多个 tpl-load 目标可能属于同一文件。
 		this._pool = new Map();
 
 		// 节点名：所在文件名映射。
 		// { tpl-name: file }
-		this._fmap = Object.create(null);
+		this._tmap = Object.create(null);
 	}
 
 
 	/**
 	 * 配置初始化。
-     * fmap: {file: [tpl-name]}
+     * fmap内容: {file: [tpl-name]}
      * 文件名为相对于模板根的路径，含子目录和扩展名。
-	 * @param {Object} fmap
+	 * @param {String} fmap 映射配置文件（全路径）
 	 */
 	init( fmap ) {
-        Object.entries(fmap).forEach(
-            (file, names) => names.forEach( name => this.file(name, file) )
-        );
+		fetch( fmap )
+			.then( resp => resp.json() )
+			.then( json => this.tplMap(json) )
+			.catch( e => window.console.error(e) );
 	}
 
 
 	/**
-	 * 载入节点组并提取目标节点。
+	 * 接口：载入节点组。
 	 * 如果已经载入，返回缓存的承诺对象。
 	 * Promise:then( DocumentFragment )
+	 * 注记：
+	 * 由后续在单线程中处理重复解析的问题。
+	 *
 	 * @param  {String} name 节点名称
 	 * @return {Promise} 承诺对象
 	 */
@@ -65,18 +69,15 @@ class TplLoader {
 		let _file = this.file(name);
 
 		if ( !_file ) {
-			return Promise.reject(`[${name}] not in any file.`);
+			return Promise.reject( `[${name}] not in any file.` );
 		}
 		if ( !this._pool.has(_file) ) {
-            this._pool.set(
-                _file, this._load(_file)
-			);
-			//:debug
 			if ( DEBUG ) {
-				window.console.log(`"${_file}" loading with [${name}]`);
+				window.console.log( `[${_file}] loading for [${name}]` );
 			}
-        }
-        return this._pool.get( _file );
+			this._pool.set( _file, this._load(_file) );
+		}
+		return this._pool.get( _file );
     }
 
 
@@ -88,9 +89,20 @@ class TplLoader {
 	 */
 	file( name, file ) {
 		if (file === undefined) {
-			return this._fmap[name] || null;
+			return this._tmap[name] || null;
 		}
-		this._fmap[name] = file;
+		this._tmap[name] = file;
+	}
+
+
+	/**
+	 * 设置模板 节点名：文件名 映射。
+	 * @param {Object} conf 映射配置
+	 */
+	tplMap( conf ) {
+		Object.entries(conf).forEach(
+			(file, names) => names.forEach( name => this.file(name, file) )
+		);
 	}
 
 
@@ -104,8 +116,9 @@ class TplLoader {
 	 */
 	_load( file ) {
         return fetch( this._root + '/' + file )
-            .then( resp => resp.ok ? resp.text() : Promise.reject(resp.statusText) )
-            .then( html => $.create(html) );
+			.then( resp => resp.ok ? resp.text() : Promise.reject(resp.statusText) )
+			.then( html => $.create(html) )
+			.catch( e => window.console.error(e) );
 	}
 
 }
@@ -115,7 +128,7 @@ class TplLoader {
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
 
-const loader = new TplLoader( `${Dir.setup}/${Dir.template}`);
+const loader = new TplLoader( tplRoot );
 
 loader.init( tplsMap );
 

@@ -24,10 +24,13 @@ const
         render:   true,
     },
 
+    // 模板根目录。
+    tplRoot = `${Dir.setup}/${Dir.template}`,
+
     // 模板映射文件路径
-    // 用于从模板名查询所属文件（导入）。
+    // 用于从模板名查询所属文件（导入时）。
     // 映射格式：{ 文件名：[模板名] }
-    tplsMap = `${Dir.setup}/${Dir.template}/_tplmap.json`;
+    tplsMap = `${tplRoot}/_list.json`;
 
 
 
@@ -101,5 +104,6 @@ export {
     method,
     bindMethod,
     Support,
+    tplRoot,
     tplsMap,
 };

@@ -805,11 +805,8 @@ function validComp( str ) {
 
 
 /**
- * 文法克隆&存储。
- * 用于克隆的新元素的文法存储。
- * 注：
+ * 节点树文法克隆&存储。
  * to应当是src的克隆（相同DOM结构）。
- *
  * @param  {Element} to 目标元素
  * @param  {Element} src 源元素
  * @return {Element} 目标元素
@@ -970,7 +967,7 @@ function nextRender( el, scope, data ) {
 
 
 /**
- * 解析渲染配置。
+ * 解析节点树渲染配置。
  * 通常用于源模板节点初始导入之后。
  * @param  {Element} tpl 模板节点
  * @return {Element} tpl
@@ -990,7 +987,7 @@ function parse( tpl ) {
 
 
 /**
- * 渲染文法克隆。
+ * 节点树渲染文法克隆。
  * 应当在 parse 之后使用，用于克隆源模板节点时。
  */
 const clone = cloneGrammar;

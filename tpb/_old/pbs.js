@@ -42,11 +42,15 @@
 		// PB样式属性名
 		__pbAttr = 'data-pb',
 
-		// 基本名称空间
+		// 名称空间
 		NS = {
-			UI: 	 	{},  // 界面相关（ui）
 			Event: 	 	{},  // 事件相关（ev）
-			Element: 	{},  // 元素操作（el），指元素整体，不是元素的属性
+			Element: 	{},  // 元素相关（el）
+			$: 		 	{},  // 检索相关（$）
+			UI: 	 	{},  // 界面相关（ui）
+			Effects: 	{},  // 动效相关（ef）
+			Animation: 	{},  // 动画相关（an）
+			Example: 	{},  // 样例操作（eg）
 		};
 
 
@@ -64,7 +68,13 @@
 		__ARRAY = '__base::elem-array',
 
 		// PB:tab参数选择器
-		__pbTab = '[data-pb|=tab]';
+		__pbTab = '[data-pb|=tab]',
+
+		// 动画：刷新率（帧/秒）。
+		__frameRate = 60,
+
+		// 动画：单帧时间（毫秒）。
+		__frameCell = 1000/__frameRate;
 
 
 
@@ -100,9 +110,14 @@ T.pbs({
 	//
 	// 基本名称空间。
 	//
-	ui: NS.UI,
+	$:  NS.$,
 	ev: NS.Event,
 	el: NS.Element,
+	ui: NS.UI,
+	ef: NS.Effects,
+	an: NS.Animation,
+
+	eg: NS.Example,
 
 
 	//-- 方法集 ---------------------------------------------------------------
@@ -118,16 +133,16 @@ T.pbs({
 
 
 	/**
-	 * 简单停止（无条件）。
-	 * - 默认仅停止事件冒泡。
-	 * - end为真会终止当前执行流。
-	 * - all为真会结束后续同类绑定的调用。
+	 * 简单停止。
+	 * - 默认仅停止事件冒泡；
+	 * - over为真会终止当前执行流；
+	 * - all为真会结束后续同类绑定的调用；
 	 *
-	 * @param {Boolean} end 终止执行流
-	 * @param {Boolean} all 同类事件全部终止
+	 * @param {Boolean} over 终止执行流
+	 * @param {Boolean} all  全部终止（同类事件）
 	 */
-	stop( ev, end, all ) {
-		if (end) {
+	stop( ev, over, all ) {
+		if (over) {
 			return all && ev.stopImmediatePropagation();
 		}
 		ev.stopPropagation();
@@ -740,144 +755,10 @@ T.pbs({
 	},
 
 
-	//-- 属性处理 -------------------------------------------------------------
+	//-- 元素处理 -------------------------------------------------------------
 	// 流程数据本身为元素（集），自我处理；
 	// 该部分取值会考虑trigger发送的值（ev.detail）；
 	// 不会向流程赋新值；
-
-
-	/**
-	 * 属性赋值（Property）。
-	 * - $val未定义时取trigger值；
-	 * @param {String} $name 属性名
-	 * @param {String|Number} $val 待赋值
-	 */
-	prop( ev, $name, $val ) {
-		return this.set(ev, $name, $val, 'prop');
-		// already next()
-	},
-
-
-	/**
-	 * 特性赋值（Attribute）。
-	 * - $val未定义时取trigger值；
-	 * @param {String} $name 属性名
-	 * @param {String|Number} $val 待赋值
-	 */
-	attr( ev, $name, $val ) {
-		return this.set(ev, $name, $val, 'attr');
-		// already next()
-	},
-
-
-	/**
-	 * 样式赋值。
-	 * - $val未定义时取trigger值；
-	 * - 实为设置内联样式（style）；
-	 * @param {string} $name 样式属性名
-	 * @param {String|Number} $val 待赋值
-	 */
-	css( ev, $name, $val ) {
-		return this.set(ev, $name, $val, 'css');
-		// already next()
-	},
-
-
-	/**
-	 * 类名操作。
-	 * - 支持空格分隔的多个名称；
-	 * - $name为null时取trigger值（与set系不同）；
-	 * - force仅在切换操作中有效，其它操作忽略；
-	 * 操作类型：{
-	 *  	0 	切换。$name空值整体切换
-	 *  	1 	添加
-	 *  	-1 	删除。$name空值会清空全部类名
-	 * }
-	 * @param {String} $name 类名序列
-	 * @param {Number} op 操作类型
-	 * @param {Boolean} force 强制设定，可选
-	 */
-	cls( ev, $name, op = 0, force = null ) {
-		if ($name === null) {
-			$name = ev.detail;
-		}
-		clsHandles[op](
-			$(this.data), this.$value($name) || '', force
-		);
-		return this.next();
-	},
-
-
-	/**
-	 * 元素内联样式。
-	 * @param {string} name 样式属性名
-	 */
-	style( ev, name ) {
-		let _dt = $(this.data)
-			.map( e => e.style[name] );
-
-		return this.next( alone(_dt) );
-	},
-
-
-	/**
-	 * 清除select选取。
-	 * @param {String} rid 选单元素标识，可选
-	 */
-	unsel( ev, rid ) {
-		let $sel = this.$elem(rid) ||
-			$(this.data);
-
-		$sel.forEach( el => el.selectedIndex = -1 );
-		return this.next();
-	},
-
-
-	/**
-	 * 双值切换。
-	 * - 流程数据为单元素；
-	 * - 对流程元素的name属性/特性/样式/内容等切换；
-	 * type: [prop|attr|css|$]
-	 * 例：
-	 * - name: text, type: $ => 元素内容切换
-	 *
-	 * @param {Value} v1 切换值A
-	 * @param {Value} v2 切换值B
-	 * @param {String} name 赋值键名，可选
-	 * @param {String} type 操作类型，可选
-	 */
-	swap( ev, v1, v2, name = 'value', type = 'prop' ) {
-		let _el = this.data,
-			_v0 = Util.$get(_el, type, name);
-
-		Util.$set(
-			$(_el),
-			type,
-			name,
-			(_v0 === v1 ? v2 : v1)
-		);
-		return this.next();
-	},
-
-
-	/**
-	 * 样式值设置到目标元素。
-	 * - 从流程元素的样式属性里取值（内联样式）；
-	 * - 默认赋值到目标元素的同名样式；
-	 * - 如果获取的样式值未定义，不会进行赋值；
-	 *
-	 * @param {String} rid 目标元素标识
-	 * @param {String} name 样式属性名
-	 * @param {String} key  目标键名，可选
-	 * @param {String} type 操作类型（css|prop|attr），可选
-	 */
-	cssto( ev, rid, name, key = name, type = 'css' ) {
-		T.proxy(this)
-			.style(ev, name)
-			.put(ev, key, rid, type);
-
-		return this.next();
-	},
 
 
 	/**
@@ -1061,7 +942,7 @@ T.pbs({
 	 */
 	flag( ev, name, $val ) {
 		if ($val === undefined) {
-			return this.next( values(this.Marks, name) );
+			return tihs.next( values(this.Marks, name) );
 		}
 		if ($val === null) {
 			delete this.Marks[name];
@@ -1238,9 +1119,6 @@ T.pbs({
 // 应当在子元素至当前元素之间停止同名事件的冒泡。
 //
 Object.assign( NS.Event, {
-
-	//-- 基础事件 -------------------------------------------------------------
-
 	/**
 	 * 触发事件跳转。
 	 * - 取流程数据为发送值（可以较复杂）；
@@ -1430,7 +1308,7 @@ Object.assign( NS.Event, {
 	},
 
 
-	//-- 元素事件 -------------------------------------------------------------
+	//-- 事件取值 -------------------------------------------------------------
 
 
 	/**
@@ -1445,45 +1323,6 @@ Object.assign( NS.Event, {
 		};
 	},
 
-
-	/**
-	 * 表单提交。
-	 * - 向form元素发送提交，包含修饰键位状态；
-	 * - 此动作一般由form内的表单控件触发；
-	 * - 仅支持单一表单元素提交；
-	 * 注记：
-	 * - form的submit事件没有修饰键状态；
-	 *
-	 * @param {String} rid form元素标识，可选
-	 */
-	submit(ev, rid) {
-		let _frm = this.$elem(rid) || [this.targets.current.form];
-
-		$.trigger(
-			_frm[0], 'submit', keySCAM(ev)
-		);
-		return this.next();
-	},
-
-
-	/**
-	 * 表单重置时的控件事件分发。
-	 * - 检查表单内控件值是否会改变（被重置），决定触发change；
-	 * - 向内部控件分发的change事件在reset之后发生（延迟）；
-	 * 注记：
-	 * - 浏览器尚未实现表单重置时其内控件值改变的事件；
-	 *
-	 * @param {String} rid form元素标识，可选
-	 */
-	reseton(ev, rid) {
-		let _frm = this.$elem(rid) || [this.targets.current.form];
-
-		Util.fireEvent(
-			$(changeFC(_frm[0])), 'change', null, true
-		);
-		return this.next();
-	},
-
 });
 
 
@@ -1492,6 +1331,80 @@ Object.assign( NS.Event, {
 // 指与元素关联较为紧密的部分。
 //
 Object.assign( NS.Element, {
+	/**
+	 * 属性赋值（Property）。
+	 * - $val未定义时取trigger值；
+	 * @param {String} $name 属性名
+	 * @param {String|Number} $val 待赋值
+	 */
+	prop( ev, $name, $val ) {
+		return this.set(ev, $name, $val, 'prop');
+		// already next()
+	},
+
+
+	/**
+	 * 特性赋值（Attribute）。
+	 * - $val未定义时取trigger值；
+	 * @param {String} $name 属性名
+	 * @param {String|Number} $val 待赋值
+	 */
+	attr( ev, $name, $val ) {
+		return this.set(ev, $name, $val, 'attr');
+		// already next()
+	},
+
+
+	/**
+	 * 样式赋值。
+	 * - $val未定义时取trigger值；
+	 * - 实为设置内联样式（style）；
+	 * @param {string} $name 样式属性名
+	 * @param {String|Number} $val 待赋值
+	 */
+	css( ev, $name, $val ) {
+		return this.set(ev, $name, $val, 'css');
+		// already next()
+	},
+
+
+	/**
+	 * 类名操作。
+	 * - 支持空格分隔的多个名称；
+	 * - $name为null时取trigger值（与set系不同）；
+	 * - force仅在切换操作中有效，其它操作忽略；
+	 * 操作类型：{
+	 *  	0 	切换。$name空值整体切换
+	 *  	1 	添加
+	 *  	-1 	删除。$name空值会清空全部类名
+	 * }
+	 * @param {String} $name 类名序列
+	 * @param {Number} op 操作类型
+	 * @param {Boolean} force 强制设定，可选
+	 */
+	cls( ev, $name, op = 0, force = null ) {
+		if ($name === null) {
+			$name = ev.detail;
+		}
+		clsHandles[op](
+			$(this.data), this.$value($name) || '', force
+		);
+		return this.next();
+	},
+
+
+	/**
+	 * 元素内联样式。
+	 * @param {string} name 样式属性名
+	 */
+	style( ev, name ) {
+		let _dt = $(this.data)
+			.map( e => e.style[name] );
+
+		return this.next( alone(_dt) );
+	},
+
+
 	/**
 	 * 节点插入。
 	 * - 默认内前插，可对后续兄弟元素样式施加影响（X + p）；
@@ -1508,6 +1421,33 @@ Object.assign( NS.Element, {
 		(
 			Util.evel(this.targets, rid),
 			this.data
+		);
+		return this.next();
+	},
+
+
+	/**
+	 * 双值切换。
+	 * - 流程数据为单元素；
+	 * - 对流程元素的name属性/特性/样式/内容等切换；
+	 * type: [prop|attr|css|$]
+	 * 例：
+	 * - name: text, type: $ => 元素内容切换
+	 *
+	 * @param {Value} v1 切换值A
+	 * @param {Value} v2 切换值B
+	 * @param {String} name 赋值键名，可选
+	 * @param {String} type 操作类型，可选
+	 */
+	swap( ev, v1, v2, name = 'value', type = 'prop' ) {
+		let _el = this.data,
+			_v0 = Util.$get(_el, type, name);
+
+		Util.$set(
+			$(_el),
+			type,
+			name,
+			(_v0 === v1 ? v2 : v1)
 		);
 		return this.next();
 	},
@@ -1543,6 +1483,86 @@ Object.assign( NS.Element, {
 	},
 
 
+	/**
+	 * 样式值设置到目标元素。
+	 * - 从流程元素的样式属性里取值（内联样式）；
+	 * - 默认赋值到目标元素的同名样式；
+	 * - 如果获取的样式值未定义，不会进行赋值；
+	 *
+	 * @param {String} rid 目标元素标识
+	 * @param {String} name 样式属性名
+	 * @param {String} key  目标键名，可选
+	 * @param {String} type 操作类型（css|prop|attr），可选
+	 */
+	cssto( ev, rid, name, key = name, type = 'css' ) {
+		T.proxy(this)
+			.style(ev, name)
+			.put(ev, key, rid, type);
+
+		return this.next();
+	},
+
+
+	/**
+	 * 清除select选取。
+	 * @param {String} rid 选单元素标识，可选
+	 */
+	unsel( ev, rid ) {
+		let $sel = this.$elem(rid) ||
+			$(this.data);
+
+		$sel.forEach( el => el.selectedIndex = -1 );
+		return this.next();
+	},
+
+
+	/**
+	 * 表单提交。
+	 * - 向form元素发送提交，包含修饰键位状态；
+	 * - 此动作一般由form内的表单控件触发；
+	 * - 仅支持单一表单元素提交；
+	 * 注记：
+	 * - form的submit事件没有修饰键状态；
+	 *
+	 * @param {String} rid form元素标识，可选
+	 */
+	submit( ev, rid ) {
+		let _frm = this.$elem(rid) || [this.targets.current.form];
+
+		$.trigger(
+			_frm[0], 'submit', keySCAM(ev)
+		);
+		return this.next();
+	},
+
+
+	/**
+	 * 控件事件分发（表单重置）。
+	 * - 检查表单内控件值是否会改变，决定触发change；
+	 * - 向内部控件分发的change事件在reset之后发生（延迟）；
+	 * 注记：
+	 * - 浏览器尚未实现表单重置时其内控件值改变的事件；
+	 *
+	 * @param {String} rid form元素标识，可选
+	 */
+	reseton( ev, rid ) {
+		let _frm = this.$elem(rid) || [this.targets.current.form];
+
+		Util.fireEvent(
+			$( changeFC(_frm[0]) ), 'change', null, true
+		);
+		return this.next();
+	},
+
+});
+
+
+//
+// tQuery相关。
+// - 流程数据一律视为已封装Queue实例；
+// - this为PB顶级域，而非当前对象；
+//
+Object.assign( NS.$, {
 	/**
 	 * 单元素检索。
 	 * - 流程数据为检索上下文（起点元素）；
@@ -1683,8 +1703,6 @@ Object.assign( NS.Element, {
 //
 // UI相关。
 // 在WebApp中会大量使用。
-//
-// 后注：可以作为 By:X 外部库提供。
 //
 Object.assign( NS.UI, {
 	/**
@@ -1914,10 +1932,404 @@ Object.assign( NS.UI, {
 });
 
 
+//
+// 动效相关。
+// 此为工作原理基础实现，外部具体扩展。
+//
+Object.assign( NS.Effects, {
+	/**
+	 * 动效开启。
+	 * （requestAnimationFrame）
+	 * - 以动画方式执行tween里的函数队列；
+	 * - 以秒为单位更易直观感受；
+	 * 提示：
+	 * - 仅单次行为，无循环重复逻辑；
+	 * - 动效函数对流程数据的需求自行处理；
+	 *
+	 * @param {Number} times 持续时间（秒，浮点数）
+	 * @param {String} easing 缓动类型.名，可选
+	 */
+	start( ev, times, easing = 'Linear' ) {
+		if (!this.tween.length || times < 0) {
+			return this.next();
+		}
+		if (!times) times = Infinity;
+
+		progress(
+			this.tween,
+			times * __frameRate,
+			easing,
+			this.data,
+			data => this.next(data)
+		);
+	},
+
+
+	/**
+	 * 动画控制递交。
+	 * - 向外发送一个控制函数；
+	 * - 调用时传递null终止动画，其它假值暂停动画；
+	 * - 恢复暂停的动画传递true调用即可；
+	 * 注：
+	 * - 外部通常先存储，然后定义用户事件触发控制；
+	 * - 此控制一般在动画开始之前发送（无延迟）；
+	 *
+	 * @param {String} rid 接收元素标识
+	 * @param {String} evn 接收事件名
+	 */
+	hander( ev, rid, evn ) {
+		Util.fireEvent(
+			this.$elem(rid),
+			evn,
+			run => this.tween[run === null ? 'halt' : 'pause'] = !run,
+			false
+		);
+		return this.next();
+	},
+
+});
+
+
+//
+// 动画相关。
+// 支持Element.animate和CSS动画。
+// animate调用返回Animation实例，可绑定事件处理。
+// 注：
+// Animation可用事件名：[finish, cancel]
+//
+Object.assign( NS.Animation, {
+	//
+	// Element.animate 部分。
+	//-------------------------------------------------------------------------
+
+
+	/**
+	 * 关键帧定义（keyframes）。
+	 * - 存储用于元素animate接口的首个参数；
+	 * - $name为多个名称的数组时，$val也为数组且成员一一对应；
+	 * - 如果逐帧配置（from...to），流程数据需先为一个数组；
+	 *   （可用PB:val预设一个空数组）
+	 * 注：
+	 * - animate首个参数可为一个帧配置数组或一个多帧配置对象；
+	 * @param  {String|Array} $name 样式属性名（集）
+	 * @param  {Value|[Value]} $val 样式值/值集
+	 * @next: {Array|Object}
+	 */
+	kf( ev, $name, $val ) {
+		let _kfo = keyFrame(
+			this.$value($name), this.$value($val)
+		);
+		if (!$.isArray(this.data)) {
+			return this.next(_kfo);
+		}
+		return this.next( this.data.concat(_kfo) );
+	},
+
+
+	/**
+	 * 动画运行。
+	 * - 向后传递animate()创建的Animation实例；
+	 * - 传递rid为undefined，可以捕获trigger发送来的元素；
+	 * @data: {Array|Object}
+	 * @param {String|undefined} rid 动画元素标识
+	 * @param {Number} duration 持续时间（秒，浮点数）
+	 * @param {Number} iterations 迭代次数，可选
+	 * @param {String} easing 缓动类型.名，可选
+	 * @param {Object} opts 更多选项
+	 */
+	play( ev, rid, duration, iterations, easing, opts = {} ) {
+		let $el = this.$elem(rid) || $(ev.detail),
+			_vs = $el.animate(
+				this.data,
+				Object.assign( opts, {duration, iterations, easing} )
+			);
+
+		return this.next( alone(_vs) );
+	},
+
+
+	/**
+	 * 发送动画实例（Animation）。
+	 * - 流程数据即为.play传递来的Animation实例；
+	 * - 外部通常先存储，然后定义用户事件触发控制；
+	 * 注意：
+	 * - 每次发送一个新的动画实例，外部应逐一处理；
+	 *
+	 * @data: {Animation}
+	 * @param {String} rid 接收元素标识
+	 * @param {String} evn 接收事件名
+	 */
+	send( ev, rid, evn ) {
+		Util.fireEvent(
+			this.$elem(rid), evn, this.data, 0
+		);
+		return this.next();
+	},
+
+
+	//-------------------------------------------------------------------------
+	// 以下为处理端接口，支持Animation实例数组。
+
+
+	/**
+	 * 动画暂停。
+	 * @data: {Animation[s]}
+	 */
+	pause(/* ev */) {
+		callAnis(this.data, 'pause');
+		return this.next();
+	},
+
+
+	/**
+	 * 动画提前完成。
+	 * @data: {Animation}
+	 */
+	finish(/* ev */) {
+		callAnis(this.data, 'finish');
+		return this.next();
+	},
+
+
+	/**
+	 * 取消执行。
+	 * @data: {Animation}
+	 */
+	cancel(/* ev */) {
+		callAnis(this.data, 'cancel');
+		return this.next();
+	},
+
+
+	/**
+	 * 反向执行。
+	 * @data: {Animation}
+	 */
+	reverse(/* ev */) {
+		callAnis(this.data, 'reverse');
+		return this.next();
+	},
+
+
+	/**
+	 * 动画实例属性设置。
+	 * 提示：取值可用PB:sub
+	 * @data: {Animation[s]}
+	 * @param {String|Object} $name 属性名或配置对象
+	 * @param {Value} $val 属性值
+	 */
+	prop( ev, $name, $val ) {
+		let _k = this.$value($name),
+			_v = this.$value($val);
+
+		if (!$.isArray(this.data)) {
+			aniProp(this.data, _k, _v);
+		} else {
+			this.data.forEach(ani => aniProp(ani, _k, _v));
+		}
+		return this.next();
+	},
+
+
+	//
+	// CSS动画接口。
+	//-------------------------------------------------------------------------
+	// 由外部CSS定义，可由pba/pbo改变触发动画执行。
+	// 注：事件名 [animationstart, animationend, animationiteration]
+
+
+	/**
+	 * 等待完毕。
+	 * - 等待CSS动画完毕才继续执行流；
+	 *   定义多个wait为等待多个目标动画依次结束；
+	 * 注意：
+	 * - 如果动画已经结束或没有动画，无法触发next调用，执行流中断；
+	 * - 此PB一般定义在同On配置的前一个调用链中，
+	 *   或紧跟在动画激发定义之后（动画的结束需要时间）；
+	 *
+	 * @param {String} rid 目标元素标识，可选
+	 */
+	wait( ev, rid ) {
+		return aniWaits(
+			// next: bound function
+			this.$elem(rid) || $(this.data), this.next
+		);
+	},
+
+});
+
+
+//
+// 示例集。
+// - OBT解析（Core.obts）；
+// - PB样式属性名标准化（data-pb）；
+// 注：
+// - 类似Golang的ExampleXxx示例功能；
+// - 可能需要结合PB:$.elem转换使用；
+//
+Object.assign( NS.Example, {
+	/**
+	 * 源码格式化。
+	 * - 取目标元素/集源码（outer）；
+	 * - 多个目标元素源码用换行连接；
+	 * @data: Element[s]
+	 * @next: String
+	 * @param {String} tab 前置缩进字符串，可选
+	 */
+	fmt( ev, tab = '\t' ) {
+		return this.next(
+			$(this.data).map( el => htmlFormat(el, tab) ).join('\n')
+		);
+	},
+
+
+	/**
+	 * 源码输出。
+	 * - 目标为一个textarea元素；
+	 * @data: String
+	 * @param {String} tid 文本框元素标识
+	 */
+	put( ev, tid = null ) {
+		this.$elem(tid).prop('value', this.data);
+		return this.next();
+	},
+
+
+	/**
+	 * OBT属性校正。
+	 * - 仅在用不同的属性定义时需要；
+	 * - 待校正名称为前缀字符连接实际的On/By/To名称（若未修改则为标准名称）；
+	 * 注：
+	 * - 用户可能会采用与真实解析名不同的OBT名称，在此修改以便于OBT解析；
+	 * - 标准OBT名称可能已经被应用重定义，此仅去除前缀后写入新属性名；
+	 * @data: Element[s]
+	 * @param {String} prefix 前缀字符
+	 */
+	obt( ev, prefix ) {
+		let _obt = T.Core.obtAttr(),
+			_ns3 = _obt.map( n => prefix + n );
+
+		for (let el of $(this.data)) {
+			let _val = [...$.attr(el, _ns3).values()];
+
+			$.attr( el, arr2Obj(_obt, _val) );
+			$.removeAttr(el, _ns3);
+		}
+
+		return this.next();
+	},
+
+
+	/**
+	 * PB样式属性名设置。
+	 * - 即转换到data-pb标准属性名；
+	 * - 仅在定义了不同的属性名时需要；
+	 * @data: Element[s]
+	 * @param {String} name 属性名
+	 */
+	pbn( ev, name ) {
+		for (let el of $(this.data)) {
+			$.attr( el, __pbAttr, $.attr(el, name) );
+			$.removeAttr(el, name);
+		}
+		return this.next();
+	},
+
+
+	/**
+	 * 执行。
+	 * - OBT解析、构建并绑定；
+	 * - 不支持板块载入回调（App）；
+	 * @data: Element[s]
+	 */
+	run(/* ev */) {
+		for (let el of $(this.data) ) {
+			T.Core.obts( el, this );
+		}
+		return this.next();
+	},
+
+
+	/**
+	 * 结果显示（流程数据）。
+	 * - 仅支持单个目标容器；
+	 * 输出：{
+	 *  	-1 	容器内顶部
+	 *  	0 	填充（先清空）
+	 *  	1 	内末尾添加
+	 * }
+	 * @data: Element[s]
+	 * @param {String} rid 目标容器标识
+	 * @param {Number} pos 填充标识
+	 */
+	show( ev, rid, pos = 0 ) {
+		let _box = this.$elem(rid, true),
+			_mth = {
+				'-1': 'prepend',
+				'0':  'fill',
+				'1':  'append',
+			};
+		if (_box) {
+			$[ _mth[pos] ](_box, this.data);
+		}
+		return this.next();
+	},
+
+
+	/**
+	 * 在嵌入框架中显示内容。
+	 * - 覆盖框架的全部内容；
+	 * - 框架需要遵循同源策略；
+	 * @param {String} rid 框架标识
+	 */
+	frame( ev, rid ) {
+		let _frm = this.$elem(rid, true);
+		if (_frm) {
+			$.fill(_frm.contentDocument.body, this.data);
+		}
+		return this.next();
+	},
+
+});
+
+
 
 //
 // 私有工具集
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 动画执行等待。
+ * - 仅适用元素CSS动画（支持animationend事件）；
+ * - 用once绑定防止无动画元素资源无限占用；
+ * @param {Element}   el  目标元素
+ * @param {Function} next 完毕后执行的回调
+ */
+function aniWait( el, next ) {
+	if (!el) return next();
+	$.once(el, 'animationend', null, next);
+}
+
+
+/**
+ * 多个动画执行等待。
+ * - 全部动画执行完后继续next回调；
+ * - 如果有一个执行失败，不会执行next（即挂起）；
+ * - 如果元素集为空，直接next（不挂起）；
+ *
+ * @param {[Element]} els 动画元素集
+ * @param {Function} next 最终完毕回调
+ */
+function aniWaits( els, next ) {
+	if (els.length < 2) {
+		return aniWait(els[0], next);
+	}
+	Promise.all(
+		els.map( el => new Promise(ok => aniWait(el, ok)) )
+	)
+	.then( next );
+}
 
 
 /**
@@ -1983,6 +2395,40 @@ function pbvFire( els, wds, next, type ) {
 	aniWaits(els, next);
 	// 动画激发...
 	return pbvSets(els, wds, type);
+}
+
+
+/**
+ * 构造一个关键帧配置对象。
+ * （Element.animate首个数组参数的成员）
+ * - name为多个名称的数组时，val也为数组一一对应；
+ * @param  {String|Array} name 样式名（集）
+ * @param  {Value|[Value]} val 样式值（集）
+ * @return {Object}
+ */
+function keyFrame( name, val ) {
+	if (typeof name == 'string') {
+		return { [name]: val };
+	}
+	let _i = 0;
+	return name.reduce( (o, k) => o[k] = val[_i++], {} );
+}
+
+
+/**
+ * 动画实例属性设置。
+ * @param  {Animation} ani 动画实例
+ * @param  {String|Object} name 属性名或名值配置
+ * @param  {Value} val 属性值
+ * @return {Animation} ani
+ */
+function aniProp( ani, name, val ) {
+	if (typeof name == 'string') {
+		ani[name] = val;
+	} else {
+		$.each( name, (v, k) => ani[k] = v );
+	}
+	return ani;
 }
 
 
@@ -2250,5 +2696,393 @@ function dataPull( src, idx, buf ) {
 	}
 	return buf;
 }
+
+
+/**
+ * 将键值数组转换为一个对象。
+ * - 两个数组取键值按下标一一对应；
+ * - 重复的键会被后来者覆盖掉；
+ * @param  {Array} keys 键名数组
+ * @param  {Array} vals 值数组
+ * @return {Object}
+ */
+function arr2Obj( keys, vals ) {
+	let _i = 0;
+
+	return keys.reduce(
+		(obj, k) => (obj[k] = vals[_i++], obj), {}
+	);
+}
+
+
+// 源码格式化
+// 强制清理，统一格式。
+///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 元素源码格式化。
+ * - 仅支持元素、文本和注释节点；
+ * - 内容纯空白的节点会被压缩为空节点；
+ * - 外部调用时，nd通常为元素（文本节点意义不大）；
+ *   （OBT示例时，元素自身更重要）
+ * @param  {Node} nd 目标节点
+ * @param  {String} tab 缩进字符串
+ * @param  {String} prefix 前置字符串
+ * @return {String} 格式串
+ */
+function htmlFormat( nd, tab, prefix = '', newline = false ) {
+	switch (nd.nodeType) {
+	case 1:
+		return newLine('', prefix, newline) + (
+			keepHTML(nd) || elemString(nd, tab, prefix)
+		);
+	case 3:
+		// 避免原始空白/换行叠加
+		return nd.textContent.trim();
+	case 8:
+		return newLine('', prefix, newline) + `<!--${nd.data}-->`;
+	}
+	return '';
+}
+
+
+/**
+ * 元素自身格式化。
+ * - 内联元素自身和内部不起新行；
+ * - 块级元素自身强制起新行；
+ * - 块级元素内仅含单个文本节点时不起新行；
+ * @param  {Element} el 当前元素
+ * @param  {String} tab 缩进字符串
+ * @param  {String} prefix 前置字符串
+ * @return {String} 格式串
+ */
+function elemString( el, tab, prefix = '' ) {
+	let _tag = el.tagName.toLowerCase(),
+		_sng = singleElem[_tag],
+		_htm = `<${_tag}${attrString(el.attributes, !_sng)}`,
+		_con = '';
+
+	if (_sng) {
+		return _htm + ' />';
+	}
+	let _ns = el.childNodes;
+	for ( let i = 0; i < _ns.length; i++ ) {
+		// !inlineElem[_tag]
+		// 块元素内首层强制换行
+		_con += htmlFormat(_ns[i], tab, prefix + tab, !inlineElem[_tag]);
+	}
+
+	// 单个文本节点时不起新行
+	if (_con && (_ns.length > 1 || _ns[0].nodeType == 1)) {
+		_con += newLine(_tag, prefix);
+	}
+
+	return _htm + _con + `</${_tag}>`;
+}
+
+
+/**
+ * 元素属性序列。
+ * - 指目标元素内的属性序列，不含内容和结尾标签；
+ *   如：<a href="#" target="_blank">
+ * - 空值属性保持为单属性标志状态（无=）；
+ *
+ * @param  {NamedNodeMap} attrs 元素属性集
+ * @param  {Boolean} close 是否闭合标签（>）
+ * @return {String}
+ */
+function attrString( attrs, close ) {
+	let _ats = '';
+
+	for ( let i = 0; i < attrs.length; i++ ) {
+		let _at = attrs[i];
+		_ats += ` ${_at.name}` + (_at.value === '' ? '' : `="${_at.value}"`);
+	}
+	return close ? _ats + '>' : _ats;
+}
+
+
+/**
+ * 新行缩进。
+ * - 用于块级元素自我换行缩进；
+ * @param  {String} tag    元素标签名
+ * @param  {String} indent 缩进字符串
+ * @param  {Boolean} force 强制换行
+ * @return {String}
+ */
+function newLine( tag, indent = '', force = false ) {
+	return tag && !inlineElem[tag] || force ? '\n' + indent : '';
+}
+
+
+/**
+ * 返回原始保持内容。
+ * - 仅用于<code>和<pre>元素；
+ * - 源码为outerHTML，故返回空串表示元素不匹配；
+ * @param  {Element} el 目标元素
+ * @return {String} 源码
+ */
+function keepHTML( el ) {
+	let _tag = el.nodeName;
+	return _tag == 'CODE' || _tag == 'PRE' ? $.prop(el, 'outerHTML') : '';
+}
+
+
+//
+// HTML单标签集。
+// 注：用于标签的友好关闭（/>）。
+//
+const singleElem = {
+	'hr': 		1,
+	'img': 		1,
+	'input': 	1,
+	'param': 	1,
+	'base': 	1,
+	'meta': 	1,
+	'link': 	1,
+	'frame': 	1,
+	'keygen': 	1,
+	'area': 	1,
+	'source': 	1,
+	'track': 	1,
+	'wbr': 		1,
+	'br': 		1,
+};
+
+
+//
+// 内联元素标签集。
+// 注：内部内容不用换行。
+//
+const inlineElem = {
+	'embed': 	1,
+	'br': 		1,
+	'img': 		1,
+	'audio': 	1,
+	'video': 	1,
+	'a': 		1,
+	'strong': 	1,
+	'b': 		1,
+	'em': 		1,
+	'i': 		1,
+	'q': 		1,
+	'abbr': 	1,
+	'cite': 	1,
+	'small': 	1,
+	'time': 	1,
+	'del': 		1,
+	'ins': 		1,
+	'sub': 		1,
+	'sup': 		1,
+	'mark': 	1,
+	'code': 	1,
+	'ruby': 	1,
+	'rt': 		1,
+	'rp': 		1,
+	'wbr': 		1,
+	'span': 	1,
+	'dfn': 		1,
+	'samp': 	1,
+	'kbd': 		1,
+	'var': 		1,
+};
+
+
+
+//
+// 动效支持（基础）
+//
+///////////////////////////////////////////////////////////////////////////////
+// 动效参数会传递给每一个动画函数的每帧调用。
+// 动效参数：{
+//  	{Number} start 	起始时间戳
+//  	{Object} frames 总帧数存储（frames.total）
+//  	{Number} count 	当前迭代计数
+//  	{Number} ratio 	曲线当前比值
+//  	{Number} timestamp 	当前绘制时间戳
+// }
+// 注：
+// - 总帧数用一个对象引用存储，外部的修改内部可见；
+// - 内部会自动对该值进行修订，外部改变仅用于非常规情况；
+//
+
+
+/**
+ * 动画配置并执行。
+ * - 传递迭代总次数0表示无限循环（Infinity）；
+ * @param  {[Function]} tween 调用集
+ * @param  {Number} total 总迭代次数
+ * @param  {String} names 缓动类型.名
+ * @param  {Mixed} data 初始传入数据（首个代理调用的数据参数）
+ * @param  {Function} done 成功回调
+ * @param  {Function} fail 失败回调
+ * @return {Resource} 资源请求ID
+ */
+function progress( tween, total, names, data, done, fail ) {
+    let _obj = { total },
+    	iter = easing(_obj, names),
+    	args = {
+			start:  null,
+			frames: _obj,
+		};
+
+	return requestAnimationFrame(
+		step.bind({ iter, tween, args, data, done, fail })
+	);
+}
+
+
+/**
+ * 每帧调用。
+ * this {
+ *  	{Iterator} iter 缓动迭代器（总）
+ *  	{Array} tween 	动画函数队列
+ *  	{Object} args 	每帧当前参数
+ *  	{Function} done 完成回调
+ *  	{Function} fail 失败回调
+ *  	{Mixed} data  	最后一个调用的结果（或初始值）
+ * }
+ * - 最后一个调用的结果会回传；
+ * - 集中任何一个动画函数返回false，会终止动画序列；
+ *
+ * @param  {Number} tm 当前绘制时间戳
+ * @return {Resource} 请求标识ID
+ */
+function step( tm ) {
+	let {iter, tween, args, data, done, fail} = this;
+
+	if (tween.pause) {
+		// 空转...
+		return requestAnimationFrame( step.bind(this) );
+	}
+    if (data === false) {
+    	return fail && fail();
+    }
+ 	let _o = iter.next();
+
+    if (_o.done) {
+    	return done && done(data);
+    }
+    this.data = stepCall(tween, args, data, _o.value, tm);
+
+	requestAnimationFrame( step.bind(this) );
+}
+
+
+/**
+ * 每帧调用（实施）。
+ * - 返回false表示终止整个动画；
+ * - 每帧调用时都会检查调用链是否重新开启；
+ *
+ * 动画函数参数：{
+ *  	{Object} args 	如前“动效参数”
+ *  	{Mixed} data 	上一个动画函数的返回值
+ * }
+ * 注：
+ * 动画执行期间源元素调用链重启，会中断当前动画。
+ *
+ * @param  {[Function]} tween 调用集
+ * @param  {Object} args 每帧参数
+ * @param  {Mixed} data 上一帧动画序列的返回值（或初始值）
+ * @param  {Array} val [当前计次，比值]
+ * @param  {Number} tm 当前绘制时间戳
+ * @return {Boolean} 是否终止（fail）
+ */
+function stepCall( tween, args, data, val, tm ) {
+    if (!args.start) {
+    	args.start = tm;
+    }
+    args.count = val[0];
+    args.ratio = val[1];
+    args.timestamp = tm;
+
+    for ( let fn of tween ) {
+    	// halt of chain
+    	if (tween.halt || (data = fn(args, data)) === false) return false;
+    }
+    // 帧数修订
+    remedy(args.frames, args.start, val[0], tm);
+
+    return data;
+}
+
+
+/**
+ * 帧率校订。
+ * - 如果动画函数集花费较多时间，会错过每秒60帧的速率，
+ *   因此需要修订以满足整体的时间要求（粗略）；
+ * - 修订在每一次绘制时执行，且修改总帧数，较为平滑；
+ * @param {Object} frames 总帧数存储
+ * @param {Number} start  起始时间
+ * @param {Number} count  当前计次（帧）
+ * @param {Number} current 当前时间
+ */
+function remedy( frames, start, count, current ) {
+	let _pas = current - start,
+		_std = count * __frameCell,
+		_dif = _pas - _std;
+
+    if (_dif > __frameCell) frames.total -= _dif/__frameCell;
+}
+
+
+/**
+ * 提取缓动函数。
+ * @param  {String|Array} names 缓动类型.名
+ * @param  {Object} eases 缓动函数定义集
+ * @return {Function|null}
+ */
+function easeHandle( names, eases ) {
+	if (!names) {
+		return null;
+	}
+	let [a, b] = names.split('.');
+	if (!b) {
+		return eases[a];
+	}
+	return eases[a] && eases[a][b];
+}
+
+
+/**
+ * 获取缓动值集。
+ * 注：frames.total是可以在外部调整的；
+ * @param {Object} frames 总次数存储对象
+ * @param {String} names 缓动类型.名
+ * @yield [i, Number] 当前计次与比值
+ */
+function *easing( frames, names ) {
+    let _fn = easeHandle(names, _Easing) || easeHandle(names, T.Easing);
+    if (!_fn) {
+    	throw new Error(`invalid easing with ${names}`);
+    }
+    for ( let i = 1; i <= frames.total; i++ ) {
+    	yield [ i, _fn(i, frames.total) ];
+    }
+}
+
+
+// 默认缓动函数
+const _Easing = { Linear: ( t, d ) => t/d };
+
+
+/**
+ * 调用动画对象特定方法。
+ * - 如果its为一个动画实例集，则批量调用；
+ * - 目标方法没有参数；
+ * - 会检查目标对象是否支持方法，安全调用；
+ *   （以便容错提取的数据集）
+ *
+ * @param {Animation|[Animation]} its 目标（集）
+ * @param {String} meth 方法名
+ */
+function callAnis( its, meth ) {
+	if (!$.isArray(its)) {
+		return its[meth] && its[meth]();
+	}
+	its.forEach( ani => ani[meth] && ani[meth]() );
+}
+
 
 })( tQuery.proxyOwner(), Tpb );
