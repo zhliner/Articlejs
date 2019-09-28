@@ -12,6 +12,7 @@ const
         setup:      '/',
 
         // 模板根目录
+        // 相对于安装根目录。
         template:   'templates/',
     },
 

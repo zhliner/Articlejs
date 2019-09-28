@@ -45,13 +45,13 @@ class TplLoader {
 	 * 配置初始化。
      * fmap内容: {file: [tpl-name]}
      * 文件名为相对于模板根的路径，含子目录和扩展名。
-	 * @param {String} fmap 映射配置文件（全路径）
+	 * @param  {String} fmap 映射配置文件（全路径）
+	 * @return {Promise}
 	 */
 	init( fmap ) {
-		fetch( fmap )
+		return fetch( fmap )
 			.then( resp => resp.json() )
-			.then( json => this.tplMap(json) )
-			.catch( e => window.console.error(e) );
+			.then( json => this.tplMap(json) );
 	}
 
 
@@ -130,7 +130,8 @@ class TplLoader {
 
 const loader = new TplLoader( tplRoot );
 
-loader.init( tplsMap );
+// 前提保证。
+loader.init( tplsMap ).catch( err => { throw err } );
 
 
 export const tplLoad = loader.load.bind(loader);
