@@ -166,19 +166,22 @@ const _Base = {
      * 从原始源模板获取一个副本，这个副本被命名为name的值，
      * 如果在其它地方需要再次引用这个副本，仅传递name即可。
      * name可与from相同，但不同的副本应当名称不同。
+     * 注记：
+     * 如果克隆的节点被破坏，可以传递clone为真重新获取原始版本。
      *
      * @param  {String} name 模板名/命名
      * @param  {String} from 原始来源模板名，可选
+     * @param  {Boolean} clone 重新获取克隆的模板节点，可选
      * @return {Promise}
      */
-    tpl( evo, name, from ) {
+    tpl( evo, name, from, clone ) {
         if ( name == null ) {
             name = evo.data;
         }
         if ( typeof name != 'string' ) {
             return Promise.reject(`invalid tpl-name: ${name}`);
         }
-        return TplStore.get( name, from );
+        return TplStore.get( name, from, clone );
     },
 
     __tpl: 0,

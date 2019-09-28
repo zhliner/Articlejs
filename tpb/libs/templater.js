@@ -53,13 +53,18 @@ class Templater {
 
     /**
      * 获取模板节点。
+     * 强制请求模板节点通常是因为克隆节点已被破坏。
      * @param  {String} name 模板名
      * @param  {String} from 原始模板名
+     * @param  {Boolean} tpl 强制请求模板节点
      * @return {Promise} 承诺对象
      */
-    get( name, orig ) {
-        let _root = this._copy.get(name);
+    get( name, orig, tpl ) {
+        let _root = null;
 
+        if ( !tpl ) {
+            _root = this._copy.get(name);
+        }
         if (_root) {
             return Promise.resolve(_root);
         }
