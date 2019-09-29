@@ -721,10 +721,8 @@ class Cell {
     _call( evo, val ) {
         if ( !this.next ) return;
 
-        if ( $.type(val) != 'Promise' ) {
-            return this.next.call(evo, val);
-        }
-        val.then( v => this.next.call(evo, v), rejectInfo );
+        Promise.resolve(val)
+        .then( v => this.next.call(evo, v), rejectInfo );
     }
 
 

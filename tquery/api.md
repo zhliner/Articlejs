@@ -175,15 +175,14 @@ $.isXML( document.body );  // false
 > 同名的控件在表单中是一个**数组**的逻辑，返回集合中只会保留其中最后一个（`.val()` 方法可正常取值）。
 
 
-### [$.serialize( form, exclude? ): [Array2]](docs/$.serialize.md)
+### [$.serialize( form, ...names ): [Array2]](docs/$.serialize.md)
 
 序列化表单内可提交类控件的名称和值。
 
 - `form: Element` 目标表单元素。
-- `exclude?: [String]` 需要排除的控件名序列，可选。
+- `...names: [String]` 指定要处理的控件名序列。可选，默认全部。
 
-注意：这与表单的提交逻辑相关，因此只有实际会提交的值才会被序列化。实际上，内部实现是调用 `$.controls()` 获取控件集，然后提取控件的名值对但忽略无选中值的控件。
-返回一个**名/值对**（`[name, value]`）双成员数组（`Array2`）的数组。
+注意：这与表单的提交逻辑相关，因此只有实际会提交的值才会被序列化。返回一个**名/值对**（`[name, value]`）双成员数组（`Array2`）的数组。
 
 
 ### [$.queryURL( target, match? ): String](docs/$.queryURL.md)

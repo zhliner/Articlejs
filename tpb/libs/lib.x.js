@@ -45,12 +45,22 @@ function bindMethod( f, k, obj ) {
 
 /**
  * 接口：外部扩展。
- * 扩展被预处理后存储到 _X 局部空间。
+ * 扩展被预处理后存储到 _X 局部域空间。
+ * 局部域是一些命名的子域，重名成员会被覆盖。
+ * @param  {String} name 扩展域
  * @param  {Object} exts 扩展集
  * @return {void}
  */
-function extend( exts ) {
-    $.assign( _X, exts, bindMethod );
+function extend( name, exts ) {
+    let _o = _X[name];
+
+    if ( !_o ) {
+        _X[name] = _o = {};
+    }
+    else if ( $.type(_o) != 'Object' ) {
+        throw new Error(`the ${name} field is not a Object.`);
+    }
+    $.assign( _o, exts, bindMethod );
 }
 
 

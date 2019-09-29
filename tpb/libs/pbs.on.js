@@ -329,7 +329,7 @@ const _On = {
     'is',           // ( slr ): Boolean
     'isXML',        // (): Boolean
     'controls',     // (): [Element]
-    'serialize',    // ( exclude? ): [Array2]
+    'serialize',    // ( ...names? ): [Array2]
     'queryURL',     // (): String
     'isArray',      // (): Boolean
     'isNumeric',    // (): Boolean

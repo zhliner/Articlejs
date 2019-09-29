@@ -840,38 +840,38 @@ Object.assign( tQuery, {
      *      value   // {String} 控件值
      * ]
      * @param  {Element} form 表单元素
-     * @param  {[String]} exclude 排除的控件名集
+     * @param  {...String} names 指定的控件名序列
      * @return {[Array2]} 键值对数组
      */
-    serialize( form, exclude = [] ) {
-        let _els = tQuery.controls(form);
+    serialize( frm, ...names ) {
+        if ( !names.length ) {
+            return [...new FormData(frm).entries()];
+        }
+        let _els = tQuery.controls(frm);
 
-        if (_els.length == 0) {
-            return _els;
+        if (_els.length > 0) {
+            _els = _els.filter( el => names.includes(el.name) );
         }
-        if (exclude.length > 0) {
-            _els = _els.filter( el => !exclude.includes(el.name) );
-        }
-        return mapArray2(_els, submitValues);
+        return mapArray2( _els, submitValues );
     },
 
 
     /**
      * 名值对数组/对象构造URL查询串。
      * 名值对：[name, value]
-     * @param  {[Array]|Object|Map|Element} target 名值对象数组或表单元素
+     * @param  {[Array2]|Object|Map|Element} target 名值对数组或表单元素
      * @param  {RegExp} match 需要转换的数据匹配式
      * @return {String} URL查询串
      */
     queryURL( target, match /*= uriComponentX*/ ) {
-        if ( target == null ) {
-            return '';
-        }
         if ( target.nodeType ) {
             target = tQuery.serialize(target);
         }
         else if ( !isArr(target) ) {
             target = Arr( entries(target) );
+        }
+        if ( !match ) {
+            return new URLSearchParams(target).toString();
         }
         return target.map( ([n, v]) => uriKeyValue(n, v, match) ).join('&');
     },
@@ -4438,7 +4438,7 @@ function submitValue( ctrl, value ) {
 function mapArray2( arr, callback ) {
     let _tmp = [];
 
-    for (let it of arr) {
+    for ( let it of arr ) {
         let _v = callback(it);
         if (_v != null) _tmp.push(_v);
     }
@@ -4468,9 +4468,7 @@ function uriKeyValue( name, value, match ) {
  * @return {String} URL转换串
  */
 function encURICompX( str, match ) {
-    return (
-        match ? str.replace(match, encodeURIComponent) : encodeURIComponent(str)
-    ).replace(__reBlank, '+');
+    return str.replace(match, encodeURIComponent).replace(__reBlank, '+');
 }
 
 
@@ -6270,6 +6268,9 @@ const domReady = {
  * 对象成员处理赋值。
  * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
  * 接口：function(v, k, source, target): [v, k] | null
+ * 注：
+ * 这是一种浅赋值，相同的键会被后来者覆盖（而不是合并）。
+ *
  * @param  {Object} to 目标对象
  * @param  {Object} src 数据源对象
  * @param  {Function} proc 处理器函数

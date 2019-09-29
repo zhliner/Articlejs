@@ -50,7 +50,7 @@ class TplLoader {
 	 */
 	init( fmap ) {
 		return fetch( fmap )
-			.then( resp => resp.json() )
+			.then( resp => resp.ok && resp.json() )
 			.then( json => this.tplMap(json) );
 	}
 
@@ -100,6 +100,9 @@ class TplLoader {
 	 * @param {Object} conf 映射配置
 	 */
 	tplMap( conf ) {
+		if ( !conf ) {
+			throw new Error('tpl-node map is undefined.');
+		}
 		Object.entries(conf).forEach(
 			(file, names) => names.forEach( name => this.file(name, file) )
 		);

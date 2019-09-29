@@ -17,15 +17,16 @@ const
 
     // 根目录配置
     Dir = {
-        // 网站安装根目录
-        setup:  '/',
+        // 安装根路径。
+        // 注意：子级路径末尾需有/。如：http://abc.com/news/
+        setup: 'https://abc.com',
 
         // 模板根目录
         // 相对于安装根目录。
-        template:   'templates',
+        template: 'templates',
 
         // App.pull根目录
-        pull:   'pull',
+        pull: 'pull',
     },
 
     // 特性支持
@@ -37,13 +38,17 @@ const
         render:   true,
     },
 
-    // 模板根目录。
-    tplRoot = `${Dir.setup}/${Dir.template}`,
+    // 模板根路径。
+    tplRoot = new URL(Dir.template, Dir.setup),
 
     // 模板映射文件路径
     // 用于从模板名查询所属文件（导入时）。
     // 映射格式：{ 文件名：[模板名] }
-    tplsMap = `${tplRoot}/_list.json`;
+    tplsMap = `${tplRoot}/_list.json`,
+
+    // X扩展专用
+    // App.pull 根路径。
+    pullRoot = new URL(Dir.pull, Dir.setup);
 
 
 
@@ -129,4 +134,5 @@ export {
     Support,
     tplRoot,
     tplsMap,
+    pullRoot,
 };

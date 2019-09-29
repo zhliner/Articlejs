@@ -136,7 +136,7 @@ tags( code: String ): String
 is( el: Element, slr: String ): Boolean
 isXML( el: Element ): Boolean
 controls( frm: Element ): [Element]
-serialize( frm: Element, excl: [String] ): [Array2]
+serialize( frm: Element, incl: [String] ): [Array2]
 queryURL( its: Object|Element ): String
 isArray( val: Value ): Boolean
 isNumeric( val: Value ): Boolean
