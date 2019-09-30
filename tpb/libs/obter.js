@@ -638,6 +638,9 @@ class Stack {
 }
 
 
+// 保护Stack实例。
+const _SID = Symbol('stack-key');
+
 //
 // 指令调用单元。
 // 包含一个单向链表结构，实现执行流的链式调用逻辑。
@@ -651,7 +654,7 @@ class Cell {
      */
     constructor( stack, prev = null ) {
         this.next = null;
-        this._stack = stack;
+        this[_SID] = stack;
         this._meth = null;
         this._args = null;
         this._want = null;
@@ -683,7 +686,7 @@ class Cell {
      */
     bind( args, meth, isx, n ) {
         if ( isx ) {
-            args.unshift[this._stack];
+            args.unshift[this[_SID]];
         }
         this._args = args;
         this._meth = meth;
@@ -702,7 +705,7 @@ class Cell {
      */
     call( evo, val ) {
         if ( val !== undefined) {
-            this._stack.push( val );
+            this[_SID].push( val );
         }
         evo.data = this._data( this._want );
 
@@ -734,7 +737,7 @@ class Cell {
      */
     _data( n ) {
         if ( n != null ) {
-            return this._stack.data( n );
+            return this[_SID].data( n );
         }
     }
 

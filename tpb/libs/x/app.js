@@ -1,9 +1,9 @@
 //! $Id: app.js 2019.08.10 Tpb.Page $
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//			Copyright (c) 铁皮工作室 2017 MIT License
+//          Copyright (c) 铁皮工作室 2017 MIT License
 //
-//			@project: Tpb v0.3.2
-//			@author:  风林子 zhliner@gmail.com
+//          @project: Tpb v0.3.2
+//          @author:  风林子 zhliner@gmail.com
 //////////////////////////////////////////////////////////////////////////////
 //
 //	页面小程序。
@@ -17,9 +17,12 @@
 //  - Model     设计业务模型，与控制部分相关联。
 //  - View      数据的视图结构整理（仅指数据），也包含对前置控制的呼应。
 //
-//  扩展实现：
+//  实现：
 //      import { App } from 'app.js'
-//      App.extend( {control, model, view}} );
+//      App.register( appName, [control, model, view], methods? );
+//
+//  注：
+//  注册完全部小程序后，外部需最后调用 App.extendTo( Tpb.Lib.X )。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,39 +93,54 @@ const AppStore = { pull: Puller };
 
 
 //
-// X库扩展（App子域）。
-//
-window.Tpb.Lib.X( 'App', AppStore );
-
-
-
-//
 // 导出。
 // 供外部扩展的具体实现用。
 ///////////////////////////////////////////////////////////////////////////////
 
 
 /**
- * CMV扩展实现。
- * 每个扩展就是一个独立的程序。
- * 注：一个页面中可以同时使用多个App。
- *
- * @param {String} name 程序名
- * @param {Object} obj 扩展集 {control, model, view}
- * @param {Number} cnt 自动取栈条目数。可选，默认0
+ * 创建一个App调用域。
+ * 友好支持方法名直接调用：x.App.[meth]
+ * 注：普通的调用：x.App.run('[meth]')
+ * @param {_App} app 一个App实例
+ * @param {Array} meths 方法名序列
  */
-function extend( name, obj, cnt = 0 ) {
-    if ( name == 'pull' ) {
-        throw new Error(`${name} is the reserved name.`);
-    }
-    let _app = new _App(
-            obj.control,
-            obj.model,
-            obj.view
-        );
-    // 普通对象封装：预绑定。
-    AppStore[ name ] = { run: _app.run.bind(_app), __run: cnt };
+function appScope( app, meths ) {
+    let _obj = {
+        run: app.run.bind(app)
+    };
+    meths.forEach(
+        meth => _obj[meth] = app.run.bind(app, meth)
+    );
+    return _obj;
 }
 
 
-export const App = { extend };
+/**
+ * 注册CMV小程序。
+ * 每个程序遵循CMV（Control/Model/View）三层划分逻辑。
+ * 模板中调用需要传递方法名：x.App.run([meth])，用于区分不同的调用。
+ * 不同方法的实参是前阶提取的当前条目（流程数据）。
+ * 注：
+ * 传递meths可以构造友好的调用集：x.App.[meth]。
+ * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
+ *
+ * @param {String} name 程序名
+ * @param {[Function]} conf CMV定义
+ * @param {[String]} meths 方法名序列，可选
+ */
+function register( name, conf, meths = null ) {
+    if ( name == 'pull' ) {
+        throw new Error(`${name} is the reserved name.`);
+    }
+    AppStore[name] = appScope( new _App(...conf), meths || [] );
+}
+
+
+export const App = {
+    // 注册App
+    register,
+
+    // 扩展到X库（App子域）。
+    extendTo: X => X( 'App', AppStore )
+};

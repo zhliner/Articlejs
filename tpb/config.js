@@ -22,11 +22,12 @@ const
         setup: 'https://abc.com',
 
         // 模板根目录
-        // 相对于安装根目录。
+        // 相对于安装根路径。
         template: 'templates',
 
         // App.pull根目录
-        pull: 'pull',
+        // 相对于安装根路径。
+        pull: 'data/pull',
     },
 
     // 特性支持
@@ -58,6 +59,8 @@ const
 
 
 const
+    $ = window.$,
+
     // OBT属性名定义
     OBTA = {
         on:     'on',   // On-Attr
@@ -70,6 +73,10 @@ const
 
     // 指令属性：特权方法（操作数据栈）
     ACCESS = Symbol('stack-access'),
+
+    // 不绑定标记。
+    // 方法的this将为Cell实例。
+    NOBIND = Symbol('no-bind'),
 
     // PBS方法获取接口键。
     // 使用Symbol避免名称冲突。
@@ -95,10 +102,13 @@ const
  * @return {[Function,]} 值/键对（键忽略）
  */
  function bindMethod( f, k, obj ) {
-    if ( !k.length || k.startsWith('__') ) {
-        return;
+    if ( !$.isFunction(f) ) {
+        return [ f ];
     }
-    return [ funcSets(f.bind(obj), obj[`__${k}`], obj[`__${k}_x`]) ];
+    if ( !f[NOBIND] && !f.name.startsWith('bound ') ) {
+        f = f.bind( obj );
+    }
+    return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
 }
 
 
@@ -129,6 +139,7 @@ export {
     OBTA,
     EXTENT,
     ACCESS,
+    NOBIND,
     method,
     bindMethod,
     Support,

@@ -29,13 +29,13 @@ const
     __attrPB    = 'data-pb',
 
     // PB参数模式。
-    // 尾部短横线，限定末尾空白或结束。
-    __pbArgs    = /^[\w-]*-(?=\s|$)/,
+    // 尾部短横线，后跟空白或结束。
+    __pbArgs    = /^\w[\w-]*-(?=\s|$)/,
 
     // PB选项模式。
     // 前端空格或起始限定，避免匹配参数段。
     // 注：选项词不能包含短横线。
-    __pbOpts    = /(?:\s+|^)[\w\s]+$/,
+    __pbOpts    = /(?:\s+|^)\w[\w\s]*$/,
 
     // 二阶选择器分隔符（/）。
     // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
@@ -145,7 +145,7 @@ const Util = {
     /**
      * 获取/设置PB参数序列。
      * wds未定义时为获取，否则为设置。
-     * 传递wds为null或非数组时会移除参数序列。
+     * 传递wds为null或假值时会移除参数序列。
      * 取值时都会返回一个数组（可能为空）。
      * 注：
      * 它们会被赋值到 data-pb 属性。
@@ -166,18 +166,19 @@ const Util = {
             return _v ? pbArgs( attrArgs(_v) ) : [];
         }
         if ( $.isArray(wds) ) {
-            return el.setAttribute( pbaAttr(pbArgs(wds, true), _v) );
+            return el.setAttribute( __attrPB, pbaAttr(pbArgs(wds, true), _v) );
         }
-        // 移除参数部分。
-        // 保留PB属性原始状态。
-        if ( _v ) el.setAttribute( _v.replace(__pbArgs, '').trim() );
+        // 移除参数部分（保留选项）。
+        if ( _v && !wds ) {
+            el.setAttribute( __attrPB, _v.replace(__pbArgs, '').trim() );
+        }
     },
 
 
     /**
      * 获取/设置PB选项序列。
      * wds未定义时为获取，否则为设置。
-     * 传递wds为null或非数组时会移除选项序列。
+     * 传递wds为null或假值时会移除选项序列。
      * 取值时都会返回一个数组（可能为空）。
      *
      * 技术：
@@ -195,11 +196,12 @@ const Util = {
             return _v ? pbOpts( attrOpts(_v) ) : [];
         }
         if ( $.isArray(wds) ) {
-            return el.setAttribute( pboAttr(pbOpts(wds, true), _v) );
+            return el.setAttribute( __attrPB, pboAttr(pbOpts(wds, true), _v) );
         }
-        // 移除选项部分。
-        // 保留PB属性原始状态。
-        if ( _v ) el.setAttribute( _v.replace(__pbOpts, '') );
+        // 移除选项部分（保留参数）。
+        if ( _v && !wds ) {
+            el.setAttribute( __attrPB, _v.replace(__pbOpts, '') );
+        }
     },
 
 
@@ -264,16 +266,16 @@ const Util = {
 
     /**
      * 激发目标事件。
-     * @param {Collector} $el 目标元素集
+     * @param {Collector} $els 目标元素集
      * @param {String} name 事件名
      * @param {Value} extra 附加数据
      * @param {Number} delay 延迟毫秒数
      */
-    fireEvent( $el, name, extra, delay ) {
-        if (!delay) {
-            return $el.trigger(name, extra);
+    fireEvent( $els, name, extra, delay ) {
+        if ( !delay ) {
+            return $els.trigger( name, extra );
         }
-        return setTimeout( () => $el.trigger(name, extra), delay );
+        return setTimeout( () => $els.trigger(name, extra), delay );
     },
 
 };
@@ -423,7 +425,7 @@ function query2( slr, beg ) {
  * @param {String} attr 属性值
  */
 function attrArgs( attr ) {
-    return __pbArgs.test(attr) ? attr.split(' ', 1)[0] : '';
+    return __pbArgs.test(attr) ? attr.split(/\s/, 1)[0] : '';
 }
 
 

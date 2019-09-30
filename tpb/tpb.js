@@ -9,8 +9,8 @@
 //  基础定义集。
 //
 //  Tpb {
-//      Build: {Function}   节点树OBT构建函数
-//      Lib:   {Object}     库空间，包含扩展库X接口，X(...)
+//      Build: {Function}   节点树OBT构建函数（页面既有元素）
+//      Lib:   {Object}     库空间，提供外部X扩展接口：Tpb.Lib.X(...)
 //  }
 //
 //  可能支持模板和模板渲染（视全局配置而定）。
@@ -83,26 +83,19 @@ function Build( root ) {
 }
 
 
-let tplStore = null;
-
-
 (function () {
 
-    // 模板支持。
     if ( Support.template ) {
-        tplStore = new Templater(
-            tplLoad, Build, Support.render && Render
+        Base.tplStore(
+            new Templater( tplLoad, Build, Support.render && Render )
         );
     }
-
-    Base.init( tplStore );
 
 })();
 
 
 //
 // 导出。
-// 用于正常的初始页面解析&构建。
 ///////////////////////////////////////////////////////////////////////////////
 
 export const Tpb = { Build, Lib };

@@ -367,11 +367,11 @@ const Grammar = {
     With( el, handle, data ) {
         let _sub = handle( data );
 
-        if ( _sub == null ) {
-            _sub = Object.create(null);
-        }
-        _sub.$ = data;
-
+        _sub = Object.assign(
+            _sub == null && {} || _sub,
+            { $: data }
+        );
+        // 友好：原型继承
         if ( $.type(_sub) == 'Object' && $.type(data) == 'Object' ) {
             $.proto( _sub, data );
         }
@@ -850,9 +850,6 @@ function cloneGrammars( to, src ) {
  * @return {Object} 设置后的数据对象
  */
 function loopCell( data, i, supObj ) {
-    if ( typeof data != 'object' ) {
-        data = Object(data);
-    }
     return Object.assign(
         data,
         {

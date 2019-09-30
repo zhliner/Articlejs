@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { EXTENT } from "../config.js";
+import { EXTENT, NOBIND } from "../config.js";
 
 const $ = window.$;
 
@@ -31,15 +31,15 @@ const _X = {};
 //
 function bindMethod( f, k, obj ) {
     if ( $.type(f) == 'Object' ) {
-        return [$.assign({}, f, bindMethod)];
+        return [ $.assign({}, f, bindMethod) ];
     }
-    // 排除Symbol类型
-    if ( k.length == null || k.startsWith('__') || !$.isFunction(f) ) {
-        return;
+    if ( !$.isFunction(f) ) {
+        return [ f ];
     }
-    f = f.bind( obj );
-
-    return (f[EXTENT] = obj[`__${k}`] || 0), [f];
+    if ( !f[NOBIND] && !f.name.startsWith('bound ') ) {
+        f = f.bind( obj );
+    }
+    return ( f[EXTENT] = obj[`__${k}`] || 0 ), [ f ];
 }
 
 
@@ -57,6 +57,7 @@ function extend( name, exts ) {
     if ( !_o ) {
         _X[name] = _o = {};
     }
+    // 保护顶层函数。
     else if ( $.type(_o) != 'Object' ) {
         throw new Error(`the ${name} field is not a Object.`);
     }

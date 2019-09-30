@@ -6270,6 +6270,7 @@ const domReady = {
  * 接口：function(v, k, source, target): [v, k] | null
  * 注：
  * 这是一种浅赋值，相同的键会被后来者覆盖（而不是合并）。
+ * 返回假值则忽略赋值，提供一种排除目标的机制。
  *
  * @param  {Object} to 目标对象
  * @param  {Object} src 数据源对象
