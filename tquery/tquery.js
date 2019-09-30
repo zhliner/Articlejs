@@ -1613,13 +1613,14 @@ Object.assign( tQuery, {
     /**
      * 切换目标特性值。
      * 如果val是一个数组，就在前两个成员间切换。
-     * 如果val只是一个值，则在有无间切换（val|null）。
+     * 如果val只是一个值，就在值有无间切换（val|''）。
+     * 如果val未定义（null），则在属性有无间切换。
      * 注：
      * 数组形式时以val[0]为对比目标，并不检查val[1]值。
      *
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名
-     * @param  {Value|[Value]|Function} val 切换值获取值回调
+     * @param  {Value|[Value]|Function|null} val 切换值获取值回调，可选
      * @return {this}
      */
     toggleAttr( el, name, val ) {
@@ -4599,15 +4600,18 @@ function customGet( el, name, scope ) {
 /**
  * 获取切换值。
  * 如果val为数组，则在[0-1]单元间切换（以[0]为对比目标）。
- * 如果val为普通的值，则在有无间切换（val|null）。
+ * 如果val为普通的值，则在有无间切换（val|''）。
  * @param {Value|[Value]} val 值（集）
  * @param {Value} old 原来的值
  */
 function toggleValue( val, old ) {
-    if ( !isArr(val) ) {
-        return val == old ? null : val;
+    if ( val == null ) {
+        return old == null ? '' : null;
     }
-    return old == val[0] ? val[1] : val[0];
+    if ( isArr(val) ) {
+        return old == val[0] ? val[1] : val[0];
+    }
+    return val == old ? '' : val;
 }
 
 
