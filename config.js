@@ -1,12 +1,2 @@
-const config =
-{
-    // 库文件根目录。
-    setup:  '',
-
-    // 模板根目录。
-    tpldir: 'templates',
-
-};
-
-
-export { config };
+// 安装根路径和模板根目录
+// 在 base/tpb/config.js 中配置。
