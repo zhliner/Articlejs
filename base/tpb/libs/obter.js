@@ -1005,7 +1005,7 @@ class Where {
                 _key = name.substring(1);
                 break;
             case __tosCSS: // %
-                name = 'css';
+                name = 'cssSets';
                 _key = name.substring(1);
                 break;
             case __tosToggle: // ^

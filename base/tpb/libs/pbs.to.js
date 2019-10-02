@@ -87,7 +87,7 @@ const _Where = {
 [
     'attr',         // @name
     'prop',         // &name
-    'css',          // %name
+    'cssSets',      // %name
     'toggleAttr',   // ^name
 ]
 .forEach(function( meth ) {

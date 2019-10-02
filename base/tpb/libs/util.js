@@ -160,17 +160,17 @@ const Util = {
      * @return {[String]|void}
      */
     pba( el, wds ) {
-        let _v = el.getAttribute(__attrPB);
+        let _v = $.attribute( el, __attrPB );
 
         if ( wds === undefined ) {
             return _v ? pbArgs( attrArgs(_v) ) : [];
         }
         if ( $.isArray(wds) ) {
-            return el.setAttribute( __attrPB, pbaAttr(pbArgs(wds, true), _v) );
+            return $.attribute( __attrPB, pbaAttr(pbArgs(wds, true), _v) );
         }
         // 移除参数部分（保留选项）。
         if ( _v && !wds ) {
-            el.setAttribute( __attrPB, _v.replace(__pbArgs, '').trim() );
+            $.attribute( __attrPB, _v.replace(__pbArgs, '').trim() );
         }
     },
 
@@ -190,17 +190,17 @@ const Util = {
      * @return {[String]|void}
      */
     pbo( el, wds ) {
-        let _v = el.getAttribute(__attrPB);
+        let _v = $.attribute( el, __attrPB );
 
         if ( wds === undefined ) {
             return _v ? pbOpts( attrOpts(_v) ) : [];
         }
         if ( $.isArray(wds) ) {
-            return el.setAttribute( __attrPB, pboAttr(pbOpts(wds, true), _v) );
+            return $.attribute( __attrPB, pboAttr(pbOpts(wds, true), _v) );
         }
         // 移除选项部分（保留参数）。
         if ( _v && !wds ) {
-            el.setAttribute( __attrPB, _v.replace(__pbOpts, '') );
+            $.attribute( __attrPB, _v.replace(__pbOpts, '') );
         }
     },
 

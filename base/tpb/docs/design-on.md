@@ -79,9 +79,12 @@ scam( names? ): Object
 // 目标：当前条目/栈顶1项。
 // 如果目标非Collector对象，视为tQuery方法（目标即首个实参）
 //
-attr( name ): String
-prop( name ): String | Number | Boolean
+attr( name ): String | Object | null
+attribute( name ): String | null
+prop( name ): Value | Object | undefined
+property( name ): Value | undefined
 css( name ): String
+cssGets( name ): Object
 // 参数固定：1。
 
 height(): Number

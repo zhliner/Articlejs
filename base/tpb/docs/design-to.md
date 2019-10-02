@@ -191,7 +191,7 @@ xxxx   // 单元素检索，$.get(): Element | null
 
 [css]
 - %[name]
-// 样式设置。即：.css([name], ...)
+// 样式设置。即：.cssSets([name], ...)
 // {String|Number|Function|null}
 // 例：
 // %font-size 设置元素的font-size内联样式。
@@ -199,7 +199,7 @@ xxxx   // 单元素检索，$.get(): Element | null
 
 [attr:toggle]
 - ^[name]
-// 元素特性切换。
+// 元素特性切换。即：.toggleAttr([name], ...)
 // {Value|[Value]|Function}
 // 单值比较有无切换，双值（数组）比较交换切换。
 ```

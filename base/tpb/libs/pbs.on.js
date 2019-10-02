@@ -166,9 +166,12 @@ const _On = {
 // 目标：当前条目/栈顶1项。
 //===============================================
 [
-    'attr',     // ( name ): String | null
-    'prop',     // ( name ): String | Number | Boolean | undefined
-    'css',      // ( name ): String
+    'attribute',    // ( name ): String | null
+    'attr',         // ( name ): String | Object | null
+    'property',     // ( name ): Value | undefined
+    'prop',         // ( name ): Value | Object | undefined
+    'css',          // ( name ): String
+    'cssGets',      // ( name ): Object
 ]
 .forEach(function( meth ) {
 
