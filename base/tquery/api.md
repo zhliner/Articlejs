@@ -757,6 +757,21 @@ $.isXML( document.body );  // false
 支持两个特别的特性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
 
+### $.attribute( el, name, value ): Value | this
+
+获取或设置 `el` 元素的特性值。
+
+- `el: Element` 目标元素
+- `name: String` 特性名（单个），支持 `data-x` 系名称简写。
+- `value: Value | Function | null` 要设置的特性值或取值回调，传递 `null` 会移除目标特性。
+
+这是 `.attr()` 的简化版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
+
+> **注记：**<br>
+> 提供此方法是考虑常用场景和效率的兼顾，同时也让用户依然拥有 `tQuery.embedProxy()` 嵌入代理的能力。<br>
+> 下 `.property()` 同此。
+
+
 ### [$.prop( el, name, value ): Value | Object | this](docs/$.prop.md)
 
 获取或修改 `el` 元素的属性（Property）值。
@@ -774,6 +789,17 @@ $.isXML( document.body );  // false
 
 > **注：**<br>
 > 需要转换的属性名会自动转换（如：`class` => `clasName`），用户无需操心，两种形式皆可使用。
+
+
+### $.property( el, name, value ): Value | this
+
+获取或设置 `el` 元素的属性值。
+
+- `el: Element` 目标元素
+- `name: String` 属性名（单个），支持 `data-x` 系名称简写。
+- `value: Value | Function | null` 要设置的属性值或取值回调，传递 `null` 通常会让目标属性恢复默认状态。
+
+这是 `.prop()` 的简化版，效率稍高一些。说明参考 `.prop()` 文档。
 
 
 ### [$.removeAttr( el, names ): this](docs/$.removeAttr.md)

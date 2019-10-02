@@ -1556,10 +1556,37 @@ Object.assign( tQuery, {
      */
     attr( el, name, value ) {
         if (value === undefined && typeof name == 'string') {
-            return hookGets(el, name, elemAttr);
+            return hookGets(el, name.trim(), elemAttr);
         }
         hookSets(el, name, value, elemAttr);
         return this;
+    },
+
+
+    /**
+     * 特性获取/设置。
+     * .attr 的简化版。
+     * - 仅适用单个特性名（支持dta-x系简写名）。
+     * - value 仅支持简单标量值和取值回调。
+     *
+     * 注记：
+     * .attr 的功能强大，但也因此较为复杂（效率稍低）。
+     * 此为原生Element.[get|set]Attribute的增强版，但比.attr简单（因此效率稍高）。
+     * 提供此方法是为关注效率的用户也能使用外部代理嵌入。
+     * 下面的property()方法同此目的。
+     *
+     * @param {Element} el 目标元素
+     * @param {String} name 特性名
+     * @param {Value|Function|null} value 特性值或取值回调
+     */
+    attribute( el, name, value ) {
+        if ( value === undefined ) {
+            return elemAttr.get( el, name );
+        }
+        if ( isFunc(value) ) {
+            value = value(elemAttr.get( el, name), el );
+        }
+        return elemAttr.set( el, name, value ), this;
     },
 
 
@@ -1576,10 +1603,30 @@ Object.assign( tQuery, {
      */
     prop( el, name, value ) {
         if (value === undefined && typeof name == 'string') {
-            return hookGets(el, name, elemProp);
+            return hookGets(el, name.trim(), elemProp);
         }
         hookSets(el, name, value, elemProp);
         return this;
+    },
+
+
+    /**
+     * 属性获取/设置。
+     * .prop 的简化版
+     * - 仅适用单个属性名（支持data-x系简写名）。
+     * - value 仅支持简单的标量值和取值回调。
+     * @param {Element} el 目标元素
+     * @param {String} name 属性名
+     * @param {Value|Function|null} value 属性值或取值回调
+     */
+    property( el, name, value ) {
+        if ( value === undefined ) {
+            return elemProp.get( el, name );
+        }
+        if ( isFunc(value) ) {
+            value = value(elemProp.get( el, name), el );
+        }
+        return elemProp.set( el, name, value ), this;
     },
 
 
@@ -1789,12 +1836,13 @@ Object.assign( tQuery, {
      */
     css( el, name, val ) {
         if (name === null) {
-            return el.removeAttribute('style'), this;
+            el.removeAttribute('style');
+            return this;
         }
         let _cso = getStyles(el);
 
         if (val === undefined && typeof name == 'string') {
-            return cssGets(_cso, name);
+            return cssGets(_cso, name.trim());
         }
         cssSets(el, name, val, _cso);
 
@@ -3432,27 +3480,30 @@ elsExfn([
 
 
 //
-// 目标属性设置/取值。
-// 设置与获取两种操作合二为一的成员，val支持数组分别赋值。
+// 目标特性/属性取值或设置。
+// 取值时name支持数组与元素集成员一一对应（名称本身可能是空格分隔的序列）。
+// 设置时value支持数组，优先与元素集成员一一对应（值本身可能需要数组）。
 //
 // 取值时：返回一个普通数组，成员与集合元素一一对应。
 // 设置时：返回实例自身。
 /////////////////////////////////////////////////
 elsExfn([
         'attr',
+        'attribute',    // attr简化版
         'prop',
+        'property',     // prop简化版
         'css',
     ],
     fn =>
     // 可代理调用 $
-    function( name, val ) {
+    function( name, value ) {
         let _nia = isArr(name);
 
         // 取值支持名称数组与元素成员一一对应。
-        if ( (val === undefined && typeof name == 'string') || (_nia && typeof name[0] == 'string') ) {
+        if ( (value === undefined && typeof name == 'string') || (_nia && typeof name[0] == 'string') ) {
             return _customGets( fn, Arr(this), name, _nia );
         }
-        return _customSets( fn, this, name, val, _nia ), this;
+        return _customSets( fn, this, name, value, _nia ), this;
     }
 );
 
@@ -3467,7 +3518,7 @@ elsExfn([
  * @param  {[Element]} els 元素集
  * @param  {String|[String]} name 名称序列（集）
  * @param  {Boolean} nia 名称为数组
- * @return {Value} 结果值
+ * @return {[Value]} 结果值集
  */
 function _customGets( fn, els, name, nia ) {
     if ( !nia ) {
@@ -3499,7 +3550,7 @@ function _customSets( fn, els, name, val, nia ) {
     }
     if ( isArr(val) ) {
         // name支持空格分隔的多名称
-        // val可为二维数组分别对应赋值。
+        // 注：val可为二维数组用于值本身需要数组时。
         return els.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
     }
     // 全部相同赋值。
@@ -4155,7 +4206,7 @@ function camelCase( name ) {
  * @return {String|Object} 值或名值对对象
  */
 function cssGets( cso, name ) {
-    name = name.trim().split(__chSpace);
+    name = name.split(__chSpace);
 
     if (name.length == 1) {
         return cso[ name[0] ];
@@ -4566,15 +4617,15 @@ function customSet( el, name, value, scope ) {
  * @return {String|Object} 值或名/值对象
  */
 function hookGets( el, name, scope ) {
-    name = name.trim().split(__chSpace);
+    name = name.split(__chSpace);
 
     if (name.length == 1) {
         return customGet(el, name[0], scope);
     }
-    return name.reduce(
-        (obj, n) => ( obj[n] = customGet(el, n, scope), obj ),
-        {}
-    );
+    let _obj = {};
+    name.forEach( n => _obj[n] = customGet(el, n, scope) );
+
+    return _obj;
 }
 
 
