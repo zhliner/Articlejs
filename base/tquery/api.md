@@ -765,7 +765,7 @@ $.isXML( document.body );  // false
 - `name: String` 特性名（单个），支持 `data-x` 系名称简写。
 - `value: Value | Function | null` 要设置的特性值或取值回调，传递 `null` 会移除目标特性。
 
-这是 `.attr()` 的简化版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
+这是 `.attr()` 的轻量版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
 
 > **注记：**<br>
 > 提供此方法是考虑常用场景和效率的兼顾，同时也让用户依然拥有 `tQuery.embedProxy()` 嵌入代理的能力。<br>
@@ -799,7 +799,7 @@ $.isXML( document.body );  // false
 - `name: String` 属性名（单个），支持 `data-x` 系名称简写。
 - `value: Value | Function | null` 要设置的属性值或取值回调，传递 `null` 通常会让目标属性恢复默认状态。
 
-这是 `.prop()` 的简化版，效率稍高一些。说明参考 `.prop()` 文档。
+这是 `.prop()` 的轻量版，效率稍高一些。说明参考 `.prop()` 文档。
 
 
 ### [$.removeAttr( el, names ): this](docs/$.removeAttr.md)
@@ -903,18 +903,36 @@ $.isXML( document.body );  // false
 
 ### [$.css( el, name, val ): String | Object | this](docs/$.css.md)
 
-获取或设置 `el` 元素的样式，可以一次获取多个，也可以一次设置多个。
+获取或设置 `el` 元素的样式。
 
 - `el: Element` 操作的目标元素。
-- `name: String | Object | Map | null` 待取值的样式名称（序列）或设置时的名称或**名:值**对配置对象。
-- `val: String | Number | Function | [Value]` 设置的样式值（集）或取值回调，空串表示删除目标样式。可选。
+- `name: String` 待取值的样式名（单个），或设置时的目标样式名（单个）。
+- `val: Value | Function` 设置的样式值或取值回调，空串表示删除目标样式。可选。
 
-实参 `name` 的作用有两种情况：
+获取时为元素计算后的样式值，设置时为设置元素的内联样式（`style` 特性）。取值回调接口：`function( oldval, el ): Value`。
 
-- **取值时**：样式名称或空格分隔的名称序列。指定单个名称返回单一的值，指定多个名称返回一个 `样式名:值` 的对象（`Object`）。
-- **设置时**：除了普通的单个或多个名称，还可以是一个 `样式名:值` 配置对象（`Object` | `Map`），键为样式名，值为样式值或取值回调（接口：`function( oldval, el ): Value`）。
 
-获取时为元素计算后的样式值，设置时为设置元素的内联样式（`style` 特性）。传递 `name` 为值 `null` 会删除 `style` 特性值本身（全部样式），如果 `name` 是一个空格分隔的多个样式名序列，`val` 可以是一个数组，分别对应到不同的样式设置。
+### $.cssGets( el, name ): Object
+
+获取 `el` 元素的样式集。
+
+- `el: Element` 目标元素。
+- `name: String` 待取值的样式名序列（空格分隔）。
+
+这是 `.css()` 取值的增强版。无论 `name` 是否为多个名称，始终会返回一个 **名:值** 对对象。
+
+
+### $.cssSets( el, name, val ): this
+
+设置 `el` 元素的样式集。
+
+- `el: Element` 操作的目标元素。
+- `name: String | Object | Map | null` 空格分隔的样式名序列或 **名:值** 对配置对象。
+- `val: Value | [Value] | Function` 设置的样式值（集）或取值回调，空串表示删除目标样式。
+
+这是 `.css()` 设置的增强版，如果 `name` 包含多个样式名，`val` 可以是一个数组，分别对应到不同的样式。传递 `name` 为 `null` 会删除全部样式（`style` 特性本身）。
+
+`name` 可以是一个名值对对象或Map实例，值依然可以是一个取值回调。取值回调接口：`function( oldval, el ): Value`。
 
 
 ### [$.offset( el, pair ): Object | this](docs/$.offset.md)
