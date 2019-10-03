@@ -176,8 +176,10 @@ const _On = {
 .forEach(function( meth ) {
 
     _On[meth] = function( evo, name ) {
-        if ( $.isCollector(evo.data) ) return evo.data[meth]( name );
-        if ( evo.data.nodeType == 1 ) return $[meth]( evo.data, name );
+        if ( evo.data.nodeType == 1 ) {
+            return $[meth]( evo.data, name );
+        }
+        if ( $.isArray(evo.data) ) $(evo.data)[meth]( name );
     };
 
     _On[`__${meth}`] = 1;
@@ -203,8 +205,10 @@ const _On = {
 .forEach(function( meth ) {
 
     _On[meth] = function( evo ) {
-        if ( $.isCollector(evo.data) ) return evo.data[meth]();
-        if ( evo.data.nodeType == 1 ) return $[meth]( evo.data );
+        if ( evo.data.nodeType == 1 ) {
+            return $[meth]( evo.data );
+        }
+        if ( $.isArray(evo.data) ) return $(evo.data)[meth]();
     };
 
     _On[`__${meth}`] = 1;

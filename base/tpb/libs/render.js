@@ -143,9 +143,9 @@ const Parser = {
                 Object.assign(
                     _buf,
                     // $for 需要第二个实参
-                    this[fn]( el.getAttribute(an), el.childElementCount )
+                    this[fn]( $.attribute(el, an), el.childElementCount )
                 );
-                el.removeAttribute( an );
+                $.attribute( el, an, null );
             }
         }
         return Object.assign( _buf, this.assign(el) );
@@ -288,7 +288,7 @@ const Parser = {
             if ( _n[0] == '_' ) {
                 _ats.push( _n.substring(1) );
                 _fns.push( Expr.assign(at.value) );
-                el.removeAttribute( _n );
+                $.attribute( el, _n, null );
             }
         }
         if ( _ats.length == 0 ) {

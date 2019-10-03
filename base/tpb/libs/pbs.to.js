@@ -85,9 +85,9 @@ const _Where = {
 //===============================================
 // 注：名称前置特殊字符，用于方法辨识。
 [
-    'attr',         // @name
-    'prop',         // &name
-    'cssSets',      // %name
+    'attribute',    // @name
+    'property',     // &name
+    'css',          // %name
     'toggleAttr',   // ^name
 ]
 .forEach(function( meth ) {
@@ -95,15 +95,44 @@ const _Where = {
      * 目标赋值更新。
      * 注：会被封装调用，不含首个evo实参。下同。
      * @param  {Element|Collector} its 目标元素（集）
-     * @param  {Value|[Value]|Function} val 值或值集
-     * @param  {String} name 特性/属性/样式名
-     * @return {Any:ignore} 调用者忽略
+     * @param  {Value|Array2|Function|null} val 值或值对
+     * @param  {String} name 特性/属性/样式名（单个）
+     * @return {Ignore} 调用者忽略
      */
     _Where[meth] = function( its, val, name ) {
         return its.nodeType == 1 ?
             $[meth]( its, name, val ) : $(its)[meth]( name, val );
     };
 
+});
+
+
+// 增强版。
+// 普通更新方式（流程数据展开：1-2个参数）。
+// 注：
+// 与上面不同，此处接口的name实参在流程数据中。
+//-----------------------------------------------
+[
+    'attr',
+    'prop',
+    'cssSets',
+]
+.forEach(function( meth ) {
+    /**
+     * 目标赋值更新。
+     * @param  {Element|Collector} its 目标元素（集）
+     * @param  {Value|[Value]|Function} val 值或值集或取值回调
+     * @return {Ignore} 调用者忽略
+     */
+    _Where[meth] = function( its, args ) {
+        if ( !$.isArray(args) ) {
+            args = [args];
+        }
+        if ( its.nodeType == 1 ) {
+            return $[meth]( its, ...args );
+        }
+        if ( $.isArray(its) ) $(its)[meth]( ...args );
+    }
 });
 
 

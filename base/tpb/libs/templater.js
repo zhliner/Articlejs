@@ -185,8 +185,8 @@ class Templater {
      * @return {Promise}
      */
     _loadsub( box ) {
-        let _n = box.getAttribute(__tplLoad);
-        box.removeAttribute(__tplLoad);
+        let _n = $.attribute(box, __tplLoad);
+        $.attribute(box, __tplLoad, null);
 
         if ( !_n ) {
             return null;
@@ -201,8 +201,8 @@ class Templater {
      * @param {Element} el 节点元素
      */
      _add( el ) {
-        let _n = el.getAttribute(__tplName);
-        el.removeAttribute(__tplName);
+        let _n = $.attribute(el, __tplName);
+        $.atribute(el, __tplName, null);
 
         if ( this._tpls.has(_n) ) {
             window.console.warn(`[${_n}] template node was overwritten.`);

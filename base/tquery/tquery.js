@@ -1574,7 +1574,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {String|Number|Boolean|Function|null|[Value]} value 新值（集）或取值回调，可选
+     * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
     attr( el, name, value ) {
@@ -1618,7 +1618,7 @@ Object.assign( tQuery, {
      * - 支持两个特殊属性名：text、html，设置时为填充方式。
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} name 名称（序列）或名/值对象
-     * @param  {String|Number|Boolean|Function|null|[Value]} value 新值（集）或取值回调，可选
+     * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
     prop( el, name, value ) {
@@ -1667,7 +1667,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名
-     * @param  {Value|[Value]|Function|null} val 切换值获取值回调，可选
+     * @param  {Value|Array2|Function|null} val 切换值获取值回调，可选
      * @return {this}
      */
     toggleAttr( el, name, val ) {
@@ -3973,7 +3973,7 @@ function hasFltr( its ) {
  * @return {Boolean}
  */
 function isCollector( obj ) {
-    return obj && obj[ ownerToken ];
+    return obj && !!obj[ ownerToken ];
 }
 
 

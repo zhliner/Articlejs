@@ -10,7 +10,7 @@
 //
 //  Tpb {
 //      Build: {Function}   节点树OBT构建函数（页面既有元素）
-//      Lib:   {Object}     库空间，提供外部X扩展接口：Tpb.Lib.X(...)
+//      Lib:   {Object}     库空间，提供外部X扩展接口：Tpb.Lib.X.extend(...)
 //  }
 //
 //  可能支持模板和模板渲染（视全局配置而定）。
@@ -29,6 +29,7 @@ import { Templater } from "./libs/templater.js";
 import { Render } from "./libs/render.js";
 import { tplLoad } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
+import { App } from "./libs/x/app.js";
 import { Support, OBTA } from "./config.js";
 
 
@@ -36,7 +37,8 @@ const
     $ = window.$,
 
     // 库空间。
-    Lib = { X },
+    // App实现在X内，但此处单列引用。
+    Lib = { X, App },
 
     // On属性选择器
     _onSlr = `[${OBTA.on}]`;
@@ -79,7 +81,7 @@ const _obter = new Builder( {
  */
 function Build( root ) {
     $.find( root, _onSlr, true )
-    .forEach( el => _obter.build( el ) );
+        .forEach( el => _obter.build( el ) );
 }
 
 

@@ -17,7 +17,7 @@
 //
 
 import { Util } from "./libs/util.js";
-import { bindMethod, NOBIND } from "../config.js";
+import { bindMethod, EXTENT } from "../config.js";
 
 
 const
@@ -44,17 +44,6 @@ const
     // 关联数据空间。
     // Element: Map{ String: Value }
     DataStore   = new WeakMap();
-
-
-const
-    // 单次剪除属性。
-    __PRUNE = Symbol('prune-count'),
-
-    // 持续剪除属性。
-    __PRUNES = Symbol('prunes-count'),
-
-    // entry/animate标记属性。
-    __ANIMATE = Symbol('animate-count');
 
 
 //
@@ -302,121 +291,6 @@ const _Base = {
 
 
 
-    // 特殊控制
-    // 不绑定，this: {Cell}
-    //-------------------------------------------
-
-
-    /**
-     * 剪除后端跟随指令（单次）。
-     * 允许后端指令执行cnt次，之后再移除。
-     * 目标：无。
-     * 注：cnt传递负值没有效果，传递0值立即移除。
-     * @param  {Number} cnt 执行次数
-     * @return {void}
-     */
-    prune( evo, cnt = 1 ) {
-        if ( this[__PRUNE] < 0 ) {
-            return;
-        }
-        if ( this[__PRUNE] == null ) {
-            this[__PRUNE] = +cnt || 0;
-        }
-        if ( this[__PRUNE] == 0 && this.next ) {
-            // 后阶移除
-            this.next = this.next.next;
-        }
-        -- this[__PRUNE];
-    },
-
-    __prune: null,
-
-
-    /**
-     * 剪除后端跟随指令（持续）。
-     * 允许后端指令执行cnt次，之后再移除。
-     * 目标：无。
-     * 注：cnt传递负值没有效果，传递0值单次立即移除（同prune）。
-     * @param  {Number} cnt 执行次数
-     * @return {void}
-     */
-    prunes( evo, cnt = 1 ) {
-        if ( this[__PRUNES] < 0 ) {
-            return;
-        }
-        if ( this[__PRUNES] == null ) {
-            this[__PRUNES] = +cnt || 0;
-        }
-        if ( this[__PRUNES] == 0 && this.next ) {
-            this.next = this.next.next;
-            this[__PRUNES] = +cnt || 0;
-        }
-        -- this[__PRUNES];
-    },
-
-    __prunes: null,
-
-
-    /**
-     * 创建入口。
-     * 创建一个方法，使得可以从该处开启执行流。
-     * 目标：无。
-     * 主要用于动画类场景：前阶段收集初始数据，后阶段循环迭代执行动画。
-     * 使用：
-     *      entry           // 模板中主动设置（前提）。
-     *      animate(...)    // 从entry下一指令开始执行。
-     *      evo.entry(val)  // 指令/方法内使用。
-     * 注：
-     * 不作预绑定，this为当前指令单元（Cell）。
-     * 一个执行流中只能有一个入口（多个时，后面的有效）。
-     * @return {void}
-     */
-    entry( evo ) {
-        // 初始标记。
-        // 注记：执行流重启时复位。
-        evo[__ANIMATE] = true;
-
-        // 容错next无值。
-        evo.entry = this.call.bind( this.next, evo );
-    },
-
-    __entry: null,
-
-
-    /**
-     * 开启动画。
-     * 实际上就是执行 entry 入口函数。
-     * count 为迭代次数，负值表示无限。
-     * val 为初次迭代传入 evo.entry() 的值（如果有，否则为当前条目）。
-     * 每次重入会传入当前条目数据（如果有）。
-     * 注：
-     * 不作预绑定，this为当前指令单元（Cell）。
-     *
-     * @param  {Value} val 初始值
-     * @param  {Number} cnt 迭代次数
-     * @return {void}
-     */
-    animate( evo, cnt, val ) {
-        if ( evo[__ANIMATE] ) {
-            if ( val !== undefined ) {
-                evo.data = val;
-            }
-            delete evo[__ANIMATE];
-            this[__ANIMATE] = +cnt || 0;
-        }
-        if ( this[__ANIMATE] == 0 ) {
-            return;
-        }
-        if ( this[__ANIMATE] > 0 ) {
-            -- this[__ANIMATE];
-        }
-        requestAnimationFrame( () => evo.entry(evo.data) );
-    },
-
-    __animate: 0,
-
-
-
     // 暂存区赋值
     // 目标：赋值非取值，无。
     // 特权：是。需要直接操作数据栈。
@@ -605,14 +479,6 @@ const _Base = {
     __hello: 0,
 
 };
-
-
-// 特殊指令不绑定标记。
-// this: {Cell}
-_Base.prune[ NOBIND ]   = true;
-_Base.prunes[ NOBIND ]  = true;
-_Base.entry[ NOBIND ]   = true;
-_Base.animate[ NOBIND ] = true;
 
 
 
@@ -1472,6 +1338,132 @@ function existValue( obj, name, val ) {
 
 
 //
+// 特殊指令。
+// 不预绑定处理，this: {Cell}
+///////////////////////////////////////////////////////////////////////////////
+
+const
+    // 单次剪除属性。
+    __PRUNE = Symbol('prune-count'),
+
+    // 持续剪除属性。
+    __PRUNES = Symbol('prunes-count'),
+
+    // entry/animate标记属性。
+    __ANIMATE = Symbol('animate-count');
+
+
+/**
+ * 剪除后端跟随指令（单次）。
+ * 允许后端指令执行cnt次，之后再移除。
+ * 目标：无。
+ * 注：cnt传递负值没有效果，传递0值立即移除。
+ * @param  {Number} cnt 执行次数
+ * @return {void}
+ */
+function prune( evo, cnt = 1 ) {
+    if ( this[__PRUNE] < 0 ) {
+        return;
+    }
+    if ( this[__PRUNE] == null ) {
+        this[__PRUNE] = +cnt || 0;
+    }
+    if ( this[__PRUNE] == 0 && this.next ) {
+        // 后阶移除
+        this.next = this.next.next;
+    }
+    -- this[__PRUNE];
+}
+
+// prune[EXTENT] = null;
+
+
+/**
+ * 剪除后端跟随指令（持续）。
+ * 允许后端指令执行cnt次，之后再移除。
+ * 目标：无。
+ * 注：cnt传递负值没有效果，传递0值单次立即移除（同prune）。
+ * @param  {Number} cnt 执行次数
+ * @return {void}
+ */
+function prunes( evo, cnt = 1 ) {
+    if ( this[__PRUNES] < 0 ) {
+        return;
+    }
+    if ( this[__PRUNES] == null ) {
+        this[__PRUNES] = +cnt || 0;
+    }
+    if ( this[__PRUNES] == 0 && this.next ) {
+        this.next = this.next.next;
+        this[__PRUNES] = +cnt || 0;
+    }
+    -- this[__PRUNES];
+}
+
+// prunes[EXTENT] = null;
+
+
+/**
+ * 创建入口。
+ * 创建一个方法，使得可以从该处开启执行流。
+ * 目标：无。
+ * 主要用于动画类场景：前阶段收集初始数据，后阶段循环迭代执行动画。
+ * 使用：
+ *      entry           // 模板中主动设置（前提）。
+ *      animate(...)    // 从entry下一指令开始执行。
+ *      evo.entry(val)  // 指令/方法内使用。
+ * 注：
+ * 不作预绑定，this为当前指令单元（Cell）。
+ * 一个执行流中只能有一个入口（多个时，后面的有效）。
+ * @return {void}
+ */
+function entry( evo ) {
+    // 初始标记。
+    // 注记：执行流重启时复位。
+    evo[__ANIMATE] = true;
+
+    // 容错next无值。
+    evo.entry = this.call.bind( this.next, evo );
+}
+
+// entry[EXTENT] = null;
+
+
+/**
+ * 开启动画。
+ * 实际上就是执行 entry 入口函数。
+ * count 为迭代次数，负值表示无限。
+ * val 为初次迭代传入 evo.entry() 的值（如果有，否则为当前条目）。
+ * 每次重入会传入当前条目数据（如果有）。
+ * 注：
+ * 不作预绑定，this为当前指令单元（Cell）。
+ *
+ * @param  {Value} val 初始值
+ * @param  {Number} cnt 迭代次数
+ * @return {void}
+ */
+function animate( evo, cnt, val ) {
+    if ( evo[__ANIMATE] ) {
+        if ( val !== undefined ) {
+            evo.data = val;
+        }
+        delete evo[__ANIMATE];
+        this[__ANIMATE] = +cnt || 0;
+    }
+    if ( this[__ANIMATE] == 0 ) {
+        return;
+    }
+    if ( this[__ANIMATE] > 0 ) {
+        -- this[__ANIMATE];
+    }
+    requestAnimationFrame( () => evo.entry(evo.data) );
+}
+
+animate[EXTENT] = 0;
+
+
+
+//
 // 合并/导出
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1479,12 +1471,23 @@ function existValue( obj, name, val ) {
 // 基础集I（On/By/To共享）。
 const Base = $.assign( Base, _Base, bindMethod );
 
+
+// 特殊控制。
+// 避免预绑定处理。this: {Cell}
+Base.prune = prune;
+Base.prunes = prunes;
+Base.entry = entry;
+Base.animate = animate;
+
+
 // 基础集II（On/By共享）。
 const Base2 = $.assign( Base2, _Base2, bindMethod );
 
 
-// 设置模板管理器。
-// @param {Templater} tstore 模板管理器
+/**
+ * 设置模板管理器。
+ * @param {Templater} tstore 模板管理器
+*/
 Base.tplStore = tstore => { __TplStore = tstore; };
 
 

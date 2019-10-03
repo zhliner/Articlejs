@@ -74,10 +74,6 @@ const
     // 指令属性：特权方法（操作数据栈）
     ACCESS = Symbol('stack-access'),
 
-    // 不绑定标记。
-    // 方法的this将为Cell实例。
-    NOBIND = Symbol('no-bind'),
-
     // PBS方法获取接口键。
     // 使用Symbol避免名称冲突。
     method = Symbol('api-method');
@@ -105,7 +101,7 @@ const
     if ( !$.isFunction(f) ) {
         return [ f ];
     }
-    if ( !f[NOBIND] && !f.name.startsWith('bound ') ) {
+    if ( !f.name.startsWith('bound ') ) {
         f = f.bind( obj );
     }
     return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
@@ -139,7 +135,6 @@ export {
     OBTA,
     EXTENT,
     ACCESS,
-    NOBIND,
     method,
     bindMethod,
     Support,

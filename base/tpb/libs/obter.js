@@ -982,37 +982,20 @@ class Where {
 
     /**
      * 构造更新方法封装。
-     * 接口：function( Element | Collector, Value ): void
+     * 接口：function( Element|Collector, Value, String? ): Any
      * 四个特殊方法名：{
      *      @   特性（attr）
      *      &   属性（prop）
      *      %   样式（css）
      *      ^   特性切换（toggleAttr）
      * }
-     * @param  {String} name 方法名
+     * @param  {String} meth 方法名
      * @param  {Object} pbs 更新方法集
      * @return {Function} 更新方法
      */
-    _method( name, pbs ) {
-        let _key;
-        switch ( name[0] ) {
-            case __tosAttr: // @
-                name = 'attr';
-                _key = name.substring(1);
-                break;
-            case __tosProp: // &
-                name = 'prop';
-                _key = name.substring(1);
-                break;
-            case __tosCSS: // %
-                name = 'cssSets';
-                _key = name.substring(1);
-                break;
-            case __tosToggle: // ^
-                name = 'toggleAttr';
-                _key = name.substring(1);
-        }
-        return (its, val) => pbs[name]( its, val, _key );
+    _method( meth, pbs ) {
+        let [_m, _n] = specialMethod(meth);
+        return (its, val) => pbs[_m]( its, val, _n );
     }
 
 }
@@ -1088,6 +1071,30 @@ function query2( slr, beg, one, fltr ) {
 }
 
 
+//
+// 特殊方法名映射。
+// 即：特性/属性/样式 的操作方法。
+//
+const methodMap = {
+    [__tosAttr]:    'attribute',
+    [__tosProp]:    'property',
+    [__tosCSS]:     'css',
+    [__tosToggle]:  'toggleAttr',
+};
+
+
+/**
+ * To:Where: 提取特殊方法及相关名。
+ * 相关名：特性/属性/样式名称。
+ * @param  {String} meth 原方法名
+ * @return {Array2} [meth, name]
+ */
+ function specialMethod( meth ) {
+    let _m = methodMap[ meth[0] ];
+    return _m ? [ _m, meth.substring(1) ] : [ meth ];
+}
+
+
 /**
  * To：更新方法（总）。
  * 如果有并列多个更新，流程数据为数组时会分别对应。
@@ -1107,7 +1114,7 @@ function _update( evo, ...funs ) {
         funs[0]( _its, _val );
         return;
     }
-    // 必然为数组（Query清空暂存）。
+    // _val必然为数组（Query清空暂存）。
     return funs.forEach( (f, i) => f(_its, _val[i]) );
 }
 

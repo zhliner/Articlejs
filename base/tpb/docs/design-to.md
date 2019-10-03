@@ -80,6 +80,7 @@ xxxx   // 单元素检索，$.get(): Element | null
 ### Method/Where/Sets
 
 ```js
+//
 // 普通设置
 // 流程数据为内容，当前检索为目标。
 /////////////////////////////////////////////////
@@ -97,8 +98,7 @@ xxxx   // 单元素检索，$.get(): Element | null
 // 这可以通过提前克隆解决，但仅适用于单个目标点（多对一）。
 // 注记：
 // 同一组节点一次插入到多个位置的场景可能并不多见，但如果必需，
-// 通过分解设计和联动事件激发，或许可以解决？
-// 如：一个逐次递减的目标清单往返传递（fire）。
+// 通过分解设计和联动事件激发，如一个逐次递减的目标清单往返传递（fire）。
 
 
 - wrap          // {Element|String} /box 各自包裹
@@ -125,14 +125,29 @@ xxxx   // 单元素检索，$.get(): Element | null
 
 
 - cloneEvent
-// 事件克隆。{Element} /src | [...]
+// 克隆事件处理器到目标元素。
 // 事件源为单个元素，因此支持多实参扩展传递后续配置。
+// {Element} /src
 // [ Element, String|Array2|[Array2] ]
 // 实现：
 // 检查传入的流程数据是否为数组，决定是否展开。
 
+- attr
+// 特性设置（增强版）。
+// name:{String|Object|Map} | [name, value]
+// 实现会检查流程数据是否为数组决定展开，下同。
 
-// 逆向设置。
+- prop
+// 属性设置（增强版）。
+// name:{String|Object|Map} | [name, value]
+
+- cssSets
+// 样式设置（增强版）。
+// name:{String|Object|Map} | [name, value]
+
+
+//
+// 逆向设置（一对多|一对一）。
 // 流程数据为目标，当前目标（targets）为内容。
 // 插入参考为单个节点/元素，因此支持多实参扩展传递后续克隆定义。
 // [ Node|Element, Boolean?, Boolean?, Boolean? ]
@@ -170,20 +185,23 @@ xxxx   // 单元素检索，$.get(): Element | null
 // 效果与By:render相同，但目标无法通过模板名获取。
 
 
-// 下面为常用方法。
+//
+// 常用方法。
 // 采用前置特殊字符来简化实现。
+// 注：仅限单个名称。
+/////////////////////////////////////////////////
 
-[attr]
+[attribute]
 - @[name]
-// 特性设置。即：.attr([name], ...)
+// 特性设置。即：.attribute([name], ...)
 // {String|Number|Boolean|Function|null}
 // 例：
 // @style： 设置元素的style特性值（cssText）。
 // @class： 设置元素的class特性值。实参为null时删除特性值。
 
-[prop]
+[property]
 - &[name]
-// 属性设置。即：.prop([name], ...)
+// 属性设置。即：.property([name], ...)
 // {String|Number|Boolean|Function|null}
 // 例：
 // &value   设置元素的value属性值。
@@ -191,13 +209,13 @@ xxxx   // 单元素检索，$.get(): Element | null
 
 [css]
 - %[name]
-// 样式设置。即：.cssSets([name], ...)
+// 样式设置。即：.css([name], ...)
 // {String|Number|Function|null}
 // 例：
 // %font-size 设置元素的font-size内联样式。
 // %fontSize  效果同上。
 
-[attr:toggle]
+[attribute:toggle]
 - ^[name]
 // 元素特性切换。即：.toggleAttr([name], ...)
 // {Value|[Value]|Function}

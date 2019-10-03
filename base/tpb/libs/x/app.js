@@ -21,14 +21,12 @@
 //      import { App } from 'app.js'
 //      App.register( appName, [control, model, view], methods? );
 //
-//  注：
-//  注册完全部小程序后，外部需最后调用 App.extendTo( Tpb.Lib.X )。
-//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { pullRoot } from "../../config.js";
+import { X } from "../lib.x.js";
 
 
 class _App {
@@ -93,6 +91,12 @@ const AppStore = { pull: Puller };
 
 
 //
+// X库子域注册。
+//
+(function() { X.register( 'App', AppStore ); })();
+
+
+//
 // 导出。
 // 供外部扩展的具体实现用。
 ///////////////////////////////////////////////////////////////////////////////
@@ -129,18 +133,16 @@ function appScope( app, meths ) {
  * @param {[Function]} conf CMV定义
  * @param {[String]} meths 方法名序列，可选
  */
-function register( name, conf, meths = null ) {
-    if ( name == 'pull' ) {
-        throw new Error(`${name} is the reserved name.`);
+function register( name, conf, meths = [] ) {
+    let _a = AppStore[name];
+
+    if ( _a != null ) {
+        throw new Error(`[${name}]:${_a} is already exist.`);
     }
-    AppStore[name] = appScope( new _App(...conf), meths || [] );
+    AppStore[name] = appScope( new _App(...conf), meths );
 }
 
 
-export const App = {
-    // 注册App
-    register,
-
-    // 扩展到X库（App子域）。
-    extendTo: X => X( 'App', AppStore )
-};
+// 注册App。
+// 可用于运行时的动态注册。
+export const App = { register };
