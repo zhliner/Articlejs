@@ -14,16 +14,14 @@
 //
 //  静态扩展：
 //      import { X } from 'libs/lib.x.js'
-//      X.register( name, {...} )   注册新的子域
-//      X.extend( name, {...} )     在name子域上扩展指令
+//      X.extend( name, {...}, acell )  在name子域上扩展指令
 //
 //  动态扩展：
-//      Tpb.Lib.X.register( name, {...} )       注册新的子域。
 //      Tpb.Lib.X.extend( name, {...}, acell )  在name子域上扩展指令
 //
 //  注：
 //  扩展库指令支持方法名前置双下划线（__）定义自动取栈数，默认会被设置为0。
-//  指令默认会被绑定宿主对象后存储到X子域空间，除非传递acell为真。
+//  指令默认会绑定到宿主对象后存储进X子域空间，除非传递acell为真。
 //  支持嵌套的普通对象递归处理。
 //
 //
@@ -88,20 +86,6 @@ function setMethod( f, k, obj ) {
 
 
 /**
- * 接口：子域注册。
- * @param {String} name 子域名
- * @param {Object} obj 子域对象
- */
-function register( name, obj ) {
-
-    if ( _X[name] != null ) {
-        throw new Error(`[${name}] is already exist.`);
-    }
-    _X[name] = obj;
-}
-
-
-/**
  * 接口：子域扩展。
  * 扩展中的方法默认会绑定（bind）到所属宿主对象。
  * 子域是一级分组，内部的重名成员会被覆盖。
@@ -118,7 +102,7 @@ function extend( name, exts, acell = false ) {
     let _o = _X[name];
 
     if ( !_o ) {
-        window.console.warn(`add a new X.${name} scope.`);
+        window.console.info(`add a new X.${name} scope.`);
         _X[name] = _o = {};
     }
     // 保护顶层函数。
@@ -139,4 +123,4 @@ function extend( name, exts, acell = false ) {
 //
 // 用原型空间存储。
 //
-export const X = $.proto( { register, extend }, _X );
+export const X = $.proto( { extend }, _X );

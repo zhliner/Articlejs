@@ -70,7 +70,8 @@ class _App {
  * 数据检取（Fetch）。
  * 暂存区的流程数据会作为查询串上传。
  * 注：仅支持 GET 方法。
- * @param {String} meth 请求方法。可选，默认index
+ * @param  {String} meth 请求方法。可选，默认index
+ * @return {Promise} data:json
  */
 function Puller( evo, meth = 'index' ) {
     let _url = `${pullRoot}/${meth}`;
@@ -91,9 +92,9 @@ const AppStore = { pull: Puller };
 
 
 //
-// X库子域注册。
+// 扩展注入X库。
 //
-(function() { X.register( 'App', AppStore ); })();
+(function() { X.extend( 'App', AppStore ); })();
 
 
 //

@@ -1871,12 +1871,13 @@ Object.assign( tQuery, {
     cssSets( el, name, val ) {
         if (name === null) {
             el.removeAttribute('style');
-            return this;
         }
-        cssSets(el, name, val, getStyles(el));
+        else if ( val !== undefined ) {
+            cssSets(el, name, val, getStyles(el));
 
-        if (el.style.cssText.trim() == '') {
-            el.removeAttribute('style');
+            if (el.style.cssText.trim() == '') {
+                el.removeAttribute('style');
+            }
         }
         return this;
     },
