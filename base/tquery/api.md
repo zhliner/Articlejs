@@ -741,18 +741,18 @@ $.isXML( document.body );  // false
 获取元素 `el` 的类名集。注意不是 `$.attr(el, 'class')` 的结果，是一个名称集。非元素实参会返回一个 `null` 值。本接口也有**集合版**，会合并集合内所有元素的类名为一个一维数组。
 
 
-### [$.attr( el, name, value ): Value | Object | this](docs/$.attr.md)
+### [$.attr( el, names, value ): Value | Object | this](docs/$.attr.md)
 
 获取或修改 `el` 元素的特性（Attribute）值。**注**：`Attribute` 这里译为特性，后面的 `Property` 译为属性。
 
 - `el: Element` 操作的目标元素。
-- `name: String | Object | Map` 名称序列或**名/值**对配置对象。
+- `names: String | Object | Map` 名称序列或**名/值**对配置对象。
 - `value: String | Number | Boolean | Function | null | [Value]` 设置的特性值（集）或返回单个值的取值回调。传递 `null` 值会删除目标特性。
 
-当 `value` 未定义且 `name` 为字符串时为获取特性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `name` 为**名/值**对配置对象时为设置特性值。
+当 `value` 未定义且 `names` 为字符串时为获取特性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置特性值。
 
-- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
-- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+- 取值时：`names` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
+- 设置时：`names` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
 
 支持两个特别的特性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
@@ -772,18 +772,18 @@ $.isXML( document.body );  // false
 > 下 `.property()` 同此。
 
 
-### [$.prop( el, name, value ): Value | Object | this](docs/$.prop.md)
+### [$.prop( el, names, value ): Value | Object | this](docs/$.prop.md)
 
 获取或修改 `el` 元素的属性（Property）值。
 
 - `el: Element` 操作的目标元素。
-- `name: String | Object | Map` 名称序列或**名/值**对配置对象。
+- `names: String | Object | Map` 名称序列或**名/值**对配置对象。
 - `value: String | Number | Boolean | Function | null | [Value]` 设置的属性值（集）或返回单个值的取值回调。
 
-当 `value` 未定义且 `name` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `name` 为**名/值**对配置对象时为设置属性值。
+当 `value` 未定义且 `names` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置属性值。
 
-- 取值时：`name` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
-- 设置时：`name` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+- 取值时：`names` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
+- 设置时：`names` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
 
 与 `$.attr()` 相同，支持两个特别的属性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 

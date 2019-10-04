@@ -1563,7 +1563,7 @@ Object.assign( tQuery, {
      * - name支持空格分隔多个名称，返回一个键值对象。
      *
      * 设置：
-     * - value有值时，name为名称。支持值数组与空格分隔的多个名称一一对应。
+     * - value有值时，name为名称序列（空格分隔），value若为数组则一一对应。
      * - value支持取值回调获取目标值，接口：function( oldval, el )。
      * - value传递null会删除目标特性。
      * - value无值时，name为名值对象或Map，其中值同样支持取值回调。
@@ -1573,15 +1573,15 @@ Object.assign( tQuery, {
      * - Property 下面译为属性，表示运行时计算出来的，可直接赋值修改。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|Object|Map} name 名称（序列）或名/值对象
+     * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
-    attr( el, name, value ) {
-        if (value === undefined && typeof name == 'string') {
-            return hookGets(el, name.trim(), elemAttr);
+    attr( el, names, value ) {
+        if (value === undefined && typeof names == 'string') {
+            return hookGets(el, names.trim(), elemAttr);
         }
-        hookSets(el, name, value, elemAttr);
+        hookSets(el, names, value, elemAttr);
         return this;
     },
 
@@ -1617,15 +1617,15 @@ Object.assign( tQuery, {
      * - 与.attr()不同，value传递null会赋值为null（可能导致元素回到默认状态）。
      * - 支持两个特殊属性名：text、html，设置时为填充方式。
      * @param  {Element} el 目标元素
-     * @param  {String|Object|Map} name 名称（序列）或名/值对象
+     * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
-    prop( el, name, value ) {
-        if (value === undefined && typeof name == 'string') {
-            return hookGets(el, name.trim(), elemProp);
+    prop( el, names, value ) {
+        if (value === undefined && typeof names == 'string') {
+            return hookGets(el, names.trim(), elemProp);
         }
-        hookSets(el, name, value, elemProp);
+        hookSets(el, names, value, elemProp);
         return this;
     },
 
@@ -4276,10 +4276,6 @@ function cssSets( el, name, val, cso ) {
  * @param {CSSStyleDeclaration} cso 计算样式集
  */
 function cssArrSet( el, names, val, cso ) {
-    // 单名称时忽略值数组可能。
-    if ( names.length == 1 ) {
-        return cssSet( el, names[0], val, cso );
-    }
     if ( !isArr(val) ) {
         return names.forEach( n => cssSet(el, n, val, cso) );
     }
@@ -4590,10 +4586,6 @@ function hookSets( el, name, value, scope ) {
  * @param {Object} scope 适用域对象
  */
 function hookArrSet( el, names, val, scope ) {
-    // 单名称时应当忽略值特性！
-    if ( names.length == 1 ) {
-        return hookSet( el, names[0], val, scope );
-    }
     if ( !isArr(val) ) {
         return names.forEach( n => hookSet(el, n, val, scope) );
     }
