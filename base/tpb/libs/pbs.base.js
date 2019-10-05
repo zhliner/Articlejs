@@ -1336,6 +1336,42 @@ function existValue( obj, name, val ) {
 }
 
 
+/**
+ * 移除一个跟随指令。
+ * @param  {Cell} cell 当前指令单元
+ * @param  {Symbol} key 计数存储键
+ * @param  {Number} cnt 初始计数定义
+ * @return {Boolean} 是否已移除
+ */
+function pruneOne( cell, key, cnt, n ) {
+    if ( cell[key] < 0 ) {
+        return true;
+    }
+    if ( cell[key] == null ) {
+        cell[key] = +cnt || 0;
+    }
+    if ( cell[key] == 0 ) {
+        // 后阶移除
+        cell.next = cellNext( cell, n );
+    }
+    return --cell[key], false;
+}
+
+
+/**
+ * 获取指令链下阶指令。
+ * 可指定需要跳跃的单元数。
+ * @param {Cell} cell 指令单元
+ * @param {Number} n 跳跃计数。
+ */
+function cellNext( cell, n ) {
+    if ( n > 0 ) {
+        while ( n-- && cell ) cell = cell.next;
+    }
+    return cell && cell.next;
+}
+
+
 
 //
 // 特殊指令。
@@ -1350,29 +1386,23 @@ const
     __PRUNES = Symbol('prunes-count'),
 
     // entry/animate标记属性。
-    __ANIMATE = Symbol('animate-count');
+    __REENTER = Symbol('reenter-count');
 
 
 /**
- * 剪除后端跟随指令（单次）。
+ * 剪除后端跟随指令。
  * 允许后端指令执行cnt次，之后再移除。
+ * 可以指定移除的指令的数量（n）。
  * 目标：无。
  * 注：cnt传递负值没有效果，传递0值立即移除。
- * @param  {Number} cnt 执行次数
+ * @param  {Number} cnt 执行次数。可选，默认1
+ * @param  {Number} n 移除的指令数.可选，默认1
  * @return {void}
  */
-function prune( evo, cnt = 1 ) {
-    if ( this[__PRUNE] < 0 ) {
-        return;
+function prune( evo, cnt = 1, n = 1 ) {
+    if ( this.next) {
+        pruneOne( this, __PRUNE, cnt, n );
     }
-    if ( this[__PRUNE] == null ) {
-        this[__PRUNE] = +cnt || 0;
-    }
-    if ( this[__PRUNE] == 0 && this.next ) {
-        // 后阶移除
-        this.next = this.next.next;
-    }
-    -- this[__PRUNE];
 }
 
 // prune[EXTENT] = null;
@@ -1387,17 +1417,12 @@ function prune( evo, cnt = 1 ) {
  * @return {void}
  */
 function prunes( evo, cnt = 1 ) {
-    if ( this[__PRUNES] < 0 ) {
-        return;
+    if ( !this.next ) return;
+
+    if ( pruneOne(this, __PRUNES, cnt, 1) ) {
+        delete this[__PRUNES];
+        pruneOne( this, __PRUNES, cnt, 1 );
     }
-    if ( this[__PRUNES] == null ) {
-        this[__PRUNES] = +cnt || 0;
-    }
-    if ( this[__PRUNES] == 0 && this.next ) {
-        this.next = this.next.next;
-        this[__PRUNES] = +cnt || 0;
-    }
-    -- this[__PRUNES];
 }
 
 // prunes[EXTENT] = null;
@@ -1410,7 +1435,7 @@ function prunes( evo, cnt = 1 ) {
  * 主要用于动画类场景：前阶段收集初始数据，后阶段循环迭代执行动画。
  * 使用：
  *      entry           // 模板中主动设置（前提）。
- *      animate(...)    // 从entry下一指令开始执行。
+ *      reenter(...)    // 从entry下一指令开始执行。
  *      evo.entry(val)  // 指令/方法内使用。
  * 注：
  * 不作预绑定，this为当前指令单元（Cell）。
@@ -1420,7 +1445,7 @@ function prunes( evo, cnt = 1 ) {
 function entry( evo ) {
     // 初始标记。
     // 注记：执行流重启时复位。
-    evo[__ANIMATE] = true;
+    evo[__REENTER] = true;
 
     // 容错next无值。
     evo.entry = this.call.bind( this.next, evo );
@@ -1430,9 +1455,9 @@ function entry( evo ) {
 
 
 /**
- * 开启动画。
- * 实际上就是执行 entry 入口函数。
- * count 为迭代次数，负值表示无限。
+ * 重入流程。
+ * 即：执行 entry 入口函数。
+ * cnt 为迭代次数，负值表示无限。
  * val 为初次迭代传入 evo.entry() 的值（如果有，否则为当前条目）。
  * 每次重入会传入当前条目数据（如果有）。
  * 注：
@@ -1442,24 +1467,26 @@ function entry( evo ) {
  * @param  {Number} cnt 迭代次数
  * @return {void}
  */
-function animate( evo, cnt, val ) {
-    if ( evo[__ANIMATE] ) {
+function reenter( evo, cnt, val ) {
+    if ( evo[__REENTER] ) {
+        // 初始覆盖。
         if ( val !== undefined ) {
             evo.data = val;
         }
-        delete evo[__ANIMATE];
-        this[__ANIMATE] = +cnt || 0;
+        delete evo[__REENTER];
+        this[__REENTER] = +cnt || 0;
     }
-    if ( this[__ANIMATE] == 0 ) {
+    if ( this[__REENTER] == 0 ) {
         return;
     }
-    if ( this[__ANIMATE] > 0 ) {
-        -- this[__ANIMATE];
+    if ( this[__REENTER] > 0 ) {
+        -- this[__REENTER];
     }
     requestAnimationFrame( () => evo.entry(evo.data) );
 }
 
-animate[EXTENT] = 0;
+// 目标：当前条目，不自动取栈。
+reenter[EXTENT] = 0;
 
 
 
@@ -1477,7 +1504,7 @@ const Base = $.assign( Base, _Base, bindMethod );
 Base.prune = prune;
 Base.prunes = prunes;
 Base.entry = entry;
-Base.animate = animate;
+Base.reenter = reenter;
 
 
 // 基础集II（On/By共享）。

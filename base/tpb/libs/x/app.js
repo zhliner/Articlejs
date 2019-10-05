@@ -88,13 +88,15 @@ function Puller( evo, meth = 'index' ) {
 //
 // App存储区。
 //
-const AppStore = { pull: Puller };
+let AppStore = null;
 
 
 //
 // 扩展注入X库。
 //
-(function() { X.extend( 'App', AppStore ); })();
+(function() {
+    AppStore = X.extend( 'App', { pull: Puller } );
+})();
 
 
 //

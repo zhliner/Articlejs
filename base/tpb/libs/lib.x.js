@@ -14,15 +14,18 @@
 //
 //  静态扩展：
 //      import { X } from 'libs/lib.x.js'
-//      X.extend( name, {...}, acell )  在name子域上扩展指令
+//      X.extend( name, {...}, nobind ) 在name子域上扩展指令
 //
 //  动态扩展：
-//      Tpb.Lib.X.extend( name, {...}, acell )  在name子域上扩展指令
+//      Tpb.Lib.X.extend( name, {...}, nobind ) 在name子域上扩展指令
 //
 //  注：
-//  扩展库指令支持方法名前置双下划线（__）定义自动取栈数，默认会被设置为0。
-//  指令默认会绑定到宿主对象后存储进X子域空间，除非传递acell为真。
-//  支持嵌套的普通对象递归处理。
+//  单纯获取目标子域：X.extend( name, null )
+//
+//  说明：
+//  - 扩展指令支持名称前置双下划线（__）定义自动取栈数，默认会被设置为0。
+//  - 默认会将指令绑定到宿主对象后存储，除非nobind为真，此时指令的this为当前指令对象（Cell）。
+//  - 内嵌的子集指令（普通对象封装）会被递进处理（合并方式）。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,10 +37,15 @@ const $ = window.$;
 
 
 // X扩展存储区。
+// 预置部分功能域。
 const _X = {
-    // 功能函数区。
-    // 主要用于By系中顶层指令对X库的引用。
-    Fun: {}
+    Fun:  {},   // 功能函数区（主要用于By系引用）
+    App:  {},   // 网页App域（.pull, .[Xxx].run...）
+    Math: {},   // 数学算法区
+    Ease: {},   // 缓动计算区（.Linear...）
+    Eff:  {},   // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
+    Grid: {},   // CSS网格布局域（.Area）
+    Flow: {},   // CSS弹性布局域
 };
 
 
@@ -47,9 +55,9 @@ const _X = {
 // 注：
 // 取栈数默认会设置为0，除非明确设置为null。
 //
-function bindMethod( f, k, obj ) {
+function bindMethod( f, k, obj, to ) {
     if ( $.type(f) == 'Object' ) {
-        return [ $.assign({}, f, bindMethod) ];
+        return [ $.assign(to[k] || {}, f, bindMethod) ];
     }
     if ( !$.isFunction(f) ) {
         return [ f ];
@@ -91,14 +99,14 @@ function setMethod( f, k, obj ) {
  * 子域是一级分组，内部的重名成员会被覆盖。
  * 注：
  * 如果扩展到一个尚未存在的子域，会自动新建该子域。
- * 如果方法需要访问指令单元（this:Cell），传递acell为真。
+ * 如果方法需要访问指令单元（this:Cell），传递iscell为真。
  *
  * @param  {String} name 扩展域
  * @param  {Object} exts 扩展集
- * @param  {Boolean} acell 需要访问Cell实例，可选。
- * @return {void}
+ * @param  {Boolean} nobind 需要访问Cell实例，可选。
+ * @return {Object} 目标子域
  */
-function extend( name, exts, acell = false ) {
+function extend( name, exts, nobind ) {
     let _o = _X[name];
 
     if ( !_o ) {
@@ -109,9 +117,9 @@ function extend( name, exts, acell = false ) {
     else if ( $.type(_o) != 'Object' ) {
         throw new Error(`the ${name} field is not a Object.`);
     }
-    let _f = acell ? setMethod : bindMethod;
+    let _f = nobind ? setMethod : bindMethod;
 
-    $.assign( _o, exts, _f );
+    return $.assign( _o, exts, _f );
 }
 
 
@@ -124,3 +132,4 @@ function extend( name, exts, acell = false ) {
 // 用原型空间存储。
 //
 export const X = $.proto( { extend }, _X );
+
