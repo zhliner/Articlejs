@@ -45,7 +45,7 @@
                     <ol>
                         <li><a href="#块单元">块单元</a>
                             <ol>
-                                <li><a href="#容器类">容器类</a></li>
+                                <li><a href="#结构类">结构类</a></li>
                                 <li><a href="#内容类">内容类</a></li>
                             </ol>
                         </li>
@@ -154,19 +154,18 @@
             <section>
                 <h3 id="块单元">块单元</h3>
                 <header>
-                    <p>块单元会占据单独的一行，在CSS中的显示属性是
-                        <code>display:block</code>。块单元又分为两种，一种是需要包含其它元素的<strong>容器类</strong>，一种是可以直接包含文本内容的<strong>内容类</strong>。
+                    <p>块单元会占据单独的一行，在CSS中的显示属性是<code>display:block</code>。块单元又分为两种，一种是需要包含其它元素的<strong>结构类</strong>，一种是可以直接包含文本内容的<strong>内容类</strong>。
                     </p>
                 </header>
                 <section>
-                    <h4 id="容器类">容器类</h4>
+                    <h4 id="结构类">结构类</h4>
                     <section role="content" class="content">
                         <p>内部不能直接包含行内元素（如文本、图片等），如果没有标准的内部元素，则必须采用通用的 <code>&lt;p&gt;</code> 段落容纳。</p>
                         <pre>
 <code data-lang="html">&lt;header role="summary"&gt;&lt;/header&gt;    <b class="cmt">&lt;!-- 摘要：/h3, p... --&gt;</b>
 &lt;nav role="toc"&gt;&lt;/nav&gt;              <b class="cmt">&lt;!-- 目录：/h4/a, ol/li/a（可多级） --&gt;</b>
 &lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言：/p... --&gt;</b>
-&lt;section&gt;&lt;/section&gt;                 <b class="cmt">&lt;!-- 片区：/section... --&gt;</b>
+&lt;section&gt;&lt;/section&gt;                 <b class="cmt">&lt;!-- 片区：/section/h2-h6, ... --&gt;</b>
 &lt;section role="content"&gt;&lt;/section&gt;  <b class="cmt">&lt;!-- 正文区：/[^hx, section]... --&gt;</b>
 &lt;ul&gt;&lt;/ul&gt;                           <b class="cmt">&lt;!-- 无序列表：/li/... --&gt;</b>
 &lt;ul role="seealso&gt;&lt;/ul&gt;             <b class="cmt">&lt;!-- 另参见：/li/... --&gt;</b>
@@ -189,10 +188,10 @@
                     <h4 id="内容类">内容类</h4>
                     <section>
                         <pre>
-<code data-lang="html">&lt;hr /&gt;                      <b class="cmt">&lt;!-- 线条 --&gt;</b>
-&lt;p&gt;&lt;/p&gt;                     <b class="cmt">&lt;!-- 段落，通用内容容器 --&gt;</b>
+<code data-lang="html">&lt;p&gt;&lt;/p&gt;                     <b class="cmt">&lt;!-- 段落，通用内容容器 --&gt;</b>
 &lt;address&gt;&lt;/address&gt;         <b class="cmt">&lt;!-- 地址信息 --&gt;</b>
 &lt;pre&gt;&lt;/pre&gt;                 <b class="cmt">&lt;!-- 预排版（非代码块） --&gt;</b>
+&lt;hr /&gt;                      <b class="cmt">&lt;!-- 线条（划归为内容） --&gt;</b>
 </code></pre>
                     </section>
                 </section>
