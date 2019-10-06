@@ -75,7 +75,7 @@
                             <ol>
                                 <li><a href="#摘要">摘要</a></li>
                                 <li><a href="#目录">目录</a></li>
-                                <li><a href="#终端内容区">终端内容区</a></li>
+                                <li><a href="#正文区">正文区</a></li>
                                 <li><a href="#多级编号列表">多级编号列表</a></li>
                                 <li><a href="#代码表">代码表</a></li>
                             </ol>
@@ -115,17 +115,17 @@
     &lt;header role="summary"&gt;&lt;/header&gt;            <b class="cmt">&lt;!-- 摘要 --&gt;</b>
     &lt;nav role="toc" class="toc"&gt;&lt;/nav&gt;          <b class="cmt">&lt;!-- 目录 --&gt;</b>
     &lt;header&gt;&lt;/header&gt;                           <b class="cmt">&lt;!-- 导言 --&gt;</b>
-    &lt;section&gt; &lt;h2&gt;&lt;/h2&gt;                         <b class="cmt">&lt;!-- 章容器：标题。第一层 &lt;section&gt; --&gt;</b>
+    &lt;section&gt; &lt;h2&gt;&lt;/h2&gt;                         <b class="cmt">&lt;!-- 章片区/标题。第一层 section --&gt;</b>
         &lt;header&gt;&lt;/header&gt;                       <b class="cmt">&lt;!-- 导言 --&gt;</b>
-        &lt;section&gt; &lt;h3&gt;&lt;/h3&gt;                     <b class="cmt">&lt;!-- 节容器：标题。第二层 &lt;section&gt; --&gt;</b>
+        &lt;section&gt; &lt;h3&gt;&lt;/h3&gt;                     <b class="cmt">&lt;!-- 节片区/标题。第二层 section --&gt;</b>
             &lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言 --&gt;</b>
-            &lt;section&gt; &lt;h4&gt;&lt;/h4&gt;                 <b class="cmt">&lt;!-- 区容器：标题。第三层 &lt;section&gt; --&gt;</b>
+            &lt;section&gt; &lt;h4&gt;&lt;/h4&gt;                 <b class="cmt">&lt;!-- 区片区/标题。第三层 section --&gt;</b>
                 &lt;header&gt;&lt;/header&gt;               <b class="cmt">&lt;!-- 导言 --&gt;</b>
-                &lt;section&gt; &lt;h5&gt;&lt;/h5&gt;             <b class="cmt">&lt;!-- 段容器：标题。第四层 &lt;section&gt; --&gt;</b>
+                &lt;section&gt; &lt;h5&gt;&lt;/h5&gt;             <b class="cmt">&lt;!-- 段片区/标题。第四层 section --&gt;</b>
                     &lt;header&gt;&lt;/header&gt;           <b class="cmt">&lt;!-- 导言 --&gt;</b>
-                    &lt;section&gt; &lt;h6&gt;&lt;/h6&gt;         <b class="cmt">&lt;!-- 末容器：标题。第五层 &lt;section&gt; --&gt;</b>
+                    &lt;section&gt; &lt;h6&gt;&lt;/h6&gt;         <b class="cmt">&lt;!-- 末片区/标题。第五层 section --&gt;</b>
                         &lt;section role="content" class="content"&gt;
-                            [块单元内容]...      <b class="cmt">&lt;!-- 终端内容区 --&gt;</b>
+                            [块单元内容]...      <b class="cmt">&lt;!-- 内容/正文 --&gt;</b>
                         &lt;/section&gt;
                     &lt;/section&gt;&lt;/section&gt;&lt;/section&gt;&lt;/section&gt;&lt;/section&gt;
     &lt;hr /&gt;                                      <b class="cmt">&lt;!-- 间隔 --&gt;</b>
@@ -136,7 +136,7 @@
                     <p><strong>解析逻辑：</strong></p>
                     <ul>
                         <li>如果内容包含多个层级（标题），在上级标题和首个下级标题之间的内容被视为 <code>&lt;header&gt;</code> 部分。</li>
-                        <li>如果内部已经没有下级标题，则全部视为内容，由一个 <code>&lt;section role="content"&gt;</code> 包含。它被称为 <code>终端内容区</code>，无导言和标题部分。</li>
+                        <li>如果内部已经没有下级标题，则全部视为内容，由一个 <code>&lt;section role="content"&gt;</code> 包含。它被称为 <code>正文区</code>，无导言和标题部分。</li>
                         <li>如果内部的下级标题不是顺次递增而是跨级了，则解析为内容区容器（内部子标题继续解析）。这违反了标准的层次结构，通常是内容的组织不够合理。</li>
                         <li>除了终端内容区，一个层级中最多只包含3种子元素：<code>h2-h6</code>、<code>header</code>（前段）和可能多个 <code>section</code> 单元。</li>
                     </ul>
@@ -163,24 +163,25 @@
                     <section role="content" class="content">
                         <p>内部不能直接包含行内元素（如文本、图片等），如果没有标准的内部元素，则必须采用通用的 <code>&lt;p&gt;</code> 段落容纳。</p>
                         <pre>
-<code data-lang="html">&lt;header role="summary"&gt;&lt;/header&gt;    <b class="cmt">&lt;!-- 摘要 --&gt;</b>
-&lt;nav role="toc"&gt;&lt;/nav&gt;              <b class="cmt">&lt;!-- 目录 --&gt;</b>
-&lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言 --&gt;</b>
-&lt;section&gt;&lt;/section&gt;                 <b class="cmt">&lt;!-- 片区 --&gt;</b>
-&lt;section role="content"&gt;&lt;/section&gt;  <b class="cmt">&lt;!-- 终端内容区 --&gt;</b>
-&lt;ul&gt;&lt;/ul&gt;                           <b class="cmt">&lt;!-- 无序列表 --&gt;</b>
-&lt;ul role="seealso&gt;&lt;/ul&gt;             <b class="cmt">&lt;!-- 另参见 --&gt;</b>
-&lt;ol&gt;&lt;/ol&gt;                           <b class="cmt">&lt;!-- 有序列表 --&gt;</b>
-&lt;ol role="cascade"&gt;&lt;/ol&gt;            <b class="cmt">&lt;!-- 多级编号列表 --&gt;</b>
-&lt;ol role="codes&gt;&lt;/ol&gt;               <b class="cmt">&lt;!-- 代码表（有行号） --&gt;</b>
-&lt;ol role="references&gt;&lt;/ol&gt;          <b class="cmt">&lt;!-- 文献参考 --&gt;</b>
-&lt;dl&gt;&lt;/dl&gt;                           <b class="cmt">&lt;!-- 定义列表 --&gt;</b>
-&lt;table&gt;&lt;/table&gt;                     <b class="cmt">&lt;!-- 表格 --&gt;</b>
-&lt;figure&gt;&lt;/figure&gt;                   <b class="cmt">&lt;!-- 插图 --&gt;</b>
-&lt;blockquote&gt;&lt;/blockquote&gt;           <b class="cmt">&lt;!-- 引用块 --&gt;</b>
-&lt;aside&gt;&lt;/aside&gt;                     <b class="cmt">&lt;!-- 批注 --&gt;</b>
-&lt;details&gt;&lt;/details&gt;                 <b class="cmt">&lt;!-- 详细内容 --&gt;</b>
-&lt;footer&gt;&lt;/footer&gt;                   <b class="cmt">&lt;!-- 尾注 --&gt;</b>
+<code data-lang="html">&lt;header role="summary"&gt;&lt;/header&gt;    <b class="cmt">&lt;!-- 摘要：/h3, p... --&gt;</b>
+&lt;nav role="toc"&gt;&lt;/nav&gt;              <b class="cmt">&lt;!-- 目录：/h4/a, ol/li/a（可多级） --&gt;</b>
+&lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言：/p... --&gt;</b>
+&lt;section&gt;&lt;/section&gt;                 <b class="cmt">&lt;!-- 片区：/section... --&gt;</b>
+&lt;section role="content"&gt;&lt;/section&gt;  <b class="cmt">&lt;!-- 正文区：/[^hx, section]... --&gt;</b>
+&lt;ul&gt;&lt;/ul&gt;                           <b class="cmt">&lt;!-- 无序列表：/li/... --&gt;</b>
+&lt;ul role="seealso&gt;&lt;/ul&gt;             <b class="cmt">&lt;!-- 另参见：/li/... --&gt;</b>
+&lt;ol&gt;&lt;/ol&gt;                           <b class="cmt">&lt;!-- 有序列表：/li/... --&gt;</b>
+&lt;ol role="cascade"&gt;&lt;/ol&gt;            <b class="cmt">&lt;!-- 多级编号列表：/li/ol, ul/li... --&gt;</b>
+&lt;ol role="codes&gt;&lt;/ol&gt;               <b class="cmt">&lt;!-- 代码表：/li/code/... --&gt;</b>
+&lt;ol role="references&gt;&lt;/ol&gt;          <b class="cmt">&lt;!-- 文献参考：/li/... --&gt;</b>
+&lt;dl&gt;&lt;/dl&gt;                           <b class="cmt">&lt;!-- 定义列表：/dt,dd/... --&gt;</b>
+&lt;table&gt;&lt;/table&gt;                     <b class="cmt">&lt;!-- 表格：/caption, thead, tbody, tfoot/tr/td/... --&gt;</b>
+&lt;figure&gt;&lt;/figure&gt;                   <b class="cmt">&lt;!-- 插图：/figcaption, p... --&gt;</b>
+&lt;blockquote&gt;&lt;/blockquote&gt;           <b class="cmt">&lt;!-- 引用块：/p... --&gt;</b>
+&lt;aside&gt;&lt;/aside&gt;                     <b class="cmt">&lt;!-- 批注：/p... --&gt;</b>
+&lt;details&gt;&lt;/details&gt;                 <b class="cmt">&lt;!-- 详细内容：/sumary, p... --&gt;</b>
+&lt;footer&gt;&lt;/footer&gt;                   <b class="cmt">&lt;!-- 尾注：/p... --&gt;</b>
+&lt;pre&gt;&lt;/pre&gt;                         <b class="cmt">&lt;!-- 代码块：/code/... --&gt;</b>
 </code></pre>
                     </section>
                 </section>
@@ -191,7 +192,7 @@
 <code data-lang="html">&lt;hr /&gt;                      <b class="cmt">&lt;!-- 线条 --&gt;</b>
 &lt;p&gt;&lt;/p&gt;                     <b class="cmt">&lt;!-- 段落，通用内容容器 --&gt;</b>
 &lt;address&gt;&lt;/address&gt;         <b class="cmt">&lt;!-- 地址信息 --&gt;</b>
-&lt;pre&gt;&lt;/pre&gt;                 <b class="cmt">&lt;!-- 预排版 --&gt;</b>
+&lt;pre&gt;&lt;/pre&gt;                 <b class="cmt">&lt;!-- 预排版（非代码块） --&gt;</b>
 </code></pre>
                     </section>
                 </section>
@@ -199,12 +200,12 @@
             <section>
                 <h3 id="行内单元">行内单元</h3>
                 <section role="content" class="content">
-                    <p>只能被包含在内容类块单元里，如：<code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等。代码块 <code>&lt;code role="block"&gt;</code> 内的行内单元有固定的规则。</p>
+                    <p>只能被包含在 <strong>内容类</strong> 块单元里（如：<code>&lt;p&gt;</code>），共 30 个。代码块<code>&lt;pre&gt;&lt;code&gt;</code> 内的元素有固定的规则。</p>
                     <pre>
 <code data-lang="html">&lt;img /&gt;                     <b class="cmt">&lt;!-- 图片 --&gt;</b>
-&lt;audio&gt;&lt;/audio&gt;             <b class="cmt">&lt;!-- 音频，子元素限定 --&gt;</b>
-&lt;video&gt;&lt;/video&gt;             <b class="cmt">&lt;!-- 视频，子元素限定 --&gt;</b>
-&lt;picture&gt;&lt;/picture&gt;         <b class="cmt">&lt;!-- 图片，子元素限定 --&gt;</b>
+&lt;audio&gt;&lt;/audio&gt;             <b class="cmt">&lt;!-- 音频：/track,source, #text --&gt;</b>
+&lt;video&gt;&lt;/video&gt;             <b class="cmt">&lt;!-- 视频：/track,source, #text --&gt;</b>
+&lt;picture&gt;&lt;/picture&gt;         <b class="cmt">&lt;!-- 图片：/source,img --&gt;</b>
 &lt;a&gt;&lt;/a&gt;                     <b class="cmt">&lt;!-- 链接 --&gt;</b>
 &lt;strong&gt;&lt;/strong&gt;           <b class="cmt">&lt;!-- 重点 --&gt;</b>
 &lt;em&gt;&lt;/em&gt;                   <b class="cmt">&lt;!-- 强调 --&gt;</b>
@@ -220,7 +221,7 @@
 &lt;mark&gt;&lt;/mark&gt;               <b class="cmt">&lt;!-- 标记 --&gt;</b>
 &lt;code&gt;&lt;/code&gt;               <b class="cmt">&lt;!-- 代码 --&gt;</b>
 &lt;code role="orz"&gt;&lt;/code&gt;    <b class="cmt">&lt;!-- 表情 --&gt;</b>
-&lt;ruby&gt;&lt;/ruby&gt;               <b class="cmt">&lt;!-- 注音，内含：&lt;rt&gt;&lt;rp&gt; --&gt;</b>
+&lt;ruby&gt;&lt;/ruby&gt;               <b class="cmt">&lt;!-- 注音：/rb,rp,rt --&gt;</b>
 &lt;dfn&gt;&lt;/dfn&gt;                 <b class="cmt">&lt;!-- 定义 --&gt;</b>
 &lt;samp&gt;&lt;/samp&gt;               <b class="cmt">&lt;!-- 样本 --&gt;</b>
 &lt;kbd&gt;&lt;/kbd&gt;                 <b class="cmt">&lt;!-- 键盘字 --&gt;</b>
@@ -229,8 +230,8 @@
 &lt;var&gt;&lt;/var&gt;                 <b class="cmt">&lt;!-- 变量 --&gt;</b>
 &lt;bdo&gt;&lt;/bdo&gt;                 <b class="cmt">&lt;!-- 文本方向 --&gt;</b>
 &lt;meter&gt;&lt;/meter&gt;             <b class="cmt">&lt;!-- 度量 --&gt;</b>
-&lt;b&gt;                         <b class="cmt">&lt;!-- 粗体，主要用于代码块内的着色包装 --&gt;</b>
-&lt;i&gt;                         <b class="cmt">&lt;!-- 斜体，主要用于图标占位（CSS背景方式） --&gt;</b>
+&lt;b&gt;&lt;/b&gt;                     <b class="cmt">&lt;!-- 粗体：主要用于代码块内的关键字包裹 --&gt;</b>
+&lt;i&gt;&lt;/i&gt;                     <b class="cmt">&lt;!-- 斜体：主要用于图标占位（icon） --&gt;</b>
 </code></pre>
                 </section>
             </section>
@@ -381,7 +382,7 @@
                     <section role="content" class="content">
                         <pre>
 <code data-lang="html">&lt;ruby&gt;
-    漢 &lt;rt&gt; ㄏㄢˋ &lt;/rt&gt;
+    &lt;rb&gt;漢&lt;/rb&gt;&lt;rp&gt;(&lt;/rp&gt;&lt;rt&gt;ㄏㄢˋ&lt;/rt&gt;&lt;rp&gt;)&lt;/rp&gt;
 &lt;/ruby&gt;
 </code></pre>
                     </section>
@@ -414,7 +415,7 @@
                     </section>
                 </section>
                 <section>
-                    <h4 id="终端内容区">终端内容区</h4>
+                    <h4 id="正文区">正文区</h4>
                     <section role="content" class="content">
                         <pre>
 <code data-lang="html">&lt;section role="content" class="content"&gt;
