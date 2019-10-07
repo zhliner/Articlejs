@@ -150,7 +150,56 @@ const CellMap = {
 };
 
 
+//
+// 内容单元。
+//
+class Conitem {
 
+    constructor( el, name ) {
+        this._name;
+        //
+    }
+
+
+    /**
+     * 获取/设置标题内容。
+     * 获取时传递con为true，返回标题源码，否则返回文本。
+     * 设置时支持字符串和节点/集，返回当前实例。
+     * 注：
+     * 如果缺少标题元素，获取时返回null，设置时自动创建。
+     * 对于无需标题结构的单元，获取返回false。
+     * @param {String|Node|[Node]|true} con 插入内容或获取标记
+     * @param {Boolean} ishtml 是否HTML方式插入，可选
+     * @return {Element|null|false|this}
+     */
+    heading( con, ishtml ) {
+        //
+    }
+
+
+    /**
+     * 获取/设置导言。
+     * 获取时返回内容成员（子元素）集。
+     * 如果是无需导言结构的单元，返回false。
+     * @param  {String|[String]Element|[Element]} its 内容序列
+     * @return {[Element]|false|this}
+     */
+    header( its ) {
+        //
+    }
+
+
+    /**
+     * 获取/设置内容。
+     * 获取时返回内容单元集。
+     * 设置时返回当前实例。
+     * @param  {String|[String]Element|[Element]} its 内容序列
+     * @return {[Element]|this}
+     */
+    content( its ) {
+        //
+    }
+}
 
 
 /**

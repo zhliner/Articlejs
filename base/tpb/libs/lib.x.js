@@ -94,12 +94,38 @@ function setMethod( f, k, obj ) {
 
 
 /**
+ * 获取目标子域。
+ * 如果目标子域不存在，则自动创建。
+ * 子域链上的子域必须都是普通对象类型（Object）。
+ * @param {[String]} names 子域链
+ * @param {Object} obj 取值顶级域
+ */
+function subObj( names, obj ) {
+    let _sub;
+
+    for (const name of names) {
+        _sub = obj[name];
+        if ( !_sub ) {
+            obj[name] = _sub = {};
+            window.console.info(`add a new ${name}{} scope.`);
+        }
+        // 函数保护。
+        else if ( $.type(_sub) != 'Object' ) {
+            throw new Error(`the ${name} field is not a Object.`);
+        }
+    }
+    return _sub;
+}
+
+
+/**
  * 接口：子域扩展。
  * 扩展中的方法默认会绑定（bind）到所属宿主对象。
- * 子域是一级分组，内部的重名成员会被覆盖。
+ * 子域是一种分组，支持句点分隔的子域链。
+ * 最终的目标子域内的成员是赋值逻辑，重名会被覆盖。
  * 注：
- * 如果扩展到一个尚未存在的子域，会自动新建该子域。
- * 如果方法需要访问指令单元（this:Cell），传递iscell为真。
+ * 如果目标子域不存在，会自动创建，包括中间层级的子域。
+ * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
  *
  * @param  {String} name 扩展域
  * @param  {Object} exts 扩展集
@@ -107,19 +133,11 @@ function setMethod( f, k, obj ) {
  * @return {Object} 目标子域
  */
 function extend( name, exts, nobind ) {
-    let _o = _X[name];
+    let _f = nobind ?
+        setMethod :
+        bindMethod;
 
-    if ( !_o ) {
-        window.console.info(`add a new X.${name} scope.`);
-        _X[name] = _o = {};
-    }
-    // 保护顶层函数。
-    else if ( $.type(_o) != 'Object' ) {
-        throw new Error(`the ${name} field is not a Object.`);
-    }
-    let _f = nobind ? setMethod : bindMethod;
-
-    return $.assign( _o, exts, _f );
+    return $.assign( subObj(name.split('.'), _X), exts, _f );
 }
 
 
