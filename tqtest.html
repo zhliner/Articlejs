@@ -136,6 +136,7 @@ p.ani {
     <section id="s1" on="hello('fine, it\'s ok.')">
         <p>The first paragraph.</p>
         <p>The second paragraph.</p>
+        <hr width="100" size="5">
     </section>
     <form name="frm" id="frm">
         <p>请选择操作系统&浏览器：</p>
@@ -346,28 +347,49 @@ p.ani {
     <input type="submit" value="提交" />
     </form>
 
-    <table border="1" id="tbl">
+    <table border="1" id="tbl" width="50%">
         <caption>这是一个表格的标题</caption>
-        <tr class="_odd">
-            <th>1</th>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td rowSpan="2">&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr class="_even">
-            <th>2</th>
-            <td rowSpan="2" colSpan="2">&nbsp;</td>
-            <td id="td01">&nbsp;</td>
-        </tr>
-        <tr class="_odd">
-            <th>3</th>
-            <td colSpan="2">&nbsp;</td>
-        </tr>
-        <tr class="_even">
-            <th>4</th>
-            <td>----</td>
-        </tr>
+        <caption>这是一个表格的标题22</caption>
+        <thead>
+            <tr>
+                <td>TH1</td>
+                <td>TH2</td>
+                <td>TH3</td>
+                <td>TH4</td>
+                <td>TH5</td>
+            </tr>
+        </thead>
+        <thead>
+            <tr>
+                <td>THx1</td>
+                <td>THx2</td>
+                <td>THx3</td>
+                <td>THx4</td>
+                <td>THx5</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="_odd">
+                <th>1</th>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td rowSpan="2">&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr class="_even">
+                <th>2</th>
+                <td rowSpan="2" colSpan="2">&nbsp;</td>
+                <td id="td01">&nbsp;</td>
+            </tr>
+            <tr class="_odd">
+                <th>3</th>
+                <td colSpan="2">&nbsp;</td>
+            </tr>
+            <tr class="_even">
+                <th>4</th>
+                <td>----</td>
+            </tr>
+        </tbody>
     </table>
     <div id="root">
         <div id="ibox">

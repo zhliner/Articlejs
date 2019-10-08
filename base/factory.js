@@ -9,63 +9,65 @@
 //	内容单元创建工厂。
 //
 //  结构块：
-//      <header role="summary">     // 摘要：/h3, p... -->
-//      <nav role="toc">            // 目录：/h4/a, ol/li/a（可多级） -->
-//      <header>                    // 导言：/p... -->
-//      <section>                   // 片区：/section/h2-h6, ... -->
-//      <section role="content">    // 正文区：/[^hx, section]... -->
-//      <ul>                        // 无序列表：/li/... -->
-//      <ul role="seealso">         // 另参见：/li/... -->
-//      <ol>                        // 有序列表：/li/... -->
-//      <ol role="cascade">         // 多级编号列表：/li/ol, ul/li... -->
-//      <ol role="codes">           // 代码表：/li/code/b, #text -->
-//      <ol role="references">      // 文献参考：/li/... -->
-//      <dl>                        // 定义列表：/dt, dd/... -->
-//      <table>                     // 表格：/caption, thead, tbody, tfoot/tr/td/... -->
-//      <figure>                    // 插图：/figcaption, p... -->
-//      <blockquote>                // 引用块：/p... -->
-//      <aside>                     // 批注：/p... -->
-//      <details>                   // 详细内容：/sumary, p... -->
-//      <footer>                    // 尾注：/p... -->
-//      <pre>                       // 代码块：/code/b, #text -->
+//      <header role="summary">     // 摘要：/h3, p...
+//      <nav role="toc">            // 目录：/h4/a, ol/li/a（可多级）
+//      <header>                    // 导言：/h4, p...
+//      <footer>                    // 尾注：/h4, p...
+//      <section>                   // 片区：/section/h2-h6, ...
+//      <section role="content">    // 正文区：/[^hx, section]...
+//      <ul>                        // 无序列表：/li/...
+//      <ul role="seealso">         // 另参见：/li/...
+//      <ol>                        // 有序列表：/li/...
+//      <ol role="cascade">         // 多级编号列表：/li/ol, ul/li...
+//      <ol role="codes">           // 代码表：/li/code/b, #text
+//      <ol role="references">      // 文献参考：/li/...
+//      <dl>                        // 定义列表：/dt, dd/...
+//      <table>                     // 表格：/caption, thead, tbody, tfoot/tr/td/...
+//      <figure>                    // 插图：/figcaption, p...
+//      <blockquote>                // 引用块：/h4, p...
+//      <aside>                     // 批注：/h4, p...
+//      <details>                   // 详细内容：/summary, p...
+//      <pre role="blockcode">      // 代码块：/code/b, #text
 //
 //  内容块：
-//      <hr/>               // 线条
-//      <p>                 // 段落，通用内容容器
-//      <address>           // 地址信息
-//      <pre>               // 预排版（非代码块）
+//      <p>                         // 段落，通用内容容器
+//      <address>                   // 地址信息
+//      <pre>                       // 预排版（非代码块）
+//      <hr/>                       // 线条
+//      <div role="space">          // 空白块：可用于交互展示
 //
 //  行内单元：
-//      <img/>              // 图片
-//      <audio>             // 音频：/track,source, #text
-//      <video>             // 视频：/track,source, #text
-//      <picture>           // 图片：/source,img
-//      <a>                 // 链接
-//      <strong>            // 重点
-//      <em>                // 强调
-//      <q>                 // 短引用
-//      <abbr>              // 缩写
-//      <cite>              // 来源
-//      <small>             // 注脚
-//      <time>              // 时间
-//      <del>               // 删除
-//      <ins>               // 插入
-//      <sub>               // 下标
-//      <sup>               // 上标
-//      <mark>              // 标记
-//      <code>              // 代码
-//      <code role="orz">   // 表情
-//      <ruby>              // 注音：/rb, rp, rt
-//      <dfn>               // 定义
-//      <samp>              // 样本
-//      <kbd>               // 键盘字
-//      <s>                 // 失效
-//      <u>                 // 注记
-//      <var>               // 变量
-//      <bdo>               // 文本方向
-//      <meter>             // 度量
-//      <b>                 // 粗体，主要用于代码块内的关键字包裹
-//      <i>                 // 斜体，主要用于图标占位（icon）
+//      <audio>                 // 音频：/track,source, #text
+//      <video>                 // 视频：/track,source, #text
+//      <picture>               // 图片：/source,img
+//      <a>                     // 链接
+//      <strong>                // 重点
+//      <em>                    // 强调
+//      <q>                     // 短引用
+//      <abbr>                  // 缩写
+//      <cite>                  // 来源
+//      <small>                 // 注脚
+//      <time>                  // 时间
+//      <del>                   // 删除
+//      <ins>                   // 插入
+//      <sub>                   // 下标
+//      <sup>                   // 上标
+//      <mark>                  // 标记
+//      <code>                  // 代码
+//      <code role="orz">       // 表情
+//      <ruby>                  // 注音：/rb, rp, rt
+//      <dfn>                   // 定义
+//      <samp>                  // 样本
+//      <kbd>                   // 键盘字
+//      <s>                     // 失效
+//      <u>                     // 注记
+//      <var>                   // 变量
+//      <bdo>                   // 文本方向
+//      <meter>                 // 度量
+//      <b>                     // 粗体，主要用于代码块内的关键字包裹
+//      <i>                     // 斜体，主要用于图标占位（icon）
+//      <img/>                  // 图片
+//      <span role="blank">     // 空白段
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,78 +78,84 @@
 // 单元映射 {
 //      name: [tags, role]
 // }
-// tags：基础标签结构，可能包含一个主要子单元。
+// tags：基础元素结构，可能附带基本标题。
+// role：角色名称，书写在根元素的 role 属性上。
+//
+// 注：用于创建初始的目标单元。
 //
 const CellMap = {
 
     // 块容器
     // ------------------------------------------
-    summary:    ['header/h3', 'summary'],
-    toc:        ['nav/h4', 'toc'],
-    header:     ['header/p'],
+    Summary:    ['header/h3', 'summary'],
+    Toc:        ['nav/h4', 'toc'],
+    Header:     ['header/h4'],
+    Footer:     ['footer/h4'],
     S1:         ['section/h2'],
     S2:         ['section/h3'],
     S3:         ['section/h4'],
     S4:         ['section/h5'],
     S5:         ['section/h6'],
-    content:    ['section', 'content'],
-    ul:         ['ul/li'],
-    seealso:    ['ul/li', 'seealso'],
-    ol:         ['ol/li'],
-    cascade:    ['ol/li', 'cascade'],
-    codes:      ['ol/li', 'codes'],
-    references: ['ol/li', 'references'],
-    dl:         ['dl/dt'],
+    Content:    ['section', 'content'],
+    Ul:         ['ul/li'],
+    Seealso:    ['ul/li', 'seealso'],
+    Ol:         ['ol/li'],
+    Cascade:    ['ol/li', 'cascade'],
+    Codes:      ['ol/li', 'codes'],
+    References: ['ol/li', 'references'],
+    Dl:         ['dl/dt'],
     // table:      ['table/'],  // 特例，单独处理
-    figure:     ['figure/figcaption'],
-    blockquote: ['blockquote/p'],
-    aside:      ['aside/p'],
-    details:    ['details/summary'],
-    footer:     ['footer/p'],
-    blockcode:  ['pre/code'],
+    Figure:     ['figure/figcaption'],
+    Blockquote: ['blockquote/h4'],
+    Aside:      ['aside/h4'],
+    Details:    ['details/summary'],
+    Blockcode:  ['pre/code', 'blockcode'],
 
 
     // 块内容
     // ------------------------------------------
-    p:          ['p'],
-    address:    ['address'],
-    pre:        ['pre'],
-    hr:         ['hr'],
+    P:          ['p'],
+    Address:    ['address'],
+    Pre:        ['pre'],
+    Hr:         ['hr'],
+    Space:      ['div', 'space'],
 
 
     // 行内单元
     // ------------------------------------------
-    img:        ['img'],
-    audio:      ['audio'],
-    video:      ['video'],
-    picture:    ['picture'],
-    a:          ['a'],
-    strong:     ['strong'],
-    em:         ['em'],
-    q:          ['q'],
-    abbr:       ['abbr'],
-    cite:       ['cite'],
-    small:      ['small'],
-    time:       ['time'],
-    del:        ['del'],
-    ins:        ['ins'],
-    sub:        ['sub'],
-    sup:        ['sup'],
-    mark:       ['mark'],
-    code:       ['code'],
-    orz:        ['code', 'orz'],
-    ruby:       ['ruby/rb'],
-    dfn:        ['dfn'],
-    samp:       ['samp'],
-    kbd:        ['kbd'],
-    s:          ['s'],
-    u:          ['u'],
-    var:        ['var'],
-    bdo:        ['bdo'],
-    meter:      ['meter'],
-    b:          ['b'],
-    i:          ['i'],
+    Audio:      ['audio'],
+    Video:      ['video'],
+    Picture:    ['picture'],
+    A:          ['a'],
+    Strong:     ['strong'],
+    Em:         ['em'],
+    Q:          ['q'],
+    Abbr:       ['abbr'],
+    Cite:       ['cite'],
+    Small:      ['small'],
+    Time:       ['time'],
+    Del:        ['del'],
+    Ins:        ['ins'],
+    Sub:        ['sub'],
+    Sup:        ['sup'],
+    Mark:       ['mark'],
+    Code:       ['code'],
+    Orz:        ['code', 'orz'],
+    Ruby:       ['ruby/rb'],
+    Dfn:        ['dfn'],
+    Samp:       ['samp'],
+    Kbd:        ['kbd'],
+    S:          ['s'],
+    U:          ['u'],
+    Var:        ['var'],
+    Bdo:        ['bdo'],
+    Meter:      ['meter'],
+    B:          ['b'],
+    I:          ['i'],
+    Img:        ['img'],
+    Blank:      ['span', 'blank'],
 };
+
 
 
 //
@@ -170,7 +178,7 @@ class Conitem {
      * 对于无需标题结构的单元，获取返回false。
      * @param {String|Node|[Node]|true} con 插入内容或获取标记
      * @param {Boolean} ishtml 是否HTML方式插入，可选
-     * @return {Element|null|false|this}
+     * @return {String|null|false|this}
      */
     heading( con, ishtml ) {
         //
@@ -211,7 +219,7 @@ class Conitem {
  * @return {Element} 单元根元素
  */
 function create( name, cons ) {
-
+    //
 }
 
 
