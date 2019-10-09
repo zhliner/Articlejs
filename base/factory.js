@@ -9,7 +9,7 @@
 //	内容单元创建工厂。
 //
 //  结构块：
-//      <header role="summary">     // 摘要：/h3, p...
+//      <header role="abstract">    // 提要：/h3, p...
 //      <nav role="toc">            // 目录：/h4/a, ol/li/a（可多级）
 //      <header>                    // 导言：/h4, p...
 //      <footer>                    // 尾注：/h4, p...
@@ -34,7 +34,7 @@
 //      <address>                   // 地址信息
 //      <pre>                       // 预排版（非代码块）
 //      <hr/>                       // 线条
-//      <div role="space">          // 空白块：可用于交互展示
+//      <div role="space">          // 空白块：用于交互展示
 //
 //  行内单元：
 //      <audio>                 // 音频：/track,source, #text
@@ -67,27 +67,29 @@
 //      <b>                     // 粗体，主要用于代码块内的关键字包裹
 //      <i>                     // 斜体，主要用于图标占位（icon）
 //      <img/>                  // 图片
-//      <span role="blank">     // 空白段
+//      <span role="blank">     // 空白段：用于交互展示
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
+
+import { itemType, itemSubs } from "./types.js";
 
 
 //
 // 单元映射 {
 //      name: [tags, role]
 // }
-// tags：基础元素结构，可能附带基本标题。
+// tags：基础元素结构，附带基本标题。
 // role：角色名称，书写在根元素的 role 属性上。
 //
 // 注：用于创建初始的目标单元。
 //
-const CellMap = {
+const tagsMap = {
 
     // 块容器
     // ------------------------------------------
-    Summary:    ['header/h3', 'summary'],
+    Abstract:   ['header/h3', 'abstract'],
     Toc:        ['nav/h4', 'toc'],
     Header:     ['header/h4'],
     Footer:     ['footer/h4'],
@@ -101,10 +103,10 @@ const CellMap = {
     Seealso:    ['ul/li', 'seealso'],
     Ol:         ['ol/li'],
     Cascade:    ['ol/li', 'cascade'],
-    Codes:      ['ol/li', 'codes'],
+    Codelist:   ['ol/li', 'codelist'],
     References: ['ol/li', 'references'],
     Dl:         ['dl/dt'],
-    // table:      ['table/'],  // 特例，单独处理
+    Table:      ['*'],  // 单独处理：$.table
     Figure:     ['figure/figcaption'],
     Blockquote: ['blockquote/h4'],
     Aside:      ['aside/h4'],
@@ -155,7 +157,6 @@ const CellMap = {
     Img:        ['img'],
     Blank:      ['span', 'blank'],
 };
-
 
 
 //

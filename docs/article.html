@@ -171,7 +171,7 @@
 &lt;ul role="seealso&gt;&lt;/ul&gt;             <b class="cmt">&lt;!-- 另参见：/li/... --&gt;</b>
 &lt;ol&gt;&lt;/ol&gt;                           <b class="cmt">&lt;!-- 有序列表：/li/... --&gt;</b>
 &lt;ol role="cascade"&gt;&lt;/ol&gt;            <b class="cmt">&lt;!-- 多级编号列表：/li/ol, ul/li... --&gt;</b>
-&lt;ol role="codes&gt;&lt;/ol&gt;               <b class="cmt">&lt;!-- 代码表：/li/code/... --&gt;</b>
+&lt;ol role="codelist&gt;&lt;/ol&gt;            <b class="cmt">&lt;!-- 代码表：/li/code/... --&gt;</b>
 &lt;ol role="references&gt;&lt;/ol&gt;          <b class="cmt">&lt;!-- 文献参考：/li/... --&gt;</b>
 &lt;dl&gt;&lt;/dl&gt;                           <b class="cmt">&lt;!-- 定义列表：/dt,dd/... --&gt;</b>
 &lt;table&gt;&lt;/table&gt;                     <b class="cmt">&lt;!-- 表格：/caption, thead, tbody, tfoot/tr/td/... --&gt;</b>
@@ -180,7 +180,7 @@
 &lt;aside&gt;&lt;/aside&gt;                     <b class="cmt">&lt;!-- 批注：/p... --&gt;</b>
 &lt;details&gt;&lt;/details&gt;                 <b class="cmt">&lt;!-- 详细内容：/sumary, p... --&gt;</b>
 &lt;footer&gt;&lt;/footer&gt;                   <b class="cmt">&lt;!-- 尾注：/p... --&gt;</b>
-&lt;pre&gt;&lt;/pre&gt;                         <b class="cmt">&lt;!-- 代码块：/code/... --&gt;</b>
+&lt;pre role="codeblock"&gt;&lt;/pre&gt;        <b class="cmt">&lt;!-- 代码块：/code/... --&gt;</b>
 </code></pre>
                     </section>
                 </section>
@@ -370,7 +370,7 @@
                     <h4 id="代码块">代码块</h4>
                     <section role="content" class="content">
                         <pre>
-<code data-lang="html">&lt;pre&gt;<b class="cmt">&lt;!-- 容许简单换行 --&gt;</b>
+<code data-lang="html">&lt;pre role="codeblock"&gt;<b class="cmt">&lt;!-- 容许简单换行 --&gt;</b>
 &lt;code data-lang="xx"&gt; ...&lt;b&gt;&lt;/b&gt;...
 &lt;/code&gt;&lt;pre&gt; <b class="cmt">&lt;!-- 末尾应当紧跟 --&gt;</b>
 </code></pre>
@@ -442,7 +442,7 @@
                     <h4 id="代码表">代码表</h4>
                     <section role="content" class="content">
                         <pre>
-<code data-lang="html">&lt;ol role="codes" class="codes"&gt;
+<code data-lang="html">&lt;ol role="codelist" class="codelist"&gt;
     &lt;li&gt;&lt;code data-lang="xx"&gt; <b class="cmt">&lt;!-- 根封装 --&gt;</b>
         ...&lt;b&gt;&lt;/b&gt;... <b class="cmt">&lt;!-- 代码内容 --&gt;</b>
     &lt;/code&gt;&lt;/li&gt;
@@ -532,7 +532,7 @@ b.non   <b class="cmt">/* invalid */</b>
                     <h4 id="源码2（代码表）">源码2（代码表）</h4>
                     <section role="content" class="content">
                         <pre>
-<code data-lang="html">&lt;ol role="codes" class="codes"&gt;
+<code data-lang="html">&lt;ol role="codelist" class="codelist"&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;package&lt;/<b class="tag">b</b>&gt; main&lt;/code&gt;&lt;/li&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;import&lt;/<b class="tag">b</b>&gt; &lt;<b class="tag">b</b> class=<b class="atv">"str"</b>&gt;"fmt"&lt;/<b class="tag">b</b>&gt;&lt;/code&gt;&lt;/li&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;func&lt;/<b class="tag">b</b>&gt; main() {&lt;/code&gt;&lt;/li&gt;
@@ -549,7 +549,7 @@ b.non   <b class="cmt">/* invalid */</b>
                 <section>
                     <h4 id="效果2">效果</h4>
                     <section role="content" class="content">
-                        <ol role="codes" class="codes">
+                        <ol role="codelist" class="codelist">
                             <li><code data-lang="go"><b class="kws">package</b> main</code></li>
                             <li><code data-lang="go"><b class="kws">import</b> <b class="str">"fmt"</b></code></li>
                             <li><code data-lang="go"><b class="kws">func</b> main() {</code></li>

@@ -476,10 +476,10 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
     box-shadow: #ccc 0px 2px 4px;
 }
 
-/* 代码清单 [ol.codes/li/code]
+/* 代码清单 [ol.codelist/li/code]
  * - 超长默认换行，注释部分为滚动样式；
  */
-.Main ol.codes {
+.Main ol.codelist {
     font-size: 10pt;
     padding: 0;
     border: 1px #ddd solid;
@@ -491,13 +491,13 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
     overflow-x: auto;
     resize: none;
 }
-.Main ol.codes li {
+.Main ol.codelist li {
     margin: 0;
     padding: 0;
     border-left: 3px #dde solid;
     line-height: 120%;
 }
-.Main ol.codes code {
+.Main ol.codelist code {
     margin: 0;
     color: #000;
     white-space: pre;
