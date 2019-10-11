@@ -12,6 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+const $ = window.$;
+
 
 // 内容类型。
 const
@@ -74,85 +76,85 @@ const
 //
 // 内容单元|元件类型配置。
 //
-const itemType = {
+const Types = {
     // 文本
     $text:          $TEXT,
 
     // 结构单元
     // BLOTHS：table|hr|space
     // BLOUFCPC：ul|figure|codelist|pre|codeblock
-    Abstract:       ABSTRACT,
-    Toc:            TOC,
-    Header:         HEADER,
-    Footer:         FOOTER,
-    S1:             S1,
-    S2:             S2,
-    S3:             S3,
-    S4:             S4,
-    S5:             S5,
-    Content:        CONTENT,
-    Ul:             BLOUFCPC,
-    Seealso:        SEEALSO,
-    Ol:             OL,
-    Cascade:        CASCADE,
-    Codelist:       BLOUFCPC,
-    References:     REFERENCES,
-    Dl:             DL,
-    Table:          BLOTHS,
-    Figure:         BLOUFCPC,
-    Blockquote:     BLOCKQUOTE,
-    Aside:          ASIDE,
-    Details:        DETAILS,
-    Codeblock:      BLOUFCPC,
+    abstract:       ABSTRACT,
+    toc:            TOC,
+    header:         HEADER,
+    footer:         FOOTER,
+    s1:             S1,
+    s2:             S2,
+    s3:             S3,
+    s4:             S4,
+    s5:             S5,
+    content:        CONTENT,
+    ul:             BLOUFCPC,
+    seealso:        SEEALSO,
+    ol:             OL,
+    cascade:        CASCADE,
+    codelist:       BLOUFCPC,
+    references:     REFERENCES,
+    dl:             DL,
+    table:          BLOTHS,
+    figure:         BLOUFCPC,
+    blockquote:     BLOCKQUOTE,
+    aside:          ASIDE,
+    details:        DETAILS,
+    codeblock:      BLOUFCPC,
 
     // 文本单元
-    P:              P,
-    Address:        ADDRESS,
-    Pre:            BLOUFCPC,
-    Hr:             BLOTHS,
-    Space:          BLOTHS,
+    p:              P,
+    address:        ADDRESS,
+    pre:            BLOUFCPC,
+    hr:             BLOTHS,
+    space:          BLOTHS,
 
     // 限定中间单元
-    Cascadetoc:     CASCADETOC,
-    Ali:            ALI,
-    Codeli:         CODELI,
-    Cascadeli:      CASCADELI,
+    cascadetoc:     CASCADETOC,
+    ali:            ALI,
+    codeli:         CODELI,
+    cascadeli:      CASCADELI,
 
     // 内联单元。
     // 取值时会提取元素本身，因此配置为同一类。
-    Audio:          INLINE,
-    Video:          INLINE,
-    Picture:        INLINE,
-    Strong:         INLINE,
-    Em:             INLINE,
-    Q:              INLINE,
-    Abbr:           INLINE,
-    Cite:           INLINE,
-    Small:          INLINE,
-    Time:           INLINE,
-    Del:            INLINE,
-    Ins:            INLINE,
-    Sub:            INLINE,
-    Sup:            INLINE,
-    Mark:           INLINE,
-    Orz:            INLINE,
-    Ruby:           INLINE,
-    Dfn:            INLINE,
-    Samp:           INLINE,
-    Kbd:            INLINE,
-    S:              INLINE,
-    U:              INLINE,
-    Var:            INLINE,
-    Bdo:            INLINE,
-    Meter:          INLINE,
-    Blank:          INLINE,
+    audio:          INLINE,
+    video:          INLINE,
+    picture:        INLINE,
+    strong:         INLINE,
+    em:             INLINE,
+    q:              INLINE,
+    abbr:           INLINE,
+    cite:           INLINE,
+    small:          INLINE,
+    time:           INLINE,
+    del:            INLINE,
+    ins:            INLINE,
+    sub:            INLINE,
+    sup:            INLINE,
+    mark:           INLINE,
+    orz:            INLINE,
+    ruby:           INLINE,
+    dfn:            INLINE,
+    samp:           INLINE,
+    kbd:            INLINE,
+    s:              INLINE,
+    u:              INLINE,
+    var:            INLINE,
+    bdo:            INLINE,
+    meter:          INLINE,
+    blank:          INLINE,
 
     // 会被作为特定的子单元使用。
-    A:              A,
-    Code:           CODE,
-    Img:            IMG,
-    I:              I,
-    B:              B,
+    a:              A,
+    code:           CODE,
+    img:            IMG,
+    i:              I,
+    b:              B,
 
     // 简单元素
     // 名称保持元素小写标签名。
@@ -187,79 +189,80 @@ const itemType = {
 //
 // 合法子类型配置。
 //
-const itemSubs = {
+const typeSubs = {
+    $text:          0,
 
     // 结构单元块
-    Abstract:       H3 | P | BLOTHS,
-    Toc:            H4 | CASCADETOC,
-    Header:         H4 | P | BLOTHS,
-    Footer:         H4 | P | BLOTHS | BLOCKQUOTE | SEEALSO | REFERENCES | ADDRESS,
-    S1:             H2 | HEADER | S2 | FOOTER,
-    S2:             H3 | HEADER | S3 | FOOTER,
-    S3:             H4 | HEADER | S4 | FOOTER,
-    S4:             H5 | HEADER | S5 | FOOTER,
-    S5:             H6 | HEADER | CONTENT | FOOTER,
-    Content:        P | BLOTHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE | ADDRESS,
-    Ul:             LI,
-    Seealso:        LI,
-    Ol:             LI,
-    Cascade:        CASCADELI,
-    Codelist:       CODELI,
-    References:     LI,
-    Dl:             DLI,
-    Table:          CAPTION | TSEC,
-    Figure:         FIGCAPTION | P,
-    Blockquote:     H4 | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE,
-    Aside:          H4 | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE | ADDRESS,
-    Details:        SUMMARY | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE,
-    Codeblock:      CODE,
+    abstract:       H3 | P | BLOTHS,
+    toc:            H4 | CASCADETOC,
+    header:         H4 | P | BLOTHS,
+    footer:         H4 | P | BLOTHS | BLOCKQUOTE | SEEALSO | REFERENCES | ADDRESS,
+    s1:             H2 | HEADER | S2 | FOOTER,
+    s2:             H3 | HEADER | S3 | FOOTER,
+    s3:             H4 | HEADER | S4 | FOOTER,
+    s4:             H5 | HEADER | S5 | FOOTER,
+    s5:             H6 | HEADER | CONTENT | FOOTER,
+    content:        P | BLOTHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE | ADDRESS,
+    ul:             LI,
+    seealso:        LI,
+    ol:             LI,
+    cascade:        CASCADELI,
+    codelist:       CODELI,
+    references:     LI,
+    dl:             DLI,
+    table:          CAPTION | TSEC,
+    figure:         FIGCAPTION | P,
+    blockquote:     H4 | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE,
+    aside:          H4 | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE | ADDRESS,
+    details:        SUMMARY | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE,
+    codeblock:      CODE,
 
     // 文本类行块。
-    P:              $TEXT | INLINE | CODE | IMG,
-    Address:        $TEXT | INLINE | CODE | IMG,
-    Pre:            $TEXT | INLINE | CODE | IMG,
-    Hr:             0,  // 空
-    Space:          0,  // 空，用于交互展示
+    p:              $TEXT | INLINE | CODE | IMG,
+    address:        $TEXT | INLINE | CODE | IMG,
+    pre:            $TEXT | INLINE | CODE | IMG,
+    hr:             0,  // 空
+    space:          0,  // 空，用于交互展示
 
     // 限定中间结构
-    Cascadetoc:     ALI,
-    Ali:            A,
-    Codeli:         CODE,
-    Cascadeli:      H5 | OL,
+    cascadetoc:     ALI,
+    ali:            A,
+    codeli:         CODE,
+    cascadeli:      H5 | OL,
 
     // 内联单元
-    Audio:          TRACK | SOURCE,
-    Video:          TRACK | SOURCE,
-    Picture:        SOURCE | IMG,
-    A:              $TEXT | INLINE | IMG,
-    Strong:         $TEXT | INLINE,
-    Em:             $TEXT | INLINE,
-    Dfn:            $TEXT | INLINE,
-    Abbr:           $TEXT,
-    Time:           $TEXT,
-    Kbd:            $TEXT,  // 键盘输入
-    Var:            $TEXT,  // 变量标注
-    Code:           $TEXT | B,
-    Orz:            $TEXT,
-    Meter:          $TEXT,  // 范围计量
-    Ruby:           RBPT | $TEXT,
-    Q:              $TEXT | INLINE | A,
-    Small:          $TEXT | INLINE | A,
-    Samp:           $TEXT | INLINE | A, // 计算机输出
-    U:              $TEXT | INLINE | A, // 特别标注
-    Bdo:            $TEXT | INLINE | A,
-    Cite:           $TEXT | INLINE | A,
-    Del:            $TEXT | INLINE | A,
-    Ins:            $TEXT | INLINE | A,
-    S:              $TEXT | INLINE | A,
-    Sub:            $TEXT | INLINE | A,
-    Sup:            $TEXT | INLINE | A,
-    Mark:           $TEXT | INLINE | A,
-    B:              $TEXT,  // 简单支持
-    I:              $TEXT,  // 同上
+    audio:          TRACK | SOURCE,
+    video:          TRACK | SOURCE,
+    picture:        SOURCE | IMG,
+    a:              $TEXT | INLINE | IMG,
+    strong:         $TEXT | INLINE,
+    em:             $TEXT | INLINE,
+    dfn:            $TEXT | INLINE,
+    abbr:           $TEXT,
+    time:           $TEXT,
+    kbd:            $TEXT,  // 键盘输入
+    var:            $TEXT,  // 变量标注
+    code:           $TEXT | B,
+    orz:            $TEXT,
+    meter:          $TEXT,  // 范围计量
+    ruby:           RBPT | $TEXT,
+    q:              $TEXT | INLINE | A,
+    small:          $TEXT | INLINE | A,
+    samp:           $TEXT | INLINE | A, // 计算机输出
+    u:              $TEXT | INLINE | A, // 特别标注
+    bdo:            $TEXT | INLINE | A,
+    cite:           $TEXT | INLINE | A,
+    del:            $TEXT | INLINE | A,
+    ins:            $TEXT | INLINE | A,
+    s:              $TEXT | INLINE | A,
+    sub:            $TEXT | INLINE | A,
+    sup:            $TEXT | INLINE | A,
+    mark:           $TEXT | INLINE | A,
+    b:              $TEXT,  // 简单支持
+    i:              $TEXT,  // 同上
 
-    Img:            0,  // 空
-    Blank:          0,  // 空，用于交互展示
+    img:            0,  // 空
+    blank:          0,  // 空，用于交互展示
 
     // 定制中间结构
     // 注：I 可用于标题序号或背景按钮。
@@ -292,7 +295,116 @@ const itemSubs = {
 
 
 //
+// 定制结构取值。
+// - cascadetoc // toc: cascade/li/a/
+// - ali        // toc: li/a/
+// - codeli     // codelist: li/code/
+// - cascadeli  // cascade: li/h5, ol/
+// 注：
+// 仅向下测试匹配性即可，因为接收内容时也是针对子孙元素。
+//
+const CustomTypes = {
+    /**
+     * 测试 cascadetoc 类型。
+     * 如果不是目录级联表，返回普通的级联表类型。
+     * 前提：已经为级联表。
+     * @param  {Element} ol 列表元素
+     * @return {String}
+     */
+    cascadeToc( ol ) {
+        return this.xli( ol.firstElementChild ) === 'ali' ?
+            'cascadetoc' :
+            'cascade';
+    },
+
+
+    /**
+     * 测试 ali/codeli/cascadeli 三种类型。
+     * 成功则返回类型值，否则返回<li>通用类型。
+     * @param  {Element} li 列表项元素
+     * @return {String}
+     */
+    xli( li ) {
+        let _sub = li.firstElementChild,
+            _cnt = li.childElementCount;
+
+        // toc: li/a/
+        if ( _cnt == 1 && _sub.nodeName == 'A' ) {
+            return 'ali';
+        }
+        // codelist: li/code/
+        if ( _cnt == 1 && _sub.nodeName == 'CODE' ) {
+            return 'codeli';
+        }
+        // cascade: li/h5, ol/
+        // 注：不分辨末端<li>是否为级联表项。
+        if ( _cnt == 2 && _sub.nodeName == 'H5' && $.next(_sub).nodeName == 'OL' ) {
+            return 'cascadeli';
+        }
+        return 'li';
+    }
+};
+
+
+//
+// 功能函数
+///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 获取元素/节点的内容名。
+ * @param  {Element|Text} el 目标元素或文本节点
+ * @return {String}
+ */
+function conName( el ) {
+    if ( el.nodeType == 3 ) {
+        return '$text';
+    }
+    let _n = $.attr(el, 'role') || el.nodeName.toLowerCase();
+
+    switch ( _n ) {
+        case 'li':
+            return CustomTypes.xli( el );
+        case 'cascade':
+            return CustomTypes.cascadeToc( el );
+    }
+    return _n;
+}
+
+
+/**
+ * 获取内容的类型值。
+ * @param  {String} name 目标内容名
+ * @return {Number}
+ */
+function conType( name ) {
+    return Types[ name ];
+}
+
+
+/**
+ * 测试是否为合法子单元。
+ * @param  {String} box 目标内容名
+ * @param  {String} sub 待测试目标内容名
+ * @return {Boolean}
+ */
+function goodSub( box, sub ) {
+    return !!( typeSubs[box] & conType(sub) );
+}
+
+
+/**
+ * 是否不可包含子单元。
+ * @param  {String} name 内容名
+ * @return {Boolean}
+ */
+function nilSub( name ) {
+    return typeSubs[name] === 0;
+}
+
+
+//
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
 
-export { itemType, itemSubs };
+export { conName, conType, goodSub, nilSub };

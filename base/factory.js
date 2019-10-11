@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { itemType, itemSubs } from "./types.js";
+import * as types from "./types.js";
 
 
 //
@@ -89,73 +89,73 @@ const tagsMap = {
 
     // 块容器
     // ------------------------------------------
-    Abstract:   ['header/h3', 'abstract'],
-    Toc:        ['nav/h4', 'toc'],
-    Header:     ['header/h4'],
-    Footer:     ['footer/h4'],
-    S1:         ['section/h2'],
-    S2:         ['section/h3'],
-    S3:         ['section/h4'],
-    S4:         ['section/h5'],
-    S5:         ['section/h6'],
-    Content:    ['section', 'content'],
-    Ul:         ['ul/li'],
-    Seealso:    ['ul/li', 'seealso'],
-    Ol:         ['ol/li'],
-    Cascade:    ['ol/li', 'cascade'],
-    Codelist:   ['ol/li', 'codelist'],
-    References: ['ol/li', 'references'],
-    Dl:         ['dl/dt'],
-    Table:      ['*'],  // 单独处理：$.table
-    Figure:     ['figure/figcaption'],
-    Blockquote: ['blockquote/h4'],
-    Aside:      ['aside/h4'],
-    Details:    ['details/summary'],
-    Blockcode:  ['pre/code', 'blockcode'],
+    abstract:   ['header/h3', 'abstract'],
+    toc:        ['nav/h4', 'toc'],
+    header:     ['header/h4'],
+    footer:     ['footer/h4'],
+    s1:         ['section/h2'],
+    s2:         ['section/h3'],
+    s3:         ['section/h4'],
+    s4:         ['section/h5'],
+    s5:         ['section/h6'],
+    content:    ['section', 'content'],
+    ul:         ['ul/li'],
+    seealso:    ['ul/li', 'seealso'],
+    ol:         ['ol/li'],
+    cascade:    ['ol/li', 'cascade'],
+    codelist:   ['ol/li', 'codelist'],
+    references: ['ol/li', 'references'],
+    dl:         ['dl/dt'],
+    table:      ['*'],  // 单独处理：$.table
+    figure:     ['figure/figcaption'],
+    blockquote: ['blockquote/h4'],
+    aside:      ['aside/h4'],
+    details:    ['details/summary'],
+    blockcode:  ['pre/code', 'blockcode'],
 
 
     // 块内容
     // ------------------------------------------
-    P:          ['p'],
-    Address:    ['address'],
-    Pre:        ['pre'],
-    Hr:         ['hr'],
-    Space:      ['div', 'space'],
+    p:          ['p'],
+    address:    ['address'],
+    pre:        ['pre'],
+    hr:         ['hr'],
+    space:      ['div', 'space'],
 
 
     // 行内单元
     // ------------------------------------------
-    Audio:      ['audio'],
-    Video:      ['video'],
-    Picture:    ['picture'],
-    A:          ['a'],
-    Strong:     ['strong'],
-    Em:         ['em'],
-    Q:          ['q'],
-    Abbr:       ['abbr'],
-    Cite:       ['cite'],
-    Small:      ['small'],
-    Time:       ['time'],
-    Del:        ['del'],
-    Ins:        ['ins'],
-    Sub:        ['sub'],
-    Sup:        ['sup'],
-    Mark:       ['mark'],
-    Code:       ['code'],
-    Orz:        ['code', 'orz'],
-    Ruby:       ['ruby/rb'],
-    Dfn:        ['dfn'],
-    Samp:       ['samp'],
-    Kbd:        ['kbd'],
-    S:          ['s'],
-    U:          ['u'],
-    Var:        ['var'],
-    Bdo:        ['bdo'],
-    Meter:      ['meter'],
-    B:          ['b'],
-    I:          ['i'],
-    Img:        ['img'],
-    Blank:      ['span', 'blank'],
+    audio:      ['audio'],
+    video:      ['video'],
+    picture:    ['picture'],
+    a:          ['a'],
+    strong:     ['strong'],
+    em:         ['em'],
+    q:          ['q'],
+    abbr:       ['abbr'],
+    cite:       ['cite'],
+    small:      ['small'],
+    time:       ['time'],
+    del:        ['del'],
+    ins:        ['ins'],
+    sub:        ['sub'],
+    sup:        ['sup'],
+    mark:       ['mark'],
+    code:       ['code'],
+    orz:        ['code', 'orz'],
+    ruby:       ['ruby/rb'],
+    dfn:        ['dfn'],
+    samp:       ['samp'],
+    kbd:        ['kbd'],
+    s:          ['s'],
+    u:          ['u'],
+    var:        ['var'],
+    bdo:        ['bdo'],
+    meter:      ['meter'],
+    b:          ['b'],
+    i:          ['i'],
+    img:        ['img'],
+    blank:      ['span', 'blank'],
 };
 
 
@@ -209,6 +209,11 @@ class Conitem {
         //
     }
 }
+
+
+//
+// 功能函数
+///////////////////////////////////////////////////////////////////////////////
 
 
 /**
