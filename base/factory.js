@@ -89,21 +89,21 @@ const tagsMap = {
 
     // 块容器
     // ------------------------------------------
-    abstract:   ['header/h3', 'abstract'],
-    toc:        ['nav/h4', 'toc'],
-    header:     ['header/h4'],
-    footer:     ['footer/h4'],
-    s1:         ['section/h2'],
-    s2:         ['section/h3'],
-    s3:         ['section/h4'],
-    s4:         ['section/h5'],
-    s5:         ['section/h6'],
+    abstract:   ['header/h3, p', 'abstract'],
+    toc:        ['nav/h4, cascade', 'toc'],
+    header:     ['header/h4, p'],
+    footer:     ['footer/h4, p'],
+    s1:         ['section/h2, header, content, footer'],
+    s2:         ['section/h3, header, content, footer'],
+    s3:         ['section/h4, header, content, footer'],
+    s4:         ['section/h5, header, content, footer'],
+    s5:         ['section/h6, header, content, footer'],
     content:    ['section', 'content'],
     ul:         ['ul/li'],
     seealso:    ['ul/li', 'seealso'],
     ol:         ['ol/li'],
-    cascade:    ['ol/li', 'cascade'],
-    codelist:   ['ol/li', 'codelist'],
+    cascade:    ['ol/cascadeli', 'cascade'],
+    codelist:   ['ol/codeli', 'codelist'],
     references: ['ol/li', 'references'],
     dl:         ['dl/dt'],
     table:      ['*'],  // 单独处理：$.table
@@ -121,6 +121,12 @@ const tagsMap = {
     pre:        ['pre'],
     hr:         ['hr'],
     space:      ['div', 'space'],
+
+
+    // 限定结构
+    // ------------------------------------------
+    codeli:     ['li/code'],
+    cascadeli:  ['li/h5|a, ol'],
 
 
     // 行内单元

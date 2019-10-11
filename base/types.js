@@ -42,35 +42,34 @@ const
     P           = 1 << 21,  // 段落
     ADDRESS     = 1 << 22,  // 地址信息
 
-    CASCADETOC  = 1 << 23,  // 目录级联表（结构件 cascade/li/a）
-    ALI         = 1 << 24,  // 目录链接条目（结构件 li/a）
-    CODELI      = 1 << 25,  // 代码表条目（结构件 li/code）
-    CASCADELI   = 1 << 26,  // 级联表条目（结构件 li/h5,ol）
+    CODELI      = 1 << 23,  // 代码表条目（结构件 li/code）
+    CASCADELI   = 1 << 24,  // 级联表条目（结构件 li/h5,ol）
 
-    INLINE      = 1 << 27,  // 内联单元
-    A           = 1 << 28,  // 链接
-    CODE        = 1 << 29,  // 行内代码
-    IMG         = 1 << 30,  // 图片
-    I           = 1 << 31,  // <i> 标题编号
-    B           = 1 << 32,  // <b> 代码关键字
+    INLINE      = 1 << 25,  // 内联单元
+    A           = 1 << 26,  // 链接
+    CODE        = 1 << 27,  // 行内代码
+    IMG         = 1 << 28,  // 图片
+    I           = 1 << 29,  // <i> 标题编号
+    B           = 1 << 30,  // <b> 代码关键字
 
-    H2          = 1 << 33,  // 章标题
-    H3          = 1 << 34,  // 节标题
-    H4          = 1 << 35,  // 区标题
-    H5          = 1 << 36,  // 段标题
-    H6          = 1 << 37,  // 末标题
-    SUMMARY     = 1 << 38,  // 详细内容摘要/标题
-    FIGCAPTION  = 1 << 39,  // 插图标题
-    LI          = 1 << 40,  // 列表项（通用）
-    DLI         = 1 << 41,  // 定义列表项（dt,dd）
-    RBPT        = 1 << 42,  // 注音单元（rb,rp,rt）
-    TRACK       = 1 << 43,  // 字幕轨
-    SOURCE      = 1 << 44,  // 媒体资源
+    H2          = 1 << 31,  // 章标题
+    H3          = 1 << 32,  // 节标题
+    H4          = 1 << 33,  // 区标题
+    H5          = 1 << 34,  // 段标题
+    H6          = 1 << 35,  // 末标题
+    SUMMARY     = 1 << 36,  // 详细内容摘要/标题
+    FIGCAPTION  = 1 << 37,  // 插图标题
+    LI          = 1 << 38,  // 列表项（通用）
+    DLI         = 1 << 39,  // 定义列表项（dt,dd）
 
-    CAPTION     = 1 << 45,  // 表格标题
-    TSEC        = 1 << 46,  // 表格片区（thead,tbody,tfoot）
-    TR          = 1 << 47,  // 表格行
-    TCELL       = 1 << 48;  // 表单元格（th,td）
+    RBPT        = 1 << 40,  // 注音单元（rb,rp,rt）
+    TRACK       = 1 << 41,  // 字幕轨
+    SOURCE      = 1 << 42,  // 媒体资源
+
+    CAPTION     = 1 << 43,  // 表格标题
+    TSEC        = 1 << 44,  // 表格片区（thead,tbody,tfoot）
+    TR          = 1 << 45,  // 表格行
+    TCELL       = 1 << 46;  // 表单元格（th,td）
 
 
 //
@@ -115,8 +114,6 @@ const Types = {
     space:          BLOTHS,
 
     // 限定中间单元
-    cascadetoc:     CASCADETOC,
-    ali:            ALI,
     codeli:         CODELI,
     cascadeli:      CASCADELI,
 
@@ -194,7 +191,7 @@ const typeSubs = {
 
     // 结构单元块
     abstract:       H3 | P | BLOTHS,
-    toc:            H4 | CASCADETOC,
+    toc:            H4 | CASCADE,
     header:         H4 | P | BLOTHS,
     footer:         H4 | P | BLOTHS | BLOCKQUOTE | SEEALSO | REFERENCES | ADDRESS,
     s1:             H2 | HEADER | S2 | FOOTER,
@@ -206,7 +203,7 @@ const typeSubs = {
     ul:             LI,
     seealso:        LI,
     ol:             LI,
-    cascade:        CASCADELI,
+    cascade:        CASCADELI | LI,
     codelist:       CODELI,
     references:     LI,
     dl:             DLI,
@@ -225,10 +222,8 @@ const typeSubs = {
     space:          0,  // 空，用于交互展示
 
     // 限定中间结构
-    cascadetoc:     ALI,
-    ali:            A,
     codeli:         CODE,
-    cascadeli:      H5 | OL,
+    cascadeli:      H5 | A | OL,
 
     // 内联单元
     audio:          TRACK | SOURCE,
@@ -305,16 +300,27 @@ const typeSubs = {
 //
 const CustomTypes = {
     /**
-     * 测试 cascadetoc 类型。
-     * 如果不是目录级联表，返回普通的级联表类型。
+     * 判断普通级联表或目录级联表。
      * 前提：已经为级联表。
      * @param  {Element} ol 列表元素
-     * @return {String}
+     * @return {String} cascadetoc | cascade
      */
-    cascadeToc( ol ) {
-        return this.xli( ol.firstElementChild ) === 'ali' ?
+    cascade( ol ) {
+        return this.li( ol.firstElementChild ) === 'ali' ?
             'cascadetoc' :
             'cascade';
+    },
+
+
+    /**
+     * 判断级联表或普通列表。
+     * @param  {Element} ol 列表元素
+     * @return {String} cascade | ol
+     */
+    ol( ol ) {
+        return ol.parentElement.nodeName === 'LI' ?
+            'cascade' :
+            'ol';
     },
 
 
@@ -324,7 +330,7 @@ const CustomTypes = {
      * @param  {Element} li 列表项元素
      * @return {String}
      */
-    xli( li ) {
+    li( li ) {
         let _sub = li.firstElementChild,
             _cnt = li.childElementCount;
 
