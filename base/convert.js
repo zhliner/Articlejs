@@ -15,7 +15,12 @@
 
 const convMap = {
 
-    ol() {
+    /**
+     * 判断级联表。
+     * @param  {Element} ol 列表元素
+     * @return {String} cascade | ol
+     */
+    ol( ol ) {
         //
     }
 

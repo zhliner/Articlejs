@@ -19,51 +19,53 @@ const $ = window.$;
 const
     $TEXT       = 1,        // 文本/节点
 
-    ABSTRACT    = 1 << 1,   // 提要
-    TOC         = 1 << 2,   // 目录
-    HEADER      = 1 << 3,   // 导言
-    FOOTER      = 1 << 4,   // 结语
-    S1          = 1 << 5,   // 章 /h2
-    S2          = 1 << 6,   // 节 /h3
-    S3          = 1 << 7,   // 区 /h4
-    S4          = 1 << 8,   // 段 /h5
-    S5          = 1 << 9,   // 末 /h6
-    OL          = 1 << 10,  // 有序列表
-    BLOUFCPC    = 1 << 11,  // 块集：ul,figure,codelist,pre,codeblock
-    SEEALSO     = 1 << 12,  // 另参见
-    CASCADE     = 1 << 13,  // 级联表
-    REFERENCES  = 1 << 14,  // 文献参考
-    DL          = 1 << 15,  // 定义列表
-    BLOTHS      = 1 << 16,  // 块集：table,hr,space
-    BLOCKQUOTE  = 1 << 17,  // 块引用
-    ASIDE       = 1 << 18,  // 批注
-    DETAILS     = 1 << 19,  // 详细内容
-    P           = 1 << 20,  // 段落
-    ADDRESS     = 1 << 21,  // 地址信息
-    CODELI      = 1 << 22,  // 代码表条目（结构件 li/code）
-    CASCADELI   = 1 << 23,  // 级联表条目（结构件 li/h5,ol）
-    INLINE      = 1 << 24,  // 内联单元
-    A           = 1 << 25,  // 链接
-    CODE        = 1 << 26,  // 行内代码
-    IMG         = 1 << 27,  // 图片
-    I           = 1 << 28,  // <i> 标题编号
-    B           = 1 << 29,  // <b> 代码关键字
-    H2          = 1 << 30,  // 章标题
-    H3          = 1 << 31,  // 节标题
-    H4          = 1 << 32,  // 区标题
-    H5          = 1 << 33,  // 段标题
-    H6          = 1 << 34,  // 末标题
-    SUMMARY     = 1 << 35,  // 详细内容摘要/标题
-    FIGCAPTION  = 1 << 36,  // 插图标题
-    LI          = 1 << 37,  // 列表项（通用）
-    DLI         = 1 << 38,  // 定义列表项（dt,dd）
-    RBPT        = 1 << 39,  // 注音单元（rb,rp,rt）
-    TRACK       = 1 << 40,  // 字幕轨
-    SOURCE      = 1 << 41,  // 媒体资源
-    CAPTION     = 1 << 42,  // 表格标题
-    TSEC        = 1 << 43,  // 表格片区（thead,tbody,tfoot）
-    TR          = 1 << 44,  // 表格行
-    TCELL       = 1 << 45;  // 表单元格（th,td）
+    H1          = 1 << 1,   // 页标题
+    ABSTRACT    = 1 << 2,   // 提要
+    TOC         = 1 << 3,   // 目录
+    ARTICLE     = 1 << 4,   // 文章区
+    HEADER      = 1 << 5,   // 导言
+    FOOTER      = 1 << 6,   // 结语
+    S1          = 1 << 7,   // 章 /h2
+    S2          = 1 << 8,   // 节 /h3
+    S3          = 1 << 9,   // 区 /h4
+    S4          = 1 << 10,  // 段 /h5
+    S5          = 1 << 11,  // 末 /h6
+    OL          = 1 << 12,  // 有序列表
+    BLOUFCPC    = 1 << 13,  // 块集：ul,figure,codelist,pre,codeblock
+    SEEALSO     = 1 << 14,  // 另参见
+    CASCADE     = 1 << 15,  // 级联表
+    REFERENCES  = 1 << 16,  // 文献参考
+    DL          = 1 << 17,  // 定义列表
+    BLOTHS      = 1 << 18,  // 块集：table,hr,space
+    BLOCKQUOTE  = 1 << 19,  // 块引用
+    ASIDE       = 1 << 20,  // 批注
+    DETAILS     = 1 << 21,  // 详细内容
+    P           = 1 << 22,  // 段落
+    ADDRESS     = 1 << 23,  // 地址信息
+    CODELI      = 1 << 24,  // 代码表条目（结构件 li/code）
+    CASCADELI   = 1 << 25,  // 级联表条目（结构件 li/h5,ol）
+    INLINE      = 1 << 26,  // 内联单元
+    A           = 1 << 27,  // 链接
+    CODE        = 1 << 28,  // 行内代码
+    IMG         = 1 << 29,  // 图片
+    I           = 1 << 30,  // <i> 标题编号
+    B           = 1 << 31,  // <b> 代码关键字
+    H2          = 1 << 32,  // 章标题
+    H3          = 1 << 33,  // 节标题
+    H4          = 1 << 34,  // 区标题
+    H5          = 1 << 35,  // 段标题
+    H6          = 1 << 36,  // 末标题
+    SUMMARY     = 1 << 37,  // 详细内容摘要/标题
+    FIGCAPTION  = 1 << 38,  // 插图标题
+    LI          = 1 << 39,  // 列表项（通用）
+    DLI         = 1 << 40,  // 定义列表项（dt,dd）
+    RBPT        = 1 << 41,  // 注音单元（rb,rp,rt）
+    TRACK       = 1 << 42,  // 字幕轨
+    SOURCE      = 1 << 43,  // 媒体资源
+    CAPTION     = 1 << 44,  // 表格标题
+    TSEC        = 1 << 45,  // 表格片区（thead,tbody,tfoot）
+    TR          = 1 << 46,  // 表格行
+    TCELL       = 1 << 47;  // 表单元格（th,td）
 
 
 //
@@ -76,8 +78,10 @@ const Types = {
     // 结构单元
     // BLOTHS：table|hr|space
     // BLOUFCPC：ul|figure|codelist|pre|codeblock
+    h1:             H1,
     abstract:       ABSTRACT,
     toc:            TOC,
+    article:        ARTICLE,
     header:         HEADER,
     footer:         FOOTER,
     s1:             S1,
@@ -185,20 +189,20 @@ const typeSubs = {
     // 结构单元块
     abstract:       H3 | P | BLOTHS,
     toc:            H4 | CASCADE,
+    seealso:        LI,
+    references:     LI,
     header:         H4 | P | BLOTHS,
     footer:         H4 | P | BLOTHS | BLOCKQUOTE | SEEALSO | REFERENCES | ADDRESS,
-    s1:             H2 | HEADER | S2 | FOOTER,
-    s2:             H3 | HEADER | S3 | FOOTER,
-    s3:             H4 | HEADER | S4 | FOOTER,
-    s4:             H5 | HEADER | S5 | FOOTER,
-    s5:             H6 | HEADER | CONTENT | FOOTER,
-    content:        P | BLOTHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE | ADDRESS,
+    article:        HEADER | H2 | S1 | FOOTER,
+    s1:             HEADER | H3 | S2 | FOOTER,
+    s2:             HEADER | H4 | S3 | FOOTER,
+    s3:             HEADER | H5 | S4 | FOOTER,
+    s4:             HEADER | H6 | S5 | FOOTER,
+    s5:             P | BLOTHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE | ADDRESS,
     ul:             LI,
-    seealso:        LI,
     ol:             LI,
     cascade:        CASCADELI | LI,
     codelist:       CODELI,
-    references:     LI,
     dl:             DLI,
     table:          CAPTION | TSEC,
     figure:         FIGCAPTION | P,
@@ -216,7 +220,7 @@ const typeSubs = {
 
     // 限定中间结构
     codeli:         CODE,
-    cascadeli:      H5 | A | OL,
+    cascadeli:      H5 | OL,
 
     // 内联单元
     audio:          TRACK | SOURCE,
@@ -282,82 +286,77 @@ const typeSubs = {
 };
 
 
-//
-// 定制结构取值。
-// - cascadetoc // toc: cascade/li/a/
-// - ali        // toc: li/a/
-// - codeli     // codelist: li/code/
-// - cascadeli  // cascade: li/h5, ol/
-// 注：
-// 仅向下测试匹配性即可，因为接收内容时也是针对子孙元素。
-//
-const CustomTypes = {
-    /**
-     * 判断普通级联表或目录级联表。
-     * 前提：已经为级联表。
-     * @param  {Element} ol 列表元素
-     * @return {String} cascadetoc | cascade
-     */
-    cascade( ol ) {
-        return this.li( ol.firstElementChild ) === 'ali' ?
-            'cascadetoc' :
-            'cascade';
-    },
-
-
-    /**
-     * 判断级联表或普通列表。
-     * @param  {Element} ol 列表元素
-     * @return {String} cascade | ol
-     */
-    ol( ol ) {
-        return ol.parentElement.nodeName === 'LI' ?
-            'cascade' :
-            'ol';
-    },
-
-
-    /**
-     * 测试 ali/codeli/cascadeli 三种类型。
-     * 成功则返回类型值，否则返回<li>通用类型。
-     * @param  {Element} li 列表项元素
-     * @return {String}
-     */
-    li( li ) {
-        let _sub = li.firstElementChild,
-            _cnt = li.childElementCount;
-
-        // toc: li/a/
-        if ( _cnt == 1 && _sub.nodeName == 'A' ) {
-            return 'ali';
-        }
-        // codelist: li/code/
-        if ( _cnt == 1 && _sub.nodeName == 'CODE' ) {
-            return 'codeli';
-        }
-        // cascade: li/h5, ol/
-        // 注：不分辨末端<li>是否为级联表项。
-        if ( _cnt == 2 && _sub.nodeName == 'H5' && $.next(_sub).nodeName == 'OL' ) {
-            return 'cascadeli';
-        }
-        return 'li';
-    }
-};
-
 
 //
 // 工具函数
 ///////////////////////////////////////////////////////////////////////////////
 
 
-function cl( ol ) {
-    //
+/**
+ * 测试<li>支持的两种类型。
+ * 注：向下检索测试。
+ * @param  {Element} li 列表项元素
+ * @return {String} codeli|cascadeli|li
+ */
+function customLi( li ) {
+    let _sub = li.firstElementChild,
+    _cnt = li.childElementCount;
+
+    // codelist: li/code/
+    if ( _cnt == 1 && _sub.nodeName == 'CODE' ) {
+        return 'codeli';
+    }
+    // cascade: li/h5, ol/
+    if ( _cnt == 2 && _sub.nodeName == 'H5' && $.next(_sub).nodeName == 'OL' ) {
+        return 'cascadeli';
+    }
+    return 'li';
 }
 
 
 //
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 测试是否在级联编号表内。
+ * 仅用于测试 <ol> 和 <li> 元素。
+ * 主要用于插入时的目标判断并进行正确的处理（平插或内合并）。
+ * 注：向上检索测试。
+ * @param  {Element} el 目标元素
+ * @return {Boolean|null}
+ */
+ function inCascade( el ) {
+    let _pe = null;
+
+    while ( el ) {
+        let _n = el.nodeName.toLowerCase();
+        if ( _n != 'ol' && _n != 'li' ) {
+            break;
+        }
+        _pe = el;
+        el = el.parentElement;
+    }
+    return $.attribute(_pe, 'role') == 'cascade';
+}
+
+
+/**
+ * 测试是否在代码表内。
+ * 仅用于测试 <li> 和 <code> 元素。
+ * 结构：codelist/li/code
+ * @param  {Element} el 目标元素
+ * @return {Boolean|null}
+ */
+function inCodelist( el ) {
+    let _n = el.nodeName.toLowerCase();
+
+    if ( _n == 'code' ) {
+        el = el.parentElement;
+    }
+    return $.attribute(el.parentElement, 'role') == 'codelist';
+}
 
 
 /**
@@ -369,15 +368,9 @@ function conName( el ) {
     if ( el.nodeType == 3 ) {
         return '$text';
     }
-    let _n = $.attr(el, 'role') || el.nodeName.toLowerCase();
+    let _n = $.attribute(el, 'role') || el.nodeName.toLowerCase();
 
-    switch ( _n ) {
-        case 'li':
-            return CustomTypes.xli( el );
-        case 'cascade':
-            return CustomTypes.cascadeToc( el );
-    }
-    return _n;
+    return _n == 'li' ? customLi( el ) : _n;
 }
 
 
@@ -412,4 +405,7 @@ function nilSub( name ) {
 }
 
 
-export { conName, conType, goodSub, nilSub };
+export {
+    inCascade, inCodelist,
+    conName, conType, goodSub, nilSub,
+};
