@@ -104,19 +104,15 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 /* [ 行块 ]
  ****************************************************************************/
 
-.Main p {
-    margin: 15px auto;
-}
-
 /* 主/页标题 */
-.Main h1 {
+h1 {
     color: #555;
     text-shadow: 0 1px 1px #eee;
     text-align: center;
     font-size: 26pt;
 }
 /* 副标题 */
-.Main > hgroup > h2 {
+hgroup > h2 {
     font-size: 14pt;
     font-style: italic;
     font-weight: normal;
@@ -127,53 +123,111 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
     text-align: right;
 }
 
-/* 章节 [h2-6, section/~] */
-.Main section {}
-.Main section.content {}
 
-/* 内容标题 h2-h6 */
-.Main section > h2 {
-    font-size: 19pt;
-    padding: 4px 14px;
-    background-color: #9c0;
-    border-bottom: 1px #8b0 solid;
+/* 提要
+ * --------------------------------------------------------------------------
+ * header.abstract/h3, p+
+ */
+header.abstract {
+    border: 1px #eee solid;
+    border-radius: 10px;
+    background-color: #f7f7f7;
+    margin-bottom: 2em;
+    padding: 10px 30px;
+    box-shadow: #ccc 0 1px 6px;
 }
-.Main section > h3 {
-    font-size: 17pt;
-    padding: 4px;
-    border-bottom: 1px #eee solid;
-}
-.Main section > h4 {
-    font-size: 14pt;
-    padding: 4px;
-    margin-bottom: 0;
-}
-.Main section > h5 {
+header.abstract > h3 {}
+header.abstract p {
     font-size: 11pt;
-    margin: 16px auto;
-    padding: 2px;
-    color: #093;
-    border-bottom: 1px #3c6 dotted;
 }
-.Main section > h6 {
+
+
+/* 目录
+ * --------------------------------------------------------------------------
+ * nav.toc/ol.cascade/li/a
+ */
+nav.toc {
+    padding: 5px;
+    background-color: #fffff7;
+    border: 1px #e3e3e0 solid;
+    display: inline-block;
+    border-radius: 4px;
     font-size: 10pt;
-    margin: 12px auto;
-    padding: 1px;
-    color: #036;
+    box-shadow: 1px 1px 4px #bbb;
+}
+
+/* 页面固定 */
+nav.toc {
+    position: fixed;
+    top: 5px;
+    left: 20px;
+    background-color: rgba(245, 245, 245, 0.7);
+    height: 96%;
+}
+
+nav.toc>ol.cascade {
+    height: calc(100% - 80px);
+    overflow-y: auto;
+}
+
+nav.toc h4 {
+    margin: 5px 2px;
+    padding-bottom: 10px;
+    font-size: 12pt;
+    text-align: center;
+    border-bottom: 1px #ddd dotted;
+    color: #333;
+}
+
+nav.toc h4>a:hover {
+    text-decoration: none;
+}
+
+nav.toc>ol {
+    margin: 2px 0;
+    padding: 5px 2px;
+    padding-bottom: 11pt;
+}
+
+nav.toc li {
+    margin: 0;
+    line-height: 150%;
+}
+
+nav.toc>ol li {
+    margin-left: 2em;
+}
+
+nav.toc a {
+    display: block;
+    text-decoration: none;
+    color: #039;
+    line-height: 150%;
+}
+
+nav.toc a:hover {
+    text-decoration: underline;
 }
 
 
-/* 多级编号级联表
- ****************************
- * ol.cascade/ li>ol/ li>ol...
-*/
-.Main ol.cascade,
-.Main ol.cascade ol {
+/* 多级编号表
+ * --------------------------------------------------------------------------
+ * ol.cascade/li/h5, ol/...
+ */
+ol.cascade,
+ol.cascade ol {
     list-style-type: none;
     counter-reset: numer;
     padding: 0;
 }
-.Main ol.cascade li:before {
+
+ol.cascade h5 {
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0;
+}
+
+ol.cascade li:before {
     position: absolute;
     top: 0;
     left: 0;
@@ -181,45 +235,142 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
     counter-increment: numer;
     white-space: nowrap;
 }
-.Main ol.cascade li {
+
+ol.cascade li {
     position: relative;
 }
+
 /* 1. */
-.Main ol.cascade > li {
+ol.cascade>li {
     /* 缩进，与序号宽度适配 */
     margin-left: 3.0em;
 }
-.Main ol.cascade > li:before {
+
+ol.cascade>li:before {
     margin-left: -3.0em;
 }
+
 /* 1.2 */
-.Main ol.cascade > li > ol > li {
+ol.cascade>li>ol>li {
     margin-left: 3.0em;
 }
-.Main ol.cascade > li > ol > li:before {
+
+ol.cascade>li>ol>li:before {
     margin-left: -3.0em;
 }
+
 /* 1.2.3 */
-.Main ol.cascade > li > ol > li > ol > li {
+ol.cascade>li>ol>li>ol>li {
     margin-left: 3.5em;
 }
-.Main ol.cascade > li > ol > li > ol > li:before {
+
+ol.cascade>li>ol>li>ol>li:before {
     margin-left: -3.5em;
 }
+
 /* 1.2.3.4 */
-.Main ol.cascade > li > ol > li > ol > li > ol li {
+ol.cascade>li>ol>li>ol>li>ol li {
     margin-left: 4.2em;
 }
-.Main ol.cascade > li > ol > li > ol > li > ol li:before {
+
+ol.cascade>li>ol>li>ol>li>ol li:before {
     margin-left: -4.2em;
 }
+
 /* 编号右对齐 */
-.Main ol.cascade li:before {
+ol.cascade li:before {
     width: 2.5em;
     padding: 0;
     text-align: right;
 }
 
+
+/* 另参见 */
+ul.seealso {}
+
+/* 文献参考 */
+ol.references {}
+
+
+/* [ 通用 ]
+ * --------------------------------------------------------------------------
+ */
+
+/* 段落 */
+p {
+    margin: 15px auto;
+}
+
+/* 地址 */
+.Main address {
+    padding: 2px;
+}
+
+
+/* 章节区段末
+ * 用逐层递进定位可能的正文区。
+ * --------------------------------------------------------------------------
+ */
+
+.Main > section {}
+.Main > section > section {}
+.Main > section > section > section {}
+.Main > section > section > section > section {}
+.Main > section > section > section > section > section {}
+
+/* 章：header,h2,section,footer
+ * ------------------------------------
+ */
+.Main > h2 {
+    font-size: 19pt;
+    padding: 4px 14px;
+    background-color: #9c0;
+    border-bottom: 1px #8b0 solid;
+}
+.Main h2 ~ section {}
+
+/* 节：header,h3,section,footer
+ * ------------------------------------
+ */
+.Main section > h3 {
+    font-size: 17pt;
+    padding: 4px;
+    border-bottom: 1px #eee solid;
+}
+.Main h3 ~ section {}
+
+/* 区：header,h4,section,footer
+ * ------------------------------------
+ */
+.Main section > h4 {
+    font-size: 14pt;
+    padding: 4px;
+}
+.Main h4 ~ section {}
+
+/* 段：header,h5,section,footer
+ * ------------------------------------
+ */
+.Main section > h5 {
+    font-size: 11pt;
+    color: #093;
+    border-bottom: 1px #3c6 dotted;
+}
+.Main h5 ~ section {}
+
+/* 末：header,h6,section,footer
+ * ------------------------------------
+ */
+.Main section > h6 {
+    font-size: 10pt;
+    color: #036;
+}
+.Main h6 ~ section {}
+
+
+/* 定义列表
+ * --------------------------------------------------------------------------
+ */
 
 /* 定义列表 */
 .Main dl {}
@@ -237,7 +388,10 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 }
 
 
-/* 插画 [figure/figcaption, p/img, svg] */
+/* 插画
+ * --------------------------------------------------------------------------
+ * figure/figcaption, p/img, svg
+ */
 .Main figure {
     padding: 0;
     margin: 0;
@@ -262,7 +416,10 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 }
 
 
-/* 引用块 [blockquote/h4, p+] */
+/* 引用块
+ * --------------------------------------------------------------------------
+ * blockquote/h4, p+
+ */
 .Main blockquote {
     margin: 0 24px;
     padding-left: 20pt;
@@ -271,44 +428,61 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 .Main blockquote > h4 {}
 
 
-/* 批注块 [aside/h4, p+] */
+/* 批注块
+ * --------------------------------------------------------------------------
+ * aside/h4, p+
+ */
 .Main aside {}
 .Main aside > h4 {}
 
 
-/* 详细内容 [details/summary, section.content/~] */
+/* 详细内容
+ * --------------------------------------------------------------------------
+ * [details/summary, section/~]
+ */
 .Main details {}
 .Main details > summary {}
-.Main details > section.content {}
+.Main details > section {}
 
 
-/* 地址 [address/p+] */
-.Main address {
-    padding: 2px;
-}
-
-
-/* 导言 [header/p+] */
+/* 导言
+ * --------------------------------------------------------------------------
+ * header/h4, p+
+ */
 .Main header {
     padding: 2px;
 }
 
 
-/* 尾注 [footer/p+] */
+/* 尾注
+ * --------------------------------------------------------------------------
+ * footer/h4, p+
+ */
 .Main footer {
     padding: 2px;
 }
 
 
-/* 线条（通用） */
+/* 线条
+ * --------------------------------------------------------------------------
+ */
 .Main hr {
     height: 0;
     margin: 14px 0;
     border-top: 1px #666 solid; /* 默认 */
 }
 
+/* 章间隔 */
+.Main > hr {
+    margin: 50px auto 40px;
+    border-top: 1px #e0e0e0 solid;
+    box-shadow: #888 0px -10px 12px;
+}
 
-/* 表格 */
+
+/* 表格元件
+ * --------------------------------------------------------------------------
+ */
 .Main caption,
 .Main th,
 .Main td {
@@ -342,7 +516,7 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 .Main picture {}
 
 
-/* 字符表情 */
+/* 表情 */
 .Main code.orz {
     display: inline-block;
     padding: 0 4px;
@@ -353,102 +527,10 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 }
 
 
-/* [ 独立单元 ]
- ****************************************************************************/
+/* 代码（总）
+ * --------------------------------------------------------------------------
+ */
 
-/* 摘要
- * header.summary/p
-*/
-.Main header.summary {
-    border: px #eee solid;
-    border-radius: 10px;
-    background-color: #f7f7f7;
-    margin-bottom: 2em;
-    padding: 10px 30px;
-    box-shadow: #ccc 0 1px 6px;
-}
-.Main header.summary > h3 {}
-
-
-/* 目录
- * nav.toc/ol.cascade/li/a
-*/
-.Main nav.toc {
-    padding: 5px;
-    background-color: #fffff7;
-    border: 1px #e3e3e0 solid;
-    display: inline-block;
-    border-radius: 4px;
-    font-size: 10pt;
-    box-shadow: 1px 1px 4px #bbb;
-}
-/* 页面固定 */
-.Main nav.toc {
-    position: fixed;
-    top: 5px;
-    left: 20px;
-    background-color: rgba(245,245,245,0.7);
-    height: 96%;
-}
-.Main nav.toc>ol.cascade {
-    height: calc(100% - 80px);
-    overflow-y: auto;
-}
-
-.Main nav.toc h4 {
-    margin: 5px 2px;
-    padding-bottom: 10px;
-    font-size: 12pt;
-    text-align: center;
-    border-bottom: 1px #ddd dotted;
-    color: #333;
-}
-.Main nav.toc h4 > a:hover {
-    text-decoration: none;
-}
-
-.Main nav.toc>ol {
-    margin: 2px 0;
-    padding: 5px 2px;
-    padding-bottom: 11pt;
-}
-.Main nav.toc li {
-    margin: 0;
-    line-height: 150%;
-}
-.Main nav.toc > ol li {
-    margin-left: 2em;
-}
-.Main nav.toc a {
-    display: block;
-    text-decoration: none;
-    color: #039;
-    line-height: 150%;
-}
-.Main nav.toc a:hover {
-    text-decoration: underline;
-}
-
-/* 另参见 */
-.Main ul.seealso {}
-
-
-/* 文献参考 */
-.Main ol.references {}
-
-
-/* 间隔 */
-.Main > hr {
-    margin: 50px auto 40px;
-    border-top: 1px #e0e0e0 solid;
-    box-shadow: #888 0px -10px 12px;
-}
-
-
-/* [ 代码：高亮 ]
- ****************************************************************************/
-
-/* 代码全局 */
 .Main code {
     word-wrap: break-word;
     background-color: #eee;
@@ -459,12 +541,13 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
     border: 1px #ddd solid;
 }
 
-/* 内联代码 */
 .Main code[data-lang] {
     border: 1px #e8e8e8 solid;
 }
 
-/* 代码块 [pre/code/b]
+/* 代码块
+ * ------------------------------------
+ * pre.codeblock/code/b
  */
 .Main pre > code {
     display: block;
@@ -476,8 +559,10 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
     box-shadow: #ccc 0px 2px 4px;
 }
 
-/* 代码清单 [ol.codelist/li/code]
- * - 超长默认换行，注释部分为滚动样式；
+/* 代码表
+ * ------------------------------------
+ * ol.codelist/li/code
+ * 超长默认换行。
  */
 .Main ol.codelist {
     font-size: 10pt;
@@ -508,8 +593,8 @@ header, section, footer, article, figure, figcaption, hgroup, aside, details {
 }
 
 /* 高亮着色：通用
- ****************************
-*/
+ * ------------------------------------
+ */
 code b {
     font-weight: normal;
 }
@@ -566,11 +651,11 @@ code b.typ {
 }
 
 /* css: !important
-   cpp: #include...
-   java: @interface
-   shell: #!/bin/bash
-   js: $
-*/
+ * cpp: #include...
+ * java: @interface
+ * shell: #!/bin/bash
+ * js: $
+ */
 code b.imp {
     color: #e60;
 }
@@ -599,8 +684,8 @@ code b.non {
 }
 
 /* 高亮覆盖
- ****************************
-*/
+ * ------------------------------------
+ */
 code[data-lang="css"] b.tag {
     color: #f0b;
     font-weight: normal;

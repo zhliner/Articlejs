@@ -98,7 +98,6 @@ const tagsMap = {
     s3:         ['section/h4, header, content, footer'],
     s4:         ['section/h5, header, content, footer'],
     s5:         ['section/h6, header, content, footer'],
-    content:    ['section', 'content'],
     ul:         ['ul/li'],
     seealso:    ['ul/li', 'seealso'],
     ol:         ['ol/li'],

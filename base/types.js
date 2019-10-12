@@ -28,48 +28,42 @@ const
     S3          = 1 << 7,   // 区 /h4
     S4          = 1 << 8,   // 段 /h5
     S5          = 1 << 9,   // 末 /h6
-    CONTENT     = 1 << 10,  // 正文区
-    OL          = 1 << 11,  // 有序列表
-    BLOUFCPC    = 1 << 12,  // 块集：ul,figure,codelist,pre,codeblock
-    SEEALSO     = 1 << 13,  // 另参见
-    CASCADE     = 1 << 14,  // 级联表
-    REFERENCES  = 1 << 15,  // 文献参考
-    DL          = 1 << 16,  // 定义列表
-    BLOTHS      = 1 << 17,  // 块集：table,hr,space
-    BLOCKQUOTE  = 1 << 18,  // 块引用
-    ASIDE       = 1 << 19,  // 批注
-    DETAILS     = 1 << 20,  // 详细内容
-    P           = 1 << 21,  // 段落
-    ADDRESS     = 1 << 22,  // 地址信息
-
-    CODELI      = 1 << 23,  // 代码表条目（结构件 li/code）
-    CASCADELI   = 1 << 24,  // 级联表条目（结构件 li/h5,ol）
-
-    INLINE      = 1 << 25,  // 内联单元
-    A           = 1 << 26,  // 链接
-    CODE        = 1 << 27,  // 行内代码
-    IMG         = 1 << 28,  // 图片
-    I           = 1 << 29,  // <i> 标题编号
-    B           = 1 << 30,  // <b> 代码关键字
-
-    H2          = 1 << 31,  // 章标题
-    H3          = 1 << 32,  // 节标题
-    H4          = 1 << 33,  // 区标题
-    H5          = 1 << 34,  // 段标题
-    H6          = 1 << 35,  // 末标题
-    SUMMARY     = 1 << 36,  // 详细内容摘要/标题
-    FIGCAPTION  = 1 << 37,  // 插图标题
-    LI          = 1 << 38,  // 列表项（通用）
-    DLI         = 1 << 39,  // 定义列表项（dt,dd）
-
-    RBPT        = 1 << 40,  // 注音单元（rb,rp,rt）
-    TRACK       = 1 << 41,  // 字幕轨
-    SOURCE      = 1 << 42,  // 媒体资源
-
-    CAPTION     = 1 << 43,  // 表格标题
-    TSEC        = 1 << 44,  // 表格片区（thead,tbody,tfoot）
-    TR          = 1 << 45,  // 表格行
-    TCELL       = 1 << 46;  // 表单元格（th,td）
+    OL          = 1 << 10,  // 有序列表
+    BLOUFCPC    = 1 << 11,  // 块集：ul,figure,codelist,pre,codeblock
+    SEEALSO     = 1 << 12,  // 另参见
+    CASCADE     = 1 << 13,  // 级联表
+    REFERENCES  = 1 << 14,  // 文献参考
+    DL          = 1 << 15,  // 定义列表
+    BLOTHS      = 1 << 16,  // 块集：table,hr,space
+    BLOCKQUOTE  = 1 << 17,  // 块引用
+    ASIDE       = 1 << 18,  // 批注
+    DETAILS     = 1 << 19,  // 详细内容
+    P           = 1 << 20,  // 段落
+    ADDRESS     = 1 << 21,  // 地址信息
+    CODELI      = 1 << 22,  // 代码表条目（结构件 li/code）
+    CASCADELI   = 1 << 23,  // 级联表条目（结构件 li/h5,ol）
+    INLINE      = 1 << 24,  // 内联单元
+    A           = 1 << 25,  // 链接
+    CODE        = 1 << 26,  // 行内代码
+    IMG         = 1 << 27,  // 图片
+    I           = 1 << 28,  // <i> 标题编号
+    B           = 1 << 29,  // <b> 代码关键字
+    H2          = 1 << 30,  // 章标题
+    H3          = 1 << 31,  // 节标题
+    H4          = 1 << 32,  // 区标题
+    H5          = 1 << 33,  // 段标题
+    H6          = 1 << 34,  // 末标题
+    SUMMARY     = 1 << 35,  // 详细内容摘要/标题
+    FIGCAPTION  = 1 << 36,  // 插图标题
+    LI          = 1 << 37,  // 列表项（通用）
+    DLI         = 1 << 38,  // 定义列表项（dt,dd）
+    RBPT        = 1 << 39,  // 注音单元（rb,rp,rt）
+    TRACK       = 1 << 40,  // 字幕轨
+    SOURCE      = 1 << 41,  // 媒体资源
+    CAPTION     = 1 << 42,  // 表格标题
+    TSEC        = 1 << 43,  // 表格片区（thead,tbody,tfoot）
+    TR          = 1 << 44,  // 表格行
+    TCELL       = 1 << 45;  // 表单元格（th,td）
 
 
 //
@@ -91,7 +85,6 @@ const Types = {
     s3:             S3,
     s4:             S4,
     s5:             S5,
-    content:        CONTENT,
     ul:             BLOUFCPC,
     seealso:        SEEALSO,
     ol:             OL,
@@ -353,7 +346,17 @@ const CustomTypes = {
 
 
 //
-// 功能函数
+// 工具函数
+///////////////////////////////////////////////////////////////////////////////
+
+
+function cl( ol ) {
+    //
+}
+
+
+//
+// 导出
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -408,9 +411,5 @@ function nilSub( name ) {
     return typeSubs[name] === 0;
 }
 
-
-//
-// 导出
-///////////////////////////////////////////////////////////////////////////////
 
 export { conName, conType, goodSub, nilSub };

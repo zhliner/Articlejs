@@ -10,95 +10,100 @@
             margin: 0;
             padding-left: 270px;
         }
-        .Main {
-            width: 780px;
-            padding: 20px;
+        header.abstract {
+            width: 700px;
+            margin: 50px;
+            box-sizing: border-box;
+        }
+        hgroup,
+        article.Main {
+            width: 800px;
         }
     </style>
 </head>
 <body>
+    <hgroup>
+        <h1 id="文章的内容结构与效果">文章的内容结构与效果</h1>
+        <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
+    </hgroup>
+    <header role="abstract" class="abstract">
+        <h3>【提 要】</h3>
+        <p>一篇文章的内容最多分成五个层级：<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>，每一个层级对应一个片区（<code>section</code>）。每一层通常都有一个标题，起始顶层片区的标题为
+            <code>&lt;h2&gt;</code>，其余顺次为 <code>&lt;h3&gt;</code> <code>&lt;h4&gt;</code> <code>&lt;h5&gt;</code>
+            <code>&lt;h6&gt;</code>。<code>&lt;h1&gt;</code> 标签用于 <code>&lt;article&gt;</code> 的主标题，通常也是页面的大标题。</p>
+        <p><code>&lt;article&gt;</code> 是内容结构的根元素，包含了所有的内容成员。</p>
+        <blockquote>
+            <p><strong>注：</strong>
+                一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性很差。</p>
+        </blockquote>
+    </header>
+    <nav class="toc">
+        <h4><a href="#文章的内容结构与效果">【目 录】</a></h4>
+        <ol role="cascade" class="cascade">
+            <li><h5><a href="#内容的结构">内容的结构</a></h5>
+                <ol>
+                    <li><h5><a href="#层次图">层次图</a></h5></li>
+                </ol>
+            </li>
+            <li><h5><a href="#内容成员">内容成员</a></h5>
+                <ol>
+                    <li><h5><a href="#块单元">块单元</a></h5>
+                        <ol>
+                            <li><h5><a href="#结构类">结构类</a></h5></li>
+                            <li><h5><a href="#内容类">内容类</a></h5></li>
+                        </ol>
+                    </li>
+                    <li><h5><a href="#行内单元">行内单元</a></h5></li>
+                </ol>
+            </li>
+            <li><h5><a href="#单元结构">单元结构</a></h5>
+                <ol>
+                    <li><h5><a href="#原生结构">原生结构</a></h5>
+                        <ol>
+                            <li><h5><a href="#导言/前言">导言/前言</a></h5></li>
+                            <li><h5><a href="#片区">片区</a></h5></li>
+                            <li><h5><a href="#无序列表">无序列表</a></h5></li>
+                            <li><h5><a href="#有序列表">有序列表</a></h5></li>
+                            <li><h5><a href="#定义列表">定义列表</a></h5></li>
+                            <li><h5><a href="#表格">表格</a></h5></li>
+                            <li><h5><a href="#插图">插图</a></h5></li>
+                            <li><h5><a href="#详细内容">详细内容</a></h5></li>
+                            <li><h5><a href="#引用块">引用块</a></h5></li>
+                            <li><h5><a href="#批注">批注</a></h5></li>
+                            <li><h5><a href="#尾注">尾注</a></h5></li>
+                            <li><h5><a href="#代码块">代码块</a></h5></li>
+                            <li><h5><a href="#注音">注音</a></h5></li>
+                        </ol>
+                    </li>
+                    <li><h5><a href="#定制结构">定制结构</a></h5>
+                        <ol>
+                            <li><h5><a href="#摘要">摘要</a></h5></li>
+                            <li><h5><a href="#目录">目录</a></h5></li>
+                            <li><h5><a href="#正文区">正文区</a></h5></li>
+                            <li><h5><a href="#多级编号列表">多级编号列表</a></h5></li>
+                            <li><h5><a href="#代码表">代码表</a></h5></li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+            <li><h5><a href="#代码着色">代码着色</a></h5>
+                <ol>
+                    <li><h5><a href="#封装规则">封装规则</a></h5></li>
+                    <li><h5><a href="#示例">示例</a></h5>
+                        <ol>
+                            <li><h5><a href="#源码1（代码块）">源码1（代码块）</a></h5></li>
+                            <li><h5><a href="#效果1">效果</a></h5></li>
+                            <li><h5><a href="#源码2（代码表）">源码2（代码表）</a></h5></li>
+                            <li><h5><a href="#效果2">效果</a></h5></li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+    </nav>
     <article class="Main">
-        <hgroup>
-            <h1 id="文章的内容结构与效果">文章的内容结构与效果</h1>
-            <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
-        </hgroup>
-        <header role="summary" class="summary">
-            <h3>【摘 要】</h3>
-            <p>一篇文章的内容最多分成五个层级：<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>，每一个层级对应一个片区（<code>section</code>）。每一层通常都有一个标题，起始顶层片区的标题为
-                <code>&lt;h2&gt;</code>，其余顺次为 <code>&lt;h3&gt;</code> <code>&lt;h4&gt;</code> <code>&lt;h5&gt;</code>
-                <code>&lt;h6&gt;</code>。<code>&lt;h1&gt;</code> 标签用于 <code>&lt;article&gt;</code> 的主标题，通常也是页面的大标题。</p>
-            <p><code>&lt;article&gt;</code> 是内容结构的根元素，包含了所有的内容成员。</p>
-            <blockquote>
-                <p><strong>注：</strong>
-                    一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性很差。</p>
-            </blockquote>
-        </header>
-        <nav class="toc">
-            <h4><a href="#文章的内容结构与效果">【目 录】</a></h4>
-            <ol role="cascade" class="cascade">
-                <li><a href="#内容的结构">内容的结构</a>
-                    <ol>
-                        <li><a href="#层次图">层次图</a></li>
-                    </ol>
-                </li>
-                <li><a href="#内容成员">内容成员</a>
-                    <ol>
-                        <li><a href="#块单元">块单元</a>
-                            <ol>
-                                <li><a href="#结构类">结构类</a></li>
-                                <li><a href="#内容类">内容类</a></li>
-                            </ol>
-                        </li>
-                        <li><a href="#行内单元">行内单元</a></li>
-                    </ol>
-                </li>
-                <li><a href="#单元结构">单元结构</a>
-                    <ol>
-                        <li><a href="#原生结构">原生结构</a>
-                            <ol>
-                                <li><a href="#导言/前言">导言/前言</a></li>
-                                <li><a href="#片区">片区</a></li>
-                                <li><a href="#无序列表">无序列表</a></li>
-                                <li><a href="#有序列表">有序列表</a></li>
-                                <li><a href="#定义列表">定义列表</a></li>
-                                <li><a href="#表格">表格</a></li>
-                                <li><a href="#插图">插图</a></li>
-                                <li><a href="#详细内容">详细内容</a></li>
-                                <li><a href="#引用块">引用块</a></li>
-                                <li><a href="#批注">批注</a></li>
-                                <li><a href="#尾注">尾注</a></li>
-                                <li><a href="#代码块">代码块</a></li>
-                                <li><a href="#注音">注音</a></li>
-                            </ol>
-                        </li>
-                        <li><a href="#定制结构">定制结构</a>
-                            <ol>
-                                <li><a href="#摘要">摘要</a></li>
-                                <li><a href="#目录">目录</a></li>
-                                <li><a href="#正文区">正文区</a></li>
-                                <li><a href="#多级编号列表">多级编号列表</a></li>
-                                <li><a href="#代码表">代码表</a></li>
-                            </ol>
-                        </li>
-                    </ol>
-                </li>
-                <li><a href="#代码着色">代码着色</a>
-                    <ol>
-                        <li><a href="#封装规则">封装规则</a></li>
-                        <li><a href="#示例">示例</a>
-                            <ol>
-                                <li><a href="#源码1（代码块）">源码1（代码块）</a></li>
-                                <li><a href="#效果1">效果</a></li>
-                                <li><a href="#源码2（代码表）">源码2（代码表）</a></li>
-                                <li><a href="#效果2">效果</a></li>
-                            </ol>
-                        </li>
-                    </ol>
-                </li>
-            </ol>
-        </nav>
+        <h2 id="内容的结构">内容的结构</h2>
         <section>
-            <h2 id="内容的结构">内容的结构</h2>
             <header>
                 <p>下面的逐级嵌套结构按标题号递增，逻辑上是越来越细化的内容区。这是一个常规合理的内容组织形式，它能让文章的内容结构合理，表达清晰，阅读起来也更轻松。</p>
                 <p>这里的结构主要参考Markdown文档按标题折叠的逻辑来设计，表达合理的同时也便于对Markdown文档的解析结果进行程序处理：重构为如下的层次结构。</p>
@@ -107,61 +112,58 @@
                         根据使用经验，这种规范的内容结构实际上可以迫使您把文章的内容组织得更合理。您可以试一试 <code>:)</code></p>
                 </blockquote>
             </header>
+            <h3 id="层次图">层次图</h3>
             <section>
-                <h3 id="层次图">层次图</h3>
-                <section role="content" class="content">
-                    <pre>
+                <pre>
 <code data-lang="html">&lt;article&gt; &lt;h1&gt;&lt;/h1&gt;                             <b class="cmt">&lt;!-- 根容器：主标题（页面大标题） --&gt;</b>
-    &lt;header role="summary"&gt;&lt;/header&gt;            <b class="cmt">&lt;!-- 摘要 --&gt;</b>
-    &lt;nav role="toc" class="toc"&gt;&lt;/nav&gt;          <b class="cmt">&lt;!-- 目录 --&gt;</b>
-    &lt;header&gt;&lt;/header&gt;                           <b class="cmt">&lt;!-- 导言 --&gt;</b>
-    &lt;section&gt; &lt;h2&gt;&lt;/h2&gt;                         <b class="cmt">&lt;!-- 章片区/标题。第一层 section --&gt;</b>
-        &lt;header&gt;&lt;/header&gt;                       <b class="cmt">&lt;!-- 导言 --&gt;</b>
-        &lt;section&gt; &lt;h3&gt;&lt;/h3&gt;                     <b class="cmt">&lt;!-- 节片区/标题。第二层 section --&gt;</b>
-            &lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言 --&gt;</b>
-            &lt;section&gt; &lt;h4&gt;&lt;/h4&gt;                 <b class="cmt">&lt;!-- 区片区/标题。第三层 section --&gt;</b>
-                &lt;header&gt;&lt;/header&gt;               <b class="cmt">&lt;!-- 导言 --&gt;</b>
-                &lt;section&gt; &lt;h5&gt;&lt;/h5&gt;             <b class="cmt">&lt;!-- 段片区/标题。第四层 section --&gt;</b>
-                    &lt;header&gt;&lt;/header&gt;           <b class="cmt">&lt;!-- 导言 --&gt;</b>
-                    &lt;section&gt; &lt;h6&gt;&lt;/h6&gt;         <b class="cmt">&lt;!-- 末片区/标题。第五层 section --&gt;</b>
-                        &lt;section role="content" class="content"&gt;
-                            [块单元内容]...      <b class="cmt">&lt;!-- 内容/正文 --&gt;</b>
-                        &lt;/section&gt;
-                    &lt;/section&gt;&lt;/section&gt;&lt;/section&gt;&lt;/section&gt;&lt;/section&gt;
-    &lt;hr /&gt;                                      <b class="cmt">&lt;!-- 间隔 --&gt;</b>
-    &lt;ul role="seealso&gt;&lt;/ul&gt;                     <b class="cmt">&lt;!-- 另参见 --&gt;</b>
-    &lt;ol role="references&gt;&lt;/ol&gt;                  <b class="cmt">&lt;!-- 文献参考 --&gt;</b>
+&lt;header role="summary"&gt;&lt;/header&gt;            <b class="cmt">&lt;!-- 摘要 --&gt;</b>
+&lt;nav role="toc" class="toc"&gt;&lt;/nav&gt;          <b class="cmt">&lt;!-- 目录 --&gt;</b>
+&lt;header&gt;&lt;/header&gt;                           <b class="cmt">&lt;!-- 导言 --&gt;</b>
+&lt;section&gt; &lt;h2&gt;&lt;/h2&gt;                         <b class="cmt">&lt;!-- 章片区/标题。第一层 section --&gt;</b>
+    &lt;header&gt;&lt;/header&gt;                       <b class="cmt">&lt;!-- 导言 --&gt;</b>
+    &lt;section&gt; &lt;h3&gt;&lt;/h3&gt;                     <b class="cmt">&lt;!-- 节片区/标题。第二层 section --&gt;</b>
+        &lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言 --&gt;</b>
+        &lt;section&gt; &lt;h4&gt;&lt;/h4&gt;                 <b class="cmt">&lt;!-- 区片区/标题。第三层 section --&gt;</b>
+            &lt;header&gt;&lt;/header&gt;               <b class="cmt">&lt;!-- 导言 --&gt;</b>
+            &lt;section&gt; &lt;h5&gt;&lt;/h5&gt;             <b class="cmt">&lt;!-- 段片区/标题。第四层 section --&gt;</b>
+                &lt;header&gt;&lt;/header&gt;           <b class="cmt">&lt;!-- 导言 --&gt;</b>
+                &lt;section&gt; &lt;h6&gt;&lt;/h6&gt;         <b class="cmt">&lt;!-- 末片区/标题。第五层 section --&gt;</b>
+                    &lt;section role="content" class="content"&gt;
+                        [块单元内容]...      <b class="cmt">&lt;!-- 内容/正文 --&gt;</b>
+                    &lt;/section&gt;
+                &lt;/section&gt;&lt;/section&gt;&lt;/section&gt;&lt;/section&gt;&lt;/section&gt;
+&lt;hr /&gt;                                      <b class="cmt">&lt;!-- 间隔 --&gt;</b>
+&lt;ul role="seealso&gt;&lt;/ul&gt;                     <b class="cmt">&lt;!-- 另参见 --&gt;</b>
+&lt;ol role="references&gt;&lt;/ol&gt;                  <b class="cmt">&lt;!-- 文献参考 --&gt;</b>
 &lt;/article&gt;
 </code></pre>
-                    <p><strong>解析逻辑：</strong></p>
-                    <ul>
-                        <li>如果内容包含多个层级（标题），在上级标题和首个下级标题之间的内容被视为 <code>&lt;header&gt;</code> 部分。</li>
-                        <li>如果内部已经没有下级标题，则全部视为内容，由一个 <code>&lt;section role="content"&gt;</code> 包含。它被称为 <code>正文区</code>，无导言和标题部分。</li>
-                        <li>如果内部的下级标题不是顺次递增而是跨级了，则解析为内容区容器（内部子标题继续解析）。这违反了标准的层次结构，通常是内容的组织不够合理。</li>
-                        <li>除了终端内容区，一个层级中最多只包含3种子元素：<code>h2-h6</code>、<code>header</code>（前段）和可能多个 <code>section</code> 单元。</li>
-                    </ul>
-                    <blockquote>
-                        <p><strong>注：</strong><br>
-                            对于没有明确标签表达的内容单元，采用相似用途的标签和 <code>role</code> 属性来定义，如 <code>&lt;nav role="toc"&gt;</code> 表示目录单元。<br>
-                            在实际的文章内容里，会添加一个相同名称的 <code>class</code> 属性值，以便于样式定义。如上源码所示。<br></p>
-                    </blockquote>
-                </section>
+                <p><strong>解析逻辑：</strong></p>
+                <ul>
+                    <li>如果内容包含多个层级（标题），在上级标题和首个下级标题之间的内容被视为 <code>&lt;header&gt;</code> 部分。</li>
+                    <li>如果内部已经没有下级标题，则全部视为内容，由一个 <code>&lt;section role="content"&gt;</code> 包含。它被称为 <code>正文区</code>，无导言和标题部分。</li>
+                    <li>如果内部的下级标题不是顺次递增而是跨级了，则解析为内容区容器（内部子标题继续解析）。这违反了标准的层次结构，通常是内容的组织不够合理。</li>
+                    <li>除了终端内容区，一个层级中最多只包含3种子元素：<code>h2-h6</code>、<code>header</code>（前段）和可能多个 <code>section</code> 单元。</li>
+                </ul>
+                <blockquote>
+                    <p><strong>注：</strong><br>
+                        对于没有明确标签表达的内容单元，采用相似用途的标签和 <code>role</code> 属性来定义，如 <code>&lt;nav role="toc"&gt;</code> 表示目录单元。<br>
+                        在实际的文章内容里，会添加一个相同名称的 <code>class</code> 属性值，以便于样式定义。如上源码所示。<br></p>
+                </blockquote>
             </section>
         </section>
         <hr />
+        <h2 id="内容成员">内容成员</h2>
         <section>
-            <h2 id="内容成员">内容成员</h2>
+            <h3 id="块单元">块单元</h3>
             <section>
-                <h3 id="块单元">块单元</h3>
                 <header>
                     <p>块单元会占据单独的一行，在CSS中的显示属性是<code>display:block</code>。块单元又分为两种，一种是需要包含其它元素的<strong>结构类</strong>，一种是可以直接包含文本内容的<strong>内容类</strong>。
                     </p>
                 </header>
+                <h4 id="结构类">结构类</h4>
                 <section>
-                    <h4 id="结构类">结构类</h4>
-                    <section role="content" class="content">
-                        <p>内部不能直接包含行内元素（如文本、图片等），如果没有标准的内部元素，则必须采用通用的 <code>&lt;p&gt;</code> 段落容纳。</p>
-                        <pre>
+                    <p>内部不能直接包含行内元素（如文本、图片等），如果没有标准的内部元素，则必须采用通用的 <code>&lt;p&gt;</code> 段落容纳。</p>
+                    <pre>
 <code data-lang="html">&lt;header role="summary"&gt;&lt;/header&gt;    <b class="cmt">&lt;!-- 摘要：/h3, p... --&gt;</b>
 &lt;nav role="toc"&gt;&lt;/nav&gt;              <b class="cmt">&lt;!-- 目录：/h4/a, ol/li/a（可多级） --&gt;</b>
 &lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言：/p... --&gt;</b>
@@ -182,10 +184,9 @@
 &lt;footer&gt;&lt;/footer&gt;                   <b class="cmt">&lt;!-- 尾注：/p... --&gt;</b>
 &lt;pre role="codeblock"&gt;&lt;/pre&gt;        <b class="cmt">&lt;!-- 代码块：/code/... --&gt;</b>
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="内容类">内容类</h4>
                 <section>
-                    <h4 id="内容类">内容类</h4>
                     <section>
                         <pre>
 <code data-lang="html">&lt;p&gt;&lt;/p&gt;                     <b class="cmt">&lt;!-- 段落，通用内容容器 --&gt;</b>
@@ -196,11 +197,10 @@
                     </section>
                 </section>
             </section>
+            <h3 id="行内单元">行内单元</h3>
             <section>
-                <h3 id="行内单元">行内单元</h3>
-                <section role="content" class="content">
-                    <p>只能被包含在 <strong>内容类</strong> 块单元里（如：<code>&lt;p&gt;</code>），共 30 个。代码块<code>&lt;pre&gt;&lt;code&gt;</code> 内的元素有固定的规则。</p>
-                    <pre>
+                <p>只能被包含在 <strong>内容类</strong> 块单元里（如：<code>&lt;p&gt;</code>），共 30 个。代码块<code>&lt;pre&gt;&lt;code&gt;</code> 内的元素有固定的规则。</p>
+                <pre>
 <code data-lang="html">&lt;img /&gt;                     <b class="cmt">&lt;!-- 图片 --&gt;</b>
 &lt;audio&gt;&lt;/audio&gt;             <b class="cmt">&lt;!-- 音频：/track,source, #text --&gt;</b>
 &lt;video&gt;&lt;/video&gt;             <b class="cmt">&lt;!-- 视频：/track,source, #text --&gt;</b>
@@ -232,237 +232,199 @@
 &lt;b&gt;&lt;/b&gt;                     <b class="cmt">&lt;!-- 粗体：主要用于代码块内的关键字包裹 --&gt;</b>
 &lt;i&gt;&lt;/i&gt;                     <b class="cmt">&lt;!-- 斜体：主要用于图标占位（icon） --&gt;</b>
 </code></pre>
-                </section>
             </section>
         </section>
         <hr />
+        <h2 id="单元结构">单元结构</h2>
         <section>
-            <h2 id="单元结构">单元结构</h2>
+            <h3 id="原生结构">原生结构</h3>
             <section>
-                <h3 id="原生结构">原生结构</h3>
+                <h4 id="导言/前言">导言/前言</h4>
                 <section>
-                    <h4 id="导言/前言">导言/前言</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;header&gt;
-    &lt;p&gt;&lt;/p&gt; ...
+&lt;p&gt;&lt;/p&gt; ...
 &lt;/header&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="片区">片区</h4>
                 <section>
-                    <h4 id="片区">片区</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;section&gt;
-    &lt;h2&gt; ~ &lt;h6&gt;
-    &lt;header&gt;&lt;/header&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
-    &lt;section&gt;&lt;/section&gt;
+&lt;h2&gt; ~ &lt;h6&gt;
+&lt;header&gt;&lt;/header&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
+&lt;section&gt;&lt;/section&gt;
 &lt;/section&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="无序列表">无序列表</h4>
                 <section>
-                    <h4 id="无序列表">无序列表</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;ul&gt;
-    &lt;li&gt;&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="有序列表">有序列表</h4>
                 <section>
-                    <h4 id="有序列表">有序列表</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;ol&gt;
-    &lt;li&gt;&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
 &lt;/ol&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="定义列表">定义列表</h4>
                 <section>
-                    <h4 id="定义列表">定义列表</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;dl&gt;
-    &lt;dt&gt;&lt;/dt&gt;
-    &lt;dd&gt;&lt;/dd&gt;
+&lt;dt&gt;&lt;/dt&gt;
+&lt;dd&gt;&lt;/dd&gt;
 &lt;/dl&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="表格">表格</h4>
                 <section>
-                    <h4 id="表格">表格</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;table&gt;
-    &lt;caption&gt;&lt;/caption&gt;
-    &lt;thead&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
-        &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
-    &lt;/thead&gt;
-    &lt;tbody&gt;
-        &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
-    &lt;/tbody&gt;
-    &lt;tfoot&gt; <b class="cmt">&lt;!-- 可选--&gt;</b>
-        &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
-    &lt;/tfoot&gt;
+&lt;caption&gt;&lt;/caption&gt;
+&lt;thead&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
+    &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+    &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tfoot&gt; <b class="cmt">&lt;!-- 可选--&gt;</b>
+    &lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tfoot&gt;
 &lt;/table&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="插图">插图</h4>
                 <section>
-                    <h4 id="插图">插图</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;figure&gt;
-    &lt;p&gt;&lt;img /&gt;&lt;p&gt;
-    &lt;figcaption&gt;&lt;/figcaption&gt;
+&lt;p&gt;&lt;img /&gt;&lt;p&gt;
+&lt;figcaption&gt;&lt;/figcaption&gt;
 &lt;/figure&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="详细内容">详细内容</h4>
                 <section>
-                    <h4 id="详细内容">详细内容</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;details&gt;
-    &lt;summary&gt;&lt;/summary&gt;
-    &lt;section role="content"&gt;&lt;/section&gt;
+&lt;summary&gt;&lt;/summary&gt;
+&lt;section role="content"&gt;&lt;/section&gt;
 &lt;/details&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="引用块">引用块</h4>
                 <section>
-                    <h4 id="引用块">引用块</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;blockquote&gt;
-    &lt;h4&gt;&lt;/h4&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
-    &lt;p&gt;&lt;p&gt; ...
+&lt;h4&gt;&lt;/h4&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
+&lt;p&gt;&lt;p&gt; ...
 &lt;/blockquote&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="批注">批注</h4>
                 <section>
-                    <h4 id="批注">批注</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;aside&gt;
-    &lt;h4&gt;&lt;/h4&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
-    &lt;p&gt;&lt;p&gt; ...
+&lt;h4&gt;&lt;/h4&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
+&lt;p&gt;&lt;p&gt; ...
 &lt;/aside&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="尾注">尾注</h4>
                 <section>
-                    <h4 id="尾注">尾注</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;footer&gt;
-    &lt;p&gt;&lt;p&gt; ...
+&lt;p&gt;&lt;p&gt; ...
 &lt;/footer&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="代码块">代码块</h4>
                 <section>
-                    <h4 id="代码块">代码块</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;pre role="codeblock"&gt;<b class="cmt">&lt;!-- 容许简单换行 --&gt;</b>
 &lt;code data-lang="xx"&gt; ...&lt;b&gt;&lt;/b&gt;...
 &lt;/code&gt;&lt;pre&gt; <b class="cmt">&lt;!-- 末尾应当紧跟 --&gt;</b>
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="注音">注音</h4>
                 <section>
-                    <h4 id="注音">注音</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;ruby&gt;
-    &lt;rb&gt;漢&lt;/rb&gt;&lt;rp&gt;(&lt;/rp&gt;&lt;rt&gt;ㄏㄢˋ&lt;/rt&gt;&lt;rp&gt;)&lt;/rp&gt;
+&lt;rb&gt;漢&lt;/rb&gt;&lt;rp&gt;(&lt;/rp&gt;&lt;rt&gt;ㄏㄢˋ&lt;/rt&gt;&lt;rp&gt;)&lt;/rp&gt;
 &lt;/ruby&gt;
 </code></pre>
-                    </section>
                 </section>
             </section>
+            <h3 id="定制结构">定制结构</h3>
             <section>
-                <h3 id="定制结构">定制结构</h3>
+                <h4 id="摘要">摘要</h4>
                 <section>
-                    <h4 id="摘要">摘要</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;header role="summary" class="summary"&gt;
-    &lt;h3&gt;摘要&lt;h3&gt;
-    &lt;p&gt;&lt;/p&gt; ...
+&lt;h3&gt;摘要&lt;h3&gt;
+&lt;p&gt;&lt;/p&gt; ...
 &lt;/header&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="目录">目录</h4>
                 <section>
-                    <h4 id="目录">目录</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code class="html language-html">&lt;nav role="toc" class="toc"&gt;
-    &lt;h4&gt;&lt;/h4&gt;
-    &lt;ol role="cascade" class="cascade"&gt;
-        &lt;li&gt;&lt;a href="#..."&gt;&lt;/a&gt;&lt;/li&gt;
-    &lt;/ol&gt;
+&lt;h4&gt;&lt;/h4&gt;
+&lt;ol role="cascade" class="cascade"&gt;
+    &lt;li&gt;&lt;a href="#..."&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
 &lt;/nav&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="正文区">正文区</h4>
                 <section>
-                    <h4 id="正文区">正文区</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;section role="content" class="content"&gt;
-    [块单元内容]... <b class="cmt">&lt;!-- 不含其它片区&lt;section&gt; --&gt;</b>
+[块单元内容]... <b class="cmt">&lt;!-- 不含其它片区&lt;section&gt; --&gt;</b>
 &lt;/section&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="多级编号列表">多级编号列表</h4>
                 <section>
-                    <h4 id="多级编号列表">多级编号列表</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;ol role="cascade" class="cascade"&gt;
-    &lt;li&gt;&lt;/li&gt; <b class="cmt">&lt;!-- 由CSS表达序号规则 --&gt;</b>
-    &lt;li&gt; ...
-        &lt;ol&gt;
-            &lt;li&gt;&lt;/li&gt;
-        &lt;/ol&gt;
-    &lt;/li&gt;
+&lt;li&gt;&lt;/li&gt; <b class="cmt">&lt;!-- 由CSS表达序号规则 --&gt;</b>
+&lt;li&gt; ...
+    &lt;ol&gt;
+        &lt;li&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+&lt;/li&gt;
 &lt;/ol&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="代码表">代码表</h4>
                 <section>
-                    <h4 id="代码表">代码表</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;ol role="codelist" class="codelist"&gt;
-    &lt;li&gt;&lt;code data-lang="xx"&gt; <b class="cmt">&lt;!-- 根封装 --&gt;</b>
-        ...&lt;b&gt;&lt;/b&gt;... <b class="cmt">&lt;!-- 代码内容 --&gt;</b>
-    &lt;/code&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;code data-lang="xx"&gt; ... &lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code data-lang="xx"&gt; <b class="cmt">&lt;!-- 根封装 --&gt;</b>
+    ...&lt;b&gt;&lt;/b&gt;... <b class="cmt">&lt;!-- 代码内容 --&gt;</b>
+&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code data-lang="xx"&gt; ... &lt;/code&gt;&lt;/li&gt;
 &lt;/ol&gt;
 </code></pre>
-                    </section>
                 </section>
             </section>
         </section>
         <hr />
+        <h2 id="代码着色">代码着色</h2>
         <section>
-            <h2 id="代码着色">代码着色</h2>
+            <h3 id="封装规则">封装规则</h3>
             <section>
-                <h3 id="封装规则">封装规则</h3>
-                <section role="content" class="content">
-                    <p>考虑简单性，代码内的高亮着色采用 <code>&lt;b&gt;</code> 元素封装，通过 <code>class</code> 类名区分。所有 <code>&lt;b&gt;</code>
-                        元素只会处于同一层级（<code>&lt;code&gt;</code> 直接子元素），没有嵌套。</p>
-                    <p>基本类名定义如下：</p>
-                    <pre>
+                <p>考虑简单性，代码内的高亮着色采用 <code>&lt;b&gt;</code> 元素封装，通过 <code>class</code> 类名区分。所有 <code>&lt;b&gt;</code>
+                    元素只会处于同一层级（<code>&lt;code&gt;</code> 直接子元素），没有嵌套。</p>
+                <p>基本类名定义如下：</p>
+                <pre>
 <code data-lang="css">b.cmt   <b class="cmt">/* comments */</b>
 b.str   <b class="cmt">/* string */</b>
 b.kws   <b class="cmt">/* keywords */</b>
@@ -478,23 +440,19 @@ b.cdt   <b class="cmt">/* &lt;![CDATA[...]]&gt; */</b>
 b.rex   <b class="cmt">/* js-RegExp */</b>
 b.non   <b class="cmt">/* invalid */</b>
 </code></pre>
-                </section>
             </section>
+            <h3 id="示例">示例</h3>
             <section>
-                <h3 id="示例">示例</h3>
+                <h4 id="源码1（代码块）">源码1（代码块）</h4>
                 <section>
-                    <h4 id="源码1（代码块）">源码1（代码块）</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;pre&gt;
 &lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"cmt"</b>&gt;// prints its command-line arguments.&lt;/<b class="tag">b</b>&gt;
 &lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;package&lt;/<b class="tag">b</b>&gt; main
-
 &lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;import&lt;/<b class="tag">b</b>&gt; (
     &lt;<b class="tag">b</b> class=<b class="atv">"str"</b>&gt;"fmt"&lt;/<b class="tag">b</b>&gt;
     &lt;<b class="tag">b</b> class=<b class="atv">"str"</b>&gt;"os"&lt;/<b class="tag">b</b>&gt;
 )
-
 &lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;func&lt;/<b class="tag">b</b>&gt; main() {
     &lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;var&lt;/<b class="tag">b</b>&gt; s, sep &lt;<b class="tag">b</b> class=<b class="atv">"typ"</b>&gt;string&lt;/<b class="tag">b</b>&gt;
     &lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;for&lt;/<b class="tag">b</b>&gt; i := 1; i &amp;lt; &lt;<b class="tag">b</b> class=<b class="atv">"fun"</b>&gt;len&lt;/<b class="tag">b</b>&gt;(os.Args); i++ {
@@ -504,20 +462,16 @@ b.non   <b class="cmt">/* invalid */</b>
     fmt.Println(s)
 }&lt;/code&gt;&lt;/pre&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="效果1">效果</h4>
                 <section>
-                    <h4 id="效果1">效果</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="go"><b class="cmt">// prints its command-line arguments.</b>
 <b class="kws">package</b> main
-
 <b class="kws">import</b> (
     <b class="str">"fmt"</b>
     <b class="str">"os"</b>
 )
-
 <b class="kws">func</b> main() {
     <b class="kws">var</b> s, sep <b class="typ">string</b>
     <b class="kws">for</b> i := 1; i &lt; <b class="fun">len</b>(os.Args); i++ {
@@ -526,12 +480,10 @@ b.non   <b class="cmt">/* invalid */</b>
     }
     fmt.Println(s)
 }</code></pre>
-                    </section>
                 </section>
+                <h4 id="源码2（代码表）">源码2（代码表）</h4>
                 <section>
-                    <h4 id="源码2（代码表）">源码2（代码表）</h4>
-                    <section role="content" class="content">
-                        <pre>
+                    <pre>
 <code data-lang="html">&lt;ol role="codelist" class="codelist"&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;package&lt;/<b class="tag">b</b>&gt; main&lt;/code&gt;&lt;/li&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;import&lt;/<b class="tag">b</b>&gt; &lt;<b class="tag">b</b> class=<b class="atv">"str"</b>&gt;"fmt"&lt;/<b class="tag">b</b>&gt;&lt;/code&gt;&lt;/li&gt;
@@ -544,25 +496,21 @@ b.non   <b class="cmt">/* invalid */</b>
     &lt;li&gt;&lt;code data-lang="go"&gt;}&lt;/code&gt;&lt;/li&gt;
 &lt;/ol&gt;
 </code></pre>
-                    </section>
                 </section>
+                <h4 id="效果2">效果</h4>
                 <section>
-                    <h4 id="效果2">效果</h4>
-                    <section role="content" class="content">
-                        <ol role="codelist" class="codelist">
-                            <li><code data-lang="go"><b class="kws">package</b> main</code></li>
-                            <li><code data-lang="go"><b class="kws">import</b> <b class="str">"fmt"</b></code></li>
-                            <li><code data-lang="go"><b class="kws">func</b> main() {</code></li>
-                            <li><code data-lang="go">    fmt.Println(<b class="str">"Hello, 世界"</b>) <b class="cmt">// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。</b></code></li>
-                            <li><code data-lang="go">}</code></li>
-                            <li><code data-lang="go"><b class="kws">type</b> MapSort <b class="kws">struct</b> {</code> </li>
-                            <li><code data-lang="go">    m <b class="kws">map</b>[<b class="typ">string</b>]<b class="typ">int</b></code></li>
-                            <li><code data-lang="go">    s []<b class="typ">string</b></code></li>
-                            <li><code data-lang="go">}</code></li>
-                        </ol>
-                    </section>
+                    <ol role="codelist" class="codelist">
+                        <li><code data-lang="go"><b class="kws">package</b> main</code></li>
+                        <li><code data-lang="go"><b class="kws">import</b> <b class="str">"fmt"</b></code></li>
+                        <li><code data-lang="go"><b class="kws">func</b> main() {</code></li>
+                        <li><code data-lang="go">    fmt.Println(<b class="str">"Hello, 世界"</b>) <b class="cmt">// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。</b></code></li>
+                        <li><code data-lang="go">}</code></li>
+                        <li><code data-lang="go"><b class="kws">type</b> MapSort <b class="kws">struct</b> {</code> </li>
+                        <li><code data-lang="go">    m <b class="kws">map</b>[<b class="typ">string</b>]<b class="typ">int</b></code></li>
+                        <li><code data-lang="go">    s []<b class="typ">string</b></code></li>
+                        <li><code data-lang="go">}</code></li>
+                    </ol>
                 </section>
-
             </section>
         </section>
         <hr />
