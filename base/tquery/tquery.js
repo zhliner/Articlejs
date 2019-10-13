@@ -303,8 +303,8 @@
         //      prepend =  2    同上
         //      end     = -2    元素内结束点（末尾）
         //      append  = -2    同上
-        //      fill    =  0    内容填充（覆盖，清除原有）
-        //      replace = ''    替换
+        //      replace =  0    替换
+        //      fill    = ''    内容填充（清除原有）
         // }
         // 示意：
         //   <!-- 1 -->
@@ -318,8 +318,8 @@
         // 理解（记忆）：
         //   1： 表示与目标同级，只有1个层次。负值反向取末尾。
         //   2： 表示为目标子级元素，2个层次。负值取末尾。
-        //   0： 清空原有数据后填充（清零）。
-        //   '': 替换，脱离但有所保持（位置）。
+        //   0： 替换。原目标已无（游离）。
+        //   '': 填充。先设置内容为空串。
         //
         Wheres = {
             'before':   1,
@@ -328,8 +328,8 @@
             'prepend':  2,
             'end':     -2,
             'append':  -2,
-            'fill':     0,
-            'replace':  '',
+            'replace':  0,
+            'fill':    '',
 
             '1': 1,  '-1': -1,  '2': 2,  '-2': -2, '0': 0, '': '',
         },
@@ -1754,7 +1754,7 @@ Object.assign( tQuery, {
      * @param  {String} sep 多段连接符（设置时）
      * @return {String|[Node]} 源码或插入的节点集
      */
-    html( el, code, where = 0, sep = ' ' ) {
+    html( el, code, where = '', sep = ' ' ) {
         if (code === undefined) {
             return typeof el == 'string' ? htmlCode(el) : el.innerHTML;
         }
@@ -1791,7 +1791,7 @@ Object.assign( tQuery, {
      * @param  {String} sep 多段连接符（设置时）
      * @return {String|Node} 源码或插入的文本节点
      */
-    text( el, code, where = 0, sep = ' ' ) {
+    text( el, code, where = '', sep = ' ' ) {
         if (code === undefined) {
             return typeof el == 'string' ? htmlText(el) : el.textContent;
         }
@@ -4943,14 +4943,14 @@ function htmlText( code ) {
 
 /**
  * 通用节点/文档片段插入。
- * - 返回实际插入内容（节点集）的引用或null；
- * - 参考节点ref一般在文档树（DOM）内；
+ * - 返回实际插入内容（节点集）的引用或null。
+ * - 参考节点ref一般在文档树（DOM）内。
  * @param {Node} ref 参考节点
  * @param {Node|Fragment} data 节点或文档片段
  * @param {String|Number} where 插入位置
  * @return {Node|Array|null} 内容元素（集）
  */
-function Insert( ref, data, where = 0 ) {
+function Insert( ref, data, where ) {
     if (!data || !ref) return;
 
     let _call = insertHandles[where],
@@ -4967,16 +4967,16 @@ function Insert( ref, data, where = 0 ) {
 // node可以是文档片段或元素或文本节点。
 //
 const insertHandles = {
-    // replace
-    '': ( node, ref, box ) => box && box.replaceChild(node, ref),
-
     // fill
-    '0': ( node, ref /*, box*/) => {
+    '': ( node, ref /*, box*/) => {
         if (ref.nodeType == 1) {
             ref.textContent = '';
             return ref.appendChild(node);
         }
     },
+
+    // replace
+    '0': ( node, ref, box ) => box && box.replaceChild(node, ref),
 
     // before
     '1': ( node, ref, box ) => box && box.insertBefore(node, ref),
@@ -4993,7 +4993,7 @@ const insertHandles = {
     },
 
     // begin/prepend
-    '2': ( node, ref, box ) => insertHandles[-2](node, ref, box, ref.firstChild),
+    '2': ( node, ref, box ) => insertHandles['-2'](node, ref, box, ref.firstChild),
 };
 
 
