@@ -36,36 +36,35 @@ const
     CASCADE     = 1 << 15,  // 级联表
     REFERENCES  = 1 << 16,  // 文献参考
     DL          = 1 << 17,  // 定义列表
-    BLOTHS      = 1 << 18,  // 块集：table,hr,space
+    BLOATHS     = 1 << 18,  // 块集：address,table,hr,space
     BLOCKQUOTE  = 1 << 19,  // 块引用
     ASIDE       = 1 << 20,  // 批注
     DETAILS     = 1 << 21,  // 详细内容
     P           = 1 << 22,  // 段落
-    ADDRESS     = 1 << 23,  // 地址信息
-    CODELI      = 1 << 24,  // 代码表条目（结构件 li/code）
-    CASCADELI   = 1 << 25,  // 级联表条目（结构件 li/h5,ol）
-    INLINE      = 1 << 26,  // 内联单元
-    A           = 1 << 27,  // 链接
-    CODE        = 1 << 28,  // 行内代码
-    IMG         = 1 << 29,  // 图片
-    I           = 1 << 30,  // <i> 标题编号
-    B           = 1 << 31,  // <b> 代码关键字
-    H2          = 1 << 32,  // 章标题
-    H3          = 1 << 33,  // 节标题
-    H4          = 1 << 34,  // 区标题
-    H5          = 1 << 35,  // 段标题
-    H6          = 1 << 36,  // 末标题
-    SUMMARY     = 1 << 37,  // 详细内容摘要/标题
-    FIGCAPTION  = 1 << 38,  // 插图标题
-    LI          = 1 << 39,  // 列表项（通用）
-    DLI         = 1 << 40,  // 定义列表项（dt,dd）
-    RBPT        = 1 << 41,  // 注音单元（rb,rp,rt）
-    TRACK       = 1 << 42,  // 字幕轨
-    SOURCE      = 1 << 43,  // 媒体资源
-    CAPTION     = 1 << 44,  // 表格标题
-    TSEC        = 1 << 45,  // 表格片区（thead,tbody,tfoot）
-    TR          = 1 << 46,  // 表格行
-    TCELL       = 1 << 47;  // 表单元格（th,td）
+    CODELI      = 1 << 23,  // 代码表条目（结构件 li/code）
+    CASCADELI   = 1 << 24,  // 级联表条目（结构件 li/h5,ol）
+    INLINE      = 1 << 25,  // 内联单元
+    A           = 1 << 26,  // 链接
+    CODE        = 1 << 27,  // 行内代码
+    IMG         = 1 << 28,  // 图片
+    I           = 1 << 29,  // <i> 标题编号
+    B           = 1 << 30,  // <b> 代码关键字
+    H2          = 1 << 31,  // 章标题
+    H3          = 1 << 32,  // 节标题
+    H4          = 1 << 33,  // 区标题
+    H5          = 1 << 34,  // 段标题
+    H6          = 1 << 35,  // 末标题
+    SUMMARY     = 1 << 36,  // 详细内容摘要/标题
+    FIGCAPTION  = 1 << 37,  // 插图标题
+    LI          = 1 << 38,  // 列表项（通用）
+    DLI         = 1 << 39,  // 定义列表项（dt,dd）
+    RBPT        = 1 << 40,  // 注音单元（rb,rp,rt）
+    TRACK       = 1 << 41,  // 字幕轨
+    SOURCE      = 1 << 42,  // 媒体资源
+    CAPTION     = 1 << 43,  // 表格标题
+    TSEC        = 1 << 44,  // 表格片区（thead,tbody,tfoot）
+    TR          = 1 << 45,  // 表格行
+    TCELL       = 1 << 46;  // 表单元格（th,td）
 
 
 //
@@ -76,7 +75,7 @@ const Types = {
     $text:          $TEXT,
 
     // 结构单元
-    // BLOTHS：table|hr|space
+    // BLOATHS：address|table|hr|space
     // BLOUFCPC：ul|figure|codelist|pre|codeblock
     h1:             H1,
     abstract:       ABSTRACT,
@@ -96,7 +95,7 @@ const Types = {
     codelist:       BLOUFCPC,
     references:     REFERENCES,
     dl:             DL,
-    table:          BLOTHS,
+    table:          BLOATHS,
     figure:         BLOUFCPC,
     blockquote:     BLOCKQUOTE,
     aside:          ASIDE,
@@ -105,10 +104,10 @@ const Types = {
 
     // 文本单元
     p:              P,
-    address:        ADDRESS,
+    address:        BLOATHS,
     pre:            BLOUFCPC,
-    hr:             BLOTHS,
-    space:          BLOTHS,
+    hr:             BLOATHS,
+    space:          BLOATHS,
 
     // 限定中间单元
     codeli:         CODELI,
@@ -181,24 +180,31 @@ const Types = {
 
 
 //
+// 内容项集合。
+// 注：汇总简化引用。
+//
+const CONTENT = P | BLOATHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE;
+
+
+//
 // 合法子类型配置。
 //
 const typeSubs = {
     $text:          0,
 
     // 结构单元块
-    abstract:       H3 | P | BLOTHS,
+    abstract:       H3 | P | BLOATHS,
     toc:            H4 | CASCADE,
     seealso:        LI,
     references:     LI,
-    header:         H4 | P | BLOTHS,
-    footer:         H4 | P | BLOTHS | BLOCKQUOTE | SEEALSO | REFERENCES | ADDRESS,
-    article:        HEADER | H2 | S1 | FOOTER,
-    s1:             HEADER | H3 | S2 | FOOTER,
-    s2:             HEADER | H4 | S3 | FOOTER,
-    s3:             HEADER | H5 | S4 | FOOTER,
-    s4:             HEADER | H6 | S5 | FOOTER,
-    s5:             P | BLOTHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE | ADDRESS,
+    header:         H4 | P | BLOATHS | BLOCKQUOTE,
+    footer:         H4 | P | BLOATHS | BLOCKQUOTE,
+    article:        HEADER | H2 | S1 | CONTENT | FOOTER,
+    s1:             HEADER | H3 | S2 | CONTENT | FOOTER,
+    s2:             HEADER | H4 | S3 | CONTENT | FOOTER,
+    s3:             HEADER | H5 | S4 | CONTENT | FOOTER,
+    s4:             HEADER | H6 | S5 | CONTENT | FOOTER,
+    s5:             CONTENT,
     ul:             LI,
     ol:             LI,
     cascade:        CASCADELI | LI,
@@ -206,9 +212,9 @@ const typeSubs = {
     dl:             DLI,
     table:          CAPTION | TSEC,
     figure:         FIGCAPTION | P,
-    blockquote:     H4 | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE,
-    aside:          H4 | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE | ADDRESS,
-    details:        SUMMARY | P | BLOTHS | OL | BLOUFCPC | BLOCKQUOTE,
+    blockquote:     H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    aside:          H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    details:        SUMMARY | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
     codeblock:      CODE,
 
     // 文本类行块。
@@ -375,23 +381,13 @@ function conName( el ) {
 
 
 /**
- * 获取内容的类型值。
- * @param  {String} name 目标内容名
- * @return {Number}
- */
-function conType( name ) {
-    return Types[ name ];
-}
-
-
-/**
  * 测试是否为合法子单元。
  * @param  {String} box 目标内容名
  * @param  {String} sub 待测试目标内容名
  * @return {Boolean}
  */
 function goodSub( box, sub ) {
-    return !!( typeSubs[box] & conType(sub) );
+    return !!( typeSubs[box] & Types[sub] );
 }
 
 
@@ -407,5 +403,5 @@ function nilSub( name ) {
 
 export {
     inCascade, inCodelist,
-    conName, conType, goodSub, nilSub,
+    conName, goodSub, nilSub,
 };
