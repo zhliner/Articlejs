@@ -8,67 +8,6 @@
 //
 //	内容单元创建工厂。
 //
-//  结构块：
-//      <header role="abstract">    // 提要：/h3, p...
-//      <nav role="toc">            // 目录：/h4/a, ol/li/a（可多级）
-//      <header>                    // 导言：/h4, p...
-//      <footer>                    // 尾注：/h4, p...
-//      <section>                   // 片区：/section/h2-h6, ...
-//      <section role="content">    // 正文区：/[^hx, section]...
-//      <ul>                        // 无序列表：/li/...
-//      <ul role="seealso">         // 另参见：/li/...
-//      <ol>                        // 有序列表：/li/...
-//      <ol role="cascade">         // 多级编号列表：/li/ol, ul/li...
-//      <ol role="codes">           // 代码表：/li/code/b, #text
-//      <ol role="references">      // 文献参考：/li/...
-//      <dl>                        // 定义列表：/dt, dd/...
-//      <table>                     // 表格：/caption, thead, tbody, tfoot/tr/td/...
-//      <figure>                    // 插图：/figcaption, p...
-//      <blockquote>                // 引用块：/h4, p...
-//      <aside>                     // 批注：/h4, p...
-//      <details>                   // 详细内容：/summary, p...
-//      <pre role="blockcode">      // 代码块：/code/b, #text
-//
-//  内容块：
-//      <p>                         // 段落，通用内容容器
-//      <address>                   // 地址信息
-//      <pre>                       // 预排版（非代码块）
-//      <hr/>                       // 线条
-//      <div role="space">          // 空白块：用于交互展示
-//
-//  行内单元：
-//      <audio>                 // 音频：/track,source, #text
-//      <video>                 // 视频：/track,source, #text
-//      <picture>               // 图片：/source,img
-//      <a>                     // 链接
-//      <strong>                // 重点
-//      <em>                    // 强调
-//      <q>                     // 短引用
-//      <abbr>                  // 缩写
-//      <cite>                  // 来源
-//      <small>                 // 注脚
-//      <time>                  // 时间
-//      <del>                   // 删除
-//      <ins>                   // 插入
-//      <sub>                   // 下标
-//      <sup>                   // 上标
-//      <mark>                  // 标记
-//      <code>                  // 代码
-//      <code role="orz">       // 表情
-//      <ruby>                  // 注音：/rb, rp, rt
-//      <dfn>                   // 定义
-//      <samp>                  // 样本
-//      <kbd>                   // 键盘字
-//      <s>                     // 失效
-//      <u>                     // 注记
-//      <var>                   // 变量
-//      <bdo>                   // 文本方向
-//      <meter>                 // 度量
-//      <b>                     // 粗体，主要用于代码块内的关键字包裹
-//      <i>                     // 斜体，主要用于图标占位（icon）
-//      <img/>                  // 图片
-//      <span role="blank">     // 空白段：用于交互展示
-//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -78,98 +17,123 @@ import * as types from "./types.js";
 
 //
 // 单元映射 {
-//      name: [tags, role]
+//      name: tags
 // }
-// tags：基础元素结构，附带基本标题。
-// role：角色名称，书写在根元素的 role 属性上。
-//
-// 注：用于创建初始的目标单元。
+// name: 内容名称。用于创建内容时标识区分。
+// tags: 内容元素序列，固定结构。
+//      /   斜线分隔父子单元
+//      :   冒号分隔角色定义（role）
+//      ,   逗号分隔并列单元，顺序为参数顺序
+// 注：
+// 固定结构限于可选而非可变（如<li>就不属于）。
 //
 const tagsMap = {
 
     // 块容器
     // ------------------------------------------
-    abstract:   ['header/h3, p', 'abstract'],
-    toc:        ['nav/h4, cascade', 'toc'],
-    header:     ['header/h4, p'],
-    footer:     ['footer/h4, p'],
-    s1:         ['section/h2, header, content, footer'],
-    s2:         ['section/h3, header, content, footer'],
-    s3:         ['section/h4, header, content, footer'],
-    s4:         ['section/h5, header, content, footer'],
-    s5:         ['section/h6, header, content, footer'],
-    ul:         ['ul/li'],
-    seealso:    ['ul/li', 'seealso'],
-    ol:         ['ol/li'],
-    cascade:    ['ol/cascadeli', 'cascade'],
-    codelist:   ['ol/codeli', 'codelist'],
-    references: ['ol/li', 'references'],
-    dl:         ['dl/dt'],
-    table:      ['*'],  // 单独处理：$.table
-    figure:     ['figure/figcaption'],
-    blockquote: ['blockquote/h4'],
-    aside:      ['aside/h4'],
-    details:    ['details/summary'],
-    blockcode:  ['pre/code', 'blockcode'],
+    abstract:   'header:abstract/h3',
+    toc:        'nav:toc/h4, cascade',
+    seealso:    'ul:seealso',
+    references: 'ol:references',
+    header:     'header/h4',
+    footer:     'footer/h4',
+    article:    'h1, abstract, article',
+    s1:         'h2, header, section:s1, footer',
+    s2:         'h3, header, section:s2, footer',
+    s3:         'h4, header, section:s3, footer',
+    s4:         'h5, header, section:s4, footer',
+    s5:         'h6, header, section:s5, footer',
+    ul:         'ul',
+    ol:         'ol',
+    cascade:    'ol:cascade',
+    codelist:   'ol:codelist',
+    dl:         'dl',
+    table:      '*',  // 单独处理：$.table
+    figure:     'figure/figcaption',
+    blockquote: 'blockquote/h4',
+    aside:      'aside/h4',
+    details:    'details/summary',
+    blockcode:  'pre:blockcode/code',
 
 
     // 块内容
     // ------------------------------------------
-    p:          ['p'],
-    address:    ['address'],
-    pre:        ['pre'],
-    hr:         ['hr'],
-    space:      ['div', 'space'],
+    p:          'p',
+    address:    'address',
+    pre:        'pre',
+    hr:         'hr',
+    space:      'div:space',
 
 
-    // 限定结构
+    // 结构单元
     // ------------------------------------------
-    codeli:     ['li/code'],
-    cascadeli:  ['li/h5|a, ol'],
+    li:         'li',
+    codeli:     'li/code',
+    ali:        'li/a',
+    cascadeli:  'li/h5, ol',
+    h1:         'h1',
+    h2:         'h2',
+    h3:         'h3',
+    h4:         'h4',
+    h5:         'h5',
+    h6:         'h6',
+    figcaption: 'figcaption',
+    summary:    'summary',
+    track:      'track',
+    source:     'source',
 
 
     // 行内单元
     // ------------------------------------------
-    audio:      ['audio'],
-    video:      ['video'],
-    picture:    ['picture'],
-    a:          ['a'],
-    strong:     ['strong'],
-    em:         ['em'],
-    q:          ['q'],
-    abbr:       ['abbr'],
-    cite:       ['cite'],
-    small:      ['small'],
-    time:       ['time'],
-    del:        ['del'],
-    ins:        ['ins'],
-    sub:        ['sub'],
-    sup:        ['sup'],
-    mark:       ['mark'],
-    code:       ['code'],
-    orz:        ['code', 'orz'],
-    ruby:       ['ruby/rb'],
-    dfn:        ['dfn'],
-    samp:       ['samp'],
-    kbd:        ['kbd'],
-    s:          ['s'],
-    u:          ['u'],
-    var:        ['var'],
-    bdo:        ['bdo'],
-    meter:      ['meter'],
-    b:          ['b'],
-    i:          ['i'],
-    img:        ['img'],
-    blank:      ['span', 'blank'],
+    audio:      'audio',
+    video:      'video',
+    picture:    'picture/img',
+    a:          'a',
+    strong:     'strong',
+    em:         'em',
+    q:          'q',
+    abbr:       'abbr',
+    cite:       'cite',
+    small:      'small',
+    time:       'time',
+    del:        'del',
+    ins:        'ins',
+    sub:        'sub',
+    sup:        'sup',
+    mark:       'mark',
+    code:       'code',
+    orz:        'code:orz',
+    ruby:       'ruby/rb, rp, rt',
+    dfn:        'dfn',
+    samp:       'samp',
+    kbd:        'kbd',
+    s:          's',
+    u:          'u',
+    var:        'var',
+    bdo:        'bdo',
+    meter:      'meter',
+    b:          'b',
+    i:          'i',
+    img:        'img',
+    blank:      'span:blank',
 };
 
 
 //
 // 内容单元。
+// 通用类，单元类型不同允许的操作稍有不同（如仅片区支持导言）。
+// 内容（content）操作是所有单元都支持的。
+// 注：对于不支持的操作，返回null。
 //
 class Conitem {
-
-    constructor( el, name ) {
+    /**
+     * 创建单元。
+     * 传递字符串名称新建目标单元。
+     * 传递元素则解析为相应内容单元。
+     * 注：对于不识别的名称或元素，会抛出异常。
+     * @param {String|Element} its 单元名称或元素
+     */
+    constructor( its ) {
         this._name;
         //
     }
@@ -213,6 +177,11 @@ class Conitem {
     content( its ) {
         //
     }
+
+
+    footer( its ) {
+        //
+    }
 }
 
 
@@ -221,43 +190,34 @@ class Conitem {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-/**
- * 创建目标单元。
- * 字符串的cons被视为文本。
- * 可以传入已构造好的节点或文档片段获得源码效果。
- * @param  {String} name 单元名称
- * @param  {String|Node|DocumentFragment} cons 初始内容，可选
- * @return {Element} 单元根元素
- */
-function create( name, cons ) {
+function h1( data ) {
     //
 }
 
 
-/**
- * 插入/更新单元标题。
- * 仅适用于有标题结构的单元（包括caption）。
- * 如果需要HTML结构，cons请传递节点或文档片段（$.create(...)）。
- * @param  {Element} root 单元根元素
- * @param  {String} name 单元名称
- * @param  {String|Node|DocumentFragment} cons 标题内容
- * @return {Element} root
- */
-function heading( root, name, cons ) {
-
+function abstract( data ) {
+    //
 }
 
 
-/**
- * 插入/更新单元内容。
- * @param  {Element} root 单元根元素
- * @param  {String} name 单元名称
- * @param  {String|Node|DocumentFragment} cons 标题内容
- * @return {Element} root
- */
-function content( root, name, cons ) {
-
+function toc( article ) {
+    //
 }
+
+
+function seealso( data ) {
+    //
+}
+
+
+function references( data ) {
+    //
+}
+
+
+//
+// 工具函数
+///////////////////////////////////////////////////////////////////////////////
 
 
 function table( rows, cols, caption, th0 ) {

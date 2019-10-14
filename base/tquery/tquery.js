@@ -1749,9 +1749,9 @@ Object.assign( tQuery, {
      * - 返回的节点数据取其outerHTML源码。
      *
      * @param  {Element|String} el 容器元素或待转换文本
-     * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数
-     * @param  {String|Number} where 插入位置
-     * @param  {String} sep 多段连接符（设置时）
+     * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数，可选
+     * @param  {String|Number} where 插入位置，可选（默认填充）
+     * @param  {String} sep 多段连接符（设置时），可选（默认空格）
      * @return {String|[Node]} 源码或插入的节点集
      */
     html( el, code, where = '', sep = ' ' ) {
@@ -1786,9 +1786,9 @@ Object.assign( tQuery, {
      * - 返回的节点数据取其outerHTML源码；
      *
      * @param  {Element|String} el 容器元素或待解析源码
-     * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数
-     * @param  {String|Number} where 插入位置
-     * @param  {String} sep 多段连接符（设置时）
+     * @param  {String|[String]|Node|[Node]|Function|.values} code 数据源或取值函数，可选
+     * @param  {String|Number} where 插入位置，可选（默认填充）
+     * @param  {String} sep 多段连接符（设置时），可选（默认空格）
      * @return {String|Node} 源码或插入的文本节点
      */
     text( el, code, where = '', sep = ' ' ) {
@@ -5019,7 +5019,7 @@ function domManip( node, cons, clone, event, eventdeep ) {
     if ( isFunc(cons) ) {
         cons = cons(node);
     }
-    // 支持克隆的代理嵌入（$）。
+    // 支持克隆的代理嵌入（$），
     // 因为克隆是由用户参数明确指定的。
     if (cons.nodeType) {
         return clone ? $.clone(cons, event, true, eventdeep) : cons;

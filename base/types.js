@@ -41,30 +41,32 @@ const
     ASIDE       = 1 << 20,  // 批注
     DETAILS     = 1 << 21,  // 详细内容
     P           = 1 << 22,  // 段落
-    CODELI      = 1 << 23,  // 代码表条目（结构件 li/code）
-    CASCADELI   = 1 << 24,  // 级联表条目（结构件 li/h5,ol）
-    INLINE      = 1 << 25,  // 内联单元
-    A           = 1 << 26,  // 链接
-    CODE        = 1 << 27,  // 行内代码
-    IMG         = 1 << 28,  // 图片
-    I           = 1 << 29,  // <i> 标题编号
-    B           = 1 << 30,  // <b> 代码关键字
-    H2          = 1 << 31,  // 章标题
-    H3          = 1 << 32,  // 节标题
-    H4          = 1 << 33,  // 区标题
-    H5          = 1 << 34,  // 段标题
-    H6          = 1 << 35,  // 末标题
-    SUMMARY     = 1 << 36,  // 详细内容摘要/标题
-    FIGCAPTION  = 1 << 37,  // 插图标题
-    LI          = 1 << 38,  // 列表项（通用）
-    DLI         = 1 << 39,  // 定义列表项（dt,dd）
-    RBPT        = 1 << 40,  // 注音单元（rb,rp,rt）
-    TRACK       = 1 << 41,  // 字幕轨
-    SOURCE      = 1 << 42,  // 媒体资源
-    CAPTION     = 1 << 43,  // 表格标题
-    TSEC        = 1 << 44,  // 表格片区（thead,tbody,tfoot）
-    TR          = 1 << 45,  // 表格行
-    TCELL       = 1 << 46;  // 表单元格（th,td）
+    CODELI      = 1 << 23,  // 代码表条目（li/code）
+    ALI         = 1 << 24,  // 目录表普通条目（li/a）
+    H5A         = 1 << 25,  // 目录表标题条目（h5/a）
+    CASCADELI   = 1 << 26,  // 级联表条目（li/h5,ol）
+    INLINE      = 1 << 27,  // 内联单元
+    A           = 1 << 28,  // 链接
+    CODE        = 1 << 29,  // 行内代码
+    IMG         = 1 << 30,  // 图片
+    I           = 1 << 31,  // <i> 标题编号
+    B           = 1 << 32,  // <b> 代码关键字
+    H2          = 1 << 33,  // 章标题
+    H3          = 1 << 34,  // 节标题
+    H4          = 1 << 35,  // 区标题
+    H5          = 1 << 36,  // 段标题
+    H6          = 1 << 37,  // 末标题
+    SUMMARY     = 1 << 38,  // 详细内容摘要/标题
+    FIGCAPTION  = 1 << 39,  // 插图标题
+    LI          = 1 << 40,  // 列表项（通用）
+    DLI         = 1 << 41,  // 定义列表项（dt,dd）
+    RBPT        = 1 << 42,  // 注音单元（rb,rp,rt）
+    TRACK       = 1 << 43,  // 字幕轨
+    SOURCE      = 1 << 44,  // 媒体资源
+    CAPTION     = 1 << 45,  // 表格标题
+    TSEC        = 1 << 46,  // 表格片区（thead,tbody,tfoot）
+    TR          = 1 << 47,  // 表格行
+    TCELL       = 1 << 48;  // 表单元格（th,td）
 
 
 //
@@ -111,6 +113,8 @@ const Types = {
 
     // 限定中间单元
     codeli:         CODELI,
+    ali:            ALI,
+    h5a:            H5A,
     cascadeli:      CASCADELI,
 
     // 内联单元。
@@ -207,7 +211,7 @@ const typeSubs = {
     s5:             CONTENT,
     ul:             LI,
     ol:             LI,
-    cascade:        CASCADELI | LI,
+    cascade:        CASCADELI | ALI | LI,
     codelist:       CODELI,
     dl:             DLI,
     table:          CAPTION | TSEC,
@@ -226,7 +230,9 @@ const typeSubs = {
 
     // 限定中间结构
     codeli:         CODE,
-    cascadeli:      H5 | OL,
+    ali:            A,
+    h5a:            A,
+    cascadeli:      H5 | H5A | OL,
 
     // 内联单元
     audio:          TRACK | SOURCE,
@@ -264,6 +270,7 @@ const typeSubs = {
 
     // 定制中间结构
     // 注：I 可用于标题序号或背景按钮。
+    h1:             $TEXT | INLINE | I | A,
     h2:             $TEXT | INLINE | I | A,
     h3:             $TEXT | INLINE | I | A,
     h4:             $TEXT | INLINE | I | A,
