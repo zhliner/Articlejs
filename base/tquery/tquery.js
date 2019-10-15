@@ -649,7 +649,7 @@ Object.assign( tQuery, {
     /**
      * 创建或封装表格（Table实例）。
      * 创建的Table是一个简单的表格，列数不能改变。
-     * 表标题内容为text格式（非html方式插入）。
+     * 表标题为text方式插入，传递空串会创建一个空标题元素。
      * 可以传递一个表格元素进行简单封装，以便于操作。
      * 注：
      * - th0并不标准，但它可以无需样式就获得列表头的效果。
@@ -667,7 +667,7 @@ Object.assign( tQuery, {
         }
         let _tbl = new Table(rows, cols, th0, doc);
 
-        if (caption) {
+        if (caption != null) {
             _tbl.caption(caption);
         }
         return _tbl;
@@ -2127,14 +2127,14 @@ class Table {
     caption( text ) {
         let _cap = this._tbl.caption;
 
-        switch (text) {
+        switch ( text ) {
             case undefined:
                 return _cap;
             case null:
                 this._tbl.deleteCaption();
                 return _cap;
         }
-        if (!_cap) {
+        if ( !_cap ) {
             _cap = this._tbl.createCaption();
         }
         _cap.textContent = text;

@@ -8,11 +8,40 @@
 //
 //	内容单元创建工厂。
 //
+//  文章
+//  - 要件：页标题（h1）
+//  - 附件：提要、目录、另参见、文献参考
+//  - 内容：片区集或内容集（互斥）
+//
+//  片区
+//  - 要件：标题（h2~h6）
+//  - 附件：（无）
+//  - 内容：子片区集或内容集（互斥）
+//
+//  片区集
+//  片区的无序并列集，是一个独立的逻辑单元。
+//  - 附件：导言、结语
+//
+//  内容集
+//  内容件的无序并列集，是一个独立的逻辑单元。
+//  - 附件：导言、结语
+//
+//  ---------------------------------------------
+//
+//  内容件：
+//  独立的内容单元，标题仅是一个可选的部分（非要件）。
+//
+//  内容行：
+//  可直接包含文本节点的行块元素，包括<td>和<th>。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import * as types from "./types.js";
+
+
+const $ = window.$;
 
 
 //
@@ -31,96 +60,120 @@ const tagsMap = {
 
     // 块容器
     // ------------------------------------------
-    abstract:   'header:abstract/h3',
-    toc:        'nav:toc/h4, cascade',
-    seealso:    'ul:seealso',
-    references: 'ol:references',
-    header:     'header/h4',
-    footer:     'footer/h4',
-    article:    'h1, abstract, article',
-    s1:         'h2, header, section:s1, footer',
-    s2:         'h3, header, section:s2, footer',
-    s3:         'h4, header, section:s3, footer',
-    s4:         'h5, header, section:s4, footer',
-    s5:         'h6, header, section:s5, footer',
-    ul:         'ul',
-    ol:         'ol',
-    cascade:    'ol:cascade',
-    codelist:   'ol:codelist',
-    dl:         'dl',
-    table:      '*',  // 单独处理：$.table
-    figure:     'figure/figcaption',
-    blockquote: 'blockquote/h4',
-    aside:      'aside/h4',
-    details:    'details/summary',
-    blockcode:  'pre:blockcode/code',
+    Abstract:   'header:abstract/h3',
+    Toc:        'nav:toc/h4, Cascade',
+    Seealso:    'ul:seealso',
+    References: 'ol:references',
+    Header:     'header/h4',
+    Footer:     'footer/h4',
+    Article:    'h1, Abstract, article',
+    S1:         'h2, Header, section:s1, Footer',
+    S2:         'h3, Header, section:s2, Footer',
+    S3:         'h4, Header, section:s3, Footer',
+    S4:         'h5, Header, section:s4, Footer',
+    S5:         'h6, Header, section:s5, Footer',
+    Ul:         'ul',
+    Ol:         'ol',
+    Cascade:    'ol:cascade',
+    Codelist:   'ol:codelist',
+    Dl:         'dl',
+    Table:      'table',  // 单独处理！
+    Figure:     'figure/figcaption',
+    Blockquote: 'blockquote/h4',
+    Aside:      'aside/h4',
+    Details:    'details/summary',
+    Blockcode:  'pre:blockcode/code',
 
 
     // 块内容
     // ------------------------------------------
-    p:          'p',
-    address:    'address',
-    pre:        'pre',
-    hr:         'hr',
-    space:      'div:space',
+    P:          'p',
+    Address:    'address',
+    Pre:        'pre',
+    Hr:         'hr',
+    Space:      'div:space',
 
 
     // 结构单元
     // ------------------------------------------
-    li:         'li',
-    codeli:     'li/code',
-    ali:        'li/a',
-    cascadeli:  'li/h5, ol',
-    h1:         'h1',
-    h2:         'h2',
-    h3:         'h3',
-    h4:         'h4',
-    h5:         'h5',
-    h6:         'h6',
-    figcaption: 'figcaption',
-    summary:    'summary',
-    track:      'track',
-    source:     'source',
+    Li:         'li',
+    Codeli:     'li/code',
+    Ali:        'li/a',
+    Cascadeli:  'li/h5, ol',
+    H1:         'h1',
+    H2:         'h2',
+    H3:         'h3',
+    H4:         'h4',
+    H5:         'h5',
+    H6:         'h6',
+    Figcaption: 'figcaption',
+    Summary:    'summary',
+    Track:      'track',
+    Source:     'source',
 
 
     // 行内单元
     // ------------------------------------------
-    audio:      'audio',
-    video:      'video',
-    picture:    'picture/img',
-    a:          'a',
-    strong:     'strong',
-    em:         'em',
-    q:          'q',
-    abbr:       'abbr',
-    cite:       'cite',
-    small:      'small',
-    time:       'time',
-    del:        'del',
-    ins:        'ins',
-    sub:        'sub',
-    sup:        'sup',
-    mark:       'mark',
-    code:       'code',
-    orz:        'code:orz',
-    ruby:       'ruby/rb, rp, rt',
-    dfn:        'dfn',
-    samp:       'samp',
-    kbd:        'kbd',
-    s:          's',
-    u:          'u',
-    var:        'var',
-    bdo:        'bdo',
-    meter:      'meter',
-    b:          'b',
-    i:          'i',
-    img:        'img',
-    blank:      'span:blank',
+    Audio:      'audio',
+    Video:      'video',
+    Picture:    'picture/img',
+    A:          'a',
+    Strong:     'strong',
+    Em:         'em',
+    Q:          'q',
+    Abbr:       'abbr',
+    Cite:       'cite',
+    Small:      'small',
+    Time:       'time',
+    Del:        'del',
+    Ins:        'ins',
+    Sub:        'sub',
+    Sup:        'sup',
+    Mark:       'mark',
+    Code:       'code',
+    Orz:        'code:orz',
+    Ruby:       'ruby/rb, rp, rt',
+    Dfn:        'dfn',
+    Samp:       'samp',
+    Kbd:        'kbd',
+    S:          's',
+    U:          'u',
+    Var:        'var',
+    Bdo:        'bdo',
+    Meter:      'meter',
+    B:          'b',
+    I:          'i',
+    Img:        'img',
+    Blank:      'span:blank',
 };
 
 
 //
-// 内容单元。
+// 文章。
+// 平级前端：h1标题（必要），提要、目录（可选）
+// 平级后端：另参见、文献参考（可选）
+// 子级内容：片区集或内容集，互斥关系
+//
+class Article {
+    /**
+     * @param {Element} ael 文章元素
+     */
+    constructor( ael ) {
+        //
+    }
+}
+
+
+//
+// 片区。
+//
+class Section {
+    //
+}
+
+
+//
+// 内容件。
 // 通用类，单元类型不同允许的操作稍有不同（如仅片区支持导言）。
 // 内容（content）操作是所有单元都支持的。
 // 注：对于不支持的操作，返回null。
@@ -186,6 +239,22 @@ class Conitem {
 
 
 //
+// 片区集。
+//
+class Sections extends Array {
+    //
+}
+
+
+//
+// 内容件集。
+//
+class Conitems extends Array {
+    //
+}
+
+
+//
 // 功能函数
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -217,17 +286,96 @@ function references( data ) {
 
 //
 // 工具函数
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 
-function table( rows, cols, caption, th0 ) {
+/**
+ * 创建内容结构。
+ * 包括非独立逻辑的中间结构。
+ * 不包含实际的内容实体。
+ * @param  {String} name 内容名称
+ * @param  {...Value} 剩余参数（适用table）
+ * @return {Element} 结构根
+ */
+function create( name, ...rest ) {
+    let _tags = tagsMap[name];
 
+    if ( !_tags ) {
+        throw new Error(`[${name}] name not found.`);
+    }
+    if ( _tags == 'table' ) {
+        return table( ...rest );
+    }
+    _tags = _tags.split('/');
+
+    return elemSubs( siblings(_tags.shift()), _tags );
+}
+
+
+/**
+ * 创建并插入子元素序列。
+ * 子元素集插入到上级末尾元素内。
+ * 返回值优化：
+ * 如果父级只有一个元素，返回该元素本身。否则返回父级存储本身。
+ *
+ * @param  {[Element]} buf 父级元素存储
+ * @param  {[String]} tags 纵向标签序列集
+ * @return {Element|[Element]} 父级元素（集）
+ */
+function elemSubs( buf, tags ) {
+    let _last = buf[buf.length - 1];
+
+    for ( const ts of tags) {
+        let _els = siblings( ts.trim() );
+        _last.append( ..._els );
+        _last = _els[_els.length - 1];
+    }
+    return buf.length > 1 ? buf : buf[0];
+}
+
+
+/**
+ * 创建平级兄弟元素序列。
+ * @param {String} tags 标签序列
+ */
+function siblings( tags ) {
+    return tags.split(',')
+        .map( s => s.trim() )
+        .map( n => element(...n.split(':')) );
+}
+
+
+/**
+ * 创建目标元素。
+ * 若name首字母大写则为内容名称。
+ * 角色定义可能为空（忽略）。
+ * @param {String} name 内容名或元素标签
+ * @param {String} role 角色定义
+ */
+function element( name, role ) {
+    if ( name[0] <= 'Z' ) {
+        return create( name );
+    }
+    return $.Element( name, role && { role } );
+}
+
+
+/**
+ * 创建一个指定行列数的空表格。
+ * 默认包含了一个空的表格标题（caption）。
+ * @param  {Number} rows 行数
+ * @param  {Number} cols 列数
+ * @param  {Boolean} th0 是否列表头
+ * @return {Element}
+ */
+function table( rows, cols, caption = '', th0 = false ) {
+    return $.table( rows, cols, caption, th0 ).elem();
 }
 
 
 //
 // 导出
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 
 export const Factory = {  };

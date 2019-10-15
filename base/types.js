@@ -77,109 +77,109 @@ const Types = {
     $text:          $TEXT,
 
     // 结构单元
-    // BLOATHS：address|table|hr|space
-    // BLOUFCPC：ul|figure|codelist|pre|codeblock
-    h1:             H1,
-    abstract:       ABSTRACT,
-    toc:            TOC,
-    article:        ARTICLE,
-    header:         HEADER,
-    footer:         FOOTER,
-    s1:             S1,
-    s2:             S2,
-    s3:             S3,
-    s4:             S4,
-    s5:             S5,
-    ul:             BLOUFCPC,
-    seealso:        SEEALSO,
-    ol:             OL,
-    cascade:        CASCADE,
-    codelist:       BLOUFCPC,
-    references:     REFERENCES,
-    dl:             DL,
-    table:          BLOATHS,
-    figure:         BLOUFCPC,
-    blockquote:     BLOCKQUOTE,
-    aside:          ASIDE,
-    details:        DETAILS,
-    codeblock:      BLOUFCPC,
+    // BLOATHS：Address|Table|Hr|Space
+    // BLOUFCPC：Ul|Figure|Codelist|Pre|Codeblock
+    H1:             H1,
+    Abstract:       ABSTRACT,
+    Toc:            TOC,
+    Article:        ARTICLE,
+    Header:         HEADER,
+    Footer:         FOOTER,
+    S1:             S1,
+    S2:             S2,
+    S3:             S3,
+    S4:             S4,
+    S5:             S5,
+    Ul:             BLOUFCPC,
+    Seealso:        SEEALSO,
+    Ol:             OL,
+    Cascade:        CASCADE,
+    Codelist:       BLOUFCPC,
+    References:     REFERENCES,
+    Dl:             DL,
+    Table:          BLOATHS,
+    Figure:         BLOUFCPC,
+    Blockquote:     BLOCKQUOTE,
+    Aside:          ASIDE,
+    Details:        DETAILS,
+    Codeblock:      BLOUFCPC,
 
     // 文本单元
-    p:              P,
-    address:        BLOATHS,
-    pre:            BLOUFCPC,
-    hr:             BLOATHS,
-    space:          BLOATHS,
+    P:              P,
+    Address:        BLOATHS,
+    Pre:            BLOUFCPC,
+    Hr:             BLOATHS,
+    Space:          BLOATHS,
 
     // 限定中间单元
-    codeli:         CODELI,
-    ali:            ALI,
-    h5a:            H5A,
-    cascadeli:      CASCADELI,
+    Codeli:         CODELI,
+    Ali:            ALI,
+    H5a:            H5A,
+    Cascadeli:      CASCADELI,
 
     // 内联单元。
     // 取值时会提取元素本身，因此配置为同一类。
-    audio:          INLINE,
-    video:          INLINE,
-    picture:        INLINE,
-    strong:         INLINE,
-    em:             INLINE,
-    q:              INLINE,
-    abbr:           INLINE,
-    cite:           INLINE,
-    small:          INLINE,
-    time:           INLINE,
-    del:            INLINE,
-    ins:            INLINE,
-    sub:            INLINE,
-    sup:            INLINE,
-    mark:           INLINE,
-    orz:            INLINE,
-    ruby:           INLINE,
-    dfn:            INLINE,
-    samp:           INLINE,
-    kbd:            INLINE,
-    s:              INLINE,
-    u:              INLINE,
-    var:            INLINE,
-    bdo:            INLINE,
-    meter:          INLINE,
-    blank:          INLINE,
+    Audio:          INLINE,
+    Video:          INLINE,
+    Picture:        INLINE,
+    Strong:         INLINE,
+    Em:             INLINE,
+    Q:              INLINE,
+    Abbr:           INLINE,
+    Cite:           INLINE,
+    Small:          INLINE,
+    Time:           INLINE,
+    Del:            INLINE,
+    Ins:            INLINE,
+    Sub:            INLINE,
+    Sup:            INLINE,
+    Mark:           INLINE,
+    Orz:            INLINE,
+    Ruby:           INLINE,
+    Dfn:            INLINE,
+    Samp:           INLINE,
+    Kbd:            INLINE,
+    S:              INLINE,
+    U:              INLINE,
+    Var:            INLINE,
+    Bdo:            INLINE,
+    Meter:          INLINE,
+    Blank:          INLINE,
 
     // 会被作为特定的子单元使用。
-    a:              A,
-    code:           CODE,
-    img:            IMG,
-    i:              I,
-    b:              B,
+    A:              A,
+    Code:           CODE,
+    Img:            IMG,
+    I:              I,
+    B:              B,
 
     // 简单元素
     // 名称保持元素小写标签名。
-    h2:             H2,
-    h3:             H3,
-    h4:             H4,
-    h5:             H5,
-    h6:             H6,
-    summary:        SUMMARY,
-    figcaption:     FIGCAPTION,
-    li:             LI,
-    dt:             DLI,
-    dd:             DLI,
+    H2:             H2,
+    H3:             H3,
+    H4:             H4,
+    H5:             H5,
+    H6:             H6,
+    Summary:        SUMMARY,
+    Figcaption:     FIGCAPTION,
+    Li:             LI,
+    Dt:             DLI,
+    Dd:             DLI,
 
-    rb:             RBPT,
-    rp:             RBPT,
-    rt:             RBPT,
-    track:          TRACK,
-    source:         SOURCE,
+    Rb:             RBPT,
+    Rp:             RBPT,
+    Rt:             RBPT,
+    Track:          TRACK,
+    Source:         SOURCE,
 
     // 表格单独处理。
-    caption:        CAPTION,
-    thead:          TSEC,
-    tbody:          TSEC,
-    tfoot:          TSEC,
-    tr:             TR,
-    th:             TCELL,
-    td:             TCELL,
+    Caption:        CAPTION,
+    Thead:          TSEC,
+    Tbody:          TSEC,
+    Tfoot:          TSEC,
+    Tr:             TR,
+    Th:             TCELL,
+    Td:             TCELL,
 };
 
 
@@ -197,105 +197,105 @@ const typeSubs = {
     $text:          0,
 
     // 结构单元块
-    abstract:       H3 | P | BLOATHS,
-    toc:            H4 | CASCADE,
-    seealso:        LI,
-    references:     LI,
-    header:         H4 | P | BLOATHS | BLOCKQUOTE,
-    footer:         H4 | P | BLOATHS | BLOCKQUOTE,
-    article:        HEADER | H2 | S1 | CONTENT | FOOTER,
-    s1:             HEADER | H3 | S2 | CONTENT | FOOTER,
-    s2:             HEADER | H4 | S3 | CONTENT | FOOTER,
-    s3:             HEADER | H5 | S4 | CONTENT | FOOTER,
-    s4:             HEADER | H6 | S5 | CONTENT | FOOTER,
-    s5:             CONTENT,
-    ul:             LI,
-    ol:             LI,
-    cascade:        CASCADELI | ALI | LI,
-    codelist:       CODELI,
-    dl:             DLI,
-    table:          CAPTION | TSEC,
-    figure:         FIGCAPTION | P,
-    blockquote:     H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
-    aside:          H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
-    details:        SUMMARY | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
-    codeblock:      CODE,
+    Abstract:       H3 | P | BLOATHS,
+    Toc:            H4 | CASCADE,
+    Seealso:        LI,
+    References:     LI,
+    Header:         H4 | P | BLOATHS | BLOCKQUOTE,
+    Footer:         H4 | P | BLOATHS | BLOCKQUOTE,
+    Article:        HEADER | H2 | S1 | CONTENT | FOOTER,
+    S1:             HEADER | H3 | S2 | CONTENT | FOOTER,
+    S2:             HEADER | H4 | S3 | CONTENT | FOOTER,
+    S3:             HEADER | H5 | S4 | CONTENT | FOOTER,
+    S4:             HEADER | H6 | S5 | CONTENT | FOOTER,
+    S5:             CONTENT,
+    Ul:             LI,
+    Ol:             LI,
+    Cascade:        CASCADELI | ALI | LI,
+    Codelist:       CODELI,
+    Dl:             DLI,
+    Table:          CAPTION | TSEC,
+    Figure:         FIGCAPTION | P,
+    Blockquote:     H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    Aside:          H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    Details:        SUMMARY | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    Codeblock:      CODE,
 
     // 文本类行块。
-    p:              $TEXT | INLINE | CODE | IMG,
-    address:        $TEXT | INLINE | CODE | IMG,
-    pre:            $TEXT | INLINE | CODE | IMG,
-    hr:             0,  // 空
-    space:          0,  // 空，用于交互展示
+    P:              $TEXT | INLINE | CODE | IMG,
+    Address:        $TEXT | INLINE | CODE | IMG,
+    Pre:            $TEXT | INLINE | CODE | IMG,
+    Hr:             0,  // 空
+    Space:          0,  // 空，用于交互展示
 
     // 限定中间结构
-    codeli:         CODE,
-    ali:            A,
-    h5a:            A,
-    cascadeli:      H5 | H5A | OL,
+    Codeli:         CODE,
+    Ali:            A,
+    H5a:            A,
+    Cascadeli:      H5 | H5A | OL,
 
     // 内联单元
-    audio:          TRACK | SOURCE,
-    video:          TRACK | SOURCE,
-    picture:        SOURCE | IMG,
-    a:              $TEXT | INLINE | IMG,
-    strong:         $TEXT | INLINE,
-    em:             $TEXT | INLINE,
-    dfn:            $TEXT | INLINE,
-    abbr:           $TEXT,
-    time:           $TEXT,
-    kbd:            $TEXT,  // 键盘输入
-    var:            $TEXT,  // 变量标注
-    code:           $TEXT | B,
-    orz:            $TEXT,
-    meter:          $TEXT,  // 范围计量
-    ruby:           RBPT | $TEXT,
-    q:              $TEXT | INLINE | A,
-    small:          $TEXT | INLINE | A,
-    samp:           $TEXT | INLINE | A, // 计算机输出
-    u:              $TEXT | INLINE | A, // 特别标注
-    bdo:            $TEXT | INLINE | A,
-    cite:           $TEXT | INLINE | A,
-    del:            $TEXT | INLINE | A,
-    ins:            $TEXT | INLINE | A,
-    s:              $TEXT | INLINE | A,
-    sub:            $TEXT | INLINE | A,
-    sup:            $TEXT | INLINE | A,
-    mark:           $TEXT | INLINE | A,
-    b:              $TEXT,  // 简单支持
-    i:              $TEXT,  // 同上
+    Audio:          TRACK | SOURCE,
+    Video:          TRACK | SOURCE,
+    Picture:        SOURCE | IMG,
+    A:              $TEXT | INLINE | IMG,
+    Strong:         $TEXT | INLINE,
+    Em:             $TEXT | INLINE,
+    Dfn:            $TEXT | INLINE,
+    Abbr:           $TEXT,
+    Time:           $TEXT,
+    Kbd:            $TEXT,  // 键盘输入
+    Var:            $TEXT,  // 变量标注
+    Code:           $TEXT | B,
+    Orz:            $TEXT,
+    Meter:          $TEXT,  // 范围计量
+    Ruby:           RBPT | $TEXT,
+    Q:              $TEXT | INLINE | A,
+    Small:          $TEXT | INLINE | A,
+    Samp:           $TEXT | INLINE | A, // 计算机输出
+    U:              $TEXT | INLINE | A, // 特别标注
+    Bdo:            $TEXT | INLINE | A,
+    Cite:           $TEXT | INLINE | A,
+    Del:            $TEXT | INLINE | A,
+    Ins:            $TEXT | INLINE | A,
+    S:              $TEXT | INLINE | A,
+    Sub:            $TEXT | INLINE | A,
+    Sup:            $TEXT | INLINE | A,
+    Mark:           $TEXT | INLINE | A,
+    B:              $TEXT,  // 简单支持
+    I:              $TEXT,  // 同上
 
-    img:            0,  // 空
-    blank:          0,  // 空，用于交互展示
+    Img:            0,  // 空
+    Blank:          0,  // 空，用于交互展示
 
     // 定制中间结构
     // 注：I 可用于标题序号或背景按钮。
-    h1:             $TEXT | INLINE | I | A,
-    h2:             $TEXT | INLINE | I | A,
-    h3:             $TEXT | INLINE | I | A,
-    h4:             $TEXT | INLINE | I | A,
-    h5:             $TEXT | INLINE | I | A,
-    h6:             $TEXT | INLINE | I | A,
-    figcaption:     $TEXT | INLINE | I | A,
-    summary:        $TEXT | INLINE | CODE | I | A,
-    li:             $TEXT | INLINE | CODE | IMG | A,
-    dt:             $TEXT | INLINE | CODE | I | A,
-    dd:             $TEXT | INLINE | CODE | IMG | A,
+    H1:             $TEXT | INLINE | I | A,
+    H2:             $TEXT | INLINE | I | A,
+    H3:             $TEXT | INLINE | I | A,
+    H4:             $TEXT | INLINE | I | A,
+    H5:             $TEXT | INLINE | I | A,
+    H6:             $TEXT | INLINE | I | A,
+    Figcaption:     $TEXT | INLINE | I | A,
+    Summary:        $TEXT | INLINE | CODE | I | A,
+    Li:             $TEXT | INLINE | CODE | IMG | A,
+    Dt:             $TEXT | INLINE | CODE | I | A,
+    Dd:             $TEXT | INLINE | CODE | IMG | A,
 
     // 原生中间结构。
-    caption:        $TEXT | INLINE | I | A,
-    thead:          TR,
-    tbody:          TR,
-    tfoot:          TR,
-    tr:             TCELL,
-    th:             $TEXT | INLINE | I | A,
-    td:             $TEXT | INLINE | CODE | I | IMG | A,
+    Caption:        $TEXT | INLINE | I | A,
+    Thead:          TR,
+    Tbody:          TR,
+    Tfoot:          TR,
+    Tr:             TCELL,
+    Th:             $TEXT | INLINE | I | A,
+    Td:             $TEXT | INLINE | CODE | I | IMG | A,
 
-    rb:             $TEXT,
-    rp:             $TEXT,
-    rt:             $TEXT,
-    track:          0,  // 空，单标签
-    source:         0,  // 空，同上
+    Rb:             $TEXT,
+    Rp:             $TEXT,
+    Rt:             $TEXT,
+    Track:          0,  // 空，单标签
+    Source:         0,  // 空，同上
 };
 
 
@@ -309,7 +309,7 @@ const typeSubs = {
  * 测试<li>支持的两种类型。
  * 注：向下检索测试。
  * @param  {Element} li 列表项元素
- * @return {String} codeli|cascadeli|li
+ * @return {String} Codeli|Cascadeli|Li
  */
 function customLi( li ) {
     let _sub = li.firstElementChild,
@@ -317,13 +317,23 @@ function customLi( li ) {
 
     // codelist: li/code/
     if ( _cnt == 1 && _sub.nodeName == 'CODE' ) {
-        return 'codeli';
+        return 'Codeli';
     }
     // cascade: li/h5, ol/
     if ( _cnt == 2 && _sub.nodeName == 'H5' && $.next(_sub).nodeName == 'OL' ) {
-        return 'cascadeli';
+        return 'Cascadeli';
     }
-    return 'li';
+    return 'Li';
+}
+
+
+/**
+ * 转为首字母大写。
+ * @param  {String} name 名称串
+ * @return {String}
+ */
+function camelCase( name ) {
+    return name[0].toUpperCase() + name.substring(1);
 }
 
 
@@ -383,7 +393,7 @@ function conName( el ) {
     }
     let _n = $.attribute(el, 'role') || el.nodeName.toLowerCase();
 
-    return _n == 'li' ? customLi( el ) : _n;
+    return _n == 'li' ? customLi( el ) : camelCase(_n);
 }
 
 

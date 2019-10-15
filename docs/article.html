@@ -181,41 +181,41 @@
                 <section>
                     <p>内部不能直接包含行内元素（如文本、图片等），如果没有标准的内部元素，则必须采用通用的 <code>&lt;p&gt;</code> 段落容纳。</p>
                     <pre>
-<code data-lang="html">                                    <b class="cmt">&lt;!-- 说明：name --&gt;</b>
-&lt;header role="abstract"&gt;&lt;/header&gt;   <b class="cmt">&lt;!-- 提要：abstract /h3, p... --&gt;</b>
-&lt;nav role="toc"&gt;&lt;/nav&gt;              <b class="cmt">&lt;!-- 目录：toc /h4, ol:cascade/li/a（可多级） --&gt;</b>
-&lt;ul role="seealso"&gt;&lt;/ul&gt;            <b class="cmt">&lt;!-- 另参见：seealso /li/... --&gt;</b>
-&lt;ol role="references"&gt;&lt;/ol&gt;         <b class="cmt">&lt;!-- 文献参考：references /li/... --&gt;</b>
-&lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言：header /h4, p... --&gt;</b>
-&lt;footer&gt;&lt;/footer&gt;                   <b class="cmt">&lt;!-- 结语：footer /h4, p... --&gt;</b>
-&lt;article&gt;&lt;/article&gt;                 <b class="cmt">&lt;!-- 文章区：article /header, h2, s1, footer, hr --&gt;</b>
-&lt;section role="s1"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：s1 /header, h2, s2, footer --&gt;</b>
-&lt;section role="s2"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：s2 /header, h3, s3, footer --&gt;</b>
-&lt;section role="s3"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：s3 /header, h4, s4, footer --&gt;</b>
-&lt;section role="s4"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：s4 /header, h5, s5, footer --&gt;</b>
-&lt;section role="s5"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：s5 /[content]... --&gt;</b>
-&lt;ul&gt;&lt;/ul&gt;                           <b class="cmt">&lt;!-- 无序列表：ul /li/... --&gt;</b>
-&lt;ol&gt;&lt;/ol&gt;                           <b class="cmt">&lt;!-- 有序列表：ol /li/... --&gt;</b>
-&lt;ol role="cascade"&gt;&lt;/ol&gt;            <b class="cmt">&lt;!-- 级联编号表：cascade /li/h5, ol, ... --&gt;</b>
-&lt;ol role="codelist"&gt;&lt;/ol&gt;           <b class="cmt">&lt;!-- 代码表：codelist /li/code/b, #text --&gt;</b>
-&lt;dl&gt;&lt;/dl&gt;                           <b class="cmt">&lt;!-- 定义列表：dl /dt, dd/... --&gt;</b>
-&lt;table&gt;&lt;/table&gt;                     <b class="cmt">&lt;!-- 表格：table /caption, thead, tbody, tfoot/tr/td/... --&gt;</b>
-&lt;figure&gt;&lt;/figure&gt;                   <b class="cmt">&lt;!-- 插图：figure /figcaption, p... --&gt;</b>
-&lt;blockquote&gt;&lt;/blockquote&gt;           <b class="cmt">&lt;!-- 引用块：blockquote /h4, p... --&gt;</b>
-&lt;aside&gt;&lt;/aside&gt;                     <b class="cmt">&lt;!-- 批注：aside /h4, p... --&gt;</b>
-&lt;details&gt;&lt;/details&gt;                 <b class="cmt">&lt;!-- 详细内容：details /sumary, p... --&gt;</b>
-&lt;pre role="codeblock"&gt;&lt;/pre&gt;        <b class="cmt">&lt;!-- 代码块：codeblock /code/b, #text --&gt;</b>
+<code data-lang="html">                                    <b class="cmt">&lt;!-- 说明：Name --&gt;</b>
+&lt;header role="abstract"&gt;&lt;/header&gt;   <b class="cmt">&lt;!-- 提要：Abstract /h3, p... --&gt;</b>
+&lt;nav role="toc"&gt;&lt;/nav&gt;              <b class="cmt">&lt;!-- 目录：Toc /h4, ol:cascade/li/a（可多级） --&gt;</b>
+&lt;ul role="seealso"&gt;&lt;/ul&gt;            <b class="cmt">&lt;!-- 另参见：Seealso /li/... --&gt;</b>
+&lt;ol role="references"&gt;&lt;/ol&gt;         <b class="cmt">&lt;!-- 文献参考：References /li/... --&gt;</b>
+&lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言：Header /h4, p... --&gt;</b>
+&lt;footer&gt;&lt;/footer&gt;                   <b class="cmt">&lt;!-- 结语：Footer /h4, p... --&gt;</b>
+&lt;article&gt;&lt;/article&gt;                 <b class="cmt">&lt;!-- 文章区：Article /header, h2, s1, footer, hr --&gt;</b>
+&lt;section role="s1"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：S1 /header, h2, s2, footer --&gt;</b>
+&lt;section role="s2"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：S2 /header, h3, s3, footer --&gt;</b>
+&lt;section role="s3"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：S3 /header, h4, s4, footer --&gt;</b>
+&lt;section role="s4"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：S4 /header, h5, s5, footer --&gt;</b>
+&lt;section role="s5"&gt;&lt;/section&gt;       <b class="cmt">&lt;!-- 片区：S5 /[content]... --&gt;</b>
+&lt;ul&gt;&lt;/ul&gt;                           <b class="cmt">&lt;!-- 无序列表：Ul /li/... --&gt;</b>
+&lt;ol&gt;&lt;/ol&gt;                           <b class="cmt">&lt;!-- 有序列表：Ol /li/... --&gt;</b>
+&lt;ol role="cascade"&gt;&lt;/ol&gt;            <b class="cmt">&lt;!-- 级联编号表：Cascade /li/h5, ol, ... --&gt;</b>
+&lt;ol role="codelist"&gt;&lt;/ol&gt;           <b class="cmt">&lt;!-- 代码表：Codelist /li/code/b, #text --&gt;</b>
+&lt;dl&gt;&lt;/dl&gt;                           <b class="cmt">&lt;!-- 定义列表：Dl /dt, dd/... --&gt;</b>
+&lt;table&gt;&lt;/table&gt;                     <b class="cmt">&lt;!-- 表格：Table /caption, thead, tbody, tfoot/tr/td/... --&gt;</b>
+&lt;figure&gt;&lt;/figure&gt;                   <b class="cmt">&lt;!-- 插图：Figure /figcaption, p... --&gt;</b>
+&lt;blockquote&gt;&lt;/blockquote&gt;           <b class="cmt">&lt;!-- 引用块：Blockquote /h4, p... --&gt;</b>
+&lt;aside&gt;&lt;/aside&gt;                     <b class="cmt">&lt;!-- 批注：Aside /h4, p... --&gt;</b>
+&lt;details&gt;&lt;/details&gt;                 <b class="cmt">&lt;!-- 详细内容：Details /sumary, p... --&gt;</b>
+&lt;pre role="codeblock"&gt;&lt;/pre&gt;        <b class="cmt">&lt;!-- 代码块：Codeblock /code/b, #text --&gt;</b>
 </code></pre>
                 </section>
                 <h4 id="内容类">内容类</h4>
                 <section>
                     <section>
                         <pre>
-<code data-lang="html">&lt;p&gt;&lt;/p&gt;                     <b class="cmt">&lt;!-- 段落：p 通用内容容器 --&gt;</b>
-&lt;address&gt;&lt;/address&gt;         <b class="cmt">&lt;!-- 地址信息：address --&gt;</b>
-&lt;pre&gt;&lt;/pre&gt;                 <b class="cmt">&lt;!-- 预排版：pre 非代码块 --&gt;</b>
-&lt;hr /&gt;                      <b class="cmt">&lt;!-- 线条：hr 特例 --&gt;</b>
-&lt;div role="space"&gt;&lt;/div&gt;    <b class="cmt">&lt;!-- 空白块：space 可用于交互展示 --&gt;</b>
+<code data-lang="html">&lt;p&gt;&lt;/p&gt;                     <b class="cmt">&lt;!-- 段落：P 通用内容容器 --&gt;</b>
+&lt;address&gt;&lt;/address&gt;         <b class="cmt">&lt;!-- 地址信息：Address --&gt;</b>
+&lt;pre&gt;&lt;/pre&gt;                 <b class="cmt">&lt;!-- 预排版：Pre 非代码块 --&gt;</b>
+&lt;hr /&gt;                      <b class="cmt">&lt;!-- 线条：Hr 特例 --&gt;</b>
+&lt;div role="space"&gt;&lt;/div&gt;    <b class="cmt">&lt;!-- 空白块：Space 可用于交互展示 --&gt;</b>
 </code></pre>
                     </section>
                 </section>
@@ -254,7 +254,7 @@
 &lt;meter&gt;&lt;/meter&gt;             <b class="cmt">&lt;!-- 度量 --&gt;</b>
 &lt;b&gt;&lt;/b&gt;                     <b class="cmt">&lt;!-- 粗体：主要用于代码块内的关键字包裹 --&gt;</b>
 &lt;i&gt;&lt;/i&gt;                     <b class="cmt">&lt;!-- 斜体：主要用于图标占位（icon） --&gt;</b>
-&lt;span role="blank"&gt;&lt;/i&gt;     <b class="cmt">&lt;!-- 空白段：blank --&gt;</b>
+&lt;span role="blank"&gt;&lt;/i&gt;     <b class="cmt">&lt;!-- 空白段：用于交互展示 --&gt;</b>
 </code></pre>
             </section>
         </section>
