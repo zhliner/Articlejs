@@ -144,7 +144,7 @@ const dataConvs = {
 
 // 列表元素取值。
 // 不区分由普通列表衍生的内容单元。
-// 它们是：seealso,references,codelist,cascade。
+// 它们是：seealso,reference,codelist,cascade。
 ///////////////////////////////////////////////////////////
 [
     'ul',
@@ -221,7 +221,7 @@ function list( el, name ) {
             return [ null, el ];
 
         case 'seealso':
-        case 'references':
+        case 'reference':
         case 'ul':
         case 'ol':
         case 'cascade':
@@ -296,7 +296,7 @@ function smallBlock( el, name ) {
             return [ null, el ];
 
         case 'seealso':
-        case 'references':
+        case 'reference':
         case 'ul':
         case 'ol':
         case 'cascade':

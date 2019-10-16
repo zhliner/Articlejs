@@ -37,7 +37,7 @@
                 一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性很差。</p>
         </blockquote>
     </header>
-    <nav class="toc">
+    <nav role="toc" class="toc">
         <h4><a href="#文章的内容结构与效果">【目 录】</a></h4>
         <ol role="cascade" class="cascade">
             <li><h5><a href="#内容的结构">内容的结构</a></h5>
@@ -152,7 +152,7 @@
     &lt;footer&gt;&lt;/footer&gt;                       <b class="cmt">&lt;!-- 章结语 --&gt;</b>
 &lt;/article&gt;
 &lt;ul role="seealso"&gt;&lt;/ul&gt;                    <b class="cmt">&lt;!-- 另参见 --&gt;</b>
-&lt;ol role="references"&gt;&lt;/ol&gt;                 <b class="cmt">&lt;!-- 文献参考 --&gt;</b>
+&lt;ol role="reference"&gt;&lt;/ol&gt;                  <b class="cmt">&lt;!-- 文献参考 --&gt;</b>
 </code></pre>
                 <p><strong>解析逻辑：</strong></p>
                 <ul>
@@ -185,7 +185,7 @@
 &lt;header role="abstract"&gt;&lt;/header&gt;   <b class="cmt">&lt;!-- 提要：Abstract /h3, p... --&gt;</b>
 &lt;nav role="toc"&gt;&lt;/nav&gt;              <b class="cmt">&lt;!-- 目录：Toc /h4, ol:cascade/li/a（可多级） --&gt;</b>
 &lt;ul role="seealso"&gt;&lt;/ul&gt;            <b class="cmt">&lt;!-- 另参见：Seealso /li/... --&gt;</b>
-&lt;ol role="references"&gt;&lt;/ol&gt;         <b class="cmt">&lt;!-- 文献参考：References /li/... --&gt;</b>
+&lt;ol role="reference"&gt;&lt;/ol&gt;          <b class="cmt">&lt;!-- 文献参考：Reference /li/... --&gt;</b>
 &lt;header&gt;&lt;/header&gt;                   <b class="cmt">&lt;!-- 导言：Header /h4, p... --&gt;</b>
 &lt;footer&gt;&lt;/footer&gt;                   <b class="cmt">&lt;!-- 结语：Footer /h4, p... --&gt;</b>
 &lt;article&gt;&lt;/article&gt;                 <b class="cmt">&lt;!-- 文章区：Article /header, h2, s1, footer, hr --&gt;</b>

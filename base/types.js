@@ -34,7 +34,7 @@ const
     BLOUFCPC    = 1 << 13,  // 块集：ul,figure,codelist,pre,codeblock
     SEEALSO     = 1 << 14,  // 另参见
     CASCADE     = 1 << 15,  // 级联表
-    REFERENCES  = 1 << 16,  // 文献参考
+    REFERENCE   = 1 << 16,  // 文献参考
     DL          = 1 << 17,  // 定义列表
     BLOATHS     = 1 << 18,  // 块集：address,table,hr,space
     BLOCKQUOTE  = 1 << 19,  // 块引用
@@ -95,7 +95,7 @@ const Types = {
     Ol:             OL,
     Cascade:        CASCADE,
     Codelist:       BLOUFCPC,
-    References:     REFERENCES,
+    Reference:      REFERENCE,
     Dl:             DL,
     Table:          BLOATHS,
     Figure:         BLOUFCPC,
@@ -200,7 +200,7 @@ const typeSubs = {
     Abstract:       H3 | P | BLOATHS,
     Toc:            H4 | CASCADE,
     Seealso:        LI,
-    References:     LI,
+    Reference:      LI,
     Header:         H4 | P | BLOATHS | BLOCKQUOTE,
     Footer:         H4 | P | BLOATHS | BLOCKQUOTE,
     Article:        HEADER | H2 | S1 | CONTENT | FOOTER,

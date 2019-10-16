@@ -559,9 +559,9 @@ Object.assign( tQuery, {
      * - 数据源为配置对象时，支持元素属性配置和 html|text|node 三种特殊属性指定。
      *
      * data配置: {
-     *      html:   取值为源码，节点数据取 outerHTML 插入，可为数组（下同）。
-     *      text:   取值为文本，节点数据取 textContent 插入。
-     *      node:   取值为节点，移动插入后节点会脱离原位置。
+     *      html:   值为源码，节点数据取 outerHTML 插入，可为数组（下同）。
+     *      text:   值为文本，节点数据取 textContent 插入。
+     *      node:   值为节点，移动插入后节点会脱离原位置。
      *      ....    特性（Attribute）定义
      * }
      * @param  {String} tag 标签名
@@ -868,7 +868,7 @@ Object.assign( tQuery, {
             target = tQuery.serialize(target);
         }
         else if ( !isArr(target) ) {
-            target = Arr( entries(target) );
+            target = $A( entries2(target) );
         }
         if ( !match ) {
             return new URLSearchParams(target).toString();
@@ -4058,10 +4058,10 @@ function charLenStep( ch, beg ) {
 
 
 /**
- * 获取键值对迭代器。
- * - 扩展适用类数组和普通对象；
+ * 获取键值对迭代器（通用版）。
+ * 注：扩展到数组/类数组对象。
  * @param  {Array|LikeArray|Object|.entries} obj 迭代目标
- * @return {Iterator} 迭代器
+ * @return {Iterator|[Array2]} 迭代器
  */
 function entries( obj ) {
     if ( isFunc(obj.entries) ) {
@@ -4070,6 +4070,15 @@ function entries( obj ) {
     let _arr = $A(obj);
     return _arr && _arr.entries() || Object.entries(obj);
 }
+
+
+/**
+ * 获取键值迭代器（简版）。
+ * @param  {Map|Object} obj 迭代对象
+ * @return {Iterator|[Array2]} 迭代器
+ */
+const entries2 = obj =>
+    isFunc(obj.entries) ? obj.entries() : Object.entries(obj);
 
 
 /**
@@ -4164,20 +4173,20 @@ function buildTR( tr, cols, tag, th0 ) {
 
 
 /**
- * 检查表格行获取适当容器。
- * - 若初始容器不是表格，则可忽略；
- * - 应对表格行直接插入table的情况；
- *
+ * 获取表格行适当容器。
+ * 用于<tr>直接插入<table>的情况变通。
+ * 若容器不是表格则简单返回。
  * @param  {Element} box 原容器元素
  * @param  {Element} sub 内容子元素
  * @return {Element} 合适的容器元素
  */
-function trParent( box, sub ) {
-    if (box.nodeName.toLowerCase() == 'table' &&
-        sub.nodeName.toLowerCase() == 'tr') {
-        return $tag('tbody', box)[0] || box;
+function trContainer( box, sub ) {
+    if ( !box.tBodies ) return box;
+
+    if ( sub.nodeType == 11 ) {
+        sub = sub.firstElementChild;
     }
-    return box;
+    return sub.cells ? box.tBodies[0] : box;
 }
 
 
@@ -4263,7 +4272,7 @@ function cssSets( el, name, val, cso ) {
             cso
         );
     }
-    for (let [n, v] of entries(name)) cssSet(el, n, v, cso);
+    for (let [n, v] of entries2(name)) cssSet(el, n, v, cso);
 }
 
 
@@ -4573,7 +4582,7 @@ function hookSets( el, name, value, scope ) {
             scope
         );
     }
-    for (let [k, v] of entries(name)) hookSet(el, k, v, scope);
+    for (let [k, v] of entries2(name)) hookSet(el, k, v, scope);
 }
 
 
@@ -4951,49 +4960,43 @@ function htmlText( code ) {
  * @return {Node|Array|null} 内容元素（集）
  */
 function Insert( ref, data, where ) {
-    if (!data || !ref) return;
+    let _call = insertHandles[where];
 
-    let _call = insertHandles[where],
-        _revs = _call && data.nodeType == 11 ?
-            Arr(data.childNodes) :
-            data;
+    if ( !_call ) {
+        throw new Error(`[${where}] is invalid method.`);
+    }
+    if ( data.nodeType == 11 ) {
+        data = Arr( data.childNodes );
+    }
 
-    return _call && _call(data, ref, ref.parentNode) && _revs;
+    return _call( data, ref, ref.parentNode );
 }
 
 
 //
-// 6类插入函数集。
-// node可以是文档片段或元素或文本节点。
+// 6种插入方式。
+// @param {Node|Element|DocumentFragment} node 待插入内容。
+// @param {Node|Element} 目标节点/元素
+// @param {Element} pel 目标节点的父元素
 //
 const insertHandles = {
     // fill
-    '': ( node, ref /*, box*/) => {
-        if (ref.nodeType == 1) {
-            ref.textContent = '';
-            return ref.appendChild(node);
-        }
-    },
+    '': ( node, ref /*, pel*/) => ref.textContent = '' || ref.appendChild(node),
 
     // replace
-    '0': ( node, ref, box ) => box && box.replaceChild(node, ref),
+    '0': ( node, ref, pel ) => pel && pel.replaceChild(node, ref),
 
     // before
-    '1': ( node, ref, box ) => box && box.insertBefore(node, ref),
+    '1': ( node, ref, pel ) => pel && pel.insertBefore(node, ref),
 
     // after
-    '-1': ( node, ref, box ) => box && box.insertBefore(node, ref.nextSibling),
+    '-1': ( node, ref, pel ) => pel && pel.insertBefore(node, ref.nextSibling),
 
     // end/append
-    '-2': ( node, ref, box, _pos ) => {
-        if (ref.nodeType == 1) {
-            ref = trParent(ref, node.firstChild);
-            return ref.insertBefore(node, _pos || null);
-        }
-    },
+    '-2': ( node, ref, pel, _pos = null ) => trContainer(ref, node).insertBefore(node, _pos),
 
     // begin/prepend
-    '2': ( node, ref, box ) => insertHandles['-2'](node, ref, box, ref.firstChild),
+    '2': ( node, ref, pel ) => insertHandles['-2'](node, ref, pel, ref.firstChild),
 };
 
 
@@ -5013,7 +5016,7 @@ const insertHandles = {
  * @param  {Boolean} clone 是否克隆
  * @param  {Boolean} event 是否克隆事件处理器（容器）
  * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
- * @return {Node|Fragment|null} 节点或文档片段
+ * @return {Node|Fragment} 节点或文档片段
  */
 function domManip( node, cons, clone, event, eventdeep ) {
     if ( isFunc(cons) ) {
@@ -5035,15 +5038,16 @@ function domManip( node, cons, clone, event, eventdeep ) {
 /**
  * 节点集构造文档片段。
  * 只接受元素、文本节点、注释和文档片段数据。
+ * 注记：
+ * 因存在节点移出可能，不可用for/of原生迭代（影响迭代次数）。
+ *
  * @param  {NodeList|Set|Iterator} nodes 节点集/迭代器
  * @param  {Function} get 取值回调，可选
  * @param  {Document} doc 文档对象
- * @return {Fragment|null}
+ * @return {Fragment}
  */
 function fragmentNodes( nodes, get, doc ) {
-    // 注记：
-    // 因存在节点移出可能，不可用for/of原生迭代（影响迭代次数）。
-    // 扩展运算符用于Set数据。
+    // ...Set。
     nodes = $A(nodes) || [...nodes];
 
     let _all = doc.createDocumentFragment();
@@ -5055,7 +5059,7 @@ function fragmentNodes( nodes, get, doc ) {
             _all.appendChild(nd);
         }
     }
-    return _all.childNodes.length ? _all : null;
+    return _all;
 }
 
 
@@ -6260,9 +6264,7 @@ function eventBinds( type, el, slr, evn, handle ) {
     if (typeof evn == 'string') {
         return evnsBatch( type, el, evn, slr, handle );
     }
-    for ( let [n, f] of entries(evn) ) {
-        evnsBatch( type, el, n, slr, f );
-    }
+    for ( let [n, f] of Object.entries(evn) ) evnsBatch(type, el, n, slr, f);
 }
 
 
