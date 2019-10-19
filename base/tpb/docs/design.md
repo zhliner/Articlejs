@@ -392,7 +392,7 @@ env( name: String, its?: Value | String ): void | Value
 // 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
 // 设置时：
 // - 目标为空：its必然有值，否则为取值逻辑。
-// - 目标非空：its有值，its指属性名，取该属性值设置。‘
+// - 目标非空：its有值，its指属性名，取该属性值设置。
 //
 // 注：操作Globals对象。
 
@@ -400,13 +400,28 @@ data( name, its?: Value | String ): void | Value
 // 关联数据存储/取出。
 // 目标：当前条目。不自动取栈。
 // 存储元素（evo.delegate）关联的数据项或取出数据项入栈。
-// 通常实现为一个WeakMap存储当前元素的关联数据。
-// 数据本身是一个Map对象：
 // - 数据项键：name。
 // - 数据项值：目标对象、its、或目标对象的[its]属性值。
 // 注：
-// 设置时的目标对象和its的逻辑同env指令。
-// 操作WeakStore存储空间。
+// its的逻辑同上，操作WeakStore存储空间。
+
+sess( name, its?: Value | String): void | Value
+// 设置/取值浏览器会话数据。
+// 目标：当前条目。不自动取栈。
+// 目标为空且its未定义时为取值入栈，否则为设置值。
+// 注：
+// its的逻辑同上，操作window.sessionStorage对象。
+// 传递its为null可清除目标项的值。
+// 如果传递name为null，会清除整个Storage存储。
+// 注意：
+// 存储的值会被转换为字符串，取出的值也为字符串。
+
+local( name, its?: Value | String): void | Value
+// 设置/取值浏览器本地数据。
+// 目标：当前条目。不自动取栈。
+// 目标为空且its未定义时为取值入栈，否则为设置值。
+// 注：
+// 其它逻辑同上。
 
 push( ...val: Value | [Value] ): Value | [Value]
 // 直接赋值入栈。

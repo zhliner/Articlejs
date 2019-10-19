@@ -20,7 +20,7 @@
 
 import { Util } from "./util.js";
 import { Spliter } from "./spliter.js";
-import { OBTA, ACCESS, EXTENT, DEBUG, method } from "../config.js";
+import { ACCESS, EXTENT, DEBUG, method } from "../config.js";
 
 
 const
@@ -43,10 +43,6 @@ const
     __tosProp   = '&',  // 属性指定
     __tosCSS    = '%',  // 样式指定
     __tosToggle = '^',  // 特性（Attribute）切换
-
-
-    // OBT属性取值序列。
-    __obts = `${OBTA.on} ${OBTA.by} ${OBTA.to}`,
 
 
     // On事件定义模式。
@@ -90,12 +86,11 @@ const Parser = {
      *      to: String
      * }
      * @param  {Element} el 目标元素
-     * @param  {Boolean} clear 是否清除OBT特性
+     * @param  {Array3} conf OBT配置集（[on,by,to]）
      * @return {Iterator<Array3>} 单组配置迭代器
      */
-    obts( el, clear ) {
-        let [on, by, to] = this._obtAttr( el, clear );
-        if ( !on ) return [];
+    obts( el, conf ) {
+        let [on, by, to] = conf;
 
         return this._teams(
             ASpliter.split(on, __chrDlmt),
@@ -155,22 +150,6 @@ const Parser = {
 
 
     //-- 私有辅助 -------------------------------------------------------------
-
-    /**
-     * 提取元素的OBT属性值。
-     * 注：取值后会移除这3个特性定义。
-     * 返回值：[on, by, to]
-     * @param  {Element} 目标元素
-     * @return {Array3|null}
-     */
-    _obtAttr( el, clear ) {
-        let _vs = $.attr( el, __obts );
-
-        if ( clear ) {
-            $.removeAttr( el, __obts );
-        }
-        return [ _vs[OBTA.on],_vs[OBTA.by], _vs[OBTA.to] ];
-    },
 
 
     /**
@@ -259,29 +238,28 @@ class Builder {
 
 
     /**
-     * 构建OBT逻辑（元素自身）
+     * 构建OBT逻辑（元素/对象自身）
      * OBT解析、创建调用链、绑定，存储延迟绑定等。
      * 返回已解析绑定好的原始元素。
-     * @param  {Element} el 目标元素
-     * @param  {Boolean} keep 是否保留OBT特性
-     * @return {Element} el
+     * @param  {Element|Object} obj 绑定目标
+     * @param  {Array3} conf OBT配置集（[on,by,to]）
+     * @return {Element|Object} obj
      */
-    build( el, keep ) {
-        if ( !el.hasAttribute(OBTA.on) ) {
-            return;
-        }
-        for (const obt of Parser.obts(el, !keep) ) {
+    build( obj, conf ) {
+        if ( !conf[0] ) return;
+
+        for (const obt of Parser.obts(obj, conf) ) {
             let _on = Parser.on(obt.on),
                 _by = Parser.by(obt.by),
                 _to = Parser.to(obt.to);
 
             this.bind(
-                el,
+                obj,
                 _on[0],
                 this.chain(_on[1], _by, _to[0], _to[1], _to[2])
             );
         }
-        return el;
+        return obj;
     }
 
 

@@ -631,12 +631,53 @@ const _Base2 = {
             _o = evo.data;
 
         if ( _o === undefined && its === undefined ) {
-            return getStore( _e, name );
+            return getData( _e, name );
         }
-        saveStore( _e, name, objectItem(_o, its) );
+        setData( _e, name, objectItem(_o, its) );
     },
 
     __data: 0,
+
+
+    /**
+     * 设置/取值浏览器会话数据。
+     * 目标为空且its未定义时为取值入栈，否则为设置值（参考evn说明）。
+     * 目标：当前条目。不自动取栈。
+     * 传递its为null可清除目标项的值。
+     * 如果传递name为null，会清除整个Storage存储。
+     * 注意：存储的值会被转换为字符串。
+     * @param {String} name 存储键名
+     * @param {Value|String} its 存储值或成员名，可选
+     */
+    sess( evo, name, its ) {
+        let _o = evo.data;
+
+        if ( _o === undefined && its === undefined ) {
+            return window.sessionStorage.getItem(name);
+        }
+        storage( window.sessionStorage, name, its, _o );
+    },
+
+    __sess: 0,
+
+
+    /**
+     * 设置/取值浏览器本地数据。
+     * 目标：当前条目。不自动取栈。
+     * 注：参考sess()说明。
+     * @param {String} name 存储键名
+     * @param {Value|String} its 存储值或成员名，可选
+     */
+    local( evo, name, its ) {
+        let _o = evo.data;
+
+        if ( _o === undefined && its === undefined ) {
+            return window.localStorage.getItem(name);
+        }
+        storage( window.localStorage, name, its, _o );
+    },
+
+    __local: 0,
 
 
     /**
@@ -1286,7 +1327,7 @@ function objectItem( obj, its ) {
  * @param {Element} el 关联元素
  * @param {String} name 取值名称
  */
-function getStore( el, name ) {
+function getData( el, name ) {
     let _map = DataStore.get( el );
     return _map && _map.get( name );
 }
@@ -1299,13 +1340,31 @@ function getStore( el, name ) {
  * @param {String} name 存储名称
  * @param {Value} val 存储的值
  */
-function saveStore( el, name, val ) {
+function setData( el, name, val ) {
     let _map = DataStore.get( el );
 
     if ( !_map ) {
         _map = DataStore.set( el, new Map() );
     }
     _map.set( name, val );
+}
+
+
+/**
+ * 设置存储器（sessionStorage|localStorage）。
+ * @param {Storage} 存储器
+ * @param {String} name 存储键
+ * @param {Value|String} its 存储值或成员名
+ * @param {Object|undefined} 当前条目
+ */
+function storage( buf, name, its, obj ) {
+    if ( name === null) {
+        return buf.clear();
+    }
+    if ( its === null ) {
+        return buf.removeItem( name );
+    }
+    buf.setItem( name, objectItem(obj, its) );
 }
 
 
@@ -1337,10 +1396,11 @@ function existValue( obj, name, val ) {
 
 
 /**
- * 移除一个跟随指令。
+ * 移除n个跟随指令。
  * @param  {Cell} cell 当前指令单元
  * @param  {Symbol} key 计数存储键
  * @param  {Number} cnt 初始计数定义
+ * @param  {Number} n 指令数量
  * @return {Boolean} 是否已移除
  */
 function pruneOne( cell, key, cnt, n ) {
