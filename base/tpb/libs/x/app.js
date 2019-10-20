@@ -26,12 +26,15 @@
 //
 //  开发：
 //      import { App } from 'app.js'
-//      App.register( 'MyApp', [c,m,v], [meth...] );
-//      // [c,m,v] 为三个入口函数。
+//      App.register( 'MyApp', conf:Object(c,m,v), [meth...] );
+//      // conf为CMV配置对象：
+//      // - 包含三个入口函数（可选）。
+//      // - 可包含其它任意指令或指令子集（Object封装）。
 //
 //  模板使用：
 //      by="x.MyApp.run(xxx)"  // xxx为方法名，方法的实参为当前条目
 //      by="x.MyApp.xxx"       // 同上，友好使用形式
+//      by="x.MyApp.xyz.abc"   // 其它任意指令/子集指令
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,15 +92,25 @@ class _App {
  * 注：普通的调用：x.App.run('[meth]')
  * @param {_App} app 一个App实例
  * @param {Array} meths 方法名序列
+ * @param {Object} extra 附带成员集
  */
-function appScope( app, meths ) {
+function appScope( app, meths, extra ) {
     let _obj = {
         run: app.run.bind(app)
     };
     meths.forEach(
         meth => _obj[meth] = app.methrun.bind(app, meth)
     );
-    return _obj;
+    return Object.assign(_obj, extra);
+}
+
+
+// 清除CMV配置项。
+function clear( conf ) {
+    delete conf.control;
+    delete conf.model;
+    delete conf.view;
+    return conf;
 }
 
 
@@ -110,8 +123,14 @@ function appScope( app, meths ) {
  * 传递meths可以构造友好的调用集：x.[MyApp].[meth]。
  * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
  *
+ * conf:Object {
+ *      control: function(meth, data ): Promise,
+ *      model:   function(meth, data ): Value,
+ *      view:    function(meth, data ): Value,
+ *      ...      // 可附带任意指令子集
+ * }
  * @param {String} name 程序名
- * @param {[Function]} conf CMV定义
+ * @param {Object} conf CMV配置对象
  * @param {[String]} meths 方法名序列，可选
  */
 function register( name, conf, meths = [] ) {
@@ -120,7 +139,12 @@ function register( name, conf, meths = [] ) {
     if ( _app != null ) {
         throw new Error(`[${name}]:${_app} is already exist.`);
     }
-    X.extend( name, appScope(new _App(...conf), meths), true );
+    let _cmv = [
+            conf.control,
+            conf.model,
+            conf.view
+        ];
+    X.extend( name, appScope(new _App(..._cmv), meths, clear(conf)) );
 }
 
 
