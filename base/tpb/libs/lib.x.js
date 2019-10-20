@@ -8,16 +8,12 @@
 //
 //	By:X 扩展库设计。
 //
-//  用户使用（模板中）：
-//      x.[name].[meth]         // 例：x.Effect.line
-//      x.[name].[xxx].[meth]   // 例：x.App.Example.run
-//
 //  静态扩展：
 //      import { X } from 'libs/lib.x.js'
-//      X.extend( name, {...}, nobind ) 在name子域上扩展指令
+//      X.extend( name, {...}, nobind ) 在name子域上扩展
 //
 //  动态扩展：
-//      Tpb.Lib.X.extend( name, {...}, nobind ) 在name子域上扩展指令
+//      Tpb.Lib.X.extend( name, {...}, nobind )
 //
 //  注：
 //  单纯获取目标子域：X.extend( name, null )
@@ -25,28 +21,56 @@
 //  说明：
 //  - 扩展指令支持名称前置双下划线（__）定义自动取栈数，默认会被设置为0。
 //  - 默认会将指令绑定到宿主对象后存储，除非nobind为真，此时指令的this为当前指令对象（Cell）。
-//  - 内嵌的子集指令（普通对象封装）会被递进处理（合并方式）。
+//  - 内嵌的子指令集（需用普通对象封装）会被递进处理，合并模式。
+//
+//
+//  模板使用：
+//      x.[name].[meth] // 例：x.Effect.line
+//      x.[name].[xxx].[meth]
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { EXTENT } from "../config.js";
+import { EXTENT, pullRoot } from "../config.js";
 
 const $ = window.$;
 
 
 // X扩展存储区。
-// 预置部分功能域。
+// 预置部分功能子域。
 const _X = {
-    Fun:  {},   // 功能函数区（主要用于By系引用）
-    App:  {},   // 网页App域（.pull, .[Xxx].run...）
+    Fun:  {},   // 功能函数区（可用于By系引用）
     Math: {},   // 数学算法区
     Ease: {},   // 缓动计算区（.Linear...）
     Eff:  {},   // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
     Grid: {},   // CSS网格布局域（.Area）
     Flow: {},   // CSS弹性布局域
 };
+
+
+/**
+ * 数据检取（简单）。
+ * 暂存区的流程数据会作为查询串上传。
+ * 注：仅支持 GET 方法。
+ * @param  {String} meth 请求方法。可选，默认index
+ * @return {Promise} data:json
+ */
+_X.fetch = function( evo, meth = 'index' ) {
+    let _url = `${pullRoot}/${meth}`;
+
+    if ( evo.data != null ) {
+        _url += '?' + new URLSearchParams(evo.data);
+    }
+    return fetch(_url).then(
+        resp => resp.ok ? resp.json() : Promise.reject(resp.statusText)
+    );
+}
+
+
+//
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
 
 
 //
@@ -80,9 +104,9 @@ function bindMethod( f, k, obj, to ) {
  * @param {String|Symbol} k 属性键
  * @param {Object} obj 源对象
  */
-function setMethod( f, k, obj ) {
+function setMethod( f, k, obj, to ) {
     if ( $.type(f) == 'Object' ) {
-        return [ $.assign({}, f, setMethod) ];
+        return [ $.assign(to[k] || {}, f, setMethod) ];
     }
     if ( !$.isFunction(f) ) {
         return [ f ];
@@ -105,17 +129,24 @@ function subObj( names, obj ) {
 
     for (const name of names) {
         _sub = obj[name];
+
         if ( !_sub ) {
             obj[name] = _sub = {};
             window.console.info(`add a new ${name}{} scope.`);
         }
-        // 函数保护。
+        // 类型限定。
         else if ( $.type(_sub) != 'Object' ) {
             throw new Error(`the ${name} field is not a Object.`);
         }
     }
     return _sub;
 }
+
+
+
+//
+// 导出。
+//////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -129,7 +160,7 @@ function subObj( names, obj ) {
  *
  * @param  {String} name 扩展域
  * @param  {Object} exts 扩展集
- * @param  {Boolean} nobind 需要访问Cell实例，可选。
+ * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
  * @return {Object} 目标子域
  */
 function extend( name, exts, nobind ) {
@@ -137,14 +168,9 @@ function extend( name, exts, nobind ) {
         setMethod :
         bindMethod;
 
-    return $.assign( subObj(name.split('.'), _X), exts, _f );
+    return $.assign( subObj(name.split('.'), _X), exts || {}, _f );
 }
 
-
-
-//
-// 导出。
-///////////////////////////////////////////////////////////////////////////////
 
 //
 // 用原型空间存储。

@@ -6,41 +6,44 @@
 //          @author:  风林子 zhliner@gmail.com
 //////////////////////////////////////////////////////////////////////////////
 //
-//	页面小程序。
+//	页面App实现（CMV）。
 //
-//	和服务器交互，提交数据并获取响应。从复杂性分为两个级别：
-//  1. pull 提交请求获取响应数据，直接简单入栈。
-//  2. cmv  Control/Model/View 的简写，提供架构供外部具体实现。
+//	和服务器交互，提交数据并获取响应。
 //
-//  CMV:
-//  - Control   对提交的数据进行前置控制和预处理。
-//  - Model     设计业务模型，与控制部分相关联。
-//  - View      数据的视图结构整理（仅指数据），也包含对前置控制的呼应。
+//  - Control
+//      对提交的数据进行前置控制和预处理，数据实参（data）为当前条目（前阶主动提取）。
+//      接口：function( meth:String, data:Value ): Promise
 //
-//  实现：
+//  - Model
+//      业务模型处理，控制部分的返回值传递到此（data）。
+//      接口：function( meth:String, data:Value ): Value
+//
+//  - View
+//      视图部分的数据整理，可与控制部分呼应，接收模型的返回值。
+//      注：该部分的返回值回入执行流（返回数据栈）。
+//      接口：同 Model。
+//
+//
+//  开发：
 //      import { App } from 'app.js'
-//      App.register( appName, [control, model, view], methods? );
+//      App.register( 'MyApp', [c,m,v], [meth...] );
+//      // [c,m,v] 为三个入口函数。
+//
+//  模板使用：
+//      by="x.MyApp.run(xxx)"  // xxx为方法名，方法的实参为当前条目
+//      by="x.MyApp.xxx"       // 同上，友好使用形式
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { pullRoot } from "../../config.js";
 import { X } from "../lib.x.js";
 
 
 class _App {
     /**
      * 构建一个App。
-     * 传递三个阶段的回调函数。
-     * 回调函数接口：
-     * ctrl: function( name:String, data:Value ): Promise
-     * model/view: function( name:String, data:Value ): Value
-     * 说明：
-     * - 首个参数为方法名，其次为上一阶段来的值（确定值，非Promise）。
-     *   即：仅在上一阶段完成后，才会进入下一阶段。
-     * - model和view调用接口的返回值任意，若返回Promise遵循同样的逻辑。
-     *
+     * 需传入三个阶段的入口函数。
      * @param {Function} ctrl 控制调用
      * @param {Function} model 模型调用
      * @param {Function} view 视图调用
@@ -62,41 +65,16 @@ class _App {
             .then( d => this.model( meth, d ) )
             .then( d => this.view( meth, d ) );
     }
-}
 
 
-
-/**
- * 数据检取（Fetch）。
- * 暂存区的流程数据会作为查询串上传。
- * 注：仅支持 GET 方法。
- * @param  {String} meth 请求方法。可选，默认index
- * @return {Promise} data:json
- */
-function Puller( evo, meth = 'index' ) {
-    let _url = `${pullRoot}/${meth}`;
-
-    if ( evo.data != null ) {
-        _url += '?' + new URLSearchParams(evo.data);
+    /**
+     * 方法调用封装。
+     * 注：bind()专用。
+     */
+    methrun( meth, evo ) {
+        return this.run( evo, meth );
     }
-    return fetch(_url).then(
-        resp => resp.ok ? resp.json() : Promise.reject(resp.statusText)
-    );
 }
-
-
-//
-// App存储区。
-//
-let AppStore = null;
-
-
-//
-// 扩展注入X库。
-//
-(function() {
-    AppStore = X.extend( 'App', { pull: Puller } );
-})();
 
 
 //
@@ -117,7 +95,7 @@ function appScope( app, meths ) {
         run: app.run.bind(app)
     };
     meths.forEach(
-        meth => _obj[meth] = app.run.bind(app, meth)
+        meth => _obj[meth] = app.methrun.bind(app, meth)
     );
     return _obj;
 }
@@ -126,10 +104,10 @@ function appScope( app, meths ) {
 /**
  * 注册CMV小程序。
  * 每个程序遵循CMV（Control/Model/View）三层划分逻辑。
- * 模板中调用需要传递方法名：x.App.run([meth])，用于区分不同的调用。
- * 不同方法的实参是前阶提取的当前条目（流程数据）。
+ * 模板中调用需要传递方法名：x.[MyApp].run([meth])，用于区分不同的调用。
+ * 不同方法的实参是前阶主动提取的当前条目。
  * 注：
- * 传递meths可以构造友好的调用集：x.App.[meth]。
+ * 传递meths可以构造友好的调用集：x.[MyApp].[meth]。
  * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
  *
  * @param {String} name 程序名
@@ -137,15 +115,16 @@ function appScope( app, meths ) {
  * @param {[String]} meths 方法名序列，可选
  */
 function register( name, conf, meths = [] ) {
-    let _a = AppStore[name];
+    let _app = X[name];
 
-    if ( _a != null ) {
-        throw new Error(`[${name}]:${_a} is already exist.`);
+    if ( _app != null ) {
+        throw new Error(`[${name}]:${_app} is already exist.`);
     }
-    AppStore[name] = appScope( new _App(...conf), meths );
+    X.extend( name, appScope(new _App(...conf), meths), true );
 }
 
 
+//
 // 注册App。
-// 可用于运行时的动态注册。
+//
 export const App = { register };

@@ -37,8 +37,7 @@ const
     $ = window.$,
 
     // 库空间。
-    // App实现在X内，但此处单列引用。
-    Lib = { X, App },
+    Lib = { X },
 
     // On属性选择器
     __onSlr = `[${OBTA.on}]`,

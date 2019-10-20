@@ -75,12 +75,12 @@ const tagsMap = {
     Reference:  'ol:reference',
     Header:     'header/h4',
     Footer:     'footer/h4',
-    Article:    'h1, Abstract, article',
-    S1:         'h2, Header, section:s1, Footer',
-    S2:         'h3, Header, section:s2, Footer',
-    S3:         'h4, Header, section:s3, Footer',
-    S4:         'h5, Header, section:s4, Footer',
-    S5:         'h6, Header, section:s5, Footer',
+    Article:    'h1, article',
+    S1:         'h2, section:s1',
+    S2:         'h3, section:s2',
+    S3:         'h4, section:s3',
+    S4:         'h5, section:s4',
+    S5:         'h6, section:s5',
     Ul:         'ul',
     Ol:         'ol',
     Cascade:    'ol:cascade',
@@ -370,120 +370,236 @@ class Article {
 
 
 //
-// 片区：章。
+// 内容设置函数集。
+// 对create创建的结构空元素设置实际的内容。
+// 注：根据实参值可能会删除某些子单元。
 //
-class Section1 {
-    //
-}
-
-
-//
-// 片区：节。
-//
-class Section2 {
-    //
-}
-
-
-//
-// 片区：区。
-class Section3 {
-    //
-}
-
-
-// 片区：段。
-class Section4 {
-    //
-}
-
-
-// 片区：末。
-class Section5 {
-    //
-}
-
-
-//
-// 内容件。
-// 通用类，单元类型不同允许的操作稍有不同（如仅片区支持导言）。
-// 内容（content）操作是所有单元都支持的。
-// 注：对于不支持的操作，返回null。
-//
-class Conitem {
-    /**
-     * 创建单元。
-     * 传递字符串名称新建目标单元。
-     * 传递元素则解析为相应内容单元。
-     * 注：对于不识别的名称或元素，会抛出异常。
-     * @param {String|Element} its 单元名称或元素
-     */
-    constructor( its ) {
-        this._name;
+const Content = {
+    Abstract() {
         //
-    }
+    },
 
 
-    /**
-     * 获取/设置标题内容。
-     * 获取时传递con为true，返回标题源码，否则返回文本。
-     * 设置时支持字符串和节点/集，返回当前实例。
-     * 注：
-     * 如果缺少标题元素，获取时返回null，设置时自动创建。
-     * 对于无需标题结构的单元，获取返回false。
-     * @param {String|Node|[Node]|true} con 插入内容或获取标记
-     * @param {Boolean} ishtml 是否HTML方式插入，可选
-     * @return {String|null|false|this}
-     */
-    heading( con, ishtml ) {
+    Toc() {
         //
-    }
+    },
 
 
-    /**
-     * 获取/设置导言。
-     * 获取时返回内容成员（子元素）集。
-     * 如果是无需导言结构的单元，返回false。
-     * @param  {String|[String]Element|[Element]} its 内容序列
-     * @return {[Element]|false|this}
-     */
-    header( its ) {
+    Seealso() {
         //
-    }
+    },
 
 
-    /**
-     * 获取/设置内容。
-     * 获取时返回内容单元集。
-     * 设置时返回当前实例。
-     * @param  {String|[String]Element|[Element]} its 内容序列
-     * @return {[Element]|this}
-     */
-    content( its ) {
+    Reference() {
         //
-    }
+    },
 
 
-    footer( its ) {
+    Header() {
         //
-    }
-}
+    },
 
 
-//
-// 片区集。
-//
-class Sections extends Array {
-    //
-}
+    Footer() {
+        //
+    },
 
 
-//
-// 内容件集。
-//
-class Conitems extends Array {
-    //
-}
+    Article() {
+        //
+    },
+
+
+    S1() {
+        //
+    },
+
+
+    S2() {
+        //
+    },
+
+
+    S3() {
+        //
+    },
+
+
+    S4() {
+        //
+    },
+
+
+    S5() {
+        //
+    },
+
+
+    Ul() {
+        //
+    },
+
+
+    Ol() {
+        //
+    },
+
+
+    Cascade() {
+        //
+    },
+
+
+    Codelist() {
+        //
+    },
+
+
+    Dl() {
+        //
+    },
+
+
+    Table() {
+        //
+    },
+
+
+    Figure() {
+        //
+    },
+
+
+    Blockquote() {
+        //
+    },
+
+
+    Aside() {
+        //
+    },
+
+
+    Details() {
+        //
+    },
+
+
+    Blockcode() {
+        //
+    },
+
+
+    P() {
+        //
+    },
+
+
+    Address() {
+        //
+    },
+
+
+    Pre() {
+        //
+    },
+
+
+    Hr() {
+        //
+    },
+
+
+    Space() {
+        //
+    },
+
+
+    Hgroup() {
+        //
+    },
+
+
+    Li() {
+        //
+    },
+
+
+    Codeli() {
+        //
+    },
+
+
+    Ali() {
+        //
+    },
+
+
+    Cascadeli() {
+        //
+    },
+
+
+    H1() {
+        //
+    },
+
+
+    H2() {
+        //
+    },
+
+
+    H3() {
+        //
+    },
+
+
+    H4() {
+        //
+    },
+
+
+    H5() {
+        //
+    },
+
+
+    H6() {
+        //
+    },
+
+
+    Figcaption() {
+        //
+    },
+
+
+    Summary() {
+        //
+    },
+
+
+    Track() {
+        //
+    },
+
+
+    Source() {
+        //
+    },
+
+
+    Ruby() {
+        //
+    },
+
+
+    Default() {
+        //
+    },
+};
+
 
 
 //
@@ -630,18 +746,6 @@ function sectHead( els ) {
         if ( $.is(el, __hxSlr) ) return el.nodeName;
     }
     return null;
-}
-
-
-/**
- * 创建片区集或内容件集。
- * 仅限于<article>和<section>的子元素集。
- * 如果子元素集内无标题，表示是一个内容件集。
- * @param  {[Element]} els 子元素集
- * @return {Sections|Conitems}
- */
-function sectCons( els ) {
-    let _hx = sectHead( els );
 }
 
 

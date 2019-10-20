@@ -204,9 +204,9 @@ const dataConvs = {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-// 列表元素取值。
+// 列表元素取值（平级）。
 // 适用：ul, ol
-function list( el, name ) {
+function listSibling( el, name ) {
     let _ss;
     switch (name) {
         case 'abstract':
@@ -278,9 +278,23 @@ function list( el, name ) {
 }
 
 
+// 列表元素取值（子单元）。
+// 适用：ul, ol
+function listAppend( el, name ) {
+    //
+}
+
+
+// 列表元素取值（填充）。
+// 适用：ul, ol
+function listFill( el, name ) {
+    //
+}
+
+
 // 小区块取值（<header>）。
 // 含可选的<h4>标题，内容平级。
-function smallBlock( el, name ) {
+function blockSibling( el, name ) {
     // ?
     let _ss;
     switch (name) {
@@ -350,6 +364,16 @@ function smallBlock( el, name ) {
     // codeli, ...
     // 仅取文本。
     return $.text( el );
+}
+
+
+function blockAppend( el, name ) {
+    //
+}
+
+
+function blockFill( el, name ) {
+    //
 }
 
 
