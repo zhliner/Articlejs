@@ -28,8 +28,8 @@
 //      import { App } from 'app.js'
 //      App.register( 'MyApp', conf:Object(c,m,v), [meth...] );
 //      // conf为CMV配置对象：
-//      // - 包含三个入口函数（可选）。
-//      // - 可包含其它任意指令或指令子集（Object封装）。
+//      // - 包含三个入口函数，局部可选。
+//      // - 可包含其它任意指令或指令子集（Object封装），可选
 //
 //  模板使用：
 //      by="x.MyApp.run(xxx)"  // xxx为方法名，方法的实参为当前条目
