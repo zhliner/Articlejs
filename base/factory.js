@@ -38,9 +38,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import * as types from "./types.js";
-
-
 const $ = window.$;
 
 
@@ -61,9 +58,10 @@ const
 // tags: 内容元素序列，固定结构。
 //      /   斜线分隔父子单元
 //      :   冒号分隔角色定义（role）
-//      ,   逗号分隔并列单元，顺序为参数顺序
+//      ,   逗号分隔并列单元
 // 注：
 // 固定结构限于可选而非可变（如<li>就不属于）。
+// 绑定事件处理可用 Tpb.Build(el, obts) 单项构建或事件克隆接口（$.cloneEvent）。
 //
 const tagsMap = {
 
@@ -372,36 +370,25 @@ class Article {
 //
 // 内容设置函数集。
 // 对create创建的结构空元素设置实际的内容。
-// 注：根据实参值可能会删除某些子单元。
+// 如果内容为null表示忽略。
 //
 const Content = {
-    Abstract() {
-        //
-    },
+    /**
+     * 目录构建。
+     * 约束：片区必须紧随其标题元素。
+     * 目标标签为节点类型，故可支持事件绑定或简单设置为主标题锚点。
+     * @param  {Element} article 文章元素
+     * @param  {Node|[Node]} label 目录标签（h4/..）
+     * @return {Element} 目录根元素
+     */
+    Toc( article, label ) {
+        let _toc = create( 'Toc' );
 
-
-    Toc() {
-        //
-    },
-
-
-    Seealso() {
-        //
-    },
-
-
-    Reference() {
-        //
-    },
-
-
-    Header() {
-        //
-    },
-
-
-    Footer() {
-        //
+        $.append(
+            _toc.firstElementChild,
+            label || $.Text('Contents')
+        );
+        return tocList( _toc.lastElementChild, article );
     },
 
 
@@ -435,27 +422,7 @@ const Content = {
     },
 
 
-    Ul() {
-        //
-    },
-
-
-    Ol() {
-        //
-    },
-
-
     Cascade() {
-        //
-    },
-
-
-    Codelist() {
-        //
-    },
-
-
-    Dl() {
         //
     },
 
@@ -470,57 +437,12 @@ const Content = {
     },
 
 
-    Blockquote() {
-        //
-    },
-
-
-    Aside() {
-        //
-    },
-
-
-    Details() {
-        //
-    },
-
-
     Blockcode() {
         //
     },
 
 
-    P() {
-        //
-    },
-
-
-    Address() {
-        //
-    },
-
-
-    Pre() {
-        //
-    },
-
-
-    Hr() {
-        //
-    },
-
-
-    Space() {
-        //
-    },
-
-
     Hgroup() {
-        //
-    },
-
-
-    Li() {
         //
     },
 
@@ -540,65 +462,131 @@ const Content = {
     },
 
 
-    H1() {
-        //
-    },
-
-
-    H2() {
-        //
-    },
-
-
-    H3() {
-        //
-    },
-
-
-    H4() {
-        //
-    },
-
-
-    H5() {
-        //
-    },
-
-
-    H6() {
-        //
-    },
-
-
-    Figcaption() {
-        //
-    },
-
-
-    Summary() {
-        //
-    },
-
-
-    Track() {
-        //
-    },
-
-
-    Source() {
-        //
-    },
-
-
     Ruby() {
         //
     },
 
-
-    Default() {
-        //
-    },
 };
+
+
+//
+// 标题区块（/heading, content）
+// 标题为填充方式，内容支持方法指定：{
+//      append|prepend|fill
+// }
+// 注：
+// 方法不可以为 before|after|replace。
+// 由外部保证内容单元的合法性。
+///////////////////////////////////////
+[
+    ['Abstract',    'h3'],
+    ['Header',      'h4'],
+    ['Footer',      'h4'],
+    ['Blockquote',  'h4'],
+    ['Aside',       'h4'],
+    ['Details',     'summary'],
+]
+.forEach(function( its ) {
+    /**
+     * @param  {Element} root 内容根元素
+     * @param  {Node|[Node]} hx 标题内容
+     * @param  {Element|[Element]} 合法的内容元素（集）
+     * @param  {String} meth 内容插入方法
+     */
+    Content[ its[0] ] = function( root, hx, cons, meth ) {
+        if ( hx != null ) {
+            blockHeading( its[1], root, hx, 'fill' );
+        }
+        return cons && $[meth](root, cons), root;
+    };
+});
+
+
+//
+// 简单容器。
+// 子内容简单填充，无结构。
+// 注：由外部保证内容单元的合法性。
+///////////////////////////////////////
+[
+    // 列表
+    'Seealso',
+    'Reference',
+    'Ul',
+    'Ol',
+    'Codelist',
+
+    // 内容行
+    'P',
+    'Address',
+    'Pre',
+    'Li',
+    'H1',
+    'H2',
+    'H3',
+    'H4',
+    'H5',
+    'H6',
+    'Figcaption',
+    'Summary',
+
+    // 内联文本容器
+    'Audio',
+    'Video',
+    'Picture',
+    'A',
+    'Strong',
+    'Em',
+    'Q',
+    'Abbr',
+    'Cite',
+    'Small',
+    'Time',
+    'Del',
+    'Ins',
+    'Sub',
+    'Sup',
+    'Mark',
+    'Code',
+    'Orz',
+    'Dfn',
+    'Samp',
+    'Kbd',
+    'S',
+    'U',
+    'Var',
+    'Bdo',
+    'Meter',
+    'B',
+    'I',
+]
+.forEach(function( name ) {
+    /**
+     * @param {Element} box 容器元素
+     * @param {Node|[Node]} 合法内容节点（集）
+     * @param {String} meth 插入方法（append|prepend|fill）
+     */
+    Content[ name ] = function( box, cons, meth ) {
+        return cons && $[meth](box, cons), box;
+    };
+});
+
+
+//
+// 空结构。
+// 不支持后期插入内容。
+///////////////////////////////////////
+[
+    'Hr',
+    'Space',
+    'Track',
+    'Source',
+    'Meter',
+    'Img',
+    'Blank',
+]
+.forEach(function( name ) {
+    Content[ name ] = root => root;
+});
 
 
 
@@ -613,7 +601,7 @@ const Content = {
  * 不包含实际的内容实体。
  * @param  {String} name 内容名称
  * @param  {...Value} 剩余参数（适用table）
- * @return {Element} 结构根
+ * @return {Element|[Element]} 结构根（序列）
  */
 function create( name, ...rest ) {
     let _tags = tagsMap[name];
@@ -698,54 +686,88 @@ function single( tags, ...rest ) {
 
 
 /**
- * 获取目标元素的内容（node|html|text）。
- * 注：非法类型返回null。
- * @param  {Element} el 源元素
- * @param  {String} type 取值类型
- * @return {String|null}
+ * 设置块容器的标题内容。
+ * 如果标题不存在会自动创建并插入容器最前端。
+ * 传递内容为null会删除标题元素。
+ * @param  {String} hx 标题标签名
+ * @param  {Element} box 所属块容器元素
+ * @param  {Node|[Node]|''} cons 标题内容节点（支持空串）
+ * @param  {String} meth 插入方法（fill|append|prepend）
+ * @return {[Node]|null} cons
  */
-function getSource( el, type ) {
-    switch ( type ) {
-        case 'text':
-            return $.text( el );
-        case 'html':
-            return $.html( el );
-        case 'node':
-            return $.contents( el );
+ function blockHeading( hx, box, cons, meth ) {
+    let _hx = $.get( hx, box );
+
+    if ( cons === null ) {
+        return _hx && $.remove(_hx) || null;
     }
-    return null;
+    if ( !_hx ) {
+        _hx = $.prepend( box, $.Element(hx) );
+    }
+    return cons === '' ? $.empty(_hx) : $[meth](_hx, cons);
 }
 
 
 /**
- * 设置目标元素的内容。
- * @param  {Element} box 目标元素
- * @param  {String|Node|[Node]} data 设置值
- * @return {Element} box
+ * 是否为内容片区（无标题）。
+ * 仅限于<article>和<section>容器元素。
+ * 注：
+ * 章节片区有严格的层次结构，因此仅需检查标题（h2-h6）情况。
+ *
+ * @param  {Element} box 容器元素
+ * @return {Boolean}
  */
-function setContent( box, data ) {
-    if ( data === null ) {
-        return $.detach( box );
+ function contentContainer( box ) {
+    let _el = box.firstElementChild;
+
+    while ( _el ) {
+        if ( $.is(_el, __hxSlr) ) {
+            return false;
+        }
+        _el = _el.nextElementSibling;
     }
-    let _meth = typeof data == 'string' ?
-        'html' :
-        'fill';
-    return $[_meth]( box, data ), box;
+    return true;
 }
 
 
 /**
- * 获取首个片区标题。
- * 仅限于<article>和<section>的子元素。
- * 如果没有标题（h2-h6），表示是一个内容件集。
- * @param  {[Element]} els 子元素集
- * @return {String|null}
+ * 创建目录列表（单层）。
+ * @param  {Element} ol 列表容器
+ * @param  {Element} sec 片区容器
+ * @return {Element} ol
  */
-function sectHead( els ) {
-    for ( const el of els ) {
-        if ( $.is(el, __hxSlr) ) return el.nodeName;
+function tocList( ol, sec ) {
+    let _its = sec.firstElementChild,
+        _sec = _its.nextElementSibling;
+
+    while ( _its ) {
+        if ( $.is(_its, __hxSlr) ) {
+            $.append( ol, tocItem(_its, _sec) );
+        }
+        _its = _sec.nextElementSibling;
+        _sec = _its.nextElementSibling;
     }
-    return null;
+    return ol;
+}
+
+
+/**
+ * 创建目录列表项（单个）。
+ * 如果片区内包含子片区（非纯内容），会递进处理。
+ * @param  {Element} hx 标题元素
+ * @param  {Element} sect 相邻片区容器
+ * @return {Element} 列表项（<li>）
+ */
+function tocItem( hx, sect ) {
+    let _li = null;
+
+    if ( contentContainer(sect) ) {
+        _li = Content.Ali( create('Ali'), $.contents(hx) );
+    } else {
+        _li = Content.Cascadeli( create('Cascadeli'), $.contents(hx) );
+        tocList( _li.lastElementChild, sect );
+    }
+    return _li;
 }
 
 

@@ -86,11 +86,11 @@ const Parser = {
      *      to: String
      * }
      * @param  {Element} el 目标元素
-     * @param  {Array3} conf OBT配置集（[on,by,to]）
-     * @return {Iterator<Array3>} 单组配置迭代器
+     * @param  {Object3} conf OBT配置集（{on,by,to}）
+     * @return {Iterator<Object3>} 单组配置迭代器
      */
     obts( el, conf ) {
-        let [on, by, to] = conf;
+        let { on, by, to } = conf;
 
         return this._teams(
             ASpliter.split(on, __chrDlmt),
@@ -242,7 +242,7 @@ class Builder {
      * OBT解析、创建调用链、绑定，存储延迟绑定等。
      * 返回已解析绑定好的原始元素。
      * @param  {Element|Object} obj 绑定目标
-     * @param  {Array3} conf OBT配置集（[on,by,to]）
+     * @param  {Object3} conf OBT配置集（{on,by,to}）
      * @return {Element|Object} obj
      */
     build( obj, conf ) {
@@ -291,21 +291,21 @@ class Builder {
     /**
      * 绑定事件到调用链。
      * 可能多个事件名定义对应一个调用链。
-     * @param  {Element} el 目标元素
+     * @param  {Element|Object} its 绑定目标
      * @param  {[Evn]} evns 事件名定义序列
      * @param  {Cell} chain 起始指令单元
      * @return {void}
      */
-    bind( el, evns, chain ) {
+    bind( its, evns, chain ) {
         for (const evn of evns) {
             if ( evn.delay ) {
-                this._store(el, evn.name, evn.selector, chain);
+                this._store(its, evn.name, evn.selector, chain);
                 continue;
             }
             let _fn = evn.once ?
                 'one' :
                 'on';
-            $[_fn](el, evn.name, evn.selector, chain);
+            $[_fn](its, evn.name, evn.selector, chain);
         }
     }
 

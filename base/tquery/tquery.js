@@ -793,7 +793,7 @@ Object.assign( tQuery, {
      * - 如果需要准确的委托匹配，evns可以是一个配置对数组：[Array2]。
      *   Array2: [evname, selector]
      * 注意：
-     * 委托选择器为空时应设置为null或undefined，否则不会匹配。
+     * 明确指定委托匹配时，空的委托选择器应设置为null，否则不会匹配。
      * 如果没有目标事件被克隆，返回null值。
      *
      * @param  {Element} to 克隆目标元素
@@ -4186,7 +4186,7 @@ function trContainer( box, sub ) {
     if ( sub.nodeType == 11 ) {
         sub = sub.firstElementChild;
     }
-    return sub.cells ? box.tBodies[0] : box;
+    return sub.cells ? box.tBodies[0] : null;
 }
 
 
@@ -4955,21 +4955,22 @@ function htmlText( code ) {
  * - 返回实际插入内容（节点集）的引用或null。
  * - 参考节点ref一般在文档树（DOM）内。
  * @param {Node} ref 参考节点
- * @param {Node|Fragment} data 节点或文档片段
+ * @param {Node|DocumentFragment} data 节点或文档片段
  * @param {String|Number} where 插入位置
- * @return {Node|Array|null} 内容元素（集）
+ * @return {Node|[Node]|null} 内容元素（集）
  */
 function Insert( ref, data, where ) {
-    let _call = insertHandles[where];
+    let _call = insertHandles[where],
+        _ret = data;
 
     if ( !_call ) {
         throw new Error(`[${where}] is invalid method.`);
     }
     if ( data.nodeType == 11 ) {
-        data = Arr( data.childNodes );
+        _ret = Arr( data.childNodes );
     }
 
-    return _call( data, ref, ref.parentNode );
+    return _call(data, ref, ref.parentNode) && _ret;
 }
 
 
@@ -4993,6 +4994,7 @@ const insertHandles = {
     '-1': ( node, ref, pel ) => pel && pel.insertBefore(node, ref.nextSibling),
 
     // end/append
+    // 非法结构trContainer返回null，自动异常。
     '-2': ( node, ref, pel, _pos = null ) => trContainer(ref, node).insertBefore(node, _pos),
 
     // begin/prepend
@@ -5739,7 +5741,7 @@ const Event = {
      * 如果传递事件名序列，则只有目标事件的绑定会被克隆。
      * 如果需要匹配委托，evns应该是一个配置对数组：[Array2]。
      * Array2: [evname, selector]
-     * 如果没有目标事件被克隆，返回null。
+     * 如果源上没有事件绑定，返回null。
      * @param  {Element} to  目标元素
      * @param  {Element} src 事件源元素
      * @param  {[String]|[Array2]} evns 事件名或配置集，可选
@@ -5748,7 +5750,7 @@ const Event = {
     clone( to, src, evns ) {
         let _list = this.record(src, evns);
 
-        if (!_list || _list.length == 0) {
+        if ( !_list ) {
             return null;
         }
         for ( let o of _list ) {

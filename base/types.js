@@ -399,12 +399,29 @@ function conName( el ) {
 
 /**
  * 测试是否为合法子单元。
- * @param  {String} box 目标内容名
- * @param  {String} sub 待测试目标内容名
+ * @param  {String} name 目标内容名
+ * @param  {Element} sub 待测试子单元根元素
  * @return {Boolean}
  */
-function goodSub( box, sub ) {
-    return !!( typeSubs[box] & Types[sub] );
+function goodSub( name, sub ) {
+    return !!( typeSubs[name] & Types[conName(sub)] );
+}
+
+
+/**
+ * 合法子单元检测。
+ * 合法的内容结构很重要，因此抛出错误（更清晰）。
+ * @param  {String} name 内容名称
+ * @param  {[Node]} nodes 子单元集
+ * @return {Error|true}
+ */
+function isGoodSubs( name, nodes ) {
+    for (const nd of nodes) {
+        if ( !goodSub(name, nd) ) {
+            throw new Error(`[${nd.nodeName}] is invalid in ${name}.`);
+        }
+    }
+    return true;
 }
 
 
@@ -420,5 +437,5 @@ function nilSub( name ) {
 
 export {
     inCascade, inCodelist,
-    conName, goodSub, nilSub,
+    conName, goodSub, isGoodSubs, nilSub,
 };

@@ -29,7 +29,6 @@ import { Templater } from "./libs/templater.js";
 import { Render } from "./libs/render.js";
 import { tplLoad } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
-import { App } from "./libs/x/app.js";
 import { Support, OBTA } from "./config.js";
 
 
@@ -77,26 +76,30 @@ const _obter = new Builder( {
 
 
 /**
- * 目标对象/节点树的OBT构建。
+ * 目标OBT构建。
  * 可用于DOM节点树和可绑定事件的普通对象（如window）。
- * 普通对象可手动传递OBT配置（否则从对象上获取）。
+ * 手动传递OBT配置（obts）视为仅处理目标本身。
+ * obts可以传递布尔值，此时表示是否清除元素上的OBT定义。
+ *
  * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
- * @param  {Boolean|Array3} 清除指示或OBT配置（[on,by,to]）
+ * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
  * @return {void}
  */
 function Build( root, obts = true ) {
-    if ( !root.nodeType ) {
-        return _obter.build(
-            root,
-            typeof obts == 'boolean' ? obtProp(root, obts) : obts
-        );
+    // 单目标
+    if ( typeof obts != 'boolean' ) {
+        return _obter.build( root, obts );
     }
+    // 节点树
     for ( const el of $.find(root, __onSlr, true) ) {
-        _obter.build( el, obtAttr(el, !!obts) );
+        _obter.build( el, obtAttr(el, obts) );
     }
 }
 
 
+//
+// 模板支持检测处理。
+//
 (function () {
 
     if ( Support.template ) {
@@ -114,45 +117,18 @@ function Build( root, obts = true ) {
 
 
 /**
- * 获取待处理对象的OBT配置。
- * 适用非元素类可绑定事件的普通对象（如window）。
- * @param  {Object} obj 处理对象
- * @param  {Boolean} clear 是否清除OBT属性
- * @return {Array3} OBT配置（[on,by,to]）
- */
-function obtProp( obj, clear ) {
-    let _buf = [];
-
-    if ( obj[OBTA.on] ) {
-        _buf[0] = obj[OBTA.on];
-        _buf[1] = obj[OBTA.by];
-        _buf[2] = obj[OBTA.to];
-    }
-    if ( clear ) {
-        delete obj[OBTA.on];
-        delete obj[OBTA.by];
-        delete obj[OBTA.to];
-    }
-    return _buf;
-}
-
-
-/**
  * 获取目标元素的OBT配置。
  * @param  {Element} el 目标元素
  * @param  {Boolean} clear 是否清除OBT属性
- * @return {Array3} OBT配置（[on,by,to]）
+ * @return {Object3} OBT配置（{on,by,to}）
  */
 function obtAttr( el, clear ) {
-    let _buf = [
-        el.getAttribute( OBTA.on ),
-        el.getAttribute( OBTA.by ),
-        el.getAttribute( OBTA.to ),
-    ];
-    if ( clear ) {
-        $.removeAttr( el, __obts );
-    }
-    return _buf;
+    let _obj = {
+        on: el.getAttribute( OBTA.on ),
+        by: el.getAttribute( OBTA.by ),
+        to: el.getAttribute( OBTA.to ),
+    };
+    return clear && $.removeAttr(el, __obts), _obj;
 }
 
 
