@@ -1321,10 +1321,7 @@ Object.assign( tQuery, {
         if (el.nodeType != 1) {
             return null;
         }
-        let _cons = Arr( el.childNodes );
-        el.textContent = '';
-
-        return _cons.filter( masterNode );
+        return _empty(el).filter(masterNode);
     },
 
 
@@ -2805,6 +2802,21 @@ function _first( els, slr, beg = 0, step = 1 ) {
         beg += step;
     }
     return null;
+}
+
+
+/**
+ * 清空元素内容。
+ * @param  {Element} el 目标元素
+ * @return {[Node]} 移除的节点集
+ */
+function _empty( el ) {
+    let _buf = [];
+
+    while ( el.firstChild ) {
+        _buf.push( el.removeChild(el.firstChild) );
+    }
+    return _buf;
 }
 
 
@@ -4982,7 +4994,9 @@ function Insert( ref, data, where ) {
 //
 const insertHandles = {
     // fill
-    '': ( node, ref /*, pel*/) => ref.textContent = '' || ref.appendChild(node),
+    // bug: 不可用 `ref.textContent = '' || ref.appendChild(node)`
+    // `||` 操作符会导致文档片段被转换为字符串。
+    '': ( node, ref /*, pel*/) => _empty(ref) && ref.appendChild(node),
 
     // replace
     '0': ( node, ref, pel ) => pel && pel.replaceChild(node, ref),
@@ -5018,7 +5032,7 @@ const insertHandles = {
  * @param  {Boolean} clone 是否克隆
  * @param  {Boolean} event 是否克隆事件处理器（容器）
  * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
- * @return {Node|Fragment} 节点或文档片段
+ * @return {Node|DocumentFragment} 节点或文档片段
  */
 function domManip( node, cons, clone, event, eventdeep ) {
     if ( isFunc(cons) ) {
@@ -5039,14 +5053,14 @@ function domManip( node, cons, clone, event, eventdeep ) {
 
 /**
  * 节点集构造文档片段。
- * 只接受元素、文本节点、注释和文档片段数据。
+ * 接受元素/文本&注释节点/文档片段数据（兼容空串）。
  * 注记：
  * 因存在节点移出可能，不可用for/of原生迭代（影响迭代次数）。
  *
  * @param  {NodeList|Set|Iterator} nodes 节点集/迭代器
  * @param  {Function} get 取值回调，可选
  * @param  {Document} doc 文档对象
- * @return {Fragment}
+ * @return {DocumentFragment}
  */
 function fragmentNodes( nodes, get, doc ) {
     // ...Set。
@@ -5055,9 +5069,12 @@ function fragmentNodes( nodes, get, doc ) {
     let _all = doc.createDocumentFragment();
 
     for ( let nd of nodes ) {
+        if ( !nd ) {
+            continue;
+        }
         nd = get ? get(nd) : nd;
 
-        if ( nd && (usualNode(nd) || nd.nodeType == 11) ) {
+        if ( usualNode(nd) || nd.nodeType == 11 ) {
             _all.appendChild(nd);
         }
     }

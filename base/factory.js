@@ -392,32 +392,110 @@ const Content = {
     },
 
 
-    Article() {
-        //
+    /**
+     * 文章结构。
+     * 文章内容包含章片区集或内容件集（互斥关系）。
+     * 原为章片区：
+     *  - 新章片区：简单添加，外部同级保证。
+     *  - 新内容件：新建一章片区封装插入。
+     * 原为内容件：
+     *  - 新章片区：新建一章片区封装原内容件，在meth的反方向。
+     *  - 新内容件：简单添加（meth）。
+     * meth: prepend|append|fill
+     * 注：
+     * 片区占优（内容可被封装为片区，反之则不行）。
+     *
+     * @param  {Element} ael 文章元素
+     * @param  {Node|[Node]} h1 主标题内容
+     * @param  {[Element]} cons 章片区集或内容件集
+     * @param  {String} meth 内容插入方法
+     * @param  {Boolean} conItem 内容是否为内容件集，可选
+     * @return {[Element]} 新插入的片区或内容件集
+     */
+    Article( ael, h1, cons, meth, conItem ) {
+        if ( h1 != null ) {
+            blockHeading( 'h1', ael.parentElement, h1, 'fill' );
+        }
+        if ( conItem == null ) {
+            conItem = contentItems(cons);
+        }
+        return sectionContent( ael, cons, meth, 'S1', conItem );
     },
 
 
-    S1() {
-        //
+    /**
+     * 章片区。
+     * 内容仅限于子片区集或内容件集（外部保证）。
+     * meth: prepend|append|fill
+     * @param  {Element} sect 章容器元素
+     * @param  {Node|[Node]} h2 章标题内容（兼容空串）
+     * @param  {[Element]} cons 子片区或内容件集
+     * @param  {String} meth 内容插入方法
+     * @param  {Boolean} conItem 内容是否为内容件集，可选
+     * @return {[Element]} 新插入的子片区或内容件集
+     */
+    S1( sect, h2, cons, meth, conItem ) {
+        if ( conItem == null ) {
+            conItem = contentItems(cons);
+        }
+        sectionHeading( 'h2', sect, h2, 'fill' );
+
+        return sectionContent( sect, cons, meth, 'S2', conItem );
     },
 
 
-    S2() {
-        //
+    /**
+     * 节片区。
+     * 参数说明参考.S1(...)接口。
+     */
+    S2( sect, h2, cons, meth, conItem ) {
+        if ( conItem == null ) {
+            conItem = contentItems(cons);
+        }
+        sectionHeading( 'h3', sect, h2, 'fill' );
+
+        return sectionContent( sect, cons, meth, 'S3', conItem );
     },
 
 
-    S3() {
-        //
+    /**
+     * 区片区。
+     * 参数说明参考.S1(...)接口。
+     */
+    S3( sect, h2, cons, meth, conItem ) {
+        if ( conItem == null ) {
+            conItem = contentItems(cons);
+        }
+        sectionHeading( 'h4', sect, h2, 'fill' );
+
+        return sectionContent( sect, cons, meth, 'S4', conItem );
     },
 
 
-    S4() {
-        //
+    /**
+     * 段片区。
+     * 参数说明参考.S1(...)接口。
+     */
+    S4( sect, h2, cons, meth, conItem ) {
+        if ( conItem == null ) {
+            conItem = contentItems(cons);
+        }
+        sectionHeading( 'h5', sect, h2, 'fill' );
+
+        return sectionContent( sect, cons, meth, 'S5', conItem );
     },
 
 
-    S5() {
+    /**
+     * 末片区。
+     * 注：只能插入内容件集。
+     * @param  {Element} sect 章容器元素
+     * @param  {Node|[Node]} h2 章标题内容（兼容空串）
+     * @param  {[Element]} cons 内容件集
+     * @param  {String} meth 内容插入方法
+     * @return {[Element]} 新插入的内容件集
+     */
+    S5( sect, h2, cons, meth ) {
         //
     },
 
@@ -689,44 +767,108 @@ function single( tags, ...rest ) {
  * 设置块容器的标题内容。
  * 如果标题不存在会自动创建并插入容器最前端。
  * 传递内容为null会删除标题元素。
- * @param  {String} hx 标题标签名
+ * @param  {String} tag 标题标签名
  * @param  {Element} box 所属块容器元素
- * @param  {Node|[Node]|''} cons 标题内容节点（支持空串）
+ * @param  {Node|[Node]|''} cons 标题内容
  * @param  {String} meth 插入方法（fill|append|prepend）
- * @return {[Node]|null} cons
+ * @return {Element|null} 标题元素
  */
- function blockHeading( hx, box, cons, meth ) {
-    let _hx = $.get( hx, box );
+ function blockHeading( tag, box, cons, meth ) {
+    let _hx = $.get( tag, box );
 
     if ( cons === null ) {
-        return _hx && $.remove(_hx) || null;
+        return _hx && $.detach(_hx);
     }
     if ( !_hx ) {
-        _hx = $.prepend( box, $.Element(hx) );
+        _hx = $.prepend( box, $.Element(tag) );
     }
-    return cons === '' ? $.empty(_hx) : $[meth](_hx, cons);
+    return $[meth]( _hx, cons ), _hx;
 }
 
 
 /**
- * 是否为内容片区（无标题）。
- * 仅限于<article>和<section>容器元素。
- * 注：
- * 章节片区有严格的层次结构，因此仅需检查标题（h2-h6）情况。
- *
- * @param  {Element} box 容器元素
+ * 设置片区的标题内容。
+ * 如果标题不存在会自动创建并插入关联片区前端。
+ * 注：标题内容兼容空串。
+ * @param  {String} tag 标题标签名
+ * @param  {Element} sect 关联片区元素
+ * @param  {Node|[Node]|''} cons 标题内容
+ * @param  {String} meth 插入方法（fill|append|prepend）
+ * @return {Element} 标题元素
+ */
+function sectionHeading( tag, sect, cons, meth ) {
+    let _hx = $.prev(sect);
+
+    if ( !_hx || !$.is(_hx, tag) ) {
+        _hx = $.before( sect, $.Element(tag) );
+    }
+    return $[meth]( _hx, cons ), _hx;
+}
+
+
+/**
+ * 是否为内容件集。
+ * 片区有严格的层次结构，因此检查标题情况即可。
+ * 注：空集视为内容件集。
+ * @param  {[Element]|''} els 子片区集或内容件集
  * @return {Boolean}
  */
- function contentContainer( box ) {
-    let _el = box.firstElementChild;
+function contentItems( els ) {
+    return els.length == 0 || !els.some( el => $.is(el, __hxSlr) );
+}
 
-    while ( _el ) {
-        if ( $.is(_el, __hxSlr) ) {
-            return false;
-        }
-        _el = _el.nextElementSibling;
+
+/**
+ * 添加片区内容。
+ * 内容若为片区，外部保证为合法子片区。
+ * 内容若为内容件集，则新建片区封装插入。
+ * meth: append|prepend|fill
+ * @param  {Element} box 片区容器
+ * @param  {[Element]|''} cons 子片区或内容件集
+ * @param  {String} meth 添加方法
+ * @param  {String} sname 新建片区名
+ * @param  {Boolean} conItem 内容是否为内容件集
+ * @return {Array2} 新插入的片区（标题,片区容器）
+ */
+function appendSection( box, cons, meth, sname, conItem ) {
+    if ( conItem ) {
+        let _sx = create(sname);
+        cons = Content[sname]( _sx[1], '', cons, 'append', true );
     }
-    return true;
+    return $[meth]( box, cons );
+}
+
+
+/**
+ * 设置片区内容。
+ * 内容包含子片区集或内容件集（互斥关系）。
+ * 原为片区：
+ *  - 新片区：简单添加，外部同级保证。
+ *  - 内容件：新建一片区封装插入。
+ * 原为内容件：
+ *  - 新片区：新建一片区封装原内容件先行插入。
+ *  - 内容件：简单添加（meth）。
+ * meth: prepend|append|fill
+ * 注：
+ * 片区占优（内容可被封装为片区，反之则不行）。
+ *
+ * @param  {Element} box 片区容器
+ * @param  {[Element]|''} cons 子片区集或内容件集
+ * @param  {String} meth 插入方法
+ * @param  {String} sname 子片区名
+ * @param  {Boolean} conItem 内容是否为内容件集
+ * @return {[Element]} 新插入的片区或内容件集
+ */
+function sectionContent( box, cons, meth, sname, conItem ) {
+    let _subs = $.children(box);
+
+    if ( !contentItems(_subs) ) {
+        return appendSection( box, cons, meth, sname, conItem );
+    }
+    if ( !conItem ) {
+        appendSection( box, _subs, 'append', sname, true );
+    }
+    return $[meth]( box, cons );
 }
 
 
@@ -761,7 +903,7 @@ function tocList( ol, sec ) {
 function tocItem( hx, sect ) {
     let _li = null;
 
-    if ( contentContainer(sect) ) {
+    if ( contentItems($.children(sect)) ) {
         _li = Content.Ali( create('Ali'), $.contents(hx) );
     } else {
         _li = Content.Cascadeli( create('Cascadeli'), $.contents(hx) );

@@ -203,11 +203,11 @@ const typeSubs = {
     Reference:      LI,
     Header:         H4 | P | BLOATHS | BLOCKQUOTE,
     Footer:         H4 | P | BLOATHS | BLOCKQUOTE,
-    Article:        HEADER | H2 | S1 | CONTENT | FOOTER,
-    S1:             HEADER | H3 | S2 | CONTENT | FOOTER,
-    S2:             HEADER | H4 | S3 | CONTENT | FOOTER,
-    S3:             HEADER | H5 | S4 | CONTENT | FOOTER,
-    S4:             HEADER | H6 | S5 | CONTENT | FOOTER,
+    Article:        HEADER | H2 | S1 | FOOTER,
+    S1:             HEADER | H3 | S2 | FOOTER,
+    S2:             HEADER | H4 | S3 | FOOTER,
+    S3:             HEADER | H5 | S4 | FOOTER,
+    S4:             HEADER | H6 | S5 | FOOTER,
     S5:             CONTENT,
     Ul:             LI,
     Ol:             LI,
@@ -383,6 +383,16 @@ function inCodelist( el ) {
 
 
 /**
+ * 是否为内容件。
+ * @param {String|Element} its 测试目标
+ */
+function isConitem( its ) {
+    return CONTENT &
+        Types[ its.nodeType ? conName(its) : its ];
+}
+
+
+/**
  * 获取元素/节点的内容名。
  * @param  {Element|Text} el 目标元素或文本节点
  * @return {String}
@@ -436,6 +446,6 @@ function nilSub( name ) {
 
 
 export {
-    inCascade, inCodelist,
+    inCascade, inCodelist, isConitem,
     conName, goodSub, isGoodSubs, nilSub,
 };
