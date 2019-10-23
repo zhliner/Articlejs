@@ -4994,9 +4994,7 @@ function Insert( ref, data, where ) {
 //
 const insertHandles = {
     // fill
-    // bug: 不可用 `ref.textContent = '' || ref.appendChild(node)`
-    // `||` 操作符会导致文档片段被转换为字符串。
-    '': ( node, ref /*, pel*/) => _empty(ref) && ref.appendChild(node),
+    '': ( node, ref /*, pel*/) => (ref.textContent = '') || ref.appendChild(node),
 
     // replace
     '0': ( node, ref, pel ) => pel && pel.replaceChild(node, ref),
