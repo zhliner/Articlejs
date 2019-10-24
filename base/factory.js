@@ -89,7 +89,7 @@ const tagsMap = {
     Blockquote: 'blockquote/h4',
     Aside:      'aside/h4',
     Details:    'details/summary',
-    Blockcode:  'pre:blockcode/code',
+    Codeblock:  'pre:codeblock/code',
 
 
     // 块内容
@@ -394,6 +394,7 @@ const Content = {
 
     /**
      * 文章结构。
+     * article/[h2, section:s1]...
      * 文章内容包含章片区集或内容件集（互斥关系）。
      * 原为章片区：
      *  - 新章片区：简单添加，外部同级保证。
@@ -425,6 +426,7 @@ const Content = {
 
     /**
      * 章片区。
+     * 主结构：section:s1/[h2, section:s2]...
      * 内容仅限于子片区集或内容件集（外部保证）。
      * meth: prepend|append|fill
      * @param  {Element} sect 章容器元素
@@ -446,13 +448,14 @@ const Content = {
 
     /**
      * 节片区。
+     * 主结构：section:s2/[h3, section:s3]...
      * 参数说明参考.S1(...)接口。
      */
-    S2( sect, h2, cons, meth, conItem ) {
+    S2( sect, hx, cons, meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
-        sectionHeading( 'h3', sect, h2, 'fill' );
+        sectionHeading( 'h3', sect, hx, 'fill' );
 
         return sectionContent( sect, cons, meth, 'S3', conItem );
     },
@@ -460,13 +463,14 @@ const Content = {
 
     /**
      * 区片区。
+     * 主结构：section:s3/[h4, section:s4]...
      * 参数说明参考.S1(...)接口。
      */
-    S3( sect, h2, cons, meth, conItem ) {
+    S3( sect, hx, cons, meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
-        sectionHeading( 'h4', sect, h2, 'fill' );
+        sectionHeading( 'h4', sect, hx, 'fill' );
 
         return sectionContent( sect, cons, meth, 'S4', conItem );
     },
@@ -474,13 +478,14 @@ const Content = {
 
     /**
      * 段片区。
+     * 主结构：section:s4/[h5, section:s5]...
      * 参数说明参考.S1(...)接口。
      */
-    S4( sect, h2, cons, meth, conItem ) {
+    S4( sect, hx, cons, meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
-        sectionHeading( 'h5', sect, h2, 'fill' );
+        sectionHeading( 'h5', sect, hx, 'fill' );
 
         return sectionContent( sect, cons, meth, 'S5', conItem );
     },
@@ -488,59 +493,99 @@ const Content = {
 
     /**
      * 末片区。
+     * 主结构：section:s5/conitem...
      * 注：只能插入内容件集。
-     * @param  {Element} sect 章容器元素
-     * @param  {Node|[Node]} h2 章标题内容（兼容空串）
+     * @param  {Element} sect 片区容器元素
      * @param  {[Element]} cons 内容件集
      * @param  {String} meth 内容插入方法
      * @return {[Element]} 新插入的内容件集
      */
-    S5( sect, h2, cons, meth ) {
+    S5( sect, cons, meth ) {
+        return $[meth]( sect, cons );
+    },
+
+
+    // Table() {},  // 单独处理。
+
+
+    /**
+     * 插图。
+     * 结构：figure/figcaption, p/img...
+     * 仅认可首个图片容器元素（<p>）。
+     * @param  {Element} root 插图根元素
+     * @param  {Node|[Node]|''} cap 标题内容
+     * @param  {Element|[Element]} imgs 图片元素（集）
+     * @param  {String} meth 图片插入方法（prepend|append|fill）
+     * @return {[Element]} 新插入的图片集
+     */
+    Figure( root, cap, imgs, meth ) {
+        if ( cap != null ) {
+            blockHeading( 'figcaption', root, cap, 'fill' );
+        }
+        return $[meth]( $.get('p', root), imgs );
+    },
+
+
+    /**
+     * 标题组。
+     * 结构：hgroup/h1, h2
+     * 固定结构，标题内容修改为填充（fill）方式。
+     * 设置内容为null可忽略修改。
+     * 注：若标题不存在会自动创建（修复友好）。
+     * @param  {Element} root 标题组容器
+     * @param  {Node|[Node]|''} h1c 页面主标题内容
+     * @param  {Node|[Node]|''} h2c 页面副标题内容
+     * @return {[Element, Element]} 主副标题对
+     */
+    Hgroup( root, h1c, h2c ) {
+        let _h1 = root.firstElementChild,
+            _h2 = root.lastElementChild;
+
+        if ( !_h1 ) {
+            _h1 = $.prepend( $.Element('h1') );
+        }
+        if ( !_h2 ) {
+            _h2 = $.append( $.Element('h2') );
+        }
+        if ( h1c != null ) $.fill( _h1, h1c );
+        if ( h2c != null ) $.fill( _h2, h2c );
+
+        return [ _h1, _h2 ];
+    },
+
+
+    /**
+     * 链接列表项。
+     * 结构：li/a
+     * 主要用于目录的普通条目。
+     * @param {Element} li 列表项
+     * @param {Node|[Node]} cons 链接内容
+     * @param {String} meth 插入方法
+     */
+    Ali( li, cons, meth ) {
         //
     },
 
 
-    Cascade() {
+    /**
+     * 列表标题项。
+     * 结构：h5/a
+     * 主要用于目录里子级列表的标题项。
+     * @param {Element} h5 列表标题项
+     * @param {Node|[Node]} cons 插入内容
+     * @param {String} meth 插入方法
+     */
+    H5a( h5, cons, meth ) {
         //
     },
 
 
-    Table() {
+    Cascadeli( li, h5c, olc ) {
         //
     },
 
 
-    Figure() {
-        //
-    },
-
-
-    Blockcode() {
-        //
-    },
-
-
-    Hgroup() {
-        //
-    },
-
-
-    Codeli() {
-        //
-    },
-
-
-    Ali() {
-        //
-    },
-
-
-    Cascadeli() {
-        //
-    },
-
-
-    Ruby() {
+    Ruby( root, rb, rt, rp = [] ) {
         //
     },
 
@@ -591,7 +636,8 @@ const Content = {
     'Reference',
     'Ul',
     'Ol',
-    'Codelist',
+    'Cascade',  // Ali|Cascadeli 项
+    'Codelist', // Codeli
 
     // 内容行
     'P',
@@ -639,12 +685,34 @@ const Content = {
 ]
 .forEach(function( name ) {
     /**
-     * @param {Element} box 容器元素
-     * @param {Node|[Node]} 合法内容节点（集）
-     * @param {String} meth 插入方法（append|prepend|fill）
+     * @param  {Element} box 容器元素
+     * @param  {Node|[Node]} 合法内容节点（集）
+     * @param  {String} meth 插入方法（append|prepend|fill）
+     * @return {[Element]} 新插入的节点集
      */
     Content[ name ] = function( box, cons, meth ) {
-        return cons && $[meth](box, cons), box;
+        return cons && $[meth](box, cons);
+    };
+});
+
+
+//
+// 代码插入。
+// 结构：[pre, li]/code/..b..
+// 会简单检查插入内容的根容器（剥除<code>）。
+///////////////////////////////////////
+[
+    'Codeblock',
+    'Codeli',
+]
+.forEach(function( name ) {
+    /**
+     * @param {Element} box 代码表项容器
+     * @param {Node|[Node]|''} codes 代码内容
+     * @param {String} meth 插入方法
+     */
+    Content[ name ] = function( box, codes, meth ) {
+        return insertCodes( box, codes, meth );
     };
 });
 
@@ -910,6 +978,43 @@ function tocItem( hx, sect ) {
         tocList( _li.lastElementChild, sect );
     }
     return _li;
+}
+
+
+/**
+ * 检查剥离节点元素的<code>封装。
+ * 注：仅检查顶层容器。
+ * @param  {Node} node 目标节点
+ * @return {Node|[Node]}
+ */
+function stripCode( node ) {
+    if ( node.nodeType != 1 ) {
+        return node;
+    }
+    return $.is(node, 'code') ? $.contents(node) : node;
+}
+
+
+/**
+ * 插入代码内容。
+ * 固定的<code>友好容错修复。
+ * @param {Element} box 代码容器（<code>父元素）
+ * @param {Node|[Node]|''} codes 代码内容（不含<code>封装）
+ * @param {String} meth 插入方法
+ */
+function insertCodes( box, codes, meth ) {
+    let _cbox = box.firstElementChild;
+
+    if ( !_cbox ||
+        !$.is(_cbox, 'code') ) {
+        _cbox = $.wrapInner(box, '<code>');
+    }
+    if ( codes.nodeType ) {
+        codes = stripCode( codes );
+    } else {
+        codes = $.map( codes, stripCode );
+    }
+    return $[meth]( _cbox, codes );
 }
 
 

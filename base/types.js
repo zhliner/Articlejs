@@ -306,23 +306,18 @@ const typeSubs = {
 
 
 /**
- * 测试<li>支持的两种类型。
+ * 测试并返回<li>支持的几种类型。
  * 注：向下检索测试。
  * @param  {Element} li 列表项元素
  * @return {String} Codeli|Cascadeli|Li
  */
 function customLi( li ) {
-    let _sub = li.firstElementChild,
-    _cnt = li.childElementCount;
-
     // codelist: li/code/
-    if ( _cnt == 1 && _sub.nodeName == 'CODE' ) {
-        return 'Codeli';
-    }
+    if ( isCodeli(li) ) return 'Codeli';
+
     // cascade: li/h5, ol/
-    if ( _cnt == 2 && _sub.nodeName == 'H5' && $.next(_sub).nodeName == 'OL' ) {
-        return 'Cascadeli';
-    }
+    if ( isCascadeli(li) ) return 'Cascadeli';
+
     return 'Li';
 }
 
@@ -337,31 +332,49 @@ function camelCase( name ) {
 }
 
 
-//
-// 导出
-///////////////////////////////////////////////////////////////////////////////
-
-
 /**
- * 测试是否在级联编号表内。
- * 仅用于测试 <ol> 和 <li> 元素。
- * 主要用于插入时的目标判断并进行正确的处理（平插或内合并）。
- * 注：向上检索测试。
- * @param  {Element} el 目标元素
- * @return {Boolean|null}
+ * 获取级联编号表根元素。
+ * 仅对在级联编号表内的<ol>或<li>子元素有效。
+ * 对于普通的级联表会非列表项元素返回null。
+ * @param  {Element} el 起点元素
+ * @return {Element|null}
  */
- function inCascade( el ) {
-    let _pe = null;
+ function cascadeRoot( el ) {
+    let _prev = el;
 
     while ( el ) {
         let _n = el.nodeName.toLowerCase();
         if ( _n != 'ol' && _n != 'li' ) {
             break;
         }
-        _pe = el;
+        _prev = el;
         el = el.parentElement;
     }
-    return $.attribute(_pe, 'role') == 'cascade';
+    return $.attribute(_prev, 'role') == 'cascade' ? _prev : null;
+}
+
+
+/**
+ * 测试是否在级联编号表内。
+ * 主要用于插入时的目标判断并进行正确的处理。
+ * @param  {Element} el 目标元素
+ * @return {Boolean|null}
+ */
+function inCascade( el ) {
+     return !!cascadeRoot( el );
+}
+
+
+/**
+ * 是否在目录内。
+ * @param  {Element} el 起点元素
+ * @return {Boolean}
+ */
+function inToc( el ) {
+    let _ol = cascadeRoot( el ),
+        _pe = _ol && _ol.parentElement;
+
+    return !!_pe && $.attribute(_pe, 'role') == 'toc';
 }
 
 
@@ -389,6 +402,61 @@ function inCodelist( el ) {
 function isConitem( its ) {
     return CONTENT &
         Types[ its.nodeType ? conName(its) : its ];
+}
+
+
+/**
+ * 是否为代码列表项。
+ * @param  {Element} li 列表项
+ * @return {Boolean}
+ */
+function isCodeli( li ) {
+    return li.childElementCount == 1 &&
+        $.is(li.firstElementChild, 'code');
+}
+
+
+/**
+ * 是否为目录普通列表项。
+ * @param  {Element} li 列表项元素
+ * @return {Boolean}
+ */
+function isTocItem( li ) {
+    return li.childElementCount == 1 &&
+        $.is(li.firstElementChild, 'a');
+}
+
+
+/**
+ * 是否为级联编号表标题项。
+ * @param  {Element} li 列表项元素
+ * @return {Boolean}
+ */
+function isCascadeli( li ) {
+    return li.childElementCount == 2 &&
+        $.is(li.firstElementChild, 'h5') &&
+        $.is(li.lastElementChild, 'ol');
+}
+
+
+/**
+ * 是否为级联标题链接（目录）项。
+ * @param  {Element} h5 标题元素
+ * @return {Boolean}
+ */
+ function isH5a( h5 ) {
+    return h5.childElementCount == 1 &&
+        $.is(h5.firstElementChild, 'a');
+}
+
+
+/**
+ * 是否为目录列表标题项。
+ * @param  {Element} li 列表项元素
+ * @return {Boolean}
+ */
+function isTocHeading( li ) {
+    return isCascadeli( li ) && isH5a( li.firstElementChild );
 }
 
 
@@ -445,7 +513,14 @@ function nilSub( name ) {
 }
 
 
+//
+// 导出
+///////////////////////////////////////////////////////////////////////////////
+
+
 export {
-    inCascade, inCodelist, isConitem,
+    cascadeRoot,
+    inCascade, inToc, inCodelist,
+    isConitem, isCodeli, isTocHeading, isTocItem, isCascadeli,
     conName, goodSub, isGoodSubs, nilSub,
 };
