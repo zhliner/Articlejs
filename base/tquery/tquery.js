@@ -1236,9 +1236,7 @@ Object.assign( tQuery, {
         if (node.nodeType && box === node) {
             return null;
         }
-        let _ref = node.parentElement && node;
-
-        return wrapData(_ref, box, [node], node.ownerDocument || Doc);
+        return wrapData(node, node.parentElement, box, [node], node.ownerDocument || Doc);
     },
 
 
@@ -1248,6 +1246,9 @@ Object.assign( tQuery, {
      * - 取值函数：function(NodeList): Element|string
      * @param  {Element} el 目标元素
      * @param  {HTML|Element|Function} box 包裹容器
+     * @param  {Boolean} clone 包裹元素是否克隆
+     * @param  {Boolean} event 包裹元素上注册的事件处理器是否克隆
+     * @param  {Boolean} eventdeep 包裹元素子孙元素上注册的事件处理器是否克隆
      * @return {Element} 包裹的容器元素
      */
     wrapInner( el, box, clone, event, eventdeep ) {
@@ -1264,7 +1265,7 @@ Object.assign( tQuery, {
         }
         let _cons = Arr(el.childNodes);
 
-        return wrapData(_cons[0], box, _cons, el.ownerDocument);
+        return wrapData(null, el, box, _cons, el.ownerDocument);
     },
 
 
@@ -3159,7 +3160,7 @@ class Collector extends Array {
         }
         let _nd = this[0];
 
-        box = wrapData(_nd.parentElement && _nd, box, this, _nd.ownerDocument || Doc);
+        box = wrapData(_nd, _nd.parentElement, box, this, _nd.ownerDocument || Doc);
 
         return new Collector( box, this );
     }
@@ -4404,23 +4405,27 @@ function remove( node, deleted ) {
  * 注记：
  * - 对提供的容器支持为前部插入有更好的可用性（可变CSS选择器）。
  *
- * @param  {Node} rep 替换点节点
+ * @param  {Node|null} rep 替换点节点
+ * @param  {Element|null} pel 替换点父元素
  * @param  {Element|String|Function} box 包裹容器或取值函数
  * @param  {[Node|String]} data 被包裹数据集
  * @param  {Document} doc 元素所属文档对象
  * @return {Element} 包裹容器元素
  */
-function wrapData( rep, box, data, doc ) {
+function wrapData( rep, pel, box, data, doc ) {
     if ( isFunc(box) ) {
         box = box(data);
     }
-    if (typeof box == 'string') {
+    if ( typeof box == 'string' ) {
         box = buildFragment(box, doc).firstElementChild;
     }
-    if (rep) {
-        rep.parentNode.replaceChild(box, rep);
+    if ( rep && pel) {
+        pel.replaceChild( box, rep );
     }
-    deepChild(box).prepend(...data);
+    else if ( pel ) {
+        pel.appendChild( box );
+    }
+    deepChild( box ).prepend( ...data );
 
     return box;
 }
