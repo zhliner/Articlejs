@@ -140,7 +140,7 @@ const tagsMap = {
     Mark:       'mark',
     Code:       'code',
     Orz:        'code:orz',
-    Ruby:       'ruby/rb, rp, rt',
+    Ruby:       'ruby',
     Dfn:        'dfn',
     Samp:       'samp',
     Kbd:        'kbd',
@@ -158,7 +158,7 @@ const tagsMap = {
 
 //
 // 文章。
-// 封装文章对象的相关规则。
+// 封装文章顶层对象的位置规则（不含<article>内部）。
 // 前端：主标题（h1必要），副标题（h2可选）。
 // 平级前端：提要、目录（可选）。
 // 平级后端：另参见、文献参考（可选）。
@@ -177,20 +177,19 @@ class Article {
         let _h1 = $.get('h1', ael.parentElement),
             _h2 = _h1 && _h1.nextElementSibling;
 
-        this._heading = _h1;
-        this._heading2 = _h2 && $.is(_h2, 'h2') ? _h2 : null;
+        this._h1 = _h1;
+        this._h2 = _h2 && $.is(_h2, 'h2') ? _h2 : null;
 
         this._toc = $.prev(ael, 'nav[role=toc]');
         this._abstract = $.prev(ael, 'header[role=abstract]');
 
         this._article = ael;
-        this._content = sectCons( $.children(ael) );
 
         this._seealso = $.next(ael, 'ul[role=seealso]');
         this._reference = $.next(ael, 'ol[role=reference]')
 
-        // h1/h2标题容器
-        this._hgroup = this._heading2 && this._heading2.parentElement;
+        // 标题组（/h1,h2）
+        this._hgroup = this._h2 && this._h2.parentElement;
     }
 
 
@@ -199,41 +198,30 @@ class Article {
      * 设置时若无标题，会新建一个。
      * 传递code为null会删除标题元素。
      * 返回标题元素，不论是删除、设置还是新建。
-     * @param  {String|Node|[Node]} data 标题内容
+     * @param  {Node|[Node]} cons 标题内容
+     * @param  {String} meth 内容插入方法
      * @return {Element}
      */
-    h1( data ) {
-        if ( data === undefined ) {
-            return this._heading;
+    h1( cons, meth = 'fill' ) {
+        if ( cons === undefined ) {
+            return this._h1;
         }
-        return this._setH1( this._heading, data );
+        return this._setH1( this._h1, cons, meth );
     }
 
 
     /**
      * 获取/设置副标题。
      * 参数说明参考.h1()。
-     * @param  {String|Node|[Node]} data 标题内容
+     * @param  {Node|[Node]} cons 标题内容
+     * @param  {String} meth 内容插入方法
      * @return {Element}
      */
-    h2( data ) {
-        if ( data === undefined ) {
-            return this._heading2;
-        }
-        return this._setH2( this._heading2, data );
-    }
-
-
-    /**
-     * 获取/设置文章内容。
-     * @param  {Section|Conitem} cons 片区或内容件
-     * @return {Sections|Conitems|void}
-     */
-    content( cons ) {
+    h2( cons, meth = 'fill' ) {
         if ( cons === undefined ) {
-            return this._content;
+            return this._h2;
         }
-        this._content.push( cons );
+        return this._setH2( this._h2, cons, meth );
     }
 
 
@@ -290,8 +278,8 @@ class Article {
      * 获取/插入参考单元。
      * 传递el为null会删除参考单元（并返回）。
      * 位置：另参见或内容之后。
-     * @param  {Element} el 目录元素
-     * @return {Element|null|void} 目录元素
+     * @param  {Element} el 参考元素
+     * @return {Element|null|void} 参考元素
      */
     reference( el ) {
         if ( el === undefined ) {
@@ -307,48 +295,53 @@ class Article {
 
 
     /**
-     * 获取或设置标题。
-     * 没有标题时新建一个标题，插入最前端或副标题之前（如果有）。
+     * 设置主标题。
+     * 没有标题时新建一个，插入最前端或副标题之前（如果有）。
      * @param  {Element|null} h1 原主标题
-     * @param  {String|Node|[Node]} data 内容数据
-     * @return {Element}
+     * @param  {Node|[Node]} cons 标题内容
+     * @param  {String} meth 内容插入方法
+     * @return {Element} 主标题元素
      */
-    _setH1( h1, data ) {
+    _setH1( h1, cons, meth ) {
         if ( !h1 ) {
-            this._heading = $.prepend(
+            this._h1 = $.prepend(
                 this._hgroup || this._article.parentElement,
-                create( 'H1' )
+                $.Element('h1')
             );
         }
-        return setContent( this._heading, data );
+        return $[meth]( this._h1, cons ), this._h1;
     }
 
 
     /**
-     * 获取或设置标题。
+     * 设置副标题。
      * 没有副标题时新建一个h2标题。
      * 副标题会要求一个标题组（<hgroup>），如果没有会新建。
+     * 注：副标题必须在主标题存在的情况下才能创建。
      * @param  {Element|null} h2 原副标题
-     * @param  {String|Node|[Node]} data 内容数据
-     * @return {Element}
+     * @param  {Node|[Node]} cons 标题内容
+     * @param  {String} meth 内容插入方法
+     * @return {Element} 副标题元素
      */
-    _setH2( h2, data ) {
+    _setH2( h2, cons, meth ) {
         if ( !h2 ) {
             if ( !this._hgroup ) {
-                this._hgroup = $.prepend( this._article.parentElement, create('Hgroup') );
+                this._hgroup = $.prepend( this._article.parentElement, $.Element('hgroup') );
                 // 移动<h1>
-                $.append( this._hgroup, this._heading );
+                // 如果主标题不存在会出错。
+                $.append( this._hgroup, this._h1 );
             }
-            this._heading2 = $.append( this._hgroup, create('H2') );
+            this._h2 = $.append( this._hgroup, $.Element('h2') );
         }
-        return setContent( this._heading2, data );
+        return $[meth]( this._h2, cons ), this._h2;
     }
 
 
     /**
      * 设置/插入目标附件。
+     * 传递el为null，会移除目标单元（并返回）。
      * @param {String} name 附件名
-     * @param {Element} el 待插入附件元素
+     * @param {Element|null} el 待插入附件元素
      * @param {String} meth 插入方法
      * @param {Element} ref 插入参考
      */
@@ -371,6 +364,8 @@ class Article {
 // 内容设置函数集。
 // 对create创建的结构空元素设置实际的内容。
 // 如果内容为null表示忽略。
+// 返回值：
+// 原则上返回新插入的内容，但如果新内容是内联节点，则返回容器自身。
 //
 const Content = {
     /**
@@ -538,8 +533,8 @@ const Content = {
      * @return {[Element, Element]} 主副标题对
      */
     Hgroup( root, h1c, h2c ) {
-        let _h1 = root.firstElementChild,
-            _h2 = root.lastElementChild;
+        let _h1 = $.get( '>h1', root ),
+            _h2 = $.get( '>h2', root );
 
         if ( !_h1 ) {
             _h1 = $.prepend( $.Element('h1') );
@@ -558,12 +553,13 @@ const Content = {
      * 链接列表项。
      * 结构：li/a
      * 主要用于目录的普通条目。
-     * @param {Element} li 列表项
-     * @param {Node|[Node]} cons 链接内容
-     * @param {String} meth 插入方法
+     * @param  {Element} li 列表项
+     * @param  {Node|[Node]} cons 链接内容
+     * @param  {String} meth 插入方法
+     * @return {Element} 列表项元素
      */
     Ali( li, cons, meth ) {
-        //
+        return insertLink( li, cons, meth ), li;
     },
 
 
@@ -571,22 +567,58 @@ const Content = {
      * 列表标题项。
      * 结构：h5/a
      * 主要用于目录里子级列表的标题项。
-     * @param {Element} h5 列表标题项
-     * @param {Node|[Node]} cons 插入内容
-     * @param {String} meth 插入方法
+     * @param  {Element} h5 列表标题项
+     * @param  {Node|[Node]} cons 插入内容
+     * @param  {String} meth 插入方法
+     * @return {Element} h5
      */
     H5a( h5, cons, meth ) {
-        //
+        return insertLink( h5, cons, meth ), h5;
     },
 
 
+    /**
+     * 级联编号表子表项。
+     * 结构：li/h5, ol
+     * 内容子列表内的条目与目标子列表执行合并。
+     * 子表标题为fill插入方式。
+     * @param  {Element} li 列表项
+     * @param  {Node|[Node]} h5c 子表标题内容
+     * @param  {Element|[Element]} olc 内容子列表或列表项集
+     * @return {Element} 子列表
+     */
     Cascadeli( li, h5c, olc ) {
-        //
+        if ( h5c != null ) {
+            blockHeading( 'h5', li, h5c, 'fill' );
+        }
+        let _ol = $.get( '>ol', li );
+
+        if ( !_ol ) {
+            _ol = $.append( li, $.Element('ol') );
+        }
+        return olc && listMerge( _ol, olc, 'append' ), _ol;
     },
 
 
+    /**
+     * 注音。
+     * 结构：ruby/rb,rp.Left,rt,rp.Right
+     * 不管原始内容，这里仅是添加一个合法的子单元。
+     * 注：现代版浏览器可能不需要rp实参。
+     * @param  {Element} root 注音根元素
+     * @param  {String} rb 注音目标
+     * @param  {String} rt 注音内容
+     * @param  {[String, String]} rp 注音包围（左,右）
+     * @return {Element} root
+     */
     Ruby( root, rb, rt, rp = [] ) {
-        //
+        $.append(root, [
+            $.Element( 'rb', rb ),
+            $.Element( 'rp', rp[0] ),
+            $.Element( 'rt', rt ),
+            $.Element( 'rp', rp[1] ),
+        ]);
+        return root;
     },
 
 };
@@ -615,19 +647,19 @@ const Content = {
      * @param  {Node|[Node]} hx 标题内容
      * @param  {Element|[Element]} 合法的内容元素（集）
      * @param  {String} meth 内容插入方法
+     * @return {Element|[Element]} 新插入的行块内容单元
      */
     Content[ its[0] ] = function( root, hx, cons, meth ) {
         if ( hx != null ) {
             blockHeading( its[1], root, hx, 'fill' );
         }
-        return cons && $[meth](root, cons), root;
+        return cons && $[meth](root, cons);
     };
 });
 
 
 //
-// 简单容器。
-// 子内容简单填充，无结构。
+// 简单结构容器（一级子单元）。
 // 注：由外部保证内容单元的合法性。
 ///////////////////////////////////////
 [
@@ -638,7 +670,26 @@ const Content = {
     'Ol',
     'Cascade',  // Ali|Cascadeli 项
     'Codelist', // Codeli
+]
+.forEach(function( name ) {
+    /**
+     * @param  {Element} box 容器元素
+     * @param  {Element|[Element]} 列表项元素（集）
+     * @param  {String} meth 插入方法（append|prepend|fill）
+     * @return {[Element]} 新插入的列表项元素（集）
+     */
+    Content[ name ] = function( box, cons, meth ) {
+        return cons && $[meth]( box, cons );
+    };
+});
 
+
+//
+// 简单容器。
+// 子内容简单填充，无结构。
+// 注：由外部保证内容单元的合法性。
+///////////////////////////////////////
+[
     // 内容行
     'P',
     'Address',
@@ -688,10 +739,10 @@ const Content = {
      * @param  {Element} box 容器元素
      * @param  {Node|[Node]} 合法内容节点（集）
      * @param  {String} meth 插入方法（append|prepend|fill）
-     * @return {[Element]} 新插入的节点集
+     * @return {Element} 容器元素自身
      */
     Content[ name ] = function( box, cons, meth ) {
-        return cons && $[meth](box, cons);
+        return cons && $[meth]( box, cons ), box;
     };
 });
 
@@ -707,12 +758,13 @@ const Content = {
 ]
 .forEach(function( name ) {
     /**
-     * @param {Element} box 代码表项容器
-     * @param {Node|[Node]|''} codes 代码内容
-     * @param {String} meth 插入方法
+     * @param  {Element} box 代码根容器
+     * @param  {Node|[Node]|''} codes 代码内容
+     * @param  {String} meth 插入方法
+     * @return {Element} 代码根容器元素
      */
     Content[ name ] = function( box, codes, meth ) {
-        return insertCodes( box, codes, meth );
+        return insertCodes( box, codes, meth ), box;
     };
 });
 
@@ -739,29 +791,6 @@ const Content = {
 //
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 创建内容结构。
- * 包括非独立逻辑的中间结构。
- * 不包含实际的内容实体。
- * @param  {String} name 内容名称
- * @param  {...Value} 剩余参数（适用table）
- * @return {Element|[Element]} 结构根（序列）
- */
-function create( name, ...rest ) {
-    let _tags = tagsMap[name];
-
-    if ( !_tags ) {
-        throw new Error(`[${name}] name not found.`);
-    }
-    if ( __reTag.text(_tags) ) {
-        return single( _tags, ...rest );
-    }
-    _tags = _tags.split('/');
-
-    return elemSubs( siblings(_tags.shift()), _tags );
-}
 
 
 /**
@@ -842,7 +871,7 @@ function single( tags, ...rest ) {
  * @return {Element|null} 标题元素
  */
  function blockHeading( tag, box, cons, meth ) {
-    let _hx = $.get( tag, box );
+    let _hx = $.get( `>${tag}`, box );
 
     if ( cons === null ) {
         return _hx && $.detach(_hx);
@@ -998,9 +1027,10 @@ function stripCode( node ) {
 /**
  * 插入代码内容。
  * 固定的<code>友好容错修复。
- * @param {Element} box 代码容器（<code>父元素）
- * @param {Node|[Node]|''} codes 代码内容（不含<code>封装）
- * @param {String} meth 插入方法
+ * @param  {Element} box 代码容器（<code>父元素）
+ * @param  {Node|[Node]|''} codes 代码内容（不含<code>封装）
+ * @param  {String} meth 插入方法
+ * @return {Node|[Node]} 新插入的节点集
  */
 function insertCodes( box, codes, meth ) {
     let _cbox = box.firstElementChild;
@@ -1018,9 +1048,69 @@ function insertCodes( box, codes, meth ) {
 }
 
 
+/**
+ * 插入链接内容。
+ * 如果容器内不为<a>元素，自动创建封装。
+ * @param  {Element} box 链接容器
+ * @param  {Node|[Node]} cons 链接内容
+ * @param  {String} meth 插入方法
+ * @return {Node|[Node]} cons
+ */
+function insertLink( box, cons, meth ) {
+    let _a = $.get( '>a', box );
+
+    if ( !_a ) {
+        _a = $.wrapInner( box, '<a>' );
+    }
+    return $[meth]( _a, cons );
+}
+
+
+/**
+ * 列表合并。
+ * 源如果是列表容器（ol|ul），只能是单个元素。
+ * @param  {Element} to 目标列表
+ * @param  {Element|[Element]} src 列表项源（ol|ul|[li]）
+ * @parem  {String} meth 插入方法
+ * @return {[Element]} 新插入的列表项
+ */
+function listMerge( to, src, meth ) {
+    if ( $.isArray(src) ) {
+        return $[meth]( to, src );
+    }
+    if ( $.is(src, 'ul, ol') ) {
+        src = $.children( src );
+    }
+    return $[meth]( to, src );
+}
+
+
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
 
-export const Factory = {  };
+/**
+ * 创建内容结构。
+ * 包括非独立逻辑的中间结构。
+ * 不包含实际的内容实体。
+ * @param  {String} name 内容名称
+ * @param  {...Value} 剩余参数（适用table）
+ * @return {Element|[Element]} 结构根（序列）
+ */
+ function create( name, ...rest ) {
+    let _tags = tagsMap[name];
+
+    if ( !_tags ) {
+        throw new Error(`[${name}] name not found.`);
+    }
+    if ( __reTag.text(_tags) ) {
+        return single( _tags, ...rest );
+    }
+    _tags = _tags.split('/');
+
+    return elemSubs( siblings(_tags.shift()), _tags );
+}
+
+
+export const Factory = { create, Article, Content };

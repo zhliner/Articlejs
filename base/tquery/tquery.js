@@ -2151,11 +2151,11 @@ class Table {
      * @param  {Element} body 目标<tbody>元素，可选
      * @return {[Element]|Collector} 表体元素集或新添加的行元素集
      */
-    body( idx, rows, body ) {
-        if (idx === undefined) {
+    body( idx, rows = 1, body = null ) {
+        if (idx == undefined) {
             return Arr(this._tbl.tBodies);
         }
-        if (body === undefined) {
+        if (body == null) {
             body = this._body0;
         }
         return this._insertRows(body, idx, rows);
