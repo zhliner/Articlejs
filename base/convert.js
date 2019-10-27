@@ -96,7 +96,6 @@ const __defaultConitem = {
 // 数据转换映射。
 // 针对目标类型（name），转换自身为最合适的数据集：
 // {
-//      sibling( el, name ) 平级取值：before|after
 //      child( el, name )   子级取值：prepend|append
 //      fill( el, name )    填充取值：fill
 // }
@@ -105,281 +104,85 @@ const __defaultConitem = {
 // - null值表示忽略，空串为有值（清空目标）。
 //////////////////////////////////////////////////////////////////////////////
 //
-const dataConvs = {};
-
-
-
-// 文章提要
-dataConvs.Abstract = {
-    sibling( el, name ) {
+const dataConvs = {
+    Abstract() {
         //
     },
 
 
-    child( el, name ) {
+    Article() {
         //
     },
 
 
-    fill( el, name ) {
-        //
-    }
-};
-
-
-// 文章内容
-dataConvs.Article = {
-    sibling( el, name ) {
+    S1() {
         //
     },
 
 
-    child( el, name ) {
+    S2() {
         //
     },
 
 
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.S1 = {
-    sibling( el, name ) {
+    S3() {
         //
     },
 
 
-    child( el, name ) {
+    S4() {
         //
     },
 
 
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.S2 = {
-    sibling( el, name ) {
+    S5() {
         //
     },
 
 
-    child( el, name ) {
+    Dl() {
         //
     },
 
 
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.S3 = {
-    sibling( el, name ) {
+    Figure() {
         //
     },
 
 
-    child( el, name ) {
+    Pre() {
         //
     },
 
 
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.S4 = {
-    sibling( el, name ) {
+    Li() {
         //
     },
 
 
-    child( el, name ) {
+    Table() {
         //
     },
 
 
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.S5 = {
-    sibling( el, name ) {
+    Thead() {
         //
     },
 
 
-    child( el, name ) {
+    Tbody() {
         //
     },
 
 
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Dl = {
-    sibling( el, name ) {
+    Tfoot() {
         //
     },
 
 
-    child( el, name ) {
+    Tr() {
         //
     },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Figure = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Pre = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Li = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Table = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Thead = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Tbody = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Tfoot = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
-};
-
-
-dataConvs.Tr = {
-    sibling( el, name ) {
-        //
-    },
-
-
-    child( el, name ) {
-        //
-    },
-
-
-    fill( el, name ) {
-        //
-    }
 };
 
 
@@ -396,8 +199,7 @@ dataConvs.Tr = {
     'Cascade',
 ]
 .forEach(function( n ) {
-    // type: sibling|child|fill
-    dataConvs[n] = (el, name, type) => list[type]( el, name );
+    dataConvs[n] = (el, name) => list( el, name );
 });
 
 
@@ -448,11 +250,7 @@ dataConvs.Tr = {
 
 //
 // 取值辅助。
-// 每一个单元都存在三种不同的取值逻辑：
-// - 平级（sibling）
-// - 子级（child）
-// - 填充（fill）
-// 注：返回null表示无法取值，调用者应当忽略。
+// 返回null表示无法取值，调用者应当忽略。
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -462,183 +260,153 @@ dataConvs.Tr = {
 // @param {Element} el 取值元素
 // @param {String} name 目标内容名
 //
-const list = {
-    // 平级
-    sibling( el, name ) {
-        let _ss;
-        switch (name) {
-            case 'Abstract':
-                // 合并为单个段落（保留内联结构）
-                return [ null, $.Element( 'p', $('li', el).contents() ) ];
+function list( el, name ) {
+    let _ss;
+    switch (name) {
+        case 'Abstract':
+            // 合并为单个段落（保留内联结构）
+            return [ null, $.Element( 'p', $('li', el).contents() ) ];
 
-            case 'Toc':
-                return null;
+        case 'Toc':
+            return null;
 
-            case 'Cascadeli':
-                // 目标自行合并
-                return [ null, el ];
+        case 'Cascadeli':
+            // 目标自行合并
+            return [ null, el ];
 
-            case 'Seealso':
-            case 'Reference':
-            case 'Ul':
-            case 'Ol':
-            case 'Cascade':
-                return $.children( el );
+        case 'Seealso':
+        case 'Reference':
+        case 'Ul':
+        case 'Ol':
+        case 'Cascade':
+            return $.children( el );
 
-            case 'Header':  // 每<li>对应一行（p）
-            case 'Footer':  // 同上
-            case 'Address': // 同上
-            case 'P':       // 接受内联单元数组
-            case 'Table':   // 每项为一个单元格内容
-            case 'Thead':   // 同上
-            case 'Tbody':   // 同上
-            case 'Tfoot':   // 同上
-            case 'Tr':      // 同上
-                return listSubs( el );
+        case 'Header':  // 每<li>对应一行（p）
+        case 'Footer':  // 同上
+        case 'Address': // 同上
+        case 'P':       // 接受内联单元数组
+        case 'Table':   // 每项为一个单元格内容
+        case 'Thead':   // 同上
+        case 'Tbody':   // 同上
+        case 'Tfoot':   // 同上
+        case 'Tr':      // 同上
+            return listSubs( el );
 
-            // 合法子类型。
-            // case 'Article':
-            // case 'S1':
-            // case 'S2':
-            // case 'S3':
-            // case 'S4':
-            // case 'S5':
-                // 独立内容单元
-                // 注：章节目标特殊逻辑自行处理。
-                // return el;
+        // 合法子类型。
+        // case 'Article':
+        // case 'S1':
+        // case 'S2':
+        // case 'S3':
+        // case 'S4':
+        // case 'S5':
+            // 独立内容单元
+            // 注：章节目标特殊逻辑自行处理。
+            // return el;
 
-            case 'Codelist':
-                // 每<li>对应一行代码。
-                return $.children(el).map( li => getCodes(li) );
+        case 'Codelist':
+            // 每<li>对应一行代码。
+            return $.children(el).map( li => getCodes(li) );
 
-            case 'Dl':
-                _ss = listSubs(el);
-                // 首行充当标题<dt>
-                return [ textLine( _ss.shift() ), _ss ];
+        case 'Dl':
+            _ss = listSubs(el);
+            // 首行充当标题<dt>
+            return [ textLine( _ss.shift() ), _ss ];
 
-            case 'Figure':
-                // 分离文本为标题，图片为内容。
-                return [ cleanText($.text(el)), $.find(el, 'img') ];
+        case 'Figure':
+            // 分离文本为标题，图片为内容。
+            return [ cleanText($.text(el)), $.find(el, 'img') ];
 
-            case 'Blockquote':
-            case 'Aside':
-            case 'Details':
-                return [ null, listSubs(el) ];
+        case 'Blockquote':
+        case 'Aside':
+        case 'Details':
+            return [ null, listSubs(el) ];
 
-            case 'Codeblock':
-            case 'Pre':
-                // 换行友好。
-                return $.Text( $.children(el), '\n' );
-        }
-        // codeli, ...
-        // 仅取文本。
-        return $.text( el );
-    },
-
-
-    // 子级
-    child( el, name ) {
-        //
-    },
-
-
-    // 内填充
-    fill( el, name ) {
-        //
+        case 'Codeblock':
+        case 'Pre':
+            // 换行友好。
+            return $.Text( $.children(el), '\n' );
     }
-};
+    // codeli, ...
+    // 仅取文本。
+    return $.text( el );
+}
 
 
 //
 // 小区块取值（<header>）。
 // 含可选的<h4>标题。
 //
-const smallBlock = {
-    // 平级
-    sibling( el, name ) {
-        // ?
-        let _ss;
-        switch (name) {
-            case 'Abstract':
-                // 合并为单个段落
-                return [ null, $.text(el) ];
+function smallBlock( el, name ) {
+    // ?
+    let _ss;
+    switch (name) {
+        case 'Abstract':
+            // 合并为单个段落
+            return [ null, $.text(el) ];
 
-            case 'Toc':
-                return [ null, $.children(el) ];
+        case 'Toc':
+            return [ null, $.children(el) ];
 
-            case 'Cascadeli':
-                // 目标自行合并
-                return [ null, el ];
+        case 'Cascadeli':
+            // 目标自行合并
+            return [ null, el ];
 
-            case 'Seealso':
-            case 'Reference':
-            case 'Ul':
-            case 'Ol':
-            case 'Cascade':
-                return $.children(el);
+        case 'Seealso':
+        case 'Reference':
+        case 'Ul':
+        case 'Ol':
+        case 'Cascade':
+            return $.children(el);
 
-            case 'Header':  // 每<li>对应一行（p）
-            case 'Footer':  // 同上
-            case 'Address': // 同上
-            case 'P':       // 接受内联单元数组
-            case 'Table':   // 每项为一个单元格内容
-            case 'Thead':   // 同上
-            case 'Tbody':   // 同上
-            case 'Tfoot':   // 同上
-            case 'Tr':      // 同上
-                return listSubs(el);
+        case 'Header':  // 每<li>对应一行（p）
+        case 'Footer':  // 同上
+        case 'Address': // 同上
+        case 'P':       // 接受内联单元数组
+        case 'Table':   // 每项为一个单元格内容
+        case 'Thead':   // 同上
+        case 'Tbody':   // 同上
+        case 'Tfoot':   // 同上
+        case 'Tr':      // 同上
+            return listSubs(el);
 
-            // 合法子类型。
-            // case 'Article':
-            // case 'S1':
-            // case 'S2':
-            // case 'S3':
-            // case 'S4':
-            // case 'S5':
-                // 独立内容单元
-                // 注：章节目标特殊逻辑自行处理。
-                // return el;
+        // 合法子类型。
+        // case 'Article':
+        // case 'S1':
+        // case 'S2':
+        // case 'S3':
+        // case 'S4':
+        // case 'S5':
+            // 独立内容单元
+            // 注：章节目标特殊逻辑自行处理。
+            // return el;
 
-            case 'Codelist':
-                // 每<li>对应一行代码。
-                return $.children(el).map( li => getCodes(li) );
+        case 'Codelist':
+            // 每<li>对应一行代码。
+            return $.children(el).map( li => getCodes(li) );
 
-            case 'Dl':
-                _ss = listSubs(el);
-                // 首行充当标题<dt>
-                return [ textLine( _ss.shift() ), _ss ];
+        case 'Dl':
+            _ss = listSubs(el);
+            // 首行充当标题<dt>
+            return [ textLine( _ss.shift() ), _ss ];
 
-            case 'Figure':
-                // 分离文本为标题，图片为内容。
-                return [ cleanText($.text(el)), $.find(el, 'img') ];
+        case 'Figure':
+            // 分离文本为标题，图片为内容。
+            return [ cleanText($.text(el)), $.find(el, 'img') ];
 
-            case 'Blockquote':
-            case 'Aside':
-            case 'Details':
-                return [ null, listSubs(el) ];
+        case 'Blockquote':
+        case 'Aside':
+        case 'Details':
+            return [ null, listSubs(el) ];
 
-            case 'Codeblock':
-            case 'Pre':
-                // 换行友好。
-                return childTexts(el).join('\n');
-        }
-        // codeli, ...
-        // 仅取文本。
-        return $.text( el );
-    },
-
-
-    // 子级
-    child( el, name ) {
-        //
-    },
-
-
-    // 内填充
-    fill( el, name ) {
-        //
+        case 'Codeblock':
+        case 'Pre':
+            // 换行友好。
+            return childTexts(el).join('\n');
     }
-};
+    // codeli, ...
+    // 仅取文本。
+    return $.text( el );
+}
 
 
 //
