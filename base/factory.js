@@ -43,7 +43,7 @@ const $ = window.$;
 
 const
     // 片区标题选择器。
-    __hxSlr = 'h2, h3, h4, h5, h6',
+    __hxSlr = 'h2,h3,h4,h5,h6',
 
     // 简单标签。
     // 含role定义配置。
@@ -61,12 +61,13 @@ const
 //      ,   逗号分隔并列单元
 // 注：
 // 固定结构限于可选而非可变（如<li>就不属于）。
-// 绑定事件处理可用 Tpb.Build(el, obts) 单项构建或事件克隆接口（$.cloneEvent）。
+// 表格元素单独处理，因此其子结构元素不在此列。
 //
 const tagsMap = {
 
     // 块容器
     // ------------------------------------------
+    Hgroup:     'hgroup',
     Abstract:   'header:abstract/h3',
     Toc:        'nav:toc/h4, Cascade',
     Seealso:    'ul:seealso',
@@ -103,11 +104,12 @@ const tagsMap = {
 
     // 结构单元
     // ------------------------------------------
-    Hgroup:     'hgroup',
     Li:         'li',
     Codeli:     'li/code',
     Ali:        'li/a',
     Cascadeli:  'li/h5, ol',
+    Dt:         'dt',
+    Dd:         'dd',
     H1:         'h1',
     H2:         'h2',
     H3:         'h3',
@@ -118,6 +120,9 @@ const tagsMap = {
     Summary:    'summary',
     Track:      'track',
     Source:     'source',
+    Rb:         'rb',
+    Rp:         'rp',
+    Rt:         'rt',
 
 
     // 行内单元
@@ -362,10 +367,13 @@ class Article {
 
 //
 // 内容设置函数集。
-// 对create创建的结构空元素设置实际的内容。
-// 如果内容为null表示忽略。
+// 包括对create创建的结构空元素和选取的目标元素。
+// 如果内容传递为null表示忽略。
 // 返回值：
 // 原则上返回新插入的内容，但如果新内容是内联节点，则返回容器自身。
+// 参数规则：
+// （目标容器，...内容序列） 注：Toc 例外。
+//////////////////////////////////////////////////////////////////////////////
 //
 const Content = {
     /**
@@ -424,20 +432,22 @@ const Content = {
      * 主结构：section:s1/[h2, section:s2]...
      * 内容仅限于子片区集或内容件集（外部保证）。
      * meth: prepend|append|fill
+     * 传递标题为null表示忽略（不改变），其返回值项也为null。
      * @param  {Element} sect 章容器元素
      * @param  {Node|[Node]} h2 章标题内容（兼容空串）
-     * @param  {[Element]} cons 子片区或内容件集
+     * @param  {[Element]} cons 子片区集或内容件集
      * @param  {String} meth 内容插入方法
      * @param  {Boolean} conItem 内容是否为内容件集，可选
-     * @return {[Element]} 新插入的子片区或内容件集
+     * @return {[Element|null, [Element]]} 章标题和新插入的内容集
      */
     S1( sect, h2, cons, meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
-        sectionHeading( 'h2', sect, h2, 'fill' );
-
-        return sectionContent( sect, cons, meth, 'S2', conItem );
+        if ( h2 != null ) {
+            h2 = sectionHeading( 'h2', sect, h2, 'fill' );
+        }
+        return [h2, sectionContent( sect, cons, meth, 'S2', conItem )];
     },
 
 
@@ -450,9 +460,10 @@ const Content = {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
-        sectionHeading( 'h3', sect, hx, 'fill' );
-
-        return sectionContent( sect, cons, meth, 'S3', conItem );
+        if ( hx != null ) {
+            hx = sectionHeading( 'h3', sect, hx, 'fill' );
+        }
+        return [hx, sectionContent( sect, cons, meth, 'S3', conItem )];
     },
 
 
@@ -465,9 +476,10 @@ const Content = {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
-        sectionHeading( 'h4', sect, hx, 'fill' );
-
-        return sectionContent( sect, cons, meth, 'S4', conItem );
+        if ( hx != null ) {
+            hx = sectionHeading( 'h4', sect, hx, 'fill' );
+        }
+        return [hx, sectionContent( sect, cons, meth, 'S4', conItem )];
     },
 
 
@@ -480,27 +492,54 @@ const Content = {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
-        sectionHeading( 'h5', sect, hx, 'fill' );
-
-        return sectionContent( sect, cons, meth, 'S5', conItem );
+        if ( hx != null ) {
+            hx = sectionHeading( 'h5', sect, hx, 'fill' );
+        }
+        return [hx, sectionContent( sect, cons, meth, 'S5', conItem )];
     },
 
 
     /**
      * 末片区。
      * 主结构：section:s5/conitem...
-     * 注：只能插入内容件集。
+     * 注：内容只能插入内容件集。
      * @param  {Element} sect 片区容器元素
+     * @param  {Node|[Node]} h6 末标题内容
      * @param  {[Element]} cons 内容件集
      * @param  {String} meth 内容插入方法
-     * @return {[Element]} 新插入的内容件集
+     * @return {[Element|null, [Element]]} 末标题和新插入的内容件集
      */
-    S5( sect, cons, meth ) {
-        return $[meth]( sect, cons );
+    S5( sect, h6, cons, meth ) {
+        if ( h6 != null ) {
+            h6 = sectionHeading( 'h6', sect, h6, 'fill' );
+        }
+        return [h6, $[meth]( sect, cons )];
     },
 
 
-    // Table() {},  // 单独处理。
+    Table( table, caption, cons, meth ) {
+        //
+    },
+
+
+    Thead( tsec, cons, meth ) {
+        //
+    },
+
+
+    Tbody( tsec, cons, meth ) {
+        //
+    },
+
+
+    Tfoot( tsec, cons, meth ) {
+        //
+    },
+
+
+    Tr( tr, cons, meth ) {
+        //
+    },
 
 
     /**
@@ -614,9 +653,9 @@ const Content = {
     Ruby( root, rb, rt, rp = [] ) {
         $.append(root, [
             $.Element( 'rb', rb ),
-            $.Element( 'rp', rp[0] ),
+            rp[0] && $.Element( 'rp', rp[0] ),
             $.Element( 'rt', rt ),
-            $.Element( 'rp', rp[1] ),
+            rp[1] && $.Element( 'rp', rp[1] ),
         ]);
         return root;
     },
@@ -643,17 +682,18 @@ const Content = {
 ]
 .forEach(function( its ) {
     /**
+     * 传递标题为null表示忽略。
      * @param  {Element} root 内容根元素
      * @param  {Node|[Node]} hx 标题内容
      * @param  {Element|[Element]} 合法的内容元素（集）
      * @param  {String} meth 内容插入方法
-     * @return {Element|[Element]} 新插入的行块内容单元
+     * @return {[Element|null, [Element]]} 标题项和新插入的内容单元
      */
     Content[ its[0] ] = function( root, hx, cons, meth ) {
         if ( hx != null ) {
-            blockHeading( its[1], root, hx, 'fill' );
+            hx = blockHeading( its[1], root, hx, 'fill' );
         }
-        return cons && $[meth](root, cons);
+        return [hx, cons && $[meth](root, cons)];
     };
 });
 
@@ -670,6 +710,7 @@ const Content = {
     'Ol',
     'Cascade',  // Ali|Cascadeli 项
     'Codelist', // Codeli
+    'Dl',       // dt,dd任意混合
 ]
 .forEach(function( name ) {
     /**
@@ -695,6 +736,8 @@ const Content = {
     'Address',
     'Pre',
     'Li',
+    'Dt',
+    'Dd',
     'H1',
     'H2',
     'H3',
@@ -703,6 +746,9 @@ const Content = {
     'H6',
     'Figcaption',
     'Summary',
+    'Th',
+    'Td',
+    'Caption',
 
     // 内联文本容器
     'Audio',
@@ -736,13 +782,13 @@ const Content = {
 ]
 .forEach(function( name ) {
     /**
-     * @param  {Element} box 容器元素
+     * @param  {Element} el 容器元素
      * @param  {Node|[Node]} 合法内容节点（集）
      * @param  {String} meth 插入方法（append|prepend|fill）
      * @return {Element} 容器元素自身
      */
-    Content[ name ] = function( box, cons, meth ) {
-        return cons && $[meth]( box, cons ), box;
+    Content[ name ] = function( el, cons, meth ) {
+        return cons && $[meth]( el, cons ), el;
     };
 });
 
@@ -765,6 +811,22 @@ const Content = {
      */
     Content[ name ] = function( box, codes, meth ) {
         return insertCodes( box, codes, meth ), box;
+    };
+});
+
+
+//
+// 注音内容。
+// <ruby>的子结构，纯文本内容。
+///////////////////////////////////////
+[
+    'Rb',
+    'Rp',
+    'Rt',
+]
+.forEach(function( name ) {
+    Content[ name ] = function( el, cons, meth ) {
+        return cons && $[meth]( el, $.Text(cons) ), el;
     };
 });
 
@@ -1093,7 +1155,6 @@ function listMerge( to, src, meth ) {
 /**
  * 创建内容结构。
  * 包括非独立逻辑的中间结构。
- * 不包含实际的内容实体。
  * @param  {String} name 内容名称
  * @param  {...Value} 剩余参数（适用table）
  * @return {Element|[Element]} 结构根（序列）
@@ -1113,4 +1174,4 @@ function listMerge( to, src, meth ) {
 }
 
 
-export const Factory = { create, Article, Content };
+export { create, Article, Content };

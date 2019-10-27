@@ -307,7 +307,6 @@ const typeSubs = {
 
 /**
  * 测试并返回<li>支持的几种类型。
- * 注：向下检索测试。
  * @param  {Element} li 列表项元素
  * @return {String} Codeli|Cascadeli|Li
  */
@@ -318,7 +317,18 @@ function customLi( li ) {
     // cascade: li/h5, ol/
     if ( isCascadeli(li) ) return 'Cascadeli';
 
+    if ( isTocItem(li) ) return 'Ali';
+
     return 'Li';
+}
+
+
+/**
+ * 测试并返回<h5>支持的两种类型。
+ * @param {Element} h5 标题元素
+ */
+function customH5( h5 ) {
+    return isH5a( h5 ) ? 'H5a' : 'H5';
 }
 
 
@@ -444,7 +454,7 @@ function isCascadeli( li ) {
  * @param  {Element} h5 标题元素
  * @return {Boolean}
  */
- function isH5a( h5 ) {
+function isH5a( h5 ) {
     return h5.childElementCount == 1 &&
         $.is(h5.firstElementChild, 'a');
 }
@@ -462,6 +472,8 @@ function isTocHeading( li ) {
 
 /**
  * 获取元素/节点的内容名。
+ * 返回名称为首字母大写（区别于标签）。
+ * 非标准内容返回首字母大写的标签名（通用）。
  * @param  {Element|Text} el 目标元素或文本节点
  * @return {String}
  */
@@ -471,7 +483,13 @@ function conName( el ) {
     }
     let _n = $.attribute(el, 'role') || el.nodeName.toLowerCase();
 
-    return _n == 'li' ? customLi( el ) : camelCase(_n);
+    switch ( _n ) {
+        case 'li':
+            return customLi( el );
+        case 'h5':
+            return customH5( el );
+    }
+    return camelCase( _n );
 }
 
 
