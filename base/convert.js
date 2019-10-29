@@ -94,14 +94,13 @@ const __defaultConitem = {
 
 //
 // 数据转换映射。
-// 针对目标类型（name），转换自身为最合适的数据集：
-// {
-//      child( el, name )   子级取值：prepend|append
-//      fill( el, name )    填充取值：fill
-// }
+// 针对目标类型（name），转换自身为最合适的数据集。
+// 适用于目标类型的内部插入（prepend|append|fill）。
 // 返回值：
 // - 按目标类型提供一个值或值集。
 // - null值表示忽略，空串为有值（清空目标）。
+// 注记：
+// 平级插入可转换为与参考目标相同类型，如果不行则构造为父容器默认类型。
 //////////////////////////////////////////////////////////////////////////////
 //
 const dataConvs = {
@@ -205,17 +204,17 @@ const dataConvs = {
 
 //
 // 小区块取值。
-// 包含可选的<h4>标题。
+// 包含可选的标题（h4, summary）。
 /////////////////////////////////////////////////
 [
-    'header',
-    'footer',
-    'blockquote',
-    'aside',
-    'details',
+    'Header',
+    'Footer',
+    'Blockquote',
+    'Aside',
+    'Details',
 ]
 .forEach(function( n ) {
-    //
+    Content[n] = (el, name) => smallBlock( el, name );
 });
 
 
@@ -244,7 +243,10 @@ const dataConvs = {
     'Rt',
 ]
 .forEach(function( n ) {
-    dataConvs[n] = (el, name) => defaultConitem( name, $.contents(el) );
+    dataConvs[n] = function( el, name ) {
+        let _cons = $.contents(el);
+        return defaultConitem( name, _cons ) || _cons;
+    };
 });
 
 
@@ -265,9 +267,10 @@ function list( el, name ) {
     switch (name) {
         case 'Abstract':
             // 合并为单个段落（保留内联结构）
-            return [ null, $.Element( 'p', $('li', el).contents() ) ];
+            return [ null, $.Element( 'p', inlines(el) ) ];
 
         case 'Toc':
+            // 目录为功能件，不支持任意插入。
             return null;
 
         case 'Cascadeli':
@@ -281,11 +284,24 @@ function list( el, name ) {
         case 'Cascade':
             return $.children( el );
 
+        case 'Codelist':
+            // 每<li>对应一行代码。
+            return $.children(el).map( li => codeWrap(codeSubs(li), 'li') );
+
+        case 'Dl':
+            _ss = listSubs(el);
+            // 首行充当标题<dt>
+            return [$.Element('dt', _ss.shift()), ...linesWrap(_ss, 'dd')];
+
         case 'Header':  // 每<li>对应一行（p）
         case 'Footer':  // 同上
         case 'Address': // 同上
-        case 'P':       // 接受内联单元数组
+            return linesWrap( listSubs(el), 'p' );
+
         case 'Table':   // 每项为一个单元格内容
+            return [null, listSubs(el)];
+
+        case 'P':       // 接受内联单元数组
         case 'Thead':   // 同上
         case 'Tbody':   // 同上
         case 'Tfoot':   // 同上
@@ -302,15 +318,6 @@ function list( el, name ) {
             // 独立内容单元
             // 注：章节目标特殊逻辑自行处理。
             // return el;
-
-        case 'Codelist':
-            // 每<li>对应一行代码。
-            return $.children(el).map( li => getCodes(li) );
-
-        case 'Dl':
-            _ss = listSubs(el);
-            // 首行充当标题<dt>
-            return [ textLine( _ss.shift() ), _ss ];
 
         case 'Figure':
             // 分离文本为标题，图片为内容。
@@ -382,7 +389,7 @@ function smallBlock( el, name ) {
 
         case 'Codelist':
             // 每<li>对应一行代码。
-            return $.children(el).map( li => getCodes(li) );
+            return $.children(el).map( li => codeSubs(li) );
 
         case 'Dl':
             _ss = listSubs(el);
@@ -415,44 +422,74 @@ function smallBlock( el, name ) {
 
 
 /**
- * 提取纯代码内容。
- * 不含封装的<code>元素本身。
- * 注：仅限于直接封装或封装<code>的容器元素。
- * @param  {Element} el 容器元素
- * @param  {Boolean} text 是否取纯文本
+ * 提取代码内容。
+ * 不含<code>封装元素本身。
+ * @param  {Element} box 代码容器（pre|li）
+ * @param  {Boolean} text 是否取纯文本，可选
  * @return {[Node]|String} 代码内容
  */
-function getCodes( el, text = false ) {
-    let _n = el.nodeName.toLowerCase();
+function codeSubs( box, text = false ) {
+    let _el = box.firstElementChild,
+        _n = _el && _el.nodeName.toLowerCase();
 
     if ( _n == 'code' ) {
-        return text ? $.text(el) : $.contents(el);
+        box = _el;
     }
-    return getCodes(el.firstElementChild, text);
+    return text ? $.text(box) : $.contents(box);
 }
 
 
-// 获取子元素内容集。
-// 注：以子元素为数组单元，获取内联内容集。
+/**
+ * 代码封装。
+ * 如果未传递最终容器标签名，返回<code>封装的代码元素。
+ * 否则返回的容器包含了唯一的子元素<code>封装。
+ * @param  {[Node]} cons 代码内容节点集
+ * @param  {String} tag 封装容器元素标签
+ * @return {Element} 包含代码的容器元素
+ */
+function codeWrap( cons, tag ) {
+    let _cel = $.Element( 'code', cons );
+    return tag ? $.Element( tag, _cel ) : _cel;
+}
+
+
+/**
+ * 获取子元素内容集。
+ * 注：以子元素为数组单元，获取内联内容集。
+ * @param  {Element} box 容器元素
+ * @return {[[Node]]} 子元素内容节点集数组
+ */
 function listSubs( box ) {
     return $.children( box ).map( el => inlines(el) );
 }
 
 
 /**
- * 获取内联节点集。
- * 约束：行块不应当和内联元素并列为同级关系。
- * @param {Element} box 容器元素
- * @param  {[Node]} 内联节点存储区
- * @return {[Node|Element]}
+ * 元素集封装。
+ * @param {[Node|[Node]]} cons 内容节点（集）数组
+ * @param {String} tag 封装元素标签
  */
-function inlines( box, buf = [] ) {
-    let _buf = $.contents(box);
+function linesWrap( cons, tag ) {
+    return cons.map( dd => $.Element(tag, dd) );
+}
 
-    if ( isOuter(_buf[0]) ) {
-        return buf.push( ..._buf );
+
+/**
+ * 获取内联节点集。
+ * @param  {Node} node 测试节点
+ * @param  {Array} 内联节点存储区
+ * @return {[Node]}
+ */
+function inlines( node, buf = [] ) {
+    if ( !node ) {
+        return buf;
     }
-    _buf.forEach( el => inlines(el, buf) );
+    if ( isOuter(node) ) {
+        buf.push( node );
+    } else {
+        $.contents(node).forEach( nd => inlines(nd) );
+    }
+    return buf;
 }
 
 
@@ -486,7 +523,7 @@ function cleanText( txt ) {
  */
 function defaultConitem( name, cons ) {
     let _n = __defaultConitem[name];
-    return _n ? Content[_n]( create(_n), cons, 'fill' ) : cons;
+    return _n && Content[_n]( create(_n), cons, 'fill' );
 }
 
 

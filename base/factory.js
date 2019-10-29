@@ -45,9 +45,16 @@ const
     // 片区标题选择器。
     __hxSlr = 'h2,h3,h4,h5,h6',
 
+    // 小区块标题获取。
+    __hxBlock = '>h3, >h4, >summary',
+
     // 简单标签。
     // 含role定义配置。
-    __reTag = /^[a-z][a-z:]*$/;
+    __reTag = /^[a-z][a-z:]*$/,
+
+    // 表格实例缓存。
+    // { Element: $.Table }
+    __tablePool = new WeakMap();
 
 
 //
@@ -416,7 +423,7 @@ const Content = {
      * @param  {Boolean} conItem 内容是否为内容件集，可选
      * @return {[Element]} 新插入的片区或内容件集
      */
-    Article( ael, h1, cons, meth, conItem ) {
+    Article( ael, [h1, cons], meth, conItem ) {
         if ( h1 != null ) {
             blockHeading( 'h1', ael.parentElement, h1, 'fill' );
         }
@@ -440,7 +447,7 @@ const Content = {
      * @param  {Boolean} conItem 内容是否为内容件集，可选
      * @return {[Element|null, [Element]]} 章标题和新插入的内容集
      */
-    S1( sect, h2, cons, meth, conItem ) {
+    S1( sect, [h2, cons], meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
@@ -456,7 +463,7 @@ const Content = {
      * 主结构：section:s2/[h3, section:s3]...
      * 参数说明参考.S1(...)接口。
      */
-    S2( sect, hx, cons, meth, conItem ) {
+    S2( sect, [hx, cons], meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
@@ -472,7 +479,7 @@ const Content = {
      * 主结构：section:s3/[h4, section:s4]...
      * 参数说明参考.S1(...)接口。
      */
-    S3( sect, hx, cons, meth, conItem ) {
+    S3( sect, [hx, cons], meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
@@ -488,7 +495,7 @@ const Content = {
      * 主结构：section:s4/[h5, section:s5]...
      * 参数说明参考.S1(...)接口。
      */
-    S4( sect, hx, cons, meth, conItem ) {
+    S4( sect, [hx, cons], meth, conItem ) {
         if ( conItem == null ) {
             conItem = contentItems(cons);
         }
@@ -509,7 +516,7 @@ const Content = {
      * @param  {String} meth 内容插入方法
      * @return {[Element|null, [Element]]} 末标题和新插入的内容件集
      */
-    S5( sect, h6, cons, meth ) {
+    S5( sect, [h6, cons], meth ) {
         if ( h6 != null ) {
             h6 = sectionHeading( 'h6', sect, h6, 'fill' );
         }
@@ -517,23 +524,86 @@ const Content = {
     },
 
 
-    Table( table, caption, cons, meth ) {
-        //
+    /**
+     * 表格结构。
+     * @param  {Element} tbl 表格元素
+     * @param  {Node|[Node]} cap 表标题内容
+     * @param  {[Node|[Node]]} cons 单元格内容集
+     * @param  {String} meth 表格行插入方法
+     * @return {Collector} 新插入内容的单元格集
+     */
+    Table( tbl, [cap, cons], meth ) {
+        tbl = tableObj( tbl );
+
+        if ( cap != null ) {
+            tbl.caption( cap );
+        }
+        let _rows = Math.ceil( cons.length / tbl.cols() );
+
+        return $.each(
+            tableCells( tbl, meth, _rows ),
+            (i, td) => cons[i] != null && $.fill(td, cons[i])
+        );
     },
 
 
-    Thead( tsec, cons, meth ) {
-        //
+    /**
+     * 表头结构（tHead）。
+     * @param  {Element} thead 表头元素
+     * @param  {[Node|[[Node]]]} cons 单元格内容集
+     * @param  {String} meth 表格行插入方法
+     * @return {Collector} 新插入内容的单元格集
+     */
+    Thead( thead, cons, meth ) {
+        let _tbo = tableObj(
+                $.closest(thead, 'table')
+            ),
+            _rows = Math.ceil( cons.length / _tbo.cols() );
+
+        return $.each(
+            tableCells( _tbo, meth, _rows, 'head' ),
+            (i, td) => cons[i] != null && $.fill(td, cons[i])
+        );
     },
 
 
-    Tbody( tsec, cons, meth ) {
-        //
+    /**
+     * 表体结构（tBody）。
+     * 支持表格内非唯一表体单元。
+     * @param  {Element} tbody 表体元素
+     * @param  {[Node|[[Node]]]} cons 单元格内容集
+     * @param  {String} meth 表格行插入方法
+     * @return {Collector} 新插入内容的单元格集
+     */
+    Tbody( tbody, cons, meth ) {
+        let _tbl = $.closest(tbody, 'table'),
+            _bi = tbodyIndex(_tbl, tbody),
+            _rows = Math.ceil( cons.length / _tbl.cols() );
+
+        return $.each(
+            tableCells( tableObj(_tbl), meth, _rows, 'body', _bi ),
+            (i, td) => cons[i] != null && $.fill(td, cons[i])
+        );
     },
 
 
-    Tfoot( tsec, cons, meth ) {
-        //
+    /**
+     * 表脚结构（tFoot）。
+     * @param  {Element} tfoot 表脚元素
+     * @param  {[Node|[[Node]]]} cons 单元格内容集
+     * @param  {String} meth 表格行插入方法
+     * @return {Collector} 新插入内容的单元格集
+     */
+    Tfoot( tfoot, cons, meth ) {
+        let _tbo = tableObj(
+                $.closest(tfoot, 'table')
+            ),
+            _rows = Math.ceil( cons.length / _tbo.cols() );
+
+        return $.each(
+            tableCells( _tbo, meth, _rows, 'foot' ),
+            (i, td) => cons[i] != null && $.fill(td, cons[i])
+        );
     },
 
 
@@ -552,7 +622,7 @@ const Content = {
      * @param  {String} meth 图片插入方法（prepend|append|fill）
      * @return {[Element]} 新插入的图片集
      */
-    Figure( root, cap, imgs, meth ) {
+    Figure( root, [cap, imgs], meth ) {
         if ( cap != null ) {
             blockHeading( 'figcaption', root, cap, 'fill' );
         }
@@ -571,7 +641,7 @@ const Content = {
      * @param  {Node|[Node]|''} h2c 页面副标题内容
      * @return {[Element, Element]} 主副标题对
      */
-    Hgroup( root, h1c, h2c ) {
+    Hgroup( root, [h1c, h2c] ) {
         let _h1 = $.get( '>h1', root ),
             _h2 = $.get( '>h2', root );
 
@@ -624,9 +694,10 @@ const Content = {
      * @param  {Element} li 列表项
      * @param  {Node|[Node]} h5c 子表标题内容
      * @param  {Element|[Element]} olc 内容子列表或列表项集
+     * @param  {String} meth 插入方法（prepend|append|fill）
      * @return {Element} 子列表
      */
-    Cascadeli( li, h5c, olc ) {
+    Cascadeli( li, [h5c, olc], meth ) {
         if ( h5c != null ) {
             blockHeading( 'h5', li, h5c, 'fill' );
         }
@@ -635,7 +706,7 @@ const Content = {
         if ( !_ol ) {
             _ol = $.append( li, $.Element('ol') );
         }
-        return olc && listMerge( _ol, olc, 'append' ), _ol;
+        return olc && listMerge( _ol, olc, meth ), _ol;
     },
 
 
@@ -650,7 +721,9 @@ const Content = {
      * @param  {[String, String]} rp 注音包围（左,右）
      * @return {Element} root
      */
-    Ruby( root, rb, rt, rp = [] ) {
+    Ruby( root, [rb, rt, rp] ) {
+        rp = rp || [];
+
         $.append(root, [
             $.Element( 'rb', rb ),
             rp[0] && $.Element( 'rp', rp[0] ),
@@ -689,11 +762,11 @@ const Content = {
      * @param  {String} meth 内容插入方法
      * @return {[Element|null, [Element]]} 标题项和新插入的内容单元
      */
-    Content[ its[0] ] = function( root, hx, cons, meth ) {
+    Content[ its[0] ] = function( root, [hx, cons], meth ) {
         if ( hx != null ) {
-            hx = blockHeading( its[1], root, hx, 'fill' );
+            blockHeading( its[1], root, hx, 'fill' );
         }
-        return [hx, cons && $[meth](root, cons)];
+        return [ insertBlock(root, cons, meth), cons ];
     };
 });
 
@@ -1132,18 +1205,124 @@ function insertLink( box, cons, meth ) {
  * 列表合并。
  * 源如果是列表容器（ol|ul），只能是单个元素。
  * @param  {Element} to 目标列表
- * @param  {Element|[Element]} src 列表项源（ol|ul|[li]）
- * @parem  {String} meth 插入方法
+ * @param  {Element|[Element]} src 列表项源（ul|ol|[li]）
+ * @param  {String} meth 插入方法
  * @return {[Element]} 新插入的列表项
  */
 function listMerge( to, src, meth ) {
-    if ( $.isArray(src) ) {
-        return $[meth]( to, src );
-    }
-    if ( $.is(src, 'ul, ol') ) {
+    if ( src.nodeType ) {
         src = $.children( src );
     }
     return $[meth]( to, src );
+}
+
+
+/**
+ * 小区块内容填充。
+ * 指包含标题的小区块单元，内容填充不影响标题本身。
+ * 注：标题与内容是同级关系。
+ * @param  {Element} root 区块根
+ * @param  {Element|[Element]} cons 主体内容集
+ * @param  {String} meth 插入方法（prepend|append|fill）
+ * @return {Element|null} 标题元素
+ */
+function insertBlock( root, cons, meth ) {
+    let _hx = $.detach(
+            $.get(__hxBlock)
+        );
+    $[meth]( root, cons );
+
+    return _hx && $.prepend( root, _hx );
+}
+
+
+/**
+ * 检索/设置表格实例。
+ * 效率：缓存解析创建的表格实例。
+ * @param  {Element} tbl 表格元素
+ * @return {Table}
+ */
+function tableObj( tbl ) {
+    let _tbl = __tablePool.get(tbl);
+
+    if ( !_tbl ) {
+        __tablePool.set( tbl, new $.Table(tbl) );
+    }
+    return _tbl;
+}
+
+
+/**
+ * 插入方法对应的位置值。
+ * @param  {String} meth 方法名
+ * @return {Number}
+ */
+function tableWhere( meth ) {
+    switch (meth) {
+        case 'append': return -1;
+        case 'prepend': return 0;
+    }
+    return null;
+}
+
+
+/**
+ * 获取表格区实例。
+ * @param  {Table} tbl 表格实例
+ * @param  {String} name 表格区名称（body|head|foot）
+ * @param  {Number} bi tBody元素序号，可选
+ * @return {TableSection|null}
+ */
+function tableSection( tbl, name, bi = 0 ) {
+    switch (name) {
+        case 'head': return tbl.head();
+        case 'foot': return tbl.foot();
+        case 'body': return tbl.body()[bi];
+    }
+    return null;
+}
+
+
+/**
+ * 获取表格单元格集。
+ * 根据插入方法返回新建或清空的单元格集。
+ * 未指定表格区时，填充针对整个表格，新插入针对表体（tBody）。
+ * rows实参在meth为填充时无用。
+ * @param  {Table} tbl 表格实例（$.Table）
+ * @param  {String} meth 插入方法
+ * @param  {Number} rows 插入行数，可选
+ * @param  {String} name 表格区名称（body|head|foot），可选
+ * @param  {Number} bi tBody元素序号，可选
+ * @return {Collector|null} 单元格集
+ */
+function tableCells( tbl, meth, rows, name, bi ) {
+    let _tsec = tableSection(tbl, name, bi);
+
+    if ( !_tsec && name ) {
+        return null;
+    }
+    if ( meth == 'fill' ) {
+        return tbl.gets(0, _tsec).find('th,td').empty().end();
+    }
+
+    return tbl[name](tableWhere(meth), rows, _tsec).find('th,td');
+}
+
+
+/**
+ * 获取表体元素序号。
+ * 约束：实参表体必须在实参表格元素之内。
+ * @param  {Element} tbl 表格元素
+ * @param  {Element} tbody 表体元素
+ * @return {Number}
+ */
+function tbodyIndex( tbl, tbody ) {
+    let _n = tbl.tBodies.length;
+
+    if ( _n == 1 ) {
+        return 0;
+    }
+    return Array.from(tbl.tBodies).indexOf(tbody);
 }
 
 

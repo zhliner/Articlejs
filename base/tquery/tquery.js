@@ -1296,7 +1296,7 @@ Object.assign( tQuery, {
      * @return {Node} 原节点引用
      */
     detach( node ) {
-        return remove(node, false);
+        return remove( node, false );
     },
 
 
@@ -1307,7 +1307,7 @@ Object.assign( tQuery, {
      * @return {this}
      */
     remove( node ) {
-        return remove(node, true), this;
+        return remove( node, true ), this;
     },
 
 
@@ -2148,17 +2148,17 @@ class Table {
      * 简单的无参数调用返回表体元素集（数组）。
      * @param  {Number} idx 插入位置
      * @param  {Number} rows 行数
-     * @param  {Element} body 目标<tbody>元素，可选
+     * @param  {TableSection} tsec 目标<tbody>元素，可选
      * @return {[Element]|Collector} 表体元素集或新添加的行元素集
      */
-    body( idx, rows = 1, body = null ) {
+    body( idx, rows = 1, tsec = null ) {
         if (idx == undefined) {
             return Arr(this._tbl.tBodies);
         }
-        if (body == null) {
-            body = this._body0;
+        if (tsec == null) {
+            tsec = this._body0;
         }
-        return this._insertRows(body, idx, rows);
+        return this._insertRows(tsec, idx, rows);
     }
 
 
@@ -2233,16 +2233,17 @@ class Table {
 
     /**
      * 删除多个表格行。
-     * 行计数指整个表格，不区分head/body/foot。
+     * 如果未指定tsec，行计数指整个表格（thead/tbody/tfoot）。
      * - idx支持负数从末尾算起。
      * - size为undefined表示起始位置之后全部行。
      * - size计数大于剩余行数，取剩余行数（容错超出范围）。
-     * @param {Number} idx 起始位置（从0开始）
-     * @param {Number} size 删除数量
+     * @param  {Number} idx 起始位置（从0开始）
+     * @param  {Number} size 删除数量
+     * @param  {TableSection} tsec 表体区，可选
      * @return {Collector} 删除的行元素集
      */
-    removes( idx, size ) {
-        let _val = this._idxSize( idx, size || this._tbl.rows.length ),
+    removes( idx, size, tsec ) {
+        let _val = this._idxSize( idx, size, tsec ),
             _buf = [];
 
         if (_val === null) {
@@ -2250,9 +2251,11 @@ class Table {
         } else {
             [idx, size] = _val;
         }
+        tsec = tsec || this._tbl;
+
         for (let i = 0; i < size; i++) {
             // 集合会改变，故下标固定
-            _buf.push( this._remove(idx) );
+            _buf.push( this._remove(idx, tsec) );
         }
         return new Collector( _buf );
     }
@@ -2261,56 +2264,63 @@ class Table {
     /**
      * 删除表格行。
      * idx支持负数从末尾算起。
-     * @param {Number} idx 目标位置（从0开始）
+     * @param  {Number} idx 目标位置（从0开始）
+     * @param  {TableSection} tsec 表体区，可选
      * @return {Element|null} 删除的行元素
      */
-    remove( idx ) {
-        idx = this._idxSize( idx );
-        return idx === null ? null : this._remove(idx);
+    remove( idx, tsec ) {
+        idx = this._idxSize( idx, null, tsec );
+        return idx === null ? null : this._remove(idx[0], tsec || this._tbl);
     }
 
 
     /**
      * 获取目标行集。
-     * 表格行计数包含表头和表尾部分（不区分三者）。
+     * 如果未指定tsec，表格行计数指整个表格（thead/tbody/tfoot）。
      * idx支持负数从末尾算起。
      * 不合适的参数会返回一个空集。
-     * @param {Number} idx 起始位置（从0开始）
-     * @param {Number} size 获取行数（undefined表示全部）
+     * @param  {Number} idx 起始位置（从0开始）
+     * @param  {Number} size 获取行数（null表示全部），可选
+     * @param  {TableSection} tsec 表体区，可选
      * @return {Collector} 行元素集
      */
-    gets( idx, size ) {
-        let _val = this._idxSize( idx, size || this._tbl.rows.length );
+    gets( idx, size, tsec ) {
+        let _val = this._idxSize( idx, size, tsec );
 
         if (_val === null) {
             size = 0;
         } else {
             [idx, size] = _val;
         }
+        tsec = tsec || this._tbl;
+
         return new Collector(
-            [...rangeNumber(idx, size)].map( i => this._tbl.rows[i] )
+            [...rangeNumber(idx, size)].map( i => tsec.rows[i] )
         );
     }
 
 
     /**
      * 获取目标行元素。
-     * 表格行计数包含表头和表尾部分。
-     * @param {Number} idx 目标行（从0计数）
+     * 如果未指定tsec，表格行计数包含表头和表尾部分。
+     * @param  {Number} idx 目标行（从0计数）
+     * @param  {TableSection} tsec 表体区，可选
      * @return {Element|null} 表格行
      */
-    get( idx ) {
-        idx = this._idxSize( idx );
-        return idx === null ? null : this._tbl.rows[idx];
+    get( idx, tsec ) {
+        idx = this._idxSize( idx, null, tsec );
+        return idx === null ? null : (tsec || this._tbl).rows[idx[0]];
     }
 
 
     /**
-     * 返回表格的行数。
+     * 返回表格目标区的行数。
+     * 未指定实参时计数针对整个表格。
+     * @param  {TableSection} 表格目标区，可选
      * @return {Number}
      */
-    rows() {
-        return this._tbl.rows.length;
+    rows( tsec ) {
+        return (tsec || this._tbl).rows.length;
     }
 
 
@@ -2379,10 +2389,12 @@ class Table {
     /**
      * 计算合法的起点和行数实参。
      * @param {Number} idx 起点位置
-     * @param {Number} size 获取行数
+     * @param {Number} size 获取行数，可选
+     * @param {TableSection} tsec 表格区
+     * @return {[beg, size]|null}
      */
-    _idxSize( idx, size ) {
-        let _max = this._tbl.rows.length;
+    _idxSize( idx, size, tsec ) {
+        let _max = tsec.rows.length;
 
         if (idx < 0) {
             idx += _max;
@@ -2390,8 +2402,8 @@ class Table {
         if (idx < 0 || idx >= _max) {
             return null;
         }
-        if (size === undefined) {
-            return idx;
+        if (size == null) {
+            return [idx, _max];
         }
         if (idx + size > _max) {
             size = _max - idx;
@@ -2403,12 +2415,13 @@ class Table {
     /**
      * 删除目标行。
      * 假设idx参数已合法。
-     * @param {Number} idx 目标位置
+     * @param  {Number} idx 目标位置
+     * @param  {TableSection} tsec 表体区
      * @return {Element} 删除的元素
      */
-    _remove( idx ) {
-        let _row = this._tbl.rows[idx];
-        this._tbl.deleteRow(idx);
+    _remove( idx, tsec ) {
+        let _row = tsec.rows[idx];
+        tsec.deleteRow(idx);
         return _row;
     }
 
@@ -3167,7 +3180,7 @@ class Collector extends Array {
 
 
     /**
-     * 获取集合内元素。
+     * 获取集合内单元。
      * - 获取特定下标位置的元素，支持负数倒数计算。
      * - 未指定下标返回整个集合的一个普通数组表示。
      * 注：兼容字符串数字，但空串不为0。
@@ -3688,6 +3701,7 @@ function _arrSets( fn, els, val, ...rest ) {
 //
 // 节点插入（多对多）。
 // 因为节点数据会移动，所以通常应该是克隆模式。
+// 注：不支持值数组与集合成员一一对应。
 /////////////////////////////////////////////////
 elsExfn([
         'before',
@@ -4384,12 +4398,12 @@ function deepChild( el ) {
  * @param {Boolean} deleted 彻底删除
  */
 function remove( node, deleted ) {
-    let _box = node.parentNode;
+    let _box = node && node.parentNode;
 
     if (!_box || node.nodeType > 8) {
         return node;
     }
-    if (! deleted) {
+    if ( !deleted ) {
         return _box.removeChild(node);
     }
     _box.removeChild(node);
