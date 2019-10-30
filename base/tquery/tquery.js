@@ -3650,8 +3650,8 @@ elsExfn([
 
 
 //
-// 内容取值/修改。
-// 设置与获取两种操作合二为一，val支持数组分别赋值。
+// 内容取值/设置。
+// 设置时支持值数组与集合成员一一对应赋值。
 //
 // 取值时：返回一个普通数组，成员与集合元素一一对应。
 // 设置时：返回的新节点构造为一个新的 Collector 实例。
@@ -3673,7 +3673,7 @@ elsExfn([
             Arr(this).map( el => $[fn](el, val, ...rest) );
 
         // 扁平化，构造为 Collector
-        return new Collector([].concat(..._vs), this);
+        return new Collector( arrFlat(_vs), this );
     }
 );
 
@@ -3701,7 +3701,7 @@ function _arrSets( fn, els, val, ...rest ) {
 //
 // 节点插入（多对多）。
 // 因为节点数据会移动，所以通常应该是克隆模式。
-// 注：不支持值数组与集合成员一一对应。
+// 支持值数组与集合成员一一对应。
 /////////////////////////////////////////////////
 elsExfn([
         'before',
@@ -3713,6 +3713,7 @@ elsExfn([
     ],
     /**
      * 集合版节点内容插入。
+     * 注：可代理调用 $。
      * @param  {Node|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆事件处理器（容器）
@@ -3720,19 +3721,58 @@ elsExfn([
      * @return {Collector} 新插入的节点集
      */
     fn => function( cons, clone, event, eventdeep ) {
-        // 可代理调用 $
-        let _buf = [],
-            _ret;
+        let _buf;
 
-        for ( let el of this ) {
-            _ret = $[fn]( el, cons, clone, event, eventdeep );
-            if (clone) {
-                _buf = _buf.concat(_ret);
-            }
+        if ( isArr(cons) ) {
+            _buf = _arrInsert(fn, this, cons, clone, event, eventdeep);
+        } else {
+            _buf = _conInsert(fn, this, cons, clone, event, eventdeep);
         }
-        return new Collector( clone ? _buf : _ret, this );
+        // 扁平化处理。
+        return new Collector( arrFlat(_buf), this );
     }
 );
+
+
+//
+// 内容为数组一一对应插入。
+// @param  {[Node]|Collector|[Value]} cons 数据节点或回调集
+// @param  {Boolean} clone 是否节点克隆
+// @param  {Boolean} event 是否克隆事件处理器（容器）
+// @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
+// @return {[Node]} 新插入的节点集
+//
+function _arrInsert( fn, els, cons, clone, event, eventdeep ) {
+    let _buf = [];
+
+    for ( let [i, el] of els.entries() ) {
+        let _con = cons[i];
+
+        if ( _con != null ) {
+            _buf.push( $[fn](el, _con, clone, event, eventdeep) );
+        }
+    }
+    return _buf;
+}
+
+
+//
+// 内容简单插入（非数组）。
+// 注：con可能为函数或迭代器，因此也可能返回数组。
+// @param  {Node|Set|Iterator|Function} cons 数据节点回调
+// @param  {Boolean} clone 是否节点克隆
+// @param  {Boolean} event 是否克隆事件处理器（容器）
+// @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
+// @return {[Node]} 新插入的节点集
+//
+function _conInsert( fn, els, con, clone, event, eventdeep ) {
+    let _buf = [];
+
+    for ( let el of els ) {
+        _buf.push( $[fn](el, con, clone, event, eventdeep) );
+    }
+    return _buf;
+}
 
 
 
@@ -3953,6 +3993,18 @@ function arrLike( obj ) {
     return _len === 0 || typeof _len == 'number' &&
         // Object封装兼容字符串
         (_len - 1) in Object( obj );
+}
+
+
+/**
+ * 数组扁平化（1层深）。
+ * @param {[Value]} arr 数组数据
+ */
+ function arrFlat( arr ) {
+    if ( arr.flat ) {
+        return arr.flat(1);
+    }
+    return arr.reduce( (buf, v) => buf.concat(v), [] );
 }
 
 
@@ -6472,7 +6524,7 @@ Object.assign( tQuery, {
             if ( v != null ) _tmp.push(v);
         }
         // 一级扁平化
-        return [].concat(..._tmp);
+        return arrFlat( _tmp );
     },
 
 
@@ -6659,7 +6711,7 @@ Object.assign( tQuery, {
      * @return {Array} des
      */
     mergeArray( des, ...src ) {
-        des.push( ...[].concat(...src) );
+        des.push( ...arrFlat(src) );
         return des;
     },
 
