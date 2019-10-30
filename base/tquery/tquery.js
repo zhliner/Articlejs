@@ -1275,7 +1275,7 @@ Object.assign( tQuery, {
      * - 用元素内容替换元素本身（内容上升到父级）。
      * - 内容可能包含注释节点和空文本节点，会从返回集中清除。
      * @param  {Element} el 容器元素
-     * @return {Array} 容器子节点集
+     * @return {[Node]} 容器子节点集
      */
     unwrap( el ) {
         if (el.nodeType != 1) {
