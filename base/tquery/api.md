@@ -317,6 +317,8 @@ $.isXML( document.body );  // false
 
 可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配（此时为一个空数组）。匹配测试函数接口为：`function( el:Element, i:Number ): Boolean`，`i` 为后续元素顺序计数（从 `el` 开始计数为 `0`）。
 
+如果未传递 `slr` 表示不执行过滤，因此会返回一个全集。
+
 
 ### [$.nextUntil( el, slr ): [Element]](docs/$.nextUntil.md)
 
@@ -345,7 +347,7 @@ $.isXML( document.body );  // false
 - `el: Element` 取值的目标源元素，不适用文本节点。
 - `slr: String | Function` 匹配测试的选择器或函数，可选。
 
-这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，如果没有任何匹配。测试函数接口和说明同前。
+这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配。测试函数接口和说明同前。未传递 `slr` 时表示不执行过滤，返回全集。
 
 > **注：**
 > 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
@@ -1186,7 +1188,7 @@ elo: {
 这是对父类 `Array.map()` 的简单封装，以支持对 `Collector` 实例链栈的操作。
 
 > **注意：**<br>
-> 与工具版的 `$.map()` 有所不同，本方法并不和并（扁平化）处理函数返回的集合，也不会排除 `null` 和 `undefined` 的返回值。
+> 与工具版的 `$.map()` 有所不同，本方法并不排除 `null` 和 `undefined` 的返回值。
 
 
 ### [.sort( unique, comp? ): Collector](docs/$().sort.md)
@@ -1206,6 +1208,15 @@ elo: {
 集合成员反转，覆盖继承于数组的同名方法。
 
 与父类 `Array.reverse()` 原生方法不同，这里不会修改集合自身，而是返回一个新的成员已反转的集合，支持链栈操作。
+
+
+### .flat( unique ): Collector
+
+集合成员扁平化处理。
+
+- `unique: Boolean` 是否去重排序。
+
+如果检索元素的单元素版返回一个集合，大多数相应的集合版不会自动扁平化返回集。这是一个进阶处理器。
 
 
 ### [.wrapAll( box, clone, event, eventdeep ): Collector](docs/$().wrapAll.md)
@@ -1265,27 +1276,29 @@ elo: {
 > 同 `.first()`，如果当前集合已为空，返回当前空集。
 
 
-### .add( its ): Collector
+### .add( its, unique ): Collector
 
 往当前集合中添加新的成员，返回一个添加了新成员的新 `Collector` 实例。
 
 - `its: String | Element | NodeList | Collector` 待添加元素的选择器或值成员或一个值集合。
+- `unique: Boolean` 结果集是否去重排序。
 
-总是会构造一个新的集合返回。返回的集合不会自动去重排序，如果需要，您可以调用 `.sort(true)` 实现。
+总是会构造一个新的集合返回。如果没有指示去重排序，后期可以通过调用 `.sort(true)` 完成。
 
 > **注：**<br>
 > 字符串实参会被视为CSS选择器，因此并不能直接添加字符串成员（作为普通集合时）。
 
 
-### .addBack( slr ): Collector
+### .addBack( slr, unique ): Collector
 
 在当前集合的基础上添加前一个集合的成员。
 
 - `slr: String | Function` 前一个集合成员的选择器或筛选函数。
+- `unique: Boolean` 结果集是否去重排序。
 
 总是会返回一个新的 `Collector` 实例，即便新加入的集合为空。筛选函数接口：`function( v:Value, i:Number, o:Collector ): Boolean`。
 
-与 `.add()` 相同，返回集不会自动去重排序，如果必要可以调用 `.sort(true)`。
+与 `.add()` 相同，默认情况下返回集不会自动去重排序，可传递 `unique` 为真或后期调用 `.sort(true)` 实现。
 
 
 ### .end( n? ): Collector
@@ -1329,13 +1342,13 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 
 ### [$.map( obj, proc, thisObj ): [Value]](docs/$.map.md)
 
-对集合内的成员逐一自行回调函数，返回回调函数返回的值的集合。
+对集合内的成员逐一执行回调函数，回调函数的返回值汇集成一个集合，这个集合就是最终的返回值。
 
 - `obj: Array | LikeArray | Object | .entries` 迭代处理的目标集合，包括 `Collector` 实例。
 - `proc: Function` 回调处理器函数，接口：`function( val, key ): Value | [Value]`。
 - `thisObj: Any` 回调处理器函数内的 `this` 绑定目标。
 
-**注意**：回调返回的 `null` 和 `undefined` 值会被忽略（不进入返回集内），如果返回的是一个集合，集合内成员会被合并（1级扁平化）。
+**注意**：回调返回的 `null` 和 `undefined` 值会被忽略（不进入返回集内）。
 
 
 ### $.every( obj, test, thisObj ): Boolean

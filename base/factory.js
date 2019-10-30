@@ -538,12 +538,13 @@ const Content = {
         if ( cap != null ) {
             tbl.caption( cap );
         }
-        let _rows = Math.ceil( cons.length / tbl.cols() );
-
-        return $.each(
-            tableCells( tbl, meth, _rows ),
-            (i, td) => cons[i] != null && $.fill(td, cons[i])
-        );
+        return tableCells(
+                tbl,
+                meth,
+                Math.ceil(cons.length / tbl.cols()),
+                'body'
+            )
+            .fill(cons).end();
     },
 
 
@@ -557,13 +558,15 @@ const Content = {
     Thead( thead, cons, meth ) {
         let _tbo = tableObj(
                 $.closest(thead, 'table')
-            ),
-            _rows = Math.ceil( cons.length / _tbo.cols() );
+            );
 
-        return $.each(
-            tableCells( _tbo, meth, _rows, 'head' ),
-            (i, td) => cons[i] != null && $.fill(td, cons[i])
-        );
+        return tableCells(
+                _tbo,
+                meth,
+                Math.ceil(cons.length / _tbo.cols()),
+                'head'
+            )
+            .fill(cons).end();
     },
 
 
@@ -576,14 +579,18 @@ const Content = {
      * @return {Collector} 新插入内容的单元格集
      */
     Tbody( tbody, cons, meth ) {
-        let _tbl = $.closest(tbody, 'table'),
-            _bi = tbodyIndex(_tbl, tbody),
-            _rows = Math.ceil( cons.length / _tbl.cols() );
+        let _tbo = tableObj(
+                $.closest(tbody, 'table')
+            );
 
-        return $.each(
-            tableCells( tableObj(_tbl), meth, _rows, 'body', _bi ),
-            (i, td) => cons[i] != null && $.fill(td, cons[i])
-        );
+        return tableCells(
+                _tbo,
+                meth,
+                Math.ceil(cons.length / _tbo.cols()),
+                'body',
+                tbodyIndex(_tbo, tbody)
+            )
+            .fill(cons).end();
     },
 
 
@@ -597,16 +604,29 @@ const Content = {
     Tfoot( tfoot, cons, meth ) {
         let _tbo = tableObj(
                 $.closest(tfoot, 'table')
-            ),
-            _rows = Math.ceil( cons.length / _tbo.cols() );
+            );
 
-        return $.each(
-            tableCells( _tbo, meth, _rows, 'foot' ),
-            (i, td) => cons[i] != null && $.fill(td, cons[i])
-        );
+        return tableCells(
+                _tbo,
+                meth,
+                Math.ceil(cons.length / _tbo.cols()),
+                'foot'
+            )
+            .fill(cons).end()
     },
 
 
+    /**
+     * 表格行结构。
+     * meth:
+     * - fill 为内部单元格填充，内容不足时后部单元格原样保持。
+     * - append 效果与after方法相同，不会改变列大小。
+     * - prepend 效果与before方法相同。
+     * @param  {Element} tr 表格行
+     * @param  {[Node]|[[Node]]} cons 单元格内容集
+     * @param  {String} meth 插入方法（fill|append|prepend）
+     * @return {Collector} 新插入的内容单元格集
+     */
     Tr( tr, cons, meth ) {
         //
     },
@@ -1286,8 +1306,7 @@ function tableSection( tbl, name, bi = 0 ) {
 /**
  * 获取表格单元格集。
  * 根据插入方法返回新建或清空的单元格集。
- * 未指定表格区时，填充针对整个表格，新插入针对表体（tBody）。
- * rows实参在meth为填充时无用。
+ * meth为填充时会清空rows行的单元格。
  * @param  {Table} tbl 表格实例（$.Table）
  * @param  {String} meth 插入方法
  * @param  {Number} rows 插入行数，可选
@@ -1302,9 +1321,8 @@ function tableCells( tbl, meth, rows, name, bi ) {
         return null;
     }
     if ( meth == 'fill' ) {
-        return tbl.gets(0, _tsec).find('th,td').empty().end();
+        return tbl.gets(0, rows, _tsec).find('th,td').empty().end();
     }
-
     return tbl[name](tableWhere(meth), rows, _tsec).find('th,td');
 }
 
@@ -1312,17 +1330,13 @@ function tableCells( tbl, meth, rows, name, bi ) {
 /**
  * 获取表体元素序号。
  * 约束：实参表体必须在实参表格元素之内。
- * @param  {Element} tbl 表格元素
+ * @param  {Table} tbo 表格实例
  * @param  {Element} tbody 表体元素
  * @return {Number}
  */
-function tbodyIndex( tbl, tbody ) {
-    let _n = tbl.tBodies.length;
-
-    if ( _n == 1 ) {
-        return 0;
-    }
-    return Array.from(tbl.tBodies).indexOf(tbody);
+function tbodyIndex( tbo, tbody ) {
+    let _bs = tbo.body();
+    return _bs.length == 1 ? 0 : _bs.indexOf(tbody);
 }
 
 

@@ -376,9 +376,9 @@ function ridone( str ) {
 
 /**
  * 向上检索目标元素。
- * @param {String} slr 向上选择器或递进层级数
+ * @param {String|Number} slr 向上选择器或递进层级数
  * @param {Element} beg 起点元素
- * @return {Element} 目标元素
+ * @return {Element|null} 目标元素
  */
 function closest( slr, beg ) {
     if ( !slr ) {

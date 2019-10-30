@@ -852,7 +852,7 @@ Object.assign( tQuery, {
         if (_els.length > 0) {
             _els = _els.filter( el => names.includes(el.name) );
         }
-        return mapArray2( _els, submitValues );
+        return mapArr2( _els, submitValues );
     },
 
 
@@ -952,13 +952,12 @@ Object.assign( tQuery, {
         slr = slr || '';
         ctx = ctx || Doc;
 
-        let _els = $all(slr.trim(), ctx),
-            _box = [];
+        let _els = Arr( $all(slr.trim(), ctx) );
 
-        if (andOwn && $is(ctx, slr)) {
-            _box = [ctx];
+        if ( andOwn && $is(ctx, slr) ) {
+            _els.unshift(ctx);
         }
-        return _els.length ? _box.concat( [..._els] ) : _box;
+        return _els;
     },
 
 
@@ -991,11 +990,12 @@ Object.assign( tQuery, {
 
     /**
      * 获取后续兄弟元素，直到slr匹配（不包含匹配的元素）。
+     * 注记：slr默认为空串是必须的。
      * @param  {Element} el 参考元素
      * @param  {String|Element|Function} slr 终止条件，可选
      * @return {[Element]}
      */
-    nextUntil( el, slr ) {
+    nextUntil( el, slr = '' ) {
         return _siblingUntil(el, slr, 'nextElementSibling');
     },
 
@@ -1033,7 +1033,7 @@ Object.assign( tQuery, {
      * @param  {String|Element} slr 选择器或元素，可选
      * @return {[Element]}
      */
-    prevUntil( el, slr ) {
+    prevUntil( el, slr = '' ) {
         return _siblingUntil(el, slr, 'previousElementSibling');
     },
 
@@ -1122,19 +1122,20 @@ Object.assign( tQuery, {
      * 获取目标元素的上级元素集。
      * - 可用可选的选择器或测试函数进行过滤。
      * - 自定义测试函数支持向上递进的层计数（_i）。
+     * 注：最终的顶层不是document而是html。
      * @param  {Element} el 目标元素
      * @param  {String|Function} slr 选择器或测试函数，可选
      * @return {[Element]}
      */
     parents( el, slr ) {
         let _buf = [],
-            _fun = getFltr( slr ),
+            _fun = getFltr(slr),
             _i = 0;
 
-        while ( (el = el.parentNode) ) {
-            if ( _fun(el, ++_i) ) _buf.push(el);
+        while ( (el = el.parentElement) ) {
+            _buf.push(el);
         }
-        return _buf;
+        return _buf.filter( e => _fun(e, ++_i) );
     },
 
 
@@ -1147,7 +1148,7 @@ Object.assign( tQuery, {
      * @param  {String|Function|Element|[Element]} slr 终止匹配
      * @return {[Element]}
      */
-    parentsUntil( el, slr ) {
+    parentsUntil( el, slr = '' ) {
         let _buf = [],
             _fun = getFltr( slr ),
             _i = 0;
@@ -1166,12 +1167,12 @@ Object.assign( tQuery, {
      * - 从当前元素自身开始测试（同标准 Element:closest）。
      * - 如果抵达document或DocumentFragment会返回null。
      * - 自定义匹配函数支持向上递进的层数（_i）。
-     * - 未传入slr时匹配当前元素（与Element.closest稍有不同）。
+     * - 未传入slr时无任何匹配（Element.closest抛出异常）。
      * @param  {Element} el 参考元素
      * @param  {String|Function|Element|[Element]} slr 匹配选择器
      * @return {Element|null}
      */
-    closest( el, slr ) {
+    closest( el, slr = '' ) {
         if (el.closest && typeof slr == 'string') {
             return el.closest( slr );
         }
@@ -2744,7 +2745,7 @@ function _elemRectSet( el, name, val ) {
 
 /**
  * 获取兄弟元素。
- * - 可能没有或不匹配；
+ * - 可能没有或不匹配。
  * @param  {String|Function} slr 匹配器，可选
  * @param  {String} dir 方向（nextElementSibling|previousElementSibling）
  * @return {Element|null}
@@ -2956,6 +2957,21 @@ class Collector extends Array {
     }
 
 
+    /**
+     * 集合扁平化。
+     * 仅限于1层深度的扁平化。
+     * @param  {Boolean} unique 是否去重排序
+     * @return {Collector}
+     */
+    flat( unique ) {
+        let _els = super.flat ?
+            super.flat(1) :
+            arrFlat(this);
+
+        return new Collector( unique ? uniqueSort(_els) : _els, this );
+    }
+
+
     //-- 集合过滤 -------------------------------------------------------------
     // 空集返回空集本身，不会加长栈链。
 
@@ -3044,13 +3060,9 @@ class Collector extends Array {
      * @return {Collector}
      */
     find( slr, andOwn ) {
-        let _buf = this.reduce(
-            (buf, el) => buf.concat( $.find(slr, el, andOwn) ),
-            []
-        );
-        if (this.length > 1) {
-            _buf = uniqueSort(_buf);
-        }
+        let _buf = this.map(
+                el => $.find(slr, el, andOwn)
+            );
         return new Collector(_buf, this);
     }
 
@@ -3244,12 +3256,14 @@ class Collector extends Array {
      * 添加新元素。
      * - 返回一个添加了新成员的新集合。
      * - 总是会构造一个新的实例返回（同jQuery）。
-     * 注：不会自动去重排序。
+     * 注：会自动去重排序。
      * @param  {String|Element|NodeList|Collector} its 目标内容
+     * @param  {Boolean} unique 是否去重排序
      * @return {Collector}
      */
-    add( its ) {
-        return this.concat( $(its) );
+    add( its, unique ) {
+        let _els = super.concat( $(its) );
+        return new Collector( unique ? uniqueSort(_els) : _els, this );
     }
 
 
@@ -3259,15 +3273,18 @@ class Collector extends Array {
      * - 总是会返回一个新实例，即便加入集为空。
      * 注：不会自动去重排序。
      * @param  {String|Function} slr 选择器或过滤函数
+     * @param  {Boolean} unique 是否去重排序
      * @return {Collector}
      */
-    addBack( slr ) {
+    addBack( slr, unique ) {
         let _els = this.previous;
 
-        if ( _els && slr ) {
-            _els = _els.filter( slr );
+        if ( !_els ) {
+            return new Collector( null, this );
         }
-        return this.concat( _els || [] );
+        _els = super.concat( slr ? _els.filter(slr) : _els );
+
+        return new Collector( unique ? uniqueSort(_els) : _els, this );
     }
 
 
@@ -3344,36 +3361,27 @@ elsEx([
 //
 // 元素集检索。
 // $.xx 成员调用返回一个集合。
-// 各元素返回的节点集会被合并到单一集合（扁平化）。
-// 注：结果集会去重排序。
+// 注：结果集是一个二维数组。
 /////////////////////////////////////////////////
 elsEx([
         'nextAll',
         'nextUntil',
         'prevAll',
-        'parents',
         'prevUntil',
+        'parents',
         'siblings',
         'parentsUntil',
     ],
-    (fn, els, ...rest) => {
-            let _buf = els.reduce(
-                // 可代理调用 $
-                (buf, el) => buf.concat( $[fn](el, ...rest) ),
-                []
-            );
-            // 无条件排序。
-            // 注：不对单成员免于排序，统一约定。
-            return uniqueSort(_buf);
-        }
+    // 可代理调用 $
+    (fn, els, ...rest) => els.map( el => $[fn](el, ...rest) )
 );
 
 
 //
 // 简单调用&求值。
 // $.xx 成员调用返回一个节点集或单个节点。
-// 各元素返回的节点集会被合并到单一集合（扁平化）。
-// 注：假定 els 不会重复，因此无需排序。
+// 返回集中可能包含子数组。
+// 注：调用扁平化时无需去重排序（若原集合有序无重）。
 /////////////////////////////////////////////////
 elsEx([
         'unwrap',
@@ -3382,21 +3390,16 @@ elsEx([
         'contents',
         'empty',
     ],
-    (fn, els, ...rest) =>
-        // 可代理调用 $
-        els.reduce( (buf, el) => buf.concat( $[fn](el, ...rest) ), [] )
+    // 可代理调用 $
+    (fn, els, ...rest) => els.map( el => $[fn](el, ...rest) )
 );
 
 
 //
-// 简单调用&求值。
-// $.xx 成员调用返回一个节点集或单个节点。
-// 各元素返回的节点集会被合并到单一集合（扁平化）。
-// 注：
-// - 假定 els 不会重复，因此无需排序。
+// 包裹特例。
 // - 支持集合成员与值数组的一一对应，无对应者取前一个值对应。
-//   若需停止默认前值对应，可明确设置值成员为一个null值。
-// 注记：
+// - 若需停止默认前值对应，可明确设置值成员为一个null值。
+// 注：
 // 这种前值保留的特性特定于本接口的优化。
 ///////////////////////////////////////////////////////////
 elsEx([
@@ -3651,12 +3654,15 @@ elsExfn([
 
 //
 // 内容取值/设置。
-// 设置时支持值数组与集合成员一一对应赋值。
 //
-// 取值时：返回一个普通数组，成员与集合元素一一对应。
-// 设置时：返回的新节点构造为一个新的 Collector 实例。
+// 取值时返回一个普通数组，成员与集合元素一一对应。
+// 设置时返回新节点（集）构造的一个Collector实例，
+// 支持值数组与集合成员一一对应赋值。
+// 注：
+// html设置时的返回值为一个节点集的Collector实例，
+// 可通过 Collector.flat() 扁平化。
 //
-// @return {[Value]|Collector}
+// @return {[String]|Collector}
 /////////////////////////////////////////////////
 elsExfn([
         'html',
@@ -3672,8 +3678,7 @@ elsExfn([
             _arrSets( fn, this, val, ...rest ) :
             Arr(this).map( el => $[fn](el, val, ...rest) );
 
-        // 扁平化，构造为 Collector
-        return new Collector( arrFlat(_vs), this );
+        return new Collector( _vs, this );
     }
 );
 
@@ -3728,8 +3733,7 @@ elsExfn([
         } else {
             _buf = _conInsert(fn, this, cons, clone, event, eventdeep);
         }
-        // 扁平化处理。
-        return new Collector( arrFlat(_buf), this );
+        return new Collector( _buf, this );
     }
 );
 
@@ -3998,12 +4002,10 @@ function arrLike( obj ) {
 
 /**
  * 数组扁平化（1层深）。
- * @param {[Value]} arr 数组数据
+ * @param  {Array} arr 数组数据
+ * @return {Array}
  */
  function arrFlat( arr ) {
-    if ( arr.flat ) {
-        return arr.flat(1);
-    }
     return arr.reduce( (buf, v) => buf.concat(v), [] );
 }
 
@@ -4015,12 +4017,12 @@ function arrLike( obj ) {
 // @return {Function}
 //
 function getFltr( its ) {
-    if ( its == undefined ) {
+    if ( its == null ) {
         return () => true;
     }
     if ( isFunc(its) ) return its;
 
-    if ( typeof its == 'string' ) {
+    if ( its && typeof its == 'string' ) {
         return e => e && $is(e, its);
     }
     if ( isArr(its) ) {
@@ -4570,7 +4572,7 @@ function uniqueNamed( els ) {
  * 提取可提交控件元素的名值对（集）。
  * 名值对：[name, value]
  * @param  {Element} ctrl 可提交控件元素
- * @return {Array|[Array]}
+ * @return {Array2|[Array2]}
  */
 function submitValues( ctrl ) {
     let _v = tQuery.val(ctrl);
@@ -4597,15 +4599,15 @@ function submitValue( ctrl, value ) {
 
 
 /**
- * 回调返回值为二维数组才展开的map操作。
+ * 回调返回二维数组才展开的map操作。
  * 主要用于返回键值对（[key, value]）或键值对数组的合并处理。
  * 注：回调返回null或undefined时忽略。
  * callback: function(its): Array2|[Array2]
  * @param  {Array} arr 处理源数组
  * @param  {Function} callback 回调函数
- * @return {Array2|[Array2]}
+ * @return {[Array2]}
  */
-function mapArray2( arr, callback ) {
+function mapArr2( arr, callback ) {
     let _tmp = [];
 
     for ( let it of arr ) {
@@ -6505,9 +6507,7 @@ Object.assign( tQuery, {
      * 集合操作。
      * - 支持.entries接口的内置对象包括Map,Set系列。
      * - 回调返回undefined或null的条目被忽略。
-     * - 回调可以返回一个数组，其成员被提取添加。
-     * - 回调接口：function(val, key): Value|[Value]
-     *
+     * - 回调接口：function(val, key): Value
      * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
      * @param  {Function} fun 转换函数
      * @param  {Any} thisObj 回调内的this
@@ -6523,8 +6523,7 @@ Object.assign( tQuery, {
             v = fun(v, k);
             if ( v != null ) _tmp.push(v);
         }
-        // 一级扁平化
-        return arrFlat( _tmp );
+        return _tmp;
     },
 
 
