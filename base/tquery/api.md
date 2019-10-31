@@ -163,6 +163,27 @@ $.isXML( document.body );  // false
 > 如果传递配置对以包含准确的委托选择器检查，则其中空的选择器应当设置为 `null` 或 `undefined`，否则不会匹配。<br>
 
 
+### $.unique( nodes, comp? ): Array
+
+集合去重&排序。
+
+- `nodes: [Node] | Iterator | Object | .values` 待去重排序的集合。
+- `comp?: Function | null | true` 排序时用的比较函数。可选，非节点时传递 `null` 获取默认的规则。
+
+可用于DOM树上的节点/元素集合，此时传递 `comp` 值为 `true`。可用于普通的值集合，`comp` 传递 `null` 获取默认的比较规则（`UTF-16` 代码单元值序列）。未传递 `comp` 值时无排序能力（仅去重）。
+
+```js
+$.unique( [3, 11, 2, 11, 12] );
+// [3, 11, 2, 12]
+
+$.unique( [3, 11, 2, 11, 12], null );
+// [11, 12, 2, 3]
+
+$.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
+// [2, 3, 11, 12]
+```
+
+
 ### [$.controls( form ): [Element]](docs/$.controls.md)
 
 获取表单元素 `form` 内可提交类控件元素的集合。
@@ -1191,16 +1212,13 @@ elo: {
 > 与工具版的 `$.map()` 有所不同，本方法并不排除 `null` 和 `undefined` 的返回值。
 
 
-### [.sort( unique, comp? ): Collector](docs/$().sort.md)
+### [.sort( comp? ): Collector](docs/$().sort.md)
 
-集合内成员排序去重，覆盖继承于数组的同名方法。
+集合内成员排序，覆盖继承于数组的同名方法。
 
-- `unique: Boolean` 集合成员是否去除重复。
-- `comp?: Function` 集合内成员排序比较的回调函数。可选，默认 `null` 表示采用默认规则（元素或普通值）。
+- `comp?: Function | null` 集合内成员排序比较的回调函数。可选，默认采用DOM节点排序规则。
 
-集合内成员可以是元素也可以是普通的值，但主要用于元素，因此这里附带了一个去重的功能。传递 `unique` 为真就会去除集合中重复的成员。
-
-默认情况下，不需要对元素的排序传递额外的比较函数，系统内置的比较按元素在DOM中的位置排序。如果集合中首个成员不是元素，则默认按父类 `Array.sort()` 接口的普通排序规则执行。
+集合内成员可以是元素也可以是普通的值。主要用于元素，此时无需传递 `comp` 排序函数。传递 `comp` 为 `null` 可重置为普通的排序规则（浏览器环境）。
 
 
 ### .reverse(): Collector
@@ -1210,13 +1228,16 @@ elo: {
 与父类 `Array.reverse()` 原生方法不同，这里不会修改集合自身，而是返回一个新的成员已反转的集合，支持链栈操作。
 
 
-### .flat( unique ): Collector
+### .flat( deep ): Collector
 
 集合成员扁平化处理。
 
-- `unique: Boolean` 是否去重排序。
+- `deep: Number | Boolean` 深度值或去重排序指示。可选，默认值 `1`。
 
-如果检索元素的单元素版返回一个集合，大多数相应的集合版不会自动扁平化返回集。这是一个进阶处理器。
+传递 `deep` 为 `true` 指示按DOM节点集规则排序，扁平化深度值为 `1`。传递为其它数值时，仅当执行环境支持数组的 `.flat()` 接口时才有效，否则深度依然为 `1`。
+
+> **注：**<br>
+> 大多数检索元素/节点的集合版不会自动扁平化返回集，这是相应的进阶处理接口。
 
 
 ### [.wrapAll( box, clone, event, eventdeep ): Collector](docs/$().wrapAll.md)
@@ -1281,9 +1302,9 @@ elo: {
 往当前集合中添加新的成员，返回一个添加了新成员的新 `Collector` 实例。
 
 - `its: String | Element | NodeList | Collector` 待添加元素的选择器或值成员或一个值集合。
-- `unique: Boolean` 结果集是否去重排序。
+- `unique: Boolean` 结果集是否去重排序。仅适用于DOM节点集。
 
-总是会构造一个新的集合返回。如果没有指示去重排序，后期可以通过调用 `.sort(true)` 完成。
+总是会构造一个新的集合返回。如果没有指示去重排序，后期可以通过调用 `.unique(true)` 完成。
 
 > **注：**<br>
 > 字符串实参会被视为CSS选择器，因此并不能直接添加字符串成员（作为普通集合时）。
@@ -1294,11 +1315,11 @@ elo: {
 在当前集合的基础上添加前一个集合的成员。
 
 - `slr: String | Function` 前一个集合成员的选择器或筛选函数。
-- `unique: Boolean` 结果集是否去重排序。
+- `unique: Boolean` 结果集是否去重排序。仅适用于DOM节点集。
 
 总是会返回一个新的 `Collector` 实例，即便新加入的集合为空。筛选函数接口：`function( v:Value, i:Number, o:Collector ): Boolean`。
 
-与 `.add()` 相同，默认情况下返回集不会自动去重排序，可传递 `unique` 为真或后期调用 `.sort(true)` 实现。
+与 `.add()` 相同，默认情况下返回集不会自动去重排序，可传递 `unique` 为真或后期调用 `.unique(true)` 实现。
 
 
 ### .end( n? ): Collector
@@ -1645,26 +1666,6 @@ $.now(true);
 - `val: Any` 获取其类型的任意目标值。
 
 求取的是目标值的构造函数名，如：`$.type(123) => "Number"`，而不是 `typeof` 运算符的返回值。另外有两个特例：`null => "null"`、`undefined => "undefined"`。
-
-
-### $.unique( nodes, comp? ): Array
-
-集合去重排序。
-
-- `nodes: [Node] | Iterator | Object | .values` 待去重排序的集合。
-- `comp?: Function | null` 排序时用的比较函数。可选，非节点时传递 `null` 获取默认的规则。
-
-主要用于DOM树上的节点/元素集合，此时无需传递 `comp` 值。也可以用于普通的值集合，此时默认的比较规则为按字符串比较（`UTF-16` 代码单元值序列）。
-
-```js
-$.unique( [3, 11, 2, 11, 12], null );
-// [11, 12, 2, 3]
-// 注：普通值集合需传递 comp 实参为 null。
-
-$.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
-// [2, 3, 11, 12]
-// 注：传递数值比较函数。
-```
 
 
 ### $.splitf( fmt, sep, cnt? ): Iterator

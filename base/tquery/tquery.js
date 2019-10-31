@@ -1,8 +1,8 @@
-/*! $Id: tquery.js 2016.03.08 tQuery $
+/*! $Id: tquery.js 2019.10.31 tQuery $
 *******************************************************************************
-            Copyright (c) 铁皮工作室 2017 MIT License
+            Copyright (c) 铁皮工作室 2019 MIT License
 
-                @Project: tQuery v0.3.x
+                @Project: tQuery v0.4.x
                 @Author:  风林子 zhliner@gmail.com
 *******************************************************************************
 
@@ -185,14 +185,18 @@
         },
 
         // 去除重复并排序。
-        // 非元素支持：comp传递null获取默认排序。
-        // @param  {NodeList|Iterator} els
-        // @param  {Function} comp 比较函数，可选
+        // 未传递comp实参时仅去除重复。
+        // comp支持传递null获取默认的排序规则。
+        // @param  {Array|Iterator} els
+        // @param  {Function|null} comp 比较函数，可选
         // @return {Array} 结果集（新数组）
-        uniqueSort = Sizzle && Sizzle.uniqueSort || function( els, comp = sortElements ) {
-            return els.length === 1 ?
-                Arr(els) :
-                [...new Set( values(els) )].sort( comp || undefined );
+        uniqueSort = function( els, comp ) {
+            els = [ ...new Set(els) ];
+
+            if ( els.length == 1 ) {
+                return els;
+            }
+            return comp === undefined ? els : els.sort(comp || undefined);
         };
 
 
@@ -283,7 +287,7 @@
 
 
     const
-        version = 'tQuery-0.3.0',
+        version = 'tQuery-0.4.0',
 
         // 临时属性名
         // 固定异样+动态，避免应用冲突。
@@ -814,6 +818,21 @@ Object.assign( tQuery, {
             evns = [evns];
         }
         return Event.clone(to, src, evns);
+    },
+
+
+    /**
+     * 集合去重&排序。
+     * comp无实参传递时仅去重（无排序）。
+     * comp: {
+     *      true  DOM节点元素类排序
+     *      null  重置为默认排序规则，用于非元素类
+     * }
+     * @param {[Node]|LikeArray|Object|.values} list 值集
+     * @param {Function|null|true} comp 排序比较函数，可选
+     */
+    unique( list, comp ) {
+        return uniqueSort( values(list), comp === true ? sortElements : comp );
     },
 
 
@@ -2928,22 +2947,15 @@ class Collector extends Array {
 
 
     /**
-     * 排序（可去重）。
+     * 排序。
      * - comp为null以获得默认的排序规则（非元素支持）。
      * - 总是会返回一个新的实例。
-     * @param  {Boolean} unique 是否去除重复
      * @param  {Function} comp 排序函数，可选
      * @return {Collector}
      */
-    sort( unique, comp = null ) {
-        if ( this[0].nodeType && !comp ) {
-            comp = sortElements;
-        }
-        return new Collector(
-            // comp的null值：普通值去重排序。
-            unique ? uniqueSort(this, comp) : Arr(this).sort(comp || undefined),
-            this
-        );
+    sort( comp = sortElements ) {
+        // 新数组上排序。
+        return new Collector( Arr(this).sort(comp || undefined), this );
     }
 
 
@@ -2959,16 +2971,21 @@ class Collector extends Array {
 
     /**
      * 集合扁平化。
-     * 仅限于1层深度的扁平化。
-     * @param  {Boolean} unique 是否去重排序
+     * deep: {
+     *      Number  扁平化深度，适用原生支持的环境
+     *      true    节点集去重排序
+     * }
+     * 注：节点集仅支持1层深度的扁平化。
+     *
+     * @param  {Number|true} deep 深度值或去重排序指示
      * @return {Collector}
      */
-    flat( unique ) {
+    flat( deep = 1 ) {
         let _els = super.flat ?
-            super.flat(1) :
+            super.flat( deep ) :
             arrFlat(this);
 
-        return new Collector( unique ? uniqueSort(_els) : _els, this );
+        return new Collector( deep === true ? uniqueSort(_els, sortElements) : _els, this );
     }
 
 
@@ -3032,6 +3049,7 @@ class Collector extends Array {
 
 
     //-- 定制部分 -------------------------------------------------------------
+    // 支持$.xx代理嵌入。
 
 
     /**
@@ -3043,18 +3061,16 @@ class Collector extends Array {
      */
     get( slr ) {
         let _buf = Arr(this).
-            map( el => tQuery.get(slr, el) ).
+            map( el => $.get(slr, el) ).
             filter( e => !!e );
 
-        return new Collector( uniqueSort(_buf), this );
+        return new Collector( uniqueSort(_buf, sortElements), this );
     }
 
 
     /**
      * 查找匹配的元素集。
-     * 注：
-     * - 单个元素的find查找结果不存在重复可能。
-     * - 调用 $.find 使得外部嵌入的代理可延伸至此。
+     * 注：返回值是单元素版find结果的数组（二维）。
      * @param  {String} slr 选择器
      * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {Collector}
@@ -3101,19 +3117,6 @@ class Collector extends Array {
 
 
     /**
-     * 元素内容规范化。
-     * 返回值逻辑与单元素版相同。
-     * 注：调用 $ 的接口便于嵌入代理可影响至此。
-     * @param  {Number} level 影响的子元素层级
-     * @return {this|level}
-     */
-    normalize( level ) {
-        this.forEach( el => $.normalize(el, level) );
-        return level || this;
-    }
-
-
-    /**
      * 获取类名集。
      * 不同元素的类名扁平化地汇集到一起，无类名的忽略。
      * @return {[String]} 类名集。
@@ -3125,6 +3128,18 @@ class Collector extends Array {
             _buf.push( ...$.classAll(el) );
         }
         return new Collector( _buf, this );
+    }
+
+
+    /**
+     * 去重&排序。
+     * comp参数含义参考$.unique()接口。
+     * @param  {Function|null|true} comp 排序函数
+     * @return {Collector}
+     */
+    unique( comp ) {
+        // 支持$.xx代理嵌入。
+        return new Collector( $.unique(this, comp), this );
     }
 
 
@@ -3143,6 +3158,18 @@ class Collector extends Array {
         }
         this.forEach( el => $.val( el, value ) );
         return this;
+    }
+
+
+    /**
+     * 元素内容规范化。
+     * 返回值逻辑与单元素版相同。
+     * @param  {Number} level 影响的子元素层级
+     * @return {this|level}
+     */
+    normalize( level ) {
+        this.forEach( el => $.normalize(el, level) );
+        return level || this;
     }
 
 
@@ -3256,14 +3283,14 @@ class Collector extends Array {
      * 添加新元素。
      * - 返回一个添加了新成员的新集合。
      * - 总是会构造一个新的实例返回（同jQuery）。
-     * 注：会自动去重排序。
+     * 注：unique参数仅用于DOM节点集。
      * @param  {String|Element|NodeList|Collector} its 目标内容
      * @param  {Boolean} unique 是否去重排序
      * @return {Collector}
      */
     add( its, unique ) {
         let _els = super.concat( $(its) );
-        return new Collector( unique ? uniqueSort(_els) : _els, this );
+        return new Collector( unique ? uniqueSort(_els, sortElements) : _els, this );
     }
 
 
@@ -3271,7 +3298,7 @@ class Collector extends Array {
      * 构造上一个集合和当前集合的新集合。
      * - 可选的选择器用于在上一个集合中进行筛选。
      * - 总是会返回一个新实例，即便加入集为空。
-     * 注：不会自动去重排序。
+     * 注：unique参数仅用于DOM节点集。
      * @param  {String|Function} slr 选择器或过滤函数
      * @param  {Boolean} unique 是否去重排序
      * @return {Collector}
@@ -3284,7 +3311,7 @@ class Collector extends Array {
         }
         _els = super.concat( slr ? _els.filter(slr) : _els );
 
-        return new Collector( unique ? uniqueSort(_els) : _els, this );
+        return new Collector( unique ? uniqueSort(_els, sortElements) : _els, this );
     }
 
 
@@ -3349,11 +3376,11 @@ elsEx([
         'closest',
         'offsetParent',
     ],
-    // 可能重复，排序清理
+    // 可能重复，排序清理。可代理调用 $
     (fn, els, ...rest) =>
         uniqueSort(
-            // 可代理调用 $
-            els.map( el => $[fn](el, ...rest) ).filter( el => el != null )
+            els.map( el => $[fn](el, ...rest) ).filter( el => el != null ),
+            sortElements
         )
 );
 
@@ -6469,7 +6496,6 @@ tQuery.isFunction   = isFunc;
 tQuery.isCollector  = isCollector;
 tQuery.is           = $is;
 tQuery.type         = $type;
-tQuery.unique       = uniqueSort;
 tQuery.splitf       = splitf;
 
 
