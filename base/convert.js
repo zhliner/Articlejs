@@ -487,7 +487,7 @@ function inlines( node, buf = [] ) {
     if ( isOuter(node) ) {
         buf.push( node );
     } else {
-        $.contents(node).forEach( nd => inlines(nd) );
+        $.contents(node).forEach( nd => inlines(nd, buf) );
     }
     return buf;
 }

@@ -284,10 +284,10 @@ const typeSubs = {
 
     // 原生中间结构。
     Caption:        $TEXT | INLINE | I | A,
-    Thead:          TR,
-    Tbody:          TR,
-    Tfoot:          TR,
-    Tr:             TCELL,
+    Thead:          0,  // 定制插入
+    Tbody:          0,  // 同上
+    Tfoot:          0,  // 同上
+    Tr:             0,  // 同上
     Th:             $TEXT | INLINE | I | A,
     Td:             $TEXT | INLINE | CODE | I | IMG | A,
 

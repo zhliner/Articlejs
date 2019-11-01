@@ -622,13 +622,24 @@ const Content = {
      * - fill 为内部单元格填充，内容不足时后部单元格原样保持。
      * - append 效果与after方法相同，不会改变列大小。
      * - prepend 效果与before方法相同。
+     * 注：参考当前行克隆，行元素上绑定的事件处理器也会同时克隆。
      * @param  {Element} tr 表格行
      * @param  {[Node]|[[Node]]} cons 单元格内容集
      * @param  {String} meth 插入方法（fill|append|prepend）
      * @return {Collector} 新插入的内容单元格集
      */
     Tr( tr, cons, meth ) {
-        //
+        if ( meth == 'fill' ) {
+            return $(tr.cells).fill(cons).end();
+        }
+        let _trs = trClone(
+                tr,
+                Math.ceil(cons.length / tr.cells.length),
+                true
+            ),
+            _meth = trMeth( meth );
+
+        return $( $[_meth](tr, _trs) ).find('th,td').flat().fill(cons).end();
     },
 
 
@@ -1321,9 +1332,9 @@ function tableCells( tbl, meth, rows, name, bi ) {
         return null;
     }
     if ( meth == 'fill' ) {
-        return tbl.gets(0, rows, _tsec).find('th,td').empty().end();
+        return tbl.gets(0, rows, _tsec).find('th,td').flat().empty().end();
     }
-    return tbl[name](tableWhere(meth), rows, _tsec).find('th,td');
+    return tbl[name](tableWhere(meth), rows, _tsec).find('th,td').flat();
 }
 
 
@@ -1337,6 +1348,45 @@ function tableCells( tbl, meth, rows, name, bi ) {
 function tbodyIndex( tbo, tbody ) {
     let _bs = tbo.body();
     return _bs.length == 1 ? 0 : _bs.indexOf(tbody);
+}
+
+
+/**
+ * 变通表格行插入方法。
+ * meth: before|after|prepend|append
+ * @param  {String} meth 方法名
+ * @return {String}
+ */
+function trMeth( meth ) {
+    switch (meth) {
+        case 'prepend':
+            return 'before';
+        case 'append':
+            return 'after';
+    }
+    return meth;
+}
+
+
+/**
+ * 克隆表格行。
+ * 包含表格行上注册的事件处理器。
+ * @param  {Element} tr 表格行
+ * @param  {Number} rows 目标行数
+ * @param  {Boolean} clean 是否清除内容
+ * @return {[Element]} 表格行集
+ */
+function trClone( tr, rows, clean ) {
+    let _new = $.clone(tr, true),
+        _buf = [_new];
+
+    if ( clean ) {
+        $(_new.cells).empty();
+    }
+    for (let i = 0; i < rows-1; i++) {
+        _buf.push( $.clone(_new, true) );
+    }
+    return _buf;
 }
 
 

@@ -2387,9 +2387,10 @@ class Table {
      * 插入表格行。
      * 保持合法的列数，全部为空单元格。
      * idx为-1或表体的行数，则新行插入到末尾。
-     * @param {TableSection} sect 表格区域（TBody|THead|TFoot）
-     * @param {Number} idx 插入位置
-     * @param {Number} rows 插入行数
+     * @param  {TableSection} sect 表格区域（TBody|THead|TFoot）
+     * @param  {Number} idx 插入位置
+     * @param  {Number} rows 插入行数
+     * @param  {String} tag 主要单元格名称
      * @return {Collector} 新插入的行元素（集）
      */
     _insertRows( sect, idx, rows = 1, tag = 'td' ) {
@@ -3079,7 +3080,7 @@ class Collector extends Array {
         let _buf = this.map(
                 el => $.find(slr, el, andOwn)
             );
-        return new Collector(_buf, this);
+        return new Collector( _buf, this );
     }
 
 
