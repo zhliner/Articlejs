@@ -1241,7 +1241,7 @@ Object.assign( tQuery, {
      * - 被包裹的内容插入到容器元素的前端（与jQuery不同）。
      * - 克隆参数部分不作用于取值函数返回的元素。
      *
-     * @param  {Node|String} node 目标节点或文本
+     * @param  {Node|[Node]|String} node 目标节点（集）或文本
      * @param  {HTML|Element|Function} box 包裹容器
      * @param  {Boolean} clone 包裹元素是否克隆
      * @param  {Boolean} event 包裹元素上注册的事件处理器是否克隆
@@ -1250,13 +1250,17 @@ Object.assign( tQuery, {
      */
     wrap( node, box, clone, event, eventdeep ) {
         if ( clone ) {
-            // 支持代理嵌入 $
+            // 支持$.xx代理嵌入。
             box = $.clone(box, event, true, eventdeep);
         }
-        if (node.nodeType && box === node) {
-            return null;
+        let _rep = node;
+
+        if ( isArr(node) ) {
+            _rep = node[0];
+        } else {
+            node = [node];
         }
-        return wrapData(node, node.parentElement, box, [node], node.ownerDocument || Doc);
+        return wrapData(_rep, _rep.parentElement, box, node, node.ownerDocument || Doc);
     },
 
 
@@ -1273,11 +1277,8 @@ Object.assign( tQuery, {
      */
     wrapInner( el, box, clone, event, eventdeep ) {
         if ( clone ) {
-            // 支持代理嵌入 $
+            // 支持$.xx代理嵌入。
             box = $.clone(box, event, true, eventdeep);
-        }
-        if ( el === box ) {
-            return null;
         }
         // 包裹容器可以是子元素。
         if (box.nodeType && $contains(el, box)) {
@@ -3357,7 +3358,7 @@ function elsEx( list, get ) {
     .forEach(function( fn ) {
         Reflect.defineProperty(Collector.prototype, fn, {
             value: function(...rest) {
-                return new Collector( get(fn, Arr(this), ...rest), this );
+                return new Collector( get(fn, this, ...rest), this );
             },
             enumerable: false,
         });
@@ -3498,7 +3499,7 @@ function elsExfn( list, get ) {
 
 //
 // 简单取值。
-// 返回一个值数组，值位置与集合中元素位置一一对应。
+// 返回一个值集（Collector），与集合中元素一一对应。
 /////////////////////////////////////////////////
 elsExfn([
         'cssGets',
@@ -3513,7 +3514,7 @@ elsExfn([
     fn =>
     function(...rest) {
         // 转为普通数组。可代理调用 $
-        return Arr(this).map( el => $[fn](el, ...rest) );
+        return this.map( el => $[fn](el, ...rest) );
     }
 );
 
@@ -3571,9 +3572,9 @@ elsExfn([
 // 目标特性/属性取值或设置。
 // 取值时name支持数组与元素集成员一一对应（名称本身可能是空格分隔的序列）。
 // 设置时value支持数组，优先与元素集成员一一对应（值本身可能需要数组）。
-//
-// 取值时：返回一个普通数组，成员与集合元素一一对应。
-// 设置时：返回实例自身。
+// 返回值：
+// 取值：一个值集（Collector），成员与集合元素一一对应。
+// 设置：实例自身（this）。
 /////////////////////////////////////////////////
 elsExfn([
         'attribute',
@@ -3591,7 +3592,7 @@ elsExfn([
         // 取值支持名称数组与元素成员一一对应。
         if ( (value === undefined &&
             (typeof name == 'string') || _nia && typeof name[0] == 'string') ) {
-            return _customGets( fn, Arr(this), name, _nia );
+            return _customGets( fn, this, name, _nia );
         }
         return _customSets( fn, this, name, value, _nia ), this;
     }
@@ -3605,21 +3606,21 @@ elsExfn([
  * 名称数组成员本身可能是空格分隔的名称序列。
  *
  * @param  {String} fn 方法名
- * @param  {[Element]} els 元素集
+ * @param  {Collector} self 当前集
  * @param  {String|[String]} name 名称序列（集）
  * @param  {Boolean} nia 名称为数组
- * @return {[Value]} 结果值集
+ * @return {Collector} 结果值集
  */
-function _customGets( fn, els, name, nia ) {
+function _customGets( fn, self, name, nia ) {
     if ( !nia ) {
-        return els.map( el => $[fn](el, name) );
+        return self.map( el => $[fn](el, name) );
     }
     let _buf = [];
 
-    els.forEach( (el, i) =>
+    self.forEach( (el, i) =>
         name[i] !== undefined && _buf.push( $[fn](el, name[i]) )
     )
-    return _buf;
+    return new Collector( _buf, self );
 }
 
 
@@ -3651,9 +3652,9 @@ function _customSets( fn, els, name, val, nia ) {
 //
 // 特定属性取值/修改。
 // 设置与获取两种操作合二为一的成员，val支持数组分别赋值。
-//
-// 取值时：返回一个普通数组，成员与集合元素一一对应。
-// 设置时：返回实例自身。
+// 返回值：
+// 取值：一个值集（Collector），成员与集合元素一一对应。
+// 设置：实例自身（this）。
 /////////////////////////////////////////////////
 elsExfn([
         'height',
@@ -3667,7 +3668,7 @@ elsExfn([
     function( val ) {
         // 可代理调用 $
         if (val === undefined) {
-            return Arr(this).map( el => $[fn](el) );
+            return this.map( el => $[fn](el) );
         }
         if (isArr(val)) {
             this.forEach( (el, i) => val[i] !== undefined && $[fn](el, val[i]) );
@@ -3683,14 +3684,14 @@ elsExfn([
 //
 // 内容取值/设置。
 //
-// 取值时返回一个普通数组，成员与集合元素一一对应。
-// 设置时返回新节点（集）构造的一个Collector实例，
-// 支持值数组与集合成员一一对应赋值。
+// 取值时返回一个值集，成员与集合元素一一对应。
+// 设置时返回新插入的节点集。
+// 支持内容值数组与集合成员一一对应赋值。
 // 注：
 // html设置时的返回值为一个节点集的Collector实例，
 // 可通过 Collector.flat() 扁平化。
 //
-// @return {[String]|Collector}
+// @return {Collector}
 /////////////////////////////////////////////////
 elsExfn([
         'html',
@@ -3700,11 +3701,11 @@ elsExfn([
     function( val, ...rest ) {
         // 可代理调用 $
         if (val === undefined) {
-            return Arr(this).map( el => $[fn](el) );
+            return this.map( el => $[fn](el) );
         }
         let _vs = isArr(val) ?
             _arrSets( fn, this, val, ...rest ) :
-            Arr(this).map( el => $[fn](el, val, ...rest) );
+            this.map( el => $[fn](el, val, ...rest) );
 
         return new Collector( _vs, this );
     }

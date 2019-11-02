@@ -48,6 +48,12 @@ const
     // 小区块标题获取。
     __hxBlock = '>h3, >h4, >summary',
 
+    // 内容设置时的有效方法。
+    __contentMeths = ['append', 'prepend', 'fill'],
+
+    // 表格行设置时的有效方法。
+    __trMeths = ['before', 'after', 'fill', 'replace'],
+
     // 简单标签。
     // 含role定义配置。
     __reTag = /^[a-z][a-z:]*$/,
@@ -374,15 +380,31 @@ class Article {
 
 //
 // 内容设置函数集。
-// 包括对create创建的结构空元素和选取的目标元素。
 // 如果内容传递为null表示忽略。
-// 返回值：
-// 原则上返回新插入的内容，但如果新内容是内联节点，则返回容器自身。
+// 返回新插入的行块内容或行容器元素（新内容为内联节点集）。
+// 注：
+// 适用create创建的结构空元素和选取的目标元素。
+// 源数据为两种：外部保证的最适配元素，或内联节点集。
 // 参数规则：
-// （目标容器，...内容序列） 注：Toc 例外。
+// (目标, 标题&内容, 方法, 其它参数)
 //////////////////////////////////////////////////////////////////////////////
 //
 const Content = {
+    /**
+     * 获取有效的内容插入方法名。
+     * 返回false表示方法无效。
+     * @param  {String} cname 内容名称
+     * @param  {String} meth 插入方法
+     * @return {String|false}
+     */
+    method( cname, meth ) {
+        if ( cname == 'Tr' ) {
+            return trMeth( meth );
+        }
+        return __contentMeths.include(meth) && meth;
+    },
+
+
     /**
      * 目录构建。
      * 约束：片区必须紧随其标题元素。
@@ -415,6 +437,7 @@ const Content = {
      * meth: prepend|append|fill
      * 注：
      * 片区占优（内容可被封装为片区，反之则不行）。
+     * 标题内容的插入方法为填充（fill，下同）。
      *
      * @param  {Element} ael 文章元素
      * @param  {Node|[Node]} h1 主标题内容
@@ -649,7 +672,7 @@ const Content = {
      * 仅认可首个图片容器元素（<p>）。
      * @param  {Element} root 插图根元素
      * @param  {Node|[Node]|''} cap 标题内容
-     * @param  {Element|[Element]} imgs 图片元素（集）
+     * @param  {Element|[Element]} imgs 图片/媒体节点集
      * @param  {String} meth 图片插入方法（prepend|append|fill）
      * @return {[Element]} 新插入的图片集
      */
@@ -901,6 +924,7 @@ const Content = {
 // 代码插入。
 // 结构：[pre, li]/code/..b..
 // 会简单检查插入内容的根容器（剥除<code>）。
+// 注：内联节点是数据最小单元，因此需检查。
 ///////////////////////////////////////
 [
     'Codeblock',
@@ -1096,7 +1120,7 @@ function contentItems( els ) {
 function appendSection( box, cons, meth, sname, conItem ) {
     if ( conItem ) {
         let _sx = create(sname);
-        cons = Content[sname]( _sx[1], '', cons, 'append', true );
+        cons = Content[sname]( _sx[1], ['', cons], 'append', true );
     }
     return $[meth]( box, cons );
 }
@@ -1107,9 +1131,9 @@ function appendSection( box, cons, meth, sname, conItem ) {
  * 内容包含子片区集或内容件集（互斥关系）。
  * 原为片区：
  *  - 新片区：简单添加，外部同级保证。
- *  - 内容件：新建一片区封装插入。
+ *  - 内容件：新建一子片区封装插入。
  * 原为内容件：
- *  - 新片区：新建一片区封装原内容件先行插入。
+ *  - 新片区：新建一子片区封装原内容件先行插入。
  *  - 内容件：简单添加（meth）。
  * meth: prepend|append|fill
  * 注：
@@ -1364,7 +1388,7 @@ function trMeth( meth ) {
         case 'append':
             return 'after';
     }
-    return meth;
+    return __trMeths.include(meth) && meth;
 }
 
 

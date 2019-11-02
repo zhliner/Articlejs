@@ -606,13 +606,15 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 ### [$.wrap( node, box, clone, event, eventdeep ): Element](docs/$.wrap.md)
 
-在 `node` 之外包裹一个容器元素，该容器元素将替换 `node` 原来的位置，如果 `node` 在DOM树中的话。
+在 `node` 之外包裹一个容器元素。
 
-- `node: Node | String` 节点/元素或文本内容。
+- `node: Node | [Node] | String` 节点（集）或文本内容。
 - `box: HTML | Element | Function` 包裹目标内容的容器元素、HTML结构源码或取值回调。
 - `clone: Boolean` 是否克隆容器元素。可选，默认 `false`。
 - `event: Boolean` 是否克隆容器元素上绑定的事件处理器。可选，默认 `false`。
 - `eventdeep: Boolean` 是否克隆容器元素子孙元素上绑定的事件处理器。可选，默认 `false`。
+
+如果 `node` 是DOM中的一个节点，`box` 容器元素会替换 `node` 原来的位置，如果 `node` 是一个节点数组，则替换首个成员节点的位置。
 
 被包裹的内容也可以是文本，它们会被自动创建为文本节点。包裹容器可以是一个现有的元素、一个HTML字符串（将被创建为元素）、或一个返回包裹元素或HTML字符串的函数。如果包裹容器包含子元素，最终的包裹元素会递进到首个最深层子元素，而初始的包裹容器（根）则会替换 `node` 节点原来的位置。返回包裹内容的（根）容器元素。
 

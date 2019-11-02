@@ -15,7 +15,14 @@
 import { create, Content } from "./factory.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // 小区块标题选择器。
+    __blockHxSlr = 'h4, summary, figcaption',
+
+    // 媒体内容元素。
+    __mediaSlr = 'img, video, audio';
 
 
 //
@@ -244,6 +251,9 @@ const dataConvs = {
 ]
 .forEach(function( n ) {
     dataConvs[n] = function( el, name ) {
+        if ( name == 'Figure' ) {
+            return $.find( el, __mediaSlr );
+        }
         let _cons = $.contents(el);
         return defaultConitem( name, _cons ) || _cons;
     };
@@ -252,30 +262,20 @@ const dataConvs = {
 
 //
 // 取值辅助。
-// 返回null表示无法取值，调用者应当忽略。
+// @param {Element} el 取值元素
+// @param {String} name 目标内容名
 //////////////////////////////////////////////////////////////////////////////
 
 
 //
 // 列表元素取值
 // 适用：ul, ol
-// @param {Element} el 取值元素
-// @param {String} name 目标内容名
 //
 function list( el, name ) {
-    let _ss;
     switch (name) {
         case 'Abstract':
             // 合并为单个段落（保留内联结构）
-            return [ null, $.Element( 'p', inlines(el) ) ];
-
-        case 'Toc':
-            // 目录为功能件，不支持任意插入。
-            return null;
-
-        case 'Cascadeli':
-            // 目标自行合并
-            return [ null, el ];
+            return $.Element( 'p', inlines(el) );
 
         case 'Seealso':
         case 'Reference':
@@ -289,130 +289,128 @@ function list( el, name ) {
             return $.children(el).map( li => codeWrap(codeSubs(li), 'li') );
 
         case 'Dl':
-            _ss = listSubs(el);
-            // 首行充当标题<dt>
-            return [$.Element('dt', _ss.shift()), ...linesWrap(_ss, 'dd')];
-
-        case 'Header':  // 每<li>对应一行（p）
-        case 'Footer':  // 同上
-        case 'Address': // 同上
-            return linesWrap( listSubs(el), 'p' );
-
-        case 'Table':   // 每项为一个单元格内容
-            return [null, listSubs(el)];
+            // 全部视为<dd>项。
+            return childrenNodes(el).map( dd => $.Element('dd', dd) );
 
         case 'P':       // 接受内联单元数组
+        case 'Address': // 同上
+        case 'Table':   // 同上
         case 'Thead':   // 同上
         case 'Tbody':   // 同上
         case 'Tfoot':   // 同上
         case 'Tr':      // 同上
-            return listSubs( el );
+            return childrenNodes( el );
 
-        // 合法子类型。
-        // case 'Article':
-        // case 'S1':
-        // case 'S2':
-        // case 'S3':
-        // case 'S4':
-        // case 'S5':
+        case 'Article':
+        case 'S1':
+        case 'S2':
+        case 'S3':
+        case 'S4':
+        case 'S5':
             // 独立内容单元
-            // 注：章节目标特殊逻辑自行处理。
-            // return el;
+            return el;
 
         case 'Figure':
-            // 分离文本为标题，图片为内容。
-            return [ cleanText($.text(el)), $.find(el, 'img') ];
+            // 提取图片/媒体为内容。
+            return $.find( el, __mediaSlr );
 
-        case 'Blockquote':
-        case 'Aside':
-        case 'Details':
-            return [ null, listSubs(el) ];
+        case 'Header':      // 每<li>对应一行（p）
+        case 'Footer':      // 同上
+        case 'Blockquote':  // 同上
+        case 'Aside':       // 同上
+        case 'Details':     // 同上
+            return childrenNodes(el).map( dd => $.Element('p', dd) );
 
         case 'Codeblock':
         case 'Pre':
             // 换行友好。
             return $.Text( $.children(el), '\n' );
+
+        case 'Codeli':
+        case 'Ali':
+        case 'H5a':
+            // 仅取文本（并清理）。
+            return $.Text( cleanText($.text(el)) );
+
+        case 'Cascadeli':
+            // 目标自行合并
+            return el;
     }
-    // codeli, ...
-    // 仅取文本。
-    return $.text( el );
+    // 最小单元：内联节点集。
+    return inlines( el );
 }
 
 
 //
-// 小区块取值（<header>）。
-// 含可选的<h4>标题。
+// 小区块取值。
+// 适用：header, footer, blockquote, aside, details
 //
 function smallBlock( el, name ) {
-    // ?
-    let _ss;
     switch (name) {
         case 'Abstract':
-            // 合并为单个段落
-            return [ null, $.text(el) ];
-
-        case 'Toc':
-            return [ null, $.children(el) ];
-
-        case 'Cascadeli':
-            // 目标自行合并
-            return [ null, el ];
+            // 合并为单个段落（保留内联结构）
+            return $.Element( 'p', blockContents(el) );
 
         case 'Seealso':
         case 'Reference':
         case 'Ul':
         case 'Ol':
         case 'Cascade':
-            return $.children(el);
+            return blockConitems(el).wrapInner('<li>').detach();
 
-        case 'Header':  // 每<li>对应一行（p）
-        case 'Footer':  // 同上
-        case 'Address': // 同上
+        case 'Codelist':
+            // 每行块对应一行代码。
+            return blockConitems(el).text().map( s => s.trim() ).wrap('<li><code>').detach();
+
+        case 'Dl':
+            return childrenNodes(el).map( dd => $.Element('dd', dd) );
+
         case 'P':       // 接受内联单元数组
-        case 'Table':   // 每项为一个单元格内容
+        case 'Address': // 同上
+        case 'Table':   // 同上
         case 'Thead':   // 同上
         case 'Tbody':   // 同上
         case 'Tfoot':   // 同上
         case 'Tr':      // 同上
-            return listSubs(el);
+            return childrenNodes( el );
 
-        // 合法子类型。
-        // case 'Article':
-        // case 'S1':
-        // case 'S2':
-        // case 'S3':
-        // case 'S4':
-        // case 'S5':
+        case 'Article':
+        case 'S1':
+        case 'S2':
+        case 'S3':
+        case 'S4':
+        case 'S5':
             // 独立内容单元
-            // 注：章节目标特殊逻辑自行处理。
-            // return el;
-
-        case 'Codelist':
-            // 每<li>对应一行代码。
-            return $.children(el).map( li => codeSubs(li) );
-
-        case 'Dl':
-            _ss = listSubs(el);
-            // 首行充当标题<dt>
-            return [ textLine( _ss.shift() ), _ss ];
+            return el;
 
         case 'Figure':
-            // 分离文本为标题，图片为内容。
-            return [ cleanText($.text(el)), $.find(el, 'img') ];
+            // 提取图片/媒体为内容。
+            return $.find( el, 'img,video,audio,picture' );
 
-        case 'Blockquote':
-        case 'Aside':
-        case 'Details':
-            return [ null, listSubs(el) ];
+        case 'Header':      // 每<li>对应一行（p）
+        case 'Footer':      // 同上
+        case 'Blockquote':  // 同上
+        case 'Aside':       // 同上
+        case 'Details':     // 同上
+            return childrenNodes(el).map( dd => $.Element('p', dd) );
 
         case 'Codeblock':
         case 'Pre':
             // 换行友好。
-            return childTexts(el).join('\n');
+            return $.Text( $.children(el), '\n' );
+
+        case 'Codeli':
+        case 'Ali':
+        case 'H5a':
+            // 仅取文本（并清理）。
+            return $.Text( cleanText($.text(el)) );
+
+        case 'Cascadeli':
+            // 目标自行合并
+            return el;
     }
-    // codeli, ...
-    // 仅取文本。
-    return $.text( el );
+    // 最小单元：内联节点集。
+    return inlines( el );
 }
 
 
@@ -441,6 +439,7 @@ function codeSubs( box, text = false ) {
 
 /**
  * 代码封装。
+ * 封装不含顶层<code>的代码内容节点。
  * 如果未传递最终容器标签名，返回<code>封装的代码元素。
  * 否则返回的容器包含了唯一的子元素<code>封装。
  * @param  {[Node]} cons 代码内容节点集
@@ -459,18 +458,8 @@ function codeWrap( cons, tag ) {
  * @param  {Element} box 容器元素
  * @return {[[Node]]} 子元素内容节点集数组
  */
-function listSubs( box ) {
+function childrenNodes( box ) {
     return $.children( box ).map( el => inlines(el) );
-}
-
-
-/**
- * 元素集封装。
- * @param {[Node|[Node]]} cons 内容节点（集）数组
- * @param {String} tag 封装元素标签
- */
-function linesWrap( cons, tag ) {
-    return cons.map( dd => $.Element(tag, dd) );
 }
 
 
@@ -516,10 +505,34 @@ function cleanText( txt ) {
 
 
 /**
+ * 获取小区块内容集（行块）。
+ * 注：排除了可能有的标题元素。
+ * @param  {Element} box 小区块容器
+ * @return {Collector}
+ */
+function blockConitems( box ) {
+    return $(box).children().flat().not(__blockHxSlr);
+}
+
+
+/**
+ * 获取小区块内联内容节点集。
+ * @param  {Element} box 小区块容器
+ * @param  {Array} buf 存储区。
+ * @return {[Node]} buf
+ */
+function blockContents( box, buf = [] ) {
+    blockConitems(box)
+        .forEach( el => inlines(el, buf) );
+    return buf;
+}
+
+
+/**
  * 创建区块默认的内容单元。
  * 实参cons只能是内联单元，包括文本节点。
  * @param {String} name 目标内容名
- * @param {Node|[Node]} cons 内联节点（集）
+ * @param {Node|[Node]|null} cons 内联节点（集）
  */
 function defaultConitem( name, cons ) {
     let _n = __defaultConitem[name];
@@ -534,6 +547,7 @@ function defaultConitem( name, cons ) {
 
 /**
  * 获取转换数据。
+ * 返回null表示无法取值，调用者应当忽略。
  * @param {Element} self 取值元素
  * @param {String} name 目标内容名
  * @param {Value|[Value]} 值/值集
@@ -547,6 +561,7 @@ function getData( self, name ) {
         return null;
     }
     switch (name) {
+        case 'Toc':
         case 'Hr':
         case 'Space':
         case 'Blank':
