@@ -986,15 +986,20 @@ Object.assign( tQuery, {
     //-- DOM 节点遍历 ---------------------------------------------------------
 
     /**
-     * 获取下一个匹配的兄弟元素。
-     * 如果最终未找到匹配，返回null。
+     * 获取下一个兄弟元素。
+     * slr用于匹配测试，不匹配时返回null。
+     * 如果until为真，则持续测试直到匹配或末尾。
+     * slr作为测试函数仅在until为真时有效。
      * 注：与 jQuery.next(slr) 行为不同。
      * @param  {Element} el 参考元素
-     * @param  {String} slr 选择器，可选
+     * @param  {String|Function} slr 匹配选择器或测试函数，可选
+     * @param  {Boolean} until 持续测试
      * @return {Element|null}
      */
-    next( el, slr ) {
-        return _sibling(el, slr, 'nextElementSibling');
+    next( el, slr, until ) {
+        return until ?
+            _sibling2(el, slr, 'nextElementSibling') :
+            _sibling(el, slr, 'nextElementSibling');
     },
 
 
@@ -1023,15 +1028,17 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取前一个匹配的兄弟元素。
-     * 如果最终未找到匹配，返回null。
-     * 注：与 jQuery.prev(slr) 行为不同。
+     * 获取前一个兄弟元素。
+     * 参数说明参考.next()。
      * @param  {Element} el 参考元素
-     * @param  {String} slr 选择器，可选
+     * @param  {String|Function} slr 匹配选择器或测试函数，可选
+     * @param  {Boolean} until 持续测试
      * @return {Element|null}
      */
-    prev( el, slr ) {
-        return _sibling(el, slr, 'previousElementSibling');
+    prev( el, slr, until ) {
+        return until ?
+            _sibling2(el, slr, 'previousElementSibling') :
+            _sibling(el, slr, 'previousElementSibling');
     },
 
 
@@ -2769,12 +2776,25 @@ function _elemRectSet( el, name, val ) {
 
 /**
  * 获取兄弟元素。
- * - 可能没有或不匹配。
- * @param  {String|Function} slr 匹配器，可选
+ * 仅检查相邻元素，不匹配时返回null。
+ * @param  {String|Function} slr 选择器或匹配测试函数，可选
  * @param  {String} dir 方向（nextElementSibling|previousElementSibling）
  * @return {Element|null}
  */
 function _sibling( el, slr, dir ) {
+    let _ne = el[dir];
+    return getFltr(slr)(_ne, 1) ? _ne : null;
+}
+
+
+/**
+ * 获取兄弟元素。
+ * 会持续迭代直到匹配或抵达末端。
+ * @param  {String|Function} slr 选择器或匹配测试函数，可选
+ * @param  {String} dir 方向（nextElementSibling|previousElementSibling）
+ * @return {Element|null}
+ */
+function _sibling2( el, slr, dir ) {
     let _fun = getFltr(slr),
         _i = 0;
 
@@ -2801,6 +2821,7 @@ function _siblingAll( el, slr, dir ) {
     }
     return _els;
 }
+
 
 /**
  * dir方向兄弟元素...直到。
@@ -4053,18 +4074,16 @@ function arrLike( obj ) {
 // @return {Function}
 //
 function getFltr( its ) {
-    if ( its == null ) {
-        return () => true;
+    if ( isFunc(its) ) {
+        return its;
     }
-    if ( isFunc(its) ) return its;
-
     if ( its && typeof its == 'string' ) {
         return e => e && $is(e, its);
     }
     if ( isArr(its) ) {
         return ( e => its.includes(e) );
     }
-    return ( e => e === its );
+    return ( e => its == null || e === its );
 }
 
 

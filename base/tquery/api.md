@@ -318,17 +318,20 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 ## 节点遍历
 
 
-### [$.next( el, slr ): Element | null](docs/$.next.md)
+### [$.next( el, slr, until ): Element | null](docs/$.next.md)
 
-获取 `el` 的下一个匹配的兄弟元素。
+获取 `el` 的下一个（匹配的）兄弟元素。
 
-- `el: Element` 取值的目标源元素，不适用文本节点。
+- `el: Element` 开始的目标元素。
 - `slr: String | Function` 匹配测试的选择器或函数，可选。
+- `until: Boolean` 是否持续测试。
 
-如果为传递 `slr`，则无条件匹配 `el` 的下一个兄弟元素。如果最终未找到匹配，返回 `null`。测试函数接口：`function(el:Element, i:Number): Boolean`，`i` 为顺序迭代的兄弟元素序位（从 `el` 开始计数为 `0`）。
+如果未传递 `slr`，则无条件匹配 `el` 的下一个兄弟元素。如果传递 `until` 为真，则尝试持续测试直到匹配或抵达末尾（返回 `null`），否则仅针对下一个兄弟元素。
+
+测试函数接口：`function(el:Element, i:Number): Boolean`，`i` 为顺序迭代的兄弟元素序位（`el` 处计为 `0`）。
 
 > **注：**
-> `slr` 的行为与 `jQuery.next(slr)` 不同，后者仅测试 `el` 的下一个兄弟元素。
+> 比 `jQuery.next(slr)` 稍有增强，后者仅测试 `el` 的下一个兄弟元素。
 
 
 ### [$.nextAll( el, slr ): [Element]](docs/$.nextAll.md)
@@ -353,14 +356,15 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 始终会返回一个数组，如果最开始的下一个元素就匹配或为 `null`，会返回一个空数组。匹配测试函数接口为：`function( el:Element, i:Number ): Boolean`，`i` 为后续元素顺序计数（从 `el` 开始计数为 `0`）。
 
 
-### [$.prev( el, slr ): Element | null](docs/$.prev.md)
+### [$.prev( el, slr, until ): Element | null](docs/$.prev.md)
 
-获取 `el` 的前一个匹配的兄弟元素。
+获取 `el` 的前一个（匹配的）兄弟元素。
 
 - `el: Element` 取值的目标源元素，不适用文本节点。
 - `slr: String | Function` 匹配测试的选择器或函数，可选。
+- `until: Boolean` 是否持续测试。
 
-这是 `$.next()` 方法的逆向版。可用 `slr` 进行匹配测试，如果最终未找到匹配，返回 `null`。
+这是 `$.next()` 方法的逆向版，其它说明相同。
 
 
 ### [$.prevAll( el, slr ): [Element]](docs/$.prevAll.md)

@@ -91,8 +91,8 @@ const __nullNames = new Set([
 // 数据提取集。
 // 提取目标仅针对末端内容单元，不适用片区结构。
 // 种类：
-// - 标题：{Node|[Node]} 文本节点或原始内联节点集。
-// - 内容：{[Node]|[[Node]]} 文本节点数组或原始内联节点集数组。
+// - 标题：{Node|[Node]|null} 文本节点或原始内联节点集。
+// - 内容：{[Node]|[[Node]]|''} 文本节点数组或原始内联节点集数组。
 // 参数：
 //   @param {Element} root  单元根元素
 //   @param {Boolean} text  是否取文本
@@ -102,7 +102,10 @@ const __nullNames = new Set([
 //////////////////////////////////////////////////////////////////////////////
 //
 const dataPicks = {
-
+    //
+    // 插图：
+    // figure/figcaption, p/img...
+    //
     Figure: {
         heading( root, text, clean ) {
             return elementContent(
@@ -115,12 +118,20 @@ const dataPicks = {
         }
     },
 
+
+    //
+    // 章片区：
+    // section:s1/h2, section:s2/...
+    // 注：节片区只能为纯内容。
+    //
     S1: {
-        heading( root, text ) {
-            //
+        heading( root, text, clean ) {
+            return elementContent(
+                $.prev(root, 'h2'), text, clean
+            );
         },
 
-        content( root, text ) {
+        content( root, text, clean ) {
             //
         }
     },
