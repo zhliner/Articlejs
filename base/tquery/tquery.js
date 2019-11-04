@@ -22,7 +22,7 @@
         - NodeList，来源于 querySelectorAll()
         - HtmlCollection，来源于 getElementsBy... 系列
 
-    在下面的参数说明中，原生元素集统一称为 NodeList 或 [Node]（不再区分 HtmlCollection）。
+    在下面的参数说明中，原生元素集可能不区分 NodeList 和 HtmlCollection。
     用户使用本库 $() 检索的元素集命名为 Collector，继承于 Array 类型。
 
     提示：
@@ -104,17 +104,18 @@
         $id = ( slr, ctx ) => (ctx.ownerDocument || ctx).getElementById( slr.substring(1) ),
 
         // 简单选择器。
-        // @return {Array}
+        // @return {HtmlCollection}
         $tag = ( tag, ctx ) => ctx.getElementsByTagName(tag),
 
         // 简单选择器。
         // slr: 包含前置.字符
-        // @return {Array}
+        // @return {HtmlCollection}
         $class = ( slr, ctx ) => ctx.getElementsByClassName(slr.substring(1)),
 
         // 检索元素或元素集。
         // 选择器支持“>”表示上下文元素限定。
         // fn: {String} querySelector[All]
+        // @return {NodeList}
         $find = ( slr, ctx, fn ) => subslr.test(slr) ? $sub(slr, ctx, s => ctx[fn](s)) : ctx[fn](slr || null),
 
         // 单一目标。
@@ -123,28 +124,28 @@
         // @param  {Element|Document|DocumentFragment} ctx 上下文
         // @return {Element|null}
         $one = function( slr, ctx ) {
-            if (__reID.test(slr)) {
+            if ( __reID.test(slr) ) {
                 return $id(slr, ctx);
             }
-            return $find(slr, ctx, 'querySelector');
+            return $find( slr, ctx, 'querySelector' );
         },
 
         // 多目标。
         // slr 首字符 > 表示当前上下文父级限定。
         // @param  {String} slr 选择器。
         // @param  {Element|Document|DocumentFragment} ctx 上下文
-        // @return {[Element]|NodeList|HTMLCollection}
+        // @return {[Element]}
         $all = Sizzle || function( slr, ctx ) {
-            if (__reID.test(slr)) {
+            if ( __reID.test(slr) ) {
                 return new Array($id(slr, ctx) || 0);
             }
-            if (__reTAG.test(slr) && ctx.nodeType != 11) {
-                return $tag(slr, ctx);
+            if ( __reTAG.test(slr) && ctx.nodeType != 11 ) {
+                return Arr( $tag(slr, ctx) );
             }
-            if (__reCLASS.test(slr) && ctx.nodeType != 11) {
-                return $class(slr, ctx);
+            if ( __reCLASS.test(slr) && ctx.nodeType != 11 ) {
+                return Arr( $class(slr, ctx) );
             }
-            return $find(slr, ctx, 'querySelectorAll');
+            return Arr( $find(slr, ctx, 'querySelectorAll') );
         };
 
 
@@ -939,6 +940,7 @@ Object.assign( tQuery, {
 
 
     //== DOM 节点查询 =========================================================
+    // 上下文明确为假时返回该假值。
 
     /**
      * 查询单个元素。
@@ -948,10 +950,10 @@ Object.assign( tQuery, {
      * @param  {Element|Document|DocumentFragment|null} ctx 查询上下文
      * @return {Element|null}
      */
-    get( slr, ctx ) {
+    get( slr, ctx = Doc ) {
         slr = slr || '';
         try {
-            return $one(slr.trim(), ctx || Doc);
+            return ctx && $one(slr.trim(), ctx);
         }
         catch( e ) {
             if ( !Sizzle ) throw e;
@@ -967,11 +969,12 @@ Object.assign( tQuery, {
      * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {[Element]}
      */
-    find( slr, ctx, andOwn = false ) {
+    find( slr, ctx = Doc, andOwn = false ) {
+        if ( !ctx ) {
+            return [];
+        }
         slr = slr || '';
-        ctx = ctx || Doc;
-
-        let _els = Arr( $all(slr.trim(), ctx) );
+        let _els = $all( slr.trim(), ctx );
 
         if ( andOwn && $is(ctx, slr) ) {
             _els.unshift(ctx);
@@ -3369,16 +3372,14 @@ function elsEx( list, get ) {
 //
 // 元素检索。
 // $.xx 成员调用返回单个元素或 null。
-// 注：结果集会去重排序。
+// 注：结果集已去重排序。
 /////////////////////////////////////////////////
 elsEx([
-        'next',
-        'prev',
         'parent',
         'closest',
         'offsetParent',
     ],
-    // 可能重复，排序清理。可代理调用 $
+    // 可$.x嵌入代理。
     (fn, els, ...rest) =>
         uniqueSort(
             els.map( el => $[fn](el, ...rest) ).filter( el => el != null ),
@@ -3388,11 +3389,26 @@ elsEx([
 
 
 //
-// 元素集检索。
-// $.xx 成员调用返回一个集合。
-// 注：结果集是一个二维数组。
+// 元素检索。
+// $.xx 成员调用返回单个元素或 null。
 /////////////////////////////////////////////////
 elsEx([
+        'next',
+        'prev',
+    ],
+    // 可$.x嵌入代理。
+    (fn, els, ...rest) =>
+        els.map( el => $[fn](el, ...rest) ).filter( el => el != null )
+);
+
+
+//
+// 元素/节点（集）。
+// 注：大部分结果集是一个二维数组。
+/////////////////////////////////////////////////
+elsEx([
+        // 元素集
+        // 扁平化时需去重/排序。
         'nextAll',
         'nextUntil',
         'prevAll',
@@ -3400,26 +3416,18 @@ elsEx([
         'parents',
         'siblings',
         'parentsUntil',
-    ],
-    // 可代理调用 $
-    (fn, els, ...rest) => els.map( el => $[fn](el, ...rest) )
-);
 
-
-//
-// 简单调用&求值。
-// $.xx 成员调用返回一个节点集或单个节点。
-// 返回集中可能包含子数组。
-// 注：调用扁平化时无需去重排序（若原集合有序无重）。
-/////////////////////////////////////////////////
-elsEx([
+        // 节点集
+        // 扁平化时无需去重。
         'unwrap',
-        'clone',
         'children',
         'contents',
         'empty',
+
+        // 单成员
+        'clone',
     ],
-    // 可代理调用 $
+    // 可$.xx嵌入代理。
     (fn, els, ...rest) => els.map( el => $[fn](el, ...rest) )
 );
 
@@ -3513,7 +3521,7 @@ elsExfn([
     ],
     fn =>
     function(...rest) {
-        // 转为普通数组。可代理调用 $
+        // 可代理调用 $
         return this.map( el => $[fn](el, ...rest) );
     }
 );
@@ -3704,8 +3712,7 @@ elsExfn([
             return this.map( el => $[fn](el) );
         }
         let _vs = isArr(val) ?
-            _arrSets( fn, this, val, ...rest ) :
-            this.map( el => $[fn](el, val, ...rest) );
+            _arrSets(fn, this, val, ...rest) : this.map(el => $[fn](el, val, ...rest));
 
         return new Collector( _vs, this );
     }
@@ -5024,12 +5031,11 @@ function nodeText( nodes, sep ) {
     let _buf = [];
 
     for ( let nd of values(nodes) ) {
-        if (nd && nd.nodeType) {
-            nd = nd.textContent;
-        }
-        _buf.push('' + nd);
+        _buf.push(
+            nd && nd.nodeType ? nd.textContent : nd
+        );
     }
-    return _buf.join(sep);
+    return _buf.join( sep );
 }
 
 

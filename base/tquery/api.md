@@ -296,7 +296,9 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 查询单个元素（ID定位或 `.querySelector` 检索，效率较高）。
 
 - `slr: String` 目标元素选择器。
-- `ctx?: Element | Document` 查询目标元素的上下文元素或文档。可选，默认为 `<html>` 根元素。
+- `ctx?: Element | Document` 查询目标元素的上下文元素或文档。可选，默认为 `document`。
+
+明确传递 `ctx` 为假值（不含 `undefined`）时返回该假值。
 
 **注**：预先导入Sizzle时支持非标准的CSS选择器。
 
@@ -306,10 +308,10 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 在上下文元素内查询和选择器匹配的元素集。
 
 - `slr: String` 目标元素选择器。
-- `ctx?: Element | Document` 查询目标元素的上下文元素或文档。可选，默认为 `<html>` 根元素。
+- `ctx?: Element | Document` 查询目标元素的上下文元素或文档。可选，默认为 `document`。
 - `andOwn?: Boolean` 是否包含上下文元素自身的匹配测试。可选，默认为 `false`。
 
-传递 `andOwn` 实参为 `true` 会测试选择器是否匹配上下文元素自身，这在某些场景下会更方便使用。
+传递 `andOwn` 实参为 `true` 会测试选择器是否匹配上下文元素自身，这在某些场景下会更方便使用。明确传递 `ctx` 为假值（不含 `undefined`）时返回一个空数组。
 
 
 

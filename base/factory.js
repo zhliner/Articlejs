@@ -448,7 +448,7 @@ const Content = {
      */
     Article( ael, [h1, cons], meth, conItem ) {
         if ( h1 != null ) {
-            blockHeading( 'h1', ael.parentElement, h1, 'fill' );
+            blockHeading( 'h1', ael.parentElement, h1, meth );
         }
         if ( conItem == null ) {
             conItem = contentItems(cons);
@@ -475,7 +475,7 @@ const Content = {
             conItem = contentItems(cons);
         }
         if ( h2 != null ) {
-            h2 = sectionHeading( 'h2', sect, h2, 'fill' );
+            h2 = sectionHeading( 'h2', sect, h2, meth );
         }
         return [h2, sectionContent( sect, cons, meth, 'S2', conItem )];
     },
@@ -491,7 +491,7 @@ const Content = {
             conItem = contentItems(cons);
         }
         if ( hx != null ) {
-            hx = sectionHeading( 'h3', sect, hx, 'fill' );
+            hx = sectionHeading( 'h3', sect, hx, meth );
         }
         return [hx, sectionContent( sect, cons, meth, 'S3', conItem )];
     },
@@ -507,7 +507,7 @@ const Content = {
             conItem = contentItems(cons);
         }
         if ( hx != null ) {
-            hx = sectionHeading( 'h4', sect, hx, 'fill' );
+            hx = sectionHeading( 'h4', sect, hx, meth );
         }
         return [hx, sectionContent( sect, cons, meth, 'S4', conItem )];
     },
@@ -523,7 +523,7 @@ const Content = {
             conItem = contentItems(cons);
         }
         if ( hx != null ) {
-            hx = sectionHeading( 'h5', sect, hx, 'fill' );
+            hx = sectionHeading( 'h5', sect, hx, meth );
         }
         return [hx, sectionContent( sect, cons, meth, 'S5', conItem )];
     },
@@ -541,7 +541,7 @@ const Content = {
      */
     S5( sect, [h6, cons], meth ) {
         if ( h6 != null ) {
-            h6 = sectionHeading( 'h6', sect, h6, 'fill' );
+            h6 = sectionHeading( 'h6', sect, h6, meth );
         }
         return [h6, $[meth]( sect, cons )];
     },
@@ -678,7 +678,7 @@ const Content = {
      */
     Figure( root, [cap, imgs], meth ) {
         if ( cap != null ) {
-            blockHeading( 'figcaption', root, cap, 'fill' );
+            blockHeading( 'figcaption', root, cap, meth );
         }
         return $[meth]( $.get('p', root), imgs );
     },
@@ -747,20 +747,20 @@ const Content = {
      * 子表标题为fill插入方式。
      * @param  {Element} li 列表项
      * @param  {Node|[Node]} h5c 子表标题内容
-     * @param  {Element|[Element]} olc 内容子列表或列表项集
+     * @param  {Element|[Element]} list 内容子列表或列表项集
      * @param  {String} meth 插入方法（prepend|append|fill）
      * @return {Element} 子列表
      */
-    Cascadeli( li, [h5c, olc], meth ) {
+    Cascadeli( li, [h5c, list], meth ) {
         if ( h5c != null ) {
-            blockHeading( 'h5', li, h5c, 'fill' );
+            blockHeading( 'h5', li, h5c, meth );
         }
         let _ol = $.get( '>ol', li );
 
         if ( !_ol ) {
             _ol = $.append( li, $.Element('ol') );
         }
-        return olc && listMerge( _ol, olc, meth ), _ol;
+        return list && listMerge( _ol, list, meth ), _ol;
     },
 
 
@@ -775,10 +775,10 @@ const Content = {
      * @param  {[String, String]} rp 注音包围（左,右）
      * @return {Element} root
      */
-    Ruby( root, [rb, rt, rp] ) {
+    Ruby( root, [rb, rt, rp], meth ) {
         rp = rp || [];
 
-        $.append(root, [
+        $[meth](root, [
             $.Element( 'rb', rb ),
             rp[0] && $.Element( 'rp', rp[0] ),
             $.Element( 'rt', rt ),
@@ -818,7 +818,7 @@ const Content = {
      */
     Content[ its[0] ] = function( root, [hx, cons], meth ) {
         if ( hx != null ) {
-            blockHeading( its[1], root, hx, 'fill' );
+            blockHeading( its[1], root, hx, meth );
         }
         return [ insertBlock(root, cons, meth), cons ];
     };
