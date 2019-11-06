@@ -940,12 +940,13 @@ Object.assign( tQuery, {
 
 
     //== DOM 节点查询 =========================================================
-    // 上下文明确为假时返回该假值。
+
 
     /**
      * 查询单个元素。
      * - 先尝试$one（querySelector或ID定位）。
      * - 失败后尝试Sizzle（非标准CSS选择器时）。
+     * 注：上下文明确为假时返回该假值。
      * @param  {String} slr 选择器
      * @param  {Element|Document|DocumentFragment|null} ctx 查询上下文
      * @return {Element|null}
@@ -983,6 +984,63 @@ Object.assign( tQuery, {
     },
 
 
+    //-- DOM 集合过滤 ---------------------------------------------------------
+    // 集合仅适用于数组，如果需要支持类数组和Set等，可用Collector集合版。
+    // 注：代码与集合版相似。
+
+
+    /**
+     * 匹配过滤。
+     * 支持任意值的集合。
+     * fltr: {
+     *  - String:   作为元素的CSS选择器，集合内成员必须是元素。
+     *  - Array:    集合内成员在数组内，值任意。注：集合的交集。
+     *  - Function: 自定义测试函数，接口：function(Value, Index, this): Boolean。
+     *  - Value:    其它任意类型值，相等为匹配（===）。
+     * }
+     * @param  {[Element|Value]} list 目标集
+     * @param  {String|Array|Function|Value} fltr 匹配条件
+     * @return {[Value]} 过滤后的集合
+     */
+    filter( list, fltr ) {
+        return list.length ? list.filter( getFltr(fltr) ) : [];
+    },
+
+
+    /**
+     * 排除过滤。
+     * - 从集合中移除匹配的成员。
+     * - 自定义测试函数接口同上。
+     * @param  {[Element|Value]} list 目标集
+     * @param  {String|Array|Function|Value} fltr 排除条件
+     * @return {[Value]}
+     */
+    not( list, fltr ) {
+        if ( list.length == 0 ) {
+            return [];
+        }
+        let _fun = getFltr( fltr );
+
+        return list.filter( (v, i, o) => !_fun(v, i, o) );
+    },
+
+
+    /**
+     * 元素包含过滤。
+     * 检查集合中元素的子级元素是否可与目标匹配。
+     * 注：仅支持由元素构成的集合。
+     * @param  {[Element]} els 元素集
+     * @param  {String|Element} slr 测试目标
+     * @return {[Element]}
+     */
+    has( els, slr ) {
+        if ( els.length == 0 ) {
+            return els;
+        }
+        return els.length ? els.filter( hasFltr(slr) ) : [];
+    },
+
+
     //-- DOM 节点遍历 ---------------------------------------------------------
 
     /**
@@ -1007,7 +1065,7 @@ Object.assign( tQuery, {
      * 获取后续全部兄弟元素。
      * 可用slr进行匹配过滤，可选。
      * @param  {Element} el 参考元素
-     * @param  {String} slr 选择器，可选
+     * @param  {String|Function} slr 匹配选择器，可选
      * @return {[Element]}
      */
     nextAll( el, slr ) {
@@ -1047,7 +1105,7 @@ Object.assign( tQuery, {
      * 可选的用slr进行匹配过滤。
      * 注：结果集保持逆向顺序（靠近起点的元素在前）。
      * @param  {Element} el 参考元素
-     * @param  {String} slr 选择器，可选
+     * @param  {String|Function} slr 匹配选择器，可选
      * @return {[Element]}
      */
     prevAll( el, slr ) {
@@ -2486,28 +2544,6 @@ tQuery.Table = Table;
 
 
 //
-// 集合过滤的工具版。
-// 接受普通数组/类数组/Map/Set集合参数。
-///////////////////////////////////////
-[
-    'filter',   // 集合匹配
-    'not',      // 集合排除
-    'has',      // 元素包含（子孙级）
-]
-.forEach(function( name ) {
-    /**
-     * @param  {NodeList|Array|LikeArray|Iterator} list 普通集合
-     * @param  {String|Array|Function|Value} fltr 过滤器
-     * @param  {String|Element} fltr 过滤器（has）
-     * @return {[Value]} 结果集（普通数组）
-     */
-    tQuery[name] = function( list, fltr ) {
-        return [ ...new Collector(list)[name]( fltr ) ];
-    };
-});
-
-
-//
 // 6种插入方式。
 // 数据源仅为节点类型，不支持String。
 ///////////////////////////////////////
@@ -2807,7 +2843,7 @@ function _sibling2( el, slr, dir ) {
 /**
  * dir方向全部兄弟。
  * 可选的用slr进行匹配过滤。
- * @param  {String} slr 选择器，可选
+ * @param  {String|Function} slr 匹配选择器，可选
  * @param  {String} dir 方向（同上）
  * @return {Array}
  */
@@ -3008,6 +3044,7 @@ class Collector extends Array {
      */
     flat( deep = 1 ) {
         let _els = super.flat ?
+            // true有效（1）
             super.flat( deep ) :
             arrFlat(this);
 
@@ -3017,16 +3054,17 @@ class Collector extends Array {
 
     //-- 集合过滤 -------------------------------------------------------------
     // 空集返回空集本身，不会加长栈链。
+    // 注：不支持外部$.xx代理嵌入。
 
 
     /**
      * 匹配过滤（通用）。
      * 支持任意值的集合。
-     * fltr为过滤条件，可以是任意类型：
-     * - String: 作为元素的CSS选择器，集合内成员必须是元素。
-     * - Array: 集合内成员必须在数组内，值任意。实际上就是两个集合的交由。
-     * - Function: 用户的自定义测试函数，接口：function(Value, Index, this): Boolean。
-     * - Value: 任意其它类型的值，相等即为匹配（===）。
+     * fltr为过滤条件：
+     * - String:   作为元素的CSS选择器，集合内成员必须是元素。
+     * - Array:    集合内成员在数组内，值任意。注：集合的交集。
+     * - Function: 自定义测试函数，接口：function(Value, Index, this): Boolean。
+     * - Value:    任意其它类型的值，相等即为匹配（===）。
      * @param  {String|Array|Function|Value} fltr 匹配条件
      * @return {Collector} 过滤后的集合
      */
@@ -3041,7 +3079,6 @@ class Collector extends Array {
     /**
      * 排除过滤（通用）。
      * - 从集合中移除匹配的元素。
-     * - 可简单地从集合中移除指定的值条目。
      * - 自定义测试函数接口同上。
      * @param  {String|Array|Function|Value} fltr 排除条件
      * @return {Collector}
@@ -3061,8 +3098,8 @@ class Collector extends Array {
 
     /**
      * 元素包含过滤。
-     * 检查目标是否为集合中元素的子级元素或可与子级元素匹配（选择器）。
-     * 仅支持由元素构成的集合，测试目标可以是元素或选择器。
+     * 检查集合中元素的子级元素是否可与目标（选择器）匹配。
+     * 注：仅支持由元素构成的集合。
      * @param  {String|Element} slr 测试目标
      * @return {Collector}
      */
