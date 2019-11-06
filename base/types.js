@@ -531,6 +531,19 @@ function nilSub( name ) {
 }
 
 
+/**
+ * 是否为内容件集。
+ * 片区有严格的层次结构，因此判断标题和<section>即可。
+ * 注：空集视为内容件集。
+ * @param  {[Element]|''} els 子片区集或内容件集
+ * @return {Boolean}
+ */
+ function isConItems( els ) {
+    return els.length == 0 ||
+        !els.some( el => $.is(el, 'h2,h3,h4,h5,h6,section') );
+}
+
+
 //
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
@@ -541,4 +554,5 @@ export {
     inCascade, inToc, inCodelist,
     isConitem, isCodeli, isTocHeading, isTocItem, isCascadeli,
     conName, goodSub, isGoodSubs, nilSub,
+    isConItems,
 };

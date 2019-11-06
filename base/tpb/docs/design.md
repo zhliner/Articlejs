@@ -489,11 +489,12 @@ has( slr: String ): [Element]
 // 目标：当前条目/栈顶1项。
 // 仅适用于元素集，普通值集无效。
 
-flat( deep: Number, ext: Boolean = false )
+flat( deep: Number|true, ext: Boolean = false )
 // 集合扁平化。
 // 将目标内可能嵌套的数组扁平化处理。
 // 目标：当前条目/栈顶1项。
 // 特权：是。自行展开入栈。
+// 如果目标是Collector，deep可以为true值（去重排序）。
 // ext指示是否展开入栈。
 // deep可为0，这时通常ext为true，表示单纯的集合展开。
 

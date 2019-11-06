@@ -102,10 +102,10 @@ innerHeight(): Number
 innerWidth(): Number
 outerWidth( margin? ): Number
 outerHeight( margin? ): Number
-next( slr? ): Element | null
+next( slr?, until? ): Element | null
 nextAll( slr? ): [Element]
 nextUntil( slr? ): [Element]
-prev( slr? ): Element | null
+prev( slr?, until? ): Element | null
 prevAll( slr? ): [Element]
 prevUntil( slr? ): [Element]
 children( slr? ): [Element] | Element

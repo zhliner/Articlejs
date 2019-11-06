@@ -38,6 +38,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { isConItems } from "./types.js";
+
+
 const $ = window.$;
 
 
@@ -451,7 +454,7 @@ const Content = {
             blockHeading( 'h1', ael.parentElement, h1, meth );
         }
         if ( conItem == null ) {
-            conItem = contentItems(cons);
+            conItem = isConItems(cons);
         }
         return sectionContent( ael, cons, meth, 'S1', conItem );
     },
@@ -472,7 +475,7 @@ const Content = {
      */
     S1( sect, [h2, cons], meth, conItem ) {
         if ( conItem == null ) {
-            conItem = contentItems(cons);
+            conItem = isConItems(cons);
         }
         if ( h2 != null ) {
             h2 = sectionHeading( 'h2', sect, h2, meth );
@@ -488,7 +491,7 @@ const Content = {
      */
     S2( sect, [hx, cons], meth, conItem ) {
         if ( conItem == null ) {
-            conItem = contentItems(cons);
+            conItem = isConItems(cons);
         }
         if ( hx != null ) {
             hx = sectionHeading( 'h3', sect, hx, meth );
@@ -504,7 +507,7 @@ const Content = {
      */
     S3( sect, [hx, cons], meth, conItem ) {
         if ( conItem == null ) {
-            conItem = contentItems(cons);
+            conItem = isConItems(cons);
         }
         if ( hx != null ) {
             hx = sectionHeading( 'h4', sect, hx, meth );
@@ -520,7 +523,7 @@ const Content = {
      */
     S4( sect, [hx, cons], meth, conItem ) {
         if ( conItem == null ) {
-            conItem = contentItems(cons);
+            conItem = isConItems(cons);
         }
         if ( hx != null ) {
             hx = sectionHeading( 'h5', sect, hx, meth );
@@ -1094,18 +1097,6 @@ function sectionHeading( tag, sect, cons, meth ) {
 
 
 /**
- * 是否为内容件集。
- * 片区有严格的层次结构，因此检查标题情况即可。
- * 注：空集视为内容件集。
- * @param  {[Element]|''} els 子片区集或内容件集
- * @return {Boolean}
- */
-function contentItems( els ) {
-    return els.length == 0 || !els.some( el => $.is(el, __hxSlr) );
-}
-
-
-/**
  * 添加片区内容。
  * 内容若为片区，外部保证为合法子片区。
  * 内容若为内容件集，则新建片区封装插入。
@@ -1149,7 +1140,7 @@ function appendSection( box, cons, meth, sname, conItem ) {
 function sectionContent( box, cons, meth, sname, conItem ) {
     let _subs = $.children(box);
 
-    if ( !contentItems(_subs) ) {
+    if ( !isConItems(_subs) ) {
         return appendSection( box, cons, meth, sname, conItem );
     }
     if ( !conItem ) {
@@ -1190,7 +1181,7 @@ function tocList( ol, sec ) {
 function tocItem( hx, sect ) {
     let _li = null;
 
-    if ( contentItems($.children(sect)) ) {
+    if ( isConItems($.children(sect)) ) {
         _li = Content.Ali( create('Ali'), $.contents(hx) );
     } else {
         _li = Content.Cascadeli( create('Cascadeli'), $.contents(hx) );

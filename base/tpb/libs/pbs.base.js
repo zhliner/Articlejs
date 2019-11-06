@@ -838,8 +838,9 @@ const _Base2 = {
      * 特权：是。自行展开入栈。
      * 注：
      * deep零值有效，此时ext应当为true，表示目标展开入栈。
+     * 如果目标是Collector，deep可以为true（去重排序）。
      * @param  {Stack} stack 数据栈
-     * @param  {Number} deep 深度
+     * @param  {Number|true} deep 深度或去重排序
      * @param  {Boolean} ext 展开入栈
      * @return {[Value]|void}
      */
