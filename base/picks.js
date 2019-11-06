@@ -97,11 +97,11 @@ const dataPicks = {
 // 多层结构：内容为独立的内容件（集）。
 /////////////////////////////////////////////////
 [
-    ['S1', 'h2'],
-    ['S2', 'h3'],
-    ['S3', 'h4'],
-    ['S4', 'h5'],
-    ['S5', 'h6'],
+    ['S1',  'h2'],
+    ['S2',  'h3'],
+    ['S3',  'h4'],
+    ['S4',  'h5'],
+    ['S5',  'h6'],
 ]
 .forEach(function( nn ) {
 
@@ -111,7 +111,7 @@ const dataPicks = {
         },
 
         content( root, text, clean ) {
-            return isConItems(root) ?
+            return isConItems( $.children(root) ) ?
                 blockContent( $.children(root), text, clean ) : null;
         }
     }
