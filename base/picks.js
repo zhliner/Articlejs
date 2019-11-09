@@ -64,17 +64,6 @@ const dataPicks = {
     },
 
 
-    // 代码表：
-    // 会剥离<code>封装，返回内部的内容。
-    Codelist: {
-        heading: () => null,
-
-        content( root, text, clean ) {
-            return $.find('code', root).map( el => elementContent(el, text, clean) );
-        }
-    },
-
-
     // 表格。
     // 标题（caption）有效。
     Table: {
@@ -153,7 +142,8 @@ const dataPicks = {
     'Reference',
     'Ul',
     'Ol',
-    'Cascade', // 简单列表对待
+    'Cascade',  // 简单列表对待
+    'Codelist', // 接收放检查<code>
     'Dl',
     'Tr',
 ]
@@ -170,26 +160,6 @@ const dataPicks = {
 
 
 //
-// 代码结构。
-// 需要剥离<code>封装。
-/////////////////////////////////////////////////
-[
-    'Codeblock',
-    'Codeli',
-]
-.forEach(function( n ) {
-
-    dataPicks[n] = {
-        heading: () => null,
-
-        content( root, text, clean ) {
-            return elementContent( $.get('>code', root), text, clean );
-        }
-    };
-});
-
-
-//
 // 内容行元素。
 // 包含特殊的结构元素<td>,<th>和<rb>,<rt>,<rp>。
 /////////////////////////////////////////////////
@@ -200,15 +170,20 @@ const dataPicks = {
     'H4',
     'H5',
     'H6',
+    'H5a',
     'P',
     'Address',
     'Caption',
     'Summary',
     'Figcaption',
     'Li',
+    'Ali',
+    'Codeli',
+    'Cascadeli',
     'Dt',
     'Dd',
     'Pre',
+    'Codeblock',
 
     'Th',
     'Td',
@@ -268,7 +243,7 @@ const dataPicks = {
 .forEach(function( n ) {
     dataPicks[n] = {
         heading: () => null,
-        content: (root, text, clean) => text ? textNode(root, clean) : root,
+        content: (root, text, clean) => [text ? textNode(root, clean) : root],
     };
 });
 
@@ -339,28 +314,28 @@ function cleanText( txt ) {
 /**
  * 元素取值（内容行）。
  * 取文本节点或内联内容节点集。
+ * 注：始终返回一个数组。
  * @param  {Element} el 取值元素
  * @param  {Boolean} text 是否取文本
  * @param  {Boolean} clean 是否清理文本
- * @return {Text|[Node]}
+ * @return {[Text|Node]}
  */
 function elementContent( el, text, clean ) {
     if ( !el ) {
         return el;
     }
-    return text ? textNode(el, clean) : $.contents(el);
+    return text ? [textNode(el, clean)] : $.contents(el);
 }
 
 
 /**
  * 区块内容取值。
- * 取文本节点数组或内容节点集数组（二维）。
- * 结构：子元素为内容件集。
+ * 子元素为内容件集，始终返回一个节点的二维数组。
  * 注：不含包含子片区的结构性片区。
  * @param  {[Element]} els 取值元素集
  * @param  {Boolean} text  是否取文本
  * @param  {Boolean} clean 是否清理文本
- * @return {[Text]|[[Node]]}
+ * @return {[[Text|Node]]}
  */
 function blockContent( els, text, clean ) {
     return els.map( el =>

@@ -299,6 +299,48 @@ const typeSubs = {
 };
 
 
+//
+// 自取元素标签集。
+// 取元素自身（outerHTML）作为内容的元素。
+// 结构单元（rb/rp/track等）不能单独使用，因此不适用。
+// 注：大部分为内联元素。
+//
+const __outerTags = new Set([
+    'audio',
+    'video',
+    'picture',
+    'strong',
+    'em',
+    'q',
+    'abbr',
+    'cite',
+    'small',
+    'time',
+    'del',
+    'ins',
+    'sub',
+    'sup',
+    'mark',
+    'ruby',
+    'dfn',
+    'samp',
+    'kbd',
+    's',
+    'u',
+    'var',
+    'bdo',
+    'meter',
+    'a',
+    'code',
+    'img',
+    'i',
+    'b',
+
+    'hr',
+    'span',  // :blank
+]);
+
+
 
 //
 // 工具函数
@@ -349,7 +391,7 @@ function camelCase( name ) {
  * @param  {Element} el 起点元素
  * @return {Element|null}
  */
- function cascadeRoot( el ) {
+function cascadeRoot( el ) {
     let _prev = el;
 
     while ( el ) {
@@ -538,9 +580,70 @@ function nilSub( name ) {
  * @param  {[Element]|''} els 子片区集或内容件集
  * @return {Boolean}
  */
- function isConItems( els ) {
+function isConItems( els ) {
     return els.length == 0 ||
         !els.some( el => $.is(el, 'h2,h3,h4,h5,h6,section') );
+}
+
+
+/**
+ * 测试表格行是否相同。
+ * @param  {Element} tr1 表格行
+ * @param  {Element} tr2 表格行
+ * @return {Boolean}
+ */
+function sameTr( tr1, tr2 ) {
+    if ( tr1.cells.length != tr2.cells.length ) {
+        return false;
+    }
+    return Array.from( tr1.cells )
+    .every(
+        (td, i) => td.nodeName == tr2.cells[i].nodeName
+    );
+}
+
+
+/**
+ * 检查元素是否同类。
+ * 注：是否可用于简单合并。
+ * @param {Element} e1 目标元素
+ * @param {Element} e2 对比元素
+ */
+function sameType( e1, e2 ) {
+    let _n1 = e1.nodeNode.toLowerCase(),
+        _n2 = e2.nodeNode.toLowerCase();
+
+    return _n1 == _n2 && (_n1 == 'tr' ? sameTr(e1, e2) : true);
+}
+
+
+/**
+ * 是否为自取单元。
+ * @param  {Node} node 目标节点
+ * @return {Boolean}
+ */
+ function isOuter( node ) {
+    return node.nodeType == 3 ||
+        __outerTags.has( node.nodeName.toLowerCase() );
+}
+
+
+/**
+ * 获取内联节点集。
+ * @param  {Node} node 测试节点
+ * @param  {Array} 内联节点存储区
+ * @return {[Node]}
+ */
+function inlines( node, buf = [] ) {
+    if ( !node ) {
+        return buf;
+    }
+    if ( isOuter(node) ) {
+        buf.push( node );
+    } else {
+        $.contents(node).forEach( nd => inlines(nd, buf) );
+    }
+    return buf;
 }
 
 
@@ -552,7 +655,7 @@ function nilSub( name ) {
 export {
     cascadeRoot,
     inCascade, inToc, inCodelist,
-    isConitem, isCodeli, isTocHeading, isTocItem, isCascadeli,
+    isConitem, isCodeli, isTocHeading, isTocItem, isCascadeli, isConItems,
     conName, goodSub, isGoodSubs, nilSub,
-    isConItems,
+    sameType, inlines,
 };

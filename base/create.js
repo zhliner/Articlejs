@@ -1,4 +1,4 @@
-//! $Id: factory.js 2019.09.07 Articlejs.Libs $
+//! $Id: create.js 2019.09.07 Articlejs.Libs $
 //
 // 	Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
@@ -6,7 +6,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//	内容单元创建工厂。
+//	内容单元创建。
 //
 //  文章
 //  - 要件：页标题（h1），副标题（h2，可选）。
@@ -201,8 +201,8 @@ class Article {
         this._h1 = _h1;
         this._h2 = _h2 && $.is(_h2, 'h2') ? _h2 : null;
 
-        this._toc = $.prev(ael, 'nav[role=toc]');
-        this._abstract = $.prev(ael, 'header[role=abstract]');
+        this._toc = $.prev(ael, 'nav[role=toc]', true);
+        this._abstract = $.prev(ael, 'header[role=abstract]', true);
 
         this._article = ael;
 
@@ -385,11 +385,10 @@ class Article {
 // 内容设置函数集。
 // 如果内容传递为null表示忽略。
 // 返回新插入的行块内容或行容器元素（新内容为内联节点集）。
+// 参数：(目标, 标题&内容, 方法, 其它参数)
 // 注：
 // 适用create创建的结构空元素和选取的目标元素。
 // 源数据为两种：外部保证的最适配元素，或内联节点集。
-// 参数规则：
-// (目标, 标题&内容, 方法, 其它参数)
 //////////////////////////////////////////////////////////////////////////////
 //
 const Content = {
@@ -444,91 +443,19 @@ const Content = {
      *
      * @param  {Element} ael 文章元素
      * @param  {Node|[Node]} h1 主标题内容
-     * @param  {[Element]} cons 章片区集或内容件集
+     * @param  {[Element]} els 章片区集或内容件集
      * @param  {String} meth 内容插入方法
      * @param  {Boolean} conItem 内容是否为内容件集，可选
      * @return {[Element]} 新插入的片区或内容件集
      */
-    Article( ael, [h1, cons], meth, conItem ) {
+    Article( ael, [h1, els], meth, conItem ) {
         if ( h1 != null ) {
             blockHeading( 'h1', ael.parentElement, h1, meth );
         }
         if ( conItem == null ) {
-            conItem = isConItems(cons);
+            conItem = isConItems(els);
         }
-        return sectionContent( ael, cons, meth, 'S1', conItem );
-    },
-
-
-    /**
-     * 章片区。
-     * 主结构：section:s1/[h2, section:s2]...
-     * 内容仅限于子片区集或内容件集（外部保证）。
-     * meth: prepend|append|fill
-     * 传递标题为null表示忽略（不改变），其返回值项也为null。
-     * @param  {Element} sect 章容器元素
-     * @param  {Node|[Node]} h2 章标题内容（兼容空串）
-     * @param  {[Element]} cons 子片区集或内容件集
-     * @param  {String} meth 内容插入方法
-     * @param  {Boolean} conItem 内容是否为内容件集，可选
-     * @return {[Element|null, [Element]]} 章标题和新插入的内容集
-     */
-    S1( sect, [h2, cons], meth, conItem ) {
-        if ( conItem == null ) {
-            conItem = isConItems(cons);
-        }
-        if ( h2 != null ) {
-            h2 = sectionHeading( 'h2', sect, h2, meth );
-        }
-        return [h2, sectionContent( sect, cons, meth, 'S2', conItem )];
-    },
-
-
-    /**
-     * 节片区。
-     * 主结构：section:s2/[h3, section:s3]...
-     * 参数说明参考.S1(...)接口。
-     */
-    S2( sect, [hx, cons], meth, conItem ) {
-        if ( conItem == null ) {
-            conItem = isConItems(cons);
-        }
-        if ( hx != null ) {
-            hx = sectionHeading( 'h3', sect, hx, meth );
-        }
-        return [hx, sectionContent( sect, cons, meth, 'S3', conItem )];
-    },
-
-
-    /**
-     * 区片区。
-     * 主结构：section:s3/[h4, section:s4]...
-     * 参数说明参考.S1(...)接口。
-     */
-    S3( sect, [hx, cons], meth, conItem ) {
-        if ( conItem == null ) {
-            conItem = isConItems(cons);
-        }
-        if ( hx != null ) {
-            hx = sectionHeading( 'h4', sect, hx, meth );
-        }
-        return [hx, sectionContent( sect, cons, meth, 'S4', conItem )];
-    },
-
-
-    /**
-     * 段片区。
-     * 主结构：section:s4/[h5, section:s5]...
-     * 参数说明参考.S1(...)接口。
-     */
-    S4( sect, [hx, cons], meth, conItem ) {
-        if ( conItem == null ) {
-            conItem = isConItems(cons);
-        }
-        if ( hx != null ) {
-            hx = sectionHeading( 'h5', sect, hx, meth );
-        }
-        return [hx, sectionContent( sect, cons, meth, 'S5', conItem )];
+        return sectionContent( ael, els, meth, 'S1', conItem );
     },
 
 
@@ -538,15 +465,18 @@ const Content = {
      * 注：内容只能插入内容件集。
      * @param  {Element} sect 片区容器元素
      * @param  {Node|[Node]} h6 末标题内容
-     * @param  {[Element]} cons 内容件集
+     * @param  {[Element]} els 内容件集
      * @param  {String} meth 内容插入方法
      * @return {[Element|null, [Element]]} 末标题和新插入的内容件集
      */
-    S5( sect, [h6, cons], meth ) {
+    S5( sect, [h6, els], meth ) {
         if ( h6 != null ) {
             h6 = sectionHeading( 'h6', sect, h6, meth );
         }
-        return [h6, $[meth]( sect, cons )];
+        if ( !isConItems(els) ) {
+            throw new Error('the content is invalid.');
+        }
+        return [h6, $[meth]( sect, els )];
     },
 
 
@@ -744,6 +674,19 @@ const Content = {
 
 
     /**
+     * 链接元素。
+     * 需要剥离内容中的<a>元素。
+     * @param  {Element} a 链接元素
+     * @param  {Node|[Node]} cons 链接内容
+     * @param  {String} meth 插入方法
+     * @return {Element} a
+     */
+    A( a, cons, meth ) {
+        return $[meth]( a, stripLinks(cons) ), a;
+    },
+
+
+    /**
      * 级联编号表子表项。
      * 结构：li/h5, ol
      * 内容子列表内的条目与目标子列表执行合并。
@@ -771,22 +714,21 @@ const Content = {
      * 注音。
      * 结构：ruby/rb,rp.Left,rt,rp.Right
      * 不管原始内容，这里仅是添加一个合法的子单元。
+     * subs: {
+     *      rb:  String
+     *      rtp: [rp,rt,rp:String]
+     * }
      * 注：现代版浏览器可能不需要rp实参。
      * @param  {Element} root 注音根元素
-     * @param  {String} rb 注音目标
-     * @param  {String} rt 注音内容
-     * @param  {[String, String]} rp 注音包围（左,右）
+     * @param  {Object|[Element]} subs 注音内容配置或子节点数组
      * @return {Element} root
      */
-    Ruby( root, [rb, rt, rp], meth ) {
-        rp = rp || [];
-
-        $[meth](root, [
-            $.Element( 'rb', rb ),
-            rp[0] && $.Element( 'rp', rp[0] ),
-            $.Element( 'rt', rt ),
-            rp[1] && $.Element( 'rp', rp[1] ),
-        ]);
+    Ruby( root, subs, meth ) {
+        if ( $.isArray(subs) ) {
+            $[meth]( root, subs );
+        } else {
+            $[meth]( root, rubySubs(subs) );
+        }
         return root;
     },
 
@@ -794,14 +736,44 @@ const Content = {
 
 
 //
+// 片区（heading, section/）。
+// 内容传递 null 表示忽略（不改变）。
+/////////////////////////////////////////////////
+[
+    ['S1', 'h2', 'S2'],
+    ['S2', 'h3', 'S3'],
+    ['S3', 'h4', 'S4'],
+    ['S4', 'h5', 'S5'],
+]
+.forEach(function( its ) {
+    /**
+     * @param  {Element} sect 章容器元素
+     * @param  {Node|[Node]} h2 章标题内容（兼容空串）
+     * @param  {[Element]} els 子片区集或内容件集
+     * @param  {String} meth 内容插入方法
+     * @param  {Boolean} conItem 内容是否为内容件集，可选
+     * @return {[Element|null, [Element]]} 章标题和新插入的内容集
+     */
+    Content[ its[0] ] = function( sect, [hx, els], meth, conItem ) {
+        if ( conItem == null ) {
+            conItem = isConItems(els);
+        }
+        if ( hx != null ) {
+            hx = sectionHeading( its[1], sect, hx, meth );
+        }
+        return [hx, sectionContent( sect, els, meth, its[2], conItem )];
+    };
+});
+
+
+//
 // 标题区块（/heading, content）
 // 标题为填充方式，内容支持方法指定：{
 //      append|prepend|fill
 // }
-// 注：
-// 方法不可以为 before|after|replace。
+// 注：方法不可以为 before|after|replace。
 // 由外部保证内容单元的合法性。
-///////////////////////////////////////
+/////////////////////////////////////////////////
 [
     ['Abstract',    'h3'],
     ['Header',      'h4'],
@@ -830,8 +802,8 @@ const Content = {
 
 //
 // 简单结构容器（一级子单元）。
-// 注：由外部保证内容单元的合法性。
-///////////////////////////////////////
+// 注：由外部（dataTrans）保证内容单元的合法性。
+/////////////////////////////////////////////////
 [
     // 列表
     'Seealso',
@@ -859,7 +831,7 @@ const Content = {
 // 简单容器。
 // 子内容简单填充，无结构。
 // 注：由外部保证内容单元的合法性。
-///////////////////////////////////////
+/////////////////////////////////////////////////
 [
     // 内容行
     'P',
@@ -884,7 +856,7 @@ const Content = {
     'Audio',
     'Video',
     'Picture',
-    'A',
+    // 'A',  // 内容<a>剥离
     'Strong',
     'Em',
     'Q',
@@ -928,7 +900,7 @@ const Content = {
 // 结构：[pre, li]/code/..b..
 // 会简单检查插入内容的根容器（剥除<code>）。
 // 注：内联节点是数据最小单元，因此需检查。
-///////////////////////////////////////
+/////////////////////////////////////////////////
 [
     'Codeblock',
     'Codeli',
@@ -949,7 +921,7 @@ const Content = {
 //
 // 注音内容。
 // <ruby>的子结构，纯文本内容。
-///////////////////////////////////////
+/////////////////////////////////////////////////
 [
     'Rb',
     'Rp',
@@ -965,7 +937,7 @@ const Content = {
 //
 // 空结构。
 // 不支持后期插入内容。
-///////////////////////////////////////
+/////////////////////////////////////////////////
 [
     'Hr',
     'Space',
@@ -1087,9 +1059,9 @@ function single( tags, ...rest ) {
  * @return {Element} 标题元素
  */
 function sectionHeading( tag, sect, cons, meth ) {
-    let _hx = $.prev(sect);
+    let _hx = $.prev(sect, tag);
 
-    if ( !_hx || !$.is(_hx, tag) ) {
+    if ( !_hx ) {
         _hx = $.before( sect, $.Element(tag) );
     }
     return $[meth]( _hx, cons ), _hx;
@@ -1195,13 +1167,26 @@ function tocItem( hx, sect ) {
  * 检查剥离节点元素的<code>封装。
  * 注：仅检查顶层容器。
  * @param  {Node} node 目标节点
+ * @param  {String} tag 剥离元素标签
  * @return {Node|[Node]}
  */
-function stripCode( node ) {
+function stripElem( node, tag ) {
     if ( node.nodeType != 1 ) {
         return node;
     }
-    return $.is(node, 'code') ? $.contents(node) : node;
+    return $.is(node, tag) ? $.contents(node) : node;
+}
+
+
+/**
+ * 检查/剥离内容中的链接元素。
+ * @param  {Node|[Node]} cons 内容节点（集）
+ * @return {Node|[Node]}
+ */
+function stripLinks( cons ) {
+    return $.isArray(cons) ?
+        cons.map( el => stripElem(el, 'a') ) :
+        stripElem( cons, 'a' );
 }
 
 
@@ -1221,9 +1206,9 @@ function insertCodes( box, codes, meth ) {
         _cbox = $.wrapInner(box, '<code>');
     }
     if ( codes.nodeType ) {
-        codes = stripCode( codes );
+        codes = stripElem( codes, 'code' );
     } else {
-        codes = $.map( codes, stripCode );
+        codes = codes.map( el => stripElem(el, 'code') );
     }
     return $[meth]( _cbox, codes );
 }
@@ -1232,7 +1217,7 @@ function insertCodes( box, codes, meth ) {
 /**
  * 插入链接内容。
  * 如果容器内不为<a>元素，自动创建封装。
- * @param  {Element} box 链接容器
+ * @param  {Element} box 链接容器（兼容<a>）
  * @param  {Node|[Node]} cons 链接内容
  * @param  {String} meth 插入方法
  * @return {Node|[Node]} cons
@@ -1243,7 +1228,7 @@ function insertLink( box, cons, meth ) {
     if ( !_a ) {
         _a = $.wrapInner( box, '<a>' );
     }
-    return $[meth]( _a, cons );
+    return $[meth]( _a, stripLinks(cons) );
 }
 
 
@@ -1402,6 +1387,25 @@ function trClone( tr, rows, clean ) {
         _buf.push( $.clone(_new, true) );
     }
     return _buf;
+}
+
+
+/**
+ * 注音内容构造。
+ * obj: {
+ *      rb:  String
+ *      rtp: [rp,rt,rp:String]
+ * }
+ * @param  {Object} obj 注音内容配置
+ * @return {[Element]} 内容节点集
+ */
+function rubySubs( obj ) {
+    return [
+        $.Element('rb', obj.rb),
+        obj.rtp[0] && $.Element('rp', obj.rtp[0]),
+        $.Element('rt', obj.rtp[1]),
+        obj.rtp[2] && $.Element('rp', obj.trp[2]),
+    ];
 }
 
 
