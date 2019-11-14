@@ -714,11 +714,13 @@ const Content = {
      * 注音。
      * 结构：ruby/rb,rp.Left,rt,rp.Right
      * 不管原始内容，这里仅是添加一个合法的子单元。
-     * subs: {
+     * subs:Object {
      *      rb:  String
      *      rtp: [rp,rt,rp:String]
      * }
-     * 注：现代版浏览器可能不需要rp实参。
+     * subs:Element
+     * 仅支持合法的注音子元素集，即可执行<ruby>合并。
+     *
      * @param  {Element} root 注音根元素
      * @param  {Object|[Element]} subs 注音内容配置或子节点数组
      * @return {Element} root
@@ -1035,7 +1037,7 @@ function single( tags, ...rest ) {
  * @param  {String} meth 插入方法（fill|append|prepend）
  * @return {Element|null} 标题元素
  */
- function blockHeading( tag, box, cons, meth ) {
+function blockHeading( tag, box, cons, meth ) {
     let _hx = $.get( `>${tag}`, box );
 
     if ( cons === null ) {
@@ -1404,7 +1406,7 @@ function rubySubs( obj ) {
         $.Element('rb', obj.rb),
         obj.rtp[0] && $.Element('rp', obj.rtp[0]),
         $.Element('rt', obj.rtp[1]),
-        obj.rtp[2] && $.Element('rp', obj.trp[2]),
+        obj.rtp[2] && $.Element('rp', obj.rtp[2]),
     ];
 }
 
@@ -1421,7 +1423,7 @@ function rubySubs( obj ) {
  * @param  {...Value} 剩余参数（适用table）
  * @return {Element|[Element]} 结构根（序列）
  */
- function create( name, ...rest ) {
+function create( name, ...rest ) {
     let _tags = tagsMap[name];
 
     if ( !_tags ) {

@@ -106,14 +106,18 @@ const _On = {
      * 创建数值/字符范围序列。
      * 目标：当前条目，可选。
      * 明确传递beg为null，表示取流程数据。
+     * 如果beg为undefined，表示取流程数据为全部参数。
      * @param  {Number|String} beg 起始数值/字符
      * @param  {Number|String} size 范围大小/终止字符
      * @param  {Number} step 步进值
      * @return {[Number|String]}
      */
     range( evo, beg, size, step ) {
-        if ( beg == null ) {
+        if ( beg === null ) {
             beg = evo.data;
+        }
+        else if ( beg === undefined ) {
+            [beg, size, step] = evo.data;
         }
         return [...$.range( beg, size, step )];
     },
@@ -225,7 +229,7 @@ const _On = {
     'innerWidth',   // (): Number
     'outerWidth',   // ( margin? ): Number
     'outerHeight',  // ( margin? ): Number
-    'next',         // ( slr?, until ): Element | null
+    'next',         // ( slr?, until? ): Element | null
     'nextAll',      // ( slr? ): [Element]
     'nextUntil',    // ( slr? ): [Element]
     'prev',         // ( slr?, until? ): Element | null

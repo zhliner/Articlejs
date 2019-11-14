@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>文章的内容结构与效果</title>
-    <script src="../base/tquery/tquery.js"></script>
-    <link rel="stylesheet" href="../styles/irons-x.css" />
-    <style>
-        body {
-            margin: 0;
-            padding-left: 270px;
-        }
-        header.abstract {
-            width: 700px;
-            margin: 50px;
-            box-sizing: border-box;
-        }
-        hgroup,
-        article.Main {
-            width: 800px;
-        }
-    </style>
+<meta charset="utf-8" />
+<title>文章的内容结构</title>
+<script src="../base/tquery/tquery.js"></script>
+<link rel="stylesheet" href="../styles/example.css" />
+<style>
+    body {
+        margin: 0;
+        padding-left: 270px;
+    }
+    header[role=abstract] {
+        width: 700px;
+        margin: 50px;
+        box-sizing: border-box;
+    }
+    hgroup,
+    article.Main {
+        width: 800px;
+    }
+</style>
 </head>
 <body>
     <hgroup>
-        <h1 id="文章的内容结构与效果">文章的内容结构与效果</h1>
+        <h1 id="文章的内容结构">文章的内容结构</h1>
         <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
     </hgroup>
-    <header role="abstract" class="abstract">
+    <header role="abstract">
         <h3>【提 要】</h3>
         <p>一篇文章的内容最多分成五个层级：<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>，每一个层级对应一个片区（<code>section</code>）。每一层通常都有一个标题，起始顶层片区的标题为
             <code>&lt;h2&gt;</code>，其余顺次为 <code>&lt;h3&gt;</code> <code>&lt;h4&gt;</code> <code>&lt;h5&gt;</code>
@@ -37,9 +37,9 @@
                 一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性很差。</p>
         </blockquote>
     </header>
-    <nav role="toc" class="toc">
-        <h4><a href="#文章的内容结构与效果">【目 录】</a></h4>
-        <ol role="cascade" class="cascade">
+    <nav role="toc">
+        <h4><a href="#文章的内容结构">【目 录】</a></h4>
+        <ol role="cascade">
             <li><h5><a href="#内容的结构">内容的结构</a></h5>
                 <ol>
                     <li><a href="#层次图">层次图</a></li>
@@ -108,7 +108,7 @@
                 <p>这里的结构主要参考Markdown文档按标题折叠的逻辑来设计，表达合理的同时也便于对Markdown文档的解析结果进行程序处理：重构为如下的层次结构。</p>
                 <blockquote>
                     <p><strong>注：</strong><br />
-                        根据使用经验，这种规范的内容结构实际上可以迫使您把文章的内容组织得更合理。您可以试一试 <code>:)</code></p>
+                        根据使用经验，这种规范的内容结构实际上可以迫使您把文章的内容组织得更合理。您可以试一试 <code role="orz">:)</code></p>
                 </blockquote>
             </header>
             <h3 id="层次图">层次图</h3>
@@ -116,7 +116,7 @@
                 <pre>
 <code data-lang="html">&lt;h1&gt;&lt;/h1&gt;                                   <b class="cmt">&lt;!-- 主标题 --&gt;</b>
 &lt;header role="abstract"&gt;&lt;/header&gt;           <b class="cmt">&lt;!-- 提要 --&gt;</b>
-&lt;nav role="toc" class="toc"&gt;&lt;/nav&gt;          <b class="cmt">&lt;!-- 目录 --&gt;</b>
+&lt;nav role="toc"&gt;&lt;/nav&gt;                      <b class="cmt">&lt;!-- 目录 --&gt;</b>
 &lt;article&gt;                                   <b class="cmt">&lt;!-- 文章区 --&gt;</b>
     &lt;header&gt;&lt;/header&gt;                       <b class="cmt">&lt;!-- 章导言 --&gt;</b>
     &lt;h2&gt;&lt;/h2&gt;                               <b class="cmt">&lt;!-- 章标题 --&gt;</b>
@@ -156,16 +156,11 @@
 </code></pre>
                 <p><strong>解析逻辑：</strong></p>
                 <ul>
-                    <li>如果内容包含多个层级（标题），在上级标题和首个下级标题之间的内容被视为 <code>&lt;header&gt;</code> 部分。</li>
-                    <li>如果内部已经没有下级标题，则全部视为内容，由一个 <code>&lt;section role="content"&gt;</code> 包含。它被称为 <code>正文区</code>，无导言和标题部分。</li>
-                    <li>如果内部的下级标题不是顺次递增而是跨级了，则解析为内容区容器（内部子标题继续解析）。这违反了标准的层次结构，通常是内容的组织不够合理。</li>
-                    <li>除了终端内容区，一个层级中最多只包含3种子元素：<code>h2-h6</code>、<code>header</code>（前段）和可能多个 <code>section</code> 单元。</li>
+                    <li>每一级标题之后的内容即为该标题相关的 <code>&lt;section&gt;</code>。</li>
+                    <li>如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为 <code>&lt;header&gt;</code>。</li>
+                    <li>如果内容中已经没有下级标题，则视为正文内容。</li>
+                    <li>如果子标题不是顺次递减而是跨级，也视为正文内容，但内部子标题继续解析。<strong>注</strong>：这通常是内容组织不太合理的表现。</li>
                 </ul>
-                <blockquote>
-                    <p><strong>注：</strong><br>
-                        对于没有明确标签表达的内容单元，采用相似用途的标签和 <code>role</code> 属性来定义，如 <code>&lt;nav role="toc"&gt;</code> 表示目录单元。<br>
-                        在实际的文章内容里，会添加一个相同名称的 <code>class</code> 属性值，以便于样式定义。如上源码所示。<br></p>
-                </blockquote>
             </section>
         </section>
         <hr />
@@ -277,8 +272,8 @@
                 <section>
                     <pre>
 <code data-lang="html">&lt;header&gt;&lt;/header&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
-&lt;h2&gt;
-&lt;section role="s1"&gt;&lt;/section&gt;
+&lt;h2&gt; <b class="cmt">&lt;!-- h2 ~ h6 --&gt;</b>
+&lt;section role="s1"&gt;&lt;/section&gt; <b class="cmt">&lt;!-- s1 ~ s5 --&gt;</b>
 &lt;footer&gt;&lt;/footer&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
 </code></pre>
                 </section>
@@ -391,7 +386,7 @@
                 <h4 id="提要">提要</h4>
                 <section>
                     <pre>
-<code data-lang="html">&lt;header role="abstract" class="abstract"&gt;
+<code data-lang="html">&lt;header role="abstract"&gt;
     &lt;h3&gt;提要&lt;h3&gt;
     &lt;p&gt;&lt;/p&gt; ...
 &lt;/header&gt;
@@ -400,10 +395,10 @@
                 <h4 id="目录">目录</h4>
                 <section>
                     <pre>
-<code class="html language-html">&lt;nav role="toc" class="toc"&gt;
+<code class="html language-html">&lt;nav role="toc"&gt;
     &lt;h4&gt;&lt;/h4&gt;
-    &lt;ol role="cascade" class="cascade"&gt;
-        &lt;li&gt;&lt;a&gt;&lt;/a&gt;&lt;/li&gt; <b class="cmt">&lt;!-- &lt;a href="#...通常包含锚点"&gt; --&gt;</b>
+    &lt;ol role="cascade"&gt;
+        &lt;li&gt;&lt;a&gt;&lt;/a&gt;&lt;/li&gt; <b class="cmt">&lt;!-- &lt;a href="#...锚点"&gt; --&gt;</b>
         &lt;li&gt;&lt;h5&gt;&lt;a&gt;&lt;/a&gt;&lt;/h5&gt;
             &lt;ol&gt;
                 &lt;li&gt;&lt;a&gt;&lt;/a&gt;&lt;/li&gt;
@@ -416,7 +411,7 @@
                 <h4 id="级联编号表">级联编号表</h4>
                 <section>
                     <pre>
-<code data-lang="html">&lt;ol role="cascade" class="cascade"&gt;
+<code data-lang="html">&lt;ol role="cascade"&gt;
     &lt;li&gt;&lt;/li&gt; <b class="cmt">&lt;!-- 由CSS表达序号规则 --&gt;</b>
     &lt;li&gt;&lt;h5&gt;&lt;/h5&gt;
         &lt;ol&gt;
@@ -429,7 +424,7 @@
                 <h4 id="代码表">代码表</h4>
                 <section>
                     <pre>
-<code data-lang="html">&lt;ol role="codelist" class="codelist"&gt;
+<code data-lang="html">&lt;ol role="codelist"&gt;
     &lt;li&gt;&lt;code data-lang="xx"&gt; <b class="cmt">&lt;!-- 根封装 --&gt;</b>
         ...&lt;b&gt;&lt;/b&gt;... <b class="cmt">&lt;!-- 代码内容 --&gt;</b>
     &lt;/code&gt;&lt;/li&gt;
@@ -507,7 +502,7 @@ b.non   <b class="cmt">/* invalid */</b>
                 <h4 id="源码2（代码表）">源码2（代码表）</h4>
                 <section>
                     <pre>
-<code data-lang="html">&lt;ol role="codelist" class="codelist"&gt;
+<code data-lang="html">&lt;ol role="codelist"&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;package&lt;/<b class="tag">b</b>&gt; main&lt;/code&gt;&lt;/li&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;import&lt;/<b class="tag">b</b>&gt; &lt;<b class="tag">b</b> class=<b class="atv">"str"</b>&gt;"fmt"&lt;/<b class="tag">b</b>&gt;&lt;/code&gt;&lt;/li&gt;
     &lt;li&gt;&lt;code data-lang="go"&gt;&lt;<b class="tag">b</b> class=<b class="atv">"kws"</b>&gt;func&lt;/<b class="tag">b</b>&gt; main() {&lt;/code&gt;&lt;/li&gt;
@@ -522,7 +517,7 @@ b.non   <b class="cmt">/* invalid */</b>
                 </section>
                 <h4 id="效果2">效果</h4>
                 <section>
-                    <ol role="codelist" class="codelist">
+                    <ol role="codelist">
                         <li><code data-lang="go"><b class="kws">package</b> main</code></li>
                         <li><code data-lang="go"><b class="kws">import</b> <b class="str">"fmt"</b></code></li>
                         <li><code data-lang="go"><b class="kws">func</b> main() {</code></li>

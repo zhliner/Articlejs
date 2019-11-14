@@ -306,7 +306,7 @@ function cleanText( txt ) {
  * @param  {Boolean} clean 清理空白
  * @return {Text} 文本节点
  */
- function textNode( el, clean ) {
+function textNode( el, clean ) {
     return clean ? $.Text( cleanText($.text(el)) ) : $.Text( el );
 }
 

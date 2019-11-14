@@ -23,7 +23,7 @@
 //
 
 import { create, Content } from "./create.js";
-import { conName, goodSub } from "./types.js";
+import { conName, goodSub, error } from "./types.js";
 import { heading, content } from "./picks.js";
 
 
@@ -31,7 +31,7 @@ const
     $ = window.$,
 
     // 媒体内容元素。
-    __mediaSlr = 'img, video, audio',
+    __mediaSlr = 'img, svg, video, audio',
 
     // 小区块标题选择器。
     __blockHxSlr = 'h3, h4, summary, figcaption';
@@ -73,6 +73,7 @@ const __defaultConitem = {
 //
 // 数据转换映射。
 // 提取&构造目标类型需要的数据条目（见Content.xx接口）。
+// { 目标类型名: 转换方法 }
 // 适用方法：prepend, append, fill。
 // 参数：
 // - @param {Element} src 取值元素
@@ -356,7 +357,7 @@ const dataTrans = {
  * @param  {Element} box 小区块容器
  * @param  {Boolean} text 是否提取文本
  * @param  {Boolean} clean 是否清理文本
- * @return {[Element]}
+ * @return {[Element]} 结果集
  */
 function blockConitems( name, box, text, clean ) {
     return $.not(
@@ -397,18 +398,19 @@ function getsMedia( nodes ) {
 
 
 /**
- * 创建默认的内容单元集。
- * 实参cons是内联单元的一维/二维数组。
- * @param {String} name 目标内容名
- * @param {Node|[Node]|null} cons 内联节点（集）
+ * 创建默认的内容单元（集）。
+ * 实参cons为二维数组时才会创建多个子条目。
+ * @param  {String} name 目标内容名
+ * @param  {Node|[Node]|null} cons 内联节点（集）
+ * @return {Element|[Element]|null}
  */
- function defaultConitems( name, cons ) {
+function defaultConitems( name, cons ) {
     let _n = __defaultConitem[name];
 
     if ( !_n ) {
         return null;
     }
-    if ( !$.isArray(cons) ) {
+    if ( !$.isArray(cons) || !$.isArray(cons[0]) ) {
         return Content[_n]( create(_n), cons, 'fill' );
     }
     return cons.map(
@@ -432,10 +434,19 @@ function getsMedia( nodes ) {
  * @param  {String} meth  合并方法
  * @param  {Boolean} text 是否取文本
  * @param  {Boolean} clean 是否文本清理
- * @return {Element} self
+ * @return {Element|[Element]} 新插入的单元（集）
  */
 function merge( self, from, meth, text, clean ) {
-    //
+    let _n = conName(self),
+        _f = dataTrans[_n];
+
+    if ( !_f ) {
+        return error(
+            '?', // 待定
+            `[${_n}] conversion is not supported.`
+        );
+    }
+    return Content[_n]( self, _f(from, text, clean), meth );
 }
 
 
@@ -449,10 +460,18 @@ function merge( self, from, meth, text, clean ) {
  * @param  {String} meth  合并方法
  * @param  {Boolean} text 是否取文本
  * @param  {Boolean} clean 是否文本清理
- * @return {Element} self
+ * @return {Element} 新插入的单元
  */
 function insert( self, from, meth, text, clean ) {
-    //
+    let _n = conName(self.parentElement);
+
+    if ( !goodSub(_n, from) ) {
+        from = defaultConitems(_n, content(from, text,clean));
+    }
+    if ( !from ) {
+        return error( '?', `can not insert here with ${meth}.` );
+    }
+    return $[meth]( self, from );
 }
 
 

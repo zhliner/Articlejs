@@ -622,7 +622,7 @@ function sameType( e1, e2 ) {
  * @param  {Node} node 目标节点
  * @return {Boolean}
  */
- function isOuter( node ) {
+function isOuter( node ) {
     return node.nodeType == 3 ||
         __outerTags.has( node.nodeName.toLowerCase() );
 }
@@ -647,6 +647,19 @@ function inlines( node, buf = [] ) {
 }
 
 
+/**
+ * 错误提示&回馈。
+ * 友好的错误提示并关联帮助。
+ * @param {Number} help 帮助ID
+ * @param {String} msg 错误消息
+ */
+function error( help, msg ) {
+    // 全局：
+    // - 消息显示
+    // - 关联帮助
+}
+
+
 //
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
@@ -658,4 +671,5 @@ export {
     isConitem, isCodeli, isTocHeading, isTocItem, isCascadeli, isConItems,
     conName, goodSub, isGoodSubs, nilSub,
     sameType, inlines,
+    error,
 };

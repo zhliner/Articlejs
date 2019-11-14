@@ -162,8 +162,10 @@ contains( box: Element, node: Node ): Boolean
 // 定制。
 
 range( beg, size: Number|String, step: Number ): [Number] | [String]
-// 目标/参数：1，可选。
-// 定制：迭代器扩展为数组。
+// 构建范围值数组。
+// 目标/参数：1|2|3，可选。
+// beg传递null表示取流程数据。
+// beg若为undefined，表示取流程数据为全部实参。
 
 
 // Collector专有

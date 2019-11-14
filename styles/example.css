@@ -126,9 +126,9 @@ hgroup > h2 {
 
 /* 提要
  * --------------------------------------------------------------------------
- * header.abstract/h3, p+
+ * header:abstract/h3, p+
  */
-header.abstract {
+header[role=abstract] {
     border: 1px #eee solid;
     border-radius: 10px;
     background-color: #f7f7f7;
@@ -136,17 +136,17 @@ header.abstract {
     padding: 10px 30px;
     box-shadow: #ccc 0 1px 6px;
 }
-header.abstract > h3 {}
-header.abstract p {
+header[role=abstract] > h3 {}
+header[role=abstract] p {
     font-size: 11pt;
 }
 
 
 /* 目录
  * --------------------------------------------------------------------------
- * nav.toc/ol.cascade/li/a
+ * nav:toc/ol:cascade/li/a
  */
-nav.toc {
+nav[role=toc] {
     padding: 5px;
     background-color: #fffff7;
     border: 1px #e3e3e0 solid;
@@ -157,7 +157,7 @@ nav.toc {
 }
 
 /* 页面固定 */
-nav.toc {
+nav[role=toc] {
     position: fixed;
     top: 5px;
     left: 20px;
@@ -165,12 +165,12 @@ nav.toc {
     height: 96%;
 }
 
-nav.toc>ol.cascade {
+nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 80px);
     overflow-y: auto;
 }
 
-nav.toc h4 {
+nav[role=toc] h4 {
     margin: 5px 2px;
     padding-bottom: 10px;
     font-size: 12pt;
@@ -179,55 +179,55 @@ nav.toc h4 {
     color: #333;
 }
 
-nav.toc h4>a:hover {
+nav[role=toc] h4 > a:hover {
     text-decoration: none;
 }
 
-nav.toc>ol {
+nav[role=toc] > ol {
     margin: 2px 0;
     padding: 5px 2px;
     padding-bottom: 11pt;
 }
 
-nav.toc li {
+nav[role=toc] li {
     margin: 0;
     line-height: 150%;
 }
 
-nav.toc>ol li {
+nav[role=toc] > ol li {
     margin-left: 2em;
 }
 
-nav.toc a {
+nav[role=toc] a {
     display: block;
     text-decoration: none;
     color: #039;
     line-height: 150%;
 }
 
-nav.toc a:hover {
+nav[role=toc] a:hover {
     text-decoration: underline;
 }
 
 
 /* 多级编号表
  * --------------------------------------------------------------------------
- * ol.cascade/li/h5, ol/...
+ * ol:cascade/li/h5, ol/...
  */
-ol.cascade,
-ol.cascade ol {
+ol[role=cascade],
+ol[role=cascade] ol {
     list-style-type: none;
     counter-reset: numer;
     padding: 0;
 }
 
-ol.cascade h5 {
+ol[role=cascade] h5 {
     font-size: 1em;
     font-weight: normal;
     margin: 0;
 }
 
-ol.cascade li:before {
+ol[role=cascade] li:before {
     position: absolute;
     top: 0;
     left: 0;
@@ -236,49 +236,49 @@ ol.cascade li:before {
     white-space: nowrap;
 }
 
-ol.cascade li {
+ol[role=cascade] li {
     position: relative;
 }
 
 /* 1. */
-ol.cascade>li {
+ol[role=cascade] > li {
     /* 缩进，与序号宽度适配 */
     margin-left: 3.0em;
 }
 
-ol.cascade>li:before {
+ol[role=cascade] > li:before {
     margin-left: -3.0em;
 }
 
 /* 1.2 */
-ol.cascade>li>ol>li {
+ol[role=cascade] > li>ol > li {
     margin-left: 3.0em;
 }
 
-ol.cascade>li>ol>li:before {
+ol[role=cascade] > li>ol > li:before {
     margin-left: -3.0em;
 }
 
 /* 1.2.3 */
-ol.cascade>li>ol>li>ol>li {
+ol[role=cascade] > li>ol > li>ol > li {
     margin-left: 3.5em;
 }
 
-ol.cascade>li>ol>li>ol>li:before {
+ol[role=cascade] > li>ol > li>ol > li:before {
     margin-left: -3.5em;
 }
 
 /* 1.2.3.4 */
-ol.cascade>li>ol>li>ol>li>ol li {
+ol[role=cascade] > li>ol > li>ol > li>ol li {
     margin-left: 4.2em;
 }
 
-ol.cascade>li>ol>li>ol>li>ol li:before {
+ol[role=cascade] > li>ol > li>ol > li>ol li:before {
     margin-left: -4.2em;
 }
 
 /* 编号右对齐 */
-ol.cascade li:before {
+ol[role=cascade] li:before {
     width: 2.5em;
     padding: 0;
     text-align: right;
@@ -286,10 +286,10 @@ ol.cascade li:before {
 
 
 /* 另参见 */
-ul.seealso {}
+ul[role=seealso] {}
 
 /* 文献参考 */
-ol.references {}
+ol[role=references] {}
 
 
 /* [ 通用 ]
@@ -312,11 +312,19 @@ p {
  * --------------------------------------------------------------------------
  */
 
+/*
 .Main > section {}
 .Main > section > section {}
 .Main > section > section > section {}
 .Main > section > section > section > section {}
 .Main > section > section > section > section > section {}
+*/
+.Main section[role=s1] {}
+.Main section[role=s2] {}
+.Main section[role=s3] {}
+.Main section[role=s4] {}
+.Main section[role=s5] {}
+
 
 /* 章：header,h2,section,footer
  * ------------------------------------
@@ -327,45 +335,49 @@ p {
     background-color: #9c0;
     border-bottom: 1px #8b0 solid;
 }
-.Main h2 ~ section {}
+.Main section[role=s1] {}
+
 
 /* 节：header,h3,section,footer
  * ------------------------------------
  */
-.Main section > h3 {
+.Main section[role=s1] > h3 {
     font-size: 17pt;
     padding: 4px;
     border-bottom: 1px #eee solid;
 }
-.Main h3 ~ section {}
+.Main section[role=s2] {}
+
 
 /* 区：header,h4,section,footer
  * ------------------------------------
  */
-.Main section > h4 {
+.Main section[role=s2] > h4 {
     font-size: 14pt;
     padding: 4px;
 }
-.Main h4 ~ section {}
+.Main section[role=s3] {}
+
 
 /* 段：header,h5,section,footer
  * ------------------------------------
  */
-.Main section > h5 {
+.Main section[role=s3] > h5 {
     font-size: 11pt;
     color: #093;
     border-bottom: 1px #3c6 dotted;
 }
-.Main h5 ~ section {}
+.Main section[role=s4] {}
+
 
 /* 末：header,h6,section,footer
  * ------------------------------------
  */
-.Main section > h6 {
+.Main section[role=s4] > h6 {
     font-size: 10pt;
     color: #036;
 }
-.Main h6 ~ section {}
+.Main section[role=s5] {}
 
 
 /* 定义列表
@@ -390,7 +402,7 @@ p {
 
 /* 插画
  * --------------------------------------------------------------------------
- * figure/figcaption, p/img, svg
+ * figure/figcaption, p/img, svg, audio, video
  */
 .Main figure {
     padding: 0;
@@ -438,11 +450,11 @@ p {
 
 /* 详细内容
  * --------------------------------------------------------------------------
- * [details/summary, section/~]
+ * [details/summary, p+]
  */
 .Main details {}
 .Main details > summary {}
-.Main details > section {}
+.Main details > p {}
 
 
 /* 导言
@@ -517,10 +529,10 @@ p {
 
 
 /* 表情 */
-.Main code.orz {
+.Main code[role=orz] {
     display: inline-block;
     padding: 0 4px;
-    font-family: monospace;
+    /* font-family: monospace; */
     white-space: pre;
     vertical-align: middle;
     line-height: 100%;
@@ -561,10 +573,10 @@ p {
 
 /* 代码表
  * ------------------------------------
- * ol.codelist/li/code
+ * ol:codelist/li/code
  * 超长默认换行。
  */
-.Main ol.codelist {
+.Main ol[role=codelist] {
     font-size: 10pt;
     padding: 0;
     border: 1px #ddd solid;
@@ -576,13 +588,13 @@ p {
     overflow-x: auto;
     resize: none;
 }
-.Main ol.codelist li {
+.Main ol[role=codelist] li {
     margin: 0;
     padding: 0;
     border-left: 3px #dde solid;
     line-height: 120%;
 }
-.Main ol.codelist code {
+.Main ol[role=codelist] code {
     margin: 0;
     color: #000;
     white-space: pre;
@@ -594,6 +606,7 @@ p {
 
 /* 高亮着色：通用
  * ------------------------------------
+ * 注：采用类实现（非role）。
  */
 code b {
     font-weight: normal;
