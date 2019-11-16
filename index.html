@@ -5,13 +5,34 @@
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
     <title>Article Editor with Tpb/tQuery</title>
-    <link rel="stylesheet" href="styles/irons-x.css">
+    <link rel="stylesheet" href="styles/example/main.css">
     <script src="base/tquery/tquery.js"></script>
     <script src="base/tpb/tpb.js" type="module" async></script>
+
+    <style>
+        #beeptip {
+            position: absolute;
+            visibility: hidden;
+            z-index: -1;
+        }
+    </style>
 </head>
 
-<body>
+<body lang="">
+    <aside id="outline">
+        <!-- 大纲栏：定时/手动更新。可隐藏。 -->
+    </aside>
 
+    <main id="editor">
+        <!-- 编辑器区域：工具栏，编辑区，录入面板，状态栏/命令行 -->
+    </main>
+
+    <aside id="help">
+        <!-- 帮助栏：固定时占用空间。可隐藏。 -->
+    </aside>
+
+    <!-- 提示音 -->
+    <audio id="beeptip" src="../pub/beep.ogg"></audio>
 </body>
 
 </html>
