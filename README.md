@@ -1,3 +1,3 @@
 # Articlejs
 
-交互文档生成器，采用 Tpb/tQuery 基础库。
+标准文章编辑器，可包含交互的能力。基于 Tpb/tQuery 开发。

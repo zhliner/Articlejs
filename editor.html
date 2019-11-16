@@ -2,7 +2,7 @@
 <html><head>
 <meta charset="utf-8" />
 <meta http-equiv="no-cache">
-<title>Happy editing...</title>
+<title>Happy editing... for you</title>
 <link rel="stylesheet" href="tpb/pb.css" />
 
 <!-- tools -->
@@ -105,7 +105,7 @@ $(document).ready(function() {
 </script>
 
 <style>
-audio#page-beep {
+#beeptip {
     position: absolute;
     visibility: hidden;
     z-index: -1;
@@ -114,20 +114,20 @@ audio#page-beep {
 </head>
 <body lang="">
 
-<aside>
+<aside id="outline">
 	<!-- 大纲栏：定时/手动更新。可隐藏。 -->
 </aside>
 
-<main>
+<main id="editor">
 	<!-- 编辑器区域：工具栏，编辑区，录入面板，状态栏/命令行 -->
 </main>
 
-<aside>
+<aside id="help">
 	<!-- 帮助栏：固定时占用空间。可隐藏。 -->
 </aside>
 
 <!-- 提示音 -->
-<audio id="page-beep" src="../pub/beep.ogg"></audio>
+<audio id="beeptip" src="../pub/beep.ogg"></audio>
 
 </body>
 </html>
