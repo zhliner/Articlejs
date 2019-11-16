@@ -1,0 +1,242 @@
+<div tpl-name="its:fontst" class="_args _fontst">
+    <ul class="_list" mvc-on="click('input')" mvc-by="Ed.cstyle">
+        <li>
+            <label>
+                <input type="radio" name="tline" value="text-decoration:" checked />
+                <i id="l-noline"></i>&nbsp;{无划线}
+            </label>
+        </li>
+        <li>
+            <label title="text-decoration:underline">
+                <input type="radio" name="tline" value="text-decoration:underline" />
+                <i id="l-fuline"></i>&nbsp;{下划线}
+            </label>
+        </li>
+        <li>
+            <label title="text-decoration:overline">
+                <input type="radio" name="tline" value="text-decoration:overline" />
+                <i id="l-foline"></i>&nbsp;{上划线}
+            </label>
+        </li>
+        <li>
+            <label title="font-weight:bold">
+                <input type="checkbox" name="fbold" value="font-weight:bold" />
+                <i id="l-fbold"></i>&nbsp;{粗体样式}
+            </label>
+        </li>
+        <li>
+            <label title="font-style:italic">
+                <input type="checkbox" name="fitalic" value="font-style:italic" />
+                <i id="l-fitalic"></i>&nbsp;{斜体样式}
+            </label>
+        </li>
+    </ul>
+</div>
+
+<div tpl-name="its:align" class="_args _align">
+    <ul class="_talign _list" mvc-on="click('input')" mvc-by="Ed.cstyle('text-align')">
+        <li class="_clean">
+            <b mvc-on="click" mvc-by="Ed.delstyle('text-align')" title="{水平默认对齐}">--- default ---</b>
+        </li>
+        <li>
+            <label title="text-align:center">
+                <input type="radio" name="talign" value="center" />
+                <i id="l-alignc"></i>&nbsp;{居中对齐}
+            </label>
+        </li>
+        <li>
+            <label title="text-align:right">
+                <input type="radio" name="talign" value="right" />
+                <i id="l-alignr"></i>&nbsp;{右对齐}
+            </label>
+        </li>
+        <li>
+            <label title="text-align:justify">
+                <input type="radio" name="talign" value="justify" />
+                <i id="l-alignj"></i>&nbsp;{两端对齐}
+            </label>
+        </li>
+        <li>
+            <label title="text-align:left">
+                <input type="radio" name="talign" value="left" />
+                <i id="l-alignl"></i>&nbsp;{左对齐}
+            </label>
+        </li>
+    </ul>
+    <select name="valign" size="8" class="_valign" title="vertical-align:~"
+        mvc-on="change" mvc-by="Ed.cstyle('vertical-align')">
+        <option value="" selected title="{垂直默认对齐}">------</option>
+        <option value="baseline">baseline</option>
+        <option value="sub">sub</option>
+        <option value="super">super</option>
+        <option value="top">top</option>
+        <option value="text-top">text-top</option>
+        <option value="middle">middle</option>
+        <option value="bottom">bottom</option>
+        <option value="text-bottom">text-bottom</option>
+    </select>
+</div>
+
+<div tpl-name="its:fontsz" class="_args _fontsz">
+    <select name="fontsz" size="8" data-id="fontsz" title="font-size:~"
+        mvc-on="change" mvc-by="Ed.cstyle('font-size')">
+        <option value="xx-small">xx-small</option>
+        <option value="x-small">x-small</option>
+        <option value="small">small</option>
+        <option value="smaller">smaller</option>
+        <option value="medium">medium</option>
+        <option value="large">large</option>
+        <option value="larger">larger</option>
+        <option value="x-large">x-large</option>
+        <option value="xx-large">xx-large</option>
+    </select>
+    <ul class="_value">
+        <li class="_clean">
+            <b mvc-on="click" mvc-by="Ed.delstyle('font-size')" title="{清除字号设置}">--- none ---</b>
+        </li>
+        <li>
+            <label>{数量}</label>
+            <input type="text" class="_word" name="fontszv" maxlength="20" title="{可含单位}"
+                mvc-on="input|join('1@fszval', ['fontszv','unit'])" />
+            <select name="unit" mvc-on="change|join('1@fszval', ['fontszv','unit'])">
+                <option value="">----</option>
+                <option value="pt">pt</option>
+                <option value="px">px</option>
+                <option value="em">em</option>
+            </select>
+            <input type="hidden" name="fszval" data-id="fszval" value="">
+        </li>
+        <li class="_apply">
+            <input name="apply" type="submit" class="_button" value="{应用}"
+                mvc-on="click" mvc-by="Ed.cstyle('font-size', 'fszval')" />
+        </li>
+    </ul>
+</div>
+
+<div tpl-name="its:width" class="_args _width">
+    <ul class="_value">
+        <li mvc-on="click('input')|val('@wtype'),fcse(['width','unit','widthv'], 'wtype')" class="_types">
+            <label title="{宽度（width）}">
+                <input type="radio" name="_wtype" value="width" checked /><i id="l-width"></i>
+            </label>
+            <label title="{最大宽度（max-width）}">
+                <input type="radio" name="_wtype" value="max-width" /><i id="l-maxwidth"></i>
+            </label>
+            <label title="{最小宽度（min-width）}">
+                <input type="radio" name="_wtype" value="min-width" /><i id="l-minwidth"></i>
+            </label>
+            <input data-id="wtype" type="hidden" name="wtype" value="width" />
+        </li>
+        <li>
+            <label>{数量}</label>
+            <input type="text" class="_word" name="width" maxlength="20" title="{可含单位}"
+                mvc-on="input|join('1@widthv', ['width','unit'])" />
+            <select name="unit" mvc-on="change|join('1@widthv', ['width','unit'])">
+                <option value="">----</option>
+                <option value="px">px</option>
+                <option value="pt">%</option>
+                <option value="em">em</option>
+            </select>
+            <input type="hidden" name="widthv" data-id="widthv" value="">
+        </li>
+        <li class="_apply">
+            <input name="apply" type="submit" class="_button" value="{应用}"
+                mvc-on="click" mvc-by="Ed.cstyle('wtype', 'widthv', true)" />
+        </li>
+    </ul>
+</div>
+
+<div tpl-name="its:margin" class="_args _margin">
+    <ul class="_value">
+        <li class="_clean">
+            <b mvc-on="click" title="{清除全部边距}"
+                mvc-by="Ed.delstyle('margin','margin-top','margin-right','margin-bottom','margin-left')">--- none ---</b>
+        </li>
+        <li mvc-on="click('input')|val('@mpos'),fcse(['margin','unit','marginv'], 'mpos')" class="_types">
+            <label title="{四边距（margin）}">
+                <input type="radio" name="marginto" value="margin" checked /><i id="l-margin"></i>
+            </label>
+            <label title="{上边距（margin-top）}">
+                <input type="radio" name="marginto" value="margin-top" /><i id="l-margint"></i>
+            </label>
+            <label title="{右边距（margin-right）}">
+                <input type="radio" name="marginto" value="margin-right" /><i id="l-marginr"></i>
+            </label>
+            <label title="{下边距（margin-bottom）}">
+                <input type="radio" name="marginto" value="margin-bottom" /><i id="l-marginb"></i>
+            </label>
+            <label title="{左边距（margin-left）}">
+                <input type="radio" name="marginto" value="margin-left" /><i id="l-marginl"></i>
+            </label>
+            <input data-id="mpos" type="hidden" name="mpos" value="margin" />
+        </li>
+        <li>
+            <label>{数量}</label>
+            <input type="text" class="_phrase" name="margin" maxlength="40" title="{可含单位}"
+                mvc-on="input|join('1@marginv', ['margin','unit'])" />
+            <select name="unit" mvc-on="change|join('1@marginv', ['margin','unit'])">
+                <option value="">----</option>
+                <option value="px">px</option>
+                <option value="%">%</option>
+                <option value="em">em</option>
+            </select>
+            <input type="hidden" name="marginv" data-id="marginv" value="">
+        </li>
+        <li class="_apply">
+            <input name="apply" type="submit" class="_button" value="{应用}"
+                mvc-on="click" mvc-by="Ed.cstyle('mpos', 'marginv', true)" />
+        </li>
+    </ul>
+</div>
+
+<div tpl-name="its:float" class="_args _float">
+    <ul class="_list" mvc-on="click('input')" mvc-by="Ed.cstyle('float')">
+        <li class="_clean">
+            <b mvc-on="click" mvc-by="Ed.delstyle('float')" title="{清除浮动样式}">--- none ---</b>
+        </li>
+        <li>
+            <label title="float:none">
+                <input type="radio" name="cfloat" value="none" />
+                <i id="l-float0"></i>&nbsp;{无浮动}
+            </label>
+        </li>
+        <li>
+            <label title="float:left">
+                <input type="radio" name="cfloat" value="left" />
+                <i id="l-floatl"></i>&nbsp;{左浮动}
+            </label>
+        </li>
+        <li>
+            <label title="float:right">
+                <input type="radio" name="cfloat" value="right" />
+                <i id="l-floatr"></i>&nbsp;{右浮动}
+            </label>
+        </li>
+    </ul>
+</div>
+
+<div tpl-name="its:edsty" class="_edsty">
+    <div class="_css">
+        <textarea name="edcss" class="_code"
+            mvc-on="keyup focus|rows;
+            keyup|xkey('ctrl'),keys(13),fire('2@apply','click')"></textarea>
+    </div>
+    <ul mvc-on="click('input:radio')|val('1@edtype')" class="_opts">
+        <li>
+            <label title='style="..."'>
+                <input type="radio" name="edsty" value="attr" checked />{内联样式}
+            </label>
+        </li>
+        <li data-pb="disabled">
+            <label title="&lt;style scoped&gt;">
+                <input type="radio" name="edsty" value="elem" disabled />{局部样式元素}
+            </label>
+        </li>
+        <li class="_apply">
+            <input name="apply" data-id="apply" type="submit" class="_button" value="{应用}"
+                mvc-on="click" mvc-by="Ed.edstyle('styles','edcss','edtype')" />
+        </li>
+    </ul>
+    <!-- input:radio 准确委托，避免 value="应用" -->
+    <input data-id="edtype" type="hidden" name="edtype" value="attr" />
+</div>

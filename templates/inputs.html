@@ -1,0 +1,282 @@
+<form tpl-name="tab:section" class="Section"
+    mvc-on="submit|void,tedoff('textarea'),work" mvc-by="Mk.section">
+    <div class="_main">
+        <input name="heading" type="text" placeholder="{标题}" class="_heading"
+            mvc-on="focus|prop('text','','#g-current'),hold('form@','',0)" />
+        <div class="_content">
+            <textarea name="content" placeholder="{内容}"
+                mvc-on="keyup focus|rows;
+                focus|hold('form@','',0);
+                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
+        </div>
+    </div>
+    <div class="_side">
+        <ul class="_option" mvc-on="click('label')|telcd('content',['split','clean']),go(false,'3@','edoff')">
+            <li>
+                <label><input name="split" type="checkbox" checked />{换行分段}</label>
+            </li>
+            <li>
+                <label><input name="clean" type="checkbox" checked />{空白清理}</label>
+            </li>
+            <li class="_blk"><hr></li>
+            <li>
+                <label><input name="header" type="checkbox"/>{内容为导言}</label>
+            </li>
+        </ul>
+        <div class="_append">
+            <!-- 取消默认提交（否则两次，默认提交无功能键） -->
+            <input name="append" type="submit" class="_button" value="{添加}"
+                mvc-on="click|void,submit" />
+        </div>
+    </div>
+</form>
+
+<form tpl-name="tab:paragraph" class="Paragraph"
+    mvc-on="submit|void,tedoff('textarea'),work" mvc-by="Mk.paragraph">
+    <div class="_main">
+        <div class="_content">
+            <textarea name="content" placeholder="{内容}"
+                mvc-on="keyup focus|rows; keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
+        </div>
+    </div>
+    <div class="_side">
+        <ul class="_option" mvc-on="click('label')|telcd('content',['split','clean']),go(false,'3@','edoff')">
+            <li>
+                <label><input name="split" type="checkbox" checked />{换行分段}</label>
+            </li>
+            <li>
+                <label><input name="clean" type="checkbox" checked />{空白清理}</label>
+            </li>
+        </ul>
+        <div class="_append">
+            <input name="append" type="submit" class="_button" value="{添加}"
+                mvc-on="click|void,submit" />
+        </div>
+    </div>
+</form>
+
+<form tpl-name="tab:list" name="list" class="List"
+    mvc-on="submit|void,tedoff('textarea'),work" mvc-by="Mk.list">
+    <div class="_main">
+        <div class="_content">
+            <textarea name="content" data-id="lisdata"
+                data-list="{条目按行分隔（dt前置“dt:”）}"
+                data-code="{内容}"
+                mvc-on="keyup focus|rows;
+                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null);
+                list|val('@','-list','placeholder'),stop;
+                code|val('@','-code','placeholder'),stop"></textarea>
+        </div>
+    </div>
+    <div class="_side">
+        <ul class="_option"
+            mvc-on="click('label')|telcd('content',['split','clean']),go(true,'form@lisdata','code'),go(false,'form@lisdata','list'),go(false,'3@','edoff')">
+            <li mvc-on="click('i')|tabs('_fixed'),val('@litype','-val')" class="_icons">
+                <i id="i-ol" data-val="ol" title="{有序列表}&lt;ol&gt;" class="_fixed"></i>
+                <i id="i-ul" data-val="ul" title="{无序列表}&lt;ul&gt;"></i>
+                <i id="i-dl" data-val="dl" title="{定义列表}&lt;dl&gt;"></i>
+                <i id="i-li" data-val="li" title="{列表项}&lt;li/dt/dd&gt;"></i>
+                <input data-id="litype" type="hidden" name="litype" value="ol" />
+            </li>
+            <li class="_blk"><hr></li>
+            <li>
+                <label><input name="split" type="checkbox" checked />{换行分项}</label>
+            </li>
+            <li>
+                <label><input name="clean" type="checkbox" checked />{空白清理}</label>
+            </li>
+        </ul>
+        <div class="_append">
+            <input name="append" type="submit" class="_button" value="{添加}"
+                mvc-on="click|void,submit" />
+        </div>
+    </div>
+</form>
+
+<form tpl-name="tab:table" name="table" class="Table"
+    mvc-on="submit|void,work" mvc-by="Mk.table">
+    <div class="_main">
+        <input name="caption" type="text" placeholder="{表标题}" class="_heading"
+            mvc-on="focus|prop('text','','#g-current'), hold('form@','',0)" />
+        <div class="_content">
+            <textarea name="tdata" placeholder="{（一行一个单元格）}"
+                mvc-on="keyup focus|rows; focus|hold('form@','',0); keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
+        </div>
+    </div>
+    <div class="_side">
+        <ul class="_option">
+            <li mvc-on="click('i')|tabs('_fixed'),val('@thtype','-val')" class="_icons">
+                <i id="i-nilth" data-val="" title="{无表头}" class="_fixed"></i>
+                <i id="i-thtop" data-val="top" title="{行表头}"></i>
+                <i id="i-thleft" data-val="left" title="{列表头}"></i>
+                <i id="i-thboth" data-val="both" title="{行列表头}"></i>
+                <i id="i-thtf" data-val="hf" title="{表头+表脚}"></i>
+                <i id="i-th2tf" data-val="h2f" title="{行列表头+表脚}"></i>
+                <input data-id="thtype" type="hidden" name="thtype" value="" />
+            </li>
+            <li class="_blk"><hr></li>
+            <li><label>{边框}</label>
+                <select name="tborder">
+                    <option value="_tb0" selected>{无}</option>
+                    <option value="_tb1">{普通}</option>
+                    <option value="_tb4">{外围}</option>
+                    <option value="_tb2">{内部}</option>
+                    <option value="_tb5">{横向}</option>
+                    <option value="_tb6">{纵向}</option>
+                    <option value="_tb3">{上接式}</option>
+                </select>
+            </li>
+            <li><label>{对齐}</label>
+                <select name="talign">
+                    <option value="" selected>------</option>
+                    <option value="left">left</option>
+                    <option value="center">center</option>
+                    <option value="right">right</option>
+                </select>
+            </li>
+            <li><label>{宽度}</label>
+                <input name="width" type="text" class="_nums" value="100" mvc-on="focus|hold('form@','',0)" />
+                <select name="unit" class="_unit">
+                    <option value="%">%</option>
+                    <option value="px">px</option>
+                    <option value="em">em</option>
+                </select>
+            </li>
+            <li><label>{列数}</label>
+                <input name="cols" type="text" value="3" class="_nums" title="{列数}" mvc-on="focus|hold('form@','',0)" />
+            </li>
+        </ul>
+        <div class="_append">
+            <input name="append" type="submit" class="_button" value="{添加}"
+                mvc-on="click|void,submit" />
+        </div>
+    </div>
+</form>
+
+<form tpl-name="tab:figure" name="figure" class="Figure"
+    mvc-on="submit|void,work" mvc-by="Mk.figure">
+    <div class="_main">
+        <input data-id="heading" name="heading" type="text" placeholder="{标题}" class="_heading"
+            mvc-on="focus|prop('text','','#g-current'), hold('form@','',0)" />
+        <div class="_content">
+            <textarea name="figdata" data-id="figdata"
+                data-src="/xyz.com/pic.jpg; [800,600]; [alt=text]"
+                data-url="data:image/png;base64,..."
+                data-svg="&lt;svg&gt;...&lt;/svg&gt;"
+                data-txt="{内容行}"
+                mvc-on="keyup focus|rows;
+                focus|hold('form@','',0);
+                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null);
+                img|val('@','-src','placeholder'),stop;
+                data|val('@','-url','placeholder'),stop;
+                svg|val('@','-svg','placeholder'),stop;
+                ps ol ul|val('@','-txt','placeholder'),stop"></textarea>
+        </div>
+    </div>
+    <div class="_side">
+        <ul class="_option">
+            <li title="{默认在顶部}">
+                <label><input name="below" type="checkbox" />{标题在底部}</label>
+            </li>
+            <li class="_blk"><hr></li>
+            <li><label>{内容}</label>
+                <select name="figtype" mvc-on="change|get('value'),fire('form@figdata')">
+                    <option value="img">{图片URL}</option>
+                    <option value="data">DataURL</option>
+                    <!-- <option value="svg">{SVG源码}</option> -->
+                    <option value="ps">{段落集}</option>
+                    <option value="ol">{有序列表}</option>
+                    <option value="ul">{无序列表}</option>
+                </select>
+            </li>
+        </ul>
+        <div class="_append">
+            <input name="append" type="submit" class="_button" value="{添加}"
+            mvc-on="click|void,submit" />
+        </div>
+    </div>
+</form>
+
+<form tpl-name="tab:block" name="block" class="Block"
+    mvc-on="submit|void,work" mvc-by="Mk.block">
+    <div class="_main">
+        <input data-id="heading" name="heading" type="text" placeholder="{标题}" class="_heading"
+            mvc-on="focus|prop('text','','#g-current'),hold('form@','',0);
+            on|prop('disabled',null),stop;
+            off|prop('disabled',true),stop" />
+        <div class="_content">
+            <textarea name="blockdata" placeholder="{内容}"
+                mvc-on="keyup focus|rows;
+                focus|hold('form@','',0);
+                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
+        </div>
+    </div>
+    <div class="_side">
+        <ul class="_option">
+            <li data-id="bltypes" mvc-on="click('i')|tabs('_fixed'),val('2@bltype','-val'),fire('1@blmore','reset')" class="_icons">
+                <i id="i-bquote" mvc-on="click|fire('4@heading','on')" data-val="blockquote" title="{引用块}&lt;blockquote&gt;" class="_fixed"></i>
+                <i id="i-aside" mvc-on="click|fire('4@heading','on')" data-val="aside" title="{批注}&lt;aside&gt;"></i>
+                <i id="i-details" mvc-on="click|fire('4@heading','on')" data-val="details" title="{详细}&lt;details&gt;"></i>
+                <i id="i-layer" mvc-on="click|fire('4@heading','on')" data-val="layer" title="{封装层}&lt;div.layer&gt;"></i>
+                <i id="i-header" mvc-on="click|fire('4@heading','off')" data-val="header" title="{导言}&lt;header&gt;"></i>
+                <i id="i-footer" mvc-on="click|fire('4@heading','off')" data-val="footer" title="{尾注}&lt;footer&gt;"></i>
+            </li>
+            <li class="_blk"><hr></li>
+            <li><label>{更多}&gt;</label>
+                <select data-id="blmore" name="blockmore" mvc-on="reset|prop('value','');
+                    change|val('3@bltype'),clsrm('_fixed','2@bltypes >i'),fire('4@heading','off')">
+                    <option value="" selected>------</option>
+                    <option value="address" title="&lt;address&gt;">{联系信息}</option>
+                    <option value="copyright" title="&lt;p.copyright&gt;">{版权}</option>
+                    <option value="author" title="&lt;p.author&gt;">{作者}</option>
+                    <option value="seealso" title="&lt;ul.seealso&gt;">{扩展阅读}</option>
+                    <option value="references" title="&lt;ol.references&gt;">{参考文献}</option>
+                    <option value="synopsis" title="&lt;header.synopsis&gt;">{文章概要}</option>
+                    <option value="epilogue" title="&lt;footer.epilogue&gt;">{文章结语}</option>
+                </select>
+            </li>
+        </ul>
+        <input data-id="bltype" type="hidden" name="bltype" value="blockquote" />
+        <div class="_append">
+            <input name="append" type="submit" class="_button" value="{添加}"
+            mvc-on="click|void,submit" />
+        </div>
+    </div>
+</form>
+
+<form tpl-name="tab:codes" name="codes" class="Codes"
+    mvc-on="submit|void,tedoff('textarea._code'),work" mvc-by="Mk.codes">
+    <div class="_main">
+        <input name="ctitle" type="text" placeholder="{标题}" class="_heading"
+            mvc-on="focus|prop('text','','#g-current'), hold('form@','',0)" />
+        <div class="_content">
+            <textarea name="codedata" placeholder="{内容}" class="_code" spellcheck="false"
+                mvc-on="keyup focus|rows;
+                focus|hold('form@','',0);
+                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
+        </div>
+    </div>
+    <div class="_side">
+        <ul class="_option">
+            <li>
+                <label>{语言}</label>
+                <span id="box-clang"><!-- [支持语言清单] --></span>
+            </li>
+            <li class="_blk"><hr></li>
+            <li>
+                <label title="{参考首个缩进行}"><input name="delind" type="checkbox" checked />{空缩进清除}</label>
+            </li>
+            <li>
+                <label title="{指整个代码块}"><input name="notrim" type="checkbox" />{保留首尾空白}</label>
+            </li>
+            <li class="_blk"><hr></li>
+            <li><label title="{源码自身的值}">{制表符}</label>
+                <input name="tabs" type="text" value="4" class="_char" title="0~16" mvc-on="focus|hold('form@','',0)" />
+            </li>
+        </ul>
+        <div class="_append">
+            <input name="append" type="submit" class="_button" value="{添加}"
+            mvc-on="click|void,submit" />
+        </div>
+    </div>
+</form>

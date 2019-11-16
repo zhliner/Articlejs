@@ -1,0 +1,159 @@
+<form tpl-name="tab:style" name="styles" class="Style"
+    mvc-on="submit|void,work">
+    <div id="btn-style" mvc-on="click('i._set')|tabs('_fixed'),fchold" class="_side _icons">
+        <i id="b-fontst" title="{字型}" class="_set"
+            mvc-on="click|into('its:fontst','2@styles'),fcse(['fbold','fitalic','tline'])"></i>
+        <i id="b-talign" title="{对齐}" class="_set"
+             mvc-on="click|into('its:align','2@styles'),fcse(['talign','valign'], ['text-align', 'vertical-align'])"></i>
+        <i id="b-brush" title="{样式刷}" mvc-on="click|work" mvc-by="Ed.brush"></i>
+        <i id="b-fontsz" title="{字号}" class="_set"
+            mvc-on="click|into('its:fontsz','2@styles'),fcse(['fontsz','fontszv','unit','fszval'], ['font-size'])"></i>
+        <i id="b-width" title="{宽度}" class="_set"
+            mvc-on="click|into('its:width','2@styles'),fcse(['width','unit','widthv'], 'wtype')"></i>
+        <i id="b-margin" title="{边距}" class="_set"
+            mvc-on="click|into('its:margin','2@styles'),fcse(['margin','unit','marginv'], 'mpos')"></i>
+        <i id="b-float" title="{浮动}" class="_set"
+            mvc-on="click|into('its:float','2@styles'),fcse(['cfloat'], ['float'])"></i>
+        <i id="b-edsty" title="{样式编辑}" class="_set"
+            mvc-on="click|into('its:edsty','2@styles'),cssfmt('edcss','edtype')"></i>
+        <i id="b-delsty" title="{清除样式}" mvc-on="click|work" mvc-by="Ed.delstyle"></i>
+    </div>
+    <div data-id="styles" class="_main" tpl-file="styles.html"></div>
+</form>
+
+<form tpl-name="tab:color" name="colors" class="Color"
+    mvc-on="submit|void,work">
+    <div id="btn-color" mvc-on="click('i')|tabs('_fixed'),fchold" class="_side _icons">
+        <i id="b-colorc" title="{自定义色}"
+            mvc-on="click|into('its:colorc','2@colors'),fcse(['colorv'],'ctype'),one('2@c216','_make')"></i>
+        <i id="b-colorp" title="{预置套色}"
+            mvc-on="click|into('its:colorp','2@colors'),data('_init'),not,go(true,'#b-colorx','click');
+            parse|data('_init',true),fire('@','click'),get(''),fire('2@colist','parse',null)"></i>
+        <i id="b-colorx" title="{选择色系}"
+            mvc-on="click|into('its:colorx','2@colors'),one('2@colorx','load')"></i>
+    </div>
+    <div data-id="colors" class="_main" tpl-file="colors.html"></div>
+</form>
+
+<form tpl-name="tab:stylib" name="scripts" class="Stylib"
+    mvc-on="submit|void,work">
+    <div data-id="stylib" class="_sbox"
+        mvc-on="load;
+        click('li')|xkey('ctrl',0)"
+        mvc-by="Sys.styles('app:styles');
+        Art.fstyle('data-val')"
+        mvc-to="@|fill">
+        <ul tpl-name="app:styles" tpl-for>
+            <li tpl-out="data-val=$name">
+                <img tpl-out="src=$thumb" />
+                <aside>
+                    <h6 tpl-out="title=$info; $label">==样式风格名==</h6>
+                    <p tpl-out="$intro">==这里是样式风格的简介，文字应尽量简短精炼。==</p>
+                </aside>
+            </li>
+            <li class="_more" tpl-if="@index == @size-1">
+                <label><a href="#" mvc-on="click" mvc-by="Sys.stylib">{更多样式 ...}</a></label>
+            </li>
+        </ul>
+    </div>
+</form>
+
+<form tpl-name="tab:acts" name="effect" class="Effect"
+    mvc-on="submit|void,work" mvc-by="Ed.acts('acts','rank','isall')">
+    <div class="_side">
+        <select data-id="evns" name="evns" size="8" multiple
+            mvc-on="change|sels" mvc-by="Ed.actevn('acts')">
+            <option value="click" title="{单击事件}">click</option>
+            <option value="dblclick" title="{双击事件}">dblclick</option>
+            <option value="mouseover" title="{鼠标滑过}">mouseover</option>
+            <option value="mouseout" title="{鼠标移出}">mouseout</option>
+            <option value="mouseup" title="{鼠标释放}">mouseup</option>
+            <option value="mousedown" title="{鼠标按下}">mousedown</option>
+            <option value="mousemove" title="{鼠标移动}">mousemove</option>
+            <option value="keyup" title="{按键释放}">keyup</option>
+            <option value="keydown" title="{按键按下}">keydown</option>
+            <option value="keypress" title="{键盘键入}">keypress</option>
+            <option value="mousewheel" title="{鼠标滚动}">mousewheel</option>
+            <option value="contextmenu" title="{上下文菜单}">contextmenu</option>
+        </select>
+    </div>
+    <div class="_main">
+        <div class="_conf">
+            <ul class="_elem">
+                <li mvc-on="click('b')|sels" mvc-by="Ed.txtrid('effect','acts')">
+                    <label title="{首个选取元素}">{检索串：}</label>
+                    <b data-id="actid" title="{直接id检索}"></b>
+                    <b data-id="actrid" title="{从当前元素检索}"></b>
+                </li>
+                <li><label title="{当前选取元素}">{属性设置：}</label>
+                    <label>id=<input name="id" type="text" class="_word" title="{ID，即时生效}" placeholder="abc"
+                        mvc-on="change; focus|hold('form@','',0)" mvc-by="Ed.setrid" />
+                    </label>
+                    <label>Rid=<input name="rid" type="text" class="_word" title="{相对ID，即时生效}" placeholder="xyz"
+                        mvc-on="change; focus|hold('form@','',0)" mvc-by="Ed.setrid(true)" />
+                    </label>
+                </li>
+            </ul>
+            <div class="_content" title="{每条配置占用一行}">
+                <textarea name="acts" class="_code" spellcheck="false" placeholder="click|pb1('...'),pb2(...)"
+                    mvc-on="click|unsel('form@evns'); keyup focus|rows; focus|hold('form@','',0); keyup|xkey('ctrl'),keys(13),fire('form@','submit')"
+                    mvc-by="Ed.curevn('evns')"></textarea>
+            </div>
+            <b data-id="actse" mvc-on="click|acts('acts','id','rid'),rids('1@actid','1@actrid'),unsel('form@evns'),ranks('2@ranks')"
+                style="visibility:hidden;">
+                <!-- 动效状态更新主控元素（隐藏）：随form一起脱离DOM -->
+            </b>
+        </div>
+        <div class="_opts">
+            <!--不可直接设置元素。
+                会导致“单击->设置->状态显示（单击）->设置...”死循环 -->
+            <div data-id="ranks" class="_ranks" title="{动效等级}"
+                mvc-on="click('b')|tabs('_fixed'),val('1@rank','-val'); rank|els('>b','-val'),fire(null,'click')">
+                <b data-val="">0</b>
+                <b data-val="L1">1</b>
+                <b data-val="L2">2</b>
+                <b data-val="L3">3</b>
+                <b data-val="L4">4</b>
+                <b data-val="L5">5</b>
+                <b data-val="L6">6</b>
+                <b data-val="L7">7</b>
+            </div>
+            <input type="hidden" name="rank" data-id="rank" value="">
+            <ul class="_apply">
+                <li><label><input name="isall" type="checkbox" />{全部选取元素}</label></li>
+                <li class="_blk"><hr></li>
+                <li><input type="submit" class="_button" value="{应用}" /></li>
+            </ul>
+        </div>
+    </div>
+</form>
+
+<form tpl-name="tab:script" name="scripts" class="Script"
+    mvc-on="submit|void,tedoff('textarea'),work" mvc-by="Ed.shrun('codes')">
+    <div class="_main">
+        <div class="_content">
+            <textarea name="codes" id="val-script" class="_code" spellcheck="false"
+                mvc-on="keydown paste cut|tedit;
+                mousedown|tedbrk;
+                edoff|tedoff;
+                keyup focus|rows"
+                mvc-by="Sys.tedit"
+                placeholder="RESULT.type = 'text';
+RESULT.to = 'last';
+RESULT.method = 'append';
+RESULT.data = '...look me!';
+"></textarea>
+        </div>
+    </div>
+    <ul class="_side">
+        <li class="_icons">
+            <i id="b-history" title="{脚本历史}"
+                mvc-on="click" mvc-by="Ed.shlist('scripts','codes')"></i>
+            <i id="b-test" title="{执行状态}"
+                mvc-on="click" mvc-by="Ed.shtest('scripts','codes')"></i>
+        </li>
+        <li class="_apply">
+            <input type="submit" class="_button" value="{运行}" />
+        </li>
+    </ul>
+</form>

@@ -1,0 +1,425 @@
+<div id="app-root" class="___jcEditor"
+    on="finish;
+        click|menu(null);
+        esc|esc,work;
+        path|path('#g-paths','#box-path');
+        scnt|info('#g-selected');
+        tips|info('#g-current');
+        work|end('meding'),focus('#scrollbox');
+        lang theme|lang,theme,reload"
+    by="Sys.finish">
+    <!-- 顶栏 -->
+    <div id="panel-top" class="___Panel Top">
+        <div class="_logo">
+            <i id="logo" title="{系统菜单}"
+                on="click|folds,menu('#menu-sys'),stop"></i>
+            <menu id="menu-sys" data-pb="fold" on="off|lose">
+                <li on="click" by="Art.output">
+                    <label><i id="l-output"></i>{导出}...</label>
+                </li>
+                <li class="_blk"><hr></li>
+                <li data-pb="menu-sub- unpop" on="mouseenter|popup; mouseleave|unpop">
+                    <h6><i id="l-theme"></i>{主题}</h6>
+                    <menu id="menu-themes"
+                        on="click('li')|clsrm('_act','>li'),clss('_act')"
+                        by="Sys.themes('data-val')">
+                        <li data-val=""><label>...</label></li>
+                    </menu>
+                </li>
+                <li data-pb="menu-sub- unpop" on="mouseenter|popup; mouseleave|unpop">
+                    <h6><i id="l-lang"></i>{语言}</h6>
+                    <menu id="menu-langs" on="click('li')|lang('lang'),reload">
+                        <li lang=""><label>[语言名称（代码）]</label></li>
+                    </menu>
+                </li>
+                <li class="_blk"><hr></li>
+                <li on="click" by="Sys.about">
+                    <label><i id="l-about"></i>{关于 jcEd}</label>
+                </li>
+            </menu>
+        </div>
+        <div class="_tabs">
+            <div id="g-sheet" class="_sheet"
+                on="click('b')|work,stay(null),tabs,pins('#g-pins','#g-pinned'),fire('#g-plugs','-pgs')">
+                <b id="g-inputs" title="&lt;F7&gt;" data-pgs="off"
+                    on="click|end('meding',true),stay(null),into('tools:inputs','4@tools'),into('misc:inputs','4@utility'),eui('inputs'),
+                    sheet('inputs'),one('#tab-inputs > b:first')">{录入}</b>
+                <b id="g-layout" title="&lt;F8&gt;" data-pgs="off"
+                    on="click|end('meding',true),stay(null),into('tools:layout','4@tools'),into('misc:layout','4@utility'),eui('layout'),
+                    sheet('layout'),one('#tab-layout > b:first')">{版式}</b>
+                <b id="g-browse" title="&lt;F9&gt;" data-pgs="off"
+                    on="click|end('meding',true),stay(null),eui('browse'),sheet('browse')">{浏览}</b>
+                <b id="g-minied" data-pb="lose" data-pgs="off"
+                    on="click|into('tools:meds','4@tools'),eui('minied')"><!-- [微编辑占位] --></b>
+            </div>
+            <div class="_title">
+                <!-- [消息板] -->
+                <span id="help-msg" on="tips|info('',8)">[测试文本超长效果：即结束临时状态。可用前置计数辅助执行通常需要多步的操作。这里的超出的部分]</span>
+            </div>
+        </div>
+    </div>
+    <!-- 工具栏 -->
+    <div id="panel-tools" on="on|rise;off|lose" class="___Panel Tools" on="on|rise;off|lose">
+        <div data-id="tools" class="_xbox" tpl-load="tools:inputs">
+            <!-- [...] -->
+        </div>
+        <i id="x-help" class="_help" title="{帮助}" on="click|folds,flag('helping')"></i>
+        <div id="help-docs" class="_docs" data-pb="fold"
+            on="help|fire('@','open');
+                open|rise,flag('helping',true);
+                close|lose,flag('helping',false)"
+            by="Help.index('#help-label')"
+            to="#box-man|fill">
+            <span class="_nav _back">
+                <i id="x-man-back" title="{后退}" on="click" by="Help.nav(-1,'#box-man')"></i>
+                <i id="x-man-frwd" title="{前进}" on="click" by="Help.nav(1,'#box-man')"></i>
+            </span>
+            <h6><i id="l-home"></i><span><b>帮助</b> &gt; <b id="help-label">样式版</b></span></h6>
+            <hr>
+            <div id="box-man" class="_xbox">
+                <!-- dl/dt/dd -->
+                <p>[动态内容-当前条目的man]</p>
+            </div>
+        </div>
+    </div>
+    <!-- 内容区 -->
+    <div class="___Content">
+        <!-- 视觉反馈层 -->
+        <div id="g-gleam" class="_gleam" on="stir|gleam"></div>
+        <!--滚动盒子
+            注记：tabindex不能设置在多内容滚动容器上，否则获取焦点时内容可能被异常移位（浏览器行为）
+            flag(['meding','browse']),end(true)
+        -->
+        <div id="scrollbox" class="___Scroll" tabindex="0"
+            on="keydown|pass('editing'),go(67,'#g-temp','on','copy'),go(77,'#g-temp','on','move'),cmdline('#g-cmdline');
+                keydown|xkey('ctrl'),keys(46);
+                keydown|pass('browse');
+                scroll|menu(null),end('meding'),pins('#g-pins','#g-pinned'),focus"
+            by="Ed.main('#g-temp');
+                -;
+                Art.navigate">
+            <!-- 正文区 -->
+            <article id="app-text" tpl-name="art:text" class="Main"
+                on="click|end('meding'),etmp(true);
+                    mouseup|end(['meding','tmping']),pins('#g-pins','#g-pinned');
+                    contextmenu|end(['meding','tmping']),pins('#g-pins','#g-pinned'),void,stop;
+                    browse|conto('art:browse'),flag('browse',1);
+                    dblclick medin|menu(null),void,end('meding'),medpass,flag('meding',1),fire('#g-minied','click','',true);
+                    medok medoff|flag('meding',null);
+                    click(._inMed) keydown('._inMed')|pass('meding');
+                    paste(._inMed)|pass('meding'),void;
+                    cut(._inMed)|pass('meding');
+                    mouseover(*)|end('meding'),etmp(true),clss('_msCur',null),etip,stop;
+                    mouseout(*)|end('meding'),etmp,clsrm('_msCur',null),stip,stop;
+                    click(a)|void;
+                    clean|clean"
+                by="Ed.mouse('#g-temp');
+                    Ed.imenu('#menu-cells');
+                    Ed.pedit('#menu-edits');
+                    Ed.browse;
+                    Ed.medin;
+                    Ed.medout;
+                    Ed.minied; Ed.tpaste; Ed.cut"></article>
+            <!-- 底部留白 -->
+            <div class="_bspace"></div>
+        </div>
+        <!-- 临时态标示 -->
+        <div id="g-temp" class="_tmps" data-pb="lose"
+            on="on|vels,rise,tmps(true,'div@'),flag('tmping',1);
+                off|lose,tmps(false,'div@'),flag('tmping',null)">
+            <span><!-- copy|move --></span>
+        </div>
+        <!-- 元素路径 -->
+        <div id="g-paths" class="_paths" data-pb="lose"
+            on="click('b')|work; on|rise; off|lose"
+            by="Ed.pathto">
+            <b class="_root" title="all">&nbsp;</b><span id="box-path"
+                on="mouseover('b')|clss('_msCur','','_pathfrom_');
+                    mouseout('b')|clsrm('_msCur','','_pathfrom_')">
+                <!-- [逆向路径节点集] -->
+            </span>
+        </div>
+    </div>
+    <!-- 功能区 -->
+    <div id="panel-misc" on="on|rise;off|lose" class="___Panel Misc" data-pb="rise">
+        <span id="g-pins" class="_pin _pinned"
+            on="click|cls2s('_pinned'),swap('#g-pinned',1,0);
+                on|clss('_pinned'),stop;
+                off|clsrm('_pinned'),stop">
+            <i id="x-pin"></i>
+        </span>
+        <!-- 主功能区 -->
+        <div data-id="utility" class="_xbox" tpl-load="misc:inputs"
+            on="mouseup|mpsize(false,'@tabbar')"><!-- [...] --></div>
+    </div>
+    <!-- 扩展区 -->
+    <div id="panel-extra" class="___Panel Extra">
+        <!-- 编辑模式 -->
+        <div id="panel-meds" class="Meds" data-pb="lose" on="on|rise;off|lose">
+            <b class="_button" title="Ctrl+Enter"
+                on="click|fire('#app-text','medok')"><i id="l-ok"></i>&nbsp;{确定}</b>
+        </div>
+        <!-- 插件页表 -->
+        <div id="panel-plugs" class="Plugs" data-pb="lose" on="on|rise;off|lose">
+            <i id="x-plug-prev" class="_prev" title="{上一页}"></i>
+            <!--plugs：构造当前版页的插件页表 -->
+            <div id="box-plugs" class="_list"
+                on="_init;
+                    load|one('@','_init',true),stop;
+                    click('img')|man('','-val'),end('helping')"
+                by="Sys.plugs;
+                    Art.plugs('plug:list');
+                    Art.plugo('data-val')"
+                to="@|-|plugs('@','load'));
+                    @|fill">
+                <span tpl-name="plug:list" tpl-for>
+                    <!--data-val="Sample" src="/jced/plugins/Sample/icon.png" title="[显示名\n作者\n(版本)]" -->
+                    <img width="32" tpl-out="data-val=$name; src=$icon; title=$tips" />
+                </span>
+            </div>
+            <i id="x-plug-next" class="_next" title="{下一页}"></i>
+        </div>
+    </div>
+    <!-- 状态栏 -->
+    <div id="panel-status" class="___Panel Status">
+        <table border="0" width="100%" cellspacing="3" cellpadding="0">
+            <tr>
+                <td class="_info" width="180">
+                    <b id="g-selected" class="_cnts">0</b>
+                    <b id="g-current" class="_text"></b>
+                </td>
+                <td id="g-plugs" width="28" class="_plug" title="{插件集}&lt;F4&gt;"
+                    on="click|folds('#panel-plugs'),go(true,'@','on','',0),go(false,'@','off','',0);
+                        plugs|plugs('#box-plugs','load');
+                        on|unfold('#panel-plugs'),clss('_fixed'),fire('@','plugs'),attr('-pgs','#g-sheet b._current','on');
+                        off|fold('#panel-plugs'),clsrm('_fixed'),attr('-pgs','#g-sheet b._current','off')">
+                    <i id="x-plugs"></i>
+                </td>
+                <td class="_cmds">
+                    <!--历史清单：
+                        - 上下箭头移动当前条目，Tab/Enter或单击选取
+                        - 按ESC键取消弹出框，停止冒泡避免上层esc事件
+                    -->
+                    <div class="_xbox">
+                        <div id="box-cmdlist" tabindex="0" class="_list" data-pb="hide"
+                            on="click('code')|cmdset('#g-cmdline'),fire('@','off');
+                                keydown|keys(9,13),void,cmdset('#g-cmdline','._fixed'),fire('@','off');
+                                keydown|keys(38,40),void,cmdir('code','_fixed');
+                                keydown|keys(27),stop,fire('@','off');
+                                check|cmdact('#g-cmdline','_fixed','code'),fire('@','on');
+                                on|cmds('code','_fixed'),show,focus;
+                                off|hide,focus('#g-cmdline'),stop;
+                                blur|hide">
+                            <span data-id="cmdlist" on="clean|clsrm('_fixed'),stop">
+                                <!-- <code>...</code> -->
+                            </span>
+                        </div>
+                    </div>
+                    <!--绑定功能：
+                        1. 回车执行命令行，自动选取结果
+                        2. Tab键展开当前键入内容匹配清单
+                        3. 上下箭头和翻页键匹配当前键入词导航
+                        4. Ctrl+U 清空命令行内容
+                        5. 手动键入内容成为搜索匹配词
+                        6. Tab和箭头翻页导航支持+Shift模糊匹配
+                    -->
+                    <input id="g-cmdline" type="text" class="_code"
+                        on="keydown|keys(13);
+                            keydown|keys(9),void,env('cmding'),cmdtab('1@cmdlist'),clsrm('_fixed','1@cmdlist ._fixed'),fire('#box-cmdlist','check');
+                            keydown|keys(38,40,33,34),void,env('cmding'),cmdnav;
+                            keydown|xkey('ctrl'),keys(85),prop('value',''),flag('cmding',''),void;
+                            input|get('value'),flag('cmding')"
+                        by="Art.cmdline"
+                        to="@|value|flag('cmding',''),select" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- 快捷菜单 -->
+    <div id="panel-annex">
+        <!-- [选取-创建条目|内联转换] -->
+        <menu id="menu-cells" class="_cells" data-pb="hide"
+            on="click('label')|void; popup|show,menu; off|hide"
+            by="Mk.imake('data-val')">
+            <li><label data-val="a" title="{链接}"><a href="javascript:return false;">&lt;a&gt;</a></label></li>
+            <li><label data-val="code" title="{代码}"><code>&lt;code&gt;</code></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="strong" title="{重点}"><strong>&lt;strong&gt;</strong></label></li>
+            <li><label data-val="b" title="{粗体}"><strong>&lt;b&gt;</strong></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="em" title="{强调}"><em>&lt;em&gt;</em></label></li>
+            <li><label data-val="i" title="{斜体}"><em>&lt;i&gt;</em></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="sub" title="{下标}">X<sub>&lt;sub&gt;</sub></label></li>
+            <li><label data-val="sup" title="{上标}">X<sup>&lt;sup&gt;</sup></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="q" title="{引用}"><q>&lt;q&gt;</q></label></li>
+            <li><label data-val="time" title="{时间}"><time>&lt;time&gt;</time></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="ins" title="{插入}"><ins>&lt;ins&gt;</ins></label></li>
+            <li><label data-val="del" title="{删除}"><del>&lt;del&gt;</del></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="abbr" title="{缩写}"><abbr>&lt;abbr&gt;</abbr></label></li>
+            <li><label data-val="small" title="{注脚}"><small>&lt;small&gt;</small></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="cite" title="{来源}"><cite>&lt;cite&gt;</cite></label></li>
+            <li><label data-val="mark" title="{标记}"><mark>&lt;mark&gt;</mark></label></li>
+            <li class="_blk"><hr></li>
+            <li><label data-val="ruby" title="{注音}"><ruby>&lt;ruby&gt;</ruby></label></li>
+        </menu>
+        <!-- [右键-基本编辑] -->
+        <menu id="menu-edits" class="_edits" data-pb="hide" on="popup|show,menu; off|hide">
+            <li on="click|fire('#app-text','medin')">
+                <label data-val="edit"><b>&lt;F2&gt;,&lt;I&gt;</b><i id="l-edit"></i>{编辑}</label>
+            </li>
+            <li class="_blk"><hr></li>
+            <li on="click|fire('#g-temp','on','copy'),work">
+                <label data-val="copy"><b>&lt;C&gt;</b><i id="l-copy"></i>{复制}</label>
+            </li>
+            <li on="click|fire('#g-temp','on','move'),work">
+                <label data-val="move"><b>&lt;M&gt;</b><i id="l-move"></i>{移动}</label>
+            </li>
+            <li class="_blk"><hr></li>
+            <li id="g-strip" data-pb="disabled"
+                on="click|enabled,work; on|enable,valid; off|disable,invalid"
+                by="Ed.unlayer">
+                <label on="click|man('unlayer')"><i id="l-strip"></i>{解封装}</label>
+            </li>
+            <li class="_blk"><hr></li>
+            <li on="click|work" by="Ed.delels('#app-text')">
+                <label><b>&lt;Del&gt;</b><i id="l-delete"></i>{删除}</label>
+            </li>
+            <li class="_blk"><hr></li>
+            <li id="g-prop" data-pb="disabled"
+                on="click|enabled; on|enable,valid; off|disable,invalid"
+                by="Ed.props">
+                <label on="click|man('props')"><b>&lt;P&gt;</b><i id="l-prop"></i>{属性}</label>
+            </li>
+        </menu>
+    </div>
+    <!-- 模态框状态 -->
+    <input type="hidden" id="g-modal" value="0" />
+</div>
+
+
+
+<!-- 初始载入: 顶级存储 -->
+
+<!--模态框：屏蔽层 -->
+<div tpl-name="app:modal" class="___Panel Modal" data-pb="lose"
+    on="open|rise,prop('value',1,'#g-modal'); close|lose,prop('value',0,'#g-modal')">
+</div>
+
+<table><tbody>
+    <!-- 属性：代码语言 -->
+    <tr tpl-name="prop:clang">
+        <th>{语言}</th>
+        <td>
+            <select tpl-name="app:clang" name="languages" tpl-for>
+                <option tpl-out="value=$name; $label"></option>
+            </select>
+        </td>
+    </tr>
+    <!-- 属性：特殊字符 -->
+    <tr tpl-name="app:schar" valign="top">
+        <th><!-- 分类 -->
+            <select tpl-name="chr:label" size="12" class="_field"
+                on="change|into('value','2@schars','prop'); change focus|fire('2@schars','_init')" tpl-for>
+                <option tpl-out="value=$name; $label"><!-- [特殊符号] --></option>
+            </select>
+            <span class="_zoom" data-id="charzoom"></span>
+        </th>
+        <td><!-- 字符集 -->
+            <div data-id="schars" class="_chars" tabindex="0"
+                on="click('b')|tabs('_fixed'),val('1@schr','text'),hold('@ >span',null,'');
+                    focus|vcols('>span','b');
+                    keydown|kschr('span','b'),keys(13),void,fire('form@','submit');
+                    mouseover('b') click('b')|val('2@charzoom','text','text');
+                    mouseout('b')|get('value','1@schr'),set('text','2@charzoom');
+                    _init|elgo('@ >span'),scbox('>span')">
+                <!-- 格式：<span><b>〔</b><b>〕</b><b>〈</b><b>〉</b>...</span>
+                    elgo 恢复之前选定
+                -->
+            </div>
+            <input type="hidden" name="schar" data-id="schr" value="" />
+        </td>
+    </tr>
+</tbody></table>
+
+
+
+<!--语言名总表
+    依支持情况匹配，显示附后缀，如：
+    中文 [zh-cn]，English [en-us]，العربية [ar-tn]...。
+    后缀由 jcEd.Config.langs 配置提供
+-->
+<menu tpl-name="app:languages">
+    <li lang="af"><label>Afrikaans</label></li><!--南非荷兰语-->
+    <li lang="ar"><label>العربية</label></li><!--阿拉伯语-->
+    <li lang="az"><label>Azərbaycanca</label></li><!--阿塞拜疆语-->
+    <li lang="be"><label>Беларуская</label></li><!--白俄罗斯语-->
+    <li lang="bg"><label>Български</label></li><!--保加利亚语-->
+    <li lang="bn"><label>বাংলা</label></li><!--孟加拉语-->
+    <li lang="ca"><label>Català</label></li><!--加泰罗尼亚语-->
+    <li lang="cs"><label>Česky</label></li><!--捷克语-->
+    <li lang="cy"><label>Cymraeg</label></li><!--威尔士语-->
+    <li lang="da"><label>Dansk</label></li><!--丹麦语-->
+    <li lang="de"><label>Deutsch</label></li><!--德语-->
+    <li lang="el"><label>Ελληνικά</label></li><!--希腊语-->
+    <li lang="en"><label>English</label></li><!--英语-->
+    <li lang="eo"><label>Esperanto</label></li><!--世界语-->
+    <li lang="es"><label>Español</label></li><!--西班牙语-->
+    <li lang="et"><label>Eesti</label></li><!--爱沙尼亚语-->
+    <li lang="eu"><label>Euskara</label></li><!--巴斯克语-->
+    <li lang="fa"><label>فارسی</label></li><!--波斯语-->
+    <li lang="fi"><label>Suomi</label></li><!--芬兰语-->
+    <li lang="fo"><label>føroyskt</label></li><!--法罗语-->
+    <li lang="fr"><label>Français</label></li><!--法语-->
+    <li lang="ga"><label>Gaeilge</label></li><!--爱尔兰语-->
+    <li lang="gl"><label>Galego</label></li><!--加利西亚语-->
+    <li lang="gu"><label>ગુજરાતી</label></li><!--古吉拉特语-->
+    <li lang="he"><label>עברית</label></li><!--希伯来语-->
+    <li lang="hi"><label>हिन्दी</label></li><!--印地语-->
+    <li lang="hr"><label>Hrvatski</label></li><!--克罗地亚语-->
+    <li lang="ht"><label>Kreyòl ayisyen</label></li><!--海地克里奥尔语-->
+    <li lang="hu"><label>Magyar</label></li><!--匈牙利语-->
+    <li lang="hy"><label>Հայերեն</label></li><!--亚美尼亚语-->
+    <li lang="id"><label>Bahasa Indonesia</label></li><!--印尼语-->
+    <li lang="is"><label>Íslenska</label></li><!--冰岛语-->
+    <li lang="it"><label>Italiano</label></li><!--意大利语-->
+    <li lang="ja"><label>日本語</label></li><!--日语-->
+    <li lang="ka"><label>ქართული</label></li><!--格鲁吉亚语-->
+    <li lang="kn"><label>ಕನ್ನಡ</label></li><!--卡纳达语-->
+    <li lang="ko"><label>한국어</label></li><!--朝鲜语-->
+    <li lang="la"><label>Latina</label></li><!--拉丁语-->
+    <li lang="lo"><label>Lao</label></li><!--老挝语-->
+    <li lang="lt"><label>Lietuvių</label></li><!--立陶宛语-->
+    <li lang="lv"><label>Latviešu</label></li><!--拉脱维亚语-->
+    <li lang="mk"><label>Македонски</label></li><!--马其顿语-->
+    <li lang="ms"><label>Bahasa Melayu</label></li><!--马来语-->
+    <li lang="mt"><label>Malti</label></li><!--马耳他语-->
+    <li lang="nl"><label>Nederlands</label></li><!--荷兰语-->
+    <li lang="nn"><label>Norsk (nynorsk)‎</label></li><!--新挪威语-->
+    <li lang="no"><label>Norsk (bokmål)‎</label></li><!--挪威语-->
+    <li lang="pl"><label>Polski</label></li><!--波兰语-->
+    <li lang="pt"><label>Português</label></li><!--葡萄牙语-->
+    <li lang="ro"><label>Română</label></li><!--罗马尼亚语-->
+    <li lang="ru"><label>Русский</label></li><!--俄语-->
+    <li lang="sk"><label>Slovenčina</label></li><!--斯洛伐克语-->
+    <li lang="sl"><label>Slovenščina</label></li><!--斯洛文尼亚语-->
+    <li lang="sq"><label>Shqip</label></li><!--阿尔巴尼亚语-->
+    <li lang="sr"><label>Српски</label></li><!--塞尔维亚语-->
+    <li lang="sv"><label>Svenska</label></li><!--瑞典语-->
+    <li lang="sw"><label>Kiswahili</label></li><!--斯瓦希里语-->
+    <li lang="ta"><label>தமிழ்</label></li><!--泰米尔语-->
+    <li lang="te"><label>తెలుగు</label></li><!--泰卢固语-->
+    <li lang="th"><label>ไทย</label></li><!--泰语-->
+    <li lang="tl"><label>Tagalog</label></li><!--他加洛语-->
+    <li lang="tr"><label>Türkçe</label></li><!--土耳其语-->
+    <li lang="uk"><label>Українська</label></li><!--乌克兰语-->
+    <li lang="ur"><label>اردو</label></li><!--乌尔都语-->
+    <li lang="vi"><label>Tiếng Việt</label></li><!--越南语-->
+    <li lang="yi"><label>ייִדיש</label></li><!--意第绪语-->
+    <li lang="zh"><label>中文</label></li><!--汉语-->
+    <li lang=""><label>(Unknown)</label></li><!--未知语言-->
+</menu>

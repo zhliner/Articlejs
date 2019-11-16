@@ -9,6 +9,10 @@
 //  模板管理器。
 //  实现模板的存储、提取和必要的实时导入和解析。
 //
+//  使用：
+//      tpo = new Templater(...);
+//      tpo.get(...)
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -53,13 +57,18 @@ class Templater {
 
     /**
      * 获取模板节点。
-     * 强制请求模板节点通常是因为克隆节点已被破坏。
-     * @param  {String} name 模板名
-     * @param  {String} from 原始模板名
-     * @param  {Boolean} tpl 强制请求模板节点
+     * 如果模板尚未载入/克隆，需要传递原始模板名。
+     * 即便目标模板已经载入/克隆，传递原始模板名是无害的。
+     * 注：
+     * 新的命名可以与原始名称相同，这也是默认的状态。
+     * 强制请求模板节点通常是因为克隆节点已被破坏（它们在DOM中）。
+     *
+     * @param  {String} name 模板名或克隆命名
+     * @param  {String} orig 原始模板名，可选
+     * @param  {Boolean} tpl 强制请求模板节点，可选
      * @return {Promise} 承诺对象
      */
-    get( name, orig, tpl ) {
+    get( name, orig = name, tpl = false ) {
         let _root = null;
 
         if ( !tpl ) {
