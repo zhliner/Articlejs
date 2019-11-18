@@ -25,7 +25,7 @@
 //
 //
 //  模板使用：
-//      x.[name].[meth] // 例：x.Effect.line
+//      x.[name].[meth] // 例：x.Eff.line
 //      x.[name].[xxx].[meth]
 //
 //
@@ -38,14 +38,13 @@ const $ = window.$;
 
 
 // X扩展存储区。
-// 预置部分功能子域。
+// 预留部分功能子域（防占用）。
 const _X = {
     Fun:  {},   // 功能函数区（可用于By系引用）
-    Math: {},   // 数学算法区
     Ease: {},   // 缓动计算区（.Linear...）
     Eff:  {},   // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
-    Grid: {},   // CSS网格布局域（.Area）
-    Flow: {},   // CSS弹性布局域
+    Math: {},   // 数学算法区
+    CSS:  {},   // CSS专用保留
 };
 
 

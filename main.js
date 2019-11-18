@@ -6,8 +6,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  创建编辑器：
-//      jcEd.create( option:Object ): Editor
+//  使用：
+//      let editor = jcEd.create( option ); // 创建一个编辑器实例
+//      textarea.after( editor.element() ); // 编辑器根元素插入某位置
 //
 //  option {
 //      name:       String      编辑器实例命名（关联本地存储），可选
@@ -18,13 +19,13 @@
 //      update:     Number      上次更新时间，仅修改时存在。可选
 //      recover:    Boolean     内容是否本地恢复（localStorage），可选
 //
-//      onready:    Function    编辑器就绪回调，接口：function(): void
-//      onmaximize: Function    最大化回调（由用户定制），接口：同上
-//      onearsed:   Function    内容条目删除回调，接口：function( html ): void
-//      onsaved:    Function    存储回调（用户按[s]键），接口：同上
+//      onready:    Function    编辑器就绪回调，接口：function( editor ): void
+//      onmaximize: Function    最大化请求，接口：function(): void
+//      onsaved:    Function    存储回调（用户按[s]键），接口：function( html ): void
+//      onearsed:   Function    内容条目删除回调，接口：function( paths ): void
 //  }
 //
-//  编辑器接口：
+//  editor接口：
 //      .heading( code:String ): String|this    获取/设置主标题
 //      .subtitle( code:String ): String|this   获取/设置副标题
 //      .abstract( code:String ): String|this   获取/设置文章提要
@@ -33,7 +34,7 @@
 //      .reference( code:String ): String|this  获取/设置文献参考
 //      .notify( key:String, val:Any ): this    消息通知（如上传更新）
 //      .element(): Element                     编辑器根元素（用于插入DOM）
-//      .reload( url:String ): this             重载编辑器（如用于UI语言切换）
+//      .reload( url:String, callback ): void   重载编辑器实现页
 //      注：
 //      与文章正文并列的内容单元都有一个获取/设置接口。
 //
@@ -122,14 +123,18 @@ class Editor {
         let _name = option.name || getName(),
             _ifrm = editorBox(option.width, option.height);
 
-        // 子页：frameElement.Config
-        _ifrm.Config = editorOption(_name, option);
+        _ifrm.Config = editorOption(_name, option, this._ready.bind(this));
 
         this._name = _name;
         this._frame = _ifrm;
+        this._init = option.onready;
 
-        // 用于<iframe>重载时内容暂存。
+        // 内容暂存。
+        // 用于<iframe>重载时使用。
         this._store = new Map();
+        // 内容恢复。
+        // 由用户传入或提供默认操作。
+        this.restore = null;
 
         _ifrm.setAttribute('src', __PATH + '/editor.html');
     }
@@ -195,20 +200,39 @@ class Editor {
     }
 
 
+    /**
+     * 消息通知。
+     * 对框架子窗口发送消息和值。
+     * 子窗口需要导入tQuery库并绑定处理器。
+     * 子窗口事件消息名前置"editor:"字符串以避免冲突。
+     * @param {String} key 消息键
+     * @param {Value} val 消息值
+     */
     notify( key, val ) {
-        //
+        let _win = this._frame.contentWindow;
+        _win.$.trigger( _win, `editor:${key}`, val );
     }
 
 
     /**
      * 编辑器重载。
-     * 暂存内容后重新载入实现页。
-     * 注：可用于实时切换编辑器语言界面。
-     * @param  {String} url 实现页
-     * @return {Editor} this
+     * 暂存内容后载入目标实现页（如语言界面切换）。
+     * callback: function(store): void。
+     * @param  {String} file 实现页
+     * @param  {Function} callback 用户回调，可选
+     * @return {void}
      */
-    reload( url ) {
-        //
+    reload( file, callback = null ) {
+        this._store
+            .set( 'heading', this.heading() )
+            .set( 'subtitle', this.subtitle() )
+            .set( 'abstract', this.abstract() )
+            .set( 'content', this.content() )
+            .set( 'seealso', this.seealso() )
+            .set( 'reference', this.reference() );
+
+        this.restore = callback || this._restore;
+        this._frame.setAttribute( 'src', __PATH + file );
     }
 
 
@@ -216,7 +240,7 @@ class Editor {
      * 获取编辑器实例根容器元素。
      * @return {Element}
      */
-     element() {
+    element() {
         return this._frame.parentElement;
     }
 
@@ -225,13 +249,51 @@ class Editor {
 
 
     /**
+     * 就绪调用。
+     * 初始就绪回调和重载回调各自独立。
+     * 由框架窗口载入完毕后调用（frameElement.Config.ready）。
+     * ready：
+     * - 初始载入时返回用户就绪回调（option.onready）的值。
+     * - 重载方式下无值返回（undefined）。
+     */
+    _ready() {
+        if ( !this.restore ) {
+            return this._init( this );
+        }
+        this.restore( this._store );
+        this.restore = null;
+    }
+
+
+    /**
+     * 暂存数据恢复。
+     * @param {Map} store 存储空间
+     */
+    _restore( store ) {
+        if ( store.size == 0 ) {
+            return;
+        }
+        this.heading( store.get('heading') );
+        this.subtitle( store.get('subtitle') );
+        this.abstract( store.get('abstract') );
+        this.content( store.get('content') );
+        this.seealso( store.get('seealso') );
+        this.reference( store.get('reference') );
+
+        store.clear();
+    }
+
+
+    /**
      * 取值或设置值。
-     * @param {String} name 取值名
-     * @param {String} code 待设置源码
+     * 框架子窗口内"Editor"名称空间需包含目标接口。
+     * @param  {String} name 取值名
+     * @param  {String} code 待设置源码
+     * @return {String|this}
      */
     _value( name, code ) {
         let _fn = this._frame.contentWindow.Editor[name];
-        return code == undefined ? _fn(code) : ( _fn(code), this );
+        return code == undefined ? _fn() : ( _fn(code), this );
     }
 
 }
@@ -291,19 +353,20 @@ function editorBox( width, height ) {
  * 注：大多数由用户配置而来。
  * @param  {String} name 编辑器实例名
  * @param  {Object} user 用户配置集
+ * @param  {Function} ready 编辑器就绪回调
  * @return {Object}
  */
-function editorOption( name, user ) {
+function editorOption( name, user, ready ) {
     return {
         name:       name,
         theme:      user.theme,
         style:      user.style,
         update:     user.update,
         recover:    user.recover,
-        ready:      user.onready,
+        ready:      ready,
         maximize:   user.onmaximize,
-        earsed:     user.onearsed,
-        saved:      user.onsaved,
+        earse:      user.onearsed,
+        save:       user.onsaved,
     };
 }
 
