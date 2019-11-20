@@ -21,7 +21,7 @@
 //  - View
 //      视图部分的数据整理，可与控制部分呼应，接收模型的返回值。
 //      注：该部分的返回值回入执行流（返回数据栈）。
-//      接口：同 Model。
+//      接口：function( meth:String, data:Value ): Value  // 同 Model
 //
 //
 //  开发：
@@ -72,9 +72,9 @@ class _App {
 
     /**
      * 方法调用封装。
-     * 注：bind()专用。
+     * 注：bind() Currying 专用。
      */
-    methrun( meth, evo ) {
+    call( meth, evo ) {
         return this.run( evo, meth );
     }
 }
@@ -99,14 +99,14 @@ function appScope( app, meths, extra ) {
         run: app.run.bind(app)
     };
     meths.forEach(
-        meth => _obj[meth] = app.methrun.bind(app, meth)
+        meth => _obj[meth] = app.call.bind(app, meth)
     );
     return Object.assign(_obj, extra);
 }
 
 
 // 清除CMV配置项。
-function clear( conf ) {
+function mcvClear( conf ) {
     delete conf.control;
     delete conf.model;
     delete conf.view;
@@ -118,16 +118,16 @@ function clear( conf ) {
  * 注册CMV小程序。
  * 每个程序遵循CMV（Control/Model/View）三层划分逻辑。
  * 模板中调用需要传递方法名：x.[MyApp].run([meth])，用于区分不同的调用。
- * 不同方法的实参是前阶主动提取的当前条目。
+ * 不同方法的实参是前阶主动设置的当前条目。
  * 注：
  * 传递meths可以构造友好的调用集：x.[MyApp].[meth]。
  * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
  *
- * conf:Object {
+ * conf: {
  *      control: function(meth, data ): Promise,
  *      model:   function(meth, data ): Value,
  *      view:    function(meth, data ): Value,
- *      ...      // 可附带任意指令子集
+ *      ...      // 其它普通指令（可直接从模板传递实参）
  * }
  * @param {String} name 程序名
  * @param {Object} conf CMV配置对象
@@ -144,7 +144,7 @@ function register( name, conf, meths = [] ) {
             conf.model,
             conf.view
         ];
-    X.extend( name, appScope(new _App(..._cmv), meths, clear(conf)) );
+    X.extend( name, appScope( new _App(..._cmv), meths, mcvClear(conf) ) );
 }
 
 

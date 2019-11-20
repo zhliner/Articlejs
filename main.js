@@ -35,6 +35,8 @@
 //      .notify( key:String, val:Any ): this    消息通知（如上传更新）
 //      .element(): Element                     编辑器根元素（用于插入DOM）
 //      .reload( url:String, callback ): void   重载编辑器实现页
+//      .theme( pathfile:String ): void         获取/设置主题
+//      .style( pathfile:String ): void         获取/设置内容样式
 //      注：
 //      与文章正文并列的内容单元都有一个获取/设置接口。
 //
@@ -242,6 +244,26 @@ class Editor {
      */
     element() {
         return this._frame.parentElement;
+    }
+
+
+    /**
+     * 获取/设置编辑器主题。
+     * @param  {String} pathfile 主样式文件
+     * @return {String|this}
+     */
+    theme( pathfile ) {
+        //
+    }
+
+
+    /**
+     * 获取/设置内容样式。
+     * @param  {String} pathfile 主样式文件
+     * @return {String|this}
+     */
+    style( pathfile ) {
+        //
     }
 
 
