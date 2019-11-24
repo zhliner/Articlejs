@@ -5478,8 +5478,9 @@ const valHooks = {
         // 返回选中项的值，仅一项。
         get: function( el ) {
             let _res = el.form[el.name];
-            // 检查name，预防被作弊
-            return _res && el.name && this._get(_res.nodeType ? [_res] : _res);
+            // 检查name，预防作弊
+            return _res && el.name &&
+                this._get( _res.nodeType ? [_res] : _res );
         },
 
         _get: els => {
@@ -5514,20 +5515,29 @@ const valHooks = {
 
     // 可能存在同名复选框。
     checkbox: {
-        // 未选中时返回null或一个空数组（重名时）。
+        // 重名时始终返回一个数组（可能为空）。
+        // 单独的复选框返回值或null（未选中）。
         get: function( el ) {
             let _cbs = el.form[el.name];
-            // 检查name，预防被作弊
-            return _cbs && el.name && this._get(_cbs.nodeType ? [_cbs] : _cbs, []);
+            // 检查name，预防作弊
+            if ( !_cbs || !el.name ) {
+                return;
+            }
+            if ( _cbs.nodeType ) {
+                return _cbs.checked && !$is(_cbs, ':disabled') ? _cbs.value : null;
+            }
+            return this._get(_cbs);
         },
 
-        _get: (els, buf) => {
+        _get: els => {
+            let _buf = [];
+
             for ( let e of els ) {
                 if ( e.checked && !$is(e, ':disabled') ) {
-                    buf.push( e.value );
+                    _buf.push( e.value );
                 }
             }
-            return buf.length ? (buf.length == 1 ? buf[0] : buf) : null;
+            return _buf;
         },
 
 
@@ -5538,7 +5548,9 @@ const valHooks = {
             if (!_cbs || !el.name) {
                 return;
             }
-            return val === null ? _clearChecked(_cbs) : this._set(_cbs.nodeType ? [_cbs] : _cbs, isArr(val) ? val : [val]);
+            return val === null ?
+                _clearChecked( _cbs ) :
+                this._set( _cbs.nodeType ? [_cbs] : _cbs, isArr(val) ? val : [val] );
         },
 
         _set: (els, val) => {
