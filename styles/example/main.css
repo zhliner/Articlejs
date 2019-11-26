@@ -74,42 +74,42 @@ main td {
 }
 
 /* 无边框 */
-main table.b0,
-main table.b0 td {
+main table[data-border=0],
+main table[data-border=0] td {
     border-width: 0;
 }
 
-/* 普通 */
-main table.b1 {
+/* 普通（仅1px） */
+main table[data-border=1] {
     /* 默认值 */
 }
 
-/* 内边框
+/* 内边框（纵/横）
  * 技巧：外框原宽度 +1px，框色透明
  */
-main table.b2 {
+main table[data-border=2] {
     border-width: 2px;
     border-color: transparent;
 }
 
-/* 上接边框 */
-main table.b3 {
+/* 上接边框（3面，上为0） */
+main table[data-border=3] {
     border-top-width: 2px;
     border-top-color: transparent;
 }
 
-/* 外边框 */
-main table.b4 td {
+/* 外边框（4边） */
+main table[data-border=4] td {
     border-width: 0;
 }
 
 /* 横（行）边框 */
-main table.hb td {
+main table[data-border=h] td {
     border-width: 0 0 1px 0;
 }
 
 /* 竖（列）边框 */
-main table.vb td {
+main table[data-border=v] td {
     border-width: 0 1px 0 0;
 }
 
@@ -117,7 +117,7 @@ main table.vb td {
 /* [ 行块 ]
  ****************************************************************************/
 
-/* 主/页标题 */
+/* 主标题 */
 main h1 {
     color: #555;
     text-shadow: 0 1px 1px #eee;

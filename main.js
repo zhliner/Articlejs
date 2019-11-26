@@ -148,7 +148,7 @@ class Editor {
      * @return {String|this}
      */
     heading( code ) {
-        return this._value( 'heading', code );
+        return this._proxy( 'heading', code );
     }
 
 
@@ -158,7 +158,7 @@ class Editor {
      * @return {String|this}
      */
     subtitle( code ) {
-        return this._value( 'subtitle', code );
+        return this._proxy( 'subtitle', code );
     }
 
 
@@ -168,7 +168,7 @@ class Editor {
      * @return {String|this}
      */
     abstract( code ) {
-        return this._value( 'abstract', code );
+        return this._proxy( 'abstract', code );
     }
 
 
@@ -178,7 +178,7 @@ class Editor {
      * @return {String|this}
      */
     content( code ) {
-        return this._value( 'content', code );
+        return this._proxy( 'content', code );
     }
 
 
@@ -188,7 +188,7 @@ class Editor {
      * @return {String|this}
      */
     seealso( code ) {
-        return this._value( 'seealso', code );
+        return this._proxy( 'seealso', code );
     }
 
 
@@ -198,7 +198,7 @@ class Editor {
      * @return {String|this}
      */
     reference( code ) {
-        return this._value( 'reference', code );
+        return this._proxy( 'reference', code );
     }
 
 
@@ -249,21 +249,36 @@ class Editor {
 
     /**
      * 获取/设置编辑器主题。
-     * @param  {String} pathfile 主样式文件
+     * 传递custom为真，表示用定制样式文件（全URL）。
+     * @param  {String} name 主题名称
+     * @param  {Boolean} custom 是否定制
      * @return {String|this}
      */
-    theme( pathfile ) {
-        //
+    theme( name, custom ) {
+        if ( name === undefined ) {
+            return this._proxy( 'theme' );
+        }
+        return this._proxy(
+            'theme',
+            custom ? name : `${__PATH}/themes/${name}/style.css`
+        );
     }
 
 
     /**
      * 获取/设置内容样式。
-     * @param  {String} pathfile 主样式文件
+     * @param  {String} name 主样式文件
+     * @param  {Boolean} custom 是否定制
      * @return {String|this}
      */
-    style( pathfile ) {
-        //
+    style( name, custom ) {
+        if ( name === undefined ) {
+            return this._proxy( 'style' );
+        }
+        return this._proxy(
+            'style',
+            custom ? name : `${__PATH}/styles/${name}/main.css`
+        );
     }
 
 
@@ -307,13 +322,22 @@ class Editor {
 
 
     /**
-     * 取值或设置值。
-     * 框架子窗口内"Editor"名称空间需包含目标接口。
+     * 取值或设置值代理。
+     * 框架子窗口内"Editor"名称空间需包含目标接口：{
+     *      heading     标题
+     *      subtitle    子标题
+     *      abstract    文章提要
+     *      content     正文内容
+     *      seealso     另参见
+     *      reference   参考文献
+     *      theme       编辑器主题
+     *      style       内容风格
+     * }
      * @param  {String} name 取值名
      * @param  {String} code 待设置源码
      * @return {String|this}
      */
-    _value( name, code ) {
+    _proxy( name, code ) {
         let _fn = this._frame.contentWindow.Editor[name];
         return code == undefined ? _fn() : ( _fn(code), this );
     }
