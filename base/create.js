@@ -112,6 +112,7 @@ const tagsMap = {
     // 块内容
     // ------------------------------------------
     P:          'p',
+    Note:       'p:note',
     Address:    'address',
     Pre:        'pre',
     Hr:         'hr',

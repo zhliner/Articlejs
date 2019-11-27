@@ -36,7 +36,7 @@ const
     CASCADE     = 1 << 15,  // 级联表
     REFERENCE   = 1 << 16,  // 文献参考
     DL          = 1 << 17,  // 定义列表
-    BLOATHS     = 1 << 18,  // 块集：address,table,hr,space
+    BLONATHS    = 1 << 18,  // 块集：note,address,table,hr,space
     BLOCKQUOTE  = 1 << 19,  // 块引用
     ASIDE       = 1 << 20,  // 批注
     DETAILS     = 1 << 21,  // 详细内容
@@ -77,7 +77,7 @@ const Types = {
     $text:          $TEXT,
 
     // 结构单元
-    // BLOATHS：Address|Table|Hr|Space
+    // BLONATHS：Note|Address|Table|Hr|Space
     // BLOUFCPC：Ul|Figure|Codelist|Pre|Codeblock
     H1:             H1,
     Abstract:       ABSTRACT,
@@ -97,7 +97,7 @@ const Types = {
     Codelist:       BLOUFCPC,
     Reference:      REFERENCE,
     Dl:             DL,
-    Table:          BLOATHS,
+    Table:          BLONATHS,
     Figure:         BLOUFCPC,
     Blockquote:     BLOCKQUOTE,
     Aside:          ASIDE,
@@ -106,10 +106,11 @@ const Types = {
 
     // 文本单元
     P:              P,
-    Address:        BLOATHS,
+    Note:           BLONATHS,
+    Address:        BLONATHS,
     Pre:            BLOUFCPC,
-    Hr:             BLOATHS,
-    Space:          BLOATHS,
+    Hr:             BLONATHS,
+    Space:          BLONATHS,
 
     // 限定中间单元
     Codeli:         CODELI,
@@ -187,7 +188,7 @@ const Types = {
 // 内容项集合。
 // 注：汇总简化引用。
 //
-const CONTENT = P | BLOATHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE;
+const CONTENT = P | BLONATHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE;
 
 
 //
@@ -197,12 +198,12 @@ const typeSubs = {
     $text:          0,
 
     // 结构单元块
-    Abstract:       H3 | P | BLOATHS,
+    Abstract:       H3 | P | BLONATHS,
     Toc:            H4 | CASCADE,
     Seealso:        LI,
     Reference:      LI,
-    Header:         H4 | P | BLOATHS | BLOCKQUOTE,
-    Footer:         H4 | P | BLOATHS | BLOCKQUOTE,
+    Header:         H4 | P | BLONATHS | BLOCKQUOTE,
+    Footer:         H4 | P | BLONATHS | BLOCKQUOTE,
     Article:        HEADER | H2 | S1 | FOOTER,
     S1:             HEADER | H3 | S2 | FOOTER,
     S2:             HEADER | H4 | S3 | FOOTER,
@@ -216,13 +217,14 @@ const typeSubs = {
     Dl:             DLI,
     Table:          CAPTION | TSEC,
     Figure:         FIGCAPTION | P,
-    Blockquote:     H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
-    Aside:          H4 | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
-    Details:        SUMMARY | P | BLOATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    Blockquote:     H4 | P | BLONATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    Aside:          H4 | P | BLONATHS | OL | BLOUFCPC | BLOCKQUOTE,
+    Details:        SUMMARY | P | BLONATHS | OL | BLOUFCPC | BLOCKQUOTE,
     Codeblock:      CODE,
 
     // 文本类行块。
     P:              $TEXT | INLINE | CODE | IMG,
+    Note:           $TEXT | INLINE | CODE | IMG,
     Address:        $TEXT | INLINE | CODE | IMG,
     Pre:            $TEXT | INLINE | CODE | IMG,
     Hr:             0,  // 空

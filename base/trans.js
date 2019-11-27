@@ -256,6 +256,7 @@ const dataTrans = {
     'H6',
     'H5a',
     'P',
+    'Note',
     'Address',
     'Caption',
     'Summary',
