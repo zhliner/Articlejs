@@ -8,21 +8,22 @@
 //
 //  使用：
 //      let editor = jcEd.create( option ); // 创建一个编辑器实例
-//      textarea.after( editor.element() ); // 编辑器根元素插入某位置
+//      box.append( editor.element() );     // 编辑器插入某位置
 //
 //  option {
 //      name:       String      编辑器实例命名（关联本地存储），可选
 //      theme:      String      默认主题，可选
 //      style:      String      默认样式，可选
-//      width:      String      宽度（含单位），可选，默认800px
-//      height:     String      高度（含单位），可选，默认600px
+//      width:      String      宽度（可含单位），可选，默认800px
+//      height:     String      高度（可含单位），可选，默认700px
 //      update:     Number      上次更新时间，仅修改时存在。可选
 //      recover:    Boolean     内容是否本地恢复（localStorage），可选
 //
 //      onready:    Function    编辑器就绪回调，接口：function( editor ): void
 //      onmaximize: Function    最大化请求，接口：function(): void
 //      onsaved:    Function    存储回调（用户按[s]键），接口：function( html ): void
-//      onearsed:   Function    内容条目删除回调，接口：function( paths ): void
+//      onappended: Function    内容条目添加回调，接口：function( path, html ): void
+//      onearsed:   Function    内容条目删除回调，接口：function( [path] ): void
 //  }
 //
 //  editor接口：
@@ -32,13 +33,12 @@
 //      .content( code:String ): String|this    获取/设置正文（源码）
 //      .seealso( code:String ): String|this    获取/设置另参见
 //      .reference( code:String ): String|this  获取/设置文献参考
-//      .notify( key:String, val:Any ): this    消息通知（如上传更新）
+//      .theme( name:String, isurl:Boolean ): String|this   获取/设置主题
+//      .style( name:String, isurl:Boolean ): String|this   获取/设置内容样式
+//
 //      .element(): Element                     编辑器根元素（用于插入DOM）
-//      .reload( url:String, callback ): void   重载编辑器实现页
-//      .theme( pathfile:String ): void         获取/设置主题
-//      .style( pathfile:String ): void         获取/设置内容样式
-//      注：
-//      与文章正文并列的内容单元都有一个获取/设置接口。
+//      .notify( key:String, val:Any ): this    消息通知（如上传更新）
+//      .reload( url:String, callback:Function ): void  重新载入编辑器
 //
 //  key/val [
 //      upload,                 上传更新开始
@@ -48,45 +48,28 @@
 //  ]
 //
 //  注记：
-//  用户可以在一个页面中创建多个编辑器实例，但管理代码需要自行编写。
+//  用户可以在一个页面中创建多个编辑器实例，但管理代码需自行编写。
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 
 // 名称空间。
-// 可更改，但需与末端名称相同。
+// 可更改，但需与末端名称匹配。
 const jcEd = {};
 
 
 (function( jcEd ) {
 
-    // 容器样式。
-    // 几个零值为预防性设置。
-    const __Styles = {
-        div: {
-            width:          '800px',  // 默认值
-            height:         '600px',
-            display:        'inline-block',
-            resize:         'both',
-            overflow:       'hidden',
-            padding:        '6px',  // IE&FF 误差修正
-            border: 		'1px #999 dotted',
-            borderRadius:   '3px',
-            zIndex: 		1001,  // 关灯层之上（如果有）
-        },
-
-        iframe: {
-            width:          '100%',
-            height:         '100%',
-            resize:         'none',  // chrome需要
-            padding:        0,
-            margin:         0,
-            borderWidth:    0,
-            borderRadius:   '3px',  // 同上容器
-            float:          'left',
-        },
-    };
+    // 框架默认样式：
+    // 高宽可变（resize）。
+    const __frameStyles = {
+            width:      '800px',
+            height:     '700px',
+            resize:     'both',
+            overflow:   'hidden',
+            border:     '1px #999 solid',
+        };
 
 
     // 当前文件所在路径。
@@ -243,7 +226,7 @@ class Editor {
      * @return {Element}
      */
     element() {
-        return this._frame.parentElement;
+        return this._frame;
     }
 
 
@@ -251,16 +234,16 @@ class Editor {
      * 获取/设置编辑器主题。
      * 传递custom为真，表示用定制样式文件（全URL）。
      * @param  {String} name 主题名称
-     * @param  {Boolean} custom 是否定制
+     * @param  {Boolean} isurl 自定义URL
      * @return {String|this}
      */
-    theme( name, custom ) {
+    theme( name, isurl ) {
         if ( name === undefined ) {
             return this._proxy( 'theme' );
         }
         return this._proxy(
             'theme',
-            custom ? name : `${__PATH}/themes/${name}/style.css`
+            isurl ? name : `${__PATH}/themes/${name}/style.css`
         );
     }
 
@@ -268,16 +251,16 @@ class Editor {
     /**
      * 获取/设置内容样式。
      * @param  {String} name 主样式文件
-     * @param  {Boolean} custom 是否定制
+     * @param  {Boolean} isurl 自定义URL
      * @return {String|this}
      */
-    style( name, custom ) {
+    style( name, isurl ) {
         if ( name === undefined ) {
             return this._proxy( 'style' );
         }
         return this._proxy(
             'style',
-            custom ? name : `${__PATH}/styles/${name}/main.css`
+            isurl ? name : `${__PATH}/styles/${name}/main.css`
         );
     }
 
@@ -360,37 +343,24 @@ function getName() {
 
 
 /**
- * 批量添加样式。
- * @param {Node} el 目标元素
- * @param {Object} conf 样式定义集
- */
-function setStyles( el, conf ) {
-    for ( let [k, v] of Object.entries(conf) ) {
-        el.style[k] = v;
-    }
-}
-
-
-/**
  * 创建编辑器容器。
  * @param  {Number|String} width 宽度
  * @param  {Number|String} height 高度
  * @return {Element} iframe 节点
  */
 function editorBox( width, height ) {
-    let _box = document.createElement('div'),
-        _frm = document.createElement('iframe');
-
-    setStyles(_box, __Styles.div);
-    setStyles(_frm, __Styles.iframe);
+    let _frm = document.createElement('iframe');
 
     _frm.setAttribute('frameborder', '0');
     _frm.setAttribute('scrolling', 'no');
 
-    if ( width ) _box.style.width = width;
-    if ( height ) _box.style.height = height;
+    for ( let [k, v] of Object.entries(__frameStyles) ) {
+        _frm.style[k] = v;
+    }
+    if ( width ) _frm.style.width = sizeValue(width);
+    if ( height ) _frm.style.height = sizeValue(height);
 
-    return _box.appendChild(_frm);
+    return _frm;
 }
 
 
@@ -411,9 +381,21 @@ function editorOption( name, user, ready ) {
         recover:    user.recover,
         ready:      ready,
         maximize:   user.onmaximize,
-        earse:      user.onearsed,
         save:       user.onsaved,
+        append:     user.onappended,
+        earse:      user.onearsed,
     };
+}
+
+
+/**
+ * 获取尺寸值。
+ * 数值可包含单位，无单位默认为像素。
+ * @param  {Number|String} val 尺寸值
+ * @return {String}
+ */
+function sizeValue( val ) {
+    return isNaN( val - parseFloat(val) ) ? val : `${val}px`;
 }
 
 })( jcEd );

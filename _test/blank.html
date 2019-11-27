@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="no-cache">
+    <title>空白页</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #ffffee;
+        }
+        main {
+            margin: 1px;
+            background-color: #daebf1;
+        }
+    </style>
+</head>
+<body>
+    <main id="editor">编辑器区域</main>
+    <!-- <video src="movie.ogg" controls="controls"></video> -->
+    <audio id="beeptip" src="horse.ogg"></audio>
+</body>
+<script>
+    let editor = document.getElementById('editor');
+    window.onresize = function( ev ) {
+        editor.style.width = `${window.innerWidth-2}px`;
+        editor.style.height = `${window.innerHeight-2}px`;
+    }
+
+    let beep = document.getElementById('beeptip');
+    editor.onclick = function( ev ) {
+        beep.play();
+    }
+</script>
+</html>

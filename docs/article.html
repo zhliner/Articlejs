@@ -66,7 +66,6 @@
                             <h5><a href="#原生结构">原生结构</a></h5>
                             <ol>
                                 <li><a href="#导言/前言">导言/前言</a></li>
-                                <li><a href="#片区">片区</a></li>
                                 <li><a href="#无序列表">无序列表</a></li>
                                 <li><a href="#有序列表">有序列表</a></li>
                                 <li><a href="#定义列表">定义列表</a></li>
@@ -74,9 +73,8 @@
                                 <li><a href="#插图">插图</a></li>
                                 <li><a href="#详细内容">详细内容</a></li>
                                 <li><a href="#引用块">引用块</a></li>
-                                <li><a href="#批注">批注</a></li>
+                                <li><a href="#批注块">批注块</a></li>
                                 <li><a href="#尾注">尾注</a></li>
-                                <li><a href="#代码块">代码块</a></li>
                                 <li><a href="#注音">注音</a></li>
                             </ol>
                         </li>
@@ -85,8 +83,13 @@
                             <ol>
                                 <li><a href="#提要">提要</a></li>
                                 <li><a href="#目录">目录</a></li>
+                                <li><a href="#片区">片区</a></li>
+                                <li><a href="#另参见">另参见</a></li>
+                                <li><a href="#文献参考">文献参考</a></li>
                                 <li><a href="#级联编号表">级联编号表</a></li>
                                 <li><a href="#代码表">代码表</a></li>
+                                <li><a href="#代码块">代码块</a></li>
+                                <li><a href="#注解">注解</a></li>
                             </ol>
                         </li>
                     </ol>
@@ -206,7 +209,7 @@
 &lt;table&gt;&lt;/table&gt;                     <b class="cmt">&lt;!-- 表格：Table /caption, thead, tbody, tfoot/tr/td/... --&gt;</b>
 &lt;figure&gt;&lt;/figure&gt;                   <b class="cmt">&lt;!-- 插图：Figure /figcaption, p... --&gt;</b>
 &lt;blockquote&gt;&lt;/blockquote&gt;           <b class="cmt">&lt;!-- 引用块：Blockquote /h4, p... --&gt;</b>
-&lt;aside&gt;&lt;/aside&gt;                     <b class="cmt">&lt;!-- 批注：Aside /h4, p... --&gt;</b>
+&lt;aside&gt;&lt;/aside&gt;                     <b class="cmt">&lt;!-- 批注块：Aside /h4, p... --&gt;</b>
 &lt;details&gt;&lt;/details&gt;                 <b class="cmt">&lt;!-- 详细内容：Details /sumary, p... --&gt;</b>
 &lt;pre role="codeblock"&gt;&lt;/pre&gt;        <b class="cmt">&lt;!-- 代码块：Codeblock /code/b, #text --&gt;</b>
 </code></pre>
@@ -216,6 +219,7 @@
                         <section>
                             <pre>
 <code data-lang="html">&lt;p&gt;&lt;/p&gt;                     <b class="cmt">&lt;!-- 段落：P 通用内容容器 --&gt;</b>
+&lt;p role="note"&gt;&lt;/p&gt;         <b class="cmt">&lt;!-- 注解：Note --&gt;</b>
 &lt;address&gt;&lt;/address&gt;         <b class="cmt">&lt;!-- 地址信息：Address --&gt;</b>
 &lt;pre&gt;&lt;/pre&gt;                 <b class="cmt">&lt;!-- 预排版：Pre 非代码块 --&gt;</b>
 &lt;hr /&gt;                      <b class="cmt">&lt;!-- 线条：Hr 特例 --&gt;</b>
@@ -275,15 +279,6 @@
     &lt;h4&gt;&lt;/h4&gt;
     &lt;p&gt;&lt;/p&gt; ...
 &lt;/header&gt;
-</code></pre>
-                    </section>
-                    <h4 id="片区">片区</h4>
-                    <section>
-                        <pre>
-<code data-lang="html">&lt;header&gt;&lt;/header&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
-&lt;h2&gt; <b class="cmt">&lt;!-- h2 ~ h6 --&gt;</b>
-&lt;section role="s1"&gt;&lt;/section&gt; <b class="cmt">&lt;!-- s1 ~ s5 --&gt;</b>
-&lt;footer&gt;&lt;/footer&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
 </code></pre>
                     </section>
                     <h4 id="无序列表">无序列表</h4>
@@ -355,7 +350,7 @@
 &lt;/blockquote&gt;
 </code></pre>
                     </section>
-                    <h4 id="批注">批注</h4>
+                    <h4 id="批注块">批注块</h4>
                     <section>
                         <pre>
 <code data-lang="html">&lt;aside&gt;
@@ -371,14 +366,6 @@
     &lt;h4&gt;&lt;/h4&gt;
     &lt;p&gt;&lt;p&gt; ...
 &lt;/footer&gt;
-</code></pre>
-                    </section>
-                    <h4 id="代码块">代码块</h4>
-                    <section>
-                        <pre>
-<code data-lang="html">&lt;pre role="codeblock"&gt;<b class="cmt">&lt;!-- 容许简单换行 --&gt;</b>
-&lt;code data-lang="xx"&gt; ...&lt;b&gt;&lt;/b&gt;...
-&lt;/code&gt;&lt;pre&gt; <b class="cmt">&lt;!-- 末尾应当紧跟 --&gt;</b>
 </code></pre>
                     </section>
                     <h4 id="注音">注音</h4>
@@ -417,8 +404,34 @@
 &lt;/nav&gt;
 </code></pre>
                     </section>
+                    <h4 id="片区">片区</h4>
+                    <section>
+                        <pre>
+<code data-lang="html">&lt;header&gt;&lt;/header&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
+&lt;h2&gt; <b class="cmt">&lt;!-- h2 ~ h6 --&gt;</b>
+&lt;section role="s1"&gt;&lt;/section&gt; <b class="cmt">&lt;!-- s1 ~ s5 --&gt;</b>
+&lt;footer&gt;&lt;/footer&gt; <b class="cmt">&lt;!-- 可选 --&gt;</b>
+</code></pre>
+                    </section>
+                    <h4 id="另参见">另参见</h4>
+                    <section>
+                        <pre>
+<code data-lang="html">&lt;ul role="seealso"&gt;
+    &lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+                    </section>
+                    <h4 id="文献参考">文献参考</h4>
+                    <section>
+                        <pre>
+<code data-lang="html">&lt;ol role="reference"&gt;
+    &lt;li&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre>
+                    </section>
                     <h4 id="级联编号表">级联编号表</h4>
                     <section>
+                        <p>级联编号表仅由有序列（<code>&lt;ol&gt;</code>）表构成，除了最深那个层级，列表项（<code>&lt;li&gt;</code>）中仅有两个子元素：可选的小标题（<code>&lt;h5&gt;</code>）和子列表（<code>&lt;ol&gt;</code>）。</p>
                         <pre>
 <code data-lang="html">&lt;ol role="cascade"&gt;
     &lt;li&gt;&lt;/li&gt; <b class="cmt">&lt;!-- 由CSS表达序号规则 --&gt;</b>
@@ -429,6 +442,9 @@
     &lt;/li&gt;
 &lt;/ol&gt;
 </code></pre>
+                    <blockquote>
+                        <p><strong>注：</strong><br>有序（<code>&lt;ol&gt;</code>）和无序（<code>&lt;ul&gt;</code>）列表的混合嵌套也是一种级联表，但它们属于正常的DOM结构，不在这里特别区分。</p>
+                    </blockquote>
                     </section>
                     <h4 id="代码表">代码表</h4>
                     <section>
@@ -440,6 +456,23 @@
     &lt;li&gt;&lt;code data-lang="xx"&gt; ... &lt;/code&gt;&lt;/li&gt;
 &lt;/ol&gt;
 </code></pre>
+                    </section>
+                    <h4 id="代码块">代码块</h4>
+                    <section>
+                        <pre>
+<code data-lang="html">&lt;pre role="codeblock"&gt;<b class="cmt">&lt;!-- 容许简单换行 --&gt;</b>
+&lt;code data-lang="xx"&gt; ...&lt;b&gt;&lt;/b&gt;...
+&lt;/code&gt;&lt;pre&gt; <b class="cmt">&lt;!-- 末尾应当紧跟 --&gt;</b>
+</code></pre>
+                    </section>
+                    <h4 id="注解">注解</h4>
+                    <section>
+                        <p>用于解释正文中具体的名词或词组。</p>
+                        <pre>
+<code data-lang="html">&lt;p role="note"&gt; ... &lt;/p&gt;</code></pre>
+                    <blockquote>
+                        <p><strong>注：</strong><br>与批注块（<code>&lt;aside&gt;</code>）单元相比，<strong>注解</strong> 逻辑上是直接与目标相关联。</p>
+                    </blockquote>
                     </section>
                 </section>
             </section>

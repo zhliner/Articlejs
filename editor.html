@@ -19,11 +19,24 @@
             padding: 0;
         }
         #beeptip {
-            position: absolute;
-            visibility: hidden;
-            z-index: -1;
+            display: none;
         }
     </style>
+
+    <script>
+        // frameElement.Config: {
+        //      name     编辑器实例名（存储键）
+        //      theme    默认主题
+        //      style    默认内容样式
+        //      update   上次更新时间
+        //      recover  是否恢复内容
+        //      ready    就绪回调
+        //      maximize 最大化请求
+        //      save     内容本地存储通知
+        //      append   内容添加通知
+        //      earse    内容条目删除通知
+        // }
+    </script>
 </head>
 
 <body lang="">
@@ -31,16 +44,20 @@
         <!-- 大纲栏：定时/手动更新。可隐藏。 -->
     </aside>
 
+    <hr id="lineLeft"> <!-- 宽度调整 -->
+
     <main id="editor">
         <!-- 编辑器区域：工具栏，编辑区，录入面板，状态栏/命令行 -->
     </main>
+
+    <hr id="lineRight"> <!-- 宽度调整 -->
 
     <aside id="help">
         <!-- 帮助栏：固定时占用空间。可隐藏。 -->
     </aside>
 
     <!-- 提示音 -->
-    <audio id="beeptip" src="../pub/beep.ogg"></audio>
+    <audio id="beeptip" src="themes/beep.ogg"></audio>
 </body>
 
 </html>
