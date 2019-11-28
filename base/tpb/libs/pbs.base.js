@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./libs/util.js";
+import { Util } from "./util.js";
 import { bindMethod, EXTENT } from "../config.js";
 
 
@@ -1557,7 +1557,7 @@ reenter[EXTENT] = 0;
 
 
 // 基础集I（On/By/To共享）。
-const Base = $.assign( Base, _Base, bindMethod );
+const Base = $.assign( {}, _Base, bindMethod );
 
 
 // 特殊控制。
@@ -1569,7 +1569,7 @@ Base.reenter = reenter;
 
 
 // 基础集II（On/By共享）。
-const Base2 = $.assign( Base2, _Base2, bindMethod );
+const Base2 = $.assign( {}, _Base2, bindMethod );
 
 
 /**

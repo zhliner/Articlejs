@@ -19,7 +19,7 @@ const
     Dir = {
         // 安装根路径。
         // 注意：子级路径末尾需有/。如：http://abc.com/news/
-        setup: 'https://abc.com',
+        setup: 'http://localhost:8080',
 
         // 模板根目录
         // 相对于安装根路径。
@@ -42,10 +42,10 @@ const
     // 模板根路径。
     tplRoot = new URL(Dir.template, Dir.setup),
 
-    // 模板映射文件路径
-    // 用于从模板名查询所属文件（导入时）。
-    // 映射格式：{ 文件名：[模板名] }
-    tplsMap = `${tplRoot}/_list.json`,
+    // 模板映射。
+    // { 文件名：[模板名] }
+    // 注：用于从模板名查询所属文件。
+    tplsMap = `${tplRoot}/_fmap.json`,
 
     // X扩展专用
     // App.pull 根路径。

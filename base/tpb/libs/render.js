@@ -27,7 +27,7 @@
 //
 
 import { Filter } from "./filter.js";
-import { Spliter } from "./spliter";
+import { Spliter } from "./spliter.js";
 import { Util } from "./util.js";
 
 
