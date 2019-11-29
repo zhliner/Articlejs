@@ -76,7 +76,8 @@ const jcEd = {};
             height:     '700px',
             resize:     'both',
             overflow:   'hidden',
-            border:     '1px #999 solid',
+            // 预防性设置
+            border:     'none',
             boxSizing:  'border-box',
         };
 

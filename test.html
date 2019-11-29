@@ -7,7 +7,6 @@
     <script src="main.js"></script>
     <style>
         main {
-            width: 1000px;
             margin: 40px auto;
         }
         #content {
@@ -16,11 +15,12 @@
         #editorBox {
         }
         #editorBox > iframe {
-            width: 900px;
+            width: 1000px;
             height: 700px;
             resize: both;
             overflow: hidden;
-            border: 1px #999 solid;
+            /* 预防性 */
+            border: none;
             box-sizing: border-box;
         }
     </style>
