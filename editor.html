@@ -11,22 +11,28 @@
     <link rel="stylesheet" href="styles/example/main.css">
 
     <script src="base/tquery/tquery.js"></script>
-    <script src="base/tpb/tpb.js" type="module" async></script>
+    <!-- <script src="base/tpb/tpb.js" type="module" async></script> -->
 
     <style>
         body {
             margin: 0;
-            padding: 0;
-            height: auto;
+            display: flex;
         }
-        #beeptip {
-            display: none;
+        body > * {
+            flex-shrink: 0;
+        }
+        main#editor {
+            flex-grow: 1;
+            flex-shrink: 1;
         }
 
         /* test... */
         main {
-            height: 500px;
             background-color: #b7f7e7;
+        }
+        aside#outline {
+            resize: horizontal;
+            overflow: hidden;
         }
     </style>
 
@@ -43,6 +49,10 @@
         //      append   内容添加通知
         //      earse    内容条目删除通知
         // }
+        window.onresize = function( ev ) {
+            document.body.style.height = `${window.innerHeight}px`;
+        }
+        $.ready( () => $.trigger(window, 'resize') );
     </script>
 </head>
 

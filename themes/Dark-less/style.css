@@ -14,32 +14,32 @@
 body {
     background-color: #fff;
 }
-hr {
-    border: none;
-    border-top: 1px #bbb dotted;
-    margin: 0;
-}
 
-
-/* [ 顶层 ]
- ****************************************************************************/
-
+/* 侧面板 */
 body > aside {
+    width: 150px;
 }
 
-aside#outline {
+/* 侧面板宽度调整线 */
+body > hr {
+    margin: 0;
+    width: 4px;
+    border: 1px #fff solid;
+    border-width: 0 1px;
+    background-color: #5c869c;
+    cursor: ew-resize;
 }
 
-aside#help {
+/* 大纲面板 */
+#outline {
 }
 
-main#editor {
+/* 帮助面板 */
+#help {
 }
 
-hr#lineLeft,
-hr#lineRight {
-    width: 3px;
-    height: 100%;
+/* 编辑器容器 */
+#editor {
 }
 
 
@@ -127,6 +127,11 @@ hr#lineRight {
 }
 .___Panel label > input {
     margin-right: 2px;
+}
+.___Panel hr {
+    border: none;
+    border-top: 1px #bbb dotted;
+    margin: 0;
 }
 
 

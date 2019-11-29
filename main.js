@@ -8,13 +8,13 @@
 //
 //  使用：
 //      let editor = jcEd.create( option ); // 创建一个编辑器实例
-//      box.append( editor.element() );     // 编辑器插入某位置
+//      box.append( editor.element() );     // 编辑器插入某容器
 //
 //  option {
 //      name:       String      编辑器实例命名（关联本地存储），可选
 //      theme:      String      默认主题，可选
 //      style:      String      默认样式，可选
-//      width:      String      宽度（可含单位），可选，默认800px
+//      width:      String      宽度（可含单位），可选，默认900px
 //      height:     String      高度（可含单位），可选，默认700px
 //      update:     Number      上次更新时间，仅修改时存在。可选
 //      recover:    Boolean     内容是否本地恢复（localStorage），可选
@@ -50,6 +50,12 @@
 //  注记：
 //  用户可以在一个页面中创建多个编辑器实例，但管理代码需自行编写。
 //
+//  兼容性:
+//  Firefox 不支持<iframe>元素的resize，因此无法直接拖动框架来改变编辑器大小。
+//  解决：通过容器（<div>）的resize来实现，但需传递编辑器的宽/高度为"100%"。
+//
+//  Edge/IE 完全不支持元素的resize，因此只能使用固定高/宽度的编辑器。
+//
 ///////////////////////////////////////////////////////////////////////////////
 //
 
@@ -61,14 +67,17 @@ const jcEd = {};
 
 (function( jcEd ) {
 
-    // 框架默认样式：
-    // 高宽可变（resize）。
+    // 高宽配置：
+    // chrome 正常。
+    // firefox 通过容器resize实现。
+    // Edge/IE 无效。
     const __frameStyles = {
-            width:      '800px',
+            width:      '900px',
             height:     '700px',
             resize:     'both',
             overflow:   'hidden',
             border:     '1px #999 solid',
+            boxSizing:  'border-box',
         };
 
 
@@ -80,9 +89,16 @@ const jcEd = {};
         })();
 
 
-    // 命名前缀。
-    // 用于无命名时构建默认的编辑器实例名。
-    const __Prefix = 'jcEd-';
+    const
+        // 主题存储目录
+        themeDir    = 'themes',
+
+        // 内容样式存储目录
+        styleDir    = 'styles',
+
+        // 命名前缀。
+        // 用于无命名时构建默认的编辑器实例名。
+        __Prefix    = 'jcEd-';
 
 
 
@@ -202,12 +218,13 @@ class Editor {
     /**
      * 编辑器重载。
      * 暂存内容后载入目标实现页（如语言界面切换）。
+     * pathfile 包含子路径（相对于编辑器根目录）和扩展名。
      * callback: function(store): void。
-     * @param  {String} file 实现页
+     * @param  {String} pathfile 实现页
      * @param  {Function} callback 用户回调，可选
      * @return {void}
      */
-    reload( file, callback = null ) {
+    reload( pathfile, callback = null ) {
         this._store
             .set( 'heading', this.heading() )
             .set( 'subtitle', this.subtitle() )
@@ -217,7 +234,7 @@ class Editor {
             .set( 'reference', this.reference() );
 
         this.restore = callback || this._restore;
-        this._frame.setAttribute( 'src', __PATH + file );
+        this._frame.setAttribute( 'src', `${__PATH}/${pathfile}` );
     }
 
 
@@ -243,7 +260,7 @@ class Editor {
         }
         return this._proxy(
             'theme',
-            isurl ? name : `${__PATH}/themes/${name}/style.css`
+            isurl ? name : `${__PATH}/${themeDir}/${name}/style.css`
         );
     }
 
@@ -260,7 +277,7 @@ class Editor {
         }
         return this._proxy(
             'style',
-            isurl ? name : `${__PATH}/styles/${name}/main.css`
+            isurl ? name : `${__PATH}/${styleDir}/${name}/main.css`
         );
     }
 
@@ -351,8 +368,8 @@ function getName() {
 function editorBox( width, height ) {
     let _frm = document.createElement('iframe');
 
-    _frm.setAttribute('frameborder', '0');
     _frm.setAttribute('scrolling', 'no');
+    _frm.setAttribute('frameborder', '0');
 
     for ( let [k, v] of Object.entries(__frameStyles) ) {
         _frm.style[k] = v;
