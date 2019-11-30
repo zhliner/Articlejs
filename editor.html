@@ -22,8 +22,7 @@
             flex-shrink: 0;
         }
         main#editor {
-            flex-grow: 1;
-            flex-shrink: 1;
+            flex: 1 1 auto;
         }
 
         /* test... */
@@ -49,6 +48,8 @@
         //      append   内容添加通知
         //      earse    内容条目删除通知
         // }
+
+        // 窗口大小自适应。
         window.onresize = function( ev ) {
             document.body.style.height = `${window.innerHeight}px`;
         }

@@ -947,8 +947,9 @@ class Where {
      * 提供绑定的参数为一个更新函数集。
      * 更新函数接口：function(Element | Collector, Value): void
      *
-     * @param {Cell} cell 指令单元
-     * @param {Object} wms 更新方法集（Where/Method/Set）
+     * @param  {Cell} cell 指令单元
+     * @param  {Object} wms 更新方法集（Where/Method/Set）
+     * @return {Cell} cell
      */
     apply( cell, wms ) {
         let _fs = this._names
