@@ -1290,7 +1290,7 @@ Object.assign( tQuery, {
         let _end = el.ownerDocument.documentElement;
 
         while ( (el = el.parentElement) ) {
-            if (getStyles(el).position != 'static' || el.nodeName == 'svg') break;
+            if ( offsetBox( el, getStyles(el) ) ) break;
         }
         return el || _end;
     },
@@ -4062,6 +4062,19 @@ function isWindow( obj ) {
  */
 function indexItem( list, idx ) {
     return list[ idx < 0 ? list.length + idx : idx ];
+}
+
+
+/**
+ * 是否为定位容器元素。
+ * @param  {Element} box 容器元素
+ * @param  {CSSStyleDeclaration} cso 计算样式对象
+ * @return {Boolean}
+ */
+function offsetBox( box, cso ) {
+    return cso.position !== 'static' ||
+        cso.display === 'flex' || cso.display === 'grid' ||
+        box.nodeName === 'svg'
 }
 
 
