@@ -1286,13 +1286,21 @@ Object.assign( tQuery, {
      * @return {Element}
      */
     offsetParent( el ) {
-        // html
-        let _end = el.ownerDocument.documentElement;
+        let _pel = el.parentElement,
+            _css = getStyles(el);
 
-        while ( (el = el.parentElement) ) {
-            if ( offsetBox( el, getStyles(el) ) ) break;
+        while ( _pel ) {
+            let _csp = getStyles(_pel),
+                _its = offsetBox(_pel, _csp, el, _css);
+
+            if ( _its ) return _its;
+
+            _css = _csp;
+            el = _pel;
+            _pel = el.parentElement;
         }
-        return el || _end;
+
+        return el.ownerDocument.documentElement;
     },
 
 
@@ -4065,16 +4073,30 @@ function indexItem( list, idx ) {
 }
 
 
+// 网格项定位属性。
+const gridPosition = [
+    'grid-column-start',
+    'grid-column-end',
+    'grid-row-start',
+    'grid-row-end',
+];
+
+
 /**
- * 是否为定位容器元素。
+ * 检查并返回定位容器元素。
+ * 不是定位容器时返回false。
  * @param  {Element} box 容器元素
  * @param  {CSSStyleDeclaration} cso 计算样式对象
- * @return {Boolean}
+ * @return {Element|Boolean}
  */
-function offsetBox( box, cso ) {
-    return cso.position !== 'static' ||
-        cso.display === 'flex' || cso.display === 'grid' ||
-        box.nodeName === 'svg'
+function offsetBox( box, cso, sub, subcso ) {
+    if ( cso.display === 'grid' ) {
+        if ( cso.position === 'static' ) {
+            return false;
+        }
+        return gridPosition.some( n => subcso[n] !== 'auto' ) ? sub : box;
+    }
+    return (cso.position !== 'static' || cso.display === 'flex' || box.nodeName === 'svg') && box;
 }
 
 
