@@ -174,6 +174,7 @@ const tagsMap = {
     B:          'b',
     I:          'i',
     Img:        'img',
+    Wbr:        'wbr',
     Blank:      'span:blank',
 };
 
@@ -948,6 +949,7 @@ const Content = {
     'Source',
     'Meter',
     'Img',
+    'Wbr',
     'Blank',
 ]
 .forEach(function( name ) {

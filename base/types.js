@@ -145,6 +145,7 @@ const Types = {
     Var:            INLINE,
     Bdo:            INLINE,
     Meter:          INLINE,
+    Wbr:            INLINE,
     Blank:          INLINE,
 
     // 会被作为特定的子单元使用。
@@ -268,6 +269,7 @@ const typeSubs = {
     I:              $TEXT,  // 同上
 
     Img:            0,  // 空
+    Wbr:            0,  // 软换行
     Blank:          0,  // 空，用于交互展示
 
     // 定制中间结构
@@ -335,6 +337,7 @@ const __outerTags = new Set([
     'a',
     'code',
     'img',
+    'wbr',
     'i',
     'b',
 

@@ -319,6 +319,7 @@ const dataTrans = {
     'Track',
     'Meter',
     'Img',
+    'Wbr',
     'Blank',
     'Toc',
     'Hr',

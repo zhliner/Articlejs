@@ -234,6 +234,7 @@ const dataPicks = {
     'A',
     'Code',
     'Img',
+    'Wbr',
     'I',
     'B',
 
