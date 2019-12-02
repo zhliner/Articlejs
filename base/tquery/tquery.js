@@ -652,30 +652,16 @@ Object.assign( tQuery, {
 
 
     /**
-     * 创建或封装表格（Table实例）。
-     * 创建的Table是一个简单的表格，列数不能改变。
-     * 表标题为text方式插入，传递空串会创建一个空标题元素。
-     * 可以传递一个表格元素进行简单封装，以便于操作。
-     * 注：
-     * - th0并不标准，但它可以无需样式就获得列表头的效果。
-     * - 修改表格是一种复杂行为，应单独支持。
+     * 创建或封装Table实例。
+     * 注：th0并不标准，但这样可以简单获得列表头的效果。
      * @param  {Number|Element} rows 表格行数或表格元素
      * @param  {Number} cols 表格列数
-     * @param  {String} caption 表标题，可选
      * @param  {Boolean} th0 首列是否为<th>，可选
      * @param  {Document} doc 所属文档对象
      * @return {Table} 表格实例
      */
-    table( rows, cols, caption, th0, doc = Doc ) {
-        if (rows.nodeType == 1) {
-            return new Table(rows);
-        }
-        let _tbl = new Table(rows, cols, th0, doc);
-
-        if (caption != null) {
-            _tbl.caption(caption);
-        }
-        return _tbl;
+    table( rows, cols, th0, doc = Doc ) {
+        return new Table(rows, cols, th0, doc);
     },
 
 
@@ -2179,22 +2165,25 @@ Reflect.defineProperty(tQuery, 'version', {
 
 //
 // 简单表格类。
-// 仅适用规范行列的表格，不支持单元格合并拆分。
-// 不涉及单元格内容的修改操作，需提取后自行操作。
-// 接口的重点在于对表格行的操作。
+// 表格成员（如行/列）的简单添加或删除等。
+// 仅适用规范行列的表格，不支持单元格合并/拆分。
+// 不涉及内容操作，需由外部获取内容元素（如单元格）后自行设置。
+// 代理：
+// 通过静态方法Table.proxyGetter()嵌入实例的Get代理。
 //
 class Table {
     /**
      * 创建表格。
      * 不包含表头/脚部分，调用时注意去除表头/脚部分的行计数。
-     * @param {Number} rows 行数
-     * @param {Number} cols 列数
-     * @param {Boolean} th0 首列是否为<th>单元格
-     * @param {Document} 所属文档对象，可选
+     * @param  {Number} rows 行数
+     * @param  {Number} cols 列数
+     * @param  {Boolean} th0 首列是否为<th>单元格
+     * @param  {Document} 所属文档对象，可选
+     * @return {Table|Proxy}
      */
     constructor( rows, cols, th0, doc = Doc ) {
         if (rows.nodeType == 1) {
-            return this._newTable(rows);
+            return Table._build(this, rows);
         }
         let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
@@ -2206,56 +2195,26 @@ class Table {
         this._th0 = !!th0;
         this._cols = cols;
         this._body0 = _body;
+
+        // 可能嵌入代理。
+        if (__tableGetter) return this._proxyGet(__tableGetter);
     }
 
 
     /**
-     * 表标题操作。
-     * text: {
-     *      undefined   返回表标题，不存在则返回null
+     * 创建/删除表标题。
+     * op: {
+     *      undefined   返回表标题，不存在则新建
      *      null        删除表标题
-     *      {String}    设置并返回表标题（不存在则新建）
      * }
-     * @param  {String|null} text 标题内容
-     * @return {Element|null} 表标题元素
+     * @param  {null} op 表标题移除标记
+     * @return {Element|this} 表标题元素或实例自身
      */
-    caption( text ) {
-        let _cap = this._tbl.caption;
-
-        switch ( text ) {
-            case undefined:
-                return _cap;
-            case null:
-                this._tbl.deleteCaption();
-                return _cap;
+    caption( op ) {
+        if ( op === null ) {
+            return this._tbl.deleteCaption(), this;
         }
-        if ( !_cap ) {
-            _cap = this._tbl.createCaption();
-        }
-        _cap.textContent = text;
-
-        return _cap;
-    }
-
-
-    /**
-     * 添加表格行（TBody/tr）。
-     * 会保持列数合法，全部为空单元格。
-     * idx为-1或表体的行数，则新行插入到末尾。
-     * 简单的无参数调用返回表体元素集（数组）。
-     * @param  {Number} idx 插入位置
-     * @param  {Number} rows 行数
-     * @param  {TableSection} tsec 目标<tbody>元素，可选
-     * @return {[Element]|Collector} 表体元素集或新添加的行元素集
-     */
-    body( idx, rows = 1, tsec = null ) {
-        if (idx == undefined) {
-            return Arr(this._tbl.tBodies);
-        }
-        if (tsec == null) {
-            tsec = this._body0;
-        }
-        return this._insertRows(tsec, idx, rows);
+        return this._tbl.caption || this._tbl.createCaption();
     }
 
 
@@ -2281,6 +2240,27 @@ class Table {
             this._tbl.removeChild(_body);
         }
         return _body;
+    }
+
+
+    /**
+     * 添加表格行（TBody/tr）。
+     * 会保持列数合法，全部为空单元格。
+     * idx为-1或表体的行数，则新行插入到末尾。
+     * 简单的无参数调用返回表体元素集（数组）。
+     * @param  {Number} idx 插入位置
+     * @param  {Number} rows 行数
+     * @param  {TableSection} tsec 目标<tbody>元素，可选
+     * @return {[Element]|Collector} 表体元素集或新添加的行元素集
+     */
+    body( idx, rows = 1, tsec = null ) {
+        if (idx == undefined) {
+            return Arr(this._tbl.tBodies);
+        }
+        if (tsec == null) {
+            tsec = this._body0;
+        }
+        return this._insertRows(tsec, idx, rows);
     }
 
 
@@ -2329,32 +2309,41 @@ class Table {
 
 
     /**
-     * 删除多个表格行。
-     * 如果未指定tsec，行计数指整个表格（thead/tbody/tfoot）。
-     * - idx支持负数从末尾算起。
-     * - size为undefined表示起始位置之后全部行。
-     * - size计数大于剩余行数，取剩余行数（容错超出范围）。
-     * @param  {Number} idx 起始位置（从0开始）
-     * @param  {Number} size 删除数量
+     * 获取目标行元素。
+     * 如果未指定tsec，表格行计数包含表头和表尾部分。
+     * @param  {Number} idx 目标行（从0计数）
      * @param  {TableSection} tsec 表体区，可选
-     * @return {Collector} 删除的行元素集
+     * @return {Element|null} 表格行
      */
-    removes( idx, size, tsec ) {
-        let _val = this._idxSize( idx, size, tsec ),
-            _buf = [];
+    get( idx, tsec ) {
+        idx = this._idxSize( idx, null, tsec );
+        return idx === null ? null : (tsec || this._tbl).rows[idx[0]];
+    }
+
+
+    /**
+     * 获取目标行集。
+     * 如果未指定tsec，表格行计数指整个表格（thead/tbody/tfoot）。
+     * idx支持负数从末尾算起。
+     * 不合适的参数会返回一个空集。
+     * @param  {Number} idx 起始位置（从0开始）
+     * @param  {Number} count 获取行数（null|undefined表示全部），可选
+     * @param  {TableSection} tsec 表体区，可选
+     * @return {Collector} 行元素集
+     */
+    gets( idx, count, tsec ) {
+        let _val = this._idxSize( idx, count, tsec );
 
         if (_val === null) {
-            size = 0;
+            count = 0;
         } else {
-            [idx, size] = _val;
+            [idx, count] = _val;
         }
         tsec = tsec || this._tbl;
 
-        for (let i = 0; i < size; i++) {
-            // 集合会改变，故下标固定
-            _buf.push( this._remove(idx, tsec) );
-        }
-        return new Collector( _buf );
+        return new Collector(
+            [...rangeNumber(idx, count)].map( i => tsec.rows[i] )
+        );
     }
 
 
@@ -2372,41 +2361,77 @@ class Table {
 
 
     /**
-     * 获取目标行集。
-     * 如果未指定tsec，表格行计数指整个表格（thead/tbody/tfoot）。
-     * idx支持负数从末尾算起。
-     * 不合适的参数会返回一个空集。
+     * 删除多个表格行。
+     * 如果未指定tsec，行计数指整个表格（thead/tbody/tfoot）。
+     * - idx支持负数从末尾算起。
+     * - size为undefined表示起始位置之后全部行。
+     * - size计数大于剩余行数，取剩余行数（容错超出范围）。
      * @param  {Number} idx 起始位置（从0开始）
-     * @param  {Number} size 获取行数（null表示全部），可选
+     * @param  {Number} count 删除数量
      * @param  {TableSection} tsec 表体区，可选
-     * @return {Collector} 行元素集
+     * @return {Collector} 删除的行元素集
      */
-    gets( idx, size, tsec ) {
-        let _val = this._idxSize( idx, size, tsec );
+    removes( idx, count, tsec ) {
+        let _val = this._idxSize( idx, count, tsec ),
+            _buf = [];
 
         if (_val === null) {
-            size = 0;
+            count = 0;
         } else {
-            [idx, size] = _val;
+            [idx, count] = _val;
         }
         tsec = tsec || this._tbl;
 
-        return new Collector(
-            [...rangeNumber(idx, size)].map( i => tsec.rows[i] )
-        );
+        for (let i = 0; i < count; i++) {
+            // 集合会改变，故下标固定
+            _buf.push( this._remove(idx, tsec) );
+        }
+        return new Collector( _buf );
     }
 
 
     /**
-     * 获取目标行元素。
-     * 如果未指定tsec，表格行计数包含表头和表尾部分。
-     * @param  {Number} idx 目标行（从0计数）
-     * @param  {TableSection} tsec 表体区，可选
-     * @return {Element|null} 表格行
+     * 插入一列。
+     * 在下标位置前插（新列即在下标位置）。
+     * idx值为-1时插入末尾（成为最后一列）。
+     * @param  {Number} idx 下标位置
+     * @return {[Element]} 新插入的列单元格数组
      */
-    get( idx, tsec ) {
-        idx = this._idxSize( idx, null, tsec );
-        return idx === null ? null : (tsec || this._tbl).rows[idx[0]];
+    insertColumn( idx ) {
+        //
+    }
+
+
+    /**
+     * 插入多列。
+     * idx值为-1时插入末尾。
+     * @param  {Number} idx 列下标位置
+     * @param  {Number} cols 新列数量
+     * @return {Collector} 新插入的列单元格数组集
+     */
+    insertColumns( idx, cols ) {
+        //
+    }
+
+
+    /**
+     * 删除一列。
+     * @param  {Number} idx 位置下标，支持负值从末尾算起
+     * @return {[Element]} 删除的列单元格数组
+     */
+    removeColumn( idx ) {
+        //
+    }
+
+
+    /**
+     * 删除多列。
+     * @param  {Number} idx 起始位置下标，支持负值从末尾算起
+     * @param  {Number} cols 待删除的列数
+     * @return {Collector} 删除的列单元格数组集
+     */
+    removeColumns( idx, cols ) {
+        //
     }
 
 
@@ -2425,7 +2450,7 @@ class Table {
      * 返回表格的列数。
      * @return {Number}
      */
-    cols() {
+    columns() {
         return this._cols;
     }
 
@@ -2434,7 +2459,7 @@ class Table {
      * 是否包含首列表头。
      * @return {Boolean}
      */
-    vth() {
+    hasVth() {
         return this._th0;
     }
 
@@ -2453,7 +2478,7 @@ class Table {
      * 返回原始的表格元素。
      * @return {Element}
      */
-    elem() {
+    element() {
         return this._tbl;
     }
 
@@ -2485,13 +2510,26 @@ class Table {
 
 
     /**
+     * 创建列单元格（行段）。
+     * 新单元格参考目标位置的单元格创建（同类）。
+     * 末尾列参考原末尾列单元格创建。
+     * @param  {Element} ref 参考单元格
+     * @param  {Number} cols 段长度（列数）
+     * @return {Element|[Element]}
+     */
+    _columnCells( ref, cols = 1 ) {
+        //
+    }
+
+
+    /**
      * 计算合法的起点和行数实参。
      * @param {Number} idx 起点位置
-     * @param {Number} size 获取行数，可选
+     * @param {Number} count 获取行数，可选
      * @param {TableSection} tsec 表格区
-     * @return {[beg, size]|null}
+     * @return {[beg, count]|null}
      */
-    _idxSize( idx, size, tsec ) {
+    _idxSize( idx, count, tsec ) {
         let _max = tsec.rows.length;
 
         if (idx < 0) {
@@ -2500,13 +2538,13 @@ class Table {
         if (idx < 0 || idx >= _max) {
             return null;
         }
-        if (size == null) {
+        if (count == null) {
             return [idx, _max];
         }
-        if (idx + size > _max) {
-            size = _max - idx;
+        if (idx + count > _max) {
+            count = _max - idx;
         }
-        return [ idx, size > 0 ? size : 0];
+        return [ idx, count > 0 ? count : 0];
     }
 
 
@@ -2525,23 +2563,53 @@ class Table {
 
 
     /**
-     * 封装一个Table 实例。
-     * 传入的tbl参数必须是一个表格元素，否则返回null。
-     * @param {Element} tbl 表格元素
-     * @return {Table} Table实例
+     * 创建表格实例Get代理。
+     * getter: function(meth, origin): Function | null
+     * - meth 为目标方法名
+     * - origin 为原始 Table 实例对象。
+     * 返回值：返回null时，自动返回原始方法。
+     *
+     * @param  {Function} getter 成员方法获取器
+     * @return {Proxy} 当前表格对象的代理
      */
-    _newTable( tbl ) {
-        if (tbl.tagName.toLowerCase() !== 'table') {
-            return null;
-        }
-        this._body0 = tbl.tBodies[0];
-        this._cols = tbl.rows[0].cells.length;
-        this._th0 = this._body0.rows[0].cells[0].tagName.toLowerCase() === 'th';
-        this._tbl = tbl;
+    _proxyGet( getter ) {
+        let get = (target, fn, rec) =>
+            getter(fn, target) || Reflect.get(target, fn, rec);
 
-        return this;
+        return new Proxy( this, { get } );
     }
 
+}
+
+
+//
+// Table实例Get代理。
+//
+let __tableGetter;
+
+//
+// 设置Get代理函数。
+//
+Table.proxyGetter = getter => __tableGetter = isFunc(getter) && getter;
+
+
+//
+// 构建Table实例。
+// 传入的tbl参数必须是一个表格元素，否则返回null。
+// @param  {Table} self 一个空实例
+// @param  {Element} tbl 表格元素
+// @return {Table|Proxy}
+//
+Table._build = function( self, tbl ) {
+    if (tbl.tagName.toLowerCase() !== 'table') {
+        return null;
+    }
+    self._body0 = tbl.tBodies[0];
+    self._cols = tbl.rows[0].cells.length;
+    self._th0 = self._body0.rows[0].cells[0].tagName.toLowerCase() === 'th';
+    self._tbl = tbl;
+
+    return __tableGetter ? self._proxyGet(__tableGetter) : self;
 }
 
 
