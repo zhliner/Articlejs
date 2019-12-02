@@ -7,8 +7,10 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //  使用：
-//      let editor = jcEd.create( option ); // 创建一个编辑器实例
-//      box.append( editor.element() );     // 编辑器插入某容器
+//      // 创建一个编辑器实例，basefile可选。
+//      let editor = jcEd.create( option, basefile );
+//      // 编辑器（<iframe>）插入某容器。
+//      box.append( editor.element() );
 //
 //  option {
 //      name:       String      编辑器实例命名（关联本地存储），可选
@@ -91,11 +93,17 @@ const jcEd = {};
 
 
     const
-        // 主题存储目录
-        themeDir    = 'themes',
+        // 编辑器主题
+        themeDir    = 'themes',     // 根目录
+        themeFile   = 'style.css',  // 主样式文件
 
-        // 内容样式存储目录
-        styleDir    = 'styles',
+        // 内容样式
+        styleDir    = 'styles',     // 根目录
+        styleFile   = 'main.css',   // 主样式文件
+
+
+        // 编辑器根模板
+        __tplRoot   = 'editor.html',
 
         // 命名前缀。
         // 用于无命名时构建默认的编辑器实例名。
@@ -105,11 +113,13 @@ const jcEd = {};
 
 /**
  * 编辑器创建。
- * 注：非常规的提交可能不需要<textarea>容器。
+ * 非常规的提交可能不需要<textarea>容器。
+ * basefile参数相对于编辑器根目录。
  * @param  {Object} option 配置集
+ * @param {String} basefile 基础根模板文件（含扩展名），可选
  * @return {Editor} 编辑器实例
  */
-jcEd.create = option => new Editor( option );
+jcEd.create = (option, basefile) => new Editor( option, basefile || __tplRoot );
 
 
 //
@@ -120,8 +130,9 @@ class Editor {
     /**
      * 创建编辑器。
      * @param {Object} option 初始选项
+     * @param {String} basefile 基础根模板文件
      */
-    constructor( option ) {
+    constructor( option, basefile ) {
         let _name = option.name || getName(),
             _ifrm = editorBox(option.width, option.height);
 
@@ -138,7 +149,7 @@ class Editor {
         // 由用户传入或提供默认操作。
         this.restore = null;
 
-        _ifrm.setAttribute('src', __PATH + '/editor.html');
+        _ifrm.setAttribute('src', `${__PATH}/${basefile}` );
     }
 
 
@@ -219,13 +230,12 @@ class Editor {
     /**
      * 编辑器重载。
      * 暂存内容后载入目标实现页（如语言界面切换）。
-     * pathfile 包含子路径（相对于编辑器根目录）和扩展名。
      * callback: function(store): void。
-     * @param  {String} pathfile 实现页
+     * @param  {String} basefile 基础根模板文件，可选
      * @param  {Function} callback 用户回调，可选
      * @return {void}
      */
-    reload( pathfile, callback = null ) {
+    reload( basefile = __tplRoot, callback = null ) {
         this._store
             .set( 'heading', this.heading() )
             .set( 'subtitle', this.subtitle() )
@@ -235,7 +245,7 @@ class Editor {
             .set( 'reference', this.reference() );
 
         this.restore = callback || this._restore;
-        this._frame.setAttribute( 'src', `${__PATH}/${pathfile}` );
+        this._frame.setAttribute( 'src', `${__PATH}/${basefile}` );
     }
 
 
@@ -261,7 +271,7 @@ class Editor {
         }
         return this._proxy(
             'theme',
-            isurl ? name : `${__PATH}/${themeDir}/${name}/style.css`
+            isurl ? name : `${__PATH}/${themeDir}/${name}/${themeFile}`
         );
     }
 
@@ -278,7 +288,7 @@ class Editor {
         }
         return this._proxy(
             'style',
-            isurl ? name : `${__PATH}/${styleDir}/${name}/main.css`
+            isurl ? name : `${__PATH}/${styleDir}/${name}/${styleFile}`
         );
     }
 
