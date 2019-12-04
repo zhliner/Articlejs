@@ -2401,7 +2401,7 @@ class Table {
      */
     insertColumn( idx ) {
         let _buf = [];
-        idx = this._index( idx, this._tbl.rows.length );
+        idx = this._index( idx, this._tbl.rows[0].cells.length );
 
         for (const tr of this._tbl.rows) {
             let _ref = tr.cells[idx];
@@ -2423,7 +2423,7 @@ class Table {
      */
     insertColumns( cols, idx ) {
         let _buf = [];
-        idx = this._index( idx, this._tbl.rows.length );
+        idx = this._index( idx, this._tbl.rows[0].cells.length );
 
         for (const tr of this._tbl.rows) {
             let _ref = tr.cells[idx];
@@ -2448,7 +2448,7 @@ class Table {
         idx = this._index( idx, _max );
 
         if ( idx < _max ) {
-            for (const tr of this._tbl.row) {
+            for (const tr of this._tbl.rows) {
                 _buf.push( tr.removeChild(tr.cells[idx]) );
             }
         }
