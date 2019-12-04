@@ -2189,12 +2189,11 @@ class Table {
             _body = _tbl.createTBody();
 
         for (let r = 0; r < rows; r++) {
-            buildTR(_body.insertRow(), cols, 'td', th0);
+            buildTR( _body.insertRow(), cols, 'td', th0 );
         }
         this._tbl = _tbl;
         this._th0 = !!th0;
         this._cols = cols;
-        this._body0 = _body;
 
         // 可能嵌入代理。
         if (__tableGetter) return this._proxyGet(__tableGetter);
@@ -2202,19 +2201,22 @@ class Table {
 
 
     /**
-     * 创建/删除表标题。
+     * 获取/创建或删除表标题。
      * op: {
      *      undefined   返回表标题，不存在则新建
      *      null        删除表标题
      * }
      * @param  {null} op 表标题移除标记
-     * @return {Element|this} 表标题元素或实例自身
+     * @return {Element|null} 表标题元素（可能为null）
      */
     caption( op ) {
+        let _cap = this._tbl.caption;
+
         if ( op === null ) {
-            return this._tbl.deleteCaption(), this;
+            this._tbl.deleteCaption();
+            return _cap;
         }
-        return this._tbl.caption || this._tbl.createCaption();
+        return _cap || this._tbl.createCaption();
     }
 
 
@@ -2231,11 +2233,13 @@ class Table {
 
     /**
      * 删除一个表体元素<tbody>。
+     * 注记：HTMLTableElement缺乏删除表体元素的接口。
      * @param  {Number} idx 目标元素的下标位置
      * @return {Element} 删除的<tbody>元素
      */
-    delBody( idx ) {
+    delBody( idx = 0 ) {
         let _body = this._tbl.tBodies[idx];
+
         if (_body) {
             this._tbl.removeChild(_body);
         }
@@ -2244,146 +2248,142 @@ class Table {
 
 
     /**
-     * 添加表格行（TBody/tr）。
-     * 会保持列数合法，全部为空单元格。
-     * idx为-1或表体的行数，则新行插入到末尾。
+     * 获取表体元素集或添加表格行。
      * 简单的无参数调用返回表体元素集（数组）。
-     * @param  {Number} idx 插入位置
-     * @param  {Number} rows 行数
+     * 添加表格行时会保持列数合法（空单元格）。
+     * idx为null|undefined，表示新行插入到末尾。
+     * @param  {Number} rows 行数，可选
+     * @param  {Number} idx 插入位置，支持负数从末尾算起，可选
      * @param  {TableSection} tsec 目标<tbody>元素，可选
      * @return {[Element]|Collector} 表体元素集或新添加的行元素集
      */
-    body( idx, rows = 1, tsec = null ) {
-        if (idx == undefined) {
-            return Arr(this._tbl.tBodies);
+    body( rows, idx, tsec ) {
+        let _bds = this._tbl.tBodies;
+
+        if ( rows === undefined ) {
+            return Arr( _bds );
         }
-        if (tsec == null) {
-            tsec = this._body0;
+        tsec = tsec || _bds[0];
+
+        if ( !tsec ) {
+            tsec = this._tbl.createTBody();
         }
-        return this._insertRows(tsec, idx, rows);
+        return this._insertRows( tsec, idx, rows );
     }
 
 
     /**
-     * 添加表头行。
-     * 无参数调用返回表头元素，无表头元素时返回null。
+     * 获取/删除表头元素或添加表头行。
+     * 无参数调用返回表头元素（可能为null）。
+     * 传递rows为null会删除表头元素并返回它（可能为null）。
      * 传递创建参数时，如果不存在表头元素（THead）会新建。
-     * 传递idx参数为null时删除表头元素，-1表示末尾之后。
-     * @param  {Number} idx 插入位置
-     * @param  {Number} rows 行数
+     * rows 实参为null会删除表头元素。
+     * idx 支持负数从末尾算起，null|undefined表示末尾之后。
+     * @param  {Number|null} rows 行数，可选
+     * @param  {Number} idx 插入位置，可选
      * @return {Element|Collector} 表头元素或新添加的行元素集
      */
-    head( idx, rows = 1 ) {
-        let _head = this._tbl.tHead;
+    head( rows, idx ) {
+        let _tsec = this._tbl.tHead;
 
-        if (idx == null) {
-            if (idx === null) {
-                this._tbl.deleteTHead();
-            }
-            return _head;
+        if ( rows == null ) {
+            if ( rows === null ) this._tbl.deleteTHead();
+            return _tsec;
         }
-        return this._insertRows(this._tbl.createTHead(), idx, rows, 'th');
+        return this._insertRows( _tsec || this._tbl.createTHead(), idx, rows, 'th' );
     }
 
 
     /**
-     * 添加表脚行。
-     * 简单的无参数调用返回表脚元素，无表脚元素时返回null。
+     * 获取/删除表脚元素或添加表脚行。
+     * 简单的无参数调用返回表脚元素（可能为null）。
+     * 传递rows为null会删除表脚元素并返回它（可能为null）。
      * 传递创建参数时，如果不存在表脚元素（TFoot）会新建。
-     * 传递idx参数为null时删除表脚元素，-1表示末尾之后。
-     * @param  {Number} idx 插入位置
-     * @param  {Number} rows 行数
+     * rows 实参为null会删除表脚元素。
+     * idx 支持负数从末尾算起，null|undefined表示末尾之后。
+     * @param  {Number|null} rows 行数，可选
+     * @param  {Number} idx 插入位置，可选
      * @return {Element|Collector} 表脚元素或新添加的行元素集
      */
-    foot( idx, rows = 1 ) {
-        let _foot = this._tbl.tFoot;
+    foot( rows, idx ) {
+        let _tsec = this._tbl.tFoot;
 
-        if (idx == null) {
-            if (idx === null) {
-                this._tbl.deleteTFoot();
-            }
-            return _foot;
+        if ( rows == null ) {
+            if ( rows === null ) this._tbl.deleteTFoot();
+            return _tsec;
         }
-        return this._insertRows(this._tbl.createTFoot(), idx, rows);
+        return this._insertRows( _tsec || this._tbl.createTFoot(), idx, rows );
     }
 
 
     /**
      * 获取目标行元素。
      * 如果未指定tsec，表格行计数包含表头和表尾部分。
-     * @param  {Number} idx 目标行（从0计数）
+     * idx 支持负数从末尾算起。
+     * @param  {Number} idx 目标行下标
      * @param  {TableSection} tsec 表体区，可选
      * @return {Element|null} 表格行
      */
     get( idx, tsec ) {
-        idx = this._idxSize( idx, null, tsec );
-        return idx === null ? null : (tsec || this._tbl).rows[idx[0]];
+        let _rows = (tsec || this._tbl).rows;
+        return _rows[ this._index(idx, _rows.length) ] || null;
     }
 
 
     /**
      * 获取目标行集。
      * 如果未指定tsec，表格行计数指整个表格（thead/tbody/tfoot）。
-     * idx支持负数从末尾算起。
-     * 不合适的参数会返回一个空集。
-     * @param  {Number} idx 起始位置（从0开始）
+     * idx 支持负数从末尾算起。
+     * @param  {Number} idx 起始位置
      * @param  {Number} count 获取行数（null|undefined表示全部），可选
      * @param  {TableSection} tsec 表体区，可选
      * @return {Collector} 行元素集
      */
     gets( idx, count, tsec ) {
-        let _val = this._idxSize( idx, count, tsec );
+        let _rows = (tsec || this._tbl).rows;
 
-        if (_val === null) {
-            count = 0;
-        } else {
-            [idx, count] = _val;
-        }
-        tsec = tsec || this._tbl;
+        idx = this._index( idx, _rows.length );
+        count = this._count( idx, _rows.length, count );
 
         return new Collector(
-            [...rangeNumber(idx, count)].map( i => tsec.rows[i] )
+            [...rangeNumber(idx, count)].map( i => _rows[i] )
         );
     }
 
 
     /**
-     * 删除表格行。
-     * idx支持负数从末尾算起。
-     * @param  {Number} idx 目标位置（从0开始）
+     * 删除单个表格行。
+     * idx 支持负数从末尾算起。
+     * @param  {Number} idx 目标位置下标
      * @param  {TableSection} tsec 表体区，可选
      * @return {Element|null} 删除的行元素
      */
     remove( idx, tsec ) {
-        idx = this._idxSize( idx, null, tsec );
-        return idx === null ? null : this._remove(idx[0], tsec || this._tbl);
+        tsec = tsec || this._tbl;
+        return this._remove( this._index(idx, tsec.rows.length), tsec ) || null;
     }
 
 
     /**
      * 删除多个表格行。
      * 如果未指定tsec，行计数指整个表格（thead/tbody/tfoot）。
-     * - idx支持负数从末尾算起。
-     * - size为undefined表示起始位置之后全部行。
-     * - size计数大于剩余行数，取剩余行数（容错超出范围）。
+     * idx 支持负数从末尾算起。
+     * count 为null|undefined表示起始位置之后全部。
+     * count 计数大于剩余行数，取剩余行数（容错超出范围）。
      * @param  {Number} idx 起始位置（从0开始）
      * @param  {Number} count 删除数量
      * @param  {TableSection} tsec 表体区，可选
      * @return {Collector} 删除的行元素集
      */
     removes( idx, count, tsec ) {
-        let _val = this._idxSize( idx, count, tsec ),
-            _buf = [];
+        let _buf = [];
 
-        if (_val === null) {
-            count = 0;
-        } else {
-            [idx, count] = _val;
-        }
         tsec = tsec || this._tbl;
+        idx = this._index( idx, tsec.rows.length );
+        count = this._count( idx, tsec.rows.length, count );
 
         for (let i = 0; i < count; i++) {
-            // 集合会改变，故下标固定
+            // 集合会改变，故下标固定。
             _buf.push( this._remove(idx, tsec) );
         }
         return new Collector( _buf );
@@ -2393,45 +2393,91 @@ class Table {
     /**
      * 插入一列。
      * 在下标位置前插（新列即在下标位置）。
-     * idx值为-1时插入末尾（成为最后一列）。
-     * @param  {Number} idx 下标位置
-     * @return {[Element]} 新插入的列单元格数组
+     * idx 支持负值从末尾算起。
+     * 传递idx为null|undefined表示插入到末尾之后。
+     * 注：表格必须有参考列（即至少已有1列）。
+     * @param  {Number} idx 下标位置，可选
+     * @return {Collector} 新插入的列单元格集
      */
     insertColumn( idx ) {
-        //
+        let _buf = [];
+        idx = this._index( idx, this._tbl.rows.length );
+
+        for (const tr of this._tbl.rows) {
+            let _ref = tr.cells[idx];
+            _buf.push(
+                tr.insertBefore( this._columnCell(_ref, tr.cells[idx-1]), _ref || null )
+            );
+        }
+        return new Collector( _buf );
     }
 
 
     /**
      * 插入多列。
-     * idx值为-1时插入末尾。
-     * @param  {Number} idx 列下标位置
+     * idx 支持负值从末尾算起。
+     * 传递idx为null|undefined表示插入到末尾之后。
      * @param  {Number} cols 新列数量
+     * @param  {Number} idx 列下标位置，可选
      * @return {Collector} 新插入的列单元格数组集
      */
-    insertColumns( idx, cols ) {
-        //
+    insertColumns( cols, idx ) {
+        let _buf = [];
+        idx = this._index( idx, this._tbl.rows.length );
+
+        for (const tr of this._tbl.rows) {
+            let _ref = tr.cells[idx];
+            _buf.push(
+                this._columnInsert(tr, this._columnCells(_ref, tr.cells[idx-1], cols), _ref || null)
+            );
+        }
+        return new Collector( _buf );
     }
 
 
     /**
      * 删除一列。
-     * @param  {Number} idx 位置下标，支持负值从末尾算起
-     * @return {[Element]} 删除的列单元格数组
+     * idx 支持负值从末尾算起。
+     * @param  {Number} idx 位置下标
+     * @return {Collector} 删除的列单元格集
      */
     removeColumn( idx ) {
-        //
+        let _buf = [],
+            _max = this._tbl.rows[0].cells.length;
+
+        idx = this._index( idx, _max );
+
+        if ( idx < _max ) {
+            for (const tr of this._tbl.row) {
+                _buf.push( tr.removeChild(tr.cells[idx]) );
+            }
+        }
+        return new Collector( _buf );
     }
 
 
     /**
      * 删除多列。
-     * @param  {Number} idx 起始位置下标，支持负值从末尾算起
-     * @param  {Number} cols 待删除的列数
+     * idx 支持负值从末尾算起。
+     * cols 未传递（undefined）或超出范围，会删除到末尾。
+     * 注：若未实际删除内容，返回集的成员将全部为空数组。
+     * @param  {Number} idx 起始位置下标
+     * @param  {Number} cols 待删除的列数，可选
      * @return {Collector} 删除的列单元格数组集
      */
     removeColumns( idx, cols ) {
-        //
+        let _buf = [],
+            _max = this._tbl.rows[0].cells.length;
+
+        idx = this._index( idx, _max );
+        cols = this._count( idx, _max, cols );
+
+        for (const tr of this._tbl.rows) {
+            _buf.push(
+                this._columnRemove( tr, idx, cols )
+            );
+        }
+        return new Collector( _buf );
     }
 
 
@@ -2465,16 +2511,6 @@ class Table {
 
 
     /**
-     * 包装表格元素为 Collector 对象。
-     * 便于后续的链式调用。
-     * @return {Collector} 对表格元素进行 Collector 封装
-     */
-    $() {
-        return new Collector( this._tbl );
-    }
-
-
-    /**
      * 返回原始的表格元素。
      * @return {Element}
      */
@@ -2488,17 +2524,15 @@ class Table {
     /**
      * 插入表格行。
      * 保持合法的列数，全部为空单元格。
-     * idx为-1或表体的行数，则新行插入到末尾。
      * @param  {TableSection} sect 表格区域（TBody|THead|TFoot）
-     * @param  {Number} idx 插入位置
+     * @param  {Number} idx 插入位置（>=0）
      * @param  {Number} rows 插入行数
      * @param  {String} tag 主要单元格名称
      * @return {Collector} 新插入的行元素（集）
      */
     _insertRows( sect, idx, rows = 1, tag = 'td' ) {
-        if (idx < 0 || idx > sect.rows.length) {
-            idx = sect.rows.length;
-        }
+        idx = this._index( idx, sect.rows.length );
+
         for (let r = 0; r < rows; r++) {
             buildTR(sect.insertRow(idx), this._cols, tag, this._th0);
         }
@@ -2510,41 +2544,105 @@ class Table {
 
 
     /**
-     * 创建列单元格（行段）。
-     * 新单元格参考目标位置的单元格创建（同类）。
-     * 末尾列参考原末尾列单元格创建。
+     * 创建一个列单元格。
      * @param  {Element} ref 参考单元格
-     * @param  {Number} cols 段长度（列数）
-     * @return {Element|[Element]}
+     * @param  {Element} prev 参考单元格前一个单元格
+     * @return {Element}
      */
-    _columnCells( ref, cols = 1 ) {
-        //
+    _columnCell( ref, prev ) {
+        ref = ref || prev;
+        return ref.ownerDocument.createElement( ref.nodeName );
     }
 
 
     /**
-     * 计算合法的起点和行数实参。
-     * @param {Number} idx 起点位置
-     * @param {Number} count 获取行数，可选
-     * @param {TableSection} tsec 表格区
-     * @return {[beg, count]|null}
+     * 创建列单元格集（行段）。
+     * 新单元格参考目标位置的单元格创建（同类）。
+     * 末尾列参考原末尾列单元格创建。
+     * @param  {Element} ref 参考单元格
+     * @param  {Element} prev 参考单元格前一个单元格
+     * @param  {Number} cols 列数（段长度）
+     * @return {[Element]}
      */
-    _idxSize( idx, count, tsec ) {
-        let _max = tsec.rows.length;
+    _columnCells( ref, prev, cols ) {
+        ref = ref || prev;
 
-        if (idx < 0) {
-            idx += _max;
+        let _doc = ref.ownerDocument,
+            _buf = [];
+
+        for (let i = 0; i < cols; i++) {
+            _buf.push( _doc.createElement(ref.nodeName) );
         }
-        if (idx < 0 || idx >= _max) {
-            return null;
+        return _buf;
+    }
+
+
+    /**
+     * 插入单元格段。
+     * @param  {Element} tr 表格行
+     * @param  {[Element]} tds 单元格集
+     * @param  {Element|null} ref 插入点元素
+     * @return {[Element]} tds
+     */
+    _columnInsert( tr, tds, ref ) {
+        for (const td of tds) {
+            tr.insertBefore( td, ref );
         }
-        if (count == null) {
-            return [idx, _max];
+        return tds;
+    }
+
+
+    /**
+     * 删除连续单元格段。
+     * 注：idx已与size正确匹配（idx溢出时size为0）。
+     * @param  {Element} tr 表格行
+     * @param  {Number} idx 目标位置
+     * @param  {Number} size 删除数量
+     * @return {[Element]} 被删除的单元格集
+     */
+    _columnRemove( tr, idx, size ) {
+        let _buf = [];
+
+        for (let i = 0; i < size; i++) {
+            _buf.push( tr.removeChild(tr.cells[idx]) );
         }
-        if (idx + count > _max) {
-            count = _max - idx;
+        return _buf;
+    }
+
+
+    /**
+     * 计算合法的下标值。
+     * idx:
+     * - 支持负值从末尾算起（-1为最末一行）。
+     * - null值或超出max时，视为max本身。
+     * @param  {Number} idx 位置下标
+     * @param  {Number} max 最多行/列数限制
+     * @return {Number}
+     */
+    _index( idx, max ) {
+        if ( idx < 0 ) {
+            idx += max;
         }
-        return [ idx, count > 0 ? count : 0];
+        return idx == null || idx < 0 || idx > max ? max : idx;
+    }
+
+
+    /**
+     * 计算合法的行数（或列数）。
+     * idx 已为正数有效值。
+     * count 如果未指定表示后续全部。
+     * @param  {Number} idx 起点位置
+     * @param  {Number} max 最多行/列数限制
+     * @param  {Number} count 获取行/列数，可选
+     * @return {Number}
+     */
+    _count( idx, max, count ) {
+        let _sz = max - idx;
+
+        if ( count == null ) {
+            return _sz;
+        }
+        return count >= 0 && count < _sz ? count : _sz;
     }
 
 
@@ -2589,6 +2687,8 @@ let __tableGetter;
 
 //
 // 设置Get代理函数。
+// getter: function(meth, origin): Function | null
+// 作用于全局的 new Table(...)
 //
 Table.proxyGetter = getter => __tableGetter = isFunc(getter) && getter;
 
@@ -2601,12 +2701,13 @@ Table.proxyGetter = getter => __tableGetter = isFunc(getter) && getter;
 // @return {Table|Proxy}
 //
 Table._build = function( self, tbl ) {
-    if (tbl.tagName.toLowerCase() !== 'table') {
+    if (tbl.tagName !== 'TABLE') {
         return null;
     }
-    self._body0 = tbl.tBodies[0];
-    self._cols = tbl.rows[0].cells.length;
-    self._th0 = self._body0.rows[0].cells[0].tagName.toLowerCase() === 'th';
+    let _row = tbl.tBodies[0].rows[0];
+
+    self._cols = _row.cells.length;
+    self._th0 = _row.cells[0].tagName === 'TH';
     self._tbl = tbl;
 
     return __tableGetter ? self._proxyGet(__tableGetter) : self;
@@ -3085,10 +3186,10 @@ class Collector extends Array {
 
 
     /**
-     * 排序。
+     * 排序覆盖。
      * - comp为null以获得默认的排序规则（非元素支持）。
      * - 总是会返回一个新的实例。
-     * @param  {Function} comp 排序函数，可选
+     * @param  {Function|null} comp 排序函数，可选
      * @return {Collector}
      */
     sort( comp = sortElements ) {
@@ -3120,8 +3221,7 @@ class Collector extends Array {
      */
     flat( deep = 1 ) {
         let _els = super.flat ?
-            // true有效（1）
-            super.flat( deep ) :
+            super.flat( deep ) : // true == 1
             arrFlat(this);
 
         return new Collector( deep === true ? uniqueSort(_els, sortElements) : _els, this );
@@ -4291,7 +4391,7 @@ function pixelNumber( val ) {
  * @param  {Number} step 步进增量
  * @return {Iterator} 范围生成器
  */
-function* rangeNumber( beg, len, step ) {
+function* rangeNumber( beg, len, step = 1 ) {
     if (len <= 0) {
         return null;
     }
