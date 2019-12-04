@@ -581,7 +581,7 @@ main code[data-lang] {
 
 /* 代码块
  * ------------------------------------
- * pre.codeblock/code/b
+ * pre:codeblock/code/b
  */
 main pre > code {
     display: block;
@@ -628,60 +628,54 @@ main ol[role=codelist] code {
 
 /* 高亮着色：通用
  * ------------------------------------
- * 注：采用类实现（非role）。
  */
 code > b {
     font-weight: normal;
 }
 /* comments */
-code > b.cmt {
+code > b[role=cmt] {
     color: #393;
 }
 
 /* string */
-code > b.str {
+code > b[role=str] {
     color: #03c;
 }
 
 /* keywords */
-code > b.kws {
+code > b[role=kws] {
     color: #900;
     font-weight: bold;
 }
 
 /* tag-name */
-code > b.tag {
+code > b[role=tag] {
     color: #d03;
     font-weight: bold;
 }
 
-/* #id|.clsname|:hover */
-code > b.slr {
+/* #id|.className|:hover */
+code > b[role=slr] {
     color: #06d;
 }
 
-/* #fff #f0f0f0 */
-code > b.c16 {
-    color: #692d1c;
-}
-
 /* attribute */
-code > b.atn {
+code > b[role=atn] {
     color: #090;
 }
 
 /* attribute-value */
-code > b.atv {
+code > b[role=atv] {
     color: #36c;
 }
 
 /* function */
-code > b.fun {
+code > b[role=fun] {
     color: #f3e;
 }
 
 /* data-type */
-code > b.typ {
+code > b[role=typ] {
     color: #09c;
 }
 
@@ -691,43 +685,43 @@ code > b.typ {
  * shell: #!/bin/bash
  * js: $
  */
-code > b.imp {
+code > b[role=imp] {
     color: #e60;
 }
-code > b.imp:first-child {
+code > b[role=imp]:first-child {
     font-weight: bold;
 }
 
 /* <!DOCTYPE ...> */
-code > b.doc {
+code > b[role=doc] {
     color: #bb5;
 }
 
 /* <![CDATA[..]]> */
-code > b.cdt {
+code > b[role=cdt] {
     color: #960;
 }
 
 /* RegExp */
-code > b.rex {
+code > b[role=rex] {
     color: #e60;
 }
 
 /* invalid */
-code > b.non {
+code > b[role=non] {
     color: #c00;
 }
 
 /* 高亮覆盖
  * ------------------------------------
  */
-code[data-lang="css"] b.tag {
+code[data-lang="css"] b[role=tag] {
     color: #f0b;
     font-weight: normal;
 }
 
-code[data-lang="html"] b.imp,
-code[data-lang="js"] b.imp {
+code[data-lang="html"] b[role=imp],
+code[data-lang="js"] b[role=imp] {
     color: #e06;
     font-weight: bold;
 }
