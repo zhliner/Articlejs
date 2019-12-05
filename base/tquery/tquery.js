@@ -653,10 +653,11 @@ Object.assign( tQuery, {
 
     /**
      * 创建或封装Table实例。
-     * 注：th0并不标准，但这样可以简单获得列表头的效果。
+     * vth 并不标准，但这样可以简单获得列表头的效果。
+     * vth 为1表示首列为<th>，-1表示末尾列为<th>。
      * @param  {Number|Element} rows 表格行数或表格元素
      * @param  {Number} cols 表格列数
-     * @param  {Boolean} th0 首列是否为<th>，可选
+     * @param  {Number} vth 垂直列表头位置（1|-1），可选
      * @param  {Document} doc 所属文档对象
      * @return {Table} 表格实例
      */
@@ -2173,26 +2174,27 @@ Reflect.defineProperty(tQuery, 'version', {
 //
 class Table {
     /**
-     * 创建表格。
+     * 创建表格实例。
      * 不包含表头/脚部分，调用时注意去除表头/脚部分的行计数。
-     * @param  {Number} rows 行数
+     * rows 若为表格元素，必须至少包含一行（获取列数）。
+     * @param  {Number|Element} rows 行数或待封装表格元素
      * @param  {Number} cols 列数
-     * @param  {Boolean} th0 首列是否为<th>单元格
+     * @param  {Number} vth 垂直表头单元位置（1|-1）
      * @param  {Document} 所属文档对象，可选
      * @return {Table|Proxy}
      */
-    constructor( rows, cols, th0, doc = Doc ) {
+    constructor( rows, cols, vth, doc = Doc ) {
         if (rows.nodeType == 1) {
             return Table._build(this, rows);
         }
         let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
 
-        for (let r = 0; r < rows; r++) {
-            buildTR( _body.insertRow(), cols, 'td', th0 );
+        for (let r = 0; r < rows-1; r++) {
+            buildTR( _body.insertRow(), cols, 'td', vth );
         }
         this._tbl = _tbl;
-        this._th0 = !!th0;
+        this._vth = vth || null;
         this._cols = cols;
 
         // 可能嵌入代理。
@@ -2252,6 +2254,7 @@ class Table {
      * 简单的无参数调用返回表体元素集（数组）。
      * 添加表格行时会保持列数合法（空单元格）。
      * idx为null|undefined，表示新行插入到末尾。
+     * 注：如果表体元素被删除，会自动创建。
      * @param  {Number} rows 行数，可选
      * @param  {Number} idx 插入位置，支持负数从末尾算起，可选
      * @param  {TableSection} tsec 目标<tbody>元素，可选
@@ -2409,6 +2412,8 @@ class Table {
                 tr.insertBefore( this._columnCell(_ref, tr.cells[idx-1]), _ref || null )
             );
         }
+        this._cols += 1;
+
         return new Collector( _buf );
     }
 
@@ -2431,6 +2436,8 @@ class Table {
                 this._columnInsert(tr, this._columnCells(_ref, tr.cells[idx-1], cols), _ref || null)
             );
         }
+        this._cols += cols;
+
         return new Collector( _buf );
     }
 
@@ -2452,6 +2459,8 @@ class Table {
                 _buf.push( tr.removeChild(tr.cells[idx]) );
             }
         }
+        this._cols -= 1;
+
         return new Collector( _buf );
     }
 
@@ -2477,6 +2486,8 @@ class Table {
                 this._columnRemove( tr, idx, cols )
             );
         }
+        this._cols -= cols;
+
         return new Collector( _buf );
     }
 
@@ -2502,11 +2513,11 @@ class Table {
 
 
     /**
-     * 是否包含首列表头。
-     * @return {Boolean}
+     * 列表头位置。
+     * @return {Number|null}
      */
     hasVth() {
-        return this._th0;
+        return this._vth;
     }
 
 
@@ -2524,6 +2535,7 @@ class Table {
     /**
      * 插入表格行。
      * 保持合法的列数，全部为空单元格。
+     * 可适用表格行已被全部删除后的情况。
      * @param  {TableSection} sect 表格区域（TBody|THead|TFoot）
      * @param  {Number} idx 插入位置（>=0）
      * @param  {Number} rows 插入行数
@@ -2531,27 +2543,38 @@ class Table {
      * @return {Collector} 新插入的行元素（集）
      */
     _insertRows( sect, idx, rows = 1, tag = 'td' ) {
-        idx = this._index( idx, sect.rows.length );
+        idx = this._index(idx, sect.rows.length);
 
+        let _ref = sect.rows[idx] || sect.rows[idx-1],
+            _buf = [];
+
+        if ( !_ref ) {
+            _ref = buildTR(sect.insertRow(), this._cols, tag, this._vth);
+            _buf.push(_ref);
+            rows--;
+        }
         for (let r = 0; r < rows; r++) {
-            buildTR(sect.insertRow(idx), this._cols, tag, this._th0);
+            // 正序集：idx++
+            _buf.push( cloneTR( sect.insertRow(idx++), _ref ) );
         }
-        if (rows === 1) {
-            return new Collector( sect.rows[idx] );
-        }
-        return new Collector( [...rangeNumber(idx, rows)].map(i => sect.rows[i]) );
+        return new Collector( _buf );
     }
 
 
     /**
      * 创建一个列单元格。
+     * 注：可能已经没有表格列（全部空<tr>）。
      * @param  {Element} ref 参考单元格
      * @param  {Element} prev 参考单元格前一个单元格
      * @return {Element}
      */
     _columnCell( ref, prev ) {
         ref = ref || prev;
-        return ref.ownerDocument.createElement( ref.nodeName );
+
+        if ( ref ) {
+            return ref.cloneNode();
+        }
+        return this._tbl.ownerDocument.createElement( this._vth ? 'th' : 'td' );
     }
 
 
@@ -2567,13 +2590,32 @@ class Table {
     _columnCells( ref, prev, cols ) {
         ref = ref || prev;
 
-        let _doc = ref.ownerDocument,
-            _buf = [];
+        if ( !ref ) {
+            return this._newCells( cols, this._vth, this._tbl.ownerDocument );
+        }
+        let _buf = [];
 
         for (let i = 0; i < cols; i++) {
-            _buf.push( _doc.createElement(ref.nodeName) );
+            _buf.push( ref.cloneNode() );
         }
         return _buf;
+    }
+
+
+    /**
+     * 新建一行单元格（集）。
+     * @param  {Number} cols 列数
+     * @param  {Number} vth 列表头位置（1|-1）
+     * @param  {Document} doc 所属文档对象
+     * @return {[Element]}
+     */
+    _newCells( cols, vth, doc ) {
+        let _buf = [];
+
+        for (let i = 0; i < cols-1; i++) {
+            _buf.push( doc.createElement('td') );
+        }
+        return insertVth( vth, _buf, doc );
     }
 
 
@@ -2695,19 +2737,17 @@ Table.proxyGetter = getter => __tableGetter = isFunc(getter) && getter;
 
 //
 // 构建Table实例。
-// 传入的tbl参数必须是一个表格元素，否则返回null。
+// 传入的tbl实参必须是一个表格元素且至少包含一行。
 // @param  {Table} self 一个空实例
 // @param  {Element} tbl 表格元素
 // @return {Table|Proxy}
 //
 Table._build = function( self, tbl ) {
-    if (tbl.tagName !== 'TABLE') {
+    if ( tbl.rows.length == 0 ) {
         return null;
     }
-    let _row = tbl.tBodies[0].rows[0];
-
-    self._cols = _row.cells.length;
-    self._th0 = _row.cells[0].tagName === 'TH';
+    self._cols = tbl.rows[0].cells.length;
+    self._vth = whereVth( tbl.tBodies[0].rows[0] || tbl.tFoot.rows[0] );
     self._tbl = tbl;
 
     return __tableGetter ? self._proxyGet(__tableGetter) : self;
@@ -4523,28 +4563,84 @@ function setElem( el, conf ) {
 
 
 /**
- * 制作表格行。
- * 仅创建包含空单元格的行（内容处理交给外部）。
+ * 构建表格行。
+ * 仅包含空的单元格（内容赋值由外部处理）。
  * @param {Element} tr 表格行容器（空）
  * @param {Numbel} cols 列数
  * @param {String} tag 单元格标签名
- * @param {Boolean} th0 首列为 TH 单元格
+ * @param {Number} vth 垂直列表头位置（1|-1）
  * @return {Element} tr 原表格行
  */
-function buildTR( tr, cols, tag, th0 ) {
-    let _doc = tr.ownerDocument,
-        cells = [];
+function buildTR( tr, cols, tag, vth, doc = tr.ownerDocument ) {
+    if ( cols <= 0 ) return tr;
+    cols--;
+    let _cells = [];
 
-    if (th0 && cols > 0) {
-        cells.push(_doc.createElement('th'));
-        cols --;
-    }
     for (let n = 0; n < cols; n++) {
-        cells.push(_doc.createElement(tag));
+        _cells.push( doc.createElement(tag) );
     }
-    tr.append(...cells);
+    tr.append( ...insertVth(vth, _cells, doc) );
 
     return tr;
+}
+
+
+/**
+ * 插入列表头<th>。
+ * 如果没有指定位置，插入一个普通单元格（<td>）。
+ * @param  {Number} where 插入位置（1|-1）
+ * @param  {[Element]} buf 元素集存储
+ * @param  {Document} doc 所属文档对象
+ * @return {[Element]} buf
+ */
+function insertVth( where, buf, doc ) {
+    switch ( where ) {
+        case -1:
+            buf.push( doc.createElement('th') ); break;
+        case 1:
+            buf.unshift( doc.createElement('th') ); break;
+        default:
+            buf.push( doc.createElement('td') );
+    }
+    return buf;
+}
+
+
+/**
+ * 克隆表格行。
+ * 不包含内部单元格里的内容。
+ * @param  {Element} tr 目标行元素
+ * @param  {Element} ref 参考行元素
+ * @return {Element} tr
+ */
+function cloneTR( tr, ref ) {
+    for (const td of ref.cells) {
+        tr.append( td.cloneNode() );
+    }
+    return tr;
+}
+
+
+/**
+ * 判断列表头位置。
+ * - 首列：1
+ * - 尾列：-1
+ * - 无：null
+ * @param  {Element} tr 表格行
+ * @return {Number|null}
+ */
+function whereVth( tr ) {
+    if ( tr ) {
+        let _tds = tr.cells;
+
+        if ( _tds[0].nodeName == 'TH' ) {
+            return 1;
+        }
+        if ( _tds[_tds.lenght-1].nodeName == 'TH' ) {
+            return -1;
+        }
+    }
+    return null;
 }
 
 
