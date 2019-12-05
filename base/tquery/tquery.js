@@ -2190,7 +2190,7 @@ class Table {
         let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
 
-        for (let r = 0; r < rows-1; r++) {
+        for (let r = 0; r < rows; r++) {
             buildTR( _body.insertRow(), cols, 'td', vth );
         }
         this._tbl = _tbl;
@@ -2223,51 +2223,43 @@ class Table {
 
 
     /**
-     * 创建一个新的<tbody>元素插入到最后。
-     * 表格中允许多个<tbody>，因此可模拟表格的分段效果。
-     * 这里只是一个简单封装，需配合body()使用。
-     * @return {Element} 已插入的<tbody>元素
+     * 获取/删除表体元素。
+     * 传递op为null表示删除目标位置的表体元素（并返回之）。
+     * 未指定下标时返回表体元素数组。
+     * 删除表体元素时必须指定下标位置。
+     * @param  {Number} idx 表体元素序号（从0开始）
+     * @param  {null} op 删除操作标识，可选
+     * @return {Element|[Element]} 表体元素（集）
      */
-    newBody() {
-        return this._tbl.createTBody();
-    }
+    bodies( idx, op ) {
+        let _bd = this._tbl.tBodies[idx];
 
-
-    /**
-     * 删除一个表体元素<tbody>。
-     * 注记：HTMLTableElement缺乏删除表体元素的接口。
-     * @param  {Number} idx 目标元素的下标位置
-     * @return {Element} 删除的<tbody>元素
-     */
-    delBody( idx = 0 ) {
-        let _body = this._tbl.tBodies[idx];
-
-        if (_body) {
-            this._tbl.removeChild(_body);
+        if ( op === null ) {
+            return _bd && this._tbl.removeChild(_bd), _bd;
         }
-        return _body;
+        return idx == null ? Arr(this._tbl.tBodies) : _bd;
     }
 
 
     /**
-     * 获取表体元素集或添加表格行。
-     * 简单的无参数调用返回表体元素集（数组）。
+     * 获取/删除表体元素或添加表格行。
+     * 简单的无参数调用返回首个表体元素。
+     * 传递rows为null会删除首个表体元素或传入的tsec（并返回之）。
      * 添加表格行时会保持列数合法（空单元格）。
      * idx为null|undefined，表示新行插入到末尾。
-     * 注：如果表体元素被删除，会自动创建。
+     * 注：如果缺少表体元素，会自动创建。
      * @param  {Number} rows 行数，可选
      * @param  {Number} idx 插入位置，支持负数从末尾算起，可选
      * @param  {TableSection} tsec 目标<tbody>元素，可选
      * @return {[Element]|Collector} 表体元素集或新添加的行元素集
      */
     body( rows, idx, tsec ) {
-        let _bds = this._tbl.tBodies;
+        tsec = tsec || this._tbl.tBodies[0];
 
-        if ( rows === undefined ) {
-            return Arr( _bds );
+        if ( rows == null ) {
+            if ( rows === null && tsec ) this._tbl.removeChild(tsec);
+            return tsec;
         }
-        tsec = tsec || _bds[0];
-
         if ( !tsec ) {
             tsec = this._tbl.createTBody();
         }
@@ -2407,9 +2399,10 @@ class Table {
         idx = this._index( idx, this._tbl.rows[0].cells.length );
 
         for (const tr of this._tbl.rows) {
-            let _ref = tr.cells[idx];
+            let _ref = tr.cells[idx],
+                _tag = this._cellTag(tr);
             _buf.push(
-                tr.insertBefore( this._columnCell(_ref, tr.cells[idx-1]), _ref || null )
+                tr.insertBefore( this._columnCell(_ref, tr.cells[idx-1], _tag), _ref || null )
             );
         }
         this._cols += 1;
@@ -2431,9 +2424,10 @@ class Table {
         idx = this._index( idx, this._tbl.rows[0].cells.length );
 
         for (const tr of this._tbl.rows) {
-            let _ref = tr.cells[idx];
+            let _ref = tr.cells[idx],
+                _tag = this._cellTag(tr);
             _buf.push(
-                this._columnInsert(tr, this._columnCells(_ref, tr.cells[idx-1], cols), _ref || null)
+                this._columnInsert(tr, this._columnCells(_ref, tr.cells[idx-1], cols, _tag), _ref || null)
             );
         }
         this._cols += cols;
@@ -2513,6 +2507,16 @@ class Table {
 
 
     /**
+     * 创建并插入一个新的<tbody>元素。
+     * 注：一个表格中允许多个<tbody>（可模拟分片效果）。
+     * @return {Element} 新建的<tbody>
+     */
+    newBody() {
+        return this._tbl.createTBody();
+    }
+
+
+    /**
      * 列表头位置。
      * @return {Number|null}
      */
@@ -2566,15 +2570,16 @@ class Table {
      * 注：可能已经没有表格列（全部空<tr>）。
      * @param  {Element} ref 参考单元格
      * @param  {Element} prev 参考单元格前一个单元格
+     * @param  {String} tag 单元格标签名（th|td）
      * @return {Element}
      */
-    _columnCell( ref, prev ) {
+    _columnCell( ref, prev, tag ) {
         ref = ref || prev;
 
         if ( ref ) {
             return ref.cloneNode();
         }
-        return this._tbl.ownerDocument.createElement( this._vth ? 'th' : 'td' );
+        return this._tbl.ownerDocument.createElement( this._vth ? 'th' : tag );
     }
 
 
@@ -2585,13 +2590,14 @@ class Table {
      * @param  {Element} ref 参考单元格
      * @param  {Element} prev 参考单元格前一个单元格
      * @param  {Number} cols 列数（段长度）
+     * @param  {String} tag 单元格标签名（th|td）
      * @return {[Element]}
      */
-    _columnCells( ref, prev, cols ) {
+    _columnCells( ref, prev, cols, tag ) {
         ref = ref || prev;
 
         if ( !ref ) {
-            return this._newCells( cols, this._vth, this._tbl.ownerDocument );
+            return this._newCells( cols, this._vth, tag, this._tbl.ownerDocument );
         }
         let _buf = [];
 
@@ -2606,14 +2612,15 @@ class Table {
      * 新建一行单元格（集）。
      * @param  {Number} cols 列数
      * @param  {Number} vth 列表头位置（1|-1）
+     * @param  {String} tag 单元格标签名（th|td）
      * @param  {Document} doc 所属文档对象
      * @return {[Element]}
      */
-    _newCells( cols, vth, doc ) {
+    _newCells( cols, vth, tag, doc ) {
         let _buf = [];
 
         for (let i = 0; i < cols-1; i++) {
-            _buf.push( doc.createElement('td') );
+            _buf.push( doc.createElement(tag) );
         }
         return insertVth( vth, _buf, doc );
     }
@@ -2649,6 +2656,17 @@ class Table {
             _buf.push( tr.removeChild(tr.cells[idx]) );
         }
         return _buf;
+    }
+
+
+    /**
+     * 检查获取单元格标签名。
+     * @param  {Element} tr 表格行
+     * @return {String}
+     */
+    _cellTag( tr ) {
+        return this._tbl.tHead &&
+            tr.parentNode.nodeName == 'THEAD' ? 'th' : 'td';
     }
 
 
