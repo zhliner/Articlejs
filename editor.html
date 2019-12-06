@@ -64,7 +64,7 @@
 
     <hr id="lineLeft"> <!-- 宽度调整 -->
 
-    <main id="editor">
+    <main id="editor" tpl-load="">
         <!-- 编辑器区域：工具栏，编辑区，录入面板，状态栏/命令行 -->
     </main>
 
@@ -76,6 +76,10 @@
 
     <!-- 提示音 -->
     <audio id="beeptip" src="themes/beep.ogg"></audio>
+
+    <!-- 模态框状态 -->
+    <input type="hidden" id="g-modal" value="0" />
+
 </body>
 
 </html>

@@ -45,7 +45,7 @@ const
     // 模板映射。
     // { 文件名：[模板名] }
     // 注：用于从模板名查询所属文件。
-    tplsMap = `${tplRoot}/_fmap.json`,
+    tplsMap = `${tplRoot}/maps.json`,
 
     // X扩展专用
     // App.pull 根路径。
