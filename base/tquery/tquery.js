@@ -2661,12 +2661,13 @@ class Table {
 
     /**
      * 检查获取单元格标签名。
+     * 用户可能错误地插入多个<thead>，但容错（依然为<th>）。
      * @param  {Element} tr 表格行
      * @return {String}
      */
     _cellTag( tr ) {
         return this._tbl.tHead &&
-            tr.parentNode.nodeName == 'THEAD' ? 'th' : 'td';
+            tr.parentNode.nodeName === 'THEAD' ? 'th' : 'td';
     }
 
 
