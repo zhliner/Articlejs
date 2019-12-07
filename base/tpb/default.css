@@ -42,7 +42,7 @@
 }
 
 /* 消失 */
-*[data-pb~='lose'] {
+*[data-pb~='none'] {
     display: none !important;
 }
 

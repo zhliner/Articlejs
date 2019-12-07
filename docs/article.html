@@ -13,7 +13,7 @@
     main {
         width: 800px;
     }
-    main header[role=abstract] {
+    .main header[role=abstract] {
         width: 700px;
         margin: 50px;
         box-sizing: border-box;
@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-    <main>
+    <main class="main">
         <hgroup>
             <h1 id="文章的内容结构">文章的内容结构</h1>
             <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
@@ -482,24 +482,25 @@
             <section>
                 <h3 id="封装规则">封装规则</h3>
                 <section>
-                    <p>考虑简单性，代码内的高亮着色采用 <code>&lt;b&gt;</code> 元素封装，通过 <code>class</code> 类名区分。所有 <code>&lt;b&gt;</code>
-                        元素只会处于同一层级（<code>&lt;code&gt;</code> 直接子元素），没有嵌套。</p>
-                    <p>基本类名定义如下：</p>
+                    <p>代码内的高亮着色采用 <code>&lt;b&gt;</code> 元素封装，由 <code>role</code> 定义高亮所属的类型。所有 <code>&lt;b&gt;</code> 元素只会处于同一层级（<code>&lt;code&gt;</code> 直接子元素），不存在嵌套。</p>
+                    <p>基本名称（简写）定义如下（14个）：</p>
                     <pre>
-<code data-lang="css">b.cmt   <b role="cmt">/* comments */</b>
-b.str   <b role="cmt">/* string */</b>
-b.kws   <b role="cmt">/* keywords */</b>
-b.tag   <b role="cmt">/* tag-name */</b>
-b.slr   <b role="cmt">/* selector */</b>
-b.atn   <b role="cmt">/* attribute-name */</b>
-b.atv   <b role="cmt">/* attribute-value */</b>
-b.fun   <b role="cmt">/* function-work */</b>
-b.typ   <b role="cmt">/* data-type */</b>
-b.imp   <b role="cmt">/* important */</b>
-b.doc   <b role="cmt">/* &lt;!DOCTYPE...&gt; */</b>
-b.cdt   <b role="cmt">/* &lt;![CDATA[...]]&gt; */</b>
-b.rex   <b role="cmt">/* js-RegExp */</b>
-b.non   <b role="cmt">/* invalid */</b>
+<code data-lang="js">简写       选择器       说明
+-----------------------------------------------------------
+cmt     <b role="cmt">// b[role=cmt] comments 注释</b>
+str     <b role="cmt">// b[role=str] string 字符串</b>
+kws     <b role="cmt">// b[role=kws] keywords 关键字</b>
+tag     <b role="cmt">// b[role=tag] tag-name HTML标签名</b>
+slr     <b role="cmt">// b[role=slr] selector CSS选择器</b>
+atn     <b role="cmt">// b[role=atn] attribute-name 属性名</b>
+atv     <b role="cmt">// b[role=atv] attribute-value 属性值</b>
+fun     <b role="cmt">// b[role=fun] function 函数名</b>
+typ     <b role="cmt">// b[role=typ] data-type 数据类型</b>
+imp     <b role="cmt">// b[role=imp] important 重要</b>
+doc     <b role="cmt">// b[role=doc] &lt;!DOCTYPE...&gt; HTML文档声明</b>
+cdt     <b role="cmt">// b[role=cdt] &lt;![CDATA[...]]&gt; HTML代码片段</b>
+rex     <b role="cmt">// b[role=rex] RegExp 正则表达式（如：/.../gi）</b>
+err     <b role="cmt">// b[role=err] error 错误提示</b>
 </code></pre>
                 </section>
                 <h3 id="示例">示例</h3>

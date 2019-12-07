@@ -51,18 +51,18 @@ body > hr {
  ****************************************************************************/
 
 /* 鼠标指向 */
-.___Main ._msCur {
+.___Content ._msCur {
     background-color: rgba(235,235,235,0.3);
     background-image: url('images/current.png') !important;
 }
 /* 已选取 */
-.___Main ._okSel {
+.___Content ._okSel {
     background-image: url('images/selected.png') !important;
     background-color: #ffffd7;
     color: #333;
 }
 /* 微编辑 */
-.___Main ._inMed {
+.___Content ._inMed {
     background-color: #e9ab7d !important;
     border: 1px #0f514f solid !important;
     cursor: text;
@@ -444,29 +444,29 @@ body > hr {
 
 /* [ 功能区 ]
  ****************************************************************************/
-.___Panel.Misc {
+.___Panel.Slave {
     background-color: #f7f7e0;
 }
-.___Panel.Misc hr {
+.___Panel.Slave hr {
     margin: 6px 0 5px;
 }
-.___Panel.Misc ._pin {
+.___Panel.Slave ._pin {
     top: 5px;
     right: 8px;
     height: 24px;
     border-radius: 12px;
 }
-.___Panel.Misc ._pin:hover {
+.___Panel.Slave ._pin:hover {
     background-color: #555;
 }
-.___Panel.Misc ._tabs {
+.___Panel.Slave ._tabs {
     height: 28px;
     background-color: #444;
     font-size: 15px;
     color: #fff;
     padding: 5px 6px 0;
 }
-.___Panel.Misc ._tabs > b {
+.___Panel.Slave ._tabs > b {
     margin: 0 1px;
     padding: 2px 8px 0;
     min-width: 60px;
@@ -476,40 +476,40 @@ body > hr {
     position: relative;
     top: 1px;
 }
-.___Panel.Misc ._tabs > b:hover,
-.___Panel.Misc ._tabs > b[data-pb|=tab] {
+.___Panel.Slave ._tabs > b:hover,
+.___Panel.Slave ._tabs > b[data-pb|=tab] {
     background-color: #f7f7e0;
     border-radius: 2px 2px 0 0;
     color: #000;
 }
-.___Panel.Misc ._tabs > b[data-pb|=tab] {
+.___Panel.Slave ._tabs > b[data-pb|=tab] {
     font-weight: bold;
 }
-.___Panel.Misc ._content {
+.___Panel.Slave ._content {
     height: 100%;
 }
-.___Panel.Misc ._iext {
+.___Panel.Slave ._iext {
     top: 2px;
     right: 18px;
     height: 24px;
     opacity: 0.4;
 }
-.___Panel.Misc ._iext:hover {
+.___Panel.Slave ._iext:hover {
     opacity: 1.0;
 }
-.___Panel.Misc ._body {
+.___Panel.Slave ._body {
     padding: 6px;
 }
 
-.___Panel.Misc ._opts {
+.___Panel.Slave ._opts {
     position: relative;
 }
-.___Panel.Misc ._apply {
+.___Panel.Slave ._apply {
     position: absolute;
     bottom: 0;
     left: 0;
 }
-.___Panel.Misc ._value ._apply {
+.___Panel.Slave ._value ._apply {
     margin: 6px;
 }
 
@@ -666,7 +666,7 @@ body > hr {
     margin-bottom: 8px;
 }
 
-.___Panel.Misc .Layout ._body {
+.___Panel.Slave .Layout ._body {
     height: 165px;
 }
 
@@ -1346,7 +1346,8 @@ body > hr {
 
 
 /* [ 菜单 ]
- * *************************************************************************** 部分 margin/padding 受[.___Panel *]影响而为 !important
+ * ***************************************************************************
+ * 部分 margin/padding 受[.___Panel *]影响而为 !important
 */
 menu {
     min-width: 146px;

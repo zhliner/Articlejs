@@ -16,11 +16,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 /* 兼容性 */
-main * {
+.main * {
     line-height: 170%;
 }
-main img,
-main video {
+.main img,
+.main video {
     display: inline-block;
     margin: 0;
 }
@@ -29,32 +29,32 @@ main video {
 /* [ 全局 ]
  ****************************************************************************/
 
-main {
+.main {
     font-size: 11pt;
 }
 
-main dt {
+.main dt {
     margin: 8px 0 2px;
 }
-main dd {
+.main dd {
     margin-left: 2em;
 }
-main li {
+.main li {
     margin: 0.8em 0;
 }
 
 /* 级联表 */
-main li > h5 {
+.main li > h5 {
     margin: 2px 0;
     display: inline;
 }
-main li > ul,
-main li > ol {
+.main li > ul,
+.main li > ol {
     padding-left: 22px;
 }
 
 /* 列表段落 */
-main li > p {
+.main li > p {
     margin: 6px auto;
 }
 
@@ -63,53 +63,53 @@ main li > p {
  ****************************************************************************/
 
 /* 表格边框 */
-main table {
+.main table {
     border-collapse: collapse;
 }
 
-main table,
-main th,
-main td {
+.main table,
+.main th,
+.main td {
     border: 1px solid #666;
 }
 
 /* 无边框 */
-main table[data-border=0],
-main table[data-border=0] td {
+.main table[data-border=0],
+.main table[data-border=0] td {
     border-width: 0;
 }
 
 /* 普通（仅1px） */
-main table[data-border=1] {
+.main table[data-border=1] {
     /* 默认值 */
 }
 
 /* 内边框（纵/横）
  * 技巧：外框原宽度 +1px，框色透明
  */
-main table[data-border=2] {
+.main table[data-border=2] {
     border-width: 2px;
     border-color: transparent;
 }
 
 /* 上接边框（3面，上为0） */
-main table[data-border=3] {
+.main table[data-border=3] {
     border-top-width: 2px;
     border-top-color: transparent;
 }
 
 /* 外边框（4边） */
-main table[data-border=4] td {
+.main table[data-border=4] td {
     border-width: 0;
 }
 
 /* 横（行）边框 */
-main table[data-border=h] td {
+.main table[data-border=h] td {
     border-width: 0 0 1px 0;
 }
 
 /* 竖（列）边框 */
-main table[data-border=v] td {
+.main table[data-border=v] td {
     border-width: 0 1px 0 0;
 }
 
@@ -118,14 +118,14 @@ main table[data-border=v] td {
  ****************************************************************************/
 
 /* 主标题 */
-main h1 {
+.main h1 {
     color: #555;
     text-shadow: 0 1px 1px #eee;
     text-align: center;
     font-size: 26pt;
 }
 /* 副标题 */
-main hgroup > h2 {
+.main hgroup > h2 {
     font-size: 14pt;
     font-style: italic;
     font-weight: normal;
@@ -141,7 +141,7 @@ main hgroup > h2 {
  * --------------------------------------------------------------------------
  * header:abstract/h3, p+
  */
-main header[role=abstract] {
+.main header[role=abstract] {
     border: 1px #eee solid;
     border-radius: 10px;
     background-color: #f7f7f7;
@@ -149,9 +149,9 @@ main header[role=abstract] {
     padding: 10px 30px;
     box-shadow: #ccc 0 1px 6px;
 }
-main header[role=abstract] > h3 {
+.main header[role=abstract] > h3 {
 }
-main header[role=abstract] p {
+.main header[role=abstract] p {
     font-size: 11pt;
 }
 
@@ -160,7 +160,7 @@ main header[role=abstract] p {
  * --------------------------------------------------------------------------
  * nav:toc/ol:cascade/li/a
  */
-main nav[role=toc] {
+.main nav[role=toc] {
     padding: 5px;
     background-color: #fffff7;
     border: 1px #e3e3e0 solid;
@@ -171,7 +171,7 @@ main nav[role=toc] {
 }
 
 /* 页面固定 */
-main nav[role=toc] {
+.main nav[role=toc] {
     position: fixed;
     top: 5px;
     left: 20px;
@@ -179,12 +179,12 @@ main nav[role=toc] {
     height: 96%;
 }
 
-main nav[role=toc] > ol[role=cascade] {
+.main nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 80px);
     overflow-y: auto;
 }
 
-main nav[role=toc] h4 {
+.main nav[role=toc] h4 {
     margin: 5px 2px;
     padding-bottom: 10px;
     font-size: 12pt;
@@ -193,33 +193,33 @@ main nav[role=toc] h4 {
     color: #333;
 }
 
-main nav[role=toc] h4 > a:hover {
+.main nav[role=toc] h4 > a:hover {
     text-decoration: none;
 }
 
-main nav[role=toc] > ol {
+.main nav[role=toc] > ol {
     margin: 2px 0;
     padding: 5px 2px;
     padding-bottom: 11pt;
 }
 
-main nav[role=toc] li {
+.main nav[role=toc] li {
     margin: 0;
     line-height: 150%;
 }
 
-main nav[role=toc] > ol li {
+.main nav[role=toc] > ol li {
     margin-left: 2em;
 }
 
-main nav[role=toc] a {
+.main nav[role=toc] a {
     display: block;
     text-decoration: none;
     color: #039;
     line-height: 150%;
 }
 
-main nav[role=toc] a:hover {
+.main nav[role=toc] a:hover {
     text-decoration: underline;
 }
 
@@ -228,20 +228,20 @@ main nav[role=toc] a:hover {
  * --------------------------------------------------------------------------
  * ol:cascade/li/h5, ol/...
  */
-main ol[role=cascade],
-main ol[role=cascade] ol {
+.main ol[role=cascade],
+.main ol[role=cascade] ol {
     list-style-type: none;
     counter-reset: numer;
     padding: 0;
 }
 
-main ol[role=cascade] h5 {
+.main ol[role=cascade] h5 {
     font-size: 1em;
     font-weight: normal;
     margin: 0;
 }
 
-main ol[role=cascade] li:before {
+.main ol[role=cascade] li:before {
     position: absolute;
     top: 0;
     left: 0;
@@ -250,49 +250,49 @@ main ol[role=cascade] li:before {
     white-space: nowrap;
 }
 
-main ol[role=cascade] li {
+.main ol[role=cascade] li {
     position: relative;
 }
 
 /* 1. */
-main ol[role=cascade] > li {
+.main ol[role=cascade] > li {
     /* 缩进，与序号宽度适配 */
     margin-left: 3.0em;
 }
 
-main ol[role=cascade] > li:before {
+.main ol[role=cascade] > li:before {
     margin-left: -3.0em;
 }
 
 /* 1.2 */
-main ol[role=cascade] > li>ol > li {
+.main ol[role=cascade] > li>ol > li {
     margin-left: 3.0em;
 }
 
-main ol[role=cascade] > li>ol > li:before {
+.main ol[role=cascade] > li>ol > li:before {
     margin-left: -3.0em;
 }
 
 /* 1.2.3 */
-main ol[role=cascade] > li>ol > li>ol > li {
+.main ol[role=cascade] > li>ol > li>ol > li {
     margin-left: 3.5em;
 }
 
-main ol[role=cascade] > li>ol > li>ol > li:before {
+.main ol[role=cascade] > li>ol > li>ol > li:before {
     margin-left: -3.5em;
 }
 
 /* 1.2.3.4 */
-main ol[role=cascade] > li>ol > li>ol > li>ol li {
+.main ol[role=cascade] > li>ol > li>ol > li>ol li {
     margin-left: 4.2em;
 }
 
-main ol[role=cascade] > li>ol > li>ol > li>ol li:before {
+.main ol[role=cascade] > li>ol > li>ol > li>ol li:before {
     margin-left: -4.2em;
 }
 
 /* 编号右对齐 */
-main ol[role=cascade] li:before {
+.main ol[role=cascade] li:before {
     width: 2.5em;
     padding: 0;
     text-align: right;
@@ -300,10 +300,10 @@ main ol[role=cascade] li:before {
 
 
 /* 另参见 */
-main ul[role=seealso] {}
+.main ul[role=seealso] {}
 
 /* 文献参考 */
-main ol[role=references] {}
+.main ol[role=references] {}
 
 
 /* [ 通用 ]
@@ -311,12 +311,12 @@ main ol[role=references] {}
  */
 
 /* 段落 */
-main p {
+.main p {
     margin: 15px auto;
 }
 
 /* 地址 */
-main address {
+.main address {
     padding: 2px;
 }
 
@@ -327,71 +327,71 @@ main address {
  */
 
 /*
-main > section {}
-main > section > section {}
-main > section > section > section {}
-main > section > section > section > section {}
-main > section > section > section > section > section {}
+.main > section {}
+.main > section > section {}
+.main > section > section > section {}
+.main > section > section > section > section {}
+.main > section > section > section > section > section {}
 */
-main section[role=s1] {}
-main section[role=s2] {}
-main section[role=s3] {}
-main section[role=s4] {}
-main section[role=s5] {}
+.main section[role=s1] {}
+.main section[role=s2] {}
+.main section[role=s3] {}
+.main section[role=s4] {}
+.main section[role=s5] {}
 
 
 /* 章：header,h2,section,footer
  * ------------------------------------
  */
-main > h2 {
+.main > h2 {
     font-size: 19pt;
     padding: 4px 14px;
     background-color: #9c0;
     border-bottom: 1px #8b0 solid;
 }
-main section[role=s1] {}
+.main section[role=s1] {}
 
 
 /* 节：header,h3,section,footer
  * ------------------------------------
  */
-main section[role=s1] > h3 {
+.main section[role=s1] > h3 {
     font-size: 17pt;
     padding: 4px;
     border-bottom: 1px #eee solid;
 }
-main section[role=s2] {}
+.main section[role=s2] {}
 
 
 /* 区：header,h4,section,footer
  * ------------------------------------
  */
-main section[role=s2] > h4 {
+.main section[role=s2] > h4 {
     font-size: 14pt;
     padding: 4px;
 }
-main section[role=s3] {}
+.main section[role=s3] {}
 
 
 /* 段：header,h5,section,footer
  * ------------------------------------
  */
-main section[role=s3] > h5 {
+.main section[role=s3] > h5 {
     font-size: 11pt;
     color: #093;
     border-bottom: 1px #3c6 dotted;
 }
-main section[role=s4] {}
+.main section[role=s4] {}
 
 
 /* 末：header,h6,section,footer
  * ------------------------------------
  */
-main section[role=s4] > h6 {
+.main section[role=s4] > h6 {
     font-size: 10pt;
     color: #036;
 }
-main section[role=s5] {}
+.main section[role=s5] {}
 
 
 /* 定义列表
@@ -399,17 +399,17 @@ main section[role=s5] {}
  */
 
 /* 定义列表 */
-main dl {}
-main dl > dt {
+.main dl {}
+.main dl > dt {
     font-weight: bold;
 }
-main dl > dd {
+.main dl > dd {
     background-color: #f3f3f3;
     border: 1px #ccc dotted;
     padding: 0 8px;
     border-radius: 3px;
 }
-main dl > dd > p {
+.main dl > dd > p {
     margin: 5px auto;
 }
 
@@ -418,23 +418,23 @@ main dl > dd > p {
  * --------------------------------------------------------------------------
  * figure/figcaption, p/img, svg, audio, video
  */
-main figure {
+.main figure {
     padding: 0;
     margin: 0;
 }
 /* 顶部标题粗体 */
-main figure > figcaption:first-child {
+.main figure > figcaption:first-child {
     font-weight: bold;
 }
 /* 底部标题居中 */
-main figure > figcaption:last-child {
+.main figure > figcaption:last-child {
     text-align: center;
 }
-main figure > p {
+.main figure > p {
     overflow: auto;
 }
 /* 插图居中（不影响文本块） */
-main figure > p > img {
+.main figure > p > img {
     display: block;
     margin: 0 auto;
     border: 1px #ccc solid;
@@ -446,36 +446,36 @@ main figure > p > img {
  * --------------------------------------------------------------------------
  * blockquote/h4, p+
  */
-main blockquote {
+.main blockquote {
     margin: 0 24px;
     padding-left: 20pt;
     border-left: 8px #e7e7f0 solid;
 }
-main blockquote > h4 {}
+.main blockquote > h4 {}
 
 
 /* 批注块
  * --------------------------------------------------------------------------
  * aside/h4, p+
  */
-main aside {}
-main aside > h4 {}
+.main aside {}
+.main aside > h4 {}
 
 
 /* 详细内容
  * --------------------------------------------------------------------------
  * [details/summary, p+]
  */
-main details {}
-main details > summary {}
-main details > p {}
+.main details {}
+.main details > summary {}
+.main details > p {}
 
 
 /* 导言
  * --------------------------------------------------------------------------
  * header/h4, p+
  */
-main header {
+.main header {
     padding: 2px;
 }
 
@@ -484,7 +484,7 @@ main header {
  * --------------------------------------------------------------------------
  * footer/h4, p+
  */
-main footer {
+.main footer {
     padding: 2px;
 }
 
@@ -493,21 +493,21 @@ main footer {
  * --------------------------------------------------------------------------
  * p:note
  */
-main p[role=note] {
+.main p[role=note] {
 }
 
 
 /* 线条
  * --------------------------------------------------------------------------
  */
-main hr {
+.main hr {
     height: 0;
     margin: 14px 0;
     border-top: 1px #666 solid; /* 默认 */
 }
 
 /* 章间隔 */
-main > article > hr {
+.main > article > hr {
     margin: 50px auto 40px;
     border-top: 1px #e0e0e0 solid;
     box-shadow: #888 0px -10px 12px;
@@ -517,12 +517,12 @@ main > article > hr {
 /* 表格元件
  * --------------------------------------------------------------------------
  */
-main caption,
-main th,
-main td {
+.main caption,
+.main th,
+.main td {
     padding: 2px;
 }
-main caption {
+.main caption {
     font-weight: bold;
 }
 
@@ -530,28 +530,28 @@ main caption {
 /* [ 内联 ]
  ****************************************************************************/
 
-main img {
+.main img {
     margin: 4px 6px;
     vertical-align: top;
     border-radius: 5px;
 }
-main img:hover {
+.main img:hover {
     box-shadow: 1px 1px 4px #bbb;
 }
 
 
 /* 音频/视频/图画 */
-main audio {
+.main audio {
     vertical-align: text-bottom;
 }
-main video {
+.main video {
     vertical-align: text-bottom;
 }
-main picture {}
+.main picture {}
 
 
 /* 表情 */
-main code[role=orz] {
+.main code[role=orz] {
     display: inline-block;
     padding: 0 4px;
     /* font-family: monospace; */
@@ -565,7 +565,7 @@ main code[role=orz] {
  * --------------------------------------------------------------------------
  */
 
-main code {
+.main code {
     word-wrap: break-word;
     background-color: #eee;
     margin: 0 2px;
@@ -575,7 +575,7 @@ main code {
     border: 1px #ddd solid;
 }
 
-main code[data-lang] {
+.main code[data-lang] {
     border: 1px #e8e8e8 solid;
 }
 
@@ -583,7 +583,7 @@ main code[data-lang] {
  * ------------------------------------
  * pre:codeblock/code/b
  */
-main pre > code {
+.main pre > code {
     display: block;
     padding: 5px 10px;
     font-size: 10pt;
@@ -598,7 +598,7 @@ main pre > code {
  * ol:codelist/li/code
  * 超长默认换行。
  */
-main ol[role=codelist] {
+.main ol[role=codelist] {
     font-size: 10pt;
     padding: 0;
     border: 1px #ddd solid;
@@ -610,13 +610,13 @@ main ol[role=codelist] {
     overflow-x: auto;
     resize: none;
 }
-main ol[role=codelist] li {
+.main ol[role=codelist] li {
     margin: 0;
     padding: 0;
     border-left: 3px #dde solid;
     line-height: 120%;
 }
-main ol[role=codelist] code {
+.main ol[role=codelist] code {
     margin: 0;
     color: #000;
     white-space: pre;
@@ -707,8 +707,8 @@ code > b[role=rex] {
     color: #e60;
 }
 
-/* invalid */
-code > b[role=non] {
+/* error|warn */
+code > b[role=err] {
     color: #c00;
 }
 
