@@ -1,11 +1,19 @@
 ## X 扩展库定义
 
-使用：`Tpb.Lib.X( scope, {...} )` 扩展，对象内支持嵌套定义。
+使用：
+
+```js
+import { X } from "../lib.x.js";
+// ...
+X.extend( name, object );
+```
 
 
-## App 注册（CMV）
+### App 注册（CMV）
+
+使用：
 
 ```js
 import { App } from 'app.js'
-App.register( appName, [control, model, view], methods? );
+App.register( appName:String, conf:Object(c,m,v), [meth...] );
 ```

@@ -1,30 +1,21 @@
 <!-- 工具栏 -->
-<div id="panel-tools" on="on|rise;off|lose" class="___Panel Tools" on="on|rise;off|lose">
-    <div data-id="tools" class="_xbox" tpl-load="tools:inputs">
-        <!-- [...] -->
-    </div>
-    <i id="x-help" class="_help" title="{帮助}" on="click|folds,flag('helping')"></i>
-    <div id="help-docs" class="_docs" data-pb="fold"
-        on="help|fire('@','open');
-            open|rise,flag('helping',true);
-            close|lose,flag('helping',false)"
-        by="Help.index('#help-label')"
-        to="#box-man|fill">
-        <span class="_nav _back">
-            <i id="x-man-back" title="{后退}" on="click" by="Help.nav(-1,'#box-man')"></i>
-            <i id="x-man-frwd" title="{前进}" on="click" by="Help.nav(1,'#box-man')"></i>
-        </span>
-        <h6><i id="l-home"></i><span><b>帮助</b> &gt; <b id="help-label">样式版</b></span></h6>
-        <hr>
-        <div id="box-man" class="_xbox">
-            <!-- dl/dt/dd -->
-            <p>[动态内容-当前条目的man]</p>
-        </div>
-    </div>
+<div id="panel-tools" class="___Panel Tools" tpl-name="main:tools">
+    <!-- 前端区按钮 -->
+    <span class="_start">
+        <i id="b-outline"></i>
+        <i id="b-slave"></i>
+    </span>
+    <!-- [关联工具区] -->
+    <span id="tools-box" class="_xbox"></span>
+    <!-- 末端区按钮 -->
+    <span class="_end">
+        <i id="b-plugins"></i>
+        <i id="b-maximize"></i>
+    </span>
 </div>
 
 <!-- 内容区 -->
-<div class="___Content">
+<div class="___Content" tpl-name="main:content">
     <!-- 视觉反馈层 -->
     <div id="g-gleam" class="_gleam" on="stir|gleam"></div>
     <!--滚动盒子
@@ -83,7 +74,9 @@
 </div>
 
 <!-- 功能区 -->
-<div id="panel-misc" on="on|rise;off|lose" class="___Panel Misc" data-pb="rise">
+<div id="panel-slave" class="___Panel Slave" data-pb="rise" tpl-name="main:slave"
+     on="on|rise;
+        off|lose">
     <span id="g-pins" class="_pin _pinned"
         on="click|cls2s('_pinned'),swap('#g-pinned',1,0);
             on|clss('_pinned'),stop;
@@ -95,37 +88,8 @@
         on="mouseup|mpsize(false,'@tabbar')"><!-- [...] --></div>
 </div>
 
-<!-- 扩展区 -->
-<div id="panel-extra" class="___Panel Extra">
-    <!-- 编辑模式 -->
-    <div id="panel-meds" class="Meds" data-pb="lose" on="on|rise;off|lose">
-        <b class="_button" title="Ctrl+Enter"
-            on="click|fire('#app-text','medok')"><i id="l-ok"></i>&nbsp;{确定}</b>
-    </div>
-    <!-- 插件页表 -->
-    <div id="panel-plugs" class="Plugs" data-pb="lose" on="on|rise;off|lose">
-        <i id="x-plug-prev" class="_prev" title="{上一页}"></i>
-        <!--plugs：构造当前版页的插件页表 -->
-        <div id="box-plugs" class="_list"
-            on="_init;
-                load|one('@','_init',true),stop;
-                click('img')|man('','-val'),end('helping')"
-            by="Sys.plugs;
-                Art.plugs('plug:list');
-                Art.plugo('data-val')"
-            to="@|-|plugs('@','load'));
-                @|fill">
-            <span tpl-name="plug:list" tpl-for>
-                <!--data-val="Sample" src="/jced/plugins/Sample/icon.png" title="[显示名\n作者\n(版本)]" -->
-                <img width="32" tpl-out="data-val=$name; src=$icon; title=$tips" />
-            </span>
-        </div>
-        <i id="x-plug-next" class="_next" title="{下一页}"></i>
-    </div>
-</div>
-
 <!-- 状态栏 -->
-<div id="panel-status" class="___Panel Status">
+<div id="panel-status" class="___Panel Status" tpl-name="main:status">
     <table border="0" width="100%" cellspacing="3" cellpadding="0">
         <tr>
             <td class="_info" width="180">
@@ -178,69 +142,119 @@
             </td>
         </tr>
     </table>
+    <i id="x-help" class="_help" title="{帮助}" on="click|folds,flag('helping')"></i>
 </div>
 
-
 <!-- [菜单集] -->
-
-<!-- 内联创建|转换 -->
-<menu id="menu-cells" class="_cells" data-pb="hide"
-        on="click('label')|void; popup|show,menu; off|hide"
-        by="Mk.imake('data-val')">
+<div id="panel-annex" tpl-name="main:menus">
+    <!-- 内联创建|转换 -->
+    <menu id="menu-cells" class="_cells" data-pb="hide"
+        on="click('label')|void;
+            popup|show,menu;
+            off|hide" by="Mk.imake('data-val')">
         <li><label data-val="a" title="{链接}"><a href="javascript:return false;">&lt;a&gt;</a></label></li>
         <li><label data-val="code" title="{代码}"><code>&lt;code&gt;</code></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="strong" title="{重点}"><strong>&lt;strong&gt;</strong></label></li>
         <li><label data-val="b" title="{粗体}"><strong>&lt;b&gt;</strong></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="em" title="{强调}"><em>&lt;em&gt;</em></label></li>
         <li><label data-val="i" title="{斜体}"><em>&lt;i&gt;</em></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="sub" title="{下标}">X<sub>&lt;sub&gt;</sub></label></li>
         <li><label data-val="sup" title="{上标}">X<sup>&lt;sup&gt;</sup></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="q" title="{引用}"><q>&lt;q&gt;</q></label></li>
         <li><label data-val="time" title="{时间}"><time>&lt;time&gt;</time></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="ins" title="{插入}"><ins>&lt;ins&gt;</ins></label></li>
         <li><label data-val="del" title="{删除}"><del>&lt;del&gt;</del></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="abbr" title="{缩写}"><abbr>&lt;abbr&gt;</abbr></label></li>
         <li><label data-val="small" title="{注脚}"><small>&lt;small&gt;</small></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="cite" title="{来源}"><cite>&lt;cite&gt;</cite></label></li>
         <li><label data-val="mark" title="{标记}"><mark>&lt;mark&gt;</mark></label></li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li><label data-val="ruby" title="{注音}"><ruby>&lt;ruby&gt;</ruby></label></li>
-</menu>
+    </menu>
 
-<!-- 基本上下文 -->
-<menu id="menu-edits" class="_edits" data-pb="hide" on="popup|show,menu; off|hide">
+    <!-- 基本上下文 -->
+    <menu id="menu-edits" class="_edits" data-pb="hide"
+        on="popup|show,menu;
+            off|hide">
         <li on="click|fire('#app-text','medin')">
             <label data-val="edit"><b>&lt;F2&gt;,&lt;I&gt;</b><i id="l-edit"></i>{编辑}</label>
         </li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li on="click|fire('#g-temp','on','copy'),work">
             <label data-val="copy"><b>&lt;C&gt;</b><i id="l-copy"></i>{复制}</label>
         </li>
         <li on="click|fire('#g-temp','on','move'),work">
             <label data-val="move"><b>&lt;M&gt;</b><i id="l-move"></i>{移动}</label>
         </li>
-        <li class="_blk"><hr></li>
-        <li id="g-strip" data-pb="disabled"
-            on="click|enabled,work; on|enable,valid; off|disable,invalid"
-            by="Ed.unlayer">
+        <li class="_blk">
+            <hr>
+        </li>
+        <li id="g-strip" data-pb="disabled" on="click|enabled,work;
+            on|enable,valid;
+            off|disable,invalid" by="Ed.unlayer">
             <label on="click|man('unlayer')"><i id="l-strip"></i>{解封装}</label>
         </li>
-        <li class="_blk"><hr></li>
+        <li class="_blk">
+            <hr>
+        </li>
         <li on="click|work" by="Ed.delels('#app-text')">
             <label><b>&lt;Del&gt;</b><i id="l-delete"></i>{删除}</label>
         </li>
-        <li class="_blk"><hr></li>
-        <li id="g-prop" data-pb="disabled"
-            on="click|enabled; on|enable,valid; off|disable,invalid"
-            by="Ed.props">
+        <li class="_blk">
+            <hr>
+        </li>
+        <li id="g-prop" data-pb="disabled" on="click|enabled;
+            on|enable,valid;
+            off|disable,invalid" by="Ed.props">
             <label on="click|man('props')"><b>&lt;P&gt;</b><i id="l-prop"></i>{属性}</label>
         </li>
-</menu>
+    </menu>
+</div>
+
+
+<!-- 大纲栏 -->
+
+<!-- 帮助栏 -->
+<div id="help-docs" class="_docs" data-pb="fold"
+    on="help|fire('@','open');
+        open|rise,flag('helping',true);
+        close|lose,flag('helping',false)"
+    by="Help.index('#help-label')"
+    to="#box-man|fill">
+    <span class="_nav _back">
+        <i id="x-man-back" title="{后退}" on="click" by="Help.nav(-1,'#box-man')"></i>
+        <i id="x-man-frwd" title="{前进}" on="click" by="Help.nav(1,'#box-man')"></i>
+    </span>
+    <h6><i id="l-home"></i><span><b>帮助</b> &gt; <b id="help-label">样式版</b></span></h6>
+    <hr>
+    <div id="box-man" class="_xbox">
+        <!-- dl/dt/dd -->
+        <p>[动态内容-当前条目的man]</p>
+    </div>
+</div>
 

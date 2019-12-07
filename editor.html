@@ -58,28 +58,27 @@
 </head>
 
 <body lang="">
-    <aside id="outline">
-        <!-- 大纲栏：定时/手动更新。可隐藏。 -->
-    </aside>
+    <!-- 大纲栏：定时/手动更新。可隐藏。 -->
+    <aside id="outline"></aside>
 
-    <hr id="lineLeft"> <!-- 宽度调整 -->
+    <!-- 宽度调整 -->
+    <hr id="lineLeft">
 
-    <main id="editor" tpl-load="">
-        <!-- 编辑器区域：工具栏，编辑区，录入面板，状态栏/命令行 -->
-    </main>
+    <!-- 主编辑器：
+        工具栏，内容区，功能区（面板），状态栏/命令行，菜单准备 -->
+    <main id="editor" tpl-load="main:tools, main:content, main:slave, main:status, main:menus"></main>
 
-    <hr id="lineRight"> <!-- 宽度调整 -->
+    <!-- 宽度调整 -->
+    <hr id="lineRight">
 
-    <aside id="help">
-        <!-- 帮助栏：固定时占用空间。可隐藏。 -->
-    </aside>
+    <!-- 帮助栏：固定时占用空间。可隐藏。 -->
+    <aside id="help"></aside>
 
-    <!-- 提示音 -->
+    <!-- 友好：阻挡提示音 -->
     <audio id="beeptip" src="themes/beep.ogg"></audio>
 
-    <!-- 模态框状态 -->
-    <input type="hidden" id="g-modal" value="0" />
-
+    <!-- 模态框：状态记录 -->
+    <input id="g-modal" type="hidden" value="0" />
 </body>
 
 </html>

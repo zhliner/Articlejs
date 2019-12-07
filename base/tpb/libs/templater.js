@@ -21,11 +21,16 @@ const $ = window.$;
 
 
 const
-    __tplName = 'tpl-name',  // 模板节点命名属性
-    __tplLoad = 'tpl-load',  // 模板节点载入属性名
+    // 子模版分隔符
+    loadSplit   = ',',
 
-    __slrName = `[${__tplName}]`,
-    __slrLoad = `[${__tplLoad}]`;
+    // 特性名定义。
+    __tplName   = 'tpl-name',  // 模板节点命名
+    __tplLoad   = 'tpl-load',  // 模板节点载入
+
+    // 选择器。
+    __slrName   = `[${__tplName}]`,
+    __slrLoad   = `[${__tplLoad}]`;
 
 
 class Templater {
@@ -188,19 +193,24 @@ class Templater {
 
 
     /**
-     * 载入一个子模版。
-     * 注：元素已是选择器匹配的。
+     * 载入容器元素的子模版。
+     * 子模版定义可能是一个列表（有序）。
+     * 可能返回null，调用者应当滤除。
      * @param  {Element} box 容器元素
-     * @return {Promise}
+     * @return {Promise|null}
      */
     _loadsub( box ) {
-        let _n = $.attribute(box, __tplLoad);
+        let _ns = $.attribute(box, __tplLoad);
         $.attribute(box, __tplLoad, null);
 
-        if ( !_n ) {
+        if ( !_ns ) {
             return null;
         }
-        return this.tpl( _n ).then( el => box.prepend(el) );
+        return Promise.all(
+            _ns.split(loadSplit).map( n => this.tpl(n.trim()) )
+        )
+        // 内部合并，不用$.prepend
+        .then( els => box.prepend(...els) )
     }
 
 
