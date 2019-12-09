@@ -7,23 +7,10 @@
 	</div>
 </div>
 
-<div tpl-name="tools:meds" class="_meds">
-    <div class="_icons">
-        <i id="b-image" mvc-on="click" mvc-by="Mk.medins('img')" title="{图片}"></i>
-        <i id="b-video" mvc-on="click" mvc-by="Mk.medins('video')" title="{视频}"></i>
-        <i id="b-audio" mvc-on="click" mvc-by="Mk.medins('audio')" title="{音频}"></i>
-        <i id="b-time" mvc-on="click" mvc-by="Mk.datetime" title="{日期/时间}"></i>
-        <i id="b-schar" mvc-on="click" mvc-by="Mk.schar('schar')" title="{符号}"></i>
-        <i id="b-newline" mvc-on="click" mvc-by="Mk.newline" title="{换行}"></i>
-        <i id="b-ehtml" tpl-if="ehtml" mvc-on="click" mvc-by="Mk.ehtml" title="{Html源码}"></i>
-    </div>
-</div>
-
 <div tpl-name="tools:layout" class="_layout">
 	<div class="_icons">
-	    <i id="b-totext" mvc-on="click|work" mvc-by="Ed.totext" title="{纯文本}"></i>
-	    <i id="b-clear" mvc-on="click|work" mvc-by="Mk.clear" title="{浮层隔断}"></i>
-	    <i id="b-untag" mvc-on="click|work" mvc-by="Ed.untag" title="{去标签}"></i>
+	    <i id="b-totext" mvc-on="click|work" mvc-by="Ed.totext" title="{纯文本化}"></i>
+	    <i id="b-untag" mvc-on="click|work" mvc-by="Ed.untag" title="{去除标签}"></i>
 	    <span>
 		    <i id="b-convert" title="{转换菜单}"
 		    	mvc-on="click|unfold,clss('_fixed'),menu('#menu-convert'),stop"></i>

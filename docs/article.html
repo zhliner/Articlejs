@@ -230,8 +230,8 @@
                 </section>
                 <h3 id="行内单元">行内单元</h3>
                 <section>
-                    <p>只能被包含在 <strong>内容类</strong> 块单元里（如：<code>&lt;p&gt;</code>），共 32
-                        个。代码块<code>&lt;pre&gt;&lt;code&gt;</code> 内的元素有固定的规则。</p>
+                    <p>只能被包含在内容元素里的元素。即通常所说的内联（<code>inline</code>）元素，其中既有可以包含文本和其它内联元素的内容元素，也有作为内容本身的内容实体元素（如 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等）。</p>
+                    <p>行内单元不是独立的<strong>内容块</strong>，也不是<strong>内容件</strong>，它们不能单独出现在章节片区（<code>&lt;section&gt;</code>）里，必须被内容行（譬如 <code>&lt;p&gt;</code>）封装才行。</p>
                     <pre>
 <code data-lang="html">&lt;audio&gt;&lt;/audio&gt;             <b role="cmt">&lt;!-- 音频：/track,source, #text --&gt;</b>
 &lt;video&gt;&lt;/video&gt;             <b role="cmt">&lt;!-- 视频：/track,source, #text --&gt;</b>
@@ -263,6 +263,7 @@
 &lt;b&gt;&lt;/b&gt;                     <b role="cmt">&lt;!-- 粗体：主要用于代码块内的关键字包裹 --&gt;</b>
 &lt;i&gt;&lt;/i&gt;                     <b role="cmt">&lt;!-- 斜体：主要用于图标占位（icon） --&gt;</b>
 &lt;img /&gt;                     <b role="cmt">&lt;!-- 图片 --&gt;</b>
+&lt;br /&gt;                      <b role="cmt">&lt;!-- 换行 --&gt;</b>
 &lt;wbr /&gt;                     <b role="cmt">&lt;!-- 软换行 --&gt;</b>
 &lt;span role="blank"&gt;&lt;/i&gt;     <b role="cmt">&lt;!-- 空白段：用于交互展示 --&gt;</b>
 </code></pre>

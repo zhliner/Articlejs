@@ -23,7 +23,7 @@
 *[data-pb] {
     opacity: 1;
     transition-property: opacity;
-    transition-duration: 0.22s;
+    transition-duration: 0.24s;
 }
 
 
@@ -72,4 +72,3 @@
 *[data-pb~='unpop'] > menu {
     display: none !important;
 }
-
