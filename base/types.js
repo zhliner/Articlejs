@@ -145,6 +145,7 @@ const Types = {
     Var:            INLINE,
     Bdo:            INLINE,
     Meter:          INLINE,
+    Br:             INLINE,
     Wbr:            INLINE,
     Blank:          INLINE,
 
@@ -269,6 +270,7 @@ const typeSubs = {
     I:              $TEXT,  // 同上
 
     Img:            0,  // 空
+    Br:             0,  // 换行
     Wbr:            0,  // 软换行
     Blank:          0,  // 空，用于交互展示
 
@@ -337,6 +339,7 @@ const __outerTags = new Set([
     'a',
     'code',
     'img',
+    'br',
     'wbr',
     'i',
     'b',

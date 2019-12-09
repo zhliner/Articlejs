@@ -174,6 +174,7 @@ const tagsMap = {
     B:          'b',
     I:          'i',
     Img:        'img',
+    Br:         'br',
     Wbr:        'wbr',
     Blank:      'span:blank',
 };
@@ -940,7 +941,7 @@ const Content = {
 
 //
 // 空结构。
-// 不支持后期插入内容。
+// 不支持后期（向内）插入内容。
 /////////////////////////////////////////////////
 [
     'Hr',
@@ -949,6 +950,7 @@ const Content = {
     'Source',
     'Meter',
     'Img',
+    'Br',
     'Wbr',
     'Blank',
 ]
