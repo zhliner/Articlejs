@@ -8,7 +8,8 @@
 //
 //  使用：
 //      // 创建一个编辑器实例，basefile可选。
-//      let editor = jcEd.create( option, basefile );
+//      let editor = Articlejs.create( option, basefile );
+
 //      // 编辑器（<iframe>）插入某容器。
 //      box.append( editor.element() );
 //
@@ -64,7 +65,7 @@
 
 // 名称空间。
 // 可更改，但需与末端名称匹配。
-const jcEd = {};
+const Articlejs = {};
 
 
 (function( jcEd ) {
@@ -107,7 +108,7 @@ const jcEd = {};
 
         // 命名前缀。
         // 用于无命名时构建默认的编辑器实例名。
-        __Prefix    = 'jcEd-';
+        __Prefix    = 'ArticleJS-';
 
 
 
@@ -116,7 +117,7 @@ const jcEd = {};
  * 非常规的提交可能不需要<textarea>容器。
  * basefile参数相对于编辑器根目录。
  * @param  {Object} option 配置集
- * @param {String} basefile 基础根模板文件（含扩展名），可选
+ * @param  {String} basefile 基础根模板文件（含扩展名），可选
  * @return {Editor} 编辑器实例
  */
 jcEd.create = (option, basefile) => new Editor( option, basefile || __tplRoot );
@@ -426,4 +427,4 @@ function sizeValue( val ) {
     return isNaN( val - parseFloat(val) ) ? val : `${val}px`;
 }
 
-})( jcEd );
+})( Articlejs );

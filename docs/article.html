@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-    <main class="main">
+    <main class="content">
         <hgroup>
             <h1 id="文章的内容结构">文章的内容结构</h1>
             <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
@@ -129,38 +129,40 @@
 &lt;header role="abstract"&gt;&lt;/header&gt;           <b role="cmt">&lt;!-- 提要 --&gt;</b>
 &lt;nav role="toc"&gt;&lt;/nav&gt;                      <b role="cmt">&lt;!-- 目录 --&gt;</b>
 &lt;article&gt;                                   <b role="cmt">&lt;!-- 文章区 --&gt;</b>
-    &lt;header&gt;&lt;/header&gt;                       <b role="cmt">&lt;!-- 章导言 --&gt;</b>
+    &lt;header&gt;&lt;/header&gt;                       <b role="cmt">&lt;!-- 导言 --&gt;</b>
     &lt;h2&gt;&lt;/h2&gt;                               <b role="cmt">&lt;!-- 章标题 --&gt;</b>
     &lt;section role="s1"&gt;                     <b role="cmt">&lt;!-- 章片区。第一层 section --&gt;</b>
-        &lt;header&gt;&lt;/header&gt;                   <b role="cmt">&lt;!-- 节导言 --&gt;</b>
+        &lt;header&gt;&lt;/header&gt;                   <b role="cmt">&lt;!-- 章导言 --&gt;</b>
         &lt;h3&gt;&lt;/h3&gt;                           <b role="cmt">&lt;!-- 节标题 --&gt;</b>
         &lt;section role="s2"&gt;                 <b role="cmt">&lt;!-- 节片区。第二层 section --&gt;</b>
-            &lt;header&gt;&lt;/header&gt;               <b role="cmt">&lt;!-- 区导言 --&gt;</b>
+            &lt;header&gt;&lt;/header&gt;               <b role="cmt">&lt;!-- 节导言 --&gt;</b>
             &lt;h4&gt;&lt;/h4&gt;                       <b role="cmt">&lt;!-- 区标题 --&gt;</b>
             &lt;section role="s3"&gt;             <b role="cmt">&lt;!-- 区片区。第三层 section --&gt;</b>
-                &lt;header&gt;&lt;/header&gt;           <b role="cmt">&lt;!-- 段导言 --&gt;</b>
+                &lt;header&gt;&lt;/header&gt;           <b role="cmt">&lt;!-- 区导言 --&gt;</b>
                 &lt;h5&gt;&lt;/h5&gt;                   <b role="cmt">&lt;!-- 段标题 --&gt;</b>
                 &lt;section role="s4"&gt;         <b role="cmt">&lt;!-- 段片区。第四层 section --&gt;</b>
-                    &lt;header&gt;&lt;/header&gt;       <b role="cmt">&lt;!-- 末导言 --&gt;</b>
+                    &lt;header&gt;&lt;/header&gt;       <b role="cmt">&lt;!-- 段导言 --&gt;</b>
                     &lt;h6&gt;&lt;/h6&gt;               <b role="cmt">&lt;!-- 末标题 --&gt;</b>
                     &lt;section role="s5"&gt;     <b role="cmt">&lt;!-- 末片区。第五层 section --&gt;</b>
+                        &lt;header&gt;&lt;/header&gt;   <b role="cmt">&lt;!-- 末导言 --&gt;</b>
                         [ Text ] ...        <b role="cmt">&lt;!-- 正文内容 --&gt;</b>
+                        &lt;footer&gt;&lt;/footer&gt;   <b role="cmt">&lt;!-- 末小结 --&gt;</b>
                     &lt;/section&gt;
                     ...                     <b role="cmt">&lt;!-- 平级 h6/section --&gt;</b>
-                    &lt;footer&gt;&lt;/footer&gt;       <b role="cmt">&lt;!-- 末结语 --&gt;</b>
+                    &lt;footer&gt;&lt;/footer&gt;       <b role="cmt">&lt;!-- 段小结 --&gt;</b>
                 &lt;/section&gt;
                 ...                         <b role="cmt">&lt;!-- 平级 h5/section --&gt;</b>
-                &lt;footer&gt;&lt;/footer&gt;           <b role="cmt">&lt;!-- 段结语 --&gt;</b>
+                &lt;footer&gt;&lt;/footer&gt;           <b role="cmt">&lt;!-- 区小结 --&gt;</b>
             &lt;/section&gt;
             ...                             <b role="cmt">&lt;!-- 平级 h4/section --&gt;</b>
-            &lt;footer&gt;&lt;/footer&gt;               <b role="cmt">&lt;!-- 区结语 --&gt;</b>
+            &lt;footer&gt;&lt;/footer&gt;               <b role="cmt">&lt;!-- 节小结 --&gt;</b>
         &lt;/section&gt;
         ...                                 <b role="cmt">&lt;!-- 平级 h3/section --&gt;</b>
-        &lt;footer&gt;&lt;/footer&gt;                   <b role="cmt">&lt;!-- 节结语 --&gt;</b>
+        &lt;footer&gt;&lt;/footer&gt;                   <b role="cmt">&lt;!-- 章小结 --&gt;</b>
     &lt;/section&gt;
     &lt;hr /&gt;                                  <b role="cmt">&lt;!-- 章间隔 --&gt;</b>
     ...                                     <b role="cmt">&lt;!-- 平级 h2/section --&gt;</b>
-    &lt;footer&gt;&lt;/footer&gt;                       <b role="cmt">&lt;!-- 章结语 --&gt;</b>
+    &lt;footer&gt;&lt;/footer&gt;                       <b role="cmt">&lt;!-- 结语 --&gt;</b>
 &lt;/article&gt;
 &lt;ul role="seealso"&gt;&lt;/ul&gt;                    <b role="cmt">&lt;!-- 另参见 --&gt;</b>
 &lt;ol role="reference"&gt;&lt;/ol&gt;                  <b role="cmt">&lt;!-- 文献参考 --&gt;</b>
@@ -194,7 +196,7 @@
 &lt;ul role="seealso"&gt;&lt;/ul&gt;            <b role="cmt">&lt;!-- 另参见：Seealso /li/... --&gt;</b>
 &lt;ol role="reference"&gt;&lt;/ol&gt;          <b role="cmt">&lt;!-- 文献参考：Reference /li/... --&gt;</b>
 &lt;header&gt;&lt;/header&gt;                   <b role="cmt">&lt;!-- 导言：Header /h4, p... --&gt;</b>
-&lt;footer&gt;&lt;/footer&gt;                   <b role="cmt">&lt;!-- 结语：Footer /h4, p... --&gt;</b>
+&lt;footer&gt;&lt;/footer&gt;                   <b role="cmt">&lt;!-- 结语/小结：Footer /h4, p... --&gt;</b>
 &lt;article&gt;&lt;/article&gt;                 <b role="cmt">&lt;!-- 文章区：Article /header, h2, s1, footer, hr --&gt;</b>
 &lt;section role="s1"&gt;&lt;/section&gt;       <b role="cmt">&lt;!-- 片区：S1 /header, h2, s2, footer --&gt;</b>
 &lt;section role="s2"&gt;&lt;/section&gt;       <b role="cmt">&lt;!-- 片区：S2 /header, h3, s3, footer --&gt;</b>

@@ -25,7 +25,7 @@ const
         // 相对于安装根路径。
         template: 'templates',
 
-        // x.fetch根目录
+        // x.pull根目录
         // 相对于安装根路径。
         pull: 'data/pull',
     },
@@ -47,7 +47,7 @@ const
     // 注：用于从模板名查询所属文件。
     tplsMap = `${tplRoot}/maps.json`,
 
-    // X.fetch 根路径。
+    // X.pull 根路径。
     pullRoot = new URL(Dir.pull, Dir.setup);
 
 

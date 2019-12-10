@@ -1,106 +1,162 @@
-<!-- 工具：普通模式下 -->
-<span>
-    <i id="b-totext">纯文本化</i>
-    <i id="b-untag">去除标签</i>
-    <i id="b-undo">撤消</i>
-    <i id="b-redo">重做</i>
-</span>
-
-<!-- 微编辑下 -->
-<ul tpl-name="content:meds" class="_meds">
-    <li>特殊符号</li>
-    <li>Html源码</li>
-    <li>图片（&lt;img&gt;）</li>
-    <li>音频（&lt;audio&gt;）</li>
-    <li>视频（&lt;video&gt;）</li>
-    <li>兼容图片（&lt;picture&gt;）</li>
-    <li>链接（&lt;a&gt;）</li>
-    <li>重点（&lt;strong&gt;）</li>
-    <li>强调（&lt;em&gt;）</li>
-    <li>短引用（&lt;q&gt;）</li>
-    <li>缩写（&lt;abbr&gt;）</li>
-    <li>来源（&lt;cite&gt;）</li>
-    <li>注脚（&lt;small&gt;）</li>
-    <li>日期/时间（&lt;time&gt;）</li>
-    <li>已删除条目（&lt;del&gt;）</li>
-    <li>插入性条目（&lt;ins&gt;）</li>
-    <li>下标（&lt;sub&gt;）</li>
-    <li>上标（&lt;sup&gt;）</li>
-    <li>标记（&lt;mark&gt;）</li>
-    <li>代码（&lt;code&gt;）</li>
-    <li>表情（&lt;code role="orz"&gt;）</li>
-    <li>注音单元（&lt;ruby/rb,rp,rt&gt;）</li>
-    <li>定义条目（&lt;dfn&gt;）</li>
-    <li>样本（&lt;samp&gt;）</li>
-    <li>键盘字（&lt;kbd&gt;）</li>
-    <li>失效（&lt;s&gt;）</li>
-    <li>注记（&lt;u&gt;）</li>
-    <li>变量（&lt;var&gt;）</li>
-    <li>有向文本单元（&lt;bdo&gt;）</li>
-    <li>度量标示（&lt;meter&gt;）</li>
-    <li>粗体（&lt;b&gt;）</li>
-    <li>斜体（&lt;i&gt;）</li>
-    <li>换行（&lt;br&gt;）</li>
-    <li>软换行（&lt;wbr&gt;）</li>
-    <li>空白段（&lt;blank&gt;）</li>
-</ul>
-
-<form tpl-name="tab:section" class="Section"
-    mvc-on="submit|void,tedoff('textarea'),work" mvc-by="Mk.section">
-    <div class="_main">
-        <input name="heading" type="text" placeholder="{标题}" class="_heading"
-            mvc-on="focus|prop('text','','#g-current'),hold('form@','',0)" />
-        <div class="_content">
-            <textarea name="content" placeholder="{内容}"
-                mvc-on="keyup focus|rows;
-                focus|hold('form@','',0);
-                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
+<!-- 整体框架 -->
+<form class="_inputs" tpl-name="slave:inputs">
+    <aside>
+        <label>
+            <input type="radio" name="where" />
+            <i id="b-sibling"></i>
+        </label>
+        <label>
+            <input type="radio" name="where">
+            <i id="b-child"></i>
+        </label>
+        <div>
+            <!-- 4: min-height -->
+            <select name="items" size="4"></select>
         </div>
-    </div>
-    <div class="_side">
-        <ul class="_option" mvc-on="click('label')|telcd('content',['split','clean']),go(false,'3@','edoff')">
-            <li>
-                <label><input name="split" type="checkbox" checked />{换行分段}</label>
-            </li>
-            <li>
-                <label><input name="clean" type="checkbox" checked />{空白清理}</label>
-            </li>
-            <li class="_blk"><hr></li>
-            <li>
-                <label><input name="header" type="checkbox"/>{内容为导言}</label>
-            </li>
-        </ul>
-        <div class="_append">
-            <!-- 取消默认提交（否则两次，默认提交无功能键） -->
-            <input name="append" type="submit" class="_button" value="{添加}"
-                mvc-on="click|void,submit" />
-        </div>
-    </div>
+    </aside>
+    <!-- 通用：替换 -->
+    <div class="_empty" tpl-name="inputs:empty"></div>
 </form>
 
-<form tpl-name="tab:paragraph" class="Paragraph"
-    mvc-on="submit|void,tedoff('textarea'),work" mvc-by="Mk.paragraph">
+
+<!-- 文章标题 -->
+<div class="_heading" tpl-name="inputs:heading">
     <div class="_main">
-        <div class="_content">
-            <textarea name="content" placeholder="{内容}"
-                mvc-on="keyup focus|rows; keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
-        </div>
+        <input type="text" name="h1" placeholder="主标题" class="_scale" />
+        <textarea name="h2" placeholder="副标题（可选）"></textarea>
     </div>
-    <div class="_side">
-        <ul class="_option" mvc-on="click('label')|telcd('content',['split','clean']),go(false,'3@','edoff')">
-            <li>
-                <label><input name="split" type="checkbox" checked />{换行分段}</label>
-            </li>
-            <li>
-                <label><input name="clean" type="checkbox" checked />{空白清理}</label>
-            </li>
-        </ul>
-        <div class="_append">
-            <input name="append" type="submit" class="_button" value="{添加}"
-                mvc-on="click|void,submit" />
-        </div>
+    <aside class="_submit">
+        <input type="submit" class="_ok" value="插入">
+    </aside>
+</div>
+
+
+<!-- 提要 -->
+<div class="_abstract" tpl-name="inputs:abstract">
+    <div class="_main">
+        <textarea name="header" placeholder="文章提要（换行分段）"></textarea>
     </div>
-</form>
+    <aside>
+        <div class="_option">
+            <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分段</label>
+            <label><input type="checkbox" name="clean" checked>空白清理</label>
+        </div>
+        <div class="_submit">
+            <input type="submit" class="_ok" value="插入" />
+        </div>
+    </aside>
+</div>
+
+
+<!-- 文献参考 -->
+<div class="_reference" tpl-name="inputs:reference">
+    <div class="_main">
+        <textarea name="reference" placeholder="换行分隔，每行一项"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分隔</label>
+            <label><input type="checkbox" name="clean" checked>空白清理</label>
+        </div>
+        <div class="_submit">
+            <input type="submit" class="_ok" value="插入" />
+        </div>
+    </aside>
+</div>
+
+
+<!-- 另参见 -->
+<div class="_seealso" tpl-name="inputs:seealso">
+    <div class="_main">
+        <textarea name="seealso" placeholder="换行分隔，每行一项"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分项</label>
+            <label><input type="checkbox" name="clean" checked>空白清理</label>
+        </div>
+        <div class="_submit">
+            <input type="submit" class="_ok" value="插入" />
+        </div>
+    </aside>
+</div>
+
+
+<!-- 导言 -->
+<div class="_header" tpl-name="inputs:header">
+    <div class="_main">
+        <input name="h4" type="text" placeholder="导言" class="_scale" />
+        <textarea name="header" placeholder="内容（换行分段）"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分段</label>
+            <label><input type="checkbox" name="clean" checked>空白清理</label>
+        </div>
+        <div class="_submit">
+            <input type="submit" class="_ok" value="插入" />
+        </div>
+    </aside>
+</div>
+
+
+<!-- 结语 -->
+<div class="_footer" tpl-name="inputs:footer">
+    <div class="_main">
+        <input name="h4" type="text" value="小结" class="_scale" />
+        <textarea name="footer" placeholder="内容（换行分段）"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分段</label>
+            <label><input type="checkbox" name="clean" checked>空白清理</label>
+        </div>
+        <div class="_submit">
+            <input type="submit" class="_ok" value="插入" />
+        </div>
+    </aside>
+</div>
+
+
+<!-- 片区：s1-s5 -->
+<div class="_section" tpl-name="inputs:section">
+    <div class="_main">
+        <input name="hx" type="text" placeholder="标题" class="_scale" />
+        <textarea name="header" placeholder="导言（换行分段）"></textarea>
+        <textarea name="footer" placeholder="结语（换行分段）"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分段</label>
+            <label><input type="checkbox" name="clean" checked>空白清理</label>
+        </div>
+        <div class="_submit">
+            <label><input type="checkbox" name="before">向前</label>
+            <input type="submit" class="_ok" value="插入" />
+        </div>
+    </aside>
+</div>
+
+
+<!-- 段落 -->
+<div class="_paragraph" tpl-name="inputs:paragraph">
+    <div class="_main">
+        <textarea name="paragraph" placeholder="内容（换行分段）"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分段</label>
+            <label><input type="checkbox" name="clean" checked>空白清理</label>
+        </div>
+        <div class="_submit">
+            <label><input type="checkbox" name="before">向前</label>
+            <input type="submit" class="_ok" value="插入" />
+        </div>
+    </aside>
+</div>
+
+
+
 
 <form tpl-name="tab:list" name="list" class="List"
     mvc-on="submit|void,tedoff('textarea'),work" mvc-by="Mk.list">
@@ -143,7 +199,7 @@
 <form tpl-name="tab:table" name="table" class="Table"
     mvc-on="submit|void,work" mvc-by="Mk.table">
     <div class="_main">
-        <input name="caption" type="text" placeholder="{表标题}" class="_heading"
+        <input name="caption" type="text" placeholder="{表标题}" class="_scale"
             mvc-on="focus|prop('text','','#g-current'), hold('form@','',0)" />
         <div class="_content">
             <textarea name="tdata" placeholder="{（一行一个单元格）}"
@@ -203,7 +259,7 @@
 <form tpl-name="tab:figure" name="figure" class="Figure"
     mvc-on="submit|void,work" mvc-by="Mk.figure">
     <div class="_main">
-        <input data-id="heading" name="heading" type="text" placeholder="{标题}" class="_heading"
+        <input data-id="heading" name="heading" type="text" placeholder="{标题}" class="_scale"
             mvc-on="focus|prop('text','','#g-current'), hold('form@','',0)" />
         <div class="_content">
             <textarea name="figdata" data-id="figdata"
@@ -247,7 +303,7 @@
 <form tpl-name="tab:block" name="block" class="Block"
     mvc-on="submit|void,work" mvc-by="Mk.block">
     <div class="_main">
-        <input data-id="heading" name="heading" type="text" placeholder="{标题}" class="_heading"
+        <input data-id="heading" name="heading" type="text" placeholder="{标题}" class="_scale"
             mvc-on="focus|prop('text','','#g-current'),hold('form@','',0);
             on|prop('disabled',null),stop;
             off|prop('disabled',true),stop" />
@@ -294,7 +350,7 @@
 <form tpl-name="tab:codes" name="codes" class="Codes"
     mvc-on="submit|void,tedoff('textarea._code'),work" mvc-by="Mk.codes">
     <div class="_main">
-        <input name="ctitle" type="text" placeholder="{标题}" class="_heading"
+        <input name="ctitle" type="text" placeholder="{标题}" class="_scale"
             mvc-on="focus|prop('text','','#g-current'), hold('form@','',0)" />
         <div class="_content">
             <textarea name="codedata" placeholder="{内容}" class="_code" spellcheck="false"
@@ -327,3 +383,43 @@
         </div>
     </div>
 </form>
+
+
+<!-- 微编辑下 -->
+<ul tpl-name="inputs:meds" class="_meds">
+    <li>特殊符号</li>
+    <li>Html源码</li>
+    <li>图片（&lt;img&gt;）</li>
+    <li>音频（&lt;audio&gt;）</li>
+    <li>视频（&lt;video&gt;）</li>
+    <li>兼容图片（&lt;picture&gt;）</li>
+    <li>链接（&lt;a&gt;）</li>
+    <li>重点（&lt;strong&gt;）</li>
+    <li>强调（&lt;em&gt;）</li>
+    <li>短引用（&lt;q&gt;）</li>
+    <li>缩写（&lt;abbr&gt;）</li>
+    <li>来源（&lt;cite&gt;）</li>
+    <li>注脚（&lt;small&gt;）</li>
+    <li>日期/时间（&lt;time&gt;）</li>
+    <li>已删除条目（&lt;del&gt;）</li>
+    <li>插入性条目（&lt;ins&gt;）</li>
+    <li>下标（&lt;sub&gt;）</li>
+    <li>上标（&lt;sup&gt;）</li>
+    <li>标记（&lt;mark&gt;）</li>
+    <li>代码（&lt;code&gt;）</li>
+    <li>表情（&lt;code role="orz"&gt;）</li>
+    <li>注音单元（&lt;ruby/rb,rp,rt&gt;）</li>
+    <li>定义条目（&lt;dfn&gt;）</li>
+    <li>样本（&lt;samp&gt;）</li>
+    <li>键盘字（&lt;kbd&gt;）</li>
+    <li>失效（&lt;s&gt;）</li>
+    <li>注记（&lt;u&gt;）</li>
+    <li>变量（&lt;var&gt;）</li>
+    <li>有向文本单元（&lt;bdo&gt;）</li>
+    <li>度量标示（&lt;meter&gt;）</li>
+    <li>粗体（&lt;b&gt;）</li>
+    <li>斜体（&lt;i&gt;）</li>
+    <li>换行（&lt;br&gt;）</li>
+    <li>软换行（&lt;wbr&gt;）</li>
+    <li>空白段（&lt;blank&gt;）</li>
+</ul>

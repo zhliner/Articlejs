@@ -1,34 +1,39 @@
-<!-- 工具栏: grid|flex -->
-<div tpl-name="main:tools" id="panel-tools" class="___Panel Tools">
-    <!-- 前端区按钮 -->
-    <span class="_start">
+<!-- 工具栏: flex -->
+<div class="___Panel Tools" tpl-name="main:tools">
+    <!-- 面板按钮 -->
+    <div class="_start">
         <i id="b-outline"></i>
         <i id="b-slave"></i>
-    </span>
-    <!-- 逻辑区隔 -->
+    </div>
     <hr class="_1">
-
-    <!-- [关联工具区] -->
-    <span id="tools-active" class="_xbox"></span>
-
+    <!-- 动态区 -->
+    <div id="tools-active" data-pb="">
+        <!-- 普通工具 -->
+        <span class="_usual">
+            <i id="b-totext">纯文本化</i>
+            <i id="b-untag">去除标签</i>
+            <i id="b-undo">撤消</i>
+            <i id="b-redo">重做</i>
+        </span>
+    </div>
     <hr class="_2">
-    <!-- 末端区按钮 -->
-    <span class="_end">
+    <!-- 功能按钮 -->
+    <div class="_end">
         <i id="b-plugins"></i>
         <i id="b-maximize"></i>
-    </span>
+    </div>
 </div>
 
+
 <!-- 内容区 -->
-<div tpl-name="main:content" class="___Content">
+<div class="___Content" tpl-name="main:content">
     <!-- 临时态：视觉提示 -->
     <span id="content-temp" class="_tmps" data-pb="lose"></span>
     <!--滚动盒子
         注记：tabindex若设置在可滚动容器上，获取焦点时内容可能移位（浏览器行为） -->
     <div id="scrollbox" class="___Scroll" tabindex="0">
         <!-- 正文区 -->
-        <div id="contents">
-        </div>
+        <div id="contents" class="content"></div>
     </div>
     <!-- 元素路径提示 -->
     <div id="content-path" class="_path" data-pb="lose">
@@ -37,10 +42,11 @@
     </div>
 </div>
 
+
 <!-- 主面板区 -->
-<div tpl-name="main:slave" id="panel-slave" class="___Panel Slave" data-pb="rise">
+<div id="main-slave" class="___Panel Slave" data-pb="rise" tpl-name="main:slave">
     <!-- 标题栏: flex -->
-    <div id="slave-head" class="_head">
+    <div class="_tabs">
         <b>内容</b>
         <b>样式</b>
         <b>特性</b>
@@ -51,26 +57,28 @@
         <i id="b-close"></i>
     </div>
     <!-- 面板容器 -->
-    <div id="slave-body" class="_xbox" tpl-load="slave:content"">
-        <!-- 初始为内容面板 -->
+    <div id="slave-xbox" class="_xbox" tpl-load="slave:inputs"">
+        <!-- 初始为录入（内容）面板 -->
     </div>
 </div>
 
+
 <!-- 状态栏 -->
-<div id="panel-status" class="___Panel Status" tpl-name="main:status">
+<div class="___Panel Status" tpl-name="main:status">
     <!-- 提示区 -->
-    <div class="_tips"></div>
+    <div id="status-tips" class="_tips"></div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <!-- 提示集 -->
         <span id="cmd-chars" data-pb="hide">
+            <b>/</b> <!-- 选择器模式 -->
             <b>:</b> <!-- 普通指令 -->
             <b>=</b> <!-- 计算（Worker） -->
-            <b>/</b> <!-- 选择器选取 -->
-            <b>?</b> <!-- 查找选取 -->
             <b>|</b> <!-- 选取集过滤 -->
+            <b>?</b> <!-- 文本搜索&选取 -->
+            <b>!</b> <!-- 扩展备用（pro） -->
         </span>
-        <code id="cmd-char">:</code>
+        <!-- data-v: 辅助 -->
+        <code id="cmd-char" data-v="/">/</code>
     </div>
     <!-- 命令行 -->
     <div class="_cmdline">
@@ -92,15 +100,16 @@
         -->
         <input id="cmd-input" type="text" class="_code" />
     </div>
-    <!-- 出错信息 -->
-    <div class="_err"></div>
+    <!-- 出错信息区 -->
+    <div id="status-err" class="_err"></div>
     <!-- 帮助入口 -->
     <div class="_help">?</div>
 </div>
 
+
 <!-- [菜单集] -->
-<div id="panel-annex" tpl-name="main:menus">
-    <!-- 内联创建|转换 -->
+<div tpl-name="main:menus">
+    <!-- 选取创建：mouseup -->
     <menu id="menu-cells" class="_cells" data-pb="hide">
         <li data-val="a" title="{链接}"><a href="javascript:return false;">&lt;a&gt;</a></li>
         <li data-val="code" title="{代码}"><code>&lt;code&gt;</code></li>
@@ -121,7 +130,7 @@
         <li data-val="ruby" title="{注音}"><ruby>&lt;ruby&gt;</ruby></li>
     </menu>
 
-    <!-- 基本上下文 -->
+    <!-- 基本编辑：contextmenu -->
     <menu id="menu-edits" class="_edits" data-pb="hide">
         <li data-val="edit">
             <span><b>&lt;F2&gt;,&lt;I&gt;</b><i id="l-edit"></i>{微编辑}</span>
@@ -143,7 +152,7 @@
 
 
 <!-- 帮助栏 -->
-<div tpl-name="help:docs" class="_docs">
+<div class="_docs" tpl-name="help:docs">
     <span class="_walk">
         <i id="b-back-help" title="{后退}"></i>
         <i id="b-frwd-help" title="{前进}"></i>

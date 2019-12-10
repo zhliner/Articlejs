@@ -49,13 +49,13 @@ const _X = {
 
 
 /**
- * 数据检取（简单）。
+ * 数据拉取（简单）。
  * 暂存区的流程数据会作为查询串上传。
  * 注：仅支持 GET 方法。
  * @param  {String} meth 请求方法。可选，默认index
  * @return {Promise} data:json
  */
-_X.fetch = function( evo, meth = 'index' ) {
+_X.pull = function( evo, meth = 'index' ) {
     let _url = `${pullRoot}/${meth}`;
 
     if ( evo.data != null ) {
