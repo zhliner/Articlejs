@@ -9,7 +9,7 @@
 //	提取单元内容。
 //  包含两个部分：标题（heading），内容（content）。
 //
-//  仅在单元转换时需要，提取的内容为基本单元：内联节点（集）。
+//  仅在单元转换时作为数据源需要，提取的内容为基本单元：内联节点（集）。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,6 @@ const $ = window.$;
 
 //
 // 数据提取集。
-// 提取目标仅针对末端内容单元，不适用片区结构。
-// 种类：
 // - 标题：{Node|[Node]|null} 文本节点或原始内联节点集。
 // - 内容：{[Node]|[[Node]]|''} 文本节点数组或原始内联节点集数组。
 // 参数：
@@ -36,6 +34,19 @@ const $ = window.$;
 //////////////////////////////////////////////////////////////////////////////
 //
 const dataPicks = {
+    // 主/副标题组
+    // 副标题作为内容返回。
+    Hgroup: {
+        heading( root, text, clean ) {
+            return elementContent( $.get( 'h1', root ), text, clean );
+        },
+
+        content( root, text, clean ) {
+            return elementContent( $.get( 'h2', root ), text, clean );
+        }
+    },
+
+
     // 插图：
     // figure/figcaption, p/img...
     Figure: {
@@ -43,7 +54,7 @@ const dataPicks = {
             return elementContent( $.get( 'figcaption', root ), text, clean );
         },
 
-        content( root, text ) {
+        content( root, text/*, clean*/ ) {
             return text ? '' : $.find( 'img, video, audio', $.get('p', root) );
         }
     },

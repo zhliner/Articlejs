@@ -20,53 +20,54 @@ const
     $TEXT       = 1,        // 文本/节点
 
     H1          = 1 << 1,   // 页标题
-    ABSTRACT    = 1 << 2,   // 提要
-    TOC         = 1 << 3,   // 目录
-    ARTICLE     = 1 << 4,   // 文章区
-    HEADER      = 1 << 5,   // 导言
-    FOOTER      = 1 << 6,   // 结语
-    S1          = 1 << 7,   // 章 /h2
-    S2          = 1 << 8,   // 节 /h3
-    S3          = 1 << 9,   // 区 /h4
-    S4          = 1 << 10,  // 段 /h5
-    S5          = 1 << 11,  // 末 /h6
-    OL          = 1 << 12,  // 有序列表
-    BLOUFCPC    = 1 << 13,  // 块集：ul,figure,codelist,pre,codeblock
-    SEEALSO     = 1 << 14,  // 另参见
-    CASCADE     = 1 << 15,  // 级联表
-    REFERENCE   = 1 << 16,  // 文献参考
-    DL          = 1 << 17,  // 定义列表
-    BLONATHS    = 1 << 18,  // 块集：note,address,table,hr,space
-    BLOCKQUOTE  = 1 << 19,  // 块引用
-    ASIDE       = 1 << 20,  // 批注
-    DETAILS     = 1 << 21,  // 详细内容
-    P           = 1 << 22,  // 段落
-    CODELI      = 1 << 23,  // 代码表条目（li/code）
-    ALI         = 1 << 24,  // 目录表普通条目（li/a）
-    H5A         = 1 << 25,  // 目录表标题条目（h5/a）
-    CASCADELI   = 1 << 26,  // 级联表条目（li/h5,ol）
-    INLINE      = 1 << 27,  // 内联单元
-    A           = 1 << 28,  // 链接
-    CODE        = 1 << 29,  // 行内代码
-    IMG         = 1 << 30,  // 图片
-    I           = 1 << 31,  // <i> 标题编号
-    B           = 1 << 32,  // <b> 代码关键字
-    H2          = 1 << 33,  // 章标题
-    H3          = 1 << 34,  // 节标题
-    H4          = 1 << 35,  // 区标题
-    H5          = 1 << 36,  // 段标题
-    H6          = 1 << 37,  // 末标题
-    SUMMARY     = 1 << 38,  // 详细内容摘要/标题
-    FIGCAPTION  = 1 << 39,  // 插图标题
-    LI          = 1 << 40,  // 列表项（通用）
-    DLI         = 1 << 41,  // 定义列表项（dt,dd）
-    RBPT        = 1 << 42,  // 注音单元（rb,rp,rt）
-    TRACK       = 1 << 43,  // 字幕轨
-    SOURCE      = 1 << 44,  // 媒体资源
-    CAPTION     = 1 << 45,  // 表格标题
-    TSEC        = 1 << 46,  // 表格片区（thead,tbody,tfoot）
-    TR          = 1 << 47,  // 表格行
-    TCELL       = 1 << 48;  // 表单元格（th,td）
+    HGROUP      = 1 << 2,   // 主/副标题组
+    ABSTRACT    = 1 << 3,   // 提要
+    TOC         = 1 << 4,   // 目录
+    SEEALSO     = 1 << 5,   // 另参见
+    REFERENCE   = 1 << 6,   // 文献参考
+    ARTICLE     = 1 << 7,   // 文章区
+    HEADER      = 1 << 8,   // 导言
+    FOOTER      = 1 << 9,   // 结语
+    S1          = 1 << 10,  // 章 /h2
+    S2          = 1 << 11,  // 节 /h3
+    S3          = 1 << 12,  // 区 /h4
+    S4          = 1 << 13,  // 段 /h5
+    S5          = 1 << 14,  // 末 /h6
+    OL          = 1 << 15,  // 有序列表
+    BLOUFCPC    = 1 << 16,  // 块集：ul,figure,codelist,pre,codeblock
+    CASCADE     = 1 << 17,  // 级联表
+    DL          = 1 << 18,  // 定义列表
+    BLONATHS    = 1 << 19,  // 块集：note,address,table,hr,space
+    BLOCKQUOTE  = 1 << 20,  // 块引用
+    ASIDE       = 1 << 21,  // 批注
+    DETAILS     = 1 << 22,  // 详细内容
+    P           = 1 << 23,  // 段落
+    CODELI      = 1 << 24,  // 代码表条目（li/code）
+    ALI         = 1 << 25,  // 目录表普通条目（li/a）
+    H5A         = 1 << 26,  // 目录表标题条目（h5/a）
+    CASCADELI   = 1 << 27,  // 级联表条目（li/h5,ol）
+    INLINE      = 1 << 28,  // 内联单元
+    A           = 1 << 29,  // 链接
+    CODE        = 1 << 30,  // 行内代码
+    IMG         = 1 << 31,  // 图片
+    I           = 1 << 32,  // <i> 标题编号
+    B           = 1 << 33,  // <b> 代码关键字
+    H2          = 1 << 34,  // 章标题
+    H3          = 1 << 35,  // 节标题
+    H4          = 1 << 36,  // 区标题
+    H5          = 1 << 37,  // 段标题
+    H6          = 1 << 38,  // 末标题
+    SUMMARY     = 1 << 39,  // 详细内容摘要/标题
+    FIGCAPTION  = 1 << 40,  // 插图标题
+    LI          = 1 << 41,  // 列表项（通用）
+    DLI         = 1 << 42,  // 定义列表项（dt,dd）
+    RBPT        = 1 << 43,  // 注音单元（rb,rp,rt）
+    TRACK       = 1 << 44,  // 字幕轨
+    SOURCE      = 1 << 45,  // 媒体资源
+    CAPTION     = 1 << 46,  // 表格标题
+    TSEC        = 1 << 47,  // 表格片区（thead,tbody,tfoot）
+    TR          = 1 << 48,  // 表格行
+    TCELL       = 1 << 49;  // 表单元格（th,td）
 
 
 //
@@ -80,6 +81,7 @@ const Types = {
     // BLONATHS：Note|Address|Table|Hr|Space
     // BLOUFCPC：Ul|Figure|Codelist|Pre|Codeblock
     H1:             H1,
+    Hgroup:         HGROUP,
     Abstract:       ABSTRACT,
     Toc:            TOC,
     Article:        ARTICLE,
@@ -200,6 +202,7 @@ const typeSubs = {
     $text:          0,
 
     // 结构单元块
+    Hgroup:         H1 | H2,
     Abstract:       H3 | P | BLONATHS,
     Toc:            H4 | CASCADE,
     Seealso:        LI,
