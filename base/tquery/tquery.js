@@ -14,19 +14,11 @@
     即省略了jQuery里的Ajax、$.Deferred、Effect等。
     省略的这三个部分将由浏览器自身所支持的 Fetch、Promise、CSS3 完成。
 
-    实现：
-    事件为DOM原生事件（无侵入），元素上也不存储任何数据，便于JS垃圾回收。
-
-    注：
-    DOM原生的元素集有两类：
-        - NodeList，来源于 querySelectorAll()
-        - HtmlCollection，来源于 getElementsBy... 系列
-
-    在下面的参数说明中，原生元素集可能不区分 NodeList 和 HtmlCollection。
-    用户使用本库 $() 检索的元素集命名为 Collector，继承于 Array 类型。
+    用户使用 $(...) 检索的元素集命名为 Collector，继承于 Array 类型。
+    事件为DOM原生事件（无侵入），元素上也不存储任何数据。
 
     提示：
-    您可以在浏览器的控制台执行：
+    可以在浏览器的控制台执行：
     - console.dir($)  查看 $ 的成员情况（单元素操作版）。
       Object.keys($)  获取方法名集（可枚举）。
     - console.dir($('').__proto__)  查看 Collector 的成员情况。
@@ -45,12 +37,33 @@
         Sizzle('p>b', p)          => []
         p.querySelectorAll('p>b') => [<b>]
     说明：
-        Sizzle 的子级检索选择器不含上下文元素自身的限定。
         querySelectorAll 拥有上下文元素自身的父级限定能力。
+        Sizzle 选择器不包含上下文元素自身的匹配检查。
 
     实现：
-        同 Sizzle，支持 '>...' 选择器形式，包括多个并列如：'>a, >b'。
+        支持直系子元素选择器 '>xxx' 且可并列（如：'>a, >b'），同 Sizzle。
         $.find('>a, >b', p) => [<b>, <a>]
+        支持上下文元素限定（同 querySelectorAll）。
+        $.find('p>b', p)    => [<b>]
+
+
+    事件：
+    提供10组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类。
+    开启：$.config({nodechange: true});
+
+    - attrset/attrfail/attrdone         // 特性设置/出错/完成
+    - propset/propfail/propdone         // 属性设置/出错/完成
+    - cssset/cssfail/cssdone            // 内联样式设置/出错/完成
+    - classset/classfail/classdone      // 类名设置/出错/完成
+
+    - append/appendfail/appended        // 元素内末尾添加/出错/完成
+    - prepend/prependfail/prepended     // 元素内前端插入/出错/完成
+    - fill/fillfail/filled              // 元素内填充/出错/完成
+    - before/beforefail/beforedone      // 节点前插入/出错/完成
+    - after/afterfail/afterdone         // 节点后插入/出错/完成
+    - replace/replacefail/replacedone   // 节点替换/出错完成
+
+    注记：取消嵌入代理设计。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -198,7 +211,11 @@
                 return els;
             }
             return comp === undefined ? els : els.sort(comp || undefined);
-        };
+        },
+
+        // 检查获取特性名。
+        // 支持前置 '-' 为 data- 系属性简写。
+        attrName = n => n[0] === '-' ? `data${n}` : n;
 
 
     const
@@ -278,8 +295,8 @@
         // 空白匹配
         __chSpace   = new RegExp( whitespace + "+", "g" ),
 
-        // data系属性包含简写的匹配。
-        // 如：-val => data-val
+        // data系属性名匹配。
+        // 包含简写匹配，如：-val => data-val
         __dataName  = new RegExp( "^(?:data)?-(" + identifier + ")$" ),
 
         // 私有存储 {Element: String}
@@ -288,6 +305,10 @@
 
 
     const
+        Config  = {
+            nodechange: false,  // 启用DOM节点变化事件
+        },
+
         version = 'tQuery-0.4.0',
 
         // 临时属性名
@@ -477,6 +498,13 @@ function tQuery( its, ctx ) {
     }
     return new Collector( its );
 }
+
+
+//
+// 功能配置。
+// 目前仅支持 nodechange:{Boolean} 项目。
+//
+tQuery.config = option => Object.assign( Config, option );
 
 
 //
@@ -1727,13 +1755,7 @@ Object.assign( tQuery, {
         if (typeof names == 'string') {
             names.trim().
                 split(__chSpace).
-                forEach( function( n ) {
-                    let _dn = n.match(__dataName);
-                    if (_dn) {
-                        n = 'data-' + _dn[1];
-                    }
-                    el.removeAttribute( n );
-                });
+                forEach( n => setAttr( el, attrName(n), null ) );
         }
         return this;
     },
@@ -4314,7 +4336,7 @@ const gridPosition = [
  * 不是定位容器时返回false。
  * @param  {Element} box 容器元素
  * @param  {CSSStyleDeclaration} cso 计算样式对象
- * @return {Element|Boolean}
+ * @return {Element|false}
  */
 function offsetBox( box, cso, sub, subcso ) {
     if ( cso.display === 'grid' ) {
@@ -4798,7 +4820,7 @@ function cssSet( el, name, val, cso ) {
         val( cso[name], el ) :
         val;
 
-    el.style[name] = isNumeric(_v) ? `${+_v}px` : _v;
+    setStyle( el, name, isNumeric(_v) ? `${+_v}px` : _v );
 }
 
 
@@ -4946,7 +4968,7 @@ function classAttrToggle( el, force ) {
     if (typeof force == 'boolean') {
         _cls = !force;
     }
-    elemAttr.setAttr(el, 'class', _cls ? null : __classNames.get(el) || null);
+    setAttr(el, 'class', _cls ? null : __classNames.get(el) || null);
 }
 
 
@@ -5624,6 +5646,128 @@ function cleanFragment( frg ) {
 }
 
 
+//
+// 定制事件激发封装。
+// attr/prop/css/class...
+// append/prepend/fill
+// before/after/replace
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 激发定制事件（受限名称）。
+ * 事件冒泡，不可取消。
+ * 出错时会发送失败事件并传递错误对象（不抛出异常）。
+ * @param  {Element} el 目标元素
+ * @param  {String} evn 事件名
+ * @param  {Mixed} extra 发送数据
+ * @param  {Boolean} err 是否出错状态
+ * @return {true|void} 已发送或静默处理
+ */
+function limitTrigger( el, evn, extra, err ) {
+    if ( Config.nodechange ) {
+        return el.dispatchEvent(
+            new CustomEvent( evn, {detail: extra, bubbles: true, cancelable: false} )
+        );
+    }
+    if (err) throw extra;
+}
+
+
+/**
+ * 特性设置封装。
+ * 事件名：[attrset, attrfail, attrdone]
+ * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 特性名（最终）
+ * @param  {Value|null|false} val 特性值
+ * @return {void}
+ */
+function setAttr( el, name, val ) {
+    let _old = el.getAttribute(name);
+
+    limitTrigger( el, 'attrset', [el, val] );
+    try {
+        if (val === null) {
+            el.removeAttribute(name);
+        } else {
+            el.setAttribute(name, val);
+        }
+    }
+    catch(e) {
+        return limitTrigger( el, 'attrfail', e, true );
+    }
+    limitTrigger( el, 'attrdone', [el, _old] );
+}
+
+
+/**
+ * 属性设置封装。
+ * 事件名：[propset, propfail, propdone]
+ * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 特性名（最终）
+ * @param  {Value|null|false} val 特性值
+ * @return {void}
+ */
+function setProp( el, name, val ) {
+    let _ns = name.match( __dataName ),
+        _dn = _ns && camelCase( _ns[1] ),
+        _old = elemProp._get( el, name, _dn );
+
+    limitTrigger( el, 'propset', [el, val] );
+    try {
+        if (_dn) {
+            el.dataset[ _dn ] = val;
+        } else {
+            el[ propFix[name] || name ] = val;
+        }
+    }
+    catch(e) {
+        return limitTrigger( el, 'propfail', e, true );
+    }
+    limitTrigger( el, 'propdone', [el, _old] );
+}
+
+
+/**
+ * 样式设置封装。
+ * 事件名：[cssset, cssfail, cssdone]
+ * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 特性名（最终）
+ * @param  {Value|null|false} val 特性值
+ * @return {void}
+ */
+function setStyle( el, name, val ) {
+    let _cso = getStyles(el),
+        _old = _cso[name];
+
+    limitTrigger( el, 'cssset', [el, val] );
+    try {
+        el.style[name] = val;
+    }
+    catch(e) {
+        return limitTrigger( el, 'cssfail', e, true );
+    }
+    limitTrigger( el, 'cssdone', [el, _old] );
+}
+
+
+/**
+ * 类名修改封装。
+ * 事件名：[classset, classfail, classdone]
+ * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 特性名（最终）
+ * @param  {Value|null|false} val 特性值
+ * @return {void}
+ */
+function setClass( el, name, val ) {
+
+}
+
+
 
 //
 // 特性（Attribute）操作封装。
@@ -5639,12 +5783,8 @@ const elemAttr = {
      * @return {Value|null} 特性值
      */
     get( el, name ) {
-        if (boolAttr.test(name)) {
-            return boolHook.get(el, name);
-        }
-        let _ns = name.match(__dataName);
-
-        return el.getAttribute( _ns ? 'data-' + _ns[1] : name );
+        return boolAttr.test(name) ?
+            boolHook.get( el, name ) : el.getAttribute( attrName(name) );
     },
 
 
@@ -5653,35 +5793,14 @@ const elemAttr = {
      * - name不存在空格分隔序列的形式。
      * - 部分属性为Boolean性质，特别处理（boolHook）。
      * - 特性名可能为data系简写形式。
-     *
+     * - 如果value为null，则删除该特性。
      * @param {Element} el 目标元素
      * @param {String} name 特性名
      * @param {Mixed} value 设置值
      */
     set( el, name, value ) {
         return boolAttr.test(name) ?
-            boolHook.set(el, name, value) : this.setAttr(el, name, value);
-    },
-
-
-    /**
-     * 设置/删除特性。
-     * - 如果value为null，则删除该特性；
-     * - 特性名可能为data系简写形式；
-     * @param {Element} el 目标元素
-     * @param {String} name 特性名
-     * @param {Mixed} value 目标值
-     */
-    setAttr( el, name, value ) {
-        let _ns = name.match(__dataName);
-        if (_ns) {
-            name = 'data-' + _ns[1];
-        }
-        if (value === null) {
-            el.removeAttribute(name);
-        } else {
-            el.setAttribute(name, value);
-        }
+            boolHook.set(el, name, value) : setAttr( el, attrName(name), value );
     },
 
 };
@@ -5694,16 +5813,23 @@ const elemAttr = {
 const elemProp = {
     /**
      * 获取属性值。
-     * - 属性名可能为data系简写形式；
+     * - 属性名可能为data系简写形式。
      * @param  {Element} el  目标元素
      * @param  {String} name 属性名
-     * @return {Mixed} 结果值
+     * @return {Value} 结果值
      */
     get( el, name ) {
         let _ns = name.match(__dataName);
-        if (_ns) {
-            // 名称解析短横线为驼峰式
-            return el.dataset[ camelCase(_ns[1]) ];
+        return this._get( el, name, _ns && camelCase(_ns[1]) );
+    },
+
+
+    //
+    // @param {String} dname data-名称
+    //
+    _get( el, name, dname ) {
+        if ( dname ) {
+            return el.dataset[dname];
         }
         name = propFix[name] || name;
         let _hook = propHooks[name];
@@ -5714,20 +5840,9 @@ const elemProp = {
 
     /**
      * 设置属性。
-     * - 属性名可能为data系简写形式；
-     * @param {Element} el  目标元素
-     * @param {String} name 属性名
-     * @param {Mixed} value 设置值
+     * 方法即为封装设置函数。
      */
-    set( el, name, value ) {
-        let _ns = name.match(__dataName);
-        if (_ns) {
-            // 名称解析短横线为驼峰式
-            el.dataset[ camelCase(_ns[1]) ] = value;
-        } else {
-            el[ propFix[name] || name ] = value;
-        }
-    },
+    set: setProp,
 
 };
 
@@ -5756,11 +5871,7 @@ const
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
     boolHook = {
         set: function( el, name, val ) {
-            if ( val == null || val === false ) {
-                el.removeAttribute(name);
-            } else {
-                el.setAttribute(name, name);
-            }
+            setAttr( el,  name, val === false ? null : val );
         },
         get: function( el, name ) {
             return el.hasAttribute(name) ? name : null;
@@ -7079,12 +7190,7 @@ Object.assign( tQuery, {
      */
     selector( tag, attr = '', val = '', op = '' ) {
         if (!attr) return tag;
-
-        let _ns = attr.match(__dataName);
-        if (_ns) {
-            attr = 'data-' + _ns[1];
-        }
-        return `${tag || ''}[${attr}` + (val && `${op}="${val}"`) + ']';
+        return `${tag || ''}[${attrName(attr)}` + (val && `${op}="${val}"`) + ']';
     },
 
 
