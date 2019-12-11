@@ -30,11 +30,19 @@ const
 
 
 const
+    // OBT构建完成事件
+    // 可便于共享的预定义调用链及时绑定。
+    __obtDone   = 'obted',
+
     // 标识字符
     __chrDlmt   = ';',  // 并列分组
     __chrList   = ',',  // 指令/方法并列分隔
     __chrZero   = '-',  // 空白占位符
     __chrPipe   = '|',  // 进阶分隔（事件名|指令链）
+
+    // 事件名标识
+    __evnOnce   = '^',  // 绑定单次处理
+    __evnStore  = '@',  // 调用链预定义存储
 
     // To
     __toqMore   = '+',  // 多元素检索前置标志
@@ -46,30 +54,30 @@ const
 
 
     // On事件定义模式。
-    // 支持委托选择器，可前置 [.-] 标识字符。
-    // 事件名支持字母、数字和 [._-] 字符（-指占位符）。
-    // 注：支持参数段内换行。
-    __onEvent = /^[.-]?([\w.-]+)(?:\(([^]*)\))?$/,
+    // 支持委托选择器，支持前置 @ 或 ^ 标识字符。
+    // 事件名支持字母、数字和 [._-] 字符（-可用于占位符匹配）。
+    // 注：支持小括号内可换行。
+    __onEvent   = /^[@^]?([\w.-]+)(?:\(([^]*)\))?$/,
 
     // 调用模式匹配。
     // 方法名支持字母、数字和 [._-] 字符。
     // 参数段支持任意字符（包括换行），可选。
-    __obtCall = /^(\w[\w.-]*)(?:\(([^]*)\))?$/,
+    __obtCall   = /^(\w[\w.-]*)(?:\(([^]*)\))?$/,
 
     // To:Query
     // 集合范围子集匹配：( beg, end )。
     // 取值：[1]
-    __toRange = /^\(([\d,\s]*)\)$/,
+    __toRange   = /^\(([\d,\s]*)\)$/,
 
     // To:Query
     // 集合定位取值匹配：[ 0, 2, 5... ]。
     // 取值：[0]
-    __toIndex = /^\[[\d,\s]*\]$/,
+    __toIndex   = /^\[[\d,\s]*\]$/,
 
     // To:Query
     // 集合过滤表达式匹配：{ filter-expr }。
     // 取值：[1]
-    __toFilter = /^\{([^]*)\}$/;
+    __toFilter  = /^\{([^]*)\}$/;
 
 
 
@@ -239,8 +247,9 @@ class Builder {
 
     /**
      * 构建OBT逻辑（元素/对象自身）
-     * OBT解析、创建调用链、绑定，存储延迟绑定等。
+     * OBT解析、创建调用链、绑定，存储预定义等。
      * 返回已解析绑定好的原始元素。
+     * 注：构建完毕后会向元素发送结束事件（obted）。
      * @param  {Element|Object} obj 绑定目标
      * @param  {Object3} conf OBT配置集（{on,by,to}）
      * @return {Element|Object} obj
@@ -259,6 +268,7 @@ class Builder {
                 this.chain(_on[1], _by, _to[0], _to[1], _to[2])
             );
         }
+        $.trigger(obj, __obtDone, null, false, false);
         return obj;
     }
 
@@ -298,8 +308,8 @@ class Builder {
      */
     bind( its, evns, chain ) {
         for (const evn of evns) {
-            if ( evn.delay ) {
-                this._store(its, evn.name, evn.selector, chain);
+            if ( evn.store ) {
+                this._store(evn.name, chain);
                 continue;
             }
             let _fn = evn.once ?
@@ -676,7 +686,7 @@ class Cell {
 
     /**
      * 承接前阶结果，调用当前。
-     * val是前阶方法执行的结果，应该是一个具体的值（进入数据栈）。
+     * val是前阶方法执行的结果，将被压入数据栈。
      * @param  {Object} evo 事件相关对象
      * @param  {Value} val 上一指令的结果
      * @return {void}
@@ -741,8 +751,8 @@ class Evn {
         }
         this.name     = _vs[1];
         this.selector = _vs[2] || null;
-        this.once     = name[0] == '.';
-        this.delay    = name[0] == '-';
+        this.once     = name[0] == __evnOnce;
+        this.store    = name[0] == __evnStore;
     }
 
 }

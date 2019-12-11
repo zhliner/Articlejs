@@ -37,13 +37,28 @@ const
     };
 
 
+
 const
     // 全局变量空间。
     Globals     = {},
 
     // 关联数据空间。
     // Element: Map{ String: Value }
-    DataStore   = new WeakMap();
+    DataStore   = new WeakMap(),
+
+    // 预定义调用链存储。
+    // 与元素无关，因此便于实现处理器（调用链）的共享定义。
+    // {String: Chain}
+    __ChainPool = new Map(),
+
+    // 调用链绑定记录。
+    // 同一元素上相同的事件名/选择器不重复绑定。
+    // Element: Map{
+    //      chainHandle: Set{ String(evn+slr) }
+    // }
+    // 注：相同调用链可能应用到多个事件上。
+    __BoundSets = new WeakMap();
+
 
 
 //
@@ -400,6 +415,71 @@ const _Base = {
 
     __pick: null,
     __pick_x: true,
+
+
+
+    // 事件处理
+    // 目标：当前条目/栈顶1项。
+    // 流程数据：{Element|[Element]}
+    // @return {void}
+    //===============================================
+
+    /**
+     * 检索调用链并绑定事件。
+     * 绑定的目标可能是一个元素集。
+     * @param  {String} key 检索键（与存储时同名）
+     * @param  {String} name 事件名。可选，默认即key
+     * @param  {String} slr 委托选择器。可选，默认null
+     * @return {void}
+     */
+    bind( evo, key, name, slr ) {
+        let _els = evo.data;
+
+        if ( $.isArray(_els) ) {
+            return _els.forEach( e => bindChain(e, key, name, slr) );
+        }
+        bindChain( _els, key, name, slr );
+    },
+
+    __bind: 1,
+
+
+    /**
+     * 解绑目标元素（集）上的调用链绑定。
+     * @param  {String} key 检索键（与存储时同名）
+     * @param  {String} name 事件名。可选，默认即key
+     * @param  {String} slr 委托选择器。可选，默认null
+     * @return {void}
+     */
+    unbind( evo, key, name, slr ) {
+        let _els = evo.data;
+
+        if ( $.isArray(_els) ) {
+            return _els.forEach( e => unbindChain(e, key, name, slr) );
+        }
+        unbindChain( _els, key, name, slr );
+    },
+
+    __unbind: 1,
+
+
+    /**
+     * 检索调用链并单次绑定。
+     * @param  {String} key 检索键（与存储时同名）
+     * @param  {String} name 事件名。可选，默认即key
+     * @param  {String} slr 委托选择器。可选，默认null
+     * @return {void}
+     */
+    once( evo, key, name, slr ) {
+        let _els = evo.data;
+
+        if ( $.isArray(_els) ) {
+            return _els.forEach( e => onceBind(e, key, name, slr) );
+        }
+        onceBind( _els, key, name, slr );
+    },
+
+    __once: 1,
 
 
 
@@ -1433,6 +1513,116 @@ function cellNext( cell, n ) {
 }
 
 
+//
+// 预定义调用链。
+// 调用链：一个解析构造后的指令序列（执行流）。
+//===============================================
+
+
+/**
+ * 存储调用链。
+ * 如果存在同名键会抛出异常（问题严重）。
+ * @param  {String} key 存储键/事件名
+ * @param  {EventListener} chain 处理器入口
+ * @return {void}
+ */
+function chainStore( key, chain ) {
+    if ( __ChainPool.has(key) ) {
+        throw new Error(`chain-store[${key}] is already exists.`);
+    }
+    __ChainPool.set(key, chain);
+}
+
+
+/**
+ * 获取元素绑定（.bind/.once）状态集。
+ * 用于预定义调用链的避免重复绑定。
+ * @param  {Element} el 关联元素
+ * @param  {Function} ch 调用链启动句柄
+ * @return {Set} 存储集
+ */
+function chainSets( el, ch ) {
+	let _map = __BoundSets.get( el ) ||
+		__BoundSets.set( el, new Map() );
+
+	return _map.get(ch) || _map.set(ch, new Set());
+}
+
+
+/**
+ * 检查并设置绑定标记。
+ * 如果已经绑定，返回false，否则设置并返回true。
+ * 注：
+ * 标记串可能用 事件名+选择器 表示。
+ *
+ * @param  {Set} sets 标志集
+ * @param  {String} flag 标记串
+ * @return {Boolean} 是否已绑定
+ */
+function setBound( sets, flag ) {
+	return sets.has(flag) ? false : !!sets.add(flag);
+}
+
+
+/**
+ * 调用链绑定到事件。
+ * 从延迟绑定存储中检索调用链实例并绑定到目标事件。
+ * 重复的绑定不会执行，除非已解绑（unbind）。
+ * @param  {Element} el 关联元素
+ * @param  {String} key 存储键
+ * @param  {String} evn 事件名
+ * @param  {String} slr 委托选择器
+ * @return {void}
+ */
+function bindChain( el, key, evn = key, slr = null ) {
+    let _ch = __ChainPool.get(key),
+        _flg = evn + slr;
+
+    if ( !_ch ) {
+        return window.console.error(`chain-store[${key}] not found.`);
+    }
+    if ( setBound(chainSets(el, _ch), _flg) ) $.on(el, evn, slr, _ch);
+}
+
+
+/**
+ * 调用链目标事件解绑。
+ * @param  {Element} el 关联元素
+ * @param  {String} key 存储键
+ * @param  {String} evn 事件名
+ * @param  {String} slr 委托选择器
+ * @return {void}
+ */
+function unbindChain( el, key, evn = key, slr = null ) {
+    let _ch = __ChainPool.get(key),
+        _flg = evn + slr;
+
+    if ( !_ch ) {
+        return window.console.error(`chain-store[${key}] not found.`);
+    }
+    if ( chainSets(el, _ch).delete(_flg) ) $.off(el, evn, slr, _ch);
+}
+
+
+/**
+ * 单次绑定。
+ * 允许重复执行，因此无需存储标记。
+ * @param  {Element} el 关联元素
+ * @param  {String} key 存储键
+ * @param  {String} evn 事件名
+ * @param  {String} slr 委托选择器
+ * @return {void}
+ */
+function onceBind( el, key, evn = key, slr = null ) {
+    let _ch = __ChainPool.get(key);
+
+    if ( !_ch ) {
+        return window.console.error(`chain-store[${key}] not found.`);
+    }
+    $.one( el, evn, slr, _ch );
+}
+
+
 
 //
 // 特殊指令。
@@ -1579,4 +1769,4 @@ const Base2 = $.assign( {}, _Base2, bindMethod );
 Base.tplStore = tstore => { __TplStore = tstore; };
 
 
-export { Base, Base2 };
+export { Base, Base2, chainStore };

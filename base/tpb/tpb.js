@@ -19,9 +19,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Base, Base2 } from "./libs/pbs.base.js";
+import { Base, Base2, chainStore } from "./libs/pbs.base.js";
 import { On } from "./libs/pbs.on.js";
-import { By, chainStore } from "./libs/pbs.by.js";
+import { By } from "./libs/pbs.by.js";
 import { To } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
