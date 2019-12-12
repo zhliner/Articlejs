@@ -49,19 +49,20 @@
 
     事件：
     提供10组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类。
-    开启：$.config({nodechange: true});
+    开启：$.config({tqueryEvent: true});
 
-    - attrset/attrfail/attrdone         // 特性设置/出错/完成
-    - propset/propfail/propdone         // 属性设置/出错/完成
-    - cssset/cssfail/cssdone            // 内联样式设置/出错/完成
-    - classset/classfail/classdone      // 类名设置/出错/完成
+    - attrvary/attrfail/attrdone    // 特性设置/出错/完成
+    - propvary/propfail/propdone    // 属性设置/出错/完成
+    - cssvary/cssfail/cssdone       // 内联样式设置/出错/完成
+    - classvary/classfail/classdone // 类名设置/出错/完成
 
-    - append/appendfail/appended        // 元素内末尾添加/出错/完成
-    - prepend/prependfail/prepended     // 元素内前端插入/出错/完成
-    - fill/fillfail/filled              // 元素内填充/出错/完成
-    - before/beforefail/beforedone      // 节点前插入/出错/完成
-    - after/afterfail/afterdone         // 节点后插入/出错/完成
-    - replace/replacefail/replacedone   // 节点替换/出错完成
+    - nodevary/nodefail/nodedone
+    // 节点设置/出错/完成
+    // type: [
+    //      append, prepend, fill, before, after, replace,
+    //      empty, remove, normalize,
+    //      wrap, wrapinner, wrapall, unwrap
+    // ]
 
     注记：取消嵌入代理设计。
 
@@ -215,7 +216,14 @@
 
         // 检查获取特性名。
         // 支持前置 '-' 为 data- 系属性简写。
-        attrName = n => n[0] === '-' ? `data${n}` : n;
+        // @return {String}
+        attrName = n => n[0] === '-' ? `data${n}` : n,
+
+        // 获取data-系名称。
+        // 返回的名称已经转换为驼峰表示。
+        // 如：data-abc-def | -abc-def => abcDef
+        // @return {String}
+        dataName = n => __dataName.test(n) && camelCase( n.match(__dataName)[1] ) || '';
 
 
     const
@@ -306,7 +314,7 @@
 
     const
         Config  = {
-            nodechange: false,  // 启用DOM节点变化事件
+            tqueryEvent: false, // 启用DOM节点变化事件
         },
 
         version = 'tQuery-0.4.0',
@@ -502,7 +510,7 @@ function tQuery( its, ctx ) {
 
 //
 // 功能配置。
-// 目前仅支持 nodechange:{Boolean} 项目。
+// 目前仅支持 tqueryEvent:{Boolean}
 //
 tQuery.config = option => Object.assign( Config, option );
 
@@ -717,7 +725,7 @@ Object.assign( tQuery, {
                     null,
                     box || doc.head
                 );
-            return box ? _el : remove(_el);
+            return box ? _el : _el.remove();
         }
         return loadElement( setElem(doc.createElement('script'), data), null, box || doc.head, !box );
     },
@@ -1373,7 +1381,7 @@ Object.assign( tQuery, {
         }
         // 包裹容器可以是子元素。
         if (box.nodeType && $contains(el, box)) {
-            box = remove(box);
+            varyRemove( box, box.parentElement );
         }
         let _cons = Arr(el.childNodes);
 
@@ -1408,7 +1416,7 @@ Object.assign( tQuery, {
      * @return {Node} 原节点引用
      */
     detach( node ) {
-        return remove( node, false );
+        return varyRemove( node, node.parentElement );
     },
 
 
@@ -1419,22 +1427,22 @@ Object.assign( tQuery, {
      * @return {this}
      */
     remove( node ) {
-        return remove( node, true ), this;
+        return varyRemove( node, node.parentElement ), this;
     },
 
 
     /**
      * 清空元素内容。
-     * 仅适用于元素节点。
+     * 仅适用于元素节点，非法实参返回一个空数组。
      * 返回集中不包含注释节点和纯空白文本节点。
      * @param  {Element} el 目标元素
-     * @return {[Node]|null} 被清除的节点集
+     * @return {[Node]} 被清除的节点集
      */
     empty( el ) {
         if (el.nodeType != 1) {
-            return null;
+            return [];
         }
-        return _empty(el).filter(masterNode);
+        return varyEmpty(el).filter(masterNode);
     },
 
 
@@ -1445,18 +1453,18 @@ Object.assign( tQuery, {
      * - 如果您不理解level参数的用途，简单忽略即可。
      * 说明：
      * - DOM原生normalize接口会处理所有子孙节点，没有办法由用户控制。
-     * - 这是一个对DOM树进行修改的接口，因此需要向嵌入的代理提供信息。
-     * - 这里只能设计为由用户主动告知（主要用于优化）。
+     * - 这是一个对DOM树进行修改的接口，因此需要向事件处理器提供信息。
+     * - 这里只能设计为由用户主动告知（用于优化）。
      *
      * @param  {Element} el  目标元素
-     * @param  {Number} level 影响的子元素层级
-     * @return {Element|level} 目标元素或告知
+     * @param  {Number} depth 影响的子元素深度
+     * @return {Element} 目标元素
      */
-    normalize( el, level = 0 ) {
-        if (el.nodeType == 1) {
-            el.normalize();
+    normalize( el, depth = 0 ) {
+        if (el.nodeType !== 1) {
+            throw new Error(`[${el}] is not a element.`);
         }
-        return level || el;
+        return varyNormalize( el, depth );
     },
 
 
@@ -1533,12 +1541,7 @@ Object.assign( tQuery, {
             names = names( Arr(el.classList) );
         }
         if (typeof names == 'string') {
-            names.trim().
-                split(__chSpace).
-                forEach(
-                    function(it) { it && this.add(it); },
-                    el.classList
-                );
+            addClass( el, names.trim().split(__chSpace) );
         }
         return this;
     },
@@ -1558,14 +1561,13 @@ Object.assign( tQuery, {
             names = names( Arr(el.classList) );
         }
         if (names == null) {
-            el.removeAttribute('class');
-            return this;
+            return removeClass(el, names), this;
         }
-        names.trim().
-            split(__chSpace).
-            forEach( function(it) { it && this.remove(it); }, el.classList );
-
+        if ( typeof names == 'string' ) {
+            removeClass( el, names.trim().split(__chSpace) );
+        }
         if (el.classList.length == 0) {
+            // 清理：不激发attr系事件。
             el.removeAttribute('class');
         }
         return this;
@@ -1590,11 +1592,12 @@ Object.assign( tQuery, {
             val = val( Arr(el.classList) );
         }
         if (typeof val === 'string') {
-            classToggle(el, val.trim(), force);
+            classToggle(el, val.trim().split(__chSpace), force);
         } else {
-            classAttrToggle(el, val);
+            classAttrToggle( el, !!val );
         }
         if (el.classList.length == 0) {
+            // 清理：不激发attr系事件
             el.removeAttribute('class');
         }
         return this;
@@ -3160,21 +3163,6 @@ function _first( els, slr, beg = 0, step = 1 ) {
 
 
 /**
- * 清空元素内容。
- * @param  {Element} el 目标元素
- * @return {[Node]} 移除的节点集
- */
-function _empty( el ) {
-    let _buf = [];
-
-    while ( el.firstChild ) {
-        _buf.push( el.removeChild(el.firstChild) );
-    }
-    return _buf;
-}
-
-
-/**
  * 元素事件克隆。
  * 源保证：to必须是src克隆的结果。
  * @param  {Element} src 源元素
@@ -3478,18 +3466,6 @@ class Collector extends Array {
         }
         this.forEach( el => $.val( el, value ) );
         return this;
-    }
-
-
-    /**
-     * 元素内容规范化。
-     * 返回值逻辑与单元素版相同。
-     * @param  {Number} level 影响的子元素层级
-     * @return {this|level}
-     */
-    normalize( level ) {
-        this.forEach( el => $.normalize(el, level) );
-        return level || this;
     }
 
 
@@ -3847,6 +3823,7 @@ elsExfn([
 // 返回当前实例本身。
 /////////////////////////////////////////////////
 elsExfn([
+        'normalize',
         'toggleAttr',
         'toggleClass',
         'on',
@@ -4857,7 +4834,7 @@ function loadElement( el, next, box, tmp ) {
     }
     return new Promise( function(resolve, reject) {
         tQuery.one(el, {
-            'load':  () => resolve( tmp ? remove(el, true) : el ),
+            'load':  () => resolve( tmp ? varyRemove(el, el.parentElement) : el ),
             'error': err => reject(err),
         });
         switchInsert(el, next, box);
@@ -4934,41 +4911,35 @@ function wrapData( rep, pel, box, data, doc ) {
 /**
  * 类名切换。
  * 支持空格分隔的多个类名。
- * @param  {Element} el  目标元素
- * @param  {String} name 类名称
+ * @param  {Element} el 目标元素
+ * @param  {[String]} names 类名称集
  * @param  {Boolean} force 强制设定，可选
+ * @return {void}
  */
-function classToggle( el, name, force ) {
-    if (typeof force == 'boolean') {
-        return force ?
-            tQuery.addClass(el, name) : tQuery.removeClass(el, name);
+function classToggle( el, names, force ) {
+    if ( force === true ) {
+        return addClass( el, names );
     }
-    name.split(__chSpace)
-        .forEach(
-            function(it) { it && this.toggle(it); },
-            el.classList
-        );
+    if ( force === false ) {
+        return removeClass( el, names );
+    }
+    toggleClass( el, names );
 }
 
 
 /**
  * 元素类属性切换。
- * @param {Element} el 目标元素
- * @param {Boolean|Value} force 是否强制指定
+ * @param  {Element} el 目标元素
+ * @param  {Boolean} force 是否强制指定
+ * @return {void}
  */
 function classAttrToggle( el, force ) {
     let _cls = el.getAttribute('class');
 
-    _cls = _cls && _cls.trim();
-
-    if (_cls) {
-        // 私有存储
-        __classNames.set(el, _cls);
+    if ( _cls ) {
+        __classNames.set( el, _cls.trim() );
     }
-    if (typeof force == 'boolean') {
-        _cls = !force;
-    }
-    setAttr(el, 'class', _cls ? null : __classNames.get(el) || null);
+    toggleClassAttr( el, force ? __classNames.get(el) || null : null, _cls );
 }
 
 
@@ -5648,35 +5619,66 @@ function cleanFragment( frg ) {
 
 //
 // 定制事件激发封装。
-// attr/prop/css/class...
-// append/prepend/fill
-// before/after/replace
+// - attr/prop/css/class
+// - append/prepend/fill/before/after/replace
+// - empty/remove/normalize
+// - wrap/wrapinner/wrapall/unwrap
 //////////////////////////////////////////////////////////////////////////////
+
+// 事件名定义。
+const
+    evnAttrSet      = 'attrvary',
+    evnAttrFail     = 'attrfail',
+    evnAttrDone     = 'attrdone',
+    evnPropSet      = 'propvary',
+    evnPropFail     = 'propfail',
+    evnPropDone     = 'propdone',
+    evnCssSet       = 'cssvary',
+    evnCssFail      = 'cssfail',
+    evnCssDone      = 'cssdone',
+    evnClassSet     = 'classvary',
+    evnClassFail    = 'classfail',
+    evnClassDone    = 'classdone',
+    evnNodeVary     = 'nodevary',
+    evnNodeFail     = 'nodefail',
+    evnNodeDone     = 'nodedone';
 
 
 /**
  * 激发定制事件（受限名称）。
  * 事件冒泡，不可取消。
- * 出错时会发送失败事件并传递错误对象（不抛出异常）。
  * @param  {Element} el 目标元素
  * @param  {String} evn 事件名
- * @param  {Mixed} extra 发送数据
- * @param  {Boolean} err 是否出错状态
- * @return {true|void} 已发送或静默处理
+ * @param  {Array} data 发送数据
+ * @return {Boolean} 是否已发送消息
  */
-function limitTrigger( el, evn, extra, err ) {
-    if ( Config.nodechange ) {
-        return el.dispatchEvent(
-            new CustomEvent( evn, {detail: extra, bubbles: true, cancelable: false} )
-        );
+function limitTrigger( el, evn, data ) {
+    return Config.tqueryEvent && el.dispatchEvent(
+        new CustomEvent( evn, {detail: data, bubbles: true, cancelable: false} )
+    );
+}
+
+
+/**
+ * 设置失败激发消息。
+ * data结构：[错误对象, 新值, 旧值]。
+ * @param  {Element} el 目标元素
+ * @param  {String} evn 事件名
+ * @param  {Array2} data 错误关联对象
+ * @return {void}
+ */
+function failTrigger( el, evn, data ) {
+    if ( !Config.tqueryEvent ) {
+        throw data[0];
     }
-    if (err) throw extra;
+    el.dispatchEvent(
+        new CustomEvent( evn, {detail: data, bubbles: true, cancelable: false} )
+    );
 }
 
 
 /**
  * 特性设置封装。
- * 事件名：[attrset, attrfail, attrdone]
  * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
  * @param  {Element} el 目标元素
  * @param  {String} name 特性名（最终）
@@ -5686,7 +5688,7 @@ function limitTrigger( el, evn, extra, err ) {
 function setAttr( el, name, val ) {
     let _old = el.getAttribute(name);
 
-    limitTrigger( el, 'attrset', [el, val] );
+    limitTrigger( el, evnAttrSet, [name, val] );
     try {
         if (val === null) {
             el.removeAttribute(name);
@@ -5695,76 +5697,223 @@ function setAttr( el, name, val ) {
         }
     }
     catch(e) {
-        return limitTrigger( el, 'attrfail', e, true );
+        return failTrigger( el, evnAttrFail, [e, name, _old] );
     }
-    limitTrigger( el, 'attrdone', [el, _old] );
+    limitTrigger( el, evnAttrDone, [name, _old] );
 }
 
 
 /**
  * 属性设置封装。
- * 事件名：[propset, propfail, propdone]
- * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
  * @param  {Element} el 目标元素
- * @param  {String} name 特性名（最终）
- * @param  {Value|null|false} val 特性值
+ * @param  {String} name 普通属性名
+ * @param  {String} dname data属性名
+ * @param  {Value} val 属性值
  * @return {void}
  */
-function setProp( el, name, val ) {
-    let _ns = name.match( __dataName ),
-        _dn = _ns && camelCase( _ns[1] ),
-        _old = elemProp._get( el, name, _dn );
+function setProp( el, name, dname, val ) {
+    let _old = elemProp._get(el, name, dname);
 
-    limitTrigger( el, 'propset', [el, val] );
+    limitTrigger( el, evnPropSet, [name, val] );
     try {
-        if (_dn) {
-            el.dataset[ _dn ] = val;
+        if (dname) {
+            el.dataset[ dname ] = val;
         } else {
             el[ propFix[name] || name ] = val;
         }
     }
     catch(e) {
-        return limitTrigger( el, 'propfail', e, true );
+        return failTrigger( el, evnPropFail, [e, name, _old] );
     }
-    limitTrigger( el, 'propdone', [el, _old] );
+    limitTrigger( el, evnPropDone, [name, _old] );
 }
 
 
 /**
  * 样式设置封装。
- * 事件名：[cssset, cssfail, cssdone]
- * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
  * @param  {Element} el 目标元素
- * @param  {String} name 特性名（最终）
- * @param  {Value|null|false} val 特性值
+ * @param  {String} name 样式名
+ * @param  {Value} val 样式值
  * @return {void}
  */
 function setStyle( el, name, val ) {
-    let _cso = getStyles(el),
-        _old = _cso[name];
+    let _old = getStyles(el)[name];
 
-    limitTrigger( el, 'cssset', [el, val] );
+    limitTrigger( el, evnCssSet, [name, val] );
     try {
         el.style[name] = val;
     }
     catch(e) {
-        return limitTrigger( el, 'cssfail', e, true );
+        return failTrigger( el, evnCssFail, [e, name, _old] );
     }
-    limitTrigger( el, 'cssdone', [el, _old] );
+    limitTrigger( el, evnCssDone, [name, _old] );
 }
 
 
 /**
- * 类名修改封装。
- * 事件名：[classset, classfail, classdone]
- * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
+ * 类名添加封装。
+ * 可一次添加多个名称，但仅发送一次事件。
  * @param  {Element} el 目标元素
- * @param  {String} name 特性名（最终）
- * @param  {Value|null|false} val 特性值
+ * @param  {[String]} names 类名集
  * @return {void}
  */
-function setClass( el, name, val ) {
+function addClass( el, names ) {
+    let _old = Arr(el.classList);
 
+    limitTrigger( el, evnClassSet, names );
+    try {
+        names.forEach( n => el.classList.add(n) );
+    }
+    catch(e) {
+        return failTrigger( el, evnClassFail, [e, names, _old] );
+    }
+    limitTrigger( el, evnClassDone, _old );
+}
+
+
+/**
+ * 类名删除封装。
+ * 事件名同上。
+ * 如果名称未传递或为null，会删除全部类名（移除class特性）。
+ * 可一次删除多个名称，但仅发送一次事件。
+ * @param  {Element} el 目标元素
+ * @param  {[String]|null} names 类名集
+ * @return {void}
+ */
+function removeClass( el, names ) {
+    let _old = Arr(el.classList);
+
+    limitTrigger( el, evnClassSet, names );
+    try {
+        if ( names == null ) {
+            el.removeAttribute('class');
+        } else {
+            names.forEach( n => el.classList.remove(n) );
+        }
+    }
+    catch(e) {
+        return failTrigger( el, evnClassFail, [e, names, _old] );
+    }
+    limitTrigger( el, evnClassDone, _old );
+}
+
+
+/**
+ * 类名切换封装。
+ * 事件名同上（仅简单切换）。
+ * @param  {Element} el 目标元素
+ * @param  {[String]} names 类名集
+ * @return {void}
+ */
+function toggleClass( el, names ) {
+    let _old = Arr(el.classList);
+
+    limitTrigger( el, evnClassSet, names );
+    try {
+        names.forEach( n => el.classList.toggle(n) );
+    }
+    catch(e) {
+        return failTrigger( el, evnClassFail, [e, names, _old] );
+    }
+    limitTrigger( el, evnClassDone, _old );
+}
+
+
+/**
+ * 类特性切换封装。
+ * 事件名同上（针对整个class特性）。
+ * @param {Element} el 目标元素
+ * @param {String|null} val 设置值
+ * @param {String|null} old 当前值
+ */
+function toggleClassAttr( el, val, old ) {
+    limitTrigger( el, evnClassSet, val );
+    try {
+        if ( val === null ) {
+            el.removeAttribute('class');
+        } else {
+            el.setAttribute( 'class', val );
+        }
+    }
+    catch(e) {
+        return failTrigger( el, evnClassFail, [e, val, old] );
+    }
+    limitTrigger( el, evnClassDone, old );
+}
+
+
+function varyAppend( el, nodes ) {
+
+    limitTrigger( el, evnNodeVary, {
+        type: op,
+        data: nodes,
+    } );
+}
+
+
+/**
+ * 节点移除封装。
+ * 事件目标：待移除节点父元素。
+ * 如果节点无父元素（游离），不会产生任何行为。
+ * 注：无 nodefail 事件。
+ * @param  {Node} node 待移除节点
+ * @param  {Element|null} box 待移除节点的父元素
+ * @return {Node} node
+ */
+function varyRemove( node, box ) {
+    if ( box ) {
+        let _val = {
+            type: 'remove',
+            data: node
+        };
+        limitTrigger( box, evnNodeVary, _val );
+        node.remove();
+        limitTrigger( box, evnNodeDone, _val );
+    }
+    return node;
+}
+
+
+/**
+ * 元素内容清空封装。
+ * 事件目标：容器元素自身。
+ * 注：无 nodefail 事件。
+ * @param  {Element} el 目标容器元素
+ * @return {[Node]} 移除的节点集
+ */
+function varyEmpty( el ) {
+    let _nodes = Arr(el.childNodes),
+        _val = {
+            type: 'empty',
+            data: _nodes,
+        };
+
+    limitTrigger( el, evnNodeVary, _val );
+    el.textContent = '';
+    limitTrigger( el, evnNodeDone, _val );
+
+    return _nodes;
+}
+
+
+/**
+ * 元素内容规范化封装。
+ * 注：无 nodefail 事件。
+ * @param  {Element} el 目标元素
+ * @param  {Number} depth 影响的子元素深度
+ * @return {Element} el
+ */
+function varyNormalize( el, depth ) {
+    let _val = {
+            type: 'normalize',
+            data: depth,
+        };
+
+    limitTrigger( el, evnNodeVary, _val );
+    el.normalize();
+    limitTrigger( el, evnNodeDone, _val );
+
+    return el;
 }
 
 
@@ -5796,7 +5945,7 @@ const elemAttr = {
      * - 如果value为null，则删除该特性。
      * @param {Element} el 目标元素
      * @param {String} name 特性名
-     * @param {Mixed} value 设置值
+     * @param {VAlue} value 设置值
      */
     set( el, name, value ) {
         return boolAttr.test(name) ?
@@ -5819,8 +5968,7 @@ const elemProp = {
      * @return {Value} 结果值
      */
     get( el, name ) {
-        let _ns = name.match(__dataName);
-        return this._get( el, name, _ns && camelCase(_ns[1]) );
+        return this._get( el, name, dataName(name) );
     },
 
 
@@ -5840,9 +5988,13 @@ const elemProp = {
 
     /**
      * 设置属性。
-     * 方法即为封装设置函数。
+     * @param {Element} el 目标元素
+     * @param {String} name 属性名（支持data-简写）
+     * @param {Value} value 设置值
      */
-    set: setProp,
+    set( el, name, val ) {
+        return setProp( el, name, dataName(name), val );
+    },
 
 };
 
@@ -5936,7 +6088,7 @@ const valHooks = {
         _set: (els, val) => {
             for ( let e of els ) {
                 if ( val === e.value ) {
-                    return !$is(e, ':disabled') && (e.checked = true);
+                    return !$is(e, ':disabled') && setProp( e, 'checked', '', true );
                 }
             }
         },
@@ -5984,7 +6136,7 @@ const valHooks = {
 
         _set: (els, val) => {
             for ( let e of els ) {
-                if ( !$is(e, ':disabled') ) e.checked = val.includes(e.value);
+                if ( !$is(e, ':disabled') ) setProp( e, 'checked', '', val.includes(e.value) );
             }
         },
 
@@ -6029,7 +6181,7 @@ const valHooks = {
         _set: (els, val) => {
             for ( const e of els ) {
                 if (e.value === val && !$is(e, ':disabled')) {
-                    return e.selected = true;
+                    return setProp( e, 'selected', '', true );
                 }
             }
         },
@@ -6037,7 +6189,7 @@ const valHooks = {
         _sets: (els, val) => {
             for ( const e of els ) {
                 if ( val.includes(e.value) && !$is(e, ':disabled') ) {
-                    e.selected = true;
+                    setProp( e, 'selected', '', true )
                 }
             }
         }
@@ -6054,7 +6206,7 @@ const valHooks = {
     // 对目标元素value属性的直接操作。
     _default: {
         get: el => valPass(el) && el.value,
-        set: (el, val) => valPass(el) && (el.value = val)
+        set: (el, val) => valPass(el) && setProp( el, 'value', '', val )
     },
 };
 
@@ -7007,6 +7159,7 @@ tQuery.isArray      = isArr;
 tQuery.isNumeric    = isNumeric;
 tQuery.isFunction   = isFunc;
 tQuery.isCollector  = isCollector;
+tQuery.dataName     = dataName;
 tQuery.is           = $is;
 tQuery.type         = $type;
 tQuery.splitf       = splitf;
@@ -7155,20 +7308,6 @@ Object.assign( tQuery, {
     Counter( fn, n = 1, step = 1 ) {
         n -= step;
         return (...rest) => fn( (n += step), ...rest );
-    },
-
-
-    /**
-     * data属性名匹配。
-     * 返回“data-”之后的prop格式名（驼峰）。
-     * 如：
-     * - data-abc-def => abcDef
-     * - -abc-def => abcDef 支持前置-（省略data）
-     * @return {String}
-     */
-    dataName( str ) {
-        let _ns = str.match(__dataName);
-        return _ns && camelCase( _ns[1] ) || '';
     },
 
 

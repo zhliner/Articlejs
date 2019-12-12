@@ -719,18 +719,18 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 清空的内容包括子元素、文本节点和注释节点等任意内容。返回被清除的节点内容，但仅包含子元素和非空文本节点。仅对元素类型有效，传递其它实参返回 `null`。
 
 
-### [$.normalize( el, level? ): Number | Element](docs/$.normalize.md)
+### [$.normalize( el, depth? ): Element](docs/$.normalize.md)
 
 对元素 `el` 的内容执行规范化（normalize），即合并内容中的相邻文本节点。
 
 - `el: Element` 执行操作的容器元素。
-- `level?: Number` 影响的子元素层级告知，可选。这是一个特别参数，由用户传递。
+- `depth?: Number` 影响的子元素深度告知，可选。这是一个特别参数，由用户传递。
 
-这是元素原生同名接口的简单封装，但包含一个用户通告参数 `level`，用于指明 `normalize` 操作会影响的子元素层级。返回 `level` 值或操作的目标元素 `el`。
+这是元素原生同名接口的简单封装，但包含一个用户通告参数 `depth`，用于指明 `normalize` 操作会影响的子元素层级。
 
 > **注：**<br>
 > DOM原生的 `.normalize()` 调用会处理目标元素的所有子孙节点，用户没有办法控制节点改变的细节，但该操作实际上修改了DOM节点树。<br>
-> tQuery支持嵌入代理，代理有时候想要知道 `normalize` 影响的大概范围，因此这里设计一个由用户主动告知的渠道（没有其它办法了）。如果您不理解 `level`，简单忽略即可。<br>
+> `depth` 是一个优化设计，由用户主动向可能注册的事件处理器告知，如果您不理解它，简单忽略即可。<br>
 
 
 ### [$.clone( node, event, deep?, eventdeep? ): Node](docs/$.clone.md)
