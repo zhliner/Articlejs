@@ -49,7 +49,7 @@
 
     事件：
     提供10组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类。
-    开启：$.config({tqueryEvent: true});
+    开启：$.config({varyevent: true});
 
     - attrvary/attrfail/attrdone    // 特性设置/出错/完成
     - propvary/propfail/propdone    // 属性设置/出错/完成
@@ -101,15 +101,16 @@
 
         isArr = Array.isArray,
 
-        // 转为数组。
-        // 无条件转换，仅用于DOM原生元素集类。
-        // @param {LikeArray|null} its
+        // 转换为数组。
+        // 无条件转换，应当仅用于DOM原生元素集类。
         Arr = its => Array.from(its || ''),
 
-        // 类数组检测转换。
-        // 如果原参数为数组，直接返回。类数组才会转换。
-        // @param {Array|LikeArray|...} its
-        $A = its => isArr(its) ? its : arrLike(its) && Array.from(its),
+        // 数组的检测转换。
+        // 如果原参数为数组，直接返回。
+        // 节点会被封装为数组，其它执行from转换。
+        // @param  {Array|Node|.values} its
+        // @return {Array}
+        $A = its => isArr(its) ? its : its.nodeType && [its] || Array.from(its),
 
         // 单一目标。
         // slr: 包含前置#字符。
@@ -313,10 +314,6 @@
 
 
     const
-        Config  = {
-            tqueryEvent: false, // 启用DOM节点变化事件
-        },
-
         version = 'tQuery-0.4.0',
 
         // 临时属性名
@@ -385,7 +382,13 @@
             // 'scroll',  // 定制
             'select',
             'submit',
-        ];
+        ],
+
+        //
+        // 功能配置集。
+        // 注：目前仅支持节点变化事件。
+        //
+        Options  = { varyevent: false };
 
 
 
@@ -510,9 +513,9 @@ function tQuery( its, ctx ) {
 
 //
 // 功能配置。
-// 目前仅支持 tqueryEvent:{Boolean}
+// 目前仅支持 varyevent:{Boolean}
 //
-tQuery.config = option => Object.assign( Config, option );
+tQuery.config = option => Object.assign( Options, option );
 
 
 //
@@ -656,10 +659,8 @@ Object.assign( tQuery, {
      * @return {DocumentFragment} 文档片段
      */
     create( html, clean, doc = Doc ) {
-        if (typeof html != 'string') {
-            return null;
-        }
-        return buildFragment( html, doc, clean );
+        return typeof html == 'string' ?
+            buildFragment( html, doc, clean ) : null;
     },
 
 
@@ -1400,13 +1401,12 @@ Object.assign( tQuery, {
         if (el.nodeType != 1) {
             throw new Error('el must be a Element');
         }
-        let _cons = Arr(el.childNodes);
-
-        el.parentNode.replaceChild(
-            fragmentNodes(_cons, null, el.ownerDocument),
-            el
-        );
-        return _cons.filter( masterNode );
+        return varyNodes(
+            el,
+            'replaceWith',
+            varyEmpty(el)
+        )
+        .filter( masterNode );
     },
 
 
@@ -1473,19 +1473,19 @@ Object.assign( tQuery, {
      * - event/deep/eventdeep参数仅适用于元素节点。
      * - 元素节点默认深层克隆（包含子节点一起）。
      * - 事件处理器也可以克隆，并且可以包含子孙元素的绑定。
-     * @param  {Node} el 目标节点/元素
+     * @param  {Node} node 目标节点/元素
      * @param  {Boolean} event 是否克隆事件处理器
      * @param  {Boolean} deep 节点深层克隆，可选。默认为真
      * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素），可选
      * @return {Node} 克隆的新节点/元素
      */
-    clone( el, event, deep = true, eventdeep = false ) {
-        let _new = el.cloneNode(deep);
+    clone( node, event, deep = true, eventdeep = false ) {
+        let _new = node.cloneNode(deep);
 
-        if (el.nodeType != 1) {
+        if (node.nodeType != 1) {
             return _new;
         }
-        return event || eventdeep ? _cloneEvents(el, _new, event, eventdeep) : _new;
+        return event || eventdeep ? _cloneEvents(node, _new, event, eventdeep) : _new;
     },
 
 
@@ -1874,7 +1874,7 @@ Object.assign( tQuery, {
         }
         return Insert(
             el,
-            buildFragment( code, el.ownerDocument ),
+            buildFragment(code, el.ownerDocument),
             Wheres[where]
         );
     },
@@ -2003,7 +2003,7 @@ Object.assign( tQuery, {
     offset( el, pair ) {
         let _cur = getOffset(el);
 
-        if (! pair) {
+        if ( !pair ) {
             return pair === null && clearOffset(el) || _cur;
         }
         if ( isFunc(pair) ) {
@@ -2194,8 +2194,6 @@ Reflect.defineProperty(tQuery, 'version', {
 // 表格成员（如行/列）的简单添加或删除等。
 // 仅适用规范行列的表格，不支持单元格合并/拆分。
 // 不涉及内容操作，需由外部获取内容元素（如单元格）后自行设置。
-// 代理：
-// 通过静态方法Table.proxyGetter()嵌入实例的Get代理。
 //
 class Table {
     /**
@@ -2221,9 +2219,6 @@ class Table {
         this._tbl = _tbl;
         this._vth = vth || null;
         this._cols = cols;
-
-        // 可能嵌入代理。
-        if (__tableGetter) return this._proxyGet(__tableGetter);
     }
 
 
@@ -2745,38 +2740,7 @@ class Table {
         return _row;
     }
 
-
-    /**
-     * 创建表格实例Get代理。
-     * getter: function(meth, origin): Function | null
-     * - meth 为目标方法名
-     * - origin 为原始 Table 实例对象。
-     * 返回值：返回null时，自动返回原始方法。
-     *
-     * @param  {Function} getter 成员方法获取器
-     * @return {Proxy} 当前表格对象的代理
-     */
-    _proxyGet( getter ) {
-        let get = (target, fn, rec) =>
-            getter(fn, target) || Reflect.get(target, fn, rec);
-
-        return new Proxy( this, { get } );
-    }
-
 }
-
-
-//
-// Table实例Get代理。
-//
-let __tableGetter;
-
-//
-// 设置Get代理函数。
-// getter: function(meth, origin): Function | null
-// 作用于全局的 new Table(...)
-//
-Table.proxyGetter = getter => __tableGetter = isFunc(getter) && getter;
 
 
 //
@@ -2784,7 +2748,7 @@ Table.proxyGetter = getter => __tableGetter = isFunc(getter) && getter;
 // 传入的tbl实参必须是一个表格元素且至少包含一行。
 // @param  {Table} self 一个空实例
 // @param  {Element} tbl 表格元素
-// @return {Table|Proxy}
+// @return {Table}
 //
 Table._build = function( self, tbl ) {
     if ( tbl.rows.length == 0 ) {
@@ -2794,7 +2758,7 @@ Table._build = function( self, tbl ) {
     self._vth = whereVth( tbl.tBodies[0].rows[0] || tbl.tFoot.rows[0] );
     self._tbl = tbl;
 
-    return __tableGetter ? self._proxyGet(__tableGetter) : self;
+    return self;
 }
 
 
@@ -2819,14 +2783,15 @@ tQuery.Table = Table;
 .forEach(function( name ) {
     /**
      * 在元素的相应位置添加节点（集）。
-     * - 数据源为节点或节点集，不支持html字符串。
-     * - 仅元素适用于事件克隆（event参数）。
+     * - 数据源仅支持节点（集），不支持html字符串。
+     * - 仅元素适用于事件克隆（event系列）。
+     * - 数据集成员容错假值忽略。
      * 取值回调：
      * - 取值函数接受原节点作为参数。
-     * - 取值函数可返回节点或节点集（含 Collector），不支持字符串。
+     * - 取值函数可返回节点或任意类型节点集（不能是字符串）。
      *
      * @param  {Node} el 目标元素或文本节点
-     * @param  {Node|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
+     * @param  {Node|DocumentFragment|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆事件处理器（容器）
      * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
@@ -2838,11 +2803,10 @@ tQuery.Table = Table;
         if (!_validMeth(el, _meth)) {
             throw new Error(`${name} method is invalid.`);
         }
-        return Insert(
-            el,
-            domManip( el, cons, clone, event, eventdeep ),
-            _meth
-        );
+        if ( isFunc(cons) ) {
+            cons = cons(el);
+        }
+        return Insert( el, clone ? nodesClone(cons, event, eventdeep) : nodesItem(cons), _meth );
     };
 });
 
@@ -2897,6 +2861,7 @@ function _validMeth( node, meth ) {
         _elemRectSet(el, _n, val);
 
         if (!val && el.style.cssText.trim() == '') {
+            // 内部清理，不激发事件。
             el.removeAttribute('style');
         }
         return this;
@@ -3180,9 +3145,10 @@ function _cloneEvents( src, to, top, deep ) {
     }
     let _to = $tag('*', to);
 
-    Arr($tag('*', src)).
-    forEach( (el, i) => Event.clone(_to[i], el) );
-
+    Arr( $tag('*', src) )
+        .forEach(
+            (e, i) => Event.clone( _to[i], e )
+        );
     return to;
 }
 
@@ -3195,17 +3161,13 @@ function _cloneEvents( src, to, top, deep ) {
 class Collector extends Array {
     /**
      * 构造收集器实例。
-     * 注：无效的参数会构造为一个空集。
-     * @param {Element|NodeList|Array|0} obj 元素（集）
+     * @param {Node|NodeList|Array|Window|Value} obj 节点或值（集）
      * @param {Collector} prev 前一个实例引用
      */
     constructor( obj, prev ) {
         super();
         // window.console.info(obj);
-
-        this.push(
-            ...( arrayArgs(obj) || [obj] )
-        );
+        this.push(...arrayArgs(obj));
         this.previous = prev || null;
     }
 
@@ -3812,7 +3774,6 @@ elsExfn([
     ],
     fn =>
     function(...rest) {
-        // 可代理调用 $
         return this.map( el => $[fn](el, ...rest) );
     }
 );
@@ -3838,7 +3799,6 @@ elsExfn([
     ].concat(callableEvents),
     fn =>
     function(...rest) {
-        // 可代理调用 $
         for ( let el of this ) $[fn]( el, ...rest );
         return this;
     }
@@ -3858,8 +3818,8 @@ elsExfn([
     fn =>
     function( names ) {
         let _ia = isArr(names);
-        // 可代理调用 $
-        // 未定义值自然忽略或有其含义（removeClass）。
+        // undefined成员自然忽略，
+        // removeClass中undefined含义正确。
         this.forEach(
             (el, i) => $[fn](el, _ia ? names[i] : names)
         );
@@ -3885,7 +3845,6 @@ elsExfn([
         'cssSets',  // css增强版（仅设置）
     ],
     fn =>
-    // 可代理调用 $
     function( name, value ) {
         let _nia = isArr(name);
 
@@ -3966,7 +3925,6 @@ elsExfn([
     ],
     fn =>
     function( val ) {
-        // 可代理调用 $
         if (val === undefined) {
             return this.map( el => $[fn](el) );
         }
@@ -4046,7 +4004,6 @@ elsExfn([
     ],
     /**
      * 集合版节点内容插入。
-     * 注：可代理调用 $。
      * @param  {Node|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆事件处理器（容器）
@@ -4137,9 +4094,9 @@ function _conInsert( fn, els, con, clone, event, eventdeep ) {
          * @return {Collector} 目标参考节点的Collector实例
          */
         value: function( to, clone, event, eventdeep ) {
-            // 可代理调用 $
-            let _ret = $[ names[1] ]( to, this, clone, event, eventdeep );
-
+            let _ret = $[ names[1] ](
+                    to, this, clone, event, eventdeep
+                );
             return new Collector(
                     to,
                     // 克隆时会嵌入一个新节点集
@@ -4340,22 +4297,6 @@ function isFunc( obj ) {
 
 
 /**
- * 类数组检测（简单）。
- * - 只要length为数值，且非零值存在序列即可；
- * 注：字符串也被视为类数组。
- * @param  {Mixed} obj 检查目标
- * @return {Boolean}
- */
-function arrLike( obj ) {
-    let _len = !!obj && obj.length;
-
-    return _len === 0 || typeof _len == 'number' &&
-        // Object封装兼容字符串
-        (_len - 1) in Object( obj );
-}
-
-
-/**
  * 数组扁平化（1层深）。
  * @param  {Array} arr 数组数据
  * @return {Array}
@@ -4415,18 +4356,17 @@ function isCollector( obj ) {
 /**
  * 构造Collector成员实参。
  * - 用于基类构造后添加初始成员。
- * - 返回false表示参数不合法。
- * @param  {Element|Iterator|Array|LikeArray|.values} obj 目标对象
- * @return {Iterator|[Value]|false} 可迭器或数组
+ * @param  {Element|Iterator|Array|Window|Document} obj 目标对象
+ * @return {Iterator|[Value]} 可迭器或数组
  */
 function arrayArgs( obj ) {
-    if (!obj || isWindow(obj) || obj.nodeType) {
-        return obj == null ? [] : [obj];
+    if ( obj == null ) {
+        return [];
     }
-    if (obj[Symbol.iterator]) {
-        return obj;
+    if ( isWindow(obj) || obj.nodeType) {
+        return [obj];
     }
-    return isFunc(obj.values) ? obj.values() : $A(obj);
+    return obj[Symbol.iterator] ? obj : [obj];
 }
 
 
@@ -4492,9 +4432,8 @@ function charLenStep( ch, beg ) {
 
 
 /**
- * 获取键值对迭代器（通用版）。
- * 注：扩展到数组/类数组对象。
- * @param  {Array|LikeArray|Object|.entries} obj 迭代目标
+ * 获取键值对迭代器。
+ * @param  {Array|.entries|Object} obj 迭代目标
  * @return {Iterator|[Array2]} 迭代器
  */
 function entries( obj ) {
@@ -4502,7 +4441,7 @@ function entries( obj ) {
         return obj.entries();
     }
     let _arr = $A(obj);
-    return _arr && _arr.entries() || Object.entries(obj);
+    return _arr.length > 0 ? _arr.entries() : Object.entries(obj);
 }
 
 
@@ -4517,8 +4456,8 @@ const entries2 = obj =>
 
 /**
  * 获取值迭代器。
- * - 扩展适用类数组和普通对象；
- * @param  {Array|LikeArray|Object|.values} obj 迭代目标
+ * - 扩展适用类数组和普通对象。
+ * @param  {Array|.values|Object} obj 迭代目标
  * @return {Iterator} 迭代器
  */
 function values( obj ) {
@@ -4526,7 +4465,7 @@ function values( obj ) {
         return obj.values();
     }
     let _arr = $A(obj);
-    return _arr && _arr.values() || Object.values(obj);
+    return _arr.length > 0 ? _arr.values() : Object.values(obj);
 }
 
 
@@ -4664,17 +4603,22 @@ function whereVth( tr ) {
 
 /**
  * 获取表格行适当容器。
- * 用于<tr>直接插入<table>的情况变通。
- * 若容器不是表格则简单返回。
- * @param  {Element} box 原容器元素
- * @param  {Element} sub 内容子元素
- * @return {Element} 合适的容器元素
+ * 用于<tr>直接插入到<table>时获取正确的容器。
+ * - 若容器不是表格则简单返回容器。
+ * - 若容器合法但内容不是<tr>元素，返回null。
+ * - 兼容内容是包含<tr>的文档片段。
+ * 注：
+ * 不检查表格行插入到非表格元素时的情况。
+ *
+ * @param  {Element} box 容器元素
+ * @param  {Node|[Node]} sub 内容节点（集）
+ * @return {Element|null} 合适的容器元素
  */
 function trContainer( box, sub ) {
     if ( !box.tBodies ) return box;
 
-    if ( sub.nodeType == 11 ) {
-        sub = sub.firstElementChild;
+    if ( isArr(sub) ) {
+        sub = sub[0];
     }
     return sub.cells ? box.tBodies[0] : null;
 }
@@ -4856,24 +4800,6 @@ function deepChild( el ) {
 
 
 /**
- * 删除节点元素。
- * @param {Node} node 目标节点
- * @param {Boolean} deleted 彻底删除
- */
-function remove( node, deleted ) {
-    let _box = node && node.parentNode;
-
-    if (!_box || node.nodeType > 8) {
-        return node;
-    }
-    if ( !deleted ) {
-        return _box.removeChild(node);
-    }
-    _box.removeChild(node);
-}
-
-
-/**
  * 内容包裹。
  * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数。
  * - 包裹采用结构字符串时，会递进至首个最深层的子元素为容器。
@@ -5011,16 +4937,11 @@ function submitValue( ctrl, value ) {
  * @return {[Array2]}
  */
 function mapArr2( arr, callback ) {
-    let _tmp = [];
-
-    for ( let it of arr ) {
-        let _v = callback(it);
-        if (_v != null) _tmp.push(_v);
-    }
-    return _tmp.reduce(
-        (buf, its) => isArr(its[0]) ? buf.concat(its) : (buf.push(its), buf),
-        []
-    );
+    return cleanMap(arr, callback)
+        .reduce(
+            (buf, its) => isArr(its[0]) ? buf.concat(its) : (buf.push(its), buf),
+            []
+        );
 }
 
 
@@ -5438,121 +5359,82 @@ function htmlText( code ) {
 
 
 /**
- * 通用节点/文档片段插入。
- * - 返回实际插入内容（节点集）的引用或null。
- * - 参考节点ref一般在文档树（DOM）内。
- * @param {Node} ref 参考节点
- * @param {Node|DocumentFragment} data 节点或文档片段
- * @param {String|Number} where 插入位置
- * @return {Node|[Node]|null} 内容元素（集）
+ * 克隆节点（集）。
+ * 节点集成员支持假值忽略。
+ * @param  {Node|[Node]} cons 节点（集）
+ * @param  {Boolean} event 事件克隆
+ * @param  {Boolean} eventdeep 事件深层克隆
+ * @return {Node|[Node]}
  */
-function Insert( ref, data, where ) {
-    let _call = insertHandles[where],
-        _ret = data;
-
-    if ( !_call ) {
-        throw new Error(`[${where}] is invalid method.`);
+function nodesClone( cons, event, eventdeep ) {
+    if ( cons.nodeType ) {
+        return $.clone(cons, event, true, eventdeep);
     }
-    if ( data.nodeType == 11 ) {
-        _ret = Arr( data.childNodes );
-    }
-
-    return _call(data, ref, ref.parentNode) && _ret;
-}
-
-
-//
-// 6种插入方式。
-// @param {Node|Element|DocumentFragment} node 待插入内容。
-// @param {Node|Element} 目标节点/元素
-// @param {Element} pel 目标节点的父元素
-//
-const insertHandles = {
-    // fill
-    '': ( node, ref /*, pel*/) => (ref.textContent = '') || ref.appendChild(node),
-
-    // replace
-    '0': ( node, ref, pel ) => pel && pel.replaceChild(node, ref),
-
-    // before
-    '1': ( node, ref, pel ) => pel && pel.insertBefore(node, ref),
-
-    // after
-    '-1': ( node, ref, pel ) => pel && pel.insertBefore(node, ref.nextSibling),
-
-    // end/append
-    // 非法结构trContainer返回null，自动异常。
-    '-2': ( node, ref, pel, _pos = null ) => trContainer(ref, node).insertBefore(node, _pos),
-
-    // begin/prepend
-    '2': ( node, ref, pel ) => insertHandles['-2'](node, ref, pel, ref.firstChild),
-};
-
-
-/**
- * DOM 通用操作。
- * - 取参数序列构造文档片段，向回调传递（node, Fragment）。
- * - 回调完成各种逻辑的插入行为（append，after...）。
- * - 参数序列可以是一个取值函数，参数为目标元素。
- * 注：
- * - args也可以是一个可迭代的节点序列，如：
- *   NodeList，HTMLCollection，Array，Collector 等。
- *
- * - 取值回调可返回节点或节点集，但不能再是函数。
- *
- * @param  {Node} node 目标节点（元素或文本节点）
- * @param  {Node|NodeList|Collector|Function|Set|Iterator} cons 内容
- * @param  {Boolean} clone 是否克隆
- * @param  {Boolean} event 是否克隆事件处理器（容器）
- * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
- * @return {Node|DocumentFragment} 节点或文档片段
- */
-function domManip( node, cons, clone, event, eventdeep ) {
-    if ( isFunc(cons) ) {
-        cons = cons(node);
-    }
-    // 支持克隆的代理嵌入（$），
-    // 因为克隆是由用户参数明确指定的。
-    if (cons.nodeType) {
-        return clone ? $.clone(cons, event, true, eventdeep) : cons;
-    }
-    return fragmentNodes(
+    return cleanMap(
         cons,
-        nd => clone ? $.clone(nd, event, true, eventdeep) : nd,
-        node.ownerDocument
+        nd => nd && $.clone(nd, event, true, eventdeep) || null
     );
 }
 
 
 /**
- * 节点集构造文档片段。
- * 接受元素/文本&注释节点/文档片段数据（兼容空串）。
- * 注记：
- * 因存在节点移出可能，不可用for/of原生迭代（影响迭代次数）。
- *
- * @param  {NodeList|Set|Iterator} nodes 节点集/迭代器
- * @param  {Function} get 取值回调，可选
- * @param  {Document} doc 文档对象
- * @return {DocumentFragment}
+ * 提取节点/节点集。
+ * 注：处理多种集合类型。
+ * @param  {Node|DocumentFragment|[Node]|Set|Iterator}} cons 节点或节点集
+ * @return {Node|[Node]} 节点或节点数组
  */
-function fragmentNodes( nodes, get, doc ) {
-    // ...Set。
-    nodes = $A(nodes) || [...nodes];
-
-    let _all = doc.createDocumentFragment();
-
-    for ( let nd of nodes ) {
-        if ( !nd ) {
-            continue;
-        }
-        nd = get ? get(nd) : nd;
-
-        if ( usualNode(nd) || nd.nodeType == 11 ) {
-            _all.appendChild(nd);
-        }
+function nodesItem( cons ) {
+    if ( cons.nodeType == 11 ) {
+        return Arr( cons.childNodes );
     }
-    return _all;
+    return cons.nodeType ? cons : $A( cons );
 }
+
+
+/**
+ * 通用节点（集）插入。
+ * - 返回实际插入的节点（集）。
+ * @param  {Node} node 目标节点
+ * @param  {Node|[Node]} data 节点（集）
+ * @param  {String|Number} where 插入位置
+ * @return {Node|[Node]} 内容节点（集）
+ */
+function Insert( node, data, where ) {
+    let _fun = insertHandles[where];
+
+    if ( !_fun ) {
+        throw new Error(`[${where}] is invalid method.`);
+    }
+    return _fun( node, data );
+}
+
+
+//
+// 6种插入方式。
+// @param  {Node|Element} node 目标节点。
+// @param  {[Node|Element]} data 节点集
+// @return {void}
+//
+const insertHandles = {
+    // fill
+    '': varyFill,
+
+    // replace
+    '0': (node, data) => varyNodes( node, 'replaceWith', data ),
+
+    // before
+    '1': (node, data) => varyNodes( node, 'before', data ),
+
+    // after
+    '-1': (node, data) => varyNodes( node, 'after', data ),
+
+    // append
+    // 表格容器非法内容时返回null（会自动异常）。
+    '-2': (node, data) => varyNodes( trContainer(node, data), 'append', data ),
+
+    // prepend
+    '2': (node, data) => varyNodes( trContainer(node, data), 'prepend', data )
+};
 
 
 /**
@@ -5570,17 +5452,12 @@ function buildFragment( html, doc, clean ) {
         clean = cleanFragment
     }
     let _tpl = doc.createElement("template");
-    try {
-        _tpl.innerHTML = html;
-    }
-    catch (err) {
-        window.console.error(err);
-        return null;
-    }
-    if (ihtml.test(html) && isFunc(clean)) {
+    _tpl.innerHTML = html;
+
+    if ( ihtml.test(html) && isFunc(clean) ) {
         clean(_tpl.content);
     }
-    return doc.adoptNode(_tpl.content);
+    return doc.adoptNode( _tpl.content );
 }
 
 
@@ -5602,7 +5479,7 @@ function cleanFragment( frg ) {
 
     if (_els.length) {
         for (const el of _els) {
-            remove( el );
+            el.remove();
         }
         window.console.warn('html-code contains forbidden tag! removed.');
     }
@@ -5614,6 +5491,24 @@ function cleanFragment( frg ) {
         }
         window.console.warn('html-code contains forbidden attribute! removed.');
     }
+}
+
+
+/**
+ * 带清理的map处理。
+ * 回调返回的 null|undefined 会被忽略。
+ * @param  {[Value]|Iterator}} list 值集
+ * @param  {Function} handle 处理器回调
+ * @return {[Value]}
+ */
+function cleanMap( list, handle ) {
+    let _buf = [];
+
+    for (const [k, v] of list) {
+        let _v = handle(v, k);
+        if ( _v != null ) _buf.push( _v );
+    }
+    return _buf;
 }
 
 
@@ -5653,7 +5548,7 @@ const
  * @return {Boolean} 是否已发送消息
  */
 function limitTrigger( el, evn, data ) {
-    return Config.tqueryEvent && el.dispatchEvent(
+    return Options.varyevent && el.dispatchEvent(
         new CustomEvent( evn, {detail: data, bubbles: true, cancelable: false} )
     );
 }
@@ -5668,7 +5563,7 @@ function limitTrigger( el, evn, data ) {
  * @return {void}
  */
 function failTrigger( el, evn, data ) {
-    if ( !Config.tqueryEvent ) {
+    if ( !Options.varyevent ) {
         throw data[0];
     }
     el.dispatchEvent(
@@ -5842,12 +5737,58 @@ function toggleClassAttr( el, val, old ) {
 }
 
 
-function varyAppend( el, nodes ) {
+/**
+ * 节点（集）的通用插入方法。
+ * meth: append|prepend|before|after|replaceWith
+ * @param  {Element} el 目标元素
+ * @param  {String} meth 插入方法
+ * @param  {Node|[Node]} nodes 数据节点（集）
+ * @return {Node|[Node]} nodes
+ */
+function varyNodes( el, meth, nodes ) {
+    let _val = {
+            // replaceWidth => replace
+            type: meth.substring(0, 7),
+            data: nodes,
+        };
 
-    limitTrigger( el, evnNodeVary, {
-        type: op,
+    limitTrigger( el, evnNodeVary, _val );
+    try {
+        el[meth]( ...detachNodes(nodes) );
+    }
+    catch(e) {
+        return failTrigger( el, evnNodeFail, [e, _val])
+    }
+    limitTrigger( el, evnNodeDone, _val );
+
+    return nodes;
+}
+
+
+/**
+ * 元素填充。
+ * 注：先清空（varyEmpty）然后插入。
+ * @param  {Element} el 目标元素
+ * @param  {Node|[Node]} nodes 数据节点（集）
+ * @return {Node|[Node]} nodes
+ */
+function varyFill( el, nodes ) {
+    let _val = {
+        type: 'fill',
         data: nodes,
-    } );
+    };
+
+    limitTrigger( el, evnNodeVary, _val );
+    try {
+        varyEmpty( el );
+        el.append( ...detachNodes(nodes) );
+    }
+    catch(e) {
+        return failTrigger( el, evnNodeFail, [e, _val])
+    }
+    limitTrigger( el, evnNodeDone, _val );
+
+    return nodes;
 }
 
 
@@ -5867,7 +5808,7 @@ function varyRemove( node, box ) {
             data: node
         };
         limitTrigger( box, evnNodeVary, _val );
-        node.remove();
+        box.removeChild(node);
         limitTrigger( box, evnNodeDone, _val );
     }
     return node;
@@ -5914,6 +5855,22 @@ function varyNormalize( el, depth ) {
     limitTrigger( el, evnNodeDone, _val );
 
     return el;
+}
+
+
+/**
+ * 让节点集脱离父元素。
+ * @param  {Node|[Node]} nodes 节点（集）
+ * @return {[Node]} 节点集
+ */
+function detachNodes( nodes ) {
+    if ( nodes.nodeType ) {
+        nodes = [nodes];
+    }
+    for (const nd of nodes) {
+        varyRemove( nd, nd.parentElement );
+    }
+    return nodes;
 }
 
 
@@ -7206,16 +7163,10 @@ Object.assign( tQuery, {
      * @return {[Value]}
      */
     map( iter, fun, thisObj ) {
-        if ( thisObj !== undefined ) {
-            fun = fun.bind(thisObj);
-        }
-        let _tmp = [];
-
-        for ( let [k, v] of entries(iter) ) {
-            v = fun(v, k);
-            if ( v != null ) _tmp.push(v);
-        }
-        return _tmp;
+        return cleanMap(
+            entries(iter),
+            thisObj === undefined ? fun : fun.bind(thisObj)
+        );
     },
 
 

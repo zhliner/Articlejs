@@ -235,39 +235,39 @@
                     <p>只能被包含在内容元素里的元素。即通常所说的内联（<code>inline</code>）元素，其中既有可以包含文本和其它内联元素的内容元素，也有作为内容本身的内容实体元素（如 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等）。</p>
                     <p>行内单元不是独立的<strong>内容块</strong>，也不是<strong>内容件</strong>，它们不能单独出现在章节片区（<code>&lt;section&gt;</code>）里，必须被内容行（譬如 <code>&lt;p&gt;</code>）封装才行。</p>
                     <pre>
-<code data-lang="html">&lt;audio&gt;&lt;/audio&gt;             <b role="cmt">&lt;!-- 音频：/track,source, #text --&gt;</b>
-&lt;video&gt;&lt;/video&gt;             <b role="cmt">&lt;!-- 视频：/track,source, #text --&gt;</b>
-&lt;picture&gt;&lt;/picture&gt;         <b role="cmt">&lt;!-- 图片：/source,img --&gt;</b>
-&lt;a&gt;&lt;/a&gt;                     <b role="cmt">&lt;!-- 链接 --&gt;</b>
-&lt;strong&gt;&lt;/strong&gt;           <b role="cmt">&lt;!-- 重点 --&gt;</b>
-&lt;em&gt;&lt;/em&gt;                   <b role="cmt">&lt;!-- 强调 --&gt;</b>
-&lt;q&gt;&lt;/q&gt;                     <b role="cmt">&lt;!-- 短引用 --&gt;</b>
-&lt;abbr&gt;&lt;/abbr&gt;               <b role="cmt">&lt;!-- 缩写 --&gt;</b>
-&lt;cite&gt;&lt;/cite&gt;               <b role="cmt">&lt;!-- 来源 --&gt;</b>
-&lt;small&gt;&lt;/small&gt;             <b role="cmt">&lt;!-- 注脚 --&gt;</b>
-&lt;time&gt;&lt;/time&gt;               <b role="cmt">&lt;!-- 时间 --&gt;</b>
-&lt;del&gt;&lt;/del&gt;                 <b role="cmt">&lt;!-- 删除 --&gt;</b>
-&lt;ins&gt;&lt;/ins&gt;                 <b role="cmt">&lt;!-- 插入 --&gt;</b>
-&lt;sub&gt;&lt;/sub&gt;                 <b role="cmt">&lt;!-- 下标 --&gt;</b>
-&lt;sup&gt;&lt;/sup&gt;                 <b role="cmt">&lt;!-- 上标 --&gt;</b>
-&lt;mark&gt;&lt;/mark&gt;               <b role="cmt">&lt;!-- 标记 --&gt;</b>
-&lt;code&gt;&lt;/code&gt;               <b role="cmt">&lt;!-- 代码 --&gt;</b>
-&lt;code role="orz"&gt;&lt;/code&gt;    <b role="cmt">&lt;!-- 表情 --&gt;</b>
-&lt;ruby&gt;&lt;/ruby&gt;               <b role="cmt">&lt;!-- 注音：/rb,rp,rt --&gt;</b>
-&lt;dfn&gt;&lt;/dfn&gt;                 <b role="cmt">&lt;!-- 定义 --&gt;</b>
-&lt;samp&gt;&lt;/samp&gt;               <b role="cmt">&lt;!-- 样本 --&gt;</b>
-&lt;kbd&gt;&lt;/kbd&gt;                 <b role="cmt">&lt;!-- 键盘字 --&gt;</b>
-&lt;s&gt;&lt;/s&gt;                     <b role="cmt">&lt;!-- 失效 --&gt;</b>
-&lt;u&gt;&lt;/u&gt;                     <b role="cmt">&lt;!-- 注记 --&gt;</b>
-&lt;var&gt;&lt;/var&gt;                 <b role="cmt">&lt;!-- 变量 --&gt;</b>
-&lt;bdo&gt;&lt;/bdo&gt;                 <b role="cmt">&lt;!-- 文本方向 --&gt;</b>
-&lt;meter&gt;&lt;/meter&gt;             <b role="cmt">&lt;!-- 度量 --&gt;</b>
-&lt;b&gt;&lt;/b&gt;                     <b role="cmt">&lt;!-- 粗体：主要用于代码块内的关键字包裹 --&gt;</b>
-&lt;i&gt;&lt;/i&gt;                     <b role="cmt">&lt;!-- 斜体：主要用于图标占位（icon） --&gt;</b>
-&lt;img /&gt;                     <b role="cmt">&lt;!-- 图片 --&gt;</b>
-&lt;br /&gt;                      <b role="cmt">&lt;!-- 换行 --&gt;</b>
-&lt;wbr /&gt;                     <b role="cmt">&lt;!-- 软换行 --&gt;</b>
-&lt;span role="blank"&gt;&lt;/i&gt;     <b role="cmt">&lt;!-- 空白段：用于交互展示 --&gt;</b>
+<code data-lang="html">&lt;audio&gt;&lt;/audio&gt;                 <b role="cmt">&lt;!-- 音频：/track,source, #text --&gt;</b>
+&lt;video&gt;&lt;/video&gt;                 <b role="cmt">&lt;!-- 视频：/track,source, #text --&gt;</b>
+&lt;picture&gt;&lt;/picture&gt;             <b role="cmt">&lt;!-- 图片：/source,img --&gt;</b>
+&lt;a&gt;&lt;/a&gt;                         <b role="cmt">&lt;!-- 链接 --&gt;</b>
+&lt;strong&gt;&lt;/strong&gt;               <b role="cmt">&lt;!-- 重点 --&gt;</b>
+&lt;em&gt;&lt;/em&gt;                       <b role="cmt">&lt;!-- 强调 --&gt;</b>
+&lt;q&gt;&lt;/q&gt;                         <b role="cmt">&lt;!-- 短引用 --&gt;</b>
+&lt;abbr&gt;&lt;/abbr&gt;                   <b role="cmt">&lt;!-- 缩写 --&gt;</b>
+&lt;cite&gt;&lt;/cite&gt;                   <b role="cmt">&lt;!-- 来源 --&gt;</b>
+&lt;small&gt;&lt;/small&gt;                 <b role="cmt">&lt;!-- 注脚 --&gt;</b>
+&lt;time&gt;&lt;/time&gt;                   <b role="cmt">&lt;!-- 时间 --&gt;</b>
+&lt;del&gt;&lt;/del&gt;                     <b role="cmt">&lt;!-- 删除 --&gt;</b>
+&lt;ins&gt;&lt;/ins&gt;                     <b role="cmt">&lt;!-- 插入 --&gt;</b>
+&lt;sub&gt;&lt;/sub&gt;                     <b role="cmt">&lt;!-- 下标 --&gt;</b>
+&lt;sup&gt;&lt;/sup&gt;                     <b role="cmt">&lt;!-- 上标 --&gt;</b>
+&lt;mark&gt;&lt;/mark&gt;                   <b role="cmt">&lt;!-- 标记 --&gt;</b>
+&lt;code data-lang=".."&gt;&lt;/code&gt;    <b role="cmt">&lt;!-- 代码。可定义语言 --&gt;</b>
+&lt;code role="orz"&gt;&lt;/code&gt;        <b role="cmt">&lt;!-- 表情 --&gt;</b>
+&lt;ruby&gt;&lt;/ruby&gt;                   <b role="cmt">&lt;!-- 注音：/rb,rp,rt --&gt;</b>
+&lt;dfn&gt;&lt;/dfn&gt;                     <b role="cmt">&lt;!-- 定义 --&gt;</b>
+&lt;samp&gt;&lt;/samp&gt;                   <b role="cmt">&lt;!-- 样本 --&gt;</b>
+&lt;kbd&gt;&lt;/kbd&gt;                     <b role="cmt">&lt;!-- 键盘字 --&gt;</b>
+&lt;s&gt;&lt;/s&gt;                         <b role="cmt">&lt;!-- 失效 --&gt;</b>
+&lt;u&gt;&lt;/u&gt;                         <b role="cmt">&lt;!-- 注记 --&gt;</b>
+&lt;var&gt;&lt;/var&gt;                     <b role="cmt">&lt;!-- 变量 --&gt;</b>
+&lt;bdo&gt;&lt;/bdo&gt;                     <b role="cmt">&lt;!-- 文本方向 --&gt;</b>
+&lt;meter&gt;&lt;/meter&gt;                 <b role="cmt">&lt;!-- 度量 --&gt;</b>
+&lt;b&gt;&lt;/b&gt;                         <b role="cmt">&lt;!-- 粗体：主要用于代码块内的关键字包裹 --&gt;</b>
+&lt;i&gt;&lt;/i&gt;                         <b role="cmt">&lt;!-- 斜体：主要用于图标占位（icon） --&gt;</b>
+&lt;img /&gt;                         <b role="cmt">&lt;!-- 图片 --&gt;</b>
+&lt;br /&gt;                          <b role="cmt">&lt;!-- 换行 --&gt;</b>
+&lt;wbr /&gt;                         <b role="cmt">&lt;!-- 软换行 --&gt;</b>
+&lt;span role="blank"&gt;&lt;/i&gt;         <b role="cmt">&lt;!-- 空白段：用于交互展示 --&gt;</b>
 </code></pre>
                 </section>
             </section>
@@ -452,20 +452,24 @@
                     </section>
                     <h4 id="代码表">代码表</h4>
                     <section>
+                        <p>包含一个 <code>data-tab</code> 特性定义制表符（<code>Tab</code>）转换的空格数。这里有两级：根级对应整个代码表的默认值，每一条 <code>&lt;code&gt;</code> 可以定义当前代码行中的配置覆盖（可选）。</p>
                         <pre>
-<code data-lang="html">&lt;ol role="codelist"&gt;
-    &lt;li&gt;&lt;code data-lang="xx"&gt; <b role="cmt">&lt;!-- 根封装 --&gt;</b>
+<code data-lang="html">&lt;ol role="codelist" data-lang="xx" data-tab="4"&gt;
+    &lt;li&gt;&lt;code&gt; <b role="cmt">&lt;!-- 根封装 --&gt;</b>
         ...&lt;b&gt;&lt;/b&gt;... <b role="cmt">&lt;!-- 代码内容 --&gt;</b>
     &lt;/code&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;code data-lang="xx"&gt; ... &lt;/code&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;code data-lang="xx" data-tab="2"&gt; <b role="cmt">&lt;!-- data-xx定义覆盖 --&gt;</b>
+        ...
+    &lt;/code&gt;&lt;/li&gt;
 &lt;/ol&gt;
 </code></pre>
                     </section>
                     <h4 id="代码块">代码块</h4>
                     <section>
                         <pre>
-<code data-lang="html">&lt;pre role="codeblock"&gt;<b role="cmt">&lt;!-- 容许简单换行 --&gt;</b>
-&lt;code data-lang="xx"&gt; ...&lt;b&gt;&lt;/b&gt;...
+<code data-lang="html">&lt;pre role="codeblock" data-lang="xx" data-tab="4"&gt;<b role="cmt">&lt;!-- 容许简单换行 --&gt;</b>
+&lt;code&gt; ...&lt;b&gt;&lt;/b&gt;...
+<b role="cmt">&lt;!-- Tab符被自动转换为空格（如果配值非零） --&gt;</b>
 &lt;/code&gt;&lt;pre&gt; <b role="cmt">&lt;!-- 末尾应当紧跟 --&gt;</b>
 </code></pre>
                     </section>
