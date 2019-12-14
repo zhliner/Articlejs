@@ -59,11 +59,9 @@
     - nodevary/nodefail/nodedone
     // 节点设置/出错/完成
     // type: [
-    //      append, prepend, fill, before, after, replace,
-    //      empty, remove, normalize,
-    //      wrap, wrapinner, wrapall, unwrap,
-    //      html, text
+    //      append, prepend, before, after, replace, empty, remove, normalize
     // ]
+    // 复合操作：fill, wrap, wrapinner, wrapall, unwrap, html, text
 
     注记：取消嵌入代理设计。
 
@@ -1279,38 +1277,37 @@ Object.assign( tQuery, {
     /**
      * 外层包裹。
      * - 在目标节点外包一层元素（容器）。
-     * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数。
-     * - 取值函数：function([Node]): Element|string
+     * - 包裹容器可以是一个现有的元素或HTML结构字符串或取值函数。
+     * - 取值函数：function(node): Element|string
      * - 包裹采用结构字符串时，会递进至最深层子元素为容器。
      * - 被包裹的内容插入到容器元素的前端（与jQuery不同）。
-     * - 克隆参数部分不作用于取值函数返回的元素。
+     * 注记：
+     * 插入到容器内前端有更好的可用性（可变CSS选择器）。
      *
-     * @param  {Node|[Node]|String} node 目标节点（集）或文本
+     * @param  {Node|String} node 目标节点或文本
      * @param  {HTML|Element|Function} box 包裹容器
      * @param  {Boolean} clone 包裹元素是否克隆
      * @param  {Boolean} event 包裹元素上注册的事件处理器是否克隆
      * @param  {Boolean} eventdeep 包裹元素子孙元素上注册的事件处理器是否克隆
-     * @return {Element} 包裹的容器元素
+     * @return {Element} 包裹的容器根元素
      */
-    wrap( node, box, clone, event, eventdeep ) {
-        if ( clone ) {
-            box = tQuery.clone(box, event, true, eventdeep);
+    wrap( node, box, clone, event, eventdeep, doc = Doc ) {
+        if ( typeof node === 'string' ) {
+            node = doc.createTextNode(node);
         }
-        let _rep = node;
+        if ( isFunc(box) ) {
+            box = box( node );
+        }
+        let [_box, _root] = wrapBox(box, clone, event, eventdeep, doc);
 
-        if ( isArr(node) ) {
-            _rep = node[0];
-        } else {
-            node = [node];
-        }
-        return wrapData(_rep, _rep.parentElement, box, node, node.ownerDocument || Doc);
+        return varyWrap( node, _root || _box, _box );
     },
 
 
     /**
      * 内层包裹。
      * - 在目标元素内嵌一层包裹元素（即对内容wrap）。
-     * - 取值函数：function(NodeList): Element|string
+     * - 取值函数：function(el): Element|string
      * @param  {Element} el 目标元素
      * @param  {HTML|Element|Function} box 包裹容器
      * @param  {Boolean} clone 包裹元素是否克隆
@@ -1319,16 +1316,16 @@ Object.assign( tQuery, {
      * @return {Element} 包裹的容器元素
      */
     wrapInner( el, box, clone, event, eventdeep ) {
-        if ( clone ) {
-            box = tQuery.clone(box, event, true, eventdeep);
+        if ( isFunc(box) ) {
+            box = box( el );
         }
-        // 包裹容器可以是子元素。
-        if (box.nodeType && $contains(el, box)) {
-            varyRemove( box, box.parentElement );
-        }
-        let _cons = Arr(el.childNodes);
+        let [_box, _root] = wrapBox(box, clone, event, eventdeep, el.ownerDocument);
 
-        return wrapData(null, el, box, _cons, el.ownerDocument);
+        // 容器可以是子元素。
+        if ( $contains(el, _box) ) {
+            varyRemove(_box, _box.parentElement);
+        }
+        return varyWrapInner( el, _root || _box, _box );
     },
 
 
@@ -3377,32 +3374,29 @@ class Collector extends Array {
 
 
     /**
-     * 用一个容器包裹集合里的全部成员。
-     * - 目标容器可以是一个元素或HTML结构字符串或取值函数。
-     * - 取值函数可以返回一个容器元素或HTML字符串。
-     * - 如果容器元素包含子元素，最终的包裹元素会被递进到首个最深层子元素。
+     * 用一个容器包裹集合里的全部节点。
+     * - 目标容器可以是一个元素或HTML结构字符串。
+     * - 如果容器是由HTML构建而成且包含子元素，最终的包裹元素会递进到首个最深层子元素。
      * - 目标容器会替换集合中首个节点的位置。
      * 注：
-     * 集合内可以是字符串成员，因为el.prepend本身就支持字符串。
+     * 集合内成员仅支持节点类型。
+     * 空集不会有任何操作且返回空集自身，而不是容器的Collector封装。
      *
-     * @param  {Element|String|Function} box 目标容器
-     * @param  {Boolean} clone 容器元素是否克隆
-     * @param  {Boolean} event 容器元素上的事件绑定是否克隆
-     * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆
-     * @return {Collector} 包裹容器
+     * @param  {Element|String} box 目标容器
+     * @param  {Boolean} clone 容器元素是否克隆，可选
+     * @param  {Boolean} event 容器元素上的事件绑定是否克隆，可选
+     * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆，可选
+     * @param  {Document} doc 文档对象（集合中为字符串时需要），可选
+     * @return {Collector} 包裹容器或空集自身
      */
     wrapAll( box, clone, event, eventdeep ) {
-        if (this.length == 0) {
+        if ( this.length == 0 ) {
             return this;
         }
-        if ( clone ) {
-            box = tQuery.clone(box, event, true, eventdeep);
-        }
-        let _nd = this[0];
-
-        box = wrapData(_nd, _nd.parentElement, box, this, _nd.ownerDocument || Doc);
-
-        return new Collector( box, this );
+        let [_box, _root] = wrapBox(
+                box, clone, event, eventdeep, this[0].ownerDocument
+            );
+        return new Collector( varyWrapAll(_root || _box, _box, this), this );
     }
 
 
@@ -3472,12 +3466,12 @@ class Collector extends Array {
      * - 返回一个添加了新成员的新集合。
      * - 总是会构造一个新的实例返回（同jQuery）。
      * 注：unique参数仅用于DOM节点集。
-     * @param  {String|Element|NodeList|Collector} its 目标内容
+     * @param  {String|Node|[Node]|Collector|Value|[Value]} its 目标内容
      * @param  {Boolean} unique 是否去重排序
      * @return {Collector}
      */
     add( its, unique ) {
-        let _els = super.concat( $(its) );
+        let _els = super.concat( tQuery(its) );
         return new Collector( unique ? uniqueSort(_els, sortElements) : _els, this );
     }
 
@@ -3550,6 +3544,35 @@ function elsEx( list, get ) {
         });
     });
 }
+
+
+//
+// 元素创建。
+// 集合是作为数据使用，分别创建并返回一个集合。
+// 用法：
+// $(...).Element('p') => Collector[<p>...]
+/////////////////////////////////////////////////
+elsEx([
+        'Element',
+        'svg',
+    ],
+    // @param {String} tag 元素标签
+    // @param {...Value} rest 除数据外的剩余参数
+    (fn, list, tag, ...rest) =>
+        list.map( data => tQuery[fn](tag, data, ...rest) )
+);
+
+
+// 创建节点/文档片段。
+// 用法：
+// $(...).Text() => Collector[#text...]
+/////////////////////////////////////////////////
+elsEx([
+        'Text',
+        'create',
+    ],
+    (fn, list, ...rest) => list.map( data => tQuery[fn](data, ...rest) )
+);
 
 
 //
@@ -4718,37 +4741,23 @@ function deepChild( el ) {
 
 
 /**
- * 内容包裹。
- * - 包裹容器可以是一个现有的元素或html结构字符串或取值函数。
- * - 包裹采用结构字符串时，会递进至首个最深层的子元素为容器。
- * - box直接传递或返回元素时被视为父容器，但内容前插（与jQuery异）。
- * - 取值函数：function(Node|[Node]): Element|string
- * 注记：
- * - 对提供的容器支持为前部插入有更好的可用性（可变CSS选择器）。
- *
- * @param  {Node|null} rep 替换点节点
- * @param  {Element|null} pel 替换点父元素
- * @param  {Element|String|Function} box 包裹容器或取值函数
- * @param  {[Node|String]} data 被包裹数据集
- * @param  {Document} doc 元素所属文档对象
- * @return {Element} 包裹容器元素
+ * 获取包裹容器。
+ * HTML结构容器会递进到首个最深层子元素。
+ * @param  {HTML|Element} box 包裹容器
+ * @param  {Boolean} clone 包裹元素是否克隆
+ * @param  {Boolean} event 包裹元素上注册的事件处理器是否克隆
+ * @param  {Boolean} eventdeep 包裹元素子孙元素上注册的事件处理器是否克隆
+ * @param  {Document} doc 所属文档对象
+ * @return {Element} 包裹的容器根元素
  */
-function wrapData( rep, pel, box, data, doc ) {
-    if ( isFunc(box) ) {
-        box = box(data);
+function wrapBox( box, clone, event, eventdeep, doc ) {
+    if ( box.nodeType ) {
+        return [ clone ? tQuery.clone(box, event, true, eventdeep) : box ];
     }
-    if ( typeof box == 'string' ) {
-        box = buildFragment(box, doc).firstElementChild;
-    }
-    if ( rep && pel) {
-        pel.replaceChild( box, rep );
-    }
-    else if ( pel ) {
-        pel.appendChild( box );
-    }
-    deepChild( box ).prepend( ...data );
+    // string
+    box = buildFragment(box, doc).firstElementChild;
 
-    return box;
+    return [ deepChild(box), box ];
 }
 
 
@@ -5682,33 +5691,6 @@ function varyNodes( el, meth, nodes ) {
 
 
 /**
- * 元素填充。
- * 注：先清空（varyEmpty）然后插入。
- * @param  {Element} el 目标元素
- * @param  {Node|[Node]} nodes 数据节点（集）
- * @return {Node|[Node]} nodes
- */
-function varyFill( el, nodes ) {
-    let _val = {
-        type: 'fill',
-        data: nodes,
-    };
-
-    limitTrigger( el, evnNodeVary, _val );
-    try {
-        varyEmpty( el );
-        el.append( ...detachNodes(nodes) );
-    }
-    catch(e) {
-        return failTrigger( el, evnNodeFail, [e, _val])
-    }
-    limitTrigger( el, evnNodeDone, _val );
-
-    return nodes;
-}
-
-
-/**
  * 节点移除封装。
  * 事件目标：待移除节点父元素。
  * 如果节点无父元素（游离），不会产生任何行为。
@@ -5717,14 +5699,14 @@ function varyFill( el, nodes ) {
  * @param  {Element|null} box 待移除节点的父元素
  * @return {Node} node
  */
-function varyRemove( node, box ) {
+ function varyRemove( node, box ) {
     if ( box ) {
         let _val = {
             type: 'remove',
             data: node
         };
         limitTrigger( box, evnNodeVary, _val );
-        box.removeChild(node);
+        node.remove();
         limitTrigger( box, evnNodeDone, _val );
     }
     return node;
@@ -5771,6 +5753,65 @@ function varyNormalize( el, depth ) {
     limitTrigger( el, evnNodeDone, _val );
 
     return el;
+}
+
+
+/**
+ * 元素填充。
+ * 包含事件：[empty, append]。
+ * @param  {Element} el 目标元素
+ * @param  {Node|[Node]} nodes 数据节点（集）
+ * @return {Node|[Node]} nodes
+ */
+function varyFill( el, nodes ) {
+    varyEmpty( el );
+    return varyNodes( el, 'append', nodes );
+}
+
+
+/**
+ * 节点包裹封装。
+ * @param  {Node} node 被包裹节点
+ * @param  {Element} root 封装根元素
+ * @param  {Element} box 数据容器（插入点）
+ * @return {Element} root 封装根容器
+ */
+function varyWrap( node, root, box ) {
+    varyNodes( node, 'replaceWith', root );
+    varyNodes( box, 'prepend', node );
+    return root;
+}
+
+
+/**
+ * 元素内容包裹封装。
+ * @param  {Element} el 目标元素
+ * @param  {Element} root 封装根元素
+ * @param  {Element} box 数据容器（插入点）
+ * @return {Element} 封装根容器
+ */
+function varyWrapInner( el, root, box ) {
+    varyNodes(
+        box,
+        'prepend',
+        varyEmpty(el) // 优化：只激发一次事件
+    );
+    return varyNodes( el, 'append', root );
+}
+
+
+/**
+ * 集合被包裹封装。
+ * 注：box包裹nodes，root替换nodes[0]的位置。
+ * @param  {Element} root 封装根元素
+ * @param  {Element} box 数据容器（插入点）
+ * @param  {[Node]} nodes 节点集
+ * @return {Element} 封装根容器
+ */
+function varyWrapAll( root, box, nodes ) {
+    varyNodes( nodes[0], 'replaceWith', root );
+    varyNodes( box, 'prepend', nodes );
+    return root;
 }
 
 
