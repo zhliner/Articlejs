@@ -42,14 +42,14 @@
 
     实现：
         支持直系子元素选择器 '>xxx' 且可并列（如：'>a, >b'），同 Sizzle。
-        $.find('>a, >b', p) => [<b>, <a>]
+        tQuery.find('>a, >b', p) => [<b>, <a>]
         支持上下文元素限定（同 querySelectorAll）。
-        $.find('p>b', p)    => [<b>]
+        tQuery.find('p>b', p)    => [<b>]
 
 
     事件：
     提供10组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类。
-    开启：$.config({varyevent: true});
+    开启：tQuery.config({varyevent: true});
 
     - attrvary/attrfail/attrdone    // 特性设置/出错/完成
     - propvary/propfail/propdone    // 属性设置/出错/完成
@@ -61,7 +61,8 @@
     // type: [
     //      append, prepend, fill, before, after, replace,
     //      empty, remove, normalize,
-    //      wrap, wrapinner, wrapall, unwrap
+    //      wrap, wrapinner, wrapall, unwrap,
+    //      html, text
     // ]
 
     注记：取消嵌入代理设计。
@@ -487,14 +488,15 @@ function hackSelector( ctx, slr, fix ) {
 
 /**
  * DOM 查询器。
- * - 查询结果为集合，如果仅需一个元素可用 $.get()。
- * - 传递一个无效的实参返回仅包含该实参的集合。
+ * - 查询结果为集合，即便只有一个元素。
+ * - 传递无效的实参会构造为一个仅包含该实参的集合。
  * its: {
  *      String      选择器查询
- *      Element     元素包装
- *      NodeList    元素集（类数组）包装
+ *      Element     元素封装
+ *      NodeList    元素集（类数组）
  *      .values     支持values接口的迭代器（如Set）
- *      Collector   当前实例或已封装对象
+ *      Collector   简单返回实参
+ *      ...         其它任意值封装
  * }
  * @param  {Mixed} its
  * @param  {Element} ctx 查询上下文
@@ -516,64 +518,6 @@ function tQuery( its, ctx ) {
 // 目前仅支持 varyevent:{Boolean}
 //
 tQuery.config = option => Object.assign( Options, option );
-
-
-//
-// 对外接口。
-// 可被外部代理，是一个可变的值。
-//
-let $ = tQuery;
-
-
-/**
- * 嵌入代理。
- * - 由外部定义内部 $ 的调用集覆盖。
- * - getter接受函数名参数，应当返回一个与目标接口声明相同的函数。
- * - caller即为$的调用，但首个参数为之前的 $ 对象。
- * 注意：
- * - 外部全局的 $ 会被更新，因此代理中应当使用之前的 $，否则会无限循环。
- * - 这个接口可以给一些库类应用提供特别的方便，比如操作追踪。
- * - getter可以返回一个假值（null），表示不代理目标方法。
- *
- * 接口：
- * - getter: function( fn, $ ): Function
- * - caller: function( $, slr, ctx, doc ): Collector
- * 其中：
- * 实参 $ 为嵌入代理之前的 $，是代理中正常使用的目标。
- *
- * @param  {Function} getter 成员方法获取器
- * @param  {Function} caller 对象自身调用代理，可选
- * @return {tQuery|Proxy}
- */
-tQuery.embedProxy = function( getter, caller ) {
-    let _prev = $;
-
-    // 顶层 $ 存储
-    $ = new Proxy( $, proxyHandler(getter, caller) );
-    // $ 导出
-    window.$ = $;
-
-    return _prev;
-};
-
-
-/**
- * 构造代理对象。
- * @param  {Function} getter 成员方法获取器
- * @param  {Function} caller 对象自身调用代理
- * @return {Object} 代理器实现
- */
-function proxyHandler( getter, caller ) {
-    let _obj = {};
-
-    if ( getter ) {
-        _obj.get = (target, fn, rec) => getter(fn, target) || Reflect.get(target, fn, rec);
-    }
-    if ( caller ) {
-        _obj.apply = (target, ctx, args) => caller.bind(ctx)(target, ...args);
-    }
-    return _obj;
-}
 
 
 //
@@ -853,7 +797,7 @@ Object.assign( tQuery, {
      *      true  DOM节点元素类排序
      *      null  重置为默认排序规则，用于非元素类
      * }
-     * @param {[Node]|LikeArray|Object|.values} list 值集
+     * @param {[Node]|Array|Object|.values} list 值集
      * @param {Function|null|true} comp 排序比较函数，可选
      */
     unique( list, comp ) {
@@ -1350,8 +1294,7 @@ Object.assign( tQuery, {
      */
     wrap( node, box, clone, event, eventdeep ) {
         if ( clone ) {
-            // 支持$.xx代理嵌入。
-            box = $.clone(box, event, true, eventdeep);
+            box = tQuery.clone(box, event, true, eventdeep);
         }
         let _rep = node;
 
@@ -1377,8 +1320,7 @@ Object.assign( tQuery, {
      */
     wrapInner( el, box, clone, event, eventdeep ) {
         if ( clone ) {
-            // 支持$.xx代理嵌入。
-            box = $.clone(box, event, true, eventdeep);
+            box = tQuery.clone(box, event, true, eventdeep);
         }
         // 包裹容器可以是子元素。
         if (box.nodeType && $contains(el, box)) {
@@ -1677,7 +1619,7 @@ Object.assign( tQuery, {
      *
      * 设置：
      * - value有值时，name为名称序列（空格分隔），value若为数组则一一对应。
-     * - value支持取值回调获取目标值，接口：function( oldval, el )。
+     * - value支持取值回调获取目标值，接口：function(el, name): Value。
      * - value传递null会删除目标特性。
      * - value无值时，name为名值对象或Map，其中值同样支持取值回调。
      *
@@ -1863,7 +1805,7 @@ Object.assign( tQuery, {
      */
     html( el, code, where = '', sep = ' ' ) {
         if (code === undefined) {
-            return typeof el == 'string' ? htmlCode(el) : el.innerHTML;
+            return el.nodeType ? el.innerHTML : htmlCode(el);
         }
         if ( isFunc(code) ) {
             code = code( el );
@@ -1900,7 +1842,7 @@ Object.assign( tQuery, {
      */
     text( el, code, where = '', sep = ' ' ) {
         if (code === undefined) {
-            return typeof el == 'string' ? htmlText(el) : el.textContent;
+            return el.nodeType ? el.textContent : htmlText(el);
         }
         if ( isFunc(code) ) {
             code = code( el );
@@ -2770,7 +2712,7 @@ tQuery.Table = Table;
 
 //
 // 6种插入方式。
-// 数据源仅为节点类型，不支持String。
+// 数据源仅为节点类型，不支持字符串源码。
 ///////////////////////////////////////
 [
     'before',
@@ -2786,6 +2728,7 @@ tQuery.Table = Table;
      * - 数据源仅支持节点（集），不支持html字符串。
      * - 仅元素适用于事件克隆（event系列）。
      * - 数据集成员容错假值忽略。
+     * - 文本节点不适用内部插入方法
      * 取值回调：
      * - 取值函数接受原节点作为参数。
      * - 取值函数可返回节点或任意类型节点集（不能是字符串）。
@@ -2795,13 +2738,13 @@ tQuery.Table = Table;
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆事件处理器（容器）
      * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
-     * @return {Node|[Node]} 新插入的节点（集）
+     * @return {Node|[Node]|Error} 新插入的节点（集）
      */
     tQuery[name] = function( el, cons, clone, event, eventdeep ) {
         let _meth = Wheres[name];
 
         if (!_validMeth(el, _meth)) {
-            throw new Error(`${name} method is invalid.`);
+            return new Error(`${name} is invalid with ${el.nodeName}.`);
         }
         if ( isFunc(cons) ) {
             cons = cons(el);
@@ -2815,12 +2758,13 @@ tQuery.Table = Table;
  * 是否为非法方法。
  * 文本节点不适用内部插入类方法。
  * 注：专用于上面6个插入方法测试。
- * @param {Node} node 参考节点
- * @param {Number} meth 方法/位置值
+ * @param  {Node} node 参考节点
+ * @param  {Number} meth 方法/位置值
+ * @return {Boolean}
  */
 function _validMeth( node, meth ) {
-    return node.nodeType == 1 ||
-        (meth === '' || meth == 1 || meth == -1);
+    return node.nodeType === 1 ||
+        (meth === 0 || meth === 1 || meth === -1);
 }
 
 
@@ -3176,7 +3120,9 @@ class Collector extends Array {
     // 衍生对象直接上层构造。
     // 如：.map() .filter() 等。
     //
-    static get [Symbol.species]() { return Array }
+    static get [Symbol.species]() {
+        return Array;
+    }
 
 
     //-- 重载父类方法 ---------------------------------------------------------
@@ -3260,8 +3206,7 @@ class Collector extends Array {
 
 
     //-- 集合过滤 -------------------------------------------------------------
-    // 空集返回空集本身，不会加长栈链。
-    // 注：不支持外部$.xx代理嵌入。
+    // 空集返回空集本身，不会增长栈链。
 
 
     /**
@@ -3319,7 +3264,6 @@ class Collector extends Array {
 
 
     //-- 定制部分 -------------------------------------------------------------
-    // 支持$.xx代理嵌入。
 
 
     /**
@@ -3331,7 +3275,7 @@ class Collector extends Array {
      */
     get( slr ) {
         let _buf = Arr(this).
-            map( el => $.get(slr, el) ).
+            map( el => tQuery.get(slr, el) ).
             filter( e => !!e );
 
         return new Collector( uniqueSort(_buf, sortElements), this );
@@ -3347,7 +3291,7 @@ class Collector extends Array {
      */
     find( slr, andOwn ) {
         let _buf = this.map(
-                el => $.find(slr, el, andOwn)
+                el => tQuery.find(slr, el, andOwn)
             );
         return new Collector( _buf, this );
     }
@@ -3362,9 +3306,9 @@ class Collector extends Array {
      */
     detach( slr ) {
         let _fun = getFltr( slr ),
-            // $ 允许嵌入代理
-            _els = super.filter( (e, i, o) => _fun(e, i, o) ? $.detach(e) : false );
-
+            _els = super.filter(
+                (e, i, o) => _fun(e, i, o) ? tQuery.detach(e) : false
+            );
         return new Collector( _els, this );
     }
 
@@ -3378,10 +3322,9 @@ class Collector extends Array {
      */
     remove( slr ) {
         let _fun = getFltr( slr ),
-            // $ 允许嵌入代理
-            // 不依赖代理的返回值
-            _els = super.filter( (e, i, o) => _fun(e, i, o) ? ($.remove(e), false) : true );
-
+            _els = super.filter(
+                (e, i, o) => _fun(e, i, o) ? (tQuery.remove(e), false) : true
+            );
         return new Collector( _els, this );
     }
 
@@ -3394,8 +3337,7 @@ class Collector extends Array {
     classAll() {
         let _buf = [];
         for (const el of this) {
-            // 支持 $ 代理嵌入
-            _buf.push( ...$.classAll(el) );
+            _buf.push( ...tQuery.classAll(el) );
         }
         return new Collector( _buf, this );
     }
@@ -3403,31 +3345,19 @@ class Collector extends Array {
 
     /**
      * 去重&排序。
-     * comp参数含义参考$.unique()接口。
+     * comp无实参传递时仅去重（无排序）。
+     * comp: {
+     *      true  DOM节点元素类排序
+     *      null  重置为默认排序规则，用于非元素类
+     * }
      * @param  {Function|null|true} comp 排序函数
      * @return {Collector}
      */
     unique( comp ) {
-        // 支持$.xx代理嵌入。
-        return new Collector( $.unique(this, comp), this );
-    }
-
-
-    /**
-     * 表单控件值操作。
-     * 获取有效的值或与目标值对比并设置状态。
-     * 注记：
-     * 单元素版支持值数组匹配，因此这里无法支持与集合成员的一一对应。
-     *
-     * @param  {Value|[Value]|Function} value 对比值
-     * @return {[Value]|this}
-     */
-    val( value ) {
-        if (value === undefined) {
-            return Arr(this).map( el => $.val(el) );
-        }
-        this.forEach( el => $.val( el, value ) );
-        return this;
+        return new Collector(
+            uniqueSort( this, comp === true ? sortElements : comp ),
+            this
+        );
     }
 
 
@@ -3439,7 +3369,7 @@ class Collector extends Array {
      * @return {Collector} this
      */
     each( handle, thisObj ) {
-        return $.each( this, handle, thisObj );
+        return tQuery.each( this, handle, thisObj );
     }
 
 
@@ -3466,7 +3396,7 @@ class Collector extends Array {
             return this;
         }
         if ( clone ) {
-            box = $.clone(box, event, true, eventdeep);
+            box = tQuery.clone(box, event, true, eventdeep);
         }
         let _nd = this[0];
 
@@ -3603,8 +3533,8 @@ Reflect.defineProperty(Collector.prototype, ownerToken, {
 /**
  * Collector 取节点方法集成。
  * 获取的节点集入栈，返回一个新实例。
- * - 由 $.xx 单元素版扩展到 Collector 原型空间。
- * - 仅用于 $.xx 返回节点（集）的调用。
+ * - 由 tQuery.xx 单元素版扩展到 Collector 原型空间。
+ * - 仅用于 tQuery.xx 返回节点（集）的调用。
  * @param  {Array} list 定义名清单（方法）
  * @param  {Function} get 获取元素句柄
  * @return {Collector} 目标节点集
@@ -3624,34 +3554,23 @@ function elsEx( list, get ) {
 
 //
 // 元素检索。
-// $.xx 成员调用返回单个元素或 null。
-// 注：结果集已去重排序。
-/////////////////////////////////////////////////
-elsEx([
-        'parent',
-        'closest',
-        'offsetParent',
-    ],
-    // 可$.x嵌入代理。
-    (fn, els, ...rest) =>
-        uniqueSort(
-            els.map( el => $[fn](el, ...rest) ).filter( el => el != null ),
-            sortElements
-        )
-);
-
-
-//
-// 元素检索。
-// $.xx 成员调用返回单个元素或 null。
+// tQuery.xx 成员调用返回单个元素或null。
+// 注：
+// next/prev因until参数可能导致重复。
+// 结果集已清除null值并去重排序。
 /////////////////////////////////////////////////
 elsEx([
         'next',
         'prev',
+        'parent',
+        'closest',
+        'offsetParent',
     ],
-    // 可$.x嵌入代理。
     (fn, els, ...rest) =>
-        els.map( el => $[fn](el, ...rest) ).filter( el => el != null )
+        uniqueSort(
+            els.map( el => tQuery[fn](el, ...rest) ).filter( el => el != null ),
+            sortElements
+        )
 );
 
 
@@ -3678,10 +3597,10 @@ elsEx([
         'empty',
 
         // 单成员
+        // 无需扁平化和去重。
         'clone',
     ],
-    // 可$.xx嵌入代理。
-    (fn, els, ...rest) => els.map( el => $[fn](el, ...rest) )
+    (fn, els, ...rest) => els.map( el => tQuery[fn](el, ...rest) )
 );
 
 
@@ -3710,15 +3629,14 @@ elsEx([
     ( fn, els, box, clone, event, eventdeep ) => {
         let _buf = [];
 
-        // 可代理调用 $
         if ( isArr(box) ) {
             let _box = null;
             els.forEach(
-                (el, i) => (_box = _validBox(box, i, _box)) && _buf.push( $[fn](el, _box, clone, event, eventdeep) )
+                (el, i) => (_box = _validBox(box, i, _box)) && _buf.push( tQuery[fn](el, _box, clone, event, eventdeep) )
             );
         } else {
             els.forEach(
-                el => _buf.push( $[fn](el, box, clone, event, eventdeep) )
+                el => _buf.push( tQuery[fn](el, box, clone, event, eventdeep) )
             );
         }
         return _buf;
@@ -3774,7 +3692,7 @@ elsExfn([
     ],
     fn =>
     function(...rest) {
-        return this.map( el => $[fn](el, ...rest) );
+        return this.map( el => tQuery[fn](el, ...rest) );
     }
 );
 
@@ -3799,7 +3717,7 @@ elsExfn([
     ].concat(callableEvents),
     fn =>
     function(...rest) {
-        for ( let el of this ) $[fn]( el, ...rest );
+        for ( let el of this ) tQuery[fn]( el, ...rest );
         return this;
     }
 );
@@ -3821,7 +3739,7 @@ elsExfn([
         // undefined成员自然忽略，
         // removeClass中undefined含义正确。
         this.forEach(
-            (el, i) => $[fn](el, _ia ? names[i] : names)
+            (el, i) => tQuery[fn](el, _ia ? names[i] : names)
         );
         return this;
     }
@@ -3872,12 +3790,12 @@ elsExfn([
  */
 function _customGets( fn, self, name, nia ) {
     if ( !nia ) {
-        return self.map( el => $[fn](el, name) );
+        return self.map( el => tQuery[fn](el, name) );
     }
     let _buf = [];
 
     self.forEach( (el, i) =>
-        name[i] !== undefined && _buf.push( $[fn](el, name[i]) )
+        name[i] !== undefined && _buf.push( tQuery[fn](el, name[i]) )
     )
     return new Collector( _buf, self );
 }
@@ -3896,26 +3814,28 @@ function _customGets( fn, self, name, nia ) {
 function _customSets( fn, els, name, val, nia ) {
     if ( nia ) {
         // val 无意义
-        return els.forEach( (el, i) => name[i] !== undefined && $[fn](el, name[i]) );
+        return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name[i]) );
     }
     if ( isArr(val) ) {
         // name支持空格分隔的多名称
         // 注：val可为二维数组用于值本身需要数组时。
-        return els.forEach( (el, i) => val[i] !== undefined && $[fn](el, name, val[i]) );
+        return els.forEach( (el, i) => val[i] !== undefined && tQuery[fn](el, name, val[i]) );
     }
     // 全部相同赋值。
-    return els.forEach( el => $[fn](el, name, val) );
+    return els.forEach( el => tQuery[fn](el, name, val) );
 }
 
 
 //
 // 特定属性取值/修改。
-// 设置与获取两种操作合二为一的成员，val支持数组分别赋值。
+// 设置与获取两种操作合二为一的成员。
+// 设置时支持值数组与集合成员一一对应赋值。
 // 返回值：
 // 取值：一个值集（Collector），成员与集合元素一一对应。
 // 设置：实例自身（this）。
 /////////////////////////////////////////////////
 elsExfn([
+        'val',
         'height',
         'width',
         'offset',
@@ -3924,15 +3844,15 @@ elsExfn([
         'scrollTop',
     ],
     fn =>
-    function( val ) {
-        if (val === undefined) {
-            return this.map( el => $[fn](el) );
+    function( value ) {
+        if (value === undefined) {
+            return this.map( el => tQuery[fn](el) );
         }
-        if (isArr(val)) {
-            this.forEach( (el, i) => val[i] !== undefined && $[fn](el, val[i]) );
+        if (isArr(value)) {
+            this.forEach( (el, i) => value[i] !== undefined && tQuery[fn](el, value[i]) );
         }
         else {
-            this.forEach( el => $[fn](el, val) );
+            this.forEach( el => tQuery[fn](el, value) );
         }
         return this;
     }
@@ -3941,7 +3861,6 @@ elsExfn([
 
 //
 // 内容取值/设置。
-//
 // 取值时返回一个值集，成员与集合元素一一对应。
 // 设置时返回新插入的节点集。
 // 支持内容值数组与集合成员一一对应赋值。
@@ -3957,12 +3876,11 @@ elsExfn([
     ],
     fn =>
     function( val, ...rest ) {
-        // 可代理调用 $
         if (val === undefined) {
-            return this.map( el => $[fn](el) );
+            return this.map( el => tQuery[fn](el) );
         }
         let _vs = isArr(val) ?
-            _arrSets(fn, this, val, ...rest) : this.map(el => $[fn](el, val, ...rest));
+            _arrSets(fn, this, val, ...rest) : this.map(el => tQuery[fn](el, val, ...rest));
 
         return new Collector( _vs, this );
     }
@@ -3981,9 +3899,8 @@ elsExfn([
 function _arrSets( fn, els, val, ...rest ) {
     let _buf = [];
 
-    // 可代理调用 $
     els.forEach( (el, i) =>
-        val[i] !== undefined && _buf.push( $[fn](el, val[i], ...rest) )
+        val[i] !== undefined && _buf.push( tQuery[fn](el, val[i], ...rest) )
     );
     return _buf;
 }
@@ -3993,6 +3910,7 @@ function _arrSets( fn, els, val, ...rest ) {
 // 节点插入（多对多）。
 // 因为节点数据会移动，所以通常应该是克隆模式。
 // 支持值数组与集合成员一一对应。
+// 返回值可能是一个节点数组的集合（二维），与源数据形式有关。
 /////////////////////////////////////////////////
 elsExfn([
         'before',
@@ -4038,7 +3956,7 @@ function _arrInsert( fn, els, cons, clone, event, eventdeep ) {
         let _con = cons[i];
 
         if ( _con != null ) {
-            _buf.push( $[fn](el, _con, clone, event, eventdeep) );
+            _buf.push( tQuery[fn](el, _con, clone, event, eventdeep) );
         }
     }
     return _buf;
@@ -4058,7 +3976,7 @@ function _conInsert( fn, els, con, clone, event, eventdeep ) {
     let _buf = [];
 
     for ( let el of els ) {
-        _buf.push( $[fn](el, con, clone, event, eventdeep) );
+        _buf.push( tQuery[fn](el, con, clone, event, eventdeep) );
     }
     return _buf;
 }
@@ -4094,7 +4012,7 @@ function _conInsert( fn, els, con, clone, event, eventdeep ) {
          * @return {Collector} 目标参考节点的Collector实例
          */
         value: function( to, clone, event, eventdeep ) {
-            let _ret = $[ names[1] ](
+            let _ret = tQuery[ names[1] ](
                     to, this, clone, event, eventdeep
                 );
             return new Collector(
@@ -5022,7 +4940,7 @@ function hookArrSet( el, names, val, scope ) {
  */
 function hookSet( el, name, val, scope ) {
     if ( isFunc(val) ) {
-        val = val( customGet(el, name, scope), el );
+        val = val( el, name );
     }
     return customSet( el, name, val, scope );
 }
@@ -5030,8 +4948,7 @@ function hookSet( el, name, val, scope ) {
 
 /**
  * 定制版设置。
- * 支持2个特别的属性：text 和 html。
- * 支持外部嵌入代理的影响。
+ * 支持2个特别的属性：text 和 html（fill方式）。
  * @param {Element} el 设置的目标元素
  * @param {String} name 属性名
  * @param {Value} value 属性值
@@ -5040,9 +4957,9 @@ function hookSet( el, name, val, scope ) {
 function customSet( el, name, value, scope ) {
     switch (name) {
         case 'text':
-            return $.text(el, value);
+            return Insert(el, el.ownerDocument.createTextNode(value), '');
         case 'html':
-            return $.html(el, value);
+            return Insert(el, buildFragment(value, el.ownerDocument), '');
     }
     return scope.set(el, name, value);
 }
@@ -5072,7 +4989,6 @@ function hookGets( el, name, scope ) {
 /**
  * 定制版取值。
  * 支持2个特别属性：text 和 html。
- * 支持外部嵌入代理的影响。
  * @param {Element} el 取值目标元素
  * @param {String} name 属性名
  * @param {Object} scope 适用域对象
@@ -5080,9 +4996,9 @@ function hookGets( el, name, scope ) {
 function customGet( el, name, scope ) {
     switch (name) {
         case 'text':
-            return $.text(el);
+            return el.textContent;
         case 'html':
-            return $.html(el);
+            return el.innerHTML;
     }
     return scope.get(el, name);
 }
@@ -5368,11 +5284,11 @@ function htmlText( code ) {
  */
 function nodesClone( cons, event, eventdeep ) {
     if ( cons.nodeType ) {
-        return $.clone(cons, event, true, eventdeep);
+        return tQuery.clone(cons, event, true, eventdeep);
     }
     return cleanMap(
         cons,
-        nd => nd && $.clone(nd, event, true, eventdeep) || null
+        nd => nd && tQuery.clone(nd, event, true, eventdeep) || null
     );
 }
 
@@ -6936,7 +6852,6 @@ function tieProcess( its, evn ) {
 
 /**
  * 单目标激发。
- * 注：支持代理嵌入。
  * @param {Element|Object} it 激发目标
  * @param {[String]} evns 事件名集
  */
@@ -6956,7 +6871,6 @@ function tieTrigger( it, evns ) {
 /**
  * 多目标激发。
  * 按数组的首个成员类型判断。
- * 注：支持代理嵌入。
  * @param {[Element]|[Object]} its 激发目标集
  * @param {[String]} evns 事件名集
  */
@@ -6979,9 +6893,9 @@ function tieTriggers( its, evns ) {
  */
 function evnsTrigger( el, evns, val ) {
     if ( evns.length == 1 ) {
-        return $.trigger( el, evns[0], val );
+        return tQuery.trigger( el, evns[0], val );
     }
-    evns.forEach( n => $.trigger( el, n, val ) );
+    evns.forEach( n => tQuery.trigger( el, n, val ) );
 }
 
 
@@ -7024,7 +6938,7 @@ function evnsBatch( type, el, evn, slr, handle ) {
 
 //
 // 就绪载入部分。
-// 相关接口：$.ready, $.holdReady
+// 相关接口：tQuery.ready, tQuery.holdReady
 ///////////////////////////////////
 
 const domReady = {
@@ -7432,13 +7346,12 @@ let _w$ = window.$;
 
 
 /**
- * 收回外部引用赋值。
- * @return {$}
+ * 恢复外部原始引用。
+ * @return {tQuery}
  */
 tQuery.noConflict = function() {
-    // $ 可能被代理
-    if ( window.$ === $ ) window.$ = _w$;
-    return $;
+    if ( window.$ === tQuery ) window.$ = _w$;
+    return tQuery;
 };
 
 
@@ -7449,4 +7362,4 @@ if ( !noGlobal ) {
 
 return tQuery;
 
-} );
+});
