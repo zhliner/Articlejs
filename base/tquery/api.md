@@ -677,7 +677,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 元素所包含的任何内容（包括注释节点）会一并提升，但返回集中不含注释节点和纯空白的文本节点。
 
 
-### [$.detach( node ): Node](docs/$.detach.md)
+### [$.remove( node ): Node](docs/$.remove.md)
 
 将节点（通常为元素或文本节点）移出DOM文档树。
 
@@ -686,13 +686,15 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 返回被移出DOM文档树的节点。**注**：注释节点也适用。
 
 
-### [$.remove( node ): this](docs/$.remove.md)
+### $.removeSiblings( subs, slr ): [Node]
 
-删除DOM文档树中的节点（元素或文本节点）。
+将同级兄弟节点移出文档树（DOM）。
 
-- `node: Node` 将被移除的节点。
+- `subs: [Node]` 将被移除的兄弟节点集。
+- `slr: String | Function` 过滤筛选器
 
-返回调用者自身（即 `$`）。**注**：效果类似于丢弃返回值的 `$.detach()`。
+> **注意：**<br>
+> 集合中的节点必须是兄弟关系（同一个父元素），这是对节点变化事件触发的优化版（节点集整体作为消息发送到事件处理器）。
 
 
 ### [$.empty( el ): [Node] | null](docs/$.empty.md)

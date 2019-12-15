@@ -59,7 +59,8 @@
     - nodevary/nodefail/nodedone
     // 节点设置/出错/完成
     // type: [
-    //      append, prepend, before, after, replace, empty, remove, normalize
+    //      append, prepend, before, after, replace,
+    //      empty, remove, removesiblings, normalize
     // ]
     // 复合操作：fill, wrap, wrapinner, wrapall, unwrap, html, text
 
@@ -1350,23 +1351,28 @@ Object.assign( tQuery, {
 
 
     /**
-     * 节点移出DOM。
+     * 移除节点（从DOM中）。
      * @param  {Node} node 节点元素
      * @return {Node} 原节点引用
      */
-    detach( node ) {
+    remove( node ) {
         return varyRemove( node, node.parentElement );
     },
 
 
     /**
-     * 删除节点。
-     * 注：删除后不再返回原节点引用。
-     * @param  {Node} node 节点元素
-     * @return {this}
+     * 移除同级节点集（从DOM中）。
+     * 节点集成员或筛选出的节点仅限于同级兄弟关系。
+     * 注：这是对使用事件激发（varyevent:true）的一个优化。
+     * @param  {[Node]} subs 目标节点集
+     * @param  {String|Function} slr 过滤选择器
+     * @return {[Node]} 被移出节点集
      */
-    remove( node ) {
-        return varyRemove( node, node.parentElement ), this;
+    removeSiblings( subs, slr ) {
+        if ( slr ) {
+            subs = subs.filter( getFltr(slr) );
+        }
+        return varyRemoves( subs, subs[0].parentElement );
     },
 
 
@@ -2152,12 +2158,14 @@ class Table {
         let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
 
-        for (let r = 0; r < rows; r++) {
-            buildTR( _body.insertRow(), cols, 'td', vth );
-        }
         this._tbl = _tbl;
         this._vth = vth || null;
         this._cols = cols;
+
+        // 初始为整体逻辑，不激发事件。
+        for (let r = 0; r < rows; r++) {
+            this._buildTR( _body.insertRow(), 'td' );
+        }
     }
 
 
@@ -2174,10 +2182,13 @@ class Table {
         let _cap = this._tbl.caption;
 
         if ( op === null ) {
-            this._tbl.deleteCaption();
-            return _cap;
+            return _cap && varyRemove( _cap, this._tbl );
         }
-        return _cap || this._tbl.createCaption();
+        return _cap || varyNewNode(
+            this._tbl,
+            'prepend',
+            this._tbl.ownerDocument.createElement( 'caption' )
+        );
     }
 
 
@@ -2194,7 +2205,7 @@ class Table {
         let _bd = this._tbl.tBodies[idx];
 
         if ( op === null ) {
-            return _bd && this._tbl.removeChild(_bd), _bd;
+            return _bd && varyRemove( _bd, this._tbl );
         }
         return idx == null ? Arr(this._tbl.tBodies) : _bd;
     }
@@ -2215,12 +2226,17 @@ class Table {
     body( rows, idx, tsec ) {
         tsec = tsec || this._tbl.tBodies[0];
 
-        if ( rows == null ) {
-            if ( rows === null && tsec ) this._tbl.removeChild(tsec);
-            return tsec;
+        if ( rows === null ) {
+            return tsec && varyRemove( tsec, this._tbl );
         }
+        if ( rows === undefined ) return tsec
+
         if ( !tsec ) {
-            tsec = this._tbl.createTBody();
+            tsec = insertNode(
+                this._tbl,
+                this._tbl.ownerDocument.createElement( 'tbody' ),
+                this._tbl.tFoot
+            );
         }
         return this._insertRows( tsec, idx, rows );
     }
@@ -2240,11 +2256,19 @@ class Table {
     head( rows, idx ) {
         let _tsec = this._tbl.tHead;
 
-        if ( rows == null ) {
-            if ( rows === null ) this._tbl.deleteTHead();
-            return _tsec;
+        if ( rows === null ) {
+            return _tsec && varyRemove( _tsec, this._tbl );
         }
-        return this._insertRows( _tsec || this._tbl.createTHead(), idx, rows, 'th' );
+        if ( rows === undefined ) return _tsec;
+
+        if ( !_tsec ) {
+            _tsec = insertNode(
+                this._tbl,
+                this._tbl.ownerDocument.createElement( 'thead' ),
+                this._tbl.tBodies[0] || this._tbl.tFoot
+            );
+        }
+        return this._insertRows( _tsec, idx, rows, 'th' );
     }
 
 
@@ -2262,11 +2286,19 @@ class Table {
     foot( rows, idx ) {
         let _tsec = this._tbl.tFoot;
 
-        if ( rows == null ) {
-            if ( rows === null ) this._tbl.deleteTFoot();
-            return _tsec;
+        if ( rows === null ) {
+            return _tsec && varyRemove( _tsec, this._tbl );
         }
-        return this._insertRows( _tsec || this._tbl.createTFoot(), idx, rows );
+        if ( rows === undefined ) return _tsec;
+
+        if ( !_tsec ) {
+            _tsec = varyNewNode(
+                this._tbl,
+                'append',
+                this._tbl.ownerDocument.createElement( 'tfoot' )
+            );
+        }
+        return this._insertRows( _tsec, idx, rows );
     }
 
 
@@ -2313,8 +2345,8 @@ class Table {
      * @return {Element|null} 删除的行元素
      */
     remove( idx, tsec ) {
-        tsec = tsec || this._tbl;
-        return this._remove( this._index(idx, tsec.rows.length), tsec ) || null;
+        let _tr = this.get( idx, tsec );
+        return _tr && varyRemove( _tr, _tr.parentElement );
     }
 
 
@@ -2330,17 +2362,8 @@ class Table {
      * @return {Collector} 删除的行元素集
      */
     removes( idx, count, tsec ) {
-        let _buf = [];
-
         tsec = tsec || this._tbl;
-        idx = this._index( idx, tsec.rows.length );
-        count = this._count( idx, tsec.rows.length, count );
-
-        for (let i = 0; i < count; i++) {
-            // 集合会改变，故下标固定。
-            _buf.push( this._remove(idx, tsec) );
-        }
-        return new Collector( _buf );
+        return varyRemoves( this.gets(idx, count, tsec), tsec );
     }
 
 
@@ -2355,13 +2378,13 @@ class Table {
      */
     insertColumn( idx ) {
         let _buf = [];
-        idx = this._index( idx, this._tbl.rows[0].cells.length );
+        idx = this._index( idx, this._cols );
 
         for (const tr of this._tbl.rows) {
             let _ref = tr.cells[idx],
                 _tag = this._cellTag(tr);
             _buf.push(
-                tr.insertBefore( this._columnCell(_ref, tr.cells[idx-1], _tag), _ref || null )
+                insertNode( tr, this._columnCell(_ref, tr.cells[idx-1], _tag), _ref )
             );
         }
         this._cols += 1;
@@ -2376,7 +2399,7 @@ class Table {
      * 传递idx为null|undefined表示插入到末尾之后。
      * @param  {Number} cols 新列数量
      * @param  {Number} idx 列下标位置，可选
-     * @return {Collector} 新插入的列单元格数组集
+     * @return {Collector} 新插入的列单元格数组集（二维）
      */
     insertColumns( cols, idx ) {
         let _buf = [];
@@ -2386,7 +2409,7 @@ class Table {
             let _ref = tr.cells[idx],
                 _tag = this._cellTag(tr);
             _buf.push(
-                this._columnInsert(tr, this._columnCells(_ref, tr.cells[idx-1], cols, _tag), _ref || null)
+                insertNodes( tr, this._newCells(_ref, tr.cells[idx-1], cols, _tag), _ref )
             );
         }
         this._cols += cols;
@@ -2402,14 +2425,12 @@ class Table {
      * @return {Collector} 删除的列单元格集
      */
     removeColumn( idx ) {
-        let _buf = [],
-            _max = this._tbl.rows[0].cells.length;
+        let _buf = [];
+        idx = this._index( idx, this._cols );
 
-        idx = this._index( idx, _max );
-
-        if ( idx < _max ) {
+        if ( idx < this._cols ) {
             for (const tr of this._tbl.rows) {
-                _buf.push( tr.removeChild(tr.cells[idx]) );
+                _buf.push( varyRemove(tr.cells[idx]), tr );
             }
         }
         this._cols -= 1;
@@ -2436,7 +2457,7 @@ class Table {
 
         for (const tr of this._tbl.rows) {
             _buf.push(
-                this._columnRemove( tr, idx, cols )
+                varyRemoves( this._columnCells(tr, idx, cols), tr )
             );
         }
         this._cols -= cols;
@@ -2495,6 +2516,23 @@ class Table {
 
     //-- 私有辅助 -------------------------------------------------------------
 
+
+    /**
+     * 构建表格行。
+     * 仅包含空的单元格（内容赋值由外部处理）。
+     * @param  {Element} tr 表格行容器（空）
+     * @param  {String} tag 单元格标签名，可选
+     * @return {Element} tr 原表格行
+     */
+     _buildTR( tr, tag, doc = tr.ownerDocument ) {
+        if ( this._cols > 0 ) {
+            // 整体逻辑，不激发事件。
+            tr.append( ...this._rowCells(this._cols, this._vth, tag, doc) );
+        }
+        return tr;
+    }
+
+
     /**
      * 插入表格行。
      * 保持合法的列数，全部为空单元格。
@@ -2505,22 +2543,17 @@ class Table {
      * @param  {String} tag 主要单元格名称
      * @return {Collector} 新插入的行元素（集）
      */
-    _insertRows( sect, idx, rows = 1, tag = 'td' ) {
+    _insertRows( sect, idx, rows = 1, tag = 'td', doc = sect.ownerDocument ) {
         idx = this._index(idx, sect.rows.length);
+        let _buf = [];
 
-        let _ref = sect.rows[idx] || sect.rows[idx-1],
-            _buf = [];
-
-        if ( !_ref ) {
-            _ref = buildTR(sect.insertRow(), this._cols, tag, this._vth);
-            _buf.push(_ref);
-            rows--;
-        }
         for (let r = 0; r < rows; r++) {
-            // 正序集：idx++
-            _buf.push( cloneTR( sect.insertRow(idx++), _ref ) );
+            _buf.push(
+                this._buildTR( doc.createElement('tr'), tag )
+            );
         }
-        return new Collector( _buf );
+        // 行集作为一个整体插入/激发事件。
+        return new Collector( insertNodes(sect, _buf, sect.rows[idx]) );
     }
 
 
@@ -2552,11 +2585,11 @@ class Table {
      * @param  {String} tag 单元格标签名（th|td）
      * @return {[Element]}
      */
-    _columnCells( ref, prev, cols, tag ) {
+    _newCells( ref, prev, cols, tag ) {
         ref = ref || prev;
 
         if ( !ref ) {
-            return this._newCells( cols, this._vth, tag, this._tbl.ownerDocument );
+            return this._rowCells( cols, this._vth, tag, this._tbl.ownerDocument );
         }
         let _buf = [];
 
@@ -2575,7 +2608,7 @@ class Table {
      * @param  {Document} doc 所属文档对象
      * @return {[Element]}
      */
-    _newCells( cols, vth, tag, doc ) {
+    _rowCells( cols, vth, tag, doc ) {
         let _buf = [];
 
         for (let i = 0; i < cols-1; i++) {
@@ -2586,33 +2619,18 @@ class Table {
 
 
     /**
-     * 插入单元格段。
-     * @param  {Element} tr 表格行
-     * @param  {[Element]} tds 单元格集
-     * @param  {Element|null} ref 插入点元素
-     * @return {[Element]} tds
-     */
-    _columnInsert( tr, tds, ref ) {
-        for (const td of tds) {
-            tr.insertBefore( td, ref );
-        }
-        return tds;
-    }
-
-
-    /**
-     * 删除连续单元格段。
+     * 获取连续单元格段。
      * 注：idx已与size正确匹配（idx溢出时size为0）。
      * @param  {Element} tr 表格行
      * @param  {Number} idx 目标位置
      * @param  {Number} size 删除数量
      * @return {[Element]} 被删除的单元格集
      */
-    _columnRemove( tr, idx, size ) {
+    _columnCells( tr, idx, size ) {
         let _buf = [];
 
         for (let i = 0; i < size; i++) {
-            _buf.push( tr.removeChild(tr.cells[idx]) );
+            _buf.push( tr.cells[idx++] );
         }
         return _buf;
     }
@@ -3295,34 +3313,36 @@ class Collector extends Array {
 
 
     /**
-     * 移出节点集（脱离DOM）。
-     * - 匹配选择器 slr 的会被移出。
-     * - 移出的元素会作为一个新集合返回。
-     * @param  {String|Function} 过滤选择器
-     * @return {Collector} 脱离的元素集
+     * 移除节点集（从DOM中）。
+     * - 匹配选择器 slr 的会被删除。
+     * - 被移除的节点会作为一个新集合返回。
+     * @param  {String|Function} slr 过滤选择器
+     * @return {Collector} 被移除的节点集
      */
-    detach( slr ) {
+    remove( slr ) {
         let _fun = getFltr( slr ),
             _els = super.filter(
-                (e, i, o) => _fun(e, i, o) ? tQuery.detach(e) : false
+                (e, i, o) => _fun(e, i, o) ? tQuery.remove(e) : false
             );
         return new Collector( _els, this );
     }
 
 
     /**
-     * 删除节点集。
-     * - 匹配选择器 slr 的元素才会移除。
-     * - 返回剩余节点集的一个集合（可能为空集）。
-     * @param  {String|Function} 过滤选择器
-     * @return {Collector} 一个空集
+    /**
+     * 移除同级节点集（从DOM中）。
+     * 被移除的成员会作为一个新集合返回。
+     * 注意：
+     * 集合成员或筛选出的集合成员必须为同级兄弟节点。
+     * 这是对节点变化触发事件的优化。
+     * @param  {String|Function} slr 过滤选择器
+     * @return {Collector} 移除的集的集
      */
-    remove( slr ) {
-        let _fun = getFltr( slr ),
-            _els = super.filter(
-                (e, i, o) => _fun(e, i, o) ? (tQuery.remove(e), false) : true
-            );
-        return new Collector( _els, this );
+    removeSiblings( slr ) {
+        let _els = slr ?
+            super.filter( getFltr(slr) ) :
+            this;
+        return new Collector( varyRemoves( _els, _els[0].parentElement ), this );
     }
 
 
@@ -4263,6 +4283,7 @@ function getFltr( its ) {
     if ( isArr(its) ) {
         return ( e => its.includes(e) );
     }
+    // 默认为真。
     return ( e => its == null || e === its );
 }
 
@@ -4461,29 +4482,6 @@ function setElem( el, conf ) {
 
 
 /**
- * 构建表格行。
- * 仅包含空的单元格（内容赋值由外部处理）。
- * @param {Element} tr 表格行容器（空）
- * @param {Numbel} cols 列数
- * @param {String} tag 单元格标签名
- * @param {Number} vth 垂直列表头位置（1|-1）
- * @return {Element} tr 原表格行
- */
-function buildTR( tr, cols, tag, vth, doc = tr.ownerDocument ) {
-    if ( cols <= 0 ) return tr;
-    cols--;
-    let _cells = [];
-
-    for (let n = 0; n < cols; n++) {
-        _cells.push( doc.createElement(tag) );
-    }
-    tr.append( ...insertVth(vth, _cells, doc) );
-
-    return tr;
-}
-
-
-/**
  * 插入列表头<th>。
  * 如果没有指定位置，插入一个普通单元格（<td>）。
  * @param  {Number} where 插入位置（1|-1）
@@ -4501,21 +4499,6 @@ function insertVth( where, buf, doc ) {
             buf.push( doc.createElement('td') );
     }
     return buf;
-}
-
-
-/**
- * 克隆表格行。
- * 不包含内部单元格里的内容。
- * @param  {Element} tr 目标行元素
- * @param  {Element} ref 参考行元素
- * @return {Element} tr
- */
-function cloneTR( tr, ref ) {
-    for (const td of ref.cells) {
-        tr.append( td.cloneNode() );
-    }
-    return tr;
 }
 
 
@@ -5671,20 +5654,20 @@ function toggleClassAttr( el, val, old ) {
  * @return {Node|[Node]} nodes
  */
 function varyNodes( el, meth, nodes ) {
-    let _val = {
+    let _msg = {
             // replaceWidth => replace
             type: meth.substring(0, 7),
             data: nodes,
         };
 
-    limitTrigger( el, evnNodeVary, _val );
+    limitTrigger( el, evnNodeVary, _msg );
     try {
         el[meth]( ...detachNodes(nodes) );
     }
     catch(e) {
-        return failTrigger( el, evnNodeFail, [e, _val])
+        return failTrigger( el, evnNodeFail, [e, _msg])
     }
-    limitTrigger( el, evnNodeDone, _val );
+    limitTrigger( el, evnNodeDone, _msg );
 
     return nodes;
 }
@@ -5701,13 +5684,13 @@ function varyNodes( el, meth, nodes ) {
  */
  function varyRemove( node, box ) {
     if ( box ) {
-        let _val = {
+        let _msg = {
             type: 'remove',
-            data: node
+            data: node,
         };
-        limitTrigger( box, evnNodeVary, _val );
+        limitTrigger( box, evnNodeVary, _msg );
         node.remove();
-        limitTrigger( box, evnNodeDone, _val );
+        limitTrigger( box, evnNodeDone, _msg );
     }
     return node;
 }
@@ -5722,14 +5705,14 @@ function varyNodes( el, meth, nodes ) {
  */
 function varyEmpty( el ) {
     let _nodes = Arr(el.childNodes),
-        _val = {
+        _msg = {
             type: 'empty',
             data: _nodes,
         };
 
-    limitTrigger( el, evnNodeVary, _val );
+    limitTrigger( el, evnNodeVary, _msg );
     el.textContent = '';
-    limitTrigger( el, evnNodeDone, _val );
+    limitTrigger( el, evnNodeDone, _msg );
 
     return _nodes;
 }
@@ -5743,16 +5726,83 @@ function varyEmpty( el ) {
  * @return {Element} el
  */
 function varyNormalize( el, depth ) {
-    let _val = {
+    let _msg = {
             type: 'normalize',
             data: depth,
         };
 
-    limitTrigger( el, evnNodeVary, _val );
+    limitTrigger( el, evnNodeVary, _msg );
     el.normalize();
-    limitTrigger( el, evnNodeDone, _val );
+    limitTrigger( el, evnNodeDone, _msg );
 
     return el;
+}
+
+
+/**
+ * 新节点插入封装。
+ * meth: append|prepend|before
+ * 注：没有 varyfail 事件。
+ * @param  {Element} el 目标元素
+ * @param  {String} meth 插入方法
+ * @param  {Node} node 新节点（游离）
+ * @return {Node} node
+ */
+function varyNewNode( el, meth, node ) {
+    let _msg = {
+            type: meth,
+            data: node,
+        };
+
+    limitTrigger( el, evnNodeVary, _msg );
+    el[meth]( node );
+    limitTrigger( el, evnNodeDone, _msg );
+
+    return node;
+}
+
+
+/**
+ * 新节点集插入封装。
+ * meth: append|prepend|before
+ * 注：没有 varyfail 事件。
+ * @param  {Element} el 目标元素
+ * @param  {String} meth 插入方法
+ * @param  {[Node]} nodes 新节点集（游离）
+ * @return {[Node]} nodes
+ */
+function varyNewNodes( el, meth, nodes ) {
+    let _msg = {
+            type: meth,
+            data: nodes,
+        };
+
+    limitTrigger( el, evnNodeVary, _msg );
+    el[meth]( ...nodes );
+    limitTrigger( el, evnNodeDone, _msg );
+
+    return nodes;
+}
+
+
+/**
+ * 子元素集删除封装。
+ * 注：无 nodefail 事件。
+ * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
+ * @param  {[Element]} subs 待删除子元素集
+ * @return {[Element]} 删除的子元素集
+ */
+function varyRemoves( subs, box ) {
+    if ( box ) {
+        let _msg = {
+                type: 'removesiblings',
+                data: subs,
+            };
+        limitTrigger( box, evnNodeVary, _msg );
+        subs.forEach( nd => nd.remove() );
+        limitTrigger( box, evnNodeDone, _msg );
+    }
+    return subs;
 }
 
 
@@ -5812,6 +5862,36 @@ function varyWrapAll( root, box, nodes ) {
     varyNodes( nodes[0], 'replaceWith', root );
     varyNodes( box, 'prepend', nodes );
     return root;
+}
+
+
+/**
+ * 子元素插入封装。
+ * 注：子元素是新建的游离元素。
+ * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
+ * @param  {Element} sub 子元素集
+ * @param  {Element} ref 位置引用（前插），可选
+ * @return {Element} 新插入的子元素
+ */
+function insertNode( box, sub, ref ) {
+    return ref ?
+        varyNewNode( ref, 'before', sub ) :
+        varyNewNode( box, 'append', sub );
+}
+
+
+/**
+ * 子元素集插入封装。
+ * 注：子元素是新建的游离元素。
+ * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
+ * @param  {[Element]} subs 子元素集
+ * @param  {Element} ref 位置引用（前插），可选
+ * @return {[Element]} 新插入的子元素集
+ */
+function insertNodes( box, subs, ref ) {
+    return ref ?
+        varyNewNodes( ref, 'before', subs ) :
+        varyNewNodes( box, 'append', subs );
 }
 
 
