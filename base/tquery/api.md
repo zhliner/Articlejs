@@ -1392,19 +1392,6 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 - `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
 
-### [$.Later( evn, handle, over? ): Function](docs/$.Later.md)
-
-封装事件处理器（`handle`）的进一步事件（`evn`）激发，主要用于前后连续事件间的联动。
-
-- `evn: String` 未来将要激发的事件名（序列）。
-- `handle: Function | Object` 待封装的当前事件的处理器或EventListener实例。
-- `over?: Boolean` 是否跳过当前调用栈（调用 `setTimeout()` 延后激发）。可选，默认为 `false`。
-
-根据 `handle` 的执行情况和返回值决定后续行为，如果 `handle` 中调用了 `event.preventDefault()` 或返回假值，则不再激发 `evn`，否则对返回的元素（集）或配置对象（集）逐一激发目标事件，`evn` 支持空格分隔的多个事件名序列。传递一个空的事件名依然会执行事件处理器，只是不会激发事件（无事件可激发）。
-
-本接口返回一个封装了相关逻辑的处理器函数，该处理器函数自身的返回值规则为：如果 `handle` 中调用了 `event.preventDefault()` 或返回了假值，或者事件名是一个空白串，则返回该返回值本身，如果封装的处理器激发了目标事件，则返回 `undefined` 或一个定时器ID。
-
-
 ### [$.Counter( proc, n, step ): Function](docs/$.Counter.md)
 
 封装用户的处理器函数包含一个自动计数器，返回一个封装后的处理器函数，接口：`function( count, ... )`。
@@ -1416,7 +1403,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 这会要求用户的处理器函数的首个实参为计数值（自动递增）设计。计数的起始值可以在封装中指定，每次递增的幅度（步进值）也可以由用户指定。
 
 > **注：**<br>
-> 主要用在封装单元素版方法的回调函数，提供集合版调用时的成员迭代计数。
+> 主要用在封装单元素版方法的回调函数获得集合版调用时的成员迭代计数。
 
 
 ### $.dataName( attr ): String

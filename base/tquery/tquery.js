@@ -831,7 +831,7 @@ Object.assign( tQuery, {
      * @return {[Array2]} 键值对数组
      */
     serialize( frm, ...names ) {
-        if ( !names.length ) {
+        if ( names.length == 0 ) {
             return [...new FormData(frm).entries()];
         }
         let _els = tQuery.controls(frm);
@@ -839,7 +839,7 @@ Object.assign( tQuery, {
         if (_els.length > 0) {
             _els = _els.filter( el => names.includes(el.name) );
         }
-        return mapArr2( _els, submitValues );
+        return arr2Flat( cleanMap(_els, submitValues) );
     },
 
 
@@ -4839,20 +4839,16 @@ function submitValue( ctrl, value ) {
 
 
 /**
- * 回调返回二维数组才展开的map操作。
- * 主要用于返回键值对（[key, value]）或键值对数组的合并处理。
- * 注：回调返回null或undefined时忽略。
- * callback: function(its): Array2|[Array2]
- * @param  {Array} arr 处理源数组
- * @param  {Function} callback 回调函数
+ * 双成员数组展开（合并）。
+ * 注：成员是二维数组才会扁平化展开。
+ * @param  {[Array2|[Array2]]} src 源数组
  * @return {[Array2]}
  */
-function mapArr2( arr, callback ) {
-    return cleanMap(arr, callback)
-        .reduce(
-            (buf, its) => isArr(its[0]) ? buf.concat(its) : (buf.push(its), buf),
-            []
-        );
+function arr2Flat( src ) {
+    return src.reduce(
+        (buf, its) => isArr(its[0]) ? buf.concat(its) : (buf.push(its), buf),
+        []
+    );
 }
 
 
@@ -6936,92 +6932,6 @@ function customHandle( handle ) {
 
 
 /**
- * 衔接处理器封装。
- * 前阶事件处理器可以返回一个元素（数组）或一个配置对象（数组）。
- * 配置对象：{
- *      elem: Element,  // 目标元素
- *      data: Value     // 激发附加数据
- * }
- * 前阶事件处理器返回假值或调用了event.preventDefault()会中止目标事件触发。
- *
- * @param  {Event} ev 事件对象
- * @param  {Object} elo 事件目标对象（含selector）
- * @param  {String} evn 待激发的事件名（序列）
- * @param  {Function|EventListener} handle 衔接处理器
- * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
- * @return {false|Value}
- */
-function tiedHandle( ev, elo, evn, handle, over ) {
-    let _ret = handle(ev, elo);
-
-    if (!_ret || ev.defaultPrevented || !evn) {
-        return _ret;
-    }
-    return over ? setTimeout(tieProcess, 0, _ret, evn) : tieProcess(_ret, evn);
-}
-
-
-/**
- * Later的执行封装。
- * @param {Element|Object|[Element]|[Object]} its 前阶处理器返回结果
- * @param {String} evn 待激发事件名
- */
-function tieProcess( its, evn ) {
-    evn = evn.split(__chSpace);
-    return isArr(its) ? tieTriggers(its, evn) : tieTrigger(its, evn);
-}
-
-
-/**
- * 单目标激发。
- * @param {Element|Object} it 激发目标
- * @param {[String]} evns 事件名集
- */
-function tieTrigger( it, evns ) {
-    let _el, _val;
-
-    if ( it.nodeType ) {
-        _el = it;
-    } else {
-        _el = it.elem;
-        _val = it.data;
-    }
-    evnsTrigger( _el, evns, _val );
-}
-
-
-/**
- * 多目标激发。
- * 按数组的首个成员类型判断。
- * @param {[Element]|[Object]} its 激发目标集
- * @param {[String]} evns 事件名集
- */
-function tieTriggers( its, evns ) {
-    if (its.length == 0) {
-        return;
-    }
-    if ( its[0].nodeType ) {
-        return its.forEach( el => evnsTrigger(el, evns) );
-    }
-    its.forEach( it => evnsTrigger(it.elem, evns, it.data) );
-}
-
-
-/**
- * 多事件名激发。
- * @param {Element} el 激发事件的元素
- * @param {[String]} evns 事件名集
- * @param {Value} val 激发附加的数据
- */
-function evnsTrigger( el, evns, val ) {
-    if ( evns.length == 1 ) {
-        return tQuery.trigger( el, evns[0], val );
-    }
-    evns.forEach( n => tQuery.trigger( el, n, val ) );
-}
-
-
-/**
  * 事件批量绑定/解绑。
  * - 用于事件的on/off/one批量操作。
  * - evn支持“事件名序列: 处理函数”配置对象，此时slr依然有效（全局适用）。
@@ -7246,34 +7156,6 @@ Object.assign( tQuery, {
             if (comp(v, k)) return true;
         }
         return false;
-    },
-
-
-    /**
-     * 封装事件处理器的进阶激发。
-     * 主要用于两个事件间的联动，根据前阶处理器的返回值决定后续行为。
-     * 如果前阶事件处理器返回了假值或调用了event.preventDefault()则不激发，
-     * 否则对返回的元素或配置对象（集）逐一激发。
-     * handle接口:
-     * - function(ev, elo): Element|[Element]|Object|[Object]|false
-     * - Object: { elem: Element, data: Value }
-     *
-     * 传递一个空的事件名依然会执行事件处理器，只是不会激发事件。
-     *
-     * 返回值：
-     * 返回一个封装了相关逻辑的处理器函数。
-     * 如果前阶处理器返回假值则返回该假值，否则返回undefined或一个定时器ID。
-     *
-     * @param  {String} evn 待激发的事件名，支持空格分隔多个事件名
-     * @param  {Function|EventListener} 事件处理器
-     * @param  {Boolean} over 是否跳过当前调用栈（setTimeout）
-     * @return {Function} 事件处理器
-     */
-    Later( evn, handle, over = false ) {
-        if ( !isFunc(handle) ) {
-            handle = handle.handleEvent.bind( handle );
-        }
-        return (ev, elo) => tiedHandle( ev, elo, evn.trim(), handle.bind(elo.current), over );
     },
 
 
