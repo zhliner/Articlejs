@@ -283,18 +283,6 @@
         // SVG元素名称空间。
         svgNS = 'http://www.w3.org/2000/svg',
 
-        // Unicode版非字母数字匹配。
-        // 用于URI编码时保留字母数字显示友好性。
-        // 参考 https://github.com/tc39/proposal-regexp-unicode-property-escapes
-        // 注：
-        // - 放宽数字匹配范围（Number）。
-        // - 允许常用全角标点符号（，、。：；！？「」『』‘’“”等）。
-        // uriComponentX = /[^\p{Alphabetic}\p{Mark}\p{Number}\p{Connector_Punctuation}\p{Join_Control}，、。：；！？「」『』‘’“”]/gu,
-
-        // 一个URL空格。
-        // to +
-        __reBlank = /%20/g,
-
         // 简单选择器。
         // 用于原生ID/Class/Tag优先检索。
         __reID      = new RegExp( "^#(" + identifier + ")$" ),
@@ -847,20 +835,16 @@ Object.assign( tQuery, {
      * 名值对数组/对象构造URL查询串。
      * 名值对：[name, value]
      * @param  {[Array2]|Object|Map|Element} target 名值对数组或表单元素
-     * @param  {RegExp} match 需要转换的数据匹配式
      * @return {String} URL查询串
      */
-    queryURL( target, match /*= uriComponentX*/ ) {
+    queryURL( target ) {
         if ( target.nodeType ) {
             target = tQuery.serialize(target);
         }
         else if ( !isArr(target) ) {
             target = $A( entries2(target) );
         }
-        if ( !match ) {
-            return new URLSearchParams(target).toString();
-        }
-        return target.map( ([n, v]) => uriKeyValue(n, v, match) ).join('&');
+        return new URLSearchParams(target).toString();
     },
 
 
@@ -4849,29 +4833,6 @@ function arr2Flat( src ) {
         (buf, its) => isArr(its[0]) ? buf.concat(its) : (buf.push(its), buf),
         []
     );
-}
-
-
-/**
- * 编码为URL查询键值对。
- * @param  {String} name 变量（控件）名
- * @param  {String} value 变量（控件）值
- * @param  {RegExp} match 数据匹配式
- * @return {String} 转换后的 键=值 对
- */
-function uriKeyValue( name, value, match ) {
-    return `${encURICompX(name, match)}=${value == null ? '' : encURICompX(value, match)}`;
-}
-
-
-/**
- * 可视友好的URI转换。
- * @param  {String} str 目标字符串
- * @param  {RegExp} match 数据匹配式
- * @return {String} URL转换串
- */
-function encURICompX( str, match ) {
-    return str.replace(match, encodeURIComponent).replace(__reBlank, '+');
 }
 
 
