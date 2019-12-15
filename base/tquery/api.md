@@ -205,17 +205,13 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 注意：这与表单的提交逻辑相关，因此只有实际会提交的值才会被序列化。返回一个**名/值对**（`[name, value]`）双成员数组（`Array2`）的数组。
 
 
-### [$.queryURL( target, match? ): String](docs/$.queryURL.md)
+### [$.queryURL( target ): String](docs/$.queryURL.md)
 
 用数据源构造 `URL` 查询串（即 `URL` 中 `?` 之后的部分）。
 
 - `target: Element | [Array2] | Object | Map` 构造查询串的表单元素或数据源。
-- `match: RegExp` 需要转换的数据匹配式，可选。
 
 数据源可以是一个表单元素、一个**名/值对**数组的数组（`$.serialize()` 的返回值）、一个**键/值对**对象、或者是一个 `Map实例`。如果直接传入一个表单元素，系统会自动提取表单内可提交控件的**名/值对**集合。
-
-> **注：**<br>
-> `match` 参数主要用于可视性友好，比如排除Unicode字符、数字和一些常用的全角标点符号不转换（与浏览器地址栏相似）。
 
 
 ### [$.ready( handle ): this](docs/$.ready.md)
