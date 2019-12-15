@@ -1341,9 +1341,10 @@ Object.assign( tQuery, {
         if (el.nodeType != 1) {
             throw new Error('el must be a Element');
         }
-        return varyNodes(
+        return varyNewNodes(
             el,
             'replaceWith',
+            // 优化
             varyEmpty(el)
         )
         .filter( masterNode );
@@ -5763,8 +5764,8 @@ function varyNewNode( el, meth, node ) {
 
 
 /**
- * 新节点集插入封装。
- * meth: append|prepend|before
+ * 新节点（游离）集插入封装。
+ * meth: append|prepend|before|replaceWith
  * 注：没有 varyfail 事件。
  * @param  {Element} el 目标元素
  * @param  {String} meth 插入方法
@@ -5773,7 +5774,7 @@ function varyNewNode( el, meth, node ) {
  */
 function varyNewNodes( el, meth, nodes ) {
     let _msg = {
-            type: meth,
+            type: meth.substring(0, 7),
             data: nodes,
         };
 
