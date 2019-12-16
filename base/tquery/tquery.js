@@ -503,8 +503,10 @@ function tQuery( its, ctx ) {
 //
 // 功能配置。
 // 目前仅支持 varyevent:{Boolean}
+// 无参数调用返回内部配置对象的一个副本。
 //
-tQuery.config = option => Object.assign( Options, option );
+tQuery.config = option =>
+    Object.assign( option && Options || {}, option || Options );
 
 
 //
@@ -2415,7 +2417,7 @@ class Table {
 
         if ( idx < this._cols ) {
             for (const tr of this._tbl.rows) {
-                _buf.push( varyRemove(tr.cells[idx]), tr );
+                _buf.push( varyRemove(tr.cells[idx], tr) );
             }
         }
         this._cols -= 1;
