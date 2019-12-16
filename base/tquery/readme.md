@@ -99,25 +99,25 @@
 
 4. 事件委托绑定（`delegate`）的触发区别。
     - *jQuery*: 事件处理器的绑定可以用一个选择器限定事件触发的目标。从事件的触发起始元素（`target`）开始到委托绑定的元素，如果有多个目标元素匹配，就会触发多次事件处理器的调用。
-    - *tQuery*: 委托绑定的规则与jQuery相同，但事件的触发仅有一次：触发的目标元素是从起始元素（`target`）开始，逆向向上第一个匹配的元素。**注意**：由于实现没有对原始事件对象做任何侵入，因此请从事件处理器（`function(event, elo): Any`）的第二个实参上取当前元素（`elo.current`）。
+    - *tQuery*: 委托绑定的规则与jQuery相同，但事件的触发仅有一次，触发的目标是从起始元素（`target`）开始（含 `target`），向上第一个匹配的元素。**注**：从事件处理器接口（`function(event, elo): Any`）的第二个实参 `elo` 上取当前匹配元素（`elo.current`）。
 
-5. 关于嵌入代理（$.embedProxy）。
+5. 定制事件（`varyevent`）。
 
-    tQuery 中支持外部对 `window.$` 嵌入 `get` 代理。即由外部定义 `$` 成员的调用覆盖，`getter` 接受函数名参数，应当返回一个与目标方法声明相同的函数。接口：`function( name ): Function`。如：
-    ```js
-    let hasClassX = function( el, name ) { ... };
-    let getter = function( fn ) {
-        // 仅覆盖 $.hasClass() 方法
-        return fn == 'hasClass' ? hasClassX : null;
-    };
-    $.embedProxy( getter );  // 嵌入代理。返回代理前的 $
-    ```
+    为了跟踪DOM节点的变化，为编写DOM编辑器提供方便，设计加入了5组定制事件：（默认关闭。执行 `$.config({varyevent:true})` 启用）
+
+    1. `attrvary/attrfail/attrdone` 元素特性：`设置/出错/完成` 事件。
+    2. `propvary/propfail/propdone` 元素属性：`设置/出错/完成` 事件。
+    3. `cssvary/cssfail/cssdone` 元素内联样式：`设置/出错/完成` 事件。
+    4. `classvary/classfail/classdone` 元素类名：`设置/出错/完成` 事件。
+    5. `nodevary/nodefail/nodedone` 节点/元素：`修改/出错/完成` 事件。
+
+    需要跟踪DOM节点变化的应用可以获得节点改变之前、出错和完成之后三个阶段的监控和应对能力。事件冒泡但不可取消，附加的消息（`event.detail`）包含了相关联的数据。出错和完成事件不会同时发生，两者仅有其一。
 
 
 ## 注意事项
 
 tQuery 也支持 Sizzle 中很有用的直接子元素选择器 `>...`。如：`$('>b, >a', ctx)`，表示选取 `ctx` 内 `<b>` 和 `<a>` 直接子元素。
 
-tQuery 可以脱离 Sizzle 使用，它采用了浏览器内置的 `querySelector()/querySelectorAll()` 通用方法，该方法并不支持上面的选择器形式。实际上，tQuery 只是简单地用一个临时属性名补充到 `>` 之前，从而构造出一个合法的选择器（形如：`P[___tquery_bcc6c0df_]>...`）。
+tQuery 可以脱离 Sizzle 使用，它采用了浏览器内置的 `querySelector()/querySelectorAll()` 通用方法，但该方法并不支持上面的选择器形式。实际上，tQuery 只是简单地用一个临时属性名补充到 `>` 之前，从而构造出一个合法的选择器（形如：`P[___tquery_bcc6c0df_]>...`）。
 
-临时属性名是一个当前时间戳，有一个固定的前缀 `___tquery_`。固定前缀可以减少重名冲突的可能，但如果您明确知道这一点，结果会更好。
+临时属性名由一个固定的前缀 `___tquery_` 和当前时间戳（16进制）以及一个结尾 `_` 构成，以避免与应用冲突（您知道这点更好）。

@@ -93,7 +93,7 @@ const Util = {
      *      {String}    普通的CSS选择器，支持相对ID。
      *
      * 相对ID：
-     *      前置一个问号（?）表示相对ID，即data-id属性的值。如：?xx => [data-id='xx']
+     *      ? 前置一个问号表示相对ID，即data-id属性的值。如：?xx => [data-id='xx']
      *
      * 例：
      * /            单独的 / 表示起点元素自身。
@@ -266,16 +266,17 @@ const Util = {
 
     /**
      * 激发目标事件。
+     * rest：[extra, bubble, cancelable]，参见 $.trigger。
      * @param {Collector} $els 目标元素集
      * @param {String} name 事件名
-     * @param {Value} extra 附加数据
      * @param {Number} delay 延迟毫秒数
+     * @param {...Value} rest 剩余参数
      */
-    fireEvent( $els, name, extra, delay ) {
+    fireEvent( $els, name, delay, ...rest ) {
         if ( !delay ) {
-            return $els.trigger( name, extra );
+            return $els.trigger( name, ...rest );
         }
-        return setTimeout( () => $els.trigger(name, extra), delay );
+        return setTimeout( () => $els.trigger(name, ...rest), delay );
     },
 
 };

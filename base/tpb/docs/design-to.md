@@ -145,6 +145,11 @@ xxxx   // 单元素检索，$.get(): Element | null
 // 样式设置（增强版）。
 // name:{String|Object|Map} | [name, value]
 
+- trigger
+// 发送事件到目标。
+// 当前条目：栈顶1项。
+// [事件名, 发送数据, ...]
+
 
 //
 // 逆向设置（一对多|一对一）。
@@ -266,17 +271,16 @@ target()
 // 用当前条目/栈顶1项设置为To目标。
 
 
-fire( evn, data, delay )
-// 触发事件，即 $.trigger。
+fire( evn, delay = 1, data, bubble, cancelable )
+// 延迟激发。
 // 内容：当前条目，可选。
-// 如果data未定义，且当前条目非空，则采用当前条目为数据。
-// 数据优先级：data > evo.data | void
-// delay: 激发延迟，默认无延迟。
+// delay: 激发延迟时间（毫秒），默认1。
+// 如果data为null，且当前条目非null，则采用当前条目为数据。
 
-xfire( evn, data, delay )
-// 判断激发。
+xfire( evn, delay = 1, data, bubble, cancelable )
+// 延迟判断激发。
 // 内容：当前条目/栈顶1项。
-// 仅当内容为真时才激发目标事件，否则忽略。
+// 仅当内容为非假值时才激发目标事件，否则忽略。
 // 注：
 // 此时流程数据无法成为发送数据。
 
@@ -313,7 +317,7 @@ changes()
 clear()
 // 表单控件清空。
 // 效果：选取类控件为取消选取，其它为清除value值。
-// 参考.select(), .focus()用途。
+// 参考.select(), .focus()类用途。
 
 tips( long, msg )
 // 发送提示消息。

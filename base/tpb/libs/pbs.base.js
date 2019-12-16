@@ -801,8 +801,8 @@ const _Base2 = {
         stack.push( ..._vs );
     },
 
-    __gets: 1,
-    __gets_x: true,
+    __get: 1,
+    __get_x: true,
 
 
     /**

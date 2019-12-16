@@ -107,15 +107,14 @@ const _Where = {
 });
 
 
-// 增强版。
-// 普通更新方式（流程数据展开：1-2个参数）。
-// 注：
-// 与上面不同，此处接口的name实参在流程数据中。
+// 普通更新方式（流程数据展开）。
+// 与上面不同，除目标外全部实参在流程数据中。
 //-----------------------------------------------
 [
-    'attr',
-    'prop',
-    'cssSets',
+    'attr',     // [name, value]
+    'prop',     // [...]
+    'cssSets',  // [...]
+    'trigger',  // [evn, extra, ...]
 ]
 .forEach(function( meth ) {
     /**
@@ -260,14 +259,15 @@ const _Stage = {
      * 内容：当前条目，可选。
      * 如果data未定义，则采用当前条目（如果有）为数据。
      * @param {String} name 事件名
-     * @param {Value} extra 发送数据
-     * @param {Number} delay 延迟毫秒数。可选，默认无延迟
+     * @param {Number} delay 延迟毫秒数。
+     * @param {Value} extra 发送的数据
+     * @param {...Value} rest 剩余参数（bubble, cancelable）
      */
-    fire( evo, name, extra, delay ) {
-        if ( extra === undefined ) {
-            extra = evo.data;
+    fire( evo, name, delay = 1, extra = null, ...rest ) {
+        if ( extra == null ) {
+            extra = evo.data == null ? extra : evo.data;
         }
-        Util.fireEvent( $(evo.targets), name, extra, delay );
+        Util.fireEvent( $(evo.targets), name, delay, ...rest );
     },
 
     __fire: 0,
@@ -279,12 +279,12 @@ const _Stage = {
      * 仅当内容为真时才激发目标事件，否则忽略。
      * 注：内容无法成为被发送的数据。
      * @param {String} name 事件名
-     * @param {Value} extra 发送数据
-     * @param {Number} delay 延迟毫秒数。可选，默认无延迟
+     * @param {Number} delay 延迟毫秒数。
+     * @param {...Value} rest 剩余参数（extra, bubble, cancelable）
      */
-    xfire( evo, name, extra, delay ) {
+    xfire( evo, name, delay = 1, ...rest ) {
         if ( evo.data ) {
-            Util.fireEvent( $(evo.targets), name, extra, delay );
+            Util.fireEvent( $(evo.targets), name, delay, ...rest );
         }
     },
 

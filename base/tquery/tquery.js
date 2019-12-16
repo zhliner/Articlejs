@@ -6554,7 +6554,7 @@ const Event = {
 
     /**
      * 匹配委托目标。
-     * 只返回最深的匹配元素，因此外部调用最多一次。
+     * 只返回最深的匹配元素（含target），因此外部调用最多一次。
      * 委托匹配不测试绑定元素自身（仅限子级元素）。
      *
      * 仅匹配一次的理由：
@@ -6849,9 +6849,7 @@ const Event = {
      */
     _closest( match, beg, root ) {
         while (beg !== root) {
-            if ( match(beg) ) {
-                return beg;
-            }
+            if ( match(beg) ) return beg;
             beg = beg.parentNode;
         }
         return null;
