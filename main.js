@@ -8,7 +8,7 @@
 //
 //  使用：
 //      // 创建一个编辑器实例，basefile可选。
-//      let editor = Articlejs.create( option, basefile );
+//      let editor = yyEd.create( option, basefile );
 
 //      // 编辑器（<iframe>）插入某容器。
 //      box.append( editor.element() );
@@ -65,10 +65,10 @@
 
 // 名称空间。
 // 可更改，但需与末端名称匹配。
-const Articlejs = {};
+const yyEd = {};
 
 
-(function( jcEd ) {
+(function( Ed ) {
 
     // 高宽配置：
     // chrome 正常。
@@ -120,7 +120,7 @@ const Articlejs = {};
  * @param  {String} basefile 基础根模板文件（含扩展名），可选
  * @return {Editor} 编辑器实例
  */
-jcEd.create = (option, basefile) => new Editor( option, basefile || __tplRoot );
+Ed.create = (option, basefile) => new Editor( option, basefile || __tplRoot );
 
 
 //
@@ -427,4 +427,4 @@ function sizeValue( val ) {
     return isNaN( val - parseFloat(val) ) ? val : `${val}px`;
 }
 
-})( Articlejs );
+})( yyEd );

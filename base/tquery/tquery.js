@@ -48,7 +48,7 @@
 
 
     事件：
-    提供10组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类。
+    提供5组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类。
     开启：tQuery.config({varyevent: true});
 
     - attrvary/attrfail/attrdone    // 特性设置/出错/完成
@@ -62,7 +62,7 @@
     //      append, prepend, before, after, replace,
     //      empty, remove, removesiblings, normalize
     // ]
-    // 复合操作：fill, wrap, wrapinner, wrapall, unwrap, html, text
+    // 复合操作：fill, wrap, wrapInner, wrapAll, unwrap, html, text
 
     注记：取消嵌入代理设计。
 
