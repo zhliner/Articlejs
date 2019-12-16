@@ -302,7 +302,7 @@
 
 
     const
-        version = 'tQuery-0.4.0',
+        version = 'tQuery-0.5.0',
 
         // 临时属性名
         // 固定异样+动态，避免应用冲突。
