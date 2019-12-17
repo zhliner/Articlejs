@@ -13,6 +13,10 @@
 //      __[name]_x  指定[name]是否为特权方法（可取用数据栈stack）。
 //  }
 //
+//  接口参数：
+//  - 首个实参为事件关联对象（evo），在模板中被隐藏。
+//  - 如果接口需要直接操作数据栈（特权），数据栈对象会作为第二个实参传入（对模板隐藏）。
+//
 ///////////////////////////////////////////////////////////////////////////////
 //
 
@@ -950,6 +954,45 @@ const _Base2 = {
     __reverse: 1,
 
 
+    /**
+     * 连接数组各成员。
+     * @param {String} chr 连接字符串
+     */
+    join( evo, chr ) {
+        return evo.data.join( chr );
+    },
+
+    __join: 1,
+
+
+    /**
+     * 调用目标对象 .values() 接口构造值数组。
+     * 注：也适用普通对象。
+     */
+    values( evo ) {
+        if ( $.type(evo.data) == 'Object' ) {
+            return Object.values(evo.data);
+         }
+         return [ ...evo.data.values() ];
+    },
+
+    __values: 1,
+
+
+    /**
+     * 调用目标对象 .keys() 接口构造键数组。
+     * 注：也适用普通对象。
+     */
+    keys( evo ) {
+        if ( $.type(evo.data) == 'Object' ) {
+            return Object.keys(evo.data);
+         }
+         return [ ...evo.data.keys() ];
+    },
+
+    __keys: 1,
+
+
 
     // 简单运算
     //===============================================
@@ -1201,6 +1244,25 @@ const _Base2 = {
     __gte: 2,
 
 
+    /**
+     * 数组相等比较。
+     * 目标：当前条目/栈顶1-2项。
+     * 如果传递了a1，则取当前条目或栈顶1项。
+     * 如果未传递a1，则取当前条目或栈顶2项。
+     * @param {Stack} stack 数据栈
+     * @param {[Value]} a1 对比值
+     */
+    arrayEqual( evo, stack, a1 ) {
+        if ( !a1 ) {
+            return arrayEqual( ...(evo.data || stack.data(2)) );
+        }
+        return arrayEqual( a1, evo.data || stack.data(1) );
+    },
+
+    __arrayEqual: null,
+    __arrayEqual_x: true,
+
+
 
     // 逻辑运算
     // @return {Boolean}
@@ -1290,13 +1352,11 @@ const _Base2 = {
 
     /**
      * 目标对象内成员测试。
-     * 检查name是否在目标对象内，且与val相等。
      * 目标：当前条目/栈顶1项。
-     * name支持空格分隔的多个名称指定。
-     * 如果val未定义，则为存在性检查（非undefined）。
-     * ext只有在val为数组时才有意义，指定val成员与多个名称一一对应测试。
-     * 注：
-     * 当所有的检查/比较都为真时，返回真。
+     * name为属性名，支持空格分隔的多个属性名指定。
+     * val为对比值，用于与目标属性值做全等比较。可选，默认为存在性测试（非undefined）。
+     * 如果name为多名称指定，val可以是一个数组（一一对应）或undefined。
+     * 当所有的检查/比较都为真时，返回true。
      * 例：
      * - inside('shift ctrl', true) // 是否shift和ctrl成员值为真。
      * - inside('selector') // 是否selector成员在目标内。
@@ -1304,13 +1364,12 @@ const _Base2 = {
      *
      * @param {String} name 成员名称（集）
      * @param {Value|[Value]} val 对比值或值集
-     * @param {Boolean} ext val是否扩展一一对应匹配
      */
-    inside( evo, name, val, ext ) {
+    inside( evo, name, val ) {
         let _o = evo.data,
             _f = n => existValue(_o, n, val);
 
-        if ( ext ) {
+        if ( $.isArray(val) ) {
             _f = (n, i) => existValue(_o, n, val[i]);
         }
         return name.split(/\s+/).every(_f);
@@ -1465,7 +1524,7 @@ function boolTester( expr ) {
 
 /**
  * 对象属性值测试。
- * 检查目标属性是否在目标对象内或是否与测试值相等。
+ * 检查目标属性是否在目标对象内或是否与测试值全等。
  * 注：如果测试值未定义，则为存在性检查。
  * @param {Object} obj 目标对象
  * @param {String} name 属性名
@@ -1473,6 +1532,20 @@ function boolTester( expr ) {
  */
 function existValue( obj, name, val ) {
     return val === undefined ? obj[name] !== undefined : obj[name] === val;
+}
+
+
+/**
+ * 对比两个数组是否相等。
+ * 仅为数组成员的浅层相等对比。
+ * @param {[Value]} a1 数组1
+ * @param {[Value]} a2 数组2
+ */
+function arrayEqual( a1, a2 ) {
+    if ( a1.length != a2.length ) {
+        return false;
+    }
+    a1.every( (v, i) => v === a2[i] );
 }
 
 

@@ -535,6 +535,19 @@ reverse(): [Value]
 // 目标：当前条目/栈顶1项。
 // 返回一个新的数组。
 
+values(): [Value]
+// 调用目标 .values() 接口构造为值数组。
+// 注：也适用普通对象（Object）。
+
+keys(): [Value]
+// 调用目标 .keys() 接口构造为值数组。
+// 注：也适用普通对象（Object）。
+
+join( chr ): String
+// 调用目标的 .join() 方法构造字符串。
+// 主要用于数组成员的连接。
+// 注：即 .call('join', chr) 的特例版。
+
 
 
 // 简单运算
@@ -601,6 +614,14 @@ lte(): Boolean      // (x, y) => x <= y
 gt(): Boolean       // (x, y) => x > y
 gte(): Boolean      // (x, y) => x >= y
 
+arrayEqual( arr? )
+// 数组相等比较。
+// 如果传递 arr 实参则取栈顶1项比较，否则取栈顶两项比较。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，需要灵活取栈条目。
+// 注：
+// 仅对数组的成员逐一执行浅相等对比。
+
 
 
 // 逻辑运算
@@ -616,7 +637,7 @@ include( ...vals ): Boolean
 // 实现：Array.includes。
 
 both(): Boolean
-// 二者为真判断。
+// 二者为真（广义）判断。
 // 目标：当前条目/栈顶2项。
 
 either(): Boolean
@@ -637,20 +658,19 @@ some( expr ): Boolean
 // 表达式接口：function(v, i, o): Boolean。
 // 注：目标必须是一个集合。
 
-inside( name: String|[String], val: Value|[Value] ): Boolean
+inside( name: String, val: Value|[Value] ): Boolean
 // 目标对象内成员测试。
 // 目标：当前条目/栈顶1项。
-// name或name的单元是否在目标对象内，且与val相等。
-// 如果name和val都为数组，则一一对应比较。
-// 如果val未定义，则为存在性检查（非undefined）。
-// 注：
-// 当所有的检查/比较都为真时，返回真。
+// name为属性名，支持空格分隔的多个属性名指定。
+// val为对比值，用于与目标属性值做全等比较。可选，默认为存在性测试（非undefined）。
+// 如果name为多名称指定，val可以是一个数组（一一对应）或undefined。
+// 当所有的检查/比较都为真时，返回true。
 // 例：
-// inside(['shift', 'ctrl'], true)
+// inside('shift ctrl', true)
 // 检查目标内shift和ctrl成员值是否都为真。
 // inside('selector')
 // 检查目标内的selector成员是否存在（非undefined）。
-// inside(['AA', 'BB'], [1, 2])
+// inside('AA BB', [1, 2])
 // 检查目标内是否：AA成员值为1且BB成员值为2。
 
 
