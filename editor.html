@@ -64,15 +64,23 @@
     <!-- 宽度调整 -->
     <hr id="lineLeft">
 
-    <!-- 主编辑器：
-        工具栏，内容区，功能区（面板），状态栏/命令行，菜单准备 -->
-    <main id="editor" tpl-load="main:tools, main:content, main:slave, main:status, main:menus"></main>
+    <!-- 主编辑器 -->
+    <main id="editor">
+        <div tpl-node="main:tools">工具栏</div>
+        <div tpl-node="main:content">内容区</div>
+        <div tpl-node="main:slave">主面板区</div>
+        <div tpl-node="main:status">状态栏</div>
+        <div tpl-node="menu:cells">[选取创建菜单]</div>
+        <div tpl-node="menu:edits">[基本编辑菜单]</div>
+    </main>
 
     <!-- 宽度调整 -->
     <hr id="lineRight">
 
     <!-- 帮助栏：固定时占用空间。可隐藏。 -->
-    <aside id="help"></aside>
+    <aside id="help">
+        <div tpl-node="help:docs">帮助栏</div>
+    </aside>
 
     <!-- 友好：阻挡提示音 -->
     <audio id="beeptip" src="themes/beep.ogg"></audio>

@@ -107,48 +107,45 @@
 </div>
 
 
-<!-- [菜单集] -->
-<div tpl-name="main:menus">
-    <!-- 选取创建：mouseup -->
-    <menu id="menu-cells" class="_cells" data-pb="hide">
-        <li data-val="a" title="{链接}"><a href="javascript:return false;">&lt;a&gt;</a></li>
-        <li data-val="code" title="{代码}"><code>&lt;code&gt;</code></li>
-        <li data-val="strong" title="{重点}"><strong>&lt;strong&gt;</strong></li>
-        <li data-val="b" title="{粗体}"><strong>&lt;b&gt;</strong></li>
-        <li data-val="em" title="{强调}"><em>&lt;em&gt;</em></li>
-        <li data-val="i" title="{斜体}"><em>&lt;i&gt;</em></li>
-        <li data-val="sub" title="{下标}">X<sub>&lt;sub&gt;</sub></li>
-        <li data-val="sup" title="{上标}">X<sup>&lt;sup&gt;</sup></li>
-        <li data-val="q" title="{引用}"><q>&lt;q&gt;</q></li>
-        <li data-val="time" title="{时间}"><time>&lt;time&gt;</time></li>
-        <li data-val="ins" title="{插入}"><ins>&lt;ins&gt;</ins></li>
-        <li data-val="del" title="{删除}"><del>&lt;del&gt;</del></li>
-        <li data-val="abbr" title="{缩写}"><abbr>&lt;abbr&gt;</abbr></li>
-        <li data-val="small" title="{注脚}"><small>&lt;small&gt;</small></li>
-        <li data-val="cite" title="{来源}"><cite>&lt;cite&gt;</cite></li>
-        <li data-val="mark" title="{标记}"><mark>&lt;mark&gt;</mark></li>
-        <li data-val="ruby" title="{注音}"><ruby>&lt;ruby&gt;</ruby></li>
-    </menu>
+<!-- 选取创建菜单（mouseup） -->
+<menu class="_cells" data-pb="none" tpl-name="menu:cells">
+    <li data-val="a" title="{链接}"><a href="javascript:return false;">&lt;a&gt;</a></li>
+    <li data-val="code" title="{代码}"><code>&lt;code&gt;</code></li>
+    <li data-val="strong" title="{重点}"><strong>&lt;strong&gt;</strong></li>
+    <li data-val="b" title="{粗体}"><strong>&lt;b&gt;</strong></li>
+    <li data-val="em" title="{强调}"><em>&lt;em&gt;</em></li>
+    <li data-val="i" title="{斜体}"><em>&lt;i&gt;</em></li>
+    <li data-val="sub" title="{下标}">X<sub>&lt;sub&gt;</sub></li>
+    <li data-val="sup" title="{上标}">X<sup>&lt;sup&gt;</sup></li>
+    <li data-val="q" title="{引用}"><q>&lt;q&gt;</q></li>
+    <li data-val="time" title="{时间}"><time>&lt;time&gt;</time></li>
+    <li data-val="ins" title="{插入}"><ins>&lt;ins&gt;</ins></li>
+    <li data-val="del" title="{删除}"><del>&lt;del&gt;</del></li>
+    <li data-val="abbr" title="{缩写}"><abbr>&lt;abbr&gt;</abbr></li>
+    <li data-val="small" title="{注脚}"><small>&lt;small&gt;</small></li>
+    <li data-val="cite" title="{来源}"><cite>&lt;cite&gt;</cite></li>
+    <li data-val="mark" title="{标记}"><mark>&lt;mark&gt;</mark></li>
+    <li data-val="ruby" title="{注音}"><ruby>&lt;ruby&gt;</ruby></li>
+</menu>
 
-    <!-- 基本编辑：contextmenu -->
-    <menu id="menu-edits" class="_edits" data-pb="hide">
-        <li data-val="edit">
-            <span><b>&lt;F2&gt;,&lt;I&gt;</b><i id="l-edit"></i>{微编辑}</span>
-        </li>
-        <li data-val="copy">
-            <span><b>&lt;c&gt;</b><i id="l-copy"></i>{复制}</span>
-        </li>
-        <li data-val="move">
-            <span><b>&lt;x&gt;</b><i id="l-move"></i>{移动}</span>
-        </li>
-        <li data-val="delete">
-            <span><b>&lt;Del&gt;</b><i id="l-delete"></i>{删除}</span>
-        </li>
-        <li id="menu-prop" data-val="prop" data-pb="disabled">
-            <span><b>&lt;p&gt;</b><i id="l-prop"></i>{属性}</span>
-        </li>
-    </menu>
-</div>
+<!-- 基本编辑菜单（contextmenu） -->
+<menu class="_edits" data-pb="none" tpl-name="menu:edits">
+    <li data-val="edit">
+        <span><b>&lt;F2&gt;,&lt;I&gt;</b><i id="l-edit"></i>{微编辑}</span>
+    </li>
+    <li data-val="copy">
+        <span><b>&lt;c&gt;</b><i id="l-copy"></i>{复制}</span>
+    </li>
+    <li data-val="move">
+        <span><b>&lt;x&gt;</b><i id="l-move"></i>{移动}</span>
+    </li>
+    <li data-val="delete">
+        <span><b>&lt;Del&gt;</b><i id="l-delete"></i>{删除}</span>
+    </li>
+    <li id="menu-prop" data-val="prop" data-pb="disabled">
+        <span><b>&lt;p&gt;</b><i id="l-prop"></i>{属性}</span>
+    </li>
+</menu>
 
 
 <!-- 帮助栏 -->

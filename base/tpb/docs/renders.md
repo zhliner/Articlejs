@@ -90,9 +90,9 @@ $ = {
 ] -->
 <dl tpb-for>
     <!-- 全部子元素循环 $: [i] -->
-    <dt _text="$[0]"></dt>          <!-- [0][0]: <dt>c++</dt> -->
+    <dt _text="$[0]"></dt> <!-- [0][0]: <dt>c++</dt> -->
     <dd>
-        <code _text="$[1]"></code>  <!-- [0][1]: <code>print("hello, world!");</code> -->
+        <b _="$._C_"></b><code _text="$[1]"></code> <!-- [0][1]: <code>print("hello, world!");</code> -->
     </dd>
 </dl>
 

@@ -19,15 +19,25 @@
 </form>
 
 
-<!-- 选项：状态共享 -->
+<!-- 选项：1 -->
 <div class="_option" tpl-name="inputs:option">
+    <label><input type="checkbox" name="clean" checked>空白清理</label>
+</div>
+
+<!-- 选项：2 -->
+<div class="_option" tpl-name="inputs:option2">
     <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分隔</label>
     <label><input type="checkbox" name="clean" checked>空白清理</label>
 </div>
 
 
-<!-- 确定：状态共享 -->
-<div class="_submit" tpl-name="inputs:submit">
+<!-- 插入：1 -->
+<div class="_submit" tpl-name="inputs:submit1">
+    <input type="submit" class="_ok" value="插入" />
+</div>
+
+<!-- 插入：2 -->
+<div class="_submit" tpl-name="inputs:submit2">
     <label><input type="checkbox" name="before">向前</label>
     <input type="submit" class="_ok" value="插入" />
 </div>
@@ -51,10 +61,8 @@
         <textarea name="header" placeholder="文章提要（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <div class="_submit">
-            <input type="submit" class="_ok" value="插入" />
-        </div>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit1">[插入1]</div>
     </aside>
 </div>
 
@@ -65,10 +73,8 @@
         <textarea name="reference" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <div class="_submit">
-            <input type="submit" class="_ok" value="插入" />
-        </div>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit1">[插入1]</div>
     </aside>
 </div>
 
@@ -79,10 +85,8 @@
         <textarea name="seealso" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <div class="_submit">
-            <input type="submit" class="_ok" value="插入" />
-        </div>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit1">[插入1]</div>
     </aside>
 </div>
 
@@ -94,10 +98,8 @@
         <textarea name="header" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <div class="_submit">
-            <input type="submit" class="_ok" value="插入" />
-        </div>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit1">[插入1]</div>
     </aside>
 </div>
 
@@ -109,10 +111,8 @@
         <textarea name="footer" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <div class="_submit">
-            <input type="submit" class="_ok" value="插入" />
-        </div>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit1">[插入1]</div>
     </aside>
 </div>
 
@@ -125,20 +125,8 @@
         <textarea name="footer" placeholder="结语（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <!-- [inputs:submit] -->
-    </aside>
-</div>
-
-
-<!-- 段落 -->
-<div class="_paragraph" tpl-name="inputs:paragraph">
-    <div class="_main">
-        <textarea name="paragraph" placeholder="内容（换行分段，空行忽略）"></textarea>
-    </div>
-    <aside>
-        <!-- [inputs:option] -->
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -149,8 +137,8 @@
         <textarea name="ol" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -161,8 +149,8 @@
         <textarea name="ul" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -173,8 +161,8 @@
         <textarea name="cascade" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -182,13 +170,22 @@
 <!-- 代码表 -->
 <div class="_codelist" tpl-name="inputs:codelist">
     <div class="_main">
-        <textarea name="codelist" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
+        <textarea name="codelist" class="_codes"></textarea>
     </div>
     <aside>
-        <div class="_option" tpl-name="inputs:option">
-            <label>制表符：<input type="text" name="tabs" value="4" class="_chars">空格</label>
+        <div class="_option" tpl-name="inputs:codeopts">
+            <label>制表符<input type="text" name="tabs" placeholder="4" value="" class="_chars">空格</label>
+            <label>语言
+                <select name="languages">
+                    <option value="golang">Golang</option>
+                    <option value="cplus">C/C++</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="css">CSS</option>
+                    <option value="html">HTML</option>
+                </select>
+            </label>
         </div>
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -200,10 +197,8 @@
 内容（可多行）"></textarea>
     </div>
     <aside>
-        <div class="_option">
-            <label><input type="checkbox" name="clean" checked>空白清理</label>
-        </div>
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:option2">[选项1]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -247,7 +242,7 @@
                 </select>
             </label>
         </div>
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -273,7 +268,7 @@
                 </select>
             </label>
         </div>
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
@@ -285,8 +280,82 @@
         <textarea name="blockquote" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <!-- [inputs:option] -->
-        <!-- [inputs:submit] -->
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
+    </aside>
+</div>
+
+
+<!-- 批注块 -->
+<div class="_aside" tpl-name="inputs:aside">
+    <div class="_main">
+        <input name="h4" type="text" placeholder="小标题" class="_scale" />
+        <textarea name="aside" placeholder="内容（换行分段，空行忽略）"></textarea>
+    </div>
+    <aside>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
+    </aside>
+</div>
+
+
+<!-- 详细内容 -->
+<div class="_details" tpl-name="inputs:details">
+    <div class="_main">
+        <input name="summary" type="text" placeholder="小标题" class="_scale" />
+        <textarea name="details" placeholder="内容（换行分段，空行忽略）"></textarea>
+    </div>
+    <aside>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
+    </aside>
+</div>
+
+
+<!-- 代码块 -->
+<div class="_codeblock" tpl-name="inputs:codeblock">
+    <div class="_main">
+        <textarea name="codeblock" class="_codes"></textarea>
+    </div>
+    <aside>
+        <div tpl-node="inputs:codeopts">[代码]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
+    </aside>
+</div>
+
+
+<!-- 段落 -->
+<div class="_paragraph" tpl-name="inputs:paragraph">
+    <div class="_main">
+        <textarea name="paragraph" placeholder="内容（换行分段，空行忽略）"></textarea>
+    </div>
+    <aside>
+        <div tpl-node="inputs:option2">[选项2]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
+    </aside>
+</div>
+
+
+<!-- 注解 -->
+<div class="_note" tpl-name="inputs:note">
+    <div class="_main">
+        <textarea name="note" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <div tpl-node="inputs:option1">[选项1]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
+    </aside>
+</div>
+
+
+<!-- 地址 -->
+<div class="_address" tpl-name="inputs:address">
+    <div class="_main">
+        <textarea name="address" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <div tpl-node="inputs:option1">[选项1]</div>
+        <div tpl-node="inputs:submit2">[插入2]</div>
     </aside>
 </div>
 
