@@ -6093,8 +6093,6 @@ const valHooks = {
                 if ( !$is(e, ':disabled') ) setProp( e, 'checked', '', val.includes(e.value) );
             }
         },
-
-
     },
 
     select: {
