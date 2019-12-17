@@ -166,7 +166,7 @@ class Templater {
 
 
     /**
-     * 载入容器元素的子模版。
+     * 载入元素引用的子模版。
      * 子模版定义可能是一个列表（有序）。
      * 可能返回null，调用者应当滤除。
      * @param  {Element} box 容器元素
@@ -176,7 +176,7 @@ class Templater {
         let _ns = box.getAttribute(__tplNode);
         box.removeAttribute(__tplNode);
 
-        if ( !_ns ) {
+        if ( !_ns.trim() ) {
             return null;
         }
         return Promise.all(
