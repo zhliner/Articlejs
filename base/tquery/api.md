@@ -797,7 +797,11 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 ### $.classAll( el ): [String]
 
-获取元素 `el` 的类名集。注意不是 `$.attr(el, 'class')` 的结果，是一个名称集。非元素实参会返回一个 `null` 值。本接口也有**集合版**，会合并集合内所有元素的类名为一个一维数组。
+获取元素 `el` 的类名集。注意不是 `$.attr(el, 'class')` 的结果，而是一个名称数组。非元素实参返回一个 `null`。本接口也有**集合版**，会合并集合内所有元素的类名为一个一维数组。
+
+- `el: Element` 取值的目标元素。
+
+如果元素上没有任何 `class` 的定义，返回一个空串（即 `el.className` 的值）。
 
 
 ### [$.attr( el, names, value ): Value | Object | this](docs/$.attr.md)
@@ -1226,16 +1230,14 @@ elo: {
 与父类 `Array.reverse()` 原生方法不同，这里不会修改集合自身，而是返回一个新的成员已反转的集合，支持链栈操作。
 
 
-### .flat( deep ): Collector
+### .flat( deep?, comp? ): Collector
 
-集合成员扁平化处理。
+集合成员扁平化。包括可能的去重排序能力。
 
-- `deep: Number | Boolean` 深度值或去重排序指示。可选，默认值 `1`。
+- `deep: Number | Boolean` 深度值或节点去重排序指示。可选，默认 `1`。传递 `true` 指示节点去重排序（扁平化深度为 `1`）。
+- `comp: Function | null` 排序回调函数。传递 `true` 表示按DOM节点排序（在 `deep > 1` 时有用），其它值传递 `null`（默认规则）或具体的函数。
 
-传递 `deep` 为 `true` 指示按DOM节点集规则排序，扁平化深度值为 `1`。传递为其它数值时，仅当执行环境支持数组的 `.flat()` 接口时才有效，否则深度依然为 `1`。
-
-> **注：**<br>
-> 大多数检索元素/节点的集合版不会自动扁平化返回集，这是相应的进阶处理接口。
+当把 `deep` 作为深度值时，仅在数组支持 `.flat()` 方法的环境下，大于 `1` 的值才有效。
 
 
 ### [.wrapAll( box, clone, event, eventdeep ): Collector](docs/$().wrapAll.md)

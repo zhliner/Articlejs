@@ -1556,16 +1556,16 @@ Object.assign( tQuery, {
 
     /**
      * 获取元素的类名集。
-     * 元素类型始终返回一个数组，非元素类型返回一个null。
+     * 如果没有任何定义，返回一个空串（而非一个空数组）。
      * @param  {Element} el 目标元素
-     * @return {[String]} 类名集
+     * @return {[String]|''} 类名集（或空串）
      */
     classAll( el ) {
         if (el.nodeType != 1) {
             window.console.error('el is not a element.');
             return null;
         }
-        return Arr( el.classList );
+        return el.className && Arr( el.classList );
     },
 
 
@@ -2089,7 +2089,7 @@ Object.assign( tQuery, {
      * @param  {Mixed} extra 发送数据
      * @param  {Boolean} bubble 是否冒泡
      * @param  {Boolean} cancelable 是否可取消
-     * @return {this}
+     * @return {Boolean} 取消状态（未取消：true，取消：false）
      */
     trigger( el, evn, extra, bubble = true, cancelable = true ) {
         if (!el || !evn) {
@@ -2107,8 +2107,7 @@ Object.assign( tQuery, {
                 cancelable: cancelable,
             });
         }
-        el.dispatchEvent( evn );
-        return this;
+        return el.dispatchEvent( evn );
     },
 
 });
@@ -3189,21 +3188,28 @@ class Collector extends Array {
 
     /**
      * 集合扁平化。
-     * deep: {
-     *      Number  扁平化深度，适用原生支持的环境
-     *      true    节点集去重排序
-     * }
-     * 注：节点集仅支持1层深度的扁平化。
+     * deep:
+     * - Number 扁平化深度，适用原生支持的环境
+     * - true   节点集去重排序
+     * comp:
+     * - true   节点集去重排序
+     * - null   普通值默认规则去重排序
+     * 注：
+     * 如果节点集子数组深度超过1级，就需要传递comp为true表达去重排序。
      *
      * @param  {Number|true} deep 深度值或去重排序指示
+     * @param  {Function|true|null} 排序回调函数，可选
      * @return {Collector}
      */
-    flat( deep = 1 ) {
+    flat( deep = 1, comp ) {
         let _els = super.flat ?
-            super.flat( deep ) : // true == 1
-            arrFlat(this);
+            // true == 1
+            super.flat( deep ) : arrFlat(this);
 
-        return new Collector( deep === true ? uniqueSort(_els, sortElements) : _els, this );
+        if ( deep === true || comp === true ) {
+            comp = sortElements;
+        }
+        return new Collector( comp !== undefined ? uniqueSort(_els, comp) : _els, this );
     }
 
 
@@ -3330,20 +3336,6 @@ class Collector extends Array {
             super.filter( getFltr(slr) ) :
             this;
         return new Collector( varyRemoves( _els, _els[0].parentElement ), this );
-    }
-
-
-    /**
-     * 获取类名集。
-     * 不同元素的类名扁平化地汇集到一起，无类名的忽略。
-     * @return {[String]} 类名集。
-     */
-    classAll() {
-        let _buf = [];
-        for (const el of this) {
-            _buf.push( ...tQuery.classAll(el) );
-        }
-        return new Collector( _buf, this );
     }
 
 
@@ -3707,18 +3699,20 @@ function elsExfn( list, get ) {
 
 
 //
-// 简单取值。
+// 简单操作/取值。
 // 返回一个值集（Collector），与集合中元素一一对应。
 /////////////////////////////////////////////////
 elsExfn([
         'cssGets',
-        'is',   // 返回一个布尔值集合
+        'is',
         'hasClass',
+        'classAll',
         'innerHeight',
         'outerHeight',
         'innerWidth',
         'outerWidth',
         'position',
+        'trigger',
     ],
     fn =>
     function(...rest) {
@@ -3738,7 +3732,6 @@ elsExfn([
         'on',
         'one',
         'off',
-        'trigger',
 
         // 元素原生事件激发
         // 'blur'
