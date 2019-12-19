@@ -506,6 +506,39 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     border-top: 1px #666 solid; /* 默认 */
 }
 
+/* 虚线 */
+.content hr.dotted {
+    border-top: 1px #666 dotted;
+}
+/* 实线 */
+.content hr.solid {
+    border-top: 1px #666 solid;
+}
+/* 双划线 */
+.content hr.double {
+    border-top: 3px #666 double;
+}
+/* 点划线 */
+.content hr.dashed {
+    border-top: 1px #666 dashed;
+}
+/* 内槽线 */
+.content hr.groove {
+    border-top: 1px #666 groove;
+}
+/* 外槽线 */
+.content hr.ridge {
+    border-top: 1px #666 ridge;
+}
+/* 内嵌线 */
+.content hr.inset {
+    border-top: 1px #666 inset;
+}
+/* 外嵌线 */
+.content hr.outset {
+    border-top: 1px #666 outset;
+}
+
 /* 章间隔 */
 .content > article > hr {
     margin: 50px auto 40px;

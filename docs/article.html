@@ -66,6 +66,7 @@
                             <h5><a href="#原生结构">原生结构</a></h5>
                             <ol>
                                 <li><a href="#导言/前言">导言/前言</a></li>
+                                <li><a href="#结语">结语</a></li>
                                 <li><a href="#无序列表">无序列表</a></li>
                                 <li><a href="#有序列表">有序列表</a></li>
                                 <li><a href="#定义列表">定义列表</a></li>
@@ -74,7 +75,10 @@
                                 <li><a href="#详细内容">详细内容</a></li>
                                 <li><a href="#引用块">引用块</a></li>
                                 <li><a href="#批注块">批注块</a></li>
-                                <li><a href="#尾注">尾注</a></li>
+                                <li><a href="#段落">段落</a></li>
+                                <li><a href="#地址信息">地址信息</a></li>
+                                <li><a href="#预排版">预排版</a></li>
+                                <li><a href="#线条">线条</a></li>
                                 <li><a href="#注音">注音</a></li>
                             </ol>
                         </li>
@@ -89,6 +93,7 @@
                                 <li><a href="#级联编号表">级联编号表</a></li>
                                 <li><a href="#代码表">代码表</a></li>
                                 <li><a href="#代码块">代码块</a></li>
+                                <li><a href="#空白块">空白块</a></li>
                                 <li><a href="#注解">注解</a></li>
                             </ol>
                         </li>
@@ -285,6 +290,15 @@
 &lt;/header&gt;
 </code></pre>
                     </section>
+                    <h4 id="结语">结语</h4>
+                    <section>
+                        <pre>
+<code data-lang="html">&lt;footer&gt;
+    &lt;h4&gt;&lt;/h4&gt;
+    &lt;p&gt;&lt;p&gt; ...
+&lt;/footer&gt;
+</code></pre>
+                    </section>
                     <h4 id="无序列表">无序列表</h4>
                     <section>
                         <pre>
@@ -363,13 +377,48 @@
 &lt;/aside&gt;
 </code></pre>
                     </section>
-                    <h4 id="尾注">尾注</h4>
+                    <h4 id="段落">段落</h4>
                     <section>
+                        <p>最简单的内容行元素，也是大多数小区块里内容的默认封装单元。</p>
                         <pre>
-<code data-lang="html">&lt;footer&gt;
-    &lt;h4&gt;&lt;/h4&gt;
-    &lt;p&gt;&lt;p&gt; ...
-&lt;/footer&gt;
+<code data-lang="html">&lt;p&gt;
+    <b role="cmt">&lt;!-- 内联单元或文本 --&gt;</b>
+&lt;/p&gt;
+</code></pre>
+                    </section>
+                    <h4 id="地址信息">地址信息</h4>
+                    <section>
+                        <p>内容的源码性质与段落类似，但表达了内容的逻辑含义。</p>
+                        <pre>
+<code data-lang="html">&lt;address&gt;
+    <b role="cmt">&lt;!-- 内联单元或文本 --&gt;</b>
+&lt;/address&gt;
+</code></pre>
+                    </section>
+                    <h4 id="预排版">预排版</h4>
+                    <section>
+                        <p>与包含特定语言标注的代码表/代码块不同，这是一种需要保留原始版式的通用结构。</p>
+                        <pre>
+<code data-lang="html">&lt;pre data-tabs="4"&gt;
+    <b role="cmt">&lt;!-- 内联单元或文本
+        注：
+        首个换行会被浏览器友好清理，末尾换行会被原样保留。 --&gt;</b>
+&lt;/pre&gt;
+</code></pre>
+                    </section>
+                    <h4 id="线条">线条</h4>
+                    <section>
+                        <p>线条应该作为行块对待，样式由外部CSS定义。</p>
+                        <pre>
+<code data-lang="html">&lt;hr&gt;
+&lt;hr role="dotted"&gt;  <b role="cmt">&lt;!-- 虚线 --&gt;</b>
+&lt;hr role="solid"&gt;   <b role="cmt">&lt;!-- 实线 --&gt;</b>
+&lt;hr role="double"&gt;  <b role="cmt">&lt;!-- 双划线 --&gt;</b>
+&lt;hr role="dashed"&gt;  <b role="cmt">&lt;!-- 点划线 --&gt;</b>
+&lt;hr role="groove"&gt;  <b role="cmt">&lt;!-- 内槽线 --&gt;</b>
+&lt;hr role="ridge"&gt;   <b role="cmt">&lt;!-- 外槽线 --&gt;</b>
+&lt;hr role="inset"&gt;   <b role="cmt">&lt;!-- 内嵌线 --&gt;</b>
+&lt;hr role="outset"&gt;  <b role="cmt">&lt;!-- 外嵌线 --&gt;</b>
 </code></pre>
                     </section>
                     <h4 id="注音">注音</h4>
@@ -453,8 +502,9 @@
                     <h4 id="代码表">代码表</h4>
                     <section>
                         <p>包含一个 <code>data-tab</code> 特性定义制表符（<code>Tab</code>）转换的空格数。这里有两级：根级对应整个代码表的默认值，每一条 <code>&lt;code&gt;</code> 可以定义当前代码行中的配置覆盖（可选）。</p>
+                        <p>元素的 <code>start</code> 属性可以让对整片代码中部分片段的引用变得十分清晰。如示例：<a href="#源码2（代码表）">源码2（代码表）</a>。</p>
                         <pre>
-<code data-lang="html">&lt;ol role="codelist" data-lang="xx" data-tab="4"&gt;
+<code data-lang="html">&lt;ol role="codelist" data-lang="xx" data-tab="4" start="x"&gt;
     &lt;li&gt;&lt;code&gt; <b role="cmt">&lt;!-- 根封装 --&gt;</b>
         ...&lt;b&gt;&lt;/b&gt;... <b role="cmt">&lt;!-- 代码内容 --&gt;</b>
     &lt;/code&gt;&lt;/li&gt;
@@ -473,13 +523,24 @@
 &lt;/code&gt;&lt;pre&gt; <b role="cmt">&lt;!-- 末尾应当紧跟 --&gt;</b>
 </code></pre>
                     </section>
+                    <h4 id="空白块">空白块</h4>
+                    <section>
+                        <p>这是一种特别的内容单元，主要用于某种交互展示。在传统纸质的内容中没有这样的逻辑，但在计算机的动态交互文档中应当是一种必要的概念补充。</p>
+                        <pre>
+<code data-lang="html">&lt;div role="space"&gt;
+    <b role="cmt">&lt;!-- 内联单元或文本 --&gt;</b>
+&lt;/div&gt;
+</code></pre>
+                    </section>
                     <h4 id="注解">注解</h4>
                     <section>
                         <p>用于解释正文中具体的名词或词组。</p>
                         <pre>
-<code data-lang="html">&lt;p role="note"&gt; ... &lt;/p&gt;</code></pre>
+<code data-lang="html">&lt;p role="note"&gt;
+    <b role="cmt">&lt;!-- 内联单元或文本 --&gt;</b>
+&lt;/p&gt;</code></pre>
                     <blockquote>
-                        <p><strong>注：</strong><br>与批注块（<code>&lt;aside&gt;</code>）单元相比，<strong>注解</strong> 逻辑上是直接与目标相关联。</p>
+                        <p><strong>注：</strong><br>与批注块（<code>&lt;aside&gt;</code>）单元相比，<strong>注解</strong> 逻辑上是直接与目标相关联的。</p>
                     </blockquote>
                     </section>
                 </section>
@@ -553,31 +614,29 @@ err     <b role="cmt">// b[role=err] error 错误提示</b>
                     <h4 id="源码2（代码表）">源码2（代码表）</h4>
                     <section>
                         <pre>
-<code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="atv">"codelist"</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;&lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;package&lt;/<b role="tag">b</b>&gt; main&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;&lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<b role="atv">"str"</b>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;&lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;    fmt.Println(&lt;<b role="tag">b</b> role=<b role="atv">"str"</b>&gt;"Hello, 世界"&lt;/<b role="tag">b</b>&gt;) &lt;<b role="tag">b</b> role=<b role="atv">"cmt"</b>&gt;// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;&lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;type&lt;/<b role="tag">b</b>&gt; MapSort &lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;struct&lt;/<b role="tag">b</b>&gt; {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;    m &lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;map&lt;/<b role="tag">b</b>&gt;[&lt;<b role="tag">b</b> role=<b role="atv">"typ"</b>&gt;string&lt;/<b role="tag">b</b>&gt;]&lt;<b role="tag">b</b> role=<b role="atv">"typ"</b>&gt;int&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;    s []&lt;<b role="tag">b</b> role=<b role="atv">"typ"</b>&gt;string&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<b role="atv">"go"</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+<code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="atv">"codelist"</b> data-lang=<b role="atv">"go"</b> start=<b role="atv">"3"</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<b role="atv">"str"</b>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">b</b> role=<b role="atv">"str"</b>&gt;"Hello, 世界"&lt;/<b role="tag">b</b>&gt;) &lt;<b role="tag">b</b> role=<b role="atv">"cmt"</b>&gt;// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;type&lt;/<b role="tag">b</b>&gt; MapSort &lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;struct&lt;/<b role="tag">b</b>&gt; {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    m &lt;<b role="tag">b</b> role=<b role="atv">"kws"</b>&gt;map&lt;/<b role="tag">b</b>&gt;[&lt;<b role="tag">b</b> role=<b role="atv">"typ"</b>&gt;string&lt;/<b role="tag">b</b>&gt;]&lt;<b role="tag">b</b> role=<b role="atv">"typ"</b>&gt;int&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    s []&lt;<b role="tag">b</b> role=<b role="atv">"typ"</b>&gt;string&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
 &lt;/<b role="tag">ol</b>&gt;
 </code></pre>
                     </section>
                     <h4 id="效果2">效果</h4>
                     <section>
-                        <ol role="codelist">
-                            <li><code data-lang="go"><b role="kws">package</b> main</code></li>
-                            <li><code data-lang="go"><b role="kws">import</b> <b role="str">"fmt"</b></code></li>
-                            <li><code data-lang="go"><b role="kws">func</b> main() {</code></li>
-                            <li><code data-lang="go">    fmt.Println(<b role="str">"Hello, 世界"</b>) <b role="cmt">// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。</b></code></li>
-                            <li><code data-lang="go">}</code></li>
-                            <li><code data-lang="go"><b role="kws">type</b> MapSort <b role="kws">struct</b> {</code></li>
-                            <li><code data-lang="go">    m <b role="kws">map</b>[<b role="typ">string</b>]<b role="typ">int</b></code></li>
-                            <li><code data-lang="go">    s []<b role="typ">string</b></code></li>
-                            <li><code data-lang="go">}</code></li>
+                        <ol role="codelist" data-lang="go" start="3">
+                            <li><code><b role="kws">import</b> <b role="str">"fmt"</b></code></li>
+                            <li><code><b role="kws">func</b> main() {</code></li>
+                            <li><code>    fmt.Println(<b role="str">"Hello, 世界"</b>) <b role="cmt">// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。</b></code></li>
+                            <li><code>}</code></li>
+                            <li><code><b role="kws">type</b> MapSort <b role="kws">struct</b> {</code></li>
+                            <li><code>    m <b role="kws">map</b>[<b role="typ">string</b>]<b role="typ">int</b></code></li>
+                            <li><code>    s []<b role="typ">string</b></code></li>
+                            <li><code>}</code></li>
                         </ol>
                     </section>
                 </section>

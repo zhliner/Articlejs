@@ -1,5 +1,5 @@
-<!-- 整体框架 -->
-<form class="_inputs" tpl-name="slave:inputs">
+<!-- 录入版：框架 -->
+<form class="Inputs" tpl-name="slave:inputs">
     <aside>
         <label>
             <input type="radio" name="where" />
@@ -43,6 +43,9 @@
 </div>
 
 
+<!-- 行块单元 ------------------------------------------------------------------->
+
+
 <!-- 文章标题 -->
 <div class="_heading" tpl-name="inputs:heading">
     <div class="_main">
@@ -61,10 +64,10 @@
         <textarea name="header" placeholder="文章提要（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="inputs:option2, inputs:submit1">
             [选项2]
             [插入1]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -75,10 +78,10 @@
         <textarea name="reference" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="inputs:option2, inputs:submit1">
             [选项2]
             [插入1]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -89,10 +92,10 @@
         <textarea name="seealso" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="inputs:option2, inputs:submit1">
             [选项2]
             [插入1]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -104,10 +107,10 @@
         <textarea name="header" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="inputs:option2, inputs:submit1">
             [选项2]
             [插入1]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -119,10 +122,10 @@
         <textarea name="footer" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="inputs:option2, inputs:submit1">
             [选项2]
             [插入1]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -135,10 +138,10 @@
         <textarea name="footer" placeholder="结语（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -149,10 +152,10 @@
         <textarea name="ol" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -163,10 +166,10 @@
         <textarea name="ul" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -177,10 +180,10 @@
         <textarea name="cascade" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -188,13 +191,14 @@
 <!-- 代码表 -->
 <div class="_codelist" tpl-name="inputs:codelist">
     <div class="_main">
+        <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
         <textarea name="codelist" class="_codes"></textarea>
     </div>
     <aside>
         <div class="_option" tpl-name="inputs:codeopts">
             <label>制表符<input type="text" name="tabs" placeholder="4" value="" class="_chars">空格</label>
             <label>语言
-                <select name="languages">
+                <select id="g-languages" name="languages">
                     <option value="golang">Golang</option>
                     <option value="cplus">C/C++</option>
                     <option value="javascript">JavaScript</option>
@@ -203,7 +207,7 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="inputs:submit2">[插入2]</div>
+        <div tpl-node="inputs:submit2"> [插入2] </div>
     </aside>
 </div>
 
@@ -215,10 +219,10 @@
 内容（可多行）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="inputs:option1, inputs:submit2">
             [选项1]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -262,7 +266,7 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="inputs:submit2">[插入2]</div>
+        <div tpl-node="inputs:submit2"> [插入2] </div>
     </aside>
 </div>
 
@@ -288,7 +292,7 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="inputs:submit2">[插入2]</div>
+        <div tpl-node="inputs:submit2"> [插入2] </div>
     </aside>
 </div>
 
@@ -300,10 +304,10 @@
         <textarea name="blockquote" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -315,10 +319,10 @@
         <textarea name="aside" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -330,10 +334,10 @@
         <textarea name="details" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -344,10 +348,10 @@
         <textarea name="codeblock" class="_codes"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:codeopts, inputs:submit2">
+        <pre tpl-node="inputs:codeopts, inputs:submit2">
             [代码]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -358,10 +362,10 @@
         <textarea name="paragraph" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -372,10 +376,10 @@
         <textarea name="note" placeholder="内容"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="inputs:option1, inputs:submit2">
             [选项1]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
@@ -386,99 +390,68 @@
         <textarea name="address" placeholder="内容"></textarea>
     </div>
     <aside>
-        <div tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="inputs:option1, inputs:submit2">
             [选项1]
             [插入2]
-        </div>
+        </pre>
     </aside>
 </div>
 
 
-
-
-<form tpl-name="tab:block" name="block" class="Block"
-    mvc-on="submit|void,work" mvc-by="Mk.block">
+<!-- 预排版 -->
+<div class="_pre" tpl-name="inputs:pre">
     <div class="_main">
-        <input data-id="heading" name="heading" type="text" placeholder="{标题}" class="_scale"
-            mvc-on="focus|prop('text','','#g-current'),hold('form@','',0);
-            on|prop('disabled',null),stop;
-            off|prop('disabled',true),stop" />
-        <div class="_content">
-            <textarea name="blockdata" placeholder="{内容}"
-                mvc-on="keyup focus|rows;
-                focus|hold('form@','',0);
-                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
-        </div>
+        <textarea name="pre" class="_codes"></textarea>
     </div>
-    <div class="_side">
-        <ul class="_option">
-            <li data-id="bltypes" mvc-on="click('i')|tabs('_fixed'),val('2@bltype','-val'),fire('1@blmore','reset')" class="_icons">
-                <i id="i-bquote" mvc-on="click|fire('4@heading','on')" data-val="blockquote" title="{引用块}&lt;blockquote&gt;" class="_fixed"></i>
-                <i id="i-aside" mvc-on="click|fire('4@heading','on')" data-val="aside" title="{批注}&lt;aside&gt;"></i>
-                <i id="i-details" mvc-on="click|fire('4@heading','on')" data-val="details" title="{详细}&lt;details&gt;"></i>
-                <i id="i-layer" mvc-on="click|fire('4@heading','on')" data-val="layer" title="{封装层}&lt;div.layer&gt;"></i>
-                <i id="i-header" mvc-on="click|fire('4@heading','off')" data-val="header" title="{导言}&lt;header&gt;"></i>
-                <i id="i-footer" mvc-on="click|fire('4@heading','off')" data-val="footer" title="{尾注}&lt;footer&gt;"></i>
-            </li>
-            <li class="_blk"><hr></li>
-            <li><label>{更多}&gt;</label>
-                <select data-id="blmore" name="blockmore" mvc-on="reset|prop('value','');
-                    change|val('3@bltype'),clsrm('_fixed','2@bltypes >i'),fire('4@heading','off')">
-                    <option value="" selected>------</option>
-                    <option value="address" title="&lt;address&gt;">{联系信息}</option>
-                    <option value="copyright" title="&lt;p.copyright&gt;">{版权}</option>
-                    <option value="author" title="&lt;p.author&gt;">{作者}</option>
-                    <option value="seealso" title="&lt;ul.seealso&gt;">{扩展阅读}</option>
-                    <option value="references" title="&lt;ol.references&gt;">{参考文献}</option>
-                    <option value="synopsis" title="&lt;header.synopsis&gt;">{文章概要}</option>
-                    <option value="epilogue" title="&lt;footer.epilogue&gt;">{文章结语}</option>
-                </select>
-            </li>
-        </ul>
-        <input data-id="bltype" type="hidden" name="bltype" value="blockquote" />
-        <div class="_append">
-            <input name="append" type="submit" class="_button" value="{添加}"
-            mvc-on="click|void,submit" />
+    <aside>
+        <div class="_option">
+            <label>制表符<input type="text" name="tabs" placeholder="4" value="" class="_chars">空格</label>
         </div>
-    </div>
-</form>
+        <pre tpl-node="inputs:submit2"> [插入2] </pre>
+    </aside>
+</div>
 
-<form tpl-name="tab:codes" name="codes" class="Codes"
-    mvc-on="submit|void,tedoff('textarea._code'),work" mvc-by="Mk.codes">
+
+<!-- 线条 -->
+<div class="_line" tpl-name="inputs:line">
     <div class="_main">
-        <input name="ctitle" type="text" placeholder="{标题}" class="_scale"
-            mvc-on="focus|prop('text','','#g-current'), hold('form@','',0)" />
-        <div class="_content">
-            <textarea name="codedata" placeholder="{内容}" class="_code" spellcheck="false"
-                mvc-on="keyup focus|rows;
-                focus|hold('form@','',0);
-                keyup|xkey('ctrl'),keys(13),eacs,fire('form@','submit',null)"></textarea>
-        </div>
+        <span class="_content" data-type="">
+            <!-- 取值：.className | $.property(...) -->
+            <b title="默认"><hr></b>
+            <b title="实线"><hr class="solid"></b>
+            <b title="虚线"><hr class="dotted"></b>
+            <b title="双划线"><hr class="double"></b>
+            <b title="点划线"><hr class="dashed"></b>
+            <b title="内槽线"><hr class="groove"></b>
+            <b title="外槽线"><hr class="ridge"></b>
+            <b title="内嵌线"><hr class="inset"></b>
+            <b title="外嵌线"><hr class="outset"></b>
+        </span>
     </div>
-    <div class="_side">
-        <ul class="_option">
-            <li>
-                <label>{语言}</label>
-                <span id="box-clang"><!-- [支持语言清单] --></span>
-            </li>
-            <li class="_blk"><hr></li>
-            <li>
-                <label title="{参考首个缩进行}"><input name="delind" type="checkbox" checked />{空缩进清除}</label>
-            </li>
-            <li>
-                <label title="{指整个代码块}"><input name="notrim" type="checkbox" />{保留首尾空白}</label>
-            </li>
-            <li class="_blk"><hr></li>
-            <li><label title="{源码自身的值}">{制表符}</label>
-                <input name="tabs" type="text" value="4" class="_char" title="0~16" mvc-on="focus|hold('form@','',0)" />
-            </li>
-        </ul>
-        <div class="_append">
-            <input name="append" type="submit" class="_button" value="{添加}"
-            mvc-on="click|void,submit" />
+    <aside>
+        <div class="_option">
+            <label>厚度<input type="text" name="height" placeholder="1px" class="_length"></label>
+            <label>长度<input type="text" name="width" placeholder="94%" class="_length"></label>
         </div>
+        <pre tpl-node="inputs:submit2"> [插入2] </pre>
+    </aside>
+</div>
+
+
+<!-- 空白块 -->
+<div class="_space" tpl-name="inputs:space">
+    <div class="_main">
+        <div role="space"> [示例] </div>
     </div>
-</form>
+    <aside>
+        <pre tpl-node="inputs:submit2"> [插入2] </pre>
+    </aside>
+</div>
+
+
+<!-- 内联单元：含属性定义 ------------------------------------------------------------->
+
+
 
 
 <!-- 微编辑下 -->

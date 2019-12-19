@@ -3699,7 +3699,7 @@ function elsExfn( list, get ) {
 
 
 //
-// 简单操作/取值。
+// 简单取值。
 // 返回一个值集（Collector），与集合中元素一一对应。
 /////////////////////////////////////////////////
 elsExfn([
@@ -3712,6 +3712,7 @@ elsExfn([
         'innerWidth',
         'outerWidth',
         'position',
+        // 主要为操作，但返回值集
         'trigger',
     ],
     fn =>

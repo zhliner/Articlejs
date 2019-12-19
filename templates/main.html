@@ -7,13 +7,13 @@
     </div>
     <hr class="_1">
     <!-- 动态区 -->
-    <div id="tools-active" data-pb="">
+    <div id="tools-active" class="_active" data-pb="">
         <!-- 普通工具 -->
         <span class="_usual">
-            <i id="b-totext">纯文本化</i>
-            <i id="b-untag">去除标签</i>
-            <i id="b-undo">撤消</i>
-            <i id="b-redo">重做</i>
+            <i id="b-totext"></i>
+            <i id="b-untag"></i>
+            <i id="b-undo"></i>
+            <i id="b-redo"></i>
         </span>
     </div>
     <hr class="_2">
@@ -56,10 +56,8 @@
         <!-- 末端位:margin-inline-start:auto; -->
         <i id="b-close"></i>
     </div>
-    <!-- 面板容器 -->
-    <div id="slave-xbox" class="_xbox" tpl-load="slave:inputs"">
-        <!-- 初始为录入（内容）面板 -->
-    </div>
+    <!-- 内容：初始引用录入面板 -->
+    <hr id="slave-main" tpl-node="slave:inputs"">
 </div>
 
 
@@ -77,7 +75,7 @@
             <b>?</b> <!-- 文本搜索&选取 -->
             <b>!</b> <!-- 扩展备用（pro） -->
         </span>
-        <!-- data-v: 辅助 -->
+        <!-- data-v: CSS辅助 -->
         <code id="cmd-char" data-v="/">/</code>
     </div>
     <!-- 命令行 -->
