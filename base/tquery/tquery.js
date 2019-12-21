@@ -2,23 +2,23 @@
 *******************************************************************************
             Copyright (c) 铁皮工作室 2019 MIT License
 
-                @Project: tQuery v0.4.x
+                @Project: tQuery v0.5.x
                 @Author:  风林子 zhliner@gmail.com
 *******************************************************************************
 
-    节点查询器
+    轻量节点查询器
 
     应用 ES6 支持的新语法和API重构一个类jQuery的工具。
 
-    接口类似jQuery（略有增强），但仅包含：DOM选择、DOM操作、CSS属性、Event。
-    即省略了jQuery里的Ajax、$.Deferred、Effect等。
-    省略的这三个部分将由浏览器自身所支持的 Fetch、Promise、CSS3 完成。
+    接口类似jQuery，但仅包含其主要部分：DOM选择、DOM操作、CSS属性、Event 等。
+    即省略了jQuery里的Ajax、$.Deferred、Effect。
+    省略的这三个部分由浏览器自身的 Fetch、Promise、CSS3 支持。
 
-    用户使用 $(...) 检索的元素集命名为 Collector，继承于 Array 类型。
+    用户使用 $(...) 检索的元素集被命名为 Collector，继承于 Array。
     事件为DOM原生事件（无侵入），元素上也不存储任何数据。
 
     提示：
-    可以在浏览器的控制台执行：
+    可以在浏览器控制台执行：
     - console.dir($)  查看 $ 的成员情况（单元素操作版）。
       Object.keys($)  获取方法名集（可枚举）。
     - console.dir($('').__proto__)  查看 Collector 的成员情况。
@@ -47,8 +47,8 @@
         tQuery.find('p>b', p)    => [<b>]
 
 
-    事件：
-    提供5组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类。
+    定制事件：
+    提供5组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类应用。
     开启：tQuery.config({varyevent: true});
 
     - attrvary/attrfail/attrdone    // 特性设置/出错/完成
@@ -63,8 +63,6 @@
     //      empty, remove, removesiblings, normalize
     // ]
     // 复合操作：fill, wrap, wrapInner, wrapAll, unwrap, html, text
-
-    注记：取消嵌入代理设计。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -97,6 +95,7 @@
         Doc = window.document,
 
         // 主要用于扩展选择器。
+        // 可选，默认无。
         Sizzle = window.Sizzle,
 
         isArr = Array.isArray,
@@ -216,11 +215,11 @@
         },
 
         // 检查获取特性名。
-        // 支持前置 '-' 为 data- 系属性简写。
+        // 支持前置 '-' 为 data- 系名称简写。
         // @return {String}
         attrName = n => n[0] === '-' ? `data${n}` : n,
 
-        // 获取data-系名称。
+        // 获取data-系属性名。
         // 返回的名称已经转换为驼峰表示。
         // 如：data-abc-def | -abc-def => abcDef
         // @return {String}
@@ -374,7 +373,9 @@
 
         //
         // 功能配置集。
-        // 注：目前仅支持节点变化事件。
+        // 注：
+        // 目前仅支持节点变化事件，默认关闭。
+        // 可通过 $.config({varyevent:true}) 开启。
         //
         Options  = { varyevent: false };
 
@@ -504,6 +505,7 @@ function tQuery( its, ctx ) {
 // 功能配置。
 // 目前仅支持 varyevent:{Boolean}
 // 无参数调用返回内部配置对象的一个副本。
+// 设置时返回的是内部原始的配置对象。
 //
 tQuery.config = option =>
     Object.assign( option && Options || {}, option || Options );
