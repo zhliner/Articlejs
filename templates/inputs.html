@@ -504,48 +504,58 @@
     <span data-val="tabline">┌└┍┕┎┖┏┗┐┘┑┙┒┚┓┛─━┄┅┈┉├┤┝┥┞┦┟┧┠┨┡┩┢┪┣┫│┃┆┇┊┋┬┴┭┵┮┶┯┷┰┸┱┹┲┺┳┻┼╄┽╅┾┶┿╇╀╈╁╉╂╊╃</span>
 </div>
 
+<!-- 表清单方式 -->
+
 <table tpl-name="inputs:img">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
+    <tr tpl-node="prop:upload, prop:preview"></tr>
 </table>
 
 <table tpl-name="inputs:audio">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:srcbase, prop:sources"></tr>
+    <tr tpl-node="prop:upload, prop:preview"></tr>
+    <tr tpl-node="prop:loop, prop:autoplay"></tr>
 </table>
 
 <table tpl-name="inputs:video">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:srcbase, prop:sources"></tr>
+    <tr tpl-node="prop:upload, prop:preview"></tr>
+    <tr tpl-node="prop:loop, prop:autoplay, prop:poster"></tr>
 </table>
 
 <table tpl-name="inputs:picture">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
+    <tr tpl-node="prop:upload, prop:preview"></tr>
 </table>
 
 <table tpl-name="inputs:a">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
+    <tr tpl-node="prop:href"></tr>
+    <tr tpl-name="prop:target"></tr>
 </table>
 
 <table tpl-name="inputs:code">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:code"></tr>
 </table>
 
 <table tpl-name="inputs:strong">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:em">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:sub">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:sup">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:q">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:times">
@@ -554,69 +564,73 @@
 </table>
 
 <table tpl-name="inputs:ins">
-    <tr tpl-node="prop:textline"></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:del">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:abbr">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:small">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:cite">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:mark">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:ruby">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
+    <tr tpl-node="prop:rt"></tr>
+    <tr tpl-node="prop:leftrp"></tr>
+    <tr tpl-node="prop:rightrp"></tr>
 </table>
 
 <table tpl-name="inputs:orz">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:codes"></tr>
 </table>
 
 <table tpl-name="inputs:dfn">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:samp">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:kbd">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:meter">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:max"></tr>
+    <tr tpl-node="prop:min"></tr>
+    <tr tpl-node="prop:high"></tr>
+    <tr tpl-node="prop:low"></tr>
+    <tr tpl-node="prop:optimum"></tr>
 </table>
 
 <table tpl-name="inputs:s">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:u">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:var">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
 </table>
 
 <table tpl-name="inputs:bdo">
-    <tr tpl-node=""></tr>
-</table>
-
-<table tpl-name="inputs:blank">
-    <tr tpl-node=""></tr>
+    <tr tpl-node="prop:textrow"></tr>
+    <tr tpl-node="prop:dir"></tr>
 </table>

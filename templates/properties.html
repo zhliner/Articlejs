@@ -1,4 +1,5 @@
-<!-- 单元属性/数据项 -->
+<!-- 单元属性/数据项
+    注：只单纯包含顶级的<tr>元素。 -->
 
 <tr tpl-name="prop:align">
     <th>水平对齐</th>
@@ -64,9 +65,7 @@
 
 <tr tpl-name="prop:cascade">
     <th>级联表</th>
-    <td>
-        <label><input type="checkbox" name="cascade" />多级编号</label>
-    </td>
+    <td><label><input type="checkbox" name="cascade" />多级编号</label></td>
 </tr>
 
 <tr tpl-name="prop:border">
@@ -103,9 +102,9 @@
     <td><label><input type="checkbox" name="thead" />包含表头</label></td>
 </tr>
 
-<tr tpl-name="prop:captionwhere">
+<tr tpl-name="prop:capwhere">
     <th>标题位置</th>
-    <td><label><input type="checkbox" name="captionbelow" />在表格下部</label></td>
+    <td><label><input type="checkbox" name="capbelow" />在表格下部</label></td>
 </tr>
 
 <!-- table.summary 表格摘要（屏幕阅读器使用） -->
@@ -133,7 +132,7 @@
 </tr>
 
 <tr tpl-name="prop:href">
-    <th>链接目标</th>
+    <th>链接网址</th>
     <td><input type="text" name="href" placeholder="https://" /></td>
 </tr>
 
@@ -149,24 +148,25 @@
     </td>
 </tr>
 
+<tr tpl-name="prop:srcbase">
+    <th>根路径</th>
+    <!-- 上传根路径备选（配置优先） -->
+    <td><input type="text" name="srcbase" placeholder="https://example.com/upload" /></td>
+</tr>
+
+<tr tpl-name="prop:sources">
+    <th>数据源</th>
+    <td><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></td>
+</tr>
+
+<tr tpl-name="prop:alts">
+    <th>图片说明</th>
+    <td><input type="text" name="alts" placeholder="alt11; alt22" /></td>
+</tr>
+
 <tr tpl-name="prop:poster">
     <th>视频画面</th>
     <td><input type="text" name="poster" placeholder="https://" /></td>
-</tr>
-
-<tr tpl-name="prop:cite">
-    <th>引用来源</th>
-    <td><input type="text" name="cite"  placeholder="https://" /></td>
-</tr>
-
-<tr tpl-name="prop:alt">
-    <th>图片说明</th>
-    <td><input type="text" name="alt" /></td>
-</tr>
-
-<tr tpl-name="prop:datetime">
-    <th>日期/时间</th>
-    <td><input type="text" name="datetime" placeholder="YYYY-MM-DD hh:mm:ss" /></td>
 </tr>
 
 <tr tpl-name="prop:loop">
@@ -184,17 +184,12 @@
     <td><label><input type="checkbox" name="open" />详细展开</label></td>
 </tr>
 
-<tr tpl-name="prop:upload" class="_upload">
+<tr class="_upload" tpl-name="prop:upload">
     <th>上传</th>
     <td><input type="file" name="upload" value=""
             on="change|evo('origin'), val"
             by="x.Fun.upload(null)" />
     </td>
-</tr>
-
-<tr tpl-name="prop:figcapwhere">
-    <th>插图标题位于</th>
-    <td><label><input type="checkbox" name="figcapbelow" value="below" />在图画之下</label></td>
 </tr>
 
 <tr tpl-name="prop:preview">
@@ -204,19 +199,24 @@
     </td>
 </tr>
 
-<tr tpl-name="prop:src">
-    <th>数据源</th>
-    <td><input type="text" name="src" placeholder="https://" /></td>
-</tr>
-
 <tr tpl-name="prop:heading">
     <th>标题</th>
     <td><input type="text" name="heading" placeholder="无标题请置空"></td>
 </tr>
 
+<tr tpl-name="prop:cite">
+    <th>引用来源</th>
+    <td><input type="text" name="cite"  placeholder="https://" /></td>
+</tr>
+
+<tr tpl-name="prop:figcapwhere">
+    <th>插图标题位于</th>
+    <td><label><input type="checkbox" name="figcapbelow" value="below" />在图画之下</label></td>
+</tr>
+
 <tr tpl-name="prop:rt">
     <th>注音</th>
-    <td><input type="text" name="rt" class="_length" /></td>
+    <td><input type="text" name="rt" class="_textrow" /></td>
 </tr>
 
 <tr tpl-name="prop:leftrp">
@@ -235,20 +235,21 @@
 </tr>
 
 <!-- 用于内联单元文本 -->
-<tr tpl-name="prop:textline">
+<tr tpl-name="prop:textrow">
     <th>文本</th>
-    <td><input type="text" name="textline" class="_textline" /></td>
+    <td><input type="text" name="textrow" class="_textrow" /></td>
 </tr>
 
-<tr tpl-name="prop:orz">
-    <th>颜文字</th>
-    <td><textarea name="text" rows="4" class="_orz" spellcheck="false"></textarea></td>
-</tr>
-
-<!-- 适用：代码块/代码行/代码表 -->
+<!-- 适用：代码块/代码表/颜文字 -->
 <tr tpl-name="prop:codes">
     <th>代码</th>
-    <td><textarea name="codes" rows="8" class="_codes" spellcheck="false"></textarea></td>
+    <td><textarea name="codes" rows="6" class="_codes" spellcheck="false"></textarea></td>
+</tr>
+
+<!-- 适用：代码行/代码段 -->
+<tr tpl-name="prop:code">
+    <th>代码</th>
+    <td><textarea name="code" rows="6" class="_codes" spellcheck="false"></textarea></td>
 </tr>
 
 <tr tpl-name="prop:date">
@@ -259,4 +260,37 @@
 <tr tpl-name="prop:time">
     <th>时间</th>
     <td><input type="time" name="time" placeholder="hh:mm:ss"></td>
+</tr>
+
+<tr tpl-name="prop:max">
+    <th>最大值</th>
+    <td><input type="text" name="max" class="_length"></td>
+</tr>
+
+<tr tpl-name="prop:min">
+    <th>最小值</th>
+    <td><input type="text" name="min" class="_length"></td>
+</tr>
+
+<tr tpl-name="prop:high">
+    <th>高值</th>
+    <td><input type="text" name="high" class="_length"></td>
+</tr>
+
+<tr tpl-name="prop:low">
+    <th>低值</th>
+    <td><input type="text" name="low" class="_length"></td>
+</tr>
+
+<tr tpl-name="prop:optimum">
+    <th>最佳值</th>
+    <td><input type="text" name="optimum" class="_length"></td>
+</tr>
+
+<tr tpl-name="prop:dir">
+    <th>文本方向</th>
+    <td>
+        <label><input type="radio" name="dir" value="ltr" title="ltr">从左到右</label>
+        <label><input type="radio" name="dir" value="rtl" title="rtl">从右到左</label>
+    </td>
 </tr>
