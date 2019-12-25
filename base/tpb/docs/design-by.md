@@ -48,6 +48,21 @@ on( evn: String, slr, $expr ): void
 off( evn: String, slr, $expr ): void
 one( evn: String, slr, $expr ): void
 
+trigger( evn: String, data: Value, ...rest )
+// 事件激发。
+// 对流程元素或元素集激发事件。
+// 可以作为正常的By操作之一。
+
+
+// 节点构造。
+// 目标：当前条目/栈顶1项。
+// 注：与To部分的同名方法不同，这里接收字符串参数。
+//===============================================
+
+wrap( box:String ): Element | Collector
+wrapinner( box:String ): Element | Collector
+wrapall( box:String ): Element | Collector
+
 
 // 判断调用
 // 简单的 if 逻辑。

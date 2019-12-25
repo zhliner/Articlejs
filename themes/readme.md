@@ -43,3 +43,9 @@ ___Panel .Attrs     特性
 ___Panel .Source    源码
 ___Panel .Script    脚本
 ```
+
+
+### 类名清单
+
+- `_chars` 几个字符宽度的录入框。
+- `_length` 数字和单位的混合录入框。

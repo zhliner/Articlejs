@@ -120,7 +120,7 @@ const _Where = {
     /**
      * 目标赋值更新。
      * @param  {Element|Collector} its 目标元素（集）
-     * @param  {Value|[Value]|Function} val 值或值集或取值回调
+     * @param  {Value|[Value]|Function} args 值或值集或取值回调
      * @return {Ignore} 调用者忽略
      */
     _Where[meth] = function( its, args ) {

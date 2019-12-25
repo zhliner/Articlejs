@@ -43,6 +43,27 @@ const _By = {
 
 
     /**
+     * 激发事件。
+     * @data: {Element|[Element]|Collector}
+     * @param  {String} evn 事件名
+     * @param  {Value} data 发送值
+     * @param  {Boolean} bubble 是否冒泡
+     * @param  {Boolean} cancelable 是否可取消
+     * @return {void}
+     */
+    trigger( evo, evn, data, bubble = true, cancelable = true ) {
+        let x = evo.data;
+
+        if ( $.isArray(x) ) {
+            $(x).trigger( evn, data, bubble, cancelable );
+        }
+        else if ( x.nodeType ) $.trigger( x, evn, data, bubble, cancelable )
+    },
+
+    __trigger: 1,
+
+
+    /**
      * 真值执行。
      * 目标：当前条目/栈顶1项。
      * 比较目标是否为true（===），是则执行，否则跳过。
@@ -145,7 +166,7 @@ const _By = {
 //
 // 事件绑定。
 // 目标：当前条目/栈顶1项。
-// 目标为待绑定事件处理器元素（集）。
+// 目标为待绑定事件处理器元素/集。
 //===============================================
 [
     'on',
@@ -165,8 +186,35 @@ const _By = {
         let x = evo.data,
             f = getFunc(expr, 'ev', 'elo');
 
-        if ( $.isCollector(x) ) x.on( name, slr, f );
-        else if ( x.nodeType == 1 ) $.on( x, name, slr, f );
+        if ( $.isArray(x) ) $(x)[meth]( name, slr, f );
+        else if ( x.nodeType == 1 ) $[meth]( x, name, slr, f );
+    };
+
+    _By[`__${meth}`] = 1;
+
+});
+
+
+//
+// 节点构造。
+// 目标：当前条目/栈顶1项。
+// 注：与To部分的同名方法不同，这里接收字符串实参。
+//===============================================
+[
+    'wrap',
+    'wrapInner',
+    'wrapAll',
+]
+.forEach(function( meth ) {
+    /**
+     * @param  {String} box 封装元素的HTML结构串
+     * @return {Element|Collector}
+     */
+    _By[meth] = function( evo, box ) {
+        let x = evo.data;
+
+        if ( $.isArray(x) ) $(x)[meth]( box );
+        else if ( x.nodeType == 1 ) $[meth]( x, box );
     };
 
     _By[`__${meth}`] = 1;

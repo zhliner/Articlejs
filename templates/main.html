@@ -107,23 +107,33 @@
 
 <!-- 选取创建菜单（mouseup） -->
 <menu class="_cells" data-pb="none" tpl-name="menu:cells">
-    <li data-val="a" title="{链接}"><a href="javascript:return false;">&lt;a&gt;</a></li>
-    <li data-val="code" title="{代码}"><code>&lt;code&gt;</code></li>
-    <li data-val="strong" title="{重点}"><strong>&lt;strong&gt;</strong></li>
-    <li data-val="b" title="{粗体}"><strong>&lt;b&gt;</strong></li>
-    <li data-val="em" title="{强调}"><em>&lt;em&gt;</em></li>
-    <li data-val="i" title="{斜体}"><em>&lt;i&gt;</em></li>
-    <li data-val="sub" title="{下标}">X<sub>&lt;sub&gt;</sub></li>
-    <li data-val="sup" title="{上标}">X<sup>&lt;sup&gt;</sup></li>
-    <li data-val="q" title="{引用}"><q>&lt;q&gt;</q></li>
-    <li data-val="time" title="{时间}"><time>&lt;time&gt;</time></li>
-    <li data-val="ins" title="{插入}"><ins>&lt;ins&gt;</ins></li>
-    <li data-val="del" title="{删除}"><del>&lt;del&gt;</del></li>
-    <li data-val="abbr" title="{缩写}"><abbr>&lt;abbr&gt;</abbr></li>
-    <li data-val="small" title="{注脚}"><small>&lt;small&gt;</small></li>
-    <li data-val="cite" title="{来源}"><cite>&lt;cite&gt;</cite></li>
-    <li data-val="mark" title="{标记}"><mark>&lt;mark&gt;</mark></li>
-    <li data-val="ruby" title="{注音}"><ruby>&lt;ruby&gt;</ruby></li>
+    <li data-tag="a" title="<a>"><a href="javascript:return false;">链接</a></li>
+    <li data-tag="code" title="<code>"><code>代码</code></li>
+    <li data-tag="strong" title="<strong>"><strong>重点</strong></li>
+    <li data-tag="em" title="<em>"><em>强调</em></li>
+    <li data-tag="sub" title="<sub>">X<sub>2</sub></li>
+    <li data-tag="sup" title="<sup>">X<sup>2</sup></li>
+    <li data-tag="q" title="<q>"><q>短引用</q></li>
+    <li data-tag="time" title="<time>"><time>时间</time></li>
+    <li data-tag="ins" title="<ins>"><ins>插入</ins></li>
+    <li data-tag="del" title="<del>"><del>删除</del></li>
+    <li data-tag="abbr" title="<abbr>"><abbr>缩写</abbr></li>
+    <li data-tag="small" title="<small>"><small>注脚</small></li>
+    <li data-tag="cite" title="<cite>"><cite>来源</cite></li>
+    <li data-tag="mark" title="<mark>"><mark>标记</mark></li>
+    <li data-tag="ruby" title="<ruby>">
+        <ruby>
+            <rb>注音</rb>
+            <rp>(</rp><rt>zhùyīn</rt><rp>)</rp>
+        </ruby></li>
+    <li data-tag="code" title="<code>"><code role="orz">^_^</code></li>
+    <li data-tag="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
+    <li data-tag="samp" title="<samp>"><samp>样本</samp></li>
+    <li data-tag="kdb" title="<kdb>"><kdb>键盘字</kdb></li>
+    <li data-tag="s" title="<s>"><s>失效</s></li>
+    <li data-tag="u" title="<u>"><u>注记</u></li>
+    <li data-tag="var" title="<var>"><var>变量</var></li>
+    <li data-tag="bdo" title="<bdo>"><bdo dir="rtl">有向文本</bdo></li>
 </menu>
 
 <!-- 基本编辑菜单（contextmenu） -->

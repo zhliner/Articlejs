@@ -29,12 +29,13 @@ const
     loadSplit   = ',',
 
     // 特性名定义。
-    __tplName   = 'tpl-name',  // 模板节点命名
-    __tplNode   = 'tpl-node',  // 模板节点引入
+    __tplName   = 'tpl-name',   // 模板节点命名
+    __tplNode   = 'tpl-node',   // 模板节点引入（克隆）
+    __tplSource = 'tpl-source', // 模板节点引入（原始）
 
     // 选择器。
-    __slrName   = `[${__tplName}]`,
-    __slrNode   = `[${__tplNode}]`;
+    __nameSelector  = `[${__tplName}]`,
+    __nodeSelector  = `[${__tplNode}], [${__tplSource}]`;
 
 
 class Templater {
@@ -66,7 +67,7 @@ class Templater {
     /**
      * 获取模板节点（副本）。
      * 如果模板不存在，会自动尝试载入。
-     * @param  {String} name 模板命名
+     * @param  {String} name 模板名
      * @return {Promise} 承诺对象
      */
     get( name ) {
@@ -78,6 +79,23 @@ class Templater {
         return this._load( name )
             .then( el => this.build(el) )
             .then( () => this.clone(this._tpls.get(name), name) );
+    }
+
+
+    /**
+     * 获取模板节点（原始）。
+     * 如果模板不存在会自动载入。
+     * 应当只用于数据类模板（无需克隆）。
+     * @param  {String} name 模板名
+     * @return {Promise} 承诺对象
+     */
+    tpl( name ) {
+        let _el = this._tpls.get(name);
+
+        if (_el) {
+            return Promise.resolve(_el);
+        }
+        return this._load(name).then(el => this.build(el)).then(() => this._tpls.get(name));
     }
 
 
@@ -139,7 +157,7 @@ class Templater {
         if ( this._render ) {
             this._render.parse( root );
         }
-        $.find(root, __slrName)
+        $.find(root, __nameSelector)
         .forEach(
             el => this._add( el )
         )
@@ -156,7 +174,7 @@ class Templater {
      * @return {[Promise]|null} 子模版载入承诺集
      */
      _subs( root ) {
-        let _els = $.find(root, __slrNode);
+        let _els = $.find(root, __nodeSelector);
 
         if ( _els.length == 0 ) {
             return null;
@@ -169,27 +187,41 @@ class Templater {
      * 载入元素引用的子模版。
      * 子模版定义可能是一个列表（有序）。
      * 可能返回null，调用者应当滤除。
-     * @param  {Element} box 容器元素
+     * @param  {Element} el 配置元素
      * @return {Promise|null}
      */
-    _loadsub( box ) {
-        let _ns = box.getAttribute(__tplNode);
-        box.removeAttribute(__tplNode);
+    _loadsub( el ) {
+        let [meth, val] = this._reference(el);
 
-        if ( !_ns.trim() ) {
+        if ( !val ) {
             return null;
         }
         return Promise.all(
-            _ns.split(loadSplit).map( n => this.get(n.trim()) )
+            val.split(loadSplit).map( n => this[meth](n.trim()) )
         )
         // 内部合并，不用$.replace
-        .then( els => box.replaceWith(...els) )
+        .then( els => el.replaceWith(...els) )
+    }
+
+
+    /**
+     * 获取节点引用。
+     * tpl-node与tpl-source不能同时配置，否则后者无效。
+     * 返回取值方法名和配置值。
+     * @param  {Element} el 配置元素
+     * @return {[method, value]}
+     */
+    _reference( el ) {
+        let _n = el.hasAttribute(__tplNode) ? __tplNode : __tplSource,
+            _v = el.getAttribute(_n);
+
+        el.removeAttribute(_n);
+        return [ _n == __tplNode ? 'get' : 'tpl', _v.trim() ];
     }
 
 
     /**
      * 添加模板节点。
-     * 如果模板节点在正常的DOM结构之内（非顶层），克隆替换。
      * 注：元素已是选择器匹配的。
      * @param {Element} el 节点元素
      */
@@ -200,9 +232,10 @@ class Templater {
         if ( this._tpls.has(_n) ) {
             window.console.warn(`[${_n}] template node was overwritten.`);
         }
-        if ( el.parentElement ) {
-            el.replaceWith( this.clone(el) );
-        }
+        // if ( el.parentElement ) {
+        //     el.replaceWith( this.clone(el) );
+        // }
+        // 注：取消DOM内自动克隆，由用户负责。有更好的灵活性。
         this._tpls.set( _n, el );
     }
 }

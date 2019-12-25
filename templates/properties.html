@@ -1,0 +1,262 @@
+<!-- 单元属性/数据项 -->
+
+<tr tpl-name="prop:align">
+    <th>水平对齐</th>
+    <td><select name="align" tpl-name="item:align">
+            <option value="">------</option>
+            <option value="left">left</option>
+            <option value="center">center</option>
+            <option value="right">right</option>
+            <option value="justify">justify</option>
+        </select>
+    </td>
+</tr>
+
+<tr tpl-name="prop:valign">
+    <th>垂直对齐</th>
+    <td><select name="valign" tpl-name="item:valign">
+            <option value="">------</option>
+            <option value="top">top</option>
+            <option value="middle">middle</option>
+            <option value="bottom">bottom</option>
+            <option value="baseline">baseline</option>
+        </select>
+    </td>
+</tr>
+
+<tr tpl-name="prop:width">
+    <th>宽度</th>
+    <td><input data-id="width" type="text" name="width" class="_length" /></td>
+</tr>
+
+<tr tpl-name="prop:length">
+    <th>长度</th>
+    <td><input data-id="width" type="text" name="length" class="_length" /></td>
+</tr>
+
+<tr tpl-name="prop:height">
+    <th>高度</th>
+    <td><input data-id="height" type="text" name="height" class="_length" /></td>
+</tr>
+
+<tr tpl-name="prop:thick">
+    <th>厚度</th>
+    <td><input data-id="thick" type="text" name="thick" class="_length" /></td>
+</tr>
+
+<tr tpl-name="prop:sntype">
+    <th>编号类型</th>
+    <td><select name="sntype">
+            <option value="">----</option>
+            <option value="1">1</option>
+            <option value="A">A</option>
+            <option value="a">a</option>
+            <option value="I">I</option>
+            <option value="i">i</option>
+        </select>
+    </td>
+</tr>
+
+<tr tpl-name="prop:start">
+    <th>起始行号</th>
+    <td><input type="text" data-id="start" name="start" class="_chars" /></td>
+</tr>
+
+<tr tpl-name="prop:cascade">
+    <th>级联表</th>
+    <td>
+        <label><input type="checkbox" name="cascade" />多级编号</label>
+    </td>
+</tr>
+
+<tr tpl-name="prop:border">
+    <th>表格边框</th>
+    <td><select name="border" tpl-name="table:border">
+            <option value="0">无</option>
+            <option value="1">普通</option>
+            <option value="4">外围</option>
+            <option value="2">内部</option>
+            <option value="h">横向</option>
+            <option value="v">纵向</option>
+            <option value="3">上接式</option>
+        </select>
+    </td>
+</tr>
+
+<tr tpl-name="prop:columns">
+    <th>列数</th>
+    <td><input type="text" name="columns" class="_chars" /></td>
+</tr>
+
+<tr tpl-name="prop:rows">
+    <th>行数</th>
+    <td><input type="text" name="rows" class="_chars" /></td>
+</tr>
+
+<tr tpl-name="prop:tfoot">
+    <th><!-- 占位 --></th>
+    <td><label><input type="checkbox" name="tfoot" />包含表脚</label></td>
+</tr>
+
+<tr tpl-name="prop:thead">
+    <th><!-- 占位 --></th>
+    <td><label><input type="checkbox" name="thead" />包含表头</label></td>
+</tr>
+
+<tr tpl-name="prop:captionwhere">
+    <th>标题位置</th>
+    <td><label><input type="checkbox" name="captionbelow" />在表格下部</label></td>
+</tr>
+
+<!-- table.summary 表格摘要（屏幕阅读器使用） -->
+<tr tpl-name="prop:summary">
+    <th>表格摘要</th>
+    <td><textarea name="summary" rows="2"></textarea></td>
+</tr>
+
+<tr tpl-name="prop:linetype">
+    <th>线条类型</th>
+    <td><span class="_lines" tabindex="0" tpl-name="line:types">
+            <!-- 取值：.className | $.property(...) -->
+            <b title="默认"><hr></b>
+            <b title="实线"><hr class="solid"></b>
+            <b title="虚线"><hr class="dotted"></b>
+            <b title="双划线"><hr class="double"></b>
+            <b title="点划线"><hr class="dashed"></b>
+            <b title="内槽线"><hr class="groove"></b>
+            <b title="外槽线"><hr class="ridge"></b>
+            <b title="内嵌线"><hr class="inset"></b>
+            <b title="外嵌线"><hr class="outset"></b>
+            <input type="hidden" data-id="line" name="line" value="">
+        </span>
+    </td>
+</tr>
+
+<tr tpl-name="prop:href">
+    <th>链接目标</th>
+    <td><input type="text" name="href" placeholder="https://" /></td>
+</tr>
+
+<tr tpl-name="prop:target">
+    <th>目标窗口</th>
+    <td><select name="target">
+            <option value="">------</option>
+            <option value="_blank">_blank</option>
+            <option value="_parent">_parent</option>
+            <option value="_top">_top</option>
+            <option value="_self">_self</option>
+        </select>
+    </td>
+</tr>
+
+<tr tpl-name="prop:poster">
+    <th>视频画面</th>
+    <td><input type="text" name="poster" placeholder="https://" /></td>
+</tr>
+
+<tr tpl-name="prop:cite">
+    <th>引用来源</th>
+    <td><input type="text" name="cite"  placeholder="https://" /></td>
+</tr>
+
+<tr tpl-name="prop:alt">
+    <th>图片说明</th>
+    <td><input type="text" name="alt" /></td>
+</tr>
+
+<tr tpl-name="prop:datetime">
+    <th>日期/时间</th>
+    <td><input type="text" name="datetime" placeholder="YYYY-MM-DD hh:mm:ss" /></td>
+</tr>
+
+<tr tpl-name="prop:loop">
+    <th><!-- 占位 --></th>
+    <td><label><input type="checkbox" name="loop" />循环播放</label></td>
+</tr>
+
+<tr tpl-name="prop:autoplay">
+    <th><!-- 占位 --></th>
+    <td><label><input type="checkbox" name="autoplay" />自动播放</label></td>
+</tr>
+
+<tr tpl-name="prop:open">
+    <th><!-- 占位 --></th>
+    <td><label><input type="checkbox" name="open" />详细展开</label></td>
+</tr>
+
+<tr tpl-name="prop:upload" class="_upload">
+    <th>上传</th>
+    <td><input type="file" name="upload" value=""
+            on="change|evo('origin'), val"
+            by="x.Fun.upload(null)" />
+    </td>
+</tr>
+
+<tr tpl-name="prop:figcapwhere">
+    <th>插图标题位于</th>
+    <td><label><input type="checkbox" name="figcapbelow" value="below" />在图画之下</label></td>
+</tr>
+
+<tr tpl-name="prop:preview">
+    <th>预览</th>
+    <td class="_preview">
+        <span data-id="preview"><!-- 预览框（img|video|audio） --></span>
+    </td>
+</tr>
+
+<tr tpl-name="prop:src">
+    <th>数据源</th>
+    <td><input type="text" name="src" placeholder="https://" /></td>
+</tr>
+
+<tr tpl-name="prop:heading">
+    <th>标题</th>
+    <td><input type="text" name="heading" placeholder="无标题请置空"></td>
+</tr>
+
+<tr tpl-name="prop:rt">
+    <th>注音</th>
+    <td><input type="text" name="rt" class="_length" /></td>
+</tr>
+
+<tr tpl-name="prop:leftrp">
+    <th>左括号</th>
+    <td><input type="text" name="leftrp" class="_chars" />（可选）</td>
+</tr>
+
+<tr tpl-name="prop:rightrp">
+    <th>右括号</th>
+    <td><input type="text" name="rightrp" class="_chars" />（可选）</td>
+</tr>
+
+<tr tpl-name="prop:content">
+    <th>内容</th>
+    <td><textarea name="content" rows="3" class="_content"></textarea></td>
+</tr>
+
+<!-- 用于内联单元文本 -->
+<tr tpl-name="prop:textline">
+    <th>文本</th>
+    <td><input type="text" name="textline" class="_textline" /></td>
+</tr>
+
+<tr tpl-name="prop:orz">
+    <th>颜文字</th>
+    <td><textarea name="text" rows="4" class="_orz" spellcheck="false"></textarea></td>
+</tr>
+
+<!-- 适用：代码块/代码行/代码表 -->
+<tr tpl-name="prop:codes">
+    <th>代码</th>
+    <td><textarea name="codes" rows="8" class="_codes" spellcheck="false"></textarea></td>
+</tr>
+
+<tr tpl-name="prop:date">
+    <th>日期</th>
+    <td><input type="date" name="date" placeholder="YYYY-MM-DD"></td>
+</tr>
+
+<tr tpl-name="prop:time">
+    <th>时间</th>
+    <td><input type="time" name="time" placeholder="hh:mm:ss"></td>
+</tr>

@@ -247,23 +247,10 @@
                 <input type="text" name="width" placeholder="100%" class="_length" />
             </label>
             <label>边框
-                <select name="border">
-                    <option value="0" selected>无</option>
-                    <option value="1">普通</option>
-                    <option value="4">外围</option>
-                    <option value="2">内部</option>
-                    <option value="h">横向</option>
-                    <option value="v">纵向</option>
-                    <option value="3">上接式</option>
-                </select>
+                <select tpl-node="table:border"></select>
             </label>
             <label>对齐
-                <select name="align">
-                    <option value="" selected>------</option>
-                    <option value="left">left</option>
-                    <option value="center">center</option>
-                    <option value="right">right</option>
-                </select>
+                <select tpl-node="item:align"></select>
             </label>
         </div>
         <div tpl-node="inputs:submit2"> [插入2] </div>
@@ -415,23 +402,12 @@
 <!-- 线条 -->
 <div class="_line" tpl-name="inputs:line">
     <div class="_main">
-        <span class="_content" data-type="">
-            <!-- 取值：.className | $.property(...) -->
-            <b title="默认"><hr></b>
-            <b title="实线"><hr class="solid"></b>
-            <b title="虚线"><hr class="dotted"></b>
-            <b title="双划线"><hr class="double"></b>
-            <b title="点划线"><hr class="dashed"></b>
-            <b title="内槽线"><hr class="groove"></b>
-            <b title="外槽线"><hr class="ridge"></b>
-            <b title="内嵌线"><hr class="inset"></b>
-            <b title="外嵌线"><hr class="outset"></b>
-        </span>
+        <hr tpl-node="line:types">
     </div>
     <aside>
         <div class="_option">
-            <label>厚度<input type="text" name="height" placeholder="1px" class="_length"></label>
-            <label>长度<input type="text" name="width" placeholder="94%" class="_length"></label>
+            <label>厚度<input type="text" name="thick" placeholder="1px" class="_length"></label>
+            <label>长度<input type="text" name="length" placeholder="94%" class="_length"></label>
         </div>
         <pre tpl-node="inputs:submit2"> [插入2] </pre>
     </aside>
@@ -441,7 +417,7 @@
 <!-- 空白块 -->
 <div class="_space" tpl-name="inputs:space">
     <div class="_main">
-        <div role="space"> [示例] </div>
+        <div role="space"><span class="_empty">（空白）</span></div>
     </div>
     <aside>
         <pre tpl-node="inputs:submit2"> [插入2] </pre>
@@ -449,46 +425,198 @@
 </div>
 
 
-<!-- 内联单元：含属性定义 ------------------------------------------------------------->
-
-
-
-
 <!-- 微编辑下 -->
-<ul tpl-name="inputs:meds" class="_meds">
+<ul class="_meds" tpl-name="inputs:meds">
     <li>特殊符号</li>
-    <li>Html源码</li>
     <li>图片（&lt;img&gt;）</li>
     <li>音频（&lt;audio&gt;）</li>
     <li>视频（&lt;video&gt;）</li>
     <li>兼容图片（&lt;picture&gt;）</li>
     <li>链接（&lt;a&gt;）</li>
+    <li>代码（&lt;code&gt;）</li>
     <li>重点（&lt;strong&gt;）</li>
     <li>强调（&lt;em&gt;）</li>
-    <li>短引用（&lt;q&gt;）</li>
-    <li>缩写（&lt;abbr&gt;）</li>
-    <li>来源（&lt;cite&gt;）</li>
-    <li>注脚（&lt;small&gt;）</li>
-    <li>日期/时间（&lt;time&gt;）</li>
-    <li>已删除条目（&lt;del&gt;）</li>
-    <li>插入性条目（&lt;ins&gt;）</li>
     <li>下标（&lt;sub&gt;）</li>
     <li>上标（&lt;sup&gt;）</li>
+    <li>短引用（&lt;q&gt;）</li>
+    <li>日期/时间（&lt;time&gt;）</li>
+    <li>插入性条目（&lt;ins&gt;）</li>
+    <li>已删除条目（&lt;del&gt;）</li>
+    <li>缩写（&lt;abbr&gt;）</li>
+    <li>注脚（&lt;small&gt;）</li>
+    <li>来源（&lt;cite&gt;）</li>
     <li>标记（&lt;mark&gt;）</li>
-    <li>代码（&lt;code&gt;）</li>
-    <li>表情（&lt;code role="orz"&gt;）</li>
     <li>注音单元（&lt;ruby/rb,rp,rt&gt;）</li>
+    <li>表情（&lt;code role="orz"&gt;）</li>
     <li>定义条目（&lt;dfn&gt;）</li>
     <li>样本（&lt;samp&gt;）</li>
     <li>键盘字（&lt;kbd&gt;）</li>
+    <li>度量标示（&lt;meter&gt;）</li>
     <li>失效（&lt;s&gt;）</li>
     <li>注记（&lt;u&gt;）</li>
     <li>变量（&lt;var&gt;）</li>
-    <li>有向文本单元（&lt;bdo&gt;）</li>
-    <li>度量标示（&lt;meter&gt;）</li>
-    <li>粗体（&lt;b&gt;）</li>
-    <li>斜体（&lt;i&gt;）</li>
+    <li>有向文本（&lt;bdo&gt;）</li>
     <li>换行（&lt;br&gt;）</li>
     <li>软换行（&lt;wbr&gt;）</li>
     <li>空白段（&lt;blank&gt;）</li>
 </ul>
+
+<!-- 内联单元 --------------------------------------------------------------->
+
+<div class="_chars" tpl-name="inputs:chars">
+    <select name="xlist" size="6">
+        <option value="normal">常用</option>
+        <option value="number">数字序号</option>
+        <option value="maths">数学</option>
+        <option value="units">单位</option>
+        <option value="phonetic">注音</option>
+        <option value="katakana">日文片假名</option>
+        <option value="hiragana">日文平假名</option>
+        <option value="greekalph">希腊字母</option>
+        <option value="russian">俄文字符</option>
+        <option value="radicalcn">偏旁部首-简</option>
+        <option value="radicaltw">偏旁部首-繁</option>
+        <option value="tabline">表格线</option>
+    </select>
+    <span> [替换占位] </span>
+</div>
+
+<!-- 特殊字符集
+    初始解析构造为：<b>...</b>序列
+    字符集清单存储在data中备用。 -->
+<div id="charlist"
+    on="init('span')|evo('origin'), text, call('split', ''), $$;
+        obted|$$('span')"
+    by="wrap('<b>');
+        trigger('init'), pop, data('chars')"
+    to="|fill">
+    <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝■◆▲●★§□◇△○☆αβγ※◎№＃〓＆＠＼＾→←↑↓·ˇ々‖。，、；：？！‘’“”～©</span>
+    <span data-val="number">ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ①②③④⑤⑥⑦⑧⑨⑩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆</span>
+    <span data-val="maths">≈≡≠＝≤≥＜＞≮≯∷±＋－×÷／∫∮∝∞∧∨∑∏∪∩∈∵∴⊥∥∠⌒⊙≌∽√</span>
+    <span data-val="units">°′″＄￡￥‰％℃¤￠〇一二三四五六七八九十零壹贰叁肆伍陆柒捌玖拾百佰千仟万亿兆吉太拍艾分厘毫</span>
+    <span data-val="phonetic">āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
+    <span data-val="katakana">ァアィイゥウヴェエォオカガヵキギクグケゲヶコゴサザシジスズセゼソゾタダチヂツヅッテデトドヰンナパニピヌプネペノポハバヒビフブヘベホボヱマラミリムルメレモロャヤュユョヨヮワ</span>
+    <span data-val="hiragana">ぁあぃいぅうぇえぉおかがきぎくぐけげこごんさざしじすずせぜそぞただちぢつづってでとどゐなぱにぴぬぷねぺのぽはばひびふぶへべほぼゑまらみりむるめれもろゃやゅゆょよゎわ</span>
+    <span data-val="greekalph">αΑβΒγΓδΔεΕζΖηΗθΘιΙκΚλΛμΜνΝξΞοΟπΠρΡσΣτΤυΥφΦχΧψΨω</span>
+    <span data-val="russian">аАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮя</span>
+    <span data-val="radicalcn">丨亅丿乛丶勹冫刂匚丷卩冂冖凵亻厶亠讠廴艹屮彳巛辶阝廾彐宀犭彡饣扌氵纟囗忄幺弋尢夂灬厄卝旡耂牜爿攴攵礻殳爻爫癶彑钅皿疒矢罒疋衤缶艮虍臼耒糸糹覀聿辵卤豕豸阜黾隹釒飠髟鬲龠</span>
+    <span data-val="radicaltw">丨丶丿乚亅亠亻冂冖冫凵刂勹匚匸卩厶囗夂夊宀尢屮巛幺廴廾彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爿犭疋疒癶皿礻禸糸糹缶罒罓耂耒聿臼舛艮艸艹虍衤襾覀訁豕豸辵辶阝釒镸門阝隹韋飠髟鬥鬯鬲鹵黹黽龠</span>
+    <span data-val="tabline">┌└┍┕┎┖┏┗┐┘┑┙┒┚┓┛─━┄┅┈┉├┤┝┥┞┦┟┧┠┨┡┩┢┪┣┫│┃┆┇┊┋┬┴┭┵┮┶┯┷┰┸┱┹┲┺┳┻┼╄┽╅┾┶┿╇╀╈╁╉╂╊╃</span>
+</div>
+
+<table tpl-name="inputs:img">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:audio">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:video">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:picture">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:a">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:code">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:strong">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:em">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:sub">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:sup">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:q">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:times">
+    <tr tpl-source="prop:date"></tr>
+    <tr tpl-source="prop:time"></tr>
+</table>
+
+<table tpl-name="inputs:ins">
+    <tr tpl-node="prop:textline"></tr>
+</table>
+
+<table tpl-name="inputs:del">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:abbr">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:small">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:cite">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:mark">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:ruby">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:orz">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:dfn">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:samp">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:kbd">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:meter">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:s">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:u">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:var">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:bdo">
+    <tr tpl-node=""></tr>
+</table>
+
+<table tpl-name="inputs:blank">
+    <tr tpl-node=""></tr>
+</table>

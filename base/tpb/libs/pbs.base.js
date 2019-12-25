@@ -111,7 +111,7 @@ const _Base = {
      * 目标：当前条目，可选。
      * rid: {
      *      String          同上。
-     *      null|undefined  同上，但当前条目也可能非字符串类型。
+     *      null|undefined  同上，但如果当前条目非字符串则简单$(..)封装。
      *      Value           Collector封装，支持单值和数组。
      * }
      * 当前条目的权重低于rid实参，因此如果rid为Collector封装，当前条目会被忽略。
@@ -178,29 +178,18 @@ const _Base = {
 
 
     /**
-     * 获取模板并命名。
+     * 获取模板副本或原始模板节点。
      * 目标：当前条目，可选。
      * name优先从实参获取，如果未定义或为null，则取目标值。
-     * 行为：
-     * 从原始源模板获取一个副本，这个副本被命名为name的值，
-     * 如果在其它地方需要再次引用这个副本，仅传递name即可。
-     * name可与from相同，但不同的副本应当名称不同。
-     * 注记：
-     * 如果克隆的节点被破坏，可以传递clone为真重新获取原始版本。
-     *
-     * @param  {String} name 模板名/命名
-     * @param  {String} from 原始来源模板名，可选
-     * @param  {Boolean} clone 重新获取克隆的模板节点，可选
+     * @param  {String} name 模板名
+     * @param  {Boolean} origin 是否为原始模板，可选
      * @return {Promise}
      */
-    tpl( evo, name, from, clone ) {
+    tpl( evo, name, origin ) {
         if ( name == null ) {
             name = evo.data;
         }
-        if ( typeof name != 'string' ) {
-            return Promise.reject(`invalid tpl-name: ${name}`);
-        }
-        return __TplStore.get( name, from, clone );
+        return __TplStore[origin ? 'tpl' : 'get'](name);
     },
 
     __tpl: 0,
@@ -422,7 +411,7 @@ const _Base = {
 
 
 
-    // 事件处理
+    // 事件处理。
     // 目标：当前条目/栈顶1项。
     // 流程数据：{Element|[Element]}
     // @return {void}
