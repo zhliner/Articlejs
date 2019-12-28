@@ -1,85 +1,55 @@
-<div tpl-name="its:fontst" class="_args _fontst">
-    <ul class="_list" mvc-on="click('input')" mvc-by="Ed.cstyle">
-        <li>
-            <label>
-                <input type="radio" name="tline" value="text-decoration:" checked />
-                <i id="l-noline"></i>&nbsp;{无划线}
-            </label>
-        </li>
-        <li>
-            <label title="text-decoration:underline">
-                <input type="radio" name="tline" value="text-decoration:underline" />
-                <i id="l-fuline"></i>&nbsp;{下划线}
-            </label>
-        </li>
-        <li>
-            <label title="text-decoration:overline">
-                <input type="radio" name="tline" value="text-decoration:overline" />
-                <i id="l-foline"></i>&nbsp;{上划线}
-            </label>
-        </li>
-        <li>
-            <label title="font-weight:bold">
-                <input type="checkbox" name="fbold" value="font-weight:bold" />
-                <i id="l-fbold"></i>&nbsp;{粗体样式}
-            </label>
-        </li>
-        <li>
-            <label title="font-style:italic">
-                <input type="checkbox" name="fitalic" value="font-style:italic" />
-                <i id="l-fitalic"></i>&nbsp;{斜体样式}
-            </label>
-        </li>
-    </ul>
+<!-- 样式版：框架 -->
+<form class="Styles" tpl-name="slave:styles">
+    <aside>
+        <i id="b-erase"></i>
+        <i id="b-brush"></i>
+        <i id="b-fontview" class="_press"></i>
+        <i id="b-fontsize"></i>
+        <i id="b-align"></i>
+        <i id="b-width"></i>
+        <i id="b-margin"></i>
+        <i id="b-colors"></i>
+    </aside>
+    <div tpl-source="styles:fontview"></div>
+</form>
+
+
+<!-- 字形 -->
+<div class="_fontview" tpl-name="styles:fontview">
+    <div class="_list">
+        <label>
+            <input type="checkbox" name="bold" />
+            <span style="font-weight: bold;">粗体</span>
+            <small>（font-weight: bold）</small>
+        </label>
+        <label>
+            <input type="checkbox" name="italic" />
+            <span style="font-style: italic;">斜体</span>
+            <small>（font-style: italic）</small>
+        </label>
+        <label>
+            <input type="radio" name="decoration" />
+            <span style="text-decoration: underline;">下划线</span>
+            <small>（text-decoration: underline）</small>
+        </label>
+        <label>
+            <input type="radio" name="decoration" />
+            <span style="text-decoration: line-through;">贯穿线</span>
+            <small>（text-decoration: line-through）</small>
+        </label>
+        <label>
+            <input type="radio" name="decoration" />
+            <span style="text-decoration: overline;">上划线</span>
+            <small>（text-decoration: overline）</small>
+        </label>
+    </div>
+    <div class="_erase" style="writing-mode: vertical-rl;">全部清除</div>
 </div>
 
-<div tpl-name="its:align" class="_args _align">
-    <ul class="_talign _list" mvc-on="click('input')" mvc-by="Ed.cstyle('text-align')">
-        <li class="_clean">
-            <b mvc-on="click" mvc-by="Ed.delstyle('text-align')" title="{水平默认对齐}">--- default ---</b>
-        </li>
-        <li>
-            <label title="text-align:center">
-                <input type="radio" name="talign" value="center" />
-                <i id="l-alignc"></i>&nbsp;{居中对齐}
-            </label>
-        </li>
-        <li>
-            <label title="text-align:right">
-                <input type="radio" name="talign" value="right" />
-                <i id="l-alignr"></i>&nbsp;{右对齐}
-            </label>
-        </li>
-        <li>
-            <label title="text-align:justify">
-                <input type="radio" name="talign" value="justify" />
-                <i id="l-alignj"></i>&nbsp;{两端对齐}
-            </label>
-        </li>
-        <li>
-            <label title="text-align:left">
-                <input type="radio" name="talign" value="left" />
-                <i id="l-alignl"></i>&nbsp;{左对齐}
-            </label>
-        </li>
-    </ul>
-    <select name="valign" size="8" class="_valign" title="vertical-align:~"
-        mvc-on="change" mvc-by="Ed.cstyle('vertical-align')">
-        <option value="" selected title="{垂直默认对齐}">------</option>
-        <option value="baseline">baseline</option>
-        <option value="sub">sub</option>
-        <option value="super">super</option>
-        <option value="top">top</option>
-        <option value="text-top">text-top</option>
-        <option value="middle">middle</option>
-        <option value="bottom">bottom</option>
-        <option value="text-bottom">text-bottom</option>
-    </select>
-</div>
 
-<div tpl-name="its:fontsz" class="_args _fontsz">
-    <select name="fontsz" size="8" data-id="fontsz" title="font-size:~"
-        mvc-on="change" mvc-by="Ed.cstyle('font-size')">
+<!-- 字号 -->
+<div class="_fontsize" tpl-name="styles:fontsize">
+    <select name="sizename" class="_list">
         <option value="xx-small">xx-small</option>
         <option value="x-small">x-small</option>
         <option value="small">small</option>
@@ -90,28 +60,61 @@
         <option value="x-large">x-large</option>
         <option value="xx-large">xx-large</option>
     </select>
-    <ul class="_value">
-        <li class="_clean">
-            <b mvc-on="click" mvc-by="Ed.delstyle('font-size')" title="{清除字号设置}">--- none ---</b>
-        </li>
-        <li>
-            <label>{数量}</label>
-            <input type="text" class="_word" name="fontszv" maxlength="20" title="{可含单位}"
-                mvc-on="input|join('1@fszval', ['fontszv','unit'])" />
-            <select name="unit" mvc-on="change|join('1@fszval', ['fontszv','unit'])">
-                <option value="">----</option>
+    <div class="_assign">
+        <div class="_erase">清除</div>
+        <div>
+            <label>字号</label><input type="text" name="fontsize" />
+            <select name="unit">
+                <option value="">---</option>
                 <option value="pt">pt</option>
                 <option value="px">px</option>
                 <option value="em">em</option>
             </select>
-            <input type="hidden" name="fszval" data-id="fszval" value="">
-        </li>
-        <li class="_apply">
-            <input name="apply" type="submit" class="_button" value="{应用}"
-                mvc-on="click" mvc-by="Ed.cstyle('font-size', 'fszval')" />
-        </li>
-    </ul>
+        </div>
+        <hr tpl-node="slave:submit" />
+    </div>
 </div>
+
+
+<!-- 对齐 -->
+<div class="_align" tpl-name="styles:align">
+    <div class="_h">
+        <label>text-align</label>
+        <select name="align">
+            <option value="" title="默认" selected>------</option>
+            <option value="center" title="居中对齐">center</option>
+            <option value="right" title="右对齐">right</option>
+            <option value="justify" title="两端对齐">justify</option>
+            <option value="justify-all" title="两端强对齐">justify-all</option>
+            <option value="left" title="左对齐">left</option>
+            <option value="start" title="起点对齐">start</option>
+            <option value="end" title="末端对齐">end</option>
+        </select>
+    </div>
+    <div class="_v">
+        <label>vertical-align</label>
+        <select name="valign">
+            <option value="" selected>------</option>
+            <option value="baseline">baseline</option>
+            <option value="sub">sub</option>
+            <option value="super">super</option>
+            <option value="top">top</option>
+            <option value="text-top">text-top</option>
+            <option value="middle">middle</option>
+            <option value="bottom">bottom</option>
+            <option value="text-bottom">text-bottom</option>
+        </select>
+    </div>
+</div>
+
+
+<!-- 宽/高度 -->
+<div class="_width" tpl-name="styles:width">
+
+</div>
+
+
+
 
 <div tpl-name="its:width" class="_args _width">
     <ul class="_value">

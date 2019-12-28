@@ -1096,18 +1096,18 @@ const _Base2 = {
 
     /**
      * 栈顶复制。
-     * 为引用浅复制，支持多项（自动展开）。
-     * 目标：当前条目，可选。
+     * 支持多项自动展开，为引用浅复制。
+     * 目标：可选当前条目为克隆数。
      * 特权：是。多条目获取并展开压入。
      * 注：
      * 无实参调用取默认值1，即复制栈顶1项。
-     * 若实参n明确传递为null，从当前条目获取克隆数。
+     * 若当前条目有值，视为克隆数量。
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数
      * @return {void}
      */
     dup( evo, stack, n = 1 ) {
-        if ( n === null ) {
+        if ( evo.data !== undefined ) {
             n = +evo.data;
         }
         if ( n ) stack.push( ...stack.tops(n) );

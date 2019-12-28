@@ -124,3 +124,71 @@
     <li>{结果数据：}</li>
     <li title="RESULT.data" class="_data"><div tpl-out="data"></div></li>
 </ul>
+
+
+<!-- 面板：确定 -->
+<div class="_submit" tpl-name="slave:submit">
+    <input type="submit" class="_ok" value="确定" />
+</div>
+
+
+<!-- 面板：特性 -->
+<form class="Attrs" tpl-name="slave:attrs">
+    <aside>
+        <div>
+            <input type="text" name="attr" class="_attr" />
+            <!-- 添加/移除：+/- -->
+            <button id="g-attrop">+</button>
+        </div>
+        <select name="attrs" tpb-for>
+            <option _value="$" _="$"></option>
+        </select>
+    </aside>
+    <div>
+        <div class="_main">
+            <textarea name="content" rows="6"></textarea>
+        </div>
+        <aside>
+            <div class="_option">
+                <input type="text" name="nlchar" class="_char" />
+                <label><input type="checkbox" name="nlnice" />换行友好</label>
+            </div>
+            <hr tpl-node="slave:submit" />
+        </aside>
+    </div>
+</form>
+
+
+<!-- 面板：源码 -->
+<form class="Source" tpl-name="slave:source">
+    <div class="_main">
+        <textarea name="content" rows="6"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <button>结构检查</button>
+            <label><input type="checkbox" name="repair" />修复</label>
+            <div class="_info"></div>
+        </div>
+        <hr tpl-node="slave:submit" />
+    </aside>
+</form>
+
+
+<!-- 面板：脚本 -->
+<form class="Script" tpl-name="slave:script">
+    <aside>
+        <label><input type="radio" name="runbox" />沙盒内</label>
+        <label><input type="radio" name="runbox" />编辑器内</label>
+    </aside>
+    <div>
+        <div class="_main">
+            <label>记忆前缀<input type="text" name="prefix" placeholder="script-" /></label>
+            <textarea name="content" rows="6"></textarea>
+        </div>
+        <aside>
+            <div class="_option"><i id="b-history"></i></div>
+            <div class="_submit"><input type="submit" class="_ok" value="运行" /></div>
+        </aside>
+    </div>
+</form>

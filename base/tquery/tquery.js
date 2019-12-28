@@ -5507,7 +5507,8 @@ function clearChecked( els ) {
 
 /**
  * select控件选取清除。
- * 注：无 propfail 事件。
+ * 无 propfail 事件。
+ * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
  * @param  {Element} el 控件元素
  * @return {void}
  */
@@ -5523,7 +5524,8 @@ function clearSelected( el ) {
 /**
  * select控件操作（单选）。
  * 即便没有匹配项，原选中条目也会被清除选取。
- * 注：无 propfail 事件。
+ * 无 propfail 事件。
+ * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
  * @param  {Element} el 控件元素
  * @param  {Value} 对比值
  * @return {void}
@@ -5547,9 +5549,10 @@ function selectOne( el, val ) {
 /**
  * select控件操作（多选）。
  * 匹配项被选取，非匹配项被清除选取。
- * 注：无 propfail 事件。
+ * 无 propfail 事件。
+ * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
  * @param  {Element} el 控件元素
- * @param  {Value} 对比值
+ * @param  {Value|[Value]} 对比值/集
  * @return {void}
  */
 function selects( el, val ) {

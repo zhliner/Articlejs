@@ -486,7 +486,7 @@
     字符集清单存储在data中备用。 -->
 <div id="charlist"
     on="init('span')|evo('origin'), text, call('split', ''), $$;
-        obted|$$('span')"
+        obted|$$('span'), dup"
     by="wrap('<b>');
         trigger('init'), pop, data('chars')"
     to="|fill">
@@ -559,8 +559,7 @@
 </table>
 
 <table tpl-name="inputs:times">
-    <tr tpl-source="prop:date"></tr>
-    <tr tpl-source="prop:time"></tr>
+    <tr tpl-source="prop:date, prop:time"></tr>
 </table>
 
 <table tpl-name="inputs:ins">
@@ -590,8 +589,7 @@
 <table tpl-name="inputs:ruby">
     <tr tpl-node="prop:textrow"></tr>
     <tr tpl-node="prop:rt"></tr>
-    <tr tpl-node="prop:leftrp"></tr>
-    <tr tpl-node="prop:rightrp"></tr>
+    <tr tpl-node="prop:leftrp, prop:rightrp"></tr>
 </table>
 
 <table tpl-name="inputs:orz">
@@ -611,10 +609,8 @@
 </table>
 
 <table tpl-name="inputs:meter">
-    <tr tpl-node="prop:max"></tr>
-    <tr tpl-node="prop:min"></tr>
-    <tr tpl-node="prop:high"></tr>
-    <tr tpl-node="prop:low"></tr>
+    <tr tpl-node="prop:max, prop:min"></tr>
+    <tr tpl-node="prop:high, prop:low"></tr>
     <tr tpl-node="prop:optimum"></tr>
 </table>
 

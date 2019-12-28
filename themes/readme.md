@@ -38,7 +38,7 @@ ___Panel.Plugs  插件区
 功能版：
 ```
 ___Panel .Inputs    录入
-___Panel .Style     样式
+___Panel .Styles    样式
 ___Panel .Attrs     特性
 ___Panel .Source    源码
 ___Panel .Script    脚本
@@ -47,6 +47,10 @@ ___Panel .Script    脚本
 
 ### 类名清单
 
+- `_char` 单个字符的录入框，字符居中。
 - `_chars` 几个字符宽度的录入框。
 - `_length` 数字和单位的混合录入框。
 - `_textrow` 文本行，主要用于内联单元文本输入。
+- `_attr` 添加/移除特性框。
+- `_del` 特性操作按钮（移除状态）。
+- `_press` 图标按下（选中）状态。
