@@ -899,14 +899,14 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 表单控件的取值或状态设置。
 
 - `el: Element` 操作的表单控件元素。
-- `value: Value | [Value] | Function` 设置的值或值集，或返回值（集）的回调。
+- `value: Value | [Value] | Function` 设置的值或值集，或返回设置值（集）的回调。
 
-部分控件（如 `input:radio`, `input:checkbox`, `<section>`）的设置为选中或取消选中逻辑，部分控件（如 `input:text`, `input:password`, `<textarea>`）为设置 `value` 值本身。对于多选控件（如 `<select multiple>`），`value` 可以传递为一个值数组，用于同时选定多个条目。
+部分控件（如 `input:radio`, `input:checkbox`, `<section>`）的设置为选中或取消选中，部分控件（如 `input:text`, `input:password`, `<textarea>`）则为设置 `value` 值本身。对于多选控件（如 `<select multiple>`），`value` 可以传递为一个值数组，用于同时选定多个条目。
 
 取值和设置都会依循严格的表单提交（`submit`）逻辑：
 
 - 未选中的的控件（如单个复选框）不会被提交，因此取值时返回 `null`。
-- `disabled` 的控件值也不会被提交，因此取值时返回 `null`，设置时被忽略。
+- `disabled` 的控件值也不会被提交，取值时也返回 `null`，设置时被忽略。
 - 无名称（`name` 属性）定义的控件不会被提交，因此取值时返回 `undefined`，设置时被忽略。
 
 > **注：**<br>

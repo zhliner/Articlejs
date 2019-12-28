@@ -51,12 +51,12 @@
     提供5组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类应用。
     开启：tQuery.config({varyevent: true});
 
-    - attrvary/attrfail/attrdone    // 特性设置/出错/完成
-    - propvary/propfail/propdone    // 属性设置/出错/完成
-    - cssvary/cssfail/cssdone       // 内联样式设置/出错/完成
-    - classvary/classfail/classdone // 类名设置/出错/完成
+    - attrvary|attrfail/attrdone    // 特性设置/出错/完成
+    - propvary|propfail/propdone    // 属性设置/出错/完成
+    - cssvary|cssfail/cssdone       // 内联样式设置/出错/完成
+    - classvary|classfail/classdone // 类名设置/出错/完成
 
-    - nodevary/nodefail/nodedone
+    - nodevary|nodefail/nodedone
     // 节点设置/出错/完成
     // type: [
     //      append, prepend, before, after, replace,
@@ -5489,6 +5489,87 @@ function setProp( el, name, dname, val ) {
 
 
 /**
+ * 控件集选中清除。
+ * 适用 input:checkbox|radio 类控件。
+ * 注：无 propfail 事件。
+ * @param  {[Element]} els 控件组
+ * @return {void}
+ */
+function clearChecked( els ) {
+    for ( let e of els ) {
+        let _old = e.checked;
+        limitTrigger( e, evnPropSet, ['checked', false] );
+        e.checked = false;
+        limitTrigger( e, evnPropDone, ['checked', _old] );
+    }
+}
+
+
+/**
+ * select控件选取清除。
+ * 注：无 propfail 事件。
+ * @param  {Element} el 控件元素
+ * @return {void}
+ */
+function clearSelected( el ) {
+    let _old = valHooks.select.get(el);
+
+    limitTrigger( el, evnPropSet, ['select', null] );
+    el.selectedIndex = -1;
+    limitTrigger( el, evnPropDone, ['select', _old] );
+}
+
+
+/**
+ * select控件操作（单选）。
+ * 即便没有匹配项，原选中条目也会被清除选取。
+ * 注：无 propfail 事件。
+ * @param  {Element} el 控件元素
+ * @param  {Value} 对比值
+ * @return {void}
+ */
+function selectOne( el, val ) {
+    let _old = valHooks.select.get(el);
+
+    limitTrigger( el, evnPropSet, ['select', val] );
+    el.selectedIndex = -1;
+
+    for ( const op of el.options ) {
+        if ( op.value === val && !$is(op, ':disabled') ) {
+            op.selected = true;
+            break;
+        }
+    }
+    limitTrigger( el, evnPropDone, ['select', _old] );
+}
+
+
+/**
+ * select控件操作（多选）。
+ * 匹配项被选取，非匹配项被清除选取。
+ * 注：无 propfail 事件。
+ * @param  {Element} el 控件元素
+ * @param  {Value} 对比值
+ * @return {void}
+ */
+function selects( el, val ) {
+    let _old = valHooks.select.get(el);
+
+    limitTrigger( el, evnPropSet, ['select', val] );
+
+    el.selectedIndex = -1;
+    if ( !isArr(val) ) val = [val];
+
+    for ( const op of el.options ) {
+        if ( !$is(op, ':disabled') ) {
+            op.selected = val.includes( op.value );
+        }
+    }
+    limitTrigger( el, evnPropDone, ['select', _old] );
+}
+
+
+/**
  * 样式设置封装。
  * @param  {Element} el 目标元素
  * @param  {String} name 样式名
@@ -5995,10 +6076,10 @@ const propHooks = {
 // 表单控件的取值/状态修改。
 //
 // 与元素的 value 属性或特性不同，这里的取值遵循表单提交逻辑。
-// 即：即便条目被选中，如果自身处于 disabled 状态，也返回 null。
+// 即：如果条目未选中或自身处于 disabled 状态，返回 null。
 //
 // 对部分控件的设置是选中与值匹配的条目，而不是改变控件的值本身。
-// 与取值相似，如果控件已 disabled 则会忽略。
+// 如果控件已 disabled，会忽略设置操作。
 //
 // 对于选取类控件，设置时传递 null 值会清除全部选取。
 //
@@ -6032,7 +6113,7 @@ const valHooks = {
             if (!_res || !el.name) {
                 return;
             }
-            return val === null ? _clearChecked(_res) : this._set(_res.nodeType ? [_res] : _res, val);
+            return val === null ? clearChecked( $A(_res) ) : this._set( $A(_res), val );
         },
 
         _set: (els, val) => {
@@ -6080,8 +6161,8 @@ const valHooks = {
                 return;
             }
             return val === null ?
-                _clearChecked( _cbs ) :
-                this._set( _cbs.nodeType ? [_cbs] : _cbs, isArr(val) ? val : [val] );
+                clearChecked( $A(_cbs) ) :
+                this._set( $A(_cbs), isArr(val) ? val : [val] );
         },
 
         _set: (els, val) => {
@@ -6118,33 +6199,15 @@ const valHooks = {
             if (!valPass(el)) {
                 return;
             }
-            el.selectedIndex = -1;
-            if (val === null) return;
-
-            return el.type == 'select-one' ?
-                this._set( el.options, val ) :
-                this._sets( el.options, isArr(val) ? val : [val] );
-        },
-
-        _set: (els, val) => {
-            for ( const e of els ) {
-                if (e.value === val && !$is(e, ':disabled')) {
-                    return setProp( e, 'selected', '', true );
-                }
+            if (val === null) {
+                return clearSelected(el);
             }
+            return el.type == 'select-one' ? selectOne(el, val) : selects(el, val);
         },
-
-        _sets: (els, val) => {
-            for ( const e of els ) {
-                if ( val.includes(e.value) && !$is(e, ':disabled') ) {
-                    setProp( e, 'selected', '', true )
-                }
-            }
-        }
     },
 
     // 占位。
-    // 表单逻辑下不直接取值（由上层<select>取值）。
+    // 表单逻辑下不直接操作（由上层<select>实现）。
     option: {
         get: function() {},
         set: function() {},
@@ -6157,11 +6220,6 @@ const valHooks = {
         set: (el, val) => valPass(el) && setProp( el, 'value', '', val )
     },
 };
-
-
-function _clearChecked( els ) {
-    for ( let e of els ) e.checked = false;
-}
 
 
 

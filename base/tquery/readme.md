@@ -105,11 +105,11 @@
 
     为了跟踪DOM节点的变化，为编写DOM编辑器提供方便，设计加入了5组定制事件：（默认关闭。执行 `$.config({varyevent:true})` 启用）
 
-    1. `attrvary/attrfail/attrdone` 元素特性：`设置/出错/完成` 事件。
-    2. `propvary/propfail/propdone` 元素属性：`设置/出错/完成` 事件。
-    3. `cssvary/cssfail/cssdone` 元素内联样式：`设置/出错/完成` 事件。
-    4. `classvary/classfail/classdone` 元素类名：`设置/出错/完成` 事件。
-    5. `nodevary/nodefail/nodedone` 节点/元素：`修改/出错/完成` 事件。
+    1. `attrvary|attrfail/attrdone` 元素特性：`设置/出错/完成` 事件。
+    2. `propvary|propfail/propdone` 元素属性：`设置/出错/完成` 事件。
+    3. `cssvary|cssfail/cssdone` 元素内联样式：`设置/出错/完成` 事件。
+    4. `classvary|classfail/classdone` 元素类名：`设置/出错/完成` 事件。
+    5. `nodevary|nodefail/nodedone` 节点/元素：`修改/出错/完成` 事件。
 
     需要跟踪DOM节点变化的应用可以获得节点改变之前、出错和完成之后三个阶段的监控和应对能力。事件冒泡但不可取消，附加的消息（`event.detail`）包含了相关联的数据。出错和完成事件不会同时发生，两者仅有其一。
 
