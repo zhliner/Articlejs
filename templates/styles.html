@@ -43,7 +43,7 @@
             <small>（text-decoration: overline）</small>
         </label>
     </div>
-    <div class="_erase" style="writing-mode: vertical-rl;">全部清除</div>
+    <div class="_erase">全部清除</div>
 </div>
 
 
@@ -80,7 +80,7 @@
 <div class="_align" tpl-name="styles:align">
     <div class="_h">
         <label>text-align</label>
-        <select name="align">
+        <select name="align" class="_list">
             <option value="" title="默认" selected>------</option>
             <option value="center" title="居中对齐">center</option>
             <option value="right" title="右对齐">right</option>
@@ -93,7 +93,7 @@
     </div>
     <div class="_v">
         <label>vertical-align</label>
-        <select name="valign">
+        <select name="valign" class="_list">
             <option value="" selected>------</option>
             <option value="baseline">baseline</option>
             <option value="sub">sub</option>
@@ -110,136 +110,129 @@
 
 <!-- 宽/高度 -->
 <div class="_width" tpl-name="styles:width">
-
-</div>
-
-
-
-
-<div tpl-name="its:width" class="_args _width">
-    <ul class="_value">
-        <li mvc-on="click('input')|val('@wtype'),fcse(['width','unit','widthv'], 'wtype')" class="_types">
-            <label title="{宽度（width）}">
-                <input type="radio" name="_wtype" value="width" checked /><i id="l-width"></i>
-            </label>
-            <label title="{最大宽度（max-width）}">
-                <input type="radio" name="_wtype" value="max-width" /><i id="l-maxwidth"></i>
-            </label>
-            <label title="{最小宽度（min-width）}">
-                <input type="radio" name="_wtype" value="min-width" /><i id="l-minwidth"></i>
-            </label>
-            <input data-id="wtype" type="hidden" name="wtype" value="width" />
-        </li>
-        <li>
-            <label>{数量}</label>
-            <input type="text" class="_word" name="width" maxlength="20" title="{可含单位}"
-                mvc-on="input|join('1@widthv', ['width','unit'])" />
-            <select name="unit" mvc-on="change|join('1@widthv', ['width','unit'])">
-                <option value="">----</option>
-                <option value="px">px</option>
+    <select name="width" class="_list">
+        <option value="width" title="宽度">width</option>
+        <option value="max-width" title="最大宽度">max-width</option>
+        <option value="min-width" title="最小宽度">min-width</option>
+        <option value="height" title="高度">height</option>
+        <option value="max-height" title="最大高度"">max-height</option>
+        <option value="min-height" title="最小高度">min-height</option>
+    </select>
+    <div class="_assign">
+        <div class="_erase">全部清除</div>
+        <div>
+            <label>赋值</label><input type="text" name="width" />
+            <select name="unit">
+                <option value="">---</option>
                 <option value="pt">%</option>
-                <option value="em">em</option>
-            </select>
-            <input type="hidden" name="widthv" data-id="widthv" value="">
-        </li>
-        <li class="_apply">
-            <input name="apply" type="submit" class="_button" value="{应用}"
-                mvc-on="click" mvc-by="Ed.cstyle('wtype', 'widthv', true)" />
-        </li>
-    </ul>
-</div>
-
-<div tpl-name="its:margin" class="_args _margin">
-    <ul class="_value">
-        <li class="_clean">
-            <b mvc-on="click" title="{清除全部边距}"
-                mvc-by="Ed.delstyle('margin','margin-top','margin-right','margin-bottom','margin-left')">--- none ---</b>
-        </li>
-        <li mvc-on="click('input')|val('@mpos'),fcse(['margin','unit','marginv'], 'mpos')" class="_types">
-            <label title="{四边距（margin）}">
-                <input type="radio" name="marginto" value="margin" checked /><i id="l-margin"></i>
-            </label>
-            <label title="{上边距（margin-top）}">
-                <input type="radio" name="marginto" value="margin-top" /><i id="l-margint"></i>
-            </label>
-            <label title="{右边距（margin-right）}">
-                <input type="radio" name="marginto" value="margin-right" /><i id="l-marginr"></i>
-            </label>
-            <label title="{下边距（margin-bottom）}">
-                <input type="radio" name="marginto" value="margin-bottom" /><i id="l-marginb"></i>
-            </label>
-            <label title="{左边距（margin-left）}">
-                <input type="radio" name="marginto" value="margin-left" /><i id="l-marginl"></i>
-            </label>
-            <input data-id="mpos" type="hidden" name="mpos" value="margin" />
-        </li>
-        <li>
-            <label>{数量}</label>
-            <input type="text" class="_phrase" name="margin" maxlength="40" title="{可含单位}"
-                mvc-on="input|join('1@marginv', ['margin','unit'])" />
-            <select name="unit" mvc-on="change|join('1@marginv', ['margin','unit'])">
-                <option value="">----</option>
                 <option value="px">px</option>
-                <option value="%">%</option>
+                <option value="pt">pt</option>
                 <option value="em">em</option>
             </select>
-            <input type="hidden" name="marginv" data-id="marginv" value="">
-        </li>
-        <li class="_apply">
-            <input name="apply" type="submit" class="_button" value="{应用}"
-                mvc-on="click" mvc-by="Ed.cstyle('mpos', 'marginv', true)" />
-        </li>
-    </ul>
-</div>
-
-<div tpl-name="its:float" class="_args _float">
-    <ul class="_list" mvc-on="click('input')" mvc-by="Ed.cstyle('float')">
-        <li class="_clean">
-            <b mvc-on="click" mvc-by="Ed.delstyle('float')" title="{清除浮动样式}">--- none ---</b>
-        </li>
-        <li>
-            <label title="float:none">
-                <input type="radio" name="cfloat" value="none" />
-                <i id="l-float0"></i>&nbsp;{无浮动}
-            </label>
-        </li>
-        <li>
-            <label title="float:left">
-                <input type="radio" name="cfloat" value="left" />
-                <i id="l-floatl"></i>&nbsp;{左浮动}
-            </label>
-        </li>
-        <li>
-            <label title="float:right">
-                <input type="radio" name="cfloat" value="right" />
-                <i id="l-floatr"></i>&nbsp;{右浮动}
-            </label>
-        </li>
-    </ul>
-</div>
-
-<div tpl-name="its:edsty" class="_edsty">
-    <div class="_css">
-        <textarea name="edcss" class="_code"
-            mvc-on="keyup focus|rows;
-            keyup|xkey('ctrl'),keys(13),fire('2@apply','click')"></textarea>
+        </div>
+        <hr tpl-node="slave:submit" />
     </div>
-    <ul mvc-on="click('input:radio')|val('1@edtype')" class="_opts">
-        <li>
-            <label title='style="..."'>
-                <input type="radio" name="edsty" value="attr" checked />{内联样式}
-            </label>
-        </li>
-        <li data-pb="disabled">
-            <label title="&lt;style scoped&gt;">
-                <input type="radio" name="edsty" value="elem" disabled />{局部样式元素}
-            </label>
-        </li>
-        <li class="_apply">
-            <input name="apply" data-id="apply" type="submit" class="_button" value="{应用}"
-                mvc-on="click" mvc-by="Ed.edstyle('styles','edcss','edtype')" />
-        </li>
-    </ul>
-    <!-- input:radio 准确委托，避免 value="应用" -->
-    <input data-id="edtype" type="hidden" name="edtype" value="attr" />
+</div>
+
+
+<!-- 边距（内/外） -->
+<div class="_margin" tpl-name="styles:margin">
+    <div class="_main">
+        <div class="_where"
+            on="click('input')|evo('current'), val, tpl"
+            to="1/select|replace">
+            <label><input type="radio" name="margin" value="item:margin" checked /><i id="b-margin"></i></label>
+            <label><input type="radio" name="margin" value="item:padding" /><i id="b-padding"></i></label>
+        </div>
+        <select name="margin" tpl-name="item:margin">
+            <option title="边距">margin</option>
+            <option title="顶边距">margin-top</option>
+            <option title="右边距">margin-right</option>
+            <option title="底边距">margin-bottom</option>
+            <option title="左边距">margin-left</option>
+            <option title="块边距">margin-block</option>
+            <option title="块前边距">margin-block-start</option>
+            <option title="块尾边距">margin-block-end</option>
+            <option title="行边距">margin-inline</option>
+            <option title="行前边距">margin-inline-start</option>
+            <option title="行尾边距">margin-inline-end</option>
+        </select>
+    </div>
+    <div class="_assign">
+        <div class="_erase">全部清除</div>
+        <div>
+            <label>赋值</label><input type="text" name="width" />
+            <select name="unit">
+                <option value="">---</option>
+                <option value="px">px</option>
+                <option value="em">em</option>
+                <option value="pt">pt</option>
+                <option value="pt">%</option>
+            </select>
+        </div>
+        <hr tpl-node="slave:submit" />
+    </div>
+</div>
+
+<!-- 附：内边距 -->
+<select name="margin" tpl-name="item:padding">
+    <option title="填充">padding</option>
+    <option title="顶填充">padding-top</option>
+    <option title="右填充">padding-right</option>
+    <option title="底填充">padding-bottom</option>
+    <option title="左填充">padding-left</option>
+    <option title="块填充">padding-block</option>
+    <option title="块前填充">padding-block-start</option>
+    <option title="块尾填充">padding-block-end</option>
+    <option title="行填充">padding-inline</option>
+    <option title="行前填充">padding-inline-start</option>
+    <option title="行尾填充">padding-inline-end</option>
+</select>
+
+
+<!-- 颜色 -->
+<div class="_color" tpl-name="styles:color">
+    <div class="_c216">
+        <span>
+            <b style="background-color:#000" title="#000"></b>
+            <b style="background-color:#111" title="#111"></b>
+            <b style="background-color:#222" title="#222"></b>
+            <b style="background-color:#333" title="#333"></b>
+            <b style="background-color:#444" title="#444"></b>
+            <b style="background-color:#555" title="#555"></b>
+            <b style="background-color:#666" title="#666"></b>
+            <b style="background-color:#777" title="#777"></b>
+            <b style="background-color:#888" title="#888"></b>
+            <b style="background-color:#999" title="#999"></b>
+            <b style="background-color:#aaa" title="#aaa"></b>
+            <b style="background-color:#bbb" title="#bbb"></b>
+            <b style="background-color:#ccc" title="#ccc"></b>
+            <b style="background-color:#ddd" title="#ddd"></b>
+            <b style="background-color:#eee" title="#eee"></b>
+            <b style="background-color:#fff" title="#fff"></b>
+        </span>
+        <div>
+            <!-- <b style="background-color:#000" title="#000"></b>... -->
+            <span>#000,#003,#006,#009,#00c,#00f,#030,#033,#036,#039,#03c,#03f,#060,#063,#066,#069,#06c,#06f,#090,#093,#096,#099,#09c,#09f,#0c0,#0c3,#0c6,#0c9,#0cc,#0cf,#0f0,#0f3,#0f6,#0f9,#0fc,#0ff</span>
+            <span>#300,#303,#306,#309,#30c,#30f,#330,#333,#336,#339,#33c,#33f,#360,#363,#366,#369,#36c,#36f,#390,#393,#396,#399,#39c,#39f,#3c0,#3c3,#3c6,#3c9,#3cc,#3cf,#3f0,#3f3,#3f6,#3f9,#3fc,#3ff</span>
+            <span>#600,#603,#606,#609,#60c,#60f,#630,#633,#636,#639,#63c,#63f,#660,#663,#666,#669,#66c,#66f,#690,#693,#696,#699,#69c,#69f,#6c0,#6c3,#6c6,#6c9,#6cc,#6cf,#6f0,#6f3,#6f6,#6f9,#6fc,#6ff</span>
+            <span>#900,#903,#906,#909,#90c,#90f,#930,#933,#936,#939,#93c,#93f,#960,#963,#966,#969,#96c,#96f,#990,#993,#996,#999,#99c,#99f,#9c0,#9c3,#9c6,#9c9,#9cc,#9cf,#9f0,#9f3,#9f6,#9f9,#9fc,#9ff</span>
+            <span>#c00,#c03,#c06,#c09,#c0c,#c0f,#c30,#c33,#c36,#c39,#c3c,#c3f,#c60,#c63,#c66,#c69,#c6c,#c6f,#c90,#c93,#c96,#c99,#c9c,#c9f,#cc0,#cc3,#cc6,#cc9,#ccc,#ccf,#cf0,#cf3,#cf6,#cf9,#cfc,#cff</span>
+            <span>#f00,#f03,#f06,#f09,#f0c,#f0f,#f30,#f33,#f36,#f39,#f3c,#f3f,#f60,#f63,#f66,#f69,#f6c,#f6f,#f90,#f93,#f96,#f99,#f9c,#f9f,#fc0,#fc3,#fc6,#fc9,#fcc,#fcf,#ff0,#ff3,#ff6,#ff9,#ffc,#fff</span>
+        </div>
+    </div>
+    <div class="_erase">清除颜色</div>
+    <div class="_assign">
+        <span>
+            <label title="文本色"><input type="radio" name="colorto" value="color" checked /><i id="l-ttcolor"></i></label>
+            <label title="背景色"><input type="radio" name="colorto" value="background-color" /><i id="l-bgcolor"></i></label>
+            <label title="边框色"><input type="radio" name="colorto" value="border-color" /><i id="l-brcolor"></i></label>
+        </span>
+        <label>Alpha<input type="text" name="alpha" placeholder="0-100" /></label>
+        <div>
+            <span id="g-colorinfo" class="_tips"></span>
+            <label class="_pick"><input type="color" value="" /></label>
+        </div>
+    </div>
+    <hr tpl-node="slave:submit">
 </div>

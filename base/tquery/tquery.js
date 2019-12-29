@@ -3775,7 +3775,7 @@ elsExfn([
 //
 // 目标特性/属性取值或设置。
 // 取值时name支持数组与元素集成员一一对应（名称本身可能是空格分隔的序列）。
-// 设置时value支持数组，优先与元素集成员一一对应（值本身可能需要数组）。
+// 设置时value支持数组，优先与元素集成员一一对应，若值本身需要数组则作为子数组存在。
 // 返回值：
 // 取值：一个值集（Collector），成员与集合元素一一对应。
 // 设置：实例自身（this）。
@@ -5694,6 +5694,9 @@ function toggleClassAttr( el, val, old ) {
  * @return {Node|[Node]} nodes
  */
 function varyNodes( el, meth, nodes ) {
+    if ( el === nodes ) {
+        return;
+    }
     let _msg = {
             // replaceWidth => replace
             type: meth.substring(0, 7),

@@ -391,11 +391,11 @@ const _On = {
 // 注：目标元素自身操作，无需 By/To 逻辑。
 ///////////////////////////////////////////////////////////////////////////////
 [
-    'detach',       // ( slr? ): void
-    'remove',       // ( slr? ): void
-    'unwrap',       // (): void
-    'empty',        // (): void
-    'normalize',    // (): void
+    'remove',           // ( slr? ): void
+    'removeSiblings',   // ( slr? ): void
+    'unwrap',           // (): void
+    'empty',            // (): void
+    'normalize',        // (): void
 ]
 .forEach(function( meth ) {
     /**

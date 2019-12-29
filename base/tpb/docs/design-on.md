@@ -183,8 +183,8 @@ last( slr ): Collector
 // 只是目标自身的操作，无需By/To逻辑。
 //===============================================
 
-detach( node, slr )
 remove( node, slr )
+removeSiblings( subs, slr )
 unwrap( el )
 empty( el )
 normalize( el )

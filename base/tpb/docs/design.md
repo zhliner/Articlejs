@@ -178,12 +178,14 @@ ev( ...name: String | [String] ): Value | [Value]
 // 注：
 // 如果需要入栈一个值集，实参自身需要是一个数组。
 
-tpl( name: String | null ): Element
-// 从模板管理器获取name模板。
-// 目标：当前条目，不自动取栈。
-// 实参名优先于当前条目传递的名称，如果想采用当前条目，实参可为任意假值。
+tpl( name?: String, clone?: Boolean ): Element
+// 获取name模板节点。
+// 目标：当前条目，条件取栈（1项）。
+// 特权：是。需要判断后取栈。
+// 如果实参为空（null|undefined），取当前条目为名称。
 // 注：
-// 模板请求通常是异步的。
+// 默认获取原始的模板节点。
+// 如果传递clone为真，注意克隆会每次都发生。
 
 
 
@@ -418,42 +420,45 @@ Obj(): Object
 // 简单值操作。
 //===============================================
 
-env( name: String, its?: Value | String ): void | Value
+env( names: String, its?: Value | String ): void | Value
 // 全局环境设置或取值。
 // 目标：当前条目。不自动取栈。
 // 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
+// names和its都支持空格分隔的名称序列。
 // 设置时：
 // - 目标为空：its必然有值，否则为取值逻辑。
 // - 目标非空：its有值，its指属性名，取该属性值设置。
-//
-// 注：操作Globals对象。
+// 注：
+// 如果names为名称序列，则目标对象需要是一个集合或数组。
+// - 集合：names的成员同时作为集合的属性名。
+// - 数组：names成员的下标对应数组的成员。
 
-data( name, its?: Value | String ): void | Value
+data( names: String, its?: Value | String ): void | Value
 // 关联数据存储/取出。
 // 目标：当前条目。不自动取栈。
 // 存储元素（evo.delegate）关联的数据项或取出数据项入栈。
-// - 数据项键：name。
-// - 数据项值：目标对象、its、或目标对象的[its]属性值。
-// 注：
-// its的逻辑同上，操作WeakStore存储空间。
+// names和its都支持空格分隔的名称序列。
+// - 数据项键：names。
+// - 数据项值：当前条目、its、或当前条目的[its]属性值。
+//
+// 注：names说明同上（env）。
 
-sess( name, its?: Value | String): void | Value
-// 设置/取值浏览器会话数据。
+sess( name: String, its?: Value | String): void | Value
+// 设置/取值浏览器会话数据（sessionStorage）。
 // 目标：当前条目。不自动取栈。
 // 目标为空且its未定义时为取值入栈，否则为设置值。
 // 注：
-// its的逻辑同上，操作window.sessionStorage对象。
-// 传递its为null可清除目标项的值。
-// 如果传递name为null，会清除整个Storage存储。
+// its的逻辑同上，但name仅支持单个名称。
+// 传递its为null可清除目标项的值，传递name为null会清除整个Storage存储。
 // 注意：
 // 存储的值会被转换为字符串，取出的值也为字符串。
 
-local( name, its?: Value | String): void | Value
+local( name: String, its?: Value | String): void | Value
 // 设置/取值浏览器本地数据。
 // 目标：当前条目。不自动取栈。
 // 目标为空且its未定义时为取值入栈，否则为设置值。
 // 注：
-// 其它逻辑同上。
+// 其它逻辑同上（sess）。
 
 push( ...val: Value | [Value] ): Value | [Value]
 // 直接赋值入栈。
@@ -599,7 +604,8 @@ assign( target ): Object
 // 对象赋值。
 // 目标：当前条目/栈顶1项。
 // 目标为数据源，数组条目自动展开为多个实参。
-// 注：因此无法支持数组本身为数据源。
+// 注：
+// 因此无法支持数组本身为数据源。
 
 
 

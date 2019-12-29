@@ -38,13 +38,16 @@ const
         10: 'data',         // 自动获取的流程数据
         11: 'entry',        // 中段入口（迭代重入）
         12: 'targets',      // To目标元素/集，向后延续
-    };
+    },
+
+    // 空白分隔符。
+    __reSpace = /\s+/;
 
 
 
 const
     // 全局变量空间。
-    Globals     = {},
+    Globals     = new Map(),
 
     // 关联数据空间。
     // Element: Map{ String: Value }
@@ -173,26 +176,28 @@ const _Base = {
         stack.push( ..._vs );
     },
 
-    __ev: null,
     __ev_x: true,
 
 
     /**
-     * 获取模板副本或原始模板节点。
-     * 目标：当前条目，可选。
-     * name优先从实参获取，如果未定义或为null，则取目标值。
-     * @param  {String} name 模板名
-     * @param  {Boolean} origin 是否为原始模板，可选
+     * 获取模板节点。
+     * 目标：当前条目，条件取栈。
+     * 特权：是。自行取栈。
+     * 如果实参name为空（null|undefined），取当前条目为名称。
+     * 注意克隆时是每次都克隆（应当很少使用）。
+     * @param  {Stack} stack 数据栈
+     * @param  {String} name 模板名，可选
+     * @param  {Boolean} clone 是否克隆，可选
      * @return {Promise}
      */
-    tpl( evo, name, origin ) {
+    tpl( evo, stack, name, clone ) {
         if ( name == null ) {
-            name = evo.data;
+            name = stack.data(1);
         }
-        return __TplStore[origin ? 'tpl' : 'get'](name);
+        return __TplStore[clone ? 'get' : 'tpl'](name);
     },
 
-    __tpl: 0,
+    __tpl_x: true,
 
 
 
@@ -673,17 +678,18 @@ const _Base2 = {
      * 设置时：
      * - 目标为空：取its本身为值（必然存在）。
      * - 目标非空：取目标的its属性值，或者目标本身（its无值）。
-     * @param  {String} name 变量名
-     * @param  {Value|String} its 变量值/成员名，可选
+     * @param  {String} name 键名（序列）
+     * @param  {Value|String} its 存储值/成员名（序列），可选
      * @return {Value|void}
      */
     env( evo, name, its ) {
         let _o = evo.data;
+        name = name.split(__reSpace);
 
         if ( _o === undefined && its === undefined ) {
-            return Globals[name];
+            return getItem( Globals, name );
         }
-        Globals[name] = objectItem( _o, its );
+        setItem( Globals, name, objectItem(_o, its) );
     },
 
     __env: 0,
@@ -695,18 +701,23 @@ const _Base2 = {
      * 目标：当前条目，可选。
      * 目标非空或its有值时为存储，目标为空且its未定义时为取值入栈。
      * 存储时状况参考env设置说明。
-     * @param  {String} name 变量名
-     * @param  {Value|String} its 变量值/成员名，可选
+     * @param  {String} name 键名（序列）
+     * @param  {Value|String} its 存储值或成员名，可选
      * @return {Value|void}
      */
     data( evo, name, its ) {
-        let _e = evo.delegate,
+        let _m = DataStore.get(evo.delegate),
             _o = evo.data;
 
+        name = name.split(__reSpace);
+
         if ( _o === undefined && its === undefined ) {
-            return getData( _e, name );
+            return _m && getItem( _m, name );
         }
-        setData( _e, name, objectItem(_o, its) );
+        if ( !_m ) {
+            _m = DataStore.set( evo.delegate, new Map() );
+        }
+        setItem( _m, name, objectItem(_o, its) );
     },
 
     __data: 0,
@@ -1361,7 +1372,7 @@ const _Base2 = {
         if ( $.isArray(val) ) {
             _f = (n, i) => existValue(_o, n, val[i]);
         }
-        return name.split(/\s+/).every(_f);
+        return name.split(__reSpace).every(_f);
     },
 
     __inside: 1,
@@ -1438,44 +1449,54 @@ const _Base2 = {
  * - 如果成员名未定义，返回容器对象自身。
  * - 如果容器对象未定义，成员名视为值返回。
  * - 如果两者都定义，返回容器内的成员值。
- * @param {Object} obj 容器对象
- * @param {Value|String} its 目标值或成员名
+ * @param  {Object} obj 容器对象
+ * @param  {Value|String} its 目标值或成员名
+ * @return {Value|[Value]}
  */
 function objectItem( obj, its ) {
     if ( its === undefined ) {
         return obj;
     }
-    return obj === undefined ? its : obj[ its ];
-}
+    if ( obj === undefined ) {
+        return its;
+    }
+    its = its.split(__reSpace);
 
+    return its.length == 1 ? obj[its[0]] : its.map( n => obj[n] );
+}
 
 
 /**
  * 获取关联数据条目。
  * 如果不存在关联条目，会返回undefined。
- * @param {Element} el 关联元素
- * @param {String} name 取值名称
+ * 单个名称时返回单条数据项，多个名称时返回一个数据项数组。
+ * @param  {Map} map 存储容器
+ * @param  {[String]} names 取值名称集
+ * @return {Value|[Value]}
  */
-function getData( el, name ) {
-    let _map = DataStore.get( el );
-    return _map && _map.get( name );
+function getItem( map, names ) {
+    return names.length == 1 ?
+        map.get( names[0] ) : names.map( n => map.get(n) );
 }
 
 
 /**
- * 存储关联数据值。
- * 注：如果不存在元素的关联集合，会自动创建。
- * @param {Element} el 关联元素
- * @param {String} name 存储名称
- * @param {Value} val 存储的值
+ * 存储关联数据项。
+ * 如果不存在元素的关联集合，会自动创建。
+ * 如果为多个名称，存储值应当是一个集合/数组。
+ * @param {Map} map 存储容器
+ * @param {[String]} names 存储名称集
+ * @param {Value} val 存储值
  */
-function setData( el, name, val ) {
-    let _map = DataStore.get( el );
-
-    if ( !_map ) {
-        _map = DataStore.set( el, new Map() );
+function setItem( map, names, val ) {
+    if ( names.length == 1 ) {
+        return map.set( names[0], val );
     }
-    _map.set( name, val );
+    if ( $.isArray(val) ) {
+        return names.forEach( (n, i) => map.set(n, val[i]) );
+    } else {
+        names.forEach( n => map.set(val[n]) );
+    }
 }
 
 
