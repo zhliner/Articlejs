@@ -158,7 +158,7 @@ const _Base = {
     /**
      * 从事件对象上取值。
      * 多个实参取值会自动展开入栈。
-     * 如果需要入栈一个属性值集合，可以传递名称数组。
+     * 如果需要入栈一个属性值集合，name可用空格分隔多个名称。
      * 无实参调用取事件对象自身入栈。
      * 目标：无。
      * 特权：是。需要展开入栈。
@@ -171,7 +171,7 @@ const _Base = {
             return evo.event;
         }
         let _vs = names.map( name =>
-            $.isArray(name) ? name.map( n => evo.event[n] ) : evo.event[name]
+            __reSpace.test(name) ? name.split(__reSpace).map( n => evo.event[n] ) : evo.event[name]
         );
         stack.push( ..._vs );
     },
@@ -672,6 +672,29 @@ const _Base2 = {
     //===============================================
 
     /**
+     * 直接数据入栈。
+     * 目标：可选当前条目，可选。
+     * 特权：是。自行入栈操作。
+     * 多个实参会自动展开入栈，数组实参视为单个值。
+     * 无实参调用时入栈当前条目（作为单一值）。
+     * 如果暂存区有值同时也传入了实参，则实参有效，当前条目忽略。
+     * 注：
+     * 可以入栈当前条目，使得可以将栈条目重新整理打包。
+     * @param  {Stack} stack 数据栈
+     * @param  {...Value} vals 值序列
+     * @return {void} 自行入栈
+     */
+    push( evo, stack, ...vals ) {
+        stack.push(
+            ...(vals.length ? vals : [evo.data])
+        );
+    },
+
+    __push: 0,
+    __push_x: true,
+
+
+    /**
      * 设置/获取全局变量。
      * 目标：当前条目，可选。
      * 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
@@ -679,12 +702,11 @@ const _Base2 = {
      * - 目标为空：取its本身为值（必然存在）。
      * - 目标非空：取目标的its属性值，或者目标本身（its无值）。
      * @param  {String} name 键名（序列）
-     * @param  {Value|String} its 存储值/成员名（序列），可选
+     * @param  {Value|String} its 存储值或成员名/序列，可选
      * @return {Value|void}
      */
     env( evo, name, its ) {
         let _o = evo.data;
-        name = name.split(__reSpace);
 
         if ( _o === undefined && its === undefined ) {
             return getItem( Globals, name );
@@ -701,21 +723,17 @@ const _Base2 = {
      * 目标：当前条目，可选。
      * 目标非空或its有值时为存储，目标为空且its未定义时为取值入栈。
      * 存储时状况参考env设置说明。
-     * @param  {String} name 键名（序列）
-     * @param  {Value|String} its 存储值或成员名，可选
+     * @param  {String} name 键名/序列
+     * @param  {Value|String} its 存储值或成员名/序列，可选
      * @return {Value|void}
      */
     data( evo, name, its ) {
-        let _m = DataStore.get(evo.delegate),
+        let _e = evo.delegate,
+            _m = DataStore.get(_e) || DataStore.set( _e, new Map() ),
             _o = evo.data;
 
-        name = name.split(__reSpace);
-
         if ( _o === undefined && its === undefined ) {
-            return _m && getItem( _m, name );
-        }
-        if ( !_m ) {
-            _m = DataStore.set( evo.delegate, new Map() );
+            return getItem( _m, name );
         }
         setItem( _m, name, objectItem(_o, its) );
     },
@@ -765,42 +783,18 @@ const _Base2 = {
 
 
     /**
-     * 直接数据入栈。
-     * 目标：可选当前条目，可选。
-     * 特权：是。自行入栈操作。
-     * 多个实参会自动展开入栈，数组实参视为单个值。
-     * 无实参调用时入栈当前条目（作为单一值）。
-     * 如果暂存区有值同时也传入了实参，则实参有效，当前条目忽略。
-     * 注：
-     * 可以入栈当前条目，使得可以将栈条目重新整理打包。
-     * @param  {Stack} stack 数据栈
-     * @param  {...Value} vals 值序列
-     * @return {void} 自行入栈
-     */
-    push( evo, stack, ...vals ) {
-        stack.push(
-            ...(vals.length ? vals : [evo.data])
-        );
-    },
-
-    __push: 0,
-    __push_x: true,
-
-
-    /**
      * 从目标上取值入栈。
      * 目标：当前条目/栈顶1项。
      * 特权：是。自行压入数据栈。
-     * 注：
+     * name支持空格分隔的多个名称，此时值为一个集合。
      * 多个名称实参取值会自动展开入栈。
-     * 如果需要入栈值集合，需要明确传递名称数组。
      * @param  {Stack} stack 数据栈
      * @param  {...String} names 属性名序列
      * @return {void} 自行入栈
      */
     get( evo, stack, ...names ) {
         let _vs = names.map( name =>
-            $.isArray(name) ? name.map( n => evo.data[n] ) : evo.data[name]
+            __reSpace.test(name) ? name.split(__reSpace).map( n => evo.data[n] ) : evo.data[name]
         );
         stack.push( ..._vs );
     },
@@ -812,9 +806,8 @@ const _Base2 = {
     /**
      * 调用目标的方法执行。
      * 目标：当前条目/栈顶1项。
-     * @param {*} evo
      * @param {String} meth 方法名
-     * @param  {...any} rest 实参序列
+     * @param {...any} rest 实参序列
      */
     call( evo, meth, ...rest ) {
         return evo.data[meth]( ...rest );
@@ -1360,7 +1353,7 @@ const _Base2 = {
      * 例：
      * - inside('shift ctrl', true) // 是否shift和ctrl成员值为真。
      * - inside('selector') // 是否selector成员在目标内。
-     * - inside('AA BB', [1, 2], true) // 是否AA成员值为1且BB成员值为2。
+     * - inside('AA BB', [1, 2]) // 是否AA成员值为1且BB成员值为2。
      *
      * @param {String} name 成员名称（集）
      * @param {Value|[Value]} val 对比值或值集
@@ -1460,9 +1453,10 @@ function objectItem( obj, its ) {
     if ( obj === undefined ) {
         return its;
     }
-    its = its.split(__reSpace);
-
-    return its.length == 1 ? obj[its[0]] : its.map( n => obj[n] );
+    if ( !__reSpace.test(its) ) {
+        return obj[its];
+    }
+    return its.split(__reSpace).map( n => obj[n] );
 }
 
 
@@ -1471,12 +1465,14 @@ function objectItem( obj, its ) {
  * 如果不存在关联条目，会返回undefined。
  * 单个名称时返回单条数据项，多个名称时返回一个数据项数组。
  * @param  {Map} map 存储容器
- * @param  {[String]} names 取值名称集
+ * @param  {String} name 取值名称/序列
  * @return {Value|[Value]}
  */
-function getItem( map, names ) {
-    return names.length == 1 ?
-        map.get( names[0] ) : names.map( n => map.get(n) );
+function getItem( map, name ) {
+    if ( !__reSpace.test(name) ) {
+        return map.get(name);
+    }
+    return name.split(__reSpace).map( n => map.get(n) );
 }
 
 
@@ -1485,17 +1481,19 @@ function getItem( map, names ) {
  * 如果不存在元素的关联集合，会自动创建。
  * 如果为多个名称，存储值应当是一个集合/数组。
  * @param {Map} map 存储容器
- * @param {[String]} names 存储名称集
+ * @param {String} name 存储名称/序列
  * @param {Value} val 存储值
  */
-function setItem( map, names, val ) {
-    if ( names.length == 1 ) {
-        return map.set( names[0], val );
+function setItem( map, name, val ) {
+    if ( !__reSpace.test(name) ) {
+        return map.set( name, val );
     }
+    name = name.split(__reSpace);
+
     if ( $.isArray(val) ) {
-        return names.forEach( (n, i) => map.set(n, val[i]) );
+        name.forEach( (n, i) => map.set(n, val[i]) );
     } else {
-        names.forEach( n => map.set(val[n]) );
+        name.forEach( n => map.set(val[n]) );
     }
 }
 

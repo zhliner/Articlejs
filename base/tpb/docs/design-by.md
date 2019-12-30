@@ -51,7 +51,7 @@ one( evn: String, slr, $expr ): void
 trigger( evn: String, data: Value, ...rest )
 // 事件激发。
 // 对流程元素或元素集激发事件。
-// 可以作为正常的By操作之一。
+// 注：可以作为正常的By操作之一。
 
 
 // 节点构造。
