@@ -31,9 +31,9 @@ const _By = {
     /**
      * 模板渲染。
      * 对tpl指令获取的元素用数据集进行渲染。
+     * 数据源可能从远端获取（通过X扩展库）。
      * 目标：当前条目/栈顶2项。
-     * 注：数据可能通过X扩展函数库从远端获取。
-     * @data: [tplNode, data]
+     * @data: [element, data]
      */
     render( evo ) {
         Render.update( ...evo.data );

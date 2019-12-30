@@ -1,134 +1,101 @@
-<!--模态框：屏蔽层 -->
-<div tpl-name="app:modal" class="___Panel Modal" data-pb="lose"
-    on="open|rise,prop('value',1,'#g-modal'); close|lose,prop('value',0,'#g-modal')">
-</div>
-
-<!-- 模态框-页 -->
-<div tpl-name="dlg:page" class="_dialog _page">
-    <i id="x-dclose" class="_close" title="{关闭}" mvc-on="click|tedoff('1@ textarea._code'),mdoff,end('meding'),work"></i>
-    <!--注：无提交按钮组时，页框不会自动关闭 -->
-    <form mvc-on="submit|void; reset|reseton,tedoff('textarea._code')">
-        <h5><b tpl-out="title">[标题]</b></h5>
-        <div class="_xbox" tpl-out="pages">
-            <!-- [some-tplnode] -->
-        </div>
-        <!-- 默认提交按钮组 -->
-        <div class="_btns" tpl-if="$submit">
-            <span>
-                <input type="submit" class="_button" value="{确定}"
-                    mvc-on="click|tedoff('form@ textarea._code'),mdok('form@'),end('meding'),work" />
-                <input type="reset" class="_button" value="{重置}" />
-            </span>
-        </div>
-        <!-- 单元名 -->
-        <input type="hidden" name="cname" value="" />
-    </form>
-</div>
-
-<!-- 模态框-清单 -->
-<div tpl-name="dlg:list" class="_dialog _list">
-    <i id="x-dclose" class="_close" title="{关闭}" mvc-on="click|mdoff,end('meding'),work"></i>
-    <form mvc-on="submit|void,tedoff('textarea._code'),mdok,end('meding'),work;
-        reset|reseton,tedoff('textarea._code')">
-        <h5>
-            <b tpl-out="title">[标题]</b><span tpl-if="prop">{属性}</span>
-        </h5>
-        <div class="_prop">
-            <div class="_note" tpl-if="tips">
-                <span class="_name">{注意：}</span>
-                <span class="_text" tpl-out="tips">[提示信息]</span>
-            </div>
-            <table border="0">
-                <tbody tpl-out="items"><!-- [表格行集] --></tbody>
-            </table>
-        </div>
-        <div class="_btns">
-            <span>
-                <input type="submit" class="_button" value="{确定}" />
-                <input type="reset" class="_button" value="{重置}" />
-            </span>
-        </div>
-        <!-- 单元名 -->
-        <input type="hidden" name="cname" value="" />
-    </form>
-</div>
-
-<!-- 模态框-单行 -->
-<div tpl-name="dlg:small" class="_dialog _small">
-    <i id="x-dclose" class="_close" title="{关闭}" mvc-on="click|mdoff,end('meding'),work"></i>
-    <form mvc-on="submit|void,mdok,end('meding'),work">
-        <h5>
-            <b tpl-out="title">[标题]</b><span tpl-if="prop">{属性}</span>
-        </h5>
-        <div class="_xbox">
-            <input type="text" name="txtline" tpl-out="value=text" />
-        </div>
-        <div class="_btns">
-            <span>
-                <input type="submit" class="_button" value="{确定}" />
-                <input type="reset" class="_button" value="{重置}" />
-            </span>
-        </div>
-        <!-- 单元名 -->
-        <input type="hidden" name="cname" value="" />
-    </form>
-</div>
-
-<!-- 模态框-消息 -->
-<div tpl-name="dlg:msg" class="_dialog _msg">
-    <i id="x-dclose" class="_close" title="{关闭}" mvc-on="click|mdoff,end('meding'),work"></i>
-    <h5><b tpl-out="title">[标题]</b></h5>
-    <div class="_note"><b tpl-out="content">[消息内容]</b></div>
-    <form mvc-on="submit|void,mdok,end('meding'),work">
-        <div class="_btns">
-            <span><input type="submit" class="_button" value="{确定}" /></span>
-        </div>
-        <!-- 单元名 -->
-        <input type="hidden" name="cname" value="" />
-    </form>
-</div>
-
-
-<!-- 脚本历史页框 -->
-<div tpl-name="page:shlist" class="_sh">
-    <div class="_search">
-        <!-- blur,select：避免输入历史框遮挡 -->
-        <input type="text" name="word" class="_text" placeholder="{输入过滤词汇}"
-            mvc-on="change|blur,select"
-            mvc-by="Art.shfltr"
-            mvc-to="2@shlist|fill">
-        <input type="button" class="_icon" data-id="runbtn" title="{过滤}"
-            mvc-on="click|go('1@runbtn','change')">
+<!-- 模态页：插件... -->
+<form class="_page" tpl-name="modal:page">
+    <h5>[标题]</h5>
+    <div id="modal-xbox" class="_xbox">
+        <!-- [node] -->
     </div>
-    <!-- 脚本历史清单 -->
-    <ol data-id="shlist" reversed tpl-out
-        mvc-on="click('code')|val('#val-script','text'),mdok('form@'),fire('#val-script','edoff')">
-        <!-- <li><code></code></li> -->
-    </ol>
-</div>
+    <div class="_btn2" tpl-name="modal:btn2">
+        <button type="submit">确定</button>
+        <button type="reset">重置</button>
+    </div>
+    <!-- 条目标记 -->
+    <input type="hidden" name="item" value="" />
+</form>
 
-<!--DATA:children
-    脚本历史清单构造 -->
-<ol tpl-name="data:shlist" tpl-for>
-    <li><code tpl-out="@value"></code></li>
-</ol>
 
-<!-- 脚本测试页框 -->
-<ul tpl-name="page:shtest" class="_info">
-    <li tpl-if="error">{错误：}<i class="_error" tpl-out="error"></i></li>
-    <li tpl-if="warn">{警告：}<i class="_warn" tpl-out="warn"></i></li>
-    <li title="RESULT.type">{操作类型：}<b tpl-out="type"></b></li>
-    <li title="RESULT.to">{目标元素：}<b tpl-out="to"></b></li>
-    <li title="RESULT.selector">{选择器：}<b tpl-out="selector"></b></li>
-    <li title="RESULT.method">{插入方式：}<b tpl-out="method"></b></li>
-    <li>{结果数据：}</li>
-    <li title="RESULT.data" class="_data"><div tpl-out="data"></div></li>
+<!-- 模态框：属性 -->
+<form class="_list" tpl-name="modal:list">
+    <h5>[标题]</h5>
+    <header id="modal-note" class="_node" data-pb="none">
+        [提示/说明]
+    </header>
+    <table>
+        <tbody></tbody>
+    </table>
+    <hr tpl-node="modal:btn2" />
+    <!-- 条目标记 -->
+    <input type="hidden" name="item" value="" />
+</form>
+
+
+<!-- 模态框：单行 -->
+<form class="_small" tpl-name="modal:small">
+    <h5>[标题]</h5>
+    <div class="_xbox">
+        <input type="text" name="txtline" />
+    </div>
+    <hr tpl-node="modal:btn2" />
+    <!-- 条目标记 -->
+    <input type="hidden" name="item" value="" />
+</form>
+
+
+<!-- 模态框：消息 -->
+<form class="_massage">
+    <h5>[标题]</h5>
+    <div id="modal-msg" class="_msg">
+        [消息内容]
+    </div>
+    <hr tpl-node="submit" />
+    <!-- 条目标记 -->
+    <input type="hidden" name="item" value="" />
+</form>
+
+
+<!-- 模态页：脚本历史 -->
+<form class="_shlist" tpl-name="modal:shlist">
+    <div class="_search">
+        <!-- change|blur,select：避免历史遮挡 -->
+        <input type="text" name="word" class="_text" placeholder="标记词"
+            on="change|blur,select"
+            by="[Art.shfltr]"
+            to="2/ol|render">
+        <button type="submit">过滤</button>
+    </div>
+    <ol reversed tpb-for><li><code _="$"></code></li></ol>
+</form>
+
+
+<!-- 模态页：脚本测试 -->
+<ul class="_info" tpl-name="page:shtest">
+    <li tpb-if="$.error">
+        错误：<i class="_error" _text="$.error"></i>
+    </li>
+    <li tpb-if="$.warn">
+        警告：<i class="_warn" _text="$.warn"></i>
+    </li>
+    <li title="RESULT.type">
+        操作类型：<b _text="$.type"></b>
+    </li>
+    <li title="RESULT.to">
+        目标元素：<b _text="$.to"></b>
+    </li>
+    <li title="RESULT.selector">
+        选择器：<b _text="$.selector"></b>
+    </li>
+    <li title="RESULT.method">
+        插入方式：<b _text="$.method"></b>
+    </li>
+    <li>结果数据：</li>
+    <li title="RESULT.data" class="_data">
+        <div _html="$.data"></div>
+    </li>
 </ul>
 
 
-<!-- 面板：确定 -->
-<div class="_submit" tpl-name="slave:submit">
-    <input type="submit" class="_ok" value="确定" />
+<!-- 通用：确定 -->
+<div class="_submit" tpl-name="submit">
+    <button type="submit">确定</button>
 </div>
 
 
@@ -153,7 +120,7 @@
                 <input type="text" name="nlchar" class="_char" />
                 <label><input type="checkbox" name="nlnice" />换行友好</label>
             </div>
-            <hr tpl-node="slave:submit" />
+            <hr tpl-node="submit" />
         </aside>
     </div>
 </form>
@@ -170,7 +137,7 @@
             <label><input type="checkbox" name="repair" />修复</label>
             <div class="_info"></div>
         </div>
-        <hr tpl-node="slave:submit" />
+        <hr tpl-node="submit" />
     </aside>
 </form>
 

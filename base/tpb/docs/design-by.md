@@ -32,7 +32,7 @@
 render()
 // 模板渲染。
 // 对tpl指令获取的元素节点用数据集进行渲染。
-// 效果与 To:Where.update 相同。
+// 数据：[element, data]
 
 
 // 事件操作

@@ -56,20 +56,15 @@ const _Where = {
 
 
     /**
-     * 用流程数据更新目标元素（集）。
-     * 更新为渲染逻辑，但目标元素可能不是模板副本根。
+     * 渲染目标元素/集。
      * 如果目标是多个元素，它们采用相同的源数据渲染。
-     * 注：
-     * 与 By.render 效果类似，但支持局部渲染和多目标渲染。
-     *
-     * 局部渲染：
+     * 目标元素可能不是模板根元素，此时为局部渲染。
      * - 根元素如果是Each语法，该元素必须是Each的起始元素。
      * - 根元素不应当是For循环内包含Each语法的子元素，这会破坏For的结构。
-     *
-     * @param {Element|Collector} its 目标元素（集）
-     * @param {Object} data 渲染源数据
+     * @param {Element|Collector} its 目标元素/集
+     * @param {Object|Array} data 渲染源数据
      */
-    update( its, data ) {
+    render( its, data ) {
         if ( its.nodeType == 1 ) {
             return Render.update( its, data );
         }

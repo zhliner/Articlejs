@@ -33,13 +33,13 @@
 
 <!-- 插入：1 -->
 <div class="_submit" tpl-name="inputs:submit1">
-    <input type="submit" class="_ok" value="插入" />
+    <button type="submit">插入</button>
 </div>
 
 <!-- 插入：2 -->
 <div class="_submit" tpl-name="inputs:submit2">
     <label><input type="checkbox" name="before">向前</label>
-    <input type="submit" class="_ok" value="插入" />
+    <button type="submit">插入</button>
 </div>
 
 
@@ -53,7 +53,7 @@
         <textarea name="h2" placeholder="副标题（可选）"></textarea>
     </div>
     <aside class="_submit">
-        <input type="submit" class="_ok" value="插入">
+        <button type="submit">插入</button>
     </aside>
 </div>
 
@@ -485,11 +485,12 @@
     初始解析构造为：<b>...</b>序列
     字符集清单存储在data中备用。 -->
 <div tpl-name="item:chars"
-    on="init('span')|evo('current'), text, call('split', ''), $$;
-        obted|$$('span'), dup"
+    on="^init('span')|evo('current'), text, call('split', ''), $$;
+        ^obted|$$('span'), dup"
     by="wrap('<b>');
         trigger('init'), pop, data('normal number maths units phonetic katakana hiragana greekalph russian radicalcn radicaltw tabline')"
     to="|fill">
+    <!-- <span><b>〔</b><b>〕</b>...</span> -->
     <span>〔〕〈〉「」『』〖〗【】《》（）［］｛｝■◆▲●★§□◇△○☆αβγ※◎№＃〓＆＠＼＾→←↑↓·ˇ々‖。，、；：？！‘’“”～©</span>
     <span>ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ①②③④⑤⑥⑦⑧⑨⑩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆</span>
     <span>≈≡≠＝≤≥＜＞≮≯∷±＋－×÷／∫∮∝∞∧∨∑∏∪∩∈∵∴⊥∥∠⌒⊙≌∽√</span>
