@@ -527,7 +527,7 @@ has( slr: String ): [Element]
 // 目标：当前条目/栈顶1项。
 // 仅适用于元素集，普通值集无效。
 
-flat( deep: Number|true, ext: Boolean = false )
+flat( deep: Number|true, spread: Boolean = false )
 // 集合扁平化。
 // 将目标内可能嵌套的数组扁平化处理。
 // 目标：当前条目/栈顶1项。
@@ -554,33 +554,44 @@ join( chr ): String
 // 主要用于数组成员的连接。
 // 注：即 .call('join', chr) 的特例版。
 
+concat(): Array
+// 数组串接。
+// 目标：当前条目/栈顶2项。
+// 即：xxx.concat(yyy)
+
+repeat( size, val ): Array
+// 创建相同值的集合（大小size）。
+// 目标：当前条目，可选。
+// 如果未传递val实参，取当前条目为值。
+// 如果当前条目有值，但同时也传递了val实参，当前条目被忽略。
+
 
 
 // 简单运算
+// 支持集合成员对应操作，返回一个结果值的集合。
+// 返回集大小是前一个实参集合的大小。
+// 即：后一个实参集合多出来的成员会被简单忽略。
 //===============================================
 
-add(): Number   // (x, y) => x + y
-sub(): Number   // (x, y) => x - y
-mul(): Number   // (x, y) => x * y
-div(): Number   // (x, y) => x / y
-mod(): Number   // (x, y) => x % y
+add( deep?: Boolean ): Number   // (x, y) => x + y
+sub( deep?: Boolean ): Number   // (x, y) => x - y
+mul( deep?: Boolean ): Number   // (x, y) => x * y
+div( deep?: Boolean ): Number   // (x, y) => x / y
+mod( deep?: Boolean ): Number   // (x, y) => x % y
 // 标准算术。
 // 目标：当前条目/栈顶2项。
 
-divmod(): [Number, Number]
+divmod( deep?: Boolean ): [Number, Number]
 // 除并求余。(x, y) => [x/y, x%y]
 // 目标：当前条目/栈顶2项。
 
-nneg(): Number | [Number]
+nneg( deep?: Boolean ): Number | [Number]
 // 数值取负（-x）。
 // 目标：当前条目/栈顶1项。
-// 注：
-// 兼容集合处理（每一个成员取负）。
 
-vnot(): Boolean | [Boolean]
+vnot( deep?: Boolean ): Boolean | [Boolean]
 // 逻辑取反（!x）。
 // 目标：当前条目/栈顶1项。
-// 注：兼容集合处理。
 
 
 

@@ -918,13 +918,13 @@ const _Base2 = {
      * 如果目标是Collector，deep可以为true（去重排序）。
      * @param  {Stack} stack 数据栈
      * @param  {Number|true} deep 深度或去重排序
-     * @param  {Boolean} ext 展开入栈
+     * @param  {Boolean} spread 展开入栈
      * @return {[Value]|void}
      */
-    flat( evo, stack, deep, ext ) {
+    flat( evo, stack, deep, spread ) {
         let _vs = evo.data.flat( deep );
 
-        if ( !ext ) {
+        if ( !spread ) {
             return _vs;
         }
         stack.push( ..._vs );
@@ -986,8 +986,42 @@ const _Base2 = {
     __keys: 1,
 
 
+    /**
+     * 集合串接。
+     * 以前一个操作数为基础，第二个操作数可以是简单值。
+     */
+    concat( evo ) {
+        return evo.data[0].concat( evo.data[1] );
+    },
+
+    __concat: 2,
+
+
+    /**
+     * 创建相同值的集合。
+     * 如果val未传递，取当前条目为目标值。
+     * @param {Number} size 集合大小
+     * @param {Value} val 目标值，可选
+     */
+    repeat( evo, size, val ) {
+        if ( val === undefined ) {
+            val = evo.data;
+        }
+        let _buf = [];
+
+        if ( size > 0 ) {
+            while ( size-- ) _buf.push( val );
+        }
+        return _buf;
+    },
+
+    __repeat: 0,
+
+
 
     // 简单运算
+    // 支持集合成员一一对应运算，返回结果值的集合。
+    // 注：以前一个实参集合大小为结果集大小。
     //===============================================
 
     /**
@@ -995,10 +1029,12 @@ const _Base2 = {
      * 同时适用数值和字符串。
      * 目标：当前条目/栈顶2项
      * 注记：Collector的同名方法没有被使用。
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {Number|String}
      */
-    add( evo ) {
-        return evo.data[0] + evo.data[1];
+    add( evo, deep ) {
+        let [x, y] = evo.data;
+        return deep ? x.map( (v, i) => v + y[i] ) : x + y;
     },
 
     __add: 2,
@@ -1007,10 +1043,12 @@ const _Base2 = {
     /**
      * 减运算。
      * 目标：当前条目/栈顶2项
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {Number}
      */
-    sub( evo ) {
-        return evo.data[0] - evo.data[1];
+    sub( evo, deep ) {
+        let [x, y] = evo.data;
+        return deep ? x.map( (v, i) => v - y[i] ) : x - y;
     },
 
     __sub: 2,
@@ -1019,10 +1057,12 @@ const _Base2 = {
     /**
      * 乘运算。
      * 目标：当前条目/栈顶2项
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {Number}
      */
-    mul( evo ) {
-        return evo.data[0] * evo.data[1];
+    mul( evo, deep ) {
+        let [x, y] = evo.data;
+        return deep ? x.map( (v, i) => v * y[i] ) : x * y;
     },
 
     __mul: 2,
@@ -1031,10 +1071,12 @@ const _Base2 = {
     /**
      * 除运算。
      * 目标：当前条目/栈顶2项
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {Number}
      */
-    div( evo ) {
-        return evo.data[0] / evo.data[1];
+    div( evo, deep ) {
+        let [x, y] = evo.data;
+        return deep ? x.map( (v, i) => v / y[i] ) : x / y;
     },
 
     __div: 2,
@@ -1043,10 +1085,12 @@ const _Base2 = {
     /**
      * 模运算。
      * 目标：当前条目/栈顶2项
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {Number}
      */
-    mod( evo ) {
-        return evo.data[0] % evo.data[1];
+    mod( evo, deep ) {
+        let [x, y] = evo.data;
+        return deep ? x.map( (v, i) => v % y[i] ) : x % y;
     },
 
     __mod: 2,
@@ -1056,11 +1100,16 @@ const _Base2 = {
      * 除并求余。
      * 目标：当前条目/栈顶2项
      * 返回值：[商数, 余数]
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {[Number, Number]}
      */
-    divmod( evo ) {
-        let [n, d] = evo.data;
-        return [ n / d, n % d ];
+    divmod( evo, deep ) {
+        let [x, y] = evo.data;
+
+        if ( !deep ) {
+            return [ Math.floor(x/y), x%y ];
+        }
+        return x.map( (v, i) => [ Math.floor(v/y[i]), v%y[i] ] );
     },
 
     __divmod: 2,
@@ -1068,13 +1117,13 @@ const _Base2 = {
 
     /**
      * 数值取负。
-     * 支持值数组处理（每一个成员取负）。
      * 目标：当前条目/栈顶1项。
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {Number|[Number]}
      */
-    nneg( evo ) {
+    nneg( evo, deep ) {
         let _v = evo.data;
-        return $.isArray(_v) ? _v.map( v => -v ) : -_v;
+        return deep ? _v.map( v => -v ) : -_v;
     },
 
     __nneg: 1,
@@ -1082,13 +1131,13 @@ const _Base2 = {
 
     /**
      * 逻辑取反。
-     * 支持值数组处理（每一个成员取反）。
      * 目标：当前条目/栈顶1项。
+     * @param  {Boolean} deep 是否集合成员运算
      * @return {Boolean|[Boolean]}
      */
-    vnot( evo ) {
+    vnot( evo, deep ) {
         let _v = evo.data;
-        return $.isArray(_v) ? _v.map( v => !v ) : !_v;
+        return deep ? _v.map( v => !v ) : !_v;
     },
 
     __vnot: 1,
