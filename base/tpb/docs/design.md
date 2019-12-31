@@ -580,10 +580,14 @@ div( deep?: Boolean ): Number   // (x, y) => x / y
 mod( deep?: Boolean ): Number   // (x, y) => x % y
 // 标准算术。
 // 目标：当前条目/栈顶2项。
+// @deep 是否深入集合成员运算。
 
 divmod( deep?: Boolean ): [Number, Number]
 // 除并求余。(x, y) => [x/y, x%y]
 // 目标：当前条目/栈顶2项。
+// 注：
+// 商数取小于等于结果的整数值。
+// 如：3.5 => 3, -3.5 => -4
 
 nneg( deep?: Boolean ): Number | [Number]
 // 数值取负（-x）。
