@@ -114,7 +114,7 @@ const _By = {
      * 迭代执行。
      * 目标：当前条目/栈顶1项，需要是一个集合。
      * 执行代码返回false会中断迭代。
-     * @param  {String} expr 表达式串或方法引用
+     * @param  {String|Function} expr 表达式串或方法引用或函数
      * @return {void}
      */
     each( evo, expr ) {
@@ -131,7 +131,7 @@ const _By = {
      * 映射调用。
      * 目标：当前条目/栈顶1项，需要是一个集合。
      * 返回值构建为一个新集合，返回的null/undefined会被忽略。
-     * @param  {String} expr 表达式串或方法引用
+     * @param  {String|Function} expr 表达式串或方法引用或函数
      * @return {Array}
      */
     map( evo, expr ) {
@@ -148,7 +148,7 @@ const _By = {
      * comp支持首字符（?）引用X函数库成员。
      * 支持元素集的去重排序（无需comp）。
      * @param  {Boolean} unique 是否去除重复
-     * @param  {String} comp 比较表达式，可选
+     * @param  {String|Function} comp 比较表达式串或方法引用或函数
      * @return {Array}
      */
     sort( evo, unique, comp ) {
@@ -179,7 +179,7 @@ const _By = {
      * expr支持?引用X函数库方法。
      * @param  {String} name 事件名（序列）
      * @param  {String|null} slr 委托选择器，可选
-     * @param  {Function|false|null} 事件处理器
+     * @param  {String|Function|false|null} expr 事件处理器
      * @return {void}
      */
     _By[meth] = function( evo, name, slr, expr ) {
@@ -231,12 +231,12 @@ const _By = {
 /**
  * 创建/获取处理函数。
  * 支持前置?字符引用X函数库方法。
- * @param  {String} expr 表达式
+ * @param  {String|Function} expr 表达式串或方法引用或函数
  * @param  {...String} vns 参数名序列，可选
  * @return {Function|null|false}
  */
 function getFunc( expr, ...vns ) {
-    if ( !expr ) {
+    if ( !expr || typeof expr == 'function' ) {
         return expr;
     }
     if ( expr[0] == __chrXname ) {

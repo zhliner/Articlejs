@@ -67,7 +67,7 @@ const
     // \' => '
     // \\' => \\'   未转义引号
     // \\\' => \\'  清除一个\
-    __reQuoteESC = /([^\\]|[^\\](?:\\\\)+)\\(['`])/g,
+    // __reQuoteESC = /([^\\]|[^\\](?:\\\\)+)\\(['`])/g,
 
     // 调用表达式
     // 首尾空白需要预先清除。
@@ -207,16 +207,13 @@ const Util = {
 
     /**
      * 解析参数序列。
-     * 参数里的字符串可能用单引号包围。
-     * 注记：
-     * HTML模板中属性值需要用引号包围，
-     * 所以值中的字符串所用引号必然相同（不会单/双混用）。
-     *
+     * 用Function构造，可支持正则表达式或箭头函数等。
+     * 注记：原用JSON解析，但限制太多。
      * @param {String} fmt 参数序列串
      * @return {Array|null}
      */
-     argsJSON( fmt ) {
-        return fmt ? JSON.parse( `[${jsonArgs(fmt)}]` ) : null;
+    arrArgs( fmt ) {
+        return fmt ? new Function( `return [${fmt}]` )() : null;
     },
 
 
@@ -242,7 +239,6 @@ const Util = {
     /**
      * 提取调用句法的函数名和参数列表。
      * - 支持无参数时省略调用括号。
-     * - 参数序列串需符合JSON格式（容忍单引号）。
      * - 无法匹配时抛出异常。
      * Object {
      *  	name: {String} 调用名
@@ -259,7 +255,7 @@ const Util = {
         }
         return {
             'name': _pair[1],
-            'args': this.argsJSON( _pair[2] && _pair[2].trim() ) || ''
+            'args': this.arrArgs( _pair[2] && _pair[2].trim() ) || ''
         };
     },
 
@@ -295,11 +291,11 @@ const Util = {
  * @param  {String} fmt 参数格式串
  * @return {String} 合法串
  */
-function jsonArgs( fmt ) {
-    return [...SSpliter.partSplit(fmt)]
-        .map( (s, i) => i%2 ? jsonString(s) : s )
-        .join('');
-}
+// function jsonArgs( fmt ) {
+//     return [...SSpliter.partSplit(fmt)]
+//         .map( (s, i) => i%2 ? jsonString(s) : s )
+//         .join('');
+// }
 
 
 /**
@@ -318,9 +314,9 @@ function jsonArgs( fmt ) {
  * @param  {String} fmt 格式串
  * @return {String} 合法串
  */
-function jsonString( fmt ) {
-    return `"${fmt.slice(1, -1)}"`.replace(__reQuoteESC, "$1$2");
-}
+// function jsonString( fmt ) {
+//     return `"${fmt.slice(1, -1)}"`.replace(__reQuoteESC, "$1$2");
+// }
 
 
 /**

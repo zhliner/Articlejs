@@ -1368,7 +1368,7 @@ const _Base2 = {
      * 目标需要是一个集合，支持各种集合（参考$.every）。
      * 表达式无需return语法词。
      *
-     * @param {String} expr 测试表达式，可选
+     * @param {String|Function} expr 测试表达式或函数，可选
      */
     every( evo, expr ) {
         return $.every( evo.data, boolTester(expr), null );
@@ -1383,7 +1383,7 @@ const _Base2 = {
      * 测试表达式返回真该项即为真，接口：function(v, i, o): Boolean。
      * 测试表达式可选，默认真值测试。
      * 注：参考同上。
-     * @param {String} expr 测试表达式，可选
+     * @param {String|Function} expr 测试表达式或函数，可选
      */
     some( evo, expr ) {
         return $.some( evo.data, boolTester(expr), null );
@@ -1568,12 +1568,15 @@ function storage( buf, name, its, obj ) {
 /**
  * 创建布尔测试函数。
  * 如果表达式未定义，则为真值测试。
- * @param  {String} expr 测试表达式
+ * @param  {String|Function} expr 测试表达式或函数
  * @return {Function}
  */
 function boolTester( expr ) {
     if ( expr === undefined ) {
         return v => v;
+    }
+    if ( typeof expr == 'function' ) {
+        return expr;
     }
     return new Function( 'v', 'i', 'o', `return ${expr};` );
 }

@@ -774,7 +774,7 @@ class Call {
             throw new Error('call-attr config is invalid.');
         }
         this._meth = _vs[1];
-        this._args = Util.argsJSON(_vs[2]) || [];
+        this._args = Util.arrArgs(_vs[2]) || [];
     }
 
 
