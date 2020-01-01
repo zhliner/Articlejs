@@ -1,21 +1,21 @@
 <!-- 录入版：框架 -->
 <form class="Inputs" tpl-name="slave:inputs">
     <aside>
-        <label>
-            <input type="radio" name="where" />
-            <i id="b-sibling"></i>
-        </label>
-        <label>
-            <input type="radio" name="where">
-            <i id="b-child"></i>
-        </label>
-        <div>
-            <!-- 4: min-height -->
-            <select name="items" size="4"></select>
+        <div class="_where">
+            <label>
+                <input type="radio" name="where" /><i id="b-sibling"></i>
+            </label>
+            <label>
+                <input type="radio" name="where"><i id="b-child"></i>
+            </label>
         </div>
+        <select id="inputs-items" name="items" size="5">
+            <!-- 筛选合法单元条目插入。 -->
+        </select>
     </aside>
-    <!-- 通用：替换 -->
-    <div class="_empty" tpl-name="inputs:empty"></div>
+    <div class="_empty" tpl-name="inputs:empty">
+        <p>Alt + 鼠标拖动可改变面板高度</p>
+    </div>
 </form>
 
 
@@ -425,66 +425,71 @@
 </div>
 
 
-<!-- 微编辑下 -->
-<ul class="_meds" tpl-name="inputs:meds">
-    <li>特殊符号</li>
-    <li>图片（&lt;img&gt;）</li>
-    <li>音频（&lt;audio&gt;）</li>
-    <li>视频（&lt;video&gt;）</li>
-    <li>兼容图片（&lt;picture&gt;）</li>
-    <li>链接（&lt;a&gt;）</li>
-    <li>代码（&lt;code&gt;）</li>
-    <li>重点（&lt;strong&gt;）</li>
-    <li>强调（&lt;em&gt;）</li>
-    <li>下标（&lt;sub&gt;）</li>
-    <li>上标（&lt;sup&gt;）</li>
-    <li>短引用（&lt;q&gt;）</li>
-    <li>日期/时间（&lt;time&gt;）</li>
-    <li>插入性条目（&lt;ins&gt;）</li>
-    <li>已删除条目（&lt;del&gt;）</li>
-    <li>缩写（&lt;abbr&gt;）</li>
-    <li>注脚（&lt;small&gt;）</li>
-    <li>来源（&lt;cite&gt;）</li>
-    <li>标记（&lt;mark&gt;）</li>
-    <li>注音单元（&lt;ruby/rb,rp,rt&gt;）</li>
-    <li>表情（&lt;code role="orz"&gt;）</li>
-    <li>定义条目（&lt;dfn&gt;）</li>
-    <li>样本（&lt;samp&gt;）</li>
-    <li>键盘字（&lt;kbd&gt;）</li>
-    <li>度量标示（&lt;meter&gt;）</li>
-    <li>失效（&lt;s&gt;）</li>
-    <li>注记（&lt;u&gt;）</li>
-    <li>变量（&lt;var&gt;）</li>
-    <li>有向文本（&lt;bdo&gt;）</li>
-    <li>换行（&lt;br&gt;）</li>
-    <li>软换行（&lt;wbr&gt;）</li>
-    <li>空白段（&lt;blank&gt;）</li>
-</ul>
-
 <!-- 内联单元 --------------------------------------------------------------->
 
-<div class="_chars" tpl-name="inputs:chars">
-    <select name="xlist" size="6">
-        <option value="normal">常用</option>
-        <option value="number">数字序号</option>
-        <option value="maths">数学</option>
-        <option value="units">单位</option>
-        <option value="phonetic">注音</option>
-        <option value="katakana">日文片假名</option>
-        <option value="hiragana">日文平假名</option>
-        <option value="greekalph">希腊字母</option>
-        <option value="russian">俄文字符</option>
-        <option value="radicalcn">偏旁部首-简</option>
-        <option value="radicaltw">偏旁部首-繁</option>
-        <option value="tabline">表格线</option>
-    </select>
-    <span> [替换占位] </span>
-</div>
+
+<!-- 微编辑：框架 -->
+<form class="Minied" tpl-name="inputs:minied">
+    <aside>
+        <select name="items" size="5" class="_list">
+            <option value="chars">特殊符号</option>
+            <option value="img">图片（&lt;img&gt;）</option>
+            <option value="audio">音频（&lt;audio&gt;）</option>
+            <option value="video">视频（&lt;video&gt;）</option>
+            <option value="picture">兼容图片（&lt;picture&gt;）</option>
+            <option value="a">链接（&lt;a&gt;）</option>
+            <option value="code">代码（&lt;code&gt;）</option>
+            <option value="strong">重点（&lt;strong&gt;）</option>
+            <option value="em">强调（&lt;em&gt;）</option>
+            <option value="sub">下标（&lt;sub&gt;）</option>
+            <option value="sup">上标（&lt;sup&gt;）</option>
+            <option value="q">短引用（&lt;q&gt;）</option>
+            <option value="time">日期/时间（&lt;time&gt;）</option>
+            <option value="ins">插入性条目（&lt;ins&gt;）</option>
+            <option value="del">已删除条目（&lt;del&gt;）</option>
+            <option value="abbr">缩写（&lt;abbr&gt;）</option>
+            <option value="small">注脚（&lt;small&gt;）</option>
+            <option value="cite">来源（&lt;cite&gt;）</option>
+            <option value="mark">标记（&lt;mark&gt;）</option>
+            <option value="ruby">注音单元（&lt;ruby/rb,rp,rt&gt;）</option>
+            <option value="orz">表情（&lt;code role="orz"&gt;）</option>
+            <option value="dfn">定义条目（&lt;dfn&gt;）</option>
+            <option value="samp">样本（&lt;samp&gt;）</option>
+            <option value="kbd">键盘字（&lt;kbd&gt;）</option>
+            <option value="meter">度量标示（&lt;meter&gt;）</option>
+            <option value="s">失效（&lt;s&gt;）</option>
+            <option value="u">注记（&lt;u&gt;）</option>
+            <option value="var">变量（&lt;var&gt;）</option>
+            <option value="bdo">有向文本（&lt;bdo&gt;）</option>
+            <option value="br">换行（&lt;br&gt;）</option>
+            <option value="wbr">软换行（&lt;wbr&gt;）</option>
+            <option value="blank">空白段（&lt;blank&gt;）</option>
+        </select>
+    </aside>
+    <div class="_chars" tpl-name="inputs:chars">
+        <select name="xlist" size="6">
+            <option value="normal">常用</option>
+            <option value="number">数字序号</option>
+            <option value="maths">数学</option>
+            <option value="units">单位</option>
+            <option value="phonetic">注音</option>
+            <option value="katakana">日文片假名</option>
+            <option value="hiragana">日文平假名</option>
+            <option value="greekalph">希腊字母</option>
+            <option value="russian">俄文字符</option>
+            <option value="radicalcn">偏旁部首-简</option>
+            <option value="radicaltw">偏旁部首-繁</option>
+            <option value="tabline">表格线</option>
+        </select>
+        <span> [替换占位] </span>
+    </div>
+</form>
+
 
 <!-- 特殊字符集
     初始解析构造为：<b>...</b>序列
     字符集清单存储在data中备用。 -->
-<div tpl-name="item:chars"
+<div tpl-name="charbox"
     on="^init('span')|evo('current'), text, call('split', ''), $$;
         ^obted|$$('span'), dup"
     by="wrap('<b>');
@@ -505,7 +510,8 @@
     <span>┌└┍┕┎┖┏┗┐┘┑┙┒┚┓┛─━┄┅┈┉├┤┝┥┞┦┟┧┠┨┡┩┢┪┣┫│┃┆┇┊┋┬┴┭┵┮┶┯┷┰┸┱┹┲┺┳┻┼╄┽╅┾┶┿╇╀╈╁╉╂╊╃</span>
 </div>
 
-<!-- 表清单方式 -->
+
+<!-- 表格清单方式 -->
 
 <table tpl-name="inputs:img">
     <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>

@@ -600,12 +600,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 .content code {
     word-wrap: break-word;
-    background-color: #eee;
-    margin: 0 2px;
-    padding: 1px 5px;
+    background-color: #f7f7f7;
+    padding: 0 2px;
     border-radius: 2px;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    border: 1px #ddd solid;
+    border: 1px #eee solid;
 }
 
 .content code[data-lang] {
@@ -666,8 +665,9 @@ code > b {
     font-weight: normal;
 }
 /* comments */
-code > b[role=cmt] {
+code > i {
     color: #393;
+    font-style: normal;
 }
 
 /* string */
@@ -676,7 +676,7 @@ code > b[role=str] {
 }
 
 /* keywords */
-code > b[role=kws] {
+code > b[role=kw] {
     color: #900;
     font-weight: bold;
 }
@@ -687,28 +687,23 @@ code > b[role=tag] {
     font-weight: bold;
 }
 
-/* #id|.className|:hover */
-code > b[role=slr] {
-    color: #06d;
-}
-
-/* attribute */
-code > b[role=atn] {
+/* attribute-name */
+code > b[role=an] {
     color: #090;
 }
 
-/* attribute-value */
-code > b[role=atv] {
+/* value */
+code > b[role=val] {
     color: #36c;
 }
 
-/* function */
-code > b[role=fun] {
+/* function-name */
+code > b[role=fn] {
     color: #f3e;
 }
 
 /* data-type */
-code > b[role=typ] {
+code > b[role=dt] {
     color: #09c;
 }
 
@@ -731,7 +726,7 @@ code > b[role=doc] {
 }
 
 /* <![CDATA[..]]> */
-code > b[role=cdt] {
+code > b[role=cd] {
     color: #960;
 }
 

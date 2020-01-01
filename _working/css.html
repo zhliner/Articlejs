@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="no-cache">
+    <title>界面效果CSS制作</title>
+    <link rel="stylesheet" href="../base/tpb/default.css">
+    <link rel="stylesheet" href="../themes/Dark-less/style.css">
+    <link rel="stylesheet" href="../styles/example/main.css">
+
+    <style>
+        body > * {
+            width: 800px;
+            height: 240px;
+            margin-bottom: 10px;
+            border: 1px #5c869c solid;
+        }
+        body > main:first-child {
+            height: 640px;
+        }
+    </style>
+</head>
+
+<body lang="zh-cn">
+    <main id="editor">
+        <div id="g-modal" class="__Panel Modal" data-pb="none">
+            <i id="b-dclose" title="关闭"></i>
+            <hr tpl-source="modal:page" />
+        </div>
+
+<!-- 工具栏: flex -->
+<div class="___Panel Tools" tpl-name="main:tools">
+    <!-- 面板按钮 -->
+    <div class="_start">
+        <i id="b-outline"></i>
+        <i id="b-slave"></i>
+    </div>
+    <hr class="_1">
+    <!-- 动态区 -->
+    <div id="tools-active" class="_active" data-pb="">
+        <!-- 普通工具 -->
+        <span class="_usual">
+            <i id="b-totext"></i>
+            <i id="b-untag"></i>
+            <i id="b-undo"></i>
+            <i id="b-redo"></i>
+        </span>
+    </div>
+    <hr class="_2">
+    <!-- 功能按钮 -->
+    <div class="_end">
+        <i id="b-plugins"></i>
+        <i id="b-maximize"></i>
+    </div>
+</div>
+
+<!-- 内容区 -->
+<div class="___Content" tpl-name="main:content">
+    <!-- 临时态：视觉提示 -->
+    <span id="content-temp" class="_tmps" data-pb="lose"></span>
+    <!--滚动盒子
+        注记：tabindex若设置在可滚动容器上，获取焦点时内容可能移位（浏览器行为） -->
+    <div id="scrollbox" class="___Scroll" tabindex="0">
+        <!-- 正文区 -->
+        <div id="contents" class="content"></div>
+    </div>
+    <!-- 元素路径提示 -->
+    <div id="content-path" class="_path" data-pb="lose">
+        <!-- span/b...
+            css: flex-wrap: wrap-reverse -->
+    </div>
+</div>
+
+<!-- 主面板区 -->
+<div id="main-slave" class="___Panel Slave" data-pb="rise" tpl-name="main:slave">
+    <!-- 标题栏: flex -->
+    <div class="_tabs">
+        <b>内容</b>
+        <b>样式</b>
+        <b>特性</b>
+        <b>源码</b>
+        <b>脚本</b>
+        <!-- 末端位:margin-inline-start:auto; -->
+        <i id="b-pclose"></i>
+    </div>
+    <!-- 内容：初始引用录入面板 -->
+    <hr id="slave-main" tpl-node="slave:inputs"">
+</div>
+
+<!-- 状态栏 -->
+<div class=" ___Panel Status" tpl-name="main:status">
+    <!-- 提示区 -->
+    <div id="status-tips" class="_tips"></div>
+    <!-- 指令符 -->
+    <div class="_cmdx">
+        <span id="cmd-chars" data-pb="hide">
+            <b>/</b> <!-- 选择器模式 -->
+            <b>:</b> <!-- 普通指令 -->
+            <b>=</b> <!-- 计算（Worker） -->
+            <b>|</b> <!-- 选取集过滤 -->
+            <b>?</b> <!-- 文本搜索&选取 -->
+            <b>!</b> <!-- 扩展备用（pro） -->
+        </span>
+        <!-- data-v: CSS辅助 -->
+        <code id="cmd-char" data-v="/">/</code>
+    </div>
+    <!-- 命令行 -->
+    <div class="_cmdline">
+        <!-- 历史清单：
+            - 上下箭头移动当前条目，Tab/Enter或单击选取。
+            - 按ESC键取消弹出框，停止冒泡避免上层esc事件。 -->
+        <div id="cmd-list" tabindex="0" class="_list" data-pb="hide">
+            <ul>
+                <!-- <li>: 动态增加/溢出 -->
+            </ul>
+        </div>
+        <!-- 交互：
+            1. 回车执行命令行，自动选取结果。
+            2. Tab键展开当前键入内容匹配清单。
+            3. 上下箭头和翻页键匹配当前键入词导航。
+            4. Ctrl+U 清空命令行内容。
+            5. 手动键入内容为搜索历史匹配。
+            6. Tab和箭头翻页导航支持+Shift模糊匹配。
+        -->
+        <input id="cmd-input" type="text" class="_code" />
+    </div>
+    <!-- 出错信息区 -->
+    <div id="status-err" class="_err"></div>
+    <!-- 帮助入口 -->
+    <div class="_help">?</div>
+</div>
+
+
+<!-- 选取创建（mouseup） -->
+<menu class="_cells" data-pb="none" tpl-name="menu:cells">
+    <li data-tag="a" title="<a>"><a href="javascript:return false;">链接</a></li>
+    <li data-tag="code" title="<code>"><code>代码</code></li>
+    <li data-tag="strong" title="<strong>"><strong>重点</strong></li>
+    <li data-tag="em" title="<em>"><em>强调</em></li>
+    <li data-tag="sub" title="<sub>">X<sub>2</sub></li>
+    <li data-tag="sup" title="<sup>">X<sup>2</sup></li>
+    <li data-tag="q" title="<q>"><q>短引用</q></li>
+    <li data-tag="time" title="<time>"><time>时间</time></li>
+    <li data-tag="ins" title="<ins>"><ins>插入</ins></li>
+    <li data-tag="del" title="<del>"><del>删除</del></li>
+    <li data-tag="abbr" title="<abbr>"><abbr>缩写</abbr></li>
+    <li data-tag="small" title="<small>"><small>注脚</small></li>
+    <li data-tag="cite" title="<cite>"><cite>来源</cite></li>
+    <li data-tag="mark" title="<mark>"><mark>标记</mark></li>
+    <li data-tag="ruby" title="<ruby>">
+        <ruby>
+            <rb>注音</rb>
+            <rp>(</rp><rt>zhùyīn</rt><rp>)</rp>
+        </ruby></li>
+    <li data-tag="code" title="<code>"><code role="orz">^_^</code></li>
+    <li data-tag="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
+    <li data-tag="samp" title="<samp>"><samp>样本</samp></li>
+    <li data-tag="kdb" title="<kdb>"><kdb>键盘字</kdb></li>
+    <li data-tag="s" title="<s>"><s>失效</s></li>
+    <li data-tag="u" title="<u>"><u>注记</u></li>
+    <li data-tag="var" title="<var>"><var>变量</var></li>
+    <li data-tag="bdo" title="<bdo>"><bdo dir="rtl">有向文本</bdo></li>
+</menu>
+
+<!-- 基本编辑（contextmenu） -->
+<menu class="_edits" data-pb="none" tpl-name="menu:edits">
+    <li data-val="edit">
+        <span><b>&lt;F2&gt;,&lt;I&gt;</b><i id="l-edit"></i>微编辑</span>
+    </li>
+    <li data-val="copy">
+        <span><b>&lt;c&gt;</b><i id="l-copy"></i>复制</span>
+    </li>
+    <li data-val="move">
+        <span><b>&lt;x&gt;</b><i id="l-move"></i>移动</span>
+    </li>
+    <li data-val="delete">
+        <span><b>&lt;Del&gt;</b><i id="l-delete"></i>删除</span>
+    </li>
+    <li id="menu-prop" data-val="prop" data-pb="disabled">
+        <span><b>&lt;p&gt;</b><i id="l-prop"></i>属性</span>
+    </li>
+</menu>
+
+    </main>
+
+    <!-- 面板系列 -->
+    <main>
+        <!--  -->
+    </main>
+</body>
+
+</html>
