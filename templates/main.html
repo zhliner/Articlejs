@@ -2,25 +2,24 @@
 <div class="___Panel Tools" tpl-name="main:tools">
     <!-- 面板按钮 -->
     <div class="_start">
-        <i id="b-outline"></i>
-        <i id="b-slave"></i>
+        <b title="大纲"><i id="b-outline"></i></b>
+        <b title="主面板"><i id="b-slave"></i></b>
     </div>
     <hr class="_1">
     <!-- 动态区 -->
     <div id="tools-active" class="_active" data-pb="">
-        <!-- 普通工具 -->
         <span class="_usual">
-            <i id="b-totext"></i>
-            <i id="b-untag"></i>
-            <i id="b-undo"></i>
-            <i id="b-redo"></i>
+            <b title="文本化"><i id="b-totext"></i></b>
+            <b title="去除标签"><i id="b-untag"></i></b>
+            <b title="撤消"><i id="b-undo"></i></b>
+            <b title="重做"><i id="b-redo"></i></b>
         </span>
     </div>
     <hr class="_2">
     <!-- 功能按钮 -->
     <div class="_end">
-        <i id="b-plugins"></i>
-        <i id="b-maximize"></i>
+        <b title="插件"><i id="b-plugins"></i></b>
+        <i id="b-maximize" title="最大化"></i>
     </div>
 </div>
 
@@ -33,7 +32,7 @@
         注记：tabindex若设置在可滚动容器上，获取焦点时内容可能移位（浏览器行为） -->
     <div id="scrollbox" class="___Scroll" tabindex="0">
         <!-- 正文区 -->
-        <div id="contents" class="content"></div>
+        <div id="content" class="content"></div>
     </div>
     <!-- 元素路径提示 -->
     <div id="content-path" class="_path" data-pb="lose">
@@ -53,7 +52,7 @@
         <b>源码</b>
         <b>脚本</b>
         <!-- 末端位:margin-inline-start:auto; -->
-        <i id="b-pclose"></i>
+        <i id="b-close" title="关闭"></i>
     </div>
     <!-- 内容：初始引用录入面板 -->
     <hr id="slave-main" tpl-node="slave:inputs"">

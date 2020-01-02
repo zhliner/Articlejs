@@ -1,36 +1,20 @@
-/** Dark-less/icons.css 2015.02.11.
- * ==============================================
- *  图标定位表
+/*! $id icons.css 2020.01.02. $
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *
+ *  图标定位表。
+ *
+ *  @name Dark-less
  *  @author 风林子 zhliner@gmail.com
- * ==============================================
- */
-
-#logo {
-    width: 36px;
-    height: 36px;
-    background-image: url('logo.png');
-}
-
-
-/* [ 基本 ]
- * ****************************************************************************
-*/
+ *
+ *****************************************************************************/
 
  /* 按钮 */
 i[id|=b] {
-    width: 32px;
-    height: 32px;
-    background-image: url('images/buttonX.png');
-    background-size: 300px 440px;
-}
-
-/* 选择 */
-i[id|=i] {
-    width: 24px;
-    height: 24px;
-    background-image: url('images/switchX.png');
-    background-size: 150px 330px;
+    width: 20px;
+    height: 20px;
+    background-image: url('images/button.png');
+    /* 800x1152 */
+    background-size: 400px 576px;
 }
 
 /* 标签 */
@@ -40,16 +24,10 @@ i[id|=l] {
     background-image: url('images/label.png');
 }
 
-/* 其它 */
-i[id|=x] {
-    background-image: url('images/othersX.png');
-    background-size: 150px 400px;
-}
-
 
 /* [ 定位 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
+
 /* 录入 */
 #b-pages    { background-position: -10px -10px; }
 #b-lines    { background-position: -10px -60px; }
@@ -162,8 +140,7 @@ i[id|=x] {
 
 
 /* [ 其它 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
 
 /* 40x40 */
 i[id|='x-plug'] {

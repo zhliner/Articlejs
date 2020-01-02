@@ -1,7 +1,7 @@
-/*! $Id: style.css 2015.02.09 Articlejs.UI $
+/*! $id: style.css 2020.01.02 Articlejs.UI $
  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *
- *  主题样式定义。
+ *  「光明之夜」主题样式。
  *
  *  @name: Dark-less
  *  @author: 风林子 zhliner@gmail.com
@@ -38,7 +38,9 @@ body > hr {
 
 /* 编辑器容器 */
 #editor {
+    position: relative;
     border: 1px #5c869c solid;
+    border-radius: 20px;
 }
 
 /* 帮助面板 */
@@ -955,59 +957,7 @@ body > hr {
 }
 
 
-/* [ 扩展区 ]
- ****************************************************************************/
-.___Panel .Meds {
-    width: 100%;
-    background-color: rgba(100, 99, 80, 0.6);
-}
-.___Panel .Meds ._button {
-    float: right;
-    margin: 5px 40px;
-}
-
-.___Panel .Plugs {
-    height: 58px;
-    width: calc(100% - 94px);
-    padding: 0 46px;
-    margin-left: 1px;
-    background-color: rgba(32,32,32,0.3);
-    border-radius: 10px 10px 0 0;
-    /* misc-tabs space */
-    margin-top: 1px;
-}
-.___Panel .Plugs > i {
-    top: 10px;
-    height: 40px;
-    position: absolute;
-}
-.___Panel .Plugs > i:hover {
-    cursor: pointer;
-}
-.___Panel .Plugs ._prev { left: 0px; }
-.___Panel .Plugs ._next { right: 0px; }
-
-.___Panel .Plugs ._list {
-    margin-top: 9px;
-    overflow: hidden;
-    resize: none;
-    white-space: nowrap;
-}
-.___Panel .Plugs ._list span {
-    float: left;
-}
-.___Panel .Plugs ._list img {
-    margin-right: 12px;
-    padding: 5px 8px;
-    border-radius: 3px;
-    cursor: pointer;
-}
-.___Panel .Plugs ._list img:hover {
-    background-color: rgba(255,255,255,0.5);
-}
-
-
-/* [ 底部状态栏 ]
+/* [ 状态栏 ]
  ****************************************************************************/
 .___Panel.Status {
     border-top: 1px #aaa solid;
@@ -1069,8 +1019,21 @@ body > hr {
 }
 
 
-/* [ 模态框 ]
+/* [ 模态页/框 ]
  ****************************************************************************/
+
+.___Panel.Modal {
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.5);
+    z-index: 999;
+    border-radius: inherit;
+    border: 4px #777 solid;
+}
+
+
 .___Panel.Modal ._dialog {
     border-radius: 3px;
     border: 1px #1A4E84 solid;
