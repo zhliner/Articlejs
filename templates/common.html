@@ -1,6 +1,9 @@
 <!-- 模态页：插件... -->
 <form class="_page" tpl-name="modal:page">
-    <h5>[标题]</h5>
+    <header>
+        <h5>[标题]</h5>
+        <b class="_close" title="关闭">✕</b>
+    </header>
     <div id="modal-xbox" class="_xbox">
         <!-- [node] -->
     </div>
@@ -15,7 +18,10 @@
 
 <!-- 模态框：属性 -->
 <form class="_list" tpl-name="modal:list">
-    <h5>[标题]</h5>
+    <header>
+        <h5>[标题]</h5>
+        <b class="_close" title="关闭">✕</b>
+    </header>
     <header id="modal-note" class="_node" data-pb="none">
         [提示/说明]
     </header>
@@ -30,7 +36,10 @@
 
 <!-- 模态框：单行 -->
 <form class="_small" tpl-name="modal:small">
-    <h5>[标题]</h5>
+    <header>
+        <h5>[标题]</h5>
+        <b class="_close" title="关闭">✕</b>
+    </header>
     <div class="_xbox">
         <input type="text" name="txtline" />
     </div>
@@ -42,7 +51,10 @@
 
 <!-- 模态框：消息 -->
 <form class="_massage">
-    <h5>[标题]</h5>
+    <header>
+        <h5>[标题]</h5>
+        <b class="_close" title="关闭">✕</b>
+    </header>
     <div id="modal-msg" class="_msg">
         [消息内容]
     </div>
@@ -54,6 +66,10 @@
 
 <!-- 模态页：脚本历史 -->
 <form class="_shlist" tpl-name="modal:shlist">
+    <header>
+        <h5>脚本历史</h5>
+        <b class="_close" title="关闭">✕</b>
+    </header>
     <div class="_search">
         <!-- change|blur,select：避免历史遮挡 -->
         <input type="text" name="word" class="_text" placeholder="标记词"
@@ -67,30 +83,36 @@
 
 
 <!-- 模态页：脚本测试 -->
-<ul class="_info" tpl-name="page:shtest">
-    <li tpb-if="$.error">
-        错误：<i class="_error" _text="$.error"></i>
-    </li>
-    <li tpb-if="$.warn">
-        警告：<i class="_warn" _text="$.warn"></i>
-    </li>
-    <li title="RESULT.type">
-        操作类型：<b _text="$.type"></b>
-    </li>
-    <li title="RESULT.to">
-        目标元素：<b _text="$.to"></b>
-    </li>
-    <li title="RESULT.selector">
-        选择器：<b _text="$.selector"></b>
-    </li>
-    <li title="RESULT.method">
-        插入方式：<b _text="$.method"></b>
-    </li>
-    <li>结果数据：</li>
-    <li title="RESULT.data" class="_data">
-        <div _html="$.data"></div>
-    </li>
-</ul>
+<div class="_test" tpl-name="page:shtest">
+    <header>
+        <h5>脚本测试结果</h5>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <ul>
+        <li tpb-if="$.error">
+            错误：<i class="_error" _text="$.error"></i>
+        </li>
+        <li tpb-if="$.warn">
+            警告：<i class="_warn" _text="$.warn"></i>
+        </li>
+        <li title="RESULT.type">
+            操作类型：<b _text="$.type"></b>
+        </li>
+        <li title="RESULT.to">
+            目标元素：<b _text="$.to"></b>
+        </li>
+        <li title="RESULT.selector">
+            选择器：<b _text="$.selector"></b>
+        </li>
+        <li title="RESULT.method">
+            插入方式：<b _text="$.method"></b>
+        </li>
+        <li>结果数据：</li>
+        <li title="RESULT.data" class="_data">
+            <div _html="$.data"></div>
+        </li>
+    </ul>
+</div>
 
 
 <!-- 通用：确定 -->

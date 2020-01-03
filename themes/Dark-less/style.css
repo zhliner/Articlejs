@@ -404,9 +404,8 @@ body > hr {
 
 /* [ 内容区 ]
  ****************************************************************************/
+
 .___Content {
-    /* 4k fix */
-    background: url('images/shadow.png') repeat-x 0 -2px;
 }
 .___Content ._paths {
     font-size: 12px;
@@ -749,83 +748,6 @@ body > hr {
 }
 
 
-/* [ 动效 ]
- ****************************************************************************/
-.___Panel .Effect select {
-    height: 100%;
-    background-color: #f7f7e7;
-}
-.___Panel .Effect ._main > * {
-    margin-left: 6px;
-}
-.___Panel .Effect ._side {
-    width: 140px;
-}
-.___Panel .Effect option {
-    padding: 1px 4px;
-}
-.___Panel .Effect ._main {
-    margin-left: 140px;
-}
-.___Panel .Effect ._main > div {
-    height: 100%;
-}
-.___Panel .Effect ._conf {
-    width: calc(85% - 100px);
-}
-.___Panel .Effect ._elem {
-    border: 1px #ddd solid;
-    margin-bottom: 5px;
-    padding: 1px 5px;
-    border-radius: 2px;
-}
-.___Panel .Effect ._elem li {
-    padding: 2px 0;
-}
-.___Panel .Effect ._elem b {
-    padding: 0 12px;
-    background-color: #e0e0e0;
-    margin-left: 2px;
-    color: #090;
-    border-radius: 2px;
-}
-.___Panel .Effect ._elem b {
-    min-width: 20px;
-    cursor: pointer;
-}
-.___Panel .Effect ._content {
-    height: calc(100% - 61px);
-}
-.___Panel .Effect ._opts {
-    margin-left: 9px;
-}
-.___Panel .Effect ._ranks {
-    width: 140px;
-    float: left;
-}
-.___Panel .Effect ._ranks b {
-    text-align: center;
-    font-size: 12px;
-    border: 1px #bbb solid;
-    padding: 1px 10px 2px;
-    float: left;
-    margin: 0 4px 4px 0;
-    border-radius: 10px;
-    background-color: #fffff0;
-}
-.___Panel .Effect ._ranks b:hover {
-    color: #ccc;
-    background-color: #333;
-}
-.___Panel .Effect ._ranks b._fixed {
-    color: #fff;
-    background-color: #333;
-}
-.___Panel .Effect ._apply {
-    width: 180px;
-}
-
-
 /* [ 颜色 ]
  ****************************************************************************/
 .___Panel .Color ._side {
@@ -934,26 +856,6 @@ body > hr {
 }
 .___Panel .Script ._main {
     margin-right: 200px;
-}
-
-
-/* [ 样式库 ]
- ****************************************************************************/
-.___Panel .Stylib ._sbox aside {
-    width: calc(100% - 104px);
-}
-.___Panel .Stylib ._sbox p {
-    margin: 5px 0;
-}
-.___Panel .Stylib ._sbox ._more {
-    height: 65px;
-    text-align: center;
-    padding-top: 40px;
-    border-radius: 26px;
-    font-size: 14px;
-}
-.___Panel .Stylib ._sbox ._more:hover {
-    box-shadow: none;
 }
 
 

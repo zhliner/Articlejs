@@ -62,6 +62,6 @@ ___Panel .Minied    微编辑
 - `_small` 单行模态框表单。
 - `_massage` 消息模态框表单。
 - `_shlist` 脚本历史模态页表单。
-- `_info` 脚本测试模态页。
+- `_test` 脚本测试模态页。
 - `_submit` 确定按钮封装。
 - `_where` 内容插入位置选择区。

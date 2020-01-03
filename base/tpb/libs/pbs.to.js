@@ -210,13 +210,14 @@ const _Where = {
 
 
 //
-// pba/pbo专项设置。
+// PB专项设置。
 // 内容：update封装取值。
-// 注：简单调用 Util.pba/pbo。
+// 注：简单调用 Util.pba/pbo/pbv。
 ///////////////////////////////////////////////////////////////////////////////
 [
     'pba',  // ( wds )
     'pbo',  // ( wds )
+    'pbv',  // ( val )
 ]
 .forEach(function( name ) {
 

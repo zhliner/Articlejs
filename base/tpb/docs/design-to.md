@@ -186,6 +186,10 @@ xxxx   // 单元素检索，$.get(): Element | null
 // 赋值到 data-pb 属性。
 // 不破坏PB中的参数部分（前段）。
 
+- pbv
+// PB属性设置。{String}
+// 这是对data-pb整个属性设置。
+
 - render
 // 渲染目标元素。
 // 用于模板节点插入页面之后的原地更新。

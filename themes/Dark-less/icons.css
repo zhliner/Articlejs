@@ -12,7 +12,7 @@
 i[id|=b] {
     width: 22px;
     height: 22px;
-    background-image: url('images/button.png');
+    background-image: url('images/icons.png');
     /* 600x900 */
     background-size: 300px 450px;
 }
@@ -21,7 +21,7 @@ i[id|=b] {
 i[id|=l] {
     width: 16px;
     height: 16px;
-    background-image: url('images/label.png');
+    background-image: url('images/icons.png');
 }
 
 

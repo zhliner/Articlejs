@@ -206,6 +206,19 @@ const Util = {
 
 
     /**
+     * PB属性简单取值/设置。
+     * @param {Element} el 目标元素
+     * @param {String} val 设置值
+     */
+    pbv( el, val ) {
+        if ( val === undefined ) {
+            return $.attribute( el, __attrPB );
+        }
+        $.attribute( el, __attrPB, val );
+    },
+
+
+    /**
      * 解析参数序列。
      * 用Function构造，可支持正则表达式或箭头函数等。
      * 注记：原用JSON解析，但限制太多。

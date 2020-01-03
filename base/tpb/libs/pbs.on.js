@@ -134,17 +134,17 @@ const _On = {
 
 
 //
-// pba/pbo专项取值。
+// PB专项取值。
 // 目标：当前条目/栈顶1项。
-// 注：简单调用 Util.pba/pbo 即可。
+// 注：简单调用 Util.pba/pbo/pbv 即可。
 ///////////////////////////////////////////////////////////////////////////////
 [
     'pba',  // (): [String] | [[String]] 有序的参数词序列
     'pbo',  // (): [String] | [[String]] 选项词序列
+    'pbv',  // (): String | [String] 属性值
 ]
 .forEach(function( name ) {
 
-    // 集合时返回一个值数组的数组。
     _On[name] = function( evo ) {
         if ( evo.data.nodeType == 1 ) return Util[name]( evo.data );
         if ( $.isArray(evo.data) ) return evo.data.map( el => Util[name](el) );
