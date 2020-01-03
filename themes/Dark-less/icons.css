@@ -10,11 +10,11 @@
 
  /* 按钮 */
 i[id|=b] {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     background-image: url('images/button.png');
-    /* 800x1152 */
-    background-size: 400px 576px;
+    /* 600x900 */
+    background-size: 300px 450px;
 }
 
 /* 标签 */
