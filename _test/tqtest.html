@@ -171,6 +171,37 @@ p.ani {
             <textarea name="tt2" style="height: 100px; width: 200px; overflow: scroll; white-space: pre;">The second editbox.</textarea>
         </p>
     </form>
+    <menu class="_cells" data-pb="" tpl-name="menu:cells">
+        <li data-tag="a" title="<a>"><a href="javascript:;">链接</a></li>
+        <li data-tag="code" title="<code>"><code>代码</code></li>
+        <li data-tag="strong" title="<strong>"><strong>重点</strong></li>
+        <li data-tag="em" title="<em>"><em>强调</em></li>
+        <li data-tag="sup" title="<sup>">O<sup>2</sup></li>
+        <li data-tag="sub" title="<sub>">O<sub>2</sub></li>
+        <li data-tag="q" title="<q>"><q>短引用</q></li>
+        <li data-tag="time" title="<time>"><time>时间</time></li>
+        <li data-tag="ins" title="<ins>"><ins>插入</ins></li>
+        <li data-tag="del" title="<del>"><del>删除</del></li>
+        <li data-tag="abbr" title="<abbr>"><abbr>缩写</abbr></li>
+        <li data-tag="small" title="<small>"><small>注脚</small></li>
+        <li data-tag="cite" title="<cite>"><cite>来源</cite></li>
+        <li data-tag="mark" title="<mark>"><mark>标记</mark></li>
+        <li data-tag="ruby" title="<ruby>">
+            <ruby>
+                <rb>注音</rb>
+                <rp>(</rp>
+                <rt>zhù yīn</rt>
+                <rp>)</rp>
+            </ruby></li>
+        <li data-tag="code" title="表情"><code role="orz">^_^</code></li>
+        <li data-tag="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
+        <li data-tag="samp" title="<samp>"><samp>样本</samp></li>
+        <li data-tag="kbd" title="<kbd>"><kbd>键盘字</kbd></li>
+        <li data-tag="s" title="<s>"><s>失效</s></li>
+        <li data-tag="u" title="<u>"><u>注记</u></li>
+        <li data-tag="var" title="<var>"><var>变量</var></li>
+        <li data-tag="bdo" title="<bdo>"><bdo dir="rtl">有向文本</bdo></li>
+    </menu>
     <ol id="gocode">
         <li>package main</li>
         <li>func main() {</li>
@@ -314,7 +345,7 @@ p.ani {
         <input type="text" id="curpos" value="Hello..." />
         <input type="submit" id="submit" value="提交">
     </p>
-    <form name="frm01">
+    <form name="frm01" onsubmit="return false">
         <label><input name="chk1" id="chk1" type="checkbox" value="hai" />Click me</label>
         <br>
         <input type="color" name="color1" value="#99ff00">Colors<br>

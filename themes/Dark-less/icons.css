@@ -22,157 +22,59 @@ i[id|=l] {
     width: 16px;
     height: 16px;
     background-image: url('images/icons.png');
+    background-size: 300px 450px;
 }
 
 
-/* [ 定位 ]
- ****************************************************************************/
+/* 工具栏 */
+#b-outline  { background-position: 0 0; }
+#b-slave    { background-position: 0 -100px; }
+#b-plugins  { background-position: 0 -200px; }
+#b-maximize { background-position: 0 -300px; }
+#b-totext   { background-position: 0 -400px; }
+#b-untag    { background-position: 0 -500px; }
+#b-undo     { background-position: 0 -600px; }
+#b-redo     { background-position: 0 -700px; }
 
-/* 录入 */
-#b-pages    { background-position: -10px -10px; }
-#b-lines    { background-position: -10px -60px; }
-#b-title    { background-position: -10px -110px; }
-#b-setid    { background-position: -10px -160px; }
-
-/* 编辑 */
-#b-image    { background-position: -60px -10px; }
-#b-video    { background-position: -60px -60px; }
-#b-audio    { background-position: -60px -110px; }
-#b-time     { background-position: -60px -160px; }
-#b-schar    { background-position: -60px -210px; }
-#b-newline  { background-position: -60px -260px; }
-#b-ehtml    { background-position: -60px -310px; }
-
-/* 版式 */
-#b-totext   { background-position: -110px -10px; }
-#b-clear    { background-position: -110px -60px; }
-#b-untag    { background-position: -110px -110px; }
-#b-convert  { background-position: -110px -160px; }
 
 /* 样式 */
-#b-fontst   { background-position: -160px -10px; }
-#b-talign   { background-position: -160px -60px; }
-#b-brush    { background-position: -160px -110px; }
-#b-fontsz   { background-position: -160px -160px; }
-#b-width    { background-position: -160px -210px; }
-#b-margin   { background-position: -160px -260px; }
-#b-float    { background-position: -210px -10px; }
-#b-edsty    { background-position: -210px -60px; }
-#b-delsty   { background-position: -210px -110px; }
-#b-style    { background-position: -210px -160px; }
-
-/* 颜色 */
-#b-colorc   { background-position: -260px -10px; }
-#b-colorp   { background-position: -260px -60px; }
-#b-colorx   { background-position: -260px -110px; }
-
-/* 脚本 */
-#b-history  { background-position: -260px -160px; }
-#b-test     { background-position: -260px -210px; }
+#b-erase    { background-position: -100px 0; }
+#b-brush    { background-position: -100px -100px; }
+#b-fontview { background-position: -100px -200px; }
+#b-fontsize { background-position: -100px -300px; }
+#b-align    { background-position: -100px -400px; }
+#b-width    { background-position: -100px -500px; }
+#b-margin   { background-position: -100px -600px; }
+#b-colors   { background-position: -100px -700px; }
 
 
-/* 列表 */
-#i-ol       { background-position: -60px -10px; }
-#i-ul       { background-position: -60px -60px; }
-#i-dl       { background-position: -60px -110px; }
-#i-li       { background-position: -60px -160px; }
-
-/* 表格 */
-#i-nilth    { background-position: -10px -10px; }
-#i-thtop    { background-position: -10px -60px; }
-#i-thleft   { background-position: -10px -110px; }
-#i-thboth   { background-position: -10px -160px; }
-#i-thtf     { background-position: -10px -210px; }
-#i-th2tf    { background-position: -10px -260px; }
-
-/* 区块 */
-#i-bquote   { background-position: -110px -10px; }
-#i-aside    { background-position: -110px -60px; }
-#i-details  { background-position: -110px -110px; }
-#i-layer    { background-position: -110px -160px; }
-#i-header   { background-position: -110px -210px; }
-#i-footer   { background-position: -110px -260px; }
+/* 小图标 */
+#l-siblings { background-position: -300px 0; }
+#l-children { background-position: -300px -100px; }
+#l-margin   { background-position: -300px -200px; }
+#l-padding  { background-position: -300px -300px; }
+#l-tcolor   { background-position: -300px -400px; }
+#l-bgcolor  { background-position: -300px -500px; }
+#l-bcolor   { background-position: -300px -600px; }
+#l-history  { background-position: -300px -700px; }
+#l-close    { background-position: -400px 0; }
 
 
-/* 装饰条目 */
-#l-dark     { background-position: 0 -60px; }
-#l-light    { background-position: 0 -80px; }
-#l-styles   { background-position: 0 -100px; }
-#l-theme    { background-position: 0 -120px; }
-
-#l-edit     { background-position: 0 -140px; }
-#l-copy     { background-position: 0 -160px; }
-#l-move     { background-position: 0 -180px; }
-#l-delete   { background-position: 0 -200px; }
-#l-merge    { background-position: 0 -220px; }
-#l-ol       { background-position: 0 -240px; }
-#l-ul       { background-position: 0 -260px; }
-#l-output   { background-position: 0 -300px; }
-#l-checked  { background-position: 0 -320px; }
-#l-home     { background-position: 0 -340px; }
-#l-ok       { background-position: 0 -360px; }
-#l-float0   { background-position: 0 -400px; }
-#l-floatl   { background-position: 0 -420px; }
-#l-floatr   { background-position: 0 -440px; }
-
-#l-ttcolor  { background-position: -20px 0; }
-#l-brcolor  { background-position: -20px -20px; }
-#l-bgcolor  { background-position: -20px -40px; }
-#l-strong,
-#l-fbold    { background-position: -20px -60px; }
-#l-em,
-#l-fitalic  { background-position: -20px -80px; }
-#l-noline   { background-position: -20px -100px; }
-#l-fuline   { background-position: -20px -120px; }
-#l-foline   { background-position: -20px -140px; }
-#l-margin   { background-position: -20px -160px; }
-#l-margint  { background-position: -20px -180px; }
-#l-marginr  { background-position: -20px -200px; }
-#l-marginb  { background-position: -20px -220px; }
-#l-marginl  { background-position: -20px -240px; }
-#l-alignl   { background-position: -20px -260px; }
-#l-alignc   { background-position: -20px -280px; }
-#l-alignr   { background-position: -20px -300px; }
-#l-alignj   { background-position: -20px -320px; }
-#l-width    { background-position: -20px -340px; }
-#l-maxwidth { background-position: -20px -360px; }
-#l-minwidth { background-position: -20px -380px; }
-
-
-/* [ 其它 ]
- ****************************************************************************/
-
-/* 40x40 */
-i[id|='x-plug'] {
-    width: 40px;
-    height: 40px;
+/* 上下文菜单前置图标 */
+b[id|=l] {
+    padding-left: 20px;
 }
-#x-plug-next  { background-position: 0 -50px; }
-
-
-/* 24x24 */
-#x-dclose, #x-help, #x-pin {
-    width: 24px;
-    height: 24px;
+b[id|=l]::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: -20px;
+    margin-bottom: -3px;
+    background-image: url('images/icons.png');
+    background-size: 300px 450px;
 }
-#x-dclose   { background-position: -50px 0; }
-#x-help     { background-position: -50px -30px; }
-#x-pin      { background-position: -50px -90px; }
-._pinned /* 已钉住 */
-#x-pin      { background-position: -50px -120px; }
-
-
-/* 20x20 */
-#x-plugs,
-i[id|='x-man'] {
-    width: 20px;
-    height: 20px;
-}
-#x-man-frwd { background-position: -100px 0; }
-#x-man-back { background-position: -100px -30px; }
-/* 可向前 */
-._frwd #x-man-frwd { background-position: -100px -60px; }
-/* 可向后 */
-._back #x-man-back { background-position: -100px -90px; }
-
-#x-plugs    { background-position: -100px -180px; }
+#l-minied::before   { background-position: -400px -400px; }
+#l-copy::before     { background-position: -400px -500px; }
+#l-move::before     { background-position: -400px -600px; }
+#l-delete::before   { background-position: -400px -700px; }

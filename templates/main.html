@@ -52,7 +52,7 @@
         <b>源码</b>
         <b>脚本</b>
         <!-- 末端位:margin-inline-start:auto; -->
-        <i id="b-close" title="关闭"></i>
+        <i id="l-close" title="关闭"></i>
     </div>
     <!-- 内容：初始引用录入面板 -->
     <hr id="slave-main" tpl-node="slave:inputs"">
@@ -65,7 +65,7 @@
     <div id="status-tips" class="_tips"></div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" data-pb="hide">
+        <span id="cmd-chars" class="_list" data-pb="hide">
             <b>/</b> <!-- 选择器模式 -->
             <b>:</b> <!-- 普通指令 -->
             <b>=</b> <!-- 计算（Worker） -->
@@ -105,60 +105,50 @@
 
 <!-- 选取创建（mouseup） -->
 <menu class="_cells" data-pb="none" tpl-name="menu:cells">
-    <li data-tag="a" title="<a>"><a href="javascript:return false;">链接</a></li>
-    <li data-tag="code" title="<code>"><code>代码</code></li>
-    <li data-tag="strong" title="<strong>"><strong>重点</strong></li>
-    <li data-tag="em" title="<em>"><em>强调</em></li>
-    <li data-tag="sub" title="<sub>">X<sub>2</sub></li>
-    <li data-tag="sup" title="<sup>">X<sup>2</sup></li>
-    <li data-tag="q" title="<q>"><q>短引用</q></li>
-    <li data-tag="time" title="<time>"><time>时间</time></li>
-    <li data-tag="ins" title="<ins>"><ins>插入</ins></li>
-    <li data-tag="del" title="<del>"><del>删除</del></li>
-    <li data-tag="abbr" title="<abbr>"><abbr>缩写</abbr></li>
-    <li data-tag="small" title="<small>"><small>注脚</small></li>
-    <li data-tag="cite" title="<cite>"><cite>来源</cite></li>
-    <li data-tag="mark" title="<mark>"><mark>标记</mark></li>
-    <li data-tag="ruby" title="<ruby>">
+    <li data-val="a" title="<a>"><a href="javascript:return false;">链接</a></li>
+    <li data-val="code" title="<code>"><code>代码</code></li>
+    <li data-val="strong" title="<strong>"><strong>重点</strong></li>
+    <li data-val="em" title="<em>"><em>强调</em></li>
+    <li data-val="sup" title="<sup>">O<sup>2</sup></li>
+    <li data-val="sub" title="<sub>">O<sub>2</sub></li>
+    <li data-val="q" title="<q>"><q>短引用</q></li>
+    <li data-val="time" title="<time>"><time>时间</time></li>
+    <li data-val="ins" title="<ins>"><ins>插入</ins></li>
+    <li data-val="del" title="<del>"><del>删除</del></li>
+    <li data-val="abbr" title="<abbr>"><abbr>缩写</abbr></li>
+    <li data-val="small" title="<small>"><small>注脚</small></li>
+    <li data-val="cite" title="<cite>"><cite>来源</cite></li>
+    <li data-val="mark" title="<mark>"><mark>标记</mark></li>
+    <li data-val="ruby" title="<ruby>">
         <ruby>
             <rb>注音</rb>
-            <rp>(</rp><rt>zhùyīn</rt><rp>)</rp>
+            <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
         </ruby></li>
-    <li data-tag="code" title="<code>"><code role="orz">^_^</code></li>
-    <li data-tag="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
-    <li data-tag="samp" title="<samp>"><samp>样本</samp></li>
-    <li data-tag="kdb" title="<kdb>"><kdb>键盘字</kdb></li>
-    <li data-tag="s" title="<s>"><s>失效</s></li>
-    <li data-tag="u" title="<u>"><u>注记</u></li>
-    <li data-tag="var" title="<var>"><var>变量</var></li>
-    <li data-tag="bdo" title="<bdo>"><bdo dir="rtl">有向文本</bdo></li>
+    <li data-val="orz" title="表情"><code role="orz">^_^</code></li>
+    <li data-val="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
+    <li data-val="samp" title="<samp>"><samp>样本</samp></li>
+    <li data-val="kbd" title="<kbd>"><kbd>键盘字</kbd></li>
+    <li data-val="s" title="<s>"><s>失效</s></li>
+    <li data-val="u" title="<u>"><u>注记</u></li>
+    <li data-val="var" title="<var>"><var>变量</var></li>
+    <li data-val="bdo" title="<bdo>"><bdo dir="rtl">有向文本</bdo></li>
 </menu>
 
-<!-- 基本编辑（contextmenu） -->
-<menu class="_edits" data-pb="none" tpl-name="menu:edits">
-    <li data-val="edit">
-        <span><b>&lt;F2&gt;,&lt;I&gt;</b><i id="l-edit"></i>微编辑</span>
-    </li>
-    <li data-val="copy">
-        <span><b>&lt;c&gt;</b><i id="l-copy"></i>复制</span>
-    </li>
-    <li data-val="move">
-        <span><b>&lt;x&gt;</b><i id="l-move"></i>移动</span>
-    </li>
-    <li data-val="delete">
-        <span><b>&lt;Del&gt;</b><i id="l-delete"></i>删除</span>
-    </li>
-    <li id="menu-prop" data-val="prop" data-pb="disabled">
-        <span><b>&lt;p&gt;</b><i id="l-prop"></i>属性</span>
-    </li>
+<!-- 上下文菜单 -->
+<menu class="_cmenu" data-pb="none" tpl-name="menu:cmenu">
+    <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
+    <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
+    <li data-val="move"><b id="l-move">剪切/移动</b><kbd>x/X</kbd></li>
+    <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
+    <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
 </menu>
 
 
 <!-- 帮助栏 -->
 <div class="_docs" tpl-name="help:docs">
     <span class="_walk">
-        <i id="b-back-help" title="后退"></i>
-        <i id="b-frwd-help" title="前进"></i>
+        <b title="后退" on="" by="">◀</b>
+        <b title="前进" on="" by="">▶</b>
     </span>
     <nav class="_nav" id="help-nav">
         <!-- span/b... 路径导航 -->

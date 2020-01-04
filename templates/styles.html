@@ -1,14 +1,14 @@
 <!-- 样式版：框架 -->
 <form class="Styles" tpl-name="slave:styles">
     <aside>
-        <i id="b-erase"></i>
-        <i id="b-brush"></i>
-        <i id="b-fontview" class="_press"></i>
-        <i id="b-fontsize"></i>
-        <i id="b-align"></i>
-        <i id="b-width"></i>
-        <i id="b-margin"></i>
-        <i id="b-colors"></i>
+        <b><i id="b-erase"></i></b>
+        <b><i id="b-brush"></i></b>
+        <b><i id="b-fontview" class="_press"></i></b>
+        <b><i id="b-fontsize"></i></b>
+        <b><i id="b-align"></i></b>
+        <b><i id="b-width"></i></b>
+        <b><i id="b-margin"></i></b>
+        <b><i id="b-colors"></i></b>
     </aside>
     <div tpl-source="styles:fontview"></div>
 </form>
@@ -136,8 +136,8 @@
         <div class="_where"
             on="click('input')|evo('current'), val, tpl"
             to="1/select|replace">
-            <label><input type="radio" name="margin" value="item:margin" checked /><i id="b-margin"></i></label>
-            <label><input type="radio" name="margin" value="item:padding" /><i id="b-padding"></i></label>
+            <label><input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i></label>
+            <label><input type="radio" name="margin" value="item:padding" /><i id="l-padding"></i></label>
         </div>
         <select name="margin" tpl-name="item:margin">
             <option title="边距">margin</option>
@@ -219,9 +219,9 @@
     <div class="_erase">清除颜色</div>
     <div class="_assign">
         <span>
-            <label title="文本色"><input type="radio" name="colorto" value="color" checked /><i id="l-ttcolor"></i></label>
+            <label title="文本色"><input type="radio" name="colorto" value="color" checked /><i id="l-tcolor"></i></label>
             <label title="背景色"><input type="radio" name="colorto" value="background-color" /><i id="l-bgcolor"></i></label>
-            <label title="边框色"><input type="radio" name="colorto" value="border-color" /><i id="l-brcolor"></i></label>
+            <label title="边框色"><input type="radio" name="colorto" value="border-color" /><i id="l-bcolor"></i></label>
         </span>
         <label>Alpha<input type="text" name="alpha" placeholder="0-100" /></label>
         <div>
