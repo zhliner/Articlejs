@@ -49,6 +49,7 @@
 /* 条目冻结 */
 *[data-pb~='disabled'] {
     color: #888 !important;
+    filter: grayscale(1) !important;
 }
 
 

@@ -1,6 +1,8 @@
-/*! $Id: base/system.css 2012.09.09 jcEd.UI $
- * ==============================================
+/*! $Id: themes/system.css 2020.01.05 Articlejs.UI $
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *
  *  系统基础样式，固定配置。
+ *
  *  z-index 层级规则：
  *  = 1     普通突出层
  *  = 2     工具栏参数面板
@@ -8,14 +10,8 @@
  *  = 1000  全局遮罩（关灯层|模态层）
  *  = 1001  遮罩上层物
  *
- *  Author: 风林子 zhliner@gmail.com
- * ==============================================
- */
+ *****************************************************************************/
 
-
-/* [ 基本 ]
- * ****************************************************************************
-*/
 body,
 .___jcEditor,
 .___jcEditor > div,
@@ -33,12 +29,6 @@ body,
 .___Content {
     position: relative;
 }
-.___Scroll {
-    overflow-y: scroll !important; /* 友好 */
-    overflow-x: auto;
-    resize: none;
-    height: 400px;  /* 默认小高，友好 */
-}
 .___Scroll ._bspace {
     height: 80px;
 }
@@ -53,8 +43,8 @@ article[tabindex], div[tabindex], input._icon, input[type=file] {
 
 
 /* [ 操作可视性 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
+
 .___Text {
     border-width: 0;
     padding: 20px 20px 30px;
@@ -112,8 +102,8 @@ article[tabindex], div[tabindex], input._icon, input[type=file] {
 
 
 /* [ 元素特定 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
+
 .___Panel i {
     display: inline-block;
     background-repeat: no-repeat;
@@ -158,8 +148,8 @@ article[tabindex], div[tabindex], input._icon, input[type=file] {
 
 
 /* [ 面板共用 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
+
 .___Panel {
     position: relative;
 }
@@ -198,8 +188,8 @@ article[tabindex], div[tabindex], input._icon, input[type=file] {
 
 
 /* [ 区域特定 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
+
 .___Panel.Top ._logo {
     position: absolute;
     z-index: 1;
@@ -414,8 +404,8 @@ article[tabindex], div[tabindex], input._icon, input[type=file] {
 
 
 /* [ 模态框 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
+
 .___Panel.Modal {
     position: fixed;
     top: 0;
@@ -518,8 +508,8 @@ article[tabindex], div[tabindex], input._icon, input[type=file] {
 
 
 /* [ 菜单层 ]
- * ****************************************************************************
-*/
+ ****************************************************************************/
+
 menu {
     position: absolute;
     margin: 0;
@@ -545,7 +535,6 @@ menu h6,
 menu li > label {
     display: block;
     white-space: nowrap;
-    vertical-align: middle;
     overflow: hidden;
     resize: none;
 }
@@ -567,32 +556,4 @@ menu li._act:before {
     position: absolute;
     top: 5px;
     left: 5px;
-}
-
-
-/* [ 其它 ]
- * ****************************************************************************
-*/
-
-/* 粘贴包装器 */
-#paste-box {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    overflow: hidden !important;
-    resize: none;
-    border-width: 0 !important;
-    color: transparent !important;
-    bottom: 0;
-    z-index: -1;
-}
-
-
-/* [ 兼容性 ]
- * ****************************************************************************
-*/
-
-/* firefox */
-.___Panel ._icons > span > i {
-    float: left;
 }

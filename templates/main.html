@@ -5,17 +5,15 @@
         <b title="大纲"><i id="b-outline"></i></b>
         <b title="主面板"><i id="b-slave"></i></b>
     </div>
-    <hr class="_1">
     <!-- 动态区 -->
-    <div id="tools-active" class="_active" data-pb="">
-        <span class="_usual">
+    <div id="tools-active" class="_active">
+        <span class="_usual" data-pb="">
             <b title="文本化"><i id="b-totext"></i></b>
             <b title="去除标签"><i id="b-untag"></i></b>
             <b title="撤消"><i id="b-undo"></i></b>
             <b title="重做"><i id="b-redo"></i></b>
         </span>
     </div>
-    <hr class="_2">
     <!-- 功能按钮 -->
     <div class="_end">
         <b title="插件"><i id="b-plugins"></i></b>
@@ -28,11 +26,10 @@
 <div class="___Content" tpl-name="main:content">
     <!-- 临时态：视觉提示 -->
     <span id="content-temp" class="_tmps" data-pb="none"></span>
-    <!--滚动盒子
-        注记：tabindex若设置在可滚动容器上，获取焦点时内容可能移位（浏览器行为） -->
+    <!--滚动盒子封装
+        tabindex若设置在<main>上，获取焦点时内容可能移位（浏览器行为） -->
     <div id="scrollbox" class="___Scroll" tabindex="0">
-        <!-- 正文区 -->
-        <div id="content" class="content"></div>
+        <main id="content" class="content"></main>
     </div>
     <!-- 元素路径提示 -->
     <div id="content-path" class="_path" data-pb="none">
@@ -99,7 +96,7 @@
     <!-- 出错信息区 -->
     <div id="status-err" class="_err"></div>
     <!-- 帮助入口 -->
-    <div class="_help">?</div>
+    <div class="_help"><b>?</b></div>
 </div>
 
 
@@ -142,17 +139,3 @@
     <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
     <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
 </menu>
-
-
-<!-- 帮助栏 -->
-<div class="_docs" tpl-name="help:docs">
-    <span class="_walk">
-        <b title="后退" on="" by="">◀</b>
-        <b title="前进" on="" by="">▶</b>
-    </span>
-    <nav class="_nav" id="help-nav">
-        <!-- span/b... 路径导航 -->
-    </nav>
-    <hr>
-    <div id="help-xbox" class="_xbox"><!-- dl/dt,dd --></div>
-</div>

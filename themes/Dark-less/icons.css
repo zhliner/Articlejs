@@ -2,6 +2,8 @@
  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *
  *  图标定位表。
+ *  注：
+ *  背景图压缩一倍，偏移步进值也减半计算。
  *
  *  @name Dark-less
  *  @author 风林子 zhliner@gmail.com
@@ -10,6 +12,7 @@
 
  /* 按钮 */
 i[id|=b] {
+    display: inline-block;
     width: 22px;
     height: 22px;
     background-image: url('images/icons.png');
@@ -19,6 +22,7 @@ i[id|=b] {
 
 /* 标签 */
 i[id|=l] {
+    display: inline-block;
     width: 16px;
     height: 16px;
     background-image: url('images/icons.png');
@@ -28,36 +32,36 @@ i[id|=l] {
 
 /* 工具栏 */
 #b-outline  { background-position: 0 0; }
-#b-slave    { background-position: 0 -100px; }
-#b-plugins  { background-position: 0 -200px; }
-#b-maximize { background-position: 0 -300px; }
-#b-totext   { background-position: 0 -400px; }
-#b-untag    { background-position: 0 -500px; }
-#b-undo     { background-position: 0 -600px; }
-#b-redo     { background-position: 0 -700px; }
+#b-slave    { background-position: 0 -50px; }
+#b-plugins  { background-position: 0 -100px; }
+#b-maximize { background-position: 0 -150px; }
+#b-totext   { background-position: 0 -200px; }
+#b-untag    { background-position: 0 -250px; }
+#b-undo     { background-position: 0 -300px; }
+#b-redo     { background-position: 0 -350px; }
 
 
 /* 样式 */
-#b-erase    { background-position: -100px 0; }
-#b-brush    { background-position: -100px -100px; }
-#b-fontview { background-position: -100px -200px; }
-#b-fontsize { background-position: -100px -300px; }
-#b-align    { background-position: -100px -400px; }
-#b-width    { background-position: -100px -500px; }
-#b-margin   { background-position: -100px -600px; }
-#b-colors   { background-position: -100px -700px; }
+#b-erase    { background-position: -50px 0; }
+#b-brush    { background-position: -50px -50px; }
+#b-fontview { background-position: -50px -100px; }
+#b-fontsize { background-position: -50px -150px; }
+#b-align    { background-position: -50px -200px; }
+#b-width    { background-position: -50px -250px; }
+#b-margin   { background-position: -50px -300px; }
+#b-colors   { background-position: -50px -350px; }
 
 
 /* 小图标 */
-#l-siblings { background-position: -300px 0; }
-#l-children { background-position: -300px -100px; }
-#l-margin   { background-position: -300px -200px; }
-#l-padding  { background-position: -300px -300px; }
-#l-tcolor   { background-position: -300px -400px; }
-#l-bgcolor  { background-position: -300px -500px; }
-#l-bcolor   { background-position: -300px -600px; }
-#l-history  { background-position: -300px -700px; }
-#l-close    { background-position: -400px 0; }
+#l-siblings { background-position: -150px 0; }
+#l-children { background-position: -150px -50px; }
+#l-margin   { background-position: -150px -100px; }
+#l-padding  { background-position: -150px -150px; }
+#l-tcolor   { background-position: -150px -200px; }
+#l-bgcolor  { background-position: -150px -250px; }
+#l-bcolor   { background-position: -150px -300px; }
+#l-history  { background-position: -150px -350px; }
+#l-close    { background-position: -200px 0; }
 
 
 /* 上下文菜单前置图标 */
@@ -74,7 +78,7 @@ b[id|=l]::before {
     background-image: url('images/icons.png');
     background-size: 300px 450px;
 }
-#l-minied::before   { background-position: -400px -400px; }
-#l-copy::before     { background-position: -400px -500px; }
-#l-move::before     { background-position: -400px -600px; }
-#l-delete::before   { background-position: -400px -700px; }
+#l-minied::before   { background-position: -200px -200px; }
+#l-copy::before     { background-position: -200px -250px; }
+#l-move::before     { background-position: -200px -300px; }
+#l-delete::before   { background-position: -200px -350px; }

@@ -1,7 +1,10 @@
 /*! $id: style.css 2020.01.02 Articlejs.UI $
  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *
- *  「光明之夜」主题样式。
+ *  主题：光明之夜
+ *
+ *  z-index：
+ *  < 100   普通覆盖排序
  *
  *  @name: Dark-less
  *  @author: 风林子 zhliner@gmail.com
@@ -40,12 +43,25 @@ body > hr {
 #editor {
     position: relative;
     border: 1px #5c869c solid;
-    border-radius: 20px;
+    border-radius: 12px 12px 4px 4px;
 }
 
 /* 帮助面板 */
 #help {
     width: 260px;
+}
+
+.___Scroll {
+    height: 400px;
+    resize: none;
+    overflow-x: auto;
+    overflow-y: scroll !important;
+    position: static;
+}
+
+/* 临时态视觉提示 */
+main._temps {
+    opacity: 0.7;
 }
 
 .___Panel b {
@@ -140,27 +156,33 @@ body > hr {
 }
 .___Panel hr {
     border: none;
-    border-top: 1px #bbb dotted;
-    margin: 0;
 }
 
 
-/* [ 整体共用 ]
+/* [ 合并 ]
  ****************************************************************************/
-.___Panel i[id|=b],
-.___Panel i[id|=i] {
+
+.Tools b,
+.Styles > aside > b {
+    display: flex;
+    width: 32px;
+    height: 32px;
     border: 1px transparent solid;
-    margin: 0 2px;
-    border-radius: 2px;
+    border-radius: 4px;
+    justify-content: center;
+    align-items: center;
 }
-.___Panel i[id|=i] {
-    margin-right: 3px;
+.Tools b:hover,
+.Styles > aside > b:hover {
+    border-color: #ddd;
 }
-.___Panel i[id|=b]:hover,
-.___Panel i[id|=i]:hover {
-    background-color: #ccc;
-    border-color: #222;
+.Tools b._press,
+.Styles > aside > b._press {
+    border-color: #ccc;
+    background-color: #fff;
 }
+
+
 
 .___Panel input._char {
     width: 30px !important;
@@ -293,116 +315,65 @@ body > hr {
 /* 清除按钮：垂直 */
 .___Panel ._fontview ._erase,
 .___Panel ._color ._erase {
-    /* ... */
     writing-mode: vertical-rl;
-}
-
-
-/* [ 顶栏页区 ]
- ****************************************************************************/
-.___Panel.Top {
-    background-color: #111;
-    border-bottom: 2px #000 solid;
-    height: 35px;
-}
-.___Panel.Top ._logo {
-    padding-left: 10px;
-}
-.___Panel.Top ._logo > menu {
-    top: 38px;
-    left: 0;
-}
-.___Panel.Top ._tabs {
-    color: #ccc;
-}
-.___Panel.Top ._sheet {
-    border-left: 1px #999 solid;
-    height: 37px;
-}
-.___Panel.Top ._sheet b {
-    float: left;
-    border-right: 1px #999 solid;
-    font-size: 18px;
-    text-align: center;
-    width: 33%;
-    padding-top: 6px;
-}
-.___Panel.Top ._sheet b:hover {
-    color: #fff;
-}
-.___Panel.Top ._sheet b[data-pb|=tab] {
-    background-color: #555;
-    color: #fff;
-}
-.___Panel.Top ._title {
-    height: 100%;
-    padding-right: 40px;
-    font-size: 14px;
-}
-.___Panel.Top ._title > span {
-    text-align: center;
-    padding-top: 8px;
-    color: #888;
-}
-.___Panel.Top ._title span:hover {
-    color: #ddc;
-}
-.___Panel.Top ._arts {
-    margin: 9px 10px 0;
 }
 
 
 /* [ 工具栏 ]
  ****************************************************************************/
-.___Panel.Tools {
-    height: 34px;
+
+.Tools {
+    display: flex;
+    height: 44px;
     background-color: #f0efef;
-    border-bottom: 1px #888 solid;
-    padding: 3px;
+    box-shadow: 0 4px 5px -2px grey;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    border-bottom: inherit;
+    padding-left: 10px;
+
+    /* fix: 阴影覆盖含背景内容元素 */
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    z-index: 99;
 }
-.___Panel.Tools i[id|=b]:hover {
-    border: 1px #c3c3c3 solid;
-    background-color: transparent;
+.Tools > div {
+    display: flex;
+    border-radius: inherit;
+}
+.Tools b {
+    margin: auto 4px;
 }
 
-.___Panel.Tools ._help {
-    margin: 8px 10px 0;
-}
-.___Panel.Tools ._docs {
-    margin-right: 36px;
-    background-color: #ffe;
-    border: 1px #bbb solid;
-    border-radius: 5px;
-}
-.___Panel.Tools ._docs h6 {
-    padding: 10px 0 2px 8px;
-    color: #965127;
-}
-.___Panel.Tools ._docs h6 i {
-    margin: 0 2px 3px 0;
-}
-.___Panel.Tools ._docs b {
-    font-weight: bold;
-}
-.___Panel.Tools ._docs ._nav {
-    float: right;
-    margin: 5px 10px 0;
-}
-.___Panel.Tools ._nav > i {
-    margin: 0 4px;
-    border: 1px transparent solid;
-    float: left; /*firefox*/
-}
-.___Panel.Tools ._nav > i:hover {
-    border: 1px #ccc dotted;
-}
-.___Panel.Tools ._docs hr {
-    border-top: 1px #999 solid;
+.Tools > ._start::after {
+    content: "";
+    width: 1px;
+    height: 18px;
+    background-color: #bbb;
+    margin: auto 9px;
 }
 
-.___Panel.Tools ._icons menu {
-    margin-top: 34px;
-    margin-left: 2px;
+.Tools hr {
+    width: 1px;
+    height: 18px;
+    background-color: #ccc;
+    margin: auto 6px;
+}
+
+.Tools > ._end {
+    margin-left: auto;
+}
+.Tools > ._end > b:last-child {
+    height: 30px;
+    margin-top: 0;
+    margin-right: 0;
+    border-top-right-radius: inherit;
+    padding: 0px 6px 2px 8px;
+}
+.Tools > ._end > b:last-child:hover {
+    border-color: #e4e4e4;
+    background-color: #e8e8e8;
 }
 
 
@@ -410,37 +381,44 @@ body > hr {
  ****************************************************************************/
 
 .___Content {
+    /* 工具栏高度 */
+    margin-top: 44px;
+    /* 底部路径依靠 */
+    position: relative;
 }
-.___Content ._paths {
+
+.___Content ._path {
+    display: flex;
+    width: calc(100% - 17px);
     font-size: 12px;
-    white-space: nowrap;
+    flex-wrap: wrap-reverse;
+    position: absolute;
+    bottom: 0;
 }
-.___Content ._paths b {
+.___Content ._path b {
     font-family: monospace, Consolas, 'Courier New';
-    min-width: 18px;
-    border: 1px #888 solid;
-    padding: 3px 6px;
-    background-color: #ccc;
+    min-width: 20px;
+    padding: 5px 10px;
+    background-color: #555;
     text-align: center;
-    color: #000;
-}
-.___Content ._paths b:hover {
-    background-color: #e0e0e0;
-    color: #900;
-}
-.___Content ._paths b._root {
-    min-width: 8px;
-    padding: 3px 0;
-    background-color: #800;
-    border-color: #800;
-}
-.___Content ._paths b:last-child {
-    margin-right: 0;
-    background-color: #ffc;
-    color: #900;
-    border-color: #999;
     cursor: default;
+    font-weight: normal;
+    border-top: 1px #666 solid;
+    border-right: 1px #666 solid;
+    color: #ddd;
 }
+.___Content ._path b:hover {
+    color: #fff;
+    background-color: #888;
+}
+.___Content ._path b:last-child {
+    font-weight: bold;
+    color: #fff;
+    background-color: #888;
+}
+
+
+
 .___Content ._tmps {
     top: 45%;
     left: 45%;

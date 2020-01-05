@@ -58,14 +58,15 @@
 </head>
 
 <body lang="">
-    <!-- 大纲栏：定时/手动更新。可隐藏。 -->
-    <aside id="outline"></aside>
+    <aside id="outline" data-pb="none">
+        <!-- 大纲栏：自动/手动更新。 -->
+    </aside>
 
     <!-- 宽度调整 -->
     <hr id="lineLeft">
 
     <!-- 主编辑器 -->
-    <main id="editor">
+    <div id="editor">
         <div id="g-modal" class="___Panel Modal" data-pb="none">
             <b class="_close" title="关闭">✕</b>
             <hr tpl-source="modal:page" />
@@ -77,14 +78,24 @@
             [状态栏]
         </pre>
         <div tpl-source="menu:cells, menu:edits">[选取创建/基本编辑菜单]</div>
-    </main>
+    </div>
 
     <!-- 宽度调整 -->
     <hr id="lineRight">
 
-    <!-- 帮助栏：固定时占用空间。可隐藏。 -->
-    <aside id="help">
-        <div tpl-node="help:docs">帮助栏</div>
+    <!-- 帮助栏 -->
+    <aside id="help" class="_docs" data-pb="none">
+        <span class="_walk">
+            <b title="后退" on="" by="">◀</b>
+            <b title="前进" on="" by="">▶</b>
+        </span>
+        <nav class="_nav" id="help-nav">
+            <!-- span/b... 路径导航 -->
+        </nav>
+        <hr>
+        <div id="help-xbox" class="_xbox">
+            <!-- dl/dt,dd -->
+        </div>
     </aside>
 
     <!-- 友好：阻挡提示音 -->
