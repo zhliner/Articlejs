@@ -151,6 +151,24 @@ aside#help {
     border: none;
 }
 
+/* 代码字体 */
+.___Panel code,
+.___Panel ._code {
+    font-size: 10pt;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    white-space: pre-wrap;
+    color: #368;
+    line-height: 1.4em;
+}
+
+/* 字符表情 */
+.___Panel ._orz {
+    font-family: monospace;
+    white-space: pre;
+    line-height: 100%;
+    font-size: 10pt;
+}
+
 
 /* [ 合并 ]
  ****************************************************************************/
@@ -270,24 +288,6 @@ aside#help {
     padding: 4px 10px;
 }
 
-/* 代码字体 */
-.___Panel code,
-.___Panel ._code {
-    font-size: 10pt !important;
-    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    white-space: pre-wrap;
-    color: #368;
-    line-height: 1.4em;
-}
-
-/* 字符表情 */
-.___Panel ._orz {
-    font-family: monospace;
-    white-space: pre;
-    line-height: 100%;
-    font-size: 10pt !important;
-}
-
 /* 功能屏蔽 */
 .___Panel ._masked {
     background-color: rgba(235,235,235,0.5);
@@ -386,7 +386,7 @@ aside#help {
 .___Content ._path {
     display: flex;
     flex-wrap: wrap-reverse;
-    font-size: 12px;
+    font-size: 10pt;
     width: calc(100% - 17px);
     position: absolute;
     bottom: 0;
@@ -395,7 +395,7 @@ aside#help {
     font-family: monospace, Consolas, 'Courier New';
     min-width: 20px;
     padding: 5px 10px;
-    background-color: #555;
+    background-color: #444;
     text-align: center;
     cursor: default;
     font-weight: normal;
@@ -859,63 +859,86 @@ main._temps {
 
 /* [ 状态栏 ]
  ****************************************************************************/
-.___Panel.Status {
-    border-top: 1px #aaa solid;
-    background-color: #eec;
-}
-.___Panel.Status td {
-    border: 1px #aaa solid;
-    line-height: 100%;
-}
-.___Panel.Status ._info {
-    width: 185px;
-    cursor: default;
-    text-align: left;
-    padding: 0 5px;
-}
-.___Panel.Status ._cnts {
-    font-weight: bold;
-}
-.___Panel.Status ._cnts:before {
-    content: '~';
-}
-.___Panel.Status ._cnts:after {
-    content: '~';
-}
-.___Panel.Status ._text {
-    max-width: 132px;
-    margin-left: 4px;
-}
-.___Panel.Status input {
-    border-color: transparent;
-    background-color: #ffd;
-}
-.___Panel.Status ._plug {
-    text-align: center;
-}
-.___Panel.Status ._plug._fixed {
-    background-color: #f6f6f6;
+.Status {
+    flex: 0 0 auto;
+    display: flex;
+    height: 32px;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+    border-top: 1px #7c9eb0 solid;
+    background-color: #eee;
 }
 
-/* 命令历史框 */
-.___Panel.Status ._cmds ._list {
-    width: calc(100% - 2px);
-    border: 1px #ccc solid;
-    background-color: rgba(233, 255, 245, 0.9);
-    max-height: 125px;
-    color: #039;
-    border-radius: 5px 0 0 0;
-}
-.___Panel.Status ._cmds code {
-    padding: 2px 6px;
-    border-bottom: 1px #bbb dotted;
+.Status > div {
+    border: 1px #bcd solid;
+    margin: 3px 0 3px 4px;
+    background-color: #efefdf;
+    cursor: default;
+    line-height: 22px;
     white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow-x: hidden;
+    border-radius: 2px;
 }
-.___Panel.Status ._cmds code:hover,
-.___Panel.Status ._cmds code._fixed {
-    background-color: #fff;
+.Status > ._tips {
+    min-width: 120px;
+    max-width: 220px;
+    flex: 1 1 auto;
+    padding-left: 5px;
+    overflow: hidden;
+}
+.Status > ._cmdx,
+.Status > ._help {
+    width: 24px;
+    flex: 0 0 auto;
+    position: relative;
+    cursor: pointer;
+}
+.Status > ._cmdx > code,
+.Status > ._help > b {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-size: 16px;
+    float: left;
+    text-align: center;
+}
+.Status #cmd-chars {
+    width: 100%;
+    position: absolute;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column-reverse;
+    border: 1px #bcd solid;
+    border-radius: 10px 10px 0 0;
+    padding-block-start: 8px;
+}
+.Status #cmd-chars > b {
+    font-size: 16px;
+    border-top: 1px #809cbc solid;
+}
+.Status #cmd-chars > b:hover {
+    background-color: #444;
+    color: #eee;
+}
+.Status > ._cmdline {
+    flex: 10 10 500px;
+}
+.Status > ._cmdline > input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    box-sizing: border-box;
+    background-color: #ffffe5;
+    padding: 0 4px;
+    border-radius: inherit;
+}
+.Status > ._err {
+    flex: 1 1 auto;
+    border-color: transparent;
+    overflow: hidden;
+}
+.Status > ._help {
+    border-color: transparent;
+    margin-right: 4px;
 }
 
 

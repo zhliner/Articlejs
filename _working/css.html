@@ -184,10 +184,12 @@
 <!-- 状态栏 -->
 <div class=" ___Panel Status" tpl-name="main:status">
     <!-- 提示区 -->
-    <div id="status-tips" class="_tips"></div>
+    <div class="_tips">
+        <span id="status-tips" title="this is a message ...">this is a message ...</span>
+    </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" data-pb="hide">
+        <span id="cmd-chars" data-pb="">
             <b>/</b> <!-- 选择器模式 -->
             <b>:</b> <!-- 普通指令 -->
             <b>=</b> <!-- 计算（Worker） -->
@@ -200,14 +202,6 @@
     </div>
     <!-- 命令行 -->
     <div class="_cmdline">
-        <!-- 历史清单：
-            - 上下箭头移动当前条目，Tab/Enter或单击选取。
-            - 按ESC键取消弹出框，停止冒泡避免上层esc事件。 -->
-        <div id="cmd-list" tabindex="0" class="_list" data-pb="hide">
-            <ul>
-                <!-- <li>: 动态增加/溢出 -->
-            </ul>
-        </div>
         <!-- 交互：
             1. 回车执行命令行，自动选取结果。
             2. Tab键展开当前键入内容匹配清单。
@@ -219,9 +213,11 @@
         <input id="cmd-input" type="text" class="_code" />
     </div>
     <!-- 出错信息区 -->
-    <div id="status-err" class="_err"></div>
+    <div class="_err" title="单击显示帮助" data-pb="none">
+        <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
+    </div>
     <!-- 帮助入口 -->
-    <div class="_help"><b>?</b></div>
+    <div class="_help" title="帮助"><b>?</b></div>
 </div>
 
 
