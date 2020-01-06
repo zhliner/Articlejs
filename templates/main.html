@@ -1,23 +1,22 @@
-<!-- 工具栏: flex -->
+<!-- 工具栏 -->
 <div class="___Panel Tools" tpl-name="main:tools">
     <!-- 面板按钮 -->
     <div class="_start">
         <b title="大纲"><i id="b-outline"></i></b>
-        <b title="主面板"><i id="b-slave"></i></b>
+        <b title="主面板" class="_press"><i id="b-slave"></i></b>
     </div>
     <!-- 动态区 -->
-    <div id="tools-active" class="_active">
-        <span class="_usual" data-pb="">
-            <b title="文本化"><i id="b-totext"></i></b>
-            <b title="去除标签"><i id="b-untag"></i></b>
-            <b title="撤消"><i id="b-undo"></i></b>
-            <b title="重做"><i id="b-redo"></i></b>
-        </span>
+    <div id="tools-active" class="_active" data-pb="">
+        <b title="文本化"><i id="b-totext"></i></b>
+        <b title="去除标签"><i id="b-untag"></i></b>
+        <hr>
+        <b title="撤消"><i id="b-undo"></i></b>
+        <b title="重做"><i id="b-redo"></i></b>
     </div>
     <!-- 功能按钮 -->
     <div class="_end">
         <b title="插件"><i id="b-plugins"></i></b>
-        <i id="b-maximize" title="最大化"></i>
+        <b title="最大化"><i id="b-maximize"></i></b>
     </div>
 </div>
 
@@ -25,33 +24,33 @@
 <!-- 内容区 -->
 <div class="___Content" tpl-name="main:content">
     <!-- 临时态：视觉提示 -->
-    <span id="content-temp" class="_tmps" data-pb="none"></span>
-    <!--滚动盒子封装
-        tabindex若设置在<main>上，获取焦点时内容可能移位（浏览器行为） -->
+    <span id="g-cross" data-pb="">
+        <b id="cross-h"></b><b id="cross-v"></b>
+    </span>
+    <!--滚动封装：
+        滚动内容<main>直接获取焦点时可能存在移位。-->
     <div id="scrollbox" class="___Scroll" tabindex="0">
         <main id="content" class="content"></main>
     </div>
     <!-- 元素路径提示 -->
-    <div id="content-path" class="_path" data-pb="none">
-        <!-- span/b...
-            css: flex-wrap: wrap-reverse -->
+    <div id="content-path" class="_path" data-pb="">
+        <!-- b... -->
     </div>
 </div>
 
 
 <!-- 主面板区 -->
-<div id="main-slave" class="___Panel Slave" data-pb="rise" tpl-name="main:slave">
-    <!-- 标题栏: flex -->
+<div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
     <div class="_tabs">
-        <b>内容</b>
+        <b class="_press">内容</b>
         <b>样式</b>
         <b>特性</b>
         <b>源码</b>
         <b>脚本</b>
-        <!-- 末端位:margin-inline-start:auto; -->
-        <i id="l-close" title="关闭"></i>
+        <!-- CSS: margin-inline-start:auto; -->
+        <b class="_close"><i id="l-close" title="关闭"></i></b>
     </div>
-    <!-- 内容：初始引用录入面板 -->
+    <!-- 初始为录入面板 -->
     <hr id="slave-main" tpl-node="slave:inputs"">
 </div>
 
