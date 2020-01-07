@@ -65,20 +65,19 @@ i[id|=l] {
 
 
 /* 上下文菜单前置图标 */
-b[id|=l] {
-    padding-left: 20px;
-}
 b[id|=l]::before {
     content: "";
-    display: inline-block;
+    float: left;
     width: 16px;
     height: 16px;
-    margin-right: -20px;
-    margin-bottom: -3px;
     background-image: url('images/icons.png');
     background-size: 300px 450px;
+    margin-top: 2px;
+    margin-right: 6px;
 }
 #l-minied::before   { background-position: -200px -200px; }
 #l-copy::before     { background-position: -200px -250px; }
 #l-move::before     { background-position: -200px -300px; }
 #l-delete::before   { background-position: -200px -350px; }
+/* 空白透明 */
+#l-property::before { background-position: -250px 0; }

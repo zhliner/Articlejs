@@ -58,7 +58,49 @@
     </span>
     <!--滚动封装：
         滚动内容<main>直接获取焦点时可能存在移位。-->
-    <div id="scrollbox" class="___Scroll" tabindex="0">
+    <div id="g-scroll" class="_scroll" tabindex="0">
+        <!-- 选取创建（mouseup） -->
+        <menu id="g-cells" class="_cells" tabindex="0" data-pb="">
+            <li data-val="a" title="<a>"><a href="javascript:return false;">链接</a></li>
+            <li data-val="code" title="<code>"><code>代码</code></li>
+            <li data-val="strong" title="<strong>"><strong>重点</strong></li>
+            <li data-val="em" title="<em>"><em>强调</em></li>
+            <li data-val="sup" title="上标<sup>">O<sup>2</sup></li>
+            <li data-val="sub" title="下标<sub>">O<sub>2</sub></li>
+            <li data-val="q" title="<q>"><q>短引用</q></li>
+            <li data-val="time" title="<time>"><time>时间</time></li>
+            <li data-val="ins" title="<ins>"><ins>插入</ins></li>
+            <li data-val="del" title="<del>"><del>删除</del></li>
+            <li data-val="abbr" title="<abbr>"><abbr>缩写</abbr></li>
+            <li data-val="small" title="<small>"><small>注脚</small></li>
+            <li data-val="cite" title="<cite>"><cite>来源</cite></li>
+            <li data-val="mark" title="<mark>"><mark>标记</mark></li>
+            <li data-val="ruby" title="<ruby>">
+                <ruby>
+                    <rb>注音</rb>
+                    <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
+                </ruby></li>
+            <li data-val="orz" title="表情"><code role="orz">(^_^)</code></li>
+            <li data-val="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
+            <li data-val="samp" title="<samp>"><samp>样本</samp></li>
+            <li data-val="kbd" title="<kbd>"><kbd>键盘字</kbd></li>
+            <li data-val="s" title="<s>"><s>失效</s></li>
+            <li data-val="u" title="<u>"><u>注记</u></li>
+            <li data-val="var" title="<var>"><var>变量</var></li>
+            <li data-val="bdo" title="<bdo dir='rtl'>"><bdo dir="rtl">有向文本</bdo></li>
+        </menu>
+        <!-- 上下文菜单 -->
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="">
+            <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
+            <hr>
+            <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
+            <li data-val="move"><b id="l-move">剪切/移动</b><kbd>x/X</kbd></li>
+            <hr>
+            <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
+            <hr>
+            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+        </menu>
+        <!-- 内容区 -->
         <main id="content" class="content" data-pb="">
             <hgroup>
                 <h1 id="文章的内容结构">文章的内容结构</h1>
@@ -89,48 +131,48 @@
                     <h3 id="层次图">层次图</h3>
                     <section>
                         <pre>
-    <code data-lang="html">&lt;h1&gt;&lt;/h1&gt;                                   <i>&lt;!-- 主标题 --&gt;</i>
-    &lt;header role="abstract"&gt;&lt;/header&gt;           <i>&lt;!-- 提要 --&gt;</i>
-    &lt;nav role="toc"&gt;&lt;/nav&gt;                      <i>&lt;!-- 目录 --&gt;</i>
-    &lt;article&gt;                                   <i>&lt;!-- 文章区 --&gt;</i>
+<code data-lang="html">&lt;h1&gt;&lt;/h1&gt;                                   <i>&lt;!-- 主标题 --&gt;</i>
+&lt;header role="abstract"&gt;&lt;/header&gt;           <i>&lt;!-- 提要 --&gt;</i>
+&lt;nav role="toc"&gt;&lt;/nav&gt;                      <i>&lt;!-- 目录 --&gt;</i>
+&lt;article&gt;                                   <i>&lt;!-- 文章区 --&gt;</i>
     &lt;header&gt;&lt;/header&gt;                       <i>&lt;!-- 导言 --&gt;</i>
     &lt;h2&gt;&lt;/h2&gt;                               <i>&lt;!-- 章标题 --&gt;</i>
     &lt;section role="s1"&gt;                     <i>&lt;!-- 章片区。第一层 section --&gt;</i>
-    &lt;header&gt;&lt;/header&gt;                   <i>&lt;!-- 章导言 --&gt;</i>
-    &lt;h3&gt;&lt;/h3&gt;                           <i>&lt;!-- 节标题 --&gt;</i>
-    &lt;section role="s2"&gt;                 <i>&lt;!-- 节片区。第二层 section --&gt;</i>
-    &lt;header&gt;&lt;/header&gt;               <i>&lt;!-- 节导言 --&gt;</i>
-    &lt;h4&gt;&lt;/h4&gt;                       <i>&lt;!-- 区标题 --&gt;</i>
-    &lt;section role="s3"&gt;             <i>&lt;!-- 区片区。第三层 section --&gt;</i>
-        &lt;header&gt;&lt;/header&gt;           <i>&lt;!-- 区导言 --&gt;</i>
-        &lt;h5&gt;&lt;/h5&gt;                   <i>&lt;!-- 段标题 --&gt;</i>
-        &lt;section role="s4"&gt;         <i>&lt;!-- 段片区。第四层 section --&gt;</i>
-            &lt;header&gt;&lt;/header&gt;       <i>&lt;!-- 段导言 --&gt;</i>
-            &lt;h6&gt;&lt;/h6&gt;               <i>&lt;!-- 末标题 --&gt;</i>
-            &lt;section role="s5"&gt;     <i>&lt;!-- 末片区。第五层 section --&gt;</i>
-                &lt;header&gt;&lt;/header&gt;   <i>&lt;!-- 末导言 --&gt;</i>
-                [ Text ] ...        <i>&lt;!-- 正文内容 --&gt;</i>
-                &lt;footer&gt;&lt;/footer&gt;   <i>&lt;!-- 末小结 --&gt;</i>
+        &lt;header&gt;&lt;/header&gt;                   <i>&lt;!-- 章导言 --&gt;</i>
+        &lt;h3&gt;&lt;/h3&gt;                           <i>&lt;!-- 节标题 --&gt;</i>
+        &lt;section role="s2"&gt;                 <i>&lt;!-- 节片区。第二层 section --&gt;</i>
+            &lt;header&gt;&lt;/header&gt;               <i>&lt;!-- 节导言 --&gt;</i>
+            &lt;h4&gt;&lt;/h4&gt;                       <i>&lt;!-- 区标题 --&gt;</i>
+            &lt;section role="s3"&gt;             <i>&lt;!-- 区片区。第三层 section --&gt;</i>
+                &lt;header&gt;&lt;/header&gt;           <i>&lt;!-- 区导言 --&gt;</i>
+                &lt;h5&gt;&lt;/h5&gt;                   <i>&lt;!-- 段标题 --&gt;</i>
+                &lt;section role="s4"&gt;         <i>&lt;!-- 段片区。第四层 section --&gt;</i>
+                    &lt;header&gt;&lt;/header&gt;       <i>&lt;!-- 段导言 --&gt;</i>
+                    &lt;h6&gt;&lt;/h6&gt;               <i>&lt;!-- 末标题 --&gt;</i>
+                    &lt;section role="s5"&gt;     <i>&lt;!-- 末片区。第五层 section --&gt;</i>
+                        &lt;header&gt;&lt;/header&gt;   <i>&lt;!-- 末导言 --&gt;</i>
+                        [ Text ] ...        <i>&lt;!-- 正文内容 --&gt;</i>
+                        &lt;footer&gt;&lt;/footer&gt;   <i>&lt;!-- 末小结 --&gt;</i>
+                    &lt;/section&gt;
+                    ...                     <i>&lt;!-- 平级 h6/section --&gt;</i>
+                    &lt;footer&gt;&lt;/footer&gt;       <i>&lt;!-- 段小结 --&gt;</i>
+                &lt;/section&gt;
+                ...                         <i>&lt;!-- 平级 h5/section --&gt;</i>
+                &lt;footer&gt;&lt;/footer&gt;           <i>&lt;!-- 区小结 --&gt;</i>
             &lt;/section&gt;
-            ...                     <i>&lt;!-- 平级 h6/section --&gt;</i>
-            &lt;footer&gt;&lt;/footer&gt;       <i>&lt;!-- 段小结 --&gt;</i>
+            ...                             <i>&lt;!-- 平级 h4/section --&gt;</i>
+            &lt;footer&gt;&lt;/footer&gt;               <i>&lt;!-- 节小结 --&gt;</i>
         &lt;/section&gt;
-        ...                         <i>&lt;!-- 平级 h5/section --&gt;</i>
-        &lt;footer&gt;&lt;/footer&gt;           <i>&lt;!-- 区小结 --&gt;</i>
-    &lt;/section&gt;
-    ...                             <i>&lt;!-- 平级 h4/section --&gt;</i>
-    &lt;footer&gt;&lt;/footer&gt;               <i>&lt;!-- 节小结 --&gt;</i>
-    &lt;/section&gt;
-    ...                                 <i>&lt;!-- 平级 h3/section --&gt;</i>
-    &lt;footer&gt;&lt;/footer&gt;                   <i>&lt;!-- 章小结 --&gt;</i>
+        ...                                 <i>&lt;!-- 平级 h3/section --&gt;</i>
+        &lt;footer&gt;&lt;/footer&gt;                   <i>&lt;!-- 章小结 --&gt;</i>
     &lt;/section&gt;
     &lt;hr /&gt;                                  <i>&lt;!-- 章间隔 --&gt;</i>
     ...                                     <i>&lt;!-- 平级 h2/section --&gt;</i>
     &lt;footer&gt;&lt;/footer&gt;                       <i>&lt;!-- 结语 --&gt;</i>
-    &lt;/article&gt;
-    &lt;ul role="seealso"&gt;&lt;/ul&gt;                    <i>&lt;!-- 另参见 --&gt;</i>
-    &lt;ol role="reference"&gt;&lt;/ol&gt;                  <i>&lt;!-- 文献参考 --&gt;</i>
-    </code></pre>
+&lt;/article&gt;
+&lt;ul role="seealso"&gt;&lt;/ul&gt;                    <i>&lt;!-- 另参见 --&gt;</i>
+&lt;ol role="reference"&gt;&lt;/ol&gt;                  <i>&lt;!-- 文献参考 --&gt;</i>
+</code></pre>
                         <p><strong>解析逻辑：</strong></p>
                         <ul>
                             <li>每一级标题之后的内容即为该标题相关的 <code>&lt;section&gt;</code>。</li>
@@ -145,7 +187,7 @@
         </main>
     </div>
     <!-- 元素路径提示 -->
-    <div id="content-path" class="_path" data-pb="">
+    <div id="g-path" class="_path" data-pb="">
         <b>main</b>
         <b>article</b>
         <b>section</b>
@@ -220,48 +262,8 @@
     <div class="_help" title="帮助"><b>?</b></div>
 </div>
 
-
-<!-- 选取创建（mouseup） -->
-<menu class="_cells" data-pb="none" tpl-name="menu:cells">
-    <li data-val="a" title="<a>"><a href="javascript:return false;">链接</a></li>
-    <li data-val="code" title="<code>"><code>代码</code></li>
-    <li data-val="strong" title="<strong>"><strong>重点</strong></li>
-    <li data-val="em" title="<em>"><em>强调</em></li>
-    <li data-val="sup" title="<sup>">O<sup>2</sup></li>
-    <li data-val="sub" title="<sub>">O<sub>2</sub></li>
-    <li data-val="q" title="<q>"><q>短引用</q></li>
-    <li data-val="time" title="<time>"><time>时间</time></li>
-    <li data-val="ins" title="<ins>"><ins>插入</ins></li>
-    <li data-val="del" title="<del>"><del>删除</del></li>
-    <li data-val="abbr" title="<abbr>"><abbr>缩写</abbr></li>
-    <li data-val="small" title="<small>"><small>注脚</small></li>
-    <li data-val="cite" title="<cite>"><cite>来源</cite></li>
-    <li data-val="mark" title="<mark>"><mark>标记</mark></li>
-    <li data-val="ruby" title="<ruby>">
-        <ruby>
-            <rb>注音</rb>
-            <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
-        </ruby></li>
-    <li data-val="orz" title="表情"><code role="orz">^_^</code></li>
-    <li data-val="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
-    <li data-val="samp" title="<samp>"><samp>样本</samp></li>
-    <li data-val="kbd" title="<kbd>"><kbd>键盘字</kbd></li>
-    <li data-val="s" title="<s>"><s>失效</s></li>
-    <li data-val="u" title="<u>"><u>注记</u></li>
-    <li data-val="var" title="<var>"><var>变量</var></li>
-    <li data-val="bdo" title="<bdo>"><bdo dir="rtl">有向文本</bdo></li>
-</menu>
-
-<!-- 上下文菜单 -->
-<menu class="_cmenu" data-pb="none" tpl-name="menu:cmenu">
-    <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
-    <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
-    <li data-val="move"><b id="l-move">剪切/移动</b><kbd>x/X</kbd></li>
-    <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
-    <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
-</menu>
-
     </div>
+
 
     <!-- 面板系列 -->
     <div>

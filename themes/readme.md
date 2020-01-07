@@ -20,10 +20,10 @@ images/     图片/图标等
 
 顶层：
 ```
-#editor     编辑器总根
-___Panel    面板容器
-___Content  编辑器内容区
-.content    正文内容（通用）
+#editor         编辑器总根
+.___Panel       面板容器
+.___Content     编辑器内容区
+.content        正文内容（通用）
 ```
 
 面板根：

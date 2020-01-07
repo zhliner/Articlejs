@@ -53,12 +53,14 @@ aside#help {
     width: 260px;
 }
 
-/* 图标居中 */
 .___Panel b {
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: normal;
+}
+.___Panel b > i {
+    margin: auto;
 }
 
 
@@ -352,7 +354,7 @@ aside#help {
 }
 
 .Tools > ._end {
-    margin-inline-start: auto;
+    margin-left: auto;
 }
 .Tools > ._end > b:last-child {
     height: 30px;
@@ -371,7 +373,6 @@ aside#help {
 
 /* [ 内容区 ]
  ****************************************************************************/
-
 .___Content {
     flex: 1 1 auto;
     /* 工具栏高度 */
@@ -382,13 +383,37 @@ aside#help {
     overflow: hidden;
 }
 
+.___Content b#cross-h,
+.___Content b#cross-v,
+.___Content menu,
+.___Content > ._path {
+    position: absolute;
+}
+
+/* 临时态指示线 */
+.___Content b#cross-h {
+    left: 0;
+    height: 0;
+    width: calc(100% - 17px);
+    border-top: 1px #999 dashed;
+    /* 动态 */
+    top: 40px;
+}
+.___Content b#cross-v {
+    top: 0;
+    width: 0;
+    height: 100%;
+    border-left: 1px #999 dashed;
+    /* 动态 */
+    left: 40px;
+}
+
 /* 底部路径指示 */
 .___Content ._path {
     display: flex;
     flex-wrap: wrap-reverse;
     font-size: 10pt;
     width: calc(100% - 17px);
-    position: absolute;
     bottom: 0;
 }
 .___Content ._path b {
@@ -413,36 +438,56 @@ aside#help {
     background-color: #888;
 }
 
-/* 临时态指示线 */
-.___Content b#cross-h {
-    position: absolute;
-    left: 0;
-    height: 0;
-    width: calc(100% - 17px);
-    border-top: 1px #999 dashed;
-    /* 动态 */
-    top: 40px;
-}
-.___Content b#cross-v {
-    position: absolute;
-    top: 0;
-    width: 0;
-    height: 100%;
-    border-left: 1px #999 dashed;
-    /* 动态 */
-    left: 40px;
-}
-
-.___Scroll {
+.___Content > ._scroll {
     height: 100%;
     overflow-x: auto;
     overflow-y: scroll !important;
     resize: none;
+    position: relative;
 }
 
 /* 临时态视觉提示 */
-main._temps {
+.___Content main._temps {
     opacity: 0.7;
+}
+
+/* 单元创建菜单 */
+.___Content menu._cells {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    padding: 1px;
+    background-color: #ddd;
+
+    /* 测试 */
+    top: 20px;
+    left: 20px;
+}
+.___Content menu._cells > li {
+    padding: 3px 14px 3px 28px;
+    background-color: #f9f9f9;
+}
+.___Content menu._cells code {
+    vertical-align: middle;
+}
+
+/* 弹出菜单 */
+.___Content menu._cmenu {
+    background-color: #eeeeed;
+    padding: 4px 0;
+    border: 1px #ccc solid;
+
+    /* 测试 */
+    top: 20px;
+    left: 270px;
+}
+.___Content menu._cmenu > li {
+    padding: 4px 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.___Content menu._cmenu kbd {
+    text-align: right;
 }
 
 
@@ -483,7 +528,7 @@ main._temps {
     min-width: 16px;
     align-self: center;
     padding: 8px 11px;
-    margin-inline-start: auto;
+    margin-left: auto;
     border-radius: 0;
     margin-top: -6px;
     margin-right: 0;
@@ -909,7 +954,7 @@ main._temps {
     flex-direction: column-reverse;
     border: 1px #bcd solid;
     border-radius: 10px 10px 0 0;
-    padding-block-start: 8px;
+    padding-top: 8px;
 }
 .Status #cmd-chars > b {
     font-size: 16px;
@@ -938,7 +983,7 @@ main._temps {
 }
 .Status > ._help {
     border-color: transparent;
-    margin-right: 4px;
+    margin: 3px;
 }
 
 
@@ -1240,93 +1285,39 @@ main._temps {
 }
 
 
-/* [ 菜单 ]
- * ***************************************************************************
- * 部分 margin/padding 受[.___Panel *]影响而为 !important
-*/
+/* 菜单
+ * 注：后置样式覆盖。
+ ****************************************************************************/
 menu {
-    min-width: 146px;
-    color: #000;
-    border: 1px #ddd solid;
-    background-color: #f0f0e0;
-    box-shadow: 2px 2px 3px #999;
-    border-radius: 3px;
+    border-radius: 2px;
+    box-shadow: 1px 2px 3px 1px #444;
+    font-size: 11pt;
     margin: 0;
     padding: 0;
-    font-size: 12px;
+    cursor: default;
 }
-menu li:hover {
-    background-color: #444;
-    color: #fff;
+
+menu > hr {
+    margin: 4px;
+    border: none;
+    height: 1px;
+    background-color: #ccc;
 }
-menu li._blk {
-    margin: 0 !important;
-    padding: 0 !important;
+menu > li {
+    list-style: none;
+    border-radius: inherit;
 }
-menu li._blk:hover,
-menu li._xbox:hover {
-    background-color: transparent;
-    color: #000;
-}
-menu li._blk > hr {
-    border-top: 1px #ddd solid;
-    margin: 0 5px !important;
-}
-menu li > h6,
-menu li > label {
+menu > li > b {
     font-weight: normal;
-    padding: 4px 3px 4px 24px !important;
 }
-menu h6:before {
-    content: '';
-    width: 16px;
-    height: 16px;
-    float: right;
-    background: url('images/label.png') no-repeat 0 -280px;
-}
-menu li i {
-    top: 5px;
-    left: 5px;
-}
-menu ol li {
-    list-style-position: inside;
-    padding: 3px 5px 3px 10px;
-    overflow: hidden;
-    resize: none;
+
+menu li:hover,
+menu li:hover * {
+    background-color: #444 !important;
+    color: #fff !important;
 }
 
 /* 快捷键位 */
-menu label > b {
+menu li > kbd {
     color: #999;
-    font-family: monospace, 'Courier New', Consolas;
-    margin: 3px 3px 0;
-}
-
-/* 活动条目 */
-menu li._act:before {
-    content: '';
-    width: 16px;
-    height: 16px;
-    background: url('images/label.png') no-repeat 0 -320px;
-}
-
-/* 特定覆写 */
-menu._cells > li {
-    float: left;
-}
-menu._cells li > label {
-    min-width: 79px;
-    text-align: center;
-    font-size: 14px;
-    font-family: monospace, 'Courier New', Consolas;
-    padding: 5px !important;
-}
-menu._cells li:hover a {
-    color: #fff;
-}
-
-/* 初始设置，获取尺寸 */
-menu._cells, menu._edits {
-    top: 0;
-    left: 0;
 }
