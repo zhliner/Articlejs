@@ -17,6 +17,9 @@
 body {
     background-color: #fff;
 }
+hr {
+    border: none;
+}
 
 /* 侧面板 */
 body > aside {
@@ -53,16 +56,6 @@ aside#help {
     width: 260px;
 }
 
-.___Panel b {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: normal;
-}
-.___Panel b > i {
-    margin: auto;
-}
-
 /* 兼容重置 */
 .___Panel * {
     line-height: 150%;
@@ -95,6 +88,16 @@ aside#help {
 
 /* [ 全局默认 ]
  ****************************************************************************/
+.___Panel b {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: normal;
+}
+.___Panel b>i {
+    margin: auto;
+}
+
 .___Panel select {
     flex: 1 1 auto;
     border: 1px solid #aaa;
@@ -112,9 +115,6 @@ aside#help {
 }
 .___Panel {
     font-size: 12pt;
-}
-.___Panel hr {
-    border: none;
 }
 /* 代码字体 */
 .___Panel code,
@@ -1321,7 +1321,6 @@ menu {
 
 menu > hr {
     margin: 4px;
-    border: none;
     height: 1px;
     background-color: #ccc;
 }
