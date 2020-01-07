@@ -63,6 +63,13 @@ aside#help {
     margin: auto;
 }
 
+/* 兼容重置 */
+.___Panel * {
+    line-height: 150%;
+    margin: 0;
+    padding: 0;
+}
+
 
 /* [ 操作可视性 ]
  ****************************************************************************/
@@ -86,54 +93,61 @@ aside#help {
 }
 
 
-/* [ 兼容重置 ]
- ****************************************************************************/
-.___Panel * {
-    line-height: 150%;
-    margin: 0;
-    padding: 0;
-}
-.___Panel h5 {
-    font-size: 15px;
-}
-.___Panel h6 {
-    font-size: 12px;
-}
-
-
 /* [ 全局默认 ]
  ****************************************************************************/
-.___Panel {
-    font-size: 12px;
+.___Panel select {
+    flex: 1 1 auto;
+    border: 1px solid #aaa;
+    min-width: 45px;
+    background-color: #fff;
+    padding: 1px;
+    outline: none;
 }
+.___Panel option {
+    padding: 2px 4px;
+    margin: 1px 0;
+}
+.___Panel option:hover {
+    background-color: #9ce2d0;
+}
+.___Panel {
+    font-size: 12pt;
+}
+.___Panel hr {
+    border: none;
+}
+/* 代码字体 */
+.___Panel code,
+.___Panel ._code {
+    font-size: 10pt;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    white-space: pre-wrap;
+    line-height: 1.4em;
+}
+/* 字符表情 */
+.___Panel ._orz {
+    font-family: monospace;
+    white-space: pre;
+    line-height: 100%;
+    font-size: 10pt;
+}
+
 .___Panel input[type=text],
 .___Panel textarea {
     font-size: 12px;
     background-color: #ffe;
     border: 1px #69c solid;
+    outline: none;
 }
 .___Panel input[type=text] {
     padding: 1px 2px;
+    float: left;
 }
 .___Panel textarea {
-    padding: 0 0 0 3px;
-}
-.___Panel input._button,
-.___Panel textarea {
-    font-family: inherit;
+    padding-left: 3px;
 }
 .___Panel *:disabled {
     background-color: #e7e7e7 !important;
-}
-.___Panel select {
-    border: 1px solid #69c;
-    font-size: 12px;
-    min-width: 45px;
-    background-color: #ffe;
-    padding: 1px;
-}
-.___Panel option {
-    padding: 0 2px;
 }
 .___Panel a {
     color: #333;
@@ -142,33 +156,6 @@ aside#help {
 }
 .___Panel a:hover {
     color: #369;
-}
-.___Panel label + input {
-    margin-left: 2px;
-}
-.___Panel label > input {
-    margin-right: 2px;
-}
-.___Panel hr {
-    border: none;
-}
-
-/* 代码字体 */
-.___Panel code,
-.___Panel ._code {
-    font-size: 10pt;
-    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    white-space: pre-wrap;
-    color: #368;
-    line-height: 1.4em;
-}
-
-/* 字符表情 */
-.___Panel ._orz {
-    font-family: monospace;
-    white-space: pre;
-    line-height: 100%;
-    font-size: 10pt;
 }
 
 
@@ -451,6 +438,7 @@ aside#help {
     opacity: 0.7;
 }
 
+
 /* 单元创建菜单 */
 .___Content menu._cells {
     display: grid;
@@ -464,11 +452,16 @@ aside#help {
     left: 20px;
 }
 .___Content menu._cells > li {
-    padding: 3px 14px 3px 28px;
+    padding: 3px 10px 3px 26px;
     background-color: #f9f9f9;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
 }
 .___Content menu._cells code {
     vertical-align: middle;
+}
+.___Content menu._cells kbd {
+    color: #b0b0b0;
 }
 
 /* 弹出菜单 */
@@ -479,14 +472,14 @@ aside#help {
 
     /* 测试 */
     top: 20px;
-    left: 270px;
+    left: 340px;
 }
 .___Content menu._cmenu > li {
     padding: 4px 10px;
     display: grid;
     grid-template-columns: 1fr 1fr;
 }
-.___Content menu._cmenu kbd {
+.___Content menu kbd {
     text-align: right;
 }
 
@@ -498,6 +491,8 @@ aside#help {
     flex: 0 0 auto;
     min-height: 200px;
     background-color: #f0efef;
+    display: flex;
+    flex-direction: column;
 }
 
 .Slave ._tabs {
@@ -538,37 +533,51 @@ aside#help {
 }
 
 
-.___Panel.Slave ._content {
-    height: 100%;
+/* 共享部分 */
+.Slave > form {
+    flex: 1 1 auto;
+    display: flex;
+    padding: 10px;
 }
-.___Panel.Slave ._iext {
-    top: 2px;
-    right: 18px;
-    height: 24px;
-    opacity: 0.4;
-}
-.___Panel.Slave ._iext:hover {
-    opacity: 1.0;
-}
-.___Panel.Slave ._body {
-    padding: 6px;
-}
-
-.___Panel.Slave ._opts {
-    position: relative;
-}
-.___Panel.Slave ._apply {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-}
-.___Panel.Slave ._value ._apply {
-    margin: 6px;
+.Slave > form > div {
+    display: flex;
 }
 
 
-/* [ 录入面板 ]
+/* [ 内容面板 ]
  ****************************************************************************/
+.Inputs > aside {
+    min-width: 100px;
+    max-width: 200px;
+    margin-right: 10px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+.Inputs > aside > ._where {
+    height: 30px;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding-right: 10px;
+}
+.Inputs > div {
+    flex: 15 1 400px;
+}
+
+.Inputs ._empty {
+    color: #ccc;
+    align-items: center;
+    font-size: 0.9em;
+}
+.Inputs ._empty > p {
+    width: 100%;
+    text-align: center;
+}
+
+
+
 .___Panel .Inputs textarea {
     font-size: 11pt;
     padding-left: 8px;
@@ -913,9 +922,8 @@ aside#help {
     border-top: 1px #7c9eb0 solid;
     background-color: #eee;
 }
-
 .Status > div {
-    border: 1px #bcd solid;
+    border: 1px #c9c9c9 solid;
     margin: 3px 0 3px 4px;
     background-color: #efefdf;
     cursor: default;
@@ -923,13 +931,16 @@ aside#help {
     white-space: nowrap;
     border-radius: 2px;
 }
+
 .Status > ._tips {
     min-width: 120px;
     max-width: 220px;
     flex: 1 1 auto;
     padding-left: 5px;
     overflow: hidden;
+    font-size: 12px;
 }
+
 .Status > ._cmdx,
 .Status > ._help {
     width: 24px;
@@ -942,9 +953,13 @@ aside#help {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    font-size: 16px;
     float: left;
     text-align: center;
+    font-size: 16px;
+}
+.Status > ._cmdx > code {
+    color: #0b6;
+    font-weight: bold;
 }
 .Status #cmd-chars {
     width: 100%;
@@ -964,8 +979,9 @@ aside#help {
     background-color: #444;
     color: #eee;
 }
+
 .Status > ._cmdline {
-    flex: 10 10 500px;
+    flex: 15 15 500px;
 }
 .Status > ._cmdline > input {
     width: 100%;
@@ -973,17 +989,22 @@ aside#help {
     border: none;
     box-sizing: border-box;
     background-color: #ffffe5;
-    padding: 0 4px;
+    padding: 0 5px;
     border-radius: inherit;
 }
+
 .Status > ._err {
     flex: 1 1 auto;
     border-color: transparent;
     overflow: hidden;
 }
+
 .Status > ._help {
     border-color: transparent;
     margin: 3px;
+}
+.Status > ._help > b {
+    color: #c30;
 }
 
 
@@ -1290,11 +1311,12 @@ aside#help {
  ****************************************************************************/
 menu {
     border-radius: 2px;
-    box-shadow: 1px 2px 3px 1px #444;
+    box-shadow: 1px 2px 3px #444;
     font-size: 11pt;
     margin: 0;
     padding: 0;
     cursor: default;
+    outline: none;
 }
 
 menu > hr {

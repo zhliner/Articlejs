@@ -12,11 +12,18 @@
         body > div {
             width: 800px;
             height: 240px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             border: 1px #5c869c solid;
         }
         body > div:first-child {
             height: 700px;
+        }
+        .vflex {
+            display: flex;
+            flex-direction: column;
+        }
+        .vflex > .Slave {
+            flex: 1 0 auto;
         }
     </style>
 </head>
@@ -61,33 +68,35 @@
     <div id="g-scroll" class="_scroll" tabindex="0">
         <!-- 选取创建（mouseup） -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pb="">
-            <li data-val="a" title="<a>"><a href="javascript:return false;">链接</a></li>
-            <li data-val="code" title="<code>"><code>代码</code></li>
-            <li data-val="strong" title="<strong>"><strong>重点</strong></li>
-            <li data-val="em" title="<em>"><em>强调</em></li>
-            <li data-val="sup" title="上标<sup>">O<sup>2</sup></li>
-            <li data-val="sub" title="下标<sub>">O<sub>2</sub></li>
-            <li data-val="q" title="<q>"><q>短引用</q></li>
-            <li data-val="time" title="<time>"><time>时间</time></li>
-            <li data-val="ins" title="<ins>"><ins>插入</ins></li>
-            <li data-val="del" title="<del>"><del>删除</del></li>
-            <li data-val="abbr" title="<abbr>"><abbr>缩写</abbr></li>
-            <li data-val="small" title="<small>"><small>注脚</small></li>
-            <li data-val="cite" title="<cite>"><cite>来源</cite></li>
-            <li data-val="mark" title="<mark>"><mark>标记</mark></li>
+            <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
+            <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+            <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+            <li data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+            <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
+            <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
+            <li data-val="q" title="<q>"><b><q>短引用</q></b><kbd>q</kbd></li>
+            <li data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+            <li data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
+            <li data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
+            <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
+            <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
+            <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
+            <li data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
             <li data-val="ruby" title="<ruby>">
-                <ruby>
+                <b><ruby>
                     <rb>注音</rb>
                     <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
-                </ruby></li>
-            <li data-val="orz" title="表情"><code role="orz">(^_^)</code></li>
-            <li data-val="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
-            <li data-val="samp" title="<samp>"><samp>样本</samp></li>
-            <li data-val="kbd" title="<kbd>"><kbd>键盘字</kbd></li>
-            <li data-val="s" title="<s>"><s>失效</s></li>
-            <li data-val="u" title="<u>"><u>注记</u></li>
-            <li data-val="var" title="<var>"><var>变量</var></li>
-            <li data-val="bdo" title="<bdo dir='rtl'>"><bdo dir="rtl">有向文本</bdo></li>
+                </ruby></b>
+                <kbd>r</kbd>
+            </li>
+            <li data-val="orz" title="表情"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+            <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>f</kbd></li>
+            <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd>p</kbd></li>
+            <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+            <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
+            <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+            <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+            <li data-val="bdo" title="<bdo dir='rtl'>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
         </menu>
         <!-- 上下文菜单 -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="">
@@ -216,11 +225,33 @@
         <b>特性</b>
         <b>源码</b>
         <b>脚本</b>
-        <!-- CSS: margin-inline-start:auto; -->
         <b class="_close"><i id="l-close" title="关闭"></i></b>
     </div>
-    <!-- 初始为录入面板 -->
-    <hr id="slave-main" tpl-node="slave:inputs"">
+    <!-- 初始面板 -->
+    <form class="Inputs" tpl-name="slave:inputs">
+        <aside>
+            <div class="_where">
+                <label>
+                    <input type="radio" name="where" />
+                    <i id="l-siblings"></i>
+                </label>
+                <label>
+                    <input type="radio" name="where">
+                    <i id="l-children"></i>
+                </label>
+            </div>
+            <select id="inputs-items" name="items" size="5">
+                <!-- 筛选合法单元条目插入。 -->
+                <option value="Table" title="<table>">表格</option>
+                <option value="Abstract" title="<header role='abstract'>">提要</option>
+                <option value="Header" title="<header>">导言</option>
+                <option value="Footer" title="<footer>">结语</option>
+            </select>
+        </aside>
+        <div class="_empty" tpl-name="inputs:empty">
+            <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
+        </div>
+    </form>
 </div>
 
 <!-- 状态栏 -->
@@ -231,7 +262,7 @@
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" data-pb="">
+        <span id="cmd-chars" data-pb="none">
             <b>/</b> <!-- 选择器模式 -->
             <b>:</b> <!-- 普通指令 -->
             <b>=</b> <!-- 计算（Worker） -->
@@ -252,7 +283,7 @@
             5. 手动键入内容为搜索历史匹配。
             6. Tab和箭头翻页导航支持+Shift模糊匹配。
         -->
-        <input id="cmd-input" type="text" class="_code" />
+        <input id="cmd-input" type="text" class="_code" value="Hello world!" />
     </div>
     <!-- 出错信息区 -->
     <div class="_err" title="单击显示帮助" data-pb="none">
@@ -266,8 +297,28 @@
 
 
     <!-- 面板系列 -->
-    <div>
-        <!--  -->
+    <div class="vflex">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <hr id="slave-main" tpl-node="slave:inputs"">
+        </div>
+        <div class=" ___Panel Status">
+            <div class="_tips"></div>
+            <div class="_cmdx">
+                <code id="cmd-char" data-v=":">:</code>
+            </div>
+            <div class="_cmdline">
+                <input id="cmd-input" type="text" class="_code" />
+            </div>
+            <div class="_help" title="帮助"><b>?</b></div>
+        </div>
     </div>
 </body>
 
