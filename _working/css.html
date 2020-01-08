@@ -232,7 +232,7 @@
     </div>
     <!-- 初始面板 -->
     <form class="Inputs" tpl-name="slave:inputs">
-        <aside>
+        <div class="_roll">
             <div class="_where">
                 <label>
                     <input type="radio" name="where" />
@@ -250,8 +250,9 @@
                 <option value="Header" title="<header>">导言</option>
                 <option value="Footer" title="<footer>">结语</option>
             </select>
-        </aside>
-        <div class="_empty" tpl-name="inputs:empty">
+        </div>
+        <!-- [子模版] -->
+        <div class="_body _empty" tpl-name="inputs:empty">
             <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
         </div>
     </form>
@@ -299,8 +300,10 @@
     </div>
 
 
-    <!-- 面板系列 -->
-    <div class="vflex">
+<!-- 面板系列 ------------------------------------------------------------------->
+
+    <!-- 内容：表格 -->
+    <div class="vflex" style="height: 400px;">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -310,7 +313,66 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <hr id="slave-main" tpl-node="slave:inputs"">
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" />
+                            <i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where">
+                            <i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：表格] -->
+                <div class="_body _table" tpl-name="inputs:table">
+                    <div class="_main">
+                        <header>
+                            <input name="caption" type="text" placeholder="标题" class="_scale" />
+                            <aside>
+                                <input name="rows" type="text" placeholder="行数" class="_chars" />
+                                <span>×</span>
+                                <input name="columns" type="text" placeholder="列数" class="_chars" />
+                            </aside>
+                        </header>
+                        <textarea name="table" placeholder="每行一个单元格
+空行分隔表格行（可选）"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>宽度
+                                <input type="text" name="width" class="_chars" value="100%" />
+                            </label>
+                            <label>边框
+                                <select tpl-node="table:border">
+                                    <option value="">------</option>
+                                </select>
+                            </label>
+                            <label>对齐
+                                <select tpl-node="item:align">
+                                    <!-- 例： -->
+                                    <option value="">------</option>
+                                    <option value="left">left</option>
+                                    <option value="center">center</option>
+                                    <option value="right">right</option>
+                                    <option value="justify">justify</option>
+                                </select>
+                            </label>
+                        </div>
+                        <!-- [插入2] -->
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label>
+                                <input type="checkbox" name="before"> 向前
+                            </label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
         </div>
         <div class=" ___Panel Status">
             <div class="_tips"></div>
@@ -323,6 +385,39 @@
             <div class="_help" title="帮助"><b>?</b></div>
         </div>
     </div>
+
+    <!-- 内容：列表 -->
+    <div class="vflex">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" />
+                            <i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where">
+                            <i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：xx] -->
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
 </body>
 
 </html>

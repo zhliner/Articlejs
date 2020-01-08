@@ -1,6 +1,6 @@
 <!-- 样式版：框架 -->
 <form class="Styles" tpl-name="slave:styles">
-    <aside>
+    <div class="_icons">
         <b><i id="b-erase"></i></b>
         <b><i id="b-brush"></i></b>
         <b><i id="b-fontview" class="_press"></i></b>
@@ -9,13 +9,13 @@
         <b><i id="b-width"></i></b>
         <b><i id="b-margin"></i></b>
         <b><i id="b-colors"></i></b>
-    </aside>
+    </div>
     <div tpl-source="styles:fontview"></div>
 </form>
 
 
 <!-- 字形 -->
-<div class="_fontview" tpl-name="styles:fontview">
+<div class="_body _fontview" tpl-name="styles:fontview">
     <div class="_list">
         <label>
             <input type="checkbox" name="bold" />
@@ -43,7 +43,7 @@
 
 
 <!-- 字号 -->
-<div class="_fontsize" tpl-name="styles:fontsize">
+<div class="_body _fontsize" tpl-name="styles:fontsize">
     <select name="sizename" class="_list">
         <option value="xx-small">xx-small</option>
         <option value="x-small">x-small</option>
@@ -55,7 +55,7 @@
         <option value="x-large">x-large</option>
         <option value="xx-large">xx-large</option>
     </select>
-    <div class="_assign">
+    <aside class="_assign">
         <div class="_erase">清除</div>
         <div>
             <label>字号</label><input type="text" name="fontsize" />
@@ -67,12 +67,12 @@
             </select>
         </div>
         <hr tpl-node="submit" />
-    </div>
+    </aside>
 </div>
 
 
 <!-- 对齐 -->
-<div class="_align" tpl-name="styles:align">
+<div class="_body _align" tpl-name="styles:align">
     <div class="_h">
         <label>text-align</label>
         <select name="align" class="_list">
@@ -104,7 +104,7 @@
 
 
 <!-- 宽/高度 -->
-<div class="_width" tpl-name="styles:width">
+<div class="_body _width" tpl-name="styles:width">
     <select name="width" class="_list">
         <option value="width" title="宽度">width</option>
         <option value="max-width" title="最大宽度">max-width</option>
@@ -113,7 +113,7 @@
         <option value="max-height" title="最大高度"">max-height</option>
         <option value="min-height" title="最小高度">min-height</option>
     </select>
-    <div class="_assign">
+    <aside class="_assign">
         <div class="_erase">全部清除</div>
         <div>
             <label>赋值</label><input type="text" name="width" />
@@ -126,12 +126,12 @@
             </select>
         </div>
         <hr tpl-node="submit" />
-    </div>
+    </aside>
 </div>
 
 
 <!-- 边距（内/外） -->
-<div class="_margin" tpl-name="styles:margin">
+<div class="_body _margin" tpl-name="styles:margin">
     <div class="_main">
         <div class="_where"
             on="click('input')|evo('current'), val, tpl"
@@ -153,7 +153,7 @@
             <option title="行尾边距">margin-inline-end</option>
         </select>
     </div>
-    <div class="_assign">
+    <aside class="_assign">
         <div class="_erase">全部清除</div>
         <div>
             <label>赋值</label><input type="text" name="width" />
@@ -166,7 +166,7 @@
             </select>
         </div>
         <hr tpl-node="submit" />
-    </div>
+    </aside>
 </div>
 
 <!-- 附：内边距 -->
@@ -186,7 +186,7 @@
 
 
 <!-- 颜色 -->
-<div class="_color" tpl-name="styles:color">
+<div class="_body _color" tpl-name="styles:color">
     <div class="_c216">
         <span>
             <b style="background-color:#000" title="#000"></b>
@@ -217,7 +217,7 @@
         </div>
     </div>
     <div class="_erase">清除颜色</div>
-    <div class="_assign">
+    <aside class="_assign">
         <span>
             <label title="文本色"><input type="radio" name="colorto" value="color" checked /><i id="l-tcolor"></i></label>
             <label title="背景色"><input type="radio" name="colorto" value="background-color" /><i id="l-bgcolor"></i></label>
@@ -228,6 +228,8 @@
             <span id="g-colorinfo" class="_tips"></span>
             <label class="_pick"><input type="color" value="" /></label>
         </div>
-    </div>
-    <hr tpl-node="submit">
+    </aside>
+    <aside>
+        <hr tpl-node="submit">
+    </aside>
 </div>

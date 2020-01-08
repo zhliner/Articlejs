@@ -123,7 +123,7 @@
 
 <!-- 面板：特性 -->
 <form class="Attrs" tpl-name="slave:attrs">
-    <aside>
+    <div class="_roll">
         <div>
             <input type="text" name="attr" class="_attr" />
             <!-- 添加/移除：+/- -->
@@ -132,8 +132,8 @@
         <select name="attrs" tpb-for>
             <option _value="$" _="$"></option>
         </select>
-    </aside>
-    <div>
+    </div>
+    <div class="_body">
         <div class="_main">
             <textarea name="content" rows="6"></textarea>
         </div>
@@ -165,11 +165,11 @@
 
 <!-- 面板：脚本 -->
 <form class="Script" tpl-name="slave:script">
-    <aside>
+    <div class="_env">
         <label><input type="radio" name="runbox" />沙盒内</label>
         <label><input type="radio" name="runbox" />编辑器内</label>
-    </aside>
-    <div>
+    </div>
+    <div class="_body">
         <div class="_main">
             <label>记忆前缀</label>
             <input type="text" name="prefix" placeholder="script-" />

@@ -85,6 +85,9 @@ aside#help {
 
 /* [ 全局默认 ]
  ****************************************************************************/
+.___Panel form {
+    font-size: 14px;
+}
 .___Panel b {
     display: flex;
     justify-content: center;
@@ -97,11 +100,15 @@ aside#help {
 
 .___Panel select {
     flex: 1 1 auto;
-    border: 1px solid #aaa;
+    border: 1px solid #bbb;
     min-width: 45px;
     background-color: #fff;
     padding: 1px;
     outline: none;
+    border-radius: 3px 1px 1px 3px;
+}
+.___Panel select._unit {
+    min-width: 40px;
 }
 .___Panel option {
     padding: 2px 4px;
@@ -129,22 +136,38 @@ aside#help {
     font-size: 10pt;
 }
 
-.___Panel input[type=text],
-.___Panel textarea {
-    font-size: 12px;
-    background-color: #ffe;
-    border: 1px #69c solid;
-    outline: none;
-}
 .___Panel input[type=text] {
-    padding: 1px 2px;
-    float: left;
+    padding: 1px 4px;
+    outline: none;
+    border: 1px #bbb solid;
+    border-radius: 2px;
+    font-size: 14px;
+}
+.___Panel input::placeholder {
+    color: #ccc;
+}
+.___Panel input._scale {
+    padding-top: 4px;
+    border: 1px #7db7d4 solid;
+    background: #ffe url('images/heading.png') 4px 0 repeat-x;
+    font-weight: bold;
 }
 .___Panel textarea {
-    padding-left: 3px;
+    border: 1px #355c64 solid;
+    outline: none;
+    padding: 2px 2px 2px 8px;
+    flex: 1 1 auto;
+    border-radius: 3px 1px 1px 3px;
+    font-size: 12pt;
+    background: #32575f url('images/txtline.png') repeat local;
+    line-height: 30px;
+    color: #eee;
+    overflow-y: scroll;
+    resize: none;
 }
-.___Panel *:disabled {
-    background-color: #e7e7e7 !important;
+.___Panel textarea::placeholder {
+    color: #aaa;
+    font-style: italic;
 }
 .___Panel a {
     color: #333;
@@ -153,6 +176,34 @@ aside#help {
 }
 .___Panel a:hover {
     color: #369;
+}
+.___Panel ._submit > * {
+    display: block;
+}
+.___Panel button {
+    padding: 1px 20px 2px;
+    border: 1px #30b9cf solid;
+    border-radius: 2px;
+    background-color: #9cd9e2;
+    font-size: 14px;
+}
+.___Panel button:hover {
+    background-color: #9adee9;
+}
+
+.___Panel input {
+    vertical-align: middle;
+}
+
+.___Panel ._char {
+    width: 20px;
+}
+.___Panel ._chars {
+    width: 45px;
+    text-align: center;
+}
+.___Panel ._length {
+    width: 50px;
 }
 
 
@@ -325,8 +376,8 @@ aside#help {
 
 .Tools hr {
     height: 18px;
-    border: 1px #ccc solid;
-    border-right-color: #f0f0f0;
+    border: 1px #d0d0d0 solid;
+    border-right-color: #f3f3f3;
     margin: auto 9px;
 }
 .Tools ._active > hr {
@@ -530,24 +581,46 @@ aside#help {
 .Slave > form {
     flex: 1 1 auto;
     display: flex;
-    padding: 10px;
+    padding: 10px 12px;
 }
 .Slave > form > div {
     display: flex;
+}
+.Slave ._body > ._main {
+    margin-right: 16px;
+}
+.Slave ._body header {
+    margin-bottom: 7px;
+}
+.Slave ._body > aside {
+    flex: 1 1 140px;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.Slave ._option > * {
+    display: block;
+    margin-bottom: 5px;
+}
+.Slave ._submit button {
+    margin-top: 4px;
 }
 
 
 /* [ 内容面板 ]
  ****************************************************************************/
-.Inputs > aside {
+.Inputs > ._roll {
+    flex: 1 1 120px;
     min-width: 100px;
     max-width: 200px;
-    margin-right: 10px;
-    flex: 1 1 auto;
-    display: flex;
+    margin-right: 14px;
     flex-direction: column;
 }
-.Inputs > aside > ._where {
+.Inputs > ._body {
+    flex: 15 15 500px;
+}
+.Inputs ._where {
     height: 30px;
     flex: 0 0 auto;
     display: flex;
@@ -555,10 +628,6 @@ aside#help {
     align-items: center;
     padding-right: 10px;
 }
-.Inputs > div {
-    flex: 15 1 400px;
-}
-
 .Inputs ._empty {
     color: #ccc;
     align-items: center;
@@ -570,53 +639,24 @@ aside#help {
 }
 
 
-
-.___Panel .Inputs textarea {
-    font-size: 11pt;
-    padding-left: 8px;
+/* 表格 */
+.Inputs ._main {
+    flex: 14 14 400px;
+    display: flex;
+    flex-direction: column;
 }
-.___Panel .Inputs ._main {
-    margin-right: 227px;
+.Inputs > ._table header {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 10px;
 }
-.___Panel .Inputs ._side {
-    right: 4px;
-    width: 212px;
+.Inputs header > aside {
+    display: flex;
+    align-items: center;
+    min-width: 140px;
 }
-.___Panel .Inputs ._side li {
-    padding: 0 2px;
-}
-.___Panel .Inputs ._option li {
-    margin-bottom: 3px;
-}
-.___Panel .Inputs ._append {
-    margin-bottom: 1px;
-}
-.___Panel .Inputs li._icons {
-    height: 26px;
-}
-.___Panel .Inputs li._bsize {
-    margin-top: 10px;
-}
-.___Panel .Inputs li._bsize > label {
-    margin: 2px 0;
-}
-
-/* 各别详细 */
-.___Panel .Section ._content,
-.___Panel .Table ._content,
-.___Panel .Figure ._content,
-.___Panel .Block ._content,
-.___Panel .Codes ._content {
-    height: calc(100% - 31px);
-}
-.___Panel .Table select {
-    min-width: 80px;
-}
-.___Panel .Table select._unit {
-    min-width: 42px;
-}
-.___Panel .Table ._option li:nth-child(4) {
-    margin-bottom: 6px;
+.Inputs ._table select {
+    min-width: 70px;
 }
 
 
@@ -719,10 +759,6 @@ aside#help {
     border-radius: 2px;
     text-align: center;
     margin-bottom: 8px;
-}
-
-.___Panel.Slave .Layout ._body {
-    height: 165px;
 }
 
 
@@ -984,6 +1020,7 @@ aside#help {
     background-color: #ffffe5;
     padding: 0 5px;
     border-radius: inherit;
+    float: left;
 }
 
 .Status > ._err {
