@@ -17,9 +17,6 @@
 body {
     background-color: #fff;
 }
-hr {
-    border: none;
-}
 
 /* 侧面板 */
 body > aside {
@@ -171,7 +168,8 @@ aside#help {
 }
 .Tools b:hover,
 .Styles > aside > b:hover {
-    border-color: #ddd;
+    border-color: #dbdbdb;
+    background-color: #ededed;
 }
 .Tools b._press,
 .Styles > aside > b._press {
@@ -325,18 +323,13 @@ aside#help {
     margin: auto 4px;
 }
 
-.Tools > ._start::after {
-    content: "";
-    width: 1px;
+.Tools hr {
     height: 18px;
-    background-color: #bbb;
+    border: 1px #ccc solid;
+    border-right-color: #f0f0f0;
     margin: auto 9px;
 }
-
-.Tools hr {
-    width: 1px;
-    height: 18px;
-    background-color: #ccc;
+.Tools ._active > hr {
     margin: auto 6px;
 }
 
@@ -445,7 +438,7 @@ aside#help {
     grid-template-columns: 1fr 1fr;
     gap: 1px;
     padding: 1px;
-    background-color: #ddd;
+    background-color: #e6e6e6;
 
     /* 测试 */
     top: 20px;
@@ -466,16 +459,16 @@ aside#help {
 
 /* 弹出菜单 */
 .___Content menu._cmenu {
+    padding: 5px 1px;
+    text-shadow: 1px 1px 1px #f9f9f9;
     background-color: #eeeeed;
-    padding: 4px 0;
-    border: 1px #ccc solid;
 
     /* 测试 */
     top: 20px;
     left: 340px;
 }
 .___Content menu._cmenu > li {
-    padding: 4px 10px;
+    padding: 4px 12px;
     display: grid;
     grid-template-columns: 1fr 1fr;
 }
@@ -1311,7 +1304,7 @@ aside#help {
  ****************************************************************************/
 menu {
     border-radius: 2px;
-    box-shadow: 1px 2px 3px #444;
+    box-shadow: 1px 1px 3px #444;
     font-size: 11pt;
     margin: 0;
     padding: 0;
@@ -1320,9 +1313,9 @@ menu {
 }
 
 menu > hr {
-    margin: 4px;
-    height: 1px;
-    background-color: #ccc;
+    margin: 5px;
+    border: 1px #c3c3c3 solid;
+    border-bottom-color: #f3f3f3;
 }
 menu > li {
     list-style: none;
@@ -1330,12 +1323,14 @@ menu > li {
 }
 menu > li > b {
     font-weight: normal;
+    min-width: 60px;
 }
 
 menu li:hover,
 menu li:hover * {
     background-color: #444 !important;
     color: #fff !important;
+    text-shadow: none;
 }
 
 /* 快捷键位 */
