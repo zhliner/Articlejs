@@ -595,6 +595,7 @@ aside#help {
 .Slave ._body > aside {
     flex: 1 1 140px;
     min-width: 120px;
+    max-width: 240px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -618,7 +619,7 @@ aside#help {
     flex-direction: column;
 }
 .Inputs > ._body {
-    flex: 15 15 500px;
+    flex: 12 12 600px;
 }
 .Inputs ._where {
     height: 30px;
@@ -641,7 +642,7 @@ aside#help {
 
 /* 表格 */
 .Inputs ._main {
-    flex: 14 14 400px;
+    flex: 10 10 500px;
     display: flex;
     flex-direction: column;
 }
