@@ -97,15 +97,13 @@ aside#help {
 .___Panel b>i {
     margin: auto;
 }
-
 .___Panel select {
     flex: 1 1 auto;
     border: 1px solid #bbb;
     min-width: 45px;
-    background-color: #fff;
-    padding: 1px;
-    outline: none;
+    padding: 2px;
     border-radius: 3px 1px 1px 3px;
+    outline: none;
 }
 .___Panel select._unit {
     min-width: 40px;
@@ -122,11 +120,10 @@ aside#help {
 }
 /* 代码字体 */
 .___Panel code,
-.___Panel ._code {
-    font-size: 10pt;
+.___Panel ._code,
+.___Panel ._codes {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     white-space: pre-wrap;
-    line-height: 1.4em;
 }
 /* 字符表情 */
 .___Panel ._orz {
@@ -210,6 +207,12 @@ aside#help {
 }
 .___Panel input._length {
     width: 80px;
+}
+.___Panel textarea._codes {
+    font-size: 12px;
+    background: #444 url('images/line20.png') repeat local;
+    line-height: 20px;
+    border: 1px #666 solid;
 }
 
 
@@ -659,10 +662,13 @@ aside#help {
     display: flex;
     flex-direction: column;
 }
-.Inputs > ._table header {
+.Inputs > ._table header,
+/* 插图 */
+.Inputs > ._figure header {
     display: grid;
     grid-template-columns: 3fr 1fr;
     gap: 10px;
+    align-items: center;
 }
 .Inputs header > aside {
     display: flex;
@@ -680,6 +686,34 @@ aside#help {
 }
 .Inputs ._section textarea:last-child {
     margin-top: 7px;
+}
+
+/* 线条 */
+.Inputs > ._line > ._main {
+    border: 1px #60acd2 solid;
+    border-radius: 5px 1px 1px 5px;
+    background-color: #fff;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.Inputs ._lines {
+    height: 120px;
+    padding: 5px 15px;
+    flex: 1 1 auto;
+    outline: none;
+}
+.Inputs ._lines > b {
+    margin: 4px auto;
+    border-radius: 16px;
+}
+.Inputs ._lines > b:hover {
+    background-color: #ddd;
+}
+.Inputs ._lines > b._press {
+    background-color: #6cf;
+}
+.Inputs ._lines hr {
+    width: 92%;
 }
 
 

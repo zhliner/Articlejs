@@ -504,46 +504,47 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content hr {
     height: 0;
     margin: 14px 0;
-    border-top: 1px #666 solid; /* 默认 */
+    border-color: #666;
+    border-width: 2px;
 }
 
-/* 虚线 */
-.content hr.dotted {
-    border-top: 1px #666 dotted;
-}
 /* 实线 */
-.content hr.solid {
-    border-top: 1px #666 solid;
+.content hr[role=solid] {
+    border-style: solid;
+}
+/* 虚线 */
+.content hr[role=dotted] {
+    border-style: dotted;
 }
 /* 双划线 */
-.content hr.double {
-    border-top: 3px #666 double;
+.content hr[role=double] {
+    border-style: double;
 }
 /* 点划线 */
-.content hr.dashed {
-    border-top: 1px #666 dashed;
+.content hr[role=dashed] {
+    border-style: dashed;
 }
 /* 内槽线 */
-.content hr.groove {
-    border-top: 1px #666 groove;
+.content hr[role=groove] {
+    border-style: groove;
 }
 /* 外槽线 */
-.content hr.ridge {
-    border-top: 1px #666 ridge;
+.content hr[role=ridge] {
+    border-style: ridge;
 }
 /* 内嵌线 */
-.content hr.inset {
-    border-top: 1px #666 inset;
+.content hr[role=inset] {
+    border-style: inset;
 }
 /* 外嵌线 */
-.content hr.outset {
-    border-top: 1px #666 outset;
+.content hr[role=outset] {
+    border-style: outset;
 }
 
 /* 章间隔 */
 .content > article > hr {
     margin: 50px auto 40px;
-    border-top: 1px #e0e0e0 solid;
+    border: 1px #e0e0e0 solid;
     box-shadow: #888 0px -10px 12px;
 }
 

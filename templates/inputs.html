@@ -176,15 +176,17 @@
 </div>
 
 
-<!-- 代码表 -->
-<div class="_body _codelist" tpl-name="inputs:codelist">
+<!-- 代码块 -->
+<div class="_body _codeblock" tpl-name="inputs:codeblock">
     <div class="_main">
         <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
-        <textarea name="codelist" class="_codes"></textarea>
+        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
     </div>
     <aside>
         <div class="_option" tpl-name="inputs:codeopts">
-            <label>制表符<input type="text" name="tabs" placeholder="4" value="" class="_chars">空格</label>
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
             <label>语言
                 <select id="g-languages" name="languages">
                     <option value="golang">Golang</option>
@@ -195,7 +197,41 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="inputs:submit2"> [插入2] </div>
+        <div class="_submit" tpl-name="inputs:submit2">
+            <label><input type="checkbox" name="before">向前</label>
+            <button type="submit">插入</button>
+        </div>
+    </aside>
+</div>
+
+
+<!-- 代码表 -->
+<div class="_body _codelist" tpl-name="inputs:codelist">
+    <div class="_main">
+        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
+    </div>
+    <aside>
+        <div class="_option" tpl-name="inputs:codeopts">
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
+            <label>语言
+                <select id="g-languages" name="languages">
+                    <option value="golang">Golang</option>
+                    <option value="cplus">C/C++</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="css">CSS</option>
+                    <option value="html">HTML</option>
+                </select>
+            </label>
+            <label>起始编号
+                <input type="text" name="start" class="_chars">
+            </label>
+        </div>
+        <div class="_submit" tpl-name="inputs:submit2">
+            <label><input type="checkbox" name="before">向前</label>
+            <button type="submit">插入</button>
+        </div>
     </aside>
 </div>
 
@@ -203,12 +239,14 @@
 <!-- 定义列表 -->
 <div class="_body _dl" tpl-name="inputs:dl">
     <div class="_main">
-        <textarea name="dl" placeholder="&gt;条目
-内容（可多行）"></textarea>
+        <header>
+            <input name="dt" type="text" class="_scale" placeholder="条目" />
+        </header>
+        <textarea name="dl" placeholder="定义内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit2">
-            [选项1]
+        <pre tpl-node="inputs:option2, inputs:submit2">
+            [选项2]
             [插入2]
         </pre>
     </aside>
@@ -249,7 +287,9 @@
 <!-- 插图 -->
 <div class="_body _figure" tpl-name="inputs:figure">
     <div class="_main">
-        <input name="figcaption" type="text" placeholder="标题" class="_scale" />
+        <header>
+            <input name="figcaption" type="text" placeholder="标题" class="_scale" />
+        </header>
         <textarea name="figure" data-id="figure"
             data-imgurl="/xyz.com/pic.jpg; [800,600]; [alt=text]"
             data-dataurl="data:image/png;base64,..."
@@ -275,8 +315,10 @@
 <!-- 引用块 -->
 <div class="_body _blockquote" tpl-name="inputs:blockquote">
     <div class="_main">
-        <input name="h4" type="text" placeholder="小标题" class="_scale" />
-        <textarea name="blockquote" placeholder="内容（换行分段，空行忽略）"></textarea>
+        <header>
+            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+        </header>
+        <textarea name="blockquote" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -290,8 +332,10 @@
 <!-- 批注块 -->
 <div class="_body _aside" tpl-name="inputs:aside">
     <div class="_main">
-        <input name="h4" type="text" placeholder="小标题" class="_scale" />
-        <textarea name="aside" placeholder="内容（换行分段，空行忽略）"></textarea>
+        <header>
+            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+        </header>
+        <textarea name="aside" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -305,8 +349,10 @@
 <!-- 详细内容 -->
 <div class="_body _details" tpl-name="inputs:details">
     <div class="_main">
-        <input name="summary" type="text" placeholder="小标题" class="_scale" />
-        <textarea name="details" placeholder="内容（换行分段，空行忽略）"></textarea>
+        <header>
+            <input name="summary" type="text" placeholder="小标题" class="_scale" />
+        </header>
+        <textarea name="details" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -317,24 +363,10 @@
 </div>
 
 
-<!-- 代码块 -->
-<div class="_body _codeblock" tpl-name="inputs:codeblock">
-    <div class="_main">
-        <textarea name="codeblock" class="_codes"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="inputs:codeopts, inputs:submit2">
-            [代码]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
 <!-- 段落 -->
 <div class="_body _paragraph" tpl-name="inputs:paragraph">
     <div class="_main">
-        <textarea name="paragraph" placeholder="内容（换行分段，空行忽略）"></textarea>
+        <textarea name="paragraph" placeholder="内容（支持多段落）"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -380,9 +412,11 @@
     </div>
     <aside>
         <div class="_option">
-            <label>制表符<input type="text" name="tabs" placeholder="4" value="" class="_chars">空格</label>
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
         </div>
-        <pre tpl-node="inputs:submit2"> [插入2] </pre>
+        <pre tpl-node="inputs:submit2">[插入2]</pre>
     </aside>
 </div>
 

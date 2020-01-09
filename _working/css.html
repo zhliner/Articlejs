@@ -686,8 +686,7 @@
                 <!-- [子模版：代码表] -->
                 <div class="_body _codelist" tpl-name="inputs:codelist">
                     <div class="_main">
-                        <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
-                        <textarea name="codelist" class="_codes"></textarea>
+                        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:codeopts">
@@ -702,6 +701,280 @@
                                     <option value="css">CSS</option>
                                     <option value="html">HTML</option>
                                 </select>
+                            </label>
+                            <label title="起始行号">首行
+                                <input type="text" name="start" placeholder="1" class="_chars">
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：代码块</h4>
+    <div class="vflex">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：代码块] -->
+                <div class="_body _codeblock" tpl-name="inputs:codeblock">
+                    <div class="_main">
+                        <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
+                        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:codeopts">
+                            <label>制表符
+                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                            </label>
+                            <label>语言
+                                <select id="g-languages" name="languages">
+                                    <option value="golang">Golang</option>
+                                    <option value="cplus">C/C++</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="css">CSS</option>
+                                    <option value="html">HTML</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：定义列表</h4>
+    <div class="vflex">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：定义列表] -->
+                <div class="_body _dl" tpl-name="inputs:dl">
+                    <div class="_main">
+                        <header>
+                            <input name="dt" type="text" class="_scale" placeholder="条目<dt>" />
+                        </header>
+                        <textarea name="dd" placeholder="定义内容<dd>"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：插图</h4>
+    <div class="vflex">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：插图] -->
+                <div class="_body _figure" tpl-name="inputs:figure">
+                    <div class="_main">
+                        <header>
+                            <input name="figcaption" type="text" placeholder="标题" class="_scale" />
+                            <label><input name="below" type="checkbox" />标题在下</label>
+                        </header>
+                        <textarea name="figure" data-id="figure"
+                            data-imgurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
+                            data-dataurl="data:image/png;base64,..."
+                            data-svgxml="<svg>...</svg>"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>类型
+                                <select name="type" on="change|val" to="4/?figure|trigger">
+                                    <option value="imgurl">图片URL</option>
+                                    <option value="dataurl">DataURL</option>
+                                    <option value="svgxml">SVG源码</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：预排版</h4>
+    <div class="vflex">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：预排版] -->
+                <div class="_body _pre" tpl-name="inputs:pre">
+                    <div class="_main">
+                        <textarea name="pre" class="_codes"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>制表符
+                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：线条</h4>
+    <div class="vflex">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：线条] -->
+                <div class="_body _line" tpl-name="inputs:line">
+                    <div class="_main">
+                        <!-- 克隆（tpl-node） -->
+                        <span class="_lines content" tabindex="0" tpl-name="line:types">
+                            <b title="默认"><hr></b>
+                            <b title="实线"><hr role="solid"></b>
+                            <b title="虚线"><hr role="dotted"></b>
+                            <b title="双划线" class="_press"><hr role="double"></b>
+                            <b title="点划线"><hr role="dashed"></b>
+                            <b title="内槽线"><hr role="groove"></b>
+                            <b title="外槽线"><hr role="ridge"></b>
+                            <b title="内嵌线"><hr role="inset"></b>
+                            <b title="外嵌线"><hr role="outset"></b>
+                            <input type="hidden" data-id="line" name="line" value="">
+                        </span>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>厚度
+                                <input type="text" name="thick" value="2px" class="_chars">
+                            </label>
+                            <label>长度
+                                <input type="text" name="length" value="92%" class="_chars">
+                            </label>
+                            <label title="线内高度">空白
+                                <input type="text" name="height" value="0" class="_chars">
                             </label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit2">
