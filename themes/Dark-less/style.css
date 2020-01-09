@@ -139,16 +139,18 @@ aside#help {
 .___Panel input[type=text] {
     padding: 1px 4px;
     outline: none;
-    border: 1px #bbb solid;
+    border: 1px #93c8e2 solid;
     border-radius: 2px;
     font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
 }
 .___Panel input::placeholder {
     color: #ccc;
 }
 .___Panel input._scale {
     padding-top: 4px;
-    border: 1px #7db7d4 solid;
+    border: 1px #60acd2 solid;
     background: #ffe url('images/heading.png') 4px 0 repeat-x;
     font-weight: bold;
 }
@@ -169,6 +171,11 @@ aside#help {
     color: #aaa;
     font-style: italic;
 }
+.___Panel input[type=radio],
+.___Panel input[type=checkbox] {
+    margin-right: 4px;
+    vertical-align: middle;
+}
 .___Panel a {
     color: #333;
     text-decoration: none;
@@ -186,24 +193,23 @@ aside#help {
     border-radius: 2px;
     background-color: #9cd9e2;
     font-size: 14px;
+    outline: none;
 }
 .___Panel button:hover {
+    border-color: #2e8b9e;
     background-color: #9adee9;
 }
 
-.___Panel input {
-    vertical-align: middle;
-}
-
-.___Panel ._char {
-    width: 20px;
-}
-.___Panel ._chars {
-    width: 45px;
+.___Panel input._char {
+    width: 30px;
     text-align: center;
 }
-.___Panel ._length {
-    width: 50px;
+.___Panel input._chars {
+    width: 55px;
+    text-align: center;
+}
+.___Panel input._length {
+    width: 80px;
 }
 
 
@@ -604,8 +610,8 @@ aside#help {
     display: block;
     margin-bottom: 5px;
 }
-.Slave ._submit button {
-    margin-top: 4px;
+.Slave ._submit label {
+    margin-bottom: 4px;
 }
 
 
@@ -622,12 +628,19 @@ aside#help {
     flex: 12 12 600px;
 }
 .Inputs ._where {
-    height: 30px;
+    height: 32px;
     flex: 0 0 auto;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    padding-right: 10px;
+    padding-right: 6px;
+}
+.Inputs ._where > label {
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+.Inputs ._where > label:hover {
+    background-color: #e3e3e3;
 }
 .Inputs ._empty {
     color: #ccc;
@@ -658,6 +671,15 @@ aside#help {
 }
 .Inputs ._table select {
     min-width: 70px;
+}
+
+/* 片区 */
+.Inputs ._section textarea {
+    /*fix: firefox */
+    flex: 1 1 50px;
+}
+.Inputs ._section textarea:last-child {
+    margin-top: 7px;
 }
 
 
@@ -1011,7 +1033,7 @@ aside#help {
 }
 
 .Status > ._cmdline {
-    flex: 15 15 500px;
+    flex: 12 12 500px;
 }
 .Status > ._cmdline > input {
     width: 100%;

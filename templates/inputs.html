@@ -1,12 +1,12 @@
 <!-- 选项：1 -->
 <div class="_option" tpl-name="inputs:option">
-    <label><input type="checkbox" name="clean" checked>空白清理</label>
+    <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
 </div>
 
 <!-- 选项：2 -->
 <div class="_option" tpl-name="inputs:option2">
-    <label><input type="checkbox" name="split" title="会保留紧邻换行">空行分隔</label>
-    <label><input type="checkbox" name="clean" checked>空白清理</label>
+    <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+    <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
 </div>
 
 
@@ -26,21 +26,24 @@
 
 
 <!-- 文章标题 -->
-<div class="_heading" tpl-name="inputs:heading">
+<div class="_body _heading" tpl-name="inputs:heading">
     <div class="_main">
         <input type="text" name="h1" placeholder="主标题" class="_scale" />
         <textarea name="h2" placeholder="副标题（可选）"></textarea>
     </div>
-    <aside class="_submit">
-        <button type="submit">插入</button>
+    <aside>
+        <pre tpl-node="inputs:option, inputs:submit1">
+            [选项1]
+            [插入1]
+        </pre>
     </aside>
 </div>
 
 
 <!-- 提要 -->
-<div class="_abstract" tpl-name="inputs:abstract">
+<div class="_body _abstract" tpl-name="inputs:abstract">
     <div class="_main">
-        <textarea name="header" placeholder="文章提要（换行分段，空行忽略）"></textarea>
+        <textarea name="header" placeholder="文章提要（支持多段落）"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -52,9 +55,9 @@
 
 
 <!-- 文献参考 -->
-<div class="_reference" tpl-name="inputs:reference">
+<div class="_body _reference" tpl-name="inputs:reference">
     <div class="_main">
-        <textarea name="reference" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
+        <textarea name="reference" placeholder="每行一项"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -66,9 +69,9 @@
 
 
 <!-- 另参见 -->
-<div class="_seealso" tpl-name="inputs:seealso">
+<div class="_body _seealso" tpl-name="inputs:seealso">
     <div class="_main">
-        <textarea name="seealso" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
+        <textarea name="seealso" placeholder="每行一项"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -80,10 +83,12 @@
 
 
 <!-- 导言 -->
-<div class="_header" tpl-name="inputs:header">
+<div class="_body _header" tpl-name="inputs:header">
     <div class="_main">
-        <input name="h4" type="text" placeholder="导言" class="_scale" />
-        <textarea name="header" placeholder="内容（换行分段，空行忽略）"></textarea>
+        <header>
+            <input name="h4" type="text" class="_scale" value="导言" />
+        </header>
+        <textarea name="header" placeholder="内容（支持多段落）"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -95,10 +100,12 @@
 
 
 <!-- 结语 -->
-<div class="_footer" tpl-name="inputs:footer">
+<div class="_body _footer" tpl-name="inputs:footer">
     <div class="_main">
-        <input name="h4" type="text" value="小结" class="_scale" />
-        <textarea name="footer" placeholder="内容（换行分段，空行忽略）"></textarea>
+        <header>
+            <input name="h4" type="text" class="_scale" value="小结" />
+        </header>
+        <textarea name="footer" placeholder="内容（支持多段落）"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -110,11 +117,13 @@
 
 
 <!-- 片区：s1-s5 -->
-<div class="_section" tpl-name="inputs:section">
+<div class="_body _section" tpl-name="inputs:section">
     <div class="_main">
-        <input name="hx" type="text" placeholder="标题" class="_scale" />
-        <textarea name="header" placeholder="导言（换行分段，空行忽略）"></textarea>
-        <textarea name="footer" placeholder="结语（换行分段，空行忽略）"></textarea>
+        <header>
+            <input name="hx" type="text" placeholder="标题" class="_scale" />
+        </header>
+        <textarea name="header" placeholder="导言（可选）"></textarea>
+        <textarea name="footer" placeholder="结语（可选）"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -126,9 +135,9 @@
 
 
 <!-- 有序列表 -->
-<div class="_ol" tpl-name="inputs:ol">
+<div class="_body _ol" tpl-name="inputs:ol">
     <div class="_main">
-        <textarea name="ol" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
+        <textarea name="ol" placeholder="每行一项"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -140,9 +149,9 @@
 
 
 <!-- 无序列表 -->
-<div class="_ul" tpl-name="inputs:ul">
+<div class="_body _ul" tpl-name="inputs:ul">
     <div class="_main">
-        <textarea name="ul" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
+        <textarea name="ul" placeholder="每行一项"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -154,9 +163,9 @@
 
 
 <!-- 多级编号列表 -->
-<div class="_cascade" tpl-name="inputs:cascade">
+<div class="_body _cascade" tpl-name="inputs:cascade">
     <div class="_main">
-        <textarea name="cascade" placeholder="换行分隔，每行一项（空行忽略）"></textarea>
+        <textarea name="cascade" placeholder="每行一项"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -168,7 +177,7 @@
 
 
 <!-- 代码表 -->
-<div class="_codelist" tpl-name="inputs:codelist">
+<div class="_body _codelist" tpl-name="inputs:codelist">
     <div class="_main">
         <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
         <textarea name="codelist" class="_codes"></textarea>
@@ -192,7 +201,7 @@
 
 
 <!-- 定义列表 -->
-<div class="_dl" tpl-name="inputs:dl">
+<div class="_body _dl" tpl-name="inputs:dl">
     <div class="_main">
         <textarea name="dl" placeholder="&gt;条目
 内容（可多行）"></textarea>
@@ -207,7 +216,7 @@
 
 
 <!-- 表格 -->
-<div class="_table" tpl-name="inputs:table">
+<div class="_body _table" tpl-name="inputs:table">
     <div class="_main">
         <header>
             <input name="caption" type="text" placeholder="标题" class="_scale" />
@@ -238,7 +247,7 @@
 
 
 <!-- 插图 -->
-<div class="_figure" tpl-name="inputs:figure">
+<div class="_body _figure" tpl-name="inputs:figure">
     <div class="_main">
         <input name="figcaption" type="text" placeholder="标题" class="_scale" />
         <textarea name="figure" data-id="figure"
@@ -264,7 +273,7 @@
 
 
 <!-- 引用块 -->
-<div class="_blockquote" tpl-name="inputs:blockquote">
+<div class="_body _blockquote" tpl-name="inputs:blockquote">
     <div class="_main">
         <input name="h4" type="text" placeholder="小标题" class="_scale" />
         <textarea name="blockquote" placeholder="内容（换行分段，空行忽略）"></textarea>
@@ -279,7 +288,7 @@
 
 
 <!-- 批注块 -->
-<div class="_aside" tpl-name="inputs:aside">
+<div class="_body _aside" tpl-name="inputs:aside">
     <div class="_main">
         <input name="h4" type="text" placeholder="小标题" class="_scale" />
         <textarea name="aside" placeholder="内容（换行分段，空行忽略）"></textarea>
@@ -294,7 +303,7 @@
 
 
 <!-- 详细内容 -->
-<div class="_details" tpl-name="inputs:details">
+<div class="_body _details" tpl-name="inputs:details">
     <div class="_main">
         <input name="summary" type="text" placeholder="小标题" class="_scale" />
         <textarea name="details" placeholder="内容（换行分段，空行忽略）"></textarea>
@@ -309,7 +318,7 @@
 
 
 <!-- 代码块 -->
-<div class="_codeblock" tpl-name="inputs:codeblock">
+<div class="_body _codeblock" tpl-name="inputs:codeblock">
     <div class="_main">
         <textarea name="codeblock" class="_codes"></textarea>
     </div>
@@ -323,7 +332,7 @@
 
 
 <!-- 段落 -->
-<div class="_paragraph" tpl-name="inputs:paragraph">
+<div class="_body _paragraph" tpl-name="inputs:paragraph">
     <div class="_main">
         <textarea name="paragraph" placeholder="内容（换行分段，空行忽略）"></textarea>
     </div>
@@ -337,7 +346,7 @@
 
 
 <!-- 注解 -->
-<div class="_note" tpl-name="inputs:note">
+<div class="_body _note" tpl-name="inputs:note">
     <div class="_main">
         <textarea name="note" placeholder="内容"></textarea>
     </div>
@@ -351,7 +360,7 @@
 
 
 <!-- 地址 -->
-<div class="_address" tpl-name="inputs:address">
+<div class="_body _address" tpl-name="inputs:address">
     <div class="_main">
         <textarea name="address" placeholder="内容"></textarea>
     </div>
@@ -365,7 +374,7 @@
 
 
 <!-- 预排版 -->
-<div class="_pre" tpl-name="inputs:pre">
+<div class="_body _pre" tpl-name="inputs:pre">
     <div class="_main">
         <textarea name="pre" class="_codes"></textarea>
     </div>
@@ -379,7 +388,7 @@
 
 
 <!-- 线条 -->
-<div class="_line" tpl-name="inputs:line">
+<div class="_body _line" tpl-name="inputs:line">
     <div class="_main">
         <hr tpl-node="line:types">
     </div>
@@ -394,7 +403,7 @@
 
 
 <!-- 空白块 -->
-<div class="_space" tpl-name="inputs:space">
+<div class="_body _space" tpl-name="inputs:space">
     <div class="_main">
         <div role="space"><span class="_empty">（空白）</span></div>
     </div>

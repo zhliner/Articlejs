@@ -122,7 +122,7 @@
 
 
 <!-- 面板：特性 -->
-<form class="Attrs" tpl-name="slave:attrs">
+<form class="Attrs" onsubmit="return false" tpl-name="slave:attrs">
     <div class="_roll">
         <div>
             <input type="text" name="attr" class="_attr" />
@@ -148,7 +148,7 @@
 
 
 <!-- 面板：源码 -->
-<form class="Source" tpl-name="slave:source">
+<form class="Source" onsubmit="return false" tpl-name="slave:source">
     <div class="_main">
         <textarea name="content" rows="6"></textarea>
     </div>
@@ -164,7 +164,7 @@
 
 
 <!-- 面板：脚本 -->
-<form class="Script" tpl-name="slave:script">
+<form class="Script" onsubmit="return false" tpl-name="slave:script">
     <div class="_env">
         <label><input type="radio" name="runbox" />沙盒内</label>
         <label><input type="radio" name="runbox" />编辑器内</label>
@@ -177,7 +177,7 @@
         </div>
         <aside>
             <div class="_option"><i id="l-history"></i></div>
-            <div class="_submit"><input type="submit" class="_ok" value="运行" /></div>
+            <div class="_submit"><button type="submit">运行</button></div>
         </aside>
     </div>
 </form>
