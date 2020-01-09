@@ -602,9 +602,9 @@ aside#help {
     margin-bottom: 7px;
 }
 .Slave ._body > aside {
-    flex: 1 1 140px;
-    min-width: 120px;
-    max-width: 240px;
+    flex: 1 1 auto;
+    min-width: 140px;
+    /* max-width: 240px; */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -628,7 +628,7 @@ aside#help {
     flex-direction: column;
 }
 .Inputs > ._body {
-    flex: 12 12 600px;
+    flex: 6 6 640px;
 }
 .Inputs ._where {
     height: 32px;
@@ -658,7 +658,7 @@ aside#help {
 
 /* 表格 */
 .Inputs ._main {
-    flex: 10 10 500px;
+    flex: 6 6 500px;
     display: flex;
     flex-direction: column;
 }
