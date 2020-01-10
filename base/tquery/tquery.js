@@ -150,9 +150,10 @@
         // @param  {Element|Document|DocumentFragment} ctx 上下文
         // @return {[Element]}
         $all = Sizzle || function( slr, ctx ) {
-            if ( __reID.test(slr) ) {
-                return new Array($id(slr, ctx) || 0);
-            }
+            // if ( __reID.test(slr) ) {
+            //     return new Array($id(slr, ctx) || 0);
+            // }
+            // 修订：兼容重复ID。
             if ( __reTAG.test(slr) && ctx.nodeType != 11 ) {
                 return Arr( $tag(slr, ctx) );
             }
