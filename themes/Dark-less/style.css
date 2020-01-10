@@ -613,6 +613,10 @@ aside#help {
     display: block;
     margin-bottom: 5px;
 }
+.Slave ._submit {
+    /* 底端对齐 */
+    margin-top: auto;
+}
 .Slave ._submit label {
     margin-bottom: 4px;
 }
@@ -713,7 +717,9 @@ aside#help {
     background-color: #6cf;
 }
 .Inputs ._lines hr {
+    height: 0;
     width: 92%;
+    border-width: 2px;
 }
 
 

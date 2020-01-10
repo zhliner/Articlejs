@@ -492,7 +492,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 注解
  * --------------------------------------------------------------------------
- * p:note
  */
 .content p[role=note] {
 }
@@ -502,10 +501,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * --------------------------------------------------------------------------
  */
 .content hr {
-    height: 0;
     margin: 14px 0;
     border-color: #666;
-    border-width: 2px;
 }
 
 /* 实线 */

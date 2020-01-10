@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../base/tpb/default.css">
     <link rel="stylesheet" href="../themes/Dark-less/style.css">
     <link rel="stylesheet" href="../styles/example/main.css">
-
+    <script src="../base/tquery/tquery.js"></script>
     <style>
         body > div {
             width: 822px;
@@ -18,11 +18,11 @@
         body > div:first-child {
             height: 700px;
         }
-        .vflex {
+        .panel {
             display: flex;
             flex-direction: column;
         }
-        .vflex > .Slave {
+        .panel > .Slave {
             flex: 1 0 auto;
         }
     </style>
@@ -301,7 +301,7 @@
 <!-- 面板系列 ------------------------------------------------------------------->
 
     <h4>内容：表格</h4>
-    <div class="vflex" style="height: 400px;">
+    <div class="panel" style="height: 400px;">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -383,7 +383,7 @@
     </div>
 
     <h4>内容：文章标题</h4>
-    <div class="vflex" data-pb="none">
+    <div class="panel" data-pb="none">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -429,7 +429,7 @@
     </div>
 
     <h4>内容：提要</h4>
-    <div class="vflex" data-pb="">
+    <div class="panel" data-pb="">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -473,7 +473,7 @@
     </div>
 
     <h4>内容：文献参考</h4>
-    <div class="vflex" data-pb="none">
+    <div class="panel" data-pb="none">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -517,7 +517,7 @@
     </div>
 
     <h4>内容：导言</h4>
-    <div class="vflex" data-pb="none">
+    <div class="panel" data-pb="none">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -564,7 +564,7 @@
     </div>
 
     <h4>内容：结语</h4>
-    <div class="vflex" data-pb="none">
+    <div class="panel" data-pb="none">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -611,7 +611,7 @@
     </div>
 
     <h4>内容：片区</h4>
-    <div class="vflex" data-pb="">
+    <div class="panel" data-pb="">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -660,7 +660,7 @@
     </div>
 
     <h4>内容：代码表</h4>
-    <div class="vflex">
+    <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -686,7 +686,7 @@
                 <!-- [子模版：代码表] -->
                 <div class="_body _codelist" tpl-name="inputs:codelist">
                     <div class="_main">
-                        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:codeopts">
@@ -718,7 +718,7 @@
     </div>
 
     <h4>内容：代码块</h4>
-    <div class="vflex">
+    <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -744,8 +744,7 @@
                 <!-- [子模版：代码块] -->
                 <div class="_body _codeblock" tpl-name="inputs:codeblock">
                     <div class="_main">
-                        <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
-                        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:codeopts">
@@ -774,7 +773,7 @@
     </div>
 
     <h4>内容：定义列表</h4>
-    <div class="vflex">
+    <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -822,7 +821,7 @@
     </div>
 
     <h4>内容：插图</h4>
-    <div class="vflex">
+    <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -879,7 +878,7 @@
     </div>
 
     <h4>内容：预排版</h4>
-    <div class="vflex">
+    <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -905,7 +904,7 @@
                 <!-- [子模版：预排版] -->
                 <div class="_body _pre" tpl-name="inputs:pre">
                     <div class="_main">
-                        <textarea name="pre" class="_codes"></textarea>
+                        <textarea name="pre" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
                     </div>
                     <aside>
                         <div class="_option">
@@ -925,7 +924,7 @@
     </div>
 
     <h4>内容：线条</h4>
-    <div class="vflex">
+    <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -967,14 +966,14 @@
                     </div>
                     <aside>
                         <div class="_option">
-                            <label>厚度
-                                <input type="text" name="thick" value="2px" class="_chars">
+                            <label title="CSS: border-width">厚度
+                                <input type="text" name="thick" placeholder="2px" class="_chars">
                             </label>
-                            <label>长度
-                                <input type="text" name="length" value="92%" class="_chars">
+                            <label title="CSS: width">长度
+                                <input type="text" name="length" placeholder="92%" class="_chars">
                             </label>
-                            <label title="线内高度">空白
-                                <input type="text" name="height" value="0" class="_chars">
+                            <label title="CSS: height">空白
+                                <input type="text" name="height" placeholder="0" class="_chars">
                             </label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit2">
