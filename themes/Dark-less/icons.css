@@ -27,6 +27,7 @@ i[id|=l] {
     height: 16px;
     background-image: url('images/icons.png');
     background-size: 300px 450px;
+    vertical-align: middle;
 }
 
 
@@ -62,6 +63,8 @@ i[id|=l] {
 #l-bcolor   { background-position: -150px -300px; }
 #l-history  { background-position: -150px -350px; }
 #l-close    { background-position: -200px 0; }
+#l-schar    { background-position: -200px -50px; }
+#l-element  { background-position: -200px -100px; }
 
 
 /* 上下文菜单前置图标 */

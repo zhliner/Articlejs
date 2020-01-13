@@ -588,9 +588,11 @@ aside#help {
 
 /* 共享部分 */
 .Slave > form {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     display: flex;
     padding: 10px 12px;
+    /* 方便子内容滚动 */
+    overflow-y: hidden;
 }
 .Slave > form > div {
     display: flex;
@@ -649,10 +651,17 @@ aside#help {
 .Inputs ._where > label:hover {
     background-color: #e3e3e3;
 }
+.Inputs > ._body > ._list {
+    border: 1px #60acd2 solid;
+    border-radius: 5px 1px 1px 5px;
+    background-color: #fff;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .Inputs ._empty {
     color: #ccc;
     align-items: center;
-    font-size: 0.9em;
 }
 .Inputs ._empty > p {
     width: 100%;
@@ -693,15 +702,7 @@ aside#help {
 }
 
 /* 线条 */
-.Inputs > ._line > ._main {
-    border: 1px #60acd2 solid;
-    border-radius: 5px 1px 1px 5px;
-    background-color: #fff;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
 .Inputs ._lines {
-    height: 120px;
     padding: 5px 15px;
     flex: 1 1 auto;
     outline: none;
@@ -713,115 +714,47 @@ aside#help {
 .Inputs ._lines > b:hover {
     background-color: #ddd;
 }
-.Inputs ._lines > b._press {
-    background-color: #6cf;
-}
 .Inputs ._lines hr {
     height: 0;
     width: 92%;
-    border-width: 2px;
+    border-width: 10px;
 }
 
+/* 空白块 */
+.Inputs ._space div[role=space] {
+    flex: 1 1 auto;
+    color: #ccc;
+}
 
-/* [ 版式面板 ]
- ****************************************************************************/
-.___Panel .Layout ._icons {
-    height: calc(100% - 4px) !important;
-    margin-top: 4px;
-}
-.___Panel .Layout ._icons > i {
-    margin: 0 2px 8px;
-}
-.___Panel .Layout ._args span {
-    display: inline-block;
-}
-.___Panel .Layout ._args li {
-    white-space: nowrap;
-}
-.___Panel .Layout ._value {
-    position: relative;
-    min-width: 150px;
-    border-radius: 2px;
-}
-.___Panel .Layout ._value li {
-    margin: 4px 4px 6px
-}
-.___Panel .Layout b._clean,
-.___Panel .Layout ._clean b {
+/* 文本字符 */
+.Inputs ._chars span {
     display: block;
-    border: 1px #999 dotted;
-    border-radius: 2px;
-    background-color: #ffc;
-    text-align: center;
-    color: #999;
+    padding-bottom: 6px;
 }
-.___Panel .Layout b._clean:hover,
-.___Panel .Layout ._clean b:hover {
-    background-color: #ffc;
-    border-style: solid;
-    border-color: #69c;
+.Inputs ._chars span > b {
+    float: left;
+    width: 34px;
+    height: 34px;
+    margin: 6px 0 0 6px;
+    background-color: #f3f3f3;
+    border-radius: 3px;
+    cursor: default;
 }
-.___Panel .Layout ._args > * {
-    height: calc(100% - 10px);
+.Inputs ._chars b:hover {
+    background-color: #ddd;
+}
+.Inputs ._zoomin {
+    width: 120px;
+    height: 120px;
     border: 1px #ccc solid;
-    padding: 4px;
-    background-color: #f3f3e3;
-    margin-right: 8px;
-}
-.___Panel .Layout ._xbox > * {
-    height: 100%;
+    background-color: #fff !important;
+    border-radius: 6px;
+    font-size: 90px;
 }
 
-/* 滚动框容器 */
-.___Panel .Layout ._sbox {
-    width: calc(100% - 2px);
-    height: calc(100% - 2px);
-    border: 1px #ccc solid;
-    background-color: #ffe;
-    border-radius: 2px;
-}
-.___Panel .Layout ._sbox ul {
-    height: calc(100% - 18px);
-    padding: 9px 12px;
-    overflow-y: auto;
-    resize: none;
-}
-.___Panel .Layout ._sbox li {
-    float: left;
-    width: calc(50% - 20px);
-    border: 1px #ccc solid;
-    padding: 5px;
-    margin-bottom: 10px;
-    cursor: default;
-    border-radius: 4px;
-}
-.___Panel .Layout ._sbox li:hover {
-    box-shadow: 1px 1px 4px #bbb;
-}
-.___Panel .Layout ._sbox li:nth-child(odd) {
-    margin-right: 12px;
-}
-.___Panel .Layout ._sbox img {
-    float: left;
-}
-.___Panel .Layout ._sbox aside {
-    float: right;
-}
-.___Panel .Layout ._sbox h6 {
-    font-size: 14px;
-    border-bottom: 1px #bbb solid;
-    color: #A84619;
-}
-.___Panel .Layout ._types > label {
-    margin: 0 8px;
-}
-.___Panel .Layout ._value ._types {
-    border: 1px #999 dotted;
-    background-color: #f7f7f0;
-    padding: 2px 5px 5px;
-    border-radius: 2px;
-    text-align: center;
-    margin-bottom: 8px;
+/* 共享：优先 */
+.Inputs ._body b._press {
+    background-color: #84ebce;
 }
 
 

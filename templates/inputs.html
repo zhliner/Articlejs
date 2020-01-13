@@ -452,73 +452,95 @@
 
 <!-- 微编辑：框架 -->
 <form class="Minied" tpl-name="inputs:minied">
-    <aside>
-        <select name="items" size="5" class="_list">
-            <option value="chars">特殊符号</option>
-            <option value="img">图片（&lt;img&gt;）</option>
-            <option value="audio">音频（&lt;audio&gt;）</option>
-            <option value="video">视频（&lt;video&gt;）</option>
-            <option value="picture">兼容图片（&lt;picture&gt;）</option>
-            <option value="a">链接（&lt;a&gt;）</option>
-            <option value="code">代码（&lt;code&gt;）</option>
-            <option value="strong">重点（&lt;strong&gt;）</option>
-            <option value="em">强调（&lt;em&gt;）</option>
-            <option value="sub">下标（&lt;sub&gt;）</option>
-            <option value="sup">上标（&lt;sup&gt;）</option>
-            <option value="q">短引用（&lt;q&gt;）</option>
-            <option value="time">日期/时间（&lt;time&gt;）</option>
-            <option value="ins">插入性条目（&lt;ins&gt;）</option>
-            <option value="del">已删除条目（&lt;del&gt;）</option>
-            <option value="abbr">缩写（&lt;abbr&gt;）</option>
-            <option value="small">注脚（&lt;small&gt;）</option>
-            <option value="cite">来源（&lt;cite&gt;）</option>
-            <option value="mark">标记（&lt;mark&gt;）</option>
-            <option value="ruby">注音单元（&lt;ruby/rb,rp,rt&gt;）</option>
-            <option value="orz">表情（&lt;code role="orz"&gt;）</option>
-            <option value="dfn">定义条目（&lt;dfn&gt;）</option>
-            <option value="samp">样本（&lt;samp&gt;）</option>
-            <option value="kbd">键盘字（&lt;kbd&gt;）</option>
-            <option value="meter">度量标示（&lt;meter&gt;）</option>
-            <option value="s">失效（&lt;s&gt;）</option>
-            <option value="u">注记（&lt;u&gt;）</option>
-            <option value="var">变量（&lt;var&gt;）</option>
-            <option value="bdo">有向文本（&lt;bdo&gt;）</option>
-            <option value="br">换行（&lt;br&gt;）</option>
-            <option value="wbr">软换行（&lt;wbr&gt;）</option>
-            <option value="blank">空白段（&lt;blank&gt;）</option>
-        </select>
-    </aside>
-    <div class="_chars" tpl-name="inputs:chars">
-        <select name="xlist" size="6">
-            <option value="normal">常用</option>
-            <option value="number">数字序号</option>
-            <option value="maths">数学</option>
-            <option value="units">单位</option>
-            <option value="phonetic">注音</option>
-            <option value="katakana">日文片假名</option>
-            <option value="hiragana">日文平假名</option>
-            <option value="greekalph">希腊字母</option>
-            <option value="russian">俄文字符</option>
-            <option value="radicalcn">偏旁部首-简</option>
-            <option value="radicaltw">偏旁部首-繁</option>
-            <option value="tabline">表格线</option>
-        </select>
-        <span> [替换占位] </span>
+    <div class="_roll">
+        <div class="_where">
+            <label>
+                <input type="radio" name="where" checked /><i id="l-element"></i>
+            </label>
+            <label>
+                <input type="radio" name="where"><i id="l-schar"></i>
+            </label>
+        </div>
+        <select tpl-source="inputs:inlines"></select>
     </div>
+    <hr tpl-source="inputs:img" />
 </form>
+
+
+<!-- 内联元素 -->
+<select name="inlines" size="5" tpl-name="list:inlines">
+    <option title="<img>" value="img">图片</option>
+    <option title="<audio>" value="audio">音频</option>
+    <option title="<video>" value="video">视频</option>
+    <option title="<picture>" value="picture">兼容图片</option>
+    <option title="<a>" value="a">链接</option>
+    <option title="<code>" value="code">代码</option>
+    <option title="<strong>" value="strong">重点</option>
+    <option title="<em>" value="em">强调</option>
+    <option title="<sub>" value="sub">下标</option>
+    <option title="<sup>" value="sup">上标</option>
+    <option title="<q>" value="q">短引用</option>
+    <option title="<time>" value="time">日期/时间</option>
+    <option title="<ins>" value="ins">插入性条目</option>
+    <option title="<del>" value="del">已删除条目</option>
+    <option title="<abbr>" value="abbr">缩写</option>
+    <option title="<small>" value="small">注脚</option>
+    <option title="<cite>" value="cite">来源</option>
+    <option title="<mark>" value="mark">标记</option>
+    <option title="<ruby/rb,rp,rt>" value="ruby">注音单元</option>
+    <option title="<code:orz>" value="orz">表情</option>
+    <option title="<dfn>" value="dfn">定义条目</option>
+    <option title="<samp>" value="samp">样本</option>
+    <option title="<kbd>" value="kbd">键盘字</option>
+    <option title="<meter>" value="meter">度量标示</option>
+    <option title="<s>" value="s">失效</option>
+    <option title="<u>" value="u">注记</option>
+    <option title="<var>" value="var">变量</option>
+    <option title="<bdo>" value="bdo">有向文本</option>
+    <option title="<br>" value="br">换行</option>
+    <option title="<wbr>" value="wbr">软换行</option>
+    <option title="<span:blank>" value="blank">空白段</option>
+</select>
+
+
+<!-- 字符种类 -->
+<select name="ctype" size="5" tpl-name="list:chars">
+    <option value="normal">常用</option>
+    <option value="unit">单位</option>
+    <option value="punctuation">标点</option>
+    <option value="number">序号</option>
+    <option value="math">数学</option>
+    <option value="special">特殊</option>
+    <option value="alphabet">字母</option>
+    <option value="geometric">几何</option>
+    <option value="emotion">表情</option>
+    <option value="radical">偏旁部首</option>
+    <option value="phonetic">音标</option>
+</select>
+
+
+<!-- 字符表 -->
+<div class="_body _chars" tpl-name="inputs:chars">
+    <div data-id="cbox" class="_main">
+        <!-- <span> -->
+    </div>
+    <aside>
+        <span id="g-zoomin" class="_zoomin"></span>
+    </aside>
+</div>
 
 
 <!-- 特殊字符集
     初始解析构造为：<b>...</b>序列
     字符集清单存储在data中备用。 -->
-<div tpl-name="charbox"
+<div tpl-name="data:chars"
     on="^init('span')|evo('current'), text, call('split', ''), $$;
         ^obted|$$('span'), dup"
     by="wrap('<b>');
-        trigger('init'), pop, data('normal number maths units phonetic katakana hiragana greekalph russian radicalcn radicaltw tabline')"
+        trigger('init'), pop, data('normal punctuation unit number math special alphabet geometric emotion radical phonetic')"
     to="|fill">
     <!-- <span><b>〔</b><b>〕</b>...</span> -->
-    <span>〔〕〈〉「」『』〖〗【】《》（）［］｛｝■◆▲●★§□◇△○☆αβγ※◎№＃〓＆＠＼＾→←↑↓·ˇ々‖。，、；：？！‘’“”～©</span>
+    <span>〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
     <span>ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ①②③④⑤⑥⑦⑧⑨⑩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆</span>
     <span>≈≡≠＝≤≥＜＞≮≯∷±＋－×÷／∫∮∝∞∧∨∑∏∪∩∈∵∴⊥∥∠⌒⊙≌∽√</span>
     <span>°′″＄￡￥‰％℃¤￠〇一二三四五六七八九十零壹贰叁肆伍陆柒捌玖拾百佰千仟万亿兆吉太拍艾分厘毫</span>

@@ -234,10 +234,10 @@
     <form class="Inputs" onsubmit="return false" tpl-name="slave:inputs">
         <div class="_roll">
             <div class="_where">
-                <label>
+                <label title="平级插入">
                     <input type="radio" name="where" checked /><i id="l-siblings"></i>
                 </label>
-                <label>
+                <label title="向内插入">
                     <input type="radio" name="where"><i id="l-children"></i>
                 </label>
             </div>
@@ -949,25 +949,25 @@
                 </div>
                 <!-- [子模版：线条] -->
                 <div class="_body _line" tpl-name="inputs:line">
-                    <div class="_main">
+                    <div class="_main _list">
                         <!-- 克隆（tpl-node） -->
                         <span class="_lines content" tabindex="0" tpl-name="line:types">
                             <b title="默认"><hr></b>
-                            <b title="实线"><hr role="solid"></b>
-                            <b title="虚线"><hr role="dotted"></b>
-                            <b title="双划线" class="_press"><hr role="double"></b>
-                            <b title="点划线"><hr role="dashed"></b>
-                            <b title="内槽线"><hr role="groove"></b>
-                            <b title="外槽线"><hr role="ridge"></b>
-                            <b title="内嵌线"><hr role="inset"></b>
-                            <b title="外嵌线"><hr role="outset"></b>
+                            <b title="实线（solid）"><hr role="solid"></b>
+                            <b title="虚线（dashed）"><hr role="dashed"></b>
+                            <b title="点线（dotted）"><hr role="dotted"></b>
+                            <b title="双划线（double）" class="_press"><hr role="double"></b>
+                            <b title="内槽线（groove）"><hr role="groove"></b>
+                            <b title="外槽线（ridge）"><hr role="ridge"></b>
+                            <b title="内嵌线（inset）"><hr role="inset"></b>
+                            <b title="外嵌线（outset）"><hr role="outset"></b>
                             <input type="hidden" data-id="line" name="line" value="">
                         </span>
                     </div>
                     <aside>
                         <div class="_option">
                             <label title="CSS: border-width">厚度
-                                <input type="text" name="thick" placeholder="2px" class="_chars">
+                                <input type="text" name="thick" placeholder="10px" class="_chars">
                             </label>
                             <label title="CSS: width">长度
                                 <input type="text" name="length" placeholder="92%" class="_chars">
@@ -980,6 +980,164 @@
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：空白块</h4>
+    <div class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：空白块] -->
+                <div class="_body _space" tpl-name="inputs:space">
+                    <div class="_main">
+                        <div role="space"><span>（ 空 白 ）</span></div>
+                    </div>
+                    <aside>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+
+    <!-- 内联单元 -->
+
+    <h4>内联：特别字符</h4>
+    <div class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label title="内联元素">
+                            <input type="radio" name="where" /><i id="l-element"></i>
+                        </label>
+                        <label title="文本字符">
+                            <input type="radio" name="where" checked /><i id="l-schar"></i>
+                        </label>
+                    </div>
+                    <select name="ctype" size="5" tpl-name="list:chars">
+                        <option value="normal">常用</option>
+                        <option value="punctuation">标点</option>
+                        <option value="unit">单位</option>
+                        <option value="number">序号</option>
+                        <option value="math">数学</option>
+                        <option value="special">特殊</option>
+                        <option value="alphabet">字母</option>
+                        <option value="geometric">几何</option>
+                        <option value="emotion">表情</option>
+                        <option value="radical">偏旁部首</option>
+                        <option value="phonetic">音标</option>
+                    </select>
+                </div>
+                <!-- [子模版：特别字符] -->
+                <div class="_body _chars">
+                    <div class="_main _list" title="单击复制">
+                        <span>
+                            <b>〔</b>
+                            <b>〕</b>
+                            <b>〈</b>
+                            <b>〉</b>
+                            <b>「</b>
+                            <b>」</b>
+                            <b>『</b>
+                            <b class="_press">』</b>
+                            <b>〖</b>
+                            <b>〗</b>
+                            <b>【</b>
+                            <b>】</b>
+                            <b>《</b>
+                            <b>》</b>
+                            <b>（</b>
+                            <b>）</b>
+                            <b>［</b>
+                            <b>］</b>
+                            <b>｛</b>
+                            <b>｝</b>
+                            <b>■</b>
+                            <b>◆</b>
+                            <b>▲</b>
+                            <b>●</b>
+                            <b>★</b>
+                            <b>§</b>
+                            <b>□</b>
+                            <b>◇</b>
+                            <b>△</b>
+                            <b>○</b>
+                            <b>☆</b>
+                            <b>α</b>
+                            <b>β</b>
+                            <b>γ</b>
+                            <b>※</b>
+                            <b>◎</b>
+                            <b>№</b>
+                            <b>＃</b>
+                            <b>〓</b>
+                            <b>＆</b>
+                            <b>＠</b>
+                            <b>＼</b>
+                            <b>＾</b>
+                            <b>→</b>
+                            <b>←</b>
+                            <b>↑</b>
+                            <b>↓</b>
+                            <b>·</b>
+                            <b>ˇ</b>
+                            <b>々</b>
+                            <b>‖</b>
+                            <b>。</b>
+                            <b>，</b>
+                            <b>、</b>
+                            <b>；</b>
+                            <b>：</b>
+                            <b>？</b>
+                            <b>！</b>
+                            <b>‘</b>
+                            <b>’</b>
+                            <b>“</b>
+                            <b>”</b>
+                            <b>～</b>
+                            <b>©</b>
+                        </span>
+                    </div>
+                    <aside>
+                        <b id="g-zoomin" class="_zoomin">©</b>
                     </aside>
                 </div>
             </form>

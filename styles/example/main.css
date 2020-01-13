@@ -502,7 +502,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  */
 .content hr {
     margin: 14px 0;
-    border-color: #666;
+    /* border-color: #666; */
 }
 
 /* 实线 */
@@ -543,6 +543,19 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     margin: 50px auto 40px;
     border: 1px #e0e0e0 solid;
     box-shadow: #888 0px -10px 12px;
+}
+
+
+/* 空白块
+ * -------------------------------------------------------------------------
+ */
+div[role=space] {
+    display: flex;
+    border: 1px #d9d9d9 solid;
+    border-radius: 5px;
+}
+div[role=space] > * {
+    margin: auto;
 }
 
 
@@ -594,8 +607,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 代码（总）
- * --------------------------------------------------------------------------
- */
+ ****************************************************************************/
 
 .content code {
     word-wrap: break-word;
