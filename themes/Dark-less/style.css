@@ -729,13 +729,13 @@ aside#help {
 /* 文本字符 */
 .Inputs ._chars span {
     display: block;
-    padding-bottom: 6px;
+    padding-bottom: 5px;
 }
 .Inputs ._chars span > b {
     float: left;
-    width: 34px;
-    height: 34px;
-    margin: 6px 0 0 6px;
+    width: 35px;
+    height: 35px;
+    margin: 5px 0 0 5px;
     background-color: #f3f3f3;
     border-radius: 3px;
     cursor: default;
