@@ -222,6 +222,35 @@ const _By = {
 });
 
 
+//
+// 自我修改。
+// 目标：当前条目/栈顶1项。
+// 注：目标元素自身操作，无需 By/To 逻辑。
+//===============================================
+[
+    'remove',           // ( slr? ): void
+    'removeSiblings',   // ( slr? ): void
+    'unwrap',           // (): void
+    'empty',            // (): void
+    'normalize',        // (): void
+]
+.forEach(function( meth ) {
+    /**
+     * 部分方法需要slr实参。
+     * 多余实参无副作用。
+     * 注：外部可能需要预先封装为Collector实例。
+     * @return {void}
+     */
+    _By[meth] = function( evo, slr ) {
+        if ( $.isCollector(evo.data) ) evo.data[meth]( slr );
+        if ( evo.data.nodeType ) $[meth]( evo.data, slr );
+    };
+
+    _By[`__${meth}`] = 1;
+
+});
+
+
 
 //
 // 工具函数

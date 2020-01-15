@@ -64,6 +64,17 @@ wrapinner( box:String ): Element | Collector
 wrapall( box:String ): Element | Collector
 
 
+// 简单处理。
+// 目标：当前条目/栈顶1项。
+//===============================================
+
+remove( slr )
+removeSiblings( slr )
+unwrap()
+empty()
+normalize()
+
+
 // 判断调用
 // 简单的 if 逻辑。
 //===============================================

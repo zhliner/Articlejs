@@ -182,18 +182,4 @@ eq( idx ): Collector
 first( slr ): Collector
 last( slr ): Collector
 // 目标：调用者，当前条目/栈顶1项。
-
-
-
-// 简单处理。
-// 只是目标自身的操作，无需By/To逻辑。
-//===============================================
-
-remove( node, slr )
-removeSiblings( subs, slr )
-unwrap( el )
-empty( el )
-normalize( el )
-// 目标/参数：1，当前条目/栈顶1项。
-// 需要兼容Collector实例。
 ```
