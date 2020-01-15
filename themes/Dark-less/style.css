@@ -151,6 +151,12 @@ aside#help {
     background: #ffe url('images/heading.png') 4px 0 repeat-x;
     font-weight: bold;
 }
+.___Panel input[type=radio],
+.___Panel input[type=checkbox] {
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
 .___Panel textarea {
     border: 1px #355c64 solid;
     outline: none;
@@ -163,16 +169,23 @@ aside#help {
     color: #eee;
     overflow-y: scroll;
     resize: none;
+    box-sizing: border-box;
+}
+.___Panel td > textarea {
+    width: 100%;
+    height: 100%;
 }
 .___Panel textarea::placeholder {
     color: #aaa;
     font-style: italic;
 }
-.___Panel input[type=radio],
-.___Panel input[type=checkbox] {
-    margin-right: 4px;
-    vertical-align: middle;
+.___Panel textarea._codes {
+    font-size: 12px;
+    background: #444 url('images/line20.png') repeat local;
+    line-height: 20px;
+    border: 1px #666 solid;
 }
+
 .___Panel a {
     color: #333;
     text-decoration: none;
@@ -207,12 +220,6 @@ aside#help {
 }
 .___Panel input._length {
     width: 80px;
-}
-.___Panel textarea._codes {
-    font-size: 12px;
-    background: #444 url('images/line20.png') repeat local;
-    line-height: 20px;
-    border: 1px #666 solid;
 }
 
 
@@ -606,7 +613,6 @@ aside#help {
 .Slave ._body > aside {
     flex: 1 1 auto;
     min-width: 140px;
-    /* max-width: 240px; */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -652,7 +658,7 @@ aside#help {
     background-color: #e3e3e3;
 }
 .Inputs > ._body > ._list {
-    border: 1px #60acd2 solid;
+    border: 1px #7dbcdb solid;
     border-radius: 5px 1px 1px 5px;
     background-color: #fff;
     overflow-y: auto;
@@ -727,7 +733,7 @@ aside#help {
 }
 
 /* 文本字符 */
-.Inputs ._chars span {
+.Inputs ._chars ._list span {
     display: block;
     padding-bottom: 5px;
 }
@@ -750,6 +756,28 @@ aside#help {
     background-color: #fff !important;
     border-radius: 6px;
     font-size: 90px;
+}
+.Inputs ._chars ._info {
+    color: #999;
+    font-size: 10pt;
+    margin-left: 4px;
+}
+.Inputs ._chars ._info i {
+    font-style: normal;
+}
+
+/* 内联：属性清单 */
+.Inputs ._inlines table {
+    border-spacing: 10px;
+}
+.Inputs ._inlines th {
+    text-align: right;
+}
+.Inputs ._inlines td._preview {
+    height: 120px;
+    padding: 5px;
+    border: 1px #888 solid;
+    background-color: #999;
 }
 
 /* 共享：优先 */

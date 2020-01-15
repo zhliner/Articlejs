@@ -149,18 +149,18 @@
 </tr>
 
 <tr tpl-name="prop:srcbase">
-    <th>根路径</th>
-    <!-- 上传根路径备选（配置优先） -->
-    <td><input type="text" name="srcbase" placeholder="https://example.com/upload" /></td>
+    <th title="相对于网站根目录">根路径</th>
+    <!-- 依配置自动设置 -->
+    <td><input type="text" name="srcbase" placeholder="/upload" /></td>
 </tr>
 
 <tr tpl-name="prop:sources">
-    <th>数据源</th>
+    <th title="支持多条目">数据源</th>
     <td><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></td>
 </tr>
 
 <tr tpl-name="prop:alts">
-    <th>图片说明</th>
+    <th title="与数据源分别对应">图片说明</th>
     <td><input type="text" name="alts" placeholder="alt11; alt22" /></td>
 </tr>
 
@@ -194,9 +194,7 @@
 
 <tr tpl-name="prop:preview">
     <th>预览</th>
-    <td class="_preview">
-        <span data-id="preview"><!-- 预览框（img|video|audio） --></span>
-    </td>
+    <td class="_preview"><!-- img|video|audio --></td>
 </tr>
 
 <tr tpl-name="prop:heading">
@@ -210,7 +208,7 @@
 </tr>
 
 <tr tpl-name="prop:figcapwhere">
-    <th>插图标题位于</th>
+    <th>标题位于</th>
     <td><label><input type="checkbox" name="figcapbelow" value="below" />在图画之下</label></td>
 </tr>
 
@@ -219,14 +217,14 @@
     <td><input type="text" name="rt" class="_textrow" /></td>
 </tr>
 
-<tr tpl-name="prop:leftrp">
-    <th>左括号</th>
-    <td><input type="text" name="leftrp" class="_chars" />（可选）</td>
+<tr tpl-name="prop:rpleft">
+    <th title="左括号">左&lt;rp&gt;</th>
+    <td><input type="text" name="leftrp" class="_chars" value="(" />（可选）</td>
 </tr>
 
-<tr tpl-name="prop:rightrp">
-    <th>右括号</th>
-    <td><input type="text" name="rightrp" class="_chars" />（可选）</td>
+<tr tpl-name="prop:rpright">
+    <th title="右括号">右&lt;rp&gt;</th>
+    <td><input type="text" name="rightrp" class="_chars" value=")" />（可选）</td>
 </tr>
 
 <tr tpl-name="prop:content">
@@ -243,7 +241,7 @@
 <!-- 适用：代码块/代码表/颜文字 -->
 <tr tpl-name="prop:codes">
     <th>代码</th>
-    <td><textarea name="codes" rows="6" class="_codes" spellcheck="false"></textarea></td>
+    <td><textarea name="codes" rows="5" class="_codes" spellcheck="false"></textarea></td>
 </tr>
 
 <!-- 适用：代码行/代码段 -->
