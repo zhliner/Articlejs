@@ -659,6 +659,8 @@ class Cell {
      */
     handleEvent( ev, elo ) {
         elo.event = ev;
+        this[_SID].reset();
+
         return this.call( elo );
     }
 
