@@ -94,23 +94,24 @@ aside#help {
     align-items: center;
     font-weight: normal;
 }
-.___Panel b>i {
+.___Panel b > i {
     margin: auto;
 }
 .___Panel select {
     flex: 1 1 auto;
     border: 1px solid #bbb;
-    min-width: 45px;
-    padding: 2px;
+    padding: 3px;
+    min-width: 40px;
     border-radius: 3px 1px 1px 3px;
     outline: none;
 }
-.___Panel select._unit {
-    min-width: 40px;
+.___Panel select._list {
+    padding: 6px 1px 6px 6px;
 }
 .___Panel option {
-    padding: 2px 4px;
+    padding: 3px 6px;
     margin: 1px 0;
+    border-radius: 3px;
 }
 .___Panel option:hover {
     background-color: #9ce2d0;
@@ -227,139 +228,21 @@ aside#help {
  ****************************************************************************/
 
 .Tools b,
-.Styles > aside > b {
+.Styles > ._icons > b {
     width: 32px;
     height: 32px;
     border: 1px transparent solid;
     border-radius: 4px;
 }
 .Tools b:hover,
-.Styles > aside > b:hover {
+.Styles > ._icons > b:hover {
     border-color: #dbdbdb;
     background-color: #ededed;
 }
 .Tools b._press,
-.Styles > aside > b._press {
+.Styles > ._icons > b._press {
     border-color: #ccc;
     background-color: #fff;
-}
-
-
-
-.___Panel input._char {
-    width: 30px !important;
-    text-align: center;
-}
-.___Panel input._nums {
-    width: 50px !important;
-}
-.___Panel input._word {
-    width: 80px !important;
-}
-.___Panel input._phrase {
-    width: 150px !important;
-}
-.___Panel i._fixed {
-    border: 1px #669 solid;
-    background-color: #ccc;
-}
-.___Panel b._fixed {
-    background-color: #333;
-    color: #fff;
-}
-.___Panel li._blk {
-    margin: 0 !important;
-}
-.___Panel ._apply > li._blk {
-    padding-bottom: 2px;
-}
-.___Panel ._button {
-    min-width: 85px;
-    border: 1px #999 solid;
-    background-color: rgba(255,255,250,0.7);
-    text-align: center;
-    border-radius: 3px;
-    padding: 3px 5px;
-}
-.___Panel ._button:hover {
-    border-color: #555;
-}
-.___Panel b._button {
-    padding: 4px;
-    background-color: #f7f7f7;
-}
-.___Panel input._heading {
-    height: 26px;
-    padding: 6px 0 1px 5px;
-    font-size: 14px;
-    background: #fdfdf1 url('images/bgttl.png') 5px 0;
-    margin-bottom: 5px;
-}
-.___Panel ._icons > i,
-.___Panel ._icons > span {
-    float: left;
-}
-
-/* 参数列表 */
-.___Panel ._args table {
-    border-collapse: collapse;
-    width: 95%;
-    margin: 10px;
-}
-.___Panel ._args th,
-.___Panel ._args td {
-    padding: 6px 4px;
-}
-.___Panel ._args th {
-    width: 25%;
-    text-align: right;
-}
-.___Panel ._args input[type=text] {
-    padding: 1px 4px;
-}
-
-.___Panel ._btns span {
-    float: right;
-}
-.___Panel ._btns ._button {
-    margin-right: 20px;
-}
-.___Panel ._note {
-    color: #888;
-}
-.___Panel ._note ._name {
-    padding: 0 5px;
-    font-weight: bold;
-    border-bottom: 1px #f90 solid;
-    margin-left: 4px;
-    color: #f93;
-}
-.___Panel ._note ._text {
-    min-width: 260px;
-    margin-left: 20px;
-    border: 1px #999 dotted;
-    background-color: #ffc;
-    padding: 4px 10px;
-}
-
-/* 功能屏蔽 */
-.___Panel ._masked {
-    background-color: rgba(235,235,235,0.5);
-}
-
-.___Panel ._warn {
-    background-color: #ff9;
-}
-.___Panel ._error {
-    background-color: #f66;
-}
-
-
-
-/* 清除按钮：垂直 */
-.___Panel ._fontview ._erase,
-.___Panel ._color ._erase {
-    writing-mode: vertical-rl;
 }
 
 
@@ -392,12 +275,14 @@ aside#help {
 
 .Tools hr {
     height: 18px;
-    border: 1px #d0d0d0 solid;
-    border-right-color: #f3f3f3;
-    margin: auto 9px;
+    border: 1px #d3d3d3 solid;
+    border-right-color: #f7f7f7;
 }
 .Tools ._active > hr {
     margin: auto 6px;
+}
+.Tools > ._start {
+    margin-right: 3px;
 }
 
 .Tools > ._end {
@@ -549,7 +434,7 @@ aside#help {
 
 .Slave {
     flex: 0 0 auto;
-    min-height: 200px;
+    min-height: 220px;
     background-color: #f0efef;
     display: flex;
     flex-direction: column;
@@ -589,7 +474,7 @@ aside#help {
     margin-right: 0;
 }
 .Slave ._tabs > b._close:hover {
-    background-color: #1a7b93;
+    background-color: #127891;
 }
 
 
@@ -604,18 +489,39 @@ aside#help {
 .Slave > form > div {
     display: flex;
 }
-.Slave ._body > ._main {
-    margin-right: 16px;
+.Slave ._where {
+    height: 32px;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 0px 8px 2px 6px;
+}
+.Slave ._where > label {
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+.Slave ._where > label:hover {
+    background-color: #e3e3e3;
+}
+.Slave ._body > * {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .Slave ._body header {
     margin-bottom: 7px;
 }
+.Slave ._body ._list {
+    border: 1px #7dbcdb solid;
+    border-radius: 5px 1px 1px 5px;
+    background-color: #fff;
+    overflow-y: auto;
+}
 .Slave ._body > aside {
     flex: 1 1 auto;
-    min-width: 140px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    min-width: 120px;
+    margin-left: 16px;
 }
 .Slave ._option > * {
     display: block;
@@ -629,40 +535,23 @@ aside#help {
     margin-bottom: 4px;
 }
 
+.Slave hr {
+    border: 1px #d5d5d5 solid;
+    border-bottom-color: #f8f8f8;
+    margin: 8px 0;
+}
+
 
 /* [ 内容面板 ]
  ****************************************************************************/
 .Inputs > ._roll {
     flex: 1 1 120px;
-    min-width: 100px;
     max-width: 200px;
     margin-right: 14px;
     flex-direction: column;
 }
 .Inputs > ._body {
     flex: 6 6 640px;
-}
-.Inputs ._where {
-    height: 32px;
-    flex: 0 0 auto;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    padding-right: 6px;
-}
-.Inputs ._where > label {
-    padding: 3px 6px;
-    border-radius: 3px;
-}
-.Inputs ._where > label:hover {
-    background-color: #e3e3e3;
-}
-.Inputs > ._body > ._list {
-    border: 1px #7dbcdb solid;
-    border-radius: 5px 1px 1px 5px;
-    background-color: #fff;
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 
 .Inputs ._empty {
@@ -678,8 +567,6 @@ aside#help {
 /* 表格 */
 .Inputs ._main {
     flex: 6 6 500px;
-    display: flex;
-    flex-direction: column;
 }
 .Inputs > ._table header,
 /* 插图 */
@@ -769,6 +656,7 @@ aside#help {
 /* 内联：属性清单 */
 .Inputs ._inlines table {
     border-spacing: 10px;
+    margin: 5px 10px;
 }
 .Inputs ._inlines th {
     text-align: right;
@@ -788,164 +676,146 @@ aside#help {
 
 /* [ 样式 ]
  ****************************************************************************/
-.___Panel .Style ._side {
-    width: 120px;
+
+.Styles ._icons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 15px;
+    margin: 3px 16px 3px 12px;
+    max-height: 234px;
 }
-.___Panel .Style ._main {
-    margin-left: 128px;
+.Styles select._list {
+    min-width: 150px;
 }
-.___Panel .Style ._list {
-    min-width: 160px;
+
+/* 清除按钮 */
+.Styles ._erase {
+    text-align: center;
+    padding: 4px;
+    border: 1px #ddd solid;
+    border-radius: 6px;
+    cursor: pointer;
 }
-.___Panel .Style ._list li {
-    margin: 4px;
-    padding: 2px 6px 3px;
-    border-bottom: 1px #ccc dotted;
+.Styles ._erase > b {
+    width: 100%;
+    height: 100%;
+    border: 1px #ccc dotted;
+    background-color: #ffc;
+    color: #ddd;
+    box-sizing: border-box;
+    padding: 1px;
 }
-.___Panel .Style ._list li:hover {
-    background-color: #ffe;
+.Styles ._erase > b:hover {
+    border: 1px #ecc solid;
+    color: #999;
 }
-.___Panel .Style ._list ._clean {
-    padding: 0;
-    border-width: 0;
+/* 垂直清除 */
+.Styles ._fontview ._erase,
+.Styles ._color ._erase {
+    writing-mode: vertical-rl;
+    width: 28px;
+    margin-left: 10px;
 }
-.___Panel .Style ._args option {
-    padding: 2px;
+
+/* 字形 */
+.Styles ._fontview ._list {
+    padding: 10px;
+    justify-content: start;
+}
+.Styles div._list > label {
+    padding: 5px;
+    border-radius: 3px;
+}
+.Styles div._list > label:hover {
+    background-color: #9ce2d0;
+}
+
+.Styles div._list small {
+    color: #999;
 }
 
 /* 对齐 */
-.___Panel .Style ._valign {
-    min-width: 140px;
-    height: 100%;
-    outline: none;
+.Styles ._align ._v {
+    margin-left: 14px;
 }
-
-/* 字号 */
-.___Panel .Style ._fontsz select:first-child {
-    height: 100%;
-    min-width: 170px;
-    padding: 2px 5px;
-    outline: none;
+.Styles ._align label {
+    color: #82bec9;
+    font-style: italic;
+    padding-left: 6px;
 }
 
 /* 边距 */
-.___Panel .Style ._margin ._types > label {
-    margin: 0 5px;
+.Styles ._where {
+    height: 34px;
+    background-color: #d1dadc;
+    border-radius: 5px 5px 0 0;
+    margin-bottom: -3px;
 }
 
-/* 样式编辑 */
-.___Panel .Style ._edsty {
-    height: 100%;
+/* 颜色 */
+.Styles ._color {
+    max-height: 258px;
 }
-.___Panel .Style ._edsty > * {
-  float: left;
-  height: 100%;
+.Styles ._cbox {
+    width: 240px;
 }
-.___Panel .Style ._edsty ._css {
-    width: calc(100% - 180px);
+.Styles ._g16 {
+    height: 16px;
+    margin-bottom: 2px;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
 }
-.___Panel .Style ._edsty li {
-    padding: 0 5px 3px;
+.Styles ._c216 {
+    flex: 1 1 auto;
+    display: grid;
 }
-.___Panel .Style ._edsty ._opts {
-    width: 165px;
-    margin-left: 8px;
+.Styles ._c216 > span {
+    display: grid;
+    grid-template-columns: repeat(36, 1fr);
 }
-
-
-/* [ 颜色 ]
- ****************************************************************************/
-.___Panel .Color ._side {
-    width: 40px;
-    margin-left: 10px;
-}
-.___Panel .Color ._main {
-    margin-left: 65px;
-}
-.___Panel .Color ._main img {
-    width: 68px;
-    height: 36px;
-    margin-right: 8px;
-    border-radius: 3px;
-}
-.___Panel .Color ._colorp span {
-    display: block;
-    font-size: 12px;
-}
-.___Panel .Color ._list {
-    padding: 0;
-    border-width: 0;
-    height: 100%;
-    width: 216px;
-}
-.___Panel .Color li._clean b {
-    padding: 1px;
-}
-.___Panel .Color ._colorp b._clean {
-    margin: 8px 10px;
-    width: 22px;
-    height: calc(100% - 16px);
-}
-.___Panel .Color ._colorp > ._xbox {
-    margin-left: 34px;
-}
-.___Panel .Color ._cells {
-    float: left;
-}
-.___Panel .Color ._cells div {
-    float: left;
-}
-.___Panel .Color ._cells b {
+.Styles ._cbox b {
     border: 1px transparent solid;
 }
-.___Panel .Color ._cells b:hover {
-    border-color: #aaa;
+.Styles ._cbox b:hover {
+    border-color: #999;
 }
-.___Panel .Color ._g16 {
-    margin-top: 4px;
-    height: 17px;
+.Styles ._color ._submit {
+    margin-left: 12px;
 }
-.___Panel .Color ._g16 > b {
-    width: 13.5px;
+.Styles ._color > aside {
+    width: 130px;
+    padding: 5px 10px;
+    border: 1px #ccc dotted;
+    border-radius: 5px;
 }
-.___Panel .Color ._c216 {
-    margin-top: 2px;
-    height: calc(100% - 38px);
-    max-height: 260px;
+.Styles ._color ._assign {
+    margin-bottom: 25px;
 }
-.___Panel .Color ._c216 > div {
-    height: 16%;
+.Styles ._color ._aim {
+    display: flex;
+    justify-content: space-around;
 }
-.___Panel .Color ._c216 b {
-    width: 6px;
+.Styles ._color ._custom {
+    flex: 1 1 auto;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 140px;
 }
-.___Panel .Color ._value {
-    min-width: 160px;
-    margin-right: 0;
-}
-.___Panel .Color ._view > span {
-    display: block;
-    width: 64px;
-    height: 64px;
-    border: 1px #999 solid;
-    border-radius: 3px;
-}
-.___Panel .Color ._colorx span {
-    display: inline-block;
-    width: 64px;
-    height: 64px;
-    line-height: 64px;
-    background-color: #999;
+.Styles ._color ._tips {
+    color: #aaa;
+    font-size: 8pt;
     text-align: center;
-    font-size: 20px;
-    color: #fff;
+    margin-bottom: 2px;
 }
-.___Panel .Color ._colorx aside {
-    width: calc(100% - 70px);
+.Styles ._color ._pick {
+    flex: 1 1 auto;
+    border-radius: 30px;
 }
-.___Panel .Color ._value ._apply {
-    right: 0;
-    text-align: right;
+.Styles ._color ._pick > input {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
 }
 
 

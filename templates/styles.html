@@ -38,7 +38,7 @@
             <span style="text-decoration: overline;">上划线</span><small>（text-decoration: overline）</small>
         </label>
     </div>
-    <div class="_erase">全部清除</div>
+    <div class="_erase"><b>全部清除</b></div>
 </div>
 
 
@@ -56,7 +56,7 @@
         <option value="xx-large">xx-large</option>
     </select>
     <aside class="_assign">
-        <div class="_erase">清除</div>
+        <div class="_erase"><b>清除</b></div>
         <div>
             <label>字号</label><input type="text" name="fontsize" />
             <select name="unit">
@@ -66,7 +66,7 @@
                 <option value="em">em</option>
             </select>
         </div>
-        <hr tpl-node="submit" />
+        <hr tpl-node="common:submit" />
     </aside>
 </div>
 
@@ -114,7 +114,7 @@
         <option value="min-height" title="最小高度">min-height</option>
     </select>
     <aside class="_assign">
-        <div class="_erase">全部清除</div>
+        <div class="_erase"><b>全部清除</b></div>
         <div>
             <label>赋值</label><input type="text" name="width" />
             <select name="unit">
@@ -125,12 +125,12 @@
                 <option value="em">em</option>
             </select>
         </div>
-        <hr tpl-node="submit" />
+        <hr tpl-node="common:submit" />
     </aside>
 </div>
 
 
-<!-- 边距（内/外） -->
+<!-- 边距 -->
 <div class="_body _margin" tpl-name="styles:margin">
     <div class="_main">
         <div class="_where"
@@ -139,6 +139,7 @@
             <label><input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i></label>
             <label><input type="radio" name="margin" value="item:padding" /><i id="l-padding"></i></label>
         </div>
+        <!-- 外边距 -->
         <select name="margin" tpl-name="item:margin">
             <option title="边距">margin</option>
             <option title="顶边距">margin-top</option>
@@ -154,7 +155,7 @@
         </select>
     </div>
     <aside class="_assign">
-        <div class="_erase">全部清除</div>
+        <div class="_erase"><b>全部清除</b></div>
         <div>
             <label>赋值</label><input type="text" name="width" />
             <select name="unit">
@@ -165,11 +166,11 @@
                 <option value="pt">%</option>
             </select>
         </div>
-        <hr tpl-node="submit" />
+        <hr tpl-node="common:submit" />
     </aside>
 </div>
 
-<!-- 附：内边距 -->
+<!-- 附：内填充 -->
 <select name="margin" tpl-name="item:padding">
     <option title="填充">padding</option>
     <option title="顶填充">padding-top</option>
@@ -207,7 +208,6 @@
             <b style="background-color:#fff" title="#fff"></b>
         </span>
         <div>
-            <!-- <span><b style="background-color:#000" title="#000"></b>...</span> -->
             <span>#000,003,006,009,00c,00f,030,033,036,039,03c,03f,060,063,066,069,06c,06f,090,093,096,099,09c,09f,0c0,0c3,0c6,0c9,0cc,0cf,0f0,0f3,0f6,0f9,0fc,0ff</span>
             <span>#300,303,306,309,30c,30f,330,333,336,339,33c,33f,360,363,366,369,36c,36f,390,393,396,399,39c,39f,3c0,3c3,3c6,3c9,3cc,3cf,3f0,3f3,3f6,3f9,3fc,3ff</span>
             <span>#600,603,606,609,60c,60f,630,633,636,639,63c,63f,660,663,666,669,66c,66f,690,693,696,699,69c,69f,6c0,6c3,6c6,6c9,6cc,6cf,6f0,6f3,6f6,6f9,6fc,6ff</span>
@@ -216,7 +216,7 @@
             <span>#f00,f03,f06,f09,f0c,f0f,f30,f33,f36,f39,f3c,f3f,f60,f63,f66,f69,f6c,f6f,f90,f93,f96,f99,f9c,f9f,fc0,fc3,fc6,fc9,fcc,fcf,ff0,ff3,ff6,ff9,ffc,fff</span>
         </div>
     </div>
-    <div class="_erase">清除颜色</div>
+    <div class="_erase"><b>清除颜色</b></div>
     <aside class="_assign">
         <span>
             <label title="文本色"><input type="radio" name="colorto" value="color" checked /><i id="l-tcolor"></i></label>
@@ -230,6 +230,6 @@
         </div>
     </aside>
     <aside>
-        <hr tpl-node="submit">
+        <hr tpl-node="common:submit">
     </aside>
 </div>
