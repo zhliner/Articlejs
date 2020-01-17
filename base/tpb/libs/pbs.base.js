@@ -998,24 +998,26 @@ const _Base2 = {
 
 
     /**
-     * 创建相同值的集合。
-     * 如果val未传递，取当前条目为目标值。
+     * 创建预填充值集合。
+     * 如果当前条目有值，先填充当前条目值（可能解构）。
+     * 最后一个值用于剩余重复填充。
      * @param {Number} size 集合大小
-     * @param {Value} val 目标值，可选
+     * @param {...Value} vals 填充值序列，可选
      */
-    repeat( evo, size, val ) {
-        if ( val === undefined ) {
-            val = evo.data;
+    array( evo, size, ...vals ) {
+        if ( evo.data !== undefined ) {
+            vals.unshift(
+                ...($.isArray(evo.data) ? evo.data : [evo.data])
+            );
         }
-        let _buf = [];
+        let _i = vals.length,
+            _v = vals[ _i-1 ];
 
-        if ( size > 0 ) {
-            while ( size-- ) _buf.push( val );
-        }
-        return _buf;
+        vals.length = size;
+        return _i < size ? vals.fill(_v, _i) : vals;
     },
 
-    __repeat: 0,
+    __array: 0,
 
 
 
