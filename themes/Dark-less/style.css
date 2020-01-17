@@ -195,7 +195,7 @@ aside#help {
 .___Panel a:hover {
     color: #369;
 }
-.___Panel ._submit > * {
+.___Panel ._submit > button {
     display: block;
 }
 .___Panel button {
@@ -541,8 +541,8 @@ aside#help {
     /* 底端对齐 */
     margin-top: auto;
 }
-.Slave ._submit label {
-    margin-bottom: 4px;
+.Slave ._submit > button {
+    margin-top: 4px;
 }
 
 .Slave hr {
