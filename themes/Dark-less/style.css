@@ -207,8 +207,8 @@ aside#help {
     outline: none;
 }
 .___Panel button:hover {
-    border-color: #2e8b9e;
-    background-color: #9adee9;
+    border-color: #38a2b7;
+    background-color: #9fe0ea;
 }
 
 .___Panel input._char {
@@ -320,6 +320,8 @@ aside#help {
 .___Content menu,
 .___Content > ._path {
     position: absolute;
+    /* 内容之上 */
+    z-index: 10;
 }
 
 /* 临时态指示线 */
@@ -489,6 +491,12 @@ aside#help {
 .Slave > form > div {
     display: flex;
 }
+.Slave ._roll {
+    flex: 1 1 120px;
+    max-width: 200px;
+    margin-right: 14px;
+    flex-direction: column;
+}
 .Slave ._where {
     height: 32px;
     flex: 0 0 auto;
@@ -519,7 +527,7 @@ aside#help {
     overflow-y: auto;
 }
 .Slave ._body > aside {
-    flex: 1 1 auto;
+    flex: 1 1 140px;
     min-width: 120px;
     margin-left: 16px;
 }
@@ -528,6 +536,7 @@ aside#help {
     margin-bottom: 5px;
 }
 .Slave ._submit {
+    min-width: 100px;
     /* 底端对齐 */
     margin-top: auto;
 }
@@ -544,16 +553,10 @@ aside#help {
 
 /* [ 内容面板 ]
  ****************************************************************************/
-.Inputs > ._roll {
-    flex: 1 1 120px;
-    max-width: 200px;
-    margin-right: 14px;
-    flex-direction: column;
+.Inputs > ._body,
+.Attrs > ._body {
+    flex: 6 6 600px;
 }
-.Inputs > ._body {
-    flex: 6 6 640px;
-}
-
 .Inputs ._empty {
     color: #ccc;
     align-items: center;
@@ -765,9 +768,6 @@ aside#help {
 .Styles ._c216 {
     flex: 1 1 auto;
     display: grid;
-}
-.Styles ._c216 > span {
-    display: grid;
     grid-template-columns: repeat(36, 1fr);
 }
 .Styles ._cbox b {
@@ -778,6 +778,8 @@ aside#help {
 }
 .Styles ._color ._submit {
     margin-left: 12px;
+    /* 覆盖共享值 */
+    display: block;
 }
 .Styles ._color > aside {
     width: 130px;
@@ -816,18 +818,98 @@ aside#help {
 }
 
 
+/* [ 特性 ]
+ ****************************************************************************/
+.Attrs ._name {
+    display: grid;
+    grid-template-columns: auto 30px;
+    height: 26px;
+    margin-bottom: 5px;
+    margin-top: 1px;
+}
+.Attrs ._name ._add {
+    border: 1px #93c8e2 solid;
+    background-color: #35bf58;
+    border-radius: 0 3px 3px 0;
+    color: #fff;
+    font-size: 16px;
+    margin-left: -3px;
+    outline: none;
+}
+.Attrs ._name ._add:hover {
+    background-color: #0fd440;
+}
+.Attrs > ._body {
+    flex: 6 6 540px;
+}
+.Attrs > ._body > ._main {
+    flex: 5 5 350px;
+}
+
+
+/* [ 源码 ]
+ ****************************************************************************/
+
+.Source ._main {
+    flex: 5 5 500px;
+}
+.Source ._option > button {
+    background-color: #fceabf;
+    border-color: #ddbb56;
+    border-radius: 0 16px;
+}
+.Source ._option > button:hover {
+    background-color: #fff1d1;
+}
+.Source ._info {
+    font-size: 12px;
+    border: 1px #e6e6e6 solid;
+    background-color: #f3f3f3;
+    border-radius: 2px;
+    padding: 4px 8px;
+    margin-top: 8px;
+    min-height: 50px;
+    max-height: 80px;
+    overflow: hidden;
+}
+.Source ._info._ok {
+    color: #093;
+}
+.Source ._info._err {
+    color: #a00;
+    cursor: pointer;
+}
+
+
 /* [ 脚本 ]
  ****************************************************************************/
-.___Panel .Script ._side {
-    right: 0;
-    width: 180px;
-    margin-right: 6px;
+.Script ._env {
+    width: 90px;
+    flex-direction: column;
+    padding: 5px;
 }
-.___Panel .Script ._icons {
-    height: 40px !important;
+.Script ._env > label {
+    margin-bottom: 4px;
 }
-.___Panel .Script ._main {
-    margin-right: 200px;
+.Script ._env > label:last-child {
+    color: #b30;
+}
+.Script > ._body {
+    flex: 6 6 600px;
+}
+.Script > ._body > ._main {
+    flex: 5 5 460px;
+}
+.Script ._main ._prefix {
+    width: 70%;
+}
+.Script ._icons > b {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+}
+.Script ._icons > b:hover {
+    background-color: #e6e6e6;
 }
 
 
@@ -841,6 +923,7 @@ aside#help {
     border-bottom-right-radius: inherit;
     border-top: 1px #7c9eb0 solid;
     background-color: #eee;
+    font-size: 12px;
 }
 .Status > div {
     border: 1px #c9c9c9 solid;
@@ -858,7 +941,6 @@ aside#help {
     flex: 1 1 auto;
     padding-left: 5px;
     overflow: hidden;
-    font-size: 12px;
 }
 
 .Status > ._cmdx,
@@ -867,15 +949,14 @@ aside#help {
     flex: 0 0 auto;
     position: relative;
     cursor: pointer;
+    font-size: 16px;
 }
 .Status > ._cmdx > code,
 .Status > ._help > b {
     width: 100%;
     height: 100%;
-    overflow: hidden;
     float: left;
     text-align: center;
-    font-size: 16px;
 }
 .Status > ._cmdx > code {
     color: #0b6;
@@ -889,10 +970,10 @@ aside#help {
     flex-direction: column-reverse;
     border: 1px #bcd solid;
     border-radius: 10px 10px 0 0;
+    background-color: #eee;
     padding-top: 8px;
 }
 .Status #cmd-chars > b {
-    font-size: 16px;
     border-top: 1px #809cbc solid;
 }
 .Status #cmd-chars > b:hover {
@@ -931,17 +1012,17 @@ aside#help {
 
 /* [ 模态页/框 ]
  ****************************************************************************/
-
-.___Panel.Modal {
+.Modal {
     position: absolute;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
     background-color: rgba(128, 128, 128, 0.5);
-    z-index: 999;
+    z-index: 100;
     border-radius: inherit;
     border: 4px #777 solid;
 }
+
 
 
 .___Panel.Modal ._dialog {
@@ -1135,96 +1216,6 @@ aside#help {
     width: 99%;
 }
 
-/* 媒体预览 */
-.___Panel.Modal ._media > span {
-    padding: 8px;
-    border: 1px #999 dotted;
-    background-color: #f7f7f7;
-    overflow: hidden;
-    border-radius: 5px;
-    float: left;
-}
-.___Panel.Modal ._media img {
-    max-width: 320px;
-}
-
-/* 上传区域 */
-.___Panel.Modal ._upload {
-    height: 50px;
-}
-
-/* 线条预览 */
-.___Panel.Modal ._lines b {
-    padding: 9px 0;
-    margin: 2px 0;
-    border: 1px transparent solid;
-}
-.___Panel.Modal ._lines b:hover {
-    background-color: #eee;
-    border: 1px #999 dotted;
-}
-.___Panel.Modal ._lines b._fixed {
-    background-color: #ddd;
-    border: 1px #999 solid;
-}
-.___Panel.Modal hr.solid {
-    border-top: 2px #666 solid;
-}
-.___Panel.Modal hr.dotted {
-    border-top: 2px #666 dotted;
-}
-.___Panel.Modal hr.dashed {
-    border-top: 2px #666 dashed;
-}
-.___Panel.Modal hr.double {
-    border-top: 4px #666 double;
-}
-.___Panel.Modal hr.groove {
-    border-top: 6px #999 groove;
-}
-.___Panel.Modal hr.ridge {
-    border-top: 6px #999 ridge;
-}
-.___Panel.Modal hr.inset {
-    border-top: 6px #999 inset;
-}
-.___Panel.Modal hr.outset {
-    border-top: 6px #999 outset;
-}
-
-/* 特殊字符 */
-.___Panel.Modal ._field {
-    height: 210px;
-}
-.___Panel.Modal ._chars > span {
-    float: left;
-}
-.___Panel.Modal ._chars b {
-    padding: 6px;
-    width: 34px;
-    border: 1px #ccc solid;
-    margin: 0 1px 2px;
-    text-align: center;
-}
-.___Panel.Modal ._chars b:hover {
-    border-color: #930;
-}
-.___Panel.Modal ._zoom {
-    width: 100%;
-    height: 90px;
-    display: inline-block;
-    float: left; /* 高度不闪动 */
-    font-size: 70px;
-    text-align: center;
-    line-height: 120%;
-}
-
-/* 次要友好 */
-.___Panel.Modal input[name='poster'],
-.___Panel.Modal input[name='cite'],
-.___Panel.Modal input[name='alt'] {
-    width: 70%;
-}
 
 
 /* 菜单

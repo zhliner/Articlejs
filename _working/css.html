@@ -10,7 +10,7 @@
     <script src="../base/tquery/tquery.js"></script>
     <style>
         body > div {
-            width: 822px;
+            width: 820px;
             height: 240px;
             margin-bottom: 20px;
             border: 1px #5c869c solid;
@@ -26,7 +26,7 @@
             flex: 1 0 auto;
         }
         .panel.inputs {
-            display: none;
+            /* display: none; */
         }
         .Styles ._color ._pick {
             background-color: #48cf75;
@@ -1397,7 +1397,7 @@
                     <div class="_h">
                         <label>text-align</label>
                         <select name="align" size="5" class="_list">
-                            <option value="" title="默认">------</option>
+                            <option value="" title="无（默认）">------</option>
                             <option value="center" title="居中对齐">center</option>
                             <option value="right" title="右对齐">right</option>
                             <option value="justify" title="两端对齐">justify</option>
@@ -1410,15 +1410,15 @@
                     <div class="_v">
                         <label>vertical-align</label>
                         <select name="valign" size="5" class="_list">
-                            <option value="">------</option>
-                            <option value="baseline">baseline</option>
-                            <option value="sub">sub</option>
-                            <option value="super">super</option>
-                            <option value="top">top</option>
-                            <option value="text-top">text-top</option>
-                            <option value="middle">middle</option>
-                            <option value="bottom">bottom</option>
-                            <option value="text-bottom">text-bottom</option>
+                            <option value="" title="无（默认）">------</option>
+                            <option value="baseline" title="基线对齐">baseline</option>
+                            <option value="sub" title="下标基线对齐">sub</option>
+                            <option value="super" title="上标基线对齐">super</option>
+                            <option value="top" title="行顶部对齐">top</option>
+                            <option value="text-top" title="文本顶部对齐">text-top</option>
+                            <option value="middle" title="中部与基线半高对齐">middle</option>
+                            <option value="bottom" title="行底部对齐">bottom</option>
+                            <option value="text-bottom" title="文本底部对齐">text-bottom</option>
                         </select>
                     </div>
                 </div>
@@ -1601,234 +1601,227 @@
                             <b style="background-color:#fff" title="#fff"></b>
                         </span>
                         <div class="_c216">
-                            <span>
-                                <b title="#000" style="background-color:#000;"></b>
-                                <b title="#003" style="background-color:#003;"></b>
-                                <b title="#006" style="background-color:#006;"></b>
-                                <b title="#009" style="background-color:#009;"></b>
-                                <b title="#00c" style="background-color:#00c;"></b>
-                                <b title="#00f" style="background-color:#00f;"></b>
-                                <b title="#030" style="background-color:#030;"></b>
-                                <b title="#033" style="background-color:#033;"></b>
-                                <b title="#036" style="background-color:#036;"></b>
-                                <b title="#039" style="background-color:#039;"></b>
-                                <b title="#03c" style="background-color:#03c;"></b>
-                                <b title="#03f" style="background-color:#03f;"></b>
-                                <b title="#060" style="background-color:#060;"></b>
-                                <b title="#063" style="background-color:#063;"></b>
-                                <b title="#066" style="background-color:#066;"></b>
-                                <b title="#069" style="background-color:#069;"></b>
-                                <b title="#06c" style="background-color:#06c;"></b>
-                                <b title="#06f" style="background-color:#06f;"></b>
-                                <b title="#090" style="background-color:#090;"></b>
-                                <b title="#093" style="background-color:#093;"></b>
-                                <b title="#096" style="background-color:#096;"></b>
-                                <b title="#099" style="background-color:#099;"></b>
-                                <b title="#09c" style="background-color:#09c;"></b>
-                                <b title="#09f" style="background-color:#09f;"></b>
-                                <b title="#0c0" style="background-color:#0c0;"></b>
-                                <b title="#0c3" style="background-color:#0c3;"></b>
-                                <b title="#0c6" style="background-color:#0c6;"></b>
-                                <b title="#0c9" style="background-color:#0c9;"></b>
-                                <b title="#0cc" style="background-color:#0cc;"></b>
-                                <b title="#0cf" style="background-color:#0cf;"></b>
-                                <b title="#0f0" style="background-color:#0f0;"></b>
-                                <b title="#0f3" style="background-color:#0f3;"></b>
-                                <b title="#0f6" style="background-color:#0f6;"></b>
-                                <b title="#0f9" style="background-color:#0f9;"></b>
-                                <b title="#0fc" style="background-color:#0fc;"></b>
-                                <b title="#0ff" style="background-color:#0ff;"></b>
-                            </span>
-                            <span>
-                                <b title="#300" style="background-color:#300;"></b>
-                                <b title="#303" style="background-color:#303;"></b>
-                                <b title="#306" style="background-color:#306;"></b>
-                                <b title="#309" style="background-color:#309;"></b>
-                                <b title="#30c" style="background-color:#30c;"></b>
-                                <b title="#30f" style="background-color:#30f;"></b>
-                                <b title="#330" style="background-color:#330;"></b>
-                                <b title="#333" style="background-color:#333;"></b>
-                                <b title="#336" style="background-color:#336;"></b>
-                                <b title="#339" style="background-color:#339;"></b>
-                                <b title="#33c" style="background-color:#33c;"></b>
-                                <b title="#33f" style="background-color:#33f;"></b>
-                                <b title="#360" style="background-color:#360;"></b>
-                                <b title="#363" style="background-color:#363;"></b>
-                                <b title="#366" style="background-color:#366;"></b>
-                                <b title="#369" style="background-color:#369;"></b>
-                                <b title="#36c" style="background-color:#36c;"></b>
-                                <b title="#36f" style="background-color:#36f;"></b>
-                                <b title="#390" style="background-color:#390;"></b>
-                                <b title="#393" style="background-color:#393;"></b>
-                                <b title="#396" style="background-color:#396;"></b>
-                                <b title="#399" style="background-color:#399;"></b>
-                                <b title="#39c" style="background-color:#39c;"></b>
-                                <b title="#39f" style="background-color:#39f;"></b>
-                                <b title="#3c0" style="background-color:#3c0;"></b>
-                                <b title="#3c3" style="background-color:#3c3;"></b>
-                                <b title="#3c6" style="background-color:#3c6;"></b>
-                                <b title="#3c9" style="background-color:#3c9;"></b>
-                                <b title="#3cc" style="background-color:#3cc;"></b>
-                                <b title="#3cf" style="background-color:#3cf;"></b>
-                                <b title="#3f0" style="background-color:#3f0;"></b>
-                                <b title="#3f3" style="background-color:#3f3;"></b>
-                                <b title="#3f6" style="background-color:#3f6;"></b>
-                                <b title="#3f9" style="background-color:#3f9;"></b>
-                                <b title="#3fc" style="background-color:#3fc;"></b>
-                                <b title="#3ff" style="background-color:#3ff;"></b>
-                            </span>
-                            <span>
-                                <b title="#600" style="background-color:#600;"></b>
-                                <b title="#603" style="background-color:#603;"></b>
-                                <b title="#606" style="background-color:#606;"></b>
-                                <b title="#609" style="background-color:#609;"></b>
-                                <b title="#60c" style="background-color:#60c;"></b>
-                                <b title="#60f" style="background-color:#60f;"></b>
-                                <b title="#630" style="background-color:#630;"></b>
-                                <b title="#633" style="background-color:#633;"></b>
-                                <b title="#636" style="background-color:#636;"></b>
-                                <b title="#639" style="background-color:#639;"></b>
-                                <b title="#63c" style="background-color:#63c;"></b>
-                                <b title="#63f" style="background-color:#63f;"></b>
-                                <b title="#660" style="background-color:#660;"></b>
-                                <b title="#663" style="background-color:#663;"></b>
-                                <b title="#666" style="background-color:#666;"></b>
-                                <b title="#669" style="background-color:#669;"></b>
-                                <b title="#66c" style="background-color:#66c;"></b>
-                                <b title="#66f" style="background-color:#66f;"></b>
-                                <b title="#690" style="background-color:#690;"></b>
-                                <b title="#693" style="background-color:#693;"></b>
-                                <b title="#696" style="background-color:#696;"></b>
-                                <b title="#699" style="background-color:#699;"></b>
-                                <b title="#69c" style="background-color:#69c;"></b>
-                                <b title="#69f" style="background-color:#69f;"></b>
-                                <b title="#6c0" style="background-color:#6c0;"></b>
-                                <b title="#6c3" style="background-color:#6c3;"></b>
-                                <b title="#6c6" style="background-color:#6c6;"></b>
-                                <b title="#6c9" style="background-color:#6c9;"></b>
-                                <b title="#6cc" style="background-color:#6cc;"></b>
-                                <b title="#6cf" style="background-color:#6cf;"></b>
-                                <b title="#6f0" style="background-color:#6f0;"></b>
-                                <b title="#6f3" style="background-color:#6f3;"></b>
-                                <b title="#6f6" style="background-color:#6f6;"></b>
-                                <b title="#6f9" style="background-color:#6f9;"></b>
-                                <b title="#6fc" style="background-color:#6fc;"></b>
-                                <b title="#6ff" style="background-color:#6ff;"></b>
-                            </span>
-                            <span>
-                                <b title="#900" style="background-color:#900;"></b>
-                                <b title="#903" style="background-color:#903;"></b>
-                                <b title="#906" style="background-color:#906;"></b>
-                                <b title="#909" style="background-color:#909;"></b>
-                                <b title="#90c" style="background-color:#90c;"></b>
-                                <b title="#90f" style="background-color:#90f;"></b>
-                                <b title="#930" style="background-color:#930;"></b>
-                                <b title="#933" style="background-color:#933;"></b>
-                                <b title="#936" style="background-color:#936;"></b>
-                                <b title="#939" style="background-color:#939;"></b>
-                                <b title="#93c" style="background-color:#93c;"></b>
-                                <b title="#93f" style="background-color:#93f;"></b>
-                                <b title="#960" style="background-color:#960;"></b>
-                                <b title="#963" style="background-color:#963;"></b>
-                                <b title="#966" style="background-color:#966;"></b>
-                                <b title="#969" style="background-color:#969;"></b>
-                                <b title="#96c" style="background-color:#96c;"></b>
-                                <b title="#96f" style="background-color:#96f;"></b>
-                                <b title="#990" style="background-color:#990;"></b>
-                                <b title="#993" style="background-color:#993;"></b>
-                                <b title="#996" style="background-color:#996;"></b>
-                                <b title="#999" style="background-color:#999;"></b>
-                                <b title="#99c" style="background-color:#99c;"></b>
-                                <b title="#99f" style="background-color:#99f;"></b>
-                                <b title="#9c0" style="background-color:#9c0;"></b>
-                                <b title="#9c3" style="background-color:#9c3;"></b>
-                                <b title="#9c6" style="background-color:#9c6;"></b>
-                                <b title="#9c9" style="background-color:#9c9;"></b>
-                                <b title="#9cc" style="background-color:#9cc;"></b>
-                                <b title="#9cf" style="background-color:#9cf;"></b>
-                                <b title="#9f0" style="background-color:#9f0;"></b>
-                                <b title="#9f3" style="background-color:#9f3;"></b>
-                                <b title="#9f6" style="background-color:#9f6;"></b>
-                                <b title="#9f9" style="background-color:#9f9;"></b>
-                                <b title="#9fc" style="background-color:#9fc;"></b>
-                                <b title="#9ff" style="background-color:#9ff;"></b>
-                            </span>
-                            <span>
-                                <b title="#c00" style="background-color:#c00;"></b>
-                                <b title="#c03" style="background-color:#c03;"></b>
-                                <b title="#c06" style="background-color:#c06;"></b>
-                                <b title="#c09" style="background-color:#c09;"></b>
-                                <b title="#c0c" style="background-color:#c0c;"></b>
-                                <b title="#c0f" style="background-color:#c0f;"></b>
-                                <b title="#c30" style="background-color:#c30;"></b>
-                                <b title="#c33" style="background-color:#c33;"></b>
-                                <b title="#c36" style="background-color:#c36;"></b>
-                                <b title="#c39" style="background-color:#c39;"></b>
-                                <b title="#c3c" style="background-color:#c3c;"></b>
-                                <b title="#c3f" style="background-color:#c3f;"></b>
-                                <b title="#c60" style="background-color:#c60;"></b>
-                                <b title="#c63" style="background-color:#c63;"></b>
-                                <b title="#c66" style="background-color:#c66;"></b>
-                                <b title="#c69" style="background-color:#c69;"></b>
-                                <b title="#c6c" style="background-color:#c6c;"></b>
-                                <b title="#c6f" style="background-color:#c6f;"></b>
-                                <b title="#c90" style="background-color:#c90;"></b>
-                                <b title="#c93" style="background-color:#c93;"></b>
-                                <b title="#c96" style="background-color:#c96;"></b>
-                                <b title="#c99" style="background-color:#c99;"></b>
-                                <b title="#c9c" style="background-color:#c9c;"></b>
-                                <b title="#c9f" style="background-color:#c9f;"></b>
-                                <b title="#cc0" style="background-color:#cc0;"></b>
-                                <b title="#cc3" style="background-color:#cc3;"></b>
-                                <b title="#cc6" style="background-color:#cc6;"></b>
-                                <b title="#cc9" style="background-color:#cc9;"></b>
-                                <b title="#ccc" style="background-color:#ccc;"></b>
-                                <b title="#ccf" style="background-color:#ccf;"></b>
-                                <b title="#cf0" style="background-color:#cf0;"></b>
-                                <b title="#cf3" style="background-color:#cf3;"></b>
-                                <b title="#cf6" style="background-color:#cf6;"></b>
-                                <b title="#cf9" style="background-color:#cf9;"></b>
-                                <b title="#cfc" style="background-color:#cfc;"></b>
-                                <b title="#cff" style="background-color:#cff;"></b>
-                            </span>
-                            <span>
-                                <b title="#f00" style="background-color:#f00;"></b>
-                                <b title="#f03" style="background-color:#f03;"></b>
-                                <b title="#f06" style="background-color:#f06;"></b>
-                                <b title="#f09" style="background-color:#f09;"></b>
-                                <b title="#f0c" style="background-color:#f0c;"></b>
-                                <b title="#f0f" style="background-color:#f0f;"></b>
-                                <b title="#f30" style="background-color:#f30;"></b>
-                                <b title="#f33" style="background-color:#f33;"></b>
-                                <b title="#f36" style="background-color:#f36;"></b>
-                                <b title="#f39" style="background-color:#f39;"></b>
-                                <b title="#f3c" style="background-color:#f3c;"></b>
-                                <b title="#f3f" style="background-color:#f3f;"></b>
-                                <b title="#f60" style="background-color:#f60;"></b>
-                                <b title="#f63" style="background-color:#f63;"></b>
-                                <b title="#f66" style="background-color:#f66;"></b>
-                                <b title="#f69" style="background-color:#f69;"></b>
-                                <b title="#f6c" style="background-color:#f6c;"></b>
-                                <b title="#f6f" style="background-color:#f6f;"></b>
-                                <b title="#f90" style="background-color:#f90;"></b>
-                                <b title="#f93" style="background-color:#f93;"></b>
-                                <b title="#f96" style="background-color:#f96;"></b>
-                                <b title="#f99" style="background-color:#f99;"></b>
-                                <b title="#f9c" style="background-color:#f9c;"></b>
-                                <b title="#f9f" style="background-color:#f9f;"></b>
-                                <b title="#fc0" style="background-color:#fc0;"></b>
-                                <b title="#fc3" style="background-color:#fc3;"></b>
-                                <b title="#fc6" style="background-color:#fc6;"></b>
-                                <b title="#fc9" style="background-color:#fc9;"></b>
-                                <b title="#fcc" style="background-color:#fcc;"></b>
-                                <b title="#fcf" style="background-color:#fcf;"></b>
-                                <b title="#ff0" style="background-color:#ff0;"></b>
-                                <b title="#ff3" style="background-color:#ff3;"></b>
-                                <b title="#ff6" style="background-color:#ff6;"></b>
-                                <b title="#ff9" style="background-color:#ff9;"></b>
-                                <b title="#ffc" style="background-color:#ffc;"></b>
-                                <b title="#fff" style="background-color:#fff;"></b>
-                            </span>
+                            <b title="#000" style="background-color:#000;"></b>
+                            <b title="#003" style="background-color:#003;"></b>
+                            <b title="#006" style="background-color:#006;"></b>
+                            <b title="#009" style="background-color:#009;"></b>
+                            <b title="#00c" style="background-color:#00c;"></b>
+                            <b title="#00f" style="background-color:#00f;"></b>
+                            <b title="#030" style="background-color:#030;"></b>
+                            <b title="#033" style="background-color:#033;"></b>
+                            <b title="#036" style="background-color:#036;"></b>
+                            <b title="#039" style="background-color:#039;"></b>
+                            <b title="#03c" style="background-color:#03c;"></b>
+                            <b title="#03f" style="background-color:#03f;"></b>
+                            <b title="#060" style="background-color:#060;"></b>
+                            <b title="#063" style="background-color:#063;"></b>
+                            <b title="#066" style="background-color:#066;"></b>
+                            <b title="#069" style="background-color:#069;"></b>
+                            <b title="#06c" style="background-color:#06c;"></b>
+                            <b title="#06f" style="background-color:#06f;"></b>
+                            <b title="#090" style="background-color:#090;"></b>
+                            <b title="#093" style="background-color:#093;"></b>
+                            <b title="#096" style="background-color:#096;"></b>
+                            <b title="#099" style="background-color:#099;"></b>
+                            <b title="#09c" style="background-color:#09c;"></b>
+                            <b title="#09f" style="background-color:#09f;"></b>
+                            <b title="#0c0" style="background-color:#0c0;"></b>
+                            <b title="#0c3" style="background-color:#0c3;"></b>
+                            <b title="#0c6" style="background-color:#0c6;"></b>
+                            <b title="#0c9" style="background-color:#0c9;"></b>
+                            <b title="#0cc" style="background-color:#0cc;"></b>
+                            <b title="#0cf" style="background-color:#0cf;"></b>
+                            <b title="#0f0" style="background-color:#0f0;"></b>
+                            <b title="#0f3" style="background-color:#0f3;"></b>
+                            <b title="#0f6" style="background-color:#0f6;"></b>
+                            <b title="#0f9" style="background-color:#0f9;"></b>
+                            <b title="#0fc" style="background-color:#0fc;"></b>
+                            <b title="#0ff" style="background-color:#0ff;"></b>
+
+                            <b title="#300" style="background-color:#300;"></b>
+                            <b title="#303" style="background-color:#303;"></b>
+                            <b title="#306" style="background-color:#306;"></b>
+                            <b title="#309" style="background-color:#309;"></b>
+                            <b title="#30c" style="background-color:#30c;"></b>
+                            <b title="#30f" style="background-color:#30f;"></b>
+                            <b title="#330" style="background-color:#330;"></b>
+                            <b title="#333" style="background-color:#333;"></b>
+                            <b title="#336" style="background-color:#336;"></b>
+                            <b title="#339" style="background-color:#339;"></b>
+                            <b title="#33c" style="background-color:#33c;"></b>
+                            <b title="#33f" style="background-color:#33f;"></b>
+                            <b title="#360" style="background-color:#360;"></b>
+                            <b title="#363" style="background-color:#363;"></b>
+                            <b title="#366" style="background-color:#366;"></b>
+                            <b title="#369" style="background-color:#369;"></b>
+                            <b title="#36c" style="background-color:#36c;"></b>
+                            <b title="#36f" style="background-color:#36f;"></b>
+                            <b title="#390" style="background-color:#390;"></b>
+                            <b title="#393" style="background-color:#393;"></b>
+                            <b title="#396" style="background-color:#396;"></b>
+                            <b title="#399" style="background-color:#399;"></b>
+                            <b title="#39c" style="background-color:#39c;"></b>
+                            <b title="#39f" style="background-color:#39f;"></b>
+                            <b title="#3c0" style="background-color:#3c0;"></b>
+                            <b title="#3c3" style="background-color:#3c3;"></b>
+                            <b title="#3c6" style="background-color:#3c6;"></b>
+                            <b title="#3c9" style="background-color:#3c9;"></b>
+                            <b title="#3cc" style="background-color:#3cc;"></b>
+                            <b title="#3cf" style="background-color:#3cf;"></b>
+                            <b title="#3f0" style="background-color:#3f0;"></b>
+                            <b title="#3f3" style="background-color:#3f3;"></b>
+                            <b title="#3f6" style="background-color:#3f6;"></b>
+                            <b title="#3f9" style="background-color:#3f9;"></b>
+                            <b title="#3fc" style="background-color:#3fc;"></b>
+                            <b title="#3ff" style="background-color:#3ff;"></b>
+
+                            <b title="#600" style="background-color:#600;"></b>
+                            <b title="#603" style="background-color:#603;"></b>
+                            <b title="#606" style="background-color:#606;"></b>
+                            <b title="#609" style="background-color:#609;"></b>
+                            <b title="#60c" style="background-color:#60c;"></b>
+                            <b title="#60f" style="background-color:#60f;"></b>
+                            <b title="#630" style="background-color:#630;"></b>
+                            <b title="#633" style="background-color:#633;"></b>
+                            <b title="#636" style="background-color:#636;"></b>
+                            <b title="#639" style="background-color:#639;"></b>
+                            <b title="#63c" style="background-color:#63c;"></b>
+                            <b title="#63f" style="background-color:#63f;"></b>
+                            <b title="#660" style="background-color:#660;"></b>
+                            <b title="#663" style="background-color:#663;"></b>
+                            <b title="#666" style="background-color:#666;"></b>
+                            <b title="#669" style="background-color:#669;"></b>
+                            <b title="#66c" style="background-color:#66c;"></b>
+                            <b title="#66f" style="background-color:#66f;"></b>
+                            <b title="#690" style="background-color:#690;"></b>
+                            <b title="#693" style="background-color:#693;"></b>
+                            <b title="#696" style="background-color:#696;"></b>
+                            <b title="#699" style="background-color:#699;"></b>
+                            <b title="#69c" style="background-color:#69c;"></b>
+                            <b title="#69f" style="background-color:#69f;"></b>
+                            <b title="#6c0" style="background-color:#6c0;"></b>
+                            <b title="#6c3" style="background-color:#6c3;"></b>
+                            <b title="#6c6" style="background-color:#6c6;"></b>
+                            <b title="#6c9" style="background-color:#6c9;"></b>
+                            <b title="#6cc" style="background-color:#6cc;"></b>
+                            <b title="#6cf" style="background-color:#6cf;"></b>
+                            <b title="#6f0" style="background-color:#6f0;"></b>
+                            <b title="#6f3" style="background-color:#6f3;"></b>
+                            <b title="#6f6" style="background-color:#6f6;"></b>
+                            <b title="#6f9" style="background-color:#6f9;"></b>
+                            <b title="#6fc" style="background-color:#6fc;"></b>
+                            <b title="#6ff" style="background-color:#6ff;"></b>
+
+                            <b title="#900" style="background-color:#900;"></b>
+                            <b title="#903" style="background-color:#903;"></b>
+                            <b title="#906" style="background-color:#906;"></b>
+                            <b title="#909" style="background-color:#909;"></b>
+                            <b title="#90c" style="background-color:#90c;"></b>
+                            <b title="#90f" style="background-color:#90f;"></b>
+                            <b title="#930" style="background-color:#930;"></b>
+                            <b title="#933" style="background-color:#933;"></b>
+                            <b title="#936" style="background-color:#936;"></b>
+                            <b title="#939" style="background-color:#939;"></b>
+                            <b title="#93c" style="background-color:#93c;"></b>
+                            <b title="#93f" style="background-color:#93f;"></b>
+                            <b title="#960" style="background-color:#960;"></b>
+                            <b title="#963" style="background-color:#963;"></b>
+                            <b title="#966" style="background-color:#966;"></b>
+                            <b title="#969" style="background-color:#969;"></b>
+                            <b title="#96c" style="background-color:#96c;"></b>
+                            <b title="#96f" style="background-color:#96f;"></b>
+                            <b title="#990" style="background-color:#990;"></b>
+                            <b title="#993" style="background-color:#993;"></b>
+                            <b title="#996" style="background-color:#996;"></b>
+                            <b title="#999" style="background-color:#999;"></b>
+                            <b title="#99c" style="background-color:#99c;"></b>
+                            <b title="#99f" style="background-color:#99f;"></b>
+                            <b title="#9c0" style="background-color:#9c0;"></b>
+                            <b title="#9c3" style="background-color:#9c3;"></b>
+                            <b title="#9c6" style="background-color:#9c6;"></b>
+                            <b title="#9c9" style="background-color:#9c9;"></b>
+                            <b title="#9cc" style="background-color:#9cc;"></b>
+                            <b title="#9cf" style="background-color:#9cf;"></b>
+                            <b title="#9f0" style="background-color:#9f0;"></b>
+                            <b title="#9f3" style="background-color:#9f3;"></b>
+                            <b title="#9f6" style="background-color:#9f6;"></b>
+                            <b title="#9f9" style="background-color:#9f9;"></b>
+                            <b title="#9fc" style="background-color:#9fc;"></b>
+                            <b title="#9ff" style="background-color:#9ff;"></b>
+
+                            <b title="#c00" style="background-color:#c00;"></b>
+                            <b title="#c03" style="background-color:#c03;"></b>
+                            <b title="#c06" style="background-color:#c06;"></b>
+                            <b title="#c09" style="background-color:#c09;"></b>
+                            <b title="#c0c" style="background-color:#c0c;"></b>
+                            <b title="#c0f" style="background-color:#c0f;"></b>
+                            <b title="#c30" style="background-color:#c30;"></b>
+                            <b title="#c33" style="background-color:#c33;"></b>
+                            <b title="#c36" style="background-color:#c36;"></b>
+                            <b title="#c39" style="background-color:#c39;"></b>
+                            <b title="#c3c" style="background-color:#c3c;"></b>
+                            <b title="#c3f" style="background-color:#c3f;"></b>
+                            <b title="#c60" style="background-color:#c60;"></b>
+                            <b title="#c63" style="background-color:#c63;"></b>
+                            <b title="#c66" style="background-color:#c66;"></b>
+                            <b title="#c69" style="background-color:#c69;"></b>
+                            <b title="#c6c" style="background-color:#c6c;"></b>
+                            <b title="#c6f" style="background-color:#c6f;"></b>
+                            <b title="#c90" style="background-color:#c90;"></b>
+                            <b title="#c93" style="background-color:#c93;"></b>
+                            <b title="#c96" style="background-color:#c96;"></b>
+                            <b title="#c99" style="background-color:#c99;"></b>
+                            <b title="#c9c" style="background-color:#c9c;"></b>
+                            <b title="#c9f" style="background-color:#c9f;"></b>
+                            <b title="#cc0" style="background-color:#cc0;"></b>
+                            <b title="#cc3" style="background-color:#cc3;"></b>
+                            <b title="#cc6" style="background-color:#cc6;"></b>
+                            <b title="#cc9" style="background-color:#cc9;"></b>
+                            <b title="#ccc" style="background-color:#ccc;"></b>
+                            <b title="#ccf" style="background-color:#ccf;"></b>
+                            <b title="#cf0" style="background-color:#cf0;"></b>
+                            <b title="#cf3" style="background-color:#cf3;"></b>
+                            <b title="#cf6" style="background-color:#cf6;"></b>
+                            <b title="#cf9" style="background-color:#cf9;"></b>
+                            <b title="#cfc" style="background-color:#cfc;"></b>
+                            <b title="#cff" style="background-color:#cff;"></b>
+
+                            <b title="#f00" style="background-color:#f00;"></b>
+                            <b title="#f03" style="background-color:#f03;"></b>
+                            <b title="#f06" style="background-color:#f06;"></b>
+                            <b title="#f09" style="background-color:#f09;"></b>
+                            <b title="#f0c" style="background-color:#f0c;"></b>
+                            <b title="#f0f" style="background-color:#f0f;"></b>
+                            <b title="#f30" style="background-color:#f30;"></b>
+                            <b title="#f33" style="background-color:#f33;"></b>
+                            <b title="#f36" style="background-color:#f36;"></b>
+                            <b title="#f39" style="background-color:#f39;"></b>
+                            <b title="#f3c" style="background-color:#f3c;"></b>
+                            <b title="#f3f" style="background-color:#f3f;"></b>
+                            <b title="#f60" style="background-color:#f60;"></b>
+                            <b title="#f63" style="background-color:#f63;"></b>
+                            <b title="#f66" style="background-color:#f66;"></b>
+                            <b title="#f69" style="background-color:#f69;"></b>
+                            <b title="#f6c" style="background-color:#f6c;"></b>
+                            <b title="#f6f" style="background-color:#f6f;"></b>
+                            <b title="#f90" style="background-color:#f90;"></b>
+                            <b title="#f93" style="background-color:#f93;"></b>
+                            <b title="#f96" style="background-color:#f96;"></b>
+                            <b title="#f99" style="background-color:#f99;"></b>
+                            <b title="#f9c" style="background-color:#f9c;"></b>
+                            <b title="#f9f" style="background-color:#f9f;"></b>
+                            <b title="#fc0" style="background-color:#fc0;"></b>
+                            <b title="#fc3" style="background-color:#fc3;"></b>
+                            <b title="#fc6" style="background-color:#fc6;"></b>
+                            <b title="#fc9" style="background-color:#fc9;"></b>
+                            <b title="#fcc" style="background-color:#fcc;"></b>
+                            <b title="#fcf" style="background-color:#fcf;"></b>
+                            <b title="#ff0" style="background-color:#ff0;"></b>
+                            <b title="#ff3" style="background-color:#ff3;"></b>
+                            <b title="#ff6" style="background-color:#ff6;"></b>
+                            <b title="#ff9" style="background-color:#ff9;"></b>
+                            <b title="#ffc" style="background-color:#ffc;"></b>
+                            <b title="#fff" style="background-color:#fff;"></b>
                         </div>
                     </div>
                     <div class="_erase"><b>清除颜色</b></div>
@@ -1865,6 +1858,117 @@
         <!-- 状态栏（略） -->
     </div>
 
+
+
+<!-- 其它面板 ------------------------------------------------------------------->
+
+    <h4>面板：特性</h4>
+    <div class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b>样式</b>
+                <b class="_press">特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Attrs" onsubmit="return false" tpl-name="slave:attrs">
+                <div class="_roll">
+                    <div class="_name">
+                        <input type="text" name="attr" value="" />
+                        <input type="button" value="+" class="_add" />
+                    </div>
+                    <select name="attrs" size="5" class="_list" tpb-for>
+                        <option _value="$" _="$">style</option>
+                    </select>
+                </div>
+                <div class="_body">
+                    <div class="_main">
+                        <textarea name="content" class="_codes"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>换行符
+                                <input type="text" name="nlchar" class="_char _code" value=";" />
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="common:submit">
+                            <button type="submit">确定</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>面板：源码</h4>
+    <div class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b class="_press">源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Source _body" onsubmit="return false" tpl-name="slave:source">
+                <div class="_main">
+                    <textarea name="content" class="_codes"></textarea>
+                </div>
+                <aside>
+                    <div class="_option">
+                        <label><input type="checkbox" name="repair" />修复</label>
+                        <button>结构检查</button>
+                        <div class="_info _ok"></div>
+                    </div>
+                    <div class="_submit" tpl-name="common:submit">
+                        <button type="submit">确定</button>
+                    </div>
+                </aside>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>面板：脚本</h4>
+    <div class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b class="_press">脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Script" onsubmit="return false" tpl-name="slave:script">
+                <div class="_env">
+                    <label><input type="radio" name="runbox" value="sandbox" checked />沙盒内</label>
+                    <label><input type="radio" name="runbox" value="editor" />编辑器内</label>
+                </div>
+                <div class="_body">
+                    <div class="_main">
+                        <header>
+                            <input type="text" name="prefix" placeholder="记忆前缀：script-" class="_prefix" />
+                        </header>
+                        <textarea name="content" class="_codes"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_icons">
+                            <b title="脚本历史"><i id="l-history"></i></b>
+                        </div>
+                        <div class="_submit">
+                            <button type="submit">运行</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
 </body>
 
 </html>
