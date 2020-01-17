@@ -494,7 +494,7 @@ aside#help {
 .Slave ._roll {
     flex: 1 1 120px;
     min-width: 120px;
-    max-width: 200px;
+    max-width: 140px;
     margin-right: 14px;
     flex-direction: column;
 }
@@ -529,7 +529,8 @@ aside#help {
 }
 .Slave ._body > aside {
     flex: 1 1 auto;
-    min-width: 125px;
+    min-width: 120px;
+    max-width: 150px;
     margin-left: 16px;
 }
 .Slave ._option > * {
@@ -537,7 +538,6 @@ aside#help {
     margin-bottom: 5px;
 }
 .Slave ._submit {
-    min-width: 100px;
     /* 底端对齐 */
     margin-top: auto;
 }
@@ -692,6 +692,9 @@ aside#help {
 }
 .Styles select._list {
     min-width: 150px;
+}
+.Styles ._body > aside {
+    max-width: max-content;
 }
 
 /* 清除按钮 */
@@ -856,7 +859,18 @@ aside#help {
 .Source ._main {
     flex: 5 5 450px;
 }
+.Source > aside {
+    /* 定制覆盖 */
+    width: 180px;
+    max-width: 180px !important;
+}
+.Source ._option {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
 .Source ._option > button {
+    width: max-content;
     background-color: #fceabf;
     border-color: #ddbb56;
     border-radius: 0 16px;
@@ -865,15 +879,16 @@ aside#help {
     background-color: #fff1d1;
 }
 .Source ._info {
+    flex: 1 1 auto;
     font-size: 12px;
     border: 1px #e6e6e6 solid;
-    background-color: #f3f3f3;
-    border-radius: 2px;
+    background-color: #f6f6f6;
+    border-radius: 4px;
     padding: 4px 8px;
-    margin-top: 8px;
+    margin: 3px 0 10px;
     min-height: 50px;
-    max-height: 80px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .Source ._info._ok {
     color: #093;
