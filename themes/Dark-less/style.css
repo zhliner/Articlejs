@@ -440,6 +440,8 @@ aside#help {
     background-color: #f0efef;
     display: flex;
     flex-direction: column;
+    /* 文本框最大化根 */
+    position: relative;
 }
 
 .Slave ._tabs {
@@ -480,12 +482,13 @@ aside#help {
 }
 
 
-/* 共享部分 */
+/* 共享部分
+ *************************************/
 .Slave > form {
     flex: 1 1 0;
     display: flex;
     padding: 10px 12px;
-    /* 方便子内容滚动 */
+    /* 便于内部滚动 */
     overflow-y: hidden;
 }
 .Slave > form > div {
@@ -544,11 +547,20 @@ aside#help {
 .Slave ._submit > button {
     margin-top: 4px;
 }
-
 .Slave hr {
     border: 1px #d5d5d5 solid;
     border-bottom-color: #f8f8f8;
     margin: 8px 0;
+}
+
+/* 录入框最大化 */
+.Slave textarea._full {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 0;
 }
 
 
@@ -637,6 +649,7 @@ aside#help {
     background-color: #f3f3f3;
     border-radius: 3px;
     cursor: default;
+    box-shadow: 0.4px 1px 1px #ccc;
 }
 .Inputs ._chars b:hover {
     background-color: #ddd;
@@ -826,13 +839,9 @@ aside#help {
 
 /* [ 特性 ]
  ****************************************************************************/
-.Attrs > ._roll {
-    min-width: 140px;
-}
 .Attrs ._name {
     display: grid;
     grid-template-columns: auto 30px;
-    height: 26px;
     margin-bottom: 5px;
     margin-top: 1px;
 }
@@ -841,7 +850,6 @@ aside#help {
     background-color: #35bf58;
     border-radius: 0 3px 3px 0;
     color: #fff;
-    font-size: 16px;
     margin-left: -3px;
     outline: none;
 }
@@ -902,7 +910,7 @@ aside#help {
 /* [ 脚本 ]
  ****************************************************************************/
 .Script ._env {
-    width: 90px;
+    min-width: 100px;
     flex-direction: column;
     padding: 5px;
 }
