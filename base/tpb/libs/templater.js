@@ -21,10 +21,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-const $ = window.$;
+// 可选。
+// 若无需支持可简单移除。
+import { Render } from "./render.js";
 
 
 const
+    $ = window.$,
+
     // 子模版分隔符
     loadSplit   = ',',
 
@@ -43,16 +47,15 @@ class Templater {
      * 创建实例。
      * loader: function( String ): Promise:then(Element)
      * obter: function( Element ): Boolean
-     * render: function( Element ): Element
-     *
      * @param {Function} loader 节点载入回调
      * @param {Function} obter OBT解析回调
-     * @param {Render} render 渲染器 {parse, clone}，可选
      */
-    constructor( loader, obter, render ) {
+    constructor( loader, obter ) {
         this._load = loader;
         this._obtx = obter;
-        this._render = render;
+        // 渲染支持，可选
+        // this._render = null;
+        this._render = Render;
 
         // 模板节点存储
         // { String: Element }

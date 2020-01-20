@@ -1,5 +1,5 @@
 //! $Id: tpb.js 2019.08.19 Tpb.Base $
-//
+// ++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -9,11 +9,11 @@
 //  基础定义集。
 //
 //  Tpb {
-//      Build: {Function}   节点树OBT构建函数（页面既有元素）
-//      Lib:   {Object}     库空间，提供外部X扩展接口：Tpb.Lib.X.extend(...)
+//      Build: {Function}   节点树OBT构建函数
+//      Lib:   {Object}     库空间，供外部动态扩展：Tpb.Lib.X.extend(...)
 //  }
 //
-//  可能支持模板和模板渲染（视全局配置而定）。
+//  可支持模板和模板渲染（依全局配置而定）。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@ import { To } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
 import { Templater } from "./libs/templater.js";
-import { Render } from "./libs/render.js";
 import { tplLoad } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
 import { Support, OBTA } from "./config.js";
@@ -91,21 +90,19 @@ function Build( root, obts = true ) {
         return _obter.build( root, obts );
     }
     // 节点树
-    for ( const el of $.find(root, __onSlr, true) ) {
+    for ( const el of $.find(__onSlr, root, true) ) {
         _obter.build( el, obtAttr(el, obts) );
     }
 }
 
 
 //
-// 模板支持检测处理。
+// 模板支持初始化。
 //
 (function () {
 
     if ( Support.template ) {
-        Base.tplStore(
-            new Templater( tplLoad, Build, Support.render && Render )
-        );
+        Base.tplStore( new Templater( tplLoad, Build ) );
     }
 
 })();
@@ -128,7 +125,10 @@ function obtAttr( el, clear ) {
         by: el.getAttribute( OBTA.by ),
         to: el.getAttribute( OBTA.to ),
     };
-    return clear && $.removeAttr(el, __obts), _obj;
+    if ( clear ) {
+        $.removeAttr(el, __obts);
+    }
+    return _obj;
 }
 
 

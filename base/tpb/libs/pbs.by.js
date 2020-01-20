@@ -16,8 +16,11 @@
 
 import { Util } from "./util.js";
 import { X } from "./lib.x.js";
-import { Render } from "./render.js";
 import { bindMethod, method } from "../config.js";
+
+// 可选。
+// 若无需支持可简单移除。
+import { Render } from "./render.js";
 
 const
     $ = window.$,
@@ -36,6 +39,8 @@ const _By = {
      * @data: [element, data]
      */
     render( evo ) {
+        // 可选：
+        // 若无支持，简单注释掉即可。
         Render.update( ...evo.data );
     },
 

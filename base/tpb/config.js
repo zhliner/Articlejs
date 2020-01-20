@@ -18,7 +18,7 @@ const
     // 根目录配置
     Dir = {
         // 安装根路径。
-        // 注意：子级路径末尾需有/。如：http://abc.com/news/
+        // 注：子路径应有末尾/（http://abc.com/news/）
         setup: 'http://localhost:8080',
 
         // 模板根目录
@@ -27,16 +27,13 @@ const
 
         // x.pull根目录
         // 相对于安装根路径。
-        pull: 'data/pull',
+        pull: '_data',
     },
 
     // 特性支持
     Support = {
-        // 模板（tpl-name|load）
+        // 模板（tpl-name|node|source）
         template: true,
-
-        // 渲染（tpb-each|if...）
-        render:   true,
     },
 
     // 模板根路径。

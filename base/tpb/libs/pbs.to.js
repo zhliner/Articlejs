@@ -17,6 +17,9 @@
 
 import { Util } from "./util.js";
 import { bindMethod, method } from "../config.js";
+
+// 可选。
+// 若无需支持可简单移除。
 import { Render } from "./render.js";
 
 
@@ -61,6 +64,9 @@ const _Where = {
      * 目标元素可能不是模板根元素，此时为局部渲染。
      * - 根元素如果是Each语法，该元素必须是Each的起始元素。
      * - 根元素不应当是For循环内包含Each语法的子元素，这会破坏For的结构。
+     * 注：
+     * 本方法可选，若无需支持，简单移除即可。
+     *
      * @param {Element|Collector} its 目标元素/集
      * @param {Object|Array} data 渲染源数据
      */
