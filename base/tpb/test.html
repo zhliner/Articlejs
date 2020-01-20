@@ -1,76 +1,71 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
-    <title>编辑器结构页面</title>
-
-    <link rel="stylesheet" href="base/tpb/default.css">
-    <link rel="stylesheet" href="themes/Dark-less/style.css">
-    <link rel="stylesheet" href="styles/example/main.css">
-
-    <script src="base/tquery/tquery.js"></script>
-    <script src="base/tpb/tpb.js" type="module" async></script>
-
+    <title>Tpb测试页</title>
+    <link rel="stylesheet" href="default.css">
+    <!-- <link rel="stylesheet" href="../../themes/Dark-less/style.css"> -->
+    <script src="../tquery/tquery.js"></script>
+    <script src="tpb.js" type="module" async></script>
     <style>
         body {
-            margin: 0;
+            margin: 100px 40px;
             display: flex;
         }
         body > * {
             flex-shrink: 0;
         }
+        /* 侧面板 */
+        body > aside {
+            border: 1px #5c869c solid;
+        }
         div#editor {
             flex: 1 1 auto;
-        }
-
-        /* test... */
-        body > div {
+            display: flex;
+            flex-direction: column;
+            border: 1px #5c869c solid;
+            border-radius: 12px 12px 4px 4px;
+            position: relative;
             background-color: #b7f7e7;
         }
+        /* 大纲面板 */
         aside#outline {
+            width: 200px;
             resize: horizontal;
             overflow: hidden;
         }
-    </style>
-
-    <script>
-        // frameElement.Config: {
-        //      name     编辑器实例名（存储键）
-        //      theme    默认主题
-        //      style    默认内容样式
-        //      update   上次更新时间
-        //      recover  是否恢复内容
-        //      ready    就绪回调
-        //      maximize 最大化请求
-        //      save     内容本地存储通知
-        //      append   内容添加通知
-        //      earse    内容条目删除通知
-        // }
-
-        // 窗口大小自适应。
-        window.onresize = function( ev ) {
-            document.body.style.height = `${window.innerHeight}px`;
+        /* 侧面板宽度调整线 */
+        body > hr {
+            margin: 0.4em 0;
+            width: 4px;
+            border: 1px #fff solid;
+            border-width: 0 1px;
+            border-radius: 3px;
+            background-color: #5c869c;
+            cursor: ew-resize;
         }
+        /* 帮助面板 */
+        aside#help {
+            width: 260px;
+        }
+    </style>
+    <script>
+        // 窗口大小自适应。
+        function winsize( ev ) {
+            document.body.style.height = `${window.innerHeight/2}px`;
+        }
+        window.onresize = winsize;
+        // 高度适配
         $.ready( () => $.trigger(window, 'resize') );
     </script>
 </head>
-
 <body lang="">
     <aside id="outline" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-
-    <!-- 宽度调整 -->
     <hr id="lineLeft">
-
-    <!-- 主编辑器 -->
     <div id="editor">
-        <div id="g-modal" class="___Panel Modal" data-pb="none">
-            <b class="_close" title="关闭">✕</b>
-            <hr tpl-source="modal:page" />
-        </div>
         <pre tpl-source="main:tools, main:content, main:slave, main:status">
             [工具栏]
             [内容区]
@@ -79,11 +74,7 @@
         </pre>
         <div tpl-source="menu:cells, menu:edits">[选取创建/基本编辑菜单]</div>
     </div>
-
-    <!-- 宽度调整 -->
     <hr id="lineRight">
-
-    <!-- 帮助栏 -->
     <aside id="help" class="_docs" data-pb="">
         <span class="_walk">
             <b title="后退" on="" by="">◀</b>
@@ -98,12 +89,9 @@
             <!-- dl/dt,dd -->
         </div>
     </aside>
-
-    <!-- 友好：阻挡提示音 -->
-    <audio id="beeptip" src="themes/beep.ogg"></audio>
-
-    <!-- 模态框：状态记录 -->
+    <!-- 播放 -->
+    <audio id="beeptip" src="../../themes/beep.ogg"></audio>
+    <!-- 特性值切换 -->
     <input id="g-modal" type="hidden" value="0" />
 </body>
-
 </html>

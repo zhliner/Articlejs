@@ -14,10 +14,6 @@
 @import 'icons.css';
 
 
-body {
-    background-color: #fff;
-}
-
 /* 侧面板 */
 body > aside {
     border: 1px #5c869c solid;
@@ -221,6 +217,13 @@ aside#help {
 }
 .___Panel input._length {
     width: 80px;
+}
+
+
+/* [ 顶层 ]
+ ****************************************************************************/
+#help > ._walk {
+    cursor: default;
 }
 
 
@@ -852,6 +855,7 @@ aside#help {
     color: #fff;
     margin-left: -3px;
     outline: none;
+    font-weight: bold;
 }
 .Attrs ._name ._add:hover {
     background-color: #0fd440;
@@ -1008,13 +1012,9 @@ aside#help {
     flex: 12 12 500px;
 }
 .Status > ._cmdline > input {
-    width: 100%;
     height: 100%;
     border: none;
-    box-sizing: border-box;
     background-color: #ffffe5;
-    padding: 0 5px;
-    border-radius: inherit;
     float: left;
 }
 
