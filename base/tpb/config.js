@@ -33,6 +33,7 @@ const
     // 特性支持
     Support = {
         // 模板（tpl-name|node|source）
+        // 注：如果不支持，Base:tpl方法将不可用。
         template: true,
     },
 

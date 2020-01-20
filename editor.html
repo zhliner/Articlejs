@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
     <title>编辑器结构页面</title>
-
     <link rel="stylesheet" href="base/tpb/default.css">
     <link rel="stylesheet" href="themes/Dark-less/style.css">
     <link rel="stylesheet" href="styles/example/main.css">
-
     <script src="base/tquery/tquery.js"></script>
-    <script src="base/tpb/tpb.js" type="module" async></script>
-
     <style>
         body {
             margin: 0;
@@ -34,7 +29,6 @@
             overflow: hidden;
         }
     </style>
-
     <script>
         // frameElement.Config: {
         //      name     编辑器实例名（存储键）
@@ -48,20 +42,22 @@
         //      append   内容添加通知
         //      earse    内容条目删除通知
         // }
-
         // 窗口大小自适应。
         window.onresize = function( ev ) {
             document.body.style.height = `${window.innerHeight}px`;
         }
         $.ready( () => $.trigger(window, 'resize') );
     </script>
-</head>
 
-<body lang="">
+    <script type="module" async>
+        import Tpb from "./base/tpb/tpb.js";
+        console.dir(Tpb);
+    </script>
+</head>
+<body lang="zh-cn">
     <aside id="outline" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-
     <!-- 宽度调整 -->
     <hr id="lineLeft">
 
@@ -82,7 +78,6 @@
 
     <!-- 宽度调整 -->
     <hr id="lineRight">
-
     <!-- 帮助栏 -->
     <aside id="help" class="_docs" data-pb="">
         <span class="_walk">
@@ -101,9 +96,7 @@
 
     <!-- 友好：阻挡提示音 -->
     <audio id="beeptip" src="themes/beep.ogg"></audio>
-
     <!-- 模态框：状态记录 -->
     <input id="g-modal" type="hidden" value="0" />
 </body>
-
 </html>

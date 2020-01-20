@@ -137,4 +137,4 @@ function obtAttr( el, clear ) {
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-export const Tpb = { Build, Lib };
+export default { Build, Lib };

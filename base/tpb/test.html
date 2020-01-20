@@ -5,9 +5,7 @@
     <meta http-equiv="no-cache">
     <title>Tpb测试页</title>
     <link rel="stylesheet" href="default.css">
-    <!-- <link rel="stylesheet" href="../../themes/Dark-less/style.css"> -->
     <script src="../tquery/tquery.js"></script>
-    <script src="tpb.js" type="module" async></script>
     <style>
         body {
             margin: 100px 40px;
@@ -16,7 +14,6 @@
         body > * {
             flex-shrink: 0;
         }
-        /* 侧面板 */
         body > aside {
             border: 1px #5c869c solid;
         }
@@ -29,13 +26,12 @@
             position: relative;
             background-color: #b7f7e7;
         }
-        /* 大纲面板 */
         aside#outline {
             width: 200px;
             resize: horizontal;
             overflow: hidden;
         }
-        /* 侧面板宽度调整线 */
+        /* 侧面板宽度调整 */
         body > hr {
             margin: 0.4em 0;
             width: 4px;
@@ -45,20 +41,23 @@
             background-color: #5c869c;
             cursor: ew-resize;
         }
-        /* 帮助面板 */
         aside#help {
             width: 260px;
         }
     </style>
     <script>
         // 窗口大小自适应。
-        function winsize( ev ) {
+        window.onresize = function ( ev ) {
             document.body.style.height = `${window.innerHeight/2}px`;
-        }
-        window.onresize = winsize;
-        // 高度适配
+        };
         $.ready( () => $.trigger(window, 'resize') );
     </script>
+
+    <script type="module" async>
+        import Tpb from "./tpb.js";
+        console.dir(Tpb);
+    </script>
+
 </head>
 <body lang="">
     <aside id="outline" data-pb="">
