@@ -89,6 +89,7 @@ aside#help {
     justify-content: center;
     align-items: center;
     font-weight: normal;
+    cursor: default;
 }
 .___Panel b > i {
     margin: auto;
@@ -104,6 +105,28 @@ aside#help {
 .___Panel select._list {
     padding: 6px 1px 6px 6px;
 }
+.___Panel div._list {
+    border: 1px #7dbcdb solid;
+    border-radius: 5px 1px 1px 5px;
+    background-color: #fff;
+    overflow-y: auto;
+}
+/* 属性：清单 */
+.___Panel div._list > table {
+    border-spacing: 10px;
+    margin: 5px auto;
+    width: 96%;
+}
+.___Panel div._list th {
+    text-align: right;
+}
+.___Panel div._list td._preview {
+    height: 120px;
+    padding: 5px;
+    border: 1px #888 solid;
+    background-color: #999;
+}
+
 .___Panel option {
     padding: 3px 6px;
     margin: 1px 0;
@@ -223,7 +246,6 @@ aside#help {
 /* [ 顶层 ]
  ****************************************************************************/
 #help > ._walk {
-    cursor: default;
 }
 
 
@@ -359,7 +381,6 @@ aside#help {
     padding: 5px 10px;
     background-color: #444;
     text-align: center;
-    cursor: default;
     font-weight: normal;
     border-top: 1px #666 solid;
     border-right: 1px #666 solid;
@@ -463,7 +484,6 @@ aside#help {
     border-radius: 4px 4px 0 0;
     margin: 0 2px;
     padding: 2px 6px 4px;
-    cursor: default;
 }
 .Slave ._tabs > b:hover,
 .Slave ._tabs > b._press {
@@ -526,12 +546,6 @@ aside#help {
 }
 .Slave ._body header {
     margin-bottom: 7px;
-}
-.Slave ._body ._list {
-    border: 1px #7dbcdb solid;
-    border-radius: 5px 1px 1px 5px;
-    background-color: #fff;
-    overflow-y: auto;
 }
 .Slave ._body > aside {
     flex: 1 1 auto;
@@ -651,7 +665,6 @@ aside#help {
     margin: 6px 0 0 6px;
     background-color: #f3f3f3;
     border-radius: 3px;
-    cursor: default;
     box-shadow: 0 0 1px 1px #ccc;
 }
 .Inputs ._chars b:hover {
@@ -672,22 +685,6 @@ aside#help {
 }
 .Inputs ._chars ._info i {
     font-style: normal;
-}
-
-/* 内联：属性清单 */
-.Inputs ._inlines table {
-    border-spacing: 10px;
-    margin: 5px auto;
-    width: 96%;
-}
-.Inputs ._inlines th {
-    text-align: right;
-}
-.Inputs ._inlines td._preview {
-    height: 120px;
-    padding: 5px;
-    border: 1px #888 solid;
-    background-color: #999;
 }
 
 /* 共享：优先 */
@@ -956,7 +953,6 @@ aside#help {
     border: 1px #c9c9c9 solid;
     margin: 3px 0 3px 4px;
     background-color: #efefdf;
-    cursor: default;
     line-height: 22px;
     white-space: nowrap;
     border-radius: 2px;
@@ -1040,155 +1036,113 @@ aside#help {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    background-color: rgba(128, 128, 128, 0.5);
+    background-color: rgba(128, 128, 128, 0.7);
     z-index: 100;
     border-radius: inherit;
     border: 4px #777 solid;
+    display: flex;
 }
-
-
-
-.___Panel.Modal ._dialog {
-    border-radius: 3px;
-    border: 1px #1A4E84 solid;
-    box-shadow: 1px 5px 12px #555;
-}
-.___Panel.Modal ._dialog ._close {
-    margin-top: 6px;
-    margin-right: 10px;
-}
-.___Panel.Modal h5 {
-    height: 28px;
-    padding: 7px 0 0 14px;
-    margin: 0;
-    color: #ddd;
-    font-weight: normal;
-    border: 1px #1A4E84 solid;
-    background-color: rgba(22,66,111,0.9);
-}
-.___Panel.Modal h5 > span {
-    margin-left: 6px;
-}
-.___Panel.Modal h5 + div {
+.Modal form {
+    display: flex;
     background-color: #fff;
-    padding: 10px;
-    height: calc(100% - 37px);
+    border-radius: 10px;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: auto;
 }
-.___Panel.Modal ._prop {
-    /* -h5,-_btns,-padding */
-    height: calc(100% - 136px);
-    padding: 5px 8px 20px;
+.Modal header {
+    display: grid;
+    grid-template-columns: auto 42px;
+    height: 36px;
+    background-color: #2b5663;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    margin-bottom: 10px;
 }
-.___Panel.Modal ._prop > table {
-    margin-top: 5px;
-    width: 99%;
-    height: auto;
+.Modal header > h5 {
+    color: #eee;
+    font-size: 11pt;
+    margin: 6px 16px;
 }
-.___Panel.Modal input[type=text] {
-    padding: 2px 5px;
+.Modal header > ._close {
+    color: #999;
+    font-size: 14pt;
 }
-.___Panel.Modal ._prop th {
-    width: 20%;
+.Modal header > ._close:hover {
+    color: #b0b0b0;
+}
+.Modal form > ._list {
+    margin: 10px 30px;
+}
+.Modal form > p {
+    padding: 8px 35px 5px;
+}
+.Modal form > div:last-child {
+    margin-top: auto;
+    padding: 20px 7% 35px;
     text-align: right;
-    padding: 2px 4px 0 0;
-    color: #666;
 }
-.___Panel.Modal ._prop td {
-    width: 74%;
-    padding: 2px 0;
+.Modal ._btn2 > button {
+    margin: auto 10px;
 }
-.___Panel.Modal ._btns {
-    height: 75px;
-    border-top: 1px solid #aaa;
-    background-color: #eee;
-    border-radius: 0 0 3px 3px;
+.Modal ._page {
+    flex-grow: 1;
+    margin: 30px;
 }
-.___Panel.Modal ._btns span {
-    margin: 22px 12px;
+.Modal ._prop {
+    width: 600px;
+    height: 450px;
 }
-.___Panel.Modal ._note {
-    padding: 5px 10px;
-    border: 1px #ccc solid;
-    background-color: #f0f0f0;
-    border-radius: 3px;
-    margin: 0 5px;
-    color: #666;
-    text-shadow: 0 1px 1px #fff;
+.Modal p._note {
+    color: #b60;
 }
-.___Panel.Modal ._note ._name {
-    font-weight: bold;
+.Modal ._small input {
+    min-width: 350px;
 }
-.___Panel.Modal ._button:hover {
-    background-color: #fff;
-}
-
-.___Panel.Modal ._warn {
-    border-bottom: 1px #f93 dotted;
-}
-.___Panel.Modal li {
-    padding: 4px 12px;
-    cursor: default;
-    color: #222;
-}
-.___Panel.Modal li:first-child {
-    padding-top: 8px;
-}
-.___Panel.Modal ._page ._xbox {
-    background-color: #e8ecf1;
-}
-.___Panel.Modal ._page ._btns {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-}
-.___Panel.Modal ol,
-.___Panel.Modal ul {
-    background-color: #fff;
-    border-radius: 4px;
-}
-.___Panel.Modal ._code {
-    font-size: 12px !important;
-    color: #222;
-    line-height: 1.3em;
+.Modal ._message p {
+    min-width: 200px;
+    max-width: 480px;
+    max-height: 140px;
+    overflow-y: auto;
 }
 
 /* 脚本清单 */
-.___Panel.Modal ._sh {
+.xPanel.Modal ._sh {
     height: 100%;
 }
-.___Panel.Modal ._sh ol {
+.xPanel.Modal ._sh ol {
     padding-left: 70px;
     padding-bottom: 2px;
     overflow-y: auto;
     resize: none;
     height: calc(100% - 38px);
 }
-.___Panel.Modal ._sh code {
+.xPanel.Modal ._sh code {
     display: block;
     cursor: pointer;
     color: #036;
 }
-.___Panel.Modal ._sh li {
+.xPanel.Modal ._sh li {
     margin: 0 2px;
 }
-.___Panel.Modal ._sh li:nth-child(even) {
+.xPanel.Modal ._sh li:nth-child(even) {
     background-color: #eee;
 }
-.___Panel.Modal ._sh ._note {
+.xPanel.Modal ._sh ._note {
     border-width: 0;
     background-color: transparent;
 }
-.___Panel.Modal ._search {
+.xPanel.Modal ._search {
     margin-bottom: 8px;
 }
-.___Panel.Modal ._search ._text {
+.xPanel.Modal ._search ._text {
     padding: 3px 12px;
     border-radius: 12px;
     outline: none;
     width: calc(100% - 70px);
     margin-left: 10px;
 }
-.___Panel.Modal ._search ._icon {
+.xPanel.Modal ._search ._icon {
     width: 48px;
     height: 22px;
     border: 1px transparent solid;
@@ -1199,44 +1153,33 @@ aside#help {
 }
 
 /* 脚本运行结果 */
-.___Panel.Modal ._info {
+.xPanel.Modal ._info {
     height: calc(100% - 5px);
 }
-.___Panel.Modal ._info b {
+.xPanel.Modal ._info b {
     /* 预览恢复 */
     font-weight: bold;
 }
-.___Panel.Modal ._info li._data {
+.xPanel.Modal ._info li._data {
     overflow-y: auto;
     resize: none;
     height: calc(100% - 147px);
     border-top: 3px #ddd double;
     padding-top: 6px;
 }
-.___Panel.Modal ._info li > b {
+.xPanel.Modal ._info li > b {
     color: #096;
 }
-.___Panel.Modal ._info div {
+.xPanel.Modal ._info div {
     color: #000;
 }
-.___Panel.Modal ._info ._error {
+.xPanel.Modal ._info ._error {
     color: #000;
     padding: 0 6px;
 }
-.___Panel.Modal ._info ._warn {
+.xPanel.Modal ._info ._warn {
     color: #d00;
     padding: 0 6px;
-}
-
-/* 单行文本框 */
-.___Panel.Modal ._small ._xbox {
-    height: 70px;
-    padding: 0 20px;
-}
-.___Panel.Modal ._small ._xbox input {
-    margin-top: 14px;
-    padding: 4px;
-    width: 99%;
 }
 
 

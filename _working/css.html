@@ -38,7 +38,48 @@
     <div id="editor">
         <!-- 模态框：屏蔽层 -->
         <div id="g-modal" class="___Panel Modal" data-pb="none">
-            <hr tpl-source="modal:page" />
+            <form class="_prop" tpl-name="modal:prop">
+                <header>
+                    <h5>[标题]</h5>
+                    <b class="_close" title="关闭">✕</b>
+                </header>
+                <p id="modal-note" class="_note" data-pb="">
+                    [这里是当前属性的一些必要说明或提示。]
+                </p>
+                <div class="_list" data-pb="">
+                    <table tpl-name="inputs:img">
+                        <tr tpl-name="prop:srcbase">
+                            <th title="相对于网站根目录">根路径</th>
+                            <!-- 依配置自动设置 -->
+                            <td><input type="text" name="srcbase" placeholder="/upload" /></td>
+                        </tr>
+                        <tr tpl-name="prop:sources">
+                            <th title="支持多条目">数据源</th>
+                            <td><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></td>
+                        </tr>
+                        <tr tpl-name="prop:alts">
+                            <th title="与数据源分别对应">图片说明</th>
+                            <td><input type="text" name="alts" placeholder="alt11; alt22" /></td>
+                        </tr>
+                        <tr class="_upload" tpl-name="prop:upload">
+                            <th>上传</th>
+                            <td><input type="file" name="upload" value="" on="change|evo('origin'), val"
+                                    by="x.Fun.upload(null)" />
+                            </td>
+                        </tr>
+                        <tr tpl-name="prop:preview">
+                            <th>预览</th>
+                            <td class="_preview" data-id="preview">
+                                <!-- img|video|audio -->
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="_btn2" tpl-name="modal:btn2">
+                    <button type="submit">确定</button>
+                    <button type="reset">重置</button>
+                </div>
+            </form>
         </div>
 
 <!-- 工具栏 -->

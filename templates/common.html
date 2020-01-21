@@ -1,10 +1,10 @@
-<!-- 模态页：插件... -->
+<!-- 模态页 -->
 <form class="_page" tpl-name="modal:page">
     <header>
         <h5>[标题]</h5>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <div id="modal-xbox" class="_xbox">
+    <div id="modal-xbox" class="_list">
         <!-- [node] -->
     </div>
     <div class="_btn2" tpl-name="modal:btn2">
@@ -17,17 +17,19 @@
 
 
 <!-- 模态框：属性 -->
-<form class="_list" tpl-name="modal:list">
+<form class="_prop" tpl-name="modal:prop">
     <header>
         <h5>[标题]</h5>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <header id="modal-note" class="_node" data-pb="none">
+    <p id="modal-note" class="_node" data-pb="none">
         [提示/说明]
-    </header>
-    <table>
-        <tbody></tbody>
-    </table>
+    </p>
+    <div class="_list">
+        <table>
+            <tbody></tbody>
+        </table>
+    </div>
     <hr tpl-node="modal:btn2" />
     <!-- 条目标记 -->
     <input type="hidden" name="item" value="" />
@@ -40,32 +42,26 @@
         <h5>[标题]</h5>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <div class="_xbox">
-        <input type="text" name="txtline" />
-    </div>
+    <p><input type="text" name="txtline" /></p>
     <hr tpl-node="modal:btn2" />
-    <!-- 条目标记 -->
-    <input type="hidden" name="item" value="" />
 </form>
 
 
 <!-- 模态框：消息 -->
-<form class="_massage">
+<form class="_message">
     <header>
         <h5>[标题]</h5>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <div id="modal-msg" class="_msg">
+    <p id="modal-msg">
         [消息内容]
-    </div>
+    </p>
     <hr tpl-node="common:submit" />
-    <!-- 条目标记 -->
-    <input type="hidden" name="item" value="" />
 </form>
 
 
 <!-- 模态页：脚本历史 -->
-<form class="_shlist" tpl-name="modal:shlist">
+<form class="_page _shall" tpl-name="modal:shall">
     <header>
         <h5>脚本历史</h5>
         <b class="_close" title="关闭">✕</b>
@@ -82,8 +78,8 @@
 </form>
 
 
-<!-- 模态页：脚本测试 -->
-<div class="_test" tpl-name="page:shtest">
+<!-- 模态页：脚本执行结果 -->
+<div class="_page _shrun" tpl-name="page:shrun">
     <header>
         <h5>脚本测试结果</h5>
         <b class="_close" title="关闭">✕</b>
