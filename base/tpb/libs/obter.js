@@ -47,8 +47,11 @@ const
     // To
     __toqMore   = '+',  // 多元素检索前置标志
     __toqExtra  = '!',  // 进阶提取标志
+    __toqOrig   = '~',  // 事件起始元素（evo.origin）
+    __toqCur    = '=',  // 事件当前元素（evo.current）
+    __toqRoot   = '&',  // 事件委托元素（evo.delegate）
     __tosAttr   = '@',  // 特性指定
-    __tosProp   = '&',  // 属性指定
+    __tosProp   = '$',  // 属性指定
     __tosCSS    = '%',  // 样式指定
     __tosToggle = '^',  // 特性（Attribute）切换
 

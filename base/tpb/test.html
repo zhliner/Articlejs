@@ -71,12 +71,13 @@
 
 </head>
 <body lang="">
-    <aside id="outline" data-pb="">
+    <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft">
     <div id="editor">
-        <div id="g-modal" class="___Panel Modal" data-pb="">
+        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb=""
+            on="click('b._close')|evo(2)" by="lose">
             <form class="_prop" tpl-name="modal:prop">
                 <header>
                     <h5>[标题]</h5>
@@ -102,15 +103,14 @@
         <div tpl-source="menu:cells, menu:edits">[选取创建/基本编辑菜单]</div>
     </div>
     <hr id="lineRight">
-    <aside id="help" class="_docs" data-pb="">
+    <aside id="help" class="___Panel _docs" data-pb="">
         <span class="_walk">
             <b title="后退" on="" by="">◀</b>
-            <b title="上层目录">▤</b>
-            <b title="前进" on="" by="">▶</b>
+            <b title="上层目录" class="_top">▤</b>
+            <b title="前进" data-pb="disabled" on="" by="">▶</b>
+            <!-- ⚘ -->
+            <b title="关于..." class="_about">⚘</b>
         </span>
-        <nav class="_nav" id="help-nav">
-            <!-- span/b... 路径导航 -->
-        </nav>
         <hr>
         <div id="help-xbox" class="_xbox">
             <!-- dl/dt,dd -->

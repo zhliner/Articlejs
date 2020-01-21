@@ -155,7 +155,6 @@ aside#help {
 
 .___Panel input[type=text] {
     padding: 1px 4px;
-    outline: none;
     border: 1px #93c8e2 solid;
     border-radius: 2px;
     font-size: 14px;
@@ -179,7 +178,6 @@ aside#help {
 
 .___Panel textarea {
     border: 1px #355c64 solid;
-    outline: none;
     padding: 2px 2px 2px 8px;
     flex: 1 1 auto;
     border-radius: 3px 1px 1px 3px;
@@ -190,6 +188,7 @@ aside#help {
     overflow-y: scroll;
     resize: none;
     box-sizing: border-box;
+    outline: none;
 }
 .___Panel td > textarea {
     width: 100%;
@@ -241,11 +240,46 @@ aside#help {
 .___Panel input._length {
     width: 80px;
 }
+/* 去除焦点虚框 */
+.___Panel input,
+.___Panel [tabindex] {
+    outline: none;
+}
 
 
 /* [ 顶层 ]
  ****************************************************************************/
+#help {
+    padding: 2px;
+}
 #help > ._walk {
+    display: flex;
+    margin: 0 4px 2px;
+}
+#help > ._walk > b {
+    margin: 1px;
+    padding: 2px 7px;
+    border: 1px transparent solid;
+    border-radius: 3px;
+    font-size: 1.1em;
+}
+#help > ._walk > b._top {
+    font-weight: bold;
+}
+#help > ._walk > b:hover {
+    border-color: #f1f1f1;
+    background-color: #f9f9f9;
+}
+#help > ._walk > ._about {
+    padding: 0;
+    width: 22px;
+    margin-left: auto;
+    border-radius: 18px 0;
+    color: #090;
+}
+#help > ._walk > ._about:hover {
+    border-color: transparent;
+    box-shadow: 0.5px 0.6px 1px #999;
 }
 
 
@@ -632,7 +666,6 @@ aside#help {
 .Inputs ._lines {
     padding: 5px 15px;
     flex: 1 1 auto;
-    outline: none;
 }
 .Inputs ._lines > b {
     margin: 4px auto;
@@ -851,7 +884,6 @@ aside#help {
     border-radius: 0 3px 3px 0;
     color: #fff;
     margin-left: -3px;
-    outline: none;
     font-weight: bold;
 }
 .Attrs ._name ._add:hover {
@@ -1033,7 +1065,6 @@ aside#help {
  ****************************************************************************/
 .Modal {
     position: absolute;
-    box-sizing: border-box;
     width: 100%;
     height: 100%;
     background-color: rgba(128, 128, 128, 0.7);
@@ -1041,13 +1072,14 @@ aside#help {
     border-radius: inherit;
     border: 4px #777 solid;
     display: flex;
+    box-sizing: border-box;
+    outline: none;
 }
 .Modal form {
     display: flex;
     background-color: #fff;
     border-radius: 10px;
     flex-direction: column;
-    justify-content: space-between;
     margin: auto;
 }
 .Modal header {
@@ -1105,6 +1137,8 @@ aside#help {
     max-height: 140px;
     overflow-y: auto;
 }
+
+
 
 /* 脚本清单 */
 .xPanel.Modal ._sh {
@@ -1194,7 +1228,6 @@ menu {
     margin: 0;
     padding: 0;
     cursor: default;
-    outline: none;
 }
 
 menu > hr {

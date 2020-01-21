@@ -88,7 +88,7 @@ evo: {
     selector: {String|undefined}    // 委托匹配选择器（for match）]
     data: {Value|[Value]}           // 自动获取的流程数据
 
-    entry: {Function}               // 迭代入口函数，由entry指令创建。其它指令内部可直接调用：evo.entry(...)
+    entry: {Function}               // 迭代入口函数，由entry指令创建。其它指令内部也可直接调用：evo.entry(...)
     targets: {Element|Collector}    // To目标元素（集）向后延续，在 To:Query 之后存在
 }
 ```
@@ -157,10 +157,11 @@ evo( name: String | Number ): Value
 //      1|'current'   evo.current
 //      2|'delegate'  evo.delegate
 //      3|'related'   evo.related
-//      8|'selector'  evo.selector
-//      9|'event'     evo.event
+//      5|'selector'  evo.selector
 //     10|'data'      evo.data （前端最后取出值遗留）
-//     11|'targets'   evo.targets （To检索目标延续传递）
+//     11|'entry',    evo.entry （中段入口，迭代重入）
+//     12|'targets'   evo.targets （To检索目标延续传递）
+//     13|'event'     evo.event （非最简单）
 // }
 // 目标：从（隐藏的）首个实参上取值。无需当前条目。
 // 实现：name:[n => s]; evo[ name[x] || x ]
@@ -177,6 +178,7 @@ ev( ...name: String | [String] ): Value | [Value]
 // 特权：是。自主入栈。
 // 注：
 // name支持空格分隔的名称序列，此时值为一个集合（数组）。
+// 如果未传入任何名称，则取事件对象本身。
 
 tpl( name?: String, clone?: Boolean ): Element
 // 获取name模板节点。

@@ -48,20 +48,6 @@
 
 /* 条目冻结 */
 *[data-pb~='disabled'] {
-    color: #888 !important;
+    color: #999 !important;
     filter: grayscale(1) !important;
-}
-
-
-/* 菜单
- * menu/li/menu/li...
- ***********************************************/
-
-/* 弹出/收回 */
-*[data-pb|='menu-sub'] {
-	position: relative;
-}
-
-*[data-pb~='unpop'] > menu {
-    display: none !important;
 }

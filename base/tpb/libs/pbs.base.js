@@ -29,15 +29,15 @@ const
 
     // evo成员名数值键。
     evoIndex = {
-        0:  'event',        // 原生事件对象（未侵入）
-        1:  'origin',       // 事件起点元素（event.target）
-        2:  'current',      // 触发事件的当前元素（event.currentTarget|matched）
-        3:  'delegate',     // 事件相关联元素（event.relatedTarget）
-        4:  'related',      // 委托绑定的元素（event.currentTarget）
+        0:  'origin',       // 事件起点元素（event.target）
+        1:  'current',      // 触发事件的当前元素（event.currentTarget|matched）
+        2:  'delegate',     // 事件相关联元素（event.relatedTarget）
+        3:  'related',      // 委托绑定的元素（event.currentTarget）
         5:  'selector',     // 委托匹配选择器（for match）]
         10: 'data',         // 自动获取的流程数据
         11: 'entry',        // 中段入口（迭代重入）
         12: 'targets',      // To目标元素/集，向后延续
+        13: 'event',        // 原生事件对象（注：ev指令可直接获取）
     },
 
     // 空白分隔符。

@@ -54,6 +54,16 @@ trigger( evn: String, data: Value, ...rest )
 // 注：可以作为正常的By操作之一。
 
 
+// 简单的UI操作
+//===============================================
+
+hide()      // 元素隐藏，对应CSS visibility:hidden。
+lose()      // 元素显示丢失，对应CSS display:none。
+disabled()  // 元素失活，模拟表单控件的 disabled 外观（灰化）。
+fold()      // 元素折叠，即下一个兄弟元素 display:none。
+
+
+
 // 节点构造。
 // 目标：当前条目/栈顶1项。
 // 注：与To部分的同名方法不同，这里接收字符串参数。
