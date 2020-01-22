@@ -1122,7 +1122,7 @@ elo: {
 > **注：**<br>
 > 实现 `EventListener` 接口是指对象中包含 `.handleEvent()` 方法的实现。<br>
 > `EventListener` 处理器内的 `this` 为该对象自身。函数处理器内的 `this` 没有特别含义（并不指向 `elo.current`）。<br>
-> 作为委托绑定的优化，`slr` 可前置 `~` 字符表示选择器仅测试事件起点元素（`event.target`）。这在深层委托中效益明显（无大量匹配测试）。<br>
+> 作为委托绑定的性能优化，`slr` 可前置 `~` 字符表示选择器仅测试事件起点元素（`event.target`）。这在深层委托中效益明显（无大量匹配测试）。<br>
 
 
 ### [$.off( el, evn, slr ): this](docs/$.off.md)
