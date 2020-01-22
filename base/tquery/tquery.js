@@ -6741,10 +6741,8 @@ const Event = {
      * @param {String} slr 委托选择器，可选
      */
     _eloWrap( ev, cur, slr ) {
-        if ( !cur ) {
-            ev.preventDefault();
-            return false;
-        }
+        if ( !cur ) return;
+
         let _elo = {
             origin: ev.target,
             current: cur,
@@ -6903,7 +6901,7 @@ const Event = {
      * @return {Element|null}
      */
     _target( ev, slr ) {
-        return $is( ev.target, this._selector(ev.currentTarget, slr) ) ? ev.target : null;
+        return $is( ev.target, eventSelector(ev.currentTarget, slr) ) ? ev.target : null;
     },
 
 
@@ -6937,7 +6935,7 @@ const Event = {
     _delegate( ev, slr ) {
         let _beg = ev.target,
             _box = ev.currentTarget,
-            _slr = this._selector(_box, slr);
+            _slr = eventSelector(_box, slr);
 
         while (_beg !== _box) {
             if ( $is(_beg, _slr) ) return _beg;
@@ -6946,18 +6944,18 @@ const Event = {
         return null;
     },
 
-
-    /**
-     * 获取合适的选择器。
-     * @param  {Element} box 容器元素
-     * @param  {String} slr 选择器串（支持前置>）
-     * @return {String}
-     */
-    _selector( box, slr ) {
-        return subslr.test(slr) ? hackSelector(box, slr, hackFix) : slr;
-    },
-
 };
+
+
+/**
+ * 获取合适的选择器。
+ * @param  {Element} box 容器元素
+ * @param  {String} slr 选择器串（支持前置>）
+ * @return {String}
+ */
+function eventSelector( box, slr ) {
+    return subslr.test(slr) ? hackSelector(box, slr, hackFix) : slr;
+}
 
 
 /**
