@@ -1099,7 +1099,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 - `el: Element | Document | Window` 绑定到的目标元素、文档或窗口。
 - `evn: String | Object` 目标事件名（序列）或 {事件名: 处理器} 配置对象。
-- `slr: String` 委托绑定的选择器。可选，默认 `null`。
+- `slr: String` 委托绑定的选择器。如果不是委托方式，可传递任意假值。
 - `handle: Function | EventListener | false | null` 事件处理器、实现了 `EventListener` 接口的对象或2个特殊值。
 
 实参 `evn` 支持空格分隔的多个事件名同时指定。实参 `slr` 为一非空字符串时则为委托绑定（`delegate`）方式，事件冒泡到匹配该选择器的元素时触发调用。`handle` 可以是两个特殊值，它们分别对应两个预定义的处理器：
@@ -1121,7 +1121,8 @@ elo: {
 
 > **注：**<br>
 > 实现 `EventListener` 接口是指对象中包含 `.handleEvent()` 方法的实现。<br>
-> 函数处理器内的 `this` 为触发事件的当前元素（`elo.current`），`EventListener` 处理器内的 `this` 为该对象自身。<br>
+> `EventListener` 处理器内的 `this` 为该对象自身。函数处理器内的 `this` 没有特别含义（并不指向 `elo.current`）。<br>
+> 作为委托绑定的优化，`slr` 可前置 `~` 字符表示选择器仅测试事件起点元素（`event.target`）。这在深层委托中效益明显（无大量匹配测试）。<br>
 
 
 ### [$.off( el, evn, slr ): this](docs/$.off.md)

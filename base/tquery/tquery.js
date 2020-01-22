@@ -1979,16 +1979,16 @@ Object.assign( tQuery, {
 
     //== 事件接口 =============================================================
     // 事件名支持空格分隔的名称序列。
-    // 事件名位置实参支持「事件名/处理器」名值对的配置对象。
-    // 用户处理器支持实现了 EventListener 接口的对象（包含 handleEvent 方法）。
+    // 事件名位置实参支持「事件名:处理器」名值对的配置对象。
+    // 用户处理器支持实现了 EventListener 接口的对象（即包含 .handleEvent() 方法）。
 
 
     /**
      * 绑定事件处理。
      * 多次绑定同一个事件名和相同的调用函数是有效的。
-     * 处理器接口：function( ev, targets ): false|Any
+     * 处理器接口：function( ev, elo ): false|Any
      * ev: Event 原生的事件对象。
-     * targets: {
+     * elo: {
      *      origin: Element   事件起源元素（event.target）
      *      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
      *      related: Element  事件相关的元素（event.relatedTarget）
@@ -1996,6 +1996,10 @@ Object.assign( tQuery, {
      *      selector: String  委托匹配选择器，可选
      * }
      * 事件配置对象：{ evn: handle }
+     *
+     * 注意：
+     * - handle如果是EventListener实例，方法.handleEvent()中的this为该实例自身。
+     * - handle如果是普通函数，函数内的this没有特殊含义（并不指向ev.currentTarget）。
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
@@ -2020,6 +2024,10 @@ Object.assign( tQuery, {
     /**
      * 移除事件绑定。
      * 仅能移除 on/one 方式绑定的处理器。
+     * slr: {
+     *      null 匹配非委托绑定
+     *      ''   匹配非委托绑定和全部委托绑定
+     * }
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器，可选
@@ -6533,6 +6541,8 @@ const Event = {
      * 可以传递事件名序列，只克隆相应事件名的绑定。
      * 如果没有传递事件名集，则全部事件绑定都会克隆。
      * 如果源上没有事件绑定，则没有任何效果。
+     * 注记：
+     * 事件处理器和事件配置会共享同一个对象。
      * @param  {Element} to  目标元素
      * @param  {Element} src 事件源元素
      * @param  {[String]} evns 事件名序列，可选
@@ -6662,7 +6672,10 @@ const Event = {
      * 构造事件处理句柄。
      * - 返回的函数由事件实际触发调用：func(ev)
      * - 每次返回的是一个新的处理函数。
-     * - 支持EventListener接口，此时this为接口实现者本身。
+     * - 支持EventListener接口，此时this为接口实现对象自身。
+     * 注意：
+     * 用户传入的事件处理器函数内的this没有特殊含义（并不指向event.currentTarget）。
+     *
      * @param  {Function} handle 用户调用
      * @param  {Function} current 获取当前元素的函数
      * @param  {String|null} slr 选择器串（已合法）
