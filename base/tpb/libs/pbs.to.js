@@ -45,7 +45,7 @@ const _Where = {
      * args[0]：源元素（事件源）。
      * args[1]：事件名序列或配置（集）。
      * @param {Element|Collector} its 目标元素（集）
-     * @param {Element, String|Array2|[Array2]} args 实参（序列）
+     * @param {Element, String?} args 实参（序列）
      */
     cloneEvent( its, args ) {
         if ( !$.isArray(args) ) {

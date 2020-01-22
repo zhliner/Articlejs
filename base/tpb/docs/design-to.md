@@ -148,7 +148,7 @@ xxxx   // 单元素检索，$.get(): Element | null
 // 克隆事件处理器到目标元素。
 // 事件源为单个元素，因此支持多实参扩展传递后续配置。
 // {Element} /src
-// [ Element, String|Array2|[Array2] ]
+// [ Element, String? ]
 // 实现：
 // 检查传入的流程数据是否为数组，决定是否展开。
 
