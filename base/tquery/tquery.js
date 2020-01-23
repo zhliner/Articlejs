@@ -458,9 +458,10 @@ function hackAttrClear( ctx, attr ) {
 
 /**
  * 选择器串hack处理。
- * @param {Element} ctx 上下文元素
- * @param {String} slr 选择器（可能包含>）
- * @param {String} fix Hack标识串
+ * @param  {Element} ctx 上下文元素
+ * @param  {String} slr 选择器（可能包含>）
+ * @param  {String} fix Hack标识串
+ * @param  {String} 处理后的合法选择器串
  */
 function hackSelector( ctx, slr, fix ) {
     let _buf = [],
@@ -756,17 +757,27 @@ Object.assign( tQuery, {
      * - 支持不同种类元素之间的事件克隆，但仅限于元素自身。
      * - 可以指定匹配的事件名序列（空格分隔），不区分是否为委托。
      * - 如果没有目标事件被克隆，没有任何效果。
+     * 过滤函数接口：function(conf): Boolean，其中：
+     * conf: {
+     *      name        事件名
+     *      selector    委托选择器（可能前置>）
+     *      once        绑定为单次执行
+     *      handle      用户的事件处理函数
+     *      capture     是否注册为捕获
+     * }
      * @param  {Element} to 克隆目标元素
      * @param  {Element} src 事件源元素
-     * @param  {String} evns 事件名序列，可选
+     * @param  {String|Function} evns 事件名序列或过滤函数，可选
      * @return {Element} to
      */
     cloneEvent( to, src, evns ) {
         if (to === src) {
-            window.console.warn('clone events on same element.');
             return to;
         }
-        return Event.clone( to, src, evns.trim().split(__chSpace) );
+        if ( typeof evns == 'string' ) {
+            evns = evns.trim().split(__chSpace);
+        }
+        return Event.clone( to, src, evns );
     },
 
 
@@ -2025,8 +2036,9 @@ Object.assign( tQuery, {
      * 移除事件绑定。
      * 仅能移除 on/one 方式绑定的处理器。
      * slr: {
-     *      null 匹配非委托绑定
-     *      ''   匹配非委托绑定和全部委托绑定
+     *      null        匹配非委托绑定
+     *      undefined   匹配非委托绑定和全部委托绑定
+     *      ''|false|0  同上undefined
      * }
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
@@ -6484,11 +6496,7 @@ const Event = {
      * - 解除绑定的同时会移除相应的存储记录（包括单次绑定）。
      *   即：单次绑定在调用之前可以被解除绑定。
      * - 传递事件名为假值会解除元素全部的事件绑定。
-     * slr: {
-     *      null    匹配非委托绑定
-     *      ''      匹配非委托绑定和全部委托绑定
-     *      '...'   匹配特定选择器绑定
-     * }
+     * - slr的含义参考接口 $.off() 说明。
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
      * @param {String} slr 委托选择器，可选
@@ -6545,7 +6553,7 @@ const Event = {
      * 事件处理器和事件配置会共享同一个对象。
      * @param  {Element} to  目标元素
      * @param  {Element} src 事件源元素
-     * @param  {[String]} evns 事件名序列，可选
+     * @param  {[String]|Function} evns 事件名序列或过滤回调，可选
      * @return {Element} to
      */
     clone( to, src, evns ) {
@@ -6795,8 +6803,7 @@ const Event = {
         if ( evn ) {
             _fns.push( it => it.name === evn );
         }
-        if ( slr !== '' ) {
-            slr = slr || null;
+        if ( slr || slr === null ) {
             _fns.push( it => it.selector === slr );
         }
         if ( handle ) {
@@ -6815,8 +6822,8 @@ const Event = {
         if ( !evns ) {
             return () => true;
         }
-        if ( evns.length == 1 ) {
-            return conf => conf.name == evns[0];
+        if ( isFunc(evns) ) {
+            return evns;
         }
         return conf => evns.includes( conf.name );
     },
@@ -6901,7 +6908,19 @@ const Event = {
      * @return {Element|null}
      */
     _target( ev, slr ) {
-        return $is( ev.target, eventSelector(ev.currentTarget, slr) ) ? ev.target : null;
+        let _el = ev.target;
+
+        if ( !subslr.test(slr) ) {
+            return $is(_el, slr) ? _el : null;
+        }
+        let _box = ev.currentTarget;
+        try {
+            hackAttr(_box, hackFix);
+            return $is( _el, hackSelector(_box, slr, hackFix) ) ? _el : null;
+        }
+        finally {
+            hackAttrClear(_box, hackFix);
+        }
     },
 
 
@@ -6934,27 +6953,38 @@ const Event = {
      */
     _delegate( ev, slr ) {
         let _beg = ev.target,
-            _box = ev.currentTarget,
-            _slr = eventSelector(_box, slr);
+            _box = ev.currentTarget;
 
-        while (_beg !== _box) {
-            if ( $is(_beg, _slr) ) return _beg;
-            _beg = _beg.parentNode;
+        if ( !subslr.test(slr) ) {
+            return closest(_box, _beg, slr);
         }
-        return null;
+        try {
+            hackAttr(_box, hackFix);
+            return closest( _box, _beg, hackSelector(_box, slr, hackFix) );
+        }
+        finally {
+            hackAttrClear(_box, hackFix);
+        }
     },
 
 };
 
 
 /**
- * 获取合适的选择器。
+ * 向上检测匹配。
+ * 专用于委托绑定时，向上递进到委托容器时止。
+ * 注：不包含容器本身。
  * @param  {Element} box 容器元素
- * @param  {String} slr 选择器串（支持前置>）
- * @return {String}
+ * @param  {Element} beg 匹配起点元素
+ * @param  {String} slr 选择器串（已合法）
+ * @return {Element|null} 匹配的子级元素
  */
-function eventSelector( box, slr ) {
-    return subslr.test(slr) ? hackSelector(box, slr, hackFix) : slr;
+function closest( box, beg, slr ) {
+    while ( beg !== box ) {
+        if ( $is(beg, slr) ) return beg;
+        beg = beg.parentNode;
+    }
+    return null;
 }
 
 

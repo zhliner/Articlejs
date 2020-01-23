@@ -151,11 +151,21 @@ $.isXML( document.body );  // false
 
 - `to: Element` 事件处理器克隆到的目标元素，不影响它上面原有绑定的事件处理器。
 - `src: Element` 事件处理器克隆的来源元素（其上绑定的事件处理器将被克隆）。
-- `evns: String` 用于过滤克隆的目标事件名序列（空格分隔），可选。
+- `evns: String|Function` 过滤待克隆事件处理器的事件名序列（空格分隔）或过滤函数，可选。
 
-事件处理器的克隆与元素的种类无关（如：`<input>` 上的事件处理器可克隆到 `<p>` 上，即便该事件并不会在 `<p>` 上发生）。克隆仅限于元素自身上的绑定，不包含子孙元素上的事件处理器。
+事件处理器的克隆与元素的种类无关（如：`<input>` 上的事件处理器可克隆到 `<p>` 上，即便该事件并不会在 `<p>` 上发生）。克隆仅限于元素自身上的绑定，不包含子孙元素上的事件处理器。过滤函数接口：`function(conf:Object): Boolean`，其中 conf 为内部存储的事件配置对象。
 
-返回克隆了事件处理器的目标元素。
+```js
+{
+    name: String        // 事件名
+    selector: String    // 委托选择器（可能前置>）
+    once: Boolean       // 绑定为单次执行
+    handle: Function    // 用户的事件处理函数
+    capture: Boolean    // 是否注册为捕获
+}
+```
+
+返回克隆了事件处理器的目标元素，如果源元素上没有事件绑定，静默返回。
 
 
 ### $.unique( nodes, comp? ): Array
@@ -1125,13 +1135,13 @@ elo: {
 > 作为委托绑定的性能优化，`slr` 可前置 `~` 字符表示选择器仅测试事件起点元素（`event.target`）。这在深层委托中效益明显（无大量匹配测试）。<br>
 
 
-### [$.off( el, evn, slr ): this](docs/$.off.md)
+### [$.off( el, evn, slr, handle ): this](docs/$.off.md)
 
 移除 `el` 上绑定的事件处理器。可选地，可以传递 `evn`、`slr`、`handle` 限定移除需要匹配的条件（`===` 比较）。
 
 - `el: Element | Document | Window` 移除绑定的目标元素、文档或窗口。
 - `evn: String | Object` 目标事件名（序列）或 {事件名: 处理器} 配置对象限定。可选。
-- `slr: String` 委托绑定时的选择器限定。可选。
+- `slr: String` 委托绑定时的选择器限定。明确传递 `null` 表示仅匹配非委托的绑定，其它假值则类似 `undefined`（不区分是否委托），可选。
 - `handle: Function | EventListener | false | null` 事件处理器匹配限定。可选。
 
 只能移除用 `.on()` 和 `.one()` 接口绑定的事件处理器。传递匹配条件时，应当传递绑定时原始的值，如果不传入任何匹配条件，会移除 `el` 上绑定的全部事件处理器。
