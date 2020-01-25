@@ -153,15 +153,15 @@ $$( rid: String | Value | null ): Collector
 evo( name: String | Number ): Value
 // 从当前evo对象上取值入栈。
 // name: {
-//      0|'origin'    evo.origin
-//      1|'current'   evo.current
-//      2|'delegate'  evo.delegate
-//      3|'related'   evo.related
+//      0|'event'     evo.event
+//      1|'origin'    evo.origin
+//      2|'current'   evo.current
+//      3|'delegate'  evo.delegate
+//      4|'related'   evo.related
 //      5|'selector'  evo.selector
 //     10|'data'      evo.data （前端最后取出值遗留）
 //     11|'entry',    evo.entry （中段入口，迭代重入）
 //     12|'targets'   evo.targets （To检索目标延续传递）
-//     13|'event'     evo.event （非最简单）
 // }
 // 目标：从（隐藏的）首个实参上取值。无需当前条目。
 // 实现：name:[n => s]; evo[ name[x] || x ]
