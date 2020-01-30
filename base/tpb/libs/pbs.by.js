@@ -201,6 +201,34 @@ const _By = {
 
 
 //
+// 简单的UI操作。
+// 目标：当前条目/栈顶1项。
+//===============================================
+[
+    'hide',
+    'lose',
+    'disabled',
+    'fold',
+    'end',
+]
+.forEach(function( name ) {
+    /**
+     * 注：名称即为特性值。
+     * @return {void}
+     */
+    _By[name] = function( evo ) {
+        let x = evo.data;
+
+        if ( $.isArray(x) ) $(x).attribute( '-pb', name );
+        else if ( x.nodeType == 1 ) $.attribute( x, '-pb', name );
+    };
+
+    _By[`__${name}`] = 1;
+
+});
+
+
+//
 // 节点构造。
 // 目标：当前条目/栈顶1项。
 // 注：与To部分的同名方法不同，这里接收字符串实参。
@@ -213,13 +241,15 @@ const _By = {
 .forEach(function( meth ) {
     /**
      * @param  {String} box 封装元素的HTML结构串
-     * @return {Element|Collector}
+     * @return {Element|Collector} 包裹的容器元素（集）
      */
     _By[meth] = function( evo, box ) {
         let x = evo.data;
 
-        if ( $.isArray(x) ) $(x)[meth]( box );
-        else if ( x.nodeType == 1 ) $[meth]( x, box );
+        if ( $.isArray(x) ) {
+            return $(x)[meth]( box );
+        }
+        if ( x.nodeType == 1 ) return $[meth]( x, box );
     };
 
     _By[`__${meth}`] = 1;
@@ -247,8 +277,10 @@ const _By = {
      * @return {void}
      */
     _By[meth] = function( evo, slr ) {
-        if ( $.isCollector(evo.data) ) evo.data[meth]( slr );
-        if ( evo.data.nodeType ) $[meth]( evo.data, slr );
+        let x = evo.data;
+
+        if ( $.isArray(x) ) $(x)[meth]( slr );
+        else if ( x.nodeType ) $[meth]( x, slr );
     };
 
     _By[`__${meth}`] = 1;

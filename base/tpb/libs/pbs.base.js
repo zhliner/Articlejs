@@ -225,6 +225,23 @@ const _Base = {
 
 
     /**
+     * 结束流程。
+     * 目标：当前条目，可选。
+     * 如果当前条目非空，则比较或真值测试，真则终止。
+     * 如果当前条目为空，val通常无值，无条件终止。
+     * @return {void}
+     */
+    exit( evo, val ) {
+        if ( evo.data === val ||
+            (val === undefined && evo.data) ) {
+            return new Promise.reject();
+        }
+    },
+
+    __exit: 0,
+
+
+    /**
      * 停止事件默认行为。
      * 目标：当前条目，可选。
      * 如果当前条目非空，则真值停止，否则无条件停止。
@@ -286,21 +303,6 @@ const _Base = {
     },
 
     __stopAll: 0,
-
-
-    /**
-     * 流程终止。
-     * 目标：当前条目，可选。
-     * 如果当前条目非空，则真值终止，否则无条件终止。
-     * @return {void}
-     */
-    end( evo ) {
-        if ( evo.data === undefined || evo.data ) {
-            return new Promise.reject();
-        }
-    },
-
-    __end: 0,
 
 
 

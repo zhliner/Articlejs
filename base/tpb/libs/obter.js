@@ -814,6 +814,10 @@ class Call {
 //      +xxx!( Number, Number )       // 范围：slice()
 //      +xxx![ Number, Number, ... ]  // 定点取值：[n]
 //      +xxx!{ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
+//
+//      ~   // 事件起始元素（evo.origin）
+//      =   // 事件当前元素（evo.current）
+//      $   // 事件委托元素（evo.delegate）
 // }
 // 起点元素：支持当前条目（Element），否则为事件当前元素。
 //
@@ -1037,12 +1041,31 @@ function rejectInfo( msg ) {
  * @return {void}
  */
 function query( evo, slr, one, fltr ) {
+    if ( slr.length == 1 ) {
+        evo.targets = element3(evo, slr);
+        if ( evo.targets ) return;
+    }
     let _beg = evo.data;
 
     if (_beg === undefined) {
         _beg = evo.current;
     }
     evo.targets = query2(slr, _beg, one, fltr);
+}
+
+
+/**
+ * 检查提取事件关联元素。
+ * 仅用于3个特殊值。
+ * @param {Object} evo 事件关联对象
+ * @param {String} chr 特殊选择器字符
+ */
+function element3( evo, chr ) {
+    switch (chr) {
+        case __toqOrig: return evo.origin;
+        case __toqCur: return evo.current;
+        case __toqRoot: return evo.delegate;
+    }
 }
 
 

@@ -30,11 +30,6 @@
 /* 基本效果
  ***********************************************/
 
-/* 折叠 */
-*[data-pb~='fold'] > * {
-    display: none !important;
-}
-
 /* 隐藏 */
 *[data-pb~='hide'] {
     visibility: hidden !important;
@@ -42,12 +37,26 @@
 }
 
 /* 消失 */
-*[data-pb~='none'] {
+*[data-pb~='lose'] {
     display: none !important;
 }
 
-/* 条目冻结 */
+/* 冻结 */
 *[data-pb~='disabled'] {
     color: #999 !important;
     filter: grayscale(1) !important;
+}
+
+/* 折叠：
+ * 隐藏除首个子元素之外的子元素。
+ */
+*[data-pb~='fold'] > :first-child ~ * {
+    display: none !important;
+}
+
+/* 终点：
+ * 隐藏后续兄弟元素。
+ */
+*[data-pb~='end'] ~ * {
+    display: none !important;
 }

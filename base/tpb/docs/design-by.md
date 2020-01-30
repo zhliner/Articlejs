@@ -55,18 +55,20 @@ trigger( evn: String, data: Value, ...rest )
 
 
 // 简单的UI操作
+// 目标：当前条目/栈顶1项。
 //===============================================
 
 hide()      // 元素隐藏，对应CSS visibility:hidden。
 lose()      // 元素显示丢失，对应CSS display:none。
 disabled()  // 元素失活，模拟表单控件的 disabled 外观（灰化）。
-fold()      // 元素折叠，即下一个兄弟元素 display:none。
+fold()      // 元素折叠，除:first-child之外的子元素 display:none。
+end()       // 终点截断，即后续兄弟元素 display:none
 
 
 
 // 节点构造。
 // 目标：当前条目/栈顶1项。
-// 注：与To部分的同名方法不同，这里接收字符串参数。
+// 注：与To部分的同名方法不同，这里为字符串参数。
 //===============================================
 
 wrap( box:String ): Element | Collector
