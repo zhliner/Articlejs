@@ -57,10 +57,11 @@ const
 
 
     // On事件定义模式。
-    // 支持委托选择器，支持前置 @ 或 ^ 标识字符。
     // 事件名支持字母、数字和 [._-] 字符（-可用于占位符匹配）。
+    // 支持事件名前置 @ 或 ^ 标识字符。
+    // 委托选择器的引号包围（单/双引号和撇号）为可选。
     // 注：支持小括号内换行。
-    __onEvent   = /^[@^]?([\w.-]+)(?:\(([^]*)\))?$/,
+    __onEvent   = /^[@^]?([\w][\w.-]*)(?:\(["'`]?([^]*?)["'`]?\))?$/,
 
     // 调用模式匹配。
     // 方法名支持字母、数字和 [._-] 字符。
@@ -91,7 +92,7 @@ const Parser = {
     /**
      * 提取分组对应集。
      * 以On为前置依据，By/To依赖于On的存在。
-     * 单组：{
+     * 返回值：单组 {
      *      on: String
      *      by: String
      *      to: String
@@ -122,11 +123,11 @@ const Parser = {
      * @return {Array2}
      */
     on( fmt ) {
-        let _v2 = ASpliter.split(fmt, __chrPipe, 1);
+        let [_ev, _ca] = ASpliter.split(fmt, __chrPipe, 1);
 
         return [
-            this._evns( _v2[0].trim() ),
-            _v2[1] ? this._calls( _v2[1].trim() ) : null
+            this._evns( _ev.trim() ),
+            _ca ? this._calls( _ca.trim() ) : null
         ];
     },
 
@@ -148,14 +149,17 @@ const Parser = {
      * @return {[Query, Where|null, [Call]|null]}
      */
     to( fmt ) {
-        let _vs = ASpliter.split(fmt, __chrPipe).map( s => s.trim() ),
-            _v2 = _vs[1] || '',
-            _v3 = _vs[2] || '';
+        if ( !fmt ) return [];
+
+        let [_q, _w, _n] = ASpliter.split(fmt, __chrPipe);
+
+        if ( _w ) _w = _w.trim();
+        if ( _n ) _n = _n.trim();
 
         return [
-            new Query(_vs[0]),
-            _v2 && _v2 != __chrZero ? new Where(_v2) : null,
-            _v3 && _v3 != __chrZero ? this._calls(_v3) : null,
+            new Query(_q.trim()),
+            _w && _w != __chrZero ? new Where(_w) : null,
+            _n && _n != __chrZero ? this._calls(_n) : null,
         ];
     },
 
@@ -196,10 +200,12 @@ const Parser = {
     /**
      * 分解事件名定义。
      * @param  {String} fmt 事件名定义序列
-     * @return {[Evn]}
+     * @return {[Evn]|''}
      */
     _evns( fmt ) {
-        return ASpliter.split(fmt, ' ')
+        if ( !fmt ) return '';
+
+        return [...ASpliter.split(fmt, ' ')]
             .map(
                 s => new Evn(s.trim())
             );
@@ -209,10 +215,12 @@ const Parser = {
     /**
      * 分解指令调用定义。
      * @param  {String} fmt 指令调用序列
-     * @return {[Call]}
+     * @return {[Call]|null}
      */
     _calls( fmt ) {
-        return ASpliter.split(fmt, __chrList)
+        if ( !fmt ) return null;
+
+        return [...ASpliter.split(fmt, __chrList)]
             .map(
                 s => new Call(s.trim())
             );
@@ -242,8 +250,8 @@ class Builder {
     constructor( pbs, store ) {
         this._pbson = pbs.on;
         this._pbsby = pbs.by;
-        this._where = pbs.where;
-        this._stage = pbs.stage;
+        this._pbst2 = pbs.where;
+        this._pbst3 = pbs.stage;
         this._store = store;
     }
 
@@ -258,7 +266,7 @@ class Builder {
      * @return {Element|Object} obj
      */
     build( obj, conf ) {
-        if ( !conf[0] ) return;
+        if ( !conf.on ) return;
 
         for (const obt of Parser.obts(obj, conf) ) {
             let _on = Parser.on(obt.on),
@@ -287,7 +295,7 @@ class Builder {
      */
     chain( on, by, query, where, stage ) {
         let _stack = new Stack(),
-            _first = new Cell(_stack),
+            _first = Evn.apply( new Cell(_stack) ),
             _prev = null;
 
         _prev = this._on( _first, _stack, on );
@@ -385,7 +393,7 @@ class Builder {
      */
     _where( prev, stack, where ) {
         return where ?
-            where.apply( new Cell(stack, prev), this._where ) : prev;
+            where.apply( new Cell(stack, prev), this._pbst2 ) : prev;
     }
 
 
@@ -400,7 +408,7 @@ class Builder {
     _stage( prev, stack, stages ) {
         if ( stages ) {
             for (const stage of stages) {
-                prev = stage.apply( new Cell(stack, prev), this._stage );
+                prev = stage.apply( new Cell(stack, prev), this._pbst3 );
             }
         }
         return prev;
@@ -681,7 +689,7 @@ class Cell {
         if ( isx ) {
             args.unshift[this[_SID]];
         }
-        this._args = args;
+        this._args = args || '';
         this._meth = meth;
         this._want = $.isNumeric(n) ? +n : null;
 
@@ -760,7 +768,22 @@ class Evn {
         this.store    = name[0] == __evnStore;
     }
 
+
+    /**
+     * 起始指令对象绑定。
+     * 注：实际上只是一个空调用。
+     * @param  {Cell} cell 指令单元
+     * @return {Cell} cell
+     */
+    static apply( cell ) {
+        return cell.bind( '', empty );
+    }
+
 }
+
+
+// 空占位函数。
+function empty() {}
 
 
 //
