@@ -665,8 +665,10 @@ class Cell {
     /**
      * 事件处理器接口。
      * 即：EventListener.handleEvent()
-     * @param {Event} ev 事件对象
-     * @param {Object} elo 事件关联对象
+     * 返回同步序列最后一个指令单元调用的返回值。
+     * @param  {Event} ev 事件对象
+     * @param  {Object} elo 事件关联对象
+     * @return {Value}
      */
     handleEvent( ev, elo ) {
         elo.event = ev;
@@ -702,7 +704,7 @@ class Cell {
      * val是前阶方法执行的结果，将被压入数据栈。
      * @param  {Object} evo 事件相关对象
      * @param  {Value} val 上一指令的结果
-     * @return {void}
+     * @return {Value}
      */
     call( evo, val ) {
         if ( val !== undefined) {
@@ -711,7 +713,7 @@ class Cell {
         evo.data = this._data( this._want );
 
         // 当前方法执行/续传。
-        this._call( evo, this._meth(evo, ...this._args) );
+        return this._call( evo, this._meth(evo, ...this._args) );
     }
 
 
@@ -720,13 +722,18 @@ class Cell {
      * 当前方法调用的返回值可能是一个Promise对象。
      * @param  {Object} evo 事件相关对象
      * @param  {Value|Promise} val 当前方法执行的结果
-     * @return {void}
+     * @return {Value|void}
      */
     _call( evo, val ) {
-        if ( !this.next ) return;
-
-        Promise.resolve(val)
-        .then( v => this.next.call(evo, v), rejectInfo );
+        if ( !this.next ) {
+            return val;
+        }
+        if ( $.type(val) !== 'Promise' ) {
+            // 非异步！
+            // 否则影响有默认行为方法（如submit）的调用。
+            return this.next.call(evo, val);
+        }
+        val.then( v => this.next.call(evo, v), rejectInfo );
     }
 
 

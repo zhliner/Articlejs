@@ -542,18 +542,19 @@ const _Base = {
 
 
     /**
-     * 向控制台打印消息。
+     * 测试打印（控制台）。
      * 目标：当前条目，可选。
-     * 实参显示在前（如果有），当前条目显示在后（如果有）。
-     * 注：测试用途。
-     * @param  {...String} msg 消息序列
-     * @return {void}
+     * 返回传入的值（优先）或当前条目值（如果有）。
+     * @param  {Value} msg 消息值
+     * @return {Value}
      */
-    hello( evo, ...msg ) {
+    hello( evo, msg ) {
         if ( evo.data !== undefined ) {
-            msg.push( evo.data );
+            window.console.dir(evo.data);
         }
-        window.console.info( ...msg );
+        window.console.info( msg );
+
+        return msg !== undefined ? msg : evo.data;
     },
 
     __hello: 0,
@@ -990,13 +991,25 @@ const _Base2 = {
 
     /**
      * 集合串接。
-     * 以前一个操作数为基础，第二个操作数可以是简单值。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是。选择性取栈。
+     * 如果当前条目为空，取栈顶2项（实参为空）或1项。
+     * 如果当前条目非空，以当前条目为合并目标（实参非空）或展开合并当前条目成员。
+     * @param  {...Array|Value} vals 值或数组
+     * @return {Array}
      */
-    concat( evo ) {
-        return evo.data[0].concat( evo.data[1] );
+    concat( evo, stack, ...vals ) {
+        let _vs = vals.length > 0 ?
+            stack.data(1) :
+            stack.data(2);
+
+        if ( vals.length > 0 ) {
+            return _vs.concat(...vals);
+        }
+        return _vs.shift().concat(..._vs);
     },
 
-    __concat: 2,
+    __concat_x: true,
 
 
     /**
@@ -1196,20 +1209,6 @@ const _Base2 = {
 
 
     /**
-     * 数组合并。
-     * 目标：当前条目/栈顶1项。
-     * 注：目标需要是一个数组。
-     * @param  {Array|Value} src 数据源（数组或值）
-     * @return {Array}
-     */
-    merge( evo, src ) {
-        return evo.data.concat( src );
-    },
-
-    __merge: 1,
-
-
-    /**
      * 对象赋值。
      * 数据源对象内的属性/值赋值到接收对象。
      * 目标：当前条目/栈顶1项。
@@ -1222,6 +1221,22 @@ const _Base2 = {
     },
 
     __assign: 1,
+
+
+    /**
+     * 数组合并创建对象。
+     * 目标：当前条目/栈顶1项。
+     * 传入的实参作为键名称，目标应当是一个数组（否则值无对应）。
+     * @param  {[String]} keys 对象键名集
+     * @return {Object}
+     */
+    merge( evo, keys ) {
+        return keys.reduce(
+                (o, k, i) => (o[k] = evo.data[i], o), {}
+            );
+    },
+
+    __merge: 1,
 
 
 

@@ -6774,7 +6774,7 @@ const Event = {
      */
     _methodCall( ev, el ) {
         let _evn = ev.type,
-            _fun = el[_evn];
+            _fun = el[_evn].bind(el);
 
         if (ev.defaultPrevented ||
             // 避免循环触发。
