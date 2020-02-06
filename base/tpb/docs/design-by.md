@@ -60,9 +60,9 @@ trigger( evn: String, data: Value, ...rest )
 
 hide()      // 元素隐藏，对应CSS visibility:hidden。
 lose()      // 元素显示丢失，对应CSS display:none。
-disabled()  // 元素失活，模拟表单控件的 disabled 外观（灰化）。
+disable()   // 元素失活，模拟表单控件的 disabled 外观（灰化）。
 fold()      // 元素折叠，除:first-child之外的子元素 display:none。
-end()       // 终点截断，即后续兄弟元素 display:none
+truncate()  // 截断，即后续兄弟元素 display:none
 
 
 

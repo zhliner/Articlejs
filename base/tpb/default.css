@@ -42,7 +42,7 @@
 }
 
 /* 冻结 */
-*[data-pb~='disabled'] {
+*[data-pb~='disable'] {
     color: #999 !important;
     filter: grayscale(1) !important;
 }
@@ -54,9 +54,9 @@
     display: none !important;
 }
 
-/* 终点：
+/* 截断：
  * 隐藏后续兄弟元素。
  */
-*[data-pb~='end'] ~ * {
+*[data-pb~='truncate'] ~ * {
     display: none !important;
 }

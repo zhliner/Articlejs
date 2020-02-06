@@ -225,23 +225,6 @@ const _Base = {
 
 
     /**
-     * 结束流程。
-     * 目标：当前条目，可选。
-     * 如果当前条目非空，则比较或真值测试，真则终止。
-     * 如果当前条目为空，val通常无值，无条件终止。
-     * @return {void}
-     */
-    exit( evo, val ) {
-        if ( evo.data === val ||
-            (val === undefined && evo.data) ) {
-            return new Promise.reject();
-        }
-    },
-
-    __exit: 0,
-
-
-    /**
      * 停止事件默认行为。
      * 目标：当前条目，可选。
      * 如果当前条目非空，则真值停止，否则无条件停止。
@@ -303,6 +286,23 @@ const _Base = {
     },
 
     __stopAll: 0,
+
+
+    /**
+     * 流程终止。
+     * 目标：当前条目，可选。
+     * 如果当前条目非空，则比较或真值测试，真则终止。
+     * 如果当前条目为空，val通常无值，无条件终止。
+     * @return {void}
+     */
+    end( evo, val ) {
+        if ( evo.data === val ||
+            (val === undefined && evo.data) ) {
+            return new Promise.reject();
+        }
+    },
+
+    __end: 0,
 
 
 
@@ -994,7 +994,7 @@ const _Base2 = {
      * 目标：当前条目/栈顶1-2项。
      * 特权：是。选择性取栈。
      * 如果当前条目为空，取栈顶2项（实参为空）或1项。
-     * 如果当前条目非空，以当前条目为合并目标（实参非空）或展开合并当前条目成员。
+     * 如果当前条目非空，以当前条目为合并目标（实参非空）或后续成员合并到首个成员。
      * @param  {...Array|Value} vals 值或数组
      * @return {Array}
      */

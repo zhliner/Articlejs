@@ -207,9 +207,9 @@ const _By = {
 [
     'hide',
     'lose',
-    'disabled',
+    'disable',
     'fold',
-    'end',
+    'truncate',
 ]
 .forEach(function( name ) {
     /**
