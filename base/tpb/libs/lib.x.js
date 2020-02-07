@@ -85,7 +85,7 @@ function bindMethod( f, k, obj, to ) {
         return [ $.assign(to[k] || {}, f, bindMethod) ];
     }
     if ( !$.isFunction(f) ) {
-        return [ f ];
+        return null;
     }
     if ( !f.name.startsWith('bound ') ) {
         f = f.bind( obj );

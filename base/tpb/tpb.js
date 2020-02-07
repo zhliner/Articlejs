@@ -28,7 +28,7 @@ import { Builder } from "./libs/obter.js";
 import { Templater } from "./libs/templater.js";
 import { tplLoad } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
-import { Support, OBTA } from "./config.js";
+import { Support, OBTA, DEBUG } from "./config.js";
 
 
 const
@@ -84,7 +84,7 @@ const _obter = new Builder( {
  * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
  * @return {void}
  */
-function Build( root, obts = true ) {
+function obtBuild( root, obts = true ) {
     // 单目标
     if ( typeof obts != 'boolean' ) {
         return _obter.build( root, obts );
@@ -96,13 +96,18 @@ function Build( root, obts = true ) {
 }
 
 
+// 模板对象。
+let __Tpl = null;
+
+
+
 //
 // 模板支持初始化。
 //
 (function () {
 
     if ( Support.template ) {
-        Base.tplStore( new Templater( tplLoad, Build ) );
+        __Tpl = Base.tplStore( new Templater( tplLoad, obtBuild ) );
     }
 
 })();
@@ -133,8 +138,25 @@ function obtAttr( el, clear ) {
 
 
 
+// 调试：
+if (DEBUG) {
+
+    window.Debug = {
+        On,
+        By,
+        Where: To.Where,
+        Stage: To.Stage,
+        Tpl: __Tpl,
+    };
+}
+
+
+
 //
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-export default { Build, Lib };
+export default {
+    Lib,
+    Build: __Tpl ? __Tpl.build.bind(__Tpl) : obtBuild,
+};

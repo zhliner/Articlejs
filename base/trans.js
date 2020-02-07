@@ -382,7 +382,7 @@ function getMedia( node ) {
     if ( node.nodeType != 1 ) {
         return [];
     }
-    return $.find( node, __mediaSlr, true );
+    return $.find( __mediaSlr, node, true );
 }
 
 

@@ -1918,7 +1918,7 @@ const Base2 = $.assign( {}, _Base2, bindMethod );
  * 设置模板管理器。
  * @param {Templater} tstore 模板管理器
 */
-Base.tplStore = tstore => { __TplStore = tstore; };
+Base.tplStore = tstore => __TplStore = tstore;
 
 
 export { Base, Base2, chainStore };

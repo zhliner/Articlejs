@@ -66,7 +66,10 @@
 
     <script type="module" async>
         import Tpb from "./tpb.js";
-        Tpb.Build(document.body, false);
+        Tpb.Build( document.body );
+
+        //:Debug
+        window.Tpb = Tpb;
     </script>
 
 </head>

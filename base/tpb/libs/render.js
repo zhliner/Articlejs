@@ -584,7 +584,7 @@ const Grammar = {
             delete _gram.Each;
             Grammars.set( to, _gram );
         }
-        cloneGrammars( $.find(to, '*'), $.find(src, '*') );
+        cloneGrammars( $.find('*', to), $.find('*', src) );
 
         return to;
     },
@@ -817,8 +817,8 @@ function validComp( str ) {
  */
 function cloneGrammar( to, src ) {
     cloneGrammars(
-        $.find( to, '*', true ),
-        $.find( src, '*', true )
+        $.find( '*', to, true ),
+        $.find( '*', src, true )
     );
     return to;
 }
@@ -976,7 +976,7 @@ function nextRender( el, scope, data ) {
 function parse( tpl ) {
     let _gram;
 
-    for ( const el of $.find(tpl, '*', true) ) {
+    for ( const el of $.find('*', tpl, true) ) {
         _gram = Parser.grammar(el);
 
         if ( Object.keys(_gram).length > 0 ) {

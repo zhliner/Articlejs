@@ -45,14 +45,14 @@ const
 class Templater {
     /**
      * 创建实例。
-     * loader: function( String ): Promise:then(Element)
-     * obter: function( Element ): Boolean
+     * loader: function( nodeName:String ): Promise:then(Element)
+     * obter: function( Element, obts:Boolean ): void
      * @param {Function} loader 节点载入回调
      * @param {Function} obter OBT解析回调
      */
     constructor( loader, obter ) {
         this._load = loader;
-        this._obtx = obter;
+        this._obter = obter;
         // 渲染支持，可选
         // this._render = null;
         this._render = Render;
@@ -105,12 +105,13 @@ class Templater {
     /**
      * 模板构建。
      * 如果已经开始构建，返回子模版的承诺对象。
-     * @param  {DocumentFragment} root 根容器
+     * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
+     * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
      * @return {Promise}
      */
-    build( root ) {
+    build( root, obts = true) {
         if ( !this._pool.has(root) ) {
-            this._pool.set( root, this._build(root) );
+            this._pool.set( root, this._build(root, obts) );
         }
         return this._pool.get(root);
     }
@@ -132,18 +133,6 @@ class Templater {
     }
 
 
-    /**
-     * 调试用数据。
-     */
-    debug() {
-        return {
-            name: __tplName,
-            load: __tplNode,
-            tpls: this._tpls,
-        };
-    }
-
-
     //-- 私有辅助 -------------------------------------------------------------
 
     /**
@@ -151,16 +140,21 @@ class Templater {
      * - 需要处理OBT的解析/绑定逻辑。
      * - 存储构建好的模板节点备用。
      * - 可能需要多次异步载入（tpl-node）。
-     * @param  {DocumentFragment} root 文档片段
-     * @return {Promise}
+     * - 如果root不是文档/元素类型，返回undefined。
+     * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
+     * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
+     * @return {Promise|void}
      */
-    _build( root ) {
-        this._obtx( root );
+    _build( root, obts ) {
+        this._obter( root, obts );
 
+        if ( !root.nodeType ) {
+            return;
+        }
         if ( this._render ) {
             this._render.parse( root );
         }
-        $.find(root, __nameSelector)
+        $.find(__nameSelector, root)
         .forEach(
             el => this._add( el )
         )
@@ -177,7 +171,7 @@ class Templater {
      * @return {[Promise]|null} 子模版载入承诺集
      */
      _subs( root ) {
-        let _els = $.find(root, __nodeSelector);
+        let _els = $.find(__nodeSelector, root);
 
         if ( _els.length == 0 ) {
             return null;
