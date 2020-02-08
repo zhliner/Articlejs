@@ -1,5 +1,5 @@
 //! $Id: tpb.js 2019.08.19 Tpb.Base $
-// ++++++++++++++++++++++++++++++++++++
+// +++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -184,6 +184,12 @@ if (DEBUG) {
 const _Build = __Tpl ? __Tpl.build.bind(__Tpl) : obtBuild;
 
 
+//
+// 模板节点配置初始化标记。
+//
+let _tplsDone = false;
+
+
 /**
  * OBT构建封装。
  * 包含模板节点配置的初始化。
@@ -192,9 +198,13 @@ const _Build = __Tpl ? __Tpl.build.bind(__Tpl) : obtBuild;
  * @return {Promise|void}
  */
 function Build( root, obts ) {
+    if ( _tplsDone ) {
+        return _Build( root, obts );
+    }
     return Loader.init(tplsMap)
-        // .then( map => window.console.dir(map) )
-        .then( () => _Build(root, obts) )
+        .then(
+            () => ( _tplsDone = true, _Build(root, obts) )
+        );
 }
 
 

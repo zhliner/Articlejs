@@ -1,5 +1,5 @@
 //! $Id: config.js 2019.09.28 Tpb.Config $
-//
+// ++++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
