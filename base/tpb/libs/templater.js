@@ -112,7 +112,7 @@ class Templater {
      * - 如果root不是文档/元素类型，返回undefined。
      * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
      * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
-     * @return {Promise|undefined}
+     * @return {Promise|void}
      */
     build( root, obts = true) {
         if ( this._pool.has(root) ) {

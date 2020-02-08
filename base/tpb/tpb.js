@@ -26,9 +26,9 @@ import { To } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
 import { Templater } from "./libs/templater.js";
-import { Load, fetchTpl } from "./libs/tloader.js";
+import { Loader } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
-import { Support, OBTA, DEBUG } from "./config.js";
+import { Support, OBTA, tplsMap, DEBUG } from "./config.js";
 
 
 const
@@ -107,7 +107,7 @@ let __Tpl = null;
 (function () {
 
     if ( Support.template ) {
-        __Tpl = Base.tplStore( new Templater( Load, obtBuild ) );
+        __Tpl = Base.tplStore( new Templater( Loader.load.bind(Loader), obtBuild ) );
     }
 
 })();
@@ -148,11 +148,11 @@ function tplMaps( files, space = '\t' ) {
     let _buf = {};
 
     Promise.all( files.map(
-        f => fetchTpl(f)
+        f => Loader.fetch(f)
             .then( root => $.find('[tpl-name]', root).map( el => el.getAttribute('tpl-name') ) )
             .then( ns => _buf[f] = ns )
         )
-    ).then( () => console.info(JSON.stringify(_buf, null, space)) );
+    ).then( () => window.console.info(JSON.stringify(_buf, null, space)) );
 }
 
 
@@ -177,7 +177,25 @@ if (DEBUG) {
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-export default {
-    Lib,
-    Build: __Tpl ? __Tpl.build.bind(__Tpl) : obtBuild,
-};
+//
+// OBT构建函数。
+// 支持模板时包含模板的解析构建。
+//
+const _Build = __Tpl ? __Tpl.build.bind(__Tpl) : obtBuild;
+
+
+/**
+ * OBT构建封装。
+ * 包含模板节点配置的初始化。
+ * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
+ * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
+ * @return {Promise|void}
+ */
+function Build( root, obts ) {
+    return Loader.init(tplsMap)
+        // .then( map => window.console.dir(map) )
+        .then( () => _Build(root, obts) )
+}
+
+
+export default { Lib, Build };

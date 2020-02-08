@@ -10,15 +10,13 @@
 //
 // 	用法：
 //  let loader = new TplLoader(...);
-// 	loader.init(...);
-//
 // 	const tpl = new Templater( loader.load.bind(loader), ... );
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { tplRoot, tplsMap, DEBUG } from "../config.js";
+import { tplRoot, DEBUG } from "../config.js";
 
 
 const $ = window.$;
@@ -49,6 +47,9 @@ class TplLoader {
 	 * @return {Promise}
 	 */
 	init( fmap ) {
+		if ( !fmap ) {
+			return Promise.resolve();
+		}
 		return fetch( fmap )
 			.then( resp => resp.ok && resp.json() )
 			.then( json => this.tplMap(json) );
@@ -97,16 +98,15 @@ class TplLoader {
 
 	/**
 	 * 设置模板 节点名：文件名 映射。
-	 * @param {Object} conf 映射配置
+	 * @param  {Object} conf 映射配置
+	 * @return {Map} 节点/文件映射集
 	 */
 	tplMap( conf ) {
-		if ( !conf ) {
-			throw new Error('tpl-node map is undefined.');
-		}
 		Object.entries(conf)
 		.forEach(
 			([file, names]) => names.forEach( name => this.file(name, file) )
 		);
+		return this._tmap;
 	}
 
 
@@ -129,12 +129,4 @@ class TplLoader {
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
 
-const loader = new TplLoader( tplRoot );
-
-
-// 前提保证。
-loader.init( tplsMap ).catch( err => { throw err } );
-
-
-export const Load = loader.load.bind(loader);
-export const fetchTpl = loader.fetch.bind(loader);
+export const Loader = new TplLoader( tplRoot );
