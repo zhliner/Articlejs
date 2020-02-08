@@ -63,7 +63,7 @@ class TplLoader {
 	 * 由后续在单线程中处理重复解析的问题。
 	 *
 	 * @param  {String} name 节点名称
-	 * @return {Promise} 承诺对象
+	 * @return {Promise<DocumentFragment>} 承诺对象
 	 */
 	load( name ) {
 		let _file = this.file(name);
@@ -75,7 +75,7 @@ class TplLoader {
 			if ( DEBUG ) {
 				window.console.log( `[${_file}] loading for [${name}]` );
 			}
-			this._pool.set( _file, this._load(_file) );
+			this._pool.set( _file, this.fetch(_file) );
 		}
 		return this._pool.get( _file );
     }
@@ -103,21 +103,19 @@ class TplLoader {
 		if ( !conf ) {
 			throw new Error('tpl-node map is undefined.');
 		}
-		Object.entries(conf).forEach(
-			(file, names) => names.forEach( name => this.file(name, file) )
+		Object.entries(conf)
+		.forEach(
+			([file, names]) => names.forEach( name => this.file(name, file) )
 		);
 	}
-
-
-	//-- 私有辅助 -----------------------------------------------------------------
 
 
 	/**
 	 * 载入节点所属模板文件。
 	 * @param  {String} file 模板文件名
-	 * @return {Promise} 承诺对象
+	 * @return {Promise<DocumentFragment>} 承诺对象
 	 */
-	_load( file ) {
+	fetch( file ) {
         return fetch( this._root + '/' + file )
 			.then( resp => resp.ok ? resp.text() : Promise.reject(resp.statusText) )
 			.then( html => $.create(html) )
@@ -133,8 +131,10 @@ class TplLoader {
 
 const loader = new TplLoader( tplRoot );
 
+
 // 前提保证。
 loader.init( tplsMap ).catch( err => { throw err } );
 
 
-export const tplLoad = loader.load.bind(loader);
+export const Load = loader.load.bind(loader);
+export const fetchTpl = loader.fetch.bind(loader);

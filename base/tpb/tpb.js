@@ -26,7 +26,7 @@ import { To } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
 import { Templater } from "./libs/templater.js";
-import { tplLoad } from "./libs/tloader.js";
+import { Load, fetchTpl } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
 import { Support, OBTA, DEBUG } from "./config.js";
 
@@ -107,7 +107,7 @@ let __Tpl = null;
 (function () {
 
     if ( Support.template ) {
-        __Tpl = Base.tplStore( new Templater( tplLoad, obtBuild ) );
+        __Tpl = Base.tplStore( new Templater( Load, obtBuild ) );
     }
 
 })();
@@ -137,6 +137,25 @@ function obtAttr( el, clear ) {
 }
 
 
+/**
+ * Debug:
+ * 提取模板文件中定义的模板节点配置。
+ * 注：需在浏览器控制台执行。
+ * @param  {[String]} files 模板文件名集
+ * @return {void}
+ */
+function tplMaps( files, space = '\t' ) {
+    let _buf = {};
+
+    Promise.all( files.map(
+        f => fetchTpl(f)
+            .then( root => $.find('[tpl-name]', root).map( el => el.getAttribute('tpl-name') ) )
+            .then( ns => _buf[f] = ns )
+        )
+    ).then( () => console.info(JSON.stringify(_buf, null, space)) );
+}
+
+
 
 // 调试：
 if (DEBUG) {
@@ -144,9 +163,11 @@ if (DEBUG) {
     window.Debug = {
         On,
         By,
-        Where: To.Where,
-        Stage: To.Stage,
-        Tpl: __Tpl,
+        Where:  To.Where,
+        Stage:  To.Stage,
+        Tpl:    __Tpl,
+
+        tplMaps, // 模板提取
     };
 }
 

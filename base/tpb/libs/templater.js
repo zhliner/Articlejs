@@ -105,15 +105,47 @@ class Templater {
     /**
      * 模板构建。
      * 如果已经开始构建，返回子模版的承诺对象。
+     * 注：
+     * - 需要处理OBT的解析/绑定逻辑。
+     * - 存储构建好的模板节点备用。
+     * - 可能需要多次异步载入（tpl-node）。
+     * - 如果root不是文档/元素类型，返回undefined。
      * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
      * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
-     * @return {Promise}
+     * @return {Promise|undefined}
      */
     build( root, obts = true) {
-        if ( !this._pool.has(root) ) {
-            this._pool.set( root, this._build(root, obts) );
+        if ( this._pool.has(root) ) {
+            return this._pool.get(root);
         }
-        return this._pool.get(root);
+        this._obter( root, obts );
+
+        // 非节点类（可绑定事件，如 window）
+        if ( !root.nodeType ) return;
+
+        if ( this._render ) {
+            this._render.parse( root );
+        }
+        return this.picks( root );
+    }
+
+
+    /**
+     * 提取命名的模板节点并存储。
+     * 会检查子模版导入配置并持续载入（如果有）。
+     * @param  {Element|DocumentFragment} root 根容器
+     * @return {Promise<DocumentFragment>}
+     */
+    picks( root ) {
+        $.find( __nameSelector, root, true )
+            .forEach(
+                el => this._add( el )
+            )
+        let _ps = this._subs(root),
+            _pro = _ps.length > 0 ? Promise.all(_ps) : Promise.resolve();
+
+        this._pool.set( root, _pro );
+        return _pro;
     }
 
 
@@ -135,59 +167,31 @@ class Templater {
 
     //-- 私有辅助 -------------------------------------------------------------
 
-    /**
-     * 模板构建。
-     * - 需要处理OBT的解析/绑定逻辑。
-     * - 存储构建好的模板节点备用。
-     * - 可能需要多次异步载入（tpl-node）。
-     * - 如果root不是文档/元素类型，返回undefined。
-     * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
-     * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
-     * @return {Promise|void}
-     */
-    _build( root, obts ) {
-        this._obter( root, obts );
-
-        if ( !root.nodeType ) {
-            return;
-        }
-        if ( this._render ) {
-            this._render.parse( root );
-        }
-        $.find(__nameSelector, root)
-        .forEach(
-            el => this._add( el )
-        )
-        let _ps = this._subs(root);
-
-        return (_ps && _ps.length > 0) ? Promise.all(_ps) : Promise.resolve();
-    }
-
 
     /**
      * 解析/载入子模板。
      * 返回null表示无子模版需要载入。
      * @param  {DocumentFragment} root 根容器
-     * @return {[Promise]|null} 子模版载入承诺集
+     * @return {[Promise]} 子模版载入承诺集
      */
      _subs( root ) {
         let _els = $.find(__nodeSelector, root);
 
         if ( _els.length == 0 ) {
-            return null;
+            return [];
         }
-        return $.map( _els, el => this._loadsub(el) );
+        return $.map( _els, el => this._imports(el) );
     }
 
 
     /**
-     * 载入元素引用的子模版。
+     * 导入元素引用的子模版。
      * 子模版定义可能是一个列表（有序）。
      * 可能返回null，调用者应当滤除。
      * @param  {Element} el 配置元素
      * @return {Promise|null}
      */
-    _loadsub( el ) {
+    _imports( el ) {
         let [meth, val] = this._reference(el);
 
         if ( !val ) {
@@ -229,10 +233,6 @@ class Templater {
         if ( this._tpls.has(_n) ) {
             window.console.warn(`[${_n}] template node was overwritten.`);
         }
-        // if ( el.parentElement ) {
-        //     el.replaceWith( this.clone(el) );
-        // }
-        // 注：取消DOM内自动克隆，由用户负责。有更好的灵活性。
         this._tpls.set( _n, el );
     }
 }
