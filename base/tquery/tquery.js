@@ -3432,10 +3432,8 @@ class Collector extends Array {
      * @return {Collector}
      */
     eq( idx ) {
-        return new Collector(
-            idx ? indexItem(this, +idx) : idx === 0 && this[0],
-            this
-        );
+        if ( !idx ) idx = 0;
+        return new Collector( indexItem(this, +idx), this );
     }
 
 
