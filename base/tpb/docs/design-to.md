@@ -1,27 +1,18 @@
 ## Tpb: To
 
-用流程传递来的数据对目标赋值（UI结果），支持后续联动的事件触发和少量指令操作。
+用流程传递来的内容数据对检索（`Query`）的目标赋值（`Method`），支持后续联动的事件触发和少量的基本指令（`Next-Stage`）。
 
-`to = "Query | Method/Where/Set | Next-Stage"`
+`to = "Query | Method | Next-Stage"`
 
-如果目标检索为一个集合，当数据源也为数组时，为分别一一对应赋值的逻辑。三个部分中任意段皆可为空（或占位符 `-`），但分隔符竖线（`|`）不可省略。
+如果目标检索为一个集合，当内容数据也为一个数组时，为分别一一对应赋值的逻辑。三个部分中任意段皆可为空（或占位符 `-`），但分隔符竖线（`|`）不可省略。
 
-> **注：**
-> 此处的目标指 `Query` 的结果，流程数据栈中的当前条目称为内容数据。
-
-
-### 格式用例
-
-```html
-<ul id="test" ...
-    to=""
->
-```
+> **注：**<br>
+> 与前面 `On/By` 阶段的称谓不同，`To` 阶段的目标指 `Query` 的结果，而流程数据被称为内容。
 
 
 ### Query
 
-目标元素查询串，值本身被视为字符串，因此不应再用引号包围。如：`to="|replace"` 中的 `Query` 部分即为空，而 `to="''|replace"` 则不是。
+目标元素（集）的查询表达式，值本身被视为字符串，因此可以不再用引号包围。如：`to="|replace"` 与 `to="''|replace"` 效果相同。
 
 
 #### 暂存区为空
@@ -34,13 +25,13 @@
 
 #### 暂存区非空
 
-当前条目有值（非 `undefined`）。取当前条目为二阶查询的起点元素（可能为非元素类型或 `null`），这需要由前阶末尾指令预先提取（`pop`）。
+当前条目有值（非 `undefined`）。取当前条目为二阶查询的起点元素，该元素需要由前阶段（`On/By`）的末尾指令预先提取（如 `pop`）。
 
-- **选择器为空**：当前条目即为最终目标。如果目标不为元素，后阶方法段必须为空，否则会出错（方法仅适用于元素类型）。
+- **选择器为空**：当前条目即为最终目标。如果目标不为元素，后阶方法段必须为空，否则会出错（`Method` 仅用于元素类型）。
 - **选择器非空**：当前条目为查询的起点元素。如果当前条目是一个集合（非起点），选择器应当只包含进阶提取部分。
 
-> **注：**
-> 允许采用当前条目为起点元素或目标集，使得目标可以是动态的（不受模板参数局限）。
+> **注：**<br>
+> 允许采用当前条目为起点元素或目标集，使得目标可以是动态的，不受模板参数局限。
 
 
 #### 特殊字符
@@ -56,7 +47,7 @@
 另外，还有三个单独出现的特殊字符，表示事件关联的3个元素本身（友好性简化）。
 
 - `~` 事件起始元素：`evo.origin`。
-- `=` 事件当前元素：`evo.current`。
+- `=` 事件当前元素：`evo.current`。与暂存区为空且查询串也为空时等效。
 - `&` 事件委托元素：`evo.delegate`。
 
 
@@ -97,79 +88,101 @@ xxxx   // 单元素检索，$.get(): Element | null
 ```
 
 
-### Method/Where/Sets
+### Method
+
+以 Query 的检索目标为操作对象，取栈顶n项为n个方法的内容实参（一一对应）。**注**：可并列定义多个方法。
 
 ```js
 //
-// 普通设置
-// 流程数据为内容，当前检索为目标。
+// 节点类赋值。
 /////////////////////////////////////////////////
+before( spread?:Boolean )
+after( spread?:Boolean )
+prepend( spread?:Boolean )
+append( spread?:Boolean )
+fill( spread?:Boolean )
+replace( spread?:Boolean )
+// 内容：{Node|[Node]|Collector|Set|Iterator|Function}
+// 展开：[内容, clone, event, eventdeep:Boolean]
 
-- before        // 插入目标之前
-- after         // 插入目标之后
-- prepend       // 插入目标内前端
-- append        // 插入目标内末尾
-- fill          // 填充目标内容（清空原有）
-- replace       // 替换目标自身
-// 节点插入/替换。
-// {Node|[Node]|Collector|Set|Iterator|Function} /cons
-// 注：
-// 因数据本身可为数组，故不支持后续克隆等参数。
-// 这可以通过提前克隆解决，但仅适用于单个目标点（多对一）。
-// 注记：
-// 同一组节点一次插入到多个位置的场景可能并不多见，但如果必需，
-// 通过分解设计和联动事件激发，如一个逐次递减的目标清单往返传递（fire）。
+wrap( spread?:Boolean )
+wrapInner( spread?:Boolean )
+wrapAll( spread?:Boolean )
+// 内容：{Element|String} box
+// 展开：[内容, clone, event, eventdeep:Boolean]
 
-
-- wrap          // {Element|String} /box 各自包裹
-- wrapInner     // {Element|String} /box 各自内包裹
-- wrapAll       // {Element|String} /box 包裹全部目标（汇集到一起）
-// 流程数据为容器及实参序列，包裹目标。
+cloneEvent( spread?:Boolean )
+// 事件处理器克隆。
+// 内容：{Element} /src
+// 展开：[内容, evns:String|Function]
 
 
-- height        // {Number} /px
-- width         // {Number} /px
-- scroll        // {top:Number, left:Number} /px
-- scrollTop     // {Number} /px
-- ScrollLeft    // {Number} /px
-- addClass      // {String|Function} /names
-- removeClass   // {String|Function} /names
-- toggleClass   // {String|Function|Boolean}
-- removeAttr    // {String|Function} /names
-- val           // {Value|[Value]|Function}
-- html          // {String|[String]|Node|[Node]|Function|.values} /fill
-- text          // {String|[String]|Node|[Node]|Function|.values} /fill
-- offset        // {top:Number/px, left:Number/px}
+//
 // 简单设置。
 // 流程数据为唯一实参，数据本身可能为数组。
+/////////////////////////////////////////////////
+height()        // 内容：{Number} /px
+width()         // 内容：{Number} /px
+scroll()        // 内容：{top:Number, left:Number} /px
+scrollTop()     // 内容：{Number} /px
+ScrollLeft()    // 内容：{Number} /px
+addClass()      // 内容：{String|Function} /names
+removeClass()   // 内容：{String|Function} /names
+toggleClass()   // 内容：{String|Function|Boolean}
+removeAttr()    // 内容：{String|Function} /names
+val()           // 内容：{Value|[Value]|Function}
+html()          // 内容：{String|[String]|Node|[Node]|Function|.values} /fill
+text()          // 内容：{String|[String]|Node|[Node]|Function|.values} /fill
+offset()        // 内容：{top:Number/px, left:Number/px}
 
 
-- cloneEvent
-// 克隆事件处理器到目标元素。
-// 事件源为单个元素，因此支持多实参扩展传递后续配置。
-// {Element} /src
-// [ Element, String? ]
-// 实现：
-// 检查传入的流程数据是否为数组，决定是否展开。
+//
+// 特性/属性/样式设置增强版（空格分隔的多名称）。
+/////////////////////////////////////////////////
+attr( names:String|Boolean )
+prop( names:String|Boolean )
+cssSets( names:String|Boolean )
+// 内容：{Value|[Value]|Function|null}
+// 展开：[names:String|Object, 内容]
+// 注：
+// 当实参为布尔值时，表达流程数据展开逻辑（spread）。
+// 如names为Object类型时，实参names可为false（无需展开，但仅取流程数据）。
 
-- attr
-// 特性设置（增强版）。
-// name:{String|Object|Map} | [name, value]
-// 实现会检查流程数据是否为数组决定展开，下同。
 
-- prop
-// 属性设置（增强版）。
-// name:{String|Object|Map} | [name, value]
+//
+// 事件处理。
+// 用预定义的调用链作为事件处理器，绑定到目标。
+// 这可以方便在模板中定义共享执行流。
+/////////////////////////////////////////////////
 
-- cssSets
-// 样式设置（增强版）。
-// name:{String|Object|Map} | [name, value]
+bind( evn:String|Boolean, slr?:String, data?:Value )
+// 内容：{Element} 存储元素
+// 展开：[内容, evn, slr:String, data:Value]
+// 如果 evn 为假值，表示存储元素上存储的全部预定义都使用。
+// data 为绑定处理器的初始传入值。
 
-- trigger
+unbind( evn:String|Boolean, slr?:String )
+// 内容：{Element} 存储元素
+// 展开：[内容, evn, slr:String]
+// 解绑目标元素上的事件处理器（bind的逆过程）。
+// 解绑仅限于预存储的调用链。
+// 注：
+// 当evn为布尔值时，表达流程数据展开逻辑（spread）。
+// By:off()可解绑bind()的绑定，如果无需指定处理器句柄的话。
+
+once( evn:String|Boolean, slr?:String, data?:Value )
+// 绑定事件的单次处理。
+// 与bind不同，因为会自动解绑，所以允许多次绑定。
+// 内容：{Element} 存储元素
+// 展开：[内容, evn, slr:String, data:Value]
+
+trigger( evn:String|Boolean, bubble?, cancelable?:Boolean )
 // 发送事件到目标。
-// 当前条目：栈顶1项。
-// 流程数据作为事件发送的实参序列。
-// 数据：[事件名, 发送数据, ...]
+// 内容：{Value} 发送数据
+// 展开：[evn:String, 内容, bubble, cancelable:Boolean]
+// 注：
+// 当evn为布尔值时，表达流程数据展开逻辑（spread）。
+// 当流程数据只有事件名时，evn传递false可发送undefined值。
 
 
 //

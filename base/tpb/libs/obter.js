@@ -1,5 +1,5 @@
 //! $Id: obter.js 2019.08.19 Tpb.Core $
-//
+// +++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -67,6 +67,11 @@ const
     // 方法名支持字母、数字和 [._-] 字符。
     // 参数段支持任意字符（包括换行），可选。
     __obtCall   = /^(\w[\w.-]*)(?:\(([^]*)\))?$/,
+
+    // To:Query
+    // 完整的检索表达式。
+    // 首尾的引号包围是可选的。
+    __toQuery     = /^['"`]?([^]*?)['"`]?$/,
 
     // To:Query
     // 集合范围子集匹配：( beg, end )。
@@ -668,13 +673,14 @@ class Cell {
      * 返回同步序列最后一个指令单元调用的返回值。
      * @param  {Event} ev 事件对象
      * @param  {Object} elo 事件关联对象
+     * @param  {Value} extra 初始传递值，可选
      * @return {Value}
      */
-    handleEvent( ev, elo ) {
+    handleEvent( ev, elo, extra ) {
         elo.event = ev;
         this[_SID].reset();
 
-        return this.call( elo );
+        return this.call( elo, extra );
     }
 
 
@@ -858,7 +864,7 @@ class Query {
      * @param {String} qs 查询串
      */
     constructor( qs = '' ) {
-        this._slr = qs;
+        this._slr = qs.match(__toQuery)[1];
         this._one = true;
 
         // 进阶获取。

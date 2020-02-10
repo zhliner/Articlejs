@@ -40,21 +40,17 @@ const
 const _Where = {
     /**
      * 事件处理器克隆。
-     * 将内容数据中元素上的事件处理器克隆到目标元素（集）上。
-     * 内容可以只是一个元素，也可以是一个实参序列的数组。
-     * args[0]：源元素（事件源）。
-     * args[1]：事件名序列或配置（集）。
-     * @param {Element|Collector} its 目标元素（集）
-     * @param {Element, String?} args 实参（序列）
+     * 将内容元素上的事件处理器克隆到目标元素（集）上。
+     * 事件名序列为空格分隔多个名称。
+     * @param {Element|Collector} to 目标元素（集）
+     * @param {Element} src 内容：事件源元素
+     * @param {String|Function} evns 事件名序列或过滤函数
      */
-    cloneEvent( its, args ) {
-        if ( !$.isArray(args) ) {
-            args = [args];
+    cloneEvent( to, src, evns ) {
+        if ( to.nodeType == 1 ) {
+            return $.cloneEvent( to, src, evns );
         }
-        if ( its.nodeType == 1 ) {
-            return $.cloneEvent( its, ...args );
-        }
-        its.forEach( to => $.cloneEvent( to, ...args ) );
+        to.forEach( to => $.cloneEvent( to, src, evns ) );
     },
 
 
@@ -68,7 +64,7 @@ const _Where = {
      * 本方法可选，若无需支持，简单移除即可。
      *
      * @param {Element|Collector} its 目标元素/集
-     * @param {Object|Array} data 渲染源数据
+     * @param {Object|Array} data 内容：渲染源数据
      */
     render( its, data ) {
         if ( its.nodeType == 1 ) {

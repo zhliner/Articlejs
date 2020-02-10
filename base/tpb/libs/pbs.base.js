@@ -656,8 +656,8 @@ const _Base2 = {
 
     /**
      * 将目标转换为普通对象。
-     * 仅适用包含entries接口的对象，如：Set/Map实例。
-     * 如果目标不包含entries成员，返回Object()的简单封装。
+     * 主要用于包含entries接口的对象，如：Set/Map实例。
+     * 如果目标不包含entries，返回Object()的简单封装。
      * @return {Object}
      */
     Obj( evo ) {
@@ -1014,16 +1014,14 @@ const _Base2 = {
 
     /**
      * 创建预填充值集合。
-     * 如果当前条目有值，先填充当前条目值（可能解构）。
+     * 如果当前条目有值，先合并到实参序列之后（数组会被解构）。
      * 最后一个值用于剩余重复填充。
      * @param {Number} size 集合大小
      * @param {...Value} vals 填充值序列，可选
      */
     array( evo, size, ...vals ) {
         if ( evo.data !== undefined ) {
-            vals.unshift(
-                ...($.isArray(evo.data) ? evo.data : [evo.data])
-            );
+            vals = vals.concat(evo.data);
         }
         let _i = vals.length,
             _v = vals[ _i-1 ];

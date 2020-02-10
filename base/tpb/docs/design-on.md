@@ -2,12 +2,12 @@
 
 关联事件，获取各种值。值进入流程数据栈向后传递，数据入栈为 `Array.push` 方式，除了 `undefined` 外，每一个指令（方法）的返回值都会自动入栈。
 
-事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器包含在括号内，如：`click(p[data-id="xxx"])`。**注**：选择器本身不用引号包围。
+事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器定义在小括号内，如：`click(p[data-id="xxx"])`。**注**：选择器自身的引号包围是可选的。
 
-事件名本身支持字母、数字和 `[._-]` 字符。另外，首字符有两个特殊约定：
+事件名本身支持字母、数字和 `[._-]` 字符。另外，可前置两个特殊字符：
 
-- `^`：表示该事件为单次绑定，如：`^click` 的绑定应当是 `$.one("click', ...)`，而非采用 `$.on()`。
-- `@`：预定义调用链，`@` 后跟随一个检索键名或事件名（需全局唯一）。该调用链不会被立即使用（绑定到当前元素），而是存储用于其它PB中使用（`bind/unbind/once` 方法）。
+- `^`：表示该事件为单次绑定。如：`^click` 的绑定应当是 `$.one("click', ...)`，而非采用 `$.on()`。
+- `@`：预定义调用链。该调用链不会被立即使用，实际上这只是一种存储（与当前元素关联），其它PB中可用 `bind/unbind/once` 等方法检索使用。
 
 
 ### 格式用例
@@ -16,23 +16,24 @@
 <ul id="test" ...
     on="click mouseup;
         click mouseup |nil;
-        click(li[data-val='xyz']) contextmenu |$('div/?xxx >b'), attr('-val'), pass('abcd');
-        ^mouserover @keyup |$('div/?xxx'), text, hello"
+        click(li[data-val='xyz']) contextmenu|$('div/?xxx >b'), attr('-val'), pass('abcd');
+        ^mouserover @keyup|$('div/?xxx'), text, hello"
 >
 ```
 
 **说明：**
 
 - 事件名可用空格分隔多个同时定义。
-- 事件名与后续的指令序列之间用竖线（`|`）分隔。指令序列可选，若无指令序列，`|` 可省略。
-- 前置 `^` 的事件名表示单次执行绑定（`$.one`）。
-- 各指令之间用逗号（`,`）分隔，逗号前后的空格可选（视觉友好）。
+- 事件名与后续的取值指令序列之间用竖线（`|`）分隔，`|` 两侧的空格是可选的。
+- 指令序列是可选，若无指令序列，`|` 可省略。
+- 各指令之间用逗号（`,`）分隔，逗号前后的空格可选。
 - 无实参传递的指令可省略括号。
+- 前置 `^` 的事件名表示单次执行绑定（`$.one`）。
 
 
 ### 方法集
 
-`tQuery|Collector` 中的方法仅限于取值（**注**：赋值被设计在 `To:method` 中）。
+从流程数据（即目标）中取值，提取的值被自动压入栈顶。`tQuery|Collector` 中的方法仅限于取值，赋值能力被设计在 `To:Method` 中。
 
 
 ```js
@@ -44,7 +45,7 @@ pba(): [String]
 // 目标：当前条目/栈顶1项。
 // 返回值：有序的参数词序列。
 // 注：
-// 即元素data-pb属性的格式化值处理（-后缀）。
+// 即元素data-pb属性值的参数部分（-后缀）。
 // 属性选择器：|=
 
 pbo(): [String]
@@ -52,27 +53,29 @@ pbo(): [String]
 // 目标：当前条目/栈顶1项。
 // 返回值：无序的选项词序列。
 // 注：
-// 即元素data-pb属性的格式化值处理（空格分隔）。
+// 即元素data-pb属性值的选项部分（空格分隔）。
 // 属性选择器：~=
 
 pdv(): String
 // PB属性取值。
 // 目标：当前条目/栈顶1项。
 // 注：
-// 即元素/集的data-pb属性值。
+// 即元素data-pb属性的整个值（完整字符串）。
 
-re( flag ): RegExp
+re( flag, val?:String ): RegExp
 // 构造正则表达式入栈。
 // 目标：当前条目/栈顶1项。
+// 特权：是。灵活取栈。
+// 如果val无值，则自动取栈顶1项。
 
 date( ...v? ): Date
 // 构造日期对象入栈。
 // 目标：当前条目。不自动取栈。
-// 目标有值时解包传递 new Data() 实参。
+// 目标有值时解包传递为 new Data() 的补充实参。
 // 注：
-// v无值并且目标为空时构造一个当前时间对象。
+// v无值并且目标为空时构造为一个当前时间对象。
 
-scam( names? ): Object
+scam( names?:String ): Object | Boolean
 // 修饰键 {alt, ctrl, shift, meta} 是否按下封装或检查。
 // 目标：当前条目，可选。
 // 如果 names 或暂存区有值则为检查，否则为简单封装。
@@ -126,60 +129,54 @@ hasClass( name ): Boolean
 classAll(): [String]
 position(): {top, left}
 // 参数不定。
-// 多余实参无副作用。
+// 注：多余实参无副作用。
 
 
 // tQuery专有
 //-----------------------------------------------
 
-Element( tag: String, data: String|[String]|Object ): Element
-svg( tag: String, opts: Object ): SVG:Element
-// 目标/参数：2，可选。
+Element( tag?:String, data?:String|[String]|Object ): Element
+svg( tag?:String, opts?:Object ): SVG:Element
+Text( text?:String ): Text
+create( html?:String ): DocumentFragment
+table( rows?, cols?:Number, cap?:String, th0?:Boolean ): $.Table
+dataName( attr?:String ): String
+tags( code?:String ): String
+selector( tag?, attr?, val?, op?:String ): String
+range( beg?:Number|String, size?:Number|String, step?:Number ): [Number]|[String]
+now( json?:Boolean ): Number|String
+// 目标：当前条目，可选。
+// 如果目标有值，合并在实参之后传递。
 
-Text( text: String ): Text
-create( html: String ): DocumentFragment
-dataName( attr: String ): String
-tags( code: String ): String
-// 目标/参数：1，可选。
-
-is( el: Element, slr: String ): Boolean
-isXML( el: Element ): Boolean
-controls( frm: Element ): [Element]
-serialize( frm: Element, incl: [String] ): [Array2]
-queryURL( its: Object|Element ): String
-isArray( val: Value ): Boolean
-isNumeric( val: Value ): Boolean
-isFunction( its: Any ): Boolean
-isCollector( its: Value ): Boolean
-type( its: Any ): String
-kvsMap( map: Map, kname?, vname?: String ): [Object2]
-// 目标/参数：1，当前条目/栈顶1项。
-// 多余实参无副作用。
-
-
-table( rows, cols: Number, cap: String, th0: Boolean ): Table
-selector( tag, attr?, val?, op?: String ): String
-now( json: Boolean ): Number | String
-// 目标：无。
+is( slr:String ): Boolean
+isXML(): Boolean
+controls(): [Element]
+serialize( ...names? ): [Array2]
+queryURL(): String
+isArray(): Boolean
+isNumeric(): Boolean
+isFunction(): Boolean
+isCollector(): Boolean
+type(): String
+kvsMap( kname?, vname?: String ): [Object2]
+// 目标：当前条目/栈顶1项。
+// 内容：参考tQuery相关接口首个参数定义。
+// 注：多余实参无副作用。
 
 
-contains( box: Element, node: Node ): Boolean
-// 目标/参数：[1, 2]，当前条目/栈顶2项。
-// 定制。
-
-range( beg, size: Number|String, step: Number ): [Number] | [String]
-// 构建范围值数组。
-// 目标/参数：1|2|3，可选。
-// beg传递null表示取流程数据。
-// beg若为undefined，表示取流程数据为全部实参。
+contains(): Boolean
+// 目标：当前条目/栈顶2项。
+// 内容：[box:Element, node:Node]
 
 
 // Collector专有
 //-----------------------------------------------
 
-item( idx ): Value | [Value]
-eq( idx ): Collector
-first( slr ): Collector
-last( slr ): Collector
-// 目标：调用者，当前条目/栈顶1项。
+item( idx? ): Value | [Value]
+eq( idx? ): Collector
+first( slr? ): Collector
+last( slr? ): Collector
+// 目标：当前条目/栈顶1项。
+// 内容：Value|[Value]|Collector
+// 注意：如果目标不是Collector对象，会自动封装为Collector。
 ```

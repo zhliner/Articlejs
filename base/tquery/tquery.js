@@ -1599,7 +1599,7 @@ Object.assign( tQuery, {
 
     /**
      * 特性获取/设置（增强版）。
-     * name: String
+     * names: String
      * - "xx"       普通名称
      * - "aa bb"    名称序列，空格分隔（依然支持data-系简写）
      * - "text"     特殊名称，针对元素内文本
@@ -1889,11 +1889,11 @@ Object.assign( tQuery, {
      * 样式获取（增强版）。
      * 多个名称用空格分隔，始终返回一个名/值对对象。。
      * @param  {Element} el 目标元素
-     * @param  {String} name 样式名（序列）
+     * @param  {String} names 样式名（序列）
      * @return {Object} 样式名/值对对象
      */
-    cssGets( el, name ) {
-        return cssGets( getStyles(el), name.trim() );
+    cssGets( el, names ) {
+        return cssGets( getStyles(el), names.trim() );
     },
 
 
@@ -1905,16 +1905,16 @@ Object.assign( tQuery, {
      * - val值支持取值回调，接口：fn.bind(el)( oldval, cso )。
      * - val为空串或null，会删除目标样式。
      * @param  {Element} el 目标元素
-     * @param  {String|Object|Map|null} name 样式名（序列）或配置对象
-     * @param  {Value|Function|null|[Value]} val 样式值
+     * @param  {String|Object|Map|null} names 样式名（序列）或配置对象
+     * @param  {Value|[Value]|Function|null} val 样式值
      * @return {this}
      */
-    cssSets( el, name, val ) {
-        if (name === null) {
+    cssSets( el, names, val ) {
+        if (names === null) {
             el.removeAttribute('style');
         }
         else if ( val !== undefined ) {
-            cssSets(el, name, val, getStyles(el));
+            cssSets(el, names, val, getStyles(el));
 
             if (el.style.cssText.trim() == '') {
                 el.removeAttribute('style');
