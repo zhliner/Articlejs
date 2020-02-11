@@ -151,7 +151,7 @@ const Parser = {
      * To解析。
      * 注：空串合法但无用。
      * @param  {String} fmt To配置串
-     * @return {[Query, Where|null, [Call]|null]}
+     * @return {[Query, Assign|null, [Call]|null]}
      */
     to( fmt ) {
         if ( !fmt ) return [];
@@ -163,7 +163,7 @@ const Parser = {
 
         return [
             new Query(_q.trim()),
-            _w && _w != __chrZero ? new Where(_w) : null,
+            _w && _w != __chrZero ? new Assign(_w) : null,
             _n && _n != __chrZero ? this._calls(_n) : null,
         ];
     },
@@ -246,7 +246,7 @@ class Builder {
      * 基础库 pbs: {
      *      on:     Object,
      *      by:     Object,
-     *      where:  Object,
+     *      assign: Object,
      *      stage:  Object,
      * }
      * @param {Object} pbs OBT指令集
@@ -255,7 +255,7 @@ class Builder {
     constructor( pbs, store ) {
         this._pbson = pbs.on;
         this._pbsby = pbs.by;
-        this._pbst2 = pbs.where;
+        this._pbst2 = pbs.assign;
         this._pbst3 = pbs.stage;
         this._store = store;
     }
@@ -294,11 +294,11 @@ class Builder {
      * @param  {[Call]} on On调用序列
      * @param  {[Call]} by By调用序列
      * @param  {Query} query To查询配置实例
-     * @param  {Where} where To设置配置实例
+     * @param  {Assign} assign To赋值配置实例
      * @param  {[Call]} stage To下一阶调用序列
      * @return {Cell} EventListener
      */
-    chain( on, by, query, where, stage ) {
+    chain( on, by, query, assign, stage ) {
         let _stack = new Stack(),
             _first = Evn.apply( new Cell(_stack) ),
             _prev = null;
@@ -307,7 +307,7 @@ class Builder {
         _prev = this._by( _prev, _stack, by );
 
         _prev = this._query( _prev, _stack, query );
-        _prev = this._where( _prev, _stack, where );
+        _prev = this._where( _prev, _stack, assign );
         this._stage( _prev, _stack, stage );
 
         return _first;
@@ -376,7 +376,7 @@ class Builder {
 
     /**
      * To:Query构造。
-     * 返回最后一个Cell实例，接续To:Where。
+     * 返回最后一个Cell实例，接续To:Assign。
      * @param  {Cell} prev 前一个指令单元
      * @param  {Stack} stack 数据栈实例
      * @param  {Query} query To查询配置实例
@@ -393,12 +393,12 @@ class Builder {
      * 返回最后一个Cell实例，接续To:Stage。
      * @param  {Cell} prev 前一个指令单元
      * @param  {Stack} stack 数据栈实例
-     * @param  {Where} where To设置配置实例
+     * @param  {Assign} assign To赋值配置实例
      * @return {Cell}
      */
-    _where( prev, stack, where ) {
-        return where ?
-            where.apply( new Cell(stack, prev), this._pbst2 ) : prev;
+    _where( prev, stack, assign ) {
+        return assign ?
+            assign.apply( new Cell(stack, prev), this._pbst2 ) : prev;
     }
 
 
@@ -969,8 +969,8 @@ class Query {
 
 
 //
-// To设置配置。
-// 即 Where/Method/Set 段配置。
+// To赋值配置。
+// 即 Assign 段配置。
 // 大多数方法为简单的规范名称，如：before, after, wrap, height 等。
 // 特性/属性/样式三种配置较为特殊，采用前置标志字符表达：{
 //      @   特性（attr），如：@title => $.attr(el, 'title', ...)
@@ -981,7 +981,7 @@ class Query {
 // 支持多方法并列定义，用逗号（__chrList）分隔。
 // 注：并列的方法数量即是自动取栈的数量。
 //
-class Where {
+class Assign {
     /**
      * 构造设置器。
      * @param {String} fmt 定义格式串
@@ -1003,12 +1003,12 @@ class Where {
      * 更新函数接口：function(Element | Collector, Value): void
      *
      * @param  {Cell} cell 指令单元
-     * @param  {Object} wms 更新方法集（Where/Method/Set）
+     * @param  {Object} pbs 赋值方法集（Assign）
      * @return {Cell} cell
      */
-    apply( cell, wms ) {
+    apply( cell, pbs ) {
         let _fs = this._names
-            .map( ss => this._method(ss, wms) );
+            .map( ss => this._method(ss, pbs) );
 
         return cell.bind( _fs, update, false, this._count );
     }
@@ -1137,7 +1137,7 @@ const methodMap = {
 
 
 /**
- * To:Where: 提取特殊方法及相关名。
+ * To:Assign: 提取特殊方法及相关名。
  * 相关名：特性/属性/样式名称。
  * @param  {String} meth 原方法名
  * @return {Array2} [meth, name]

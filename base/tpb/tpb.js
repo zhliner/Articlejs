@@ -54,7 +54,7 @@ $.proto( Base2, Base );
 $.proto( On, Base2 ),
 $.proto( By, Base2 ),
 
-$.proto( To.Where, Base );
+$.proto( To.Assign, Base );
 $.proto( To.Stage, Base );
 
 
@@ -67,7 +67,7 @@ $.proto( To.Stage, Base );
 const _obter = new Builder( {
         on:     On,
         by:     By,
-        where:  To.Where,
+        assign: To.Assign,
         stage:  To.Stage,
     },
     chainStore
@@ -163,7 +163,7 @@ if (DEBUG) {
     window.Debug = {
         On,
         By,
-        Where:  To.Where,
+        Assign: To.Assign,
         Stage:  To.Stage,
         Tpl:    __Tpl,
 

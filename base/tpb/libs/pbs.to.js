@@ -8,7 +8,7 @@
 //
 //	OBT:To 方法集。
 //
-//  Where：取栈数量固定为1（已被obter.js/update封装）。
+//  Assign：取栈数量固定为1（已被obter.js/update封装）。
 //  Stage：前置双下划线定义取栈条目数，无返回值。
 //
 //
@@ -37,7 +37,7 @@ const
 // 内容：由单个流程数据提供（取值已被obter.js/update封装）。
 ///////////////////////////////////////////////////////////////////////////////
 
-const _Where = {
+const _Assign = {
     /**
      * 事件处理器克隆。
      * 将内容元素上的事件处理器克隆到目标元素（集）上。
@@ -96,7 +96,7 @@ const _Where = {
      * @param  {String} name 特性/属性/样式名（单个）
      * @return {Ignore} 调用者忽略
      */
-    _Where[meth] = function( its, val, name ) {
+    _Assign[meth] = function( its, val, name ) {
         return its.nodeType == 1 ?
             $[meth]( its, name, val ) : $(its)[meth]( name, val );
     };
@@ -120,7 +120,7 @@ const _Where = {
      * @param  {Value|[Value]|Function} args 值或值集或取值回调
      * @return {Ignore} 调用者忽略
      */
-    _Where[meth] = function( its, args ) {
+    _Assign[meth] = function( its, args ) {
         if ( !$.isArray(args) ) {
             args = [args];
         }
@@ -172,7 +172,7 @@ const _Where = {
      * @param  {...} con|box|val|name|code 更新内容
      * @return {Any:ignore} 调用者忽略
      */
-    _Where[meth] = function( its, con ) {
+    _Assign[meth] = function( its, con ) {
         return its.nodeType ?
             $[meth]( its, con ) : $(its)[meth]( con );
     };
@@ -200,7 +200,7 @@ const _Where = {
      * @param {Element|Collector} its 内容元素（集）
      * @param {Node|Element, Boolean?, Boolean?, Boolean?} args 目标节点/元素和更多实参序列。
      */
-    _Where[ fns[0] ] = function( its, args ) {
+    _Assign[ fns[0] ] = function( its, args ) {
         if ( !$.isArray(args) ) {
             args = [args];
         }
@@ -223,7 +223,7 @@ const _Where = {
 ]
 .forEach(function( name ) {
 
-    _Where[name] = function( its, wds ) {
+    _Assign[name] = function( its, wds ) {
         if ( its.nodeType == 1 ) {
             return Util[name]( its, wds );
         }
@@ -463,7 +463,7 @@ function message( el, msg, long ) {
 
 const To = {};
 
-To.Where = $.assign( {}, _Where, bindMethod );
+To.Assign = $.assign( {}, _Assign, bindMethod );
 To.Stage = $.assign( {}, _Stage, bindMethod );
 
 
@@ -472,7 +472,7 @@ To.Stage = $.assign( {}, _Stage, bindMethod );
 // 提供预处理方法。
 //===============================================
 
-To.Where[method] = name => To.Where[name];
+To.Assign[method] = name => To.Assign[name];
 
 To.Stage[method] = name => To.Stage[name];
 
