@@ -3651,7 +3651,7 @@ elsEx([
      * - 克隆和事件绑定的克隆仅适用于既有元素容器。
      * @param  {String} fn 方法名称
      * @param  {Collector} els 节点/元素集
-     * @param  {Element|String} box 容器元素或html字符串
+     * @param  {Element|[Element]|String|[String]} box 容器元素或html字符串
      * @param  {Boolean} clone 容器元素是否克隆
      * @param  {Boolean} event 容器元素上的事件绑定是否克隆
      * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆

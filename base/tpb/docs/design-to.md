@@ -113,11 +113,13 @@ replace( clone, event, eventdeep:Boolean )
 wrap( clone, event, eventdeep:Boolean )
 wrapInner( clone, event, eventdeep:Boolean )
 wrapAll( clone, event, eventdeep:Boolean )
-// 内容：{Element|String} box
+// 内容：{Element|String|[Element|String]} box
 // 展开：[内容, clone, event, eventdeep:Boolean]
 // 说明：
 // 如果传递实参，流程数据视为单纯的内容。
 // 如果实参为空，流程数据为数组且第二个成员为true时展开。
+// 注：
+// wrapAll的内容只支持单值，wrap|wrapInner则可为集合。
 
 cloneEvent( evns?:String|Function )
 // 事件处理器克隆。
