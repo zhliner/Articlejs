@@ -39,8 +39,6 @@ const _By = {
      * @data: [element, data]
      */
     render( evo ) {
-        // 可选：
-        // 若无支持，简单注释掉即可。
         Render.update( ...evo.data );
     },
 

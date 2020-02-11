@@ -96,25 +96,36 @@ xxxx   // 单元素检索，$.get(): Element | null
 //
 // 节点类赋值。
 /////////////////////////////////////////////////
-before( spread?:Boolean )
-after( spread?:Boolean )
-prepend( spread?:Boolean )
-append( spread?:Boolean )
-fill( spread?:Boolean )
-replace( spread?:Boolean )
+before( clone, event, eventdeep:Boolean )
+after( clone, event, eventdeep:Boolean )
+prepend( clone, event, eventdeep:Boolean )
+append( clone, event, eventdeep:Boolean )
+fill( clone, event, eventdeep:Boolean )
+replace( clone, event, eventdeep:Boolean )
 // 内容：{Node|[Node]|Collector|Set|Iterator|Function}
-// 展开：[内容, clone, event, eventdeep:Boolean]
+// 展开：[内容, clone, event, eventdeep]
+// 说明：
+// 如果传递实参，则流程数据视为单纯的内容。
+// 如果实参为空，则流程数据为数组且第二个成员为true时展开。
+// 注：
+// 提供流程数据展开（spread）能力，使得可从流程中获取控制。
 
-wrap( spread?:Boolean )
-wrapInner( spread?:Boolean )
-wrapAll( spread?:Boolean )
+wrap( clone, event, eventdeep:Boolean )
+wrapInner( clone, event, eventdeep:Boolean )
+wrapAll( clone, event, eventdeep:Boolean )
 // 内容：{Element|String} box
 // 展开：[内容, clone, event, eventdeep:Boolean]
+// 说明：
+// 如果传递实参，流程数据视为单纯的内容。
+// 如果实参为空，流程数据为数组且第二个成员为true时展开。
 
-cloneEvent( spread?:Boolean )
+cloneEvent( evns?:String|Function )
 // 事件处理器克隆。
-// 内容：{Element} /src
+// 内容：{Element} 事件句柄源
 // 展开：[内容, evns:String|Function]
+// 说明：
+// 如果传递实参，流程数据视为单纯的内容。
+// 如果实参为空，流程数据应当为数组且会直接展开。
 
 
 //
@@ -137,16 +148,16 @@ offset()        // 内容：{top:Number/px, left:Number/px}
 
 
 //
-// 特性/属性/样式设置增强版（空格分隔的多名称）。
+// 特性/属性/样式设置增强版（空格分隔多个名称）。
 /////////////////////////////////////////////////
-attr( names:String|Boolean )
-prop( names:String|Boolean )
-cssSets( names:String|Boolean )
+attr( names:String )
+prop( names:String )
+cssSets( names:String )
 // 内容：{Value|[Value]|Function|null}
 // 展开：[names:String|Object, 内容]
-// 注：
-// 当实参为布尔值时，表达流程数据展开逻辑（spread）。
-// 如names为Object类型时，实参names可为false（无需展开，但仅取流程数据）。
+// 说明：
+// 如果传递实参，流程数据视为单纯的值。
+// 如果实参为空，流程数据为数组时展开（非数组时应当为Object）。
 
 
 //
@@ -155,113 +166,114 @@ cssSets( names:String|Boolean )
 // 这可以方便在模板中定义共享执行流。
 /////////////////////////////////////////////////
 
-bind( evn:String|Boolean, slr?:String, data?:Value )
+bind( evn:String, slr?:String, data?:Value )
 // 内容：{Element} 存储元素
 // 展开：[内容, evn, slr:String, data:Value]
-// 如果 evn 为假值，表示存储元素上存储的全部预定义都使用。
+// 如果evn为空串，表示存储元素上存储的全部预定义都使用。
 // data 为绑定处理器的初始传入值。
+// 说明：
+// 如果实参为空，流程数据应当为数组并且会直接展开。
+// 内容只支持单个存储元素，如果目标是一个集合，会应用相同的绑定。
+// 注意：
+// evn空串是一个有效的实参值。
 
-unbind( evn:String|Boolean, slr?:String )
+unbind( evn:String, slr?:String )
 // 内容：{Element} 存储元素
 // 展开：[内容, evn, slr:String]
 // 解绑目标元素上的事件处理器（bind的逆过程）。
 // 解绑仅限于预存储的调用链。
-// 注：
-// 当evn为布尔值时，表达流程数据展开逻辑（spread）。
+// evn为空串时，匹配存储元素上存储的全部预定义事件名。
+// 说明：
+// 如果实参为空，流程数据应当为数组并且会直接展开。
 // By:off()可解绑bind()的绑定，如果无需指定处理器句柄的话。
 
-once( evn:String|Boolean, slr?:String, data?:Value )
+once( evn:String, slr?:String, data?:Value )
 // 绑定事件的单次处理。
-// 与bind不同，因为会自动解绑，所以允许多次绑定。
 // 内容：{Element} 存储元素
 // 展开：[内容, evn, slr:String, data:Value]
+// 注：参考bind说明。
 
-trigger( evn:String|Boolean, bubble?, cancelable?:Boolean )
+trigger( evn:String, bubble?, cancelable?:Boolean )
 // 发送事件到目标。
 // 内容：{Value} 发送数据
 // 展开：[evn:String, 内容, bubble, cancelable:Boolean]
+// 说明：
+// 如果实参为空，流程数据应当为数组且会直接展开。
+// 当流程数据只有事件名时（[evn]），可发送undefined值。
 // 注：
-// 当evn为布尔值时，表达流程数据展开逻辑（spread）。
-// 当流程数据只有事件名时，evn传递false可发送undefined值。
+// bubble和cancelable二者都默认为真（tQuery.trigger的行为）。
 
 
 //
-// 逆向设置（一对多|一对一）。
-// 流程数据为目标，当前目标（targets）为内容。
-// 插入参考为单个节点/元素，因此支持多实参扩展传递后续克隆定义。
-// [ Node|Element, Boolean?, Boolean?, Boolean? ]
+// 逆向插入。
+// 流程数据为目标，Query检索目标为内容。
+// 注：一对一|一对多|多对多。
 /////////////////////////////////////////////////
+beforeWith( clone, event, eventdeep:Boolean )
+afterWith( clone, event, eventdeep:Boolean )
+prependWith( clone, event, eventdeep:Boolean )
+appendWith( clone, event, eventdeep:Boolean )
+replaceWith( clone, event, eventdeep:Boolean )
+fillWith( clone, event, eventdeep:Boolean )
+// 内容：{Element|Collector}
+// 展开：不支持。
 
-- beforeWith    // {Node} /ref | [...]
-- afterWith     // {Node} /ref | [...]
-- prependWith   // {Element} /box | [...]
-- appendWith    // {Element} /box | [...]
-- replaceWith   // {Node} /ref | [...]
-- fillWith      // {Element} /box | [...]
-// 实现：
-// 检查传入的流程数据是否为数组，决定是否展开。
 
+pba()
+// PB参数设置。
+// 内容：{[String]}
+// 注：参数序列末尾存在-字符。
 
-- pba
-// PB参数设置。{[String]}
-// 用流程数据构造 - 分隔的词序列，含最后的-字符。
-// 赋值到 data-pb 属性。
-// 注：不破坏PB中的选项部分（后段）。
-// 注记：
-// 参数序列存在末尾的-字符，这是一个标志。
+pbo()
+// PB选项设置。
+// 内容：{[String]}
 
-- pbo
-// PB选项设置。{[String]}
-// 用流程数据构造空格分隔的词序列。
-// 赋值到 data-pb 属性。
-// 不破坏PB中的参数部分（前段）。
+pbv()
+// PB属性设置。
+// 内容：{String}
+// 注：对data-pb特性值本身的设置。
 
-- pbv
-// PB属性设置。{String}
-// 这是对data-pb整个属性设置。
-
-- render
-// 渲染目标元素。
-// 用于模板节点插入页面之后的原地更新。
+render()
+// 渲染目标元素（原地更新）。
+// 内容：{Object|Array|Value}
 // 注：
-// 目标元素可以是模板根，也可以是局部，需视渲染语法而定。
-// 效果与By:render相同，但目标无法通过模板名获取。
+// 目标元素可以是模板根，也可以是局部（与渲染语法相关）。
 
 
 //
 // 常用方法。
 // 采用前置特殊字符来简化实现。
-// 注：仅限单个名称。
+// 与增强版不同，这里仅支持单个名称。
 /////////////////////////////////////////////////
 
 [attribute]
 - @[name]
-// 特性设置。即：.attribute([name], ...)
-// {String|Number|Boolean|Function|null}
+// 特性设置（.attribute([name], ...)）
+// 内容：{String|Number|Boolean|Function|null}
 // 例：
 // @style： 设置元素的style特性值（cssText）。
 // @class： 设置元素的class特性值。实参为null时删除特性值。
 
 [property]
 - $[name]
-// 属性设置。即：.property([name], ...)
-// {String|Number|Boolean|Function|null}
+// 属性设置（.property([name], ...)）
+// 内容：{String|Number|Boolean|Function|null}
 // 例：
 // $value   设置元素的value属性值。
 // $-val：  设置元素的data-val属性值（dataset.val），同 $data-val。
 
 [css]
 - %[name]
-// 样式设置。即：.css([name], ...)
-// {String|Number|Function|null}
+// 样式设置（.css([name], ...)）
+// 内容：{String|Number|Function|null}
 // 例：
 // %font-size 设置元素的font-size内联样式。
 // %fontSize  效果同上。
 
 [attribute:toggle]
 - ^[name]
-// 元素特性切换。即：.toggleAttr([name], ...)
-// {Value|[Value]|Function}
+// 元素特性切换（.toggleAttr([name], ...)）
+// 内容：{Value|[Value]|Function}
 // 单值比较有无切换，双值（数组）比较交换切换。
 ```
 
