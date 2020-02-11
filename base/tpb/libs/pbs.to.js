@@ -8,7 +8,7 @@
 //
 //	OBT:To 方法集。
 //
-//  Assign：取栈数量固定为1（已被obter.js/update封装）。
+//  Update：取栈数量固定为1（已被obter.js/update封装）。
 //  Stage：前置双下划线定义取栈条目数，无返回值。
 //
 //
@@ -37,7 +37,7 @@ const
 // 内容：由单个流程数据提供（取值已被obter.js/update封装）。
 ///////////////////////////////////////////////////////////////////////////////
 
-const _Assign = {
+const _Update = {
     /**
      * 事件处理器克隆。
      * 将内容元素上的事件处理器克隆到目标元素（集）上。
@@ -96,7 +96,7 @@ const _Assign = {
      * @param  {String} name 特性/属性/样式名（单个）
      * @return {Ignore} 调用者忽略
      */
-    _Assign[meth] = function( its, val, name ) {
+    _Update[meth] = function( its, val, name ) {
         return its.nodeType == 1 ?
             $[meth]( its, name, val ) : $(its)[meth]( name, val );
     };
@@ -120,7 +120,7 @@ const _Assign = {
      * @param  {Value|[Value]|Function} args 值或值集或取值回调
      * @return {Ignore} 调用者忽略
      */
-    _Assign[meth] = function( its, args ) {
+    _Update[meth] = function( its, args ) {
         if ( !$.isArray(args) ) {
             args = [args];
         }
@@ -172,7 +172,7 @@ const _Assign = {
      * @param  {...} con|box|val|name|code 更新内容
      * @return {Any:ignore} 调用者忽略
      */
-    _Assign[meth] = function( its, con ) {
+    _Update[meth] = function( its, con ) {
         return its.nodeType ?
             $[meth]( its, con ) : $(its)[meth]( con );
     };
@@ -200,7 +200,7 @@ const _Assign = {
      * @param {Element|Collector} its 内容元素（集）
      * @param {Node|Element, Boolean?, Boolean?, Boolean?} args 目标节点/元素和更多实参序列。
      */
-    _Assign[ fns[0] ] = function( its, args ) {
+    _Update[ fns[0] ] = function( its, args ) {
         if ( !$.isArray(args) ) {
             args = [args];
         }
@@ -223,7 +223,7 @@ const _Assign = {
 ]
 .forEach(function( name ) {
 
-    _Assign[name] = function( its, wds ) {
+    _Update[name] = function( its, wds ) {
         if ( its.nodeType == 1 ) {
             return Util[name]( its, wds );
         }
@@ -463,7 +463,7 @@ function message( el, msg, long ) {
 
 const To = {};
 
-To.Assign = $.assign( {}, _Assign, bindMethod );
+To.Update = $.assign( {}, _Update, bindMethod );
 To.Stage = $.assign( {}, _Stage, bindMethod );
 
 
@@ -472,7 +472,7 @@ To.Stage = $.assign( {}, _Stage, bindMethod );
 // 提供预处理方法。
 //===============================================
 
-To.Assign[method] = name => To.Assign[name];
+To.Update[method] = name => To.Update[name];
 
 To.Stage[method] = name => To.Stage[name];
 
