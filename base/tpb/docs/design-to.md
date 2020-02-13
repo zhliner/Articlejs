@@ -127,7 +127,7 @@ cloneEvent( evns?:String|Function )
 // 展开：[内容, evns:String|Function]
 // 说明：
 // 如果传递实参，流程数据视为单纯的内容。
-// 如果实参为空，流程数据应当为数组且会直接展开。
+// 如果实参为空，流程数据为数组时会被展开。
 
 
 //
@@ -166,33 +166,22 @@ cssSets( names:String )
 // 事件处理。
 // 用预定义的调用链作为事件处理器，绑定到目标。
 // 这可以方便在模板中定义共享执行流。
+// 注：这里只有绑定，解绑需要通过 By:off() 执行。
 /////////////////////////////////////////////////
 
-bind( evn:String, slr?:String, data?:Value )
+bind( evn:String, slr?:String, init?:Value )
 // 内容：{Element} 存储元素
-// 展开：[内容, evn, slr:String, data:Value]
-// 如果evn为空串，表示存储元素上存储的全部预定义都使用。
-// data 为绑定处理器的初始传入值。
+// 展开：[内容, evn, slr:String, init:Value]
+// evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
+// init 为绑定处理器的初始传入值。
 // 说明：
-// 如果实参为空，流程数据应当为数组并且会直接展开。
+// 如果实参为空，流程数据为数组时会自动展开为实参序列。
 // 内容只支持单个存储元素，如果目标是一个集合，会应用相同的绑定。
-// 注意：
-// evn空串是一个有效的实参值。
 
-unbind( evn:String, slr?:String )
-// 内容：{Element} 存储元素
-// 展开：[内容, evn, slr:String]
-// 解绑目标元素上的事件处理器（bind的逆过程）。
-// 解绑仅限于预存储的调用链。
-// evn为空串时，匹配存储元素上存储的全部预定义事件名。
-// 说明：
-// 如果实参为空，流程数据应当为数组并且会直接展开。
-// By:off()可解绑bind()的绑定，如果无需指定处理器句柄的话。
-
-once( evn:String, slr?:String, data?:Value )
+once( evn:String, slr?:String, init?:Value )
 // 绑定事件的单次处理。
 // 内容：{Element} 存储元素
-// 展开：[内容, evn, slr:String, data:Value]
+// 展开：[内容, evn, slr:String, init:Value]
 // 注：参考bind说明。
 
 trigger( evn:String, bubble?, cancelable?:Boolean )
@@ -200,10 +189,10 @@ trigger( evn:String, bubble?, cancelable?:Boolean )
 // 内容：{Value} 发送数据
 // 展开：[evn:String, 内容, bubble, cancelable:Boolean]
 // 说明：
-// 如果实参为空，流程数据应当为数组且会直接展开。
-// 当流程数据只有事件名时（[evn]），可发送undefined值。
+// 如果实参为空，流程数据为数组时会自动展开。
+// 当流程数据只有事件名时（evn），可发送undefined值。
 // 注：
-// bubble和cancelable二者都默认为真（tQuery.trigger的行为）。
+// bubble和cancelable二者都默认为真。
 
 
 //

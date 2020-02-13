@@ -1,5 +1,5 @@
 //! $Id: pbs.to.js 2019.08.19 Tpb.Core $
-//
+// ++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -27,7 +27,12 @@ const
     $ = window.$,
 
     // 消息定时器存储键。
-    __TIMER = Symbol('tips-timer');
+    __TIMER = Symbol('tips-timer'),
+
+    // 预定义调用链存储。
+    // 与元素关联，便于分组管理，同时支持空事件名通配。
+    // { Element: Map{evn:String: Chain} }
+    __ChainStore = new WeakMap();
 
 
 
@@ -39,14 +44,74 @@ const
 
 const _Update = {
     /**
+     * 绑定预定义调用链。
+     * 如果evn为假值，表示匹配目标上的全部预存储。
+     * 如果无实参传递，流程数据为数组时会展开为实参序列。
+     * args: [evn, slr:String, init:Value]
+     * data: Element|[store:Element, evn, slr, init]
+     * @param {Element|Collector} to 待绑定元素/集
+     * @param {Element|[args...]} data 存储元素或实参序列
+     * @param {...Value} args 模板实参序列
+     */
+    bind( to, data, ...args ) {
+        if ( args.length == 0 && $.isArray(data) ) {
+            [data, ...args] = data;
+        }
+        if ( $.isArray(to) ) {
+            to.forEach( el => bindChain('on', el, data, ...args) )
+        }
+        bindChain( 'on', to, data, ...args );
+    },
+
+
+    /**
+     * 绑定单次触发。
+     * 其它说明同bind。
+     */
+    once( to, data, ...args ) {
+        if ( args.length == 0 && $.isArray(data) ) {
+            [data, ...args] = data;
+        }
+        if ( $.isArray(to) ) {
+            to.forEach( el => bindChain('one', el, data, ...args) )
+        }
+        bindChain( 'one', to, data, ...args );
+    },
+
+
+    /**
+     * 发送定制事件。
+     * args: [evn:String, bubble, cancelable:Boolean]
+     * data: Value|evn:String|[evn:String, val:Value, bubble, cancelable:Boolean]
+     * 注：
+     * 内容可以是事件名，此时模板应无实参传递，
+     * 如果需要发送值或指定其它参数，将从内容提取（注意顺序）。
+     *
+     * @param {Element|Collector} to 待绑定元素/集
+     * @param {Value|String|[rest...]} data 存储元素或实参序列
+     * @param {String} evn 事件名
+     * @param {...Boolean} rest 冒泡/可取消参数
+     */
+    trigger( to, data, evn, ...rest ) {
+        if ( !evn && $.isArray(data) ) {
+            [evn, data, ...rest] = data;
+        }
+        $(to).trigger( evn, data, ...rest );
+    },
+
+
+    /**
      * 事件处理器克隆。
      * 将内容元素上的事件处理器克隆到目标元素（集）上。
-     * 事件名序列为空格分隔多个名称。
+     * 事件名可为空格分隔的多个名称。
      * @param {Element|Collector} to 目标元素（集）
-     * @param {Element} src 内容：事件源元素
-     * @param {String|Function} evns 事件名序列或过滤函数
+     * @param {Element|[Element, String|Function]} src 内容（事件源）或实参封装
+     * @param {String|Function} evns 事件名序列或过滤函数，可选
      */
     cloneEvent( to, src, evns ) {
+        if ( !evns && $.isArray(src)) {
+            [src, evns] = src;
+        }
         if ( to.nodeType == 1 ) {
             return $.cloneEvent( to, src, evns );
         }
@@ -63,14 +128,14 @@ const _Update = {
      * 注：
      * 本方法可选，若无需支持，简单移除即可。
      *
-     * @param {Element|Collector} its 目标元素/集
+     * @param {Element|Collector} to 目标元素/集
      * @param {Object|Array} data 内容：渲染源数据
      */
-    render( its, data ) {
-        if ( its.nodeType == 1 ) {
-            return Render.update( its, data );
+    render( to, data ) {
+        if ( to.nodeType == 1 ) {
+            return Render.update( to, data );
         }
-        its.forEach( el => Render.update(el, data) );
+        to.forEach( el => Render.update(el, data) );
     },
 
 };
@@ -91,43 +156,44 @@ const _Update = {
     /**
      * 目标赋值更新。
      * 注：会被封装调用，不含首个evo实参。下同。
-     * @param  {Element|Collector} its 目标元素（集）
-     * @param  {Value|Array2|Function|null} val 值或值对
-     * @param  {String} name 特性/属性/样式名（单个）
+     * @param  {Element|Collector} to 目标元素（集）
+     * @param  {Value|Array2|Function|null} val 内容
+     * @param  {String} name 名称（单个）
      * @return {Ignore} 调用者忽略
      */
-    _Update[meth] = function( its, val, name ) {
-        return its.nodeType == 1 ?
-            $[meth]( its, name, val ) : $(its)[meth]( name, val );
+    _Update[meth] = function( to, val, name ) {
+        return to.nodeType == 1 ?
+            $[meth]( to, name, val ) : $(to)[meth]( name, val );
     };
 
 });
 
 
-// 普通更新方式（流程数据展开）。
-// 与上面不同，除目标外全部实参在流程数据中。
+// 特性/属性/样式设置：增强版。
+// 展开：[names:String|Object, 内容]
 //-----------------------------------------------
 [
-    'attr',     // [name, value]
-    'prop',     // [...]
-    'cssSets',  // [...]
-    'trigger',  // [evn, extra, ...]
+    'attr',     // (names?)
+    'prop',     // (names?)
+    'cssSets',  // (names?)
 ]
 .forEach(function( meth ) {
     /**
      * 目标赋值更新。
-     * @param  {Element|Collector} its 目标元素（集）
-     * @param  {Value|[Value]|Function} args 值或值集或取值回调
+     * @param  {Element|Collector} to 目标元素（集）
+     * @param  {Value|[Value]|Function|Object} its 内容
+     * @param  {String} names 名称定义
      * @return {Ignore} 调用者忽略
      */
-    _Update[meth] = function( its, args ) {
-        if ( !$.isArray(args) ) {
-            args = [args];
+    _Update[meth] = function( to, its, names ) {
+        if ( !names && $.isArray(its) ) {
+            // 名称在前
+            [names, its] = its;
         }
-        if ( its.nodeType == 1 ) {
-            return $[meth]( its, ...args );
+        if ( to.nodeType == 1 ) {
+            return $[meth]( to, names, its );
         }
-        if ( $.isArray(its) ) $(its)[meth]( ...args );
+        if ( $.isArray(to) ) $(to)[meth]( names, its );
     }
 });
 
@@ -396,6 +462,83 @@ const _Stage = {
 
 
 /**
+ * 存储调用链。
+ * 如果存在相同事件名，后者会覆盖前者。
+ * @param  {Element} el 存储元素（定义所在）
+ * @param  {String} name 存储键/事件名
+ * @param  {EventListener} chain 调用链
+ * @return {void}
+ */
+ function chainStore( el, name, chain ) {
+    let _map = __ChainStore.get(el);
+
+    if ( !_map ) {
+        _map = new Map();
+        __ChainStore.set( el, _map );
+    }
+    _map.set( name, chain );
+}
+
+
+/**
+ * 处理器封装。
+ * this: {Cell}
+ * @param {Value} init 初始值
+ * @param {Event} ev 事件对象
+ * @param {Object} elo 事件关联对象
+ */
+function bindHandle( init, ev, elo ) {
+    return this.handleEvent( ev, elo, init );
+}
+
+
+/**
+ * 绑定指定存储。
+ * @param  {Element} el 绑定目标
+ * @param  {Map} map 存储集
+ * @param  {[String]} evns 事件名序列
+ * @param  {String} slr 选择器，共享可选
+ * @param  {Value} init 初始传入值，共享可选
+ * @param  {String} type 绑定方式
+ * @return {void}
+ */
+function bindEvns( el, map, evns, slr, init, type ) {
+    if ( !evns ) {
+        evns = [...map.keys()];
+    }
+    for ( const n of evns ) {
+        let _ch = map.get(n);
+        if ( _ch ) {
+            $[type]( el, n, slr, bindHandle.bind(_ch, init) );
+        }
+    }
+}
+
+
+/**
+ * 调用链绑定到事件。
+ * 从延迟绑定存储中检索调用链并绑定到目标事件。
+ * 重复绑定是有效的（可能传入不同的初始值）。
+ * @param  {String} type 绑定方式（on|one）
+ * @param  {Element} el 目标元素
+ * @param  {Element} key 存储元素
+ * @param  {String} evn 事件名/序列
+ * @param  {String} slr 委托选择器
+ * @param  {Value} init 初始传入值
+ * @return {void}
+ */
+function bindChain( type, el, key, evn, slr, init ) {
+    let _map = __ChainStore.get(key);
+
+    if ( !_map ) {
+        window.console.warn(`no storage on Element.`);
+        return;
+    }
+    return bindEvns( el, _map, evn && evn.split(/\s+/), slr, init, type );
+}
+
+
+/**
  * 表单控件默认值改变检查。
  * 如果改变，触发目标控件上的evn事件（通常为changed）。
  * @param  {[Element]} els 控件集
@@ -478,4 +621,4 @@ To.Stage[method] = name => To.Stage[name];
 
 
 
-export { To };
+export { To, chainStore };

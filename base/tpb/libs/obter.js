@@ -86,7 +86,12 @@ const
     // To:Query
     // 集合过滤表达式匹配：{ filter-expr }。
     // 取值：[1]
-    __toFilter  = /^\{([^]*)\}$/;
+    __toFilter  = /^\{([^]*)\}$/,
+
+    // To:Update
+    // 更新方法调用模式。
+    // 支持前置4个特殊字符，名称为简单单词。
+    __toUpdate  = /^([@&%^]?\w+)(?:\(([^]*)\))?$/;
 
 
 
@@ -325,7 +330,7 @@ class Builder {
     bind( its, evns, chain ) {
         for (const evn of evns) {
             if ( evn.store ) {
-                this._store(evn.name, chain);
+                this._store(its, evn.name, chain);
                 continue;
             }
             let _fn = evn.once ?
@@ -969,12 +974,11 @@ class Query {
 
 
 //
-// To更新配置。
-// 即 Update 段配置。
+// To:Update配置。
 // 大多数方法为简单的规范名称，如：before, after, wrap, height 等。
 // 特性/属性/样式三种配置较为特殊，采用前置标志字符表达：{
-//      @   特性（attr），如：@title => $.attr(el, 'title', ...)
-//      &   属性（prop），如：&value => $.prop(el, 'value', ...)
+//      @   特性（attribute），如：@title => $.attribute(el, 'title', ...)
+//      &   属性（property），如：&value => $.property(el, 'value', ...)
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 //      ^   特性切换，如：^-val => $.toggleAttr(el, '-val', ...)
 // }
@@ -987,8 +991,7 @@ class Update {
      * @param {String} fmt 定义格式串
      */
     constructor( fmt ) {
-        let _ns = fmt
-            .split(__chrList)
+        let _ns = [...ASpliter.split(fmt, __chrList)]
             .map( s => s.trim() );
 
         this._names = _ns;
@@ -1003,33 +1006,39 @@ class Update {
      * 更新函数接口：function(Element | Collector, Value): void
      *
      * @param  {Cell} cell 指令单元
-     * @param  {Object} pbs 赋值方法集（Update）
+     * @param  {Object} pbs 更新方法集
      * @return {Cell} cell
      */
     apply( cell, pbs ) {
         let _fs = this._names
-            .map( ss => this._method(ss, pbs) );
+            .map( ss => this._caller(ss, pbs) );
 
         return cell.bind( _fs, update, false, this._count );
     }
 
 
     /**
-     * 构造更新方法封装。
-     * 接口：function( Element|Collector, Value, String? ): Any
-     * 四个特殊方法名：{
-     *      @   特性（attr）
-     *      &   属性（prop）
+     * 构造更新调用。
+     * 四个常用方法友好：{
+     *      @   特性（attribute）
+     *      &   属性（property）
      *      %   样式（css）
      *      ^   特性切换（toggleAttr）
      * }
-     * @param  {String} meth 方法名
+     * 返回值：function(
+     *      to:Element|Collector,   Query检索目标
+     *      its:Value,              流程数据对应条目
+     *      args:[Value]            模板定义实参序列
+     * ): Any
+     * 注：返回函数的返回值任意，无副作用。
+     *
+     * @param  {String} call 调用格式串
      * @param  {Object} pbs 更新方法集
      * @return {Function} 更新方法
      */
-    _method( meth, pbs ) {
-        let [_m, _n] = specialMethod(meth);
-        return (its, val) => pbs[_m]( its, val, _n );
+    _caller( call, pbs ) {
+        let [_m, _args] = methodArgs(call);
+        return (to, its) => pbs[_m]( to, its, ..._args );
     }
 
 }
@@ -1125,10 +1134,10 @@ function query2( slr, beg, one, fltr ) {
 
 
 //
-// 特殊方法名映射。
+// 友好方法映射。
 // 即：特性/属性/样式 的操作方法。
 //
-const methodMap = {
+const usualMeth = {
     [__tosAttr]:    'attribute',
     [__tosProp]:    'property',
     [__tosCSS]:     'css',
@@ -1137,14 +1146,19 @@ const methodMap = {
 
 
 /**
- * To:Update: 提取特殊方法及相关名。
- * 相关名：特性/属性/样式名称。
- * @param  {String} meth 原方法名
- * @return {Array2} [meth, name]
+ * 提取更新方法及实参序列。
+ * @param  {String} call 调用格式串
+ * @return {[meth, [arg...]]}
  */
- function specialMethod( meth ) {
-    let _m = methodMap[ meth[0] ];
-    return _m ? [ _m, meth.substring(1) ] : [ meth ];
+ function methodArgs( call ) {
+    let _m = usualMeth[ call[0] ];
+
+    if ( _m ) {
+        return [ _m, [call.substring(1)] ];
+    }
+    let _vs = call.match(__toUpdate);
+
+    return [ _vs[1], Util.arrArgs(_vs[2]) || '' ];
 }
 
 
