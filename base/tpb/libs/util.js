@@ -279,7 +279,7 @@ const Util = {
      * @param {Collector} $els 目标元素集
      * @param {String} name 事件名
      * @param {Number} delay 延迟毫秒数
-     * @param {...Value} rest 剩余参数
+     * @param {...Value|Boolean} rest 剩余参数
      */
     fireEvent( $els, name, delay, ...rest ) {
         if ( !delay ) {

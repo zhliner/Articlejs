@@ -58,7 +58,7 @@ const _Update = {
             [data, ...args] = data;
         }
         if ( $.isArray(to) ) {
-            to.forEach( el => bindChain('on', el, data, ...args) )
+            return to.forEach( el => bindChain('on', el, data, ...args) )
         }
         bindChain( 'on', to, data, ...args );
     },
@@ -73,7 +73,7 @@ const _Update = {
             [data, ...args] = data;
         }
         if ( $.isArray(to) ) {
-            to.forEach( el => bindChain('one', el, data, ...args) )
+            return to.forEach( el => bindChain('one', el, data, ...args) )
         }
         bindChain( 'one', to, data, ...args );
     },
@@ -96,7 +96,10 @@ const _Update = {
         if ( !evn && $.isArray(data) ) {
             [evn, data, ...rest] = data;
         }
-        $(to).trigger( evn, data, ...rest );
+        if ( $.isArray(to) ) {
+            return $(to).trigger( evn, data, ...rest );
+        }
+        $.trigger( to, evn, data, ...rest );
     },
 
 
@@ -138,12 +141,29 @@ const _Update = {
         to.forEach( el => Render.update(el, data) );
     },
 
+
+    /**
+     * 集合包裹。
+     * 如果实参为空，则流程数据为数组且第二个成员为true时展开。
+     * 注：tos视为一个整体。
+     * @param {Element|Collector} tos 检索目标
+     * @param {Element|String} box 包裹容器（内容）
+     * @param {...Boolean} args 克隆定义序列（clone, event, eventdeep）
+     */
+    wrapAll( els, box, ...args ) {
+        if ( args.length == 0 &&
+            $.isArray(box) && box[1] === true ) {
+            [box, ...args] = box;
+        }
+        $(els).wrapAll( box, ...args );
+    },
+
 };
 
 
 //
 // 特性/属性/样式设置。
-// 内容：update封装取值。
+// 内容：。
 //===============================================
 // 注：名称前置特殊字符，用于方法辨识。
 [
@@ -155,21 +175,25 @@ const _Update = {
 .forEach(function( meth ) {
     /**
      * 目标赋值更新。
-     * 注：会被封装调用，不含首个evo实参。下同。
-     * @param  {Element|Collector} to 目标元素（集）
+     * 特殊字符引导名称（即模板实参必然存在）。
+     * @param  {Element|Collector} tos 目标元素/集
      * @param  {Value|Array2|Function|null} val 内容
      * @param  {String} name 名称（单个）
      * @return {Ignore} 调用者忽略
      */
-    _Update[meth] = function( to, val, name ) {
-        return to.nodeType == 1 ?
-            $[meth]( to, name, val ) : $(to)[meth]( name, val );
+    _Update[meth] = function( tos, val, name ) {
+        if ( $.isArray(tos) ) {
+            return $(tos)[meth]( name, val );
+        }
+        $[meth]( tos, name, val );
     };
 
 });
 
 
+//
 // 特性/属性/样式设置：增强版。
+// 内容：Value|[Value]|Function|null
 // 展开：[names:String|Object, 内容]
 //-----------------------------------------------
 [
@@ -180,42 +204,70 @@ const _Update = {
 .forEach(function( meth ) {
     /**
      * 目标赋值更新。
-     * @param  {Element|Collector} to 目标元素（集）
-     * @param  {Value|[Value]|Function|Object} its 内容
-     * @param  {String} names 名称定义
-     * @return {Ignore} 调用者忽略
+     * @param {Element|Collector} tos 目标元素/集
+     * @param {Value|[Value]|Function|null} data 数据内容
+     * @param {String} names 名称定义
      */
-    _Update[meth] = function( to, its, names ) {
-        if ( !names && $.isArray(its) ) {
+    _Update[meth] = function( tos, data, names ) {
+        if ( !names && $.isArray(data) ) {
             // 名称在前
-            [names, its] = its;
+            [names, data] = data;
         }
-        if ( to.nodeType == 1 ) {
-            return $[meth]( to, names, its );
+        if ( $.isArray(tos) ) {
+            return $(tos)[meth]( names, data );
         }
-        if ( $.isArray(to) ) $(to)[meth]( names, its );
+        $[meth]( tos, names, data );
     }
 });
 
 
 //
-// tQuery|Collector通用设置。
-// 内容：update封装取值。单个实参传递。
+// 节点操作。
+// 内容：Node|[Node]|Collector|Set|Iterator|Function
+// 展开：[内容, clone, event, eventdeep:Boolean]
+// 说明：
+// 如果传递实参，则流程数据视为单纯的内容。
+// 如果实参为空，则流程数据为数组且第二个成员为true时展开。
 //===============================================
-// 注：下面注释中为对内容的描述（可能的类型）。
 [
-    // con: {Node|[Node]|Collector|Set|Iterator|Function}
-    'before',       // 插入目标之前
-    'after',        // 插入目标之后
-    'prepend',      // 插入目标内前端
-    'append',       // 插入目标内末尾
-    'fill',         // 填充目标内容（清空原有）
-    'replace',      // 替换目标自身
+    'before',
+    'after',
+    'prepend',
+    'append',
+    'fill',
+    'replace',
 
-    'wrap',         // box: {Element|String} 各自包裹目标
-    'wrapInner',    // box: {Element|String} 各自内包裹目标
-    'wrapAll',      // box: {Element|String} 包裹全部目标（仅适用 Collector）
+    // 内容：Element|String 包裹容器
+    // 注：克隆实参序列仅在内容为元素时有用。
+    'wrap',
+    'wrapInner',
+]
+.forEach(function( meth ) {
+    /**
+     * 简单设置目标值。
+     * 内容实参类型参考上面注释。
+     * @param {Element|Collector} tos 目标元素/集
+     * @param {Node|[Node]|Collector|Set|Iterator|Function} data 数据内容
+     * @param {...Boolean} args 克隆定义序列
+     */
+    _Update[meth] = function( tos, data, ...args ) {
+        if ( args.length == 0 &&
+            $.isArray(data) && data[1] === true ) {
+            [data, ...args] = data;
+        }
+        if ( $.isArray(tos) ) {
+            return $(tos)[meth]( data, ...args );
+        }
+        $[meth]( tos, data, ...args );
+    };
 
+});
+
+
+//
+// 内容：单个实参传递。
+//-----------------------------------------------
+[
     'height',       // val: Number /px
     'width',        // val: Number /px
     'scroll',       // val: {top:Number, left:Number}|[left, top] /px
@@ -234,13 +286,14 @@ const _Update = {
     /**
      * 简单设置目标值。
      * 内容实参类型参考上面注释。
-     * @param  {Element|Collector} its 目标元素（集）
-     * @param  {...} con|box|val|name|code 更新内容
-     * @return {Any:ignore} 调用者忽略
+     * @param {Element|Collector} tos 目标元素/集
+     * @param {Value} data 数据内容
      */
-    _Update[meth] = function( its, con ) {
-        return its.nodeType ?
-            $[meth]( its, con ) : $(its)[meth]( con );
+    _Update[meth] = function( tos, data ) {
+        if ( $.isArray(tos) ) {
+            return $(tos)[meth]( data );
+        }
+        $[meth]( tos, data );
     };
 
 });
@@ -249,37 +302,39 @@ const _Update = {
 
 //
 // 逆向设置。
-// 流程数据为插入参考目标，当前检索为内容（多对一）。
-// 目标：update封装取值，实为内容。
-// 内容：可能为一个实参序列，首个成员为目标节点/元素，之后为克隆配置。
+// 流程数据为插入参考目标，当前检索为内容。
+// 内容：Node|[Node] 插入参考元素（集）。
+// 展开：不支持。
 //===============================================
 [
-    ['beforeWith',   'insertBefore'],
-    ['afterWith',    'insertAfter'],
-    ['prependWith',  'prependTo'],
-    ['appendWith',   'appendTo'],
-    ['replaceWith',  'replaceAll'],
-    ['fillWith',     'fillTo'],
+    ['beforeWith',   'before'],
+    ['afterWith',    'after'],
+    ['prependWith',  'prepend'],
+    ['appendWith',   'append'],
+    ['replaceWith',  'replace'],
+    ['fillWith',     'fill'],
 ]
 .forEach(function( fns ) {
     /**
-     * @param {Element|Collector} its 内容元素（集）
-     * @param {Node|Element, Boolean?, Boolean?, Boolean?} args 目标节点/元素和更多实参序列。
+     * @param {Element|Collector} els 检索元素/集（数据）
+     * @param {Node|[Node]} its 插入参考元素
+     * @param {Boolean} clone 数据元素是否克隆
+     * @param {Boolean} event 是否同时克隆事件处理器（容器）
+     * @param {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
      */
-    _Update[ fns[0] ] = function( its, args ) {
-        if ( !$.isArray(args) ) {
-            args = [args];
+    _Update[ fns[0] ] = function( els, its, clone, event, eventdeep ) {
+        if ( $.isArray(its) ) {
+            return $(its)[fns[1]]( els, clone, event, eventdeep );
         }
-        $( its )[ fns[1] ]( ...args );
+        $[fns[1]]( its, els, clone, event, eventdeep );
     };
-
 });
 
 
 
 //
 // PB专项设置。
-// 内容：update封装取值。
+// 内容：[String]|String
 // 注：简单调用 Util.pba/pbo/pbv。
 ///////////////////////////////////////////////////////////////////////////////
 [
@@ -321,17 +376,17 @@ const _Stage = {
     /**
      * 在目标元素（集）上激发事件。
      * 内容：当前条目，可选。
-     * 如果data未定义，则采用当前条目（如果有）为数据。
-     * @param {String} name 事件名
+     * 内容即为发送的数据，可能为undefined。
      * @param {Number} delay 延迟毫秒数。
-     * @param {Value} extra 发送的数据
-     * @param {...Value} rest 剩余参数（bubble, cancelable）
+     * @param {String} name 事件名
+     * @param {Boolean} bubble 是否冒泡，可选
+     * @param {Boolean} cancelable 是否可取消，可选
      */
-    fire( evo, name, delay = 1, extra = null, ...rest ) {
-        if ( extra == null ) {
-            extra = evo.data == null ? extra : evo.data;
-        }
-        Util.fireEvent( $(evo.targets), name, delay, ...rest );
+    fire( evo, delay, name, bubble, cancelable ) {
+        Util.fireEvent(
+            $(evo.targets),
+            name, delay, evo.data, bubble, cancelable
+        );
     },
 
     __fire: 0,
@@ -341,15 +396,18 @@ const _Stage = {
      * 条件激发。
      * 内容：当前条目/栈顶1项。
      * 仅当内容为真时才激发目标事件，否则忽略。
-     * 注：内容无法成为被发送的数据。
-     * @param {String} name 事件名
+     * 内容为激发判断的依据，而无法成为被发送的数据。
      * @param {Number} delay 延迟毫秒数。
-     * @param {...Value} rest 剩余参数（extra, bubble, cancelable）
+     * @param {String} name 事件名
+     * @param {Value} extra 发送数据，可选
+     * @param {Boolean} bubble 是否冒泡，可选
+     * @param {Boolean} cancelable 是否可取消，可选
      */
-    xfire( evo, name, delay = 1, ...rest ) {
-        if ( evo.data ) {
-            Util.fireEvent( $(evo.targets), name, delay, ...rest );
+    xfire( evo, delay, name, extra, bubble, cancelable ) {
+        if ( !evo.data ) {
+            return;
         }
+        Util.fireEvent( $(evo.targets), name, delay, extra, bubble, cancelable );
     },
 
     __xfire: 1,
@@ -358,18 +416,16 @@ const _Stage = {
     /**
      * 设置滚动条位置。
      * 内容：当前条目，可选。
-     * x 支持配置对象格式：{top, left}。
-     * @param {Number|Object} x 水平滚动条位置或配置对象
-     * @param {Number} y 垂直滚动条位置
+     * @param {Number|Object} top 垂直滚动条位置或配置对象
+     * @param {Number} left 水平滚动条位置
      */
-    scroll( evo, x, y ) {
-        if ( y !== undefined ) {
-            x = [x, y];
+    scroll( evo, top, left ) {
+        let _obj = {top, left};
+
+        if ( top === undefined ) {
+            _obj = evo.data;
         }
-        if ( x == null ) {
-            x = evo.data;
-        }
-        $( evo.targets ).scroll( x );
+        $( evo.targets ).scroll( _obj );
     },
 
     __scroll: 0,
