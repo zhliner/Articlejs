@@ -1081,11 +1081,12 @@ aside#help {
     border-radius: 10px;
     flex-direction: column;
     margin: auto;
+    box-shadow: 1px 3px 9px 1px #555;
 }
 .Modal header {
     display: grid;
     grid-template-columns: auto 42px;
-    height: 36px;
+    height: 38px;
     background-color: #2b5663;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
@@ -1094,7 +1095,7 @@ aside#help {
 .Modal header > h5 {
     color: #eee;
     font-size: 11pt;
-    margin: 6px 16px;
+    margin: auto 16px;
 }
 .Modal header > ._close {
     color: #999;

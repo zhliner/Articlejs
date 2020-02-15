@@ -422,7 +422,7 @@ const _Base = {
      * @return {void}
      */
     del( evo, stack, start, count ) {
-        stack.del( start, count );
+        stack.dels( start, count );
     },
 
     __del: null,
@@ -867,7 +867,7 @@ const _Base2 = {
         if ( evo.data !== undefined ) {
             return evo.data;
         }
-        return stack.del( -n );
+        return stack.dels( -n );
     },
 
     __pack: 0,

@@ -45,17 +45,21 @@ const
 const _Update = {
     /**
      * 绑定预定义调用链。
-     * 如果evn为假值，表示匹配目标上的全部预存储。
-     * 如果无实参传递，流程数据为数组时会展开为实参序列。
+     * evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
+     * init 为绑定处理器的初始传入值。
      * args: [evn, slr:String, init:Value]
-     * data: Element|[store:Element, evn, slr, init]
+     * data: Element[, ...args]
+     * 注：
+     * 如果流程数据为数组，附加内容会展开补充到实参序列之后。
+     *
      * @param {Element|Collector} to 待绑定元素/集
-     * @param {Element|[args...]} data 存储元素或实参序列
+     * @param {Element[, ...args]} data 存储元素（可能附加内容）
      * @param {...Value} args 模板实参序列
      */
     bind( to, data, ...args ) {
-        if ( args.length == 0 && $.isArray(data) ) {
-            [data, ...args] = data;
+        if ( $.isArray(data) ) {
+            data = data.shift();
+            args.push( ...data );
         }
         if ( $.isArray(to) ) {
             return to.forEach( el => bindChain('on', el, data, ...args) )
@@ -69,8 +73,9 @@ const _Update = {
      * 其它说明同bind。
      */
     once( to, data, ...args ) {
-        if ( args.length == 0 && $.isArray(data) ) {
-            [data, ...args] = data;
+        if ( $.isArray(data) ) {
+            data = data.shift();
+            args.push( ...data );
         }
         if ( $.isArray(to) ) {
             return to.forEach( el => bindChain('one', el, data, ...args) )
@@ -81,25 +86,25 @@ const _Update = {
 
     /**
      * 发送定制事件。
-     * args: [evn:String, bubble, cancelable:Boolean]
-     * data: Value|evn:String|[evn:String, val:Value, bubble, cancelable:Boolean]
+     * 事件名支持空格分隔的多个事件名序列。
+     * args: [val:Value, bubble, cancelable:Boolean]
+     * data: evn:String[, ...args]
      * 注：
-     * 内容可以是事件名，此时模板应无实参传递，
-     * 如果需要发送值或指定其它参数，将从内容提取（注意顺序）。
+     * 如果流程数据为数组，附加内容会补充到实参序列之后。
      *
      * @param {Element|Collector} to 待绑定元素/集
-     * @param {Value|String|[rest...]} data 存储元素或实参序列
-     * @param {String} evn 事件名
-     * @param {...Boolean} rest 冒泡/可取消参数
+     * @param {String[, ...args]} data 事件名（可能附加内容）
+     * @param {Value, ...Boolean} args 发送值,冒泡,可取消参数
      */
-    trigger( to, data, evn, ...rest ) {
-        if ( !evn && $.isArray(data) ) {
-            [evn, data, ...rest] = data;
+    trigger( to, data, ...args ) {
+        if ( $.isArray(data) ) {
+            data = data.shift();
+            args.push( ...data );
         }
         if ( $.isArray(to) ) {
-            return $(to).trigger( evn, data, ...rest );
+            return $(to).trigger( data, ...args );
         }
-        $.trigger( to, evn, data, ...rest );
+        $.trigger( to, data, ...args );
     },
 
 
@@ -108,7 +113,7 @@ const _Update = {
      * 将内容元素上的事件处理器克隆到目标元素（集）上。
      * 事件名可为空格分隔的多个名称。
      * @param {Element|Collector} to 目标元素（集）
-     * @param {Element|[Element, String|Function]} src 内容（事件源）或实参封装
+     * @param {Element[, evns]} src 事件源元素（可能附加内容）
      * @param {String|Function} evns 事件名序列或过滤函数，可选
      */
     cloneEvent( to, src, evns ) {
@@ -118,7 +123,7 @@ const _Update = {
         if ( to.nodeType == 1 ) {
             return $.cloneEvent( to, src, evns );
         }
-        to.forEach( to => $.cloneEvent( to, src, evns ) );
+        to.forEach( el => $.cloneEvent( el, src, evns ) );
     },
 
 
@@ -144,18 +149,18 @@ const _Update = {
 
     /**
      * 集合包裹。
-     * 如果实参为空，则流程数据为数组且第二个成员为true时展开。
-     * 注：tos视为一个整体。
+     * 如果流程数据为数组，附加内容会补充到实参序列之后。
+     * tos视为一个整体。
      * @param {Element|Collector} tos 检索目标
-     * @param {Element|String} box 包裹容器（内容）
+     * @param {Element|String[, ...args]} box 包裹容器（可能附加内容）
      * @param {...Boolean} args 克隆定义序列（clone, event, eventdeep）
      */
-    wrapAll( els, box, ...args ) {
-        if ( args.length == 0 &&
-            $.isArray(box) && box[1] === true ) {
-            [box, ...args] = box;
+    wrapAll( tos, box, ...args ) {
+        if ( $.isArray(box) ) {
+            box = box.shift();
+            args.push( ...box );
         }
-        $(els).wrapAll( box, ...args );
+        $(tos).wrapAll( box, ...args );
     },
 
 };
@@ -163,7 +168,7 @@ const _Update = {
 
 //
 // 特性/属性/样式设置。
-// 内容：。
+// 展开：不支持。
 //===============================================
 // 注：名称前置特殊字符，用于方法辨识。
 [
@@ -209,7 +214,8 @@ const _Update = {
      * @param {String} names 名称定义
      */
     _Update[meth] = function( tos, data, names ) {
-        if ( !names && $.isArray(data) ) {
+        if ( names === undefined &&
+            $.isArray(data) ) {
             // 名称在前
             [names, data] = data;
         }
@@ -251,9 +257,9 @@ const _Update = {
      * @param {...Boolean} args 克隆定义序列
      */
     _Update[meth] = function( tos, data, ...args ) {
-        if ( args.length == 0 &&
-            $.isArray(data) && data[1] === true ) {
-            [data, ...args] = data;
+        if ( $.isArray(data) && data[1] === true ) {
+            data = data.shift();
+            args.push( ...data );
         }
         if ( $.isArray(tos) ) {
             return $(tos)[meth]( data, ...args );

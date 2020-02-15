@@ -44,12 +44,6 @@
 - `[]` 过滤表达式的数组下标单独指定。
 - `{}` 过滤表达式的回调函数包围。
 
-另外，还有三个单独出现的特殊字符，表示事件关联的3个元素本身（友好性简化）。
-
-- `~` 事件起始元素：`evo.origin`。
-- `=` 事件当前元素：`evo.current`。与暂存区为空且查询串也为空时等效。
-- `&` 事件委托元素：`evo.delegate`。
-
 
 ```js
 xxxx   // 单元素检索，$.get(): Element | null
@@ -103,31 +97,29 @@ append( clone, event, eventdeep:Boolean )
 fill( clone, event, eventdeep:Boolean )
 replace( clone, event, eventdeep:Boolean )
 // 内容：{Node|[Node]|Collector|Set|Iterator|Function}
-// 展开：[内容, clone, event, eventdeep]
+// 附加：[clone, event, eventdeep]
 // 说明：
-// 如果传递实参，则流程数据视为单纯的内容。
-// 如果实参为空，则流程数据为数组且第二个成员为true时展开。
-// 注：
-// 提供流程数据展开（spread）能力，使得可从流程中获取控制。
+// 如果流程数据为数组且第二个成员为true时，附加内容补充到实参序列之后。
+// 这使得实参值可从流程中动态获取。
 
 wrap( clone, event, eventdeep:Boolean )
 wrapInner( clone, event, eventdeep:Boolean )
+// 内容：{Element|String|[Element|String]}
+// 附加：[clone, event, eventdeep:Boolean]
+// 说明：同上。
+
 wrapAll( clone, event, eventdeep:Boolean )
-// 内容：{Element|String|[Element|String]} box
-// 展开：[内容, clone, event, eventdeep:Boolean]
+// 内容：{Element|String} box
+// 附加：[clone, event, eventdeep:Boolean]
 // 说明：
-// 如果传递实参，流程数据视为单纯的内容。
-// 如果实参为空，流程数据为数组且第二个成员为true时展开。
-// 注：
-// wrapAll的内容只支持单值，wrap|wrapInner则可为集合。
+// 如果流程数据为数组，附加内容会补充到实参序列之后。
 
 cloneEvent( evns?:String|Function )
 // 事件处理器克隆。
 // 内容：{Element} 事件句柄源
-// 展开：[内容, evns:String|Function]
+// 附加：{evns:String|Function}
 // 说明：
-// 如果传递实参，流程数据视为单纯的内容。
-// 如果实参为空，流程数据为数组时会被展开。
+// 如果无实参传递，流程数据为 [内容, evns] 时会被展开。
 
 
 //
@@ -171,28 +163,26 @@ cssSets( names:String )
 
 bind( evn:String, slr?:String, init?:Value )
 // 内容：{Element} 存储元素
-// 展开：[内容, evn, slr:String, init:Value]
+// 附加：[evn, slr:String, init:Value]
 // evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
 // init 为绑定处理器的初始传入值。
 // 说明：
-// 如果实参为空，流程数据为数组时会自动展开为实参序列。
+// 如果流程数据为数组，附加内容会展开补充到实参序列之后。
 // 内容只支持单个存储元素，如果目标是一个集合，会应用相同的绑定。
 
 once( evn:String, slr?:String, init?:Value )
 // 绑定事件的单次处理。
 // 内容：{Element} 存储元素
-// 展开：[内容, evn, slr:String, init:Value]
+// 附加：[evn, slr:String, init:Value]
 // 注：参考bind说明。
 
-trigger( evn:String, bubble?, cancelable?:Boolean )
+trigger( val:Value, bubble?, cancelable?:Boolean )
 // 发送事件到目标。
-// 内容：{Value} 发送数据
-// 展开：[evn:String, 内容, bubble, cancelable:Boolean]
+// 内容：{String} 事件名
+// 附加：[val:Value, bubble, cancelable:Boolean]
 // 说明：
-// 如果实参为空，流程数据为数组时会自动展开。
-// 当流程数据只有事件名时（evn），可发送undefined值。
-// 注：
-// bubble和cancelable二者都默认为真。
+// 如果流程数据为数组，附加内容会补充到实参序列之后。
+// 事件名支持空格分隔的多个事件名序列。
 
 
 //

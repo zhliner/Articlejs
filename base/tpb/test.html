@@ -74,11 +74,18 @@
 
 </head>
 <body lang="zh-cn"
-    on="@move|">
+    on="@mousemove|width, ev('movementX')"
+    by="add, shift"
+    to="|width">
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-    <hr id="lineLeft">
+    <hr id="lineLeft"
+        on="mousedown|$('body'), $('#outline');
+            mouseup|ev(2)"
+        by="pack(2);
+            off('mousemove')"
+        to="|bind('mousemove')">
     <div id="editor">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb=""
             on="click('~._close')|evo(3)" by="lose">

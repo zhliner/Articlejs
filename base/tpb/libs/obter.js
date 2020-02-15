@@ -495,7 +495,7 @@ class Stack {
      * @param {Number} start 起始下标
      * @param {Number} count 删除数量
      */
-    del( start, count ) {
+    dels( start, count ) {
         this._buf.splice( start, count );
     }
 
@@ -1086,31 +1086,12 @@ function rejectInfo( msg ) {
  * @return {void}
  */
 function query( evo, slr, one, fltr ) {
-    if ( slr.length == 1 ) {
-        evo.targets = element3(evo, slr);
-        if ( evo.targets ) return;
-    }
     let _beg = evo.data;
 
     if (_beg === undefined) {
         _beg = evo.current;
     }
     evo.targets = query2(slr, _beg, one, fltr);
-}
-
-
-/**
- * 检查提取事件关联元素。
- * 仅用于3个特殊值。
- * @param {Object} evo 事件关联对象
- * @param {String} chr 特殊选择器字符
- */
-function element3( evo, chr ) {
-    switch (chr) {
-        case __toqOrig: return evo.origin;
-        case __toqCur: return evo.current;
-        case __toqRoot: return evo.delegate;
-    }
 }
 
 

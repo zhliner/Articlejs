@@ -6772,7 +6772,7 @@ const Event = {
      */
     _methodCall( ev, el ) {
         let _evn = ev.type,
-            _fun = el[_evn].bind(el);
+            _fun = el[_evn];
 
         if (ev.defaultPrevented ||
             // 避免循环触发。
@@ -6780,7 +6780,7 @@ const Event = {
             !isFunc(_fun) ) {
             return;
         }
-        return _fun( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
+        return _fun.bind(el)( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
     },
 
 
