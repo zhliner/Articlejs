@@ -9,11 +9,7 @@
 ### 格式
 
 ```html
-<ul
-    by="call('getTime'), hello;
-        func('?swap'), exec('-val', 'v1', 'v2');
-        x.swap('-flag', 1, 0), x.edit.paste"
->
+<ul by="" >
 ```
 
 **说明：**
@@ -24,72 +20,34 @@
 - 无实参传递的方法可省略括号。
 
 
-### 系统方法集
+### 方法集
 
 当前条目为操作的目标对象。
 
 ```js
-render()
-// 模板渲染。
-// 对tpl指令获取的元素节点用数据集进行渲染。
-// 数据：[element, data]
+pull()
+// 数据从远端拉取。
+// 暂存区的流程数据会作为查询串上传。
+// 注：仅支持 GET 方法。
 
 
-// 事件操作
-// $expr JS表达式，支持首字符特殊指引。
-// 表达式会被封装为事件处理器函数，参数名：(ev, elo)。
+//
+// 事件操作。
 // 目标：当前条目/栈顶1项（元素）。
-// 注：
-// 用于除模板On固定配置之外的即时使用场景。
-// 绑定会以目标元素和调用链为标记，不会重复绑定。
-//===============================================
+/////////////////////////////////////////////////
 
 on( evn: String, slr, $expr ): void
-off( evn: String, slr, $expr ): void
 one( evn: String, slr, $expr ): void
-
-trigger( evn: String, data: Value, ...rest )
-// 事件激发。
-// 对流程元素或元素集激发事件。
-// 注：可以作为正常的By操作之一。
-
-
-// 简单的UI操作
-// 目标：当前条目/栈顶1项。
-//===============================================
-
-hide()      // 元素隐藏，对应CSS visibility:hidden。
-lose()      // 元素显示丢失，对应CSS display:none。
-disable()   // 元素失活，模拟表单控件的 disabled 外观（灰化）。
-fold()      // 元素折叠，除:first-child之外的子元素 display:none。
-truncate()  // 截断，即后续兄弟元素 display:none
+off( evn: String, slr, $expr ): void
+// 事件绑定/解绑。
+// $expr JS表达式，支持首字符特殊指引。
+// 表达式会被封装为事件处理器函数，参数名：(ev, elo)。
 
 
-
-// 节点构造。
-// 目标：当前条目/栈顶1项。
-// 注：与To部分的同名方法不同，这里为字符串参数。
-//===============================================
-
-wrap( box:String ): Element | Collector
-wrapinner( box:String ): Element | Collector
-wrapall( box:String ): Element | Collector
-
-
-// 简单处理。
-// 目标：当前条目/栈顶1项。
-//===============================================
-
-remove( slr )
-removeSiblings( slr )
-unwrap()
-empty()
-normalize()
-
-
-// 判断调用
+//
+// 判断调用。
 // 简单的 if 逻辑。
-//===============================================
+/////////////////////////////////////////////////
 
 xtrue( meth, ...rest ): Value
 // 真值执行，否则跳过。
@@ -103,11 +61,12 @@ xfalse( meth, ...rest ): Value
 // meth/rest 说明同上。
 
 
-// 集合操作
-//===============================================
+//
+// 集合操作。
 // $expr为函数体表达式，参数名固定：（v, i, o）。
 // 目标：当前条目/栈顶1项。
-// 注：
+/////////////////////////////////////////////////
+// 说明：
 // $expr的执行结果自动返回，无需return语句。
 // $expr支持首字符问号引用X函数库，此时问号后面为成员名称。
 
@@ -129,9 +88,55 @@ sort( unique, $comp ): Collector
 // $comp支持首字符（?）引用X函数库成员。
 
 
+//
+// 元素表现（x.Eff）
+// 目标：当前条目/栈顶1项。
+/////////////////////////////////////////////////
 
+hide( sure?:Boolean )       // 元素隐藏，对应CSS visibility:hidden。
+lose( sure?:Boolean )       // 元素显示丢失，对应CSS display:none。
+disable( sure?:Boolean )    // 元素失活，模拟表单控件的 disabled 外观（灰化）。
+fold( sure?:Boolean )       // 元素折叠，除:first-child之外的子元素 display:none。
+truncate( sure?:Boolean )   // 截断，即后续兄弟元素 display:none
+// sure 为假表示反向逻辑。
+// sure 可选，默认值为 true。
+
+
+//
+// 自身节点操作（x.Node）
+// 目标：当前条目/栈顶1项。
+/////////////////////////////////////////////////
+
+wrap( box:String ): Element | Collector
+wrapinner( box:String ): Element | Collector
+wrapall( box:String ): Element | Collector
+// 节点封装。
+// 与To中的同名方法不同，这里仅支持字符串模板实参。
+
+remove( slr?:String|Boolean, back?:Boolean ): void | data
+removeSiblings( slr?:String|Boolean, back?:Boolean ): void | data
+empty( back?:Boolean ): void | data
+unwrap( back?:Boolean ): void | data
+normalize( depth?:Number ): void
+// 元素自身操作。
+// slr: 选择器或入栈指示。
+// back: 被移除的节点是否入栈。
+// data: 被移除的节点/集或展开的节点集。
+// 注：不列入To段，因为不是第三方目标。
+
+render( data? ): Element
+// 模板节点渲染。
+// 对tpl指令获取的元素节点用数据集进行渲染。
+// 目标：Element
+// 展开：[Element, data:Value]
+// 注：
+// 模板实参data是可选的，如果为空则当前条目应当为展开封装。
+
+
+
+//
 // X库调用（示意）
-//===============================================
+/////////////////////////////////////////////////
 
 x.[meth]( ...rest ): Value
 // 调用外部扩展函数库（X）成员执行。

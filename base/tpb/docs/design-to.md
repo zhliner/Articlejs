@@ -44,6 +44,11 @@
 - `[]` 过滤表达式的数组下标单独指定。
 - `{}` 过滤表达式的回调函数包围。
 
+另外两个独立的特殊字符表达事件关联的两个元素（友好性）。
+
+- `~` 事件起点元素（`event.target|elo.origin`）。
+- `&` 事件委托元素（`event.currentTarget|elo.delegate`）。
+
 
 ```js
 xxxx   // 单元素检索，$.get(): Element | null

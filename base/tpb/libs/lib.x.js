@@ -32,7 +32,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { EXTENT, pullRoot } from "../config.js";
+import { EXTENT } from "../config.js";
 
 const $ = window.$;
 
@@ -45,28 +45,9 @@ const _X = {
     Ease: {},   // 缓动计算区（.Linear...）
     Eff:  {},   // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
     Math: {},   // 数学算法区
-    CSS:  {},   // CSS专用保留
     Fun:  {},   // 功能函数区（用户使用）
+    Node: {},   // 节点操作（自身）
 };
-
-
-/**
- * 数据拉取（简单）。
- * 暂存区的流程数据会作为查询串上传。
- * 注：仅支持 GET 方法。
- * @param  {String} meth 请求方法。可选，默认index
- * @return {Promise} data:json
- */
-_X.pull = function( evo, meth = 'index' ) {
-    let _url = `${pullRoot}/${meth}`;
-
-    if ( evo.data != null ) {
-        _url += '?' + new URLSearchParams(evo.data);
-    }
-    return fetch(_url).then(
-        resp => resp.ok ? resp.json() : Promise.reject(resp.statusText)
-    );
-}
 
 
 //
@@ -158,6 +139,7 @@ function subObj( names, obj ) {
  * 注：
  * 如果目标子域不存在，会自动创建，包括中间层级的子域。
  * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
+ * 可无exts实参调用返回子域本身。
  *
  * @param  {String} name 扩展域
  * @param  {Object} exts 扩展集

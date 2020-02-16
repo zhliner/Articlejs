@@ -48,7 +48,6 @@ const
     __toqMore   = '+',  // 多元素检索前置标志
     __toqExtra  = '!',  // 进阶提取标志
     __toqOrig   = '~',  // 事件起始元素（evo.origin）
-    __toqCur    = '=',  // 事件当前元素（evo.current）
     __toqRoot   = '&',  // 事件委托元素（evo.delegate）
     __tosAttr   = '@',  // 特性指定
     __tosProp   = '$',  // 属性指定
@@ -64,9 +63,9 @@ const
     __onEvent   = /^[@^]?(\w[\w.-]*)(?:\(["'`]?([^]*?)["'`]?\))?$/,
 
     // 调用模式匹配。
-    // 方法名支持字母、数字和 [._-] 字符。
+    // 方法名支持字母、数字和 [$._-] 字符。
     // 参数段支持任意字符（包括换行），可选。
-    __obtCall   = /^(\w[\w.-]*)(?:\(([^]*)\))?$/,
+    __obtCall   = /^([$\w][$\w.-]*)(?:\(([^]*)\))?$/,
 
     // To:Query
     // 完整的检索表达式。
@@ -857,7 +856,6 @@ class Call {
 //      +xxx!{ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
 //
 //      ~   // 事件起始元素（evo.origin）
-//      =   // 事件当前元素（evo.current）
 //      $   // 事件委托元素（evo.delegate）
 // }
 // 起点元素：支持当前条目（Element），否则为事件当前元素。
@@ -1080,7 +1078,7 @@ function rejectInfo( msg ) {
  * 否则检索起点元素为事件当前元素。
  *
  * @param  {Object} evo 事件关联对象
- * @param  {String} slr 选择器串（二阶）
+ * @param  {String} slr 选择器串（二阶支持）
  * @param  {Boolean} one 是否单元素版
  * @param  {Function} fltr 进阶过滤提取
  * @return {void}
@@ -1091,7 +1089,7 @@ function query( evo, slr, one, fltr ) {
     if (_beg === undefined) {
         _beg = evo.current;
     }
-    evo.targets = query2(slr, _beg, one, fltr);
+    evo.targets = query2( evo, slr, _beg, one, fltr );
 }
 
 
@@ -1102,14 +1100,20 @@ function query( evo, slr, one, fltr ) {
  * 注记：
  * beg可能从暂存区取值为一个集合，已要求slr部分为空，因此代码工作正常。
  *
+ * @param  {Object} evo 事件关联对象
  * @param  {String} slr 双阶选择器
  * @param  {Element|null} beg 起点元素
  * @param  {Boolean} one 是否单元素查询
  * @param  {Function} fltr 进阶过滤函数
  * @return {Element|Collector}
  */
-function query2( slr, beg, one, fltr ) {
+function query2( evo, slr, beg, one, fltr ) {
+    switch ( slr ) {
+        case __toqOrig: return evo.origin;
+        case __toqRoot: return evo.delegate;
+    }
     let _v = Util.find( slr, beg, one );
+
     return one ? _v : ( fltr ? fltr(_v) : _v );
 }
 

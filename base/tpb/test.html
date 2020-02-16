@@ -81,10 +81,8 @@
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft"
-        on="mousedown|$('body'), $('#outline');
-            mouseup|ev(2)"
-        by="pack(2);
-            off('mousemove')"
+        on="mousedown|$('body'), $('#outline'), pack(2);
+            mouseup|ev(2), off('mousemove')"
         to="|bind('mousemove')">
     <div id="editor">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb=""

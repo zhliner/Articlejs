@@ -16,7 +16,8 @@
 
 import { Util } from "./util.js";
 import { X } from "./lib.x.js";
-import { bindMethod, method } from "../config.js";
+import { bindMethod, method, pullRoot } from "../config.js";
+
 
 // 可选。
 // 若无需支持可简单移除。
@@ -32,38 +33,44 @@ const
 
 const _By = {
     /**
-     * 模板渲染。
-     * 对tpl指令获取的元素用数据集进行渲染。
-     * 数据源可能从远端获取（通过X扩展库）。
-     * 目标：当前条目/栈顶2项。
-     * @data: [element, data]
+     * 数据拉取（简单）。
+     * 暂存区的流程数据会作为查询串上传。
+     * 注：仅支持 GET 方法。
+     * @param  {String} meth 请求方法。可选，默认index
+     * @return {Promise} data:json
      */
-    render( evo ) {
-        Render.update( ...evo.data );
-    },
+    pull( evo, meth = 'index' ) {
+        let _url = `${pullRoot}/${meth}`;
 
-    __render: 2,
+        if ( evo.data != null ) {
+            _url += '?' + new URLSearchParams(evo.data);
+        }
+        return fetch(_url).then(
+            resp => resp.ok ? resp.json() : Promise.reject(resp.statusText)
+        );
+    },
 
 
     /**
-     * 激发事件。
-     * @data: {Element|[Element]|Collector}
-     * @param  {String} evn 事件名
-     * @param  {Value} data 发送值
-     * @param  {Boolean} bubble 是否冒泡
-     * @param  {Boolean} cancelable 是否可取消
-     * @return {void}
+     * 模板渲染。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 对tpl指令获取的元素用数据集进行渲染。
+     * 数据源可能从远端获取（通过X扩展库）。
+     * @data:  [Element, data?:Value]
+     * @param  {Stack} stack 数据栈
+     * @param  {Object|Value|[Value]} 渲染数据，可选
+     * @return {Element} 被渲染节点
      */
-    trigger( evo, evn, data, bubble = true, cancelable = true ) {
-        let x = evo.data;
+    render( evo, stack, data ) {
+        let _vs = data === undefined ?
+            stack.data(2) :
+            [ stack.data[1], data ];
 
-        if ( $.isArray(x) ) {
-            $(x).trigger( evn, data, bubble, cancelable );
-        }
-        else if ( x.nodeType ) $.trigger( x, evn, data, bubble, cancelable )
+        return Render.update( ..._vs );
     },
 
-    __trigger: 1,
+    __render_x: true,
 
 
     /**
@@ -169,7 +176,6 @@ const _By = {
 //
 // 事件绑定。
 // 目标：当前条目/栈顶1项。
-// 目标为待绑定事件处理器元素/集。
 //===============================================
 [
     'on',
@@ -186,11 +192,7 @@ const _By = {
      * @return {void}
      */
     _By[meth] = function( evo, name, slr, expr ) {
-        let x = evo.data,
-            f = getFunc(expr, 'ev', 'elo');
-
-        if ( $.isArray(x) ) $(x)[meth]( name, slr, f );
-        else if ( x.nodeType == 1 ) $[meth]( x, name, slr, f );
+        $(evo.data)[meth]( name, slr, getFunc(expr, 'ev', 'elo') );
     };
 
     _By[`__${meth}`] = 1;
@@ -199,9 +201,12 @@ const _By = {
 
 
 //
-// 简单的UI操作。
+// 元素表现（x.Eff）
 // 目标：当前条目/栈顶1项。
-//===============================================
+//////////////////////////////////////////////////////////////////////////////
+
+const __Eff = {};
+
 [
     'hide',
     'lose',
@@ -214,23 +219,35 @@ const _By = {
      * 注：名称即为特性值。
      * @return {void}
      */
-    _By[name] = function( evo ) {
-        let x = evo.data;
+    __Eff[name] = function( evo, sure ) {
+        let _els = evo.data;
 
-        if ( $.isArray(x) ) $(x).attribute( '-pb', name );
-        else if ( x.nodeType == 1 ) $.attribute( x, '-pb', name );
+        if ( !sure ) {
+            name = `-${name}`;
+        }
+        if ( !$.isArray(_els) ) {
+            _els = [_els];
+        }
+        _els.forEach( el => Util.pbo(el, [name]) );
     };
 
-    _By[`__${name}`] = 1;
+    __Eff[`__${name}`] = 1;
 
 });
+
+
+// 注入。
+X.extend( 'Eff', __Eff );
 
 
 //
 // 节点构造。
 // 目标：当前条目/栈顶1项。
 // 注：与To部分的同名方法不同，这里接收字符串实参。
-//===============================================
+//////////////////////////////////////////////////////////////////////////////
+
+const __Node = {};
+
 [
     'wrap',
     'wrapInner',
@@ -241,16 +258,12 @@ const _By = {
      * @param  {String} box 封装元素的HTML结构串
      * @return {Element|Collector} 包裹的容器元素（集）
      */
-    _By[meth] = function( evo, box ) {
+    __Node[meth] = function( evo, box ) {
         let x = evo.data;
-
-        if ( $.isArray(x) ) {
-            return $(x)[meth]( box );
-        }
-        if ( x.nodeType == 1 ) return $[meth]( x, box );
+        return $.isArray(x) ? $(x)[meth](box) : $[meth](x, box);
     };
 
-    _By[`__${meth}`] = 1;
+    __Node[`__${meth}`] = 1;
 
 });
 
@@ -258,14 +271,13 @@ const _By = {
 //
 // 自我修改。
 // 目标：当前条目/栈顶1项。
-// 注：目标元素自身操作，无需 By/To 逻辑。
 //===============================================
 [
     'remove',           // ( slr? ): void
     'removeSiblings',   // ( slr? ): void
     'unwrap',           // (): void
     'empty',            // (): void
-    'normalize',        // (): void
+    'normalize',        // ( depth? ): void
 ]
 .forEach(function( meth ) {
     /**
@@ -274,16 +286,19 @@ const _By = {
      * 注：外部可能需要预先封装为Collector实例。
      * @return {void}
      */
-    _By[meth] = function( evo, slr ) {
+    __Node[meth] = function( evo, slr ) {
         let x = evo.data;
 
         if ( $.isArray(x) ) $(x)[meth]( slr );
         else if ( x.nodeType ) $[meth]( x, slr );
     };
 
-    _By[`__${meth}`] = 1;
+    __Node[`__${meth}`] = 1;
 
 });
+
+// 注入。
+X.extend( 'Node', __Node );
 
 
 

@@ -344,17 +344,17 @@ const _Update = {
 // 注：简单调用 Util.pba/pbo/pbv。
 ///////////////////////////////////////////////////////////////////////////////
 [
-    'pba',  // ( wds )
-    'pbo',  // ( wds )
-    'pbv',  // ( val )
+    'pba',  // ( wds:Array )
+    'pbo',  // ( wds:Array )
+    'pbv',  // ( val:String )
 ]
 .forEach(function( name ) {
 
-    _Update[name] = function( its, wds ) {
-        if ( its.nodeType == 1 ) {
-            return Util[name]( its, wds );
+    _Update[name] = function( els, its ) {
+        if ( els.nodeType == 1 ) {
+            return Util[name]( els, its );
         }
-        its.forEach( el => Util[name](el, wds) );
+        els.forEach( el => Util[name](el, its) );
     };
 
 });

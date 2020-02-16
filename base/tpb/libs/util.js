@@ -28,6 +28,9 @@ const
     // PB属性名。
     __attrPB    = 'data-pb',
 
+    __chrOpt1   = '-',  // 选项词：减
+    __chrOpt2   = '^',  // 选项词：切换
+
     // PB参数模式。
     // 尾部短横线，后跟空白或结束。
     __pbArgs    = /^\w[\w-]*-(?=\s|$)/,
@@ -35,7 +38,7 @@ const
     // PB选项模式。
     // 前端空格或起始限定，避免匹配参数段。
     // 注：选项词不能包含短横线。
-    __pbOpts    = /(?:\s+|^)\w[\w\s]*$/,
+    __pbOpts    = /(^|\s+)\w[\w\s]*$/,
 
     // 二阶选择器分隔符（/）。
     // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
@@ -143,18 +146,14 @@ const Util = {
     /**
      * 获取/设置PB参数序列。
      * wds未定义时为获取，否则为设置。
-     * 传递wds为null或假值时会移除参数序列。
+     * 传递wds为null会移除参数序列。
      * 取值时都会返回一个数组（可能为空）。
-     * 注：
-     * 它们会被赋值到 data-pb 属性。
-     *
      * 技术：
      * 单词之间以短横线（-）分隔，含末尾的-分隔符。
      * 即用 |= 属性选择器匹配的部分。
-     * 注意：不能破坏PB中的选项部分。
      *
      * @param  {Element} el 目标元素
-     * @param  {[String]} wds 参数词序列
+     * @param  {[String]|null} wds 参数词序列
      * @return {[String]|void}
      */
     pba( el, wds ) {
@@ -163,43 +162,41 @@ const Util = {
         if ( wds === undefined ) {
             return _v ? pbArgs( attrArgs(_v) ) : [];
         }
-        if ( $.isArray(wds) ) {
-            return $.attribute( __attrPB, pbaAttr(pbArgs(wds, true), _v) );
+        if ( !wds ) {
+            // 移除参数选项保留。
+            return _v && $.attribute( el, __attrPB, _v.replace(__pbArgs, '') );
         }
-        // 移除参数部分（保留选项）。
-        if ( _v && !wds ) {
-            $.attribute( __attrPB, _v.replace(__pbArgs, '').trim() );
-        }
+        $.attribute( el, __attrPB, pbaAttr(pbArgs(wds), _v) );
     },
 
 
     /**
      * 获取/设置PB选项序列。
-     * wds未定义时为获取，否则为设置。
-     * 传递wds为null或假值时会移除选项序列。
-     * 取值时都会返回一个数组（可能为空）。
-     *
+     * wds未定义时为获取，否则为设置。取值时返回一个词数组。
+     * 选项词配置为加减逻辑：
+     *      -xxx    移除xxx选项
+     *      ^xxx    切换xxx选项
+     *      xxx     添加xxx选项，无前置特殊字符
+     * 传递wds为null会移除全部选项词。
      * 技术：
      * 选项词之间以空格分隔，可用 ~= 属性选择器匹配。
-     * 注意：不破坏前端可能有的参数部分。
      *
      * @param  {Element} el 目标元素
-     * @param  {[String]} wds 选项词序列
+     * @param  {[String]|null} wds 选项词序列
      * @return {[String]|void}
      */
     pbo( el, wds ) {
-        let _v = $.attribute( el, __attrPB );
+        let _v = $.attribute( el, __attrPB ),
+            _o = _v ? pbOpts( attrOpts(_v) ) : [];
 
         if ( wds === undefined ) {
-            return _v ? pbOpts( attrOpts(_v) ) : [];
+            return _o;
         }
-        if ( $.isArray(wds) ) {
-            return $.attribute( __attrPB, pboAttr(pbOpts(wds, true), _v) );
+        if ( !wds ) {
+            // 移除选项保留参数。
+            return _v && $.attribute( el, __attrPB, _v.replace(__pbOpts, '') );
         }
-        // 移除选项部分（保留参数）。
-        if ( _v && !wds ) {
-            $.attribute( __attrPB, _v.replace(__pbOpts, '') );
-        }
+        $.attribute( el, __attrPB, pboAttr(pbOpts(wds, new Set(_o)), _v) );
     },
 
 
@@ -399,7 +396,7 @@ function query2( slr, beg ) {
  * @param {String} attr 属性值
  */
 function attrArgs( attr ) {
-    return __pbArgs.test(attr) ? attr.split(/\s/, 1)[0] : '';
+    return __pbArgs.test(attr) ? attr.split(/\s+/, 1)[0] : '';
 }
 
 
@@ -407,30 +404,28 @@ function attrArgs( attr ) {
  * 解析/构造PB参数序列。
  * 解析返回词序列，构造返回串值。
  * @param  {String|[String]} val 参数串或词序列
- * @param  {Boolean} mk 为构造
  * @return {[String]|String}
  */
-function pbArgs( val, mk ) {
-    if ( mk ) {
-        // String: 添加末尾短横线
+function pbArgs( val ) {
+    if ( $.isArray(val) ) {
         return val.join('-') + '-';
     }
-    // Array: 排除末尾空串单元
+    // 排除末尾空串单元
     return val ? val.split('-').slice(0, -1) : [];
 }
 
 
 /**
  * 构造data-pb属性值。
- * - 替换或前端新插入。
- * @param {String} args PB参数串
+ * - 参数串替换或前端新插入。
+ * @param {String} val PB参数串
  * @param {String} attr 原属性值
  */
-function pbaAttr( args, attr ) {
+function pbaAttr( val, attr ) {
     if ( !attr ) {
-        return args;
+        return val;
     }
-    return __pbArgs.test(attr) ? attr.replace(__pbArgs, args) : `${args} ${attr}`;
+    return __pbArgs.test(attr) ? attr.replace(__pbArgs, val) : `${val} ${attr}`;
 }
 
 
@@ -439,30 +434,51 @@ function pbaAttr( args, attr ) {
  * @param {String} attr 属性值
  */
 function attrOpts( attr ) {
-    return __pbOpts.test(attr) ? attr.match(__pbOpts)[0] : '';
+    return __pbOpts.test(attr) ? attr.match(__pbOpts)[0].trim() : '';
 }
 
 
 /**
  * 解析/提取PB选项序列。
  * 解析返回词序列，构造返回串值。
+ * 选项词支持前置减号（-）字符表示移除。
+ * 注：无前置加号（+）功能。
  * @param  {String|[String]} val 选项串或词序列
- * @param  {Boolean} mk 为构造
+ * @param  {Set} opts 原选项集
  * @return {[String]|String}
  */
-function pbOpts( val, mk ) {
-    if ( mk ) {
-        // String: 前置空格
-        return ' ' + val.join(' ');
+function pbOpts( val, opts ) {
+    if ( !opts ) {
+        return val ? val.split(/\s+/) : [];
     }
-    // Array: 无空串成员
-    return val ? val.trim().split(/\s+/) : [];
+    for ( const _x of val ) {
+        switch (_x[0]) {
+            case __chrOpt1:
+                opts.delete( _x.substring(1) );
+                break;
+            case __chrOpt2:
+                optToggle( opts, _x.substring(1) );
+                break;
+            default: opts.add( _x );
+        }
+    }
+    return ' ' + [...opts].join(' ');
+}
+
+
+/**
+ * 选项词切换。
+ * @param {Set} set 词集
+ * @param {String} name 词名
+ */
+function optToggle( set, name ) {
+    return set.has(name) ? set.delete(name) : set.add(name);
 }
 
 
 /**
  * 构造data-pb属性值。
- * - 替换或后段新添加。
+ * - 选项串替换或参数段后添加。
  * @param {String} opts PB选项串
  * @param {String} attr 原属性值
  */
