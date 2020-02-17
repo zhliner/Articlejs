@@ -3220,7 +3220,7 @@ class Collector extends Array {
         if ( deep === true || comp === true ) {
             comp = sortElements;
         }
-        return new Collector( comp !== undefined ? uniqueSort(_els, comp) : _els, this );
+        return new Collector( comp === undefined ? _els : uniqueSort(_els, comp), this );
     }
 
 
