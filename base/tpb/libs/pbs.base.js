@@ -64,7 +64,7 @@ let __TplStore = null;
 
 //
 // 全局顶层方法。
-// 适用 On/By/To 三个域。
+// 适用 On/To 两个域。
 //
 const _Base = {
 
@@ -480,9 +480,8 @@ const _Base = {
 
 //
 // 运算层基础方法。
-// 仅用于 On/By 两个域。
 //
-const _Base2 = {
+const _BaseOn = {
 
     // 类型转换
     // 目标：当前条目/栈顶1项。
@@ -833,7 +832,8 @@ const _Base2 = {
      * 特权：是。自行展开入栈。
      * 注：
      * deep零值有效，此时ext应当为true，表示目标展开入栈。
-     * 如果目标是Collector，deep可以为true（去重排序）。
+     * 如果目标是Collector，deep可以为true（1级扁平化&节点去重排序）。
+     *
      * @param  {Stack} stack 数据栈
      * @param  {Number|true} deep 深度或去重排序
      * @param  {Boolean} spread 展开入栈
@@ -1723,7 +1723,7 @@ reenter[EXTENT] = 0;
 ///////////////////////////////////////////////////////////////////////////////
 
 
-// 基础集I（On/By/To共享）。
+// 基础集（On/To共享）。
 const Base = $.assign( {}, _Base, bindMethod );
 
 
@@ -1735,15 +1735,19 @@ Base.entry = entry;
 Base.reenter = reenter;
 
 
-// 基础集II（On/By共享）。
-const Base2 = $.assign( {}, _Base2, bindMethod );
+// 基础集II（On域）。
+const BaseOn = $.assign( {}, _BaseOn, bindMethod );
+
+// 合并。
+// 注：不用原型继承（效率）。
+Object.assign( BaseOn, Base );
 
 
 /**
  * 设置模板管理器。
  * @param {Templater} tstore 模板管理器
 */
-Base.tplStore = tstore => __TplStore = tstore;
+const InitBase = tstore => __TplStore = tstore;
 
 
-export { Base, Base2 };
+export { Base, BaseOn, InitBase };

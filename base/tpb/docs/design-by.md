@@ -20,12 +20,12 @@
 - 无实参传递的方法可省略括号。
 
 
-### 方法集
+### 方法集（基础）
 
 当前条目为操作的目标对象。
 
 ```js
-pull()
+pull( meth?:String )
 // 数据从远端拉取。
 // 暂存区的流程数据会作为查询串上传。
 // 注：仅支持 GET 方法。
@@ -36,9 +36,9 @@ pull()
 // 目标：当前条目/栈顶1项（元素）。
 /////////////////////////////////////////////////
 
-on( evn: String, slr, $expr ): void
-one( evn: String, slr, $expr ): void
-off( evn: String, slr, $expr ): void
+on( evn, slr:String, $expr:String|Function|false|null ): void
+one( evn, slr:String, $expr:String|Function|false|null ): void
+off( evn, slr:String, $expr:String|Function|false|null ): void
 // 事件绑定/解绑。
 // $expr JS表达式，支持首字符特殊指引。
 // 表达式会被封装为事件处理器函数，参数名：(ev, elo)。
@@ -49,13 +49,13 @@ off( evn: String, slr, $expr ): void
 // 简单的 if 逻辑。
 /////////////////////////////////////////////////
 
-xtrue( meth, ...rest ): Value
+xtrue( meth:String, ...rest:Value ): Value
 // 真值执行，否则跳过。
 // 目标：当前条目/栈顶1项。
 // meth 为X函数库方法名。
 // rest 为方法的实参序列。
 
-xfalse( meth, ...rest ): Value
+xfalse( meth:String, ...rest:Value ): Value
 // 假值执行，否则跳过。
 // 目标：当前条目/栈顶1项。
 // meth/rest 说明同上。
@@ -63,33 +63,48 @@ xfalse( meth, ...rest ): Value
 
 //
 // 集合操作。
-// $expr为函数体表达式，参数名固定：（v, i, o）。
 // 目标：当前条目/栈顶1项。
 /////////////////////////////////////////////////
-// 说明：
-// $expr的执行结果自动返回，无需return语句。
-// $expr支持首字符问号引用X函数库，此时问号后面为成员名称。
 
-each( $expr ): void
+
+// $expr可为函数体表达式串，接口：function(v, i, o): Value。
+// $expr的执行结果自动返回，无需return语句。
+// $expr支持首字符问号（?）引用X函数库，此时问号后面为成员名称。
+//===============================================
+
+each( $expr:String|Function ): void
 // 迭代执行。
 // 取当前条目/栈顶项迭代处理。
 // 目标应该是一个集合，没有返回值入栈。
 // 回调函数内返回false会中断迭代。
 
-map( $expr, flat: Number = 0 ): Collector
+map( $expr:String|Function ): Array
 // 值集映射。
 // 目标应当是一个集合。
-// 返回值构建一个新集合入栈，返回的null/undefined会被忽略。
+// 实参函数的返回值构建一个新集合返回，null/undefined会被忽略。
 
-sort( unique, $comp ): Collector
+
+// $comp可为函数表达式串，接口：function(a, b): Boolean。
+// $comp为null表示采用默认规则，其它同$expr说明。
+//===============================================
+
+sort( $comp:String|Function|null ): Collector
 // 集合排序。
-// $comp为比较函数体，null表示采用默认规则。
-// 参数名固定：(a, b)。
-// $comp支持首字符（?）引用X函数库成员。
+
+unique( $comp:String|Function|true|null ): Collector
+// 去重&排序。
+// 如果传递 $comp 实参则增加排序能力，否则仅去重。
+// $comp:
+// - true DOM节点排序
+// - null 默认排序规则，适用非节点数据
+```
 
 
+### 方法集（x.Eff）
+
+```js
 //
-// 元素表现（x.Eff）
+// 元素表现。
 // 目标：当前条目/栈顶1项。
 /////////////////////////////////////////////////
 
@@ -100,8 +115,12 @@ fold( sure?:Boolean )       // 元素折叠，除:first-child之外的子元素 
 truncate( sure?:Boolean )   // 截断，即后续兄弟元素 display:none
 // sure 为假表示反向逻辑。
 // sure 可选，默认值为 true。
+```
 
 
+### 方法集（x.Node）
+
+```js
 //
 // 自身节点操作（x.Node）
 // 目标：当前条目/栈顶1项。
@@ -115,9 +134,9 @@ wrapall( box:String ): Element | Collector
 
 remove( slr?:String|Boolean, back?:Boolean ): void | data
 removeSiblings( slr?:String|Boolean, back?:Boolean ): void | data
+normalize( depth?:Number|Boolean, back?:Boolean ): void | data
 empty( back?:Boolean ): void | data
 unwrap( back?:Boolean ): void | data
-normalize( depth?:Number ): void
 // 元素自身操作。
 // slr: 选择器或入栈指示。
 // back: 被移除的节点是否入栈。
@@ -131,13 +150,12 @@ render( data? ): Element
 // 展开：[Element, data:Value]
 // 注：
 // 模板实参data是可选的，如果为空则当前条目应当为展开封装。
+```
 
 
+### X库调用（示意）
 
-//
-// X库调用（示意）
-/////////////////////////////////////////////////
-
+```js
 x.[meth]( ...rest ): Value
 // 调用外部扩展函数库（X）成员执行。
 // 目标：当前条目，不自动取栈。

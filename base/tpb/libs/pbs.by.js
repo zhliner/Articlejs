@@ -52,28 +52,6 @@ const _By = {
 
 
     /**
-     * 模板渲染。
-     * 目标：当前条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 对tpl指令获取的元素用数据集进行渲染。
-     * 数据源可能从远端获取（通过X扩展库）。
-     * @data:  [Element, data?:Value]
-     * @param  {Stack} stack 数据栈
-     * @param  {Object|Value|[Value]} 渲染数据，可选
-     * @return {Element} 被渲染节点
-     */
-    render( evo, stack, data ) {
-        let _vs = data === undefined ?
-            stack.data(2) :
-            [ stack.data[1], data ];
-
-        return Render.update( ..._vs );
-    },
-
-    __render_x: true,
-
-
-    /**
      * 真值执行。
      * 目标：当前条目/栈顶1项。
      * 比较目标是否为true（===），是则执行，否则跳过。
@@ -114,7 +92,6 @@ const _By = {
     __xfalse: 1,
 
 
-
     // 集合操作
     //===============================================
     // expr为函数体表达式（无效return），参数名固定：（v, i, o）。
@@ -150,27 +127,35 @@ const _By = {
 
     __map: 1,
 
+};
 
+
+//
+// 集合排序&去重
+// 目标：当前条目/栈顶1项。
+//===============================================
+[
+    'sort',     // 集合排序
+    'unique',   // 集合去重&排序
+]
+.forEach(function( meth ) {
     /**
-     * 集合排序。
      * 目标：当前条目/栈顶1项，需要是一个集合。
-     * comp为比较表达式（不含return），参数名固定：(a, b)。
+     * comp接口：function(a, b): Boolean。
      * comp支持首字符（?）引用X函数库成员。
-     * 支持元素集的去重排序（无需comp）。
-     * @param  {Boolean} unique 是否去除重复
      * @param  {String|Function} comp 比较表达式串或方法引用或函数
-     * @return {Array}
+     * @return {Collector}
      */
-    sort( evo, unique, comp ) {
+    _By[meth] = function( evo, comp ) {
         if ( typeof comp == 'string' ) {
             comp = getFunc(comp, 'a', 'b');
         }
-        return $(evo.data).sort( unique, comp ).item();
-    },
+        return $(evo.data)[meth]( comp );
+    };
 
-    __sort: 1,
+    _By[`__${meth}`] = 1;
 
-};
+});
 
 
 //
@@ -241,13 +226,36 @@ X.extend( 'Eff', __Eff );
 
 
 //
-// 节点构造。
-// 目标：当前条目/栈顶1项。
-// 注：与To部分的同名方法不同，这里接收字符串实参。
+// 节点操作。
 //////////////////////////////////////////////////////////////////////////////
 
-const __Node = {};
+const __Node = {
+    /**
+     * 节点渲染。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 模板实参为空时从数据栈中取数据。
+     * @data:  [Element, data?:Value]
+     * @param  {Stack} stack 数据栈
+     * @param  {Object|Value|[Value]} 渲染数据，可选
+     * @return {Element} 被渲染节点
+     */
+    render( evo, stack, data ) {
+        let _vs = data === undefined ?
+            stack.data(2) :
+            [ stack.data(1), data ];
 
+        return Render.update( ..._vs );
+    },
+
+    __render_x: true,
+};
+
+
+// 节点封装。
+// 目标：当前条目/栈顶1项。
+// 注：与To部分的同名方法不同，这里接收字符串实参。
+//===============================================
 [
     'wrap',
     'wrapInner',
@@ -268,34 +276,55 @@ const __Node = {};
 });
 
 
-//
 // 自我修改。
 // 目标：当前条目/栈顶1项。
 //===============================================
 [
-    'remove',           // ( slr? ): void
-    'removeSiblings',   // ( slr? ): void
-    'unwrap',           // (): void
-    'empty',            // (): void
-    'normalize',        // ( depth? ): void
+    'remove',           // ( slr? )
+    'removeSiblings',   // ( slr? )
+    'normalize',        // ( depth? )
 ]
 .forEach(function( meth ) {
     /**
-     * 部分方法需要slr实参。
-     * 多余实参无副作用。
-     * 注：外部可能需要预先封装为Collector实例。
-     * @return {void}
+     * @param  {String|Number|Boolean} slr 选择器/影响深度或入栈指示
+     * @param  {Boolean} back 入栈指示
+     * @return {Element|Collector|void}
      */
-    __Node[meth] = function( evo, slr ) {
-        let x = evo.data;
+    __Node[meth] = function( evo, slr, back ) {
+        if ( typeof slr == 'boolean' ) {
+            [back, slr] = [slr];
+        }
+        let _x = evo.data,
+            // 多余实参无副作用
+            _d = $.isArray(_x) ? $(_x)[meth](slr) : $[meth](_x, slr);
 
-        if ( $.isArray(x) ) $(x)[meth]( slr );
-        else if ( x.nodeType ) $[meth]( x, slr );
+        if ( back ) return _d;
     };
 
     __Node[`__${meth}`] = 1;
 
 });
+
+[
+    'empty',
+    'unwrap',
+]
+.forEach(function( meth ) {
+    /**
+     * @param  {Boolean} back 入栈指示
+     * @return {Element|Collector|void}
+     */
+    __Node[meth] = function( evo, back ) {
+        let _x = evo.data,
+            _d = $.isArray(_x) ? $(_x)[meth]() : $[meth](_x);
+
+        if ( back ) return _d;
+    };
+
+    __Node[`__${meth}`] = 1;
+
+});
+
 
 // 注入。
 X.extend( 'Node', __Node );

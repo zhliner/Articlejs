@@ -19,9 +19,9 @@
 //  单纯获取目标子域：X.extend( name )
 //
 //  说明：
-//  - 扩展指令支持名称前置双下划线（__）定义自动取栈数，默认会被设置为0。
+//  - 扩展指令支持名称前置双下划线（__）定义自动取栈数。
 //  - 默认会将指令绑定到宿主对象后存储，除非nobind为真，此时指令的this为当前指令对象（Cell）。
-//  - 内嵌的子指令集（需用普通对象封装）会被递进处理，合并模式。
+//  - 内嵌的子指令集（需用普通对象封装）会被递进处理（合并）。
 //
 //
 //  模板使用：
@@ -32,7 +32,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { EXTENT } from "../config.js";
+import { funcSets } from "../config.js";
 
 const $ = window.$;
 
@@ -71,9 +71,7 @@ function bindMethod( f, k, obj, to ) {
     if ( !f.name.startsWith('bound ') ) {
         f = f.bind( obj );
     }
-    let _n = obj[`__${k}`];
-
-    return ( f[EXTENT] = _n === undefined ? 0 : _n ), [ f ];
+    return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
 }
 
 
@@ -91,11 +89,9 @@ function setMethod( f, k, obj, to ) {
         return [ $.assign(to[k] || {}, f, setMethod) ];
     }
     if ( !$.isFunction(f) ) {
-        return [ f ];
+        return null;
     }
-    let _n = obj[`__${k}`];
-
-    return ( f[EXTENT] = _n === undefined ? 0 : _n ), [ f ];
+    return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
 }
 
 

@@ -19,7 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Base, Base2 } from "./libs/pbs.base.js";
+import { Base, BaseOn, InitBase } from "./libs/pbs.base.js";
 import { On } from "./libs/pbs.on.js";
 import { By } from "./libs/pbs.by.js";
 import { To, chainStore } from "./libs/pbs.to.js";
@@ -45,16 +45,8 @@ const
 
 
 
-// 运算全局。
-// 适用：On/By。
-$.proto( Base2, Base );
-
-
-// 基础集继承（原型）。
-$.proto( On, Base2 ),
-$.proto( By, Base2 ),
-
-$.proto( To.Update, Base );
+// 基础集继承。
+$.proto( On, BaseOn ),
 $.proto( To.Stage, Base );
 
 
@@ -107,7 +99,7 @@ let __Tpl = null;
 (function () {
 
     if ( Support.template ) {
-        __Tpl = Base.tplStore( new Templater( Loader.load.bind(Loader), obtBuild ) );
+        __Tpl = InitBase( new Templater( Loader.load.bind(Loader), obtBuild ) );
     }
 
 })();

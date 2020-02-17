@@ -134,6 +134,7 @@ export {
     ACCESS,
     method,
     bindMethod,
+    funcSets,
     Support,
     tplRoot,
     tplsMap,
