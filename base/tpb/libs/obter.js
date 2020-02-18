@@ -305,11 +305,9 @@ class Builder {
     chain( on, by, query, update, stage ) {
         let _stack = new Stack(),
             _first = Evn.apply( new Cell(_stack) ),
-            _prev = null;
+            _prev = this._on( _first, _stack, on );
 
-        _prev = this._on( _first, _stack, on );
         _prev = this._by( _prev, _stack, by );
-
         _prev = this._query( _prev, _stack, query );
         _prev = this._update( _prev, _stack, update );
         this._stage( _prev, _stack, stage );
@@ -490,12 +488,17 @@ class Stack {
 
     /**
      * 数据栈成员删除。
-     * 注：纯删除功能，被删除的数据不进入暂存区。
-     * @param {Number} start 起始下标
-     * @param {Number} count 删除数量
+     * 纯删除功能，被删除的数据不进入暂存区。
+     * fix: count为undefined时表现为0值。
+     * @param  {Number} start 起始下标
+     * @param  {Number} count 删除数量
+     * @return {Array}
      */
     dels( start, count ) {
-        this._buf.splice( start, count );
+        if ( count == null ) {
+            count = this._buf.length;
+        }
+        return this._buf.splice( start, count );
     }
 
 
@@ -699,7 +702,7 @@ class Cell {
      */
     bind( args, meth, isx, n ) {
         if ( isx ) {
-            args.unshift[this[_SID]];
+            args.unshift(this[_SID]);
         }
         this._args = args || '';
         this._meth = meth;
@@ -740,7 +743,8 @@ class Cell {
         }
         if ( $.type(val) !== 'Promise' ) {
             // 非异步！
-            // 否则影响有默认行为方法（如submit）的调用。
+            // 否则后续对事件默认行为的取消无效（如avoid）
+            // 影响事件名同是方法的调用链（如submit）。
             return this.next.call(evo, val);
         }
         val.then( v => this.next.call(evo, v), rejectInfo );

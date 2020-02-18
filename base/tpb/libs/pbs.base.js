@@ -44,6 +44,12 @@ const
     __reSpace = /\s+/;
 
 
+//
+// 全局模板存储。
+//
+let __Templater = null;
+
+
 
 const
     // 全局变量空间。
@@ -52,13 +58,6 @@ const
     // 关联数据空间。
     // Element: Map{ String: Value }
     DataStore   = new WeakMap();
-
-
-
-//
-// 全局模板存储。
-//
-let __TplStore = null;
 
 
 
@@ -172,6 +171,9 @@ const _Base = {
      * 特权：是。自行取栈。
      * 如果实参name为空（null|undefined），取当前条目为名称。
      * 注意克隆时是每次都克隆（应当很少使用）。
+     * 注记：
+     * 因为返回Promise实例（异步），故归入By部分。
+     *
      * @param  {Stack} stack 数据栈
      * @param  {String} name 模板名，可选
      * @param  {Boolean} clone 是否克隆，可选
@@ -181,7 +183,7 @@ const _Base = {
         if ( name == null ) {
             name = stack.data(1);
         }
-        return __TplStore[clone ? 'get' : 'tpl'](name);
+        return __Templater[clone ? 'get' : 'tpl'](name);
     },
 
     __tpl_x: true,
@@ -190,6 +192,9 @@ const _Base = {
 
     // 控制类
     //===============================================
+    // 注记：
+    // 返回Promise.reject()不会异步化正常执行流。
+
 
     /**
      * 通过性检查。
@@ -457,22 +462,24 @@ const _Base = {
 
 
     /**
-     * 测试打印（控制台）。
+     * 调试打印（控制台）。
      * 目标：当前条目，可选。
-     * 返回传入的值（优先）或当前条目值（如果有）。
-     * @param  {Value} msg 消息值
+     * 传递消息为false表示中断执行流。
+     * @param  {String|false} msg 明文消息，可选
      * @return {Value}
      */
-    hello( evo, msg ) {
-        if ( evo.data !== undefined ) {
-            window.console.dir(evo.data);
-        }
-        window.console.info( msg );
+    debug( evo, stack, msg ) {
+        window.console.dir(evo);
+        window.console.dir(stack);
 
+        if ( msg === false ) {
+            return Promise.reject();
+        }
         return msg !== undefined ? msg : evo.data;
     },
 
-    __hello: 0,
+    __debug: 0,
+    __debug_x: true,
 
 };
 
@@ -932,6 +939,7 @@ const _BaseOn = {
      * 特权：是。选择性取栈。
      * 如果当前条目为空，取栈顶2项（实参为空）或1项。
      * 如果当前条目非空，以当前条目为合并目标（实参非空）或后续成员合并到首个成员。
+     * 注：当前条目成员需要是数组。
      * @param  {...Array|Value} vals 值或数组
      * @return {Array}
      */
@@ -943,7 +951,7 @@ const _BaseOn = {
         if ( vals.length > 0 ) {
             return _vs.concat(...vals);
         }
-        return _vs.shift().concat(..._vs);
+        return _vs[0].concat( _vs[1] );
     },
 
     __concat_x: true,
@@ -972,110 +980,134 @@ const _BaseOn = {
 
 
     // 简单运算
-    // 支持集合成员一一对应运算，返回结果值的集合。
-    // 注：以前一个实参集合大小为结果集大小。
     //===============================================
 
     /**
      * 加运算。
      * 同时适用数值和字符串。
-     * 目标：当前条目/栈顶2项
+     * 目标：当前条目/栈顶1-2项
+     * 特权：是，灵活取栈。
      * 注记：Collector的同名方法没有被使用。
-     * @param  {Boolean} deep 是否集合成员运算
-     * @return {Number|String}
+     * @param  {Stack} stack 数据栈
+     * @param  {Number|String} val 第二个操作数
+     * @return {Number|String|}
      */
-    add( evo, deep ) {
-        let [x, y] = evo.data;
-        return deep ? x.map( (v, i) => v + y[i] ) : x + y;
+    add( evo, stack, val ) {
+        let _vs = val === undefined ?
+            stack.data(2) :
+            [ stack.data(1), val ];
+
+        return _vs[0] + _vs[1];
     },
 
-    __add: 2,
+    __add_x: true,
 
 
     /**
      * 减运算。
-     * 目标：当前条目/栈顶2项
-     * @param  {Boolean} deep 是否集合成员运算
+     * 目标：当前条目/栈顶1-2项
+     * 特权：是，灵活取栈。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} val 第二个操作数
      * @return {Number}
      */
-    sub( evo, deep ) {
-        let [x, y] = evo.data;
-        return deep ? x.map( (v, i) => v - y[i] ) : x - y;
+    sub( evo, stack, val ) {
+        let _vs = val === undefined ?
+            stack.data(2) :
+            [ stack.data(1), val ];
+
+        return _vs[0] - _vs[1];
     },
 
-    __sub: 2,
+    __sub_x: true,
 
 
     /**
      * 乘运算。
-     * 目标：当前条目/栈顶2项
-     * @param  {Boolean} deep 是否集合成员运算
+     * 目标：当前条目/栈顶1-2项
+     * 特权：是，灵活取栈。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} val 是否集合成员运算
      * @return {Number}
      */
-    mul( evo, deep ) {
-        let [x, y] = evo.data;
-        return deep ? x.map( (v, i) => v * y[i] ) : x * y;
+    mul( evo, stack, val ) {
+        let _vs = val === undefined ?
+            stack.data(2) :
+            [ stack.data(1), val ];
+
+        return _vs[0] * _vs[1];
     },
 
-    __mul: 2,
+    __mul_x: true,
 
 
     /**
      * 除运算。
-     * 目标：当前条目/栈顶2项
-     * @param  {Boolean} deep 是否集合成员运算
+     * 目标：当前条目/栈顶1-2项
+     * 特权：是，灵活取栈。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} val 是否集合成员运算
+     * @param  {Boolean} int 是否取整数
      * @return {Number}
      */
-    div( evo, deep ) {
-        let [x, y] = evo.data;
-        return deep ? x.map( (v, i) => v / y[i] ) : x / y;
+    div( evo, stack, val, int ) {
+        let _vs = val === undefined ?
+            stack.data(2) :
+            [ stack.data(1), val ];
+
+        return int ? parseInt(_vs[0]/_vs[1]) : _vs[0]/_vs[1];
     },
 
-    __div: 2,
+    __div_x: true,
 
 
     /**
      * 模运算。
-     * 目标：当前条目/栈顶2项
-     * @param  {Boolean} deep 是否集合成员运算
+     * 目标：当前条目/栈顶1-2项
+     * 特权：是，灵活取栈。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} val 是否集合成员运算
      * @return {Number}
      */
-    mod( evo, deep ) {
-        let [x, y] = evo.data;
-        return deep ? x.map( (v, i) => v % y[i] ) : x % y;
+    mod( evo, stack, val ) {
+        let _vs = val === undefined ?
+            stack.data(2) :
+            [ stack.data(1), val ];
+
+        return _vs[0] % _vs[1];
     },
 
-    __mod: 2,
+    __mod_x: true,
 
 
     /**
      * 除并求余。
      * 目标：当前条目/栈顶2项
+     * 特权：是，灵活取栈。
      * 返回值：[商数, 余数]
-     * @param  {Boolean} deep 是否集合成员运算
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} val 是否集合成员运算
      * @return {[Number, Number]}
      */
-    divmod( evo, deep ) {
-        let [x, y] = evo.data;
+    divmod( evo, stack, val ) {
+        let _vs = val === undefined ?
+            stack.data(2) :
+            [ stack.data(1), val ];
 
-        if ( !deep ) {
-            return [ Math.floor(x/y), x%y ];
-        }
-        return x.map( (v, i) => [ Math.floor(v/y[i]), v%y[i] ] );
+        return [ Math.floor(_vs[0]/_vs[1]), _vs[0]%_vs[1] ];
     },
 
-    __divmod: 2,
+    __divmod_x: true,
 
 
     /**
      * 数值取负。
      * 目标：当前条目/栈顶1项。
-     * @param  {Boolean} deep 是否集合成员运算
      * @return {Number|[Number]}
      */
-    nneg( evo, deep ) {
+    nneg( evo ) {
         let _v = evo.data;
-        return deep ? _v.map( v => -v ) : -_v;
+        return $.isArray(_v) ? _v.map( v => -v ) : -_v;
     },
 
     __nneg: 1,
@@ -1084,12 +1116,11 @@ const _BaseOn = {
     /**
      * 逻辑取反。
      * 目标：当前条目/栈顶1项。
-     * @param  {Boolean} deep 是否集合成员运算
      * @return {Boolean|[Boolean]}
      */
-    vnot( evo, deep ) {
+    vnot( evo ) {
         let _v = evo.data;
-        return deep ? _v.map( v => !v ) : !_v;
+        return $.isArray(_v) ? _v.map( v => !v ) : !_v;
     },
 
     __vnot: 1,
@@ -1115,7 +1146,7 @@ const _BaseOn = {
         if ( evo.data !== undefined ) {
             n = +evo.data;
         }
-        if ( n ) stack.push( ...stack.tops(n) );
+        if ( n > 0 ) stack.push( ...stack.tops(n) );
     },
 
     __dup: 0,
@@ -1745,9 +1776,9 @@ Object.assign( BaseOn, Base );
 
 /**
  * 设置模板管理器。
- * @param {Templater} tstore 模板管理器
+ * @param {Templater} tplr 模板管理器
 */
-const InitBase = tstore => __TplStore = tstore;
+const InitTpl = tplr => __Templater = tplr;
 
 
-export { Base, BaseOn, InitBase };
+export { Base, BaseOn, InitTpl };

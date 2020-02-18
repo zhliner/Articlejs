@@ -19,7 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Base, BaseOn, InitBase } from "./libs/pbs.base.js";
+import { Base, BaseOn, InitTpl } from "./libs/pbs.base.js";
 import { On } from "./libs/pbs.on.js";
 import { By } from "./libs/pbs.by.js";
 import { To, chainStore } from "./libs/pbs.to.js";
@@ -47,6 +47,7 @@ const
 
 // 基础集继承。
 $.proto( On, BaseOn ),
+$.proto( By, Base );
 $.proto( To.Stage, Base );
 
 
@@ -99,7 +100,7 @@ let __Tpl = null;
 (function () {
 
     if ( Support.template ) {
-        __Tpl = InitBase( new Templater( Loader.load.bind(Loader), obtBuild ) );
+        __Tpl = InitTpl( new Templater( Loader.load.bind(Loader), obtBuild ) );
     }
 
 })();

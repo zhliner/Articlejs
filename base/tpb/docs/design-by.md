@@ -25,7 +25,7 @@
 当前条目为操作的目标对象。
 
 ```js
-pull( meth?:String )
+pull( meth?:String ): Promise<json>
 // 数据从远端拉取。
 // 暂存区的流程数据会作为查询串上传。
 // 注：仅支持 GET 方法。

@@ -202,9 +202,10 @@ const __Eff = {};
 .forEach(function( name ) {
     /**
      * 注：名称即为特性值。
+     * @param  {Boolean} sure 正向执行
      * @return {void}
      */
-    __Eff[name] = function( evo, sure ) {
+    __Eff[name] = function( evo, sure = true ) {
         let _els = evo.data;
 
         if ( !sure ) {

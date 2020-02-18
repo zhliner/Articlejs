@@ -58,8 +58,8 @@ const _Update = {
      */
     bind( to, data, ...args ) {
         if ( $.isArray(data) ) {
-            data = data.shift();
-            args.push( ...data );
+            args.push( ...data.splice(1) );
+            data = data[0];
         }
         if ( $.isArray(to) ) {
             return to.forEach( el => bindChain('on', el, data, ...args) )
@@ -74,8 +74,8 @@ const _Update = {
      */
     once( to, data, ...args ) {
         if ( $.isArray(data) ) {
-            data = data.shift();
-            args.push( ...data );
+            args.push( ...data.splice(1) );
+            data = data[0];
         }
         if ( $.isArray(to) ) {
             return to.forEach( el => bindChain('one', el, data, ...args) )
@@ -98,8 +98,8 @@ const _Update = {
      */
     trigger( to, data, ...args ) {
         if ( $.isArray(data) ) {
-            data = data.shift();
-            args.push( ...data );
+            args.push( ...data.splice(1) );
+            data = data[0];
         }
         if ( $.isArray(to) ) {
             return $(to).trigger( data, ...args );
@@ -157,8 +157,8 @@ const _Update = {
      */
     wrapAll( tos, box, ...args ) {
         if ( $.isArray(box) ) {
-            box = box.shift();
-            args.push( ...box );
+            args.push( ...box.splice(1) );
+            box = box[0];
         }
         $(tos).wrapAll( box, ...args );
     },
@@ -258,8 +258,8 @@ const _Update = {
      */
     _Update[meth] = function( tos, data, ...args ) {
         if ( $.isArray(data) && data[1] === true ) {
-            data = data.shift();
-            args.push( ...data );
+            args.push( ...data.splice(1) );
+            data = data[0];
         }
         if ( $.isArray(tos) ) {
             return $(tos)[meth]( data, ...args );

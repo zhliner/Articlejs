@@ -179,7 +179,7 @@ ev( ...name: String | [String] ): Value | [Value]
 // name支持空格分隔的名称序列，此时值为一个集合（数组）。
 // 如果未传入任何名称，则取事件对象本身。
 
-tpl( name?: String, clone?: Boolean ): Element
+tpl( name?: String, clone?: Boolean ): Promise<Element>
 // 获取name模板节点。
 // 目标：当前条目，条件取栈（1项）。
 // 特权：是。需要判断后取栈。
@@ -187,6 +187,8 @@ tpl( name?: String, clone?: Boolean ): Element
 // 注：
 // 默认获取原始的模板节点。
 // 如果传递clone为真，注意克隆会每次都发生。
+// 注意：
+// 返回Promise对象，因此通常用在指令序列的后段（避免异步）。
 
 
 
@@ -207,6 +209,8 @@ avoid( back? ): back|void
 // 如果当前条目非空，则真值执行。否则无条件执行。
 // back：
 // 执行之后的返回值（入栈，用户定义），如果未执行则无效。
+// 注意！
+// 该指令应当用在返回Promise对象的指令之前（如tpl）。
 
 stop( back? ): back|void
 // 停止事件冒泡。
@@ -214,6 +218,7 @@ stop( back? ): back|void
 // 目标：当前条目，不自动取栈。
 // 如果当前条目非空，则真值执行。否则无条件执行。
 // back：同上。
+// 注意！同上。
 
 stopAll( back? ): back|void
 // 停止事件冒泡并阻止本事件其它处理器的执行。
@@ -221,6 +226,7 @@ stopAll( back? ): back|void
 // 目标：当前条目，不自动取栈。
 // 如果当前条目非空，则真值执行。否则无条件执行。
 // back：同上。
+// 注意！同上。
 
 end( val? ): void
 // 流程终止。
@@ -562,35 +568,34 @@ array( size, ...vals ): Array
 
 
 
-// 简单运算
-// 支持集合成员对应操作，返回一个结果值的集合。
-// 返回集大小是前一个实参集合的大小。
-// 即：后一个实参集合多出来的成员会被简单忽略。
+// 简单运算。
 //===============================================
 
-add( deep?: Boolean ): Number   // (x, y) => x + y
-sub( deep?: Boolean ): Number   // (x, y) => x - y
-mul( deep?: Boolean ): Number   // (x, y) => x * y
-div( deep?: Boolean ): Number   // (x, y) => x / y
-mod( deep?: Boolean ): Number   // (x, y) => x % y
+add( val?:Number ): Number|String   // (x, y) => x + y
+sub( val?:Number ): Number          // (x, y) => x - y
+mul( val?:Number ): Number          // (x, y) => x * y
+div( val?:Number ): Number          // (x, y) => x / y
+mod( val?:Number ): Number          // (x, y) => x % y
 // 标准算术。
-// 目标：当前条目/栈顶2项。
-// @deep 是否深入集合成员运算。
+// 目标：当前条目/栈顶1-2项。
+// val 第二个操作数，可选。
 
-divmod( deep?: Boolean ): [Number, Number]
+divmod( val?:Number ): [Number, Number]
 // 除并求余。(x, y) => [x/y, x%y]
 // 目标：当前条目/栈顶2项。
 // 注：
 // 商数取小于等于结果的整数值。
 // 如：3.5 => 3, -3.5 => -4
 
-nneg( deep?: Boolean ): Number | [Number]
+nneg(): Number|[Number]
 // 数值取负（-x）。
 // 目标：当前条目/栈顶1项。
+// 支持目标为集合，对成员分别取负。
 
-vnot( deep?: Boolean ): Boolean | [Boolean]
+vnot(): Boolean|[Boolean]
 // 逻辑取反（!x）。
 // 目标：当前条目/栈顶1项。
+// 支持目标为集合，对成员分别取反。
 
 
 
