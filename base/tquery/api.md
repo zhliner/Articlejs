@@ -735,22 +735,26 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 三个布尔值参数 `event`、`deep` 和 `eventdeep` 仅适用于元素。返回新克隆的节点/元素。
 
 
-### [$.scrollTop( el, val ): this](docs/$.scrollTop.md)
+### [$.scrollTop( el, val, inc ): this](docs/$.scrollTop.md)
 
 获取或设置 `el` 元素（文档或窗口）的垂直滚动条位置。
 
 - `el: Document | Window | Element` 包含滚动条的文档、窗口或元素。
 - `val: Number` 滚动到的目标位置，从顶部算起，单位为像素。
+- `inc: Boolean` 是否为增量模式。
+
 
 本接口返回调用者自身（`$`）。
 
 
-### [$.scrollLeft( el, val ): this](docs/$.scrollLeft.md)
+### [$.scrollLeft( el, val, inc ): this](docs/$.scrollLeft.md)
 
 获取或设置 `el` 元素（文档或窗口）的水平滚动条位置。
 
 - `el: Document | Window | Element` 包含滚动条的文档、窗口或元素。
 - `val: Number` 滚动到的目标位置，从左侧端算起，单位为像素。
+- `inc: Boolean` 是否为增量模式。
+
 
 本接口返回调用者自身（`$`）。
 
@@ -1031,14 +1035,15 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 > 上层定位元素是指上层容器元素的样式中 `position` 值非默认的 `static`。
 
 
-### [$.height( el, val ): Number | this](docs/$.height.md)
+### [$.height( el, val, inc ): Number | this](docs/$.height.md)
 
 获取或设置 `el` 元素的内容高度（与 `box-sizing` 无关）。
 
 - `el: Element | Document | Window` 操作的目标元素、文档或窗口。
-- `val: String | Number | Function | null` 要设置的高度值，数值的单位为像素，可以是一个取值回调。
+- `val: String | Number | Function` 要设置的高度值，数值的单位为像素，可以是一个取值回调。
+- `inc: Boolean` 是否为增量模式。
 
-设置的字符串值可以包含任意单位，传递 `val` 值为一个空串或 `null` 会删除高度样式。获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置高度。
+设置的字符串值可以包含任意单位，获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置高度。
 
 如果 `val` 是取值回调，接口为：`function( curr-height ): String | Number`，实参为当前的高度值，`this` 为当前元素。
 
@@ -1051,14 +1056,15 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `box-sizing` 值为 `border-box` 时：**CSS:height** = 内容高度 + padding宽度 + border宽度
 
 
-### [$.width( el, val ): Number | this](docs/$.width.md)
+### [$.width( el, val, inc ): Number | this](docs/$.width.md)
 
 获取或设置 `el` 元素的内容宽度（与 `box-sizing` 无关）。
 
 - `el: Element | Document | Window` 操作的目标元素、文档或窗口。
-- `val: String | Number | Function | null` 要设置的宽度值，数值的单位为像素，可以是一个取值回调。
+- `val: String | Number | Function` 要设置的宽度值，数值的单位为像素，可以是一个取值回调。
+- `inc: Boolean` 是否为增量模式。
 
-设置的字符串值可以包含任意单位，传递 `val` 值为一个空串或 `null` 会删除宽度样式。获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置宽度。
+设置的字符串值可以包含任意单位，获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置宽度。
 
 如果 `val` 是取值回调，接口为：`function( curr-width ): String | Number`，实参为当前的宽度值，`this` 为当前元素。
 

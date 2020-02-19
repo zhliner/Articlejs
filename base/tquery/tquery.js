@@ -1427,15 +1427,20 @@ Object.assign( tQuery, {
      * 获取/设置垂直滚动条。
      * @param  {Element|Window|Document} el
      * @param  {Number} val
+     * @param  {Boolean} inc val是否为增量值（仅限像素）
      * @return {Number|this}
      */
-    scrollTop( el, val ) {
-        let _win = getWindow(el);
+    scrollTop( el, val, inc ) {
+        let _win = getWindow(el),
+            _old = _win ? _win.pageYOffset : el.scrollTop;
 
-        if (val === undefined) {
-            return _win ? _win.pageYOffset : el.scrollTop;
+        if ( val === undefined ) {
+            return _old;
         }
-        scrollSet(_win || el, val, _win ? 'Y' : 'T');
+        if ( inc ) {
+            val = +val + _old;
+        }
+        scrollSet( _win || el, val, _win ? 'Y' : 'T' );
 
         return this;
     },
@@ -1445,15 +1450,20 @@ Object.assign( tQuery, {
      * 获取/设置水平滚动条。
      * @param  {Element|Window|Document} el
      * @param  {Number} val
+     * @param  {Boolean} inc val是否为增量值（仅限像素）
      * @return {Number|this}
      */
-    scrollLeft( el, val ) {
-        let _win = getWindow(el);
+    scrollLeft( el, val, inc ) {
+        let _win = getWindow(el),
+            _old = _win ? _win.pageXOffset : el.scrollLeft;
 
-        if (val === undefined) {
-            return _win ? _win.pageXOffset : el.scrollLeft;
+        if ( val === undefined ) {
+            return _old;
         }
-        scrollSet(_win || el, val, _win ? 'X' : 'L');
+        if ( inc ) {
+            val = +val + _old;
+        }
+        scrollSet( _win || el, val, _win ? 'X' : 'L' );
 
         return this;
     },
@@ -2803,20 +2813,24 @@ function _validMeth( node, meth ) {
      * }
      * @param  {Element|Document|Window} el 目标元素
      * @param  {String|Number|Function} val 设置值
+     * @param  {Boolean} inc val是否为增量值（仅限像素）
      * @return {Number|this}
      */
-    tQuery[_n] = function( el, val ) {
+    tQuery[_n] = function( el, val, inc ) {
         let _h = _rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n);
 
-        if (val === undefined) {
+        if ( val === undefined ) {
             return _h;
         }
-        if (isFunc(val)) {
+        if ( isFunc(val) ) {
             val = val.bind(el)(_h);
         }
-        _elemRectSet(el, _n, val);
+        if ( inc ) {
+            val = +val + _h;
+        }
+        _elemRectSet( el, _n, val );
 
-        if (!val && el.style.cssText.trim() == '') {
+        if ( el.style.cssText.trim() == '' ) {
             // 内部清理，不激发事件。
             el.removeAttribute('style');
         }
@@ -2826,8 +2840,9 @@ function _validMeth( node, meth ) {
 
 
 //
-// 数值尺寸取值（Float）
+// 内高宽取值（Float）
 // innerHeight/innerWidth
+// 注：包含padding，但不包含border。
 ///////////////////////////////////////
 [
     ['Height',  'inner'],
@@ -2837,8 +2852,6 @@ function _validMeth( node, meth ) {
     let _t = its[0].toLowerCase(),
         _n = its[1] + its[0];
     /**
-     * 获取内部高/宽度。
-     * 注：包含padding，但不包含border。
      * @param  {Element|Document|Window} el 目标元素
      * @return {Number}
      */
@@ -2849,8 +2862,9 @@ function _validMeth( node, meth ) {
 
 
 //
-// 数值尺寸取值（Float）
+// 外高宽取值（Float）
 // outerHeight/outerWidth
+// 注：注：包含border，可选的包含margin。
 ///////////////////////////////////////
 [
     ['Height',  'outer'],
@@ -2860,8 +2874,6 @@ function _validMeth( node, meth ) {
     let _t = its[0].toLowerCase(),
         _n = its[1] + its[0];
     /**
-     * 获取外围的高/宽度。
-     * 注：包含border，可选的包含margin。
      * @param  {Element|Document|Window} el 目标元素
      * @param  {Boolean} margin 是否包含外边距
      * @return {Number}
@@ -2889,13 +2901,12 @@ callableEvents
  * 包含无参数调用返回滚动条的位置对象：{top, left}。
  * 传递实参时调用原生滚动方法（会触发滚动事件）。
  * pair可以是一个配置对象，也可以是一个水平/垂直坐标的二元数组。
- *
  * @param  {Element} el 包含滚动条的容器元素
- * @param  {Object|[x, y]} pair 滚动位置配置对象。
+ * @param  {Object|[top, left]} pair 滚动位置配置对象。
  * @return {Object|this}
  */
 tQuery.scroll = function( el, pair ) {
-    if (pair === undefined) {
+    if ( pair === undefined ) {
         return {
             top: tQuery.scrollTop(el),
             left: tQuery.scrollLeft(el)
