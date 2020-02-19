@@ -102,10 +102,12 @@ append( clone, event, eventdeep:Boolean )
 fill( clone, event, eventdeep:Boolean )
 replace( clone, event, eventdeep:Boolean )
 // 内容：{Node|[Node]|Collector|Set|Iterator|Function}
+// 附加：不支持。
 
 wrap( clone, event, eventdeep:Boolean )
 wrapInner( clone, event, eventdeep:Boolean )
 // 内容：{Element|String|[Element|String]}
+// 附加：不支持。
 
 wrapAll( clone, event, eventdeep:Boolean )
 // 内容：{Element|String} box
@@ -124,7 +126,7 @@ cloneEvent( evns?:String|Function )
 //
 // 简单设置。
 // 内容：流程数据为唯一内容，数据本身可能为数组。
-// 附加：不支持，可能的实参从模板传递。
+// 附加：不支持，实参仅从模板传递。
 // 注：多余实参无副作用。
 /////////////////////////////////////////////////
 height( inc?:Boolean )          // {Number}
@@ -160,6 +162,7 @@ cssSets( names:String )
 /////////////////////////////////////////////////
 bind( evn:String, slr?:String )
 // 内容：{Value|[Value]|...} 初始传入值
+// 附加：不支持。
 // 用预定义的调用链作为事件处理器，绑定到目标。
 // evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
 // 注：
@@ -174,7 +177,7 @@ one( evn?:String, slr?:String ): void
 off( evn?:String, slr?:String ): void
 // 事件绑定/解绑。
 // 内容：{EventListener|Function|false|null} 事件处理器。
-// 附加：[evn, slr:String]
+// 附加：[evn:String|Object, slr:String]
 
 trigger( val:Value, bubble?, cancelable?:Boolean )
 // 发送事件到目标。
