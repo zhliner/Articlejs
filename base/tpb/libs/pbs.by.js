@@ -34,6 +34,7 @@ const
 const _By = {
     /**
      * 数据拉取（简单）。
+     * 目标：当前条目，可选。
      * 暂存区的流程数据会作为查询串上传。
      * 注：仅支持 GET 方法。
      * @param  {String} meth 请求方法。可选，默认index
@@ -49,6 +50,26 @@ const _By = {
             resp => resp.ok ? resp.json() : Promise.reject(resp.statusText)
         );
     },
+
+    __pull: 0,
+
+
+    /**
+     * 导入X库成员（通常为函数）。
+     * 特权：是，灵活取栈。
+     * 如果实参为空则从数据栈取值。
+     * @param  {Stack} stack 数据栈
+     * @param  {String} path 引用路径（句点分隔），可选
+     * @return {Value}
+     */
+    xobj( evo, stack, path ) {
+        if ( path == null ) {
+            path = stack.data(1);
+        }
+        return Util.subObj( path.split('.'), X );
+    },
+
+    __xobj_x: true,
 
 
     /**
@@ -67,7 +88,7 @@ const _By = {
      */
     xtrue( evo, meth, ...rest ) {
         if ( evo.data === true ) {
-            return Util.subObj(meth, X)( ...rest );
+            return Util.subObj(meth.split('.'), X)( ...rest );
         }
     },
 
@@ -85,7 +106,7 @@ const _By = {
      */
     xfalse( evo, meth, ...rest ) {
         if ( evo.data === false ) {
-            return Util.subObj(meth, X)( ...rest );
+            return Util.subObj(meth.split('.'), X)( ...rest );
         }
     },
 
@@ -151,33 +172,6 @@ const _By = {
             comp = getFunc(comp, 'a', 'b');
         }
         return $(evo.data)[meth]( comp );
-    };
-
-    _By[`__${meth}`] = 1;
-
-});
-
-
-//
-// 事件绑定。
-// 目标：当前条目/栈顶1项。
-//===============================================
-[
-    'on',
-    'off',
-    'one',
-]
-.forEach(function( meth ) {
-    /**
-     * expr表达式可用参数名：'ev', 'elo'。
-     * expr支持?引用X函数库方法。
-     * @param  {String} name 事件名（序列）
-     * @param  {String|null} slr 委托选择器，可选
-     * @param  {String|Function|false|null} expr 事件处理器
-     * @return {void}
-     */
-    _By[meth] = function( evo, name, slr, expr ) {
-        $(evo.data)[meth]( name, slr, getFunc(expr, 'ev', 'elo') );
     };
 
     _By[`__${meth}`] = 1;
@@ -349,7 +343,7 @@ function getFunc( expr, ...vns ) {
         return expr;
     }
     if ( expr[0] == __chrXname ) {
-        return Util.subObj( expr.substring(1), X );
+        return Util.subObj( expr.substring(1).split('.'), X );
     }
     return new Function( ...vns, `return ${expr}` );
 }

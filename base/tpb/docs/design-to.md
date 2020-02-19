@@ -27,7 +27,7 @@
 
 当前条目有值（非 `undefined`）。取当前条目为二阶查询的起点元素，该元素需要由前阶段（`On/By`）的末尾指令预先提取（如 `pop`）。
 
-- **选择器为空**：当前条目即为最终目标。如果目标不为元素，后阶方法段必须为空，否则会出错（`Update` 仅用于元素类型）。
+- **选择器为空**：当前条目即为最终目标。如果目标不为元素，后阶 `Update` 方法段通常为空（`Update` 主要用于元素操作）。
 - **选择器非空**：当前条目为查询的起点元素。如果当前条目是一个集合（非起点），选择器应当只包含进阶提取部分。
 
 > **注：**<br>
@@ -102,16 +102,10 @@ append( clone, event, eventdeep:Boolean )
 fill( clone, event, eventdeep:Boolean )
 replace( clone, event, eventdeep:Boolean )
 // 内容：{Node|[Node]|Collector|Set|Iterator|Function}
-// 附加：[clone, event, eventdeep]
-// 说明：
-// 如果流程数据为数组且第二个成员为true时，附加内容补充到实参序列之后。
-// 这使得实参值可从流程中动态获取。
 
 wrap( clone, event, eventdeep:Boolean )
 wrapInner( clone, event, eventdeep:Boolean )
 // 内容：{Element|String|[Element|String]}
-// 附加：[clone, event, eventdeep:Boolean]
-// 说明：同上。
 
 wrapAll( clone, event, eventdeep:Boolean )
 // 内容：{Element|String} box
@@ -129,21 +123,23 @@ cloneEvent( evns?:String|Function )
 
 //
 // 简单设置。
-// 流程数据为唯一实参，数据本身可能为数组。
+// 内容：流程数据为唯一内容，数据本身可能为数组。
+// 附加：不支持，可能的实参从模板传递。
+// 注：多余实参无副作用。
 /////////////////////////////////////////////////
-height()        // 内容：{Number} /px
-width()         // 内容：{Number} /px
-scroll()        // 内容：{top:Number, left:Number} /px
-scrollTop()     // 内容：{Number} /px
-ScrollLeft()    // 内容：{Number} /px
-addClass()      // 内容：{String|Function} /names
-removeClass()   // 内容：{String|Function} /names
-toggleClass()   // 内容：{String|Function|Boolean}
-removeAttr()    // 内容：{String|Function} /names
-val()           // 内容：{Value|[Value]|Function}
-html()          // 内容：{String|[String]|Node|[Node]|Function|.values} /fill
-text()          // 内容：{String|[String]|Node|[Node]|Function|.values} /fill
-offset()        // 内容：{top:Number/px, left:Number/px}
+height( inc?:Boolean )          // {Number}
+width( inc?:Boolean )           // {Number}
+scroll()                        // {top:Number, left:Number}
+scrollTop( inc?:Boolean )       // {Number}
+ScrollLeft( inc?:Boolean )      // {Number}
+addClass()                      // {String|Function}
+removeClass()                   // {String|Function}
+toggleClass( force?:Boolean )   // {String|Function|Boolean}
+removeAttr()                    // {String|Function}
+offset()                        // {top:Number, left:Number}
+val()                           // {Value|[Value]|Function}
+html( where?:String|Number, sep?:String)    // {String|[String]|Node|[Node]|Function|.values}
+text( where?:String|Number, sep?:String)    // {String|[String]|Node|[Node]|Function|.values}
 
 
 //
@@ -161,25 +157,24 @@ cssSets( names:String )
 
 //
 // 事件处理。
-// 用预定义的调用链作为事件处理器，绑定到目标。
-// 这可以方便在模板中定义共享执行流。
-// 注：这里只有绑定，解绑需要通过 By:off() 执行。
 /////////////////////////////////////////////////
-
-bind( evn:String, slr?:String, init?:Value )
-// 内容：{Element} 存储元素
-// 附加：[evn, slr:String, init:Value]
+bind( evn:String, slr?:String )
+// 内容：{Value|[Value]|...} 初始传入值
+// 用预定义的调用链作为事件处理器，绑定到目标。
 // evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
-// init 为绑定处理器的初始传入值。
-// 说明：
-// 如果流程数据为数组，附加内容会展开补充到实参序列之后。
-// 内容只支持单个存储元素，如果目标是一个集合，会应用相同的绑定。
+// 注：
+// 在目标上检索并绑定到目标。
 
-once( evn:String, slr?:String, init?:Value )
+once( evn:String, slr?:String )
 // 绑定事件的单次处理。
-// 内容：{Element} 存储元素
-// 附加：[evn, slr:String, init:Value]
-// 注：参考bind说明。
+// 内容/说明同上。
+
+on( evn?:String, slr?:String ): void
+one( evn?:String, slr?:String ): void
+off( evn?:String, slr?:String ): void
+// 事件绑定/解绑。
+// 内容：{EventListener|Function|false|null} 事件处理器。
+// 附加：[evn, slr:String]
 
 trigger( val:Value, bubble?, cancelable?:Boolean )
 // 发送事件到目标。
@@ -193,7 +188,7 @@ trigger( val:Value, bubble?, cancelable?:Boolean )
 //
 // 逆向插入。
 // 流程数据为目标，Query检索目标为内容。
-// 注：一对一|一对多|多对多。
+// 注：一对一或一对多。
 /////////////////////////////////////////////////
 beforeWith( clone, event, eventdeep:Boolean )
 afterWith( clone, event, eventdeep:Boolean )
@@ -201,8 +196,8 @@ prependWith( clone, event, eventdeep:Boolean )
 appendWith( clone, event, eventdeep:Boolean )
 replaceWith( clone, event, eventdeep:Boolean )
 fillWith( clone, event, eventdeep:Boolean )
-// 内容：{Element|Collector}
-// 展开：不支持。
+// 内容：{Element}
+// 附加：[clone, event, eventdeep:Boolean]
 
 
 pba()
@@ -266,7 +261,7 @@ render()
 
 #### 扩展
 
-- 支持多方法定义，逗号分隔。
+- 支持多方法定义，空格分隔。
 - 多方法可用于多数据同时设置的情况，此时流程数据需要是一个数组，各个方法与数组成员一一对应。
 - 特定方法的数据也可以是一个子数组，它们应用到元素集合时遵循tQuery自身的逻辑（数据成员与元素成员一一对应）。
 

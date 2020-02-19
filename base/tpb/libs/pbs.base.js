@@ -406,12 +406,17 @@ const _Base = {
     // 其它
     //===============================================
 
-    // 空指令。
-    // 目标：无。
-    // 包含清空暂存区的唯一功能。
-    nil() {},
+    /**
+     * 空值指令。
+     * 压入特殊值undefined。
+     * 注：常用于向栈内填充无需实参的占位值。
+     * @param {Stack} stack 数据栈
+     */
+    nil( evo, stack ) {
+        stack.undefined();
+    },
 
-    __nil: 0,
+    __nil_x: true,
 
 
     /**
@@ -430,7 +435,6 @@ const _Base = {
         stack.dels( start, count );
     },
 
-    __del: null,
     __del_x: true,
 
 
@@ -492,57 +496,18 @@ const _BaseOn = {
 
     // 类型转换
     // 目标：当前条目/栈顶1项。
+    // 注：尽量返回值而非该类型的对象。
     //===============================================
 
     /**
-     * 将目标转换为数组。
-     * 如果ext为真，表示调用Array.from()展开为一个数组。
-     * 否则调用Array.of()简单转为数组（单个成员）。
-     * @data: {Value|LikeArray}
-     * @param  {Boolean} ext 扩展模式
-     * @return {Array}
-     */
-    Arr( evo, ext ) {
-        return ext ? Array.from( evo.data ) : Array.of( evo.data );
-    },
-
-    __Arr: 1,
-
-
-    /**
-     * 将目标转为字符串。
-     * @data: {Value}
-     * @param  {String} prefix 前缀，可选
-     * @param  {String} suffix 后缀，可选
-     * @return {String}
-     */
-    Str( evo, prefix = '', suffix = '' ) {
-        return prefix + String( evo.data ) + suffix;
-    },
-
-    __Str: 1,
-
-
-    /**
-     * 将目标转为布尔值（true|false）。
-     * @data: {Value}
-     * @return {Boolean}
-     */
-    Bool( evo ) {
-        return Boolean( evo.data );
-    },
-
-    __Bool: 1,
-
-
-    /**
-     * 将目标转为整数（parseInt）。
-     * @data: {String}
+     * 转为整数（parseInt）。
+     * 支持集合成员操作（逐一转换）。
      * @param  {Number} radix 进制基数
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     Int( evo, radix ) {
-        return parseInt( evo.data, radix );
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => parseInt(v, radix) ) : parseInt(x, radix);
     },
 
     __Int: 1,
@@ -550,11 +515,12 @@ const _BaseOn = {
 
     /**
      * 将目标转为浮点数（parseFloat）。
-     * @data: {String}
-     * @return {Number}
+     * 支持集合成员操作（逐一转换）。
+     * @return {Number|[Number]}
      */
     Float( evo ) {
-        return parseFloat( evo.data );
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => parseFloat(v) ) : parseFloat(x);
     },
 
     __Float: 1,
@@ -564,19 +530,64 @@ const _BaseOn = {
      * 转化为正则表达式。
      * 如果提供了flag，肯定会返回一个新的正则对象。
      * 否则如果源本来就是一个正则对象，则不变。
-     * @data: {String|RegExp}
+     * 注：支持集合成员操作（逐一转换）。
      * @param  {String} flag 正则修饰符
-     * @return {RegExp}
+     * @return {RegExp|[RegExp]}
      */
     RE( evo, flag ) {
-        return RegExp( evo.data, flag );
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => RegExp(v, flag) ) : RegExp(x, flag);
     },
 
     __RE: 1,
 
 
     /**
-     * 将目标转换为普通对象。
+     * 转为布尔值（true|false）。
+     * 注：空数组和空对象也为假。
+     * @return {Boolean}
+     */
+    Bool( evo ) {
+        let x = evo.data;
+        if ( !x ) {
+            return false;
+        }
+        return typeof x === 'object' && Object.keys(x).length == 0 ? false : true;
+    },
+
+    __Bool: 1,
+
+
+    /**
+     * 转为字符串。
+     * @param  {String} pre 前缀，可选
+     * @param  {String} suf 后缀，可选
+     * @return {String}
+     */
+    Str( evo, pre = '', suf = '' ) {
+        return `${pre}${evo.data}${suf}`;
+    },
+
+    __Str: 1,
+
+
+    /**
+     * 转换为数组。
+     * 如果ext为真，表示调用Array.from()展开为一个数组。
+     * 否则调用Array.of()简单转为数组（单个成员）。
+     * @data: {Value|LikeArray}
+     * @param  {Boolean} spread 是否展开
+     * @return {Array}
+     */
+    Arr( evo, spread ) {
+        return spread ? Array.from( evo.data ) : Array.of( evo.data );
+    },
+
+    __Arr: 1,
+
+
+    /**
+     * 转换为普通对象。
      * 主要用于包含entries接口的对象，如：Set/Map实例。
      * 如果目标不包含entries，返回Object()的简单封装。
      * @return {Object}
@@ -980,6 +991,7 @@ const _BaseOn = {
 
 
     // 简单运算
+    // 支持前一个操作数是数组的情况（取成员计算）。
     //===============================================
 
     /**
@@ -989,15 +1001,12 @@ const _BaseOn = {
      * 特权：是，灵活取栈。
      * 注记：Collector的同名方法没有被使用。
      * @param  {Stack} stack 数据栈
-     * @param  {Number|String} val 第二个操作数
-     * @return {Number|String|}
+     * @param  {Number|String} val 第二个操作数，可选
+     * @return {Number|String|[Number|String]}
      */
     add( evo, stack, val ) {
-        let _vs = val === undefined ?
-            stack.data(2) :
-            [ stack.data(1), val ];
-
-        return _vs[0] + _vs[1];
+        let [x, y] = stackArgs(stack, val);
+        return $.isArray(x) ? x.map( v => v+y ) : x+y;
     },
 
     __add_x: true,
@@ -1008,15 +1017,12 @@ const _BaseOn = {
      * 目标：当前条目/栈顶1-2项
      * 特权：是，灵活取栈。
      * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数
-     * @return {Number}
+     * @param  {Number} val 第二个操作数，可选
+     * @return {Number|[Number]}
      */
     sub( evo, stack, val ) {
-        let _vs = val === undefined ?
-            stack.data(2) :
-            [ stack.data(1), val ];
-
-        return _vs[0] - _vs[1];
+        let [x, y] = stackArgs(stack, val);
+        return $.isArray(x) ? x.map( v => v-y ) : x-y;
     },
 
     __sub_x: true,
@@ -1027,15 +1033,12 @@ const _BaseOn = {
      * 目标：当前条目/栈顶1-2项
      * 特权：是，灵活取栈。
      * @param  {Stack} stack 数据栈
-     * @param  {Number} val 是否集合成员运算
-     * @return {Number}
+     * @param  {Number} val 第二个操作数，可选
+     * @return {Number|[Number]}
      */
     mul( evo, stack, val ) {
-        let _vs = val === undefined ?
-            stack.data(2) :
-            [ stack.data(1), val ];
-
-        return _vs[0] * _vs[1];
+        let [x, y] = stackArgs(stack, val);
+        return $.isArray(x) ? x.map( v => v*y ) : x*y;
     },
 
     __mul_x: true,
@@ -1046,16 +1049,12 @@ const _BaseOn = {
      * 目标：当前条目/栈顶1-2项
      * 特权：是，灵活取栈。
      * @param  {Stack} stack 数据栈
-     * @param  {Number} val 是否集合成员运算
-     * @param  {Boolean} int 是否取整数
-     * @return {Number}
+     * @param  {Number} val 第二个操作数，可选
+     * @return {Number|[Number]}
      */
-    div( evo, stack, val, int ) {
-        let _vs = val === undefined ?
-            stack.data(2) :
-            [ stack.data(1), val ];
-
-        return int ? parseInt(_vs[0]/_vs[1]) : _vs[0]/_vs[1];
+    div( evo, stack, val ) {
+        let [x, y] = stackArgs(stack, val);
+        return $.isArray(x) ? x.map( v => v/y ) : x/y;
     },
 
     __div_x: true,
@@ -1066,38 +1065,31 @@ const _BaseOn = {
      * 目标：当前条目/栈顶1-2项
      * 特权：是，灵活取栈。
      * @param  {Stack} stack 数据栈
-     * @param  {Number} val 是否集合成员运算
-     * @return {Number}
+     * @param  {Number} val 第二个操作数，可选
+     * @return {Number|[Number]}
      */
     mod( evo, stack, val ) {
-        let _vs = val === undefined ?
-            stack.data(2) :
-            [ stack.data(1), val ];
-
-        return _vs[0] % _vs[1];
+        let [x, y] = stackArgs(stack, val);
+        return $.isArray(x) ? x.map( v => v%y ) : x%y;
     },
 
     __mod_x: true,
 
 
     /**
-     * 除并求余。
-     * 目标：当前条目/栈顶2项
+     * 幂运算。
+     * 目标：当前条目/栈顶1-2项
      * 特权：是，灵活取栈。
-     * 返回值：[商数, 余数]
      * @param  {Stack} stack 数据栈
-     * @param  {Number} val 是否集合成员运算
-     * @return {[Number, Number]}
+     * @param  {Number} val 第二个操作数，可选
+     * @return {Number|[Number]}
      */
-    divmod( evo, stack, val ) {
-        let _vs = val === undefined ?
-            stack.data(2) :
-            [ stack.data(1), val ];
-
-        return [ Math.floor(_vs[0]/_vs[1]), _vs[0]%_vs[1] ];
+    pow( evo, stack, val ) {
+        let [x, y] = stackArgs(stack, val);
+        return $.isArray(x) ? x.map( v => v**y ) : x**y;
     },
 
-    __divmod_x: true,
+    __pow_x: true,
 
 
     /**
@@ -1106,8 +1098,8 @@ const _BaseOn = {
      * @return {Number|[Number]}
      */
     nneg( evo ) {
-        let _v = evo.data;
-        return $.isArray(_v) ? _v.map( v => -v ) : -_v;
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => -v ) : -x;
     },
 
     __nneg: 1,
@@ -1119,11 +1111,28 @@ const _BaseOn = {
      * @return {Boolean|[Boolean]}
      */
     vnot( evo ) {
-        let _v = evo.data;
-        return $.isArray(_v) ? _v.map( v => !v ) : !_v;
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => !v ) : !x;
     },
 
     __vnot: 1,
+
+
+    /**
+     * 除并求余。
+     * 目标：当前条目/栈顶2项
+     * 特权：是，灵活取栈。
+     * 注：不支持首个参数为数组。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} val 第二个操作数，可选
+     * @return {[Number, Number]} [商数, 余数]
+     */
+    divmod( evo, stack, val ) {
+        let [x, y] = stackArgs(stack, val);
+        return [ Math.floor(x/y), x%y ];
+    },
+
+    __divmod_x: true,
 
 
 
@@ -1286,7 +1295,6 @@ const _BaseOn = {
         return arrayEqual( a1, evo.data || stack.data(1) );
     },
 
-    __arrayEqual: null,
     __arrayEqual_x: true,
 
 
@@ -1564,6 +1572,19 @@ function boolTester( expr ) {
         return expr;
     }
     return new Function( 'v', 'i', 'o', `return ${expr};` );
+}
+
+
+/**
+ * 数据栈实参取值。
+ * 如果实参未传递，则取数据栈2项，否则取1项。
+ * @param  {Stack} stack 数据栈
+ * @param  {Value} val 模板参数，可选
+ * @return {Array2} 实参值对
+ */
+function stackArgs( stack, val ) {
+    return val === undefined ?
+        stack.data(2) : [ stack.data(1), val ];
 }
 
 

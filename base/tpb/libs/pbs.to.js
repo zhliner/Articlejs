@@ -46,25 +46,13 @@ const _Update = {
     /**
      * 绑定预定义调用链。
      * evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
-     * init 为绑定处理器的初始传入值。
-     * args: [evn, slr:String, init:Value]
-     * data: Element[, ...args]
-     * 注：
-     * 如果流程数据为数组，附加内容会展开补充到实参序列之后。
-     *
-     * @param {Element|Collector} to 待绑定元素/集
-     * @param {Element[, ...args]} data 存储元素（可能附加内容）
-     * @param {...Value} args 模板实参序列
+     * @param {Element|Collector} to 目标元素/集
+     * @param {Value|[Value]} init 初始数据
+     * @param {String} evn 事件名/序列，可选
+     * @param {String} slr 委托选择器，可选
      */
-    bind( to, data, ...args ) {
-        if ( $.isArray(data) ) {
-            args.push( ...data.splice(1) );
-            data = data[0];
-        }
-        if ( $.isArray(to) ) {
-            return to.forEach( el => bindChain('on', el, data, ...args) )
-        }
-        bindChain( 'on', to, data, ...args );
+    bind( to, init, evn, slr ) {
+        bindsChain( 'on', to, init, evn, slr );
     },
 
 
@@ -72,23 +60,16 @@ const _Update = {
      * 绑定单次触发。
      * 其它说明同bind。
      */
-    once( to, data, ...args ) {
-        if ( $.isArray(data) ) {
-            args.push( ...data.splice(1) );
-            data = data[0];
-        }
-        if ( $.isArray(to) ) {
-            return to.forEach( el => bindChain('one', el, data, ...args) )
-        }
-        bindChain( 'one', to, data, ...args );
+    once( to, init, evn, slr ) {
+        bindsChain( 'one', to, init, evn, slr );
     },
 
 
     /**
      * 发送定制事件。
      * 事件名支持空格分隔的多个事件名序列。
-     * args: [val:Value, bubble, cancelable:Boolean]
      * data: evn:String[, ...args]
+     * args: [val:Value, bubble, cancelable:Boolean]
      * 注：
      * 如果流程数据为数组，附加内容会补充到实参序列之后。
      *
@@ -97,14 +78,7 @@ const _Update = {
      * @param {Value, ...Boolean} args 发送值,冒泡,可取消参数
      */
     trigger( to, data, ...args ) {
-        if ( $.isArray(data) ) {
-            args.push( ...data.splice(1) );
-            data = data[0];
-        }
-        if ( $.isArray(to) ) {
-            return $(to).trigger( data, ...args );
-        }
-        $.trigger( to, data, ...args );
+        $(to).trigger( ...dataArgs(data, args) )
     },
 
 
@@ -156,11 +130,7 @@ const _Update = {
      * @param {...Boolean} args 克隆定义序列（clone, event, eventdeep）
      */
     wrapAll( tos, box, ...args ) {
-        if ( $.isArray(box) ) {
-            args.push( ...box.splice(1) );
-            box = box[0];
-        }
-        $(tos).wrapAll( box, ...args );
+        $(tos).wrapAll( ...dataArgs(box, args) );
     },
 
 };
@@ -230,10 +200,7 @@ const _Update = {
 //
 // 节点操作。
 // 内容：Node|[Node]|Collector|Set|Iterator|Function
-// 展开：[内容, clone, event, eventdeep:Boolean]
-// 说明：
-// 如果传递实参，则流程数据视为单纯的内容。
-// 如果实参为空，则流程数据为数组且第二个成员为true时展开。
+// 附加：不支持。
 //===============================================
 [
     'before',
@@ -243,7 +210,7 @@ const _Update = {
     'fill',
     'replace',
 
-    // 内容：Element|String 包裹容器
+    // 内容：Element|String|[Element|String] 包裹容器（集）
     // 注：克隆实参序列仅在内容为元素时有用。
     'wrap',
     'wrapInner',
@@ -254,13 +221,48 @@ const _Update = {
      * 内容实参类型参考上面注释。
      * @param {Element|Collector} tos 目标元素/集
      * @param {Node|[Node]|Collector|Set|Iterator|Function} data 数据内容
-     * @param {...Boolean} args 克隆定义序列
+     * @param {Boolean} clone 节点是否克隆
+     * @param {Boolean} event 元素上的事件处理器是否克隆
+     * @param {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
+     */
+    _Update[meth] = function( tos, data, clone, event, eventdeep ) {
+        if ( $.isArray(tos) ) {
+            return $(tos)[meth]( data, clone, event, eventdeep );
+        }
+        $[meth]( tos, data, clone, event, eventdeep );
+    };
+
+});
+
+
+//
+// 内容：单一数据。
+// 附加：不支持。
+// 注：多余实参无副作用。
+//-----------------------------------------------
+[
+    'height',       // val: Number
+    'width',        // val: Number
+    'scroll',       // val: {top:Number, left:Number}|[left, top]
+    'scrollTop',    // val: Number
+    'ScrollLeft',   // val: Number
+    'addClass',     // name: {String|Function}
+    'removeClass',  // name: {String|Function}
+    'toggleClass',  // name: {String|Function|Boolean}
+    'removeAttr',   // name: {String|Function}
+    'val',          // val: {Value|[Value]|Function}
+    'html',         // code: {String|[String]|Node|[Node]|Function|.values}
+    'text',         // code: {String|[String]|Node|[Node]|Function|.values}
+    'offset',       // val: {top:Number, left:Number}
+]
+.forEach(function( meth ) {
+    /**
+     * 简单设置目标值。
+     * 内容实参类型参考上面注释。
+     * @param {Element|Collector} tos 目标元素/集
+     * @param {Value} data 数据内容
      */
     _Update[meth] = function( tos, data, ...args ) {
-        if ( $.isArray(data) && data[1] === true ) {
-            args.push( ...data.splice(1) );
-            data = data[0];
-        }
         if ( $.isArray(tos) ) {
             return $(tos)[meth]( data, ...args );
         }
@@ -270,70 +272,57 @@ const _Update = {
 });
 
 
-//
-// 内容：单个实参传递。
-//-----------------------------------------------
-[
-    'height',       // val: Number /px
-    'width',        // val: Number /px
-    'scroll',       // val: {top:Number, left:Number}|[left, top] /px
-    'scrollTop',    // val: Number /px
-    'ScrollLeft',   // val: Number /px
-    'addClass',     // name: {String|Function}
-    'removeClass',  // name: {String|Function}
-    'toggleClass',  // name: {String|Function|Boolean}
-    'removeAttr',   // name: {String|Function}
-    'val',          // val: {Value|[Value]|Function}
-    'html',         // code: {String|[String]|Node|[Node]|Function|.values} /fill
-    'text',         // code: {String|[String]|Node|[Node]|Function|.values} /fill
-    'offset',       // val: {top:Number, left:Number} /px
-]
-.forEach(function( meth ) {
-    /**
-     * 简单设置目标值。
-     * 内容实参类型参考上面注释。
-     * @param {Element|Collector} tos 目标元素/集
-     * @param {Value} data 数据内容
-     */
-    _Update[meth] = function( tos, data ) {
-        if ( $.isArray(tos) ) {
-            return $(tos)[meth]( data );
-        }
-        $[meth]( tos, data );
-    };
-
-});
-
-
 
 //
 // 逆向设置。
 // 流程数据为插入参考目标，当前检索为内容。
-// 内容：Node|[Node] 插入参考元素（集）。
-// 展开：不支持。
+// 内容：{Node} 插入参考节点。
+// 附加：[clone, event, eventdeep:Boolean]。
 //===============================================
 [
-    ['beforeWith',   'before'],
-    ['afterWith',    'after'],
-    ['prependWith',  'prepend'],
-    ['appendWith',   'append'],
-    ['replaceWith',  'replace'],
-    ['fillWith',     'fill'],
+    ['beforeWith',   'insertBefore'],
+    ['afterWith',    'insertAfter'],
+    ['prependWith',  'prependTo'],
+    ['appendWith',   'appendTo'],
+    ['replaceWith',  'replaceAll'],
+    ['fillWith',     'fillTo'],
 ]
 .forEach(function( fns ) {
     /**
      * @param {Element|Collector} els 检索元素/集（数据）
-     * @param {Node|[Node]} its 插入参考元素
-     * @param {Boolean} clone 数据元素是否克隆
-     * @param {Boolean} event 是否同时克隆事件处理器（容器）
-     * @param {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
+     * @param {Node[, ...args]} its 插入参考节点&附加实参
+     * @param {...Boolean} args 克隆定义序列
      */
-    _Update[ fns[0] ] = function( els, its, clone, event, eventdeep ) {
-        if ( $.isArray(its) ) {
-            return $(its)[fns[1]]( els, clone, event, eventdeep );
-        }
-        $[fns[1]]( its, els, clone, event, eventdeep );
+    _Update[ fns[0] ] = function( els, its, ...args ) {
+        $(els)[ fns[1] ]( ...dataArgs(its, args) );
     };
+});
+
+
+//
+// 事件绑定。
+// 内容：{EventListener|Function|false|null}。
+// 附加：[evn:String|Object, slr:String]
+// 注：如果内容包含附加实参，会追加到模板实参之后。
+//===============================================
+[
+    'on',
+    'one',
+    'off',
+]
+.forEach(function( meth ) {
+    /**
+     * @param {Element|Collector} 目标元素（集）
+     * @param {EventListener|Function|false|null[, ...args]} handler 事件处理器
+     * @param {...String|null} args 模板实参序列[evn, slr]
+     */
+    _Update[meth] = function( to, handler, ...args ) {
+        let [fun, evn, slr] = dataArgs( handler, args );
+        $(to)[meth]( evn, slr, fun );
+    };
+
+    _Update[`__${meth}`] = 1;
+
 });
 
 
@@ -583,20 +572,36 @@ function bindEvns( el, map, evns, slr, init, type ) {
  * 重复绑定是有效的（可能传入不同的初始值）。
  * @param  {String} type 绑定方式（on|one）
  * @param  {Element} el 目标元素
- * @param  {Element} key 存储元素
- * @param  {String} evn 事件名/序列
- * @param  {String} slr 委托选择器
- * @param  {Value} init 初始传入值
+ * @param  {Value} init 初始传入值（内容）
+ * @param  {String} evn 事件名/序列，可选
+ * @param  {String} slr 委托选择器，可选
  * @return {void}
  */
-function bindChain( type, el, key, evn, slr, init ) {
-    let _map = __ChainStore.get(key);
+function bindChain( type, el, init, evn, slr ) {
+    let _map = __ChainStore.get(el);
 
     if ( !_map ) {
         window.console.warn(`no storage on Element.`);
         return;
     }
     return bindEvns( el, _map, evn && evn.split(/\s+/), slr, init, type );
+}
+
+
+/**
+ * 调用链绑定到事件（集合版）。
+ * 从延迟绑定存储中检索调用链并绑定到目标事件。
+ * 重复绑定是有效的（可能传入不同的初始值）。
+ * @param  {String} type 绑定方式（on|one）
+ * @param  {Element|[Element]} els 目标元素（集）
+ * @param  {...Value} args 实参序列
+ * @return {void}
+ */
+function bindsChain( type, els, ...args ) {
+    if ( $.isArray(els) ) {
+        return els.forEach( el => bindChain(type, el, ...args) );
+    }
+    bindChain( type, els, ...args );
 }
 
 
@@ -640,6 +645,22 @@ function selectChanged( sel ) {
         }
     }
     return false;
+}
+
+
+/**
+ * 数据实参序列化。
+ * 如果data是数组，则首个成员之后的为附加实参。
+ * 附加实参会追加到模板实参args之后。
+ * @param  {Value[, ...args]} data 可能附加实参的数据
+ * @param  {[Value]} args 模板实参序列
+ * @return {[Value, ...]}
+ */
+function dataArgs( data, args ) {
+    if ( !$.isArray(data) ) {
+        return [data, ...args];
+    }
+    return [ data.shift(), ...args.concat(data) ];
 }
 
 

@@ -340,11 +340,11 @@ pick( idx ): void
 // 其它
 //===============================================
 
-nil(): void
-// 一个空行为，占位。
-// 既不从暂存区取值，也不向数据栈添加值。
+nil(): undefined
+// 压入一个特殊值（undefined）。
 // 目标：无。
-// 通常在On无需取值时作为视觉友好使用。如：click|nil;
+// 特权：是，定制压入。
+// 常用于向栈内填充无需实参的占位值。
 
 del( start, count ): void
 // 删除栈任意位置段条目，位置指定支持负数从末尾算起。
@@ -375,27 +375,31 @@ hello( msg: Value ): Value
 // 目标：当前条目/栈顶1项。
 //===============================================
 
-Arr( ext: Boolean ): Array
-// 转换为数组。
-// 如果ext为真，表示扩展目标为一个新数组（Array.from）。
-// 否则只是简单的封装目标为一个单值数组（Array.of）。
+Int( radix ): Number
+// 将字符串转为整数，即 parseInt()
+// 支持数组取成员计算（返回一个结果集）。
+
+Float(): Number
+// 将字符串转为浮点数，即 parseFloat()
+// 支持数组取成员计算（返回一个结果集）。
+
+RE( flag: String ): RegExp
+// 将字符串转为正则表达式。
+// 支持数组取成员计算（返回一个结果集）。
+
+Bool(): Boolean
+// 转换为布尔值（false|true）
+// 假值：'', 0, false, null, undefined, [], {}。
+// 注：空数组和空对象也为假。
 
 Str( prefix?, suffix? ): String
 // 转换为字符串。
 // 可以选择性的添加前/后缀。
 
-Bool(): Boolean
-// 转换为布尔值（false|true）
-// '', 0, false, null, undefined 为假，其它为真。
-
-Int( radix ): Number
-// 将字符串转为整数，即 parseInt()
-
-Float(): Number
-// 将字符串转为浮点数，即 parseFloat()
-
-RE( flag: String ): RegExp
-// 将字符串转为正则表达式。
+Arr( ext: Boolean ): Array
+// 转换为数组。
+// 如果ext为真，表示扩展目标为一个新数组（Array.from）。
+// 否则只是简单的封装目标为一个单值数组（Array.of）。
 
 Obj(): Object
 // 将目标转换为普通对象。
@@ -569,13 +573,15 @@ array( size, ...vals ): Array
 
 
 // 简单运算。
+// 支持前一个操作数是数组的情况（取成员计算）。
 //===============================================
 
-add( val?:Number ): Number|String   // (x, y) => x + y
-sub( val?:Number ): Number          // (x, y) => x - y
-mul( val?:Number ): Number          // (x, y) => x * y
-div( val?:Number ): Number          // (x, y) => x / y
-mod( val?:Number ): Number          // (x, y) => x % y
+add( val?:Number ): Number|String|[...] // (x, y) => x + y
+sub( val?:Number ): Number|[Number]     // (x, y) => x - y
+mul( val?:Number ): Number|[Number]     // (x, y) => x * y
+div( val?:Number ): Number|[Number]     // (x, y) => x / y
+mod( val?:Number ): Number|[Number]     // (x, y) => x % y
+pow( val?:Number ): Number|[Number]     // (x, y) => x ** y
 // 标准算术。
 // 目标：当前条目/栈顶1-2项。
 // val 第二个操作数，可选。
@@ -774,7 +780,8 @@ calc( expr ): Value
 在模板中部分标点符号用于特别的目的。
 
 - **`;`** 分号。分隔符，用于通用的逻辑区隔，如OBT定义分组。
-- **`,`** 逗号。表示并列的关系，如参数列表、指令调用。
+- **`_`** 空格（Space）。指令序列的分隔字符。
+- **`,`** 逗号。实参序列的分隔符。
 - **`|`** 竖线。递进处置，如输出数据的过滤处理、事件关联的行为链。
 - **`-`** 横线。空值占位，主要用于OBT分组定义中的顺序保持。
 - **`$`** 对当前域或父域对象的引用。

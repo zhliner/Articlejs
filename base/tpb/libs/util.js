@@ -229,16 +229,13 @@ const Util = {
      * 解析多层子对象引用。
      * 支持字符串中句点（.）的逐层引用格式。
      * 注：外部应保证字符串无多余空格。
-     * @param  {String|Array} list 引用名序列
+     * @param  {Array} list 引用名序列
      * @param  {Object} data 数据源对象
      * @return {Value} 末端成员值
      */
     subObj( list, data ) {
         if ( !data || !list.length ) {
             return data;
-        }
-        if ( typeof list == 'string' ) {
-            list = list.split('.');
         }
         return list.reduce( (d, k) => d[k], data );
     },

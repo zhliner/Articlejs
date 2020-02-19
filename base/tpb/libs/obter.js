@@ -36,7 +36,7 @@ const
 
     // 标识字符
     __chrDlmt   = ';',  // 并列分组
-    __chrList   = ',',  // 指令/方法并列分隔
+    __chrList   = ' ',  // 指令并列分隔
     __chrZero   = '-',  // 空白占位符
     __chrPipe   = '|',  // 进阶分隔（事件名|指令链）
 
@@ -469,10 +469,19 @@ class Stack {
     /**
      * 指令调用返回值入栈。
      * 注：undefined 表示无返回值，不入栈。
-     * @param {Value} val 入栈数据
+     * @param {...Value} vals 入栈数据
      */
-    push( ...val ) {
-        val.forEach ( v => v !== undefined && this._buf.push(v) );
+    push( ...vals ) {
+        vals.forEach ( v => v !== undefined && this._buf.push(v) );
+    }
+
+
+    /**
+     * 压入一个undefined。
+     * 注：正常的入栈不包含undefined。
+     */
+    undefined() {
+        this._buf.push( undefined );
     }
 
 
