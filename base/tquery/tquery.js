@@ -467,7 +467,7 @@ function hackSelector( ctx, slr, fix ) {
     let _buf = [],
         _fix = `${ctx.nodeName}[${fix}]`;
 
-    for ( let ss of splitf(slr, ',') ) {
+    for ( let ss of spliter.split(slr) ) {
         ss = ss.trimLeft();
         _buf.push( (ss[0] == '>' && _fix || '') + ss );
     }
@@ -4075,57 +4075,67 @@ function _conInsert( fn, els, con, clone, event, eventdeep ) {
 // 基本工具。
 ///////////////////////////////////////////////////////////////////////////////
 
-
-/**
- * 格式串切分。
- * 可识别字符串类型，字符串内的分隔符被忽略。
- * 可以限制切分的最大次数，如：1次两片，2次3片。
- * @param  {String} fmt 格式串
- * @param  {String} sep 切分字符
- * @param  {Number} cnt 切分的最大计数，可选
- * @return {Iterator} 切分迭代器
- */
-function *_splitf( fmt, sep, cnt = -1 ) {
-    let _ss = '';
-
-    this._esc = false;
-    this._qch = '';
-
-    while ( fmt && cnt-- ) {
-        [_ss, fmt] = this._pair(fmt, sep);
-        yield _ss;
+//
+// 字符序列切分器。
+// 按指定的分隔符切分字符序列，但忽略字符串内的分隔符。
+//
+class Spliter {
+    /**
+     * 切分器构造。
+     * 注记：一个分隔符对应一个实例可能较好。
+     * @param {String} sep 分隔符
+     */
+    constructor( sep ) {
+        this._sep = sep;
+        this._qch = '';
+        this._esc = false;
     }
-    // 未完全切分的末段。
-    if ( fmt ) yield fmt;
-}
 
 
-Object.assign(_splitf, {
+    /**
+     * 序列切分。
+     * 可以限制切分的最大次数，如：1次两片，2次3片。
+     * @param  {String} fmt 字符序列
+     * @param  {Number} cnt 切分的最大计数，可选
+     * @return {Iterator} 切分迭代器
+     */
+    *split( fmt, cnt = -1 ) {
+        let _ss = '',
+            _ew = fmt.endsWith(this._sep);
+
+        while ( fmt && cnt-- ) {
+            [_ss, fmt] = this._pair(fmt, this._sep);
+            yield _ss;
+        }
+        // 末端分隔符切出空串。
+        if ( fmt || _ew ) yield fmt;
+    }
+
+
+    //-- 私有辅助 -------------------------------------------------------------
+
+
     /**
      * 简单的2片切分。
-     * - 假定检查起点在字符串之外，因此无需检查转义字符（\x）。
-     * - 可以正确处理4字节Unicude字符序列。
+     * - 检查起点在字符串之外，因此无需检查转义（\x）。
+     * - 可以正确处理4字节Unicude码点。
      * @param  {String} fmt 格式串
      * @param  {String} sep 分隔符
-     * @return [String, String] 前段和后段
+     * @return {[String, String]} 前段和后段
      */
     _pair( fmt, sep ) {
         let _pch = '',
             _pos = 0;
 
         for ( let ch of fmt ) {
-            let _inc = this._inStr(_pch, ch);
-            _pch = ch;
-            if (_inc) {
-                _pos += ch.length;
-                continue;
+            if ( !this._inside(_pch, ch) && ch == sep ) {
+                break;
             }
-            if (ch == sep) break;
+            _pch = ch;
             _pos += ch.length;
         }
-
         return [ fmt.substring(0, _pos), fmt.substring(_pos + sep.length) ];
-    },
+    }
 
 
     /**
@@ -4133,29 +4143,29 @@ Object.assign(_splitf, {
      * 引号包含：双引号/单引号/模板字符串撇号。
      * @param  {String} prev 前一个字符
      * @param  {string} ch 当前字符
-     * @return {Boolean}
+     * @return {[Boolean, Number]}
      */
-    _inStr( prev, ch ) {
+    _inside( prev, ch ) {
         this._escape( ch );
 
         if (ch == '"' || ch == "'" || ch == '`') {
-            this._qchSet(prev, ch);
+            this._quote(prev, ch);
             return true;
         }
         // 结束重置。
         if (ch != '\\') this._esc = false;
 
         return !!this._qch;
-    },
+    }
 
 
     /**
      * 引号设置。
-     * 注：该操作在 ch 为单/双引号和撇号时才调用。
+     * 在ch为单/双引号和撇号时才调用。
      * @param {String} prev 前一个字符
      * @param {String} ch 当前字符
      */
-    _qchSet( prev, ch ) {
+    _quote( prev, ch ) {
         // 可能转义
         if (prev == '\\' && this._esc) {
             return this._esc = false;
@@ -4166,7 +4176,7 @@ Object.assign(_splitf, {
         }
         // 结束
         if (this._qch == ch) this._qch = '';
-    },
+    }
 
 
     /**
@@ -4178,13 +4188,13 @@ Object.assign(_splitf, {
             return this._esc = false;
         }
         if ( ch == '\\' ) this._esc = !this._esc;
-    },
+    }
+}
 
-});
-
-
-// 绑定this封装。
-const splitf = _splitf.bind(_splitf);
+//
+// 并列选择器切分器。
+//
+const spliter = new Spliter(',');
 
 
 /**
@@ -7165,7 +7175,6 @@ tQuery.isCollector  = isCollector;
 tQuery.dataName     = dataName;
 tQuery.is           = $is;
 tQuery.type         = $type;
-tQuery.splitf       = splitf;
 
 
 Object.assign( tQuery, {
