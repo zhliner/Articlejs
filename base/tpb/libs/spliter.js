@@ -163,6 +163,7 @@ class UmpChars {
 // 通用切分器。
 // 操作满足如下接口的实例：
 // function inside(ch:String): Boolean
+// function reset(): void
 //
 class Spliter {
     /*
