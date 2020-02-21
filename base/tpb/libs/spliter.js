@@ -48,6 +48,12 @@ class UmpString {
     }
 
 
+    reset() {
+        this._qch = '';
+        this._esc = false;
+    }
+
+
     //-- 私有辅助 -------------------------------------------------------------
 
 
@@ -105,6 +111,11 @@ class UmpCaller {
         }
         return this._ins;
     }
+
+
+    reset() {
+        this._ins = false;
+    }
 }
 
 
@@ -122,7 +133,7 @@ class UmpChars {
     constructor( beg, end ) {
         this._ch1 = beg;
         this._ch2 = end;
-        this._ins = false; // inside
+        this._ins = false;
     }
 
 
@@ -139,6 +150,11 @@ class UmpChars {
             return !(this._ins = false);
         }
         return this._ins;
+    }
+
+
+    reset() {
+        this._ins = false;
     }
 }
 
@@ -202,6 +218,18 @@ class Spliter {
         // 末尾遗漏字符。
         if ( _beg ) yield _beg;
     }
+
+
+    /**
+     * 判断器重置。
+     * 用于出错之后的状态恢复。
+     */
+    reset() {
+        this._ump.forEach( ump => ump.reset() );
+    }
+
+
+    //-- 私有辅助 ----------------------------------------------------------------
 
 
     /**
