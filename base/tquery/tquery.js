@@ -4124,17 +4124,15 @@ class Spliter {
      * @return {[String, String]} 前段和后段
      */
     _pair( fmt, sep ) {
-        let _pch = '',
-            _pos = 0;
+        let _len = 0;
 
         for ( let ch of fmt ) {
-            if ( !this._inside(_pch, ch) && ch == sep ) {
+            if ( !this._inside(ch) && ch == sep ) {
                 break;
             }
-            _pch = ch;
-            _pos += ch.length;
+            _len += ch.length;
         }
-        return [ fmt.substring(0, _pos), fmt.substring(_pos + sep.length) ];
+        return [ fmt.substring(0, _len), fmt.substring(_len+sep.length) ];
     }
 
 
@@ -4146,36 +4144,25 @@ class Spliter {
      * @return {[Boolean, Number]}
      */
     _inside( prev, ch ) {
-        this._escape( ch );
-
         if (ch == '"' || ch == "'" || ch == '`') {
-            this._quote(prev, ch);
-            return true;
+            return this._quote(ch);
         }
-        // 结束重置。
-        if (ch != '\\') this._esc = false;
-
-        return !!this._qch;
+        return this._escape(ch), !!this._qch;
     }
 
 
     /**
-     * 引号设置。
-     * 在ch为单/双引号和撇号时才调用。
-     * @param {String} prev 前一个字符
+     * 设置引号。
      * @param {String} ch 当前字符
      */
-    _quote( prev, ch ) {
-        // 可能转义
-        if (prev == '\\' && this._esc) {
-            return this._esc = false;
+    _quote( ch ) {
+        if ( !this._esc ) {
+            // 开始
+            if (this._qch == '') this._qch = ch;
+            // 结束
+            else if (this._qch == ch) this._qch = '';
         }
-        // 开始
-        if (this._qch == '') {
-            return this._qch = ch;
-        }
-        // 结束
-        if (this._qch == ch) this._qch = '';
+        return true;
     }
 
 
@@ -4184,7 +4171,7 @@ class Spliter {
      * @param {String} ch 当前字符
      */
     _escape( ch ) {
-        if ( !this._qch ) {
+        if ( !this._qch || ch != '\\' ) {
             return this._esc = false;
         }
         if ( ch == '\\' ) this._esc = !this._esc;
