@@ -403,6 +403,67 @@ const _Base = {
 
 
 
+    // 数据栈操作。
+    //===============================================
+
+    /**
+     * 打包栈顶条目。
+     * 栈顶的n项会被取出后打包为一个数组。
+     * 如果当前条目有值，则只是简单的将它们入栈（同push）。
+     * 例：
+     * pack(3)      // 同 pop(3), push 序列
+     * pop(3) pack  // 同上
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} n 条目数
+     * @return {[Value]}
+     */
+    pack( evo, stack, n ) {
+        if ( evo.data !== undefined ) {
+            return evo.data;
+        }
+        return stack.dels( -n );
+    },
+
+    __pack: 0,
+    __pack_x: true,
+
+
+    /**
+     * 将条目展开入栈。
+     * 如果当前条目不是数组则简单返回。
+     * @param {Stack} stack 数据栈
+     */
+    spread( evo, stack ) {
+        if ( !$.isArray(evo.data) ) {
+            return evo.data;
+        }
+        stack.push( ...evo.data );
+    },
+
+    __spread: 1,
+    __spread_x: true,
+
+
+    /**
+     * 删除数据栈任意区段条目。
+     * 目标：无。
+     * 特权：是。直接操作数据栈。
+     * 注意：
+     * 这只是纯粹的删除功能，应该不常用。
+     * 如果count未指定，表示删除start之后全部。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} start 起始位置
+     * @param  {Number} count 删除数量，可选
+     * @return {void}
+     */
+    del( evo, stack, start, count ) {
+        stack.dels( start, count );
+    },
+
+    __del_x: true,
+
+
+
     // 其它
     //===============================================
 
@@ -417,25 +478,6 @@ const _Base = {
     },
 
     __nil_x: true,
-
-
-    /**
-     * 删除数据栈任意区段条目。
-     * 目标：无。
-     * 特权：是。需要直接操作数据栈。
-     * 注：
-     * 与暂存区赋值类指令不同，这只是纯粹的删除功能。
-     * 应该不常用。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} start 起始位置
-     * @param  {Number} count 删除数量
-     * @return {void}
-     */
-    del( evo, stack, start, count ) {
-        stack.dels( start, count );
-    },
-
-    __del_x: true,
 
 
     /**
@@ -473,13 +515,13 @@ const _Base = {
      * @return {Value}
      */
     debug( evo, stack, msg ) {
-        window.console.dir(evo);
-        window.console.dir(stack);
+        window.console.info('[debug]', evo);
+        window.console.info('[debug]', stack);
 
         if ( msg === false ) {
             return Promise.reject();
         }
-        return msg !== undefined ? msg : evo.data;
+        if ( msg !== undefined ) return msg;
     },
 
     __debug: 0,
@@ -576,11 +618,11 @@ const _BaseOn = {
      * 如果ext为真，表示调用Array.from()展开为一个数组。
      * 否则调用Array.of()简单转为数组（单个成员）。
      * @data: {Value|LikeArray}
-     * @param  {Boolean} spread 是否展开
+     * @param  {Boolean} ext 是否扩展
      * @return {Array}
      */
-    Arr( evo, spread ) {
-        return spread ? Array.from( evo.data ) : Array.of( evo.data );
+    Arr( evo, ext ) {
+        return ext ? Array.from( evo.data ) : Array.of( evo.data );
     },
 
     __Arr: 1,
@@ -868,28 +910,6 @@ const _BaseOn = {
 
     __flat: 1,
     __flat_x: true,
-
-
-    /**
-     * 打包栈顶条目。
-     * 栈顶的n项会被取出后打包为一个数组。
-     * 如果当前条目有值，则只是简单的将它们入栈（同push）。
-     * 例：
-     * pack(3)      // 同 pop(3), push 序列
-     * pop(3) pack  // 同上
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} n 条目数
-     * @return {[Value]}
-     */
-    pack( evo, stack, n ) {
-        if ( evo.data !== undefined ) {
-            return evo.data;
-        }
-        return stack.dels( -n );
-    },
-
-    __pack: 0,
-    __pack_x: true,
 
 
     /**

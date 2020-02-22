@@ -26,7 +26,7 @@
 //
 
 import { Filter } from "./filter.js";
-import { Spliter } from "./spliter.js";
+import { Spliter, UmpString } from "./spliter.js";
 import { Util } from "./util.js";
 
 
@@ -43,10 +43,6 @@ const
 
     // 包含比较词测试。
     hasComp = /\b(?:LT|LTE|GT|GTE)\b/i,
-
-
-    // 简单切分器。
-    SSpliter = new Spliter(),
 
     // 元素文法存储。
     // 包含原始模板中和页面中采用渲染处理的元素。
@@ -101,7 +97,18 @@ const
 
     // switch标的值存储键。
     // 存储在case/last元素上备用。
-    __switchValue = Symbol('switch-value');
+    __switchValue = Symbol('switch-value'),
+
+    // 过滤切分器。
+    // 识别字符串语法（字符串内的|为普通字符）。
+    __pipeSplit = new Spliter( __chrPipe, new UmpString() ),
+
+    // 区域切分器。
+    // 用于表达式中区分字符串内外。
+    // 注意：
+    // 模板字符可用但无法识别其内的${}语法块，
+    // 即${}内不能再有模板字符串，且${}里的内容不会被检查。
+    __partSplit = new Spliter( null, new UmpString() );
 
 
 
@@ -736,7 +743,7 @@ const Expr = {
      * @return function(data): Value
      */
     assign( expr ) {
-        let _ss = SSpliter.split(expr, __chrPipe),
+        let _ss = __pipeSplit.split(expr),
             _fn = new Function( '$', `return ${validExpr(_ss.shift())};` );
 
         if ( _ss.length == 0 ) {
@@ -787,7 +794,7 @@ function validExpr( expr ) {
     if ( !expr ) {
         return '';
     }
-    return [...SSpliter.partSplit(expr)]
+    return [...__partSplit.part(expr)]
         // 字符串外。
         .map( (s, i) => i%2 ? s : validComp(s) )
         .join('');

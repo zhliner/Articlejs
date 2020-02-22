@@ -37,7 +37,7 @@
 <body lang="zh-cn">
     <div id="editor">
         <!-- 模态框：屏蔽层 -->
-        <div id="g-modal" class="___Panel Modal" data-pb="none">
+        <div id="g-modal" class="___Panel Modal" data-pb="lose">
             <form class="_prop" tpl-name="modal:prop">
                 <header>
                     <h5>[标题]</h5>
@@ -115,7 +115,7 @@
         滚动内容<main>直接获取焦点时可能存在移位。-->
     <div id="g-scroll" class="_scroll" tabindex="0">
         <!-- 选取创建（mouseup） -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pb="none">
+        <menu id="g-cells" class="_cells" tabindex="0" data-pb="lose">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
             <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -147,7 +147,7 @@
             <li data-val="bdo" title="<bdo dir='rtl'>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
         </menu>
         <!-- 上下文菜单 -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="none">
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lose">
             <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
             <hr>
             <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
@@ -311,7 +311,7 @@
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" data-pb="none">
+        <span id="cmd-chars" data-pb="lose">
             <b>/</b> <!-- 选择器模式 -->
             <b>:</b> <!-- 普通指令 -->
             <b>=</b> <!-- 计算（Worker） -->
@@ -335,7 +335,7 @@
         <input id="cmd-input" type="text" class="_code" value="Hello world!" />
     </div>
     <!-- 出错信息区 -->
-    <div class="_err" title="单击显示帮助" data-pb="none">
+    <div class="_err" title="单击显示帮助" data-pb="lose">
         <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
     </div>
     <!-- 帮助入口 -->

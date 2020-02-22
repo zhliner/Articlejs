@@ -78,8 +78,8 @@
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft"
-        on="@mousemove|ev('pageX') sub $('#outline') width add;
-            mousedown|ev('pageX');
+        on="@mousemove|resize('x');
+            mousedown|$('#outline') width ev('pageX') pack(2);
             mouseup|nil"
         to="#outline|width;
             |bind('mousemove');

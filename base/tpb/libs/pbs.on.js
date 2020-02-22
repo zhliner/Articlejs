@@ -309,7 +309,7 @@ const _On = {
 
 
 //
-// Collector专有
+// Collector专有。
 // 目标：当前条目/栈顶1项。
 // 注：如果目标不是Collector实例，会被自动转换。
 ///////////////////////////////////////////////////////////////////////////////
@@ -332,6 +332,32 @@ const _On = {
     _On[`__${meth}`] = 1;
 
 });
+
+
+
+//
+// Tpb专有。
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 元素大小重设。
+ * data: [初始尺寸, 鼠标初始位置（pageX/Y）]
+ * @param  {String} dir 方向（x/X|y/Y）
+ * @return {Number} 最终值
+ */
+_On.resize = function( evo, dir ) {
+    let [size, page] = evo.data;
+
+    switch ( dir.toLowerCase() ) {
+        case 'x':
+            return size + (evo.event.pageX - page);
+        case 'y':
+            return size + (evo.event.pageY - page);
+    }
+};
+
+_On.__resize = 1;
+
 
 
 

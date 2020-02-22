@@ -1,5 +1,5 @@
 //! $Id: util.js 2019.08.18 Tpb.Kits $
-//
+// ++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -12,16 +12,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Spliter } from "./spliter.js";
+import { Spliter, UmpString } from "./spliter.js";
 
 
 const
     $ = window.$,
 
-    SSpliter = new Spliter();
-
-
-const
     __chr2Split = '/',  // 二阶选择器切分字符
     __chrRID    = '?',  // 相对ID标志字符
 
@@ -75,7 +71,14 @@ const
     // 调用表达式
     // 首尾空白需要预先清除。
     // 支持参数内的任意字符和换行。
-    __reCall = /^(\w+)(?:\(([^]*)\))?$/;
+    __reCall = /^(\w+)(?:\(([^]*)\))?$/,
+
+
+    // 二阶选择器切分器。
+    __slrSplit = new Spliter( __chr2Split, new UmpString() ),
+
+    // 相对ID切分器。
+    __ridSplit = new Spliter( __chrRID, new UmpString() );
 
 
 
@@ -301,7 +304,7 @@ const Util = {
  */
 function fmtSplit( fmt, beg ) {
     let _s2 = [
-        ...SSpliter.split(fmt, __chr2Split, 1)
+        ...__slrSplit.split(fmt, 1)
     ];
     if ( _s2.length == 1 ) {
         return [ fmt ];
@@ -323,7 +326,7 @@ function ridslr( fmt ) {
     if ( !__hasRID.test(fmt) ) {
         return fmt;
     }
-    let _ss = [ ...SSpliter.split(fmt, __chrRID) ],
+    let _ss = [ ...__ridSplit.split(fmt) ],
         _s0 = _ss.shift();
 
     return _s0 + _ss.map( ridone ).join('');

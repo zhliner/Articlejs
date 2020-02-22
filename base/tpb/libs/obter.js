@@ -19,24 +19,20 @@
 //
 
 import { Util } from "./util.js";
-import { Spliter } from "./spliter.js";
+import { Spliter, UmpString, UmpCaller, UmpChars } from "./spliter.js";
 import { ACCESS, EXTENT, DEBUG, method } from "../config.js";
 
 
 const
-    $           = window.$,
-    SSpliter    = new Spliter(),
-    ASpliter    = new Spliter(true);
+    $ = window.$,
 
-
-const
     // OBT构建完成事件
     // 可便于共享的预定义调用链及时绑定。
     __obtDone   = 'obted',
 
     // 标识字符
     __chrDlmt   = ';',  // 并列分组
-    __chrList   = ' ',  // 指令并列分隔
+    __chrCall   = ' ',  // 指令/事件名并列分隔
     __chrZero   = '-',  // 空白占位符
     __chrPipe   = '|',  // 进阶分隔（事件名|指令链）
 
@@ -53,6 +49,24 @@ const
     __tosProp   = '$',  // 属性指定
     __tosCSS    = '%',  // 样式指定
     __tosToggle = '^',  // 特性（Attribute）切换
+
+
+    // To查询扩展切分器。
+    // 注：属性选择器内感叹号不可用（无需包含）。
+    __extSplit  = new Spliter( __toqExtra, new UmpString() ),
+
+    // 并列分组切分器。
+    // 注：属性选择器内分号不可用（无需包含）。
+    __dlmtSplit = new Spliter( __chrDlmt, new UmpCaller(), new UmpString() ),
+
+    // 指令切分器。
+    // 注意：多出的空格被切分为空串。
+    __callSplit = new Spliter( __chrCall, new UmpCaller() ),
+
+    // 进阶定义切分器。
+    // 需要区分属性选择器、调用式。
+    // 注：字符串不在属性值或调用式之外（无需包含）。
+    __pipeSplit = new Spliter ( __chrPipe, new UmpCaller, new UmpChars('[', ']') ),
 
 
     // On事件定义模式。
@@ -114,9 +128,9 @@ const Parser = {
         let { on, by, to } = conf;
 
         return this._teams(
-            ASpliter.split(on, __chrDlmt),
-            by && [...ASpliter.split(by, __chrDlmt)] || [],
-            to && [...ASpliter.split(to, __chrDlmt)] || []
+            [...__dlmtSplit.split(on)],
+            by && [...__dlmtSplit.split(by)] || [],
+            to && [...__dlmtSplit.split(to)] || []
         );
     },
 
@@ -132,7 +146,7 @@ const Parser = {
      * @return {Array2}
      */
     on( fmt ) {
-        let [_ev, _ca] = ASpliter.split(fmt, __chrPipe, 1);
+        let [_ev, _ca] = __pipeSplit.split(fmt, 1);
 
         return [
             this._evns( _ev.trim() ),
@@ -160,13 +174,13 @@ const Parser = {
     to( fmt ) {
         if ( !fmt ) return [];
 
-        let [_q, _w, _n] = ASpliter.split(fmt, __chrPipe);
-
-        if ( _w ) _w = _w.trim();
-        if ( _n ) _n = _n.trim();
+        let [_q, _w, _n] = [
+                ...__pipeSplit.split(fmt, 2)
+            ]
+            .map( s => s.trim() );
 
         return [
-            new Query(_q.trim()),
+            new Query(_q == __chrZero ? '' : _q),
             _w && _w != __chrZero ? new Update(_w) : null,
             _n && _n != __chrZero ? this._calls(_n) : null,
         ];
@@ -213,11 +227,12 @@ const Parser = {
      */
     _evns( fmt ) {
         if ( !fmt ) return '';
+        let _buf = [];
 
-        return [...ASpliter.split(fmt, ' ')]
-            .map(
-                s => new Evn(s.trim())
-            );
+        for (const s of __callSplit.split(fmt)) {
+            if ( s ) _buf.push( new Evn(s) );
+        }
+        return _buf;
     },
 
 
@@ -228,11 +243,12 @@ const Parser = {
      */
     _calls( fmt ) {
         if ( !fmt ) return null;
+        let _buf = [];
 
-        return [...ASpliter.split(fmt, __chrList)]
-            .map(
-                s => new Call(s.trim())
-            );
+        for (const s of __callSplit.split(fmt)) {
+            if ( s ) _buf.push( new Call(s) );
+        }
+        return _buf;
     },
 
 }
@@ -498,7 +514,7 @@ class Stack {
     /**
      * 数据栈成员删除。
      * 纯删除功能，被删除的数据不进入暂存区。
-     * fix: count为undefined时表现为0值。
+     * fix: count明确为undefined值时表现为0值。
      * @param  {Number} start 起始下标
      * @param  {Number} count 删除数量
      * @return {Array}
@@ -917,7 +933,7 @@ class Query {
      _init( slr ) {
         if ( !slr ) return;
 
-        let _vs = [...SSpliter.split(slr, __toqExtra, 1)];
+        let _vs = [...__extSplit.split(slr, 1)];
         if (_vs.length == 1) {
             return;
         }
@@ -993,7 +1009,7 @@ class Query {
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 //      ^   特性切换，如：^-val => $.toggleAttr(el, '-val', ...)
 // }
-// 支持多方法并列定义，用逗号（__chrList）分隔。
+// 支持多方法并列定义，空格（__chrCall）分隔。
 // 注：并列的方法数量即是自动取栈的数量。
 //
 class Update {
@@ -1002,8 +1018,8 @@ class Update {
      * @param {String} fmt 定义格式串
      */
     constructor( fmt ) {
-        let _ns = [...ASpliter.split(fmt, __chrList)]
-            .map( s => s.trim() );
+        let _ns = [...__callSplit.split(fmt)]
+            .filter( s => s );
 
         this._names = _ns;
         // 即自动取栈数
