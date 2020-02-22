@@ -4084,7 +4084,7 @@ function _conInsert( fn, els, con, clone, event, eventdeep ) {
 class Spliter {
     /**
      * 切分器构造。
-     * 注记：一个分隔符对应一个实例可能较好。
+     * 一个分隔符对应一个实例。
      * @param {String} sep 分隔符
      */
     constructor( sep ) {
@@ -4147,11 +4147,10 @@ class Spliter {
     /**
      * 是否在字符串内。
      * 引号包含：双引号/单引号/模板字符串撇号。
-     * @param  {String} prev 前一个字符
      * @param  {string} ch 当前字符
-     * @return {[Boolean, Number]}
+     * @return {Boolean}
      */
-    _inside( prev, ch ) {
+    _inside( ch ) {
         if (ch == '"' || ch == "'" || ch == '`') {
             return this._quote(ch);
         }
@@ -4161,7 +4160,8 @@ class Spliter {
 
     /**
      * 设置引号。
-     * @param {String} ch 当前字符
+     * @param  {String} ch 当前字符
+     * @return {Boolean}
      */
     _quote( ch ) {
         if ( !this._esc ) {
@@ -4176,7 +4176,8 @@ class Spliter {
 
     /**
      * 处理转义字符。
-     * @param {String} ch 当前字符
+     * @param  {String} ch 当前字符
+     * @return {Boolean}
      */
     _escape( ch ) {
         if ( !this._qch || ch != '\\' ) {
