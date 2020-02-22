@@ -467,6 +467,8 @@ function hackSelector( ctx, slr, fix ) {
     let _buf = [],
         _fix = `${ctx.nodeName}[${fix}]`;
 
+    spliter.reset();
+
     for ( let ss of spliter.split(slr) ) {
         ss = ss.trimLeft();
         _buf.push( (ss[0] == '>' && _fix || '') + ss );
@@ -4109,6 +4111,12 @@ class Spliter {
         }
         // 末端分隔符切出空串。
         if ( fmt || _ew ) yield fmt;
+    }
+
+
+    reset() {
+        this._qch = '';
+        this._esc = false;
     }
 
 
