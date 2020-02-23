@@ -759,13 +759,11 @@ Object.assign( tQuery, {
      * - 支持不同种类元素之间的事件克隆，但仅限于元素自身。
      * - 可以指定匹配的事件名序列（空格分隔），不区分是否为委托。
      * - 如果没有目标事件被克隆，没有任何效果。
-     * 过滤函数接口：function(conf): Boolean，其中：
-     * conf: {
-     *      name        事件名
+     * 过滤函数接口：function(evname, selector, handle): Boolean
+     * 参数：{
+     *      evname      事件名（单个）
      *      selector    委托选择器（可能前置>）
-     *      once        绑定为单次执行
      *      handle      用户的事件处理函数
-     *      capture     是否注册为捕获
      * }
      * @param  {Element} to 克隆目标元素
      * @param  {Element} src 事件源元素
@@ -6399,8 +6397,8 @@ function rectSize( el, name ) {
 
 //
 // 事件处理接口。
-// 事件处理器：function( event, targets ): false | Any
-// targets: {
+// 事件处理器：function( event, elo ): false | Any
+// elo: {
 //      origin: Element   事件起源元素（event.target）
 //      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
 //      related: Element  事件相关的元素（event.relatedTarget）
@@ -6408,6 +6406,7 @@ function rectSize( el, name ) {
 //      selector: String  委托匹配选择器，可选
 // }
 // 注：
+// 暂不支持用户指定capture（捕获）参数。
 // 如果绑定不是委托方式，delegate 和 selector 两个成员为未定义。
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -6415,17 +6414,16 @@ function rectSize( el, name ) {
 const Event = {
     //
     // 绑定记录。
-    // 以元素为键的弱引用存储 { Element: Map }
-    // Map(
-    //    key               value
-    //    -----------------------------------------------------------
-    //    bound-handler:    { name, handle, selector, once, capture }
-    //    -----------------------------------------------------------
-    //    实际绑定句柄:      { 事件名, 用户句柄, 选择器, 单次, 捕获方式 }
-    // )
-    // 注记：
-    // 用具备唯一性的绑定调用句柄作为键索引。
-    // 一个元素上的事件调用量属于小规模，可用性可接受。
+    // 与绑定事件处理器的当前元素相关联：WeakMap{ Element: Map }
+    // Map{
+    //      evname: Map{
+    //          selector: Map{
+    //              handle: [ bound, capture, once ]
+    //              //        封装调用, 为捕获, 单次
+    //          }
+    //      }
+    // }
+    // 同一个元素上“相同事件名/选择器/用户句柄”只能绑定一次。
     //
     store: new WeakMap(),
 
@@ -6493,43 +6491,18 @@ const Event = {
      */
     on( el, evn, slr, handle ) {
         let [_evn, _cap] = this._evncap(evn, slr),
-            [_slr, _get] = this.matches(slr),
-            _map = this._boundMap(el, this.store),
-            _conf = this.config(_evn, handle, _slr, false, _cap);
+            [_slr, _get] = this.matches(slr);
 
-        return this.bind(
-            el,
+        if ( this.isBound(el, _evn, _slr, handle) ) {
+            return this;
+        }
+        let _bound = this._handler(handle, _get, _slr);
+
+        el.addEventListener(
             _evn,
-            this.buffer(_map, this._handler(handle, _get, _slr), _conf),
+            this.setBuffer( this.buffer(el, _evn, _slr), handle, _bound, _cap, false ),
             _cap
         );
-    },
-
-
-    /**
-     * 解除事件绑定。
-     * - 解除绑定的同时会移除相应的存储记录（包括单次绑定）。
-     *   即：单次绑定在调用之前可以被解除绑定。
-     * - 传递事件名为假值会解除元素全部的事件绑定。
-     * - slr的含义参考接口 $.off() 说明。
-     * @param {Element} el 目标元素
-     * @param {String} evn 事件名
-     * @param {String} slr 委托选择器，可选
-     * @param {Function|Object} handle 处理函数/对象，可选
-     */
-    off( el, evn, slr, handle ) {
-        let _map = this.store.get(el);
-
-        if (_map) {
-            if ( !evn ) {
-                this._clearAll( el, _map );
-            } else {
-                this._clearSome( el, _map, evn, slr, handle );
-            }
-            if (_map.size == 0) {
-                this.store.delete(el);
-            }
-        }
         return this;
     },
 
@@ -6545,17 +6518,49 @@ const Event = {
      */
     one( el, evn, slr, handle ) {
         let [_evn, _cap] = this._evncap(evn, slr),
-            [_slr, _get] = this.matches(slr),
-            _map = this._boundMap(el, this.store),
-            _conf = this.config(_evn, handle, _slr, true, _cap),
-            _call = this._handler(handle, _get, _slr);
+            [_slr, _get] = this.matches(slr);
 
-        return this.bind(
-            el,
+        if ( this.isBound(el, _evn, _slr, handle) ) {
+            return this;
+        }
+        let _pool = this.buffer(el, _evn, _slr),
+            // 存储普通封装（便于clone）。
+            _bound = this.setBuffer(_pool, handle, this._handler(handle, _get, _slr), _cap, true);
+
+        el.addEventListener(
             _evn,
-            this.buffer(_map, this._onceHandler(el, _map, _call, _evn, _cap), _conf),
+            this._onceHandler( el, _evn, _bound, _cap, _pool, handle ),
             _cap
         );
+        return this;
+    },
+
+
+    /**
+     * 解除事件绑定。
+     * - 解除绑定的同时会移除相应的存储记录（包括单次绑定）。
+     *   即：单次绑定在调用之前可以被解除绑定。
+     * - 传递事件名为假值会解除元素全部的事件绑定。
+     * - slr的含义参考接口 $.off() 说明。
+     * @param {Element} el 目标元素
+     * @param {String} evn 事件名
+     * @param {String} slr 委托选择器，可选
+     * @param {Function|Object} handle 处理函数/对象，可选
+     */
+    off( el, evn, slr, handle ) {
+        let _m1 = this.store.get(el);
+
+        if ( _m1 ) {
+            if ( !evn ) {
+                this._clearAll( el, _m1 );
+            } else {
+                this._clearSome( el, _m1, evn, slr, handle );
+            }
+            if (_m1.size == 0) {
+                this.store.delete(el);
+            }
+        }
+        return this;
     },
 
 
@@ -6563,7 +6568,6 @@ const Event = {
      * 事件绑定克隆。
      * 可以传递事件名序列，只克隆相应事件名的绑定。
      * 如果没有传递事件名集，则全部事件绑定都会克隆。
-     * 如果源上没有事件绑定，则没有任何效果。
      * 注记：
      * 事件处理器和事件配置会共享同一个对象。
      * @param  {Element} to  目标元素
@@ -6572,16 +6576,26 @@ const Event = {
      * @return {Element} to
      */
     clone( to, src, evns ) {
-        let _map1 = this._boundMap(to, this.store),
-            _map2 = this.store.get(src),
+        let _m1 = this.store.get(src),
             _fltr = this._compRecord(evns);
 
-        if ( !_map2 ) return to;
+        if ( !_m1 ) return to;
 
-        for ( let [fn, conf] of _map2 ) {
-            if ( _fltr(conf) ) {
-                this.bind( to, conf.name, fn, conf.capture );
-                this.buffer( _map1, fn, conf );
+        for (const [n, m2] of _m1) {
+            // n:ev-name
+            for (const [s, m3] of m2) {
+                // s:selector
+                for (const [h, av] of m3) {
+                    // h:handle
+                    if ( _fltr(n, s, h ) ) {
+                        let _pool = this.buffer( to, n, s );
+                        to.addEventListener(
+                            n,
+                            av[2] ? this._onceHandler(to, n, av[0], av[1], _pool, h) : av[0],
+                            av[1]
+                        );
+                    }
+                }
             }
         }
         return to;
@@ -6589,34 +6603,50 @@ const Event = {
 
 
     /**
-     * 缓存调用句柄。
-     * @param  {Map} map 配置存储器
-     * @param  {Function} handle 事件实际处理器
-     * @param  {Object} 事件配置对象
-     * @return {Function} handle
+     * 获取记录缓存。
+     * 如果不存在中间存储区会自动创建。
+     * @param  {Element} el 目标元素
+     * @param  {String} evn 事件名
+     * @param  {String} slr 委托选择器
+     * @return {Map} 末端存储 {handle: Array3}
      */
-    buffer( map, handle, conf ) {
-        return map.set(handle, conf), handle;
+    buffer( el, evn, slr ) {
+        return this._map( this._map( this._map( this.store, el ), evn ), slr )
     },
 
 
     /**
-     * 构建事件处理器配置对象。
-     * @param  {String} evn 事件名
-     * @param  {Function} handle 用户调用句柄
-     * @param  {String} slr 选择器
-     * @param  {Boolean} once 是否为单次处理
-     * @param  {Boolean} capture 是否为捕获方式
-     * @return {Object}
+     * 设置绑定记录。
+     * 最终存储集：Map{ handle: [bound, capture, once] }。
+     * @param  {Map} pool 末端存储池
+     * @param  {Function} handle 用户处理句柄
+     * @param  {Function} bound 普通封装句柄
+     * @param  {Boolean} capture 是否为捕获
+     * @param  {Boolean} once 是否为单次
+     * @return {Function} bound
      */
-    config( evn, handle, slr, once, capture ) {
-        return {
-            name: evn,
-            handle: handle,
-            selector: slr,
-            once: once,
-            capture: capture,
-        };
+    setBuffer( pool, handle, bound, capture, once ) {
+        pool.set(
+            handle,
+            [bound, capture, once]
+        );
+        return bound;
+    },
+
+
+    /**
+     * 是否已绑定。
+     * @param  {String} evn 事件名
+     * @param  {String} slr 委托选择器
+     * @param  {Function|EventListener} handle 用户句柄
+     * @return {Boolean}
+     */
+    isBound( el, evn, slr, handle ) {
+        let _m1 = this.store.get(el),
+            _m2 = _m1 && _m1.get(evn),
+            _m3 = _m2 && _m2.get(slr);
+
+        return !!_m3 && _m3.has(handle);
     },
 
 
@@ -6670,24 +6700,6 @@ const Event = {
     },
 
 
-    /**
-     * 绑定事件处理器。
-     * @param {Element}} el 目标元素
-     * @param {String} evn 事件名
-     * @param {String} slr 选择器
-     * @param {Function} handle 事件实际处理器
-     * @param {Boolean} capture 是否为捕获
-     */
-    bind( el, evn, handle, capture ) {
-        el.addEventListener(
-            evn,
-            handle,
-            capture
-        );
-        return this;
-    },
-
-
     //-- 私有辅助 -------------------------------------------------------------
 
 
@@ -6716,18 +6728,19 @@ const Event = {
     /**
      * 构造单次调用处理器。
      * 执行之后会自动移除绑定和配置存储。
-     * 注：handle 应当是 this._handler() 的返回值。
-     * @param {Element} el 目标元素
-     * @param  {Map} map 配置存储器
-     * @param {Function} handle 已封装的事件处理器
-     * @param {String} evn 事件名
-     * @param {Boolean} cap 是否为捕获
+     * @param  {Element} el 目标元素
+     * @param  {String} evn 事件名
+     * @param  {Function} bound 普通封装处理器
+     * @param  {Boolean} cap 是否为捕获
+     * @param  {Map} pool 末端存储器
+     * @param  {Function} handle 用户处理器
+     * @return {Function} 封装处理器（单次逻辑）
      */
-    _onceHandler( el, map, handle, evn, cap ) {
-        return function bound(...args) {
-            el.removeEventListener(evn, bound, cap);
-            map.delete(bound);
-            return handle(...args);
+    _onceHandler( el, evn, bound, cap, pool, handle ) {
+        return function caller(...args) {
+            pool.delete(handle);
+            el.removeEventListener(evn, caller, cap);
+            return bound(...args);
         };
     },
 
@@ -6803,28 +6816,26 @@ const Event = {
 
     /**
      * 构造检测过滤函数集。
-     * 过滤函数接口：function(it:Object): Boolean。
+     * 过滤函数接口：function(evn, slr, handle): Boolean。
      * 三个检查条件可任意组合。
      * slr明确地传递null仅匹配非委托绑定，
-     * 如果需要同时匹配任意委托绑定，需传递空串值。
-     * @param  {String} evn 事件名，可选
+     * 如果需要匹配任意委托绑定，slr可传递空串值。
+     *
+     * @param  {String} evn 事件名
      * @param  {String} slr 选择器，可选
      * @param  {Function|Object} handle 用户调用句柄/对象，可选
      * @return {[Function]} 过滤函数集
      */
-    _filters( evn, slr, handle ) {
-        let _fns = [];
+    _filter( evn, slr, handle ) {
+        let _fns = [ n => n == evn ];
 
-        if ( evn ) {
-            _fns.push( it => it.name === evn );
-        }
         if ( slr || slr === null ) {
-            _fns.push( it => it.selector === slr );
+            _fns.push( (n, s) => s === slr );
         }
         if ( handle ) {
-            _fns.push( it => it.handle === handle );
+            _fns.push( (n, s, h) => h === handle );
         }
-        return _fns;
+        return _fns.length == 1 ? _fns[0] : (n, s, h) => _fns.every(f => f(n, s, h));
     },
 
 
@@ -6840,38 +6851,42 @@ const Event = {
         if ( isFunc(evns) ) {
             return evns;
         }
-        return conf => evns.includes( conf.name );
+        return name => evns.includes( name );
     },
 
 
     /**
-     * 获取元素绑定存储映射。
-     * @param  {Element} el 关联元素
-     * @param  {WeakMap} store 存储区
-     * @return {Map}
+     * 获取目标键的存储集。
+     * 如果目标存储集不存在则新建。
+     * @param  {Map} pool 存储集
+     * @param  {String|Function|EventListener} key 存储键
+     * @return {Map} 目标存储集
      */
-    _boundMap( el, store ) {
-        let _map = store.get(el);
+    _map( pool, key ) {
+        let _v = pool.get(key);
 
-        if (!_map) {
-            _map = new Map();
-            store.set(el, _map);
+        if ( !_v ) {
+            pool.set( key, _v = new Map() );
         }
-        return _map;
+        return _v;
     },
 
 
     /**
      * 解除事件绑定（全部）。
      * @param  {Element} el 目标元素
-     * @param  {Map} map 目标元素的绑定记录
-     * @return {this}
+     * @param  {Map} map1 一级存储集
+     * @return {void}
      */
-    _clearAll( el, map ) {
-        for (let [fn, conf] of map) {
-            el.removeEventListener(conf.name, fn, conf.capture);
+    _clearAll( el, map1 ) {
+        for (let [n, m2] of map1) {
+            for (const [s, m3] of m2) {
+                for (const [h, av] of m3) {
+                    el.removeEventListener( n, av[0], av[1] );
+                }
+            }
         }
-        map.clear();
+        map1.clear();
     },
 
 
@@ -6879,21 +6894,26 @@ const Event = {
      * 解除事件绑定（指定事件名）。
      * Map: { bound-handler: {event, handle, selector, once} }
      * @param  {Element} el 目标元素
-     * @param  {Map} map 目标元素的绑定记录
+     * @param  {Map} map1 一级存储集
      * @param  {String} evn 事件名
      * @param  {String} slr 委托选择器，可选
      * @param  {Function|Object} handle 处理函数/对象，可选
-     * @return {this}
+     * @return {void}
      */
-    _clearSome( el, map, evn, slr, handle ) {
-        let _fxs = this._filters(evn, slr, handle),
-            _fx = _fxs.length == 1 ? _fxs[0] : o => _fxs.every( f => f(o) );
+    _clearSome( el, map1, evn, slr, handle ) {
+        let _fltr = this._filter(evn, slr, handle);
 
-        for ( let [fn, conf] of map ) {
-            if ( _fx(conf) ) {
-                el.removeEventListener(conf.name, fn, conf.capture);
-                map.delete(fn);
+        for (let [n, m2] of map1) {
+            for (const [s, m3] of m2) {
+                for (const [h, av] of m3) {
+                    if ( _fltr(n, s, h) ) {
+                        el.removeEventListener( n, av[0], av[1] );
+                        m3.delete( h );
+                    }
+                }
+                if ( m3.size == 0 ) m2.delete( s );
             }
+            if ( m2.size == 0 ) map1.delete( n );
         }
     },
 
