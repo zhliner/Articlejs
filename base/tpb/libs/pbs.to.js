@@ -520,7 +520,7 @@ const _Stage = {
  * @param  {EventListener} chain 调用链
  * @return {void}
  */
- function chainStore( el, name, chain ) {
+function chainStore( el, name, chain ) {
     let _map = __ChainStore.get(el);
 
     if ( !_map ) {
@@ -528,18 +528,6 @@ const _Stage = {
         __ChainStore.set( el, _map );
     }
     _map.set( name, chain );
-}
-
-
-/**
- * 处理器封装。
- * this: {Cell}
- * @param {Value} init 初始值
- * @param {Event} ev 事件对象
- * @param {Object} elo 事件关联对象
- */
-function bindHandle( init, ev, elo ) {
-    return this.handleEvent( ev, elo, init );
 }
 
 
@@ -558,10 +546,8 @@ function bindEvns( el, map, evns, slr, init, type ) {
         evns = [...map.keys()];
     }
     for ( const n of evns ) {
-        let _ch = map.get(n);
-        if ( _ch ) {
-            $[type]( el, n, slr, bindHandle.bind(_ch, init) );
-        }
+        map.has(n) &&
+        $[type]( el, n, slr, map.get(n).init(init) );
     }
 }
 

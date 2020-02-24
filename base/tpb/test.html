@@ -29,19 +29,8 @@
         }
         aside#outline {
             width: 200px;
-            /* resize: horizontal;
-            overflow: hidden; */
         }
         /* 侧面板宽度调整 */
-        body > hr {
-            margin: 0.4em 0;
-            width: 4px;
-            border: 1px #fff solid;
-            border-width: 0 1px;
-            border-radius: 3px;
-            background-color: #5c869c;
-            cursor: ew-resize;
-        }
         aside#help {
             width: 260px;
         }
@@ -73,17 +62,17 @@
     </script>
 
 </head>
-<body lang="zh-cn">
+<body lang="zh-cn"
+    on="@mousemove|spread movementX mul shift;
+        @mouseup|movementX(null)"
+    to="|width(true);
+        |off('mousemove')">
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft"
-        on="@mousemove|resize('x');
-            mousedown|$('#outline') width ev('pageX') pack(2);
-            mouseup|nil"
-        to="#outline|width;
-            |bind('mousemove');
-            |off('mousemove')">
+        on="mousedown|$('#outline') push(1) pack(2)"
+        to="body|bind('mousemove') once('mouseup')">
     <div id="editor">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb=""
             on="click('~._close')|evo(3)" by="x.Eff.lose">
@@ -111,7 +100,9 @@
         </pre>
         <div tpl-source="menu:cells, menu:cmenu">[选取创建/基本编辑菜单]</div>
     </div>
-    <hr id="lineRight">
+    <hr id="lineRight"
+        on="mousedown|$('#help') push(-1) pack(2)"
+        to="body|bind('mousemove') once('mouseup')">
     <aside id="help" class="___Panel _docs" data-pb="">
         <span class="_walk">
             <b title="后退" on="" by="">◀</b>

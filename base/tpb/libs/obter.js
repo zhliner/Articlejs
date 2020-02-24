@@ -700,6 +700,21 @@ class Cell {
 
 
     /**
+     * 设置初始值。
+     * 仅用于处理器启动时的传值。
+     * 注：未调用或传递undefined时该成员名不存在。
+     * @param  {Value} val 初始值
+     * @return {this}
+     */
+    init( val ) {
+        if ( val !== undefined ) {
+            this._extra = val;
+        }
+        return this;
+    }
+
+
+    /**
      * 事件处理器接口。
      * 即：EventListener.handleEvent()
      * 返回同步序列最后一个指令单元调用的返回值。
@@ -708,11 +723,11 @@ class Cell {
      * @param  {Value} extra 初始传递值，可选
      * @return {Value}
      */
-    handleEvent( ev, elo, extra ) {
+    handleEvent( ev, elo ) {
         elo.event = ev;
         this[_SID].reset();
 
-        return this.call( elo, extra );
+        return this.call( elo, this._extra );
     }
 
 

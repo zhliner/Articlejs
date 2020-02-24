@@ -603,7 +603,7 @@ divmod( val?:Number ): [Number, Number]
 // 商数取小于等于结果的整数值。
 // 如：3.5 => 3, -3.5 => -4
 
-nneg(): Number|[Number]
+neg(): Number|[Number]
 // 数值取负（-x）。
 // 目标：当前条目/栈顶1项。
 // 支持目标为集合，对成员分别取负。

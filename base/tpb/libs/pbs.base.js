@@ -511,17 +511,24 @@ const _Base = {
      * 调试打印（控制台）。
      * 目标：当前条目，可选。
      * 传递消息为false表示中断执行流。
-     * @param  {String|false} msg 明文消息，可选
+     * @param  {Number|false} level 显示级别
+     * @param  {Boolean} keep 保持流程
      * @return {Value}
      */
-    debug( evo, stack, msg ) {
-        window.console.info('[debug]', evo);
-        window.console.info('[debug]', stack);
+    debug( evo, stack, level, keep ) {
+        let _buf = [];
 
-        if ( msg === false ) {
-            return Promise.reject();
+        switch (level) {
+            case 0:
+                _buf.push(evo); break;
+            case 1:
+                _buf.push(stack); break;
+            case 2:
+                _buf.push(evo, stack);
         }
-        if ( msg !== undefined ) return msg;
+        window.console.info(..._buf);
+
+        if ( keep === false ) return Promise.reject();
     },
 
     __debug: 0,
@@ -706,7 +713,7 @@ const _BaseOn = {
      */
     data( evo, name, its ) {
         let _e = evo.delegate,
-            _m = DataStore.get(_e) || DataStore.set( _e, new Map() ),
+            _m = DataStore.get(_e) || DataStore.set(_e, new Map()).get(_e),
             _o = evo.data;
 
         if ( _o === undefined && its === undefined ) {
@@ -1117,12 +1124,12 @@ const _BaseOn = {
      * 目标：当前条目/栈顶1项。
      * @return {Number|[Number]}
      */
-    nneg( evo ) {
+    neg( evo ) {
         let x = evo.data;
         return $.isArray(x) ? x.map( v => -v ) : -x;
     },
 
-    __nneg: 1,
+    __neg: 1,
 
 
     /**

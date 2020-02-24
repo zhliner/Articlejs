@@ -339,25 +339,48 @@ const _On = {
 // Tpb专有。
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * 元素大小重设。
- * data: [初始尺寸, 鼠标初始位置（pageX/Y）]
- * @param  {String} dir 方向（x/X|y/Y）
- * @return {Number} 最终值
- */
-_On.resize = function( evo, dir ) {
-    let [size, page] = evo.data;
+//
+// 鼠标移动量存储键。
+//
+const __movementX = Symbol('mouse-movementX');
+const __movementY = Symbol('mouse-movementY');
 
-    switch ( dir.toLowerCase() ) {
-        case 'x':
-            return size + (evo.event.pageX - page);
-        case 'y':
-            return size + (evo.event.pageY - page);
+
+/**
+ * 鼠标水平移动量。
+ * 目标：无。
+ * @param  {null} 清除存储
+ * @return {Number} 变化量（像素）
+ */
+_On.movementX = function( evo, val ) {
+    if ( val !== null ) {
+        let _old = evo.current[__movementX],
+            _cur = evo.event.pageX;
+
+        evo.current[__movementX] = _cur;
+        // n - undefined == NaN => 0
+        return _cur - _old || 0;
     }
+    delete evo.current[__movementX];
 };
 
-_On.__resize = 1;
 
+/**
+ * 鼠标垂直移动量。
+ * 目标：无。
+ * @param  {null} 清除存储
+ * @return {Number} 变化量（像素）
+ */
+_On.movementY = function( evo, val ) {
+    if ( val !== null ) {
+        let _old = evo.current[__movementY],
+            _cur = evo.event.pageX;
+
+        evo.current[__movementY] = _cur;
+        return _cur - _old || 0;
+    }
+    delete evo.current[__movementY];
+};
 
 
 
