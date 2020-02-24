@@ -341,6 +341,9 @@ const _On = {
 
 //
 // 鼠标移动量存储键。
+// 注记：
+// 事件对象中 movementX/movementY 值在缩放显示屏下有较大误差，
+// 因此这里用绝对像素（event.pageX/pageY）成员重新实现。
 //
 const __movementX = Symbol('mouse-movementX');
 const __movementY = Symbol('mouse-movementY');
