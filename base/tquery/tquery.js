@@ -2013,8 +2013,8 @@ Object.assign( tQuery, {
      *      origin: Element   事件起源元素（event.target）
      *      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
      *      related: Element  事件相关的元素（event.relatedTarget）
-     *      delegate: Element 绑定委托的元素（event.currentTarget），可选
-     *      selector: String  委托匹配选择器，可选
+     *      delegate: Element 绑定委托的元素（event.currentTarget）
+     *      selector: String  委托匹配选择器
      * }
      * 事件配置对象：{ evn: handle }
      *
@@ -6402,12 +6402,12 @@ function rectSize( el, name ) {
 //      origin: Element   事件起源元素（event.target）
 //      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
 //      related: Element  事件相关的元素（event.relatedTarget）
-//      delegate: Element 绑定委托的元素（event.currentTarget），可选
-//      selector: String  委托匹配选择器，可选
+//      delegate: Element 绑定委托的元素（event.currentTarget）
+//      selector: String  委托匹配选择器
 // }
 // 注：
 // 暂不支持用户指定capture（捕获）参数。
-// 如果绑定不是委托方式，delegate 和 selector 两个成员为未定义。
+// 如果绑定不是委托方式，selector值为null（delegate值正常）。
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -6747,9 +6747,8 @@ const Event = {
 
     /**
      * 处理器封装。
-     * - 普通函数处理器内的 this 为触发事件的当前元素。
-     * - 处理器返回false可以终止原生方法的调用（仅适用trigger）。
-     * 注：如果不是委托方式，targets.delegate 为未定义。
+     * - 普通函数处理器内的this无特殊意义。
+     * - 处理器返回false可以阻止原生非事件类方法的调用（trigger）。
      * @param  {Function} handle 用户处理函数
      * @param  {Function} current 获取当前元素的函数
      * @param  {String|null} slr 委托选择器（已合法）
@@ -6757,38 +6756,17 @@ const Event = {
      * @return {Boolean}
      */
     _wrapCall( handle, current, slr, ev ) {
-        let _elo = this._eloWrap(
-                ev,
-                current( ev, slr ),
-                slr
-            );
+        let _cur = current( ev, slr ),
+            _elo = _cur && {
+            origin:     ev.target,
+            current:    _cur,
+            related:    ev.relatedTarget,
+            delegate:   ev.currentTarget,
+            selector:   slr || null,
+        }
         // 需要调用元素的原生方法完成浏览器逻辑，
         // 如：form:submit, video:load 等。
         return _elo && handle(ev, _elo) !== false && this._methodCall(ev, _elo.current);
-    },
-
-
-    /**
-     * 封装事件元素对象。
-     * cur为null表示委托未匹配。
-     * 如果为非委托，delegate和selector字段不存在。
-     * @param {Event} ev 事件对象
-     * @param {Element|null} cur 事件当前元素
-     * @param {String} slr 委托选择器，可选
-     */
-    _eloWrap( ev, cur, slr ) {
-        if ( !cur ) return;
-
-        let _elo = {
-            origin: ev.target,
-            current: cur,
-            related: ev.relatedTarget,
-        };
-        if ( slr ) {
-            _elo.delegate = ev.currentTarget;
-            _elo.selector = slr;
-        }
-        return _elo;
     },
 
 
