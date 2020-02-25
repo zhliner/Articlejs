@@ -16,7 +16,15 @@ import { Util } from "./util.js";
 import { bindMethod, method } from "../config.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // 鼠标移动量存储键（横向）。
+    __movementX = Symbol('mouse-movementX'),
+
+    // 鼠标移动量存储键（纵向）。
+    __movementY = Symbol('mouse-movementY');
+
 
 
 const _On = {
@@ -87,7 +95,7 @@ const _On = {
 
 
     // tQuery定制
-    //===========================================
+    //-------------------------------------------
 
 
     /**
@@ -101,6 +109,48 @@ const _On = {
     },
 
     __contains: 2,
+
+
+
+    // 专有补充。
+    //-------------------------------------------
+    // 注记：
+    // 事件对象中 movementX/movementY 值在缩放显示屏下有较大误差，
+    // 因此这里用绝对像素（event.pageX/pageY）成员重新实现。
+    // 主要用于鼠标移动（mousemove）事件的取值。
+
+
+    /**
+     * 鼠标水平移动量。
+     * 目标：无。
+     * 注记：前值存储在事件当前元素上，必要时应当重置（null）。
+     * @param  {null} 清除存储
+     * @return {Number} 变化量（像素）
+     */
+    movementX( evo, val ) {
+        if ( val !== null ) {
+            let _v = evo.current[__movementX];
+            // n - undefined == NaN
+            // => 0
+            return ( evo.current[__movementX] = evo.event.pageX ) - _v || 0;
+        }
+        delete evo.current[__movementX];
+    },
+
+
+    /**
+     * 鼠标垂直移动量。
+     * 目标：无。
+     * @param  {null} 清除存储
+     * @return {Number} 变化量（像素）
+     */
+    movementY( evo, val ) {
+        if ( val !== null ) {
+            let _v = evo.current[__movementY];
+            return ( evo.current[__movementY] = evo.event.pageY ) - _v || 0;
+        }
+        delete evo.current[__movementY];
+    },
 
 };
 
@@ -332,58 +382,6 @@ const _On = {
     _On[`__${meth}`] = 1;
 
 });
-
-
-
-//
-// Tpb专有。
-///////////////////////////////////////////////////////////////////////////////
-
-//
-// 鼠标移动量存储键。
-// 注记：
-// 事件对象中 movementX/movementY 值在缩放显示屏下有较大误差，
-// 因此这里用绝对像素（event.pageX/pageY）成员重新实现。
-//
-const __movementX = Symbol('mouse-movementX');
-const __movementY = Symbol('mouse-movementY');
-
-
-/**
- * 鼠标水平移动量。
- * 目标：无。
- * @param  {null} 清除存储
- * @return {Number} 变化量（像素）
- */
-_On.movementX = function( evo, val ) {
-    if ( val !== null ) {
-        let _old = evo.current[__movementX],
-            _cur = evo.event.pageX;
-
-        evo.current[__movementX] = _cur;
-        // n - undefined == NaN => 0
-        return _cur - _old || 0;
-    }
-    delete evo.current[__movementX];
-};
-
-
-/**
- * 鼠标垂直移动量。
- * 目标：无。
- * @param  {null} 清除存储
- * @return {Number} 变化量（像素）
- */
-_On.movementY = function( evo, val ) {
-    if ( val !== null ) {
-        let _old = evo.current[__movementY],
-            _cur = evo.event.pageX;
-
-        evo.current[__movementY] = _cur;
-        return _cur - _old || 0;
-    }
-    delete evo.current[__movementY];
-};
 
 
 
