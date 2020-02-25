@@ -21,11 +21,9 @@ body > aside {
 
 /* 侧面板宽度调整线 */
 body > hr {
-    margin: 0.4em 0;
-    width: 5px;
-    border: 1px #fff solid;
-    border-width: 0 1px;
-    border-radius: 3px;
+    width: 4px;
+    border: 2px #fff solid;
+    border-radius: 6px;
     background-color: #abc;
     cursor: ew-resize;
 }
