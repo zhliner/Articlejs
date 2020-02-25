@@ -230,7 +230,8 @@ const Parser = {
         let _buf = [];
 
         for (const s of __callSplit.split(fmt)) {
-            if ( s ) _buf.push( new Evn(s) );
+            // 忽略空串（连续空格）
+            if ( s ) _buf.push( new Evn(s.trim()) );
         }
         return _buf;
     },
@@ -246,7 +247,8 @@ const Parser = {
         let _buf = [];
 
         for (const s of __callSplit.split(fmt)) {
-            if ( s ) _buf.push( new Call(s) );
+            // 忽略空串（连续空格）
+            if ( s ) _buf.push( new Call(s.trim()) );
         }
         return _buf;
     },
@@ -1055,7 +1057,7 @@ class Update {
         let _fs = this._names
             .map( ss => this._caller(ss, pbs) );
 
-        return cell.bind( _fs, update, false, this._count );
+        return cell.bind( _fs, __update, false, this._count );
     }
 
 
@@ -1200,7 +1202,7 @@ const usualMeth = {
  * @param  {...Function} funs 更新方法集
  * @return {void}
  */
-function _update( evo, ...funs ) {
+function update( evo, ...funs ) {
     let _its = evo.targets,
         _val = evo.data;
 
@@ -1217,7 +1219,7 @@ function _update( evo, ...funs ) {
 //
 // 共享方法（bound）。
 //
-const update = _update.bind(null);
+const __update = update.bind(null);
 
 
 

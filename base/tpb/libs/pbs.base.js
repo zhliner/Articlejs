@@ -21,7 +21,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, EXTENT } from "../config.js";
+import { bindMethod, EXTENT, ACCESS } from "../config.js";
 
 
 const
@@ -505,34 +505,6 @@ const _Base = {
     },
 
     __set: 1,
-
-
-    /**
-     * 调试打印（控制台）。
-     * 目标：当前条目，可选。
-     * 传递消息为false表示中断执行流。
-     * @param  {Number|false} level 显示级别
-     * @param  {Boolean} keep 保持流程
-     * @return {Value}
-     */
-    debug( evo, stack, level, keep ) {
-        let _buf = [];
-
-        switch (level) {
-            case 0:
-                _buf.push(evo); break;
-            case 1:
-                _buf.push(stack); break;
-            case 2:
-                _buf.push(evo, stack);
-        }
-        window.console.info(..._buf);
-
-        if ( keep === false ) return Promise.reject();
-    },
-
-    __debug: 0,
-    __debug_x: true,
 
 };
 
@@ -1796,6 +1768,32 @@ function reenter( evo, cnt, val ) {
 reenter[EXTENT] = 0;
 
 
+/**
+ * 控制台调试打印。
+ * 特殊：是，this为Cell实例，查看调用链。
+ * 目标：无。
+ * 特权：是，数据栈显示。
+ * @param  {false} keep 流程保持，传递false中断执行流
+ * @return {void|reject}
+ */
+function debug( evo, stack, keep ) {
+    let _stack = {
+            done: stack._done,
+            data: stack._item,
+            heap: stack._buf.slice(),
+        };
+
+    window.console.info({
+        evo,
+        cell: this,
+        stack: _stack,
+    });
+    if ( keep === false ) return Promise.reject();
+}
+
+debug[ACCESS] = true;
+
+
 
 //
 // 合并/导出
@@ -1812,6 +1810,7 @@ Base.prune = prune;
 Base.prunes = prunes;
 Base.entry = entry;
 Base.reenter = reenter;
+Base.debug = debug;
 
 
 // 基础集II（On域）。
