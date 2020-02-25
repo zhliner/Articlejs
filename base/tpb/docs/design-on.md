@@ -79,6 +79,14 @@ scam( names?:String ): Object | Boolean
 // 目标：当前条目，可选。
 // 如果 names 或暂存区有值则为检查，否则为简单封装。
 // names 支持空格分隔的多个名称，全小写。
+
+movementX( v?:null ): Number
+movementY( v?:null ): Number
+// 鼠标移动量取值。
+// 目标：无。
+// 注记：
+// mousemove 事件中 movementX/Y 的值在缩放显示屏下有误差（chrome）。
+// 因此另外用绝对像素参数（event.pageX/pageY）重新实现。
 ```
 
 
