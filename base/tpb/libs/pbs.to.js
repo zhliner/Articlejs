@@ -26,6 +26,14 @@ import { Render } from "./render.js";
 const
     $ = window.$,
 
+    // 事件名：ID分隔符。
+    // 用于bind()事件名ID的分离提取。
+    __chrEvnid = ':',
+
+    // 空白字符。
+    // 用于bind()事件名ID序列分隔。
+    __reSpace = /\s+/,
+
     // 消息定时器存储键。
     __TIMER = Symbol('tips-timer'),
 
@@ -48,11 +56,11 @@ const _Update = {
      * evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
      * @param {Element|Collector} to 目标元素/集
      * @param {Value|[Value]} init 初始数据
-     * @param {String} evn 事件名/序列，可选
+     * @param {String} evnid 事件名ID/序列，可选
      * @param {String} slr 委托选择器，可选
      */
-    bind( to, init, evn, slr ) {
-        bindsChain( 'on', to, init, evn, slr );
+    bind( to, init, evnid, slr ) {
+        bindsChain( 'on', to, init, evnid, slr );
     },
 
 
@@ -60,8 +68,8 @@ const _Update = {
      * 绑定单次触发。
      * 其它说明同bind。
      */
-    once( to, init, evn, slr ) {
-        bindsChain( 'one', to, init, evn, slr );
+    once( to, init, evnid, slr ) {
+        bindsChain( 'one', to, init, evnid, slr );
     },
 
 
@@ -545,9 +553,15 @@ function bindEvns( el, map, evns, slr, init, type ) {
     if ( !evns ) {
         evns = [...map.keys()];
     }
-    for ( const n of evns ) {
-        map.has(n) &&
-        $[type]( el, n, slr, map.get(n).init(init) );
+    for ( const nid of evns ) {
+        if ( map.has(nid) ) {
+            $[type](
+                el,
+                nid.split(__chrEvnid, 1)[0],
+                slr,
+                map.get(nid).init(init)
+            );
+        }
     }
 }
 
@@ -559,18 +573,18 @@ function bindEvns( el, map, evns, slr, init, type ) {
  * @param  {String} type 绑定方式（on|one）
  * @param  {Element} el 目标元素
  * @param  {Value} init 初始传入值（内容）
- * @param  {String} evn 事件名/序列，可选
+ * @param  {String} evnid 事件名ID/序列，可选
  * @param  {String} slr 委托选择器，可选
  * @return {void}
  */
-function bindChain( type, el, init, evn, slr ) {
+function bindChain( type, el, init, evnid, slr ) {
     let _map = __ChainStore.get(el);
 
     if ( !_map ) {
         window.console.warn(`no storage on Element.`);
         return;
     }
-    return bindEvns( el, _map, evn && evn.split(/\s+/), slr, init, type );
+    return bindEvns( el, _map, evnid && evnid.split(__reSpace), slr, init, type );
 }
 
 

@@ -160,15 +160,15 @@ cssSets( names:String )
 //
 // 事件处理。
 /////////////////////////////////////////////////
-bind( evn:String, slr?:String )
+bind( evnid:String, slr?:String )
 // 内容：{Value|[Value]|...} 初始传入值
 // 附加：不支持。
 // 用预定义的调用链作为事件处理器，绑定到目标。
-// evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
+// evnid为 [事件名:ID] 结构，支持空格分隔多个名称，假值表示通配（目标上的全部存储）。
 // 注：
 // 在目标上检索并绑定到目标。
 
-once( evn:String, slr?:String )
+once( evnid:String, slr?:String )
 // 绑定事件的单次处理。
 // 内容/说明同上。
 
