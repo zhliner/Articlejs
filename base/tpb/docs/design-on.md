@@ -73,18 +73,18 @@ re( flag, val?:String ): RegExp
 // 特权：是。灵活取栈。
 // 如果val无值，则自动取栈顶1项。
 
-date( ...v? ): Date
+date( ...args? ): Date
 // 构造日期对象入栈。
 // 目标：当前条目。不自动取栈。
 // 目标有值时解包传递为 new Data() 的补充实参。
 // 注：
-// v无值并且目标为空时构造为一个当前时间对象。
+// args无值并且目标为空时构造为一个当前时间对象。
 
-scam( names?:String ): Object | Boolean
-// 修饰键 {alt, ctrl, shift, meta} 是否按下封装或检查。
+scam( names?:String ): Boolean | Object
+// 修饰键 Alt|Ctrl|Shift|Meta} 按下检查或状态封装。
 // 目标：当前条目，可选。
-// 如果 names 或暂存区有值则为检查，否则为简单封装。
-// names 支持空格分隔的多个名称，全小写。
+// 如果names或暂存区有值则为检查，否则为简单封装。
+// names支持空格分隔的多个名称，全小写，And关系。
 
 movementX( v?:null ): Number
 movementY( v?:null ): Number
@@ -98,10 +98,10 @@ movementY( v?:null ): Number
 
 #### tQuery|Collector 取值类
 
+如果目标非Collector对象，视为tQuery方法（目标即首个实参）。
+
 ```js
 // 目标：当前条目/栈顶1项。
-// 如果目标非Collector对象，视为tQuery方法（目标即首个实参）
-//
 attr( name ): String | Object | null
 attribute( name ): String | null
 prop( name ): Value | Object | undefined
@@ -176,11 +176,6 @@ kvsMap( kname?, vname?: String ): [Object2]
 // 目标：当前条目/栈顶1项。
 // 内容：参考tQuery相关接口首个参数定义。
 // 注：多余实参无副作用。
-
-
-contains(): Boolean
-// 目标：当前条目/栈顶2项。
-// 内容：[box:Element, node:Node]
 
 
 // Collector专有

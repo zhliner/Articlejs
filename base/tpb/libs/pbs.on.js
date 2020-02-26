@@ -19,6 +19,9 @@ import { bindMethod, method } from "../config.js";
 const
     $ = window.$,
 
+    // 空白匹配。
+    __reSpace = /\s+/,
+
     // 鼠标移动量存储键（横向）。
     __movementX = Symbol('mouse-movementX'),
 
@@ -87,28 +90,10 @@ const _On = {
         if ( !names ) {
             names = evo.data;
         }
-        return names ? name.trim().split(/\s+/).every( n => _map[n] ) : _map;
+        return names ? name.trim().split(__reSpace).every( n => _map[n] ) : _map;
     },
 
     __scam: 0,
-
-
-
-    // tQuery定制
-    //-------------------------------------------
-
-
-    /**
-     * 测试是否包含。
-     * 前者是否为后者的上级容器元素。
-     * 目标：当前条目/栈顶2项。
-     * @return {Boolean}
-     */
-    contains( evo ) {
-        return $.contains( evo.data[0], evo.data[1] );
-    },
-
-    __contains: 2,
 
 
 
@@ -157,11 +142,6 @@ const _On = {
 
 
 //
-// 注：目标为首个实参，注释中忽略。
-/////////////////////////////////////////////////
-
-
-//
 // PB专项取值。
 // 目标：当前条目/栈顶1项。
 // 注：简单调用 Util.pba/pbo/pbv 即可。
@@ -205,10 +185,9 @@ const _On = {
 .forEach(function( meth ) {
 
     _On[meth] = function( evo, name ) {
-        if ( evo.data.nodeType == 1 ) {
-            return $[meth]( evo.data, name );
-        }
-        return $(evo.data)[meth]( name );
+        return $.isArray(evo.data) ?
+            $(evo.data)[meth]( name ) :
+            $[meth]( evo.data, name );
     };
 
     _On[`__${meth}`] = 1;
@@ -235,10 +214,7 @@ const _On = {
 .forEach(function( meth ) {
 
     _On[meth] = function( evo ) {
-        if ( evo.data.nodeType == 1 ) {
-            return $[meth]( evo.data );
-        }
-        return $(evo.data)[meth]();
+        return $.isArray(evo.data) ? $(evo.data)[meth]() : $[meth](evo.data);
     };
 
     _On[`__${meth}`] = 1;
@@ -279,10 +255,9 @@ const _On = {
 
     // 多余实参无副作用
     _On[meth] = function( evo, ...args ) {
-        if ( evo.data.nodeType == 1 ) {
-            return $[meth]( evo.data, ...args );
-        }
-        return $(evo.data)[meth]( ...args );
+        return $.isArray(evo.data) ?
+            $(evo.data)[meth]( ...args ) :
+            $[meth]( evo.data, ...args );
     };
 
     _On[`__${meth}`] = 1;
@@ -331,10 +306,11 @@ const _On = {
 //
 // 目标：当前条目/栈顶1项。
 // 内容：参考tQuery相关接口的首个参数说明。
+// 如果目标为数组，首个成员之后的部分合并到模板实参之后。
 // 注：多余实参无副作用。
 //===============================================
 [
-    'is',           // ( slr ): Boolean
+    'is',           // ( slr|Element ): Boolean
     'isXML',        // (): Boolean
     'controls',     // (): [Element]
     'serialize',    // ( ...names ): [Array2]
@@ -349,7 +325,13 @@ const _On = {
 .forEach(function( meth ) {
     // 多余实参无副作用。
     _On[meth] = function( evo, ...args ) {
-        return $[meth]( evo.data, ...args );
+        let _d = evo.data;
+
+        if ( $.isArray(_d) ) {
+            _d = _d.shift();
+            args = args.push( ...evo.data );
+        }
+        return $[meth]( _d, ...args );
     };
 
     _On[`__${meth}`] = 1;

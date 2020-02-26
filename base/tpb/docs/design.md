@@ -666,6 +666,9 @@ arrayEqual( arr? )
 // 注：
 // 仅对数组的成员逐一执行浅相等对比。
 
+contains(): Boolean
+// 元素包含测试。
+// $.contains( box, sub )
 
 
 // 逻辑运算

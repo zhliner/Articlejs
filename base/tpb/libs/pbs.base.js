@@ -1297,6 +1297,19 @@ const _BaseOn = {
     __arrayEqual_x: true,
 
 
+    /**
+     * 测试是否包含。
+     * 前者是否为后者的上级容器元素。
+     * 目标：当前条目/栈顶2项。
+     * @return {Boolean}
+     */
+    contains( evo ) {
+        return $.contains( evo.data[0], evo.data[1] );
+    },
+
+    __contains: 2,
+
+
 
     // 逻辑运算
     // @return {Boolean}
