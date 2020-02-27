@@ -67,25 +67,29 @@ const
 //
 const _Base = {
 
-    // 基础集
-    //===============================================
+    // 基础集。
+    //===========================================
 
     /**
      * 单元素检索入栈。
-     * 目标：当前条目，可选。
+     * 目标：当前条目可选。
+     * 特权：是，灵活取栈。
+     * 如果实参为空，会自动取栈（无需前阶pop）。
+     * 如果实参非空，前阶pop可定义检索起点元素。
      * rid: {
-     *      String  以当前条目（如果有）或事件当前元素（ev.current）为起点。
-     *      null|undefined  以当前条目为rid，事件当前元素为起点。
+     *      undefined  以当前条目为rid，事件当前元素为起点。
+     *      String  以目标（如果有）或事件当前元素（ev.current）为起点。
      * }
-     * @param {Object} evo 事件关联对象
-     * @param  {String|null} rid 相对ID
+     * @param  {Object} evo 事件关联对象
+     * @param  {Stack} stack 数据栈
+     * @param  {String} rid 相对ID，可选
      * @return {Element}
      */
-    $( evo, rid ) {
+    $( evo, stack, rid ) {
         let _beg = evo.current;
 
         if ( rid == null ) {
-            rid = evo.data;
+            rid = stack.data(1);
         } else {
             _beg = evo.data || _beg;
         }
@@ -93,35 +97,37 @@ const _Base = {
     },
 
     __$: 0,
+    __$_x: true,
 
 
     /**
      * 多元素检索入栈。
-     * 目标：当前条目，可选。
+     * 目标：当前条目可选。
+     * 特权：是，灵活取栈。
      * rid: {
-     *      String          同上。
-     *      null|undefined  同上，但如果当前条目非字符串则简单$(..)封装。
-     *      Value           Collector封装，支持单值和数组。
+     *      undefined  同上，但如果目标非字符串则为Collector封装。
+     *      String     同上。
+     *      Value      Collector封装，支持单值和数组。
      * }
-     * 当前条目的权重低于rid实参，因此如果rid为Collector封装，当前条目会被忽略。
-     * 明确取当前条目时，也可能为Collector封装。
-
+     * 注：如果实参传递非字符串，前阶pop的值会被丢弃。
      * @param  {Object} evo 事件关联对象
-     * @param  {String|null|Value} rid 相对ID或待封装值
+     * @param  {Stack} stack 数据栈
+     * @param  {String|Value} rid 相对ID或待封装值
      * @return {Collector}
      */
-    $$( evo, rid ) {
+    $$( evo, stack, rid ) {
         let _beg = evo.current;
 
         if ( rid == null ) {
-            rid = evo.data;
+            rid = stack.data(1);
         } else {
             _beg = evo.data || _beg;
         }
-        return typeof rid == 'string' ? Util.find( rid, _beg ) : $(rid);
+        return typeof rid == 'string' ? Util.find(rid, _beg) : $(rid);
     },
 
     __$$: 0,
+    __$$_x: true,
 
 
     /**
@@ -143,39 +149,34 @@ const _Base = {
 
     /**
      * 从事件对象上取值。
-     * 多个实参取值会自动展开入栈。
-     * 如果需要入栈一个属性值集合，name可用空格分隔多个名称。
-     * 无实参调用取事件对象自身入栈。
      * 目标：无。
-     * 特权：是。需要展开入栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {...String} names 事件属性名
-     * @return {void} 自操作入栈
+     * name可用空格分隔多个名称（返回一个值数组）。
+     * 无实参调用取事件对象自身入栈。
+     * @param  {String} name 事件属性名（序列）
+     * @return {Value|[Value]} 值或值集
      */
-    ev( evo, stack, ...names ) {
-        if ( names.length == 0 ) {
+    ev( evo, name ) {
+        if ( name == null ) {
             return evo.event;
         }
-        let _vs = names.map( name =>
-            __reSpace.test(name) ? name.split(__reSpace).map( n => evo.event[n] ) : evo.event[name]
-        );
-        stack.push( ..._vs );
+        let _vs = name.split(__reSpace).map(n => evo.event[n]);
+
+        return _vs.length > 1 ? _vs : _vs[0];
     },
 
-    __ev_x: true,
+    __ev: null,
 
 
     /**
      * 获取模板节点。
-     * 目标：当前条目，条件取栈。
-     * 特权：是。自行取栈。
-     * 如果实参name为空（null|undefined），取当前条目为名称。
+     * 目标：无。
+     * 特权：是，自行取栈。
+     * 如果实参name为空（null|undefined），取栈顶1项为名称。
      * 注意克隆时是每次都克隆（应当很少使用）。
      * 注记：
-     * 因为返回Promise实例（异步），故归入By部分。
-     *
+     * 因为返回Promise实例（异步），故通常用在调用链后段。
      * @param  {Stack} stack 数据栈
-     * @param  {String} name 模板名，可选
+     * @param  {String|null} name 模板名，可选
      * @param  {Boolean} clone 是否克隆，可选
      * @return {Promise}
      */
@@ -774,26 +775,57 @@ const _BaseOn = {
 
     /**
      * 条件赋值。
-     * 如果目标值为真，返回val入栈，否则跳过。
      * 目标：当前条目/栈顶1项。
-     * 特权：是。可能两次入栈。
-     * ielse：是否构造else逻辑（后续再跟一个$if）。
-     * - 目标为真，赋值。补充追加一个false（待后续$if取值）。
-     * - 目标为假，不赋值val。赋值一个true（后续$if必然执行）。
-     * @param  {Stack} stack 数据栈
-     * @param  {Value} val 待赋值
-     * @param  {Boolean} ielse 是否构造else结构，可选
-     * @return {Value|Boolean}
+     * 如果目标值为真（广义），val入栈，否则入栈elseval。
+     * @param  {Value} val IF赋值
+     * @param  {Boolean} elseval ELSE赋值，可选
+     * @return {Value}
      */
-    $if( evo, stack, val, ielse ) {
-        if ( evo.data ) {
-            stack.push( val );
-        }
-        if ( ielse ) return !evo.data;
+    $if( evo, val, elseval ) {
+        return evo.data ? val : elseval;
     },
 
     __$if: 1,
-    __$if_x: true,
+
+
+    /**
+     * CASE分支比较。
+     * 目标：当前条目/栈顶1项。
+     * 目标与实参一一相等（===）比较，结果入栈。
+     * 这是$switch指令的先期执行。
+     * @param  {...Value} vals 实参序列
+     * @return {Boolean} 结果集
+     */
+    $case( evo, ...vals ) {
+        return vals.map( v => v === evo.data );
+    },
+
+    __$case: 1,
+
+
+    /**
+     * SWITCH分支判断。
+     * 目标：当前条目/栈顶1项。
+     * 取栈顶通常是$case执行的结果（一个集合），
+     * 测试集合成员值是否为真，真值返回相同下标实参值入栈。
+     * 注：
+     * 仅取首个真值对应的实参值入栈。
+     * 目标集大小通常与实参序列长度相同，但容许超出（被简单忽略）。
+     * @param  {...Value} vals 入栈值候选
+     * @return {Value}
+     */
+    $switch( evo, ...vals ) {
+        let _bs = evo.data;
+
+        if ( !$.isArray(_bs) ) {
+            _bs = [_bs];
+        }
+        for (const [i, b] of _bs.entries()) {
+            if ( b ) return vals[i];
+        }
+    },
+
+    __$switch: 1,
 
 
 
@@ -1332,8 +1364,7 @@ const _BaseOn = {
      * 目标是否在实参序列中。
      * 目标：当前条目/栈顶1项。
      * 注：与其中任一值相等。
-     * @param {*} evo
-     * @param  {...Value} vals 实参序列
+     * @param {...Value} vals 实参序列
      */
     include( evo, ...vals ) {
         return vals.includes( evo.data );

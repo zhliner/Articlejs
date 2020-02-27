@@ -273,11 +273,12 @@ const __Node = {
 
 // 自我修改。
 // 目标：当前条目/栈顶1项。
+// 执行结果可能入栈，由布尔实参（slr|back）决定。
 //===============================================
 [
-    'remove',           // ( slr? )
-    'removeSiblings',   // ( slr? )
-    'normalize',        // ( depth? )
+    'remove',           // ( slr?, back? )
+    'removeSiblings',   // ( slr?, back? )
+    'normalize',        // ( depth?, back? )
 ]
 .forEach(function( meth ) {
     /**

@@ -129,27 +129,28 @@ evo: {
 ### 顶层全局（适用 On/By/To 三个域）
 
 ```js
-$( rid: String | null ): Element
-// 检索元素入栈：tQuery.get( down, up )
-// 目标：当前条目。不自动取栈。
+$( rid: String ): Element
+// 检索单个元素入栈。
+// 目标：当前条目，可选。
+// 特权：是，判断取栈。
 // rid:
-// - String 以当前条目或事件当前元素为起点，上/下检索目标元素。
-// - null   以当前条目为rid。
+// - undefined 目标即为rid，事件当前元素为起点检索元素。
+// - String    以目标或事件当前元素为起点，检索元素。
 // 注：
-// 当前条目充当2种角色，起点元素或rid替代。
+// 当前条目充当2种角色：起点元素或rid替代。
 
-$$( rid: String | Value | null ): Collector
-// 检索元素集入栈：tQuery(...)
-// 目标：当前条目。不自动取栈。
+$$( rid: String|Value ): Collector
+// 检索元素集入栈。
+// 目标：当前条目，可选。
+// 特权：是，判断取栈。
 // rid:
-// - String （同上）
-// - null   已当前条目为rid。
-// - Value  非预设类型/值时，封装为Collector。
+// - undefined 同上，但如果目标非字符串则为Collector封装。
+// - String    同上
+// - Value     封装为Collector，支持单值和数组。
 // 注：
-// 当前条目充当2种角色：起点元素和rid替代（实参为null时）。
-// 如果rid实参为null而当前条目非字符串时，当前条目值封装为Collector。
+// 当前条目充当2种角色：起点元素和rid替代。
 
-evo( name: String | Number ): Value
+evo( name: String|Number ): Value
 // 从当前evo对象上取值入栈。
 // name: {
 //      0|'event'     evo.event
@@ -162,33 +163,30 @@ evo( name: String | Number ): Value
 //     11|'entry',    evo.entry （中段入口，迭代重入）
 //     12|'targets'   evo.targets （To检索目标延续传递）
 // }
-// 目标：从（隐藏的）首个实参上取值。无需当前条目。
-// 实现：name:[n => s]; evo[ name[x] || x ]
+// 目标：当前条目，可选。
+// 注：因为可能取evo.data属性，故可由前阶取栈。
 
-ev( ...name: String | [String] ): Value | [Value]
+ev( name?: String ): Value | [Value]
 // 从事件对象上取值入栈。
-// name为事件对象内的成员名，多个实参取值会自动展开入栈。
+// 目标：无。
+// name为事件对象内的成员名，支持空格分隔的名称序列。
 // name: {
-//      'key':      evo.event.key
-//      'detail':   evo.event.detail
-//      '...':      evo.event[...]
+//      key:    evo.event.key
+//      detail: evo.event.detail
+//      ...
 // }
-// 目标：实参事件对象。无需当前条目。
-// 特权：是。自主入栈。
-// 注：
-// name支持空格分隔的名称序列，此时值为一个集合（数组）。
-// 如果未传入任何名称，则取事件对象本身。
+// 注：如果未传入任何名称，取事件对象本身。
 
 tpl( name?: String, clone?: Boolean ): Promise<Element>
 // 获取name模板节点。
-// 目标：当前条目，条件取栈（1项）。
-// 特权：是。需要判断后取栈。
-// 如果实参为空（null|undefined），取当前条目为名称。
+// 目标：无。
+// 特权：是，判断取栈。
+// 如果实参为空（null|undefined），取栈顶1项为名称。
 // 注：
 // 默认获取原始的模板节点。
 // 如果传递clone为真，注意克隆会每次都发生。
 // 注意：
-// 返回Promise对象，因此通常用在指令序列的后段（避免异步）。
+// 因为返回Promise对象，通常用在指令序列的后段（避免异步）。
 
 
 
@@ -490,25 +488,30 @@ get( ...name: String | [String] ): Value | [Value]
 // 注意实参名称不要有多余的空格，否则结果可能不是你想要的。
 
 call( meth, ...rest ): Value
-// 调用目标的方法执行。
+// 调用目标的方法，执行结果入栈。
 // 目标：当前条目/栈顶1项。
 
 
-$if( val, else ): Value
+$if( val, elseval? ): Value
 // 条件赋值。
-// 如果目标值为真，返回val入栈，否则跳过。
 // 目标：当前条目/栈顶1项。
-// 特权：是。可能两次赋值（入栈）。
-// else：是否构造else逻辑。
-// - 目标为真，赋值。补充追加一个false（待后续$if取值）。
-// - 目标为假，不赋值val。赋值一个true（后续$if必然执行）。
-// 例1：
-// $if('alert(msg);')
-// 如果目标为真，入栈弹出消息代码。简单if。
-// 注：后续需配合func/exec指令执行代码：func('msg') exec('hai')
-// 例2：
-// $if('AAA', true) $if('BBB')
-// 如果目标为真赋值AAA，补充赋值一个false，第二个$if必然跳过。
+// 如果目标值为真（广义），val入栈，否则入栈elseval。
+// elseval值可选，如果未定义则为简单的if逻辑。
+
+$case( ...vals ): [Boolean]
+// 分支比较。
+// 目标：当前条目/栈顶1项。
+// 目标与实参一一相等（===）比较，结果入栈。
+// 这是$switch指令的前阶执行。
+
+$switch( ...vals ): Value
+// 分支判断赋值。
+// 目标：当前条目/栈顶1项。
+// 取栈顶通常是$case执行的结果（一个集合），
+// 测试集合成员值是否为真，真值返回相同下标实参值入栈。
+// 注：
+// 仅取首个真值对应的实参值入栈。
+// 目标集大小通常与实参序列长度相同，但容许超出（被简单忽略）。
 
 
 
