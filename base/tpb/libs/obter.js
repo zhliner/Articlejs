@@ -472,8 +472,8 @@ class Stack {
                 return this._item;
             }
             // 自动取栈
-            if ( n == 1 ) this._pop();
-            else if ( n > 1 ) this._pops( n );
+            if ( n == 1 ) this.pop();
+            else if ( n > 1 ) this.pops( n );
 
             return this._item;
         }
@@ -519,7 +519,7 @@ class Stack {
      * fix: count明确为undefined值时表现为0值。
      * @param  {Number} start 起始下标
      * @param  {Number} count 删除数量
-     * @return {Array}
+     * @return {Array} 被删除集
      */
     dels( start, count ) {
         if ( count == null ) {
@@ -542,16 +542,26 @@ class Stack {
 
     //-- 暂存区赋值 -----------------------------------------------------------
 
+
     /**
-     * 栈顶弹出赋值。
-     * 无实参传调用取出单个值。
-     * 否则取出n个（0有效）值并构造为一个数组赋值。
-     * 注：用于pop指令。
-     * @param {Number|null} n 弹出数量
-     * @data: Value | [Value]
+     * 弹出栈顶单项。
+     * @data: Value
      */
-    pop( n ) {
-        return n == null ? this._pop() : this._pops(n);
+    pop() {
+        this._done = true;
+        this._item = this._buf.pop();
+    }
+
+
+    /**
+     * 弹出栈顶多项。
+     * 0数量会创建一个空集，负值数量无效。
+     * @param {Number} n 弹出数量
+     * @data: [Value]
+     */
+    pops( n ) {
+        this._done = true;
+        this._item = n > 0 ? this._buf.splice( -n ) : [];
     }
 
 
@@ -587,14 +597,34 @@ class Stack {
 
 
     /**
-     * 栈底移出赋值。
-     * 无实参调用移出单个值。
-     * 否则移出n个（0有效）值并构造为一个数组赋值。
-     * @param {Number} n 移出条目数
-     * @data: Value | [Value]
+     * 移除栈底项。
+     * @data: Value
      */
-    shift( n ) {
-        return n == null ? this._shift() : this._shifts(n);
+    shift() {
+        this._done = true;
+        this._item = this._buf.shift();
+    }
+
+
+    /**
+     * 移除栈底多项。
+     * 0数量会创建一个空集，负值数量无效。
+     * @param {Number} n 移除数量
+     * @data: [Value]
+     */
+    shifts( n ) {
+        this._done = true;
+        this._item = n > 0 ? this._buf.splice( 0, n ) : [];
+    }
+
+
+    /**
+     * 移除任意位置值赋值。
+     * @param {Number} i 下标位置
+     */
+    pick( i ) {
+        this._done = true;
+        this._item = this._buf.splice(i, 1)[0];
     }
 
 
@@ -609,16 +639,6 @@ class Stack {
     }
 
 
-    /**
-     * 移除任意位置值赋值。
-     * @param {Number} i 下标位置
-     */
-    pick( i ) {
-        this._done = true;
-        this._item = this._buf.splice(i, 1)[0];
-    }
-
-
     //-- 私有辅助 -------------------------------------------------------------
 
     /**
@@ -628,50 +648,6 @@ class Stack {
      */
     _index( i ) {
         return this._buf[ i < 0 ? this._buf.length+i : i ];
-    }
-
-
-    /**
-     * 移除栈底项暂存。
-     * @data: Value
-     */
-    _shift() {
-        this._done = true;
-        this._item = this._buf.shift();
-    }
-
-
-    /**
-     * 移除栈底多个条目暂存。
-     * 0数量会创建一个空集，负值数量无效。
-     * @param {Number} n 移除数量
-     * @data: [Value]
-     */
-    _shifts( n ) {
-        this._done = true;
-        this._item = n > 0 ? this._buf.splice( 0, n ) : [];
-    }
-
-
-    /**
-     * 弹出栈顶值暂存。
-     * @data: Value
-     */
-    _pop() {
-        this._done = true;
-        this._item = this._buf.pop();
-    }
-
-
-    /**
-     * 弹出栈顶多个条目暂存。
-     * 0数量会创建一个空集，负值数量无效。
-     * @param {Number} n 弹出数量
-     * @data: [Value]
-     */
-    _pops( n ) {
-        this._done = true;
-        this._item = n > 0 ? this._buf.splice( -n ) : [];
     }
 }
 

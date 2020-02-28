@@ -156,12 +156,8 @@ const _Base = {
      * @return {Value|[Value]} 值或值集
      */
     ev( evo, name ) {
-        if ( name == null ) {
-            return evo.event;
-        }
-        let _vs = name.split(__reSpace).map(n => evo.event[n]);
-
-        return _vs.length > 1 ? _vs : _vs[0];
+        return name == null ?
+            evo.event : namesValue( name, evo.event );
     },
 
     __ev: null,
@@ -203,7 +199,7 @@ const _Base = {
      * 检查目标值是否为真（非假）或是否与val相等（===）。
      * 结果为假会中断执行流。
      * @param  {Value} val 对比值，可选
-     * @return {Promise|void}
+     * @return {void|reject}
      */
     pass( evo, val ) {
         let _v = evo.data;
@@ -221,9 +217,10 @@ const _Base = {
      * 停止事件默认行为。
      * 目标：当前条目，可选。
      * 如果当前条目非空，则真值停止，否则无条件停止。
-     * back为执行之后的返回值（入栈），如果未执行则无用。
-     * @param  {Value} back 执行结果，可选
-     * @return {back|void}
+     * back为执行之后的返回值（入栈），如果未执行则忽略。
+     * 注：该指令必须在异步指令之前使用。
+     * @param  {Value} back 执行后结果，可选
+     * @return {void|back}
      */
     avoid( evo, back ) {
         let _v = this.data;
@@ -240,13 +237,11 @@ const _Base = {
     /**
      * 停止事件冒泡。
      * 目标：当前条目，可选。
-     * 如果当前条目非空，则真值执行（停止），否则无条件执行。
-     * back为执行之后的返回值，如果未执行则无用。
-     * 例：
-     * 执行后同时终止执行流：stop(false) pass
-     *
-     * @param  {Value} back 执行结果，可选
-     * @return {back|void}
+     * 如果当前条目非空，则真值执行，否则无条件执行。
+     * back为执行之后的返回值，如果未执行则忽略。
+     * 注：该指令必须在异步指令之前使用。
+     * @param  {Value} back 执行后结果，可选
+     * @return {void|back}
      */
     stop( evo, back ) {
         let _v = this.data;
@@ -263,11 +258,11 @@ const _Base = {
     /**
      * 停止事件冒泡并阻止本事件其它处理器的执行。
      * 目标：当前条目，可选。
-     * 如果当前条目非空，则真值执行（停止），否则无条件执行。
-     * back为执行之后的返回值，如果未执行则无用。
-     *
-     * @param  {Value} back 执行结果，可选
-     * @return {back|void}
+     * 如果当前条目非空，则真值执行，否则无条件执行。
+     * back为执行之后的返回值，如果未执行则忽略。
+     * 注：该指令必须在异步指令之前使用。
+     * @param  {Value} back 执行后结果，可选
+     * @return {void|back}
      */
     stopAll( evo, back ) {
         let _v = this.data;
@@ -284,8 +279,9 @@ const _Base = {
     /**
      * 流程终止。
      * 目标：当前条目，可选。
-     * 如果当前条目非空，则比较或真值测试，真则终止。
-     * 如果当前条目为空，val通常无值，无条件终止。
+     * 如果目标非空，则真值终止或与val比较真则终止。
+     * 目标无值时无条件终止。
+     * 注：val仅在目标有值时才有意义。
      * @return {void}
      */
     end( evo, val ) {
@@ -299,23 +295,24 @@ const _Base = {
 
 
 
-    // 暂存区赋值
+    // 暂存区赋值。
     // 目标：赋值非取值，无。
     // 特权：是。需要直接操作数据栈。
-    // 注：简单调用Stack实例相应接口方法即可。
     // @return {void}
     //===============================================
+
 
     /**
      * 弹出栈顶n项。
      * 无实参调用弹出单项赋值，否则构造为一个数组赋值。
      * 即：pop() 和 pop(1) 是不一样的。
+     * @data: Value|[Value]
      * pop(0) 有效，构造一个空集赋值。
      * @param {Stack} stack 数据栈
      * @param {Number} n 弹出的条目数
      */
     pop( evo, stack, n ) {
-        stack.pop( n );
+        n == null ? stack.pop() : stack.pops(n);
     },
 
     __pop_x: true,
@@ -324,6 +321,7 @@ const _Base = {
     /**
      * 复制（浅）数据栈区段。
      * 两个位置下标支持负值从末尾倒算。
+     * @data: [Value] 值集
      * @param {Stack} stack 数据栈
      * @param {Number} beg 起始位置，可选
      * @param {Number} end 结束位置（不含），可选
@@ -338,47 +336,50 @@ const _Base = {
     /**
      * 引用数据栈目标值。
      * 下标位置支持负值指定。
+     * @data: Value|[Value]
      * @param {Stack} stack 数据栈
-     * @param {Number} n 位置下标
+     * @param {...Number} ns 位置下标序列
      */
-    index( evo, stack, n ) {
-        stack.index ( n );
+    index( evo, stack, ...ns ) {
+        ns.length == 1 ? stack.index ( ns[0] ) : stack.indexes( ...ns );
     },
 
     __index_x: true,
 
 
     /**
-     * 引用数据栈多个位置值。
-     * 仅支持简单的位置下标序列（非数组）。
-     * 注：下标位置支持负值。
-     * @param {Stack} stack 数据栈
-     * @param {...Number} ns 位置下标序列
-     */
-    indexes( evo, stack, ...ns ) {
-        stack.indexes( ...ns );
-    },
-
-    __indexes_x: true,
-
-
-    /**
-     * 移除栈底n项。
+     * 取出栈底n项。
      * 无实参调用移除单项赋值，否则构造为一个数组赋值。
      * 即：shift() 和 shift(1) 是不一样的。
+     * @data: Value|[Value]
      * @param {Stack} stack 数据栈
      * @param {Number} n 移除条目数
      */
     shift( evo, stack, n ) {
-        stack.shift( n );
+        n == null ? stack.shift() : stack.shifts(n);
     },
 
     __shift_x: true,
 
 
     /**
-     * 移除数据栈区段条目。
+     * 取出目标位置条目。
+     * 位置下标支持负数倒数。
+     * @data: Value 单值
+     * @param {Stack} stack 数据栈
+     * @param {Number} i 位置下标
+     */
+    pick( evo, stack, i ) {
+        stack.pick( i );
+    },
+
+    __pick_x: true,
+
+
+    /**
+     * 取出目标区段条目。
      * 起始下标支持负数从末尾倒算。
+     * @data: [Value] 值集
      * @param {Stack} stack 数据栈
      * @param {Number} start 起始位置
      * @param {Number} count 移除数量
@@ -390,27 +391,16 @@ const _Base = {
     __splice_x: true,
 
 
-    /**
-     * 移除数据栈目标位置条目。
-     * 位置下标支持负数倒数。
-     * @param {Stack} stack 数据栈
-     * @param {Number} i 位置下标
-     */
-    pick( evo, stack, i ) {
-        stack.pick( i );
-    },
-
-    __pick_x: true,
-
-
 
     // 数据栈操作。
     //===============================================
 
     /**
-     * 打包栈顶条目。
+     * 打包条目。
      * 栈顶的n项会被取出后打包为一个数组。
-     * 如果当前条目有值，则只是简单的将它们入栈（同push）。
+     * 目标：当前条目，可选。
+     * 特权：是，自主操作数据栈。
+     * 如果当前条目有值（数组|字符串），取它的末尾成员打包。
      * 例：
      * pack(3)      // 同 pop(3), push 序列
      * pop(3) pack  // 同上
@@ -419,10 +409,8 @@ const _Base = {
      * @return {[Value]}
      */
     pack( evo, stack, n ) {
-        if ( evo.data !== undefined ) {
-            return evo.data;
-        }
-        return stack.dels( -n );
+        return evo.data === undefined ?
+            stack.dels(-n) : evo.data.slice(-n);
     },
 
     __pack: 0,
@@ -431,7 +419,9 @@ const _Base = {
 
     /**
      * 将条目展开入栈。
-     * 如果当前条目不是数组则简单返回。
+     * 目标：当前条目/栈顶1项。
+     * 特权：是，自主操作数据栈。
+     * 如果目标不是数组则简单返回。
      * @param {Stack} stack 数据栈
      */
     spread( evo, stack ) {
@@ -448,7 +438,7 @@ const _Base = {
     /**
      * 删除数据栈任意区段条目。
      * 目标：无。
-     * 特权：是。直接操作数据栈。
+     * 特权：是，直接操作数据栈。
      * 注意：
      * 这只是纯粹的删除功能，应该不常用。
      * 如果count未指定，表示删除start之后全部。
@@ -471,7 +461,8 @@ const _Base = {
     /**
      * 空值指令。
      * 压入特殊值undefined。
-     * 注：常用于向栈内填充无需实参的占位值。
+     * 特权：是，特殊操作。
+     * 可用于向栈内填充无需实参的占位值。
      * @param {Stack} stack 数据栈
      */
     nil( evo, stack ) {
@@ -484,25 +475,23 @@ const _Base = {
     /**
      * 设置目标成员值。
      * 目标：当前条目/栈顶1项。
-     * 如果名称和值都为数组，则为一一对应设置。
-     * 否则为一对多（单值对多名称），或一对一设置（值数组视为一个单元）。
-     * 注：操作目标本身，无返回值入栈。
-     * @param  {String|[String]} name 名称或名称集
-     * @param  {Value|[Value]} val 目标值或值集
-     * @return {void}
+     * name支持空格分隔的多个名称。
+     * 如果名称为多个且值为数组，一一对应设置，否则单一值设置到多个键名。
+     * 操作：Value|[Value] => Object
+     * @param  {String} name 名称（序列）
+     * @param  {Value|[Value]} val 值或值集
+     * @return {@data}
      */
     set( evo, name, val ) {
-        let _o = evo.data;
+        let _ns = name.split(__reSpace);
 
-        if ( !$.isArray(name) ) {
-            _o[name] = val;
+        if ( _ns.length == 1 ) {
+            return evo.data[name] = val, evo.data;
         }
-        else if ( $.isArray(val) ) {
-            name.forEach( (n, i) => _o[n] = val[i] );
+        if ( !$.isArray(val) ) {
+            val = new Array(_ns.length).fill(val);
         }
-        else {
-            name.forEach( n => _o[n] = val );
-        }
+        return namesObj( _ns, val, evo.data );
     },
 
     __set: 1,
@@ -742,18 +731,18 @@ const _BaseOn = {
     /**
      * 从目标上取值入栈。
      * 目标：当前条目/栈顶1项。
-     * 特权：是。自行压入数据栈。
-     * name支持空格分隔的多个名称，此时值为一个集合。
+     * 特权：是，自行入栈。
+     * name支持空格分隔的多个名称，此时值为一个数组。
      * 多个名称实参取值会自动展开入栈。
+     * @data: Object => Value|[Value]
      * @param  {Stack} stack 数据栈
      * @param  {...String} names 属性名序列
      * @return {void} 自行入栈
      */
     get( evo, stack, ...names ) {
-        let _vs = names.map( name =>
-            __reSpace.test(name) ? name.split(__reSpace).map( n => evo.data[n] ) : evo.data[name]
+        stack.push(
+            ...names.map( n => namesValue(n, evo.data) )
         );
-        stack.push( ..._vs );
     },
 
     __get: 1,
@@ -1215,31 +1204,39 @@ const _BaseOn = {
 
 
     /**
-     * 对象赋值。
-     * 数据源对象内的属性/值赋值到接收对象。
+     * 对象克隆赋值。
      * 目标：当前条目/栈顶1项。
-     * 当前条目可为对象的集合，会自动展开取值。
-     * @param {Object} to 接收对象
+     * 数据源对象自身的属性/值赋值到接收对象（不含继承的）。
+     * 注：空名称可匹配全部可枚举属性名（含Symbol）。
+     * @data: Object => Object
+     * @param  {Object} to 接收对象
+     * @param  {String} names 取名称序列，可选
+     * @return {Object}
      */
-    assign( evo, to ) {
-        let _v = evo.data;
-        return $.assign( to, ...( $.isArray(_v) ? _v : [_v] ) );
+    assign( evo, to, names ) {
+        if ( !names ) {
+            return Object.assign(to, evo.data);
+        }
+        let _ns = new Set(names.split(__reSpace));
+
+        return $.assign( to, evo.data, (v, n) => _ns.has(n) && [v] );
     },
 
     __assign: 1,
 
 
     /**
-     * 数组合并创建对象。
+     * 集合映射聚集。
      * 目标：当前条目/栈顶1项。
-     * 传入的实参作为键名称，目标应当是一个数组（否则值无对应）。
-     * @param  {[String]} keys 对象键名集
+     * 把集合（数组|字符串）成员映射到一个键值对对象。
+     * 集合成员按名称顺序下标被提取，不足部分值为undefined。
+     * names支持空格分隔的多个名称。
+     * @data: [Value] => Object
+     * @param  {String} names 属性名序列
      * @return {Object}
      */
-    merge( evo, keys ) {
-        return keys.reduce(
-                (o, k, i) => (o[k] = evo.data[i], o), {}
-            );
+    gather( evo, names ) {
+        return namesObj( names.split(__reSpace), evo.data );
     },
 
     __merge: 1,
@@ -1520,6 +1517,31 @@ const _BaseOn = {
 //
 // 工具函数
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 属性取值。
+ * name可能由空格分隔为多个名称。
+ * 单名称时返回值，多个名称时返回值集。
+ * @param  {String} name 名称（序列）
+ * @param  {Object} obj 取值对象
+ * @return {Value|[Value]} 值（集）
+ */
+function namesValue( name, obj ) {
+    return __reSpace.test(name) ?
+        name.split(__reSpace).map( n => obj[n] ) : obj[name];
+}
+
+
+/**
+ * 构造名值对对象。
+ * @param  {[String]} names 名称序列
+ * @param  {[Value]} val 值集
+ * @return {Object}
+ */
+function namesObj( names, val, obj = {} ) {
+    return names.reduce( (o, k, i) => (o[k] = val[i], o), obj );
+}
 
 
 /**
