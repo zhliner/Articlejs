@@ -7134,9 +7134,10 @@ const domReady = {
  * 对象成员处理赋值。
  * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
  * 接口：function(v, k, source, target): [v, k] | null
+ * 返回假值忽略赋值，这提供了一种排除机制。
  * 注：
- * 这是一种浅赋值，相同的键会被后来者覆盖（而不是合并）。
- * 返回假值则忽略赋值，提供一种排除目标的机制。
+ * 这是一种浅赋值，相同的键会被后来者覆盖。
+ * 属性仅为自身所有，且排除了不可枚举类型（同 Object.assign 行为）。
  *
  * @param  {Object} to 目标对象
  * @param  {Object} src 数据源对象
@@ -7145,11 +7146,14 @@ const domReady = {
  */
  function assignProc( to, src, proc ) {
 
-    Reflect.ownKeys(src).forEach(
-        k => {
-            let _v = proc( src[k], k, src, to );
+    for (const k of Reflect.ownKeys(src)) {
+        if ( src.propertyIsEnumerable(k) ) {
+            let _v = proc(
+                src[k], k, src, to
+            );
             if ( _v ) to[ _v[1] == null ? k : _v[1] ] = _v[0];
-        });
+        }
+    }
     return to;
 }
 
@@ -7359,7 +7363,7 @@ Object.assign( tQuery, {
 
 
     /**
-     * 对象成员赋值（可经处理）。
+     * 对象成员赋值（可过滤）。
      * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
      * 处理器：
      *      function(v, k, source, target): [v, k] | null
@@ -7368,7 +7372,7 @@ Object.assign( tQuery, {
      * - null   也可以是其它假值，该条目的赋值会被忽略。
      * 注：
      * 最后一个实参为处理器，但也可以是普通对象（即普通赋值）。
-     * 迭代源对象的每一个属性，包括 Symbol 类型的属性。
+     * 会迭代源对象自身每一个可枚举属性，包括 Symbol 类型。
      *
      * @param  {Object} target 目标对象
      * @param  {...Object} sources 数据源对象序列
