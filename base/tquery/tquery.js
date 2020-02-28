@@ -290,7 +290,7 @@
         __reTAG     = new RegExp( "^(" + identifier + "|[*])$" ),
 
         // 空白匹配
-        __chSpace   = new RegExp( whitespace + "+", "g" ),
+        __reSpace   = new RegExp( whitespace + "+", "g" ),
 
         // data系属性名匹配。
         // 包含简写匹配，如：-val => data-val
@@ -775,7 +775,7 @@ Object.assign( tQuery, {
             return to;
         }
         if ( typeof evns == 'string' ) {
-            evns = evns.trim().split(__chSpace);
+            evns = evns.trim().split(__reSpace);
         }
         return Event.clone( to, src, evns );
     },
@@ -1485,7 +1485,7 @@ Object.assign( tQuery, {
             names = names( Arr(el.classList) );
         }
         if (typeof names == 'string') {
-            addClass( el, names.trim().split(__chSpace) );
+            addClass( el, names.trim().split(__reSpace) );
         }
         return this;
     },
@@ -1508,7 +1508,7 @@ Object.assign( tQuery, {
             return removeClass(el, names), this;
         }
         if ( typeof names == 'string' ) {
-            removeClass( el, names.trim().split(__chSpace) );
+            removeClass( el, names.trim().split(__reSpace) );
         }
         if (el.classList.length == 0) {
             // 清理：不激发attr系事件。
@@ -1536,7 +1536,7 @@ Object.assign( tQuery, {
             val = val( Arr(el.classList) );
         }
         if (typeof val === 'string') {
-            classToggle(el, val.trim().split(__chSpace), force);
+            classToggle(el, val.trim().split(__reSpace), force);
         } else {
             classAttrToggle( el, !!val );
         }
@@ -1559,7 +1559,7 @@ Object.assign( tQuery, {
      */
     hasClass( el, names ) {
         return names.trim().
-            split(__chSpace).
+            split(__reSpace).
             every(
                 it => it && el.classList.contains(it)
             );
@@ -1635,11 +1635,9 @@ Object.assign( tQuery, {
      * @return {Value|Object|this}
      */
     attr( el, names, value ) {
-        if (value === undefined && typeof names == 'string') {
-            return hookGets(el, names.trim(), elemAttr);
-        }
-        hookSets(el, names, value, elemAttr);
-        return this;
+        return hookIsGet(names, value) ?
+            hookGets(el, names.trim(), elemAttr) :
+            hookSets(el, names, value, elemAttr) || this;
     },
 
 
@@ -1679,11 +1677,9 @@ Object.assign( tQuery, {
      * @return {Value|Object|this}
      */
     prop( el, names, value ) {
-        if (value === undefined && typeof names == 'string') {
-            return hookGets(el, names.trim(), elemProp);
-        }
-        hookSets(el, names, value, elemProp);
-        return this;
+        return hookIsGet(names, value) ?
+            hookGets(el, names.trim(), elemProp) :
+            hookSets(el, names, value, elemProp) || this;
     },
 
 
@@ -1701,7 +1697,7 @@ Object.assign( tQuery, {
         }
         if (typeof names == 'string') {
             names.trim().
-                split(__chSpace).
+                split(__reSpace).
                 forEach( n => setAttr( el, attrName(n), null ) );
         }
         return this;
@@ -1903,7 +1899,11 @@ Object.assign( tQuery, {
      * @return {Object} 样式名/值对对象
      */
     cssGets( el, names ) {
-        return cssGets( getStyles(el), names.trim() );
+        let _cso = getStyles(el);
+
+        return names.trim()
+            .split(__reSpace)
+            .reduce( (obj, n) => ( obj[n] = _cso[n], obj ), {} );
     },
 
 
@@ -4605,19 +4605,6 @@ function camelCase( name ) {
 
 
 /**
- * 获取样式值（集）。
- * @param  {CSSStyleDeclaration} cso 计算样式集
- * @param  {String} name 样式名序列
- * @return {Object} 值或名值对对象
- */
-function cssGets( cso, name ) {
-    return name
-        .split(__chSpace)
-        .reduce( (obj, n) => ( obj[n] = cso[n], obj ), {} );
-}
-
-
-/**
  * 设置样式值。
  * name为字符串时仅支持单个名称。
  * @param  {Element} el 目标元素
@@ -4630,7 +4617,7 @@ function cssSets( el, name, val, cso ) {
     if (typeof name == 'string') {
         return cssArrSet(
             el,
-            name.trim().split(__chSpace),
+            name.trim().split(__reSpace),
             val,
             cso
         );
@@ -4857,6 +4844,16 @@ function arr2Flat( src ) {
 
 
 /**
+ * 属性/特性取值判断。
+ * @param {String|Object} name 属性/特性名
+ * @param {Value|undefined} val 设置值
+ */
+function hookIsGet( name, val ) {
+    return val === undefined && typeof name == 'string';
+}
+
+
+/**
  * 通用赋值。
  * - 调用目标域内的set设置值，接口：set(el, key, value)
  * - 值可为回调取值，接口：value( get(el, key), el )
@@ -4872,12 +4869,13 @@ function arr2Flat( src ) {
  */
 function hookSets( el, name, value, scope ) {
     if (typeof name == 'string') {
-        return hookArrSet(
+        hookArrSet(
             el,
-            name.trim().split(__chSpace),
+            name.trim().split(__reSpace),
             value,
             scope
         );
+        return;
     }
     for (let [k, v] of entries2(name)) hookSet(el, k, v, scope);
 }
@@ -4944,7 +4942,7 @@ function customSet( el, name, value, scope ) {
  * @return {String|Object} 值或名/值对象
  */
 function hookGets( el, name, scope ) {
-    name = name.split(__chSpace);
+    name = name.split(__reSpace);
 
     if (name.length == 1) {
         return customGet(el, name[0], scope);
@@ -6858,8 +6856,8 @@ const Event = {
      */
     _clearAll( el, map1 ) {
         for (let [n, m2] of map1) {
-            for (const [s, m3] of m2) {
-                for (const [h, av] of m3) {
+            for (const m3 of m2.values()) {
+                for (const av of m3.values()) {
                     el.removeEventListener( n, av[0], av[1] );
                 }
             }
@@ -7067,7 +7065,7 @@ function eventBinds( type, el, slr, evn, handle ) {
  * @param {Function} handle 事件处理函数
  */
 function evnsBatch( type, el, evn, slr, handle ) {
-    evn.split(__chSpace)
+    evn.split(__reSpace)
         .forEach( name => Event[type](el, name, slr, handle) );
 }
 
