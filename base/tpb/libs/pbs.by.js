@@ -113,15 +113,12 @@ const _By = {
     __xfalse: 1,
 
 
-    // 集合操作
-    //===============================================
-    // expr为函数体表达式（无效return），参数名固定：（v, i, o）。
-    // expr支持首字符问号引用X函数库，之后为方法名。
-
     /**
-     * 迭代执行。
+     * 集合迭代执行。
      * 目标：当前条目/栈顶1项，需要是一个集合。
      * 执行代码返回false会中断迭代。
+     * expr为函数体表达式（无效return），参数名固定：（v, i, o）。
+     * expr支持首字符问号引用X函数库，之后为方法名。
      * @param  {String|Function} expr 表达式串或方法引用或函数
      * @return {void}
      */
@@ -133,20 +130,6 @@ const _By = {
     },
 
     __each: 1,
-
-
-    /**
-     * 映射调用。
-     * 目标：当前条目/栈顶1项，需要是一个集合。
-     * 返回值构建为一个新集合，返回的null/undefined会被忽略。
-     * @param  {String|Function} expr 表达式串或方法引用或函数
-     * @return {Array}
-     */
-    map( evo, expr ) {
-        return $.map( evo.data, getFunc(expr, 'v', 'i', 'o') );
-    },
-
-    __map: 1,
 
 };
 

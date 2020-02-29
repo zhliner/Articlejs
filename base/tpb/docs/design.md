@@ -166,7 +166,7 @@ evo( name: String|Number ): Value
 // 目标：当前条目，可选。
 // 注：因为可能取evo.data属性，故可由前阶取栈。
 
-ev( name?: String ): Value | [Value]
+ev( name?: String ): Value|[Value]
 // 从事件对象上取值入栈。
 // 目标：无。
 // name为事件对象内的成员名，支持空格分隔的名称序列。
@@ -377,7 +377,9 @@ nil(): undefined
 set( name: String, val: Value|[Value] ): void
 // 设置目标成员值。
 // 目标：当前条目/栈顶1项。
-// name支持空格分隔多个名称，如果名称和值都为数组，则一一对应设置。
+// name支持空格分隔多个名称，
+// 如果名称为多个且值为数组，为一一对应设置，否则值设置到多个名称。
+// 注：会修改目标对象自身。
 ```
 
 
@@ -390,33 +392,30 @@ set( name: String, val: Value|[Value] ): void
 
 Int( radix ): Number
 // 将字符串转为整数，即 parseInt()
-// 支持数组取成员计算（返回一个结果集）。
 
 Float(): Number
 // 将字符串转为浮点数，即 parseFloat()
-// 支持数组取成员计算（返回一个结果集）。
 
 RE( flag: String ): RegExp
 // 将字符串转为正则表达式。
-// 支持数组取成员计算（返回一个结果集）。
 
-Bool(): Boolean
+Bool( all:Boolean ): Boolean
 // 转换为布尔值（false|true）
-// 假值：'', 0, false, null, undefined, [], {}。
-// 注：空数组和空对象也为假。
+// 假值：'', 0, false, null, undefined
+// 如果传递all为真，假值包含 [], {}。
 
 Str( prefix?, suffix? ): String
 // 转换为字符串。
 // 可以选择性的添加前/后缀。
 
-Arr( ext: Boolean ): Array
+Arr( one: Boolean ): Array
 // 转换为数组。
-// 如果ext为真，表示扩展目标为一个新数组（Array.from）。
-// 否则只是简单的封装目标为一个单值数组（Array.of）。
+// 类数组才会被转换为一个真正的数组（Array.from）。
+// 如果要强制打包目标为一个单成员数组（Array.of），可传递one为真。
 
 Obj(): Object
 // 将目标转换为普通对象。
-// 目标可以是数组、Set或Map实例。
+// 目标可以是数组、Set或Map实例，主要针对有entries接口的对象。
 // 注：内部调用 Object.fromEntries()。
 
 
@@ -424,65 +423,57 @@ Obj(): Object
 // 简单值操作。
 //===============================================
 
-push( ...val: Value | [Value] ): Value | [Value]
+push( ...val: Value|[Value] ): void
 // 直接赋值入栈。
-// 目标：可选当前条目。不取栈。
-// 特权：是。自行入栈操作。
+// 目标：当前条目，可选。
+// 特权：是，自行入栈。
 // 多个实参会自动展开入栈，数组实参视为单个值。
-// 无实参调用时入栈当前条目（作为单一值）。
-// 如果暂存区有值同时也传入了实参，则实参有效，当前条目作废。
-// 注记：
-// 入栈当前条目的能力使得可以组合多个栈数据为单一条目。
-// 这在打包多个实参作单一递送时有用。
+// 如果实参和目标都有值，则目标作为单一值附加在实参序列之后。
 
-env( names: String, its?: Value | String ): void | Value
+env( names: String, its?: Value|String ): void|Value|[Value]
 // 全局环境设置或取值。
-// 目标：当前条目。不自动取栈。
+// 目标：当前条目，可选。
 // 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
 // names和its都支持空格分隔的名称序列。
 // 设置时：
-// - 目标为空：its必然有值，否则为取值逻辑。
-// - 目标非空：its有值，its指属性名，取该属性值设置。
+// - 目标为空：取its本身为值（必然存在）。
+// - 目标非空：取目标的its属性值或目标本身（its未定义时）。
 // 注：
-// 如果names为名称序列，则目标对象需要是一个集合或数组。
-// - 集合：names的成员同时作为集合的属性名。
-// - 数组：names成员的下标对应数组的成员。
+// its也支持空格分隔多个键名，对应到目标各成员。
+// 如果names为名称序列，则最终的目标需要是一个数组。
 
-data( names: String, its?: Value | String ): void | Value
+data( names: String, its?: Value|String ): void|Value|[Value]
 // 关联数据存储/取出。
-// 目标：当前条目。不自动取栈。
+// 目标：当前条目，可选。
 // 存储元素（evo.delegate）关联的数据项或取出数据项入栈。
-// names和its都支持空格分隔的名称序列。
+// 指令说明参考evn。
 // - 数据项键：names。
-// - 数据项值：当前条目、its、或当前条目的[its]属性值。
-//
-// 注：names说明同上（env）。
+// - 数据项值：its|目标|目标的[its]值或值集。
 
-sess( name: String, its?: Value | String): void | Value
+sess( name: String|null, its?: Value|String|null): void|Value
 // 设置/取值浏览器会话数据（sessionStorage）。
-// 目标：当前条目。不自动取栈。
-// 目标为空且its未定义时为取值入栈，否则为设置值。
+// 目标：当前条目，可选。
+// 目标为空且its未定义时为取值入栈，否则为设置。
+// 说明：
+// 参考evn指令，但name仅支持单个名称。
+// its依然可为键名序列，从目标上提取一个值集（对应到单个name）。
+// 传递its为null可清除name项的值，传递name为null可清除整个Storage存储。
 // 注：
-// its的逻辑同上，但name仅支持单个名称。
-// 传递its为null可清除目标项的值，传递name为null会清除整个Storage存储。
-// 注意：
 // 存储的值会被转换为字符串，取出的值也为字符串。
 
-local( name: String, its?: Value | String): void | Value
-// 设置/取值浏览器本地数据。
-// 目标：当前条目。不自动取栈。
-// 目标为空且its未定义时为取值入栈，否则为设置值。
-// 注：
-// 其它逻辑同上（sess）。
+local( name: String|null, its?: Value|String|null): void|Value
+// 设置/取值浏览器本地数据（localStorage）。
+// 目标：当前条目，可选。
+// 说明：参考sess指令。
 
-get( ...name: String | [String] ): Value | [Value]
+get( ...name: String|[String] ): Value|[Value]
 // 取目标成员值入栈。
 // 目标：当前条目/栈顶1项。
-// 特权：是。自行入栈操作。
+// 特权：是，自行入栈。
 // name支持空格分隔的多个名称，此时值为一个集合（不展开）。
 // 多个实参名称取值会自动展开入栈。
-// 注：
-// 注意实参名称不要有多余的空格，否则结果可能不是你想要的。
+// 注意：
+// 实参名称不要有多余的空格，否则前后空串也是一个键名。
 
 call( meth, ...rest ): Value
 // 调用目标的方法，执行结果入栈。
@@ -505,10 +496,11 @@ $switch( ...vals ): Value
 // 分支判断赋值。
 // 目标：当前条目/栈顶1项。
 // 取栈顶通常是$case执行的结果（一个集合），
-// 测试集合成员值是否为真，真值返回相同下标实参值入栈。
+// 测试集合成员值是否为真（广义），真值返回相同下标实参值入栈。
 // 注：
 // 仅取首个真值对应的实参值入栈。
 // 目标集大小通常与实参序列长度相同，但容许超出（被简单忽略）。
+// 目标应当是一个数组（.entries接口）。
 
 
 
@@ -579,6 +571,14 @@ array( size, ...vals ): Array
 // 注：
 // 当前条目如果是数组，会解构填充。
 // 如果完全没有填充值，数组成员会填充为undefined。
+
+map( proc:Function ): Array | Collector
+// 集合映射。
+// 目标：当前条目/栈顶1项。
+// 返回的集合与目标类型相同。
+// 对于普通数组与Collector有一些区别：
+// 普通数组：$.map(xxx, proc) 处理器返回的undefined和null会被忽略。
+// Collector: $(xxx).map(proc) 实际上是调用数组原生的.map()，返回值都有效。
 
 
 

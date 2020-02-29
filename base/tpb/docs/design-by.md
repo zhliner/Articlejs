@@ -63,7 +63,7 @@ xfalse( meth:String, ...rest:Value ): Value
 // $expr可为函数体表达式串，接口：function(v, i, o): Value。
 // $expr的执行结果自动返回，无需return语句。
 // $expr支持首字符问号（?）引用X函数库，此时问号后面为成员名称。
-//===============================================
+//-----------------------------------------------
 
 each( $expr:String|Function ): void
 // 迭代执行。
@@ -71,15 +71,10 @@ each( $expr:String|Function ): void
 // 目标应该是一个集合，没有返回值入栈。
 // 回调函数内返回false会中断迭代。
 
-map( $expr:String|Function ): Array
-// 值集映射。
-// 目标应当是一个集合。
-// 实参函数的返回值构建一个新集合返回，null/undefined会被忽略。
-
 
 // $comp可为函数表达式串，接口：function(a, b): Boolean。
 // $comp为null表示采用默认规则，其它同$expr说明。
-//===============================================
+//-----------------------------------------------
 
 sort( $comp:String|Function|null ): Collector
 // 集合排序。

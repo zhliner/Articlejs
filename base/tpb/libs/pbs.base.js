@@ -400,7 +400,7 @@ const _Base = {
      * 栈顶的n项会被取出后打包为一个数组。
      * 目标：当前条目，可选。
      * 特权：是，自主操作数据栈。
-     * 如果当前条目有值（数组|字符串），取它的末尾成员打包。
+     * 如果当前条目有值（数组|字符串），取它的末尾n个单元打包。
      * 例：
      * pack(3)      // 同 pop(3), push 序列
      * pop(3) pack  // 同上
@@ -476,7 +476,8 @@ const _Base = {
      * 设置目标成员值。
      * 目标：当前条目/栈顶1项。
      * name支持空格分隔的多个名称。
-     * 如果名称为多个且值为数组，一一对应设置，否则单一值设置到多个键名。
+     * 多个名称对应值为数组时，是一一对应设置，否则单值对应到多个名称。
+     * 会修改目标对象本身。
      * 操作：Value|[Value] => Object
      * @param  {String} name 名称（序列）
      * @param  {Value|[Value]} val 值或值集
@@ -507,18 +508,16 @@ const _BaseOn = {
 
     // 类型转换
     // 目标：当前条目/栈顶1项。
-    // 注：尽量返回值而非该类型的对象。
+    // 返回值而非该类型的对象。
     //===============================================
 
     /**
      * 转为整数（parseInt）。
-     * 支持集合成员操作（逐一转换）。
      * @param  {Number} radix 进制基数
-     * @return {Number|[Number]}
+     * @return {Number}
      */
     Int( evo, radix ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map( v => parseInt(v, radix) ) : parseInt(x, radix);
+        return parseInt( evo.data, radix );
     },
 
     __Int: 1,
@@ -526,12 +525,10 @@ const _BaseOn = {
 
     /**
      * 将目标转为浮点数（parseFloat）。
-     * 支持集合成员操作（逐一转换）。
-     * @return {Number|[Number]}
+     * @return {Number}
      */
     Float( evo ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map( v => parseFloat(v) ) : parseFloat(x);
+        return parseFloat( evo.data );
     },
 
     __Float: 1,
@@ -540,14 +537,12 @@ const _BaseOn = {
     /**
      * 转化为正则表达式。
      * 如果提供了flag，肯定会返回一个新的正则对象。
-     * 否则如果源本来就是一个正则对象，则不变。
-     * 注：支持集合成员操作（逐一转换）。
+     * 如果源本来就是一个正则对象，则原样返回。
      * @param  {String} flag 正则修饰符
-     * @return {RegExp|[RegExp]}
+     * @return {RegExp}
      */
     RE( evo, flag ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map( v => RegExp(v, flag) ) : RegExp(x, flag);
+        return RegExp( evo.data, flag );
     },
 
     __RE: 1,
@@ -555,15 +550,11 @@ const _BaseOn = {
 
     /**
      * 转为布尔值（true|false）。
-     * 注：空数组和空对象也为假。
+     * @param  {Boolean} all 是否测试空对象/数组
      * @return {Boolean}
      */
-    Bool( evo ) {
-        let x = evo.data;
-        if ( !x ) {
-            return false;
-        }
-        return typeof x === 'object' && Object.keys(x).length == 0 ? false : true;
+    Bool( evo, all ) {
+        return !!(all ? isEmpty(evo.data) : evo.data);
     },
 
     __Bool: 1,
@@ -584,14 +575,14 @@ const _BaseOn = {
 
     /**
      * 转换为数组。
-     * 如果ext为真，表示调用Array.from()展开为一个数组。
-     * 否则调用Array.of()简单转为数组（单个成员）。
+     * 类数组才会被转换为一个真正的数组。
+     * 如果要强制打包目标为一个单成员数组，可传递one为真。
      * @data: {Value|LikeArray}
-     * @param  {Boolean} ext 是否扩展
+     * @param  {Boolean} one 单成员转换
      * @return {Array}
      */
-    Arr( evo, ext ) {
-        return ext ? Array.from( evo.data ) : Array.of( evo.data );
+    Arr( evo, one ) {
+        return one ? Array.of( evo.data ) : Array.from( evo.data );
     },
 
     __Arr: 1,
@@ -599,13 +590,13 @@ const _BaseOn = {
 
     /**
      * 转换为普通对象。
-     * 主要用于包含entries接口的对象，如：Set/Map实例。
+     * 主要针对目标的entries接口，可用于Set/Map实例。
      * 如果目标不包含entries，返回Object()的简单封装。
      * @return {Object}
      */
     Obj( evo ) {
         if ( !$.isFunction(evo.data.entries) ) {
-            return Object(evo.data);
+            return Object( evo.data );
         }
         return Object.fromEntries( evo.data.entries() );
     },
@@ -619,21 +610,19 @@ const _BaseOn = {
 
     /**
      * 直接数据入栈。
-     * 目标：可选当前条目，可选。
-     * 特权：是。自行入栈操作。
+     * 目标：当前条目，可选。
+     * 特权：是，自行入栈。
      * 多个实参会自动展开入栈，数组实参视为单个值。
-     * 无实参调用时入栈当前条目（作为单一值）。
-     * 如果暂存区有值同时也传入了实参，则实参有效，当前条目忽略。
-     * 注：
-     * 可以入栈当前条目，使得可以将栈条目重新整理打包。
+     * 如果实参和目标都有值，则目标作为单一值附加在实参序列之后。
      * @param  {Stack} stack 数据栈
      * @param  {...Value} vals 值序列
      * @return {void} 自行入栈
      */
     push( evo, stack, ...vals ) {
-        stack.push(
-            ...(vals.length ? vals : [evo.data])
-        );
+        if ( evo.data !== undefined ) {
+            vals.push( evo.data );
+        }
+        stack.push( ...vals );
     },
 
     __push: 0,
@@ -646,10 +635,12 @@ const _BaseOn = {
      * 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
      * 设置时：
      * - 目标为空：取its本身为值（必然存在）。
-     * - 目标非空：取目标的its属性值，或者目标本身（its无值）。
-     * @param  {String} name 键名（序列）
+     * - 目标非空：取目标的its属性值或目标本身（its未定义时）。
+     * its也支持空格分隔多个键名，对应到目标各成员。
+     * 如果name是多个名称序列，最后的取值目标应当是一个数组。
+     * @param  {String} name 键名/序列
      * @param  {Value|String} its 存储值或成员名/序列，可选
-     * @return {Value|void}
+     * @return {Value|[Value]|void}
      */
     env( evo, name, its ) {
         let _o = evo.data;
@@ -665,23 +656,19 @@ const _BaseOn = {
 
     /**
      * 关联数据存储/取出。
-     * 存储元素（evo.delegate）关联的数据项或取出数据项。
      * 目标：当前条目，可选。
-     * 目标非空或its有值时为存储，目标为空且its未定义时为取值入栈。
-     * 存储时状况参考env设置说明。
+     * 存储集对应到委托元素（evo.delegate），其它说明参考evn。
      * @param  {String} name 键名/序列
      * @param  {Value|String} its 存储值或成员名/序列，可选
-     * @return {Value|void}
+     * @return {Value|[Value]|void}
      */
     data( evo, name, its ) {
-        let _e = evo.delegate,
-            _m = DataStore.get(_e) || DataStore.set(_e, new Map()).get(_e),
-            _o = evo.data;
+        let _m = getMap(DataStore, evo.delegate);
 
-        if ( _o === undefined && its === undefined ) {
+        if ( evo.data === undefined && its === undefined ) {
             return getItem( _m, name );
         }
-        setItem( _m, name, objectItem(_o, its) );
+        setItem( _m, name, objectItem(evo.data, its) );
     },
 
     __data: 0,
@@ -689,13 +676,14 @@ const _BaseOn = {
 
     /**
      * 设置/取值浏览器会话数据。
-     * 目标为空且its未定义时为取值入栈，否则为设置值（参考evn说明）。
-     * 目标：当前条目。不自动取栈。
-     * 传递its为null可清除目标项的值。
-     * 如果传递name为null，会清除整个Storage存储。
-     * 注意：存储的值会被转换为字符串。
-     * @param {String} name 存储键名
-     * @param {Value|String} its 存储值或成员名，可选
+     * 目标为空且its未定义时为取值入栈，否则为设置。
+     * 目标：当前条目，可选。
+     * 传递its为null可清除name项的值。
+     * 传递name为null，可清除整个Storage存储（小心）。
+     * 注：存储的值会被转换为字符串。
+     * @param  {String} name 存储键名
+     * @param  {Value|String} its 存储值或成员名，可选
+     * @return {Value|void}
      */
     sess( evo, name, its ) {
         let _o = evo.data;
@@ -711,10 +699,11 @@ const _BaseOn = {
 
     /**
      * 设置/取值浏览器本地数据。
-     * 目标：当前条目。不自动取栈。
-     * 注：参考sess()说明。
-     * @param {String} name 存储键名
-     * @param {Value|String} its 存储值或成员名，可选
+     * 目标：当前条目，可选。
+     * 说明：参考sess指令。
+     * @param  {String} name 存储键名
+     * @param  {Value|String} its 存储值或成员名，可选
+     * @return {Value|void}
      */
     local( evo, name, its ) {
         let _o = evo.data;
@@ -752,8 +741,9 @@ const _BaseOn = {
     /**
      * 调用目标的方法执行。
      * 目标：当前条目/栈顶1项。
-     * @param {String} meth 方法名
-     * @param {...any} rest 实参序列
+     * @param  {String} meth 方法名
+     * @param  {...Value} rest 实参序列
+     * @return {Value} 方法调用的返回值
      */
     call( evo, meth, ...rest ) {
         return evo.data[meth]( ...rest );
@@ -795,21 +785,17 @@ const _BaseOn = {
     /**
      * SWITCH分支判断。
      * 目标：当前条目/栈顶1项。
-     * 取栈顶通常是$case执行的结果（一个集合），
+     * 取栈顶通常是$case执行的结果（一个数组），
      * 测试集合成员值是否为真，真值返回相同下标实参值入栈。
      * 注：
      * 仅取首个真值对应的实参值入栈。
      * 目标集大小通常与实参序列长度相同，但容许超出（被简单忽略）。
+     * @data: [Boolean]
      * @param  {...Value} vals 入栈值候选
      * @return {Value}
      */
     $switch( evo, ...vals ) {
-        let _bs = evo.data;
-
-        if ( !$.isArray(_bs) ) {
-            _bs = [_bs];
-        }
-        for (const [i, b] of _bs.entries()) {
+        for (const [i, b] of evo.data.entries()) {
             if ( b ) return vals[i];
         }
     },
@@ -1009,6 +995,25 @@ const _BaseOn = {
     __array: 0,
 
 
+    /**
+     * 集合映射。
+     * 普通集合：$.map(xxx, proc)：
+     * - 会忽略proc返回的undefined和null值。
+     * Collector：$(xxx).map(proc)：
+     * - 调用数组的.map()，任意返回值都有效。
+     * 处理器接口：
+     * - function(v, i, o): Value
+     * @param  {Function} proc 加工函数
+     * @return {Array|Collector} 原类型集合
+     */
+    map( evo, proc ) {
+        return $.isCollector(evo.data) ?
+            evo.data.map( proc ) : $.map( evo.data, proc );
+    },
+
+    __map: 1,
+
+
 
     // 简单运算
     // 支持前一个操作数是数组的情况（取成员计算）。
@@ -1206,8 +1211,9 @@ const _BaseOn = {
     /**
      * 对象克隆赋值。
      * 目标：当前条目/栈顶1项。
-     * 数据源对象自身的属性/值赋值到接收对象（不含继承的）。
-     * 注：空名称可匹配全部可枚举属性名（含Symbol）。
+     * 数据源对象自身的属性/值赋值到接收对象。
+     * 仅包含对象自身（非继承）的可枚举属性。
+     * 空名称可匹配全部可枚举属性名（含Symbol）。
      * @data: Object => Object
      * @param  {Object} to 接收对象
      * @param  {String} names 取名称序列，可选
@@ -1545,6 +1551,23 @@ function namesObj( names, val, obj = {} ) {
 
 
 /**
+ * 获取存储集。
+ * 如果存储池中不存在目标键的存储集，会自动新建。
+ * @param  {Map|WeakMap} pool 存储池
+ * @param  {Object} key 存储键
+ * @return {Map}
+ */
+function getMap( pool, key ) {
+    let _map = pool.get(key);
+
+    if ( !_map ) {
+        pool.set( key, _map = new Map() );
+    }
+    return _map;
+}
+
+
+/**
  * 获取对象/成员/值。
  * - 如果成员名未定义，返回容器对象自身。
  * - 如果容器对象未定义，成员名视为值返回。
@@ -1560,10 +1583,7 @@ function objectItem( obj, its ) {
     if ( obj === undefined ) {
         return its;
     }
-    if ( !__reSpace.test(its) ) {
-        return obj[its];
-    }
-    return its.split(__reSpace).map( n => obj[n] );
+    return namesValue( its, obj );
 }
 
 
@@ -1587,30 +1607,26 @@ function getItem( map, name ) {
  * 存储关联数据项。
  * 如果不存在元素的关联集合，会自动创建。
  * 如果为多个名称，存储值应当是一个集合/数组。
- * @param {Map} map 存储容器
- * @param {String} name 存储名称/序列
- * @param {Value} val 存储值
+ * @param  {Map} map 存储容器
+ * @param  {String} name 存储名/序列
+ * @param  {Value|[Value]} val 存储值/集
+ * @return {void}
  */
 function setItem( map, name, val ) {
     if ( !__reSpace.test(name) ) {
         return map.set( name, val );
     }
-    name = name.split(__reSpace);
-
-    if ( $.isArray(val) ) {
-        name.forEach( (n, i) => map.set(n, val[i]) );
-    } else {
-        name.forEach( n => map.set(val[n]) );
-    }
+    name.split(__reSpace)
+    .forEach( (n, i) => map.set(n, val[i]) );
 }
 
 
 /**
  * 设置存储器（sessionStorage|localStorage）。
- * @param {Storage} 存储器
+ * @param {Storage} buf 存储器
  * @param {String} name 存储键
  * @param {Value|String} its 存储值或成员名
- * @param {Object|undefined} 当前条目
+ * @param {undefined|Value|Object} 当前条目（evo.data）
  */
 function storage( buf, name, its, obj ) {
     if ( name === null) {
@@ -1637,6 +1653,18 @@ function boolTester( expr ) {
         return expr;
     }
     return new Function( 'v', 'i', 'o', `return ${expr};` );
+}
+
+
+/**
+ * 是否为空对象。
+ * 如果实参不是对象，原值原样返回。
+ * 注：空数组或空对象。
+ * @param  {Object|Array} obj 测试对象
+ * @return {Boolean|obj}
+ */
+function isEmpty( obj ) {
+    return typeof obj == 'object' ? Object.keys(obj).length == 0 : obj;
 }
 
 
