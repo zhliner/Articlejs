@@ -504,40 +504,43 @@ $switch( ...vals ): Value
 
 
 
-// 集合操作
+// 集合操作。
 //===============================================
+// 注：tQuery库中的集合操作提取到了这里。
 
-filter( fltr: String, js: Boolean ): [Value]
+filter( fltr: String|Function ): [Value]|Collector
 // 值集过滤。
-// 匹配者构建一个新数组入栈。适用元素和普通值集。
-// 目标：当前条目/栈顶1项。
-// js 说明fltr是否是一个JS表达式。
-// fltr 若为表达式，固定参数名：(v, i, o)。
-// 注：
-// 表达式无需包含 return。
-// 目标需要是一个集合。
+// 匹配者构建一个新数组入栈，适用元素和普通值集。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项：[集合, 过滤器]
+// 注：返回值类型与目标值类型相同。
 
-not( fltr: String, js: Boolean ): [Value]
-// 值集排除。符合者被排除，剩余的创建为一个新集合入栈。
+not( fltr: String|Function ): [Value]|Collector
+// 值集排除。
+// 符合者被排除，剩余的创建为一个新集合入栈。
 // 适用元素和普通值集。
-// 目标：当前条目/栈顶1项。
-// 参数说明同上。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项操作：(集合, 过滤器)
+// 注：返回值类型与目标值类型相同。
 
-has( slr: String ): [Element]
+has( slr: String ): [Element]|Collector
 // 子成员包含。
-// 目标：当前条目/栈顶1项。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项操作：(集合, 过滤器)
+// 注：
 // 仅适用于元素集，普通值集无效。
+// 返回值类型与目标值类型相同。
 
-flat( deep: Number|true, spread: Boolean = false )
-// 集合扁平化。
-// 将目标内可能嵌套的数组扁平化处理。
+flat( deep: Number|true ): Collector
+// 成员数组扁平化。
+// 将目标内可能嵌套的子数组扁平化。
 // 目标：当前条目/栈顶1项。
-// 特权：是。自行展开入栈。
-// 如果目标是Collector，deep可以为true值（去重排序）。
-// ext指示是否展开入栈。
-// deep可为0，这时ext通常为true，效果与spread指令相同。
+// 如果目标集成员是元素，deep可以为true表示去重排序。
 
-reverse(): [Value]
+reverse(): Collector
 // 成员序位反转。
 // 目标：当前条目/栈顶1项。
 // 返回一个新的数组。
@@ -572,13 +575,44 @@ array( size, ...vals ): Array
 // 当前条目如果是数组，会解构填充。
 // 如果完全没有填充值，数组成员会填充为undefined。
 
-map( proc:Function ): Array | Collector
+map( proc: Function ): Array | Collector
 // 集合映射。
-// 目标：当前条目/栈顶1项。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
 // 返回的集合与目标类型相同。
 // 对于普通数组与Collector有一些区别：
-// 普通数组：$.map(xxx, proc) 处理器返回的undefined和null会被忽略。
-// Collector: $(xxx).map(proc) 实际上是调用数组原生的.map()，返回值都有效。
+// - 普通数组：$.map(xxx, proc) 处理器返回的undefined和null会被忽略。
+// - Collector: $(xxx).map(proc) 实际上是调用数组原生的.map()，返回值都有效。
+// proc接口：function(value, index, obj): Value
+// 如果proc为空，取栈顶2项：[集合，处理器]
+
+each( proc: Function ): data
+// 迭代执行。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 目标应该是一个集合，没有返回值入栈。
+// 回调函数内返回false会中断迭代。
+// 指令返回被操作的目标对象。
+// proc接口：function(value, index, obj): Value
+// 如果proc为空，取栈顶2项：[集合，处理器]
+
+sort( comp: Function|null ): Collector
+// 集合排序。
+// 目标：当前条目/栈顶1项。
+// 特权：否。
+// 对于普通值集合，comp可传递null以获得JS环境默认的排序规则。
+// 对于元素集合，comp应当为空。
+
+unique( comp: Function|true|null ): Collector
+// 去重&排序。
+// 目标：当前条目/栈顶1项。
+// 特权：否。
+// 集合如果不是Collector，可为对象（取其值集）。
+// 默认为去重功能，如果传递comp实参则增加排序能力。
+// comp:
+// - true DOM节点排序
+// - null 默认排序规则，适用非节点数据
+// comp接口：function(a, b): Boolean
 
 
 
@@ -754,7 +788,7 @@ calc( expr ): Value
 最简单的形式，让普通网页包含互动，不涉及向服务器请求新的数据。适合普通的离线文档手册等。
 
 
-### 动态页（x.pull）
+### 动态页（By:pull）
 
 需要联网，页面向服务器实时请求数据更新内容，页面展示逻辑较为简单（通常不涉及模板渲染）。
 
@@ -772,21 +806,12 @@ calc( expr ): Value
 ### 缩写
 
 > `OBT`: `On-By-To` 在HTML页面中定义行为。
-> `GPS`: `Get, Process, Set` 页面UI的整体逻辑。
-> `CMV`: `Control, Model, View` 属于GPS中Process的更细分层（如果必要）。
+> `CMV`: `Control, Model, View` 复杂App的业务切分（三层）。
 
 
 ### 事件
 
-- `tplend`: 模板读取完毕。在 `document` 上触发。
-- `tpldone`: 模板构建完毕，包括 `OBT` 解析绑定。在有 `OBT` 配置上的每一个元素上触发，不冒泡。
-
-
-### 全局对象
-
-- `OBT.on`： On 的方法集。
-- `OBT.by`： By 的方法集。
-- `OBT.to`： To 的方法集。
+- `obted`: 在元素的 `OBT` 配置构建完毕后触发，不冒泡，不可取消。
 
 
 ### 模板特殊字符
@@ -799,8 +824,3 @@ calc( expr ): Value
 - **`|`** 竖线。递进处置，如输出数据的过滤处理、事件关联的行为链。
 - **`-`** 横线。空值占位，主要用于OBT分组定义中的顺序保持。
 - **`$`** 对当前域或父域对象的引用。
-
-
-### X函数库引用
-
-在某些方法中，字符串实参可以前置一个问号（`?`）来引用X函数库里的成员，用于向流程传入一个函数。

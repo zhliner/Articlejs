@@ -8,7 +8,7 @@
 //
 //	OBT:By 方法集。
 //
-//  主要操作依赖于X扩展函数库。
+//  仅包含极少量的几个顶级基础指令，主要操作依赖于X扩展库。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,12 +23,8 @@ import { bindMethod, method, pullRoot } from "../config.js";
 // 若无需支持可简单移除。
 import { Render } from "./render.js";
 
-const
-    $ = window.$,
 
-    // X扩展函数库引用标识
-    __chrXname  = '?';
-
+const $ = window.$;
 
 
 const _By = {
@@ -112,54 +108,7 @@ const _By = {
 
     __xfalse: 1,
 
-
-    /**
-     * 集合迭代执行。
-     * 目标：当前条目/栈顶1项，需要是一个集合。
-     * 执行代码返回false会中断迭代。
-     * expr为函数体表达式（无效return），参数名固定：（v, i, o）。
-     * expr支持首字符问号引用X函数库，之后为方法名。
-     * @param  {String|Function} expr 表达式串或方法引用或函数
-     * @return {void}
-     */
-    each( evo, expr ) {
-        $.each(
-            evo.data,
-            getFunc( expr, 'v', 'i', 'o' )
-        );
-    },
-
-    __each: 1,
-
 };
-
-
-//
-// 集合排序&去重
-// 目标：当前条目/栈顶1项。
-//===============================================
-[
-    'sort',     // 集合排序
-    'unique',   // 集合去重&排序
-]
-.forEach(function( meth ) {
-    /**
-     * 目标：当前条目/栈顶1项，需要是一个集合。
-     * comp接口：function(a, b): Boolean。
-     * comp支持首字符（?）引用X函数库成员。
-     * @param  {String|Function} comp 比较表达式串或方法引用或函数
-     * @return {Collector}
-     */
-    _By[meth] = function( evo, comp ) {
-        if ( typeof comp == 'string' ) {
-            comp = getFunc(comp, 'a', 'b');
-        }
-        return $(evo.data)[meth]( comp );
-    };
-
-    _By[`__${meth}`] = 1;
-
-});
 
 
 //
@@ -307,30 +256,6 @@ const __Node = {
 
 // 注入。
 X.extend( 'Node', __Node );
-
-
-
-//
-// 工具函数
-///////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 创建/获取处理函数。
- * 支持前置?字符引用X函数库方法。
- * @param  {String|Function} expr 表达式串或方法引用或函数
- * @param  {...String} vns 参数名序列，可选
- * @return {Function|null|false}
- */
-function getFunc( expr, ...vns ) {
-    if ( !expr || typeof expr == 'function' ) {
-        return expr;
-    }
-    if ( expr[0] == __chrXname ) {
-        return Util.subObj( expr.substring(1).split('.'), X );
-    }
-    return new Function( ...vns, `return ${expr}` );
-}
 
 
 

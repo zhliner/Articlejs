@@ -788,8 +788,9 @@ Object.assign( tQuery, {
      *      true  DOM节点元素类排序
      *      null  重置为默认排序规则，用于非元素类
      * }
-     * @param {[Node]|Array|Object|.values} list 值集
-     * @param {Function|null|true} comp 排序比较函数，可选
+     * @param  {[Node]|Array|Object|.values} list 值集
+     * @param  {Function|null|true} comp 排序比较函数，可选
+     * @return {Array}
      */
     unique( list, comp ) {
         return uniqueSort( values(list), comp === true ? sortElements : comp );
@@ -958,7 +959,7 @@ Object.assign( tQuery, {
      * @return {[Value]} 过滤后的集合
      */
     filter( list, fltr ) {
-        return list.length ? list.filter( getFltr(fltr) ) : [];
+        return list.length ? list.filter( getFltr(fltr) ) : list;
     },
 
 
@@ -972,7 +973,7 @@ Object.assign( tQuery, {
      */
     not( list, fltr ) {
         if ( list.length == 0 ) {
-            return [];
+            return list;
         }
         let _fun = getFltr( fltr );
 
@@ -989,10 +990,7 @@ Object.assign( tQuery, {
      * @return {[Element]}
      */
     has( els, slr ) {
-        if ( els.length == 0 ) {
-            return els;
-        }
-        return els.length ? els.filter( hasFltr(slr) ) : [];
+        return els.length ? els.filter( hasFltr(slr) ) : els;
     },
 
 
@@ -3213,25 +3211,17 @@ class Collector extends Array {
      * deep:
      * - Number 扁平化深度，适用原生支持的环境
      * - true   节点集去重排序
-     * comp:
-     * - true   节点集去重排序
-     * - null   普通值默认规则去重排序
-     * 注：
-     * 如果节点集子数组深度超过1级，就需要传递comp为true表达去重排序。
+     * 注记：
+     * 标准接口中返回的集合都只有1级子数组。数值深度可用于普通的值集。
      *
      * @param  {Number|true} deep 深度值或去重排序指示
-     * @param  {Function|true|null} 排序回调函数，可选
      * @return {Collector}
      */
-    flat( deep = 1, comp ) {
+    flat( deep = 1 ) {
         let _els = super.flat ?
-            // true == 1
             super.flat( deep ) : arrFlat(this);
 
-        if ( deep === true || comp === true ) {
-            comp = sortElements;
-        }
-        return new Collector( comp === undefined ? _els : uniqueSort(_els, comp), this );
+        return new Collector( deep === true ? uniqueSort(_els, sortElements) : _els, this );
     }
 
 
@@ -5389,7 +5379,7 @@ function cleanMap( list, handle ) {
     let _buf = [];
 
     for (const [k, v] of list) {
-        let _v = handle(v, k);
+        let _v = handle(v, k, list);
         if ( _v != null ) _buf.push( _v );
     }
     return _buf;
@@ -7207,7 +7197,7 @@ Object.assign( tQuery, {
      * 集合操作。
      * - 支持.entries接口的内置对象包括Map,Set系列。
      * - 回调返回undefined或null的条目被忽略。
-     * - 回调接口：function(val, key): Value
+     * - 回调接口：function(val, key, iter): Value
      * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
      * @param  {Function} fun 转换函数
      * @param  {Any} thisObj 回调内的this
@@ -7234,7 +7224,7 @@ Object.assign( tQuery, {
             comp = comp.bind(thisObj);
         }
         for ( let [k, v] of entries(iter) ) {
-            if (!comp(v, k)) return false;
+            if (!comp(v, k, iter)) return false;
         }
         return true;
     },
@@ -7258,7 +7248,7 @@ Object.assign( tQuery, {
             comp = comp.bind(thisObj);
         }
         for ( let [k, v] of entries(iter) ) {
-            if (comp(v, k)) return true;
+            if (comp(v, k, iter)) return true;
         }
         return false;
     },

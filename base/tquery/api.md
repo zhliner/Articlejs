@@ -1244,14 +1244,13 @@ elo: {
 与父类 `Array.reverse()` 原生方法不同，这里不会修改集合自身，而是返回一个新的成员已反转的集合，支持链栈操作。
 
 
-### .flat( deep?, comp? ): Collector
+### .flat( deep? ): Collector
 
-集合成员扁平化。包括可能的去重排序能力。
+集合成员扁平化。包括可能的元素去重排序能力。
 
 - `deep: Number | Boolean` 深度值或节点去重排序指示。可选，默认 `1`。传递 `true` 指示节点去重排序（扁平化深度为 `1`）。
-- `comp: Function | null` 排序回调函数。传递 `true` 表示按DOM节点排序（在 `deep > 1` 时有用），其它值传递 `null`（默认规则）或具体的函数。
 
-当把 `deep` 作为深度值时，仅在数组支持 `.flat()` 方法的环境下，大于 `1` 的值才有效。
+当把 `deep` 作为深度值时，仅在数组支持 `.flat()` 方法的环境下大于 `1` 的值才有效。
 
 
 ### [.wrapAll( box, clone, event, eventdeep ): Collector](docs/$().wrapAll.md)
@@ -1380,7 +1379,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 对集合内的成员逐一执行回调函数，回调函数的返回值汇集成一个集合，这个集合就是最终的返回值。
 
 - `obj: Array | LikeArray | Object | .entries` 迭代处理的目标集合，包括 `Collector` 实例。
-- `proc: Function` 回调处理器函数，接口：`function( val, key ): Value | [Value]`。
+- `proc: Function` 回调处理器函数，接口：`function( val, key, obj ): Value | [Value]`。
 - `thisObj: Any` 回调处理器函数内的 `this` 绑定目标。
 
 **注意**：回调返回的 `null` 和 `undefined` 值会被忽略（不进入返回集内）。
@@ -1391,7 +1390,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 迭代集合内的每一个成员执行测试函数，如果都返回真则最终结果为真。
 
 - `obj: Array | LikeArray | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
-- `test: Function` 回调测试函数，接口：`function( val, key ): Boolean`。
+- `test: Function` 回调测试函数，接口：`function( val, key, obj ): Boolean`。
 - `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
 
@@ -1400,7 +1399,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 迭代集合内的每一个成员执行测试函数，如果有一个返回真则最终结果为真。
 
 - `obj: Array | LikeArray | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
-- `test: Function` 回调测试函数，接口：`function( val, key ): Boolean`。
+- `test: Function` 回调测试函数，接口：`function( val, key, obj ): Boolean`。
 - `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
 

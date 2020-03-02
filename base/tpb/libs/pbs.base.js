@@ -805,110 +805,133 @@ const _BaseOn = {
 
 
     // 集合操作
+    // 目标需要是一个集合（数组|Collector）。
     //===============================================
+    // 注：部分方法操作的目标可适用普通对象（Object）。
+
 
     /**
      * 值集过滤。
-     * 匹配者构建为一个新数组入栈。适用元素和普通值集。
-     * 目标：当前条目/栈顶1项（集合）。
-     * fltr 若为表达式，固定参数名：(v, i, o)。
-     * 注：
-     * 表达式无需包含 return。
-     * @param  {String} fltr 选择器或表达式
-     * @param  {Boolean} js fltr为JS表达式
-     * @return {[Value]}
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 匹配者构建为一个新集合入栈。适用元素和普通值集。
+     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
+     * 注：返回值类型与目标值类型相同。
+     * @data: Collector|[Value]
+     * @param  {Stack} stack 数据栈
+     * @param  {String|Function} fltr 选择器或过滤函数，可选
+     * @return {[Value]|Collector}
      */
-    filter( evo, fltr, js ) {
-        if ( js ) {
-            fltr = new Function(
-                'v',
-                'i',
-                'o',
-                `return ${fltr};`
-            );
-        }
-        return $.filter( evo.data, fltr );
+    filter( evo, stack, fltr ) {
+        return $.filter( ...stackArgs(stack, fltr) );
     },
 
-    __filter: 1,
+    __filter_x: true,
 
 
     /**
      * 值集排除。
-     * 匹配者被排除，剩余成员创建为一个新数组。适用元素和普通值集。
-     * 目标：当前条目/栈顶1项（集合）。
-     * 参数说明同 filter。
-     * @param  {String} fltr 选择器或排除表达式
-     * @param  {Boolean} js fltr为JS表达式
-     * @return {[Value]}
+     * 匹配者被排除，剩余成员创建为一个新数组。
+     * 适用元素和普通值集。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
+     * 注：返回值类型与目标值类型相同。
+     * @data: Collector|[Value]
+     * @param  {Stack} stack 数据栈
+     * @param  {String|Function} fltr 选择器或过滤函数，可选
+     * @return {[Value]|Collector}
      */
-    not( evo, fltr, js ) {
-        if ( js ) {
-            fltr = new Function(
-                'v',
-                'i',
-                'o',
-                `return ${fltr};`
-            );
-        }
-        return $.not( evo.data, fltr );
+    not( evo, stack, fltr ) {
+        return $.not( ...stackArgs(stack, fltr) );
     },
 
-    __not: 1,
+    __not_x: true,
 
 
     /**
      * 子元素包含过滤。
      * 专用于元素集合（普通值集无效）。
-     * 目标：当前条目/栈顶1项（集合）。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
+     * 注：返回值类型与目标值类型相同。
+     * @data: [Element]
+     * @param  {Stack} stack 数据栈
      * @param  {String} slr CSS选择器
-     * @return {[Element]}
+     * @return {[Element]|Collector}
      */
-    has( evo, slr ) {
-        return $.has( evo.data, slr );
+    has( evo, stack, slr ) {
+        return $.has( ...stackArgs(stack, slr) );
     },
 
-    __has: 1,
+    __has_x: true,
 
 
     /**
      * 数组扁平化。
-     * 将目标内可能嵌套的数组扁平化处理。
-     * 目标：当前条目/栈顶1项（集合）。
-     * 特权：是。自行展开入栈。
-     * 注：
-     * deep零值有效，此时ext应当为true，表示目标展开入栈。
-     * 如果目标是Collector，deep可以为true（1级扁平化&节点去重排序）。
-     *
+     * 将目标内可能嵌套的子数组扁平化。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 如果目标集成员是元素，deep可以为true表示去重排序。
+     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
      * @param  {Stack} stack 数据栈
-     * @param  {Number|true} deep 深度或去重排序
-     * @param  {Boolean} spread 展开入栈
-     * @return {[Value]|void}
+     * @param  {Number|true} deep 深度或去重排序，可选
+     * @return {Collector}
      */
-    flat( evo, stack, deep, spread ) {
-        let _vs = evo.data.flat( deep );
-
-        if ( !spread ) {
-            return _vs;
-        }
-        stack.push( ..._vs );
+    flat( evo, stack, deep ) {
+        let [els, d] = stackArgs(stack, deep);
+        return $(els).flat( d );
     },
 
-    __flat: 1,
     __flat_x: true,
 
 
     /**
-     * 数组成员序位反转。
+     * 集合成员序位反转。
      * 目标：当前条目/栈顶1项。
-     * 注：
-     * 简单操作。返回一个新的数组入栈。
+     * 返回的是一个新的集合。
+     * @return {Collector}
      */
     reverse( evo ) {
-        return Array.from(evo.data).reverse();
+        return $(evo.data).reverse();
     },
 
     __reverse: 1,
+
+
+    /**
+     * 构造值数组。
+     * 主要为调用目标对象的.values()接口。
+     * 也适用于普通对象。
+     * @data: {Array|Collector|Map|Set|Object}
+     * @return {[Value]}
+     */
+    values( evo ) {
+        if ( $.isFunction(evo.data.values) ) {
+             return [...evo.data.values()];
+        }
+        return Object.values(evo.data);
+    },
+
+    __values: 1,
+
+
+    /**
+     * 构造键数组。
+     * 主要为调用目标对象的.keys()接口。
+     * 也适用于普通对象。
+     * @data: {Array|Collector|Map|Set|Object}
+     * @return {[Value]}
+     */
+    keys( evo ) {
+        if ( $.isFunction(evo.data.keys) ) {
+            return [...evo.data.keys()];
+        }
+        return Object.keys( evo.data );
+    },
+
+    __keys: 1,
 
 
     /**
@@ -920,34 +943,6 @@ const _BaseOn = {
     },
 
     __join: 1,
-
-
-    /**
-     * 调用目标对象 .values() 接口构造值数组。
-     * 注：也适用普通对象。
-     */
-    values( evo ) {
-        if ( $.type(evo.data) == 'Object' ) {
-            return Object.values(evo.data);
-         }
-         return [ ...evo.data.values() ];
-    },
-
-    __values: 1,
-
-
-    /**
-     * 调用目标对象 .keys() 接口构造键数组。
-     * 注：也适用普通对象。
-     */
-    keys( evo ) {
-        if ( $.type(evo.data) == 'Object' ) {
-            return Object.keys(evo.data);
-         }
-         return [ ...evo.data.keys() ];
-    },
-
-    __keys: 1,
 
 
     /**
@@ -997,21 +992,76 @@ const _BaseOn = {
 
     /**
      * 集合映射。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
      * 普通集合：$.map(xxx, proc)：
-     * - 会忽略proc返回的undefined和null值。
+     * - 会忽略proc返回的undefined和null值，支持对象。
      * Collector：$(xxx).map(proc)：
      * - 调用数组的.map()，任意返回值都有效。
      * 处理器接口：
-     * - function(v, i, o): Value
-     * @param  {Function} proc 加工函数
+     * - function(value, index|key, obj): Value
+     * @param  {Stack} stack 数据栈
+     * @param  {Function} proc 加工函数，可选
      * @return {Array|Collector} 原类型集合
      */
-    map( evo, proc ) {
-        return $.isCollector(evo.data) ?
-            evo.data.map( proc ) : $.map( evo.data, proc );
+    map( evo, stack, proc ) {
+        let [o, f] = stackArgs(stack, proc);
+        return $.isCollector(o) ? o.map( f ) : $.map( o, f );
     },
 
-    __map: 1,
+    __map_x: true,
+
+
+    /**
+     * 集合迭代执行。
+     * 目标：当前条目，栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 处理器返回false会中断迭代。
+     * @param  {Stack} stack 数据栈
+     * @param  {Function} proc 成员处理器，可选
+     * @return {data} 目标数据
+     */
+    each( evo, stack, proc ) {
+        return $.each( ...stackArgs(stack, proc) );
+    },
+
+    __each_x: true,
+
+
+    /**
+     * 集合排序。
+     * 目标：当前条目/栈顶1项。
+     * 对于普通值集合，comp可传递null获得JS环境默认排序规则。
+     * 对于元素集合，comp应当为空。
+     * comp接口：function(a, b): Boolean
+     * @param  {Function|null} comp 排序函数，可选
+     * @return {Collector}
+     */
+    sort( evo, comp ) {
+        return $(evo.data).sort( comp );
+    },
+
+    __sort: 1,
+
+
+    /**
+     * 集合成员去重&排序。
+     * 目标：当前条目/栈顶1项。
+     * 集合如果不是Collector，可为对象（取其值集），返回一个数组。
+     * 默认为去重功能，如果传递comp实参则增加排序能力。
+     * comp:
+     * - true DOM节点排序
+     * - null 默认排序规则，适用非节点数据
+     * comp接口：function(a, b): Boolean
+     * @param  {Function|null} comp 排序函数，可选
+     * @return {Collector|Array}
+     */
+    unique( evo, comp ) {
+        return $.isCollector(evo.data) ?
+            evo.data.unique(evo.data, comp) : $.unique(evo.data, comp);
+    },
+
+    __unique: 1,
 
 
 

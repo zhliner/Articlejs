@@ -186,8 +186,7 @@ const _On = {
 
     _On[meth] = function( evo, name ) {
         return $.isArray(evo.data) ?
-            $(evo.data)[meth]( name ) :
-            $[meth]( evo.data, name );
+            $(evo.data)[meth]( name ) : $[meth]( evo.data, name );
     };
 
     _On[`__${meth}`] = 1;
@@ -256,8 +255,7 @@ const _On = {
     // 多余实参无副作用
     _On[meth] = function( evo, ...args ) {
         return $.isArray(evo.data) ?
-            $(evo.data)[meth]( ...args ) :
-            $[meth]( evo.data, ...args );
+            $(evo.data)[meth]( ...args ) : $[meth]( evo.data, ...args );
     };
 
     _On[`__${meth}`] = 1;
