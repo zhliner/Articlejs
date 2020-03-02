@@ -33,17 +33,6 @@ import { Util } from "./util.js";
 const
     $ = window.$,
 
-    // 比较操作词（替换映射）。
-    compWords = [
-        [ /\bLT\b/g,    '<' ],
-        [ /\bLTE\b/g,   '<=' ],
-        [ /\bGT\b/g,    '>' ],
-        [ /\bGTE\b/g,   '>=' ],
-    ],
-
-    // 包含比较词测试。
-    hasComp = /\b(?:LT|LTE|GT|GTE)\b/i,
-
     // 元素文法存储。
     // 包含原始模板中和页面中采用渲染处理的元素。
     // Object {
@@ -101,14 +90,7 @@ const
 
     // 过滤切分器。
     // 识别字符串语法（字符串内的|为普通字符）。
-    __pipeSplit = new Spliter( __chrPipe, new UmpString() ),
-
-    // 区域切分器。
-    // 用于表达式中区分字符串内外。
-    // 注意：
-    // 模板字符可用但无法识别其内的${}语法块，
-    // 即${}内不能再有模板字符串，且${}里的内容不会被检查。
-    __partSplit = new Spliter( null, new UmpString() );
+    __pipeSplit = new Spliter( __chrPipe, new UmpString() );
 
 
 
@@ -708,7 +690,7 @@ const Expr = {
      * @return function(data): Value
      */
     value( expr ) {
-        return new Function( '$', `return ${validExpr(expr)};` );
+        return new Function( '$', `return ${expr};` );
     },
 
 
@@ -722,7 +704,7 @@ const Expr = {
         if ( !expr ) {
             return v => v;
         }
-        return new Function( '$', `return ${validExpr(expr)};` );
+        return new Function( '$', `return ${expr};` );
     },
 
 
@@ -744,7 +726,7 @@ const Expr = {
      */
     assign( expr ) {
         let _ss = __pipeSplit.split(expr),
-            _fn = new Function( '$', `return ${validExpr(_ss.shift())};` );
+            _fn = new Function( '$', `return ${_ss.shift()};` );
 
         if ( _ss.length == 0 ) {
             return _fn;
@@ -781,37 +763,6 @@ function filterHandle( call ) {
         throw new Error(`not found ${_fn2.name} filter-method.`);
     }
     return { func: _fun, args: _fn2.args };
-}
-
-
-/**
- * 预处理表达式。
- * 对普通段的文本执行可能需要的比较词替换。
- * @param  {String} expr 目标表达式
- * @return {String} 合法的表达式
- */
-function validExpr( expr ) {
-    if ( !expr ) {
-        return '';
-    }
-    return [...__partSplit.part(expr)]
-        // 字符串外。
-        .map( (s, i) => i%2 ? s : validComp(s) )
-        .join('');
-}
-
-
-/**
- * 比较词替换。
- * 如：" LT " => " < " 等。
- * @param  {String} 源串
- * @return {String} 结果串
- */
-function validComp( str ) {
-    if ( !hasComp.test(str) ) {
-        return str;
-    }
-    return compWords.reduce( (s, kv) => s.replace(kv[0], kv[1]), str );
 }
 
 
