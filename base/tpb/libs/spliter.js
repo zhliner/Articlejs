@@ -34,13 +34,12 @@ class UmpString {
 
 
     /**
-     * 是否在字符串内。
+     * 判断处理。
      * 引号包含：双引号/单引号/模板字符串撇号。
      * @param  {string} ch 当前字符
-     * @param  {String} prev 前一个字符
      * @return {Boolean}
      */
-    inside( ch ) {
+    umpire( ch ) {
         if (ch == '"' || ch == "'" || ch == '`') {
             return this._quote(ch);
         }
@@ -87,34 +86,37 @@ class UmpString {
 
 //
 // 方法调用判断。
+// 以最外围的括号为判断依据，嵌套的括号为子域（应当对称）。
+// 注意：
+// 调用实参内如果包含数组，数组成员也可能为箭头函数。
 //
 class UmpCaller {
     /**
      * 构造切分器。
      */
     constructor() {
-        this._ins = false; // inside
+        this._cnt = 0;
     }
 
 
     /**
-     * 是否在参数段内。
+     * 判断处理。
      * @param  {String} ch 当前字符
-     * @return {Boolean}
+     * @return {Boolean} 是否在调用式之内
      */
-    inside( ch ) {
+    umpire( ch ) {
         if (ch == '(') {
-            return this._ins = true;
+            return !!(this._cnt += 1);
         }
         if (ch == ')') {
-            return !(this._ins = false);
+            return !(this._cnt -= 1);
         }
-        return this._ins;
+        return !!this._cnt;
     }
 
 
     reset() {
-        this._ins = false;
+        this._cnt = 0;
     }
 }
 
@@ -133,28 +135,28 @@ class UmpChars {
     constructor( beg, end ) {
         this._ch1 = beg;
         this._ch2 = end;
-        this._ins = false;
+        this._cnt = 0;
     }
 
 
     /**
-     * 是否在参数段内。
+     * 判断处理。
      * @param  {String} ch 当前字符
      * @return {Boolean}
      */
-    inside( ch ) {
+    umpire( ch ) {
         if (ch == this._ch1) {
-            return this._ins = true;
+            return !!(this._cnt += 1);
         }
         if (ch == this._ch2) {
-            return !(this._ins = false);
+            return !(this._cnt -= 1);
         }
-        return this._ins;
+        return !!this._cnt;
     }
 
 
     reset() {
-        this._ins = false;
+        this._cnt = 0;
     }
 }
 
@@ -162,22 +164,22 @@ class UmpChars {
 //
 // 通用切分器。
 // 操作满足如下接口的实例：
-// function inside(ch:String): Boolean
+// function umpire(ch:String): Boolean
 // function reset(): void
 //
 class Spliter {
     /*
      * 构造切分器。
      * 仅使用.part()方法时无需分隔符。
-     * 注记：
-     * 一个分隔符对应一个实例可能较好。
-     *
+     * 判断实例的顺序：
+     * - 前面的判断式应当是后面判断式的子域。
+     * - 在子域内父域判断被略过。如调用式中的字符串实参。
      * @param {String} sep 切分字符
-     * @param {...Interface} ump 判断实例
+     * @param {...Interface} umps 判断实例
      */
-   constructor( sep, ...ump ) {
+   constructor( sep, ...umps ) {
        this._sep = sep;
-       this._ump = ump;
+       this._umps = umps;
    }
 
 
@@ -226,7 +228,7 @@ class Spliter {
      * 用于出错之后的状态恢复。
      */
     reset() {
-        this._ump.forEach( ump => ump.reset() );
+        this._umps.forEach( ump => ump.reset() );
     }
 
 
@@ -288,8 +290,7 @@ class Spliter {
      * @return {Boolean}
      */
     _inside( ch ) {
-        return this._ump
-            .some( ump => ump.inside(ch) );
+        return this._umps.some( ump => ump.umpire(ch) );
     }
 }
 
