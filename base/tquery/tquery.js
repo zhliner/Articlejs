@@ -7176,16 +7176,16 @@ tQuery.type         = $type;
 Object.assign( tQuery, {
     /**
      * 通用遍历。
-     * - 回调返回false终止遍历，其它值为continue逻辑；
-     * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例；
-     * - 注：Collector 集合版可直接使用该接口；
+     * - 回调返回false会终止遍历。
+     * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例。
+     * - 注：Collector 集合版可直接使用该接口。
      * handle：(
-     *      值/元素,
-     *      键/下标,
-     *      迭代对象自身
+     *      value,  值/元素,
+     *      key,    键/下标,
+     *      obj,    迭代对象自身
      * )
-     * - 与jQuery不同，因箭头函数的出现，不自动绑定this；
-     * - 参数与数组forEach标准接口相似，this也由外部传入；
+     * 注：
+     * 参数与数组forEach标准接口类似，this由外部传入。
      *
      * @param  {Array|LikeArray|Object|[.entries]|Collector} obj 迭代目标
      * @param  {Function} handle 迭代回调（val, key）
