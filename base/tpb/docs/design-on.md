@@ -67,12 +67,6 @@ pdv(): String
 // 注：
 // 即元素data-pb属性的整个值（完整字符串）。
 
-re( flag, val?:String ): RegExp
-// 构造正则表达式入栈。
-// 目标：当前条目/栈顶1项。
-// 特权：是。灵活取栈。
-// 如果val无值，则自动取栈顶1项。
-
 date( ...args? ): Date
 // 构造日期对象入栈。
 // 目标：当前条目。不自动取栈。
@@ -96,20 +90,24 @@ movementY( v?:null ): Number
 ```
 
 
-#### tQuery|Collector 取值类
-
-如果目标非Collector对象，视为tQuery方法（目标即首个实参）。
+#### tQuery 取值类
 
 ```js
+// tQuery|Collector兼有
+// 目标非Collector时为tQuery方法（目标即首个实参）。
+//-----------------------------------------------
+
 // 目标：当前条目/栈顶1项。
+// 参数固定：1。
 attr( name ): String | Object | null
 attribute( name ): String | null
 prop( name ): Value | Object | undefined
 property( name ): Value | undefined
 css( name ): String
 cssGets( name ): Object
-// 参数固定：1。
 
+// 目标：当前条目/栈顶1项
+// 参数固定：0。
 height(): Number
 width(): Number
 scroll(): {top, left}
@@ -119,8 +117,10 @@ offset(): {top, left}
 val(): Value | [Value] | null
 html(): String      // 目标支持文本。
 text(): String      // 目标支持HTML源码
-// 参数固定：0。
 
+// 目标：当前条目/栈顶1项
+// 参数不定。
+// 注：多余实参无副作用。
 innerHeight(): Number
 innerWidth(): Number
 outerWidth( margin? ): Number
@@ -142,13 +142,13 @@ offsetParent(): Element
 hasClass( name ): Boolean
 classAll(): [String]
 position(): {top, left}
-// 参数不定。
-// 注：多余实参无副作用。
 
 
 // tQuery专有
 //-----------------------------------------------
 
+// 目标：当前条目，可选。
+// 如果目标有值，合并在实参之后传递。
 Element( tag?:String, data?:String|[String]|Object ): Element
 svg( tag?:String, opts?:Object ): SVG:Element
 Text( text?:String ): Text
@@ -159,9 +159,10 @@ tags( code?:String ): String
 selector( tag?, attr?, val?, op?:String ): String
 range( beg?:Number|String, size?:Number|String, step?:Number ): [Number]|[String]
 now( json?:Boolean ): Number|String
-// 目标：当前条目，可选。
-// 如果目标有值，合并在实参之后传递。
 
+// 目标：当前条目/栈顶1项。
+// 内容：参考tQuery相关接口首个参数定义。
+// 注：多余实参无副作用。
 is( slr:String ): Boolean
 isXML(): Boolean
 controls(): [Element]
@@ -173,19 +174,109 @@ isFunction(): Boolean
 isCollector(): Boolean
 type(): String
 kvsMap( kname?, vname?: String ): [Object2]
-// 目标：当前条目/栈顶1项。
-// 内容：参考tQuery相关接口首个参数定义。
-// 注：多余实参无副作用。
 
 
 // Collector专有
 //-----------------------------------------------
 
+// 目标：当前条目/栈顶1项。
+// 内容：Value|[Value]|Collector
+// 注意：如果目标不是Collector对象，会自动封装为Collector。
 item( idx? ): Value | [Value]
 eq( idx? ): Collector
 first( slr? ): Collector
 last( slr? ): Collector
+```
+
+
+#### tQuery 集合操作
+
+集合操作是对目标数据集进行简单的处理，然后返回一个结果集。
+
+```js
+// tQuery|Collector兼有
+// 目标为Collector时返回Collector，否则返回普通数组。
+//-----------------------------------------------
+
+filter( fltr: String|Function ): [Value]|Collector
+// 值集过滤。
+// 匹配者构建一个新数组入栈，适用元素和普通值集。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项：[集合, 过滤器]
+// 注：返回值类型与目标值类型相同。
+
+not( fltr: String|Function ): [Value]|Collector
+// 值集排除。
+// 符合者被排除，剩余的创建为一个新集合入栈。
+// 适用元素和普通值集。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项操作：(集合, 过滤器)
+// 注：返回值类型与目标值类型相同。
+
+has( slr: String ): [Element]|Collector
+// 子成员包含。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项操作：(集合, 过滤器)
+// 注：
+// 仅适用于元素集，普通值集无效。
+// 返回值类型与目标值类型相同。
+
+map( proc: Function ): [Value]|Collector
+// 集合映射。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 返回的集合与目标类型相同。
+// 对于普通数组与Collector有一些区别：
+// - 普通数组：$.map(xxx, proc) 处理器返回的undefined和null会被忽略。
+// - Collector: $(xxx).map(proc) 实际上是调用数组原生的.map()，返回值都有效。
+// proc接口：function(value, index, obj): Value
+// 如果proc为空，取栈顶2项：[集合，处理器]
+
+each( proc: Function ): data
+// 迭代执行。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 目标应该是一个集合，没有返回值入栈。
+// 回调函数内返回false会中断迭代。
+// 指令返回被操作的目标对象。
+// proc接口：function(value, index, obj): Value
+// 如果proc为空，取栈顶2项：[集合，处理器]
+
+unique( comp: Function|true|null ): [Value]|Collector
+// 去重&排序。
 // 目标：当前条目/栈顶1项。
-// 内容：Value|[Value]|Collector
-// 注意：如果目标不是Collector对象，会自动封装为Collector。
+// 特权：否。
+// 集合如果不是Collector，可为对象（取其值集）。
+// 默认为去重功能，如果传递comp实参则增加排序能力。
+// comp:
+// - true DOM节点排序
+// - null 默认排序规则，适用非节点数据
+// comp接口：function(a, b): Boolean
+
+
+// Array|Collector
+//-----------------------------------------------
+
+sort( comp?: Function|null ): [Value]|Collector
+// 集合排序。
+// 目标：当前条目/栈顶1项。
+// 特权：否。
+// 对于元素Collector集合，comp应当为空获得默认的排序算法。
+// 对于普通值Collector集合，comp可传递null获得JS环境默认排序规则。
+
+reverse(): [Value]|Collector
+// 成员序位反转。
+// 目标：当前条目/栈顶1项。
+// 返回一个新的数组。
+
+flat( deep: Number|true ): [Value]|Collector
+// 成员数组扁平化。
+// 将目标内可能嵌套的子数组扁平化。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 如果是元素Collector集合，deep可以为true附加去重排序（1级扁平化）。
+// 如果实参未传递，取栈顶2项：[集合, 深度值]
 ```

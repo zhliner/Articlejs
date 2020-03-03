@@ -471,7 +471,6 @@ class Stack {
             if ( this._done ) {
                 return this._item;
             }
-            // 自动取栈
             if ( n == 1 ) this.pop();
             else if ( n > 1 ) this.pops( n );
 

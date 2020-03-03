@@ -32,25 +32,6 @@ const
 
 const _On = {
     /**
-     * 构建正则表达式。
-     * 目标：当前条目，可选。
-     * 特权：是，灵活取栈。
-     * 如果val未定义，采用目标值构建。
-     * @param  {String} flag 正则修饰符
-     * @param  {String} val 正则式的字符串表示，可选
-     * @return {RegExp}
-     */
-    re( evo, stack, flag, val ) {
-        if ( val == null) {
-            val = stack.data(1);
-        }
-        return new RegExp( val, flag );
-    },
-
-    __re_x: true,
-
-
-    /**
      * 构造日期对象。
      * 目标：当前条目，可选。
      * 目标有值时自动解包（如果为数组）为构造函数的补充实参。
@@ -82,18 +63,93 @@ const _On = {
      */
     scam( evo, names ) {
         let _map = {
-            'shift': evo.event.shiftKey,
-            'ctrl':  evo.event.ctrlKey,
-            'alt':   evo.event.altKey,
-            'meta':  evo.event.metaKey,
-        };
+                'shift': evo.event.shiftKey,
+                'ctrl':  evo.event.ctrlKey,
+                'alt':   evo.event.altKey,
+                'meta':  evo.event.metaKey,
+            };
         if ( !names ) {
             names = evo.data;
         }
-        return names ? name.trim().split(__reSpace).every( n => _map[n] ) : _map;
+        return names ? name.split(__reSpace).every( n => _map[n] ) : _map;
     },
 
     __scam: 0,
+
+
+
+    // 集合操作。
+    //-------------------------------------------
+    // 另：见末尾部分接口。
+
+    /**
+     * 集合成员去重&排序。
+     * 目标：当前条目/栈顶1项。
+     * 集合如果不是Collector，可为对象（取其值集），返回一个数组。
+     * 默认为去重功能，如果传递comp实参则增加排序能力。
+     * comp:
+     * - true DOM节点排序
+     * - null 默认排序规则，适用非节点数据
+     * comp接口：function(a, b): Boolean
+     * @param  {Function|true|null} comp 排序函数，可选
+     * @return {[Value]|Collector}
+     */
+    unique( evo, comp ) {
+        return $.isCollector(evo.data) ?
+            evo.data.unique(evo.data, comp) : $.unique(evo.data, comp);
+    },
+
+    __unique: 1,
+
+
+    /**
+     * 集合排序。
+     * 目标：当前条目/栈顶1项。
+     * 对于元素Collector集合，comp应当为空获得默认的排序算法。
+     * 对于普通值Collector集合，comp可传递null获得JS环境默认排序规则。
+     * comp接口：function(a, b): Boolean
+     * @param  {Function|null} comp 排序函数，可选
+     * @return {[Value]|Collector}
+     */
+    sort( evo, comp ) {
+        return $.isCollector(evo.data) ?
+            evo.data.sort(comp) : Array.from(evo.data).sort(comp);
+    },
+
+    __sort: 1,
+
+
+    /**
+     * 集合成员序位反转。
+     * 目标：当前条目/栈顶1项。
+     * 返回的是一个新的集合（保留原始类型）。
+     * @return {[Value]|Collector}
+     */
+    reverse( evo ) {
+        return $.isCollector(evo.data) ?
+            evo.data.reverse() : Array.from(evo.data).reverse();
+    },
+
+    __reverse: 1,
+
+
+    /**
+     * 数组扁平化。
+     * 将目标内可能嵌套的子数组扁平化。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 如果是元素Collector集合，deep可以为true附加去重排序（1级扁平化）。
+     * 如果实参未传递，取栈顶2项：[集合, 深度值]
+     * @param  {Stack} stack 数据栈
+     * @param  {Number|true} deep 深度或去重排序，可选
+     * @return {[Value]|Collector}
+     */
+    flat( evo, stack, deep ) {
+        let [els, d] = stackArgs(stack, deep);
+        return els.flat( d );
+    },
+
+    __flat_x: true,
 
 
 
@@ -224,7 +280,6 @@ const _On = {
 //
 // 参数不定。
 // 目标：当前条目/栈顶1项。
-// 内容：{Element|[Element]|Collector}
 // 注：多余实参无副作用。
 //===============================================
 [
@@ -251,8 +306,10 @@ const _On = {
     'position',     // (): {top, left}
 ]
 .forEach(function( meth ) {
-
-    // 多余实参无副作用
+    /**
+     * @data：Element|[Element]|Collector
+     * @return {Element|Collector}
+     */
     _On[meth] = function( evo, ...args ) {
         return $.isArray(evo.data) ?
             $(evo.data)[meth]( ...args ) : $[meth]( evo.data, ...args );
@@ -271,7 +328,7 @@ const _On = {
 //
 // 灵活创建。
 // 目标：当前条目，可选。
-// 如果目标有值，合并在实参之后传递。
+// 如果目标有值，会合并到实参序列之后传递。
 // 注：多余实参无副作用。
 //===============================================
 [
@@ -304,7 +361,6 @@ const _On = {
 //
 // 目标：当前条目/栈顶1项。
 // 内容：参考tQuery相关接口的首个参数说明。
-// 如果目标为数组，首个成员之后的部分合并到模板实参之后。
 // 注：多余实参无副作用。
 //===============================================
 [
@@ -321,15 +377,9 @@ const _On = {
     'kvsMap',       // ( kname?, vname? ): [Object2]
 ]
 .forEach(function( meth ) {
-    // 多余实参无副作用。
-    _On[meth] = function( evo, ...args ) {
-        let _d = evo.data;
 
-        if ( $.isArray(_d) ) {
-            _d = _d.shift();
-            args = args.push( ...evo.data );
-        }
-        return $[meth]( _d, ...args );
+    _On[meth] = function( evo, ...args ) {
+        return $[meth]( evo.data, ...args );
     };
 
     _On[`__${meth}`] = 1;
@@ -362,6 +412,58 @@ const _On = {
     _On[`__${meth}`] = 1;
 
 });
+
+
+
+//
+// 集合操作。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 如果实参未传递，取栈顶2项：[集合, 实参]
+// 注：map、each方法操作的目标支持Object。
+///////////////////////////////////////////////////////////////////////////////
+[
+    'filter',   // ( fltr?: String|Function )
+    'not',      // ( fltr?: String|Function )
+    'has',      // ( slr?: String )
+    'map',      // ( proc?: Function )
+                // 普通集合版会忽略proc返回的undefined或null值。
+    'each',     // ( proc?: Function )
+                // 返回操作目标。处理器返回false会中断迭代。
+]
+.forEach(function( meth ) {
+    /**
+     * @data: [Value]|Collector
+     * @param  {Stack} stack 数据栈
+     * @param  {...} arg 模板实参，可选
+     * @return {[Value]|Collector}
+     */
+    _On[meth] = function( evo, stack, arg ) {
+        let [o, v] = stackArgs(stack, arg);
+        return $.isCollector(o) ? o[meth]( v ) : $[meth]( o, v );
+    };
+
+    _On[`__${meth}_x`] = true;
+
+});
+
+
+
+//
+// 工具函数。
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 数据栈实参取值。
+ * 如果实参未传递，则取数据栈2项，否则取1项。
+ * @param  {Stack} stack 数据栈
+ * @param  {Value} val 模板参数，可选
+ * @return {Array2} 实参值对
+ */
+function stackArgs( stack, val ) {
+    return val === undefined ?
+        stack.data(2) : [ stack.data(1), val ];
+}
 
 
 

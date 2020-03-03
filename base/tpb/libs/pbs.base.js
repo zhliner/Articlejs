@@ -578,7 +578,7 @@ const _BaseOn = {
      * 类数组才会被转换为一个真正的数组。
      * 如果要强制打包目标为一个单成员数组，可传递one为真。
      * @data: {Value|LikeArray}
-     * @param  {Boolean} one 单成员转换
+     * @param  {Boolean} one 单成员转换，可选
      * @return {Array}
      */
     Arr( evo, one ) {
@@ -804,117 +804,30 @@ const _BaseOn = {
 
 
 
-    // 集合操作
-    // 目标需要是一个集合（数组|Collector）。
+    // 集合操作。
     //===============================================
-    // 注：部分方法操作的目标可适用普通对象（Object）。
-
 
     /**
-     * 值集过滤。
-     * 目标：当前条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 匹配者构建为一个新集合入栈。适用元素和普通值集。
-     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
-     * 注：返回值类型与目标值类型相同。
-     * @data: Collector|[Value]
-     * @param  {Stack} stack 数据栈
-     * @param  {String|Function} fltr 选择器或过滤函数，可选
-     * @return {[Value]|Collector}
-     */
-    filter( evo, stack, fltr ) {
-        return $.filter( ...stackArgs(stack, fltr) );
-    },
-
-    __filter_x: true,
-
-
-    /**
-     * 值集排除。
-     * 匹配者被排除，剩余成员创建为一个新数组。
-     * 适用元素和普通值集。
-     * 目标：当前条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
-     * 注：返回值类型与目标值类型相同。
-     * @data: Collector|[Value]
-     * @param  {Stack} stack 数据栈
-     * @param  {String|Function} fltr 选择器或过滤函数，可选
-     * @return {[Value]|Collector}
-     */
-    not( evo, stack, fltr ) {
-        return $.not( ...stackArgs(stack, fltr) );
-    },
-
-    __not_x: true,
-
-
-    /**
-     * 子元素包含过滤。
-     * 专用于元素集合（普通值集无效）。
-     * 目标：当前条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
-     * 注：返回值类型与目标值类型相同。
-     * @data: [Element]
-     * @param  {Stack} stack 数据栈
-     * @param  {String} slr CSS选择器
-     * @return {[Element]|Collector}
-     */
-    has( evo, stack, slr ) {
-        return $.has( ...stackArgs(stack, slr) );
-    },
-
-    __has_x: true,
-
-
-    /**
-     * 数组扁平化。
-     * 将目标内可能嵌套的子数组扁平化。
-     * 目标：当前条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 如果目标集成员是元素，deep可以为true表示去重排序。
-     * 如果实参未传递，取栈顶2项：[集合, 过滤器]
-     * @param  {Stack} stack 数据栈
-     * @param  {Number|true} deep 深度或去重排序，可选
-     * @return {Collector}
-     */
-    flat( evo, stack, deep ) {
-        let [els, d] = stackArgs(stack, deep);
-        return $(els).flat( d );
-    },
-
-    __flat_x: true,
-
-
-    /**
-     * 集合成员序位反转。
-     * 目标：当前条目/栈顶1项。
-     * 返回的是一个新的集合。
-     * @return {Collector}
-     */
-    reverse( evo ) {
-        return $(evo.data).reverse();
-    },
-
-    __reverse: 1,
-
-
-    /**
-     * 构造值数组。
-     * 主要为调用目标对象的.values()接口。
-     * 也适用于普通对象。
-     * @data: {Array|Collector|Map|Set|Object}
+     * 创建预填充值集合。
+     * 目标：当前条目，可选。
+     * 如果目标有值，会合并到实参序列之后（数组会被解构）。
+     * 最后一个值用于剩余重复填充。
+     * @param  {Number} size 集合大小
+     * @param  {...Value} vals 填充值序列，可选
      * @return {[Value]}
      */
-    values( evo ) {
-        if ( $.isFunction(evo.data.values) ) {
-             return [...evo.data.values()];
+    array( evo, size, ...vals ) {
+        if ( evo.data !== undefined ) {
+            vals = vals.concat(evo.data);
         }
-        return Object.values(evo.data);
+        let _i = vals.length,
+            _v = vals[ _i-1 ];
+
+        vals.length = size;
+        return _i < size ? vals.fill(_v, _i) : vals;
     },
 
-    __values: 1,
+    __array: 0,
 
 
     /**
@@ -935,8 +848,26 @@ const _BaseOn = {
 
 
     /**
+     * 构造值数组。
+     * 主要为调用目标对象的.values()接口。
+     * 也适用于普通对象。
+     * @data: {Array|Collector|Map|Set|Object}
+     * @return {[Value]}
+     */
+    values( evo ) {
+        if ( $.isFunction(evo.data.values) ) {
+             return [...evo.data.values()];
+        }
+        return Object.values(evo.data);
+    },
+
+    __values: 1,
+
+
+    /**
      * 连接数组各成员。
-     * @param {String} chr 连接字符串
+     * @param  {String} chr 连接字符串
+     * @return {String}
      */
     join( evo, chr ) {
         return evo.data.join( chr );
@@ -948,120 +879,28 @@ const _BaseOn = {
     /**
      * 集合串接。
      * 目标：当前条目/栈顶1-2项。
-     * 特权：是。选择性取栈。
-     * 如果当前条目为空，取栈顶2项（实参为空）或1项。
-     * 如果当前条目非空，以当前条目为合并目标（实参非空）或后续成员合并到首个成员。
-     * 注：当前条目成员需要是数组。
-     * @param  {...Array|Value} vals 值或数组
-     * @return {Array}
+     * 特权：是，灵活取栈。
+     * 如果实参非空，取栈顶1项（合并到的目标集）。
+     * 如果实参为空，取栈顶2项：[目标集, ...合并序列]。
+     * 注意：
+     * 取栈顶2项时，第二个成员会展开后再连接（即最终有2级展开）。
+     * 例：
+     * [].concat('abcd') => ['abcd']
+     * [].concat(...'abcd') => ['a', 'b', 'c', 'd'] // 2级
+     * [].concat(...['abcd']) => ['abcd'] // 2级
+     * [].concat(...[['abcd']])  // 同上
+     *
+     * @param  {...Value|Array} vals 值或数组
+     * @return {[Value]}
      */
     concat( evo, stack, ...vals ) {
-        let _vs = vals.length > 0 ?
-            stack.data(1) :
-            stack.data(2);
+        let [list, args] = vals.length ?
+            [stack.data(1), vals] : stack.data(2);
 
-        if ( vals.length > 0 ) {
-            return _vs.concat(...vals);
-        }
-        return _vs[0].concat( _vs[1] );
+        return list.concat( ...args );
     },
 
     __concat_x: true,
-
-
-    /**
-     * 创建预填充值集合。
-     * 如果当前条目有值，先合并到实参序列之后（数组会被解构）。
-     * 最后一个值用于剩余重复填充。
-     * @param {Number} size 集合大小
-     * @param {...Value} vals 填充值序列，可选
-     */
-    array( evo, size, ...vals ) {
-        if ( evo.data !== undefined ) {
-            vals = vals.concat(evo.data);
-        }
-        let _i = vals.length,
-            _v = vals[ _i-1 ];
-
-        vals.length = size;
-        return _i < size ? vals.fill(_v, _i) : vals;
-    },
-
-    __array: 0,
-
-
-    /**
-     * 集合映射。
-     * 目标：当前条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 普通集合：$.map(xxx, proc)：
-     * - 会忽略proc返回的undefined和null值，支持对象。
-     * Collector：$(xxx).map(proc)：
-     * - 调用数组的.map()，任意返回值都有效。
-     * 处理器接口：
-     * - function(value, index|key, obj): Value
-     * @param  {Stack} stack 数据栈
-     * @param  {Function} proc 加工函数，可选
-     * @return {Array|Collector} 原类型集合
-     */
-    map( evo, stack, proc ) {
-        let [o, f] = stackArgs(stack, proc);
-        return $.isCollector(o) ? o.map( f ) : $.map( o, f );
-    },
-
-    __map_x: true,
-
-
-    /**
-     * 集合迭代执行。
-     * 目标：当前条目，栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 处理器返回false会中断迭代。
-     * @param  {Stack} stack 数据栈
-     * @param  {Function} proc 成员处理器，可选
-     * @return {data} 目标数据
-     */
-    each( evo, stack, proc ) {
-        return $.each( ...stackArgs(stack, proc) );
-    },
-
-    __each_x: true,
-
-
-    /**
-     * 集合排序。
-     * 目标：当前条目/栈顶1项。
-     * 对于普通值集合，comp可传递null获得JS环境默认排序规则。
-     * 对于元素集合，comp应当为空。
-     * comp接口：function(a, b): Boolean
-     * @param  {Function|null} comp 排序函数，可选
-     * @return {Collector}
-     */
-    sort( evo, comp ) {
-        return $(evo.data).sort( comp );
-    },
-
-    __sort: 1,
-
-
-    /**
-     * 集合成员去重&排序。
-     * 目标：当前条目/栈顶1项。
-     * 集合如果不是Collector，可为对象（取其值集），返回一个数组。
-     * 默认为去重功能，如果传递comp实参则增加排序能力。
-     * comp:
-     * - true DOM节点排序
-     * - null 默认排序规则，适用非节点数据
-     * comp接口：function(a, b): Boolean
-     * @param  {Function|null} comp 排序函数，可选
-     * @return {Collector|Array}
-     */
-    unique( evo, comp ) {
-        return $.isCollector(evo.data) ?
-            evo.data.unique(evo.data, comp) : $.unique(evo.data, comp);
-    },
-
-    __unique: 1,
 
 
 
@@ -1216,12 +1055,9 @@ const _BaseOn = {
 
     /**
      * 栈顶复制。
-     * 支持多项自动展开，为引用浅复制。
-     * 目标：可选当前条目为克隆数。
-     * 特权：是。多条目获取并展开压入。
-     * 注：
-     * 无实参调用取默认值1，即复制栈顶1项。
-     * 若当前条目有值，视为克隆数量。
+     * 复制栈顶n项并展开入栈。
+     * 目标：可选当前条目作为复制数量。
+     * 特权：是，灵活取栈&自行入栈。
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数
      * @return {void}
@@ -1241,18 +1077,17 @@ const _BaseOn = {
      * 元素克隆。
      * 可同时克隆元素上绑定的事件处理器。
      * 目标：当前条目/栈顶1项。
-     * 注：目标需要是元素（集）类型（Element|[Element]|Collector）。
-     * @param {Boolean} event 包含事件处理器
-     * @param {Boolean} deep 深层克隆（含子元素）
-     * @param {Boolean} eventdeep 包含子元素的事件处理器
+     * @data: Element|[Element]|Collector
+     * @param  {Boolean} event 包含事件处理器
+     * @param  {Boolean} deep 深层克隆（含子元素）
+     * @param  {Boolean} eventdeep 包含子元素的事件处理器
+     * @return {Element|Collector}
      */
     clone( evo, event, deep, eventdeep ) {
-        let _el = evo.data;
-
-        if ( $.isArray(_el) ) {
-            return $(_el).clone( event, deep, eventdeep );
+        if ( $.isArray(evo.data) ) {
+            return $(evo.data).clone( event, deep, eventdeep );
         }
-        return $.clone( _el, event, deep, eventdeep );
+        return $.clone( evo.data, event, deep, eventdeep );
     },
 
     __clone: 1,
@@ -1273,7 +1108,7 @@ const _BaseOn = {
         if ( !names ) {
             return Object.assign(to, evo.data);
         }
-        let _ns = new Set(names.split(__reSpace));
+        let _ns = new Set( names.split(__reSpace) );
 
         return $.assign( to, evo.data, (v, n) => _ns.has(n) && [v] );
     },
@@ -1299,69 +1134,77 @@ const _BaseOn = {
 
 
 
-    // 比较运算
-    // 目标：当前条目/栈顶2项。
+    // 比较运算。
+    // 目标：当前条目/栈顶1-2项。
+    // 特权：是，灵活取栈。
+    // 注：模板传递的实参为比较操作的第二个操作数。
     // @return {Boolean}
     //===============================================
 
     /**
      * 相等比较（===）。
      */
-    equal( evo ) {
-        return evo.data[0] === evo.data[1];
+    equal( evo, stack, val ) {
+        let [v1, v2] = stackArgs(stack, val);
+        return v1 === v2;
     },
 
-    __equal: 2,
+    __equal_x: true,
 
 
     /**
      * 不相等比较（!==）。
      */
-    nequal( evo ) {
-        return evo.data[0] !== evo.data[1];
+    nequal( evo, stack, val ) {
+        let [v1, v2] = stackArgs(stack, val);
+        return v1 !== v2;
     },
 
-    __nequal: 2,
+    __nequal_x: true,
 
 
     /**
      * 小于比较。
      */
-    lt( evo ) {
-        return evo.data[0] < evo.data[1];
+    lt( evo, stack, val ) {
+        let [v1, v2] = stackArgs(stack, val);
+        return v1 < v2;
     },
 
-    __lt: 2,
+    __lt_x: true,
 
 
     /**
      * 小于等于比较。
      */
-    lte( evo ) {
-        return evo.data[0] <= evo.data[1];
+    lte( evo, stack, val ) {
+        let [v1, v2] = stackArgs(stack, val);
+        return v1 <= v2;
     },
 
-    __lte: 2,
+    __lte_x: true,
 
 
     /**
      * 大于比较。
      */
-    gt( evo ) {
-        return evo.data[0] > evo.data[1];
+    gt( evo, stack, val ) {
+        let [v1, v2] = stackArgs(stack, val);
+        return v1 > v2;
     },
 
-    __gt: 2,
+    __gt_x: true,
 
 
     /**
      * 大于等于比较。
      */
-    gte( evo ) {
-        return evo.data[0] >= evo.data[1];
+    gte( evo, stack, val ) {
+        let [v1, v2] = stackArgs(stack, val);
+        return v1 >= v2;
     },
 
-    __gte: 2,
+    __gte_x: true,
 
 
     /**
@@ -1370,13 +1213,11 @@ const _BaseOn = {
      * 如果传递了a1，则取当前条目或栈顶1项。
      * 如果未传递a1，则取当前条目或栈顶2项。
      * @param {Stack} stack 数据栈
-     * @param {[Value]} a1 对比值
+     * @param {[Value]} arr 对比数组
      */
-    arrayEqual( evo, stack, a1 ) {
-        if ( !a1 ) {
-            return arrayEqual( ...(evo.data || stack.data(2)) );
-        }
-        return arrayEqual( a1, evo.data || stack.data(1) );
+    arrayEqual( evo, stack, arr ) {
+        let [a1, a2] = stackArgs(stack, arr);
+        return arrayEqual( a1, a2 );
     },
 
     __arrayEqual_x: true,
@@ -1384,8 +1225,9 @@ const _BaseOn = {
 
     /**
      * 测试是否包含。
-     * 前者是否为后者的上级容器元素。
      * 目标：当前条目/栈顶2项。
+     * 前者是否为后者的上级容器元素。
+     * @data: [Element, Node]
      * @return {Boolean}
      */
     contains( evo ) {
@@ -1429,6 +1271,7 @@ const _BaseOn = {
     /**
      * 是否都为真。
      * 目标：当前条目/栈顶2项。
+     * 注：真假值为广义。
      */
     both( evo ) {
         return evo.data[0] && evo.data[1];
@@ -1440,6 +1283,7 @@ const _BaseOn = {
     /**
      * 是否任一为真。
      * 目标：当前条目/栈顶2项。
+     * 注：真假值为广义。
      */
     either( evo ) {
         return evo.data[0] || evo.data[1];
@@ -1451,16 +1295,18 @@ const _BaseOn = {
     /**
      * 是否每一项都为真。
      * 目标：当前条目/栈顶1项。
-     * 测试表达式返回真，该项即为真。接口：function(v, i, o): Boolean。
-     * 测试表达式可选，默认真值测试。
+     * 测试函数可选，默认真值（广义）测试。
      * 注：
-     * 目标需要是一个集合，支持各种集合（参考$.every）。
-     * 表达式无需return语法词。
-     *
-     * @param {String|Function} expr 测试表达式或函数，可选
+     * 目标不仅适用于数组，也可用于其它集合（如Object）。
+     * 测试函数接口：function(value, key, obj): Boolean
+     * @param {Function|undefined} test 测试函数，可选
      */
-    every( evo, expr ) {
-        return $.every( evo.data, boolTester(expr), null );
+    every( evo, test ) {
+        return $.every(
+                evo.data,
+                test === undefined ? v => v : test,
+                null
+            );
     },
 
     __every: 1,
@@ -1469,13 +1315,15 @@ const _BaseOn = {
     /**
      * 是否有任一项为真。
      * 目标：当前条目/栈顶1项。
-     * 测试表达式返回真该项即为真，接口：function(v, i, o): Boolean。
-     * 测试表达式可选，默认真值测试。
-     * 注：参考同上。
-     * @param {String|Function} expr 测试表达式或函数，可选
+     * 说明参考every。
+     * @param {Function|undefined} test 测试函数，可选
      */
-    some( evo, expr ) {
-        return $.some( evo.data, boolTester(expr), null );
+    some( evo, test ) {
+        return $.some(
+                evo.data,
+                test === undefined ? v => v : test,
+                null
+            );
     },
 
     __some: 1,
@@ -1485,25 +1333,24 @@ const _BaseOn = {
      * 目标对象内成员测试。
      * 目标：当前条目/栈顶1项。
      * name为属性名，支持空格分隔的多个属性名指定。
-     * val为对比值，用于与目标属性值做全等比较。可选，默认为存在性测试（非undefined）。
-     * 如果name为多名称指定，val可以是一个数组（一一对应）或undefined。
+     * val为对比值，用于与目标属性值做全等比较。可选，默认为存在性测试。
+     * 如果name为多名称指定，val可以是一个数组（一一对应）。
      * 当所有的检查/比较都为真时，返回true。
      * 例：
      * - inside('shift ctrl', true) // 是否shift和ctrl成员值为真。
      * - inside('selector') // 是否selector成员在目标内。
      * - inside('AA BB', [1, 2]) // 是否AA成员值为1且BB成员值为2。
+     * 注意：
+     * 测试对比值只能是简单类型（不支持对象或数组等）。
      *
      * @param {String} name 成员名称（集）
      * @param {Value|[Value]} val 对比值或值集
      */
     inside( evo, name, val ) {
-        let _o = evo.data,
-            _f = n => existValue(_o, n, val);
-
-        if ( $.isArray(val) ) {
-            _f = (n, i) => existValue(_o, n, val[i]);
+        if ( !__reSpace.test(name) ) {
+            return existValue(evo.data, name, val);
         }
-        return name.split(__reSpace).every(_f);
+        return name.split(__reSpace).every( existHandle(evo.data, val) );
     },
 
     __inside: 1,
@@ -1536,12 +1383,12 @@ const _BaseOn = {
      * 把目标视为函数，传递实参执行并返回结果。
      * 目标：当前条目/栈顶1项。
      * 注：通常配合func使用。
-     * @param  {...Value} rest 实参序列
+     * @param  {...Value} args 实参序列
      * @return {Value}
      */
-    exec( evo, ...rest ) {
+    exec( evo, ...args ) {
         if ( $.isFunction(evo.data) ) {
-            return evo.data( ...rest );
+            return evo.data( ...args );
         }
         throw new Error( `${evo.data} is not a function.` );
     },
@@ -1551,20 +1398,21 @@ const _BaseOn = {
 
     /**
      * 计算JS表达式。
-     * 目标：当前条目，可选。
-     * 目标可成为数据源，表达式内通过dn定义的变量名引用。
-     * 例：calc('($[0] + $[1]) * $[2]')
-     * @param  {String} expr JS表达式
-     * @param  {String} varn 数据源变量名。可选，默认 $
+     * 目标：当前条目/栈顶1项。
+     * 目标为JS表达式，通过vn指定变量名（单个，默认$）。
+     * 例：push('($[0] + $[1]) * $[2]') calc
+     * 注：
+     * 这是func和exec的合并版，但仅支持单个参数定义。
+     *
+     * @param  {String} vn 变量名，可选
+     * @param  {...Value} args 实参序列
      * @return {Value}
      */
-    calc( evo, expr, varn = '$' ) {
-        return new Function(
-            varn,
-            `return ${expr};` )( evo.data );
+    calc( evo, vn = '$', ...args ) {
+        return new Function( vn, `return ${evo.data};` )(...args);
     },
 
-    __calc: 0,
+    __calc: 1,
 
 };
 
@@ -1690,23 +1538,6 @@ function storage( buf, name, its, obj ) {
 
 
 /**
- * 创建布尔测试函数。
- * 如果表达式未定义，则为真值测试。
- * @param  {String|Function} expr 测试表达式或函数
- * @return {Function}
- */
-function boolTester( expr ) {
-    if ( expr === undefined ) {
-        return v => v;
-    }
-    if ( typeof expr == 'function' ) {
-        return expr;
-    }
-    return new Function( 'v', 'i', 'o', `return ${expr};` );
-}
-
-
-/**
  * 是否为空对象。
  * 如果实参不是对象，原值原样返回。
  * 注：空数组或空对象。
@@ -1735,12 +1566,26 @@ function stackArgs( stack, val ) {
  * 对象属性值测试。
  * 检查目标属性是否在目标对象内或是否与测试值全等。
  * 注：如果测试值未定义，则为存在性检查。
- * @param {Object} obj 目标对象
- * @param {String} name 属性名
- * @param {Value} val 测试值
+ * @param  {Object} obj 目标对象
+ * @param  {String} name 属性名
+ * @param  {Value} val 测试值
+ * @return {Boolean}
  */
 function existValue( obj, name, val ) {
     return val === undefined ? obj[name] !== undefined : obj[name] === val;
+}
+
+
+/**
+ * 创建属性/值检查函数。
+ * 如果对比值是一个数组，则按名称顺序对比检查测试。
+ * @param  {Object} obj 检查对象
+ * @param  {Value|[Value]} val 对比值（集）
+ * @return {Function} 比较函数
+ */
+function existHandle( obj, val ) {
+    return $.isArray(val) ?
+        (n, i) => existValue(obj, n, val[i]) : n => existValue(obj, n, val);
 }
 
 
