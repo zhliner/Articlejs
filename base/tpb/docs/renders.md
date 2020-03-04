@@ -168,19 +168,11 @@ $ = {
 
 存在性测试，取属性值的运算结果决定当前元素是否显示。
 
-注意 `tpb-else` 需要与 `tpb-if` 匹配使用，并且仅限于同级元素（兄弟关系）的范围。语法词所在元素之间可以插入其它兄弟元素，它们与 `if/else` 的逻辑无关，即：`if-else` 的测试显示逻辑仅限于元素自身。
-
-在同一个DOM层级上（同级兄弟元素），多个的 `if` 是平级关系，没有嵌套的逻辑，一个 `if` 的开始就是前一个 `if-else` 的结束，因此 `else` 对 `if` 的配对是就近匹配的逻辑。
-
-属性值中的比较运算符不采用 `<` 或 `>` 字符，它们由下面的关键词代替：
-
-- **LT**： 小于（<）
-- **LTE**： 小于等于（<=）
-- **GT**： 大于（>）
-- **GTE**： 大于等于（>=）
+注意 `tpb-else` 需要与 `tpb-if` 匹配使用，并且仅限于同级元素的范围。语法词所在元素之间可以插入其它兄弟元素，它们与 `if/else` 的逻辑无关，即：`if-else` 的测试显示逻辑仅限于元素自身。
+在同一个DOM层级上（同级兄弟元素），多个的 `if` 是平级关系，没有嵌套的逻辑，一个 `if` 的开始就是前一个 `if | if/else` 的结束，因此 `else` 对 `if` 的配对是就近匹配的逻辑。
 
 > **注：**<br>
-> 与普通语言稍有不同，这里的 `else` 依然可以携带条件，如果属性有值，则为 `elseif` 的逻辑，否则就是简单的 `case`。
+> 与普通语言中的语法稍有不同，这里的 `else` 依然可以携带条件，如果属性有值，则为 `elseif` 的逻辑。
 
 
 ### 示例
@@ -188,7 +180,7 @@ $ = {
 ```html
 <div tpb-with="$.student">
     <!-- 如果 tpb-if 为假，段落不会显示 -->
-    <p tpb-if="$.age LT 7">
+    <p tpb-if="$.age < 7">
         欢迎 <strong _text="$.name">[孩子]</strong> 小朋友！
     </p>
     <!-- 中间段：可插入任意内容 -->
@@ -202,26 +194,25 @@ $ = {
 
 ## tpb-switch / tpb-case / tpb-last
 
-`switch{}` 语法结构，表达多个子元素的分支判断。与 `tpb-if/else` 类似，`tpb-case/last` 仅对元素自身进行匹配测试，匹配则显示，否则隐藏。语法的作用域仅限于平级的兄弟元素，`switch` 的结束随着元素的封闭自然结束，`case` 无需 `break`。
+`switch{}` 语法结构，表达多个子元素的分支判断。
+
+与 `tpb-if/else` 类似，`tpb-case/last` 仅对元素自身进行匹配测试，匹配则显示，否则隐藏。各个 `case` 位于平级的兄弟元素上（即DOM树的相同层级），无需 `break`。随着元素的封闭，`switch` 逻辑自然结束。
 
 `tpb-last` 是最后一个Case，它充当两种角色：
 
 1. `default`：如果没有任何一个 `case` 匹配，且 `tpb-last` 无值，则为 `default` 逻辑（无条件匹配）。
 2. 普通的 `case` 逻辑，包含测试条件（属性值），但有一个特殊功能：如果不匹配，整个 `switch` 结构（容器元素）会隐藏。
 
-> **注：**<br>
-> 如果不需要 `last` 不匹配时隐藏整个 `switch` 结构，可以仅使用 `case` 语法。
-
 
 ### 示例
 
 ```html
 <div tpb-with="$.student" tpb-switch="true">
-    <p tpb-case="$.age LT 7">
+    <p tpb-case="$.age > 7">
         欢迎 <strong _text="$.name">[孩子]</strong> 小朋友！
     </p>
     <!-- 中间段：任意内容 -->
-    <p tpb-case="$.age LTE 18">
+    <p tpb-case="$.age <= 18">
         你好，<strong _text="$.name">[青少年]</strong>！
     </p>
     <!-- 中间段：任意内容 -->
@@ -253,7 +244,7 @@ $ = {
 <p tpb-with="{topic: $.info.title, time: $.info.time, tips: '更新'}">
     <span _text="$.topic"></span>
     更新时间：<strong _text="$.time|date('yyyy-MM-dd')"></strong>
-    <em tpb-if="$.time LT 86400" _text="$.tips">[最新提示]</em>
+    <em tpb-if="$.time < 86400" _text="$.tips">[最新提示]</em>
 </p>
 ```
 

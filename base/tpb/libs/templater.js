@@ -25,6 +25,11 @@
 // 若无需支持可简单移除。
 import { Render } from "./render.js";
 
+//
+// 是否渲染支持。
+//
+const __RENDER = true;
+
 
 const
     $ = window.$,
@@ -53,9 +58,6 @@ class Templater {
     constructor( loader, obter ) {
         this._load = loader;
         this._obter = obter;
-        // 渲染支持，可选
-        // this._render = null;
-        this._render = Render;
 
         // 模板节点存储
         // { String: Element }
@@ -120,11 +122,11 @@ class Templater {
         }
         this._obter( root, obts );
 
-        // 非节点类（可绑定事件，如 window）
+        // 非节点类（如 window）
         if ( !root.nodeType ) return;
 
-        if ( this._render ) {
-            this._render.parse( root );
+        if ( __RENDER ) {
+            Render.parse( root );
         }
         return this.picks( root );
     }
@@ -161,7 +163,7 @@ class Templater {
         }
         let _new = $.clone(tpl, true, true, true);
 
-        return this._render ? this._render.clone(_new, tpl) : _new;
+        return __RENDER ? Render.clone(_new, tpl) : _new;
     }
 
 

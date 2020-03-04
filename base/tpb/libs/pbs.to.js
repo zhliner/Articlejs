@@ -249,18 +249,18 @@ const _Update = {
 // 注：多余实参无副作用。
 //-----------------------------------------------
 [
-    'height',       // val: Number
-    'width',        // val: Number
+    'height',       // val: Number (inc:Boolean)
+    'width',        // val: Number (inc:Boolean)
     'scroll',       // val: {top:Number, left:Number}|[left, top]
-    'scrollTop',    // val: Number
-    'ScrollLeft',   // val: Number
+    'scrollTop',    // val: Number (inc:Boolean)
+    'ScrollLeft',   // val: Number (inc:Boolean)
     'addClass',     // name: {String|Function}
     'removeClass',  // name: {String|Function}
-    'toggleClass',  // name: {String|Function|Boolean}
+    'toggleClass',  // name: {String|Function|Boolean} (force:Boolean)
     'removeAttr',   // name: {String|Function}
     'val',          // val: {Value|[Value]|Function}
-    'html',         // code: {String|[String]|Node|[Node]|Function|.values}
-    'text',         // code: {String|[String]|Node|[Node]|Function|.values}
+    'html',         // code: {String|[String]|Node|[Node]|Function|.values} (where, sep)
+    'text',         // code: {String|[String]|Node|[Node]|Function|.values} (where, sep)
     'offset',       // val: {top:Number, left:Number}
 ]
 .forEach(function( meth ) {
@@ -269,6 +269,7 @@ const _Update = {
      * 内容实参类型参考上面注释。
      * @param {Element|Collector} tos 目标元素/集
      * @param {Value} data 数据内容
+     * @param {...Value} args 额外参数
      */
     _Update[meth] = function( tos, data, ...args ) {
         if ( $.isArray(tos) ) {
@@ -507,7 +508,9 @@ const _Stage = {
 ]
 .forEach(function( meth ) {
 
-    _Stage[meth] = function( evo ) { $( evo.targets )[meth]() };
+    _Stage[meth] = function( evo ) {
+        $( evo.targets )[meth]();
+    };
 
     // _Stage[`__${meth}`] = null;
 

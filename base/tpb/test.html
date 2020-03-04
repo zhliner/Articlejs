@@ -59,6 +59,19 @@
 
         //:Debug
         window.Tpb = Tpb;
+
+        // Render:data
+        let rdata = {
+                student: {
+                    name: '王小二',
+                    age: 14,
+                    school: {
+                        name: "xx市第一中学",
+                        class: "初三（1）班",
+                    },
+                },
+                language: `chinese`,
+            };
     </script>
 
 </head>
@@ -69,7 +82,7 @@
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove')">
-    <aside id="outline" class="___Panel" data-pb="">
+    <aside id="outline" class="___Panel" tpb-if="$a < $b" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft"

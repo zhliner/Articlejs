@@ -29,6 +29,11 @@ import { Filter } from "./filter.js";
 import { Spliter, UmpString } from "./spliter.js";
 import { Util } from "./util.js";
 
+//
+// 是否清除渲染属性。
+//
+const __CLEARATTR = false;
+
 
 const
     $ = window.$,
@@ -131,9 +136,9 @@ const Parser = {
                 Object.assign(
                     _buf,
                     // $for 需要第二个实参
-                    this[fn]( $.attribute(el, an), el.childElementCount )
+                    this[fn]( el.getAttribute(an), el.childElementCount )
                 );
-                $.attribute( el, an, null );
+                if (__CLEARATTR) el.removeAttribute(an);
             }
         }
         return Object.assign( _buf, this.assign(el) );
@@ -276,7 +281,8 @@ const Parser = {
             if ( _n[0] == '_' ) {
                 _ats.push( _n.substring(1) );
                 _fns.push( Expr.assign(at.value) );
-                $.attribute( el, _n, null );
+
+                if (__CLEARATTR) el.removeAttribute(_n);
             }
         }
         if ( _ats.length == 0 ) {
@@ -734,7 +740,7 @@ const Expr = {
         // 包含过滤器。
         let _fxs = _ss.map( filterHandle );
 
-        return data => _fxs.reduce( (d, fx) => fx.func.bind(d)(...fx.args), _fn(data) );
+        return data => _fxs.reduce( (d, fx) => fx.func(d, ...fx.args), _fn(data) );
     },
 
 };

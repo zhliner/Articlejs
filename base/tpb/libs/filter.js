@@ -8,7 +8,10 @@
 //
 //  渲染过滤器（Render:Filter）
 //
-//  用于渲染赋值表达式中过滤源数据到目标结果。
+//  用于渲染赋值表达式中对计算的结果做进一步过滤处理。
+//  过滤处理器支持管道式多层递进处理，前一阶处理的结果作为下一阶的源数据。
+//
+//  约定：被处理的数据作为过滤器函数的首个参数存在。
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -18,21 +21,22 @@ const $ = window.$;
 
 
 //
-// this绑定为待处理的数据，返回处理后的结果。
+// 过滤器集合。
 //
 const Filter = {
     /**
      * 文本截断。
      * - 按视觉字节（单字节）计算，全角字符记为2个字节；
      * - 若有截断，尾部跟随的标志串长度计算在内（误差1）；
-     * this: {String}
-     * @param {Number} len 单字节长度
-     * @param {String} fix 截断标志串
+     * @param  {String} data 待处理数据
+     * @param  {Number} len 单字节长度
+     * @param  {String} fix 截断标志串
+     * @return {String}
      */
-    cut( len, fix = '...') {
+    cut( data, len, fix = '...') {
         let _chs = [];
 
-        for ( let ch of this ) {
+        for ( let ch of data ) {
             len -= viewByte(ch);
             if (len < 0) break;
             _chs.push(ch);
@@ -42,31 +46,30 @@ const Filter = {
 
 
     /**
-     * Html源码文本化。
-     * - 转义文本中Html字符（< => &lt;）；
-     * - 数据可为节点元素，转换整个标签（元素自身）；
-     * 注：
-     * - 结果应当用html方式插入；
-     *
-     * this {String|Element|Array|Queue}
-     * @param {Boolean} br 保留换行标签
-     * @param {String} sep 多组连接符
+     * 解码HTML。
+     * 源数据中的HTML实体翻译为文本，如：&lt; 到 <。
+     * @param  {String} data 待处理数据
+     * @return {String}
      */
-    text( sep = ' ' ) {
-        let _txt = this;
+    text( data ) {
+        return $.text( data );
+    },
 
-        if (typeof _txt == 'string') {
-            return $.html(null, _txt);
-        }
-        return $(_txt).prop('outerHTML').map(txt => $.html(null, txt)).join(sep);
+
+    /**
+     * 转为HTML代码。
+     * 源数据中的特殊文本转为HTML实体，如：< 到 &lt;
+     * @param  {String} data 待处理数据
+     * @return {String}
+     */
+    html( data ) {
+        return $.html( data );
     },
 
 
     /**
      * 格式化日期和时间。
-     * this {String|Number|Date} Date对象或绝对毫秒数。
-     * - 如果now为true，则指当前时间（忽略来源值）；
-     * - 格式：{
+     * 格式：{
      *  	yy|yyyy 年
      *  	M|MM 	月
      *  	d|dd 	日
@@ -78,18 +81,15 @@ const Filter = {
      * 例：
      *   yyyy-MM-dd hh:mm:ss.S => 2017-02-08 16:49:09.643
      *   yy-M-d h:m:s => 17-2-8 16:49:9
-     *
      * 注记：
-     * - 借用Date的JSON标准格式分解合成；
-     * - 输出的是本地时间。JSON仅为借用（假借）；
-     *
-     * @param {String} fmt 格式串
-     * @param {Boolean} now 用当前时间
+     * - 借用Date的JSON标准格式分解合成。
+     * - 输出的是本地时间。JSON仅为借用（假借）。
+     * @param  {String|Number|Date} data 日期表达
+     * @param  {String} fmt 格式串
+     * @return {String}
      */
-    date( fmt, now ) {
-        let _ss = dateCells(
-                now ? Date.now() : getTime(this)
-            );
+    date( data, fmt ) {
+        let _ss = dateCells( getTime(data) );
         return fmt.replace(__dateFormat, w => _ss[w] || w );
     },
 
@@ -97,27 +97,28 @@ const Filter = {
     /**
      * 首尾空白清除。
      */
-    trim() {
-        return this.trim();
+    trim( data ) {
+        return data.trim();
     },
 
 
     /**
      * 空白清理（减为单个空格）。
      */
-    clean() {
-        return this.trim().replace(/\s+/g, ' ');
+    clean( data ) {
+        return data.trim().replace(/\s+/g, ' ');
     },
 
 
     /**
      * 节点封装（通用）。
-     * - 不指定标签名时创建一个文本节点；
+     * 不指定标签名时创建一个文本节点。
+     * @param  {String|Object} data 待处理源数据
      * @param  {String} tag 元素标签名
      * @return {Element|TextNode}
      */
-    node( tag ) {
-        return tag ? $.Element( tag, this ) : $.Text( this );
+    node( data, tag ) {
+        return tag ? $.Element( tag, data ) : $.Text( data );
     },
 
 };
@@ -149,7 +150,7 @@ const Filter = {
     'b',
     'i',
 ].forEach(function( name ) {
-    Filter[name] = function() { return $.Element( name, this ); };
+    Filter[name] = function( data ) { return $.Element( name, data ); };
 });
 
 
