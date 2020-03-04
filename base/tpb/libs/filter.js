@@ -150,7 +150,7 @@ const Filter = {
     'b',
     'i',
 ].forEach(function( name ) {
-    Filter[name] = function( data ) { return $.Element( name, data ); };
+    Filter[name] = data => $.Element( name, data );
 });
 
 
