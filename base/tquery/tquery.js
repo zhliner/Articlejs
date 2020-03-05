@@ -4909,9 +4909,9 @@ function hookSet( el, name, val, scope ) {
 function customSet( el, name, value, scope ) {
     switch (name) {
         case 'text':
-            return Insert(el, el.ownerDocument.createTextNode(value), 'fill');
+            return Insert(el, el.ownerDocument.createTextNode(value), '');
         case 'html':
-            return Insert(el, buildFragment(value, el.ownerDocument), 'fill');
+            return Insert(el, buildFragment(value, el.ownerDocument), '');
     }
     scope.set(el, name, value);
 }
