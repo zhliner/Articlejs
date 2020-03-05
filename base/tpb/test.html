@@ -82,14 +82,14 @@
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove')">
-    <aside id="outline" class="___Panel" tpb-if="$a < $b" data-pb="">
+    <aside id="outline" class="___Panel" tpb-if="$a <= $b" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft"
         on="mousedown"
         to="body|bind('mousemove:1') once('mouseup')">
     <div id="editor">
-        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb=""
+        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb="lose"
             on="click('~._close')|evo(3)" by="x.Eff.lose">
             <form class="_prop" on="submit|avoid" tpl-name="modal:prop">
                 <header>
@@ -114,6 +114,16 @@
             [状态栏]
         </pre>
         <div tpl-source="menu:cells, menu:cmenu">[选取创建/基本编辑菜单]</div>
+        <!-- 渲染测试 -->
+        <ul>
+            <li>列表项11。</li>
+            <li>列表项22。</li>
+            <li><hr></li>
+            <li>列表项33。</li>
+            <li>列表项44。</li>
+            <li><hr></li>
+            <li>列表项55。</li>
+        </ul>
     </div>
     <hr id="lineRight"
         on="mousedown"

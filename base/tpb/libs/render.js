@@ -267,14 +267,13 @@ const Parser = {
      * 属性赋值文法解析。
      * 需要渲染的属性名前置一个下划线，支持单个下划线（空名称）。
      * Object {
-     *      Assign: [names, [handle]]
+     *      Assign: [[name], [handle]]
      * }
      * @param  {Element} el 目标元素
      * @return {Object} 文法配置
      */
     assign( el ) {
-        let _ats = [],
-            _fns = [];
+        let _ats = [], _fns = [];
 
         for ( let at of Array.from(el.attributes) ) {
             let _n = at.name;
@@ -285,10 +284,7 @@ const Parser = {
                 if (__CLEARATTR) el.removeAttribute(_n);
             }
         }
-        if ( _ats.length == 0 ) {
-            return null;
-        }
-        return { Assign: [_ats.join(' '), _fns] };
+        return _ats.length > 0 ? { Assign: [_ats, _fns] } : null;
     },
 
 };
@@ -361,10 +357,9 @@ const Grammar = {
     With( el, handle, data ) {
         let _sub = handle( data );
 
-        _sub = Object.assign(
-            _sub == null && {} || _sub,
-            { $: data }
-        );
+        if ( _sub == null ) _sub = {};
+        _sub.$ = data;
+
         // 友好：原型继承
         if ( $.type(_sub) == 'Object' && $.type(data) == 'Object' ) {
             $.proto( _sub, data );
@@ -525,19 +520,18 @@ const Grammar = {
 
 
     /**
-     * 属性（特性）赋值。
-     * 文法：{ Assign: [names, [handle]] }
+     * 特性赋值。
+     * 文法：{ Assign: [[name], [handle]] }
      * 支持两个特殊属性名：text, html。
      * 多个属性名之间空格分隔，与 handles 成员一一对应。
-     * @param {String} name 属性名（序列）
-     * @param {[Function]} handles 处理器（集）
+     * @param {[String]} names 属性名集
+     * @param {[Function]} handles 处理器集
      * @param {Object} data 当前域数据
      */
-    Assign( el, name, handles, data ) {
-        $.attr(
-            el,
-            name || 'text',
-            handles.map( f => f(data) )
+    Assign( el, names, handles, data ) {
+        names.forEach(
+            (name, i) =>
+            $.attribute( el, name || 'text', handles[i](data) )
         );
     },
 
