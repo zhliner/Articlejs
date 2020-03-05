@@ -836,7 +836,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 获取或设置 `el` 元素的特性值。
 
 - `el: Element` 目标元素
-- `name: String` 特性名（单个），支持 `data-x` 系名称简写。
+- `name: String` 特性名（单个）。支持 `data-x` 系名称简写，支持 `text` 和 `html` 两个特殊名称。
 - `value: Value | Function | null` 要设置的特性值或取值回调，传递 `null` 会移除目标特性。
 
 这是 `.attr()` 的轻量版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
@@ -870,7 +870,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 获取或设置 `el` 元素的属性值。
 
 - `el: Element` 目标元素
-- `name: String` 属性名（单个），支持 `data-x` 系名称简写。
+- `name: String` 属性名（单个）。支持 `data-x` 系名称简写，支持 `text` 和 `html` 两个特殊名称。
 - `value: Value | Function | null` 要设置的属性值或取值回调，传递 `null` 通常会让目标属性恢复默认状态。
 
 这是 `.prop()` 的轻量版，效率稍高一些。说明参考 `.prop()` 文档。

@@ -1585,6 +1585,8 @@ Object.assign( tQuery, {
      * - "xx"       普通名称
      * - "data-xx"  data系名称
      * - "-xx"      data系名称简写
+     * - "text"     针对元素内文本
+     * - "html"     针对元素内源码（innerHTML）
      * 注：
      * 仅适用单个特性名。
      * value仅支持简单标量值和取值回调。
@@ -1595,13 +1597,9 @@ Object.assign( tQuery, {
      * @return {Value|this}
      */
     attribute( el, name, value ) {
-        if ( value === undefined ) {
-            return elemAttr.get( el, name );
-        }
-        if ( isFunc(value) ) {
-            value = value(elemAttr.get( el, name), el );
-        }
-        return elemAttr.set( el, name, value ), this;
+        return value === undefined ?
+            customGet( el, name, elemAttr ) :
+            hookSet( el, name, value, elemAttr ) || this;
     },
 
 
@@ -1610,8 +1608,8 @@ Object.assign( tQuery, {
      * names: String
      * - "xx"       普通名称
      * - "aa bb"    名称序列，空格分隔（依然支持data-系简写）
-     * - "text"     特殊名称，针对元素内文本
-     * - "html"     特殊名称，针对元素内源码
+     * - "text"     （同上）
+     * - "html"     （同上）
      *
      * 取值：
      * - 条件：value为未定义，name为字符串。
@@ -1633,9 +1631,9 @@ Object.assign( tQuery, {
      * @return {Value|Object|this}
      */
     attr( el, names, value ) {
-        return hookIsGet(names, value) ?
-            hookGets(el, names.trim(), elemAttr) :
-            hookSets(el, names, value, elemAttr) || this;
+        return hookIsGet( names, value ) ?
+            hookGets( el, names.trim(), elemAttr ) :
+            hookSets( el, names, value, elemAttr ) || this;
     },
 
 
@@ -1644,6 +1642,8 @@ Object.assign( tQuery, {
      * name: String
      * - "xx"   普通名称
      * - "-xx"  data系名称简写
+     * - "text" 针对节点文本内容
+     * - "html" 针对元素内源码（innerHTML）
      * 注：
      * 仅适用单个特性名。
      * value仅支持简单标量值和取值回调。
@@ -1654,30 +1654,25 @@ Object.assign( tQuery, {
      * @return {Value|this}
      */
     property( el, name, value ) {
-        if ( value === undefined ) {
-            return elemProp.get( el, name );
-        }
-        if ( isFunc(value) ) {
-            value = value(elemProp.get( el, name), el );
-        }
-        return elemProp.set( el, name, value ), this;
+        return value === undefined ?
+            customGet( el, name, elemProp ) :
+            hookSet( el, name, value, elemProp ) || this;
     },
 
 
     /**
      * 属性获取/设置（增强版）。
      * - 参数说参考.attr()接口。
-     * - 与.attr()不同，value传递null会赋值为null（可能导致元素回到默认状态）。
-     * - 支持两个特殊属性名：text、html，设置时为填充方式。
+     * - 与.attr()不同，value传递null会赋值为null，可能让元素回到默认状态。
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
     prop( el, names, value ) {
-        return hookIsGet(names, value) ?
-            hookGets(el, names.trim(), elemProp) :
-            hookSets(el, names, value, elemProp) || this;
+        return hookIsGet( names, value ) ?
+            hookGets( el, names.trim(), elemProp ) :
+            hookSets( el, names, value, elemProp ) || this;
     },
 
 
@@ -1920,13 +1915,12 @@ Object.assign( tQuery, {
     cssSets( el, names, val ) {
         if (names === null) {
             el.removeAttribute('style');
+            return this;
         }
-        else if ( val !== undefined ) {
-            cssSets(el, names, val, getStyles(el));
+        cssSets(el, names, val, getStyles(el));
 
-            if (el.style.cssText.trim() == '') {
-                el.removeAttribute('style');
-            }
+        if (el.style.cssText.trim() == '') {
+            el.removeAttribute('style');
         }
         return this;
     },
@@ -4900,7 +4894,7 @@ function hookSet( el, name, val, scope ) {
     if ( isFunc(val) ) {
         val = val( el, name );
     }
-    return customSet( el, name, val, scope );
+    customSet( el, name, val, scope );
 }
 
 
@@ -4915,11 +4909,11 @@ function hookSet( el, name, val, scope ) {
 function customSet( el, name, value, scope ) {
     switch (name) {
         case 'text':
-            return Insert(el, el.ownerDocument.createTextNode(value), '');
+            return Insert(el, el.ownerDocument.createTextNode(value), 'fill');
         case 'html':
-            return Insert(el, buildFragment(value, el.ownerDocument), '');
+            return Insert(el, buildFragment(value, el.ownerDocument), 'fill');
     }
-    return scope.set(el, name, value);
+    scope.set(el, name, value);
 }
 
 
