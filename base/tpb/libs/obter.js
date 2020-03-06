@@ -66,7 +66,7 @@ const
     // 进阶定义切分器。
     // 需要区分属性选择器、调用式。
     // 注：字符串不在属性值或调用式之外（无需包含）。
-    __pipeSplit = new Spliter ( __chrPipe, new UmpCaller, new UmpChars('[', ']') ),
+    __pipeSplit = new Spliter( __chrPipe, new UmpCaller, new UmpChars('[', ']') ),
 
 
     // On事件定义模式。

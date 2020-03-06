@@ -3102,12 +3102,12 @@ function _cloneEvents( src, to, top, deep ) {
     if (!deep || src.childElementCount == 0) {
         return to;
     }
-    let _to = $tag('*', to);
+    let _to = $tag('*', to),
+        _src = $tag('*', src);
 
-    Arr( $tag('*', src) )
-        .forEach(
-            (e, i) => Event.clone( _to[i], e )
-        );
+    for (let i = 0; i < _src.length; i++) {
+        Event.clone( _to[i], _src[i] );
+    }
     return to;
 }
 
@@ -4874,6 +4874,9 @@ function hookSets( el, name, value, scope ) {
  * @param {Object} scope 适用域对象
  */
 function hookArrSet( el, names, val, scope ) {
+    if ( names.length == 1 ) {
+        return hookSet(el, names[0], val, scope);
+    }
     if ( !isArr(val) ) {
         return names.forEach( n => hookSet(el, n, val, scope) );
     }
@@ -6558,23 +6561,23 @@ const Event = {
      * @return {Element} to
      */
     clone( to, src, evns ) {
-        let _m1 = this.store.get(src),
-            _fltr = this._compRecord(evns);
+        if ( !this.store.has(src) ) {
+            return to;
+        }
+        let _fltr = this._compRecord(evns);
 
-        if ( !_m1 ) return to;
-
-        for (const [n, m2] of _m1) {
+        for (const [n, nm] of this.store.get(src)) {
             // n:ev-name
-            for (const [s, m3] of m2) {
+            for (const [s, sm] of nm) {
                 // s:selector
-                for (const [h, av] of m3) {
+                for (const [h, v3] of sm) {
                     // h:handle
                     if ( _fltr(n, s, h ) ) {
                         let _pool = this.buffer( to, n, s );
                         to.addEventListener(
                             n,
-                            av[2] ? this._onceHandler(to, n, av[0], av[1], _pool, h) : av[0],
-                            av[1]
+                            v3[2] ? this._onceHandler(to, n, v3[0], v3[1], _pool, h) : v3[0],
+                            v3[1]
                         );
                     }
                 }

@@ -61,7 +61,7 @@
         window.Tpb = Tpb;
 
         // Render:data
-        let rdata = {
+        window.rdata = {
                 student: {
                     name: '王小二',
                     age: 14,
@@ -115,15 +115,19 @@
         </pre>
         <div tpl-source="menu:cells, menu:cmenu">[选取创建/基本编辑菜单]</div>
         <!-- 渲染测试 -->
-        <ul>
-            <li>列表项11。</li>
-            <li>列表项22。</li>
-            <li><hr></li>
-            <li>列表项33。</li>
-            <li>列表项44。</li>
-            <li><hr></li>
-            <li>列表项55。</li>
+        <ul id="render1" tpb-for>
+            <li _class="$.INDEX % 2 ? '_even' : '_odd'">
+                <strong _="$[0]"></strong>：<em _="$[1]"></em>
+            </li>
+            <li tpb-if="$.INDEX % 2"><hr></li>
+            <li _="`${$.INDEX}/${$.SIZE}`"></li>
         </ul>
+        <button on="click|$('#render1') push(Object.entries(rdata))" by="x.Node.render">
+            渲染测试1
+        </button>
+        <button on="click|push(rdata)" to="#render1|render">
+            渲染测试2
+        </button>
     </div>
     <hr id="lineRight"
         on="mousedown"

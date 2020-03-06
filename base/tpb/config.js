@@ -58,6 +58,11 @@ const
 const
     $ = window.$,
 
+    // 渲染标识属性。
+    // 用于高效检索渲染元素（如配置克隆）。
+    // 注：这一属性名会保留在DOM元素上。
+    hasRender   = '_',
+
     // OBT属性名定义
     OBTA = {
         on:     'on',   // On-Attr
@@ -129,6 +134,7 @@ function funcSets( f, n, ix ) {
 export {
     Dir,
     DEBUG,
+    hasRender,
     OBTA,
     EXTENT,
     ACCESS,
