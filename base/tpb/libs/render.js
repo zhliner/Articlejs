@@ -651,7 +651,7 @@ const Expr = {
         // 包含过滤器。
         let _fxs = _ss.map( filterHandle );
 
-        return data => _fxs.reduce( (d, fx) => fx.func(d, ...fx.args), _fn(data) );
+        return data => _fxs.reduce( (d, fx) => fx[0](d, ...fx[1]), _fn(data) );
     },
 
 };
@@ -665,21 +665,16 @@ const Expr = {
 
 /**
  * 提取赋值过滤器句柄。
- * Object {
- *      func: Function
- *      args: [Value]|''
- * }
+ * [
+ *      func:Function,
+ *      args:[Value]|''
+ * ]
  * @param  {String} call 调用表达式
  * @return {Object} 过滤器对象
  */
 function filterHandle( call ) {
-    let _fn2 = Util.funcArgs( call.trim() ),
-        _fun = Filter[_fn2.name];
-
-    if ( !_fun ) {
-        throw new Error(`not found ${_fn2.name} filter-method.`);
-    }
-    return { func: _fun, args: _fn2.args };
+    let _fn2 = Util.funcArgs( call.trim() );
+    return [ Filter[_fn2.name], _fn2.args ];
 }
 
 

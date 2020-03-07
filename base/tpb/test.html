@@ -122,11 +122,8 @@
             <li tpb-if="$.INDEX % 2"><hr></li>
             <li _="`${$.INDEX}/${$.SIZE}`"></li>
         </ul>
-        <button on="click|$('#render1') push(Object.entries(rdata))" by="x.Node.render">
-            渲染测试1
-        </button>
-        <button on="click|push(rdata)" to="#render1|render">
-            渲染测试2
+        <button on="click|push(Object.entries(rdata))" to="#render1|render">
+            渲染测试
         </button>
     </div>
     <hr id="lineRight"
