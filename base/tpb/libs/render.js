@@ -721,10 +721,11 @@ function cloneGrammars( tos, srcs ) {
  * @return {[Element]}
  */
 function eachList( el, size ) {
-    let _buf = [ el ];
+    let _buf = [];
 
-    while ( --size > 0 && el ) {
-        _buf.push( el = el.nextElementSibling );
+    while ( --size >= 0 && el ) {
+        _buf.push( el );
+        el = el.nextElementSibling;
     }
     return _buf;
 }
