@@ -336,41 +336,15 @@ const Grammar = {
      */
     Each( el, handle, size, data ) {
         let _idx = el[__eachIndex];
-
         data = handle( data );
-        size = size - _idx;
 
-        let _els = $.nextUntil(el, (_, i) => i == size);
-
-        this._alignEach( _els, data.length, _idx+1 )
+        this._alignEach( eachList(el, size-_idx), data.length, _idx+1 )
         .forEach(
             // 设置当前域对象。
             (el, i) => el[__scopeData] = loopCell(data[i], i, data)
         );
         // 更新计数。
         Grammars.get(el).get('Each')[1] = data.length + _idx;
-    },
-
-
-    /**
-     * 创建新的当前域。
-     * 文法：{ With: [handle] }
-     * 新的当前域数据存储在元素的 [__scopeData] 属性上。
-     * @param {Element} el 当前元素
-     * @param {Function} handle 表达式取值函数
-     * @param {Object} data 当前域数据
-     */
-    With( el, handle, data ) {
-        let _sub = handle( data );
-
-        if ( !_sub ) _sub = Object(_sub);
-        _sub.$ = data;
-
-        // 友好：原型继承
-        if ( $.type(_sub) == 'Object' && $.type(data) == 'Object' ) {
-            $.proto( _sub, data );
-        }
-        el[ __scopeData ] = _sub;
     },
 
 
@@ -396,6 +370,28 @@ const Grammar = {
         );
         // 可能的修改。
         Grammars.get(el).get('For')[1] = size;
+    },
+
+
+    /**
+     * 创建新的当前域。
+     * 文法：{ With: [handle] }
+     * 新的当前域数据存储在元素的 [__scopeData] 属性上。
+     * @param {Element} el 当前元素
+     * @param {Function} handle 表达式取值函数
+     * @param {Object} data 当前域数据
+     */
+    With( el, handle, data ) {
+        let _sub = handle( data );
+
+        if ( !_sub ) _sub = Object(_sub);
+        _sub.$ = data;
+
+        // 友好：原型继承
+        if ( $.type(_sub) == 'Object' && $.type(data) == 'Object' ) {
+            $.proto( _sub, data );
+        }
+        el[ __scopeData ] = _sub;
     },
 
 
@@ -552,40 +548,18 @@ const Grammar = {
     _alignEach( els, count, beg ) {
         let _sz = count - els.length;
 
-        if ( _sz == 0 ) return els;
-
         if ( _sz < 0 ) {
             // 移除超出部分。
             els.splice(_sz).forEach( e => $.remove(e) );
-        } else {
+        }
+        else if ( _sz > 0 ) {
             // 补齐不足部分。
             let _ref = els[els.length-1];
             els.push(
-                ...$.after( _ref, this._eachClone(_ref, _sz, beg) )
+                ...$.after( _ref, eachClone(_ref, _sz, beg) )
             );
         }
         return els;
-    },
-
-    /**
-     * 指定数量的元素克隆。
-     * 会存储新元素的渲染文法配置。
-     * 用于Each中不足部分的批量克隆。
-     * @param  {Element} ref 参考元素（克隆源）
-     * @param  {Number} size 克隆的数量
-     * @param  {Number} beg 新下标起始值
-     * @return {[Element]} 新元素集
-     */
-    _eachClone( ref, size, beg ) {
-        let _els = [];
-
-        for (let i=0; i<size; i++) {
-            let _new = $.clone(ref, true, true, true);
-
-            _new[__eachIndex] = beg + i;
-            _els.push( cloneGrammar(_new, ref) );
-        }
-        return _els;
     },
 
 
@@ -600,54 +574,18 @@ const Grammar = {
         let _loop = parseInt(els.length / size),
             _dist = count - _loop;
 
-        if ( _dist == 0 ) return els;
-
         if ( _dist < 0 ) {
             // 移除超出部分。
             els.splice(_dist * size).forEach( e => $.remove(e) );
-        } else {
+        }
+        else if ( _dist > 0 ) {
             // 补齐不足部分。
-            let _new = this._forClone( els.slice(-size), _dist );
+            let _new = forClone( els.slice(-size), _dist );
             els.push(
                 ...$.after( els[els.length-1], _new )
             );
         }
         return els;
-    },
-
-
-    /**
-     * 循环克隆元素集。
-     * 用于For循环中子元素集的迭代。
-     * @param  {[Element]} els 源元素集
-     * @param  {Number} cnt 克隆次数
-     * @return {[Element]} 克隆总集
-     */
-    _forClone( els, cnt ) {
-        let _buf = [];
-
-        for (let i=0; i<cnt; i++) {
-            _buf = _buf.concat( this._cloneList(els) );
-        }
-        return _buf;
-    },
-
-
-    /**
-     * 元素集克隆。
-     * 存在渲染配置的元素会进行文法克隆存储。
-     * 注：用于For循环的子元素单次迭代。
-     * @param  {[Element]} els 子元素集
-     * @return {[Element]} 克隆的新元素集
-     */
-    _cloneList( els ) {
-        let _new = els.map(
-            el => $.clone(el, true, true, true)
-        );
-        _new.forEach(
-            (e, i) => cloneGrammar( e, els[i] )
-        );
-        return _new;
     },
 
 };
@@ -656,16 +594,10 @@ const Grammar = {
 
 //
 // 表达式处理构造。
-// 支持 LT/LTE, GT/GTE 四个命名操作符。
 // 返回一个目标渲染类型的表达式执行函数。
-// 函数返回值：{
-//      true    元素显示
-//      false   元素隐藏（display:none）
-//      Value   使用值或新域对象
-// }
 // 注：表达式无return关键词。
 // @param  {String} expr 表达式串
-// @return {Function}
+// @return {Function|null}
 //
 const Expr = {
     /**
@@ -695,6 +627,7 @@ const Expr = {
     /**
      * 简单通过。
      * 适用：tpb-else, tpb-last 无值的情况。
+     * @return {null}
      */
     pass() {
         return null;
@@ -778,6 +711,79 @@ function cloneGrammars( tos, srcs ) {
     .forEach( (el, i) =>
         Grammars.set( tos[i], Grammars.get(el) )
     );
+}
+
+
+/**
+ * 获取Each元素清单。
+ * @param  {Element} el 起点元素
+ * @param  {Number} size 元素数量
+ * @return {[Element]}
+ */
+function eachList( el, size ) {
+    let _buf = [ el ];
+
+    while ( --size > 0 && el ) {
+        _buf.push( el = el.nextElementSibling );
+    }
+    return _buf;
+}
+
+
+/**
+ * 指定数量的元素克隆。
+ * 会存储新元素的渲染文法配置。
+ * 用于Each中不足部分的批量克隆。
+ * @param  {Element} ref 参考元素（克隆源）
+ * @param  {Number} size 克隆的数量
+ * @param  {Number} beg 新下标起始值
+ * @return {[Element]} 新元素集
+ */
+function eachClone( ref, size, beg ) {
+    let _els = [];
+
+    for (let i=0; i<size; i++) {
+        let _new = $.clone(ref, true, true, true);
+
+        _new[__eachIndex] = beg + i;
+        _els.push( cloneGrammar(_new, ref) );
+    }
+    return _els;
+}
+
+
+/**
+ * 元素集克隆。
+ * 存在渲染配置的元素会进行文法克隆存储。
+ * 注：用于For循环的子元素单次迭代。
+ * @param  {[Element]} els 子元素集
+ * @return {[Element]} 克隆的新元素集
+ */
+function cloneList( els ) {
+    let _new = els.map(
+        el => $.clone(el, true, true, true)
+    );
+    _new.forEach(
+        (e, i) => cloneGrammar( e, els[i] )
+    );
+    return _new;
+}
+
+
+/**
+ * 循环克隆元素集。
+ * 用于For循环中子元素集的迭代。
+ * @param  {[Element]} els 源元素集
+ * @param  {Number} cnt 克隆次数
+ * @return {[Element]} 克隆总集
+ */
+function forClone( els, cnt ) {
+    let _buf = [];
+
+    for (let i=0; i<cnt; i++) {
+        _buf = _buf.concat( cloneList(els) );
+    }
+    return _buf;
 }
 
 
