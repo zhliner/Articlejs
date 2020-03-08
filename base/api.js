@@ -28,10 +28,12 @@ const Api = {
      *      help,       帮助面板根（<aside>）
      *      beeptip,    提示音元素（<audio>）
      * }
-     * @param {Object} roots 根元素集
+     * @param  {Object} roots 根元素集
+     * @return {this}
      */
     init( roots ) {
         //
+        return Api;
     },
 
 
