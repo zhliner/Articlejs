@@ -1,57 +1,50 @@
 //! $Id: main.js 2019.11.16 Articlejs.User $
-//
+// +++++++++++++++++++++++++++++++++++++++++++
 // 	Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2019 - 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  使用：
+//  用法：
 //      // 创建一个编辑器实例，basefile可选。
 //      let editor = yyEd.create( option, basefile );
-
 //      // 编辑器（<iframe>）插入某容器。
 //      box.append( editor.element() );
 //
 //  option {
-//      name:       String      编辑器实例命名（关联本地存储），可选
-//      theme:      String      默认主题，可选
-//      style:      String      默认样式，可选
-//      width:      String      宽度（可含单位），可选，默认900px
-//      height:     String      高度（可含单位），可选，默认700px
-//      update:     Number      上次更新时间，仅修改时存在。可选
-//      recover:    Boolean     内容是否本地恢复（localStorage），可选
+//      name: String            编辑器实例命名（关联本地存储），可选
+//      theme: String           默认主题，可选
+//      style: String           默认样式，可选
+//      width: Number|String    宽度（可含单位），可选，默认900px
+//      height: Number|String   高度（可含单位），可选，默认700px
+//      updatetime: Number      上次更新时间，仅修改时存在。可选
+//      needRecover: Boolean    是否需要内容本地恢复（localStorage），可选
 //
-//      onready:    Function    编辑器就绪回调，接口：function( editor ): void
+//      onready: Function       编辑器就绪回调，接口：function( editor ): void
 //      onmaximize: Function    最大化请求，接口：function(): void
-//      onsaved:    Function    存储回调（用户按[s]键），接口：function( html ): void
+//      onsaved: Function       存储回调（用户按[s]键），接口：function( html ): void
 //      onappended: Function    内容条目添加回调，接口：function( path, html ): void
-//      onearsed:   Function    内容条目删除回调，接口：function( [path] ): void
+//      onearsed: Function      内容条目删除回调，接口：function( [path] ): void
 //  }
 //
-//  editor接口：
-//      .heading( code:String ): String|this    获取/设置主标题
-//      .subtitle( code:String ): String|this   获取/设置副标题
-//      .abstract( code:String ): String|this   获取/设置文章提要
-//      .content( code:String ): String|this    获取/设置正文（源码）
-//      .seealso( code:String ): String|this    获取/设置另参见
-//      .reference( code:String ): String|this  获取/设置文献参考
+//  Editor接口：
+//      .name(): String                         返回编辑器名称
+//      .element(): Element                     获取编辑器根元素（<iframe>）
+//      .reload( url?:String, callback ): void  重新载入编辑器
+//
+//      下面接口由编辑器实现提供
+//      .heading( html:String ): String|this    获取/设置主标题
+//      .subtitle( html:String ): String|this   获取/设置副标题
+//      .abstract( html:String ): String|this   获取/设置文章提要
+//      .content( html:String ): String|this    获取/设置正文（源码）
+//      .seealso( html:String ): String|this    获取/设置另参见
+//      .reference( html:String ): String|this  获取/设置文献参考
 //      .theme( name:String, isurl:Boolean ): String|this   获取/设置主题
 //      .style( name:String, isurl:Boolean ): String|this   获取/设置内容样式
 //
-//      .element(): Element                     编辑器根元素（用于插入DOM）
-//      .notify( key:String, val:Any ): this    消息通知（如上传更新）
-//      .reload( url:String, callback:Function ): void  重新载入编辑器
-//
-//  key/val [
-//      upload,                 上传更新开始
-//      uploading/[process],    上传更新中，值为进度
-//      uploaded,               上传更新结束
-//      ...
-//  ]
-//
-//  注记：
-//  用户可以在一个页面中创建多个编辑器实例，但管理代码需自行编写。
+//  注：
+//  用户可以在同一个页面中创建多个编辑器实例（自行编写管理代码）。
 //
 //  兼容性:
 //  Firefox 不支持<iframe>元素的resize，因此无法直接拖动框架来改变编辑器大小。
@@ -70,10 +63,10 @@ const yyEd = {};
 
 (function( Ed ) {
 
-    // 高宽配置：
-    // chrome 正常。
-    // firefox 通过容器resize实现。
-    // Edge/IE 无效。
+    // resize：
+    // - chrome 正常。
+    // - firefox 需通过容器resize实现。
+    // - Edge/IE 无效。
     const __frameStyles = {
             width:      '900px',
             height:     '700px',
@@ -155,98 +148,11 @@ class Editor {
 
 
     /**
-     * 获取/设置主标题。
-     * @param  {String} code 内容源码
-     * @return {String|this}
+     * 获取编辑器的标识名。
+     * @return {String}
      */
-    heading( code ) {
-        return this._proxy( 'heading', code );
-    }
-
-
-    /**
-     * 获取/设置副标题。
-     * @param  {String} code 内容源码
-     * @return {String|this}
-     */
-    subtitle( code ) {
-        return this._proxy( 'subtitle', code );
-    }
-
-
-    /**
-     * 获取/设置文章提要。
-     * @param  {String} code 内容源码
-     * @return {String|this}
-     */
-    abstract( code ) {
-        return this._proxy( 'abstract', code );
-    }
-
-
-    /**
-     * 获取/设置正文内容。
-     * @param  {String} code 内容源码
-     * @return {String|this}
-     */
-    content( code ) {
-        return this._proxy( 'content', code );
-    }
-
-
-    /**
-     * 获取/设置另参见。
-     * @param  {String} code 内容源码
-     * @return {String|this}
-     */
-    seealso( code ) {
-        return this._proxy( 'seealso', code );
-    }
-
-
-    /**
-     * 获取/设置文献参考。
-     * @param  {String} code 内容源码
-     * @return {String|this}
-     */
-    reference( code ) {
-        return this._proxy( 'reference', code );
-    }
-
-
-    /**
-     * 消息通知。
-     * 对框架子窗口发送消息和值。
-     * 子窗口需要导入tQuery库并绑定处理器。
-     * 子窗口事件消息名前置"editor:"字符串以避免冲突。
-     * @param {String} key 消息键
-     * @param {Value} val 消息值
-     */
-    notify( key, val ) {
-        let _win = this._frame.contentWindow;
-        _win.$.trigger( _win, `editor:${key}`, val );
-    }
-
-
-    /**
-     * 编辑器重载。
-     * 暂存内容后载入目标实现页（如语言界面切换）。
-     * callback: function(store): void。
-     * @param  {String} basefile 基础根模板文件，可选
-     * @param  {Function} callback 用户回调，可选
-     * @return {void}
-     */
-    reload( basefile = __tplRoot, callback = null ) {
-        this._store
-            .set( 'heading', this.heading() )
-            .set( 'subtitle', this.subtitle() )
-            .set( 'abstract', this.abstract() )
-            .set( 'content', this.content() )
-            .set( 'seealso', this.seealso() )
-            .set( 'reference', this.reference() );
-
-        this.restore = callback || this._restore;
-        this._frame.setAttribute( 'src', `${__PATH}/${basefile}` );
+    name() {
+        return this._name;
     }
 
 
@@ -256,6 +162,91 @@ class Editor {
      */
     element() {
         return this._frame;
+    }
+
+
+    /**
+     * 编辑器重载。
+     * 默认会先暂存内容，然后载入目标实现页。
+     * 如果传递用户回调，默认的内容暂存行为就不再执行。
+     * - 可由编辑器命令行使用，此时通常传递basefile为假值（以沿用默认值）。
+     * - 也可能由上层用户页面主动调用，如语言切换（此时通常有不同的basefile）。
+     * callback接口: function(store): void。
+     * @param  {String} basefile 基础根模板文件，可选
+     * @param  {Function} callback 用户回调，可选
+     * @return {void}
+     */
+    reload( basefile, callback = null ) {
+        this._store
+            .set( 'heading', this.heading() )
+            .set( 'subtitle', this.subtitle() )
+            .set( 'abstract', this.abstract() )
+            .set( 'content', this.content() )
+            .set( 'seealso', this.seealso() )
+            .set( 'reference', this.reference() );
+
+        this.restore = callback || this._restore;
+        this._frame.setAttribute( 'src', `${__PATH}/${basefile || __tplRoot}` );
+    }
+
+
+    /**
+     * 获取/设置主标题。
+     * @param  {String} html 内容源码
+     * @return {String|this}
+     */
+    heading( html ) {
+        return this._proxy( 'heading', html );
+    }
+
+
+    /**
+     * 获取/设置副标题。
+     * @param  {String} html 内容源码
+     * @return {String|this}
+     */
+    subtitle( html ) {
+        return this._proxy( 'subtitle', html );
+    }
+
+
+    /**
+     * 获取/设置文章提要。
+     * @param  {String} html 内容源码
+     * @return {String|this}
+     */
+    abstract( html ) {
+        return this._proxy( 'abstract', html );
+    }
+
+
+    /**
+     * 获取/设置正文内容。
+     * @param  {String} html 内容源码
+     * @return {String|this}
+     */
+    content( html ) {
+        return this._proxy( 'content', html );
+    }
+
+
+    /**
+     * 获取/设置另参见。
+     * @param  {String} html 内容源码
+     * @return {String|this}
+     */
+    seealso( html ) {
+        return this._proxy( 'seealso', html );
+    }
+
+
+    /**
+     * 获取/设置文献参考。
+     * @param  {String} html 内容源码
+     * @return {String|this}
+     */
+    reference( html ) {
+        return this._proxy( 'reference', html );
     }
 
 
@@ -316,6 +307,7 @@ class Editor {
 
     /**
      * 暂存数据恢复。
+     * 从上层用户页面的暂存区恢复到下层编辑器内。
      * @param {Map} store 存储空间
      */
     _restore( store ) {
@@ -335,23 +327,23 @@ class Editor {
 
     /**
      * 取值或设置值代理。
-     * 框架子窗口内"Editor"名称空间需包含目标接口：{
-     *      heading     标题
-     *      subtitle    子标题
-     *      abstract    文章提要
-     *      content     正文内容
-     *      seealso     另参见
-     *      reference   参考文献
-     *      theme       编辑器主题
-     *      style       内容风格
+     * 框架子窗口中的 "Api" 名称空间包含：{
+     *      .heading(...)   设置/获取标题
+     *      .subtitle(...)  设置/获取子标题
+     *      .abstract(...)  设置/获取文章提要
+     *      .content(...)   设置/获取正文内容
+     *      .seealso(...)   设置/获取另参见
+     *      .reference(...) 设置/获取参考文献
+     *      .theme(...)     设置/获取编辑器主题
+     *      .style(...)     设置/获取内容风格
      * }
      * @param  {String} name 取值名
-     * @param  {String} code 待设置源码
+     * @param  {String} html 待设置源码
      * @return {String|this}
      */
-    _proxy( name, code ) {
-        let _fn = this._frame.contentWindow.Editor[name];
-        return code == undefined ? _fn() : ( _fn(code), this );
+    _proxy( name, html ) {
+        let _fn = this._frame.contentWindow.Api[name];
+        return html == undefined ? _fn() : ( _fn(html), this );
     }
 
 }
@@ -395,6 +387,10 @@ function editorBox( width, height ) {
 
 /**
  * 构建编辑器选项集。
+ * 配置参数：编辑器根据用户的配置执行相应的行为。
+ * 回调函数：根据用户的指令，编辑器会：
+ * - 请求上层用户页面执行某些特定功能（如窗口最大化）。
+ * - 通知当前编辑状态，上层用户页面可能需要完成自己的逻辑（如保存）。
  * 注：大多数由用户配置而来。
  * @param  {String} name 编辑器实例名
  * @param  {Object} user 用户配置集
@@ -403,16 +399,16 @@ function editorBox( width, height ) {
  */
 function editorOption( name, user, ready ) {
     return {
-        name:       name,
-        theme:      user.theme,
-        style:      user.style,
-        update:     user.update,
-        recover:    user.recover,
-        ready:      ready,
-        maximize:   user.onmaximize,
-        save:       user.onsaved,
-        append:     user.onappended,
-        earse:      user.onearsed,
+        name:           name,
+        theme:          user.theme,
+        style:          user.style,
+        updatetime:     user.updatetime,
+        needRecover:    user.needRecover,
+        ready:          ready,
+        maximize:       user.onmaximize,
+        save:           user.onsaved,
+        append:         user.onappended,
+        earse:          user.onearsed,
     };
 }
 
