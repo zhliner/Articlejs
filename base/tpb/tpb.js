@@ -25,10 +25,13 @@ import { By } from "./libs/pbs.by.js";
 import { To, chainStore } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
-import { Templater } from "./libs/templater.js";
 import { Loader } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
 import { Support, OBTA, tplsMap, DEBUG } from "./config.js";
+
+// 模板支持，可选
+// 如果无支持，可简单删除。
+import { Templater } from "./libs/templater.js";
 
 
 const
@@ -80,7 +83,8 @@ const _obter = new Builder( {
 function obtBuild( root, obts = true ) {
     // 单目标
     if ( typeof obts != 'boolean' ) {
-        return _obter.build( root, obts );
+        _obter.build( root, obts );
+        return;
     }
     // 节点树
     for ( const el of $.find(__onSlr, root, true) ) {
@@ -92,6 +96,9 @@ function obtBuild( root, obts = true ) {
 // 模板对象。
 let __Tpl = null;
 
+// 一个空类占位。
+// 如果取消模板支持，可用此空类避免错误。
+// class Templater {}
 
 
 //
@@ -130,25 +137,6 @@ function obtAttr( el, clear ) {
 }
 
 
-/**
- * Debug:
- * 提取模板文件中定义的模板节点配置。
- * 注：需在浏览器控制台执行。
- * @param  {[String]} files 模板文件名集
- * @return {void}
- */
-function tplMaps( files, space = '\t' ) {
-    let _buf = {};
-
-    Promise.all( files.map(
-        f => Loader.fetch(f)
-            .then( root => $.find('[tpl-name]', root).map( el => el.getAttribute('tpl-name') ) )
-            .then( ns => _buf[f] = ns )
-        )
-    ).then( () => window.console.info(JSON.stringify(_buf, null, space)) );
-}
-
-
 
 // 调试：
 if (DEBUG) {
@@ -160,7 +148,24 @@ if (DEBUG) {
         Stage:  To.Stage,
         Tpl:    __Tpl,
 
-        tplMaps, // 模板提取
+        /**
+         * 模板提取:
+         * 提取模板文件中定义的模板节点配置。
+         * 注：需在浏览器控制台执行。
+         * @param  {[String]} files 模板文件名集
+         * @param  {String} 友好缩进占位字符
+         * @return {void}
+         */
+        tplMaps: function( files, space = '\t' ) {
+            let _buf = {};
+
+            Promise.all( files.map(
+                f => Loader.fetch(f)
+                    .then( root => $.find('[tpl-name]', root).map( el => el.getAttribute('tpl-name') ) )
+                    .then( ns => _buf[f] = ns )
+                )
+            ).then( () => window.console.info(JSON.stringify(_buf, null, space)) );
+        }
     };
 }
 

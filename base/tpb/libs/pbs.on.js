@@ -171,8 +171,7 @@ const _On = {
     movementX( evo, val ) {
         if ( val !== null ) {
             let _v = evo.current[__movementX];
-            // n - undefined == NaN
-            // => 0
+            // n - undefined == NaN => 0
             return ( evo.current[__movementX] = evo.event.pageX ) - _v || 0;
         }
         delete evo.current[__movementX];

@@ -30,6 +30,10 @@ import { Render } from "./render.js";
 //
 const __RENDER = true;
 
+// 一个名称占位。
+// 如果取消渲染支持，可用此避免语法错误。
+// const Render = {};
+
 
 const
     $ = window.$,
