@@ -159,7 +159,7 @@ if (DEBUG) {
 
             Promise.all( files.map(
                 f => Loader.fetch(f)
-                    .then( root => $.find('[tpl-name]', root).map( el => el.getAttribute('tpl-name') ) )
+                    .then( frag => $.find('[tpl-name]', frag).map( el => el.getAttribute('tpl-name') ) )
                     .then( ns => _buf[f] = ns )
                 )
             ).then( () => window.console.info(JSON.stringify(_buf, null, space)) );
