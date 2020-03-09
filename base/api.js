@@ -19,21 +19,82 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+// 模板管理器实例。
+import { Templater } from "./tpb/config.js";
+
+
+const $ = window.$;
+
+
+// 根元素存储。
+// {
+//      outline,    大纲元素根（<aside>）
+//      editor,     编辑器容器根（<div>）
+//      help,       帮助面板根（<aside>）
+//      beeptip,    提示音元素（<audio>）
+// }
+let __ROOTS = null;
+
+
 const Api = {
     /**
      * 初始数据设置。
-     * 根元素：{
-     *      outline,    大纲元素根（<aside>）
-     *      editor,     编辑器容器根（<div>）
-     *      help,       帮助面板根（<aside>）
-     *      beeptip,    提示音元素（<audio>）
-     * }
      * @param  {Object} roots 根元素集
      * @return {this}
      */
     init( roots ) {
-        //
-        return Api;
+        __ROOTS = roots;
+        return this;
+    },
+
+
+    /**
+     * 获取根元素。
+     * name {
+     *      outline, editor, help, beeptip
+     * }
+     * @param  {String} name 标识名
+     * @return {Element}
+     */
+    root( name ) {
+        return __ROOTS[name] || null;
+    },
+
+
+    /**
+     * 获取特定面板元素。
+     * 限于编辑器本身（不含侧面板）。
+     * name: {
+     *      tools   工具栏
+     *      slave   主面板
+     *      status  状态栏
+     *      content 内容区
+     * }
+     * @param  {String} name 面板名
+     * @return {Promise<Element>}
+     */
+    panel( name ) {
+        if ( name == 'content' ) {
+            return Promise.resolve( $.get('#content') );
+        }
+        return Templater.tpl( `main:${name}` );
+    },
+
+
+    /**
+     * 获取弹出菜单。
+     * name: selection|context
+     * @param  {String} name 菜单名
+     * @return {Promise<Element>|null}
+     */
+    menu( name ) {
+        switch (name) {
+            case 'selection':
+                return Templater.tpl( 'menu:cells' );
+            case 'context':
+                return Templater.tpl( 'menu:cmenu' );
+        }
+        return null;
     },
 
 

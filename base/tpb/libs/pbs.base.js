@@ -21,7 +21,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, EXTENT, ACCESS } from "../config.js";
+import { bindMethod, EXTENT, ACCESS, Templater } from "../config.js";
 
 
 const
@@ -42,12 +42,6 @@ const
 
     // 空白分隔符。
     __reSpace = /\s+/;
-
-
-//
-// 全局模板存储。
-//
-let __Templater = null;
 
 
 
@@ -180,7 +174,7 @@ const _Base = {
         if ( name == null ) {
             name = stack.data(1);
         }
-        return __Templater[clone ? 'get' : 'tpl'](name);
+        return Templater[clone ? 'get' : 'tpl'](name);
     },
 
     __tpl_x: true,
@@ -1810,11 +1804,4 @@ const BaseOn = $.assign( {}, _BaseOn, bindMethod );
 Object.assign( BaseOn, Base );
 
 
-/**
- * 设置模板管理器。
- * @param {Templater} tplr 模板管理器
-*/
-const InitTpl = tplr => __Templater = tplr;
-
-
-export { Base, BaseOn, InitTpl };
+export { Base, BaseOn };

@@ -81,6 +81,13 @@ const
     method = Symbol('api-method');
 
 
+//
+// 全局模板存储。
+// 注：请勿修改！
+//
+let Templater = null;
+
+
 
 //
 // 工具函数。
@@ -126,6 +133,15 @@ function funcSets( f, n, ix ) {
 }
 
 
+/**
+ * 设置模板管理器（全局可用）。
+ * 注：仅在 Support.template 为真时才会被调用。
+ * @param  {Templater} tplr 模板管理器
+ * @return {Templater} tplr
+*/
+const InitTpl = tplr => Templater = tplr;
+
+
 
 //
 // 导出。
@@ -145,4 +161,6 @@ export {
     tplRoot,
     tplsMap,
     pullRoot,
+    InitTpl,
+    Templater,
 };

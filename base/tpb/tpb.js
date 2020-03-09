@@ -19,7 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Base, BaseOn, InitTpl } from "./libs/pbs.base.js";
+import { Base, BaseOn } from "./libs/pbs.base.js";
 import { On } from "./libs/pbs.on.js";
 import { By } from "./libs/pbs.by.js";
 import { To, chainStore } from "./libs/pbs.to.js";
@@ -27,7 +27,7 @@ import { To, chainStore } from "./libs/pbs.to.js";
 import { Builder } from "./libs/obter.js";
 import { Loader } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
-import { Support, OBTA, tplsMap, DEBUG } from "./config.js";
+import { Support, OBTA, tplsMap, DEBUG, InitTpl } from "./config.js";
 
 // 模板支持，可选
 // 如果无支持，可简单删除。
@@ -104,13 +104,10 @@ let __Tpl = null;
 //
 // 模板支持初始化。
 //
-(function () {
+if ( Support.template ) {
+    __Tpl = InitTpl( new Templater( Loader.load.bind(Loader), obtBuild ) );
+}
 
-    if ( Support.template ) {
-        __Tpl = InitTpl( new Templater( Loader.load.bind(Loader), obtBuild ) );
-    }
-
-})();
 
 
 //
@@ -149,14 +146,15 @@ if (DEBUG) {
         Tpl:    __Tpl,
 
         /**
-         * 模板提取:
+         * 输出模板节点定义:
          * 提取模板文件中定义的模板节点配置。
-         * 注：需在浏览器控制台执行。
+         * 用于模板开发结束后配置模板映射文件（templates/maps.json）。
+         * 注：在浏览器控制台执行。
          * @param  {[String]} files 模板文件名集
          * @param  {String} 友好缩进占位字符
          * @return {void}
          */
-        tplMaps: function( files, space = '\t' ) {
+        findTpls: function( files, space = '\t' ) {
             let _buf = {};
 
             Promise.all( files.map(
