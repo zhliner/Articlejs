@@ -352,12 +352,16 @@ const Grammar = {
      * 子元素循环。
      * 文法：{ For: [handle, size] }
      * 迭代子元素的当前域数据存储在每个子元素上（[__scopeData]）。
+     * 注：被隐藏的元素不再渲染。
      * @param {Element} el For容器元素
      * @param {Function} handle 表达式取值函数
      * @param {Number} size 单次循环子元素数量
      * @param {Object} data 当前域数据
      */
     For( el, handle, size, data ) {
+        if ( hidden(el) ) {
+            return;
+        }
         data = handle( data );
 
         // 在每一个直接子元素上设置当前域。
@@ -462,11 +466,15 @@ const Grammar = {
      * 文法：{ Switch: [handle] }
      * 子元素分支条件判断，决定显示或隐藏。
      * 实现：在当前元素上存储标的值。
+     * 注：被隐藏的元素不再渲染。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     Switch( el, handle, data ) {
+        if ( hidden(el) ) {
+            return;
+        }
         el[__switchValue] = handle( data );
     },
 
@@ -522,11 +530,15 @@ const Grammar = {
      * 文法：{ Assign: [[name], [handle]] }
      * 支持两个特殊属性名：text, html。
      * 多个属性名之间空格分隔，与 handles 成员一一对应。
+     * 注：被隐藏的元素不再渲染。
      * @param {[String]} names 属性名集
      * @param {[Function]} handles 处理器集
      * @param {Object} data 当前域数据
      */
     Assign( el, names, handles, data ) {
+        if ( hidden(el) ) {
+            return;
+        }
         names.forEach(
             (name, i) =>
             $.attribute( el, name || 'text', handles[i](data) )
@@ -806,6 +818,17 @@ function loopCell( data, i, supObj ) {
 
 
 /**
+ * 是否需要深度（子孙元素）处理。
+ * 注：被隐藏（display:none）的元素无需向下继续渲染。
+ * @param  {Element} el 当前元素
+ * @return {Boolean}
+ */
+function hidden( el ) {
+    return el.style.display === 'none';
+}
+
+
+/**
  * 显示元素（CSS）。
  * @param {Element} el 目标元素
  */
@@ -928,7 +951,8 @@ const clone = cloneGrammar;
 
 /**
  * 用源数据更新节点树。
- * 可用页面中既有渲染元素的原地更新。
+ * 可用于页面中既有渲染元素的原地更新。
+ * 被隐藏的元素不再递进渲染子元素（当前元素需要处理）。
  * @param  {Element} root 渲染根
  * @param  {Object} data  源数据对象
  * @return {Element} root
@@ -936,8 +960,10 @@ const clone = cloneGrammar;
 function update( root, data ) {
     data = render( root, data );
 
-    for (let i = 0; i < root.children.length; i++) {
-        update( root.children[i], data );
+    if ( !hidden(root) ) {
+        for (let i = 0; i < root.children.length; i++) {
+            update( root.children[i], data );
+        }
     }
     return root;
 }
