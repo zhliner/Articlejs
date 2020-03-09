@@ -2757,29 +2757,12 @@ tQuery.Table = Table;
     tQuery[name] = function( el, cons, clone, event, eventdeep ) {
         let _meth = Wheres[name];
 
-        if (!_validMeth(el, _meth)) {
-            return new Error(`${name} is invalid with ${el.nodeName}.`);
-        }
         if ( isFunc(cons) ) {
             cons = cons(el);
         }
         return Insert( el, clone ? nodesClone(cons, event, eventdeep) : nodesItem(cons), _meth );
     };
 });
-
-
-/**
- * 是否为非法方法。
- * 文本节点不适用内部插入类方法。
- * 注：专用于上面6个插入方法测试。
- * @param  {Node} node 参考节点
- * @param  {Number} meth 方法/位置值
- * @return {Boolean}
- */
-function _validMeth( node, meth ) {
-    return node.nodeType === 1 ||
-        (meth === 0 || meth === 1 || meth === -1);
-}
 
 
 //
@@ -5312,7 +5295,7 @@ const insertHandles = {
  * 构建文档片段。
  * - 部分元素（script,style,link）默认会被排除。
  * - 源码解析异常会静默失败，返回null。
- * - 如果需要包含被排除的元素，可明确传递exclude为false。
+ * - 如果需要包含被排除的元素，可明确传递clean为非null。
  * @param  {String} html 源码
  * @param  {Document} doc 文档对象
  * @param  {Function} clean 文档片段清理器
