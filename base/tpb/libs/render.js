@@ -98,6 +98,10 @@ const
     // 存储在父元素（switch）上。
     __casePass  = Symbol('case-pase'),
 
+    // switch简单隐藏前原值存储。
+    // 适用当last文法判断为假时的增强行为。
+    __switchDisplay = Symbol('switch-display'),
+
     // 过滤切分器。
     // 识别字符串语法（字符串内的|为普通字符）。
     __pipeSplit = new Spliter( __chrPipe, new UmpCaller(), new UmpString() );
@@ -467,7 +471,13 @@ const Grammar = {
         if ( hidden(el) ) {
             return;
         }
+        if ( el[__switchDisplay] === undefined ) {
+            el[__switchDisplay] = el.style.display;
+        }
         el[__switchValue] = handle( data );
+
+        // 复原。因为可能被last修改。
+        el.style.display = el[__switchDisplay];
     },
 
 
@@ -511,7 +521,8 @@ const Grammar = {
         this.Case( el, handle, data );
 
         // 依然未匹配。
-        if ( caseShow(el) ) hideElem( el.parentElement );
+        // 注记：后期修改不适用hideElem（会影响下一次渲染）。
+        if ( caseShow(el) ) el.parentElement.style.display = 'none';
     },
 
 
