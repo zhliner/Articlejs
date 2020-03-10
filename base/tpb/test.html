@@ -119,7 +119,7 @@
             <li _class="$.INDEX % 2 ? '_even' : '_odd'">
                 <strong _="$[0]"></strong>：<em _="$[1]"></em>
             </li>
-            <li tpb-if="$.INDEX % 2"><hr></li>
+            <li><hr></li>
             <li _="`${$.INDEX}/${$.SIZE}`"></li>
         </ul>
         <button on="click|push(Object.entries(rdata))" to="#render1|render">

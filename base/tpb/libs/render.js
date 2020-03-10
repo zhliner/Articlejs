@@ -585,10 +585,6 @@ const Grammar = {
      * @return {[Element]} 数量适合的子元素集
      */
     _alignFor( els, size, count ) {
-        if ( els.length == 0 ) {
-            // 被隐藏元素快速返回。
-            return els;
-        }
         let _loop = parseInt(els.length / size),
             _dist = count - _loop;
 
