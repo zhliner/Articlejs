@@ -204,7 +204,7 @@ $ = {
 3. 注意 `tpb-last` 只能有一个且位于 Case 列表的最后。
 
 > **注：**<br>
-> `case/last` 和 `if/else` 不应该同时存在于同一个元素上，但 `switch` 可以与 `if/else` 共存。
+> `case/last` 和 `if/else` 不应该同时存在于同一个元素上，但 `switch` 可以（包括上级 `switch` 的 `case/last`）。
 
 
 ### 示例
