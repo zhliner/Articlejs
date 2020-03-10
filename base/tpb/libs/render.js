@@ -469,16 +469,10 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     Switch( el, handle, data ) {
-        if ( hidden(el) ) {
-            return;
+        if ( !hidden(el) ) {
+            el[__switchValue] = handle( data );
+            el.style.display = originStyle( el );
         }
-        if ( el[__switchDisplay] === undefined ) {
-            el[__switchDisplay] = el.style.display;
-        }
-        el[__switchValue] = handle( data );
-
-        // 复原。因为可能被last修改。
-        el.style.display = el[__switchDisplay];
     },
 
 
@@ -854,6 +848,20 @@ function loopCell( data, i, supObj ) {
             $: supObj,
         }
     );
+}
+
+
+/**
+ * 获取元素原始display样式。
+ * 用于switch文法，因为可能被子元素last修改。
+ * @param  {Element} el 目标元素
+ * @return {String}
+ */
+function originStyle( el ) {
+    if ( el[__switchDisplay] === undefined ) {
+        el[__switchDisplay] = el.style.display;
+    }
+    return el[__switchDisplay];
 }
 
 
