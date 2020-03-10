@@ -13,7 +13,7 @@
 //      Lib:   {Object}     库空间，供外部动态扩展：Tpb.Lib.X.extend(...)
 //  }
 //
-//  可支持模板和模板渲染（依全局配置而定）。
+//  支持动态的模板导入和模板渲染。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,12 +25,13 @@ import { By } from "./libs/pbs.by.js";
 import { To, chainStore } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
-import { Loader } from "./libs/tloader.js";
+import { TLoader } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
-import { Support, OBTA, tplsMap, DEBUG, InitTpl } from "./config.js";
+import { OBTA, tplsMap, DEBUG, InitTpl } from "./config.js";
 
-// 模板支持，可选
-// 如果无支持，可简单删除。
+// 无需支持模板。
+// import { Templater } from "./libs/templater.x.js";
+// 模板功能支持。
 import { Templater } from "./libs/templater.js";
 
 
@@ -94,19 +95,7 @@ function obtBuild( root, obts = true ) {
 
 
 // 模板对象。
-let __Tpl = null;
-
-// 一个空类占位。
-// 如果取消模板支持，可用此空类避免错误。
-// class Templater {}
-
-
-//
-// 模板支持初始化。
-//
-if ( Support.template ) {
-    __Tpl = InitTpl( new Templater( Loader.load.bind(Loader), obtBuild ) );
-}
+const __Tpl = InitTpl( new Templater(obtBuild, TLoader.load.bind(TLoader)) );
 
 
 
@@ -158,7 +147,7 @@ if (DEBUG) {
             let _buf = {};
 
             Promise.all( files.map(
-                f => Loader.fetch(f)
+                f => TLoader.fetch(f)
                     .then( frag => $.find('[tpl-name]', frag).map( el => el.getAttribute('tpl-name') ) )
                     .then( ns => _buf[f] = ns )
                 )
@@ -172,13 +161,6 @@ if (DEBUG) {
 //
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
-
-//
-// OBT构建函数。
-// 支持模板时包含模板的解析构建。
-//
-const _Build = __Tpl ? __Tpl.build.bind(__Tpl) : obtBuild;
-
 
 //
 // 模板节点配置初始化标记。
@@ -195,11 +177,11 @@ let _tplsDone = false;
  */
 function Build( root, obts ) {
     if ( _tplsDone ) {
-        return _Build( root, obts );
+        return __Tpl.build( root, obts );
     }
-    return Loader.init(tplsMap)
+    return TLoader.init(tplsMap)
         .then(
-            () => ( _tplsDone = true, _Build(root, obts) )
+            () => ( _tplsDone = true, __Tpl.build(root, obts) )
         );
 }
 

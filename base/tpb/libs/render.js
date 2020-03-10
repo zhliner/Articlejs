@@ -1,5 +1,5 @@
 //! $Id: render.js 2019.09.17 Tpb.Core $
-//
+// ++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -9,7 +9,7 @@
 //  渲染器（Render）
 //
 //  解析模板中的渲染语法，用数据对节点树进行渲染。
-//  解析之后节点中的各个渲染属性已被清除，不影响正常的DOM元素规范。
+//  解析之后节点中的各个渲染属性会被清除，但会设置一个标志属性名（_）便于检索。
 //
 //  渲染语法（9+1）{
 //      each                当前迭代
@@ -20,7 +20,8 @@
 //      for                 子元素循环
 //      _[attr]             属性赋值（系列）
 //  }
-//  注：模板中若无循环（for/each）逻辑，则元素可以简单地原地更新。
+//  注：原地更新支持任意渲染语法，Each列表甚至可以从中间开始。
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -716,7 +717,7 @@ function gramElements( el, slr ) {
  * to应当是src的克隆（相同DOM结构）。
  * @param  {Element} to 目标元素
  * @param  {Element} src 源元素
- * @return {Element} 目标元素
+ * @return {Element} to
  */
 function cloneGrammar( to, src ) {
     cloneGrammars(

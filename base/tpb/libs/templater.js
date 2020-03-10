@@ -1,5 +1,5 @@
 // $Id: templater.js 2019.09.02 Tpb.Kits $
-//
+// ++++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -21,18 +21,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-// 可选。
-// 若无需支持可简单移除。
 import { Render } from "./render.js";
-
-//
-// 是否渲染支持。
-//
-const __RENDER = true;
-
-// 一个名称占位。
-// 如果取消渲染支持，可用此避免语法错误。
-// const Render = {};
 
 
 const
@@ -54,14 +43,14 @@ const
 class Templater {
     /**
      * 创建实例。
-     * loader: function( nodeName:String ): Promise:then(Element)
      * obter: function( Element, obts:Boolean ): void
-     * @param {Function} loader 节点载入回调
+     * loader: function( nodeName:String ): Promise:then(Element)
      * @param {Function} obter OBT解析回调
+     * @param {Function} loader 节点载入回调
      */
-    constructor( loader, obter ) {
-        this._load = loader;
+    constructor( obter, loader ) {
         this._obter = obter;
+        this._load = loader;
 
         // 模板节点存储
         // { String: Element }
@@ -126,12 +115,10 @@ class Templater {
         }
         this._obter( root, obts );
 
-        // 非节点类（如 window）
+        // 非节点类（如window）
         if ( !root.nodeType ) return;
+        Render.parse( root );
 
-        if ( __RENDER ) {
-            Render.parse( root );
-        }
         return this.picks( root );
     }
 
@@ -159,15 +146,16 @@ class Templater {
      * 克隆模板节点。
      * 同时会克隆渲染文法（如果有）以及绑定的事件处理器。
      * @param  {Element} tpl 模板节点
+     * @param  {String} _name 模板名
      * @return {Element} 克隆的新元素
      */
-    clone( tpl, name ) {
+    clone( tpl, _name ) {
         if ( !tpl ) {
-            throw new Error(`[${name}] is loaded but not found.`);
+            throw new Error(`[${_name}] is loaded but not found.`);
         }
         let _new = $.clone(tpl, true, true, true);
 
-        return __RENDER ? Render.clone(_new, tpl) : _new;
+        return Render.clone(_new, tpl);
     }
 
 

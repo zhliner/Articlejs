@@ -129,4 +129,4 @@ class TplLoader {
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
 
-export const Loader = new TplLoader( tplRoot );
+export const TLoader = new TplLoader( tplRoot );
