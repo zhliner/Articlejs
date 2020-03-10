@@ -87,16 +87,16 @@ const
     // 可用于从克隆元素开始更新。
     __eachIndex = Symbol('each-index'),
 
-    // 元素初始display样式存储。
-    __displayValue = Symbol('display-value'),
-
-    // 元素隐藏标记。
-    // 用于else和case/last文法。
-    __hiddenFlag = Symbol('hidden-flag'),
+    // 比较状态存储。
+    // 用于if/else文法的真值标记。
+    __compState = Symbol('compare-result'),
 
     // switch标的值存储键。
-    // 存储在case/last元素上备用。
     __switchValue = Symbol('switch-value'),
+
+    // case状态存储。
+    // 存储在父元素（switch）上。
+    __casePass  = Symbol('case-pase'),
 
     // 过滤切分器。
     // 识别字符串语法（字符串内的|为普通字符）。
@@ -273,7 +273,7 @@ const Parser = {
 
     /**
      * case/default 文法解析。
-     * Last: [handle|pass]
+     * Last: [handle|null]
      * @param  {Map} map 存储集
      * @param  {String} val 属性值
      * @return {Map} map
@@ -281,7 +281,7 @@ const Parser = {
     $last( map, val ) {
         return map.set(
             'Last',
-            [ val ? Expr.value(val) : Expr.pass() ]
+            [ val ? Expr.value(val) : null ]
         );
     },
 
@@ -335,7 +335,7 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     Each( el, handle, size, data ) {
-        let _idx = el[__eachIndex];
+        let _idx = el[__eachIndex] || 0;
         data = handle( data );
 
         this._alignEach( eachList(el, size-_idx), data.length, _idx+1 )
@@ -351,7 +351,7 @@ const Grammar = {
     /**
      * 子元素循环。
      * 文法：{ For: [handle, size] }
-     * 迭代子元素的当前域数据存储在每个子元素上（[__scopeData]）。
+     * 当前域数据存储在迭代克隆的每个子元素上。
      * 注：被隐藏的元素不再渲染。
      * @param {Element} el For容器元素
      * @param {Function} handle 表达式取值函数
@@ -364,16 +364,15 @@ const Grammar = {
         }
         data = handle( data );
 
-        // 在每一个直接子元素上设置当前域。
-        this._alignFor( $.children(el), size, data.length )
+        // 需移除子元素中多余的Each。
+        this._alignFor( cleanChildren(el), size, data.length )
         .forEach(
             (el, n) => {
                 let _i = parseInt( n / size );
+                // 当前域存储。
                 el[__scopeData] = loopCell( data[_i], _i, data );
             }
         );
-        // 可能的修改。
-        Grammars.get(el).get('For')[1] = size;
     },
 
 
@@ -429,21 +428,17 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     If( el, handle, data ) {
-        let _show = handle( data );
-
-        if ( _show ) {
-            showElem( el );
-            hideElse( el.nextElementSibling, true );
+        if ( handle(data) ) {
+            showElem(el)[__compState] = true;
         } else {
-            hideElem( el );
-            hideElse( el.nextElementSibling, false );
+            hideElem(el)[__compState] = false;
         }
     },
 
 
     /**
      * Else 逻辑。
-     * 文法：{ Else: [handle|null] }
+     * 文法：{ Else: [handle] }
      * 显隐逻辑已由If文法标记。
      * 如果 handle 有值，表示 elseif 逻辑。
      * @param {Element} el 当前元素
@@ -451,13 +446,10 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     Else( el, handle, data ) {
-        if ( el[__hiddenFlag] ) {
-            return hideElem( el );
-        }
-        if ( handle ) {
+        if ( elseShow(el) ) {
             return this.If( el, handle, data );
         }
-        showElem( el );
+        hideElem(el)[__compState] = false;
     },
 
 
@@ -490,14 +482,14 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     Case( el, handle, data ) {
-        let _v = el.parentElement[__switchValue];
+        let _box = el.parentElement;
 
-        if ( el[__hiddenFlag] || _v !== handle(data) ) {
-            hideElem( el );
-            hideCase( el.nextElementSibling, false );
-        } else {
+        if ( caseShow(el) && _box[__switchValue] === handle(data) ) {
             showElem( el );
-            hideCase( el.nextElementSibling, true );
+            _box[__casePass] = true;
+        } else {
+            hideElem( el );
+            _box[__casePass] = false;
         }
     },
 
@@ -505,23 +497,21 @@ const Grammar = {
     /**
      * 默认分支。
      * 文法：{ Last: [handle|null] }
-     * 如果已标记视隐（前段Case匹配），简单隐藏。
-     * 如果文法配置非null，最后Case逻辑，不匹配时还会隐藏父级Switch。
-     * 否则为Default逻辑，无条件显示。
+     * 如果文法配置非null，最后Case逻辑，不匹配时隐藏父Switch。
+     * 否则为Default逻辑，无条件匹配。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式函数
      * @param {Object} data 当前域数据
      */
     Last( el, handle, data ) {
-        if ( el[__hiddenFlag] ) {
-            return hideElem( el );
+        if ( !handle ) {
+            // Default: 不再设置[__casePass]。
+            return caseShow(el) ? showElem(el) : hideElem(el);
         }
-        if ( handle &&
-            el.parentElement[__switchValue] !== handle(data) ) {
-            hideElem( el );
-            return hideElem( el.parentElement );
-        }
-        showElem( el );
+        this.Case( el, handle, data );
+
+        // 依然未匹配。
+        if ( caseShow(el) ) hideElem( el.parentElement );
     },
 
 
@@ -577,12 +567,17 @@ const Grammar = {
 
     /**
      * For子元素数量适配处理。
+     * 注：必须包含子元素，循环才有意义。
      * @param  {[Element]} els For子元素集（全部）
      * @param  {Number} size 单次循环子元素数量
      * @param  {Number} count 循环迭代的目标次数
      * @return {[Element]} 数量适合的子元素集
      */
     _alignFor( els, size, count ) {
+        if ( els.length == 0 ) {
+            // 被隐藏元素快速返回。
+            return els;
+        }
         let _loop = parseInt(els.length / size),
             _dist = count - _loop;
 
@@ -638,11 +633,11 @@ const Expr = {
 
     /**
      * 简单通过。
-     * 适用：tpb-else, tpb-last 无值的情况。
-     * @return {null}
+     * 适用：tpb-else 无值的情况。
+     * @return function(): true
      */
     pass() {
-        return null;
+        return () => true;
     },
 
 
@@ -691,6 +686,25 @@ function filterHandle( call ) {
 
 
 /**
+ * 文法元素集检索。
+ * 包含<template>内的子元素匹配。
+ * 适用于元素被隐藏（template化）后的文法克隆。
+ * 注：el必然存在文法。
+ * @param  {Element|DocumentFragment}} el 上下文对象
+ * @param  {String} slr 选择器
+ * @return {[Element]}
+ */
+function gramElements( el, slr ) {
+    let _els = [el];
+
+    if ( el.nodeName === 'TEMPLATE' ) {
+        el = el.content;
+    }
+    return _els.concat( $.find(slr, el) );
+}
+
+
+/**
  * 节点树文法克隆&存储。
  * to应当是src的克隆（相同DOM结构）。
  * @param  {Element} to 目标元素
@@ -699,8 +713,8 @@ function filterHandle( call ) {
  */
 function cloneGrammar( to, src ) {
     cloneGrammars(
-        $.find( __slrRender, to, true ),
-        $.find( __slrRender, src, true )
+        gramElements( to, __slrRender ),
+        gramElements( src, __slrRender )
     );
     return to;
 }
@@ -779,6 +793,24 @@ function cloneList( els ) {
 
 
 /**
+ * 清理子元素。
+ * 移除多余的Each克隆元素以保持For规范。
+ * 注：仅用于For获取子元素集。
+ * @param  {Element} box 父元素
+ * @return {[Element]}
+ */
+function cleanChildren( box ) {
+
+    for (const el of $.children(box, __slrRender)) {
+        if ( el[__eachIndex] > 0 ) {
+            $.remove(el);
+        }
+    }
+    return $.children( box );
+}
+
+
+/**
  * 循环克隆元素集。
  * 用于For循环中子元素集的迭代。
  * @param  {[Element]} els 源元素集
@@ -824,75 +856,75 @@ function loopCell( data, i, supObj ) {
  * @return {Boolean}
  */
 function hidden( el ) {
-    return el.style.display === 'none';
+    return el[__compState] === false;
 }
 
 
 /**
- * 显示元素（CSS）。
- * @param {Element} el 目标元素
- */
-function showElem( el ) {
-    // 初始值存储。
-    if ( el[__displayValue] === undefined ) {
-        el[__displayValue] = el.style.display;
-    }
-    let _v = el[__displayValue];
-    // 容错初始隐藏。
-    el.style.display = (_v != 'none' ? _v : '');
-}
-
-
-/**
- * 隐藏元素（CSS）。
- * @param {Element} el 目标元素
+ * 隐藏元素。
+ * 将目标元素插入一个临时的模板元素内，
+ * 注意需要同时克隆元素自身的渲染配置。
+ * @param  {Element} el 目标元素
+ * @return {Element} 占位元素（<template>）
  */
 function hideElem( el ) {
-    // 初始值存储。
-    if ( el[__displayValue] === undefined ) {
-        el[__displayValue] = el.style.display;
-    }
-    el.style.display = 'none';
+    let _tmp = $.Element(
+        'template', { hasRender: '' }
+    );
+    $.append(
+        $.replace(el, _tmp).content, el
+    );
+    Grammars.set( _tmp, Grammars.get(el) );
+    return _tmp;
 }
 
 
 /**
- * 同级else元素标记隐藏。
- * 不支持 if/else 的嵌套，所以一旦碰到 if 即结束。
- * @param {Element} el 起始元素
- * @param {Boolean} sure 确认隐藏
+ * 显示元素。
+ * 将临时占位的模板元素用其内容替换回来。
+ * 如果未被隐藏过，则为原始元素。
+ * @param  {Element} el 目标元素（可能为占位模板元素）
+ * @return {Element} el
  */
-function hideElse( el, sure ) {
-    while ( el ) {
-        let _gram = Grammars.get(el);
-
-        if ( _gram ) {
-            if ( _gram['If'] ) return;
-            if ( _gram['Else'] ) {
-                el[__hiddenFlag] = sure;
-            }
-        }
-        el = el.nextElementSibling;
+function showElem( el ) {
+    if ( el[__compState] ) {
+        $.replace( el, el.content.firstElementChild );
     }
+    return el;
 }
 
 
 /**
- * 同级case/last元素标记隐藏。
- * @param {Element} el 起始元素
- * @param {Boolean} sure 确认隐藏
+ * 同级else判断是否显示。
+ * 向前检索关联If/Elseif元素是否已显示（为真）。
+ * @param  {Element} cur 当前元素
+ * @return {Boolean}
  */
-function hideCase( el, sure ) {
-    while ( el ) {
-        let _gram = Grammars.get(el);
+function elseShow( cur ) {
+    let _gram;
 
-        if ( _gram ) {
-            if ( _gram['Case'] || _gram['Last'] ) {
-                el[__hiddenFlag] = sure;
-            }
+    for (const el of $.prevAll(cur, __slrRender)) {
+        _gram = Grammars.get(el);
+
+        if ( _gram.has('If') ) {
+            return !el[__compState];
         }
-        el = el.nextElementSibling;
+        if ( _gram.has('Else') && el[__compState] ) {
+            return false;
+        }
     }
+    throw new Error('Else not find previous If.');
+}
+
+
+/**
+ * 同级case元素判断是否显示。
+ * 向前检索关联Case/Last元素是否已显示（为真）。
+ * @param  {Element} cur 当前元素
+ * @return {Boolean}
+ */
+function caseShow( cur ) {
+    return !cur.parentElement[__casePass];
 }
 
 
@@ -924,6 +956,7 @@ function render( el, data ) {
 /**
  * 解析节点树渲染配置。
  * 通常用于源模板节点初始导入之后。
+ * 注：<template>子元素的渲染配置不会被解析。
  * @param  {Element} tpl 模板节点
  * @return {Element} tpl
  */
@@ -952,7 +985,6 @@ const clone = cloneGrammar;
 /**
  * 用源数据更新节点树。
  * 可用于页面中既有渲染元素的原地更新。
- * 被隐藏的元素不再递进渲染子元素（当前元素需要处理）。
  * @param  {Element} root 渲染根
  * @param  {Object} data  源数据对象
  * @return {Element} root
@@ -960,10 +992,8 @@ const clone = cloneGrammar;
 function update( root, data ) {
     data = render( root, data );
 
-    if ( !hidden(root) ) {
-        for (let i = 0; i < root.children.length; i++) {
-            update( root.children[i], data );
-        }
+    for (let i = 0; i < root.children.length; i++) {
+        update( root.children[i], data );
     }
     return root;
 }
