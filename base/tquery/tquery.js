@@ -5685,7 +5685,7 @@ function toggleClassAttr( el, val, old ) {
  */
 function varyNodes( el, meth, nodes ) {
     if ( el === nodes ) {
-        return;
+        return el;
     }
     let _msg = {
             // replaceWidth => replace
