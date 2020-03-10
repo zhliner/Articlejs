@@ -1,4 +1,4 @@
-//! $Id: render.js 2019.09.17 Tpb.Core $
+//! $Id: render.js 2019.09.17 Tpb.Kits $
 // ++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com

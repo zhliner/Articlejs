@@ -1,4 +1,4 @@
-// $Id: templater.x.js 2019.09.02 Tpb.Kits $
+// $Id: templater.x.js 2020.03.10 Tpb.Kits $
 // ++++++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
