@@ -6,16 +6,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  模板管理器
+//  模板管理器。
 //
-//  实现模板节点的实时导入、存储和提取（克隆的副本）。
-//  模板的复用仅限于源码层面，因此这里仅提供原始模板的副本。
-//  注：
-//  外部对相同模板的应用级复用需要自行负责（比如节点状态共享）。
-//
-//  使用：
-//      tpo = new Templater(...);
-//      tpo.get(...)
+//  实现模板节点的实时导入、存储/提取和渲染。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +76,7 @@ class Templater {
     /**
      * 获取模板节点（原始）。
      * 如果模板不存在会自动载入。
-     * 应当只用于数据类模板（无需克隆）。
+     * 注：通常用于数据类模板（无需克隆）。
      * @param  {String} name 模板名
      * @return {Promise} 承诺对象
      */
@@ -104,10 +97,9 @@ class Templater {
      * - 需要处理OBT的解析/绑定逻辑。
      * - 存储构建好的模板节点备用。
      * - 可能需要多次异步载入（tpl-node）。
-     * - 如果root不是文档/元素类型，返回undefined。
-     * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
+     * @param  {Element|DocumentFragment|Object} root 构建根
      * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
-     * @return {Promise|void}
+     * @return {Promise}
      */
     build( root, obts = true) {
         if ( this._pool.has(root) ) {
@@ -115,8 +107,10 @@ class Templater {
         }
         this._obter( root, obts );
 
-        // 非节点类（如window）
-        if ( !root.nodeType ) return;
+        // 非节点（如window）
+        if ( !root.nodeType ) {
+            return Promise.resolve();
+        }
         Render.parse( root );
 
         return this.picks( root );

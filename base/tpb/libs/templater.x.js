@@ -40,7 +40,7 @@ class Templater {
      * @return {Promise} 承诺对象
      */
     get() {
-        return Promise.resolve(null);
+        return Promise.resolve();
     }
 
 
@@ -49,28 +49,22 @@ class Templater {
      * @return {Promise} 承诺对象
      */
     tpl() {
-        return Promise.resolve(null);
+        return Promise.resolve();
     }
 
 
     /**
      * 模板构建。
-     * 如果已经开始构建，返回子模版的承诺对象。
-     * 注：
-     * - 需要处理OBT的解析/绑定逻辑。
-     * - 存储构建好的模板节点备用。
-     * - 可能需要多次异步载入（tpl-node）。
-     * - 如果root不是文档/元素类型，返回undefined。
-     * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
+     * @param  {Element|DocumentFragment|Object} root 构建根
      * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
-     * @return {Promise|void}
+     * @return {Promise}
      */
     build( root, obts = true) {
         this._obter( root, obts );
         // 可渲染支持。
         if (root.nodeType) Render.parse( root );
 
-        return Promise.resolve(null);
+        return Promise.resolve();
     }
 
 
