@@ -153,9 +153,10 @@ class Templater {
         if ( !tpl ) {
             throw new Error(`[${_name}] is loaded but not found.`);
         }
-        let _new = $.clone(tpl, true, true, true);
-
-        return Render.clone(_new, tpl);
+        return Render.clone(
+            tpl,
+            $.clone(tpl, true, true, true)
+        );
     }
 
 

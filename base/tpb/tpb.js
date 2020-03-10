@@ -29,7 +29,7 @@ import { TLoader } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
 import { OBTA, tplsMap, DEBUG, InitTpl } from "./config.js";
 
-// 无需支持模板。
+// 无需模板支持。
 // import { Templater } from "./libs/templater.x.js";
 // 模板功能支持。
 import { Templater } from "./libs/templater.js";

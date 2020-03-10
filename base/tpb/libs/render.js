@@ -715,14 +715,14 @@ function gramElements( el, slr ) {
 /**
  * 节点树文法克隆&存储。
  * to应当是src的克隆（相同DOM结构）。
- * @param  {Element} to 目标元素
  * @param  {Element} src 源元素
+ * @param  {Element} to 目标元素
  * @return {Element} to
  */
-function cloneGrammar( to, src ) {
+function cloneGrammar( src, to ) {
     cloneGrammars(
-        gramElements( to, __slrRender ),
-        gramElements( src, __slrRender )
+        gramElements( src, __slrRender ),
+        gramElements( to, __slrRender )
     );
     return to;
 }
@@ -731,11 +731,11 @@ function cloneGrammar( to, src ) {
 /**
  * 批量克隆文法配置存储。
  * 注：to和src是两个大小一致的集合。
- * @param  {[Element]} tos 新节点集
  * @param  {[Element]} srcs 源节点集
+ * @param  {[Element]} tos 新节点集
  * @return {void}
  */
-function cloneGrammars( tos, srcs ) {
+function cloneGrammars( srcs, tos ) {
     srcs
     .forEach( (el, i) =>
         Grammars.set( tos[i], Grammars.get(el) )
@@ -776,7 +776,7 @@ function eachClone( ref, size, beg ) {
         let _new = $.clone(ref, true, true, true);
 
         _new[__eachIndex] = beg + i;
-        _els.push( cloneGrammar(_new, ref) );
+        _els.push( cloneGrammar(ref, _new) );
     }
     return _els;
 }
@@ -794,7 +794,7 @@ function cloneList( els ) {
         el => $.clone(el, true, true, true)
     );
     _new.forEach(
-        (e, i) => cloneGrammar( e, els[i] )
+        (e, i) => cloneGrammar( els[i], e )
     );
     return _new;
 }

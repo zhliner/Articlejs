@@ -81,7 +81,8 @@ class Templater {
      */
     clone( tpl ) {
         return Render.clone(
-            $.clone(tpl, true, true, true), tpl
+            tpl,
+            $.clone(tpl, true, true, true)
         );
     }
 
