@@ -89,7 +89,7 @@ const
     __eachIndex = Symbol('each-index'),
 
     // 比较状态存储。
-    // 用于if/else文法的真值标记。
+    // 来源：If/Else, Case/Last。
     __compState = Symbol('compare-result'),
 
     // switch标的值存储键。
@@ -417,44 +417,30 @@ const Grammar = {
 
 
     /**
-     * 测试确定显示/隐藏。
+     * If 逻辑。
      * 文法：{ If: [handle] }
-     * 仅针对元素自身，隐藏采用样式 display:none。
-     * 不支持 if/else 嵌套逻辑，else 添加条件即可获得 elseif 效果。
-     * 实现：
-     * - 如果为真，向后查找 Else，标记隐藏，直到另一个 if 或结束。
-     * - 如果为假，隐藏当前元素，后续 Else 隐藏标记为假。
-     *
-     * 注记：
-     * 因为需要支持原地更新，所以保持DOM中的存在使得可以再测试。
-     *
+     * 注：仅针对元素自身显示或隐藏（<template>）。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式取值函数
      * @param {Object} data 当前域数据
      */
     If( el, handle, data ) {
-        if ( handle(data) ) {
-            showElem(el)[__compState] = true;
-        } else {
-            hideElem(el)[__compState] = false;
-        }
+        return handle(data) ?
+            showElem(el) : hideElem(el);
     },
 
 
     /**
      * Else 逻辑。
      * 文法：{ Else: [handle] }
-     * 显隐逻辑已由If文法标记。
-     * 如果 handle 有值，表示 elseif 逻辑。
+     * 向前检索If/Elseif元素，判断当前元素显示或隐藏。
      * @param {Element} el 当前元素
      * @param {Function} handle 表达式函数
      * @param {Object} data 当前域数据
      */
     Else( el, handle, data ) {
-        if ( elseShow(el) ) {
-            return this.If( el, handle, data );
-        }
-        hideElem(el)[__compState] = false;
+        return elseShow(el) ?
+            this.If(el, handle, data) : hideElem(el);
     },
 
 
@@ -516,7 +502,7 @@ const Grammar = {
         this.Case( el, handle, data );
 
         // 依然未匹配。
-        // 注记：后期修改不适用hideElem（会影响下一次渲染）。
+        // 后期修改不适用hideElem（会影响下一次渲染）。
         if ( caseShow(el) ) el.parentElement.style.display = 'none';
     },
 
@@ -797,7 +783,8 @@ function cloneList( els ) {
 /**
  * 清理子元素。
  * 移除多余的Each克隆元素以保持For规范。
- * 注：仅用于For获取子元素集。
+ * 注记：
+ * 子元素中的Each可能被单独更新，因此移除更可靠。
  * @param  {Element} box 父元素
  * @return {[Element]}
  */
@@ -866,8 +853,9 @@ function originStyle( el ) {
 
 
 /**
- * 是否需要深度（子孙元素）处理。
- * 注：被隐藏（display:none）的元素无需向下继续渲染。
+ * 元素是否隐藏。
+ * 隐藏的元素无需向下继续渲染。
+ * 来源：If/Else, Case/Last
  * @param  {Element} el 当前元素
  * @return {Boolean}
  */
@@ -880,8 +868,7 @@ function hidden( el ) {
  * 隐藏元素。
  * 将目标元素插入一个临时的模板元素内，
  * 注意需要同时克隆元素自身的渲染配置。
- * @param  {Element} el 目标元素
- * @return {Element} 占位元素（<template>）
+ * @param {Element} el 目标元素
  */
 function hideElem( el ) {
     let _tmp = $.Element(
@@ -890,8 +877,9 @@ function hideElem( el ) {
     $.append(
         $.replace(el, _tmp).content, el
     );
+    _tmp[__compState] = false;
+    // 文法保持。
     Grammars.set( _tmp, Grammars.get(el) );
-    return _tmp;
 }
 
 
@@ -899,14 +887,13 @@ function hideElem( el ) {
  * 显示元素。
  * 将临时占位的模板元素用其内容替换回来。
  * 如果未被隐藏过，则为原始元素。
- * @param  {Element} el 目标元素（可能为占位模板元素）
- * @return {Element} el
+ * @param {Element} el 目标元素或占位元素
  */
 function showElem( el ) {
-    if ( el[__compState] ) {
+    if ( hidden(el) ) {
         $.replace( el, el.content.firstElementChild );
     }
-    return el;
+    el[__compState] = true;
 }
 
 
