@@ -116,7 +116,7 @@
         滚动内容<main>直接获取焦点时可能存在移位。-->
     <div id="g-scroll" class="_scroll" tabindex="0">
         <!-- 选取创建（mouseup） -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pb="lose">
+        <menu id="g-cells" class="_cells" tabindex="0" data-pb="lost">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
             <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -148,7 +148,7 @@
             <li data-val="bdo" title="<bdo dir='rtl'>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
         </menu>
         <!-- 上下文菜单 -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lose">
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
             <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
             <hr>
             <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
@@ -170,14 +170,14 @@
                 <p>一篇文章的内容最多分成五个层级：<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>，每一个层级对应一个片区（<code>section</code>）。每一层通常都有一个标题，起始顶层片区的标题为
                     <code>&lt;h2&gt;</code>，其余顺次为 <code>&lt;h3&gt;</code> <code>&lt;h4&gt;</code> <code>&lt;h5&gt;</code>
                     <code>&lt;h6&gt;</code>。<code>&lt;h1&gt;</code> 标签用于 <code>&lt;article&gt;</code> 的主标题，通常也是页面的大标题。</p>
-                <p><code contenteditable>&lt;article&gt;</code> 是内容结构的根元素，包含了所有的内容成员。</p>
-                <blockquote contenteditable>
+                <p><code>&lt;article&gt;</code> 是内容结构的根元素，包含了所有的内容成员。</p>
+                <blockquote>
                     <p><strong>注：</strong>
                         一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性很差。</p>
                 </blockquote>
             </header>
             <article>
-                <h2 id="内容的结构" contenteditable>内容的结构</h2>
+                <h2 id="内容的结构">内容的结构</h2>
                 <section>
                     <header>
                         <p>下面的逐级嵌套结构按标题号递增，逻辑上是越来越细化的内容区。这是一个常规合理的内容组织形式，它能让文章的内容结构合理，表达清晰，阅读起来也更轻松。</p>
@@ -190,7 +190,7 @@
                     <h3 id="层次图">层次图</h3>
                     <section>
                         <pre>
-<code data-lang="html" contenteditable="true">&lt;h1&gt;&lt;/h1&gt;                                   <i>&lt;!-- 主标题 --&gt;</i>
+<code data-lang="html">&lt;h1&gt;&lt;/h1&gt;                                   <i>&lt;!-- 主标题 --&gt;</i>
 &lt;header role="abstract"&gt;&lt;/header&gt;           <i>&lt;!-- 提要 --&gt;</i>
 &lt;nav role="toc"&gt;&lt;/nav&gt;                      <i>&lt;!-- 目录 --&gt;</i>
 &lt;article&gt;                                   <i>&lt;!-- 文章区 --&gt;</i>
@@ -235,7 +235,7 @@
                         <p><strong>解析逻辑：</strong></p>
                         <ul>
                             <li>每一级标题之后的内容即为该标题相关的 <code>&lt;section&gt;</code>。</li>
-                            <li contenteditable="true">如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为 <code>&lt;header&gt;</code>。</li>
+                            <li>如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为 <code>&lt;header&gt;</code>。</li>
                             <li>如果内容中已经没有下级标题，则视为正文内容。</li>
                             <li>如果子标题不是顺次递减而是跨级，也视为正文内容，但内部子标题继续解析。<strong>注</strong>：这通常是内容组织不太合理的表现。</li>
                         </ul>
@@ -1090,7 +1090,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Inputs" tpl-name="slave:minied">
                 <div class="_roll">
                     <div class="_where">
                         <label title="内联元素">
@@ -1100,7 +1100,7 @@
                             <input type="radio" name="where" checked /><i id="l-schar"></i>
                         </label>
                     </div>
-                    <select name="ctype" size="5" class="_list" tpl-name="list:chars">
+                    <select name="ctype" size="5" class="_list" tpl-name="minied:chars">
                         <option value="normal">常用</option>
                         <option value="punctuation">标点</option>
                         <option value="unit">单位</option>
@@ -1114,9 +1114,9 @@
                         <option value="phonetic">音标</option>
                     </select>
                 </div>
-                <!-- [子模版：特别字符] -->
-                <div class="_body _chars">
-                    <div class="_main _list">
+                <!-- [子模版：字符表] -->
+                <div class="_body _chars" tpl-name="minied:common">
+                    <div data-id="cbox" class="_main _list">
                         <span>
                             <b>〔</b>
                             <b>〕</b>
@@ -1206,7 +1206,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Inputs" tpl-name="slave:minied">
                 <div class="_roll">
                     <div class="_where">
                         <label title="内联元素">
@@ -1216,7 +1216,7 @@
                             <input type="radio" name="where" /><i id="l-schar"></i>
                         </label>
                     </div>
-                    <select name="inlines" size="5" class="_list" tpl-name="list:inlines">
+                    <select name="inlines" size="5" class="_list" tpl-name="minied:inlines">
                         <option title="<img>" value="img">图片</option>
                         <option title="<audio>" value="audio">音频</option>
                         <option title="<video>" value="video">视频</option>
@@ -1251,7 +1251,7 @@
                     </select>
                 </div>
                 <!-- [子模版：内联通用] -->
-                <div class="_body _inlines">
+                <div class="_body _inlines" tpl-name="minied:common">
                     <div class="_main _list">
                         <table tpl-name="inputs:img">
                             <tr tpl-name="prop:srcbase">
@@ -1282,7 +1282,7 @@
                         </table>
                     </div>
                     <aside>
-                        <div class="_submit" tpl-name="inputs:copies">
+                        <div class="_submit">
                             <!-- ev.clipboardData.setData('text/html', [html]) -->
                             <button type="submit">复制</button>
                         </div>

@@ -32,7 +32,7 @@ const
 
     // 标识字符
     __chrDlmt   = ';',  // 并列分组
-    __chrCall   = ' ',  // 指令/事件名并列分隔
+    __chrCmd    = ' ',  // 指令/事件名并列分隔
     __chrZero   = '-',  // 空白占位符
     __chrPipe   = '|',  // 进阶分隔（事件名|指令链）
 
@@ -61,7 +61,7 @@ const
 
     // 指令切分器。
     // 注意：多出的空格被切分为空串。
-    __callSplit = new Spliter( __chrCall, new UmpCaller() ),
+    __cmdSplit  = new Spliter( __chrCmd, new UmpCaller() ),
 
     // 进阶定义切分器。
     // 需要区分属性选择器、调用式。
@@ -120,27 +120,31 @@ const Parser = {
      *      by: String
      *      to: String
      * }
-     * @param  {Element} el 目标元素
      * @param  {Object3} conf OBT配置集（{on,by,to}）
      * @return {Iterator<Object3>} 单组配置迭代器
      */
-    obts( el, conf ) {
-        let { on, by, to } = conf;
+    *obts( conf ) {
+        let bys = [...__dlmtSplit.split(conf.by)],
+            tos = [...__dlmtSplit.split(conf.to)],
+            i = 0;
 
-        return this._teams(
-            [...__dlmtSplit.split(on)],
-            by && [...__dlmtSplit.split(by)] || [],
-            to && [...__dlmtSplit.split(to)] || []
-        );
+        for (const on of __dlmtSplit.split(conf.on)) {
+            yield {
+                on: zeroPass(on),
+                by: zeroPass(bys[i]),
+                to: zeroPass(tos[i]),
+            };
+            i++;
+        }
     },
 
 
     /**
      * On解析。
-     * 格式：evn(slr) evn|call(...),call...
+     * 格式：evn(slr) evn|call(...) call...
      * 返回值：[
      *      [Evn]       // 事件名定义集
-     *      [Call]|null // 指令调用定义集
+     *      [Call]|''   // 指令调用定义集
      * ]
      * @param  {String} fmt On配置串
      * @return {Array2}
@@ -150,7 +154,7 @@ const Parser = {
 
         return [
             this._evns( _ev.trim() ),
-            _ca ? this._calls( _ca.trim() ) : null
+            this._calls( _ca.trim() )
         ];
     },
 
@@ -158,10 +162,10 @@ const Parser = {
     /**
      * By解析。
      * @param  {String} fmt By配置串
-     * @return {[Call]|null}
+     * @return {[Call]|''}
      */
     by( fmt ) {
-        return fmt ? this._calls( fmt.trim() ) : null;
+        return this._calls( fmt.trim() );
     },
 
 
@@ -169,55 +173,22 @@ const Parser = {
      * To解析。
      * 注：空串合法但无用。
      * @param  {String} fmt To配置串
-     * @return {[Query, Update|null, [Call]|null]}
+     * @return {[Query, Update|'', [Call]|'']|''}
      */
     to( fmt ) {
-        if ( !fmt ) return [];
+        if ( !fmt ) return '';
 
-        let [_q, _w, _n] = [
-                ...__pipeSplit.split(fmt, 2)
-            ]
-            .map( s => s.trim() );
+        let [_q, _w, _n] = [...__pipeSplit.split(fmt, 2)].map( zeroPass );
 
         return [
-            new Query(_q == __chrZero ? '' : _q),
-            _w && _w != __chrZero ? new Update(_w) : null,
-            _n && _n != __chrZero ? this._calls(_n) : null,
+            new Query(_q),
+            _w && new Update(_w),
+            this._calls(_n),
         ];
     },
 
 
     //-- 私有辅助 -------------------------------------------------------------
-
-
-    /**
-     * 提取分组对应集。
-     * 以On为前置依据，By/To依赖于On的存在。
-     * 单组：{
-     *      on: String
-     *      by: String
-     *      to: String
-     * }
-     * @param  {Iterator<String>} ons On属性值提取器
-     * @param  {[String]} bys By属性值定义
-     * @param  {[String]} tos To属性值定义
-     * @return {Iterator<Object3>} 单组配置迭代器
-     */
-    *_teams( ons, bys, tos ) {
-        let _i = 0;
-
-        for ( const on of ons ) {
-            let by = bys[_i],
-                to = tos[_i];
-
-            yield {
-                on: on && on != __chrZero ? on : null,
-                by: by && by != __chrZero ? by : null,
-                to: to && to != __chrZero ? to : null,
-            };
-            _i++;
-        }
-    },
 
 
     /**
@@ -229,9 +200,9 @@ const Parser = {
         if ( !fmt ) return '';
         let _buf = [];
 
-        for (const s of __callSplit.split(fmt)) {
+        for (const s of __cmdSplit.split(fmt)) {
             // 忽略空串（连续空格）
-            if ( s ) _buf.push( new Evn(s.trim()) );
+            if ( s ) _buf.push( new Evn(s) );
         }
         return _buf;
     },
@@ -240,15 +211,15 @@ const Parser = {
     /**
      * 分解指令调用定义。
      * @param  {String} fmt 指令调用序列
-     * @return {[Call]|null}
+     * @return {[Call]|''}
      */
     _calls( fmt ) {
-        if ( !fmt ) return null;
+        if ( !fmt ) return '';
         let _buf = [];
 
-        for (const s of __callSplit.split(fmt)) {
+        for (const s of __cmdSplit.split(fmt)) {
             // 忽略空串（连续空格）
-            if ( s ) _buf.push( new Call(s.trim()) );
+            if ( s ) _buf.push( new Call(s) );
         }
         return _buf;
     },
@@ -295,7 +266,7 @@ class Builder {
     build( obj, conf ) {
         if ( !conf.on ) return;
 
-        for (const obt of Parser.obts(obj, conf) ) {
+        for (const obt of Parser.obts(conf) ) {
             let _on = Parser.on(obt.on),
                 _by = Parser.by(obt.by),
                 _to = Parser.to(obt.to);
@@ -1001,7 +972,7 @@ class Query {
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 //      ^   特性切换，如：^-val => $.toggleAttr(el, '-val', ...)
 // }
-// 支持多方法并列定义，空格（__chrCall）分隔。
+// 支持多方法并列定义，空格（__chrCmd）分隔。
 // 注：并列的方法数量即是自动取栈的数量。
 //
 class Update {
@@ -1010,7 +981,8 @@ class Update {
      * @param {String} fmt 定义格式串
      */
     constructor( fmt ) {
-        let _ns = [...__callSplit.split(fmt)]
+        let _ns = [...__cmdSplit.split(fmt)]
+            // 去连续空白
             .filter( s => s );
 
         this._names = _ns;
@@ -1067,6 +1039,19 @@ class Update {
 //
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 占位字符处理。
+ * 如果原字符串为假或占位符，则返回null，
+ * 否则返回一个整理后（trim）的字符串。
+ * @param  {String} chr 原字符串
+ * @return {String}
+ */
+function zeroPass( chr ) {
+    chr = chr && chr.trim();
+    return !chr || chr == __chrZero ? '' : chr;
+}
 
 
 /**

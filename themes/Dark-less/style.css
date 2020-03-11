@@ -13,6 +13,12 @@
 
 @import 'icons.css';
 
+/* test... */
+body>div {
+    background-color: #b7f7e7;
+}
+/* test end. */
+
 
 /* 侧面板 */
 body > aside {

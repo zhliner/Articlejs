@@ -119,31 +119,32 @@ const _By = {
 const __Eff = {};
 
 [
-    'hide',
-    'lose',
-    'disable',
-    'fold',
-    'truncate',
+    ['hide',     'hidden'],
+    ['lose',     'lost'],
+    ['disable',  'disabled'],
+    ['fold',     'folded'],
+    ['truncate', 'truncated'],
 ]
-.forEach(function( name ) {
+.forEach(function( names ) {
     /**
-     * 注：名称即为特性值。
-     * @param  {Boolean} sure 正向执行
+     * 解除状态通常可传递实参null。
+     * @param  {Boolean|null} sure 状态执行
      * @return {void}
      */
-    __Eff[name] = function( evo, sure = true ) {
-        let _els = evo.data;
+    __Eff[names[0]] = function( evo, sure = true ) {
+        let _els = evo.data,
+            _val = names[1];
 
         if ( !sure ) {
-            name = `-${name}`;
+            _val = `-${_val}`;
         }
         if ( !$.isArray(_els) ) {
             _els = [_els];
         }
-        _els.forEach( el => Util.pbo(el, [name]) );
+        _els.forEach( el => Util.pbo(el, [_val]) );
     };
 
-    __Eff[`__${name}`] = 1;
+    __Eff[`__${names[0]}`] = 1;
 
 });
 

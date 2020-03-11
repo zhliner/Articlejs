@@ -80,13 +80,24 @@ scam( names?:String ): Boolean | Object
 // 如果names或暂存区有值则为检查，否则为简单封装。
 // names支持空格分隔的多个名称，全小写，And关系。
 
-movementX( v?:null ): Number
-movementY( v?:null ): Number
+movementX( v?:null ): Number | void
+movementY( v?:null ): Number | void
 // 鼠标移动量取值。
 // 目标：无。
 // 注记：
 // mousemove 事件中 movementX/Y 的值在缩放显示屏下有误差（chrome）。
 // 因此另外用绝对像素参数（event.pageX/pageY）重新实现。
+// 前值存储在事件当前元素（evo.current）上，解绑时应当重置（null）。
+
+scrollX( v:?null ): Number | void
+scrollY( v:?null ): Number | void
+// 内容滚动量取值。
+// 目标：当前条目，可选。
+// 支持指定目标滚动元素，如果目标为空，则取事件当前元素。
+// 前值存储在事件当前元素上，因此目标元素的滚动量是特定于当前事件的。
+// 通常在事件解绑时移除该存储（传递null）。
+// 注记：
+// 文档内容的滚动有多种途径，鼠标的wheel不能响应键盘对内容的滚动。
 ```
 
 

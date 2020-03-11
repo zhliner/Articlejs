@@ -6726,12 +6726,12 @@ const Event = {
     _wrapCall( handle, current, slr, ev ) {
         let _cur = current( ev, slr ),
             _elo = _cur && {
-            origin:     ev.target,
-            current:    _cur,
-            related:    ev.relatedTarget,
-            delegate:   ev.currentTarget,
-            selector:   slr || null,
-        }
+                origin:     ev.target,
+                current:    _cur,
+                related:    ev.relatedTarget,
+                delegate:   ev.currentTarget,
+                selector:   slr || null,
+            }
         // 需要调用元素的原生方法完成浏览器逻辑，
         // 如：form:submit, video:load 等。
         return _elo && handle(ev, _elo) !== false && this._methodCall(ev, _elo.current);

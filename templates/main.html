@@ -28,19 +28,62 @@
     <span id="g-cross" data-pb="">
         <b id="cross-h"></b><b id="cross-v"></b>
     </span>
-    <!--滚动封装：
-        滚动内容<main>直接获取焦点时可能存在移位。-->
-    <div id="scrollbox" class="___Scroll" tabindex="0">
+    <!--滚动封装 -->
+    <div id="g-scroll" class="_scroll" tabindex="0">
+        <!-- 选取创建（mouseup） -->
+        <menu id="g-cells" class="_cells" tabindex="0" data-pb="lost">
+            <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
+            <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+            <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+            <li data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+            <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
+            <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
+            <li data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
+            <li data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+            <li data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
+            <li data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
+            <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
+            <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
+            <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
+            <li data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
+            <li data-val="ruby" title="<ruby>">
+                <b><ruby>
+                    <rb>注音</rb>
+                    <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
+                </ruby></b>
+                <kbd>r</kbd>
+            </li>
+            <li data-val="orz" title="表情"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+            <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>f</kbd></li>
+            <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd>p</kbd></li>
+            <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+            <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
+            <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+            <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+            <li data-val="bdo" title="<bdo dir='rtl'>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+        </menu>
+        <!-- 上下文菜单 -->
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
+            <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
+            <hr>
+            <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
+            <li data-val="move"><b id="l-move">剪切/移动</b><kbd>x/X</kbd></li>
+            <hr>
+            <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
+            <hr>
+            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+        </menu>
+        <!-- 内容区 -->
         <main id="content" class="content"></main>
     </div>
-    <!-- 元素路径提示 -->
-    <div id="content-path" class="_path" data-pb="">
-        <!-- b... -->
+    <!-- 元素路径 -->
+    <div id="g-path" class="_path" data-pb="">
+        <!-- <b> -->
     </div>
 </div>
 
 
-<!-- 主面板区 -->
+<!-- 主面板 -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
     <div class="_tabs">
         <b class="_press">内容</b>
@@ -48,21 +91,40 @@
         <b>特性</b>
         <b>源码</b>
         <b>脚本</b>
-        <!-- CSS: margin-inline-start:auto; -->
         <b class="_close"><i id="l-close" title="关闭"></i></b>
     </div>
-    <!-- 初始为录入面板 -->
-    <hr id="slave-main" tpl-node="slave:inputs"">
+    <!-- 初始面板 -->
+    <form class="Inputs" onsubmit="return false" tpl-name="slave:inputs">
+        <div class="_roll">
+            <div class="_where">
+                <label title="平级插入">
+                    <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                </label>
+                <label title="向内插入">
+                    <input type="radio" name="where"><i id="l-children"></i>
+                </label>
+            </div>
+            <select id="inputs-items" name="items" size="5" class="_list">
+                <!-- 筛选合法单元条目插入。 -->
+            </select>
+        </div>
+        <!-- [子模版] -->
+        <div class="_body _empty" tpl-name="inputs:empty">
+            <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
+        </div>
+    </form>
 </div>
 
 
 <!-- 状态栏 -->
-<div class="___Panel Status" tpl-name="main:status">
+<div class=" ___Panel Status" tpl-name="main:status">
     <!-- 提示区 -->
-    <div id="status-tips" class="_tips"></div>
+    <div class="_tips">
+        <span id="status-tips" title="information">info...</span>
+    </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" class="_list" data-pb="hide">
+        <span id="cmd-chars" data-pb="lost">
             <b>/</b> <!-- 选择器模式 -->
             <b>:</b> <!-- 普通指令 -->
             <b>=</b> <!-- 计算（Worker） -->
@@ -75,14 +137,6 @@
     </div>
     <!-- 命令行 -->
     <div class="_cmdline">
-        <!-- 历史清单：
-            - 上下箭头移动当前条目，Tab/Enter或单击选取。
-            - 按ESC键取消弹出框，停止冒泡避免上层esc事件。 -->
-        <div id="cmd-list" tabindex="0" class="_list" data-pb="hide">
-            <ul>
-                <!-- <li>: 动态增加/溢出 -->
-            </ul>
-        </div>
         <!-- 交互：
             1. 回车执行命令行，自动选取结果。
             2. Tab键展开当前键入内容匹配清单。
@@ -91,51 +145,12 @@
             5. 手动键入内容为搜索历史匹配。
             6. Tab和箭头翻页导航支持+Shift模糊匹配。
         -->
-        <input id="cmd-input" type="text" class="_code" />
+        <input id="cmd-input" type="text" class="_code" value="" />
     </div>
     <!-- 出错信息区 -->
-    <div id="status-err" class="_err"></div>
+    <div class="_err" title="单击显示帮助" data-pb="lost">
+        <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
+    </div>
     <!-- 帮助入口 -->
-    <div class="_help"><b>?</b></div>
+    <div class="_help" title="帮助"><b>?</b></div>
 </div>
-
-
-<!-- 选取创建（mouseup） -->
-<menu class="_cells" data-pb="none" tpl-name="menu:cells">
-    <li data-val="a" title="<a>"><a href="javascript:return false;">链接</a></li>
-    <li data-val="code" title="<code>"><code>代码</code></li>
-    <li data-val="strong" title="<strong>"><strong>重点</strong></li>
-    <li data-val="em" title="<em>"><em>强调</em></li>
-    <li data-val="sup" title="<sup>">O<sup>2</sup></li>
-    <li data-val="sub" title="<sub>">O<sub>2</sub></li>
-    <li data-val="q" title="<q>"><q>短引用</q></li>
-    <li data-val="time" title="<time>"><time>时间</time></li>
-    <li data-val="ins" title="<ins>"><ins>插入</ins></li>
-    <li data-val="del" title="<del>"><del>删除</del></li>
-    <li data-val="abbr" title="<abbr>"><abbr>缩写</abbr></li>
-    <li data-val="small" title="<small>"><small>注脚</small></li>
-    <li data-val="cite" title="<cite>"><cite>来源</cite></li>
-    <li data-val="mark" title="<mark>"><mark>标记</mark></li>
-    <li data-val="ruby" title="<ruby>">
-        <ruby>
-            <rb>注音</rb>
-            <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
-        </ruby></li>
-    <li data-val="orz" title="表情"><code role="orz">^_^</code></li>
-    <li data-val="dfn" title="<dfn>"><dfn>定义条目</dfn></li>
-    <li data-val="samp" title="<samp>"><samp>样本</samp></li>
-    <li data-val="kbd" title="<kbd>"><kbd>键盘字</kbd></li>
-    <li data-val="s" title="<s>"><s>失效</s></li>
-    <li data-val="u" title="<u>"><u>注记</u></li>
-    <li data-val="var" title="<var>"><var>变量</var></li>
-    <li data-val="bdo" title="<bdo>"><bdo dir="rtl">有向文本</bdo></li>
-</menu>
-
-<!-- 上下文菜单 -->
-<menu class="_cmenu" data-pb="none" tpl-name="menu:cmenu">
-    <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
-    <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
-    <li data-val="move"><b id="l-move">剪切/移动</b><kbd>x/X</kbd></li>
-    <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
-    <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
-</menu>

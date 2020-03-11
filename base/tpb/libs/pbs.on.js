@@ -22,11 +22,17 @@ const
     // 空白匹配。
     __reSpace = /\s+/,
 
-    // 鼠标移动量存储键（横向）。
+    // 鼠标移动存储键（横向）。
     __movementX = Symbol('mouse-movementX'),
 
-    // 鼠标移动量存储键（纵向）。
-    __movementY = Symbol('mouse-movementY');
+    // 鼠标移动存储键（纵向）。
+    __movementY = Symbol('mouse-movementY'),
+
+    // 内容滚动存储键（横向）。
+    __scrollX = Symbol('scroll-horizontal'),
+
+    // 内容滚动存储键（垂直）。
+    __scrollY = Symbol('scroll-vertical');
 
 
 
@@ -155,18 +161,14 @@ const _On = {
 
     // 专有补充。
     //-------------------------------------------
-    // 注记：
-    // 事件对象中 movementX/movementY 值在缩放显示屏下有较大误差，
-    // 因此这里用绝对像素（event.pageX/pageY）成员重新实现。
-    // 主要用于鼠标移动（mousemove）事件的取值。
 
 
     /**
      * 鼠标水平移动量。
      * 目标：无。
-     * 注记：前值存储在事件当前元素上，必要时应当重置（null）。
+     * 前值存储在事件当前元素上，解绑时应当重置（null）。
      * @param  {null} 清除存储
-     * @return {Number} 变化量（像素）
+     * @return {Number|void} 变化量（像素）
      */
     movementX( evo, val ) {
         if ( val !== null ) {
@@ -182,7 +184,7 @@ const _On = {
      * 鼠标垂直移动量。
      * 目标：无。
      * @param  {null} 清除存储
-     * @return {Number} 变化量（像素）
+     * @return {Number|void} 变化量（像素）
      */
     movementY( evo, val ) {
         if ( val !== null ) {
@@ -191,6 +193,49 @@ const _On = {
         }
         delete evo.current[__movementY];
     },
+
+
+    /**
+     * 内容横向滚动量。
+     * 目标：当前条目，可选。
+     * 支持指定目标滚动元素，如果目标为空，则取事件当前元素。
+     * 前值存储在事件当前元素上，因此目标元素的滚动量是特定于当前事件的。
+     * @param  {null} 清除存储
+     * @return {Number|void} 变化量（像素）
+     */
+    scrollX( evo, val ) {
+        let _box = evo.current,
+            _its = evo.data || _box;
+
+        if ( val !== null ) {
+            let _v = _box[__scrollX];
+            return ( _box[__scrollX] = _its.scrollLeft ) - _v || 0;
+        }
+        delete _box[__scrollX];
+    },
+
+    __scrollX: 0,
+
+
+    /**
+     * 内容垂直滚动量。
+     * 目标：当前条目，可选。
+     * 说明：（同上）
+     * @param  {null} 清除存储
+     * @return {Number|void} 变化量（像素）
+     */
+    scrollY( evo, val ) {
+        let _box = evo.current,
+            _its = evo.data || _box;
+
+        if ( val !== null ) {
+            let _v = _box[__scrollY];
+            return ( _box[__scrollY] = _its.scrollTop ) - _v || 0;
+        }
+        delete _box[__scrollY];
+    },
+
+    __scrollY: 0,
 
 };
 

@@ -31,32 +31,32 @@
  ***********************************************/
 
 /* 隐藏 */
-*[data-pb~='hide'] {
+*[data-pb~='hidden'] {
     visibility: hidden !important;
     opacity: 0;
 }
 
 /* 消失 */
-*[data-pb~='lose'] {
+*[data-pb~='lost'] {
     display: none !important;
 }
 
 /* 冻结 */
-*[data-pb~='disable'] {
-    color: #999 !important;
+*[data-pb~='disabled'] {
+    color: #abc !important;
     filter: grayscale(1) !important;
 }
 
 /* 折叠：
  * 隐藏除首个子元素之外的子元素。
  */
-*[data-pb~='fold'] > :first-child ~ * {
+*[data-pb~='folded'] > :first-child ~ * {
     display: none !important;
 }
 
 /* 截断：
  * 隐藏后续兄弟元素。
  */
-*[data-pb~='truncate'] ~ * {
+*[data-pb~='truncated'] ~ * {
     display: none !important;
 }

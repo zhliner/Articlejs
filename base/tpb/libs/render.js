@@ -425,8 +425,7 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     If( el, handle, data ) {
-        return handle(data) ?
-            showElem(el) : hideElem(el);
+        return handle(data) ? showElem(el) : hideElem(el);
     },
 
 
@@ -439,8 +438,7 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     Else( el, handle, data ) {
-        return elseShow(el) ?
-            this.If(el, handle, data) : hideElem(el);
+        return elseShow(el) ? this.If(el, handle, data) : hideElem(el);
     },
 
 

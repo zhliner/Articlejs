@@ -453,67 +453,14 @@
 </div>
 
 
-<!-- 内联单元 --------------------------------------------------------------->
-
-
-<!-- 微编辑：框架 -->
-<form class="Minied" tpl-name="inputs:minied">
-    <div class="_roll">
-        <div class="_where">
-            <label>
-                <input type="radio" name="where" checked /><i id="l-element"></i>
-            </label>
-            <label>
-                <input type="radio" name="where"><i id="l-schar"></i>
-            </label>
-        </div>
-        <select tpl-source="inputs:inlines"></select>
-    </div>
-    <hr tpl-source="inputs:img" />
-</form>
-
-
-<!-- 内联元素 -->
-<select name="inlines" size="5" tpl-name="list:inlines">
-    <option title="<img>" value="img">图片</option>
-    <option title="<audio>" value="audio">音频</option>
-    <option title="<video>" value="video">视频</option>
-    <option title="<picture>" value="picture">兼容图片</option>
-    <option title="<a>" value="a">链接</option>
-    <option title="<code>" value="code">代码</option>
-    <option title="<strong>" value="strong">重点</option>
-    <option title="<em>" value="em">强调</option>
-    <option title="<sub>" value="sub">下标</option>
-    <option title="<sup>" value="sup">上标</option>
-    <option title="<q>" value="q">短引用</option>
-    <option title="<time>" value="time">日期/时间</option>
-    <option title="<ins>" value="ins">插入性条目</option>
-    <option title="<del>" value="del">已删除条目</option>
-    <option title="<abbr>" value="abbr">缩写</option>
-    <option title="<small>" value="small">注脚</option>
-    <option title="<cite>" value="cite">来源</option>
-    <option title="<mark>" value="mark">标记</option>
-    <option title="<ruby/rb,rp,rt>" value="ruby">注音单元</option>
-    <option title="<code:orz>" value="orz">表情</option>
-    <option title="<dfn>" value="dfn">定义条目</option>
-    <option title="<samp>" value="samp">样本</option>
-    <option title="<kbd>" value="kbd">键盘字</option>
-    <option title="<meter>" value="meter">度量标示</option>
-    <option title="<s>" value="s">失效</option>
-    <option title="<u>" value="u">注记</option>
-    <option title="<var>" value="var">变量</option>
-    <option title="<bdo>" value="bdo">有向文本</option>
-    <option title="<br>" value="br">换行</option>
-    <option title="<wbr>" value="wbr">软换行</option>
-    <option title="<span:blank>" value="blank">空白段</option>
-</select>
+<!-- 微编辑：内联单元 ------------------------------------------------------->
 
 
 <!-- 字符种类 -->
-<select name="ctype" size="5" tpl-name="list:chars">
+<select name="ctype" size="5" class="_list" tpl-name="minied:chars">
     <option value="normal">常用</option>
-    <option value="unit">单位</option>
     <option value="punctuation">标点</option>
+    <option value="unit">单位</option>
     <option value="number">序号</option>
     <option value="math">数学</option>
     <option value="special">特殊</option>
@@ -526,25 +473,30 @@
 
 
 <!-- 字符表 -->
-<div class="_body _chars" tpl-name="inputs:chars">
-    <div data-id="cbox" class="_main">
-        <!-- <span> -->
+<div class="_body _chars" tpl-name="chars:list">
+    <div data-id="cbox" class="_main _list">
+        <!-- <span/b> -->
     </div>
     <aside>
-        <span id="g-zoomin" class="_zoomin"></span>
+        <b id="g-zoomin" class="_zoomin">©</b>
+        <span class="_info">已复制：<i id="g-copies">1</i></span>
     </aside>
 </div>
 
 
 <!-- 特殊字符集
     初始解析构造为：<b>...</b>序列
-    字符集清单存储在data中备用。 -->
+    各字符集清单<span>存储在data中备用。 -->
 <div tpl-name="data:chars"
-    on="^init('span')|evo('current'), text, call('split', ''), $$;
-        ^obted|$$('span'), dup"
-    by="wrap('<b>');
-        trigger('init'), pop, data('normal punctuation unit number math special alphabet geometric emotion radical phonetic')"
-    to="|fill">
+    on="init|evo('origin') text split('') $$;
+        save|$$('/span') pop data('normal punctuation unit number math special alphabet geometric emotion radical phonetic');
+        ^obted;
+        ^off|nil"
+    by="x.Node.wrap('<b>')"
+    to="~|fill|fire(0, 'save');
+        &|-|fire(1, 'off');
+        /span|trigger('init');
+        |off('init save')">
     <!-- <span><b>...</span> -->
     <span>〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
     <!-- 单位 -->
@@ -571,127 +523,127 @@
 
 
 <!-- 表格清单方式 -->
-<table tpl-name="inputs:img">
+<table tpl-name="inlines:img">
     <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
     <tr tpl-node="prop:upload, prop:preview"></tr>
 </table>
 
-<table tpl-name="inputs:audio">
+<table tpl-name="inlines:audio">
     <tr tpl-node="prop:srcbase, prop:sources"></tr>
     <tr tpl-node="prop:upload, prop:preview"></tr>
     <tr tpl-node="prop:loop, prop:autoplay"></tr>
 </table>
 
-<table tpl-name="inputs:video">
+<table tpl-name="inlines:video">
     <tr tpl-node="prop:srcbase, prop:sources"></tr>
     <tr tpl-node="prop:upload, prop:preview"></tr>
     <tr tpl-node="prop:loop, prop:autoplay, prop:poster"></tr>
 </table>
 
-<table tpl-name="inputs:picture">
+<table tpl-name="inlines:picture">
     <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
     <tr tpl-node="prop:upload, prop:preview"></tr>
 </table>
 
-<table tpl-name="inputs:a">
+<table tpl-name="inlines:a">
     <tr tpl-node="prop:textrow"></tr>
     <tr tpl-node="prop:href"></tr>
     <tr tpl-name="prop:target"></tr>
 </table>
 
-<table tpl-name="inputs:code">
+<table tpl-name="inlines:code">
     <tr tpl-node="prop:code"></tr>
 </table>
 
-<table tpl-name="inputs:strong">
+<table tpl-name="inlines:strong">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:em">
+<table tpl-name="inlines:em">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:sub">
+<table tpl-name="inlines:sub">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:sup">
+<table tpl-name="inlines:sup">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:q">
+<table tpl-name="inlines:q">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:times">
+<table tpl-name="inlines:times">
     <tr tpl-source="prop:date, prop:time"></tr>
 </table>
 
-<table tpl-name="inputs:ins">
+<table tpl-name="inlines:ins">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:del">
+<table tpl-name="inlines:del">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:abbr">
+<table tpl-name="inlines:abbr">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:small">
+<table tpl-name="inlines:small">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:cite">
+<table tpl-name="inlines:cite">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:mark">
+<table tpl-name="inlines:mark">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:ruby">
+<table tpl-name="inlines:ruby">
     <tr tpl-node="prop:textrow"></tr>
     <tr tpl-node="prop:rt"></tr>
     <tr tpl-node="prop:leftrp, prop:rightrp"></tr>
 </table>
 
-<table tpl-name="inputs:orz">
+<table tpl-name="inlines:orz">
     <tr tpl-node="prop:codes"></tr>
 </table>
 
-<table tpl-name="inputs:dfn">
+<table tpl-name="inlines:dfn">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:samp">
+<table tpl-name="inlines:samp">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:kbd">
+<table tpl-name="inlines:kbd">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:meter">
+<table tpl-name="inlines:meter">
     <tr tpl-node="prop:max, prop:min"></tr>
     <tr tpl-node="prop:high, prop:low"></tr>
     <tr tpl-node="prop:optimum"></tr>
 </table>
 
-<table tpl-name="inputs:s">
+<table tpl-name="inlines:s">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:u">
+<table tpl-name="inlines:u">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:var">
+<table tpl-name="inlines:var">
     <tr tpl-node="prop:textrow"></tr>
 </table>
 
-<table tpl-name="inputs:bdo">
+<table tpl-name="inlines:bdo">
     <tr tpl-node="prop:textrow"></tr>
     <tr tpl-node="prop:dir"></tr>
 </table>

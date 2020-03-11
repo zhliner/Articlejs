@@ -652,6 +652,9 @@ const _BaseOn = {
      * 关联数据存储/取出。
      * 目标：当前条目，可选。
      * 存储集对应到委托元素（evo.delegate），其它说明参考evn。
+     * - 目标无值为取值，目标有值为存储。
+     * - 目标有值且实参为空，则为取值，目标为名称。
+     * - 目标有值且实参为null，则为设置，从目标[1]取名称。
      * @param  {String} name 键名/序列
      * @param  {Value|String} its 存储值或成员名/序列，可选
      * @return {Value|[Value]|void}
@@ -666,6 +669,13 @@ const _BaseOn = {
     },
 
     __data: 0,
+
+
+    $data( evo, name ) {
+        //
+    },
+
+    __$data: 0,
 
 
     /**
@@ -895,6 +905,18 @@ const _BaseOn = {
     },
 
     __concat_x: true,
+
+
+    /**
+     * 切分字符串为数组。
+     * @param  {String} sep 分隔符
+     * @return {[String]}
+     */
+    split( evo, sep ) {
+        return evo.data.split( sep );
+    },
+
+    __split: 1,
 
 
 

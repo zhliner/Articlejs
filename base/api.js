@@ -147,4 +147,4 @@ const Api = {
 // expose
 /////////////////////////////////////////////////
 
-export default { Api };
+export default Api;

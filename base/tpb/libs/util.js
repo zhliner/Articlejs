@@ -114,7 +114,7 @@ const Util = {
      * /p?xyz >b    起点元素内相对ID为 xyz 的<p>元素的<b>子元素。p[data-id='xyz']>b
      * /p >b        起点元素内匹配 p>b 选择器的元素。
      * /.name       起点元素内普通类名检索。
-     * .name        全局（document)类名检索，忽略起点元素。
+     * .name        全局（document)类名检索，无起点元素。
      * #some        全局ID检索，同上与起点元素无关。
      * /#some       在起点元素内检索目标ID元素，受起点元素约束。
      * /#ab li      复合ID选择器，同上，在起点元素内检索（常用）。

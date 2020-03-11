@@ -112,9 +112,9 @@ const __Tpl = InitTpl( new Templater(obtBuild, TLoader.load.bind(TLoader)) );
  */
 function obtAttr( el, clear ) {
     let _obj = {
-        on: el.getAttribute( OBTA.on ),
-        by: el.getAttribute( OBTA.by ),
-        to: el.getAttribute( OBTA.to ),
+        on: el.getAttribute( OBTA.on ) || '',
+        by: el.getAttribute( OBTA.by ) || '',
+        to: el.getAttribute( OBTA.to ) || '',
     };
     if ( clear ) {
         $.removeAttr(el, __obts);
@@ -133,7 +133,7 @@ if (DEBUG) {
         Update: To.Update,
         Stage:  To.Stage,
         Tpl:    __Tpl,
-
+        Lib,
         /**
          * 输出模板节点定义:
          * 提取模板文件中定义的模板节点配置。

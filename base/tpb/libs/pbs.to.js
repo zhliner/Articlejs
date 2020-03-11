@@ -310,7 +310,7 @@ const _Update = {
 
 //
 // 事件绑定。
-// 内容：{EventListener|Function|false|null}。
+// 内容：{EventListener|Function|false|null|undefined}。
 // 附加：[evn:String|Object, slr:String]
 // 注：如果内容包含附加实参，会追加到模板实参之后。
 //===============================================
