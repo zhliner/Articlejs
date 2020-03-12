@@ -130,9 +130,9 @@ const Parser = {
 
         for (const on of __dlmtSplit.split(conf.on)) {
             yield {
-                on: zeroPass(on),
-                by: zeroPass(bys[i]),
-                to: zeroPass(tos[i]),
+                on: zeroPass( on ),
+                by: zeroPass( bys[i] ),
+                to: zeroPass( tos[i] ),
             };
             i++;
         }
@@ -154,7 +154,7 @@ const Parser = {
 
         return [
             this._evns( _ev.trim() ),
-            this._calls( _ca.trim() )
+            this._calls( zeroPass(_ca) )
         ];
     },
 

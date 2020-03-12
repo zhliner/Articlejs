@@ -56,24 +56,22 @@ const _Base = {
 
     /**
      * 单元素检索入栈。
-     * 目标：当前条目可选。
-     * 特权：是，灵活取栈。
-     * 如果实参为空，会自动取栈（无需前阶pop）。
+     * 目标：当前条目，可选。
+     * 如果实参为空，取目标为rid。
      * 如果实参非空，前阶pop可定义检索起点元素。
      * rid: {
-     *      undefined  以当前条目为rid，事件当前元素为起点。
+     *      undefined  以目标为rid，事件当前元素为起点。
      *      String  以目标（如果有）或事件当前元素（ev.current）为起点。
      * }
      * @param  {Object} evo 事件关联对象
-     * @param  {Stack} stack 数据栈
      * @param  {String} rid 相对ID，可选
      * @return {Element}
      */
-    $( evo, stack, rid ) {
+    $( evo, rid ) {
         let _beg = evo.current;
 
         if ( rid == null ) {
-            rid = stack.data(1);
+            rid = evo.data;
         } else {
             _beg = evo.data || _beg;
         }
@@ -81,13 +79,11 @@ const _Base = {
     },
 
     __$: 0,
-    __$_x: true,
 
 
     /**
      * 多元素检索入栈。
-     * 目标：当前条目可选。
-     * 特权：是，灵活取栈。
+     * 目标：当前条目，可选。
      * rid: {
      *      undefined  同上，但如果目标非字符串则为Collector封装。
      *      String     同上。
@@ -95,15 +91,14 @@ const _Base = {
      * }
      * 注：如果实参传递非字符串，前阶pop的值会被丢弃。
      * @param  {Object} evo 事件关联对象
-     * @param  {Stack} stack 数据栈
      * @param  {String|Value} rid 相对ID或待封装值
      * @return {Collector}
      */
-    $$( evo, stack, rid ) {
+    $$( evo, rid ) {
         let _beg = evo.current;
 
         if ( rid == null ) {
-            rid = stack.data(1);
+            rid = evo.data;
         } else {
             _beg = evo.data || _beg;
         }
@@ -111,7 +106,6 @@ const _Base = {
     },
 
     __$$: 0,
-    __$$_x: true,
 
 
     /**
