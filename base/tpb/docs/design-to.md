@@ -172,9 +172,9 @@ once( evnid:String, slr?:String )
 // 绑定事件的单次处理。
 // 内容/说明同上。
 
-on( evn?:String, slr?:String ): void
-one( evn?:String, slr?:String ): void
-off( evn?:String, slr?:String ): void
+on( evn?:String, slr?:String )
+one( evn?:String, slr?:String )
+off( evn?:String, slr?:String )
 // 事件绑定/解绑。
 // 内容：{EventListener|Function|false|null} 事件处理器。
 // 附加：[evn:String|Object, slr:String]
@@ -203,6 +203,9 @@ fillWith( clone, event, eventdeep:Boolean )
 // 附加：[clone, event, eventdeep:Boolean]
 
 
+//
+// 其它赋值。
+/////////////////////////////////////////////////
 pba()
 // PB参数设置。
 // 内容：{[String]}
@@ -222,6 +225,17 @@ render()
 // 内容：{Object|Array|Value}
 // 注：
 // 目标元素可以是模板根，也可以是局部（与渲染语法相关）。
+
+data( name?:String )
+// 存储关联数据（单名称）。
+// 如果未传递name实参，则从内容数据中取值（[1]）。
+// 如果目标是一个集合则值应当是一个数组，一一对应存储。
+
+xdata( names?:String )
+// 多名称关联数据存储。
+// 如果未传递name实参，则从内容数据中取值（[1]）。
+// 关联数据应当是一个数组，与名称一一对应存储。
+// 如果目标是一个集合，相同的键/值存储到多个目标元素。
 
 
 //

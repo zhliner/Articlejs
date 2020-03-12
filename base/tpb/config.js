@@ -12,56 +12,46 @@
 
 
 const
-    // 测试模式
     DEBUG = true,
 
-    // 根目录配置
-    Dir = {
-        // 安装根路径。
-        // 注：子路径应有末尾/（http://abc.com/news/）
-        setup: 'http://localhost:8080',
-
-        // 模板根目录
-        // 相对于安装根路径。
-        template: 'templates',
-
-        // x.pull根目录
-        // 相对于安装根路径。
-        pull: '_data',
+    Web = {
+        base:   'http://localhost:8080/',   // 请求根URL
+        tpls:   'templates',                // 模板根目录（相对于setup）
+        pull:   'xdata',                    // x.pull根目录（相对于setup）
     },
 
-    // 模板根路径。
-    tplRoot = new URL(Dir.template, Dir.setup),
-
-    // 模板映射。
-    // { 文件名：[模板名] }
-    // 注：用于从模板名查询所属文件。
-    tplsMap = `${tplRoot}/maps.json`,
-
-    // X.pull 根路径。
-    pullRoot = new URL(Dir.pull, Dir.setup);
-
-
-
-//
-// 下面的定义请勿轻易修改。
-///////////////////////////////////////////////////////////////////////////////
-
-
-const
-    $ = window.$,
+    // OBT属性名定义
+    OBTA = {
+        on:     'on',
+        by:     'by',
+        to:     'to',
+    },
 
     // 渲染标识属性。
     // 用于高效检索渲染元素（如配置克隆）。
     // 注：这一属性名会保留在DOM元素上。
     hasRender   = '_',
 
-    // OBT属性名定义
-    OBTA = {
-        on:     'on',   // On-Attr
-        by:     'by',   // By-Attr
-        to:     'to',   // To-Attr
-    },
+    // 模板根路径（计算）。
+    tplRoot = new URL(Web.tpls, Web.base),
+
+    // 模板映射。
+    // { 文件名：[模板名] }
+    // 注：用于从模板名查询所属文件。
+    tplsMap = `${tplRoot}/maps.json`,
+
+    // X.pull 根路径（计算）。
+    pullRoot = new URL(Web.pull, Web.base);
+
+
+
+//
+// 下面定义请勿修改。
+//////////////////////////////////////////////////////////////////////////////
+
+
+const
+    $ = window.$,
 
     // 指令属性：自动取栈计数
     EXTENT = Symbol('stack-amount'),
@@ -71,7 +61,20 @@ const
 
     // PBS方法获取接口键。
     // 使用Symbol避免名称冲突。
-    method = Symbol('api-method');
+    method = Symbol('api-method'),
+
+    // 全局变量空间。
+    Globals = new Map(),
+
+    // 关联数据空间。
+    // Element: Map{ String: Value }
+    DataStore = new WeakMap(),
+
+    // 预定义调用链存储。
+    // 与元素关联，便于分组管理，同时支持空事件名通配。
+    // { Element: Map{evn:String: Chain} }
+    ChainStore = new WeakMap();
+
 
 
 //
@@ -127,8 +130,27 @@ function funcSets( f, n, ix ) {
 
 
 /**
+ * 存储调用链。
+ * 如果存在相同事件名，后者会覆盖前者。
+ * 只有chain非假时才会存储，但空操作可以创建存储集。
+ * @param  {Element} el 存储元素（定义所在）
+ * @param  {String} evnid 事件名标识
+ * @param  {EventListener} chain 调用链
+ * @return {Map|Boolean} 存储集
+ */
+ function storeChain( el, evnid, chain ) {
+    let _map = ChainStore.get(el);
+
+    if ( !_map ) {
+        _map = new Map();
+        ChainStore.set( el, _map );
+    }
+    return chain && _map.set( evnid, chain );
+}
+
+
+/**
  * 设置模板管理器（全局可用）。
- * 注：仅在 Support.template 为真时才会被调用。
  * @param  {Templater} tplr 模板管理器
  * @return {Templater} tplr
 */
@@ -141,8 +163,8 @@ const InitTpl = tplr => Templater = tplr;
 ///////////////////////////////////////////////////////////////////////////////
 
 export {
-    Dir,
     DEBUG,
+    Web,
     hasRender,
     OBTA,
     EXTENT,
@@ -153,6 +175,10 @@ export {
     tplRoot,
     tplsMap,
     pullRoot,
-    InitTpl,
+    Globals,
+    DataStore,
+    ChainStore,
+    storeChain,
     Templater,
+    InitTpl,
 };

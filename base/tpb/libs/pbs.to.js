@@ -16,7 +16,8 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, method } from "../config.js";
+import { bindMethod, method, DataStore, ChainStore, storeChain } from "../config.js";
+
 
 // 可选。
 // 若无需支持可简单移除。
@@ -35,12 +36,7 @@ const
     __reSpace = /\s+/,
 
     // 消息定时器存储键。
-    __TIMER = Symbol('tips-timer'),
-
-    // 预定义调用链存储。
-    // 与元素关联，便于分组管理，同时支持空事件名通配。
-    // { Element: Map{evn:String: Chain} }
-    __ChainStore = new WeakMap();
+    __TIMER = Symbol('tips-timer');
 
 
 
@@ -139,6 +135,62 @@ const _Update = {
      */
     wrapAll( tos, box, ...args ) {
         $(tos).wrapAll( ...dataArgs(box, args) );
+    },
+
+
+    /**
+     * 存储关联数据。
+     * 如果未传递name实参，则从内容数据中取值（[1]）。
+     * 如果目标是一个集合则值应当是一个数组，一一对应存储。
+     * @param {Element|Collector} to 存储元素（集）
+     * @param {Value|[Value]} data 内容数据（集）
+     * @param {String} name 存储键（单个）
+     */
+    data( to, data, name ) {
+        [data, name] = dataArg2(data, name);
+
+        if ( $.isArray(to) ) {
+            return dataStores( to, name, data );
+        }
+        getMap(DataStore, to).set(name, data);
+    },
+
+
+    /**
+     * 多名称关联数据存储。
+     * 如果未传递name实参，则从内容数据中取值（[1]）。
+     * 关联数据应当是一个数组，与名称一一对应存储。
+     * 如果目标是一个集合，相同的键/值存储到多个目标元素。
+     * @param {Element|Collector} to 存储元素（集）
+     * @param {[Value]} data 内容数据集
+     * @param {String} names 名称序列
+     */
+    xdata( to, data, names ) {
+        [data, names] = dataArg2(data, names);
+
+        $(to).forEach(
+            el => setVals( getMap(DataStore, el), names, data )
+        );
+    },
+
+
+    /**
+     * 调用链存储。
+     * 通常为从预存储中获取的调用链。
+     * 如果目标是一个集合且调用链是一个数组，会一一对应存储。
+     * 如果调用链是一个集合，会展开存储。
+     * @param {Element|Collector} to 绑定目标
+     * @param {Cell} cell 链头部指令
+     * @param {String|null} evnid 事件名标识
+     */
+    chain( to, cell, evnid ) {
+        if ( !$.isArray(to) ) {
+            return storeCells( to, evnid, cell );
+        }
+        if ( $.isArray(cell) ) {
+            return to.forEach( (el, i) => storeChain(el, cell[i]) );
+        }
+        to.forEach( el => storeChain(el, cell) );
     },
 
 };
@@ -524,21 +576,49 @@ const _Stage = {
 
 
 /**
- * 存储调用链。
- * 如果存在相同事件名，后者会覆盖前者。
- * @param  {Element} el 存储元素（定义所在）
- * @param  {String} name 存储键/事件名
- * @param  {EventListener} chain 调用链
- * @return {void}
+ * 获取存储集。
+ * 如果存储池中不存在目标键的存储集，会自动新建。
+ * @param  {Map|WeakMap} pool 存储池
+ * @param  {Object} key 存储键
+ * @return {Map}
  */
-function chainStore( el, name, chain ) {
-    let _map = __ChainStore.get(el);
+ function getMap( pool, key ) {
+    let _map = pool.get(key);
 
     if ( !_map ) {
-        _map = new Map();
-        __ChainStore.set( el, _map );
+        pool.set( key, _map = new Map() );
     }
-    _map.set( name, chain );
+    return _map;
+}
+
+
+/**
+ * 多目标存储关联数据项集。
+ * 各个目标对应相同下标的数据集成员。
+ * 注：如果相应数据集成员未定义，则不会存储。
+ * @param  {[Element]} els 关联元素集
+ * @param  {String} name 存储键
+ * @param  {[Value]} vals 存储值集
+ */
+function dataStores( els, name, vals ) {
+    els
+    .forEach( (el, i) =>
+        vals[i] !== undefined && getMap(DataStore, el).set(name, vals[i])
+    );
+}
+
+
+/**
+ * 多名称键值存储。
+ * 数据值应当是一个数组，与名称一一对应存储。
+ * @param {Map} map 存储集
+ * @param {String} names 名称序列
+ * @param {[Value]} vals 数据值集
+ */
+function setVals( map, names, vals ) {
+    names.trim()
+    .split(__reSpace)
+    .forEach( (n, i) => map.set(n, vals[i]) );
 }
 
 
@@ -581,7 +661,7 @@ function bindEvns( el, map, evns, slr, init, type ) {
  * @return {void}
  */
 function bindChain( type, el, init, evnid, slr ) {
-    let _map = __ChainStore.get(el);
+    let _map = ChainStore.get(el);
 
     if ( !_map ) {
         window.console.warn(`no storage on Element.`);
@@ -605,6 +685,20 @@ function bindsChain( type, els, ...args ) {
         return els.forEach( el => bindChain(type, el, ...args) );
     }
     bindChain( type, els, ...args );
+}
+
+
+/**
+ * 存储指令（调用链头）集。
+ * 注：如果调用链是一个数组，需展开存储。
+ * @param {Element} el 存储目标
+ * @param {Cell|[Cell]} cells 指令单元集
+ */
+function storeCells( el, cells ) {
+    if ( $.isArray(cells) ) {
+        return cells.forEach( cell => storeChain(el, cell) );
+    }
+    storeChain( el, cells );
 }
 
 
@@ -652,7 +746,7 @@ function selectChanged( sel ) {
 
 
 /**
- * 数据实参序列化。
+ * 数据&实参序列灵活取值。
  * 如果data是数组，则首个成员之后的为附加实参。
  * 附加实参会追加到模板实参args之后。
  * @param  {Value[, ...args]} data 可能附加实参的数据
@@ -664,6 +758,19 @@ function dataArgs( data, args ) {
         return [data, ...args];
     }
     return [ data.shift(), ...args.concat(data) ];
+}
+
+
+/**
+ * 数据&实参灵活取值。
+ * 如果实参未定义则从内容数据取值（[1]）。
+ * 注：从内容取实参值时，内容必须为数组。
+ * @param {Value|[data, arg]} data 内容数据
+ * @param {Value}} arg 模板实参
+ */
+function dataArg2( data, arg ) {
+    return arg === undefined ?
+        [data[0], data[1]] : [data, arg]
 }
 
 
@@ -707,4 +814,4 @@ To.Stage[method] = name => To.Stage[name];
 
 
 
-export { To, chainStore };
+export { To };

@@ -22,12 +22,12 @@
 import { Base, BaseOn } from "./libs/pbs.base.js";
 import { On } from "./libs/pbs.on.js";
 import { By } from "./libs/pbs.by.js";
-import { To, chainStore } from "./libs/pbs.to.js";
+import { To } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
 import { TLoader } from "./libs/tloader.js";
 import { X } from "./libs/lib.x.js";
-import { OBTA, tplsMap, DEBUG, InitTpl } from "./config.js";
+import { OBTA, tplsMap, DEBUG, InitTpl, storeChain } from "./config.js";
 
 // 无需模板支持。
 // import { Templater } from "./libs/templater.x.js";
@@ -67,7 +67,7 @@ const _obter = new Builder( {
         update: To.Update,
         stage:  To.Stage,
     },
-    chainStore
+    storeChain
 );
 
 
@@ -79,18 +79,18 @@ const _obter = new Builder( {
  *
  * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
  * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
- * @return {void}
+ * @return {Element...} root
  */
 function obtBuild( root, obts = true ) {
     // 单目标
     if ( typeof obts != 'boolean' ) {
-        _obter.build( root, obts );
-        return;
+        return _obter.build( root, obts );
     }
-    // 节点树
-    for ( const el of $.find(__onSlr, root, true) ) {
-        _obter.build( el, obtAttr(el, obts) );
-    }
+    $.find( __onSlr, root, true )
+    .forEach(
+        el => _obter.build( el, obtAttr(el, obts) )
+    );
+    return root;
 }
 
 

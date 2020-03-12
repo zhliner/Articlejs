@@ -430,25 +430,15 @@ push( ...val: Value|[Value] ): void
 // 多个实参会自动展开入栈，数组实参视为单个值。
 // 如果实参和目标都有值，则目标作为单一值附加在实参序列之后。
 
-env( names: String, its?: Value|String ): void|Value|[Value]
-// 全局环境设置或取值。
+env( names: String, its?: Value|String ): void|Value
+// 全局环境设置/取值。
 // 目标：当前条目，可选。
-// 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
-// names和its都支持空格分隔的名称序列。
+// 目标非空或its有值时为设置，否则为取值入栈。
 // 设置时：
 // - 目标为空：取its本身为值（必然存在）。
 // - 目标非空：取目标的its属性值或目标本身（its未定义时）。
 // 注：
-// its也支持空格分隔多个键名，对应到目标各成员。
-// 如果names为名称序列，则最终的目标需要是一个数组。
-
-data( names: String, its?: Value|String ): void|Value|[Value]
-// 关联数据存储/取出。
-// 目标：当前条目，可选。
-// 存储元素（evo.delegate）关联的数据项或取出数据项入栈。
-// 指令说明参考evn。
-// - 数据项键：names。
-// - 数据项值：its|目标|目标的[its]值或值集。
+// its支持空格分隔多个名称指定目标属性。
 
 sess( name: String|null, its?: Value|String|null): void|Value
 // 设置/取值浏览器会话数据（sessionStorage）。

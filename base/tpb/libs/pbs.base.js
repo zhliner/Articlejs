@@ -21,7 +21,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, EXTENT, ACCESS, Templater } from "../config.js";
+import { bindMethod, EXTENT, ACCESS, Templater, Globals } from "../config.js";
 
 
 const
@@ -42,16 +42,6 @@ const
 
     // 空白分隔符。
     __reSpace = /\s+/;
-
-
-
-const
-    // 全局变量空间。
-    Globals     = new Map(),
-
-    // 关联数据空间。
-    // Element: Map{ String: Value }
-    DataStore   = new WeakMap();
 
 
 
@@ -486,7 +476,7 @@ const _Base = {
         if ( !$.isArray(val) ) {
             val = new Array(_ns.length).fill(val);
         }
-        return namesObj( _ns, val, evo.data );
+        return kvsObj( _ns, val, evo.data );
     },
 
     __set: 1,
@@ -626,56 +616,25 @@ const _BaseOn = {
     /**
      * 设置/获取全局变量。
      * 目标：当前条目，可选。
-     * 目标非空或its有值时为设置，目标为空且its未定义时为取值入栈。
+     * 目标非空或its有值时为设置，否则为取值入栈。
      * 设置时：
      * - 目标为空：取its本身为值（必然存在）。
      * - 目标非空：取目标的its属性值或目标本身（its未定义时）。
-     * its也支持空格分隔多个键名，对应到目标各成员。
-     * 如果name是多个名称序列，最后的取值目标应当是一个数组。
-     * @param  {String} name 键名/序列
-     * @param  {Value|String} its 存储值或成员名/序列，可选
-     * @return {Value|[Value]|void}
+     * its支持空格分隔多个名称指定目标属性。
+     * @param  {String} name 键名
+     * @param  {Value|String} its 存储值或成员名，可选
+     * @return {Value|void}
      */
     env( evo, name, its ) {
         let _o = evo.data;
 
         if ( _o === undefined && its === undefined ) {
-            return getItem( Globals, name );
+            return Globals.get(name);
         }
-        setItem( Globals, name, objectItem(_o, its) );
+        Globals.set( name, objectItem(_o, its) );
     },
 
     __env: 0,
-
-
-    /**
-     * 关联数据存储/取出。
-     * 目标：当前条目，可选。
-     * 存储集对应到委托元素（evo.delegate），其它说明参考evn。
-     * - 目标无值为取值，目标有值为存储。
-     * - 目标有值且实参为空，则为取值，目标为名称。
-     * - 目标有值且实参为null，则为设置，从目标[1]取名称。
-     * @param  {String} name 键名/序列
-     * @param  {Value|String} its 存储值或成员名/序列，可选
-     * @return {Value|[Value]|void}
-     */
-    data( evo, name, its ) {
-        let _m = getMap(DataStore, evo.delegate);
-
-        if ( evo.data === undefined && its === undefined ) {
-            return getItem( _m, name );
-        }
-        setItem( _m, name, objectItem(evo.data, its) );
-    },
-
-    __data: 0,
-
-
-    $data( evo, name ) {
-        //
-    },
-
-    __$data: 0,
 
 
     /**
@@ -935,7 +894,7 @@ const _BaseOn = {
      * @return {Number|String|[Number|String]}
      */
     add( evo, stack, val ) {
-        let [x, y] = stackArgs(stack, val);
+        let [x, y] = stackArg2(stack, val);
         return $.isArray(x) ? x.map( v => v+y ) : x+y;
     },
 
@@ -951,7 +910,7 @@ const _BaseOn = {
      * @return {Number|[Number]}
      */
     sub( evo, stack, val ) {
-        let [x, y] = stackArgs(stack, val);
+        let [x, y] = stackArg2(stack, val);
         return $.isArray(x) ? x.map( v => v-y ) : x-y;
     },
 
@@ -967,7 +926,7 @@ const _BaseOn = {
      * @return {Number|[Number]}
      */
     mul( evo, stack, val ) {
-        let [x, y] = stackArgs(stack, val);
+        let [x, y] = stackArg2(stack, val);
         return $.isArray(x) ? x.map( v => v*y ) : x*y;
     },
 
@@ -983,7 +942,7 @@ const _BaseOn = {
      * @return {Number|[Number]}
      */
     div( evo, stack, val ) {
-        let [x, y] = stackArgs(stack, val);
+        let [x, y] = stackArg2(stack, val);
         return $.isArray(x) ? x.map( v => v/y ) : x/y;
     },
 
@@ -999,7 +958,7 @@ const _BaseOn = {
      * @return {Number|[Number]}
      */
     mod( evo, stack, val ) {
-        let [x, y] = stackArgs(stack, val);
+        let [x, y] = stackArg2(stack, val);
         return $.isArray(x) ? x.map( v => v%y ) : x%y;
     },
 
@@ -1015,7 +974,7 @@ const _BaseOn = {
      * @return {Number|[Number]}
      */
     pow( evo, stack, val ) {
-        let [x, y] = stackArgs(stack, val);
+        let [x, y] = stackArg2(stack, val);
         return $.isArray(x) ? x.map( v => v**y ) : x**y;
     },
 
@@ -1058,7 +1017,7 @@ const _BaseOn = {
      * @return {[Number, Number]} [商数, 余数]
      */
     divmod( evo, stack, val ) {
-        let [x, y] = stackArgs(stack, val);
+        let [x, y] = stackArg2(stack, val);
         return [ Math.floor(x/y), x%y ];
     },
 
@@ -1143,7 +1102,7 @@ const _BaseOn = {
      * @return {Object}
      */
     gather( evo, names ) {
-        return namesObj( names.split(__reSpace), evo.data );
+        return kvsObj( names.split(__reSpace), evo.data );
     },
 
     __merge: 1,
@@ -1161,7 +1120,7 @@ const _BaseOn = {
      * 相等比较（===）。
      */
     equal( evo, stack, val ) {
-        let [v1, v2] = stackArgs(stack, val);
+        let [v1, v2] = stackArg2(stack, val);
         return v1 === v2;
     },
 
@@ -1172,7 +1131,7 @@ const _BaseOn = {
      * 不相等比较（!==）。
      */
     nequal( evo, stack, val ) {
-        let [v1, v2] = stackArgs(stack, val);
+        let [v1, v2] = stackArg2(stack, val);
         return v1 !== v2;
     },
 
@@ -1183,7 +1142,7 @@ const _BaseOn = {
      * 小于比较。
      */
     lt( evo, stack, val ) {
-        let [v1, v2] = stackArgs(stack, val);
+        let [v1, v2] = stackArg2(stack, val);
         return v1 < v2;
     },
 
@@ -1194,7 +1153,7 @@ const _BaseOn = {
      * 小于等于比较。
      */
     lte( evo, stack, val ) {
-        let [v1, v2] = stackArgs(stack, val);
+        let [v1, v2] = stackArg2(stack, val);
         return v1 <= v2;
     },
 
@@ -1205,7 +1164,7 @@ const _BaseOn = {
      * 大于比较。
      */
     gt( evo, stack, val ) {
-        let [v1, v2] = stackArgs(stack, val);
+        let [v1, v2] = stackArg2(stack, val);
         return v1 > v2;
     },
 
@@ -1216,7 +1175,7 @@ const _BaseOn = {
      * 大于等于比较。
      */
     gte( evo, stack, val ) {
-        let [v1, v2] = stackArgs(stack, val);
+        let [v1, v2] = stackArg2(stack, val);
         return v1 >= v2;
     },
 
@@ -1232,7 +1191,7 @@ const _BaseOn = {
      * @param {[Value]} arr 对比数组
      */
     arrayEqual( evo, stack, arr ) {
-        let [a1, a2] = stackArgs(stack, arr);
+        let [a1, a2] = stackArg2(stack, arr);
         return arrayEqual( a1, a2 );
     },
 
@@ -1440,10 +1399,10 @@ const _BaseOn = {
 
 
 /**
- * 属性取值。
+ * 对象成员取值。
  * name可能由空格分隔为多个名称。
  * 单名称时返回值，多个名称时返回值集。
- * @param  {String} name 名称（序列）
+ * @param  {String} name 名称/序列
  * @param  {Object} obj 取值对象
  * @return {Value|[Value]} 值（集）
  */
@@ -1459,25 +1418,8 @@ function namesValue( name, obj ) {
  * @param  {[Value]} val 值集
  * @return {Object}
  */
-function namesObj( names, val, obj = {} ) {
+function kvsObj( names, val, obj = {} ) {
     return names.reduce( (o, k, i) => (o[k] = val[i], o), obj );
-}
-
-
-/**
- * 获取存储集。
- * 如果存储池中不存在目标键的存储集，会自动新建。
- * @param  {Map|WeakMap} pool 存储池
- * @param  {Object} key 存储键
- * @return {Map}
- */
-function getMap( pool, key ) {
-    let _map = pool.get(key);
-
-    if ( !_map ) {
-        pool.set( key, _map = new Map() );
-    }
-    return _map;
 }
 
 
@@ -1491,47 +1433,13 @@ function getMap( pool, key ) {
  * @return {Value|[Value]}
  */
 function objectItem( obj, its ) {
-    if ( its === undefined ) {
-        return obj;
-    }
     if ( obj === undefined ) {
         return its;
     }
+    if ( its === undefined ) {
+        return obj;
+    }
     return namesValue( its, obj );
-}
-
-
-/**
- * 获取关联数据条目。
- * 如果不存在关联条目，会返回undefined。
- * 单个名称时返回单条数据项，多个名称时返回一个数据项数组。
- * @param  {Map} map 存储容器
- * @param  {String} name 取值名称/序列
- * @return {Value|[Value]}
- */
-function getItem( map, name ) {
-    if ( !__reSpace.test(name) ) {
-        return map.get(name);
-    }
-    return name.split(__reSpace).map( n => map.get(n) );
-}
-
-
-/**
- * 存储关联数据项。
- * 如果不存在元素的关联集合，会自动创建。
- * 如果为多个名称，存储值应当是一个集合/数组。
- * @param  {Map} map 存储容器
- * @param  {String} name 存储名/序列
- * @param  {Value|[Value]} val 存储值/集
- * @return {void}
- */
-function setItem( map, name, val ) {
-    if ( !__reSpace.test(name) ) {
-        return map.set( name, val );
-    }
-    name.split(__reSpace)
-    .forEach( (n, i) => map.set(n, val[i]) );
 }
 
 
@@ -1572,7 +1480,7 @@ function isEmpty( obj ) {
  * @param  {Value} val 模板参数，可选
  * @return {Array2} 实参值对
  */
-function stackArgs( stack, val ) {
+function stackArg2( stack, val ) {
     return val === undefined ?
         stack.data(2) : [ stack.data(1), val ];
 }

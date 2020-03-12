@@ -13,7 +13,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, method } from "../config.js";
+import { bindMethod, method, DataStore, ChainStore } from "../config.js";
 
 
 const
@@ -56,6 +56,48 @@ const _On = {
 
 
     /**
+     * 关联数据获取。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 从流程元素关联的存储区取值。
+     * 当name实参为空时，取栈顶2项：[Element, name]。
+     * @param {Stack} stack 数据栈
+     * @param  {String} name 键名/序列
+     * @param  {Value|[Value]} val 存储值，可选
+     * @return {Value|void}
+     */
+    data( evo, stack, name ) {
+        let [el, k] = stackArg2(stack, name),
+            _m = DataStore.get(el);
+
+        if ( _m ) return _m.get( k );
+    },
+
+    __data_x: true,
+
+
+    /**
+     * 关联数据多名称取值。
+     * 目标：当前条目/栈顶1-2项。
+     * 特权：是，灵活取栈。
+     * 从流程元素关联的存储区同时取多个值。
+     * 无关联存储时无返回值，否则始终返回一个数组（大小相同）。
+     * 当names实参为空时，取栈顶2项：[Element, names]。
+     * @param  {Stack} stack 数据栈
+     * @param  {String} names 名称序列（空格分隔）
+     * @return {[Value]|void}
+     */
+    xdata( evo, stack, names ) {
+        let [el, ns] = stackArg2(stack, names),
+            _m = DataStore.get(el)
+
+        if ( _m ) return ns.split(__reSpace).map( n => _m.get(n) );
+    },
+
+    __xdata_x: true,
+
+
+    /**
      * 修饰键状态检查|封装。
      * 即 shift/ctrl/alt/meta 键是否按下。
      * 目标：当前条目，可选。
@@ -81,6 +123,30 @@ const _On = {
     },
 
     __scam: 0,
+
+
+    /**
+     * 预绑定调用链提取。
+     * 目标：当前条目/栈顶1项。
+     * 提取目标元素上预绑定的调用链。
+     * 用途：
+     * - 实时的事件绑定/解绑（on|off|one）。
+     * - 预绑定的调用链克隆到新的目标（To）。
+     * 注：
+     * 克隆参数可用于新链头接收不同的初始值。
+     *
+     * @param  {String} evnid 事件名标识
+     * @param  {Boolean} clone 是否克隆（仅头部指令单元）
+     * @return {Cell}
+     */
+    chain( evo, evnid, clone ) {
+        let _map = ChainStore.get(evo.data),
+            _cel = _map && _map.get(evnid) || undefined;
+
+        return _cel && (clone ? _cel.clone() : _cel );
+    },
+
+    __chain: 1,
 
 
 
@@ -151,7 +217,7 @@ const _On = {
      * @return {[Value]|Collector}
      */
     flat( evo, stack, deep ) {
-        let [els, d] = stackArgs(stack, deep);
+        let [els, d] = stackArg2(stack, deep);
         return els.flat( d );
     },
 
@@ -179,6 +245,8 @@ const _On = {
         delete evo.current[__movementX];
     },
 
+    __movementX: null,
+
 
     /**
      * 鼠标垂直移动量。
@@ -193,6 +261,8 @@ const _On = {
         }
         delete evo.current[__movementY];
     },
+
+    __movementY: null,
 
 
     /**
@@ -483,7 +553,7 @@ const _On = {
      * @return {[Value]|Collector}
      */
     _On[meth] = function( evo, stack, arg ) {
-        let [o, v] = stackArgs(stack, arg);
+        let [o, v] = stackArg2(stack, arg);
         return $.isCollector(o) ? o[meth]( v ) : $[meth]( o, v );
     };
 
@@ -497,6 +567,7 @@ const _On = {
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
 
+
 /**
  * 数据栈实参取值。
  * 如果实参未传递，则取数据栈2项，否则取1项。
@@ -504,7 +575,7 @@ const _On = {
  * @param  {Value} val 模板参数，可选
  * @return {Array2} 实参值对
  */
-function stackArgs( stack, val ) {
+function stackArg2( stack, val ) {
     return val === undefined ?
         stack.data(2) : [ stack.data(1), val ];
 }

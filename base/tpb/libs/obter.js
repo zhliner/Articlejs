@@ -243,7 +243,7 @@ class Builder {
      *      stage:  Object,
      * }
      * @param {Object} pbs OBT指令集
-     * @param {Function} store 调用链存储回调（chainStore）
+     * @param {Function} store 调用链存储回调（storeChain）
      */
     constructor( pbs, store ) {
         this._pbson = pbs.on;
@@ -659,6 +659,15 @@ class Cell {
             this._extra = val;
         }
         return this;
+    }
+
+
+    /**
+     * 克隆当前指令实例。
+     * @return {Cell}
+     */
+    clone() {
+        return Object.assign( new Cell(), this );
     }
 
 
