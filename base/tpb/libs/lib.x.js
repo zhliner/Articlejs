@@ -6,7 +6,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//	By:X 扩展库设计。
+//	By:X 扩展库。
 //
 //  静态扩展：
 //      import { X } from 'libs/lib.x.js'
@@ -39,14 +39,11 @@ const $ = window.$;
 
 // X扩展存储区。
 // 预置部分功能子域（名称空间）。
-// 注：
-// 全小写名称保留给系统扩展使用，用户应当使用自己的名称空间。
 const _X = {
     Ease: {},   // 缓动计算区（.Linear...）
     Eff:  {},   // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
     Math: {},   // 数学算法区
     Fun:  {},   // 功能函数区（用户使用）
-    Node: {},   // 节点操作（自身）
 };
 
 
@@ -136,7 +133,7 @@ function subObj( names, obj ) {
  * 可无exts实参调用返回子域本身。
  *
  * @param  {String} name 扩展域
- * @param  {Object} exts 扩展集
+ * @param  {Object} exts 扩展集，可选
  * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
  * @return {Object} 目标子域
  */
@@ -150,7 +147,21 @@ function extend( name, exts, nobind ) {
 
 
 //
-// 用原型空间存储。
+// 导出X扩展接口。
+// 注：用原型空间存储。
 //
 export const X = $.proto( { extend }, _X );
 
+
+
+//
+// 通用域扩展。
+// 导出供 By.extend 专用。
+//
+export function extend__( name, exts, nobind, host ) {
+    let _f = nobind ?
+        setMethod :
+        bindMethod;
+
+    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
+}

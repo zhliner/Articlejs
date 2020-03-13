@@ -128,25 +128,51 @@ const _On = {
     /**
      * 预绑定调用链提取。
      * 目标：当前条目/栈顶1项。
-     * 提取目标元素上预绑定的调用链。
-     * 用途：
-     * - 实时的事件绑定/解绑（on|off|one）。
-     * - 预绑定的调用链克隆到新的目标（To）。
+     * 提取目标元素上预绑定的调用链（链头指令实例）。
+     *
+     * 提取的是单个调用链，可直接用于实时的事件绑定/解绑（on|off|one）。
+     * 也可以转存到新的元素（可用不同的事件名标识）便于绑定使用（bind|once）。
      * 注：
      * 克隆参数可用于新链头接收不同的初始值。
      *
      * @param  {String} evnid 事件名标识
-     * @param  {Boolean} clone 是否克隆（仅头部指令单元）
-     * @return {Cell}
+     * @param  {Boolean} clone 是否克隆
+     * @return {Cell|null}
      */
     chain( evo, evnid, clone ) {
-        let _map = ChainStore.get(evo.data),
-            _cel = _map && _map.get(evnid) || undefined;
+        let _map = ChainStore.get( evo.data ),
+            _cel = _map && _map.get( evnid );
 
-        return _cel && (clone ? _cel.clone() : _cel );
+        // 返回null有确定性。
+        return _cel ? (clone ? _cel.clone() : _cel) : null;
     },
 
     __chain: 1,
+
+
+    /**
+     * 预绑定调用链提取。
+     * 目标：当前条目/栈顶1项。
+     * 提取目标元素上预绑定的调用链集。
+     * 主要用于预绑定调用链的不同元素间转存（模板定义复用）。
+     * 与chain不同，此处会保持原始名称（名值对对象）。
+     * evnid 支持空格分隔多个名称指定。
+     * evnid 为空或假值表示通配，匹配目标元素上的全部预存储。
+     * @param  {String} evnid 事件名标识/序列
+     * @param  {Boolean} clone 是否克隆
+     * @return {Map<evnid:Cell>}
+     */
+    chains( evo, evnid, clone ) {
+        let _src = ChainStore.get( evo.data );
+        if ( !_src ) return;
+
+        if ( !evnid ) {
+            return clone ? cloneMap( _src ) : _src;
+        }
+        return chainMap( _src, evnid.split(__reSpace), clone );
+    },
+
+    __chains: 1,
 
 
 
@@ -315,7 +341,7 @@ const _On = {
 // PB专项取值。
 // 目标：当前条目/栈顶1项。
 // 注：简单调用 Util.pba/pbo/pbv 即可。
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 [
     'pba',  // (): [String] | [[String]] 有序的参数词序列
     'pbo',  // (): [String] | [[String]] 选项词序列
@@ -336,7 +362,7 @@ const _On = {
 
 //
 // tQuery|Collector通用
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 
 //
@@ -437,7 +463,7 @@ const _On = {
 
 //
 // tQuery专有
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 //
 // 灵活创建。
@@ -506,7 +532,7 @@ const _On = {
 // Collector专有。
 // 目标：当前条目/栈顶1项。
 // 注：如果目标不是Collector实例，会被自动转换。
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 [
     'item',     // ( idx? ): Value | [Value]
     'eq',       // ( idx? ): Collector
@@ -535,7 +561,7 @@ const _On = {
 // 特权：是，灵活取栈。
 // 如果实参未传递，取栈顶2项：[集合, 实参]
 // 注：map、each方法操作的目标支持Object。
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 [
     'filter',   // ( fltr?: String|Function )
     'not',      // ( fltr?: String|Function )
@@ -564,6 +590,123 @@ const _On = {
 
 
 //
+// 元素自身行为。
+//////////////////////////////////////////////////////////////////////////////
+
+//
+// 元素表现。
+// 目标：当前条目/栈顶1项。
+//===============================================
+[
+    ['hide',     'hidden'],
+    ['lose',     'lost'],
+    ['disable',  'disabled'],
+    ['fold',     'folded'],
+    ['truncate', 'truncated'],
+]
+.forEach(function( names ) {
+    /**
+     * 解除状态通常可传递实参null。
+     * @param  {Boolean|null} sure 状态执行
+     * @return {void}
+     */
+    _On[names[0]] = function( evo, sure = true ) {
+        let _els = evo.data,
+            _val = names[1];
+
+        if ( !sure ) {
+            _val = `-${_val}`;
+        }
+        if ( !$.isArray(_els) ) {
+            _els = [_els];
+        }
+        _els.forEach( el => Util.pbo(el, [_val]) );
+    };
+
+    _On[`__${names[0]}`] = 1;
+
+});
+
+
+//
+// 节点封装。
+// 目标：当前条目/栈顶1项。
+// 注：与To部分的同名方法不同，这里只接收字符串实参。
+//===============================================
+[
+    'wrap',
+    'wrapInner',
+    'wrapAll',
+]
+.forEach(function( meth ) {
+    /**
+     * @param  {String} box 封装元素的HTML结构串
+     * @return {Element|Collector} 包裹的容器元素（集）
+     */
+    _On[meth] = function( evo, box ) {
+        let x = evo.data;
+        return $.isArray(x) ? $(x)[meth](box) : $[meth](x, box);
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+
+//
+// 自我修改。
+// 目标：当前条目/栈顶1项。
+// 执行结果可能入栈，由布尔实参（slr|back）决定。
+// 注：多余实参无副作用。
+//===============================================
+[
+    'remove',           // ( slr?, back? )
+    'removeSiblings',   // ( slr?, back? )
+    'normalize',        // ( depth?, back? )
+]
+.forEach(function( meth ) {
+    /**
+     * @param  {String|Number|Boolean} slr 选择器/影响深度或入栈指示
+     * @param  {Boolean} back 入栈指示
+     * @return {Element|Collector|void}
+     */
+    _On[meth] = function( evo, slr, back ) {
+        if ( typeof slr == 'boolean' ) {
+            [back, slr] = [slr];
+        }
+        let _x = evo.data,
+            _d = $.isArray(_x) ? $(_x)[meth](slr) : $[meth](_x, slr);
+
+        if ( back ) return _d;
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+[
+    'empty',
+    'unwrap',
+]
+.forEach(function( meth ) {
+    /**
+     * @param  {Boolean} back 入栈指示
+     * @return {Element|Collector|void}
+     */
+    _On[meth] = function( evo, back ) {
+        let _x = evo.data,
+            _d = $.isArray(_x) ? $(_x)[meth]() : $[meth](_x);
+
+        if ( back ) return _d;
+    };
+
+    _On[`__${meth}`] = 1;
+
+});
+
+
+
+//
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -578,6 +721,43 @@ const _On = {
 function stackArg2( stack, val ) {
     return val === undefined ?
         stack.data(2) : [ stack.data(1), val ];
+}
+
+
+/**
+ * 获取调用链名值对。
+ * @param  {Map} src 源存储集
+ * @param  {[String]} evns 事件名标识集
+ * @param  {Boolean} clone 是否克隆
+ * @return {Map<evnid:Cell>}
+ */
+function chainMap( src, evns, clone ) {
+    let _buf = new Map();
+
+    for (const nid of evns) {
+        let _cell = src.get( nid );
+
+        if ( _cell ) {
+            _buf.set( nid, clone ? _cell.clone() : _cell );
+        }
+    }
+    return _buf;
+}
+
+
+/**
+ * 克隆调用链存储集。
+ * 注：若Cell无需克隆则源存储集可直接引用。
+ * @param  {Map} map 源存储集
+ * @return {Map}
+ */
+function cloneMap( map ) {
+    let _buf = new Map();
+
+    for (const [n, cel] of map) {
+        _buf.set( n, cel.clone() );
+    }
+    return _buf;
 }
 
 

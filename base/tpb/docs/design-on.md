@@ -95,6 +95,24 @@ scam( names?:String ): Boolean | Object
 // 如果names或暂存区有值则为检查，否则为简单封装。
 // names支持空格分隔的多个名称，全小写，And关系。
 
+chain( evnid:String, clone:Boolean ): Cell
+// 预绑定调用链提取。
+// 目标：当前条目/栈顶1项。
+// 提取目标元素上预绑定的调用链（链头指令实例）。
+// - 提取的是单个调用链，可直接用于实时的事件绑定/解绑（on|off|one）。
+// - 也可以转存到新的元素（可用不同的事件名标识）便于绑定使用（bind|once）。
+// 注：
+// 克隆参数可用于新链头接收不同的初始值。
+
+chains( evnid:String, clone:Boolean ): Map<evnid:Cell>
+// 预绑定调用链提取。
+// 目标：当前条目/栈顶1项。
+// 提取目标元素上预绑定的调用链集。
+// 主要用于预绑定调用链的不同元素间转存（模板定义复用）。
+// 与chain不同，此处会保持原始名称（名值对对象）。
+// evnid 支持空格分隔多个名称指定。
+// evnid 为空或假值表示通配，匹配目标元素上的全部预存储。
+
 movementX( v?:null ): Number | void
 movementY( v?:null ): Number | void
 // 鼠标移动量取值。
@@ -305,4 +323,44 @@ flat( deep: Number|true ): [Value]|Collector
 // 特权：是，灵活取栈。
 // 如果是元素Collector集合，deep可以为true附加去重排序（1级扁平化）。
 // 如果实参未传递，取栈顶2项：[集合, 深度值]
+```
+
+
+#### 元素自身行为
+
+此部分为对元素自身的简单改变，不涉及需要额外的数据，因此归为 `On` 而非 `To` 的逻辑。
+
+```js
+// UI表现。
+// 目标：当前条目/栈顶1项。
+/////////////////////////////////////////////////
+
+hide( sure?:Boolean )       // 元素隐藏，对应CSS visibility:hidden。
+lose( sure?:Boolean )       // 元素显示丢失，对应CSS display:none。
+disable( sure?:Boolean )    // 元素失活，模拟表单控件的 disabled 外观（灰化）。
+fold( sure?:Boolean )       // 元素折叠，除:first-child之外的子元素 display:none。
+truncate( sure?:Boolean )   // 截断，即后续兄弟元素 display:none
+// 注：
+// 传递 sure 为假值可反向表现，即取消该表现。
+// 默认 sure 为真值。
+
+
+// 自身操作。
+// 目标：当前条目/栈顶1项。
+/////////////////////////////////////////////////
+
+wrap( box:String ): Element | Collector
+wrapinner( box:String ): Element | Collector
+wrapall( box:String ): Element | Collector
+// 节点封装。
+// 与To中的同名方法不同，这里仅支持字符串模板实参。
+
+remove( slr?:String|Boolean, back?:Boolean ): void | data
+removeSiblings( slr?:String|Boolean, back?:Boolean ): void | data
+normalize( depth?:Number|Boolean, back?:Boolean ): void | data
+empty( back?:Boolean ): void | data
+unwrap( back?:Boolean ): void | data
+// slr: 选择器或入栈指示。
+// back: 被移除的节点是否入栈。
+// data: 被移除的节点/集或展开（unwrap）的节点集。
 ```

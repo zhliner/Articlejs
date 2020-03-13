@@ -133,11 +133,13 @@ $( rid: String ): Element
 // 检索单个元素入栈。
 // 目标：当前条目，可选。
 // 特权：是，判断取栈。
-// rid:
-// - undefined 目标即为rid，事件当前元素为起点检索元素。
-// - String    以目标或事件当前元素为起点，检索元素。
-// 注：
-// 当前条目充当2种角色：起点元素或rid替代。
+// 如果实参为空，取目标为rid，如果目标为空，则自动取栈顶1项。
+// 如果实参非空，目标有值则为起点元素（前阶pop）。
+// rid: {
+//      undefined  以目标为rid，事件当前元素为起点。
+//      String  以目标（如果有）或事件当前元素（ev.current）为起点。
+// }
+// 注：当前条目充当2种角色：起点元素或rid替代。
 
 $$( rid: String|Value ): Collector
 // 检索元素集入栈。
@@ -147,8 +149,7 @@ $$( rid: String|Value ): Collector
 // - undefined 同上，但如果目标非字符串则为Collector封装。
 // - String    同上
 // - Value     封装为Collector，支持单值和数组。
-// 注：
-// 当前条目充当2种角色：起点元素和rid替代。
+// 注：其它说明参考 $() 接口。
 
 evo( name: String|Number ): Value
 // 从当前evo对象上取值入栈。
@@ -456,7 +457,7 @@ local( name: String|null, its?: Value|String|null): void|Value
 // 目标：当前条目，可选。
 // 说明：参考sess指令。
 
-get( ...name: String|[String] ): Value|[Value]
+get( ...names: String ): Value|[Value]
 // 取目标成员值入栈。
 // 目标：当前条目/栈顶1项。
 // 特权：是，自行入栈。

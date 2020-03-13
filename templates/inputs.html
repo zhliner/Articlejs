@@ -488,11 +488,10 @@
     初始解析构造为：<b>...</b>序列
     各字符集清单<span>存储在data中备用。 -->
 <div tpl-name="data:chars"
-    on="init|evo('origin') text split('') $$;
+    on="init|evo('origin') text split('') $$ wrap('<b>');
         save|$$('/span') data('normal punctuation unit number math special alphabet geometric emotion radical phonetic');
         ^obted;
         ^off|nil"
-    by="x.Node.wrap('<b>')"
     to="~|fill|fire(0, 'save');
         &|-|fire(1, 'off');
         /span|trigger('init');

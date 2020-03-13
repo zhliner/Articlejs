@@ -1,5 +1,5 @@
 //! $Id: pbs.by.js 2019.08.19 Tpb.Core $
-//
+// ++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -8,19 +8,22 @@
 //
 //	OBT:By 方法集。
 //
-//  仅包含极少量的几个顶级基础指令，主要操作依赖于X扩展库。
+//  仅包含少量的几个顶级基础指令，主要操作依赖于用户定义库和系统内置的X库。
+//
+//  用户扩展：
+//      import { extend } from "./libs/pbs.by.js";
+//      extend( name, ... );
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { Util } from "./util.js";
-import { X } from "./lib.x.js";
+import { X, extend__ } from "./lib.x.js";
 import { bindMethod, method, pullRoot } from "../config.js";
 
-
-// 可选。
-// 若无需支持可简单移除。
+// 无渲染占位。
+// import { Render } from "./render.x.js";
 import { Render } from "./render.js";
 
 
@@ -108,56 +111,7 @@ const _By = {
 
     __xfalse: 1,
 
-};
 
-
-//
-// 元素表现（x.Eff）
-// 目标：当前条目/栈顶1项。
-//////////////////////////////////////////////////////////////////////////////
-
-const __Eff = {};
-
-[
-    ['hide',     'hidden'],
-    ['lose',     'lost'],
-    ['disable',  'disabled'],
-    ['fold',     'folded'],
-    ['truncate', 'truncated'],
-]
-.forEach(function( names ) {
-    /**
-     * 解除状态通常可传递实参null。
-     * @param  {Boolean|null} sure 状态执行
-     * @return {void}
-     */
-    __Eff[names[0]] = function( evo, sure = true ) {
-        let _els = evo.data,
-            _val = names[1];
-
-        if ( !sure ) {
-            _val = `-${_val}`;
-        }
-        if ( !$.isArray(_els) ) {
-            _els = [_els];
-        }
-        _els.forEach( el => Util.pbo(el, [_val]) );
-    };
-
-    __Eff[`__${names[0]}`] = 1;
-
-});
-
-
-// 注入。
-X.extend( 'Eff', __Eff );
-
-
-//
-// 节点操作。
-//////////////////////////////////////////////////////////////////////////////
-
-const __Node = {
     /**
      * 节点渲染。
      * 目标：当前条目/栈顶1-2项。
@@ -177,86 +131,8 @@ const __Node = {
     },
 
     __render_x: true,
+
 };
-
-
-// 节点封装。
-// 目标：当前条目/栈顶1项。
-// 注：与To部分的同名方法不同，这里只接收字符串实参。
-//===============================================
-[
-    'wrap',
-    'wrapInner',
-    'wrapAll',
-]
-.forEach(function( meth ) {
-    /**
-     * @param  {String} box 封装元素的HTML结构串
-     * @return {Element|Collector} 包裹的容器元素（集）
-     */
-    __Node[meth] = function( evo, box ) {
-        let x = evo.data;
-        return $.isArray(x) ? $(x)[meth](box) : $[meth](x, box);
-    };
-
-    __Node[`__${meth}`] = 1;
-
-});
-
-
-// 自我修改。
-// 目标：当前条目/栈顶1项。
-// 执行结果可能入栈，由布尔实参（slr|back）决定。
-// 注：多余实参无副作用。
-//===============================================
-[
-    'remove',           // ( slr?, back? )
-    'removeSiblings',   // ( slr?, back? )
-    'normalize',        // ( depth?, back? )
-]
-.forEach(function( meth ) {
-    /**
-     * @param  {String|Number|Boolean} slr 选择器/影响深度或入栈指示
-     * @param  {Boolean} back 入栈指示
-     * @return {Element|Collector|void}
-     */
-    __Node[meth] = function( evo, slr, back ) {
-        if ( typeof slr == 'boolean' ) {
-            [back, slr] = [slr];
-        }
-        let _x = evo.data,
-            _d = $.isArray(_x) ? $(_x)[meth](slr) : $[meth](_x, slr);
-
-        if ( back ) return _d;
-    };
-
-    __Node[`__${meth}`] = 1;
-
-});
-
-[
-    'empty',
-    'unwrap',
-]
-.forEach(function( meth ) {
-    /**
-     * @param  {Boolean} back 入栈指示
-     * @return {Element|Collector|void}
-     */
-    __Node[meth] = function( evo, back ) {
-        let _x = evo.data,
-            _d = $.isArray(_x) ? $(_x)[meth]() : $[meth](_x);
-
-        if ( back ) return _d;
-    };
-
-    __Node[`__${meth}`] = 1;
-
-});
-
-
-// 注入。
-X.extend( 'Node', __Node );
 
 
 
@@ -264,12 +140,32 @@ X.extend( 'Node', __Node );
 // 预处理，导出。
 ///////////////////////////////////////////////////////////////////////////////
 
+//
+// 构造绑定。
+// this固化，参数配置，便于全局共享。
+//
 const By = $.assign( {}, _By, bindMethod );
 
 
 // X引入。
 // 模板中使用小写形式。
 By.x = X;
+
+
+/**
+ * 接口：用户扩展。
+ * 扩展中的方法默认会绑定（bind）到所属宿主对象。
+ * 支持多层嵌套的子域，子域是一种分组，由普通的Object封装。
+ * 扩展时会自动创建不存在的中间子域。
+ * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
+ * @param  {String} name 子域/链（多级由句点分隔）
+ * @param  {Object} exts 扩展集
+ * @param  {Boolean} nobind 无需绑定（可访问Cell实例），可选。
+ * @return {Object} 目标子域
+ */
+function extend( name, exts, nobind ) {
+    return extend__( name, exts, nobind, By );
+}
 
 
 //
@@ -283,4 +179,4 @@ By[method] = function( name ) {
 };
 
 
-export { By };
+export { By, extend };

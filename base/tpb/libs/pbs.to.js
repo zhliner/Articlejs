@@ -175,22 +175,32 @@ const _Update = {
 
 
     /**
-     * 调用链存储。
-     * 通常为从预存储中获取的调用链。
-     * 如果目标是一个集合且调用链是一个数组，会一一对应存储。
-     * 如果调用链是一个集合，会展开存储。
-     * @param {Element|Collector} to 绑定目标
+     * 调用链存储（单个）。
+     * 如果目标是元素集合，单个调用链会存储到多个目标。
+     * @param {Element|Collector} to 存储目标
      * @param {Cell} cell 链头部指令
      * @param {String|null} evnid 事件名标识
      */
     chain( to, cell, evnid ) {
-        if ( !$.isArray(to) ) {
-            return storeCells( to, evnid, cell );
+        if ( $.isArray(to) ) {
+            return to.forEach( el => storeChain(el, evnid, cell) );
         }
-        if ( $.isArray(cell) ) {
-            return to.forEach( (el, i) => storeChain(el, cell[i]) );
+        return storeChain( to, evnid, cell );
+    },
+
+
+    /**
+     * 存储调用链集。
+     * 事件名标识与调用链是作为Map的键值传递的，
+     * 这里不能修改事件名标识（若需此能力请使用chain）。
+     * @param {Element|Collector} to 存储目标
+     * @param {Map<evnid:Cell>} cells
+     */
+    chains( to, cells ) {
+        if ( $.isArray(to) ) {
+            return to.forEach( el => saveChains(el, cells) );
         }
-        to.forEach( el => storeChain(el, cell) );
+        saveChains( to, cells );
     },
 
 };
@@ -689,16 +699,12 @@ function bindsChain( type, els, ...args ) {
 
 
 /**
- * 存储指令（调用链头）集。
- * 注：如果调用链是一个数组，需展开存储。
- * @param {Element} el 存储目标
- * @param {Cell|[Cell]} cells 指令单元集
+ * 存储调用链。
+ * @param {Element} el 存储元素
+ * @param {Map} cmap 调用链存储集
  */
-function storeCells( el, cells ) {
-    if ( $.isArray(cells) ) {
-        return cells.forEach( cell => storeChain(el, cell) );
-    }
-    storeChain( el, cells );
+function saveChains( el, cmap ) {
+    for (const [n, cell] of cmap) storeChain( el, n, cell );
 }
 
 
