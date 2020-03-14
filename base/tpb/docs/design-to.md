@@ -179,13 +179,11 @@ off( evn?:String, slr?:String )
 // 内容：{EventListener|Function|false|null} 事件处理器。
 // 附加：[evn:String|Object, slr:String]
 
-trigger( val:Value, bubble?, cancelable?:Boolean )
+trigger( name:String, bubble?, cancelable?:Boolean )
 // 发送事件到目标。
-// 内容：{String} 事件名
-// 附加：[val:Value, bubble, cancelable:Boolean]
-// 说明：
-// 如果流程数据为数组，附加内容会补充到实参序列之后。
-// 事件名支持空格分隔的多个事件名序列。
+// 内容：{Value|[Value]} 发送值
+// 扩展：[name:String, val:Value|[Value]]
+// 如果name明确传递假值，则从内容中获取（[0]）。
 
 
 //
@@ -236,6 +234,7 @@ xdata( names?:String )
 // 如果未传递name实参，则从内容数据中取值（[1]）。
 // 关联数据应当是一个数组，与名称一一对应存储。
 // 如果目标是一个集合，相同的键/值存储到多个目标元素。
+// names为空格分隔的名称序列。
 
 chain( evnid:String )
 // 调用链存储（单个）。
@@ -324,9 +323,12 @@ chains()
 
 
 ```js
-target()
-// 更新To目标。
-// 用当前条目/栈顶1项设置为To目标。
+target( dir?:Boolean )
+// To目标更新或取值。
+// 更新：将当前条目/栈顶1项更新为目标。
+// 取值：将目标设置为流程数据。
+// dir: 更新（true）或取值（false）
+// 注：默认为更新方式。
 
 
 fire( evn, delay = 1, data, bubble, cancelable )

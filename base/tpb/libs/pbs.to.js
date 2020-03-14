@@ -71,18 +71,18 @@ const _Update = {
 
     /**
      * 发送定制事件。
-     * 事件名支持空格分隔的多个事件名序列。
-     * data: evn:String[, ...args]
-     * args: [val:Value, bubble, cancelable:Boolean]
-     * 注：
-     * 如果流程数据为数组，附加内容会补充到实参序列之后。
-     *
+     * 如果name明确传递假值，则从内容中获取（[0]）。
+     * 内容: val:Value|[evn:String, val:Value]
      * @param {Element|Collector} to 待绑定元素/集
-     * @param {String[, ...args]} data 事件名（可能附加内容）
-     * @param {Value, ...Boolean} args 发送值,冒泡,可取消参数
+     * @param {Value|[String, Value]} data 待发送数据或名称和待发送数据
+     * @param {Boolean} bubble 是否可冒泡
+     * @param {Boolean} cancelable 是否可取消
      */
-    trigger( to, data, ...args ) {
-        $(to).trigger( ...dataArgs(data, args) )
+    trigger( to, data, evn, bubble, cancelable ) {
+        if ( !evn ) {
+            [evn, data] = data;
+        }
+        $(to).trigger( evn, data, bubble, cancelable );
     },
 
 
@@ -163,7 +163,7 @@ const _Update = {
      * 如果目标是一个集合，相同的键/值存储到多个目标元素。
      * @param {Element|Collector} to 存储元素（集）
      * @param {[Value]} data 内容数据集
-     * @param {String} names 名称序列
+     * @param {String} names 名称序列（空格分隔）
      */
     xdata( to, data, names ) {
         [data, names] = dataArg2(data, names);
@@ -429,10 +429,15 @@ const _Update = {
 
 const _Stage = {
     /**
-     * 更新To目标。
-     * 取值：当前条目/栈顶1项。
+     * To目标更新或取值。
+     * 更新：将当前条目/栈顶1项更新为目标。
+     * 取值：将目标设置为流程数据。
+     * @param {Boolean} dir 更新（true）或取值（false）
      */
-    target( evo ) {
+    target( evo, dir = true ) {
+        if ( !dir ) {
+            return evo.targets;
+        }
         evo.targets = evo.data;
     },
 

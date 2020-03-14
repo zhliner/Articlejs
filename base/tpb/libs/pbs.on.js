@@ -35,6 +35,13 @@ const
     __scrollY = Symbol('scroll-vertical');
 
 
+// 几个出错中断提示信息。
+const
+    dataUnfound = 'data-store is undefined.',
+    chainUnfound = 'pre-store chain is unfound.',
+    chainUnfound2 = 'chain-store is undefined or chain unfound.';
+
+
 
 const _On = {
     /**
@@ -61,16 +68,17 @@ const _On = {
      * 特权：是，灵活取栈。
      * 从流程元素关联的存储区取值。
      * 当name实参为空时，取栈顶2项：[Element, name]。
+     * 若目标存储集不存在，返回错误并中断。
      * @param {Stack} stack 数据栈
-     * @param  {String} name 键名/序列
+     * @param  {String} name 键名
      * @param  {Value|[Value]} val 存储值，可选
-     * @return {Value|void}
+     * @return {Value|reject}
      */
     data( evo, stack, name ) {
         let [el, k] = stackArg2(stack, name),
             _m = DataStore.get(el);
 
-        if ( _m ) return _m.get( k );
+        return _m ? _m.get( k ) : Promise.reject( dataUnfound );
     },
 
     __data_x: true,
@@ -83,15 +91,19 @@ const _On = {
      * 从流程元素关联的存储区同时取多个值。
      * 无关联存储时无返回值，否则始终返回一个数组（大小相同）。
      * 当names实参为空时，取栈顶2项：[Element, names]。
+     * 如果目标存储集不存在，返回错误并中断。
      * @param  {Stack} stack 数据栈
      * @param  {String} names 名称序列（空格分隔）
-     * @return {[Value]|void}
+     * @return {[Value]|reject}
      */
     xdata( evo, stack, names ) {
         let [el, ns] = stackArg2(stack, names),
             _m = DataStore.get(el)
 
-        if ( _m ) return ns.split(__reSpace).map( n => _m.get(n) );
+        if ( !_m ) {
+            return Promise.reject( dataUnfound );
+        }
+        return ns.split(__reSpace).map( n => _m.get(n) );
     },
 
     __xdata_x: true,
@@ -134,17 +146,21 @@ const _On = {
      * 也可以转存到新的元素（可用不同的事件名标识）便于绑定使用（bind|once）。
      * 注：
      * 克隆参数可用于新链头接收不同的初始值。
+     * 错误：
+     * 如果没有目标存储集或目标调用链，返回错误并中断。
      *
      * @param  {String} evnid 事件名标识
      * @param  {Boolean} clone 是否克隆
-     * @return {Cell|null}
+     * @return {Cell|reject}
      */
     chain( evo, evnid, clone ) {
         let _map = ChainStore.get( evo.data ),
             _cel = _map && _map.get( evnid );
 
-        // 返回null有确定性。
-        return _cel ? (clone ? _cel.clone() : _cel) : null;
+        if ( _cel ) {
+            return clone ? _cel.clone() : _cel;
+        }
+        return Promise.reject( chainUnfound2 );
     },
 
     __chain: 1,
@@ -158,14 +174,17 @@ const _On = {
      * 与chain不同，此处会保持原始名称（名值对对象）。
      * evnid 支持空格分隔多个名称指定。
      * evnid 为空或假值表示通配，匹配目标元素上的全部预存储。
+     * 错误：
+     * 如果目标元素没有预绑定存储，返回错误并中断。
      * @param  {String} evnid 事件名标识/序列
      * @param  {Boolean} clone 是否克隆
      * @return {Map<evnid:Cell>}
      */
     chains( evo, evnid, clone ) {
         let _src = ChainStore.get( evo.data );
-        if ( !_src ) return;
-
+        if ( !_src ) {
+            return Promise.reject( chainUnfound );
+        }
         if ( !evnid ) {
             return clone ? cloneMap( _src ) : _src;
         }

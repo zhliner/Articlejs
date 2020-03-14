@@ -102,6 +102,7 @@ const _Base = {
         let _beg = evo.current;
 
         if ( rid == null ) {
+            // 兼容前阶主动pop
             rid = evo.data === undefined ? stack.data(1) : evo.data;
         } else {
             _beg = evo.data || _beg;
