@@ -27,17 +27,26 @@ import { bindMethod, EXTENT, ACCESS, Templater, Globals } from "../config.js";
 const
     $ = window.$,
 
-    // evo成员名数值键。
+    // evo成员名/值键。
     evoIndex = {
-        0:  'event',        // 原生事件对象（注：ev指令可直接获取）
-        1:  'origin',       // 事件起点元素（event.target）
-        2:  'current',      // 触发事件的当前元素（event.currentTarget|matched）
-        3:  'delegate',     // 事件相关联元素（event.relatedTarget）
-        4:  'related',      // 委托绑定的元素（event.currentTarget）
-        5:  'selector',     // 委托匹配选择器（for match）]
-        10: 'data',         // 自动获取的流程数据
-        11: 'entry',        // 中段入口（迭代重入）
-        12: 'targets',      // To目标元素/集，向后延续
+        event:      0 ,     // 原生事件对象（注：ev指令可直接获取）
+        0:          0,
+        origin:     1 ,     // 事件起点元素（event.target）
+        1:          1,
+        current:    2 ,     // 触发事件的当前元素（event.currentTarget|matched）
+        2:          2,
+        delegate:   3 ,     // 事件相关联元素（event.relatedTarget）
+        3:          3,
+        related:    4 ,     // 委托绑定的元素（event.currentTarget）
+        4:          4,
+        selector:   5 ,     // 委托匹配选择器（for match）]
+        5:          5,
+        data:       10,     // 自动获取的流程数据
+        10:         10,
+        entry:      11,     // 中段入口（迭代重入）
+        11:         11,
+        targets:    12,     // To目标元素/集，向后延续
+        12:         12,
     },
 
     // 空白分隔符。
@@ -56,10 +65,10 @@ const _Base = {
 
     /**
      * 单元素检索入栈。
-     * 目标：当前条目，可选。
-     * 特权：是，自行取栈。
+     * 目标：暂存区1项/判断取值。
+     * 特权：是，判断取值。
      * 如果实参为空，取目标为rid，如果目标为空，自动取栈顶1项。
-     * 如果实参非空，目标有值则为起点元素（前阶pop）。
+     * 如果实参非空，目标有值则为起点元素。
      * rid: {
      *      undefined  以目标为rid，事件当前元素为起点。
      *      String  以目标（如果有）或事件当前元素（ev.current）为起点。
@@ -80,14 +89,14 @@ const _Base = {
         return Util.find( rid, _beg, true );
     },
 
-    __$: 0,
+    __$: -1,
     __$_x: true,
 
 
     /**
      * 多元素检索入栈。
-     * 目标：当前条目，可选。
-     * 特权：是，自行取栈。
+     * 目标：暂存区1项/判断取值。
+     * 特权：是，判断取值。
      * rid: {
      *      undefined  同上，但如果目标非字符串则为Collector封装。
      *      String     同上。
@@ -110,25 +119,30 @@ const _Base = {
         return typeof rid == 'string' ? Util.find(rid, _beg) : $(rid);
     },
 
-    __$$: 0,
+    __$$: -1,
     __$$_x: true,
 
 
     /**
      * evo成员取值入栈。
+     * 目标：无。
+     * 特权：是，判断取值。
      * 如果name未定义或为null，取evo自身入栈。
-     * 目标：当前条目，可选。
+     * 如果明确取.data属性，会取暂存区全部成员（清空）。
+     * @param  {Stack} stack 数据栈
      * @param  {String|Number} name 成员名称或代码
      * @return {Element|Collector|Value}
      */
-    evo( evo, name ) {
+    evo( evo, stack, name ) {
+        name = evoIndex[name];
+
         if ( name == null ) {
             return evo;
         }
-        return evo[ evoIndex[name] || name ];
+        return name == 10 ? stack.data(0) : evo[name];
     },
 
-    __evo: 0,
+    __evo_x: true,
 
 
     /**
@@ -150,8 +164,8 @@ const _Base = {
     /**
      * 获取模板节点。
      * 目标：无。
-     * 特权：是，自行取栈。
-     * 如果实参name为空（null|undefined），取栈顶1项为名称。
+     * 特权：是，自行取值。
+     * 如果实参name为空（null|undefined），自行取值1项为名称。
      * 注意克隆时是每次都克隆（应当很少使用）。
      * 注记：
      * 因为返回Promise实例（异步），故通常用在调用链后段。
@@ -191,7 +205,7 @@ const _Base = {
         if ( val !== undefined ) {
             _v = val === _v;
         }
-        if ( !_v ) return new Promise.reject();
+        if ( !_v ) return Promise.reject();
     },
 
     __pass: 1,
@@ -199,8 +213,8 @@ const _Base = {
 
     /**
      * 停止事件默认行为。
-     * 目标：当前条目，可选。
-     * 如果当前条目非空，则真值停止，否则无条件停止。
+     * 目标：暂存区1项。
+     * 如果目标非空，则真值停止，否则无条件停止。
      * back为执行之后的返回值（入栈），如果未执行则忽略。
      * 注：该指令必须在异步指令之前使用。
      * @param  {Value} back 执行后结果，可选
@@ -215,13 +229,13 @@ const _Base = {
         }
     },
 
-    __avoid: 0,
+    __avoid: -1,
 
 
     /**
      * 停止事件冒泡。
-     * 目标：当前条目，可选。
-     * 如果当前条目非空，则真值执行，否则无条件执行。
+     * 目标：暂存区1项。
+     * 如果目标非空，则真值执行，否则无条件执行。
      * back为执行之后的返回值，如果未执行则忽略。
      * 注：该指令必须在异步指令之前使用。
      * @param  {Value} back 执行后结果，可选
@@ -236,13 +250,13 @@ const _Base = {
         }
     },
 
-    __stop: 0,
+    __stop: -1,
 
 
     /**
      * 停止事件冒泡并阻止本事件其它处理器的执行。
-     * 目标：当前条目，可选。
-     * 如果当前条目非空，则真值执行，否则无条件执行。
+     * 目标：暂存区1项。
+     * 如果目标非空，则真值执行，否则无条件执行。
      * back为执行之后的返回值，如果未执行则忽略。
      * 注：该指令必须在异步指令之前使用。
      * @param  {Value} back 执行后结果，可选
@@ -257,122 +271,74 @@ const _Base = {
         }
     },
 
-    __stopAll: 0,
+    __stopAll: -1,
 
 
     /**
      * 流程终止。
-     * 目标：当前条目，可选。
-     * 如果目标非空，则真值终止或与val比较真则终止。
-     * 目标无值时无条件终止。
-     * 注：val仅在目标有值时才有意义。
+     * 目标：暂存区/栈顶1项，可选。
+     * 特权：是，自行判断取值。
+     * 如果传递val有值，则取值1项比较，真值终止。
+     * 否则无条件终止。
+     * @param  {Stack} stack 数据栈
+     * @param  {Value} val 对比值，可选
      * @return {void}
      */
-    end( evo, val ) {
-        if ( evo.data === val ||
-            (val === undefined && evo.data) ) {
-            return new Promise.reject();
+    end( evo, stack, val ) {
+        if ( val === undefined || val === stack.data(1) ) {
+            return Promise.reject();
         }
     },
 
-    __end: 0,
+    __end_x: true,
 
 
 
     // 暂存区赋值。
-    // 目标：赋值非取值，无。
-    // 特权：是。需要直接操作数据栈。
+    // 目标：无。
+    // 特权：是，自行操作数据栈。
     // @return {void}
     //===============================================
 
 
     /**
      * 弹出栈顶n项。
-     * 无实参调用弹出单项赋值，否则构造为一个数组赋值。
-     * 即：pop() 和 pop(1) 是不一样的。
-     * @data: Value|[Value]
-     * pop(0) 有效，构造一个空集赋值。
+     * 弹出n项压入暂存区，无实参调用视为1项。
      * @param {Stack} stack 数据栈
      * @param {Number} n 弹出的条目数
      */
-    pop( evo, stack, n ) {
-        n == null ? stack.pop() : stack.pops(n);
+    pop( evo, stack, n = 1 ) {
+        n == 1 ? stack.pop() : stack.pops( n );
     },
 
     __pop_x: true,
 
 
     /**
-     * 复制（浅）数据栈区段。
-     * 两个位置下标支持负值从末尾倒算。
-     * @data: [Value] 值集
-     * @param {Stack} stack 数据栈
-     * @param {Number} beg 起始位置，可选
-     * @param {Number} end 结束位置（不含），可选
-     */
-    slice( evo, stack, beg, end ) {
-        stack.slice( beg, end );
-    },
-
-    __slice_x: true,
-
-
-    /**
-     * 引用数据栈目标值。
-     * 下标位置支持负值指定。
-     * @data: Value|[Value]
-     * @param {Stack} stack 数据栈
-     * @param {...Number} ns 位置下标序列
-     */
-    index( evo, stack, ...ns ) {
-        ns.length == 1 ? stack.index ( ns[0] ) : stack.indexes( ...ns );
-    },
-
-    __index_x: true,
-
-
-    /**
      * 取出栈底n项。
-     * 无实参调用移除单项赋值，否则构造为一个数组赋值。
-     * 即：shift() 和 shift(1) 是不一样的。
-     * @data: Value|[Value]
+     * 移除栈底n项压入暂存区，无实参调用视为1项。
      * @param {Stack} stack 数据栈
      * @param {Number} n 移除条目数
      */
-    shift( evo, stack, n ) {
-        n == null ? stack.shift() : stack.shifts(n);
+    shift( evo, stack, n = 1 ) {
+        n == 1 ? stack.shift() : stack.shifts( n );
     },
 
     __shift_x: true,
 
 
     /**
-     * 取出目标位置条目。
-     * 位置下标支持负数倒数。
-     * @data: Value 单值
+     * 引用目标位置项。
+     * 下标位置支持负数从末尾算起。
+     * 注意：非法的下标位置会导入一个undefined值。
      * @param {Stack} stack 数据栈
-     * @param {Number} i 位置下标
+     * @param {...Number} ns 位置下标序列
      */
-    pick( evo, stack, i ) {
-        stack.pick( i );
+    index( evo, stack, ...ns ) {
+        stack.index( ns );
     },
 
-    __pick_x: true,
-
-
-    /**
-     * 取出目标区段条目。
-     * 起始下标支持负数从末尾倒算。
-     * @data: [Value] 值集
-     * @param {Stack} stack 数据栈
-     * @param {Number} start 起始位置
-     * @param {Number} count 移除数量
-     */
-    splice( evo, stack, start, count ) {
-        stack.splice( start, count );
-    },
-
-    __splice_x: true,
+    __index_x: true,
 
 
 
@@ -380,38 +346,48 @@ const _Base = {
     //===============================================
 
     /**
-     * 打包条目。
-     * 栈顶的n项会被取出后打包为一个数组。
-     * 目标：当前条目，可选。
-     * 特权：是，自主操作数据栈。
-     * 如果当前条目有值（数组|字符串），取它的末尾n个单元打包。
-     * 例：
-     * pack(3)      // 同 pop(3), push 序列
-     * pop(3) pack  // 同上
+     * 栈顶条目打包封装。
+     * 取出栈顶的n项打包为一个数组入栈。
+     * 目标：无。
+     * 特权：是，自行操作数据栈。
+     * 必然会返回一个数组，非法值返回一个空数组。
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数
      * @return {[Value]}
      */
     pack( evo, stack, n ) {
-        return evo.data === undefined ?
-            stack.dels(-n) : evo.data.slice(-n);
+        return n > 0 ? stack.dels(-n) : [];
     },
 
-    __pack: 0,
     __pack_x: true,
+
+
+    /**
+     * 任意区段打包。
+     * 目标：无。
+     * 特权：是，自行操作数据栈。
+     * 两个位置下标支持负值从末尾倒算。
+     * @param {Stack} stack 数据栈
+     * @param {Number} beg 起始位置，可选
+     * @param {Number} end 结束位置（不含），可选
+     */
+    slice( evo, stack, beg, end ) {
+        return stack.slice( beg, end );
+    },
+
+    __slice_x: true,
 
 
     /**
      * 将条目展开入栈。
      * 目标：当前条目/栈顶1项。
-     * 特权：是，自主操作数据栈。
-     * 如果目标不是数组则简单返回。
+     * 特权：是，自行入栈。
+     * 目标若为字符串，会展开为单个字符序列入栈。
+     * 注：目标中的undefined值会被忽略。
+     * @data: [Value]|Iterator|String
      * @param {Stack} stack 数据栈
      */
     spread( evo, stack ) {
-        if ( !$.isArray(evo.data) ) {
-            return evo.data;
-        }
         stack.push( ...evo.data );
     },
 
@@ -420,22 +396,21 @@ const _Base = {
 
 
     /**
-     * 删除数据栈任意区段条目。
+     * 剔除任意区段条目。
      * 目标：无。
      * 特权：是，直接操作数据栈。
-     * 注意：
-     * 这只是纯粹的删除功能，应该不常用。
      * 如果count未指定，表示删除start之后全部。
+     * 注：可能用于移除多余的初始传送数据。
      * @param  {Stack} stack 数据栈
      * @param  {Number} start 起始位置
      * @param  {Number} count 删除数量，可选
      * @return {void}
      */
-    del( evo, stack, start, count ) {
+    scrap( evo, stack, start, count ) {
         stack.dels( start, count );
     },
 
-    __del_x: true,
+    __scrap_x: true,
 
 
 
@@ -597,7 +572,7 @@ const _BaseOn = {
      * 目标：当前条目，可选。
      * 特权：是，自行入栈。
      * 多个实参会自动展开入栈，数组实参视为单个值。
-     * 如果实参和目标都有值，则目标作为单一值附加在实参序列之后。
+     * 如果目标有值，会附加（作为单一值）在实参序列之后。
      * @param  {Stack} stack 数据栈
      * @param  {...Value} vals 值序列
      * @return {void} 自行入栈

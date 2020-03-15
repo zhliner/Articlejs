@@ -8,15 +8,11 @@
 //
 //	By:X 扩展库。
 //
-//  静态扩展：
+//  扩展：
 //      import { X } from 'libs/lib.x.js'
 //      X.extend( name, {...}, nobind ) 在name子域上扩展
 //
-//  动态扩展：
-//      Tpb.Lib.X.extend( name, {...}, nobind )
-//
-//  注：
-//  单纯获取目标子域：X.extend( name )
+//  注：单纯获取目标子域：X.extend( name )
 //
 //  说明：
 //  - 扩展指令支持名称前置双下划线（__）定义自动取栈数。

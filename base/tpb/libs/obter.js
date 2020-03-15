@@ -415,42 +415,42 @@ class Builder {
 
 //
 // 流程数据栈。
-// 每一个执行流对应一个数据栈实例。
+// 每一个执行流包含一个数据栈实例。
 //
 class Stack {
 
     constructor() {
-        this._buf = [];     // 数据栈
-        this._item;         // 当前条目（暂存区）
-        this._done = false; // 是否已暂存
+        this._buf = []; // 数据栈
+        this._tmp = []; // 暂存区
     }
 
 
     /**
-     * 暂存区取值。
-     * 可能自动取栈顶项，视n值而定：{
-     *      0   暂存区有值则返回，不自动取栈
-     *      1   暂存区有值则返回，否则取栈顶1项（值）
-     *      n   暂存区有值则返回，否则取栈顶n项（Array）
+     * 通用取值。
+     * 暂存区：按正序（队列）取值。
+     * 数据栈：按逆序（栈顶）取值。
+     * n：{
+     *  0   暂存区有值则取出全部，不自动取栈
+     *  1   暂存区有值则取出1项，否则取栈顶1项
+     *  n   暂存区有值则取出n项（可能不足n项），否则取栈顶n项
+     * -n   暂存区有值则取出n项（可能不足n项），不自动取栈
      * }
-     * 注：取值后暂存区会重置。
+     * 注：n大于1时，确定返回一个数组（可能为空）。
+     *
      * @param  {Number} n 取栈条目数
      * @return {Value|[Value]} 值/值集
      */
     data( n ) {
-        try {
-            if ( this._done ) {
-                return this._item;
-            }
-            if ( n == 1 ) this.pop();
-            else if ( n > 1 ) this.pops( n );
-
-            return this._item;
+        if ( n == 0 ) {
+            return this._tmpall();
         }
-        finally {
-            this._done = false;
-            this._item = undefined;
+        if ( this._tmp.length ) {
+            return this._tmpval(n);
         }
+        if ( n > 0 ) {
+            return n > 1 ? this._buf.splice(-n) : this._buf.pop();
+        }
+        // <0: undefined
     }
 
 
@@ -475,6 +475,7 @@ class Stack {
 
     /**
      * 栈顶多项引用。
+     * 注：始终返回一个集合。
      * @param  {Number} n 条目数
      * @return {[Value]}
      */
@@ -484,15 +485,24 @@ class Stack {
 
 
     /**
+     * 复制特定范围的成员。
+     * @param {Number} beg 起始位置
+     * @param {Number} end 结束位置（不含）
+     */
+    slice( beg, end ) {
+        return this._buf.slice( beg, end );
+    }
+
+
+    /**
      * 数据栈成员删除。
-     * 纯删除功能，被删除的数据不进入暂存区。
-     * fix: count明确为undefined值时表现为0值。
+     * 注记：count明确为undefined时表现为0值。
      * @param  {Number} start 起始下标
      * @param  {Number} count 删除数量
      * @return {Array} 被删除集
      */
     dels( start, count ) {
-        if ( count == null ) {
+        if ( !count ) {
             count = this._buf.length;
         }
         return this._buf.splice( start, count );
@@ -505,107 +515,70 @@ class Stack {
      */
     reset() {
         this._buf.length = 0;
-        this._done = false;
-        this._item = undefined;
+        this._tmp.length = 0;
     }
 
 
     //-- 暂存区赋值 -----------------------------------------------------------
+    // 按顺序添加到暂存区队列中。
+    // @return {void}
 
 
     /**
      * 弹出栈顶单项。
-     * @data: Value
+     * 注记：
+     * 如果数据栈已为空，压入取出的undefined是有意义的，
+     * 这是一种明确取值，在后阶指令需要多项时有区别（undefined或[]）。
      */
     pop() {
-        this._done = true;
-        this._item = this._buf.pop();
+        this._tmp.push( this._buf.pop() );
     }
 
 
     /**
-     * 弹出栈顶多项。
-     * 0数量会创建一个空集，负值数量无效。
+     * 弹出栈顶n项。
+     * 小于2的值无效。
+     * 注记：
+     * 实际压入的项数可能不足（数据栈不足），但这对用户来说是明确的。
      * @param {Number} n 弹出数量
-     * @data: [Value]
      */
     pops( n ) {
-        this._done = true;
-        this._item = n > 0 ? this._buf.splice( -n ) : [];
-    }
-
-
-    /**
-     * 引用范围值赋值。
-     * @param {Number} beg 起始位置
-     * @param {Number} end 结束位置（不含）
-     */
-    slice( beg, end ) {
-        this._done = true;
-        this._item = this._buf.slice( beg, end );
-    }
-
-
-    /**
-     * 引用目标位置值赋值。
-     * @param {Number} i 下标位置
-     */
-    index( i ) {
-        this._done = true;
-        this._item = this._index( i );
-    }
-
-
-    /**
-     * 引用多个目标位置值。
-     * @param  {...Number} ii 下标序列
-     */
-    indexes( ...ii ) {
-        this._done = true;
-        this._item = ii.map( i => this._index(i) );
+        if ( n > 1 ) {
+            this._tmp.push( ...this._buf.splice(-n) );
+        }
     }
 
 
     /**
      * 移除栈底项。
-     * @data: Value
+     * 注记参考pop()。
      */
     shift() {
-        this._done = true;
-        this._item = this._buf.shift();
+        this._tmp.push( this._buf.shift() );
     }
 
 
     /**
      * 移除栈底多项。
-     * 0数量会创建一个空集，负值数量无效。
+     * 小于2的值无效。
+     * 注记参考pops()。
      * @param {Number} n 移除数量
-     * @data: [Value]
      */
     shifts( n ) {
-        this._done = true;
-        this._item = n > 0 ? this._buf.splice( 0, n ) : [];
+        if ( n > 1 ) {
+            this._tmp.push( ...this._buf.splice(0, n) );
+        }
     }
 
 
     /**
-     * 移除任意位置值赋值。
-     * @param {Number} i 下标位置
+     * 引用特定目标位置值。
+     * 下标值支持负数从末尾算起。
+     * 注：非法的下标位置会导入一个undefined值。
+     * @param {[Number]} ns 下标集
      */
-    pick( i ) {
-        this._done = true;
-        this._item = this._buf.splice(i, 1)[0];
-    }
-
-
-    /**
-     * 移除任意范围条目赋值。
-     * @param {Number} start 起始位置
-     * @param {Number} count 移除数量
-     */
-    splice( start, count ) {
-        this._done = true;
-        this._item = this._buf.splice( start, count );
+    index( ns ) {
+        this._tmp.push( ...ns.map( i => this._index(i) ) );
     }
 
 
@@ -618,6 +591,31 @@ class Stack {
      */
     _index( i ) {
         return this._buf[ i < 0 ? this._buf.length+i : i ];
+    }
+
+
+    /**
+     * 暂存区取值。
+     * n为负值合法（不取栈）。
+     * 如果|n|大于1，返回一个数组，否则返回一个值。
+     * 注：|n|大于1时取出的成员可能不足n项。
+     * @param  {Number} n 取出数量
+     * @return {Value|[Value]}
+     */
+    _tmpval( n ) {
+        if ( n < 0 ) n = -n;
+        return n > 1 ? this._tmp.splice(0, n) : this._tmp.shift();
+    }
+
+
+    /**
+     * 取出暂存区全部成员。
+     * 如果只有1项或为空，返回其值或undefined。
+     * @return {Value|[Value]|undefined}
+     */
+    _tmpall() {
+        let _v = this._tmp.splice(0);
+        return _v.length > 1 ? _v : _v[0];
     }
 }
 

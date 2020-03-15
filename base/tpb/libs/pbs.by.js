@@ -8,18 +8,32 @@
 //
 //	OBT:By 方法集。
 //
-//  仅包含少量的几个顶级基础指令，主要操作依赖于用户定义库和系统内置的X库。
+//  仅包含少量的几个顶级基础指令。
+//  主要功能依赖于用户定义的库和系统内置的X库。
+//
+//  用户的扩展存在于By的顶层（By对象自身），但也可以扩展到任意子域上。
 //
 //  用户扩展：
 //      import { extend } from "./libs/pbs.by.js";
-//      extend( name, ... );
+//      extend( name, extobj );
+//      extend( name.sub, extobj );  // 扩展到sub子域
 //
+//  App创建：
+//      import { App } from "./libs/pbs.by.js";
+//      App( 'MyApp', conf, meths );
+//      // extend(...)
+//      // 也可以在name域上扩展任意普通方法。
+//
+//      模板使用：
+//      by="MyApp.run('meth', ...)"
+//      by="MyApp.meth(...)"  // 同上，形式友好。
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { Util } from "./util.js";
 import { X, extend__ } from "./lib.x.js";
+import { App__ } from "./x/app.js";
 import { bindMethod, method, pullRoot } from "../config.js";
 
 // 无渲染占位。
@@ -137,8 +151,29 @@ const _By = {
 
 
 //
-// 预处理，导出。
-///////////////////////////////////////////////////////////////////////////////
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 创建一个App调用域。
+ * @param  {App__} app 一个App实例
+ * @param  {Array} meths 方法名集
+ * @return {Object}
+ */
+function appScope( app, meths ) {
+    return meths.reduce(
+        (obj, m) => ( obj[m] = app.call.bind(app, m), obj ),
+        { run: app.run.bind(app) }
+    );
+}
+
+
+
+//
+// 预处理/导出。
+//////////////////////////////////////////////////////////////////////////////
+
 
 //
 // 构造绑定。
@@ -150,6 +185,17 @@ const By = $.assign( {}, _By, bindMethod );
 // X引入。
 // 模板中使用小写形式。
 By.x = X;
+
+
+//
+// 接口：
+// 提供已预处理的方法。
+// 方法名支持句点（.）分隔的多级调用。
+//
+By[method] = function( name ) {
+    name = name.split('.');
+    return name.length > 1 ? Util.subObj( name, By ) : By[ name[0] ];
+};
 
 
 /**
@@ -168,15 +214,35 @@ function extend( name, exts, nobind ) {
 }
 
 
-//
-// 接口：
-// 提供已预处理的方法。
-// 方法名支持句点（.）分隔的多级调用。
-//
-By[method] = function( name ) {
-    name = name.split('.');
-    return name.length > 1 ? Util.subObj( name, By ) : By[ name[0] ];
-};
+/**
+ * 接口：创建CMV小程序。
+ * 每个程序遵循CMV（Control/Model/View）三层划分逻辑。
+ * 模板中调用需要传递方法名：x.[MyApp].run([meth])，用于区分不同的调用。
+ * 注：
+ * 传递meths可以构造友好的调用集：x.[MyApp].[meth]。
+ * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
+ * conf: {
+ *      control: function(meth, data, ...rest ): Promise,
+ *      model:   function(meth, data ): Value,
+ *      view:    function(meth, data ): Value,
+ * }
+ * @param {String} name 程序名
+ * @param {Object} conf CMV配置对象
+ * @param {[String]} meths 方法名序列，可选
+ */
+function App( name, conf, meths ) {
+    let _app = By[name];
+
+    if ( _app != null ) {
+        throw new Error(`[${name}]:${_app} is already exist.`);
+    }
+    let _cmv = [
+            conf.control,
+            conf.model,
+            conf.view
+        ];
+    extend( name, appScope(new App__(..._cmv), meths) );
+}
 
 
-export { By, extend };
+export { By, extend, App };
