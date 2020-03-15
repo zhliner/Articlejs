@@ -122,8 +122,21 @@ function subObj( names, obj ) {
 //////////////////////////////////////////////////////////////////////////////
 
 
+//
+// 通用域扩展。
+// 导出供 By.extend 专用。
+//
+export function extend__( name, exts, nobind, host ) {
+    let _f = nobind ?
+        setMethod :
+        bindMethod;
+
+    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
+}
+
+
 /**
- * 接口：子域扩展。
+ * 子域扩展。
  * 扩展中的方法默认会绑定（bind）到所属宿主对象。
  * 子域是一种分组，支持句点分隔的子域链。
  * 最终的目标子域内的成员是赋值逻辑，重名会被覆盖。
@@ -148,20 +161,6 @@ function extend( name, exts, nobind ) {
 
 //
 // 导出X扩展接口。
-// 注：用原型空间存储。
+// 注：系统自用，用原型空间存储。
 //
 export const X = $.proto( { extend }, _X );
-
-
-
-//
-// 通用域扩展。
-// 导出供 By.extend 专用。
-//
-export function extend__( name, exts, nobind, host ) {
-    let _f = nobind ?
-        setMethod :
-        bindMethod;
-
-    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
-}

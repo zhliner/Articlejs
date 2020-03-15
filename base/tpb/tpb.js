@@ -10,8 +10,11 @@
 //
 //  Tpb {
 //      Build: {Function}   节点树OBT构建函数
-//      Lib:   {Object}     用户库空间，供外部动态扩展：Tpb.Lib.extend(...)
+//      Lib:   {Object}     用户库空间
 //  }
+//  用户扩展：
+//  - 普通扩展：Tpb.Lib.extend( ... )
+//  - App 创建：Tpl.Lib.App( ... )
 //
 //  支持模板的动态导入、模板和既有DOM元素的渲染。
 //
@@ -21,7 +24,7 @@
 
 import { Base, BaseOn } from "./libs/pbs.base.js";
 import { On } from "./libs/pbs.on.js";
-import { By, extend } from "./libs/pbs.by.js";
+import { By, extend, App } from "./libs/pbs.by.js";
 import { To } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
@@ -38,7 +41,7 @@ const
     $ = window.$,
 
     // 用户库空间。
-    Lib = { extend },
+    Lib = { extend, App },
 
     // On属性选择器
     __onSlr = `[${OBTA.on}]`,
