@@ -27,8 +27,14 @@
             position: relative;
             background-color: #b7f7e7;
         }
+        div#editor span {
+            display: grid;
+            grid-template-columns: repeat(30, 1fr);
+            text-align: center;
+        }
         div#editor span > b {
-            float: left;
+            background-color: #f7f7f7;
+            margin: 1px;
         }
         aside#outline {
             width: 200px;
@@ -120,7 +126,7 @@
             初始解析构造为：<b>...</b>序列
             各字符集清单<span>存储在data中备用。 -->
         <div tpl-name="data:chars"
-            on="^init|$$('/span') text map(s=>$.split(s, '')) map(ss=>$(ss).wrap('<b>'));
+            on="^init|$$('/span') text map(s=>$.split(s,'')) map(ss=>$(ss).wrap('<b>'));
                 ^save|$$('/span');
                 ^obted;
                 debug|$('/') dup data('unit') shift data('number') debug"
@@ -148,7 +154,7 @@
             <!-- 偏旁部首 -->
             <span>丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
             <!-- 音标 -->
-            <span>āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mɱn̼n̥nɳ̊ɳɲ̊ɲŋ̊ŋɴpbp̪b̪t̼d̼tdʈɖcɟkɡqɢʡʔszʃʒʂʐɕʑɸβfvθ̼ð̼θðθ̠ð̠ɹ̠̊˔ɹ̠˔ɻ˔çʝxɣχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pʼtʼʈʼcʼkʼqʼʡʼɸʼfʼθʼsʼʃʼʂʼɕʼxʼχʼɬʼʘǀǃ‼ǂʘ̬ǀ̬ǃ̬‼̬ǂ̬ʘ̃ǀ̃ǃ̃‼̃ǂ̃ǁǁ̬ɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
+            <span>ㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡāáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒ</span>
         </div>
     </div>
     <hr id="lineRight"
