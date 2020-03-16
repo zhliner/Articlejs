@@ -846,11 +846,12 @@ const _BaseOn = {
 
     /**
      * 切分字符串为数组。
+     * 支持4子节Unicode字符空白切分。
      * @param  {String} sep 分隔符
      * @return {[String]}
      */
     split( evo, sep ) {
-        return evo.data.split( sep );
+        return sep ? evo.data.split( sep ) : [...evo.data];
     },
 
     __split: 1,

@@ -27,6 +27,9 @@
             position: relative;
             background-color: #b7f7e7;
         }
+        div#editor span > b {
+            float: left;
+        }
         aside#outline {
             width: 200px;
         }
@@ -117,7 +120,7 @@
             初始解析构造为：<b>...</b>序列
             各字符集清单<span>存储在data中备用。 -->
         <div tpl-name="data:chars"
-            on="^init|$$('/span') text map(s=>s.split('')) map(ss=>$(ss).wrap('<b>'));
+            on="^init|$$('/span') text map(s=>$.split(s, '')) map(ss=>$(ss).wrap('<b>'));
                 ^save|$$('/span');
                 ^obted;
                 debug|$('/') dup data('unit') shift data('number') debug"

@@ -7293,6 +7293,18 @@ Object.assign( tQuery, {
 
 
     /**
+     * 字符串切分。
+     * 支持4子节Unicode字符的空串切分。
+     * 注：修复String.split()行为。
+     * @param {String} str 目标字符串
+     * @param {String} sep 切分字符串
+     */
+    split( str, sep, cnt ) {
+        return sep ? str.split(sep, cnt) : str.split(/(?:)/u, cnt);
+    },
+
+
+    /**
      * Map转换为键值索引对二元对象数组。
      * 每一个键/值对转换为一个二元对象。
      * 即：{

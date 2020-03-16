@@ -33,7 +33,7 @@
 
 import { Util } from "./util.js";
 import { X, extend__ } from "./lib.x.js";
-import { App__ } from "./x/app.js";
+import { App__ } from "./app.js";
 import { bindMethod, method, pullRoot } from "../config.js";
 
 // 无渲染占位。

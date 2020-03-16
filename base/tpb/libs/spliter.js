@@ -105,10 +105,10 @@ class UmpCaller {
      * @return {Boolean} 是否在调用式之内
      */
     umpire( ch ) {
-        if (ch == '(') {
+        if (ch === '(') {
             return !!(this._cnt += 1);
         }
-        if (ch == ')') {
+        if (ch === ')') {
             return !(this._cnt -= 1);
         }
         return !!this._cnt;
@@ -145,10 +145,10 @@ class UmpChars {
      * @return {Boolean}
      */
     umpire( ch ) {
-        if (ch == this._ch1) {
+        if (ch === this._ch1) {
             return !!(this._cnt += 1);
         }
-        if (ch == this._ch2) {
+        if (ch === this._ch2) {
             return !(this._cnt -= 1);
         }
         return !!this._cnt;
@@ -247,7 +247,7 @@ class Spliter {
         let _len = 0;
 
         for ( let ch of fmt ) {
-            if ( !this._inside(ch) && ch == sep ) {
+            if ( !this._inside(ch) && ch === sep ) {
                 break;
             }
             _len += ch.length;
