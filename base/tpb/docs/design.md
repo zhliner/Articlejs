@@ -137,13 +137,13 @@ evo: {
 ### 顶层全局（适用 On/By/To 三个域）
 
 ```js
-$( rid: String ): Element
+$( rid:String ): Element
 // 检索单个元素入栈。
 
-$$( rid: String|Value ): Collector
+$$( rid:String|Value ): Collector
 // 检索元素集入栈。
 
-evo( name: String|Number ): Value
+evo( name:String|Number ): Value
 // 从当前evo对象上取值入栈。
 // name: {
 //      0|'event'     evo.event
@@ -157,10 +157,10 @@ evo( name: String|Number ): Value
 //     12|'targets'   evo.targets （To检索目标延续传递）
 // }
 
-ev( name?: String ): Value|[Value]
+ev( name?:String ): Value|[Value]
 // 从事件对象上取值入栈。
 
-tpl( name?: String, clone?: Boolean ): Promise<Element>
+tpl( name?:String, clone?:Boolean ): Promise<Element>
 // 获取name模板节点。
 
 
@@ -168,65 +168,20 @@ tpl( name?: String, clone?: Boolean ): Promise<Element>
 // 控制类
 //===============================================
 
-pass( val? ): void
+pass( val?:Value ): void
 // 通过性检查。
 
-avoid( back? ): back|void
+avoid( back?:Value ): back|void
 // 停止事件默认的行为。
 
-stop( back? ): back|void
+stop( back?:Value ): back|void
 // 停止事件冒泡。
 
-stopAll( back? ): back|void
+stopAll( back?:Value ): back|void
 // 停止事件冒泡并阻止本事件其它处理器的执行。
 
-end( val? ): void
+end( val?:Value ): void
 // 流程终止。
-
-
-
-//
-// 特殊控制
-// 需要this为指令单元（Cell），不预绑定。
-//===============================================
-
-prune( cnt = 1, n:Number = 1 ): void
-// 移除后端跟随指令（n个）。
-// 目标：无。
-// 允许跟随指令执行cnt次。
-// 注：
-// 可以传递cnt为0（立即移除），基本没有意义。负值忽略。
-
-prunes( cnt:Number = 1 ): void
-// 持续移除后端跟随指令
-// 注：每次一个，直到链末尾。
-// 目标：无。
-// 逐次移除，每次都允许跟随指令执行cnt次。
-
-
-entry()
-// 创建入口方法。
-// 在执行流中创建一个入口，可从该处开始执行。
-// 目标：无。
-// 可用于如动画之类的重复执行（前端收集数据，后段迭代循环）。
-// 实现：
-// 就是封装了下一指令单元的call方法，即从下一指令单元执行call(...)。
-// 注：
-// 该方法需要在外部定义（不经过预绑定处理）。
-
-reenter( count, val )
-// 重入流程（entry处）。
-// 目标：当前条目，可选（入口实参）。
-// count 为迭代次数，负值表示无限。
-// val 是初次迭代传入evo.entry()的值（如果有），后续采用当前条目（如果有）。
-// 注：
-// 需要先定义entry才有效。也在外部定义（需要this:Cell）。
-
-debug( keep:false ): Value
-// 控制台调试打印。
-// 目标：无。
-// 特权：是，数据查看。
-// 传递keep实参为false会终止执行流。
 
 
 
@@ -235,52 +190,50 @@ debug( keep:false ): Value
 // 特权：是，操作数据栈接口。
 //===============================================
 
-pop( n ): void
-// 弹出栈顶n个条目。
-// 弹出n项压入暂存区，无实参调用视为1项。
+pop( n?:Number ): void
+// 弹出栈顶n项。
 
-shift( n ): void
-// 取出栈底n个条目。
-// 移除栈底n项压入暂存区，无实参调用视为1项。
+shift( n?:Number ): void
+// 取出栈底n项。
 
-index( ...ns ): void
+index( ...ns:Number ): void
 // 引用目标位置项。
-// 下标位置支持负数从末尾算起。
-// 注意：非法的下标位置会导入一个undefined值。
 
 
 
 // 数据栈操作。
 //===============================================
 
-pack( n: Number ): [Value]
-// 栈顶条目打包封装。
-// 取出栈顶的n项打包为一个数组入栈。
-// 目标：无。
-// 特权：是，自行操作数据栈。
-// 必然会返回一个数组，非法值返回一个空数组。
+pack( n:Number ): [Value]
+// 栈顶n项打包封装。
 
-slice( begin, end ): void
+slice( begin:Number, end:Number ): void
 // 任意区段打包。
-// 目标：无。
-// 特权：是，自行操作数据栈。
-// 两个位置下标支持负值从末尾倒算。
 
 spread(): [...Value]
-// 集合条目展开入栈。
-// 目标：当前条目/栈顶1项。
-// 特权：是，自行入栈。
-// 目标若为字符串，会展开为单个字符序列入栈。
-// 注：目标中的undefined值会被忽略。
+// 将条目展开入栈。
 
-scrap( start, count ): void
+scrap( start:Number, count:?Number ): void
 // 剔除任意区段条目。
-// 目标：无。
-// 特权：是，自行操作数据栈。
-// 位置指定支持负数从末尾算起。
-// 如果count未指定，表示删除start之后全部。
-// 注：
-// 可能用于移除多余的初始传送数据。
+
+
+
+//
+// 特殊控制。
+// 需要this为指令单元（Cell），无预绑定。
+//===============================================
+
+prune( cnt = 1, n:Number = 1 ): void
+// 移除后端跟随指令（单次）。
+
+prunes( cnt:Number = 1 ): void
+// 剪除后端跟随指令（持续）。
+
+entry(): void
+// 创建入口方法。
+
+loop( cnt, val ):void
+// 区段循环（entry开始）。
 
 
 
@@ -288,21 +241,17 @@ scrap( start, count ): void
 //===============================================
 
 nil(): undefined
-// 压入一个特殊值（undefined）。
-// 目标：无。
-// 特权：是，定制压入。
-// 常用于向栈内填充无需实参的占位值。
+// 空值指令。
 
-set( name: String, val: Value|[Value] ): void
+set( name:String, val:Value|[Value] ): void
 // 设置目标成员值。
-// 目标：当前条目/栈顶1项。
-// name支持空格分隔多个名称，
-// 如果名称为多个且值为数组，为一一对应设置，否则值设置到多个名称。
-// 注：会修改目标对象自身。
+
+debug( keep:false ): Value
+// 控制台调试打印。
 ```
 
 
-### 运算全局（仅用于 On/By 两个域）
+### 运算全局（仅用于On域）
 
 ```js
 // 类型转换
@@ -320,22 +269,15 @@ RE( flag: String ): RegExp
 
 Bool( all:Boolean ): Boolean
 // 转换为布尔值（false|true）
-// 假值：'', 0, false, null, undefined
-// 如果传递all为真，假值包含 [], {}。
 
 Str( prefix?, suffix? ): String
 // 转换为字符串。
-// 可以选择性的添加前/后缀。
 
-Arr( one: Boolean ): Array
+Arr( wrap: Boolean ): Array
 // 转换为数组。
-// 类数组才会被转换为一个真正的数组（Array.from）。
-// 如果要强制打包目标为一个单成员数组（Array.of），可传递one为真。
 
 Obj(): Object
 // 将目标转换为普通对象。
-// 目标可以是数组、Set或Map实例，主要针对有entries接口的对象。
-// 注：内部调用 Object.fromEntries()。
 
 
 

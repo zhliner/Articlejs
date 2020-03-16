@@ -128,7 +128,7 @@ const _Base = {
      * 目标：无。
      * 特权：是，判断取值。
      * 如果name未定义或为null，取evo自身入栈。
-     * 如果明确取.data属性，会取暂存区全部成员（清空）。
+     * 注意：如果明确取.data属性，会取暂存区全部成员（清空）。
      * @param  {Stack} stack 数据栈
      * @param  {String|Number} name 成员名称或代码
      * @return {Element|Collector|Value}
@@ -193,7 +193,7 @@ const _Base = {
 
     /**
      * 通过性检查。
-     * 目标：当前条目/栈顶1项。
+     * 目标：暂存区/栈顶1项。
      * 检查目标值是否为真（非假）或是否与val相等（===）。
      * 结果为假会中断执行流。
      * @param  {Value} val 对比值，可选
@@ -277,8 +277,8 @@ const _Base = {
     /**
      * 流程终止。
      * 目标：暂存区/栈顶1项，可选。
-     * 特权：是，自行判断取值。
-     * 如果传递val有值，则取值1项比较，真值终止。
+     * 特权：是，判断取值。
+     * 如果传递val有值，则与目标比较，真值终止。
      * 否则无条件终止。
      * @param  {Stack} stack 数据栈
      * @param  {Value} val 对比值，可选
@@ -380,7 +380,7 @@ const _Base = {
 
     /**
      * 将条目展开入栈。
-     * 目标：当前条目/栈顶1项。
+     * 目标：暂存区/栈顶1项。
      * 特权：是，自行入栈。
      * 目标若为字符串，会展开为单个字符序列入栈。
      * 注：目标中的undefined值会被忽略。
@@ -433,12 +433,11 @@ const _Base = {
 
     /**
      * 设置目标成员值。
-     * 目标：当前条目/栈顶1项。
+     * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称。
-     * 多个名称对应值为数组时，是一一对应设置，否则单值对应到多个名称。
-     * 会修改目标对象本身。
-     * 操作：Value|[Value] => Object
-     * @param  {String} name 名称（序列）
+     * 值为数组时，多个名称分别对应到数组成员，否则对应到单一值。
+     * 注：会修改目标本身。
+     * @param  {String} name 名称/序列
      * @param  {Value|[Value]} val 值或值集
      * @return {@data}
      */
@@ -446,7 +445,8 @@ const _Base = {
         let _ns = name.split(__reSpace);
 
         if ( _ns.length == 1 ) {
-            return evo.data[name] = val, evo.data;
+            evo.data[name] = val;
+            return evo.data;
         }
         if ( !$.isArray(val) ) {
             val = new Array(_ns.length).fill(val);
@@ -466,7 +466,7 @@ const _Base = {
 const _BaseOn = {
 
     // 类型转换
-    // 目标：当前条目/栈顶1项。
+    // 目标：暂存区/栈顶1项。
     // 返回值而非该类型的对象。
     //===============================================
 
@@ -509,11 +509,13 @@ const _BaseOn = {
 
     /**
      * 转为布尔值（true|false）。
+     * 假值：'', 0, false, null, undefined
+     * 如果传递all为真，假值包含空对象（[], {}）。
      * @param  {Boolean} all 是否测试空对象/数组
      * @return {Boolean}
      */
     Bool( evo, all ) {
-        return !!(all ? isEmpty(evo.data) : evo.data);
+        return !!(all ? hasValue(evo.data) : evo.data);
     },
 
     __Bool: 1,
@@ -521,6 +523,7 @@ const _BaseOn = {
 
     /**
      * 转为字符串。
+     * 可以选择性的添加前/后缀。
      * @param  {String} pre 前缀，可选
      * @param  {String} suf 后缀，可选
      * @return {String}
@@ -535,13 +538,13 @@ const _BaseOn = {
     /**
      * 转换为数组。
      * 类数组才会被转换为一个真正的数组。
-     * 如果要强制打包目标为一个单成员数组，可传递one为真。
+     * 如果要封装为一个单成员数组，可传递wrap为真。
      * @data: {Value|LikeArray}
-     * @param  {Boolean} one 单成员转换，可选
+     * @param  {Boolean} wrap 简单封装，可选
      * @return {Array}
      */
-    Arr( evo, one ) {
-        return one ? Array.of( evo.data ) : Array.from( evo.data );
+    Arr( evo, wrap ) {
+        return wrap ? Array.of( evo.data ) : Array.from( evo.data );
     },
 
     __Arr: 1,
@@ -1437,14 +1440,13 @@ function storage( buf, name, its, obj ) {
 
 
 /**
- * 是否为空对象。
- * 如果实参不是对象，原值原样返回。
+ * 是否为有值对象（非空）。
  * 注：空数组或空对象。
  * @param  {Object|Array} obj 测试对象
  * @return {Boolean|obj}
  */
-function isEmpty( obj ) {
-    return typeof obj == 'object' ? Object.keys(obj).length == 0 : obj;
+function hasValue( obj ) {
+    return typeof obj == 'object' ? obj && Object.keys(obj).length > 0 : obj;
 }
 
 
@@ -1503,73 +1505,57 @@ function arrayEqual( a1, a2 ) {
 
 
 /**
- * 移除n个跟随指令。
- * @param  {Cell} cell 当前指令单元
+ * 获取剪除段最后一个指令。
+ * 即：衔接段的第一个指令单元。
+ * @param  {Cell} self 当前指令单元
  * @param  {Symbol} key 计数存储键
- * @param  {Number} cnt 初始计数定义
  * @param  {Number} n 指令数量
- * @return {Boolean} 是否已移除
+ * @return {Cell|null} 待衔接的指令单元
  */
-function pruneOne( cell, key, cnt, n ) {
-    if ( cell[key] < 0 ) {
-        return true;
-    }
-    if ( cell[key] == null ) {
-        cell[key] = +cnt || 0;
-    }
-    if ( cell[key] == 0 ) {
-        // 后阶移除
-        cell.next = cellNext( cell, n );
-    }
-    return --cell[key], false;
-}
+function lastCell( self, key, n ) {
+    let cell = self.next;
 
-
-/**
- * 获取指令链下阶指令。
- * 可指定需要跳跃的单元数。
- * @param {Cell} cell 指令单元
- * @param {Number} n 跳跃计数。
- */
-function cellNext( cell, n ) {
-    if ( n > 0 ) {
+    if ( --self[key] === 0 ) {
         while ( n-- && cell ) cell = cell.next;
     }
-    return cell && cell.next;
+    return cell;
 }
 
 
 
 //
-// 特殊指令。
-// 不预绑定处理，this: {Cell}
+// 特殊指令（Base）。
 ///////////////////////////////////////////////////////////////////////////////
 
+
 const
-    // 单次剪除属性。
+    // 单次剪除标记。
     __PRUNE = Symbol('prune-count'),
 
-    // 持续剪除属性。
+    // 持续剪除标记。
     __PRUNES = Symbol('prunes-count'),
 
-    // entry/animate标记属性。
-    __REENTER = Symbol('reenter-count');
+    __ENTRY = Symbol('entry-loop');
 
 
 /**
- * 剪除后端跟随指令。
- * 允许后端指令执行cnt次，之后再移除。
- * 可以指定移除的指令的数量（n）。
+ * 剪除后端跟随指令（单次）。
  * 目标：无。
- * 注：cnt传递负值没有效果，传递0值立即移除。
+ * 允许后端指令执行cnt次，之后再移除。
+ * 可以指定移除的指令的数量n，-1表示后续全部指令。
+ * cnt传递负值无效果（剪除失效），0值与1相同。
  * @param  {Number} cnt 执行次数。可选，默认1
  * @param  {Number} n 移除的指令数.可选，默认1
  * @return {void}
  */
-function prune( evo, cnt = 1, n = 1 ) {
-    if ( this.next) {
-        pruneOne( this, __PRUNE, cnt, n );
+function prune( evo, cnt, n = 1 ) {
+    if ( !this.next || this[__PRUNE] <= 0 ) {
+        return;
     }
+    if ( this[__PRUNE] === undefined ) {
+        this[__PRUNE] = +cnt || 1;
+    }
+    this.next = lastCell( this, __PRUNE, n );
 }
 
 // prune[EXTENT] = null;
@@ -1577,19 +1563,22 @@ function prune( evo, cnt = 1, n = 1 ) {
 
 /**
  * 剪除后端跟随指令（持续）。
- * 允许后端指令执行cnt次，之后再移除。
  * 目标：无。
- * 注：cnt传递负值没有效果，传递0值单次立即移除（同prune）。
+ * 允许后端指令执行cnt次，之后再移除。
+ * 注：每次剪除一个直到链末尾。cnt值说明同上（prune）。
  * @param  {Number} cnt 执行次数
  * @return {void}
  */
-function prunes( evo, cnt = 1 ) {
+function prunes( evo, cnt ) {
     if ( !this.next ) return;
 
-    if ( pruneOne(this, __PRUNES, cnt, 1) ) {
+    if ( this[__PRUNES] <= 0 ) {
         delete this[__PRUNES];
-        pruneOne( this, __PRUNES, cnt, 1 );
     }
+    if ( this[__PRUNES] === undefined ) {
+        this[__PRUNES] = +cnt || 1;
+    }
+    this.next = lastCell( this, __PRUNES, 1 );
 }
 
 // prunes[EXTENT] = null;
@@ -1597,24 +1586,18 @@ function prunes( evo, cnt = 1 ) {
 
 /**
  * 创建入口。
- * 创建一个方法，使得可以从该处开启执行流。
  * 目标：无。
- * 主要用于动画类场景：前阶段收集初始数据，后阶段循环迭代执行动画。
- * 使用：
- *      entry           // 模板中主动设置（前提）。
- *      reenter(...)    // 从entry下一指令开始执行。
- *      evo.entry(val)  // 指令/方法内使用。
+ * 在执行流中段创建一个入口，使得可以从该处启动执行流。
+ * 可用于动画类场景：前阶收集数据，至此开启循环迭代。
+ * 模板用法：
+ *      entry       // 设置入口。
+ *      loop(...)   // 从entry处开始执行。
  * 注：
- * 不作预绑定，this为当前指令单元（Cell）。
- * 一个执行流中只能有一个入口（多个时，后面的有效）。
+ * this为当前指令单元（Cell）。
+ * 一个loop之前应当只有一个入口（或最后一个有效）。
  * @return {void}
  */
 function entry( evo ) {
-    // 初始标记。
-    // 注记：执行流重启时复位。
-    evo[__REENTER] = true;
-
-    // 容错next无值。
     evo.entry = this.call.bind( this.next, evo );
 }
 
@@ -1622,38 +1605,40 @@ function entry( evo ) {
 
 
 /**
- * 重入流程。
- * 即：执行 entry 入口函数。
- * cnt 为迭代次数，负值表示无限。
- * val 为初次迭代传入 evo.entry() 的值（如果有，否则为当前条目）。
- * 每次重入会传入当前条目数据（如果有）。
+ * 区段循环。
+ * 目标：暂存区条目，可选
+ * 执行前面entry指令设置的入口函数。
+ * cnt 为迭代次数，0值与1相同，负值表示无限。
+ * val 为每次迭代传入起始指令的值，可选。
  * 注：
- * 不作预绑定，this为当前指令单元（Cell）。
- *
- * @param  {Value} val 初始值
+ * - 每次重入会清空暂存区（全部取出）。
+ * - 如果val为空则暂存区的值会传入起始指令。
+ * 注意：
+ * - 循环结束之后并不会移除入口，后面依然可以启动循环。
+ * - 若后面启动循环，会同时激活当前循环（嵌套关系）。
  * @param  {Number} cnt 迭代次数
+ * @param  {Value} val 起始指令初始值
  * @return {void}
  */
-function reenter( evo, cnt, val ) {
-    if ( evo[__REENTER] ) {
-        // 初始覆盖。
-        if ( val !== undefined ) {
-            evo.data = val;
-        }
-        delete evo[__REENTER];
-        this[__REENTER] = +cnt || 0;
-    }
-    if ( this[__REENTER] == 0 ) {
+function loop( evo, cnt, val = evo.data ) {
+    if ( this[__ENTRY] == 0 ) {
+        delete this[__ENTRY];
         return;
     }
-    if ( this[__REENTER] > 0 ) {
-        -- this[__REENTER];
+    if ( this[__ENTRY] === undefined ) {
+        this[__ENTRY] = +cnt || 1;
     }
-    requestAnimationFrame( () => evo.entry(evo.data) );
+    if ( cnt > 0 ) this[__ENTRY]--;
+
+    requestAnimationFrame( () => evo.entry(val) );
 }
 
-// 目标：当前条目，不自动取栈。
-reenter[EXTENT] = 0;
+//
+// 目标：暂存区条目，可选。
+// 注记：
+// loop之后的指令应当从一个干净的暂存区开始。
+//
+loop[EXTENT] = 0;
 
 
 /**
@@ -1693,12 +1678,12 @@ const Base = $.assign( {}, _Base, bindMethod );
 
 
 // 特殊控制。
-// 避免预绑定处理。this: {Cell}
-Base.prune = prune;
+// 无预绑定处理。this:{Cell}
+Base.prune  = prune;
 Base.prunes = prunes;
-Base.entry = entry;
-Base.reenter = reenter;
-Base.debug = debug;
+Base.entry  = entry;
+Base.loop   = loop;
+Base.debug  = debug;
 
 
 // 基础集II（On域）。
