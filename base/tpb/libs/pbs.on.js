@@ -46,7 +46,7 @@ const
 const _On = {
     /**
      * 构造日期对象。
-     * 目标：当前条目，可选。
+     * 目标：暂存区条目可选。
      * 目标有值时自动解包（如果为数组）为构造函数的补充实参。
      * 注：无实参无目标时构造一个当前时间对象。
      * @param  {...Value} vals 实参值
@@ -64,49 +64,24 @@ const _On = {
 
     /**
      * 关联数据获取。
-     * 目标：当前条目/栈顶1-2项。
+     * 目标：暂存区/栈顶1-2项。
      * 特权：是，灵活取栈。
      * 从流程元素关联的存储区取值。
-     * 当name实参为空时，取栈顶2项：[Element, name]。
+     * name支持空格分隔的名称序列，如果为空，取目标：[Element, name]。
      * 若目标存储集不存在，返回错误并中断。
      * @param {Stack} stack 数据栈
-     * @param  {String} name 键名
+     * @param  {String} name 名称/序列
      * @param  {Value|[Value]} val 存储值，可选
      * @return {Value|reject}
      */
     data( evo, stack, name ) {
-        let [el, k] = stackArg2(stack, name),
+        let [el, ns] = stackArg2(stack, name),
             _m = DataStore.get(el);
 
-        return _m ? _m.get( k ) : Promise.reject( dataUnfound );
+        return _m ? getData(_m, ns) : Promise.reject(dataUnfound);
     },
 
     __data_x: true,
-
-
-    /**
-     * 关联数据多名称取值。
-     * 目标：当前条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 从流程元素关联的存储区同时取多个值。
-     * 无关联存储时无返回值，否则始终返回一个数组（大小相同）。
-     * 当names实参为空时，取栈顶2项：[Element, names]。
-     * 如果目标存储集不存在，返回错误并中断。
-     * @param  {Stack} stack 数据栈
-     * @param  {String} names 名称序列（空格分隔）
-     * @return {[Value]|reject}
-     */
-    xdata( evo, stack, names ) {
-        let [el, ns] = stackArg2(stack, names),
-            _m = DataStore.get(el)
-
-        if ( !_m ) {
-            return Promise.reject( dataUnfound );
-        }
-        return ns.split(__reSpace).map( n => _m.get(n) );
-    },
-
-    __xdata_x: true,
 
 
     /**
@@ -740,6 +715,20 @@ const _On = {
 function stackArg2( stack, val ) {
     return val === undefined ?
         stack.data(2) : [ stack.data(1), val ];
+}
+
+
+/**
+ * 获取关联数据。
+ * @param  {Map} map 存储集
+ * @param  {String} name 名称序列（空格分隔）
+ * @return {Value|[Value]} 值或值集
+ */
+function getData( map, name ) {
+    if ( !__reSpace.test(name) ) {
+        return map.get( name );
+    }
+    return name.split(__reSpace).map( n => map.get(n) );
 }
 
 

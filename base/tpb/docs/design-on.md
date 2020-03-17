@@ -76,18 +76,6 @@ date( ...args? ): Date
 
 data( name: String ): void|Value
 // 关联数据取出。
-// 目标：当前条目/栈顶1-2项。
-// 特权：是，灵活取栈。
-// 从流程元素关联的存储区取值。
-// 当name实参为空时，取栈顶2项：[Element, name]。
-
-xdata( names:String ): void|[Value]
-// 关联数据多名称取值。
-// 目标：当前条目/栈顶1-2项。
-// 特权：是，灵活取栈。
-// 从流程元素关联的存储区同时取多个值。
-// 无关联存储时无返回值，否则始终返回一个数组（大小相同）。
-// 当names实参为空时，取栈顶2项：[Element, names]。
 
 scam( names?:String ): Boolean | Object
 // 修饰键 Alt|Ctrl|Shift|Meta} 按下检查或状态封装。

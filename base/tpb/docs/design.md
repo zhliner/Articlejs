@@ -284,74 +284,33 @@ Obj(): Object
 // 简单值操作。
 //===============================================
 
-push( ...val: Value|[Value] ): void
-// 直接赋值入栈。
-// 目标：当前条目，可选。
-// 特权：是，自行入栈。
-// 多个实参会自动展开入栈，数组实参视为单个值。
-// 如果实参和目标都有值，则目标作为单一值附加在实参序列之后。
+push( ...val:Value|[Value] ): void
+// 直接数据入栈。
 
-env( names: String, its?: Value|String ): void|Value
-// 全局环境设置/取值。
-// 目标：当前条目，可选。
-// 目标非空或its有值时为设置，否则为取值入栈。
-// 设置时：
-// - 目标为空：取its本身为值（必然存在）。
-// - 目标非空：取目标的its属性值或目标本身（its未定义时）。
-// 注：
-// its支持空格分隔多个名称指定目标属性。
+env( names:String, its?:Value|String ): void|Value
+// 设置/获取全局变量。
 
-sess( name: String|null, its?: Value|String|null): void|Value
+sess( name:String|null, its?:Value|String|null): void|Value
 // 设置/取值浏览器会话数据（sessionStorage）。
-// 目标：当前条目，可选。
-// 目标为空且its未定义时为取值入栈，否则为设置。
-// 说明：
-// 参考evn指令，但name仅支持单个名称。
-// its依然可为键名序列，从目标上提取一个值集（对应到单个name）。
-// 传递its为null可清除name项的值，传递name为null可清除整个Storage存储。
-// 注：
-// 存储的值会被转换为字符串，取出的值也为字符串。
 
-local( name: String|null, its?: Value|String|null): void|Value
+local( name:String|null, its?:Value|String|null): void|Value
 // 设置/取值浏览器本地数据（localStorage）。
-// 目标：当前条目，可选。
-// 说明：参考sess指令。
 
-get( ...names: String ): Value|[Value]
-// 取目标成员值入栈。
-// 目标：当前条目/栈顶1项。
-// 特权：是，自行入栈。
-// name支持空格分隔的多个名称，此时值为一个集合（不展开）。
-// 多个实参名称取值会自动展开入栈。
-// 注意：
-// 实参名称不要有多余的空格，否则前后空串也是一个键名。
+get( ...names:String ): Value|[Value]
+// 从目标上取值入栈。
 
-call( meth, ...rest ): Value
-// 调用目标的方法，执行结果入栈。
-// 目标：当前条目/栈顶1项。
+call( meth:String, ...rest:Value ): Value
+// 调用目标的方法执行。
 
 
-$if( val, elseval? ): Value
+$if( val, elseval?:Value ): Value
 // 条件赋值。
-// 目标：当前条目/栈顶1项。
-// 如果目标值为真（广义），val入栈，否则入栈elseval。
-// elseval值可选，如果未定义则为简单的if逻辑。
 
-$case( ...vals ): [Boolean]
+$case( ...vals:String ): [Boolean]
 // 分支比较。
-// 目标：当前条目/栈顶1项。
-// 目标与实参一一相等（===）比较，结果入栈。
-// 这是$switch指令的前阶执行。
 
-$switch( ...vals ): Value
+$switch( ...vals:String ): Value
 // 分支判断赋值。
-// 目标：当前条目/栈顶1项。
-// 取栈顶通常是$case执行的结果（一个集合），
-// 测试集合成员值是否为真（广义），真值返回相同下标实参值入栈。
-// 注：
-// 仅取首个真值对应的实参值入栈。
-// 目标集大小通常与实参序列长度相同，但容许超出（被简单忽略）。
-// 目标应当是一个数组（.entries接口）。
 
 
 
@@ -360,33 +319,19 @@ $switch( ...vals ): Value
 //===============================================
 
 array( size, ...vals ): Array
-// 创建预填充值的数组（size大小）。
-// 目标：当前条目，可选。
-// 如果目标有值，会合并到实参序列之后填充。
-// 如果size大于预填充值集合，最后一个值重复填充至最后。
-// 注：
-// 当前条目如果是数组，会解构填充。
-// 如果完全没有填充值，数组成员会填充为undefined。
+// 创建预填充值数组（size大小）。
 
 keys(): [Value]
-// 调用目标 .keys() 接口构造为值数组。
-// 注：也适用普通对象（Object）。
+// 获得键数组。
 
 values(): [Value]
-// 调用目标 .values() 接口构造为值数组。
-// 注：也适用普通对象（Object）。
+// 获取值数组。
 
 join( chr ): String
-// 调用目标的 .join() 方法构造字符串。
-// 主要用于数组成员的连接。
-// 注：即 .call('join', chr) 的特例版。
+// 接数组各成员。
 
 concat( ...vals ): [Value]
 // 数组串接。
-// 目标：当前条目/栈顶1-2项。
-// 特权：是，灵活取栈。
-// 如果实参为空，取栈顶2项，否则取1项。
-// 实参可以是一个值或数组。
 
 split( sep, cnt ): [String]
 // 切分字符串为数组。
@@ -394,7 +339,7 @@ split( sep, cnt ): [String]
 
 
 // 简单运算。
-// 支持前一个操作数是数组的情况（取成员计算）。
+// 支持前一个操作数是数组的情况（对成员计算）。
 //===============================================
 
 add( val?:Number ): Number|String|[...] // (x, y) => x + y
@@ -404,58 +349,38 @@ div( val?:Number ): Number|[Number]     // (x, y) => x / y
 mod( val?:Number ): Number|[Number]     // (x, y) => x % y
 pow( val?:Number ): Number|[Number]     // (x, y) => x ** y
 // 标准算术。
-// 目标：当前条目/栈顶1-2项。
-// val 第二个操作数，可选。
 
-divmod( val?:Number ): [Number, Number]
-// 除并求余。(x, y) => [x/y, x%y]
-// 目标：当前条目/栈顶2项。
-// 注：
-// 商数取小于等于结果的整数值。
-// 如：3.5 => 3, -3.5 => -4
+divi( val?:Number ): Number|[Number]    // (x, y) => parseInt(x/y)   // 小数截断
+fdiv( val?:Number ): Number|[Number]    // (x, y) => Math.floor(x/y) // 向小取整
+cdiv( val?:Number ): Number|[Number]    // (x, y) => Math.ceil(x/y)  // 向大取整
+rdiv( val?:Number ): Number|[Number]    // (x, y) => Math.round(x/y) // 四舍五入
+// 除法定制。
 
 neg(): Number|[Number]
 // 数值取负（-x）。
-// 目标：当前条目/栈顶1项。
-// 支持目标为集合，对成员分别取负。
 
 vnot(): Boolean|[Boolean]
 // 逻辑取反（!x）。
-// 目标：当前条目/栈顶1项。
-// 支持目标为集合，对成员分别取反。
+
+divmod( val?:Number ): [Number, Number]
+// 除并求余。(x, y) => [商, 模]
 
 
 
 // 克隆创建
 //===============================================
 
-dup( n = 1 ): Value | [Value]
+dup( n = 1 ): Value|[Value]
 // 栈顶浅复制。
-// 目标：可选当前条目为克隆数（不自动取栈）。
-// 特权：是。多条目克隆压入。
-// 若当前条目有值，视为复制数量。
-// 无参数调用时，n默认取1。
-// 附：
-// 效果与 `slice(-n) spread` 相同。
 
-clone( event, deep, eventdeep ): Element | Collector
+clone( event:?, deep?:, eventdeep?:Boolean ): Element|Collector
 // 专用：元素克隆。
-// 目标：当前条目/栈顶1项。
-// 注：兼容集合处理。
 
 assign( target:Object, names?:String ): Object
 // 对象克隆赋值。
-// 目标：当前条目/栈顶1项。
-// 目标为数据源，克隆仅限于对象自身的可枚举属性。
-// names为目标属性名清单，空格分隔多个名称。
-// 如果names未定义，克隆源对象自身的全部可枚举属性（含Symbol）。
 
-gather( names: String ): Object
-// 集合映射聚集。
-// 目标：当前条目/栈顶1项
-// names支持空格分隔的多个名称，把集合成员映射到一个键值对对象。
-// 集合通常是数组（也支持字符串），按名称顺序下标取值作为该键名对应的值。
-// 集合大小通常与名称数量一致，若不足，则值为undefined。
+gather( names:String ): Object
+// 数组映射聚集。
 
 
 
@@ -463,74 +388,43 @@ gather( names: String ): Object
 // 目标：当前条目/栈顶2项。
 //===============================================
 
-equal(): Boolean    // (x, y) => x === y
-nequal(): Boolean   // (x, y) => x !== y
-lt(): Boolean       // (x, y) => x < y
-lte(): Boolean      // (x, y) => x <= y
-gt(): Boolean       // (x, y) => x > y
-gte(): Boolean      // (x, y) => x >= y
+equal( v?:Value ): Boolean    // (x, y) => x === y
+nequal( v?:Value ): Boolean   // (x, y) => x !== y
+lt( v?:Value ): Boolean       // (x, y) => x < y
+lte( v?:Value ): Boolean      // (x, y) => x <= y
+gt( v?:Value ): Boolean       // (x, y) => x > y
+gte( v?:Value ): Boolean      // (x, y) => x >= y
 
-arrayEqual( arr? )
+arrayEqual( arr?:Array )
 // 数组相等比较。
-// 如果传递 arr 实参则取栈顶1项比较，否则取栈顶两项比较。
-// 目标：当前条目/栈顶1-2项。
-// 特权：是，需要灵活取栈条目。
-// 注：
-// 仅对数组的成员逐一执行浅相等对比。
 
 contains(): Boolean
 // 元素包含测试。
-// $.contains( box, sub )
 
 
 // 逻辑运算
 //===============================================
 
 within( min, max ): Boolean
-// 目标是否在 [min, max] 的范围内（包含边界值）。
-// 目标：当前条目/栈顶1项。
+// 目标是否在 [min, max] 内（含边界）。
 
 include( ...vals ): Boolean
 // 目标是否在实参序列内。
-// 目标：当前条目/栈顶1项。
-// 实现：Array.includes。
 
-both(): Boolean
-// 二者为真（广义）判断。
-// 目标：当前条目/栈顶2项。
+both( strict:Boolean ): Boolean
+// 二者为真判断。
 
 either(): Boolean
 // 二者任一为真测试。
-// 目标：当前条目/栈顶2项。
 
 every( expr ): Boolean
 // 集合成员全为真测试。
-// expr 可选，默认简单真值判断。
-// 目标：当前条目/栈顶1项。
-// 表达式接口：function(v, i, o): Boolean。
-// 注：目标必须是一个集合。
 
 some( expr ): Boolean
 // 集合成员至少1项为真测试。
-// expr 可选，默认简单真值判断。
-// 目标：当前条目/栈顶1项。
-// 表达式接口：function(v, i, o): Boolean。
-// 注：目标必须是一个集合。
 
 inside( name: String, val: Value|[Value] ): Boolean
 // 目标对象内成员测试。
-// 目标：当前条目/栈顶1项。
-// name为属性名，支持空格分隔的多个属性名指定。
-// val为对比值，用于与目标属性值做全等比较。可选，默认为存在性测试（非undefined）。
-// 如果name为多名称指定，val可以是一个数组（一一对应）或undefined。
-// 当所有的检查/比较都为真时，返回true。
-// 例：
-// inside('shift ctrl', true)
-// 检查目标内shift和ctrl成员值是否都为真。
-// inside('selector')
-// 检查目标内的selector成员是否存在（非undefined）。
-// inside('AA BB', [1, 2])
-// 检查目标内是否：AA成员值为1且BB成员值为2。
 
 
 
@@ -539,21 +433,12 @@ inside( name: String, val: Value|[Value] ): Boolean
 
 func( ...argn: String ): Function
 // 创建函数入栈。
-// 取目标为函数体表达式（无需return）。
-// 目标：当前条目/栈顶1项。
-// 可以传递函数的参数名序列。
 
 exec( ...rest ): Value
-// 把目标视为函数，传递实参执行后结果入栈。
-// 目标：当前条目/栈顶1项。
-// 注：通常配合 func 使用。
+// 函数执行。
 
 calc( expr ): Value
-// 表达式计算。
-// 目标：当前条目/栈顶1项。
-// 用$引用目标数据，计算表达式（无需return）的值。
-// 例：
-// calc('($[0] + $[1]) * $[2]')
+// 表达式/函数运算。
 ```
 
 

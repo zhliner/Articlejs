@@ -139,38 +139,29 @@ const _Update = {
 
 
     /**
-     * 存储关联数据。
+     * 关联数据存储。
+     * name支持空格分隔的名称序列。
      * 如果未传递name实参，则从内容数据中取值（[1]）。
-     * 如果目标是一个集合则值应当是一个数组，一一对应存储。
+     * 如果名称为多个且关联数据是一个数组，会与名称一一对应存储。
+     * 如果目标是一个集合，相同的键/值存储到所有目标元素。
      * @param {Element|Collector} to 存储元素（集）
-     * @param {Value|[Value]} data 内容数据（集）
-     * @param {String} name 存储键（单个）
+     * @param {[Value]} data 内容数据集
+     * @param {String} name 名称序列（空格分隔）
      */
     data( to, data, name ) {
         [data, name] = dataArg2(data, name);
 
-        if ( $.isArray(to) ) {
-            return dataStores( to, name, data );
+        if ( !$.isArray(to) ) to = [to];
+
+        if ( __reSpace.test(name) ) {
+            return setData(
+                to,
+                name.split(__reSpace),
+                data,
+                $.isArray(data) ? dataVals : dataVal
+            );
         }
-        getMap(DataStore, to).set(name, data);
-    },
-
-
-    /**
-     * 多名称关联数据存储。
-     * 如果未传递name实参，则从内容数据中取值（[1]）。
-     * 关联数据应当是一个数组，与名称一一对应存储。
-     * 如果目标是一个集合，相同的键/值存储到多个目标元素。
-     * @param {Element|Collector} to 存储元素（集）
-     * @param {[Value]} data 内容数据集
-     * @param {String} names 名称序列（空格分隔）
-     */
-    xdata( to, data, names ) {
-        [data, names] = dataArg2(data, names);
-
-        $(to).forEach(
-            el => setVals( getMap(DataStore, el), names, data )
-        );
+        to.forEach( el => getMap(DataStore, el).set(name, data) );
     },
 
 
@@ -608,32 +599,41 @@ const _Stage = {
 
 
 /**
- * 多目标存储关联数据项集。
- * 各个目标对应相同下标的数据集成员。
- * 注：如果相应数据集成员未定义，则不会存储。
- * @param  {[Element]} els 关联元素集
- * @param  {String} name 存储键
- * @param  {[Value]} vals 存储值集
+ * 多名称值集存储。
+ * 数据值集成员与名称成员一一对应。
+ * @param {Map} map 存储集
+ * @param {[String]} names 名称集
+ * @param {[Value]} vals 数据值集
  */
-function dataStores( els, name, vals ) {
-    els
-    .forEach( (el, i) =>
-        vals[i] !== undefined && getMap(DataStore, el).set(name, vals[i])
+function dataVals( map, names, vals ) {
+    names.forEach(
+        (n, i) => vals[i] !== undefined && map.set(n, vals[i])
     );
 }
 
 
 /**
- * 多名称键值存储。
- * 数据值应当是一个数组，与名称一一对应存储。
+ * 多名称单值存储。
  * @param {Map} map 存储集
- * @param {String} names 名称序列
- * @param {[Value]} vals 数据值集
+ * @param {[String]} names 名称集
+ * @param {Value} val 数据值
  */
-function setVals( map, names, vals ) {
-    names.trim()
-    .split(__reSpace)
-    .forEach( (n, i) => map.set(n, vals[i]) );
+function dataVal( map, names, val ) {
+    names.forEach( n => map.set(n, val) );
+}
+
+
+/**
+ * 设置元素关联数据。
+ * @param {[Element]} els 元素集
+ * @param {[String]} names 名称集
+ * @param {Value|[Value]} data 数据值/值集
+ * @param {Function} handle 设置函数
+ */
+function setData( els, names, data, handle ) {
+    els.forEach(
+        el => handle( getMap(DataStore, el), names, data )
+    );
 }
 
 
@@ -765,10 +765,10 @@ function selectChanged( sel ) {
  * @return {[Value, ...]}
  */
 function dataArgs( data, args ) {
-    if ( !$.isArray(data) ) {
-        return [data, ...args];
+    if ( $.isArray(data) ) {
+        return [ data.shift(), ...args.concat(data) ];
     }
-    return [ data.shift(), ...args.concat(data) ];
+    return [ data, ...args ];
 }
 
 
