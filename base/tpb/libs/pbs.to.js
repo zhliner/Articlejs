@@ -18,9 +18,8 @@
 import { Util } from "./util.js";
 import { bindMethod, method, DataStore, ChainStore, storeChain } from "../config.js";
 
-
-// 可选。
-// 若无需支持可简单移除。
+// 无渲染占位。
+// import { Render } from "./render.x.js";
 import { Render } from "./render.js";
 
 
@@ -71,18 +70,39 @@ const _Update = {
 
     /**
      * 发送定制事件。
-     * 如果name明确传递假值，则从内容中获取（[0]）。
+     * 如果evn未定义，则从内容中获取（[0]）。
+     * 如果目标是一个集合，相同的值发送到所有元素（tQuery行为）。
      * 内容: val:Value|[evn:String, val:Value]
-     * @param {Element|Collector} to 待绑定元素/集
+     * @param {Element|Collector} to 待激发元素/集
      * @param {Value|[String, Value]} data 待发送数据或名称和待发送数据
-     * @param {Boolean} bubble 是否可冒泡
-     * @param {Boolean} cancelable 是否可取消
+     * @param {String} evn 目标事件名，可选
+     * @param {Boolean} bubble 是否可冒泡，可选
+     * @param {Boolean} cancelable 是否可取消，可选
      */
     trigger( to, data, evn, bubble, cancelable ) {
         if ( !evn ) {
             [evn, data] = data;
         }
         $(to).trigger( evn, data, bubble, cancelable );
+    },
+
+
+    /**
+     * 发送定制事件。
+     * 此为多元素分别对应不同的发送值版（内容为一个数组）。
+     * 如果evn未定义，则从内容中获取（[0]）。
+     * 内容: [Value]|[evn:String, ...Value]
+     * @param {[Element]|Collector} tos 待激发元素集
+     * @param {Value|[String, Value]} data 待发送数据或名称和待发送数据
+     * @param {String} evn 目标事件名，可选
+     * @param {Boolean} bubble 是否可冒泡，可选
+     * @param {Boolean} cancelable 是否可取消，可选
+     */
+    triggers( to, data, evn, bubble, cancelable ) {
+        if ( !evn ) {
+            evn = data.shift();
+        }
+        to.forEach( (e, i) => $.trigger( e, data[i], bubble, cancelable ) );
     },
 
 
@@ -421,9 +441,14 @@ const _Update = {
 const _Stage = {
     /**
      * To目标更新或取值。
-     * 更新：将当前条目/栈顶1项更新为目标。
-     * 取值：将目标设置为流程数据。
-     * @param {Boolean} dir 更新（true）或取值（false）
+     * 内容：暂存区1项可选。
+     * 更新：将暂存区1项更新为目标。
+     * 取值：将目标设置为流程数据（入栈）。
+     * 注记：
+     * 需明确提取（pop）表达更新更显眼，而非特权判断取值。
+     * 如果没有提取内容更新，目标会被设置为undefined。
+     * @param  {Boolean} dir 更新（true）或取值（false）
+     * @return {Element|Collector|void}
      */
     target( evo, dir = true ) {
         if ( !dir ) {
@@ -432,12 +457,12 @@ const _Stage = {
         evo.targets = evo.data;
     },
 
-    __target: 1,
+    __target: -1,
 
 
     /**
      * 在目标元素（集）上激发事件。
-     * 内容：当前条目，可选。
+     * 内容：暂存区1项可选。
      * 内容即为发送的数据，可能为undefined。
      * @param {Number} delay 延迟毫秒数。
      * @param {String} name 事件名
@@ -451,14 +476,14 @@ const _Stage = {
         );
     },
 
-    __fire: 0,
+    __fire: -1,
 
 
     /**
      * 条件激发。
-     * 内容：当前条目/栈顶1项。
+     * 内容：暂存区/栈顶1项。
      * 仅当内容为真时才激发目标事件，否则忽略。
-     * 内容为激发判断的依据，而无法成为被发送的数据。
+     * 内容为激发判断的依据，因而无法成为被发送的数据。
      * @param {Number} delay 延迟毫秒数。
      * @param {String} name 事件名
      * @param {Value} extra 发送数据，可选
@@ -477,35 +502,42 @@ const _Stage = {
 
     /**
      * 设置滚动条位置。
-     * 内容：当前条目，可选。
-     * @param {Number|Object} top 垂直滚动条位置或配置对象
+     * 内容：暂存区1项可选。
+     * 如果未传递任何实参且暂存区为空，则滚动到起始位置。
+     * 注：top可以传递null实参占位。
+     * @data: Object2|Array2
+     * @param {Number} top 垂直滚动条位置
      * @param {Number} left 水平滚动条位置
      */
     scroll( evo, top, left ) {
-        let _obj = {top, left};
+        let _obj = [top, left];
 
-        if ( top === undefined ) {
-            _obj = evo.data;
+        if ( top === undefined && left === undefined ) {
+            _obj = evo.data || [0, 0];
         }
+        // 兼容 Object2
         $( evo.targets ).scroll( _obj );
     },
 
-    __scroll: 0,
+    __scroll: -1,
 
 
     /**
      * 表单控件默认值改变通知。
      * 目标：仅适用表单元素（集）。
-     * 内容：当前条目，可选发送。
+     * 内容：暂存区条目可选。用于发送的数据。
      * 检查表单控件值是否不再为默认值，激发目标控件上的evn事件。
      * 注：如果都没有改变，不会激发事件。
-     *
+     * 注记：
+     * - 通常会把事件绑定在表单元素（<form>）上来监控内部的表单控件，
+     *   除非有内部控件需要单独处理默认值改变的情况。
+     * - 提供暂存区全部条目，以便于充分传递必要的信息（相同）。
      * @param {String} evn 控件上激发的事件名，可选
      */
     changes( evo, evn = 'changed' ) {
         $( evo.targets )
-        .forEach(
-            el => changedTrigger( $.controls(el), evn, evo.data )
+        .forEach( frm =>
+            changedTrigger( $.controls(frm), evn, evo.data )
         );
     },
 
@@ -514,8 +546,8 @@ const _Stage = {
 
     /**
      * 表单控件清空。
-     * 选取类控件为取消选取，其它为清除value值。
      * 内容：无。
+     * 选取类控件为取消选取，其它为清除value值。
      * 参考.select(), .focus()用途。
      */
     clear( evo ) {
@@ -527,25 +559,20 @@ const _Stage = {
 
     /**
      * 发送提示消息。
+     * 内容：暂存区1项可选。
      * 在目标元素上显示文本，持续时间由long定义，0表示永久。
-     * 内容：当前条目，可选。
-     * 注意：long单位为秒，支持浮点数。
+     * 注意：long单位为秒，但支持浮点数。
      * @param {Number} long 持续时间（秒）
      * @param {String} msg 消息文本，可选
      */
     tips( evo, long, msg ) {
-        let _its = evo.targets;
-
-        if ( !$.isArray(_its) ) {
-            _its = [_its];
-        }
-        if ( msg == null ) {
+        if ( msg === undefined ) {
             msg = evo.data;
         }
-        _its.forEach( el => message(el, msg, long) );
+        $(evo.targets).forEach( el => message(el, msg, long) );
     },
 
-    __tips: 0,
+    __tips: -1,
 
 };
 
@@ -748,9 +775,7 @@ function controlChanged( el ) {
  */
 function selectChanged( sel ) {
     for ( const oe of sel.options ) {
-        if ( oe.defaultSelected !== oe.selected ) {
-            return true;
-        }
+        if ( oe.defaultSelected !== oe.selected ) return true;
     }
     return false;
 }
@@ -790,7 +815,7 @@ function dataArg2( data, arg ) {
  * 仅支持纯文本显示（非html方式）。
  * @param  {Element} el 目标元素
  * @param  {String} msg 消息文本
- * @param  {Number} long 持续时间（秒），支持浮点数。
+ * @param  {Number} long 持续时间（秒）
  * @return {void}
  */
 function message( el, msg, long ) {

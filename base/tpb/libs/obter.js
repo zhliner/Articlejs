@@ -450,7 +450,6 @@ class Stack {
         if ( n > 0 ) {
             return n > 1 ? this._buf.splice(-n) : this._buf.pop();
         }
-        // <0: undefined
     }
 
 
@@ -737,8 +736,8 @@ class Cell {
             return val;
         }
         if ( $.type(val) !== 'Promise' ) {
-            // 非异步！
-            // 否则后续对事件默认行为的取消无效（如avoid）
+            // 保持线性！
+            // 否则后续对事件默认行为的取消操作（avoid）会延后，
             // 影响事件名同是方法的调用链（如submit）。
             return this.next.call(evo, val);
         }
@@ -1011,7 +1010,7 @@ class Update {
         let _fs = this._names
             .map( ss => this._caller(ss, pbs) );
 
-        return cell.bind( _fs, __update, false, this._count );
+        return cell.bind( _fs, _update, false, this._count );
     }
 
 
@@ -1162,31 +1161,23 @@ const usualMeth = {
 
 /**
  * To：更新方法（总）。
- * 如果有并列多个更新，流程数据为数组时会分别对应。
+ * 如果有并列多个更新，会取多个流程数据分别对应。
  * 注记：this无关性，可被共享。
- *
  * @param  {Object} evo 事件关联对象
  * @param  {...Function} funs 更新方法集
  * @return {void}
  */
 function update( evo, ...funs ) {
-    let _its = evo.targets,
-        _val = evo.data;
-
-    if ( _its == null ) return;
-
-    if ( funs.length == 1 ) {
-        funs[0]( _its, _val );
-        return;
+    if ( funs.length > 1 ) {
+        return funs.forEach( (f, i) => f(evo.targets, evo.data[i]) );
     }
-    // _val必然为数组（Query清空暂存）。
-    return funs.forEach( (f, i) => f(_its, _val[i]) );
+    funs[0]( evo.targets, evo.data );
 }
 
 //
 // 共享方法（bound）。
 //
-const __update = update.bind(null);
+const _update = update.bind(null);
 
 
 

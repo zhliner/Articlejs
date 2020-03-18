@@ -4381,7 +4381,7 @@ function entries( obj ) {
 
 /**
  * 获取键值迭代器（简版）。
- * @param  {Map|Object} obj 迭代对象
+ * @param  {.entries|Object} obj 迭代对象
  * @return {Iterator|[Array2]} 迭代器
  */
 const entries2 = obj =>

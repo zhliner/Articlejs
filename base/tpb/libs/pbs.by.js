@@ -47,9 +47,10 @@ const $ = window.$;
 const _By = {
     /**
      * 数据拉取（简单）。
-     * 目标：当前条目，可选。
+     * 目标：暂存区1项可选。
      * 暂存区的流程数据会作为查询串上传。
      * 注：仅支持 GET 方法。
+     * @data: [[key, value]]|{key: value}
      * @param  {String} meth 请求方法。可选，默认index
      * @return {Promise} data:json
      */
@@ -64,11 +65,12 @@ const _By = {
         );
     },
 
-    __pull: 0,
+    __pull: -1,
 
 
     /**
      * 导入X库成员（通常为函数）。
+     * 目标：无。
      * 特权：是，灵活取栈。
      * 如果实参为空则从数据栈取值。
      * @param  {Stack} stack 数据栈
@@ -87,12 +89,12 @@ const _By = {
 
     /**
      * 真值执行。
-     * 目标：当前条目/栈顶1项。
+     * 目标：暂存区/栈顶1项。
      * 比较目标是否为true（===），是则执行，否则跳过。
      *
      * 引用X扩展函数库里的方法执行。
      * 支持句点（.）连接的递进引用（如：'x.y.z'）。
-     * 注：
+     * 注记：
      * X中的方法已经过bind处理，可直接引用。
      *
      * @param  {String} meth X库方法名
@@ -110,7 +112,7 @@ const _By = {
 
     /**
      * 假值执行。
-     * 目标：当前条目/栈顶1项。
+     * 目标：暂存区/栈顶1项。
      * 比较目标是否为false（===），是则执行，否则跳过。
      * 参数说明同 xtrue()
      * @param  {String} meth X库方法名
@@ -127,10 +129,13 @@ const _By = {
 
 
     /**
-     * 节点渲染。
-     * 目标：当前条目/栈顶1-2项。
+     * 元素渲染（单个）。
+     * 目标：暂存区/栈顶1-2项。
      * 特权：是，灵活取栈。
-     * 模板实参为空时从数据栈中取数据。
+     * 模板实参为空时从内容中取数据（常见做法）。
+     * 注记：
+     * 仅支持单个元素渲染，因为数据与元素紧密相关（也易于封装为单个元素）。
+     * 如果需要相同数据对多个目标元素分别渲染，可用To:render。
      * @data:  [Element, data?:Value]
      * @param  {Stack} stack 数据栈
      * @param  {Object|Value|[Value]} 渲染数据，可选
@@ -141,7 +146,7 @@ const _By = {
             stack.data(2) :
             [ stack.data(1), data ];
 
-        return Render.update( ..._vs );
+        return Render.update(_vs[0], _vs[1]);
     },
 
     __render_x: true,

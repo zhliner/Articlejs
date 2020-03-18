@@ -181,10 +181,9 @@ off( evn?:String, slr?:String )
 
 trigger( name:String, bubble?, cancelable?:Boolean )
 // 发送事件到目标。
-// 内容：{Value|[Value]} 发送值
-// 扩展：[name:String, val:Value|[Value]]
-// 如果name明确传递假值，则从内容中获取（[0]）。
 
+triggers( name:String, bubble?, cancelable?:Boolean )
+// 发送事件到目标（元素与发送值分别对应版）。
 
 //
 // 逆向插入。

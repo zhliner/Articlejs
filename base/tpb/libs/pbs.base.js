@@ -1760,11 +1760,9 @@ loop[EXTENT] = 0;
  */
 function debug( evo, stack, keep ) {
     let _stack = {
-            done: stack._done,
-            data: stack._item,
-            heap: stack._buf.slice(),
+            tmp: stack._tmp.slice(),
+            buf: stack._buf.slice(),
         };
-
     window.console.info({
         evo,
         cell: this,
