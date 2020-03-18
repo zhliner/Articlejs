@@ -5688,7 +5688,7 @@ function varyNodes( el, meth, nodes ) {
         return el;
     }
     let _msg = {
-            // replaceWidth => replace
+            // replaceWith => replace
             type: meth.substring(0, 7),
             data: nodes,
         };
@@ -5742,7 +5742,6 @@ function varyEmpty( el ) {
             type: 'empty',
             data: _nodes,
         };
-
     limitTrigger( el, evnNodeVary, _msg );
     el.textContent = '';
     limitTrigger( el, evnNodeDone, _msg );
@@ -5763,7 +5762,6 @@ function varyNormalize( el, depth ) {
             type: 'normalize',
             data: depth,
         };
-
     limitTrigger( el, evnNodeVary, _msg );
     el.normalize();
     limitTrigger( el, evnNodeDone, _msg );
@@ -5773,7 +5771,7 @@ function varyNormalize( el, depth ) {
 
 
 /**
- * 新节点插入封装。
+ * 新节点（游离）插入封装。
  * meth: append|prepend|before
  * 注：没有 varyfail 事件。
  * @param  {Element} el 目标元素
@@ -5786,7 +5784,6 @@ function varyNewNode( el, meth, node ) {
             type: meth,
             data: node,
         };
-
     limitTrigger( el, evnNodeVary, _msg );
     el[meth]( node );
     limitTrigger( el, evnNodeDone, _msg );
@@ -5809,7 +5806,6 @@ function varyNewNodes( el, meth, nodes ) {
             type: meth.substring(0, 7),
             data: nodes,
         };
-
     limitTrigger( el, evnNodeVary, _msg );
     el[meth]( ...nodes );
     limitTrigger( el, evnNodeDone, _msg );
