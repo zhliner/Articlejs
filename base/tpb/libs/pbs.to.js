@@ -443,15 +443,12 @@ const _Stage = {
      * To目标更新或取值。
      * 内容：暂存区1项可选。
      * 更新：将暂存区1项更新为目标。
-     * 取值：将目标设置为流程数据（入栈）。
-     * 注记：
-     * 需明确提取（pop）表达更新更显眼，而非特权判断取值。
-     * 如果没有提取内容更新，目标会被设置为undefined。
-     * @param  {Boolean} dir 更新（true）或取值（false）
+     * 提取：将目标设置为流程数据（入栈）。
+     * 若内容有值则为更新，否则为提取。
      * @return {Element|Collector|void}
      */
-    target( evo, dir = true ) {
-        if ( !dir ) {
+    target( evo ) {
+        if ( evo.data === undefined ) {
             return evo.targets;
         }
         evo.targets = evo.data;

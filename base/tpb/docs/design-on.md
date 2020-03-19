@@ -46,79 +46,39 @@
 
 ```js
 pba(): [String]
-// PB参数取值。
-// 目标：当前条目/栈顶1项。
-// 返回值：有序的参数词序列。
-// 注：
-// 即元素data-pb属性值的参数部分（-后缀）。
-// 属性选择器：|=
+// PB参数取值（|=）。
 
 pbo(): [String]
-// PB选项取值。
-// 目标：当前条目/栈顶1项。
-// 返回值：无序的选项词序列。
-// 注：
-// 即元素data-pb属性值的选项部分（空格分隔）。
-// 属性选择器：~=
+// PB选项取值（~=）。
 
 pdv(): String
 // PB属性取值。
-// 目标：当前条目/栈顶1项。
-// 注：
-// 即元素data-pb属性的整个值（完整字符串）。
 
-date( ...args? ): Date
-// 构造日期对象入栈。
-// 目标：当前条目。不自动取栈。
-// 目标有值时解包传递为 new Data() 的补充实参。
-// 注：
-// args无值并且目标为空时构造为一个当前时间对象。
+xattr( names:String ): String|Object|[String]|[Object]
+// 特性提取并删除。
 
 data( name: String ): void|Value
 // 关联数据取出。
 
+date( ...args? ): Date
+// 构造日期对象入栈。
+
 scam( names?:String ): Boolean | Object
-// 修饰键 Alt|Ctrl|Shift|Meta} 按下检查或状态封装。
-// 目标：当前条目，可选。
-// 如果names或暂存区有值则为检查，否则为简单封装。
-// names支持空格分隔的多个名称，全小写，And关系。
+// 修饰键{Alt|Ctrl|Shift|Meta}状态检查|封装。
 
 chain( evnid:String, clone:Boolean ): Cell
-// 预绑定调用链提取。
-// 目标：当前条目/栈顶1项。
-// 提取目标元素上预绑定的调用链（链头指令实例）。
-// - 提取的是单个调用链，可直接用于实时的事件绑定/解绑（on|off|one）。
-// - 也可以转存到新的元素（可用不同的事件名标识）便于绑定使用（bind|once）。
-// 注：
-// 克隆参数可用于新链头接收不同的初始值。
+// 预绑定调用链提取（单个）。
 
 chains( evnid:String, clone:Boolean ): Map<evnid:Cell>
 // 预绑定调用链提取。
-// 目标：当前条目/栈顶1项。
-// 提取目标元素上预绑定的调用链集。
-// 主要用于预绑定调用链的不同元素间转存（模板定义复用）。
-// 与chain不同，此处会保持原始名称（名值对对象）。
-// evnid 支持空格分隔多个名称指定。
-// evnid 为空或假值表示通配，匹配目标元素上的全部预存储。
 
 movementX( v?:null ): Number | void
 movementY( v?:null ): Number | void
 // 鼠标移动量取值。
-// 目标：无。
-// 注记：
-// mousemove 事件中 movementX/Y 的值在缩放显示屏下有误差（chrome）。
-// 因此另外用绝对像素参数（event.pageX/pageY）重新实现。
-// 前值存储在事件当前元素（evo.current）上，解绑时应当重置（null）。
 
 scrollX( v:?null ): Number | void
 scrollY( v:?null ): Number | void
 // 内容滚动量取值。
-// 目标：当前条目，可选。
-// 支持指定目标滚动元素，如果目标为空，则取事件当前元素。
-// 前值存储在事件当前元素上，因此目标元素的滚动量是特定于当前事件的。
-// 通常在事件解绑时移除该存储（传递null）。
-// 注记：
-// 文档内容的滚动有多种途径，鼠标的wheel不能响应键盘对内容的滚动。
 ```
 
 

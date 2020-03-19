@@ -854,8 +854,8 @@ const _BaseOn = {
      * 目标：暂存区/栈顶1项。
      * 支持4子节Unicode字符空白切分。
      * @data: String
-     * @param  {String} sep 分隔符
-     * @param  {String} cnt 切分数量
+     * @param  {String} sep 分隔符，可选
+     * @param  {String} cnt 切分数量，可选
      * @return {[String]}
      */
     split( evo, sep, cnt ) {

@@ -45,24 +45,6 @@ const
 
 const _On = {
     /**
-     * 构造日期对象。
-     * 目标：暂存区条目可选。
-     * 目标有值时自动解包（如果为数组）为构造函数的补充实参。
-     * 注：无实参无目标时构造一个当前时间对象。
-     * @param  {...Value} vals 实参值
-     * @return {Date}
-     */
-    date( evo, ...vals ) {
-        if ( evo.data !== undefined ) {
-            vals = vals.concat( evo.data );
-        }
-        return new Date( ...vals );
-    },
-
-    __date: 0,
-
-
-    /**
      * 关联数据提取。
      * 目标：暂存区/栈顶1-2项。
      * 特权：是，灵活取值。
@@ -88,11 +70,47 @@ const _On = {
 
 
     /**
+     * 特性提取并删除。
+     * 提取特性值之后移除特性，通常用于数据一次性存储和提取。
+     * this: On
+     * @param  {String} names 名称/序列
+     * @return {String|Object|[String]|[Object]}
+     */
+    xattr( evo, names ) {
+        let _val = __reSpace.test(names) ?
+            this.attr(evo, names) : this.attribute(evo, names);
+
+        return $(evo.data).removeAttr(names), _val;
+    },
+
+    __xattr: 1,
+
+
+    /**
+     * 构造日期对象。
+     * 目标：暂存区条目可选。
+     * 目标有值时自动解包（如果为数组）为构造函数的补充实参。
+     * 注：无实参无目标时构造一个当前时间对象。
+     * @param  {...Value} vals 实参值
+     * @return {Date}
+     */
+    date( evo, ...vals ) {
+        if ( evo.data !== undefined ) {
+            vals = vals.concat( evo.data );
+        }
+        return new Date( ...vals );
+    },
+
+    __date: 0,
+
+
+    /**
      * 修饰键状态检查|封装。
      * 即 shift/ctrl/alt/meta 键是否按下。
      * 目标：暂存区1项可选。
      * 如果指定键名则为检查，否则简单封装4个键的状态。
      * 可从暂存区获取键名指定。
+     * names支持空格分隔的多个名称，全小写，And关系。
      * 例：
      * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
      * push('shift ctrl') pop scam      // 同上
@@ -258,6 +276,10 @@ const _On = {
      * 鼠标水平移动量。
      * 目标：无。
      * 前值存储在事件当前元素上，解绑时应当重置（null）。
+     * 注记：
+     * mousemove事件中movementX/Y的值在缩放显示屏下有误差（chrome），
+     * 因此用绝对像素值（event.pageX/pageY）重新实现。
+     * 前值存储在事件当前元素（evo.current）上，解绑时应当重置（null）。
      * @param  {null} 清除存储
      * @return {Number|void} 变化量（像素）
      */
@@ -295,6 +317,9 @@ const _On = {
      * 目标：暂存区1项可选。
      * 支持指定目标滚动元素，如果目标为空，则取事件当前元素。
      * 前值存储在事件当前元素上，因此目标元素的滚动量是特定于当前事件的。
+     * 通常在事件解绑时移除该存储（传递null）。
+     * 注记：
+     * 文档内容的滚动有多种途径，鼠标的wheel不能响应键盘对内容的滚动。
      * @param  {null} 清除存储
      * @return {Number|void} 变化量（像素）
      */
@@ -339,6 +364,7 @@ const _On = {
 //
 // PB专项取值。
 // 目标：暂存区/栈顶1项。
+// 即目标元素上data-pb特性的格式值（-分隔表示参数，空格分隔表示选项）。
 // 注：简单调用 Util.pba/pbo/pbv 即可。
 //////////////////////////////////////////////////////////////////////////////
 [
@@ -368,6 +394,7 @@ const _On = {
 // 参数固定：1
 // 目标：暂存区/栈顶1项。
 // 注：固定参数为1以限定为取值。
+// @return {String|Object|[String]|[Object]}
 //===============================================
 [
     'attribute',    // ( name:String ): String | null

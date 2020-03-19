@@ -1,13 +1,17 @@
-<!-- 特殊字符集：
-    父容器单次事件激发构造
+<!--父容器单次事件激发，因此可以省略解绑操作（To:off）。
     - init: 初始解析构造为：<b>...</b>序列。
-    - save: 各字符集清单<span>存储在data中备用。 -->
+    - save: 各字符集清单<span>存储（data）在父元素中以备取用（因为会脱离DOM）。
+    - debug: 查看是否可从data中取到值。
+    备用：
+    debug|ev('detail') data('unit number') debug"  // 取发送值即可
+    &|data('normal punctuation ...')|target pop fire(1, 'debug');  // 发送当前元素
+-->
 <div tpl-name="data:chars"
     on="^init|$$('/span') text map(s=>$.split(s,'')) map(ss=>$(ss).wrap('<b>'));
         ^save|$$('/span');
         ^obted;
-        debug|$('/') dup data('unit') shift data('number') debug"
-    to="+/span|fill|$('/') target fire(0, 'save');
+        debug|$('/') data('unit number') debug"
+    to="+/span|fill|$('/') pop target fire(0, 'save');
         &|data('normal punctuation unit number math special alphabet geometric emotion radical phonetic')|fire(1, 'debug');
         -|trigger('init')">
     <!-- <span><b>...</span> -->
@@ -31,5 +35,5 @@
     <!-- 偏旁部首 -->
     <span>丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
     <!-- 音标 -->
-    <span>ㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡāáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒ</span>
+    <span>āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
 </div>
