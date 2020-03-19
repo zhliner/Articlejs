@@ -20,34 +20,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./util.js";
-import { bindMethod, EXTENT, ACCESS, Templater, Globals } from "../config.js";
+import { bindMethod, EXTENT, ACCESS, Globals } from "../config.js";
 
 
 const
     $ = window.$,
-
-    // evo成员名/值键。
-    evoIndex = {
-        event:      0 ,     // 原生事件对象（注：ev指令可直接获取）
-        0:          0,
-        origin:     1 ,     // 事件起点元素（event.target）
-        1:          1,
-        current:    2 ,     // 触发事件的当前元素（event.currentTarget|matched）
-        2:          2,
-        delegate:   3 ,     // 事件相关联元素（event.relatedTarget）
-        3:          3,
-        related:    4 ,     // 委托绑定的元素（event.currentTarget）
-        4:          4,
-        selector:   5 ,     // 委托匹配选择器（for match）]
-        5:          5,
-        data:       10,     // 自动获取的流程数据
-        10:         10,
-        entry:      11,     // 中段入口（迭代重入）
-        11:         11,
-        targets:    12,     // To目标元素/集，向后延续
-        12:         12,
-    },
 
     // 空白分隔符。
     __reSpace = /\s+/;
@@ -55,141 +32,13 @@ const
 
 
 //
-// 全局顶层方法。
-// 适用 On/To 两个域。
+// 控制类。
+// 适用 On/By/To:NextStage 三个域。
 //
-const _Base = {
+const _Control = {
 
-    // 基础集。
-    //===========================================
-
-    /**
-     * 单元素检索入栈。
-     * 目标：暂存区1项/判断取值。
-     * 特权：是，判断取值。
-     * 如果实参为空，取目标为rid，如果目标为空，自动取栈顶1项。
-     * 如果实参非空，目标有值则为起点元素。
-     * rid: {
-     *      undefined  以目标为rid，事件当前元素为起点。
-     *      String  以目标（如果有）或事件当前元素（ev.current）为起点。
-     * }
-     * @param  {Object} evo 事件关联对象
-     * @param  {Stack} stack 数据栈
-     * @param  {String} rid 相对ID，可选
-     * @return {Element}
-     */
-    $( evo, stack, rid ) {
-        let _beg = evo.current;
-
-        if ( rid == null ) {
-            rid = evo.data === undefined ? stack.data(1) : evo.data;
-        } else {
-            _beg = evo.data || _beg;
-        }
-        return Util.find( rid, _beg, true );
-    },
-
-    __$: -1,
-    __$_x: true,
-
-
-    /**
-     * 多元素检索入栈。
-     * 目标：暂存区1项/判断取值。
-     * 特权：是，判断取值。
-     * rid: {
-     *      undefined  同上，但如果目标非字符串则为Collector封装。
-     *      String     同上。
-     *      Value      Collector封装，支持单值和数组。
-     * }
-     * 注：如果实参传递非字符串，前阶pop的值会被丢弃。
-     * @param  {Stack} stack 数据栈
-     * @param  {String|Value} rid 相对ID或待封装值
-     * @return {Collector}
-     */
-    $$( evo, stack, rid ) {
-        let _beg = evo.current;
-
-        if ( rid == null ) {
-            // 兼容前阶主动pop
-            rid = evo.data === undefined ? stack.data(1) : evo.data;
-        } else {
-            _beg = evo.data || _beg;
-        }
-        return typeof rid == 'string' ? Util.find(rid, _beg) : $(rid);
-    },
-
-    __$$: -1,
-    __$$_x: true,
-
-
-    /**
-     * evo成员取值入栈。
-     * 目标：无。
-     * 特权：是，判断取值。
-     * 如果name未定义或为null，取evo自身入栈。
-     * 注意：如果明确取.data属性，会取暂存区全部成员（清空）。
-     * @param  {Stack} stack 数据栈
-     * @param  {String|Number} name 成员名称或代码
-     * @return {Element|Collector|Value}
-     */
-    evo( evo, stack, name ) {
-        name = evoIndex[name];
-
-        if ( name == null ) {
-            return evo;
-        }
-        return name == 10 ? stack.data(0) : evo[name];
-    },
-
-    __evo_x: true,
-
-
-    /**
-     * 从事件对象上取值。
-     * 目标：无。
-     * name可用空格分隔多个名称（返回一个值数组）。
-     * 无实参调用取事件对象自身入栈。
-     * @param  {String} name 事件属性名（序列）
-     * @return {Value|[Value]} 值或值集
-     */
-    ev( evo, name ) {
-        return name == null ?
-            evo.event : namesValue( name, evo.event );
-    },
-
-    __ev: null,
-
-
-    /**
-     * 获取模板节点。
-     * 目标：无。
-     * 特权：是，自行取值。
-     * 如果实参name为空（null|undefined），自行取值1项为名称。
-     * 注意克隆时是每次都克隆（应当很少使用）。
-     * 注记：
-     * 因为返回Promise实例（异步），故通常用在调用链后段。
-     * @param  {Stack} stack 数据栈
-     * @param  {String|null} name 模板名，可选
-     * @param  {Boolean} clone 是否克隆，可选
-     * @return {Promise}
-     */
-    tpl( evo, stack, name, clone ) {
-        if ( name == null ) {
-            name = stack.data(1);
-        }
-        return Templater[clone ? 'get' : 'tpl'](name);
-    },
-
-    __tpl_x: true,
-
-
-
-    // 控制类
-    //===============================================
-    // 注记：
-    // 返回Promise.reject()不会异步化正常执行流。
-
+    // 基本控制。
+    //-----------------------------------------------------
 
     /**
      * 通过性检查。
@@ -209,6 +58,25 @@ const _Base = {
     },
 
     __pass: 1,
+
+
+    /**
+     * 流程终止。
+     * 目标：暂存区/栈顶1项，可选。
+     * 特权：是，判断取值。
+     * 如果传递val有值，则与目标比较，真值终止。
+     * 否则无条件终止。
+     * @param  {Stack} stack 数据栈
+     * @param  {Value} val 对比值，可选
+     * @return {void}
+     */
+    end( evo, stack, val ) {
+        if ( val === undefined || val === stack.data(1) ) {
+            return Promise.reject();
+        }
+    },
+
+    __end_x: true,
 
 
     /**
@@ -274,32 +142,12 @@ const _Base = {
     __stopAll: -1,
 
 
-    /**
-     * 流程终止。
-     * 目标：暂存区/栈顶1项，可选。
-     * 特权：是，判断取值。
-     * 如果传递val有值，则与目标比较，真值终止。
-     * 否则无条件终止。
-     * @param  {Stack} stack 数据栈
-     * @param  {Value} val 对比值，可选
-     * @return {void}
-     */
-    end( evo, stack, val ) {
-        if ( val === undefined || val === stack.data(1) ) {
-            return Promise.reject();
-        }
-    },
-
-    __end_x: true,
-
-
 
     // 暂存区赋值。
     // 目标：无。
     // 特权：是，自行操作数据栈。
     // @return {void}
-    //===============================================
-
+    //-----------------------------------------------------
 
     /**
      * 弹出栈顶n项。
@@ -343,7 +191,28 @@ const _Base = {
 
 
     // 数据栈操作。
-    //===============================================
+    //-----------------------------------------------------
+
+    /**
+     * 栈顶复制。
+     * 复制栈顶n项并入栈（原样展开）。
+     * 目标：暂存区1项可选。
+     * 特权：是，灵活取栈&自行入栈。
+     * 注：可选的暂存区1项仅用于复制数量定义，优先于模板实参。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} n 条目数
+     * @return {void}
+     */
+    dup( evo, stack, n = 1 ) {
+        if ( evo.data !== undefined ) {
+            n = +evo.data;
+        }
+        if ( n > 0 ) stack.push( ...stack.tops(n) );
+    },
+
+    __dup: -1,
+    __dup_x: true,
+
 
     /**
      * 栈顶条目打包封装。
@@ -414,61 +283,140 @@ const _Base = {
 
 
 
-    // 其它
-    //===============================================
+    // 简单值操作。
+    //-----------------------------------------------------
 
     /**
-     * 空值指令。
-     * 压入特殊值undefined。
-     * 特权：是，特殊操作。
-     * 可用于向栈内填充无需实参的占位值。
-     * @param {Stack} stack 数据栈
+     * 设置/获取全局变量。
+     * 目标：暂存区1项可选。
+     * 目标非空或its有值时为设置，否则为取值入栈。
+     * 设置时：
+     * - 目标为空：取its本身为值（必然存在）。
+     * - 目标非空：取目标的its属性值或目标本身（its未定义时）。
+     * its支持空格分隔多个名称指定目标属性。
+     * @param  {String} name 键名
+     * @param  {Value|String} its 存储值或成员名，可选
+     * @return {Value|void}
      */
-    nil( evo, stack ) {
-        stack.undefined();
+    env( evo, name, its ) {
+        let _o = evo.data;
+
+        if ( _o === undefined && its === undefined ) {
+            return Globals.get(name);
+        }
+        Globals.set( name, objectItem(_o, its) );
     },
 
-    __nil_x: true,
+    __env: -1,
 
 
     /**
-     * 设置目标成员值。
+     * 设置/取值浏览器会话数据。
+     * 目标：暂存区1项可选。
+     * 目标为空且its未定义时为取值入栈，否则为设置。
+     * 传递its为null可清除name项的值。
+     * 传递name为null，可清除整个Storage存储（小心）。
+     * 注：存储的值会被转换为字符串。
+     * @param  {String} name 存储键名
+     * @param  {Value|String} its 存储值或成员名，可选
+     * @return {Value|void}
+     */
+    sess( evo, name, its ) {
+        let _o = evo.data;
+
+        if ( _o === undefined && its === undefined ) {
+            return window.sessionStorage.getItem(name);
+        }
+        storage( window.sessionStorage, name, its, _o );
+    },
+
+    __sess: -1,
+
+
+    /**
+     * 设置/取值浏览器本地数据。
+     * 目标：暂存区1项可选。
+     * 说明：参考sess指令。
+     * @param  {String} name 存储键名
+     * @param  {Value|String} its 存储值或成员名，可选
+     * @return {Value|void}
+     */
+    local( evo, name, its ) {
+        let _o = evo.data;
+
+        if ( _o === undefined && its === undefined ) {
+            return window.localStorage.getItem(name);
+        }
+        storage( window.localStorage, name, its, _o );
+    },
+
+    __local: -1,
+
+
+    /**
+     * 条件赋值。
      * 目标：暂存区/栈顶1项。
-     * name支持空格分隔的多个名称。
-     * 值为数组时，多个名称分别对应到数组成员，否则对应到单一值。
-     * 注：会修改目标本身。
-     * @param  {String} name 名称/序列
-     * @param  {Value|[Value]} val 值或值集
-     * @return {@data}
+     * 如果目标值为真（广义），val入栈，否则入栈elseval。
+     * @param  {Value} val IF赋值
+     * @param  {Boolean} elseval ELSE赋值，可选
+     * @return {Value}
      */
-    set( evo, name, val ) {
-        let _ns = name.split(__reSpace);
-
-        if ( _ns.length == 1 ) {
-            evo.data[name] = val;
-            return evo.data;
-        }
-        if ( !$.isArray(val) ) {
-            val = new Array(_ns.length).fill(val);
-        }
-        return kvsObj( _ns, val, evo.data );
+    $if( evo, val, elseval ) {
+        return evo.data ? val : elseval;
     },
 
-    __set: 1,
+    __$if: 1,
+
+
+    /**
+     * CASE分支比较。
+     * 目标：暂存区/栈顶1项。
+     * 目标与实参一一相等（===）比较，结果入栈。
+     * 需要在$switch指令之前先执行。
+     * @param  {...Value} vals 实参序列
+     * @return {[Boolean]} 结果集
+     */
+    $case( evo, ...vals ) {
+        return vals.map( v => v === evo.data );
+    },
+
+    __$case: 1,
+
+
+    /**
+     * SWITCH分支判断。
+     * 目标：暂存区/栈顶1项。
+     * 测试目标集内某一成员是否为真，是则取相同下标的vals成员返回。
+     * 目标通常是$case执行的结果，但也可以是任意值集。
+     * 注：
+     * 仅取首个真值对应的实参值入栈。
+     * 目标集大小通常与实参序列长度相同，但容许超出（会被忽略）。
+     * @data: [Boolean]
+     * @param  {...Value} vals 入栈值候选
+     * @return {Value}
+     */
+    $switch( evo, ...vals ) {
+        for (const [i, b] of evo.data.entries()) {
+            if ( b ) return vals[i];
+        }
+    },
+
+    __$switch: 1,
 
 };
 
 
 
 //
-// 运算层基础方法。
+// 计算&加工类。
+// 仅用于 On 域。
 //
-const _BaseOn = {
+const _Process = {
 
-    // 类型转换
+    // 类型转换。
     // 目标：暂存区/栈顶1项。
     // 返回值而非该类型的对象。
-    //===============================================
+    //-----------------------------------------------------
 
     /**
      * 转为整数（parseInt）。
@@ -567,187 +515,8 @@ const _BaseOn = {
 
 
 
-    // 简单值操作
-    //===============================================
-
-    /**
-     * 直接数据入栈。
-     * 目标：暂存区条目可选。
-     * 特权：是，自行入栈。
-     * 多个实参会自动展开入栈，数组实参视为单个值。
-     * 如果目标有值，会附加（作为单一值）在实参序列之后。
-     * @param  {Stack} stack 数据栈
-     * @param  {...Value} vals 值序列
-     * @return {void} 自行入栈
-     */
-    push( evo, stack, ...vals ) {
-        if ( evo.data !== undefined ) {
-            vals.push( evo.data );
-        }
-        stack.push( ...vals );
-    },
-
-    __push: 0,
-    __push_x: true,
-
-
-    /**
-     * 设置/获取全局变量。
-     * 目标：暂存区1项可选。
-     * 目标非空或its有值时为设置，否则为取值入栈。
-     * 设置时：
-     * - 目标为空：取its本身为值（必然存在）。
-     * - 目标非空：取目标的its属性值或目标本身（its未定义时）。
-     * its支持空格分隔多个名称指定目标属性。
-     * @param  {String} name 键名
-     * @param  {Value|String} its 存储值或成员名，可选
-     * @return {Value|void}
-     */
-    env( evo, name, its ) {
-        let _o = evo.data;
-
-        if ( _o === undefined && its === undefined ) {
-            return Globals.get(name);
-        }
-        Globals.set( name, objectItem(_o, its) );
-    },
-
-    __env: -1,
-
-
-    /**
-     * 设置/取值浏览器会话数据。
-     * 目标：暂存区1项可选。
-     * 目标为空且its未定义时为取值入栈，否则为设置。
-     * 传递its为null可清除name项的值。
-     * 传递name为null，可清除整个Storage存储（小心）。
-     * 注：存储的值会被转换为字符串。
-     * @param  {String} name 存储键名
-     * @param  {Value|String} its 存储值或成员名，可选
-     * @return {Value|void}
-     */
-    sess( evo, name, its ) {
-        let _o = evo.data;
-
-        if ( _o === undefined && its === undefined ) {
-            return window.sessionStorage.getItem(name);
-        }
-        storage( window.sessionStorage, name, its, _o );
-    },
-
-    __sess: -1,
-
-
-    /**
-     * 设置/取值浏览器本地数据。
-     * 目标：暂存区1项可选。
-     * 说明：参考sess指令。
-     * @param  {String} name 存储键名
-     * @param  {Value|String} its 存储值或成员名，可选
-     * @return {Value|void}
-     */
-    local( evo, name, its ) {
-        let _o = evo.data;
-
-        if ( _o === undefined && its === undefined ) {
-            return window.localStorage.getItem(name);
-        }
-        storage( window.localStorage, name, its, _o );
-    },
-
-    __local: -1,
-
-
-    /**
-     * 从目标上取值入栈。
-     * 目标：暂存区/栈顶1项。
-     * 特权：是，自行入栈。
-     * name支持空格分隔的多个名称，此时值为一个数组。
-     * 多个名称实参取值会自动展开入栈。
-     * @data: Object => Value|[Value]
-     * @param  {Stack} stack 数据栈
-     * @param  {...String} names 属性名序列
-     * @return {void} 自行入栈
-     */
-    get( evo, stack, ...names ) {
-        stack.push(
-            ...names.map( n => namesValue(n, evo.data) )
-        );
-    },
-
-    __get: 1,
-    __get_x: true,
-
-
-    /**
-     * 调用目标的方法执行。
-     * 目标：暂存区/栈顶1项。
-     * @param  {String} meth 方法名
-     * @param  {...Value} rest 实参序列
-     * @return {Value} 方法调用的返回值
-     */
-    call( evo, meth, ...rest ) {
-        return evo.data[meth]( ...rest );
-    },
-
-    __call: 1,
-
-
-    /**
-     * 条件赋值。
-     * 目标：暂存区/栈顶1项。
-     * 如果目标值为真（广义），val入栈，否则入栈elseval。
-     * @param  {Value} val IF赋值
-     * @param  {Boolean} elseval ELSE赋值，可选
-     * @return {Value}
-     */
-    $if( evo, val, elseval ) {
-        return evo.data ? val : elseval;
-    },
-
-    __$if: 1,
-
-
-    /**
-     * CASE分支比较。
-     * 目标：暂存区/栈顶1项。
-     * 目标与实参一一相等（===）比较，结果入栈。
-     * 需要在$switch指令之前先执行。
-     * @param  {...Value} vals 实参序列
-     * @return {[Boolean]} 结果集
-     */
-    $case( evo, ...vals ) {
-        return vals.map( v => v === evo.data );
-    },
-
-    __$case: 1,
-
-
-    /**
-     * SWITCH分支判断。
-     * 目标：暂存区/栈顶1项。
-     * 测试目标集内某一成员是否为真，是则取相同下标的vals成员返回。
-     * 目标通常是$case执行的结果，但也可以是任意值集。
-     * 注：
-     * 仅取首个真值对应的实参值入栈。
-     * 目标集大小通常与实参序列长度相同，但容许超出（会被忽略）。
-     * @data: [Boolean]
-     * @param  {...Value} vals 入栈值候选
-     * @return {Value}
-     */
-    $switch( evo, ...vals ) {
-        for (const [i, b] of evo.data.entries()) {
-            if ( b ) return vals[i];
-        }
-    },
-
-    __$switch: 1,
-
-
-
-    // 集合操作。
-    //===============================================
-
+    // 集合处理。
+    //-----------------------------------------------------
 
     /**
      * 创建预填充值集合。
@@ -771,42 +540,6 @@ const _BaseOn = {
     },
 
     __array: 0,
-
-
-    /**
-     * 获得键数组。
-     * 目标：暂存区/栈顶1项。
-     * 主要为调用目标对象的.keys()接口。
-     * 也适用于普通对象。
-     * @data: {Array|Collector|Map|Set|Object}
-     * @return {[Value]}
-     */
-    keys( evo ) {
-        if ( $.isFunction(evo.data.keys) ) {
-            return [...evo.data.keys()];
-        }
-        return Object.keys( evo.data );
-    },
-
-    __keys: 1,
-
-
-    /**
-     * 获取值数组。
-     * 目标：暂存区/栈顶1项。
-     * 主要为调用目标对象的.values()接口。
-     * 也适用于普通对象。
-     * @data: {Array|Collector|Map|Set|Object}
-     * @return {[Value]}
-     */
-    values( evo ) {
-        if ( $.isFunction(evo.data.values) ) {
-             return [...evo.data.values()];
-        }
-        return Object.values(evo.data);
-    },
-
-    __values: 1,
 
 
     /**
@@ -865,11 +598,50 @@ const _BaseOn = {
     __split: 1,
 
 
+    /**
+     * 对象属性赋值。
+     * 目标：暂存区/栈顶1项。
+     * 目标作为提供属性值的数据源对象。
+     * 属性仅限于对象自身（非继承）的可枚举属性。
+     * 支持由空格分隔的多名称限定，空名称匹配全部属性（含Symbol）。
+     * @data: Object => Object
+     * @param  {Object} to 接收对象
+     * @param  {String} names 取名称序列，可选
+     * @return {Object}
+     */
+    assign( evo, to, names ) {
+        if ( !names ) {
+            return Object.assign( to, evo.data );
+        }
+        let _ns = new Set( names.split(__reSpace) );
 
-    // 简单运算
+        return $.assign( to, evo.data, (v, n) => _ns.has(n) && [v] );
+    },
+
+    __assign: 1,
+
+
+    /**
+     * 数组映射聚集。
+     * 目标：暂存区/栈顶1项。
+     * 把数组成员映射为一个键值对对象，键名序列由外部提供。
+     * 数组成员和名称序列按下标顺序提取，值不足的部分为undefined值。
+     * 注：支持下标运算的任意数据源皆可（如字符串）。
+     * @data: [Value] => Object
+     * @param  {String} names 属性名序列（空格分隔）
+     * @return {Object}
+     */
+    gather( evo, names ) {
+        return kvsObj( names.split(__reSpace), evo.data );
+    },
+
+    __gather: 1,
+
+
+
+    // 数学运算。
     // 支持前一个操作数是数组的情况（对成员计算）。
-    //===============================================
-
+    //-----------------------------------------------------
 
     /**
      * 加运算。
@@ -1083,98 +855,12 @@ const _BaseOn = {
 
 
 
-    // 简单克隆
-    //===============================================
-
-    /**
-     * 栈顶复制。
-     * 复制栈顶n项并入栈（原样展开）。
-     * 目标：暂存区1项可选。
-     * 特权：是，灵活取栈&自行入栈。
-     * 注：可选的暂存区1项仅用于复制数量定义，优先于模板实参。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} n 条目数
-     * @return {void}
-     */
-    dup( evo, stack, n = 1 ) {
-        if ( evo.data !== undefined ) {
-            n = +evo.data;
-        }
-        if ( n > 0 ) stack.push( ...stack.tops(n) );
-    },
-
-    __dup: -1,
-    __dup_x: true,
-
-
-    /**
-     * 元素克隆。
-     * 目标：暂存区/栈顶1项。
-     * 可选择同时克隆元素上绑定的事件处理器。
-     * 如果目标为一个集合，会返回Collector。
-     * @data: Element|[Element]|Collector
-     * @param  {Boolean} event 包含事件处理器，可选
-     * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
-     * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
-     * @return {Element|Collector}
-     */
-    clone( evo, event, deep, eventdeep ) {
-        if ( $.isArray(evo.data) ) {
-            return $(evo.data).clone( event, deep, eventdeep );
-        }
-        return $.clone( evo.data, event, deep, eventdeep );
-    },
-
-    __clone: 1,
-
-
-    /**
-     * 对象属性赋值。
-     * 目标：暂存区/栈顶1项。
-     * 目标作为提供属性值的数据源对象。
-     * 属性仅限于对象自身（非继承）的可枚举属性。
-     * 支持由空格分隔的多名称限定，空名称匹配全部属性（含Symbol）。
-     * @data: Object => Object
-     * @param  {Object} to 接收对象
-     * @param  {String} names 取名称序列，可选
-     * @return {Object}
-     */
-    assign( evo, to, names ) {
-        if ( !names ) {
-            return Object.assign( to, evo.data );
-        }
-        let _ns = new Set( names.split(__reSpace) );
-
-        return $.assign( to, evo.data, (v, n) => _ns.has(n) && [v] );
-    },
-
-    __assign: 1,
-
-
-    /**
-     * 数组映射聚集。
-     * 目标：暂存区/栈顶1项。
-     * 把数组成员映射为一个键值对对象，键名序列由外部提供。
-     * 数组成员和名称序列按下标顺序提取，值不足的部分为undefined值。
-     * 注：支持下标运算的任意数据源皆可（如字符串）。
-     * @data: [Value] => Object
-     * @param  {String} names 属性名序列（空格分隔）
-     * @return {Object}
-     */
-    gather( evo, names ) {
-        return kvsObj( names.split(__reSpace), evo.data );
-    },
-
-    __gather: 1,
-
-
-
     // 比较运算。
     // 目标：暂存区/栈顶1-2项。
     // 特权：是，灵活取栈。
     // 注：模板传递的实参为比较操作的第二个操作数。
     // @return {Boolean}
-    //===============================================
+    //-----------------------------------------------------
 
     /**
      * 相等比较（===）。
@@ -1276,7 +962,7 @@ const _BaseOn = {
 
     // 逻辑运算
     // @return {Boolean}
-    //===============================================
+    //-----------------------------------------------------
 
     /**
      * 是否在[min, max]之内（含边界）。
@@ -1388,22 +1074,27 @@ const _BaseOn = {
 
 
     // 增强运算
-    //===============================================
-
+    //-----------------------------------------------------
 
     /**
-     * 函数创建。
+     * 元素克隆。
      * 目标：暂存区/栈顶1项。
-     * 取目标为函数体表达式（无return）构造函数。
-     * 实参即为函数参数名序列。
-     * @param  {...String} argn 参数名序列
-     * @return {Function}
+     * 可选择同时克隆元素上绑定的事件处理器。
+     * 如果目标为一个集合，会返回Collector。
+     * @data: Element|[Element]|Collector
+     * @param  {Boolean} event 包含事件处理器，可选
+     * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
+     * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
+     * @return {Element|Collector}
      */
-    func( evo, ...argn ) {
-        return new Function( ...argn, `return ${evo.data};` );
+    clone( evo, event, deep, eventdeep ) {
+        if ( $.isArray(evo.data) ) {
+            return $(evo.data).clone( event, deep, eventdeep );
+        }
+        return $.clone( evo.data, event, deep, eventdeep );
     },
 
-    __func: 1,
+    __clone: 1,
 
 
     /**
@@ -1633,7 +1324,7 @@ function lastCell( self, key, n ) {
 
 
 //
-// 特殊指令（Base）。
+// 特殊指令（Control）。
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -1755,20 +1446,20 @@ loop[EXTENT] = 0;
  * 特殊：是，this为Cell实例，查看调用链。
  * 目标：无。
  * 特权：是，数据栈显示。
- * @param  {false} keep 流程保持，传递false中断执行流
+ * @param  {Value|false} msg 显示消息，传递false中断执行流
  * @return {void|reject}
  */
-function debug( evo, stack, keep ) {
+function debug( evo, stack, msg = '' ) {
     let _stack = {
             tmp: stack._tmp.slice(),
             buf: stack._buf.slice(),
         };
-    window.console.info({
+    window.console.info( msg, {
         evo,
         cell: this,
         stack: _stack,
     });
-    if ( keep === false ) return Promise.reject();
+    if ( msg === false ) return Promise.reject();
 }
 
 debug[ACCESS] = true;
@@ -1779,26 +1470,27 @@ debug[ACCESS] = true;
 // 合并/导出
 ///////////////////////////////////////////////////////////////////////////////
 
+//
+// 控制集。
+//
+const Control = $.assign( {}, _Control, bindMethod );
 
-// 基础集（On/To共享）。
-const Base = $.assign( {}, _Base, bindMethod );
 
-
+//
 // 特殊控制。
 // 无预绑定处理。this:{Cell}
-Base.prune  = prune;
-Base.prunes = prunes;
-Base.entry  = entry;
-Base.loop   = loop;
-Base.debug  = debug;
+//
+Control.prune  = prune;
+Control.prunes = prunes;
+Control.entry  = entry;
+Control.loop   = loop;
+Control.debug  = debug;
 
 
-// 基础集II（On域）。
-const BaseOn = $.assign( {}, _BaseOn, bindMethod );
-
-// 合并。
-// 注：不用原型继承（效率）。
-Object.assign( BaseOn, Base );
+//
+// 计算/加工集。
+//
+const Process = $.assign( {}, _Process, bindMethod );
 
 
-export { Base, BaseOn };
+export { Control, Process };

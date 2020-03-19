@@ -35,6 +35,7 @@ import { Util } from "./util.js";
 import { X, extend__ } from "./lib.x.js";
 import { App__ } from "./app.js";
 import { bindMethod, method, pullRoot } from "../config.js";
+import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
 // import { Render } from "./render.x.js";
@@ -184,13 +185,18 @@ function appScope( app, meths ) {
 // 构造绑定。
 // this固化，参数配置，便于全局共享。
 //
-const By = $.assign( {}, _By, bindMethod );
+export const By = $.assign( {}, _By, bindMethod );
 
+//
+// 集成控制指令。
+//
+Object.assign( By, Control );
 
+//
 // X引入。
 // 模板中使用小写形式。
+//
 By.x = X;
-
 
 //
 // 接口：
@@ -214,7 +220,7 @@ By[method] = function( name ) {
  * @param  {Boolean} nobind 无需绑定（可访问Cell实例），可选。
  * @return {Object} 目标子域
  */
-function extend( name, exts, nobind ) {
+export function extend( name, exts, nobind ) {
     return extend__( name, exts, nobind, By );
 }
 
@@ -222,20 +228,20 @@ function extend( name, exts, nobind ) {
 /**
  * 接口：创建CMV小程序。
  * 每个程序遵循CMV（Control/Model/View）三层划分逻辑。
- * 模板中调用需要传递方法名：x.[MyApp].run([meth])，用于区分不同的调用。
- * 注：
- * 传递meths可以构造友好的调用集：x.[MyApp].[meth]。
+ * 模板中调用需要传递方法名：[MyApp].run([meth], ...)，用于区分不同的调用。
+ * 传递meths可以构造友好的调用集：[MyApp].[meth](...)。
  * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
  * conf: {
  *      control: function(meth, data, ...rest ): Promise,
  *      model:   function(meth, data ): Value,
  *      view:    function(meth, data ): Value,
  * }
+ * 注记：与By普通用户扩展一样，占用By顶层空间。
  * @param {String} name 程序名
  * @param {Object} conf CMV配置对象
  * @param {[String]} meths 方法名序列，可选
  */
-function App( name, conf, meths ) {
+export function App( name, conf, meths ) {
     let _app = By[name];
 
     if ( _app != null ) {
@@ -248,6 +254,3 @@ function App( name, conf, meths ) {
         ];
     extend( name, appScope(new App__(..._cmv), meths) );
 }
-
-
-export { By, extend, App };

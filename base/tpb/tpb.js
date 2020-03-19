@@ -22,8 +22,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Base, BaseOn } from "./libs/pbs.base.js";
-import { On } from "./libs/pbs.on.js";
+import { On } from "./libs/pbs.get.js";
 import { By, extend, App } from "./libs/pbs.by.js";
 import { To } from "./libs/pbs.to.js";
 
@@ -49,12 +48,6 @@ const
     // OBT属性取值序列。
     __obts = `${OBTA.on} ${OBTA.by} ${OBTA.to}`;
 
-
-
-// 基础集继承。
-$.proto( On, BaseOn ),
-$.proto( By, Base );
-$.proto( To.Stage, Base );
 
 
 //

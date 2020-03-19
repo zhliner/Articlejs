@@ -13,11 +13,25 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, method, DataStore, ChainStore } from "../config.js";
+import { bindMethod, method, DataStore, Templater, ChainStore } from "../config.js";
+import { Control, Process } from "./pbs.base.js";
 
 
 const
     $ = window.$,
+
+    // evo成员名/值键。
+    evoIndex = {
+        0:  'event',    // 原生事件对象（注：ev指令可直接获取）
+        1:  'origin',   // 事件起点元素（event.target）
+        2:  'current',  // 触发事件的当前元素（event.currentTarget|matched）
+        3:  'delegate', // 事件相关联元素（event.relatedTarget）
+        4:  'related',  // 委托绑定的元素（event.currentTarget）
+        5:  'selector', // 委托匹配选择器（for match）]
+        10: 'data',     // 自动获取的流程数据
+        11: 'entry',    // 中段入口（迭代重入）
+        12: 'targets',  // To目标元素/集，向后延续
+    },
 
     // 空白匹配。
     __reSpace = /\s+/,
@@ -43,7 +57,305 @@ const
 
 
 
-const _On = {
+//
+// 取值类。
+// 适用于 On/To:NextStage 两个域。
+//
+const _Gets = {
+
+    // 基本取值。
+    //-----------------------------------------------
+
+    /**
+     * 单元素检索入栈。
+     * 目标：暂存区1项/判断取值。
+     * 特权：是，判断取值。
+     * 如果实参为空，取目标为rid，如果目标为空，自动取栈顶1项。
+     * 如果实参非空，目标有值则为起点元素。
+     * rid: {
+     *      undefined  以目标为rid，事件当前元素为起点。
+     *      String  以目标（如果有）或事件当前元素（ev.current）为起点。
+     * }
+     * @param  {Object} evo 事件关联对象
+     * @param  {Stack} stack 数据栈
+     * @param  {String} rid 相对ID，可选
+     * @return {Element}
+     */
+    $( evo, stack, rid ) {
+        let _beg = evo.current;
+
+        if ( rid == null ) {
+            rid = evo.data === undefined ? stack.data(1) : evo.data;
+        } else {
+            _beg = evo.data || _beg;
+        }
+        return Util.find( rid, _beg, true );
+    },
+
+    __$: -1,
+    __$_x: true,
+
+
+    /**
+     * 多元素检索入栈。
+     * 目标：暂存区1项/判断取值。
+     * 特权：是，判断取值。
+     * rid: {
+     *      undefined  同上，但如果目标非字符串则为Collector封装。
+     *      String     同上。
+     *      Value      Collector封装，支持单值和数组。
+     * }
+     * 注：如果实参传递非字符串，前阶pop的值会被丢弃。
+     * @param  {Stack} stack 数据栈
+     * @param  {String|Value} rid 相对ID或待封装值
+     * @return {Collector}
+     */
+    $$( evo, stack, rid ) {
+        let _beg = evo.current;
+
+        if ( rid == null ) {
+            // 兼容前阶主动pop
+            rid = evo.data === undefined ? stack.data(1) : evo.data;
+        } else {
+            _beg = evo.data || _beg;
+        }
+        return typeof rid == 'string' ? Util.find(rid, _beg) : $(rid);
+    },
+
+    __$$: -1,
+    __$$_x: true,
+
+
+    /**
+     * evo成员取值入栈。
+     * 目标：无。
+     * 特权：是，判断取值。
+     * 如果name未定义或为null，取evo自身入栈。
+     * 注意：如果明确取.data属性，会取暂存区全部成员（清空）。
+     * @param  {Stack} stack 数据栈
+     * @param  {String|Number} name 成员名称或代码
+     * @return {Element|Collector|Value}
+     */
+    evo( evo, stack, name ) {
+        if ( name == null ) {
+            return evo;
+        }
+        name = evoIndex[name] || name;
+
+        return name == 'data' ? stack.data(0) : evo[name];
+    },
+
+    __evo_x: true,
+
+
+    /**
+     * 从事件对象上取值。
+     * 目标：无。
+     * name可用空格分隔多个名称（返回一个值数组）。
+     * 无实参调用取事件对象自身入栈。
+     * @param  {String} name 事件属性名（序列）
+     * @return {Value|[Value]} 值或值集
+     */
+    ev( evo, name ) {
+        return name == null ?
+            evo.event : namesValue( name, evo.event );
+    },
+
+    __ev: null,
+
+
+    /**
+     * 空值指令。
+     * 压入特殊值undefined。
+     * 特权：是，特殊操作。
+     * 可用于向栈内填充无需实参的占位值。
+     * @param {Stack} stack 数据栈
+     */
+    nil( evo, stack ) {
+        stack.undefined();
+    },
+
+    __nil_x: true,
+
+
+    /**
+     * 直接数据入栈。
+     * 目标：暂存区条目可选。
+     * 特权：是，自行入栈。
+     * 多个实参会自动展开入栈，数组实参视为单个值。
+     * 如果目标有值，会附加（作为单一值）在实参序列之后。
+     * @param  {Stack} stack 数据栈
+     * @param  {...Value} vals 值序列
+     * @return {void} 自行入栈
+     */
+    push( evo, stack, ...vals ) {
+        if ( evo.data !== undefined ) {
+            vals.push( evo.data );
+        }
+        stack.push( ...vals );
+    },
+
+    __push: 0,
+    __push_x: true,
+
+
+
+    // 复杂取值。
+    //-----------------------------------------------
+
+
+    /**
+     * 从目标上取值入栈。
+     * 目标：暂存区/栈顶1项。
+     * 特权：是，自行入栈。
+     * name支持空格分隔的多个名称，此时值为一个数组。
+     * 多个名称实参取值会自动展开入栈。
+     * @data: Object => Value|[Value]
+     * @param  {Stack} stack 数据栈
+     * @param  {...String} names 属性名序列
+     * @return {void} 自行入栈
+     */
+    get( evo, stack, ...names ) {
+        stack.push(
+            ...names.map( n => namesValue(n, evo.data) )
+        );
+    },
+
+    __get: 1,
+    __get_x: true,
+
+
+    /**
+     * 调用目标的方法执行。
+     * 目标：暂存区/栈顶1项。
+     * @param  {String} meth 方法名
+     * @param  {...Value} rest 实参序列
+     * @return {Value} 方法调用的返回值
+     */
+    call( evo, meth, ...rest ) {
+        return evo.data[meth]( ...rest );
+    },
+
+    __call: 1,
+
+
+    /**
+     * 获取模板节点。
+     * 目标：无。
+     * 特权：是，自行取值。
+     * 如果实参name为空（null|undefined），自行取值1项为名称。
+     * 注意克隆时是每次都克隆（应当很少使用）。
+     * 注记：
+     * 因为返回Promise实例（异步），故通常用在调用链后段。
+     * @param  {Stack} stack 数据栈
+     * @param  {String|null} name 模板名，可选
+     * @param  {Boolean} clone 是否克隆，可选
+     * @return {Promise}
+     */
+    tpl( evo, stack, name, clone ) {
+        if ( name == null ) {
+            name = stack.data(1);
+        }
+        return Templater[clone ? 'get' : 'tpl'](name);
+    },
+
+    __tpl_x: true,
+
+
+    /**
+     * 获得键数组。
+     * 目标：暂存区/栈顶1项。
+     * 主要为调用目标对象的.keys()接口。
+     * 也适用于普通对象。
+     * @data: {Array|Collector|Map|Set|Object}
+     * @return {[Value]}
+     */
+    keys( evo ) {
+        if ( $.isFunction(evo.data.keys) ) {
+            return [...evo.data.keys()];
+        }
+        return Object.keys( evo.data );
+    },
+
+    __keys: 1,
+
+
+    /**
+     * 获取值数组。
+     * 目标：暂存区/栈顶1项。
+     * 主要为调用目标对象的.values()接口。
+     * 也适用于普通对象。
+     * @data: {Array|Collector|Map|Set|Object}
+     * @return {[Value]}
+     */
+    values( evo ) {
+        if ( $.isFunction(evo.data.values) ) {
+             return [...evo.data.values()];
+        }
+        return Object.values(evo.data);
+    },
+
+    __values: 1,
+
+
+    /**
+     * 函数创建。
+     * 目标：暂存区/栈顶1项。
+     * 取目标为函数体表达式（无return）构造函数。
+     * 实参即为函数参数名序列。
+     * @param  {...String} argn 参数名序列
+     * @return {Function}
+     */
+    func( evo, ...argn ) {
+        return new Function( ...argn, `return ${evo.data};` );
+    },
+
+    __func: 1,
+
+
+    /**
+     * 设置目标成员值。
+     * 目标：暂存区/栈顶1项。
+     * name支持空格分隔的多个名称。
+     * 值为数组时，多个名称分别对应到数组成员，否则对应到单一值。
+     * 注：会修改目标本身。
+     * @param  {String} name 名称/序列
+     * @param  {Value|[Value]} val 值或值集
+     * @return {@data}
+     */
+    set( evo, name, val ) {
+        let _ns = name.split(__reSpace);
+
+        if ( _ns.length == 1 ) {
+            evo.data[name] = val;
+            return evo.data;
+        }
+        if ( !$.isArray(val) ) {
+            val = new Array(_ns.length).fill(val);
+        }
+        return kvsObj( _ns, val, evo.data );
+    },
+
+    __set: 1,
+
+
+    /**
+     * 特性提取并删除。
+     * 提取特性值之后移除特性，通常用于数据一次性存储和提取。
+     * this: On
+     * @param  {String} names 名称/序列
+     * @return {String|Object|[String]|[Object]}
+     */
+    xattr( evo, names ) {
+        let _val = __reSpace.test(names) ?
+            this.attr(evo, names) : this.attribute(evo, names);
+
+        return $(evo.data).removeAttr(names), _val;
+    },
+
+    __xattr: 1,
+
+
     /**
      * 关联数据提取。
      * 目标：暂存区/栈顶1-2项。
@@ -67,23 +379,6 @@ const _On = {
     },
 
     __data_x: true,
-
-
-    /**
-     * 特性提取并删除。
-     * 提取特性值之后移除特性，通常用于数据一次性存储和提取。
-     * this: On
-     * @param  {String} names 名称/序列
-     * @return {String|Object|[String]|[Object]}
-     */
-    xattr( evo, names ) {
-        let _val = __reSpace.test(names) ?
-            this.attr(evo, names) : this.attribute(evo, names);
-
-        return $(evo.data).removeAttr(names), _val;
-    },
-
-    __xattr: 1,
 
 
     /**
@@ -374,12 +669,14 @@ const _On = {
 ]
 .forEach(function( name ) {
 
-    _On[name] = function( evo ) {
-        if ( evo.data.nodeType == 1 ) return Util[name]( evo.data );
-        if ( $.isArray(evo.data) ) return evo.data.map( el => Util[name](el) );
+    _Gets[name] = function( evo ) {
+        if ( $.isArray(evo.data) ) {
+            return evo.data.map( el => Util[name](el) );
+        }
+        return Util[name]( evo.data );
     };
 
-    _On[`__${name}`] = 1;
+    _Gets[`__${name}`] = 1;
 
 });
 
@@ -406,12 +703,12 @@ const _On = {
 ]
 .forEach(function( meth ) {
 
-    _On[meth] = function( evo, name ) {
+    _Gets[meth] = function( evo, name ) {
         return $.isArray(evo.data) ?
             $(evo.data)[meth]( name ) : $[meth]( evo.data, name );
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -434,11 +731,11 @@ const _On = {
 ]
 .forEach(function( meth ) {
 
-    _On[meth] = function( evo ) {
+    _Gets[meth] = function( evo ) {
         return $.isArray(evo.data) ? $(evo.data)[meth]() : $[meth](evo.data);
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -476,12 +773,12 @@ const _On = {
      * @data：Element|[Element]|Collector
      * @return {Element|Collector}
      */
-    _On[meth] = function( evo, ...args ) {
+    _Gets[meth] = function( evo, ...args ) {
         return $.isArray(evo.data) ?
             $(evo.data)[meth]( ...args ) : $[meth]( evo.data, ...args );
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -512,14 +809,14 @@ const _On = {
 .forEach(function( meth ) {
 
     // 多余实参无副作用
-    _On[meth] = function( evo, ...args ) {
+    _Gets[meth] = function( evo, ...args ) {
         if ( evo.data !== undefined ) {
             args = args.concat( evo.data );
         }
         return $[meth]( ...args );
     };
 
-    _On[`__${meth}`] = -1;
+    _Gets[`__${meth}`] = -1;
 
 });
 
@@ -544,11 +841,11 @@ const _On = {
 ]
 .forEach(function( meth ) {
 
-    _On[meth] = function( evo, ...args ) {
+    _Gets[meth] = function( evo, ...args ) {
         return $[meth]( evo.data, ...args );
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -571,11 +868,11 @@ const _On = {
      * @param {Number} its:idx 位置下标（支持负数）
      * @param {String} its:slr 成员选择器
      */
-    _On[meth] = function( evo, its ) {
+    _Gets[meth] = function( evo, its ) {
         return $(evo.data)[meth]( its );
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -604,12 +901,12 @@ const _On = {
      * @param  {...} arg 模板实参，可选
      * @return {[Value]|Collector}
      */
-    _On[meth] = function( evo, stack, arg ) {
+    _Gets[meth] = function( evo, stack, arg ) {
         let [o, v] = stackArg2(stack, arg);
         return $.isCollector(o) ? o[meth]( v ) : $[meth]( o, v );
     };
 
-    _On[`__${meth}_x`] = true;
+    _Gets[`__${meth}_x`] = true;
 
 });
 
@@ -636,7 +933,7 @@ const _On = {
      * @param  {Boolean|null} sure 状态执行
      * @return {void}
      */
-    _On[names[0]] = function( evo, sure = true ) {
+    _Gets[names[0]] = function( evo, sure = true ) {
         let _els = evo.data,
             _val = names[1];
 
@@ -649,7 +946,7 @@ const _On = {
         _els.forEach( el => Util.pbo(el, [_val]) );
     };
 
-    _On[`__${names[0]}`] = 1;
+    _Gets[`__${names[0]}`] = 1;
 
 });
 
@@ -669,12 +966,12 @@ const _On = {
      * @param  {String} box 封装元素的HTML结构串
      * @return {Element|Collector} 包裹的容器元素（集）
      */
-    _On[meth] = function( evo, box ) {
+    _Gets[meth] = function( evo, box ) {
         let x = evo.data;
         return $.isArray(x) ? $(x)[meth](box) : $[meth](x, box);
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -696,7 +993,7 @@ const _On = {
      * @param  {Boolean} back 入栈指示
      * @return {Element|Collector|void}
      */
-    _On[meth] = function( evo, slr, back ) {
+    _Gets[meth] = function( evo, slr, back ) {
         if ( typeof slr == 'boolean' ) {
             [back, slr] = [slr];
         }
@@ -706,7 +1003,7 @@ const _On = {
         if ( back ) return _d;
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -719,14 +1016,14 @@ const _On = {
      * @param  {Boolean} back 入栈指示
      * @return {Element|Collector|void}
      */
-    _On[meth] = function( evo, back ) {
+    _Gets[meth] = function( evo, back ) {
         let _x = evo.data,
             _d = $.isArray(_x) ? $(_x)[meth]() : $[meth](_x);
 
         if ( back ) return _d;
     };
 
-    _On[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -735,6 +1032,31 @@ const _On = {
 //
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 对象成员取值。
+ * name可能由空格分隔为多个名称。
+ * 单名称时返回值，多个名称时返回值集。
+ * @param  {String} name 名称/序列
+ * @param  {Object} obj 取值对象
+ * @return {Value|[Value]} 值（集）
+ */
+ function namesValue( name, obj ) {
+    return __reSpace.test(name) ?
+        name.split(__reSpace).map( n => obj[n] ) : obj[name];
+}
+
+
+/**
+ * 构造名值对对象。
+ * @param  {[String]} names 名称序列
+ * @param  {[Value]} val 值集
+ * @return {Object}
+ */
+ function kvsObj( names, val, obj = {} ) {
+    return names.reduce( (o, k, i) => (o[k] = val[i], o), obj );
+}
 
 
 /**
@@ -806,14 +1128,22 @@ function cloneMap( map ) {
 // 预处理，导出。
 ///////////////////////////////////////////////////////////////////////////////
 
-const On = $.assign( {}, _On, bindMethod );
 
+//
+// 取值指令集。
+// 注：供To:NextStage集成。
+//
+export const Get = $.assign( {}, _Gets, bindMethod );
+
+
+//
+// On指令集。
+// 支持取值/控制/运算&加工集。
+//
+export const On = Object.assign( {}, Get, Control, Process );
 
 //
 // 接口：
 // 提供预处理方法。
 //
 On[method] = name => On[name];
-
-
-export { On };

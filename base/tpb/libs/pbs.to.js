@@ -17,6 +17,8 @@
 
 import { Util } from "./util.js";
 import { bindMethod, method, DataStore, ChainStore, storeChain } from "../config.js";
+import { Get } from "./pbs.get.js";
+import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
 // import { Render } from "./render.x.js";
@@ -830,21 +832,25 @@ function message( el, msg, long ) {
 // 设置和下一阶用两个子集表达。
 ///////////////////////////////////////////////////////////////////////////////
 
-const To = {};
 
-To.Update = $.assign( {}, _Update, bindMethod );
-To.Stage = $.assign( {}, _Stage, bindMethod );
+//
+// 构造绑定。
+// this固化，参数配置，便于全局共享。
+//
+export const To = {
+    Update: $.assign( {}, _Update, bindMethod ),
+    Stage:  $.assign( {}, _Stage, bindMethod ),
+};
+
+//
+// 集成取值和控制指令。
+//
+Object.assign( To.Stage, Get, Control );
 
 
-
+//
 // 接口：
 // 提供预处理方法。
-//===============================================
-
-To.Update[method] = name => To.Update[name];
-
-To.Stage[method] = name => To.Stage[name];
-
-
-
-export { To };
+//
+To.Update[method]   = name => To.Update[name];
+To.Stage[method]    = name => To.Stage[name];

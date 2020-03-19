@@ -1,4 +1,4 @@
-## Tpb: On
+# Tpb: On
 
 关联事件，获取各种值。值进入流程数据栈向后传递，数据入栈为 `Array.push` 方式，除了 `undefined` 外，每一个指令（方法）的返回值都会自动入栈。
 
@@ -10,7 +10,7 @@
 - `@`：预定义调用链。该调用链不会被立即使用，实际上它只是一个存储（与当前元素关联），用户可在任意元素的 `To` 段定义中使用 `bind/once` 指令来运用它（检索并绑定）。
 
 
-### 格式用例
+## 格式用例
 
 ```html
 <ul id="test" ...
@@ -37,14 +37,77 @@
 > 这个ID值是任意的（字母或数字，由 `To:bind|once` 使用），如果一个元素不用同时绑定多个相同的事件名，它就是可选的。<br>
 
 
-### 方法集
+## 取值指令
 
-从流程数据（即目标）中取值，提取的值被自动压入栈顶。`tQuery|Collector` 中的方法仅限于取值，赋值能力被设计在 `To:Method` 中。
+从流程数据（即目标）中取值，提取的值被自动压入栈顶。`tQuery|Collector` 中的方法仅限于取值，赋值能力被设计在 `To:Update` 中。
 
 
-#### 普通取值类
+### 普通取值
 
 ```js
+// 基本取值。
+//-----------------------------------------------
+
+$( rid:String ): Element
+// 检索单个元素入栈。
+
+$$( rid:String|Value ): Collector
+// 检索元素集入栈。
+
+evo( name:String|Number ): Value
+// 从当前evo对象上取值入栈。
+// name: {
+//      0|'event'     evo.event
+//      1|'origin'    evo.origin
+//      2|'current'   evo.current
+//      3|'delegate'  evo.delegate
+//      4|'related'   evo.related
+//      5|'selector'  evo.selector
+//     10|'data'      evo.data （前端最后取出值遗留）
+//     11|'entry',    evo.entry （中段入口，迭代重入）
+//     12|'targets'   evo.targets （To检索目标延续传递）
+// }
+
+ev( name?:String ): Value|[Value]
+// 从事件对象上取值入栈。
+
+nil(): undefined
+// 空值指令。
+
+push( ...val:Value|[Value] ): void
+// 直接数据。
+
+
+
+// 复杂取值。
+//-----------------------------------------------
+
+get( ...names:String ): Value|[Value]
+// 从目标上取值。
+
+call( meth:String, ...rest:Value ): Value
+// 调用目标的方法执行。
+
+tpl( name?:String, clone?:Boolean ): Promise<Element>
+// 获取name模板节点。
+
+keys(): [Value]
+// 获得键数组。
+
+values(): [Value]
+// 获取值数组。
+
+func( ...argn: String ): Function
+// 创建函数入栈。
+
+set( name:String, val:Value|[Value] ): void
+// 设置目标成员值。
+
+
+
+// Tpb专有取值。
+//-----------------------------------------------
+
 pba(): [String]
 // PB参数取值（|=）。
 
@@ -82,7 +145,7 @@ scrollY( v:?null ): Number | void
 ```
 
 
-#### tQuery 取值类
+### tQuery取值
 
 ```js
 // tQuery|Collector兼有
@@ -181,7 +244,7 @@ last( slr? ): Collector
 ```
 
 
-#### tQuery 集合操作
+### tQuery集合取值
 
 集合操作是对目标数据集进行简单的处理，然后返回一个结果集。
 
@@ -274,7 +337,7 @@ flat( deep: Number|true ): [Value]|Collector
 ```
 
 
-#### 元素自身行为
+### 元素自身行为
 
 此部分为对元素自身的简单改变，不涉及需要额外的数据，因此归为 `On` 而非 `To` 的逻辑。
 

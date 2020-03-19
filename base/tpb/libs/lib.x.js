@@ -30,22 +30,8 @@
 
 import { funcSets } from "../config.js";
 
+
 const $ = window.$;
-
-
-// X扩展存储区。
-// 预置部分功能子域（名称空间）。
-const _X = {
-    Ease: {},   // 缓动计算区（.Linear...）
-    Eff:  {},   // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
-    Math: {},   // 数学算法区
-    Fun:  {},   // 功能函数区（用户使用）
-};
-
-
-//
-// 工具函数
-//////////////////////////////////////////////////////////////////////////////
 
 
 //
@@ -91,7 +77,7 @@ function setMethod( f, k, obj, to ) {
 /**
  * 获取目标子域。
  * 如果目标子域不存在，则自动创建。
- * 子域链上的子域必须都是普通对象类型（Object）。
+ * 子域链上的子域必须是普通对象类型（Object）。
  * @param {[String]} names 子域链
  * @param {Object} obj 取值顶级域
  */
@@ -118,21 +104,8 @@ function subObj( names, obj ) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-//
-// 通用域扩展。
-// 导出供 By.extend 专用。
-//
-export function extend__( name, exts, nobind, host ) {
-    let _f = nobind ?
-        setMethod :
-        bindMethod;
-
-    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
-}
-
-
 /**
- * 子域扩展。
+ * 接口：子域扩展。
  * 扩展中的方法默认会绑定（bind）到所属宿主对象。
  * 子域是一种分组，支持句点分隔的子域链。
  * 最终的目标子域内的成员是赋值逻辑，重名会被覆盖。
@@ -146,17 +119,27 @@ export function extend__( name, exts, nobind, host ) {
  * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
  * @return {Object} 目标子域
  */
-function extend( name, exts, nobind ) {
+export function extend__( name, exts, nobind, host ) {
     let _f = nobind ?
         setMethod :
         bindMethod;
 
-    return $.assign( subObj(name.split('.'), _X), exts || {}, _f );
+    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
 }
 
 
+
 //
-// 导出X扩展接口。
-// 注：系统自用，用原型空间存储。
+// X扩展存储区。
+// 预置部分功能子域（名称空间）。
 //
-export const X = $.proto( { extend }, _X );
+export const X = {
+    Ease:   {},     // 缓动计算区（.Linear...）
+    Eff:    {},     // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
+    Math:   {},     // 数学算法区
+    Fun:    {},     // 功能函数区（用户使用）
+
+    // X库扩展接口。
+    // 注意：向对象自身扩展！
+    extend: (name, exts, nobind) => extend__(name, exts, nobind, X),
+};
