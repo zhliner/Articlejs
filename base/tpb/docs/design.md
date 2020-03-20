@@ -261,33 +261,6 @@ debug( keep:false ): Value
 仅用于 On 域。
 
 ```js
-// 类型转换。
-// 目标：暂存区/栈顶1项。
-//-----------------------------------------------
-
-Int( radix ): Number
-// 将字符串转为整数，即 parseInt()
-
-Float(): Number
-// 将字符串转为浮点数，即 parseFloat()
-
-RE( flag: String ): RegExp
-// 将字符串转为正则表达式。
-
-Bool( all:Boolean ): Boolean
-// 转换为布尔值（false|true）
-
-Str( prefix?, suffix? ): String
-// 转换为字符串。
-
-Arr( wrap: Boolean ): Array
-// 转换为数组。
-
-Obj(): Object
-// 将目标转换为普通对象。
-
-
-
 // 集合处理。
 //-----------------------------------------------
 

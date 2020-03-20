@@ -140,6 +140,6 @@ export const X = {
     Fun:    {},     // 功能函数区（用户使用）
 
     // X库扩展接口。
-    // 注意：向对象自身扩展！
+    // 向对象自身扩展（不可覆盖）。
     extend: (name, exts, nobind) => extend__(name, exts, nobind, X),
 };

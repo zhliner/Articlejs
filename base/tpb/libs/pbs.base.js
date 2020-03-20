@@ -413,108 +413,6 @@ const _Control = {
 //
 const _Process = {
 
-    // 类型转换。
-    // 目标：暂存区/栈顶1项。
-    // 返回值而非该类型的对象。
-    //-----------------------------------------------------
-
-    /**
-     * 转为整数（parseInt）。
-     * @param  {Number} radix 进制基数
-     * @return {Number}
-     */
-    Int( evo, radix ) {
-        return parseInt( evo.data, radix );
-    },
-
-    __Int: 1,
-
-
-    /**
-     * 将目标转为浮点数（parseFloat）。
-     * @return {Number}
-     */
-    Float( evo ) {
-        return parseFloat( evo.data );
-    },
-
-    __Float: 1,
-
-
-    /**
-     * 转化为正则表达式。
-     * 如果提供了flag，肯定会返回一个新的正则对象。
-     * 如果源本来就是一个正则对象，则原样返回。
-     * @param  {String} flag 正则修饰符
-     * @return {RegExp}
-     */
-    RE( evo, flag ) {
-        return RegExp( evo.data, flag );
-    },
-
-    __RE: 1,
-
-
-    /**
-     * 转为布尔值（true|false）。
-     * 假值：'', 0, false, null, undefined
-     * 如果传递all为真，假值包含空对象（[], {}）。
-     * @param  {Boolean} all 是否测试空对象/数组
-     * @return {Boolean}
-     */
-    Bool( evo, all ) {
-        return !!(all ? hasValue(evo.data) : evo.data);
-    },
-
-    __Bool: 1,
-
-
-    /**
-     * 转为字符串。
-     * 可以选择性的添加前/后缀。
-     * @param  {String} pre 前缀，可选
-     * @param  {String} suf 后缀，可选
-     * @return {String}
-     */
-    Str( evo, pre = '', suf = '' ) {
-        return `${pre}${evo.data}${suf}`;
-    },
-
-    __Str: 1,
-
-
-    /**
-     * 转换为数组。
-     * 类数组才会被转换为一个真正的数组。
-     * 如果要封装为一个单成员数组，可传递wrap为真。
-     * @data: {Value|LikeArray}
-     * @param  {Boolean} wrap 简单封装，可选
-     * @return {Array}
-     */
-    Arr( evo, wrap ) {
-        return wrap ? Array.of( evo.data ) : Array.from( evo.data );
-    },
-
-    __Arr: 1,
-
-
-    /**
-     * 转换为普通对象。
-     * 主要针对目标的entries接口，可用于Set/Map实例。
-     * 如果目标不包含entries，返回Object()的简单封装。
-     * @return {Object}
-     */
-    Obj( evo ) {
-        if ( !$.isFunction(evo.data.entries) ) {
-            return Object( evo.data );
-        }
-        return Object.fromEntries( evo.data.entries() );
-    },
-
-    __Obj: 1,
-
-
-
     // 集合处理。
     //-----------------------------------------------------
 
@@ -585,14 +483,21 @@ const _Process = {
     /**
      * 切分字符串为数组。
      * 目标：暂存区/栈顶1项。
+     * 如果明确传递cnt为true，会先对目标文本trim清理。
      * 支持4子节Unicode字符空白切分。
      * @data: String
      * @param  {String} sep 分隔符，可选
-     * @param  {String} cnt 切分数量，可选
+     * @param  {String|Boolean} cnt 切分数量或空白清理，可选
+     * @param  {Boolean} trim 是否空白清理，可选
      * @return {[String]}
      */
-    split( evo, sep, cnt ) {
-        return $.split( evo.data, sep, cnt );
+    split( evo, sep, cnt, trim ) {
+        let _s = evo.data;
+
+        if ( cnt === true || trim ) {
+            _s = _s.trim();
+        }
+        return $.split( _s, sep, cnt );
     },
 
     __split: 1,
@@ -1224,17 +1129,6 @@ function storage( buf, name, its, obj ) {
 
 
 /**
- * 是否为有值对象（非空）。
- * 注：空数组或空对象。
- * @param  {Object|Array} obj 测试对象
- * @return {Boolean|obj}
- */
-function hasValue( obj ) {
-    return typeof obj == 'object' ? obj && Object.keys(obj).length > 0 : obj;
-}
-
-
-/**
  * 数据栈实参取值。
  * 如果实参未传递，则取数据栈2项，否则取1项。
  * @param  {Stack} stack 数据栈
@@ -1450,14 +1344,11 @@ loop[EXTENT] = 0;
  * @return {void|reject}
  */
 function debug( evo, stack, msg = '' ) {
-    let _stack = {
-            tmp: stack._tmp.slice(),
-            buf: stack._buf.slice(),
-        };
     window.console.info( msg, {
         evo,
-        cell: this,
-        stack: _stack,
+        cmd: this,
+        tmp: stack._tmp.slice(),
+        buf: stack._buf.slice()
     });
     if ( msg === false ) return Promise.reject();
 }

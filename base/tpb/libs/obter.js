@@ -240,7 +240,7 @@ class Builder {
      *      on:     Object,
      *      by:     Object,
      *      update: Object,
-     *      stage:  Object,
+     *      next:   Object,
      * }
      * @param {Object} pbs OBT指令集
      * @param {Function} store 调用链存储回调（storeChain）
@@ -249,7 +249,7 @@ class Builder {
         this._pbson = pbs.on;
         this._pbsby = pbs.by;
         this._pbst2 = pbs.update;
-        this._pbst3 = pbs.stage;
+        this._pbst3 = pbs.next;
         this._store = store;
     }
 
@@ -288,10 +288,10 @@ class Builder {
      * @param  {[Call]} by By调用序列
      * @param  {Query} query To查询配置实例
      * @param  {Update} update To赋值配置实例
-     * @param  {[Call]} stage To下一阶调用序列
+     * @param  {[Call]} nexts To下一阶调用序列
      * @return {Cell} EventListener
      */
-    chain( on, by, query, update, stage ) {
+    chain( on, by, query, update, nexts ) {
         let _stack = new Stack(),
             _first = Evn.apply( new Cell(_stack) ),
             _prev = this._on( _first, _stack, on );
@@ -299,7 +299,7 @@ class Builder {
         _prev = this._by( _prev, _stack, by );
         _prev = this._query( _prev, _stack, query );
         _prev = this._update( _prev, _stack, update );
-        this._stage( _prev, _stack, stage );
+        this._nextStage( _prev, _stack, nexts );
 
         return _first;
     }
@@ -398,13 +398,13 @@ class Builder {
      * 返回最后一个Cell实例（结束）。
      * @param  {Cell} prev 前一个指令单元
      * @param  {Stack} stack 数据栈实例
-     * @param  {[Call]} stages To下一阶实例集
+     * @param  {[Call]} nexts To下一阶实例集
      * @return {Cell}
      */
-    _stage( prev, stack, stages ) {
-        if ( stages ) {
-            for (const stage of stages) {
-                prev = stage.apply( new Cell(stack, prev), this._pbst3 );
+    _nextStage( prev, stack, nexts ) {
+        if ( nexts ) {
+            for (const ns of nexts) {
+                prev = ns.apply( new Cell(stack, prev), this._pbst3 );
             }
         }
         return prev;
@@ -856,7 +856,7 @@ class Call {
 //      ~   // 事件起始元素（evo.origin）
 //      $   // 事件委托元素（evo.delegate）
 // }
-// 起点元素：支持当前条目（Element），否则为事件当前元素。
+// 起点元素：支持暂存区1项（Element）可选，否则为事件当前元素。
 //
 class Query {
     /**
@@ -888,8 +888,8 @@ class Query {
      */
     apply( cell ) {
         return cell.bind(
-            // n:0 支持当前条目，不自动取栈。
-            [ this._slr, this._one, this._fltr ], query.bind(null), false, 0
+            // n:-1 支持暂存区1项可选。
+            [ this._slr, this._one, this._fltr ], query.bind(null), false, -1
         );
     }
 
@@ -1086,7 +1086,7 @@ function rejectInfo( msg ) {
 /**
  * To：目标检索方法。
  * 支持二阶检索和相对ID属性（见 Util.find）。
- * 支持暂存区当前条目为目标/起点（应由前阶末端指令取栈），
+ * 支持暂存区1项为检索起点（由前阶末端指令取出），
  * 否则检索起点元素为事件当前元素。
  *
  * @param  {Object} evo 事件关联对象

@@ -60,7 +60,7 @@ const _obter = new Builder( {
         on:     On,
         by:     By,
         update: To.Update,
-        stage:  To.Stage,
+        next:   To.NextStage,
     },
     storeChain
 );
@@ -126,7 +126,7 @@ if (DEBUG) {
         On,
         By,
         Update: To.Update,
-        Stage:  To.Stage,
+        Nexts:  To.NextStage,
         Tpl:    __Tpl,
         Lib,
         /**

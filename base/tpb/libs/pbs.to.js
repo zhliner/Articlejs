@@ -8,8 +8,8 @@
 //
 //	OBT:To 方法集。
 //
-//  Update：取栈数量固定为1（已被obter.js/update封装）。
-//  Stage：前置双下划线定义取栈条目数，无返回值。
+//  - Update 取栈数量固定为1（已被obter.js/update封装）。
+//  - NStage 依然可前置双下划线定义取栈条目数，基本无返回值。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,7 +328,7 @@ const _Update = {
     'width',        // val: Number (inc:Boolean)
     'scroll',       // val: {top:Number, left:Number}|[left, top]
     'scrollTop',    // val: Number (inc:Boolean)
-    'ScrollLeft',   // val: Number (inc:Boolean)
+    'scrollLeft',   // val: Number (inc:Boolean)
     'addClass',     // name: {String|Function}
     'removeClass',  // name: {String|Function}
     'toggleClass',  // name: {String|Function|Boolean} (force:Boolean)
@@ -440,9 +440,9 @@ const _Update = {
 // @return {void}
 ///////////////////////////////////////////////////////////////////////////////
 
-const _Stage = {
+const _NextStage = {
     /**
-     * To目标更新或取值。
+     * To目标更新或取值入栈。
      * 内容：暂存区1项可选。
      * 更新：将暂存区1项更新为目标。
      * 提取：将目标设置为流程数据（入栈）。
@@ -482,18 +482,25 @@ const _Stage = {
      * 条件激发。
      * 内容：暂存区/栈顶1项。
      * 仅当内容为真时才激发目标事件，否则忽略。
-     * 内容为激发判断的依据，因而无法成为被发送的数据。
+     * 如果需要从流程中获取发送数据，需要明确传递data为null且内容为一个数组，其中：
+     * - 内容[0]    判断依据
+     * - 内容[1]    待发送数据
+     * 注：如果内容不是数组，则data的null为实际发送的值。
      * @param {Number} delay 延迟毫秒数。
      * @param {String} name 事件名
-     * @param {Value} extra 发送数据，可选
+     * @param {Value} data 发送数据，可选
      * @param {Boolean} bubble 是否冒泡，可选
      * @param {Boolean} cancelable 是否可取消，可选
      */
-    xfire( evo, delay, name, extra, bubble, cancelable ) {
-        if ( !evo.data ) {
-            return;
+    xfire( evo, delay, name, data, bubble, cancelable ) {
+        let pass = evo.data;
+
+        if ( data === null && $.isArray(pass) ) {
+            [pass, data] = pass;
         }
-        Util.fireEvent( $(evo.targets), name, delay, extra, bubble, cancelable );
+        if ( pass ) {
+            Util.fireEvent( $(evo.targets), name, delay, data, bubble, cancelable );
+        }
     },
 
     __xfire: 1,
@@ -592,11 +599,11 @@ const _Stage = {
 ]
 .forEach(function( meth ) {
 
-    _Stage[meth] = function( evo ) {
+    _NextStage[meth] = function( evo ) {
         $( evo.targets )[meth]();
     };
 
-    // _Stage[`__${meth}`] = null;
+    // _NextStage[`__${meth}`] = null;
 
 });
 
@@ -832,25 +839,24 @@ function message( el, msg, long ) {
 // 设置和下一阶用两个子集表达。
 ///////////////////////////////////////////////////////////////////////////////
 
-
 //
 // 构造绑定。
 // this固化，参数配置，便于全局共享。
 //
 export const To = {
     Update: $.assign( {}, _Update, bindMethod ),
-    Stage:  $.assign( {}, _Stage, bindMethod ),
+    NextStage: $.assign( {}, _NextStage, bindMethod ),
 };
 
 //
 // 集成取值和控制指令。
 //
-Object.assign( To.Stage, Get, Control );
+Object.assign( To.NextStage, Get, Control );
 
 
 //
 // 接口：
 // 提供预处理方法。
 //
-To.Update[method]   = name => To.Update[name];
-To.Stage[method]    = name => To.Stage[name];
+To.Update[method] = name => To.Update[name];
+To.NextStage[method] = name => To.NextStage[name];
