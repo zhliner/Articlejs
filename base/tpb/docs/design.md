@@ -261,29 +261,6 @@ debug( keep:false ): Value
 仅用于 On 域。
 
 ```js
-// 集合处理。
-//-----------------------------------------------
-
-array( size, ...vals ): Array
-// 创建预填充值数组（size大小）。
-
-join( chr ): String
-// 接数组各成员。
-
-concat( ...vals ): [Value]
-// 数组串接。
-
-split( sep, cnt ): [String]
-// 切分字符串为数组。
-
-assign( target:Object, names?:String ): Object
-// 对象克隆赋值。
-
-gather( names:String ): Object
-// 数组映射聚集。
-
-
-
 // 数学运算。
 // 支持前一个操作数是数组的情况（对成员计算）。
 //-----------------------------------------------
@@ -358,6 +335,24 @@ inside( name: String, val: Value|[Value] ): Boolean
 
 
 
+// String简单处理。
+// 支持集合成员逐一处理，返回一个新集合。
+//-----------------------------------------------
+
+trim( evo, where = 0 )
+// 首尾空白修整。
+
+clean( evo, all )
+// 空白清理。
+
+replace( evo, ...args )
+// 内容替换。
+
+split( evo, sep, cnt )
+// 切分字符串为数组。
+
+
+
 // 增强运算。
 //-----------------------------------------------
 
@@ -369,6 +364,105 @@ exec( ...rest ): Value
 
 calc( expr ): Value
 // 表达式/函数运算。
+```
+
+
+### tQuery集合处理
+
+集合操作是对目标数据集进行简单的处理，然后返回一个结果集。
+
+```js
+// tQuery|Collector兼有
+// 目标为Collector时返回Collector，否则返回普通数组。
+//-----------------------------------------------
+
+filter( fltr: String|Function ): [Value]|Collector
+// 值集过滤。
+// 匹配者构建一个新数组入栈，适用元素和普通值集。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项：[集合, 过滤器]
+// 注：返回值类型与目标值类型相同。
+
+not( fltr: String|Function ): [Value]|Collector
+// 值集排除。
+// 符合者被排除，剩余的创建为一个新集合入栈。
+// 适用元素和普通值集。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项操作：(集合, 过滤器)
+// 注：返回值类型与目标值类型相同。
+
+has( slr: String ): [Element]|Collector
+// 子成员包含。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取自。
+// 如果实参未传递，取栈顶2项操作：(集合, 过滤器)
+// 注：
+// 仅适用于元素集，普通值集无效。
+// 返回值类型与目标值类型相同。
+
+map( proc: Function ): [Value]|Collector
+// 集合映射。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 返回的集合与目标类型相同。
+// 对于普通数组与Collector有一些区别：
+// - 普通数组：$.map(xxx, proc) 处理器返回的undefined和null会被忽略。
+// - Collector: $(xxx).map(proc) 实际上是调用数组原生的.map()，返回值都有效。
+// proc接口：function(value, index, obj): Value
+// 如果proc为空，取栈顶2项：[集合，处理器]
+
+each( proc: Function ): data
+// 迭代执行。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 目标应该是一个集合，没有返回值入栈。
+// 回调函数内返回false会中断迭代。
+// 指令返回被操作的目标对象。
+// proc接口：function(value, index, obj): Value
+// 如果proc为空，取栈顶2项：[集合，处理器]
+
+unique( comp: Function|true|null ): [Value]|Collector
+// 去重&排序。
+// 目标：当前条目/栈顶1项。
+// 特权：否。
+// 集合如果不是Collector，可为对象（取其值集）。
+// 默认为去重功能，如果传递comp实参则增加排序能力。
+// comp:
+// - true DOM节点排序
+// - null 默认排序规则，适用非节点数据
+// comp接口：function(a, b): Boolean
+
+
+// Array|Collector
+//-----------------------------------------------
+
+sort( comp?: Function|null ): [Value]|Collector
+// 集合排序。
+// 目标：当前条目/栈顶1项。
+// 特权：否。
+// 对于元素Collector集合，comp应当为空获得默认的排序算法。
+// 对于普通值Collector集合，comp可传递null获得JS环境默认排序规则。
+
+reverse(): [Value]|Collector
+// 成员序位反转。
+// 目标：当前条目/栈顶1项。
+// 返回一个新的数组。
+
+flat( deep: Number|true ): [Value]|Collector
+// 成员数组扁平化。
+// 将目标内可能嵌套的子数组扁平化。
+// 目标：当前条目/栈顶1-2项。
+// 特权：是，灵活取栈。
+// 如果是元素Collector集合，deep可以为true附加去重排序（1级扁平化）。
+// 如果实参未传递，取栈顶2项：[集合, 深度值]
+
+concat( ...vals ): [Value]
+// 数组串接。
+
+join( chr ): String
+// 接数组各成员。
 ```
 
 

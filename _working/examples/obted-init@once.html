@@ -4,9 +4,10 @@
     - debug: 查看是否可从data中取到值，无To段。
     注：
     init/save事件皆为单次绑定（自动解绑）。
+    split支持字符串数组处理，返回一个二维数组。
 -->
 <div tpl-name="data:chars"
-    on="^init|$$('/span') text map(s=>$.split(s,'')) map(ss=>$(ss).wrap('<b>'));
+    on="^init|$$('/span') text split map(ss=>$(ss).wrap('<b>'));
         ^save|$$('/span');
         ^obted;
         debug|$('/') data('unit number') debug"
