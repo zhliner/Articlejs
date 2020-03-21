@@ -1161,14 +1161,14 @@ elo: {
 只能移除用 `.on()` 和 `.one()` 接口绑定的事件处理器。如果不传入任何匹配条件，会移除 `el` 上绑定的全部事件处理器。
 
 
-### [$.trigger( el, evn, extra, bubble?, cancelable? ): this](docs/$.trigger.md)
+### [$.trigger( el, evn, extra?, bubble?, cancelable? ): this](docs/$.trigger.md)
 
 手动激发 `el` 上的 `evn` 事件。
 
 - `el: Element | Document | Window` 激发事件的目标元素、文档或窗口对象。
 - `evn: String | CustomEvent` 激发的事件名（单个）、或一个已经构建好的自定义事件对象。
-- `extra: Value` 激发事件附带的额外数据，它们会存放在事件对象的 `detail` 属性上。
-- `bubble?: Boolean` 激发的事件是否可以冒泡。可选，默认 `true`（可以冒泡）。
+- `extra?: Value` 激发事件附带的额外数据，它们会存放在事件对象的 `detail` 属性上。
+- `bubble?: Boolean` 激发的事件是否可以冒泡。可选，默认 `false`（不冒泡）。
 - `cancelable?: Boolean` 激发的事件是否可以取消（调用 `.preventDefault()`）。可选，默认 `true`（可以取消）。
 
 > **注：**<br>

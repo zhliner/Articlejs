@@ -354,12 +354,12 @@
         },
 
         //
-        // 可调用原生事件名。
+        // 可调用原生方法名（事件类）。
         // 它们被定义在元素上，同时存在如 xxx() 方法和 onxxx 属性。
         // 注：
         // 其中 submit() 和 load() 调用不会触发相应事件。
         //
-        callableEvents = [
+        callableNative = [
             'blur',
             'click',
             'focus',
@@ -2088,7 +2088,7 @@ Object.assign( tQuery, {
     /**
      * 手动事件激发。
      * - evn可以是一个事件名或一个已经构造好的事件对象。
-     * - 事件默认冒泡并且可以被取消。
+     * - 自定义事件默认不冒泡但可以被取消。
      * - 元素上原生的事件类函数可以直接被激发（如 click, focus）。
      * - 几个可前置on的非事件类方法（submit，load等）可以被激发，但需预先注册绑定。
      *
@@ -2099,12 +2099,12 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {String|CustomEvent} evn 事件名（单个）或事件对象
-     * @param  {Mixed} extra 发送数据
-     * @param  {Boolean} bubble 是否冒泡
-     * @param  {Boolean} cancelable 是否可取消
+     * @param  {Mixed} extra 发送数据，可选
+     * @param  {Boolean} bubble 是否冒泡，可选
+     * @param  {Boolean} cancelable 是否可取消，可选
      * @return {Boolean} 取消状态（未取消：true，取消：false）
      */
-    trigger( el, evn, extra, bubble = true, cancelable = true ) {
+    trigger( el, evn, extra, bubble = false, cancelable = true ) {
         if (!el || !evn) {
             return;
         }
@@ -2116,8 +2116,8 @@ Object.assign( tQuery, {
             }
             evn = new CustomEvent(evn, {
                 detail:     extra,
-                bubbles:    bubble,
-                cancelable: cancelable,
+                bubbles:    !!bubble,
+                cancelable: !!cancelable,
             });
         }
         return el.dispatchEvent( evn );
@@ -2860,14 +2860,11 @@ tQuery.Table = Table;
 
 
 //
-// 可调用事件。
+// 可调用原生方法（事件类）。
 ///////////////////////////////////////
 
-callableEvents
-.forEach( name =>
-    tQuery[name] = function( el ) {
-        return (name in el) && el[name](), this;
-    }
+callableNative.forEach( name =>
+    tQuery[name] = function( el ) { return (name in el) && el[name](), this; }
 );
 
 
@@ -3721,11 +3718,11 @@ elsExfn([
         'one',
         'off',
 
-        // 元素原生事件激发
+        // 原生事件类方法调用（可能激发事件）
         // 'blur'
         // 'click'
         // ...
-    ].concat(callableEvents),
+    ].concat(callableNative),
     fn =>
     function(...rest) {
         for ( let el of this ) tQuery[fn]( el, ...rest );
