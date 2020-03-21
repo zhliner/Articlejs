@@ -511,6 +511,7 @@ const _NextStage = {
      * 内容：暂存区1项可选。
      * 如果未传递任何实参且暂存区为空，则滚动到起始位置。
      * 注：top可以传递null实参占位。
+     * 注记：覆盖Get:scroll方法。
      * @data: Object2|Array2
      * @param {Number} top 垂直滚动条位置
      * @param {Number} left 水平滚动条位置
@@ -839,19 +840,21 @@ function message( el, msg, long ) {
 // 设置和下一阶用两个子集表达。
 ///////////////////////////////////////////////////////////////////////////////
 
-//
-// 构造绑定。
-// this固化，参数配置，便于全局共享。
-//
-export const To = {
-    Update: $.assign( {}, _Update, bindMethod ),
-    NextStage: $.assign( {}, _NextStage, bindMethod ),
-};
 
-//
+// 名称空间。
+export const To = {};
+
+
+// this固化，参数配置。
+To.Update = $.assign( {}, _Update, bindMethod )
+
+
 // 集成取值和控制指令。
-//
-Object.assign( To.NextStage, Get, Control );
+To.NextStage = Object.assign( {}, Get, Control );
+
+// this固化，参数配置。
+// 注：_NextStage.scroll覆盖同名取值指令。
+$.assign( To.NextStage, _NextStage, bindMethod );
 
 
 //

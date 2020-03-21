@@ -200,7 +200,7 @@ const _Gets = {
 
 
 
-    // 类型转换。
+    // 类型转换&构造。
     // 目标：暂存区/栈顶1项。
     // 返回值而非该类型的对象。
     //-----------------------------------------------------
@@ -299,6 +299,70 @@ const _Gets = {
     },
 
     __Obj: 1,
+
+
+    /**
+     * 创建预填充值集合。
+     * 目标：暂存区条目可选。
+     * 如果目标有值，会合并到实参序列之后（数组会被解构）。
+     * 最后一个值用于剩余重复填充。
+     * 如果完全没有填充值，数组成员会填充为undefined。
+     * @param  {Number} size 集合大小
+     * @param  {...Value} vals 填充值序列，可选
+     * @return {[Value]}
+     */
+    array( evo, size, ...vals ) {
+        if ( evo.data !== undefined ) {
+            vals = vals.concat(evo.data);
+        }
+        let _i = vals.length,
+            _v = vals[ _i-1 ];
+
+        vals.length = size;
+        return _i < size ? vals.fill(_v, _i) : vals;
+    },
+
+    __array: 0,
+
+
+    /**
+     * 对象属性赋值。
+     * 目标：暂存区/栈顶1项。
+     * 目标作为提供属性值的数据源对象。
+     * 属性仅限于对象自身（非继承）的可枚举属性。
+     * 支持由空格分隔的多名称限定，空名称匹配全部属性（含Symbol）。
+     * @data: Object => Object
+     * @param  {Object} to 接收对象
+     * @param  {String} names 取名称序列，可选
+     * @return {Object}
+     */
+    assign( evo, to, names ) {
+        if ( !names ) {
+            return Object.assign( to, evo.data );
+        }
+        let _ns = new Set( names.split(__reSpace) );
+
+        return $.assign( to, evo.data, (v, n) => _ns.has(n) && [v] );
+    },
+
+    __assign: 1,
+
+
+    /**
+     * 数组映射聚集。
+     * 目标：暂存区/栈顶1项。
+     * 把数组成员映射为一个键值对对象，键名序列由外部提供。
+     * 数组成员和名称序列按下标顺序提取，值不足的部分为undefined值。
+     * 注：支持下标运算的任意数据源皆可（如字符串）。
+     * @data: [Value] => Object
+     * @param  {String} names 属性名序列（空格分隔）
+     * @return {Object}
+     */
+    gather( evo, names ) {
+        return kvsObj( names.split(__reSpace), evo.data );
+    },
+
+    __gather: 1,
 
 
 
@@ -587,81 +651,6 @@ const _Gets = {
     },
 
     __chains: 1,
-
-
-
-    // 集合操作。
-    //-------------------------------------------
-    // 另：见末尾部分接口。
-
-    /**
-     * 集合成员去重&排序。
-     * 目标：暂存区/栈顶1项。
-     * 集合如果不是Collector，可为对象（取其值集），返回一个数组。
-     * 默认为去重功能，如果传递comp实参则增加排序能力。
-     * comp:
-     * - true DOM节点排序
-     * - null 默认排序规则，适用非节点数据
-     * comp接口：function(a, b): Boolean
-     * @param  {Function|true|null} comp 排序函数，可选
-     * @return {[Value]|Collector}
-     */
-    unique( evo, comp ) {
-        return $.isCollector(evo.data) ?
-            evo.data.unique(evo.data, comp) : $.unique(evo.data, comp);
-    },
-
-    __unique: 1,
-
-
-    /**
-     * 集合排序。
-     * 目标：暂存区/栈顶1项。
-     * 对于元素Collector集合，comp应当为空获得默认的排序算法。
-     * 对于普通值Collector集合，comp可传递null获得JS环境默认排序规则。
-     * comp接口：function(a, b): Boolean
-     * @param  {Function|null} comp 排序函数，可选
-     * @return {[Value]|Collector}
-     */
-    sort( evo, comp ) {
-        return $.isCollector(evo.data) ?
-            evo.data.sort(comp) : Array.from(evo.data).sort(comp);
-    },
-
-    __sort: 1,
-
-
-    /**
-     * 集合成员序位反转。
-     * 目标：暂存区/栈顶1项。
-     * 返回的是一个新的集合（保留原始类型）。
-     * @return {[Value]|Collector}
-     */
-    reverse( evo ) {
-        return $.isCollector(evo.data) ?
-            evo.data.reverse() : Array.from(evo.data).reverse();
-    },
-
-    __reverse: 1,
-
-
-    /**
-     * 数组扁平化。
-     * 将目标内可能嵌套的子数组扁平化。
-     * 目标：暂存区/栈顶1-2项。
-     * 特权：是，灵活取值。
-     * 如果是元素Collector集合，deep可以为true附加去重排序（1级扁平化）。
-     * 如果实参未传递，取值顶2项：[集合, 深度值]
-     * @param  {Stack} stack 数据栈
-     * @param  {Number|true} deep 深度或去重排序，可选
-     * @return {[Value]|Collector}
-     */
-    flat( evo, stack, deep ) {
-        let [els, d] = stackArg2(stack, deep);
-        return els.flat( d );
-    },
-
-    __flat_x: true,
 
 
 
@@ -981,40 +970,6 @@ const _Gets = {
 
 
 //
-// 集合操作。
-// 目标：暂存区/栈顶1-2项。
-// 特权：是，判断取值。
-// 如果实参未传递，取值2项：[集合, 实参]
-// 注：map、each方法操作的目标支持Object。
-//////////////////////////////////////////////////////////////////////////////
-[
-    'filter',   // ( fltr?: String|Function )
-    'not',      // ( fltr?: String|Function )
-    'has',      // ( slr?: String )
-    'map',      // ( proc?: Function )
-                // 普通集合版会忽略proc返回的undefined或null值。
-    'each',     // ( proc?: Function )
-                // 返回操作目标。处理器返回false会中断迭代。
-]
-.forEach(function( meth ) {
-    /**
-     * @data: [Value]|Collector
-     * @param  {Stack} stack 数据栈
-     * @param  {...} arg 模板实参，可选
-     * @return {[Value]|Collector}
-     */
-    _Gets[meth] = function( evo, stack, arg ) {
-        let [o, v] = stackArg2(stack, arg);
-        return $.isCollector(o) ? o[meth]( v ) : $[meth]( o, v );
-    };
-
-    _Gets[`__${meth}_x`] = true;
-
-});
-
-
-
-//
 // 元素自身行为。
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1260,3 +1215,6 @@ export const On = Object.assign( {}, Get, Control, Process );
 // 提供预处理方法。
 //
 On[method] = name => On[name];
+
+
+// window.console.info( 'Gets:', Object.keys(Get).length );

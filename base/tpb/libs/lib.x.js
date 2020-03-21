@@ -103,7 +103,6 @@ function subObj( names, obj ) {
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-
 /**
  * 接口：子域扩展。
  * 扩展中的方法默认会绑定（bind）到所属宿主对象。
@@ -126,7 +125,6 @@ export function extend__( name, exts, nobind, host ) {
 
     return $.assign( subObj(name.split('.'), host), exts || {}, _f );
 }
-
 
 
 //
