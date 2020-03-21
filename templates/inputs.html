@@ -22,7 +22,7 @@
 </div>
 
 <!-- 复制 -->
-<div class="_submit" tpl-name="inputs:copies">
+<div class="_submit" tpl-name="minied:copies">
     <!-- ev.clipboardData.setData('text/html', [html]) -->
     <button type="submit">复制</button>
 </div>
@@ -203,10 +203,7 @@
                 </select>
             </label>
         </div>
-        <div class="_submit" tpl-name="inputs:submit2">
-            <label><input type="checkbox" name="before">向前</label>
-            <button type="submit">插入</button>
-        </div>
+        <div tpl-node="inputs:submit2"> [插入2] </div>
     </aside>
 </div>
 
@@ -234,10 +231,7 @@
                 <input type="text" name="start" class="_chars">
             </label>
         </div>
-        <div class="_submit" tpl-name="inputs:submit2">
-            <label><input type="checkbox" name="before">向前</label>
-            <button type="submit">插入</button>
-        </div>
+        <div tpl-node="inputs:submit2"> [插入2] </div>
     </aside>
 </div>
 
@@ -455,71 +449,54 @@
 
 <!-- 微编辑：内联单元 ------------------------------------------------------->
 
-
-<!-- 字符种类 -->
-<select name="ctype" size="5" class="_list" tpl-name="minied:chars">
-    <option value="normal">常用</option>
-    <option value="punctuation">标点</option>
-    <option value="unit">单位</option>
-    <option value="number">序号</option>
-    <option value="math">数学</option>
-    <option value="special">特殊</option>
-    <option value="alphabet">字母</option>
-    <option value="geometric">几何</option>
-    <option value="emotion">表情</option>
-    <option value="radical">偏旁部首</option>
-    <option value="phonetic">音标</option>
+<!-- 子版：内联元素 -->
+<select name="inlines" size="5" class="_list" tpl-name="minied:inlines">
+    <option title="<img>" value="img">图片</option>
+    <option title="<audio>" value="audio">音频</option>
+    <option title="<video>" value="video">视频</option>
+    <option title="<picture>" value="picture">兼容图片</option>
+    <option title="<a>" value="a">链接</option>
+    <option title="<code>" value="code">代码</option>
+    <option title="<strong>" value="strong">重点</option>
+    <option title="<em>" value="em">强调</option>
+    <option title="<sub>" value="sub">下标</option>
+    <option title="<sup>" value="sup">上标</option>
+    <option title="<q>" value="q">短引用</option>
+    <option title="<time>" value="time">日期/时间</option>
+    <option title="<ins>" value="ins">插入性条目</option>
+    <option title="<del>" value="del">已删除条目</option>
+    <option title="<abbr>" value="abbr">缩写</option>
+    <option title="<small>" value="small">注脚</option>
+    <option title="<cite>" value="cite">来源</option>
+    <option title="<mark>" value="mark">标记</option>
+    <option title="<ruby/rb,rp,rt>" value="ruby">注音单元</option>
+    <option title="<code:orz>" value="orz">表情</option>
+    <option title="<dfn>" value="dfn">定义条目</option>
+    <option title="<samp>" value="samp">样本</option>
+    <option title="<kbd>" value="kbd">键盘字</option>
+    <option title="<meter>" value="meter">度量标示</option>
+    <option title="<s>" value="s">失效</option>
+    <option title="<u>" value="u">注记</option>
+    <option title="<var>" value="var">变量</option>
+    <option title="<bdo>" value="bdo">有向文本</option>
+    <option title="<br>" value="br">换行</option>
+    <option title="<wbr>" value="wbr">软换行</option>
+    <option title="<span:blank>" value="blank">空白段</option>
 </select>
 
-
-<!-- 字符表 -->
-<div class="_body _chars" tpl-name="chars:list">
-    <div data-id="cbox" class="_main _list">
-        <!-- <span/b> -->
+<!-- 右栏：内联通用 -->
+<div class="_body _inlines" tpl-name="minied:common">
+    <div class="_main _list">
+        <hr tpl-source="inlines:img" />
     </div>
     <aside>
-        <b id="g-zoomin" class="_zoomin">©</b>
-        <span class="_info">已复制：<i id="g-copies">1</i></span>
+        <hr tpl-source="minied:copies" />
     </aside>
 </div>
 
 
-<!-- 特殊字符集
-    初始解析构造为：<b>...</b>序列
-    各字符集清单<span>存储在data中备用。 -->
-<div tpl-name="data:chars"
-    on="^init|$$('/span') text map(s=>s.split('')) map(ss=>$.wrap('<b>'));
-        ^save|$$('/span');
-        ^obted"
-    to="+/span|fill|$('/') target fire(0, 'save');
-        &|xdata('normal punctuation unit number math special alphabet geometric emotion radical phonetic')|fire(1, 'off');
-        -|trigger('init')">
-    <!-- <span><b>...</span> -->
-    <span>〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
-    <!-- 单位 -->
-    <span>$¢£¤¥°‰′″₠₡₢₣₤₥₦₧₨₩₪₫€₭₮₯₰₱℃℉○㎎㎏㎜㎝㎞㎡㏄㏎㏕＄％￠￠￡￡￥￥〇</span>
-    <!-- 标点 -->
-    <span>【】〖〗《》〈〉（）〔〕｛｝「」『』﹙﹚﹛﹜﹝﹞‹›«»…／｜＼‖｜¦–︱—︳︴‥﹒，、。．；：？！︰′‵‘～ˆˇˉ﹐﹑•﹔﹕﹖﹗﹏﹌﹋´ˋ―＿¯￣﹍﹉﹎﹊︵︶︷︸︹︺︻︼︽︾︿﹀﹁﹂﹃﹄¸¡¿〓〒</span>
-    <!-- 序号 -->
-    <span>ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ①②③④⑤⑥⑦⑧⑨⑩㈠㈡㈢㈣㈤㈥㈦㈧㈨㈩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇零壹贰叁肆伍陆柒捌玖拾佰仟万亿兆吉太拍艾分厘毫</span>
-    <!-- 数学 -->
-    <span>#%&*/[]^±×÷•‰‱⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉⅓⅔½¼¾⅛⅜⅝⅞∈∏∑√∝∞∟∠∥∧∨∩∪∫∬∭∮∯∰∴∵∶∷∽≈≌≒≠≡≤≥≦≧≮≯⊕⊙⊥⊰⊱⊿⋘⋙⋚⋛⌒㏑㏒﹙﹚﹛﹜﹟﹠﹡﹢﹣﹤﹥﹦％＋－／＜＝＞～</span>
-    <!-- 特殊 -->
-    <span>№℡©™®＠@※★☆✦✧⏱⏲☏☚☛☜☝☞☟☢☣☪☭☮☯❀❁❂☸☻☠☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♡♢♤♧⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚘⚙⚛⚜⚝⚢⚣⚤⚥⚦⚧⚨⚩⚭⚮⚯⛆⛇❄⛈⛟⛴⛵✈⛽✂✄✓✔✗✘§♭♮♯¶♩♪♫♬℅㊣</span>
-    <!-- 字母 -->
-    <span>ァアィイゥウヴェエォオカガヵキギクグケゲヶコゴサザシジスズセゼソゾタダチヂツヅッテデトドヰンナパニピヌプネペノポハバヒビフブヘベホボヱマラミリムルメレモロャヤュユョヨヮワぁあぃいぅうぇえぉおかがきぎくぐけげこごんさざしじすずせぜそぞただちぢつづってでとどゐなぱにぴぬぷねぺのぽはばひびふぶへべほぼゑまらみりむるめれもろゃやゅゆょよゎわαΑβΒγΓδΔεΕζΖηΗθΘιΙκΚλΛμΜνΝξΞοΟπΠρΡσΣτΤυΥφΦχΧψΨωаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮя</span>
-    <!-- 几何 -->
-    <span>←↑→↓↔↕↖↗↘↙⇠⇡⇢⇣⇤⇥⇦⇧⇨⇩⇱⇲⇳⇵⇿■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▶▷▼▽◀◁◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳</span>
-    <!-- 表情 -->
-    <span>😀😁😂🤣😃😄😅😆😉😊😋😎😍😘😗😙😚☺🙂🤗🤩🤔🤨😐😑😶🙄😏😣😥😮🤐😯😪😫😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱😳🤪😵😠😡🤬😷🤒🤕🤢🤮🤧😇🤠🤡🤥🤫🤭🧐🤓😈👿👹👺💀☠👁👀💪🤞🖖👌👍👎🙏🎈🎄💎💐🌸🌷🥀🌻🌱☘🚗🚌🚐🚑🚅🚩❄⚡❤💔💖💘💬💝☢🔞📵</span>
-    <!-- 偏旁部首 -->
-    <span>丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
-    <!-- 音标 -->
-    <span>āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
-</div>
+<!-- 内联单元清单 -->
 
-
-<!-- 表格清单方式 -->
 <table tpl-name="inlines:img">
     <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
     <tr tpl-node="prop:upload, prop:preview"></tr>
@@ -644,3 +621,66 @@
     <tr tpl-node="prop:textrow"></tr>
     <tr tpl-node="prop:dir"></tr>
 </table>
+
+
+<!-- 子版：字符种类 -->
+<select name="ctype" size="5" class="_list" tpl-name="minied:chars">
+    <option value="normal">常用</option>
+    <option value="punctuation">标点</option>
+    <option value="unit">单位</option>
+    <option value="number">序号</option>
+    <option value="math">数学</option>
+    <option value="special">特殊</option>
+    <option value="alphabet">字母</option>
+    <option value="geometric">几何</option>
+    <option value="emotion">表情</option>
+    <option value="radical">偏旁部首</option>
+    <option value="phonetic">音标</option>
+</select>
+
+<!-- 右栏：字符表 -->
+<div class="_body _chars" tpl-name="chars:list">
+    <div data-id="cbox" class="_main _list">
+        <!-- <span/b> -->
+    </div>
+    <aside>
+        <b id="g-zoomin" class="_zoomin">©</b>
+        <span class="_info">已复制：<i id="g-copies">1</i></span>
+    </aside>
+</div>
+
+<!-- 数据：特殊字符集
+    初始解析构造为：<b>...</b>序列
+    各字符集清单<span>存储在data中备用。 -->
+<div tpl-name="data:chars"
+    on="init|evo('origin') text split $$ wrap('<b>');
+        save|evo(1) ev('detail') pack(2);
+        ^obted;
+        ^done"
+    to="~|fill|target xattr('-val') pop fire(0, 'save');
+        &|data|fire(1, 'done');
+        +/span|trigger('init');
+        &|off('init save')">
+    <!-- <span><b>...</span> -->
+    <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
+    <!-- 单位 -->
+    <span data-val="punctuation">$¢£¤¥°‰′″₠₡₢₣₤₥₦₧₨₩₪₫€₭₮₯₰₱℃℉○㎎㎏㎜㎝㎞㎡㏄㏎㏕＄％￠￠￡￡￥￥〇</span>
+    <!-- 标点 -->
+    <span data-val="unit">【】〖〗《》〈〉（）〔〕｛｝「」『』﹙﹚﹛﹜﹝﹞‹›«»…／｜＼‖｜¦–︱—︳︴‥﹒，、。．；：？！︰′‵‘～ˆˇˉ﹐﹑•﹔﹕﹖﹗﹏﹌﹋´ˋ―＿¯￣﹍﹉﹎﹊︵︶︷︸︹︺︻︼︽︾︿﹀﹁﹂﹃﹄¸¡¿〓〒</span>
+    <!-- 序号 -->
+    <span data-val="number">ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ①②③④⑤⑥⑦⑧⑨⑩㈠㈡㈢㈣㈤㈥㈦㈧㈨㈩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇零壹贰叁肆伍陆柒捌玖拾佰仟万亿兆吉太拍艾分厘毫</span>
+    <!-- 数学 -->
+    <span data-val="math">#%&*/[]^±×÷•‰‱⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉⅓⅔½¼¾⅛⅜⅝⅞∈∏∑√∝∞∟∠∥∧∨∩∪∫∬∭∮∯∰∴∵∶∷∽≈≌≒≠≡≤≥≦≧≮≯⊕⊙⊥⊰⊱⊿⋘⋙⋚⋛⌒㏑㏒﹙﹚﹛﹜﹟﹠﹡﹢﹣﹤﹥﹦％＋－／＜＝＞～</span>
+    <!-- 特殊 -->
+    <span data-val="special">№℡©™®＠@※★☆✦✧⏱⏲☏☚☛☜☝☞☟☢☣☪☭☮☯❀❁❂☸☻☠☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♡♢♤♧⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚘⚙⚛⚜⚝⚢⚣⚤⚥⚦⚧⚨⚩⚭⚮⚯⛆⛇❄⛈⛟⛴⛵✈⛽✂✄✓✔✗✘§♭♮♯¶♩♪♫♬℅㊣</span>
+    <!-- 字母 -->
+    <span data-val="alphabet">ァアィイゥウヴェエォオカガヵキギクグケゲヶコゴサザシジスズセゼソゾタダチヂツヅッテデトドヰンナパニピヌプネペノポハバヒビフブヘベホボヱマラミリムルメレモロャヤュユョヨヮワぁあぃいぅうぇえぉおかがきぎくぐけげこごんさざしじすずせぜそぞただちぢつづってでとどゐなぱにぴぬぷねぺのぽはばひびふぶへべほぼゑまらみりむるめれもろゃやゅゆょよゎわαΑβΒγΓδΔεΕζΖηΗθΘιΙκΚλΛμΜνΝξΞοΟπΠρΡσΣτΤυΥφΦχΧψΨωаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮя</span>
+    <!-- 几何 -->
+    <span data-val="geometric">←↑→↓↔↕↖↗↘↙⇠⇡⇢⇣⇤⇥⇦⇧⇨⇩⇱⇲⇳⇵⇿■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▶▷▼▽◀◁◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳</span>
+    <!-- 表情 -->
+    <span data-val="emotion">😀😁😂🤣😃😄😅😆😉😊😋😎😍😘😗😙😚☺🙂🤗🤩🤔🤨😐😑😶🙄😏😣😥😮🤐😯😪😫😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱😳🤪😵😠😡🤬😷🤒🤕🤢🤮🤧😇🤠🤡🤥🤫🤭🧐🤓😈👿👹👺💀☠👁👀💪🤞🖖👌👍👎🙏🎈🎄💎💐🌸🌷🥀🌻🌱☘🚗🚌🚐🚑🚅🚩❄⚡❤💔💖💘💬💝☢🔞📵</span>
+    <!-- 偏旁部首 -->
+    <span data-val="radical">丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢尣屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿肀臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
+    <!-- 音标 -->
+    <span data-val="phonetic">āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
+</div>

@@ -78,8 +78,8 @@ const _Update = {
      * @param {Element|Collector} to 待激发元素/集
      * @param {Value|[String, Value]} data 待发送数据或名称和待发送数据
      * @param {String} evn 目标事件名，可选
-     * @param {Boolean} bubble 是否可冒泡，可选
-     * @param {Boolean} cancelable 是否可取消，可选
+     * @param {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
+     * @param {Boolean} cancelable 是否可取消，可选（默认可取消）
      */
     trigger( to, data, evn, bubble, cancelable ) {
         if ( !evn ) {
@@ -97,8 +97,8 @@ const _Update = {
      * @param {[Element]|Collector} tos 待激发元素集
      * @param {Value|[String, Value]} data 待发送数据或名称和待发送数据
      * @param {String} evn 目标事件名，可选
-     * @param {Boolean} bubble 是否可冒泡，可选
-     * @param {Boolean} cancelable 是否可取消，可选
+     * @param {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
+     * @param {Boolean} cancelable 是否可取消，可选（默认可取消）
      */
     triggers( to, data, evn, bubble, cancelable ) {
         if ( !evn ) {

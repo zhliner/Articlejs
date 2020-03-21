@@ -412,6 +412,7 @@ aside#help {
     font-size: 10pt;
     width: calc(100% - 17px);
     bottom: 0;
+    cursor: default;
 }
 .___Content ._path b {
     font-family: monospace, Consolas, 'Courier New';
@@ -1145,7 +1146,7 @@ aside#help {
 
 
 
-/* 脚本清单 */
+/* ？脚本清单 */
 .xPanel.Modal ._sh {
     height: 100%;
 }

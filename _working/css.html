@@ -1077,7 +1077,107 @@
     </div>
 
 
-    <!-- 内联单元 -->
+    <!-- 微编辑：内联单元 --------------------------------------------------->
+
+    <!-- 内联：通用 -->
+    <h4>内联：通用</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs Minied" tpl-name="slave:minied">
+                <div class="_roll">
+                    <div class="_where">
+                        <label title="内联元素">
+                            <input type="radio" name="where" checked /><i id="l-element"></i>
+                        </label>
+                        <label title="文本字符">
+                            <input type="radio" name="where" /><i id="l-schar"></i>
+                        </label>
+                    </div>
+                    <!-- 内联元素 -->
+                    <select name="inlines" size="5" class="_list" tpl-name="minied:inlines">
+                        <option title="<img>" value="img">图片</option>
+                        <option title="<audio>" value="audio">音频</option>
+                        <option title="<video>" value="video">视频</option>
+                        <option title="<picture>" value="picture">兼容图片</option>
+                        <option title="<a>" value="a">链接</option>
+                        <option title="<code>" value="code">代码</option>
+                        <option title="<strong>" value="strong">重点</option>
+                        <option title="<em>" value="em">强调</option>
+                        <option title="<sub>" value="sub">下标</option>
+                        <option title="<sup>" value="sup">上标</option>
+                        <option title="<q>" value="q">短引用</option>
+                        <option title="<time>" value="time">日期/时间</option>
+                        <option title="<ins>" value="ins">插入性条目</option>
+                        <option title="<del>" value="del">已删除条目</option>
+                        <option title="<abbr>" value="abbr">缩写</option>
+                        <option title="<small>" value="small">注脚</option>
+                        <option title="<cite>" value="cite">来源</option>
+                        <option title="<mark>" value="mark">标记</option>
+                        <option title="<ruby/rb,rp,rt>" value="ruby">注音单元</option>
+                        <option title="<code:orz>" value="orz">表情</option>
+                        <option title="<dfn>" value="dfn">定义条目</option>
+                        <option title="<samp>" value="samp">样本</option>
+                        <option title="<kbd>" value="kbd">键盘字</option>
+                        <option title="<meter>" value="meter">度量标示</option>
+                        <option title="<s>" value="s">失效</option>
+                        <option title="<u>" value="u">注记</option>
+                        <option title="<var>" value="var">变量</option>
+                        <option title="<bdo>" value="bdo">有向文本</option>
+                        <option title="<br>" value="br">换行</option>
+                        <option title="<wbr>" value="wbr">软换行</option>
+                        <option title="<span:blank>" value="blank">空白段</option>
+                    </select>
+                </div>
+                <!-- [子模版：内联通用] -->
+                <div class="_body _inlines" tpl-name="minied:common">
+                    <div class="_main _list">
+                        <table tpl-name="inputs:img">
+                            <tr tpl-name="prop:srcbase">
+                                <th title="相对于网站根目录">根路径</th>
+                                <!-- 依配置自动设置 -->
+                                <td><input type="text" name="srcbase" placeholder="/upload" /></td>
+                            </tr>
+                            <tr tpl-name="prop:sources">
+                                <th title="支持多条目">数据源</th>
+                                <td><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></td>
+                            </tr>
+                            <tr tpl-name="prop:alts">
+                                <th title="与数据源分别对应">图片说明</th>
+                                <td><input type="text" name="alts" placeholder="alt11; alt22" /></td>
+                            </tr>
+                            <tr class="_upload" tpl-name="prop:upload">
+                                <th>上传</th>
+                                <td><input type="file" name="upload" value="" on="change|evo('origin'), val"
+                                        by="x.Fun.upload(null)" />
+                                </td>
+                            </tr>
+                            <tr tpl-name="prop:preview">
+                                <th>预览</th>
+                                <td class="_preview" data-id="preview">
+                                    <!-- img|video|audio -->
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <aside>
+                        <div class="_submit">
+                            <!-- ev.clipboardData.setData('text/html', [html]) -->
+                            <button type="submit">复制</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
 
     <h4>内联：特别字符</h4>
     <div class="panel inputs">
@@ -1100,6 +1200,7 @@
                             <input type="radio" name="where" checked /><i id="l-schar"></i>
                         </label>
                     </div>
+                    <!-- 字符种类 -->
                     <select name="ctype" size="5" class="_list" tpl-name="minied:chars">
                         <option value="normal">常用</option>
                         <option value="punctuation">标点</option>
@@ -1187,105 +1288,6 @@
                     <aside>
                         <b id="g-zoomin" class="_zoomin">©</b>
                         <span class="_info">已复制：<i id="g-copies">1</i></span>
-                    </aside>
-                </div>
-            </form>
-        </div>
-        <!-- 状态栏（略） -->
-    </div>
-
-    <!-- 内联：通用 -->
-    <h4>内联：通用</h4>
-    <div class="panel inputs">
-        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
-            <div class="_tabs">
-                <b class="_press">内容</b>
-                <b>样式</b>
-                <b>特性</b>
-                <b>源码</b>
-                <b>脚本</b>
-                <b class="_close"><i id="l-close" title="关闭"></i></b>
-            </div>
-            <form class="Inputs" tpl-name="slave:minied">
-                <div class="_roll">
-                    <div class="_where">
-                        <label title="内联元素">
-                            <input type="radio" name="where" checked /><i id="l-element"></i>
-                        </label>
-                        <label title="文本字符">
-                            <input type="radio" name="where" /><i id="l-schar"></i>
-                        </label>
-                    </div>
-                    <select name="inlines" size="5" class="_list" tpl-name="minied:inlines">
-                        <option title="<img>" value="img">图片</option>
-                        <option title="<audio>" value="audio">音频</option>
-                        <option title="<video>" value="video">视频</option>
-                        <option title="<picture>" value="picture">兼容图片</option>
-                        <option title="<a>" value="a">链接</option>
-                        <option title="<code>" value="code">代码</option>
-                        <option title="<strong>" value="strong">重点</option>
-                        <option title="<em>" value="em">强调</option>
-                        <option title="<sub>" value="sub">下标</option>
-                        <option title="<sup>" value="sup">上标</option>
-                        <option title="<q>" value="q">短引用</option>
-                        <option title="<time>" value="time">日期/时间</option>
-                        <option title="<ins>" value="ins">插入性条目</option>
-                        <option title="<del>" value="del">已删除条目</option>
-                        <option title="<abbr>" value="abbr">缩写</option>
-                        <option title="<small>" value="small">注脚</option>
-                        <option title="<cite>" value="cite">来源</option>
-                        <option title="<mark>" value="mark">标记</option>
-                        <option title="<ruby/rb,rp,rt>" value="ruby">注音单元</option>
-                        <option title="<code:orz>" value="orz">表情</option>
-                        <option title="<dfn>" value="dfn">定义条目</option>
-                        <option title="<samp>" value="samp">样本</option>
-                        <option title="<kbd>" value="kbd">键盘字</option>
-                        <option title="<meter>" value="meter">度量标示</option>
-                        <option title="<s>" value="s">失效</option>
-                        <option title="<u>" value="u">注记</option>
-                        <option title="<var>" value="var">变量</option>
-                        <option title="<bdo>" value="bdo">有向文本</option>
-                        <option title="<br>" value="br">换行</option>
-                        <option title="<wbr>" value="wbr">软换行</option>
-                        <option title="<span:blank>" value="blank">空白段</option>
-                    </select>
-                </div>
-                <!-- [子模版：内联通用] -->
-                <div class="_body _inlines" tpl-name="minied:common">
-                    <div class="_main _list">
-                        <table tpl-name="inputs:img">
-                            <tr tpl-name="prop:srcbase">
-                                <th title="相对于网站根目录">根路径</th>
-                                <!-- 依配置自动设置 -->
-                                <td><input type="text" name="srcbase" placeholder="/upload" /></td>
-                            </tr>
-                            <tr tpl-name="prop:sources">
-                                <th title="支持多条目">数据源</th>
-                                <td><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></td>
-                            </tr>
-                            <tr tpl-name="prop:alts">
-                                <th title="与数据源分别对应">图片说明</th>
-                                <td><input type="text" name="alts" placeholder="alt11; alt22" /></td>
-                            </tr>
-                            <tr class="_upload" tpl-name="prop:upload">
-                                <th>上传</th>
-                                <td><input type="file" name="upload" value="" on="change|evo('origin'), val"
-                                        by="x.Fun.upload(null)" />
-                                </td>
-                            </tr>
-                            <tr tpl-name="prop:preview">
-                                <th>预览</th>
-                                <td class="_preview" data-id="preview">
-                                    <!-- img|video|audio -->
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <aside>
-                        <div class="_submit">
-                            <!-- ev.clipboardData.setData('text/html', [html]) -->
-                            <button type="submit">复制</button>
-                        </div>
                     </aside>
                 </div>
             </form>
