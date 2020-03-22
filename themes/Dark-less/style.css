@@ -13,13 +13,6 @@
 
 @import 'icons.css';
 
-/* test... */
-body>div {
-    background-color: #b7f7e7;
-}
-/* test end. */
-
-
 /* 侧面板 */
 body > aside {
     border: 1px #5c869c solid;
@@ -100,9 +93,8 @@ aside#help {
 }
 .___Panel select {
     flex: 1 1 auto;
-    border: 1px solid #bbb;
+    border: 1px #93c8e2 solid;
     padding: 3px;
-    min-width: 40px;
     border-radius: 3px 1px 1px 3px;
     outline: none;
 }
@@ -217,37 +209,48 @@ aside#help {
 .___Panel a:hover {
     color: #369;
 }
-.___Panel ._submit > button {
+.___Panel ._submit > * {
     display: block;
 }
 .___Panel button {
     padding: 1px 20px 2px;
-    border: 1px #30b9cf solid;
+    border: 1px #5798a5 solid;
     border-radius: 2px;
-    background-color: #9cd9e2;
     font-size: 14px;
     outline: none;
 }
-.___Panel button:hover {
-    border-color: #38a2b7;
-    background-color: #9fe0ea;
+.___Panel ._submit > button {
+    background-color: #1b839c;
+    color: #fff;
+}
+.___Panel ._submit button:hover {
+    background-color: #1a697c;
 }
 
 .___Panel input._char {
     width: 30px;
     text-align: center;
 }
-.___Panel input._chars {
-    width: 55px;
+.___Panel input._nums {
+    width: 45px;
     text-align: center;
 }
-.___Panel input._length {
-    width: 80px;
+.___Panel input._chars {
+    width: 60px;
+}
+.___Panel .Styles input._chars {
+    min-width: 80px;
 }
 /* 去除焦点虚框 */
 .___Panel input,
 .___Panel [tabindex] {
     outline: none;
+}
+
+/* 侧栏灰度线 */
+.___Panel aside select,
+.___Panel aside input[type=text] {
+    border: 1px #bbb solid;
 }
 
 
@@ -635,27 +638,24 @@ aside#help {
     width: 100%;
     text-align: center;
 }
-
-
-/* 表格 */
-.Inputs ._main {
-    flex: 5 5 420px;
-}
-.Inputs > ._table header,
-/* 插图 */
-.Inputs > ._figure header {
+.Inputs header._affix {
     display: grid;
     grid-template-columns: 3fr 1fr;
     gap: 10px;
     align-items: center;
 }
-.Inputs header > aside {
+.Inputs header._affix>aside {
     display: flex;
     align-items: center;
     min-width: 140px;
 }
+
+/* 表格 */
+.Inputs ._main {
+    flex: 5 5 420px;
+}
 .Inputs ._table select {
-    min-width: 70px;
+    min-width: 80px;
 }
 
 /* 片区 */
@@ -664,7 +664,7 @@ aside#help {
     flex: 1 1 50px;
 }
 .Inputs ._section textarea:last-child {
-    margin-top: 7px;
+    margin-top: 6px;
 }
 
 /* 线条 */
@@ -839,7 +839,7 @@ aside#help {
     display: block;
 }
 .Styles ._color > aside {
-    width: 135px;
+    min-width: 132px;
     padding: 5px 10px;
     border: 1px #ccc dotted;
     border-radius: 5px;
@@ -917,12 +917,12 @@ aside#help {
 }
 .Source ._option > button {
     width: max-content;
-    background-color: #fceabf;
-    border-color: #ddbb56;
+    background-color: #d1f1ff;
+    border-color: #93eab7;
     border-radius: 0 16px;
 }
 .Source ._option > button:hover {
-    background-color: #fff1d1;
+    background-color: #bffcd1;
 }
 .Source ._info {
     flex: 1 1 auto;

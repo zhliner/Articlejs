@@ -375,35 +375,30 @@
                 <!-- [子模版：表格] -->
                 <div class="_body _table" tpl-name="inputs:table">
                     <div class="_main">
-                        <header>
+                        <header class="_affix">
                             <input name="caption" type="text" placeholder="标题" class="_scale" />
-                            <aside>
-                                <input name="rows" type="text" placeholder="行数" class="_chars" />
-                                <span>×</span>
-                                <input name="columns" type="text" placeholder="列数" class="_chars" />
-                            </aside>
+                            <label><input name="below" type="checkbox" />标题在下</label>
                         </header>
                         <textarea name="table" placeholder="每行一个单元格
 空行分隔表格行（可选）"></textarea>
                     </div>
                     <aside>
                         <div class="_option">
-                            <label>宽度
-                                <input type="text" name="width" class="_chars" value="100%" />
+                            <label>行数
+                                <input name="rows" type="text" class="_nums" />
+                            </label>
+                            <label>列数
+                                <input name="columns" type="text" class="_nums" />
                             </label>
                             <label>边框
-                                <select tpl-node="table:border">
-                                    <option value="">------</option>
-                                </select>
-                            </label>
-                            <label>对齐
-                                <select tpl-node="item:align">
-                                    <!-- 例： -->
-                                    <option value="">------</option>
-                                    <option value="left">left</option>
-                                    <option value="center">center</option>
-                                    <option value="right">right</option>
-                                    <option value="justify">justify</option>
+                                <select name="border" tpl-name="item:tborder">
+                                    <option value="0">------</option>
+                                    <option value="1">普通</option>
+                                    <option value="4">外围</option>
+                                    <option value="2">内部</option>
+                                    <option value="h">横向</option>
+                                    <option value="v">纵向</option>
+                                    <option value="3">上接式</option>
                                 </select>
                             </label>
                         </div>
@@ -430,7 +425,7 @@
         </div>
     </div>
 
-    <h4>内容：文章标题</h4>
+    <h4>内容：文章标题（h1 | hgroup/h1,h2）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -463,7 +458,7 @@
                         <textarea name="h2" placeholder="副标题（可选）"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option">
+                        <div class="_option" tpl-name="inputs:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit1">
@@ -476,7 +471,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：提要</h4>
+    <h4>内容：提要（header:abstract/h3,p...）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -503,12 +498,12 @@
                 <!-- [子模版：提要] -->
                 <div class="_body _abstract" tpl-name="inputs:abstract">
                     <div class="_main">
-                        <textarea name="header" placeholder="文章提要（支持多段落）"></textarea>
+                        <textarea name="header" placeholder="文章提要"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit1">
                             <button type="submit">插入</button>
@@ -520,7 +515,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：文献参考</h4>
+    <h4>内容：文献参考（ol:reference/li...）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -550,9 +545,51 @@
                         <textarea name="reference" placeholder="每行一项"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="inputs:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：另参见（ul:seealso/li...）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：另参见] -->
+                <div class="_body _reference" tpl-name="inputs:seealso">
+                    <div class="_main">
+                        <textarea name="seealso" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit1">
                             <button type="submit">插入</button>
@@ -594,12 +631,12 @@
                         <header>
                             <input name="h4" type="text" class="_scale" value="导言" />
                         </header>
-                        <textarea name="header" placeholder="内容（支持多段落）"></textarea>
+                        <textarea name="header" placeholder="内容"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit1">
                             <button type="submit">插入</button>
@@ -641,12 +678,12 @@
                         <header>
                             <input name="h4" type="text" class="_scale" value="小结" />
                         </header>
-                        <textarea name="footer" placeholder="内容（支持多段落）"></textarea>
+                        <textarea name="footer" placeholder="内容"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit1">
                             <button type="submit">插入</button>
@@ -694,7 +731,201 @@
                     <aside>
                         <div class="_option" tpl-name="inputs:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：列表（ol, ul）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：有序列表] -->
+                <div class="_body _ol" tpl-name="inputs:p">
+                    <div class="_main">
+                        <textarea name="ul" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：定义列表</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：定义列表] -->
+                <div class="_body _dl" tpl-name="inputs:dl">
+                    <div class="_main">
+                        <header>
+                            <input name="dt" type="text" class="_scale" placeholder="条目（<dt>）" />
+                        </header>
+                        <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：引用块</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：引用块] -->
+                <div class="_body _blockquote" tpl-name="inputs:blockquote">
+                    <div class="_main">
+                        <header>
+                            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+                        </header>
+                        <textarea name="blockquote" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：代码块</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：代码块] -->
+                <div class="_body _codeblock" tpl-name="inputs:codeblock">
+                    <div class="_main">
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:codeopts">
+                            <label>制表符
+                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                            </label>
+                            <label>语言
+                                <select id="g-languages" name="languages">
+                                    <option value="golang">Golang</option>
+                                    <option value="cplus">C/C++</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="css">CSS</option>
+                                    <option value="html">HTML</option>
+                                </select>
+                            </label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit2">
                             <label><input type="checkbox" name="before">向前</label>
@@ -765,109 +996,6 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：代码块</h4>
-    <div class="panel inputs">
-        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
-            <div class="_tabs">
-                <b class="_press">内容</b>
-                <b>样式</b>
-                <b>特性</b>
-                <b>源码</b>
-                <b>脚本</b>
-                <b class="_close"><i id="l-close" title="关闭"></i></b>
-            </div>
-            <form class="Inputs" tpl-name="slave:inputs">
-                <div class="_roll">
-                    <div class="_where">
-                        <label>
-                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
-                        </label>
-                        <label>
-                            <input type="radio" name="where"><i id="l-children"></i>
-                        </label>
-                    </div>
-                    <select id="inputs-items" name="items" size="5">
-                    </select>
-                </div>
-                <!-- [子模版：代码块] -->
-                <div class="_body _codeblock" tpl-name="inputs:codeblock">
-                    <div class="_main">
-                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
-                    </div>
-                    <aside>
-                        <div class="_option" tpl-name="inputs:codeopts">
-                            <label>制表符
-                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
-                            </label>
-                            <label>语言
-                                <select id="g-languages" name="languages">
-                                    <option value="golang">Golang</option>
-                                    <option value="cplus">C/C++</option>
-                                    <option value="javascript">JavaScript</option>
-                                    <option value="css">CSS</option>
-                                    <option value="html">HTML</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
-                            <label><input type="checkbox" name="before">向前</label>
-                            <button type="submit">插入</button>
-                        </div>
-                    </aside>
-                </div>
-            </form>
-        </div>
-        <!-- 状态栏（略） -->
-    </div>
-
-    <h4>内容：定义列表</h4>
-    <div class="panel inputs">
-        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
-            <div class="_tabs">
-                <b class="_press">内容</b>
-                <b>样式</b>
-                <b>特性</b>
-                <b>源码</b>
-                <b>脚本</b>
-                <b class="_close"><i id="l-close" title="关闭"></i></b>
-            </div>
-            <form class="Inputs" tpl-name="slave:inputs">
-                <div class="_roll">
-                    <div class="_where">
-                        <label>
-                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
-                        </label>
-                        <label>
-                            <input type="radio" name="where"><i id="l-children"></i>
-                        </label>
-                    </div>
-                    <select id="inputs-items" name="items" size="5">
-                    </select>
-                </div>
-                <!-- [子模版：定义列表] -->
-                <div class="_body _dl" tpl-name="inputs:dl">
-                    <div class="_main">
-                        <header>
-                            <input name="dt" type="text" class="_scale" placeholder="条目<dt>" />
-                        </header>
-                        <textarea name="dd" placeholder="定义内容<dd>"></textarea>
-                    </div>
-                    <aside>
-                        <div class="_option" tpl-name="inputs:option2">
-                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
-                        </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
-                            <label><input type="checkbox" name="before">向前</label>
-                            <button type="submit">插入</button>
-                        </div>
-                    </aside>
-                </div>
-            </form>
-        </div>
-        <!-- 状态栏（略） -->
-    </div>
-
     <h4>内容：插图</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
@@ -895,7 +1023,7 @@
                 <!-- [子模版：插图] -->
                 <div class="_body _figure" tpl-name="inputs:figure">
                     <div class="_main">
-                        <header>
+                        <header class="_affix">
                             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
                             <label><input name="below" type="checkbox" />标题在下</label>
                         </header>
@@ -913,6 +1041,95 @@
                                     <option value="svgxml">SVG源码</option>
                                 </select>
                             </label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：段落</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：段落] -->
+                <div class="_body _p" tpl-name="inputs:p">
+                    <div class="_main">
+                        <textarea name="p" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>内容：注解</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：注解] -->
+                <div class="_body _note" tpl-name="inputs:note">
+                    <div class="_main">
+                        <textarea name="note" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit2">
                             <label><input type="checkbox" name="before">向前</label>
@@ -1395,7 +1612,7 @@
                             <div class="_erase"><b>清除</b></div>
                             <hr>
                             <div><label title="可含单位">字号</label>
-                                <input type="text" name="fontsize" placeholder="12pt" class="_length" />
+                                <input type="text" name="fontsize" placeholder="12pt" class="_chars" />
                                 <select name="unit">
                                     <option value="">---</option>
                                     <option value="pt">pt</option>
@@ -1508,7 +1725,7 @@
                             <div class="_erase"><b>全部清除</b></div>
                             <hr>
                             <div><label title="可含单位">赋值</label>
-                                <input type="text" name="width" placeholder="100%" class="_length" />
+                                <input type="text" name="width" placeholder="100%" class="_chars" />
                                 <select name="unit">
                                     <option value="">---</option>
                                     <option value="pt">%</option>
@@ -1581,7 +1798,7 @@
                             <div class="_erase"><b>全部清除</b></div>
                             <hr>
                             <div><label title="可含单位">赋值</label>
-                                <input type="text" name="width" placeholder="10px" class="_length" />
+                                <input type="text" name="width" placeholder="10px" class="_chars" />
                                 <select name="unit">
                                     <option value="">---</option>
                                     <option value="px">px</option>
@@ -1885,7 +2102,7 @@
                             <hr>
                             <div>
                                 <label>Alpha</label>
-                                <input type="text" name="alpha" placeholder="0-100" class="_chars" />
+                                <input type="text" name="alpha" title="0~100" class="_nums" />
                             </div>
                         </div>
                         <div class="_custom">

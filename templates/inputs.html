@@ -1,12 +1,12 @@
 <!-- 选项：1 -->
-<div class="_option" tpl-name="inputs:option">
+<div class="_option" tpl-name="inputs:option1">
     <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
 </div>
 
 <!-- 选项：2 -->
 <div class="_option" tpl-name="inputs:option2">
     <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-    <label title="紧邻换行保留"><input type="checkbox" name="split">空行分隔</label>
+    <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
 </div>
 
 
@@ -38,7 +38,7 @@
         <textarea name="h2" placeholder="副标题（可选）"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option, inputs:submit1">
+        <pre tpl-node="inputs:option1, inputs:submit1">
             [选项1]
             [插入1]
         </pre>
@@ -49,7 +49,7 @@
 <!-- 提要 -->
 <div class="_body _abstract" tpl-name="inputs:abstract">
     <div class="_main">
-        <textarea name="header" placeholder="文章提要（支持多段落）"></textarea>
+        <textarea name="header" placeholder="文章提要"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -146,8 +146,8 @@
         <textarea name="ol" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
-            [选项2]
+        <pre tpl-node="inputs:option1, inputs:submit2">
+            [选项1]
             [插入2]
         </pre>
     </aside>
@@ -160,8 +160,8 @@
         <textarea name="ul" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
-            [选项2]
+        <pre tpl-node="inputs:option1, inputs:submit2">
+            [选项1]
             [插入2]
         </pre>
     </aside>
@@ -172,6 +172,23 @@
 <div class="_body _cascade" tpl-name="inputs:cascade">
     <div class="_main">
         <textarea name="cascade" placeholder="每行一项"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="inputs:option1, inputs:submit2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+
+<!-- 定义列表 -->
+<div class="_body _dl" tpl-name="inputs:dl">
+    <div class="_main">
+        <header>
+            <input name="dt" type="text" class="_scale" placeholder="条目" />
+        </header>
+        <textarea name="dl" placeholder="定义内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -236,47 +253,34 @@
 </div>
 
 
-<!-- 定义列表 -->
-<div class="_body _dl" tpl-name="inputs:dl">
-    <div class="_main">
-        <header>
-            <input name="dt" type="text" class="_scale" placeholder="条目" />
-        </header>
-        <textarea name="dl" placeholder="定义内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
 <!-- 表格 -->
 <div class="_body _table" tpl-name="inputs:table">
     <div class="_main">
-        <header>
+        <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
-            <aside>
-                <input name="rows" type="text" placeholder="行数" class="_chars" />
-                <span>×</span>
-                <input name="columns" type="text" placeholder="列数" class="_chars" />
-            </aside>
+            <label><input name="below" type="checkbox" />标题在下</label>
         </header>
         <textarea name="table" placeholder="每行一个单元格
 空行分隔表格行（可选）"></textarea>
     </div>
     <aside>
         <div class="_option">
-            <label>宽度
-                <input type="text" name="width" placeholder="100%" class="_length" />
+            <label>行数
+                <input name="rows" type="text" class="_nums" />
+            </label>
+            <label>列数
+                <input name="columns" type="text" class="_nums" />
             </label>
             <label>边框
-                <select tpl-node="table:border"></select>
-            </label>
-            <label>对齐
-                <select tpl-node="item:align"></select>
+                <select name="border" tpl-name="item:tborder">
+                    <option value="0">------</option>
+                    <option value="1">普通</option>
+                    <option value="4">外围</option>
+                    <option value="2">内部</option>
+                    <option value="h">横向</option>
+                    <option value="v">纵向</option>
+                    <option value="3">上接式</option>
+                </select>
             </label>
         </div>
         <div tpl-node="inputs:submit2"> [插入2] </div>
@@ -364,9 +368,9 @@
 
 
 <!-- 段落 -->
-<div class="_body _paragraph" tpl-name="inputs:paragraph">
+<div class="_body _p" tpl-name="inputs:p">
     <div class="_main">
-        <textarea name="paragraph" placeholder="内容（支持多段落）"></textarea>
+        <textarea name="p" placeholder="内容（支持多段落）"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">

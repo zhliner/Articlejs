@@ -34,6 +34,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     padding: 0 20px;
 }
 
+.content table {
+    width: 98%;
+    /* margin: auto; */
+}
 .content dt {
     margin: 8px 0 2px;
 }
@@ -60,7 +64,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* [ 固定 ] - 慎改
+/* [ 固定 ] - 请谨慎修改！
  ****************************************************************************/
 
 /* 表格边框 */

@@ -1,5 +1,6 @@
-<!-- 单元属性/数据项
-    注：只单纯包含顶级的<tr>元素。 -->
+<!-- 单元属性：
+    由上下文菜单中的“属性”条目激发。
+    在弹出的模态框中显示为一个表格行清单。 -->
 
 <tr tpl-name="prop:align">
     <th>水平对齐</th>
@@ -70,16 +71,7 @@
 
 <tr tpl-name="prop:border">
     <th>表格边框</th>
-    <td><select name="border" tpl-name="table:border">
-            <option value="0">无</option>
-            <option value="1">普通</option>
-            <option value="4">外围</option>
-            <option value="2">内部</option>
-            <option value="h">横向</option>
-            <option value="v">纵向</option>
-            <option value="3">上接式</option>
-        </select>
-    </td>
+    <td><hr tpl-node="item:tborder"></td>
 </tr>
 
 <tr tpl-name="prop:columns">

@@ -2,9 +2,11 @@
     - init: 检索各子元素<span>分别提取文本，解析构造为<b>元素序列。皆为集合批量操作。
     - save: 检索各子元素<span>，对应data提供的清单分别存储到容器元素以备用（注：因为会脱离DOM）。
     - debug: 查看是否可从data中取到值，无To段。
-    注：
+    注记：
     init/save事件皆为单次绑定（自动解绑）。
     split支持字符串数组处理，返回一个二维数组。
+    直接针对容器元素，所以发送消息时（trigger|fire）不需要可冒泡。
+    存储键名与对应元素分开不是一个好的设计。
 -->
 <div tpl-name="data:chars"
     on="^init|$$('/span') text split map(ss=>$(ss).wrap('<b>'));
