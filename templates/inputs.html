@@ -199,32 +199,6 @@
 </div>
 
 
-<!-- 代码块 -->
-<div class="_body _codeblock" tpl-name="inputs:codeblock">
-    <div class="_main">
-        <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
-        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
-    </div>
-    <aside>
-        <div class="_option" tpl-name="inputs:codeopts">
-            <label>制表符
-                <input type="text" name="tabs" class="_char" value="4" title="空格数">
-            </label>
-            <label>语言
-                <select id="g-languages" name="languages">
-                    <option value="golang">Golang</option>
-                    <option value="cplus">C/C++</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="css">CSS</option>
-                    <option value="html">HTML</option>
-                </select>
-            </label>
-        </div>
-        <div tpl-node="inputs:submit2"> [插入2] </div>
-    </aside>
-</div>
-
-
 <!-- 代码表 -->
 <div class="_body _codelist" tpl-name="inputs:codelist">
     <div class="_main">
@@ -246,6 +220,32 @@
             </label>
             <label>起始编号
                 <input type="text" name="start" class="_chars">
+            </label>
+        </div>
+        <div tpl-node="inputs:submit2"> [插入2] </div>
+    </aside>
+</div>
+
+
+<!-- 代码块 -->
+<div class="_body _codeblock" tpl-name="inputs:codeblock">
+    <div class="_main">
+        <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
+        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
+    </div>
+    <aside>
+        <div class="_option" tpl-name="inputs:codeopts">
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
+            <label>语言
+                <select id="g-languages" name="languages">
+                    <option value="golang">Golang</option>
+                    <option value="cplus">C/C++</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="css">CSS</option>
+                    <option value="html">HTML</option>
+                </select>
             </label>
         </div>
         <div tpl-node="inputs:submit2"> [插入2] </div>

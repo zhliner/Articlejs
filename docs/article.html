@@ -211,8 +211,8 @@
 &lt;section role="s5"&gt;&lt;/section&gt;       <i>&lt;!-- 片区：S5 /[content]... --&gt;</i>
 &lt;ul&gt;&lt;/ul&gt;                           <i>&lt;!-- 无序列表：Ul /li/... --&gt;</i>
 &lt;ol&gt;&lt;/ol&gt;                           <i>&lt;!-- 有序列表：Ol /li/... --&gt;</i>
+&lt;ol role="codes"&gt;&lt;/ol&gt;              <i>&lt;!-- 代码表：Codes /li/code/b, #text --&gt;</i>
 &lt;ol role="cascade"&gt;&lt;/ol&gt;            <i>&lt;!-- 级联编号表：Cascade /li/h5, ol, ... --&gt;</i>
-&lt;ol role="codelist"&gt;&lt;/ol&gt;           <i>&lt;!-- 代码表：Codelist /li/code/b, #text --&gt;</i>
 &lt;dl&gt;&lt;/dl&gt;                           <i>&lt;!-- 定义列表：Dl /dt, dd/... --&gt;</i>
 &lt;table&gt;&lt;/table&gt;                     <i>&lt;!-- 表格：Table /caption, thead, tbody, tfoot/tr/td/... --&gt;</i>
 &lt;figure&gt;&lt;/figure&gt;                   <i>&lt;!-- 插图：Figure /figcaption, p... --&gt;</i>
@@ -502,10 +502,14 @@
                     </section>
                     <h4 id="代码表">代码表</h4>
                     <section>
-                        <p>包含一个 <code>data-tab</code> 特性定义制表符（<code>Tab</code>）转换的空格数。这里有两级：根级对应整个代码表的默认值，每一条 <code>&lt;code&gt;</code> 可以定义当前代码行中的配置覆盖（可选）。</p>
+                        <p>包含 <code>data-lang</code> 属性用于指定代码语言，<code>data-tab</code> 属性指定制表符（<code>Tab</code>）对应的空格数。可以有两级定义：</p>
+                        <ol>
+                            <li>根级。书写在 <code>&lt;ol&gt;</code> 元素上，对应整个代码表的默认值。</li>
+                            <li>行级。书写在 <code>&lt;code&gt;</code> 元素上，对应当前行的语言和制表符宽度（可选）。</li>
+                        </ol>
                         <p>元素的 <code>start</code> 属性可以让对整片代码中部分片段的引用变得十分清晰。如示例：<a href="#源码2（代码表）">源码2（代码表）</a>。</p>
                         <pre>
-<code data-lang="html">&lt;ol role="codelist" data-lang="xx" data-tab="4" start="x"&gt;
+<code data-lang="html">&lt;ol role="codes" data-lang="xx" data-tab="4" start="x"&gt;
     &lt;li&gt;&lt;code&gt; <i>&lt;!-- 根封装 --&gt;</i>
         ...&lt;b&gt;&lt;/b&gt;... <i>&lt;!-- 代码内容 --&gt;</i>
     &lt;/code&gt;&lt;/li&gt;
@@ -517,9 +521,10 @@
                     </section>
                     <h4 id="代码块">代码块</h4>
                     <section>
+                        <p>与代码表相似，包含 <code>data-lang</code> 和 <code>data-tab</code> 两个属性定义代码的特性，书写在 <code>&lt;code&gt;</code> 元素上。</p>
                         <pre>
-<code data-lang="html">&lt;pre role="codeblock" data-lang="xx" data-tab="4"&gt;<i>&lt;!-- 容许简单换行 --&gt;</i>
-&lt;code&gt; ...&lt;b&gt;&lt;/b&gt;...
+<code data-lang="html">&lt;pre&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
+&lt;code data-lang="xx" data-tab="4"&gt; ...&lt;b&gt;..&lt;/b&gt;...
 <i>&lt;!-- Tab符被自动转换为空格（如果配值非零） --&gt;</i>
 &lt;/code&gt;&lt;pre&gt; <i>&lt;!-- 末尾应当紧跟 --&gt;</i>
 </code></pre>
@@ -619,7 +624,7 @@ err       <i>// b[role=err]  error 错误提示</i>
                     <h4 id="源码2（代码表）">源码2（代码表）</h4>
                     <section>
                         <pre>
-<code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="val">"codelist"</b> data-lang=<b role="val">"go"</b> start=<b role="val">"3"</b>&gt;
+<code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="val">"codes"</b> data-lang=<b role="val">"go"</b> start=<b role="val">"3"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="val">"kw"</b>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<b role="val">"str"</b>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="val">"kw"</b>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">b</b> role=<b role="val">"str"</b>&gt;"Hello, 世界"&lt;/<b role="tag">b</b>&gt;) &lt;<b role="tag">i</b>&gt;// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。&lt;/<b role="tag">i</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
@@ -633,7 +638,7 @@ err       <i>// b[role=err]  error 错误提示</i>
                     </section>
                     <h4 id="效果2">效果</h4>
                     <section>
-                        <ol role="codelist" data-lang="go" start="3">
+                        <ol role="codes" data-lang="go" start="3">
                             <li><code><b role="kw">import</b> <b role="str">"fmt"</b></code></li>
                             <li><code><b role="kw">func</b> main() {</code></li>
                             <li><code>    fmt.Println(<b role="str">"Hello, 世界"</b>) <i>// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。</i></code></li>

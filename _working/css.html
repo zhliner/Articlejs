@@ -18,6 +18,10 @@
         body > div:first-child {
             height: 700px;
         }
+        body > hr {
+            width: auto;
+            border: 1px #eee inset;
+        }
         .panel {
             display: flex;
             flex-direction: column;
@@ -348,7 +352,7 @@
 
 <!-- 内容面板 ------------------------------------------------------------------->
 
-    <h4>内容：表格</h4>
+    <h4>表格：table/caption,thead,tbody,tfoot/tr/th,td</h4>
     <div class="panel inputs" style="height: 400px;">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -425,7 +429,7 @@
         </div>
     </div>
 
-    <h4>内容：文章标题（h1 | hgroup/h1,h2）</h4>
+    <h4>文章标题：h1 | hgroup/h1,h2</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -471,7 +475,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：提要（header:abstract/h3,p...）</h4>
+    <h4>提要：header:abstract/h3,p...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -515,7 +519,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：文献参考（ol:reference/li...）</h4>
+    <h4>文献参考：ol:reference/li...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -558,7 +562,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：另参见（ul:seealso/li...）</h4>
+    <h4>另参见：ul:seealso/li...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -601,7 +605,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：导言</h4>
+    <h4>导言：header/h4,p...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -648,7 +652,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：结语</h4>
+    <h4>结语：header/h4,p...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -695,7 +699,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：片区</h4>
+    <h4>片区：section:s1-s5/header,[...],footer</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -726,7 +730,7 @@
                             <input name="hx" type="text" placeholder="标题" class="_scale" />
                         </header>
                         <textarea name="header" placeholder="导言（可选）"></textarea>
-                        <textarea name="footer" placeholder="结语（可选）"></textarea>
+                        <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:option2">
@@ -744,7 +748,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：列表（ol, ul）</h4>
+    <h4>无序列表：ul/li（依目标判断创建为&lt;ul&gt;或是&lt;li&gt;）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -788,7 +792,95 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：定义列表</h4>
+    <h4>有序列表：ol/li（依目标判断创建为&lt;ol&gt;或是&lt;li&gt;）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：有序列表] -->
+                <div class="_body _ol" tpl-name="inputs:p">
+                    <div class="_main">
+                        <textarea name="ul" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>级联表：[li]/h5,[ul|ol]/...（目标为&lt;li&gt;，内容自动封装为&lt;h5&gt;）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：有序列表] -->
+                <div class="_body _ol" tpl-name="inputs:p">
+                    <div class="_main">
+                        <textarea name="ul" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="cascade">转为多级编号</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>定义列表：dl/dt,dd...（依目标判断创建为&lt;dl&gt;或是&lt;dt&gt;,&lt;dd&gt;）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -835,7 +927,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：引用块</h4>
+    <h4>引用块：blockquote/h4,p...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -883,7 +975,161 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：代码块</h4>
+    <h4>批注块：aside/h4,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：引用块] -->
+                <div class="_body _blockquote" tpl-name="inputs:blockquote">
+                    <div class="_main">
+                        <header>
+                            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+                        </header>
+                        <textarea name="blockquote" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>详细内容：details/summary,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：引用块] -->
+                <div class="_body _blockquote" tpl-name="inputs:blockquote">
+                    <div class="_main">
+                        <header>
+                            <input name="h4" type="text" placeholder="摘要" class="_scale" />
+                        </header>
+                        <textarea name="blockquote" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>代码表：ol:codes/li/code/#text,b...（目标为表内时建为&lt;li&gt;&lt;code&gt;。位置按钮失效）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Inputs" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：代码表] -->
+                <div class="_body _codelist" tpl-name="inputs:codes">
+                    <div class="_main">
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:codeopts">
+                            <label>制表符
+                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                            </label>
+                            <label>语言
+                                <select id="g-languages" name="languages" tpl-name="item:languages">
+                                    <option value="golang">Golang</option>
+                                    <option value="cplus">C/C++</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="css">CSS</option>
+                                    <option value="html">HTML</option>
+                                </select>
+                            </label>
+                            <label title="起始行号">首行
+                                <input type="text" name="start" placeholder="1" class="_chars">
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>代码块：pre/code/#text,b...（目标为块内时直接解析插入。位置按钮失效）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -918,7 +1164,7 @@
                                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
                             </label>
                             <label>语言
-                                <select id="g-languages" name="languages">
+                                <select id="g-languages" name="languages" tpl-name="item:languages">
                                     <option value="golang">Golang</option>
                                     <option value="cplus">C/C++</option>
                                     <option value="javascript">JavaScript</option>
@@ -938,65 +1184,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：代码表</h4>
-    <div class="panel inputs">
-        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
-            <div class="_tabs">
-                <b class="_press">内容</b>
-                <b>样式</b>
-                <b>特性</b>
-                <b>源码</b>
-                <b>脚本</b>
-                <b class="_close"><i id="l-close" title="关闭"></i></b>
-            </div>
-            <form class="Inputs" tpl-name="slave:inputs">
-                <div class="_roll">
-                    <div class="_where">
-                        <label>
-                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
-                        </label>
-                        <label>
-                            <input type="radio" name="where"><i id="l-children"></i>
-                        </label>
-                    </div>
-                    <select id="inputs-items" name="items" size="5">
-                    </select>
-                </div>
-                <!-- [子模版：代码表] -->
-                <div class="_body _codelist" tpl-name="inputs:codelist">
-                    <div class="_main">
-                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
-                    </div>
-                    <aside>
-                        <div class="_option" tpl-name="inputs:codeopts">
-                            <label>制表符
-                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
-                            </label>
-                            <label>语言
-                                <select id="g-languages" name="languages">
-                                    <option value="golang">Golang</option>
-                                    <option value="cplus">C/C++</option>
-                                    <option value="javascript">JavaScript</option>
-                                    <option value="css">CSS</option>
-                                    <option value="html">HTML</option>
-                                </select>
-                            </label>
-                            <label title="起始行号">首行
-                                <input type="text" name="start" placeholder="1" class="_chars">
-                            </label>
-                        </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
-                            <label><input type="checkbox" name="before">向前</label>
-                            <button type="submit">插入</button>
-                        </div>
-                    </aside>
-                </div>
-            </form>
-        </div>
-        <!-- 状态栏（略） -->
-    </div>
-
-    <h4>内容：插图</h4>
+    <h4>插图</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1053,7 +1241,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：段落</h4>
+    <h4>段落</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1098,7 +1286,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：注解</h4>
+    <h4>注解</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1142,7 +1330,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：预排版</h4>
+    <h4>预排版</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1188,7 +1376,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：线条</h4>
+    <h4>线条</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1252,7 +1440,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内容：空白块</h4>
+    <h4>空白块</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1294,10 +1482,11 @@
     </div>
 
 
+    <hr>
     <!-- 微编辑：内联单元 --------------------------------------------------->
 
     <!-- 内联：通用 -->
-    <h4>内联：通用</h4>
+    <h4>[内联] 通用</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1396,7 +1585,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>内联：特别字符</h4>
+    <h4>[内联] 特别字符</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1516,7 +1705,7 @@
 
 <!-- 样式面板 ------------------------------------------------------------------->
 
-    <h4>样式：字形</h4>
+    <h4>[样式] 字形</h4>
     <div class="panel styles">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1572,7 +1761,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>样式：字号</h4>
+    <h4>[样式] 字号</h4>
     <div class="panel styles">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1631,7 +1820,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>样式：对齐</h4>
+    <h4>[样式] 对齐</h4>
     <div class="panel styles">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1688,7 +1877,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>样式：宽/高度</h4>
+    <h4>[样式] 宽/高度</h4>
     <div class="panel styles">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1745,7 +1934,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>样式：边距</h4>
+    <h4>[样式] 边距</h4>
     <div class="panel styles">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1818,7 +2007,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>样式：颜色</h4>
+    <h4>[样式] 颜色</h4>
     <div class="panel styles">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -2123,7 +2312,7 @@
 
 <!-- 其它面板 ------------------------------------------------------------------->
 
-    <h4>面板：特性</h4>
+    <h4>[面板] 特性</h4>
     <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -2165,7 +2354,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>面板：源码</h4>
+    <h4>[面板] 源码</h4>
     <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -2195,7 +2384,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>面板：脚本</h4>
+    <h4>[面板] 脚本</h4>
     <div class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">

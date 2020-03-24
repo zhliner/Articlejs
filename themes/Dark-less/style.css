@@ -666,6 +666,9 @@ aside#help {
 .Inputs ._section textarea:last-child {
     margin-top: 6px;
 }
+.Inputs ._section textarea._inert {
+    max-height: 2.2em;
+}
 
 /* 线条 */
 .Inputs ._lines {
