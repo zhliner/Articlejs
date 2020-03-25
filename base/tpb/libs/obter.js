@@ -829,7 +829,6 @@ class Cell {
         if ( !this._from ) {
             return data;
         }
-        // 无操作目标
         if ( n == null ) return;
 
         // 取值项数[0|1]效果同。

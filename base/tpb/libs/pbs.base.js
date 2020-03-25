@@ -220,21 +220,16 @@ const _Control = {
     /**
      * 栈顶复制。
      * 复制栈顶n项并入栈（原样展开）。
-     * 目标：暂存区1项可选。
+     * 目标：无。
      * 特权：是，灵活取栈&自行入栈。
-     * 注：可选的暂存区1项仅用于复制数量定义，优先于模板实参。
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数
      * @return {void}
      */
     dup( evo, stack, n = 1 ) {
-        if ( evo.data !== undefined ) {
-            n = +evo.data;
-        }
         if ( n > 0 ) stack.push( ...stack.tops(n) );
     },
 
-    __dup: -1,
     __dup_x: true,
 
 
@@ -243,7 +238,8 @@ const _Control = {
      * 取出栈顶的n项打包为一个数组入栈。
      * 目标：无。
      * 特权：是，自行操作数据栈。
-     * 必然会返回一个数组，非法值返回一个空数组。
+     * - 必然返回一个数组。
+     * - 非法值返回一个空数组，这可能是有用的。
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数
      * @return {[Value]}
@@ -256,7 +252,7 @@ const _Control = {
 
 
     /**
-     * 任意区段打包。
+     * 任意区段打包（克隆）。
      * 目标：无。
      * 特权：是，自行操作数据栈。
      * 两个位置下标支持负值从末尾倒算。
@@ -276,7 +272,7 @@ const _Control = {
      * 目标：暂存区/栈顶1项。
      * 特权：是，自行入栈。
      * 目标若为字符串，会展开为单个字符序列入栈。
-     * 注：目标中的undefined值会被忽略。
+     * 注：目标中的undefined值会被丢弃。
      * @data: [Value]|Iterator|String
      * @param {Stack} stack 数据栈
      */
@@ -380,7 +376,7 @@ const _Control = {
     /**
      * 条件赋值。
      * 目标：暂存区/栈顶1项。
-     * 如果目标值为真（广义），val入栈，否则入栈elseval。
+     * 如果目标值为真（广义），val入栈，否则elseval入栈。
      * @param  {Value} val IF赋值
      * @param  {Boolean} elseval ELSE赋值，可选
      * @return {Value}
@@ -495,46 +491,30 @@ const _Process = {
     /**
      * 数组扁平化。
      * 将目标内可能嵌套的子数组扁平化。
-     * 目标：暂存区/栈顶1-2项。
-     * 特权：是，灵活取值。
+     * 目标：暂存区/栈顶1项。
      * 如果是元素Collector集合，deep可以为true附加去重排序（1级扁平化）。
-     * 如果实参未传递，取值顶2项：[集合, 深度值]
-     * @param  {Stack} stack 数据栈
+     * @data: Array
      * @param  {Number|true} deep 深度或去重排序，可选
      * @return {[Value]|Collector}
      */
-    flat( evo, stack, deep ) {
-        let [els, d] = stackArg2(stack, deep);
-        return els.flat( d );
+    flat( evo, deep ) {
+        return evo.data.flat( deep );
     },
 
-    __flat_x: true,
+    __flat: 1,
 
 
     /**
      * 集合串接。
-     * 目标：暂存区条目/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 如果实参非空，取暂存区全部或栈顶1项作为合并到的目标。
-     * 如果实参为空，取暂存区全部或栈顶2项，其中首项为合并目标。
-     * 注意：
-     * 暂存区若有值，需要是一个数组，假值会被忽略（跳过后取栈）。
+     * 目标：暂存区/栈顶1项。
      * @param  {...Value|Array} vals 值或数组
      * @return {[Value]}
      */
     concat( evo, stack, ...vals ) {
-        let to = null;
-
-        if ( vals.length > 0 ) {
-            to = evo.data || stack.data(1);
-        } else {
-            [to, ...vals] = evo.data || stack.data(2);
-        }
         return to.concat( ...vals );
     },
 
-    __concat: 0,
-    __concat_x: true,
+    __concat: 1,
 
 
     /**
@@ -544,7 +524,7 @@ const _Process = {
      * @param  {String} chr 连接字符串
      * @return {String}
      */
-    join( evo, chr ) {
+    join( evo, chr = '' ) {
         return evo.data.join( chr );
     },
 
@@ -559,165 +539,145 @@ const _Process = {
     /**
      * 加运算。
      * 同时适用数值和字符串。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
+     * 目标：暂存区/栈顶1项
      * 注记：Collector的同名方法没有被使用。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number|String} val 第二个操作数，可选
+     * @param  {Number|String} y 第二个操作数
      * @return {Number|String|[Number|String]}
      */
-    add( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    add( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => v+y ) : x+y;
     },
 
-    __add_x: true,
+    __add: 1,
 
 
     /**
      * 减运算。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * 目标：暂存区/栈顶1项。
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    sub( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    sub( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => v-y ) : x-y;
     },
 
-    __sub_x: true,
+    __sub: 1,
 
 
     /**
      * 乘运算。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * 目标：暂存区/栈顶1项。
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    mul( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    mul( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => v*y ) : x*y;
     },
 
-    __mul_x: true,
+    __mul: 1,
 
 
     /**
      * 除运算。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * 目标：暂存区/栈顶1项。
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    div( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    div( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => v/y ) : x/y;
     },
 
-    __div_x: true,
+    __div: 1,
 
 
     /**
      * 整除运算。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
+     * 目标：暂存区/栈顶1项。
      * 注：简单的截断小数部分。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    divi( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    divi( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => parseInt(v/y) ) : parseInt(x/y);
     },
 
-    __divi_x: true,
+    __divi: 1,
 
 
     /**
      * 整除运算（向小取整）。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
+     * 目标：暂存区/栈顶1项。
      * 注：在负值时表现与parseInt不同。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    fdiv( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    fdiv( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => Math.floor(v/y) ) : Math.floor(x/y);
     },
 
-    __fdiv_x: true,
+    __fdiv: 1,
 
 
     /**
      * 整除运算（向大取整）。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * 目标：暂存区/栈顶1项。
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    cdiv( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    cdiv( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => Math.ceil(v/y) ) : Math.ceil(x/y);
     },
 
-    __cdiv_x: true,
+    __cdiv: 1,
 
 
     /**
      * 整除运算（四舍五入）。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * 目标：暂存区/栈顶1项。
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    rdiv( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    rdiv( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => Math.round(v/y) ) : Math.round(x/y);
     },
 
-    __rdiv_x: true,
+    __rdiv: 1,
 
 
     /**
      * 模运算。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * 目标：暂存区/栈顶1项。
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    mod( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    mod( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => v%y ) : x%y;
     },
 
-    __mod_x: true,
+    __mod: 1,
 
 
     /**
      * 幂运算。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * 目标：暂存区/栈顶1项。
+     * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    pow( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    pow( evo, y ) {
+        let x = evo.data;
         return $.isArray(x) ? x.map( v => v**y ) : x**y;
     },
 
-    __pow_x: true,
+    __pow: 1,
 
 
     /**
@@ -748,15 +708,13 @@ const _Process = {
 
     /**
      * 除并求余。
-     * 目标：暂存区/栈顶1-2项
-     * 特权：是，灵活取栈。
+     * 目标：暂存区/栈顶1项
      * 注记：|商| * |y| + |余| == |x|
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} val 第二个操作数，可选
+     * @param  {Number} y 第二个操作数，可选
      * @return {[Number, Number]} [商数, 余数]
      */
-    divmod( evo, stack, val ) {
-        let [x, y] = stackArg2(stack, val);
+    divmod( evo, y ) {
+        let x = evo.data;
 
         if ( $.isArray(x) ) {
             return x.map( v => [parseInt(v/y), v%y] );
@@ -764,13 +722,12 @@ const _Process = {
         return [ parseInt(x/y), x%y ];
     },
 
-    __divmod_x: true,
+    __divmod: 1,
 
 
 
     // 比较运算。
-    // 目标：暂存区/栈顶1-2项。
-    // 特权：是，灵活取栈。
+    // 目标：暂存区/栈顶1项。
     // 注：模板传递的实参为比较操作的第二个操作数。
     // @return {Boolean}
     //-----------------------------------------------------
@@ -778,84 +735,74 @@ const _Process = {
     /**
      * 相等比较（===）。
      */
-    equal( evo, stack, val ) {
-        let [v1, v2] = stackArg2(stack, val);
-        return v1 === v2;
+    equal( evo, val ) {
+        return evo.data === val;
     },
 
-    __equal_x: true,
+    __equal: 1,
 
 
     /**
      * 不相等比较（!==）。
      */
-    nequal( evo, stack, val ) {
-        let [v1, v2] = stackArg2(stack, val);
-        return v1 !== v2;
+    nequal( evo, val ) {
+        return evo.data !== val;
     },
 
-    __nequal_x: true,
+    __nequal: 1,
 
 
     /**
      * 小于比较。
      */
-    lt( evo, stack, val ) {
-        let [v1, v2] = stackArg2(stack, val);
-        return v1 < v2;
+    lt( evo, val ) {
+        return evo.data < val;
     },
 
-    __lt_x: true,
+    __lt: 1,
 
 
     /**
      * 小于等于比较。
      */
-    lte( evo, stack, val ) {
-        let [v1, v2] = stackArg2(stack, val);
-        return v1 <= v2;
+    lte( evo, val ) {
+        return evo.data <= val;
     },
 
-    __lte_x: true,
+    __lte: 1,
 
 
     /**
      * 大于比较。
      */
-    gt( evo, stack, val ) {
-        let [v1, v2] = stackArg2(stack, val);
-        return v1 > v2;
+    gt( evo, val ) {
+        return evo.data > val;
     },
 
-    __gt_x: true,
+    __gt: 1,
 
 
     /**
      * 大于等于比较。
      */
-    gte( evo, stack, val ) {
-        let [v1, v2] = stackArg2(stack, val);
-        return v1 >= v2;
+    gte( evo, val ) {
+        return evo.data >= val;
     },
 
-    __gte_x: true,
+    __gte: 1,
 
 
     /**
      * 数组相等比较。
-     * 目标：暂存区/栈顶1-2项。
-     * 如果传递了arr，则取暂存区或栈顶1项。
-     * 如果未传递arr，则取暂存区或栈顶2项。
+     * 目标：暂存区/栈顶1项。
      * 注：仅对数组成员自身做相等（===）比较。
-     * @param {Stack} stack 数据栈
      * @param {[Value]} arr 对比数组
      */
-    arrayEqual( evo, stack, arr ) {
-        let [a1, a2] = stackArg2(stack, arr);
-        return arrayEqual( a1, a2 );
+    arrayEqual( evo, arr ) {
+        return arrayEqual( evo.data, arr );
     },
 
-    __arrayEqual_x: true,
+    __arrayEqual: 1,
 
 
     /**
@@ -933,13 +880,13 @@ const _Process = {
     /**
      * 是否每一项都为真。
      * 目标：暂存区/栈顶1项。
-     * 测试函数可选，默认严格真值（true）测试。
+     * 测试函数可选，默认非严格真值测试。
      * test接口：function(value, key, obj): Boolean
      * 注：适用于数组和其它集合（如Object）。
      * @param {Function} test 测试函数，可选
      */
     every( evo, test ) {
-        return $.every( evo.data, test || (v => v === true), null );
+        return $.every( evo.data, test || (v => v), null );
     },
 
     __every: 1,
@@ -952,7 +899,7 @@ const _Process = {
      * @param {Function} test 测试函数，可选
      */
     some( evo, test ) {
-        return $.some( evo.data, test || (v => v === true), null );
+        return $.some( evo.data, test || (v => v), null );
     },
 
     __some: 1,
@@ -1086,57 +1033,39 @@ const _Process = {
 
     /**
      * 函数执行。
-     * 目标：暂存区条目/栈顶1项。
-     * 特权：是，判断取栈。
-     * 如果暂存区无值，自动取栈顶1项为函数。
-     * 如果暂存区条目为数组，首项为函数，其余附加在模板实参序列之后。
-     * @data: Function|[Function, ...args]
-     * @param  {Stack} stack 数据栈
+     * 目标：暂存区/栈顶1项。
+     * 视目标为函数，传递实参执行并返回结果。
      * @param  {...Value} args 实参序列
-     * @return {Value}
+     * @return {Any}
      */
-    exec( evo, stack, ...args ) {
-        let fn = evo.data;
-
-        if ( fn === undefined ) {
-            fn = stack.data(1);
-        } else {
-            [fn, ...args] = dataArgs(fn, args);
-        }
-        return fn( ...args );
+    exec( evo, ...args ) {
+        return evo.data( ...args );
     },
 
-    __exec: 0,
-    __exec_x: true,
+    __exec: 1,
 
 
     /**
      * 表达式/函数运算。
-     * 目标：暂存区/栈顶1-2项。
-     * 特权：是，判断取值。
-     * 目标为源数据或 [源数据, JS表达式] 对。
-     * JS表达式支持一个固定的变量名$，源数据即变量$的实参。
+     * 目标：暂存区/栈顶1项。
+     * 目标为源数据。
+     * JS表达式支持一个默认的变量名$，源数据即为其实参。
      * 例：
      * push('123456') calc('$[0]+$[2]+$[4]')
      * => '135'
      * date calc('`${$.getMonth()+1}/${$.getDate()}-${$.getFullYear()}`')
      * => '3/17-2020'
-     * 注记：
-     * 变量名与模板渲染语法中的变量名相同，这可能带来某些益处。
-     * @param  {Stack} stack 数据栈
      * @param  {String|Function} expr 表达式或函数
-     * @return {Value}
+     * @return {Any}
      */
-    calc( evo, stack, expr ) {
-        let [arg, body] = stackArg2(stack, expr);
-
-        if ( $.isFunction(body) ) {
-            return body( arg );
+    calc( evo, expr ) {
+        if ( $.isFunction(expr) ) {
+            return expr( evo.data );
         }
-        return new Function( '$', `return ${body};` )( arg );
+        return new Function( '$', `return ${expr};` )( evo.data );
     },
 
-    __calc_x: true,
+    __calc: 1,
 
 };
 
@@ -1144,9 +1073,7 @@ const _Process = {
 
 //
 // 集合处理。
-// 目标：暂存区/栈顶1-2项。
-// 特权：是，判断取值。
-// 如果实参未传递，取值2项：[集合, 实参]
+// 目标：暂存区/栈顶1项。
 // 注：map、each方法操作的目标支持Object。
 //////////////////////////////////////////////////////////////////////////////
 [
@@ -1160,17 +1087,15 @@ const _Process = {
 ]
 .forEach(function( meth ) {
     /**
-     * @data: [Value]|Collector
-     * @param  {Stack} stack 数据栈
      * @param  {...} arg 模板实参，可选
      * @return {[Value]|Collector}
      */
-    _Process[meth] = function( evo, stack, arg ) {
-        let [o, v] = stackArg2(stack, arg);
-        return $.isCollector(o) ? o[meth]( v ) : $[meth]( o, v );
+    _Process[meth] = function( evo, arg ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth]( arg ) : $[meth]( evo.data, arg );
     };
 
-    _Process[`__${meth}_x`] = true;
+    _Process[`__${meth}`] = 1;
 
 });
 
