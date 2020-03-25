@@ -220,7 +220,7 @@ const Util = {
      * 解析参数序列。
      * 用Function构造，可支持正则表达式或箭头函数等。
      * 注记：原用JSON解析，但限制太多。
-     * @param {String} fmt 参数序列串
+     * @param  {String} fmt 参数序列串
      * @return {Array|null}
      */
     arrArgs( fmt ) {

@@ -104,7 +104,11 @@ const
     // To:Update
     // 更新方法调用模式。
     // 支持前置4个特殊字符，名称为简单单词。
-    __toUpdate  = /^([@&%^]?\w+)(?:\(([^]*)\))?$/;
+    __toUpdate  = /^([@&%^]?\w+)(?:\(([^]*)\))?$/,
+
+    // 标记：从流程数据中获取参数。
+    // 用于模板中的取值选择，取值：[1,...]
+    __fromData  = Symbol();
 
 
 
@@ -435,16 +439,21 @@ class Stack {
      *  n   暂存区有值则取出n项（可能不足n项），否则取栈顶n项
      * -n   暂存区有值则取出n项（可能不足n项），不自动取栈
      * }
-     * 注：n大于1时，确定返回一个数组（可能为空）。
+     * 注：
+     * n大于1时，确定返回一个数组（可能为空）。
+     * n为null|undefined时无任何操作。
      *
      * @param  {Number} n 取栈条目数
      * @return {Value|[Value]} 值/值集
      */
     data( n ) {
+        if ( n == null ) return;
+
         if ( n == 0 ) {
             return this._tmpall();
         }
         if ( this._tmp.length ) {
+            // n负值有效
             return this._tmpval(n);
         }
         if ( n > 0 ) {
@@ -625,7 +634,8 @@ const _SID = Symbol('stack-key');
 //
 // 指令调用单元。
 // 包含一个单向链表结构，实现执行流的链式调用逻辑。
-// 调用的方法是一个bound-function，另有一个count值指定取栈数量。
+// 调用的方法大多是一个bound-function。
+// 另有一个count值指定取栈数量。
 //
 class Cell {
     /**
@@ -717,21 +727,49 @@ class Cell {
         if ( val !== undefined) {
             this[_SID].push( val );
         }
-        evo.data = this._data( this._want );
+        val = this._meth(
+            ...this.args( evo, thid.data() )
+        );
+        return this.nextCall( evo, val );
+    }
 
-        // 当前方法执行/续传。
-        return this._call( evo, this._meth(evo, ...this._args) );
+
+    /**
+     * 获取流程数据。
+     * @return {Value|[Value]|undefined}
+     */
+    data() {
+        return this[_SID].data( this._want );
+    }
+
+
+    /**
+     * 获取最终模板实参序列。
+     * 处理_标识从流程数据中补充模板实参。
+     * 如果_标识存在，流程数据必须是一个数组，其中首个成员为操作目标。
+     * 注：从流程数据中取实参需要用户正确打包（pack）。
+     * @param {Object} evo 数据引用
+     */
+    args( evo, data ) {
+        let a = this._args;
+
+        if ( a[a.length-1] !== __fromData ) {
+            evo.data = data;
+            return [evo, ...a];
+        }
+        evo.data = data.shift();
+
+        return [evo, ...a.slice(0, -1).concat(data)];
     }
 
 
     /**
      * 下一阶方法调用。
-     * 当前方法调用的返回值可能是一个Promise对象。
      * @param  {Object} evo 事件相关对象
      * @param  {Value|Promise} val 当前方法执行的结果
      * @return {Value|void}
      */
-    _call( evo, val ) {
+    nextCall(evo, val) {
         if ( !this.next ) {
             return val;
         }
@@ -743,20 +781,6 @@ class Cell {
         }
         val.then( v => this.next.call(evo, v), rejectInfo );
     }
-
-
-    /**
-     * 获取流程数据。
-     * 注：非数值表示无暂存区取值需求。
-     * @param  {Number} 取栈条目数
-     * @return {Value|undefined}
-     */
-    _data( n ) {
-        if ( n != null ) {
-            return this[_SID].data( n );
-        }
-    }
-
 }
 
 
@@ -817,7 +841,7 @@ class Call {
             throw new Error('call-attr config is invalid.');
         }
         this._meth = _vs[1];
-        this._args = Util.arrArgs(_vs[2]) || [];
+        this._args = arrArgs(_vs[2]);
     }
 
 
@@ -1058,6 +1082,21 @@ function zeroPass( chr ) {
     chr = chr && chr.trim();
     return !chr || chr == __chrZero ? '' : chr;
 }
+
+
+/**
+ * 解析模板参数序列。
+ * 支持模板实参“_”特别标识名表示从流程数据取值。
+ * 注：始终返回一个数组。
+ * @param  {String} args 参数序列串
+ * @return {Array}
+ */
+function arrArgs( args ) {
+    return args ?
+        new Function('_', `return [${args}]`)( __fromData ) :
+        [];
+}
+
 
 
 /**

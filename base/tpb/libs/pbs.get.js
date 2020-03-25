@@ -666,11 +666,11 @@ const _Gets = {
      * mousemove事件中movementX/Y的值在缩放显示屏下有误差（chrome），
      * 因此用绝对像素值（event.pageX/pageY）重新实现。
      * 前值存储在事件当前元素（evo.current）上，解绑时应当重置（null）。
-     * @param  {null} 清除存储
+     * @param  {null} nil 清除存储
      * @return {Number|void} 变化量（像素）
      */
-    movementX( evo, val ) {
-        if ( val !== null ) {
+    movementX( evo, nil ) {
+        if ( nil !== null ) {
             let _v = evo.current[__movementX];
             // n - undefined == NaN => 0
             return ( evo.current[__movementX] = evo.event.pageX ) - _v || 0;
@@ -684,11 +684,11 @@ const _Gets = {
     /**
      * 鼠标垂直移动量。
      * 目标：无。
-     * @param  {null} 清除存储
+     * @param  {null} nil 清除存储
      * @return {Number|void} 变化量（像素）
      */
-    movementY( evo, val ) {
-        if ( val !== null ) {
+    movementY( evo, nil ) {
+        if ( nil !== null ) {
             let _v = evo.current[__movementY];
             return ( evo.current[__movementY] = evo.event.pageY ) - _v || 0;
         }
@@ -706,14 +706,14 @@ const _Gets = {
      * 通常在事件解绑时移除该存储（传递null）。
      * 注记：
      * 文档内容的滚动有多种途径，鼠标的wheel不能响应键盘对内容的滚动。
-     * @param  {null} 清除存储
+     * @param  {null} nil 清除存储
      * @return {Number|void} 变化量（像素）
      */
-    scrollX( evo, val ) {
+    scrollX( evo, nil ) {
         let _box = evo.current,
             _its = evo.data || _box;
 
-        if ( val !== null ) {
+        if ( nil !== null ) {
             let _v = _box[__scrollX];
             return ( _box[__scrollX] = _its.scrollLeft ) - _v || 0;
         }
@@ -727,14 +727,14 @@ const _Gets = {
      * 内容垂直滚动量。
      * 目标：暂存区1项可选。
      * 说明：（同上）
-     * @param  {null} 清除存储
+     * @param  {null} nil 清除存储
      * @return {Number|void} 变化量（像素）
      */
-    scrollY( evo, val ) {
+    scrollY( evo, nil ) {
         let _box = evo.current,
             _its = evo.data || _box;
 
-        if ( val !== null ) {
+        if ( nil !== null ) {
             let _v = _box[__scrollY];
             return ( _box[__scrollY] = _its.scrollTop ) - _v || 0;
         }
@@ -780,9 +780,9 @@ const _Gets = {
 
 //
 // 参数固定：1
-// 目标：暂存区/栈顶1项。
+// 目标：暂存区/栈顶1-2项。
+// 如果模板实参为空则从目标取值：[1]
 // 注：固定参数为1以限定为取值。
-// @return {String|Object|[String]|[Object]}
 //===============================================
 [
     'attribute',    // ( name:String ): String | null
@@ -791,15 +791,18 @@ const _Gets = {
     'prop',         // ( name:String ): Value | Object | undefined
     'css',          // ( name:String ): String
     'cssGets',      // ( name:String ): Object
+    'hasClass',     // ( name:String ): Boolean
+    'parentsUntil', // ( slr:String|Function ): [Element]
+    'closest',      // ( slr:String|Function ): Element | null
 ]
 .forEach(function( meth ) {
 
-    _Gets[meth] = function( evo, name ) {
-        return $.isArray(evo.data) ?
-            $(evo.data)[meth]( name ) : $[meth]( evo.data, name );
+    _Gets[meth] = function( evo, stack, name ) {
+        let [e, n] = stackArg2(stack, name);
+        return $.isArray(e) ? $(e)[meth]( n ) : $[meth]( e, n );
     };
 
-    _Gets[`__${meth}`] = 1;
+    _Gets[`__${meth}_x`] = true;
 
 });
 
@@ -812,6 +815,8 @@ const _Gets = {
 [
     'height',       // (): Number
     'width',        // (): Number
+    'innerHeight',  // (): Number
+    'innerWidth',   // (): Number
     'scroll',       // (): {top, left}
     'scrollTop',    // (): Number
     'scrollLeft',   // (): Number
@@ -819,6 +824,9 @@ const _Gets = {
     'val',          // (): Value | [Value]
     'html',         // (): String   // 目标可为字符串（源码转换）
     'text',         // (): String   // 同上
+    'classAll',     // (): [String]
+    'position',     // (): {top, left}
+    'offsetParent', // (): Element
 ]
 .forEach(function( meth ) {
 
@@ -832,19 +840,18 @@ const _Gets = {
 
 
 //
-// 参数不定。
+// 参数不定（0-n）。
 // 目标：暂存区/栈顶1项。
+// 如果模板实参明确传递null，表示从目标取值：[1, ...]
 // 注：多余实参无副作用。
 //===============================================
 [
-    'innerHeight',  // (): Number
-    'innerWidth',   // (): Number
     'outerWidth',   // ( margin? ): Number
     'outerHeight',  // ( margin? ): Number
     'next',         // ( slr?, until? ): Element | null
+    'prev',         // ( slr?, until? ): Element | null
     'nextAll',      // ( slr? ): [Element]
     'nextUntil',    // ( slr? ): [Element]
-    'prev',         // ( slr?, until? ): Element | null
     'prevAll',      // ( slr? ): [Element]
     'prevUntil',    // ( slr? ): [Element]
     'children',     // ( slr? ): [Element] | Element
@@ -852,12 +859,6 @@ const _Gets = {
     'siblings',     // ( slr? ): [Element]
     'parent',       // ( slr? ): Element | null
     'parents',      // ( slr? ): [Element]
-    'parentsUntil', // ( slr ): [Element]
-    'closest',      // ( slr ): Element | null
-    'offsetParent', // (): Element
-    'hasClass',     // ( name ): Boolean
-    'classAll',     // (): [String]
-    'position',     // (): {top, left}
 ]
 .forEach(function( meth ) {
     /**

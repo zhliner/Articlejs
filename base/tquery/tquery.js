@@ -4240,20 +4240,19 @@ function isFunc( obj ) {
 // 创建过滤器函数。
 // 返回值：function(Element): Boolean
 // @param  {String|Function|Array|Value}
-// @return {Function}
+// @return {Function|its}
 //
 function getFltr( its ) {
-    if ( isFunc(its) ) {
+    if ( !its || isFunc(its) ) {
         return its;
     }
-    if ( its && typeof its == 'string' ) {
+    if ( typeof its == 'string' ) {
         return e => e && $is(e, its);
     }
-    if ( isArr(its) ) {
-        return ( e => its.includes(e) );
-    }
+    if ( isArr(its) ) return ( e => its.includes(e) );
+
     // 默认为真。
-    return ( e => its == null || e === its );
+    // return ( e => its == null || e === its );
 }
 
 

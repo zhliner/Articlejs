@@ -36,6 +36,10 @@
             background-color: #48cf75;
         }
     </style>
+    <script type="module" async>
+        import Tpb from "../base/tpb/tpb.js";
+        window.Tpb = Tpb;
+    </script>
 </head>
 
 <body lang="zh-cn">
@@ -1184,7 +1188,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>插图</h4>
+    <h4>插图：figure/figcaption,p...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1215,7 +1219,9 @@
                             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
                             <label><input name="below" type="checkbox" />标题在下</label>
                         </header>
-                        <textarea name="figure" data-id="figure"
+                        <textarea name="figure" data-id="url"
+                            on="tips|evo(1) ev('detail') Str('-') attribute"
+                            to="-|@placeholder"
                             data-imgurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
                             data-dataurl="data:image/png;base64,..."
                             data-svgxml="<svg>...</svg>"></textarea>
@@ -1223,7 +1229,7 @@
                     <aside>
                         <div class="_option">
                             <label>类型
-                                <select name="type" on="change|val" to="4/?figure|trigger">
+                                <select name="type" on="change|$ val" to="4/?url|trigger('tips')">
                                     <option value="imgurl">图片URL</option>
                                     <option value="dataurl">DataURL</option>
                                     <option value="svgxml">SVG源码</option>
