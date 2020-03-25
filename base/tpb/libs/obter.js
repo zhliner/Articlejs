@@ -50,6 +50,14 @@ const
     __tosCSS    = '%',  // 样式指定
     __tosToggle = '^',  // 特性（Attribute）切换
 
+    // To:Update
+    // 友好方法名映射。
+    __updateMethod = {
+        [__tosAttr]:    'attribute',
+        [__tosProp]:    'property',
+        [__tosCSS]:     'css',
+        [__tosToggle]:  'toggleAttr',
+    },
 
     // To查询扩展切分器。
     // 注：属性选择器内感叹号不可用（无需包含）。
@@ -102,9 +110,8 @@ const
     __toFilter  = /^\{([^]*)\}$/,
 
     // To:Update
-    // 更新方法调用模式。
-    // 支持前置4个特殊字符，名称为简单单词。
-    __toUpdate  = /^([@&%^]?\w+)(?:\(([^]*)\))?$/,
+    // 更新方法调用模式，名称仅为简单单词。
+    __toUpdate  = /^(\w+)(?:\(([^]*)\))?$/,
 
     // 标记：从流程数据中获取参数。
     // 用于模板中的取值选择，取值：[1,...]
@@ -157,8 +164,8 @@ const Parser = {
         let [_ev, _ca] = __pipeSplit.split(fmt, 1);
 
         return [
-            this._evns( _ev.trim() ),
-            this._calls( zeroPass(_ca) )
+            this.evns( _ev ),
+            this.calls( zeroPass(_ca) )
         ];
     },
 
@@ -169,7 +176,7 @@ const Parser = {
      * @return {[Call]|''}
      */
     by( fmt ) {
-        return this._calls( fmt.trim() );
+        return this.calls( fmt );
     },
 
 
@@ -177,7 +184,7 @@ const Parser = {
      * To解析。
      * 注：空串合法但无用。
      * @param  {String} fmt To配置串
-     * @return {[Query, Update|'', [Call]|'']|''}
+     * @return {[Query, [Update]|'', [Call]|'']|''}
      */
     to( fmt ) {
         if ( !fmt ) return '';
@@ -186,13 +193,10 @@ const Parser = {
 
         return [
             new Query(_q),
-            _w && new Update(_w),
-            this._calls(_n),
+            this.updates(_w),
+            this.calls(_n),
         ];
     },
-
-
-    //-- 私有辅助 -------------------------------------------------------------
 
 
     /**
@@ -200,15 +204,8 @@ const Parser = {
      * @param  {String} fmt 事件名定义序列
      * @return {[Evn]|''}
      */
-    _evns( fmt ) {
-        if ( !fmt ) return '';
-        let _buf = [];
-
-        for (const s of __cmdSplit.split(fmt)) {
-            // 忽略空串（连续空格）
-            if ( s ) _buf.push( new Evn(s) );
-        }
-        return _buf;
+    evns( fmt ) {
+        return fmt && this._parse( fmt, Evn );
     },
 
 
@@ -217,13 +214,36 @@ const Parser = {
      * @param  {String} fmt 指令调用序列
      * @return {[Call]|''}
      */
-    _calls( fmt ) {
-        if ( !fmt ) return '';
+    calls( fmt ) {
+        return fmt && this._parse( fmt, Call );
+    },
+
+
+    /**
+     * 分解指令调用定义。
+     * @param  {String} fmt 更新指令序列
+     * @return {[Update]|''}
+     */
+    updates( fmt ) {
+        return fmt && this._parse( fmt, Update );
+    },
+
+
+    //-- 私有辅助 -------------------------------------------------------------
+
+
+    /**
+     * 解析构建目标类型实例集。
+     * @param  {String} fmt 调用定义串
+     * @param  {Class} T 目标类型
+     * @return {[Class]}
+     */
+    _parse( fmt, T ) {
         let _buf = [];
 
         for (const s of __cmdSplit.split(fmt)) {
-            // 忽略空串（连续空格）
-            if ( s ) _buf.push( new Call(s) );
+            // 忽略多余空格
+            if ( s ) _buf.push( new T(s) );
         }
         return _buf;
     },
@@ -288,21 +308,21 @@ class Builder {
 
     /**
      * 构建调用链。
-     * @param  {[Call]} on On调用序列
-     * @param  {[Call]} by By调用序列
+     * @param  {[Call]} ons On调用序列
+     * @param  {[Call]} bys By调用序列
      * @param  {Query} query To查询配置实例
-     * @param  {Update} update To赋值配置实例
+     * @param  {[Update]} updates To更新调用序列
      * @param  {[Call]} nexts To下一阶调用序列
      * @return {Cell} EventListener
      */
-    chain( on, by, query, update, nexts ) {
+    chain( ons, bys, query, updates, nexts ) {
         let _stack = new Stack(),
             _first = Evn.apply( new Cell(_stack) ),
-            _prev = this._on( _first, _stack, on );
+            _prev = this._on( _first, _stack, ons );
 
-        _prev = this._by( _prev, _stack, by );
+        _prev = this._by( _prev, _stack, bys );
         _prev = this._query( _prev, _stack, query );
-        _prev = this._update( _prev, _stack, update );
+        _prev = this._update( _prev, _stack, updates );
         this._nextStage( _prev, _stack, nexts );
 
         return _first;
@@ -385,15 +405,19 @@ class Builder {
 
     /**
      * To:Update构造。
-     * 返回最后一个Cell实例，接续To:Stage。
+     * 返回最后一个Cell实例，接续To:NextStage。
      * @param  {Cell} prev 前一个指令单元
      * @param  {Stack} stack 数据栈实例
-     * @param  {Update} update To更新配置实例
+     * @param  {[Update]} updates To更新配置实例集
      * @return {Cell}
      */
-    _update( prev, stack, update ) {
-        return update ?
-            update.apply( new Cell(stack, prev), this._pbst2 ) : prev;
+    _update( prev, stack, updates ) {
+        if ( updates ) {
+            for (const update of updates) {
+                prev = update.apply( new Cell(stack, prev), this._pbst2 );
+            }
+        }
+        return prev;
     }
 
 
@@ -645,10 +669,13 @@ class Cell {
      */
     constructor( stack, prev = null ) {
         this.next = null;
+
         this[_SID] = stack;
         this._meth = null;
         this._args = null;
         this._want = null;
+        // 是否从流程取实参。
+        this._from = false;
 
         if (prev) prev.next = this;
     }
@@ -698,20 +725,25 @@ class Cell {
     /**
      * 方法/参数设置。
      * 特权方法的数据栈对象自动插入到实参序列首位。
-     * @param  {Array} args 模板配置的参数序列
+     * @param  {Array|''} args 模板配置的参数序列
      * @param  {Function} meth 目标方法
      * @param  {Boolean} isx 是否为特权方法。
-     * @param  {Number|null} n 取栈条目数
+     * @param  {Number} n 取值条目数，可选
      * @return {this}
      */
-    bind( args, meth, isx, n ) {
+    bind( args, meth, isx, n = null ) {
         if ( isx ) {
             args.unshift(this[_SID]);
         }
-        this._args = args || '';
         this._meth = meth;
-        this._want = $.isNumeric(n) ? +n : null;
+        this._args = args;
+        this._want = n;
+        this._from = args[args.length-1] === __fromData;
 
+        if ( this._from ) {
+            args.pop();
+            if ( n < 0 ) this._want = -n;
+        }
         return this;
     }
 
@@ -728,18 +760,25 @@ class Cell {
             this[_SID].push( val );
         }
         val = this._meth(
-            ...this.args( evo, thid.data() )
+            ...this.args( evo, thid.data(this._want), this._want )
         );
         return this.nextCall( evo, val );
     }
 
 
     /**
-     * 获取流程数据。
+     * 从暂存区/数据栈获取流程数据。
+     * 如果要从流程取实参，非零项数取值仅为1项（模板用户负责打包）。
+     * 注：无取值项数指令也可取值。
+     * @param  {Number|null} n 取值项数
      * @return {Value|[Value]|undefined}
      */
-    data() {
-        return this[_SID].data( this._want );
+    data( n ) {
+        if ( !this._from ) {
+            return this[_SID].data( n );
+        }
+        // :null => 1
+        return this[_SID].data( n === 0 ? 0 : 1 );
     }
 
 
@@ -749,17 +788,12 @@ class Cell {
      * 如果_标识存在，流程数据必须是一个数组，其中首个成员为操作目标。
      * 注：从流程数据中取实参需要用户正确打包（pack）。
      * @param {Object} evo 数据引用
+     * @param {Value|[Value]} data 取值数据
+     * @param {Number} n 取值项数
      */
-    args( evo, data ) {
-        let a = this._args;
-
-        if ( a[a.length-1] !== __fromData ) {
-            evo.data = data;
-            return [evo, ...a];
-        }
-        evo.data = data.shift();
-
-        return [evo, ...a.slice(0, -1).concat(data)];
+    args( evo, data, n ) {
+        evo.data = this._data( data, n );
+        return this._from ? [evo, ...this._args.concat(data)] : [evo, ...this._args];
     }
 
 
@@ -780,6 +814,26 @@ class Cell {
             return this.next.call(evo, val);
         }
         val.then( v => this.next.call(evo, v), rejectInfo );
+    }
+
+
+    /**
+     * 提取最终数据。
+     * 需要处理实参从流程数据中提取的情况。
+     * 可能会修改实参data数组。
+     * @param  {Value|[Value]} data 流程数据
+     * @param  {Number} n 取值数量
+     * @return {Value|[Value]}
+     */
+    _data( data, n ) {
+        if ( !this._from ) {
+            return data;
+        }
+        // 无操作目标
+        if ( n == null ) return;
+
+        // 取值项数[0|1]效果同。
+        return n > 1 ? data.splice(0, n) : data.shift();
     }
 }
 
@@ -859,7 +913,7 @@ class Call {
         let _f = pbs[method]( this._meth );
 
         if ( !_f ) {
-            throw new Error(`${this._meth} is not in the sets.`);
+            throw new Error(`${this._meth} is not in pbs:calls.`);
         }
         return cell.bind( this._args, _f, _f[ACCESS], _f[EXTENT] );
     }
@@ -1002,8 +1056,6 @@ class Query {
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 //      ^   特性切换，如：^-val => $.toggleAttr(el, '-val', ...)
 // }
-// 支持多方法并列定义，空格（__chrCmd）分隔。
-// 注：并列的方法数量即是自动取栈的数量。
 //
 class Update {
     /**
@@ -1011,57 +1063,51 @@ class Update {
      * @param {String} fmt 定义格式串
      */
     constructor( fmt ) {
-        let _ns = [...__cmdSplit.split(fmt)]
-            // 去连续空白
-            .filter( s => s );
+        let _vs = this.methArgs(fmt);
 
-        this._names = _ns;
-        // 即自动取栈数
-        this._count = _ns.length;
+        this._meth = _vs[0];
+        this._args = arrArgs(_vs[1]);
     }
 
 
     /**
      * 应用更新设置。
-     * 提供绑定的参数为一个更新函数集。
-     * 更新函数接口：function(Element | Collector, Value): void
-     *
+     * 更新函数接口：function(Element|Collector, Value, ...): void
+     * 注：取值数量固定为1。
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 更新方法集
      * @return {Cell} cell
      */
     apply( cell, pbs ) {
-        let _fs = this._names
-            .map( ss => this._caller(ss, pbs) );
+        let _f = pbs[method]( this._meth );
 
-        return cell.bind( _fs, _update, false, this._count );
+        if ( !_f ) {
+            throw new Error(`${this._meth} is not in pbs:updates.`);
+        }
+        return cell.bind( this._args, update.bind(_f), false, 1 );
     }
 
 
     /**
-     * 构造更新调用。
-     * 四个常用方法友好：{
+     * 提取更新方法及实参序列。
+     * 友好方法：{
      *      @   特性（attribute）
      *      &   属性（property）
      *      %   样式（css）
      *      ^   特性切换（toggleAttr）
      * }
-     * 返回值：function(
-     *      to:Element|Collector,   Query检索目标
-     *      its:Value,              流程数据对应条目
-     *      args:[Value]            模板定义实参序列
-     * ): Any
-     * 注：返回函数的返回值任意，无副作用。
-     *
-     * @param  {String} call 调用格式串
-     * @param  {Object} pbs 更新方法集
-     * @return {Function} 更新方法
+     * @param  {String} fmt 调用格式串
+     * @return {[meth, [arg...]]}
      */
-    _caller( call, pbs ) {
-        let [_m, _args] = methodArgs(call);
-        return (to, its) => pbs[_m]( to, its, ..._args );
-    }
+    methArgs( fmt ) {
+        let _m = __updateMethod[fmt[0]];
 
+        if (_m) {
+            return [_m, [fmt.substring(1)]];
+        }
+        // :result[1~]
+        return fmt.match(__toUpdate).slice(1);
+    }
 }
 
 
@@ -1169,54 +1215,16 @@ function query2( evo, slr, beg, one, fltr ) {
 }
 
 
-//
-// 友好方法映射。
-// 即：特性/属性/样式 的操作方法。
-//
-const usualMeth = {
-    [__tosAttr]:    'attribute',
-    [__tosProp]:    'property',
-    [__tosCSS]:     'css',
-    [__tosToggle]:  'toggleAttr',
-};
-
-
 /**
- * 提取更新方法及实参序列。
- * @param  {String} call 调用格式串
- * @return {[meth, [arg...]]}
- */
- function methodArgs( call ) {
-    let _m = usualMeth[ call[0] ];
-
-    if ( _m ) {
-        return [ _m, [call.substring(1)] ];
-    }
-    let _vs = call.match(__toUpdate);
-
-    return [ _vs[1], Util.arrArgs(_vs[2]) || '' ];
-}
-
-
-/**
- * To：更新方法（总）。
- * 如果有并列多个更新，会取多个流程数据分别对应。
- * 注记：this无关性，可被共享。
+ * To：更新方法（单个）。
+ * 注：封装友好的调用形式。
  * @param  {Object} evo 事件关联对象
- * @param  {...Function} funs 更新方法集
+ * @param  {...Value} rest 剩余实参序列（最终）
  * @return {void}
  */
-function update( evo, ...funs ) {
-    if ( funs.length > 1 ) {
-        return funs.forEach( (f, i) => f(evo.targets, evo.data[i]) );
-    }
-    funs[0]( evo.targets, evo.data );
+function update( evo, ...rest ) {
+    this( evo.targets, evo.data, ...rest );
 }
-
-//
-// 共享方法（bound）。
-//
-const _update = update.bind(null);
 
 
 

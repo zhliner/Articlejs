@@ -81,6 +81,10 @@ const _Control = {
      * 特权：是，判断取值。
      * 如果传递val有值，则与目标比较，真值终止。
      * 否则无条件终止。
+     * 例：
+     * push('v1') end('v2') 不等不终止
+     * push('v1') push('v2') end(_) 同上，val='v2'
+     *
      * @param  {Stack} stack 数据栈
      * @param  {Value} val 对比值，可选
      * @return {void}
@@ -100,6 +104,11 @@ const _Control = {
      * 如果目标非空，则真值停止，否则无条件停止。
      * back为执行之后的返回值（入栈），如果未执行则忽略。
      * 注：该指令必须在异步指令之前使用。
+     * 例：
+     * push(1) avoid('ok') 无条件停止，入栈 'ok'
+     * push(1) pop avoid('ok') 1为真故停止，入栈 'ok'
+     * push(1) push('ok') pack(2) avoid(_) 同上，back='ok'。无需pop
+     *
      * @param  {Value} back 执行后结果，可选
      * @return {void|back}
      */
