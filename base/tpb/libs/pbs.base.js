@@ -1121,17 +1121,6 @@ function namesValue( name, obj ) {
 
 
 /**
- * 构造名值对对象。
- * @param  {[String]} names 名称序列
- * @param  {[Value]} val 值集
- * @return {Object}
- */
-function kvsObj( names, val, obj = {} ) {
-    return names.reduce( (o, k, i) => (o[k] = val[i], o), obj );
-}
-
-
-/**
  * 获取对象/成员/值。
  * - 如果成员名未定义，返回容器对象自身。
  * - 如果容器对象未定义，成员名视为值返回。
@@ -1166,35 +1155,6 @@ function storage( buf, name, its, obj ) {
         return buf.removeItem( name );
     }
     buf.setItem( name, objectItem(obj, its) );
-}
-
-
-/**
- * 数据栈实参取值。
- * 如果实参未传递，则取数据栈2项，否则取1项。
- * @param  {Stack} stack 数据栈
- * @param  {Value} val 模板参数，可选
- * @return {Array2} 实参值对
- */
-function stackArg2( stack, val ) {
-    return val === undefined ?
-        stack.data(2) : [ stack.data(1), val ];
-}
-
-
-/**
- * 数据&实参序列灵活取值。
- * 如果data是数组，则首个成员之后的为附加实参。
- * 附加实参会追加到模板实参args之后。
- * @param  {Value[, ...args]} data 可能附加实参的数据
- * @param  {[Value]} args 模板实参序列
- * @return {[Value, ...]}
- */
-function dataArgs( data, args ) {
-    if ( $.isArray(data) ) {
-        return [ data.shift(), ...args.concat(data) ];
-    }
-    return [ data, ...args ];
 }
 
 

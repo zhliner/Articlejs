@@ -463,21 +463,16 @@ class Stack {
      *  n   暂存区有值则取出n项（可能不足n项），否则取栈顶n项
      * -n   暂存区有值则取出n项（可能不足n项），不自动取栈
      * }
-     * 注：
-     * n大于1时，确定返回一个数组（可能为空）。
-     * n为null|undefined时无任何操作。
+     * 注：n大于1时，确定返回一个数组（可能为空）。
      *
      * @param  {Number} n 取栈条目数
      * @return {Value|[Value]} 值/值集
      */
     data( n ) {
-        if ( n == null ) return;
-
-        if ( n == 0 ) {
+        if ( n === 0 ) {
             return this._tmpall();
         }
         if ( this._tmp.length ) {
-            // n负值有效
             return this._tmpval(n);
         }
         if ( n > 0 ) {
@@ -674,8 +669,8 @@ class Cell {
         this._meth = null;
         this._args = null;
         this._want = null;
-        // 是否从流程取实参。
-        this._from = false;
+        // 补充模板实参。
+        this._rest = false;
 
         if (prev) prev.next = this;
     }
@@ -738,12 +733,9 @@ class Cell {
         this._meth = meth;
         this._args = args;
         this._want = n;
-        this._from = args[args.length-1] === __fromData;
+        this._rest = args[args.length-1] === __fromData;
 
-        if ( this._from ) {
-            args.pop();
-            if ( n < 0 ) this._want = -n;
-        }
+        if ( this._rest ) args.pop();
         return this;
     }
 
@@ -760,25 +752,9 @@ class Cell {
             this[_SID].push( val );
         }
         val = this._meth(
-            ...this.args( evo, thid.data(this._want), this._want )
+            ...this.args( evo, this._rest ? this.data(1) : [] )
         );
         return this.nextCall( evo, val );
-    }
-
-
-    /**
-     * 从暂存区/数据栈获取流程数据。
-     * 如果要从流程取实参，非零项数取值仅为1项（模板用户负责打包）。
-     * 注：无取值项数指令也可取值。
-     * @param  {Number|null} n 取值项数
-     * @return {Value|[Value]|undefined}
-     */
-    data( n ) {
-        if ( !this._from ) {
-            return this[_SID].data( n );
-        }
-        // :null => 1
-        return this[_SID].data( n === 0 ? 0 : 1 );
     }
 
 
@@ -788,12 +764,12 @@ class Cell {
      * 如果_标识存在，流程数据必须是一个数组，其中首个成员为操作目标。
      * 注：从流程数据中取实参需要用户正确打包（pack）。
      * @param {Object} evo 数据引用
-     * @param {Value|[Value]} data 取值数据
+     * @param {Value|[Value]} rest 补充实参
      * @param {Number} n 取值项数
      */
-    args( evo, data, n ) {
-        evo.data = this._data( data, n );
-        return this._from ? [evo, ...this._args.concat(data)] : [evo, ...this._args];
+    args( evo, rest ) {
+        evo.data = this.data( this._want );
+        return [ evo, ...this._args.concat(rest) ];
     }
 
 
@@ -818,22 +794,16 @@ class Cell {
 
 
     /**
-     * 提取最终数据。
-     * 需要处理实参从流程数据中提取的情况。
-     * 可能会修改实参data数组。
-     * @param  {Value|[Value]} data 流程数据
-     * @param  {Number} n 取值数量
-     * @return {Value|[Value]}
+     * 从暂存区/数据栈获取流程数据。
+     * 如果要从流程取实参，非零项数取值仅为1项（模板用户负责打包）。
+     * 注：无取值项数指令也可取值。
+     * @param  {Number|null} n 取值项数
+     * @return {Value|[Value]|undefined}
      */
-    _data( data, n ) {
-        if ( !this._from ) {
-            return data;
-        }
-        if ( n == null ) return;
-
-        // 取值项数[0|1]效果同。
-        return n > 1 ? data.splice(0, n) : data.shift();
+    data(n) {
+        if ( n != null ) return this[_SID].data( n );
     }
+
 }
 
 
@@ -1099,7 +1069,7 @@ class Update {
      * @return {[meth, [arg...]]}
      */
     methArgs( fmt ) {
-        let _m = __updateMethod[fmt[0]];
+        let _m = __updateMethod[ fmt[0] ];
 
         if (_m) {
             return [_m, [fmt.substring(1)]];

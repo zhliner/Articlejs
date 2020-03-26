@@ -68,24 +68,24 @@ const _Gets = {
 
     /**
      * 单元素检索入栈。
-     * 目标：暂存区1项/判断取值。
-     * 特权：是，判断取值。
-     * 如果实参为空，取目标为rid，如果目标为空，自动取栈顶1项。
-     * 如果实参非空，目标有值则为起点元素。
-     * rid: {
-     *      undefined  以目标为rid，事件当前元素为起点。
-     *      String  以目标（如果有）或事件当前元素（ev.current）为起点。
-     * }
+     * 目标：暂存区1项可选。
+     * 如果实参有值，起点元素为目标或事件当前元素。
+     * 如果实参为空，目标需有值，视为rid，起点元素为事件当前元素。
+     * 例：
+     * 1. $('/p')  // 检索事件当前元素内的首个<p>子元素
+     * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
+     * 3. push('/p') pop $    // rid从目标获取，效果同1.
+     * 4. push('/p') $(_)     // rid自动从流程获取，效果同上
+     * 5. push('/a') evo(1) pop(2) $(_)  // rid和起点元素先取入暂存区，效果同2.
      * @param  {Object} evo 事件关联对象
-     * @param  {Stack} stack 数据栈
      * @param  {String} rid 相对ID，可选
      * @return {Element}
      */
-    $( evo, stack, rid ) {
+    $( evo, rid ) {
         let _beg = evo.current;
 
         if ( rid == null ) {
-            rid = evo.data === undefined ? stack.data(1) : evo.data;
+            rid = evo.data;
         } else {
             _beg = evo.data || _beg;
         }
@@ -93,29 +93,24 @@ const _Gets = {
     },
 
     __$: -1,
-    __$_x: true,
 
 
     /**
      * 多元素检索入栈。
-     * 目标：暂存区1项/判断取值。
-     * 特权：是，判断取值。
-     * rid: {
-     *      undefined  同上，但如果目标非字符串则为Collector封装。
-     *      String     同上。
-     *      Value      Collector封装，支持单值和数组。
-     * }
-     * 注：如果实参传递非字符串，前阶pop的值会被丢弃。
-     * @param  {Stack} stack 数据栈
+     * 目标：暂存区1项可选。
+     * rid说明同上，但可以为非字符串值（Collector封装）。
+     * 注：
+     * 如果实参为非字符串，前阶pop值会被丢弃。
+     * 例：（参考$）
+     * @param  {Object} evo 事件关联对象
      * @param  {String|Value} rid 相对ID或待封装值
      * @return {Collector}
      */
-    $$( evo, stack, rid ) {
+    $$( evo, rid ) {
         let _beg = evo.current;
 
         if ( rid == null ) {
-            // 兼容前阶主动pop
-            rid = evo.data === undefined ? stack.data(1) : evo.data;
+            rid = evo.data;
         } else {
             _beg = evo.data || _beg;
         }
@@ -123,7 +118,6 @@ const _Gets = {
     },
 
     __$$: -1,
-    __$$_x: true,
 
 
     /**
@@ -131,10 +125,10 @@ const _Gets = {
      * 目标：无。
      * 特权：是，判断取值。
      * 如果name未定义或为null，取evo自身入栈。
-     * 注意：如果明确取.data属性，会取暂存区全部成员（清空）。
+     * 如果明确取.data属性，会取暂存区全部成员（清空）。
      * @param  {Stack} stack 数据栈
      * @param  {String|Number} name 成员名称或代码
-     * @return {Element|Collector|Value}
+     * @return {Element|Value|[Value]}
      */
     evo( evo, stack, name ) {
         if ( name == null ) {
@@ -184,6 +178,10 @@ const _Gets = {
      * 特权：是，自行入栈。
      * 多个实参会自动展开入栈，数组实参视为单个值。
      * 如果目标有值，会附加（作为单一值）在实参序列之后。
+     * 例：
+     * - push('abc', 123)  // 分别入栈字符串'abc'和数值123两个值
+     * - pop(3) push(true) // 入栈布尔值true和暂存区条目（3项一体）两个值
+     * - pop(3) push(_)    // 先取暂存区首项为实参（数组会展开），然后暂存区剩余2项为一体。一起入栈
      * @param  {Stack} stack 数据栈
      * @param  {...Value} vals 值序列
      * @return {void} 自行入栈
@@ -272,9 +270,8 @@ const _Gets = {
 
     /**
      * 转换为数组。
-     * 类数组才会被转换为一个真正的数组。
      * 如果要封装为一个单成员数组，可传递wrap为真。
-     * @data: {Value|LikeArray}
+     * @data: {Value|LikeArray|Symbol.iterator}
      * @param  {Boolean} wrap 简单封装，可选
      * @return {Array}
      */
@@ -304,9 +301,14 @@ const _Gets = {
     /**
      * 创建预填充值集合。
      * 目标：暂存区条目可选。
-     * 如果目标有值，会合并到实参序列之后（数组会被解构）。
+     * 如果目标有值，会合并到实参序列之后（数组会展开）。
      * 最后一个值用于剩余重复填充。
      * 如果完全没有填充值，数组成员会填充为undefined。
+     * 例：
+     * - array(3, 'a', 'b')  // ['a', 'b', 'b']
+     * - array(3)  // [undefined, undefined, undefined]
+     * - push([10,11]) array(3, _)  // [10, 11, 11]
+     * - push([10,11]) push(['x','y']) pop(2) array(3, _)  // [10,11,'x']
      * @param  {Number} size 集合大小
      * @param  {...Value} vals 填充值序列，可选
      * @return {[Value]}
@@ -407,25 +409,31 @@ const _Gets = {
 
     /**
      * 获取模板节点。
-     * 目标：无。
-     * 特权：是，自行取值。
-     * 如果实参name为空（null|undefined），自行取值1项为名称。
+     * 目标：暂存区1项可选。
+     * 如果目标有值，取目标为名称（忽略模板实参）。
      * 注意克隆时是每次都克隆（应当很少使用）。
+     * 返回Promise实例，注意调用顺序（应当在avoid等之后）。
+     * 例：
+     * 1. tpl('abc')  // 模板名为'abc'，clone未定义（假）
+     * 2. push('xyz') pop tpl('', true)  // 模板名为xyz，clone为真
+     * 3. push('abc') tpl(_)  // 模板名为abc，clone未定义。同1.
+     * 4. push('xyz', true) tpl(_)  // _后不能再传值，同2.
+     * 5. push('abc') pop tpl  模板名为abc，clone未定义，同1.
      * 注记：
-     * 因为返回Promise实例（异步），故通常用在调用链后段。
-     * @param  {Stack} stack 数据栈
-     * @param  {String|null} name 模板名，可选
+     * 支持暂存区1项可选（-1）是对name的友好，因为此时clone可以直接传值，
+     * 因为_标识符会影响后续所有模板参数（且多一次取值）。
+     * @param  {String} name 模板名
      * @param  {Boolean} clone 是否克隆，可选
      * @return {Promise}
      */
-    tpl( evo, stack, name, clone ) {
-        if ( name == null ) {
-            name = stack.data(1);
+    tpl( evo, name, clone ) {
+        if ( evo.data !== undefined ) {
+            name = evo.data;
         }
         return Templater[clone ? 'get' : 'tpl'](name);
     },
 
-    __tpl_x: true,
+    __tpl: -1,
 
 
     /**
@@ -524,45 +532,37 @@ const _Gets = {
 
     /**
      * 关联数据提取。
-     * 目标：暂存区/栈顶1-2项。
-     * 特权：是，灵活取值。
-     * 从流程元素关联的存储区取值。
-     * name支持空格分隔的名称序列，如果为空，取目标：[Element, name]。
-     * 若目标存储集不存在，返回错误并中断。
+     * 目标：暂存区/栈顶1项。
+     * 从流程元素关联的存储区取值，若目标存储集不存在，返回错误并中断。
+     * name支持空格分隔的名称序列。
      * 注记：
      * 因为主要是直接使用（如插入DOM），故返回值数组（而不是键值对象）。
      * 如chains主要用于转储，所以保留键信息。
-     * @param {Stack} stack 数据栈
+     * @data: Element
      * @param  {String} name 名称/序列
-     * @param  {Value|[Value]} val 存储值，可选
      * @return {Value|[Value]|reject}
      */
-    data( evo, stack, name ) {
-        let [el, ns] = stackArg2(stack, name),
-            _m = DataStore.get(el);
-
-        return _m ? getData(_m, ns) : Promise.reject(dataUnfound);
+    data( evo, name ) {
+        let _m = DataStore.get(evo.data);
+        return _m ? getData(_m, name) : Promise.reject(dataUnfound);
     },
 
-    __data_x: true,
+    __data: 1,
 
 
     /**
      * 构造日期对象。
      * 目标：暂存区条目可选。
-     * 目标有值时自动解包（如果为数组）为构造函数的补充实参。
-     * 注：无实参无目标时构造一个当前时间对象。
+     * 目标如果有值，补充到模板实参序列之后（数组会展开）。
+     * 无实参无目标时构造一个当前时间对象。
      * @param  {...Value} vals 实参值
      * @return {Date}
      */
     date( evo, ...vals ) {
-        if ( evo.data !== undefined ) {
-            vals = vals.concat( evo.data );
-        }
         return new Date( ...vals );
     },
 
-    __date: 0,
+    __date: null,
 
 
     /**
@@ -574,9 +574,11 @@ const _Gets = {
      * names支持空格分隔的多个名称，全小写，And关系。
      * 例：
      * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
-     * push('shift ctrl') pop scam      // 同上
+     * push('shift ctrl') pop scam  // 同上
+     * push('shift ctrl') scam(_)   // 同上
      * scam inside('shift ctrl', true)  // 效果同上
-     *
+     * 注：
+     * names实参未传递或为假时才会取目标值，否则简单忽略。
      * @param  {String} names 键名序列，可选
      * @return {Object|Boolean}
      */
@@ -605,7 +607,6 @@ const _Gets = {
      * 也可改为不同的事件名标识转存到新的元素便于使用（bind|once）。
      * 注：
      * 克隆参数可用于新链头接收不同的初始值。
-     * 错误：
      * 如果没有目标存储集或目标调用链，返回错误并中断。
      *
      * @param  {String} evnid 事件名标识
@@ -641,6 +642,7 @@ const _Gets = {
      */
     chains( evo, evnid, clone ) {
         let _src = ChainStore.get( evo.data );
+
         if ( !_src ) {
             return Promise.reject( chainUnfound );
         }
@@ -780,8 +782,7 @@ const _Gets = {
 
 //
 // 参数固定：1
-// 目标：暂存区/栈顶1-2项。
-// 如果模板实参为空则从目标取值：[1]
+// 目标：暂存区/栈顶1项。
 // 注：固定参数为1以限定为取值。
 //===============================================
 [
@@ -797,12 +798,12 @@ const _Gets = {
 ]
 .forEach(function( meth ) {
 
-    _Gets[meth] = function( evo, stack, name ) {
-        let [e, n] = stackArg2(stack, name);
-        return $.isArray(e) ? $(e)[meth]( n ) : $[meth]( e, n );
+    _Gets[meth] = function( evo, name ) {
+        return $.isArray( evo.data ) ?
+            $(evo.data)[meth]( name ) : $[meth]( evo.data, name );
     };
 
-    _Gets[`__${meth}_x`] = true;
+    _Gets[`__${meth}`] = 1;
 
 });
 
@@ -831,7 +832,8 @@ const _Gets = {
 .forEach(function( meth ) {
 
     _Gets[meth] = function( evo ) {
-        return $.isArray(evo.data) ? $(evo.data)[meth]() : $[meth](evo.data);
+        return $.isArray( evo.data ) ?
+            $(evo.data)[meth]() : $[meth]( evo.data );
     };
 
     _Gets[`__${meth}`] = 1;
@@ -842,7 +844,6 @@ const _Gets = {
 //
 // 参数不定（0-n）。
 // 目标：暂存区/栈顶1项。
-// 如果模板实参明确传递null，表示从目标取值：[1, ...]
 // 注：多余实参无副作用。
 //===============================================
 [
@@ -866,7 +867,7 @@ const _Gets = {
      * @return {Element|Collector}
      */
     _Gets[meth] = function( evo, ...args ) {
-        return $.isArray(evo.data) ?
+        return $.isArray( evo.data ) ?
             $(evo.data)[meth]( ...args ) : $[meth]( evo.data, ...args );
     };
 
@@ -882,8 +883,7 @@ const _Gets = {
 
 //
 // 灵活创建。
-// 目标：暂存区1项可选。
-// 如果目标有值，会合并到实参序列之后传递。
+// 目标：无。
 // 注：多余实参无副作用。
 //===============================================
 [
@@ -900,22 +900,16 @@ const _Gets = {
 ]
 .forEach(function( meth ) {
 
-    // 多余实参无副作用
-    _Gets[meth] = function( evo, ...args ) {
-        if ( evo.data !== undefined ) {
-            args = args.concat( evo.data );
-        }
-        return $[meth]( ...args );
-    };
+    _Gets[meth] = function( evo, ...args ) { return $[meth]( ...args ) };
 
-    _Gets[`__${meth}`] = -1;
+    _Gets[`__${meth}`] = null;
 
 });
 
 
 //
+// 杂项工具。
 // 目标：暂存区/栈顶1项。
-// 内容：参考tQuery相关接口的首个参数说明。
 // 注：多余实参无副作用。
 //===============================================
 [
@@ -933,9 +927,7 @@ const _Gets = {
 ]
 .forEach(function( meth ) {
 
-    _Gets[meth] = function( evo, ...args ) {
-        return $[meth]( evo.data, ...args );
-    };
+    _Gets[meth] = function( evo, ...args ) { return $[meth]( evo.data, ...args ) };
 
     _Gets[`__${meth}`] = 1;
 
@@ -960,9 +952,7 @@ const _Gets = {
      * @param {Number} its:idx 位置下标（支持负数）
      * @param {String} its:slr 成员选择器
      */
-    _Gets[meth] = function( evo, its ) {
-        return $(evo.data)[meth]( its );
-    };
+    _Gets[meth] = function( evo, its ) { return $(evo.data)[meth]( its ) };
 
     _Gets[`__${meth}`] = 1;
 
@@ -992,16 +982,16 @@ const _Gets = {
      * @return {void}
      */
     _Gets[names[0]] = function( evo, sure = true ) {
-        let _els = evo.data,
-            _val = names[1];
+        let els = evo.data,
+            val = names[1];
 
         if ( !sure ) {
-            _val = `-${_val}`;
+            val = `-${val}`;
         }
-        if ( !$.isArray(_els) ) {
-            _els = [_els];
+        if ( !$.isArray(els) ) {
+            els = [els];
         }
-        _els.forEach( el => Util.pbo(el, [_val]) );
+        els.forEach( el => Util.pbo(el, [val]) );
     };
 
     _Gets[`__${names[0]}`] = 1;
@@ -1025,8 +1015,8 @@ const _Gets = {
      * @return {Element|Collector} 包裹的容器元素（集）
      */
     _Gets[meth] = function( evo, box ) {
-        let x = evo.data;
-        return $.isArray(x) ? $(x)[meth](box) : $[meth](x, box);
+        return $.isArray( evo.data ) ?
+            $(evo.data)[meth]( box ) : $[meth]( evo.data, box );
     };
 
     _Gets[`__${meth}`] = 1;
@@ -1055,15 +1045,15 @@ const _Gets = {
         if ( typeof slr == 'boolean' ) {
             [back, slr] = [slr];
         }
-        let _x = evo.data,
-            _d = $.isArray(_x) ? $(_x)[meth](slr) : $[meth](_x, slr);
+        let vs = $.isArray(evo.data) ? $(evo.data)[meth](slr) : $[meth](evo.data, slr);
 
-        if ( back ) return _d;
+        if ( back ) return vs;
     };
 
     _Gets[`__${meth}`] = 1;
 
 });
+
 
 [
     'empty',
@@ -1075,10 +1065,8 @@ const _Gets = {
      * @return {Element|Collector|void}
      */
     _Gets[meth] = function( evo, back ) {
-        let _x = evo.data,
-            _d = $.isArray(_x) ? $(_x)[meth]() : $[meth](_x);
-
-        if ( back ) return _d;
+        let vs = $.isArray(evo.data) ? $(evo.data)[meth]() : $[meth](evo.data);
+        if ( back ) return vs;
     };
 
     _Gets[`__${meth}`] = 1;
@@ -1114,19 +1102,6 @@ function namesValue( name, obj ) {
  */
 function kvsObj( names, val, obj = {} ) {
     return names.reduce( (o, k, i) => (o[k] = val[i], o), obj );
-}
-
-
-/**
- * 数据栈实参取值。
- * 如果实参未传递，则取数据栈2项，否则取1项。
- * @param  {Stack} stack 数据栈
- * @param  {Value} val 模板参数，可选
- * @return {Array2} 实参值对
- */
-function stackArg2( stack, val ) {
-    return val === undefined ?
-        stack.data(2) : [ stack.data(1), val ];
 }
 
 

@@ -70,26 +70,20 @@ const _By = {
 
 
     /**
-     * 导入X库成员（通常为函数）。
+     * 导入X库成员。
      * 目标：无。
-     * 特权：是，灵活取栈。
-     * 如果实参为空则从数据栈取值。
-     * @param  {Stack} stack 数据栈
-     * @param  {String} path 引用路径（句点分隔），可选
+     * @param  {String} path 引用路径（句点分隔）
      * @return {Value}
      */
-    xobj( evo, stack, path ) {
-        if ( path == null ) {
-            path = stack.data(1);
-        }
+    xobj( evo, path ) {
         return Util.subObj( path.split('.'), X );
     },
 
-    __xobj_x: true,
+    __xobj: null,
 
 
     /**
-     * 真值执行。
+     * X函数真值执行。
      * 目标：暂存区/栈顶1项。
      * 比较目标是否为true（===），是则执行，否则跳过。
      *
@@ -104,7 +98,7 @@ const _By = {
      */
     xtrue( evo, meth, ...rest ) {
         if ( evo.data === true ) {
-            return Util.subObj(meth.split('.'), X)( ...rest );
+            return Util.subObj( meth.split('.'), X )( ...rest );
         }
     },
 
@@ -112,7 +106,7 @@ const _By = {
 
 
     /**
-     * 假值执行。
+     * X函数假值执行。
      * 目标：暂存区/栈顶1项。
      * 比较目标是否为false（===），是则执行，否则跳过。
      * 参数说明同 xtrue()
@@ -122,7 +116,7 @@ const _By = {
      */
     xfalse( evo, meth, ...rest ) {
         if ( evo.data === false ) {
-            return Util.subObj(meth.split('.'), X)( ...rest );
+            return Util.subObj( meth.split('.'), X )( ...rest );
         }
     },
 
@@ -131,26 +125,18 @@ const _By = {
 
     /**
      * 元素渲染（单个）。
-     * 目标：暂存区/栈顶1-2项。
-     * 特权：是，灵活取栈。
-     * 模板实参为空时从内容中取数据（常见做法）。
-     * 注记：
+     * 目标：暂存区/栈顶1项。
      * 仅支持单个元素渲染，因为数据与元素紧密相关（也易于封装为单个元素）。
-     * 如果需要相同数据对多个目标元素分别渲染，可用To:render。
-     * @data:  [Element, data?:Value]
-     * @param  {Stack} stack 数据栈
-     * @param  {Object|Value|[Value]} 渲染数据，可选
+     * 如果多次使用，可用不同的数据渲染不同的目标。
+     * 如果需要同一数据对多个元素分别渲染，可用To:render。
+     * @param  {Object|Value|[Value]} vals 渲染数据
      * @return {Element} 被渲染节点
      */
-    render( evo, stack, data ) {
-        let _vs = data === undefined ?
-            stack.data(2) :
-            [ stack.data(1), data ];
-
-        return Render.update(_vs[0], _vs[1]);
+    render( evo, vals ) {
+        return Render.update( evo.data, vals );
     },
 
-    __render_x: true,
+    __render: 1,
 
 };
 
