@@ -1066,13 +1066,13 @@ class Update {
      *      ^   特性切换（toggleAttr）
      * }
      * @param  {String} fmt 调用格式串
-     * @return {[meth, [arg...]]}
+     * @return {[meth, args]}
      */
     methArgs( fmt ) {
         let _m = __updateMethod[ fmt[0] ];
 
         if (_m) {
-            return [_m, [fmt.substring(1)]];
+            return [ _m, `'${fmt.substring(1)}'` ];
         }
         // :result[1~]
         return fmt.match(__toUpdate).slice(1);

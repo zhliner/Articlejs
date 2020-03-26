@@ -1220,19 +1220,21 @@
                             <label><input name="below" type="checkbox" />标题在下</label>
                         </header>
                         <textarea name="figure" data-id="url"
-                            on="tips|evo(1) ev('detail') Str('-') attribute"
-                            to="-|@placeholder"
-                            data-imgurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
-                            data-dataurl="data:image/png;base64,..."
-                            data-svgxml="<svg>...</svg>"></textarea>
+                            on="tips|evo(1) ev('detail') attribute(_);
+                                ^obted|push('-iurl')"
+                            to="-|@placeholder;
+                                &|trigger('tips')"
+                            data-iurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
+                            data-durl="data:image/png;base64,..."
+                            data-svgx="<svg>...</svg>"></textarea>
                     </div>
                     <aside>
                         <div class="_option">
                             <label>类型
                                 <select name="type" on="change|$ val" to="4/?url|trigger('tips')">
-                                    <option value="imgurl">图片URL</option>
-                                    <option value="dataurl">DataURL</option>
-                                    <option value="svgxml">SVG源码</option>
+                                    <option value="-iurl">图片URL</option>
+                                    <option value="-durl">DataURL</option>
+                                    <option value="-svgx">SVG源码</option>
                                 </select>
                             </label>
                         </div>
