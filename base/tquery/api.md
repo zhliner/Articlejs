@@ -1367,7 +1367,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 
 通用的遍历执行工具。返回遍历的对象自身。
 
-- `obj: Array | LikeArray | Object | .entries` 遍历的目标集合，包括 `Collector` 实例。
+- `obj: Array | Object | .entries` 遍历的目标集合，包括 `Collector` 实例。
 - `handle: Function` 遍历迭代执行的处理函数。
 - `thisObj: Any` 处理函数内的 `this` 绑定目标。
 
@@ -1378,7 +1378,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 
 对集合内的成员逐一执行回调函数，回调函数的返回值汇集成一个集合，这个集合就是最终的返回值。
 
-- `obj: Array | LikeArray | Object | .entries` 迭代处理的目标集合，包括 `Collector` 实例。
+- `obj: Array | Object | .entries` 迭代处理的目标集合，包括 `Collector` 实例。
 - `proc: Function` 回调处理器函数，接口：`function( val, key, obj ): Value | [Value]`。
 - `thisObj: Any` 回调处理器函数内的 `this` 绑定目标。
 
@@ -1389,7 +1389,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 
 迭代集合内的每一个成员执行测试函数，如果都返回真则最终结果为真。
 
-- `obj: Array | LikeArray | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
+- `obj: Array | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
 - `test: Function` 回调测试函数，接口：`function( val, key, obj ): Boolean`。
 - `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
@@ -1398,7 +1398,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 
 迭代集合内的每一个成员执行测试函数，如果有一个返回真则最终结果为真。
 
-- `obj: Array | LikeArray | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
+- `obj: Array | Object | .entries` 迭代测试的目标集合，支持 `Collector` 实例。
 - `test: Function` 回调测试函数，接口：`function( val, key, obj ): Boolean`。
 - `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
