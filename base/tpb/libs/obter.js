@@ -779,7 +779,7 @@ class Cell {
      * @param  {Value|Promise} val 当前方法执行的结果
      * @return {Value|void}
      */
-    nextCall(evo, val) {
+    nextCall( evo, val ) {
         if ( !this.next ) {
             return val;
         }
@@ -800,7 +800,7 @@ class Cell {
      * @param  {Number|null} n 取值项数
      * @return {Value|[Value]|undefined}
      */
-    data(n) {
+    data( n ) {
         if ( n != null ) return this[_SID].data( n );
     }
 

@@ -72,12 +72,13 @@ const _Update = {
 
     /**
      * 发送定制事件。
-     * 如果evn未定义，则从内容中获取（[0]）。
      * 如果目标是一个集合，相同的值发送到所有元素（tQuery行为）。
-     * 内容: val:Value|[evn:String, val:Value]
+     * 可将事件名放在内容中，从而简单地获取动态性。
+     * 注记：依然可以用_标识从流程中取实参，这里仅提供事件名的便捷。
+     * @data: 发送值 | [事件名, 发送值]
      * @param {Element|Collector} to 待激发元素/集
-     * @param {Value|[String, Value]} data 待发送数据或名称和待发送数据
-     * @param {String} evn 目标事件名，可选
+     * @param {Value|[String, Value]} data 内容数据
+     * @param {String} evn 目标事件名
      * @param {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
      * @param {Boolean} cancelable 是否可取消，可选（默认可取消）
      */
@@ -92,11 +93,11 @@ const _Update = {
     /**
      * 发送定制事件。
      * 此为多元素分别对应不同的发送值版（内容为一个数组）。
-     * 如果evn未定义，则从内容中获取（[0]）。
-     * 内容: [Value]|[evn:String, ...Value]
+     * 可将事件名作为首个成员放在内容中（trigger）。
+     * @data: 发送值序列 | [事件名, ...发送值]
      * @param {[Element]|Collector} tos 待激发元素集
-     * @param {Value|[String, Value]} data 待发送数据或名称和待发送数据
-     * @param {String} evn 目标事件名，可选
+     * @param {Value|[String, ...Value]} data 内容数据
+     * @param {String} evn 目标事件名
      * @param {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
      * @param {Boolean} cancelable 是否可取消，可选（默认可取消）
      */
@@ -104,7 +105,7 @@ const _Update = {
         if ( !evn ) {
             evn = data.shift();
         }
-        to.forEach( (e, i) => $.trigger( e, data[i], bubble, cancelable ) );
+        to.forEach( (e, i) => $.trigger( e, evn, data[i], bubble, cancelable ) );
     },
 
 
@@ -113,13 +114,10 @@ const _Update = {
      * 将内容元素上的事件处理器克隆到目标元素（集）上。
      * 事件名可为空格分隔的多个名称。
      * @param {Element|Collector} to 目标元素（集）
-     * @param {Element[, evns]} src 事件源元素（可能附加内容）
+     * @param {Element} src 事件源元素
      * @param {String|Function} evns 事件名序列或过滤函数，可选
      */
     cloneEvent( to, src, evns ) {
-        if ( !evns && $.isArray(src)) {
-            [src, evns] = src;
-        }
         if ( to.nodeType == 1 ) {
             return $.cloneEvent( to, src, evns );
         }
@@ -148,7 +146,7 @@ const _Update = {
 
 
     /**
-     * 集合包裹。
+     * 集合包裹。？
      * 如果流程数据为数组，附加内容会补充到实参序列之后。
      * tos视为一个整体。
      * @param {Element|Collector} tos 检索目标
