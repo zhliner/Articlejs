@@ -485,7 +485,7 @@ function hackSelector( ctx, slr, fix ) {
  * its: {
  *      String      选择器查询
  *      Element     元素封装
- *      NodeList    元素集（类数组）
+ *      NodeList    元素集（Symbol.iterator）
  *      .values     支持values接口的迭代器（如Set）
  *      Collector   简单返回实参
  *      ...         其它任意值封装
@@ -538,7 +538,7 @@ Object.assign( tQuery, {
      * data 为数据源。
      * - 数据源为节点时，简单的移动插入新建的元素内。
      * - 数据源为字符串时，作为HTML源码插入（可能会构造新的元素）。
-     * - 数据源为数组或类数组时，数组成员应为字符串或节点，插入行为与上面两种类型相对应。
+     * - 数据源为数组时，数组成员应为字符串或节点，插入行为与上面两种类型相对应。
      * - 数据源为配置对象时，支持元素属性配置和 html|text|node 三种特殊属性指定。
      *
      * data配置: {
@@ -847,7 +847,7 @@ Object.assign( tQuery, {
             target = tQuery.serialize(target);
         }
         else if ( !isArr(target) ) {
-            target = $A( entries2(target) );
+            target = $A( entries(target) );
         }
         return new URLSearchParams(target).toString();
     },
@@ -4362,40 +4362,24 @@ function charLenStep( ch, beg ) {
 
 
 /**
- * 获取键值对迭代器。
- * @param  {Array|.entries|Object} obj 迭代目标
+ * 获取键值迭代器。
+ * 注：也适用普通对象。
+ * @param  {.entries|Object} obj 迭代对象
  * @return {Iterator|[Array2]} 迭代器
  */
 function entries( obj ) {
-    if ( isFunc(obj.entries) ) {
-        return obj.entries();
-    }
-    let _arr = $A(obj);
-    return _arr.length > 0 ? _arr.entries() : Object.entries(obj);
+    return isFunc(obj.entries) ? obj.entries() : Object.entries(obj);
 }
 
 
 /**
- * 获取键值迭代器（简版）。
- * @param  {.entries|Object} obj 迭代对象
- * @return {Iterator|[Array2]} 迭代器
- */
-const entries2 = obj =>
-    isFunc(obj.entries) ? obj.entries() : Object.entries(obj);
-
-
-/**
  * 获取值迭代器。
- * - 扩展适用类数组和普通对象。
+ * 注：也适用普通对象。
  * @param  {Array|.values|Object} obj 迭代目标
  * @return {Iterator} 迭代器
  */
 function values( obj ) {
-    if ( isFunc(obj.values) ) {
-        return obj.values();
-    }
-    let _arr = $A(obj);
-    return _arr.length > 0 ? _arr.values() : Object.values(obj);
+    return isFunc(obj.values) ? obj.values() : Object.values(obj);
 }
 
 
@@ -4585,7 +4569,7 @@ function cssSets( el, name, val, cso ) {
             cso
         );
     }
-    for (let [n, v] of entries2(name)) cssSet(el, n, v, cso);
+    for (let [n, v] of entries(name)) cssSet(el, n, v, cso);
 }
 
 
@@ -4840,7 +4824,7 @@ function hookSets( el, name, value, scope ) {
         );
         return;
     }
-    for (let [k, v] of entries2(name)) hookSet(el, k, v, scope);
+    for (let [k, v] of entries(name)) hookSet(el, k, v, scope);
 }
 
 
@@ -7139,17 +7123,16 @@ Object.assign( tQuery, {
     /**
      * 通用遍历。
      * - 回调返回false会终止遍历。
-     * - 适用于数组/类数组、Map/Set、普通对象和包含.entries的实例。
+     * - 适用于数组、Map/Set、普通对象和任何包含.entries接口的实例。
      * - 注：Collector 集合版可直接使用该接口。
      * handle：(
      *      value,  值/元素,
      *      key,    键/下标,
      *      obj,    迭代对象自身
      * )
-     * 注：
-     * 参数与数组forEach标准接口类似，this由外部传入。
+     * 注：参数与数组forEach标准接口类似，this由外部传入。
      *
-     * @param  {Array|LikeArray|Object|[.entries]|Collector} obj 迭代目标
+     * @param  {Array|Object|[.entries]|Collector} obj 迭代目标
      * @param  {Function} handle 迭代回调（val, key）
      * @param  {Any} thisObj 迭代回调内的this
      * @return {obj} 迭代的目标对象
@@ -7170,7 +7153,7 @@ Object.assign( tQuery, {
      * - 支持.entries接口的内置对象包括Map,Set系列。
      * - 回调返回undefined或null的条目被忽略。
      * - 回调接口：function(val, key, iter): Value
-     * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
+     * @param  {[Value]|Object|.entries} iter 迭代目标
      * @param  {Function} fun 转换函数
      * @param  {Any} thisObj 回调内的this
      * @return {[Value]}
@@ -7184,9 +7167,9 @@ Object.assign( tQuery, {
 
 
     /**
-     * 通用全部为真。
-     * - 参考iterSome；
-     * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
+     * 全部为真。
+     * 参考iterSome。
+     * @param  {[Value]|Object|.entries} iter 迭代目标
      * @param  {Function} comp 比较函数
      * @param  {Object} thisObj 回调内的this
      * @return {Boolean}
@@ -7203,14 +7186,11 @@ Object.assign( tQuery, {
 
 
     /**
-     * 通用某一为真。
-     * - 类似数组同名函数功能，扩展到普通对象；
-     * - 适用数组/类数组/普通对象/.entries接口对象；
-     * - 比较函数接收值/键两个参数，类似each；
-     * 注记：
-     * - 原则上为只读接口，不传递目标自身；
-     *
-     * @param  {[Value]|LikeArray|Object|.entries} iter 迭代目标
+     * 某一为真。
+     * - 类似数组同名函数功能，扩展到普通对象。
+     * - 适用数组/普通对象/.entries接口对象。
+     * - 比较函数接收值/键两个参数，类似each。
+     * @param  {[Value]|Object|.entries} iter 迭代目标
      * @param  {Function} comp 比较函数
      * @param  {Object} thisObj 回调内的this
      * @return {Boolean}
