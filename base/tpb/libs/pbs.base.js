@@ -1349,7 +1349,6 @@ const Control = $.assign( {}, _Control, bindMethod );
 // 无预绑定处理。this:{Cell}
 //
 Control.prune  = prune;
-Control.prunes = prunes;
 Control.entry  = entry;
 Control.loop   = loop;
 Control.debug  = debug;
