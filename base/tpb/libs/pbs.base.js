@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, Globals } from "../config.js";
+import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals } from "../config.js";
 
 
 const
@@ -1200,19 +1200,13 @@ function arrayEqual( a1, a2 ) {
 
 
 /**
- * 获取剪除段最后一个指令。
- * 即：衔接段的第一个指令单元。
- * @param  {Cell} self 当前指令单元
- * @param  {Symbol} key 计数存储键
+ * 获取剪除段之后首个指令。
+ * @param  {Cell} cell 起始指令单元
  * @param  {Number} n 指令数量
- * @return {Cell|null} 待衔接的指令单元
+ * @return {Cell|null} 待衔接指令单元
  */
-function lastCell( self, key, n ) {
-    let cell = self.next;
-
-    if ( --self[key] === 0 ) {
-        while ( n-- && cell ) cell = cell.next;
-    }
+function lastCell( cell, n ) {
+    while ( n-- && cell ) cell = cell.next;
     return cell;
 }
 
@@ -1224,59 +1218,41 @@ function lastCell( self, key, n ) {
 
 
 const
-    // 单次剪除标记。
+    // 剪除：跳过计数属性。
     __PRUNE = Symbol('prune-count'),
 
-    // 持续剪除标记。
-    __PRUNES = Symbol('prunes-count'),
-
+    // 入口/循环计数属性。
     __ENTRY = Symbol('entry-loop');
 
 
 /**
- * 剪除后端跟随指令（单次）。
+ * 剪除后端跟随指令。
  * 目标：无。
- * 允许后端指令执行cnt次，之后再移除。
- * 可以指定移除的指令的数量n，-1表示后续全部指令。
- * cnt传递负值无效果（剪除失效），0值与1相同。
- * @param  {Number} cnt 执行次数。可选，默认1
- * @param  {Number} n 移除的指令数.可选，默认1
+ * 允许后端指令执行cnt次，之后再剪除衔接。
+ * 可以指定移除的指令数量，-1表示后续全部指令，0表示当前指令（无意义）。
+ * 非法的cnt值无效，取默认值1。
+ * 注记：仅适用 On/By/To:NextStage 链段。
+ * this: {Cell}
+ * @param  {Number} cnt 执行次数，可选
+ * @param  {Number} n 移除的指令数，可选
  * @return {void}
  */
-function prune( evo, cnt, n = 1 ) {
-    if ( !this.next || this[__PRUNE] <= 0 ) {
+function prune( evo, cnt = 1, n = 1 ) {
+    if ( this[__PRUNE] === undefined ) {
+        this[__PRUNE] = cnt > 0 ? cnt : 1;
+    }
+    if ( --this[__PRUNE] > 0 ) {
         return;
     }
-    if ( this[__PRUNE] === undefined ) {
-        this[__PRUNE] = +cnt || 1;
-    }
-    this.next = lastCell( this, __PRUNE, n );
+    // 不影响当前继续
+    this.prev.next = lastCell( this.next, n );
 }
 
 // prune[EXTENT] = null;
 
-
-/**
- * 剪除后端跟随指令（持续）。
- * 目标：无。
- * 允许后端指令执行cnt次，之后再移除。
- * 注：每次剪除一个直到链末尾。cnt值说明同上（prune）。
- * @param  {Number} cnt 执行次数
- * @return {void}
- */
-function prunes( evo, cnt ) {
-    if ( !this.next ) return;
-
-    if ( this[__PRUNES] <= 0 ) {
-        delete this[__PRUNES];
-    }
-    if ( this[__PRUNES] === undefined ) {
-        this[__PRUNES] = +cnt || 1;
-    }
-    this.next = lastCell( this, __PRUNES, 1 );
-}
-
-// prunes[EXTENT] = null;
+// 需要前阶指令。
+// 注：在指令解析时判断赋值。
+prune[PREVCELL] = true;
 
 
 /**

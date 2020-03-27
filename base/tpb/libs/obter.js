@@ -20,7 +20,7 @@
 
 import { Util } from "./util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./spliter.js";
-import { ACCESS, EXTENT, DEBUG, method } from "../config.js";
+import { ACCESS, EXTENT, PREVCELL, DEBUG, method } from "../config.js";
 
 
 const
@@ -192,9 +192,9 @@ const Parser = {
         let [_q, _w, _n] = [...__pipeSplit.split(fmt, 2)].map( zeroPass );
 
         return [
-            new Query(_q),
-            this.updates(_w),
-            this.calls(_n),
+            new Query( _q ),
+            this.updates( _w ),
+            this.calls( _n ),
         ];
     },
 
@@ -364,7 +364,7 @@ class Builder {
     _on( prev, stack, calls ) {
         if ( calls ) {
             for (const call of calls) {
-                prev = call.apply( new Cell(stack, prev), this._pbson );
+                prev = call.apply( new Cell(stack, prev), this._pbson, prev );
             }
         }
         return prev;
@@ -382,7 +382,7 @@ class Builder {
     _by( prev, stack, calls ) {
         if ( calls ) {
             for (const call of calls) {
-                prev = call.apply( new Cell(stack, prev), this._pbsby );
+                prev = call.apply( new Cell(stack, prev), this._pbsby, prev );
             }
         }
         return prev;
@@ -432,7 +432,7 @@ class Builder {
     _nextStage( prev, stack, nexts ) {
         if ( nexts ) {
             for (const ns of nexts) {
-                prev = ns.apply( new Cell(stack, prev), this._pbst3 );
+                prev = ns.apply( new Cell(stack, prev), this._pbst3, prev );
             }
         }
         return prev;
@@ -669,8 +669,11 @@ class Cell {
         this._meth = null;
         this._args = null;
         this._want = null;
-        // 补充模板实参。
-        this._rest = false;
+
+        // 惰性成员（即时添加）：
+        // this._rest;  // 补充模板实参
+        // this._extra; // 初始启动传值
+        // this.prev;   // 前阶单元（prune指令需要）
 
         if (prev) prev.next = this;
     }
@@ -678,16 +681,39 @@ class Cell {
 
     /**
      * 设置初始值。
-     * 仅用于处理器启动时的传值。
-     * 注：未调用或传递undefined时该成员名不存在。
+     * 注：仅绑定类指令（bind）可能会传递该值。
      * @param  {Value} val 初始值
      * @return {this}
      */
-    init( val ) {
+    initVal( val ) {
         if ( val !== undefined ) {
             this._extra = val;
         }
         return this;
+    }
+
+
+    /**
+     * 设置是否从流程取模板实参。
+     * 注：在模板实参中传递_标识名时需要。
+     * @param {Array} args 参数序列
+     */
+    setRest( args ) {
+        if ( args[args.length-1] === __fromData ) {
+            args.pop();
+            this._rest = true;
+        }
+        return this;
+    }
+
+
+    /**
+     * 设置前阶指令单元。
+     * 注：仅极少数控制类指令需要（prune）。
+     * @param {Cell} cell 指令单元
+     */
+    setPrev( cell ) {
+        this.prev = cell;
     }
 
 
@@ -733,10 +759,8 @@ class Cell {
         this._meth = meth;
         this._args = args;
         this._want = n;
-        this._rest = args[args.length-1] === __fromData;
 
-        if ( this._rest ) args.pop();
-        return this;
+        return this.setRest( this._args );
     }
 
 
@@ -851,6 +875,8 @@ function empty() {}
 //
 // 通用调用定义解析。
 // 模板中指令/方法调用的配置解析存储。
+// 注记：
+// 仅调用类指令支持对链自身的控制（prune）。
 //
 class Call {
     /**
@@ -871,18 +897,24 @@ class Call {
     /**
      * 应用到指令集。
      * 方法由接口 [method](name) 提供。
-     * 注：特权方法需要绑定数据栈，因此应当是一个未bound函数。
+     * 两个特别标记：
      * - [EXTENT] 自动取栈条目数
      * - [ACCESS] 可访问数据栈（特权）
+     * 需要检查处理前阶指令存储标记：
+     * - [PREVCELL] 极少数指令需要（目前仅prune）。
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 指令集
+     * @param  {Cell} prev 前阶指令
      * @return {Cell} cell
      */
-    apply( cell, pbs ) {
+    apply( cell, pbs, prev ) {
         let _f = pbs[method]( this._meth );
 
         if ( !_f ) {
             throw new Error(`${this._meth} is not in pbs:calls.`);
+        }
+        if ( _f[PREVCELL] ) {
+            cell.setPrev( prev );
         }
         return cell.bind( this._args, _f, _f[ACCESS], _f[EXTENT] );
     }

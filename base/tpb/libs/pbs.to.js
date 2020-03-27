@@ -647,7 +647,7 @@ function bindEvns( el, map, evns, slr, init, type ) {
                 el,
                 nid.split(__chrEvnid, 1)[0],
                 slr,
-                map.get(nid).init(init)
+                map.get(nid).initVal(init)
             );
         }
     }
@@ -776,11 +776,11 @@ export const To = {};
 To.Update = $.assign( {}, _Update, bindMethod )
 
 
-// 集成取值和控制指令。
+// 先集成取值和控制指令。
 To.NextStage = Object.assign( {}, Get, Control );
 
 // this固化，参数配置。
-// 注：_NextStage.scroll覆盖同名取值指令。
+// 注：_NextStage.scroll需覆盖同名取值指令。
 $.assign( To.NextStage, _NextStage, bindMethod );
 
 

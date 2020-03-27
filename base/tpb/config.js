@@ -63,6 +63,9 @@ const
     // 使用Symbol避免名称冲突。
     method = Symbol('api-method'),
 
+    // 前阶指令存储标记。
+    PREVCELL = Symbol('previous Cell'),
+
     // 全局变量空间。
     Globals = new Map(),
 
@@ -170,6 +173,7 @@ export {
     EXTENT,
     ACCESS,
     method,
+    PREVCELL,
     bindMethod,
     funcSets,
     tplRoot,

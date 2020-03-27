@@ -236,13 +236,10 @@ scrap( start:Number, count:?Number ): void
 prune( cnt = 1, n:Number = 1 ): void
 // 移除后端跟随指令（单次）。
 
-prunes( cnt:Number = 1 ): void
-// 剪除后端跟随指令（持续）。
-
 entry(): void
 // 创建入口方法。
 
-loop( cnt, val ):void
+loop( cnt, val ): void
 // 区段循环（entry开始）。
 
 
