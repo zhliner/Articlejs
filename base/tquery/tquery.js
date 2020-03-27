@@ -2874,8 +2874,8 @@ callableNative.forEach( name =>
  * 传递实参时调用原生滚动方法（会触发滚动事件）。
  * pair可以是一个配置对象，也可以是一个水平/垂直坐标的二元数组。
  * @param  {Element} el 包含滚动条的容器元素
- * @param  {Object|[top, left]} pair 滚动位置配置对象。
- * @return {Object|this}
+ * @param  {Object2|[left, top]} pair 滚动位置配置对象。
+ * @return {Object2|this}
  */
 tQuery.scroll = function( el, pair ) {
     if ( pair === undefined ) {
@@ -3371,7 +3371,6 @@ class Collector extends Array {
      * @param  {Boolean} clone 容器元素是否克隆，可选
      * @param  {Boolean} event 容器元素上的事件绑定是否克隆，可选
      * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆，可选
-     * @param  {Document} doc 文档对象（集合中为字符串时需要），可选
      * @return {Collector} 包裹容器或空集自身
      */
     wrapAll( box, clone, event, eventdeep ) {
@@ -3764,11 +3763,11 @@ elsExfn([
 /////////////////////////////////////////////////
 elsExfn([
         'attr',
-        'attribute',    // attribute增强版
+        'attribute',
         'prop',
-        'property',     // property增强版
+        'property',
         'css',
-        'cssSets',  // css增强版（仅设置）
+        'cssSets',
     ],
     fn =>
     function( name, value ) {

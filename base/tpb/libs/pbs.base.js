@@ -244,7 +244,7 @@ const _Control = {
      * @param  {Number} n 条目数
      * @return {[Value]}
      */
-    pack( evo, stack, n ) {
+    pack( evo, stack, n = 1 ) {
         return n > 0 ? stack.dels(-n) : [];
     },
 

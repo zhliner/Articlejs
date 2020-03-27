@@ -521,7 +521,7 @@ const Grammar = {
         }
         names.forEach(
             (name, i) =>
-            $.attribute( el, name || 'text', handles[i](data) )
+            $.attr( el, name || 'text', handles[i](data) )
         );
     },
 

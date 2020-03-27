@@ -101,7 +101,11 @@ const _Gets = {
      * rid说明同上，但可以为非字符串值（Collector封装）。
      * 注：
      * 如果实参为非字符串，前阶pop值会被丢弃。
-     * 例：（参考$）
+     * 例：
+     * 0. （参考$）
+     * 1. push(['a','b','c']) pop $$     // 对数组进行封装，$(['a','b','c'])
+     * 2. push(['a','b','c']) $$(_)      // 从流程取实参，rid仅为'a'，'b'和'c'展开（被忽略）
+     * 3. push(['a','b','c']) pack $$(_) // 打包数组（二维），效果同1.
      * @param  {Object} evo 事件关联对象
      * @param  {String|Value} rid 相对ID或待封装值
      * @return {Collector}
@@ -522,7 +526,7 @@ const _Gets = {
      */
     xattr( evo, names ) {
         let _val = __reSpace.test(names) ?
-            this.attr(evo, names) : this.attribute(evo, names);
+            this.attribute(evo, names) : this.attr(evo, names);
 
         return $(evo.data).removeAttr(names), _val;
     },
@@ -786,10 +790,10 @@ const _Gets = {
 // 注：固定参数为1以限定为取值。
 //===============================================
 [
-    'attribute',    // ( name:String ): String | null
-    'attr',         // ( name:String ): String | Object | null
-    'property',     // ( name:String ): Value | undefined
-    'prop',         // ( name:String ): Value | Object | undefined
+    'attr',         // ( name:String ): String | null
+    'attribute',    // ( name:String ): String | Object | null
+    'prop',         // ( name:String ): Value | undefined
+    'property',     // ( name:String ): Value | Object | undefined
     'css',          // ( name:String ): String
     'cssGets',      // ( name:String ): Object
     'hasClass',     // ( name:String ): Boolean

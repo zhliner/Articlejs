@@ -245,7 +245,7 @@ chains()
 
 [attribute]
 - @[name]
-// 特性设置（.attribute([name], ...)）
+// 特性设置（.attr([name], ...)）
 // 内容：{String|Number|Boolean|Function|null}
 // 例：
 // @style： 设置元素的style特性值（cssText）。
@@ -253,13 +253,13 @@ chains()
 
 [property]
 - $[name]
-// 属性设置（.property([name], ...)）
+// 属性设置（.prop([name], ...)）
 // 内容：{String|Number|Boolean|Function|null}
 // 例：
 // $value   设置元素的value属性值。
 // $-val：  设置元素的data-val属性值（dataset.val），同 $data-val。
 
-[css]
+[style]
 - %[name]
 // 样式设置（.css([name], ...)）
 // 内容：{String|Number|Function|null}

@@ -53,8 +53,8 @@ const
     // To:Update
     // 友好方法名映射。
     __updateMethod = {
-        [__tosAttr]:    'attribute',
-        [__tosProp]:    'property',
+        [__tosAttr]:    'attr',
+        [__tosProp]:    'prop',
         [__tosCSS]:     'css',
         [__tosToggle]:  'toggleAttr',
     },
@@ -1020,8 +1020,8 @@ class Query {
 // To:Update配置。
 // 大多数方法为简单的规范名称，如：before, after, wrap, height 等。
 // 特性/属性/样式三种配置较为特殊，采用前置标志字符表达：{
-//      @   特性（attribute），如：@title => $.attribute(el, 'title', ...)
-//      &   属性（property），如：&value => $.property(el, 'value', ...)
+//      @   特性（attribute），如：@title => $.attr(el, 'title', ...)
+//      &   属性（property），如：&value => $.prop(el, 'value', ...)
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 //      ^   特性切换，如：^-val => $.toggleAttr(el, '-val', ...)
 // }

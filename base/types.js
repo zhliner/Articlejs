@@ -413,7 +413,7 @@ function cascadeRoot( el ) {
         _prev = el;
         el = el.parentElement;
     }
-    return $.attribute(_prev, 'role') == 'cascade' ? _prev : null;
+    return $.attr(_prev, 'role') == 'cascade' ? _prev : null;
 }
 
 
@@ -437,7 +437,7 @@ function inToc( el ) {
     let _ol = cascadeRoot( el ),
         _pe = _ol && _ol.parentElement;
 
-    return !!_pe && $.attribute(_pe, 'role') == 'toc';
+    return !!_pe && $.attr(_pe, 'role') == 'toc';
 }
 
 
@@ -454,7 +454,7 @@ function inCodelist( el ) {
     if ( _n == 'code' ) {
         el = el.parentElement;
     }
-    return $.attribute(el.parentElement, 'role') == 'codelist';
+    return $.attr(el.parentElement, 'role') == 'codelist';
 }
 
 
@@ -534,7 +534,7 @@ function conName( el ) {
     if ( el.nodeType == 3 ) {
         return '$text';
     }
-    let _n = $.attribute(el, 'role') || el.nodeName.toLowerCase();
+    let _n = $.attr(el, 'role') || el.nodeName.toLowerCase();
 
     switch ( _n ) {
         case 'li':

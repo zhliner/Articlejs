@@ -154,22 +154,24 @@ const Util = {
      * 技术：
      * 单词之间以短横线（-）分隔，含末尾的-分隔符。
      * 即用 |= 属性选择器匹配的部分。
+     * 注记：
+     * 特性设置采用tQuery库接口，以支持varyevent事件通知机制。
      *
      * @param  {Element} el 目标元素
      * @param  {[String]|null} wds 参数词序列
      * @return {[String]|void}
      */
     pba( el, wds ) {
-        let _v = $.attribute( el, __attrPB );
+        let _v = el.getAttribute( __attrPB );
 
         if ( wds === undefined ) {
             return _v ? pbArgs( attrArgs(_v) ) : [];
         }
         if ( !wds ) {
             // 移除参数选项保留。
-            return _v && $.attribute( el, __attrPB, _v.replace(__pbArgs, '') );
+            return _v && $.attr( el, __attrPB, _v.replace(__pbArgs, '') );
         }
-        $.attribute( el, __attrPB, pbaAttr(pbArgs(wds), _v) );
+        $.attr( el, __attrPB, pbaAttr(pbArgs(wds), _v) );
     },
 
 
@@ -189,7 +191,7 @@ const Util = {
      * @return {[String]|void}
      */
     pbo( el, wds ) {
-        let _v = $.attribute( el, __attrPB ),
+        let _v = el.getAttribute( __attrPB ),
             _o = _v ? pbOpts( attrOpts(_v) ) : [];
 
         if ( wds === undefined ) {
@@ -197,9 +199,9 @@ const Util = {
         }
         if ( !wds ) {
             // 移除选项保留参数。
-            return _v && $.attribute( el, __attrPB, _v.replace(__pbOpts, '') );
+            return _v && $.attr( el, __attrPB, _v.replace(__pbOpts, '') );
         }
-        $.attribute( el, __attrPB, pboAttr(pbOpts(wds, new Set(_o)), _v) );
+        $.attr( el, __attrPB, pboAttr(pbOpts(wds, new Set(_o)), _v) );
     },
 
 
@@ -210,9 +212,9 @@ const Util = {
      */
     pbv( el, val ) {
         if ( val === undefined ) {
-            return $.attribute( el, __attrPB );
+            return el.getAttribute( __attrPB );
         }
-        $.attribute( el, __attrPB, val );
+        $.attr( el, __attrPB, val );
     },
 
 
