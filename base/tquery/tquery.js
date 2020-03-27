@@ -1596,7 +1596,7 @@ Object.assign( tQuery, {
      * @param  {Value|Function|null} value 特性值或取值回调
      * @return {Value|this}
      */
-    attribute( el, name, value ) {
+    attr( el, name, value ) {
         return value === undefined ?
             customGet( el, name, elemAttr ) :
             hookSet( el, name, value, elemAttr ) || this;
@@ -1630,7 +1630,7 @@ Object.assign( tQuery, {
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
-    attr( el, names, value ) {
+    attribute( el, names, value ) {
         return hookIsGet( names, value ) ?
             hookGets( el, names.trim(), elemAttr ) :
             hookSets( el, names, value, elemAttr ) || this;
@@ -1653,7 +1653,7 @@ Object.assign( tQuery, {
      * @param  {Value|Function|null} value 属性值或取值回调
      * @return {Value|this}
      */
-    property( el, name, value ) {
+    prop( el, name, value ) {
         return value === undefined ?
             customGet( el, name, elemProp ) :
             hookSet( el, name, value, elemProp ) || this;
@@ -1662,14 +1662,14 @@ Object.assign( tQuery, {
 
     /**
      * 属性获取/设置（增强版）。
-     * - 参数说参考.attr()接口。
-     * - 与.attr()不同，value传递null会赋值为null，可能让元素回到默认状态。
+     * - 参数说参考.attribute()接口。
+     * - 与.attribute()不同，value传递null会赋值为null，可能让元素回到默认状态。
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
      * @return {Value|Object|this}
      */
-    prop( el, names, value ) {
+    property( el, names, value ) {
         return hookIsGet( names, value ) ?
             hookGets( el, names.trim(), elemProp ) :
             hookSets( el, names, value, elemProp ) || this;
@@ -3763,10 +3763,10 @@ elsExfn([
 // 设置：实例自身（this）。
 /////////////////////////////////////////////////
 elsExfn([
-        'attribute',
-        'attr',     // attribute增强版
-        'property',
-        'prop',     // property增强版
+        'attr',
+        'attribute',    // attribute增强版
+        'prop',
+        'property',     // property增强版
         'css',
         'cssSets',  // css增强版（仅设置）
     ],

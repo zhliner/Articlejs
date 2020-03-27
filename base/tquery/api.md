@@ -815,13 +815,13 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 如果元素上没有任何 `class` 的定义，返回一个空串（即 `el.className` 的值）。
 
 
-### [$.attr( el, names, value ): Value | Object | this](docs/$.attr.md)
+### [$.attribute( el, names, value ): Value | Object | this](docs/$.attribute.md)
 
 获取或修改 `el` 元素的特性（Attribute）值。**注**：`Attribute` 这里译为特性，后面的 `Property` 译为属性。
 
 - `el: Element` 操作的目标元素。
 - `names: String | Object | Map` 名称序列或**名/值**对配置对象。
-- `value: String | Number | Boolean | Function | null | [Value]` 设置的特性值（集）或返回单个值的取值回调。传递 `null` 值会删除目标特性。
+- `value: Value | [Value] | Function | null` 设置的特性值（集）或返回单个值的取值回调。传递 `null` 值会删除目标特性。
 
 当 `value` 未定义且 `names` 为字符串时为获取特性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置特性值。
 
@@ -831,7 +831,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 支持两个特别的特性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
 
-### $.attribute( el, name, value ): Value | this
+### $.attr( el, name, value ): Value | this
 
 获取或设置 `el` 元素的特性值。
 
@@ -839,33 +839,29 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `name: String` 特性名（单个）。支持 `data-x` 系名称简写，支持 `text` 和 `html` 两个特殊名称。
 - `value: Value | Function | null` 要设置的特性值或取值回调，传递 `null` 会移除目标特性。
 
-这是 `.attr()` 的轻量版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
-
-> **注记：**<br>
-> 提供此方法是考虑常用场景和效率的兼顾，同时也让用户依然拥有 `tQuery.embedProxy()` 嵌入代理的能力。<br>
-> 下 `.property()` 同此。
+这是 `.attribute()` 的轻量版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
 
 
-### [$.prop( el, names, value ): Value | Object | this](docs/$.prop.md)
+### [$.property( el, names, value ): Value | Object | this](docs/$.property.md)
 
 获取或修改 `el` 元素的属性（Property）值。
 
 - `el: Element` 操作的目标元素。
 - `names: String | Object | Map` 名称序列或**名/值**对配置对象。
-- `value: String | Number | Boolean | Function | null | [Value]` 设置的属性值（集）或返回单个值的取值回调。
+- `value: Value | [Value] | Function | null` 设置的属性值（集）或返回单个值的取值回调。
 
 当 `value` 未定义且 `names` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置属性值。
 
 - 取值时：`names` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
 - 设置时：`names` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
 
-与 `$.attr()` 相同，支持两个特别的属性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
+与 `$.attribute()` 相同，支持两个特别的属性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
 > **注：**<br>
 > 需要转换的属性名会自动转换（如：`class` => `clasName`），用户无需操心，两种形式皆可使用。
 
 
-### $.property( el, name, value ): Value | this
+### $.prop( el, name, value ): Value | this
 
 获取或设置 `el` 元素的属性值。
 
@@ -873,7 +869,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `name: String` 属性名（单个）。支持 `data-x` 系名称简写，支持 `text` 和 `html` 两个特殊名称。
 - `value: Value | Function | null` 要设置的属性值或取值回调，传递 `null` 通常会让目标属性恢复默认状态。
 
-这是 `.prop()` 的轻量版，效率稍高一些。说明参考 `.prop()` 文档。
+这是 `.property()` 的轻量版，效率稍高一些。
 
 
 ### [$.removeAttr( el, names ): this](docs/$.removeAttr.md)
