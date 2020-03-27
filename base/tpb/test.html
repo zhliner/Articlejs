@@ -126,8 +126,8 @@
             初始解析构造为：<b>...</b>序列
             各字符集清单<span>存储在data中备用。 -->
         <div tpl-name="data:chars"
-            on="init|evo('origin') text split pop $$ wrap('<b>');
-                save|evo(1) ev('detail');
+            on="init|evo('origin') text split pop $$ wrap('<b>') stop;
+                save|evo(1) ev('detail') stop;
                 ^obted;
                 ^done"
             to="~|fill|target xattr('-val') pop fire(0, 'save', true);
