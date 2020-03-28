@@ -136,8 +136,7 @@ aside#help {
 }
 /* 代码字体 */
 .___Panel code,
-.___Panel ._code,
-.___Panel ._codes {
+.___Panel ._code {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     white-space: pre-wrap;
 }
@@ -194,7 +193,7 @@ aside#help {
     color: #aaa;
     font-style: italic;
 }
-.___Panel textarea._codes {
+.___Panel textarea._code {
     font-size: 12px;
     background: #444 url('images/line20.png') repeat local;
     line-height: 20px;
@@ -237,9 +236,6 @@ aside#help {
 }
 .___Panel input._chars {
     width: 60px;
-}
-.___Panel .Styles input._chars {
-    min-width: 80px;
 }
 /* 去除焦点虚框 */
 .___Panel input,
@@ -294,19 +290,19 @@ aside#help {
  ****************************************************************************/
 
 .Tools b,
-.Styles > ._icons > b {
+.Style > ._icons > b {
     width: 32px;
     height: 32px;
     border: 1px transparent solid;
     border-radius: 4px;
 }
 .Tools b:hover,
-.Styles > ._icons > b:hover {
+.Style > ._icons > b:hover {
     border-color: #dbdbdb;
     background-color: #ededed;
 }
 .Tools b._press,
-.Styles > ._icons > b._press {
+.Style > ._icons > b._press {
     border-color: #ccc;
     background-color: #fff;
 }
@@ -625,81 +621,81 @@ aside#help {
 
 /* [ 内容面板 ]
  ****************************************************************************/
-.Inputs > ._body,
-.Attrs > ._body,
+.Input > ._body,
+.Attr > ._body,
 .Script > ._body {
     flex: 6 6 600px;
 }
-.Inputs ._empty {
+.Input ._empty {
     color: #ccc;
     align-items: center;
 }
-.Inputs ._empty > p {
+.Input ._empty > p {
     width: 100%;
     text-align: center;
 }
-.Inputs header._affix {
+.Input header._affix {
     display: grid;
     grid-template-columns: 3fr 1fr;
     gap: 10px;
     align-items: center;
 }
-.Inputs header._affix>aside {
+.Input header._affix>aside {
     display: flex;
     align-items: center;
     min-width: 140px;
 }
-
-/* 表格 */
-.Inputs ._main {
-    flex: 5 5 420px;
-}
-.Inputs ._table select {
+.Input select {
     min-width: 80px;
 }
 
+/* 表格 */
+.Input ._main {
+    flex: 5 5 420px;
+}
+
 /* 片区 */
-.Inputs ._section textarea {
+.Input ._section textarea {
     /*fix: firefox */
     flex: 1 1 50px;
 }
-.Inputs ._section textarea:last-child {
+.Input ._section textarea:last-child {
     margin-top: 6px;
 }
-.Inputs ._section textarea._inert {
+.Input ._section textarea._inert {
     max-height: 2.2em;
 }
 
-/* 线条 */
-.Inputs ._lines {
+/* 转场（hr） */
+.Input ._styles {
     padding: 5px 15px;
     flex: 1 1 auto;
 }
-.Inputs ._lines > b {
+.Input ._styles > b {
     margin: 4px auto;
     border-radius: 16px;
 }
-.Inputs ._lines > b:hover {
+.Input ._styles > b:hover {
     background-color: #ddd;
 }
-.Inputs ._lines hr {
+.Input ._styles hr {
     height: 0;
     width: 92%;
     border-width: 10px;
 }
 
 /* 空白块 */
-.Inputs ._space div[role=space] {
+.Input ._space div[role=space] {
     flex: 1 1 auto;
     color: #ccc;
 }
 
 /* 文本字符 */
-.Inputs ._chars ._list span {
+.Input ._chars ._list span {
     display: block;
     padding-bottom: 5px;
 }
-.Inputs ._chars span > b {
+.Input ._chars span > b {
     float: left;
     width: 35px;
     height: 35px;
@@ -708,10 +704,10 @@ aside#help {
     border-radius: 3px;
     box-shadow: 0 0 1px 1px #ccc;
 }
-.Inputs ._chars b:hover {
+.Input ._chars b:hover {
     background-color: #ddd;
 }
-.Inputs ._zoomin {
+.Input ._zoomin {
     width: 120px;
     height: 120px;
     border: 1px #ccc solid;
@@ -719,17 +715,17 @@ aside#help {
     border-radius: 6px;
     font-size: 90px;
 }
-.Inputs ._chars ._info {
+.Input ._chars ._info {
     color: #999;
     font-size: 10pt;
     margin-left: 4px;
 }
-.Inputs ._chars ._info i {
+.Input ._chars ._info i {
     font-style: normal;
 }
 
 /* 共享：优先 */
-.Inputs ._body b._press {
+.Input ._body b._press {
     background-color: #84ebce;
 }
 
@@ -737,29 +733,32 @@ aside#help {
 /* [ 样式 ]
  ****************************************************************************/
 
-.Styles ._icons {
+.Style ._icons {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 5px 15px;
     margin: 3px 16px 3px 12px;
     max-height: 234px;
 }
-.Styles select._list {
+.Style select._list {
     min-width: 150px;
 }
-.Styles ._body > aside {
+.Style ._body > aside {
     max-width: max-content;
+}
+.Style input._chars {
+    min-width: 80px;
 }
 
 /* 清除按钮 */
-.Styles ._erase {
+.Style ._erase {
     text-align: center;
     padding: 4px;
     border: 1px #ddd solid;
     border-radius: 6px;
     cursor: pointer;
 }
-.Styles ._erase > b {
+.Style ._erase > b {
     width: 100%;
     height: 100%;
     border: 1px #ccc dotted;
@@ -768,47 +767,47 @@ aside#help {
     box-sizing: border-box;
     padding: 1px;
 }
-.Styles ._erase > b:hover {
+.Style ._erase > b:hover {
     border: 1px #ecc solid;
     color: #999;
 }
 /* 垂直清除 */
-.Styles ._fontview ._erase,
-.Styles ._color ._erase {
+.Style ._fontview ._erase,
+.Style ._color ._erase {
     writing-mode: vertical-rl;
     width: 28px;
     margin-left: 10px;
 }
 
 /* 字形 */
-.Styles ._fontview ._list {
+.Style ._fontview ._list {
     padding: 10px;
     justify-content: start;
 }
-.Styles div._list > label {
+.Style div._list > label {
     padding: 5px;
     border-radius: 3px;
 }
-.Styles div._list > label:hover {
+.Style div._list > label:hover {
     background-color: #9ce2d0;
 }
 
-.Styles div._list small {
+.Style div._list small {
     color: #999;
 }
 
 /* 对齐 */
-.Styles ._align ._v {
+.Style ._align ._v {
     margin-left: 14px;
 }
-.Styles ._align label {
+.Style ._align label {
     color: #82bec9;
     font-style: italic;
     padding-left: 6px;
 }
 
 /* 边距 */
-.Styles ._where {
+.Style ._where {
     height: 34px;
     background-color: #d1dadc;
     border-radius: 5px 5px 0 0;
@@ -816,62 +815,62 @@ aside#help {
 }
 
 /* 颜色 */
-.Styles ._cbox {
+.Style ._cbox {
     width: 240px;
 }
-.Styles ._g16 {
+.Style ._g16 {
     height: 16px;
     margin-bottom: 2px;
     display: grid;
     grid-template-columns: repeat(16, 1fr);
 }
-.Styles ._c216 {
+.Style ._c216 {
     flex: 1 1 auto;
     display: grid;
     grid-template-columns: repeat(36, 1fr);
 }
-.Styles ._cbox b {
+.Style ._cbox b {
     border: 1px transparent solid;
 }
-.Styles ._cbox b:hover {
+.Style ._cbox b:hover {
     border-color: #999;
 }
-.Styles ._color ._submit {
+.Style ._color ._submit {
     margin-left: 12px;
     /* 覆盖共享值 */
     display: block;
 }
-.Styles ._color > aside {
+.Style ._color > aside {
     min-width: 132px;
     padding: 5px 10px;
     border: 1px #ccc dotted;
     border-radius: 5px;
 }
-.Styles ._color ._assign {
+.Style ._color ._assign {
     margin-bottom: 25px;
 }
-.Styles ._color ._aim {
+.Style ._color ._aim {
     display: flex;
     justify-content: space-around;
 }
-.Styles ._color ._custom {
+.Style ._color ._custom {
     flex: 1 1 auto;
     margin-top: auto;
     display: flex;
     flex-direction: column;
     max-height: 140px;
 }
-.Styles ._color ._tips {
+.Style ._color ._tips {
     color: #aaa;
     font-size: 8pt;
     text-align: center;
     margin-bottom: 2px;
 }
-.Styles ._color ._pick {
+.Style ._color ._pick {
     flex: 1 1 auto;
     border-radius: 30px;
 }
-.Styles ._color ._pick > input {
+.Style ._color ._pick > input {
     opacity: 0;
     width: 100%;
     height: 100%;
@@ -880,13 +879,13 @@ aside#help {
 
 /* [ 特性 ]
  ****************************************************************************/
-.Attrs ._name {
+.Attr ._name {
     display: grid;
     grid-template-columns: auto 30px;
     margin-bottom: 5px;
     margin-top: 1px;
 }
-.Attrs ._name ._add {
+.Attr ._name ._add {
     border: 1px #93c8e2 solid;
     background-color: #35bf58;
     border-radius: 0 3px 3px 0;
@@ -894,10 +893,10 @@ aside#help {
     margin-left: -3px;
     font-weight: bold;
 }
-.Attrs ._name ._add:hover {
+.Attr ._name ._add:hover {
     background-color: #0fd440;
 }
-.Attrs > ._body > ._main {
+.Attr > ._body > ._main {
     flex: 5 5 400px;
 }
 

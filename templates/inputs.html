@@ -34,7 +34,9 @@
 <!-- 文章标题 -->
 <div class="_body _heading" tpl-name="inputs:heading">
     <div class="_main">
-        <input type="text" name="h1" placeholder="主标题" class="_scale" />
+        <header>
+            <input type="text" name="h1" placeholder="主标题" class="_scale" />
+        </header>
         <textarea name="h2" placeholder="副标题（可选）"></textarea>
     </div>
     <aside>
@@ -66,8 +68,8 @@
         <textarea name="reference" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit1">
-            [选项2]
+        <pre tpl-node="inputs:option1, inputs:submit1">
+            [选项1]
             [插入1]
         </pre>
     </aside>
@@ -75,13 +77,13 @@
 
 
 <!-- 另参见 -->
-<div class="_body _seealso" tpl-name="inputs:seealso">
+<div class="_body _reference" tpl-name="inputs:seealso">
     <div class="_main">
         <textarea name="seealso" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit1">
-            [选项2]
+        <pre tpl-node="inputs:option1, inputs:submit1">
+            [选项1]
             [插入1]
         </pre>
     </aside>
@@ -94,7 +96,7 @@
         <header>
             <input name="h4" type="text" class="_scale" value="导言" />
         </header>
-        <textarea name="header" placeholder="内容（支持多段落）"></textarea>
+        <textarea name="header" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -111,7 +113,7 @@
         <header>
             <input name="h4" type="text" class="_scale" value="小结" />
         </header>
-        <textarea name="footer" placeholder="内容（支持多段落）"></textarea>
+        <textarea name="footer" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit1">
@@ -129,25 +131,11 @@
             <input name="hx" type="text" placeholder="标题" class="_scale" />
         </header>
         <textarea name="header" placeholder="导言（可选）"></textarea>
-        <textarea name="footer" placeholder="结语（可选）"></textarea>
+        <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
             [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 有序列表 -->
-<div class="_body _ol" tpl-name="inputs:ol">
-    <div class="_main">
-        <textarea name="ol" placeholder="每行一项"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="inputs:option1, inputs:submit2">
-            [选项1]
             [插入2]
         </pre>
     </aside>
@@ -168,10 +156,10 @@
 </div>
 
 
-<!-- 多级编号列表 -->
-<div class="_body _cascade" tpl-name="inputs:cascade">
+<!-- 有序列表 -->
+<div class="_body _ol" tpl-name="inputs:ol">
     <div class="_main">
-        <textarea name="cascade" placeholder="每行一项"></textarea>
+        <textarea name="ol" placeholder="每行一项"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option1, inputs:submit2">
@@ -182,13 +170,79 @@
 </div>
 
 
+<!-- 级联表 -->
+<div class="_body _cascade" tpl-name="inputs:cascade">
+    <div class="_main">
+        <textarea name="cascade" placeholder="每行一项"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+            <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="numlist">转为多级编号</label>
+        </div>
+        <div tpl-node="inputs:submit1"> [插入1] </div>
+    </aside>
+</div>
+
+
 <!-- 定义列表 -->
 <div class="_body _dl" tpl-name="inputs:dl">
     <div class="_main">
         <header>
-            <input name="dt" type="text" class="_scale" placeholder="条目" />
+            <input name="dt" type="text" class="_scale" placeholder="条目（<dt>）" />
         </header>
-        <textarea name="dl" placeholder="定义内容"></textarea>
+        <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="inputs:option1, inputs:submit2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+
+<!-- 引用块 -->
+<div class="_body _blockquote" tpl-name="inputs:blockquote">
+    <div class="_main">
+        <header>
+            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+        </header>
+        <textarea name="blockquote" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="inputs:option2, inputs:submit2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+
+<!-- 批注块 -->
+<div class="_body _aside" tpl-name="inputs:aside">
+    <div class="_main">
+        <header>
+            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+        </header>
+        <textarea name="aside" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="inputs:option2, inputs:submit2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+
+<!-- 详细内容 -->
+<div class="_body _details" tpl-name="inputs:details">
+    <div class="_main">
+        <header>
+            <input name="summary" type="text" placeholder="摘要" class="_scale" />
+        </header>
+        <textarea name="details" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -202,15 +256,15 @@
 <!-- 代码表 -->
 <div class="_body _codelist" tpl-name="inputs:codelist">
     <div class="_main">
-        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
+        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
     </div>
     <aside>
-        <div class="_option" tpl-name="inputs:codeopts">
+        <div class="_option">
             <label>制表符
                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
             <label>语言
-                <select id="g-languages" name="languages">
+                <select id="g-languages" name="languages" tpl-name="item:languages">
                     <option value="golang">Golang</option>
                     <option value="cplus">C/C++</option>
                     <option value="javascript">JavaScript</option>
@@ -218,8 +272,8 @@
                     <option value="html">HTML</option>
                 </select>
             </label>
-            <label>起始编号
-                <input type="text" name="start" class="_chars">
+            <label title="起始行号">首行
+                <input type="text" name="start" placeholder="1" class="_chars">
             </label>
         </div>
         <div tpl-node="inputs:submit2"> [插入2] </div>
@@ -230,22 +284,15 @@
 <!-- 代码块 -->
 <div class="_body _codeblock" tpl-name="inputs:codeblock">
     <div class="_main">
-        <!-- paste: 空缩进自动清除（参考首个有效缩进） -->
-        <textarea name="codes" spellcheck="false" class="_codes"></textarea>
+        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
     </div>
     <aside>
-        <div class="_option" tpl-name="inputs:codeopts">
+        <div class="_option">
             <label>制表符
                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
             <label>语言
-                <select id="g-languages" name="languages">
-                    <option value="golang">Golang</option>
-                    <option value="cplus">C/C++</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="css">CSS</option>
-                    <option value="html">HTML</option>
-                </select>
+                <select tpl-node="item:languages"></select>
             </label>
         </div>
         <div tpl-node="inputs:submit2"> [插入2] </div>
@@ -291,23 +338,26 @@
 <!-- 插图 -->
 <div class="_body _figure" tpl-name="inputs:figure">
     <div class="_main">
-        <header>
+        <header class="_affix">
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
+            <label><input name="below" type="checkbox" />标题在下</label>
         </header>
-        <textarea name="figure" data-id="figure"
-            data-imgurl="/xyz.com/pic.jpg; [800,600]; [alt=text]"
-            data-dataurl="data:image/png;base64,..."
-            data-svgxml="&lt;svg&gt;...&lt;/svg&gt;"></textarea>
+        <textarea name="figure" data-id="url"
+            on="tips|evo(1) ev('detail') attr(_);
+                ^obted|push('-iurl')"
+            to="-|@placeholder;
+                &|trigger('tips')"
+            data-iurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
+            data-durl="data:image/png;base64,..."
+            data-svgx="<svg>...</svg>"></textarea>
     </div>
     <aside>
         <div class="_option">
-            <label><input name="below" type="checkbox" />标题在下</label>
-            <hr />
             <label>类型
-                <select name="type" on="change|val" to="4/?figure|trigger">
-                    <option value="imgurl">图片URL</option>
-                    <option value="dataurl">DataURL</option>
-                    <option value="svgxml">SVG源码</option>
+                <select name="type" on="change|$ val" to="4/?url|trigger('tips')">
+                    <option value="-iurl">图片URL</option>
+                    <option value="-durl">DataURL</option>
+                    <option value="-svgx">SVG源码</option>
                 </select>
             </label>
         </div>
@@ -316,61 +366,10 @@
 </div>
 
 
-<!-- 引用块 -->
-<div class="_body _blockquote" tpl-name="inputs:blockquote">
-    <div class="_main">
-        <header>
-            <input name="h4" type="text" placeholder="小标题" class="_scale" />
-        </header>
-        <textarea name="blockquote" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 批注块 -->
-<div class="_body _aside" tpl-name="inputs:aside">
-    <div class="_main">
-        <header>
-            <input name="h4" type="text" placeholder="小标题" class="_scale" />
-        </header>
-        <textarea name="aside" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 详细内容 -->
-<div class="_body _details" tpl-name="inputs:details">
-    <div class="_main">
-        <header>
-            <input name="summary" type="text" placeholder="小标题" class="_scale" />
-        </header>
-        <textarea name="details" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
 <!-- 段落 -->
 <div class="_body _p" tpl-name="inputs:p">
     <div class="_main">
-        <textarea name="p" placeholder="内容（支持多段落）"></textarea>
+        <textarea name="p" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="inputs:option2, inputs:submit2">
@@ -412,7 +411,7 @@
 <!-- 预排版 -->
 <div class="_body _pre" tpl-name="inputs:pre">
     <div class="_main">
-        <textarea name="pre" class="_codes"></textarea>
+        <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
     </div>
     <aside>
         <div class="_option">
@@ -425,15 +424,33 @@
 </div>
 
 
-<!-- 线条 -->
-<div class="_body _line" tpl-name="inputs:line">
-    <div class="_main">
-        <hr tpl-node="line:types">
+<!-- 转场 -->
+<div class="_body _hr" tpl-name="inputs:hr">
+    <div class="_main _list">
+        <span class="_styles content" tabindex="0" tpl-name="hr:styles">
+            <b title="默认"><hr></b>
+            <b title="实线（solid）"><hr role="solid"></b>
+            <b title="虚线（dashed）"><hr role="dashed"></b>
+            <b title="点线（dotted）"><hr role="dotted"></b>
+            <b title="双划线（double）" class="_press"><hr role="double"></b>
+            <b title="内槽线（groove）"><hr role="groove"></b>
+            <b title="外槽线（ridge）"><hr role="ridge"></b>
+            <b title="内嵌线（inset）"><hr role="inset"></b>
+            <b title="外嵌线（outset）"><hr role="outset"></b>
+            <input type="hidden" data-id="line" name="line" value="">
+        </span>
     </div>
     <aside>
         <div class="_option">
-            <label>厚度<input type="text" name="thick" placeholder="1px" class="_length"></label>
-            <label>长度<input type="text" name="length" placeholder="94%" class="_length"></label>
+            <label title="CSS: border-width">厚度
+                <input type="text" name="thick" placeholder="10px" class="_chars">
+            </label>
+            <label title="CSS: width">长度
+                <input type="text" name="length" placeholder="92%" class="_chars">
+            </label>
+            <label title="CSS: height">空白
+                <input type="text" name="height" placeholder="0" class="_chars">
+            </label>
         </div>
         <pre tpl-node="inputs:submit2"> [插入2] </pre>
     </aside>
@@ -443,7 +460,7 @@
 <!-- 空白块 -->
 <div class="_body _space" tpl-name="inputs:space">
     <div class="_main">
-        <div role="space"><span class="_empty">（空白）</span></div>
+        <div role="space"><span>（ 空 白 ）</span></div>
     </div>
     <aside>
         <pre tpl-node="inputs:submit2"> [插入2] </pre>

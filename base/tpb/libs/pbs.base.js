@@ -753,7 +753,7 @@ const _Process = {
      * @param  {Number} v 对比值
      * @return {Number}
      */
-    max(evo, v) {
+    max( evo, v ) {
         return Math.max( ...[].concat(evo.data), v );
     },
 
@@ -767,7 +767,7 @@ const _Process = {
      * @param  {Number} v 对比值
      * @return {Number}
      */
-    min(evo, v) {
+    min( evo, v ) {
         return Math.min( ...[].concat(evo.data), v );
     },
 

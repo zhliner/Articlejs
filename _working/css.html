@@ -32,7 +32,7 @@
         .panel.styles {
             /* display: none; */
         }
-        .Styles ._color ._pick {
+        .Style ._color ._pick {
             background-color: #48cf75;
         }
     </style>
@@ -287,7 +287,7 @@
         <b class="_close"><i id="l-close" title="关闭"></i></b>
     </div>
     <!-- 初始面板 -->
-    <form class="Inputs" onsubmit="return false" tpl-name="slave:inputs">
+    <form class="Input" onsubmit="return false" tpl-name="slave:inputs">
         <div class="_roll">
             <div class="_where">
                 <label title="平级插入">
@@ -367,7 +367,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" onsubmit="return false" tpl-name="slave:inputs">
+            <form class="Input" onsubmit="return false" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -444,7 +444,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -490,7 +490,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -534,7 +534,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -577,7 +577,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -620,7 +620,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -667,7 +667,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -714,7 +714,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -763,7 +763,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -776,8 +776,8 @@
                     <select id="inputs-items" name="items" size="5">
                     </select>
                 </div>
-                <!-- [子模版：有序列表] -->
-                <div class="_body _ol" tpl-name="inputs:p">
+                <!-- [子模版：无序列表] -->
+                <div class="_body _ul" tpl-name="inputs:ul">
                     <div class="_main">
                         <textarea name="ul" placeholder="每行一项"></textarea>
                     </div>
@@ -807,7 +807,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -821,9 +821,9 @@
                     </select>
                 </div>
                 <!-- [子模版：有序列表] -->
-                <div class="_body _ol" tpl-name="inputs:p">
+                <div class="_body _ol" tpl-name="inputs:ol">
                     <div class="_main">
-                        <textarea name="ul" placeholder="每行一项"></textarea>
+                        <textarea name="ol" placeholder="每行一项"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:option1">
@@ -851,7 +851,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -864,15 +864,15 @@
                     <select id="inputs-items" name="items" size="5">
                     </select>
                 </div>
-                <!-- [子模版：有序列表] -->
-                <div class="_body _ol" tpl-name="inputs:p">
+                <!-- [子模版：级联表] -->
+                <div class="_body _cascade" tpl-name="inputs:cascade">
                     <div class="_main">
-                        <textarea name="ul" placeholder="每行一项"></textarea>
+                        <textarea name="cascade" placeholder="每行一项"></textarea>
                     </div>
                     <aside>
                         <div class="_option">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="cascade">转为多级编号</label>
+                            <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="numlist">转为多级编号</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit1">
                             <button type="submit">插入</button>
@@ -895,7 +895,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -917,7 +917,7 @@
                         <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="inputs:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
                         <div class="_submit" tpl-name="inputs:submit2">
@@ -942,7 +942,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -990,7 +990,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1003,13 +1003,13 @@
                     <select id="inputs-items" name="items" size="5">
                     </select>
                 </div>
-                <!-- [子模版：引用块] -->
-                <div class="_body _blockquote" tpl-name="inputs:blockquote">
+                <!-- [子模版：批注块] -->
+                <div class="_body _aside" tpl-name="inputs:aside">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" placeholder="小标题" class="_scale" />
                         </header>
-                        <textarea name="blockquote" placeholder="内容"></textarea>
+                        <textarea name="aside" placeholder="内容"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:option2">
@@ -1038,7 +1038,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1051,13 +1051,13 @@
                     <select id="inputs-items" name="items" size="5">
                     </select>
                 </div>
-                <!-- [子模版：引用块] -->
-                <div class="_body _blockquote" tpl-name="inputs:blockquote">
+                <!-- [子模版：详细内容] -->
+                <div class="_body _details" tpl-name="inputs:details">
                     <div class="_main">
                         <header>
-                            <input name="h4" type="text" placeholder="摘要" class="_scale" />
+                            <input name="summary" type="text" placeholder="摘要" class="_scale" />
                         </header>
-                        <textarea name="blockquote" placeholder="内容"></textarea>
+                        <textarea name="details" placeholder="内容"></textarea>
                     </div>
                     <aside>
                         <div class="_option" tpl-name="inputs:option2">
@@ -1075,7 +1075,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>代码表：ol:codes/li/code/#text,b...（目标为表内时建为&lt;li&gt;&lt;code&gt;。位置按钮失效）</h4>
+    <h4>代码表：ol:codelist/li/code/#text,b...（目标为表内时创建为&lt;li&gt;&lt;code&gt;。位置按钮失效）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1086,7 +1086,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1100,12 +1100,12 @@
                     </select>
                 </div>
                 <!-- [子模版：代码表] -->
-                <div class="_body _codelist" tpl-name="inputs:codes">
+                <div class="_body _codelist" tpl-name="inputs:codelist">
                     <div class="_main">
-                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:codeopts">
+                        <div class="_option">
                             <label>制表符
                                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
                             </label>
@@ -1133,7 +1133,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>代码块：pre/code/#text,b...（目标为块内时直接解析插入。位置按钮失效）</h4>
+    <h4>代码块：pre:codeblock/code/#text,b...（目标为块内时直接解析插入。位置按钮失效）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1144,7 +1144,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1160,15 +1160,15 @@
                 <!-- [子模版：代码块] -->
                 <div class="_body _codeblock" tpl-name="inputs:codeblock">
                     <div class="_main">
-                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:codeopts">
+                        <div class="_option">
                             <label>制表符
                                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
                             </label>
                             <label>语言
-                                <select id="g-languages" name="languages" tpl-name="item:languages">
+                                <select id="g-languages" name="languages">
                                     <option value="golang">Golang</option>
                                     <option value="cplus">C/C++</option>
                                     <option value="javascript">JavaScript</option>
@@ -1188,7 +1188,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>插图：figure/figcaption,p...</h4>
+    <h4>插图：figure/figcaption,p/img...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1199,7 +1199,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1249,7 +1249,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>段落</h4>
+    <h4>段落：p/#text...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1260,7 +1260,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1294,7 +1294,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>注解</h4>
+    <h4>注解：p:note/#text...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1305,7 +1305,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1338,7 +1338,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>预排版</h4>
+    <h4>地址：address/#text...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1349,7 +1349,51 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：地址] -->
+                <div class="_body _address" tpl-name="inputs:address">
+                    <div class="_main">
+                        <textarea name="address" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="inputs:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="inputs:submit2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>预排版：pre/#text...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1365,7 +1409,7 @@
                 <!-- [子模版：预排版] -->
                 <div class="_body _pre" tpl-name="inputs:pre">
                     <div class="_main">
-                        <textarea name="pre" placeholder="Shift + 粘贴：自动清除空缩进" class="_codes"></textarea>
+                        <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
                     <aside>
                         <div class="_option">
@@ -1384,7 +1428,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>线条</h4>
+    <h4>转场：hr</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1395,7 +1439,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1408,11 +1452,10 @@
                     <select id="inputs-items" name="items" size="5">
                     </select>
                 </div>
-                <!-- [子模版：线条] -->
-                <div class="_body _line" tpl-name="inputs:line">
+                <!-- [子模版：转场] -->
+                <div class="_body _hr" tpl-name="inputs:hr">
                     <div class="_main _list">
-                        <!-- 克隆（tpl-node） -->
-                        <span class="_lines content" tabindex="0" tpl-name="line:types">
+                        <span class="_styles content" tabindex="0" tpl-name="hr:styles">
                             <b title="默认"><hr></b>
                             <b title="实线（solid）"><hr role="solid"></b>
                             <b title="虚线（dashed）"><hr role="dashed"></b>
@@ -1448,7 +1491,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>空白块</h4>
+    <h4>白板：div:space</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1459,7 +1502,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:inputs">
+            <form class="Input" tpl-name="slave:inputs">
                 <div class="_roll">
                     <div class="_where">
                         <label>
@@ -1505,7 +1548,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs Minied" tpl-name="slave:minied">
+            <form class="Input Minied" tpl-name="slave:minied">
                 <div class="_roll">
                     <div class="_where">
                         <label title="内联元素">
@@ -1604,7 +1647,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Inputs" tpl-name="slave:minied">
+            <form class="Input" tpl-name="slave:minied">
                 <div class="_roll">
                     <div class="_where">
                         <label title="内联元素">
@@ -1724,7 +1767,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Styles" onsubmit="return false" tpl-name="slave:styles">
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
                 <div class="_icons">
                     <b><i id="b-erase"></i></b>
                     <b><i id="b-brush"></i></b>
@@ -1780,7 +1823,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Styles" onsubmit="return false" tpl-name="slave:styles">
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
                 <div class="_icons">
                     <b><i id="b-erase"></i></b>
                     <b><i id="b-brush"></i></b>
@@ -1839,7 +1882,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Styles" onsubmit="return false" tpl-name="slave:styles">
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
                 <div class="_icons">
                     <b><i id="b-erase"></i></b>
                     <b><i id="b-brush"></i></b>
@@ -1896,7 +1939,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Styles" onsubmit="return false" tpl-name="slave:styles">
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
                 <div class="_icons">
                     <b><i id="b-erase"></i></b>
                     <b><i id="b-brush"></i></b>
@@ -1953,7 +1996,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Styles" onsubmit="return false" tpl-name="slave:styles">
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
                 <div class="_icons">
                     <b><i id="b-erase"></i></b>
                     <b><i id="b-brush"></i></b>
@@ -2026,7 +2069,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Styles" onsubmit="return false" tpl-name="slave:styles">
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
                 <div class="_icons">
                     <b><i id="b-erase"></i></b>
                     <b><i id="b-brush"></i></b>
@@ -2331,7 +2374,7 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Attrs" onsubmit="return false" tpl-name="slave:attrs">
+            <form class="Attr" onsubmit="return false" tpl-name="slave:attr">
                 <div class="_roll">
                     <div class="_name">
                         <input type="text" name="attr" value="" />
