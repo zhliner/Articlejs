@@ -140,8 +140,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 提要
- * --------------------------------------------------------------------------
  * header:abstract/h3, p+
+ * --------------------------------------------------------------------------
  */
 .content header[role=abstract] {
     border: 1px #eee solid;
@@ -159,8 +159,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 目录
- * --------------------------------------------------------------------------
  * nav:toc/ol:cascade/li/a
+ * --------------------------------------------------------------------------
  */
 .content nav[role=toc] {
     padding: 5px;
@@ -227,8 +227,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 多级编号表
- * --------------------------------------------------------------------------
  * ol:cascade/li/h5, ol/...
+ * --------------------------------------------------------------------------
  */
 .content ol[role=cascade],
 .content ol[role=cascade] ol {
@@ -342,7 +342,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s5] {}
 
 
-/* 章：header,h2,section,footer
+/* 章：
+ * header,h2,section,footer
  * ------------------------------------
  */
 .content > h2 {
@@ -354,7 +355,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s1] {}
 
 
-/* 节：header,h3,section,footer
+/* 节：
+ * header,h3,section,footer
  * ------------------------------------
  */
 .content section[role=s1] > h3 {
@@ -365,7 +367,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s2] {}
 
 
-/* 区：header,h4,section,footer
+/* 区：
+ * header,h4,section,footer
  * ------------------------------------
  */
 .content section[role=s2] > h4 {
@@ -375,7 +378,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s3] {}
 
 
-/* 段：header,h5,section,footer
+/* 段：
+ * header,h5,section,footer
  * ------------------------------------
  */
 .content section[role=s3] > h5 {
@@ -386,7 +390,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s4] {}
 
 
-/* 末：header,h6,section,footer
+/* 末：
+ * header,h6,section,footer
  * ------------------------------------
  */
 .content section[role=s4] > h6 {
@@ -417,8 +422,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 插画
- * --------------------------------------------------------------------------
  * figure/figcaption, p/img, svg, audio, video
+ * --------------------------------------------------------------------------
  */
 .content figure {
     padding: 0;
@@ -445,8 +450,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 引用块
- * --------------------------------------------------------------------------
  * blockquote/h4, p+
+ * --------------------------------------------------------------------------
  */
 .content blockquote {
     margin: 0 24px;
@@ -457,16 +462,16 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 批注块
- * --------------------------------------------------------------------------
  * aside/h4, p+
+ * --------------------------------------------------------------------------
  */
 .content aside {}
 .content aside > h4 {}
 
 
 /* 详细内容
- * --------------------------------------------------------------------------
  * [details/summary, p+]
+ * --------------------------------------------------------------------------
  */
 .content details {}
 .content details > summary {}
@@ -474,8 +479,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 导言
- * --------------------------------------------------------------------------
  * header/h4, p+
+ * --------------------------------------------------------------------------
  */
 .content header {
     padding: 2px;
@@ -483,8 +488,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 尾注
- * --------------------------------------------------------------------------
  * footer/h4, p+
+ * --------------------------------------------------------------------------
  */
 .content footer {
     padding: 2px;
@@ -498,7 +503,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* 线条
+/* 转场
  * --------------------------------------------------------------------------
  */
 .content hr {
@@ -547,7 +552,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* 空白块
+/* 白板
  * -------------------------------------------------------------------------
  */
 div[role=space] {
@@ -624,8 +629,8 @@ div[role=space] > * {
 }
 
 /* 代码块
- * ------------------------------------
  * pre/code/b
+ * ------------------------------------
  */
 .content pre > code {
     display: block;
@@ -638,9 +643,8 @@ div[role=space] > * {
 }
 
 /* 代码表
- * ------------------------------------
  * ol:codes/li/code/b
- * 超长默认换行。
+ * ------------------------------------
  */
 .content ol[role=codes] {
     font-size: 10pt;

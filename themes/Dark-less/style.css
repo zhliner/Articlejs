@@ -684,7 +684,7 @@ aside#help {
     border-width: 10px;
 }
 
-/* 空白块 */
+/* 白板 */
 .Input ._space div[role=space] {
     flex: 1 1 auto;
     color: #ccc;
