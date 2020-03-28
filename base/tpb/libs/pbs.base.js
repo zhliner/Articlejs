@@ -533,7 +533,7 @@ const _Process = {
 
 
     // 数学运算。
-    // 支持前一个操作数是数组的情况（对成员计算）。
+    // 大部分支持前一个操作数是数组的情况（对成员计算）。
     //-----------------------------------------------------
 
     /**
@@ -601,55 +601,12 @@ const _Process = {
      * @param  {Number} y 第二个操作数
      * @return {Number|[Number]}
      */
-    divi( evo, y ) {
+    idiv( evo, y ) {
         let x = evo.data;
         return $.isArray(x) ? x.map( v => parseInt(v/y) ) : parseInt(x/y);
     },
 
-    __divi: 1,
-
-
-    /**
-     * 整除运算（向小取整）。
-     * 目标：暂存区/栈顶1项。
-     * 注：在负值时表现与parseInt不同。
-     * @param  {Number} y 第二个操作数
-     * @return {Number|[Number]}
-     */
-    fdiv( evo, y ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map( v => Math.floor(v/y) ) : Math.floor(x/y);
-    },
-
-    __fdiv: 1,
-
-
-    /**
-     * 整除运算（向大取整）。
-     * 目标：暂存区/栈顶1项。
-     * @param  {Number} y 第二个操作数
-     * @return {Number|[Number]}
-     */
-    cdiv( evo, y ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map( v => Math.ceil(v/y) ) : Math.ceil(x/y);
-    },
-
-    __cdiv: 1,
-
-
-    /**
-     * 整除运算（四舍五入）。
-     * 目标：暂存区/栈顶1项。
-     * @param  {Number} y 第二个操作数
-     * @return {Number|[Number]}
-     */
-    rdiv( evo, y ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map( v => Math.round(v/y) ) : Math.round(x/y);
-    },
-
-    __rdiv: 1,
+    __idiv: 1,
 
 
     /**
@@ -723,6 +680,193 @@ const _Process = {
     },
 
     __divmod: 1,
+
+
+    /**
+     * 计算绝对值。
+     * 目标：暂存区/栈顶1项。
+     * @data Number
+     */
+    abs( evo ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => Math.abs(v) ) : Math.abs(x);
+    },
+
+    __abs: 1,
+
+
+    /**
+     * 返回向上取整后的值。
+     * 目标：暂存区/栈顶1项。
+     * @data Number
+     */
+    ceil( evo ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => Math.ceil(v) ) : Math.ceil(x);
+    },
+
+    __ceil: 1,
+
+
+    /**
+     * 返回小于目标最大整数。
+     * 目标：暂存区/栈顶1项。
+     * @data Number
+     */
+    floor( evo ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => Math.floor(v) ) : Math.floor(x);
+    },
+
+    __floor: 1,
+
+
+    /**
+     * 返回目标四舍五入后的整数。
+     * 目标：暂存区/栈顶1项。
+     * @data Number
+     */
+    round( evo ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => Math.round(v) ) : Math.round(x);
+    },
+
+    __round: 1,
+
+
+    /**
+     * 返回实参的整数部分。
+     * 目标：暂存区/栈顶1项。
+     */
+    trunc( evo ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map( v => Math.trunc(v) ) : Math.trunc(x);
+    },
+
+    __log10: 1,
+
+
+    /**
+     * 取最大值。
+     * 目标：暂存区/栈顶1项。
+     * @data Number|[Number]
+     * @param  {Number} v 对比值
+     * @return {Number}
+     */
+    max(evo, v) {
+        return Math.max( ...[].concat(evo.data), v );
+    },
+
+    __max: 1,
+
+
+    /**
+     * 取最小值。
+     * 目标：暂存区/栈顶1项。
+     * @data Number|[Number]
+     * @param  {Number} v 对比值
+     * @return {Number}
+     */
+    min(evo, v) {
+        return Math.min( ...[].concat(evo.data), v );
+    },
+
+    __min: 1,
+
+
+    /**
+     * 创建一个0~1之间的伪随机数。
+     * 目标：无。
+     */
+    random( evo ) {
+        return Math.random();
+    },
+
+    __random: null,
+
+
+    /**
+     * 返回自然对数（loge，即ln）。
+     * 目标：无。
+     * 如果实参为多个，返回一个值数组，否则返回单个值。
+     * @param {...Number} x 待计算值/序列
+     */
+    log( evo, ...x ) {
+        x = x.map( v => Math.log(v) );
+        return x.length > 1 ? x : x[0];
+    },
+
+    __log: null,
+
+
+    /**
+     * 返回以2为底数的对数。
+     * 目标：无。
+     * 如果实参为多个，返回一个值数组，否则返回单个值。
+     * @param {...Number} x 待计算值/序列
+     */
+    log2( evo, ...x ) {
+        x = x.map( v => Math.log2(v) );
+        return x.length > 1 ? x : x[0];
+    },
+
+    __log2: null,
+
+
+    /**
+     * 返回以10为底数的对数。
+     * 目标：无。
+     * 如果实参为多个，返回一个值数组，否则返回单个值。
+     * @param {...Number} x 待计算值/序列
+     */
+    log10( evo, ...x ) {
+        x = x.map( v => Math.log10(v) );
+        return x.length > 1 ? x : x[0];
+    },
+
+    __log10: null,
+
+
+    /**
+     * 计算正弦值。
+     * 目标：无。
+     * 如果实参为多个，返回一个值数组，否则返回单个值。
+     * @param {...Number} x 待计算值/序列
+     */
+    sin( evo, ...x ) {
+        x = x.map( v => Math.sin(v) );
+        return x.length > 1 ? x : x[0];
+    },
+
+    __sin: null,
+
+
+    /**
+     * 计算余弦值。
+     * 目标：无。
+     * 如果实参为多个，返回一个值数组，否则返回单个值。
+     * @param {...Number} x 待计算值/序列
+     */
+    cos( evo, ...x ) {
+        x = x.map( v => Math.cos(v) );
+        return x.length > 1 ? x : x[0];
+    },
+
+    __cos: null,
+
+
+    /**
+     * 计算正切值。
+     * 目标：无。
+     * 如果实参为多个，返回一个值数组，否则返回单个值。
+     * @param {...Number} x 待计算值/序列
+     */
+    tan( evo, ...x ) {
+        x = x.map( v => Math.tan(v) );
+        return x.length > 1 ? x : x[0];
+    },
+
+    __tan: null,
 
 
 
