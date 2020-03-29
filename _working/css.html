@@ -56,7 +56,7 @@
             [这里是当前属性的一些必要说明或提示。]
         </p>
         <div class="_list" data-pb="">
-            <table tpl-name="inputs:img">
+            <table tpl-name="input:img">
                 <tr tpl-name="prop:srcbase">
                     <th title="相对于网站根目录">根路径</th>
                     <!-- 依配置自动设置 -->
@@ -306,7 +306,7 @@
             </select>
         </div>
         <!-- [子模版] -->
-        <div class="_body _empty" tpl-name="inputs:empty">
+        <div class="_body _empty" tpl-name="input:empty">
             <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
         </div>
     </form>
@@ -381,7 +381,7 @@
                     </select>
                 </div>
                 <!-- [子模版：表格] -->
-                <div class="_body _table" tpl-name="inputs:table">
+                <div class="_body _table" tpl-name="input:table">
                     <div class="_main">
                         <header class="_affix">
                             <input name="caption" type="text" placeholder="标题" class="_scale" />
@@ -411,7 +411,7 @@
                             </label>
                         </div>
                         <!-- [插入2] -->
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label>
                                 <input type="checkbox" name="before">向前
                             </label>
@@ -458,7 +458,7 @@
                     </select>
                 </div>
                 <!-- [子模版：文章标题] -->
-                <div class="_body _heading" tpl-name="inputs:heading">
+                <div class="_body _heading" tpl-name="input:heading">
                     <div class="_main">
                         <header>
                             <input type="text" name="h1" placeholder="主标题" class="_scale" />
@@ -466,10 +466,10 @@
                         <textarea name="h2" placeholder="副标题（可选）"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit1">
+                        <div class="_submit" tpl-name="input:submit1">
                             <button type="submit">插入</button>
                         </div>
                     </aside>
@@ -504,16 +504,16 @@
                     </select>
                 </div>
                 <!-- [子模版：提要] -->
-                <div class="_body _abstract" tpl-name="inputs:abstract">
+                <div class="_body _abstract" tpl-name="input:abstract">
                     <div class="_main">
                         <textarea name="header" placeholder="文章提要"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit1">
+                        <div class="_submit" tpl-name="input:submit1">
                             <button type="submit">插入</button>
                         </div>
                     </aside>
@@ -548,15 +548,15 @@
                     </select>
                 </div>
                 <!-- [子模版：文献参考] -->
-                <div class="_body _reference" tpl-name="inputs:reference">
+                <div class="_body _reference" tpl-name="input:reference">
                     <div class="_main">
                         <textarea name="reference" placeholder="每行一项"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit1">
+                        <div class="_submit" tpl-name="input:submit1">
                             <button type="submit">插入</button>
                         </div>
                     </aside>
@@ -591,15 +591,15 @@
                     </select>
                 </div>
                 <!-- [子模版：另参见] -->
-                <div class="_body _reference" tpl-name="inputs:seealso">
+                <div class="_body _reference" tpl-name="input:seealso">
                     <div class="_main">
                         <textarea name="seealso" placeholder="每行一项"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit1">
+                        <div class="_submit" tpl-name="input:submit1">
                             <button type="submit">插入</button>
                         </div>
                     </aside>
@@ -634,7 +634,7 @@
                     </select>
                 </div>
                 <!-- [子模版：导言] -->
-                <div class="_body _header" tpl-name="inputs:header">
+                <div class="_body _header" tpl-name="input:header">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" class="_scale" value="导言" />
@@ -642,11 +642,11 @@
                         <textarea name="header" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit1">
+                        <div class="_submit" tpl-name="input:submit1">
                             <button type="submit">插入</button>
                         </div>
                     </aside>
@@ -681,7 +681,7 @@
                     </select>
                 </div>
                 <!-- [子模版：结语] -->
-                <div class="_body _footer" tpl-name="inputs:footer">
+                <div class="_body _footer" tpl-name="input:footer">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" class="_scale" value="小结" />
@@ -689,11 +689,11 @@
                         <textarea name="footer" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit1">
+                        <div class="_submit" tpl-name="input:submit1">
                             <button type="submit">插入</button>
                         </div>
                     </aside>
@@ -728,7 +728,7 @@
                     </select>
                 </div>
                 <!-- [子模版：片区] -->
-                <div class="_body _section" tpl-name="inputs:section">
+                <div class="_body _section" tpl-name="input:section">
                     <div class="_main">
                         <header>
                             <input name="hx" type="text" placeholder="标题" class="_scale" />
@@ -737,11 +737,11 @@
                         <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -777,15 +777,15 @@
                     </select>
                 </div>
                 <!-- [子模版：无序列表] -->
-                <div class="_body _ul" tpl-name="inputs:ul">
+                <div class="_body _ul" tpl-name="input:ul">
                     <div class="_main">
                         <textarea name="ul" placeholder="每行一项"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -821,15 +821,15 @@
                     </select>
                 </div>
                 <!-- [子模版：有序列表] -->
-                <div class="_body _ol" tpl-name="inputs:ol">
+                <div class="_body _ol" tpl-name="input:ol">
                     <div class="_main">
                         <textarea name="ol" placeholder="每行一项"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -865,7 +865,7 @@
                     </select>
                 </div>
                 <!-- [子模版：级联表] -->
-                <div class="_body _cascade" tpl-name="inputs:cascade">
+                <div class="_body _cascade" tpl-name="input:cascade">
                     <div class="_main">
                         <textarea name="cascade" placeholder="每行一项"></textarea>
                     </div>
@@ -874,7 +874,7 @@
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="numlist">转为多级编号</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit1">
+                        <div class="_submit" tpl-name="input:submit1">
                             <button type="submit">插入</button>
                         </div>
                     </aside>
@@ -909,7 +909,7 @@
                     </select>
                 </div>
                 <!-- [子模版：定义列表] -->
-                <div class="_body _dl" tpl-name="inputs:dl">
+                <div class="_body _dl" tpl-name="input:dl">
                     <div class="_main">
                         <header>
                             <input name="dt" type="text" class="_scale" placeholder="条目（<dt>）" />
@@ -917,10 +917,10 @@
                         <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -956,7 +956,7 @@
                     </select>
                 </div>
                 <!-- [子模版：引用块] -->
-                <div class="_body _blockquote" tpl-name="inputs:blockquote">
+                <div class="_body _blockquote" tpl-name="input:blockquote">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" placeholder="小标题" class="_scale" />
@@ -964,11 +964,11 @@
                         <textarea name="blockquote" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1004,7 +1004,7 @@
                     </select>
                 </div>
                 <!-- [子模版：批注块] -->
-                <div class="_body _aside" tpl-name="inputs:aside">
+                <div class="_body _aside" tpl-name="input:aside">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" placeholder="小标题" class="_scale" />
@@ -1012,11 +1012,11 @@
                         <textarea name="aside" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1052,7 +1052,7 @@
                     </select>
                 </div>
                 <!-- [子模版：详细内容] -->
-                <div class="_body _details" tpl-name="inputs:details">
+                <div class="_body _details" tpl-name="input:details">
                     <div class="_main">
                         <header>
                             <input name="summary" type="text" placeholder="摘要" class="_scale" />
@@ -1060,11 +1060,11 @@
                         <textarea name="details" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1100,7 +1100,7 @@
                     </select>
                 </div>
                 <!-- [子模版：代码表] -->
-                <div class="_body _codelist" tpl-name="inputs:codelist">
+                <div class="_body _codelist" tpl-name="input:codelist">
                     <div class="_main">
                         <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
@@ -1122,7 +1122,7 @@
                                 <input type="text" name="start" placeholder="1" class="_chars">
                             </label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1158,7 +1158,7 @@
                     </select>
                 </div>
                 <!-- [子模版：代码块] -->
-                <div class="_body _codeblock" tpl-name="inputs:codeblock">
+                <div class="_body _codeblock" tpl-name="input:codeblock">
                     <div class="_main">
                         <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
@@ -1177,7 +1177,7 @@
                                 </select>
                             </label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1213,7 +1213,7 @@
                     </select>
                 </div>
                 <!-- [子模版：插图] -->
-                <div class="_body _figure" tpl-name="inputs:figure">
+                <div class="_body _figure" tpl-name="input:figure">
                     <div class="_main">
                         <header class="_affix">
                             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
@@ -1238,7 +1238,7 @@
                                 </select>
                             </label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1274,16 +1274,16 @@
                     </select>
                 </div>
                 <!-- [子模版：段落] -->
-                <div class="_body _p" tpl-name="inputs:p">
+                <div class="_body _p" tpl-name="input:p">
                     <div class="_main">
                         <textarea name="p" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option2">
+                        <div class="_option" tpl-name="input:option2">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                             <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1319,15 +1319,15 @@
                     </select>
                 </div>
                 <!-- [子模版：注解] -->
-                <div class="_body _note" tpl-name="inputs:note">
+                <div class="_body _note" tpl-name="input:note">
                     <div class="_main">
                         <textarea name="note" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1363,15 +1363,15 @@
                     </select>
                 </div>
                 <!-- [子模版：地址] -->
-                <div class="_body _address" tpl-name="inputs:address">
+                <div class="_body _address" tpl-name="input:address">
                     <div class="_main">
                         <textarea name="address" placeholder="内容"></textarea>
                     </div>
                     <aside>
-                        <div class="_option" tpl-name="inputs:option1">
+                        <div class="_option" tpl-name="input:option1">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1407,7 +1407,7 @@
                     </select>
                 </div>
                 <!-- [子模版：预排版] -->
-                <div class="_body _pre" tpl-name="inputs:pre">
+                <div class="_body _pre" tpl-name="input:pre">
                     <div class="_main">
                         <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
@@ -1417,7 +1417,7 @@
                                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
                             </label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1428,7 +1428,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>转场：hr</h4>
+    <h4>分割：hr</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1452,10 +1452,10 @@
                     <select id="inputs-items" name="items" size="5">
                     </select>
                 </div>
-                <!-- [子模版：转场] -->
-                <div class="_body _hr" tpl-name="inputs:hr">
+                <!-- [子模版：分割] -->
+                <div class="_body _hr" tpl-name="input:hr">
                     <div class="_main _list">
-                        <span class="_styles content" tabindex="0" tpl-name="hr:styles">
+                        <span class="_border content" tabindex="0" tpl-name="hr:border">
                             <b title="默认"><hr></b>
                             <b title="实线（solid）"><hr role="solid"></b>
                             <b title="虚线（dashed）"><hr role="dashed"></b>
@@ -1480,7 +1480,7 @@
                                 <input type="text" name="height" placeholder="0" class="_chars">
                             </label>
                         </div>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1516,12 +1516,12 @@
                     </select>
                 </div>
                 <!-- [子模版：空白块] -->
-                <div class="_body _space" tpl-name="inputs:space">
+                <div class="_body _space" tpl-name="input:space">
                     <div class="_main">
                         <div role="space"><span>（ 空 白 ）</span></div>
                     </div>
                     <aside>
-                        <div class="_submit" tpl-name="inputs:submit2">
+                        <div class="_submit" tpl-name="input:submit2">
                             <label><input type="checkbox" name="before">向前</label>
                             <button type="submit">插入</button>
                         </div>
@@ -1536,8 +1536,7 @@
     <hr>
     <!-- 微编辑：内联单元 --------------------------------------------------->
 
-    <!-- 内联：通用 -->
-    <h4>[内联] 通用</h4>
+    <h4>[内联] 单元属性</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1559,7 +1558,7 @@
                         </label>
                     </div>
                     <!-- 内联元素 -->
-                    <select name="inlines" size="5" class="_list" tpl-name="minied:inlines">
+                    <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
                         <option title="<img>" value="img">图片</option>
                         <option title="<audio>" value="audio">音频</option>
                         <option title="<video>" value="video">视频</option>
@@ -1593,10 +1592,10 @@
                         <option title="<span:blank>" value="blank">空白段</option>
                     </select>
                 </div>
-                <!-- [子模版：内联通用] -->
-                <div class="_body _inlines" tpl-name="minied:common">
+                <!-- [子模版：单元属性] -->
+                <div class="_body _inline" tpl-name="minied:inlines">
                     <div class="_main _list">
-                        <table tpl-name="inputs:img">
+                        <table tpl-name="inlines:img">
                             <tr tpl-name="prop:srcbase">
                                 <th title="相对于网站根目录">根路径</th>
                                 <!-- 依配置自动设置 -->
@@ -1658,10 +1657,10 @@
                         </label>
                     </div>
                     <!-- 字符种类 -->
-                    <select name="ctype" size="5" class="_list" tpl-name="minied:chars">
+                    <select name="ctype" size="5" class="_list" tpl-name="item:ctypes">
                         <option value="normal">常用</option>
-                        <option value="punctuation">标点</option>
                         <option value="unit">单位</option>
+                        <option value="punctuation">标点</option>
                         <option value="number">序号</option>
                         <option value="math">数学</option>
                         <option value="special">特殊</option>
@@ -1673,7 +1672,7 @@
                     </select>
                 </div>
                 <!-- [子模版：字符表] -->
-                <div class="_body _chars" tpl-name="minied:common">
+                <div class="_body _inline" tpl-name="minied:chars">
                     <div data-id="cbox" class="_main _list">
                         <span>
                             <b>〔</b>
@@ -1779,7 +1778,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：字形 -->
-                <div class="_body _fontview" tpl-name="styles:fontview">
+                <div class="_body _fontview" tpl-name="style:fontview">
                     <div class="_list">
                         <label>
                             <input type="checkbox" name="bold" />
@@ -1791,18 +1790,15 @@
                         </label>
                         <label>
                             <input type="radio" name="decoration" />
-                            <span style="text-decoration: underline;">下划线</span><small>（text-decoration:
-                                underline）</small>
+                            <span style="text-decoration: underline;">下划线</span><small>（text-decoration: underline）</small>
                         </label>
                         <label>
                             <input type="radio" name="decoration" />
-                            <span style="text-decoration: line-through;">贯穿线</span><small>（text-decoration:
-                                line-through）</small>
+                            <span style="text-decoration: line-through;">贯穿线</span><small>（text-decoration: line-through）</small>
                         </label>
                         <label>
                             <input type="radio" name="decoration" />
-                            <span style="text-decoration: overline;">上划线</span><small>（text-decoration:
-                                overline）</small>
+                            <span style="text-decoration: overline;">上划线</span><small>（text-decoration: overline）</small>
                         </label>
                     </div>
                     <div class="_erase"><b>全部清除</b></div>
@@ -1835,7 +1831,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：字号 -->
-                <div class="_body _fontsize" tpl-name="styles:fontsize">
+                <div class="_body _fontsize" tpl-name="style:fontsize">
                     <select name="sizename" size="5" class="_list">
                         <option value="xx-small">xx-small</option>
                         <option value="x-small">x-small</option>
@@ -1894,7 +1890,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：对齐 -->
-                <div class="_body _align" tpl-name="styles:align">
+                <div class="_body _align" tpl-name="style:align">
                     <div class="_h">
                         <label>text-align</label>
                         <select name="align" size="5" class="_list">
@@ -1951,7 +1947,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：宽/高度 -->
-                <div class="_body _width" tpl-name="styles:width">
+                <div class="_body _width" tpl-name="style:width">
                     <select name="width" size="5" class="_list">
                         <option value="width" title="宽度">width</option>
                         <option value="max-width" title="最大宽度">max-width</option>
@@ -2008,7 +2004,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：边距 -->
-                <div class="_body _margin" tpl-name="styles:margin">
+                <div class="_body _margin" tpl-name="style:margin">
                     <div>
                         <!-- on="click('input')|evo('current'), val, tpl" to="1/select|replace" -->
                         <div class="_where">
@@ -2081,7 +2077,7 @@
                     <b class="_press"><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：颜色 -->
-                <div class="_body _color" tpl-name="styles:color">
+                <div class="_body _color" tpl-name="style:color">
                     <div class="_cbox">
                         <span class="_g16">
                             <b style="background-color:#000" title="#000"></b>

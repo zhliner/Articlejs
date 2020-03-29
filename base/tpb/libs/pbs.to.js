@@ -52,12 +52,12 @@ const _Update = {
      * 绑定预定义调用链。
      * evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
      * @param {Element|Collector} to 目标元素/集
-     * @param {Value|[Value]} init 初始数据
+     * @param {Value|[Value]} ival 初始数据
      * @param {String} evnid 事件名ID/序列，可选
      * @param {String} slr 委托选择器，可选
      */
-    bind( to, init, evnid, slr ) {
-        bindsChain( 'on', to, init, evnid, slr );
+    bind( to, ival, evnid, slr ) {
+        bindsChain( 'on', to, ival, evnid, slr );
     },
 
 
@@ -65,8 +65,8 @@ const _Update = {
      * 绑定单次触发。
      * 其它说明同bind。
      */
-    once( to, init, evnid, slr ) {
-        bindsChain( 'one', to, init, evnid, slr );
+    once( to, ival, evnid, slr ) {
+        bindsChain( 'one', to, ival, evnid, slr );
     },
 
 

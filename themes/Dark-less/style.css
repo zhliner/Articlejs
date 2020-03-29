@@ -666,19 +666,19 @@ aside#help {
     max-height: 2.2em;
 }
 
-/* 转场（hr） */
-.Input ._styles {
+/* 分割（hr） */
+.Input ._hr ._border {
     padding: 5px 15px;
     flex: 1 1 auto;
 }
-.Input ._styles > b {
+.Input ._hr ._border > b {
     margin: 4px auto;
     border-radius: 16px;
 }
-.Input ._styles > b:hover {
+.Input ._hr ._border > b:hover {
     background-color: #ddd;
 }
-.Input ._styles hr {
+.Input ._hr ._border hr {
     height: 0;
     width: 92%;
     border-width: 10px;
@@ -691,11 +691,10 @@ aside#help {
 }
 
 /* 文本字符 */
-.Input ._chars ._list span {
-    display: block;
+.Input ._inline ._list > span {
     padding-bottom: 5px;
 }
-.Input ._chars span > b {
+.Input ._inline span > b {
     float: left;
     width: 35px;
     height: 35px;
@@ -704,10 +703,10 @@ aside#help {
     border-radius: 3px;
     box-shadow: 0 0 1px 1px #ccc;
 }
-.Input ._chars b:hover {
+.Input ._inline b:hover {
     background-color: #ddd;
 }
-.Input ._zoomin {
+.Input ._inline ._zoomin {
     width: 120px;
     height: 120px;
     border: 1px #ccc solid;
@@ -715,12 +714,12 @@ aside#help {
     border-radius: 6px;
     font-size: 90px;
 }
-.Input ._chars ._info {
+.Input ._inline ._info {
     color: #999;
     font-size: 10pt;
     margin-left: 4px;
 }
-.Input ._chars ._info i {
+.Input ._inline ._info i {
     font-style: normal;
 }
 

@@ -93,26 +93,7 @@
         <b>脚本</b>
         <b class="_close"><i id="l-close" title="关闭"></i></b>
     </div>
-    <!-- 初始面板 -->
-    <form class="Input" onsubmit="return false" tpl-name="slave:inputs">
-        <div class="_roll">
-            <div class="_where">
-                <label title="平级插入">
-                    <input type="radio" name="where" checked /><i id="l-siblings"></i>
-                </label>
-                <label title="向内插入">
-                    <input type="radio" name="where"><i id="l-children"></i>
-                </label>
-            </div>
-            <select id="inputs-items" name="items" size="5" class="_list">
-                <!-- 筛选合法单元条目插入。 -->
-            </select>
-        </div>
-        <!-- [子模版] -->
-        <div class="_body _empty" tpl-name="inputs:empty">
-            <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
-        </div>
-    </form>
+    <div tpl-source="slave:inputs"> [内容面板] </div>
 </div>
 
 

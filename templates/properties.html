@@ -1,6 +1,6 @@
 <!-- 单元属性：
-    由上下文菜单中的“属性”条目激发。
-    在弹出的模态框中显示为一个表格行清单。 -->
+    - 由上下文菜单中的“属性”条目激发。
+    - 在弹出的模态框中显示为一个表格行清单。 -->
 
 <tr tpl-name="prop:align">
     <th>水平对齐</th>
@@ -105,21 +105,9 @@
     <td><textarea name="summary" rows="2"></textarea></td>
 </tr>
 
-<tr tpl-name="prop:linetype">
-    <th>线条类型</th>
-    <td><span class="_lines" tabindex="0" tpl-name="line:types">
-            <b title="默认"><hr></b>
-            <b title="实线"><hr role="solid"></b>
-            <b title="虚线"><hr role="dotted"></b>
-            <b title="双划线"><hr role="double"></b>
-            <b title="点划线"><hr role="dashed"></b>
-            <b title="内槽线"><hr role="groove"></b>
-            <b title="外槽线"><hr role="ridge"></b>
-            <b title="内嵌线"><hr role="inset"></b>
-            <b title="外嵌线"><hr role="outset"></b>
-            <input type="hidden" data-id="line" name="line" value="">
-        </span>
-    </td>
+<tr tpl-name="prop:hr">
+    <th>线条风格</th>
+    <td><hr tpl-node="hr:styles" /></td>
 </tr>
 
 <tr tpl-name="prop:href">

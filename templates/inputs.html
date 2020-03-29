@@ -1,30 +1,24 @@
 <!-- 选项：1 -->
-<div class="_option" tpl-name="inputs:option1">
+<div class="_option" tpl-name="input:option1">
     <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
 </div>
 
 <!-- 选项：2 -->
-<div class="_option" tpl-name="inputs:option2">
+<div class="_option" tpl-name="input:option2">
     <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
     <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
 </div>
 
 
 <!-- 插入：1 -->
-<div class="_submit" tpl-name="inputs:submit1">
+<div class="_submit" tpl-name="input:submit1">
     <button type="submit">插入</button>
 </div>
 
 <!-- 插入：2 -->
-<div class="_submit" tpl-name="inputs:submit2">
+<div class="_submit" tpl-name="input:submit2">
     <label><input type="checkbox" name="before">向前</label>
     <button type="submit">插入</button>
-</div>
-
-<!-- 复制 -->
-<div class="_submit" tpl-name="minied:copies">
-    <!-- ev.clipboardData.setData('text/html', [html]) -->
-    <button type="submit">复制</button>
 </div>
 
 
@@ -32,7 +26,7 @@
 
 
 <!-- 文章标题 -->
-<div class="_body _heading" tpl-name="inputs:heading">
+<div class="_body _heading" tpl-name="input:heading">
     <div class="_main">
         <header>
             <input type="text" name="h1" placeholder="主标题" class="_scale" />
@@ -40,7 +34,7 @@
         <textarea name="h2" placeholder="副标题（可选）"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit1">
+        <pre tpl-node="input:option1, input:submit1">
             [选项1]
             [插入1]
         </pre>
@@ -49,12 +43,12 @@
 
 
 <!-- 提要 -->
-<div class="_body _abstract" tpl-name="inputs:abstract">
+<div class="_body _abstract" tpl-name="input:abstract">
     <div class="_main">
         <textarea name="header" placeholder="文章提要"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="input:option2, input:submit1">
             [选项2]
             [插入1]
         </pre>
@@ -63,12 +57,12 @@
 
 
 <!-- 文献参考 -->
-<div class="_body _reference" tpl-name="inputs:reference">
+<div class="_body _reference" tpl-name="input:reference">
     <div class="_main">
         <textarea name="reference" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit1">
+        <pre tpl-node="input:option1, input:submit1">
             [选项1]
             [插入1]
         </pre>
@@ -77,12 +71,12 @@
 
 
 <!-- 另参见 -->
-<div class="_body _reference" tpl-name="inputs:seealso">
+<div class="_body _reference" tpl-name="input:seealso">
     <div class="_main">
         <textarea name="seealso" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit1">
+        <pre tpl-node="input:option1, input:submit1">
             [选项1]
             [插入1]
         </pre>
@@ -91,7 +85,7 @@
 
 
 <!-- 导言 -->
-<div class="_body _header" tpl-name="inputs:header">
+<div class="_body _header" tpl-name="input:header">
     <div class="_main">
         <header>
             <input name="h4" type="text" class="_scale" value="导言" />
@@ -99,7 +93,7 @@
         <textarea name="header" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="input:option2, input:submit1">
             [选项2]
             [插入1]
         </pre>
@@ -108,7 +102,7 @@
 
 
 <!-- 结语 -->
-<div class="_body _footer" tpl-name="inputs:footer">
+<div class="_body _footer" tpl-name="input:footer">
     <div class="_main">
         <header>
             <input name="h4" type="text" class="_scale" value="小结" />
@@ -116,7 +110,7 @@
         <textarea name="footer" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit1">
+        <pre tpl-node="input:option2, input:submit1">
             [选项2]
             [插入1]
         </pre>
@@ -125,7 +119,7 @@
 
 
 <!-- 片区：s1-s5 -->
-<div class="_body _section" tpl-name="inputs:section">
+<div class="_body _section" tpl-name="input:section">
     <div class="_main">
         <header>
             <input name="hx" type="text" placeholder="标题" class="_scale" />
@@ -134,7 +128,7 @@
         <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="input:option2, input:submit2">
             [选项2]
             [插入2]
         </pre>
@@ -143,12 +137,12 @@
 
 
 <!-- 无序列表 -->
-<div class="_body _ul" tpl-name="inputs:ul">
+<div class="_body _ul" tpl-name="input:ul">
     <div class="_main">
         <textarea name="ul" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="input:option1, input:submit2">
             [选项1]
             [插入2]
         </pre>
@@ -157,12 +151,12 @@
 
 
 <!-- 有序列表 -->
-<div class="_body _ol" tpl-name="inputs:ol">
+<div class="_body _ol" tpl-name="input:ol">
     <div class="_main">
         <textarea name="ol" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="input:option1, input:submit2">
             [选项1]
             [插入2]
         </pre>
@@ -171,7 +165,7 @@
 
 
 <!-- 级联表 -->
-<div class="_body _cascade" tpl-name="inputs:cascade">
+<div class="_body _cascade" tpl-name="input:cascade">
     <div class="_main">
         <textarea name="cascade" placeholder="每行一项"></textarea>
     </div>
@@ -180,13 +174,13 @@
             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
             <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="numlist">转为多级编号</label>
         </div>
-        <div tpl-node="inputs:submit1"> [插入1] </div>
+        <div tpl-node="input:submit1"> [插入1] </div>
     </aside>
 </div>
 
 
 <!-- 定义列表 -->
-<div class="_body _dl" tpl-name="inputs:dl">
+<div class="_body _dl" tpl-name="input:dl">
     <div class="_main">
         <header>
             <input name="dt" type="text" class="_scale" placeholder="条目（<dt>）" />
@@ -194,7 +188,7 @@
         <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="input:option1, input:submit2">
             [选项1]
             [插入2]
         </pre>
@@ -203,7 +197,7 @@
 
 
 <!-- 引用块 -->
-<div class="_body _blockquote" tpl-name="inputs:blockquote">
+<div class="_body _blockquote" tpl-name="input:blockquote">
     <div class="_main">
         <header>
             <input name="h4" type="text" placeholder="小标题" class="_scale" />
@@ -211,7 +205,7 @@
         <textarea name="blockquote" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="input:option2, input:submit2">
             [选项2]
             [插入2]
         </pre>
@@ -220,7 +214,7 @@
 
 
 <!-- 批注块 -->
-<div class="_body _aside" tpl-name="inputs:aside">
+<div class="_body _aside" tpl-name="input:aside">
     <div class="_main">
         <header>
             <input name="h4" type="text" placeholder="小标题" class="_scale" />
@@ -228,7 +222,7 @@
         <textarea name="aside" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="input:option2, input:submit2">
             [选项2]
             [插入2]
         </pre>
@@ -237,7 +231,7 @@
 
 
 <!-- 详细内容 -->
-<div class="_body _details" tpl-name="inputs:details">
+<div class="_body _details" tpl-name="input:details">
     <div class="_main">
         <header>
             <input name="summary" type="text" placeholder="摘要" class="_scale" />
@@ -245,7 +239,7 @@
         <textarea name="details" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="input:option2, input:submit2">
             [选项2]
             [插入2]
         </pre>
@@ -254,7 +248,7 @@
 
 
 <!-- 代码表 -->
-<div class="_body _codelist" tpl-name="inputs:codelist">
+<div class="_body _codelist" tpl-name="input:codelist">
     <div class="_main">
         <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
     </div>
@@ -276,13 +270,13 @@
                 <input type="text" name="start" placeholder="1" class="_chars">
             </label>
         </div>
-        <div tpl-node="inputs:submit2"> [插入2] </div>
+        <div tpl-node="input:submit2"> [插入2] </div>
     </aside>
 </div>
 
 
 <!-- 代码块 -->
-<div class="_body _codeblock" tpl-name="inputs:codeblock">
+<div class="_body _codeblock" tpl-name="input:codeblock">
     <div class="_main">
         <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
     </div>
@@ -295,13 +289,13 @@
                 <select tpl-node="item:languages"></select>
             </label>
         </div>
-        <div tpl-node="inputs:submit2"> [插入2] </div>
+        <div tpl-node="input:submit2"> [插入2] </div>
     </aside>
 </div>
 
 
 <!-- 表格 -->
-<div class="_body _table" tpl-name="inputs:table">
+<div class="_body _table" tpl-name="input:table">
     <div class="_main">
         <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
@@ -330,13 +324,13 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="inputs:submit2"> [插入2] </div>
+        <div tpl-node="input:submit2"> [插入2] </div>
     </aside>
 </div>
 
 
 <!-- 插图 -->
-<div class="_body _figure" tpl-name="inputs:figure">
+<div class="_body _figure" tpl-name="input:figure">
     <div class="_main">
         <header class="_affix">
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
@@ -361,18 +355,18 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="inputs:submit2"> [插入2] </div>
+        <div tpl-node="input:submit2"> [插入2] </div>
     </aside>
 </div>
 
 
 <!-- 段落 -->
-<div class="_body _p" tpl-name="inputs:p">
+<div class="_body _p" tpl-name="input:p">
     <div class="_main">
         <textarea name="p" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option2, inputs:submit2">
+        <pre tpl-node="input:option2, input:submit2">
             [选项2]
             [插入2]
         </pre>
@@ -381,12 +375,12 @@
 
 
 <!-- 注解 -->
-<div class="_body _note" tpl-name="inputs:note">
+<div class="_body _note" tpl-name="input:note">
     <div class="_main">
         <textarea name="note" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="input:option1, input:submit2">
             [选项1]
             [插入2]
         </pre>
@@ -395,12 +389,12 @@
 
 
 <!-- 地址 -->
-<div class="_body _address" tpl-name="inputs:address">
+<div class="_body _address" tpl-name="input:address">
     <div class="_main">
         <textarea name="address" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="inputs:option1, inputs:submit2">
+        <pre tpl-node="input:option1, input:submit2">
             [选项1]
             [插入2]
         </pre>
@@ -409,7 +403,7 @@
 
 
 <!-- 预排版 -->
-<div class="_body _pre" tpl-name="inputs:pre">
+<div class="_body _pre" tpl-name="input:pre">
     <div class="_main">
         <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
     </div>
@@ -419,15 +413,15 @@
                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
         </div>
-        <pre tpl-node="inputs:submit2">[插入2]</pre>
+        <pre tpl-node="input:submit2">[插入2]</pre>
     </aside>
 </div>
 
 
-<!-- 转场 -->
-<div class="_body _hr" tpl-name="inputs:hr">
+<!-- 分割 -->
+<div class="_body _hr" tpl-name="input:hr">
     <div class="_main _list">
-        <span class="_styles content" tabindex="0" tpl-name="hr:styles">
+        <span class="_border content" tabindex="0" tpl-name="hr:border">
             <b title="默认"><hr></b>
             <b title="实线（solid）"><hr role="solid"></b>
             <b title="虚线（dashed）"><hr role="dashed"></b>
@@ -437,7 +431,7 @@
             <b title="外槽线（ridge）"><hr role="ridge"></b>
             <b title="内嵌线（inset）"><hr role="inset"></b>
             <b title="外嵌线（outset）"><hr role="outset"></b>
-            <input type="hidden" data-id="line" name="line" value="">
+            <input type="hidden" data-id="hr" name="hr" value="">
         </span>
     </div>
     <aside>
@@ -452,26 +446,27 @@
                 <input type="text" name="height" placeholder="0" class="_chars">
             </label>
         </div>
-        <pre tpl-node="inputs:submit2"> [插入2] </pre>
+        <pre tpl-node="input:submit2"> [插入2] </pre>
     </aside>
 </div>
 
 
 <!-- 空白块 -->
-<div class="_body _space" tpl-name="inputs:space">
+<div class="_body _space" tpl-name="input:space">
     <div class="_main">
         <div role="space"><span>（ 空 白 ）</span></div>
     </div>
     <aside>
-        <pre tpl-node="inputs:submit2"> [插入2] </pre>
+        <pre tpl-node="input:submit2"> [插入2] </pre>
     </aside>
 </div>
 
 
 <!-- 微编辑：内联单元 ------------------------------------------------------->
 
+
 <!-- 子版：内联元素 -->
-<select name="inlines" size="5" class="_list" tpl-name="minied:inlines">
+<select name="inlines" size="5" class="_list" tpl-name="item:inlines">
     <option title="<img>" value="img">图片</option>
     <option title="<audio>" value="audio">音频</option>
     <option title="<video>" value="video">视频</option>
@@ -505,18 +500,74 @@
     <option title="<span:blank>" value="blank">空白段</option>
 </select>
 
-<!-- 右栏：内联通用 -->
-<div class="_body _inlines" tpl-name="minied:common">
+<!-- 主栏：单元属性 -->
+<div class="_body _inline" tpl-name="minied:inlines">
     <div class="_main _list">
-        <hr tpl-source="inlines:img" />
+        <table tpl-source="inlines:img"> [初始：图片] </table>
     </div>
     <aside>
-        <hr tpl-source="minied:copies" />
+        <div class="_submit">
+            <!-- ev.clipboardData.setData('text/html', [html]) -->
+            <button type="submit">复制</button>
+        </div>
     </aside>
 </div>
 
 
-<!-- 内联单元清单 -->
+<!-- 子版：字符种类 -->
+<select name="ctype" size="5" class="_list" tpl-name="item:ctypes">
+    <option value="normal">常用</option>
+    <option value="unit">单位</option>
+    <option value="punctuation">标点</option>
+    <option value="number">序号</option>
+    <option value="math">数学</option>
+    <option value="special">特殊</option>
+    <option value="alphabet">字母</option>
+    <option value="geometric">几何</option>
+    <option value="emotion">表情</option>
+    <option value="radical">偏旁部首</option>
+    <option value="phonetic">音标</option>
+</select>
+
+<!-- 主栏：字符表 -->
+<div class="_body _inline" tpl-name="minied:chars">
+    <div data-id="cbox" class="_main _list">
+        <!-- span/b -->
+    </div>
+    <aside>
+        <b id="g-zoomin" class="_zoomin">©</b>
+        <span class="_info">已复制：<i id="g-copies">1</i></span>
+    </aside>
+</div>
+
+<!-- 数据：字符集
+    - 解析构造为：<b>...</b>序列。
+    - 各字符集清单（<span>）存储在data中备用。 -->
+<div tpl-name="data:chars"
+    on="init|stop evo('origin') text split pop $$ wrap('<b>');
+        save|stop evo(1) ev('detail');
+        ^obted;
+        ^done"
+    to="~|fill|target xattr('-val') pop fire(0, 'save', true);
+        &|data(_)|fire(1, 'done');
+        +/span|trigger('init', true);
+        &|off('init save')">
+    <!-- <span><b>...</span> -->
+    <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
+    <span data-val="unit">$¢£¤¥°‰′″₠₡₢₣₤₥₦₧₨₩₪₫€₭₮₯₰₱℃℉○㎎㎏㎜㎝㎞㎡㏄㏎㏕＄％￠￠￡￡￥￥〇</span>
+    <span data-val="punctuation">【】〖〗《》〈〉（）〔〕｛｝「」『』﹙﹚﹛﹜﹝﹞‹›«»…／｜＼‖｜¦–︱—︳︴‥﹒，、。．；：？！︰′‵‘～ˆˇˉ﹐﹑•﹔﹕﹖﹗﹏﹌﹋´ˋ―＿¯￣﹍﹉﹎﹊︵︶︷︸︹︺︻︼︽︾︿﹀﹁﹂﹃﹄¸¡¿〓〒</span>
+    <span data-val="number">ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ①②③④⑤⑥⑦⑧⑨⑩㈠㈡㈢㈣㈤㈥㈦㈧㈨㈩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇零壹贰叁肆伍陆柒捌玖拾佰仟万亿兆吉太拍艾分厘毫</span>
+    <span data-val="math">#%&*/[]^±×÷•‰‱⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉⅓⅔½¼¾⅛⅜⅝⅞∈∏∑√∝∞∟∠∥∧∨∩∪∫∬∭∮∯∰∴∵∶∷∽≈≌≒≠≡≤≥≦≧≮≯⊕⊙⊥⊰⊱⊿⋘⋙⋚⋛⌒㏑㏒﹙﹚﹛﹜﹟﹠﹡﹢﹣﹤﹥﹦％＋－／＜＝＞～</span>
+    <span data-val="special">№℡©™®＠@※★☆✦✧⏱⏲☏☚☛☜☝☞☟☢☣☪☭☮☯❀❁❂☸☻☠☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♡♢♤♧⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚘⚙⚛⚜⚝⚢⚣⚤⚥⚦⚧⚨⚩⚭⚮⚯⛆⛇❄⛈⛟⛴⛵✈⛽✂✄✓✔✗✘§♭♮♯¶♩♪♫♬℅㊣</span>
+    <span data-val="alphabet">ァアィイゥウヴェエォオカガヵキギクグケゲヶコゴサザシジスズセゼソゾタダチヂツヅッテデトドヰンナパニピヌプネペノポハバヒビフブヘベホボヱマラミリムルメレモロャヤュユョヨヮワぁあぃいぅうぇえぉおかがきぎくぐけげこごんさざしじすずせぜそぞただちぢつづってでとどゐなぱにぴぬぷねぺのぽはばひびふぶへべほぼゑまらみりむるめれもろゃやゅゆょよゎわαΑβΒγΓδΔεΕζΖηΗθΘιΙκΚλΛμΜνΝξΞοΟπΠρΡσΣτΤυΥφΦχΧψΨωаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮя</span>
+    <span data-val="geometric">←↑→↓↔↕↖↗↘↙⇠⇡⇢⇣⇤⇥⇦⇧⇨⇩⇱⇲⇳⇵⇿■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▶▷▼▽◀◁◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳</span>
+    <span data-val="emotion">😀😁😂🤣😃😄😅😆😉😊😋😎😍😘😗😙😚☺🙂🤗🤩🤔🤨😐😑😶🙄😏😣😥😮🤐😯😪😫😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱😳🤪😵😠😡🤬😷🤒🤕🤢🤮🤧😇🤠🤡🤥🤫🤭🧐🤓😈👿👹👺💀☠👁👀💪🤞🖖👌👍👎🙏🎈🎄💎💐🌸🌷🥀🌻🌱☘🚗🚌🚐🚑🚅🚩❄⚡❤💔💖💘💬💝☢🔞📵</span>
+    <span data-val="radical">丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢尣屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿肀臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
+    <span data-val="phonetic">āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
+</div>
+
+
+<!-- 内联元素：属性清单 -->
 
 <table tpl-name="inlines:img">
     <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
@@ -642,56 +693,3 @@
     <tr tpl-node="prop:textrow"></tr>
     <tr tpl-node="prop:dir"></tr>
 </table>
-
-
-<!-- 子版：字符种类 -->
-<select name="ctype" size="5" class="_list" tpl-name="minied:chars">
-    <option value="normal">常用</option>
-    <option value="punctuation">标点</option>
-    <option value="unit">单位</option>
-    <option value="number">序号</option>
-    <option value="math">数学</option>
-    <option value="special">特殊</option>
-    <option value="alphabet">字母</option>
-    <option value="geometric">几何</option>
-    <option value="emotion">表情</option>
-    <option value="radical">偏旁部首</option>
-    <option value="phonetic">音标</option>
-</select>
-
-<!-- 右栏：字符表 -->
-<div class="_body _chars" tpl-name="chars:list">
-    <div data-id="cbox" class="_main _list">
-        <!-- <span/b> -->
-    </div>
-    <aside>
-        <b id="g-zoomin" class="_zoomin">©</b>
-        <span class="_info">已复制：<i id="g-copies">1</i></span>
-    </aside>
-</div>
-
-<!-- 数据：特殊字符集
-    初始解析构造为：<b>...</b>序列
-    各字符集清单<span>存储在data中备用。 -->
-<div tpl-name="data:chars"
-    on="init|evo('origin') text split $$ wrap('<b>');
-        save|evo(1) ev('detail') pack(2);
-        ^obted;
-        ^done"
-    to="~|fill|target xattr('-val') pop fire(0, 'save', true);
-        &|data|fire(1, 'done');
-        +/span|trigger('init', true);
-        &|off('init save')">
-    <!-- <span><b>...</span> -->
-    <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
-    <span data-val="unit">$¢£¤¥°‰′″₠₡₢₣₤₥₦₧₨₩₪₫€₭₮₯₰₱℃℉○㎎㎏㎜㎝㎞㎡㏄㏎㏕＄％￠￠￡￡￥￥〇</span>
-    <span data-val="punctuation">【】〖〗《》〈〉（）〔〕｛｝「」『』﹙﹚﹛﹜﹝﹞‹›«»…／｜＼‖｜¦–︱—︳︴‥﹒，、。．；：？！︰′‵‘～ˆˇˉ﹐﹑•﹔﹕﹖﹗﹏﹌﹋´ˋ―＿¯￣﹍﹉﹎﹊︵︶︷︸︹︺︻︼︽︾︿﹀﹁﹂﹃﹄¸¡¿〓〒</span>
-    <span data-val="number">ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ①②③④⑤⑥⑦⑧⑨⑩㈠㈡㈢㈣㈤㈥㈦㈧㈨㈩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇零壹贰叁肆伍陆柒捌玖拾佰仟万亿兆吉太拍艾分厘毫</span>
-    <span data-val="math">#%&*/[]^±×÷•‰‱⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉⅓⅔½¼¾⅛⅜⅝⅞∈∏∑√∝∞∟∠∥∧∨∩∪∫∬∭∮∯∰∴∵∶∷∽≈≌≒≠≡≤≥≦≧≮≯⊕⊙⊥⊰⊱⊿⋘⋙⋚⋛⌒㏑㏒﹙﹚﹛﹜﹟﹠﹡﹢﹣﹤﹥﹦％＋－／＜＝＞～</span>
-    <span data-val="special">№℡©™®＠@※★☆✦✧⏱⏲☏☚☛☜☝☞☟☢☣☪☭☮☯❀❁❂☸☻☠☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♡♢♤♧⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚘⚙⚛⚜⚝⚢⚣⚤⚥⚦⚧⚨⚩⚭⚮⚯⛆⛇❄⛈⛟⛴⛵✈⛽✂✄✓✔✗✘§♭♮♯¶♩♪♫♬℅㊣</span>
-    <span data-val="alphabet">ァアィイゥウヴェエォオカガヵキギクグケゲヶコゴサザシジスズセゼソゾタダチヂツヅッテデトドヰンナパニピヌプネペノポハバヒビフブヘベホボヱマラミリムルメレモロャヤュユョヨヮワぁあぃいぅうぇえぉおかがきぎくぐけげこごんさざしじすずせぜそぞただちぢつづってでとどゐなぱにぴぬぷねぺのぽはばひびふぶへべほぼゑまらみりむるめれもろゃやゅゆょよゎわαΑβΒγΓδΔεΕζΖηΗθΘιΙκΚλΛμΜνΝξΞοΟπΠρΡσΣτΤυΥφΦχΧψΨωаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮя</span>
-    <span data-val="geometric">←↑→↓↔↕↖↗↘↙⇠⇡⇢⇣⇤⇥⇦⇧⇨⇩⇱⇲⇳⇵⇿■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▶▷▼▽◀◁◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳</span>
-    <span data-val="emotion">😀😁😂🤣😃😄😅😆😉😊😋😎😍😘😗😙😚☺🙂🤗🤩🤔🤨😐😑😶🙄😏😣😥😮🤐😯😪😫😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱😳🤪😵😠😡🤬😷🤒🤕🤢🤮🤧😇🤠🤡🤥🤫🤭🧐🤓😈👿👹👺💀☠👁👀💪🤞🖖👌👍👎🙏🎈🎄💎💐🌸🌷🥀🌻🌱☘🚗🚌🚐🚑🚅🚩❄⚡❤💔💖💘💬💝☢🔞📵</span>
-    <span data-val="radical">丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢尣屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿肀臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
-    <span data-val="phonetic">āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
-</div>

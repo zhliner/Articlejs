@@ -1,5 +1,11 @@
+<!-- 确定：样式|特性|源码 -->
+<div class="_submit" tpl-name="common:submit">
+    <button type="submit">确定</button>
+</div>
+
+
 <!-- 字形 -->
-<div class="_body _fontview" tpl-name="styles:fontview">
+<div class="_body _fontview" tpl-name="style:fontview">
     <div class="_list">
         <label>
             <input type="checkbox" name="bold" />
@@ -27,8 +33,8 @@
 
 
 <!-- 字号 -->
-<div class="_body _fontsize" tpl-name="styles:fontsize">
-    <select name="sizename" class="_list">
+<div class="_body _fontsize" tpl-name="style:fontsize">
+    <select name="sizename" size="5" class="_list">
         <option value="xx-small">xx-small</option>
         <option value="x-small">x-small</option>
         <option value="small">small</option>
@@ -39,16 +45,19 @@
         <option value="x-large">x-large</option>
         <option value="xx-large">xx-large</option>
     </select>
-    <aside class="_assign">
-        <div class="_erase"><b>清除</b></div>
-        <div>
-            <label>字号</label><input type="text" name="fontsize" />
-            <select name="unit">
-                <option value="">---</option>
-                <option value="pt">pt</option>
-                <option value="px">px</option>
-                <option value="em">em</option>
-            </select>
+    <aside>
+        <div class="_assign">
+            <div class="_erase"><b>清除</b></div>
+            <hr>
+            <div><label title="可含单位">字号</label>
+                <input type="text" name="fontsize" placeholder="12pt" class="_chars" />
+                <select name="unit">
+                    <option value="">---</option>
+                    <option value="pt">pt</option>
+                    <option value="px">px</option>
+                    <option value="em">em</option>
+                </select>
+            </div>
         </div>
         <hr tpl-node="common:submit" />
     </aside>
@@ -56,7 +65,7 @@
 
 
 <!-- 对齐 -->
-<div class="_body _align" tpl-name="styles:align">
+<div class="_body _align" tpl-name="style:align">
     <div class="_h">
         <label>text-align</label>
         <select name="align" class="_list">
@@ -88,7 +97,7 @@
 
 
 <!-- 宽/高度 -->
-<div class="_body _width" tpl-name="styles:width">
+<div class="_body _width" tpl-name="style:width">
     <select name="width" class="_list">
         <option value="width" title="宽度">width</option>
         <option value="max-width" title="最大宽度">max-width</option>
@@ -115,7 +124,7 @@
 
 
 <!-- 边距 -->
-<div class="_body _margin" tpl-name="styles:margin">
+<div class="_body _margin" tpl-name="style:margin">
     <div class="_main">
         <div class="_where"
             on="click('input')|evo('current'), val, tpl"
@@ -171,7 +180,7 @@
 
 
 <!-- 颜色 -->
-<div class="_body _color" tpl-name="styles:color">
+<div class="_body _color" tpl-name="style:color">
     <div class="_cbox">
         <span class="_g16">
             <b style="background-color:#000" title="#000"></b>

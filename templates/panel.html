@@ -1,5 +1,27 @@
-<!-- 微编辑 -->
-<form class="Inputs Miined" onsubmit="return false" tpl-name="slave:minied">
+<!-- 内容：录入 -->
+<form class="Input" onsubmit="return false" tpl-name="slave:inputs">
+    <div class="_roll">
+        <div class="_where">
+            <label title="平级插入">
+                <input type="radio" name="where" checked /><i id="l-siblings"></i>
+            </label>
+            <label title="向内插入">
+                <input type="radio" name="where"><i id="l-children"></i>
+            </label>
+        </div>
+        <!-- 条目容器：动态更新 -->
+        <select id="inputs-items" name="items" size="5" class="_list">
+            <!-- 与目标关联的合法单元... -->
+        </select>
+    </div>
+    <div class="_body _empty" tpl-name="inputs:empty">
+        <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
+    </div>
+</form>
+
+
+<!-- 内容：微编辑 -->
+<form class="Input Minied" onsubmit="return false" tpl-name="slave:minied">
     <div class="_roll">
         <div class="_where">
             <label title="内联元素">
@@ -9,25 +31,25 @@
                 <input type="radio" name="where" /><i id="l-schar"></i>
             </label>
         </div>
-        <hr tpl-source="minied:inlines" />
+        <div tpl-source="item:inlines"> [内联元素条目] </div>
     </div>
-    <hr tpl-source="minied:common" />
+    <div tpl-source="minied:inlines"> [主栏：单元属性] </div>
 </form>
 
-<!-- ？ -->
+
 <!-- 样式 -->
-<form class="Styles" onsubmit="return false" tpl-name="slave:styles">
+<form class="Style" onsubmit="return false" tpl-name="slave:style">
     <div class="_icons">
         <b><i id="b-erase"></i></b>
         <b><i id="b-brush"></i></b>
-        <b><i id="b-fontview" class="_press"></i></b>
+        <b class="_press"><i id="b-fontview"></i></b>
         <b><i id="b-fontsize"></i></b>
         <b><i id="b-align"></i></b>
         <b><i id="b-width"></i></b>
         <b><i id="b-margin"></i></b>
         <b><i id="b-colors"></i></b>
     </div>
-    <div tpl-source="styles:fontview"></div>
+    <div tpl-source="styles:fontview"> [字形] </div>
 </form>
 
 

@@ -503,7 +503,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* 转场
+/* 分割
+ * (Horizontal Rule)
  * --------------------------------------------------------------------------
  */
 .content hr {

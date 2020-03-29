@@ -82,7 +82,23 @@
                 language: `chinese`,
             };
     </script>
+    <script>
+        dataStore = () => 'test';
 
+        // 程序方式
+        // 字符表初始化填充/存储。
+        function charsInit( box ) {
+            let $lst = $('span', box)
+                .text()
+                .map( s => $.split(s) )
+                .map( ss => $(ss).wrap('<b>') );
+
+            $('span', box)
+            .fill( $lst )
+            .end()
+            .forEach( sp => dataStore(box, $.attr('-val'), sp) );
+        }
+    </script>
 </head>
 <body lang="zh-cn"
     on="@mousemove:1|movementX;
@@ -126,8 +142,8 @@
             初始解析构造为：<b>...</b>序列
             各字符集清单<span>存储在data中备用。 -->
         <div tpl-name="data:chars"
-            on="init|evo('origin') text split pop $$ wrap('<b>') stop;
-                save|evo(1) ev('detail') stop;
+            on="init|stop evo('origin') text split pop $$ wrap('<b>');
+                save|stop evo(1) ev('detail');
                 ^obted;
                 ^done"
             to="~|fill|target xattr('-val') pop fire(0, 'save', true);
