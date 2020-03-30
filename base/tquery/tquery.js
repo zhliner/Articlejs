@@ -1712,11 +1712,10 @@ Object.assign( tQuery, {
         if ( isFunc(names) ) {
             names = names(el);
         }
-        if (typeof names == 'string') {
-            names.trim().
-                split(__reSpace).
-                forEach( n => removeAttr(el, attrName(n)) );
-        }
+        names.trim()
+            .split(__reSpace)
+            .forEach( n => removeAttr(el, attrName(n)) );
+
         return this;
     },
 
