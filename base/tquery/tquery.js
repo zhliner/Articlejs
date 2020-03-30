@@ -223,7 +223,7 @@
         // 获取data-系属性名。
         // 返回的名称已经转换为驼峰表示。
         // 如：data-abc-def | -abc-def => abcDef
-        // @return {String}
+        // @return {String|''}
         dataName = n => __dataName.test(n) && camelCase( n.match(__dataName)[1] ) || '';
 
 
@@ -1597,6 +1597,8 @@ Object.assign( tQuery, {
      * @return {Value|this}
      */
     attr( el, name, value ) {
+        name = attrName( name );
+
         return value === undefined ?
             customGet( el, name, elemAttr ) :
             hookSet( el, name, value, elemAttr ) || this;
@@ -1647,15 +1649,16 @@ Object.assign( tQuery, {
      */
     xattr( el, name ) {
         let _its;
-        name = name.split(__reSpace);
+        name = name.split(__reSpace)
+            .map( n => attrName(n) );
 
         if ( name.length > 1 ) {
             _its = name.reduce( (o, n) => (o[n] = elemAttr.get(el, n), o), {} );
-            name.forEach( n => removeAttr(el, attrName(n)) );
+            removeAttrs( el, name );
         }
         else {
             _its = elemAttr.get( el, name[0] );
-            removeAttr( el, attrName(name[0]) );
+            removeAttr( el, name[0] );
         }
         return _its;
     },
@@ -1705,17 +1708,18 @@ Object.assign( tQuery, {
      * - 支持空格分隔的名称序列，以及data-系名称的简写。
      * - 支持返回名称序列的取值函数，接口：function(el): String
      * @param  {Element} el 目标元素
-     * @param  {String|Function} names 名称序列
+     * @param  {String|Function} name 名称/序列
      * @return {this}
      */
-    removeAttr( el, names ) {
-        if ( isFunc(names) ) {
-            names = names(el);
+    removeAttr( el, name ) {
+        if ( isFunc(name) ) {
+            name = name(el);
         }
-        names.trim()
-            .split(__reSpace)
-            .forEach( n => removeAttr(el, attrName(n)) );
-
+        if ( name.test(__reSpace) ) {
+            removeAttrs( el, name.split(__reSpace).map(n => attrName(n)) );
+        } else {
+            removeAttr( el, attrName(name) );
+        }
         return this;
     },
 
@@ -1734,6 +1738,7 @@ Object.assign( tQuery, {
      * @return {this}
      */
     toggleAttr( el, name, val ) {
+        name = attrName( name );
         let _old = elemAttr.get( el, name );
 
         if ( isFunc(val) ) {
@@ -4468,7 +4473,7 @@ function setElem( el, conf ) {
         case 'node':
             tQuery.fill(el, v); break;
         default:
-            elemAttr.set(el, k, v);
+            elemAttr.set(el, attrName(k), v);
         }
     }
     return el;
@@ -4860,13 +4865,13 @@ function hookSets( el, name, value, scope ) {
     if (typeof name == 'string') {
         hookArrSet(
             el,
-            name.trim().split(__reSpace),
+            name.trim().split(__reSpace).map(n => attrName(n)),
             value,
             scope
         );
         return;
     }
-    for (let [k, v] of entries(name)) hookSet(el, k, v, scope);
+    for (let [k, v] of entries(name)) hookSet(el, attrName(k), v, scope);
 }
 
 
@@ -4934,7 +4939,8 @@ function customSet( el, name, value, scope ) {
  * @return {String|Object} 值或名/值对象
  */
 function hookGets( el, name, scope ) {
-    name = name.split(__reSpace);
+    name = name.split(__reSpace)
+        .map( n => attrName(n) );
 
     if (name.length == 1) {
         return customGet(el, name[0], scope);
@@ -5450,23 +5456,40 @@ function failTrigger( el, evn, data ) {
 
 
 /**
- * 移除特性。
- * 注：仅在目标特性存在时才会执行移除。
+ * 移除特性（单个）。
+ * 仅在目标特性存在时才会执行。
  * @param  {Element} el 目标元素
- * @param  {String} name 特性名
+ * @param  {String} name 特性名（全）
  * @return {void}
  */
 function removeAttr( el, name ) {
     if ( !el.hasAttribute(name) ) {
         return;
     }
-    let _old = el.getAttribute(name);
+    let _val = el.getAttribute( name );
 
     limitTrigger( el, evnAttrSet, [name, null] );
-
     el.removeAttribute( name );
+    limitTrigger( el, evnAttrDone, [name, _val] );
+}
 
-    limitTrigger( el, evnAttrDone, [name, _old] );
+
+/**
+ * 移除特性集。
+ * 事件递送消息中名称和值各为一个数组，按下标一一对应。
+ * @param  {Element} el 目标元素
+ * @param  {[String]} names 特性名序列
+ * @return {void}
+ */
+function removeAttrs( el, names ) {
+    let _vs = names.map(
+            n => el.getAttribute( n )
+        );
+    limitTrigger( el, evnAttrSet, [names, null] );
+    names.forEach(
+        n => el.removeAttribute( n )
+    );
+    limitTrigger( el, evnAttrDone, [names, _vs] );
 }
 
 
@@ -5999,7 +6022,7 @@ const elemAttr = {
      */
     get( el, name ) {
         return boolAttr.test(name) ?
-            boolHook.get( el, name ) : el.getAttribute( attrName(name) );
+            boolHook.get( el, name ) : el.getAttribute( name );
     },
 
 
@@ -6013,10 +6036,8 @@ const elemAttr = {
      * @param {VAlue} value 设置值
      */
     set( el, name, value ) {
-        if ( value === null ) {
-            return removeAttr( el, attrName(name) );
-        }
-        return boolAttr.test(name) ? boolHook.set(el, name, value) : setAttr(el, attrName(name), value);
+        return boolAttr.test(name) ?
+            boolHook.set(el, name, value) : setAttr(el, name, value);
     },
 
 };
