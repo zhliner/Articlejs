@@ -168,7 +168,7 @@ const Parser = {
      */
     $each( map, val, el ) {
         // 父元素For检查。
-        this._eachFor( el.parentElement );
+        eachFor( el.parentElement );
 
         return map.set(
             'Each',
@@ -323,21 +323,6 @@ const Parser = {
             }
         }
         return _ats.length > 0 ? map.set('Assign', [_ats, _fns]) : map;
-    },
-
-
-    //-- 私有辅助 -----------------------------------------------------------------
-
-
-    /**
-     * Each父元素的For文法检查/标记。
-     * @param {Element} box 父元素
-     */
-    _eachFor( box ) {
-        let _grm = Grammars.get(box),
-            _for = _grm && _grm.get('For');
-
-        if ( _for ) _for[2] = true;
     },
 
 };
@@ -802,6 +787,18 @@ function cloneList( els ) {
         (e, i) => cloneGrammar( els[i], e )
     );
     return _new;
+}
+
+
+/**
+ * Each父元素的For文法检查/标记。
+ * @param {Element} box 父元素
+ */
+function eachFor( box ) {
+    let _grm = Grammars.get(box),
+        _for = _grm && _grm.get('For');
+
+    if (_for) _for[2] = true;
 }
 
 
