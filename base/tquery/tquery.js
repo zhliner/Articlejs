@@ -1638,6 +1638,30 @@ Object.assign( tQuery, {
 
 
     /**
+     * 剪取特性。
+     * 取出特性值的同时移除该特性。
+     * 注：不包含text和html特殊名。
+     * @param  {Element} el 目标元素
+     * @param  {String} name 特性名/序列
+     * @return {Value|Object} 特性值或值集
+     */
+    xattr( el, name ) {
+        let _its;
+        name = name.split(__reSpace);
+
+        if ( name.length > 1 ) {
+            _its = name.reduce( (o, n) => (o[n] = elemAttr.get(el, n), o), {} );
+            name.forEach( n => removeAttr(el, attrName(n)) );
+        }
+        else {
+            _its = elemAttr.get( el, name[0] );
+            removeAttr( el, attrName(name[0]) );
+        }
+        return _its;
+    },
+
+
+    /**
      * 属性（Property）获取/设置。
      * name: String
      * - "xx"   普通名称
@@ -1691,7 +1715,7 @@ Object.assign( tQuery, {
         if (typeof names == 'string') {
             names.trim().
                 split(__reSpace).
-                forEach( n => setAttr( el, attrName(n), null ) );
+                forEach( n => removeAttr(el, attrName(n)) );
         }
         return this;
     },
@@ -1878,6 +1902,7 @@ Object.assign( tQuery, {
         cssSet( el, name, val, _cso );
 
         if (el.style.cssText.trim() == '') {
+            // 清理：不激发attr系事件
             el.removeAttribute('style');
         }
         return this;
@@ -1920,6 +1945,7 @@ Object.assign( tQuery, {
         cssSets(el, names, val, getStyles(el));
 
         if (el.style.cssText.trim() == '') {
+            // 清理：不激发attr系事件
             el.removeAttribute('style');
         }
         return this;
@@ -3326,6 +3352,24 @@ class Collector extends Array {
 
 
     /**
+     * 剪取元素特性。
+     * 支持名称数组与集合成员一一对应。
+     * 名称（成员）本身可以是空格分隔的名称序列。
+     * @param  {String|[String]} name 名称/序列
+     * @return {Collector}
+     */
+    xattr( name ) {
+        if ( !isArr(name) ) {
+            return this.map( el => tQuery.xattr(el, name) );
+        }
+        return new Collector(
+            cleanMap( this, (e, i) => name[i] && tQuery.xattr(el, name[i]) ),
+            this
+        );
+    }
+
+
+    /**
      * 去重&排序。
      * comp无实参传递时仅去重（无排序）。
      * comp: {
@@ -3699,7 +3743,7 @@ elsExfn([
         'trigger',
     ],
     fn =>
-    function(...rest) {
+    function( ...rest ) {
         return this.map( el => tQuery[fn](el, ...rest) );
     }
 );
@@ -3723,7 +3767,7 @@ elsExfn([
         // ...
     ].concat(callableNative),
     fn =>
-    function(...rest) {
+    function( ...rest ) {
         for ( let el of this ) tQuery[fn]( el, ...rest );
         return this;
     }
@@ -5018,6 +5062,7 @@ function clearOffset( el ) {
     _cso.position = null;
 
     if (_cso.cssText.trim() == '') {
+        // 清理：不激发attr系事件
         el.removeAttribute('style');
     }
 }
@@ -5406,6 +5451,27 @@ function failTrigger( el, evn, data ) {
 
 
 /**
+ * 移除特性。
+ * 注：仅在目标特性存在时才会执行移除。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 特性名
+ * @return {void}
+ */
+function removeAttr( el, name ) {
+    if ( !el.hasAttribute(name) ) {
+        return;
+    }
+    let _old = el.getAttribute(name);
+
+    limitTrigger( el, evnAttrSet, [name, null] );
+
+    el.removeAttribute( name );
+
+    limitTrigger( el, evnAttrDone, [name, _old] );
+}
+
+
+/**
  * 特性设置封装。
  * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
  * @param  {Element} el 目标元素
@@ -5418,11 +5484,7 @@ function setAttr( el, name, val ) {
 
     limitTrigger( el, evnAttrSet, [name, val] );
     try {
-        if (val === null) {
-            el.removeAttribute(name);
-        } else {
-            el.setAttribute(name, val);
-        }
+        el.setAttribute( name, val );
     }
     catch(e) {
         return failTrigger( el, evnAttrFail, [e, name, _old] );
@@ -5460,7 +5522,9 @@ function setProp( el, name, dname, val ) {
 /**
  * 控件集选中清除。
  * 适用 input:checkbox|radio 类控件。
- * 注：无 propfail 事件。
+ * 注：
+ * 非活动（disabled）控件的状态也会被清除。
+ * 无 propfail 事件。
  * @param  {[Element]} els 控件组
  * @return {void}
  */
@@ -5503,6 +5567,7 @@ function selectOne( el, val ) {
     let _old = valHooks.select.get(el);
 
     limitTrigger( el, evnPropSet, ['select', val] );
+
     el.selectedIndex = -1;
 
     for ( const op of el.options ) {
@@ -5530,8 +5595,10 @@ function selects( el, val ) {
     limitTrigger( el, evnPropSet, ['select', val] );
 
     el.selectedIndex = -1;
-    if ( !isArr(val) ) val = [val];
 
+    if ( !isArr(val) ) {
+        val = [val];
+    }
     for ( const op of el.options ) {
         if ( !$is(op, ':disabled') ) {
             op.selected = val.includes( op.value );
@@ -5593,15 +5660,14 @@ function addClass( el, names ) {
  * @return {void}
  */
 function removeClass( el, names ) {
+    if ( names === null ) {
+        return removeAttr( el, 'class' );
+    }
     let _old = Arr(el.classList);
 
     limitTrigger( el, evnClassSet, names );
     try {
-        if ( names == null ) {
-            el.removeAttribute('class');
-        } else {
-            names.forEach( n => el.classList.remove(n) );
-        }
+        names.forEach( n => el.classList.remove(n) );
     }
     catch(e) {
         return failTrigger( el, evnClassFail, [e, names, _old] );
@@ -5639,13 +5705,12 @@ function toggleClass( el, names ) {
  * @param {String|null} old 当前值
  */
 function toggleClassAttr( el, val, old ) {
+    if ( val === null ) {
+        return removeAttr( el, 'class' );
+    }
     limitTrigger( el, evnClassSet, val );
     try {
-        if ( val === null ) {
-            el.removeAttribute('class');
-        } else {
-            el.setAttribute( 'class', val );
-        }
+        el.setAttribute( 'class', val );
     }
     catch(e) {
         return failTrigger( el, evnClassFail, [e, val, old] );
@@ -5941,7 +6006,6 @@ const elemAttr = {
 
     /**
      * 设置特性。
-     * - name不存在空格分隔序列的形式。
      * - 部分属性为Boolean性质，特别处理（boolHook）。
      * - 特性名可能为data系简写形式。
      * - 如果value为null，则删除该特性。
@@ -5950,8 +6014,10 @@ const elemAttr = {
      * @param {VAlue} value 设置值
      */
     set( el, name, value ) {
-        return boolAttr.test(name) ?
-            boolHook.set(el, name, value) : setAttr( el, attrName(name), value );
+        if ( value === null ) {
+            return removeAttr( el, attrName(name) );
+        }
+        return boolAttr.test(name) ? boolHook.set(el, name, value) : setAttr(el, attrName(name), value);
     },
 
 };
@@ -6025,7 +6091,7 @@ const
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
     boolHook = {
         set: function( el, name, val ) {
-            setAttr( el,  name, val === false ? null : val );
+            val === false ? removeAttr(el, name) : setAttr(el, name, val);
         },
         get: function( el, name ) {
             return el.hasAttribute(name) ? name : null;

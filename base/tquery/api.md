@@ -842,6 +842,20 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 这是 `.attribute()` 的轻量版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
 
 
+### $.xattr( el, name ): Value | Object
+
+剪取元素的特性。获取特性值的同时会移除该特性。
+
+- `el: Element` 目标元素
+- `name: String` 特性名，支持空格分隔多个名称。支持 `data-x` 系名称简写。**注**：不支持 `text` 和 `html` 名称。
+
+如果名称为多个，返回一个名值对对象，否则返回一个简单值。
+
+> **集合版：**<br>
+> 声明：`$( name: String|[String]): Collector`。<br>
+> 名称支持数组形式，与集合元素一一对应。名称本身（可能为数组成员）支持空格分隔的名称序列。<br>
+
+
 ### [$.property( el, names, value ): Value | Object | this](docs/$.property.md)
 
 获取或修改 `el` 元素的属性（Property）值。
