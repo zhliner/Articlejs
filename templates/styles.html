@@ -68,8 +68,8 @@
 <div class="_body _align" tpl-name="style:align">
     <div class="_h">
         <label>text-align</label>
-        <select name="align" class="_list">
-            <option value="" title="默认" selected>------</option>
+        <select name="align" size="5" class="_list">
+            <option value="" title="无（默认）">------</option>
             <option value="center" title="居中对齐">center</option>
             <option value="right" title="右对齐">right</option>
             <option value="justify" title="两端对齐">justify</option>
@@ -81,16 +81,16 @@
     </div>
     <div class="_v">
         <label>vertical-align</label>
-        <select name="valign" class="_list">
-            <option value="" selected>------</option>
-            <option value="baseline">baseline</option>
-            <option value="sub">sub</option>
-            <option value="super">super</option>
-            <option value="top">top</option>
-            <option value="text-top">text-top</option>
-            <option value="middle">middle</option>
-            <option value="bottom">bottom</option>
-            <option value="text-bottom">text-bottom</option>
+        <select name="valign" size="5" class="_list">
+            <option value="" title="无（默认）">------</option>
+            <option value="baseline" title="基线对齐">baseline</option>
+            <option value="sub" title="下标基线对齐">sub</option>
+            <option value="super" title="上标基线对齐">super</option>
+            <option value="top" title="行顶部对齐">top</option>
+            <option value="text-top" title="文本顶部对齐">text-top</option>
+            <option value="middle" title="中部与基线半高对齐">middle</option>
+            <option value="bottom" title="行底部对齐">bottom</option>
+            <option value="text-bottom" title="文本底部对齐">text-bottom</option>
         </select>
     </div>
 </div>
@@ -98,7 +98,7 @@
 
 <!-- 宽/高度 -->
 <div class="_body _width" tpl-name="style:width">
-    <select name="width" class="_list">
+    <select name="width" size="5" class="_list">
         <option value="width" title="宽度">width</option>
         <option value="max-width" title="最大宽度">max-width</option>
         <option value="min-width" title="最小宽度">min-width</option>
@@ -106,17 +106,20 @@
         <option value="max-height" title="最大高度"">max-height</option>
         <option value="min-height" title="最小高度">min-height</option>
     </select>
-    <aside class="_assign">
-        <div class="_erase"><b>全部清除</b></div>
-        <div>
-            <label>赋值</label><input type="text" name="width" />
-            <select name="unit">
-                <option value="">---</option>
-                <option value="pt">%</option>
-                <option value="px">px</option>
-                <option value="pt">pt</option>
-                <option value="em">em</option>
-            </select>
+    <aside>
+        <div class="_assign">
+            <div class="_erase"><b>全部清除</b></div>
+            <hr>
+            <div><label title="可含单位">赋值</label>
+                <input type="text" name="width" placeholder="100%" class="_chars" />
+                <select name="unit">
+                    <option value="">---</option>
+                    <option value="pt">%</option>
+                    <option value="px">px</option>
+                    <option value="pt">pt</option>
+                    <option value="em">em</option>
+                </select>
+            </div>
         </div>
         <hr tpl-node="common:submit" />
     </aside>
@@ -125,15 +128,18 @@
 
 <!-- 边距 -->
 <div class="_body _margin" tpl-name="style:margin">
-    <div class="_main">
+    <div>
         <div class="_where"
-            on="click('input')|evo('current'), val, tpl"
+            on="click(input)|evo(2) val pop tpl"
             to="1/select|replace">
-            <label><input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i></label>
-            <label><input type="radio" name="margin" value="item:padding" /><i id="l-padding"></i></label>
+            <label title="外边距">
+                <input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i>
+            </label>
+            <label title="内填充">
+                <input type="radio" name="margin" value="item:padding" /><i id="l-padding"></i>
+            </label>
         </div>
-        <!-- 外边距 -->
-        <select name="margin" tpl-name="item:margin">
+        <select name="margin" size="5" class="_list" tpl-name="item:margin">
             <option title="边距">margin</option>
             <option title="顶边距">margin-top</option>
             <option title="右边距">margin-right</option>
@@ -147,17 +153,20 @@
             <option title="行尾边距">margin-inline-end</option>
         </select>
     </div>
-    <aside class="_assign">
-        <div class="_erase"><b>全部清除</b></div>
-        <div>
-            <label>赋值</label><input type="text" name="width" />
-            <select name="unit">
-                <option value="">---</option>
-                <option value="px">px</option>
-                <option value="em">em</option>
-                <option value="pt">pt</option>
-                <option value="pt">%</option>
-            </select>
+    <aside>
+        <div class="_assign">
+            <div class="_erase"><b>全部清除</b></div>
+            <hr>
+            <div><label title="可含单位">赋值</label>
+                <input type="text" name="width" placeholder="10px" class="_chars" />
+                <select name="unit">
+                    <option value="">---</option>
+                    <option value="px">px</option>
+                    <option value="em">em</option>
+                    <option value="pt">pt</option>
+                    <option value="pt">%</option>
+                </select>
+            </div>
         </div>
         <hr tpl-node="common:submit" />
     </aside>

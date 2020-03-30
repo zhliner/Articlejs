@@ -135,18 +135,21 @@ if (DEBUG) {
          * 用于模板开发结束后配置模板映射文件（templates/maps.json）。
          * 注：在浏览器控制台执行。
          * @param  {[String]} files 模板文件名集
-         * @param  {String} 友好缩进占位字符
+         * @param  {Boolean} sort 是否排序
          * @return {void}
          */
-        findTpls: function( files, space = '\t' ) {
+        findTpls: function( files, sort ) {
             let _buf = {};
 
-            Promise.all( files.map(
-                f => TLoader.fetch(f)
-                    .then( frag => $.find('[tpl-name]', frag).map( el => el.getAttribute('tpl-name') ) )
-                    .then( ns => _buf[f] = ns )
+            Promise.all(
+                files.map(
+                    f => TLoader.fetch(f)
+                        .then( frag => $.find('[tpl-name]', frag).map(el => $.attr(el, 'tpl-name')) )
+                        .then( ns => _buf[f] = sort ? ns.sort() : ns )
                 )
-            ).then( () => window.console.info(JSON.stringify(_buf, null, space)) );
+            ).then( () =>
+                window.console.info( JSON.stringify(_buf, null, '\t') )
+            );
         }
     };
 }

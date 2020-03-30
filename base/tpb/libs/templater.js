@@ -121,6 +121,24 @@ class Templater {
 
 
     /**
+     * 添加模板节点。
+     * 若未传递模板名，元素应当包含模板命名属性。
+     * 注：可用于外部手动添加。
+     * @param {Element} el 节点元素
+     * @param {String} name 模板名，可选
+     */
+    add( el, name ) {
+        if ( !name ) {
+            name = $.xattr( el, __tplName );
+        }
+        if ( this._tpls.has(name) ) {
+            window.console.warn(`[${name}] template node was overwritten.`);
+        }
+        this._tpls.set( name, el );
+    }
+
+
+    /**
      * 提取命名的模板节点并存储。
      * 会检查子模版导入配置并持续载入（如果有）。
      * @param  {Element|DocumentFragment} root 根容器
@@ -129,7 +147,7 @@ class Templater {
     picks( root ) {
         $.find( __nameSelector, root, true )
             .forEach(
-                el => this._add( el )
+                el => this.add( el )
             )
         let _ps = this._subs(root),
             _pro = _ps.length > 0 ? Promise.all(_ps) : Promise.resolve();
@@ -206,26 +224,9 @@ class Templater {
      */
     _reference( el ) {
         let _n = el.hasAttribute(__tplNode) ? __tplNode : __tplSource,
-            _v = el.getAttribute(_n);
+            _v = $.xattr( el, _n );
 
-        el.removeAttribute(_n);
         return [ _n == __tplNode ? 'get' : 'tpl', _v.trim() ];
-    }
-
-
-    /**
-     * 添加模板节点。
-     * 注：元素已是选择器匹配的。
-     * @param {Element} el 节点元素
-     */
-     _add( el ) {
-        let _n = el.getAttribute(__tplName);
-        el.removeAttribute(__tplName);
-
-        if ( this._tpls.has(_n) ) {
-            window.console.warn(`[${_n}] template node was overwritten.`);
-        }
-        this._tpls.set( _n, el );
     }
 }
 

@@ -470,7 +470,7 @@ const _Gets = {
         if ( $.isFunction(evo.data.values) ) {
              return [...evo.data.values()];
         }
-        return Object.values(evo.data);
+        return Object.values( evo.data );
     },
 
     __values: 1,
@@ -515,23 +515,6 @@ const _Gets = {
     },
 
     __set: 1,
-
-
-    /**
-     * 特性提取并删除。
-     * 提取特性值之后移除特性，通常用于数据一次性存储和提取。
-     * this: On
-     * @param  {String} names 名称/序列
-     * @return {String|Object|[String]|[Object]}
-     */
-    xattr( evo, names ) {
-        let _val = __reSpace.test(names) ?
-            this.attribute(evo, names) : this.attr(evo, names);
-
-        return $(evo.data).removeAttr(names), _val;
-    },
-
-    __xattr: 1,
 
 
     /**
@@ -792,6 +775,7 @@ const _Gets = {
 [
     'attr',         // ( name:String ): String | null
     'attribute',    // ( name:String ): String | Object | null
+    'xattr',        // ( name:String|[String]): String | Object | [String|null] | [Object] | null
     'prop',         // ( name:String ): Value | undefined
     'property',     // ( name:String ): Value | Object | undefined
     'css',          // ( name:String ): String

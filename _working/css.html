@@ -1221,7 +1221,7 @@
                         </header>
                         <textarea name="figure" data-id="url"
                             on="tips|evo(1) ev('detail') attr(_);
-                                ^obted|push('-iurl')"
+                                ^obted|$('2/select') val"
                             to="-|@placeholder;
                                 &|trigger('tips')"
                             data-iurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
@@ -1954,7 +1954,7 @@
                         <option value="min-width" title="最小宽度">min-width</option>
                         <option value="height" title="高度">height</option>
                         <option value="max-height" title="最大高度"">max-height</option>
-                        <option value=" min-height" title="最小高度">min-height</option>
+                        <option value="min-height" title="最小高度">min-height</option>
                     </select>
                     <aside>
                         <div class="_assign">
@@ -2006,8 +2006,9 @@
                 <!-- 子模版：边距 -->
                 <div class="_body _margin" tpl-name="style:margin">
                     <div>
-                        <!-- on="click('input')|evo('current'), val, tpl" to="1/select|replace" -->
-                        <div class="_where">
+                        <div class="_where"
+                            on="click(input)|evo(2) val pop tpl"
+                            to="1/select|replace">
                             <label title="外边距">
                                 <input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i>
                             </label>

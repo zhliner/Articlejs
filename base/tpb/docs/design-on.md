@@ -153,9 +153,6 @@ pbo(): [String]
 pdv(): String
 // PB属性取值。
 
-xattr( names:String ): String|Object|[String]|[Object]
-// 特性提取并删除。
-
 data( name: String ): void|Value
 // 关联数据取出。
 
@@ -190,12 +187,13 @@ scrollY( v:?null ): Number | void
 
 // 目标：当前条目/栈顶1项。
 // 参数固定：1。
-attr( name ): String | Object | null
-attribute( name ): String | null
-prop( name ): Value | Object | undefined
-property( name ): Value | undefined
+attr( name ): String | null
+attribute( name ): String | Object | null
+prop( name ): Value | undefined
+property( name ): Value | Object | undefined
 css( name ): String
 cssGets( name ): Object
+xattr( names:String|[String] ): String | Object | [String|null] | [Object] | null
 
 // 目标：当前条目/栈顶1项
 // 参数固定：0。
