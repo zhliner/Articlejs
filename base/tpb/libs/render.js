@@ -38,12 +38,14 @@ const
     // 元素文法存储。
     // 包含原始模板中和页面中采用渲染处理的元素。
     // Map {
-    //      [grammar]: [...]    // [文法词]: [参数序列]
+    //      [word]: [...]    // [文法词]: [参数序列]
     // }
-    // 参数序列通常包含：
-    // - handle: Function 表达式执行器
-    // - ...: Value 文法特定的其它参数
-    // 参数序列应该可以直接解构传入文法操作函数（从第二个实参开始）。
+    // 参数序列：
+    // - handle: Function 表达式执行器。
+    // - ...: Value 文法特定的额外参数序列。
+    // 注：
+    // - 参数序列应该可以直接解构传入文法操作函数。
+    // - 存储器采用Map结构，隐含了文法的处理顺序。
     //
     // { Element: Map }
     Grammars = new WeakMap();
@@ -145,8 +147,8 @@ const Parser = {
 
         for ( const [an, fn] of this.Method ) {
             if ( el.hasAttribute(an) ) {
-                // $for 需要第三个实参
-                this[fn]( _map, el.getAttribute(an), el.childElementCount );
+                // $for/$each 需要第三个实参
+                this[fn]( _map, el.getAttribute(an), el );
                 el.removeAttribute(an);
             }
         }
@@ -158,11 +160,16 @@ const Parser = {
     /**
      * Each文法解析。
      * Each: [handle, prev-size]
+     * 需检查标记父元素可能有的For文法配置。
      * @param  {Map} map 存储集
      * @param  {String} val 属性值
+     * @param  {Element} el 当前元素
      * @return {Map} map
      */
-    $each( map, val ) {
+    $each( map, val, el ) {
+        // 父元素For检查。
+        this._eachFor( el.parentElement );
+
         return map.set(
             'Each',
             [ Expr.loop(val), 1 ]
@@ -172,15 +179,18 @@ const Parser = {
 
     /**
      * For文法解析。
-     * For: [handle, size]
+     * For: [handle, size, each]
+     * each为子元素Each文法标记，可避免冗余清理，
+     * 这在子元素的$each解析中更新（子元素后处理）。
      * @param  {Map} map 存储集
      * @param  {String} val 属性值
+     * @param  {Element} el 当前元素
      * @return {Map} map
      */
-    $for( map, val, count ) {
+    $for( map, val, el ) {
         return map.set(
             'For',
-            [ Expr.loop(val), count ]
+            [ Expr.loop(val), el.childElementCount, false ]
         );
     },
 
@@ -315,6 +325,21 @@ const Parser = {
         return _ats.length > 0 ? map.set('Assign', [_ats, _fns]) : map;
     },
 
+
+    //-- 私有辅助 -----------------------------------------------------------------
+
+
+    /**
+     * Each父元素的For文法检查/标记。
+     * @param {Element} box 父元素
+     */
+    _eachFor( box ) {
+        let _grm = Grammars.get(box),
+            _for = _grm && _grm.get('For');
+
+        if ( _for ) _for[2] = true;
+    },
+
 };
 
 
@@ -332,6 +357,7 @@ const Grammar = {
      * 用数据集更新原始集，可从任意成员位置开始（向后更新）。
      * - 如果原始集小于需要的集合大小，会自动扩展。
      * - 如果原始集大于需要的集合大小，会截断至新集合大小。
+     * - 需要检查/处理父元素中的For语法影响（如果有）。
      * 文法：{ Each: [handle, size] }
      * 会存储当前域数据到每一个元素的 [__scopeData] 属性上。
      * @param {Element} el 起始元素
@@ -355,22 +381,23 @@ const Grammar = {
 
     /**
      * 子元素循环。
-     * 文法：{ For: [handle, size] }
+     * 文法：{ For: [handle, size, each] }
      * 当前域数据存储在迭代克隆的每个子元素上。
      * 注：被隐藏的元素不再渲染。
      * @param {Element} el For容器元素
      * @param {Function} handle 表达式取值函数
      * @param {Number} size 单次循环子元素数量
+     * @param {Boolean} each 子元素是否含Each文法
      * @param {Object} data 当前域数据
      */
-    For( el, handle, size, data ) {
+    For( el, handle, size, each, data ) {
         if ( hidden(el) ) {
             return;
         }
         data = handle( data );
 
         // 需移除子元素中多余的Each。
-        this._alignFor( cleanChildren(el), size, data.length )
+        this._alignFor( cleanChildren(el, each), size, data.length )
         .forEach(
             (el, n) => {
                 let _i = parseInt( n / size );
@@ -784,13 +811,15 @@ function cloneList( els ) {
  * 注记：
  * 子元素中的Each可能被单独更新，因此移除更可靠。
  * @param  {Element} box 父元素
+ * @param  {Boolean} each 子元素包含Each文法
  * @return {[Element]}
  */
-function cleanChildren( box ) {
-
-    for (const el of $.children(box, __slrRender)) {
-        if ( el[__eachIndex] > 0 ) {
-            $.remove(el);
+function cleanChildren( box, each ) {
+    if ( each ) {
+        for (const el of $.children(box, __slrRender)) {
+            if ( el[__eachIndex] > 0 ) {
+                $.remove(el);
+            }
         }
     }
     return $.children( box );
