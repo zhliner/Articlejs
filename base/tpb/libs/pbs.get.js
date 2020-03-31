@@ -75,7 +75,7 @@ const _Gets = {
      * 1. $('/p')  // 检索事件当前元素内的首个<p>子元素
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
      * 3. push('/p') pop $    // rid从目标获取，效果同1.
-     * 4. push('/p') $(_)     // rid自动从流程获取，效果同上
+     * 4. push('/p') $(_)     // rid自动从流程获取，效果同1.
      * 5. push('/a') evo(1) pop(2) $(_)  // rid和起点元素先取入暂存区，效果同2.
      * @param  {Object} evo 事件关联对象
      * @param  {String} rid 相对ID，可选
@@ -204,7 +204,7 @@ const _Gets = {
 
     // 类型转换&构造。
     // 目标：暂存区/栈顶1项。
-    // 返回值而非该类型的对象。
+    // 返回值而非该类型的对象，基本转换支持数组操作（转换成员）。
     //-----------------------------------------------------
 
     /**
@@ -213,7 +213,8 @@ const _Gets = {
      * @return {Number}
      */
     Int( evo, radix ) {
-        return parseInt( evo.data, radix );
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => parseInt(v, radix)) : parseInt(x, radix);
     },
 
     __Int: 1,
@@ -224,7 +225,8 @@ const _Gets = {
      * @return {Number}
      */
     Float( evo ) {
-        return parseFloat( evo.data );
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => parseFloat(v)) : parseFloat(x);
     },
 
     __Float: 1,
@@ -238,7 +240,8 @@ const _Gets = {
      * @return {RegExp}
      */
     RE( evo, flag ) {
-        return RegExp( evo.data, flag );
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => RegExp(v, flag)) : RegExp(x, flag);
     },
 
     __RE: 1,
@@ -249,10 +252,15 @@ const _Gets = {
      * 假值：'', 0, false, null, undefined
      * 如果传递all为真，假值包含空对象（[], {}）。
      * @param  {Boolean} all 是否测试空对象/数组
-     * @return {Boolean}
+     * @return {Boolean|[Boolean]}
      */
     Bool( evo, all ) {
-        return !!(all ? hasValue(evo.data) : evo.data);
+        let x = evo.data;
+
+        if ( all ) {
+            return $.isArray(x) ? x.map(v => !!hasValue(v)) : !!hasValue(x);
+        }
+        return $.isArray(x) ? x.map(v => !!v) : !!x;
     },
 
     __Bool: 1,
@@ -263,10 +271,11 @@ const _Gets = {
      * 可以选择性的添加前/后缀。
      * @param  {String} pre 前缀，可选
      * @param  {String} suf 后缀，可选
-     * @return {String}
+     * @return {String|[String]}
      */
     Str( evo, pre = '', suf = '' ) {
-        return `${pre}${evo.data}${suf}`;
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => `${pre}${v}${suf}`) : `${pre}${x}${suf}`;
     },
 
     __Str: 1,
@@ -321,11 +330,7 @@ const _Gets = {
         if ( evo.data !== undefined ) {
             vals = vals.concat(evo.data);
         }
-        let _i = vals.length,
-            _v = vals[ _i-1 ];
-
-        vals.length = size;
-        return _i < size ? vals.fill(_v, _i) : vals;
+        return arrayFill( vals, size );
     },
 
     __array: 0,
@@ -369,6 +374,30 @@ const _Gets = {
     },
 
     __gather: 1,
+
+
+    /**
+     * 创建元素（集）。
+     * 目标：暂存区条目可选。
+     * 可用暂存区的内容作为创建元素的数据或配置对象。
+     * 如果n大于1，表示创建一个元素集。
+     * 注：这是 array(size) pop Element(tag) 的简化版。
+     * @param  {String} tag 元素标签名
+     * @param  {Number} n 元素数量
+     * @return {Element|[Element]}
+     */
+    elem( evo, tag, n = 1 ) {
+        let v = evo.data;
+
+        if ( n == 1 ) {
+            return $.Element( tag, v );
+        }
+        if ( !$.isArray(v) ) v = [v];
+
+        return arrayFill( v, n ).map( d => $.Element(tag, d) );
+    },
+
+    __elem: 0,
 
 
 
@@ -832,7 +861,6 @@ const _Gets = {
 //
 // 参数不定（0-n）。
 // 目标：暂存区/栈顶1项。
-// 注：多余实参无副作用。
 //===============================================
 [
     'outerWidth',   // ( margin? ): Number
@@ -864,21 +892,62 @@ const _Gets = {
 });
 
 
+//
+// 灵活创建。
+// 目标：暂存区1项可选。
+// 目标作为元素内容。
+// 如果需要创建元素集，目标需要明确为Collector。
+//===============================================
+[
+    'Element',  // ( tag?, ns?, doc? ): Element
+    'svg',      // ( tag?, doc? ): Element
+]
+.forEach(function( meth ) {
+
+    _Gets[meth] = function( evo, ...args ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth]( ...args ) : $[meth]( evo.data, ...args );
+    };
+
+    _Gets[`__${meth}`] = -1;
+
+});
+
+
+//
+// 灵活创建。
+// 目标：暂存区/栈顶1项。
+// 目标作为元素内容。
+// 如果需要创建节点集合，目标需要明确为Collector。
+//===============================================
+[
+    'Text',         // ( text?, sep?, doc? ): Text
+    'create',       // ( html?, clean?, doc? ): DocumentFragment
+]
+.forEach(function( meth ) {
+
+    _Gets[meth] = function( evo, ...args ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth]( ...args ) : $[meth]( evo.data, ...args );
+    };
+
+    _Gets[`__${meth}`] = 1;
+
+});
+
+
 
 //
 // tQuery专有
 //////////////////////////////////////////////////////////////////////////////
 
+
 //
-// 灵活创建。
+// 简单工具。
 // 目标：无。
 // 注：多余实参无副作用。
 //===============================================
 [
-    'Element',      // ( tag?, data?, ns?, doc? ): Element
-    'svg',          // ( tag?, opts?, doc? ): Element
-    'Text',         // ( text?, sep?, doc? ): Text
-    'create',       // ( html?, clean?, doc? ): DocumentFragment
     'table',        // ( rows?, cols?, th0?, doc? ): $.Table
     'dataName',     // ( attr? ): String
     'tags',         // ( code? ): String
@@ -912,6 +981,7 @@ const _Gets = {
     'isCollector',  // (): Boolean
     'type',         // (): String
     'kvsMap',       // ( kname?, vname? ): [Object2]
+    'mergeArray',   // ( ...src ): Array
 ]
 .forEach(function( meth ) {
 
@@ -1097,10 +1167,10 @@ function kvsObj( names, val, obj = {} ) {
  * 是否为有值对象（非空）。
  * 注：空数组或空对象。
  * @param  {Object|Array} obj 测试对象
- * @return {Boolean|obj}
+ * @return {null|Number|obj}
  */
 function hasValue( obj ) {
-    return typeof obj == 'object' ? obj && Object.keys(obj).length > 0 : obj;
+    return typeof obj == 'object' ? obj && Object.keys(obj).length : obj;
 }
 
 
@@ -1152,6 +1222,21 @@ function cloneMap( map ) {
         _buf.set( n, cel.clone() );
     }
     return _buf;
+}
+
+
+/**
+ * 填充数组到目标大小。
+ * 注：用最后一个有效值填充。
+ * @param {Array} arr 原数组
+ * @param {Number} size 数组大小
+ */
+function arrayFill( arr, size ) {
+    let i = arr.length,
+        v = arr[ i-1 ];
+
+    arr.length = size;
+    return i < size ? arr.fill(v, i) : arr;
 }
 
 

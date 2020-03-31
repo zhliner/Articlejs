@@ -531,6 +531,29 @@ const _Process = {
     __join: 1,
 
 
+    /**
+     * 集合混合。
+     * 目标：无。
+     * 特权：是，自行取项。
+     * 多个数组按相同下标取值的子数组构成二维数组。
+     * 即：各数组成员平行对应，以首个数组的大小为大小。
+     * @data: [Array]
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} n 取项数量
+     * @return {[ArrayN]} 二维数组
+     */
+    mix( evo, stack, n ) {
+        let _as = stack.data(n);
+
+        if ( n < 2 ) {
+            return _as;
+        }
+        return _as[0].map( (_, i) => _as.map( a => a[i] ) );
+    },
+
+    __mix_x: true,
+
+
 
     // 数学运算。
     // 大部分支持前一个操作数是数组的情况（对成员计算）。
@@ -872,15 +895,17 @@ const _Process = {
 
     // 比较运算。
     // 目标：暂存区/栈顶1项。
-    // 注：模板传递的实参为比较操作的第二个操作数。
-    // @return {Boolean}
+    // 模板传递的实参为比较操作的第二个操作数。
+    // 注：支持数组操作（与成员逐一比较）。
+    // @return {Boolean|[Boolean]}
     //-----------------------------------------------------
 
     /**
      * 相等比较（===）。
      */
     equal( evo, val ) {
-        return evo.data === val;
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => v === val) : x === val;
     },
 
     __equal: 1,
@@ -890,7 +915,8 @@ const _Process = {
      * 不相等比较（!==）。
      */
     nequal( evo, val ) {
-        return evo.data !== val;
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => v !== val) : x !== val;
     },
 
     __nequal: 1,
@@ -900,7 +926,8 @@ const _Process = {
      * 小于比较。
      */
     lt( evo, val ) {
-        return evo.data < val;
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => v < val) : x < val;
     },
 
     __lt: 1,
@@ -910,7 +937,8 @@ const _Process = {
      * 小于等于比较。
      */
     lte( evo, val ) {
-        return evo.data <= val;
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => v <= val) : x <= val;
     },
 
     __lte: 1,
@@ -920,7 +948,8 @@ const _Process = {
      * 大于比较。
      */
     gt( evo, val ) {
-        return evo.data > val;
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => v > val) : x > val;
     },
 
     __gt: 1,
@@ -930,7 +959,8 @@ const _Process = {
      * 大于等于比较。
      */
     gte( evo, val ) {
-        return evo.data >= val;
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => v >= val) : x >= val;
     },
 
     __gte: 1,

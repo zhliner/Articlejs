@@ -93,7 +93,7 @@ const _Update = {
     /**
      * 发送定制事件。
      * 此为多元素分别对应不同的发送值版（内容为一个数组）。
-     * 可将事件名作为首个成员放在内容中（trigger）。
+     * 可将事件名作为首个成员放在内容中（同trigger）。
      * @data: 发送值序列 | [事件名, ...发送值]
      * @param {[Element]|Collector} tos 待激发元素集
      * @param {Value|[String, ...Value]} data 内容数据
@@ -129,11 +129,6 @@ const _Update = {
      * 渲染目标元素/集。
      * 如果目标是多个元素，它们采用相同的源数据渲染。
      * 目标元素可能不是模板根元素，此时为局部渲染。
-     * - 根元素如果是Each语法，该元素必须是Each的起始元素。
-     * - 根元素不应当是For循环内包含Each语法的子元素，这会破坏For的结构。
-     * 注：
-     * 本方法可选，若无需支持，简单移除即可。
-     *
      * @param {Element|Collector} to 目标元素/集
      * @param {Object|Array} data 内容：渲染源数据
      */
@@ -147,7 +142,6 @@ const _Update = {
 
     /**
      * 集合包裹。
-     * 如果流程数据为数组，附加内容会补充到实参序列之后。
      * 注：tos视为一个整体作为待插入的内容。
      * @param {Element|Collector} tos 检索目标
      * @param {Element|String} box 包裹容器
