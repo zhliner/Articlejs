@@ -36,13 +36,13 @@ const
     // 空白分隔符。
     __reSpace = /\s+/,
 
-    // 连续多个空白字符。
-    // clean专用。
-    __reSpaceN = /\s\s+/g,
+    // 至少1个空白。
+    // 注：clean专用。
+    __reSpace1n = /\s+/g,
 
-    // 连续多个空白字符（含回车换行）。
-    // clean专用。
-    __reSpaceNx = /[\s\r\n]+/g;
+    // 至少2个空白。
+    // 注：clean专用。
+    __reSpace2n = /\s\s+/g;
 
 
 
@@ -222,12 +222,18 @@ const _Control = {
      * 复制栈顶n项并入栈（原样展开）。
      * 目标：无。
      * 特权：是，灵活取栈&自行入栈。
+     * 传递n为true表示深度克隆栈顶1项（需为数组）。
+     * 可对栈顶多项深度克隆（非数组项取原值/引用）。
      * @param  {Stack} stack 数据栈
-     * @param  {Number} n 条目数
+     * @param  {Number|true} n 条目数或深层克隆指示，可选
+     * @param  {Boolean} deep 是否深度克隆，可选
      * @return {void}
      */
-    dup( evo, stack, n = 1 ) {
-        if ( n > 0 ) stack.push( ...stack.tops(n) );
+    dup( evo, stack, n = 1, deep = false ) {
+        if ( n === true ) {
+            [n, deep] = [1, n];
+        }
+        if ( n > 0 ) stack.push( ...arrayDeeps(stack.tops(n), deep) );
     },
 
     __dup_x: true,
@@ -505,13 +511,13 @@ const _Process = {
 
 
     /**
-     * 集合串接。
+     * 数组串接。
      * 目标：暂存区/栈顶1项。
-     * @param  {...Value|Array} vals 值或数组
+     * @param  {...Value} vals 值或数组
      * @return {[Value]}
      */
-    concat( evo, stack, ...vals ) {
-        return to.concat( ...vals );
+    concat( evo, ...vals ) {
+        return evo.data.concat( ...vals );
     },
 
     __concat: 1,
@@ -1134,15 +1140,17 @@ const _Process = {
 
     /**
      * 空白清理。
-     * 将字符串内多个空白替换为当个空格，
-     * 如果传递all为true，表示清理包含回车/换行符。
-     * @param {Boolean} all 全部空白（含换行）
+     * 将字符串内多个空白替换为单个空格或删除。
+     * 字符串首尾空白会被清除。
+     * @param {Boolean} all 全部删除
      */
     clean( evo, all ) {
-        let _re = all ? __reSpaceNx : __reSpaceN;
+        let x = evo.data,
+            r = all ? __reSpace1n : __reSpace2n,
+            v = all ? '' : ' ';
 
-        return $.isArray(evo.data) ?
-            evo.data.map( s => s.replace(_re, ' ') ) : evo.data.replace(_re, ' ');
+        return $.isArray(x) ?
+            x.map( s => s.trim().replace(r, v) ) : x.trim().replace(r, v);
     },
 
     __clean: 1,
@@ -1370,6 +1378,31 @@ function arrayEqual( a1, a2 ) {
         return false;
     }
     a1.every( (v, i) => v === a2[i] );
+}
+
+
+/**
+ * 数组深层复制。
+ * @param {Array} arr 源数组
+ * @param {Array} buf 存储区，可选
+ */
+function deepArray( arr, buf = [] ) {
+    for (const v of arr) {
+        buf.push( $.isArray(v) ? deepArray(v) : v );
+    }
+    return buf;
+}
+
+
+/**
+ * 数组集深度克隆。
+ * 注：容错非数组的成员（简单取原值/引用）。
+ * @param {Array} arrs 数组集
+ * @param {Boolean} deep 是否深度克隆
+ */
+function arrayDeeps( arrs, deep ) {
+    return deep ?
+        arrs.map( v => $.isArray(v) ? deepArray(v) : v ) : arrs;
 }
 
 

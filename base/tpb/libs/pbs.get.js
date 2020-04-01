@@ -204,7 +204,7 @@ const _Gets = {
 
     // 类型转换&构造。
     // 目标：暂存区/栈顶1项。
-    // 返回值而非该类型的对象，基本转换支持数组操作（转换成员）。
+    // 返回值而非该类型的对象，基本转换支持数组操作（针对成员）。
     //-----------------------------------------------------
 
     /**
@@ -212,24 +212,24 @@ const _Gets = {
      * @param  {Number} radix 进制基数
      * @return {Number}
      */
-    Int( evo, radix ) {
+    int( evo, radix ) {
         let x = evo.data;
         return $.isArray(x) ? x.map(v => parseInt(v, radix)) : parseInt(x, radix);
     },
 
-    __Int: 1,
+    __int: 1,
 
 
     /**
      * 将目标转为浮点数（parseFloat）。
      * @return {Number}
      */
-    Float( evo ) {
+    float( evo ) {
         let x = evo.data;
         return $.isArray(x) ? x.map(v => parseFloat(v)) : parseFloat(x);
     },
 
-    __Float: 1,
+    __float: 1,
 
 
     /**
@@ -239,12 +239,12 @@ const _Gets = {
      * @param  {String} flag 正则修饰符
      * @return {RegExp}
      */
-    RE( evo, flag ) {
+    re( evo, flag ) {
         let x = evo.data;
         return $.isArray(x) ? x.map(v => RegExp(v, flag)) : RegExp(x, flag);
     },
 
-    __RE: 1,
+    __re: 1,
 
 
     /**
@@ -254,7 +254,7 @@ const _Gets = {
      * @param  {Boolean} all 是否测试空对象/数组
      * @return {Boolean|[Boolean]}
      */
-    Bool( evo, all ) {
+    bool( evo, all ) {
         let x = evo.data;
 
         if ( all ) {
@@ -263,7 +263,7 @@ const _Gets = {
         return $.isArray(x) ? x.map(v => !!v) : !!x;
     },
 
-    __Bool: 1,
+    __bool: 1,
 
 
     /**
@@ -273,12 +273,12 @@ const _Gets = {
      * @param  {String} suf 后缀，可选
      * @return {String|[String]}
      */
-    Str( evo, pre = '', suf = '' ) {
+    str( evo, pre = '', suf = '' ) {
         let x = evo.data;
         return $.isArray(x) ? x.map(v => `${pre}${v}${suf}`) : `${pre}${x}${suf}`;
     },
 
-    __Str: 1,
+    __str: 1,
 
 
     /**
@@ -288,11 +288,11 @@ const _Gets = {
      * @param  {Boolean} wrap 简单封装，可选
      * @return {Array}
      */
-    Arr( evo, wrap ) {
+    arr( evo, wrap ) {
         return wrap ? Array.of( evo.data ) : Array.from( evo.data );
     },
 
-    __Arr: 1,
+    __arr: 1,
 
 
     /**
@@ -301,14 +301,14 @@ const _Gets = {
      * 如果目标不包含entries，返回Object()的简单封装。
      * @return {Object}
      */
-    Obj( evo ) {
+    obj( evo ) {
         if ( !$.isFunction(evo.data.entries) ) {
             return Object( evo.data );
         }
         return Object.fromEntries( evo.data.entries() );
     },
 
-    __Obj: 1,
+    __obj: 1,
 
 
     /**
@@ -379,9 +379,10 @@ const _Gets = {
     /**
      * 创建元素（集）。
      * 目标：暂存区条目可选。
-     * 可用暂存区的内容作为创建元素的数据或配置对象。
+     * 可用暂存区的内容作为创建元素的源码或配置对象。
      * 如果n大于1，表示创建一个元素集。
-     * 注：这是 array(size) pop Element(tag) 的简化版。
+     * 这是 array(size) pop Element(tag) 的简化版。
+     * 注记：Tpb下支持丰富的交互，批量创建元素很常见。
      * @param  {String} tag 元素标签名
      * @param  {Number} n 元素数量
      * @return {Element|[Element]}

@@ -81,27 +81,28 @@ push( ...val:Value|[Value] ): void
 
 // 类型转换&构造。
 // 目标：暂存区/栈顶1项。
+// 返回值而非该类型的对象，基本转换支持数组操作（针对成员）。
 //-----------------------------------------------
 
-Int( radix ): Number
+int( radix ): Number
 // 将字符串转为整数，即 parseInt()
 
-Float(): Number
+float(): Number
 // 将字符串转为浮点数，即 parseFloat()
 
-RE( flag: String ): RegExp
+re( flag: String ): RegExp
 // 将字符串转为正则表达式。
 
-Bool( all:Boolean ): Boolean
+bool( all:Boolean ): Boolean
 // 转换为布尔值（false|true）
 
-Str( prefix?, suffix? ): String
+str( prefix?, suffix? ): String
 // 转换为字符串。
 
-Arr( wrap: Boolean ): Array
+arr( wrap: Boolean ): Array
 // 转换为数组。
 
-Obj(): Object
+obj(): Object
 // 将目标转换为普通对象。
 
 array( size, ...vals ): Array

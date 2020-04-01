@@ -79,6 +79,7 @@ const _obter = new Builder( {
 function obtBuild( root, obts = true ) {
     // 单目标
     if ( typeof obts != 'boolean' ) {
+        window.console.info(root, obts);
         return _obter.build( root, obts );
     }
     $.find( __onSlr, root, true )
@@ -112,7 +113,8 @@ function obtAttr( el, clear ) {
         to: el.getAttribute( OBTA.to ) || '',
     };
     if ( clear ) {
-        $.removeAttr(el, __obts);
+        $.removeAttr( el, __obts );
+        // window.console.info(el, __obts);
     }
     return _obj;
 }
