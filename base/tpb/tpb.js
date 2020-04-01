@@ -114,7 +114,6 @@ function obtAttr( el, clear ) {
     };
     if ( clear ) {
         $.removeAttr( el, __obts );
-        // window.console.info(el, __obts);
     }
     return _obj;
 }
