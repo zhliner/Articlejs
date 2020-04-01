@@ -290,7 +290,8 @@
         __reTAG     = new RegExp( "^(" + identifier + "|[*])$" ),
 
         // 空白匹配
-        __reSpace   = new RegExp( whitespace + "+", "g" ),
+        // 注：仅测试和切分（无需g）。
+        __reSpace   = new RegExp( whitespace + "+" ),
 
         // data系属性名匹配。
         // 包含简写匹配，如：-val => data-val
@@ -534,21 +535,15 @@ Object.assign( tQuery, {
 
     /**
      * 创建DOM元素。
-     *
-     * data 为数据源。
-     * - 数据源为节点时，简单的移动插入新建的元素内。
-     * - 数据源为字符串时，作为HTML源码插入（可能会构造新的元素）。
-     * - 数据源为数组时，数组成员应为字符串或节点，插入行为与上面两种类型相对应。
-     * - 数据源为配置对象时，支持元素属性配置和 html|text|node 三种特殊属性指定。
-     *
-     * data配置: {
-     *      html:   值为源码，节点数据取 outerHTML 插入，可为数组（下同）。
-     *      text:   值为文本，节点数据取 textContent 插入。
-     *      node:   值为节点，移动插入后节点会脱离原位置。
+     * data为数据源：
+     * - String作为HTML源码插入（可能创建新元素）。
+     * - Object作为特性配置对象：{
+     *      html:   值为源码
+     *      text:   值为文本
      *      ....    特性（Attribute）定义
      * }
      * @param  {String} tag 标签名
-     * @param  {Node|[Node]|String|[String]|Object} data 数据（集）或配置对象
+     * @param  {String|Object} data 源码或置对象
      * @param  {String} ns 所属名称空间
      * @param  {Document} doc 所属文档
      * @return {Element} 新元素
@@ -558,7 +553,7 @@ Object.assign( tQuery, {
             doc.createElementNS(ns, tag) :
             doc.createElement(tag);
 
-        return $type(data) == 'Object' ? setElem(_el, data) : fillElem(_el, data);
+        return typeof data == 'string' ? fillElem(_el, data, doc) : setElem(_el, data);
     },
 
 
@@ -575,7 +570,7 @@ Object.assign( tQuery, {
      */
     Text( data, sep = ' ', doc = Doc ) {
         if (typeof data === 'object') {
-            data = nodeText(data, sep);
+            data = data && nodeText(data, sep);
         }
         return doc.createTextNode( data );
     },
@@ -611,7 +606,6 @@ Object.assign( tQuery, {
      * opts: {
      *      html:   取值为源码
      *      text:   取值为文本
-     *      node:   取值为节点/集，移动插入。需注意名称空间的一致性
      *      ....    特性（Attribute）值
      * }
      * @param  {String|Object} tag SVG子元素标签或svg元素配置
@@ -637,8 +631,8 @@ Object.assign( tQuery, {
      * @param  {Document} doc 所属文档对象
      * @return {Table} 表格实例
      */
-    table( rows, cols, th0, doc = Doc ) {
-        return new Table(rows, cols, th0, doc);
+    table( rows, cols, vth, doc = Doc ) {
+        return new Table( rows, cols, vth, doc );
     },
 
 
@@ -1571,7 +1565,7 @@ Object.assign( tQuery, {
      * @return {[String]|''} 类名集（或空串）
      */
     classAll( el ) {
-        if (el.nodeType != 1) {
+        if ( el.nodeType != 1 ) {
             window.console.error('el is not a element.');
             return null;
         }
@@ -1599,9 +1593,15 @@ Object.assign( tQuery, {
     attr( el, name, value ) {
         name = attrName( name );
 
-        return value === undefined ?
-            customGet( el, name, elemAttr ) :
-            hookSet( el, name, value, elemAttr ) || this;
+        if ( value === undefined ) {
+            return customGet( el, name, elemAttr );
+        }
+        if ( value === null ) {
+            removeAttr( el, name );
+        } else {
+            hookSet( el, name, value, elemAttr );
+        }
+        return this;
     },
 
 
@@ -1633,9 +1633,18 @@ Object.assign( tQuery, {
      * @return {Value|Object|this}
      */
     attribute( el, names, value ) {
-        return hookIsGet( names, value ) ?
-            hookGets( el, names.trim(), elemAttr ) :
-            hookSets( el, names, value, elemAttr ) || this;
+        if ( typeof names == 'string' ) {
+            names = names.split(__reSpace).map( n => attrName(n) );
+        }
+        if ( hookIsGet(names, value) ) {
+            return hookGets( el, names, elemAttr );
+        }
+        if ( value === null ) {
+            removeAttrs( el, names );
+        } else {
+            hookSets( el, names, value, elemAttr );
+        }
+        return this;
     },
 
 
@@ -1697,9 +1706,13 @@ Object.assign( tQuery, {
      * @return {Value|Object|this}
      */
     property( el, names, value ) {
-        return hookIsGet( names, value ) ?
-            hookGets( el, names.trim(), elemProp ) :
-            hookSets( el, names, value, elemProp ) || this;
+        if ( typeof names == 'string' ) {
+            names = names.split(__reSpace);
+        }
+        if ( hookIsGet(names, value) ) {
+            return hookGets( el, names, elemProp );
+        }
+        return hookSets( el, names, value, elemProp ), this;
     },
 
 
@@ -1715,8 +1728,11 @@ Object.assign( tQuery, {
         if ( isFunc(name) ) {
             name = name(el);
         }
-        if ( name.test(__reSpace) ) {
-            removeAttrs( el, name.split(__reSpace).map(n => attrName(n)) );
+        if ( __reSpace.test(name) ) {
+            removeAttrs(
+                el,
+                name.split(__reSpace).map( n => attrName(n) )
+            );
         } else {
             removeAttr( el, attrName(name) );
         }
@@ -1867,7 +1883,7 @@ Object.assign( tQuery, {
             code = code( el );
         }
         if (typeof code == 'object') {
-            code = nodeText(code, sep);
+            code = code && nodeText(code, sep);
         }
         return Insert(
             el,
@@ -3804,7 +3820,9 @@ elsExfn([
 //
 // 目标特性/属性取值或设置。
 // 取值时name支持数组与元素集成员一一对应（名称本身可能是空格分隔的序列）。
-// 设置时value支持数组，优先与元素集成员一一对应，若值本身需要数组则作为子数组存在。
+// 设置时：
+// - name支持数组与元素集成员一一对应，但name成员仅支持键值对象或Map实例。
+// - value支持数组，优先与元素集成员一一对应，若值本身需要数组则作为子数组存在。
 // 返回值：
 // 取值：一个值集（Collector），成员与集合元素一一对应。
 // 设置：实例自身（this）。
@@ -3868,7 +3886,7 @@ function _customGets( fn, self, name, nia ) {
  */
 function _customSets( fn, els, name, val, nia ) {
     if ( nia ) {
-        // val 无意义
+        // 不支持val值。
         return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name[i]) );
     }
     if ( isArr(val) ) {
@@ -4431,31 +4449,24 @@ function values( obj ) {
 
 
 /**
- * 元素内容填充。
- * - 检查数据成员类型以首个成员为依据。
- * - 节点数据会导致其从原位置脱离。
- * 注：
- * 由Element调用，el是一个新元素，因此无需清空内容。
- *
+ * 元素源码填充。
+ * 仅用于新创建的元素，无需清空也无需触发verynode。
  * @param  {Element} el 目标元素
- * @param  {Node|[Node]|String|[String]} data 数据集
+ * @param  {String} html 源码
  * @return {Element} el
  */
-function fillElem( el, data ) {
-    if (!data) return el;
-
-    let _fn = data.nodeType || ( isArr(data) && data[0].nodeType ) ?
-        'fill' :
-        'html';
-
-    return tQuery[_fn](el, data), el;
+function fillElem( el, html, doc ) {
+    if ( html ) {
+        el.append( buildFragment(html, doc) );
+    }
+    return el;
 }
 
 
 /**
  * 从配置设置元素。
- * - 属性配置设置到元素的特性上（Attribute）。
- * - 支持 text|html|node 特殊属性名设置元素内容，数据源可为数组。
+ * 支持 text|html 特殊名称设置元素内容。
+ * 仅用于新创建的元素，无需触发attrvary。
  * @param  {Element} el 目标元素
  * @param  {Object} conf 配置对象
  * @return {Element} el
@@ -4465,15 +4476,13 @@ function setElem( el, conf ) {
         return el;
     }
     for ( let [k, v] of Object.entries(conf) ) {
-        switch (k) {
+        switch ( k ) {
         case 'html':
-            tQuery.html(el, v); break;
+            fillElem( el, v ); break;
         case 'text':
-            tQuery.text(el, v); break;
-        case 'node':
-            tQuery.fill(el, v); break;
+            el.textContent = v; break;
         default:
-            elemAttr.set(el, attrName(k), v);
+            el.setAttribute( attrName(k), v );
         }
     }
     return el;
@@ -4839,11 +4848,11 @@ function arr2Flat( src ) {
 
 /**
  * 属性/特性取值判断。
- * @param {String|Object} name 属性/特性名
+ * @param {[String]|Object} name 属性/特性名序列
  * @param {Value|undefined} val 设置值
  */
 function hookIsGet( name, val ) {
-    return val === undefined && typeof name == 'string';
+    return val === undefined && isArr( name );
 }
 
 
@@ -4856,19 +4865,15 @@ function hookIsGet( name, val ) {
  * - value为一个值集或新值或获取新值的回调函数。
  * - 名/值对象中的值依然可以是回调函数（与键对应）。
  *
- * @param {Element} el 目标元素
- * @param {String|Object|Map} name 名称或名/值对象
- * @param {[Value]|Value|Function} value 设置值（集）或取值回调
- * @param {Object} scope 适用域对象
+ * @param  {Element} el 目标元素
+ * @param  {[String]|Object|Map} name 名称序列或名/值对象
+ * @param  {[Value]|Value|Function} value 设置值（集）或取值回调
+ * @param  {Object} scope 适用域对象
+ * @return {void}
  */
 function hookSets( el, name, value, scope ) {
-    if (typeof name == 'string') {
-        hookArrSet(
-            el,
-            name.trim().split(__reSpace).map(n => attrName(n)),
-            value,
-            scope
-        );
+    if ( isArr(name) ) {
+        hookArrSet( el, name, value, scope );
         return;
     }
     for (let [k, v] of entries(name)) hookSet(el, attrName(k), v, scope);
@@ -4895,7 +4900,7 @@ function hookArrSet( el, names, val, scope ) {
 
 
 /**
- * hookSets 的简单设置版。
+ * 属性/特性设置。
  * @param {Element} el 目标元素
  * @param {String} name 名称
  * @param {Value|Function} val 设置值
@@ -4932,15 +4937,12 @@ function customSet( el, name, value, scope ) {
  * 通用多取值。
  * 多个名称时返回一个名/值对象，否则返回单个值。
  * @param  {Element} el 目标元素
- * @param  {String|[String]} name 名称（集）
+ * @param  {[String]} name 名称集
  * @param  {Object} scope 适用域对象
  * @return {String|Object} 值或名/值对象
  */
 function hookGets( el, name, scope ) {
-    name = name.split(__reSpace)
-        .map( n => attrName(n) );
-
-    if (name.length == 1) {
+    if ( name.length == 1 ) {
         return customGet(el, name[0], scope);
     }
     let _obj = {};
@@ -5191,9 +5193,6 @@ function outerHtml( nodes, sep ) {
  * @return {String}
  */
 function nodeText( nodes, sep ) {
-    if ( !nodes ) {
-        return '' + nodes;
-    }
     if (nodes.nodeType) {
         return nodes.textContent;
     }
