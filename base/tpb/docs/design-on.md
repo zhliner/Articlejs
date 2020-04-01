@@ -105,6 +105,9 @@ arr( wrap: Boolean ): Array
 obj(): Object
 // 将目标转换为普通对象。
 
+get( name:String ): Value | [Value] | [[Value]]
+// 对象成员取值（支持对象数组）。
+
 array( size, ...vals ): Array
 // 创建预填充值数组（size大小）。
 
@@ -114,13 +117,16 @@ assign( target:Object, names?:String ): Object
 gather( names:String ): Object
 // 数组映射聚集。
 
+elem( tag:String, n:Number ): Element | [Element]
+// 批量创建元素。
+
 
 
 // 复杂取值。
 //-----------------------------------------------
 
-get( ...names:String ): Value|[Value]
-// 从目标上取值。
+gets( ...names:String ): void
+// 从目标上取值（自主入栈）。
 
 call( meth:String, ...rest:Value ): Value
 // 调用目标的方法执行。

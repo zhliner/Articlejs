@@ -312,6 +312,22 @@ const _Gets = {
 
 
     /**
+     * 对象成员取值。
+     * name支持空格分隔的多个名称。
+     * 可用于从一个对象数组（如attribute取值）中提取属性值数组。
+     * 参考：gets（不支持数组）。
+     * @param  {String} name 名称/序列
+     * @return {Value|[Value]|[[Value]]}
+     */
+    get( evo, name ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map(o => namesValue(name, o)) : namesValue(name, x);
+    },
+
+    __get: 1,
+
+
+    /**
      * 创建预填充值集合。
      * 目标：暂存区条目可选。
      * 如果目标有值，会合并到实参序列之后（数组会展开）。
@@ -405,7 +421,6 @@ const _Gets = {
     // 复杂取值。
     //-----------------------------------------------
 
-
     /**
      * 从目标上取值入栈。
      * 目标：暂存区/栈顶1项。
@@ -417,14 +432,14 @@ const _Gets = {
      * @param  {...String} names 属性名序列
      * @return {void} 自行入栈
      */
-    get( evo, stack, ...names ) {
+    gets( evo, stack, ...names ) {
         stack.push(
             ...names.map( n => namesValue(n, evo.data) )
         );
     },
 
-    __get: 1,
-    __get_x: true,
+    __gets: 1,
+    __gets_x: true,
 
 
     /**
