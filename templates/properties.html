@@ -2,65 +2,36 @@
     - 由上下文菜单中的“属性”条目激发。
     - 在弹出的模态框中显示为一个表格行清单。 -->
 
-<tr tpl-name="prop:align">
-    <th>水平对齐</th>
-    <td><select name="align" tpl-name="item:align">
-            <option value="">------</option>
-            <option value="left">left</option>
-            <option value="center">center</option>
-            <option value="right">right</option>
-            <option value="justify">justify</option>
-        </select>
-    </td>
-</tr>
-
-<tr tpl-name="prop:valign">
-    <th>垂直对齐</th>
-    <td><select name="valign" tpl-name="item:valign">
-            <option value="">------</option>
-            <option value="top">top</option>
-            <option value="middle">middle</option>
-            <option value="bottom">bottom</option>
-            <option value="baseline">baseline</option>
-        </select>
-    </td>
-</tr>
-
-<tr tpl-name="prop:width">
-    <th>宽度</th>
-    <td><input data-id="width" type="text" name="width" class="_length" /></td>
+<tr tpl-name="prop:thick">
+    <th title="CSS: border-width">厚度</th>
+    <td><input data-id="thick" type="text" name="thick" class="_chars" /></td>
 </tr>
 
 <tr tpl-name="prop:length">
-    <th>长度</th>
-    <td><input data-id="width" type="text" name="length" class="_length" /></td>
+    <th title="CSS: width">长度</th>
+    <td><input data-id="width" type="text" name="length" class="_chars" /></td>
 </tr>
 
 <tr tpl-name="prop:height">
-    <th>高度</th>
-    <td><input data-id="height" type="text" name="height" class="_length" /></td>
-</tr>
-
-<tr tpl-name="prop:thick">
-    <th>厚度</th>
-    <td><input data-id="thick" type="text" name="thick" class="_length" /></td>
+    <th title="CSS: height">空白</th>
+    <td><input data-id="height" type="text" name="height" class="_chars" /></td>
 </tr>
 
 <tr tpl-name="prop:sntype">
     <th>编号类型</th>
     <td><select name="sntype">
             <option value="">----</option>
-            <option value="1">1</option>
-            <option value="A">A</option>
-            <option value="a">a</option>
-            <option value="I">I</option>
-            <option value="i">i</option>
+            <option>1</option>
+            <option>A</option>
+            <option>a</option>
+            <option>I</option>
+            <option>i</option>
         </select>
     </td>
 </tr>
 
 <tr tpl-name="prop:start">
-    <th>起始行号</th>
+    <th>首行</th>
     <td><input type="text" data-id="start" name="start" class="_chars" /></td>
 </tr>
 
@@ -76,12 +47,12 @@
 
 <tr tpl-name="prop:columns">
     <th>列数</th>
-    <td><input type="text" name="columns" class="_chars" /></td>
+    <td><input type="text" name="columns" class="_nums" /></td>
 </tr>
 
 <tr tpl-name="prop:rows">
     <th>行数</th>
-    <td><input type="text" name="rows" class="_chars" /></td>
+    <td><input type="text" name="rows" class="_nums" /></td>
 </tr>
 
 <tr tpl-name="prop:tfoot">
@@ -198,12 +169,12 @@
 
 <tr tpl-name="prop:rpleft">
     <th title="左括号">左&lt;rp&gt;</th>
-    <td><input type="text" name="leftrp" class="_chars" value="(" />（可选）</td>
+    <td><input type="text" name="leftrp" class="_char" value="(" />（可选）</td>
 </tr>
 
 <tr tpl-name="prop:rpright">
     <th title="右括号">右&lt;rp&gt;</th>
-    <td><input type="text" name="rightrp" class="_chars" value=")" />（可选）</td>
+    <td><input type="text" name="rightrp" class="_char" value=")" />（可选）</td>
 </tr>
 
 <tr tpl-name="prop:content">
@@ -220,13 +191,7 @@
 <!-- 适用：代码块/代码表/颜文字 -->
 <tr tpl-name="prop:codes">
     <th>代码</th>
-    <td><textarea name="codes" rows="5" class="_codes" spellcheck="false"></textarea></td>
-</tr>
-
-<!-- 适用：代码行/代码段 -->
-<tr tpl-name="prop:code">
-    <th>代码</th>
-    <td><textarea name="code" rows="6" class="_codes" spellcheck="false"></textarea></td>
+    <td><textarea name="codes" rows="5" spellcheck="false" class="_code"></textarea></td>
 </tr>
 
 <tr tpl-name="prop:date">
@@ -241,27 +206,27 @@
 
 <tr tpl-name="prop:max">
     <th>最大值</th>
-    <td><input type="text" name="max" class="_length"></td>
+    <td><input type="text" name="max" class="_nums"></td>
 </tr>
 
 <tr tpl-name="prop:min">
     <th>最小值</th>
-    <td><input type="text" name="min" class="_length"></td>
+    <td><input type="text" name="min" class="_nums"></td>
 </tr>
 
 <tr tpl-name="prop:high">
     <th>高值</th>
-    <td><input type="text" name="high" class="_length"></td>
+    <td><input type="text" name="high" class="_nums"></td>
 </tr>
 
 <tr tpl-name="prop:low">
     <th>低值</th>
-    <td><input type="text" name="low" class="_length"></td>
+    <td><input type="text" name="low" class="_nums"></td>
 </tr>
 
 <tr tpl-name="prop:optimum">
     <th>最佳值</th>
-    <td><input type="text" name="optimum" class="_length"></td>
+    <td><input type="text" name="optimum" class="_nums"></td>
 </tr>
 
 <tr tpl-name="prop:dir">

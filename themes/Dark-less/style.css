@@ -134,12 +134,7 @@ aside#help {
 .___Panel {
     font-size: 12pt;
 }
-/* 代码字体 */
-.___Panel code,
-.___Panel ._code {
-    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    white-space: pre-wrap;
-}
+
 /* 字符表情 */
 .___Panel ._orz {
     font-family: monospace;
@@ -170,6 +165,13 @@ aside#help {
     margin-right: 4px;
     vertical-align: middle;
 }
+/* 代码字体 */
+.___Panel code,
+.___Panel ._code {
+    font-size: 12px !important;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    white-space: pre-wrap;
+}
 
 .___Panel textarea {
     border: 1px #355c64 solid;
@@ -194,8 +196,8 @@ aside#help {
     font-style: italic;
 }
 .___Panel textarea._code {
-    font-size: 12px;
     background: #444 url('images/line20.png') repeat local;
+    background-position-y: 1px;
     line-height: 20px;
     border: 1px #666 solid;
 }
@@ -660,7 +662,7 @@ aside#help {
     flex: 1 1 50px;
 }
 .Input ._section textarea:last-child {
-    margin-top: 6px;
+    margin-top: 5px;
 }
 .Input ._section textarea._inert {
     max-height: 2.2em;
@@ -899,6 +901,31 @@ aside#help {
     flex: 5 5 400px;
 }
 
+/* obt提示头 */
+.Attr header._tips {
+    display: grid;
+    gap: 1px;
+    color: #ddd;
+    margin-bottom: 3px;
+}
+.Attr header._tips > label {
+    display: grid;
+    grid-template-columns: 32px auto;
+    background-color: #135d6c;
+    border-top-right-radius: 22px;
+}
+.Attr header._tips b {
+    font-weight: bold;
+    background-color: #444;
+    font-size: 12px;
+}
+.Attr header._tips input {
+    border: none;
+    background-color: transparent;
+    color: #bbb;
+    padding-right: 15px;
+}
+
 
 /* [ 源码 ]
  ****************************************************************************/
@@ -965,12 +992,12 @@ aside#help {
 .Script ._main ._prefix {
     width: 70%;
 }
-.Script ._icons > b {
+.Script ._cmds > b {
     width: 28px;
     height: 28px;
     border-radius: 14px;
 }
-.Script ._icons > b:hover {
+.Script ._cmds > b:hover {
     background-color: #e6e6e6;
 }
 

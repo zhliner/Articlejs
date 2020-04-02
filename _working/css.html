@@ -341,7 +341,7 @@
             5. 手动键入内容为搜索历史匹配。
             6. Tab和箭头翻页导航支持+Shift模糊匹配。
         -->
-        <input id="cmd-input" type="text" class="_code" value="Hello world!" />
+        <input id="cmd-input" type="text" spellcheck="false" class="_code" value="Hello world!" />
     </div>
     <!-- 出错信息区 -->
     <div class="_err" title="单击显示帮助" data-pb="lost">
@@ -427,7 +427,7 @@
                 <code id="cmd-char" data-v=":">:</code>
             </div>
             <div class="_cmdline">
-                <input id="cmd-input" type="text" class="_code" />
+                <input id="cmd-input" type="text" spellcheck="false" class="_code" />
             </div>
             <div class="_help" title="帮助"><b>?</b></div>
         </div>
@@ -2379,12 +2379,25 @@
                         <input type="button" value="✛" class="_add" />
                     </div>
                     <select name="attrs" size="5" class="_list" tpb-for>
-                        <option _value="$" _="$">style</option>
+                        <option _="$">style</option>
                     </select>
                 </div>
                 <div class="_body">
                     <div class="_main">
-                        <textarea name="content" class="_codes"></textarea>
+                        <!-- OBT: 分组对应提示 -->
+                        <header class="_tips" data-pb="">
+                            <label data-pb="">
+                                <b>on</b><input type="text" spellcheck="false" class="_code" disabled
+                                    value="^obted|evo(3) dup text clean(true) split(',') str('#') dup str('background-color:') elem;" />
+                            </label>
+                            <label data-pb="">
+                                <b>by</b><input type="text" spellcheck="false" class="_code" disabled />
+                            </label>
+                            <label data-pb="lost">
+                                <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
+                            </label>
+                        </header>
+                        <textarea name="content" spellcheck="false" class="_code"></textarea>
                     </div>
                     <aside>
                         <div class="_option">
@@ -2415,12 +2428,13 @@
             </div>
             <form class="Source _body" onsubmit="return false" tpl-name="slave:source">
                 <div class="_main">
-                    <textarea name="content" class="_codes"></textarea>
+                    <textarea name="content" spellcheck="false" class="_code"></textarea>
                 </div>
                 <aside>
                     <div class="_option">
                         <label><input type="checkbox" name="repair" />修复</label>
                         <button>结构检查</button>
+                        <!-- _ok|_err -->
                         <div class="_info _ok">OK!</div>
                     </div>
                     <div class="_submit" tpl-name="common:submit">
@@ -2451,12 +2465,12 @@
                 <div class="_body">
                     <div class="_main">
                         <header>
-                            <input type="text" name="prefix" placeholder="记忆前缀：script-" class="_prefix" />
+                            <input type="text" name="prefix" spellcheck="false" placeholder="记忆前缀：script-" class="_prefix" />
                         </header>
-                        <textarea name="content" class="_codes"></textarea>
+                        <textarea name="content" spellcheck="false" class="_code"></textarea>
                     </div>
                     <aside>
-                        <div class="_icons">
+                        <div class="_cmds">
                             <b title="脚本历史"><i id="l-history"></i></b>
                         </div>
                         <div class="_submit">

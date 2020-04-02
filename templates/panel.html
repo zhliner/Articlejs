@@ -54,24 +54,38 @@
 
 
 <!-- 特性 -->
-<form class="Attrs" onsubmit="return false" tpl-name="slave:attrs">
+<form class="Attr" onsubmit="return false" tpl-name="slave:attr">
     <div class="_roll">
-        <div>
-            <input type="text" name="attr" class="_attr" />
-            <!-- 添加/移除：+/- -->
-            <button id="g-attrop">+</button>
+        <div class="_name">
+            <input type="text" name="attr" value="" />
+            <!-- ✚✛ -->
+            <input type="button" value="✛" class="_add" />
         </div>
-        <select name="attrs" tpb-for>
-            <option _value="$" _="$"></option>
+        <select name="attrs" size="5" class="_list" tpb-for>
+            <option _="$">style</option>
         </select>
     </div>
     <div class="_body">
         <div class="_main">
-            <textarea name="content" rows="6"></textarea>
+            <!-- OBT: 分组对应提示 -->
+            <header class="_tips" data-pb="lost">
+                <label data-pb="">
+                    <b>on</b><input type="text" spellcheck="false" class="_code" disabled />
+                </label>
+                <label data-pb="">
+                    <b>by</b><input type="text" spellcheck="false" class="_code" disabled />
+                </label>
+                <label data-pb="lost">
+                    <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
+                </label>
+            </header>
+            <textarea name="content" spellcheck="false" class="_code"></textarea>
         </div>
         <aside>
             <div class="_option">
-                <input type="text" name="nlchar" class="_char" value=";" />换行友好
+                <label>换行符
+                    <input type="text" name="nlchar" class="_char _code" value=";" />
+                </label>
             </div>
             <hr tpl-node="common:submit" />
         </aside>
@@ -80,15 +94,16 @@
 
 
 <!-- 源码 -->
-<form class="Source" onsubmit="return false" tpl-name="slave:source">
+<form class="Source _body" onsubmit="return false" tpl-name="slave:source">
     <div class="_main">
-        <textarea name="content" rows="6"></textarea>
+        <textarea name="content" spellcheck="false" class="_code"></textarea>
     </div>
     <aside>
         <div class="_option">
-            <button>结构检查</button>
             <label><input type="checkbox" name="repair" />修复</label>
-            <div class="_info"></div>
+            <button>结构检查</button>
+            <!-- _ok|_err -->
+            <div class="_info _ok">OK!</div>
         </div>
         <hr tpl-node="common:submit" />
     </aside>
@@ -98,18 +113,23 @@
 <!-- 脚本 -->
 <form class="Script" onsubmit="return false" tpl-name="slave:script">
     <div class="_env">
-        <label><input type="radio" name="runbox" />沙盒内</label>
-        <label><input type="radio" name="runbox" />编辑器内</label>
+        <label><input type="radio" name="runbox" value="sandbox" checked />沙盒内</label>
+        <label><input type="radio" name="runbox" value="editor" />编辑器内</label>
     </div>
     <div class="_body">
         <div class="_main">
-            <label>记忆前缀</label>
-            <input type="text" name="prefix" placeholder="script-" />
-            <textarea name="content" rows="6"></textarea>
+            <header>
+                <input type="text" name="prefix" spellcheck="false" placeholder="记忆前缀：script-" class="_prefix" />
+            </header>
+            <textarea name="content" spellcheck="false" class="_code"></textarea>
         </div>
         <aside>
-            <div class="_option"><i id="l-history"></i></div>
-            <div class="_submit"><button type="submit">运行</button></div>
+            <div class="_cmds">
+                <b title="脚本历史"><i id="l-history"></i></b>
+            </div>
+            <div class="_submit">
+                <button type="submit">运行</button>
+            </div>
         </aside>
     </div>
 </form>
