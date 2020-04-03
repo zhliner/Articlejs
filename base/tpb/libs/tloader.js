@@ -98,6 +98,7 @@ class TplLoader {
 
 	/**
 	 * 设置模板 节点名：文件名 映射。
+	 * 注：外部也可在运行期动态灌入配置。
 	 * @param  {Object} conf 映射配置
 	 * @return {Map} 节点/文件映射集
 	 */

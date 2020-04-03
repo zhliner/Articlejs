@@ -15,24 +15,15 @@
         body > * {
             flex-shrink: 0;
         }
-        body > aside {
-            border: 1px #5c869c solid;
-        }
         div#editor {
-            flex: 1 1 auto;
-            display: flex;
-            flex-direction: column;
-            border: 1px #5c869c solid;
-            border-radius: 12px 12px 4px 4px;
-            position: relative;
             background-color: #b7f7e7;
         }
-        div#editor span {
+        div#editor ._inline span {
             display: grid;
             grid-template-columns: repeat(30, 1fr);
             text-align: center;
         }
-        div#editor span > b {
+        div#editor ._inline span > b {
             background-color: #f7f7f7;
             margin: 1px;
         }
@@ -116,9 +107,8 @@
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-    <hr id="lineLeft"
-        on="mousedown"
-        to="body|bind('mousemove:1') once('mouseup')">
+    <hr on="mousedown"
+        to="body|bind('mousemove:1') once('mouseup')" />
     <div id="editor">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb="lost"
             on="click('~._close')|evo(3) lose">
@@ -132,19 +122,19 @@
                 </p>
                 <div class="_list" data-pb="">
                 </div>
-                <div class="_btn2" tpl-name="modal:btn2">
+                <div class="_submit">
                     <button type="submit">确定</button>
                     <button type="reset">重置</button>
                 </div>
             </form>
         </div>
-        <pre @tpl-source="main:tools, main:content, main:slave, main:status">
+        <pre tpl-source="main:tools, main:content, main:slave, main:status">
             [工具栏]
             [内容区]
             [主面板区]
             [状态栏]
         </pre>
-        <div class="_c216"
+        <div class="_c216" data-pb="lost"
             on="^obted|evo(3) dup text clean(true) split(',') str('#') dup str('background-color:') mix(2) elem('b', 216) pop"
             to="|attribute('title style') fillWith">
             <!-- <b title="#000" style="background-color:#000"></b>... -->
@@ -158,7 +148,7 @@
         <!-- 特殊字符集
             初始解析构造为：<b>...</b>序列
             各字符集清单<span>存储在data中备用。 -->
-        <div tpl-name="data:chars" data-pb=""
+        <div class="_inline" data-pb="lost"
             on="init|stop evo('origin') text split pop $$ wrap('<b>');
                 save|stop evo(1) ev('detail');
                 ^obted;
@@ -181,14 +171,13 @@
             <span data-val="phonetic">āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
         </div>
     </div>
-    <hr id="lineRight"
-        on="mousedown"
-        to="body|bind('mousemove:2') once('mouseup')">
+    <hr on="mousedown"
+        to="body|bind('mousemove:2') once('mouseup')" />
     <aside id="help" class="___Panel _docs" data-pb="">
         <span class="_walk">
-            <b title="后退" on="" by="">◀</b>
-            <b title="上层目录" class="_top">▤</b>
-            <b title="前进" data-pb="disabled" on="" by="">▶</b>
+            <b title="上一项">◀</b>
+            <b title="目录" class="_top">▤</b>
+            <b title="下一项" data-pb="disabled">▶</b>
             <!-- ⚘ -->
             <b title="关于..." class="_about">⚘</b>
         </span>

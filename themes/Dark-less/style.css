@@ -16,6 +16,7 @@
 /* 侧面板 */
 body > aside {
     border: 1px #5c869c solid;
+    border-radius: 5px;
 }
 
 /* 侧面板宽度调整线 */
@@ -34,10 +35,11 @@ aside#outline {
 
 /* 编辑器容器 */
 div#editor {
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     border: 1px #5c869c solid;
-    border-radius: 12px 12px 4px 4px;
+    border-radius: 12px 12px 5px 5px;
     position: relative;
 }
 
@@ -210,7 +212,7 @@ aside#help {
 .___Panel a:hover {
     color: #369;
 }
-.___Panel ._submit > * {
+.___Panel ._submit > label {
     display: block;
 }
 .___Panel button {
@@ -1049,24 +1051,31 @@ aside#help {
 .Status > ._cmdx > code {
     color: #0b6;
     font-weight: bold;
+    /* 居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .Status #cmd-chars {
     width: 100%;
     position: absolute;
-    bottom: 28px;
+    bottom: 27px;
     display: flex;
     flex-direction: column-reverse;
-    border: 1px #bcd solid;
-    border-radius: 10px 10px 0 0;
-    background-color: #eee;
-    padding-top: 8px;
+    border: 1px #80a1b3 solid;
+    border-top-right-radius: 14px;
+    background-color: #f1f1e4;
+    padding-top: 14px;
+    border-bottom-color: transparent;
+    left: -1px;
 }
 .Status #cmd-chars > b {
-    border-top: 1px #809cbc solid;
+    height: 23px;
+    border-top: 1px #999 dotted;
 }
 .Status #cmd-chars > b:hover {
-    background-color: #444;
-    color: #eee;
+    color: #fff;
+    background-color: #1b839c;
 }
 
 .Status > ._cmdline {
@@ -1148,7 +1157,7 @@ aside#help {
     padding: 20px 7% 35px;
     text-align: right;
 }
-.Modal ._btn2 > button {
+.Modal ._submit > button {
     margin: auto 10px;
 }
 .Modal ._page {
@@ -1172,82 +1181,28 @@ aside#help {
     overflow-y: auto;
 }
 
-
-
-/* ？脚本清单 */
-.xPanel.Modal ._sh {
-    height: 100%;
-}
-.xPanel.Modal ._sh ol {
-    padding-left: 70px;
-    padding-bottom: 2px;
-    overflow-y: auto;
-    resize: none;
-    height: calc(100% - 38px);
-}
-.xPanel.Modal ._sh code {
-    display: block;
-    cursor: pointer;
-    color: #036;
-}
-.xPanel.Modal ._sh li {
-    margin: 0 2px;
-}
-.xPanel.Modal ._sh li:nth-child(even) {
-    background-color: #eee;
-}
-.xPanel.Modal ._sh ._note {
-    border-width: 0;
-    background-color: transparent;
-}
-.xPanel.Modal ._search {
-    margin-bottom: 8px;
-}
-.xPanel.Modal ._search ._text {
-    padding: 3px 12px;
-    border-radius: 12px;
-    outline: none;
-    width: calc(100% - 70px);
-    margin-left: 10px;
-}
-.xPanel.Modal ._search ._icon {
+/* 脚本历史/结果 */
+.Modal ._search ._icon {
+    background: transparent url('images/search.png') no-repeat;
     width: 48px;
     height: 22px;
     border: 1px transparent solid;
-    background: transparent url('images/search.png') no-repeat;
     background-size: 34px;
-    margin-top: 2px;
     cursor: pointer;
 }
-
 /* 脚本运行结果 */
-.xPanel.Modal ._info {
-    height: calc(100% - 5px);
-}
-.xPanel.Modal ._info b {
-    /* 预览恢复 */
-    font-weight: bold;
-}
-.xPanel.Modal ._info li._data {
+.Modal ul li._data {
     overflow-y: auto;
     resize: none;
     height: calc(100% - 147px);
     border-top: 3px #ddd double;
     padding-top: 6px;
 }
-.xPanel.Modal ._info li > b {
-    color: #096;
-}
-.xPanel.Modal ._info div {
+.Modal ul ._error {
     color: #000;
 }
-.xPanel.Modal ._info ._error {
-    color: #000;
-    padding: 0 6px;
-}
-.xPanel.Modal ._info ._warn {
+.Modal ul ._warn {
     color: #d00;
-    padding: 0 6px;
 }
 
 

@@ -78,7 +78,7 @@
 
 <tr tpl-name="prop:hr">
     <th>线条风格</th>
-    <td><hr tpl-node="hr:styles" /></td>
+    <td><hr tpl-node="hr:border" /></td>
 </tr>
 
 <tr tpl-name="prop:href">
@@ -137,8 +137,8 @@
 <tr class="_upload" tpl-name="prop:upload">
     <th>上传</th>
     <td><input type="file" name="upload" value=""
-            on="change|evo('origin'), val"
-            by="x.Fun.upload(null)" />
+            @on="change|evo('origin') val"
+            @by="x.Fun.upload(null)" />
     </td>
 </tr>
 

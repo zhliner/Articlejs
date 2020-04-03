@@ -46,7 +46,8 @@
     <div id="editor">
 
 <!-- 模态框：屏蔽层 -->
-<div id="g-modal" class="___Panel Modal" data-pb="lost">
+<div id="g-modal" class="___Panel Modal" data-pb="lost"
+    on="click('~._close')|evo(3) lose">
     <form class="_prop" tpl-name="modal:prop">
         <header>
             <h5>[标题]</h5>
@@ -72,8 +73,9 @@
                 </tr>
                 <tr class="_upload" tpl-name="prop:upload">
                     <th>上传</th>
-                    <td><input type="file" name="upload" value="" on="change|evo('origin'), val"
-                            by="x.Fun.upload(null)" />
+                    <td><input type="file" name="upload" value=""
+                            @on="change|evo('origin') val"
+                            @by="x.Fun.upload(null)" />
                     </td>
                 </tr>
                 <tr tpl-name="prop:preview">
@@ -84,7 +86,7 @@
                 </tr>
             </table>
         </div>
-        <div class="_btn2" tpl-name="modal:btn2">
+        <div class="_submit" tpl-name="modal:okreset">
             <button type="submit">确定</button>
             <button type="reset">重置</button>
         </div>
@@ -320,16 +322,16 @@
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" data-pb="lost">
-            <b>/</b> <!-- 选择器模式 -->
-            <b>:</b> <!-- 普通指令 -->
-            <b>=</b> <!-- 计算（Worker） -->
-            <b>|</b> <!-- 选取集过滤 -->
-            <b>?</b> <!-- 文本搜索&选取 -->
-            <b>!</b> <!-- 扩展备用（pro） -->
+        <span id="cmd-chars" class="_code" data-pb="">
+            <b title="选择器模式">/</b>
+            <b title="普通指令">:</b>
+            <b title="简单计算">=</b>
+            <b title="选取集过滤">|</b>
+            <b title="文本搜索">?</b>
+            <b title="扩展指令...">!</b>
         </span>
         <!-- data-v: CSS辅助 -->
-        <code id="cmd-char" data-v="/">/</code>
+        <code id="cmd-char" data-v=":">:</code>
     </div>
     <!-- 命令行 -->
     <div class="_cmdline">
@@ -1611,8 +1613,9 @@
                             </tr>
                             <tr class="_upload" tpl-name="prop:upload">
                                 <th>上传</th>
-                                <td><input type="file" name="upload" value="" on="change|evo('origin'), val"
-                                        by="x.Fun.upload(null)" />
+                                <td><input type="file" name="upload" value=""
+                                        @on="change|evo('origin') val"
+                                        @by="x.Fun.upload(null)" />
                                 </td>
                             </tr>
                             <tr tpl-name="prop:preview">

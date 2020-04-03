@@ -140,19 +140,47 @@ if (DEBUG) {
          * @return {void}
          */
         findTpls: function( files, sort ) {
-            let _buf = {};
+            let _buf = new Map();
+
+            if ( !$.isArray(files) ) {
+                files = [files];
+            }
+            // 先插入以保留原始顺序。
+            files.forEach( f => _buf.set(f, null) );
 
             Promise.all(
-                files.map(
-                    f => TLoader.fetch(f)
-                        .then( frag => $.find('[tpl-name]', frag).map(el => $.attr(el, 'tpl-name')) )
-                        .then( ns => _buf[f] = sort ? ns.sort() : ns )
+                files.map( f =>
+                    TLoader.fetch(f)
+                    .then( frag => $.find('[tpl-name]', frag).map(el => $.attr(el, 'tpl-name')) )
+                    .then( ns => _buf.set(f, sort ? orderList(ns) : ns) )
                 )
-            ).then( () =>
-                window.console.info( JSON.stringify(_buf, null, '\t') )
+            ).then(
+                () => tplsOuts(_buf)
             );
         }
     };
+
+
+    // 输出配置对象。
+    function tplsOuts( map ) {
+        let _obj = {};
+        for (const [f, vs] of map) _obj[f] = vs;
+
+        window.console.info( JSON.stringify(_obj, null, '\t') );
+    }
+
+
+    // 有序清单（标记重复）。
+    function orderList( vals ) {
+        let _p;
+        return vals.sort().map(
+            (v, i) => {
+                let _v = v === _p ? `[__REPEATED__]: ${v}` : v;
+                _p = v;
+                return _v;
+            }
+        );
+    }
 }
 
 
@@ -172,7 +200,7 @@ let _tplsDone = false;
  * 包含模板节点配置的初始化。
  * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
  * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
- * @return {Promise|void}
+ * @return {Promise<void>}
  */
 function Build( root, obts ) {
     if ( _tplsDone ) {

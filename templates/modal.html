@@ -26,10 +26,7 @@
     <div id="modal-list" class="_list">
         <!-- [node] -->
     </div>
-    <div class="_btn2" tpl-name="modal:btn2">
-        <button type="submit">确定</button>
-        <button type="reset">重置</button>
-    </div>
+    <hr tpl-node="modal:okreset" />
     <!-- 条目标记 -->
     <input type="hidden" name="item" value="" />
 </form>
@@ -47,10 +44,7 @@
     <div id="modal-list" class="_list" data-pb="">
         <!-- <table> -->
     </div>
-    <div class="_btn2" tpl-name="modal:btn2">
-        <button type="submit">确定</button>
-        <button type="reset">重置</button>
-    </div>
+    <hr tpl-node="modal:okreset" />
 </form>
 
 <!-- 模态框：单行 -->
@@ -60,7 +54,7 @@
         <b class="_close" title="关闭">✕</b>
     </header>
     <p><input type="text" name="txtline" /></p>
-    <hr tpl-node="modal:btn2" />
+    <hr tpl-node="modal:okreset" />
 </form>
 
 
@@ -73,7 +67,7 @@
     <p id="modal-msg" class="_note">
         [消息内容]
     </p>
-    <hr tpl-node="common:submit" />
+    <hr tpl-node="modal:ok" />
 </form>
 
 
@@ -85,10 +79,7 @@
     </header>
     <div class="_search">
         <!-- change|blur,select：避免历史遮挡 -->
-        <input type="text" name="word" class="_text" placeholder="标记词"
-            on="change|blur,select"
-            by="[Art.shfltr]"
-            to="2/ol|render">
+        <input type="text" name="word" class="_text" placeholder="标记词" />
         <button type="submit">过滤</button>
     </div>
     <ol reversed tpb-for><li><code _="$"></code></li></ol>

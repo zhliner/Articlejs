@@ -63,14 +63,13 @@
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
 
-    <hr id="lineLeft"
-        on="mousedown"
-        to="body|bind('mousemove:1') once('mouseup')">
+    <hr on="mousedown"
+        to="body|bind('mousemove:1') once('mouseup')" />
 
     <!-- 主编辑器 -->
     <div id="editor">
-        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb="lost"
-            on="click('~._close')|evo(3)" by="x.Eff.lose">
+        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb=""
+            on="click('~._close')|evo(3) lose">
             <hr tpl-source="modal:prop" />
         </div>
         <pre tpl-source="main:tools, main:content, main:slave, main:status">
@@ -81,16 +80,15 @@
         </pre>
     </div>
 
-    <hr id="lineRight"
-        on="mousedown"
-        to="body|bind('mousemove:2') once('mouseup')">
+    <hr on="mousedown"
+        to="body|bind('mousemove:2') once('mouseup')" />
 
     <!-- 帮助栏 -->
     <aside id="help" class="___Panel _docs" data-pb="">
         <span class="_walk">
-            <b title="后退" on="" by="">◀</b>
-            <b title="上层目录" class="_top">▤</b>
-            <b title="前进" data-pb="disabled" on="" by="">▶</b>
+            <b title="上一项">◀</b>
+            <b title="目录" class="_top">▤</b>
+            <b title="下一项" data-pb="disabled">▶</b>
             <b title="关于..." class="_about">⚘</b>
         </span>
         <hr>
