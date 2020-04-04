@@ -3912,7 +3912,7 @@ function _namesVals( fn, els, name, val ) {
         );
     }
     // 全部相同赋值。
-    return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name, val) );
+    return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name[i], val) );
 }
 
 
