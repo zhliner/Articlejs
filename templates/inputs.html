@@ -11,12 +11,12 @@
 
 
 <!-- 插入：1 -->
-<div class="_submit" tpl-name="input:submit1">
+<div class="_submit" tpl-name="input:insert1">
     <button type="submit">插入</button>
 </div>
 
 <!-- 插入：2 -->
-<div class="_submit" tpl-name="input:submit2">
+<div class="_submit" tpl-name="input:insert2">
     <label><input type="checkbox" name="before">向前</label>
     <button type="submit">插入</button>
 </div>
@@ -34,7 +34,7 @@
         <textarea name="h2" placeholder="副标题（可选）"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit1">
+        <pre tpl-node="input:option1, input:insert1">
             [选项1]
             [插入1]
         </pre>
@@ -48,7 +48,7 @@
         <textarea name="header" placeholder="文章提要"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit1">
+        <pre tpl-node="input:option2, input:insert1">
             [选项2]
             [插入1]
         </pre>
@@ -62,7 +62,7 @@
         <textarea name="reference" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit1">
+        <pre tpl-node="input:option1, input:insert1">
             [选项1]
             [插入1]
         </pre>
@@ -76,7 +76,7 @@
         <textarea name="seealso" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit1">
+        <pre tpl-node="input:option1, input:insert1">
             [选项1]
             [插入1]
         </pre>
@@ -93,7 +93,7 @@
         <textarea name="header" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit1">
+        <pre tpl-node="input:option2, input:insert1">
             [选项2]
             [插入1]
         </pre>
@@ -110,7 +110,7 @@
         <textarea name="footer" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit1">
+        <pre tpl-node="input:option2, input:insert1">
             [选项2]
             [插入1]
         </pre>
@@ -128,7 +128,7 @@
         <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit2">
+        <pre tpl-node="input:option2, input:insert2">
             [选项2]
             [插入2]
         </pre>
@@ -142,7 +142,7 @@
         <textarea name="ul" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit2">
+        <pre tpl-node="input:option1, input:insert2">
             [选项1]
             [插入2]
         </pre>
@@ -156,7 +156,7 @@
         <textarea name="ol" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit2">
+        <pre tpl-node="input:option1, input:insert2">
             [选项1]
             [插入2]
         </pre>
@@ -174,7 +174,7 @@
             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
             <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="numlist">转为多级编号</label>
         </div>
-        <div tpl-node="input:submit1"> [插入1] </div>
+        <div tpl-node="input:insert1"> [插入1] </div>
     </aside>
 </div>
 
@@ -188,7 +188,7 @@
         <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit2">
+        <pre tpl-node="input:option1, input:insert2">
             [选项1]
             [插入2]
         </pre>
@@ -205,7 +205,7 @@
         <textarea name="blockquote" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit2">
+        <pre tpl-node="input:option2, input:insert2">
             [选项2]
             [插入2]
         </pre>
@@ -222,7 +222,7 @@
         <textarea name="aside" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit2">
+        <pre tpl-node="input:option2, input:insert2">
             [选项2]
             [插入2]
         </pre>
@@ -239,7 +239,7 @@
         <textarea name="details" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit2">
+        <pre tpl-node="input:option2, input:insert2">
             [选项2]
             [插入2]
         </pre>
@@ -270,7 +270,7 @@
                 <input type="text" name="start" placeholder="1" class="_chars">
             </label>
         </div>
-        <div tpl-node="input:submit2"> [插入2] </div>
+        <div tpl-node="input:insert2"> [插入2] </div>
     </aside>
 </div>
 
@@ -289,7 +289,7 @@
                 <select tpl-node="item:languages"></select>
             </label>
         </div>
-        <div tpl-node="input:submit2"> [插入2] </div>
+        <div tpl-node="input:insert2"> [插入2] </div>
     </aside>
 </div>
 
@@ -324,7 +324,7 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="input:submit2"> [插入2] </div>
+        <div tpl-node="input:insert2"> [插入2] </div>
     </aside>
 </div>
 
@@ -339,8 +339,8 @@
         <textarea name="figure" data-id="url"
             on="tips|evo(1) ev('detail') attr(_);
                 ^obted|$('2/select') val"
-            to="-|@placeholder;
-                &|trigger('tips')"
+            to="|@placeholder;
+                |trigger('tips')"
             data-iurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
             data-durl="data:image/png;base64,..."
             data-svgx="<svg>...</svg>"></textarea>
@@ -355,7 +355,7 @@
                 </select>
             </label>
         </div>
-        <div tpl-node="input:submit2"> [插入2] </div>
+        <div tpl-node="input:insert2"> [插入2] </div>
     </aside>
 </div>
 
@@ -366,7 +366,7 @@
         <textarea name="p" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:submit2">
+        <pre tpl-node="input:option2, input:insert2">
             [选项2]
             [插入2]
         </pre>
@@ -380,7 +380,7 @@
         <textarea name="note" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit2">
+        <pre tpl-node="input:option1, input:insert2">
             [选项1]
             [插入2]
         </pre>
@@ -394,7 +394,7 @@
         <textarea name="address" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:submit2">
+        <pre tpl-node="input:option1, input:insert2">
             [选项1]
             [插入2]
         </pre>
@@ -413,7 +413,7 @@
                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
         </div>
-        <pre tpl-node="input:submit2">[插入2]</pre>
+        <pre tpl-node="input:insert2">[插入2]</pre>
     </aside>
 </div>
 
@@ -446,7 +446,7 @@
                 <input type="text" name="height" placeholder="0" class="_chars">
             </label>
         </div>
-        <pre tpl-node="input:submit2"> [插入2] </pre>
+        <pre tpl-node="input:insert2"> [插入2] </pre>
     </aside>
 </div>
 
@@ -457,7 +457,7 @@
         <div role="space"><span>（ 空 白 ）</span></div>
     </div>
     <aside>
-        <pre tpl-node="input:submit2"> [插入2] </pre>
+        <pre tpl-node="input:insert2"> [插入2] </pre>
     </aside>
 </div>
 
@@ -549,9 +549,9 @@
         ^obted;
         ^done"
     to="~|fill|target xattr('-val') pop fire(0, 'save', true);
-        &|data(_)|fire(1, 'done');
+        |data(_)|fire(1, 'done');
         +/span|trigger('init', true);
-        &|off('init save')">
+        |off('init save')">
     <!-- <span><b>...</span> -->
     <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
     <span data-val="unit">$¢£¤¥°‰′″₠₡₢₣₤₥₦₧₨₩₪₫€₭₮₯₰₱℃℉○㎎㎏㎜㎝㎞㎡㏄㏎㏕＄％￠￠￡￡￥￥〇</span>

@@ -25,8 +25,8 @@ const
         0:  'event',    // 原生事件对象（注：ev指令可直接获取）
         1:  'origin',   // 事件起点元素（event.target）
         2:  'current',  // 触发事件的当前元素（event.currentTarget|matched）
-        3:  'delegate', // 事件相关联元素（event.relatedTarget）
-        4:  'related',  // 委托绑定的元素（event.currentTarget）
+        3:  'delegate', // 委托绑定的元素（event.currentTarget）
+        4:  'related',  // 事件相关联元素（event.relatedTarget）
         5:  'selector', // 委托匹配选择器（for match）]
         10: 'data',     // 自动获取的流程数据
         11: 'entry',    // 中段入口（迭代重入）
@@ -69,10 +69,10 @@ const _Gets = {
     /**
      * 单元素检索入栈。
      * 目标：暂存区1项可选。
-     * 如果实参有值，起点元素为目标或事件当前元素。
-     * 如果实参为空，目标需有值，视为rid，起点元素为事件当前元素。
+     * 如果实参有值，起点元素为目标或事件绑定（委托）元素。
+     * 如果实参为空，目标需有值，视为rid，起点元素为事件绑定元素。
      * 例：
-     * 1. $('/p')  // 检索事件当前元素内的首个<p>子元素
+     * 1. $('/p')  // 检索事件绑定元素内的首个<p>子元素
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
      * 3. push('/p') pop $    // rid从目标获取，效果同1.
      * 4. push('/p') $(_)     // rid自动从流程获取，效果同1.
@@ -82,7 +82,7 @@ const _Gets = {
      * @return {Element}
      */
     $( evo, rid ) {
-        let _beg = evo.current;
+        let _beg = evo.delegate;
 
         if ( rid == null ) {
             rid = evo.data;
@@ -111,7 +111,7 @@ const _Gets = {
      * @return {Collector}
      */
     $$( evo, rid ) {
-        let _beg = evo.current;
+        let _beg = evo.delegate;
 
         if ( rid == null ) {
             rid = evo.data;
@@ -923,8 +923,10 @@ const _Gets = {
 .forEach(function( meth ) {
 
     _Gets[meth] = function( evo, ...args ) {
-        return $.isCollector(evo.data) ?
-            evo.data[meth]( ...args ) : $[meth]( evo.data, ...args );
+        let v = evo.data === undefined ?
+            '' : evo.data;
+
+        return $.isCollector(v) ? v[meth]( ...args ) : $[meth]( v, ...args );
     };
 
     _Gets[`__${meth}`] = -1;

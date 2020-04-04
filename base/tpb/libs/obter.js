@@ -44,7 +44,7 @@ const
     __toqMore   = '+',  // 多元素检索前置标志
     __toqExtra  = '!',  // 进阶提取标志
     __toqOrig   = '~',  // 事件起始元素（evo.origin）
-    __toqRoot   = '&',  // 事件委托元素（evo.delegate）
+    __toqCurr   = '#',  // 事件当前元素（evo.current）
     __tosAttr   = '@',  // 特性指定
     __tosProp   = '$',  // 属性指定
     __tosCSS    = '%',  // 样式指定
@@ -935,7 +935,7 @@ class Call {
 //      ~   // 事件起始元素（evo.origin）
 //      $   // 事件委托元素（evo.delegate）
 // }
-// 起点元素：支持暂存区1项（Element）可选，否则为事件当前元素。
+// 起点元素：支持暂存区1项可选（可为任意值），否则为事件绑定/委托元素。
 //
 class Query {
     /**
@@ -1173,7 +1173,7 @@ function rejectInfo( msg ) {
  * To：目标检索方法。
  * 支持二阶检索和相对ID属性（见 Util.find）。
  * 支持暂存区1项为检索起点（由前阶末端指令取出），
- * 否则检索起点元素为事件当前元素。
+ * 否则检索起点元素为事件绑定/委托元素。
  *
  * @param  {Object} evo 事件关联对象
  * @param  {String} slr 选择器串（二阶支持）
@@ -1185,7 +1185,7 @@ function query( evo, slr, one, fltr ) {
     let _beg = evo.data;
 
     if (_beg === undefined) {
-        _beg = evo.current;
+        _beg = evo.delegate;
     }
     evo.targets = query2( evo, slr, _beg, one, fltr );
 }
@@ -1208,7 +1208,7 @@ function query( evo, slr, one, fltr ) {
 function query2( evo, slr, beg, one, fltr ) {
     switch ( slr ) {
         case __toqOrig: return evo.origin;
-        case __toqRoot: return evo.delegate;
+        case __toqCurr: return evo.current;
     }
     let _v = Util.find( slr, beg, one );
 

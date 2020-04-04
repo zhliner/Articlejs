@@ -485,7 +485,7 @@ const Grammar = {
     Case( el, handle, data ) {
         let _box = el.parentElement;
 
-        if ( caseShow(el) && _box[__switchValue] === handle(data) ) {
+        if ( caseShow(_box) && _box[__switchValue] === handle(data) ) {
             showElem( el );
             _box[__casePass] = true;
         } else {
@@ -505,15 +505,17 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     Last( el, handle, data ) {
+        let _box = el.parentElement;
+
         if ( !handle ) {
             // Default: 不再设置[__casePass]。
-            return caseShow(el) ? showElem(el) : hideElem(el);
+            return caseShow(_box) ? showElem(el) : hideElem(el);
         }
         this.Case( el, handle, data );
 
         // 依然未匹配。
-        // 后期修改不适用hideElem（会影响下一次渲染）。
-        if ( caseShow(el) ) el.parentElement.style.display = 'none';
+        // 注记：后期修改会影响下一次渲染，因此用设置style。
+        if ( caseShow(_box) ) _box.style.display = 'none';
     },
 
 
@@ -945,13 +947,12 @@ function elseShow( cur ) {
 
 
 /**
- * 同级case元素判断是否显示。
- * 向前检索关联Case/Last元素是否已显示（为真）。
- * @param  {Element} cur 当前元素
+ * 同级case是否已执行。
+ * @param  {Element} box Switch元素
  * @return {Boolean}
  */
-function caseShow( cur ) {
-    return !cur.parentElement[__casePass];
+function caseShow( box ) {
+    return !box[__casePass];
 }
 
 

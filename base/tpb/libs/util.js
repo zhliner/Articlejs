@@ -140,6 +140,7 @@ const Util = {
         if ( __re2Split.test(slr) ) {
             [slr, beg] = fmtSplit( slr, beg );
         } else {
+            // 全局
             beg = undefined;
         }
         return one ? query1( slr, beg ) : query2( slr, beg );
@@ -354,10 +355,7 @@ function ridone( str ) {
  * @return {Element|null} 目标元素
  */
 function closest( slr, beg ) {
-    if ( !slr ) {
-        return beg;
-    }
-    if ( slr < 0 ) {
+    if ( slr <= 0 ) {
         return beg;
     }
     return isNaN(slr) ? $.closest(beg.parentNode, ridslr(slr)) : $.closest(beg, (_, i) => i == slr);
