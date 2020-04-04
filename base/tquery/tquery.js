@@ -3821,8 +3821,10 @@ elsExfn([
 // 目标特性/属性取值或设置。
 // 取值时name支持数组与元素集成员一一对应（名称本身可能是空格分隔的序列）。
 // 设置时：
-// - name支持数组与元素集成员一一对应，但name成员仅支持键值对象或Map实例。
-// - value支持数组，优先与元素集成员一一对应，若值本身需要数组则作为子数组存在。
+// - name支持数组单元与元素集成员一一对应。
+// - value支持数组单元优先与元素集成员一一对应（值本身可为子数组）。
+// - 若name和value皆为数组，并列与元素集成员一一对应。
+// - 任意数组成员为空时，简单忽略对应元素的设置。
 // 返回值：
 // 取值：一个值集（Collector），成员与集合元素一一对应。
 // 设置：实例自身（this）。
@@ -3839,9 +3841,8 @@ elsExfn([
     function( name, value ) {
         let _nia = isArr(name);
 
-        // 取值支持名称数组与元素成员一一对应。
-        if ( (value === undefined &&
-            (typeof name == 'string') || _nia && typeof name[0] == 'string') ) {
+        if ( value === undefined &&
+            (typeof name == 'string' || _nia && typeof name[0] == 'string') ) {
             return _customGets( fn, this, name, _nia );
         }
         return _customSets( fn, this, name, value, _nia ), this;
@@ -3881,21 +3882,37 @@ function _customGets( fn, self, name, nia ) {
  * @param {String} fn 方法名
  * @param {[Element]} els 元素集
  * @param {String|[String]} name 名称序列（集）
- * @param {Value|Function|[Value]} val 设置的值（集）或取值回调
+ * @param {Value|[Value]} val 设置的值（集）
  * @param {Boolean} nia 名称为数组
  */
 function _customSets( fn, els, name, val, nia ) {
     if ( nia ) {
-        // 不支持val值。
-        return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name[i]) );
+        return _namesVals( fn, els, name, val );
     }
     if ( isArr(val) ) {
-        // name支持空格分隔的多名称
-        // 注：val可为二维数组用于值本身需要数组时。
         return els.forEach( (el, i) => val[i] !== undefined && tQuery[fn](el, name, val[i]) );
     }
     // 全部相同赋值。
     return els.forEach( el => tQuery[fn](el, name, val) );
+}
+
+
+/**
+ * 多名称:多值对应设置。
+ * 如果名称单元或值单元未定义，对应元素成员设置忽略。
+ * @param {String} fn 方法名
+ * @param {[Element]} els 元素集
+ * @param {String} name 名称/序列
+ * @param {Value|[Value]} val 设置的值（集）
+ */
+function _namesVals( fn, els, name, val ) {
+    if ( isArr(val) ) {
+        return els.forEach( (el, i) =>
+            name[i] !== undefined && val[i] !== undefined && tQuery[fn](el, name[i], val[i])
+        );
+    }
+    // 全部相同赋值。
+    return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name, val) );
 }
 
 
@@ -4929,7 +4946,7 @@ function customSet( el, name, value, scope ) {
         case 'html':
             return Insert(el, buildFragment(value, el.ownerDocument), '');
     }
-    scope.set(el, name, value);
+    scope.set( el, name, value );
 }
 
 
@@ -6108,7 +6125,7 @@ const
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
     boolHook = {
         set: function( el, name, val ) {
-            val === false ? removeAttr(el, name) : setAttr(el, name, val);
+            val === false ? removeAttr(el, name) : setAttr(el, name, name);
         },
         get: function( el, name ) {
             return el.hasAttribute(name) ? name : null;
