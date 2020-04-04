@@ -552,7 +552,10 @@ const _NextStage = {
 ]
 .forEach(function( meth ) {
 
-    _NextStage[meth] = function( evo ) { $(evo.targets)[meth]() };
+    _NextStage[meth] = function( evo ) {
+        let x = evo.targets;
+        $.isArray(x) ? $(x)[meth]() : $[meth]( x );
+    };
 
     // _NextStage[`__${meth}`] = null;
 

@@ -1401,8 +1401,10 @@ function deepArray( arr, buf = [] ) {
  * @param {Boolean} deep 是否深度克隆
  */
 function arrayDeeps( arrs, deep ) {
-    return deep ?
-        arrs.map( v => $.isArray(v) ? deepArray(v) : v ) : arrs;
+    if ( deep ) {
+        return arrs.map( v => $.isArray(v) ? deepArray(v) : v );
+    }
+    return arrs;
 }
 
 

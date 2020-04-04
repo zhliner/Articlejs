@@ -168,11 +168,11 @@ const Util = {
         if ( wds === undefined ) {
             return _v ? pbArgs( attrArgs(_v) ) : [];
         }
-        if ( !wds ) {
+        if ( wds === null ) {
             // 移除参数选项保留。
-            return _v && $.attr( el, __attrPB, _v.replace(__pbArgs, '') );
+            return _v && $.attr( el, __attrPB, _v.replace(__pbArgs, '').trim() );
         }
-        $.attr( el, __attrPB, pbaAttr(pbArgs(wds), _v) );
+        $.attr( el, __attrPB, pbaAttr(pbArgs(wds), _v).trim() );
     },
 
 
@@ -198,11 +198,11 @@ const Util = {
         if ( wds === undefined ) {
             return _o;
         }
-        if ( !wds ) {
+        if ( wds === null ) {
             // 移除选项保留参数。
-            return _v && $.attr( el, __attrPB, _v.replace(__pbOpts, '') );
+            return _v && $.attr( el, __attrPB, _v.replace(__pbOpts, '').trim() );
         }
-        $.attr( el, __attrPB, pboAttr(pbOpts(wds, new Set(_o)), _v) );
+        $.attr( el, __attrPB, pboAttr(pbOpts(wds, new Set(_o)), _v).trim() );
     },
 
 
@@ -418,8 +418,9 @@ function pbArgs( val ) {
 /**
  * 构造data-pb属性值。
  * - 参数串替换或前端新插入。
- * @param {String} val PB参数串
- * @param {String} attr 原属性值
+ * @param  {String} val PB参数串
+ * @param  {String} attr 原属性值
+ * @return {String}
  */
 function pbaAttr( val, attr ) {
     if ( !attr ) {
@@ -441,7 +442,8 @@ function attrOpts( attr ) {
 /**
  * 解析/提取PB选项序列。
  * 解析返回词序列，构造返回串值。
- * 选项词支持前置减号（-）字符表示移除。
+ * 支持前置 - 表示移除。
+ * 支持前置 ^ 表示切换。
  * 注：无前置加号（+）功能。
  * @param  {String|[String]} val 选项串或词序列
  * @param  {Set} opts 原选项集
@@ -479,8 +481,9 @@ function optToggle( set, name ) {
 /**
  * 构造data-pb属性值。
  * - 选项串替换或参数段后添加。
- * @param {String} opts PB选项串
- * @param {String} attr 原属性值
+ * @param  {String} opts PB选项串
+ * @param  {String} attr 原属性值
+ * @return {String}
  */
 function pboAttr( opts, attr ) {
     if ( !attr ) {

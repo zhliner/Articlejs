@@ -245,7 +245,7 @@ chains()
 
 [attribute]
 - @[name]
-// 特性设置（.attr([name], ...)）
+// 特性设置（.attr(name, ...)）
 // 内容：{String|Number|Boolean|Function|null}
 // 例：
 // @style： 设置元素的style特性值（cssText）。
@@ -253,7 +253,7 @@ chains()
 
 [property]
 - $[name]
-// 属性设置（.prop([name], ...)）
+// 属性设置（.prop(name, ...)）
 // 内容：{String|Number|Boolean|Function|null}
 // 例：
 // $value   设置元素的value属性值。
@@ -261,7 +261,7 @@ chains()
 
 [style]
 - %[name]
-// 样式设置（.css([name], ...)）
+// 样式设置（.css(name, ...)）
 // 内容：{String|Number|Function|null}
 // 例：
 // %font-size 设置元素的font-size内联样式。
@@ -269,7 +269,7 @@ chains()
 
 [attribute:toggle]
 - ^[name]
-// 元素特性切换（.toggleAttr([name], ...)）
+// 元素特性切换（.toggleAttr(name, ...)）
 // 内容：{Value|[Value]|Function}
 // 单值比较有无切换，双值（数组）比较交换切换。
 ```

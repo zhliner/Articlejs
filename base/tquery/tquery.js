@@ -2909,8 +2909,12 @@ tQuery.Table = Table;
 // 可调用原生方法（事件类）。
 ///////////////////////////////////////
 
-callableNative.forEach( name =>
-    tQuery[name] = function( el ) { return (name in el) && el[name](), this; }
+callableNative
+.forEach(
+    name =>
+    tQuery[name] = function( el ) {
+        return (name in el) && el[name](), this;
+    }
 );
 
 

@@ -139,9 +139,15 @@ const Parser = {
             tos = [...__dlmtSplit.split(conf.to)],
             i = 0;
 
-        for (const on of __dlmtSplit.split(conf.on)) {
+        for (let on of __dlmtSplit.split(conf.on)) {
+            // 容错空串（末尾;）
+            on = zeroPass( on );
+
+            if ( !on ) {
+                continue;
+            }
             yield {
-                on: zeroPass( on ),
+                on: on,
                 by: zeroPass( bys[i] ),
                 to: zeroPass( tos[i] ),
             };

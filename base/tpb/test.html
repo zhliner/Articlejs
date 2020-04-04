@@ -34,22 +34,6 @@
         aside#help {
             width: 260px;
         }
-        .Modal {
-            position: absolute;
-            box-sizing: border-box;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(128, 128, 128, 0.5);
-            z-index: 100;
-            border-radius: inherit;
-            border: 4px #777 solid;
-        }
-        ._c216 {
-            height: 210px;
-            flex: 1 1 auto;
-            display: grid;
-            grid-template-columns: repeat(36, 1fr);
-        }
     </style>
     <script>
         // 窗口大小自适应。
@@ -79,23 +63,6 @@
                 language: `chinese`,
             };
     </script>
-    <script>
-        dataStore = () => 'test';
-
-        // 程序方式
-        // 字符表初始化填充/存储。
-        function charsInit( box ) {
-            let $lst = $('span', box)
-                .text()
-                .map( s => $.split(s) )
-                .map( ss => $(ss).wrap('<b>') );
-
-            $('span', box)
-            .fill( $lst )
-            .end()
-            .forEach( sp => dataStore(box, $.attr('-val'), sp) );
-        }
-    </script>
 </head>
 <body lang="zh-cn"
     on="@mousemove:1|movementX;
@@ -107,7 +74,8 @@
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-    <hr on="mousedown"
+    <hr id="lineLeft"
+        on="mousedown"
         to="body|bind('mousemove:1') once('mouseup')" />
     <div id="editor">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb="lost"
@@ -134,44 +102,9 @@
             [主面板区]
             [状态栏]
         </pre>
-        <div class="_c216" data-pb="lost"
-            on="^obted|evo(3) dup text clean(true) split(',') str('#') dup str('background-color:') mix(2) elem('b', 216) pop"
-            to="|attribute('title style') fillWith">
-            <!-- <b title="#000" style="background-color:#000"></b>... -->
-            000,003,006,009,00c,00f,030,033,036,039,03c,03f,060,063,066,069,06c,06f,090,093,096,099,09c,09f,0c0,0c3,0c6,0c9,0cc,0cf,0f0,0f3,0f6,0f9,0fc,0ff,
-            300,303,306,309,30c,30f,330,333,336,339,33c,33f,360,363,366,369,36c,36f,390,393,396,399,39c,39f,3c0,3c3,3c6,3c9,3cc,3cf,3f0,3f3,3f6,3f9,3fc,3ff,
-            600,603,606,609,60c,60f,630,633,636,639,63c,63f,660,663,666,669,66c,66f,690,693,696,699,69c,69f,6c0,6c3,6c6,6c9,6cc,6cf,6f0,6f3,6f6,6f9,6fc,6ff,
-            900,903,906,909,90c,90f,930,933,936,939,93c,93f,960,963,966,969,96c,96f,990,993,996,999,99c,99f,9c0,9c3,9c6,9c9,9cc,9cf,9f0,9f3,9f6,9f9,9fc,9ff,
-            c00,c03,c06,c09,c0c,c0f,c30,c33,c36,c39,c3c,c3f,c60,c63,c66,c69,c6c,c6f,c90,c93,c96,c99,c9c,c9f,cc0,cc3,cc6,cc9,ccc,ccf,cf0,cf3,cf6,cf9,cfc,cff,
-            f00,f03,f06,f09,f0c,f0f,f30,f33,f36,f39,f3c,f3f,f60,f63,f66,f69,f6c,f6f,f90,f93,f96,f99,f9c,f9f,fc0,fc3,fc6,fc9,fcc,fcf,ff0,ff3,ff6,ff9,ffc,fff
-        </div>
-        <!-- 特殊字符集
-            初始解析构造为：<b>...</b>序列
-            各字符集清单<span>存储在data中备用。 -->
-        <div class="_inline" data-pb="lost"
-            on="init|stop evo('origin') text split pop $$ wrap('<b>');
-                save|stop evo(1) ev('detail');
-                ^obted;
-                ^done"
-            to="~|fill|target xattr('-val') pop fire(0, 'save', true);
-                |data(_)|fire(1, 'done');
-                +/span|trigger('init', true);
-                |off('init save')">
-            <!-- <span><b>...</span> -->
-            <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
-            <span data-val="unit">$¢£¤¥°‰′″₠₡₢₣₤₥₦₧₨₩₪₫€₭₮₯₰₱℃℉○㎎㎏㎜㎝㎞㎡㏄㏎㏕＄％￠￠￡￡￥￥〇</span>
-            <span data-val="punctuation">【】〖〗《》〈〉（）〔〕｛｝「」『』﹙﹚﹛﹜﹝﹞‹›«»…／｜＼‖｜¦–︱—︳︴‥﹒，、。．；：？！︰′‵‘～ˆˇˉ﹐﹑•﹔﹕﹖﹗﹏﹌﹋´ˋ―＿¯￣﹍﹉﹎﹊︵︶︷︸︹︺︻︼︽︾︿﹀﹁﹂﹃﹄¸¡¿〓〒</span>
-            <span data-val="number">ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ①②③④⑤⑥⑦⑧⑨⑩㈠㈡㈢㈣㈤㈥㈦㈧㈨㈩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇零壹贰叁肆伍陆柒捌玖拾佰仟万亿兆吉太拍艾分厘毫</span>
-            <span data-val="math">#%&*/[]^±×÷•‰‱⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉⅓⅔½¼¾⅛⅜⅝⅞∈∏∑√∝∞∟∠∥∧∨∩∪∫∬∭∮∯∰∴∵∶∷∽≈≌≒≠≡≤≥≦≧≮≯⊕⊙⊥⊰⊱⊿⋘⋙⋚⋛⌒㏑㏒﹙﹚﹛﹜﹟﹠﹡﹢﹣﹤﹥﹦％＋－／＜＝＞～</span>
-            <span data-val="special">№℡©™®＠@※★☆✦✧⏱⏲☏☚☛☜☝☞☟☢☣☪☭☮☯❀❁❂☸☻☠☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♡♢♤♧⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚘⚙⚛⚜⚝⚢⚣⚤⚥⚦⚧⚨⚩⚭⚮⚯⛆⛇❄⛈⛟⛴⛵✈⛽✂✄✓✔✗✘§♭♮♯¶♩♪♫♬℅㊣</span>
-            <span data-val="alphabet">ァアィイゥウヴェエォオカガヵキギクグケゲヶコゴサザシジスズセゼソゾタダチヂツヅッテデトドヰンナパニピヌプネペノポハバヒビフブヘベホボヱマラミリムルメレモロャヤュユョヨヮワぁあぃいぅうぇえぉおかがきぎくぐけげこごんさざしじすずせぜそぞただちぢつづってでとどゐなぱにぴぬぷねぺのぽはばひびふぶへべほぼゑまらみりむるめれもろゃやゅゆょよゎわαΑβΒγΓδΔεΕζΖηΗθΘιΙκΚλΛμΜνΝξΞοΟπΠρΡσΣτΤυΥφΦχΧψΨωаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮя</span>
-            <span data-val="geometric">←↑→↓↔↕↖↗↘↙⇠⇡⇢⇣⇤⇥⇦⇧⇨⇩⇱⇲⇳⇵⇿■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▶▷▼▽◀◁◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳</span>
-            <span data-val="emotion">😀😁😂🤣😃😄😅😆😉😊😋😎😍😘😗😙😚☺🙂🤗🤩🤔🤨😐😑😶🙄😏😣😥😮🤐😯😪😫😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱😳🤪😵😠😡🤬😷🤒🤕🤢🤮🤧😇🤠🤡🤥🤫🤭🧐🤓😈👿👹👺💀☠👁👀💪🤞🖖👌👍👎🙏🎈🎄💎💐🌸🌷🥀🌻🌱☘🚗🚌🚐🚑🚅🚩❄⚡❤💔💖💘💬💝☢🔞📵</span>
-            <span data-val="radical">丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢尣屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿肀臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
-            <span data-val="phonetic">āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüm̥mχʁħʕhɦʋ̥ʋɹ̥ɹɻ̊ɻj̊jɰ̊ɰʔ̞ⱱ̟ⱱɾ̼ɾ̥ɾɽ̊ɽɢ̆ʡ̆ʙ̥ʙr̥rɽ̊r̥ɽrʀ̥ʀʜʢɬɮɭ̊˔ɭ˔ʎ̝̊ʎ̝ʟ̝̊ʟ̝l̥lɭ̊ɭʎ̥ʎʟ̥ʟʟ̠pɓɗᶑʄɠʛɓ̥ɗ̥ᶑ̊ʄ̊ɠ̊ʛ̥iyɨʉɯuɪʏɨ̞ʉ̞ɯ̞ʊeøɘɵɤoe̞ø̞əɤ̞o̞ɛœɜɞʌɔæɐaɶäɒ̈ɑɒㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
-        </div>
     </div>
-    <hr on="mousedown"
+    <hr id="lineRight"
+        on="mousedown"
         to="body|bind('mousemove:2') once('mouseup')" />
     <aside id="help" class="___Panel _docs" data-pb="">
         <span class="_walk">

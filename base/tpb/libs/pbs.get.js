@@ -1043,6 +1043,11 @@ const _Gets = {
 //////////////////////////////////////////////////////////////////////////////
 
 //
+// 状态标识符。
+//
+const __uiState = [ '-', '', '^' ];
+
+//
 // 元素表现。
 // 目标：暂存区/栈顶1项。
 //===============================================
@@ -1055,21 +1060,20 @@ const _Gets = {
 ]
 .forEach(function( names ) {
     /**
-     * 解除状态通常可传递实参null。
-     * @param  {Boolean|null} sure 状态执行
+     * 状态标识 n:
+     * - 1  状态执行，默认
+     * - 0  状态取消
+     * - 2  状态切换
+     * @param  {Number} n 状态标识值
      * @return {void}
      */
-    _Gets[names[0]] = function( evo, sure = true ) {
-        let els = evo.data,
-            val = names[1];
+    _Gets[names[0]] = function( evo, n = 1 ) {
+        let els = evo.data;
 
-        if ( !sure ) {
-            val = `-${val}`;
-        }
         if ( !$.isArray(els) ) {
             els = [els];
         }
-        els.forEach( el => Util.pbo(el, [val]) );
+        els.forEach( el => Util.pbo(el, [`${__uiState[n]}${names[1]}`]) );
     };
 
     _Gets[`__${names[0]}`] = 1;
