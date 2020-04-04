@@ -16,8 +16,8 @@ const
 
     Web = {
         base:   'http://localhost:8080/',   // 请求根URL
-        tpls:   'templates',                // 模板根目录（相对于setup）
-        pull:   'xdata',                    // x.pull根目录（相对于setup）
+        tpls:   'templates',                // 模板根目录（相对于base）
+        pull:   'xdata',                    // x.pull根目录（相对于base）
     },
 
     // OBT属性名定义
@@ -32,13 +32,10 @@ const
     // 注：这一属性名会保留在DOM元素上。
     hasRender   = '_',
 
-    // 模板根路径（计算）。
-    tplRoot = new URL(Web.tpls, Web.base),
-
     // 模板映射。
     // { 文件名：[模板名] }
     // 注：用于从模板名查询所属文件。
-    tplsMap = `${tplRoot}/maps.json`,
+    tplsMap = `${Web.base}${Web.tpls}/maps.json`,
 
     // X.pull 根路径（计算）。
     pullRoot = new URL(Web.pull, Web.base);
@@ -176,7 +173,6 @@ export {
     PREVCELL,
     bindMethod,
     funcSets,
-    tplRoot,
     tplsMap,
     pullRoot,
     Globals,

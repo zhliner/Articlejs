@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { tplRoot, DEBUG } from "../config.js";
+import { Web, DEBUG } from "../config.js";
 
 
 const $ = window.$;
@@ -24,10 +24,12 @@ const $ = window.$;
 
 class TplLoader {
 	/**
-     * @param {String} 载入根路径
+	 * @param {String} base Web路径跟
+     * @param {String} dir 模板根目录
 	 */
-	constructor( dir ) {
-        this._root = dir;
+	constructor( base, dir ) {
+		this._root = dir;
+		this._path = new URL(dir, base);
 
         // 已载入存储 {file: Promise}
         // 多个 tpl-load 目标可能属于同一文件。
@@ -74,7 +76,7 @@ class TplLoader {
 		}
 		if ( !this._pool.has(_file) ) {
 			if ( DEBUG ) {
-				window.console.log( `[${_file}] loading for [${name}]` );
+				window.console.log( `[${name}] loading file "${this._root}/${_file}"` );
 			}
 			this._pool.set( _file, this.fetch(_file) );
 		}
@@ -117,7 +119,7 @@ class TplLoader {
 	 * @return {Promise<DocumentFragment>} 承诺对象
 	 */
 	fetch( file ) {
-        return fetch( this._root + '/' + file )
+        return fetch( this._path + '/' + file )
 			.then( resp => resp.ok ? resp.text() : Promise.reject(resp.statusText) )
 			.then( html => $.create(html) )
 			.catch( e => window.console.error(e) );
@@ -130,4 +132,4 @@ class TplLoader {
 // 导出
 ///////////////////////////////////////////////////////////////////////////////
 
-export const TLoader = new TplLoader( tplRoot );
+export const TLoader = new TplLoader( Web.base, Web.tpls );
