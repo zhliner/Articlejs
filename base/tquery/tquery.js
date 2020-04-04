@@ -3308,17 +3308,17 @@ class Collector extends Array {
 
     /**
      * 在集合内的每一个元素中查询单个目标。
-     * 返回目标的一个新集合。
-     * 注记：父子关系的元素可能获取到重复的元素。
+     * 注意父子关系的元素可能获取到重复的元素。
+     * 如果all为真，未找到的返回值（null）保留。
      * @param  {String} slr 选择器
+     * @param  {Boolean} all 全部保留
      * @return {Collector}
      */
-    get( slr ) {
-        let _buf = Arr(this).
-            map( el => tQuery.get(slr, el) ).
-            filter( e => !!e );
+    get( slr, all ) {
+        let _els = Arr(this)
+            .map(el => tQuery.get(slr, el));
 
-        return new Collector( uniqueSort(_buf, sortElements), this );
+        return new Collector( all ? _els : _els.filter(e => e), this );
     }
 
 
@@ -3386,6 +3386,20 @@ class Collector extends Array {
             cleanMap( this, (e, i) => name[i] && tQuery.xattr(el, name[i]) ),
             this
         );
+    }
+
+
+    /**
+     * 样式设置（高级版）。
+     * 支持名称数组/值数组和元素集成员一一对应。
+     * @param {String|[String|Object|Map]} name 样式名/序列（集）
+     * @param {Value|[Value]} val 样式值
+     */
+    cssSets( name, val ) {
+        _customSets(
+            'cssSets', this, name, val, isArr(name)
+        );
+        return this;
     }
 
 
@@ -3835,7 +3849,6 @@ elsExfn([
         'prop',
         'property',
         'css',
-        'cssSets',
     ],
     fn =>
     function( name, value ) {
@@ -3881,7 +3894,7 @@ function _customGets( fn, self, name, nia ) {
  * 集合成员无值数组成员对应时简单忽略。
  * @param {String} fn 方法名
  * @param {[Element]} els 元素集
- * @param {String|[String]} name 名称序列（集）
+ * @param {String|[String|Object|Map]} name 名称序列（集）
  * @param {Value|[Value]} val 设置的值（集）
  * @param {Boolean} nia 名称为数组
  */
@@ -3902,7 +3915,7 @@ function _customSets( fn, els, name, val, nia ) {
  * 如果名称单元或值单元未定义，对应元素成员设置忽略。
  * @param {String} fn 方法名
  * @param {[Element]} els 元素集
- * @param {String} name 名称/序列
+ * @param {[String|Object|Map]} name 名称/序列（集）
  * @param {Value|[Value]} val 设置的值（集）
  */
 function _namesVals( fn, els, name, val ) {
