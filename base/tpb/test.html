@@ -41,6 +41,8 @@
             document.body.style.height = `${window.innerHeight/2}px`;
         };
         $.ready( () => $.trigger(window, 'resize') );
+
+        window.Config = {};
     </script>
 
     <script type="module" async>
@@ -63,11 +65,14 @@
                 language: `chinese`,
             };
     </script>
+    <script src="/config.js"></script>
 </head>
+
 <body lang="zh-cn"
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
-        @mouseup|movementX(null)"
+        @mouseup|movementX(null);
+        keydown|acmsk debug avoid"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove')">

@@ -33,6 +33,15 @@ const
         12: 'targets',  // To目标元素/集，向后延续
     },
 
+    // 修饰键属性名。
+    // 注：按名称有序排列。
+    __evKeys = [
+        'altKey',
+        'ctrlKey',
+        'metaKey',
+        'shiftKey',
+    ],
+
     // 空白匹配。
     __reSpace = /\s+/,
 
@@ -471,8 +480,8 @@ const _Gets = {
      * 4. push('xyz', true) tpl(_)  // _后不能再传值，同2.
      * 5. push('abc') pop tpl  模板名为abc，clone未定义，同1.
      * 注记：
-     * 支持暂存区1项可选（-1）是对name的友好，因为此时clone可以直接传值，
-     * 因为_标识符会影响后续所有模板参数（且多一次取值）。
+     * 支持暂存区1项可选（-1）是对name的友好，此时clone可以直接传值，
+     * 如果无需clone实参，tpl(_) 与 pop tpl 效果相同。
      * @param  {String} name 模板名
      * @param  {Boolean} clone 是否克隆，可选
      * @return {Promise}
@@ -602,7 +611,7 @@ const _Gets = {
     /**
      * 修饰键状态检查|封装。
      * 即 shift/ctrl/alt/meta 键是否按下。
-     * 目标：暂存区1项可选。
+     * 目标：无。
      * 如果指定键名则为检查，否则简单封装4个键的状态。
      * 可从暂存区获取键名指定。
      * names支持空格分隔的多个名称，全小写，And关系。
@@ -623,13 +632,31 @@ const _Gets = {
                 'alt':   evo.event.altKey,
                 'meta':  evo.event.metaKey,
             };
-        if ( !names ) {
-            names = evo.data;
-        }
         return names ? name.split(__reSpace).every( n => _map[n] ) : _map;
     },
 
-    __scam: -1,
+    __scam: null,
+
+
+    /**
+     * 构建组合键序列。
+     * 目标：无。
+     * 将按下键键位串接为一个键名序列。
+     * 如：alt+ctrl:f，表示同时按下Alt+Ctrl和F键。
+     * 修饰键名有序排列后用+号连接，冒号之后为目标键名。
+     * 注意：
+     * - 单纯的修饰键也有目标键名，形如：alt:alt、ctrl:control
+     * - 所有名称皆为小写形式以保持良好约定。
+     * @return {String}
+     */
+    acmsk( evo ) {
+        let _ks = __evKeys.filter(n => evo.event[n]).map(n => n.slice(0, -3)),
+            _ch = evo.event.key.toLowerCase();
+
+        return _ks.length ? `${_ks.join('+')}:${_ch}` : _ch;
+    },
+
+    __acmsk: null,
 
 
     /**

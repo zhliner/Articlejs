@@ -13,6 +13,7 @@
 
 @import 'icons.css';
 
+
 /* 侧面板 */
 body > aside {
     border: 1px #5c869c solid;
@@ -21,18 +22,17 @@ body > aside {
 
 /* 侧面板宽度调整线 */
 body > hr {
-    width: 4px;
-    border: 2px #fff solid;
-    border-radius: 6px;
-    background-color: #abc;
+    width: 3px;
+    border: 1px #fff solid;
+    border-radius: 3px;
+    /* background-color: #5c869c; */
     cursor: ew-resize;
 }
 
 /* 大纲面板 */
-#outline {
+aside#outline {
     width: 200px;
 }
-
 /* 编辑器容器 */
 div#editor {
     flex: 1 1 auto;
@@ -42,17 +42,9 @@ div#editor {
     border-radius: 12px 12px 5px 5px;
     position: relative;
 }
-
 /* 帮助面板 */
-#help {
+aside#help {
     width: 260px;
-}
-
-/* 兼容重置 */
-.___Panel * {
-    line-height: 150%;
-    margin: 0;
-    padding: 0;
 }
 
 
@@ -80,6 +72,14 @@ div#editor {
 
 /* [ 全局默认 ]
  ****************************************************************************/
+
+/* 兼容 */
+.___Panel * {
+    line-height: 150%;
+    margin: 0;
+    padding: 0;
+}
+
 .___Panel form {
     font-size: 14px;
 }
@@ -100,30 +100,6 @@ div#editor {
     border-radius: 3px 1px 1px 3px;
     outline: none;
 }
-.___Panel select._list {
-    padding: 6px 1px 6px 6px;
-}
-.___Panel div._list {
-    border: 1px #7dbcdb solid;
-    border-radius: 5px 1px 1px 5px;
-    background-color: #fff;
-    overflow-y: auto;
-}
-/* 属性：清单 */
-.___Panel div._list > table {
-    border-spacing: 10px;
-    margin: 5px auto;
-    width: 96%;
-}
-.___Panel div._list th {
-    text-align: right;
-}
-.___Panel div._list td._preview {
-    height: 120px;
-    padding: 5px;
-    border: 1px #888 solid;
-    background-color: #999;
-}
 
 .___Panel option {
     padding: 3px 6px;
@@ -137,14 +113,6 @@ div#editor {
     font-size: 12pt;
 }
 
-/* 字符表情 */
-.___Panel ._orz {
-    font-family: monospace;
-    white-space: pre;
-    line-height: 100%;
-    font-size: 10pt;
-}
-
 .___Panel input[type=text] {
     padding: 1px 4px;
     border: 1px #93c8e2 solid;
@@ -156,12 +124,6 @@ div#editor {
 .___Panel input::placeholder {
     color: #ccc;
 }
-.___Panel input._scale {
-    padding-top: 4px;
-    border: 1px #60acd2 solid;
-    background: #ffe url('images/heading.png') 4px 0 repeat-x;
-    font-weight: bold;
-}
 .___Panel input[type=radio],
 .___Panel input[type=checkbox] {
     margin-right: 4px;
@@ -169,8 +131,9 @@ div#editor {
 }
 /* 代码字体 */
 .___Panel code,
-.___Panel ._code {
-    font-size: 12px !important;
+.___Panel ._code,
+.___Panel input._code {
+    font-size: 12px;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     white-space: pre-wrap;
 }
@@ -197,12 +160,6 @@ div#editor {
     color: #aaa;
     font-style: italic;
 }
-.___Panel textarea._code {
-    background: #444 url('images/line20.png') repeat local;
-    background-position-y: 1px;
-    line-height: 20px;
-    border: 1px #666 solid;
-}
 
 .___Panel a {
     color: #333;
@@ -212,9 +169,6 @@ div#editor {
 .___Panel a:hover {
     color: #369;
 }
-.___Panel ._submit > label {
-    display: block;
-}
 .___Panel button {
     padding: 1px 20px 2px;
     border: 1px #5798a5 solid;
@@ -222,12 +176,28 @@ div#editor {
     font-size: 14px;
     outline: none;
 }
-.___Panel ._submit > button {
-    background-color: #1b839c;
-    color: #fff;
+/* 去除焦点虚框 */
+.___Panel input,
+.___Panel [tabindex] {
+    outline: none;
 }
-.___Panel ._submit button:hover {
-    background-color: #1a697c;
+
+/* 侧栏灰度线 */
+.___Panel aside select,
+.___Panel aside input[type=text] {
+    border: 1px #bbb solid;
+}
+
+
+/* [ 共享 ]
+ ****************************************************************************/
+
+/* 字符表情 */
+.___Panel code._orz {
+    font-family: monospace;
+    white-space: pre;
+    line-height: 100%;
+    font-size: 10pt;
 }
 
 .___Panel input._char {
@@ -241,16 +211,78 @@ div#editor {
 .___Panel input._chars {
     width: 60px;
 }
-/* 去除焦点虚框 */
-.___Panel input,
-.___Panel [tabindex] {
-    outline: none;
+.___Panel input._scale {
+    padding-top: 4px;
+    border: 1px #60acd2 solid;
+    background: #ffe url('images/heading.png') 4px 0 repeat-x;
+    font-weight: bold;
+}
+.___Panel textarea._code {
+    background: #444 url('images/line20.png') repeat local;
+    background-position-y: 1px;
+    line-height: 20px;
+    border: 1px #666 solid;
 }
 
-/* 侧栏灰度线 */
-.___Panel aside select,
-.___Panel aside input[type=text] {
-    border: 1px #bbb solid;
+.___Panel select._list {
+    padding: 6px 1px 6px 6px;
+}
+.___Panel div._list {
+    border: 1px #7dbcdb solid;
+    border-radius: 5px 1px 1px 5px;
+    background-color: #fff;
+    overflow-y: auto;
+}
+
+/* 属性表 */
+.___Panel div._list > table {
+    border-spacing: 10px;
+    margin: 5px auto;
+    width: 96%;
+}
+.___Panel div._list th {
+    text-align: right;
+}
+.___Panel div._list td._preview {
+    height: 120px;
+    padding: 5px;
+    border: 1px #888 solid;
+    background-color: #999;
+}
+
+/* 字符表情 */
+.___Panel code._orz {
+    font-family: monospace;
+    white-space: pre;
+    line-height: 100%;
+    font-size: 10pt;
+}
+
+/* 图标按钮 */
+.___Panel ._icons > b {
+    width: 32px;
+    height: 32px;
+    border: 1px transparent solid;
+    border-radius: 20%;
+}
+.___Panel ._icons > b:hover {
+    border-color: #dbdbdb;
+    background-color: #ededed;
+}
+.___Panel ._icons > b._press {
+    border-color: #cfcfcf;
+    background-color: #f3f4f5;
+}
+
+.___Panel ._submit > label {
+    display: block;
+}
+.___Panel ._submit > button {
+    background-color: #1b839c;
+    color: #fff;
+}
+.___Panel ._submit button:hover {
+    background-color: #1a697c;
 }
 
 
@@ -279,7 +311,7 @@ div#editor {
 }
 #help > ._walk > ._about {
     padding: 0;
-    width: 22px;
+    width: 24px;
     margin-left: auto;
     border-radius: 18px 0;
     color: #090;
@@ -287,28 +319,6 @@ div#editor {
 #help > ._walk > ._about:hover {
     border-color: transparent;
     box-shadow: 0.5px 0.6px 1px #999;
-}
-
-
-/* [ 合并 ]
- ****************************************************************************/
-
-.Tools b,
-.Style > ._icons > b {
-    width: 32px;
-    height: 32px;
-    border: 1px transparent solid;
-    border-radius: 4px;
-}
-.Tools b:hover,
-.Style > ._icons > b:hover {
-    border-color: #dbdbdb;
-    background-color: #ededed;
-}
-.Tools b._press,
-.Style > ._icons > b._press {
-    border-color: #ccc;
-    background-color: #fff;
 }
 
 
@@ -337,6 +347,12 @@ div#editor {
 }
 .Tools b {
     margin: auto 4px;
+}
+
+/* 冻结效果 */
+.Tools b[data-pb=disabled]:hover {
+    border-color: transparent;
+    background-color: transparent;
 }
 
 .Tools hr {
@@ -612,7 +628,7 @@ div#editor {
     margin: 8px 0;
 }
 
-/* 录入框最大化 */
+/* 录入框填充 */
 .Slave textarea._full {
     position: absolute;
     width: 100%;
@@ -1095,6 +1111,11 @@ div#editor {
 .Status > ._help {
     border-color: transparent;
     margin: 3px;
+    border-radius: 50%;
+}
+.Status > ._help._press {
+    border-color: #d9d9d9;
+    background-color: #f4f5f6;
 }
 .Status > ._help > code {
     color: #c30;

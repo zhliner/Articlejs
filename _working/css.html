@@ -96,21 +96,21 @@
 <!-- 工具栏 -->
 <div class="___Panel Tools" tpl-name="main:tools">
     <!-- 面板按钮 -->
-    <div class="_start">
+    <div class="_start _icons">
         <b title="大纲"><i id="b-outline"></i></b>
         <b title="主面板" class="_press"><i id="b-slave"></i></b>
     </div>
     <!-- 动态区 -->
-    <div id="tools-active" class="_active" data-pb="">
+    <div id="tools-active" class="_active _icons" data-pb="">
         <hr>
         <b title="文本化"><i id="b-totext"></i></b>
         <b title="去除标签"><i id="b-untag"></i></b>
         <hr>
         <b title="撤消"><i id="b-undo"></i></b>
-        <b title="重做"><i id="b-redo"></i></b>
+        <b title="重做" data-pb="disabled"><i id="b-redo"></i></b>
     </div>
     <!-- 功能按钮 -->
-    <div class="_end">
+    <div class="_end _icons">
         <b title="插件"><i id="b-plugins"></i></b>
         <b title="最大化"><i id="b-maximize"></i></b>
     </div>
@@ -281,35 +281,50 @@
 <!-- 主面板区 -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
     <div class="_tabs">
-        <b class="_press">内容</b>
-        <b>样式</b>
+        <b>内容</b>
+        <b class="_press">样式</b>
         <b>特性</b>
         <b>源码</b>
         <b>脚本</b>
         <b class="_close"><i id="l-close" title="关闭"></i></b>
     </div>
-    <!-- 初始面板 -->
-    <form class="Input" onsubmit="return false" tpl-name="slave:inputs">
-        <div class="_roll">
-            <div class="_where">
-                <label title="平级插入">
-                    <input type="radio" name="where" checked /><i id="l-siblings"></i>
+    <form class="Style" onsubmit="return false" tpl-name="slave:style">
+        <div class="_icons">
+            <b><i id="b-erase"></i></b>
+            <b><i id="b-brush"></i></b>
+            <b class="_press"><i id="b-fontview"></i></b>
+            <b><i id="b-fontsize"></i></b>
+            <b><i id="b-align"></i></b>
+            <b><i id="b-width"></i></b>
+            <b><i id="b-margin"></i></b>
+            <b><i id="b-colors"></i></b>
+        </div>
+        <!-- 子模版：字形 -->
+        <div class="_body _fontview" tpl-name="style:fontview">
+            <div class="_list">
+                <label>
+                    <input type="checkbox" name="bold" />
+                    <span style="font-weight: bold;">粗体</span><small>（font-weight: bold）</small>
                 </label>
-                <label title="向内插入">
-                    <input type="radio" name="where"><i id="l-children"></i>
+                <label>
+                    <input type="checkbox" name="italic" />
+                    <span style="font-style: italic;">斜体</span><small>（font-style: italic）</small>
+                </label>
+                <label>
+                    <input type="radio" name="decoration" />
+                    <span style="text-decoration: underline;">下划线</span><small>（text-decoration: underline）</small>
+                </label>
+                <label>
+                    <input type="radio" name="decoration" />
+                    <span style="text-decoration: line-through;">贯穿线</span><small>（text-decoration:
+                        line-through）</small>
+                </label>
+                <label>
+                    <input type="radio" name="decoration" />
+                    <span style="text-decoration: overline;">上划线</span><small>（text-decoration: overline）</small>
                 </label>
             </div>
-            <select id="inputs-items" name="items" size="5" class="_list">
-                <!-- 例：筛选合法单元条目插入。 -->
-                <option value="Table" title="<table>">表格</option>
-                <option value="Abstract" title="<header role='abstract'>">提要</option>
-                <option value="Header" title="<header>">导言</option>
-                <option value="Footer" title="<footer>">结语</option>
-            </select>
-        </div>
-        <!-- [子模版] -->
-        <div class="_body _empty" tpl-name="input:empty">
-            <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
+            <div class="_erase"><b>全部清除</b></div>
         </div>
     </form>
 </div>
@@ -322,7 +337,7 @@
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" class="_code" data-pb="">
+        <span id="cmd-chars" class="_code" data-pb="lost">
             <b title="选择器模式">/</b>
             <b title="普通命令">:</b>
             <b title="简单计算">=</b>
@@ -350,13 +365,53 @@
         <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
     </div>
     <!-- 帮助入口 -->
-    <div class="_help" title="帮助"><code>?</code></div>
+    <div class="_help _press" title="帮助">
+        <code>?</code>
+    </div>
 </div>
 
     </div>
 
 
 <!-- 内容面板 ------------------------------------------------------------------->
+
+    <h4>（空）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:inputs">
+                <div class="_roll">
+                    <div class="_where">
+                        <label>
+                            <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="where"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5" class="_list">
+                        <!-- 例：筛选合法单元条目插入。 -->
+                        <option value="Table" title="<table>">表格</option>
+                        <option value="Abstract" title="<header role='abstract'>">提要</option>
+                        <option value="Header" title="<header>">导言</option>
+                        <option value="Footer" title="<footer>">结语</option>
+                    </select>
+                </div>
+                <!-- [子模版：空] -->
+                <div class="_body _empty" tpl-name="input:empty">
+                    <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
 
     <h4>表格：table/caption,thead,tbody,tfoot/tr/th,td</h4>
     <div class="panel inputs" style="height: 400px;">
@@ -423,16 +478,7 @@
                 </div>
             </form>
         </div>
-        <div class=" ___Panel Status">
-            <div class="_tips"></div>
-            <div class="_cmdx">
-                <code id="cmd-char" data-v=":">:</code>
-            </div>
-            <div class="_cmdline">
-                <input id="cmd-input" type="text" spellcheck="false" class="_code" />
-            </div>
-            <div class="_help" title="帮助"><b>?</b></div>
-        </div>
+        <!-- 状态栏（略） -->
     </div>
 
     <h4>文章标题：h1 | hgroup/h1,h2</h4>
@@ -2010,7 +2056,7 @@
                 <div class="_body _margin" tpl-name="style:margin">
                     <div>
                         <div class="_where"
-                            on="click(input)|evo(2) val pop tpl"
+                            on="click(input)|evo(2) val tpl(_)"
                             to="1/select|replace">
                             <label title="外边距">
                                 <input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i>

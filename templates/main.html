@@ -1,29 +1,29 @@
 <!-- 工具栏 -->
 <div class="___Panel Tools" tpl-name="main:tools">
     <!-- 面板按钮 -->
-    <div class="_start">
+    <div class="_start _icons">
         <b title="大纲" class="_press"
             on="click|$$('#outline,#lineLeft') lose(2) push('_press')"
             to="|toggleClass">
             <i id="b-outline"></i>
         </b>
-        <b title="主面板" class="_press"
+        <b id="tools-slave" title="主面板" class="_press"
             on="click|$('#main-slave') lose(2) push('_press')"
             to="|toggleClass">
             <i id="b-slave"></i>
         </b>
     </div>
     <!-- 动态区 -->
-    <div id="tools-active" class="_active" data-pb="">
+    <div id="tools-active" class="_active _icons" data-pb="">
         <hr>
         <b title="文本化"><i id="b-totext"></i></b>
         <b title="去除标签"><i id="b-untag"></i></b>
         <hr>
         <b title="撤消"><i id="b-undo"></i></b>
-        <b title="重做"><i id="b-redo"></i></b>
+        <b title="重做" data-pb="disabled"><i id="b-redo"></i></b>
     </div>
     <!-- 功能按钮 -->
-    <div class="_end">
+    <div class="_end _icons">
         <b title="插件"><i id="b-plugins"></i></b>
         <b title="最大化"><i id="b-maximize"></i></b>
     </div>
@@ -99,7 +99,9 @@
         <b>特性</b>
         <b>源码</b>
         <b>脚本</b>
-        <b class="_close"><i id="l-close" title="关闭"></i></b>
+        <b class="_close" on="click" to="#tools-slave||click">
+            <i id="l-close" title="关闭"></i>
+        </b>
     </div>
     <div tpl-source="slave:inputs"> [内容面板] </div>
 </div>
@@ -149,7 +151,9 @@
         <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
     </div>
     <!-- 帮助入口 -->
-    <div class="_help" title="帮助">
-        <code on="click|$$('#help,#lineRight') lose(2)">?</code>
+    <div class="_help _press" title="帮助"
+        on="click|$$('#help,#lineRight') lose(2) push('_press')"
+        to="|toggleClass">
+        <code>?</code>
     </div>
 </div>
