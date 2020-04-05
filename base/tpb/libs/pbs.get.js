@@ -35,7 +35,7 @@ const
 
     // 修饰键属性名。
     // 注：按名称有序排列。
-    __evKeys = [
+    modKeys = [
         'altKey',
         'ctrlKey',
         'metaKey',
@@ -645,15 +645,17 @@ const _Gets = {
      * 如：alt+ctrl:f，表示同时按下Alt+Ctrl和F键。
      * 修饰键名有序排列后用+号连接，冒号之后为目标键名。
      * 注意：
-     * - 单纯的修饰键也有目标键名，形如：alt:alt、ctrl:control
-     * - 所有名称皆为小写形式以保持良好约定。
+     * 1. 单纯的修饰键也有目标键名，形如：alt:alt。
+     * 2. 所有名称皆为小写形式以保持良好约定。
+     * 3. 即便没有修饰键按下，目标键名之前的冒号依然保持。如 ":a"。
      * @return {String}
      */
     acmsk( evo ) {
-        let _ks = __evKeys.filter(n => evo.event[n]).map(n => n.slice(0, -3)),
-            _ch = evo.event.key.toLowerCase();
+        let _ks = modKeys
+            .filter( n => evo.event[n] )
+            .map( n => n.slice(0, -3) );
 
-        return _ks.length ? `${_ks.join('+')}:${_ch}` : _ch;
+        return `${_ks.join('+')}:${evo.event.key.toLowerCase()}`;
     },
 
     __acmsk: null,

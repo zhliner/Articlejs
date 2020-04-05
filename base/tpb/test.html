@@ -72,7 +72,7 @@
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        keydown|acmsk debug avoid"
+        keydown|ev('repeat') pass(false) acmsk debug avoid"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove')">

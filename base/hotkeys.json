@@ -1,9 +1,9 @@
 {
-    "panel.help":       "f1",
-    "panel.outline":    "f3",
-    "panel.slave":      "f4",
-    "panel.plugins":    "f9",
-    "panel.maximize":   "f11",
+    "panel.help":       ":f1",
+    "panel.outline":    ":f3",
+    "panel.slave":      ":f4",
+    "panel.plugins":    ":f9",
+    "panel.maximize":   ":f11",
 
     "input.textfull":   "alt:f",
     "input.submit":     "ctrl:enter"
