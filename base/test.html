@@ -71,7 +71,7 @@
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        keydown|ev('repeat') pass(false) avoid acmsk hotkey pop"
+        keydown|ev('repeat') end avoid acmsk hotkey pop"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');

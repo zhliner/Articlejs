@@ -58,7 +58,7 @@ const _Control = {
     /**
      * 通过性检查。
      * 目标：暂存区/栈顶1项。
-     * 检查目标值是否为真（非假）或是否与val相等（===）。
+     * 检查目标值是否为真（非假）或是否与val相等（===），
      * 结果为假会中断执行流。
      * @param  {Value} val 对比值，可选
      * @return {void|reject}
@@ -76,26 +76,24 @@ const _Control = {
 
 
     /**
-     * 流程终止。
-     * 目标：暂存区/栈顶1项，可选。
-     * 特权：是，判断取值。
-     * 如果传递val有值，则与目标比较，真值终止。
-     * 否则无条件终止。
-     * 例：
-     * push('v1') end('v2') 不等不终止
-     * push('v1') push('v2') end(_) 同上，val='v2'
-     *
-     * @param  {Stack} stack 数据栈
+     * 流程结束。
+     * 目标：暂存区/栈顶1项。
+     * 检查目标值是否为真（true）或是否与val相等（===），
+     * 结果为true会结束执行流。
+     * 注：与pass逻辑相反，但用严格真值（true）判断。
      * @param  {Value} val 对比值，可选
-     * @return {void}
+     * @return {void|reject}
      */
-    end( evo, stack, val ) {
-        if ( val === undefined || val === stack.data(1) ) {
-            return Promise.reject();
+    end( evo, val ) {
+        let _v = evo.data;
+
+        if ( val !== undefined ) {
+            _v = val === _v;
         }
+        if ( _v === true ) return Promise.reject();
     },
 
-    __end_x: true,
+    __end: 1,
 
 
     /**
