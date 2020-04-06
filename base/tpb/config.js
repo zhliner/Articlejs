@@ -11,6 +11,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { HotKey } from "./hotkey.js";
+
 const
     DEBUG = true,
 
@@ -73,7 +75,10 @@ const
     // 预定义调用链存储。
     // 与元素关联，便于分组管理，同时支持空事件名通配。
     // { Element: Map{evn:String: Chain} }
-    ChainStore = new WeakMap();
+    ChainStore = new WeakMap(),
+
+    // 快捷键处理器。
+    Hotkey = new HotKey();
 
 
 
@@ -178,6 +183,7 @@ export {
     Globals,
     DataStore,
     ChainStore,
+    Hotkey,
     storeChain,
     Templater,
     InitTpl,

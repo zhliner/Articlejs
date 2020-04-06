@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals } from "../config.js";
+import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals, Hotkey } from "../config.js";
 
 
 const
@@ -334,6 +334,31 @@ const _Control = {
     },
 
     __env: -1,
+
+
+    /**
+     * 指令路径关联事件目标。
+     * 目标：暂存区1项可选。
+     * 事件目标：[元素，事件名]。
+     * 暂存区1项作为事件目标中的元素，可选。默认为事件绑定/委托元素。
+     * 注记：
+     * 指令路径是一个标识，用于表达特定行为/调用的名称。
+     * 事件目标是元素和事件名的值对，用于外部触发该元素的该事件。
+     * 可用于目标元素上登记某事件关联的行为标识，然后在其它地方根据行为标识检索事件目标并触发。
+     * 如设计键盘快捷键控制某元素的行为（外部配置快捷键对应到指令路径）。
+     * 指令路径是全局共享的唯一性标识。
+     *
+     * @param {String} path 指令路径
+     * @param {String} evn 事件名，可选
+     */
+    couple( evo, path, evn ) {
+        if ( !evn ) {
+            evn = evo.event.type;
+        }
+        Hotkey.couple( path, evn, evo.data || evo.delegate );
+    },
+
+    __couple: -1,
 
 
     /**

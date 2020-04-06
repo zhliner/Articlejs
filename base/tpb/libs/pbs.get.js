@@ -1,5 +1,5 @@
 //! $Id: pbs.on.js 2019.08.19 Tpb.Core $
-//
+// ++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -13,7 +13,7 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, method, DataStore, Templater, ChainStore } from "../config.js";
+import { bindMethod, method, DataStore, Templater, ChainStore, Hotkey } from "../config.js";
 import { Control, Process } from "./pbs.base.js";
 
 
@@ -659,6 +659,16 @@ const _Gets = {
     },
 
     __acmsk: null,
+
+
+    /**
+     * 获取快捷键处理器。
+     */
+    hotkey( evo ) {
+        return Hotkey;
+    },
+
+    __hotkey: null,
 
 
     /**

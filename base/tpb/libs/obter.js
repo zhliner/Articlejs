@@ -673,10 +673,10 @@ class Cell {
 
         this[_SID] = stack;
         this._meth = null;
-        this._args = null;
-        this._want = null;
 
-        // 惰性成员（即时添加）：
+        // 惰性成员（按需添加）：
+        // this._args;  // 方法实参
+        // this._want;  // 取项数量
         // this._rest;  // 补充模板实参
         // this._extra; // 初始启动传值
         // this.prev;   // 前阶单元（prune指令需要）
@@ -705,7 +705,8 @@ class Cell {
      * @param {Array} args 参数序列
      */
     setRest( args ) {
-        if ( args[args.length-1] === __fromData ) {
+        if ( args &&
+            args[args.length-1] === __fromData ) {
             args.pop();
             this._rest = true;
         }
@@ -752,20 +753,25 @@ class Cell {
     /**
      * 方法/参数设置。
      * 特权方法的数据栈对象自动插入到实参序列首位。
-     * @param  {Array|''} args 模板配置的参数序列
+     * 注记：实参和取项数惰性添加。
+     * @param  {Array|null} args 模板配置的参数序列
      * @param  {Function} meth 目标方法
      * @param  {Boolean} isx 是否为特权方法。
-     * @param  {Number} n 取值条目数，可选
+     * @param  {Number} n 取条目数，可选
      * @return {this}
      */
     bind( args, meth, isx, n = null ) {
         if ( isx ) {
-            args.unshift(this[_SID]);
+            args = [this[_SID]].concat(args ? args : []);
         }
         this._meth = meth;
-        this._args = args;
-        this._want = n;
 
+        if ( args ) {
+            this._args = args;
+        }
+        if ( n != null ) {
+            this._want = n;
+        }
         return this.setRest( this._args );
     }
 
@@ -798,8 +804,10 @@ class Cell {
      * @param {Number} n 取值项数
      */
     args( evo, rest ) {
+        let _args = this._args || [];
+
         evo.data = this.data( this._want );
-        return [ evo, ...this._args.concat(rest) ];
+        return [ evo, ..._args.concat(rest) ];
     }
 
 
@@ -868,7 +876,7 @@ class Evn {
      * @return {Cell} cell
      */
     static apply( cell ) {
-        return cell.bind( '', empty );
+        return cell.bind( null, empty );
     }
 
 }
@@ -1142,12 +1150,12 @@ function zeroPass( chr ) {
  * 支持模板实参“_”特别标识名表示从流程数据取值。
  * 注：始终返回一个数组。
  * @param  {String} args 参数序列串
- * @return {Array}
+ * @return {Array|null}
  */
 function arrArgs( args ) {
     return args ?
         new Function('_', `return [${args}]`)( __fromData ) :
-        [];
+        null;
 }
 
 

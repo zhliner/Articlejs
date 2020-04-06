@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
     <title>Tpb测试页</title>
-    <link rel="stylesheet" href="default.css">
-    <link id="tstyle" rel="stylesheet" href="../../themes/Dark-less/style.css">
-    <script src="../tquery/tquery.js"></script>
+    <link rel="stylesheet" href="tpb/default.css">
+    <link id="tstyle" rel="stylesheet" href="../themes/Dark-less/style.css">
+    <script src="tquery/tquery.js"></script>
     <style>
         body {
             margin: 100px 40px;
@@ -46,7 +46,7 @@
     </script>
 
     <script type="module" async>
-        import Tpb from "./tpb.js";
+        import Tpb from "./tpb/tpb.js";
         Tpb.Build( document.body );
 
         //:Debug
@@ -65,17 +65,17 @@
                 language: `chinese`,
             };
     </script>
-    <script src="/config.js"></script>
 </head>
 
 <body lang="zh-cn"
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        keydown|ev('repeat') pass(false) acmsk debug avoid"
+        keydown|ev('repeat') pass(false) avoid acmsk hotkey pop"
     to="#outline|width(true);
         #help|width(true);
-        |off('mousemove')">
+        |off('mousemove');
+        |trigger(_)">
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>

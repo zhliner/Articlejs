@@ -169,6 +169,12 @@ date( ...args? ): Date
 scam( names?:String ): Boolean | Object
 // 修饰键{Alt|Ctrl|Shift|Meta}状态检查|封装。
 
+acmsk(): String
+// 构建组合键序列：alt+ctrl+shift+meta:[key]。
+
+hotkey(): HotKey
+// 返回系统快捷键处理器。
+
 chain( evnid:String, clone:Boolean ): Cell
 // 预绑定调用链提取（单个）。
 
