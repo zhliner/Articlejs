@@ -224,6 +224,10 @@ const _Update = {
      * 用途：
      * 键盘快捷键控制某元素的行为（外部配置快捷键对应到指令路径）。
      * 注：事件名/序列需要和元素/集匹配。
+     * 例：
+     * 关联当前元素的 click 事件处理到 panel.help 路径标识。
+     *  on="^obted|push('click')"
+     *  to="|couple('panel.help')"
      * @param {Element|[Element]} to 关联元素
      * @param {String|[String]} evn 事件名内容
      * @param {String} path 指令路径
