@@ -153,8 +153,9 @@
     <!-- 帮助入口 -->
     <div class="_help _press" title="帮助"
         on="click|$$('#help,#lineRight') lose(2) push('_press');
-            ^obted|couple('panel.help', 'click')"
-        to="|toggleClass">
+            ^obted|push('click')"
+        to="|toggleClass;
+            |couple('panel.help')">
         <code>?</code>
     </div>
 </div>

@@ -34,7 +34,8 @@ export class HotKey {
 
 
     /**
-     * 目标路径配对事件名和激发元素。
+     * 目标路径关联事件目标。
+     * 事件目标：[元素, 事件名]。
      * @param {String} path 路径标识
      * @param {String} evn 事件名
      * @param {Element} elem 触发元素

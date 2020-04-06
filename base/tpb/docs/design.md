@@ -251,9 +251,6 @@ loop( cnt, val ): void
 env( names:String, its?:Value|String ): void|Value
 // 设置/获取全局变量。
 
-couple( path, evn:String ): void
-// 指令路径关联事件目标。
-
 sess( name:String|null, its?:Value|String|null): void|Value
 // 设置/取值浏览器会话数据（sessionStorage）。
 

@@ -753,7 +753,6 @@ class Cell {
     /**
      * 方法/参数设置。
      * 特权方法的数据栈对象自动插入到实参序列首位。
-     * 注记：实参和取项数惰性添加。
      * @param  {Array|null} args 模板配置的参数序列
      * @param  {Function} meth 目标方法
      * @param  {Boolean} isx 是否为特权方法。
@@ -766,6 +765,7 @@ class Cell {
         }
         this._meth = meth;
 
+        // 惰性添加。
         if ( args ) {
             this._args = args;
         }
