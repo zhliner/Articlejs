@@ -47,6 +47,10 @@
 
     <script type="module" async>
         import Tpb from "./tpb/tpb.js";
+        import { Hotkey } from "./tpb/config.js";
+        import keysMap from "./keymap.js";
+
+        Hotkey.init( keysMap );
         Tpb.Build( document.body );
 
         //:Debug

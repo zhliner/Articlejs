@@ -18,7 +18,19 @@ export class HotKey {
 
     constructor() {
         this._ui = new IStore();
-        this._map = this._init( new Map(), __KeysMap );
+        this._map = new Map();
+    }
+
+
+    /**
+     * 配置初始化。
+     * @param {Map} map 存储集
+     * @param {Object} conf 映射配置集
+     */
+    init( conf ) {
+        for (const [path, keys] of Object.entries(conf)) {
+            this._map.set( keys, path );
+        }
     }
 
 
@@ -54,19 +66,6 @@ export class HotKey {
     dispatchEvent( ev, ...rest ) {
         let path = this._map.get( ev.type );
         return path && this._ui.run( path, ...rest );
-    }
-
-
-    /**
-     * 配置初始化。
-     * @param {Map} map 存储集
-     * @param {Object} conf 映射配置集
-     */
-    _init( map, conf ) {
-        for (const [path, keys] of Object.entries(conf)) {
-            map.set( keys, path );
-        }
-        return map;
     }
 }
 
@@ -108,22 +107,4 @@ class IStore {
         let v2 = this._map.get( path );
         return v2 && $.trigger( v2[0], v2[1], ...rest );
     }
-}
-
-
-//
-// 系统默认配置。
-// {标识路径: 键映射}
-//////////////////////////////////////////////////////////////////////////////
-
-const __KeysMap =
-{
-    "panel.help":       ":f1",
-    "panel.outline":    ":f3",
-    "panel.slave":      ":f4",
-    "panel.plugins":    ":f9",
-    "panel.maximize":   ":f11",
-
-    "input.textfull":   "alt:f",
-    "input.submit":     "ctrl:enter"
 }

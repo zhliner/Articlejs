@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { HotKey } from "./hotkey.js";
+import { HotKey } from "./libs/hotkey.js";
 
 const
     DEBUG = true,
