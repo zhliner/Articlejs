@@ -239,6 +239,9 @@ chains()
 couple( path, evn:String )
 // 指令路径关联事件目标。
 
+only( name:String )
+// 类名独占设置。
+
 
 //
 // 常用方法。

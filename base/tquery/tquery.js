@@ -7033,7 +7033,7 @@ const Event = {
         }
         try {
             hackAttr(_box, hackFix);
-            return closest( _box, _beg, hackSelector(_box, slr, hackFix) );
+            return closest(_box, _beg, hackSelector(_box, slr, hackFix));
         }
         finally {
             hackAttrClear(_box, hackFix);

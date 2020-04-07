@@ -32,7 +32,7 @@
         <b title="插件"
             on="click|tpl('modal:plugins');
                 ^obted|('click')"
-            to="#g-modal>*|replace|fire(1,'open',true);
+            to="#g-modal>*|replace|fire(1, 'open', true);
                 |couple('panel.plugins')">
             <i id="b-plugins"></i>
         </b>
@@ -104,17 +104,23 @@
 
 <!-- 主面板 -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
-    <div class="_tabs">
-        <b class="_press">内容</b>
-        <b>样式</b>
-        <b>特性</b>
-        <b>源码</b>
-        <b>脚本</b>
-        <b class="_close" on="click" to="#tools-slave||click">
+    <div class="_tabs"
+        on="click(b)|evo(1) attr('-tpl') pop tpl;
+            click(b)|$$('/>b')"
+        to="1/form|replace;
+            ~|only('_press')">
+        <b data-tpl="slave:input" class="_press">内容</b>
+        <b data-tpl="slave:style">样式</b>
+        <b data-tpl="slave:attr">特性</b>
+        <b data-tpl="slave:source">源码</b>
+        <b data-tpl="slave:script">脚本</b>
+        <b class="_close"
+            on="click|stop"
+            to="#tools-slave||click">
             <i id="l-close" title="关闭"></i>
         </b>
     </div>
-    <div tpl-source="slave:inputs"> [内容面板] </div>
+    <form tpl-source="slave:input"> [内容面板] </form>
 </div>
 
 

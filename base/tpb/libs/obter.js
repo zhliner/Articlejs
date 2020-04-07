@@ -954,7 +954,7 @@ class Call {
 //      +xxx!{ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
 //
 //      ~   // 事件起始元素（evo.origin）
-//      $   // 事件委托元素（evo.delegate）
+//      #   // 事件当前元素（evo.current）
 // }
 // 起点元素：支持暂存区1项可选（可为任意值），否则为事件绑定/委托元素。
 //
@@ -1163,7 +1163,7 @@ function zeroPass( chr ) {
  */
 function arrArgs( args ) {
     return args ?
-        new Function('_', `return [${args}]`)( __fromData ) :
+        new Function( '_', `return [${args}]` )(__fromData) :
         null;
 }
 
@@ -1197,7 +1197,6 @@ function rejectInfo( msg ) {
  * 支持二阶检索和相对ID属性（见 Util.find）。
  * 支持暂存区1项为检索起点（由前阶末端指令取出），
  * 否则检索起点元素为事件绑定/委托元素。
- *
  * @param  {Object} evo 事件关联对象
  * @param  {String} slr 选择器串（二阶支持）
  * @param  {Boolean} one 是否单元素版

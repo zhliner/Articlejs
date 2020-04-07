@@ -14,10 +14,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+const __reSpace = /\s+/;
+
+
 export class HotKey {
 
     constructor() {
         this._ui = new IStore();
+        // {key: [command]}
         this._map = new Map();
     }
 
@@ -25,35 +29,35 @@ export class HotKey {
     /**
      * 配置初始化。
      * @param {Map} map 存储集
-     * @param {Object} conf 映射配置集
+     * @param {[Object]} list 映射配置集
      */
-    init( conf ) {
-        for (const [path, keys] of Object.entries(conf)) {
-            this._map.set( keys, path );
+    init( list ) {
+        for (const its of list) {
+            this._map.set( its.key, its.command.split(__reSpace) );
         }
     }
 
 
     /**
      * 绑定键映射。
-     * 用于外部定制覆盖。
-     * @param {String} path 标识路径
-     * @param {String} keys 键序列
+     * 用于外部用户配置定制覆盖。
+     * @param {String} key 键序列
+     * @param {String} cmd 指令标识
      */
-    bind( path, keys ) {
-        this._map.set( keys, path );
+    bind( key, cmd ) {
+        this._map.set( key, cmd.split(__reSpace) );
     }
 
 
     /**
-     * 目标路径关联事件目标。
+     * 指令标识关联事件目标。
      * 事件目标：[元素, 事件名]。
-     * @param {String} path 路径标识
+     * @param {String} cmd 指令标识（单个）
      * @param {String} evn 事件名
      * @param {Element} elem 触发元素
      */
-    couple( path, evn, elem ) {
-        this._ui.add( path, evn, elem );
+    couple( cmd, evn, elem ) {
+        this._ui.add( cmd, evn, elem );
     }
 
 
@@ -64,9 +68,10 @@ export class HotKey {
      * @return {void}
      */
     dispatchEvent( ev, ...rest ) {
-        let path = this._map.get( ev.type );
-        return path && this._ui.run( path, ...rest );
+        let _cmds = this._map.get( ev.type );
+        if ( _cmds ) _cmds.forEach( cmd =>this._ui.run(cmd, ...rest) );
     }
+
 }
 
 
@@ -86,12 +91,12 @@ class IStore {
 
     /**
      * 添加关联信息。
-     * @param {String} path 标识路径
+     * @param {String} cmd 指令标识
      * @param {String} evn 触发行为的事件名
      * @param {Element|.dispatchEvent} elem 触发目标
      */
-    add( path, evn, elem ) {
-        this._map.set( path, [elem, evn] );
+    add( cmd, evn, elem ) {
+        this._map.set( cmd, [elem, evn] );
     }
 
 
@@ -99,12 +104,13 @@ class IStore {
      * 触发目标处理器。
      * 如果事件处理器调用了.preventDefault()，返回false，否则为true。
      * 如果路径标识的处理器不存在，返回undefined。
-     * @param  {String} path 路径标识
+     * @param  {String} cmd 指令标识
      * @param  {...Value} rest 额外参数
-     * @return {void|Boolean}
+     * @return {Boolean|void}
      */
-    run( path, ...rest ) {
-        let v2 = this._map.get( path );
+    run( cmd, ...rest ) {
+        let v2 = this._map.get( cmd );
         return v2 && $.trigger( v2[0], v2[1], ...rest );
     }
+
 }

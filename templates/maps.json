@@ -6,9 +6,9 @@
         "main:tools"
     ],
     "panel.html": [
-        "inputs:empty",
+        "input:empty",
         "slave:attr",
-        "slave:inputs",
+        "slave:input",
         "slave:minied",
         "slave:script",
         "slave:source",

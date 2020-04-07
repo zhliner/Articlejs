@@ -244,6 +244,22 @@ const _Update = {
         $.isArray(to) ? couples(to, path, evn) : Hotkey.couple(path, evn, to);
     },
 
+
+    /**
+     * 类名独占设置。
+     * 清除元素集内name类名之后设置目标元素类名。
+     * 可用于选单中的排他性选取表达。
+     * @param {Element} to 目标元素
+     * @param {[Element]} els 源元素集
+     * @param {String} name 类名称
+     */
+    only( to, els, name ) {
+        els.forEach(
+            el => $.removeClass(el, name)
+        );
+        $.addClass( to, name );
+    },
+
 };
 
 

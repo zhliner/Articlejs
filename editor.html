@@ -43,10 +43,14 @@
     <script type="module" async>
         import Api from "./base/api.js";
         import Tpb from "./base/tpb/tpb.js";
+        import { Hotkey } from "./base/tpb/config.js";
+        import list from "./base/shortcuts.js";
 
         window.Api = Api.init({
             outline, editor, help, beeptip
         });
+        Hotkey.init( list );
+
         Tpb.Build( document.body );
     </script>
 </head>
