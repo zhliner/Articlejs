@@ -4760,7 +4760,7 @@ function deepChild( el ) {
  * @param  {Boolean} event 包裹元素上注册的事件处理器是否克隆
  * @param  {Boolean} eventdeep 包裹元素子孙元素上注册的事件处理器是否克隆
  * @param  {Document} doc 所属文档对象
- * @return {Element} 包裹的容器根元素
+ * @return {Element, Element} 包裹容器和原根元素
  */
 function wrapBox( box, clone, event, eventdeep, doc ) {
     if ( box.nodeType ) {

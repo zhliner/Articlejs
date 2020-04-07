@@ -186,7 +186,7 @@ const _Gets = {
 
 
     /**
-     * 直接数据入栈。
+     * 数据直接入栈。
      * 目标：暂存区条目可选。
      * 特权：是，自行入栈。
      * 多个实参会自动展开入栈，数组实参视为单个值。
@@ -195,6 +195,9 @@ const _Gets = {
      * - push('abc', 123)  // 分别入栈字符串'abc'和数值123两个值
      * - pop(3) push(true) // 入栈布尔值true和暂存区条目（3项一体）两个值
      * - pop(3) push(_)    // 先取暂存区首项为实参（数组会展开），然后暂存区剩余2项为一体。一起入栈
+     * 友好：
+     * 系统支持空名称指代，即：('hello') => push('hello') 含义相同。
+     * 这让数据入栈更简洁（如果无需明确的push表意）。
      * @param  {Stack} stack 数据栈
      * @param  {...Value} vals 值序列
      * @return {void} 自行入栈
@@ -386,16 +389,17 @@ const _Gets = {
 
 
     /**
-     * 取对象成员值。
+     * 取对象成员值（支持多个目标）。
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称（获得一个值数组）。
      * 目标本身可以是数组，若名称为多名称，会获得一个二维数组。
      * 用途：
      * 从一个对象数组（如attribute取值）中提取属性值数组。
+     * @data: Object|[Object]
      * @param  {String} name 名称/序列
      * @return {Value|[Value]|[[Value]]}
      */
-    its( evo, name ) {
+    get( evo, name ) {
         let x = evo.data;
         return $.isArray(x) ? x.map(o => namesValue(name, o)) : namesValue(name, x);
     },
@@ -433,7 +437,7 @@ const _Gets = {
     //-----------------------------------------------
 
     /**
-     * 从目标上取值入栈。
+     * 从目标上取值（集）入栈。
      * 目标：暂存区/栈顶1项。
      * 特权：是，自行入栈。
      * name支持空格分隔的多个名称，此时值为一个数组。
@@ -443,7 +447,7 @@ const _Gets = {
      * @param  {...String} names 属性名序列
      * @return {void} 自行入栈
      */
-    get( evo, stack, ...names ) {
+    its( evo, stack, ...names ) {
         stack.push(
             ...names.map( n => namesValue(n, evo.data) )
         );
@@ -481,7 +485,7 @@ const _Gets = {
      * 5. push('abc') pop tpl  模板名为abc，clone未定义，同1.
      * 注记：
      * 支持暂存区1项可选（-1）是对name的友好，此时clone可以直接传值，
-     * 如果无需clone实参，tpl(_) 与 pop tpl 效果相同。
+     * 如果无需clone实参，pop tpl 与 tpl(_) 效果相同。
      * @param  {String} name 模板名
      * @param  {Boolean} clone 是否克隆，可选
      * @return {Promise}
@@ -1063,6 +1067,9 @@ const _Gets = {
 // Collector专有。
 // 目标：暂存区/栈顶1项。
 // 注：如果目标不是Collector实例，会被自动转换。
+// 注记：
+// 不支持Collector.slice()方法，slice已被用于数据栈操作。
+// 如果需要使用可用call指令代替：call('slice', ...)。
 //////////////////////////////////////////////////////////////////////////////
 [
     'item',     // ( idx? ): Value | [Value]
@@ -1313,12 +1320,15 @@ function arrayFill( arr, size ) {
 
 //
 // 预处理，导出。
+// 注记：
+// 指令集预先绑定所属名称空间以固化this，便于全局共享。
+// 适用：On/By/To:Update,NextStage
 ///////////////////////////////////////////////////////////////////////////////
 
 
 //
 // 取值指令集。
-// 注：供To:NextStage集成。
+// 可供To:NextStage集成。
 //
 export const Get = $.assign( {}, _Gets, bindMethod );
 

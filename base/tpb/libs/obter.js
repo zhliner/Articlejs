@@ -59,6 +59,10 @@ const
         [__tosToggle]:  'toggleAttr',
     },
 
+    // 空名称指代。
+    // 友好，仅限于调用指令（Call）。
+    __zeroName  = 'push',
+
     // To查询扩展切分器。
     // 注：属性选择器内感叹号不可用（无需包含）。
     __extSplit  = new Spliter( __toqExtra, new UmpString() ),
@@ -87,7 +91,8 @@ const
     // 调用模式匹配。
     // 方法名支持字母、数字和 [$._-] 字符。
     // 参数段支持任意字符（包括换行），可选。
-    __obtCall   = /^([$\w][$\w.-]*)(?:\(([^]*)\))?$/,
+    // 特例：允许空名称（之后应当为括号）。
+    __obtCall   = /^(^|[$\w][$\w.-]*)(?:\(([^]*)\))?$/,
 
     // To:Query
     // 完整的检索表达式。
@@ -216,7 +221,7 @@ const Parser = {
 
 
     /**
-     * 分解指令调用定义。
+     * 解析调用指令定义。
      * @param  {String} fmt 指令调用序列
      * @return {[Call]|''}
      */
@@ -226,7 +231,7 @@ const Parser = {
 
 
     /**
-     * 分解指令调用定义。
+     * 解析更新指令定义。
      * @param  {String} fmt 更新指令序列
      * @return {[Update]|''}
      */
@@ -903,7 +908,9 @@ class Call {
         if ( !_vs ) {
             throw new Error('call-attr config is invalid.');
         }
-        this._meth = _vs[1];
+        // 特例：
+        // 友好支持空名称为push指令。
+        this._meth = _vs[1] || __zeroName;
         this._args = arrArgs(_vs[2]);
     }
 
@@ -957,7 +964,7 @@ class Query {
      * 注：空值合法（目标将为起点元素）。
      * @param {String} qs 查询串
      */
-    constructor( qs = '' ) {
+    constructor( qs ) {
         this._slr = qs.match(__toQuery)[1];
         this._one = true;
 
@@ -1071,6 +1078,8 @@ class Query {
 //      %   样式（css）， 如：%font-size => $.css(el, 'font-size', ...)
 //      ^   特性切换，如：^-val => $.toggleAttr(el, '-val', ...)
 // }
+// 注记：
+// Updata方法取值条目数强制为1，不适用集成控制指令集。
 //
 class Update {
     /**
@@ -1232,13 +1241,13 @@ function query2( evo, slr, beg, one, fltr ) {
 
 /**
  * To：更新方法（单个）。
- * 注：封装友好的调用形式。
+ * 注：非假返回值会更新目标自身。
  * @param  {Object} evo 事件关联对象
  * @param  {...Value} rest 剩余实参序列（最终）
  * @return {void}
  */
 function update( evo, ...rest ) {
-    this( evo.targets, evo.data, ...rest );
+    evo.targets = this( evo.targets, evo.data, ...rest ) || evo.targets;
 }
 
 

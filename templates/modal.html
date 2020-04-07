@@ -17,7 +17,7 @@
 </div>
 
 
-<!-- 模态页 -->
+<!-- 模态页（通用） -->
 <form class="_page" tpl-name="modal:page">
     <header>
         <h5>[标题]</h5>
@@ -68,6 +68,18 @@
         [消息内容]
     </p>
     <hr tpl-node="modal:ok" />
+</form>
+
+
+<!-- 插件页 -->
+<form class="_page" tpl-name="modal:plugins">
+    <header>
+        <h5>插件</h5>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <p id="g-plugins" class="_list">
+        <!-- 点击执行：<b>... -->
+    </p>
 </form>
 
 

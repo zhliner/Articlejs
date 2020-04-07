@@ -45,6 +45,7 @@ const
 // 目标更新方法集。
 // 目标：由Query部分检索获取。
 // 内容：由流程数据中的单项提供。
+// 注意：非假返回值会更新To目标（evo.targets）。
 ///////////////////////////////////////////////////////////////////////////////
 
 const _Update = {
@@ -119,15 +120,16 @@ const _Update = {
      * 事件处理器克隆。
      * 将内容元素上的事件处理器克隆到目标元素（集）上。
      * 事件名可为空格分隔的多个名称。
-     * @param {Element|Collector} to 目标元素（集）
-     * @param {Element} src 事件源元素
-     * @param {String|Function} evns 事件名序列或过滤函数，可选
+     * @param  {Element|Collector} to 目标元素（集）
+     * @param  {Element} src 事件源元素
+     * @param  {String|Function} evns 事件名序列或过滤函数，可选
+     * @return {void}
      */
     cloneEvent( to, src, evns ) {
-        if ( to.nodeType == 1 ) {
-            return $.cloneEvent( to, src, evns );
+        if ( $.isArray(to) ) {
+            return to.forEach( el => $.cloneEvent( el, src, evns ) );
         }
-        to.forEach( el => $.cloneEvent( el, src, evns ) );
+        $.cloneEvent( to, src, evns );
     },
 
 
@@ -135,28 +137,30 @@ const _Update = {
      * 渲染目标元素/集。
      * 如果目标是多个元素，它们采用相同的源数据渲染。
      * 目标元素可能不是模板根元素，此时为局部渲染。
-     * @param {Element|Collector} to 目标元素/集
-     * @param {Object|Array} data 内容：渲染源数据
+     * @param  {Element|Collector} to 目标元素/集
+     * @param  {Object|Array} data 内容：渲染源数据
+     * @return {void}
      */
     render( to, data ) {
-        if ( to.nodeType == 1 ) {
-            return Render.update( to, data );
+        if ( $.isArray(to) ) {
+            return to.forEach( el => Render.update(el, data) );
         }
-        to.forEach( el => Render.update(el, data) );
+        Render.update( to, data );
     },
 
 
     /**
      * 集合包裹。
      * 注：tos视为一个整体作为待插入的内容。
-     * @param {Element|Collector} tos 检索目标
-     * @param {Element|String} box 包裹容器
-     * @param {Boolean} clone 是否节点克隆（深层）
-     * @param {Boolean} event 是否克隆事件处理器（容器）
-     * @param {Boolean} eventdeep 是否克隆子元素事件处理器（深层）
+     * @param  {Element|Collector} tos 检索目标
+     * @param  {Element|String} box 包裹容器
+     * @param  {Boolean} clone 包裹容器是否克隆（深层）
+     * @param  {Boolean} event 是否克隆事件处理器
+     * @param  {Boolean} eventdeep 是否克隆子元素事件处理器
+     * @return {Collector} 包裹容器的Collector封装
      */
     wrapAll( tos, box, clone, event, eventdeep ) {
-        $(tos).wrapAll( box, clone, event, eventdeep );
+        return $(tos).wrapAll( box, clone, event, eventdeep );
     },
 
 
@@ -165,9 +169,10 @@ const _Update = {
      * name支持空格分隔的名称序列。
      * 如果名称为多个且关联数据是一个数组，会与名称一一对应存储。
      * 如果目标是一个集合，相同的键/值会存储到所有目标元素。
-     * @param {Element|Collector} to 存储元素（集）
-     * @param {[Value]} data 内容数据集
-     * @param {String} name 名称序列（空格分隔）
+     * @param  {Element|Collector} to 存储元素（集）
+     * @param  {[Value]} data 内容数据集
+     * @param  {String} name 名称序列（空格分隔）
+     * @return {void}
      */
     data( to, data, name ) {
         if ( !$.isArray(to) ) to = [to];
@@ -187,15 +192,16 @@ const _Update = {
     /**
      * 调用链存储（单个）。
      * 如果目标是元素集合，单个调用链会存储到多个目标。
-     * @param {Element|Collector} to 存储目标
-     * @param {Cell} cell 链头部指令
-     * @param {String} evnid 事件名标识
+     * @param  {Element|Collector} to 存储目标
+     * @param  {Cell} cell 链头部指令
+     * @param  {String} evnid 事件名标识
+     * @return {void}
      */
     chain( to, cell, evnid ) {
         if ( $.isArray(to) ) {
             return to.forEach( el => storeChain(el, evnid, cell) );
         }
-        return storeChain( to, evnid, cell );
+        storeChain( to, evnid, cell );
     },
 
 
@@ -204,8 +210,9 @@ const _Update = {
      * 事件名标识与调用链是作为Map的键值传递的，
      * 这里不能修改事件名标识（若需此能力请使用chain）。
      * 相同的调用链集会存储到全部目标元素上。
-     * @param {Element|Collector} to 存储目标
-     * @param {Map<evnid:Cell>} cells
+     * @param  {Element|Collector} to 存储目标
+     * @param  {Map<evnid:Cell>} cells
+     * @return {void}
      */
     chains( to, cells ) {
         if ( $.isArray(to) ) {
@@ -228,50 +235,23 @@ const _Update = {
      * 关联当前元素的 click 事件处理到 panel.help 路径标识。
      *  on="^obted|push('click')"
      *  to="|couple('panel.help')"
-     * @param {Element|[Element]} to 关联元素
-     * @param {String|[String]} evn 事件名内容
-     * @param {String} path 指令路径
+     * @param  {Element|[Element]} to 关联元素
+     * @param  {String|[String]} evn 事件名内容
+     * @param  {String} path 指令路径
+     * @return {void}
      */
     couple( to, evn, path ) {
-        return $.isArray(to) ?
-            couples(to, path, evn) : Hotkey.couple(path, evn, to);
+        $.isArray(to) ? couples(to, path, evn) : Hotkey.couple(path, evn, to);
     },
 
 };
 
 
-//
-// 特性/属性/样式设置。
-//===============================================
-[
-    'attr',
-    'attribute',
-    'prop',
-    'property',
-    'css',
-    'cssSets',
-    'toggleAttr',
-]
-.forEach(function( meth ) {
-    /**
-     * @param {Element|Collector} tos 目标元素/集
-     * @param {Value|[Value]|Function|null} val 内容
-     * @param {String} name 名称/序列
-     */
-    _Update[meth] = function( tos, val, name ) {
-        if ( $.isArray(tos) ) {
-            return $(tos)[meth]( name, val );
-        }
-        $[meth]( tos, name, val );
-    };
-
-});
-
 
 //
 // 节点操作。
 // 内容：Node|[Node]|Collector|Set|Iterator|Function
-//===============================================
+//=========================================================
 [
     'before',
     'after',
@@ -287,50 +267,142 @@ const _Update = {
 ]
 .forEach(function( meth ) {
     /**
-     * 简单设置目标值。
-     * 内容实参类型参考上面注释。
-     * @param {Element|Collector} tos 目标元素/集
-     * @param {Node|[Node]|Collector|Set|Iterator|Function} data 数据内容
-     * @param {Boolean} clone 节点是否克隆
-     * @param {Boolean} event 元素上的事件处理器是否克隆
-     * @param {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
+     * 始终返回一个新插入节点的Collector封装。
+     * 结果集已经扁平化（注：目标为数组时可能返回一个二维集）。
+     * @param  {Element|Collector} tos 目标元素/集
+     * @param  {Node|[Node]|Collector|Set|Iterator|Function} data 数据内容
+     * @param  {Boolean} clone 节点是否克隆
+     * @param  {Boolean} event 元素上的事件处理器是否克隆
+     * @param  {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
+     * @return {Collector} 新插入的节点/集
      */
     _Update[meth] = function( tos, data, clone, event, eventdeep ) {
         if ( $.isArray(tos) ) {
-            return $(tos)[meth]( data, clone, event, eventdeep );
+            return $(tos)[meth](data, clone, event, eventdeep).flat();
         }
-        $[meth]( tos, data, clone, event, eventdeep );
+        return $( $[meth](tos, data, clone, event, eventdeep) );
     };
 
 });
 
 
 //
-// 内容：单一数据。
-// 注：多余实参无副作用。
-//-----------------------------------------------
+// 节点操作。
+// 内容：{String|[String]|Node|[Node]|Function|.values}
+//---------------------------------------------------------
 [
-    'height',       // val: Number (inc:Boolean)
-    'width',        // val: Number (inc:Boolean)
+    'html',
+    'text',
+]
+.forEach(function( meth ) {
+    /**
+     * 始终返回一个新插入节点的Collector封装。
+     * 结果集已经扁平化（同上）。
+     * @param  {Element|Collector} tos 目标元素/集
+     * @param  {Value} data 数据内容
+     * @param  {...Value} args 额外参数
+     * @return {Collector} 新插入的节点集
+     */
+    _Update[meth] = function( tos, data, where, sep ) {
+        if ( $.isArray(tos) ) {
+            return $(tos)[meth](data, where, sep).flat();
+        }
+        return $( $[meth](tos, data, where, sep) );
+    };
+
+});
+
+
+//
+// 逆向设置。
+// 内容：{Node|Element} 插入参考点。
+// 当前检索为内容，流程数据为插入参考目标。
+//---------------------------------------------------------
+[
+    ['beforeWith',   'insertBefore'],
+    ['afterWith',    'insertAfter'],
+    ['prependWith',  'prependTo'],
+    ['appendWith',   'appendTo'],
+    ['replaceWith',  'replaceAll'],
+    ['fillWith',     'fillTo'],
+]
+.forEach(function( fns ) {
+    /**
+     * 如果为克隆，返回新插入的克隆节点集，
+     * 否则返回参考节点的Collector封装。
+     * @param  {Element|Collector} els 检索元素/集（数据）
+     * @param  {Node|Element} ref 插入参考点或容器
+     * @param  {Boolean} clone 节点是否克隆
+     * @param  {Boolean} event 元素上的事件处理器是否克隆
+     * @param  {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
+     * @return {Collector} 新克隆的节点集或插入参考节点
+     */
+    _Update[ fns[0] ] = function( els, ref, clone, event, eventdeep  ) {
+        els = $(els)[fns[1]]( ref, clone, event, eventdeep );
+        return clone ? els.end(1) : els;
+    };
+
+});
+
+
+
+//
+// 特性/属性/样式设置。
+//=========================================================
+[
+    'attr',
+    'attribute',
+    'prop',
+    'property',
+    'css',
+    'cssSets',
+    'toggleAttr',
+]
+.forEach(function( meth ) {
+    /**
+     * 目标为数组时返回目标的Collector封装。
+     * 目标为元素时保持不变。
+     * @param  {Element|Collector} tos 目标元素/集
+     * @param  {Value|[Value]|Function|null} val 内容
+     * @param  {String} name 名称/序列
+     * @return {Collector|void}
+     */
+    _Update[meth] = function( tos, val, name ) {
+        if ( $.isArray(tos) ) {
+            return $(tos)[meth]( name, val );
+        }
+        $[meth]( tos, name, val );
+    };
+
+});
+
+
+//
+// 其它特性操作。
+// 内容：单一数据。
+// 多余实参无副作用。
+//---------------------------------------------------------
+[
+    'height',       // val: Number, (inc:Boolean)
+    'width',        // val: Number, (inc:Boolean)
     'scroll',       // val: {top:Number, left:Number}|[left, top]
-    'scrollTop',    // val: Number (inc:Boolean)
-    'scrollLeft',   // val: Number (inc:Boolean)
+    'scrollTop',    // val: Number, (inc:Boolean)
+    'scrollLeft',   // val: Number, (inc:Boolean)
     'addClass',     // name: {String|Function}
     'removeClass',  // name: {String|Function}
-    'toggleClass',  // name: {String|Function|Boolean} (force:Boolean)
+    'toggleClass',  // name: {String|Function|Boolean}, (force:Boolean)
     'removeAttr',   // name: {String|Function}
     'val',          // val: {Value|[Value]|Function}
-    'html',         // code: {String|[String]|Node|[Node]|Function|.values} (where, sep)
-    'text',         // code: {String|[String]|Node|[Node]|Function|.values} (where, sep)
     'offset',       // val: {top:Number, left:Number}
 ]
 .forEach(function( meth ) {
     /**
-     * 简单设置目标值。
-     * 内容实参类型参考上面注释。
-     * @param {Element|Collector} tos 目标元素/集
-     * @param {Value} data 数据内容
-     * @param {...Value} args 额外参数
+     * 目标为数组时返回目标的Collector封装。
+     * 目标为元素时保持不变。
+     * @param  {Element|Collector} tos 目标元素/集
+     * @param  {Value} data 数据内容
+     * @param  {...Value} args 额外参数
+     * @return {Collector|void}
      */
     _Update[meth] = function( tos, data, ...args ) {
         if ( $.isArray(tos) ) {
@@ -344,36 +416,9 @@ const _Update = {
 
 
 //
-// 逆向设置。
-// 内容：{Node|Element} 插入参考点。
-// 当前检索为内容，流程数据为插入参考目标。
-//===============================================
-[
-    ['beforeWith',   'insertBefore'],
-    ['afterWith',    'insertAfter'],
-    ['prependWith',  'prependTo'],
-    ['appendWith',   'appendTo'],
-    ['replaceWith',  'replaceAll'],
-    ['fillWith',     'fillTo'],
-]
-.forEach(function( fns ) {
-    /**
-     * @param {Element|Collector} els 检索元素/集（数据）
-     * @param {Node|Element} ref 插入参考点或容器
-     * @param {Boolean} clone 节点是否克隆
-     * @param {Boolean} event 元素上的事件处理器是否克隆
-     * @param {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
-     */
-    _Update[ fns[0] ] = function( els, ref, clone, event, eventdeep  ) {
-        $(els)[ fns[1] ]( ref, clone, event, eventdeep );
-    };
-});
-
-
-//
 // 事件绑定。
-// 内容：事件处理器或undefined。
-//===============================================
+// 内容：事件处理器或 undefined（off）。
+//=========================================================
 [
     'on',
     'one',
@@ -381,19 +426,20 @@ const _Update = {
 ]
 .forEach(function( meth ) {
     /**
-     * @param {Element|Collector} to 目标元素（集）
-     * @param {EventListener|Function|false|null|undefined} handler 事件处理器
-     * @param {String} evn 事件名
-     * @param {String} slr 委托选择器，可选
+     * 目标为数组时返回目标的Collector封装。
+     * 目标为元素时保持不变。
+     * @param  {Element|Collector} to 目标元素（集）
+     * @param  {EventListener|Function|false|null|undefined} handler 事件处理器
+     * @param  {String} evn 事件名
+     * @param  {String} slr 委托选择器，可选
+     * @return {Collector|void}
      */
     _Update[meth] = function( to, handler, evn, slr ) {
         if ( $.isArray(to) ) {
-            $(to)[meth]( evn, slr, handler );
+            return $(to)[meth]( evn, slr, handler );
         }
         $[meth]( to, evn, slr, handler );
     };
-
-    _Update[`__${meth}`] = 1;
 
 });
 
@@ -410,7 +456,9 @@ const _Update = {
     'pbv',  // ( val:String )
 ]
 .forEach(function( name ) {
-
+    /**
+     * @return {void}
+     */
     _Update[name] = function( els, its ) {
         if ( $.isArray(els) ) {
             return els.forEach( el => Util[name](el, its) );
@@ -816,14 +864,16 @@ function message( el, msg, long ) {
 export const To = {};
 
 
-// this固化，参数配置。
+// 绑定：this固化。
+// 注记：不适用控制指令集（Control）。
 To.Update = $.assign( {}, _Update, bindMethod )
 
 
-// 先集成取值和控制指令。
+// 预先集成。
+// 支持取值和控制指令集。
 To.NextStage = Object.assign( {}, Get, Control );
 
-// this固化，参数配置。
+// 绑定：this固化。
 // 注：_NextStage.scroll需覆盖同名取值指令。
 $.assign( To.NextStage, _NextStage, bindMethod );
 

@@ -143,6 +143,7 @@
         "modal:page",
         "modal:prop",
         "modal:small",
+        "modal:plugins",
         "script:history",
         "script:result"
     ]

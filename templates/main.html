@@ -3,13 +3,17 @@
     <!-- 面板按钮 -->
     <div class="_start _icons">
         <b title="大纲" class="_press"
-            on="click|$$('#outline,#lineLeft') lose(2) push('_press')"
-            to="|toggleClass">
+            on="click|$$('#outline,#lineLeft') lose(2) push('_press');
+                ^obted|('click')"
+            to="|toggleClass;
+                |couple('panel.outline')">
             <i id="b-outline"></i>
         </b>
         <b id="tools-slave" title="主面板" class="_press"
-            on="click|$('#main-slave') lose(2) push('_press')"
-            to="|toggleClass">
+            on="click|$('#main-slave') lose(2) push('_press');
+                ^obted|('click')"
+            to="|toggleClass;
+                |couple('panel.slave')">
             <i id="b-slave"></i>
         </b>
     </div>
@@ -22,9 +26,16 @@
         <b title="撤消"><i id="b-undo"></i></b>
         <b title="重做" data-pb="disabled"><i id="b-redo"></i></b>
     </div>
-    <!-- 功能按钮 -->
+    <!-- 末端 -->
     <div class="_end _icons">
-        <b title="插件"><i id="b-plugins"></i></b>
+        <!-- 先显示再替换（否则目标脱离DOM） -->
+        <b title="插件"
+            on="click|tpl('modal:plugins');
+                ^obted|('click')"
+            to="#g-modal>*|replace|fire(1,'open',true);
+                |couple('panel.plugins')">
+            <i id="b-plugins"></i>
+        </b>
         <b title="最大化"><i id="b-maximize"></i></b>
     </div>
 </div>
@@ -153,7 +164,7 @@
     <!-- 帮助入口 -->
     <div class="_help _press" title="帮助"
         on="click|$$('#help,#lineRight') lose(2) push('_press');
-            ^obted|push('click')"
+            ^obted|('click')"
         to="|toggleClass;
             |couple('panel.help')">
         <code>?</code>
