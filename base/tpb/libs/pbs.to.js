@@ -267,20 +267,20 @@ const _Update = {
 ]
 .forEach(function( meth ) {
     /**
-     * 始终返回一个新插入节点的Collector封装。
-     * 结果集已经扁平化（注：目标为数组时可能返回一个二维集）。
+     * 如果目标是一个数组，返回新插入节点集的Collector封装。
+     * 注：结果集合已经扁平化。
      * @param  {Element|Collector} tos 目标元素/集
      * @param  {Node|[Node]|Collector|Set|Iterator|Function} data 数据内容
      * @param  {Boolean} clone 节点是否克隆
      * @param  {Boolean} event 元素上的事件处理器是否克隆
      * @param  {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
-     * @return {Collector} 新插入的节点/集
+     * @return {Collector|Node|[Node]} 新插入的节点/集
      */
     _Update[meth] = function( tos, data, clone, event, eventdeep ) {
         if ( $.isArray(tos) ) {
             return $(tos)[meth](data, clone, event, eventdeep).flat();
         }
-        return $( $[meth](tos, data, clone, event, eventdeep) );
+        return $[meth]( tos, data, clone, event, eventdeep );
     };
 
 });
@@ -296,18 +296,18 @@ const _Update = {
 ]
 .forEach(function( meth ) {
     /**
-     * 始终返回一个新插入节点的Collector封装。
-     * 结果集已经扁平化（同上）。
+     * 如果目标是一个数组，返回新插入节点集的Collector封装。
+     * 同上，结果集已经扁平化。
      * @param  {Element|Collector} tos 目标元素/集
      * @param  {Value} data 数据内容
      * @param  {...Value} args 额外参数
-     * @return {Collector} 新插入的节点集
+     * @return {Collector|Node|[Node]} 新插入的节点/集
      */
     _Update[meth] = function( tos, data, where, sep ) {
         if ( $.isArray(tos) ) {
             return $(tos)[meth](data, where, sep).flat();
         }
-        return $( $[meth](tos, data, where, sep) );
+        return $[meth](tos, data, where, sep);
     };
 
 });
@@ -338,8 +338,8 @@ const _Update = {
      * @return {Collector} 新克隆的节点集或插入参考节点
      */
     _Update[ fns[0] ] = function( els, ref, clone, event, eventdeep  ) {
-        els = $(els)[fns[1]]( ref, clone, event, eventdeep );
-        return clone ? els.end(1) : els;
+        ref = $(els)[fns[1]]( ref, clone, event, eventdeep );
+        return clone ? ref.end(1) : ref;
     };
 
 });
@@ -506,8 +506,7 @@ const _NextStage = {
      */
     fire( evo, delay, name, bubble, cancelable ) {
         Util.fireEvent(
-            $(evo.targets),
-            name, delay, evo.data, bubble, cancelable
+            $(evo.targets), name, delay, evo.data, bubble, cancelable
         );
     },
 
@@ -529,9 +528,8 @@ const _NextStage = {
      * @param {Boolean} cancelable 是否可取消，可选
      */
     xfire( evo, delay, name, extra, bubble, cancelable ) {
-        if ( evo.data ) {
-            Util.fireEvent( $(evo.targets), name, delay, extra, bubble, cancelable );
-        }
+        evo.data &&
+        Util.fireEvent( $(evo.targets), name, delay, extra, bubble, cancelable );
     },
 
     __xfire: 1,
@@ -574,7 +572,8 @@ const _NextStage = {
      * @param {String} evn 定制事件名，可选
      */
     changes( evo, evn = 'changed' ) {
-        $(evo.targets).forEach(
+        $(evo.targets)
+        .forEach(
             frm =>
             changedTrigger( $.controls(frm), evn, evo.data )
         );
