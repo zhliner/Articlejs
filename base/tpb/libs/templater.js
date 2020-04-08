@@ -55,6 +55,9 @@ class Templater {
         // 子模版承诺存储（同步点）
         // {root: Promise}
         this._pool = new WeakMap();
+
+        // 是否移除OBT特性。
+        this._clear = false;
     }
 
 
@@ -101,14 +104,13 @@ class Templater {
      * - 存储构建好的模板节点备用。
      * - 可能需要多次异步载入（子模版引用导致）。
      * @param  {Element|DocumentFragment} root 目标节点
-     * @param  {Boolean} clear 是否清除OBT属性
      * @return {Promise}
      */
-    build( root, clear ) {
+    build( root ) {
         if ( this._pool.has(root) ) {
             return this._pool.get(root);
         }
-        this._obter( root, clear );
+        this._obter( root, this._clear );
         Render.parse( root );
 
         return this.picks( root );
@@ -167,6 +169,16 @@ class Templater {
             tpl,
             $.clone(tpl, true, true, true)
         );
+    }
+
+
+    /**
+     * 设置OBT属性清除标记。
+     * @param  {Boolean} sure
+     * @return {this}
+     */
+    clear( sure ) {
+        return this._clear = sure, this;
     }
 
 

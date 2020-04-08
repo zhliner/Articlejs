@@ -213,7 +213,7 @@ function Build( root, obts = true, maps = null ) {
     if ( typeof obts != 'boolean' ) {
         return __obter.build( root, obts );
     }
-    return TLoader.config(maps).then( () => __Tpl.build(root, obts) );
+    return TLoader.config(maps).then( () => __Tpl.clear(obts).build(root) );
 }
 
 
