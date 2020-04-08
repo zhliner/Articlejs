@@ -34,7 +34,7 @@
 import { Util } from "./util.js";
 import { X, extend__ } from "./lib.x.js";
 import { App__ } from "./app.js";
-import { bindMethod, method, pullRoot } from "../config.js";
+import { bindMethod, method, Web } from "../config.js";
 import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
@@ -42,7 +42,11 @@ import { Control } from "./pbs.base.js";
 import { Render } from "./render.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // 请求根路径。
+    pullRoot = new URL( Web.pulls, Web.base );
 
 
 const _By = {

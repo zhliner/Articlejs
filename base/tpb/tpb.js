@@ -27,8 +27,7 @@ import { By, extend, App } from "./libs/pbs.by.js";
 import { To } from "./libs/pbs.to.js";
 
 import { Builder } from "./libs/obter.js";
-import { TLoader } from "./libs/tloader.js";
-import { OBTA, tplsMap, DEBUG, InitTpl, storeChain } from "./config.js";
+import { Web, OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader } from "./config.js";
 
 // 无需模板支持。
 // import { Templater } from "./libs/templater.x.js";
@@ -42,21 +41,21 @@ const
     // 用户库空间。
     Lib = { extend, App },
 
-    // On属性选择器
-    __onSlr = `[${OBTA.on}]`,
+    // OBT属性选择器
+    __onSlr = `[${OBTA.on}], [${OBTA.src}]`,
 
-    // OBT属性取值序列。
-    __obts = `${OBTA.on} ${OBTA.by} ${OBTA.to}`;
+    // OBT名称序列。
+    __obtName = `${OBTA.on} ${OBTA.by} ${OBTA.to} ${OBTA.src}`;
 
 
 
 //
-// 基础支持。
-//===============================================
+// 基础支持
+//=========================================================
 
 
-// OBT 构造器
-const _obter = new Builder( {
+// OBT构造器
+const __obter = new Builder( {
         on:     On,
         by:     By,
         update: To.Update,
@@ -67,31 +66,22 @@ const _obter = new Builder( {
 
 
 /**
- * 目标OBT构建。
- * 可用于DOM节点树和可绑定事件的普通对象（如window）。
- * 手动传递OBT配置（obts）视为仅处理目标本身。
- * obts可以传递布尔值，此时表示是否清除元素上的OBT定义。
- *
- * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
- * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
- * @return {Element...} root
+ * 节点OBT构建。
+ * @param  {Element|DocumentFragment} root 根节点
+ * @param  {Boolean} clear 是否清除OBT属性
+ * @return {root}
  */
-function obtBuild( root, obts = true ) {
-    // 单目标
-    if ( typeof obts != 'boolean' ) {
-        window.console.info(root, obts);
-        return _obter.build( root, obts );
+function nodeBuild( root, clear ) {
+    for ( const el of $.find(__onSlr, root, true) ) {
+        obtAttr(el, clear)
+        .then( obt => __obter.build(el, obt) );
     }
-    $.find( __onSlr, root, true )
-    .forEach(
-        el => _obter.build( el, obtAttr(el, obts) )
-    );
     return root;
 }
 
 
 // 模板对象。
-const __Tpl = InitTpl( new Templater(obtBuild, TLoader.load.bind(TLoader)) );
+const __Tpl = InitTpl( new Templater(nodeBuild, TLoader.load.bind(TLoader)) );
 
 
 
@@ -102,20 +92,38 @@ const __Tpl = InitTpl( new Templater(obtBuild, TLoader.load.bind(TLoader)) );
 
 /**
  * 获取目标元素的OBT配置。
+ * 可能会移除元素上的OBT属性本身。
  * @param  {Element} el 目标元素
  * @param  {Boolean} clear 是否清除OBT属性
- * @return {Object3} OBT配置（{on,by,to}）
+ * @return {Promise<Object3>} OBT配置<{on, by, to}>
  */
 function obtAttr( el, clear ) {
-    let _obj = {
-        on: el.getAttribute( OBTA.on ) || '',
-        by: el.getAttribute( OBTA.by ) || '',
-        to: el.getAttribute( OBTA.to ) || '',
-    };
+    let _obt = _obtattr(el);
+
     if ( clear ) {
-        $.removeAttr( el, __obts );
+        $.removeAttr(el, __obtName);
     }
-    return _obj;
+    return Promise.resolve(_obt);
+}
+
+
+/**
+ * 获取OBT配置。
+ * 如果存在src配置，会忽略元素自身的OBT配置。
+ * 注：两者不应同时定义。
+ * @param  {Element} el 目标元素
+ * @return {Promise<Object>|Object}
+ */
+function _obtattr( el ) {
+    if ( el.hasAttribute(OBTA.src) ) {
+        return XLoader
+            .json( `${Web.obtdir}/${$.attr(el, OBTA.src)}` );
+    }
+    return {
+        on: $.attr(el, OBTA.on) || '',
+        by: $.attr(el, OBTA.by) || '',
+        to: $.attr(el, OBTA.to) || '',
+    };
 }
 
 
@@ -189,27 +197,23 @@ if (DEBUG) {
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-//
-// 模板节点配置初始化标记。
-//
-let _tplsDone = false;
-
 
 /**
  * OBT构建封装。
- * 包含模板节点配置的初始化。
+ * 可用于DOM节点树和可绑定事件的普通对象（如window）。
+ * - 单纯传递 root 可用于页面中既有OBT构建（效果测试）。
+ * - 传递 obts 可用于即时测试外部的OBT配置。
+ * - 如果 root 中包含模板语法且需要引入外部子模版，则传递 maps 实参。
  * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
- * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
- * @return {Promise<void>}
+ * @param  {Boolean|Object3} obts 清除OBT属性标记或OBT配置（{on,by,to}），可选
+ * @param  {String|Object} maps 模板节点配置文件（相对于URL根）或配置对象，可选
+ * @return {Promise<void>|root}
  */
-function Build( root, obts ) {
-    if ( _tplsDone ) {
-        return __Tpl.build( root, obts );
+function Build( root, obts = true, maps = null ) {
+    if ( typeof obts != 'boolean' ) {
+        return __obter.build( root, obts );
     }
-    return TLoader.init(tplsMap)
-        .then(
-            () => ( _tplsDone = true, __Tpl.build(root, obts) )
-        );
+    return TLoader.config(maps).then( () => __Tpl.build(root, obts) );
 }
 
 

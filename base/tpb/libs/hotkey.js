@@ -28,6 +28,7 @@ export class HotKey {
 
     /**
      * 配置初始化。
+     * 注：无需在节点解析之前调用。
      * @param {Map} map 存储集
      * @param {[Object]} list 映射配置集
      */

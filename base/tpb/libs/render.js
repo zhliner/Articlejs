@@ -29,7 +29,7 @@
 import { Filter } from "./filter.js";
 import { Spliter, UmpString, UmpCaller } from "./spliter.js";
 import { Util } from "./util.js";
-import { hasRender } from "../config.js";
+import { HasRender } from "../config.js";
 
 
 const
@@ -75,7 +75,7 @@ const
     __chrPipe   = '|',
 
     // 渲染元素选择器。
-    __slrRender = `[${hasRender}]`,
+    __slrRender = `[${HasRender}]`,
 
     // 循环内临时变量名
     __loopIndex = 'INDEX',  // 当前条目下标（从0开始）
@@ -898,7 +898,7 @@ function hidden( el ) {
  */
 function hideElem( el ) {
     let _tmp = $.Element(
-        'template', { hasRender: '' }
+        'template', { HasRender: '' }
     );
     $.append(
         $.replace(el, _tmp).content, el
@@ -996,7 +996,7 @@ function parse( tpl ) {
 
         if ( _gram.size > 0 ) {
             Grammars.set( el, _gram );
-            el.setAttribute( hasRender, '' );
+            el.setAttribute( HasRender, '' );
         }
     }
     return tpl;

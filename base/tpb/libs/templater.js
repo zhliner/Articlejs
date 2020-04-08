@@ -95,25 +95,20 @@ class Templater {
 
     /**
      * 模板构建。
-     * 如果已经开始构建，返回子模版的承诺对象。
-     * 注：
-     * - 需要处理OBT的解析/绑定逻辑。
+     * 如果已经开始构建，返回子模版载入的承诺对象。
+     * 工作：
+     * - 处理OBT的解析/绑定逻辑。
      * - 存储构建好的模板节点备用。
-     * - 可能需要多次异步载入（tpl-node）。
-     * @param  {Element|DocumentFragment|Object} root 构建根
-     * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
+     * - 可能需要多次异步载入（子模版引用导致）。
+     * @param  {Element|DocumentFragment} root 目标节点
+     * @param  {Boolean} clear 是否清除OBT属性
      * @return {Promise}
      */
-    build( root, obts = true) {
+    build( root, clear ) {
         if ( this._pool.has(root) ) {
             return this._pool.get(root);
         }
-        this._obter( root, obts );
-
-        // 非节点（如window）
-        if ( !root.nodeType ) {
-            return Promise.resolve();
-        }
+        this._obter( root, clear );
         Render.parse( root );
 
         return this.picks( root );
@@ -145,7 +140,7 @@ class Templater {
      * @return {Promise<DocumentFragment>}
      */
     picks( root ) {
-        $.find( __nameSelector, root, true )
+        $.find(__nameSelector, root, true)
             .forEach(
                 el => this.add( el )
             )

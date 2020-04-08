@@ -12,40 +12,63 @@
 //
 
 import { HotKey } from "./libs/hotkey.js";
+import { Loader, TplLoader } from "./libs/tloader.js";
+
+
+//
+// 用户配置。
+//////////////////////////////////////////////////////////////////////////////
 
 const
     DEBUG = true,
 
     Web = {
-        base:   'http://localhost:8080/',   // 请求根URL
-        tpls:   'templates',                // 模板根目录（相对于base）
-        pull:   'xdata',                    // x.pull根目录（相对于base）
-    },
+        // URL根
+        base:   'http://localhost:8080/',
 
+        //---------------------
+        // 子路径（相对于base）
+        //---------------------
+
+        // 模板根目录
+        tpldir: 'templates',
+
+        // 模板映射集文件
+        // 格式：{文件: [节点]}
+        tplmap: 'templates/maps.json',
+
+        // OBT独立定义存放目录
+        // 即 obt-src 根
+        obtdir: 'templates/obts',
+
+        // x.pull根目录
+        pulls:  'xdata',
+    };
+
+
+
+//
+// 系统配置：谨慎修改。
+//////////////////////////////////////////////////////////////////////////////
+
+const
     // OBT属性名定义
     OBTA = {
         on:     'on',
         by:     'by',
         to:     'to',
+        src:    'obt-src',
     },
 
     // 渲染标识属性。
     // 用于高效检索渲染元素（如配置克隆）。
     // 注：这一属性名会保留在DOM元素上。
-    hasRender   = '_',
-
-    // 模板映射。
-    // { 文件名：[模板名] }
-    // 注：用于从模板名查询所属文件。
-    tplsMap = `${Web.base}${Web.tpls}/maps.json`,
-
-    // X.pull 根路径（计算）。
-    pullRoot = new URL(Web.pull, Web.base);
+    HasRender   = '_';
 
 
 
 //
-// 下面定义请勿修改。
+// 共享配置：请勿修改。
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -78,13 +101,18 @@ const
     ChainStore = new WeakMap(),
 
     // 快捷键处理器。
-    Hotkey = new HotKey();
+    Hotkey = new HotKey(),
+
+    // 通用载入器。
+    XLoader = new Loader( Web.base ),
+
+    // 模板载入器。
+    TLoader = new TplLoader( Web.tpldir, XLoader);
 
 
 
 //
 // 全局模板存储。
-// 注：请勿修改！
 //
 let Templater = null;
 
@@ -170,7 +198,7 @@ const InitTpl = tplr => Templater = tplr;
 export {
     DEBUG,
     Web,
-    hasRender,
+    HasRender,
     OBTA,
     EXTENT,
     ACCESS,
@@ -178,12 +206,12 @@ export {
     PREVCELL,
     bindMethod,
     funcSets,
-    tplsMap,
-    pullRoot,
     Globals,
     DataStore,
     ChainStore,
     Hotkey,
+    XLoader,
+    TLoader,
     storeChain,
     Templater,
     InitTpl,

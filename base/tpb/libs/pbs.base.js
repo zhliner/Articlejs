@@ -290,19 +290,23 @@ const _Control = {
 
     /**
      * 剔除任意区段条目。
-     * 目标：无。
-     * 特权：是，直接操作数据栈。
+     * 目标：暂存区1项可选。
+     * 特权：是。
      * 如果count未指定，表示删除start之后全部。
-     * 注：可能用于移除多余的初始传送数据。
+     * 如果目标有值，真值才会执行。
+     * 注：可用于移除多余的初始传送数据或备用条目。
      * @param  {Stack} stack 数据栈
      * @param  {Number} start 起始位置
      * @param  {Number} count 删除数量，可选
      * @return {void}
      */
     scrap( evo, stack, start, count ) {
-        stack.dels( start, count );
+        if ( evo.data === undefined || evo.data ) {
+            stack.dels( start, count );
+        }
     },
 
+    __scrap: -1,
     __scrap_x: true,
 
 

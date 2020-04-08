@@ -47,11 +47,11 @@
 
     <script type="module" async>
         import Tpb from "./tpb/tpb.js";
-        import { Hotkey } from "./tpb/config.js";
+        import { Hotkey, Web } from "./tpb/config.js";
         import list from "./shortcuts.js";
 
-        Hotkey.init( list );
-        Tpb.Build( document.body );
+        Hotkey.init(list);
+        Tpb.Build(document.body, true, Web.tplmap);
 
         //:Debug
         window.Tpb = Tpb;
