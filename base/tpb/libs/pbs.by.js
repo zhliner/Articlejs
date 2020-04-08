@@ -74,19 +74,6 @@ const _By = {
 
 
     /**
-     * 导入X库成员。
-     * 目标：无。
-     * @param  {String} path 引用路径（句点分隔）
-     * @return {Value}
-     */
-    xobj( evo, path ) {
-        return Util.subObj( path.split('.'), X );
-    },
-
-    __xobj: null,
-
-
-    /**
      * X函数真值执行。
      * 目标：暂存区/栈顶1项。
      * 比较目标是否为true（===），是则执行，否则跳过。
@@ -141,6 +128,20 @@ const _By = {
     },
 
     __render: 1,
+
+
+    /**
+     * 导入X库成员。
+     * 目标：无。
+     * 注意：有一个小写的 x 名称空间。
+     * @param  {String} path 引用路径（句点分隔）
+     * @return {Value}
+     */
+    X( evo, path ) {
+        return Util.subObj( path.split('.'), X );
+    },
+
+    __X: null,
 
 };
 

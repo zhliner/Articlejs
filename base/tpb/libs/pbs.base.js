@@ -111,7 +111,7 @@ const _Control = {
      * @return {void|back}
      */
     avoid( evo, back ) {
-        let _v = this.data;
+        let _v = evo.data;
 
         if ( _v === undefined || _v ) {
             evo.event.preventDefault();
@@ -132,7 +132,7 @@ const _Control = {
      * @return {void|back}
      */
     stop( evo, back ) {
-        let _v = this.data;
+        let _v = evo.data;
 
         if ( _v === undefined || _v ) {
             evo.event.stopPropagation();
@@ -153,7 +153,7 @@ const _Control = {
      * @return {void|back}
      */
     stopAll( evo, back ) {
-        let _v = this.data;
+        let _v = evo.data;
 
         if ( _v === undefined || _v ) {
             evo.event.stopImmediatePropagation();

@@ -14,7 +14,25 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-const __reSpace = /\s+/;
+const
+    __reSpace = /\s+/,
+
+    // 拦截的键。
+    // 屏蔽浏览器默认行为。
+    __maskKeys = new Set([
+        'F1',
+        'F2',
+        'F3',
+        'F4',
+        'F5',
+        'F6',
+        'F7',
+        'F8',
+        'F9',
+        'F10',
+        'F11',
+        'F12',
+    ]);
 
 
 export class HotKey {
@@ -47,6 +65,16 @@ export class HotKey {
      */
     bind( key, cmd ) {
         this._map.set( key, cmd.split(__reSpace) );
+    }
+
+
+    /**
+     * 是否为拦截键。
+     * @param  {String} key 键名
+     * @return {Boolean}
+     */
+    masked( key ) {
+        return __maskKeys.has( key );
     }
 
 

@@ -666,23 +666,6 @@ const _Gets = {
 
 
     /**
-     * 获取快捷键处理器。
-     * 用法：
-     * 通常在<body>元素上定义捕获。
-     *  on="keydown|ev('repeat') end avoid acmsk hotkey pop"
-     *  to="|trigger(_)"
-     * 然后在其它地方关联映射（To:couple）。
-     * 注：
-     * 应用需要先初始化快捷键处理器实例（Hotkey.init(...)）。
-     */
-    hotkey( evo ) {
-        return Hotkey;
-    },
-
-    __hotkey: null,
-
-
-    /**
      * 预绑定调用链提取（单个）。
      * 目标：暂存区/栈顶1项。
      * 提取目标元素上预绑定的调用链（链头指令实例）。

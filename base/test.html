@@ -55,6 +55,7 @@
 
         //:Debug
         window.Tpb = Tpb;
+        window.HK = Hotkey;
 
         // Render:data
         window.rdata = {
@@ -75,7 +76,7 @@
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        keydown|ev('repeat') end avoid acmsk hotkey pop;
+        keydown|(HK.masked) ev('key') exec(_) pop avoid acmsk (HK) pop;
         clearall|"
     to="#outline|width(true);
         #help|width(true);

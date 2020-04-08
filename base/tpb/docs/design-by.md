@@ -29,7 +29,7 @@ pull( meth?:String ): Promise<json>
 // 暂存区的流程数据会作为查询串上传。
 // 注：仅支持 GET 方法。
 
-xobj( path ): Value
+X( path ): Value
 // 引入X库成员。
 // 目标：当前条目，可选。
 // 特权：是，灵活取栈。
