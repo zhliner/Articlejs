@@ -190,7 +190,7 @@ class Spliter {
     * @param  {Number} cnt 切分的最大计数，可选
     * @return {Iterator} 切分迭代器
     */
-    *split( fmt, cnt = -1 ) {
+    *split( fmt = '', cnt = -1 ) {
        let _ss = '',
            _ew = fmt.endsWith(this._sep);
 
@@ -209,7 +209,7 @@ class Spliter {
      * @param  {Number} cnt 切分的最大计数，可选
      * @return {Iterator} 切分迭代器
      */
-    *part( fmt, cnt = -1 ) {
+    *part( fmt = '', cnt = -1 ) {
         let _val = '',
             _beg = '',
             _inc = false;

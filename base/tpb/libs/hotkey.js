@@ -15,6 +15,8 @@
 //
 
 const
+    $ = window.$,
+
     __reSpace = /\s+/,
 
     // 拦截的键。
@@ -47,24 +49,31 @@ export class HotKey {
     /**
      * 配置初始化。
      * 注：无需在节点解析之前调用。
-     * @param {Map} map 存储集
-     * @param {[Object]} list 映射配置集
+     * @param  {Map} map 存储集
+     * @param  {[Object]} list 映射配置集
+     * @return {this}
      */
     init( list ) {
         for (const its of list) {
             this._map.set( its.key, its.command.split(__reSpace) );
         }
+        return this;
     }
 
 
     /**
      * 绑定键映射。
      * 用于外部用户配置定制覆盖。
-     * @param {String} key 键序列
-     * @param {String} cmd 指令标识
+     * @param  {String} key 键序列
+     * @param  {String} cmd 指令标识
+     * @return {this}
      */
     bind( key, cmd ) {
-        this._map.set( key, cmd.split(__reSpace) );
+        this._map.set(
+            key,
+            cmd.split( __reSpace )
+        );
+        return this;
     }
 
 
@@ -80,13 +89,20 @@ export class HotKey {
 
     /**
      * 指令标识关联事件目标。
+     * 如果事件名是一个数组，指令标识也需要是一个数组，成员一一对应。
+     * 不支持单一指令对应多个事件。注：只需要登记一个事件名即可。
+     * 不存在单一事件映射多个指令标识的情况（注：与DOM事件注册无关）。
      * 事件目标：[元素, 事件名]。
-     * @param {String} cmd 指令标识（单个）
-     * @param {String} evn 事件名
-     * @param {Element} elem 触发元素
+     * @param  {Element} el 触发元素
+     * @param  {String|[String]} evn 事件名/集
+     * @param  {String|[String]} cmd 指令标识/集
+     * @return {void}
      */
-    couple( cmd, evn, elem ) {
-        this._ui.add( cmd, evn, elem );
+    couple( el, evn, cmd ) {
+        if ( $.isArray(evn) ) {
+            return evn.forEach( (n, i) => this._ui.add(cmd[i], el, n) )
+        }
+        this._ui.add( cmd, el, evn );
     }
 
 
@@ -120,12 +136,13 @@ class IStore {
 
     /**
      * 添加关联信息。
-     * @param {String} cmd 指令标识
-     * @param {String} evn 触发行为的事件名
-     * @param {Element|.dispatchEvent} elem 触发目标
+     * @param  {String} cmd 指令标识
+     * @param  {Element|.dispatchEvent} el 触发目标
+     * @param  {String} evn 触发行为的事件名
+     * @return {void}
      */
-    add( cmd, evn, elem ) {
-        this._map.set( cmd, [elem, evn] );
+    add( cmd, el, evn ) {
+        this._map.set( cmd, [el, evn] );
     }
 
 

@@ -97,13 +97,10 @@
 - 如果需要为后续的 `To` 定义维持顺序（当前仅占位），则应当将整个值设置为一个 `-`。
 
 ```html
-<input type="image" to="form@search|value|select" />
-<!--1. 检索“form@search”元素（data-id="search")。
+<input type="image" to="form/?search|value|select" />
+<!--1. 检索“form/?search”元素（data-id="search")。
     2. 设置value值为前阶传递来的流程数据。
     3. 选取（调用目标元素的select()方法）。
-    附注：
-    rid默认仅检索单个元素，若需多元素检索，n位置0或具体的值。如："form@tip,0|text|..."
-    n=0 表示全部检索到的元素 -->
 ```
 
 
@@ -126,7 +123,10 @@
 
 
 ```html
-<div on="click('i')|$e, attr('-val')" by="Help.index('#help-type')" to="#box-man|end|scroll,focus('')">
+<div
+    on="click('i')|$e, attr('-val')"
+    by="Help.index('#help-type')"
+    to="#box-man|end|scroll,focus('')">
     <img src="..." data-val="plugA" />
     <img src="..." data-val="plugB" />
 </div>

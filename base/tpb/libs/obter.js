@@ -41,8 +41,6 @@ const
     __evnStore  = '@',  // 调用链预定义存储
 
     // To
-    __toqMore   = '+',  // 多元素检索前置标志
-    __toqExtra  = '!',  // 进阶提取标志
     __toqOrig   = '~',  // 事件起始元素（evo.origin）
     __toqCurr   = '#',  // 事件当前元素（evo.current）
     __tosAttr   = '@',  // 特性指定
@@ -60,12 +58,8 @@ const
     },
 
     // 空名称指代。
-    // 友好，仅限于调用指令（Call）。
+    // 仅限于调用（Call）指令。
     __zeroName  = 'push',
-
-    // To查询扩展切分器。
-    // 注：属性选择器内感叹号不可用（无需包含）。
-    __extSplit  = new Spliter( __toqExtra, new UmpString() ),
 
     // 并列分组切分器。
     // 注：属性选择器内分号不可用（无需包含）。
@@ -95,9 +89,8 @@ const
     __obtCall   = /^(^|[$\w][$\w.-]*)(?:\(([^]*)\))?$/,
 
     // To:Query
-    // 完整的检索表达式。
-    // 首尾的引号包围是可选的。
-    __toQuery     = /^['"`]?([^]*?)['"`]?$/,
+    // 多元素检索表达式。
+    __toQuery   = /^\(([^]*?)\)\s*([\(\[\{][^]+[\)\]\}])?$/,
 
     // To:Query
     // 集合范围子集匹配：( beg, end )。
@@ -118,9 +111,9 @@ const
     // 更新方法调用模式，名称仅为简单单词。
     __toUpdate  = /^(\w+)(?:\(([^]*)\))?$/,
 
-    // 标记：从流程数据中获取参数。
-    // 用于模板中的取值选择，取值：[1,...]
-    __fromData  = Symbol();
+    // 从流程中获取实参标记。
+    // 用于模板中的取值表达，通常由一个下划线表示。
+    __fromFlow  = Symbol();
 
 
 
@@ -145,10 +138,8 @@ const Parser = {
             i = 0;
 
         for (let on of __dlmtSplit.split(conf.on)) {
-            // 容错空串（末尾;）
-            on = zeroPass( on );
-
-            if ( !on ) {
+            // 容错末尾;
+            if ( !(on = zeroPass(on)) ) {
                 continue;
             }
             yield {
@@ -711,7 +702,7 @@ class Cell {
      */
     setRest( args ) {
         if ( args &&
-            args[args.length-1] === __fromData ) {
+            args[args.length-1] === __fromFlow ) {
             args.pop();
             this._rest = true;
         }
@@ -946,12 +937,12 @@ class Call {
 //
 // To查询配置。
 // 格式 {
-//      xxx   // 单元素检索：$.get(): Element | null
-//      +xxx  // 前置+字符，多元素检索：$(): Collector
+//      xxx   // 单元素检索：$.get(...): Element | null
+//      (xxx) // 小括号包围，多元素检索：$(...): Collector
 //
-//      +xxx!( Number, Number )       // 范围：slice()
-//      +xxx![ Number, Number, ... ]  // 定点取值：[n]
-//      +xxx!{ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
+//      (xxx)( Number, Number )       // 范围：slice()
+//      (xxx)[ Number, Number, ... ]  // 定点取值：[n]
+//      (xxx){ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
 //
 //      ~   // 事件起始元素（evo.origin）
 //      #   // 事件当前元素（evo.current）
@@ -965,18 +956,11 @@ class Query {
      * @param {String} qs 查询串
      */
     constructor( qs ) {
-        this._slr = qs.match(__toQuery)[1];
+        this._slr = qs;
         this._one = true;
+        this._flr = null;
 
-        // 进阶获取。
-        // function( Collector ): Collector
-        this._fltr = null;
-
-        if (qs[0] == __toqMore) {
-            this._slr = qs.substring(1);
-            this._one = false;
-        }
-        this._init( this._slr );
+        this._matchMore( qs.match(__toQuery) );
     }
 
 
@@ -987,27 +971,22 @@ class Query {
      * @return {Cell} cell
      */
     apply( cell ) {
-        return cell.bind(
-            // n:-1 支持暂存区1项可选。
-            [ this._slr, this._one, this._fltr ], query.bind(null), false, -1
-        );
+        // n:-1 支持暂存区1项可选
+        return cell.bind( [this._slr, this._one, this._flr], query, false, -1 );
     }
 
 
     /**
-     * 初始解析构造。
+     * 多检索匹配处理。
      * 需要处理进阶成员提取部分的定义。
-     * @param {String} slr 选择器串
+     * @param {Array} result 多检索选择器匹配结果
      */
-     _init( slr ) {
-        if ( !slr ) return;
-
-        let _vs = [...__extSplit.split(slr, 1)];
-        if (_vs.length == 1) {
-            return;
-        }
-        this._slr = _vs[0];
-        this._fltr = this._handle( _vs[1].trim() );
+     _matchMore( result ) {
+        if ( result ) {
+            this._slr = result[1];
+            this._flr = this._handle(result[2]);
+            this._one = false;
+        };
     }
 
 
@@ -1018,9 +997,8 @@ class Query {
      * @return {Function} 取值函数
      */
     _handle( fmt ) {
-        if ( !fmt ) {
-            return null;
-        }
+        if ( !fmt ) return null;
+
         if ( __toRange.test(fmt) ) {
             return this._range( fmt.match(__toRange)[1] );
         }
@@ -1046,6 +1024,7 @@ class Query {
 
     /**
      * 定点成员提取。
+     * 越界下标的值会被忽略。
      * @param  {String} fmt 定位串：[m, n, ...]
      * @return {Function}
      */
@@ -1163,7 +1142,7 @@ function zeroPass( chr ) {
  */
 function arrArgs( args ) {
     return args ?
-        new Function( '_', `return [${args}]` )(__fromData) :
+        new Function( '_', `return [${args}]` )(__fromFlow) :
         null;
 }
 
@@ -1200,16 +1179,16 @@ function rejectInfo( msg ) {
  * @param  {Object} evo 事件关联对象
  * @param  {String} slr 选择器串（二阶支持）
  * @param  {Boolean} one 是否单元素版
- * @param  {Function} fltr 进阶过滤提取
+ * @param  {Function} flr 进阶过滤提取
  * @return {void}
  */
-function query( evo, slr, one, fltr ) {
+function query( evo, slr, one, flr ) {
     let _beg = evo.data;
 
     if (_beg === undefined) {
         _beg = evo.delegate;
     }
-    evo.targets = query2( evo, slr, _beg, one, fltr );
+    evo.targets = query2( evo, slr, _beg, one, flr );
 }
 
 
@@ -1224,17 +1203,17 @@ function query( evo, slr, one, fltr ) {
  * @param  {String} slr 双阶选择器
  * @param  {Element|null} beg 起点元素
  * @param  {Boolean} one 是否单元素查询
- * @param  {Function} fltr 进阶过滤函数
+ * @param  {Function} flr 进阶过滤函数
  * @return {Element|Collector}
  */
-function query2( evo, slr, beg, one, fltr ) {
+function query2( evo, slr, beg, one, flr ) {
     switch ( slr ) {
         case __toqOrig: return evo.origin;
         case __toqCurr: return evo.current;
     }
     let _v = Util.find( slr, beg, one );
 
-    return one ? _v : ( fltr ? fltr(_v) : _v );
+    return one ? _v : ( flr ? flr(_v) : _v );
 }
 
 

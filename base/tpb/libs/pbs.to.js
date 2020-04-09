@@ -225,23 +225,33 @@ const _Update = {
     /**
      * 指令路径关联。
      * 事件目标：[元素，事件名]。
-     * 指令路径是一个标识，用于表达特定行为/调用的名称。
-     * 该接口关联指令路径到一个事件目标 [元素,事件名]，用于外部触发该元素的该事件。
+     * 指令路径是一个标识，用于表达特定行为的名称。
+     * 该接口关联指令路径到一个事件目标 [元素,事件名]，可用于外部触发该元素的该事件。
      * 指令路径是全局共享的唯一性标识。
      * 用途：
      * 键盘快捷键控制某元素的行为（外部配置快捷键对应到指令路径）。
-     * 注：事件名/序列需要和元素/集匹配。
+     * 指令路径对应到元素和相关的事件/处理器操作。
      * 例：
      * 关联当前元素的 click 事件处理到 panel.help 路径标识。
      *  on="^obted|push('click')"
      *  to="|couple('panel.help')"
+     * 注；
+     * path支持空格分隔的多个名称序列，这应与多个事件名对应。
+     * 如果关联元素是一个集合，事件名和路径标识必须都是集合（三者成员一一对应）。
+     *
      * @param  {Element|[Element]} to 关联元素
-     * @param  {String|[String]} evn 事件名内容
+     * @param  {String|[String]} evn 事件名
      * @param  {String} path 指令路径
      * @return {void}
      */
     couple( to, evn, path ) {
-        $.isArray(to) ? couples(to, path, evn) : Hotkey.couple(path, evn, to);
+        if ( __reSpace.test(path) ) {
+            path = path.split( __reSpace );
+        }
+        if ( $.isArray(to) ) {
+            return to.forEach( (el, i) => Hotkey.couple(el, evn[i], path[i]) );
+        }
+        Hotkey.couple( to, evn, path );
     },
 
 
@@ -789,24 +799,6 @@ function bindsChain( type, els, ...args ) {
  */
 function chainSaves( el, cmap ) {
     for (const [n, cell] of cmap) storeChain( el, n, cell );
-}
-
-
-/**
- * 路径标识关联设置。
- * 如果事件名是一个集合，元素集成员与事件名成员一一对应。
- * 注：无值者简单忽略。
- * @param {[Element]} els 元素集
- * @param {String} path 路径标识
- * @param {String|[String]} evn 事件名/集
- */
-function couples( els, path, evn ) {
-    if ( $.isArray(evn) ) {
-        return els.forEach(
-            (el, i) => evn[i] !== undefined && Hotkey.couple(path, evn[i], el)
-        );
-    }
-    els.forEach( el => Hotkey.couple(path, evn, el) );
 }
 
 

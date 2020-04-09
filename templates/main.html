@@ -32,7 +32,7 @@
         <b title="插件"
             on="click|tpl('modal:plugins');
                 ^obted|('click')"
-            to="#g-modal>*|replace|fire(1, 'open', true);
+            to="(#g-modal>*)|replace|fire(1, 'open', true);
                 |couple('panel.plugins')">
             <i id="b-plugins"></i>
         </b>
@@ -103,7 +103,9 @@
 
 
 <!-- 主面板 -->
-<div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+<div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
+    on="hide|evo(1) lose;
+        show|evo(1) lose(0)">
     <div class="_tabs"
         on="click(b)|evo(1) attr('-tpl') pop tpl;
             click(b)|$$('/b')"
