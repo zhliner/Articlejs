@@ -174,6 +174,7 @@ const _Control = {
     /**
      * 弹出栈顶n项。
      * 弹出n项压入暂存区，无实参调用视为1项。
+     * n负值无用（简单忽略）。
      * @param {Stack} stack 数据栈
      * @param {Number} n 弹出的条目数
      */
@@ -187,6 +188,7 @@ const _Control = {
     /**
      * 取出栈底n项。
      * 移除栈底n项压入暂存区，无实参调用视为1项。
+     * n负值无用（简单忽略）。
      * @param {Stack} stack 数据栈
      * @param {Number} n 移除条目数
      */

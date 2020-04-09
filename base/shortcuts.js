@@ -35,15 +35,11 @@
 export default [
     {
         "key":      ":f1",
-        "command":  "panel.outline"
-    },
-    {
-        "key":      ":f2",
         "command":  "panel.help"
     },
     {
         "key":      ":f3",
-        "command":  "panel.outline panel.help"
+        "command":  "panel.outline"
     },
     {
         "key":      ":f4",
@@ -51,7 +47,7 @@ export default [
     },
     {
         "key":      ":f10",
-        "command":  "panel.clearAll"
+        "command":  "panel.clearall"
     },
     {
         "key":      ":f9",

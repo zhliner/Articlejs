@@ -76,7 +76,7 @@ const _Update = {
      * 如果目标是一个集合，相同的值发送到所有元素（tQuery行为）。
      * 可将事件名放在内容中，从而简单地获取动态性。
      *
-     * 目标：{Element|[Element]|String|.trigger}
+     * 目标：{Element|[Element]|String|.dispatchEvent}
      * - 如果是字符串会被视为选择器，向匹配的元素发送消息。
      * - 也可以是任意支持.dispatchEvent()接口的对象，这在某些情况下很有用。
      * 注记：
@@ -519,6 +519,18 @@ const _NextStage = {
     },
 
     __target: -1,
+
+
+    /**
+     * 交换目标和流程数据。
+     */
+    swap( evo ) {
+        let _tmp = evo.targets;
+        evo.targets = evo.data;
+        return _tmp;
+    },
+
+    __swap: 1,
 
 
     /**

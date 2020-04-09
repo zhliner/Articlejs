@@ -70,17 +70,21 @@
     </script>
 </head>
 
-<body lang="zh-cn" data-pls="hide"
+<body lang="zh-cn"
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
         keydown|(HK.masked) ev('key') exec(_) pop avoid acmsk (HK) pop;
-        panels|evo(1) attr('-pls') (['hide','show'])"
+        panels|$$('#x-help,#x-outline,#x-slave') dup attr('-pls') some(v => v == 'off') $if('off', 'on');
+        switch|evo(3) attr('-pls') ev('detail') pop;
+        ^obted|('panels')"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
         |trigger(_);
-        (#help,#outline,#main-slave)|toggleAttr('-pls') trigger(_)">
+        |attr('-pls')|pop fire(0, 'switch');
+        |trigger(_);
+        |couple('panel.clearall')">
     <aside id="outline" class="___Panel" data-pb=""
         on="hide|evo(1) lose;
             show|evo(1) lose(0)">
