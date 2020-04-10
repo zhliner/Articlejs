@@ -61,7 +61,6 @@ evo( name:String|Number ): Value
 //      1|'target'    evo.target
 //      2|'current'   evo.current
 //      3|'delegate'  evo.delegate
-//      4|'related'   evo.related
 //      5|'selector'  evo.selector
 //      6|'data'      evo.data （指令当前流程数据）
 //      7|'entry',    evo.entry （中段入口，迭代重入）

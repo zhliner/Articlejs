@@ -91,7 +91,6 @@ evo: {
     target: {Element}               // 事件起点元素（event.target）
     current: {Element}              // 触发事件的当前元素（matched|event.currentTarget）
     delegate: {Element}             // 委托绑定的元素（event.currentTarget）
-    related: {Element|null}         // 事件相关联元素（event.relatedTarget）
 
     event: {Event}                  // 原生事件对象（未侵入）
     selector: {String|null}         // 委托匹配选择器（for match）]
