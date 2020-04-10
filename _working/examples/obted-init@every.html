@@ -8,12 +8,12 @@
     存储键名书写在目标元素上是一个更好的设计。
 -->
 <div tpl-name="data:chars"
-    on="init|evo('origin') text split pop $$ wrap('<b>');
-        save|evo(1) ev('detail');
+    on="init|evo(1) text split pop $$ wrap('<b>');
+        save|ev('detail') dup xattr('-val');
         ^obted;
         ^done"
-    to="~|fill|target xattr('-val') pop fire(0, 'save', true);
-        |data(_)|fire(1, 'done');
+    to="~|fill|target(0) goto('save', _);
+        |data(_)|fire('done');
         (/span)|trigger('init', true);
         |off('init save')|target data('unit number') debug">
     <!-- <span><b>...</span> -->

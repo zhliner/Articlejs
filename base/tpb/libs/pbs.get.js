@@ -22,15 +22,16 @@ const
 
     // evo成员名/值键。
     evoIndex = {
-        0:  'event',    // 原生事件对象（注：ev指令可直接获取）
-        1:  'origin',   // 事件起点元素（event.target）
-        2:  'current',  // 触发事件的当前元素（event.currentTarget|matched）
-        3:  'delegate', // 委托绑定的元素（event.currentTarget）
-        4:  'related',  // 事件相关联元素（event.relatedTarget）
-        5:  'selector', // 委托匹配选择器（for match）]
-        10: 'data',     // 自动获取的流程数据
-        11: 'entry',    // 中段入口（迭代重入）
-        12: 'targets',  // To目标元素/集，向后延续
+        0: 'event',     // 原生事件对象（注：ev指令可直接获取）
+        1: 'target',    // 事件起点元素（event.target）
+        2: 'current',   // 触发事件的当前元素（event.currentTarget|matched）
+        3: 'delegate',  // 委托绑定的元素（event.currentTarget）
+        4: 'related',   // 事件相关联元素（event.relatedTarget）
+        5: 'selector',  // 委托匹配选择器（for match）]
+        6: 'data',      // 自动获取的流程数据
+        7: 'entry',     // 中段入口（迭代重入）
+        8: 'updated',   // To更新目标/集
+        9: 'origin',    // To初始检索结果
     },
 
     // 修饰键属性名。
@@ -84,8 +85,8 @@ const _Gets = {
      * 1. $('/p')  // 检索事件绑定元素内的首个<p>子元素
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
      * 3. push('/p') pop $    // rid从目标获取，效果同1.
-     * 4. push('/p') $(_)     // rid自动从流程获取，效果同1.
-     * 5. push('/a') evo(1) pop(2) $(_)  // rid和起点元素先取入暂存区，效果同2.
+     * 4. push('/p') pack $(_)  // rid从流程获取，效果同1。字符串会被展开，因此需要先打包
+     * 5. push('/a') pack evo(1) pop $(_)  // 效果同2.
      * @param  {Object} evo 事件关联对象
      * @param  {String} rid 相对ID，可选
      * @return {Element}
@@ -194,7 +195,6 @@ const _Gets = {
      * 例：
      * - push('abc', 123)  // 分别入栈字符串'abc'和数值123两个值
      * - pop(3) push(true) // 入栈布尔值true和暂存区条目（3项一体）两个值
-     * - pop(3) push(_)    // 先取暂存区首项为实参（数组会展开），然后暂存区剩余2项为一体。一起入栈
      * 友好：
      * 系统支持空名称指代，即：('hello') => push('hello') 含义相同。
      * 这让数据入栈更简洁（如果无需明确的push表意）。
@@ -333,7 +333,7 @@ const _Gets = {
      * - array(3, 'a', 'b')  // ['a', 'b', 'b']
      * - array(3)  // [undefined, undefined, undefined]
      * - push([10,11]) array(3, _)  // [10, 11, 11]
-     * - push([10,11]) push(['x','y']) pop(2) array(3, _)  // [10,11,'x']
+     * - push([10,11]) push(['x','y']) pop array(3, _)  // [10, 11, 'x']
      * @param  {Number} size 集合大小
      * @param  {...Value} vals 填充值序列，可选
      * @return {[Value]}
@@ -479,13 +479,9 @@ const _Gets = {
      * 返回Promise实例，注意调用顺序（应当在avoid等之后）。
      * 例：
      * 1. tpl('abc')  // 模板名为'abc'，clone未定义（假）
-     * 2. push('xyz') pop tpl('', true)  // 模板名为xyz，clone为真
-     * 3. push('abc') tpl(_)  // 模板名为abc，clone未定义。同1.
-     * 4. push('xyz', true) tpl(_)  // _后不能再传值，同2.
-     * 5. push('abc') pop tpl  模板名为abc，clone未定义，同1.
+     * 2. push('xyz') pop tpl(null, true)  // 模板名为xyz，clone为真
      * 注记：
-     * 支持暂存区1项可选（-1）是对name的友好，此时clone可以直接传值，
-     * 如果无需clone实参，pop tpl 与 tpl(_) 效果相同。
+     * 支持暂存区1项可选是对name的友好，此时clone可以直接传值，
      * @param  {String} name 模板名
      * @param  {Boolean} clone 是否克隆，可选
      * @return {Promise}
@@ -622,7 +618,7 @@ const _Gets = {
      * 例：
      * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
      * push('shift ctrl') pop scam  // 同上
-     * push('shift ctrl') scam(_)   // 同上
+     * push('shift ctrl') pack scam(_)   // 同上
      * scam inside('shift ctrl', true)  // 效果同上
      * 注：
      * names实参未传递或为假时才会取目标值，否则简单忽略。

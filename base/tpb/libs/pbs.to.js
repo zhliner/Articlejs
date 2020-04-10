@@ -45,7 +45,7 @@ const
 // 目标更新方法集。
 // 目标：由Query部分检索获取。
 // 内容：由流程数据中的单项提供。
-// 注意：非假返回值会更新To目标（evo.targets）。
+// 注意：非假返回值会更新To目标（evo.updated）。
 ///////////////////////////////////////////////////////////////////////////////
 
 const _Update = {
@@ -505,46 +505,51 @@ const _Update = {
 const _NextStage = {
     /**
      * To目标更新或取值入栈。
-     * 内容：暂存区1项可选。
-     * 更新：将暂存区1项更新为目标。
-     * 提取：将目标设置为流程数据（入栈）。
-     * 若内容有值则为更新，否则为提取。
+     * 内容：无。
+     * 特权：是，判断取值。
+     * 取两个目标之一入栈：
+     * - 0  原始To目标（evo.origin）
+     * - 1  更新To目标（evo.updated）
+     * - undefined 取暂存区/栈顶1项设置为更新目标（evo.updated）。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} n 目标标识
      * @return {Element|Collector|void}
      */
-    target( evo ) {
-        if ( evo.data === undefined ) {
-            return evo.targets;
+    target( evo, stack, n ) {
+        if ( n === 0 ) {
+            return evo.origin;
         }
-        evo.targets = evo.data;
+        if ( n === 1 ) {
+            return evo.updated;
+        }
+        evo.updated = stack.data(1);
     },
 
-    __target: -1,
+    __target_x: true,
 
 
     /**
-     * 交换目标和流程数据。
+     * 两个To目标交换。
+     * evo.[updated, origin]
      */
     swap( evo ) {
-        let _tmp = evo.targets;
-        evo.targets = evo.data;
-        return _tmp;
+        [evo.updated, evo.origin] = [evo.origin, evo.updated];
     },
 
-    __swap: 1,
+    __swap: null,
 
 
     /**
-     * 在目标元素（集）上激发事件。
+     * 延迟激发事件。
      * 内容：暂存区1项可选。
-     * 内容即为发送的数据，需要明确取出（pop），否则为undefined。
-     * @param {Number} delay 延迟毫秒数。
+     * 如果内容有值，作为待发送的数据。
      * @param {String} name 事件名
      * @param {Boolean} bubble 是否冒泡，可选
      * @param {Boolean} cancelable 是否可取消，可选
      */
-    fire( evo, delay, name, bubble, cancelable ) {
+    fire( evo, name, bubble, cancelable ) {
         Util.fireEvent(
-            $(evo.targets), name, delay, evo.data, bubble, cancelable
+            $(evo.updated), name, 1, evo.data, bubble, cancelable
         );
     },
 
@@ -552,25 +557,21 @@ const _NextStage = {
 
 
     /**
-     * 条件激发。
+     * 执行跳转。
+     * 跳转到目标事件绑定的调用链。
      * 内容：暂存区/栈顶1项。
-     * 仅当内容为真时才激发目标事件，否则忽略。
-     * 如果需要从流程中获取发送数据，需要明确传递data为null且内容为一个数组，其中：
-     * - 内容[0]    判断依据
-     * - 内容[1]    待发送数据
-     * 注：如果内容不是数组，则data的null为实际发送的值。
-     * @param {Number} delay 延迟毫秒数。
-     * @param {String} name 事件名
-     * @param {Value} extra 发送数据，可选
-     * @param {Boolean} bubble 是否冒泡，可选
-     * @param {Boolean} cancelable 是否可取消，可选
+     * 如果内容真值或未定义则跳转，否则忽略。
+     * 仅限于当前绑定/委托元素上绑定的事件。
+     * @param {String}} name 事件名
+     * @param {Value} extra 附加数据，可选
      */
-    xfire( evo, delay, name, extra, bubble, cancelable ) {
-        evo.data &&
-        Util.fireEvent( $(evo.targets), name, delay, extra, bubble, cancelable );
+    goto( evo, name, extra ) {
+        if ( evo.data === undefined || evo.data ) {
+            $.trigger( evo.delegate, name, extra, false );
+        }
     },
 
-    __xfire: 1,
+    __goto: 1,
 
 
     /**
@@ -592,7 +593,7 @@ const _NextStage = {
             if ( top != null ) obj.top = top;
             if ( left != null ) obj.left = left;
         }
-        $(evo.targets).scroll( obj )
+        $(evo.updated).scroll( obj )
     },
 
     __scroll: null,
@@ -610,7 +611,7 @@ const _NextStage = {
      * @param {String} evn 定制事件名，可选
      */
     changes( evo, evn = 'changed' ) {
-        $(evo.targets)
+        $(evo.updated)
         .forEach(
             frm =>
             changedTrigger( $.controls(frm), evn, evo.data )
@@ -627,7 +628,7 @@ const _NextStage = {
      * 参考.select(), .focus()用途。
      */
     clear( evo ) {
-        $(evo.targets).val( null );
+        $(evo.updated).val( null );
     },
 
     __clear: null,
@@ -642,7 +643,7 @@ const _NextStage = {
      * @param {String} msg 消息文本，可选
      */
     tips( evo, long, msg ) {
-        $(evo.targets).forEach( el => message(el, msg, long) );
+        $(evo.updated).forEach( el => message(el, msg, long) );
     },
 
     __tips: null,
@@ -667,7 +668,7 @@ const _NextStage = {
 .forEach(function( meth ) {
 
     _NextStage[meth] = function( evo ) {
-        let x = evo.targets;
+        let x = evo.updated;
         $.isArray(x) ? $(x)[meth]() : $[meth]( x );
     };
 

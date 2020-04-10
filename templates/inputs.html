@@ -544,12 +544,12 @@
     - 解析构造为：<b>...</b>序列。
     - 各字符集清单（<span>）存储在data中备用。 -->
 <div tpl-name="data:chars"
-    on="init|stop evo('origin') text split pop $$ wrap('<b>');
-        save|stop evo(1) ev('detail');
+    on="init|evo(1) text split pop $$ wrap('<b>');
+        save|ev('detail') dup xattr('-val');
         ^obted;
         ^done"
-    to="~|fill|target xattr('-val') pop fire(0, 'save', true);
-        |data(_)|fire(1, 'done');
+    to="~|fill|target(1) goto('save', _);
+        |data(_)|fire('done');
         (/span)|trigger('init', true);
         |off('init save')">
     <!-- <span><b>...</span> -->

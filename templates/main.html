@@ -4,8 +4,8 @@
     <div class="_start _icons">
         <b id="x-outline" title="大纲" class="_press" data-pls="off"
             on="click|evo(3) attr('-pls');
-                on|$$('#outline,#lineLeft') lose(0) ('off') ('_press');
-                off|$$('#outline,#lineLeft') lose ('on') ('_press');
+                on|$$('#outline,#lineLeft') lose(0) $('body') data('pls') $ call('add', _) ('off') ('_press');
+                off|$$('#outline,#lineLeft') lose $('body') data('pls') $ call('delete', _) ('on') ('_press');
                 ^obted|('click')"
             to="|trigger(_);
                 |addClass attr('-pls');
@@ -15,8 +15,8 @@
         </b>
         <b id="x-slave" title="主面板" class="_press" data-pls="off"
             on="click|evo(3) attr('-pls');
-                on|$('#main-slave') lose(0) ('off') ('_press');
-                off|$('#main-slave') lose ('on') ('_press');
+                on|$('#main-slave') lose(0) $('body') data('pls') $ call('add', _) ('off') ('_press');
+                off|$('#main-slave') lose $('body') data('pls') $ call('delete', _) ('on') ('_press');
                 ^obted|('click')"
             to="|trigger(_);
                 |addClass attr('-pls');
@@ -40,7 +40,7 @@
         <b title="插件"
             on="click|tpl('modal:plugins');
                 ^obted|('click')"
-            to="(#g-modal>*)|replace|fire(1, 'open', true);
+            to="(#g-modal>*)|replace|fire('open', true);
                 |couple('panel.plugins')">
             <i id="b-plugins"></i>
         </b>
@@ -158,7 +158,7 @@
                 sets|ev('detail') dup;
                 done|$('1/span') lose(1)"
             to="-;
-                |@text @-v|fire(1, 'done');
+                |@text @-v|fire('done');
                 #cmd-input|-|focus">/</code>
     </div>
     <!-- 命令行 -->
@@ -180,8 +180,8 @@
     <!-- 帮助入口 -->
     <div id="x-help" class="_help _press" title="帮助" data-pls="off"
         on="click|evo(3) attr('-pls');
-            on|$$('#help,#lineRight') lose(0) ('off') ('_press');
-            off|$$('#help,#lineRight') lose ('on') ('_press');
+            on|$$('#help,#lineRight') lose(0) $('body') data('pls') $ call('add', _) ('off') ('_press');
+            off|$$('#help,#lineRight') lose $('body') data('pls') $ call('delete', _) ('on') ('_press');
             ^obted|('click')"
         to="|trigger(_);
             |addClass attr('-pls');

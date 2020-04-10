@@ -41,7 +41,7 @@ const
     __evnStore  = '@',  // 调用链预定义存储
 
     // To
-    __toqOrig   = '~',  // 事件起始元素（evo.origin）
+    __toqOrig   = '~',  // 事件起始元素（evo.target）
     __toqCurr   = '#',  // 事件当前元素（evo.current）
     __tosAttr   = '@',  // 特性指定
     __tosProp   = '$',  // 属性指定
@@ -539,6 +539,14 @@ class Stack {
 
 
     /**
+     * 弹出数据栈顶1项。
+     */
+    pop() {
+        return this._buf.pop();
+    }
+
+
+    /**
      * 数据栈重置。
      * 用于执行流再次开启前使用。
      */
@@ -559,7 +567,7 @@ class Stack {
      * 如果数据栈已为空，压入取出的undefined是有意义的，
      * 这是一种明确取值，在后阶指令需要多项时有区别（undefined或[]）。
      */
-    pop() {
+    tpop() {
         this._tmp.push( this._buf.pop() );
     }
 
@@ -571,7 +579,7 @@ class Stack {
      * 实际压入的项数可能不足（数据栈不足），但这对用户来说是明确的。
      * @param {Number} n 弹出数量
      */
-    pops( n ) {
+    tpops( n ) {
         if ( n > 1 ) {
             this._tmp.push( ...this._buf.splice(-n) );
         }
@@ -582,7 +590,7 @@ class Stack {
      * 移除栈底项。
      * 注记参考pop()。
      */
-    shift() {
+    tshift() {
         this._tmp.push( this._buf.shift() );
     }
 
@@ -593,7 +601,7 @@ class Stack {
      * 注记参考pops()。
      * @param {Number} n 移除数量
      */
-    shifts( n ) {
+    tshifts( n ) {
         if ( n > 1 ) {
             this._tmp.push( ...this._buf.splice(0, n) );
         }
@@ -606,7 +614,7 @@ class Stack {
      * 注：非法的下标位置会导入一个undefined值。
      * @param {[Number]} ns 下标集
      */
-    index( ns ) {
+    tindex( ns ) {
         this._tmp.push( ...ns.map( i => this._index(i) ) );
     }
 
@@ -784,7 +792,7 @@ class Cell {
             this[_SID].push( val );
         }
         val = this._meth(
-            ...this.args( evo, this._rest ? this.data(1) : [] )
+            ...this.args(evo, this._rest ? this[_SID].pop() : [])
         );
         return this.nextCall( evo, val );
     }
@@ -944,7 +952,7 @@ class Call {
 //      (xxx)[ Number, Number, ... ]  // 定点取值：[n]
 //      (xxx){ Filter-Expression }    // 过滤表达式：(v:Element, i:Number, o:Collector): Boolean
 //
-//      ~   // 事件起始元素（evo.origin）
+//      ~   // 事件起始元素（evo.target）
 //      #   // 事件当前元素（evo.current）
 // }
 // 起点元素：支持暂存区1项可选（可为任意值），否则为事件绑定/委托元素。
@@ -1185,10 +1193,10 @@ function rejectInfo( msg ) {
 function query( evo, slr, one, flr ) {
     let _beg = evo.data;
 
-    if (_beg === undefined) {
+    if ( _beg === undefined ) {
         _beg = evo.delegate;
     }
-    evo.targets = query2( evo, slr, _beg, one, flr );
+    evo.updated = evo.origin = query2(evo, slr, _beg, one, flr);
 }
 
 
@@ -1208,7 +1216,7 @@ function query( evo, slr, one, flr ) {
  */
 function query2( evo, slr, beg, one, flr ) {
     switch ( slr ) {
-        case __toqOrig: return evo.origin;
+        case __toqOrig: return evo.target;
         case __toqCurr: return evo.current;
     }
     let _v = Util.find( slr, beg, one );
@@ -1225,7 +1233,7 @@ function query2( evo, slr, beg, one, flr ) {
  * @return {void}
  */
 function update( evo, ...rest ) {
-    evo.targets = this( evo.targets, evo.data, ...rest ) || evo.targets;
+    evo.updated = this( evo.updated, evo.data, ...rest ) || evo.updated;
 }
 
 

@@ -105,7 +105,7 @@ const _Control = {
      * 例：
      * push(1) avoid('ok') 无条件停止，入栈 'ok'
      * push(1) pop avoid('ok') 1为真故停止，入栈 'ok'
-     * push(1) push('ok') pack(2) avoid(_) 同上，back='ok'。无需pop
+     * push('ok') push(1) pop avoid(_) 同上。
      *
      * @param  {Value} back 执行后结果，可选
      * @return {void|back}
@@ -179,7 +179,7 @@ const _Control = {
      * @param {Number} n 弹出的条目数
      */
     pop( evo, stack, n = 1 ) {
-        n == 1 ? stack.pop() : stack.pops( n );
+        n == 1 ? stack.tpop() : stack.tpops( n );
     },
 
     __pop_x: true,
@@ -193,7 +193,7 @@ const _Control = {
      * @param {Number} n 移除条目数
      */
     shift( evo, stack, n = 1 ) {
-        n == 1 ? stack.shift() : stack.shifts( n );
+        n == 1 ? stack.tshift() : stack.tshifts( n );
     },
 
     __shift_x: true,
@@ -207,7 +207,7 @@ const _Control = {
      * @param {...Number} ns 位置下标序列
      */
     index( evo, stack, ...ns ) {
-        stack.index( ns );
+        stack.tindex( ns );
     },
 
     __index_x: true,
@@ -296,7 +296,6 @@ const _Control = {
      * 特权：是。
      * 如果count未指定，表示删除start之后全部。
      * 如果目标有值，真值才会执行。
-     * 注：可用于移除多余的初始传送数据或备用条目。
      * @param  {Stack} stack 数据栈
      * @param  {Number} start 起始位置
      * @param  {Number} count 删除数量，可选
@@ -318,69 +317,62 @@ const _Control = {
 
     /**
      * 设置/获取全局变量。
-     * 目标：暂存区1项可选。
-     * 目标非空或its有值时为设置，否则为取值入栈。
-     * 设置时：
-     * - 目标为空：取its本身为值（必然存在）。
-     * - 目标非空：取目标的its属性值或目标本身（its未定义时）。
-     * its支持空格分隔多个名称指定目标属性。
+     * 目标：无。
+     * 存储值非空时为设置，否则为取值入栈。
+     * 传递val为null时为删除目标值。
      * @param  {String} name 键名
-     * @param  {Value|String} its 存储值或成员名，可选
+     * @param  {Value} val 存储值，可选
      * @return {Value|void}
      */
-    env( evo, name, its ) {
-        let _o = evo.data;
-
-        if ( _o === undefined && its === undefined ) {
+    env( evo, name, val ) {
+        if ( val === undefined ) {
             return Globals.get(name);
         }
-        Globals.set( name, objectItem(_o, its) );
+        val === null ? Globals.delete(name) : Globals.set(name, val);
     },
 
-    __env: -1,
+    __env: null,
 
 
     /**
      * 设置/取值浏览器会话数据。
-     * 目标：暂存区1项可选。
-     * 目标为空且its未定义时为取值入栈，否则为设置。
-     * 传递its为null可清除name项的值。
-     * 传递name为null，可清除整个Storage存储（小心）。
+     * 目标：无。
+     * val非空时为设置，否则为取值入栈。
+     * val传递null可清除name项的值。
+     * 传递name为null，可清除整个Storage存储（谨慎）。
      * 注：存储的值会被转换为字符串。
      * @param  {String} name 存储键名
-     * @param  {Value|String} its 存储值或成员名，可选
+     * @param  {Value} val 存储值，可选
      * @return {Value|void}
      */
-    sess( evo, name, its ) {
-        let _o = evo.data;
-
-        if ( _o === undefined && its === undefined ) {
+    sess( evo, name, val ) {
+        if ( val === undefined ) {
             return window.sessionStorage.getItem(name);
         }
-        storage( window.sessionStorage, name, its, _o );
+        storage( window.sessionStorage, name, val );
     },
 
-    __sess: -1,
+    __sess: null,
 
 
     /**
      * 设置/取值浏览器本地数据。
-     * 目标：暂存区1项可选。
+     * 目标：无。
      * 说明：参考sess指令。
      * @param  {String} name 存储键名
-     * @param  {Value|String} its 存储值或成员名，可选
+     * @param  {Value} val 存储值，可选
      * @return {Value|void}
      */
-    local( evo, name, its ) {
+    local( evo, name, val ) {
         let _o = evo.data;
 
-        if ( _o === undefined && its === undefined ) {
+        if ( val === undefined ) {
             return window.localStorage.getItem(name);
         }
-        storage( window.localStorage, name, its, _o );
+        storage( window.localStorage, name, val );
     },
 
-    __local: -1,
+    __local: null,
 
 
     /**
@@ -1293,54 +1285,21 @@ const _Process = {
 
 
 /**
- * 对象成员取值。
- * name可能由空格分隔为多个名称。
- * 单名称时返回值，多个名称时返回值集。
- * @param  {String} name 名称/序列
- * @param  {Object} obj 取值对象
- * @return {Value|[Value]} 值（集）
+ * 本地存储（sessionStorage|localStorage）。
+ * 设置null值为清除目标值。
+ * @param  {Storage} buf 存储器
+ * @param  {String|null} name 存储键
+ * @param  {Value|null} val 存储值
+ * @return {void}
  */
-function namesValue( name, obj ) {
-    return __reSpace.test(name) ?
-        name.split(__reSpace).map( n => obj[n] ) : obj[name];
-}
-
-
-/**
- * 获取对象/成员/值。
- * - 如果成员名未定义，返回容器对象自身。
- * - 如果容器对象未定义，成员名视为值返回。
- * - 如果两者都定义，返回容器内的成员值。
- * @param  {Object} obj 容器对象
- * @param  {Value|String} its 目标值或成员名
- * @return {Value|[Value]}
- */
-function objectItem( obj, its ) {
-    if ( obj === undefined ) {
-        return its;
-    }
-    if ( its === undefined ) {
-        return obj;
-    }
-    return namesValue( its, obj );
-}
-
-
-/**
- * 设置存储器（sessionStorage|localStorage）。
- * @param {Storage} buf 存储器
- * @param {String} name 存储键
- * @param {Value|String} its 存储值或成员名
- * @param {undefined|Value|Object} 当前条目（evo.data）
- */
-function storage( buf, name, its, obj ) {
+function storage( buf, name, its ) {
     if ( name === null) {
         return buf.clear();
     }
     if ( its === null ) {
         return buf.removeItem( name );
     }
-    buf.setItem( name, objectItem(obj, its) );
+    buf.setItem( name, val );
 }
 
 

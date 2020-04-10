@@ -74,7 +74,7 @@
                 <tr class="_upload" tpl-name="prop:upload">
                     <th>上传</th>
                     <td><input type="file" name="upload" value=""
-                            @on="change|evo('origin') val"
+                            @on="change|evo(1) val"
                             @by="x.Fun.upload(null)" />
                     </td>
                 </tr>
@@ -1662,7 +1662,7 @@
                             <tr class="_upload" tpl-name="prop:upload">
                                 <th>上传</th>
                                 <td><input type="file" name="upload" value=""
-                                        @on="change|evo('origin') val"
+                                        @on="change|evo(1) val"
                                         @by="x.Fun.upload(null)" />
                                 </td>
                             </tr>

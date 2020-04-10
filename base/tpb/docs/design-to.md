@@ -47,7 +47,7 @@
 
 有两个单独的特殊字符（`~` 和 `#`）指代两个特别的元素。
 
-- `~` 事件起点元素（`event.target|elo.origin`）。**注**：`~` 也是 `tQuery` 中匹配事件起点元素的标识字符。
+- `~` 事件起点元素（`event.target|elo.target`）。**注**：`~` 也是 `tQuery` 中匹配事件起点元素的标识字符。
 - `#` 事件当前元素（`event.currentTarget|elo.current`）。如：`to="#|append"`，在事件当前元素内插入内容。
 - `-` 这实际上是系统中的占位字符，因为起点元素默认为事件委托（绑定）元素，所以它实际上就指代了委托元素（`elo.delegate`）。
 
@@ -56,10 +56,10 @@
 xxxx   // 单元素检索，$.get(): Element | null
 (xxx)  // 多元素检索，$(...): Collector
 // 例：
-// [class]  => $.get('[class]')
+// [class]   => $.get('[class]')
 // ([class]) => $('[class]')
-// strong   => $.get('strong')
-// (strong ) => $('strong')
+// strong    => $.get('strong')
+// (strong)  => $('strong')
 
 
 // 进阶过滤/局部提取。
@@ -315,25 +315,24 @@ only( name:String )
 
 执行下一阶的准备工作，比如目标元素获取焦点或文本选取、通知状态改变或发送下一阶事件（附带必要的数据）。
 
-此阶段指令操作的目标是 `evo.targets` 而非流程数据，因此与数据栈和暂存区无关，但发送事件通常需要携带必要的前期数据，所以取值类指令在这里也可用。
+此阶段指令操作的目标是 `evo.updated` 而非流程数据，因此与数据栈和暂存区无关，但发送事件通常需要携带必要的前期数据，所以取值类指令在这里也可用。
 
-> **注：**<br>
-> `Query` 段的检索结果（目标）在首个实参 `evo` 中，即 `evo.targets`。<br>
-> 取值指令与On段的相同，它们操作的依然流程数据（数据栈/暂存区），因此如果要取目标元素上的属性，需先将之入栈（`target` 指令）。<br>
+> **注：**
+> 取值指令与On段的相同，它们操作的依然流程数据（数据栈/暂存区），因此如果要取目标元素上的属性，需先将之入栈（`target`）。
 
 
 ```js
-target()
+target( n )
 // To目标更新或取值入栈。
 
 swap()
 // 交换流程数据和目标。
 
-fire( delay, name, bubble, cancelable )
+fire( name, bubble, cancelable )
 // 可延迟激发。
 
-xfire( delay, name, extra, bubble, cancelable )
-// 可延迟判断激发。
+goto( name, extra )
+// 跳转到目标事件。
 
 blur()
 click()

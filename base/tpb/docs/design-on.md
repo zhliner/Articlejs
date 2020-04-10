@@ -58,14 +58,15 @@ evo( name:String|Number ): Value
 // 从当前evo对象上取值入栈。
 // name: {
 //      0|'event'     evo.event
-//      1|'origin'    evo.origin
+//      1|'target'    evo.target
 //      2|'current'   evo.current
 //      3|'delegate'  evo.delegate
 //      4|'related'   evo.related
 //      5|'selector'  evo.selector
-//     10|'data'      evo.data （前端最后取出值遗留）
-//     11|'entry',    evo.entry （中段入口，迭代重入）
-//     12|'targets'   evo.targets （To检索目标延续传递）
+//      6|'data'      evo.data （指令当前流程数据）
+//      7|'entry',    evo.entry （中段入口，迭代重入）
+//      8|'updated'   evo.updated （To更新目标）
+//      9|'origin'    evo.origin （To检索结果，初始更新目标）
 // }
 
 ev( name?:String ): Value|[Value]
