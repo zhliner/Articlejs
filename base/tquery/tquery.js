@@ -2048,7 +2048,7 @@ Object.assign( tQuery, {
      * 处理器接口：function( ev, elo ): false|Any
      * ev: Event 原生的事件对象。
      * elo: {
-     *      origin: Element   事件起源元素（event.target）
+     *      target: Element   事件起源元素（event.target）
      *      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
      *      related: Element  事件相关的元素（event.relatedTarget）
      *      delegate: Element 绑定委托的元素（event.currentTarget）
@@ -6459,7 +6459,7 @@ function rectSize( el, name ) {
 // 事件处理接口。
 // 事件处理器：function( event, elo ): false | Any
 // elo: {
-//      origin: Element   事件起源元素（event.target）
+//      target: Element   事件起源元素（event.target）
 //      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
 //      related: Element  事件相关的元素（event.relatedTarget）
 //      delegate: Element 绑定委托的元素（event.currentTarget）
@@ -6818,7 +6818,7 @@ const Event = {
     _wrapCall( handle, current, slr, ev ) {
         let _cur = current( ev, slr ),
             _elo = _cur && {
-                origin:     ev.target,
+                target:     ev.target,
                 current:    _cur,
                 related:    ev.relatedTarget,
                 delegate:   ev.currentTarget,

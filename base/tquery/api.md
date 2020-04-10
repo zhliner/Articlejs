@@ -1137,7 +1137,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 ```js
 elo: {
-    origin: Element     // 事件起源元素（event.target）
+    target: Element     // 事件起源元素（event.target）
     current: Element    // 触发处理器调用的元素（event.currentTarget 或 slr 匹配的元素）
     related: Element    // 事件相关的元素（event.relatedTarget）
     delegate: Element   // 绑定委托的元素（event.currentTarget），仅在委托模式下有值。
