@@ -2050,9 +2050,8 @@ Object.assign( tQuery, {
      * elo: {
      *      target: Element   事件起源元素（event.target）
      *      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
-     *      related: Element  事件相关的元素（event.relatedTarget）
-     *      delegate: Element 绑定委托的元素（event.currentTarget）
      *      selector: String  委托匹配选择器
+     *      delegate: Element 绑定委托的元素（event.currentTarget）
      * }
      * 事件配置对象：{ evn: handle }
      *
@@ -6457,17 +6456,16 @@ function rectSize( el, name ) {
 
 //
 // 事件处理接口。
-// 事件处理器：function( event, elo ): false | Any
+// 事件处理器：function(event, elo): false|Any
 // elo: {
 //      target: Element   事件起源元素（event.target）
 //      current: Element  触发处理器调用的元素（event.currentTarget或slr匹配的元素）
-//      related: Element  事件相关的元素（event.relatedTarget）
-//      delegate: Element 绑定委托的元素（event.currentTarget）
 //      selector: String  委托匹配选择器
+//      delegate: Element 绑定委托的元素（event.currentTarget）
 // }
 // 注：
 // 暂不支持用户指定capture（捕获）参数。
-// 如果绑定不是委托方式，selector值为null（delegate值正常）。
+// 如果绑定不是委托方式，selector值为null。
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -6820,9 +6818,8 @@ const Event = {
             _elo = _cur && {
                 target:     ev.target,
                 current:    _cur,
-                related:    ev.relatedTarget,
-                delegate:   ev.currentTarget,
                 selector:   slr || null,
+                delegate:   ev.currentTarget,
             }
         // 需要调用元素的原生方法完成浏览器逻辑，
         // 如：form:submit, video:load 等。
