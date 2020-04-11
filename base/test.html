@@ -74,25 +74,16 @@
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        keydown|(HK.masked) ev('key') exec(_) pop avoid acmsk (HK) pop;
-        alloff|('on') $$('#x-help,#x-outline,#x-slave') pack(2);
-        exist|('off') evo(3) data('pls') values pack(2);
-        panels|ev('detail') spread pop;
-        check|evo(3) data('pls') values bool(true) $if('exist', 'alloff');
-
-        switch|evo(3) attr('-pls') ev('detail') pop;
-        ^obted|(new Set()) ('pclear')"
+        keydown|ev('key') (HK.masked) exec(_) pop avoid acmsk (HK) pop;
+        pstore|ev('detail') data('pls') call(_);
+        pclear|$$('#x-outline,#x-help,#x-slave') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
+        ^obted|(new Set($('#x-outline,#x-help,#x-slave'))) ('pclear')"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
         |trigger(_);
-        |trigger('panels');
-        |trigger('panels');
-        |trigger(_);
-        |trigger(_);
-
-        |trigger('off');
-        |trigger(_);
+        -;
+        |trigger('toggle');
         |couple('panel.clearall') data('pls')">
     <aside id="outline" class="___Panel" data-pb=""
         on="hide|evo(1) lose;

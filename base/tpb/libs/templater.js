@@ -24,7 +24,7 @@ const
     $ = window.$,
 
     // 子模版分隔符
-    loadSplit   = ',',
+    __loadSplit = ',',
 
     // 特性名定义。
     __tplName   = 'tpl-name',   // 模板节点命名
@@ -65,17 +65,10 @@ class Templater {
      * 获取模板节点（副本）。
      * 如果模板不存在，会自动尝试载入。
      * @param  {String} name 模板名
-     * @return {Promise} 承诺对象
+     * @return {Promise<Element>} 承诺对象
      */
     get( name ) {
-        let _el = this._tpls.get(name);
-
-        if (_el) {
-            return Promise.resolve( this.clone(_el) );
-        }
-        return this._load( name )
-            .then( el => this.build(el) )
-            .then( () => this.clone(this._tpls.get(name), name) );
+        return this.tpl(name).then( el => this.clone(el) );
     }
 
 
@@ -84,36 +77,50 @@ class Templater {
      * 如果模板不存在会自动载入。
      * 注：通常用于数据类模板（无需克隆）。
      * @param  {String} name 模板名
-     * @return {Promise} 承诺对象
+     * @return {Promise<Element>} 承诺对象
      */
     tpl( name ) {
-        let _el = this._tpls.get(name);
-
-        if (_el) {
-            return Promise.resolve(_el);
+        if ( this._tpls.has(name) ) {
+            return Promise.resolve( this._tpls.get(name) );
         }
-        return this._load(name).then(el => this.build(el)).then(() => this._tpls.get(name));
+        return this._load(name)
+            .then( fg => this.picks(fg) )
+            .then( () => this._tpls.get(name) )
+            .then( el => this._build(el, name) );
     }
 
 
     /**
-     * 模板构建。
-     * 如果已经开始构建，返回子模版载入的承诺对象。
-     * 工作：
-     * - 处理OBT的解析/绑定逻辑。
-     * - 存储构建好的模板节点备用。
-     * - 可能需要多次异步载入（子模版引用导致）。
+     * 接口：模板构建。
+     * 需要先处理可能有的子模版的导入。
+     * 注：子模版中可能包含子模版。
      * @param  {Element|DocumentFragment} root 目标节点
      * @return {Promise}
      */
     build( root ) {
+        return this.picks(root).then( () => this._build(root) );
+    }
+
+
+    /**
+     * 提取命名的模板节点并存储。
+     * 会检查子模版导入配置并持续载入（如果有）。
+     * @param  {Element|DocumentFragment} root 根容器
+     * @return {Promise<DocumentFragment>}
+     */
+    picks( root ) {
         if ( this._pool.has(root) ) {
             return this._pool.get(root);
         }
-        this._obter( root, this._clear );
-        Render.parse( root );
+        $.find(__nameSelector, root, true)
+            .forEach(
+                el => this.add( el )
+            )
+        let _ps = this._subs(root),
+            _pro = _ps.length > 0 ? Promise.all(_ps) : Promise.resolve();
 
-        return this.picks( root );
+        this._pool.set( root, _pro );
+        return _pro;
     }
 
 
@@ -136,38 +143,15 @@ class Templater {
 
 
     /**
-     * 提取命名的模板节点并存储。
-     * 会检查子模版导入配置并持续载入（如果有）。
-     * @param  {Element|DocumentFragment} root 根容器
-     * @return {Promise<DocumentFragment>}
-     */
-    picks( root ) {
-        $.find(__nameSelector, root, true)
-            .forEach(
-                el => this.add( el )
-            )
-        let _ps = this._subs(root),
-            _pro = _ps.length > 0 ? Promise.all(_ps) : Promise.resolve();
-
-        this._pool.set( root, _pro );
-        return _pro;
-    }
-
-
-    /**
      * 克隆模板节点。
      * 同时会克隆渲染文法（如果有）以及绑定的事件处理器。
      * @param  {Element} tpl 模板节点
-     * @param  {String} _name 模板名
      * @return {Element} 克隆的新元素
      */
-    clone( tpl, _name ) {
-        if ( !tpl ) {
-            throw new Error(`[${_name}] is loaded but not found.`);
-        }
+    clone( tpl ) {
         return Render.clone(
             tpl,
-            $.clone(tpl, true, true, true)
+            $.clone( tpl, true, true, true )
         );
     }
 
@@ -186,13 +170,33 @@ class Templater {
 
 
     /**
+     * 模板构建。
+     * 处理OBT的解析/绑定逻辑。
+     * 解析元素上的渲染配置。
+     * 注：需要等待可能的子模版插入之后才开始。
+     * @param  {Element} el 目标元素
+     * @param  {String} _name 载入的根模板名
+     * @return {Promise<Element>}
+     */
+    _build( el, _name ) {
+        if ( !el ) {
+            throw new Error(`[${_name}] is not found.`);
+        }
+        this._obter( el, this._clear );
+        Render.parse( el );
+
+        return Promise.resolve( el );
+    }
+
+
+    /**
      * 解析/载入子模板。
-     * 返回null表示无子模版需要载入。
-     * @param  {DocumentFragment} root 根容器
+     * 无子模版载入配置时返回一个空数组。
+     * @param  {Element|DocumentFragment} root 根容器
      * @return {[Promise]} 子模版载入承诺集
      */
      _subs( root ) {
-        let _els = $.find(__nodeSelector, root);
+        let _els = $.find(__nodeSelector, root, true);
 
         if ( _els.length == 0 ) {
             return [];
@@ -215,7 +219,7 @@ class Templater {
             return null;
         }
         return Promise.all(
-            val.split(loadSplit).map( n => this[meth](n.trim()) )
+            val.split(__loadSplit).map( n => this[meth](n.trim()) )
         )
         // 内部合并，不用$.replace
         .then( els => el.replaceWith(...els) )

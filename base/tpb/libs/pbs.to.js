@@ -504,33 +504,8 @@ const _Update = {
 
 const _NextStage = {
     /**
-     * To目标更新或取值入栈。
-     * 内容：无。
-     * 特权：是，判断取值。
-     * 取两个目标之一入栈：
-     * - 0  原始To目标（evo.origin）
-     * - 1  更新To目标（evo.updated）
-     * - undefined 取暂存区/栈顶1项设置为更新目标（evo.updated）。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} n 目标标识
-     * @return {Element|Collector|void}
-     */
-    target( evo, stack, n ) {
-        if ( n === 0 ) {
-            return evo.origin;
-        }
-        if ( n === 1 ) {
-            return evo.updated;
-        }
-        evo.updated = stack.data(1);
-    },
-
-    __target_x: true,
-
-
-    /**
-     * 两个To目标交换。
-     * evo.[updated, origin]
+     * 交换To目标两个成员。
+     * 可用于后续方法持续使用原始检索目标。
      */
     swap( evo ) {
         [evo.updated, evo.origin] = [evo.origin, evo.updated];
@@ -540,27 +515,82 @@ const _NextStage = {
 
 
     /**
+     * To目标更新或取值入栈。
+     * 内容：暂存区1项可选。
+     * 如果暂存区有值，则赋值为更新目标（updated）。
+     * 取两个目标之一入栈：
+     * - 0  原始To目标（evo.origin）
+     * - 1  更新To目标（evo.updated）
+     * @param  {Number} n 目标标识
+     * @return {Element|Collector|void}
+     */
+    target( evo, n ) {
+        if ( n === 0 ) {
+            return evo.origin;
+        }
+        if ( n === 1 ) {
+            return evo.updated;
+        }
+        if ( evo.data !== undefined ) evo.updated = evo.data;
+    },
+
+    __target: -1,
+
+
+    /**
      * 延迟激发事件。
      * 内容：暂存区1项可选。
-     * 如果内容有值，作为待发送的数据。
+     * 如果内容有值，则为激发事件附带的数据。
+     * to可传递一个null或空串，表示目标沿用To更新目标。
+     *
+     * @param {String} rid 目标元素选择器（单个）
      * @param {String} name 事件名
      * @param {Boolean} bubble 是否冒泡，可选
      * @param {Boolean} cancelable 是否可取消，可选
      */
-    fire( evo, name, bubble, cancelable ) {
-        Util.fireEvent(
-            $(evo.updated), name, 1, evo.data, bubble, cancelable
-        );
+    fire( evo, rid, name, bubble, cancelable ) {
+        let _to = evo.updated;
+
+        if ( rid ) {
+            _to = Util.find( rid, evo.delegate, true );
+        }
+        Util.fireEvent( $(_to), name, 1, evo.data, bubble, cancelable );
     },
 
     __fire: -1,
 
 
     /**
+     * 表单控件默认值改变通知。
+     * 内容：暂存区1项可选。
+     * 如果内容有值，则为激发事件附带的数据。
+     * 行为：
+     * 检查表单控件值是否不再为默认值，激发目标控件上的evn事件，
+     * 如果都没有改变，不会激发事件。
+     * 通常在表单元素（<form>）上绑定监控处理器（changed）。
+     *
+     * @param {String} rid 表单元素选择器（单个）
+     * @param {String} evn 定制事件名，可选
+     */
+    changes( evo, rid, evn = 'changed' ) {
+        let _frm = evo.updated;
+
+        if ( rid ) {
+            _frm = Util.find( rid, evo.delegate, true );
+        }
+        for ( const el of $(_frm) ) {
+            changedTrigger( $.controls(el), evn, evo.data );
+        }
+    },
+
+    __changes: -1,
+
+
+    /**
      * 执行跳转。
      * 跳转到目标事件绑定的调用链。
-     * 内容：暂存区/栈顶1项。
-     * 如果内容真值或未定义则跳转，否则忽略。
+     * 内容：暂存区1项可选。
+     * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
      * 仅限于当前绑定/委托元素上绑定的事件。
      * @param {String}} name 事件名
      * @param {Value} extra 附加数据，可选
@@ -571,7 +601,7 @@ const _NextStage = {
         }
     },
 
-    __goto: 1,
+    __goto: -1,
 
 
     /**
@@ -580,58 +610,28 @@ const _NextStage = {
      * 也可以传递两个数值，分别对应left和top（可用null占位）。
      * 不影响未设置方向的现有位置。
      * 注意：垂直位置在前（常用）。
-     * 注记：覆盖 Get:scroll 方法。
+     * 注记：覆盖了 Get:scroll 方法。
      * @param {Number|Object2} top 垂直位置或配置对象
      * @param {Number} left 水平位置，可选
      */
     scroll( evo, top, left ) {
-        let obj = {};
-
-        if ( $.type(top) == 'Object' ) {
-            obj = top;
-        } else {
-            if ( top != null ) obj.top = top;
-            if ( left != null ) obj.left = left;
-        }
-        $(evo.updated).scroll( obj )
+        target(evo).scroll( scrollObj(top, left) );
     },
 
-    __scroll: null,
-
-
-    /**
-     * 表单控件默认值改变通知。
-     * 目标：仅适用表单元素（集）。
-     * 内容：暂存区条目可选（发送的数据）。
-     * 检查表单控件值是否不再为默认值，激发目标控件上的evn事件。
-     * 如果都没有改变，不会激发事件。
-     * 注记：
-     * - 通常在表单元素（<form>）上绑定监控处理器（changed）。
-     * - 以暂存区全部条目为发送数据，以便于传递充分的信息。
-     * @param {String} evn 定制事件名，可选
-     */
-    changes( evo, evn = 'changed' ) {
-        $(evo.updated)
-        .forEach(
-            frm =>
-            changedTrigger( $.controls(frm), evn, evo.data )
-        );
-    },
-
-    __changes: 0,
+    __scroll: -1,
 
 
     /**
      * 表单控件清空。
-     * 内容：无。
+     * 内容：暂存区1项可选。
      * 选取类控件为取消选取，其它为清除value值。
      * 参考.select(), .focus()用途。
      */
     clear( evo ) {
-        $(evo.updated).val( null );
+        target( evo ).val( null );
     },
 
-    __clear: null,
+    __clear: -1,
 
 
     /**
@@ -643,10 +643,10 @@ const _NextStage = {
      * @param {String} msg 消息文本，可选
      */
     tips( evo, long, msg ) {
-        $(evo.updated).forEach( el => message(el, msg, long) );
+        target(evo).forEach( el => message(el, msg, long) );
     },
 
-    __tips: null,
+    __tips: -1,
 
 };
 
@@ -667,12 +667,9 @@ const _NextStage = {
 ]
 .forEach(function( meth ) {
 
-    _NextStage[meth] = function( evo ) {
-        let x = evo.updated;
-        $.isArray(x) ? $(x)[meth]() : $[meth]( x );
-    };
+    _NextStage[meth] = function( evo ) { target(evo)[meth](); };
 
-    // _NextStage[`__${meth}`] = null;
+    _NextStage[`__${meth}`] = -1;
 
 });
 
@@ -870,6 +867,33 @@ function message( el, msg, long ) {
         el[__TIMER] = setTimeout( () => $.empty(el), long * 1000 );
     }
     el.textContent = msg;
+}
+
+
+/**
+ * 获取scroll位置对象。
+ * @param  {Number|Object2} top 垂直位置或配置对象
+ * @param  {Number} left 水平位置，可选
+ * @return {Object2}
+ */
+function scrollObj( top, left ) {
+    if ( $.type(top) == 'Object' ) {
+        return top;
+    }
+    return {
+        top: top == null ? undefined : top,
+        left: left == null ? undefined : left,
+    };
+}
+
+
+/**
+ * 取NextStage目标。
+ * 注：大部分接口都为暂存区1项可选（-1）。
+ * @return {Collector}
+ */
+function target( evo ) {
+    return $( evo.data === undefined ? evo.updated : evo.data );
 }
 
 

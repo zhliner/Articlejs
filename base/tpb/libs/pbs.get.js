@@ -84,8 +84,8 @@ const _Gets = {
      * 1. $('/p')  // 检索事件绑定元素内的首个<p>子元素
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
      * 3. push('/p') pop $    // rid从目标获取，效果同1.
-     * 4. push('/p') pack $(_)  // rid从流程获取，效果同1。字符串会被展开，因此需要先打包
-     * 5. push('/a') pack evo(1) pop $(_)  // 效果同2.
+     * 4. push('/p') $(_)     // rid从流程获取，效果同1。
+     * 5. push('/a') evo(1) pop $(_)  // 效果同2.
      * @param  {Object} evo 事件关联对象
      * @param  {String} rid 相对ID，可选
      * @return {Element}
@@ -388,10 +388,10 @@ const _Gets = {
 
 
     /**
-     * 取对象成员值（支持多个目标）。
+     * 取对象成员值。
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称（获得一个值数组）。
-     * 目标本身可以是数组，若名称为多名称，会获得一个二维数组。
+     * 支持目标本身是数组，若名称为多名称，会获得一个二维数组。
      * 用途：
      * 从一个对象数组（如attribute取值）中提取属性值数组。
      * @data: Object|[Object]
@@ -403,7 +403,7 @@ const _Gets = {
         return $.isArray(x) ? x.map(o => namesValue(name, o)) : namesValue(name, x);
     },
 
-    __its: 1,
+    __get: 1,
 
 
     /**
@@ -452,8 +452,8 @@ const _Gets = {
         );
     },
 
-    __get: 1,
-    __get_x: true,
+    __its: 1,
+    __its_x: true,
 
 
     /**
@@ -574,8 +574,8 @@ const _Gets = {
 
     /**
      * 关联数据提取。
-     * 目标：暂存区/栈顶1项。
-     * 从流程元素关联的存储区取值，若目标存储集不存在，返回错误并中断。
+     * 目标：暂存区1项可选。
+     * 从目标元素关联的存储区取值，若目标为空则视为关联当前委托元素。
      * name支持空格分隔的名称序列。
      * 注记：
      * 因为主要是直接使用（如插入DOM），故返回值数组（而不是键值对象）。
@@ -585,11 +585,13 @@ const _Gets = {
      * @return {Value|[Value]|reject}
      */
     data( evo, name ) {
-        let _m = DataStore.get(evo.data);
+        let _el = evo.data === undefined ? evo.delegate : evo.data,
+            _m = DataStore.get(_el);
+
         return _m ? getData(_m, name) : Promise.reject(dataUnfound);
     },
 
-    __data: 1,
+    __data: -1,
 
 
     /**
@@ -1115,7 +1117,9 @@ const __uiState = [ '-', '', '^' ];
 //
 // 节点封装。
 // 目标：暂存区/栈顶1项。
-// 注：与To部分的同名方法不同，这里只接收字符串实参。
+// 注记：
+// - 把该接口也放置在Get部分是一种便利考虑。
+// - 与To部分的同名方法不同，这里只接收字符串实参。
 //===============================================
 [
     'wrap',

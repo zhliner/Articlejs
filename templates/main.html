@@ -2,25 +2,21 @@
 <div class="___Panel Tools" tpl-name="main:tools">
     <!-- 面板按钮 -->
     <div class="_start _icons">
-        <b id="x-outline" title="大纲" class="_press" data-pls="off"
-            on="click|evo(3) attr('-pls');
-                on|$$('#outline,#lineLeft') lose(0) $('body') data('pls') $ call('add', _) ('off') ('_press');
-                off|$$('#outline,#lineLeft') lose $('body') data('pls') $ call('delete', _) ('on') ('_press');
+        <b id="x-outline" title="大纲" class="_press"
+            on="toggle|$$('#outline,#lineLeft') lose(2) ('_press');
+                click;
                 ^obted|('click')"
-            to="|trigger(_);
-                |addClass attr('-pls');
-                |removeClass attr('-pls');
+            to="|toggleClass;
+                |trigger('toggle')|$ hasClass('_press') $if('add', 'delete') $ pack(2) pop fire('body', 'pstore');
                 |couple('panel.outline')">
             <i id="b-outline"></i>
         </b>
-        <b id="x-slave" title="主面板" class="_press" data-pls="off"
-            on="click|evo(3) attr('-pls');
-                on|$('#main-slave') lose(0) $('body') data('pls') $ call('add', _) ('off') ('_press');
-                off|$('#main-slave') lose $('body') data('pls') $ call('delete', _) ('on') ('_press');
+        <b id="x-slave" title="主面板" class="_press"
+            on="toggle|$('#main-slave') lose(2) ('_press');
+                click;
                 ^obted|('click')"
-            to="|trigger(_);
-                |addClass attr('-pls');
-                |removeClass attr('-pls');
+            to="|toggleClass;
+                |trigger('toggle')|$ hasClass('_press') $if('add', 'delete') $ pack(2) pop fire('body', 'pstore');
                 |couple('panel.slave')">
             <i id="b-slave"></i>
         </b>
@@ -178,14 +174,12 @@
         <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
     </div>
     <!-- 帮助入口 -->
-    <div id="x-help" class="_help _press" title="帮助" data-pls="off"
-        on="click|evo(3) attr('-pls');
-            on|$$('#help,#lineRight') lose(0) $('body') data('pls') $ call('add', _) ('off') ('_press');
-            off|$$('#help,#lineRight') lose $('body') data('pls') $ call('delete', _) ('on') ('_press');
+    <div id="x-help" class="_help _press" title="帮助"
+        on="toggle|$$('#help,#lineRight') lose(2) ('_press');
+            click;
             ^obted|('click')"
-        to="|trigger(_);
-            |addClass attr('-pls');
-            |removeClass attr('-pls');
+        to="|toggleClass;
+            |trigger('toggle')|$ hasClass('_press') $if('add', 'delete') $ pack(2) pop fire('body', 'pstore');
             |couple('panel.help')">
         <code>?</code>
     </div>
