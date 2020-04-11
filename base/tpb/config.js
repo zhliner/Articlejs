@@ -75,11 +75,11 @@ const
 const
     $ = window.$,
 
-    // 指令属性：自动取栈计数
-    EXTENT = Symbol('stack-amount'),
+    // 指令属性：自动取栈数量
+    EXTENT = Symbol('stack: want-items'),
 
     // 指令属性：特权方法（操作数据栈）
-    ACCESS = Symbol('stack-access'),
+    ACCESS = Symbol('stack: accessible'),
 
     // PBS方法获取接口键。
     // 使用Symbol避免名称冲突。

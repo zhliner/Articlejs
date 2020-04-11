@@ -26,7 +26,7 @@ const
         1: 'target',    // 事件起点元素（event.target）
         2: 'current',   // 触发事件的当前元素（event.currentTarget|matched）
         3: 'delegate',  // 委托绑定的元素（event.currentTarget）
-        5: 'selector',  // 委托匹配选择器（for match）]
+        4: 'selector',  // 委托匹配选择器（for match）]
         6: 'data',      // 自动获取的流程数据
         7: 'entry',     // 中段入口（迭代重入）
         8: 'updated',   // To更新目标/集
@@ -1051,7 +1051,7 @@ const _Gets = {
 //////////////////////////////////////////////////////////////////////////////
 [
     'item',     // ( idx? ): Value | [Value]
-    'eq',       // ( idx? ): Collector
+    // 'eq',       // ( idx? ): Collector  注：不支持。可用 item(i) $$ 实现
     'first',    // ( slr? ): Collector
     'last',     // ( slr? ): Collector
 ]
@@ -1300,22 +1300,24 @@ function arrayFill( arr, size ) {
 // 预处理，导出。
 // 注记：
 // 指令集预先绑定所属名称空间以固化this，便于全局共享。
-// 适用：On/By/To:Update,NextStage
 ///////////////////////////////////////////////////////////////////////////////
 
 
 //
 // 取值指令集。
-// 可供To:NextStage集成。
+// @proto: Process < Control
 //
-export const Get = $.assign( {}, _Gets, bindMethod );
+export const Get = $.proto(
+    $.assign( {}, _Gets, bindMethod ), Process
+);
 
 
 //
 // On指令集。
-// 支持取值/控制/运算&加工集。
+// 结构：{ 取值 < 处理 < 控制 }。
 //
-export const On = Object.assign( {}, Get, Control, Process );
+export const On = Get;
+
 
 //
 // 接口：

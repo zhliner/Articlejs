@@ -7385,9 +7385,7 @@ Object.assign( tQuery, {
      * @param {String|RegExp} sep 切分字符串或模式
      */
     split( str, sep, cnt ) {
-        return sep ?
-            str.split( sep, cnt ) :
-            str.split( /(?:)/u, cnt );
+        return sep ? str.split( sep, cnt ) : str.split( /(?:)/u, cnt );
     },
 
 

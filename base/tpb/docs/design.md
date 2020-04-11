@@ -314,14 +314,14 @@ divmod( val?:Number ): [Number, Number]
 // 目标：当前条目/栈顶2项。
 //-----------------------------------------------
 
-equal( v?:Value ): Boolean    // (x, y) => x === y
-nequal( v?:Value ): Boolean   // (x, y) => x !== y
-lt( v?:Value ): Boolean       // (x, y) => x < y
-lte( v?:Value ): Boolean      // (x, y) => x <= y
-gt( v?:Value ): Boolean       // (x, y) => x > y
-gte( v?:Value ): Boolean      // (x, y) => x >= y
+eq( v?:Value ): Boolean     // (x, y) => x === y
+neq( v?:Value ): Boolean    // (x, y) => x !== y
+lt( v?:Value ): Boolean     // (x, y) => x < y
+lte( v?:Value ): Boolean    // (x, y) => x <= y
+gt( v?:Value ): Boolean     // (x, y) => x > y
+gte( v?:Value ): Boolean    // (x, y) => x >= y
 
-arrayEqual( arr?:Array )
+eqarr( arr?:Array )
 // 数组相等比较。
 
 contains(): Boolean

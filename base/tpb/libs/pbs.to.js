@@ -18,7 +18,7 @@
 import { Util } from "./util.js";
 import { bindMethod, method, DataStore, ChainStore, storeChain, Hotkey } from "../config.js";
 import { Get } from "./pbs.get.js";
-import { Control } from "./pbs.base.js";
+import { debug } from "./pbs.base.js";
 
 // 无渲染占位。
 // import { Render } from "./render.x.js";
@@ -885,17 +885,20 @@ export const To = {};
 
 
 // 绑定：this固化。
-// 注记：不适用控制指令集（Control）。
+// 注：不继承任何基础指令集。
 To.Update = $.assign( {}, _Update, bindMethod )
 
+//
+// 允许调试。
+//
+To.Update.debug = debug;
 
-// 预先集成。
-// 支持取值和控制指令集。
-To.NextStage = Object.assign( {}, Get, Control );
 
 // 绑定：this固化。
-// 注：_NextStage.scroll需覆盖同名取值指令。
-$.assign( To.NextStage, _NextStage, bindMethod );
+// @proto: Get < Process < Control
+To.NextStage = $.proto(
+    $.assign( {}, _NextStage, bindMethod ), Get
+);
 
 
 //

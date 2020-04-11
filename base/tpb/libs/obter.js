@@ -1090,12 +1090,19 @@ class Update {
      * @return {Cell} cell
      */
     apply( cell, pbs ) {
-        let _f = pbs[method]( this._meth );
+        let _f = pbs[method]( this._meth ),
+            _n, _x;
 
         if ( !_f ) {
             throw new Error(`${this._meth} is not in pbs:updates.`);
         }
-        return cell.bind( this._args, update.bind(_f), false, 1 );
+        if ( _f[EXTENT] === undefined ) {
+            _n = 1;
+        }
+        if ( _f[ACCESS] === undefined ) {
+            _x = false;
+        }
+        return cell.bind( this._args, update.bind(_f), _x, _n );
     }
 
 

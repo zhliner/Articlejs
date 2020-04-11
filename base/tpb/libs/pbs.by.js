@@ -173,12 +173,10 @@ function appScope( app, meths ) {
 
 
 // 绑定：this固化。
-export const By = $.assign( {}, _By, bindMethod );
-
-//
-// 集成控制指令。
-//
-Object.assign( By, Control );
+// @proto: Control
+export const By = $.proto(
+    $.assign( {}, _By, bindMethod ), Control
+);
 
 //
 // X引入。

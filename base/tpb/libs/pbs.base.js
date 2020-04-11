@@ -905,23 +905,23 @@ const _Process = {
     /**
      * 相等比较（===）。
      */
-    equal( evo, val ) {
+    eq( evo, val ) {
         let x = evo.data;
         return $.isArray(x) ? x.map(v => v === val) : x === val;
     },
 
-    __equal: 1,
+    __eq: 1,
 
 
     /**
      * 不相等比较（!==）。
      */
-    nequal( evo, val ) {
+    neq( evo, val ) {
         let x = evo.data;
         return $.isArray(x) ? x.map(v => v !== val) : x !== val;
     },
 
-    __nequal: 1,
+    __neq: 1,
 
 
     /**
@@ -974,11 +974,11 @@ const _Process = {
      * 注：仅对数组成员自身做相等（===）比较。
      * @param {[Value]} arr 对比数组
      */
-    arrayEqual( evo, arr ) {
+    eqarr( evo, arr ) {
         return arrayEqual( evo.data, arr );
     },
 
-    __arrayEqual: 1,
+    __eqarr: 1,
 
 
     /**
@@ -1503,6 +1503,7 @@ function debug( evo, stack, msg = '' ) {
 }
 
 debug[ACCESS] = true;
+debug[EXTENT] = null;
 
 
 
@@ -1514,7 +1515,6 @@ debug[ACCESS] = true;
 // 控制集。
 //
 const Control = $.assign( {}, _Control, bindMethod );
-
 
 //
 // 特殊控制。
@@ -1528,8 +1528,11 @@ Control.debug  = debug;
 
 //
 // 计算/加工集。
+// @proto: Control
 //
-const Process = $.assign( {}, _Process, bindMethod );
+const Process = $.proto(
+    $.assign({}, _Process, bindMethod), Control
+);
 
 
-export { Control, Process };
+export { Control, Process, debug };

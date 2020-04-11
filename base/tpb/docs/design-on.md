@@ -61,7 +61,7 @@ evo( name:String|Number ): Value
 //      1|'target'    evo.target
 //      2|'current'   evo.current
 //      3|'delegate'  evo.delegate
-//      5|'selector'  evo.selector
+//      4|'selector'  evo.selector
 //      6|'data'      evo.data （指令当前流程数据）
 //      7|'entry',    evo.entry （中段入口，迭代重入）
 //      8|'updated'   evo.updated （To更新目标）
@@ -285,7 +285,6 @@ kvsMap( kname?, vname?: String ): [Object2]
 // 内容：Value|[Value]|Collector
 // 注意：如果目标不是Collector对象，会自动封装为Collector。
 item( idx? ): Value | [Value]
-eq( idx? ): Collector
 first( slr? ): Collector
 last( slr? ): Collector
 ```
