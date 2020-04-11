@@ -74,7 +74,7 @@
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        keydown|ev('key') (HK.masked) exec(_) pop avoid acmsk (HK) pop;
+        keydown|ev('key') (HK.masked) exec(_) pop avoid acmsk nil (HK) pop;
         pstore|ev('detail') data('pls') call(_);
         pclear|$$('#x-outline,#x-help,#x-slave') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
         ^obted|(new Set($('#x-outline,#x-help,#x-slave'))) ('pclear')"
