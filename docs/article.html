@@ -586,7 +586,7 @@ err       <i>// b[role=err]  error 错误提示</i>
                     <h4 id="源码1（代码块）">源码1（代码块）</h4>
                     <section>
                         <pre>
-<code data-lang="html">&lt;<b role="tag">pre</b>&gt;
+<code data-lang="html">&lt;<b role="tag">pre</b> role=<b role="val">"codeblock"</b>&gt;
 &lt;<b role="tag">code</b> data-lang=<b role="val">"go"</b>&gt;&lt;<b role="tag">i</b>&gt;// prints its command-line arguments.&lt;/<b role="tag">i</b>&gt;
 &lt;<b role="tag">b</b> role=<b role="val">"kw"</b>&gt;package&lt;/<b role="tag">b</b>&gt; main
 &lt;<b role="tag">b</b> role=<b role="val">"kw"</b>&gt;import&lt;/<b role="tag">b</b>&gt; (
@@ -605,7 +605,7 @@ err       <i>// b[role=err]  error 错误提示</i>
                     </section>
                     <h4 id="效果1">效果</h4>
                     <section>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="go"><i>// prints its command-line arguments.</i>
 <b role="kw">package</b> main
 <b role="kw">import</b> (
@@ -624,7 +624,7 @@ err       <i>// b[role=err]  error 错误提示</i>
                     <h4 id="源码2（代码表）">源码2（代码表）</h4>
                     <section>
                         <pre>
-<code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="val">"codes"</b> data-lang=<b role="val">"go"</b> start=<b role="val">"3"</b>&gt;
+<code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="val">"codelist"</b> data-lang=<b role="val">"go"</b> start=<b role="val">"3"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="val">"kw"</b>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<b role="val">"str"</b>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="val">"kw"</b>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">b</b> role=<b role="val">"str"</b>&gt;"Hello, 世界"&lt;/<b role="tag">b</b>&gt;) &lt;<b role="tag">i</b>&gt;// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。&lt;/<b role="tag">i</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
@@ -638,7 +638,7 @@ err       <i>// b[role=err]  error 错误提示</i>
                     </section>
                     <h4 id="效果2">效果</h4>
                     <section>
-                        <ol role="codes" data-lang="go" start="3">
+                        <ol role="codelist" data-lang="go" start="3">
                             <li><code><b role="kw">import</b> <b role="str">"fmt"</b></code></li>
                             <li><code><b role="kw">func</b> main() {</code></li>
                             <li><code>    fmt.Println(<b role="str">"Hello, 世界"</b>) <i>// 通过导入的 fmt 包，执行 Println 函数向控制台打印消息。</i></code></li>

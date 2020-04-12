@@ -644,10 +644,10 @@ div[role=space] > * {
 }
 
 /* 代码表
- * ol:codes/li/code/b
+ * ol:codelist/li/code/b
  * ------------------------------------
  */
-.content ol[role=codes] {
+.content ol[role=codelist] {
     font-size: 10pt;
     padding: 0;
     border: 1px #ddd solid;
@@ -659,13 +659,13 @@ div[role=space] > * {
     overflow-x: auto;
     resize: none;
 }
-.content ol[role=codes] li {
+.content ol[role=codelist] li {
     margin: 0;
     padding: 0;
     border-left: 3px #dde solid;
     line-height: 120%;
 }
-.content ol[role=codes] code {
+.content ol[role=codelist] code {
     margin: 0;
     color: #000;
     white-space: pre;
