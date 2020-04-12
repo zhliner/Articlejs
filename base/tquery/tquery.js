@@ -138,7 +138,7 @@
         // @param  {Element|Document|DocumentFragment} ctx 上下文
         // @return {Element|null}
         $one = function( slr, ctx ) {
-            if ( __reID.test(slr) ) {
+            if ( __reID.test(slr) && ctx.isConnected ) {
                 return $id(slr, ctx);
             }
             return $find( slr, ctx, 'querySelector' );
