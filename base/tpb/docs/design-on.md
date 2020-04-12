@@ -4,7 +4,7 @@
 
 事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器定义在小括号内，如：`click(p[data-id="xxx"])` 中的 `p[data-id="xxx"]`。选择器自身的引号包围是可选的。
 
-事件名是一个标识串，首字母为字母，之后可以是字母、数字和 `[._:-]` 字符。另外，可前置两个特殊字符以表达特别含义：
+事件名是一个标识串，首字母为字母，之后可以是字母、数字和 `[._:-]` 字符。另外，可前置一个特殊字符以表达固定的含义：
 
 - `^`：表示该事件为单次绑定。如：`^click` 的绑定应当是 `$.one("click', ...)`，而非采用 `$.on()`。
 - `@`：预定义调用链。该调用链不会被立即使用，实际上它只是一个存储（与当前元素关联），用户可在任意元素的 `To` 段定义中使用 `bind/once` 指令来运用它（检索并绑定）。
@@ -114,8 +114,11 @@ assign( target:Object, names?:String ): Object
 gather( names:String ): Object
 // 数组映射聚集。
 
-its( name:String ): Value | [Value] | [[Value]]
+get( name:String ): Value | [Value] | [[Value]]
 // 对象成员取值（支持对象数组）。
+
+call( meth:String, ...rest:Value ): Value
+// 调用目标的方法执行。
 
 elem( tag:String, n:Number ): Element | [Element]
 // 批量创建元素。
@@ -125,11 +128,8 @@ elem( tag:String, n:Number ): Element | [Element]
 // 复杂取值。
 //-----------------------------------------------
 
-get( ...names:String ): void
+its( ...names:String ): void
 // 从目标上取值（自主入栈）。
-
-call( meth:String, ...rest:Value ): Value
-// 调用目标的方法执行。
 
 tpl( name?:String, clone?:Boolean ): Promise<Element>
 // 获取name模板节点。
@@ -160,8 +160,14 @@ pbo(): [String]
 pdv(): String
 // PB属性取值。
 
-data( name: String ): void|Value
+Data( name: String ): void|Value
 // 关联数据取出。
+
+Map( n:Number ): Map
+// 构造Map实例。
+
+Set( n:Number ): Set
+// 构造Set实例。
 
 date( ...args? ): Date
 // 构造日期对象入栈。

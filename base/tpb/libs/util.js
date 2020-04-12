@@ -140,8 +140,7 @@ const Util = {
         if ( __re2Split.test(slr) ) {
             [slr, beg] = fmtSplit( slr, beg );
         } else {
-            // 全局
-            beg = undefined;
+            beg = undefined; // 全局
         }
         return one ? query1( slr, beg ) : query2( slr, beg );
     },
@@ -303,7 +302,7 @@ const Util = {
  *
  * @param  {String} slr 选择器串
  * @param  {Element} beg 起点元素
- * @return {[String, Element]} 向下选择器和起点元素
+ * @return {[String, Element]} 向下选择器和上下文元素
  */
 function fmtSplit( fmt, beg ) {
     let _s2 = [

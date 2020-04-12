@@ -52,6 +52,7 @@ const _Update = {
     /**
      * 绑定预定义调用链。
      * evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
+     * 如果目标是一个集合，相同的事件名/选择器/初始数据被应用。
      * @param {Element|Collector} to 目标元素/集
      * @param {Value|[Value]} ival 初始数据
      * @param {String} evnid 事件名ID/序列，可选
@@ -68,6 +69,34 @@ const _Update = {
      */
     once( to, ival, evnid, slr ) {
         bindsChain( 'one', to, ival, evnid, slr );
+    },
+
+
+    /**
+     * 绑定预定义调用链（跨元素）。
+     * 其它说明同 bind。
+     * @param {Element|Collector} to 目标元素（集）
+     * @param {Element} src 调用链存储源元素
+     * @param {String} evnid 事件名标识
+     * @param {String} slr 委托选择器，可选
+     * @param {Value} ival 初始传入数据，可选
+     */
+    xbind( to, src, evnid, slr, ival ) {
+        xBindsChain( 'on', src, to, evnid, slr, ival );
+    },
+
+
+    /**
+     * 预定义调用链绑定单次触发（跨元素）。
+     * 其它说明同 bind。
+     * @param {Element|Collector} to 目标元素（集）
+     * @param {Element} src 调用链存储源元素
+     * @param {String} evnid 事件名标识
+     * @param {String} slr 委托选择器，可选
+     * @param {Value} ival 初始传入数据，可选
+     */
+    xonce( to, src, evnid, slr, ival ) {
+        xBindsChain( 'one', src, to, evnid, slr, ival );
     },
 
 
@@ -324,6 +353,7 @@ const _Update = {
     /**
      * 如果目标是一个数组，返回新插入节点集的Collector封装。
      * 同上，结果集已经扁平化。
+     * 注：如果不希望更新目标，可用特性（@text|@html）更新方法。
      * @param  {Element|Collector} tos 目标元素/集
      * @param  {Value} data 数据内容
      * @param  {...Value} args 额外参数
@@ -541,7 +571,7 @@ const _NextStage = {
      * 延迟激发事件。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
-     * to可传递一个null或空串，表示目标沿用To更新目标。
+     * rid可传递一个null或空串，表示目标沿用To更新目标。
      *
      * @param {String} rid 目标元素选择器（单个）
      * @param {String} name 事件名
@@ -606,6 +636,8 @@ const _NextStage = {
 
     /**
      * 设置滚动条位置。
+     * 内容：暂存区1项可选。
+     * 如果内容有值，则为激发滚动的目标元素。
      * Object2: {top, left}
      * 也可以传递两个数值，分别对应left和top（可用null占位）。
      * 不影响未设置方向的现有位置。
@@ -624,6 +656,7 @@ const _NextStage = {
     /**
      * 表单控件清空。
      * 内容：暂存区1项可选。
+     * 如果内容有值，则为待清空的表单元素。
      * 选取类控件为取消选取，其它为清除value值。
      * 参考.select(), .focus()用途。
      */
@@ -637,7 +670,8 @@ const _NextStage = {
     /**
      * 发送提示消息。
      * 内容：暂存区1项可选。
-     * 在目标元素上显示文本，持续时间由long定义，0表示永久。
+     * 如果内容有值，则为显示文本的目标元素。
+     * 持续时间由long定义，0表示永久。
      * 注意：long单位为秒，但支持浮点数。
      * @param {Number} long 持续时间（秒）
      * @param {String} msg 消息文本，可选
@@ -741,12 +775,12 @@ function setData( els, names, data, handle ) {
  * @param  {Element} el 绑定目标
  * @param  {Map} map 存储集
  * @param  {[String]} evns 事件名序列
- * @param  {String} slr 选择器，共享可选
- * @param  {Value} init 初始传入值，共享可选
+ * @param  {String} slr 选择器（共享），可选
+ * @param  {Value} ival 初始传入值（共享），可选
  * @param  {String} type 绑定方式
  * @return {void}
  */
-function bindEvns( el, map, evns, slr, init, type ) {
+function bindEvns( el, map, evns, slr, ival, type ) {
     if ( !evns ) {
         evns = [...map.keys()];
     }
@@ -756,7 +790,7 @@ function bindEvns( el, map, evns, slr, init, type ) {
                 el,
                 nid.split(__chrEvnid, 1)[0],
                 slr,
-                map.get(nid).initVal(init)
+                map.get(nid).initVal(ival)
             );
         }
     }
@@ -768,37 +802,59 @@ function bindEvns( el, map, evns, slr, init, type ) {
  * 从延迟绑定存储中检索调用链并绑定到目标事件。
  * 重复绑定是有效的（可能传入不同的初始值）。
  * @param  {String} type 绑定方式（on|one）
- * @param  {Element} el 目标元素
- * @param  {Value} init 初始传入值（内容）
+ * @param  {Element} src 取值元素
+ * @param  {Element} to 绑定元素
+ * @param  {Value} ival 初始传入值（内容）
  * @param  {String} evnid 事件名ID/序列，可选
  * @param  {String} slr 委托选择器，可选
  * @return {void}
  */
-function bindChain( type, el, init, evnid, slr ) {
-    let _map = ChainStore.get(el);
+function bindChain( type, src, to, ival, evnid, slr ) {
+    let _map = ChainStore.get( src );
 
     if ( !_map ) {
-        window.console.warn(`no storage on Element.`);
-        return;
+        return window.console.warn(`no storage on:`, src);
     }
-    return bindEvns( el, _map, evnid && evnid.split(__reSpace), slr, init, type );
+    return bindEvns( to, _map, evnid && evnid.split(__reSpace), slr, ival, type );
 }
 
 
 /**
  * 调用链绑定到事件（集合版）。
  * 从延迟绑定存储中检索调用链并绑定到目标事件。
- * 重复绑定是有效的（可能传入不同的初始值）。
+ * 注：被重复绑定是有效的，可能传入不同的初始值。
  * @param  {String} type 绑定方式（on|one）
- * @param  {Element|[Element]} els 目标元素（集）
- * @param  {...Value} args 实参序列
+ * @param  {Element|[Element]} to 绑定目标元素（集）
+ * @param  {Value} ival 初始传入数据
+ * @param  {String} evnid 事件名标识
+ * @param  {String} slr 委托选择器
  * @return {void}
  */
-function bindsChain( type, els, ...args ) {
-    if ( $.isArray(els) ) {
-        return els.forEach( el => bindChain(type, el, ...args) );
+function bindsChain( type, to, ival, evnid, slr ) {
+    if ( $.isArray(to) ) {
+        return to.forEach( el => bindChain(type, el, el, ival, evnid, slr) );
     }
-    bindChain( type, els, ...args );
+    bindChain( type, to, to, ival, evnid, slr );
+}
+
+
+/**
+ * 调用链绑定到事件。
+ * 从延迟绑定存储中检索调用链并绑定到目标事件。
+ * 仅支持从一个源元素取调用链，但可同时绑定到多个目标元素。
+ * @param  {String} type 绑定方式（on|one）
+ * @param  {Element} src 取值元素
+ * @param  {Element|[Element]} to 绑定目标元素（集）
+ * @param  {String} evnid 事件名标识
+ * @param  {String} slr 委托选择器
+ * @param  {Value} ival 初始传入数据
+ * @return {void}
+ */
+function xBindsChain( type, src, to, evnid, slr, ival ) {
+    if ( $.isArray(to) ) {
+        return to.forEach( el => bindChain(type, src, el, ival, evnid, slr) );
+    }
+    bindChain( type, src, to, ival, evnid, slr );
 }
 
 
@@ -888,8 +944,9 @@ function scrollObj( top, left ) {
 
 
 /**
- * 取NextStage目标。
- * 注：大部分接口都为暂存区1项可选（-1）。
+ * 获取下一阶目标。
+ * 如果内容有值，则为操作的目标，否则为更新目标。
+ * 适用部分接口暂存区1项可选（-1）时。
  * @return {Collector}
  */
 function target( evo ) {

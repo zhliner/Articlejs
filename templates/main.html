@@ -4,20 +4,18 @@
     <div class="_start _icons">
         <b id="x-outline" title="大纲" class="_press"
             on="toggle|$$('#outline,#lineLeft') lose(2) ('_press');
-                click;
+                @click:1;
                 ^obted|('click')"
             to="|toggleClass;
-                |trigger('toggle')|$ hasClass('_press') $if('add', 'delete') $ pack(2) pop fire('body', 'pstore');
-                |couple('panel.outline')">
+                |trigger('toggle')|fire('body', 'pcheck');
+                |couple('panel.outline') bind('click:1')">
             <i id="b-outline"></i>
         </b>
         <b id="x-slave" title="主面板" class="_press"
             on="toggle|$('#main-slave') lose(2) ('_press');
-                click;
-                ^obted|('click')"
+                ^obted|$('1/#x-outline') ('click')"
             to="|toggleClass;
-                |trigger('toggle')|$ hasClass('_press') $if('add', 'delete') $ pack(2) pop fire('body', 'pstore');
-                |couple('panel.slave')">
+                |couple('panel.slave') xbind('click:1')">
             <i id="b-slave"></i>
         </b>
     </div>
@@ -36,7 +34,7 @@
         <b title="插件"
             on="click|tpl('modal:plugins');
                 ^obted|('click')"
-            to="(#g-modal>*)|replace|fire('open', true);
+            to="(#g-modal>*)|replace trigger('open', true);
                 |couple('panel.plugins')">
             <i id="b-plugins"></i>
         </b>
@@ -154,7 +152,7 @@
                 sets|ev('detail') dup;
                 done|$('1/span') lose(1)"
             to="-;
-                |@text @-v|fire('done');
+                |@text @-v|goto('done');
                 #cmd-input|-|focus">/</code>
     </div>
     <!-- 命令行 -->
@@ -176,11 +174,9 @@
     <!-- 帮助入口 -->
     <div id="x-help" class="_help _press" title="帮助"
         on="toggle|$$('#help,#lineRight') lose(2) ('_press');
-            click;
-            ^obted|('click')"
+            ^obted|tpl('main:tools') pop $('/#x-outline') ('click')"
         to="|toggleClass;
-            |trigger('toggle')|$ hasClass('_press') $if('add', 'delete') $ pack(2) pop fire('body', 'pstore');
-            |couple('panel.help')">
+            |couple('panel.help') xbind('click:1')">
         <code>?</code>
     </div>
 </div>

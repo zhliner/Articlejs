@@ -115,6 +115,14 @@ const
 // 渲染配置解析。
 // 构造 Map{文法: 参数序列} 的存储（Grammars）。
 //
+// 解析相对独立，无DOM树依赖。
+// - Each语法向上检查父元素（For标记）。
+// - For语法向下依赖直接子元素（统计配置）。
+//
+// 注：
+// 在tpl-node/source上设置渲染语法没有意义，
+// 因此渲染解析是模板独立的（不牵涉子模版）。
+//
 const Parser = {
     //
     // 文法解析方法映射：[
@@ -161,6 +169,7 @@ const Parser = {
      * Each文法解析。
      * Each: [handle, prev-size]
      * 需检查标记父元素可能有的For文法配置。
+     * 注：此语法向上依赖。
      * @param  {Map} map 存储集
      * @param  {String} val 属性值
      * @param  {Element} el 当前元素
@@ -182,6 +191,7 @@ const Parser = {
      * For: [handle, size, each]
      * each为子元素Each文法标记，可避免冗余清理，
      * 这在子元素的$each解析中更新（子元素后处理）。
+     * 注：此语法向下依赖（直接子元素）。
      * @param  {Map} map 存储集
      * @param  {String} val 属性值
      * @param  {Element} el 当前元素

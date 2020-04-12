@@ -50,7 +50,9 @@
         import { Hotkey, Web } from "./tpb/config.js";
         import list from "./shortcuts.js";
 
-        Tpb.Build( document.body, true, Web.tplmap );
+        Tpb.Build( document.body, Web.tplmap )
+        .then( () => $.trigger(document.body, 'finish') );
+
         //:Debug
         window.Tpb = Tpb;
         window.HK = Hotkey.init( list );
@@ -74,17 +76,19 @@
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        keydown|ev('key') (HK.masked) exec(_) pop avoid acmsk nil (HK) pop;
-        pstore|ev('detail') data('pls') call(_);
-        pclear|$$('#x-outline,#x-help,#x-slave') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
-        ^obted|(new Set($('#x-outline,#x-help,#x-slave'))) ('pclear')"
+        keydown|(HK.masked) ev('key') exec(_) pop avoid acmsk (HK) pop;
+        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v2 => v2[1]?v2[0]:null );
+        pstore|data('pls') dup call('clear') ev('detail') calls('add', _);
+        pclear|data('all') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
+        ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2) ('pclear')"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
         |trigger(_);
+        |trigger('pstore');
         -;
         |trigger('toggle');
-        |couple('panel.clearall') data('pls')">
+        |couple('panel.clearall') data('pls all')">
     <aside id="outline" class="___Panel" data-pb=""
         on="hide|evo(1) lose;
             show|evo(1) lose(0)">

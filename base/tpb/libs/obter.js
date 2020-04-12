@@ -791,26 +791,29 @@ class Cell {
         if ( val !== undefined) {
             this[_SID].push( val );
         }
-        // 先取操作目标。
-        evo.data = this.data( this._want );
-
-        return this.nextCall( evo, this._meth(evo, ...this.args()) );
+        val = this._meth(
+            evo,
+            ...this.args(evo, this._args || [])
+        );
+        return this.nextCall( evo, val );
     }
 
 
     /**
-     * 获取模板实参序列。
+     * 获取最终模板实参序列。
      * 处理_标识从流程数据中补充模板实参。
-     * 只取栈顶1项，用户可能需要提前打包（pack）待取实参。
-     * @param {Object} evo 数据引用
-     * @param {Value|[Value]} rest 补充实参
-     * @param {Number} n 取值项数
+     * 实参为数据栈顶1项，用户可能需要预先打包（pack）。
+     * @param  {Object} evo 数据引用
+     * @param  {Boolean} rest 含补充实参
+     * @param  {Number} n 取值项数
+     * @return {Array}
      */
-    args() {
-        if ( !this._rest ) {
-            return this._args || '';
+    args( evo, args ) {
+        if ( this._rest ) {
+            args = args.concat( this[_SID].pop() );
         }
-        return (this._args || []).concat( this[_SID].pop() );
+        evo.data = this.data( this._want );
+        return args;
     }
 
 

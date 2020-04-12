@@ -32,8 +32,8 @@ const
     __tplSource = 'tpl-source', // 模板节点引入（原始）
 
     // 选择器。
-    __nameSelector  = `[${__tplName}]`,
-    __nodeSelector  = `[${__tplNode}], [${__tplSource}]`;
+    __nameSlr   = `[${__tplName}]`,
+    __nodeSlr   = `[${__tplNode}], [${__tplSource}]`;
 
 
 class Templater {
@@ -55,9 +55,6 @@ class Templater {
         // 子模版承诺存储（同步点）
         // {root: Promise}
         this._pool = new WeakMap();
-
-        // 是否移除OBT特性。
-        this._clear = false;
     }
 
 
@@ -83,10 +80,7 @@ class Templater {
         if ( this._tpls.has(name) ) {
             return Promise.resolve( this._tpls.get(name) );
         }
-        return this._load(name)
-            .then( fg => this.picks(fg) )
-            .then( () => this._tpls.get(name) )
-            .then( el => this._build(el, name) );
+        return this._load(name).then(fg => this.build(fg)).then(() => this._tpls.get(name));
     }
 
 
@@ -98,7 +92,13 @@ class Templater {
      * @return {Promise}
      */
     build( root ) {
-        return this.picks(root).then( () => this._build(root) );
+        if ( this._pool.has(root) ) {
+            return this._pool.get(root);
+        }
+        this._obter( root );
+        Render.parse( root );
+
+        return this.picks( root );
     }
 
 
@@ -106,18 +106,15 @@ class Templater {
      * 提取命名的模板节点并存储。
      * 会检查子模版导入配置并持续载入（如果有）。
      * @param  {Element|DocumentFragment} root 根容器
-     * @return {Promise<DocumentFragment>}
+     * @return {[Promise<void>]}
      */
     picks( root ) {
-        if ( this._pool.has(root) ) {
-            return this._pool.get(root);
-        }
-        $.find(__nameSelector, root, true)
+        $.find(__nameSlr, root, true)
             .forEach(
-                el => this.add( el )
-            )
+                el => this.add(el)
+            );
         let _ps = this._subs(root),
-            _pro = _ps.length > 0 ? Promise.all(_ps) : Promise.resolve();
+            _pro = _ps ? Promise.all(_ps) : Promise.resolve();
 
         this._pool.set( root, _pro );
         return _pro;
@@ -127,7 +124,7 @@ class Templater {
     /**
      * 添加模板节点。
      * 若未传递模板名，元素应当包含模板命名属性。
-     * 注：可用于外部手动添加。
+     * 可用于外部手动添加。
      * @param {Element} el 节点元素
      * @param {String} name 模板名，可选
      */
@@ -156,37 +153,7 @@ class Templater {
     }
 
 
-    /**
-     * 设置OBT属性清除标记。
-     * @param  {Boolean} sure
-     * @return {this}
-     */
-    clear( sure ) {
-        return this._clear = sure, this;
-    }
-
-
     //-- 私有辅助 -------------------------------------------------------------
-
-
-    /**
-     * 模板构建。
-     * 处理OBT的解析/绑定逻辑。
-     * 解析元素上的渲染配置。
-     * 注：需要等待可能的子模版插入之后才开始。
-     * @param  {Element} el 目标元素
-     * @param  {String} _name 载入的根模板名
-     * @return {Promise<Element>}
-     */
-    _build( el, _name ) {
-        if ( !el ) {
-            throw new Error(`[${_name}] is not found.`);
-        }
-        this._obter( el, this._clear );
-        Render.parse( el );
-
-        return Promise.resolve( el );
-    }
 
 
     /**
@@ -196,10 +163,10 @@ class Templater {
      * @return {[Promise]} 子模版载入承诺集
      */
      _subs( root ) {
-        let _els = $.find(__nodeSelector, root, true);
+        let _els = $.find(__nodeSlr, root, true);
 
         if ( _els.length == 0 ) {
-            return [];
+            return null;
         }
         return $.map( _els, el => this._imports(el) );
     }

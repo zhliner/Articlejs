@@ -13,8 +13,8 @@
 //
 
 import { Util } from "./util.js";
-import { bindMethod, method, DataStore, Templater, ChainStore, Hotkey } from "../config.js";
-import { Control, Process } from "./pbs.base.js";
+import { bindMethod, method, DataStore, Templater, ChainStore, DEBUG } from "../config.js";
+import { Process } from "./pbs.base.js";
 
 
 const
@@ -407,6 +407,22 @@ const _Gets = {
 
 
     /**
+     * 调用目标的方法执行。
+     * 目标：暂存区/栈顶1项。
+     * 如果对象是一个集合，返回调用值的一个数组。
+     * @param  {String} meth 方法名
+     * @param  {...Value} rest 实参序列
+     * @return {Value} 方法调用的返回值
+     */
+    call( evo, meth, ...rest ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map(o => o[meth](...rest)) : x[meth](...rest);
+    },
+
+    __call: 1,
+
+
+    /**
      * 创建元素（集）。
      * 目标：暂存区条目可选。
      * 可用暂存区的内容作为创建元素的源码或配置对象。
@@ -454,20 +470,6 @@ const _Gets = {
 
     __its: 1,
     __its_x: true,
-
-
-    /**
-     * 调用目标的方法执行。
-     * 目标：暂存区/栈顶1项。
-     * @param  {String} meth 方法名
-     * @param  {...Value} rest 实参序列
-     * @return {Value} 方法调用的返回值
-     */
-    call( evo, meth, ...rest ) {
-        return evo.data[meth]( ...rest );
-    },
-
-    __call: 1,
 
 
     /**
@@ -588,6 +590,9 @@ const _Gets = {
         let _el = evo.data === undefined ? evo.delegate : evo.data,
             _m = DataStore.get(_el);
 
+        if ( DEBUG && !_m ) {
+            window.console.info('key:', _el);
+        }
         return _m ? getData(_m, name) : Promise.reject(dataUnfound);
     },
 
@@ -602,11 +607,47 @@ const _Gets = {
      * @param  {...Value} vals 实参值
      * @return {Date}
      */
-    date( evo, ...vals ) {
+    Date( evo, ...vals ) {
         return new Date( ...vals );
     },
 
     __date: null,
+
+
+    /**
+     * 创建Map实例。
+     * 目标：暂存区1项可选。
+     * 目标作为创建实例的初始数据。
+     * 注：多个实例会初始化为相同的数据。
+     * @param  {Number} n 实例数量
+     * @return {Map|[Map]}
+     */
+    Map( evo, n = 1 ) {
+        if ( n == 1 ) {
+            return new Map( evo.data );
+        }
+        return Array(n).fill().map( () => new Map(evo.data) );
+    },
+
+    __Map: -1,
+
+
+    /**
+     * 创建Set实例。
+     * 目标：暂存区1项可选。
+     * 目标作为创建实例的初始数据。
+     * 注：多个实例会初始化为相同的数据。
+     * @param  {Number} n 实例数量
+     * @return {Set|[Set]}
+     */
+    Set( evo, n = 1 ) {
+        if ( n == 1 ) {
+            return new Set( evo.data );
+        }
+        return Array(n).fill().map( () => new Set(evo.data) );
+    },
+
+    __Set: -1,
 
 
     /**
@@ -862,7 +903,10 @@ const _Gets = {
     'closest',      // ( slr:String|Function ): Element | null
 ]
 .forEach(function( meth ) {
-
+    /**
+     * 目标为数组时返回Collector实例。
+     * @return {Value|Collector}
+     */
     _Gets[meth] = function( evo, name ) {
         return $.isArray( evo.data ) ?
             $(evo.data)[meth]( name ) : $[meth]( evo.data, name );
@@ -895,7 +939,10 @@ const _Gets = {
     'offsetParent', // (): Element
 ]
 .forEach(function( meth ) {
-
+    /**
+     * 目标为数组时返回Collector实例。
+     * @return {Value|Collector}
+     */
     _Gets[meth] = function( evo ) {
         return $.isArray( evo.data ) ?
             $(evo.data)[meth]() : $[meth]( evo.data );
@@ -928,7 +975,7 @@ const _Gets = {
 .forEach(function( meth ) {
     /**
      * @data：Element|[Element]|Collector
-     * @return {Element|Collector}
+     * @return {Value|Collector}
      */
     _Gets[meth] = function( evo, ...args ) {
         return $.isArray( evo.data ) ?
@@ -951,7 +998,9 @@ const _Gets = {
     'svg',      // ( tag?, doc? ): Element
 ]
 .forEach(function( meth ) {
-
+    /**
+     * @return {Element|Collector}
+     */
     _Gets[meth] = function( evo, ...args ) {
         let v = evo.data === undefined ?
             '' : evo.data;
@@ -975,7 +1024,9 @@ const _Gets = {
     'create',       // ( html?, clean?, doc? ): DocumentFragment
 ]
 .forEach(function( meth ) {
-
+    /**
+     * @return {Text|DocumentFragment|[...]}
+     */
     _Gets[meth] = function( evo, ...args ) {
         return $.isCollector(evo.data) ?
             evo.data[meth]( ...args ) : $[meth]( evo.data, ...args );
@@ -1006,7 +1057,9 @@ const _Gets = {
     'now',          // ( json? ): Number|String
 ]
 .forEach(function( meth ) {
-
+    /**
+     * @return {Value}
+     */
     _Gets[meth] = function( evo, ...args ) { return $[meth]( ...args ) };
 
     _Gets[`__${meth}`] = null;
@@ -1034,7 +1087,9 @@ const _Gets = {
     'mergeArray',   // ( ...src ): Array
 ]
 .forEach(function( meth ) {
-
+    /**
+     * @return {Value}
+     */
     _Gets[meth] = function( evo, ...args ) { return $[meth]( evo.data, ...args ) };
 
     _Gets[`__${meth}`] = 1;
@@ -1060,8 +1115,9 @@ const _Gets = {
 .forEach(function( meth ) {
     /**
      * 集合成员取值。
-     * @param {Number} its:idx 位置下标（支持负数）
-     * @param {String} its:slr 成员选择器
+     * @param  {Number} its:idx 位置下标（支持负数）
+     * @param  {String} its:slr 成员选择器
+     * @return {Value|[Value]|Collector}
      */
     _Gets[meth] = function( evo, its ) { return $(evo.data)[meth]( its ) };
 

@@ -542,7 +542,7 @@ const _Process = {
      * @data: [Array]
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 取项数量
-     * @return {[ArrayN]} 二维数组
+     * @return {[ArrayN]} n项二维数组
      */
     mix( evo, stack, n ) {
         let _as = stack.data(n);
@@ -1244,6 +1244,40 @@ const _Process = {
     },
 
     __calc: 1,
+
+
+    /**
+     * 调用目标的方法（多次）。
+     * 目标：暂存区/栈顶1项。
+     * 视实参组成员为每次调用的实参。
+     * @param  {String} meth 方法名
+     * @param  {...Value} args 实参组
+     * @return {void}
+     */
+    calls( evo, meth, ...args ) {
+        args.forEach(
+            arg => evo.data[meth](arg)
+        );
+    },
+
+    __calls: 1,
+
+
+    /**
+     * 调用目标的方法（多次）。
+     * 目标：暂存区/栈顶1项。
+     * 视实参组成员为每次调用的实参（自动展开）。
+     * @param  {String} meth 方法名
+     * @param  {...Value} args 实参组
+     * @return {void}
+     */
+    callx( evo, meth, ...args ) {
+        args.forEach(
+            rest => evo.data[meth](...rest)
+        );
+    },
+
+    __callx: 1,
 
 };
 
