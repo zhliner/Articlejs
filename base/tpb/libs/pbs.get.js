@@ -674,7 +674,7 @@ const _Gets = {
                 'alt':   evo.event.altKey,
                 'meta':  evo.event.metaKey,
             };
-        return names ? names.split(__reSpace).every( n => _map[n] ) : _map;
+        return names ? names.split(__reSpace).every(n => _map[n.toLowerCase()]) : _map;
     },
 
     __scam: null,

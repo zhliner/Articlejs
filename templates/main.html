@@ -108,7 +108,7 @@
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
-        mousedown|scam('alt') pass stop"
+        mousedown|scam(KM.slaveSize) pass stop"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup')">
@@ -136,7 +136,7 @@
 <div class=" ___Panel Status" tpl-name="main:status">
     <!-- 提示区 -->
     <div class="_tips">
-        <span id="status-tips" title="information">info...</span>
+        <span id="status-tips" title=""></span>
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">

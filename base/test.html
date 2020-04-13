@@ -48,14 +48,15 @@
     <script type="module" async>
         import Tpb from "./tpb/tpb.js";
         import { Hotkey, Web } from "./tpb/config.js";
-        import list from "./shortcuts.js";
+        import cfg from "./shortcuts.js";
 
         Tpb.Build( document.body, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
         window.Tpb = Tpb;
-        window.HK = Hotkey.init( list );
+        window.HK = Hotkey.init( cfg.Bound );
+        window.KM = cfg.maps;
 
         // Render:data
         window.rdata = {
@@ -80,7 +81,8 @@
         pcheck|data('all') arr dup hasClass('_press') mix(2) map(v2 => v2[1]?v2[0]:null );
         pstore|data('pls') dup call('clear') ev('detail') calls('add', _);
         pclear|data('all') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
-        ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2) ('pclear')"
+        ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2) ('pclear');
+        ^finish|(KM.slaveSize)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
@@ -88,7 +90,8 @@
         |trigger('pstore');
         -;
         |trigger('toggle');
-        |couple('panel.clearall') data('pls all')">
+        |couple('panel.clearall') data('pls all');
+        #g-keytip|text">
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>

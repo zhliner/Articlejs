@@ -590,7 +590,8 @@ aside#help {
 .Slave ._where > label:hover {
     background-color: #e3e3e3;
 }
-.Slave ._body > * {
+.Slave ._body > div,
+.Slave ._body > aside {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -853,7 +854,7 @@ aside#help {
 .Style ._color ._submit {
     margin-left: 12px;
     /* 覆盖共享值 */
-    display: block;
+    /* display: block; */
 }
 .Style ._color > aside {
     min-width: 132px;
@@ -1043,6 +1044,7 @@ aside#help {
     flex: 1 1 auto;
     padding-left: 5px;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .Status > ._cmdx,
@@ -1057,11 +1059,13 @@ aside#help {
     width: 100%;
     height: 100%;
     color: #0b6;
-    font-weight: bold;
     /* 居中 */
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.Status > ._cmdx > code {
+    font-weight: bold;
 }
 .Status > ._cmdx > ._code {
     width: 100%;
@@ -1086,7 +1090,7 @@ aside#help {
 }
 
 .Status > ._cmdline {
-    flex: 12 12 500px;
+    flex: 8 8 600px;
 }
 .Status > ._cmdline > input {
     height: 100%;
@@ -1107,11 +1111,11 @@ aside#help {
     border-radius: 50%;
 }
 .Status > ._help._press {
-    border-color: #d9d9d9;
+    border-color: #ddd;
     background-color: #f4f5f6;
 }
 .Status > ._help > code {
-    color: #c30;
+    color: #0ac;
 }
 
 
