@@ -1,7 +1,7 @@
 <!-- 子元素多次激发分别自我存储，最后应当执行解绑操作（To:off）。
     - init: 提取事件起点元素<span>文本，解析构造为<b>元素序列。提取起点元素data-val特性值发送（注：xattr指令会同时移除特性）。
     - save: 提取事件起点元素<span>，提取存储键名，存储到父容器元素以备用。延迟激发完成事件。
-    - done: 解析/存储完毕，解绑init/save事件绑定。顺便查看存储是否成功。
+    - done: 解析/存储完毕，解绑init/save事件绑定。
     注：
     因为done也是绑定为单次激发，所以实际上解绑操作（off）只会执行一次（debug只输出一次）。
     通过激发各个子元素实现解析构造，需要事件可冒泡。上层调用链定义应视情况添加stop指令。
@@ -13,9 +13,9 @@
         ^obted;
         ^done"
     to="~|fill|target(0) goto('save', _);
-        |data(_)|fire('done');
+        |data(_)|fire('', 'done');
         (/span)|trigger('init', true);
-        |off('init save')|target data('unit number') debug">
+        |off('init save')|data('unit number') debug">
     <!-- <span><b>...</span> -->
     <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
     <!-- 单位 -->

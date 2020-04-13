@@ -106,8 +106,12 @@
 
 <!-- 主面板 -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
-    on="hide|evo(1) lose;
-        show|evo(1) lose(0)">
+    on="@mousemove|movementY neg avoid;
+        @mouseup|movementY(null);
+        mousedown|scam('alt') pass stop"
+    to="|height(true);
+        |off('mousemove');
+        |bind('mousemove') once('mouseup')">
     <div class="_tabs"
         on="click(b)|evo(1) attr('-tpl') pop tpl;
             click(b)|$$('/b')"

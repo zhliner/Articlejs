@@ -73,8 +73,8 @@
 </head>
 
 <body lang="zh-cn"
-    on="@mousemove:1|movementX;
-        @mousemove:2|movementX neg;
+    on="@mousemove:1|movementX avoid;
+        @mousemove:2|movementX neg avoid;
         @mouseup|movementX(null);
         keydown|(HK.masked) ev('key') exec(_) pop avoid acmsk (HK) pop;
         pcheck|data('all') arr dup hasClass('_press') mix(2) map(v2 => v2[1]?v2[0]:null );
@@ -89,9 +89,7 @@
         -;
         |trigger('toggle');
         |couple('panel.clearall') data('pls all')">
-    <aside id="outline" class="___Panel" data-pb=""
-        on="hide|evo(1) lose;
-            show|evo(1) lose(0)">
+    <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft"
@@ -129,9 +127,7 @@
     <hr id="lineRight"
         on="mousedown"
         to="body|bind('mousemove:2') once('mouseup')" />
-    <aside id="help" class="___Panel _docs" data-pb=""
-        on="hide|evo(1) lose;
-            show|evo(1) lose(0)">
+    <aside id="help" class="___Panel _docs" data-pb="">
         <span class="_walk">
             <b title="上一项">◀</b>
             <b title="目录" class="_top">▤</b>

@@ -43,31 +43,43 @@
     <script type="module" async>
         import Api from "./base/api.js";
         import Tpb from "./base/tpb/tpb.js";
-        import { Hotkey } from "./base/tpb/config.js";
+        import { Hotkey, Web } from "./base/tpb/config.js";
         import list from "./base/shortcuts.js";
 
         window.Api = Api.init({
             outline, editor, help, beeptip
         });
-        Hotkey.init( list );
+        window.HK = Hotkey.init( list );
 
-        Tpb.Build( document.body );
+        Tpb.Build( document.body, Web.tplmap )
+        .then( () => $.trigger(document.body, 'finish') );
     </script>
 </head>
 
 <body lang="zh-cn"
-    on="@mousemove:1|movementX;
-        @mousemove:2|movementX neg;
-        @mouseup|movementX(null)"
+    on="@mousemove:1|movementX avoid;
+        @mousemove:2|movementX neg avoid;
+        @mouseup|movementX(null);
+        keydown|(HK.masked) ev('key') exec(_) pop avoid acmsk (HK) pop;
+        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v2 => v2[1]?v2[0]:null );
+        pstore|data('pls') dup call('clear') ev('detail') calls('add', _);
+        pclear|data('all') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
+        ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2) ('pclear')"
     to="#outline|width(true);
         #help|width(true);
-        |off('mousemove')">
+        |off('mousemove');
+        |trigger(_);
+        |trigger('pstore');
+        -;
+        |trigger('toggle');
+        |couple('panel.clearall') data('pls all')">
 
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
 
-    <hr on="mousedown"
+    <hr id="lineLeft"
+        on="mousedown"
         to="body|bind('mousemove:1') once('mouseup')" />
 
     <!-- 主编辑器 -->
@@ -87,22 +99,21 @@
         </pre>
     </div>
 
-    <hr on="mousedown"
+    <hr id="lineRight"
+        on="mousedown"
         to="body|bind('mousemove:2') once('mouseup')" />
 
     <!-- 帮助栏 -->
-    <aside>
-        <div id="help" class="___Panel _docs" data-pb="">
-            <span class="_walk">
-                <b title="上一项">◀</b>
-                <b title="目录" class="_top">▤</b>
-                <b title="下一项" data-pb="disabled">▶</b>
-                <b title="关于..." class="_about">⚘</b>
-            </span>
-            <hr>
-            <div id="help-xbox" class="_xbox">
-                <!-- dl/dt,dd -->
-            </div>
+    <aside id="help" class="___Panel _docs" data-pb="">
+        <span class="_walk">
+            <b title="上一项">◀</b>
+            <b title="目录" class="_top">▤</b>
+            <b title="下一项" data-pb="disabled">▶</b>
+            <b title="关于..." class="_about">⚘</b>
+        </span>
+        <hr>
+        <div id="help-xbox" class="_xbox">
+            <!-- dl/dt,dd -->
         </div>
     </aside>
 

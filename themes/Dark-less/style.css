@@ -192,38 +192,6 @@ aside#help {
 /* [ 共享 ]
  ****************************************************************************/
 
-/* 字符表情 */
-.___Panel code._orz {
-    font-family: monospace;
-    white-space: pre;
-    line-height: 100%;
-    font-size: 10pt;
-}
-
-.___Panel input._char {
-    width: 30px;
-    text-align: center;
-}
-.___Panel input._nums {
-    width: 45px;
-    text-align: center;
-}
-.___Panel input._chars {
-    width: 60px;
-}
-.___Panel input._scale {
-    padding-top: 4px;
-    border: 1px #60acd2 solid;
-    background: #ffe url('images/heading.png') 4px 0 repeat-x;
-    font-weight: bold;
-}
-.___Panel textarea._code {
-    background: #444 url('images/line20.png') repeat local;
-    background-position-y: 1px;
-    line-height: 20px;
-    border: 1px #666 solid;
-}
-
 .___Panel select._list {
     padding: 6px 1px 6px 6px;
 }
@@ -250,12 +218,39 @@ aside#help {
     background-color: #999;
 }
 
-/* 字符表情 */
-.___Panel code._orz {
-    font-family: monospace;
-    white-space: pre;
-    line-height: 100%;
-    font-size: 10pt;
+.___Panel input._char {
+    width: 30px;
+    text-align: center;
+}
+.___Panel input._nums {
+    width: 45px;
+    text-align: center;
+}
+.___Panel input._chars {
+    width: 60px;
+}
+.___Panel input._scale {
+    padding-top: 4px;
+    border: 1px #60acd2 solid;
+    background: #ffe url('images/heading.png') 4px 0 repeat-x;
+    font-weight: bold;
+}
+.___Panel textarea._code {
+    background: #444 url('images/line20.png') repeat local;
+    background-position-y: 1px;
+    line-height: 20px;
+    border: 1px #666 solid;
+}
+
+.___Panel ._submit > label {
+    display: block;
+}
+.___Panel ._submit > button {
+    background-color: #1b839c;
+    color: #fff;
+}
+.___Panel ._submit button:hover {
+    background-color: #1a697c;
 }
 
 /* 图标按钮 */
@@ -274,15 +269,12 @@ aside#help {
     background-color: #f3f4f5;
 }
 
-.___Panel ._submit > label {
-    display: block;
-}
-.___Panel ._submit > button {
-    background-color: #1b839c;
-    color: #fff;
-}
-.___Panel ._submit button:hover {
-    background-color: #1a697c;
+/* 字符表情 */
+.___Panel code._orz {
+    font-family: monospace;
+    white-space: pre;
+    line-height: 100%;
+    font-size: 10pt;
 }
 
 
@@ -460,6 +452,7 @@ aside#help {
     overflow-y: scroll !important;
     resize: none;
     position: relative;
+    outline: none;
 }
 
 /* 临时态视觉提示 */

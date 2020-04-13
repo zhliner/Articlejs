@@ -67,28 +67,37 @@ const __obter = new Builder( {
 
 /**
  * 获取目标元素的OBT配置。
- * 会移除元素上的OBT属性本身。
+ * - 本地（节点）配置优先，因此会先绑定本地定义。
+ * - 会移除元素上的OBT属性，如果需要请预先取出。
  * @param  {Element} el 目标元素
  * @return {[Promise<Object3>]} OBT配置<{on, by, to}>
  */
 function obtAttr( el ) {
     let _buf = [];
 
-    if ( el.hasAttribute(OBTA.src) ) {
-        _buf.push(
-            XLoader.json(`${Web.obtdir}/${$.attr(el, OBTA.src)}`)
-        );
-    }
     if ( el.hasAttribute(OBTA.on) ) {
-        _buf.push({
-            on: $.attr(el, OBTA.on) || '',
-            by: $.attr(el, OBTA.by) || '',
-            to: $.attr(el, OBTA.to) || '',
-        });
+        _buf.push( _obtattr(el) );
+    }
+    if ( el.hasAttribute(OBTA.src) ) {
+        _buf.push( XLoader.json(`${Web.obtdir}/${$.attr(el, OBTA.src)}`) );
     }
     $.removeAttr( el, __obtName );
 
     return Promise.all(_buf);
+}
+
+
+/**
+ * 取OBT特性值。
+ * @param  {Element} el 取值元素
+ * @return {Object3}
+ */
+function _obtattr( el ) {
+    return {
+        on: $.attr(el, OBTA.on) || '',
+        by: $.attr(el, OBTA.by) || '',
+        to: $.attr(el, OBTA.to) || '',
+    };
 }
 
 
@@ -118,11 +127,13 @@ const __Tpl = InitTpl( new Templater(nodeBuild, TLoader.load.bind(TLoader)) );
 
 if (DEBUG) {
 
+    // 便于查看函数。
+    window.On = On;
+    window.By = By;
+    window.Update = To.Update;
+    window.Next = To.NextStage;
+
     window.Debug = {
-        On,
-        By,
-        Update: To.Update,
-        Nexts:  To.NextStage,
         Tpl:    __Tpl,
         Lib,
         /**
@@ -176,6 +187,7 @@ if (DEBUG) {
             }
         );
     }
+
 }
 
 

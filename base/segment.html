@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="no-cache">
+    <title>代码片段测试</title>
+    <link rel="stylesheet" href="tpb/default.css">
+    <link id="tstyle" rel="stylesheet" href="../themes/Dark-less/style.css">
+    <script src="tquery/tquery.js"></script>
+    <style>
+        body {
+            margin: 100px 40px;
+            display: flex;
+        }
+        body > * {
+            flex-shrink: 0;
+            max-width: 900px;
+        }
+    </style>
+    <script>
+        // 窗口大小自适应。
+        window.onresize = function () {
+            document.body.style.height = `${window.innerHeight*2/3}px`;
+        };
+        $.ready( () => $.trigger(window, 'resize') );
+
+        window.Config = {};
+    </script>
+
+    <script type="module" async>
+        import Tpb from "./tpb/tpb.js";
+        import { Hotkey, Web } from "./tpb/config.js";
+        import list from "./shortcuts.js";
+
+        Tpb.Build( document.body, Web.tplmap )
+        .then( () => $.trigger(document.body, 'finish') );
+
+        //:Debug
+        window.Tpb = Tpb;
+        window.HK = Hotkey.init( list );
+    </script>
+</head>
+
+<body lang="zh-cn">
+    <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+        <div class="_tabs">
+            <b class="_press">内容</b>
+            <b>样式</b>
+            <b>特性</b>
+            <b>源码</b>
+            <b>脚本</b>
+            <b class="_close"><i id="l-close" title="关闭"></i></b>
+        </div>
+        <form class="Input" tpl-name="slave:minied">
+            <div class="_roll">
+                <div class="_where">
+                    <label title="内联元素">
+                        <input type="radio" name="where" /><i id="l-element"></i>
+                    </label>
+                    <label title="文本字符">
+                        <input type="radio" name="where" checked /><i id="l-schar"></i>
+                    </label>
+                </div>
+                <!-- 字符种类 -->
+                <select name="ctype" size="5" class="_list" tpl-name="item:ctypes">
+                    <option value="normal">常用</option>
+                    <option value="unit">单位</option>
+                    <option value="punctuation">标点</option>
+                    <option value="number">序号</option>
+                    <option value="math">数学</option>
+                    <option value="special">特殊</option>
+                    <option value="alphabet">字母</option>
+                    <option value="geometric">几何</option>
+                    <option value="emotion">表情</option>
+                    <option value="ipa87">音标</option>
+                    <option value="phonetic">拼音</option>
+                    <option value="radical">偏旁部首</option>
+                </select>
+            </div>
+            <!-- [子模版：字符表] -->
+            <div class="_body _inline" tpl-name="minied:chars">
+                <div class="_main _list" tpl-name="data:chars"
+                    on="init|evo(1) text split pop $$ wrap('<b>');
+                        save|ev('detail') dup xattr('-val');
+                        ^obted;
+                        ^done"
+                    to="~|fill|target(0) goto('save', _);
+                        |data(_)|fire('', 'done');
+                        (/span)|trigger('init', true);
+                        |off('init save')">
+                    <!-- <span><b>...</span> -->
+                    <span data-val="normal">〔〕〈〉「」『』〖〗【】《》（）［］｛｝※©℃￥ΩαβγΦπ</span>
+                    <span data-val="unit">$¢£¤¥°‰′″₠₡₢₣₤₥₦₧₨₩₪₫€₭₮₯₰₱℃℉○㎎㎏㎜㎝㎞㎡㏄㏎㏕＄％￠￠￡￡￥￥〇</span>
+                    <span data-val="punctuation">【】〖〗《》〈〉（）〔〕｛｝「」『』﹙﹚﹛﹜﹝﹞‹›«»…／｜＼‖｜¦–︱—︳︴‥﹒，、。．；：？！︰′‵‘～ˆˇˉ﹐﹑•﹔﹕﹖﹗﹏﹌﹋´ˋ―＿¯￣﹍﹉﹎﹊︵︶︷︸︹︺︻︼︽︾︿﹀﹁﹂﹃﹄¸¡¿〓〒</span>
+                    <span data-val="number">ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ①②③④⑤⑥⑦⑧⑨⑩㈠㈡㈢㈣㈤㈥㈦㈧㈨㈩⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇零壹贰叁肆伍陆柒捌玖拾佰仟万亿兆吉太拍艾分厘毫</span>
+                    <span data-val="math">#%&*/[]^±×÷•‰‱⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉⅓⅔½¼¾⅛⅜⅝⅞∈∏∑√∝∞∟∠∥∧∨∩∪∫∬∭∮∯∰∴∵∶∷∽≈≌≒≠≡≤≥≦≧≮≯⊕⊙⊥⊰⊱⊿⋘⋙⋚⋛⌒㏑㏒﹙﹚﹛﹜﹟﹠﹡﹢﹣﹤﹥﹦％＋－／＜＝＞～</span>
+                    <span data-val="special">№℡©™®＠@※★☆✦✧⏱⏲☏☚☛☜☝☞☟☢☣☪☭☮☯❀❁❂☸☻☠☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♡♢♤♧⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚘⚙⚛⚜⚝⚢⚣⚤⚥⚦⚧⚨⚩⚭⚮⚯⛆⛇❄⛈⛟⛴⛵✈⛽✂✄✓✔✗✘§♭♮♯¶♩♪♫♬℅㊣</span>
+                    <span data-val="alphabet">ァアィイゥウヴェエォオカガヵキギクグケゲヶコゴサザシジスズセゼソゾタダチヂツヅッテデトドヰンナパニピヌプネペノポハバヒビフブヘベホボヱマラミリムルメレモロャヤュユョヨヮワぁあぃいぅうぇえぉおかがきぎくぐけげこごんさざしじすずせぜそぞただちぢつづってでとどゐなぱにぴぬぷねぺのぽはばひびふぶへべほぼゑまらみりむるめれもろゃやゅゆょよゎわαΑβΒγΓδΔεΕζΖηΗθΘιΙκΚλΛμΜνΝξΞοΟπΠρΡσΣτΤυΥφΦχΧψΨωаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮя</span>
+                    <span data-val="geometric">←↑→↓↔↕↖↗↘↙⇠⇡⇢⇣⇤⇥⇦⇧⇨⇩⇱⇲⇳⇵⇿■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▶▷▼▽◀◁◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳</span>
+                    <span data-val="emotion">😀😁😂🤣😃😄😅😆😉😊😋😎😍😘😗😙😚☺🙂🤗🤩🤔🤨😐😑😶🙄😏😣😥😮🤐😯😪😫😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱😳🤪😵😠😡🤬😷🤒🤕🤢🤮🤧😇🤠🤡🤥🤫🤭🧐🤓😈👿👹👺💀☠👁👀💪🤞🖖👌👍👎🙏🎈🎄💎💐🌸🌷🥀🌻🌱☘🚗🚌🚐🚑🚅🚩❄⚡❤💔💖💘💬💝☢🔞📵</span>
+                    <span data-val="ipa87">ɑɐɒæɓʙβɔɕCɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧHɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂ！</span>
+                    <span data-val="phonetic">āáǎàōóǒòêēéěèīíǐìūúǔùǖǘǚǜüㄉㄓㄚㄞㄢㄦㄆㄊㄍㄐㄔㄗㄧㄛㄟㄣㄇㄋㄎㄑㄕㄘㄨㄜㄠㄤㄈㄏㄒㄖㄙㄩㄝㄡ</span>
+                    <span data-val="radical">丨丶丷丿乚乛亅亠亻冂冖冫凵刂勹匚匸卝卤卩厄厶囗夂夊宀尢尣屮巛幺廴廾弋彐彑彡彳忄戶扌攴攵旡歺殳氵氺灬爫爻爿牜犭疋疒癶皿矢礻禸糸糹纟缶罒罓耂耒聿肀臼舛艮艸艹虍衤襾覀訁讠豕豸辵辶釒钅镸門阜阝隹韋飠饣髟鬥鬯鬲鹵黹黽黾龠</span>
+                </div>
+                <aside>
+                    <b id="g-zoomin" class="_zoomin">©</b>
+                    <span class="_info">已复制：<i id="g-copies">1</i></span>
+                </aside>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

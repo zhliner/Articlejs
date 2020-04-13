@@ -35,7 +35,7 @@
             <p><code>&lt;article&gt;</code> 是内容结构的根元素，包含了所有的内容成员。</p>
             <blockquote>
                 <p><strong>注：</strong>
-                    一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性很差。</p>
+                    一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性会较差。</p>
             </blockquote>
         </header>
         <nav role="toc">
@@ -96,6 +96,7 @@
                                 <li><a href="#代码块">代码块</a></li>
                                 <li><a href="#空白块">空白块</a></li>
                                 <li><a href="#注解">注解</a></li>
+                                <li><a href="#提示">提示</a></li>
                             </ol>
                         </li>
                     </ol>
@@ -228,6 +229,7 @@
                             <pre>
 <code data-lang="html">&lt;p&gt;&lt;/p&gt;                     <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i>
 &lt;p role="note"&gt;&lt;/p&gt;         <i>&lt;!-- 注解：Note --&gt;</i>
+&lt;p role="tips"&gt;&lt;/p&gt;         <i>&lt;!-- 提示：Tips --&gt;</i>
 &lt;address&gt;&lt;/address&gt;         <i>&lt;!-- 地址信息：Address --&gt;</i>
 &lt;pre&gt;&lt;/pre&gt;                 <i>&lt;!-- 预排版：Pre 非代码块 --&gt;</i>
 &lt;hr /&gt;                      <i>&lt;!-- 线条：Hr 特例 --&gt;</i>
@@ -525,7 +527,7 @@
                         <pre>
 <code data-lang="html">&lt;pre role="codeblock"&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
 &lt;code data-lang="xx" data-tab="4"&gt; ...&lt;b&gt;..&lt;/b&gt;...
-<i>&lt;!-- Tab符被自动转换为空格（如果配值非零） --&gt;</i>
+<i>&lt;!-- Tab会被自动转换为空格（如果设置非零） --&gt;</i>
 &lt;/code&gt;&lt;pre&gt; <i>&lt;!-- 末尾应当紧跟 --&gt;</i>
 </code></pre>
                     </section>
@@ -534,7 +536,7 @@
                         <p>这是一种特别的内容单元，主要用于某种交互展示。在传统纸质的内容中没有这样的逻辑，但在计算机的动态交互文档中应当是一种必要的概念补充。</p>
                         <pre>
 <code data-lang="html">&lt;div role="space"&gt;
-    <i>&lt;!-- 内联单元或文本 --&gt;</i>
+    <i>&lt;!-- 这里是灵活的动态展示区域 --&gt;</i>
 &lt;/div&gt;
 </code></pre>
                     </section>
@@ -548,6 +550,14 @@
                         <blockquote>
                             <p><strong>注：</strong><br>与批注块（<code>&lt;aside&gt;</code>）单元相比，<strong>注解</strong> 逻辑上是直接与目标相关联的。</p>
                         </blockquote>
+                    </section>
+                    <h4 id="提示">提示</h4>
+                    <section>
+                        <p>一段小型的文本，通常用于小条目下的简单说明。外观可能像无序列表的 <code>&lt;li&gt;</code> 项。</p>
+                        <pre>
+<code data-lang="html">&lt;p role="tips"&gt;
+    <i>&lt;!-- 内联单元或文本 --&gt;</i>
+&lt;/p&gt;</code></pre>
                     </section>
                 </section>
             </section>
