@@ -22,7 +22,7 @@ const
     // 拦截的键。
     // 屏蔽浏览器默认行为。
     __maskKeys = new Set([
-        'F1',
+        // 'F1',  // 保留
         'F2',
         'F3',
         'F4',
@@ -32,8 +32,8 @@ const
         'F8',
         'F9',
         'F10',
-        'F11',
-        'F12',
+        // 'F11',  // 保留
+        // 'F12',  // 保留
     ]);
 
 
@@ -88,6 +88,29 @@ export class HotKey {
 
 
     /**
+     * 指令标识确认。
+     * @param  {String} cmd 指令标识
+     * @param  {String} key 键序列
+     * @return {Boolean}
+     */
+    iscmd( cmd, key ) {
+        return this._map.has(key) &&
+            this._map.get(key).includes( cmd );
+    }
+
+
+    /**
+     * 获取键序列对应的指令标识（集）。
+     * @param  {String} key 键序列
+     * @return {String|[String]}
+     */
+    command( key ) {
+        let _cmds = this._map.get( key );
+        return _cmds && _cmds.length == 1 ? _cmds[0] : _cmds;
+    }
+
+
+    /**
      * 指令标识关联事件目标。
      * 如果事件名是一个数组，指令标识也需要是一个数组，成员一一对应。
      * 不支持单一指令对应多个事件。注：只需要登记一个事件名即可。
@@ -109,12 +132,16 @@ export class HotKey {
     /**
      * 根据键序列派发事件。
      * @param  {CustomEvent} ev 事件对象
-     * @param  {...Value} rest 额外递送参数
-     * @return {void}
+     * @return {String|[String]} 指令名（集）
      */
-    dispatchEvent( ev, ...rest ) {
-        let _cmds = this._map.get( ev.type );
-        if ( _cmds ) _cmds.forEach( cmd =>this._ui.run(cmd, ...rest) );
+    dispatchEvent( ev ) {
+        let cmds = this._map.get( ev.type );
+        if ( !cmds ) return;
+
+        cmds.forEach(
+            cmd =>this._ui.run(cmd, ev.detail, ev.bubules, ev.cancelable)
+        );
+        return cmds.length == 1 ? cmds[0] : cmds;
     }
 
 }
@@ -130,6 +157,7 @@ export class HotKey {
 class IStore {
 
     constructor() {
+        // { cmd:String: [Element, evn:String] }
         this._map = new Map();
     }
 

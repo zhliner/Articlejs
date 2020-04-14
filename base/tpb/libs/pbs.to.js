@@ -137,11 +137,11 @@ const _Update = {
      * @param {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
      * @param {Boolean} cancelable 是否可取消，可选（默认可取消）
      */
-    triggers( to, data, evn, bubble, cancelable ) {
+    triggers( tos, data, evn, bubble, cancelable ) {
         if ( !evn ) {
             evn = data.shift();
         }
-        to.forEach( (e, i) => $.trigger( e, evn, data[i], bubble, cancelable ) );
+        tos.forEach( (el, i) => $.trigger(el, evn, data[i], bubble, cancelable) );
     },
 
 
@@ -288,9 +288,10 @@ const _Update = {
      * 类名独占设置。
      * 清除元素集内name类名之后设置目标元素类名。
      * 可用于选单中的排他性选取表达。
-     * @param {Element} to 目标元素
-     * @param {[Element]} els 源元素集
-     * @param {String} name 类名称
+     * @param  {Element} to 目标元素
+     * @param  {[Element]} els 源元素集
+     * @param  {String} name 类名称
+     * @return {void}
      */
     only( to, els, name ) {
         els.forEach(

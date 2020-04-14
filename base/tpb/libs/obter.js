@@ -1236,13 +1236,16 @@ function query2( evo, slr, beg, one, flr ) {
 
 /**
  * To：更新方法（单个）。
- * 注：非假返回值会更新目标自身。
+ * 注：非undefined返回值会更新目标自身。
  * @param  {Object} evo 事件关联对象
  * @param  {...Value} rest 剩余实参序列（最终）
  * @return {void}
  */
 function update( evo, ...rest ) {
-    evo.updated = this( evo.updated, evo.data, ...rest ) || evo.updated;
+    let _val = this(
+        evo.updated, evo.data, ...rest
+    );
+    if ( _val !== undefined ) evo.updated = _val;
 }
 
 

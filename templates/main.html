@@ -104,14 +104,23 @@
 </div>
 
 
-<!-- 主面板 -->
+<!-- 主面板：
+    - mousedown 面板高度调整
+    - keydown 录入框充满（限定启动快捷键）
+    - tofull 快捷键激发录入框充满（<textarea>为事件附加数据） -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
-        mousedown|scam(KM.slaveSize) pass stop"
+        mousedown|scam(KM.slaveSize) pass stop;
+        keydown(textarea)|evo(1) acmsk dup (HK) pop call('iscmd', 'input.tofull', _) pass (HK) pop;
+        tofull|('_full') ev('detail') pop;
+        ^obted|('tofull')"
     to="|height(true);
         |off('mousemove');
-        |bind('mousemove') once('mouseup')">
+        |bind('mousemove') once('mouseup');
+        |trigger(_)|avoid stop;
+        |toggleClass;
+        |couple('input.tofull')">
     <div class="_tabs"
         on="click(b)|evo(1) attr('-tpl') pop tpl;
             click(b)|$$('/b')"
@@ -173,7 +182,7 @@
     </div>
     <!-- 出错信息区 -->
     <div class="_err" title="单击显示帮助" data-pb="lost">
-        <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
+        <a id="status-err" href="#" title="[这是一段错误提示，单击显示帮助]">[这是一段错误提示，单击显示帮助]</a>
     </div>
     <!-- 帮助入口 -->
     <div id="x-help" class="_help _press" title="帮助"

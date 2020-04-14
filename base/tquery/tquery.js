@@ -2142,12 +2142,15 @@ Object.assign( tQuery, {
      * 注：
      * 实际上只是简单调用 box.scroll(x, y) 触发scroll事件。
      *
+     * 注记：Element.dispatchEvent()返回值：
+     * 如果处理器调用了Event.preventDefault()则返回false，否则返回true。
+     *
      * @param  {Element} el 目标元素
      * @param  {String|CustomEvent} evn 事件名（单个）或事件对象
      * @param  {Mixed} extra 发送数据，可选
      * @param  {Boolean} bubble 是否冒泡，可选
      * @param  {Boolean} cancelable 是否可取消，可选
-     * @return {Boolean} 取消状态（未取消：true，取消：false）
+     * @return {Boolean} dispatchEvent()接口的返回值。
      */
     trigger( el, evn, extra, bubble = false, cancelable = true ) {
         if (!el || !evn) {

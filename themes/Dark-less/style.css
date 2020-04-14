@@ -569,9 +569,9 @@ aside#help {
     display: flex;
 }
 .Slave ._roll {
-    flex: 1 1 120px;
+    flex: 1 1 140px;
     min-width: 120px;
-    max-width: 140px;
+    max-width: 160px;
     margin-right: 14px;
     flex-direction: column;
 }
@@ -638,7 +638,7 @@ aside#help {
 .Input > ._body,
 .Attr > ._body,
 .Script > ._body {
-    flex: 6 6 600px;
+    flex: 8 8 600px;
 }
 .Input ._empty {
     color: #ccc;

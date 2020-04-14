@@ -9,9 +9,16 @@
                 <input type="radio" name="where"><i id="l-children"></i>
             </label>
         </div>
-        <!-- 条目容器：动态更新 -->
-        <select id="input-items" name="items" size="5" class="_list">
-            <!-- 与目标关联的合法单元... -->
+        <!-- 动态更新：与目标关联的合法单元 -->
+        <select id="input-items" name="items" size="5" class="_list"
+            on="change|evo(3) val pop tpl"
+            to="form/._body|replace">
+            <option value="input:heading">标题</option>
+            <option value="input:abstract">提要</option>
+            <option value="input:reference">文献参考</option>
+            <option value="input:seealso">另参见</option>
+            <option value="input:header">导言</option>
+            <option value="input:footer">结语</option>
         </select>
     </div>
     <div class="_body _empty" tpl-name="input:empty">

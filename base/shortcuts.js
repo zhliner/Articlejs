@@ -1,5 +1,5 @@
 //! $Id: shortcuts.js 2019.10.11 Articlejs.Config $
-// +++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++++++++++++++
 // 	Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2020 铁皮工作室  MIT License
@@ -40,36 +40,51 @@ export default {
 //
 Bound: [
     {
-        "key":      ":f1",
-        "command":  "panel.help"
-    },
-    {
-        "key":      ":f3",
+        "key":      ":f2",
+        // 隐/显大纲面板
         "command":  "panel.outline"
     },
     {
-        "key":      ":f4",
+        "key":      ":f3",
+        // 隐/显主面板
         "command":  "panel.slave"
     },
     {
-        "key":      ":f10",
-        "command":  "panel.clearall"
+        "key":      ":f4",
+        // 隐/显帮助面板
+        "command":  "panel.help"
     },
     {
-        "key":      ":f9",
+        "key":      ":f7",
         "command":  "panel.plugins"
     },
     {
-        "key":      ":f11",
+        "key":      ":f9",
+        // 隐/显当前显示的面板
+        // 若本无显示则针对全部面板。
+        "command":  "panel.clearall"
+    },
+    {
+        "key":      ":f10",
+        // 同编辑器最大化按钮
         "command":  "panel.maximize"
     },
     {
         "key":      "alt:f",
-        "command":  "input.textfull"
+        // 录入框充满面板
+        // 针对<textarea>
+        "command":  "input.tofull"
     },
     {
         "key":      "ctrl:enter",
+        // 内容提交（同插入按钮）
         "command":  "input.submit"
+    },
+    {
+        "key":      "alt:enter",
+        // 内容提交后恢复正常
+        // 注：录入框满面板时。
+        "command":  "input.submit2"
     },
 ],
 
