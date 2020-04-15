@@ -209,7 +209,7 @@ if (DEBUG) {
  * @return {Promise<void>|root}
  */
 function Build( root, conf ) {
-    if ( conf.on ) {
+    if ( conf && conf.on ) {
         return __obter.build( root, conf );
     }
     return TLoader.config(conf).then( () => __Tpl.build(root) );
