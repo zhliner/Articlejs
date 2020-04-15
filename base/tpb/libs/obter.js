@@ -300,7 +300,7 @@ class Builder {
             this.bind(
                 obj,
                 _on[0],
-                this.chain(_on[1], _by, _to[0], _to[1], _to[2])
+                this.chain(_on, _by, _to[0], _to[1], _to[2])
             );
         }
         $.trigger(obj, __obtDone, null, false, false);
@@ -310,7 +310,7 @@ class Builder {
 
     /**
      * 构建调用链。
-     * @param  {[Call]} ons On调用序列
+     * @param  {[[Evn],[Call]]} ons On调用序列
      * @param  {[Call]} bys By调用序列
      * @param  {Query} query To查询配置实例
      * @param  {[Update]} updates To更新调用序列
@@ -319,8 +319,8 @@ class Builder {
      */
     chain( ons, bys, query, updates, nexts ) {
         let _stack = new Stack(),
-            _first = Evn.apply( new Cell(_stack) ),
-            _prev = this._on( _first, _stack, ons );
+            _first = Evn.apply( new Cell(_stack), ons[0] ),
+            _prev = this._on( _first, _stack, ons[1] );
 
         _prev = this._by( _prev, _stack, bys );
         _prev = this._query( _prev, _stack, query );
@@ -879,10 +879,16 @@ class Evn {
      * 起始指令对象绑定。
      * 注：实际上只是一个空调用。
      * @param  {Cell} cell 指令单元
+     * @param  {[Evn]} evns 事件名定义集
      * @return {Cell} cell
      */
-    static apply( cell ) {
-        return cell.bind( null, empty );
+    static apply( cell, evns ) {
+        let fn = empty;
+
+        if ( DEBUG ) {
+            fn = fn.bind( evns ); // 信息查看。
+        }
+        return cell.bind( null, fn );
     }
 
 }

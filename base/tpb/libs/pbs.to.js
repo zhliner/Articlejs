@@ -252,39 +252,6 @@ const _Update = {
 
 
     /**
-     * 指令路径关联。
-     * 事件目标：[元素，事件名]。
-     * 指令路径是一个标识，用于表达特定行为的名称。
-     * 该接口关联指令路径到一个事件目标 [元素,事件名]，可用于外部触发该元素的该事件。
-     * 指令路径是全局共享的唯一性标识。
-     * 用途：
-     * 键盘快捷键控制某元素的行为（外部配置快捷键对应到指令路径）。
-     * 指令路径对应到元素和相关的事件/处理器操作。
-     * 例：
-     * 关联当前元素的 click 事件处理到 panel.help 路径标识。
-     *  on="^obted|push('click')"
-     *  to="|couple('panel.help')"
-     * 注；
-     * path支持空格分隔的多个名称序列，这应与多个事件名对应。
-     * 如果关联元素是一个集合，事件名和路径标识必须都是集合（三者成员一一对应）。
-     *
-     * @param  {Element|[Element]} to 关联元素
-     * @param  {String|[String]} evn 事件名
-     * @param  {String} path 指令路径
-     * @return {void}
-     */
-    couple( to, evn, path ) {
-        if ( __reSpace.test(path) ) {
-            path = path.split( __reSpace );
-        }
-        if ( $.isArray(to) ) {
-            return to.forEach( (el, i) => Hotkey.couple(el, evn[i], path[i]) );
-        }
-        Hotkey.couple( to, evn, path );
-    },
-
-
-    /**
      * 类名独占设置。
      * 清除元素集内name类名之后设置目标元素类名。
      * 可用于选单中的排他性选取表达。

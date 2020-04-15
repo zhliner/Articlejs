@@ -1250,6 +1250,8 @@ const _Process = {
      * 调用目标的方法（多次）。
      * 目标：暂存区/栈顶1项。
      * 视实参组成员为每次调用的实参。
+     * 注：
+     * 单目标单实参：不同实参多次调用。
      * @param  {String} meth 方法名
      * @param  {...Value} args 实参组
      * @return {void}
@@ -1267,8 +1269,10 @@ const _Process = {
      * 调用目标的方法（多次）。
      * 目标：暂存区/栈顶1项。
      * 视实参组成员为每次调用的实参（自动展开）。
+     * 注：
+     * 单目标多实参：不同实参序列多次调用。
      * @param  {String} meth 方法名
-     * @param  {...Value} args 实参组
+     * @param  {...[Value]} args 实参组（二维）
      * @return {void}
      */
     callx( evo, meth, ...args ) {

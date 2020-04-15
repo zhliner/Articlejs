@@ -12,8 +12,8 @@
 //
 //  指令标识：
 //      表达特定程序行为的ID，通常按归类分级（句点连接）。
-//      这只是一种名称标识（字符串），关联到目标元素的目标事件（及其调用链）。
-//      支持空格分隔多个名称，这样就可以从一个位置（快捷键）同时触发多个行为。
+//      这只是一种名称标识，实际上是关联到某元素的某目标事件（及其调用链）。
+//      支持空格分隔多个名称，这样就可以从一个快捷键同时触发多个行为。
 //
 //  映射键：
 //      [alt+][ctrl+][meta+][shift]:[event.key]
@@ -36,22 +36,21 @@ export default {
 
 //
 // 绑定目标指令。
-// 注记：由To:couple注册连接。
 //
 Bound: [
     {
-        "key":      ":f2",
         // 隐/显大纲面板
-        "command":  "panel.outline"
+        "key":      ":f2",
+        "command":  "panel.outline",
     },
     {
-        "key":      ":f3",
         // 隐/显主面板
+        "key":      ":f3",
         "command":  "panel.slave"
     },
     {
-        "key":      ":f4",
         // 隐/显帮助面板
+        "key":      ":f4",
         "command":  "panel.help"
     },
     {
@@ -59,31 +58,32 @@ Bound: [
         "command":  "panel.plugins"
     },
     {
-        "key":      ":f9",
         // 隐/显当前显示的面板
         // 若本无显示则针对全部面板。
+        "key":      ":f9",
         "command":  "panel.clearall"
     },
     {
-        "key":      ":f10",
         // 同编辑器最大化按钮
+        "key":      ":f10",
         "command":  "panel.maximize"
     },
     {
-        "key":      "alt:f",
         // 录入框充满面板
-        // 针对<textarea>
-        "command":  "input.tofull"
+        "key":      "alt:f",
+        "command":  "input.tofull",
+        // 仅适用主面板下的<textarea>
+        "when":     ".Slave textarea"
     },
     {
-        "key":      "ctrl:enter",
         // 内容提交（同插入按钮）
+        "key":      "ctrl:enter",
         "command":  "input.submit"
     },
     {
-        "key":      "alt:enter",
         // 内容提交后恢复正常
         // 注：录入框满面板时。
+        "key":      "alt:enter",
         "command":  "input.submit2"
     },
 ],

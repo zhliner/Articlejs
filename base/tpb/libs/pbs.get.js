@@ -410,6 +410,8 @@ const _Gets = {
      * 调用目标的方法执行。
      * 目标：暂存区/栈顶1项。
      * 如果对象是一个集合，返回调用值的一个数组。
+     * 注：
+     * 单目标单次多实参调用，支持集合目标。
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
      * @return {Value} 方法调用的返回值
@@ -1103,12 +1105,11 @@ const _Gets = {
 // 目标：暂存区/栈顶1项。
 // 注：如果目标不是Collector实例，会被自动转换。
 // 注记：
-// 不支持Collector.slice()方法，slice已被用于数据栈操作。
-// 如果需要使用可用call指令代替：call('slice', ...)。
+// 不支持.slice方法，它已被用于数据栈操作，等价：call('slice', ...)
+// 不支持.eq方法，它已被用于比较操作，等价：item(i) $$
 //////////////////////////////////////////////////////////////////////////////
 [
     'item',     // ( idx? ): Value | [Value]
-    // 'eq',       // ( idx? ): Collector  注：不支持。可用 item(i) $$ 实现
     'first',    // ( slr? ): Collector
     'last',     // ( slr? ): Collector
 ]

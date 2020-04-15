@@ -144,7 +144,7 @@ aside#help {
     flex: 1 1 auto;
     border-radius: 3px 1px 1px 3px;
     font-size: 12pt;
-    background: #32575f url('images/txtline.png') repeat local;
+    background: #32575f url('images/txtline.png') repeat;
     line-height: 30px;
     color: #eee;
     overflow-y: scroll;
@@ -236,7 +236,7 @@ aside#help {
     font-weight: bold;
 }
 .___Panel textarea._code {
-    background: #444 url('images/line20.png') repeat local;
+    background: #444 url('images/line20.png') repeat;
     background-position-y: 1px;
     line-height: 20px;
     border: 1px #666 solid;
@@ -630,6 +630,7 @@ aside#help {
     top: 0;
     left: 0;
     border-radius: 0;
+    border-width: 1px 0 0;
 }
 
 

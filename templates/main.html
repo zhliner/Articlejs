@@ -4,18 +4,16 @@
     <div class="_start _icons">
         <b id="x-outline" title="大纲" class="_press"
             on="toggle|$$('#outline,#lineLeft') lose(2) ('_press');
-                @click:1;
-                ^obted|('click')"
+                click"
             to="|toggleClass;
-                |trigger('toggle')|fire('body', 'pcheck');
-                |couple('panel.outline') bind('click:1')">
+                |trigger('toggle')|fire('body', 'pcheck')">
             <i id="b-outline"></i>
         </b>
         <b id="x-slave" title="主面板" class="_press"
             on="toggle|$('#main-slave') lose(2) ('_press');
-                ^obted|$('1/#x-outline') ('click')"
+                click"
             to="|toggleClass;
-                |couple('panel.slave') xbind('click:1')">
+                |trigger('toggle')|fire('body', 'pcheck')">
             <i id="b-slave"></i>
         </b>
     </div>
@@ -31,11 +29,9 @@
     <!-- 末端 -->
     <div class="_end _icons">
         <!-- 先显示再替换（否则目标脱离DOM） -->
-        <b title="插件"
-            on="click|tpl('modal:plugins');
-                ^obted|('click')"
-            to="(#g-modal>*)|replace trigger('open', true);
-                |couple('panel.plugins')">
+        <b id="x-plugins" title="插件"
+            on="click|tpl('modal:plugins')"
+            to="#g-modal>*|replace trigger('open', true)">
             <i id="b-plugins"></i>
         </b>
         <b title="最大化"><i id="b-maximize"></i></b>
@@ -107,20 +103,16 @@
 <!-- 主面板：
     - mousedown 面板高度调整
     - keydown 录入框充满（限定启动快捷键）
-    - tofull 快捷键激发录入框充满（<textarea>为事件附加数据） -->
+    - input.tofull 快捷键激发录入框充满（<textarea>为事件附加数据） -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveSize) pass stop;
-        keydown(textarea)|evo(1) acmsk dup (HK) pop call('iscmd', 'input.tofull', _) pass (HK) pop;
-        tofull|('_full') ev('detail') pop;
-        ^obted|('tofull')"
+        input.tofull|avoid stop ('_full')"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');
-        |trigger(_)|avoid stop;
-        |toggleClass;
-        |couple('input.tofull')">
+        ~|toggleClass">
     <div class="_tabs"
         on="click(b)|evo(1) attr('-tpl') pop tpl;
             click(b)|$$('/b')"
@@ -187,9 +179,9 @@
     <!-- 帮助入口 -->
     <div id="x-help" class="_help _press" title="帮助"
         on="toggle|$$('#help,#lineRight') lose(2) ('_press');
-            ^obted|tpl('main:tools') pop $('/#x-outline') ('click')"
+            click"
         to="|toggleClass;
-            |couple('panel.help') xbind('click:1')">
+            |trigger('toggle')|fire('body', 'pcheck')">
         <code>?</code>
     </div>
 </div>

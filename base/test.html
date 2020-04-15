@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+<!-- HK.fire( acmsk(), ev() ) -->
+<html on="keydown|(HK) acmsk ev pack(2) call('fire', _)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
@@ -50,7 +51,7 @@
         import { Hotkey, Web } from "./tpb/config.js";
         import cfg from "./shortcuts.js";
 
-        Tpb.Build( document.body, Web.tplmap )
+        Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
@@ -77,20 +78,26 @@
     on="@mousemove:1|movementX avoid;
         @mousemove:2|movementX neg avoid;
         @mouseup|movementX(null);
-        keydown|(HK.masked) ev('key') exec(_) pop avoid acmsk (HK) pop;
-        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v2 => v2[1]?v2[0]:null );
+        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v2 => v2[1]?v2[0]:null);
         pstore|data('pls') dup call('clear') ev('detail') calls('add', _);
-        pclear|data('all') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
-        ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2) ('pclear');
+        panel.clearall|data('all') data('pls') dup get('size') vnot pop pack(2) $if(_) pop;
+        panel.outline;
+        panel.slave;
+        panel.help;
+        panel.plugins;
+        ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
-        |trigger(_);
         |trigger('pstore');
         -;
         |trigger('toggle');
-        |couple('panel.clearall') data('pls all');
+        #x-outline||click;
+        #x-slave||click;
+        #x-help||click;
+        #x-plugins||click;
+        |data('all pls');
         #g-keytip|text">
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->

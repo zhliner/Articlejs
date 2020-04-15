@@ -17,31 +17,17 @@
 const
     $ = window.$,
 
-    __reSpace = /\s+/,
-
-    // 拦截的键。
-    // 屏蔽浏览器默认行为。
-    __maskKeys = new Set([
-        // 'F1',  // 保留
-        'F2',
-        'F3',
-        'F4',
-        'F5',
-        'F6',
-        'F7',
-        'F8',
-        'F9',
-        'F10',
-        // 'F11',  // 保留
-        // 'F12',  // 保留
-    ]);
+    __reSpace = /\s+/;
 
 
 export class HotKey {
 
     constructor() {
-        this._ui = new IStore();
-        // {key: [command]}
+        // key: evn-keys 快捷键序列
+        // val: {
+        //      cmds: [command],
+        //      when: selector 目标匹配选择器，可选
+        // }
         this._map = new Map();
     }
 
@@ -55,7 +41,7 @@ export class HotKey {
      */
     init( list ) {
         for (const its of list) {
-            this._map.set( its.key, its.command.split(__reSpace) );
+            this.bind( its.key, its.command, its.when );
         }
         return this;
     }
@@ -66,125 +52,65 @@ export class HotKey {
      * 用于外部用户配置定制覆盖。
      * @param  {String} key 键序列
      * @param  {String} cmd 指令标识
+     * @param  {String} when 执行条件（selector）
      * @return {this}
      */
-    bind( key, cmd ) {
+    bind( key, cmd, when ) {
         this._map.set(
-            key,
-            cmd.split( __reSpace )
+            key, {
+                cmds: cmd.split(__reSpace),
+                when: when || '',
+            }
         );
         return this;
     }
 
 
     /**
-     * 是否为拦截键。
-     * @param  {String} key 键名
-     * @return {Boolean}
-     */
-    masked( key ) {
-        return __maskKeys.has( key );
-    }
-
-
-    /**
      * 指令标识确认。
+     * 可用于指令准确限定。
      * @param  {String} cmd 指令标识
      * @param  {String} key 键序列
+     * @param  {Element} target 目标元素
      * @return {Boolean}
      */
-    iscmd( cmd, key ) {
-        return this._map.has(key) &&
-            this._map.get(key).includes( cmd );
+    iscmd( cmd, key, target ) {
+        let _cmdx = this._map.get( key );
+        return this._when(_cmdx, target) && _cmdx.cmds.includes(cmd);
     }
 
 
     /**
-     * 获取键序列对应的指令标识（集）。
+     * 根据键序列激发事件。
+     * 注：会取消浏览器默认行为。
      * @param  {String} key 键序列
-     * @return {String|[String]}
-     */
-    command( key ) {
-        let _cmds = this._map.get( key );
-        return _cmds && _cmds.length == 1 ? _cmds[0] : _cmds;
-    }
-
-
-    /**
-     * 指令标识关联事件目标。
-     * 如果事件名是一个数组，指令标识也需要是一个数组，成员一一对应。
-     * 不支持单一指令对应多个事件。注：只需要登记一个事件名即可。
-     * 不存在单一事件映射多个指令标识的情况（注：与DOM事件注册无关）。
-     * 事件目标：[元素, 事件名]。
-     * @param  {Element} el 触发元素
-     * @param  {String|[String]} evn 事件名/集
-     * @param  {String|[String]} cmd 指令标识/集
+     * @param  {Event} ev 事件对象
      * @return {void}
      */
-    couple( el, evn, cmd ) {
-        if ( $.isArray(evn) ) {
-            return evn.forEach( (n, i) => this._ui.add(cmd[i], el, n) )
+    fire( key, ev ) {
+        let _cmdx = this._map.get(key);
+
+        if ( this._when(_cmdx, ev.target) ) {
+            for (const cmd of _cmdx.cmds) {
+                $.trigger( ev.target, cmd, ev.detail, true );
+            }
+            ev.preventDefault();
         }
-        this._ui.add( cmd, el, evn );
     }
+
+
+    //-- 私有辅助 ----------------------------------------------------------------
 
 
     /**
-     * 根据键序列派发事件。
-     * @param  {CustomEvent} ev 事件对象
-     * @return {String|[String]} 指令名（集）
+     * 元素匹配测试。
+     * 如果没有when设置则为无条件匹配。
+     * @param  {Object2}} cmdx 配置值 {when, cmds}
+     * @param  {Element} target 目标元素
+     * @return {Boolean}
      */
-    dispatchEvent( ev ) {
-        let cmds = this._map.get( ev.type );
-        if ( !cmds ) return;
-
-        cmds.forEach(
-            cmd =>this._ui.run(cmd, ev.detail, ev.bubules, ev.cancelable)
-        );
-        return cmds.length == 1 ? cmds[0] : cmds;
-    }
-
-}
-
-
-//
-// 交互行为存储器。
-// 用目标路径标识并存储一个 [元素, 事件名] 值对。
-// 用途：
-// 通过路径标识查找交互行为存储，激发事件（从而调用处理器）。
-// 可用于键盘快捷键映射到目标元素和事件处理。
-//
-class IStore {
-
-    constructor() {
-        // { cmd:String: [Element, evn:String] }
-        this._map = new Map();
-    }
-
-
-    /**
-     * 添加关联信息。
-     * @param  {String} cmd 指令标识
-     * @param  {Element|.dispatchEvent} el 触发目标
-     * @param  {String} evn 触发行为的事件名
-     * @return {void}
-     */
-    add( cmd, el, evn ) {
-        this._map.set( cmd, [el, evn] );
-    }
-
-
-    /**
-     * 触发目标处理器。
-     * 如果事件处理器调用了.preventDefault()，返回false，否则为true。
-     * 如果路径标识的处理器不存在，返回undefined。
-     * @param  {String} cmd 指令标识
-     * @param  {...Value} rest 额外参数
-     * @return {Boolean|void}
-     */
-    run( cmd, ...rest ) {
-        let v2 = this._map.get( cmd );
-        return v2 && $.trigger( v2[0], v2[1], ...rest );
+    _when( cmdx, target ) {
+        return cmdx && ( !cmdx.when || $.is(target, cmdx.when) );
     }
 
 }
