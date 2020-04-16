@@ -111,9 +111,25 @@ const
     // 更新方法调用模式，名称仅为简单单词。
     __toUpdate  = /^(\w+)(?:\(([^]*)\))?$/,
 
-    // 从流程中获取实参标记。
-    // 用于模板中的取值表达，通常由一个下划线表示。
-    __fromFlow  = Symbol();
+    // 从流程中获取实参标记（key）。
+    // 用于模板中的取值表达（最后一个实参）。
+    __fromStack = {
+        _:  Symbol(0),  // 取流程数据1项（展开）。
+        _1: Symbol(1),  // 取流程数据1项。
+        _2: Symbol(2),  // 取流程数据2项。
+        _3: Symbol(3),  // ...
+        _4: Symbol(4),  // ...
+        _5: Symbol(5),  // ...
+        _6: Symbol(6),  // ...
+        _7: Symbol(7),  // ...
+        _8: Symbol(8),  // ...
+        _9: Symbol(9),  // ...
+    },
+
+    // 流程数据取值数量映射。
+    // {Symbol(0):0, Symbol(1):1, ...}
+    __flowCnts = Object.keys(__fromStack)
+    .reduce( (o, k) => (o[__fromStack[k]] = +k.substring(1), o), {} );
 
 
 
@@ -547,6 +563,16 @@ class Stack {
 
 
     /**
+     * 弹出数据栈顶n项。
+     * @param  {Number} n 栈顶项数
+     * @return {Array} 被删除集
+     */
+    pops( n ) {
+        return this._buf.splice( -n );
+    }
+
+
+    /**
      * 数据栈重置。
      * 用于执行流再次开启前使用。
      */
@@ -679,9 +705,9 @@ class Cell {
         this._meth = null;
 
         // 惰性成员（按需添加）：
-        // this._args;  // 方法实参
+        // this._args;  // 实参序列
         // this._want;  // 取项数量
-        // this._rest;  // 补充模板实参
+        // this._rest;  // 补充模板实参数量
         // this._extra; // 初始启动传值
         // this.prev;   // 前阶单元（prune指令需要）
 
@@ -704,15 +730,21 @@ class Cell {
 
 
     /**
-     * 设置是否从流程取模板实参。
-     * 注：在模板实参中传递_标识名时需要。
-     * @param {Array} args 参数序列
+     * 从流程取模板实参配置。
+     * 处理模板实参中 _[n] 标识名。
+     * @param  {Array} args 参数序列
+     * @return {this}
      */
     setRest( args ) {
-        if ( args &&
-            args[args.length-1] === __fromFlow ) {
+        if ( !args ) {
+            return this;
+        }
+        let _rest = __flowCnts[ args[args.length-1] ];
+
+        if ( _rest !== undefined ) {
             args.pop();
-            this._rest = true;
+            // 0 ~ 9
+            this._rest = _rest;
         }
         return this;
     }
@@ -793,7 +825,7 @@ class Cell {
         }
         val = this._meth(
             evo,
-            ...this.args(evo, this._args || [])
+            ...this.args(evo, this._args || [], this._rest)
         );
         return this.nextCall( evo, val );
     }
@@ -801,16 +833,17 @@ class Cell {
 
     /**
      * 获取最终模板实参序列。
-     * 处理_标识从流程数据中补充模板实参。
-     * 实参为数据栈顶1项，用户可能需要预先打包（pack）。
+     * 处理 _[n] 标识从流程数据中补充模板实参。
+     * n为0或空时，表示取栈顶1项展开，可能需要预先打包（pack）。
      * @param  {Object} evo 数据引用
-     * @param  {Boolean} rest 含补充实参
-     * @param  {Number} n 取值项数
-     * @return {Array}
+     * @param  {Array} args 原实参集
+     * @param  {Number|undefined} rest 提取项数
+     * @return {Array} 最终实参集
      */
-    args( evo, args ) {
-        if ( this._rest ) {
-            args = args.concat( this[_SID].pop() );
+    args( evo, args, rest ) {
+        if ( rest !== undefined ) {
+            args = args
+            .concat( rest === 0 ? this[_SID].pop() : this[_SID].pops(rest) );
         }
         evo.data = this.data( this._want );
         return args;
@@ -1158,15 +1191,15 @@ function zeroPass( chr ) {
 
 /**
  * 解析模板参数序列。
- * 支持模板实参“_”特别标识名表示从流程数据取值。
- * 注：始终返回一个数组。
+ * 支持模板实参“_[n]”特别标识名表示从流程数据取值。
  * @param  {String} args 参数序列串
  * @return {Array|null}
  */
 function arrArgs( args ) {
-    return args ?
-        new Function( '_', `return [${args}]` )(__fromFlow) :
-        null;
+    if ( !args ) return null;
+
+    return new Function( ...Object.keys(__fromStack), `return [${args}]` )
+        ( ...Object.values(__fromStack) );
 }
 
 

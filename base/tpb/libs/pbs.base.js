@@ -244,14 +244,13 @@ const _Control = {
      * 取出栈顶的n项打包为一个数组入栈。
      * 目标：无。
      * 特权：是，自行操作数据栈。
-     * - 必然返回一个数组。
-     * - 非法值返回一个空数组，这可能是有用的。
+     * 始终返回一个数组，非法值返回一个空数组。
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数
      * @return {[Value]}
      */
     pack( evo, stack, n = 1 ) {
-        return n > 0 ? stack.dels(-n) : [];
+        return n > 0 ? stack.pops( n ) : [];
     },
 
     __pack_x: true,

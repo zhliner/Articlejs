@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- HK.fire( acmsk(), ev() ) -->
-<html on="keydown|(HK) acmsk ev pack(2) call('fire', _)">
+<html on="keydown|(HK) acmsk ev call('fire', _2)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
@@ -80,7 +80,7 @@
         @mouseup|movementX(null);
         pcheck|data('all') arr dup hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
         pstore|data('pls') dup call('clear') ev('detail') calls('add', _);
-        panel.clearall|data('all') data('pls') dup get('size') pop pack(2) $if(_) pop;
+        panel.clearall|data('all') data('pls') dup get('size') vnot pop $if(_2) pop;
         panel.outline;
         panel.slave;
         panel.help;
