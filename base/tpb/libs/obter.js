@@ -126,7 +126,7 @@ const
         _9: Symbol(9),  // ...
     },
 
-    // 流程数据取值数量映射。
+    // 流程数据取项数量映射。
     // {Symbol(0):0, Symbol(1):1, ...}
     __flowCnts = Object.keys(__fromStack)
     .reduce( (o, k) => (o[__fromStack[k]] = +k.substring(1), o), {} );

@@ -25,6 +25,7 @@
 //      ctrl:control    单纯按 ctrl 键
 //      alt+ctrl:f      组合按 Alt+Ctrl+F 三个键
 //      :a              单纯按 A 键
+//      shift:a         按 Shift 和 A 键（大写A）
 //
 //  用户配置：
 //  外部可由用户配置覆盖此处的默认值，可经 HotKey.bind() 接口设置。
@@ -38,6 +39,11 @@ export default {
 // 绑定目标指令。
 //
 Bound: [
+
+    //
+    // 面板隐/显切换
+    /////////////////////////////////////////////
+
     {
         // 隐/显大纲面板
         "key":      ":f2",
@@ -68,6 +74,12 @@ Bound: [
         "key":      ":f10",
         "command":  "panel.maximize"
     },
+
+
+    //
+    // 录入快捷操作
+    /////////////////////////////////////////////
+
     {
         // 录入框充满面板
         "key":      "alt:f",
@@ -86,6 +98,44 @@ Bound: [
         "key":      "alt:enter",
         "command":  "input.submit2"
     },
+
+
+    //
+    // 命令行直达
+    // [/:=|?!] 6个命令类型（注意shift存在）。
+    /////////////////////////////////////////////
+
+    {
+        "key":      ":/",
+        "command":  "cmdline.active",
+        "not":      "textarea,[type=text],[contenteditable]"
+    },
+    {
+        "key":      "shift::",
+        "command":  "cmdline.active",
+        "not":      "textarea,[type=text],[contenteditable]"
+    },
+    {
+        "key":      ":=",
+        "command":  "cmdline.active",
+        "not":      "textarea,[type=text],[contenteditable]"
+    },
+    {
+        "key":      "shift:|",
+        "command":  "cmdline.active",
+        "not":      "textarea,[type=text],[contenteditable]"
+    },
+    {
+        "key":      "shift:?",
+        "command":  "cmdline.active",
+        "not":      "textarea,[type=text],[contenteditable]"
+    },
+    {
+        "key":      "shift:!",
+        "command":  "cmdline.active",
+        "not":      "textarea,[type=text],[contenteditable]"
+    },
+
 ],
 
 

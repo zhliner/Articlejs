@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<!-- HK.fire( acmsk(), ev() ) -->
-<html on="keydown|(HK) acmsk ev call('fire', _2)">
+<html on="keydown|acmsk ev('key') hotkey(_)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
@@ -51,13 +50,14 @@
         import { Hotkey, Web } from "./tpb/config.js";
         import cfg from "./shortcuts.js";
 
+        Hotkey.init( cfg.Bound );
+        window.KM = cfg.maps;
+
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
         window.Tpb = Tpb;
-        window.HK = Hotkey.init( cfg.Bound );
-        window.KM = cfg.maps;
 
         // Render:data
         window.rdata = {
@@ -85,6 +85,7 @@
         panel.slave;
         panel.help;
         panel.plugins;
+        cmdline.active|evo(1) ev('detail');
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize)"
     to="#outline|width(true);
@@ -97,6 +98,7 @@
         #x-slave||click;
         #x-help||click;
         #x-plugins||click;
+        #g-cmdx|trigger('sets');
         |data('all pls');
         #g-keytip|text">
     <aside id="outline" class="___Panel" data-pb="">

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html on="keydown|(HK) acmsk ev pack(2) call('fire', _)">
+<html on="keydown|acmsk ev('key') hotkey(_)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
@@ -49,7 +49,7 @@
         window.Api = Api.init({
             outline, editor, help, beeptip
         });
-        window.HK = Hotkey.init( cfg.Bound );
+        Hotkey.init( cfg.Bound );
         window.KM = cfg.maps;
 
         Tpb.Build( document, Web.tplmap )

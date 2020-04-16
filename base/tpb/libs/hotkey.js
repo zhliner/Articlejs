@@ -25,8 +25,9 @@ export class HotKey {
     constructor() {
         // key: evn-keys 快捷键序列
         // val: {
-        //      cmds: [command],
-        //      when: selector 目标匹配选择器，可选
+        //      commands: [command],
+        //      when: {Selector} 目标匹配选择器，可选
+        //      not:  {Selector} 反向目标匹配选择器（优先级比when高），可选
         // }
         this._map = new Map();
     }
@@ -41,7 +42,7 @@ export class HotKey {
      */
     init( list ) {
         for (const its of list) {
-            this.bind( its.key, its.command, its.when );
+            this.bind( its.key, its.command, its.when, its.not );
         }
         return this;
     }
@@ -49,20 +50,22 @@ export class HotKey {
 
     /**
      * 绑定键映射。
-     * 用于外部用户配置定制覆盖。
-     * @param  {String} key 键序列
-     * @param  {String} cmd 指令标识
-     * @param  {String} when 执行条件（selector）
-     * @return {this}
+     * cmd支持空格分隔的多个指令标识序列。
+     * 注：可用于外部用户配置定制覆盖。
+     * @param  {String} key 键序列（单个）
+     * @param  {String} cmd 指令标识/序列
+     * @param  {String} when 匹配执行选择器，可选
+     * @param  {String} not 匹配不执行选择器，可选
+     * @return {Map} 映射集
      */
-    bind( key, cmd, when ) {
-        this._map.set(
-            key, {
-                cmds: cmd.split(__reSpace),
-                when: when || '',
-            }
-        );
-        return this;
+    bind( key, cmd, when, not ) {
+        let _obj = {
+            commands: cmd.split(__reSpace)
+        };
+        if ( when ) _obj.when = when;
+        if ( not ) _obj.not = not;
+
+        return this._map.set( key, _obj );
     }
 
 
@@ -76,7 +79,7 @@ export class HotKey {
      */
     iscmd( cmd, key, target ) {
         let _cmdx = this._map.get( key );
-        return this._when(_cmdx, target) && _cmdx.cmds.includes(cmd);
+        return this._match(_cmdx, target) && _cmdx.commands.includes(cmd);
     }
 
 
@@ -85,14 +88,15 @@ export class HotKey {
      * 注：会取消浏览器默认行为。
      * @param  {String} key 键序列
      * @param  {Event} ev 事件对象
+     * @param  {Value} extra 附加数据，可选
      * @return {void}
      */
-    fire( key, ev ) {
+    fire( key, ev, extra = null ) {
         let _cmdx = this._map.get(key);
 
-        if ( this._when(_cmdx, ev.target) ) {
-            for (const cmd of _cmdx.cmds) {
-                $.trigger( ev.target, cmd, ev.detail, true );
+        if ( this._match(_cmdx, ev.target) ) {
+            for (const cmd of _cmdx.commands) {
+                $.trigger( ev.target, cmd, extra, true, true );
             }
             ev.preventDefault();
         }
@@ -105,12 +109,19 @@ export class HotKey {
     /**
      * 元素匹配测试。
      * 如果没有when设置则为无条件匹配。
-     * @param  {Object2}} cmdx 配置值 {when, cmds}
+     * @param  {Object2}} cmdx 配置值 {commands, when, not}
      * @param  {Element} target 目标元素
      * @return {Boolean}
      */
-    _when( cmdx, target ) {
-        return cmdx && ( !cmdx.when || $.is(target, cmdx.when) );
-    }
+    _match( cmdx, target ) {
+        if ( !cmdx ) return false;
 
+        if ( cmdx.not ) {
+            return !$.is( target, cmdx.not );
+        }
+        if ( cmdx.when ) {
+            return $.is( target, cmdx.when );
+        }
+        return true;
+    }
 }

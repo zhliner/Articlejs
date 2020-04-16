@@ -91,7 +91,9 @@
             <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内容区 -->
-        <main id="content" class="content"></main>
+        <main id="content" class="content">
+            <p contenteditable>这里是一些测试文本，包含内联的<em>子元素和深层嵌套的<strong>孙级元素</strong>。。。</em></p>
+        </main>
     </div>
     <!-- 元素路径 -->
     <div id="g-path" class="_path" data-pb="">
@@ -152,7 +154,7 @@
             <b title="扩展指令...">!</b>
         </span>
         <!-- data-v: CSS辅助 -->
-        <code data-v="/"
+        <code id="g-cmdx" data-v="/"
             on="click|$('1/span') lose(0);
                 sets|ev('detail') dup;
                 done|$('1/span') lose(1)"

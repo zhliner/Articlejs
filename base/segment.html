@@ -30,14 +30,15 @@
     <script type="module" async>
         import Tpb from "./tpb/tpb.js";
         import { Hotkey, Web } from "./tpb/config.js";
-        import list from "./shortcuts.js";
+        import cfg from "./shortcuts.js";
+
+        Hotkey.init( cfg.Bound );
 
         Tpb.Build( document.body, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
         window.Tpb = Tpb;
-        window.HK = Hotkey.init( list );
     </script>
 </head>
 
