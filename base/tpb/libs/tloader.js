@@ -38,7 +38,9 @@ export class Loader {
         // URL请求根
         this._base = base;
 
-        // 已载入存储 {file: Promise}
+        // 已载入暂存。
+        // 避免短时间内的重复请求。
+        // {file: Promise}
         this._pool = new Map();
     }
 
@@ -113,9 +115,9 @@ export class Loader {
 
 
     /**
-     * 清空数据池。
-     * 此数据池主要用于避免短时间内的重复请求，
-     * 如果数据已经完全获取，可以清空此缓存以节约内存。
+     * 清空文件承诺池。
+     * 此承诺池主要为避免短时间内的重复请求，
+     * 如果数据已经完全获取，可以清空以节省内存。
      */
     clear() {
         this._pool.clear();

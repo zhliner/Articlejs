@@ -1609,7 +1609,7 @@ Object.assign( tQuery, {
      * 特性获取/设置（增强版）。
      * names: String
      * - "xx"       普通名称
-     * - "aa bb"    名称序列，空格分隔（依然支持data-系简写）
+     * - "aa -val"  名称序列，空格分隔（依然支持data-系简写）
      * - "text"     （同上）
      * - "html"     （同上）
      *

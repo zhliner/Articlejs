@@ -46,17 +46,21 @@
 
 <!-- 样式 -->
 <form class="Style" onsubmit="return false" tpl-name="slave:style">
-    <div class="_icons">
-        <b><i id="b-erase"></i></b>
-        <b><i id="b-brush"></i></b>
-        <b class="_press"><i id="b-fontview"></i></b>
-        <b><i id="b-fontsize"></i></b>
-        <b><i id="b-align"></i></b>
-        <b><i id="b-width"></i></b>
-        <b><i id="b-margin"></i></b>
-        <b><i id="b-colors"></i></b>
+    <div class="_icons"
+        on="click(b)|evo(2) attr('-tpl') pop tpl;
+            click(b)|$$('/b')"
+        to="1/._body|replace;
+            #|only('_press')">
+        <b on="click|stop"><i id="b-erase"></i></b>
+        <b on="click|stop"><i id="b-brush"></i></b>
+        <b data-tpl="style:fontview" class="_press"><i id="b-fontview"></i></b>
+        <b data-tpl="style:fontsize"><i id="b-fontsize"></i></b>
+        <b data-tpl="style:align"><i id="b-align"></i></b>
+        <b data-tpl="style:width"><i id="b-width"></i></b>
+        <b data-tpl="style:margin"><i id="b-margin"></i></b>
+        <b data-tpl="style:color"><i id="b-colors"></i></b>
     </div>
-    <div tpl-source="style:fontview"> [字形] </div>
+    <div class="_body" tpl-source="style:fontview"> [字形] </div>
 </form>
 
 

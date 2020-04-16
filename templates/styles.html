@@ -191,7 +191,13 @@
 
 <!-- 颜色 -->
 <div class="_body _color" tpl-name="style:color">
-    <div class="_cbox">
+    <div class="_cbox"
+        on="mouseenter(b)|evo(2) css('background-color');
+            mouseleave|$('#color-info') text;
+            click(b)|evo(2) css('background-color') rgb16"
+        to="#color-show|%backgroundColor;
+            #color-show|%backgroundColor;
+            #g-color|val trigger('change')">
         <span class="_g16">
             <b style="background-color:#000" title="#000"></b>
             <b style="background-color:#111" title="#111"></b>
@@ -242,8 +248,14 @@
             </div>
         </div>
         <div class="_custom">
-            <span id="color-info" class="_tips">rgb(72, 207, 117)</span>
-            <label id="color-value" class="_pick"><input type="color" /></label>
+            <span id="color-info" class="_tips">#000000</span>
+            <label id="color-show" class="_pick" style="background-color: #000;">
+                <input id="g-color" name="color" type="color"
+                    on="change|evo(3) val caseUpper;
+                        change|evo(3) val"
+                    to="2/span|$text;
+                        2/label|%backgroundColor" />
+            </label>
         </div>
     </aside>
     <hr tpl-node="common:submit" />

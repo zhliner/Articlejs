@@ -23,12 +23,15 @@ const
 export class HotKey {
 
     constructor() {
+        //
         // key: evn-keys 快捷键序列
         // val: {
         //      commands: [command],
-        //      when: {Selector} 目标匹配选择器，可选
-        //      not:  {Selector} 反向目标匹配选择器（优先级比when高），可选
+        //      when:     {Selector} 匹配选择器，可选
+        //      not:      {Selector} 不匹配选择器（!$.is(...)），可选
         // }
+        // 注：when和not是And的关系，组合使用可获得精确的限定。
+        //
         this._map = new Map();
     }
 
@@ -56,16 +59,17 @@ export class HotKey {
      * @param  {String} cmd 指令标识/序列
      * @param  {String} when 匹配执行选择器，可选
      * @param  {String} not 匹配不执行选择器，可选
-     * @return {Map} 映射集
+     * @return {this}
      */
     bind( key, cmd, when, not ) {
-        let _obj = {
-            commands: cmd.split(__reSpace)
-        };
-        if ( when ) _obj.when = when;
-        if ( not ) _obj.not = not;
-
-        return this._map.set( key, _obj );
+        this._map.set(
+            key,
+            {
+                commands: cmd.split(__reSpace),
+                match: this._handle(when, not)
+            }
+        );
+        return this;
     }
 
 
@@ -109,19 +113,33 @@ export class HotKey {
     /**
      * 元素匹配测试。
      * 如果没有when设置则为无条件匹配。
-     * @param  {Object2}} cmdx 配置值 {commands, when, not}
+     * @param  {Object2}} cmdx 配置对象 {commands, match}
      * @param  {Element} target 目标元素
      * @return {Boolean}
      */
     _match( cmdx, target ) {
-        if ( !cmdx ) return false;
+        return cmdx && ( !cmdx.match || cmdx.match(target) )
+    }
 
-        if ( cmdx.not ) {
-            return !$.is( target, cmdx.not );
+
+    /**
+     * 构造匹配测试函数。
+     * 无匹配条件时返回null。
+     * @param  {String} when 匹配选择器
+     * @param  {String} not 不匹配选择器
+     * @param  {Array} buf 存储集
+     * @return {Function|null}
+     */
+    _handle( when, not, buf = [] ) {
+        if ( when ) {
+            buf.push( el => $.is(el, when) );
         }
-        if ( cmdx.when ) {
-            return $.is( target, cmdx.when );
+        if ( not ) {
+            buf.push( el => !$.is(el, not) );
         }
-        return true;
+        if ( buf.length == 2 ) {
+            return el => buf.every( f => f(el) );
+        }
+        return buf.length ? buf[0] : null;
     }
 }

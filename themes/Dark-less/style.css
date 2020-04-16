@@ -248,6 +248,7 @@ aside#help {
 .___Panel ._submit > button {
     background-color: #1b839c;
     color: #fff;
+    white-space: nowrap;
 }
 .___Panel ._submit button:hover {
     background-color: #1a697c;
@@ -859,8 +860,8 @@ aside#help {
 }
 .Style ._color ._submit {
     margin-left: 12px;
-    /* 覆盖共享值 */
-    /* display: block; */
+    /* 避免flex拉伸 */
+    display: block;
 }
 .Style ._color > aside {
     min-width: 132px;
@@ -869,7 +870,7 @@ aside#help {
     border-radius: 5px;
 }
 .Style ._color ._assign {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 .Style ._color ._aim {
     display: flex;
@@ -883,10 +884,9 @@ aside#help {
     max-height: 140px;
 }
 .Style ._color ._tips {
-    color: #aaa;
-    font-size: 8pt;
+    color: #888;
+    font-size: 9pt;
     text-align: center;
-    margin-bottom: 2px;
 }
 .Style ._color ._pick {
     flex: 1 1 auto;

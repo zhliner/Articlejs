@@ -42,7 +42,10 @@ const
 
     // 至少2个空白。
     // 注：clean专用。
-    __reSpace2n = /\s\s+/g;
+    __reSpace2n = /\s\s+/g,
+
+    // 颜色值：rgb(0, 0, 0)
+    __rgbDecimal = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/;
 
 
 
@@ -1183,6 +1186,47 @@ const _Process = {
     __split: 1,
 
 
+    /**
+     * 转为大写。
+     * 目标：暂存区/栈顶1项。
+     * @data: String|[String]
+     * @param  {Boolean|1} n 首字母大写，可选
+     * @return {String|[String]}
+     */
+    caseUpper( evo, n ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map(s => upperCase(s, n)) : upperCase(x, n);
+    },
+
+    __caseUpper: 1,
+
+
+    /**
+     * 转为全小写。
+     * 目标：暂存区/栈顶1项。
+     * @data: String|[String]
+     * @return {String|[String]}
+     */
+    caseLower( evo ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map(s => s.toLowerCase()) : x.toLowerCase();
+    },
+
+    __caseLower: 1,
+
+
+    /**
+     * RGB 16进制颜色值转换。
+     * rgb(n, n, n) => #rrggbb。
+     */
+    rgb16( evo ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map(v => rgb16Val(v)) : rgb16Val(x);
+    },
+
+    __rgb16: 1,
+
+
 
     // 增强运算
     //-----------------------------------------------------
@@ -1436,6 +1480,41 @@ function arrayDeeps( arrs, deep ) {
 function lastCell( cell, n ) {
     while ( n-- && cell ) cell = cell.next;
     return cell;
+}
+
+
+/**
+ * 字符串大写。
+ * @param  {String} str 字符串
+ * @param  {Boolean|1} first 仅首字母
+ * @return {String}
+ */
+function upperCase( str, first ) {
+    return first ?
+        str.replace( /^[a-z]/g, c => c.toUpperCase() ) :
+        str.toUpperCase();
+}
+
+
+/**
+ * 获取RGB 16进制值。
+ * rgb(n, n, n) => #rrggbb。
+ * @param {String} val 颜色值
+ */
+function rgb16Val( val ) {
+    return '#' +
+        val.match(__rgbDecimal).slice(1, 4).map(n => num16str2(+n)).join('');
+}
+
+
+/**
+ * 转为16进制字符串。
+ * 注：两位字符，不足2位前置0。
+ * @param  {Number} n 数值
+ * @return {String}
+ */
+function num16str2( n ) {
+    return n < 16 ? `0${n.toString(16)}` : n.toString(16);
 }
 
 

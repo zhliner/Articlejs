@@ -52,9 +52,9 @@ class Templater {
         // { String: Element }
         this._tpls = new Map();
 
-        // 子模版承诺存储（同步点）
+        // 子模版承诺临时存储
         // {root: Promise}
-        this._pool = new WeakMap();
+        this._pool = new Map();
     }
 
 
@@ -150,6 +150,16 @@ class Templater {
             tpl,
             $.clone( tpl, true, true, true )
         );
+    }
+
+
+    /**
+     * 清空缓存池。
+     * 在一个模板系（关联子模版）载入完毕之后使用。
+     * 注：仅用于手动回收内存。
+     */
+    clear() {
+        this._pool.clear();
     }
 
 
