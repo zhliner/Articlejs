@@ -1498,8 +1498,10 @@ function upperCase( str, first ) {
 
 /**
  * 获取RGB 16进制值。
+ * 主要用于设置颜色控件（input:color）的有效值。
  * rgb(n, n, n) => #rrggbb。
- * @param {String} val 颜色值
+ * @param  {String} val 颜色值
+ * @return {String}
  */
 function rgb16Val( val ) {
     return '#' +
