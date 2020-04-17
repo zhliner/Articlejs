@@ -137,7 +137,7 @@ export class HotKey {
         if ( not ) {
             buf.push( el => !$.is(el, not) );
         }
-        if ( buf.length == 2 ) {
+        if ( buf.length > 1 ) {
             return el => buf.every( f => f(el) );
         }
         return buf.length ? buf[0] : null;

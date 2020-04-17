@@ -65,7 +65,7 @@ evo( name:String|Number ): Value
 //      6|'data'      evo.data （指令当前流程数据）
 //      7|'entry',    evo.entry （中段入口，迭代重入）
 //      8|'updated'   evo.updated （To更新目标）
-//      9|'origin'    evo.origin （To检索结果，初始更新目标）
+//      9|'primary'   evo.primary （To检索结果，初始更新目标）
 // }
 
 ev( name?:String ): Value|[Value]

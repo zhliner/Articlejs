@@ -1244,7 +1244,7 @@ function query( evo, slr, one, flr ) {
     if ( _beg === undefined ) {
         _beg = evo.delegate;
     }
-    evo.updated = evo.origin = query2(evo, slr, _beg, one, flr);
+    evo.updated = evo.primary = query2(evo, slr, _beg, one, flr);
 }
 
 

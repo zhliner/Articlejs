@@ -332,7 +332,7 @@ target( n )
 swap()
 // 交换流程数据和目标。
 
-fire( rid, name, bubble, cancelable )
+fire( rid, name, delay, bubble, cancelable )
 // 延迟激发事件。
 
 goto( name, extra )

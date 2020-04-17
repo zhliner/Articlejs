@@ -506,7 +506,7 @@ const _NextStage = {
      * 可用于后续方法持续使用原始检索目标。
      */
     swap( evo ) {
-        [evo.updated, evo.origin] = [evo.origin, evo.updated];
+        [evo.updated, evo.primary] = [evo.primary, evo.updated];
     },
 
     __swap: null,
@@ -517,14 +517,14 @@ const _NextStage = {
      * 内容：暂存区1项可选。
      * 如果暂存区有值，则赋值为更新目标（updated）。
      * 取两个目标之一入栈：
-     * - 0  原始To目标（evo.origin）
+     * - 0  原始To目标（evo.primary）
      * - 1  更新To目标（evo.updated）
      * @param  {Number} n 目标标识
      * @return {Element|Collector|void}
      */
     target( evo, n ) {
         if ( n === 0 ) {
-            return evo.origin;
+            return evo.primary;
         }
         if ( n === 1 ) {
             return evo.updated;
@@ -540,19 +540,20 @@ const _NextStage = {
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
      * rid可传递一个null或空串，表示目标沿用To更新目标。
-     *
+     * 默认延迟，可设置具体的时间或0值（不延迟）。
      * @param {String} rid 目标元素选择器（单个）
      * @param {String} name 事件名
-     * @param {Boolean} bubble 是否冒泡，可选
-     * @param {Boolean} cancelable 是否可取消，可选
+     * @param {Number} delay 延迟时间（毫秒），可选
+     * @param {Boolean} bubble 是否冒泡，可选。默认不冒泡
+     * @param {Boolean} cancelable 是否可取消，可选。默认可取消
      */
-    fire( evo, rid, name, bubble, cancelable ) {
+    fire( evo, rid, name, delay = 1, bubble = false, cancelable = true ) {
         let _to = evo.updated;
 
         if ( rid ) {
             _to = Util.find( rid, evo.delegate, true );
         }
-        Util.fireEvent( $(_to), name, 1, evo.data, bubble, cancelable );
+        Util.fireEvent( $(_to), name, delay, evo.data, bubble, cancelable );
     },
 
     __fire: -1,
