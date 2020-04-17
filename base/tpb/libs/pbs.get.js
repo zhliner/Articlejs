@@ -477,21 +477,19 @@ const _Gets = {
     /**
      * 获取模板节点。
      * 目标：暂存区1项可选。
-     * 如果目标有值，取目标为名称（忽略模板实参）。
+     * 如果目标有值，取目标为模板名，此时name充当clone的作用。
      * 注意克隆时是每次都克隆（应当很少使用）。
      * 返回Promise实例，注意调用顺序（应当在avoid等之后）。
      * 例：
      * 1. tpl('abc')  // 模板名为'abc'，clone未定义（假）
-     * 2. push('xyz') pop tpl(null, true)  // 模板名为xyz，clone为真
-     * 注记：
-     * 支持暂存区1项可选是对name的友好，此时clone可以直接传值，
-     * @param  {String} name 模板名
+     * 2. push('xyz') pop tpl(true)  // 模板名为xyz，clone为真
+     * @param  {String|Boolean} name 模板名或克隆指示
      * @param  {Boolean} clone 是否克隆，可选
      * @return {Promise}
      */
     tpl( evo, name, clone ) {
         if ( evo.data !== undefined ) {
-            name = evo.data;
+            [name, clone] = [evo.data, name];
         }
         return Templater[clone ? 'get' : 'tpl'](name);
     },

@@ -468,8 +468,7 @@
 <!-- 主栏：单元属性 -->
 <div class="_body _inline" tpl-name="minied:inlines">
     <div class="_main _list">
-        <!-- <table> -->
-        <span tpl-source="inlines:img">[初始：图片]</span>
+        <ul class="_prop" tpl-source="inlines:img">[初始：图片]</ul>
     </div>
     <aside>
         <div class="_submit">
@@ -537,139 +536,139 @@
 
 <!-- 内联元素：属性清单 -->
 
-<table tpl-name="inlines:img">
-    <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
-    <tr tpl-node="prop:upload, prop:preview"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:img">
+    <li tpl-node="prop:srcbase, prop:sources, prop:alts"></li>
+    <li tpl-node="prop:upload, prop:preview"></li>
+</ul>
 
-<table tpl-name="inlines:audio">
-    <tr tpl-node="prop:srcbase, prop:sources"></tr>
-    <tr tpl-node="prop:upload, prop:preview"></tr>
-    <tr tpl-node="prop:loop, prop:autoplay"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:audio">
+    <li tpl-node="prop:srcbase, prop:sources"></li>
+    <li tpl-node="prop:upload, prop:preview"></li>
+    <li tpl-node="prop:loop, prop:autoplay"></li>
+</ul>
 
-<table tpl-name="inlines:video">
-    <tr tpl-node="prop:srcbase, prop:sources"></tr>
-    <tr tpl-node="prop:upload, prop:preview"></tr>
-    <tr tpl-node="prop:loop, prop:autoplay, prop:poster"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:video">
+    <li tpl-node="prop:srcbase, prop:sources"></li>
+    <li tpl-node="prop:upload, prop:preview"></li>
+    <li tpl-node="prop:loop, prop:autoplay, prop:poster"></li>
+</ul>
 
-<table tpl-name="inlines:picture">
-    <tr tpl-node="prop:srcbase, prop:sources, prop:alts"></tr>
-    <tr tpl-node="prop:upload, prop:preview"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:picture">
+    <li tpl-node="prop:srcbase, prop:sources, prop:alts"></li>
+    <li tpl-node="prop:upload, prop:preview"></li>
+</ul>
 
-<table tpl-name="inlines:a">
-    <tr tpl-node="prop:textrow"></tr>
-    <tr tpl-node="prop:href"></tr>
-    <tr tpl-node="prop:target"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:a">
+    <li tpl-node="prop:textrow"></li>
+    <li tpl-node="prop:href"></li>
+    <li tpl-node="prop:target"></li>
+</ul>
 
-<table tpl-name="inlines:code">
-    <tr tpl-node="prop:codes"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:code">
+    <li tpl-node="prop:codes"></li>
+</ul>
 
-<table tpl-name="inlines:strong">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:strong">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:em">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:em">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:sub">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:sub">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:sup">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:sup">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:q">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:q">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:times">
-    <tr tpl-source="prop:date, prop:time"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:times">
+    <li tpl-source="prop:date, prop:time"></li>
+</ul>
 
-<table tpl-name="inlines:ins">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:ins">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:del">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:del">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:abbr">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:abbr">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:small">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:small">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:cite">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:cite">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:mark">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:mark">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:ruby">
-    <tr tpl-node="prop:textrow"></tr>
-    <tr tpl-node="prop:rt"></tr>
-    <tr tpl-node="prop:rpleft, prop:rpright"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:ruby">
+    <li tpl-node="prop:textrow"></li>
+    <li tpl-node="prop:rt"></li>
+    <li tpl-node="prop:rp"></li>
+</ul>
 
-<table tpl-name="inlines:orz">
-    <tr tpl-node="prop:codes"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:orz">
+    <li tpl-node="prop:codes"></li>
+</ul>
 
-<table tpl-name="inlines:dfn">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:dfn">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:samp">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:samp">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:kbd">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:kbd">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:meter">
-    <tr tpl-node="prop:max, prop:min"></tr>
-    <tr tpl-node="prop:high, prop:low"></tr>
-    <tr tpl-node="prop:optimum"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:meter">
+    <li tpl-node="prop:max, prop:min"></li>
+    <li tpl-node="prop:high, prop:low"></li>
+    <li tpl-node="prop:optimum"></li>
+</ul>
 
-<table tpl-name="inlines:s">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:s">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:u">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:u">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:var">
-    <tr tpl-node="prop:textrow"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:var">
+    <li tpl-node="prop:textrow"></li>
+</ul>
 
-<table tpl-name="inlines:bdo">
-    <tr tpl-node="prop:textrow"></tr>
-    <tr tpl-node="prop:dir"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:bdo">
+    <li tpl-node="prop:textrow"></li>
+    <li tpl-node="prop:dir"></li>
+</ul>
 
-<table tpl-name="inlines:br">
-    <tr tpl-node="prop:amount"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:br">
+    <li tpl-node="prop:amount"></li>
+</ul>
 
-<table tpl-name="inlines:wbr">
-    <tr tpl-node="prop:amount"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:wbr">
+    <li tpl-node="prop:amount"></li>
+</ul>
 
-<table tpl-name="inlines:blank">
-    <tr tpl-node="prop:amount"></tr>
-</table>
+<ul class="_prop" tpl-name="inlines:blank">
+    <li tpl-node="prop:amount"></li>
+</ul>

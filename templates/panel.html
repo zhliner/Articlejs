@@ -31,9 +31,9 @@
 <form class="Input Minied" onsubmit="return false" tpl-name="slave:minied">
     <div class="_roll">
         <div class="_where"
-            on="click(input)|evo(2) val tpl(_);
-                click(input)|evo(2) attr('-val') tpl(_)"
-            to="1/select|replace|change;
+            on="click(input)|evo(2) val pop tpl;
+                click(input)|evo(2) attr('-val') pop tpl"
+            to="1/select|replace|fire('', 'change');
                 2/._body|replace">
             <label title="内联元素">
                 <input type="radio" name="where" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
@@ -42,7 +42,9 @@
                 <input type="radio" name="where" value="item:ctypes" data-val="minied:chars" /><i id="l-schar"></i>
             </label>
         </div>
-        <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
+        <select name="inlines" size="5" class="_list" tpl-name="item:inlines"
+            on="change|evo(3) val str('inlines:') pop tpl"
+            to="2/._prop|replace">
             <!-- tpl: inlines:[value] -->
             <option title="<img>" value="img">图片</option>
             <option title="<audio>" value="audio">音频</option>

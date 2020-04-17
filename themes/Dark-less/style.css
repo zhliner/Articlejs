@@ -95,7 +95,6 @@ aside#help {
 }
 .___Panel select {
     flex: 1 1 auto;
-    border: 1px #93c8e2 solid;
     padding: 3px;
     border-radius: 3px 1px 1px 3px;
     outline: none;
@@ -152,10 +151,6 @@ aside#help {
     box-sizing: border-box;
     outline: none;
 }
-.___Panel td > textarea {
-    width: 100%;
-    height: 100%;
-}
 .___Panel textarea::placeholder {
     color: #aaa;
     font-style: italic;
@@ -192,31 +187,50 @@ aside#help {
 /* [ 共享 ]
  ****************************************************************************/
 
-.___Panel select._list {
-    padding: 6px 1px 6px 6px;
-}
-.___Panel div._list {
-    border: 1px #7dbcdb solid;
+.___Panel ._list {
+    border: 1px #93c8e2 solid;
     border-radius: 5px 1px 1px 5px;
     background-color: #fff;
     overflow-y: auto;
 }
+.___Panel select._list {
+    padding: 6px 1px 6px 6px;
+}
 
 /* 属性表 */
-.___Panel div._list > table {
-    border-spacing: 10px;
-    margin: 5px auto;
-    width: 96%;
+.___Panel ul._prop {
+    display: grid;
+    grid-template-columns: 80px auto;
+    gap: 8px;
+    margin: 14px;
 }
-.___Panel div._list th {
-    text-align: right;
-    min-width: 64px;
+.___Panel ul._prop li {
+    display: contents;
+    white-space: nowrap;
 }
-.___Panel div._list td._preview {
+.___Panel ul._prop li > b {
+    font-weight: bold;
+    justify-self: flex-end;
+}
+.___Panel ul._prop span._preview {
     height: 120px;
     padding: 5px;
     border: 1px #888 solid;
     background-color: #999;
+}
+.___Panel div._prop {
+    display: flex;
+    margin: 12px;
+    height: 100%;
+}
+.___Panel ._prop small {
+    color: #aaa;
+    margin-left: 6px;
+    font-style: italic;
+}
+.___Panel ._prop ._phrase {
+    width: 75%;
+    min-width: 120px;
 }
 
 .___Panel input._char {
@@ -725,7 +739,7 @@ aside#help {
     border-radius: 3px;
     box-shadow: 0 0 1px 1px #ccc;
 }
-.Input ._inline b:hover {
+.Input ._inline span > b:hover {
     background-color: #ddd;
 }
 .Input ._inline ._zoomin {
@@ -1183,21 +1197,21 @@ aside#help {
 .Modal ._submit > button {
     margin: auto 10px;
 }
-.Modal ._page {
+.Modal form._page {
     flex-grow: 1;
     margin: 30px;
 }
-.Modal ._prop {
+.Modal form._prop {
     width: 600px;
     height: 450px;
 }
 .Modal p._note {
     color: #b60;
 }
-.Modal ._small input {
+.Modal form._small input {
     min-width: 350px;
 }
-.Modal ._message p {
+.Modal form._message p {
     min-width: 200px;
     max-width: 480px;
     max-height: 140px;
