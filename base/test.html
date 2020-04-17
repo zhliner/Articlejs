@@ -18,15 +18,6 @@
         div#editor {
             background-color: #b7f7e7;
         }
-        div#editor ._inline span {
-            display: grid;
-            grid-template-columns: repeat(30, 1fr);
-            text-align: center;
-        }
-        div#editor ._inline span > b {
-            background-color: #f7f7f7;
-            margin: 1px;
-        }
         aside#outline {
             width: 200px;
         }
@@ -87,7 +78,7 @@
         panel.plugins;
         cmdline.active|evo(1) ev('detail');
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
-        ^finish|(KM.slaveSize)"
+        ^finish|(KM.slaveSize) debug(false)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');

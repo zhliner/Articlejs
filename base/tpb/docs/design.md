@@ -96,8 +96,8 @@ evo: {
     data: {Value|[Value]|undefined} // 指令当前流程数据（自动从暂存区或数据栈获取）
 
     entry: {Function}               // 迭代入口函数，由entry指令创建。其它指令内部也可直接调用：evo.entry(...)
+    primary: {Element|Collector}    // To：初始检索结果，不被更新时与 To:updated 相同
     updated: {Element|Collector}    // To：更新目标（集），会被返回非假值方法的结果覆写
-    primary: {Element|Collector}    // To：初始检索结果，不被更新的话与 To:updated 相同
 }
 ```
 

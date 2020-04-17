@@ -29,8 +29,8 @@ const
         4: 'selector',  // 委托匹配选择器（for match）]
         6: 'data',      // 自动获取的流程数据
         7: 'entry',     // 中段入口（迭代重入）
-        8: 'updated',   // To更新目标/集
-        9: 'primary',   // To检索结果（初始更新目标）
+        8: 'primary',   // To检索结果
+        9: 'updated',   // To更新目标/集（动态变化）
     },
 
     // 修饰键属性名。
@@ -933,7 +933,7 @@ const _Gets = {
     'scrollTop',    // (): Number
     'scrollLeft',   // (): Number
     'offset',       // (): {top, left}
-    'val',          // (): Value | [Value]
+    'val',          // (): Value | [Value] // 注意控件需要有name特性
     'html',         // (): String   // 目标可为字符串（源码转换）
     'text',         // (): String   // 同上
     'classAll',     // (): [String]

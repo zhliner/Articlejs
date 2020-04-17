@@ -81,9 +81,8 @@ const _Control = {
     /**
      * 流程结束。
      * 目标：暂存区/栈顶1项。
-     * 检查目标值是否为真（true）或是否与val相等（===），
-     * 结果为true会结束执行流。
-     * 注：与pass逻辑相反，但用严格真值（true）判断。
+     * 检查目标值是否为真（非假）或是否与val相等（===），
+     * 结果为真会结束执行流。
      * @param  {Value} val 对比值，可选
      * @return {void|reject}
      */
@@ -93,7 +92,7 @@ const _Control = {
         if ( val !== undefined ) {
             _v = val === _v;
         }
-        if ( _v === true ) return Promise.reject();
+        if ( _v ) return Promise.reject();
     },
 
     __end: 1,

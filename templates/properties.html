@@ -99,7 +99,7 @@
 </tr>
 
 <tr tpl-name="prop:srcbase">
-    <th title="相对于网站根目录">根路径</th>
+    <th title="相对于网站根">根路径</th>
     <!-- 依配置自动设置 -->
     <td><input type="text" name="srcbase" placeholder="/upload" /></td>
 </tr>
@@ -137,7 +137,7 @@
 <tr class="_upload" tpl-name="prop:upload">
     <th>上传</th>
     <td><input type="file" name="upload" value=""
-            @on="change|evo(1) val"
+            @on="change|evo(3) val"
             @by="x.Fun.upload(null)" />
     </td>
 </tr>
@@ -235,4 +235,9 @@
         <label><input type="radio" name="dir" value="ltr" title="ltr">从左到右</label>
         <label><input type="radio" name="dir" value="rtl" title="rtl">从右到左</label>
     </td>
+</tr>
+
+<tr tpl-name="prop:amount">
+    <th>数量</th>
+    <td><input type="text" name="amount" class="_nums"></td>
 </tr>

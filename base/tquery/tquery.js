@@ -6180,9 +6180,9 @@ const valHooks = {
         // 返回选中项的值，仅一项。
         get: function( el ) {
             let _res = el.form[el.name];
-            // 检查name，预防作弊
-            return _res && el.name &&
-                this._get( _res.nodeType ? [_res] : _res );
+            // form[undefined]有效，
+            // 因此需对name再确认。
+            return _res && el.name && this._get( _res.nodeType ? [_res] : _res );
         },
 
         _get: els => {
