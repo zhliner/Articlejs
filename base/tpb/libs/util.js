@@ -1,5 +1,5 @@
-//! $Id: util.js 2019.08.18 Tpb.Kits $
-// ++++++++++++++++++++++++++++++++++++
+//! $Id: util.js 2019.08.18 Tpb.Base $
+// +++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -493,5 +493,5 @@ function pboAttr( opts, attr ) {
 }
 
 
-
+// 导出。
 export { Util };
