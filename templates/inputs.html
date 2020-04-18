@@ -467,8 +467,12 @@
 
 <!-- 主栏：单元属性 -->
 <div class="_body _inline" tpl-name="minied:inlines">
-    <div class="_main _list">
-        <ul class="_prop" tpl-source="inlines:img">[初始：图片]</ul>
+    <div class="_main _list"
+        on="focus([type=text],textarea)|evo(2);
+            active|stop $('/._prop') pop data('focus') pop"
+        to="/._prop|data('focus');
+            ||focus">
+        <ul class="_prop" tpl-source="inlines:img">[图片]</ul>
     </div>
     <aside>
         <div class="_submit">

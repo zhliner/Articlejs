@@ -33,7 +33,7 @@
         <div class="_where"
             on="click(input)|evo(2) val pop tpl;
                 click(input)|evo(2) attr('-val') pop tpl"
-            to="1/select|replace|fire('', 'change');
+            to="1/select|replace;
                 2/._body|replace">
             <label title="内联元素">
                 <input type="radio" name="where" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
@@ -44,9 +44,9 @@
         </div>
         <select name="inlines" size="5" class="_list" tpl-name="item:inlines"
             on="change|evo(3) val str('inlines:') pop tpl"
-            to="2/._prop|replace">
+            to="2/._prop|replace trigger('active', true)">
             <!-- tpl: inlines:[value] -->
-            <option title="<img>" value="img">图片</option>
+            <option title="<img>" value="img" selected>图片</option>
             <option title="<audio>" value="audio">音频</option>
             <option title="<video>" value="video">视频</option>
             <option title="<picture>" value="picture">兼容图片</option>

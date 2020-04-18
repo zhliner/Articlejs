@@ -60,7 +60,7 @@ const
 
 // 几个出错中断提示信息。
 const
-    dataUnfound = 'err:data-store is undefined.',
+    dataUnfound = 'data-store is undefined.',
     chainUnfound = 'err:pre-store chain is unfound.',
     chainUnfound2 = 'err:chain-store is undefined or chain unfound.';
 
@@ -584,16 +584,16 @@ const _Gets = {
      * 如chains主要用于转储，所以保留键信息。
      * @data: Element
      * @param  {String} name 名称/序列
-     * @return {Value|[Value]|reject}
+     * @return {Value|[Value]|null}
      */
     data( evo, name ) {
         let _el = evo.data === undefined ? evo.delegate : evo.data,
             _m = DataStore.get(_el);
 
         if ( DEBUG && !_m ) {
-            window.console.info('key:', _el);
+            window.console.warn('key:', _el, dataUnfound);
         }
-        return _m ? getData(_m, name) : Promise.reject(dataUnfound);
+        return _m ? getData(_m, name) : Promise.reject();
     },
 
     __data: -1,
@@ -1244,6 +1244,13 @@ const __uiState = [ '-', '', '^' ];
     _Gets[`__${meth}`] = 1;
 
 });
+
+
+//
+// 自我状态。
+// 目标：暂存区/栈顶1项。
+// 注记：To:NextStage的事件部分移入此处。
+//===============================================
 
 
 

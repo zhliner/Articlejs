@@ -502,17 +502,6 @@ const _Update = {
 
 const _NextStage = {
     /**
-     * 交换To目标两个成员。
-     * 可用于后续方法持续使用原始检索目标。
-     */
-    swap( evo ) {
-        [evo.updated, evo.primary] = [evo.primary, evo.updated];
-    },
-
-    __swap: null,
-
-
-    /**
      * To目标更新或取值入栈。
      * 内容：暂存区1项可选。
      * 如果暂存区有值，则赋值为更新目标（updated）。
@@ -560,6 +549,26 @@ const _NextStage = {
 
 
     /**
+     * 执行跳转。
+     * 跳转到目标事件绑定的调用链。
+     * 内容：暂存区1项可选。
+     * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
+     * 仅限于当前绑定/委托元素上绑定的事件。
+     * @param {String}} name 事件名
+     * @param {Value} extra 附加数据，可选
+     */
+    goto( evo, name, extra ) {
+        if ( evo.data === undefined || evo.data ) {
+            $.trigger( evo.delegate, name, extra, false );
+        }
+    },
+
+    __goto: -1,
+
+
+
+
+    /**
      * 表单控件默认值改变通知。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
@@ -583,24 +592,6 @@ const _NextStage = {
     },
 
     __changes: -1,
-
-
-    /**
-     * 执行跳转。
-     * 跳转到目标事件绑定的调用链。
-     * 内容：暂存区1项可选。
-     * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
-     * 仅限于当前绑定/委托元素上绑定的事件。
-     * @param {String}} name 事件名
-     * @param {Value} extra 附加数据，可选
-     */
-    goto( evo, name, extra ) {
-        if ( evo.data === undefined || evo.data ) {
-            $.trigger( evo.delegate, name, extra, false );
-        }
-    },
-
-    __goto: -1,
 
 
     /**
@@ -630,7 +621,7 @@ const _NextStage = {
      * 参考.select(), .focus()用途。
      */
     clear( evo ) {
-        target( evo ).val( null );
+        target(evo).val( null );
     },
 
     __clear: -1,
