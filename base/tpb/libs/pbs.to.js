@@ -502,6 +502,17 @@ const _Update = {
 
 const _NextStage = {
     /**
+     * 交换To目标两个成员。
+     * 可用于后续方法持续使用原始检索目标。
+     */
+    swap( evo ) {
+        [evo.updated, evo.primary] = [evo.primary, evo.updated];
+    },
+
+    __swap: null,
+
+
+    /**
      * To目标更新或取值入栈。
      * 内容：暂存区1项可选。
      * 如果暂存区有值，则赋值为更新目标（updated）。
@@ -533,10 +544,10 @@ const _NextStage = {
      * @param {String} rid 目标元素选择器（单个）
      * @param {String} name 事件名
      * @param {Number} delay 延迟时间（毫秒），可选
-     * @param {Boolean} bubble 是否冒泡，可选。默认不冒泡
+     * @param {Boolean} bubble 是否冒泡，可选。默认冒泡
      * @param {Boolean} cancelable 是否可取消，可选。默认可取消
      */
-    fire( evo, rid, name, delay = 1, bubble = false, cancelable = true ) {
+    fire( evo, rid, name, delay = 1, bubble = true, cancelable = true ) {
         let _to = evo.updated;
 
         if ( rid ) {
@@ -564,8 +575,6 @@ const _NextStage = {
     },
 
     __goto: -1,
-
-
 
 
     /**
