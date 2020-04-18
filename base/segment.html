@@ -29,12 +29,9 @@
 
     <script type="module" async>
         import Tpb from "./tpb/tpb.js";
-        import { Hotkey, Web } from "./tpb/config.js";
-        import cfg from "./shortcuts.js";
+        import { Web } from "./tpb/config.js";
 
-        Hotkey.init( cfg.Bound );
-
-        Tpb.Build( document.body, Web.tplmap )
+        Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug

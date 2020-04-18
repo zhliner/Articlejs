@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Spliter, UmpString } from "./spliter.js";
+import { Spliter, UmpString } from "../tools/spliter.js";
 
 
 const

@@ -19,7 +19,7 @@
 //
 
 import { Util } from "./util.js";
-import { Spliter, UmpString, UmpCaller, UmpChars } from "./spliter.js";
+import { Spliter, UmpString, UmpCaller, UmpChars } from "../tools/spliter.js";
 import { ACCESS, EXTENT, PREVCELL, DEBUG, method } from "../config.js";
 
 

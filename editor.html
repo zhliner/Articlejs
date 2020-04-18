@@ -43,14 +43,17 @@
     <script type="module" async>
         import Api from "./base/api.js";
         import Tpb from "./base/tpb/tpb.js";
-        import { Hotkey, Web } from "./base/tpb/config.js";
+        import { Web } from "./base/tpb/config.js";
+        import HotKey from './base/tpb/tools/hotkey.js';
         import cfg from "./base/shortcuts.js";
 
         window.Api = Api.init({
             outline, editor, help, beeptip
         });
-        Hotkey.init( cfg.Bound );
-        window.KM = cfg.maps;
+        window.KM = cfg.Keys;
+        window.GHK = new HotKey().init( cfg.Global );
+        window.EHK = new HotKey().init( cfg.Editor );
+        window.SHK = new HotKey().init( cfg.Slave );
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );

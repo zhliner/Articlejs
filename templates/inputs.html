@@ -536,139 +536,170 @@
 
 <!-- 内联元素：属性清单 -->
 
+<!-- 图片 -->
 <ul class="_prop" tpl-name="inlines:img">
     <li tpl-node="prop:srcbase, prop:sources, prop:alts"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
 </ul>
 
+<!-- 音频 -->
 <ul class="_prop" tpl-name="inlines:audio">
     <li tpl-node="prop:srcbase, prop:sources"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:loop, prop:autoplay"></li>
 </ul>
 
+<!-- 视频 -->
 <ul class="_prop" tpl-name="inlines:video">
     <li tpl-node="prop:srcbase, prop:sources"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:loop, prop:autoplay, prop:poster"></li>
 </ul>
 
+<!-- 兼容图片 -->
 <ul class="_prop" tpl-name="inlines:picture">
     <li tpl-node="prop:srcbase, prop:sources, prop:alts"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
 </ul>
 
+<!-- 链接 -->
 <ul class="_prop" tpl-name="inlines:a">
     <li tpl-node="prop:textrow"></li>
     <li tpl-node="prop:href"></li>
     <li tpl-node="prop:target"></li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:code">
+<!-- 代码 -->
+<div class="_prop" tpl-name="inlines:code">
     <li tpl-node="prop:codes"></li>
-</ul>
+</div>
 
-<ul class="_prop" tpl-name="inlines:strong">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 重点 -->
+<div class="_prop" tpl-name="inlines:strong">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:em">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 强调 -->
+<div class="_prop" tpl-name="inlines:em">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:sub">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 下标 -->
+<div class="_prop" tpl-name="inlines:sub">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:sup">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 上标 -->
+<div class="_prop" tpl-name="inlines:sup">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:q">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 短引用 -->
+<div class="_prop" tpl-name="inlines:q">
+    <hr tpl-node="prop:content" />
+</div>
 
+<!-- 日期/时间 -->
 <ul class="_prop" tpl-name="inlines:times">
     <li tpl-source="prop:date, prop:time"></li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:ins">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 插入性 -->
+<div class="_prop" tpl-name="inlines:ins">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:del">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 已删除 -->
+<div class="_prop" tpl-name="inlines:del">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:abbr">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 缩写 -->
+<div class="_prop" tpl-name="inlines:abbr">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:small">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 注脚 -->
+<div class="_prop" tpl-name="inlines:small">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:cite">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 来源 -->
+<div class="_prop" tpl-name="inlines:cite">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:mark">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 标记 -->
+<div class="_prop" tpl-name="inlines:mark">
+    <hr tpl-node="prop:content" />
+</div>
 
+<!-- 注音单元 -->
 <ul class="_prop" tpl-name="inlines:ruby">
-    <li tpl-node="prop:textrow"></li>
+    <li tpl-node="prop:rb"></li>
     <li tpl-node="prop:rt"></li>
     <li tpl-node="prop:rp"></li>
 </ul>
 
+<!-- 表情 -->
 <ul class="_prop" tpl-name="inlines:orz">
     <li tpl-node="prop:codes"></li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:dfn">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 定义条目 -->
+<div class="_prop" tpl-name="inlines:dfn">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:samp">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 样本 -->
+<div class="_prop" tpl-name="inlines:samp">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:kbd">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 键盘字 -->
+<div class="_prop" tpl-name="inlines:kbd">
+    <hr tpl-node="prop:content" />
+</div>
 
+<!-- 度量标示 -->
 <ul class="_prop" tpl-name="inlines:meter">
     <li tpl-node="prop:max, prop:min"></li>
     <li tpl-node="prop:high, prop:low"></li>
     <li tpl-node="prop:optimum"></li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:s">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 失效 -->
+<div class="_prop" tpl-name="inlines:s">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:u">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 注记 -->
+<div class="_prop" tpl-name="inlines:u">
+    <hr tpl-node="prop:content" />
+</div>
 
-<ul class="_prop" tpl-name="inlines:var">
-    <li tpl-node="prop:textrow"></li>
-</ul>
+<!-- 变量 -->
+<div class="_prop" tpl-name="inlines:var">
+    <hr tpl-node="prop:content" />
+</div>
 
+<!-- 有向文本 -->
 <ul class="_prop" tpl-name="inlines:bdo">
     <li tpl-node="prop:textrow"></li>
     <li tpl-node="prop:dir"></li>
 </ul>
 
+<!-- 换行 -->
 <ul class="_prop" tpl-name="inlines:br">
     <li tpl-node="prop:amount"></li>
 </ul>
 
+<!-- 软换行 -->
 <ul class="_prop" tpl-name="inlines:wbr">
     <li tpl-node="prop:amount"></li>
 </ul>
 
+<!-- 空白段 -->
 <ul class="_prop" tpl-name="inlines:blank">
     <li tpl-node="prop:amount"></li>
 </ul>

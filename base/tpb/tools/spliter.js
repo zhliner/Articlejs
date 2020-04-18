@@ -1,5 +1,5 @@
-//! $Id: spliter.js 2019.08.19 Tpb.Kits $
-// +++++++++++++++++++++++++++++++++++++++
+//! $Id: spliter.js 2019.08.19 Tpb.Tools $
+// +++++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License

@@ -38,8 +38,8 @@ import { bindMethod, method, Web } from "../config.js";
 import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
-// import { Render } from "./render.x.js";
-import { Render } from "./render.js";
+// import { Render } from "../tools/render.x.js";
+import { Render } from "../tools/render.js";
 
 
 const

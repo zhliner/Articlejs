@@ -1,5 +1,5 @@
 //! $Id: config.js 2019.09.28 Tpb.Config $
-// ++++++++++++++++++++++++++++++++++++++++
+// +++++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -11,8 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { HotKey } from "./libs/hotkey.js";
-import { Loader, TplLoader } from "./libs/tloader.js";
+import { Loader, TplLoader } from "./tools/tloader.js";
 
 
 //
@@ -99,9 +98,6 @@ const
     // 与元素关联，便于分组管理，同时支持空事件名通配。
     // { Element: Map{evn:String: Chain} }
     ChainStore = new WeakMap(),
-
-    // 快捷键处理器。
-    Hotkey = new HotKey(),
 
     // 通用载入器。
     XLoader = new Loader( Web.base ),
@@ -209,7 +205,6 @@ export {
     Globals,
     DataStore,
     ChainStore,
-    Hotkey,
     XLoader,
     TLoader,
     storeChain,

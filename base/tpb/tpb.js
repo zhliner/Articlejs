@@ -1,5 +1,5 @@
 //! $Id: tpb.js 2019.08.19 Tpb.Base $
-// +++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -30,9 +30,9 @@ import { Builder } from "./libs/obter.js";
 import { Web, OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader } from "./config.js";
 
 // 无需模板支持。
-// import { Templater } from "./libs/templater.x.js";
+// import { Templater } from "./tools/templater.x.js";
 // 模板功能支持。
-import { Templater } from "./libs/templater.js";
+import { Templater } from "./tools/templater.js";
 
 
 const

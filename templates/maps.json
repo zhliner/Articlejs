@@ -123,6 +123,7 @@
         "prop:poster",
         "prop:preview",
         "prop:rows",
+        "prop:rb",
         "prop:rp",
         "prop:rt",
         "prop:sntype",

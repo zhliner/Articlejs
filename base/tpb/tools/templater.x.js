@@ -1,5 +1,5 @@
-// $Id: templater.x.js 2020.03.10 Tpb.Kits $
-// ++++++++++++++++++++++++++++++++++++++++++
+// $Id: templater.x.js 2020.03.10 Tpb.Tools $
+// ++++++++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License

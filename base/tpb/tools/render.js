@@ -1,5 +1,5 @@
-//! $Id: render.js 2019.09.17 Tpb.Kits $
-// ++++++++++++++++++++++++++++++++++++++
+//! $Id: render.js 2019.09.17 Tpb.Tools $
+// ++++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -23,12 +23,12 @@
 //  注：原地更新支持任意渲染语法，Each列表甚至可以从中间开始。
 //
 //
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //
 
 import { Filter } from "./filter.js";
 import { Spliter, UmpString, UmpCaller } from "./spliter.js";
-import { Util } from "./util.js";
+import { Util } from "../libs/util.js";
 import { HasRender } from "../config.js";
 
 

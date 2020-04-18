@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html on="keydown|acmsk ev('key') hotkey(_)">
+<html on="keydown|(GHK) acmsk ev('key') hotkey(_2)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
@@ -38,30 +38,20 @@
 
     <script type="module" async>
         import Tpb from "./tpb/tpb.js";
-        import { Hotkey, Web } from "./tpb/config.js";
+        import { Web } from "./tpb/config.js";
+        import HotKey from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
 
-        Hotkey.init( cfg.Bound );
-        window.KM = cfg.maps;
+        window.KM = cfg.Keys;
+        window.GHK = new HotKey().init( cfg.Global );
+        window.EHK = new HotKey().init( cfg.Editor );
+        window.SHK = new HotKey().init( cfg.Slave );
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
         window.Tpb = Tpb;
-
-        // Render:data
-        window.rdata = {
-                student: {
-                    name: '王小二',
-                    age: 14,
-                    school: {
-                        name: "xx市第一中学",
-                        class: "初三（1）班",
-                    },
-                },
-                language: `chinese`,
-            };
     </script>
 </head>
 

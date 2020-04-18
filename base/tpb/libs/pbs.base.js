@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals, Hotkey } from "../config.js";
+import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals } from "../config.js";
 
 
 const
@@ -1333,13 +1333,12 @@ const _Process = {
     /**
      * 热键触发。
      * 目标：暂存区/栈顶1项。
-     * 目标为热键序列，用于触发特定的功能。
-     * 依赖：Hotkey实例。
+     * 目标为Hotkey实例。
      * @param  {Value} extra 发送数据
-     * @return {void}
+     * @return {Boolean} 是否已捕获激发
      */
-    hotkey( evo, extra ) {
-        Hotkey.fire( evo.data, evo.event, extra );
+    hotkey( evo, key, extra ) {
+        return evo.data.fire( key, evo.event, extra );
     },
 
     __hotkey: 1,
