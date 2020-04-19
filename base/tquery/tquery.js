@@ -113,9 +113,9 @@
 
         // 单一目标。
         // slr: 包含前置#字符。
-        // @param  {Element|Document} ctx 上下文
+        // @param  {Document|DocumentFragment} ctx 上下文文档
         // @return {Element|null}
-        $id = ( slr, ctx ) => (ctx.ownerDocument || ctx).getElementById( slr.substring(1) ),
+        $id = ( slr, ctx ) => ctx.getElementById( slr.substring(1) ),
 
         // 简单选择器。
         // @return {HtmlCollection}
@@ -138,7 +138,8 @@
         // @param  {Element|Document|DocumentFragment} ctx 上下文
         // @return {Element|null}
         $one = function( slr, ctx ) {
-            if ( __reID.test(slr) && ctx.isConnected ) {
+            if ( __reID.test(slr) && ctx.nodeType >= 9 ) {
+                // 优化
                 return $id(slr, ctx);
             }
             return $find( slr, ctx, 'querySelector' );
@@ -146,6 +147,7 @@
 
         // 多目标。
         // slr 首字符 > 表示当前上下文父级限定。
+        // 注记：不测试简单id，多id有效。
         // @param  {String} slr 选择器。
         // @param  {Element|Document|DocumentFragment} ctx 上下文
         // @return {[Element]}
@@ -153,7 +155,6 @@
             // if ( __reID.test(slr) ) {
             //     return new Array($id(slr, ctx) || 0);
             // }
-            // 修订：兼容重复ID。
             if ( __reTAG.test(slr) && ctx.nodeType != 11 ) {
                 return Arr( $tag(slr, ctx) );
             }
