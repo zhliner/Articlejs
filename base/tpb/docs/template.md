@@ -97,10 +97,10 @@
 - 如果需要为后续的 `To` 定义维持顺序（当前仅占位），则应当将整个值设置为一个 `-`。
 
 ```html
-<input type="image" to="form/?search|value|select" />
-<!--1. 检索“form/?search”元素（data-id="search")。
+<input type="image" to="form/#search|val|select" />
+<!--1. 向上检索<form>元素为上下文，向内查找ID为search的元素。
     2. 设置value值为前阶传递来的流程数据。
-    3. 选取（调用目标元素的select()方法）。
+    3. 选取刚刚设置的值（注：调用目标元素的select()方法）。
 ```
 
 

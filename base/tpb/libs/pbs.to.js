@@ -194,6 +194,55 @@ const _Update = {
 
 
     /**
+     * 设置滚动条位置。
+     * 内容为位置（数组）或对象。
+     * - Object2: {left, top}
+     * - Array2:  [left, top]
+     * - Number:  top 单个数值时指垂直滚动条位置。
+     * 注记：不影响未设置方向的现有位置。
+     */
+    scroll( to, pos ) {
+        if ( !$.isArray(to) ) {
+            to = [to];
+        }
+        to.forEach( el => $.scroll(el, scrollObj(pos)) );
+    },
+
+
+    /**
+     * 发送提示消息。
+     * 内容为发送的消息，显示为元素内的文本（fill）。
+     * 持续时间由long定义，0表示永久。
+     * long单位为秒，支持浮点数。
+     * @param {Number} long 持续时间（秒）
+     * @param {String} msg 消息文本，可选
+     */
+    tips( to, msg, long ) {
+        if ( $.isArray(to) ) {
+            return to.forEach( el => message(el, msg, long) );
+        }
+        message( el, msg, long );
+    },
+
+
+    /**
+     * 类名独占设置。
+     * 清除元素集内name类名之后设置目标元素类名。
+     * 可用于选单中的排他性选取表达。
+     * @param  {Element} to 目标元素
+     * @param  {[Element]} els 源元素集
+     * @param  {String} name 类名称
+     * @return {void}
+     */
+    only( to, els, name ) {
+        els.forEach(
+            el => $.removeClass(el, name)
+        );
+        $.addClass( to, name );
+    },
+
+
+    /**
      * 关联数据存储。
      * name支持空格分隔的名称序列。
      * 如果名称为多个且关联数据是一个数组，会与名称一一对应存储。
@@ -248,23 +297,6 @@ const _Update = {
             return to.forEach( el => chainSaves(el, cells) );
         }
         chainSaves( to, cells );
-    },
-
-
-    /**
-     * 类名独占设置。
-     * 清除元素集内name类名之后设置目标元素类名。
-     * 可用于选单中的排他性选取表达。
-     * @param  {Element} to 目标元素
-     * @param  {[Element]} els 源元素集
-     * @param  {String} name 类名称
-     * @return {void}
-     */
-    only( to, els, name ) {
-        els.forEach(
-            el => $.removeClass(el, name)
-        );
-        $.addClass( to, name );
     },
 
 };
@@ -602,60 +634,14 @@ const _NextStage = {
 
     __changes: -1,
 
-
-    /**
-     * 设置滚动条位置。
-     * 内容：暂存区1项可选。
-     * 如果内容有值，则为激发滚动的目标元素。
-     * Object2: {top, left}
-     * 也可以传递两个数值，分别对应left和top（可用null占位）。
-     * 不影响未设置方向的现有位置。
-     * 注意：垂直位置在前（常用）。
-     * 注记：覆盖了 Get:scroll 方法。
-     * @param {Number|Object2} top 垂直位置或配置对象
-     * @param {Number} left 水平位置，可选
-     */
-    scroll( evo, top, left ) {
-        target(evo).scroll( scrollObj(top, left) );
-    },
-
-    __scroll: -1,
-
-
-    /**
-     * 表单控件清空。
-     * 内容：暂存区1项可选。
-     * 如果内容有值，则为待清空的表单元素。
-     * 选取类控件为取消选取，其它为清除value值。
-     * 参考.select(), .focus()用途。
-     */
-    clear( evo ) {
-        target(evo).val( null );
-    },
-
-    __clear: -1,
-
-
-    /**
-     * 发送提示消息。
-     * 内容：暂存区1项可选。
-     * 如果内容有值，则为显示文本的目标元素。
-     * 持续时间由long定义，0表示永久。
-     * 注意：long单位为秒，但支持浮点数。
-     * @param {Number} long 持续时间（秒）
-     * @param {String} msg 消息文本，可选
-     */
-    tips( evo, long, msg ) {
-        target(evo).forEach( el => message(el, msg, long) );
-    },
-
-    __tips: -1,
-
 };
 
 
 //
 // 原生事件触发。
+// 内容：暂存区1项可选。
+// 如果内容有值，作为触发事件的目标元素。
+// 注：覆盖On部分同名方法。
 //===============================================
 [
     'blur',
@@ -838,6 +824,39 @@ function chainSaves( el, cmap ) {
 
 
 /**
+ * 在元素上显示消息。
+ * 仅支持纯文本显示（非html方式）。
+ * @param  {Element} el 目标元素
+ * @param  {String} msg 消息文本
+ * @param  {Number} long 持续时间（秒）
+ * @return {void}
+ */
+function message( el, msg, long ) {
+    if ( long > 0 ) {
+        clearTimeout( el[__TIMER] );
+        el[__TIMER] = setTimeout( () => $.empty(el), long * 1000 );
+    }
+    el.textContent = msg;
+}
+
+
+/**
+ * 构造scroll位置对象。
+ * @param  {Number|Object2|Array} pos 位置对象
+ * @return {Object2}
+ */
+function scrollObj( pos ) {
+    if ( $.type(pos) == 'Object' ) {
+        return pos;
+    }
+    if ( typeof pos == 'number' ) {
+        return { top: pos };
+    }
+    return { left: pos[0], top: [1] };
+}
+
+
+/**
  * 表单控件默认值改变检查。
  * 如果改变，触发目标控件上的evn事件（通常为changed）。
  * @param  {[Element]} els 控件集
@@ -875,40 +894,6 @@ function selectChanged( sel ) {
         if ( oe.defaultSelected !== oe.selected ) return true;
     }
     return false;
-}
-
-
-/**
- * 在元素上显示消息。
- * 仅支持纯文本显示（非html方式）。
- * @param  {Element} el 目标元素
- * @param  {String} msg 消息文本
- * @param  {Number} long 持续时间（秒）
- * @return {void}
- */
-function message( el, msg, long ) {
-    if ( long > 0 ) {
-        clearTimeout( el[__TIMER] );
-        el[__TIMER] = setTimeout( () => $.empty(el), long * 1000 );
-    }
-    el.textContent = msg;
-}
-
-
-/**
- * 获取scroll位置对象。
- * @param  {Number|Object2} top 垂直位置或配置对象
- * @param  {Number} left 水平位置，可选
- * @return {Object2}
- */
-function scrollObj( top, left ) {
-    if ( $.type(top) == 'Object' ) {
-        return top;
-    }
-    return {
-        top: top == null ? undefined : top,
-        left: left == null ? undefined : left,
-    };
 }
 
 

@@ -2,7 +2,7 @@
 
 关联事件，获取各种值。值进入流程数据栈向后传递，数据入栈为 `Array.push` 方式，除了 `undefined` 外，每一个指令（方法）的返回值都会自动入栈。
 
-事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器定义在小括号内，如：`click(p[data-id="xxx"])` 中的 `p[data-id="xxx"]`。选择器自身的引号包围是可选的。
+事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器定义在小括号内，如：`click(p[data-id="xxx"])` 中的 `p[data-id="xxx"]`。选择器自身无需引号包围。
 
 事件名是一个标识串，首字母为字母，之后可以是字母、数字和 `[._:-]` 字符。另外，可前置一个特殊字符以表达固定的含义：
 
@@ -16,7 +16,7 @@
 <ul id="test" ...
     on="click|attr('title') debug avoid;
         click(li[data-val='xyz']) contextmenu | ...;
-        ^click|$('div/?xxx'), debug(false);
+        ^click|$('div/#xxx'), debug(false);
         @mousemove:1 @keydown:1|...;
         "
 >
@@ -77,6 +77,15 @@ nil(): undefined
 push( ...val:Value|[Value] ): void
 // 直接数据。
 
+get( name:String ): Value | [Value] | [[Value]]
+// 对象成员取值（支持对象数组）。
+
+call( meth:String, ...rest:Value ): Value
+// 调用目标的方法执行。
+
+form( ...name:String ): Element | [Element]
+// 获取目标名称的控件元素（集）。
+
 
 
 // 类型转换&构造。
@@ -113,12 +122,6 @@ assign( target:Object, names?:String ): Object
 
 gather( names:String ): Object
 // 数组映射聚集。
-
-get( name:String ): Value | [Value] | [[Value]]
-// 对象成员取值（支持对象数组）。
-
-call( meth:String, ...rest:Value ): Value
-// 调用目标的方法执行。
 
 elem( tag:String, n:Number ): Element | [Element]
 // 批量创建元素。

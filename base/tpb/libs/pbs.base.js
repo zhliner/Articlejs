@@ -220,25 +220,42 @@ const _Control = {
     //-----------------------------------------------------
 
     /**
-     * 栈顶复制。
+     * 栈顶复制（浅）。
      * 复制栈顶n项并入栈（原样展开）。
      * 目标：无。
      * 特权：是，灵活取栈&自行入栈。
-     * 传递n为true表示深度克隆栈顶1项（需为数组）。
-     * 可对栈顶多项深度克隆（非数组项取原值/引用）。
      * @param  {Stack} stack 数据栈
-     * @param  {Number|true} n 条目数或深层克隆指示，可选
-     * @param  {Boolean} deep 是否深度克隆，可选
+     * @param  {Number} n 条目数，可选
      * @return {void}
      */
-    dup( evo, stack, n = 1, deep = false ) {
-        if ( n === true ) {
-            [n, deep] = [1, n];
+    dup( evo, stack, n = 1 ) {
+        if ( n > 0 ) {
+            stack.push( ...stack.tops(n) );
         }
-        if ( n > 0 ) stack.push( ...arrayDeeps(stack.tops(n), deep) );
     },
 
     __dup_x: true,
+
+
+    /**
+     * 栈顶复制（深度）。
+     * 深度克隆栈顶n项并入栈（原样展开）。
+     * 目标：无。
+     * 特权：是，灵活取栈&自行入栈。
+     * 注：非数组项保持原值/引用。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} n 条目数，可选
+     * @return {void}
+     */
+    ddup( evo, stack, n = 1 ) {
+        if ( n > 0 ) {
+            stack.push(
+                ...stack.tops(n).map(v => $.isArray(v) ? deepArray(v) : v)
+            );
+        }
+    },
+
+    __ddup_x: true,
 
 
     /**
@@ -1452,20 +1469,6 @@ function deepArray( arr, buf = [] ) {
         buf.push( $.isArray(v) ? deepArray(v) : v );
     }
     return buf;
-}
-
-
-/**
- * 数组集深度克隆。
- * 注：容错非数组的成员（简单取原值/引用）。
- * @param {Array} arrs 数组集
- * @param {Boolean} deep 是否深度克隆
- */
-function arrayDeeps( arrs, deep ) {
-    if ( deep ) {
-        return arrs.map( v => $.isArray(v) ? deepArray(v) : v );
-    }
-    return arrs;
 }
 
 

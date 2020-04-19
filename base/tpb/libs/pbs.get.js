@@ -195,7 +195,7 @@ const _Gets = {
      * - push('abc', 123)  // 分别入栈字符串'abc'和数值123两个值
      * - pop(3) push(true) // 入栈布尔值true和暂存区条目（3项一体）两个值
      * 友好：
-     * 系统支持空名称指代，即：('hello') => push('hello') 含义相同。
+     * 系统支持空名称指代，即：('hello') => push('hello') 相同。
      * 这让数据入栈更简洁（如果无需明确的push表意）。
      * @param  {Stack} stack 数据栈
      * @param  {...Value} vals 值序列
@@ -210,6 +210,58 @@ const _Gets = {
 
     __push: 0,
     __push_x: true,
+
+
+    /**
+     * 取对象成员值。
+     * 目标：暂存区/栈顶1项。
+     * name支持空格分隔的多个名称（获得一个值数组）。
+     * 支持目标本身是数组，若名称为多名称，会获得一个二维数组。
+     * 用途：
+     * 从一个对象数组（如attribute取值）中提取属性值数组。
+     * @data: Object|[Object]
+     * @param  {String} name 名称/序列
+     * @return {Value|[Value]|[[Value]]}
+     */
+    get( evo, name ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map(o => namesValue(name, o)) : namesValue(name, x);
+    },
+
+    __get: 1,
+
+
+    /**
+     * 调用目标的方法执行。
+     * 目标：暂存区/栈顶1项。
+     * 如果对象是一个集合，返回调用值的一个数组。
+     * 注：
+     * 单目标单次多实参调用，支持集合目标。
+     * @param  {String} meth 方法名
+     * @param  {...Value} rest 实参序列
+     * @return {Value} 方法调用的返回值
+     */
+    call( evo, meth, ...rest ) {
+        let x = evo.data;
+        return $.isArray(x) ? x.map(o => o[meth](...rest)) : x[meth](...rest);
+    },
+
+    __call: 1,
+
+
+    /**
+     * 获取表单控件（集）。
+     * 目标：暂存区/栈顶1项。
+     * 目标需要包含name属性，通常是一个表单<form>元素。
+     * @param  {...String} names 控件名称序列
+     * @return {Element|[Element]}
+     */
+    form( evo, ...names ) {
+        return names.length > 1 ?
+            names.map( n => evo.data[n] ) : evo.data[ names[0] ];
+    },
+
+    __form: 1,
 
 
 
@@ -388,43 +440,6 @@ const _Gets = {
 
 
     /**
-     * 取对象成员值。
-     * 目标：暂存区/栈顶1项。
-     * name支持空格分隔的多个名称（获得一个值数组）。
-     * 支持目标本身是数组，若名称为多名称，会获得一个二维数组。
-     * 用途：
-     * 从一个对象数组（如attribute取值）中提取属性值数组。
-     * @data: Object|[Object]
-     * @param  {String} name 名称/序列
-     * @return {Value|[Value]|[[Value]]}
-     */
-    get( evo, name ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(o => namesValue(name, o)) : namesValue(name, x);
-    },
-
-    __get: 1,
-
-
-    /**
-     * 调用目标的方法执行。
-     * 目标：暂存区/栈顶1项。
-     * 如果对象是一个集合，返回调用值的一个数组。
-     * 注：
-     * 单目标单次多实参调用，支持集合目标。
-     * @param  {String} meth 方法名
-     * @param  {...Value} rest 实参序列
-     * @return {Value} 方法调用的返回值
-     */
-    call( evo, meth, ...rest ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(o => o[meth](...rest)) : x[meth](...rest);
-    },
-
-    __call: 1,
-
-
-    /**
      * 创建元素（集）。
      * 目标：暂存区条目可选。
      * 可用暂存区的内容作为创建元素的源码或配置对象。
@@ -579,9 +594,11 @@ const _Gets = {
      * 目标：暂存区1项可选。
      * 从目标元素关联的存储区取值，若目标为空则视为关联当前委托元素。
      * name支持空格分隔的名称序列。
+     * 如果不存在关联存储（Map），返回null。
      * 注记：
      * 因为主要是直接使用（如插入DOM），故返回值数组（而不是键值对象）。
      * 如chains主要用于转储，所以保留键信息。
+     * 返回null可用于判断状况，但无法区分本来就存储的null。
      * @data: Element
      * @param  {String} name 名称/序列
      * @return {Value|[Value]|null}
@@ -593,7 +610,7 @@ const _Gets = {
         if ( DEBUG && !_m ) {
             window.console.warn('key:', _el, dataUnfound);
         }
-        return _m ? getData(_m, name) : Promise.reject();
+        return _m ? getData(_m, name) : null;
     },
 
     __data: -1,
@@ -758,6 +775,32 @@ const _Gets = {
     },
 
     __chains: 1,
+
+
+
+    // 元素自身行为。
+    // @return {void}
+    //-------------------------------------------
+
+
+    /**
+     * 表单控件清空。
+     * 目标：暂存区/栈顶1项。
+     * 目标为待清空的表单元素。
+     * 注：选取类控件为取消选取，其它为清除value值。
+     * @param  {Boolean} back 是否返回操作目标
+     * @return {Element|void}
+     */
+    clear( evo, back ) {
+        if ( $.isArray(evo.data) ) {
+            evo.data.forEach( el => $.val(el, null) )
+        } else {
+            $.val( evo.data, null );
+        }
+        if ( back ) return evo.data;
+    },
+
+    __clear: 1,
 
 
 
@@ -1247,10 +1290,34 @@ const __uiState = [ '-', '', '^' ];
 
 
 //
-// 自我状态。
-// 目标：暂存区/栈顶1项。
-// 注记：To:NextStage的事件部分移入此处。
+// 原生事件触发。
+// 目标：暂存区/栈顶1项（激发元素）。
+// 注：To:NextStage部分存在同名方法（目标不同）。
+// @return {void}
 //===============================================
+[
+    'blur',
+    'click',
+    'focus',
+    'pause',
+    'play',
+    'reset',
+    'select',
+    'load',
+    'submit',
+]
+.forEach(function( meth ) {
+
+    _Gets[meth] = function( evo ) {
+        if ( $.isArray(evo.data) ) {
+            return evo.data.forEach( el => $[meth](el) );
+        }
+        evo.data[meth]();
+    };
+
+    _Gets[`__${meth}`] = 1;
+
+});
 
 
 

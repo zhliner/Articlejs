@@ -80,7 +80,7 @@
                 </tr>
                 <tr tpl-name="prop:preview">
                     <th>预览</th>
-                    <td class="_preview" data-id="preview">
+                    <td class="_preview">
                         <!-- img|video|audio -->
                     </td>
                 </tr>
@@ -1267,7 +1267,7 @@
                             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
                             <label><input name="below" type="checkbox" />标题在下</label>
                         </header>
-                        <textarea name="figure" data-id="url"
+                        <textarea name="figure" id="url"
                             on="tips|evo(1) ev('detail') attr(_);
                                 ^obted|$('2/select') val"
                             to="|@placeholder;
@@ -1281,7 +1281,7 @@
                             <label>类型
                                 <select name="type"
                                     on="change|$ val"
-                                    to="4/?url|trigger('tips')">
+                                    to="4/#url|trigger('tips')">
                                     <option value="-iurl">图片URL</option>
                                     <option value="-durl">DataURL</option>
                                     <option value="-svgx">SVG源码</option>
@@ -1515,7 +1515,7 @@
                             <b title="外槽线（ridge）"><hr role="ridge"></b>
                             <b title="内嵌线（inset）"><hr role="inset"></b>
                             <b title="外嵌线（outset）"><hr role="outset"></b>
-                            <input type="hidden" data-id="line" name="line" value="">
+                            <input type="hidden" name="line" value="">
                         </span>
                     </div>
                     <aside>
@@ -1665,7 +1665,7 @@
                             </li>
                             <li tpl-name="prop:preview">
                                 <b>预览</b>
-                                <span class="_preview" data-id="preview"><!-- img|video|audio --></span>
+                                <span class="_preview"><!-- img|video|audio --></span>
                             </li>
                         </ul>
                     </div>
@@ -1869,7 +1869,7 @@
                 </div>
                 <!-- [子模版：字符表] -->
                 <div class="_body _inline" tpl-name="minied:chars">
-                    <div data-id="cbox" class="_main _list">
+                    <div class="_main _list">
                         <span>
                             <b>〔</b>
                             <b>〕</b>
