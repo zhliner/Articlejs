@@ -18,8 +18,8 @@ import { Spliter, UmpString } from "../tools/spliter.js";
 const
     $ = window.$,
 
-    __chr2Split = '/',  // 二阶选择器切分字符
-    __chrRID    = '?',  // 相对ID标志字符
+    // 二阶选择器切分字符
+    __chrSp2    = '/',
 
     // PB属性名。
     __attrPB    = 'data-pb',
@@ -36,56 +36,19 @@ const
     // 注：选项词不能包含短横线。
     __pbOpts    = /(^|\s+)\w[\w\s]*$/,
 
-    // 二阶选择器分隔符（/）。
-    // 后跟合法选择器字符，不能区分属性选择器值内的/字符。
-    // 注：仅存在性测试。
-    __re2Split  = /\/(?=$|[\w>:#.*?])/,
-
-    // 相对ID匹配测试。
-    // 注意：不能区分属性选择器值内的 ?.. 序列。
-    //
-    // CSS标识值匹配：/(?:\\.|[\w-]|[^\0-\xa0])+/
-    // http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
-    //
-    // 增加?后空白匹配，以支持无值的相对ID：
-    //  'p? >b'  => `? `    => `p[data-id]>b`
-    //  'p?>b`   => `?`     => 同上
-    //  'p?`     => `?`     => `p[data-id]`
-    //  'p?xyz`  => `?xyz`  => `p[data-id="xyz"]`
-    //  '?xyz`   => `?xyz`  => `[data-id="xyz"]`
-    //
-    __hasRID = /\?(?:\\.|[\w-]|[^\0-\xa0]|\s*)+/,
-
-    // RID值匹配。
-    // 已经切分（无?），值必然在首位。单次替换。
-    __ridVal = /^(?:\\.|[\w-]|[^\0-\xa0])+/,
-
-    // 单/撇引号转义清除。
-    // 注：JSON中，双引号字符串内的单/撇号转义不再合法。
-    // str.replace(..., "$1$2")
-    // \' => '
-    // \\' => \\'   未转义引号
-    // \\\' => \\'  清除一个\
-    // __reQuoteESC = /([^\\]|[^\\](?:\\\\)+)\\(['`])/g,
-
     // 调用表达式
     // 首尾空白需要预先清除。
     // 支持参数内的任意字符和换行。
     __reCall = /^(\w+)(?:\(([^]*)\))?$/,
 
-
     // 二阶选择器切分器。
-    __slrSplit = new Spliter( __chr2Split, new UmpString() ),
-
-    // 相对ID切分器。
-    __ridSplit = new Spliter( __chrRID, new UmpString() );
+    __slrSplit = new Spliter(__chrSp2, new UmpString());
 
 
 
 const Util = {
     /**
-     * 二阶检索/爬树搜寻。
-     *
+     * 二阶检索（最近结点）。
      * 原理：
      * 向上查找与目标元素最近的共同祖先容器，然后向下检索目标元素。
      * 这可以压缩搜索范围以提高效率，同时还可以避免标识名的唯一性约束。
@@ -97,35 +60,31 @@ const Util = {
      * DownSlr:
      *      {String}    普通的CSS选择器，支持相对ID。
      *
-     * 相对ID：
-     *      ? 前置一个问号表示相对ID，即data-id属性的值。如：?xx => [data-id='xx']
+     * 关于ID：
+     *      通常来说，元素的ID标识应当在文档中唯一，但 #xxx 形式的ID选择器实际上可以被限定检索。
+     *      即：如果上下文是一个元素，即便是ID检索也会被限定在元素之内。
+     *      因此，只要提供适当的上下文，ID标识可以在整个DOM中重复存在而不会有任何问题。
      *
      * 例：
      * /            单独的 / 表示起点元素本身。
      * 0/           0上级，即当前起点（同上）。
      * 2/           祖父元素（2级，父元素的父元素）
      * form/        起点元素上层首个<form>元素。
-     * div?/        起点元素上层首个包含相对ID定义的元素，div[data-id]
      *
      * />b          起点元素的<b>子元素。
-     * /?xyz        起点元素内相对ID为 xyz 的元素。[data-id='xyz']
-     * /p?xyz       起点元素内相对ID为 xyz 的<p>元素。p[data-id='xyz']
-     * /p? >b       起点元素内存在相对ID属性的<p>元素的<b>子元素。p[data-id]>b
-     * /p?xyz >b    起点元素内相对ID为 xyz 的<p>元素的<b>子元素。p[data-id='xyz']>b
      * /p >b        起点元素内匹配 p>b 选择器的元素。
-     * /.name       起点元素内普通类名检索。
-     * .name        全局（document)类名检索，无起点元素。
-     * #some        全局ID检索，同上与起点元素无关。
-     * /#some       在起点元素内检索目标ID元素，受起点元素约束。
-     * /#ab li      复合ID选择器，同上，在起点元素内检索（常用）。
+     * .abc         整个文档内（全局)类名为 abc 的元素。
+     * /.abc        起点元素内类名为 abc 的元素。
+     * #xyz         全局（document）ID检索。
+     * /#xyz        起点元素内ID为 xyz 的元素。
+     * /p#xyz >b    起点元素内ID为 xyz 的<p>元素的<b>直接子元素。
      *
-     * div/?xyz     起点元素之上首个<div>内相对ID为 xyz 的元素。
-     * 3/?xyz       起点元素之上第3层父节点内相对ID为 xyz 的元素。
-     * -1/#ab li    向上负值无效，起点元素不变并向内检索。
+     * div/#xyz     起点元素之上首个<div>内ID为 xyz 的元素。
+     * 3/.abc       起点元素之上第3层父节点内类名为 abc 的元素。
+     * -1/#xyz li   负值简单忽略，起点元素内ID为 xyz 的元素内的<li>元素。
      *
      * 注记：
-     * 相对ID表达一定范围内的唯一性逻辑，这只是一种松散的概念约定。
-     * 单元素检索指用$.get()获取单个元素返回，多元素检索依然可能只有一个元素，但返回Collector。
+     * 单元素检索指用$.get()获取单个元素，多元素检索依然可能只有一个元素，但返回Collector。
      * 如果要包含二阶逻辑（从起点开始），必须包含 / 分隔符，否则为全局检索。
      *
      * @param  {String}  slr 选择器串（外部trim）
@@ -134,10 +93,10 @@ const Util = {
      * @return {Collector|Element|null} 目标元素（集）
      */
     find( slr, beg, one ) {
-        if ( !slr || slr == '/' ) {
+        if ( !slr || slr == __chrSp2 ) {
             return beg;
         }
-        if ( __re2Split.test(slr) ) {
+        if ( slr.includes(__chrSp2) ) {
             [slr, beg] = fmtSplit( slr, beg );
         } else {
             beg = undefined; // 全局
@@ -296,10 +255,7 @@ const Util = {
 
 /**
  * 二阶选择器解构。
- * 用SSpliter实现准确切分。
- * 注：
- * __reSplit不能区分属性值内的分隔符，因此可能并无切分。
- *
+ * 用SSpliter实现准确切分（/可能包含在属性值内）。
  * @param  {String} slr 选择器串
  * @param  {Element} beg 起点元素
  * @return {[String, Element]} 向下选择器和上下文元素
@@ -315,37 +271,6 @@ function fmtSplit( fmt, beg ) {
 }
 
 
-/**
- * 相对ID转为正常选择器。
- * 注：
- * 正则可能匹配属性值内的 ?... 序列，
- * 因此采用 SSpliter 以实现正常切分。
- *
- * @param  {String} fmt 选择器串
- * @return {String} 结果选择器
- */
-function ridslr( fmt ) {
-    if ( !__hasRID.test(fmt) ) {
-        return fmt;
-    }
-    let _ss = [ ...__ridSplit.split(fmt) ],
-        _s0 = _ss.shift();
-
-    return _s0 + _ss.map( ridone ).join('');
-}
-
-
-/**
- * 构造单个相对ID选择器。
- * str已经用?正确切分，仅首段匹配替换即可。
- * @param {String} str 相对ID切分串
- */
-function ridone( str ) {
-    return str.trim() ?
-        str.replace(__ridVal, '[data-id="$&"]') : "[data-id]";
-}
-
-
 
 /**
  * 向上检索目标元素。
@@ -357,7 +282,7 @@ function closest( slr, beg ) {
     if ( slr <= 0 ) {
         return beg;
     }
-    return isNaN(slr) ? $.closest(beg.parentNode, ridslr(slr)) : $.closest(beg, (_, i) => i == slr);
+    return isNaN(slr) ? $.closest(beg.parentNode, slr) : $.closest(beg, (_, i) => i == slr);
 }
 
 
@@ -369,7 +294,7 @@ function closest( slr, beg ) {
  * @return {Element|null}
  */
 function query1( slr, beg ) {
-    return slr ? $.get( ridslr(slr), beg ) : beg;
+    return slr ? $.get( slr, beg ) : beg;
 }
 
 
@@ -381,7 +306,7 @@ function query1( slr, beg ) {
  * @return {Collector}
  */
 function query2( slr, beg ) {
-    return slr ? $( ridslr(slr), beg ) : $(beg);
+    return slr ? $( slr, beg ) : $(beg);
 }
 
 
