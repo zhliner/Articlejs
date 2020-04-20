@@ -7,8 +7,12 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //  快捷键系统默认配置。
-//
-//  格式：{指令标识: 映射键}
+//  格式：{
+//      key:     映射键（支持数组）,
+//      command: 指令标识,
+//      when:    匹配选择器（匹配则执行）,
+//      not:     不匹配选择器（匹配则不执行）,
+//  }
 //
 //  指令标识：
 //      表达特定程序行为的ID，通常按归类分级（句点连接）。
@@ -27,8 +31,9 @@
 //      :a              单纯按 A 键
 //      shift:a         按 Shift 和 A 键（大写A）
 //
-//  用户配置：
-//  外部可由用户配置覆盖此处的默认值，可经 HotKey.bind() 接口设置。
+//  说明：
+//  支持多个键序列映射到同一指令标识，此时键序列为数组。
+//  外部的用户配置可覆盖此处的默认值，经 HotKey.bind|config 接口设置。
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -41,9 +46,8 @@ export default {
 //
 Global: [
     //
-    // 面板隐/显切换
+    // 各面板隐/显切换
     /////////////////////////////////////////////
-
     {
         // 隐/显大纲面板
         "key":      ":f2",
@@ -78,60 +82,45 @@ Global: [
 
     //
     // 命令行直达
-    // [/:=|?!] 6个命令类型（注意shift存在）。
+    // 键与系统功能固定相关，不应修改！
+    // 6个命令类型：[/:=|?!]
     /////////////////////////////////////////////
-
     {
-        "key":      ":/",
+        "key": [
+            ":/",       // /  选择器
+            "shift::",  // :  普通命令
+            ":=",       // =  简单计算
+            "shift:|",  // |  选取集过滤
+            "shift:?",  // ?  文本搜索
+            "shift:!",  // !  扩展指令
+        ],
         "command":  "cmdline.active",
-        "not":      "textarea,[type=text],[contenteditable]"
+        "not":      "textarea,[type=text],[contenteditable]",
     },
-    {
-        "key":      "shift::",
-        "command":  "cmdline.active",
-        "not":      "textarea,[type=text],[contenteditable]"
-    },
-    {
-        "key":      ":=",
-        "command":  "cmdline.active",
-        "not":      "textarea,[type=text],[contenteditable]"
-    },
-    {
-        "key":      "shift:|",
-        "command":  "cmdline.active",
-        "not":      "textarea,[type=text],[contenteditable]"
-    },
-    {
-        "key":      "shift:?",
-        "command":  "cmdline.active",
-        "not":      "textarea,[type=text],[contenteditable]"
-    },
-    {
-        "key":      "shift:!",
-        "command":  "cmdline.active",
-        "not":      "textarea,[type=text],[contenteditable]"
-    },
-
 ],
 
 
 //
-// 编辑器指令。
-// 触发焦点元素在编辑器内有效。
+// 菜单快捷直达。
+// 触发焦点元素在编辑器内。
 //
-Editor: [
+Menu: [
 ],
 
 
 //
-// 主面板指令。
-// 触发焦点仅在主面板内有效。
+// 内容区编辑。
+// 普通模式下的快捷操作。
+//
+Content: [
+],
+
+
+//
+// 主面板操作。
+// 触发焦点在主面板内。
 //
 Slave: [
-    //
-    // 录入快捷操作
-    /////////////////////////////////////////////
-
     {
         // 录入框充满面板
         "key":      "alt:f",
@@ -141,15 +130,81 @@ Slave: [
     {
         // 内容提交（同插入按钮）
         "key":      "ctrl:enter",
-        "command":  "input.submit"
+        "command":  "input.submit",
+        "when":     "textarea"
     },
     {
         // 内容提交后恢复正常
         // 注：录入框满面板时。
         "key":      "alt:enter",
-        "command":  "input.submit2"
+        "command":  "input.submit2",
+        "when":     "textarea"
     },
 
+
+    //
+    // 内联单元选取（部分）
+    // 键与<option data-k="?">?相关，不可配置。
+    /////////////////////////////////////////////
+    {
+        "key": [
+            ":g",       // <img>
+            "shift:a",  // <audio>
+            "shift:v",  // <video>
+            "shift:p",  // <picture>
+            ":a",       // <a>
+            ":c",       // <code>
+            ":s",       // <strong>
+            ":e",       // <em>
+            ":q",       // <q>
+            ":t",       // <time>
+            ":i",       // <ins>
+            ":d",       // <del>
+            ":m",       // <mark>
+            ":r",       // <ruby>
+            ":o",       // <code:orz>
+            ":f",       // <dfn>
+            ":p",       // <samp>
+            ":k",       // <kbd>
+            ":u",       // <u>
+            ":v",       // <var>
+            ":b",       // <bdo>
+        ],
+        "command":  "input.inline",
+        "when":     "select._inlines",
+    },
+
+    //
+    // 字符类型选取
+    // 键与<option data-k="?">?相关，不可配置。
+    /////////////////////////////////////////////
+    {
+        "key": [
+            ":t",       // normal（top）
+            ":u",       // unit
+            ":p",       // punctuation
+            ":n",       // number
+            ":m",       // math
+            ":s",       // special
+            ":a",       // alphabet
+            ":g",       // geometric
+            ":e",       // emotion
+            ":i",       // ipa87
+            ":z",       // phonetic
+            ":r",       // radical
+        ],
+        "command":  "input.chars",
+        "when":     "select._ctypes",
+    },
+
+],
+
+
+//
+// 模态框操作。
+// 会屏蔽全局快捷键（stop）。
+//
+Modal: [
 ],
 
 

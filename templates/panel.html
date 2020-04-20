@@ -33,7 +33,7 @@
         <div class="_where"
             on="click(input)|evo(2) val pop tpl;
                 click(input)|evo(2) attr('-val') pop tpl"
-            to="1/select|replace;
+            to="1/select|replace|focus fire('', 'change');
                 2/._body|replace">
             <label title="内联元素">
                 <input type="radio" name="where" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
@@ -42,38 +42,40 @@
                 <input type="radio" name="where" value="item:ctypes" data-val="minied:chars" /><i id="l-schar"></i>
             </label>
         </div>
-        <select name="inlines" size="5" class="_list" tpl-name="item:inlines"
-            on="change|evo(3) val str('inlines:') pop tpl"
-            to="2/._prop|replace trigger('active', true)">
+        <select name="inlines" size="5" class="_list _inlines" tpl-name="item:inlines"
+            on="change|evo(3) val str('inlines:') pop tpl;
+                input.inline|ev('detail') slr('','-k', _) $(_) prop('value')"
+            to="2/._prop|replace;
+                |val|goto('change')">
             <!-- tpl: inlines:[value] -->
-            <option title="<img>" value="img" selected>图片</option>
-            <option title="<audio>" value="audio">音频</option>
-            <option title="<video>" value="video">视频</option>
-            <option title="<picture>" value="picture">兼容图片</option>
-            <option title="a:<a>" value="a">链接</option>
-            <option title="c:<code>" value="code">代码</option>
-            <option title="s:<strong>" value="strong">重点</option>
-            <option title="e:<em>" value="em">强调</option>
+            <option data-k="g" title="g:<img>" value="img" selected>图片</option>
+            <option data-k="A" title="A:<audio>" value="audio">音频</option>
+            <option data-k="V" title="V:<video>" value="video">视频</option>
+            <option data-k="P" title="P:<picture>" value="picture">兼容图片</option>
+            <option data-k="a" title="a:<a>" value="a">链接</option>
+            <option data-k="c" title="c:<code>" value="code">代码</option>
+            <option data-k="s" title="s:<strong>" value="strong">重点</option>
+            <option data-k="e" title="e:<em>" value="em">强调</option>
             <option title="<sub>" value="sub">下标</option>
             <option title="<sup>" value="sup">上标</option>
-            <option title="q:<q>" value="q">短引用</option>
-            <option title="t:<time>" value="times">日期/时间</option>
-            <option title="i:<ins>" value="ins">插入性</option>
-            <option title="d:<del>" value="del">已删除</option>
+            <option data-k="q" title="q:<q>" value="q">短引用</option>
+            <option data-k="t" title="t:<time>" value="times">日期/时间</option>
+            <option data-k="i" title="i:<ins>" value="ins">插入性</option>
+            <option data-k="d" title="d:<del>" value="del">已删除</option>
             <option title="<abbr>" value="abbr">缩写</option>
             <option title="<small>" value="small">注脚</option>
             <option title="<cite>" value="cite">来源</option>
-            <option title="m:<mark>" value="mark">标记</option>
-            <option title="r:<ruby/rb,rp,rt>" value="ruby">注音单元</option>
-            <option title="o:<code:orz>" value="orz">表情</option>
-            <option title="f:<dfn>" value="dfn">定义条目</option>
-            <option title="p:<samp>" value="samp">样本</option>
-            <option title="k:<kbd>" value="kbd">键盘字</option>
+            <option data-k="m" title="m:<mark>" value="mark">标记</option>
+            <option data-k="r" title="r:<ruby/rb,rp,rt>" value="ruby">注音单元</option>
+            <option data-k="o" title="o:<code:orz>" value="orz">表情</option>
+            <option data-k="f" title="f:<dfn>" value="dfn">定义条目</option>
+            <option data-k="p" title="p:<samp>" value="samp">样本</option>
+            <option data-k="k" title="k:<kbd>" value="kbd">键盘字</option>
             <option title="<meter>" value="meter">度量标示</option>
             <option title="<s>" value="s">失效</option>
-            <option title="u:<u>" value="u">注记</option>
-            <option title="v:<var>" value="var">变量</option>
-            <option title="b:<bdo>" value="bdo">有向文本</option>
+            <option data-k="u" title="u:<u>" value="u">注记</option>
+            <option data-k="v" title="v:<var>" value="var">变量</option>
+            <option data-k="b" title="b:<bdo>" value="bdo">有向文本</option>
             <option title="<br>" value="br">换行</option>
             <option title="<wbr>" value="wbr">软换行</option>
             <option title="<span:blank>" value="blank">空白段</option>

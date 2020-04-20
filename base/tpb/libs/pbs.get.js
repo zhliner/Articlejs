@@ -78,12 +78,10 @@ const _Gets = {
     /**
      * 单元素检索入栈。
      * 目标：暂存区1项可选。
-     * 如果实参有值，起点元素为目标或事件绑定（委托）元素。
-     * 如果实参为空，目标需有值，视为rid，起点元素为事件绑定元素。
+     * 如果目标有值，视为起点元素，否则为事件绑定/委托元素。
      * 例：
      * 1. $('/p')  // 检索事件绑定元素内的首个<p>子元素
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
-     * 3. push('/p') pop $    // rid从目标获取，效果同1.
      * 4. push('/p') $(_)     // rid从流程获取，效果同1。
      * 5. push('/a') evo(1) pop $(_)  // 效果同2.
      * @param  {Object} evo 事件关联对象
@@ -91,14 +89,7 @@ const _Gets = {
      * @return {Element}
      */
     $( evo, rid ) {
-        let _beg = evo.delegate;
-
-        if ( rid == null ) {
-            rid = evo.data;
-        } else {
-            _beg = evo.data || _beg;
-        }
-        return Util.find( rid, _beg, true );
+        return Util.find(rid, evo.data || evo.delegate, true);
     },
 
     __$: -1,
@@ -107,27 +98,20 @@ const _Gets = {
     /**
      * 多元素检索入栈。
      * 目标：暂存区1项可选。
-     * rid说明同上，但可以为非字符串值（Collector封装）。
-     * 注：
-     * 如果实参为非字符串，前阶pop值会被丢弃。
+     * 如果目标有值，视为起点元素，否则为事件绑定/委托元素。
+     * 如果rid非字符串，则返回简单的Collector封装。
      * 例：
-     * 0. （参考$）
-     * 1. push(['a','b','c']) pop $$     // 对数组进行封装，$(['a','b','c'])
-     * 2. push(['a','b','c']) $$(_)      // 从流程取实参，rid仅为'a'，'b'和'c'展开（被忽略）
-     * 3. push(['a','b','c']) pack $$(_) // 打包数组（二维），效果同1.
+     * 1. push(['a','b','c']) $$(_1) // 从流程取1个实参：封装数组 $(['a','b','c'])
+     * 2. push(['a','b','c']) $$(_)  // 从流程取不定数量实参，rid为'a'，'b'和'c'展开后被忽略
      * @param  {Object} evo 事件关联对象
      * @param  {String|Value} rid 相对ID或待封装值
      * @return {Collector}
      */
     $$( evo, rid ) {
-        let _beg = evo.delegate;
-
-        if ( rid == null ) {
-            rid = evo.data;
-        } else {
-            _beg = evo.data || _beg;
+        if ( typeof rid !== 'string' ) {
+            return $( rid );
         }
-        return typeof rid == 'string' ? Util.find(rid, _beg) : $(rid);
+        return Util.find( rid, evo.data || evo.delegate );
     },
 
     __$$: -1,
@@ -442,7 +426,7 @@ const _Gets = {
     /**
      * 创建元素（集）。
      * 目标：暂存区条目可选。
-     * 可用暂存区的内容作为创建元素的源码或配置对象。
+     * 如果目标有值，作为创建元素的源码或配置对象。
      * 如果n大于1，表示创建一个元素集。
      * 这是 array(size) pop Element(tag) 的简化版。
      * 注记：Tpb下支持丰富的交互，批量创建元素很常见。
@@ -492,7 +476,7 @@ const _Gets = {
     /**
      * 获取模板节点。
      * 目标：暂存区1项可选。
-     * 如果目标有值，取目标为模板名，此时name充当clone的作用。
+     * 如果目标有值，取目标为模板名，此时name充当clone实参。
      * 注意克隆时是每次都克隆（应当很少使用）。
      * 返回Promise实例，注意调用顺序（应当在avoid等之后）。
      * 例：
@@ -590,9 +574,9 @@ const _Gets = {
 
 
     /**
-     * 关联数据提取。
+     * 元素关联数据提取。
      * 目标：暂存区1项可选。
-     * 从目标元素关联的存储区取值，若目标为空则视为关联当前委托元素。
+     * 若目标有值，则视为关联元素，否则关联当前委托元素。
      * name支持空格分隔的名称序列。
      * 如果不存在关联存储（Map），返回null。
      * 注记：
@@ -604,7 +588,7 @@ const _Gets = {
      * @return {Value|[Value]|null}
      */
     data( evo, name ) {
-        let _el = evo.data === undefined ? evo.delegate : evo.data,
+        let _el = evo.data || evo.delegate,
             _m = DataStore.get(_el);
 
         if ( DEBUG && !_m ) {
@@ -1095,7 +1079,7 @@ const _Gets = {
     'table',        // ( rows?, cols?, th0?, doc? ): $.Table
     'dataName',     // ( attr? ): String
     'tags',         // ( code? ): String
-    'selector',     // ( tag?, attr?, val?, op? ): String
+    'slr',          // ( tag, attr?, val?, op? ): String
     'range',        // ( beg?, size?, step? ): [Number]|[String]
     'now',          // ( json? ): Number|String
 ]
@@ -1293,6 +1277,7 @@ const __uiState = [ '-', '', '^' ];
 // 原生事件调用。
 // 目标：暂存区/栈顶1项（激发元素）。
 // 注：To:NextStage部分存在同名方法（目标不同）。
+// 理解：重在“调用”。
 // @return {void}
 //===============================================
 [

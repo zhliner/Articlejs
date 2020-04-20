@@ -110,7 +110,8 @@
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveSize) pass stop;
-        input.tofull|avoid stop ('_full')"
+        input.tofull|evo(1) ('_full');
+        keydown|(SHK) acmsk ev('key') hotkey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');

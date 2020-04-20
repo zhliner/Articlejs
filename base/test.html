@@ -43,9 +43,11 @@
         import cfg from "./shortcuts.js";
 
         window.KM = cfg.Keys;
-        window.GHK = new HotKey().init( cfg.Global );
-        window.EHK = new HotKey().init( cfg.Editor );
-        window.SHK = new HotKey().init( cfg.Slave );
+        window.GHK = new HotKey().config( cfg.Global );
+        window.MHK = new HotKey().config( cfg.Menu );
+        window.CHK = new HotKey().config( cfg.Content );
+        window.SHK = new HotKey().config( cfg.Slave );
+        window.DHK = new HotKey().config( cfg.Modal );
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );

@@ -8,7 +8,7 @@
     存储键名书写在目标元素上是一个更好的设计。
 -->
 <div tpl-name="data:chars"
-    on="init|evo(1) text split pop $$ wrap('<b>');
+    on="init|evo(1) text split $$(_1) wrap('<b>');
         save|ev('detail') dup xattr('-val');
         ^obted;
         ^done"

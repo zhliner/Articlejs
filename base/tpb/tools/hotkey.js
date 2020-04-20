@@ -6,12 +6,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  快捷键映射配置与处理。
-//  一个键序列只能映射到一个指令集，
+//  快捷键映射处理。
+//  只支持一个键序列只映射到一个指令集。
+//  注记：
 //  如果需要同一键序列映射到不同的目标&行为，应当创建一个新的实例来处理。
+//  这样的简化设计更容易分区控制，且效率较高。
 //
 //  配置结构：{
-//      key:        触发键序列
+//      key:        触发键序列，支持数组定义多对一（通过发送数据区分）
 //      command:    指令标识序列（空格分隔）
 //      when:       匹配选择器，匹配则触发。可选
 //      not:        不匹配选择器，匹配则不触发。可选
@@ -41,19 +43,21 @@ class HotKey {
 
 
     /**
-     * 配置初始化。
+     * 键映射配置。
      * 注：无需在节点解析之前调用。
      * @param  {Map} map 存储集
      * @param  {[Object]} list 映射配置集
      * @return {this}
      */
-    init( list ) {
+    config( list ) {
         for (const its of list) {
-            this.bind(
-                its.key.trim(),
-                its.command.trim(),
-                its.when && its.when.trim(),
-                its.not && its.not.trim()
+            let _ks = its.key;
+
+            if ( !$.isArray(_ks) ) {
+                _ks = [_ks];
+            }
+            _ks.forEach(
+                key => this.bind(key, its.command, its.when, its.not)
             );
         }
         return this;
@@ -74,7 +78,7 @@ class HotKey {
         this._map.set(
             key,
             {
-                commands: cmd.split( __reSpace ),
+                commands: cmd.trim().split( __reSpace ),
                 match: this._handle( when, not )
             }
         );
@@ -154,6 +158,5 @@ class HotKey {
     }
 }
 
-
-// 唯一导出。
+// 导出。
 export default HotKey;

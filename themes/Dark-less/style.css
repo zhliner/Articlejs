@@ -740,7 +740,8 @@ aside#help {
     box-shadow: 0 0 1px 1px #ccc;
 }
 .Input ._inline span > b:hover {
-    background-color: #ddd;
+    background-color: #ccc;
+    font-weight: bold;
 }
 .Input ._inline ._zoomin {
     width: 120px;
