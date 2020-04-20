@@ -656,15 +656,12 @@ const _Gets = {
      * 即 shift/ctrl/alt/meta 键是否按下。
      * 目标：无。
      * 如果指定键名则为检查，否则简单封装4个键的状态。
-     * 可从暂存区获取键名指定。
-     * names支持空格分隔的多个名称，全小写，And关系。
+     * names支持空格分隔的多个名称，And关系。
      * 例：
      * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
      * push('shift ctrl') pop scam  // 同上
      * push('shift ctrl') pack scam(_)   // 同上
      * scam inside('shift ctrl', true)  // 效果同上
-     * 注：
-     * names实参未传递或为假时才会取目标值，否则简单忽略。
      * @param  {String} names 键名序列，可选
      * @return {Object|Boolean}
      */

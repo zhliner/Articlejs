@@ -566,10 +566,10 @@ aside#help {
 .Slave ._tabs > b._close {
     min-width: 16px;
     align-self: center;
-    padding: 8px 11px;
+    padding: 8px 11px 9px 13px;
     margin-left: auto;
     border-radius: 0;
-    margin-top: -6px;
+    margin-top: -5px;
     margin-right: 0;
 }
 .Slave ._tabs > b._close:hover {
