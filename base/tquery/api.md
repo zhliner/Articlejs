@@ -1439,7 +1439,7 @@ $.dataName('-abc-def-xxx');  // 'abcDefXxx'
 ```
 
 
-### $.selector( tag, attr, val?, op? ): String
+### $.slr( tag, attr, val?, op? ): String
 
 根据选择器的各个组成部分构造一个完整的 `标签[特性]` 选择器。
 
@@ -1451,8 +1451,8 @@ $.dataName('-abc-def-xxx');  // 'abcDefXxx'
 支持 `data-` 系特性名的简写形式。
 
 ```js
-$.selector( 'p', '-val', 'xyz');         // "p[data-val="xyz"]"
-$.selector( 'p', 'title', 'test', '*');  // "p[title*="test"]"
+$.slr( 'p', '-val', 'xyz');         // "p[data-val="xyz"]"
+$.slr( 'p', 'title', 'test', '*');  // "p[title*="test"]"
 ```
 
 

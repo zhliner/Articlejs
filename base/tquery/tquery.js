@@ -7346,8 +7346,8 @@ Object.assign( tQuery, {
 
     /**
      * 构造选择器。
-     * - 仅支持标签&属性选择器；
-     * 匹配符：{
+     * 主要用于属性选择器构造。
+     * op: {
      *      ~   空格分隔的单词匹配
      *      |   -分隔的词组前置匹配
      *      *   字串包含匹配
@@ -7355,13 +7355,15 @@ Object.assign( tQuery, {
      *      $   尾部字串匹配
      * }
      * @param  {String} tag  标签名
-     * @param  {String} attr 属性名
-     * @param  {String} val  属性值
-     * @param  {String} op   属性匹配符
+     * @param  {String} attr 属性名，可选
+     * @param  {String} val  属性值，可选
+     * @param  {String} op   属性匹配符，可选
      * @return {String}
      */
-    selector( tag, attr = '', val = '', op = '' ) {
-        if (!attr) return tag;
+    slr( tag, attr = '', val = '', op = '' ) {
+        if ( !attr ) {
+            return tag;
+        }
         return `${tag || ''}[${attrName(attr)}` + (val && `${op}="${val}"`) + ']';
     },
 
