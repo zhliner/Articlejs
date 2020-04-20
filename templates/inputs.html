@@ -493,7 +493,7 @@
 <!-- 子版：字符种类 -->
 <select name="ctype" size="5" class="_list _ctypes" tpl-name="item:ctypes"
     on="change|evo(3) val tpl('data:chars') pop data(_);
-        input.chars|ev('detail') slr('','-k', _) $(_) prop('value')"
+        input.chars|ev('detail') slr('/','-k', _) $(_) prop('value')"
     to="2/._main|fill;
         |val|goto('change')">
     <option data-k="t" title="t" value="normal" selected>常用</option>
