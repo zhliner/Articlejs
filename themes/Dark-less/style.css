@@ -97,7 +97,7 @@ aside#help {
     flex: 1 1 auto;
     padding: 3px;
     border-radius: 3px 1px 1px 3px;
-    outline: none;
+    /* outline: none; */
 }
 
 .___Panel option {
@@ -149,7 +149,7 @@ aside#help {
     overflow-y: scroll;
     resize: none;
     box-sizing: border-box;
-    outline: none;
+    /* outline: none; */
 }
 .___Panel textarea::placeholder {
     color: #aaa;
@@ -169,12 +169,12 @@ aside#help {
     border: 1px #5798a5 solid;
     border-radius: 2px;
     font-size: 14px;
-    outline: none;
+    /* outline: none; */
 }
 /* 去除焦点虚框 */
 .___Panel input,
 .___Panel [tabindex] {
-    outline: none;
+    /* outline: none; */
 }
 
 /* 侧栏灰度线 */
@@ -468,7 +468,7 @@ aside#help {
     overflow-y: scroll !important;
     resize: none;
     position: relative;
-    outline: none;
+    /* outline: none; */
 }
 
 /* 临时态视觉提示 */
@@ -749,20 +749,15 @@ aside#help {
     border: 1px #ccc solid;
     background-color: #fff !important;
     border-radius: 6px;
-    font-size: 90px;
+    font-size: 76px;
 }
-.Input ._inline ._info {
+.Input ._inline ._tips {
     color: #999;
     font-size: 10pt;
-    margin-left: 4px;
+    white-space: nowrap;
 }
-.Input ._inline ._info i {
+.Input ._inline ._tips i {
     font-style: normal;
-}
-
-/* 共享：优先 */
-.Input ._inline b._press {
-    background-color: #84ebce;
 }
 
 

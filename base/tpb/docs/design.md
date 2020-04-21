@@ -223,19 +223,22 @@ index( ...ns:Number ): void
 //-----------------------------------------------
 
 dup( n = 1 ): Value|[Value]
-// 栈顶项复制。
+// 复制栈顶n项。
+
+ddup( n = 1 ): Value|[Value]
+// 深度复制栈顶n项。
 
 pack( n:Number ): [Value]
 // 栈顶n项打包封装。
 
-slice( begin:Number, end:Number ): void
+slice( begin:Number, end:Number ): [Value]
 // 任意区段打包。
 
 spread(): [...Value]
 // 将条目展开入栈。
 
-scrap( start:Number, count:?Number ): void
-// 剔除任意区段条目。
+vain( n:Number ): void
+// 剔除栈顶多余的项。
 
 
 
@@ -401,6 +404,8 @@ calls( meth, ...args ): void
 
 callx( meth, ...args ): void
 // 调用目标的方法（多次）。
+
+docExecmd( type:String ): void
 ```
 
 

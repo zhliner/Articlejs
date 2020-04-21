@@ -539,21 +539,6 @@ class Stack {
 
 
     /**
-     * 数据栈成员删除。
-     * 注记：count明确为undefined时表现为0值。
-     * @param  {Number} start 起始下标
-     * @param  {Number} count 删除数量
-     * @return {Array} 被删除集
-     */
-    dels( start, count ) {
-        if ( !count ) {
-            count = this._buf.length;
-        }
-        return this._buf.splice( start, count );
-    }
-
-
-    /**
      * 弹出数据栈顶1项。
      */
     pop() {

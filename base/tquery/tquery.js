@@ -3168,9 +3168,7 @@ class Collector extends Array {
     // 衍生对象直接上层构造。
     // 如：.map() .filter() 等。
     //
-    static get [Symbol.species]() {
-        return Array;
-    }
+    static get [Symbol.species]() { return Array; }
 
 
     //-- 重载父类方法 ---------------------------------------------------------

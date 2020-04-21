@@ -34,6 +34,24 @@
         $.ready( () => $.trigger(window, 'resize') );
 
         window.Config = {};
+
+        var txtbox;
+
+        setTimeout(() => {
+            txtbox = $.get('#content > p');
+        }, 1000);
+
+        function insertText(txt) {
+            // let range = document.createRange();
+
+            // range.selectNodeContents(txtbox.firstElementChild);
+            // window.getSelection().removeAllRanges();
+            // window.getSelection().addRange(range);
+
+            document.execCommand('insertText', false, txt);
+            // window.getSelection().removeAllRanges();
+            txtbox.focus();
+        }
     </script>
 
     <script type="module" async>

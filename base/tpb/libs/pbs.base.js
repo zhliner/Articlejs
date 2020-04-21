@@ -311,24 +311,18 @@ const _Control = {
 
 
     /**
-     * 剔除任意区段条目。
-     * 目标：暂存区1项可选。
-     * 特权：是。
-     * 如果目标有值，真值才会执行。
-     * 如果count未指定，表示删除start之后全部。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} start 起始位置
-     * @param  {Number} count 删除数量，可选
+     * 丢弃栈顶多余的项。
+     * 主要用于无用返回值自动入栈的情况。
+     * 负的n值会从栈底算起（绝对值下标开始）。
+     * @param {Stack} stack 数据栈
+     * @param  {Number} n 项数
      * @return {void}
      */
-    scrap( evo, stack, start, count ) {
-        if ( evo.data === undefined || evo.data ) {
-            stack.dels( start, count );
-        }
+    vain( evo, stack, n = 1 ) {
+        n == 1 ? stack.pop() : stack.pops( n );
     },
 
-    __scrap: -1,
-    __scrap_x: true,
+    __vain_x: true,
 
 
 
@@ -1310,9 +1304,9 @@ const _Process = {
     /**
      * 调用目标的方法（多次）。
      * 目标：暂存区/栈顶1项。
-     * 视实参组成员为每次调用的实参。
-     * 注：
-     * 单目标单实参：不同实参多次调用。
+     * 实参组成员为每次调用的实参，每次一项。
+     * 不返回值，主要用于对对象本身的修改调用。
+     * 注：单目标单实参。
      * @param  {String} meth 方法名
      * @param  {...Value} args 实参组
      * @return {void}
@@ -1329,9 +1323,10 @@ const _Process = {
     /**
      * 调用目标的方法（多次）。
      * 目标：暂存区/栈顶1项。
-     * 视实参组成员为每次调用的实参（自动展开）。
-     * 注：
-     * 单目标多实参：不同实参序列多次调用。
+     * 实参组成员为每次调用的实参且自动展开，
+     * 因此成员需要是一个可展开对象。
+     * 不返回值，主要用于对对象本身的修改调用。
+     * 注：单目标多实参。
      * @param  {String} meth 方法名
      * @param  {...[Value]} args 实参组（二维）
      * @return {void}
@@ -1361,6 +1356,22 @@ const _Process = {
     },
 
     __hotkey: 1,
+
+
+    /**
+     * 执行document命令。
+     * 目标：暂存区1项可选。
+     * 目标即为待使用的数据，有些命令不需要数据。
+     * 即：document.execCommand(...)
+     * 注：仅适用可编辑元素/控件的当前位置。
+     * @param  {String} type 数据类型
+     * @return {void}
+     */
+    docExecmd( evo, name ) {
+        document.execCommand( name, false, evo.data );
+    },
+
+    __docExecmd: -1,
 
 };
 

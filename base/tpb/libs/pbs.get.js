@@ -221,6 +221,7 @@ const _Gets = {
      * 如果对象是一个集合，返回调用值的一个数组。
      * 注：
      * 单目标单次多实参调用，支持集合目标。
+     * 会返回方法调用的值/值集。
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
      * @return {Value} 方法调用的返回值

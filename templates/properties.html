@@ -99,34 +99,47 @@
 </li>
 
 <li tpl-name="prop:srcbase">
-    <b title="相对于网站根">根路径</b>
+    <b>根路径</b>
     <!-- 依配置自动设置 -->
     <span><input type="text" name="srcbase" placeholder="/upload" /></span>
 </li>
 
 <li tpl-name="prop:sources">
-    <b title="支持多条目">数据源</b>
+    <b>数据源</b>
     <span><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></span>
 </li>
 
 <li tpl-name="prop:alts">
-    <b title="与数据源分别对应">图片说明</b>
-    <span><input type="text" name="alts" placeholder="alt11; alt22" /></span>
+    <b>图片说明</b>
+    <span><input type="text" name="alts" placeholder="11_alt; 22_alt" /></span>
+</li>
+
+<li tpl-name="prop:source">
+    <b>数据源</b>
+    <span><input type="text" name="source" placeholder="abcd.xxx" /></span>
+</li>
+
+<li tpl-name="prop:sourcex">
+    <b>数据源</b>
+    <span><input type="text" name="sourcex" placeholder="default.xxx; abcd.xxx" /></span>
+</li>
+
+<li tpl-name="prop:altx">
+    <b>图片说明</b>
+    <span><input type="text" name="alts" placeholder="alt-text" /></span>
 </li>
 
 <li tpl-name="prop:poster">
     <b>视频画面</b>
-    <span><input type="text" name="poster" placeholder="https://" /></span>
+    <span><input type="text" name="poster" placeholder="(poster)" /></span>
 </li>
 
-<li tpl-name="prop:loop">
-    <b><!-- 占位 --></b>
-    <span><label><input type="checkbox" name="loop" />循环播放</label></span>
-</li>
-
-<li tpl-name="prop:autoplay">
-    <b><!-- 占位 --></b>
-    <span><label><input type="checkbox" name="autoplay" />自动播放</label></span>
+<li tpl-name="prop:mediaopts">
+    <b>设置</b>
+    <span>
+        <label><input type="checkbox" name="autoplay" />自动播放</label>
+        <label><input type="checkbox" name="loop" />循环播放</label>
+    </span>
 </li>
 
 <li tpl-name="prop:open">
