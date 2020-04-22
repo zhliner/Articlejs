@@ -513,15 +513,15 @@
 </div>
 
 <!-- 主栏：字符表 -->
-<div class="_body _Inline" tpl-name="minied:chars">
+<div class="_body _Inline" tpl-name="minied:chars"
+    on="click(b)|evo(2) text pop exeCmd('insertText')">
     <div class="_main _list"
-        on="mouseenter(b)|evo(2) text;
-            click(b)|evo(2) text pop exeCmd('insertText')"
+        on="mouseenter(b)|evo(2) text"
         to="#g-zoomin|text">
         <!-- span/b -->
     </div>
     <aside>
-        <b id="g-zoomin" class="_zoomin">©</b>
+        <b id="g-zoomin" class="_zoomin"></b>
     </aside>
 </div>
 
