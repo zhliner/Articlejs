@@ -83,7 +83,7 @@ Global: [
 
     //
     // 命令行直达
-    // 键与系统功能固定相关，不应修改！
+    // 键与系统功能固定相关，不可修改！
     //-----------------------------------------------------
     {
         "key": [
@@ -146,39 +146,40 @@ Slave: [
 
 
     //
-    // 内联选单：
-    // 元素单元 | 字符种类
-    // 两列表共享相同的配置（两者不同时存在于DOM中）。
-    // 键与<option data-k="?">?相关，不可配置。
+    // 选单条目直达
+    // 共享相同的配置（不会同时存在于DOM中）。
+    // 注：键与<option data-k="?">?相关，不可配置。
     //-----------------------------------------------------
     {
+        //-----------------元素单元     | 字符种类      | 行块单元
         "key": [
-            ":g",       // <img>    | geometric 几何
+            ":g",       // <img>        | geometric
             "shift:a",  // <audio>
             "shift:v",  // <video>
-            "shift:p",  // <picture>
-            ":a",       // <a>      | alphabet 字母
-            ":c",       // <code>   | custom 最近常用
-            ":s",       // <strong> | special 特殊
-            ":e",       // <em>     | emotion 表情
+            ":a",       // <a>          | alphabet      | address
+            ":c",       // <code>       | custom        | codeblock
+            ":s",       // <strong>     | special       | section
+            ":e",       // <em>         | emotion
             ":q",       // <q>
-            ":t",       // <time>
-            ":i",       // <ins>    | ipa87 国际音标
-            ":d",       // <del>
-            ":m",       // <mark>   | math 数学
-            ":r",       // <ruby>   | radical 偏旁部首
-            ":o",       // <code:orz>
-            ":f",       // <dfn>
-            ":p",       // <samp>   | punctuation 标点
+            ":t",       // <time>       | ...           | table
+            ":i",       // <ins>        | ipa87
+            ":d",       // <del>        | ...           | details
+            ":m",       // <mark>       | math
+            ":r",       // <ruby>       | radical       | reference
+            ":o",       // <code:orz>   | ...           | ol
+            ":f",       // <dfn>        | ...           | figure
+            ":p",       // <samp>       | punctuation   | p
             ":k",       // <kbd>
-            ":u",       // <u>      | unit 单位
+            ":u",       // <u>          | unit          | ul
             ":v",       // <var>
-            ":b",       // <bdo>
-            ":n",       // ...      | number 序号
-            ":z",       // ...      | phonetic 拼音
+            ":b",       // <bdo>        | ...           | blockquote
+            ":n",       // ...          | number        | p:note
+            ":z",       // ...          | phonetic
+            ":h",       // ...          | ...           | header
+            ":l",       // ...          | ...           | codelist
         ],
-        "command":  "input.inline",
-        "when":     "select._inlines",
+        "command":  "input.select",
+        "when":     ".Input select._list",
     },
 
 ],

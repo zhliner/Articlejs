@@ -20,7 +20,7 @@
     <!-- 动态区 -->
     <div id="tools-active" class="_active _icons" data-pb="">
         <hr>
-        <b title="文本化" onmousedown="insertText('Hello')"><i id="b-totext"></i></b>
+        <b title="文本化"><i id="b-totext"></i></b>
         <b title="去除标签"><i id="b-untag"></i></b>
         <hr>
         <b title="撤消"><i id="b-undo"></i></b>
@@ -91,9 +91,9 @@
             <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内容区 -->
-        <main id="content" class="content">
+        <main id="content" class="content"
+            on="mouseup keyup input|rangeKeep stop">
             <p contenteditable>这里是一些测试文本，包含内联的<em>子元素和深层嵌套的<strong>孙级元素</strong>。。。</em></p>
-            <button onclick="insertText('same level Element')">插入文本</button>
         </main>
     </div>
     <!-- 元素路径 -->
@@ -112,7 +112,7 @@
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveSize) pass stop;
         input.tofull|evo(1) ('_full');
-        keydown|(SHK) acmsk ev('key') hotkey(_2) pop stop"
+        keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');

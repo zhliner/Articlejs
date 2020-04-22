@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html on="keydown|(GHK) acmsk ev('key') hotkey(_2)">
+<html on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
@@ -34,24 +34,6 @@
         $.ready( () => $.trigger(window, 'resize') );
 
         window.Config = {};
-
-        var txtbox;
-
-        setTimeout(() => {
-            txtbox = $.get('#content > p');
-        }, 1000);
-
-        function insertText(txt) {
-            // let range = document.createRange();
-
-            // range.selectNodeContents(txtbox.firstElementChild);
-            // window.getSelection().removeAllRanges();
-            // window.getSelection().addRange(range);
-
-            document.execCommand('insertText', false, txt);
-            // window.getSelection().removeAllRanges();
-            txtbox.focus();
-        }
     </script>
 
     <script type="module" async>

@@ -45,7 +45,11 @@ const
     __reSpace2n = /\s\s+/g,
 
     // 颜色值：rgb(0, 0, 0)
-    __rgbDecimal = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/;
+    __rgbDecimal = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/,
+
+    // 选取对象暂存。
+    // 由rangeKeep操作，供exeCmd方法使用。
+    __tmpRanges = [];
 
 
 
@@ -1351,27 +1355,55 @@ const _Process = {
      * @param  {Value} extra 发送数据
      * @return {Boolean} 是否已捕获激发
      */
-    hotkey( evo, key, extra ) {
+    hotKey( evo, key, extra ) {
         return evo.data.fire( key, evo.event, extra );
     },
 
-    __hotkey: 1,
+    __hotKey: 1,
+
+
+    /**
+     * 记住活动选取。
+     * 目标：无。
+     * 自动更新全局Range集存储。
+     * 通常绑定在离可编辑元素最近的容器元素上。
+     * 如：on="mouseup keyup input|rangeKeep stop"
+     * @return {void}
+     */
+    rangeKeep( evo ) {
+        let _sln = window.getSelection();
+        __tmpRanges.length = 0;
+
+        for (let i = 0; i < _sln.rangeCount; i++) {
+            __tmpRanges.push( _sln.getRangeAt(i) );
+        }
+        // 用于重新聚焦。
+        __tmpRanges.active = document.activeElement;
+    },
+
+    __rangeKeep: null,
 
 
     /**
      * 执行document命令。
      * 目标：暂存区1项可选。
-     * 目标即为待使用的数据，有些命令不需要数据。
-     * 即：document.execCommand(...)
-     * 注：仅适用可编辑元素/控件的当前位置。
-     * @param  {String} type 数据类型
-     * @return {void}
+     * 目标为待使用的数据（部分命令不需要）。
+     * 需配合rangeKeep使用。
+     * @param  {String} name 命令名称
+     * @return {Boolean} 调用命令返回的值
      */
-    docExecmd( evo, name ) {
-        document.execCommand( name, false, evo.data );
+    exeCmd( evo, name ) {
+        let _sln = window.getSelection();
+
+        _sln.removeAllRanges();
+        _sln.addRange( __tmpRanges[0] );
+
+        __tmpRanges.active.focus();
+
+        return document.execCommand( name, false, evo.data );
     },
 
-    __docExecmd: -1,
+    __exeCmd: -1,
 
 };
 

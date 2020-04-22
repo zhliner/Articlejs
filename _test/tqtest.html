@@ -10,6 +10,9 @@
 <!-- <script src="../_libs/jquery-3.4.1.js"></script> -->
 
 <style>
+    body {
+        line-height: 2;
+    }
     div#root {
         display: inline-block;
         background-color: #9ff;
@@ -133,7 +136,7 @@ p.ani {
     <section id="s0" style="padding: 10px; height: 120px; border: 5px #ccc solid; width: 800px; position: relative;">
         <p title="\t\s">首个段落。</p>
         <p id="p2">第二个段落。</p>
-        <p id="p3">The third paragraph.</p>
+	<p id="p3" contenteditable="true">The third <b>paragraph</b>. and the <em>em-element</em></p>
     </section>
     <section id="s1-1" on="hello('fine, it\'s ok.')">
         <p>The first paragraph.</p>

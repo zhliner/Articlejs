@@ -1586,7 +1586,7 @@
     <hr>
     <!-- 微编辑：内联单元 --------------------------------------------------->
 
-    <h4>[内联] 单元属性</h4>
+    <h4>[内联] 单元属性：图片</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1609,7 +1609,7 @@
                     </div>
                     <!-- 内联元素 -->
                     <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
-                        <option title="<img>" value="img">图片</option>
+                        <option title="<img>" value="img" selected>图片</option>
                         <option title="<audio>" value="audio">音频</option>
                         <option title="<video>" value="video">视频</option>
                         <option title="<picture>" value="picture">兼容图片</option>
@@ -1642,7 +1642,7 @@
                         <option title="<span:blank>" value="blank">空白段</option>
                     </select>
                 </div>
-                <!-- [子模版：单元属性] -->
+                <!-- [子模版：图片单元属性] -->
                 <div class="_body _inline" tpl-name="minied:inlines">
                     <div class="_main _list">
                         <ul class="_prop">
@@ -1671,8 +1671,7 @@
                     </div>
                     <aside>
                         <div class="_submit">
-                            <!-- ev.clipboardData.setData('text/html', [html]) -->
-                            <button type="submit">复制</button>
+                            <button type="submit">插入</button>
                         </div>
                     </aside>
                 </div>
@@ -1681,7 +1680,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>[内联] 单元属性</h4>
+    <h4>[内联] 单元属性：代码</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1704,37 +1703,7 @@
                     </div>
                     <!-- 内联元素 -->
                     <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
-                        <option title="<img>" value="img">图片</option>
-                        <option title="<audio>" value="audio">音频</option>
-                        <option title="<video>" value="video">视频</option>
-                        <option title="<picture>" value="picture">兼容图片</option>
-                        <option title="<a>" value="a">链接</option>
-                        <option title="<code>" value="code">代码</option>
-                        <option title="<strong>" value="strong">重点</option>
-                        <option title="<em>" value="em">强调</option>
-                        <option title="<sub>" value="sub">下标</option>
-                        <option title="<sup>" value="sup">上标</option>
-                        <option title="<q>" value="q">短引用</option>
-                        <option title="<time>" value="time">日期/时间</option>
-                        <option title="<ins>" value="ins">插入性条目</option>
-                        <option title="<del>" value="del">已删除条目</option>
-                        <option title="<abbr>" value="abbr">缩写</option>
-                        <option title="<small>" value="small">注脚</option>
-                        <option title="<cite>" value="cite">来源</option>
-                        <option title="<mark>" value="mark">标记</option>
-                        <option title="<ruby/rb,rp,rt>" value="ruby">注音单元</option>
-                        <option title="<code:orz>" value="orz">表情</option>
-                        <option title="<dfn>" value="dfn">定义条目</option>
-                        <option title="<samp>" value="samp">样本</option>
-                        <option title="<kbd>" value="kbd">键盘字</option>
-                        <option title="<meter>" value="meter">度量标示</option>
-                        <option title="<s>" value="s">失效</option>
-                        <option title="<u>" value="u">注记</option>
-                        <option title="<var>" value="var">变量</option>
-                        <option title="<bdo>" value="bdo">有向文本</option>
-                        <option title="<br>" value="br">换行</option>
-                        <option title="<wbr>" value="wbr">软换行</option>
-                        <option title="<span:blank>" value="blank">空白段</option>
+                        <option title="<code>" value="code" selected>代码</option>
                     </select>
                 </div>
                 <!-- [子模版：单元属性] -->
@@ -1746,8 +1715,7 @@
                     </div>
                     <aside>
                         <div class="_submit">
-                            <!-- ev.clipboardData.setData('text/html', [html]) -->
-                            <button type="submit">复制</button>
+                            <button type="submit">插入</button>
                         </div>
                     </aside>
                 </div>
@@ -1756,7 +1724,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>[内联] 单元属性</h4>
+    <h4>[内联] 单元属性：重点</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1779,37 +1747,7 @@
                     </div>
                     <!-- 内联元素 -->
                     <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
-                        <option title="<img>" value="img">图片</option>
-                        <option title="<audio>" value="audio">音频</option>
-                        <option title="<video>" value="video">视频</option>
-                        <option title="<picture>" value="picture">兼容图片</option>
-                        <option title="<a>" value="a">链接</option>
-                        <option title="<code>" value="code">代码</option>
-                        <option title="<strong>" value="strong">重点</option>
-                        <option title="<em>" value="em">强调</option>
-                        <option title="<sub>" value="sub">下标</option>
-                        <option title="<sup>" value="sup">上标</option>
-                        <option title="<q>" value="q">短引用</option>
-                        <option title="<time>" value="time">日期/时间</option>
-                        <option title="<ins>" value="ins">插入性条目</option>
-                        <option title="<del>" value="del">已删除条目</option>
-                        <option title="<abbr>" value="abbr">缩写</option>
-                        <option title="<small>" value="small">注脚</option>
-                        <option title="<cite>" value="cite">来源</option>
-                        <option title="<mark>" value="mark">标记</option>
-                        <option title="<ruby/rb,rp,rt>" value="ruby">注音单元</option>
-                        <option title="<code:orz>" value="orz">表情</option>
-                        <option title="<dfn>" value="dfn">定义条目</option>
-                        <option title="<samp>" value="samp">样本</option>
-                        <option title="<kbd>" value="kbd">键盘字</option>
-                        <option title="<meter>" value="meter">度量标示</option>
-                        <option title="<s>" value="s">失效</option>
-                        <option title="<u>" value="u">注记</option>
-                        <option title="<var>" value="var">变量</option>
-                        <option title="<bdo>" value="bdo">有向文本</option>
-                        <option title="<br>" value="br">换行</option>
-                        <option title="<wbr>" value="wbr">软换行</option>
-                        <option title="<span:blank>" value="blank">空白段</option>
+                        <option title="<strong>" value="strong" selected>重点</option>
                     </select>
                 </div>
                 <!-- [子模版：单元属性] -->
@@ -1821,8 +1759,9 @@
                     </div>
                     <aside>
                         <div class="_submit">
-                            <!-- ev.clipboardData.setData('text/html', [html]) -->
-                            <button type="submit">复制</button>
+                            <!--复制：copy事件内：
+                                ev.clipboardData.setData('text/html', [html]) -->
+                            <button type="submit">插入</button>
                         </div>
                     </aside>
                 </div>
@@ -1939,7 +1878,6 @@
                     </div>
                     <aside>
                         <b id="g-zoomin" class="_zoomin">©</b>
-                        <span class="_info">已复制：<i id="g-copies">1</i></span>
                     </aside>
                 </div>
             </form>

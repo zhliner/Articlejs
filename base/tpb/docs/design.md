@@ -405,7 +405,7 @@ calls( meth, ...args ): void
 callx( meth, ...args ): void
 // 调用目标的方法（多次）。
 
-docExecmd( type:String ): void
+exeCmd( type:String ): void
 ```
 
 
