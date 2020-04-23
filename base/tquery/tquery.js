@@ -6522,6 +6522,10 @@ const Event = {
         blur:       true,
         mouseenter: true,
         mouseleave: true,
+
+        // 元素的该事件不冒泡，window上的该事件冒泡。
+        // 统一注册为捕获。
+        scroll:     true,
     },
 
 
