@@ -160,11 +160,10 @@
         </span>
         <!-- data-v: CSS辅助 -->
         <code id="g-cmdx" data-v="/"
-            on="click|$('1/span') lose(0);
-                setv|ev('detail') dup;
-                done|$('1/span') lose(1)"
-            to="-;
-                |@text @-v|goto('done');
+            on="setv|ev('detail') dup;
+                done|$('1/span') lose;
+                click|$('1/span') lose(0)"
+            to="|@text @-v|goto('done');
                 #cmd-input|-|focus">/</code>
     </div>
     <!-- 命令行 -->

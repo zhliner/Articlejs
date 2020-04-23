@@ -585,9 +585,6 @@ aside#help {
 .Slave > form > div {
     display: flex;
 }
-.Slave div._body {
-    min-width: 450px;
-}
 .Slave ._roll {
     flex: 1 1 140px;
     min-width: 120px;
@@ -726,6 +723,9 @@ aside#help {
 }
 
 /* 文本字符 */
+.Slave div._Inline {
+    min-width: 365px;
+}
 .Input ._Inline ._list > span {
     padding-bottom: 5px;
 }
@@ -743,8 +743,8 @@ aside#help {
     font-weight: bold;
 }
 .Input ._Inline ._zoomin {
-    width: 120px;
-    height: 120px;
+    width: 115px;
+    height: 115px;
     border: 1px #ccc solid;
     background-color: #fff !important;
     border-radius: 6px;
@@ -802,15 +802,15 @@ aside#help {
     color: #999;
 }
 /* 垂直清除 */
-.Style ._fontview ._erase,
-.Style ._color ._erase {
+.Style ._Fontview ._erase,
+.Style ._Color ._erase {
     writing-mode: vertical-rl;
     width: 28px;
     margin-left: 10px;
 }
 
 /* 字形 */
-.Style ._fontview ._list {
+.Style ._Fontview ._list {
     padding: 10px;
     justify-content: start;
 }
@@ -827,23 +827,23 @@ aside#help {
 }
 
 /* 对齐 */
-.Style ._align ._v {
+.Style ._Align ._v {
     margin-left: 14px;
 }
-.Style ._align label {
+.Style ._Align label {
     color: #82bec9;
     font-style: italic;
     padding-left: 6px;
 }
 
 /* 边距 */
-.Style ._margin ._where {
+.Style ._Margin ._where {
     height: 34px;
     background-color: #d1dadc;
     border-radius: 5px 5px 0 0;
     margin-bottom: -3px;
 }
-.Style ._margin ._list {
+.Style ._Margin ._list {
     min-width: 180px;
 }
 
@@ -868,41 +868,46 @@ aside#help {
 .Style ._cbox b:hover {
     border-color: #999;
 }
-.Style ._color ._submit {
+.Style ._Color ._submit {
     margin-left: 12px;
     /* 避免flex拉伸 */
     display: block;
 }
-.Style ._color > aside {
+.Style ._Color > aside {
     min-width: 132px;
     padding: 5px 10px;
     border: 1px #ccc dotted;
     border-radius: 5px;
 }
-.Style ._color ._assign {
+.Style ._Color ._assign {
     margin-bottom: 20px;
 }
-.Style ._color ._aim {
+.Style ._Color ._aim {
     display: flex;
     justify-content: space-around;
 }
-.Style ._color ._custom {
+.Style ._Color ._custom {
     flex: 1 1 auto;
     margin-top: auto;
     display: flex;
     flex-direction: column;
     max-height: 140px;
 }
-.Style ._color ._tips {
+.Style ._Color ._tips {
     color: #888;
     font-size: 9pt;
     text-align: center;
 }
-.Style ._color ._pick {
+.Style ._Color ._bgcbox {
     flex: 1 1 auto;
     border-radius: 30px;
 }
-.Style ._color ._pick > input {
+.Style ._Color ._bgc {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+}
+.Style ._Color ._bgc > input {
     opacity: 0;
     width: 100%;
     height: 100%;

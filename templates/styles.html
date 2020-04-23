@@ -5,7 +5,7 @@
 
 
 <!-- 字形 -->
-<div class="_body _fontview" tpl-name="style:fontview">
+<div class="_body _Fontview" tpl-name="style:fontview">
     <div class="_list">
         <label>
             <input type="checkbox" name="bold" />
@@ -33,7 +33,7 @@
 
 
 <!-- 字号 -->
-<div class="_body _fontsize" tpl-name="style:fontsize">
+<div class="_body _Fontsize" tpl-name="style:fontsize">
     <select name="sizename" size="5" class="_list">
         <option>xx-small</option>
         <option>x-small</option>
@@ -65,7 +65,7 @@
 
 
 <!-- 对齐 -->
-<div class="_body _align" tpl-name="style:align">
+<div class="_body _Align" tpl-name="style:align">
     <div class="_h">
         <label title="text-align">行内</label>
         <select name="align" size="5" class="_list">
@@ -97,7 +97,7 @@
 
 
 <!-- 宽/高度 -->
-<div class="_body _width" tpl-name="style:width">
+<div class="_body _Width" tpl-name="style:width">
     <select name="width" size="5" class="_list">
         <option title="宽度">width</option>
         <option title="最大宽度">max-width</option>
@@ -127,7 +127,7 @@
 
 
 <!-- 边距 -->
-<div class="_body _margin" tpl-name="style:margin">
+<div class="_body _Margin" tpl-name="style:margin">
     <div>
         <div class="_where"
             on="click(input)|evo(2) val tpl(_)"
@@ -190,7 +190,7 @@
 
 
 <!-- 颜色 -->
-<div class="_body _color" tpl-name="style:color">
+<div class="_body _Color" tpl-name="style:color">
     <div class="_cbox"
         on="mouseenter(b)|evo(2) css('background-color');
             mouseleave|$('#color-info') text;
@@ -249,14 +249,17 @@
         </div>
         <div class="_custom">
             <span id="color-info" class="_tips">#000000</span>
-            <label id="color-show" class="_pick" style="background-color: #000;">
-                <input id="g-color" name="color" type="color"
-                    on="change|evo(3) val caseUpper;
-                        change|evo(3) val"
-                    to="2/span|@text;
-                        2/label|%backgroundColor" />
-            </label>
-        </div>
+            <!-- 白底：预防透明色 -->
+            <span class="_bgcbox" style="background-color: #fff;">
+                <label id="color-show" class="_bgc" style="background-color: #000;">
+                    <input id="g-color" name="color" type="color"
+                        on="change|evo(3) val caseUpper;
+                            change|evo(3) val"
+                        to="3/span|@text;
+                            3/label|%backgroundColor" />
+                </label>
+            </div>
+            </span>
     </aside>
     <hr tpl-node="common:submit" />
 </div>
