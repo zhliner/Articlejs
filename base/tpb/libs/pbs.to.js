@@ -229,7 +229,8 @@ const _Update = {
      * 类名独占设置。
      * 清除元素集内name类名之后设置目标元素类名。
      * 可用于选单中的排他性选取表达。
-     * @param  {Element} to 目标元素
+     * 注：支持目标是一个集合。
+     * @param  {Element|[Element]} to 目标元素/集
      * @param  {[Element]} els 源元素集
      * @param  {String} name 类名称
      * @return {void}
@@ -238,6 +239,9 @@ const _Update = {
         els.forEach(
             el => $.removeClass(el, name)
         );
+        if ( $.isArray(to) ) {
+            return to.forEach( el => $.addClass(el, name) );
+        }
         $.addClass( to, name );
     },
 

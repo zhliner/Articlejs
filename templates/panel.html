@@ -1,7 +1,8 @@
 <!-- 内容：录入 -->
 <form class="Input" onsubmit="return false" tpl-name="slave:input">
     <div class="_roll">
-        <div class="_where">
+        <!--focus: 快捷操作友好 -->
+        <div class="_where" on="click(input)|$('1/select') focus">
             <label title="平级插入">
                 <input type="radio" name="where" checked /><i id="l-siblings"></i>
             </label>
