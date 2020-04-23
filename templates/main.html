@@ -28,7 +28,6 @@
     </div>
     <!-- 末端 -->
     <div class="_end _icons">
-        <!-- 先显示再替换（否则目标脱离DOM） -->
         <b id="x-plugins" title="插件"
             on="click|tpl('modal:plugins')"
             to="#g-modal>*|replace trigger('open', true)">
@@ -104,22 +103,25 @@
 
 
 <!-- 主面板：
-    - mousedown 面板高度调整
-    - keydown 录入框充满（限定启动快捷键）
-    - input.tofull 快捷键激发录入框充满（<textarea>为事件附加数据） -->
+    - mousedown 面板高度调整。
+    - keydown   面板快捷键处理。
+    - input.tofull 录入框（<textarea>）充满。
+    - scroll    背景/行线跟随 -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveSize) pass stop;
         input.tofull|evo(1) ('_full');
+        scroll(textarea)|evo(2) scrollTop neg add('px');
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');
-        ~|toggleClass">
+        ~|toggleClass;
+        #|%backgroundPositionY">
     <div class="_tabs"
         on="click(b)|evo(2) attr('-tpl') pop tpl;
-            click(b)|$$('/b')"
+            click(b)|evo(2) hasClass('_press') end $$('/b')"
         to="1/form|replace;
             #|only('_press')">
         <b data-tpl="slave:input" class="_press">内容</b>

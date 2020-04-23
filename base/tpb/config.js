@@ -36,10 +36,6 @@ const
         // 格式：{文件: [节点]}
         tplmap: 'templates/maps.json',
 
-        // OBT独立定义存放目录
-        // 即 obt-src 根
-        obtdir: 'templates/obts',
-
         // x.pull根目录
         pulls:  'xdata',
     };

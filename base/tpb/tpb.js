@@ -79,7 +79,7 @@ function obtAttr( el ) {
         _buf.push( _obtattr(el) );
     }
     if ( el.hasAttribute(OBTA.src) ) {
-        _buf.push( XLoader.json(`${Web.obtdir}/${$.attr(el, OBTA.src)}`) );
+        _buf.push( XLoader.json($.attr(el, OBTA.src)) );
     }
     $.removeAttr( el, __obtName );
 

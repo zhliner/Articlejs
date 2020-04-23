@@ -1,0 +1,3 @@
+{
+    "on": "keydown|(GHK) acmsk ev('key') hotKey(_2)"
+}

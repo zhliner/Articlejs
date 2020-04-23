@@ -137,6 +137,10 @@ aside#help {
     white-space: pre-wrap;
 }
 
+/* 注：
+ * 系统已实现背景跟随。
+ * 覆盖：background-position-y: xxx !important;
+ */
 .___Panel textarea {
     border: 1px #355c64 solid;
     padding: 2px 2px 2px 8px;
@@ -250,7 +254,6 @@ aside#help {
 }
 .___Panel textarea._code {
     background: #444 url('images/line20.png') repeat;
-    background-position-y: 1px;
     line-height: 20px;
     border: 1px #666 solid;
 }

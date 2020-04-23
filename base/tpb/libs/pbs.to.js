@@ -236,13 +236,13 @@ const _Update = {
      * @return {void}
      */
     only( to, els, name ) {
-        els.forEach(
-            el => $.removeClass(el, name)
-        );
-        if ( $.isArray(to) ) {
-            return to.forEach( el => $.addClass(el, name) );
+        if ( !$.isArray(to) ) {
+            to = [to];
         }
-        $.addClass( to, name );
+        els.forEach(
+            el => to.includes(el) || $.removeClass(el, name)
+        );
+        to.forEach( el => $.addClass(el, name) );
     },
 
 
