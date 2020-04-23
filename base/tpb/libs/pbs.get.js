@@ -425,24 +425,21 @@ const _Gets = {
 
 
     /**
-     * 创建元素（集）。
+     * 创建元素集。
      * 目标：暂存区条目可选。
      * 如果目标有值，作为创建元素的源码或配置对象。
-     * 如果n大于1，表示创建一个元素集。
      * 这是 array(size) pop Element(tag) 的简化版。
-     * 注记：Tpb下支持丰富的交互，批量创建元素很常见。
+     * 注记：Tpb下交互丰富，批量创建元素较常见。
      * @param  {String} tag 元素标签名
      * @param  {Number} n 元素数量
-     * @return {Element|[Element]}
+     * @return {[Element]}
      */
-    elem( evo, tag, n = 1 ) {
+    els( evo, tag, n ) {
         let v = evo.data;
 
-        if ( n == 1 ) {
-            return $.Element( tag, v );
+        if ( !$.isArray(v) ) {
+            v = [v];
         }
-        if ( !$.isArray(v) ) v = [v];
-
         return arrayFill( v, n ).map( d => $.Element(tag, d) );
     },
 

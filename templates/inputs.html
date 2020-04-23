@@ -120,9 +120,10 @@
 
 <!-- 片区：s1-s5 -->
 <div class="_body _Section" tpl-name="input:section">
+    <!--focus: 激活扩展友好。-->
     <div class="_main"
         on="focus(textarea)|$$('/textarea') dup evo(1) not(_) pop"
-        to="|only('_inert')">
+        to="-|only('_inert')">
         <header>
             <input name="hx" type="text" placeholder="标题" class="_scale" />
         </header>

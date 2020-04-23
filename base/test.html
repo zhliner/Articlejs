@@ -57,7 +57,12 @@
         window.Tpb = Tpb;
     </script>
 </head>
-
+<!--OBT:
+    - 左右面板大小改变。
+    - 三个面板隐显切换（独立）。
+    - 当前显示面板隐显切换。
+    - 命令行直达。
+    - 主面板辅助键[Alt]提示替换。 -->
 <body lang="zh-cn"
     on="@mousemove:1|movementX avoid;
         @mousemove:2|movementX neg avoid;
@@ -77,7 +82,7 @@
         |off('mousemove');
         |trigger('pstore');
         -;
-        |trigger('toggle');
+        -|trigger('toggle');
         #x-outline||click;
         #x-slave||click;
         #x-help||click;
@@ -88,7 +93,7 @@
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-    <hr id="lineLeft"
+    <hr id="lineLeft" data-pb=""
         on="mousedown"
         to="body|bind('mousemove:1') once('mouseup')" />
     <div id="editor">
