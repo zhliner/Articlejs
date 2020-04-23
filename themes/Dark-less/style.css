@@ -808,6 +808,9 @@ aside#help {
     width: 28px;
     margin-left: 10px;
 }
+.Style ._assign > div {
+    white-space: nowrap;
+}
 
 /* 字形 */
 .Style ._Fontview ._list {
@@ -844,7 +847,7 @@ aside#help {
     margin-bottom: -3px;
 }
 .Style ._Margin ._list {
-    min-width: 180px;
+    min-width: 174px;
 }
 
 /* 颜色 */
