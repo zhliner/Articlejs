@@ -1,5 +1,5 @@
 //! $Id: types.js 2019.10.09 Articlejs.Libs $
-//
+// ++++++++++++++++++++++++++++++++++++++++++++
 // 	Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 // 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
@@ -14,178 +14,137 @@
 
 const $ = window.$;
 
-
-// 内容类型。
+//
+// 单元类型值定义。
+// - 内联结构元素：     [0, 99]     不能包含文本或其它内联单元，有固定的内部结构或空结构。
+// - 内联内结构元素：   [100, 199]  其它内联结构元素的内部成员，自身不是独立的内联单元。可能为内容元素。
+// - 内联内容元素：     [200, 299]  可直接包含文本或其它内联单元。
+// - 行块内容元素：     [300, 399]  可直接包含文本节点和内联单元，但属于行块逻辑而不是内联成员。
+// - 块内结构元素：     [400, 499]  行块结构元素内部的元素，不能充当独立的单元。可能为内容元素。
+// - 行块结构元素：     [500, ~]    不能直接包含文本或内联单元。
+//
 const
-    $TEXT       = 1,        // 文本/节点
+    //
+    // 内联结构元素
+    /////////////////////////////////////////////
+    $TEXT       = 0,  // 文本节点（#text）
 
-    H1          = 1 << 1,   // 页标题
-    HGROUP      = 1 << 2,   // 主/副标题组
-    ABSTRACT    = 1 << 3,   // 提要
-    TOC         = 1 << 4,   // 目录
-    SEEALSO     = 1 << 5,   // 另参见
-    REFERENCE   = 1 << 6,   // 文献参考
-    ARTICLE     = 1 << 7,   // 文章区
-    HEADER      = 1 << 8,   // 导言
-    FOOTER      = 1 << 9,   // 结语
-    S1          = 1 << 10,  // 章 /h2
-    S2          = 1 << 11,  // 节 /h3
-    S3          = 1 << 12,  // 区 /h4
-    S4          = 1 << 13,  // 段 /h5
-    S5          = 1 << 14,  // 末 /h6
-    OL          = 1 << 15,  // 有序列表
-    BLOUFCPC    = 1 << 16,  // 块集：ul,figure,codelist,pre,codeblock
-    CASCADE     = 1 << 17,  // 级联表
-    DL          = 1 << 18,  // 定义列表
-    BLONATHS    = 1 << 19,  // 块集：note,address,table,hr,space
-    BLOCKQUOTE  = 1 << 20,  // 块引用
-    ASIDE       = 1 << 21,  // 批注
-    DETAILS     = 1 << 22,  // 详细内容
-    P           = 1 << 23,  // 段落
-    CODELI      = 1 << 24,  // 代码表条目（li/code）
-    ALI         = 1 << 25,  // 目录表普通条目（li/a）
-    H5A         = 1 << 26,  // 目录表标题条目（h5/a）
-    CASCADELI   = 1 << 27,  // 级联表条目（li/h5,ol）
-    INLINE      = 1 << 28,  // 内联单元
-    A           = 1 << 29,  // 链接
-    CODE        = 1 << 30,  // 行内代码
-    IMG         = 1 << 31,  // 图片
-    I           = 1 << 32,  // <i> 标题编号
-    B           = 1 << 33,  // <b> 代码关键字
-    H2          = 1 << 34,  // 章标题
-    H3          = 1 << 35,  // 节标题
-    H4          = 1 << 36,  // 区标题
-    H5          = 1 << 37,  // 段标题
-    H6          = 1 << 38,  // 末标题
-    SUMMARY     = 1 << 39,  // 详细内容摘要/标题
-    FIGCAPTION  = 1 << 40,  // 插图标题
-    LI          = 1 << 41,  // 列表项（通用）
-    DLI         = 1 << 42,  // 定义列表项（dt,dd）
-    RBPT        = 1 << 43,  // 注音单元（rb,rp,rt）
-    TRACK       = 1 << 44,  // 字幕轨
-    SOURCE      = 1 << 45,  // 媒体资源
-    CAPTION     = 1 << 46,  // 表格标题
-    TSEC        = 1 << 47,  // 表格片区（thead,tbody,tfoot）
-    TR          = 1 << 48,  // 表格行
-    TCELL       = 1 << 49;  // 表单元格（th,td）
+    AUDIO       = 3,    // 音频
+    VIDEO       = 3,    // 视频
+    PICTURE     = 3,    // 兼容图片
+    IMG         = 31,   // 图片
+    RUBY        = 3,    // 注音
+    TIME        = 3,    // 时间
+    METER       = 3,    // 度量
+    BR          = 3,    // 换行
+    WBR         = 3,    // 软换行
+    SPACE       = 3,    // 空白
+    //
+    // 内联内结构
+    /////////////////////////////////////////////
+    TRACK       = 44,   // 字幕轨
+    SOURCE      = 45,   // 媒体资源
+    RB          = 43,   // 注音文本
+    RT          = 43,   // 注音拼音
+    RP          = 43,   // 注音拼音包围
+    //
+    // 内联内容元素
+    /////////////////////////////////////////////
+    A           = 3,    // 链接
+    STRONG      = 3,    // 重点
+    EM          = 3,    // 强调
+    Q           = 3,    // 短引用
+    ABBR        = 3,    // 缩写
+    CITE        = 3,    // 来源
+    SMALL       = 3,    // 注脚
+    DEL         = 3,    // 删除
+    INS         = 3,    // 插入
+    SUB         = 3,    // 下标
+    SUP         = 3,    // 上标
+    MARK        = 3,    // 标记
+    CODE        = 30,   // 行内代码（code/#text, b, i）
+    ORZ         = 3,    // 表情
+    DFN         = 3,    // 定义
+    SAMP        = 3,    // 样本
+    KBD         = 3,    // 键盘字
+    S           = 3,    // 失效
+    U           = 3,    // 注记
+    VAR         = 3,    // 变量
+    BDO         = 3,    // 有向文本
 
+    //
+    // 行块内容元素
+    /////////////////////////////////////////////
+    H1          = 1,    // 页标题 （h1/#text）
 
-//
-// 内容单元|元件类型配置。
-//
-const Types = {
-    // 文本
-    $text:          $TEXT,
+    P           = 23,   // 段落 （p/#text, ...）
+    NOTE        = 23,   // 注解 （p:note/#text, ...）
+    TIPS        = 24,   // 提示 （p:tips/#text, ...）
+    ADDRESS     = 25,   // 地址 （address/#text, ...）
+    PRE         = 19,   // 预排版 （pre/#text, ...）
+    BLANK       = 28,   // 白板 （div:blank/x）
+    H2          = 34,   // 章标题
+    H3          = 35,   // 节标题
+    H4          = 36,   // 区标题
+    H5          = 37,   // 段标题
+    H6          = 38,   // 末标题
+    //
+    // 块内结构元素
+    /////////////////////////////////////////////
+    SUMMARY     = 39,   // 详细内容摘要/标题
+    FIGCAPTION  = 40,   // 插图标题
+    CAPTION     = 46,   // 表格标题
+    LI          = 41,   // 列表项（通用）
+    DT          = 42,   // 定义列表条目
+    DD          = 42,   // 定义列表数据
+    TH          = 48,   // 表头单元格
+    TD          = 48,   // 单元格
+    CODELI      = 24,   // 代码表条目（li/code）
+    ALI         = 25,   // 目录表普通条目（li/a）
+    H5A         = 26,   // 目录表标题条目（h5/a）
+    CASCADELI   = 27,   // 级联标题（li/h5, ol|ul）
+    TR          = 48,   // 表格行
+    THEAD       = 45,   // 表头
+    TBODY       = 45,   // 表体
+    TFOOT       = 45,   // 表脚
+    //
+    // 行块结构元素
+    /////////////////////////////////////////////
+    HR          = 27,   // 隔断 （hr）
+    HGROUP      = 2,    // 主/副标题组 （hgroup/h1, h2）
+    ABSTRACT    = 3,    // 提要 （header:abstract/h3, p...）
+    TOC         = 4,    // 目录 （nav:toc/h4, ol:cascade/li/(h5/a), ol/[li/a]+）
+    SEEALSO     = 5,    // 另参见 （ul:seealso/li/#text）
+    REFERENCE   = 6,    // 文献参考 （ol:reference/li/#text）
+    HEADER      = 8,    // 导言 （header/h4, p...）
+    FOOTER      = 9,    // 结语 （footer/h4, p...）
+    ARTICLE     = 7,    // 文章区 （article/header?, [h2,s1]+ | {content}, footer?, hr?）
+    S1          = 10,   // 章 （section:s1/header?, [h3,s2]+ | {content}, footer?）
+    S2          = 11,   // 节 （section:s2/header?, [h4,s3]+ | {content}, footer?）
+    S3          = 12,   // 区 （section:s3/header?, [h5,s4]+ | {content}, footer?）
+    S4          = 13,   // 段 （section:s4/header?, [h6,s5]+ | {content}, footer?）
+    S5          = 14,   // 末 （section:s5/header?, {content}, footer?）
+    UL          = 16,   // 无序列表 （ul/li）
+    OL          = 15,   // 有序列表 （ol/li）
+    CODELIST    = 18,   // 代码表 （ol:codelist/li/code/#text, b, i）
+    ULX         = 21,   // 无序级联表 （ul/li/h5, ul|ol）
+    OLX         = 21,   // 有序级联表 （ol/li/h5, ul|ol）
+    CASCADE     = 21,   // 级联编号表 （ol:cascade/li/h5, ol/li/...）
+    DL          = 22,   // 定义列表 （dl/dt, dd+）
+    TABLE       = 26,   // 表格 （table/thead, tbody, tfoot/tr/th, td）
+    FIGURE      = 17,   // 插图 （figure/figcaption, p/img+）
+    BLOCKQUOTE  = 20,   // 块引用 （blockquote/h4, p...）
+    ASIDE       = 21,   // 批注 （aside/h4, p...）
+    DETAILS     = 22,   // 详细内容 （details/summary, p...）
+    CODEBLOCK   = 20,   // 代码块 （pre:codeblock/code/#text, b, i）
 
-    // 结构单元
-    // BLONATHS：Note|Address|Table|Hr|Space
-    // BLOUFCPC：Ul|Figure|Codelist|Pre|Codeblock
-    H1:             H1,
-    Hgroup:         HGROUP,
-    Abstract:       ABSTRACT,
-    Toc:            TOC,
-    Article:        ARTICLE,
-    Header:         HEADER,
-    Footer:         FOOTER,
-    S1:             S1,
-    S2:             S2,
-    S3:             S3,
-    S4:             S4,
-    S5:             S5,
-    Ul:             BLOUFCPC,
-    Seealso:        SEEALSO,
-    Ol:             OL,
-    Cascade:        CASCADE,
-    Codelist:       BLOUFCPC,
-    Reference:      REFERENCE,
-    Dl:             DL,
-    Table:          BLONATHS,
-    Figure:         BLOUFCPC,
-    Blockquote:     BLOCKQUOTE,
-    Aside:          ASIDE,
-    Details:        DETAILS,
-    Codeblock:      BLOUFCPC,
+    //
+    // 特殊用途
+    // 注：不作为独立的内联单元。
+    //
+    B = 33,   // 代码关键字封装
+    I = 32,   // 代码注释/标题编号
 
-    // 文本单元
-    P:              P,
-    Note:           BLONATHS,
-    Address:        BLONATHS,
-    Pre:            BLOUFCPC,
-    Hr:             BLONATHS,
-    Space:          BLONATHS,
-
-    // 限定中间单元
-    Codeli:         CODELI,
-    Ali:            ALI,
-    H5a:            H5A,
-    Cascadeli:      CASCADELI,
-
-    // 内联单元。
-    // 取值时会提取元素本身，因此配置为同一类。
-    Audio:          INLINE,
-    Video:          INLINE,
-    Picture:        INLINE,
-    Strong:         INLINE,
-    Em:             INLINE,
-    Q:              INLINE,
-    Abbr:           INLINE,
-    Cite:           INLINE,
-    Small:          INLINE,
-    Time:           INLINE,
-    Del:            INLINE,
-    Ins:            INLINE,
-    Sub:            INLINE,
-    Sup:            INLINE,
-    Mark:           INLINE,
-    Orz:            INLINE,
-    Ruby:           INLINE,
-    Dfn:            INLINE,
-    Samp:           INLINE,
-    Kbd:            INLINE,
-    S:              INLINE,
-    U:              INLINE,
-    Var:            INLINE,
-    Bdo:            INLINE,
-    Meter:          INLINE,
-    Br:             INLINE,
-    Wbr:            INLINE,
-    Blank:          INLINE,
-
-    // 会被作为特定的子单元使用。
-    A:              A,
-    Code:           CODE,
-    Img:            IMG,
-    I:              I,
-    B:              B,
-
-    // 简单元素
-    // 名称保持元素小写标签名。
-    H2:             H2,
-    H3:             H3,
-    H4:             H4,
-    H5:             H5,
-    H6:             H6,
-    Summary:        SUMMARY,
-    Figcaption:     FIGCAPTION,
-    Li:             LI,
-    Dt:             DLI,
-    Dd:             DLI,
-
-    Rb:             RBPT,
-    Rp:             RBPT,
-    Rt:             RBPT,
-    Track:          TRACK,
-    Source:         SOURCE,
-
-    // 表格单独处理。
-    Caption:        CAPTION,
-    Thead:          TSEC,
-    Tbody:          TSEC,
-    Tfoot:          TSEC,
-    Tr:             TR,
-    Th:             TCELL,
-    Td:             TCELL,
-};
 
 
 //
