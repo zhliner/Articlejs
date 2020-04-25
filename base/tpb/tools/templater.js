@@ -59,33 +59,37 @@ class Templater {
 
 
     /**
-     * 获取模板节点（副本）。
-     * 如果模板不存在，会自动尝试载入。
-     * @param  {String} name 模板名
-     * @return {Promise<Element>} 承诺对象
-     */
-    get( name ) {
-        return this.tpl(name).then( el => this.clone(el) );
-    }
-
-
-    /**
      * 获取模板节点（原始）。
      * 如果模板不存在会自动载入。
      * 注：通常用于数据类模板（无需克隆）。
      * @param  {String} name 模板名
      * @return {Promise<Element>} 承诺对象
      */
-    tpl( name ) {
+    get( name ) {
         if ( this._tpls.has(name) ) {
             return Promise.resolve( this._tpls.get(name) );
         }
-        return this._load(name).then(fg => this.build(fg)).then(() => this._tpls.get(name));
+        return this._load(name)
+            .then( fg => this.build(fg) )
+            .then( () => this._tpls.get(name) );
     }
 
 
     /**
-     * 接口：模板构建。
+     * 克隆模板节点。
+     * 如果模板不存在，会自动尝试载入。
+     * 会同时克隆渲染文法（如果有）以及绑定的事件处理器。
+     * @param  {String} name 模板名
+     * @return {Promise<Element>} 承诺对象
+     */
+    clone( name ) {
+        return this.get(name)
+            .then( el => Render.clone(el, $.clone(el, true, true, true)) );
+    }
+
+
+    /**
+     * 模板构建。
      * 需要先处理可能有的子模版的导入。
      * 注：子模版中可能包含子模版。
      * @param  {Element|DocumentFragment|Document} root 构建目标
@@ -136,20 +140,6 @@ class Templater {
             window.console.warn(`[${name}] template node was overwritten.`);
         }
         this._tpls.set( name, el );
-    }
-
-
-    /**
-     * 克隆模板节点。
-     * 同时会克隆渲染文法（如果有）以及绑定的事件处理器。
-     * @param  {Element} tpl 模板节点
-     * @return {Element} 克隆的新元素
-     */
-    clone( tpl ) {
-        return Render.clone(
-            tpl,
-            $.clone( tpl, true, true, true )
-        );
     }
 
 
@@ -214,7 +204,7 @@ class Templater {
         let _n = el.hasAttribute(__tplNode) ? __tplNode : __tplSource,
             _v = $.xattr( el, _n );
 
-        return [ _n == __tplNode ? 'get' : 'tpl', _v.trim() ];
+        return [ _n == __tplNode ? 'clone' : 'get', _v.trim() ];
     }
 }
 

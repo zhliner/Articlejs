@@ -15,7 +15,35 @@
 const $ = window.$;
 
 //
-// 单元类型值定义。
+// 分类定义：
+// 0. 特别类型。存在但不归类（如：<b>,<i>）。
+// 1. 结构元素。独立性未知。
+// 2. 内容元素。独立性未知。
+// 3. 内联单元。独立内容单元。
+// 4. 行块单元。独立内容单元。
+//
+// 特性标记：
+// 主要用于移动判断处理：若非固定，相同者可互换或并列。固定者只能接收内容。
+// 1. TBLSECT 表格结构元件：{<thead>|<tbody>|<tfoot>}
+// 2. TBLCELL 表格单元元件：{<th>|<td>}
+// 3. DLITEM  定义列表项：  {<dt>|<dd>}
+// 4. FIXED   位置固定。只能自我移动（不能被其它元素移动），如：{<caption>}
+//
+const
+    TEXT    = 0,        // 文本节点
+    PURPOSE = 1,        // 特殊用途
+    STRUCT  = 1 << 1,   // 结构元素
+    CONTENT = 1 << 2,   // 内容元素
+    INLINES = 1 << 3,   // 内联单元
+    BLOCKS  = 1 << 4,   // 行块单元
+    FIXED   = 1 << 5;   // 位置确定性
+    TBLSECT = 1 << 6,   // 表结构元件
+    TBLCELL = 1 << 8,   // 表格单元元件
+    DLITEM  = 1 << 8;   // 定义列表项
+
+
+//
+// 单元值定义。
 // - 内联结构元素：     [0, 99]     不能包含文本或其它内联单元，有固定的内部结构或空结构。
 // - 内联内结构元素：   [100, 199]  其它内联结构元素的内部成员，自身不是独立的内联单元。可能为内容元素。
 // - 内联内容元素：     [200, 299]  可直接包含文本或其它内联单元。
@@ -27,138 +55,416 @@ const
     //
     // 内联结构元素
     /////////////////////////////////////////////
-    $TEXT       = 0,  // 文本节点（#text）
+    $TEXT       = 0,    // 文本节点（#text）
 
-    AUDIO       = 3,    // 音频
-    VIDEO       = 3,    // 视频
+    AUDIO       = 1,    // 音频
+    VIDEO       = 2,    // 视频
     PICTURE     = 3,    // 兼容图片
-    IMG         = 31,   // 图片
-    RUBY        = 3,    // 注音
-    TIME        = 3,    // 时间
-    METER       = 3,    // 度量
-    BR          = 3,    // 换行
-    WBR         = 3,    // 软换行
-    SPACE       = 3,    // 空白
+    IMG         = 4,    // 图片
+    RUBY        = 5,    // 注音
+    TIME        = 6,    // 时间
+    METER       = 7,    // 度量
+    BR          = 8,    // 换行
+    WBR         = 9,    // 软换行
+    SPACE       = 10,   // 空白
     //
     // 内联内结构
     /////////////////////////////////////////////
-    TRACK       = 44,   // 字幕轨
-    SOURCE      = 45,   // 媒体资源
-    RB          = 43,   // 注音文本
-    RT          = 43,   // 注音拼音
-    RP          = 43,   // 注音拼音包围
+    TRACK       = 100,  // 字幕轨
+    SOURCE      = 101,  // 媒体资源
+    RB          = 102,  // 注音文本
+    RT          = 103,  // 注音拼音
+    RP          = 104,  // 注音拼音包围
+    RBPT        = 105,  // 注音内容封装（抽象）
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    A           = 3,    // 链接
-    STRONG      = 3,    // 重点
-    EM          = 3,    // 强调
-    Q           = 3,    // 短引用
-    ABBR        = 3,    // 缩写
-    CITE        = 3,    // 来源
-    SMALL       = 3,    // 注脚
-    DEL         = 3,    // 删除
-    INS         = 3,    // 插入
-    SUB         = 3,    // 下标
-    SUP         = 3,    // 上标
-    MARK        = 3,    // 标记
-    CODE        = 30,   // 行内代码（code/#text, b, i）
-    ORZ         = 3,    // 表情
-    DFN         = 3,    // 定义
-    SAMP        = 3,    // 样本
-    KBD         = 3,    // 键盘字
-    S           = 3,    // 失效
-    U           = 3,    // 注记
-    VAR         = 3,    // 变量
-    BDO         = 3,    // 有向文本
+    A           = 200,  // 链接
+    STRONG      = 201,  // 重点
+    EM          = 202,  // 强调
+    Q           = 203,  // 短引用
+    ABBR        = 204,  // 缩写
+    CITE        = 205,  // 来源
+    SMALL       = 206,  // 注脚
+    DEL         = 207,  // 删除
+    INS         = 208,  // 插入
+    SUB         = 209,  // 下标
+    SUP         = 210,  // 上标
+    MARK        = 211,  // 标记
+    CODE        = 212,  // 行内代码（code/#text, b, i）
+    ORZ         = 213,  // 表情
+    DFN         = 214,  // 定义
+    SAMP        = 215,  // 样本
+    KBD         = 216,  // 键盘字
+    S           = 217,  // 失效
+    U           = 218,  // 注记
+    VAR         = 219,  // 变量
+    BDO         = 220,  // 有向文本
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    H1          = 1,    // 页标题 （h1/#text）
-
-    P           = 23,   // 段落 （p/#text, ...）
-    NOTE        = 23,   // 注解 （p:note/#text, ...）
-    TIPS        = 24,   // 提示 （p:tips/#text, ...）
-    ADDRESS     = 25,   // 地址 （address/#text, ...）
-    PRE         = 19,   // 预排版 （pre/#text, ...）
-    BLANK       = 28,   // 白板 （div:blank/x）
-    H2          = 34,   // 章标题
-    H3          = 35,   // 节标题
-    H4          = 36,   // 区标题
-    H5          = 37,   // 段标题
-    H6          = 38,   // 末标题
+    P           = 300,  // 段落 （p/#text, ...）
+    NOTE        = 301,  // 注解 （p:note/#text, ...）
+    TIPS        = 302,  // 提示 （p:tips/#text, ...）
+    ADDRESS     = 303,  // 地址 （address/#text, ...）
+    PRE         = 304,  // 预排版 （pre/#text, ...）
+    BLANK       = 305,  // 白板 （div:blank/x）
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    SUMMARY     = 39,   // 详细内容摘要/标题
-    FIGCAPTION  = 40,   // 插图标题
-    CAPTION     = 46,   // 表格标题
-    LI          = 41,   // 列表项（通用）
-    DT          = 42,   // 定义列表条目
-    DD          = 42,   // 定义列表数据
-    TH          = 48,   // 表头单元格
-    TD          = 48,   // 单元格
-    CODELI      = 24,   // 代码表条目（li/code）
-    ALI         = 25,   // 目录表普通条目（li/a）
-    H5A         = 26,   // 目录表标题条目（h5/a）
-    CASCADELI   = 27,   // 级联标题（li/h5, ol|ul）
-    TR          = 48,   // 表格行
-    THEAD       = 45,   // 表头
-    TBODY       = 45,   // 表体
-    TFOOT       = 45,   // 表脚
+    H1          = 400,  // 页标题
+    H2          = 401,  // 章标题
+    H3          = 402,  // 节标题
+    H4          = 403,  // 区标题
+    H5          = 404,  // 段标题
+    H6          = 405,  // 末标题
+    SUMMARY     = 406,  // 详细内容摘要/标题
+    FIGCAPTION  = 407,  // 插图标题
+    CAPTION     = 408,  // 表格标题
+    LI          = 409,  // 列表项（通用）
+    DT          = 410,  // 定义列表条目
+    DD          = 411,  // 定义列表数据
+    TH          = 412,  // 表头单元格
+    TD          = 413,  // 单元格
+    CODELI      = 414,  // 代码表条目（li/code）
+    ALI         = 415,  // 目录表普通条目（li/a）
+    H5A         = 416,  // 目录表标题条目（h5/a）
+    CASCADELI   = 417,  // 级联标题（li/h5, ol|ul）
+    TR          = 418,  // 表格行
+    THEAD       = 419,  // 表头
+    TBODY       = 420,  // 表体
+    TFOOT       = 421,  // 表脚
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    HR          = 27,   // 隔断 （hr）
-    HGROUP      = 2,    // 主/副标题组 （hgroup/h1, h2）
-    ABSTRACT    = 3,    // 提要 （header:abstract/h3, p...）
-    TOC         = 4,    // 目录 （nav:toc/h4, ol:cascade/li/(h5/a), ol/[li/a]+）
-    SEEALSO     = 5,    // 另参见 （ul:seealso/li/#text）
-    REFERENCE   = 6,    // 文献参考 （ol:reference/li/#text）
-    HEADER      = 8,    // 导言 （header/h4, p...）
-    FOOTER      = 9,    // 结语 （footer/h4, p...）
-    ARTICLE     = 7,    // 文章区 （article/header?, [h2,s1]+ | {content}, footer?, hr?）
-    S1          = 10,   // 章 （section:s1/header?, [h3,s2]+ | {content}, footer?）
-    S2          = 11,   // 节 （section:s2/header?, [h4,s3]+ | {content}, footer?）
-    S3          = 12,   // 区 （section:s3/header?, [h5,s4]+ | {content}, footer?）
-    S4          = 13,   // 段 （section:s4/header?, [h6,s5]+ | {content}, footer?）
-    S5          = 14,   // 末 （section:s5/header?, {content}, footer?）
-    UL          = 16,   // 无序列表 （ul/li）
-    OL          = 15,   // 有序列表 （ol/li）
-    CODELIST    = 18,   // 代码表 （ol:codelist/li/code/#text, b, i）
-    ULX         = 21,   // 无序级联表 （ul/li/h5, ul|ol）
-    OLX         = 21,   // 有序级联表 （ol/li/h5, ul|ol）
-    CASCADE     = 21,   // 级联编号表 （ol:cascade/li/h5, ol/li/...）
-    DL          = 22,   // 定义列表 （dl/dt, dd+）
-    TABLE       = 26,   // 表格 （table/thead, tbody, tfoot/tr/th, td）
-    FIGURE      = 17,   // 插图 （figure/figcaption, p/img+）
-    BLOCKQUOTE  = 20,   // 块引用 （blockquote/h4, p...）
-    ASIDE       = 21,   // 批注 （aside/h4, p...）
-    DETAILS     = 22,   // 详细内容 （details/summary, p...）
-    CODEBLOCK   = 20,   // 代码块 （pre:codeblock/code/#text, b, i）
+    HGROUP      = 501,  // 主/副标题组 （hgroup/h1, h2）
+    ABSTRACT    = 502,  // 提要 （header:abstract/h3, p...）
+    TOC         = 503,  // 目录 （nav:toc/h4, ol:cascade/li/(h5/a), ol/[li/a]+）
+    SEEALSO     = 504,  // 另参见 （ul:seealso/li/#text）
+    REFERENCE   = 505,  // 文献参考 （ol:reference/li/#text）
+    HEADER      = 506,  // 导言 （header/h4, p...）
+    FOOTER      = 507,  // 结语 （footer/h4, p...）
+    ARTICLE     = 508,  // 文章区 （article/header?, [h2,s1]+ | {content}, footer?, hr?）
+    S1          = 509,  // 章 （section:s1/header?, [h3,s2]+ | {content}, footer?）
+    S2          = 510,  // 节 （section:s2/header?, [h4,s3]+ | {content}, footer?）
+    S3          = 511,  // 区 （section:s3/header?, [h5,s4]+ | {content}, footer?）
+    S4          = 512,  // 段 （section:s4/header?, [h6,s5]+ | {content}, footer?）
+    S5          = 513,  // 末 （section:s5/header?, {content}, footer?）
+    UL          = 514,  // 无序列表 （ul/li）
+    OL          = 515,  // 有序列表 （ol/li）
+    CODELIST    = 516,  // 代码表 （ol:codelist/li/code/#text, b, i）
+    ULX         = 517,  // 无序级联表 （ul/li/h5, ul|ol）
+    OLX         = 518,  // 有序级联表 （ol/li/h5, ul|ol）
+    CASCADE     = 519,  // 级联编号表 （ol:cascade/li/h5, ol/li/...）
+    DL          = 520,  // 定义列表 （dl/dt, dd+）
+    TABLE       = 521,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
+    FIGURE      = 522,  // 插图 （figure/figcaption, p/img+）
+    BLOCKQUOTE  = 523,  // 块引用 （blockquote/h4, p...）
+    ASIDE       = 524,  // 批注 （aside/h4, p...）
+    DETAILS     = 525,  // 详细内容 （details/summary, p...）
+    CODEBLOCK   = 526,  // 代码块 （pre:codeblock/code/#text, b, i）
+    HR          = 500,  // 隔断 （hr）
 
     //
-    // 特殊用途
+    // 特殊用途。
     // 注：不作为独立的内联单元。
+    /////////////////////////////////////////////
+    B           = -1,   // 代码关键字封装
+    I           = -2;   // 代码注释/标题编号
+
+
+
+//
+// 单元的类型/特性。
+//
+const Types = {
     //
-    B = 33,   // 代码关键字封装
-    I = 32,   // 代码注释/标题编号
+    // 内联结构元素
+    /////////////////////////////////////////////
+    $TEXT:      TEXT,
+    AUDIO:      INLINES,
+    VIDEO:      INLINES,
+    PICTURE:    INLINES,
+    IMG:        INLINES,
+    RUBY:       INLINES,
+    TIME:       INLINES,
+    METER:      INLINES,
+    BR:         INLINES,
+    WBR:        INLINES,
+    SPACE:      INLINES,
+    //
+    // 内联内结构
+    /////////////////////////////////////////////
+    TRACK:      STRUCT,
+    SOURCE:     STRUCT,
+    RB:         STRUCT | CONTENT,
+    RT:         STRUCT | CONTENT,
+    RP:         STRUCT | CONTENT,
+    //
+    // 内联内容元素
+    /////////////////////////////////////////////
+    A:          INLINES | CONTENT,
+    STRONG:     INLINES | CONTENT,
+    EM:         INLINES | CONTENT,
+    Q:          INLINES | CONTENT,
+    ABBR:       INLINES | CONTENT,
+    CITE:       INLINES | CONTENT,
+    SMALL:      INLINES | CONTENT,
+    DEL:        INLINES | CONTENT,
+    INS:        INLINES | CONTENT,
+    SUB:        INLINES | CONTENT,
+    SUP:        INLINES | CONTENT,
+    MARK:       INLINES | CONTENT,
+    CODE:       INLINES | CONTENT,
+    ORZ:        INLINES | CONTENT,
+    DFN:        INLINES | CONTENT,
+    SAMP:       INLINES | CONTENT,
+    KBD:        INLINES | CONTENT,
+    S:          INLINES | CONTENT,
+    U:          INLINES | CONTENT,
+    VAR:        INLINES | CONTENT,
+    BDO:        INLINES | CONTENT,
+
+    //
+    // 行块内容元素
+    /////////////////////////////////////////////
+    P:          BLOCKS | CONTENT,
+    NOTE:       BLOCKS | CONTENT,
+    TIPS:       BLOCKS | CONTENT,
+    ADDRESS:    BLOCKS | CONTENT,
+    PRE:        BLOCKS | CONTENT,
+    BLANK:      BLOCKS | CONTENT,
+    //
+    // 块内结构元素
+    /////////////////////////////////////////////
+    H1:         STRUCT | CONTENT | FIXED,
+    H2:         STRUCT | CONTENT | FIXED,
+    H3:         STRUCT | CONTENT | FIXED,
+    H4:         STRUCT | CONTENT | FIXED,
+    H5:         STRUCT | CONTENT | FIXED,
+    H6:         STRUCT | CONTENT | FIXED,
+    SUMMARY:    STRUCT | CONTENT | FIXED,
+    FIGCAPTION: STRUCT | CONTENT | FIXED,
+    CAPTION:    STRUCT | CONTENT | FIXED,
+    LI:         STRUCT | CONTENT,
+    DT:         STRUCT | CONTENT | DLITEM,
+    DD:         STRUCT | CONTENT | DLITEM,
+    TH:         STRUCT | CONTENT | TBLCELL,
+    TD:         STRUCT | CONTENT | TBLCELL,
+    CODELI:     STRUCT,
+    ALI:        STRUCT,
+    H5A:        STRUCT,
+    CASCADELI:  STRUCT,
+    TR:         STRUCT,
+    THEAD:      STRUCT | TBLSECT,
+    TBODY:      STRUCT | TBLSECT,
+    TFOOT:      STRUCT | TBLSECT,
+    //
+    // 行块结构元素
+    /////////////////////////////////////////////
+    HGROUP:     BLOCKS | STRUCT,
+    ABSTRACT:   BLOCKS | STRUCT,
+    TOC:        BLOCKS | STRUCT,
+    SEEALSO:    BLOCKS | STRUCT,
+    REFERENCE:  BLOCKS | STRUCT,
+    HEADER:     BLOCKS | STRUCT,
+    FOOTER:     BLOCKS | STRUCT,
+    ARTICLE:    BLOCKS | STRUCT,
+    S1:         BLOCKS | STRUCT,
+    S2:         BLOCKS | STRUCT,
+    S3:         BLOCKS | STRUCT,
+    S4:         BLOCKS | STRUCT,
+    S5:         BLOCKS | STRUCT,
+    UL:         BLOCKS | STRUCT,
+    OL:         BLOCKS | STRUCT,
+    CODELIST:   BLOCKS | STRUCT,
+    ULX:        BLOCKS | STRUCT,
+    OLX:        BLOCKS | STRUCT,
+    CASCADE:    BLOCKS | STRUCT,
+    DL:         BLOCKS | STRUCT,
+    TABLE:      BLOCKS | STRUCT,
+    FIGURE:     BLOCKS | STRUCT,
+    BLOCKQUOTE: BLOCKS | STRUCT,
+    ASIDE:      BLOCKS | STRUCT,
+    DETAILS:    BLOCKS | STRUCT,
+    CODEBLOCK:  BLOCKS | STRUCT,
+    HR:         BLOCKS | STRUCT,
+
+    //
+    // 特殊用途。
+    /////////////////////////////////////////////
+    B:          PURPOSE,
+    I:          PURPOSE,
+};
 
 
 
 //
-// 内容项集合。
-// 注：汇总简化引用。
+// 合法子单元类型。
+// 值为空数组表示无任何内容，通常为空元素。
+// 成员值为子数组表示类型，适用该类型所有单元。
+// 特殊值 null 仅用于文本节点。
 //
-const CONTENT = P | BLONATHS | OL | BLOUFCPC | DL | BLOCKQUOTE | ASIDE | DETAILS | CASCADE;
+// 注记：主要用于源码结构检查。
+//
+const ChildTypes = {
+    //
+    // 内联结构元素。
+    // 如果包含文本，插入方式有较强约束（如创建时）。
+    /////////////////////////////////////////////
+    $TEXT:      null,
+
+    AUDIO:      [SOURCE, TRACK, $TEXT],
+    VIDEO:      [SOURCE, TRACK, $TEXT],
+    PICTURE:    [SOURCE, IMG],
+    IMG:        [],
+    RUBY:       [RB, RT, RP],
+    TIME:       [$TEXT],
+    METER:      [$TEXT],
+    BR:         [],
+    WBR:        [],
+    SPACE:      [],
+    //
+    // 内联内结构
+    /////////////////////////////////////////////
+    TRACK:      [],
+    SOURCE:     [],
+    RB:         [$TEXT],
+    RT:         [$TEXT],
+    RP:         [$TEXT],
+    //
+    // 内联内容元素
+    /////////////////////////////////////////////
+    A:          INLINES | CONTENT,
+    STRONG:     INLINES | CONTENT,
+    EM:         INLINES | CONTENT,
+    Q:          INLINES | CONTENT,
+    ABBR:       INLINES | CONTENT,
+    CITE:       INLINES | CONTENT,
+    SMALL:      INLINES | CONTENT,
+    DEL:        INLINES | CONTENT,
+    INS:        INLINES | CONTENT,
+    SUB:        INLINES | CONTENT,
+    SUP:        INLINES | CONTENT,
+    MARK:       INLINES | CONTENT,
+    CODE:       INLINES | CONTENT,
+    ORZ:        INLINES | CONTENT,
+    DFN:        INLINES | CONTENT,
+    SAMP:       INLINES | CONTENT,
+    KBD:        INLINES | CONTENT,
+    S:          INLINES | CONTENT,
+    U:          INLINES | CONTENT,
+    VAR:        INLINES | CONTENT,
+    BDO:        INLINES | CONTENT,
+
+    //
+    // 行块内容元素
+    /////////////////////////////////////////////
+    P:          BLOCKS | CONTENT,
+    NOTE:       BLOCKS | CONTENT,
+    TIPS:       BLOCKS | CONTENT,
+    ADDRESS:    BLOCKS | CONTENT,
+    PRE:        BLOCKS | CONTENT,
+    BLANK:      BLOCKS | CONTENT,
+    //
+    // 块内结构元素
+    /////////////////////////////////////////////
+    H1:         STRUCT | CONTENT | FIXED,
+    H2:         STRUCT | CONTENT | FIXED,
+    H3:         STRUCT | CONTENT | FIXED,
+    H4:         STRUCT | CONTENT | FIXED,
+    H5:         STRUCT | CONTENT | FIXED,
+    H6:         STRUCT | CONTENT | FIXED,
+    SUMMARY:    STRUCT | CONTENT | FIXED,
+    FIGCAPTION: STRUCT | CONTENT | FIXED,
+    CAPTION:    STRUCT | CONTENT | FIXED,
+    LI:         STRUCT | CONTENT,
+    DT:         STRUCT | CONTENT | DLITEM,
+    DD:         STRUCT | CONTENT | DLITEM,
+    TH:         STRUCT | CONTENT | TBLCELL,
+    TD:         STRUCT | CONTENT | TBLCELL,
+    CODELI:     STRUCT,
+    ALI:        STRUCT,
+    H5A:        STRUCT,
+    CASCADELI:  STRUCT,
+    TR:         STRUCT,
+    THEAD:      STRUCT | TBLSECT,
+    TBODY:      STRUCT | TBLSECT,
+    TFOOT:      STRUCT | TBLSECT,
+    //
+    // 行块结构元素
+    /////////////////////////////////////////////
+    HGROUP:     BLOCKS | STRUCT,
+    ABSTRACT:   BLOCKS | STRUCT,
+    TOC:        BLOCKS | STRUCT,
+    SEEALSO:    BLOCKS | STRUCT,
+    REFERENCE:  BLOCKS | STRUCT,
+    HEADER:     BLOCKS | STRUCT,
+    FOOTER:     BLOCKS | STRUCT,
+    ARTICLE:    BLOCKS | STRUCT,
+    S1:         BLOCKS | STRUCT,
+    S2:         BLOCKS | STRUCT,
+    S3:         BLOCKS | STRUCT,
+    S4:         BLOCKS | STRUCT,
+    S5:         BLOCKS | STRUCT,
+    UL:         BLOCKS | STRUCT,
+    OL:         BLOCKS | STRUCT,
+    CODELIST:   BLOCKS | STRUCT,
+    ULX:        BLOCKS | STRUCT,
+    OLX:        BLOCKS | STRUCT,
+    CASCADE:    BLOCKS | STRUCT,
+    DL:         BLOCKS | STRUCT,
+    TABLE:      BLOCKS | STRUCT,
+    FIGURE:     BLOCKS | STRUCT,
+    BLOCKQUOTE: BLOCKS | STRUCT,
+    ASIDE:      BLOCKS | STRUCT,
+    DETAILS:    BLOCKS | STRUCT,
+    CODEBLOCK:  BLOCKS | STRUCT,
+    HR:         BLOCKS | STRUCT,
+};
 
 
 //
-// 合法子类型配置。
+// 子单元配置：{
+//      单元名：[ 子单元类型值, ... ]
+// }
+// 注记：
+// - 用于普通模式下根据目标判断可插入单元。
+// - 平级插入取父元素单元获取合法子单元集。
 //
+const ChildItems = {
+    RUBY:       [ RBPT ],
+};
+
+
+//
+// 属性条目配置：{
+//      单元名：[ 模板名, ... ]
+// }
+// 注记：
+// - 不是所有的单元都有属性可编辑。
+// - 用于上下文菜单中“属性”条目需要的匹配。
+//
+const PropItems = {
+    //
+};
+
+
+//
+// 条目映射配置：{
+//      单元名：[ 模板名, ... ]
+// }
+// 映射到插入条目的选单模板名称（option:xxx）。
+//
+const selectOption = {
+    //
+};
+
+
+// ?
 const typeSubs = {
-    $text:          0,
+    $TEXT:          null,
 
     // 结构单元块
     Hgroup:         H1 | H2,
@@ -265,50 +571,6 @@ const typeSubs = {
     Track:          0,  // 空，单标签
     Source:         0,  // 空，同上
 };
-
-
-//
-// 自取元素标签集。
-// 取元素自身（outerHTML）作为内容的元素。
-// 结构单元（rb/rp/track等）不能单独使用，因此不适用。
-// 注：大部分为内联元素。
-//
-const __outerTags = new Set([
-    'audio',
-    'video',
-    'picture',
-    'strong',
-    'em',
-    'q',
-    'abbr',
-    'cite',
-    'small',
-    'time',
-    'del',
-    'ins',
-    'sub',
-    'sup',
-    'mark',
-    'ruby',
-    'dfn',
-    'samp',
-    'kbd',
-    's',
-    'u',
-    'var',
-    'bdo',
-    'meter',
-    'a',
-    'code',
-    'img',
-    'br',
-    'wbr',
-    'i',
-    'b',
-
-    'hr',
-    'span',  // :blank
-]);
 
 
 

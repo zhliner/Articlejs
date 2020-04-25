@@ -9,7 +9,8 @@
 //  模板管理器（占位）。
 //
 //  用于不支持模板时，相关调用返回兼容的值。
-//  注：
+//  同时也会执行应有的逻辑（即便没有模板），如：build(...)。
+//  注记：
 //  即便没有模板支持，也可以进行渲染支持（页面既有元素）。
 //
 //
@@ -36,7 +37,7 @@ class Templater {
 
 
     /**
-     * 获取模板节点（副本）。
+     * 获取模板节点（原始）。
      * @return {Promise} 承诺对象
      */
     get() {
@@ -45,39 +46,24 @@ class Templater {
 
 
     /**
-     * 获取模板节点（原始）。
+     * 获取模板节点（副本）。
      * @return {Promise} 承诺对象
      */
-    tpl() {
+    clone() {
         return Promise.resolve();
     }
 
 
     /**
      * 模板构建。
-     * @param  {Element|DocumentFragment|Object} root 构建根
-     * @param  {Boolean|Object3} obts 清除指示或OBT配置（{on,by,to}）
+     * @param  {Element|DocumentFragment|Document} root 构建根
      * @return {Promise}
      */
-    build( root, obts = true) {
-        this._obter( root, obts );
-        // 可渲染支持。
-        if (root.nodeType) Render.parse( root );
+    build( root ) {
+        this._obter( root );
+        Render.parse( root );
 
         return Promise.resolve();
-    }
-
-
-    /**
-     * 克隆模板节点。
-     * @param  {Element} 源模板节点
-     * @return {Element}
-     */
-    clone( tpl ) {
-        return Render.clone(
-            tpl,
-            $.clone(tpl, true, true, true)
-        );
     }
 
 }

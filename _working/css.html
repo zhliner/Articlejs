@@ -300,7 +300,7 @@
             <b><i id="b-colors"></i></b>
         </div>
         <!-- 子模版：字形 -->
-        <div class="_body _fontview" tpl-name="style:fontview">
+        <div class="_body _Fontview" tpl-name="style:fontview">
             <div class="_list">
                 <label>
                     <input type="checkbox" name="bold" />
@@ -405,8 +405,8 @@
                     </select>
                 </div>
                 <!-- [子模版：空] -->
-                <div class="_body _empty" tpl-name="input:empty">
-                    <p>Alt + 鼠标拖动 可改变面板高度<br>（ 通 用 ）</p>
+                <div class="_body _Empty" tpl-name="input:empty">
+                    <p><code id="g-keytip">[Alt]</code> + 拖动改变面板高度</p>
                 </div>
             </form>
         </div>
@@ -438,7 +438,7 @@
                     </select>
                 </div>
                 <!-- [子模版：表格] -->
-                <div class="_body _table" tpl-name="input:table">
+                <div class="_body _Table" tpl-name="input:table">
                     <div class="_main">
                         <header class="_affix">
                             <input name="caption" type="text" placeholder="标题" class="_scale" />
@@ -506,7 +506,7 @@
                     </select>
                 </div>
                 <!-- [子模版：文章标题] -->
-                <div class="_body _heading" tpl-name="input:heading">
+                <div class="_body _Heading" tpl-name="input:heading">
                     <div class="_main">
                         <header>
                             <input type="text" name="h1" placeholder="主标题" class="_scale" />
@@ -552,7 +552,7 @@
                     </select>
                 </div>
                 <!-- [子模版：提要] -->
-                <div class="_body _abstract" tpl-name="input:abstract">
+                <div class="_body _Abstract" tpl-name="input:abstract">
                     <div class="_main">
                         <textarea name="header" placeholder="文章提要"></textarea>
                     </div>
@@ -596,7 +596,7 @@
                     </select>
                 </div>
                 <!-- [子模版：文献参考] -->
-                <div class="_body _reference" tpl-name="input:reference">
+                <div class="_body _Reference" tpl-name="input:reference">
                     <div class="_main">
                         <textarea name="reference" placeholder="每行一项"></textarea>
                     </div>
@@ -639,7 +639,7 @@
                     </select>
                 </div>
                 <!-- [子模版：另参见] -->
-                <div class="_body _reference" tpl-name="input:seealso">
+                <div class="_body _Reference" tpl-name="input:seealso">
                     <div class="_main">
                         <textarea name="seealso" placeholder="每行一项"></textarea>
                     </div>
@@ -682,7 +682,7 @@
                     </select>
                 </div>
                 <!-- [子模版：导言] -->
-                <div class="_body _header" tpl-name="input:header">
+                <div class="_body _Header" tpl-name="input:header">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" class="_scale" value="导言" />
@@ -729,7 +729,7 @@
                     </select>
                 </div>
                 <!-- [子模版：结语] -->
-                <div class="_body _footer" tpl-name="input:footer">
+                <div class="_body _Footer" tpl-name="input:footer">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" class="_scale" value="小结" />
@@ -825,7 +825,7 @@
                     </select>
                 </div>
                 <!-- [子模版：无序列表] -->
-                <div class="_body _ul" tpl-name="input:ul">
+                <div class="_body _Ul" tpl-name="input:ul">
                     <div class="_main">
                         <textarea name="ul" placeholder="每行一项"></textarea>
                     </div>
@@ -869,7 +869,7 @@
                     </select>
                 </div>
                 <!-- [子模版：有序列表] -->
-                <div class="_body _ol" tpl-name="input:ol">
+                <div class="_body _Ol" tpl-name="input:ol">
                     <div class="_main">
                         <textarea name="ol" placeholder="每行一项"></textarea>
                     </div>
@@ -913,7 +913,7 @@
                     </select>
                 </div>
                 <!-- [子模版：级联表] -->
-                <div class="_body _cascade" tpl-name="input:cascade">
+                <div class="_body _Cascade" tpl-name="input:cascade">
                     <div class="_main">
                         <textarea name="cascade" placeholder="每行一项"></textarea>
                     </div>
@@ -957,7 +957,7 @@
                     </select>
                 </div>
                 <!-- [子模版：定义列表] -->
-                <div class="_body _dl" tpl-name="input:dl">
+                <div class="_body _Dl" tpl-name="input:dl">
                     <div class="_main">
                         <header>
                             <input name="dt" type="text" class="_scale" placeholder="条目（<dt>）" />
@@ -1004,7 +1004,7 @@
                     </select>
                 </div>
                 <!-- [子模版：引用块] -->
-                <div class="_body _blockquote" tpl-name="input:blockquote">
+                <div class="_body _Blockquote" tpl-name="input:blockquote">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" placeholder="小标题" class="_scale" />
@@ -1052,7 +1052,7 @@
                     </select>
                 </div>
                 <!-- [子模版：批注块] -->
-                <div class="_body _aside" tpl-name="input:aside">
+                <div class="_body _Aside" tpl-name="input:aside">
                     <div class="_main">
                         <header>
                             <input name="h4" type="text" placeholder="小标题" class="_scale" />
@@ -1100,7 +1100,7 @@
                     </select>
                 </div>
                 <!-- [子模版：详细内容] -->
-                <div class="_body _details" tpl-name="input:details">
+                <div class="_body _Details" tpl-name="input:details">
                     <div class="_main">
                         <header>
                             <input name="summary" type="text" placeholder="摘要" class="_scale" />
@@ -1148,7 +1148,7 @@
                     </select>
                 </div>
                 <!-- [子模版：代码表] -->
-                <div class="_body _codelist" tpl-name="input:codelist">
+                <div class="_body _Codelist" tpl-name="input:codelist">
                     <div class="_main">
                         <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
@@ -1206,7 +1206,7 @@
                     </select>
                 </div>
                 <!-- [子模版：代码块] -->
-                <div class="_body _codeblock" tpl-name="input:codeblock">
+                <div class="_body _Codeblock" tpl-name="input:codeblock">
                     <div class="_main">
                         <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
@@ -1261,7 +1261,7 @@
                     </select>
                 </div>
                 <!-- [子模版：插图] -->
-                <div class="_body _figure" tpl-name="input:figure">
+                <div class="_body _Figure" tpl-name="input:figure">
                     <div class="_main">
                         <header class="_affix">
                             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
@@ -1324,7 +1324,7 @@
                     </select>
                 </div>
                 <!-- [子模版：段落] -->
-                <div class="_body _p" tpl-name="input:p">
+                <div class="_body _P" tpl-name="input:p">
                     <div class="_main">
                         <textarea name="p" placeholder="内容"></textarea>
                     </div>
@@ -1369,7 +1369,7 @@
                     </select>
                 </div>
                 <!-- [子模版：注解] -->
-                <div class="_body _note" tpl-name="input:note">
+                <div class="_body _Note" tpl-name="input:note">
                     <div class="_main">
                         <textarea name="note" placeholder="内容"></textarea>
                     </div>
@@ -1413,7 +1413,7 @@
                     </select>
                 </div>
                 <!-- [子模版：地址] -->
-                <div class="_body _address" tpl-name="input:address">
+                <div class="_body _Address" tpl-name="input:address">
                     <div class="_main">
                         <textarea name="address" placeholder="内容"></textarea>
                     </div>
@@ -1457,7 +1457,7 @@
                     </select>
                 </div>
                 <!-- [子模版：预排版] -->
-                <div class="_body _pre" tpl-name="input:pre">
+                <div class="_body _Pre" tpl-name="input:pre">
                     <div class="_main">
                         <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
                     </div>
@@ -1541,7 +1541,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>白板：div:space</h4>
+    <h4>白板：div:blank</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1566,9 +1566,9 @@
                     </select>
                 </div>
                 <!-- [子模版：空白块] -->
-                <div class="_body _Space" tpl-name="input:space">
+                <div class="_body _Blank" tpl-name="input:blank">
                     <div class="_main">
-                        <div role="space"><span>（ 空 白 ）</span></div>
+                        <div role="blank"><span>（ 空 白 ）</span></div>
                     </div>
                     <aside>
                         <div class="_submit" tpl-name="input:insert2">
@@ -1643,7 +1643,7 @@
                     </select>
                 </div>
                 <!-- [子模版：图片单元属性] -->
-                <div class="_body _inline" tpl-name="minied:inlines">
+                <div class="_body _Inline" tpl-name="minied:inlines">
                     <div class="_main _list">
                         <ul class="_prop">
                             <li tpl-name="prop:srcbase">
@@ -1707,7 +1707,7 @@
                     </select>
                 </div>
                 <!-- [子模版：单元属性] -->
-                <div class="_body _inline" tpl-name="minied:inlines">
+                <div class="_body _Inline" tpl-name="minied:inlines">
                     <div class="_main _list">
                         <div class="_prop">
                             <textarea name="codes" rows="5" spellcheck="false" class="_code"></textarea>
@@ -1751,7 +1751,7 @@
                     </select>
                 </div>
                 <!-- [子模版：单元属性] -->
-                <div class="_body _inline" tpl-name="minied:inlines">
+                <div class="_body _Inline" tpl-name="minied:inlines">
                     <div class="_main _list">
                         <div class="_prop">
                             <textarea name="content" rows="5" placeholder="每行一项"></textarea>
@@ -1807,7 +1807,7 @@
                     </select>
                 </div>
                 <!-- [子模版：字符表] -->
-                <div class="_body _inline" tpl-name="minied:chars">
+                <div class="_body _Inline" tpl-name="minied:chars">
                     <div class="_main _list">
                         <span>
                             <b>〔</b>
@@ -1912,7 +1912,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：字形 -->
-                <div class="_body _fontview" tpl-name="style:fontview">
+                <div class="_body _Fontview" tpl-name="style:fontview">
                     <div class="_list">
                         <label>
                             <input type="checkbox" name="bold" />
@@ -1965,7 +1965,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：字号 -->
-                <div class="_body _fontsize" tpl-name="style:fontsize">
+                <div class="_body _Fontsize" tpl-name="style:fontsize">
                     <select name="sizename" size="5" class="_list">
                         <option>xx-small</option>
                         <option>x-small</option>
@@ -2024,7 +2024,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：对齐 -->
-                <div class="_body _align" tpl-name="style:align">
+                <div class="_body _Align" tpl-name="style:align">
                     <div class="_h">
                         <label>text-align</label>
                         <select name="align" size="5" class="_list">
@@ -2081,7 +2081,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：宽/高度 -->
-                <div class="_body _width" tpl-name="style:width">
+                <div class="_body _Width" tpl-name="style:width">
                     <select name="width" size="5" class="_list">
                         <option title="宽度">width</option>
                         <option title="最大宽度">max-width</option>
@@ -2138,7 +2138,7 @@
                     <b><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：边距 -->
-                <div class="_body _margin" tpl-name="style:margin">
+                <div class="_body _Margin" tpl-name="style:margin">
                     <div>
                         <div class="_where"
                             on="click(input)|evo(2) val tpl(_)"
@@ -2230,7 +2230,7 @@
                     <b class="_press"><i id="b-colors"></i></b>
                 </div>
                 <!-- 子模版：颜色 -->
-                <div class="_body _color" tpl-name="style:color">
+                <div class="_body _Color" tpl-name="style:color">
                     <div class="_cbox">
                         <span class="_g16">
                             <b style="background-color:#000" title="#000"></b>

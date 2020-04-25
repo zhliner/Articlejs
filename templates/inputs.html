@@ -22,7 +22,7 @@
 </div>
 
 
-<!-- 行块单元 ------------------------------------------------------------------->
+<!-- 普通插入：行块单元 ------------------------------------------------------------------->
 
 
 <!-- 文章标题 -->
@@ -469,9 +469,9 @@
 
 
 <!-- 白板 -->
-<div class="_body _Space" tpl-name="input:space">
+<div class="_body _Blank" tpl-name="input:blank">
     <div class="_main">
-        <div role="space"><span>（ 空 白 ）</span></div>
+        <div role="blank"><span>（ 空 白 ）</span></div>
     </div>
     <aside>
         <pre tpl-node="input:insert2"> [插入2] </pre>
@@ -479,7 +479,7 @@
 </div>
 
 
-<!-- 微编辑：内联单元 ------------------------------------------------------->
+<!-- 微编辑：内联单元 --------------------------------------------------------------->
 
 
 <!--子版：字符种类
@@ -557,7 +557,7 @@
 </div>
 
 
-<!-- 内联元素：属性清单 -->
+<!-- 内联元素 -->
 
 <!-- 图片 -->
 <ul class="_prop" tpl-name="inlines:img">
@@ -722,7 +722,225 @@
     <li tpl-node="prop:amount"></li>
 </ul>
 
-<!-- 空白段 -->
-<ul class="_prop" tpl-name="inlines:blank">
+<!-- 空白 -->
+<ul class="_prop" tpl-name="inlines:space">
     <li tpl-node="prop:amount"></li>
 </ul>
+
+<!-- 文本节点 -->
+<ul class="_prop" tpl-name="inlines:text">
+    <li tpl-node="prop:content"></li>
+</ul>
+
+
+
+<!-- 普通插入：内联单元 -------------------------------------------------------------->
+
+
+<div class="_body _Inline" tpl-name="input:img">
+    <div class="_main _list">
+        <hr tpl-node="inlines:img" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:audio">
+    <div class="_main _list">
+        <hr tpl-node="inlines:audio" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:video">
+    <div class="_main _list">
+        <hr tpl-node="inlines:video" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:picture">
+    <div class="_main _list">
+        <hr tpl-node="inlines:picture" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:a">
+    <div class="_main _list">
+        <hr tpl-node="inlines:a" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:code">
+    <div class="_main _list">
+        <hr tpl-node="inlines:code" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:strong">
+    <div class="_main _list">
+        <hr tpl-node="inlines:strong" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:em">
+    <div class="_main _list">
+        <hr tpl-node="inlines:em" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:sub">
+    <div class="_main _list">
+        <hr tpl-node="inlines:sub" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:sup">
+    <div class="_main _list">
+        <hr tpl-node="inlines:sup" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:q">
+    <div class="_main _list">
+        <hr tpl-node="inlines:q" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:times">
+    <div class="_main _list">
+        <hr tpl-node="inlines:times" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:ins">
+    <div class="_main _list">
+        <hr tpl-node="inlines:ins" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:del">
+    <div class="_main _list">
+        <hr tpl-node="inlines:del" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:abbr">
+    <div class="_main _list">
+        <hr tpl-node="inlines:abbr" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:small">
+    <div class="_main _list">
+        <hr tpl-node="inlines:small" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:cite">
+    <div class="_main _list">
+        <hr tpl-node="inlines:cite" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:mark">
+    <div class="_main _list">
+        <hr tpl-node="inlines:mark" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:ruby">
+    <div class="_main _list">
+        <hr tpl-node="inlines:ruby" />
+    </div>
+</div>
+
+<!--注音单元封装：
+    这是一个抽象结构，在选取<ruby>且向内插入时使用。
+    这样就可以在一个<ruby>中插入多组注音单元。-->
+<div class="_body _Inline" tpl-name="input:rbpt">
+    <div class="_main _list">
+        <hr tpl-node="inlines:ruby" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:orz">
+    <div class="_main _list">
+        <hr tpl-node="inlines:orz" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:dfn">
+    <div class="_main _list">
+        <hr tpl-node="inlines:dfn" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:samp">
+    <div class="_main _list">
+        <hr tpl-node="inlines:samp" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:kbd">
+    <div class="_main _list">
+        <hr tpl-node="inlines:kbd" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:meter">
+    <div class="_main _list">
+        <hr tpl-node="inlines:meter" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:s">
+    <div class="_main _list">
+        <hr tpl-node="inlines:s" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:u">
+    <div class="_main _list">
+        <hr tpl-node="inlines:u" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:var">
+    <div class="_main _list">
+        <hr tpl-node="inlines:var" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:bdo">
+    <div class="_main _list">
+        <hr tpl-node="inlines:bdo" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:br">
+    <div class="_main _list">
+        <hr tpl-node="inlines:br" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:wbr">
+    <div class="_main _list">
+        <hr tpl-node="inlines:wbr" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:space">
+    <div class="_main _list">
+        <hr tpl-node="inlines:space" />
+    </div>
+</div>
+
+<div class="_body _Inline" tpl-name="input:text">
+    <div class="_main _list">
+        <hr tpl-node="inlines:text" />
+    </div>
+</div>
+
+
+<!-- 普通插入：结构单元 -------------------------------------------------------------->
+
+<div class="_body" tpl-name="struct:track">
+    <!-- ? -->
+</div>

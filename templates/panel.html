@@ -14,39 +14,38 @@
             input.select:
             与内联单元和字符种类共享快捷键指向，检查通过（dup pass）。 -->
         <select id="input-items" name="items" size="5" class="_list"
-            on="change|evo(3) val str('input:') pop tpl;
+            on="change|evo(3) val pop tpl;
                 input.select|ev('detail') slr('/','-k', _) $(_) dup pass prop('value')"
             to="form/._body|replace;
                 |val|goto('change')">
-            <!--  tpl: input:[value] -->
-            <option title="<h1,+h2>" value="heading">标题</option>
-            <option title="<header:abstract>" value="abstract">提要</option>
-            <option data-k="r" title="[r]<ol:reference>" value="reference">文献参考</option>
-            <option title="<ul:seealso>" value="seealso">另参见</option>
-            <option data-k="h" title="[h]<header>" value="header">导言</option>
-            <option title="<footer>" value="footer">结语</option>
-            <option data-k="s" title="[s]<section>" value="section">片区</option>
-            <option data-k="u" title="[u]<ul>" value="ul">无序列表</option>
-            <option data-k="o" title="[o]<ol>" value="ol">有序列表</option>
-            <option title="<ol:cascade>" value="cascade">级联表</option>
-            <option title="<dl>" value="dl">定义列表</option>
-            <option data-k="b" title="[b]<blockquote>" value="blockquote">引用块</option>
-            <option title="<aside>" value="aside">批注块</option>
-            <option data-k="d" title="[d]<details>" value="details">详细内容</option>
-            <option data-k="l" title="[l]<ol:codelist>" value="codelist">代码表</option>
-            <option data-k="c" title="[c]<pre:codeblock>" value="codeblock">代码块</option>
-            <option data-k="t" title="[t]<table>" value="table">表格</option>
-            <option data-k="f" title="[f]<figure>" value="figure">插图</option>
-            <option data-k="p" title="[p]<p>" value="p">段落</option>
-            <option data-k="n" title="[n]<p:note>" value="note">注解</option>
-            <option title="<p:tips>" value="tips">提示</option>
-            <option data-k="a" title="[a]<address>" value="address">地址</option>
-            <option title="<pre>" value="pre">预排版</option>
-            <option title="<hr>" value="hr">分割</option>
-            <option title="<div:space>" value="space">白板</option>
+            <option title="<h1,+h2>" value="input:heading">标题</option>
+            <option title="<header:abstract>" value="input:abstract">提要</option>
+            <option data-k="r" title="[r]<ol:reference>" value="input:reference">文献参考</option>
+            <option title="<ul:seealso>" value="input:seealso">另参见</option>
+            <option data-k="h" title="[h]<header>" value="input:header">导言</option>
+            <option title="<footer>" value="input:footer">结语</option>
+            <option data-k="s" title="[s]<section>" value="input:section">片区</option>
+            <option data-k="u" title="[u]<ul>" value="input:ul">无序列表</option>
+            <option data-k="o" title="[o]<ol>" value="input:ol">有序列表</option>
+            <option title="<ol:cascade>" value="input:cascade">级联表</option>
+            <option title="<dl>" value="input:dl">定义列表</option>
+            <option data-k="b" title="[b]<blockquote>" value="input:blockquote">引用块</option>
+            <option title="<aside>" value="input:aside">批注块</option>
+            <option data-k="d" title="[d]<details>" value="input:details">详细内容</option>
+            <option data-k="l" title="[l]<ol:codelist>" value="input:codelist">代码表</option>
+            <option data-k="c" title="[c]<pre:codeblock>" value="input:codeblock">代码块</option>
+            <option data-k="t" title="[t]<table>" value="input:table">表格</option>
+            <option data-k="f" title="[f]<figure>" value="input:figure">插图</option>
+            <option data-k="p" title="[p]<p>" value="input:p">段落</option>
+            <option data-k="n" title="[n]<p:note>" value="input:note">注解</option>
+            <option title="<p:tips>" value="input:tips">提示</option>
+            <option data-k="a" title="[a]<address>" value="input:address">地址</option>
+            <option title="<pre>" value="input:pre">预排版</option>
+            <option title="<hr>" value="input:hr">分割</option>
+            <option title="<div:blank>" value="input:blank">白板</option>
         </select>
     </div>
-    <div class="_body _empty" tpl-name="input:empty">
+    <div class="_body _Empty" tpl-name="input:empty">
         <p><code id="g-keytip">[Alt]</code> + 拖动改变面板高度</p>
     </div>
 </form>
@@ -106,6 +105,8 @@
             <option title="<br>" value="br">换行</option>
             <option title="<wbr>" value="wbr">软换行</option>
             <option title="<span:blank>" value="blank">空白段</option>
+            <!-- 友好保留 -->
+            <option title="#text" value="text">文本</option>
         </select>
     </div>
     <div class="_body" tpl-source="minied:inlines"> [主栏：单元属性] </div>

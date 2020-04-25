@@ -658,11 +658,11 @@ aside#help {
 .Script > ._body {
     flex: 8 8 600px;
 }
-.Input ._empty {
+.Input ._Empty {
     color: #ccc;
     align-items: center;
 }
-.Input ._empty > p {
+.Input ._Empty > p {
     width: 100%;
     text-align: center;
 }
@@ -717,7 +717,7 @@ aside#help {
 }
 
 /* 白板 */
-.Input ._Space div[role=space] {
+.Input ._Blank div[role=blank] {
     flex: 1 1 auto;
     color: #ccc;
 }

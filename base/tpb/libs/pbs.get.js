@@ -488,7 +488,7 @@ const _Gets = {
         if ( evo.data !== undefined ) {
             [name, clone] = [evo.data, name];
         }
-        return Templater[clone ? 'get' : 'tpl'](name);
+        return Templater[clone ? 'clone' : 'get'](name);
     },
 
     __tpl: -1,

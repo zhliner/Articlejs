@@ -556,12 +556,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 白板
  * -------------------------------------------------------------------------
  */
-div[role=space] {
+div[role=blank] {
     display: flex;
     border: 1px #d9d9d9 solid;
     border-radius: 5px;
 }
-div[role=space] > * {
+div[role=blank] > * {
     margin: auto;
 }
 
@@ -613,8 +613,9 @@ div[role=space] > * {
 }
 
 
-/* 空白段 */
-span[role=blank] {
+/* 空白 */
+span[role=space] {
+    width: 1em;
     display: inline-block;
 }
 
