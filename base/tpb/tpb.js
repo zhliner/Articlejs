@@ -22,12 +22,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { On } from "./libs/pbs.get.js";
-import { By, extend, App } from "./libs/pbs.by.js";
-import { To } from "./libs/pbs.to.js";
+import { On } from "./pbs.get.js";
+import { By, extend, App } from "./pbs.by.js";
+import { To } from "./pbs.to.js";
 
-import { Builder } from "./libs/obter.js";
-import { Web, OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader } from "./config.js";
+import { Builder } from "./core.js";
+import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader } from "./config.js";
 
 // 无需模板支持。
 // import { Templater } from "./tools/templater.x.js";

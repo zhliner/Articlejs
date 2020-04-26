@@ -31,15 +31,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./util.js";
+import { Util } from "./tools/util.js";
 import { X, extend__ } from "./lib.x.js";
 import { App__ } from "./app.js";
-import { bindMethod, method, Web } from "../config.js";
+import { bindMethod, method, Web } from "./config.js";
 import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
-// import { Render } from "../tools/render.x.js";
-import { Render } from "../tools/render.js";
+// import { Render } from "./tools/render.x.js";
+import { Render } from "./tools/render.js";
 
 
 const

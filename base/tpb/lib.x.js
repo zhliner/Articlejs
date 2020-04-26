@@ -28,7 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { funcSets } from "../config.js";
+import { funcSets } from "./config.js";
 
 
 const $ = window.$;

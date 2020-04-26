@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals } from "../config.js";
+import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals } from "./config.js";
 
 
 const

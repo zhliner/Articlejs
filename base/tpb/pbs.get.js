@@ -12,8 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./util.js";
-import { bindMethod, method, DataStore, Templater, ChainStore, DEBUG } from "../config.js";
+import { Util } from "./tools/util.js";
+import { bindMethod, method, DataStore, Templater, ChainStore, DEBUG } from "./config.js";
 import { Process } from "./pbs.base.js";
 
 

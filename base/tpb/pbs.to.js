@@ -15,14 +15,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./util.js";
-import { bindMethod, method, DataStore, ChainStore, storeChain } from "../config.js";
+import { Util } from "./tools/util.js";
+import { bindMethod, method, DataStore, ChainStore, storeChain } from "./config.js";
 import { Get } from "./pbs.get.js";
 import { debug } from "./pbs.base.js";
 
 // 无渲染占位。
-// import { Render } from "../tools/render.x.js";
-import { Render } from "../tools/render.js";
+// import { Render } from "./tools/render.x.js";
+import { Render } from "./tools/render.js";
 
 
 const
