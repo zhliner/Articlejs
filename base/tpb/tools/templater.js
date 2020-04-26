@@ -78,13 +78,27 @@ class Templater {
     /**
      * 克隆模板节点。
      * 如果模板不存在，会自动尝试载入。
-     * 会同时克隆渲染文法（如果有）以及绑定的事件处理器。
+     * 注：克隆包含渲染文法。
      * @param  {String} name 模板名
      * @return {Promise<Element>} 承诺对象
      */
     clone( name ) {
-        return this.get(name)
-            .then( el => Render.clone(el, $.clone(el, true, true, true)) );
+        return this.get(name).then( el => this._clone(el) );
+    }
+
+
+    /**
+     * 返回模板节点。
+     * 如果只传递单个名称，返回元素，否则返回元素集。
+     * @param  {[String]} names 节点名序列
+     * @param  {Boolean} clone 是否克隆（含渲染文法）
+     * @return {Element|[Element]|void}
+     */
+    node( names, clone ) {
+        if ( names.length <= 1 ) {
+            return this._node( names[0], clone );
+        }
+        return names.map( n => this._node(n, clone) );
     }
 
 
@@ -154,6 +168,32 @@ class Templater {
 
 
     //-- 私有辅助 -------------------------------------------------------------
+
+
+    /**
+     * 克隆模板节点。
+     * 会同时克隆渲染文法（如果有）以及绑定的事件处理器。
+     * @param  {Element} tpl 原模板节点
+     * @return {Element} 克隆的新节点
+     */
+    _clone( tpl ) {
+        return tpl && Render.clone(
+            tpl,
+            $.clone( tpl, true, true, true )
+        );
+    }
+
+
+    /**
+     * 返回节点或克隆节点。
+     * @param  {String} name 模板节点名
+     * @param  {Boolean} clone 是否克隆
+     * @return {Element|void}
+     */
+    _node( name, clone ) {
+        let _tpl = this._tpl.get( name );
+        return clone ? this._clone( _tpl ) : _tpl;
+    }
 
 
     /**

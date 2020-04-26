@@ -1616,7 +1616,7 @@ Object.assign( tQuery, {
      *
      * 取值：
      * - 条件：value为未定义，name为字符串。
-     * - name支持空格分隔多个名称，返回一个键值对象。
+     * - name支持空格分隔多个名称，返回一个名:值对象。
      *
      * 设置：
      * - value有值时，name为名称序列（空格分隔），value若为数组则一一对应。
@@ -1652,6 +1652,7 @@ Object.assign( tQuery, {
     /**
      * 剪取特性。
      * 取出特性值的同时移除该特性。
+     * name支持空格分隔的多个名称，此时返回名:值对象（保留特性名）。
      * 注：不包含text和html特殊名。
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名/序列

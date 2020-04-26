@@ -495,6 +495,41 @@ const _Gets = {
 
 
     /**
+     * 获取模板节点（集）。
+     * 目标：暂存区一项可选。
+     * 如果目标有值，取目标为模板名，此时names充当clone实参。
+     * 注意克隆是每次事件都会克隆一组新的节点。
+     * 返回节点元素本身（而不是一个承诺）。
+     * 如果只请求单个节点且未找到时，返回null（数组成员中未找到的为undefined）。
+     *
+     * 注记：
+     * 用户请求节点时应当知道节点载入情况，节点预先载入有3种方式：
+     * 1. 在主页面中预先导入（通过隐藏的tpl-source或tpl-node语法）。
+     * 2. 其它先构建（Tpb.Build）的模板导致节点已经自动载入。
+     * 3. 主动使用tpl载入单个节点，于是与该节点定义在同一文件中的其它节点就会自动载入。
+     * 例：
+     * 主动载入并合并。
+     * - tpl(x) arr node(...) concat(_1)  // x节点在数组前端
+     * - tpl(x) node(...) pop concat(_1)  // x节点在数组末尾
+     *
+     * @param  {String|[String]} names 名称序列
+     * @param  {Boolean} clone 是否克隆
+     * @return {Element|[Element]|null}
+     */
+    node( evo, names, clone ) {
+        if ( evo.data !== undefined ) {
+            [name, clone] = [evo.data, name];
+        }
+        if ( typeof names == 'string' ) {
+            names = names.trim().split(__reSpace);
+        }
+        return Templater.node( names, clone ) || null;
+    },
+
+    __tpls: -1,
+
+
+    /**
      * 获得键数组。
      * 目标：暂存区/栈顶1项。
      * 主要为调用目标对象的.keys()接口。
