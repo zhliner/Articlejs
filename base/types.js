@@ -24,10 +24,10 @@ const $ = window.$;
 //
 // 特性标记：
 // 主要用于移动判断处理：若非固定，相同者可互换或并列。固定者只能接收内容。
+// 0. FIXED   位置固定。只能自我移动（不能被其它元素移动），如：{<caption>}
 // 1. TBLSECT 表格结构元件：{<thead>|<tbody>|<tfoot>}
 // 2. TBLCELL 表格单元元件：{<th>|<td>}
 // 3. DLITEM  定义列表项：  {<dt>|<dd>}
-// 4. FIXED   位置固定。只能自我移动（不能被其它元素移动），如：{<caption>}
 //
 const
     TEXT    = 0,        // 文本节点
@@ -263,14 +263,14 @@ const Types = {
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    HGROUP:     BLOCKS | STRUCT,
-    ABSTRACT:   BLOCKS | STRUCT,
-    TOC:        BLOCKS | STRUCT,
-    SEEALSO:    BLOCKS | STRUCT,
-    REFERENCE:  BLOCKS | STRUCT,
-    HEADER:     BLOCKS | STRUCT,
-    FOOTER:     BLOCKS | STRUCT,
-    ARTICLE:    BLOCKS | STRUCT,
+    HGROUP:     BLOCKS | STRUCT | FIXED,
+    ABSTRACT:   BLOCKS | STRUCT | FIXED,
+    TOC:        BLOCKS | STRUCT | FIXED,
+    SEEALSO:    BLOCKS | STRUCT | FIXED,
+    REFERENCE:  BLOCKS | STRUCT | FIXED,
+    HEADER:     BLOCKS | STRUCT | FIXED,
+    FOOTER:     BLOCKS | STRUCT | FIXED,
+    ARTICLE:    BLOCKS | STRUCT | FIXED,
     S1:         BLOCKS | STRUCT,
     S2:         BLOCKS | STRUCT,
     S3:         BLOCKS | STRUCT,
@@ -315,13 +315,13 @@ const ChildTypes = {
     /////////////////////////////////////////////
     $TEXT:      null,
 
-    AUDIO:      [SOURCE, TRACK, $TEXT],
-    VIDEO:      [SOURCE, TRACK, $TEXT],
-    PICTURE:    [SOURCE, IMG],
+    AUDIO:      [ SOURCE, TRACK, $TEXT ],
+    VIDEO:      [ SOURCE, TRACK, $TEXT ],
+    PICTURE:    [ SOURCE, IMG ],
     IMG:        [],
-    RUBY:       [RB, RT, RP],
-    TIME:       [$TEXT],
-    METER:      [$TEXT],
+    RUBY:       [ RB, RT, RP ],
+    TIME:       [ $TEXT ],
+    METER:      [ $TEXT ],
     BR:         [],
     WBR:        [],
     SPACE:      [],
@@ -336,27 +336,27 @@ const ChildTypes = {
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    A:          INLINES | CONTENT,
-    STRONG:     INLINES | CONTENT,
-    EM:         INLINES | CONTENT,
-    Q:          INLINES | CONTENT,
-    ABBR:       INLINES | CONTENT,
-    CITE:       INLINES | CONTENT,
-    SMALL:      INLINES | CONTENT,
-    DEL:        INLINES | CONTENT,
-    INS:        INLINES | CONTENT,
-    SUB:        INLINES | CONTENT,
-    SUP:        INLINES | CONTENT,
-    MARK:       INLINES | CONTENT,
-    CODE:       INLINES | CONTENT,
-    ORZ:        INLINES | CONTENT,
-    DFN:        INLINES | CONTENT,
-    SAMP:       INLINES | CONTENT,
-    KBD:        INLINES | CONTENT,
-    S:          INLINES | CONTENT,
-    U:          INLINES | CONTENT,
-    VAR:        INLINES | CONTENT,
-    BDO:        INLINES | CONTENT,
+    A:          [ $TEXT, [INLINES] ],
+    STRONG:     [ $TEXT, [INLINES] ],
+    EM:         [ $TEXT, [INLINES] ],
+    Q:          [ $TEXT, [INLINES] ],
+    ABBR:       [ $TEXT ],
+    CITE:       [ $TEXT, [INLINES] ],
+    SMALL:      [ $TEXT, [INLINES] ],
+    DEL:        [ $TEXT, [INLINES] ],
+    INS:        [ $TEXT, [INLINES] ],
+    SUB:        [ $TEXT, [INLINES] ],
+    SUP:        [ $TEXT, [INLINES] ],
+    MARK:       [ $TEXT, [INLINES] ],
+    CODE:       [ $TEXT, B, I ],
+    ORZ:        [ $TEXT ],
+    DFN:        [ $TEXT, ABBR ],
+    SAMP:       [ $TEXT, [INLINES] ],
+    KBD:        [ $TEXT ],
+    S:          [ $TEXT, [INLINES] ],
+    U:          [ $TEXT, [INLINES] ],
+    VAR:        [ $TEXT ],
+    BDO:        [ $TEXT, [INLINES] ],
 
     //
     // 行块内容元素

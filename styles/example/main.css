@@ -4,7 +4,7 @@
  *  基本样式的格式示例，
  *  其它样式可据此结构修改创建。
  *
- *  @name   经典灰
+ *  @name   经典中灰
  *  @author 风林 zhliner@gmail.com
  *
  *****************************************************************************/
@@ -30,7 +30,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  ****************************************************************************/
 
 .content {
-    font-size: 11pt;
     padding: 0 20px;
 }
 
@@ -61,14 +60,13 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* [ 固定 ] - 请谨慎修改！
+/* [ 表格 ] 固定，请谨慎修改！
  ****************************************************************************/
 
-/* 表格边框 */
+/* 边框 */
 .content table {
     border-collapse: collapse;
 }
-
 .content table,
 .content th,
 .content td {
@@ -81,9 +79,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     border-width: 0;
 }
 
-/* 普通（仅1px） */
+/* 普通（1px） */
 .content table[data-border=1] {
-    /* 默认值 */
+    border-width: 1px;
 }
 
 /* 内边框（纵/横）
@@ -116,7 +114,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* [ 行块 ]
+/* [ 通用 ]
  ****************************************************************************/
 
 /* 主标题 */
@@ -124,11 +122,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     color: #555;
     text-shadow: 0 1px 1px #eee;
     text-align: center;
-    font-size: 26pt;
+    font-size: 2.4em;
 }
 /* 副标题 */
 .content hgroup > h2 {
-    font-size: 14pt;
+    font-size: 1.24em;
     font-style: italic;
     font-weight: normal;
     margin-top: -10px;
@@ -138,10 +136,31 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     text-align: right;
 }
 
+.content section > h2 {
+    font-size: 1.6em;
+}
+
+.content h3 {
+    font-size: 1.2em;
+}
+.content h4 {
+    font-size: 1.0em;
+}
+
+/* 段落 */
+.content p {
+    margin: 15px auto;
+}
+
+/* 地址 */
+.content address {
+    padding: 2px;
+}
+
 
 /* 提要
  * header:abstract/h3, p+
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content header[role=abstract] {
     border: 1px #eee solid;
@@ -152,15 +171,14 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     box-shadow: #ccc 0 1px 6px;
 }
 .content header[role=abstract] > h3 {
-}
-.content header[role=abstract] p {
-    font-size: 11pt;
+    margin: 10px;
+    text-align: center;
 }
 
 
 /* 目录
  * nav:toc/ol:cascade/li/a
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content nav[role=toc] {
     padding: 5px;
@@ -181,22 +199,17 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     height: 96%;
 }
 
+/* 多级编号 */
 .content nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 80px);
     overflow-y: auto;
 }
 
-.content nav[role=toc] h4 {
+.content nav[role=toc] h3 {
     margin: 5px 2px;
     padding-bottom: 10px;
-    font-size: 12pt;
     text-align: center;
     border-bottom: 1px #ddd dotted;
-    color: #333;
-}
-
-.content nav[role=toc] h4 > a:hover {
-    text-decoration: none;
 }
 
 .content nav[role=toc] > ol {
@@ -228,7 +241,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 多级编号表
  * ol:cascade/li/h5, ol/...
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content ol[role=cascade],
 .content ol[role=cascade] ol {
@@ -237,10 +250,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     padding: 0;
 }
 
-.content ol[role=cascade] h5 {
-    font-size: 1em;
-    font-weight: normal;
+.content ol[role=cascade] h4 {
     margin: 0;
+    font-weight: normal;
 }
 
 .content ol[role=cascade] li:before {
@@ -308,101 +320,80 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content ol[role=references] {}
 
 
-/* [ 通用 ]
- * --------------------------------------------------------------------------
- */
-
-/* 段落 */
-.content p {
-    margin: 15px auto;
-}
-
-/* 地址 */
-.content address {
-    padding: 2px;
-}
-
 
 /* 章节区段末
  * 用逐层递进定位可能的正文区。
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
-
-/*
-.content > section {}
-.content > section > section {}
-.content > section > section > section {}
-.content > section > section > section > section {}
-.content > section > section > section > section > section {}
-*/
-.content section[role=s1] {}
-.content section[role=s2] {}
-.content section[role=s3] {}
-.content section[role=s4] {}
-.content section[role=s5] {}
 
 
 /* 章：
- * header,h2,section,footer
- * ------------------------------------
+ * section:s1/[h2,header,section:s2,footer]
+ * ----------------------------------------------
  */
-.content > h2 {
-    font-size: 19pt;
+.content section[role=s1] {
+}
+.content section[role=s1] > h2 {
+    font-size: 1.6em;
     padding: 4px 14px;
     background-color: #9c0;
     border-bottom: 1px #8b0 solid;
 }
-.content section[role=s1] {}
 
 
 /* 节：
- * header,h3,section,footer
- * ------------------------------------
+ * section:s2/[h2,header,section:s3,footer]
+ * ----------------------------------------------
  */
-.content section[role=s1] > h3 {
-    font-size: 17pt;
-    padding: 4px;
+.content section[role=s2] {
+}
+.content section[role=s2] > h2 {
+    font-size: 1.4em;
+    padding: 6px 2px;
     border-bottom: 1px #eee solid;
 }
-.content section[role=s2] {}
 
 
 /* 区：
- * header,h4,section,footer
- * ------------------------------------
+ * section:s3/[h2,header,section:s4,footer]
+ * ----------------------------------------------
  */
-.content section[role=s2] > h4 {
-    font-size: 14pt;
+.content section[role=s3] {
+}
+.content section[role=s3] > h2 {
+    font-size: 1.2em;
     padding: 4px;
 }
-.content section[role=s3] {}
 
 
 /* 段：
- * header,h5,section,footer
- * ------------------------------------
+ * section:s4/[h2,header,section:s5,footer]
+ * ----------------------------------------------
  */
-.content section[role=s3] > h5 {
-    font-size: 11pt;
+.content section[role=s4] {
+}
+.content section[role=s4] > h2 {
+    font-size: 1.0em;
     color: #093;
     border-bottom: 1px #3c6 dotted;
 }
-.content section[role=s4] {}
 
 
 /* 末：
- * header,h6,section,footer
- * ------------------------------------
+ * section:s5/[h2,header, ... ,footer]
+ * ----------------------------------------------
  */
-.content section[role=s4] > h6 {
-    font-size: 10pt;
+.content section[role=s5] {
+}
+.content section[role=s5] > h2 {
+    font-size: 0.9em;
     color: #036;
 }
-.content section[role=s5] {}
+
 
 
 /* 定义列表
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 
 /* 定义列表 */
@@ -423,7 +414,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 插画
  * figure/figcaption, p/img, svg, audio, video
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content figure {
     padding: 0;
@@ -451,7 +442,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 引用块
  * blockquote/h4, p+
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content blockquote {
     margin: 0 24px;
@@ -463,7 +454,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 批注块
  * aside/h4, p+
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content aside {}
 .content aside > h4 {}
@@ -471,7 +462,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 详细内容
  * [details/summary, p+]
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content details {}
 .content details > summary {}
@@ -480,7 +471,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 导言
  * header/h4, p+
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content header {
     padding: 2px;
@@ -489,7 +480,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 尾注
  * footer/h4, p+
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content footer {
     padding: 2px;
@@ -497,7 +488,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 注解
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content p[role=note] {
 }
@@ -505,7 +496,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 分割
  * (Horizontal Rule)
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content hr {
     margin: 14px 0;
@@ -567,7 +558,7 @@ div[role=blank] > * {
 
 
 /* 表格元件
- * --------------------------------------------------------------------------
+ *----------------------------------------------------------------------------
  */
 .content caption,
 .content th,
@@ -690,8 +681,14 @@ code > b {
 }
 /* comments */
 code > i {
-    color: #393;
+    color: #909090;
     font-style: normal;
+}
+
+/* keywords */
+code > b[role=kw] {
+    color: #9c1d1d;
+    font-weight: bold;
 }
 
 /* string */
@@ -699,10 +696,19 @@ code > b[role=str] {
     color: #03c;
 }
 
-/* keywords */
-code > b[role=kw] {
-    color: #900;
-    font-weight: bold;
+/* function-name */
+code > b[role=fn] {
+    color: #33beff;
+}
+
+/* operator */
+code > b[role=op] {
+    color: #f12828;
+}
+
+/* data-type */
+code > b[role=dt] {
+    color: #14a505;
 }
 
 /* tag-name */
@@ -716,24 +722,8 @@ code > b[role=an] {
     color: #090;
 }
 
-/* value */
-code > b[role=val] {
-    color: #36c;
-}
-
-/* function-name */
-code > b[role=fn] {
-    color: #f3e;
-}
-
-/* data-type */
-code > b[role=dt] {
-    color: #09c;
-}
-
 /* css: !important
  * cpp: #include...
- * java: @interface
  * shell: #!/bin/bash
  * js: $
  */
@@ -755,7 +745,7 @@ code > b[role=cd] {
 }
 
 /* RegExp */
-code > b[role=rex] {
+code > b[role=re] {
     color: #e60;
 }
 
@@ -763,6 +753,7 @@ code > b[role=rex] {
 code > b[role=err] {
     color: #c00;
 }
+
 
 /* 高亮覆盖
  * ------------------------------------
