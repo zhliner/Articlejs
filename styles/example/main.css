@@ -122,11 +122,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     color: #555;
     text-shadow: 0 1px 1px #eee;
     text-align: center;
-    font-size: 2.4em;
+    font-size: 2.2em;
 }
 /* 副标题 */
 .content hgroup > h2 {
-    font-size: 1.24em;
+    font-size: 1.15em;
     font-style: italic;
     font-weight: normal;
     margin-top: -10px;
@@ -334,7 +334,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s1] {
 }
 .content section[role=s1] > h2 {
-    font-size: 1.6em;
+    font-size: 1.5em;
     padding: 4px 14px;
     background-color: #9c0;
     border-bottom: 1px #8b0 solid;
@@ -348,7 +348,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s2] {
 }
 .content section[role=s2] > h2 {
-    font-size: 1.4em;
+    font-size: 1.3em;
     padding: 6px 2px;
     border-bottom: 1px #eee solid;
 }
@@ -361,7 +361,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s3] {
 }
 .content section[role=s3] > h2 {
-    font-size: 1.2em;
+    font-size: 1.1em;
     padding: 4px;
 }
 
