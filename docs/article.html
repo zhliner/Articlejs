@@ -24,7 +24,7 @@
 <body>
     <main class="content">
         <hgroup>
-            <h1 id="文章的内容结构">文章内容的结构</h1>
+            <h1 id="文章的内容结构">文章内容的规范化结构</h1>
             <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
         </hgroup>
         <header role="abstract">
@@ -41,13 +41,14 @@
             <h3><a href="#文章的内容结构">【目 录】</a></h3>
             <ol role="cascade">
                 <li>
-                    <h4><a href="#内容的结构">内容的结构</a></h4>
+                    <h4><a href="#层次">层次</a></h4>
                     <ol>
-                        <li><a href="#层次图">层次图</a></li>
+                        <li><a href="#标题规划">标题规划</a></li>
+                        <li><a href="#层次示意">层次示意</a></li>
                     </ol>
                 </li>
                 <li>
-                    <h4><a href="#内容成员">内容成员</a></h4>
+                    <h4><a href="#组成">组成</a></h4>
                     <ol>
                         <li>
                             <h4><a href="#块单元">块单元</a></h4>
@@ -58,6 +59,10 @@
                         </li>
                         <li><a href="#行内单元">行内单元</a></li>
                     </ol>
+                </li>
+                <li>
+                    <h4><a href="#类型">类型</a></h4>
+                    <ol></ol>
                 </li>
                 <li>
                     <h4><a href="#单元结构">单元结构</a></h4>
@@ -123,7 +128,7 @@
                 <p>依通常的情形和需求，我们提供最多5个层级的支持，分别命名为：<strong>章</strong>、<strong>节</strong>、<strong>区</strong>、<strong>段</strong>、<strong>末</strong>。它们逐层嵌套，每一层都由一个 <code>&lt;section&gt;</code> 封装，为便于识别和定位，<code>&lt;section&gt;</code> 元素上分别定义 <code>role</code> 属性值为：<code>s1 ~ s5</code>。</p>
             </header>
             <section role="s1">
-                <h2 id="内容的结构">内容的结构</h2>
+                <h2 id="层次">层次</h2>
                 <section role="s2">
                     <h2>标题规划</h2>
                     <p>逐层嵌套的 <code>&lt;section&gt;</code> 封装会隔离标题的层次逻辑，但标题自身的层级依然是可以被规划和利用的，这可能带来一些额外的好处或便利。细节如下：</p>
@@ -136,7 +141,7 @@
                     </ul>
                 </section>
                 <section role="s2">
-                    <h2 id="层次图示意">层次图示意</h2>
+                    <h2 id="层次示意">层次示意</h2>
                     <pre>
 <code data-lang="html">&lt;<b role="tag">h1</b>&gt;&lt;/<b role="tag">h1</b>&gt;                                   <i>&lt;!-- 页标题 --&gt;</i>
 &lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;           <i>&lt;!-- 提要 --&gt;</i>
@@ -193,7 +198,7 @@
             </section>
             <hr />
             <section role="s1">
-                <h2 id="内容的组成">内容的组成</h2>
+                <h2 id="组成">组成</h2>
                 <section role="s2">
                     <h2 id="内容块">内容块</h2>
                     <header>
@@ -287,11 +292,11 @@
             </section>
             <hr />
             <section role="s1">
-                <h2 id="内容的类型">内容的类型</h2>
+                <h2 id="类型">类型</h2>
             </section>
             <hr />
             <section role="s1">
-                <h2 id="内容块结构">内容块结构</h2>
+                <h2 id="单元结构">单元结构</h2>
                 <section role="s2">
                     <h2 id="原生结构">原生结构</h2>
                     <section role="s3">
