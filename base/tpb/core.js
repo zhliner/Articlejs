@@ -6,7 +6,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//	OBT 解析器。
+//  OBT 解析器。
 //
 //  完成元素（单个）的OBT逻辑，
 //  包括：
@@ -1108,8 +1108,8 @@ class Update {
 
     /**
      * 应用更新设置。
-     * 更新函数接口：function(Element|Collector, Value, ...): void
-     * 注：取值数量固定为1。
+     * 更新函数接口：function(Element|Collector, Value, ...): Value|void
+     * 注：取值数量默认为1。
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 更新方法集
      * @return {Cell} cell
