@@ -164,7 +164,7 @@ const
     ASIDE       = 524,  // 批注 （aside/h4, p...）
     DETAILS     = 525,  // 详细内容 （details/summary, p...）
     CODEBLOCK   = 526,  // 代码块 （pre:codeblock/code/#text, b, i）
-    HR          = 500,  // 隔断 （hr）
+    HR          = 500,  // 分隔 （hr）
 
     //
     // 特殊用途。

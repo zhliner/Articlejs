@@ -105,6 +105,14 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
+.content aside > *,
+.content blockquote > *,
+.content details > *,
+.content figure > * {
+    margin: 0.5em auto;
+}
+
+
 /* 提要
  * header:abstract/h3, p+
  *----------------------------------------------------------------------------
@@ -121,6 +129,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 1.17em;
     margin: 10px;
     text-align: center;
+}
+.content header[role=abstract] > blockquote {
+    margin: 0 1.4em;
 }
 
 
@@ -390,23 +401,24 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 引用块
- * blockquote/h4, p+
+ * blockquote/h3, p+
  *----------------------------------------------------------------------------
  */
 .content blockquote {
-    margin: 0 24px;
-    padding-left: 20pt;
+    padding-left: 1.8em;
     border-left: 8px #e7e7f0 solid;
 }
-.content blockquote > h4 {}
+.content blockquote > ul {
+    padding: 0 1em;
+}
 
 
 /* 批注块
- * aside/h4, p+
+ * aside/h3, p+
  *----------------------------------------------------------------------------
  */
 .content aside {}
-.content aside > h4 {}
+.content aside > h3 {}
 
 
 /* 详细内容
@@ -419,7 +431,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 导言
- * header/h4, p+
+ * header/h3, p+
  *----------------------------------------------------------------------------
  */
 .content header {
@@ -428,7 +440,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 尾注
- * footer/h4, p+
+ * footer/h3, p+
  *----------------------------------------------------------------------------
  */
 .content footer {
@@ -443,7 +455,14 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* 分割
+/* 提示
+ *----------------------------------------------------------------------------
+ */
+.content p[role=tips] {
+}
+
+
+/* 分隔
  * (Horizontal Rule)
  *----------------------------------------------------------------------------
  */
@@ -677,9 +696,7 @@ code > b[role=an] {
  * js: $
  */
 code > b[role=imp] {
-    color: #e60;
-}
-code > b[role=imp]:first-child {
+    color: #bf5200;
     font-weight: bold;
 }
 
@@ -710,12 +727,6 @@ code > b[role=err] {
 code[data-lang="css"] b[role=tag] {
     color: #f0b;
     font-weight: normal;
-}
-
-code[data-lang="html"] b[role=imp],
-code[data-lang="js"] b[role=imp] {
-    color: #e06;
-    font-weight: bold;
 }
 
 
