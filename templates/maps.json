@@ -131,6 +131,7 @@
         "prop:source",
         "prop:sources",
         "prop:sourcex",
+        "prop:spwidth",
         "prop:srcbase",
         "prop:start",
         "prop:summary",

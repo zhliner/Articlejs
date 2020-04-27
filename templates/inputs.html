@@ -711,8 +711,7 @@
 
 <!-- 有向文本 -->
 <ul class="_prop" tpl-name="inlines:bdo">
-    <li tpl-node="prop:textrow"></li>
-    <li tpl-node="prop:dir"></li>
+    <li tpl-node="prop:textrow, prop:dir"></li>
 </ul>
 
 <!-- 换行 -->
@@ -727,7 +726,7 @@
 
 <!-- 空白 -->
 <ul class="_prop" tpl-name="inlines:space">
-    <li tpl-node="prop:amount"></li>
+    <li tpl-node="prop:amount, prop:spwidth"></li>
 </ul>
 
 <!-- 文本节点 -->

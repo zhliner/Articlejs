@@ -730,8 +730,13 @@ aside#help {
     color: #ccc;
 }
 
+/* 内联单元 */
+.Input ._Inline input._chars {
+    width: 100px;
+}
+
 /* 文本字符 */
-.Slave div._Inline {
+.Input div._Inline {
     min-width: 365px;
 }
 .Input ._Inline ._list > span {
