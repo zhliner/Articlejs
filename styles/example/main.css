@@ -31,6 +31,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 .content {
     padding: 0 20px;
+    font-size: 11pt;
 }
 
 .content table {
@@ -59,63 +60,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     margin: 6px auto;
 }
 
-
-/* [ 表格 ] 固定，请谨慎修改！
- ****************************************************************************/
-
-/* 边框 */
-.content table {
-    border-collapse: collapse;
+.content aside {
+    font-size: 10.5pt;
 }
-.content table,
-.content th,
-.content td {
-    border: 1px solid #666;
-}
-
-/* 无边框 */
-.content table[data-border=0],
-.content table[data-border=0] td {
-    border-width: 0;
-}
-
-/* 普通（1px） */
-.content table[data-border=1] {
-    border-width: 1px;
-}
-
-/* 内边框（纵/横）
- * 技巧：外框原宽度 +1px，框色透明
- */
-.content table[data-border=2] {
-    border-width: 2px;
-    border-color: transparent;
-}
-
-/* 上接边框（3面，上为0） */
-.content table[data-border=3] {
-    border-top-width: 2px;
-    border-top-color: transparent;
-}
-
-/* 外边框（4边） */
-.content table[data-border=4] td {
-    border-width: 0;
-}
-
-/* 横（行）边框 */
-.content table[data-border=h] td {
-    border-width: 0 0 1px 0;
-}
-
-/* 竖（列）边框 */
-.content table[data-border=v] td {
-    border-width: 0 1px 0 0;
-}
-
-
-/* [ 通用 ]
- ****************************************************************************/
 
 /* 主标题 */
 .content h1 {
@@ -141,7 +88,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 .content h3 {
-    font-size: 1.2em;
+    font-size: 1.12em;
 }
 .content h4 {
     font-size: 1.0em;
@@ -171,6 +118,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     box-shadow: #ccc 0 1px 6px;
 }
 .content header[role=abstract] > h3 {
+    font-size: 1.17em;
     margin: 10px;
     text-align: center;
 }
@@ -186,7 +134,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     border: 1px #e3e3e0 solid;
     display: inline-block;
     border-radius: 4px;
-    font-size: 10pt;
+    font-size: 9.6pt;
     box-shadow: 1px 1px 4px #bbb;
 }
 
@@ -206,6 +154,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 .content nav[role=toc] h3 {
+    font-size: 1.17em;
     margin: 5px 2px;
     padding-bottom: 10px;
     text-align: center;
@@ -767,4 +716,59 @@ code[data-lang="html"] b[role=imp],
 code[data-lang="js"] b[role=imp] {
     color: #e06;
     font-weight: bold;
+}
+
+
+
+/* [ 固定 ] 表格边框，谨慎修改！
+ ****************************************************************************/
+
+/* 边框 */
+.content table {
+    border-collapse: collapse;
+}
+.content table,
+.content th,
+.content td {
+    border: 1px solid #666;
+}
+
+/* 无边框 */
+.content table[data-border=0],
+.content table[data-border=0] td {
+    border-width: 0;
+}
+
+/* 普通（1px） */
+.content table[data-border=1] {
+    border-width: 1px;
+}
+
+/* 内边框（纵/横）
+ * 技巧：外框原宽度 +1px，框色透明
+ */
+.content table[data-border=2] {
+    border-width: 2px;
+    border-color: transparent;
+}
+
+/* 上接边框（3面，上为0） */
+.content table[data-border=3] {
+    border-top-width: 2px;
+    border-top-color: transparent;
+}
+
+/* 外边框（4边） */
+.content table[data-border=4] td {
+    border-width: 0;
+}
+
+/* 横（行）边框 */
+.content table[data-border=h] td {
+    border-width: 0 0 1px 0;
+}
+
+/* 竖（列）边框 */
+.content table[data-border=v] td {
+    border-width: 0 1px 0 0;
 }
