@@ -205,6 +205,9 @@
         <header>
             <input name="h4" type="text" placeholder="小标题" class="_scale" />
         </header>
+        <label class="_cite">
+            <input type="text" name="cite" placeholder="（来源）" />
+        </label>
         <textarea name="blockquote" placeholder="内容"></textarea>
     </div>
     <aside>
@@ -594,7 +597,7 @@
 
 <!-- 代码 -->
 <div class="_prop" tpl-name="inlines:code">
-    <li tpl-node="prop:codes"></li>
+    <hr tpl-node="prop:codes" />
 </div>
 
 <!-- 重点 -->
@@ -618,9 +621,9 @@
 </div>
 
 <!-- 短引用 -->
-<div class="_prop" tpl-name="inlines:q">
-    <hr tpl-node="prop:content" />
-</div>
+<ul class="_prop" tpl-name="inlines:q">
+    <hr tpl-node="prop:textrow, prop:cite" />
+</ul>
 
 <!-- 日期/时间 -->
 <ul class="_prop" tpl-name="inlines:times">
@@ -638,9 +641,9 @@
 </div>
 
 <!-- 缩写 -->
-<div class="_prop" tpl-name="inlines:abbr">
+<ul class="_prop" tpl-name="inlines:abbr">
     <hr tpl-node="prop:textrow, prop:title" />
-</div>
+</ul>
 
 <!-- 注脚 -->
 <div class="_prop" tpl-name="inlines:small">
@@ -670,9 +673,9 @@
 </div>
 
 <!-- 定义条目 -->
-<div class="_prop" tpl-name="inlines:dfn">
+<ul class="_prop" tpl-name="inlines:dfn">
     <hr tpl-node="prop:textrow, prop:title" />
-</div>
+</ul>
 
 <!-- 样本 -->
 <div class="_prop" tpl-name="inlines:samp">
@@ -728,9 +731,9 @@
 </ul>
 
 <!-- 文本节点 -->
-<ul class="_prop" tpl-name="inlines:text">
-    <li tpl-node="prop:content"></li>
-</ul>
+<div class="_prop" tpl-name="inlines:text">
+    <hr tpl-node="prop:content" />
+</div>
 
 
 

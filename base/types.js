@@ -129,39 +129,41 @@ const
     TD          = 413,  // 单元格
     CODELI      = 414,  // 代码表条目（li/code）
     ALI         = 415,  // 目录表普通条目（li/a）
-    H5A         = 416,  // 目录表标题条目（h5/a）
-    CASCADELI   = 417,  // 级联标题（li/h5, ol|ul）
-    TR          = 418,  // 表格行
-    THEAD       = 419,  // 表头
-    TBODY       = 420,  // 表体
-    TFOOT       = 421,  // 表脚
+    AH4         = 416,  // 目录表标题条目（h4/a）
+    ULXH4LI     = 417,  // 无序级联表项标题（li/h4, ol|ul）
+    OLXH4LI     = 418,  // 有序级联表项标题（li/h4, ul|ol）
+    CASCADEH4LI = 419,  // 级联编号表项标题（li/h4, ol）
+    TR          = 420,  // 表格行
+    THEAD       = 421,  // 表头
+    TBODY       = 422,  // 表体
+    TFOOT       = 423,  // 表脚
     //
     // 行块结构元素
     /////////////////////////////////////////////
     HGROUP      = 501,  // 主/副标题组 （hgroup/h1, h2）
     ABSTRACT    = 502,  // 提要 （header:abstract/h3, p...）
-    TOC         = 503,  // 目录 （nav:toc/h4, ol:cascade/li/(h5/a), ol/[li/a]+）
+    TOC         = 503,  // 目录 （nav:toc/h3, ol:cascade/li/(h4/a), ol/[li/a]+）
     SEEALSO     = 504,  // 另参见 （ul:seealso/li/#text）
     REFERENCE   = 505,  // 文献参考 （ol:reference/li/#text）
-    HEADER      = 506,  // 导言 （header/h4, p...）
-    FOOTER      = 507,  // 结语 （footer/h4, p...）
-    ARTICLE     = 508,  // 文章区 （article/header?, [h2,s1]+ | {content}, footer?, hr?）
-    S1          = 509,  // 章 （section:s1/header?, [h3,s2]+ | {content}, footer?）
-    S2          = 510,  // 节 （section:s2/header?, [h4,s3]+ | {content}, footer?）
-    S3          = 511,  // 区 （section:s3/header?, [h5,s4]+ | {content}, footer?）
-    S4          = 512,  // 段 （section:s4/header?, [h6,s5]+ | {content}, footer?）
-    S5          = 513,  // 末 （section:s5/header?, {content}, footer?）
+    HEADER      = 506,  // 导言 （header/h3, p...）
+    FOOTER      = 507,  // 结语 （footer/h3, p...）
+    ARTICLE     = 508,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
+    S1          = 509,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
+    S2          = 510,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
+    S3          = 511,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
+    S4          = 512,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
+    S5          = 513,  // 末 （section:s5/h2, header?, {content}, footer?）
     UL          = 514,  // 无序列表 （ul/li）
     OL          = 515,  // 有序列表 （ol/li）
     CODELIST    = 516,  // 代码表 （ol:codelist/li/code/#text, b, i）
-    ULX         = 517,  // 无序级联表 （ul/li/h5, ul|ol）
-    OLX         = 518,  // 有序级联表 （ol/li/h5, ul|ol）
-    CASCADE     = 519,  // 级联编号表 （ol:cascade/li/h5, ol/li/...）
+    ULX         = 517,  // 无序级联表 （ul/li/h4, ul|ol/...）
+    OLX         = 518,  // 有序级联表 （ol/li/h4, ol|ul/...）
+    CASCADE     = 519,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）
     DL          = 520,  // 定义列表 （dl/dt, dd+）
     TABLE       = 521,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
     FIGURE      = 522,  // 插图 （figure/figcaption, p/img+）
-    BLOCKQUOTE  = 523,  // 块引用 （blockquote/h4, p...）
-    ASIDE       = 524,  // 批注 （aside/h4, p...）
+    BLOCKQUOTE  = 523,  // 块引用 （blockquote/h3, p...）
+    ASIDE       = 524,  // 批注 （aside/h3, p...）
     DETAILS     = 525,  // 详细内容 （details/summary, p...）
     CODEBLOCK   = 526,  // 代码块 （pre:codeblock/code/#text, b, i）
     HR          = 500,  // 分隔 （hr）
@@ -254,8 +256,10 @@ const Types = {
     TD:         STRUCT | CONTENT | TBLCELL,
     CODELI:     STRUCT,
     ALI:        STRUCT,
-    H5A:        STRUCT,
-    CASCADELI:  STRUCT,
+    AH4:        STRUCT,
+    ULXH4LI:    STRUCT,
+    OLXH4LI:    STRUCT,
+    CASCADEH4LI: STRUCT,
     TR:         STRUCT,
     THEAD:      STRUCT | TBLSECT,
     TBODY:      STRUCT | TBLSECT,
@@ -305,8 +309,10 @@ const Types = {
 // 值为空数组表示无任何内容，通常为空元素。
 // 成员值为子数组表示类型，适用该类型所有单元。
 // 特殊值 null 仅用于文本节点。
-//
-// 注记：主要用于源码结构检查。
+// 注记：
+// - 可用于源码结构检查。
+// - 可用于判断目标的可插入单元（向内）。
+// - 取父容器可判断平级插入时的合法单元。
 //
 const ChildTypes = {
     //
@@ -319,7 +325,7 @@ const ChildTypes = {
     VIDEO:      [ SOURCE, TRACK, $TEXT ],
     PICTURE:    [ SOURCE, IMG ],
     IMG:        [],
-    RUBY:       [ RB, RT, RP ],
+    RUBY:       [ RBPT, RB, RT, RP ],
     TIME:       [ $TEXT ],
     METER:      [ $TEXT ],
     BR:         [],
@@ -361,37 +367,39 @@ const ChildTypes = {
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    P:          BLOCKS | CONTENT,
-    NOTE:       BLOCKS | CONTENT,
-    TIPS:       BLOCKS | CONTENT,
-    ADDRESS:    BLOCKS | CONTENT,
-    PRE:        BLOCKS | CONTENT,
-    BLANK:      BLOCKS | CONTENT,
+    P:          [ $TEXT, [INLINES] ],
+    NOTE:       [ $TEXT, [INLINES] ],
+    TIPS:       [ $TEXT, [INLINES] ],
+    ADDRESS:    [ $TEXT, [INLINES] ],
+    PRE:        [ $TEXT, [INLINES] ],
+    BLANK:      [],
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    H1:         STRUCT | CONTENT | FIXED,
-    H2:         STRUCT | CONTENT | FIXED,
-    H3:         STRUCT | CONTENT | FIXED,
-    H4:         STRUCT | CONTENT | FIXED,
-    H5:         STRUCT | CONTENT | FIXED,
-    H6:         STRUCT | CONTENT | FIXED,
-    SUMMARY:    STRUCT | CONTENT | FIXED,
-    FIGCAPTION: STRUCT | CONTENT | FIXED,
-    CAPTION:    STRUCT | CONTENT | FIXED,
-    LI:         STRUCT | CONTENT,
-    DT:         STRUCT | CONTENT | DLITEM,
-    DD:         STRUCT | CONTENT | DLITEM,
-    TH:         STRUCT | CONTENT | TBLCELL,
-    TD:         STRUCT | CONTENT | TBLCELL,
-    CODELI:     STRUCT,
-    ALI:        STRUCT,
-    H5A:        STRUCT,
-    CASCADELI:  STRUCT,
-    TR:         STRUCT,
-    THEAD:      STRUCT | TBLSECT,
-    TBODY:      STRUCT | TBLSECT,
-    TFOOT:      STRUCT | TBLSECT,
+    H1:         [ $TEXT, [INLINES] ],
+    H2:         [ $TEXT, [INLINES] ],
+    H3:         [ $TEXT, [INLINES] ],
+    H4:         [ $TEXT, [INLINES] ],
+    H5:         [ $TEXT, [INLINES] ],
+    H6:         [ $TEXT, [INLINES] ],
+    SUMMARY:    [ $TEXT, [INLINES] ],
+    FIGCAPTION: [ $TEXT, [INLINES] ],
+    CAPTION:    [ $TEXT, [INLINES] ],
+    LI:         [ $TEXT, [INLINES] ],
+    DT:         [ $TEXT, [INLINES] ],
+    DD:         [ $TEXT, [INLINES] ],
+    TH:         [ $TEXT, [INLINES] ],
+    TD:         [ $TEXT, [INLINES] ],
+    CODELI:     [ CODE ],
+    ALI:        [ A ],
+    AH4:        [ A ],
+    ULXH4LI:    [ H4, OL, UL ],
+    OLXH4LI:    [ H4, UL, OL ],
+    CASCADEH4LI: [ H4, OL ],
+    TR:         [ TH, TD ],
+    THEAD:      [ TR ],
+    TBODY:      [ TR ],
+    TFOOT:      [ TR ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -422,19 +430,6 @@ const ChildTypes = {
     DETAILS:    BLOCKS | STRUCT,
     CODEBLOCK:  BLOCKS | STRUCT,
     HR:         BLOCKS | STRUCT,
-};
-
-
-//
-// 子单元配置：{
-//      单元名：[ 子单元类型值, ... ]
-// }
-// 注记：
-// - 用于普通模式下根据目标判断可插入单元。
-// - 平级插入取父元素单元获取合法子单元集。
-//
-const ChildItems = {
-    RUBY:       [ RBPT ],
 };
 
 
@@ -504,7 +499,7 @@ const typeSubs = {
     Codeli:         CODE,
     Ali:            A,
     H5a:            A,
-    Cascadeli:      H5 | H5A | OL,
+    Cascadeli:      H5 | AH4 | OL,
 
     // 内联单元
     Audio:          TRACK | SOURCE,

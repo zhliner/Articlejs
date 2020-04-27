@@ -136,6 +136,7 @@
         "prop:summary",
         "prop:target",
         "prop:textrow",
+        "prop:title",
         "prop:tfoot",
         "prop:thead",
         "prop:thick",

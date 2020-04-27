@@ -94,11 +94,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 1.0em;
 }
 
-/* 段落 */
-.content p {
-    margin: 15px auto;
-}
-
 /* 地址 */
 .content address {
     padding: 2px;
@@ -179,7 +174,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 .content nav[role=toc] li {
-    margin: 0;
     line-height: 150%;
 }
 
@@ -323,6 +317,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s3] > h2 {
     font-size: 1.1em;
     padding: 4px;
+    margin-bottom: -0.7em;
 }
 
 
@@ -377,8 +372,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content figure {
-    padding: 0;
     margin: 0;
+    padding: 0;
 }
 /* 顶部标题粗体 */
 .content figure > figcaption:first-child {
@@ -618,7 +613,6 @@ span[role=space] {
     padding: 0;
     border: 1px #ddd solid;
     background-color: #eef;
-    margin: 0;
     padding-left: 50px;
     color: #888;
     border-radius: 3px;
@@ -626,13 +620,10 @@ span[role=space] {
     resize: none;
 }
 .content ol[role=codelist] li {
-    margin: 0;
-    padding: 0;
     border-left: 3px #dde solid;
     line-height: 120%;
 }
 .content ol[role=codelist] code {
-    margin: 0;
     color: #000;
     white-space: pre;
     word-break: break-all;

@@ -698,6 +698,14 @@ aside#help {
     max-height: 2.4em;
 }
 
+.Input ._Blockquote ._cite {
+    margin-bottom: 3px;
+}
+.Input ._Blockquote ._cite input {
+    border-color: #8fbac2;
+    border-top-right-radius: 25px;
+}
+
 /* 分割（hr） */
 .Input ._Hr ._border {
     padding: 5px 15px;
