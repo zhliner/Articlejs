@@ -17,7 +17,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 兼容性 */
 .content * {
-    line-height: 170%;
+    line-height: 175%;
 }
 .content img,
 .content video {
@@ -88,7 +88,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 .content h3 {
-    font-size: 1.12em;
+    font-size: 1.1em;
 }
 .content h4 {
     font-size: 1.0em;
@@ -115,10 +115,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content header[role=abstract] {
     border: 1px #eee solid;
     border-radius: 10px;
-    background-color: #f7f7f7;
     margin-bottom: 2em;
     padding: 10px 30px;
-    box-shadow: #ccc 0 1px 6px;
+    background-color: #f7f7f7;
+    color: #58859c;
+    text-shadow: 0.3px 0.3px 5px #cfe5ed;
 }
 .content header[role=abstract] > h3 {
     font-size: 1.17em;
@@ -412,8 +413,15 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * aside/h3, p+
  *----------------------------------------------------------------------------
  */
-.content aside {}
-.content aside > h3 {}
+.content aside {
+    padding: 4px 1.5em 6px;
+    background-color: #f4faf8;
+    border: 1px #d8ebee dotted;
+    border-radius: 24px;
+}
+.content aside > ul {
+    padding-left: 1.2em;
+}
 
 
 /* 详细内容
@@ -579,11 +587,10 @@ span[role=space] {
 
 .content code {
     word-wrap: break-word;
-    background-color: #f7f7f7;
     padding: 0 2px;
+    background-color: #f3f3f3;
     border-radius: 2px;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    border: 1px #eee solid;
 }
 
 .content code[data-lang] {
@@ -598,10 +605,10 @@ span[role=space] {
     display: block;
     padding: 5px 10px;
     font-size: 10pt;
-    border-radius: 4px;
-    line-height: 1.5em;
+    background-color: #f8f8f8;
+    border-radius: 5px;
     overflow-x: auto;
-    box-shadow: #ccc 0px 2px 4px;
+    box-shadow: 1px 1px 4px #eee;
 }
 
 /* 代码表

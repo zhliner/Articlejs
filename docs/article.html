@@ -55,6 +55,7 @@
                             <ol>
                                 <li><a href="#结构类">结构类</a></li>
                                 <li><a href="#文本类">文本类</a></li>
+                                <li><a href="#单体类">单体类</a></li>
                             </ol>
                         </li>
                         <li><a href="#内容件">内容件</a></li>
@@ -198,7 +199,7 @@
                             <li>每一级标题之后的内容即为该标题相关的 <code>&lt;section&gt;</code>。</li>
                             <li>如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为 <code>&lt;header&gt;</code>。</li>
                             <li>如果内容中已经没有下级标题，则视为正文内容。</li>
-                            <li>如果子标题不是顺次递减而是跨级，也视为正文内容，但内部子标题继续解析。<strong>注</strong>：这通常是内容组织不太合理的表现。</li>
+                            <li>如果子标题不是顺次递减而是跨级，也视为正文内容，但内部子标题继续解析。但这通常是内容组织不太合理的表现。</li>
                         </ul>
                     </aside>
                 </section>
@@ -247,14 +248,24 @@
                     <section role="s3">
                         <h2 id="文本类">文本类</h2>
                         <pre>
-<code data-lang="html">&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                     <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i>
-&lt;<b role="tag">p</b> role=<b role="str">"note"</b>&gt;&lt;/<b role="tag">p</b>&gt;         <i>&lt;!-- 注解：NOTE --&gt;</i>
-&lt;<b role="tag">p</b> role=<b role="str">"tips"</b>&gt;&lt;/<b role="tag">p</b>&gt;         <i>&lt;!-- 提示：TIPS --&gt;</i>
-&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;         <i>&lt;!-- 地址信息：ADDRESS --&gt;</i>
-&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;                 <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i>
-&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i>
+<code data-lang="html">&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i>
+&lt;<b role="tag">p</b> role=<b role="str">"note"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i>
+&lt;<b role="tag">p</b> role=<b role="str">"tips"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i>
+&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;     <i>&lt;!-- 地址信息：ADDRESS --&gt;</i>
+&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;             <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i>
+</code></pre>
+                    </section>
+                    <section role="s3">
+                        <h2 id="单体类">单体类</h2>
+                        <p>不包含任何内容，是一个独立存在的单元。</p>
+                        <pre>
+<code data-lang="html">&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i>
 &lt;<b role="tag">div</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i>
 </code></pre>
+                    <aside>
+                        <p><strong>注：</strong>
+                            白板可插入内容，但仅适用在运行时下且应当是临时的。</p>
+                    </aside>
                     </section>
                 </section>
                 <section role="s2">
@@ -604,11 +615,11 @@
     &lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
 &lt;/<b role="tag">ol</b>&gt;
 </code></pre>
-                    <blockquote>
+                    <aside>
                         <p><strong>注：</strong>
                             <code>data-lang</code> 特性是设置在 <code>&lt;code&gt;</code> 元素而不是 <code>&lt;li&gt;</code> 元素上，这与其它代码单元（代码块/代码段）行为一致。
                         </p>
-                    </blockquote>
+                    </aside>
                     </section>
                     <section role="s3">
                         <h2 id="代码块">代码块</h2>
@@ -670,13 +681,13 @@
 <b role="dt">re</b>        <i>// b[role=re]   RegExp 正则表达式（如：/.../gi）</i>
 <b role="dt">err</b>       <i>// b[role=err]  error 错误提示</i>
 </code></pre>
-                    <blockquote>
-                        <h3>注：</h3>
+                    <aside>
+                        <h3>注记：</h3>
                         <ul>
                             <li>用 <code>&lt;b&gt;</code> 封装着色文本可减少书写，在没有样式渲染时，默认的粗体显示也较为友好。</li>
                             <li>用 <code>&lt;i&gt;</code> 封装注释有类似的功用，另外如果注释内还包含其它标记，也使得它们与 <code>&lt;b&gt;</code> 有所区分。<br></li>
                         </ul>
-                    </blockquote>
+                    </aside>
                 </section>
                 <section role="s2">
                     <h2 id="示例">示例</h2>

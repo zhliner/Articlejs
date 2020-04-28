@@ -62,6 +62,7 @@
     - 三个面板隐显切换（独立）。
     - 当前显示面板隐显切换。
     - 命令行直达。
+    - 通用录入框充满（<textarea>）。
     - 主面板辅助键[Alt]提示替换。 -->
 <body lang="zh-cn"
     on="@mousemove:1|movementX avoid;
@@ -74,6 +75,7 @@
         panel.slave;
         panel.help;
         panel.plugins;
+        input.tofull|evo(1) ('_full');
         cmdline.active|evo(1) ev('detail');
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize)"
@@ -87,6 +89,7 @@
         #x-slave||click;
         #x-help||click;
         #x-plugins||click;
+        ~|toggleClass;
         #g-cmdx|trigger('setv');
         |data('all pls');
         #g-keytip|text">

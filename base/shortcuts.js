@@ -79,6 +79,12 @@ Global: [
         "key":      ":f10",
         "command":  "panel.maximize"
     },
+    {
+        // 录入框充满（通用）
+        "key":      "alt:f",
+        "command":  "input.tofull",
+        "when":     "textarea"
+    },
 
 
     //
@@ -124,12 +130,6 @@ Content: [
 /////////////////////////////////////////////////
 
 Slave: [
-    {
-        // 录入框充满面板
-        "key":      "alt:f",
-        "command":  "input.tofull",
-        "when":     "textarea"
-    },
     {
         // 内容提交（同插入按钮）
         "key":      "ctrl:enter",

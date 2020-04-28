@@ -105,19 +105,16 @@
 <!-- 主面板：
     - mousedown 面板高度调整。
     - keydown   面板快捷键处理。
-    - input.tofull 录入框（<textarea>）充满。
     - scroll    背景/行线跟随 -->
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveSize) pass stop;
-        input.tofull|evo(1) ('_full');
         scroll(textarea)|evo(2) scrollTop neg add('px');
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');
-        ~|toggleClass;
         #|%backgroundPositionY">
     <div class="_tabs"
         on="click(b)|evo(2) attr('-tpl') pop tpl;

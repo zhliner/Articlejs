@@ -732,7 +732,7 @@ aside#help {
 
 /* 内联单元 */
 .Input ._Inline input._chars {
-    width: 100px;
+    width: 120px;
 }
 
 /* 文本字符 */
