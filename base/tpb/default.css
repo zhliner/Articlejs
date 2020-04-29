@@ -60,3 +60,15 @@
 *[data-pb~='truncated'] ~ * {
     display: none !important;
 }
+
+/* 充满容器：
+ * 需设置容器的position样式非static。
+ */
+*[data-pb~='fulled'] {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}

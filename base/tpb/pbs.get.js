@@ -1204,6 +1204,7 @@ const __uiState = [ '-', '', '^' ];
     ['disable',  'disabled'],
     ['fold',     'folded'],
     ['truncate', 'truncated'],
+    ['full',     'fulled'],
 ]
 .forEach(function( names ) {
     /**

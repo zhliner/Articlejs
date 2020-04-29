@@ -10,8 +10,7 @@
 //  格式：{
 //      key:     映射键（支持数组）,
 //      command: 指令标识,
-//      when:    匹配选择器（匹配则执行）,
-//      not:     不匹配选择器（匹配则不执行）,
+//      exclude: 排除选择器（匹配则不执行）,
 //  }
 //
 //  指令标识：
@@ -82,8 +81,7 @@ Global: [
     {
         // 录入框充满（通用）
         "key":      "alt:f",
-        "command":  "input.tofull",
-        "when":     "textarea"
+        "command":  "input.full",
     },
 
 
@@ -101,7 +99,7 @@ Global: [
             "shift:!",  // !  扩展指令
         ],
         "command":  "cmdline.active",
-        "not":      "textarea,[type=text],[contenteditable]",
+        "exclude":  "textarea,[type=text],[contenteditable]",
     },
 ],
 
@@ -134,14 +132,12 @@ Slave: [
         // 内容提交（同插入按钮）
         "key":      "ctrl:enter",
         "command":  "input.submit",
-        "when":     "textarea"
     },
     {
         // 内容提交后恢复正常
         // 注：录入框满面板时。
         "key":      "alt:enter",
         "command":  "input.submit2",
-        "when":     "textarea"
     },
 
 
@@ -179,7 +175,6 @@ Slave: [
             ":l",       // ...          | ...           | codelist
         ],
         "command":  "input.select",
-        "when":     ".Input select._list",
     },
 
 ],

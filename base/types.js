@@ -278,7 +278,7 @@ const Types = {
     OLXH4LI:    STRUCT | SEALED,
     CASCADEH4LI: STRUCT | SEALED,
     IMGP:       STRUCT | SEALED,
-    TR:         STRUCT | SEALED,
+    TR:         STRUCT | SEALED,  // 表格列不能单独改变
     THEAD:      STRUCT | TBLSECT,
     TBODY:      STRUCT | TBLSECT,
     TFOOT:      STRUCT | TBLSECT,
@@ -450,8 +450,8 @@ const ChildTypes = {
     AH4LI:      [ A ],
     ULXH4LI:    [ OL, H4, UL ],
     OLXH4LI:    [ UL, H4, OL ],
-    CASCADEH4LI: [ OL, H4 ],
-    TR:         [ TD, TH ],
+    CASCADEH4LI: [ H4, OL ],
+    TR:         [ TH, TD ],
     THEAD:      [ TR ],
     TBODY:      [ TR ],
     TFOOT:      [ TR ],
@@ -461,7 +461,7 @@ const ChildTypes = {
     /////////////////////////////////////////////
     HGROUP:     [ H2, H1 ],
     ABSTRACT:   [ P, H3, _BLOLIMIT ],
-    TOC:        [ OL, H3 ],
+    TOC:        [ H3, CASCADE ],
     SEEALSO:    [ LI ],
     REFERENCE:  [ LI ],
     HEADER:     [ P, H3, _BLOLIMIT ],
