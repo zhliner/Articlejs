@@ -88,17 +88,26 @@ class Templater {
 
 
     /**
-     * 返回模板节点。
-     * 如果只传递单个名称，返回元素，否则返回元素集。
-     * @param  {[String]} names 节点名序列
+     * 返回既有模板节点或其副本。
+     * @param  {String} name 节点名
      * @param  {Boolean} clone 是否克隆（含渲染文法）
-     * @return {Element|[Element]|void}
+     * @return {Element|null}
      */
-    node( names, clone ) {
-        if ( names.length <= 1 ) {
-            return this._node( names[0], clone );
-        }
-        return names.map( n => this._node(n, clone) );
+    node( name, clone ) {
+        let _tpl = this._tpls.get( name ) || null;
+        return clone ? this._clone( _tpl ) : _tpl;
+    }
+
+
+    /**
+     * 获取既有模板节点集。
+     * 未找到的节点值为 null。
+     * @param  {[String]} names 名称集
+     * @param  {Boolean} clone 是否克隆（含渲染文法）
+     * @return {[Element|null]}
+     */
+    nodes( names, clone ) {
+        return names.map( n => this.node(n, clone) );
     }
 
 
@@ -181,18 +190,6 @@ class Templater {
             tpl,
             $.clone( tpl, true, true, true )
         );
-    }
-
-
-    /**
-     * 返回节点或克隆节点。
-     * @param  {String} name 模板节点名
-     * @param  {Boolean} clone 是否克隆
-     * @return {Element|void}
-     */
-    _node( name, clone ) {
-        let _tpl = this._tpl.get( name );
-        return clone ? this._clone( _tpl ) : _tpl;
     }
 
 

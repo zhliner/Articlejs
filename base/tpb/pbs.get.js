@@ -333,16 +333,13 @@ const _Gets = {
 
     /**
      * 转换为数组。
-     * 如果已经是数组则简单返回。
+     * 如果已经是数组会返回一个浅克隆的新数组。
      * 如果要封装为一个单成员数组，可传递wrap为真。
      * @data: {Value|LikeArray|Symbol.iterator}
      * @param  {Boolean} wrap 简单封装，可选
      * @return {Array}
      */
     arr( evo, wrap ) {
-        if ( $.isArray(evo.data) ) {
-            return evo.data;
-        }
         return wrap ? Array.of( evo.data ) : Array.from( evo.data );
     },
 
@@ -452,6 +449,23 @@ const _Gets = {
     __elem: 0,
 
 
+    /**
+     * 元素克隆。
+     * 目标：暂存区/栈顶1项。
+     * 可选择同时克隆元素上绑定的事件处理器。
+     * 注：集合克隆请参考后面集合版。
+     * @param  {Boolean} event 包含事件处理器，可选
+     * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
+     * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
+     * @return {Element}
+     */
+    clone( evo, event, deep, eventdeep ) {
+        return $.clone( evo.data, event, deep, eventdeep );
+    },
+
+    __clone: 1,
+
+
 
     // 复杂取值。
     //-----------------------------------------------
@@ -503,10 +517,11 @@ const _Gets = {
     /**
      * 获取模板节点（集）。
      * 目标：暂存区一项可选。
-     * 如果目标有值，取目标为模板名，此时names充当clone实参。
+     * 如果目标有值，取目标为模板名，此时name充当clone实参。
      * 注意克隆是每次事件都会克隆一组新的节点。
      * 返回节点元素本身（而不是一个承诺）。
-     * 如果只请求单个节点且未找到时，返回null（数组成员中未找到的为undefined）。
+     * 如果只请求单个节点且未找到，返回null（数组成员中未找到的也为null）。
+     * name支持空格分隔的多个名称序列。
      *
      * 注记：
      * 用户请求节点时应当知道节点载入情况，节点预先载入有3种方式：
@@ -518,18 +533,18 @@ const _Gets = {
      * - tpl(x) arr node(...) concat(_1)  // x节点在数组前端
      * - tpl(x) node(...) pop concat(_1)  // x节点在数组末尾
      *
-     * @param  {String|[String]} names 名称序列
+     * @param  {String} name 名称/序列
      * @param  {Boolean} clone 是否克隆
-     * @return {Element|[Element]|null}
+     * @return {Element|[Element|null]|null}
      */
-    node( evo, names, clone ) {
+    node( evo, name, clone ) {
         if ( evo.data !== undefined ) {
-            [names, clone] = [evo.data, names];
+            [name, clone] = [evo.data, name];
         }
-        if ( typeof names == 'string' ) {
-            names = names.trim().split(__reSpace);
+        if ( __reSpace.test(name) ) {
+            return Templater.nodes( name.split(__reSpace), clone );
         }
-        return Templater.node( names, clone ) || null;
+        return Templater.node( name, clone );
     },
 
     __tpls: -1,
@@ -913,6 +928,30 @@ const _Gets = {
 
     __scrollY: -1,
 
+};
+
+
+
+//
+// 集合版处理器。
+// 流程数据为数组时对各个成员的单独处理。
+// 注：指令说明请参考单数据版。
+// @return {[Value]}
+//////////////////////////////////////////////////////////////////////////////
+
+const _arrayGets = {
+
+    /**
+     * 元素克隆。
+     * 目标：暂存区/栈顶1项。
+     * @data: [Element]|Collector
+     * @return {Collector}
+     */
+    clone( evo, event, deep, eventdeep ) {
+        return $(evo.data).clone( event, deep, eventdeep );
+    },
+
+    __clone: 1,
 };
 
 

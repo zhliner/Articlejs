@@ -89,7 +89,8 @@ const
 
     // To:Query
     // 多元素检索表达式。
-    __toQuery   = /^\(([^]*?)\)\s*([\(\[\{][^]+[\)\]\}])?$/,
+    // 注：由一对小括号包围选择器，后跟可选的过滤部分。
+    __toQuery   = /^\(([^]*?)\)\s*([([{][^]+[)\]}])?$/,
 
     // To:Query
     // 集合范围子集匹配：( beg, end )。
@@ -1019,7 +1020,7 @@ class Query {
             this._slr = result[1];
             this._flr = this._handle(result[2]);
             this._one = false;
-        };
+        }
     }
 
 
@@ -1182,8 +1183,9 @@ function zeroPass( chr ) {
 function arrArgs( args ) {
     if ( !args ) return null;
 
-    return new Function( ...Object.keys(__fromStack), `return [${args}]` )
-        ( ...Object.values(__fromStack) );
+    return new Function( ...Object.keys(__fromStack), `return [${args}]` )(
+        ...Object.values(__fromStack)
+    );
 }
 
 

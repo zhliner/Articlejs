@@ -116,23 +116,49 @@ let Templater = null;
 
 
 /**
- * 获取绑定的（bound）方法。
+ * 绑定方法到原宿主对象（obj）。
+ * 支持对象子集嵌套，会递进处理。
  * - 处理取栈条目数（[EXTENT]），由前置两个下划线的属性表达。
  * - 处理特权设置（[ACCESS]），由前置两个下划线和_x结尾的属性表达。
  * 注记：
- * 创建已绑定的全局方法共享，节省内存。
+ * 这是 $.assign() 函数的处理器。
+ * 创建已绑定的方法供全局共享，而不是每次创建一个绑定的新方法。
  *
  * @param  {Function} f 方法
  * @param  {String} k 方法名
  * @param  {Object} obj 宿主对象
  * @return {[Function,]} 值/键对（键忽略）
  */
- function bindMethod( f, k, obj ) {
+ function bindMethod( f, k, obj, to ) {
+    if ( $.type(f) == 'Object' ) {
+        return [ $.assign(to[k] || {}, f, bindMethod) ];
+    }
     if ( !$.isFunction(f) ) {
         return null;
     }
     if ( !f.name.startsWith('bound ') ) {
         f = f.bind( obj );
+    }
+    return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
+}
+
+
+/**
+ * 简单地获取方法（未绑定）。
+ * 支持对象子集嵌套，会递进处理。
+ * - 处理取栈条目数（[EXTENT]），由前置两个下划线的属性表达。
+ * - 处理特权设置（[ACCESS]），由前置两个下划线和_x结尾的属性表达。
+ * 注：这是 $.assign() 函数的非绑定处理器。
+ * @param {Function} f 方法
+ * @param {String|Symbol} k 属性键
+ * @param {Object} obj 源对象
+ */
+function getMethod( f, k, obj, to ) {
+    if ( $.type(f) == 'Object' ) {
+        return [ $.assign(to[k] || {}, f, getMethod) ];
+    }
+    if ( !$.isFunction(f) ) {
+        return null;
     }
     return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
 }
@@ -197,6 +223,7 @@ export {
     method,
     PREVCELL,
     bindMethod,
+    getMethod,
     funcSets,
     Globals,
     DataStore,

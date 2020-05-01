@@ -2,14 +2,14 @@
 // ++++++++++++++++++++++++++++++++++++++
 // 	Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
+// 	Copyright (c) 2020 - 20120 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
 //  By:X 扩展库。
 //
 //  扩展：
-//      import { X } from 'libs/lib.x.js'
+//      import { X } from './lib.x.js'
 //      X.extend( name, {...}, nobind ) 在name子域上扩展
 //
 //  注：单纯获取目标子域：X.extend( name )
@@ -28,50 +28,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { funcSets } from "./config.js";
+import { bindMethod, getMethod } from "./config.js";
 
 
 const $ = window.$;
-
-
-//
-// 绑定方法到X宿主对象。
-// 支持对象子集嵌套，会递进处理。
-// 注：
-// 取栈数默认会设置为0，除非明确设置为null。
-//
-function bindMethod( f, k, obj, to ) {
-    if ( $.type(f) == 'Object' ) {
-        return [ $.assign(to[k] || {}, f, bindMethod) ];
-    }
-    if ( !$.isFunction(f) ) {
-        return null;
-    }
-    if ( !f.name.startsWith('bound ') ) {
-        f = f.bind( obj );
-    }
-    return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
-}
-
-
-/**
- * 设置方法到X宿主对象。
- * 支持对象子集嵌套，会递进处理。
- * 取栈数默认会设置为0，除非明确设置为null。
- * 注：这是 bindMethod 的非绑定版。
- * @param {Function} f 方法
- * @param {String|Symbol} k 属性键
- * @param {Object} obj 源对象
- */
-function setMethod( f, k, obj, to ) {
-    if ( $.type(f) == 'Object' ) {
-        return [ $.assign(to[k] || {}, f, setMethod) ];
-    }
-    if ( !$.isFunction(f) ) {
-        return null;
-    }
-    return [ funcSets(f, obj[`__${k}`], obj[`__${k}_x`]) ];
-}
 
 
 /**
@@ -120,7 +80,7 @@ function subObj( names, obj ) {
  */
 export function extend__( name, exts, nobind, host ) {
     let _f = nobind ?
-        setMethod :
+        getMethod :
         bindMethod;
 
     return $.assign( subObj(name.split('.'), host), exts || {}, _f );
