@@ -333,12 +333,16 @@ const _Gets = {
 
     /**
      * 转换为数组。
+     * 如果已经是数组则简单返回。
      * 如果要封装为一个单成员数组，可传递wrap为真。
      * @data: {Value|LikeArray|Symbol.iterator}
      * @param  {Boolean} wrap 简单封装，可选
      * @return {Array}
      */
     arr( evo, wrap ) {
+        if ( $.isArray(evo.data) ) {
+            return evo.data;
+        }
         return wrap ? Array.of( evo.data ) : Array.from( evo.data );
     },
 
@@ -520,7 +524,7 @@ const _Gets = {
      */
     node( evo, names, clone ) {
         if ( evo.data !== undefined ) {
-            [name, clone] = [evo.data, name];
+            [names, clone] = [evo.data, names];
         }
         if ( typeof names == 'string' ) {
             names = names.trim().split(__reSpace);
@@ -960,6 +964,7 @@ const _Gets = {
     'hasClass',     // ( name:String ): Boolean
     'parentsUntil', // ( slr:String|Function ): [Element]
     'closest',      // ( slr:String|Function ): Element | null
+    'is',           // ( slr|Element ): Boolean
 ]
 .forEach(function( meth ) {
     /**
@@ -1132,7 +1137,6 @@ const _Gets = {
 // 注：多余实参无副作用。
 //===============================================
 [
-    'is',           // ( slr|Element ): Boolean
     'isXML',        // (): Boolean
     'controls',     // (): [Element]
     'serialize',    // ( ...names ): [Array2]

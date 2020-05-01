@@ -221,7 +221,7 @@ const _Update = {
         if ( $.isArray(to) ) {
             return to.forEach( el => message(el, msg, long) );
         }
-        message( el, msg, long );
+        message( to, msg, long );
     },
 
 
