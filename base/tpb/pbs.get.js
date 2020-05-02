@@ -364,16 +364,17 @@ const _Gets = {
 
 
     /**
-     * 转换/封装为数组。
+     * 转换/构造为数组。
      * 如果不是数组则构造为数组。
-     * 如果已经是数组，则返回一个浅复制的新数组或封装数组（二维）。
+     * 如果已经是数组，返回一个浅复制的新数组或封装数组（二维）。
      * 注：
      * 如果流程数据为 LikeArray|Symbol.iterator，则与arr行为一致。
      * 如果需要原值为数组时原样保持，则应当使用arr方法。
+     * 与arr不同，始终会返回一个新的数组。
      *
      * @data: {LikeArray|Symbol.iterator|Value|Array}
      * @param  {Boolean} wrap 简单封装，可选
-     * @return {Array|[Array]}
+     * @return {Array|[Array]} 新数组
      */
     Arr( evo, wrap ) {
         return wrap ? Array.of( evo.data ) : Array.from( evo.data );
