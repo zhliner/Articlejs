@@ -77,11 +77,17 @@ nil(): undefined
 push( ...val:Value|[Value] ): void
 // 直接数据。
 
-get( name:String ): Value | [Value] | [[Value]]
-// 对象成员取值（支持对象数组）。
+get( name:String ): Value | [Value]
+// 对象成员取值。
+
+gets( ...name:String ): void
+// 对象成员自由取值。
 
 call( meth:String, ...rest:Value ): Value
-// 调用目标的方法执行。
+// 调用目标的方法。
+
+calls( meths:String, ...args:Value ): [Value]
+// 调用目标的多个方法。
 
 form( ...name:String ): Element | [Element]
 // 获取目标名称的控件元素（集）。
@@ -108,8 +114,11 @@ bool( all:Boolean ): Boolean
 str( prefix?, suffix? ): String
 // 转换为字符串。
 
-arr( wrap: Boolean ): Array
+arr(): Array
 // 转换为数组。
+
+Arr( wrap:Boolean ): Array
+// 转换/封装为数组。
 
 obj(): Object
 // 将目标转换为普通对象。
@@ -123,16 +132,16 @@ assign( target:Object, names?:String ): Object
 gather( names:String ): Object
 // 数组映射聚集。
 
-elem( tag:String, n:Number ): Element | [Element]
+els( tag:String, n:Number ): Element | [Element]
 // 批量创建元素。
+
+clone( event:?, deep?:, eventdeep?:Boolean ): Element|Collector
+// 元素克隆。
 
 
 
 // 复杂取值。
 //-----------------------------------------------
-
-its( ...names:String ): void
-// 从目标上取值（自主入栈）。
 
 tpl( name?:String, clone?:Boolean ): Promise<Element>
 // 获取name模板节点。
@@ -145,9 +154,6 @@ values(): [Value]
 
 func( ...argn: String ): Function
 // 创建函数入栈。
-
-set( name:String, val:Value|[Value] ): void
-// 设置目标成员值。
 
 
 

@@ -65,7 +65,7 @@
         @mousemove:2|movementX neg avoid;
         @mouseup|movementX(null);
         pcheck|data('all') arr dup hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
-        pstore|data('pls') dup call('clear') ev('detail') calls('add', _);
+        pstore|data('pls') dup apply('clear') ev('detail') applies('add', _);
         panel.clearall|data('all') data('pls') dup get('size') pop pack(2) $if(_) pop;
         panel.outline;
         panel.slave;

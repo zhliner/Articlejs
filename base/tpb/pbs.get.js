@@ -199,48 +199,75 @@ const _Gets = {
 
 
     /**
-     * 取对象成员值。
+     * 从目标上取成员值。
      * 目标：暂存区/栈顶1项。
-     * name支持空格分隔的多个名称（获得一个值数组）。
-     * 支持目标本身是数组，若名称为多名称，会获得一个二维数组。
-     * 用途：
-     * 从一个对象数组（如attribute取值）中提取属性值数组。
-     * @data: Object|[Object]
+     * name支持空格分隔的多个名称，返回一个值数组。
      * @param  {String} name 名称/序列
-     * @return {Value|[Value]|[[Value]]}
+     * @return {Value|[Value]}
      */
     get( evo, name ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(o => namesValue(name, o)) : namesValue(name, x);
+        return namesValue( name, evo.data );
     },
 
     __get: 1,
 
 
     /**
-     * 调用目标的方法执行。
+     * 从目标上取值集。
      * 目标：暂存区/栈顶1项。
-     * 如果对象是一个集合，返回调用值的一个数组。
-     * 注：
-     * 单目标单次多实参调用，支持集合目标。
-     * 会返回方法调用的值/值集。
+     * 特权：是，自行入栈。
+     * name支持空格分隔的多个名称，此时值为一个数组。
+     * 多个名称实参取值会自动展开入栈。
+     * @param  {Stack} stack 数据栈
+     * @param  {...String} names 属性名序列
+     * @return {void} 自行入栈
+     */
+    gets( evo, stack, ...names ) {
+        stack.push(
+            ...names.map( n => namesValue(n, evo.data) )
+        );
+    },
+
+    __gets: 1,
+    __gets_x: true,
+
+
+    /**
+     * 调用目标的方法。
+     * 目标：暂存区/栈顶1项。
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
      * @return {Value} 方法调用的返回值
      */
     call( evo, meth, ...rest ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(o => o[meth](...rest)) : x[meth](...rest);
+        return evo.data[meth]( ...rest );
     },
 
     __call: 1,
 
 
     /**
+     * 调用目标的多个方法。
+     * 目标：暂存区/栈顶1项。
+     * 方法名为空格分隔的多个名称序列。
+     * 实参序列与名称序列一一对应，如果是数组会自动展开。
+     * @param  {String} meths 方法名序列
+     * @param  {...Value} args 实参组
+     * @return {[Value]} 值集
+     */
+    calls( evo, meths, ...args ) {
+        return methsCall( meths.split(__reSpace), evo.data, ...args );
+    },
+
+    __calls: 1,
+
+
+    /**
      * 获取表单控件（集）。
      * 目标：暂存区/栈顶1项。
-     * 目标需要包含name属性，通常是一个表单<form>元素。
-     * @param  {...String} names 控件名称序列
+     * 注意控件需要包含name属性。
+     * @data: <form>
+     * @param  {...String} names 控件名序列
      * @return {Element|[Element]}
      */
     form( evo, ...names ) {
@@ -254,7 +281,7 @@ const _Gets = {
 
     // 类型转换&构造。
     // 目标：暂存区/栈顶1项。
-    // 返回值而非该类型的对象，基本转换支持数组操作（针对成员）。
+    // 注意：返回值类型而非该类型的对象。
     //-----------------------------------------------------
 
     /**
@@ -263,8 +290,7 @@ const _Gets = {
      * @return {Number}
      */
     int( evo, radix ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(v => parseInt(v, radix)) : parseInt(x, radix);
+        return parseInt( evo.data, radix );
     },
 
     __int: 1,
@@ -275,8 +301,7 @@ const _Gets = {
      * @return {Number}
      */
     float( evo ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(v => parseFloat(v)) : parseFloat(x);
+        return parseFloat( evo.data );
     },
 
     __float: 1,
@@ -290,8 +315,7 @@ const _Gets = {
      * @return {RegExp}
      */
     re( evo, flag ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(v => RegExp(v, flag)) : RegExp(x, flag);
+        return RegExp( evo.data, flag );
     },
 
     __re: 1,
@@ -302,15 +326,10 @@ const _Gets = {
      * 假值：'', 0, false, null, undefined
      * 如果传递all为真，假值包含空对象（[], {}）。
      * @param  {Boolean} all 是否测试空对象/数组
-     * @return {Boolean|[Boolean]}
+     * @return {Boolean}
      */
     bool( evo, all ) {
-        let x = evo.data;
-
-        if ( all ) {
-            return $.isArray(x) ? x.map(v => !!hasValue(v)) : !!hasValue(x);
-        }
-        return $.isArray(x) ? x.map(v => !!v) : !!x;
+        return all ? !!hasValue( evo.data ) : !!evo.data;
     },
 
     __bool: 1,
@@ -321,11 +340,10 @@ const _Gets = {
      * 可以选择性的添加前/后缀。
      * @param  {String} pre 前缀，可选
      * @param  {String} suf 后缀，可选
-     * @return {String|[String]}
+     * @return {String}
      */
     str( evo, pre = '', suf = '' ) {
-        let x = evo.data;
-        return $.isArray(x) ? x.map(v => `${pre}${v}${suf}`) : `${pre}${x}${suf}`;
+        return `${ pre }${ evo.data }${ suf }`;
     },
 
     __str: 1,
@@ -333,17 +351,35 @@ const _Gets = {
 
     /**
      * 转换为数组。
-     * 如果已经是数组会返回一个浅克隆的新数组。
-     * 如果要封装为一个单成员数组，可传递wrap为真。
-     * @data: {Value|LikeArray|Symbol.iterator}
-     * @param  {Boolean} wrap 简单封装，可选
-     * @return {Array}
+     * 如果已经是数组则原样返回。
+     * 注：无法转换不能转为数组的值（会是一个空数组）。
+     * @data: {LikeArray|Symbol.iterator}
+     * @return {Array|data}
      */
-    arr( evo, wrap ) {
-        return wrap ? Array.of( evo.data ) : Array.from( evo.data );
+    arr( evo ) {
+        return $.isArray(evo.data) ? evo.data : Array.from(evo.data);
     },
 
     __arr: 1,
+
+
+    /**
+     * 转换/封装为数组。
+     * 如果不是数组则构造为数组。
+     * 如果已经是数组，则返回一个浅复制的新数组或封装数组（二维）。
+     * 注：
+     * 如果流程数据为 LikeArray|Symbol.iterator，则与arr行为一致。
+     * 如果需要原值为数组时原样保持，则应当使用arr方法。
+     *
+     * @data: {LikeArray|Symbol.iterator|Value|Array}
+     * @param  {Boolean} wrap 简单封装，可选
+     * @return {Array|[Array]}
+     */
+    Arr( evo, wrap ) {
+        return wrap ? Array.of( evo.data ) : Array.from( evo.data );
+    },
+
+    __Arr: 1,
 
 
     /**
@@ -421,7 +457,8 @@ const _Gets = {
      * @return {Object}
      */
     gather( evo, names ) {
-        return kvsObj( names.split(__reSpace), evo.data );
+        return names.split(__reSpace)
+            .reduce( (o, k, i) => (o[k] = evo.data[i], o), {} );
     },
 
     __gather: 1,
@@ -431,8 +468,7 @@ const _Gets = {
      * 创建元素集。
      * 目标：暂存区条目可选。
      * 如果目标有值，作为创建元素的源码或配置对象。
-     * 这是 array(size) pop Element(tag) 的简化版。
-     * 注记：Tpb下交互丰富，批量创建元素较常见。
+     * 这是 array(size) $$(_1) pop Element(tag) 的简洁版。
      * @param  {String} tag 元素标签名
      * @param  {Number} n 元素数量
      * @return {[Element]}
@@ -446,7 +482,7 @@ const _Gets = {
         return arrayFill( v, n ).map( d => $.Element(tag, d) );
     },
 
-    __elem: 0,
+    __els: 0,
 
 
     /**
@@ -469,27 +505,6 @@ const _Gets = {
 
     // 复杂取值。
     //-----------------------------------------------
-
-    /**
-     * 从目标上取值（集）入栈。
-     * 目标：暂存区/栈顶1项。
-     * 特权：是，自行入栈。
-     * name支持空格分隔的多个名称，此时值为一个数组。
-     * 多个名称实参取值会自动展开入栈。
-     * @data: Object => Value|[Value]
-     * @param  {Stack} stack 数据栈
-     * @param  {...String} names 属性名序列
-     * @return {void} 自行入栈
-     */
-    its( evo, stack, ...names ) {
-        stack.push(
-            ...names.map( n => namesValue(n, evo.data) )
-        );
-    },
-
-    __its: 1,
-    __its_x: true,
-
 
     /**
      * 获取模板节点。
@@ -516,7 +531,7 @@ const _Gets = {
 
     /**
      * 获取模板节点（集）。
-     * 目标：暂存区一项可选。
+     * 目标：暂存区1项可选。
      * 如果目标有值，取目标为模板名，此时name充当clone实参。
      * 注意克隆是每次事件都会克隆一组新的节点。
      * 返回节点元素本身（而不是一个承诺）。
@@ -547,7 +562,7 @@ const _Gets = {
         return Templater.node( name, clone );
     },
 
-    __tpls: -1,
+    __node: -1,
 
 
     /**
@@ -591,40 +606,14 @@ const _Gets = {
      * 目标：暂存区/栈顶1项。
      * 取目标为函数体表达式（无return）构造函数。
      * 实参即为函数参数名序列。
-     * @param  {...String} argn 参数名序列
+     * @param  {...String} names 参数名序列
      * @return {Function}
      */
-    func( evo, ...argn ) {
-        return new Function( ...argn, `return ${evo.data};` );
+    func( evo, ...names ) {
+        return new Function( ...names, `return ${evo.data};` );
     },
 
     __func: 1,
-
-
-    /**
-     * 设置目标成员值。
-     * 目标：暂存区/栈顶1项。
-     * name支持空格分隔的多个名称。
-     * 值为数组时，多个名称分别对应到数组成员，否则对应到单一值。
-     * 注：会修改目标本身。
-     * @param  {String} name 名称/序列
-     * @param  {Value|[Value]} val 值或值集
-     * @return {@data}
-     */
-    set( evo, name, val ) {
-        let _ns = name.split(__reSpace);
-
-        if ( _ns.length == 1 ) {
-            evo.data[name] = val;
-            return evo.data;
-        }
-        if ( !$.isArray(val) ) {
-            val = new Array(_ns.length).fill(val);
-        }
-        return kvsObj( _ns, val, evo.data );
-    },
-
-    __set: 1,
 
 
     /**
@@ -827,11 +816,7 @@ const _Gets = {
      * @return {Element|void}
      */
     clear( evo, back ) {
-        if ( $.isArray(evo.data) ) {
-            evo.data.forEach( el => $.val(el, null) )
-        } else {
-            $.val( evo.data, null );
-        }
+        $.val( evo.data, null );
         if ( back ) return evo.data;
     },
 
@@ -940,6 +925,116 @@ const _Gets = {
 //////////////////////////////////////////////////////////////////////////////
 
 const _arrayGets = {
+    /**
+     * 取对象成员值。
+     * 目标：暂存区/栈顶1项。
+     * name支持空格分隔的多个名称，返回一个二维数组。
+     * @param  {String} name 名称/序列
+     * @return {[Value]|[[Value]]}
+     */
+    get( evo, name ) {
+        return evo.data.map( o => namesValue(name, o) );
+    },
+
+    __get: 1,
+
+
+    /**
+     * 调用目标的方法。
+     * 目标：暂存区/栈顶1项。
+     * @param  {String} meth 方法名
+     * @param  {...Value} rest 实参序列
+     * @return {[Value]}
+     */
+    call( evo, meth, ...rest ) {
+        return evo.data.map( o => o[meth](...rest) );
+    },
+
+    __call: 1,
+
+
+    /**
+     * 调用目标的多个方法。
+     * 目标：暂存区/栈顶1项。
+     * @param  {String} meths 方法名序列
+     * @param  {...Value} args 实参组
+     * @return {[[Value]]} 值集数组
+     */
+    calls( evo, meths, ...args ) {
+        meths = meths.split(__reSpace);
+        return evo.data.map( obj => methsCall(meths, obj, ...args) );
+    },
+
+    __calls: 1,
+
+
+
+    // 类型转换。
+    //-----------------------------------------------------
+
+    /**
+     * 转为整数（parseInt）。
+     * @param  {Number} radix 进制基数
+     * @return {[Number]}
+     */
+    int( evo, radix ) {
+        return evo.data.map( v => parseInt(v, radix) );
+    },
+
+    __int: 1,
+
+
+    /**
+     * 将目标转为浮点数（parseFloat）。
+     * @return {[Number]}
+     */
+    float( evo ) {
+        return evo.data.map( v => parseFloat(v) );
+    },
+
+    __float: 1,
+
+
+    /**
+     * 转化为正则表达式。
+     * @param  {String} flag 正则修饰符
+     * @return {[RegExp]}
+     */
+    re( evo, flag ) {
+        return evo.data.map( v => RegExp(v, flag) );
+    },
+
+    __re: 1,
+
+
+    /**
+     * 转为布尔值（true|false）。
+     * @param  {Boolean} all 是否测试空对象/数组
+     * @return {[Boolean]}
+     */
+    bool( evo, all ) {
+        return all ? evo.data.map(v => !!hasValue(v)) : evo.data.map(v => !!v);
+    },
+
+    __bool: 1,
+
+
+    /**
+     * 转为字符串。
+     * @param  {String} pre 前缀，可选
+     * @param  {String} suf 后缀，可选
+     * @return {[String]}
+     */
+    str( evo, pre = '', suf = '' ) {
+        return evo.data.map( v => `${pre}${v}${suf}` );
+    },
+
+    __str: 1,
+
+
+
+    // 元素集操作。
+    //-----------------------------------------------------
 
     /**
      * 元素克隆。
@@ -952,6 +1047,15 @@ const _arrayGets = {
     },
 
     __clone: 1,
+
+
+    clear( evo, back ) {
+        $(evo.data).val( null );
+        if ( back ) return evo.data;
+    },
+
+    __clear: 1,
+
 };
 
 
@@ -969,15 +1073,15 @@ const _arrayGets = {
 ]
 .forEach(function( name ) {
 
-    _Gets[name] = function( evo ) {
-        if ( $.isArray(evo.data) ) {
-            return evo.data.map( el => Util[name](el) );
-        }
-        return Util[name]( evo.data );
-    };
+    _Gets[name] = function( evo ) { return Util[name]( evo.data ) };
 
     _Gets[`__${name}`] = 1;
 
+
+    // 集合版。
+    _arrayGets[name] = function( evo ) { evo.data.map(el => Util[name](el)) };
+
+    _arrayGets[`__${name}`] = 1;
 });
 
 
@@ -1402,13 +1506,17 @@ function namesValue( name, obj ) {
 
 
 /**
- * 构造名值对对象。
- * @param  {[String]} names 名称序列
- * @param  {[Value]} val 值集
- * @return {Object}
+ * 调用对象的多个方法。
+ * 实参组成员与名称集成员一一对应，数组成员会自动展开。
+ * @param  {[String]} names 方法名集
+ * @param  {Object} obj 目标对象
+ * @param  {...Value} args 实参组
+ * @return {[Value]} 结果集
  */
-function kvsObj( names, val, obj = {} ) {
-    return names.reduce( (o, k, i) => (o[k] = val[i], o), obj );
+function methsCall( names, obj, ...args ) {
+    return names.map(
+            (n, i) => obj[n]( ...[].concat(args[i]) )
+        );
 }
 
 

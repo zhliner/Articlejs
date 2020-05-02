@@ -14,12 +14,12 @@
 //  用户的扩展存在于By的顶层（By对象自身），但也可以扩展到任意子域上。
 //
 //  用户扩展：
-//      import { extend } from "./libs/pbs.by.js";
+//      import { extend } from "./pbs.by.js";
 //      extend( name, extobj );
 //      extend( name.sub, extobj );  // 扩展到sub子域
 //
 //  App创建：
-//      import { App } from "./libs/pbs.by.js";
+//      import { App } from "./pbs.by.js";
 //      App( 'MyApp', conf, meths );
 //      // extend(...)
 //      // 也可以在name域上扩展任意普通方法。

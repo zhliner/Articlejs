@@ -373,25 +373,34 @@ inside( name: String, val: Value|[Value] ): Boolean
 // 支持集合成员逐一处理，返回一个新集合。
 //-----------------------------------------------
 
-trim( evo, where = 0 )
+trim( where = 0 ): String
 // 首尾空白修整。
 
-clean( evo, all )
+clean( all ): String
 // 空白清理。
 
-replace( evo, ...args )
+replace( ...args ): String
 // 内容替换。
 
-split( evo, sep, cnt )
+split( sep, cnt ): [String]
 // 切分字符串为数组。
+
+caseUpper( n ): String
+// 转换为大写。
+
+caseLower(): String
+// 转为全小写。
+
+rgb16(): String
+// rgb(n,n,n) => #rrggbb
+
+rgba16(): String
+// rgba(n,n,n,a) => #rrggbbaa
 
 
 
 // 增强运算。
 //-----------------------------------------------
-
-clone( event:?, deep?:, eventdeep?:Boolean ): Element|Collector
-// 元素克隆。
 
 exec( ...rest ): Value
 // 函数执行。
@@ -399,13 +408,29 @@ exec( ...rest ): Value
 calc( expr ): Value
 // 表达式/函数运算。
 
-calls( meth, ...args ): void
-// 调用目标的方法（多次）。
+apply( meth, ...args ): void
+// 应用目标的方法。
 
-callx( meth, ...args ): void
-// 调用目标的方法（多次）。
+applies( meth, ...args ): void
+// 应用目标的方法（多次）。
+
+set( name:String, val:Value|[Value] ): evo.data
+// 设置目标成员值。
+
+
+
+// 实用工具。
+//-----------------------------------------------
+
+hotKey( key, extra ): Boolean
+// 热键触发。
+
+rangeKeep(): void
+// 活动选取记忆。
 
 exeCmd( type:String ): void
+// 执行document命令
+// 即：document.execCommand(...)
 ```
 
 

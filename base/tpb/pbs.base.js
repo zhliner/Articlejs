@@ -565,10 +565,6 @@ const _Process = {
      */
     mix( evo, stack, n ) {
         let _as = stack.data(n);
-
-        if ( n < 2 ) {
-            return _as;
-        }
         return _as[0].map( (_, i) => _as.map( a => a[i] ) );
     },
 
@@ -1267,42 +1263,61 @@ const _Process = {
 
 
     /**
-     * 调用目标的方法（多次）。
+     * 应用目标的方法。
      * 目标：暂存区/栈顶1项。
-     * 实参组成员为每次调用的实参，每次一项。
-     * 不返回值，主要用于对对象本身的修改调用。
-     * 注：单目标单实参。
+     * 注：
+     * 无返回值，用于目标对象的设置类操作。
      * @param  {String} meth 方法名
-     * @param  {...Value} args 实参组
+     * @param  {...Value} args 实参序列
      * @return {void}
      */
-    calls( evo, meth, ...args ) {
-        args.forEach(
-            arg => evo.data[meth](arg)
-        );
+    apply( evo, meth, ...args ) {
+        evo.data[meth]( ...args );
     },
 
-    __calls: 1,
+    __apply: 1,
 
 
     /**
-     * 调用目标的方法（多次）。
+     * 应用目标的方法（多次）。
      * 目标：暂存区/栈顶1项。
-     * 实参组成员为每次调用的实参且自动展开，
-     * 因此成员需要是一个可展开对象。
-     * 不返回值，主要用于对对象本身的修改调用。
-     * 注：单目标多实参。
+     * 实参组成员是每次调用时传入的实参。
+     * 如果成员是一个数组，它们会被展开传入，
+     * 因此，如果方法需要一个数组实参，需要预先封装。
+     * 注：
+     * 无返回值，用于目标对象的批量设置。
      * @param  {String} meth 方法名
-     * @param  {...[Value]} args 实参组（二维）
+     * @param  {...[Value]} args 实参组
      * @return {void}
      */
-    callx( evo, meth, ...args ) {
+    applies( evo, meth, ...args ) {
         args.forEach(
-            rest => evo.data[meth](...rest)
+            rest => evo.data[meth]( ...[].concat(rest) )
         );
     },
 
-    __callx: 1,
+    __applies: 1,
+
+
+    /**
+     * 设置目标成员值。
+     * 目标：暂存区/栈顶1项。
+     * name支持空格分隔的多个名称。
+     * 如果名称为多个，值应当是一个数组，与名称一一对应。
+     * 注：会改变原对象自身。
+     * @param  {String} name 名称/序列
+     * @param  {Value|[Value]} val 值或值集
+     * @return {@data}
+     */
+    set( evo, name, val ) {
+        if ( !__reSpace.test(name) ) {
+            evo.data[name] = val;
+            return evo.data;
+        }
+        return name.split(__reSpace).reduce( (o, k, i) => (o[k] = val[i], o), evo.data );
+    },
+
+    __set: 1,
 
 
 
@@ -1324,7 +1339,7 @@ const _Process = {
 
 
     /**
-     * 记住活动选取。
+     * 活动选取记忆。
      * 目标：无。
      * 自动更新全局Range集存储。
      * 通常绑定在离可编辑元素最近的容器元素上。
