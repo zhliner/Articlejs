@@ -1073,13 +1073,15 @@ const _arrayGets = {
     'pbv',  // (): String | [String] 属性值
 ]
 .forEach(function( name ) {
-
+    // 单元素版。
+    // @return {[String]|String}
     _Gets[name] = function( evo ) { return Util[name]( evo.data ) };
 
     _Gets[`__${name}`] = 1;
 
 
     // 集合版。
+    // @return {[[String]]|[String]}
     _arrayGets[name] = function( evo ) { evo.data.map(el => Util[name](el)) };
 
     _arrayGets[`__${name}`] = 1;
@@ -1111,16 +1113,17 @@ const _arrayGets = {
     'is',           // ( slr|Element ): Boolean
 ]
 .forEach(function( meth ) {
-    /**
-     * 目标为数组时返回Collector实例。
-     * @return {Value|Collector}
-     */
-    _Gets[meth] = function( evo, name ) {
-        return $.isArray( evo.data ) ?
-            $(evo.data)[meth]( name ) : $[meth]( evo.data, name );
-    };
+
+    // @return {Value}
+    _Gets[meth] = function( evo, arg ) { return $[meth]( evo.data, arg ) };
 
     _Gets[`__${meth}`] = 1;
+
+
+    // @return {[Value]|Collector}
+    _arrayGets[meth] = function( evo, arg ) { return evo.data.map(el => $[meth](el, arg)) };
+
+    _arrayGets[`__${meth}`] = 1;
 
 });
 
@@ -1148,7 +1151,6 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
     /**
-     * 目标为数组时返回Collector实例。
      * @return {Value|Collector}
      */
     _Gets[meth] = function( evo ) {
