@@ -1,9 +1,7 @@
-// 静态文件Web服务器。
-// 主要用于Tpb-module模式下的测试。
-// 命令行可传入URL根目录（默认为运行命令的当前目录）。
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,5 +14,8 @@ func main() {
 	if len(os.Args) > 1 {
 		dir = os.Args[1]
 	}
-	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(dir))))
+	path := http.Dir(dir)
+	fmt.Println("dir:", path, " port", addr)
+
+	log.Fatal(http.ListenAndServe(addr, http.FileServer(path)))
 }
