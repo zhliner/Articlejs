@@ -788,12 +788,10 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 对 `el` 元素上的类名进行切换（有则删除无则添加）。
 
 - `el: Element` 操作的目标元素。
-- `val: String | Boolean | Function` 欲切换的类名称（序列）或取值回调，也可以是一个布尔值，表示显示（`true`）或隐藏（`false`）整个 `className` 值。
-- `force: Boolean` 目标名称的类名直接显示（`true`）或隐藏（`false`）。
+- `val: String | Function` 欲切换的类名称（序列）或取值回调。无值时指针对整个类名特性切换。
+- `force: Boolean` 目标名称的类名直接添加（`true`）或移除（`false`）。
 
-支持空格分隔的多个类名，支持回调函数获取类名，接口：`function( [name] ): String | Boolean`，实参为当前已有类名数组。
-
-未指定类名时，切换针对整个类特性（`class`），可以传递 `val` 为布尔值，明确设置或删除整个类特性（而非有无切换）。本接口返回调用者自身（`$`）。
+支持空格分隔的多个类名，支持回调函数获取类名，接口：`function( [name] ): String`，实参为当前已有类名数组。
 
 
 ### [$.hasClass( el, names ): Boolean](docs/$.hasClass.md)

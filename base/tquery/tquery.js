@@ -60,9 +60,11 @@
     // 节点设置/出错/完成
     // type: [
     //      append, prepend, before, after, replace,
-    //      empty, remove, removesiblings, normalize
+    //      empty, remove, removes, normalize
     // ]
     // 复合操作：fill, wrap, wrapInner, wrapAll, unwrap, html, text
+    // 注：
+    // removes表示删除连续的兄弟元素集，仅限于表格操作（行段|列段）。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -73,7 +75,7 @@
 
 	if ( typeof module === "object" && typeof module.exports === "object" ) {
 
-		// See jQuery v3.4.1.
+		// jQuery v3.4.1.
 		module.exports = global.document ?
 			factory( global, true ) :
 			function( w ) {
@@ -611,14 +613,15 @@ Object.assign( tQuery, {
      * }
      * @param  {String|Object} tag SVG子元素标签或svg元素配置
      * @param  {Object} opts 元素特性配置（Attribute），可选
+     * @param  {Document} doc 元素所属文档对象，可选
      * @return {Element} 新元素
      */
     svg( tag, opts, doc = Doc ) {
         if (typeof tag != 'string') {
-            opts = tag;
-            tag = 'svg';
+            doc = opts || doc;
+            [tag, opts] = ['svg', tag];
         }
-        return setElem(doc.createElementNS(svgNS, tag), opts);
+        return setElem( doc.createElementNS(svgNS, tag), opts );
     },
 
 
@@ -1316,7 +1319,7 @@ Object.assign( tQuery, {
      * - 用元素内容替换元素本身（内容上升到父级）。
      * - 内容可能包含注释节点和空文本节点，会从返回集中清除。
      * @param  {Element} el 容器元素
-     * @return {[Node]} 容器子节点集
+     * @return {[Node]} 容器内子节点集
      */
     unwrap( el ) {
         if (el.nodeType != 1) {
@@ -1325,7 +1328,6 @@ Object.assign( tQuery, {
         return varyNewNodes(
             el,
             'replaceWith',
-            // 优化
             varyEmpty(el)
         )
         .filter( masterNode );
@@ -1339,22 +1341,6 @@ Object.assign( tQuery, {
      */
     remove( node ) {
         return varyRemove( node, node.parentElement );
-    },
-
-
-    /**
-     * 移除同级节点集（从DOM中）。
-     * 节点集成员或筛选出的节点仅限于同级兄弟关系。
-     * 注：这是对使用事件激发（varyevent:true）的一个优化。
-     * @param  {[Node]} subs 目标节点集
-     * @param  {String|Function} slr 过滤选择器
-     * @return {[Node]} 被移出节点集
-     */
-    removeSiblings( subs, slr ) {
-        if ( slr ) {
-            subs = subs.filter( getFltr(slr) );
-        }
-        return varyRemoves( subs, subs[0].parentElement );
     },
 
 
@@ -1515,12 +1501,10 @@ Object.assign( tQuery, {
      * 类名切换。
      * - 支持空格分隔的多个类名。
      * - 支持回调函数获取类名，接口：function([name]):String。
-     * - 无参数调用时，操作针对整个类名集。
-     * - val也作为整体操作时的强制设定（Boolean）。
-     * - 可正确处理SVG元素的class类属性。
-     *
+     * - 无val传递时针对整个类名属性切换。
+     * 注：可正确处理SVG元素的class类属性。
      * @param  {Element} el 目标元素
-     * @param  {String|Function|Boolean} val 目标值，可选
+     * @param  {String|Function} val 目标值，可选
      * @param  {Boolean} force 强制设定，可选
      * @return {this}
      */
@@ -1528,10 +1512,10 @@ Object.assign( tQuery, {
         if (isFunc(val)) {
             val = val( Arr(el.classList) );
         }
-        if (typeof val === 'string') {
-            classToggle(el, val.trim().split(__reSpace), force);
+        if ( !val) {
+            classAttrToggle( el );
         } else {
-            classAttrToggle( el, !!val );
+            classToggle(el, val.trim().split(__reSpace), force);
         }
         if (el.classList.length == 0) {
             // 清理：不激发attr系事件
@@ -3360,24 +3344,6 @@ class Collector extends Array {
 
 
     /**
-    /**
-     * 移除同级节点集（从DOM中）。
-     * 被移除的成员会作为一个新集合返回。
-     * 注意：
-     * 集合成员或筛选出的集合成员必须为同级兄弟节点。
-     * 这是对节点变化触发事件的优化。
-     * @param  {String|Function} slr 过滤选择器
-     * @return {Collector} 移除的集的集
-     */
-    removeSiblings( slr ) {
-        let _els = slr ?
-            super.filter( getFltr(slr) ) :
-            this;
-        return new Collector( varyRemoves( _els, _els[0].parentElement ), this );
-    }
-
-
-    /**
      * 剪取元素特性。
      * 支持名称数组与集合成员一一对应。
      * 名称（成员）本身可以是空格分隔的名称序列。
@@ -3389,7 +3355,7 @@ class Collector extends Array {
             return this.map( el => tQuery.xattr(el, name) );
         }
         return new Collector(
-            cleanMap( this, (e, i) => name[i] && tQuery.xattr(el, name[i]) ),
+            cleanMap( this, (el, i) => name[i] && tQuery.xattr(el, name[i]) ),
             this
         );
     }
@@ -3485,7 +3451,6 @@ class Collector extends Array {
      * 用特定下标的成员构造一个新实例。
      * - 下标超出集合大小时构造一个空集合。
      * - 支持负下标从末尾算起。
-     * 注：兼容字符串数字，但空串不为0。
      * @param  {Number} idx 下标值，支持负数
      * @return {Collector}
      */
@@ -3665,7 +3630,8 @@ elsEx([
 
 //
 // 元素/节点（集）。
-// 注：大部分结果集是一个二维数组。
+// 大部分结果集是一个二维数组。
+// 注意结果集中可能存在 null 成员。
 /////////////////////////////////////////////////
 elsEx([
         // 元素集
@@ -4797,16 +4763,15 @@ function classToggle( el, names, force ) {
 /**
  * 元素类属性切换。
  * @param  {Element} el 目标元素
- * @param  {Boolean} force 是否强制指定
  * @return {void}
  */
-function classAttrToggle( el, force ) {
+function classAttrToggle( el ) {
     let _cls = el.getAttribute('class');
 
     if ( _cls ) {
         __classNames.set( el, _cls.trim() );
     }
-    toggleClassAttr( el, force ? __classNames.get(el) || null : null, _cls );
+    toggleClassAttr( el, _cls ? null : __classNames.get(el) || null );
 }
 
 
@@ -5428,12 +5393,9 @@ function cleanMap( list, handle ) {
 }
 
 
+
 //
 // 定制事件激发封装。
-// - attr/prop/css/class
-// - append/prepend/fill/before/after/replace
-// - empty/remove/normalize
-// - wrap/wrapinner/wrapall/unwrap
 //////////////////////////////////////////////////////////////////////////////
 
 // 事件名定义。
@@ -5754,23 +5716,15 @@ function toggleClass( el, names ) {
 
 /**
  * 类特性切换封装。
- * 事件名同上（针对整个class特性）。
+ * 注：针对class特性操作，故事件名为 attrvary。
  * @param {Element} el 目标元素
  * @param {String|null} val 设置值
- * @param {String|null} old 当前值
  */
-function toggleClassAttr( el, val, old ) {
-    if ( val === null ) {
+function toggleClassAttr( el, val ) {
+    if ( val == null ) {
         return removeAttr( el, 'class' );
     }
-    limitTrigger( el, evnClassSet, val );
-    try {
-        el.setAttribute( 'class', val );
-    }
-    catch(e) {
-        return failTrigger( el, evnClassFail, [e, val, old] );
-    }
-    limitTrigger( el, evnClassDone, old );
+    return setAttr( el, 'class', val );
 }
 
 
@@ -5915,15 +5869,17 @@ function varyNewNodes( el, meth, nodes ) {
 
 /**
  * 子元素集删除封装。
- * 注：无 nodefail 事件。
- * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
+ * subs为连续的子元素集，仅用于表格单元操作：
+ * - 删除连续的表格行<tr>。
+ * - 删除连续的单元格<th>|<td>（列段）。
+ * @param  {Element} box 容器元素（tbody|thead|tfoot|tr）
  * @param  {[Element]} subs 待删除子元素集
  * @return {[Element]} 删除的子元素集
  */
 function varyRemoves( subs, box ) {
     if ( box ) {
         let _msg = {
-                type: 'removesiblings',
+                type: 'removes',
                 data: subs,
             };
         limitTrigger( box, evnNodeVary, _msg );
@@ -5963,6 +5919,10 @@ function varyWrap( node, root, box ) {
 
 /**
  * 元素内容包裹封装。
+ * 共激发3此节点改变事件：
+ * 1. empty 原内容清空。
+ * 2. prepend 封装容器内前插入。
+ * 3. append 原元素内插入封装根。
  * @param  {Element} el 目标元素
  * @param  {Element} root 封装根元素
  * @param  {Element} box 数据容器（插入点）
@@ -5970,9 +5930,7 @@ function varyWrap( node, root, box ) {
  */
 function varyWrapInner( el, root, box ) {
     varyNodes(
-        box,
-        'prepend',
-        varyEmpty(el) // 优化：只激发一次事件
+        box, 'prepend', varyEmpty(el)
     );
     return varyNodes( el, 'append', root );
 }
