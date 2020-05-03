@@ -335,7 +335,6 @@ wrapall( box:String ): Element | Collector
 // 与To中的同名方法不同，这里仅支持字符串模板实参。
 
 remove( slr?:String|Boolean, back?:Boolean ): void | data
-removeSiblings( slr?:String|Boolean, back?:Boolean ): void | data
 normalize( depth?:Number|Boolean, back?:Boolean ): void | data
 empty( back?:Boolean ): void | data
 unwrap( back?:Boolean ): void | data

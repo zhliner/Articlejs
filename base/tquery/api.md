@@ -688,18 +688,6 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 返回被移出DOM文档树的节点。**注**：注释节点也适用。
 
 
-### $.removeSiblings( subs, slr ): [Node]
-
-将同级兄弟节点移出文档树（DOM）。
-
-- `subs: [Node]` 将被移除的兄弟节点集。
-- `slr: String | Function` 过滤筛选器
-
-> **注意：**<br>
-> 集合中的节点或者筛选出的节点必须是兄弟关系（同一个父元素）。这是对节点变化事件触发的优化版（整个节点集作为消息数据）。<br>
-> 支持集合版，此时 `subs` 即为集合本身。接口：`.removeSiblings(slr): Collector` 返回的新集合为被移除的节点集。<br>
-
-
 ### [$.empty( el ): [Node] | null](docs/$.empty.md)
 
 清空 `el` 元素的内容。

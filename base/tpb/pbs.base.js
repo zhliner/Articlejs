@@ -528,6 +528,7 @@ const _Process = {
     /**
      * 数组串接。
      * 目标：暂存区/栈顶1项。
+     * 返回一个新的数组。
      * @param  {...Value} vals 值或数组
      * @return {[Value]}
      */
