@@ -28,63 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, getMethod } from "./config.js";
-
-
-const $ = window.$;
-
-
-/**
- * 获取目标子域。
- * 如果目标子域不存在，则自动创建。
- * 子域链上的子域必须是普通对象类型（Object）。
- * @param {[String]} names 子域链
- * @param {Object} obj 取值顶级域
- */
-function subObj( names, obj ) {
-    let _sub;
-
-    for (const name of names) {
-        _sub = obj[name];
-
-        if ( !_sub ) {
-            obj[name] = _sub = {};
-        }
-        else if ( $.type(_sub) != 'Object' ) {
-            throw new Error(`the ${name} field is not a Object.`);
-        }
-    }
-    return _sub;
-}
-
-
-
-//
-// 导出。
-//////////////////////////////////////////////////////////////////////////////
-
-/**
- * 接口：子域扩展。
- * 扩展中的方法默认会绑定（bind）到所属宿主对象。
- * 子域是一种分组，支持句点分隔的子域链。
- * 最终的目标子域内的成员是赋值逻辑，重名会被覆盖。
- * 注：
- * 如果目标子域不存在，会自动创建，包括中间层级的子域。
- * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
- * 可无exts实参调用返回子域本身。
- *
- * @param  {String} name 扩展域
- * @param  {Object} exts 扩展集，可选
- * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
- * @return {Object} 目标子域
- */
-export function extend__( name, exts, nobind, host ) {
-    let _f = nobind ?
-        getMethod :
-        bindMethod;
-
-    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
-}
+import { subExtend } from "./config.js";
 
 
 //
@@ -95,9 +39,8 @@ export const X = {
     Ease:   {},     // 缓动计算区（.Linear...）
     Eff:    {},     // 特效目标区（.fade|slide|delay|width...）。注：与Ease分离
     Math:   {},     // 数学算法区
-    Fun:    {},     // 功能函数区（用户使用）
+    Fun:    {},     // 功能函数区
 
-    // X库扩展接口。
-    // 向对象自身扩展（不可覆盖）。
-    extend: (name, exts, nobind) => extend__(name, exts, nobind, X),
+    // X库扩展。
+    extend: (name, exts, nobind) => subExtend(name, exts, nobind, X),
 };

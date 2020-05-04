@@ -16,6 +16,9 @@
             flex-shrink: 0;
             max-width: 900px;
         }
+        form {
+            width: 600px;
+        }
     </style>
     <script>
         // 窗口大小自适应。
@@ -76,9 +79,9 @@
                 </select>
             </div>
             <!-- [子模版：字符表] -->
-            <div class="_body _inline" tpl-name="minied:chars">
+            <div class="_body _Inline" tpl-name="minied:chars">
                 <div class="_main _list" tpl-name="data:chars"
-                    on="init|evo(1) text split $$(_1) wrap('<b>');
+                    on="init|evo(1) text split a.wrap('<b>');
                         save|ev('detail') dup xattr('-val');
                         ^obted;
                         ^done"

@@ -11,6 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Util } from "./tools/util.js";
 import { Loader, TplLoader } from "./tools/tloader.js";
 
 
@@ -75,10 +76,6 @@ const
 
     // 指令属性：特权方法（操作数据栈）
     ACCESS = Symbol('stack: accessible'),
-
-    // PBS方法获取接口键。
-    // 使用Symbol避免名称冲突。
-    method = Symbol('api-method'),
 
     // 前阶指令存储标记。
     PREVCELL = Symbol('previous Cell'),
@@ -201,6 +198,64 @@ function funcSets( f, n, ix ) {
 
 
 /**
+ * 获取目标子域。
+ * 如果目标子域不存在，则自动创建。
+ * 子域链上的子域必须是普通对象类型（Object）。
+ * @param {[String]} names 子域链
+ * @param {Object} obj 取值顶级域
+ */
+function subObj( names, obj ) {
+    let _sub;
+
+    for (const name of names) {
+        _sub = obj[name];
+
+        if ( !_sub ) {
+            obj[name] = _sub = {};
+        }
+        else if ( $.type(_sub) != 'Object' ) {
+            throw new Error(`the ${name} field is not a Object.`);
+        }
+    }
+    return _sub;
+}
+
+
+/**
+ * 子域扩展。
+ * 扩展中的方法默认会绑定（bind）到所属宿主对象。
+ * 子域是一种分组，支持句点分隔的子域链。
+ * 最终的目标子域内的成员是赋值逻辑，重名会被覆盖。
+ * 注：
+ * 如果目标子域不存在，会自动创建，包括中间层级的子域。
+ * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
+ * 可无exts实参调用返回子域本身。
+ *
+ * @param  {String} name 扩展域
+ * @param  {Object} exts 扩展集，可选
+ * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
+ * @return {Object} 目标子域
+ */
+function subExtend( name, exts, nobind, host ) {
+    let _f = nobind ?
+        getMethod :
+        bindMethod;
+
+    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
+}
+
+
+//
+// 获取对象方法自身。
+// 方法名支持句点（.）分隔的多级引用。
+//
+function methodSelf( name, obj ) {
+    name = name.split('.');
+    return name.length > 1 ? Util.subObj( name, obj ) : obj[ name[0] ];
+}
+
+
+/**
  * 设置模板管理器（全局可用）。
  * @param  {Templater} tplr 模板管理器
  * @return {Templater} tplr
@@ -220,11 +275,12 @@ export {
     OBTA,
     EXTENT,
     ACCESS,
-    method,
     PREVCELL,
     bindMethod,
     getMethod,
     funcSets,
+    subExtend,
+    methodSelf,
     Globals,
     DataStore,
     ChainStore,

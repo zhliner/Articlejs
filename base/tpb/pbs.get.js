@@ -15,7 +15,7 @@
 //
 
 import { Util } from "./tools/util.js";
-import { bindMethod, method, DataStore, Templater, ChainStore, DEBUG } from "./config.js";
+import { bindMethod, DataStore, Templater, ChainStore, DEBUG } from "./config.js";
 import { Process } from "./pbs.base.js";
 
 
@@ -492,14 +492,18 @@ const _Gets = {
      * 元素克隆。
      * 目标：暂存区/栈顶1项。
      * 可选择同时克隆元素上绑定的事件处理器。
-     * 注：集合克隆请参考后面集合版。
+     * 注记：
+     * 同时支持Collector实例，下同。
+     * 数组版也支持Collector，但仅采用.map方法逐个操作。
+     *
      * @param  {Boolean} event 包含事件处理器，可选
      * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
      * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
-     * @return {Element}
+     * @return {Element|Collector}
      */
     clone( evo, event, deep, eventdeep ) {
-        return $.clone( evo.data, event, deep, eventdeep );
+        return $.isCollector(evo.data) ?
+            evo.data.clone(event, deep, eventdeep) : $.clone(evo.data, event, deep, eventdeep);
     },
 
     __clone: 1,
@@ -513,7 +517,8 @@ const _Gets = {
      * @return {Element}
      */
     Element( evo, tag ) {
-        return $.Element( tag, evo.data );
+        return $.isCollector(evo.data) ?
+            evo.data.Element(tag) : $.Element(tag, evo.data);
     },
 
     __Element: -1,
@@ -525,10 +530,10 @@ const _Gets = {
      * 目标为SVG元素的内容或配置对象。
      * 注：tag无值时创建<svg>元素。
      * @param  {String} tag 标签名，可选
-     * @return {Element}
+     * @return {Element|Collector}
      */
     svg( evo, tag = 'svg' ) {
-        return $.svg( tag, evo.data );
+        return $.isCollector(evo.data) ? evo.data.svg(tag) : $.svg(tag, evo.data);
     },
 
     __svg: -1,
@@ -537,10 +542,10 @@ const _Gets = {
     /**
      * 元素集封装。
      * 目标：暂存区/栈顶1项。
-     * 目标只能是节点内容，非集合会被自动转为Collector。
+     * 目标只能是节点元素，非集合会被自动转为Collector。
      * 注：
-     * 与To部分的同名方法不同，这里box通常为字符串，
-     * 即便是元素类型，也不支持克隆实参。
+     * 与To部分的同名方法不同，这里box仅支持字符串，
+     * 即便是通过(_1)标识取元素实参，也不支持克隆选项。
      * @param  {String} box 封装容器HTML
      * @return {Collector}
      */
@@ -704,7 +709,7 @@ const _Gets = {
         return new Date( ...vals );
     },
 
-    __date: null,
+    __Date: null,
 
 
     /**
@@ -859,11 +864,17 @@ const _Gets = {
      * 移除元素。
      * 目标：暂存区/栈顶1项。
      * 如果传递back为真，则移除的元素返回入栈。
+     * @param  {String|Boolean} slr 选择器或入栈指示，可选
      * @param  {Boolean} back 入栈指示
-     * @return {Element|void}
+     * @return {Element|Collector|void}
      */
-    remove( evo, back ) {
-        let _v = $.remove( evo.data );
+    remove( evo, slr, back ) {
+        if ( typeof slr === 'boolean' ) {
+            [back, slr] = [slr];
+        }
+        let _v = $.isCollector(evo.data) ?
+            evo.data.remove() : $.remove( evo.data );
+
         if ( back ) return _v;
     },
 
@@ -873,12 +884,13 @@ const _Gets = {
     /**
      * 文本节点规范化。
      * 目标：暂存区/栈顶1项。
-     * 目标为操作的目标元素，操作不改变原元素引用。
+     * 目标为操作的元素（集），不会改变原引用本身。
      * @param  {Number} depth 影响深度
      * @return {void}
      */
     normalize( evo, depth ) {
-        $.normalize( evo.data, depth );
+        $.isCollector(evo.data) ?
+            evo.data.normalize( depth ) : $.normalize( evo.data, depth );
     },
 
     __normalize: 1,
@@ -888,7 +900,7 @@ const _Gets = {
      * 表单控件清空。
      * 目标：暂存区/栈顶1项。
      * 目标为待清空的表单元素。
-     * 注：选取类控件为取消选取，其它为清除value值。
+     * 选取类控件为取消选取，其它为清除value值。
      * @return {void}
      */
     clear( evo ) {
@@ -994,9 +1006,9 @@ const _Gets = {
 
 //
 // 集合版处理器。
-// 流程数据为数组时对各个成员的单独处理。
-// 注：指令说明请参考单数据版。
-// @return {[Value]}
+// 流程数据为数组，对成员逐个执行同样的单独处理（.map(...)）。
+// 也支持Collector实例，但仅按普通数组对待。
+// @return {[Value]|Collector}
 //////////////////////////////////////////////////////////////////////////////
 
 const _arrayGets = {
@@ -1109,12 +1121,12 @@ const _arrayGets = {
 
 
     // 元素集操作。
-    // 返回类型与目标类型相同（[Element]|Collector）。
+    // 返回类型与目标类型相同。
     //-----------------------------------------------------
 
     /**
      * 元素克隆。
-     * @return [Element]|Collector
+     * @return {[Element]|Collector}
      */
     clone( evo, event, deep, eventdeep ) {
         return evo.data.map( el => $.clone(el, event, deep, eventdeep) );
@@ -1126,10 +1138,10 @@ const _arrayGets = {
     /**
      * 创建元素集。
      * @param  {String} tag 标签名
-     * @return {Collector}
+     * @return {[Element]|Collector}
      */
     Element( evo, tag ) {
-        return $(evo.data).Element( tag );
+        return evo.data.map( data => $.Element(tag, data) );
     },
 
     __Element: -1,
@@ -1138,10 +1150,10 @@ const _arrayGets = {
     /**
      * 创建SVG元素集。
      * @param  {String} tag 标签名，可选
-     * @return {Collector}
+     * @return {[Element]|Collector}
      */
     svg( evo, tag = 'svg' ) {
-        return $(evo.data).svg( tag );
+        return evo.data.map( opts => $.svg(tag, opts) );
     },
 
     __svg: -1,
@@ -1149,15 +1161,11 @@ const _arrayGets = {
 
     /**
      * 移除元素集。
-     * @param  {String|Boolean} slr 选择器或入栈指示，可选
      * @param  {Boolean} back 入栈指示，可选
-     * @return {Collector|void}
+     * @return {[Element]|Collector|void}
      */
-    remove( evo, slr, back ) {
-        if ( typeof slr === 'boolean' ) {
-            [back, slr] = [slr];
-        }
-        let _vs = $(evo.data).remove( slr );
+    remove( evo, back ) {
+        let _vs = evo.data.map( el => $.remove(el) );
         if ( back ) return _vs;
     },
 
@@ -1169,7 +1177,7 @@ const _arrayGets = {
      * @return {void}
      */
     normalize( evo, depth ) {
-        $(evo.data).normalize( depth );
+        evo.data.forEach( el => $.normalize(el, depth) );
     },
 
     __normalize: 1,
@@ -1180,7 +1188,7 @@ const _arrayGets = {
      * @return {void}
      */
     clear( evo ) {
-        $(evo.data).val( null );
+        evo.data.forEach( el => $.val(el, null) );
     },
 
     __clear: 1,
@@ -1243,14 +1251,19 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
-    // @return {Value}
-    _Gets[meth] = function( evo, arg ) { return $[meth](evo.data, arg) };
+    // @return {Value|Collector}
+    _Gets[meth] = function( evo, arg ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth](arg) : $[meth](evo.data, arg);
+    };
 
     _Gets[`__${meth}`] = 1;
 
 
-    // @return {Collector}
-    _arrayGets[meth] = function( evo, arg ) { return $(evo.data)[meth](arg) };
+    // @return {[Value]}
+    _arrayGets[meth] = function( evo, arg ) {
+        return evo.data.map( el => $[meth](el, arg) );
+    };
 
     _arrayGets[`__${meth}`] = 1;
 
@@ -1280,14 +1293,19 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
-    // @return {Value}
-    _Gets[meth] = function( evo ) { return $[meth](evo.data) };
+    // @return {Value|Collector}
+    _Gets[meth] = function( evo ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth]() : $[meth](evo.data);
+    };
 
     _Gets[`__${meth}`] = 1;
 
 
-    // @return {Collector}
-    _arrayGets[meth] = function( evo ) { return $(evo.data)[meth]() };
+    // @return {[Value]}
+    _arrayGets[meth] = function( evo ) {
+        return evo.data.map( el => $[meth](el) );
+    };
 
     _arrayGets[`__${meth}`] = 1;
 
@@ -1316,14 +1334,19 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
-    // @return {Value}
-    _Gets[meth] = function( evo, ...args ) { return $[meth](evo.data, ...args) };
+    // @return {Value|Collector}
+    _Gets[meth] = function( evo, ...args ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth](...args) : $[meth](evo.data, ...args);
+    };
 
     _Gets[`__${meth}`] = 1;
 
 
-    // @return {Collector}
-    _arrayGets[meth] = function( evo, ...args ) { return $(evo.data)[meth](...args) };
+    // @return {[Value]}
+    _arrayGets[meth] = function( evo, ...args ) {
+        return evo.data.map( el => $[meth](el,...args) );
+    };
 
     _arrayGets[`__${meth}`] = 1;
 
@@ -1341,14 +1364,19 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
-    // @return {Text|DocumentFragment}
-    _Gets[meth] = function( evo, arg ) { return $[meth](evo.data, arg) };
+    // @return {Text|DocumentFragment|Collector}
+    _Gets[meth] = function( evo, arg ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth](arg) : $[meth](evo.data, arg);
+    };
 
     _Gets[`__${meth}`] = 1;
 
 
-    // @return {Collector}
-    _arrayGets[meth] = function( evo, arg ) { return $(evo.data)[meth](arg) };
+    // @return {[Node|DocumentFragment]}
+    _arrayGets[meth] = function( evo, arg ) {
+        return evo.data.map( con => $[meth]( con, arg) );
+    };
 
     _arrayGets[`__${meth}`] = 1;
 
@@ -1509,15 +1537,20 @@ const __uiState = [ '-', '', '^' ];
 .forEach(function( meth ) {
 
     // @param  {String} box 封装元素的HTML结构串
-    // @return {Element} 包裹的容器根元素
-    _Gets[meth] = function( evo, box ) { return $[meth](evo.data, box) };
+    // @return {Element|Collector} 包裹的容器根元素（集）
+    _Gets[meth] = function( evo, box ) {
+        return $.isCollector(evo.data) ?
+            evo.data[meth](box) : $[meth](evo.data, box)
+    };
 
     _Gets[`__${meth}`] = 1;
 
 
     // @param  {String} box 封装结构（同上）
-    // @return {Collector} 包裹的容器根元素集
-    _arrayGets[meth] = function( evo, box ) { return $(evo.data)[meth](box) };
+    // @return {[Element]} 包裹的容器根元素集
+    _arrayGets[meth] = function( evo, box ) {
+        return evo.data.map( el => $[meth](el, box) );
+    };
 
     _arrayGets[`__${meth}`] = 1;
 
@@ -1536,9 +1569,11 @@ const __uiState = [ '-', '', '^' ];
 .forEach(function( meth ) {
 
     // @param  {Boolean} back 入栈指示
-    // @return {Element|void}
+    // @return {[Node]|Collector|void}
     _Gets[meth] = function( evo, back ) {
-        let vs = $[meth]( evo.data );
+        let vs = $.isCollector(evo.data) ?
+            evo.data[meth]() : $[meth]( evo.data );
+
         if ( back ) return vs;
     };
 
@@ -1546,9 +1581,9 @@ const __uiState = [ '-', '', '^' ];
 
 
     // @param  {Boolean} back 入栈指示
-    // @return {Collector|void}
+    // @return {[[Node]]|void}
     _arrayGets[meth] = function( evo, back ) {
-        let vs = $(evo.data)[meth]();
+        let vs = evo.data.map( el => $[meth](el) );
         if ( back ) return vs;
     };
 
@@ -1577,14 +1612,17 @@ const __uiState = [ '-', '', '^' ];
 ]
 .forEach(function( meth ) {
 
-    // 单元素版。
-    _Gets[meth] = function( evo ) { evo.data[meth]() };
+    _Gets[meth] = function( evo ) {
+        $.isCollector(evo.data) ?
+            evo.data[meth]() : $[meth](evo.data);
+    };
 
     _Gets[`__${meth}`] = 1;
 
 
-    // 集合版。
-    _arrayGets[meth] = function( evo ) { evo.data.forEach( el => $[meth](el) ) };
+    _arrayGets[meth] = function( evo ) {
+        evo.data.forEach( el => $[meth](el) );
+    };
 
     _arrayGets[`__${meth}`] = 1;
 
@@ -1711,6 +1749,9 @@ function arrayFill( arr, size ) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
+// 集合版命名空间。
+_Gets.a = _arrayGets;
+
 //
 // 取值指令集。
 // @proto: Process < Control
@@ -1719,19 +1760,15 @@ export const Get = $.proto(
     $.assign( {}, _Gets, bindMethod ), Process
 );
 
+// 原型桥接。
+$.proto( Get.a, Process.a );
+
 
 //
 // On指令集。
 // 结构：{ 取值 < 处理 < 控制 }。
 //
 export const On = Get;
-
-
-//
-// 接口：
-// 提供预处理方法。
-//
-On[method] = name => On[name];
 
 
 // window.console.info( 'Gets:', Object.keys(Get).length );

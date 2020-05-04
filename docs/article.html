@@ -132,7 +132,7 @@
         </nav>
         <article>
             <header>
-                <p>文章结构的良好有着十分重要的价值，它不但让大纲清晰，易于理解，而且会让样式共享成为可能。共享样式意义非凡，它使得样式可以独立制作，渲染精美，而文章的作者就能专注于内容本身了。</p>
+                <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式价值不菲，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
                 <p>依通常的情形和需求，这里提供最多5个层级的支持，分别命名为：<strong>章</strong>、<strong>节</strong>、<strong>区</strong>、<strong>段</strong>、<strong>末</strong>。它们逐层嵌套，每一层都由一个 <code>&lt;section&gt;</code> 封装，为便于识别和定位，<code>&lt;section&gt;</code> 元素上分别定义 <code>role</code> 属性值为：<code>s1 ~ s5</code>。</p>
             </header>
             <section role="s1">
@@ -238,7 +238,7 @@
 &lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol, ... --&gt;</i>
 &lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 定义列表：DL /dt, dd/... --&gt;</i>
 &lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td/... --&gt;</i>
-&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, p... --&gt;</i>
+&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [p/img, span?]... --&gt;</i>
 &lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i>
 &lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h3, p... --&gt;</i>
 &lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i>
@@ -420,7 +420,8 @@
 <code data-lang="html">&lt;<b role="tag">dl</b>&gt;
     &lt;<b role="tag">figcaption</b>&gt;&lt;/<b role="tag">figcaption</b>&gt;
     &lt;<b role="tag">p</b>&gt;
-        &lt;<b role="tag">img</b> /&gt; ...
+        &lt;<b role="tag">img</b> /&gt;
+        &lt;<b role="tag">span</b>&gt;[图片讲解，可选]&lt;/<b role="tag">span</b>&gt;
     &lt;/<b role="tag">p</b>&gt;
 &lt;/<b role="tag">dl</b>&gt;
 </code></pre>

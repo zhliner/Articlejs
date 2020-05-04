@@ -906,6 +906,7 @@ const _Process = {
     // @return {Boolean}
     //-----------------------------------------------------
 
+
     /**
      * 相等比较（===）。
      */
@@ -1248,7 +1249,7 @@ const _Process = {
      * 例：
      * push('123456') calc('$[0]+$[2]+$[4]')
      * => '135'
-     * date calc('`${$.getMonth()+1}/${$.getDate()}-${$.getFullYear()}`')
+     * Date calls('getMonth getDate getFullYear') calc('`${$[0]+1}/${$[1]}-${$[2]}`')
      * => '3/17-2020'
      * @param  {String|Function} expr 表达式或函数
      * @return {Any}
@@ -1424,7 +1425,7 @@ const _Process = {
 // @return {[Value]}
 //////////////////////////////////////////////////////////////////////////////
 
-const _arrayProcess = {
+_Process.a = {
 
     // 数学运算。
     //-----------------------------------------------------

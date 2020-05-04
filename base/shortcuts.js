@@ -81,6 +81,7 @@ Global: [
     {
         // 录入框充满（通用）
         "key":      "alt:f",
+        // "key":      "meta:f",  // MacOS
         "command":  "input.full",
     },
 
@@ -175,6 +176,7 @@ Slave: [
             ":l",       // ...          | ...           | codelist
         ],
         "command":  "input.select",
+        "exclude":  "textarea, [type=text]"
     },
 
 ],

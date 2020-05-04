@@ -20,7 +20,7 @@
 
 import { Util } from "./tools/util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./tools/spliter.js";
-import { ACCESS, EXTENT, PREVCELL, DEBUG, method } from "./config.js";
+import { ACCESS, EXTENT, PREVCELL, DEBUG, methodSelf } from "./config.js";
 
 
 const
@@ -942,7 +942,6 @@ class Call {
 
     /**
      * 应用到指令集。
-     * 方法由接口 [method](name) 提供。
      * 两个特别标记：
      * - [EXTENT] 自动取栈条目数
      * - [ACCESS] 可访问数据栈（特权）
@@ -954,7 +953,7 @@ class Call {
      * @return {Cell} cell
      */
     apply( cell, pbs, prev ) {
-        let _f = pbs[method]( this._meth );
+        let _f = methodSelf(this._meth, pbs);
 
         if ( !_f ) {
             throw new Error(`${this._meth} is not in pbs:calls.`);
@@ -1116,7 +1115,7 @@ class Update {
      * @return {Cell} cell
      */
     apply( cell, pbs ) {
-        let _f = pbs[method]( this._meth ),
+        let _f = methodSelf(this._meth, pbs),
             _n, _x;
 
         if ( !_f ) {

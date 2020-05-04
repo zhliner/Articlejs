@@ -16,7 +16,7 @@
 //
 
 import { Util } from "./tools/util.js";
-import { bindMethod, method, DataStore, ChainStore, storeChain } from "./config.js";
+import { bindMethod, DataStore, ChainStore, storeChain } from "./config.js";
 import { Get } from "./pbs.get.js";
 import { debug } from "./pbs.base.js";
 
@@ -939,11 +939,3 @@ To.Update.debug = debug;
 To.NextStage = $.proto(
     $.assign( {}, _NextStage, bindMethod ), Get
 );
-
-
-//
-// 接口：
-// 提供预处理方法。
-//
-To.Update[method] = name => To.Update[name];
-To.NextStage[method] = name => To.NextStage[name];

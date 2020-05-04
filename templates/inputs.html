@@ -536,7 +536,7 @@
     - 解析构造为：<b>...</b>序列。
     - 各字符集清单（<span>）存储在data中备用。 -->
 <div tpl-name="data:chars"
-    on="init|evo(1) text split $$(_1) wrap('<b>');
+    on="init|evo(1) text split a.wrap('<b>');
         save|ev('detail') dup xattr('-n');
         ^obted;
         ^done"

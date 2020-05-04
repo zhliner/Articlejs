@@ -32,9 +32,9 @@
 //
 
 import { Util } from "./tools/util.js";
-import { X, extend__ } from "./lib.x.js";
+import { X } from "./lib.x.js";
 import { App__ } from "./app.js";
-import { bindMethod, method, Web } from "./config.js";
+import { bindMethod, Web, subExtend } from "./config.js";
 import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
@@ -71,47 +71,6 @@ const _By = {
     },
 
     __pull: -1,
-
-
-    /**
-     * X函数真值执行。
-     * 目标：暂存区/栈顶1项。
-     * 比较目标是否为true（===），是则执行，否则跳过。
-     *
-     * 引用X扩展函数库里的方法执行。
-     * 支持句点（.）连接的递进引用（如：'x.y.z'）。
-     * 注记：
-     * X中的方法已经过bind处理，可直接引用。
-     *
-     * @param  {String} meth X库方法名
-     * @param  {...Value} rest 实参序列
-     * @return {Value|void}
-     */
-    xtrue( evo, meth, ...rest ) {
-        if ( evo.data === true ) {
-            return Util.subObj( meth.split('.'), X )( ...rest );
-        }
-    },
-
-    __xtrue: 1,
-
-
-    /**
-     * X函数假值执行。
-     * 目标：暂存区/栈顶1项。
-     * 比较目标是否为false（===），是则执行，否则跳过。
-     * 参数说明同 xtrue()
-     * @param  {String} meth X库方法名
-     * @param  {...Value} rest 实参序列
-     * @return {Value|void}
-     */
-    xfalse( evo, meth, ...rest ) {
-        if ( evo.data === false ) {
-            return Util.subObj( meth.split('.'), X )( ...rest );
-        }
-    },
-
-    __xfalse: 1,
 
 
     /**
@@ -184,16 +143,6 @@ export const By = $.proto(
 //
 By.x = X;
 
-//
-// 接口：
-// 提供已预处理的方法。
-// 方法名支持句点（.）分隔的多级调用。
-//
-By[method] = function( name ) {
-    name = name.split('.');
-    return name.length > 1 ? Util.subObj( name, By ) : By[ name[0] ];
-};
-
 
 /**
  * 接口：用户扩展。
@@ -207,7 +156,7 @@ By[method] = function( name ) {
  * @return {Object} 目标子域
  */
 export function extend( name, exts, nobind ) {
-    return extend__( name, exts, nobind, By );
+    return subExtend( name, exts, nobind, By );
 }
 
 
