@@ -572,9 +572,21 @@ const _Process = {
     __mix_x: true,
 
 
+    /**
+     * 合计集合成员的值。
+     * @data: [Number]
+     * @return {Number}
+     */
+    sum( evo ) {
+        return evo.data.reduce( (sum, n) => sum + n, 0 );
+    },
+
+    __sum: 1,
+
+
 
     // 数学运算。
-    // 多数方法有一个集合版（成员计算），详见后 _processArr。
+    // 多数方法有一个集合版（对成员计算），详见后 _Process.a。
     //-----------------------------------------------------
 
     /**
@@ -708,6 +720,11 @@ const _Process = {
     },
 
     __divmod: 1,
+
+
+    //
+    // Math大部分方法。
+    /////////////////////////
 
 
     /**
@@ -851,6 +868,118 @@ const _Process = {
     },
 
     __tan: 1,
+
+
+    /**
+     * 计算平方根。
+     */
+    sqrt( evo ) {
+        return Math.sqrt( evo.data );
+    },
+
+    __sqrt: 1,
+
+
+    /**
+     * 计算立方根。
+     */
+    cbrt( evo ) {
+        return Math.cbrt( evo.data );
+    },
+
+    __cbrt: 1,
+
+
+    /**
+     * 计算双曲正弦值。
+     */
+    sinh( evo ) {
+        return Math.sinh( evo.data );
+    },
+
+    __sinh: 1,
+
+
+    /**
+     * 计算双曲余弦值。
+     */
+    cosh( evo ) {
+        return Math.cosh( evo.data );
+    },
+
+    __cosh: 1,
+
+
+    /**
+     * 计算双曲正切值。
+     */
+    tanh( evo ) {
+        return Math.tanh( evo.data );
+    },
+
+    __tanh: 1,
+
+
+    /**
+     * 计算反余弦值。
+     */
+    acos( evo ) {
+        return Math.acos( evo.data );
+    },
+
+    __acos: 1,
+
+
+    /**
+     * 计算反双曲余弦值。
+     */
+    acosh( evo ) {
+        return Math.acosh( evo.data );
+    },
+
+    __acosh: 1,
+
+
+    /**
+     * 计算反正弦值。
+     */
+    asin( evo ) {
+        return Math.asin( evo.data );
+    },
+
+    __asin: 1,
+
+
+    /**
+     * 计算反双曲正弦值。
+     */
+    asinh( evo ) {
+        return Math.asinh( evo.data );
+    },
+
+    __asinh: 1,
+
+
+    /**
+     * 计算反正切值。
+     */
+    atan( evo ) {
+        return Math.atan( evo.data );
+    },
+
+    __atan: 1,
+
+
+    /**
+     * 计算反双曲正切值。
+     */
+    atanh( evo ) {
+        return Math.atanh( evo.data );
+    },
+
+    __atanh: 1,
+
+
 
 
     /**
@@ -1305,7 +1434,7 @@ const _Process = {
      * 设置目标成员值。
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称。
-     * 如果名称为多个，值应当是一个数组，与名称一一对应。
+     * 如果名称为多个，值需要是一个数组，与名称一一对应。
      * 注：会改变原对象自身。
      * @param  {String} name 名称/序列
      * @param  {Value|[Value]} val 值或值集
@@ -1345,10 +1474,13 @@ const _Process = {
      * 目标：无。
      * 自动更新全局Range集存储。
      * 通常绑定在离可编辑元素最近的容器元素上。
-     * 如：on="mouseup keyup input|rangeKeep stop"
+     * 如：
+     * <p contenteditable
+     *      on="mouseup keyup input|rangeKeep stop">
+     * </p>
      * @return {void}
      */
-    rangeKeep( evo ) {
+    rangeKeep() {
         let _sln = window.getSelection();
         __tmpRanges.length = 0;
 
@@ -1500,6 +1632,11 @@ _Process.a = {
     __divmod: 1,
 
 
+    //
+    // Math大部分方法。
+    /////////////////////////
+
+
     abs( evo ) {
         return evo.data.map( v => Math.abs(v) );
     },
@@ -1575,6 +1712,83 @@ _Process.a = {
     },
 
     __tan: 1,
+
+
+    sqrt( evo ) {
+        return evo.data.map( v => Math.sqrt(v) );
+    },
+
+    __sqrt: 1,
+
+
+    cbrt( evo ) {
+        return evo.data.map( v => Math.cbrt(v) );
+    },
+
+    __cbrt: 1,
+
+
+    sinh( evo ) {
+        return evo.data.map( v => Math.sinh(v) );
+    },
+
+    __sinh: 1,
+
+
+    cosh( evo ) {
+        return evo.data.map( v => Math.cosh(v) );
+    },
+
+    __cosh: 1,
+
+
+    tanh( evo ) {
+        return evo.data.map( v => Math.tanh(v) );
+    },
+
+    __tanh: 1,
+
+
+    acos( evo ) {
+        return evo.data.map( v => Math.acos(v) );
+    },
+
+    __acos: 1,
+
+
+    acosh( evo ) {
+        return evo.data.map( v => Math.acosh(v) );
+    },
+
+    __acosh: 1,
+
+
+    asin( evo ) {
+        return evo.data.map( v => Math.asin(v) );
+    },
+
+    __asin: 1,
+
+
+    asinh( evo ) {
+        return evo.data.map( v => Math.asinh(v) );
+    },
+
+    __asinh: 1,
+
+
+    atan( evo ) {
+        return evo.data.map( v => Math.atan(v) );
+    },
+
+    __atan: 1,
+
+
+    atanh( evo ) {
+        return evo.data.map( v => Math.atanh(v) );
+    },
+
+    __atanh: 1,
 
 
     /**
