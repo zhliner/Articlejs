@@ -126,7 +126,6 @@ aside#help {
 .___Panel input[type=radio],
 .___Panel input[type=checkbox] {
     margin-right: 4px;
-    vertical-align: middle;
 }
 /* 代码字体 */
 .___Panel code,

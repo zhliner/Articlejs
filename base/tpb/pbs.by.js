@@ -22,7 +22,7 @@
 //      import { App } from "./pbs.by.js";
 //      App( 'MyApp', conf, meths );
 //      // extend(...)
-//      // 也可以在name域上扩展任意普通方法。
+//      // 也可以在MyApp域上用extend扩展任意普通方法。
 //
 //      模板使用：
 //      by="MyApp.run('meth', ...)"
