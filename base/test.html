@@ -77,7 +77,8 @@
         panel.plugins;
         cmdline.active|evo(1) ev('detail');
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
-        ^finish|(KM.slaveSize)"
+        ^finish|(KM.slaveSize);
+        ^finish"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
@@ -90,7 +91,8 @@
         #x-plugins||click;
         #g-cmdx|trigger('setv');
         |data('all pls');
-        #g-keytip|text">
+        #g-keytip|text;
+        |trigger('pcheck')">
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
