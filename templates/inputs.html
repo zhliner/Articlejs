@@ -337,7 +337,9 @@
 
 <!-- 插图 -->
 <div class="_body _Figure" tpl-name="input:figure">
-    <div class="_main">
+    <div class="_main"
+        on="focus(textarea)|$$('/textarea') dup evo(1) not(_) pop"
+        to="-|only('_inert')">
         <header class="_affix">
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
             <label><input name="below" type="checkbox" />标题在下</label>
@@ -350,6 +352,7 @@
             data-iurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
             data-durl="data:image/png;base64,..."
             data-svgx="<svg>...</svg>"></textarea>
+        <textarea name="explain" placeholder="文字讲解（可选）" class="_inert"></textarea>
     </div>
     <aside>
         <div class="_option">

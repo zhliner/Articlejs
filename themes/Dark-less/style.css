@@ -642,6 +642,7 @@ aside#help {
 .Slave textarea[data-pb=fulled] {
     border-radius: 0;
     border-width: 1px 0 0;
+    margin-top: 0 !important;
 }
 
 
@@ -681,14 +682,16 @@ aside#help {
 }
 
 /* 片区 */
-.Input ._Section textarea {
+.Input ._Section textarea,
+.Input ._Figure textarea {
     /*fix: firefox */
     flex: 1 1 50px;
 }
-.Input ._Section textarea:last-child {
-    margin-top: 5px;
+.Input ._Section textarea:last-child,
+.Input ._Figure textarea:last-child {
+    margin-top: 4px;
 }
-.Input ._Section textarea._inert {
+.Input textarea._inert {
     max-height: 2.4em;
 }
 
