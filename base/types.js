@@ -398,53 +398,53 @@ const ChildTypes = {
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    A:          [ $TEXT, _INLINES ].flat(),
-    STRONG:     [ $TEXT, _INLINES ].flat(),
-    EM:         [ $TEXT, _INLINES ].flat(),
-    Q:          [ $TEXT, _INLINES ].flat(),
+    A:          [ $TEXT, _INLINES ],
+    STRONG:     [ $TEXT, _INLINES ],
+    EM:         [ $TEXT, _INLINES ],
+    Q:          [ $TEXT, _INLINES ],
     ABBR:       [ $TEXT ],
-    CITE:       [ $TEXT, _INLINES ].flat(),
-    SMALL:      [ $TEXT, _INLINES ].flat(),
-    DEL:        [ $TEXT, _INLINES ].flat(),
-    INS:        [ $TEXT, _INLINES ].flat(),
-    SUB:        [ $TEXT, _INLINES ].flat(),
-    SUP:        [ $TEXT, _INLINES ].flat(),
-    MARK:       [ $TEXT, _INLINES ].flat(),
+    CITE:       [ $TEXT, _INLINES ],
+    SMALL:      [ $TEXT, _INLINES ],
+    DEL:        [ $TEXT, _INLINES ],
+    INS:        [ $TEXT, _INLINES ],
+    SUB:        [ $TEXT, _INLINES ],
+    SUP:        [ $TEXT, _INLINES ],
+    MARK:       [ $TEXT, _INLINES ],
     CODE:       [ $TEXT, B, I ],
     ORZ:        [ $TEXT ],
     DFN:        [ $TEXT, ABBR ],
-    SAMP:       [ $TEXT, _INLINES ].flat(),
+    SAMP:       [ $TEXT, _INLINES ],
     KBD:        [ $TEXT ],
-    S:          [ $TEXT, _INLINES ].flat(),
-    U:          [ $TEXT, _INLINES ].flat(),
+    S:          [ $TEXT, _INLINES ],
+    U:          [ $TEXT, _INLINES ],
     VAR:        [ $TEXT ],
-    BDO:        [ $TEXT, _INLINES ].flat(),
+    BDO:        [ $TEXT, _INLINES ],
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    P:          [ $TEXT, _INLINES ].flat(),
-    NOTE:       [ $TEXT, _INLINES ].flat(),
-    TIPS:       [ $TEXT, _INLINES ].flat(),
-    PRE:        [ $TEXT, _INLINES ].flat(),
-    ADDRESS:    [ $TEXT, _INLINES ].flat(),
+    P:          [ $TEXT, _INLINES ],
+    NOTE:       [ $TEXT, _INLINES ],
+    TIPS:       [ $TEXT, _INLINES ],
+    PRE:        [ $TEXT, _INLINES ],
+    ADDRESS:    [ $TEXT, _INLINES ],
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    H1:         [ $TEXT, _INLINES, I ].flat(),
-    H2:         [ $TEXT, _INLINES, I ].flat(),
-    H3:         [ $TEXT, _INLINES, I ].flat(),
-    H4:         [ $TEXT, _INLINES, I ].flat(),
-    H5:         [ $TEXT, _INLINES, I ].flat(),
-    H6:         [ $TEXT, _INLINES, I ].flat(),
-    SUMMARY:    [ $TEXT, _INLINES ].flat(),
-    FIGCAPTION: [ $TEXT, _INLINES ].flat(),
-    CAPTION:    [ $TEXT, _INLINES ].flat(),
-    LI:         [ $TEXT, _INLINES ].flat(),
-    DT:         [ $TEXT, _INLINES, I ].flat(),
-    DD:         [ $TEXT, _INLINES ].flat(),
-    TH:         [ $TEXT, _INLINES ].flat(),
-    TD:         [ $TEXT, _INLINES ].flat(),
+    H1:         [ $TEXT, _INLINES, I ],
+    H2:         [ $TEXT, _INLINES, I ],
+    H3:         [ $TEXT, _INLINES, I ],
+    H4:         [ $TEXT, _INLINES, I ],
+    H5:         [ $TEXT, _INLINES, I ],
+    H6:         [ $TEXT, _INLINES, I ],
+    SUMMARY:    [ $TEXT, _INLINES ],
+    FIGCAPTION: [ $TEXT, _INLINES ],
+    CAPTION:    [ $TEXT, _INLINES ],
+    LI:         [ $TEXT, _INLINES ],
+    DT:         [ $TEXT, _INLINES, I ],
+    DD:         [ $TEXT, _INLINES ],
+    TH:         [ $TEXT, _INLINES ],
+    TD:         [ $TEXT, _INLINES ],
     CODELI:     [ CODE ],
     ALI:        [ A ],
     AH4LI:      [ A ],
@@ -455,17 +455,17 @@ const ChildTypes = {
     THEAD:      [ TR ],
     TBODY:      [ TR ],
     TFOOT:      [ TR ],
-    CONSECT:    [ _BLOCKITS ].flat(),
+    CONSECT:    [ _BLOCKITS ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
     HGROUP:     [ H2, H1 ],
-    ABSTRACT:   [ P, H3, _BLOLIMIT ].flat(),
+    ABSTRACT:   [ P, H3, _BLOLIMIT ],
     TOC:        [ H3, CASCADE ],
     SEEALSO:    [ LI ],
     REFERENCE:  [ LI ],
-    HEADER:     [ P, H3, _BLOLIMIT ].flat(),
-    FOOTER:     [ P, H3, _BLOLIMIT, ADDRESS ].flat(),
+    HEADER:     [ P, H3, _BLOLIMIT ],
+    FOOTER:     [ P, H3, _BLOLIMIT, ADDRESS ],
     ARTICLE:    [ HEADER, S1, FOOTER ],
     S1:         [ H2, HEADER, S2, FOOTER ],
     S2:         [ H2, HEADER, S3, FOOTER ],
@@ -481,14 +481,19 @@ const ChildTypes = {
     DL:         [ DT, DD ],
     TABLE:      [ CAPTION, THEAD, TBODY, TFOOT ],
     FIGURE:     [ FIGCAPTION, IMGP ],
-    BLOCKQUOTE: [ P, H3, _BLOLIMIT, TABLE ].flat(),
-    ASIDE:      [ P, H3, _BLOLIMIT, TABLE ].flat(),
-    DETAILS:    [ P, SUMMARY, _BLOLIMIT, TABLE ].flat(),
+    BLOCKQUOTE: [ P, H3, _BLOLIMIT, TABLE ],
+    ASIDE:      [ P, H3, _BLOLIMIT, TABLE ],
+    DETAILS:    [ P, SUMMARY, _BLOLIMIT, TABLE ],
     CODEBLOCK:  [ CODE ],
     // 单体单元
     HR:         [],
     BLANK:      [],
 };
+
+// 配置展开。
+$.each(
+    ChildTypes, (v, k, o) => o[k] = v && v.flat()
+);
 
 
 //
