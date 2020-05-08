@@ -120,7 +120,7 @@ export class Loader {
      * 如果数据已经完全获取，可以清空以节省内存。
      */
     clear() {
-        this._pool.clear();
+        return this._pool.clear(), this;
     }
 
 

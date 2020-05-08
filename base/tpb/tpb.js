@@ -154,6 +154,9 @@ if (DEBUG) {
             // 先插入以保留原始顺序。
             files.forEach( f => _buf.set(f, null) );
 
+            // 重置。
+            XLoader.clear();
+
             Promise.all(
                 files.map( f =>
                     XLoader.node(`${Web.tpldir}/${f}`)
