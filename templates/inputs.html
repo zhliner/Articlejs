@@ -591,6 +591,16 @@
     <li tpl-node="prop:upload, prop:preview"></li>
 </ul>
 
+<!-- 图形（svg） -->
+<div class="_prop" tpl-name="inlines:svg">
+    <hr tpl-node="prop:svg" />
+</div>
+
+<!-- 数据图片（data:image/...） -->
+<div class="_prop" tpl-name="inlines:dataimg">
+    <hr tpl-node="prop:dataimg" />
+</div>
+
 <!-- 链接 -->
 <ul class="_prop" tpl-name="inlines:a">
     <li tpl-node="prop:textrow"></li>
@@ -747,8 +757,18 @@
         <hr tpl-node="inlines:img" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:dataimg">
+    <div class="_main _list">
+        <hr tpl-node="inlines:dataimg" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -759,8 +779,7 @@
         <hr tpl-node="inlines:audio" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -771,8 +790,7 @@
         <hr tpl-node="inlines:video" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -783,8 +801,18 @@
         <hr tpl-node="inlines:picture" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:svg">
+    <div class="_main _list">
+        <hr tpl-node="inlines:svg" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -795,8 +823,7 @@
         <hr tpl-node="inlines:a" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -807,8 +834,7 @@
         <hr tpl-node="inlines:code" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -879,8 +905,7 @@
         <hr tpl-node="inlines:times" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -915,8 +940,7 @@
         <hr tpl-node="inlines:abbr" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -963,8 +987,7 @@
         <hr tpl-node="inlines:ruby" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -978,8 +1001,7 @@
         <hr tpl-node="inlines:ruby" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -990,8 +1012,7 @@
         <hr tpl-node="inlines:orz" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -1026,8 +1047,7 @@
         <hr tpl-node="inlines:kbd" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -1038,8 +1058,7 @@
         <hr tpl-node="inlines:meter" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -1074,8 +1093,7 @@
         <hr tpl-node="inlines:var" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -1098,8 +1116,7 @@
         <hr tpl-node="inlines:br" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -1110,8 +1127,7 @@
         <hr tpl-node="inlines:wbr" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>
@@ -1122,8 +1138,7 @@
         <hr tpl-node="inlines:space" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:insert2">
             [插入2]
         </pre>
     </aside>

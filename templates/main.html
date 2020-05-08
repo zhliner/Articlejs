@@ -21,7 +21,7 @@
     <div id="tools-active" class="_active _icons" data-pb="">
         <hr>
         <b title="文本化"><i id="b-totext"></i></b>
-        <b title="去除标签"><i id="b-untag"></i></b>
+        <b title="内容提升"><i id="b-conup"></i></b>
         <hr>
         <b title="撤消"><i id="b-undo"></i></b>
         <b title="重做" data-pb="disabled"><i id="b-redo"></i></b>
@@ -80,14 +80,15 @@
         </menu>
         <!-- 上下文菜单 -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
-            <li data-val="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
+            <li data-op="abspos" class="_fixed"><b id="l-abspos">定位</b><kbd></kbd></li>
+            <li data-op="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
             <hr>
-            <li data-val="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
-            <li data-val="move"><b id="l-move">剪切/移动</b><kbd>x/X</kbd></li>
+            <li data-op="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>
+            <li data-op="move"><b id="l-move">剪切/移动</b><kbd>x/X</kbd></li>
             <hr>
-            <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
+            <li data-op="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
             <hr>
-            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+            <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内容区 -->
         <main id="content" class="content"

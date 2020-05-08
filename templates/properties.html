@@ -1,6 +1,11 @@
-<!-- 单元属性：
-    - 可由上下文菜单中的“属性”条目激发。
-    - 或插入内联元素时作为单元属性供设置和录入。 -->
+<!--单元属性：（property:xxx）
+    由上下文菜单中的“属性”条目激发。
+----------------------------------------------------------------------------->
+
+
+
+<!-- 单元属性条目：（prop:xxx）
+----------------------------------------------------------------------------->
 
 <li tpl-name="prop:thick">
     <b title="CSS: border-width">厚度</b>
@@ -269,3 +274,11 @@
 
 <!-- 适用：代码块/代码表/颜文字 -->
 <textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:codes"></textarea>
+
+<!-- 适用：<svg> -->
+<textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:svg"
+    placeholder="<svg>...</svg>"></textarea>
+
+<!-- 适用：data:image/... -->
+<textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:dataimg"
+    placeholder="data:image/png;base64,..."></textarea>
