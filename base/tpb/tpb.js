@@ -27,7 +27,7 @@ import { By, extend, App } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
 import { Builder } from "./core.js";
-import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader } from "./config.js";
+import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader, Web } from "./config.js";
 
 // 无需模板支持。
 // import { Templater } from "./tools/templater.x.js";
@@ -156,38 +156,38 @@ if (DEBUG) {
 
             Promise.all(
                 files.map( f =>
-                    TLoader.fetch(f)
+                    XLoader.node(`${Web.tpldir}/${f}`)
                     .then( frag => $.find('[tpl-name]', frag).map(el => $.attr(el, 'tpl-name')) )
                     .then( ns => _buf.set(f, sort ? orderList(ns) : ns) )
                 )
             ).then(
                 () => tplsOuts(_buf)
             );
-        }
+        },
     };
 
-
-    // 输出配置对象。
-    function tplsOuts( map ) {
-        let _obj = {};
-        for (const [f, vs] of map) _obj[f] = vs;
-
-        window.console.info( JSON.stringify(_obj, null, '\t') );
-    }
+}
 
 
-    // 有序清单（标记重复）。
-    function orderList( vals ) {
-        let _p;
-        return vals.sort().map(
-            (v, i) => {
-                let _v = v === _p ? `[__REPEATED__]: ${v}` : v;
-                _p = v;
-                return _v;
-            }
-        );
-    }
+// 输出配置对象。
+function tplsOuts( map ) {
+    let _obj = {};
+    for (const [f, vs] of map) _obj[f] = vs;
 
+    window.console.info( JSON.stringify(_obj, null, '\t') );
+}
+
+
+// 有序清单（标记重复）。
+function orderList( vals ) {
+    let _p;
+    return vals.sort().map(
+        v => {
+            let _v = v === _p ? `[__REPEATED__]: ${v}` : v;
+            _p = v;
+            return _v;
+        }
+    );
 }
 
 
