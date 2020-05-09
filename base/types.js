@@ -54,6 +54,8 @@ const
 
 //
 // 单元值定义。
+// 用于标识单元元素的类型，便于简单高效地判断（而非每次都作复杂的检查）。
+//
 // - 内联结构元素：     [0, 99]     不能包含文本或其它内联单元，有固定的内部结构或空结构。
 // - 内联内结构元素：   [100, 199]  其它内联结构元素的内部成员，自身不是独立的内联单元。可能为内容元素。
 // - 内联内容元素：     [200, 299]  可直接包含文本或其它内联单元。
@@ -675,10 +677,103 @@ $.each(
 );
 
 
+//
+// 内联元素集。
+// 用于判断并提取合法的内联元素。
+//
+const InlineTags = new Set([
+    'audio',
+    'video',
+    'picture',
+    'a',
+    'strong',
+    'em',
+    'q',
+    'abbr',
+    'cite',
+    'small',
+    'time',
+    'del',
+    'ins',
+    'sub',
+    'sup',
+    'mark',
+    'code',
+    'ruby',
+    'dfn',
+    'samp',
+    'kbd',
+    's',
+    'u',
+    'var',
+    'bdo',
+    'meter',
+    'img',
+    'br',
+    'wbr',
+    'span',
+    'b',
+    'i',
+]);
+
+
+//
+// 逻辑内容单元名
+// 用于判断role值是否为逻辑单元名。
+//
+const LogicRoles = new Set([
+    'abstract',
+    'toc',
+    'seealso',
+    'reference',
+    's1',
+    's2',
+    's3',
+    's4',
+    's5',
+    'codelist',
+    'ulx',
+    'olx',
+    'cascade',
+    'codeblock',
+    'note',
+    'tips',
+    'blank',
+    'orz',
+    'space',
+]);
+
+
 
 //
 // 工具函数
 ///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 获取元素类型值。
+ * 注：仅处理文本节点和元素。
+ * @param  {Element|Text} el 目标节点
+ * @return {Number}
+ */
+function getType( el ) {
+    if ( el.nodeType == 3 ) {
+        return $TEXT;
+    }
+}
+
+
+/**
+ * 获取目标元素的内容。
+ * 仅限非空文本节点和内联节点。
+ * @param  {Element|Text} el 目标节点
+ * @return {[Node]}
+ */
+function inlineContents( el ) {
+    if ( el.nodeType == 3 ) {
+        return el;
+    }
+}
+
 
 
 /**

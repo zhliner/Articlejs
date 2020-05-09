@@ -24,13 +24,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { isConItems } from "./types.js";
+import * as T from "./types.js";
 
 
 const $ = window.$;
 
 
 const
+    // 单元类型存储键。
+    __cellType = Symbol('cell-type'),
+
+
+
     // 片区标题选择器。
     __hxSlr = 'h2,h3,h4,h5,h6',
 
