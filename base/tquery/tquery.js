@@ -1621,11 +1621,8 @@ Object.assign( tQuery, {
         if ( hookIsGet(names, value) ) {
             return hookGets( el, names, elemAttr );
         }
-        if ( value === null ) {
-            removeAttrs( el, names );
-        } else {
-            hookSets( el, names, value, elemAttr );
-        }
+        hookSets( el, names, value, elemAttr );
+
         return this;
     },
 
@@ -1641,17 +1638,15 @@ Object.assign( tQuery, {
      */
     xattr( el, name ) {
         let _its;
-        name = name.split(__reSpace)
-            .map( n => attrName(n) );
+        name = name.split(__reSpace).map( n => attrName(n) );
 
-        if ( name.length > 1 ) {
-            _its = name.reduce( (o, n) => (o[n] = elemAttr.get(el, n), o), {} );
-            removeAttrs( el, name );
-        }
-        else {
+        if ( name.length == 1 ) {
             _its = elemAttr.get( el, name[0] );
-            removeAttr( el, name[0] );
+        } else {
+            _its = name.reduce( (o, n) => (o[n] = elemAttr.get(el, n), o), {} );
         }
+        name.forEach( n => removeAttr(el, n) );
+
         return _its;
     },
 
@@ -1711,14 +1706,9 @@ Object.assign( tQuery, {
         if ( isFunc(name) ) {
             name = name(el);
         }
-        if ( __reSpace.test(name) ) {
-            removeAttrs(
-                el,
-                name.split(__reSpace).map( n => attrName(n) )
-            );
-        } else {
-            removeAttr( el, attrName(name) );
-        }
+        name.split(__reSpace)
+        .forEach( n => removeAttr(el, attrName(n)) );
+
         return this;
     },
 
@@ -5463,25 +5453,6 @@ function removeAttr( el, name ) {
     limitTrigger( el, evnAttrSet, [name, null] );
     el.removeAttribute( name );
     limitTrigger( el, evnAttrDone, [name, _val] );
-}
-
-
-/**
- * 移除特性集。
- * 事件递送消息中名称和值各为一个数组，按下标一一对应。
- * @param  {Element} el 目标元素
- * @param  {[String]} names 特性名序列
- * @return {void}
- */
-function removeAttrs( el, names ) {
-    let _vs = names.map(
-            n => el.getAttribute( n )
-        );
-    limitTrigger( el, evnAttrSet, [names, null] );
-    names.forEach(
-        n => el.removeAttribute( n )
-    );
-    limitTrigger( el, evnAttrDone, [names, _vs] );
 }
 
 
