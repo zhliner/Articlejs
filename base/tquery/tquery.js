@@ -1581,11 +1581,8 @@ Object.assign( tQuery, {
         if ( value === undefined ) {
             return customGet( el, name, elemAttr );
         }
-        if ( value === null ) {
-            removeAttr( el, name );
-        } else {
-            hookSet( el, name, value, elemAttr );
-        }
+        hookSet( el, name, value, elemAttr );
+
         return this;
     },
 
@@ -6021,14 +6018,16 @@ const elemAttr = {
      * 设置特性。
      * - 部分属性为Boolean性质，特别处理（boolHook）。
      * - 特性名可能为data系简写形式。
-     * - 如果value为null，则删除该特性。
+     * - 如果value为null，则删除该特性（二次把关，批量操作时）。
      * @param {Element} el 目标元素
      * @param {String} name 特性名
      * @param {VAlue} value 设置值
      */
     set( el, name, value ) {
-        return boolAttr.test(name) ?
-            boolHook.set(el, name, value) : setAttr(el, name, value);
+        if ( value === null ) {
+            return removeAttr( el, name );
+        }
+        return boolAttr.test(name) ? boolHook.set(el, name, value) : setAttr(el, name, value);
     },
 
 };
