@@ -1523,6 +1523,38 @@ const __uiState = [ '-', '', '^' ];
 
 
 //
+// 状态判断。
+// @return {Boolean|[Boolean]}
+//-------------------------------------
+[
+    'hidden',
+    'lost',
+    'disabled',
+    'folded',
+    'truncated',
+    'fulled',
+]
+.forEach(function( name ) {
+
+    // 单元素版。
+    _Gets[name] = function( evo ) {
+        return Util.pbo( evo.data ).includes(name);
+    };
+
+    _Gets[`__${name}`] = 1;
+
+
+    // 集合版。
+    _arrayGets[name] = function( evo ) {
+        return evo.data.map( el => Util.pbo(el).includes(name) );
+    };
+
+    _arrayGets[`__${name}`] = 1;
+
+});
+
+
+//
 // 节点封装。
 // 目标：暂存区/栈顶1项。
 // wrap目标可以为元素或文本内容。

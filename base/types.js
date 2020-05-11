@@ -1,8 +1,8 @@
-//! $Id: types.js 2019.10.09 Articlejs.Libs $
+//! $Id: types.js 2020.05.09 Articlejs.Libs $
 // ++++++++++++++++++++++++++++++++++++++++++++
 // 	Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
+// 	Copyright (c) 2019 - 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -17,10 +17,10 @@ const $ = window.$;
 //
 // 分类定义：
 // 0. 特别类型。存在但不归类（如：<b>,<i>）。
-// 1. 结构元素。包含固定逻辑的子元素。
-// 2. 内容元素。可包含文本节点和内联单元。
-// 3. 内联单元。独立内容单元。
-// 4. 行块单元。独立内容单元。
+// 1. 结构元素。包含固定结构的子元素，插入需合法。
+// 2. 内容元素。可包含非空文本节点和内联单元。
+// 3. 内联单元。可作为内容行独立内容（逻辑完整）的单元。
+// 4. 行块单元。可作为内容片区独立行块内容的单元。
 //
 // 特性标记：
 // 0. EMPTY   空元素（单标签）
@@ -29,13 +29,13 @@ const $ = window.$;
 // 3. TBLCELL 表格单元元件：{<th>|<td>}
 // 4. DLITEM  定义列表项：  {<dt>|<dd>}
 // 5. LIST    普通列表（子项由<li>封装）：{<ol>|<ul>|...}
-// 6. SEALED  密封单元，可对原成员修改内容但不接受新插入。
+// 6. SEALED  密封单元，可对原成员内容作修改但不接受新插入。
 // 7. SECTED  分级片区，有内容互斥约束（S1-5|CONSECT）
 //
 // 注记：
 // 移动判断处理：若非固定，相同者可互换或并列（否则取内容）。
 //
-const
+export const
     TEXT    = 0,        // 文本节点
     PURPOSE = 1,        // 特殊用途
     STRUCT  = 1 << 1,   // 结构元素
@@ -93,9 +93,7 @@ export const
     RT          = 103,  // 注音拼音
     RP          = 104,  // 注音拼音包围
     SPAN        = 105,  // 插图讲解
-    // 抽象：
-    // 用于插入完整的单元组。
-    RBPT        = 106,  // 注音内容封装
+    RBPT        = 106,  // 注音分组封装（抽象：用于包含多组注音）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -146,20 +144,21 @@ export const
     DD          = 411,  // 定义列表数据
     TH          = 412,  // 表头单元格
     TD          = 413,  // 单元格
-    CODELI      = 414,  // 代码表条目（li/code）
-    ALI         = 415,  // 目录表普通条目（li/a）
-    AH4LI       = 416,  // 目录表标题条目（li/h4/a）
-    ULXH4LI     = 417,  // 无序级联表项标题（li/h4, ol|ul）
-    OLXH4LI     = 418,  // 有序级联表项标题（li/h4, ul|ol）
-    CASCADEH4LI = 419,  // 级联编号表项标题（li/h4, ol）
-    IMGP        = 420,  // 插图内容区（p/img...）
-    TR          = 421,  // 表格行
-    THEAD       = 422,  // 表头
-    TBODY       = 423,  // 表体
-    TFOOT       = 424,  // 表脚
-    // 抽象：
-    // 与 S1-S5 互斥存在。
-    CONSECT     = 425,  // 内容片区
+    TR          = 414,  // 表格行
+    THEAD       = 415,  // 表头
+    TBODY       = 416,  // 表体
+    TFOOT       = 417,  // 表脚
+    CONSECT     = 418,  // 内容片区（抽象：与 S1-S5 互斥存在）
+    // 定制类：
+    // 容器：<li>, <p>, <h4>
+    CODELI      = 419,  // 代码表条目（li/code）
+    ALI         = 420,  // 目录：普通条目（li/a）
+    AH4LI       = 421,  // 目录：标题条目（li/h4/a）
+    AH4         = 422,  // 目录：链接小标题（h4/a）
+    ULXH4LI     = 423,  // 无序级联表项标题（li/h4, ol|ul）
+    OLXH4LI     = 424,  // 有序级联表项标题（li/h4, ul|ol）
+    CASCADEH4LI = 425,  // 级联编号表项标题（li/h4, ol）
+    FIGIMGP     = 426,  // 插图内容区（p/img, span）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -206,7 +205,7 @@ export const
 // 单元的类型/特性。
 // 注：空元素也是密封的（简化处理逻辑）。
 //
-const Types = {
+export const Types = {
     [ $TEXT ]:      TEXT,
     //
     // 内联结构元素
@@ -231,7 +230,7 @@ const Types = {
     [ RB ]:         STRUCT | CONTENT,
     [ RT ]:         STRUCT | CONTENT,
     [ RP ]:         STRUCT | SEALED,
-    [ RBPT ]:       STRUCT | SEALED,    // 抽象单元
+    [ RBPT ]:       null, // 抽象单元
     [ SPAN ]:       STRUCT | CONTENT,   // figure/p/img,span
     //
     // 内联内容元素
@@ -283,18 +282,21 @@ const Types = {
     [ DD ]:         STRUCT | CONTENT | DLITEM,
     [ TH ]:         STRUCT | CONTENT | TBLCELL,
     [ TD ]:         STRUCT | CONTENT | TBLCELL,
-    [ CODELI ]:     STRUCT | SEALED,
-    [ ALI ]:        STRUCT | SEALED,
-    [ AH4LI ]:      STRUCT | SEALED,
-    [ ULXH4LI ]:    STRUCT | SEALED,
-    [ OLXH4LI ]:    STRUCT | SEALED,
-    [ CASCADEH4LI ]: STRUCT | SEALED,
-    [ IMGP ]:       STRUCT | SEALED,
     [ TR ]:         STRUCT | SEALED, // 表格列不能单独改变
     [ THEAD ]:      STRUCT | TBLSECT,
     [ TBODY ]:      STRUCT | TBLSECT,
     [ TFOOT ]:      STRUCT | TBLSECT,
-    [ CONSECT ]:    STRUCT, // 抽象单元
+    [ CONSECT ]:    null, // 抽象单元
+
+    [ CODELI ]:     STRUCT | SEALED,
+    [ ALI ]:        STRUCT | SEALED,
+    [ AH4LI ]:      STRUCT | SEALED,
+    [ AH4 ]:        STRUCT | SEALED,
+    [ ULXH4LI ]:    STRUCT | SEALED,
+    [ OLXH4LI ]:    STRUCT | SEALED,
+    [ CASCADEH4LI ]: STRUCT | SEALED,
+    [ FIGIMGP ]:    STRUCT | SEALED,
+
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -318,8 +320,8 @@ const Types = {
     [ OLX ]:        BLOCKS | STRUCT | LIST,
     [ CASCADE ]:    BLOCKS | STRUCT | LIST,
     [ DL ]:         BLOCKS | STRUCT,
-    [ TABLE ]:      BLOCKS | STRUCT | SEALED, // 支持多<tbody>自由插入
-    [ FIGURE ]:     BLOCKS | STRUCT | SEALED,
+    [ TABLE ]:      BLOCKS | STRUCT, // 支持多<tbody>
+    [ FIGURE ]:     BLOCKS | STRUCT, // 支持多<p/img,span>
     [ BLOCKQUOTE ]: BLOCKS | STRUCT,
     [ ASIDE ]:      BLOCKS | STRUCT,
     [ DETAILS ]:    BLOCKS | STRUCT,
@@ -338,12 +340,14 @@ const Types = {
 
 //
 // 内联单元集。
-// 注：用于子单元批量引入。
+// 注：不含<a>单元，不含<b><i>单元。
 //
 const _INLINES =
 [
-    AUDIO, VIDEO, PICTURE, IMG, RUBY, TIME, METER, BR, WBR, SPACE,
-    A, STRONG, EM, Q, ABBR, CITE, SMALL, DEL, INS, SUB, SUP, MARK, CODE, ORZ, DFN, SAMP, KBD, S, U, VAR, BDO,
+    AUDIO, VIDEO, PICTURE, IMG, SVG,
+    STRONG, EM, Q, ABBR, CITE, SMALL, DEL, INS, SUB, SUP, MARK, CODE, ORZ, DFN, SAMP, KBD, S, U, VAR, BDO,
+    BR, WBR,
+    RUBY, TIME, METER, SPACE,
 ];
 
 
@@ -381,7 +385,7 @@ const _BLOCKITS =
 // - 取父容器可判断平级插入时的合法单元。
 // - 首个成员为默认构造单元（如果可行）。
 //
-const ChildTypes = {
+export const ChildTypes = {
     //
     // 内联结构元素。
     // 如果包含文本，插入方式有较强约束（如创建时）。
@@ -408,65 +412,66 @@ const ChildTypes = {
     [ RB ]:         [ $TEXT ],
     [ RT ]:         [ $TEXT ],
     [ RP ]:         [ $TEXT ],
-    [ SPAN ]:       [ $TEXT, _INLINES ],
+    [ SPAN ]:       [ $TEXT, _INLINES, A ], // 插图讲解
     [ RBPT ]:       [ RB, RT, RP ],
     //
     // 内联内容元素
     /////////////////////////////////////////////
     [ A ]:          [ $TEXT, _INLINES ],
-    [ STRONG ]:     [ $TEXT, _INLINES ],
-    [ EM ]:         [ $TEXT, _INLINES ],
-    [ Q ]:          [ $TEXT, _INLINES ],
+    [ STRONG ]:     [ $TEXT, _INLINES, A ],
+    [ EM ]:         [ $TEXT, _INLINES, A ],
+    [ Q ]:          [ $TEXT, _INLINES, A ],
     [ ABBR ]:       [ $TEXT ],
-    [ CITE ]:       [ $TEXT, _INLINES ],
-    [ SMALL ]:      [ $TEXT, _INLINES ],
-    [ DEL ]:        [ $TEXT, _INLINES ],
-    [ INS ]:        [ $TEXT, _INLINES ],
+    [ CITE ]:       [ $TEXT, _INLINES, A ],
+    [ SMALL ]:      [ $TEXT, _INLINES, A ],
+    [ DEL ]:        [ $TEXT, _INLINES, A ],
+    [ INS ]:        [ $TEXT, _INLINES, A ],
     [ SUB ]:        [ $TEXT, _INLINES ],
     [ SUP ]:        [ $TEXT, _INLINES ],
     [ MARK ]:       [ $TEXT, _INLINES ],
     [ CODE ]:       [ $TEXT, B, I ],
     [ ORZ ]:        [ $TEXT ],
     [ DFN ]:        [ $TEXT, ABBR ],
-    [ SAMP ]:       [ $TEXT, _INLINES ],
+    [ SAMP ]:       [ $TEXT, _INLINES, A ],
     [ KBD ]:        [ $TEXT ],
-    [ S ]:          [ $TEXT, _INLINES ],
-    [ U ]:          [ $TEXT, _INLINES ],
+    [ S ]:          [ $TEXT, _INLINES, A ],
+    [ U ]:          [ $TEXT, _INLINES, A ],
     [ VAR ]:        [ $TEXT ],
-    [ BDO ]:        [ $TEXT, _INLINES ],
+    [ BDO ]:        [ $TEXT, _INLINES, A ],
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    [ P ]:          [ $TEXT, _INLINES ],
-    [ NOTE ]:       [ $TEXT, _INLINES ],
-    [ TIPS ]:       [ $TEXT, _INLINES ],
-    [ PRE ]:        [ $TEXT, _INLINES ],
-    [ ADDRESS ]:    [ $TEXT, _INLINES ],
+    [ P ]:          [ $TEXT, _INLINES, A ],
+    [ NOTE ]:       [ $TEXT, _INLINES, A ],
+    [ TIPS ]:       [ $TEXT, _INLINES, A ],
+    [ PRE ]:        [ $TEXT, _INLINES, A ],
+    [ ADDRESS ]:    [ $TEXT, _INLINES, A ],
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    [ H1 ]:         [ $TEXT, _INLINES, I ],
-    [ H2 ]:         [ $TEXT, _INLINES, I ],
-    [ H3 ]:         [ $TEXT, _INLINES, I ],
-    [ H4 ]:         [ $TEXT, _INLINES, I ],
-    [ H5 ]:         [ $TEXT, _INLINES, I ],
-    [ H6 ]:         [ $TEXT, _INLINES, I ],
-    [ SUMMARY ]:    [ $TEXT, _INLINES ],
-    [ FIGCAPTION ]: [ $TEXT, _INLINES ],
-    [ CAPTION ]:    [ $TEXT, _INLINES ],
-    [ LI ]:         [ $TEXT, _INLINES ],
-    [ DT ]:         [ $TEXT, _INLINES, I ],
-    [ DD ]:         [ $TEXT, _INLINES ],
-    [ TH ]:         [ $TEXT, _INLINES ],
-    [ TD ]:         [ $TEXT, _INLINES ],
+    [ H1 ]:         [ $TEXT, _INLINES, A, I ],
+    [ H2 ]:         [ $TEXT, _INLINES, A, I ],
+    [ H3 ]:         [ $TEXT, _INLINES, A, I ],
+    [ H4 ]:         [ $TEXT, _INLINES, A, I ],
+    [ H5 ]:         [ $TEXT, _INLINES, A, I ],
+    [ H6 ]:         [ $TEXT, _INLINES, A, I ],
+    [ SUMMARY ]:    [ $TEXT, _INLINES, A ],
+    [ FIGCAPTION ]: [ $TEXT, _INLINES, A ],
+    [ CAPTION ]:    [ $TEXT, _INLINES, A ],
+    [ LI ]:         [ $TEXT, _INLINES, A ],
+    [ DT ]:         [ $TEXT, _INLINES, A, I ],
+    [ DD ]:         [ $TEXT, _INLINES, A ],
+    [ TH ]:         [ $TEXT, _INLINES, A ],
+    [ TD ]:         [ $TEXT, _INLINES, A ],
     [ CODELI ]:     [ CODE ],
     [ ALI ]:        [ A ],
-    [ AH4LI ]:      [ A ],
+    [ AH4LI ]:      [ AH4 ],
+    [ AH4 ]:        [ A ],
     [ ULXH4LI ]:    [ OL, H4, UL ],
     [ OLXH4LI ]:    [ UL, H4, OL ],
     [ CASCADEH4LI ]: [ H4, OL ],
-    [ IMGP ]:       [ IMG, SPAN ],
+    [ FIGIMGP ]:    [ IMG, SPAN ],
     [ TR ]:         [ TH, TD ],
     [ THEAD ]:      [ TR ],
     [ TBODY ]:      [ TR ],
@@ -496,7 +501,7 @@ const ChildTypes = {
     [ CASCADE ]:    [ LI, CASCADEH4LI ],
     [ DL ]:         [ DT, DD ],
     [ TABLE ]:      [ CAPTION, THEAD, TBODY, TFOOT ],
-    [ FIGURE ]:     [ FIGCAPTION, IMGP ],
+    [ FIGURE ]:     [ FIGCAPTION, FIGIMGP ],
     [ BLOCKQUOTE ]: [ P, H3, _BLOLIMIT, TABLE ],
     [ ASIDE ]:      [ P, H3, _BLOLIMIT, TABLE ],
     [ DETAILS ]:    [ P, SUMMARY, _BLOLIMIT, TABLE ],
@@ -504,6 +509,12 @@ const ChildTypes = {
     // 单体单元
     [ HR ]:         [],
     [ BLANK ]:      [],
+
+    //
+    // 特别单元
+    /////////////////////////////////////////////
+    [ B ]:          [ $TEXT ],
+    [ I ]:          [ $TEXT ],
 };
 
 // 配置展开。
@@ -519,7 +530,7 @@ $.each(
 // 上下文菜单中“属性”条目匹配的模板。
 // 注：不是所有的单元都有属性可编辑。
 //
-const PropItems = {
+export const PropItems = {
     [ AUDIO ]:      'audio',    // source, track, text
     [ VIDEO ]:      'video',    // 同上
     [ PICTURE ]:    'picture',  // source, img
@@ -546,7 +557,6 @@ const PropItems = {
     [ BLANK ]:      'blank',    // width, height
 };
 
-
 //
 // 全名补全（前置 property:）
 //
@@ -561,7 +571,7 @@ $.each(
 // }
 // 普通插入模式下关联条目的 选单=>模板名 映射。
 //
-const InputOption = {
+export const InputOption = {
     [ $TEXT ]:      'text',
     [ AUDIO ]:      'audio',
     [ VIDEO ]:      'video',
@@ -628,6 +638,7 @@ const InputOption = {
     [ CODELI ]:     'codeli',
     [ ALI ]:        'ali',
     [ AH4LI ]:      'ah4li',
+    [ AH4 ]:        'ah4',
     [ ULXH4LI ]:    'ulxh4li',
     [ OLXH4LI ]:    'olxh4li',
     [ CASCADEH4LI ]: 'cascadeh4li',
@@ -668,437 +679,9 @@ const InputOption = {
     [ BLANK ]:      'blank',
 };
 
-
 //
 // 全名补全（前置 option:）
 //
 $.each(
     InputOption, (v, k, o) => o[k] = `option:${v}`
 );
-
-
-//
-// 内联元素集。
-// 用于判断并提取合法的内联元素。
-//
-const InlineTags = new Set([
-    'audio',
-    'video',
-    'picture',
-    'a',
-    'strong',
-    'em',
-    'q',
-    'abbr',
-    'cite',
-    'small',
-    'time',
-    'del',
-    'ins',
-    'sub',
-    'sup',
-    'mark',
-    'code',
-    'ruby',
-    'dfn',
-    'samp',
-    'kbd',
-    's',
-    'u',
-    'var',
-    'bdo',
-    'meter',
-    'img',
-    'br',
-    'wbr',
-    'span',
-    'b',
-    'i',
-]);
-
-
-//
-// 逻辑内容单元名
-// 用于判断role值是否为逻辑单元名。
-//
-const LogicRoles = new Set([
-    'abstract',
-    'toc',
-    'seealso',
-    'reference',
-    's1',
-    's2',
-    's3',
-    's4',
-    's5',
-    'codelist',
-    'ulx',
-    'olx',
-    'cascade',
-    'codeblock',
-    'note',
-    'tips',
-    'blank',
-    'orz',
-    'space',
-]);
-
-
-
-//
-// 工具函数
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- * 获取元素类型值。
- * 注：仅处理文本节点和元素。
- * @param  {Element|Text} el 目标节点
- * @return {Number}
- */
-function getType( el ) {
-    if ( el.nodeType == 3 ) {
-        return $TEXT;
-    }
-}
-
-
-/**
- * 获取目标元素的内容。
- * 仅限非空文本节点和内联节点。
- * @param  {Element|Text} el 目标节点
- * @return {[Node]}
- */
-function inlineContents( el ) {
-    if ( el.nodeType == 3 ) {
-        return el;
-    }
-}
-
-
-
-/**
- * 测试并返回<li>支持的几种类型。
- * @param  {Element} li 列表项元素
- * @return {String} Codeli|Cascadeli|Li
- */
-function customLi( li ) {
-    // codelist: li/code/
-    if ( isCodeli(li) ) return 'Codeli';
-
-    // cascade: li/h5, ol/
-    if ( isCascadeli(li) ) return 'Cascadeli';
-
-    if ( isTocItem(li) ) return 'Ali';
-
-    return 'Li';
-}
-
-
-/**
- * 测试并返回<h5>支持的两种类型。
- * @param {Element} h5 标题元素
- */
-function customH5( h5 ) {
-    return isH5a( h5 ) ? 'H5a' : 'H5';
-}
-
-
-/**
- * 转为首字母大写。
- * @param  {String} name 名称串
- * @return {String}
- */
-function camelCase( name ) {
-    return name[0].toUpperCase() + name.substring(1);
-}
-
-
-/**
- * 获取级联编号表根元素。
- * 仅对在级联编号表内的<ol>或<li>子元素有效。
- * 对于普通的级联表会非列表项元素返回null。
- * @param  {Element} el 起点元素
- * @return {Element|null}
- */
-function cascadeRoot( el ) {
-    let _prev = el;
-
-    while ( el ) {
-        let _n = el.nodeName.toLowerCase();
-        if ( _n != 'ol' && _n != 'li' ) {
-            break;
-        }
-        _prev = el;
-        el = el.parentElement;
-    }
-    return $.attr(_prev, 'role') == 'cascade' ? _prev : null;
-}
-
-
-/**
- * 测试是否在级联编号表内。
- * 主要用于插入时的目标判断并进行正确的处理。
- * @param  {Element} el 目标元素
- * @return {Boolean|null}
- */
-function inCascade( el ) {
-     return !!cascadeRoot( el );
-}
-
-
-/**
- * 是否在目录内。
- * @param  {Element} el 起点元素
- * @return {Boolean}
- */
-function inToc( el ) {
-    let _ol = cascadeRoot( el ),
-        _pe = _ol && _ol.parentElement;
-
-    return !!_pe && $.attr(_pe, 'role') == 'toc';
-}
-
-
-/**
- * 测试是否在代码表内。
- * 仅用于测试 <li> 和 <code> 元素。
- * 结构：codelist/li/code
- * @param  {Element} el 目标元素
- * @return {Boolean|null}
- */
-function inCodelist( el ) {
-    let _n = el.nodeName.toLowerCase();
-
-    if ( _n == 'code' ) {
-        el = el.parentElement;
-    }
-    return $.attr(el.parentElement, 'role') == 'codelist';
-}
-
-
-/**
- * 是否为内容件。
- * @param {String|Element} its 测试目标
- */
-function isConitem( its ) {
-    return CONTENT &
-        Types[ its.nodeType ? conName(its) : its ];
-}
-
-
-/**
- * 是否为代码列表项。
- * @param  {Element} li 列表项
- * @return {Boolean}
- */
-function isCodeli( li ) {
-    return li.childElementCount == 1 &&
-        $.is(li.firstElementChild, 'code');
-}
-
-
-/**
- * 是否为目录普通列表项。
- * @param  {Element} li 列表项元素
- * @return {Boolean}
- */
-function isTocItem( li ) {
-    return li.childElementCount == 1 &&
-        $.is(li.firstElementChild, 'a');
-}
-
-
-/**
- * 是否为级联编号表标题项。
- * @param  {Element} li 列表项元素
- * @return {Boolean}
- */
-function isCascadeli( li ) {
-    return li.childElementCount == 2 &&
-        $.is(li.firstElementChild, 'h5') &&
-        $.is(li.lastElementChild, 'ol');
-}
-
-
-/**
- * 是否为级联标题链接（目录）项。
- * @param  {Element} h5 标题元素
- * @return {Boolean}
- */
-function isH5a( h5 ) {
-    return h5.childElementCount == 1 &&
-        $.is(h5.firstElementChild, 'a');
-}
-
-
-/**
- * 是否为目录列表标题项。
- * @param  {Element} li 列表项元素
- * @return {Boolean}
- */
-function isTocHeading( li ) {
-    return isCascadeli( li ) && isH5a( li.firstElementChild );
-}
-
-
-/**
- * 获取元素/节点的内容名。
- * 返回名称为首字母大写（区别于标签）。
- * 非标准内容返回首字母大写的标签名（通用）。
- * @param  {Element|Text} el 目标元素或文本节点
- * @return {String}
- */
-function conName( el ) {
-    if ( el.nodeType == 3 ) {
-        return '$text';
-    }
-    let _n = $.attr(el, 'role') || el.nodeName.toLowerCase();
-
-    switch ( _n ) {
-        case 'li':
-            return customLi( el );
-        case 'h5':
-            return customH5( el );
-    }
-    return camelCase( _n );
-}
-
-
-/**
- * 测试是否为合法子单元。
- * @param  {String} name 目标内容名
- * @param  {Element} sub 待测试子单元根元素
- * @return {Boolean}
- */
-function goodSub( name, sub ) {
-    return !!( typeSubs[name] & Types[conName(sub)] );
-}
-
-
-/**
- * 合法子单元检测。
- * 合法的内容结构很重要，因此抛出错误（更清晰）。
- * @param  {String} name 内容名称
- * @param  {[Node]} nodes 子单元集
- * @return {Error|true}
- */
-function isGoodSubs( name, nodes ) {
-    for (const nd of nodes) {
-        if ( !goodSub(name, nd) ) {
-            throw new Error(`[${nd.nodeName}] is invalid in ${name}.`);
-        }
-    }
-    return true;
-}
-
-
-/**
- * 是否不可包含子单元。
- * @param  {String} name 内容名
- * @return {Boolean}
- */
-function nilSub( name ) {
-    return typeSubs[name] === 0;
-}
-
-
-/**
- * 是否为内容件集。
- * 片区有严格的层次结构，因此判断标题和<section>即可。
- * 注：空集视为内容件集。
- * @param  {[Element]|''} els 子片区集或内容件集
- * @return {Boolean}
- */
-function isConItems( els ) {
-    return els.length == 0 ||
-        !els.some( el => $.is(el, 'h2,h3,h4,h5,h6,section') );
-}
-
-
-/**
- * 测试表格行是否相同。
- * @param  {Element} tr1 表格行
- * @param  {Element} tr2 表格行
- * @return {Boolean}
- */
-function sameTr( tr1, tr2 ) {
-    if ( tr1.cells.length != tr2.cells.length ) {
-        return false;
-    }
-    return Array.from( tr1.cells )
-    .every(
-        (td, i) => td.nodeName == tr2.cells[i].nodeName
-    );
-}
-
-
-/**
- * 检查元素是否同类。
- * 注：是否可用于简单合并。
- * @param {Element} e1 目标元素
- * @param {Element} e2 对比元素
- */
-function sameType( e1, e2 ) {
-    let _n1 = e1.nodeNode.toLowerCase(),
-        _n2 = e2.nodeNode.toLowerCase();
-
-    return _n1 == _n2 && (_n1 == 'tr' ? sameTr(e1, e2) : true);
-}
-
-
-/**
- * 是否为自取单元。
- * @param  {Node} node 目标节点
- * @return {Boolean}
- */
-function isOuter( node ) {
-    return node.nodeType == 3 ||
-        __outerTags.has( node.nodeName.toLowerCase() );
-}
-
-
-/**
- * 获取内联节点集。
- * @param  {Node} node 测试节点
- * @param  {Array} 内联节点存储区
- * @return {[Node]}
- */
-function inlines( node, buf = [] ) {
-    if ( !node ) {
-        return buf;
-    }
-    if ( isOuter(node) ) {
-        buf.push( node );
-    } else {
-        $.contents(node).forEach( nd => inlines(nd, buf) );
-    }
-    return buf;
-}
-
-
-/**
- * 错误提示&回馈。
- * 友好的错误提示并关联帮助。
- * @param {Number} help 帮助ID
- * @param {String} msg 错误消息
- */
-function error( help, msg ) {
-    // 全局：
-    // - 消息显示
-    // - 关联帮助
-}
-
-
-//
-// 导出
-///////////////////////////////////////////////////////////////////////////////
-
-
-export {
-    cascadeRoot,
-    inCascade, inToc, inCodelist,
-    isConitem, isCodeli, isTocHeading, isTocItem, isCascadeli, isConItems,
-    conName, goodSub, isGoodSubs, nilSub,
-    sameType, inlines,
-    error,
-};

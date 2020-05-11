@@ -127,48 +127,47 @@ const __Tpl = InitTpl( new Templater(nodeBuild, TLoader.load.bind(TLoader)) );
 
 if (DEBUG) {
 
-    // 便于查看函数。
     window.On = On;
     window.By = By;
     window.Update = To.Update;
     window.Next = To.NextStage;
+    window.Tpl = __Tpl;
+    window.Lib = Lib;
+    window.namedTpls = namedTpls;
 
-    window.Debug = {
-        Tpl:    __Tpl,
-        Lib,
-        /**
-         * 输出模板节点定义:
-         * 提取模板文件中定义的模板节点配置。
-         * 用于模板开发结束后配置模板映射文件（templates/maps.json）。
-         * 注：在浏览器控制台执行。
-         * @param  {[String]} files 模板文件名集
-         * @param  {Boolean} sort 是否排序
-         * @return {void}
-         */
-        findTpls: function( files, sort ) {
-            let _buf = new Map();
+}
 
-            if ( !$.isArray(files) ) {
-                files = [files];
-            }
-            // 先插入以保留原始顺序。
-            files.forEach( f => _buf.set(f, null) );
 
-            // 重置。
-            XLoader.clear();
+/**
+ * 输出模板节点定义。
+ * 提取模板文件中定义的模板节点配置。
+ * 用于模板开发结束后配置模板映射文件（templates/maps.json）。
+ * 注：在浏览器控制台执行。
+ * @param  {[String]} files 模板文件名集
+ * @param  {Boolean} sort 是否排序
+ * @return {void}
+ */
+function namedTpls( files, sort ) {
+    let _buf = new Map();
 
-            Promise.all(
-                files.map( f =>
-                    XLoader.node(`${Web.tpldir}/${f}`)
-                    .then( frag => $.find('[tpl-name]', frag).map(el => $.attr(el, 'tpl-name')) )
-                    .then( ns => _buf.set(f, sort ? orderList(ns) : ns) )
-                )
-            ).then(
-                () => tplsOuts(_buf)
-            );
-        },
-    };
+    if ( !$.isArray(files) ) {
+        files = [files];
+    }
+    // 先插入以保留原始顺序。
+    files.forEach( f => _buf.set(f, null) );
 
+    // 重置。
+    XLoader.clear();
+
+    Promise.all(
+        files.map( f =>
+            XLoader.node(`${Web.tpldir}/${f}`)
+            .then( frag => $.find('[tpl-name]', frag).map(el => $.attr(el, 'tpl-name')) )
+            .then( ns => _buf.set(f, sort ? orderList(ns) : ns) )
+        )
+    ).then(
+        () => tplsOuts(_buf)
+    );
 }
 
 
