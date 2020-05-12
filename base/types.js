@@ -29,15 +29,15 @@ const $ = window.$;
 // 3. TBLCELL 表格单元元件：{<th>|<td>}
 // 4. DLITEM  定义列表项：  {<dt>|<dd>}
 // 5. LIST    普通列表（子项由<li>封装）：{<ol>|<ul>|...}
-// 6. SEALED  密封单元，可对原成员内容作修改但不接受新插入。
+// 6. SEALED  密封单元，可对原成员内容作修改但不接受新插入（除非已为空）。
 // 7. SECTED  分级片区，有内容互斥约束（S1-5|CONSECT）
 //
-// 注记：
-// 移动判断处理：若非固定，相同者可互换或并列（否则取内容）。
+// 概念：
+// 与元素稍有不同，单元指可成为内容的逻辑完整的元素或元素结构。
 //
 export const
     TEXT    = 0,        // 文本节点
-    PURPOSE = 1,        // 特殊用途
+    SPECIAL = 1,        // 特别用途
     STRUCT  = 1 << 1,   // 结构元素
     CONTENT = 1 << 2,   // 内容元素
     INLINES = 1 << 3,   // 内联单元
@@ -203,7 +203,6 @@ export const
 
 //
 // 单元的类型/特性。
-// 注：空元素也是密封的（简化处理逻辑）。
 //
 export const Types = {
     [ $TEXT ]:      TEXT,
@@ -218,15 +217,15 @@ export const Types = {
     [ TIME ]:       INLINES | SEALED,
     [ METER ]:      INLINES | SEALED,
     [ SPACE ]:      INLINES | SEALED,
-    [ IMG ]:        INLINES | EMPTY | SEALED,
-    [ DATAIMG ]:    INLINES | EMPTY | SEALED,
-    [ BR ]:         INLINES | EMPTY | SEALED,
-    [ WBR ]:        INLINES | EMPTY | SEALED,
+    [ IMG ]:        INLINES | EMPTY,
+    [ DATAIMG ]:    INLINES | EMPTY,
+    [ BR ]:         INLINES | EMPTY,
+    [ WBR ]:        INLINES | EMPTY,
     //
     // 内联内结构
     /////////////////////////////////////////////
-    [ TRACK ]:      STRUCT | EMPTY | SEALED,
-    [ SOURCE ]:     STRUCT | EMPTY | SEALED,
+    [ TRACK ]:      STRUCT | EMPTY,
+    [ SOURCE ]:     STRUCT | EMPTY,
     [ RB ]:         STRUCT | CONTENT,
     [ RT ]:         STRUCT | CONTENT,
     [ RP ]:         STRUCT | SEALED,
@@ -307,12 +306,12 @@ export const Types = {
     [ REFERENCE ]:  BLOCKS | STRUCT | FIXED | LIST,
     [ HEADER ]:     BLOCKS | STRUCT | FIXED,
     [ FOOTER ]:     BLOCKS | STRUCT | FIXED,
-    [ ARTICLE ]:    BLOCKS | STRUCT | FIXED | SECTED,
+    [ ARTICLE ]:    BLOCKS | STRUCT | FIXED,
     [ S1 ]:         BLOCKS | STRUCT | SECTED,
     [ S2 ]:         BLOCKS | STRUCT | SECTED,
     [ S3 ]:         BLOCKS | STRUCT | SECTED,
     [ S4 ]:         BLOCKS | STRUCT | SECTED,
-    [ S5 ]:         BLOCKS | STRUCT,
+    [ S5 ]:         BLOCKS | STRUCT | SECTED,
     [ UL ]:         BLOCKS | STRUCT | LIST,
     [ OL ]:         BLOCKS | STRUCT | LIST,
     [ CODELIST ]:   BLOCKS | STRUCT | LIST,
@@ -327,14 +326,14 @@ export const Types = {
     [ DETAILS ]:    BLOCKS | STRUCT,
     [ CODEBLOCK ]:  BLOCKS | STRUCT | SEALED,
     // 行块单体元素
-    [ HR ]:         BLOCKS | EMPTY | SEALED,
+    [ HR ]:         BLOCKS | EMPTY,
     [ BLANK ]:      BLOCKS | SEALED,
 
     //
     // 特殊用途。
     /////////////////////////////////////////////
-    [ B ]:          PURPOSE | CONTENT,
-    [ I ]:          PURPOSE | CONTENT,
+    [ B ]:          SPECIAL | CONTENT,
+    [ I ]:          SPECIAL | CONTENT,
 };
 
 
@@ -483,8 +482,8 @@ export const ChildTypes = {
     [ HGROUP ]:     [ H2, H1 ],
     [ ABSTRACT ]:   [ P, H3, _BLOLIMIT ],
     [ TOC ]:        [ H3, CASCADE ],
-    [ SEEALSO ]:    [ LI ],
-    [ REFERENCE ]:  [ LI ],
+    [ SEEALSO ]:    [ LI, ALI ],
+    [ REFERENCE ]:  [ LI, ALI ],
     [ HEADER ]:     [ P, H3, _BLOLIMIT ],
     [ FOOTER ]:     [ P, H3, _BLOLIMIT, ADDRESS ],
     [ ARTICLE ]:    [ HEADER, S1, FOOTER ],
@@ -493,12 +492,12 @@ export const ChildTypes = {
     [ S3 ]:         [ H2, HEADER, S4, FOOTER ],
     [ S4 ]:         [ H2, HEADER, S5, FOOTER ],
     [ S5 ]:         [ H2, HEADER, CONSECT, FOOTER ],
-    [ UL ]:         [ LI ],
-    [ OL ]:         [ LI ],
+    [ UL ]:         [ LI, ALI ],
+    [ OL ]:         [ LI, ALI ],
     [ CODELIST ]:   [ CODELI ],
-    [ ULX ]:        [ LI, ULXH4LI ],
-    [ OLX ]:        [ LI, OLXH4LI ],
-    [ CASCADE ]:    [ LI, CASCADEH4LI ],
+    [ ULX ]:        [ LI, ALI, ULXH4LI ],
+    [ OLX ]:        [ LI, ALI, OLXH4LI ],
+    [ CASCADE ]:    [ LI, ALI, AH4LI, CASCADEH4LI ],
     [ DL ]:         [ DT, DD ],
     [ TABLE ]:      [ CAPTION, THEAD, TBODY, TFOOT ],
     [ FIGURE ]:     [ FIGCAPTION, FIGIMGP ],

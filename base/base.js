@@ -102,7 +102,7 @@ const typeStruct = {
      * @return {Number} 单元值
      */
     P( el ) {
-        let name = getName( el );
+        let name = simpleName( el );
 
         return name === 'P' && el.parentElement.tagName === 'FIGURE' ?
             T.FIGIMGP : T[name];
@@ -175,7 +175,7 @@ const typeStruct = {
      * @return {Number}
      */
     _liParent( el ) {
-        switch ( getName(listRoot(el)) ) {
+        switch ( simpleName(listRoot(el)) ) {
             case 'ULX':
                 return T.ULXH4LI;
             case 'OLX':
@@ -196,27 +196,14 @@ const typeStruct = {
 
 /**
  * 获取元素类型值。
- * 注：仅处理文本节点和元素。
+ * 仅处理文本节点和元素。
  * @param  {Element|Text} el 目标节点
  * @return {Number}
  */
 function getType( el ) {
-    if ( el.nodeType == 3 ) {
-        return T.$TEXT;
-    }
-    // ...
-}
-
-
-/**
- * 获取元素名称。
- * 全大写，兼容role合法名称。
- * @param  {Element} el 目标元素
- * @return {String}
- */
-function getName( el ) {
-    let _role = el.getAttribute('role');
-    return (LogicRoles.has(_role) ? _role :  el.tagName).toUpperCase();
+    return el.nodeType === 3 ?
+        T.$TEXT :
+        typeStruct[el.tagName](el) || T[simpleName(el)];
 }
 
 
@@ -238,6 +225,157 @@ function inlineContents( el ) {
 
 
 /**
+ * 是否为合法子单元。
+ * @param  {Number} sub 测试目标
+ * @param  {Number} box 容器单元
+ * @return {Boolean}
+ */
+function isChild( sub, box ) {
+    return T.ChildTypes[ box ].includes( sub );
+}
+
+
+/**
+ * 是否为空元素。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isEmpty( tval ) {
+    return !!( T.Types[tval] & T.EMPTY );
+}
+
+
+/**
+ * 是否位置固定。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isFixed( tval ) {
+    return !!( T.Types[tval] & T.EMPTY );
+}
+
+
+/**
+ * 是否为表格区段元素。
+ * 即：<thead>|<tbody>|<tfoot>
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isTblSect( tval ) {
+    return !!( T.Types[tval] & T.TBLSECT );
+}
+
+
+/**
+ * 是否为表格单元格。
+ * 即：<th>|<td>
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isTblCell( tval ) {
+    return !!( T.Types[tval] & T.TBLCELL );
+}
+
+
+/**
+ * 是否为定义列表项。
+ * 即：<dt>|<dd>
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isDlItem( tval ) {
+    return !!( T.Types[tval] & T.DLITEM );
+}
+
+
+/**
+ * 是否为普通列表。
+ * 即：<ul>|<ol>|...（<li>子元素）。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isList( tval ) {
+    return !!( T.Types[tval] & T.LIST );
+}
+
+
+/**
+ * 是否为密封单元。
+ * 可修改但不可新插入，除非已为空。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isSealed( tval ) {
+    return !!( T.Types[tval] & T.SEALED );
+}
+
+
+/**
+ * 是否为分级片区（S1-S5）。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isSected( tval ) {
+    return !!( T.Types[tval] & T.SECTED );
+}
+
+
+/**
+ * 是否为行块单元。
+ * 可作为各片区单元的实体内容。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isBlocks( tval ) {
+    return !!( T.Types[tval] & T.BLOCKS );
+}
+
+
+/**
+ * 是否为内联单元。
+ * 可作为内容元素里的实体内容。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isInlines( tval ) {
+    return !!( T.Types[tval] & T.INLINES );
+}
+
+
+/**
+ * 是否为内容元素。
+ * 可直接包含文本和内联单元。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isContent( tval ) {
+    return !!( T.Types[tval] & T.CONTENT );
+}
+
+
+/**
+ * 是否为结构元素。
+ * 包含固定逻辑的子元素结构。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isStruct( tval ) {
+    return !!( T.Types[tval] & T.STRUCT );
+}
+
+
+/**
+ * 是否为特别用途元素。
+ * 即：<b>|<i>，用于代码内逻辑封装。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isSpecial( tval ) {
+    return !!( T.Types[tval] & T.SPECIAL );
+}
+
+
+/**
  * 获取列表根元素。
  * 处理包含3种级联表类型。
  * @param  {Element} el 起点列表
@@ -249,315 +387,43 @@ function listRoot( el ) {
 }
 
 
-
-
-
 /**
- * 测试并返回<li>支持的几种类型。
- * @param  {Element} li 列表项元素
- * @return {String} Codeli|Cascadeli|Li
- */
-function customLi( li ) {
-    // codelist: li/code/
-    if ( isCodeli(li) ) return 'Codeli';
-
-    // cascade: li/h5, ol/
-    if ( isCascadeli(li) ) return 'Cascadeli';
-
-    if ( isTocItem(li) ) return 'Ali';
-
-    return 'Li';
-}
-
-
-/**
- * 测试并返回<h5>支持的两种类型。
- * @param {Element} h5 标题元素
- */
-function customH5( h5 ) {
-    return isH5a( h5 ) ? 'H5a' : 'H5';
-}
-
-
-/**
- * 转为首字母大写。
- * @param  {String} name 名称串
- * @return {String}
- */
-function camelCase( name ) {
-    return name[0].toUpperCase() + name.substring(1);
-}
-
-
-/**
- * 获取级联表根元素。
- * @param  {Element} li 起点元素
- * @return {<ul>|<ol>}
- */
-function cascadeRoot( el ) {
-    let _prev = el;
-
-    while ( el ) {
-        let _n = el.nodeName.toLowerCase();
-        if ( _n != 'ol' && _n != 'li' ) {
-            break;
-        }
-        _prev = el;
-        el = el.parentElement;
-    }
-    return $.attr(_prev, 'role') == 'cascade' ? _prev : null;
-}
-
-
-/**
- * 测试是否在级联编号表内。
- * 主要用于插入时的目标判断并进行正确的处理。
- * @param  {Element} el 目标元素
- * @return {Boolean|null}
- */
-function inCascade( el ) {
-     return !!cascadeRoot( el );
-}
-
-
-/**
- * 是否在目录内。
- * @param  {Element} el 起点元素
- * @return {Boolean}
- */
-function inToc( el ) {
-    let _ol = cascadeRoot( el ),
-        _pe = _ol && _ol.parentElement;
-
-    return !!_pe && $.attr(_pe, 'role') == 'toc';
-}
-
-
-/**
- * 测试是否在代码表内。
- * 仅用于测试 <li> 和 <code> 元素。
- * 结构：codelist/li/code
- * @param  {Element} el 目标元素
- * @return {Boolean|null}
- */
-function inCodelist( el ) {
-    let _n = el.nodeName.toLowerCase();
-
-    if ( _n == 'code' ) {
-        el = el.parentElement;
-    }
-    return $.attr(el.parentElement, 'role') == 'codelist';
-}
-
-
-/**
- * 是否为内容件。
- * @param {String|Element} its 测试目标
- */
-function isConitem( its ) {
-    return CONTENT &
-        Types[ its.nodeType ? conName(its) : its ];
-}
-
-
-/**
- * 是否为代码列表项。
- * @param  {Element} li 列表项
- * @return {Boolean}
- */
-function isCodeli( li ) {
-    return li.childElementCount == 1 &&
-        $.is(li.firstElementChild, 'code');
-}
-
-
-/**
- * 是否为目录普通列表项。
- * @param  {Element} li 列表项元素
- * @return {Boolean}
- */
-function isTocItem( li ) {
-    return li.childElementCount == 1 &&
-        $.is(li.firstElementChild, 'a');
-}
-
-
-/**
- * 是否为级联编号表标题项。
- * @param  {Element} li 列表项元素
- * @return {Boolean}
- */
-function isCascadeli( li ) {
-    return li.childElementCount == 2 &&
-        $.is(li.firstElementChild, 'h5') &&
-        $.is(li.lastElementChild, 'ol');
-}
-
-
-/**
- * 是否为级联标题链接（目录）项。
- * @param  {Element} h5 标题元素
- * @return {Boolean}
- */
-function isH5a( h5 ) {
-    return h5.childElementCount == 1 &&
-        $.is(h5.firstElementChild, 'a');
-}
-
-
-/**
- * 是否为目录列表标题项。
- * @param  {Element} li 列表项元素
- * @return {Boolean}
- */
-function isTocHeading( li ) {
-    return isCascadeli( li ) && isH5a( li.firstElementChild );
-}
-
-
-/**
- * 获取元素/节点的内容名。
- * 返回名称为首字母大写（区别于标签）。
- * 非标准内容返回首字母大写的标签名（通用）。
- * @param  {Element|Text} el 目标元素或文本节点
- * @return {String}
- */
-function conName( el ) {
-    if ( el.nodeType == 3 ) {
-        return '$text';
-    }
-    let _n = $.attr(el, 'role') || el.nodeName.toLowerCase();
-
-    switch ( _n ) {
-        case 'li':
-            return customLi( el );
-        case 'h5':
-            return customH5( el );
-    }
-    return camelCase( _n );
-}
-
-
-/**
- * 测试是否为合法子单元。
- * @param  {String} name 目标内容名
- * @param  {Element} sub 待测试子单元根元素
- * @return {Boolean}
- */
-function goodSub( name, sub ) {
-    return !!( typeSubs[name] & Types[conName(sub)] );
-}
-
-
-/**
- * 合法子单元检测。
- * 合法的内容结构很重要，因此抛出错误（更清晰）。
- * @param  {String} name 内容名称
- * @param  {[Node]} nodes 子单元集
- * @return {Error|true}
- */
-function isGoodSubs( name, nodes ) {
-    for (const nd of nodes) {
-        if ( !goodSub(name, nd) ) {
-            throw new Error(`[${nd.nodeName}] is invalid in ${name}.`);
-        }
-    }
-    return true;
-}
-
-
-/**
- * 是否不可包含子单元。
- * @param  {String} name 内容名
- * @return {Boolean}
- */
-function nilSub( name ) {
-    return typeSubs[name] === 0;
-}
-
-
-/**
- * 是否为内容件集。
- * 片区有严格的层次结构，因此判断标题和<section>即可。
- * 注：空集视为内容件集。
- * @param  {[Element]|''} els 子片区集或内容件集
- * @return {Boolean}
- */
-function isConItems( els ) {
-    return els.length == 0 ||
-        !els.some( el => $.is(el, 'h2,h3,h4,h5,h6,section') );
-}
-
-
-/**
- * 测试表格行是否相同。
+ * 是否为相同的表格行。
  * @param  {Element} tr1 表格行
  * @param  {Element} tr2 表格行
  * @return {Boolean}
  */
 function sameTr( tr1, tr2 ) {
-    if ( tr1.cells.length != tr2.cells.length ) {
-        return false;
-    }
-    return Array.from( tr1.cells )
-    .every(
-        (td, i) => td.nodeName == tr2.cells[i].nodeName
-    );
+    let _c1 = tr1.cells,
+        _c2 = tr2.cells;
+
+    return _c1.length == _c2.length &&
+        Array.from(_c1).every( (td, i) => td.nodeName == _c2[i].nodeName );
 }
 
 
 /**
- * 检查元素是否同类。
- * 注：是否可用于简单合并。
- * @param {Element} e1 目标元素
- * @param {Element} e2 对比元素
+ * 获取错误提示。
+ * 友好的错误提示和详细帮助链接。
+ * @param  {Number} hid 帮助ID
+ * @return {[String, String]} [msg, link]
  */
-function sameType( e1, e2 ) {
-    let _n1 = e1.nodeNode.toLowerCase(),
-        _n2 = e2.nodeNode.toLowerCase();
-
-    return _n1 == _n2 && (_n1 == 'tr' ? sameTr(e1, e2) : true);
+function errorMsg( hid ) {
+    //
 }
 
 
-/**
- * 是否为自取单元。
- * @param  {Node} node 目标节点
- * @return {Boolean}
- */
-function isOuter( node ) {
-    return node.nodeType == 3 ||
-        __outerTags.has( node.nodeName.toLowerCase() );
-}
-
+//
+// 工具函数。
+//////////////////////////////////////////////////////////////////////////////
 
 /**
- * 获取内联节点集。
- * @param  {Node} node 测试节点
- * @param  {Array} 内联节点存储区
- * @return {[Node]}
+ * 获取元素简单名称。
+ * 仅限于标签名和role定义名，全大写。
+ * @param  {Element} el 目标元素
+ * @return {String}
  */
-function inlines( node, buf = [] ) {
-    if ( !node ) {
-        return buf;
-    }
-    if ( isOuter(node) ) {
-        buf.push( node );
-    } else {
-        $.contents(node).forEach( nd => inlines(nd, buf) );
-    }
-    return buf;
-}
-
-
-/**
- * 错误提示&回馈。
- * 友好的错误提示并关联帮助。
- * @param {Number} help 帮助ID
- * @param {String} msg 错误消息
- */
-function error( help, msg ) {
-    // 全局：
-    // - 消息显示
-    // - 关联帮助
+function simpleName( el ) {
+    let _role = el.getAttribute('role');
+    return (LogicRoles.has(_role) ? _role :  el.tagName).toUpperCase();
 }
