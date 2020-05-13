@@ -12,44 +12,27 @@
 //  单元容器的创建是通用的（依配置），内容插入则有各自的限定。
 //
 //  注记：
-//  文章的正式结构中层级片区和内容片区互斥，但编辑器提供容错以方便操作。
-//  即：
-//  - 可以在内容片区插入合法的层级片区，以便于作者可以将内容行块移入该层级片区。
-//  - 可以将层级片区解包到当前位置（成为内容），以便于作者将层级片区转换为内容片区。
+//  从简化和宽容性考虑，分级片区和行块内容可以同时存在于同一层级（相同父元素）。
+//  虽然传统上或从清晰的逻辑上看不应如此，但CSS样式的能力可以让它们被清晰区分开来。
 //
-//  - 如果内容片区的内容全部转换成了子片区，则该内容片区的类型更新为层级片区。
-//  - 如果层级片区的子片区全部解包成了内容行块，则该层级片区的类型更新为内容片区。
+//  这种宽容可以提供编辑时的便捷：
+//  - 可以在内容片区插入合法的分级片区，方便将内容行块移入该新片区。
+//  - 可以将分级片区解包到当前位置成为内容，这样其它兄弟分级片区的转换就很正常了。
+//  - 是否在最终的文档中让两者混合出现是作者的选择，作者可以选择清晰的分层结构，抑或不。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-
-const $ = window.$;
+import { nameType } from "./base.js";
+import { extend } from "./tpb/pbs.by.js";
 
 
 const
-    // 单元类型值存储键。
-    // 注：每一个元素上都会存储其类型值。
-    __cellType = Symbol('cell-type'),
+    $ = window.$,
 
-
-
-    // 片区标题选择器。
-    __hxSlr = 'h2,h3,h4,h5,h6',
-
-    // 小区块标题获取。
-    __hxBlock = '>h3, >h4, >summary',
-
-    // 内容设置时的有效方法。
-    __contentMeths = ['append', 'prepend', 'fill'],
-
-    // 表格行设置时的有效方法。
-    __trMeths = ['before', 'after', 'fill', 'replace'],
-
-    // 简单标签。
-    // 含role定义配置。
-    __reTag = /^[a-z][a-z:]*$/,
+    // 类型值存储池。
+    __poolTypes = new WeakMap(),
 
     // 表格实例缓存。
     // { Element: $.Table }
@@ -84,334 +67,568 @@ const customRoles = {
     BLANK:      [ 'div',     'blank' ],
     ORZ:        [ 'code',    'orz' ],
     SPACE:      [ 'span',    'space' ],
-
-    // 块容器
-    // ------------------------------------------
-    Hgroup:     'hgroup',
-    Abstract:   'header:abstract/h3',
-    Toc:        'nav:toc/h4, Cascade',
-    Seealso:    'ul:seealso',
-    Reference:  'ol:reference',
-    Header:     'header/h4',
-    Footer:     'footer/h4',
-    Article:    'h1, article',
-    S1:         'h2, section:s1',
-    S2:         'h3, section:s2',
-    S3:         'h4, section:s3',
-    S4:         'h5, section:s4',
-    S5:         'h6, section:s5',
-    Ul:         'ul',
-    Ol:         'ol',
-    Cascade:    'ol:cascade',
-    Codelist:   'ol:codelist',
-    Dl:         'dl',
-    Table:      'table',  // 单独处理！
-    Figure:     'figure/figcaption',
-    Blockquote: 'blockquote/h4',
-    Aside:      'aside/h4',
-    Details:    'details/summary',
-    Codeblock:  'pre:codeblock/code',
-
-
-    // 块内容
-    // ------------------------------------------
-    P:          'p',
-    Note:       'p:note',
-    Address:    'address',
-    Pre:        'pre',
-    Hr:         'hr',
-    Space:      'div:space',
-
-
-    // 结构单元
-    // ------------------------------------------
-    Li:         'li',
-    Codeli:     'li/code',
-    Ali:        'li/a',
-    Cascadeli:  'li/h5, ol',
-    Dt:         'dt',
-    Dd:         'dd',
-    H1:         'h1',
-    H2:         'h2',
-    H3:         'h3',
-    H4:         'h4',
-    H5:         'h5',
-    H6:         'h6',
-    Figcaption: 'figcaption',
-    Summary:    'summary',
-    Track:      'track',
-    Source:     'source',
-    Rb:         'rb',
-    Rp:         'rp',
-    Rt:         'rt',
-
-
-    // 行内单元
-    // ------------------------------------------
-    Audio:      'audio',
-    Video:      'video',
-    Picture:    'picture/img',
-    A:          'a',
-    Strong:     'strong',
-    Em:         'em',
-    Q:          'q',
-    Abbr:       'abbr',
-    Cite:       'cite',
-    Small:      'small',
-    Time:       'time',
-    Del:        'del',
-    Ins:        'ins',
-    Sub:        'sub',
-    Sup:        'sup',
-    Mark:       'mark',
-    Code:       'code',
-    Orz:        'code:orz',
-    Ruby:       'ruby',
-    Dfn:        'dfn',
-    Samp:       'samp',
-    Kbd:        'kbd',
-    S:          's',
-    U:          'u',
-    Var:        'var',
-    Bdo:        'bdo',
-    Meter:      'meter',
-    B:          'b',
-    I:          'i',
-    Img:        'img',
-    Br:         'br',
-    Wbr:        'wbr',
-    Blank:      'span:blank',
 };
 
 
-//
-// 文章。
-// 封装文章顶层对象的位置规则（不含<article>内部）。
-// 前端：主标题（h1必要），副标题（h2可选）。
-// 平级前端：提要、目录（可选）。
-// 平级后端：另参见、文献参考（可选）。
-// 子级内容：片区集或内容集，互斥关系。
-// 注：
-// 文章元素本身是基础参照，不可删除。
-// 如果有副标题，主副标题顺序存放在一个<hgroup>之内。
-//
-class Article {
-    /**
-     * 构建文章实例。
-     * ael需要已经存在于DOM中或拥有父元素。
-     * @param {Element} ael 文章元素
-     */
-    constructor( ael ) {
-        let _h1 = $.get('h1', ael.parentElement),
-            _h2 = _h1 && _h1.nextElementSibling;
+/**
+ * 创建单元元素。
+ * 注：不含文本节点。
+ * 注意名称需要转换为全小写（如：<SVG> != <svg>）。
+ * @param  {String} name 单元名称（全大写）
+ * @return {Element}
+ */
+function create( name ) {
+    let _its = customRoles[ name ],
+        _cfg = _its && { role: _its[1] };
 
-        this._h1 = _h1;
-        this._h2 = _h2 && $.is(_h2, 'h2') ? _h2 : null;
-
-        this._toc = $.prev(ael, 'nav[role=toc]', true);
-        this._abstract = $.prev(ael, 'header[role=abstract]', true);
-
-        this._article = ael;
-
-        this._seealso = $.next(ael, 'ul[role=seealso]');
-        this._reference = $.next(ael, 'ol[role=reference]')
-
-        // 标题组（/h1,h2）
-        this._hgroup = this._h2 && this._h2.parentElement;
-    }
+    return setType(
+        $.Element(_its ? _its[0] : name.toLowerCase(), _cfg), nameType(name)
+    );
+}
 
 
-    /**
-     * 获取/设置主标题。
-     * 设置时若无标题，会新建一个。
-     * 传递code为null会删除标题元素。
-     * 返回标题元素，不论是删除、设置还是新建。
-     * @param  {Node|[Node]} cons 标题内容
-     * @param  {String} meth 内容插入方法
-     * @return {Element}
-     */
-    h1( cons, meth = 'fill' ) {
-        if ( cons === undefined ) {
-            return this._h1;
-        }
-        return this._setH1( this._h1, cons, meth );
-    }
-
-
-    /**
-     * 获取/设置副标题。
-     * 参数说明参考.h1()。
-     * @param  {Node|[Node]} cons 标题内容
-     * @param  {String} meth 内容插入方法
-     * @return {Element}
-     */
-    h2( cons, meth = 'fill' ) {
-        if ( cons === undefined ) {
-            return this._h2;
-        }
-        return this._setH2( this._h2, cons, meth );
-    }
-
-
-    /**
-     * 获取/插入提要单元。
-     * 传递el为null会删除提要单元（并返回）。
-     * 如果本来就没有提要，会返回null。
-     * 注：
-     * 封装插入位置规则。
-     * 仅支持一个提要单元，多出的插入会抛出异常。
-     * 下类同。
-     * @param  {Element} el 提要元素
-     * @return {Element|null|void} 提要元素
-     */
-    abstract( el ) {
-        if ( el === undefined ) {
-            return this._abstract;
-        }
-        return this._annexSet('_abstract', el, 'before', this._toc || this._article);
-    }
-
-
-    /**
-     * 获取/插入目录单元。
-     * 传递el为null会删除目录单元（并返回）。
-     * 位置：内容（<article>）之前。
-     * @param  {Element} el 目录元素
-     * @return {Element|null|void} 目录元素
-     */
-    toc( el ) {
-        if ( el === undefined ) {
-            return this._toc;
-        }
-        return this._annexSet('_toc', el, 'before', this._article);
-    }
-
-
-    /**
-     * 获取/插入另参见单元。
-     * 传递el为null会删除另参见单元（并返回）。
-     * 位置：内容（<article>）之后。
-     * @param  {Element} el 目录元素
-     * @return {Element|null|void} 目录元素
-     */
-    seealso( el ) {
-        if ( el === undefined ) {
-            return this._seealso;
-        }
-        return this._annexSet('_seealso', el, 'after', this._article);
-    }
-
-
-    /**
-     * 获取/插入参考单元。
-     * 传递el为null会删除参考单元（并返回）。
-     * 位置：另参见或内容之后。
-     * @param  {Element} el 参考元素
-     * @return {Element|null|void} 参考元素
-     */
-    reference( el ) {
-        if ( el === undefined ) {
-            return this._reference;
-        }
-        return this._annexSet(
-            '_reference', el, 'after', this._seealso || this._article
-        );
-    }
-
-
-    //-- 私有辅助 ------------------------------------------------------------
-
-
-    /**
-     * 设置主标题。
-     * 没有标题时新建一个，插入最前端或副标题之前（如果有）。
-     * @param  {Element|null} h1 原主标题
-     * @param  {Node|[Node]} cons 标题内容
-     * @param  {String} meth 内容插入方法
-     * @return {Element} 主标题元素
-     */
-    _setH1( h1, cons, meth ) {
-        if ( !h1 ) {
-            this._h1 = $.prepend(
-                this._hgroup || this._article.parentElement,
-                $.Element('h1')
-            );
-        }
-        return $[meth]( this._h1, cons ), this._h1;
-    }
-
-
-    /**
-     * 设置副标题。
-     * 没有副标题时新建一个h2标题。
-     * 副标题会要求一个标题组（<hgroup>），如果没有会新建。
-     * 注：副标题必须在主标题存在的情况下才能创建。
-     * @param  {Element|null} h2 原副标题
-     * @param  {Node|[Node]} cons 标题内容
-     * @param  {String} meth 内容插入方法
-     * @return {Element} 副标题元素
-     */
-    _setH2( h2, cons, meth ) {
-        if ( !h2 ) {
-            if ( !this._hgroup ) {
-                this._hgroup = $.prepend( this._article.parentElement, $.Element('hgroup') );
-                // 移动<h1>
-                // 如果主标题不存在会出错。
-                $.append( this._hgroup, this._h1 );
-            }
-            this._h2 = $.append( this._hgroup, $.Element('h2') );
-        }
-        return $[meth]( this._h2, cons ), this._h2;
-    }
-
-
-    /**
-     * 设置/插入目标附件。
-     * 传递el为null，会移除目标单元（并返回）。
-     * @param {String} name 附件名
-     * @param {Element|null} el 待插入附件元素
-     * @param {String} meth 插入方法
-     * @param {Element} ref 插入参考
-     */
-    _annexSet( name, el, meth, ref ) {
-        if ( el === null ) {
-            let _re = this[name];
-            this[name] = null;
-            return _re && $.detach( _re );
-        }
-        if ( this[name] ) {
-            throw new Error( `[${name.substring(1)}] is already exist.` );
-        }
-        this[name] = $[meth]( ref, el );
-    }
-
+/**
+ * 存储元素类型值。
+ * @param  {Element} el 目标元素
+ * @param  {Number} tval 类型值
+ * @return {Element} el
+ */
+function setType( el, tval ) {
+    return __poolTypes.set(el, tval), el;
 }
 
 
 //
-// 内容设置函数集。
-// 如果内容传递为null表示忽略。
-// 返回新插入的行块内容或行容器元素（新内容为内联节点集）。
-// 参数：(目标, 标题&内容, 方法, 其它参数)
-// 注：
-// 适用create创建的结构空元素和选取的目标元素。
-// 源数据为两种：外部保证的最适配元素，或内联节点集。
+// 单元创建集。
+// 包含全部中间结构单元。
+// 用于主面板中的新单元构建和复制/移动时的默认单元创建。
+// @return {Node|[Node]}
 //////////////////////////////////////////////////////////////////////////////
+// 注记：
+// 实参尽量为节点/集，以便于用于移动转换场景。
+// 返回节点集时，如果目标为集合，可实现一一对应插入。
 //
-const Content = {
-    /**
-     * 获取有效的内容插入方法名。
-     * 返回false表示方法无效。
-     * @param  {String} cname 内容名称
-     * @param  {String} meth 插入方法
-     * @return {String|false}
-     */
-    method( cname, meth ) {
-        if ( cname == 'Tr' ) {
-            return trMeth( meth );
-        }
-        return __contentMeths.include(meth) && meth;
+const Creator = {
+
+    //-- 内联结构类 ----------------------------------------------------------
+
+    Audio() {
+        //
     },
+
+
+    Video() {
+        //
+    },
+
+
+    Picture() {
+        //
+    },
+
+
+    Svg() {
+        //
+    },
+
+
+    Ruby() {
+        //
+    },
+
+
+    Time() {
+        //
+    },
+
+
+    Meter() {
+        //
+    },
+
+
+    Space() {
+        //
+    },
+
+
+    Img() {
+        //
+    },
+
+
+    Dataimg() {
+        //
+    },
+
+
+    Br() {
+        //
+    },
+
+
+    Wbr() {
+        //
+    },
+
+
+    //-- 内联内结构 ----------------------------------------------------------
+
+    Track() {
+        //
+    },
+
+
+    Source() {
+        //
+    },
+
+
+    Rb() {
+        //
+    },
+
+
+    Rt() {
+        //
+    },
+
+
+    Rp() {
+        //
+    },
+
+
+    Span() {
+        //
+    },
+
+
+    Rbpt() {
+        //
+    },
+
+
+    //-- 内联内容元素 --------------------------------------------------------
+
+    A() {
+        //
+    },
+
+
+    Strong() {
+        //
+    },
+
+
+    Em() {
+        //
+    },
+
+
+    Q() {
+        //
+    },
+
+
+    Abbr() {
+        //
+    },
+
+
+    Cite() {
+        //
+    },
+
+
+    Small() {
+        //
+    },
+
+
+    Del() {
+        //
+    },
+
+
+    Ins() {
+        //
+    },
+
+
+    Sub() {
+        //
+    },
+
+
+    Sup() {
+        //
+    },
+
+
+    Mark() {
+        //
+    },
+
+
+    Code() {
+        //
+    },
+
+
+    Orz() {
+        //
+    },
+
+
+    Dfn() {
+        //
+    },
+
+
+    Samp() {
+        //
+    },
+
+
+    Kbd() {
+        //
+    },
+
+
+    S() {
+        //
+    },
+
+
+    U() {
+        //
+    },
+
+
+    Var() {
+        //
+    },
+
+
+    Bdo() {
+        //
+    },
+
+
+    //-- 行块内容元素 --------------------------------------------------------
+
+    P() {
+        //
+    },
+
+
+    Note() {
+        //
+    },
+
+
+    Tips() {
+        //
+    },
+
+
+    Pre() {
+        //
+    },
+
+
+    Address() {
+        //
+    },
+
+
+    //-- 块内结构元素 --------------------------------------------------------
+
+    H1() {
+        //
+    },
+
+
+    H2() {
+        //
+    },
+
+
+    H3() {
+        //
+    },
+
+
+    H4() {
+        //
+    },
+
+
+    H5() {
+        //
+    },
+
+
+    H6() {
+        //
+    },
+
+
+    Summary() {
+        //
+    },
+
+
+    Figcaption() {
+        //
+    },
+
+
+    Caption() {
+        //
+    },
+
+
+    Li() {
+        //
+    },
+
+
+    Dt() {
+        //
+    },
+
+
+    Dd() {
+        //
+    },
+
+
+    Th() {
+        //
+    },
+
+
+    Td() {
+        //
+    },
+
+
+    Tr() {
+        //
+    },
+
+
+    Thead() {
+        //
+    },
+
+
+    Tbody() {
+        //
+    },
+
+
+    Tfoot() {
+        //
+    },
+
+
+    Codeli() {
+        //
+    },
+
+
+    Ali() {
+        //
+    },
+
+
+    Ah4li() {
+        //
+    },
+
+
+    Ah4() {
+        //
+    },
+
+
+    Ulxh4li() {
+        //
+    },
+
+
+    Olxh4li() {
+        //
+    },
+
+
+    Cascadeh4li() {
+        //
+    },
+
+
+    Figimgp() {
+        //
+    },
+
+
+    //-- 行块结构元素 --------------------------------------------------------
+
+    Hgroup() {
+        //
+    },
+
+
+    Abstract() {
+        //
+    },
+
+
+    Toc() {
+        //
+    },
+
+
+    Seealso() {
+        //
+    },
+
+
+    Reference() {
+        //
+    },
+
+
+    Header() {
+        //
+    },
+
+
+    Footer() {
+        //
+    },
+
+
+    Article() {
+        //
+    },
+
+
+    S1() {
+        //
+    },
+
+
+    S2() {
+        //
+    },
+
+
+    S3() {
+        //
+    },
+
+
+    S4() {
+        //
+    },
+
+
+    S5() {
+        //
+    },
+
+
+    Ul() {
+        //
+    },
+
+
+    Ol() {
+        //
+    },
+
+
+    Codelist() {
+        //
+    },
+
+
+    Ulx() {
+        //
+    },
+
+
+    Olx() {
+        //
+    },
+
+
+    Cascade() {
+        //
+    },
+
+
+    Dl() {
+        //
+    },
+
+
+    Table() {
+        //
+    },
+
+
+    Figure() {
+        //
+    },
+
+
+    Blockquote() {
+        //
+    },
+
+
+    Aside() {
+        //
+    },
+
+
+    Details() {
+        //
+    },
+
+
+    Codeblock() {
+        //
+    },
+
+
+    Hr() {
+        //
+    },
+
+
+    Blank() {
+        //
+    },
+
+
+    //-- 特别用途元素 --------------------------------------------------------
+
+    B() {
+        //
+    },
+
+
+    I() {
+        //
+    },
+
+
 
 
     /**
@@ -763,7 +980,7 @@ const Content = {
      * @param  {Boolean} conItem 内容是否为内容件集，可选
      * @return {[Element|null, [Element]]} 章标题和新插入的内容集
      */
-    Content[ its[0] ] = function( sect, [hx, els], meth, conItem ) {
+    Creator[ its[0] ] = function( sect, [hx, els], meth, conItem ) {
         if ( conItem == null ) {
             conItem = isConItems(els);
         }
@@ -800,7 +1017,7 @@ const Content = {
      * @param  {String} meth 内容插入方法
      * @return {[Element|null, [Element]]} 标题项和新插入的内容单元
      */
-    Content[ its[0] ] = function( root, [hx, cons], meth ) {
+    Creator[ its[0] ] = function( root, [hx, cons], meth ) {
         if ( hx != null ) {
             blockHeading( its[1], root, hx, meth );
         }
@@ -830,7 +1047,7 @@ const Content = {
      * @param  {String} meth 插入方法（append|prepend|fill）
      * @return {[Element]} 新插入的列表项元素（集）
      */
-    Content[ name ] = function( box, cons, meth ) {
+    Creator[ name ] = function( box, cons, meth ) {
         return cons && $[meth]( box, cons );
     };
 });
@@ -898,7 +1115,7 @@ const Content = {
      * @param  {String} meth 插入方法（append|prepend|fill）
      * @return {Element} 容器元素自身
      */
-    Content[ name ] = function( el, cons, meth ) {
+    Creator[ name ] = function( el, cons, meth ) {
         return cons && $[meth]( el, cons ), el;
     };
 });
@@ -921,7 +1138,7 @@ const Content = {
      * @param  {String} meth 插入方法
      * @return {Element} 代码根容器元素
      */
-    Content[ name ] = function( box, codes, meth ) {
+    Creator[ name ] = function( box, codes, meth ) {
         return insertCodes( box, codes, meth ), box;
     };
 });
@@ -937,7 +1154,7 @@ const Content = {
     'Rt',
 ]
 .forEach(function( name ) {
-    Content[ name ] = function( el, cons, meth ) {
+    Creator[ name ] = function( el, cons, meth ) {
         return cons && $[meth]( el, $.Text(cons) ), el;
     };
 });
@@ -959,7 +1176,7 @@ const Content = {
     'Blank',
 ]
 .forEach(function( name ) {
-    Content[ name ] = root => root;
+    Creator[ name ] = root => root;
 });
 
 
@@ -967,39 +1184,6 @@ const Content = {
 //
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 创建并插入子元素序列。
- * 子元素集插入到上级末尾元素内。
- * 返回值优化：
- * 如果父级只有一个元素，返回该元素本身。否则返回父级存储本身。
- *
- * @param  {[Element]} buf 父级元素存储
- * @param  {[String]} tags 纵向标签序列集
- * @return {Element|[Element]} 父级元素（集）
- */
-function elemSubs( buf, tags ) {
-    let _last = buf[buf.length - 1];
-
-    for ( const ts of tags) {
-        let _els = siblings( ts.trim() );
-        _last.append( ..._els );
-        _last = _els[_els.length - 1];
-    }
-    return buf.length > 1 ? buf : buf[0];
-}
-
-
-/**
- * 创建平级兄弟元素序列。
- * @param {String} tags 标签序列
- */
-function siblings( tags ) {
-    return tags.split(',')
-        .map( s => s.trim() )
-        .map( n => element(...n.split(':')) );
-}
 
 
 /**
@@ -1421,30 +1605,15 @@ function rubySubs( obj ) {
 
 
 //
-// 导出
+// 扩展&导出。
 //////////////////////////////////////////////////////////////////////////////
 
 
-/**
- * 创建内容结构。
- * 包括非独立逻辑的中间结构。
- * @param  {String} name 内容名称
- * @param  {...Value} 剩余参数（适用table）
- * @return {Element|[Element]} 结构根（序列）
- */
-function create( name, ...rest ) {
-    let _tags = tagsMap[name];
-
-    if ( !_tags ) {
-        throw new Error(`[${name}] name not found.`);
-    }
-    if ( __reTag.text(_tags) ) {
-        return single( _tags, ...rest );
-    }
-    _tags = _tags.split('/');
-
-    return elemSubs( siblings(_tags.shift()), _tags );
-}
+//
+// By扩展：
+// New.[cell-name](...)
+//
+extend( 'New', Creator );
 
 
-export { create, Article, Content };
+export { create };

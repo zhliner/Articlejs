@@ -124,7 +124,7 @@ const typeStruct = {
     LI( el ) {
         let _sub = el.firstElementChild;
 
-        if ( el.childElementCount === 1 ) {
+        if ( el.childElementCount <= 1 ) {
             return this._liChild(_sub) || T.LI;
         }
         return el.childElementCount === 2 && _sub.tagName === 'H4' ? this._liParent(el.parentElement) : T.LI;
@@ -156,13 +156,15 @@ const typeStruct = {
      * @return {Number}
      */
     _liChild( el, li ) {
-        switch (el.tagName) {
+        if ( el ) {
+            switch (el.tagName) {
             case 'CODE':
                 return T.CODELI;
             case 'A':
                 return T.ALI;
             case 'H4':
                 return this.H4(el) === T.AH4 ? T.AH4LI : this._liParent(li.parentElement);
+            }
         }
     },
 
@@ -197,6 +199,22 @@ const typeStruct = {
 
 
 /**
+ * 获取单元类型值。
+ * 注：返回null表示非法类型（不支持）。
+ * @param  {String} name 单元名
+ * @return {Number|null}
+ */
+function nameType( name ) {
+    let _v = +T[ name ];
+
+    if ( isNaN(_v) ) {
+        throw new Error(`unsupported element: [${name}].`);
+    }
+    return _v;
+}
+
+
+/**
  * 获取元素类型值。
  * 仅处理文本节点和元素。
  * @param  {Element|Text} el 目标节点
@@ -208,7 +226,7 @@ function getType( el ) {
     }
     let _fn = typeStruct[ el.tagName ];
 
-    return _fn ? _fn(el) : T[simpleName(el)];
+    return _fn ? _fn(el) : nameType( simpleName(el) );
 }
 
 
@@ -431,4 +449,13 @@ function errorMsg( hid ) {
 function simpleName( el ) {
     let _role = el.getAttribute('role');
     return (LogicRoles.has(_role) ? _role :  el.tagName).toUpperCase();
+}
+
+
+//
+// 导出。
+//////////////////////////////////////////////////////////////////////////////
+
+export {
+    nameType,
 }
