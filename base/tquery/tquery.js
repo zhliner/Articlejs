@@ -622,7 +622,7 @@ Object.assign( tQuery, {
             doc = opts || doc;
             [tag, opts] = ['svg', tag];
         }
-        return setElem( doc.createElementNS(svgNS, tag), opts, true );
+        return setElem( doc.createElementNS(svgNS, tag), opts, buildFragmentSVG );
     },
 
 
@@ -4441,17 +4441,15 @@ function values( obj ) {
 /**
  * 元素源码填充。
  * 仅用于新创建的元素，无需清空也无需触发verynode。
+ * 注：片段创建函数主要用于svg:html创建。
  * @param  {Element} el 目标元素
  * @param  {String} html 源码
- * @param  {Boolean} svg 是否为SVG创建
+ * @param  {Function} frag 片段创建函数，可选
  * @return {Element} el
  */
-function fillElem( el, html, svg ) {
+function fillElem( el, html, frag = buildFragment  ) {
     if ( html ) {
-        let _fn = svg ?
-            buildFragmentSVG :
-            buildFragment;
-        el.append( _fn(html, el.ownerDocument) );
+        el.append( frag(html, el.ownerDocument) );
     }
     return el;
 }
@@ -4463,17 +4461,17 @@ function fillElem( el, html, svg ) {
  * 仅用于新创建的元素，无需触发attrvary。
  * @param  {Element} el 目标元素
  * @param  {Object} conf 配置对象
- * @param  {Boolean} svg 是否为SVG创建
+ * @param  {Function} frag 片段创建函数，可选
  * @return {Element} el
  */
-function setElem( el, conf, svg ) {
+function setElem( el, conf, frag ) {
     if ( !conf ) {
         return el;
     }
     for ( let [k, v] of Object.entries(conf) ) {
         switch ( k ) {
         case 'html':
-            fillElem( el, v, svg ); break;
+            fillElem( el, v, frag ); break;
         case 'text':
             el.textContent = v; break;
         default:
