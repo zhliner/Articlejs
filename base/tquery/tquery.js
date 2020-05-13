@@ -556,7 +556,7 @@ Object.assign( tQuery, {
             doc.createElementNS(ns, tag) :
             doc.createElement(tag);
 
-        return typeof data == 'string' ? fillElem(_el, data, doc) : setElem(_el, data);
+        return typeof data == 'string' ? fillElem(_el, data) : setElem(_el, data);
     },
 
 
@@ -603,9 +603,9 @@ Object.assign( tQuery, {
 
     /**
      * SVG系元素创建。
-     * - 创建svg元素本身时标签名可省略，即首个参数为配置对象。
+     * - 创建svg元素本身时标签名可省略，即首个参数即为配置对象。
      *   如：$.svg( {width: 100, height: 200} )
-     * - opts特性配置与 .Element 接口中的 data 参数类似，支持 html|text|node 特殊名称。
+     * - opts特性配置与 .Element 接口中的 data 参数类似，支持 html|text 特殊名称。
      * opts: {
      *      html:   取值为源码
      *      text:   取值为文本
@@ -618,10 +618,9 @@ Object.assign( tQuery, {
      */
     svg( tag, opts, doc = Doc ) {
         if (typeof tag != 'string') {
-            doc = opts || doc;
             [tag, opts] = ['svg', tag];
         }
-        return setElem( doc.createElementNS(svgNS, tag), opts );
+        return setElem( doc.createElementNS(svgNS, tag), opts, true );
     },
 
 
@@ -4442,11 +4441,15 @@ function values( obj ) {
  * 仅用于新创建的元素，无需清空也无需触发verynode。
  * @param  {Element} el 目标元素
  * @param  {String} html 源码
+ * @param  {Boolean} svg 是否为SVG创建
  * @return {Element} el
  */
-function fillElem( el, html, doc ) {
+function fillElem( el, html, svg ) {
     if ( html ) {
-        el.append( buildFragment(html, doc) );
+        let _fn = svg ?
+            buildFragmentSVG :
+            buildFragment;
+        el.append( _fn(html, el.ownerDocument) );
     }
     return el;
 }
@@ -4458,16 +4461,17 @@ function fillElem( el, html, doc ) {
  * 仅用于新创建的元素，无需触发attrvary。
  * @param  {Element} el 目标元素
  * @param  {Object} conf 配置对象
+ * @param  {Boolean} svg 是否为SVG创建
  * @return {Element} el
  */
-function setElem( el, conf ) {
+function setElem( el, conf, svg ) {
     if ( !conf ) {
         return el;
     }
     for ( let [k, v] of Object.entries(conf) ) {
         switch ( k ) {
         case 'html':
-            fillElem( el, v ); break;
+            fillElem( el, v, svg ); break;
         case 'text':
             el.textContent = v; break;
         default:
@@ -5326,6 +5330,22 @@ function buildFragment( html, doc, clean ) {
         clean(_tpl.content);
     }
     return doc.adoptNode( _tpl.content );
+}
+
+
+/**
+ * 构建SVG文档片段。
+ * @param {String} html 源码
+ * @param {Document} doc 文档对象
+ */
+function buildFragmentSVG( html, doc ) {
+    let _frg = doc.createDocumentFragment(),
+        _box = doc.createElementNS(svgNS, 'svg');
+
+    _box.innerHTML = html;
+    _frg.append( ..._box.childNodes );
+
+    return _frg;
 }
 
 
