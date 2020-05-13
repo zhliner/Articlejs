@@ -606,6 +606,7 @@ Object.assign( tQuery, {
      * - 创建svg元素本身时标签名可省略，即首个参数即为配置对象。
      *   如：$.svg( {width: 100, height: 200} )
      * - opts特性配置与 .Element 接口中的 data 参数类似，支持 html|text 特殊名称。
+     *   如果省略标签实参，opts位置可传递文档对象实参。
      * opts: {
      *      html:   取值为源码
      *      text:   取值为文本
@@ -618,6 +619,7 @@ Object.assign( tQuery, {
      */
     svg( tag, opts, doc = Doc ) {
         if (typeof tag != 'string') {
+            doc = opts || doc;
             [tag, opts] = ['svg', tag];
         }
         return setElem( doc.createElementNS(svgNS, tag), opts, true );

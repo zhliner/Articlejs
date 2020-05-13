@@ -29,8 +29,8 @@ const $ = window.$;
 // 3. TBLCELL 表格单元元件：{<th>|<td>}
 // 4. DLITEM  定义列表项：  {<dt>|<dd>}
 // 5. LIST    普通列表（子项由<li>封装）：{<ol>|<ul>|...}
-// 6. SEALED  密封单元，可对原成员内容作修改但不接受新插入（除非已为空）。
-// 7. SECTED  分级片区，有内容互斥约束（S1-5|CONSECT）
+// 6. SEALED  密封单元，定制创建和更新，内部成员不可移动插入也不可简单删除。
+// 7. SECTED  分级片区，有严格的嵌套层级，转换时可能需要修改role值。
 //
 // 概念：
 // 与元素稍有不同，单元指可成为内容的逻辑完整的元素或元素结构。
@@ -148,7 +148,6 @@ export const
     THEAD       = 415,  // 表头
     TBODY       = 416,  // 表体
     TFOOT       = 417,  // 表脚
-    CONSECT     = 418,  // 内容片区（抽象：与 S1-S5 互斥存在）
     // 定制类：
     // 容器：<li>, <p>, <h4>
     CODELI      = 419,  // 代码表条目（li/code）
@@ -285,7 +284,6 @@ export const Types = {
     [ THEAD ]:      STRUCT | TBLSECT,
     [ TBODY ]:      STRUCT | TBLSECT,
     [ TFOOT ]:      STRUCT | TBLSECT,
-    [ CONSECT ]:    null, // 抽象单元
 
     [ CODELI ]:     STRUCT | SEALED,
     [ ALI ]:        STRUCT | SEALED,
@@ -383,6 +381,7 @@ const _BLOCKITS =
 // - 可用于判断目标的可插入单元（向内）。
 // - 取父容器可判断平级插入时的合法单元。
 // - 首个成员为默认构造单元（如果可行）。
+// - 特许分级片区与其它行块单元同级存在（便利性且CSS可区分）。
 //
 export const ChildTypes = {
     //
@@ -475,7 +474,6 @@ export const ChildTypes = {
     [ THEAD ]:      [ TR ],
     [ TBODY ]:      [ TR ],
     [ TFOOT ]:      [ TR ],
-    [ CONSECT ]:    [ _BLOCKITS ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -487,11 +485,11 @@ export const ChildTypes = {
     [ HEADER ]:     [ P, H3, _BLOLIMIT ],
     [ FOOTER ]:     [ P, H3, _BLOLIMIT, ADDRESS ],
     [ ARTICLE ]:    [ HEADER, S1, FOOTER ],
-    [ S1 ]:         [ H2, HEADER, S2, FOOTER ],
-    [ S2 ]:         [ H2, HEADER, S3, FOOTER ],
-    [ S3 ]:         [ H2, HEADER, S4, FOOTER ],
-    [ S4 ]:         [ H2, HEADER, S5, FOOTER ],
-    [ S5 ]:         [ H2, HEADER, CONSECT, FOOTER ],
+    [ S1 ]:         [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
+    [ S2 ]:         [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
+    [ S3 ]:         [ H2, HEADER, S4, _BLOCKITS, FOOTER ],
+    [ S4 ]:         [ H2, HEADER, S5, _BLOCKITS, FOOTER ],
+    [ S5 ]:         [ H2, HEADER, _BLOCKITS, FOOTER ],
     [ UL ]:         [ LI, ALI ],
     [ OL ]:         [ LI, ALI ],
     [ CODELIST ]:   [ CODELI ],
@@ -645,7 +643,6 @@ export const InputOption = {
     [ THEAD ]:      'thead',
     [ TBODY ]:      'tbody',
     [ TFOOT ]:      'tfoot',
-    [ CONSECT ]:    'consect',
 
     [ HGROUP ]:     'hgroup',
     [ ABSTRACT ]:   'abstract',

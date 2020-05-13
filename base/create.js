@@ -9,7 +9,7 @@
 //	内容单元创建。
 //
 //  单元的容器和内容条目分开创建，以便于容器可以接收既有的内容条目（如移动传入）。
-//  单元容器的创建是通用的（依配置创建），内容插入则有各自的限定。
+//  单元容器的创建是通用的（依配置），内容插入则有各自的限定。
 //
 //  注记：
 //  文章的正式结构中层级片区和内容片区互斥，但编辑器提供容错以方便操作。
@@ -24,14 +24,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import * as T from "./types.js";
-
 
 const $ = window.$;
 
 
 const
-    // 单元类型存储键。
+    // 单元类型值存储键。
+    // 注：每一个元素上都会存储其类型值。
     __cellType = Symbol('cell-type'),
 
 
@@ -58,19 +57,33 @@ const
 
 
 //
-// 单元映射 {
-//      name: tags
+// 定制角色 {
+//      name: [tag, role]
 // }
-// name: 内容名称。用于创建内容时标识区分。
-// tags: 内容元素序列，固定结构。
-//      /   斜线分隔父子单元
-//      :   冒号分隔角色定义（role）
-//      ,   逗号分隔并列单元
-// 注：
-// 固定结构限于可选而非可变（如<li>就不属于）。
-// 表格元素单独处理，因此其子结构元素不在此列。
+// - name: 元素类型名。
+// - tag:  目标元素标签名。
+// - role: 目标角色名。
 //
-const tagsMap = {
+const customRoles = {
+    ABSTRACT:   [ 'header',  'abstract' ],
+    TOC:        [ 'nav',     'toc' ],
+    SEEALSO:    [ 'ol',      'seealso' ],
+    REFERENCE:  [ 'ul',      'reference' ],
+    S1:         [ 'section', 's1' ],
+    S2:         [ 'section', 's2' ],
+    S3:         [ 'section', 's3' ],
+    S4:         [ 'section', 's4' ],
+    S5:         [ 'section', 's5' ],
+    CODELIST:   [ 'ol',      'codelist' ],
+    ULX:        [ 'ul',      'ulx' ],
+    OLX:        [ 'ol',      'olx' ],
+    CASCADE:    [ 'ol',      'cascade' ],
+    CODEBLOCK:  [ 'pre',     'codeblock' ],
+    NOTE:       [ 'p',       'note' ],
+    TIPS:       [ 'p',       'tips' ],
+    BLANK:      [ 'div',     'blank' ],
+    ORZ:        [ 'code',    'orz' ],
+    SPACE:      [ 'span',    'space' ],
 
     // 块容器
     // ------------------------------------------

@@ -6,7 +6,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//	基本方法库。
+//	基础方法集。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ const $ = window.$;
 
 //
 // 内联元素集。
-// 可用于提取内容时判断是否为内联单元。
+// 用于提取内容时判断是否为内联单元。
 //
 const InlineTags = new Set([
     'AUDIO',
@@ -60,9 +60,8 @@ const InlineTags = new Set([
 
 
 //
-// 逻辑内容单元名
-// 用于判断role值是否为逻辑单元名。
-// 注：全小写。
+// 逻辑单元名。
+// 用于判断role值是否为正式的逻辑单元名。
 //
 const LogicRoles = new Set([
     'abstract',
@@ -89,14 +88,16 @@ const LogicRoles = new Set([
 
 //
 // 定制结构单元取值。
+// 含非独立的中间结构。
+// {tagName: function(Element): Number}
 //
 const typeStruct = {
     /**
      * 段落判断。
-     * - 插图：figure/p/img,span
-     * - 段落（p）。
-     * - 注解（p:note）。
-     * - 提示（p:tips）。
+     * - FIGIMGP: 插图子结构（figure/p/img,span）
+     * - P: 段落（p）。
+     * - NOTE: 注解（p:note）。
+     * - TIPS: 提示（p:tips）。
      * 注：插图仅需检查父元素类型即可。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
@@ -111,12 +112,12 @@ const typeStruct = {
 
     /**
      * 多种列表项判断。
-     * - 代码表条目（li/code）：唯一子元素
-     * - 目录表普通条目（li/a）：唯一子元素
-     * - 目录表标题条目（li/h4/a）：唯一子单元
-     * - 无序级联表项标题（li/h4, ol|ul）
-     * - 有序级联表项标题（li/h4, ul|ol）
-     * - 级联编号表项标题（li/h4, ol）
+     * - CODELI: 代码表条目（li/code）：唯一子元素
+     * - ALI: 目录表普通条目（li/a）：唯一子元素
+     * - AH4LI: 目录表标题条目（li/h4/a）：唯一子单元
+     * - ULXH4LI: 无序级联表项标题（li/h4, ol|ul）
+     * - OLXH4LI: 有序级联表项标题（li/h4, ul|ol）
+     * - CASCADEH4LI: 级联编号表项标题（li/h4, ol）
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
@@ -131,9 +132,10 @@ const typeStruct = {
 
 
     /**
-     * 链接小标题。
-     * 结构：h4/a。唯一子元素<a>。
-     * 注：通常指目录内的父条目（li/h4/a）。
+     * 小标题。
+     * - AH4: 链接小标题（h4/a）：唯一子元素
+     * - H4: 普通小标题（h4）
+     * 注：AH4 通常用于目录内的父条目（li/h4/a）。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
@@ -201,9 +203,12 @@ const typeStruct = {
  * @return {Number}
  */
 function getType( el ) {
-    return el.nodeType === 3 ?
-        T.$TEXT :
-        typeStruct[el.tagName](el) || T[simpleName(el)];
+    if ( el.nodeType === 3 ) {
+        return T.$TEXT;
+    }
+    let _fn = typeStruct[ el.tagName ];
+
+    return _fn ? _fn(el) : T[simpleName(el)];
 }
 
 
@@ -213,14 +218,14 @@ function getType( el ) {
  * @param  {Element|Text} el 目标节点
  * @return {[Node]|Node}
  */
-function inlineContents( el ) {
+function contents( el ) {
     if ( el.nodeType == 3 && el.textContent.trim() ) {
         return el;
     }
     if ( InlineTags.has(el.tagName) ) {
         return el;
     }
-    return $.contents(el).map( nd => inlineContents(nd) ).flat();
+    return $.contents(el).map( nd => contents(nd) ).flat();
 }
 
 
@@ -230,7 +235,7 @@ function inlineContents( el ) {
  * @param  {Number} box 容器单元
  * @return {Boolean}
  */
-function isChild( sub, box ) {
+function inSubs( sub, box ) {
     return T.ChildTypes[ box ].includes( sub );
 }
 
@@ -418,7 +423,7 @@ function errorMsg( hid ) {
 //////////////////////////////////////////////////////////////////////////////
 
 /**
- * 获取元素简单名称。
+ * 简单获取单元名称。
  * 仅限于标签名和role定义名，全大写。
  * @param  {Element} el 目标元素
  * @return {String}
