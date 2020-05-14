@@ -100,7 +100,7 @@ Global: [
             "shift:!",  // !  扩展指令
         ],
         "command":  "cmdline.active",
-        "exclude":  "textarea,[type=text],[contenteditable]",
+        "exclude":  "textarea,input,[contenteditable]",
     },
 ],
 
@@ -176,7 +176,7 @@ Slave: [
             ":l",       // ...          | ...           | codelist
         ],
         "command":  "input.select",
-        "exclude":  "textarea, [type=text]"
+        "exclude":  "textarea, input"
     },
 
 ],

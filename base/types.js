@@ -77,7 +77,7 @@ export const
     SVG         = 4,    // 图形
     RUBY        = 5,    // 注音
     TIME        = 6,    // 时间
-    METER       = 7,    // 度量
+    METER       = 7,    // 量度
     SPACE       = 8,    // 空白
     IMG         = 9,    // 图片
     DATAIMG     = 10,   // 数据图片（data:image/,...）

@@ -89,8 +89,8 @@ call( meth:String, ...rest:Value ): Value
 calls( meths:String, ...args:Value ): [Value]
 // 调用目标的多个方法。
 
-form( ...name:String ): Element | [Element]
-// 获取目标名称的控件元素（集）。
+vals( ...name:String ): Object{name:value}
+// 获取目标名称的控件值集。
 
 
 

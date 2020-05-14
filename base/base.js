@@ -199,7 +199,7 @@ const typeStruct = {
 
 
 /**
- * 获取单元类型值。
+ * 单元名称对应类型值。
  * 注：返回null表示非法类型（不支持）。
  * @param  {String} name 单元名
  * @return {Number|null}
@@ -215,12 +215,12 @@ function nameType( name ) {
 
 
 /**
- * 获取元素类型值。
+ * 分析节点类型值。
  * 仅处理文本节点和元素。
  * @param  {Element|Text} el 目标节点
  * @return {Number}
  */
-function getType( el ) {
+function type( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
@@ -457,5 +457,6 @@ function simpleName( el ) {
 //////////////////////////////////////////////////////////////////////////////
 
 export {
+    type,
     nameType,
 }

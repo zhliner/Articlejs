@@ -263,19 +263,21 @@ const _Gets = {
 
 
     /**
-     * 获取表单控件（集）。
+     * 获取表单控件值集。
      * 目标：暂存区/栈顶1项。
      * 注意控件需要包含name属性。
      * @data: <form>
      * @param  {...String} names 控件名序列
-     * @return {Element|[Element]}
+     * @return {Object}
      */
-    form( evo, ...names ) {
-        return names.length > 1 ?
-            names.map( n => evo.data[n] ) : evo.data[ names[0] ];
+    vals( evo, ...names ) {
+        return $.controls(evo.data, ...names)
+            .reduce(
+                (o, el) => (o[el.name] = $.val(el), o), {}
+            );
     },
 
-    __form: 1,
+    __vals: 1,
 
 
 
@@ -1419,7 +1421,7 @@ const _arrayGets = {
 //===============================================
 [
     'isXML',        // (): Boolean
-    'controls',     // (): [Element]
+    'controls',     // ( ...names ): [Element]
     'serialize',    // ( ...names ): [Array2]
     'queryURL',     // (): String
     'isArray',      // (): Boolean

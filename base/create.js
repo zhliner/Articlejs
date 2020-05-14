@@ -24,19 +24,27 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { nameType } from "./base.js";
+import { type, nameType } from "./base.js";
 import { extend } from "./tpb/pbs.by.js";
 
 
 const
     $ = window.$,
 
-    // 类型值存储池。
-    __poolTypes = new WeakMap(),
+    // 类型值存储键。
+    __typeKey = Symbol('type-value'),
 
     // 表格实例缓存。
     // { Element: $.Table }
     __tablePool = new WeakMap();
+
+
+//
+// 简单默认消息。
+//
+const
+    __msgAudio = 'Your browser does not support the [audio] element.',
+    __msgVideo = 'Your browser does not support the [video] element.';
 
 
 //
@@ -72,29 +80,59 @@ const customRoles = {
 
 /**
  * 创建单元元素。
- * 注：不含文本节点。
- * 注意名称需要转换为全小写（如：<SVG> != <svg>）。
- * @param  {String} name 单元名称（全大写）
+ * name需为全大写以便检索类型值。
+ * 类型值会被存储，以使得不需要每次都检查判断。
+ * 注：不含文本节点和svg元素。
+ * @param  {String} name 单元名称
  * @return {Element}
  */
 function create( name ) {
     let _its = customRoles[ name ],
-        _cfg = _its && { role: _its[1] };
+        _cfg = _its && { role: _its[1] },
+        _el = $.Element( _its && _its[0] || name, _cfg );
 
-    return setType(
-        $.Element(_its ? _its[0] : name.toLowerCase(), _cfg), nameType(name)
-    );
+    return setType(_el, nameType(name)), _el;
 }
 
 
 /**
  * 存储元素类型值。
+ * 注：用一个Symbol键存储在元素对象上，非枚举。
  * @param  {Element} el 目标元素
  * @param  {Number} tval 类型值
- * @return {Element} el
+ * @return {Number} tval
  */
 function setType( el, tval ) {
-    return __poolTypes.set(el, tval), el;
+    Reflect.defineProperty(el, __typeKey, {
+        value: tval,
+        enumerable: false,
+    });
+    return tval;
+}
+
+
+/**
+ * 获取元素类型值。
+ * 如果值未知，即时分析获取并存储。
+ * @param  {Element} el 目标元素
+ * @return {Number}
+ */
+function getType( el ) {
+    let _v = el[ __typeKey ];
+    return _v === undefined ? setType(el, type(el)) : _v;
+}
+
+
+/**
+ * 克隆元素。
+ * 仅用于内容单元，因此是完整克隆（深度）。
+ * 包括元素（自身）上注册的事件处理器和类型的值。
+ * @param  {Element} src 源元素
+ * @return {Element} 新元素
+ */
+function clone( src ) {
+    let _new = $.clone( src, true );
+    return setType( _new, getType(src) ), _new;
 }
 
 
@@ -102,73 +140,131 @@ function setType( el, tval ) {
 // 单元创建集。
 // 包含全部中间结构单元。
 // 用于主面板中的新单元构建和复制/移动时的默认单元创建。
-// @return {Node|[Node]}
+// @return {Element|[Element]}
 //////////////////////////////////////////////////////////////////////////////
 // 注记：
-// 实参尽量为节点/集，以便于用于移动转换场景。
+// 除非为最基本单元，实参尽量为节点/集以便于移动转换适用。
 // 返回节点集时，如果目标为集合，可实现一一对应插入。
 //
-const Creator = {
+const Content = {
 
     //-- 内联结构类 ----------------------------------------------------------
 
-    Audio() {
-        //
+    /**
+     * 创建音频单元。
+     * @param {Object} opts 属性配置集
+     */
+    audio( opts ) {
+        let el = create( 'AUDIO' );
+        return $.attribute( el, opts || {} ), el;
     },
 
 
-    Video() {
-        //
+    /**
+     * 创建视频单元。
+     * @param {Object} opts 属性配置集
+     */
+    video( opts ) {
+        let el = create( 'VIDEO' );
+        return $.attribute( el, opts || {} ), el;
     },
 
 
-    Picture() {
-        //
+    /**
+     * 创建兼容图片。
+     * @param {Element} img 图片元素
+     * @param {[Element]} sources 兼容图片源元素
+     */
+    picture( img, sources ) {
+        let el = create( 'PICTURE' );
+        return $.append( el, sources.concat(img) ), el;
     },
 
 
-    Svg() {
-        //
+    /**
+     * 创建SVG单元。
+     * @param {Object} opts 属性配置集
+     * @param {String} xml SVG源码，可选
+     */
+    svg( opts, xml ) {
+        if ( xml ) {
+            opts.html = xml;
+        }
+        let _el = $.svg( opts );
+
+        return setType(_el, nameType('SVG')), _el;
     },
 
 
-    Ruby() {
-        //
+    /**
+     * 创建注音单元。
+     * @param {Element} rb 注音字
+     * @param {Element} rt 注音
+     * @param {Element} rp1 左包围
+     * @param {Element} rp2 右包围
+     */
+    ruby( rb, rt, rp1, rp2 ) {
+        let el = create( 'RUBY' );
+        return $.append( el, [rb, rp1, rt, rp2] ), el;
     },
 
 
-    Time() {
-        //
+    /**
+     * 创建时间单元。
+     * 文本为空时即默认为datetime的标准格式文本。
+     * date/time通常至少需要一个有值。
+     * @param {String} text 时间表达文本，可选
+     * @param {String} date 日期表达串，可选
+     * @param {String} time 时间表达串，可选
+     */
+    time( text, date, time ) {
+        let el = create( 'TIME' ),
+            dt = '';
+
+        if ( date ) dt = date;
+        if ( time ) dt += time;
+
+        $.attribute( el, {text: text || dt, datetime: dt || null} );
+        return el;
     },
 
 
-    Meter() {
-        //
+    /**
+     * 创建量度标示。
+     * @param {Number} val 数量
+     * @param {Number} max 最大值，可选
+     * @param {Number} min 最小值，可选
+     * @param {Number} high 高值，可选
+     * @param {Number} low 低值，可选
+     * @param {Number} opm 最优值，可选
+     */
+    meter( val, max, min, high, low, opm ) {
+        let el = create( 'METER' );
     },
 
 
-    Space() {
-        //
+    space() {
+        let el = create( 'SPACE' );
     },
 
 
-    Img() {
-        //
+    img() {
+        let el = create( 'IMG' );
     },
 
 
-    Dataimg() {
-        //
+    dataimg() {
+        let el = create( 'DATAIMG' );
     },
 
 
-    Br() {
-        //
+    br() {
+        let el = create( 'BR' );
     },
 
 
-    Wbr() {
-        //
+    wbr() {
+        let el = create( 'WBR' );
     },
 
 
@@ -980,7 +1076,7 @@ const Creator = {
      * @param  {Boolean} conItem 内容是否为内容件集，可选
      * @return {[Element|null, [Element]]} 章标题和新插入的内容集
      */
-    Creator[ its[0] ] = function( sect, [hx, els], meth, conItem ) {
+    Content[ its[0] ] = function( sect, [hx, els], meth, conItem ) {
         if ( conItem == null ) {
             conItem = isConItems(els);
         }
@@ -1017,7 +1113,7 @@ const Creator = {
      * @param  {String} meth 内容插入方法
      * @return {[Element|null, [Element]]} 标题项和新插入的内容单元
      */
-    Creator[ its[0] ] = function( root, [hx, cons], meth ) {
+    Content[ its[0] ] = function( root, [hx, cons], meth ) {
         if ( hx != null ) {
             blockHeading( its[1], root, hx, meth );
         }
@@ -1047,7 +1143,7 @@ const Creator = {
      * @param  {String} meth 插入方法（append|prepend|fill）
      * @return {[Element]} 新插入的列表项元素（集）
      */
-    Creator[ name ] = function( box, cons, meth ) {
+    Content[ name ] = function( box, cons, meth ) {
         return cons && $[meth]( box, cons );
     };
 });
@@ -1115,7 +1211,7 @@ const Creator = {
      * @param  {String} meth 插入方法（append|prepend|fill）
      * @return {Element} 容器元素自身
      */
-    Creator[ name ] = function( el, cons, meth ) {
+    Content[ name ] = function( el, cons, meth ) {
         return cons && $[meth]( el, cons ), el;
     };
 });
@@ -1138,7 +1234,7 @@ const Creator = {
      * @param  {String} meth 插入方法
      * @return {Element} 代码根容器元素
      */
-    Creator[ name ] = function( box, codes, meth ) {
+    Content[ name ] = function( box, codes, meth ) {
         return insertCodes( box, codes, meth ), box;
     };
 });
@@ -1154,7 +1250,7 @@ const Creator = {
     'Rt',
 ]
 .forEach(function( name ) {
-    Creator[ name ] = function( el, cons, meth ) {
+    Content[ name ] = function( el, cons, meth ) {
         return cons && $[meth]( el, $.Text(cons) ), el;
     };
 });
@@ -1176,7 +1272,7 @@ const Creator = {
     'Blank',
 ]
 .forEach(function( name ) {
-    Creator[ name ] = root => root;
+    Content[ name ] = root => root;
 });
 
 
@@ -1613,7 +1709,7 @@ function rubySubs( obj ) {
 // By扩展：
 // New.[cell-name](...)
 //
-extend( 'New', Creator );
+extend( 'New', Content );
 
 
 export { create };

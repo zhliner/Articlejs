@@ -112,7 +112,8 @@ aside#help {
     font-size: 12pt;
 }
 
-.___Panel input[type=text] {
+.___Panel input[type=text],
+.___Panel input[type=url] {
     padding: 1px 4px;
     border: 1px #93c8e2 solid;
     border-radius: 2px;
