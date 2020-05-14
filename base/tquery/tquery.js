@@ -1823,11 +1823,11 @@ Object.assign( tQuery, {
             // maybe null
             code = code && outerHtml(code, sep);
         }
-        return Insert(
-            el,
-            buildFragment(code, el.ownerDocument),
-            Wheres[where]
-        );
+        let _frag = el.namespaceURI === svgNS ?
+            buildFragmentSVG :
+            buildFragment;
+
+        return Insert( el, _frag(code, el.ownerDocument), Wheres[where] );
     },
 
 
