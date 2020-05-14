@@ -5413,7 +5413,7 @@ function cleanFragment( frg ) {
 function cleanMap( list, handle ) {
     let _buf = [];
 
-    for (const [k, v] of list) {
+    for ( const [k, v] of entries(list) ) {
         let _v = handle(v, k, list);
         if ( _v != null ) _buf.push( _v );
     }
@@ -7249,7 +7249,7 @@ Object.assign( tQuery, {
      */
     map( iter, fun, thisObj ) {
         return cleanMap(
-            entries(iter),
+            iter,
             thisObj === undefined ? fun : fun.bind(thisObj)
         );
     },
