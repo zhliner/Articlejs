@@ -339,7 +339,7 @@
         //   <!-- -1 -->
         //
         // 理解（记忆）：
-        //   1： 表示与目标同级，只有1个层次。负值反向取末尾。
+        //   1： 表示与目标同级，只有1个层次。负值反向取后。
         //   2： 表示为目标子级元素，2个层次。负值取末尾。
         //   0： 替换。原目标已无（游离）。
         //   '': 填充。先设置内容为空串。
@@ -356,6 +356,12 @@
 
             '1': 1,  '-1': -1,  '2': 2,  '-2': -2, '0': 0, '': '',
         },
+
+        //
+        // 子级位置集。
+        // 填充也属于子级操作。
+        //
+        childWhere = new Set( [-2, '', 2] ),
 
         //
         // 可调用原生方法名（事件类）。
@@ -1823,11 +1829,9 @@ Object.assign( tQuery, {
             // maybe null
             code = code && outerHtml(code, sep);
         }
-        let _frag = el.namespaceURI === svgNS ?
-            buildFragmentSVG :
-            buildFragment;
+        where = Wheres[ where ];
 
-        return Insert( el, _frag(code, el.ownerDocument), Wheres[where] );
+        return Insert( el, htmlFrag(el, code, where), where );
     },
 
 
@@ -5346,6 +5350,23 @@ function buildFragmentSVG( html, doc ) {
     _frg.append( ..._box.childNodes );
 
     return _frg;
+}
+
+
+/**
+ * 创建正确的html片段。
+ * 需要判断目标元素位置是否在<svg>之内。
+ * @param  {Element} ref 参考元素
+ * @param  {String} html 源码
+ * @param  {Number|''} where 插入位置
+ * @return {DocumentFragment}
+ */
+function htmlFrag( ref, html, where ) {
+    if ( ref.namespaceURI === svgNS &&
+        (ref.tagName !== 'svg' || childWhere.has(where)) ) {
+        return buildFragmentSVG( html, ref.ownerDocument );
+    }
+    return buildFragment( html, ref.ownerDocument );
 }
 
 
