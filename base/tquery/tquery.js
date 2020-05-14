@@ -806,15 +806,18 @@ Object.assign( tQuery, {
      * 获取表单元素内可提交类控件集。
      * 同名控件中用最后一个控件代表（用.val可获取值集）。
      * @param  {Element} form 表单元素
+     * @param  {...String} names 指定的控件名序列
      * @return {[Element]} 控件集
      */
-    controls( form ) {
-        let _els = form.elements;
-
-        if (!_els || _els.length == 0) {
+    controls( form, ...names ) {
+        if ( form.elements.length == 0 ) {
             return [];
         }
-        return uniqueNamed( Arr(_els).filter( submittable ) );
+        let _flr = names.length ?
+            el => submittable(el) && names.includes(el.name) :
+            submittable;
+
+        return uniqueNamed( Arr(form.elements).filter( _flr ) );
     },
 
 
@@ -824,6 +827,7 @@ Object.assign( tQuery, {
      *      name,   // {String} 控件名
      *      value   // {String} 控件值
      * ]
+     * 注：值为空的表单控件会被忽略（提交逻辑如此）。
      * @param  {Element} form 表单元素
      * @param  {...String} names 指定的控件名序列
      * @return {[Array2]} 键值对数组
@@ -832,11 +836,8 @@ Object.assign( tQuery, {
         if ( names.length == 0 ) {
             return [...new FormData(frm).entries()];
         }
-        let _els = tQuery.controls(frm);
+        let _els = tQuery.controls(frm, names);
 
-        if (_els.length > 0) {
-            _els = _els.filter( el => names.includes(el.name) );
-        }
         return arr2Flat( cleanMap(_els, submitValues) );
     },
 
@@ -4773,7 +4774,6 @@ function classAttrToggle( el ) {
 /**
  * 是否为可提交类控件元素。
  * 即便input:checkbox|radio为未选中状态，它们也是可提交类控件。
- * 注：.val 取值为空的控件会被排除，因此不会影响提交逻辑。
  * @param  {Element} ctrl 控件元素
  * @return {Boolean}
  */

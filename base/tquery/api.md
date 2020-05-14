@@ -189,16 +189,17 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 ```
 
 
-### [$.controls( form ): [Element]](docs/$.controls.md)
+### [$.controls( form, ...names ): [Element]](docs/$.controls.md)
 
 获取表单元素 `form` 内可提交类控件元素的集合。
 
 - `form: Element` 目标表单元素。
+- `names: ...String` 指定的控件名序列。
 
 可提交类控件是指包含 `name` 特性（`Attribute`）定义的控件元素。对于 `input:checkbox` 类控件，即便它们中一个都没有被选中，也不影响它们是可提交类控件。
 
 > **注：**<br>
-> 同名的控件在表单中是一个**数组**的逻辑，返回集合中只会保留其中最后一个（`.val()` 方法可正常取值）。
+> 同名的控件在表单中是一个**数组**的逻辑，返回集合中只会保留其中最后一个，`.val()` 方法可正常取到值。
 
 
 ### [$.serialize( form, ...names ): [Array2]](docs/$.serialize.md)
