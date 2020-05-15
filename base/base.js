@@ -15,7 +15,11 @@
 import * as T from "./types.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // SVG系名称空间。
+    __svgNS = 'http://www.w3.org/2000/svg';
 
 
 //
@@ -83,6 +87,7 @@ const LogicRoles = new Set([
     'blank',
     'orz',
     'space',
+    'explain',
 ]);
 
 
@@ -200,15 +205,14 @@ const typeStruct = {
 
 /**
  * 单元名称对应类型值。
- * 注：返回null表示非法类型（不支持）。
  * @param  {String} name 单元名
- * @return {Number|null}
+ * @return {Number}
  */
 function nameType( name ) {
     let _v = +T[ name ];
 
     if ( isNaN(_v) ) {
-        throw new Error(`unsupported element: [${name}].`);
+        throw new Error(`unsupported type: [${name}].`);
     }
     return _v;
 }
@@ -223,6 +227,9 @@ function nameType( name ) {
 function type( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
+    }
+    if ( el.namespaceURI === __svgNS && el.tagName !== 'svg' ) {
+        return T.SVGITEM;
     }
     let _fn = typeStruct[ el.tagName ];
 
@@ -442,9 +449,9 @@ function errorMsg( hid ) {
 
 /**
  * 简单获取单元名称。
- * 仅限于标签名和role定义名，全大写。
+ * 仅限于标签名和role定义名。
  * @param  {Element} el 目标元素
- * @return {String}
+ * @return {String} 名称，全大写
  */
 function simpleName( el ) {
     let _role = el.getAttribute('role');

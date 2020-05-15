@@ -344,13 +344,13 @@
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
             <label><input name="below" type="checkbox" />标题在下</label>
         </header>
-        <textarea name="figure" id="url"
+        <textarea name="figure" id="url" class="_code"
             on="tips|evo(1) ev('detail') attr(_);
                 ^obted|$('2/select') val"
             to="|@placeholder;
                 |trigger('tips')"
-            data-iurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
-            data-durl="data:image/png;base64,..."
+            data-iurl="/upload/20200515/picx.jpg&#10;{ width: 800, alt: '...' }"
+            data-durl="data:image/png;base64,...&#10;{ width: 800, alt: '...' }"
             data-svgx="<svg>...</svg>"></textarea>
         <textarea name="explain" placeholder="文字讲解（可选）" class="_inert"></textarea>
     </div>
@@ -514,7 +514,7 @@
 <!-- 主栏：单元属性 -->
 <div class="_body _Inline" tpl-name="minied:inlines">
     <div class="_main _list">
-        <ul class="_prop" tpl-source="inlines:img">[图片]</ul>
+        <ul class="_prop" tpl-node="inlines:img">[图片]</ul>
     </div>
     <aside>
         <hr tpl-node="input:insert1" />
@@ -567,38 +567,44 @@
 
 <!-- 图片 -->
 <ul class="_prop" tpl-name="inlines:img">
-    <li tpl-node="prop:srcbase, prop:sources, prop:alts"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
+    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
+    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
 </ul>
 
 <!-- 音频 -->
 <ul class="_prop" data-new="audio" tpl-name="inlines:audio">
-    <li tpl-node="prop:srcbase, prop:source"></li>
+    <li tpl-node="prop:srcbase, prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
 </ul>
 
 <!-- 视频 -->
 <ul class="_prop" tpl-name="inlines:video">
-    <li tpl-node="prop:srcbase, prop:source, prop:poster"></li>
+    <li tpl-node="prop:srcbase, prop:src, prop:poster"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
-    <li tpl-node="prop:mediaopts"></li>
+    <li tpl-node="prop:wh, prop:mediaopts"></li>
 </ul>
 
-<!-- 兼容图片 -->
+<!-- 最佳图片 -->
 <ul class="_prop" tpl-name="inlines:picture">
-    <li tpl-node="prop:srcbase, prop:sourcex, prop:altx"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
+    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
+    <li tpl-node="prop:sources, prop:upload, prop:preview, prop:wh"></li>
+</ul>
+
+<!-- 轨道 -->
+<ul class="_prop" tpl-name="inlines:track">
+    <li tpl-node="prop:kind, prop:src, prop:srclang, prop:label"></li>
+    <li tpl-node="prop:default"></li>
+</ul>
+
+<!-- 资源 -->
+<ul class="_prop" tpl-name="inlines:source">
+    <li tpl-node="prop:src, prop:type"></li>
 </ul>
 
 <!-- 图形（svg） -->
 <div class="_prop" tpl-name="inlines:svg">
     <hr tpl-node="prop:svg" />
-</div>
-
-<!-- 数据图片（data:image/...） -->
-<div class="_prop" tpl-name="inlines:dataimg">
-    <hr tpl-node="prop:dataimg" />
 </div>
 
 <!-- 链接 -->
@@ -703,8 +709,8 @@
 <!-- 量度标示 -->
 <ul class="_prop" tpl-name="inlines:meter">
     <li tpl-source="prop:number"></li>
-    <li tpl-source="prop:max, prop:min"></li>
-    <li tpl-source="prop:high, prop:low"></li>
+    <li tpl-source="prop:maxmin"></li>
+    <li tpl-source="prop:highlow"></li>
     <li tpl-source="prop:optimum"></li>
 </ul>
 
@@ -756,17 +762,6 @@
 <div class="_body _Inline" tpl-name="input:img">
     <div class="_main _list">
         <hr tpl-node="inlines:img" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:dataimg">
-    <div class="_main _list">
-        <hr tpl-node="inlines:dataimg" />
     </div>
     <aside>
         <pre tpl-node="input:insert2">

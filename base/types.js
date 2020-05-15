@@ -80,19 +80,19 @@ export const
     METER       = 7,    // 量度
     SPACE       = 8,    // 空白
     IMG         = 9,    // 图片
-    DATAIMG     = 10,   // 数据图片（data:image/,...）
-    BR          = 11,   // 换行
-    WBR         = 12,   // 软换行
+    BR          = 10,   // 换行
+    WBR         = 11,   // 软换行
     //
     // 内联内结构
     /////////////////////////////////////////////
-    TRACK       = 100,  // 字幕轨
-    SOURCE      = 101,  // 媒体资源
-    RB          = 102,  // 注音文本
-    RT          = 103,  // 注音拼音
-    RP          = 104,  // 注音拼音包围
-    SPAN        = 105,  // 插图讲解
-    RBPT        = 106,  // 注音分组封装（抽象：用于包含多组注音）
+    SVGITEM     = 100,  // 图形内容（仅用于SVG子元素配置）
+    TRACK       = 101,  // 字幕轨
+    SOURCE      = 102,  // 媒体资源
+    RB          = 103,  // 注音文本
+    RT          = 104,  // 注音拼音
+    RP          = 105,  // 注音拼音包围
+    EXPLAIN     = 106,  // 插图讲解
+    RBPT        = 107,  // 注音分组封装（抽象：用于包含多组注音）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -216,19 +216,19 @@ export const Types = {
     [ METER ]:      INLINES | SEALED,
     [ SPACE ]:      INLINES | SEALED,
     [ IMG ]:        INLINES | EMPTY,
-    [ DATAIMG ]:    INLINES | EMPTY,
     [ BR ]:         INLINES | EMPTY,
     [ WBR ]:        INLINES | EMPTY,
     //
     // 内联内结构
     /////////////////////////////////////////////
+    [ SVGITEM ]:    STRUCT | SEALED,
     [ TRACK ]:      STRUCT | EMPTY,
     [ SOURCE ]:     STRUCT | EMPTY,
     [ RB ]:         STRUCT | CONTENT,
     [ RT ]:         STRUCT | CONTENT,
     [ RP ]:         STRUCT | SEALED,
     [ RBPT ]:       null, // 抽象单元
-    [ SPAN ]:       STRUCT | CONTENT,   // figure/p/img,span
+    [ EXPLAIN ]:    STRUCT | CONTENT,   // figure/p/img,span:explain
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -392,9 +392,8 @@ export const ChildTypes = {
     [ AUDIO ]:      [ SOURCE, TRACK, $TEXT ],
     [ VIDEO ]:      [ SOURCE, TRACK, $TEXT ],
     [ PICTURE ]:    [ SOURCE, IMG ],
-    [ SVG ]:        [],
+    [ SVG ]:        [ SVGITEM ],
     [ IMG ]:        [],
-    [ DATAIMG ]:    [],
     [ RUBY ]:       [ RBPT, RB, RT, RP ],
     [ TIME ]:       [ $TEXT ],
     [ METER ]:      [ $TEXT ],
@@ -404,12 +403,13 @@ export const ChildTypes = {
     //
     // 内联内结构
     /////////////////////////////////////////////
+    [ SVGITEM ]:    [ SVGITEM ],
     [ TRACK ]:      [],
     [ SOURCE ]:     [],
     [ RB ]:         [ $TEXT ],
     [ RT ]:         [ $TEXT ],
     [ RP ]:         [ $TEXT ],
-    [ SPAN ]:       [ $TEXT, _INLINES, A ], // 插图讲解
+    [ EXPLAIN ]:    [ $TEXT, _INLINES, A ], // 插图讲解
     [ RBPT ]:       [ RB, RT, RP ],
     //
     // 内联内容元素
@@ -468,7 +468,7 @@ export const ChildTypes = {
     [ ULXH4LI ]:    [ OL, H4, UL ],
     [ OLXH4LI ]:    [ UL, H4, OL ],
     [ CASCADEH4LI ]: [ H4, OL ],
-    [ FIGIMGP ]:    [ IMG, SPAN ],
+    [ FIGIMGP ]:    [ IMG, EXPLAIN ],
     [ TR ]:         [ TH, TD ],
     [ THEAD ]:      [ TR ],
     [ TBODY ]:      [ TR ],
@@ -529,10 +529,9 @@ $.each(
 export const PropItems = {
     [ AUDIO ]:      'audio',    // source, track, text
     [ VIDEO ]:      'video',    // 同上
-    [ PICTURE ]:    'picture',  // source, img
-    [ SVG ]:        'svg',      // html
+    [ PICTURE ]:    'picture',  // img, source...
+    [ SVG ]:        'svg',      // width, height, html
     [ IMG ]:        'img',      // src, width, height, alt
-    [ DATAIMG ]:    'dataimg',  // 同上
     [ RUBY ]:       'ruby',     // rb, rt, rp
     [ TIME ]:       'time',     // datetime, text
     [ METER ]:      'meter',    // max, min, high, low, value, optimum
@@ -574,7 +573,6 @@ export const InputOption = {
     [ PICTURE ]:    'picture',
     [ SVG ]:        'svg',
     [ IMG ]:        'img',
-    [ DATAIMG ]:    'dataimg',
     [ RUBY ]:       'ruby',
     [ TIME ]:       'time',
     [ METER ]:      'meter',

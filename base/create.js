@@ -75,6 +75,7 @@ const customRoles = {
     BLANK:      [ 'div',     'blank' ],
     ORZ:        [ 'code',    'orz' ],
     SPACE:      [ 'span',    'space' ],
+    EXPLAIN:    [ 'span',    'explain' ],
 };
 
 
@@ -231,76 +232,104 @@ const Content = {
 
     /**
      * 创建量度标示。
-     * @param {Number} val 数量
-     * @param {Number} max 最大值，可选
-     * @param {Number} min 最小值，可选
-     * @param {Number} high 高值，可选
-     * @param {Number} low 低值，可选
-     * @param {Number} opm 最优值，可选
+     * 注：!!'0' => true
+     * @param {String} val 数量
+     * @param {String} max 最大值，可选
+     * @param {String} min 最小值，可选
+     * @param {String} high 高值，可选
+     * @param {String} low 低值，可选
+     * @param {String} opm 最优值，可选
      */
     meter( val, max, min, high, low, opm ) {
-        let el = create( 'METER' );
+        let el = create( 'METER' ),
+            cf = { value: val };
+
+        if ( max ) cf.max = max;
+        if ( min ) cf.min = min;
+        if ( high ) cf.high = high;
+        if ( low ) cf.low = low;
+        if ( opm ) cf.optimum = opm;
+
+        return $.attribute(el, cf), el;
     },
 
 
-    space() {
-        let el = create( 'SPACE' );
+    /**
+     * 创建空白段。
+     * @param {Number} n 数量
+     * @param {String} width 宽度
+     */
+    space( n, width ) {
+        let els = calls( n, create, 'SPACE' );
+
+        if ( width != null ) {
+            els.forEach( el => $.css(el, 'width', width) );
+        }
+        return els.length == 1 ? els[0] : els;
     },
 
 
-    img() {
+    // 创建图片。
+    // @param {Object} 属性集
+    img( opts ) {
         let el = create( 'IMG' );
+        return $.attribute( el, opts || {} ), el;
     },
 
 
-    dataimg() {
-        let el = create( 'DATAIMG' );
+    /**
+     * 创建换行。
+     * @param {Number} n 数量
+     */
+    br( n ) {
+        let els = calls( n, create, 'BR' );
+        return els.length == 1 ? els[0] : els;
     },
 
 
-    br() {
-        let el = create( 'BR' );
-    },
-
-
-    wbr() {
-        let el = create( 'WBR' );
+    /**
+     * 创建软换行。
+     * @param {Number} n 数量
+     */
+    wbr( n ) {
+        let els = calls( n, create, 'WBR' );
+        return els.length == 1 ? els[0] : els;
     },
 
 
     //-- 内联内结构 ----------------------------------------------------------
 
-    Track() {
+    track() {
         //
     },
 
 
-    Source() {
+    source() {
         //
     },
 
 
-    Rb() {
+    rb() {
         //
     },
 
 
-    Rt() {
+    rt() {
         //
     },
 
 
-    Rp() {
+    rp() {
         //
     },
 
 
-    Span() {
+    explain() {
         //
     },
 
 
-    Rbpt() {
+    rbpt() {
         //
     },
 
@@ -1283,18 +1312,23 @@ const Content = {
 
 
 /**
- * 创建目标元素。
- * 若name首字母大写则为内容名称。
- * 角色定义可能为空（忽略）。
- * @param {String} name 内容名或元素标签
- * @param {String} role 角色定义
+ * 多次调用。
+ * 返回多次调用的返回值集。
+ * @param  {Number} n 次数
+ * @param  {Function} handle 回调函数
+ * @param  {...Value} ...rest 回调实参
+ * @return {[Value]}
  */
-function element( name, role ) {
-    if ( name[0] <= 'Z' ) {
-        return create( name );
+function calls( n, handle, ...rest ) {
+    let _els = [];
+
+    for (let i = 0; i < n; i++) {
+        _els.push( handle(...rest) );
     }
-    return $.Element( name, role && { role } );
+    return _els;
 }
+
+
 
 
 /**

@@ -109,29 +109,30 @@
     <span><input type="url" name="srcbase" placeholder="/upload" /></span>
 </li>
 
+<li tpl-name="prop:src">
+    <b>数据源</b>
+    <span><input type="text" name="source" placeholder="src=..." /></span>
+</li>
+
 <li tpl-name="prop:sources">
-    <b>数据源</b>
-    <span><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></span>
+    <b>图片参考集</b>
+    <span><textarea name="sources" rows="3" title="<source>" class="_code"
+        placeholder="111.xxx; { media: '...' }&#10;222.xxx; { media: '...' }"></textarea></span>
 </li>
 
-<li tpl-name="prop:alts">
+<li tpl-name="prop:alt">
     <b>图片说明</b>
-    <span><input type="text" name="alts" placeholder="11_alt; 22_alt" /></span>
+    <span><input type="text" name="alts" placeholder="alt=..." /></span>
 </li>
 
-<li tpl-name="prop:source">
-    <b>数据源</b>
-    <span><input type="text" name="source" placeholder="abcd.xxx" /></span>
-</li>
-
-<li tpl-name="prop:sourcex">
-    <b>数据源</b>
-    <span><input type="text" name="sourcex" placeholder="default.xxx; abcd.xxx" /></span>
-</li>
-
-<li tpl-name="prop:altx">
-    <b>图片说明</b>
-    <span><input type="text" name="alts" placeholder="alt-text" /></span>
+<li tpl-name="prop:wh">
+    <b>宽/高度</b>
+    <span>
+        <input type="text" name="width" title="width" class="_nums" />
+        x
+        <input type="text" name="height" title="height" class="_nums" />
+        像素
+    </span>
 </li>
 
 <li tpl-name="prop:poster">
@@ -144,6 +145,7 @@
     <span>
         <label><input type="checkbox" name="autoplay" />自动播放</label>
         <label><input type="checkbox" name="loop" />循环播放</label>
+        <label><input type="checkbox" name="controls" />显示控件</label>
     </span>
 </li>
 
@@ -163,6 +165,41 @@
 <li tpl-name="prop:preview">
     <b>预览</b>
     <span class="_preview"><!-- img|video|audio --></span>
+</li>
+
+<li tpl-name="prop:kind">
+    <b>种类</b>
+    <span><select name="kind">
+            <option title="subtitles" value="subtitles">字幕</option>
+            <option title="captions" value="captions">隐式信息</option>
+            <option title="descriptions" value="descriptions">内容描述</option>
+            <option title="chapters" value="chapters">章节</option>
+            <option title="metadata" value="metadata">源数据</option>
+        </select>
+    </span>
+</li>
+
+<li tpl-name="prop:srclang">
+    <b>源语言</b>
+    <span><input type="text" name="textrow" class="_chars" /></span>
+</li>
+
+<li tpl-name="prop:label">
+    <b>标签</b>
+    <span><input type="text" name="textrow" class="_phrase" /></span>
+</li>
+
+<li tpl-name="prop:default">
+    <b><!-- [track] --></b>
+    <span>
+        <label><input type="checkbox" name="default" />设为默认</label>
+    </span>
+</li>
+
+<!-- <source type> -->
+<li tpl-name="prop:type">
+    <b>类型</b>
+    <span><input type="text" name="textrow" class="_phrase" /></span>
 </li>
 
 <li tpl-name="prop:heading">
@@ -220,34 +257,30 @@
     <span><input type="time" name="time" placeholder="hh:mm:ss"></span>
 </li>
 
-<li tpl-name="prop:max">
-    <b>最大值</b>
-    <span><input type="text" name="max" class="_nums"><small>( max )</small></span>
+<li tpl-name="prop:number">
+    <b>数值</b>
+    <span><input type="text" name="amount" title="value" class="_chars" /></span>
 </li>
 
-<li tpl-name="prop:min">
-    <b>最小值</b>
-    <span><input type="text" name="min" class="_nums"><small>( min )</small></span>
+<li tpl-name="prop:maxmin">
+    <b>最大/小值</b>
+    <span>
+        <input type="text" name="max" title="max" class="_nums" />
+        <input type="text" name="min" title="min" class="_nums" />
+    </span>
 </li>
 
-<li tpl-name="prop:high">
-    <b>高值</b>
-    <span><input type="text" name="high" class="_nums"><small>( high )</small></span>
-</li>
-
-<li tpl-name="prop:low">
-    <b>低值</b>
-    <span><input type="text" name="low" class="_nums"><small>( low )</small></span>
+<li tpl-name="prop:highlow">
+    <b>高/低值</b>
+    <span>
+        <input type="text" name="high" title="high" class="_nums" />
+        <input type="text" name="low" title="low" class="_nums" />
+    </span>
 </li>
 
 <li tpl-name="prop:optimum">
     <b>最佳值</b>
-    <span><input type="text" name="optimum" class="_nums"><small>( optimum )</small></span>
-</li>
-
-<li tpl-name="prop:number">
-    <b>数值</b>
-    <span><input type="text" name="amount" class="_nums" /></span>
+    <span><input type="text" name="optimum" class="_nums" title="optimum" /></span>
 </li>
 
 <li tpl-name="prop:dir">
@@ -281,9 +314,4 @@
 <textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:codes"></textarea>
 
 <!-- 适用：<svg> -->
-<textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:svg"
-    placeholder="<svg>...</svg>"></textarea>
-
-<!-- 适用：data:image/... -->
-<textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:dataimg"
-    placeholder="data:image/png;base64,..."></textarea>
+<textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:svg" placeholder="<svg>...</svg>"></textarea>

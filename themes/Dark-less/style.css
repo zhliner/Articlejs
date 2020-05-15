@@ -214,6 +214,9 @@ aside#help {
     font-weight: bold;
     justify-self: flex-end;
 }
+.___Panel ul._prop textarea {
+    width: 100%;
+}
 .___Panel ul._prop span._preview {
     height: 120px;
     padding: 5px;
@@ -240,11 +243,11 @@ aside#help {
     text-align: center;
 }
 .___Panel input._nums {
-    width: 45px;
+    width: 60px;
     text-align: center;
 }
 .___Panel input._chars {
-    width: 60px;
+    width: 80px;
 }
 .___Panel input._scale {
     padding-top: 4px;
@@ -618,8 +621,8 @@ aside#help {
 }
 .Slave ._body > aside {
     flex: 1 1 auto;
-    min-width: 120px;
-    max-width: 150px;
+    min-width: 130px;
+    max-width: 160px;
     margin-left: 16px;
 }
 .Slave ._option > * {
@@ -728,11 +731,6 @@ aside#help {
     color: #ccc;
 }
 
-/* 内联单元 */
-.Input ._Inline input._chars {
-    width: 120px;
-}
-
 /* 文本字符 */
 .Input div._Inline {
     min-width: 365px;
@@ -786,9 +784,6 @@ aside#help {
 }
 .Style ._body > aside {
     max-width: max-content;
-}
-.Style input._chars {
-    min-width: 80px;
 }
 
 /* 清除按钮 */

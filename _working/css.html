@@ -2500,7 +2500,12 @@
                         </div>
                         <div class="_custom">
                             <span id="color-info" class="_tips">rgb(72, 207, 117)</span>
-                            <label id="color-value" class="_pick"><input type="color" /></label>
+                            <!-- 白底：预防透明色 -->
+                            <span class="_bgcbox" style="background-color: #fff;">
+                                <label id="color-show" class="_bgc" style="background-color: #000;">
+                                    <input id="g-color" name="color" type="color" />
+                                </label>
+                            </span>
                         </div>
                     </aside>
                     <div class="_submit" tpl-name="common:submit">
