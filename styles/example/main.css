@@ -386,13 +386,21 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 .content figure > p {
     overflow: auto;
+    position: relative;
 }
-/* 插图居中（不影响文本块） */
 .content figure > p > img {
-    display: block;
-    margin: 0 auto;
     border: 1px #ccc solid;
     padding: 1px;
+}
+/* 讲解覆盖 */
+.content figure > p > span {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    margin-left: 50%;
+    color: #eee;
+    background-color: rgba(102, 102, 102, 0.3);
+    z-index: 1;
 }
 
 
