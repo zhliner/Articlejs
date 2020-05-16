@@ -724,7 +724,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 三个布尔值参数 `event`、`deep` 和 `eventdeep` 仅适用于元素。返回新克隆的节点/元素。
 
 
-### [$.scrollTop( el, val, inc ): this](docs/$.scrollTop.md)
+### [$.scrollTop( el, val, inc ): Number|void](docs/$.scrollTop.md)
 
 获取或设置 `el` 元素（文档或窗口）的垂直滚动条位置。
 
@@ -733,10 +733,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `inc: Boolean` 是否为增量模式。
 
 
-本接口返回调用者自身（`$`）。
-
-
-### [$.scrollLeft( el, val, inc ): this](docs/$.scrollLeft.md)
+### [$.scrollLeft( el, val, inc ): Number|void](docs/$.scrollLeft.md)
 
 获取或设置 `el` 元素（文档或窗口）的水平滚动条位置。
 
@@ -745,22 +742,19 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `inc: Boolean` 是否为增量模式。
 
 
-本接口返回调用者自身（`$`）。
-
-
 ## 元素属性
 
-### [$.addClass( el, names ): this](docs/$.addClass.md)
+### [$.addClass( el, names ): Element](docs/$.addClass.md)
 
 在 `el` 元素上添加类名，多个类名可用空格分隔。
 
 - `el: Element` 操作的目标元素。
 - `names: String | Function` 类名称或一个返回类名称的取值回调。
 
-获取类名称的取值回调函数接口：`function( [name] ): String`，实参为当前已有类名数组。本接口返回调用者自身（`$`）。
+获取类名称的取值回调函数接口：`function( [name] ): String`，实参为当前已有类名数组。返回操作目标自身（`el`）。
 
 
-### [$.removeClass( el, names ): this](docs/$.removeClass.md)
+### [$.removeClass( el, names ): Element](docs/$.removeClass.md)
 
 移除 `el` 元素上的类名，多个类名可用空格分隔，未指定名称（`undefined | null`）时移除全部类名。
 
@@ -769,10 +763,8 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 支持回调函数获取需要移除的类名，接口：`function( [name] ): String`，实参为当前已有类名数组。如果元素上已无类名，`class` 特性（Attribute）本身会被删除。
 
-本接口返回调用者自身（`$`）。
 
-
-### [$.toggleClass( el, val, force ): this](docs/$.toggleClass.md)
+### [$.toggleClass( el, val, force ): Element](docs/$.toggleClass.md)
 
 对 `el` 元素上的类名进行切换（有则删除无则添加）。
 
@@ -802,7 +794,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 如果元素上没有任何 `class` 的定义，返回一个空串（即 `el.className` 的值）。
 
 
-### [$.attribute( el, names, value ): Value | Object | this](docs/$.attribute.md)
+### [$.attribute( el, names, value ): Value | Object | Element](docs/$.attribute.md)
 
 获取或修改 `el` 元素的特性（Attribute）值。**注**：`Attribute` 这里译为特性，后面的 `Property` 译为属性。
 
@@ -817,8 +809,10 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 支持两个特别的特性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
+设置时返回操作的目标元素自身（即实参 `el`）。
 
-### $.attr( el, name, value ): Value | this
+
+### $.attr( el, name, value ): Value | Element
 
 获取或设置 `el` 元素的特性值。
 
@@ -827,6 +821,8 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `value: Value | Function | null` 要设置的特性值或取值回调，传递 `null` 会移除目标特性。
 
 这是 `.attribute()` 的轻量版，但比元素原生 `.getAttribute()` 和 `.setAttribute()` 功能更强。
+
+设置时返回操作的目标元素自身（即实参 `el`）。
 
 
 ### $.xattr( el, name ): Value | Object
@@ -843,7 +839,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 > 名称支持数组形式，与集合元素一一对应。名称本身（可能为数组成员）支持空格分隔的名称序列。<br>
 
 
-### [$.property( el, names, value ): Value | Object | this](docs/$.property.md)
+### [$.property( el, names, value ): Value | Object | Element](docs/$.property.md)
 
 获取或修改 `el` 元素的属性（Property）值。
 
@@ -854,7 +850,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 当 `value` 未定义且 `names` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置属性值。
 
 - 取值时：`names` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个 `名/值对` 对象。
-- 设置时：`names` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回调用者（this）自身。
+- 设置时：`names` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回被操作的目标元素（即实参 `el`）。
 
 与 `$.attribute()` 相同，支持两个特别的属性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
@@ -862,7 +858,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 > 需要转换的属性名会自动转换（如：`class` => `clasName`），用户无需操心，两种形式皆可使用。
 
 
-### $.prop( el, name, value ): Value | this
+### $.prop( el, name, value ): Value | Element
 
 获取或设置 `el` 元素的属性值。
 
@@ -873,7 +869,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 这是 `.property()` 的轻量版，效率稍高一些。
 
 
-### [$.removeAttr( el, names ): this](docs/$.removeAttr.md)
+### [$.removeAttr( el, names ): Element](docs/$.removeAttr.md)
 
 删除 `el` 元素上一个或多个特性（Attribute）。
 
@@ -882,11 +878,13 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 这实际上是 `$.attr(el, name, null)` 调用的简化版，效率稍高一些。支持 `data-` 系特性名的简写形式和空格分隔的多名称序列。取值回调接口：`function( el ): String`。
 
+返回被操作的目标元素自身（即实参 `el`）。
+
 > **注：**
 > 不支持特殊的特性名 `html` 和 `text`。
 
 
-### $.toggleAttr( el, name, val ): this
+### $.toggleAttr( el, name, val ): Element
 
 在 `el` 元素上切换 `name` 特性的值。
 
@@ -898,11 +896,13 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 `val` 也可以是一个取值回调，接口：`function( old, el ): Value | [Value] | null`，返回值用于切换对比。
 
+返回被操作的目标元素自身（即实参 `el`）。
+
 > **集合版：**<br>
 > 对每一个元素执行对比/设置操作，因为单元素版的值本身可以为数组，不支持元素成员与值数组单元的一一对应模式。
 
 
-### [$.val( el, value ): Value | [Value] | this](docs/$.val.md)
+### [$.val( el, value ): Value | [Value] | Element](docs/$.val.md)
 
 表单控件的取值或状态设置。
 
@@ -972,7 +972,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 ## CSS 相关
 
-### [$.css( el, name, val ): String | Object | this](docs/$.css.md)
+### [$.css( el, name, val ): String | Object | Element](docs/$.css.md)
 
 获取或设置 `el` 元素的样式。
 
@@ -981,6 +981,8 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `val: Value | Function` 设置的样式值或取值回调，空串表示删除目标样式。可选。
 
 获取时为元素计算后的样式值，设置时为设置元素的内联样式（`style` 特性）。取值回调接口：`function( oldval, el ): Value`。
+
+设置时返回被操作的目标元素自身（即实参 `el`）。
 
 
 ### $.cssGets( el, name ): Object
@@ -993,7 +995,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 这是 `.css()` 取值的增强版。无论 `name` 是否为多个名称，始终会返回一个 **名:值** 对对象。
 
 
-### $.cssSets( el, name, val ): this
+### $.cssSets( el, name, val ): Element
 
 设置 `el` 元素的样式集。
 
@@ -1005,8 +1007,10 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 
 `name` 可以是一个名值对对象或Map实例，值依然可以是一个取值回调。取值回调接口：`function( oldval, el ): Value`。
 
+返回被操作的目标元素自身（即实参 `el`）。
 
-### [$.offset( el, pair ): Object | this](docs/$.offset.md)
+
+### [$.offset( el, pair ): Object | Element](docs/$.offset.md)
 
 获取或设置 `el` 元素相对于文档的位置偏移。
 
@@ -1016,6 +1020,8 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 偏移定义采用一个包含 `top` 和 `left` 键名的对象（如 `{top:200, left:10}`），位置计算不包含元素的外边距（`margin`），但包含边框。获取的值可能不是一个整数。
 
 设置元素的偏移时，如果元素的 `position` 值是浏览器默认的 `static`，则会自动修改为 `relative`。`pair` 也可以是一个取值回调，接口：`function( curVal ): Object`。传递 `pair` 为 `null` 会清除偏移设置并返回之前的偏移值。
+
+设置时返回被目标元素自身（即实参 `el`）。
 
 
 ### [$.position( el ): Object](docs/$.position.md)
@@ -1032,7 +1038,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 > 上层定位元素是指上层容器元素的样式中 `position` 值非默认的 `static`。
 
 
-### [$.height( el, val, inc ): Number | this](docs/$.height.md)
+### [$.height( el, val, inc ): Number | Element](docs/$.height.md)
 
 获取或设置 `el` 元素的内容高度（与 `box-sizing` 无关）。
 
@@ -1053,7 +1059,7 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 - `box-sizing` 值为 `border-box` 时：**CSS:height** = 内容高度 + padding宽度 + border宽度
 
 
-### [$.width( el, val, inc ): Number | this](docs/$.width.md)
+### [$.width( el, val, inc ): Number | Element](docs/$.width.md)
 
 获取或设置 `el` 元素的内容宽度（与 `box-sizing` 无关）。
 
@@ -1176,19 +1182,20 @@ elo: {
 
 在浏览器的 DOM 元素中，有 `10` 个事件可以在元素上直接调用（`click, blur, focus, select, load, play, pause, scroll, reset, submit`），其中除了 `load()` 和 `submit()` 外，其它调用都会在元素上触发一个同名的事件。如果你愿意，这些方法可以直接在元素上调用，但这里也把它们作为基本接口纳入：
 
-- `$.click( el ): this`: 模拟用户对元素的点击。
-- `$.blur( el ): this`: 让元素失去焦点。
-- `$.focus( el ): this`: 让元素获得焦点。
-- `$.select( el ): this`: 对于可输入文本的控件，让文本被选中。
-- `$.load( el ): this`: 载入元素引用的媒体文件，主要适用 `<video>` 和 `<audio>` 元素。
-- `$.play( el ): this`: 媒体继续播放，适用元素同上。
-- `$.pause( el ): this`: 媒体播放暂停，适用元素同上。
-- `$.scroll( el, pair ): Object|this`: 获取或设置元素的滚动条位置，`pair` 支持 `{top, left}` 格式对象，也可以是一个 `[水平, 垂直]` 距离的二元数组。
-- `$.reset( el ): this`: 表单重置。
-- `$.submit( el ): this`: 提交表单。
+- `$.click( el ): Element`: 模拟用户对元素的点击。
+- `$.blur( el ): Element`: 让元素失去焦点。
+- `$.focus( el ): Element`: 让元素获得焦点。
+- `$.select( el ): Element`: 对于可输入文本的控件，让文本被选中。
+- `$.load( el ): Element`: 载入元素引用的媒体文件，主要适用 `<video>` 和 `<audio>` 元素。
+- `$.play( el ): Element`: 媒体继续播放，适用元素同上。
+- `$.pause( el ): Element`: 媒体播放暂停，适用元素同上。
+- `$.scroll( el, pair ): Object|Element`: 获取或设置元素的滚动条位置，`pair` 支持 `{top, left}` 格式对象，也可以是一个 `[水平, 垂直]` 距离的二元数组。
+- `$.reset( el ): Element`: 表单重置。
+- `$.submit( el ): Element`: 提交表单。
 
 对于单元素版，实现上就是在元素上简单的调用而已。对于集合版，遵循通常一致的逻辑：对集合内每一个元素分别调用。
 
+如果不是为了取值，返回目标元素自身（即实参 `el`）。
 
 
 ## 集合专用

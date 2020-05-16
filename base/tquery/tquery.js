@@ -726,8 +726,8 @@ Object.assign( tQuery, {
     /**
      * 检测 XML 节点。
      * 注：from Sizzle CSS Selector Engine v2.3.4
-     * @param {Element|Object} el An element or a document
-     * @returns {Boolean} True iff el is a non-HTML XML node
+     * @param  {Element|Object} el An element or a document
+     * @return {Boolean} True if el is a non-HTML XML node
      */
     isXML( el ) {
         let namespace = el.namespaceURI,
@@ -897,7 +897,7 @@ Object.assign( tQuery, {
         domReady.waits += hold ? 1 : -1;
 
         // load 限定！
-        return domReady.loaded && domReady.ready();
+        if ( domReady.loaded ) domReady.ready();
     },
 
 
@@ -1415,7 +1415,7 @@ Object.assign( tQuery, {
      * @param  {Element|Window|Document} el
      * @param  {Number} val
      * @param  {Boolean} inc val是否为增量值（仅限像素）
-     * @return {Number|this}
+     * @return {Number|void}
      */
     scrollTop( el, val, inc ) {
         let _win = getWindow(el),
@@ -1428,8 +1428,6 @@ Object.assign( tQuery, {
             val = +val + _old;
         }
         scrollSet( _win || el, val, _win ? 'Y' : 'T' );
-
-        return this;
     },
 
 
@@ -1438,7 +1436,7 @@ Object.assign( tQuery, {
      * @param  {Element|Window|Document} el
      * @param  {Number} val
      * @param  {Boolean} inc val是否为增量值（仅限像素）
-     * @return {Number|this}
+     * @return {Number|void}
      */
     scrollLeft( el, val, inc ) {
         let _win = getWindow(el),
@@ -1451,8 +1449,6 @@ Object.assign( tQuery, {
             val = +val + _old;
         }
         scrollSet( _win || el, val, _win ? 'X' : 'L' );
-
-        return this;
     },
 
 
@@ -1465,7 +1461,7 @@ Object.assign( tQuery, {
      * - 支持回调函数获取类名，接口：function([name]):String。
      * @param  {Element} el 目标元素
      * @param  {String|Function} names
-     * @return {this}
+     * @return {Element} el
      */
     addClass( el, names ) {
         if (isFunc(names)) {
@@ -1474,7 +1470,7 @@ Object.assign( tQuery, {
         if (typeof names == 'string') {
             addClass( el, names.trim().split(__reSpace) );
         }
-        return this;
+        return el;
     },
 
 
@@ -1485,14 +1481,14 @@ Object.assign( tQuery, {
      * - 未指定名称移除全部类名（删除class属性）。
      * @param  {Element} el 目标元素
      * @param  {String|Function} names
-     * @return {this}
+     * @return {Element} el
      */
     removeClass( el, names ) {
         if ( isFunc(names) ) {
             names = names( Arr(el.classList) );
         }
         if (names == null) {
-            return removeClass(el, names), this;
+            return removeClass(el, names), el;
         }
         if ( typeof names == 'string' ) {
             removeClass( el, names.trim().split(__reSpace) );
@@ -1501,7 +1497,7 @@ Object.assign( tQuery, {
             // 清理：不激发attr系事件。
             el.removeAttribute('class');
         }
-        return this;
+        return el;
     },
 
 
@@ -1514,7 +1510,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Function} val 目标值，可选
      * @param  {Boolean} force 强制设定，可选
-     * @return {this}
+     * @return {Element} el
      */
     toggleClass( el, val, force ) {
         if (isFunc(val)) {
@@ -1529,15 +1525,15 @@ Object.assign( tQuery, {
             // 清理：不激发attr系事件
             el.removeAttribute('class');
         }
-        return this;
+        return el;
     },
 
 
     /**
      * 类名匹配检查。
      * 空格分隔的多个类名为And关系。
-     * 注：
-     * - jQuery中同名方法里空格没有分隔符作用。
+     * 注记：
+     * jQuery中同名方法里空格没有分隔符作用。
      * @param  {Element} el 目标元素
      * @param  {String} names 类名（序列）
      * @return {Boolean}
@@ -1581,7 +1577,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名（单个）
      * @param  {Value|Function|null} value 特性值或取值回调
-     * @return {Value|this}
+     * @return {Value|Element}
      */
     attr( el, name, value ) {
         name = attrName( name );
@@ -1591,7 +1587,7 @@ Object.assign( tQuery, {
         }
         hookSet( el, name, value, elemAttr );
 
-        return this;
+        return el;
     },
 
 
@@ -1620,7 +1616,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|Object|this}
+     * @return {Value|Object|Element}
      */
     attribute( el, names, value ) {
         if ( typeof names == 'string' ) {
@@ -1631,7 +1627,7 @@ Object.assign( tQuery, {
         }
         hookSets( el, names, value, elemAttr );
 
-        return this;
+        return el;
     },
 
 
@@ -1673,12 +1669,12 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String} name 属性名（单个）
      * @param  {Value|Function|null} value 属性值或取值回调
-     * @return {Value|this}
+     * @return {Value|Element}
      */
     prop( el, name, value ) {
         return value === undefined ?
             customGet( el, name, elemProp ) :
-            hookSet( el, name, value, elemProp ) || this;
+            hookSet( el, name, value, elemProp ) || el;
     },
 
 
@@ -1689,7 +1685,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|Object|this}
+     * @return {Value|Object|Element}
      */
     property( el, names, value ) {
         if ( typeof names == 'string' ) {
@@ -1698,7 +1694,8 @@ Object.assign( tQuery, {
         if ( hookIsGet(names, value) ) {
             return hookGets( el, names, elemProp );
         }
-        return hookSets( el, names, value, elemProp ), this;
+        hookSets( el, names, value, elemProp );
+        return el;
     },
 
 
@@ -1708,7 +1705,7 @@ Object.assign( tQuery, {
      * - 支持返回名称序列的取值函数，接口：function(el): String
      * @param  {Element} el 目标元素
      * @param  {String|Function} name 名称/序列
-     * @return {this}
+     * @return {Element} el
      */
     removeAttr( el, name ) {
         if ( isFunc(name) ) {
@@ -1717,7 +1714,7 @@ Object.assign( tQuery, {
         name.split(__reSpace)
         .forEach( n => removeAttr(el, attrName(n)) );
 
-        return this;
+        return el;
     },
 
 
@@ -1728,11 +1725,10 @@ Object.assign( tQuery, {
      * 如果val未定义（null），则在属性有无间切换。
      * 注：
      * 数组形式时以val[0]为对比目标，并不检查val[1]值。
-     *
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名
      * @param  {Value|Array2|Function|null} val 切换值获取值回调，可选
-     * @return {this}
+     * @return {Element} el
      */
     toggleAttr( el, name, val ) {
         name = attrName( name );
@@ -1743,7 +1739,7 @@ Object.assign( tQuery, {
         }
         elemAttr.set( el, name, toggleValue( val, _old ) );
 
-        return this;
+        return el;
     },
 
 
@@ -1779,7 +1775,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} el 目标元素
      * @param  {Value|[Value]|Function} value 匹配测试的值/集或回调
-     * @return {Value|[Value]|null|this}
+     * @return {Value|[Value]|null|Element}
      */
     val( el, value ) {
         let _hook = valHooks[el.type] ||
@@ -1792,7 +1788,7 @@ Object.assign( tQuery, {
         if (isFunc(value)) {
             value = value( _hook.get(el) );
         }
-        return _hook.set(el, value), this;
+        return _hook.set(el, value), el;
     },
 
 
@@ -1890,7 +1886,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String} name 样式名（单个）
      * @param  {Value|Function} val 设置值或取值回调
-     * @return {String|this}
+     * @return {String|Element}
      */
     css( el, name, val ) {
         let _cso = getStyles(el);
@@ -1904,7 +1900,7 @@ Object.assign( tQuery, {
             // 清理：不激发attr系事件
             el.removeAttribute('style');
         }
-        return this;
+        return el;
     },
 
 
@@ -1934,12 +1930,12 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map|null} names 样式名（序列）或配置对象
      * @param  {Value|[Value]|Function|null} val 样式值
-     * @return {this}
+     * @return {Element} el
      */
     cssSets( el, names, val ) {
         if (names === null) {
             el.removeAttribute('style');
-            return this;
+            return el;
         }
         cssSets(el, names, val, getStyles(el));
 
@@ -1947,7 +1943,7 @@ Object.assign( tQuery, {
             // 清理：不激发attr系事件
             el.removeAttribute('style');
         }
-        return this;
+        return el;
     },
 
 
@@ -1959,7 +1955,7 @@ Object.assign( tQuery, {
      *
      * @param  {Element} 目标元素
      * @param  {Object|Function|null} pair 配置对象或取值回调
-     * @return {Object|this}
+     * @return {Object|Element}
      */
     offset( el, pair ) {
         let _cur = getOffset(el);
@@ -1977,7 +1973,7 @@ Object.assign( tQuery, {
             el.style.position = "relative";
         }
 
-        return cssSets(el, pair, null, _cso), this;
+        return cssSets(el, pair, null, _cso), el;
     },
 
 
@@ -2820,7 +2816,7 @@ tQuery.Table = Table;
      * @param  {Element|Document|Window} el 目标元素
      * @param  {String|Number|Function} val 设置值
      * @param  {Boolean} inc val是否为增量值（仅限像素）
-     * @return {Number|this}
+     * @return {Number|Element}
      */
     tQuery[_n] = function( el, val, inc ) {
         let _h = _rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n);
@@ -2840,7 +2836,7 @@ tQuery.Table = Table;
             // 内部清理，不激发事件。
             el.removeAttribute('style');
         }
-        return this;
+        return el;
     };
 });
 
@@ -2898,7 +2894,7 @@ callableNative
 .forEach(
     name =>
     tQuery[name] = function( el ) {
-        return (name in el) && el[name](), this;
+        return (name in el) && el[name](), el;
     }
 );
 
@@ -2910,7 +2906,7 @@ callableNative
  * pair可以是一个配置对象，也可以是一个水平/垂直坐标的二元数组。
  * @param  {Element} el 包含滚动条的容器元素
  * @param  {Object2|[left, top]} pair 滚动位置配置对象。
- * @return {Object2|this}
+ * @return {Object2|Element}
  */
 tQuery.scroll = function( el, pair ) {
     if ( pair === undefined ) {
@@ -2919,7 +2915,7 @@ tQuery.scroll = function( el, pair ) {
             left: tQuery.scrollLeft(el)
         };
     }
-    return ( isArr(pair) ? el.scroll(...pair) : el.scroll(pair) ), this;
+    return ( isArr(pair) ? el.scroll(...pair) : el.scroll(pair) ), el;
 }
 
 
