@@ -43,8 +43,8 @@ const
 // 简单默认消息。
 //
 const
-    __msgAudio = 'Your browser does not support the [audio] element.',
-    __msgVideo = 'Your browser does not support the [video] element.';
+    __msgAudio = "Sorry, your browser doesn't support embedded audios",
+    __msgVideo = "Sorry, your browser doesn't support embedded videos";
 
 
 //
@@ -83,16 +83,22 @@ const customRoles = {
  * 创建单元元素。
  * name需为全大写以便检索类型值。
  * 类型值会被存储，以使得不需要每次都检查判断。
- * 注：不含文本节点和svg元素。
- * @param  {String} name 单元名称
+ * 注：不含文本节点和svg创建。
+ * @param  {String} name 单元名称（全大写）
+ * @param  {Object} opts 特性配置对象（不含role），可选
  * @return {Element}
  */
-function create( name ) {
+function create( name, opts ) {
     let _its = customRoles[ name ],
-        _cfg = _its && { role: _its[1] },
-        _el = $.Element( _its && _its[0] || name, _cfg );
+        _el = $.Element( _its && _its[0] || name );
 
-    return setType(_el, nameType(name)), _el;
+    if ( opts ) {
+        $.attribute( _el, opts );
+    }
+    if ( _its ) {
+        $.attr( _el, 'role', _its[1] );
+    }
+    return setType( _el, nameType(name) ), _el;
 }
 
 
@@ -155,9 +161,9 @@ const Content = {
      * 创建音频单元。
      * @param {Object} opts 属性配置集
      */
-    audio( opts ) {
-        let el = create( 'AUDIO' );
-        return $.attribute( el, opts || {} ), el;
+    audio( opts = {} ) {
+        opts.text = __msgAudio;
+        return create( 'AUDIO', opts );
     },
 
 
@@ -165,9 +171,9 @@ const Content = {
      * 创建视频单元。
      * @param {Object} opts 属性配置集
      */
-    video( opts ) {
-        let el = create( 'VIDEO' );
-        return $.attribute( el, opts || {} ), el;
+    video( opts = {} ) {
+        opts.text = __msgVideo;
+        return create( 'VIDEO', opts );
     },
 
 
@@ -177,17 +183,18 @@ const Content = {
      * @param {[Element]} sources 兼容图片源元素
      */
     picture( img, sources ) {
-        let el = create( 'PICTURE' );
-        return $.append( el, sources.concat(img) ), el;
+        let _el = create( 'PICTURE' );
+        return $.append( _el, sources.concat(img) ), _el;
     },
 
 
     /**
      * 创建SVG单元。
+     * opts通常是必须的。
      * @param {Object} opts 属性配置集
      * @param {String} xml SVG源码，可选
      */
-    svg( opts, xml ) {
+    svg( opts = {}, xml = '' ) {
         if ( xml ) {
             opts.html = xml;
         }
@@ -205,8 +212,8 @@ const Content = {
      * @param {Element} rp2 右包围
      */
     ruby( rb, rt, rp1, rp2 ) {
-        let el = create( 'RUBY' );
-        return $.append( el, [rb, rp1, rt, rp2] ), el;
+        let _el = create( 'RUBY' );
+        return $.append( _el, [rb, rp1, rt, rp2] ), _el;
     },
 
 
@@ -219,14 +226,12 @@ const Content = {
      * @param {String} time 时间表达串，可选
      */
     time( text, date, time ) {
-        let el = create( 'TIME' ),
-            dt = '';
+        let dt = '';
 
         if ( date ) dt = date;
-        if ( time ) dt += time;
+        if ( time ) dt = dt ? `${dt} ${time}` : `${time}`;
 
-        $.attribute( el, {text: text || dt, datetime: dt || null} );
-        return el;
+        return create( 'TIME', {text: text || dt, datetime: dt || null} );
     },
 
 
@@ -241,16 +246,15 @@ const Content = {
      * @param {String} opm 最优值，可选
      */
     meter( val, max, min, high, low, opm ) {
-        let el = create( 'METER' ),
-            cf = { value: val };
+        let opts = { value: val };
 
-        if ( max ) cf.max = max;
-        if ( min ) cf.min = min;
-        if ( high ) cf.high = high;
-        if ( low ) cf.low = low;
-        if ( opm ) cf.optimum = opm;
+        if ( max ) opts.max = max;
+        if ( min ) opts.min = min;
+        if ( high ) opts.high = high;
+        if ( low ) opts.low = low;
+        if ( opm ) opts.optimum = opm;
 
-        return $.attribute(el, cf), el;
+        return create( 'METER', opts );
     },
 
 
@@ -260,20 +264,12 @@ const Content = {
      * @param {String} width 宽度
      */
     space( n, width ) {
-        let els = calls( n, create, 'SPACE' );
+        let _els = calls( n, create, 'SPACE' );
 
         if ( width != null ) {
-            els.forEach( el => $.css(el, 'width', width) );
+            _els.forEach( el => $.css(el, 'width', width) );
         }
-        return els.length == 1 ? els[0] : els;
-    },
-
-
-    // 创建图片。
-    // @param {Object} 属性集
-    img( opts ) {
-        let el = create( 'IMG' );
-        return $.attribute( el, opts || {} ), el;
+        return _els.length == 1 ? _els[0] : _els;
     },
 
 
@@ -282,8 +278,8 @@ const Content = {
      * @param {Number} n 数量
      */
     br( n ) {
-        let els = calls( n, create, 'BR' );
-        return els.length == 1 ? els[0] : els;
+        let _els = calls( n, create, 'BR' );
+        return _els.length == 1 ? _els[0] : _els;
     },
 
 
@@ -292,227 +288,47 @@ const Content = {
      * @param {Number} n 数量
      */
     wbr( n ) {
-        let els = calls( n, create, 'WBR' );
-        return els.length == 1 ? els[0] : els;
+        let _els = calls( n, create, 'WBR' );
+        return _els.length == 1 ? _els[0] : _els;
     },
 
 
     //-- 内联内结构 ----------------------------------------------------------
 
-    track() {
-        //
-    },
-
-
-    source() {
-        //
-    },
-
-
-    rb() {
-        //
-    },
-
-
-    rt() {
-        //
-    },
-
-
-    rp() {
-        //
-    },
-
-
-    explain() {
-        //
-    },
-
-
-    rbpt() {
-        //
-    },
-
-
-    //-- 内联内容元素 --------------------------------------------------------
-
-    A() {
-        //
-    },
-
-
-    Strong() {
-        //
-    },
-
-
-    Em() {
-        //
-    },
-
-
-    Q() {
-        //
-    },
-
-
-    Abbr() {
-        //
-    },
-
-
-    Cite() {
-        //
-    },
-
-
-    Small() {
-        //
-    },
-
-
-    Del() {
-        //
-    },
-
-
-    Ins() {
-        //
-    },
-
-
-    Sub() {
-        //
-    },
-
-
-    Sup() {
-        //
-    },
-
-
-    Mark() {
-        //
-    },
-
-
-    Code() {
-        //
-    },
-
-
-    Orz() {
-        //
-    },
-
-
-    Dfn() {
-        //
-    },
-
-
-    Samp() {
-        //
-    },
-
-
-    Kbd() {
-        //
-    },
-
-
-    S() {
-        //
-    },
-
-
-    U() {
-        //
-    },
-
-
-    Var() {
-        //
-    },
-
-
-    Bdo() {
-        //
-    },
-
-
-    //-- 行块内容元素 --------------------------------------------------------
-
-    P() {
-        //
-    },
-
-
-    Note() {
-        //
-    },
-
-
-    Tips() {
-        //
-    },
-
-
-    Pre() {
-        //
-    },
-
-
-    Address() {
-        //
+    // rb( text ) {}, // => rbpt
+    // rt( text ) {}, // => rbpt
+    // rp( text ) {}, // => rbpt
+
+
+    /**
+     * 创建注音内容组。
+     * 返回集成员顺序与ruby()实参顺序一致。
+     * @param {String} rb 注音文本
+     * @param {String} rt 注音拼音
+     * @param {String} rp1 左包围，可选
+     * @param {String} rp2 右包围，可选
+     */
+    rbpt( rb, rt, rp1, rp2 ) {
+        let _els = [
+            create( 'RB', {text: rb} ),
+            create( 'RT', {text: rt} ),
+        ];
+        if ( rp1 ) {
+            _els.push( create('RP', {text: rp1}) );
+        }
+        if ( rp2 ) {
+            _els.push( create('RP', {text: rp2}) );
+        }
+        return _els;
     },
 
 
     //-- 块内结构元素 --------------------------------------------------------
 
-    H1() {
-        //
-    },
 
-
-    H2() {
-        //
-    },
-
-
-    H3() {
-        //
-    },
-
-
-    H4() {
-        //
-    },
-
-
-    H5() {
-        //
-    },
-
-
-    H6() {
-        //
-    },
-
-
-    Summary() {
-        //
-    },
-
-
-    Figcaption() {
-        //
-    },
-
-
-    Caption() {
-        //
-    },
+    Summary() {},
+    Figcaption() {},
+    Caption() {},
 
 
     Li() {
@@ -1087,6 +903,84 @@ const Content = {
 
 
 //
+// 空元素创建。
+// 仅涉及设置元素特性集操作。
+/////////////////////////////////////////////////
+[
+    'img',
+    'track',
+    'source',
+]
+.forEach(function( name ) {
+    /**
+     * @param {Object} opts 属性配置集
+     */
+    Content[ name ] = function( opts ) {
+        return create( name.toUpperCase(), opts );
+    };
+});
+
+
+//
+// 内容单元创建。
+// 涉及插入内联内容和元素特性设置。
+/////////////////////////////////////////////////
+[
+    'explain',      // cons
+    'a',            // cons, {href, target}
+    'strong',       // cons
+    'em',           // cons
+    'q',            // cons, {cite}
+    'abbr',         // cons, {title}
+    'cite',         // cons
+    'small',        // cons
+    'del',          // cons, {datetime, cite}
+    'ins',          // cons, {datetime, cite}
+    'sub',          // cons
+    'sup',          // cons
+    'mark',         // cons
+    'code',         // cons, {data-lang, data-tab}
+    'orz',          // cons
+    'dfn',          // cons, {title}
+    'samp',         // cons
+    'kbd',          // cons
+    's',            // cons
+    'u',            // cons
+    'var',          // cons
+    'bdo',          // cons, {dir}
+    'p',            // cons
+    'note',         // cons
+    'tips',         // cons
+    'pre',          // cons
+    'address',      // cons
+    'h1',           // cons
+    'h2',           // cons
+    'h3',           // cons
+    'h4',           // cons
+    'h5',           // cons
+    'h6',           // cons
+    'summary',      // cons
+    'figcaption',   // cons
+    'caption',      // cons
+]
+.forEach(function( name ) {
+    /**
+     * 字符串实参优化为数组。
+     * @param {Node|[Node]|String} cons 内容（集）
+     * @param {Object} opts 属性配置集
+     */
+    Content[ name ] = function( cons, opts ) {
+        if ( typeof cons === 'string' ) {
+            cons = [cons];
+        }
+        let _el = create( name.toUpperCase(), opts );
+
+        return $.append( _el, cons ), _el;
+    };
+});
+
+
+//
 // 片区（heading, section/）。
 // 内容传递 null 表示忽略（不改变）。
 /////////////////////////////////////////////////
@@ -1320,12 +1214,12 @@ const Content = {
  * @return {[Value]}
  */
 function calls( n, handle, ...rest ) {
-    let _els = [];
+    let _buf = [];
 
     for (let i = 0; i < n; i++) {
-        _els.push( handle(...rest) );
+        _buf.push( handle(...rest) );
     }
-    return _els;
+    return _buf;
 }
 
 

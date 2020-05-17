@@ -228,10 +228,10 @@ aside#help {
     margin: 12px;
     height: 100%;
 }
-.___Panel ._prop small {
-    color: #aaa;
-    margin-left: 6px;
-    font-style: italic;
+/* 单行文本 */
+.___Panel ._prop ._text {
+    height: 2em;
+    align-self: flex-start;
 }
 .___Panel ._prop ._phrase {
     width: 75%;

@@ -181,25 +181,25 @@
 
 <li tpl-name="prop:srclang">
     <b>源语言</b>
-    <span><input type="text" name="textrow" class="_chars" /></span>
+    <span><input type="text" name="srclang" class="_chars" /></span>
 </li>
 
 <li tpl-name="prop:label">
     <b>标签</b>
-    <span><input type="text" name="textrow" class="_phrase" /></span>
+    <span><input type="text" name="label" class="_phrase" /></span>
 </li>
 
 <li tpl-name="prop:default">
     <b><!-- [track] --></b>
     <span>
-        <label><input type="checkbox" name="default" />设为默认</label>
+        <label><input type="checkbox" name="default" value="" />设为默认</label>
     </span>
 </li>
 
 <!-- <source type> -->
 <li tpl-name="prop:type">
     <b>类型</b>
-    <span><input type="text" name="textrow" class="_phrase" /></span>
+    <span><input type="text" name="type" class="_phrase" /></span>
 </li>
 
 <li tpl-name="prop:heading">
@@ -305,7 +305,6 @@
     <b>空白宽</b>
     <span><input type="text" name="spwidth" class="_chars" placeholder="2.45em" /></span>
 </li>
-
 
 <!-- 适用：纯文本（批量添加） -->
 <textarea name="content" rows="3" placeholder="每行一项" tpl-name="prop:content"></textarea>

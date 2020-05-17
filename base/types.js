@@ -203,134 +203,133 @@ export const
 // 单元的类型/特性。
 //
 export const Types = {
-    [ $TEXT ]:      TEXT,
+    [ $TEXT ]:          TEXT,
     //
     // 内联结构元素
     /////////////////////////////////////////////
-    [ AUDIO ]:      INLINES | STRUCT | SEALED,
-    [ VIDEO ]:      INLINES | STRUCT | SEALED,
-    [ PICTURE ]:    INLINES | STRUCT | SEALED,
-    [ SVG ]:        INLINES | STRUCT | SEALED,
-    [ RUBY ]:       INLINES | STRUCT | SEALED,
-    [ TIME ]:       INLINES | SEALED,
-    [ METER ]:      INLINES | SEALED,
-    [ SPACE ]:      INLINES | SEALED,
-    [ IMG ]:        INLINES | EMPTY,
-    [ BR ]:         INLINES | EMPTY,
-    [ WBR ]:        INLINES | EMPTY,
+    [ AUDIO ]:          INLINES | STRUCT | SEALED,
+    [ VIDEO ]:          INLINES | STRUCT | SEALED,
+    [ PICTURE ]:        INLINES | STRUCT | SEALED,
+    [ SVG ]:            INLINES | STRUCT | SEALED,
+    [ RUBY ]:           INLINES | STRUCT | SEALED,
+    [ TIME ]:           INLINES | SEALED,
+    [ METER ]:          INLINES | SEALED,
+    [ SPACE ]:          INLINES | SEALED,
+    [ IMG ]:            INLINES | EMPTY,
+    [ BR ]:             INLINES | EMPTY,
+    [ WBR ]:            INLINES | EMPTY,
     //
     // 内联内结构
     /////////////////////////////////////////////
-    [ SVGITEM ]:    STRUCT | SEALED,
-    [ TRACK ]:      STRUCT | EMPTY,
-    [ SOURCE ]:     STRUCT | EMPTY,
-    [ RB ]:         STRUCT | CONTENT,
-    [ RT ]:         STRUCT | CONTENT,
-    [ RP ]:         STRUCT | SEALED,
-    [ RBPT ]:       null, // 抽象单元
-    [ EXPLAIN ]:    STRUCT | CONTENT,   // figure/p/img,span:explain
+    [ SVGITEM ]:        STRUCT | SEALED,
+    [ TRACK ]:          STRUCT | EMPTY,
+    [ SOURCE ]:         STRUCT | EMPTY,
+    [ RB ]:             STRUCT | CONTENT,
+    [ RT ]:             STRUCT | CONTENT,
+    [ RP ]:             STRUCT | SEALED,
+    [ EXPLAIN ]:        STRUCT | CONTENT,   // figure/p/img,span:explain
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    [ A ]:          INLINES | CONTENT,
-    [ STRONG ]:     INLINES | CONTENT,
-    [ EM ]:         INLINES | CONTENT,
-    [ Q ]:          INLINES | CONTENT,
-    [ ABBR ]:       INLINES | CONTENT,
-    [ CITE ]:       INLINES | CONTENT,
-    [ SMALL ]:      INLINES | CONTENT,
-    [ DEL ]:        INLINES | CONTENT,
-    [ INS ]:        INLINES | CONTENT,
-    [ SUB ]:        INLINES | CONTENT,
-    [ SUP ]:        INLINES | CONTENT,
-    [ MARK ]:       INLINES | CONTENT,
-    [ CODE ]:       INLINES | CONTENT,
-    [ ORZ ]:        INLINES | CONTENT,
-    [ DFN ]:        INLINES | CONTENT,
-    [ SAMP ]:       INLINES | CONTENT,
-    [ KBD ]:        INLINES | CONTENT,
-    [ S ]:          INLINES | CONTENT,
-    [ U ]:          INLINES | CONTENT,
-    [ VAR ]:        INLINES | CONTENT,
-    [ BDO ]:        INLINES | CONTENT,
+    [ A ]:              INLINES | CONTENT,
+    [ STRONG ]:         INLINES | CONTENT,
+    [ EM ]:             INLINES | CONTENT,
+    [ Q ]:              INLINES | CONTENT,
+    [ ABBR ]:           INLINES | CONTENT,
+    [ CITE ]:           INLINES | CONTENT,
+    [ SMALL ]:          INLINES | CONTENT,
+    [ DEL ]:            INLINES | CONTENT,
+    [ INS ]:            INLINES | CONTENT,
+    [ SUB ]:            INLINES | CONTENT,
+    [ SUP ]:            INLINES | CONTENT,
+    [ MARK ]:           INLINES | CONTENT,
+    [ CODE ]:           INLINES | CONTENT,
+    [ ORZ ]:            INLINES | CONTENT,
+    [ DFN ]:            INLINES | CONTENT,
+    [ SAMP ]:           INLINES | CONTENT,
+    [ KBD ]:            INLINES | CONTENT,
+    [ S ]:              INLINES | CONTENT,
+    [ U ]:              INLINES | CONTENT,
+    [ VAR ]:            INLINES | CONTENT,
+    [ BDO ]:            INLINES | CONTENT,
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    [ P ]:          BLOCKS | CONTENT,
-    [ NOTE ]:       BLOCKS | CONTENT,
-    [ TIPS ]:       BLOCKS | CONTENT,
-    [ ADDRESS ]:    BLOCKS | CONTENT,
-    [ PRE ]:        BLOCKS | CONTENT,
+    [ P ]:              BLOCKS | CONTENT,
+    [ NOTE ]:           BLOCKS | CONTENT,
+    [ TIPS ]:           BLOCKS | CONTENT,
+    [ ADDRESS ]:        BLOCKS | CONTENT,
+    [ PRE ]:            BLOCKS | CONTENT,
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    [ H1 ]:         STRUCT | CONTENT | FIXED,
-    [ H2 ]:         STRUCT | CONTENT | FIXED,
-    [ H3 ]:         STRUCT | CONTENT | FIXED,
-    [ H4 ]:         STRUCT | CONTENT | FIXED,
-    [ H5 ]:         STRUCT | CONTENT | FIXED,
-    [ H6 ]:         STRUCT | CONTENT | FIXED,
-    [ SUMMARY ]:    STRUCT | CONTENT | FIXED,
-    [ FIGCAPTION ]: STRUCT | CONTENT | FIXED,
-    [ CAPTION ]:    STRUCT | CONTENT | FIXED,
-    [ LI ]:         STRUCT | CONTENT,
-    [ DT ]:         STRUCT | CONTENT | DLITEM,
-    [ DD ]:         STRUCT | CONTENT | DLITEM,
-    [ TH ]:         STRUCT | CONTENT | TBLCELL,
-    [ TD ]:         STRUCT | CONTENT | TBLCELL,
-    [ TR ]:         STRUCT | SEALED, // 表格列不能单独改变
-    [ THEAD ]:      STRUCT | TBLSECT,
-    [ TBODY ]:      STRUCT | TBLSECT,
-    [ TFOOT ]:      STRUCT | TBLSECT,
+    [ H1 ]:             STRUCT | CONTENT | FIXED,
+    [ H2 ]:             STRUCT | CONTENT | FIXED,
+    [ H3 ]:             STRUCT | CONTENT | FIXED,
+    [ H4 ]:             STRUCT | CONTENT | FIXED,
+    [ H5 ]:             STRUCT | CONTENT | FIXED,
+    [ H6 ]:             STRUCT | CONTENT | FIXED,
+    [ SUMMARY ]:        STRUCT | CONTENT | FIXED,
+    [ FIGCAPTION ]:     STRUCT | CONTENT | FIXED,
+    [ CAPTION ]:        STRUCT | CONTENT | FIXED,
+    [ LI ]:             STRUCT | CONTENT,
+    [ DT ]:             STRUCT | CONTENT | DLITEM,
+    [ DD ]:             STRUCT | CONTENT | DLITEM,
+    [ TH ]:             STRUCT | CONTENT | TBLCELL,
+    [ TD ]:             STRUCT | CONTENT | TBLCELL,
+    [ TR ]:             STRUCT | SEALED, // 表格列不能单独改变
+    [ THEAD ]:          STRUCT | TBLSECT,
+    [ TBODY ]:          STRUCT | TBLSECT,
+    [ TFOOT ]:          STRUCT | TBLSECT,
 
-    [ CODELI ]:     STRUCT | SEALED,
-    [ ALI ]:        STRUCT | SEALED,
-    [ AH4LI ]:      STRUCT | SEALED,
-    [ AH4 ]:        STRUCT | SEALED,
-    [ ULXH4LI ]:    STRUCT | SEALED,
-    [ OLXH4LI ]:    STRUCT | SEALED,
-    [ CASCADEH4LI ]: STRUCT | SEALED,
-    [ FIGIMGP ]:    STRUCT | SEALED,
+    [ CODELI ]:         STRUCT | SEALED,
+    [ ALI ]:            STRUCT | SEALED,
+    [ AH4LI ]:          STRUCT | SEALED,
+    [ AH4 ]:            STRUCT | SEALED,
+    [ ULXH4LI ]:        STRUCT | SEALED,
+    [ OLXH4LI ]:        STRUCT | SEALED,
+    [ CASCADEH4LI ]:    STRUCT | SEALED,
+    [ FIGIMGP ]:        STRUCT | SEALED,
 
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:     BLOCKS | STRUCT | FIXED | SEALED,
-    [ ABSTRACT ]:   BLOCKS | STRUCT | FIXED,
-    [ TOC ]:        BLOCKS | STRUCT | FIXED | SEALED,
-    [ SEEALSO ]:    BLOCKS | STRUCT | FIXED | LIST,
-    [ REFERENCE ]:  BLOCKS | STRUCT | FIXED | LIST,
-    [ HEADER ]:     BLOCKS | STRUCT | FIXED,
-    [ FOOTER ]:     BLOCKS | STRUCT | FIXED,
-    [ ARTICLE ]:    BLOCKS | STRUCT | FIXED,
-    [ S1 ]:         BLOCKS | STRUCT | SECTED,
-    [ S2 ]:         BLOCKS | STRUCT | SECTED,
-    [ S3 ]:         BLOCKS | STRUCT | SECTED,
-    [ S4 ]:         BLOCKS | STRUCT | SECTED,
-    [ S5 ]:         BLOCKS | STRUCT | SECTED,
-    [ UL ]:         BLOCKS | STRUCT | LIST,
-    [ OL ]:         BLOCKS | STRUCT | LIST,
-    [ CODELIST ]:   BLOCKS | STRUCT | LIST,
-    [ ULX ]:        BLOCKS | STRUCT | LIST,
-    [ OLX ]:        BLOCKS | STRUCT | LIST,
-    [ CASCADE ]:    BLOCKS | STRUCT | LIST,
-    [ DL ]:         BLOCKS | STRUCT,
-    [ TABLE ]:      BLOCKS | STRUCT, // 支持多<tbody>
-    [ FIGURE ]:     BLOCKS | STRUCT, // 支持多<p/img,span>
-    [ BLOCKQUOTE ]: BLOCKS | STRUCT,
-    [ ASIDE ]:      BLOCKS | STRUCT,
-    [ DETAILS ]:    BLOCKS | STRUCT,
-    [ CODEBLOCK ]:  BLOCKS | STRUCT | SEALED,
+    [ HGROUP ]:         BLOCKS | STRUCT | FIXED | SEALED,
+    [ ABSTRACT ]:       BLOCKS | STRUCT | FIXED,
+    [ TOC ]:            BLOCKS | STRUCT | FIXED | SEALED,
+    [ SEEALSO ]:        BLOCKS | STRUCT | FIXED | LIST,
+    [ REFERENCE ]:      BLOCKS | STRUCT | FIXED | LIST,
+    [ HEADER ]:         BLOCKS | STRUCT | FIXED,
+    [ FOOTER ]:         BLOCKS | STRUCT | FIXED,
+    [ ARTICLE ]:        BLOCKS | STRUCT | FIXED,
+    [ S1 ]:             BLOCKS | STRUCT | SECTED,
+    [ S2 ]:             BLOCKS | STRUCT | SECTED,
+    [ S3 ]:             BLOCKS | STRUCT | SECTED,
+    [ S4 ]:             BLOCKS | STRUCT | SECTED,
+    [ S5 ]:             BLOCKS | STRUCT | SECTED,
+    [ UL ]:             BLOCKS | STRUCT | LIST,
+    [ OL ]:             BLOCKS | STRUCT | LIST,
+    [ CODELIST ]:       BLOCKS | STRUCT | LIST,
+    [ ULX ]:            BLOCKS | STRUCT | LIST,
+    [ OLX ]:            BLOCKS | STRUCT | LIST,
+    [ CASCADE ]:        BLOCKS | STRUCT | LIST,
+    [ DL ]:             BLOCKS | STRUCT,
+    [ TABLE ]:          BLOCKS | STRUCT, // 支持多<tbody>
+    [ FIGURE ]:         BLOCKS | STRUCT, // 支持多<p/img,span>
+    [ BLOCKQUOTE ]:     BLOCKS | STRUCT,
+    [ ASIDE ]:          BLOCKS | STRUCT,
+    [ DETAILS ]:        BLOCKS | STRUCT,
+    [ CODEBLOCK ]:      BLOCKS | STRUCT | SEALED,
     // 行块单体元素
-    [ HR ]:         BLOCKS | EMPTY,
-    [ BLANK ]:      BLOCKS | SEALED,
+    [ HR ]:             BLOCKS | EMPTY,
+    [ BLANK ]:          BLOCKS | SEALED,
 
     //
     // 特殊用途。
     /////////////////////////////////////////////
-    [ B ]:          SPECIAL | CONTENT,
-    [ I ]:          SPECIAL | CONTENT,
+    [ B ]:              SPECIAL | CONTENT,
+    [ I ]:              SPECIAL | CONTENT,
 };
 
 
@@ -387,130 +386,129 @@ export const ChildTypes = {
     // 内联结构元素。
     // 如果包含文本，插入方式有较强约束（如创建时）。
     /////////////////////////////////////////////
-    [ $TEXT ]:      null,
+    [ $TEXT ]:          null,
 
-    [ AUDIO ]:      [ SOURCE, TRACK, $TEXT ],
-    [ VIDEO ]:      [ SOURCE, TRACK, $TEXT ],
-    [ PICTURE ]:    [ SOURCE, IMG ],
-    [ SVG ]:        [ SVGITEM ],
-    [ IMG ]:        [],
-    [ RUBY ]:       [ RBPT, RB, RT, RP ],
-    [ TIME ]:       [ $TEXT ],
-    [ METER ]:      [ $TEXT ],
-    [ BR ]:         [],
-    [ WBR ]:        [],
-    [ SPACE ]:      [],
+    [ AUDIO ]:          [ SOURCE, TRACK, $TEXT ],
+    [ VIDEO ]:          [ SOURCE, TRACK, $TEXT ],
+    [ PICTURE ]:        [ SOURCE, IMG ],
+    [ SVG ]:            [ SVGITEM ],
+    [ IMG ]:            [],
+    [ RUBY ]:           [ RB, RT, RP ],
+    [ TIME ]:           [ $TEXT ],
+    [ METER ]:          [ $TEXT ],
+    [ BR ]:             [],
+    [ WBR ]:            [],
+    [ SPACE ]:          [],
     //
     // 内联内结构
     /////////////////////////////////////////////
-    [ SVGITEM ]:    [ SVGITEM ],
-    [ TRACK ]:      [],
-    [ SOURCE ]:     [],
-    [ RB ]:         [ $TEXT ],
-    [ RT ]:         [ $TEXT ],
-    [ RP ]:         [ $TEXT ],
-    [ EXPLAIN ]:    [ $TEXT, _INLINES, A ], // 插图讲解
-    [ RBPT ]:       [ RB, RT, RP ],
+    [ SVGITEM ]:        [ SVGITEM ],
+    [ TRACK ]:          [],
+    [ SOURCE ]:         [],
+    [ RB ]:             [ $TEXT ],
+    [ RT ]:             [ $TEXT ],
+    [ RP ]:             [ $TEXT ],
+    [ EXPLAIN ]:        [ $TEXT, _INLINES, A ], // 插图讲解
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    [ A ]:          [ $TEXT, _INLINES ],
-    [ STRONG ]:     [ $TEXT, _INLINES, A ],
-    [ EM ]:         [ $TEXT, _INLINES, A ],
-    [ Q ]:          [ $TEXT, _INLINES, A ],
-    [ ABBR ]:       [ $TEXT ],
-    [ CITE ]:       [ $TEXT, _INLINES, A ],
-    [ SMALL ]:      [ $TEXT, _INLINES, A ],
-    [ DEL ]:        [ $TEXT, _INLINES, A ],
-    [ INS ]:        [ $TEXT, _INLINES, A ],
-    [ SUB ]:        [ $TEXT, _INLINES ],
-    [ SUP ]:        [ $TEXT, _INLINES ],
-    [ MARK ]:       [ $TEXT, _INLINES ],
-    [ CODE ]:       [ $TEXT, B, I ],
-    [ ORZ ]:        [ $TEXT ],
-    [ DFN ]:        [ $TEXT, ABBR ],
-    [ SAMP ]:       [ $TEXT, _INLINES, A ],
-    [ KBD ]:        [ $TEXT ],
-    [ S ]:          [ $TEXT, _INLINES, A ],
-    [ U ]:          [ $TEXT, _INLINES, A ],
-    [ VAR ]:        [ $TEXT ],
-    [ BDO ]:        [ $TEXT, _INLINES, A ],
+    [ A ]:              [ $TEXT, _INLINES ],
+    [ STRONG ]:         [ $TEXT, _INLINES, A ],
+    [ EM ]:             [ $TEXT, _INLINES, A ],
+    [ Q ]:              [ $TEXT, _INLINES, A ],
+    [ ABBR ]:           [ $TEXT ],
+    [ CITE ]:           [ $TEXT, _INLINES, A ],
+    [ SMALL ]:          [ $TEXT, _INLINES, A ],
+    [ DEL ]:            [ $TEXT, _INLINES, A ],
+    [ INS ]:            [ $TEXT, _INLINES, A ],
+    [ SUB ]:            [ $TEXT, _INLINES ],
+    [ SUP ]:            [ $TEXT, _INLINES ],
+    [ MARK ]:           [ $TEXT, _INLINES ],
+    [ CODE ]:           [ $TEXT, B, I ],
+    [ ORZ ]:            [ $TEXT ],
+    [ DFN ]:            [ $TEXT, ABBR ],
+    [ SAMP ]:           [ $TEXT, _INLINES, A ],
+    [ KBD ]:            [ $TEXT ],
+    [ S ]:              [ $TEXT, _INLINES, A ],
+    [ U ]:              [ $TEXT, _INLINES, A ],
+    [ VAR ]:            [ $TEXT ],
+    [ BDO ]:            [ $TEXT, _INLINES, A ],
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    [ P ]:          [ $TEXT, _INLINES, A ],
-    [ NOTE ]:       [ $TEXT, _INLINES, A ],
-    [ TIPS ]:       [ $TEXT, _INLINES, A ],
-    [ PRE ]:        [ $TEXT, _INLINES, A ],
-    [ ADDRESS ]:    [ $TEXT, _INLINES, A ],
+    [ P ]:              [ $TEXT, _INLINES, A ],
+    [ NOTE ]:           [ $TEXT, _INLINES, A ],
+    [ TIPS ]:           [ $TEXT, _INLINES, A ],
+    [ PRE ]:            [ $TEXT, _INLINES, A ],
+    [ ADDRESS ]:        [ $TEXT, _INLINES, A ],
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    [ H1 ]:         [ $TEXT, _INLINES, A, I ],
-    [ H2 ]:         [ $TEXT, _INLINES, A, I ],
-    [ H3 ]:         [ $TEXT, _INLINES, A, I ],
-    [ H4 ]:         [ $TEXT, _INLINES, A, I ],
-    [ H5 ]:         [ $TEXT, _INLINES, A, I ],
-    [ H6 ]:         [ $TEXT, _INLINES, A, I ],
-    [ SUMMARY ]:    [ $TEXT, _INLINES, A ],
-    [ FIGCAPTION ]: [ $TEXT, _INLINES, A ],
-    [ CAPTION ]:    [ $TEXT, _INLINES, A ],
-    [ LI ]:         [ $TEXT, _INLINES, A ],
-    [ DT ]:         [ $TEXT, _INLINES, A, I ],
-    [ DD ]:         [ $TEXT, _INLINES, A ],
-    [ TH ]:         [ $TEXT, _INLINES, A ],
-    [ TD ]:         [ $TEXT, _INLINES, A ],
-    [ CODELI ]:     [ CODE ],
-    [ ALI ]:        [ A ],
-    [ AH4LI ]:      [ AH4 ],
-    [ AH4 ]:        [ A ],
-    [ ULXH4LI ]:    [ OL, H4, UL ],
-    [ OLXH4LI ]:    [ UL, H4, OL ],
-    [ CASCADEH4LI ]: [ H4, OL ],
-    [ FIGIMGP ]:    [ IMG, EXPLAIN ],
-    [ TR ]:         [ TH, TD ],
-    [ THEAD ]:      [ TR ],
-    [ TBODY ]:      [ TR ],
-    [ TFOOT ]:      [ TR ],
+    [ H1 ]:             [ $TEXT, _INLINES, A, I ],
+    [ H2 ]:             [ $TEXT, _INLINES, A, I ],
+    [ H3 ]:             [ $TEXT, _INLINES, A, I ],
+    [ H4 ]:             [ $TEXT, _INLINES, A, I ],
+    [ H5 ]:             [ $TEXT, _INLINES, A, I ],
+    [ H6 ]:             [ $TEXT, _INLINES, A, I ],
+    [ SUMMARY ]:        [ $TEXT, _INLINES, A ],
+    [ FIGCAPTION ]:     [ $TEXT, _INLINES, A ],
+    [ CAPTION ]:        [ $TEXT, _INLINES, A ],
+    [ LI ]:             [ $TEXT, _INLINES, A ],
+    [ DT ]:             [ $TEXT, _INLINES, A, I ],
+    [ DD ]:             [ $TEXT, _INLINES, A ],
+    [ TH ]:             [ $TEXT, _INLINES, A ],
+    [ TD ]:             [ $TEXT, _INLINES, A ],
+    [ CODELI ]:         [ CODE ],
+    [ ALI ]:            [ A ],
+    [ AH4LI ]:          [ AH4 ],
+    [ AH4 ]:            [ A ],
+    [ ULXH4LI ]:        [ OL, H4, UL ],
+    [ OLXH4LI ]:        [ UL, H4, OL ],
+    [ CASCADEH4LI ]:    [ H4, OL ],
+    [ FIGIMGP ]:        [ IMG, EXPLAIN ],
+    [ TR ]:             [ TH, TD ],
+    [ THEAD ]:          [ TR ],
+    [ TBODY ]:          [ TR ],
+    [ TFOOT ]:          [ TR ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:     [ H2, H1 ],
-    [ ABSTRACT ]:   [ P, H3, _BLOLIMIT ],
-    [ TOC ]:        [ H3, CASCADE ],
-    [ SEEALSO ]:    [ LI, ALI ],
-    [ REFERENCE ]:  [ LI, ALI ],
-    [ HEADER ]:     [ P, H3, _BLOLIMIT ],
-    [ FOOTER ]:     [ P, H3, _BLOLIMIT, ADDRESS ],
-    [ ARTICLE ]:    [ HEADER, S1, FOOTER ],
-    [ S1 ]:         [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
-    [ S2 ]:         [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
-    [ S3 ]:         [ H2, HEADER, S4, _BLOCKITS, FOOTER ],
-    [ S4 ]:         [ H2, HEADER, S5, _BLOCKITS, FOOTER ],
-    [ S5 ]:         [ H2, HEADER, _BLOCKITS, FOOTER ],
-    [ UL ]:         [ LI, ALI ],
-    [ OL ]:         [ LI, ALI ],
-    [ CODELIST ]:   [ CODELI ],
-    [ ULX ]:        [ LI, ALI, ULXH4LI ],
-    [ OLX ]:        [ LI, ALI, OLXH4LI ],
-    [ CASCADE ]:    [ LI, ALI, AH4LI, CASCADEH4LI ],
-    [ DL ]:         [ DT, DD ],
-    [ TABLE ]:      [ CAPTION, THEAD, TBODY, TFOOT ],
-    [ FIGURE ]:     [ FIGCAPTION, FIGIMGP ],
-    [ BLOCKQUOTE ]: [ P, H3, _BLOLIMIT, TABLE ],
-    [ ASIDE ]:      [ P, H3, _BLOLIMIT, TABLE ],
-    [ DETAILS ]:    [ P, SUMMARY, _BLOLIMIT, TABLE ],
-    [ CODEBLOCK ]:  [ CODE ],
+    [ HGROUP ]:         [ H2, H1 ],
+    [ ABSTRACT ]:       [ P, H3, _BLOLIMIT ],
+    [ TOC ]:            [ H3, CASCADE ],
+    [ SEEALSO ]:        [ LI, ALI ],
+    [ REFERENCE ]:      [ LI, ALI ],
+    [ HEADER ]:         [ P, H3, _BLOLIMIT ],
+    [ FOOTER ]:         [ P, H3, _BLOLIMIT, ADDRESS ],
+    [ ARTICLE ]:        [ HEADER, S1, FOOTER ],
+    [ S1 ]:             [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
+    [ S2 ]:             [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
+    [ S3 ]:             [ H2, HEADER, S4, _BLOCKITS, FOOTER ],
+    [ S4 ]:             [ H2, HEADER, S5, _BLOCKITS, FOOTER ],
+    [ S5 ]:             [ H2, HEADER, _BLOCKITS, FOOTER ],
+    [ UL ]:             [ LI, ALI ],
+    [ OL ]:             [ LI, ALI ],
+    [ CODELIST ]:       [ CODELI ],
+    [ ULX ]:            [ LI, ALI, ULXH4LI ],
+    [ OLX ]:            [ LI, ALI, OLXH4LI ],
+    [ CASCADE ]:        [ LI, ALI, AH4LI, CASCADEH4LI ],
+    [ DL ]:             [ DT, DD ],
+    [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
+    [ FIGURE ]:         [ FIGCAPTION, FIGIMGP ],
+    [ BLOCKQUOTE ]:     [ P, H3, _BLOLIMIT, TABLE ],
+    [ ASIDE ]:          [ P, H3, _BLOLIMIT, TABLE ],
+    [ DETAILS ]:        [ P, SUMMARY, _BLOLIMIT, TABLE ],
+    [ CODEBLOCK ]:      [ CODE ],
     // 单体单元
-    [ HR ]:         [],
-    [ BLANK ]:      [],
+    [ HR ]:             [],
+    [ BLANK ]:          [],
 
     //
     // 特别单元
     /////////////////////////////////////////////
-    [ B ]:          [ $TEXT ],
-    [ I ]:          [ $TEXT ],
+    [ B ]:              [ $TEXT ],
+    [ I ]:              [ $TEXT ],
 };
 
 // 配置展开。
@@ -520,161 +518,40 @@ $.each(
 
 
 //
-// 属性条目配置：{
-//      单元值：模板名,
-// }
-// 上下文菜单中“属性”条目匹配的模板。
-// 注：不是所有的单元都有属性可编辑。
+// 子单元选单合并定制。
+// 注：
+// 部分单元的子单元构建存在约束，故此定制。
 //
-export const PropItems = {
-    [ AUDIO ]:      'audio',    // source, track, text
-    [ VIDEO ]:      'video',    // 同上
-    [ PICTURE ]:    'picture',  // img, source...
-    [ SVG ]:        'svg',      // width, height, html
-    [ IMG ]:        'img',      // src, width, height, alt
-    [ RUBY ]:       'ruby',     // rb, rt, rp
-    [ TIME ]:       'time',     // datetime, text
-    [ METER ]:      'meter',    // max, min, high, low, value, optimum
-    [ SPACE ]:      'space',    // width
-    [ A ]:          'a',        // href, target, download[checkbox, text]
-    [ Q ]:          'q',        // cite
-    [ ABBR ]:       'abbr',     // title
-    [ DEL ]:        'del',      // datetime
-    [ INS ]:        'ins',      // 同上
-    [ CODE ]:       'code',     // data-lang, data-tab
-    [ DFN ]:        'dfn',      // title
-    [ BDO ]:        'bdo',      // dir
-    [ CODELIST ]:   'codelist', // data-lang, data-tab, start
-    [ OL ]:         'ol',       // start, type, reversed
-    [ OLX ]:        'olx',      // 同上
-    [ TABLE ]:      'table',    // rows, cols, caption
-    [ HR ]:         'hr',       // thick, length, height
-    [ BLANK ]:      'blank',    // width, height
+const optionCustom = {
+    [ RUBY ]:   [ RBPT ],
 };
 
-//
-// 全名补全（前置 property:）
-//
-$.each(
-    PropItems, (v, k, o) => o[k] = `property:${v}`
-);
+
+/**
+ * 获取子单元值集。
+ * @param  {Number} v 父单元值
+ * @return {[Number]}
+ */
+function childTypes(v) {
+    return optionCustom[ref] || ChildTypes[ref] || [];
+}
 
 
-//
-// 插入条目选单映射：{
-//      单元值：模板名,
-// }
-// 普通插入模式下关联条目的 选单=>模板名 映射。
-//
-export const InputOption = {
-    [ $TEXT ]:      'text',
-    [ AUDIO ]:      'audio',
-    [ VIDEO ]:      'video',
-    [ PICTURE ]:    'picture',
-    [ SVG ]:        'svg',
-    [ IMG ]:        'img',
-    [ RUBY ]:       'ruby',
-    [ TIME ]:       'time',
-    [ METER ]:      'meter',
-    [ BR ]:         'br',
-    [ WBR ]:        'wbr',
-    [ SPACE ]:      'space',
-
-    [ TRACK ]:      'track',
-    [ SOURCE ]:     'source',
-    [ RB ]:         'rb',
-    [ RT ]:         'rt',
-    [ RP ]:         'rp',
-    [ RBPT ]:       'rbpt',
-
-    [ A ]:          'a',
-    [ STRONG ]:     'strong',
-    [ EM ]:         'em',
-    [ Q ]:          'q',
-    [ ABBR ]:       'abbr',
-    [ CITE ]:       'cite',
-    [ SMALL ]:      'small',
-    [ DEL ]:        'del',
-    [ INS ]:        'ins',
-    [ SUB ]:        'sub',
-    [ SUP ]:        'sup',
-    [ MARK ]:       'mark',
-    [ CODE ]:       'code',
-    [ ORZ ]:        'orz',
-    [ DFN ]:        'dfn',
-    [ SAMP ]:       'samp',
-    [ KBD ]:        'kbd',
-    [ S ]:          's',
-    [ U ]:          'u',
-    [ VAR ]:        'var',
-    [ BDO ]:        'bdo',
-
-    [ P ]:          'p',
-    [ NOTE ]:       'note',
-    [ TIPS ]:       'tips',
-    [ PRE ]:        'pre',
-    [ ADDRESS ]:    'address',
-
-    [ H1 ]:         'h1',
-    [ H2 ]:         'h2',
-    [ H3 ]:         'h3',
-    [ H4 ]:         'h4',
-    [ H5 ]:         'h5',
-    [ H6 ]:         'h6',
-    [ SUMMARY ]:    'summary',
-    [ FIGCAPTION ]: 'figcaption',
-    [ CAPTION ]:    'caption',
-    [ LI ]:         'li',
-    [ DT ]:         'dt',
-    [ DD ]:         'dd',
-    [ TH ]:         'th',
-    [ TD ]:         'td',
-    [ CODELI ]:     'codeli',
-    [ ALI ]:        'ali',
-    [ AH4LI ]:      'ah4li',
-    [ AH4 ]:        'ah4',
-    [ ULXH4LI ]:    'ulxh4li',
-    [ OLXH4LI ]:    'olxh4li',
-    [ CASCADEH4LI ]: 'cascadeh4li',
-    [ TR ]:         'tr',
-    [ THEAD ]:      'thead',
-    [ TBODY ]:      'tbody',
-    [ TFOOT ]:      'tfoot',
-
-    [ HGROUP ]:     'hgroup',
-    [ ABSTRACT ]:   'abstract',
-    [ TOC ]:        'toc',
-    [ SEEALSO ]:    'seealso',
-    [ REFERENCE ]:  'reference',
-    [ HEADER ]:     'header',
-    [ FOOTER ]:     'footer',
-    [ ARTICLE ]:    'article',
-    [ S1 ]:         's1',
-    [ S2 ]:         's2',
-    [ S3 ]:         's3',
-    [ S4 ]:         's4',
-    [ S5 ]:         's5',
-    [ UL ]:         'ul',
-    [ OL ]:         'ol',
-    [ CODELIST ]:   'codelist',
-    [ ULX ]:        'ulx',
-    [ OLX ]:        'olx',
-    [ CASCADE ]:    'cascade',
-    [ DL ]:         'dl',
-    [ TABLE ]:      'table',
-    [ FIGURE ]:     'figure',
-    [ BLOCKQUOTE ]: 'blockquote',
-    [ ASIDE ]:      'aside',
-    [ DETAILS ]:    'details',
-    [ CODEBLOCK ]:  'codeblock',
-
-    [ HR ]:         'hr',
-    [ BLANK ]:      'blank',
-};
-
-//
-// 全名补全（前置 option:）
-//
-$.each(
-    InputOption, (v, k, o) => o[k] = `option:${v}`
-);
+/**
+ * 获取可插入选单集。
+ * 根据参考单元值返回可插入子单元的值集。
+ * 如果参考是一个集合，返回各成员子单元值集的交集。
+ * 用于可插入项选单构建。
+ * 注意：传入的数组实参会被改变。
+ * @param  {Number|[Number]} ref 参考单元值（集）
+ * @return {[Number]}
+ */
+export function options( ref ) {
+    if ( !$.isArray(ref) ) {
+        return childTypes( ref );
+    }
+    return ref.reduce(
+        (vs, p) => vs.filter( v => childTypes(p).includes(v) ),
+        childTypes( ref.shift() )
+    );
+}

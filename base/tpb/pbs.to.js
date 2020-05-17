@@ -227,7 +227,7 @@ const _Update = {
 
     /**
      * 类名独占设置。
-     * 清除元素集内name类名之后设置目标元素类名。
+     * 清除源元素集内name类名之后设置目标元素类名。
      * 可用于选单中的排他性选取表达。
      * 注：支持目标是一个集合。
      * @param  {Element|[Element]} to 目标元素/集
@@ -240,6 +240,7 @@ const _Update = {
             to = [to];
         }
         els.forEach(
+            // 移除略过目标。
             el => to.includes(el) || $.removeClass(el, name)
         );
         to.forEach( el => $.addClass(el, name) );
@@ -445,7 +446,6 @@ const _Update = {
 [
     'height',       // val: Number, (inc:Boolean)
     'width',        // val: Number, (inc:Boolean)
-    'scroll',       // val: {top:Number, left:Number}|[left, top]
     'scrollTop',    // val: Number, (inc:Boolean)
     'scrollLeft',   // val: Number, (inc:Boolean)
     'addClass',     // name: {String|Function}
