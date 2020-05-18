@@ -167,17 +167,16 @@
 </div>
 
 
-<!-- 级联表 -->
+<!-- 级联编号表 -->
 <div class="_body _Cascade" tpl-name="input:cascade">
     <div class="_main">
         <textarea name="cascade" placeholder="每行一项"></textarea>
     </div>
     <aside>
-        <div class="_option">
-            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-            <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="numlist">转为多级编号</label>
-        </div>
-        <div tpl-node="input:insert1"> [插入1] </div>
+        <pre tpl-node="input:option1, input:insert1">
+            [选项1]
+            [插入1]
+        </pre>
     </aside>
 </div>
 

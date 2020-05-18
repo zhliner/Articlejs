@@ -2522,7 +2522,7 @@ class Table {
      * 列表头位置。
      * @return {Number|null}
      */
-    hasVth() {
+    vth() {
         return this._vth;
     }
 

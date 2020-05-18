@@ -25,6 +25,7 @@
 //
 
 import { type, nameType } from "./base.js";
+import { SVG, SVGITEM } from "./types.js";
 import { extend } from "./tpb/pbs.by.js";
 
 
@@ -32,11 +33,7 @@ const
     $ = window.$,
 
     // 类型值存储键。
-    __typeKey = Symbol('type-value'),
-
-    // 表格实例缓存。
-    // { Element: $.Table }
-    __tablePool = new WeakMap();
+    __typeKey = Symbol('type-value');
 
 
 //
@@ -98,7 +95,7 @@ function create( name, opts ) {
     if ( _its ) {
         $.attr( _el, 'role', _its[1] );
     }
-    return setType( _el, nameType(name) ), _el;
+    return setType( _el, nameType(name) );
 }
 
 
@@ -107,26 +104,30 @@ function create( name, opts ) {
  * 注：用一个Symbol键存储在元素对象上，非枚举。
  * @param  {Element} el 目标元素
  * @param  {Number} tval 类型值
- * @return {Number} tval
+ * @return {Element} el
  */
 function setType( el, tval ) {
     Reflect.defineProperty(el, __typeKey, {
         value: tval,
         enumerable: false,
     });
-    return tval;
+    return el;
 }
 
 
 /**
- * 获取元素类型值。
+ * 提取元素类型值。
  * 如果值未知，即时分析获取并存储。
  * @param  {Element} el 目标元素
  * @return {Number}
  */
 function getType( el ) {
     let _v = el[ __typeKey ];
-    return _v === undefined ? setType(el, type(el)) : _v;
+
+    if ( _v === undefined ) {
+        setType( el, (_v = type(el)) );
+    }
+    return _v;
 }
 
 
@@ -139,7 +140,7 @@ function getType( el ) {
  */
 function clone( src ) {
     let _new = $.clone( src, true );
-    return setType( _new, getType(src) ), _new;
+    return setType( _new, getType(src) );
 }
 
 
@@ -200,7 +201,10 @@ const Content = {
         }
         let _el = $.svg( opts );
 
-        return setType(_el, nameType('SVG')), _el;
+        $.find('*', _el)
+        .forEach( el => setType(el, SVGITEM) );
+
+        return setType( _el, SVG );
     },
 
 
@@ -326,247 +330,228 @@ const Content = {
     //-- 块内结构元素 --------------------------------------------------------
 
 
-    Summary() {},
-    Figcaption() {},
-    Caption() {},
-
-
-    Li() {
+    tr() {
         //
     },
 
 
-    Dt() {
+    thead() {
         //
     },
 
 
-    Dd() {
+    tbody() {
         //
     },
 
 
-    Th() {
+    tfoot() {
         //
     },
 
 
-    Td() {
+    codeli() {
         //
     },
 
 
-    Tr() {
+    ali() {
         //
     },
 
 
-    Thead() {
+    ah4li() {
         //
     },
 
 
-    Tbody() {
+    ah4() {
         //
     },
 
 
-    Tfoot() {
+    ulxh4li() {
         //
     },
 
 
-    Codeli() {
+    olxh4li() {
         //
     },
 
 
-    Ali() {
+    cascadeh4li() {
         //
     },
 
 
-    Ah4li() {
-        //
-    },
-
-
-    Ah4() {
-        //
-    },
-
-
-    Ulxh4li() {
-        //
-    },
-
-
-    Olxh4li() {
-        //
-    },
-
-
-    Cascadeh4li() {
-        //
-    },
-
-
-    Figimgp() {
+    figimgp() {
         //
     },
 
 
     //-- 行块结构元素 --------------------------------------------------------
 
-    Hgroup() {
+
+    hgroup() {
         //
     },
 
 
-    Abstract() {
+    abstract() {
         //
     },
 
 
-    Toc() {
+    toc() {
         //
     },
 
 
-    Seealso() {
+    seealso() {
         //
     },
 
 
-    Reference() {
+    reference() {
         //
     },
 
 
-    Header() {
+    header() {
         //
     },
 
 
-    Footer() {
+    footer() {
         //
     },
 
 
-    Article() {
+    article() {
         //
     },
 
 
-    S1() {
+    s1() {
         //
     },
 
 
-    S2() {
+    s2() {
         //
     },
 
 
-    S3() {
+    s3() {
         //
     },
 
 
-    S4() {
+    s4() {
         //
     },
 
 
-    S5() {
+    s5() {
         //
     },
 
 
-    Ul() {
+    ul() {
         //
     },
 
 
-    Ol() {
+    ol() {
         //
     },
 
 
-    Codelist() {
+    codelist() {
         //
     },
 
 
-    Ulx() {
+    ulx() {
         //
     },
 
 
-    Olx() {
+    olx() {
         //
     },
 
 
-    Cascade() {
+    cascade() {
         //
     },
 
 
-    Dl() {
+    dl() {
         //
     },
 
 
-    Table() {
+    table() {
         //
     },
 
 
-    Figure() {
+    figure() {
         //
     },
 
 
-    Blockquote() {
+    blockquote() {
         //
     },
 
 
-    Aside() {
+    aside() {
         //
     },
 
 
-    Details() {
+    details() {
         //
     },
 
 
-    Codeblock() {
+    codeblock() {
         //
     },
 
 
-    Hr() {
+    hr() {
         //
     },
 
 
-    Blank() {
+    blank() {
         //
     },
 
 
     //-- 特别用途元素 --------------------------------------------------------
+    // 用于代码内的语法标注。
 
-    B() {
-        //
+
+    /**
+     * 创建语法标记单元。
+     * @param {String} text 文本
+     */
+    b( text ) {
+        return $.attr( create('B'), 'text', text );
     },
 
 
-    I() {
-        //
+    /**
+     * 创建注释语法单元。
+     * @param {String} text 文本
+     */
+    i( text ) {
+        return $.attr( create('I'), 'text', text );
     },
 
 
@@ -962,6 +947,11 @@ const Content = {
     'summary',      // cons
     'figcaption',   // cons
     'caption',      // cons
+    'li',           // cons, {value:Number} // 当前起始编号
+    'dt',           // cons
+    'dd',           // cons
+    'th',           // cons // 暂不支持任何属性设置
+    'td',           // cons // 同上
 ]
 .forEach(function( name ) {
     /**
@@ -1483,22 +1473,6 @@ function insertBlock( root, cons, meth ) {
     $[meth]( root, cons );
 
     return _hx && $.prepend( root, _hx );
-}
-
-
-/**
- * 检索/设置表格实例。
- * 效率：缓存解析创建的表格实例。
- * @param  {Element} tbl 表格元素
- * @return {Table}
- */
-function tableObj( tbl ) {
-    let _tbl = __tablePool.get(tbl);
-
-    if ( !_tbl ) {
-        __tablePool.set( tbl, new $.Table(tbl) );
-    }
-    return _tbl;
 }
 
 

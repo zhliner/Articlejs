@@ -25,14 +25,9 @@ const $ = window.$;
 // 内联/行块单元指可成为逻辑完整的独立内容的元素或元素结构。
 //
 // 特性标记：
-// 0. EMPTY   空元素（单标签）
-// 1. FIXED   位置固定。只能自我移动（不能被其它元素移动），如：{<caption>}
-// 2. TBLSECT 表格区段元件：{<thead>|<tbody>|<tfoot>}
-// 3. TBLCELL 表格单元元件：{<th>|<td>}
-// 4. DLITEM  定义列表项：  {<dt>|<dd>}
-// 5. LIST    普通列表（子项由<li>封装）：{<ol>|<ul>|...}
-// 6. SEALED  密封单元，定制创建和更新，内部成员不可移动插入也不可简单删除。
-// 7. SECTED  分级片区，有严格的嵌套层级，转换时可能需要修改role值。
+// 1. EMPTY   空元素（单标签）
+// 2. SEALED  密封单元，定制创建，内部成员只能更新。
+// 3. FIXED   位置固定。只能自我移动（不能被其它元素移动），如：{<caption>}
 //
 export const
     TEXT    = 0,        // 文本节点
@@ -42,13 +37,26 @@ export const
     INLINES = 1 << 3,   // 内联单元
     BLOCKS  = 1 << 4,   // 行块单元
     EMPTY   = 1 << 5,   // 空元素（单标签）
-    FIXED   = 1 << 6,   // 位置确定性
-    TBLSECT = 1 << 7,   // 表结构元件
-    TBLCELL = 1 << 8,   // 表格单元元件
-    DLITEM  = 1 << 9,   // 定义列表项
-    LIST    = 1 << 10,  // 普通列表
-    SEALED  = 1 << 11,  // 密封单元
-    SECTED  = 1 << 12;  // 分级片区单元
+    SEALED  = 1 << 6,   // 密封单元
+    FIXED   = 1 << 7;   // 位置确定性
+
+
+//
+// 兼容类型标记：
+// 用于简单判断并同级插入（可能需要微调），
+// 或者单元自身的类型转换。
+// - TBLSECT 表格区段元件：{<thead>|<tbody>|<tfoot>}
+// - TBLCELL 表格单元元件：{<th>|<td>}
+// - DLITEM  定义列表项：  {<dt>|<dd>}
+// - SECTED  分级片区，有严格的嵌套层级，转换时可能需要修改role值。
+//
+export const
+    TBLCELL = Symbol( 'tblcell' ),      // 表格单元元件
+    DLITEM  = Symbol( 'dlitem' ),       // 定义列表项
+    SECTED  = Symbol( 'sected' ),       // 分级片区单元
+    XLIST   = Symbol( 'normal-list'),   // 列表
+    XBLOCK  = Symbol( 'small-block'),   // 小区块
+    XCODES  = Symbol( 'code-block');    // 行块代码
 
 
 //
@@ -202,15 +210,15 @@ export const
 //
 // 单元的类型/特性。
 //
-export const Types = {
+export const Specials = {
     [ $TEXT ]:          TEXT,
     //
     // 内联结构元素
     /////////////////////////////////////////////
-    [ AUDIO ]:          INLINES | STRUCT | SEALED,
-    [ VIDEO ]:          INLINES | STRUCT | SEALED,
-    [ PICTURE ]:        INLINES | STRUCT | SEALED,
-    [ SVG ]:            INLINES | STRUCT | SEALED,
+    [ AUDIO ]:          INLINES | STRUCT,
+    [ VIDEO ]:          INLINES | STRUCT,
+    [ PICTURE ]:        INLINES | STRUCT,
+    [ SVG ]:            INLINES | STRUCT,
     [ RUBY ]:           INLINES | STRUCT | SEALED,
     [ TIME ]:           INLINES | SEALED,
     [ METER ]:          INLINES | SEALED,
@@ -219,15 +227,15 @@ export const Types = {
     [ BR ]:             INLINES | EMPTY,
     [ WBR ]:            INLINES | EMPTY,
     //
-    // 内联内结构
+    // 内联结构子
     /////////////////////////////////////////////
-    [ SVGITEM ]:        STRUCT | SEALED,
-    [ TRACK ]:          STRUCT | EMPTY,
-    [ SOURCE ]:         STRUCT | EMPTY,
-    [ RB ]:             STRUCT | CONTENT,
-    [ RT ]:             STRUCT | CONTENT,
-    [ RP ]:             STRUCT | SEALED,
-    [ EXPLAIN ]:        STRUCT | CONTENT,   // figure/p/img,span:explain
+    [ SVGITEM ]:        SEALED,
+    [ TRACK ]:          EMPTY,
+    [ SOURCE ]:         EMPTY,
+    [ RB ]:             FIXED | CONTENT,
+    [ RT ]:             FIXED | CONTENT,
+    [ RP ]:             FIXED | SEALED,
+    [ EXPLAIN ]:        FIXED | CONTENT,   // figure/p/img,span:explain
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -262,26 +270,26 @@ export const Types = {
     [ ADDRESS ]:        BLOCKS | CONTENT,
     [ PRE ]:            BLOCKS | CONTENT,
     //
-    // 块内结构元素
+    // 块内结构子
     /////////////////////////////////////////////
-    [ H1 ]:             STRUCT | CONTENT | FIXED,
-    [ H2 ]:             STRUCT | CONTENT | FIXED,
-    [ H3 ]:             STRUCT | CONTENT | FIXED,
-    [ H4 ]:             STRUCT | CONTENT | FIXED,
-    [ H5 ]:             STRUCT | CONTENT | FIXED,
-    [ H6 ]:             STRUCT | CONTENT | FIXED,
-    [ SUMMARY ]:        STRUCT | CONTENT | FIXED,
-    [ FIGCAPTION ]:     STRUCT | CONTENT | FIXED,
-    [ CAPTION ]:        STRUCT | CONTENT | FIXED,
-    [ LI ]:             STRUCT | CONTENT,
-    [ DT ]:             STRUCT | CONTENT | DLITEM,
-    [ DD ]:             STRUCT | CONTENT | DLITEM,
-    [ TH ]:             STRUCT | CONTENT | TBLCELL,
-    [ TD ]:             STRUCT | CONTENT | TBLCELL,
-    [ TR ]:             STRUCT | SEALED, // 表格列不能单独改变
-    [ THEAD ]:          STRUCT | TBLSECT,
-    [ TBODY ]:          STRUCT | TBLSECT,
-    [ TFOOT ]:          STRUCT | TBLSECT,
+    [ H1 ]:             FIXED | CONTENT,
+    [ H2 ]:             FIXED | CONTENT,
+    [ H3 ]:             FIXED | CONTENT,
+    [ H4 ]:             FIXED | CONTENT,
+    [ H5 ]:             FIXED | CONTENT,
+    [ H6 ]:             FIXED | CONTENT,
+    [ SUMMARY ]:        FIXED | CONTENT,
+    [ FIGCAPTION ]:     FIXED | CONTENT,
+    [ CAPTION ]:        FIXED | CONTENT,
+    [ LI ]:             CONTENT,
+    [ DT ]:             CONTENT,
+    [ DD ]:             CONTENT,
+    [ TH ]:             CONTENT,
+    [ TD ]:             CONTENT,
+    [ TR ]:             STRUCT,
+    [ THEAD ]:          STRUCT,
+    [ TBODY ]:          STRUCT,
+    [ TFOOT ]:          STRUCT,
 
     [ CODELI ]:         STRUCT | SEALED,
     [ ALI ]:            STRUCT | SEALED,
@@ -298,25 +306,25 @@ export const Types = {
     [ HGROUP ]:         BLOCKS | STRUCT | FIXED | SEALED,
     [ ABSTRACT ]:       BLOCKS | STRUCT | FIXED,
     [ TOC ]:            BLOCKS | STRUCT | FIXED | SEALED,
-    [ SEEALSO ]:        BLOCKS | STRUCT | FIXED | LIST,
-    [ REFERENCE ]:      BLOCKS | STRUCT | FIXED | LIST,
+    [ SEEALSO ]:        BLOCKS | STRUCT | FIXED,
+    [ REFERENCE ]:      BLOCKS | STRUCT | FIXED,
     [ HEADER ]:         BLOCKS | STRUCT | FIXED,
     [ FOOTER ]:         BLOCKS | STRUCT | FIXED,
     [ ARTICLE ]:        BLOCKS | STRUCT | FIXED,
-    [ S1 ]:             BLOCKS | STRUCT | SECTED,
-    [ S2 ]:             BLOCKS | STRUCT | SECTED,
-    [ S3 ]:             BLOCKS | STRUCT | SECTED,
-    [ S4 ]:             BLOCKS | STRUCT | SECTED,
-    [ S5 ]:             BLOCKS | STRUCT | SECTED,
-    [ UL ]:             BLOCKS | STRUCT | LIST,
-    [ OL ]:             BLOCKS | STRUCT | LIST,
-    [ CODELIST ]:       BLOCKS | STRUCT | LIST,
-    [ ULX ]:            BLOCKS | STRUCT | LIST,
-    [ OLX ]:            BLOCKS | STRUCT | LIST,
-    [ CASCADE ]:        BLOCKS | STRUCT | LIST,
+    [ S1 ]:             BLOCKS | STRUCT,
+    [ S2 ]:             BLOCKS | STRUCT,
+    [ S3 ]:             BLOCKS | STRUCT,
+    [ S4 ]:             BLOCKS | STRUCT,
+    [ S5 ]:             BLOCKS | STRUCT,
+    [ UL ]:             BLOCKS | STRUCT,
+    [ OL ]:             BLOCKS | STRUCT,
+    [ CODELIST ]:       BLOCKS | STRUCT,
+    [ ULX ]:            BLOCKS | STRUCT,
+    [ OLX ]:            BLOCKS | STRUCT,
+    [ CASCADE ]:        BLOCKS | STRUCT,
     [ DL ]:             BLOCKS | STRUCT,
-    [ TABLE ]:          BLOCKS | STRUCT, // 支持多<tbody>
-    [ FIGURE ]:         BLOCKS | STRUCT, // 支持多<p/img,span>
+    [ TABLE ]:          BLOCKS | STRUCT,  // 支持多<tbody>
+    [ FIGURE ]:         BLOCKS | STRUCT,  // 支持多<p/img,span>
     [ BLOCKQUOTE ]:     BLOCKS | STRUCT,
     [ ASIDE ]:          BLOCKS | STRUCT,
     [ DETAILS ]:        BLOCKS | STRUCT,
@@ -331,6 +339,52 @@ export const Types = {
     [ B ]:              SPECIAL | CONTENT,
     [ I ]:              SPECIAL | CONTENT,
 };
+
+
+//
+// 兼容类型定义。
+// 视为同类单元在平级位置插入或原地转换。
+// 注记：
+// 原地转换通常由上下文菜单激发。
+// 如果单元值不同，则检查是否兼容并处理（无需合法子单元检查）。
+//
+export const Compatible = {
+    // 快速平级插入
+    [ DT ]:         DLITEM,
+    [ DD ]:         DLITEM,
+
+    // 简单转换
+    [ TH ]:         TBLCELL,
+    [ TD ]:         TBLCELL,
+
+    // 片区转移
+    // 相同标签结构，修正层级（role）即可。
+    [ S1 ]:         SECTED,
+    [ S2 ]:         SECTED,
+    [ S3 ]:         SECTED,
+    [ S4 ]:         SECTED,
+    [ S5 ]:         SECTED,
+
+    // 小区块转换
+    // 结构相似，小标题加段落内容集。
+    [ BLOCKQUOTE ]: XBLOCK,
+    [ ASIDE ]:      XBLOCK,
+    [ DETAILS ]:    XBLOCK,
+
+    // 行块代码转换
+    // 虽然标签结构迥异，但外观逻辑相似。
+    [ CODELIST ]:   XCODES,
+    [ CODEBLOCK ]:  XCODES,
+
+    // 列表转换
+    // 根级改变或递进处理（级联编号表时）。
+    [ UL ]:         XLIST,
+    [ OL ]:         XLIST,
+    [ ULX ]:        XLIST,
+    [ OLX ]:        XLIST,
+    [ CASCADE ]:    XLIST, // 递进
+};
+
 
 
 //
@@ -525,6 +579,11 @@ $.each(
 const optionCustom = {
     [ RUBY ]:   [ RBPT ],
 };
+
+
+//
+// 工具函数。
+//////////////////////////////////////////////////////////////////////////////
 
 
 /**

@@ -19,7 +19,11 @@ const
     $ = window.$,
 
     // SVG系名称空间。
-    __svgNS = 'http://www.w3.org/2000/svg';
+    __svgNS = 'http://www.w3.org/2000/svg',
+
+    // 表格实例缓存。
+    // { Element: $.Table }
+    __tablePool = new WeakMap();
 
 
 //
@@ -195,6 +199,25 @@ const typeStruct = {
         return T.LI;
     },
 
+};
+
+
+//
+// 兼容类型处理器。
+// 将源单元转换到目标单元。
+//
+const compatibleProcess = {
+    /**
+     * 片区转换。
+     * 将源片区转换为正确的层级，调整包含所有的子片区。
+     * 子片区层级大于s5时，移除role值。
+     * @param  {Element} src 源片区
+     * @param  {Number} n 目标层级（1-5）
+     * @return {Element} 修改后的源片区
+     */
+    [ T.SECTED ]: function( src, n ) {
+        //
+    },
 };
 
 
@@ -418,17 +441,51 @@ function listRoot( el ) {
 
 
 /**
- * 是否为相同的表格行。
+ * 缓存/检索表格实例。
+ * 如果传递元素，则为检索，否则为设置。
+ * @param  {Element|Table} tbl 表格元素或$.Table实例
+ * @return {Table|void}
+ */
+function tableObj( tbl ) {
+    if ( tbl.nodeType ) {
+        let _tbl = __tablePool.get(tbl);
+
+        if ( !_tbl ) {
+            __tablePool.set( tbl, new $.Table(tbl) );
+        }
+        return _tbl;
+    }
+    __tablePool.set( tbl.element(), tbl );
+}
+
+
+/**
+ * 是否为同类表格行。
+ * 检查表格行所属表格Table实例的列头和列数，
+ * 以及所属表格片区是否相同。
  * @param  {Element} tr1 表格行
  * @param  {Element} tr2 表格行
  * @return {Boolean}
  */
 function sameTr( tr1, tr2 ) {
-    let _c1 = tr1.cells,
-        _c2 = tr2.cells;
+    let _s1 = tr1.parentElement,
+        _s2 = tr2.parentElement;
 
-    return _c1.length == _c2.length &&
-        Array.from(_c1).every( (td, i) => td.nodeName == _c2[i].nodeName );
+    return _s1.tagName == _s2.tagName &&
+        alikeTable( _s1.parentElement, _s2.parentElement );
+}
+
+
+/**
+ * 是否为相似表格。
+ * @param {Element} t1 表格1
+ * @param {Element} t2 表格2
+ */
+function alikeTable( t1, t2 ) {
+    let _t1 = tableObj( t1 ),
+        _t2 = tableObj( t2 );
+
+    return _t1.columns() == _t2.columns() && _t1.vth() == _t2.vth();
 }
 
 

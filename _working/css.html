@@ -888,7 +888,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>级联表：[li]/h5,[ul|ol]/...（目标为&lt;li&gt;，内容自动封装为&lt;h5&gt;）</h4>
+    <h4>级联编号表：ol:cascade/li/h4,ol/...（目标可为&lt;li&gt;，其内容自动封装为&lt;h4&gt;）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -920,7 +920,6 @@
                     <aside>
                         <div class="_option">
                             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-                            <label title="结构：ol:cascade/li/h5,ol/..."><input type="checkbox" name="numlist">转为多级编号</label>
                         </div>
                         <div class="_submit" tpl-name="input:insert1">
                             <button type="submit">插入</button>
