@@ -148,7 +148,7 @@ function clone( src ) {
 // 单元创建集。
 // 包含全部中间结构单元。
 // 用于主面板中的新单元构建和复制/移动时的默认单元创建。
-// @return {Element|[Element]}
+// @return {Element|[Element]|Collector}
 //////////////////////////////////////////////////////////////////////////////
 // 注记：
 // 除非为最基本单元，实参尽量为节点/集以便于移动转换适用。
@@ -330,23 +330,79 @@ const Content = {
     //-- 块内结构元素 --------------------------------------------------------
 
 
-    tr() {
-        //
+    /**
+     * 创建表格行。
+     * 内容可以是一个二维数组，一维成员对应到各单元格。
+     * @param  {Table} tbl 表格实例（$.Table）
+     * @param  {[Node|[Node]|String]} cons 内容集
+     * @param  {TableSection} tsec 表格片区（<thead>|<tbody>|<tfoot>）
+     * @param  {Number} idx 位置下标，可选
+     * @return {Collector} 新行元素集
+     */
+    tr( tbl, cons, tsec, idx ) {
+        let _rows = Math.ceil( cons.length / tbl.columns() ),
+            _trs = null;
+
+        switch (tsec.tagName) {
+            case 'THEAD':
+                _trs = tbl.head(_rows, idx);
+                break;
+            case 'TFOOT':
+                _trs = tbl.foot(_rows, idx);
+                break;
+            case 'TBODY':
+                _trs = tbl.body(_rows, idx, tsec);
+        }
+        return _trs.find('th,td').flat().fill( cellWraps(cons) ).end(-1);
     },
 
 
-    thead() {
-        //
+    /**
+     * 创建/更新表头元素。
+     * 需要实际的表格行数据，可作为重复添加接口。
+     * @param  {Table} tbl 表格实例（$.Table）
+     * @param  {[Node|[Node]|String]} cons 内容集
+     * @param  {Number} idx 插入位置下标
+     * @return {Collector} 新行元素集
+     */
+    thead( tbl, cons, idx ) {
+        let _rows = Math.ceil( cons.length / tbl.columns() ),
+            _trs = tbl.head( _rows, idx );
+
+        return _trs.find('th').flat().fill( cellWraps(cons) ).end(-1);
     },
 
 
-    tbody() {
-        //
+    /**
+     * 创建表格行。
+     * 内容可以是一个二维数组，一维成员对应到各单元格。
+     * @param  {Table} tbl 表格实例（$.Table）
+     * @param  {[Node|[Node]|String]} cons 内容集
+     * @param  {Number} idx 位置下标，可选
+     * @param  {TableSection} tsec 表体片区（<tbody>[n]），可选
+     * @return {Collector} 新行元素集
+     */
+    tbody( tbl, cons, idx, tsec ) {
+        let _rows = Math.ceil( cons.length / tbl.columns() ),
+            _trs = tbl.body( _rows, idx, tsec );
+
+        return _trs.find('th,td').flat().fill( cellWraps(cons) ).end(-1);
     },
 
 
-    tfoot() {
-        //
+    /**
+     * 创建/更新表脚元素。
+     * 需要实际的表格行数据，可作为重复添加接口。
+     * @param  {Table} tbl 表格实例（$.Table）
+     * @param  {[Node|[Node]|String]} cons 内容集
+     * @param  {Number} idx 插入位置下标
+     * @return {Collector} 新行元素集
+     */
+    tfoot( tbl, cons, idx ) {
+        let _rows = Math.ceil( cons.length / tbl.columns() ),
+            _trs = tbl.foot( _rows, idx );
+
+        return _trs.find('th,td').flat().fill( cellWraps(cons) ).end(-1);
     },
 
 
@@ -1210,6 +1266,18 @@ function calls( n, handle, ...rest ) {
         _buf.push( handle(...rest) );
     }
     return _buf;
+}
+
+
+/**
+ * 单元格数据封装。
+ * 将内容集中的字符串成员封装为子数组（.fill优化）。
+ * 注记：仅需对字符串封装。
+ * @param  {[Node|[Node]|String]} cons 内容集
+ * @return {[Node|[Node]|[String]]}
+ */
+function cellWraps( cons ) {
+    return cons.map( d => typeof d == 'string' ? [d] : d );
 }
 
 

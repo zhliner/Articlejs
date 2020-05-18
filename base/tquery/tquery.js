@@ -2251,8 +2251,9 @@ class Table {
         if ( rows === null ) {
             return tsec && varyRemove( tsec, this._tbl );
         }
-        if ( rows === undefined ) return tsec
-
+        if ( rows === undefined ) {
+            return tsec
+        }
         if ( !tsec ) {
             tsec = insertNode(
                 this._tbl,
@@ -2267,9 +2268,8 @@ class Table {
     /**
      * 获取/删除表头元素或添加表头行。
      * 无参数调用返回表头元素（可能为null）。
-     * 传递rows为null会删除表头元素并返回它（可能为null）。
      * 传递创建参数时，如果不存在表头元素（THead）会新建。
-     * rows 实参为null会删除表头元素。
+     * rows 为null会删除表头元素并返回之。
      * idx 支持负数从末尾算起，null|undefined表示末尾之后。
      * @param  {Number|null} rows 行数，可选
      * @param  {Number} idx 插入位置，可选
@@ -2278,11 +2278,12 @@ class Table {
     head( rows, idx ) {
         let _tsec = this._tbl.tHead;
 
+        if ( rows === undefined ) {
+            return _tsec;
+        }
         if ( rows === null ) {
             return _tsec && varyRemove( _tsec, this._tbl );
         }
-        if ( rows === undefined ) return _tsec;
-
         if ( !_tsec ) {
             _tsec = insertNode(
                 this._tbl,
@@ -2308,11 +2309,12 @@ class Table {
     foot( rows, idx ) {
         let _tsec = this._tbl.tFoot;
 
+        if ( rows === undefined ) {
+            return _tsec;
+        }
         if ( rows === null ) {
             return _tsec && varyRemove( _tsec, this._tbl );
         }
-        if ( rows === undefined ) return _tsec;
-
         if ( !_tsec ) {
             _tsec = varyNewNode(
                 this._tbl,
