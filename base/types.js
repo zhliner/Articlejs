@@ -17,10 +17,11 @@ const $ = window.$;
 //
 // 分类定义：
 // 0. 特别类型。存在但不归类（如：<b>,<i>）。
-// 1. 结构元素。包含固定结构的子元素，插入需合法。
-// 2. 内容元素。可包含非空文本节点和内联单元。
-// 3. 内联单元。可作为内容行独立内容（逻辑完整）的单元。
-// 4. 行块单元。可作为内容片区独立行块内容的单元。
+// 1. 结构容器。包含固定结构的子元素，插入需合法。
+// 2. 结构子件。自身为结构容器内的子元素，可能也为结构容器。
+// 3. 内容元素。可包含非空文本节点和内联单元。
+// 4. 内联单元。可作为内容行独立内容（逻辑完整）的单元。
+// 5. 行块单元。可作为内容片区独立行块内容的单元。
 // 注：
 // 内联/行块单元指可成为逻辑完整的独立内容的元素或元素结构。
 //
@@ -32,13 +33,14 @@ const $ = window.$;
 export const
     TEXT    = 0,        // 文本节点
     SPECIAL = 1,        // 特别用途
-    STRUCT  = 1 << 1,   // 结构元素
-    CONTENT = 1 << 2,   // 内容元素
-    INLINES = 1 << 3,   // 内联单元
-    BLOCKS  = 1 << 4,   // 行块单元
-    EMPTY   = 1 << 5,   // 空元素（单标签）
-    SEALED  = 1 << 6,   // 密封单元
-    FIXED   = 1 << 7;   // 位置确定性
+    STRUCT  = 1 << 1,   // 结构容器
+    STRUCTX = 1 << 2,   // 结构子件
+    CONTENT = 1 << 3,   // 内容元素
+    INLINES = 1 << 4,   // 内联单元
+    BLOCKS  = 1 << 5,   // 行块单元
+    EMPTY   = 1 << 6,   // 空元素（单标签）
+    SEALED  = 1 << 7,   // 密封单元
+    FIXED   = 1 << 8;   // 位置确定性
 
 
 //
@@ -161,8 +163,8 @@ export const
     ALI         = 420,  // 目录：普通条目（li/a）
     AH4LI       = 421,  // 目录：标题条目（li/h4/a）
     AH4         = 422,  // 目录：链接小标题（h4/a）
-    ULXH4LI     = 423,  // 无序级联表项标题（li/h4, ol|ul）
-    OLXH4LI     = 424,  // 有序级联表项标题（li/h4, ul|ol）
+    ULXH4LI     = 423,  // 无序级联表项标题（li/h4, ul|ol）
+    OLXH4LI     = 424,  // 有序级联表项标题（li/h4, ol|ul）
     CASCADEH4LI = 425,  // 级联编号表项标题（li/h4, ol）
     FIGIMGP     = 426,  // 插图内容区（p/img, span）
     //
@@ -229,13 +231,13 @@ export const Specials = {
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ SVGITEM ]:        SEALED,
-    [ TRACK ]:          EMPTY,
-    [ SOURCE ]:         EMPTY,
-    [ RB ]:             FIXED | CONTENT,
-    [ RT ]:             FIXED | CONTENT,
-    [ RP ]:             FIXED | SEALED,
-    [ EXPLAIN ]:        FIXED | CONTENT,   // figure/p/img,span:explain
+    [ SVGITEM ]:        STRUCTX | SEALED,
+    [ TRACK ]:          STRUCTX | EMPTY,
+    [ SOURCE ]:         STRUCTX | EMPTY,
+    [ RB ]:             STRUCTX | FIXED | CONTENT,
+    [ RT ]:             STRUCTX | FIXED | CONTENT,
+    [ RP ]:             STRUCTX | FIXED | SEALED,
+    [ EXPLAIN ]:        STRUCTX | FIXED | CONTENT,   // figure/p/img,span:explain
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -272,33 +274,33 @@ export const Specials = {
     //
     // 块内结构子
     /////////////////////////////////////////////
-    [ H1 ]:             FIXED | CONTENT,
-    [ H2 ]:             FIXED | CONTENT,
-    [ H3 ]:             FIXED | CONTENT,
-    [ H4 ]:             FIXED | CONTENT,
-    [ H5 ]:             FIXED | CONTENT,
-    [ H6 ]:             FIXED | CONTENT,
-    [ SUMMARY ]:        FIXED | CONTENT,
-    [ FIGCAPTION ]:     FIXED | CONTENT,
-    [ CAPTION ]:        FIXED | CONTENT,
-    [ LI ]:             CONTENT,
-    [ DT ]:             CONTENT,
-    [ DD ]:             CONTENT,
-    [ TH ]:             CONTENT,
-    [ TD ]:             CONTENT,
-    [ TR ]:             STRUCT,
-    [ THEAD ]:          STRUCT,
-    [ TBODY ]:          STRUCT,
-    [ TFOOT ]:          STRUCT,
+    [ H1 ]:             STRUCTX | FIXED | CONTENT,
+    [ H2 ]:             STRUCTX | FIXED | CONTENT,
+    [ H3 ]:             STRUCTX | FIXED | CONTENT,
+    [ H4 ]:             STRUCTX | FIXED | CONTENT,
+    [ H5 ]:             CONTENT,
+    [ H6 ]:             CONTENT,
+    [ SUMMARY ]:        STRUCTX | FIXED | CONTENT,
+    [ FIGCAPTION ]:     STRUCTX | FIXED | CONTENT,
+    [ CAPTION ]:        STRUCTX | FIXED | CONTENT,
+    [ LI ]:             STRUCTX | CONTENT,
+    [ DT ]:             STRUCTX | CONTENT,
+    [ DD ]:             STRUCTX | CONTENT,
+    [ TH ]:             STRUCTX | CONTENT,
+    [ TD ]:             STRUCTX | CONTENT,
+    [ TR ]:             STRUCTX | STRUCT,
+    [ THEAD ]:          STRUCTX | STRUCT,
+    [ TBODY ]:          STRUCTX | STRUCT,
+    [ TFOOT ]:          STRUCTX | STRUCT,
 
-    [ CODELI ]:         STRUCT | SEALED,
-    [ ALI ]:            STRUCT | SEALED,
-    [ AH4LI ]:          STRUCT | SEALED,
-    [ AH4 ]:            STRUCT | SEALED,
-    [ ULXH4LI ]:        STRUCT | SEALED,
-    [ OLXH4LI ]:        STRUCT | SEALED,
-    [ CASCADEH4LI ]:    STRUCT | SEALED,
-    [ FIGIMGP ]:        STRUCT | SEALED,
+    [ CODELI ]:         STRUCTX | STRUCT | SEALED,
+    [ ALI ]:            STRUCTX | STRUCT | SEALED,
+    [ AH4LI ]:          STRUCTX | STRUCT | SEALED,
+    [ AH4 ]:            STRUCTX | STRUCT | SEALED,
+    [ ULXH4LI ]:        STRUCTX | STRUCT | SEALED,
+    [ OLXH4LI ]:        STRUCTX | STRUCT | SEALED,
+    [ CASCADEH4LI ]:    STRUCTX | STRUCT | SEALED,
+    [ FIGIMGP ]:        STRUCTX | STRUCT | SEALED,
 
     //
     // 行块结构元素
@@ -438,7 +440,6 @@ const _BLOCKITS =
 export const ChildTypes = {
     //
     // 内联结构元素。
-    // 如果包含文本，插入方式有较强约束（如创建时）。
     /////////////////////////////////////////////
     [ $TEXT ]:          null,
 
@@ -517,9 +518,9 @@ export const ChildTypes = {
     [ ALI ]:            [ A ],
     [ AH4LI ]:          [ AH4 ],
     [ AH4 ]:            [ A ],
-    [ ULXH4LI ]:        [ OL, H4, UL ],
-    [ OLXH4LI ]:        [ UL, H4, OL ],
-    [ CASCADEH4LI ]:    [ H4, OL ],
+    [ ULXH4LI ]:        [ UL, H4, OL ],
+    [ OLXH4LI ]:        [ OL, H4, UL ],
+    [ CASCADEH4LI ]:    [ OL, H4 ],
     [ FIGIMGP ]:        [ IMG, EXPLAIN ],
     [ TR ]:             [ TH, TD ],
     [ THEAD ]:          [ TR ],
@@ -544,8 +545,8 @@ export const ChildTypes = {
     [ UL ]:             [ LI, ALI ],
     [ OL ]:             [ LI, ALI ],
     [ CODELIST ]:       [ CODELI ],
-    [ ULX ]:            [ LI, ALI, ULXH4LI ],
-    [ OLX ]:            [ LI, ALI, OLXH4LI ],
+    [ ULX ]:            [ LI, ALI, AH4LI, ULXH4LI ],
+    [ OLX ]:            [ LI, ALI, AH4LI, OLXH4LI ],
     [ CASCADE ]:        [ LI, ALI, AH4LI, CASCADEH4LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
@@ -591,8 +592,8 @@ const optionCustom = {
  * @param  {Number} v 父单元值
  * @return {[Number]}
  */
-function childTypes(v) {
-    return optionCustom[ref] || ChildTypes[ref] || [];
+function childTypes( v ) {
+    return optionCustom[v] || ChildTypes[v] || [];
 }
 
 
@@ -601,7 +602,7 @@ function childTypes(v) {
  * 根据参考单元值返回可插入子单元的值集。
  * 如果参考是一个集合，返回各成员子单元值集的交集。
  * 用于可插入项选单构建。
- * 注意：传入的数组实参会被改变。
+ * 注意：传入的数组实参会被修改。
  * @param  {Number|[Number]} ref 参考单元值（集）
  * @return {[Number]}
  */

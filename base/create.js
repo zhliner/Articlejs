@@ -44,58 +44,22 @@ const
     __msgVideo = "Sorry, your browser doesn't support embedded videos";
 
 
-//
-// 定制角色 {
-//      name: [tag, role]
-// }
-// - name: 元素类型名。
-// - tag:  目标元素标签名。
-// - role: 目标角色名。
-//
-const customRoles = {
-    ABSTRACT:   [ 'header',  'abstract' ],
-    TOC:        [ 'nav',     'toc' ],
-    SEEALSO:    [ 'ol',      'seealso' ],
-    REFERENCE:  [ 'ul',      'reference' ],
-    S1:         [ 'section', 's1' ],
-    S2:         [ 'section', 's2' ],
-    S3:         [ 'section', 's3' ],
-    S4:         [ 'section', 's4' ],
-    S5:         [ 'section', 's5' ],
-    CODELIST:   [ 'ol',      'codelist' ],
-    ULX:        [ 'ul',      'ulx' ],
-    OLX:        [ 'ol',      'olx' ],
-    CASCADE:    [ 'ol',      'cascade' ],
-    CODEBLOCK:  [ 'pre',     'codeblock' ],
-    NOTE:       [ 'p',       'note' ],
-    TIPS:       [ 'p',       'tips' ],
-    BLANK:      [ 'div',     'blank' ],
-    ORZ:        [ 'code',    'orz' ],
-    SPACE:      [ 'span',    'space' ],
-    EXPLAIN:    [ 'span',    'explain' ],
-};
-
-
 /**
- * 创建单元元素。
- * name需为全大写以便检索类型值。
+ * 创建单元（通用）。
  * 类型值会被存储，以使得不需要每次都检查判断。
  * 注：不含文本节点和svg创建。
- * @param  {String} name 单元名称（全大写）
- * @param  {Object} opts 特性配置对象（不含role），可选
+ * @param  {String} tag 标签名
+ * @param  {Object} opts 特性配置对象，可选
+ * @param  {String} name 单元类型名，可选
  * @return {Element}
  */
-function create( name, opts ) {
-    let _its = customRoles[ name ],
-        _el = $.Element( _its && _its[0] || name );
+function create( tag, opts, name ) {
+    let _el = $.Element( tag );
 
     if ( opts ) {
         $.attribute( _el, opts );
     }
-    if ( _its ) {
-        $.attr( _el, 'role', _its[1] );
-    }
-    return setType( _el, nameType(name) );
+    return setType( _el, nameType(name || tag.toUpperCase()) );
 }
 
 
@@ -148,7 +112,6 @@ function clone( src ) {
 // 单元创建集。
 // 包含全部中间结构单元。
 // 用于主面板中的新单元构建和复制/移动时的默认单元创建。
-// @return {Element|[Element]|Collector}
 //////////////////////////////////////////////////////////////////////////////
 // 注记：
 // 除非为最基本单元，实参尽量为节点/集以便于移动转换适用。
@@ -160,40 +123,46 @@ const Content = {
 
     /**
      * 创建音频单元。
-     * @param {Object} opts 属性配置集
+     * @param  {Object} opts 属性配置集
+     * @return {Element}
      */
     audio( opts = {} ) {
         opts.text = __msgAudio;
-        return create( 'AUDIO', opts );
+        return create( 'audio', opts );
     },
 
 
     /**
      * 创建视频单元。
-     * @param {Object} opts 属性配置集
+     * @param  {Object} opts 属性配置集
+     * @return {Element}
      */
     video( opts = {} ) {
         opts.text = __msgVideo;
-        return create( 'VIDEO', opts );
+        return create( 'video', opts );
     },
 
 
     /**
      * 创建兼容图片。
-     * @param {Element} img 图片元素
-     * @param {[Element]} sources 兼容图片源元素
+     * @param  {Element} img 图片元素
+     * @param  {[Element]} sources 兼容图片源元素
+     * @return {Element}
      */
     picture( img, sources ) {
-        let _el = create( 'PICTURE' );
-        return $.append( _el, sources.concat(img) ), _el;
+        let _el = create( 'picture' );
+
+        $.append( _el, sources.concat(img) );
+        return _el;
     },
 
 
     /**
      * 创建SVG单元。
      * opts通常是必须的。
-     * @param {Object} opts 属性配置集
-     * @param {String} xml SVG源码，可选
+     * @param  {Object} opts 属性配置集
+     * @param  {String} xml SVG源码，可选
+     * @return {Element}
      */
     svg( opts = {}, xml = '' ) {
         if ( xml ) {
@@ -210,14 +179,17 @@ const Content = {
 
     /**
      * 创建注音单元。
-     * @param {Element} rb 注音字
-     * @param {Element} rt 注音
-     * @param {Element} rp1 左包围
-     * @param {Element} rp2 右包围
+     * @param  {Element} rb 注音字
+     * @param  {Element} rt 注音
+     * @param  {Element} rp1 左包围
+     * @param  {Element} rp2 右包围
+     * @return {Element}
      */
     ruby( rb, rt, rp1, rp2 ) {
-        let _el = create( 'RUBY' );
-        return $.append( _el, [rb, rp1, rt, rp2] ), _el;
+        let _el = create( 'ruby' );
+
+        $.append( _el, [rb, rp1, rt, rp2] )
+        return _el;
     },
 
 
@@ -225,9 +197,10 @@ const Content = {
      * 创建时间单元。
      * 文本为空时即默认为datetime的标准格式文本。
      * date/time通常至少需要一个有值。
-     * @param {String} text 时间表达文本，可选
-     * @param {String} date 日期表达串，可选
-     * @param {String} time 时间表达串，可选
+     * @param  {String} text 时间表达文本，可选
+     * @param  {String} date 日期表达串，可选
+     * @param  {String} time 时间表达串，可选
+     * @return {Element}
      */
     time( text, date, time ) {
         let dt = '';
@@ -235,19 +208,20 @@ const Content = {
         if ( date ) dt = date;
         if ( time ) dt = dt ? `${dt} ${time}` : `${time}`;
 
-        return create( 'TIME', {text: text || dt, datetime: dt || null} );
+        return create( 'time', {text: text || dt, datetime: dt || null} );
     },
 
 
     /**
      * 创建量度标示。
      * 注：!!'0' => true
-     * @param {String} val 数量
-     * @param {String} max 最大值，可选
-     * @param {String} min 最小值，可选
-     * @param {String} high 高值，可选
-     * @param {String} low 低值，可选
-     * @param {String} opm 最优值，可选
+     * @param  {String} val 数量
+     * @param  {String} max 最大值，可选
+     * @param  {String} min 最小值，可选
+     * @param  {String} high 高值，可选
+     * @param  {String} low 低值，可选
+     * @param  {String} opm 最优值，可选
+     * @return {Element}
      */
     meter( val, max, min, high, low, opm ) {
         let opts = { value: val };
@@ -258,17 +232,18 @@ const Content = {
         if ( low ) opts.low = low;
         if ( opm ) opts.optimum = opm;
 
-        return create( 'METER', opts );
+        return create( 'meter', opts );
     },
 
 
     /**
      * 创建空白段。
-     * @param {Number} n 数量
-     * @param {String} width 宽度
+     * @param  {Number} n 数量
+     * @param  {String} width 宽度
+     * @return {Element|[Element]}
      */
     space( n, width ) {
-        let _els = calls( n, create, 'SPACE' );
+        let _els = calls( n, create, 'space' );
 
         if ( width != null ) {
             _els.forEach( el => $.css(el, 'width', width) );
@@ -279,49 +254,47 @@ const Content = {
 
     /**
      * 创建换行。
-     * @param {Number} n 数量
+     * @param  {Number} n 数量
+     * @return {Element|[Element]}
      */
     br( n ) {
-        let _els = calls( n, create, 'BR' );
+        let _els = calls( n, create, 'br' );
         return _els.length == 1 ? _els[0] : _els;
     },
 
 
     /**
      * 创建软换行。
-     * @param {Number} n 数量
+     * @param  {Number} n 数量
+     * @return {Element|[Element]}
      */
     wbr( n ) {
-        let _els = calls( n, create, 'WBR' );
+        let _els = calls( n, create, 'wbr' );
         return _els.length == 1 ? _els[0] : _els;
     },
 
 
     //-- 内联内结构 ----------------------------------------------------------
 
-    // rb( text ) {}, // => rbpt
-    // rt( text ) {}, // => rbpt
-    // rp( text ) {}, // => rbpt
-
 
     /**
      * 创建注音内容组。
      * 返回集成员顺序与ruby()实参顺序一致。
-     * @param {String} rb 注音文本
-     * @param {String} rt 注音拼音
-     * @param {String} rp1 左包围，可选
-     * @param {String} rp2 右包围，可选
+     * rp1和rp2必须成对出现。
+     * 注记：
+     * 仅用于ruby完整子单元封装，不存储单元类型值（因为无法从DOM中选取）。
+     * 具体各子单元的创建由相应的方法完成。
+     * @param  {Element} rb 注音文本
+     * @param  {Element} rt 注音拼音
+     * @param  {Element} rp1 左包围，可选
+     * @param  {Element} rp2 右包围，可选
+     * @return {[Element]}
      */
     rbpt( rb, rt, rp1, rp2 ) {
-        let _els = [
-            create( 'RB', {text: rb} ),
-            create( 'RT', {text: rt} ),
-        ];
-        if ( rp1 ) {
-            _els.push( create('RP', {text: rp1}) );
-        }
-        if ( rp2 ) {
-            _els.push( create('RP', {text: rp2}) );
+        let _els = [ rb, rt ];
+
+        if ( rp1 && rp2 ) {
+            _els.push( rp1, rp2 );
         }
         return _els;
     },
@@ -406,51 +379,29 @@ const Content = {
     },
 
 
-    codeli() {
-        //
-    },
-
-
-    ali() {
-        //
-    },
-
-
-    ah4li() {
-        //
-    },
-
-
-    ah4() {
-        //
-    },
-
-
-    ulxh4li() {
-        //
-    },
-
-
-    olxh4li() {
-        //
-    },
-
-
-    cascadeh4li() {
-        //
-    },
-
-
-    figimgp() {
-        //
-    },
-
-
     //-- 行块结构元素 --------------------------------------------------------
 
 
-    hgroup() {
-        //
+    /**
+     * 创建标题/组。
+     * 如果未传递副标题，则仅创建<h1>元素。
+     * @param {Node|[Node]|String} h1 主标题内容
+     * @param {Node|[Node]|String} h2 副标题内容，可选
+     */
+    hgroup( h1, h2 ) {
+        let _h1 = create( 'h1' );
+        $.append( _h1, cellWraps(h1) );
+
+        if ( h2 == null ) {
+            return _h1;
+        }
+        let _hg = create( 'hgroup' ),
+            _h2 = $.append( _hg, create('h2') );
+
+        $.prepend( _hg, _h1 );
+        $.append( _h2, cellWraps(h2) );
+
+        return _hg;
     },
 
 
@@ -943,36 +894,64 @@ const Content = {
 };
 
 
+
 //
 // 空元素创建。
 // 仅涉及设置元素特性集操作。
+// tag == NAME
 /////////////////////////////////////////////////
 [
     'img',
     'track',
     'source',
 ]
-.forEach(function( name ) {
+.forEach(function( tag ) {
     /**
-     * @param {Object} opts 属性配置集
+     * @param  {Object} opts 属性配置集
+     * @return {Element}
      */
-    Content[ name ] = function( opts ) {
-        return create( name.toUpperCase(), opts );
+    Content[ tag ] = function( opts ) {
+        return create( tag, opts );
     };
 });
 
 
 //
 // 内容单元创建。
-// 涉及插入内联内容和元素特性设置。
+// 内容：源码（html）或内联单元/集。
+// 包含元素特性设置。
+// tag == NAME
 /////////////////////////////////////////////////
 [
-    'explain',      // cons
+    'code',     // html, {data-lang, data-tab}
+]
+.forEach(function( name ) {
+    /**
+     * @param  {Node|[Node]|String} cons 单元内容
+     * @param  {Object} opts 属性配置，可选
+     * @return {Element}
+     */
+    Content[ name ] = function( cons, opts ) {
+        let _el = create( name, opts, name.toUpperCase() ),
+            _fn = typeof cons === 'string' ? 'html' : 'append';
+
+        return $[_fn]( _el, cons ), _el;
+    };
+});
+
+
+//
+// 内容单元创建。
+// 内容：纯文本（text）或内联单元/集。
+// 包含元素特性设置。
+// tag == NAME
+/////////////////////////////////////////////////
+[
     'a',            // cons, {href, target}
     'strong',       // cons
     'em',           // cons
     'q',            // cons, {cite}
-    'abbr',         // cons, {title}
+    'abbr',         // text, {title}
     'cite',         // cons
     'small',        // cons
     'del',          // cons, {datetime, cite}
@@ -980,18 +959,17 @@ const Content = {
     'sub',          // cons
     'sup',          // cons
     'mark',         // cons
-    'code',         // cons, {data-lang, data-tab}
-    'orz',          // cons
     'dfn',          // cons, {title}
     'samp',         // cons
-    'kbd',          // cons
+    'kbd',          // text
     's',            // cons
     'u',            // cons
-    'var',          // cons
+    'var',          // text
     'bdo',          // cons, {dir}
+    'rb',           // text
+    'rt',           // text
+    'rp',           // text
     'p',            // cons
-    'note',         // cons
-    'tips',         // cons
     'pre',          // cons
     'address',      // cons
     'h1',           // cons
@@ -1013,17 +991,126 @@ const Content = {
     /**
      * 字符串实参优化为数组。
      * @param {Node|[Node]|String} cons 内容（集）
-     * @param {Object} opts 属性配置集
+     * @param {Object} opts 属性配置，可选
      */
     Content[ name ] = function( cons, opts ) {
         if ( typeof cons === 'string' ) {
             cons = [cons];
         }
-        let _el = create( name.toUpperCase(), opts );
+        let _el = create( name, opts, name.toUpperCase() );
 
         return $.append( _el, cons ), _el;
     };
 });
+
+
+//
+// 定制内容元素创建。
+// 内容：纯文本或内联节点（集）。
+// [ role, tag ]
+/////////////////////////////////////////////////
+[
+    [ 'explain',    'span' ],
+    [ 'orz',        'code' ],
+    [ 'note',       'p' ],
+    [ 'tips',       'p' ],
+]
+.forEach(function( names ) {
+    /**
+     * 字符串实参优化为数组。
+     * @param {Node|[Node]|String} cons 内容（集）
+     */
+    Content[ names[0] ] = function( cons ) {
+        if ( typeof cons === 'string' ) {
+            cons = [cons];
+        }
+        let _el = create(
+                names[1],
+                null,
+                names[0].toUpperCase()
+            );
+        $.append( _el, cons );
+
+        return $.attr( _el, 'role', names[0] );
+    };
+});
+
+
+//
+// 定制结构元素创建。
+// 内容：结构子元素（非源码或文本）。
+// [ role, tag ]
+/////////////////////////////////////////////////
+[
+    [ 'abstract',   'header' ],     // header/h3, p...
+    [ 'toc',        'nav' ],        // nav/h3, ol:cascade/li/h4, ol
+    [ 'seealso',    'ol' ],         // ul/li/#text
+    [ 'reference',  'ul' ],         // ol/li/#text
+    [ 's1',         'section' ],    // section/h2, header?, s2 | {content}, footer?
+    [ 's2',         'section' ],    // section/h2, header?, s3 | {content}, footer?
+    [ 's3',         'section' ],    // section/h2, header?, s4 | {content}, footer?
+    [ 's4',         'section' ],    // section/h2, header?, s5 | {content}, footer?
+    [ 's5',         'section' ],    // section/h2, header?, {content}, footer?
+    [ 'codelist',   'ol' ],         // ol/li/code
+    [ 'ulx',        'ul' ],         // ul/li/h4, ul|ol
+    [ 'olx',        'ol' ],         // ol/li/h4, ol|ul
+    [ 'cascade',    'ol' ],         // ol/li/h4, ol
+    [ 'codeblock',  'pre' ],        // pre/code
+    [ 'blank',      'div' ],        // div
+    [ 'space',      'span' ],       // span
+]
+.forEach(function( names ) {
+    /**
+     * @param  {...Element} nodes 子元素序列
+     * @return {Element}
+     */
+    Content[ names[0] ] = function( ...nodes ) {
+        let _box = create(
+                names[1],
+                null,
+                names[0].toUpperCase()
+            );
+        if ( nodes.length ) {
+            $.append( _box, nodes );
+        }
+        return $.attr( _box, 'role', names[0] );
+    };
+});
+
+
+//
+// 中间定制结构元素创建。
+// 内容：结构子元素（非源码或文本）。
+// [ NAME, tag ]
+/////////////////////////////////////////////////
+[
+    [ 'codeli',      'li' ],  // li/code
+    [ 'ali',         'li' ],  // li/a
+    [ 'ah4li',       'li' ],  // li/h4/a
+    [ 'ah4',         'h4' ],  // h4/a
+    [ 'ulxh4li',     'li' ],  // li/h4, ul|ol
+    [ 'olxh4li',     'li' ],  // li/h4, ol|ul
+    [ 'cascadeh4li', 'li' ],  // li/h4, ol
+    [ 'figimgp',     'p' ],   // p/img, span
+]
+.forEach(function( names ) {
+    /**
+     * @param  {...Element} nodes 子元素序列
+     * @return {Element}
+     */
+    Content[ names[0] ] = function( ...nodes ) {
+        let _box = create(
+                names[1],
+                null,
+                names[0].toUpperCase()
+            );
+        return $.append( _box, nodes ), _box;
+    };
+});
+
+
+
+
 
 
 //

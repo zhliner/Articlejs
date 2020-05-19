@@ -235,6 +235,8 @@ function nameType( name ) {
     let _v = +T[ name ];
 
     if ( isNaN(_v) ) {
+        // 注记：
+        // 可能用弹出框询问操作方式（允许|取消）。
         throw new Error(`unsupported type: [${name}].`);
     }
     return _v;
