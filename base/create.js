@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { type, nameType } from "./base.js";
+import { type, nameType, tableObj } from "./base.js";
 import { SVG, SVGITEM } from "./types.js";
 import { extend } from "./tpb/pbs.by.js";
 
@@ -119,7 +119,7 @@ function clone( src ) {
 //
 const Content = {
 
-    //-- 内联结构类 ----------------------------------------------------------
+    //-- 内联单元 ------------------------------------------------------------
 
     /**
      * 创建音频单元。
@@ -179,6 +179,7 @@ const Content = {
 
     /**
      * 创建注音单元。
+     * 注意实参传递的顺序。
      * @param  {Element} rb 注音字
      * @param  {Element} rt 注音
      * @param  {Element} rp1 左包围
@@ -274,9 +275,6 @@ const Content = {
     },
 
 
-    //-- 内联内结构 ----------------------------------------------------------
-
-
     /**
      * 创建注音内容组。
      * 返回集成员顺序与ruby()实参顺序一致。
@@ -297,6 +295,23 @@ const Content = {
             _els.push( rp1, rp2 );
         }
         return _els;
+    },
+
+
+    /**
+     * 创建代码单元。
+     * 对内部的<b><i>不设置类型值，
+     * 因为内部的语法单元是即时解析和构建的。
+     * opts: {data-lang, data-tab}
+     * @param  {Node|[Node]|String} cons 单元内容
+     * @param  {Object} opts 属性配置，可选
+     * @return {Element}
+     */
+    code( cons, opts ) {
+        let _el = create( 'code', opts ),
+            _fn = typeof cons === 'string' ? 'html' : 'append';
+
+        return $[_fn]( _el, cons ), _el;
     },
 
 
@@ -384,182 +399,61 @@ const Content = {
 
     /**
      * 创建标题/组。
-     * 如果未传递副标题，则仅创建<h1>元素。
-     * @param {Node|[Node]|String} h1 主标题内容
-     * @param {Node|[Node]|String} h2 副标题内容，可选
+     * 如果未传递副标题，简单返回<h1>元素。
+     * @param {Element} h1 主标题
+     * @param {Element} h2 副标题，可选
      */
     hgroup( h1, h2 ) {
-        let _h1 = create( 'h1' );
-        $.append( _h1, cellWraps(h1) );
-
         if ( h2 == null ) {
-            return _h1;
+            return h1;
         }
-        let _hg = create( 'hgroup' ),
-            _h2 = $.append( _hg, create('h2') );
+        let _hg = create( 'hgroup' );
 
-        $.prepend( _hg, _h1 );
-        $.append( _h2, cellWraps(h2) );
-
+        $.prepend( _hg, [h1, h2] );
         return _hg;
     },
 
 
-    abstract() {
-        //
+    /**
+     * 创建表格。
+     * 会缓存$.Table实例。
+     * @param  {Element} caption 表标题
+     * @param  {Number} rows 行数
+     * @param  {Number} cols 列数
+     * @param  {Number} vth 列表头（1|-1），可选
+     * @return {Element}
+     */
+    table( caption, rows, cols, vth ) {
+        let _tbo = $.table( rows, cols, vth ),
+            _tbl = _tbo.element();
+
+        if ( caption ) {
+            $.prepend( _tbl, caption );
+        }
+        return tableObj( _tbo ), _tbl;
     },
 
 
-    toc() {
-        //
-    },
-
-
-    seealso() {
-        //
-    },
-
-
-    reference() {
-        //
-    },
-
-
-    header() {
-        //
-    },
-
-
-    footer() {
-        //
-    },
-
-
-    article() {
-        //
-    },
-
-
-    s1() {
-        //
-    },
-
-
-    s2() {
-        //
-    },
-
-
-    s3() {
-        //
-    },
-
-
-    s4() {
-        //
-    },
-
-
-    s5() {
-        //
-    },
-
-
-    ul() {
-        //
-    },
-
-
-    ol() {
-        //
-    },
-
-
-    codelist() {
-        //
-    },
-
-
-    ulx() {
-        //
-    },
-
-
-    olx() {
-        //
-    },
-
-
-    cascade() {
-        //
-    },
-
-
-    dl() {
-        //
-    },
-
-
-    table() {
-        //
-    },
-
-
-    figure() {
-        //
-    },
-
-
-    blockquote() {
-        //
-    },
-
-
-    aside() {
-        //
-    },
-
-
-    details() {
-        //
-    },
-
-
-    codeblock() {
-        //
-    },
-
-
-    hr() {
-        //
-    },
-
-
-    blank() {
-        //
+    /**
+     * 创建隔断。
+     * css:
+     * - borderWidth 厚度
+     * - width 长度
+     * - height 空白
+     * @param  {Object} css 样式配置
+     * @return {Element}
+     */
+    hr( css ) {
+        let _hr = create( 'hr' );
+        return $.cssSets( _hr, css );
     },
 
 
     //-- 特别用途元素 --------------------------------------------------------
-    // 用于代码内的语法标注。
+    // 注：由特定的函数创建（解析/构建）。
 
-
-    /**
-     * 创建语法标记单元。
-     * @param {String} text 文本
-     */
-    b( text ) {
-        return $.attr( create('B'), 'text', text );
-    },
-
-
-    /**
-     * 创建注释语法单元。
-     * @param {String} text 文本
-     */
-    i( text ) {
-        return $.attr( create('I'), 'text', text );
-    },
+    // b( text ) {},
+    // i( text ) {},
 
 
 
@@ -728,169 +622,6 @@ const Content = {
             .fill(cons).end()
     },
 
-
-    /**
-     * 表格行结构。
-     * meth:
-     * - fill 为内部单元格填充，内容不足时后部单元格原样保持。
-     * - append 效果与after方法相同，不会改变列大小。
-     * - prepend 效果与before方法相同。
-     * 注：参考当前行克隆，行元素上绑定的事件处理器也会同时克隆。
-     * @param  {Element} tr 表格行
-     * @param  {[Node]|[[Node]]} cons 单元格内容集
-     * @param  {String} meth 插入方法（fill|append|prepend）
-     * @return {Collector} 新插入的内容单元格集
-     */
-    Tr( tr, cons, meth ) {
-        if ( meth == 'fill' ) {
-            return $(tr.cells).fill(cons).end();
-        }
-        let _trs = trClone(
-                tr,
-                Math.ceil(cons.length / tr.cells.length),
-                true
-            ),
-            _meth = trMeth( meth );
-
-        return $( $[_meth](tr, _trs) ).find('th,td').flat().fill(cons).end();
-    },
-
-
-    /**
-     * 插图。
-     * 结构：figure/figcaption, p/img...
-     * 仅认可首个图片容器元素（<p>）。
-     * @param  {Element} root 插图根元素
-     * @param  {Node|[Node]|''} cap 标题内容
-     * @param  {Element|[Element]} imgs 图片/媒体节点集
-     * @param  {String} meth 图片插入方法（prepend|append|fill）
-     * @return {[Element]} 新插入的图片集
-     */
-    Figure( root, [cap, imgs], meth ) {
-        if ( cap != null ) {
-            blockHeading( 'figcaption', root, cap, meth );
-        }
-        return $[meth]( $.get('p', root), imgs );
-    },
-
-
-    /**
-     * 标题组。
-     * 结构：hgroup/h1, h2
-     * 固定结构，标题内容修改为填充（fill）方式。
-     * 设置内容为null可忽略修改。
-     * 注：若标题不存在会自动创建（修复友好）。
-     * @param  {Element} root 标题组容器
-     * @param  {Node|[Node]|''} h1c 页面主标题内容
-     * @param  {Node|[Node]|''} h2c 页面副标题内容
-     * @return {[Element, Element]} 主副标题对
-     */
-    Hgroup( root, [h1c, h2c] ) {
-        let _h1 = $.get( '>h1', root ),
-            _h2 = $.get( '>h2', root );
-
-        if ( !_h1 ) {
-            _h1 = $.prepend( $.Element('h1') );
-        }
-        if ( !_h2 ) {
-            _h2 = $.append( $.Element('h2') );
-        }
-        if ( h1c != null ) $.fill( _h1, h1c );
-        if ( h2c != null ) $.fill( _h2, h2c );
-
-        return [ _h1, _h2 ];
-    },
-
-
-    /**
-     * 链接列表项。
-     * 结构：li/a
-     * 主要用于目录的普通条目。
-     * @param  {Element} li 列表项
-     * @param  {Node|[Node]} cons 链接内容
-     * @param  {String} meth 插入方法
-     * @return {Element} 列表项元素
-     */
-    Ali( li, cons, meth ) {
-        return insertLink( li, cons, meth ), li;
-    },
-
-
-    /**
-     * 列表标题项。
-     * 结构：h5/a
-     * 主要用于目录里子级列表的标题项。
-     * @param  {Element} h5 列表标题项
-     * @param  {Node|[Node]} cons 插入内容
-     * @param  {String} meth 插入方法
-     * @return {Element} h5
-     */
-    H5a( h5, cons, meth ) {
-        return insertLink( h5, cons, meth ), h5;
-    },
-
-
-    /**
-     * 链接元素。
-     * 需要剥离内容中的<a>元素。
-     * @param  {Element} a 链接元素
-     * @param  {Node|[Node]} cons 链接内容
-     * @param  {String} meth 插入方法
-     * @return {Element} a
-     */
-    A( a, cons, meth ) {
-        return $[meth]( a, stripLinks(cons) ), a;
-    },
-
-
-    /**
-     * 级联编号表子表项。
-     * 结构：li/h5, ol
-     * 内容子列表内的条目与目标子列表执行合并。
-     * 子表标题为fill插入方式。
-     * @param  {Element} li 列表项
-     * @param  {Node|[Node]} h5c 子表标题内容
-     * @param  {Element|[Element]} list 内容子列表或列表项集
-     * @param  {String} meth 插入方法（prepend|append|fill）
-     * @return {Element} 子列表
-     */
-    Cascadeli( li, [h5c, list], meth ) {
-        if ( h5c != null ) {
-            blockHeading( 'h5', li, h5c, meth );
-        }
-        let _ol = $.get( '>ol', li );
-
-        if ( !_ol ) {
-            _ol = $.append( li, $.Element('ol') );
-        }
-        return list && listMerge( _ol, list, meth ), _ol;
-    },
-
-
-    /**
-     * 注音。
-     * 结构：ruby/rb,rp.Left,rt,rp.Right
-     * 不管原始内容，这里仅是添加一个合法的子单元。
-     * subs:Object {
-     *      rb:  String
-     *      rtp: [rp,rt,rp:String]
-     * }
-     * subs:Element
-     * 仅支持合法的注音子元素集，即可执行<ruby>合并。
-     *
-     * @param  {Element} root 注音根元素
-     * @param  {Object|[Element]} subs 注音内容配置或子节点数组
-     * @return {Element} root
-     */
-    Ruby( root, subs, meth ) {
-        if ( $.isArray(subs) ) {
-            $[meth]( root, subs );
-        } else {
-            $[meth]( root, rubySubs(subs) );
-        }
-        return root;
-    },
-
 };
 
 
@@ -920,10 +651,8 @@ const Content = {
 // 内容单元创建。
 // 内容：源码（html）或内联单元/集。
 // 包含元素特性设置。
-// tag == NAME
 /////////////////////////////////////////////////
 [
-    'code',     // html, {data-lang, data-tab}
 ]
 .forEach(function( name ) {
     /**
@@ -932,10 +661,15 @@ const Content = {
      * @return {Element}
      */
     Content[ name ] = function( cons, opts ) {
-        let _el = create( name, opts, name.toUpperCase() ),
+        let _el = create( name, opts ),
             _fn = typeof cons === 'string' ? 'html' : 'append';
 
-        return $[_fn]( _el, cons ), _el;
+        $[_fn]( _el, cons );
+
+        $.find( '*', _el )
+        .forEach( el => setType( el, type(el) ) );
+
+        return _el;
     };
 });
 
@@ -997,7 +731,7 @@ const Content = {
         if ( typeof cons === 'string' ) {
             cons = [cons];
         }
-        let _el = create( name, opts, name.toUpperCase() );
+        let _el = create( name, opts );
 
         return $.append( _el, cons ), _el;
     };
@@ -1104,6 +838,35 @@ const Content = {
                 null,
                 names[0].toUpperCase()
             );
+        return $.append( _box, nodes ), _box;
+    };
+});
+
+
+//
+// 结构单元创建。
+// 内容：结构子元素。
+// tag == NAME
+/////////////////////////////////////////////////
+[
+    'header',       // h3, p...
+    'footer',       // h3, p...
+    'article',      // header?, s1 | {content}, footer?, hr?
+    'ul',           // li...
+    'ol',           // li...
+    'dl',           // dt, dd...
+    'figure',       // figcaption, p/img, span:explain
+    'blockquote',   // h3, p...
+    'aside',        // h3, p...
+    'details',      // summary, p...
+]
+.forEach(function( name ) {
+    /**
+     * @param  {...Element} nodes 子元素序列
+     * @return {Element}
+     */
+    Content[ name ] = function( ...nodes ) {
+        let _box = create( name );
         return $.append( _box, nodes ), _box;
     };
 });
@@ -1358,8 +1121,8 @@ function calls( n, handle, ...rest ) {
 
 /**
  * 单元格数据封装。
- * 将内容集中的字符串成员封装为子数组（.fill优化）。
- * 注记：仅需对字符串封装。
+ * 将内容集中的字符串成员封装为子数组（优化）。
+ * 适用：Collector节点插入类接口（.fill|.append|...）。
  * @param  {[Node|[Node]|String]} cons 内容集
  * @return {[Node|[Node]|[String]]}
  */

@@ -253,8 +253,8 @@ function type( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
-    if ( el.namespaceURI === __svgNS && el.tagName !== 'svg' ) {
-        return T.SVGITEM;
+    if ( el.namespaceURI === __svgNS ) {
+        return el.tagName === 'svg' ? T.SVG : T.SVGITEM;
     }
     let _fn = typeStruct[ el.tagName ];
 
@@ -296,7 +296,7 @@ function inSubs( sub, box ) {
  * @return {Boolean}
  */
 function isEmpty( tval ) {
-    return !!( T.Types[tval] & T.EMPTY );
+    return !!( T.Specials[tval] & T.EMPTY );
 }
 
 
@@ -306,51 +306,7 @@ function isEmpty( tval ) {
  * @return {Boolean}
  */
 function isFixed( tval ) {
-    return !!( T.Types[tval] & T.EMPTY );
-}
-
-
-/**
- * 是否为表格区段元素。
- * 即：<thead>|<tbody>|<tfoot>
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function isTblSect( tval ) {
-    return !!( T.Types[tval] & T.TBLSECT );
-}
-
-
-/**
- * 是否为表格单元格。
- * 即：<th>|<td>
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function isTblCell( tval ) {
-    return !!( T.Types[tval] & T.TBLCELL );
-}
-
-
-/**
- * 是否为定义列表项。
- * 即：<dt>|<dd>
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function isDlItem( tval ) {
-    return !!( T.Types[tval] & T.DLITEM );
-}
-
-
-/**
- * 是否为普通列表。
- * 即：<ul>|<ol>|...（<li>子元素）。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function isList( tval ) {
-    return !!( T.Types[tval] & T.LIST );
+    return !!( T.Specials[tval] & T.FIXED );
 }
 
 
@@ -361,17 +317,7 @@ function isList( tval ) {
  * @return {Boolean}
  */
 function isSealed( tval ) {
-    return !!( T.Types[tval] & T.SEALED );
-}
-
-
-/**
- * 是否为分级片区（S1-S5）。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function isSected( tval ) {
-    return !!( T.Types[tval] & T.SECTED );
+    return !!( T.Specials[tval] & T.SEALED );
 }
 
 
@@ -382,7 +328,7 @@ function isSected( tval ) {
  * @return {Boolean}
  */
 function isBlocks( tval ) {
-    return !!( T.Types[tval] & T.BLOCKS );
+    return !!( T.Specials[tval] & T.BLOCKS );
 }
 
 
@@ -393,7 +339,7 @@ function isBlocks( tval ) {
  * @return {Boolean}
  */
 function isInlines( tval ) {
-    return !!( T.Types[tval] & T.INLINES );
+    return !!( T.Specials[tval] & T.INLINES );
 }
 
 
@@ -404,18 +350,29 @@ function isInlines( tval ) {
  * @return {Boolean}
  */
 function isContent( tval ) {
-    return !!( T.Types[tval] & T.CONTENT );
+    return !!( T.Specials[tval] & T.CONTENT );
 }
 
 
 /**
- * 是否为结构元素。
+ * 是否为结构容器。
  * 包含固定逻辑的子元素结构。
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
 function isStruct( tval ) {
-    return !!( T.Types[tval] & T.STRUCT );
+    return !!( T.Specials[tval] & T.STRUCT );
+}
+
+
+/**
+ * 是否为结构子单元。
+ * 自身为结构容器元素内的子元素。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+function isStructSub( tval ) {
+    return !!( T.Specials[tval] & T.STRUCTX );
 }
 
 
@@ -426,7 +383,7 @@ function isStruct( tval ) {
  * @return {Boolean}
  */
 function isSpecial( tval ) {
-    return !!( T.Types[tval] & T.SPECIAL );
+    return !!( T.Specials[tval] & T.SPECIAL );
 }
 
 
@@ -450,12 +407,12 @@ function listRoot( el ) {
  */
 function tableObj( tbl ) {
     if ( tbl.nodeType ) {
-        let _tbl = __tablePool.get(tbl);
+        let _tbo = __tablePool.get(tbl);
 
-        if ( !_tbl ) {
+        if ( !_tbo ) {
             __tablePool.set( tbl, new $.Table(tbl) );
         }
-        return _tbl;
+        return _tbo;
     }
     __tablePool.set( tbl.element(), tbl );
 }
@@ -525,4 +482,5 @@ function simpleName( el ) {
 export {
     type,
     nameType,
+    tableObj,
 }

@@ -239,7 +239,7 @@ aside#help {
 }
 
 .___Panel input._char {
-    width: 30px;
+    width: 35px;
     text-align: center;
 }
 .___Panel input._nums {
@@ -667,8 +667,8 @@ aside#help {
 }
 .Input header._affix {
     display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 10px;
+    grid-template-columns: 5fr 2fr;
+    gap: 14px;
     align-items: center;
 }
 .Input header._affix>aside {
@@ -679,10 +679,13 @@ aside#help {
 .Input select {
     min-width: 80px;
 }
-
-/* 表格 */
 .Input ._main {
     flex: 5 5 420px;
+}
+
+/* 表格 */
+.Input ._Table ._affix > label {
+    min-width: 175px;
 }
 
 /* 片区 */

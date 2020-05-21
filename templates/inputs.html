@@ -304,7 +304,11 @@
     <div class="_main">
         <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
-            <label><input name="below" type="checkbox" />标题在下</label>
+            <label>
+                <input name="rows" type="text" class="_nums" placeholder="行数" />
+                x
+                <input name="columns" type="text" class="_nums" placeholder="列数" />
+            </label>
         </header>
         <!--状态栏：(当前总有效行数)[当前段当前行数]
             - 可以用空行分出视觉区段，表达一<tr>的单元格集。
@@ -314,11 +318,8 @@
     </div>
     <aside>
         <div class="_option">
-            <label>行数
-                <input name="rows" type="text" class="_nums" />
-            </label>
-            <label>列数
-                <input name="columns" type="text" class="_nums" />
+            <label>表头
+                <input name="thead" type="text" class="_char" placeholder="1" title="行数" />
             </label>
             <label>边框
                 <select name="border" tpl-name="item:tborder">
@@ -329,6 +330,13 @@
                     <option value="h">横向</option>
                     <option value="v">纵向</option>
                     <option value="3">上接式</option>
+                </select>
+            </label>
+            <label>列头
+                <select name="vth" tpl-name="item:vth">
+                    <option value="">------</option>
+                    <option value="1">左侧</option>
+                    <option value="-1">右侧</option>
                 </select>
             </label>
         </div>
@@ -462,7 +470,7 @@
     <aside>
         <div class="_option">
             <label title="CSS: border-width">厚度
-                <input type="text" name="thick" placeholder="10px" class="_chars">
+                <input type="text" name="borderWidth" placeholder="10px" class="_chars">
             </label>
             <label title="CSS: width">长度
                 <input type="text" name="length" placeholder="92%" class="_chars">
