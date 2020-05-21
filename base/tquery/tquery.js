@@ -1316,7 +1316,7 @@ Object.assign( tQuery, {
 
         // 容器可以是子元素。
         if ( $contains(el, _box) ) {
-            varyRemove(_box, _box.parentElement);
+            varyRemove( _box );
         }
         return varyWrapInner( el, _root || _box, _box );
     },
@@ -1348,7 +1348,7 @@ Object.assign( tQuery, {
      * @return {Node} 原节点引用
      */
     remove( node ) {
-        return varyRemove( node, node.parentElement );
+        return varyRemove( node );
     },
 
 
@@ -1939,7 +1939,7 @@ Object.assign( tQuery, {
         }
         cssSets(el, names, val, getStyles(el));
 
-        if (el.style.cssText.trim() == '') {
+        if (el.style.cssText == '') {
             // 清理：不激发attr系事件
             el.removeAttribute('style');
         }
@@ -2195,16 +2195,16 @@ class Table {
      * 获取/创建或删除表标题。
      * op: {
      *      undefined   返回表标题，不存在则新建
-     *      null        删除表标题
+     *      null        删除并返回表标题（可能为null）
      * }
      * @param  {null} op 表标题移除标记
-     * @return {Element|null} 表标题元素（可能为null）
+     * @return {Element|null} 表标题元素
      */
     caption( op ) {
         let _cap = this._tbl.caption;
 
         if ( op === null ) {
-            return _cap && varyRemove( _cap, this._tbl );
+            return _cap && varyRemove( _cap );
         }
         return _cap || varyNewNode(
             this._tbl,
@@ -2227,7 +2227,7 @@ class Table {
         let _bd = this._tbl.tBodies[idx];
 
         if ( op === null ) {
-            return _bd && varyRemove( _bd, this._tbl );
+            return _bd && varyRemove( _bd );
         }
         return idx == null ? Arr(this._tbl.tBodies) : _bd;
     }
@@ -2249,7 +2249,7 @@ class Table {
         tsec = tsec || this._tbl.tBodies[0];
 
         if ( rows === null ) {
-            return tsec && varyRemove( tsec, this._tbl );
+            return tsec && varyRemove( tsec );
         }
         if ( rows === undefined ) {
             return tsec
@@ -2282,7 +2282,7 @@ class Table {
             return _tsec;
         }
         if ( rows === null ) {
-            return _tsec && varyRemove( _tsec, this._tbl );
+            return _tsec && varyRemove( _tsec );
         }
         if ( !_tsec ) {
             _tsec = insertNode(
@@ -2313,7 +2313,7 @@ class Table {
             return _tsec;
         }
         if ( rows === null ) {
-            return _tsec && varyRemove( _tsec, this._tbl );
+            return _tsec && varyRemove( _tsec );
         }
         if ( !_tsec ) {
             _tsec = varyNewNode(
@@ -2370,7 +2370,7 @@ class Table {
      */
     remove( idx, tsec ) {
         let _tr = this.get( idx, tsec );
-        return _tr && varyRemove( _tr, _tr.parentElement );
+        return _tr && varyRemove( _tr );
     }
 
 
@@ -2454,7 +2454,7 @@ class Table {
 
         if ( idx < this._cols ) {
             for (const tr of this._tbl.rows) {
-                _buf.push( varyRemove(tr.cells[idx], tr) );
+                _buf.push( varyRemove(tr.cells[idx]) );
             }
         }
         this._cols -= 1;
@@ -4697,7 +4697,7 @@ function loadElement( el, next, box, tmp ) {
     }
     return new Promise( function(resolve, reject) {
         tQuery.one(el, {
-            'load':  () => resolve( tmp ? varyRemove(el, el.parentElement) : el ),
+            'load':  () => resolve( tmp ? varyRemove(el) : el ),
             'error': err => reject(err),
         });
         switchInsert(el, next, box);
@@ -5776,18 +5776,18 @@ function varyNodes( el, meth, nodes ) {
  * 如果节点无父元素（游离），不会产生任何行为。
  * 注：无 nodefail 事件。
  * @param  {Node} node 待移除节点
- * @param  {Element|null} box 待移除节点的父元素
  * @return {Node} node
  */
- function varyRemove( node, box ) {
-    if ( box ) {
+ function varyRemove( node ) {
+    let _pel = node.parentElement;
+    if ( _pel ) {
         let _msg = {
             type: 'remove',
             data: node,
         };
-        limitTrigger( box, evnNodeVary, _msg );
+        limitTrigger( _pel, evnNodeVary, _msg );
         node.remove();
-        limitTrigger( box, evnNodeDone, _msg );
+        limitTrigger( _pel, evnNodeDone, _msg );
     }
     return node;
 }
@@ -5883,8 +5883,8 @@ function varyNewNodes( el, meth, nodes ) {
  * subs为连续的子元素集，仅用于表格单元操作：
  * - 删除连续的表格行<tr>。
  * - 删除连续的单元格<th>|<td>（列段）。
- * @param  {Element} box 容器元素（tbody|thead|tfoot|tr）
  * @param  {[Element]} subs 待删除子元素集
+ * @param  {Element} box 容器元素（tbody|thead|tfoot|tr）
  * @return {[Element]} 删除的子元素集
  */
 function varyRemoves( subs, box ) {
@@ -6001,9 +6001,7 @@ function detachNodes( nodes ) {
     if ( nodes.nodeType ) {
         nodes = [nodes];
     }
-    for (const nd of nodes) {
-        varyRemove( nd, nd.parentElement );
-    }
+    for (const nd of nodes) varyRemove( nd );
     return nodes;
 }
 
