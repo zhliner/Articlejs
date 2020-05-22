@@ -700,6 +700,8 @@ aside#help {
 }
 .Input textarea._inert {
     max-height: 2.4em;
+    /* 小字体有用 */
+    min-height: 32px;
 }
 
 .Input ._Blockquote ._cite {
