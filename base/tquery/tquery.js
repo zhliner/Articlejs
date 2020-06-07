@@ -2768,13 +2768,14 @@ tQuery.Table = Table;
 .forEach(function( name ) {
     /**
      * 在元素的相应位置添加节点（集）。
-     * - 数据源仅支持节点（集），不支持html源码。
      * - 仅元素适用于事件克隆（event系列）。
-     * - 数据集成员容错假值忽略。
-     * - 文本节点不适用内部插入方法
+     * - 数据集成员容错假值简单忽略。
+     * - 文本节点不适用内部插入方法。
      * 取值回调：
      * - 取值函数接受原节点作为参数。
      * - 取值函数可返回节点或节点集。
+     * 注：
+     * 数据集内的文本会作为文本节点插入。
      *
      * @param  {Node} el 目标元素或文本节点
      * @param  {Node|DocumentFragment|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
@@ -5999,10 +6000,9 @@ function insertNodes( box, subs, ref ) {
  */
 function detachNodes( nodes ) {
     if ( nodes.nodeType ) {
-        nodes = [nodes];
+        return varyRemove( nodes );
     }
-    for (const nd of nodes) varyRemove( nd );
-    return nodes;
+    return nodes.filter( nd => nd && varyRemove(nd) );
 }
 
 

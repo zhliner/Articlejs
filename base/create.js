@@ -40,8 +40,8 @@ const
 // 简单默认消息。
 //
 const
-    __msgAudio = "Sorry, your browser doesn't support embedded audios",
-    __msgVideo = "Sorry, your browser doesn't support embedded videos";
+    __msgAudio = "Sorry, your browser doesn't support embedded audios.",
+    __msgVideo = "Sorry, your browser doesn't support embedded videos.";
 
 
 /**
@@ -244,7 +244,7 @@ const Content = {
      * @return {Element|[Element]}
      */
     space( n, width ) {
-        let _els = calls( n, create, 'space' );
+        let _els = handleCalls( n, create, 'space' );
 
         if ( width != null ) {
             _els.forEach( el => $.css(el, 'width', width) );
@@ -259,7 +259,7 @@ const Content = {
      * @return {Element|[Element]}
      */
     br( n ) {
-        let _els = calls( n, create, 'br' );
+        let _els = handleCalls( n, create, 'br' );
         return _els.length == 1 ? _els[0] : _els;
     },
 
@@ -270,7 +270,7 @@ const Content = {
      * @return {Element|[Element]}
      */
     wbr( n ) {
-        let _els = calls( n, create, 'wbr' );
+        let _els = handleCalls( n, create, 'wbr' );
         return _els.length == 1 ? _els[0] : _els;
     },
 
@@ -1109,7 +1109,7 @@ const Content = {
  * @param  {...Value} ...rest 回调实参
  * @return {[Value]}
  */
-function calls( n, handle, ...rest ) {
+function handleCalls( n, handle, ...rest ) {
     let _buf = [];
 
     for (let i = 0; i < n; i++) {
@@ -1129,6 +1129,33 @@ function calls( n, handle, ...rest ) {
 function cellWraps( cons ) {
     return cons.map( d => typeof d == 'string' ? [d] : d );
 }
+
+
+/**
+ * 构建目录。
+ * 用于初始创建，不牵涉复制粘贴的逻辑。
+ * label可能是一个链接元素，指向主标题（注：不在此构建链接）。
+ * @param  {Element} article 文章元素
+ * @param  {String|Node|[Node]} label 目录标题（h3/...）
+ * @return {Element} 目录元素（nav:toc/...）
+ */
+function createToc( article, label ) {
+    let _top = create( 'nav', {role: 'toc'}, 'TOC' ),
+        _lab = $.append( _top, create('h3') );
+}
+
+
+/**
+ * 构造标题ID标识。
+ * - 简单的剔除源文本中的特殊字符。
+ * - 源文本中的空白转换为短横线。
+ * @param  {String} text 源文本
+ * @return {String} 标识串
+ */
+function headingID( text ) {
+    //
+}
+
 
 
 
