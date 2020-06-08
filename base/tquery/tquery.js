@@ -2243,16 +2243,16 @@ class Table {
      * @param  {Number} rows 行数，可选
      * @param  {Number} idx 插入位置，支持负数从末尾算起，可选
      * @param  {TableSection} tsec 目标<tbody>元素，可选
-     * @return {[Element]|Collector} 表体元素集或新添加的行元素集
+     * @return {Element|Collector} 表体元素或新添加的行元素集
      */
     body( rows, idx, tsec ) {
         tsec = tsec || this._tbl.tBodies[0];
 
-        if ( rows === null ) {
-            return tsec && varyRemove( tsec );
-        }
         if ( rows === undefined ) {
             return tsec
+        }
+        if ( rows === null ) {
+            return tsec && varyRemove( tsec );
         }
         if ( !tsec ) {
             tsec = insertNode(
@@ -6000,7 +6000,7 @@ function insertNodes( box, subs, ref ) {
  */
 function detachNodes( nodes ) {
     if ( nodes.nodeType ) {
-        return varyRemove( nodes );
+        return [ varyRemove(nodes) ];
     }
     return nodes.filter( nd => nd && varyRemove(nd) );
 }
