@@ -77,7 +77,7 @@ const Api = {
         if ( name == 'content' ) {
             return Promise.resolve( $.get('#content') );
         }
-        return Templater.tpl( `main:${name}` );
+        return Templater.get( `main:${name}` );
     },
 
 
@@ -90,9 +90,9 @@ const Api = {
     menu( name ) {
         switch (name) {
             case 'selection':
-                return Templater.tpl( 'menu:cells' );
+                return Templater.get( 'menu:cells' );
             case 'context':
-                return Templater.tpl( 'menu:cmenu' );
+                return Templater.get( 'menu:cmenu' );
         }
         return null;
     },

@@ -203,14 +203,14 @@ const typeStruct = {
 
 
 //
-// 兼容类型处理器。
+// 兼容类型转换处理器。
 // 将源单元转换到目标单元。
 //
-const compatibleProcess = {
+const compatibleConvert = {
     /**
      * 片区转换。
      * 将源片区转换为正确的层级，调整包含所有的子片区。
-     * 子片区层级大于s5时，移除role值。
+     * 子片区层级超过s5时，移除role值。
      * @param  {Element} src 源片区
      * @param  {Number} n 目标层级（1-5）
      * @return {Element} 修改后的源片区
@@ -218,6 +218,16 @@ const compatibleProcess = {
     [ T.SECTED ]: function( src, n ) {
         //
     },
+};
+
+
+//
+// 兼容类型移动处理器。
+// 少部分需要根据目标位置执行转换。
+// 未定义者可直接移动到目标位置。
+//
+const compatibleMovement = {
+    //
 };
 
 

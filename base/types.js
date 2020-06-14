@@ -166,7 +166,7 @@ export const
     ULXH4LI     = 423,  // 无序级联表项标题（li/h4, ul|ol）
     OLXH4LI     = 424,  // 有序级联表项标题（li/h4, ol|ul）
     CASCADEH4LI = 425,  // 级联编号表项标题（li/h4, ol）
-    FIGIMGP     = 426,  // 插图内容区（p/img, span）
+    FIGIMGP     = 426,  // 插图内容区（p/img, span:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -368,7 +368,7 @@ export const Compatible = {
     [ S5 ]:         SECTED,
 
     // 小区块转换
-    // 结构相似，小标题加段落内容集。
+    // 结构相似：小标题加段落内容集。
     [ BLOCKQUOTE ]: XBLOCK,
     [ ASIDE ]:      XBLOCK,
     [ DETAILS ]:    XBLOCK,
@@ -384,7 +384,7 @@ export const Compatible = {
     [ OL ]:         XLIST,
     [ ULX ]:        XLIST,
     [ OLX ]:        XLIST,
-    [ CASCADE ]:    XLIST, // 递进
+    [ CASCADE ]:    XLIST, // 递进处理
 };
 
 
