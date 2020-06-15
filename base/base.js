@@ -274,13 +274,14 @@ function type( el ) {
 
 /**
  * 获取目标元素的内容。
- * 仅限非空文本节点和内联节点。
+ * 仅限内联节点和非空文本节点。
+ * 如果初始即传入一个空文本节点，会返回null。
  * @param  {Element|Text} el 目标节点
- * @return {[Node]|Node}
+ * @return {[Node]|Node|null}
  */
 function contents( el ) {
-    if ( el.nodeType == 3 && el.textContent.trim() ) {
-        return el;
+    if ( el.nodeType == 3 ) {
+        return el.textContent.trim() ? el : null;
     }
     if ( InlineTags.has(el.tagName) ) {
         return el;

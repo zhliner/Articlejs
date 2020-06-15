@@ -5147,7 +5147,7 @@ function usualNode( node ) {
  * 过滤出有效的节点集。
  * - 仅包含元素和非空文本节点。
  * @param  {Node} node 节点
- * @return {Nude|null}
+ * @return {Boolean}
  */
 function masterNode( node ) {
     let _nt = node.nodeType;

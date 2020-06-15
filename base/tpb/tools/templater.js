@@ -39,8 +39,8 @@ const
 class Templater {
     /**
      * 创建实例。
-     * obter: function( Element, obts:Boolean ): void
-     * loader: function( nodeName:String ): Promise:then(Element)
+     * obter: function( Element ): Element
+     * loader: function( String ): Promise<DocumentFragment>
      * @param {Function} obter OBT解析回调
      * @param {Function} loader 节点载入回调
      */
