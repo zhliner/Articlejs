@@ -520,9 +520,12 @@ aside#help {
     text-align: right;
 }
 
-/* 视觉友好 */
 .___Content main.content {
+    /* 视觉友好 */
     padding: 0 1em;
+    cursor: default;
+    /* 初始可点击 */
+    min-height: 100%;
 }
 
 

@@ -41,7 +41,7 @@
 <!-- 内容区 -->
 <div class="___Content" tpl-name="main:content">
     <!-- 临时态：视觉提示 -->
-    <span id="g-cross" data-pb="">
+    <span id="g-cross" data-pb="lost">
         <b id="cross-h"></b><b id="cross-v"></b>
     </span>
     <!--滚动封装 -->
@@ -91,9 +91,17 @@
             <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内容区 -->
+        <!-- 微编辑：on="mouseup keyup input|rangeKeep stop" -->
         <main id="content" class="content"
-            on="mouseup keyup input|rangeKeep stop">
-            <p contenteditable>这里是一些测试文本，包含内联的<em>子元素和深层嵌套的<strong>孙级元素</strong>。。。</em></p>
+            on_="click"
+            by_="Edit.xx">
+            <hgroup>
+                <h1 id="文章内容的规范化结构">文章内容的规范化结构</h1>
+                <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
+            </hgroup>
+            <article>
+                <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式价值不菲，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
+            </article>
         </main>
     </div>
     <!-- 元素路径 -->
@@ -134,8 +142,8 @@
             <i id="l-close" title="关闭"></i>
         </b>
     </div>
-    <!-- <form tpl-source="slave:input"> [内容面板] </form> -->
-    <form tpl-source="slave:minied"> [微编辑面板] </form>
+    <form tpl-source="slave:input"> [内容面板] </form>
+    <!-- <form tpl-source="slave:minied"> [微编辑面板] </form> -->
 </div>
 
 

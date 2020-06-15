@@ -26,7 +26,7 @@
 
 import { type, nameType, tableObj } from "./base.js";
 import { SVG, SVGITEM } from "./types.js";
-import { extend } from "./tpb/pbs.by.js";
+import { processExtend } from "./tpb/pbs.by.js";
 
 
 const
@@ -832,7 +832,7 @@ function createID(text) {
 // By扩展：
 // New.[cell-name](...)
 //
-extend( 'New', Content );
+processExtend( 'New', Content );
 
 
 export { create };

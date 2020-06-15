@@ -26,7 +26,9 @@
 
 
 <!-- 文章标题 -->
-<div class="_body _Heading" tpl-name="input:heading">
+<div class="_body _Heading" tpl-name="input:heading"
+    on="create|"
+    to="form/|trigger('insert')">
     <div class="_main">
         <header>
             <input type="text" name="h1" placeholder="主标题" class="_scale" />

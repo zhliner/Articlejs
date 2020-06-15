@@ -12,8 +12,8 @@
 //      Build: {Function}   节点树OBT构建函数
 //      Lib:   {Object}     用户库空间
 //  }
-//  用户扩展：
-//  - 普通扩展：Tpb.Lib.extend( ... )
+//  动态扩展：
+//  - 普通处理器：Tpb.Lib.extend( ... )
 //  - App 创建：Tpl.Lib.App( ... )
 //
 //  支持模板的动态导入、模板和既有DOM元素的渲染。
@@ -23,7 +23,7 @@
 //
 
 import { On } from "./pbs.get.js";
-import { By, extend, App } from "./pbs.by.js";
+import { By, processExtend, cmvApp } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
 import { Builder } from "./core.js";
@@ -39,7 +39,10 @@ const
     $ = window.$,
 
     // 用户库空间。
-    Lib = { extend, App },
+    Lib = {
+        extend: processExtend,
+        App: cmvApp,
+    },
 
     // OBT属性选择器
     __obtSlr = `[${OBTA.on}], [${OBTA.src}]`,

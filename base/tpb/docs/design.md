@@ -530,6 +530,12 @@ concat( ...vals ): [Value]
 
 join( chr ): String
 // 接数组各成员。
+
+mix( n ): Array
+// 集合混合。
+
+sum(): Number
+// 集合成员值累计。
 ```
 
 

@@ -14,15 +14,15 @@
 //  用户的扩展存在于By的顶层（By对象自身），但也可以扩展到任意子域上。
 //
 //  用户扩展：
-//      import { extend } from "./pbs.by.js";
-//      extend( name, extobj );
-//      extend( name.sub, extobj );  // 扩展到sub子域
+//      import { processExtend } from "./pbs.by.js";
+//      processExtend( 'Name', extobj );
+//      processExtend( 'Name.Sub', extobj );  // 扩展到 Sub 子域
 //
 //  App创建：
-//      import { App } from "./pbs.by.js";
-//      App( 'MyApp', conf, meths );
-//      // extend(...)
-//      // 也可以在MyApp域上用extend扩展任意普通方法。
+//      import { cmvApp } from "./pbs.by.js";
+//      cmvApp( 'MyApp', conf, meths );
+//      // processExtend(...)
+//      // 也可以在MyApp域上用 processExtend 扩展任意普通方法。
 //
 //      模板使用：
 //      by="MyApp.run('meth', ...)"
@@ -145,7 +145,7 @@ By.x = X;
 
 
 /**
- * 接口：用户扩展。
+ * 接口：普通扩展。
  * 扩展中的方法默认会绑定（bind）到所属宿主对象。
  * 支持多层嵌套的子域，子域是一种分组，由普通的Object封装。
  * 扩展时会自动创建不存在的中间子域。
@@ -155,7 +155,7 @@ By.x = X;
  * @param  {Boolean} nobind 无需绑定（可访问Cell实例），可选。
  * @return {Object} 目标子域
  */
-export function extend( name, exts, nobind ) {
+export function processExtend( name, exts, nobind ) {
     return subExtend( name, exts, nobind, By );
 }
 
@@ -176,7 +176,7 @@ export function extend( name, exts, nobind ) {
  * @param {Object} conf CMV配置对象
  * @param {[String]} meths 方法名序列，可选
  */
-export function App( name, conf, meths ) {
+export function cmvApp( name, conf, meths ) {
     let _app = By[name];
 
     if ( _app != null ) {
@@ -187,5 +187,5 @@ export function App( name, conf, meths ) {
             conf.model,
             conf.view
         ];
-    extend( name, appScope(new App__(..._cmv), meths) );
+    processExtend( name, appScope(new App__(..._cmv), meths) );
 }

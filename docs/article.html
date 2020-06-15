@@ -141,17 +141,17 @@
                     <h2 id="标题规划">标题规划</h2>
                     <p>逐层嵌套的 <code>&lt;section&gt;</code> 封装会隔离标题的层次逻辑，但标题自身的层级依然是可以被规划和利用的，这可能带来一些额外的好处或便利。细节如下：</p>
                     <ul>
-                        <li><code>h1</code>: 仅用于文章的主标题，通常就是页面主标题。</li>
-                        <li><code>h2</code>: 各区段（<code>&lt;section&gt;</code>）的主标题（作为首个子元素存在）；以及文章的副标题，和主标题 <code>h1</code> 一起存在于一个 <code>hgroup</code> 容器之内。</li>
-                        <li><code>h3</code>: 各行块内容单元的标题，如：文章提要（<code>&lt;header:abstract&gt;</code>）、引用块（<code>&lt;blockquote&gt;</code>）、导言（<code>&lt;header&gt;</code>）等。 </li>
-                        <li><code>h4</code>: 级联表的小标题。以及其它行块单元内主标题层级之下的细粒度扩展。</li>
-                        <li><code>h5~h6</code>: 在各自行块内的顶级标题下的更细粒度扩展。</li>
+                        <li><strong>h1</strong>: 仅用于文章的主标题，通常就是页面主标题。</li>
+                        <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的主标题（作为首个子元素存在）。另外也作为文章的副标题，和主标题 <code>h1</code> 一起存在于一个 <code>hgroup</code> 容器内。</li>
+                        <li><strong>h3</strong>: 各行块单元的主标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、导言（<code>&lt;header&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、目录（<code>&lt;nav:toc&gt;/&lt;h3&gt;, &lt;ol&gt;</code>）等。</li>
+                        <li><strong>h4</strong>: 级联表的小标题。以及行块单元内主标题（<code>h3</code>）逻辑以下细粒度的自由扩展。</li>
+                        <li><strong>h5~h6</strong>: 未定义。可能用于行块单元内 <code>h4</code> 小标题逻辑以下的扩展。</li>
                     </ul>
                 </section>
                 <section role="s2">
                     <h2 id="层次示意">层次示意</h2>
                     <pre>
-<code data-lang="html">&lt;<b role="tag">h1</b>&gt;&lt;/<b role="tag">h1</b>&gt;                                   <i>&lt;!-- 页标题 --&gt;</i>
+<code data-lang="html">&lt;<b role="tag">h1</b>&gt;&lt;/<b role="tag">h1</b>&gt;                                   <i>&lt;!-- 页/主标题 --&gt;</i>
 &lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;           <i>&lt;!-- 提要 --&gt;</i>
 &lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;                      <i>&lt;!-- 目录 --&gt;</i>
 &lt;<b role="tag">article</b>&gt;                                   <i>&lt;!-- 文章区 --&gt;</i>

@@ -1458,8 +1458,15 @@ const _Process = {
     /**
      * 热键触发。
      * 目标：暂存区/栈顶1项。
-     * 目标为Hotkey实例。
-     * @param  {Value} extra 发送数据
+     * 用法：
+     *      <html on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
+     * 其中：
+     * - keydown 捕获键盘按下事件（使得可屏蔽浏览器默认行为）。
+     * - GHK 为操作目标，是一个 Hotkey 实例，创建：new HotKey().config(...)。
+     * - acmsk ev('key') 为两个动态的实参。
+     *
+     * @param  {String} key 快捷键序列
+     * @param  {Value} extra 发送的数据
      * @return {Boolean} 是否已捕获激发
      */
     hotKey( evo, key, extra ) {
@@ -1475,9 +1482,9 @@ const _Process = {
      * 自动更新全局Range集存储。
      * 通常绑定在离可编辑元素最近的容器元素上。
      * 如：
-     * <p contenteditable
-     *      on="mouseup keyup input|rangeKeep stop">
-     * </p>
+     * <main on="mouseup keyup input|rangeKeep stop">
+     *      <p contenteditable>可编辑区域...</p>
+     * </main>
      * @return {void}
      */
     rangeKeep() {
@@ -1498,7 +1505,16 @@ const _Process = {
      * 执行document命令。
      * 目标：暂存区1项可选。
      * 目标为待使用的数据（部分命令不需要）。
-     * 需配合rangeKeep使用。
+     * 需配合rangeKeep使用（定位编辑区）。
+     * 用法：
+     *      on="click(b)|evo(2) text pop exeCmd('insertText')"
+     * 说明：
+     * - 绑定单击元素内的<b>元素事件。
+     * - 取当前目标元素内的文本，提取至暂存区。
+     * - 执行 insertText 命令，内容为暂存区数据。
+     * 注：
+     * 插入的内容可受浏览器自身撤销/重做操作的影响。
+     *
      * @param  {String} name 命令名称
      * @return {Boolean} 调用命令返回的值
      */
