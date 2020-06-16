@@ -195,12 +195,12 @@
 
         // 是否包含判断。
         // @param  {Element} box 容器元素
-        // @param  {node} 子节点
+        // @param  {Node} sub 子节点
+        // @param  {Boolean} strict 严格包含（子孙级）
         // @return {Boolean}
-        $contains = function( box, sub ) {
-            return box.contains ?
-                box.contains( sub ) :
-                box === sub || box.compareDocumentPosition( sub ) & 16;
+        $contains = function( box, sub, strict ) {
+            let _is = !!(box.compareDocumentPosition(sub) & 16);
+            return strict ? _is : box === sub || _is;
         },
 
         // 去除重复并排序。
@@ -743,19 +743,19 @@ Object.assign( tQuery, {
     /**
      * 包含检查。
      * - 检查容器节点是否包含目标节点。
-     * - 目标即是容器本身也为真（与DOM标准兼容）。
-     * 注：与jQuery.contains有所不同；
+     * - 默认情况下，目标可以等于容器本身（与DOM标准兼容）。
      * @param  {Element} box 容器节点
      * @param  {Node} node 检查目标
+     * @param  {Boolean} strict 严格子级
      * @return {Boolean}
      */
-    contains( box, node ) {
+    contains( box, node, strict ) {
         if (! node) {
             return false;
         }
         let _nt = node.nodeType;
 
-        return (_nt == 1 || _nt == 3) && $contains(box, node);
+        return (_nt == 1 || _nt == 3) && $contains(box, node, strict);
     },
 
 
@@ -1273,9 +1273,10 @@ Object.assign( tQuery, {
      * - 包裹容器可以是一个现有的元素或HTML结构字符串或取值函数。
      * - 取值函数：function(node): Element|string
      * - 包裹采用结构字符串时，会递进至最深层子元素为容器。
-     * - 被包裹的内容插入到容器元素的前端（与jQuery不同）。
+     * - 被包裹的内容插入到容器元素内的前端（与jQuery不同）。
      * 注记：
      * 插入到容器内前端有更好的可用性（可变CSS选择器）。
+     * 如果目标元素与数据容器元素相同，浏览器会抛出异常。
      *
      * @param  {Node|String} node 目标节点或文本
      * @param  {HTML|Element|Function} box 包裹容器
@@ -1301,6 +1302,8 @@ Object.assign( tQuery, {
      * 内层包裹。
      * - 在目标元素内嵌一层包裹元素（即对内容wrap）。
      * - 取值函数：function(el): Element|string
+     * 注记：
+     * 如果目标元素与数据容器元素相同，浏览器会抛出异常。
      * @param  {Element} el 目标元素
      * @param  {HTML|Element|Function} box 包裹容器
      * @param  {Boolean} clone 包裹元素是否克隆
@@ -1315,7 +1318,7 @@ Object.assign( tQuery, {
         let [_box, _root] = wrapBox(box, clone, event, eventdeep, el.ownerDocument);
 
         // 容器可以是子元素。
-        if ( $contains(el, _box) ) {
+        if ( $contains(el, _box, true) ) {
             varyRemove( _box );
         }
         return varyWrapInner( el, _root || _box, _box );
@@ -7002,11 +7005,11 @@ const Event = {
             _box = ev.currentTarget;
 
         if ( !subslr.test(slr) ) {
-            return closest(_box, _beg, slr);
+            return delegateClosest(_box, _beg, slr);
         }
         try {
             hackAttr(_box, hackFix);
-            return closest(_box, _beg, hackSelector(_box, slr, hackFix));
+            return delegateClosest(_box, _beg, hackSelector(_box, slr, hackFix));
         }
         finally {
             hackAttrClear(_box, hackFix);
@@ -7017,15 +7020,15 @@ const Event = {
 
 
 /**
- * 向上检测匹配。
+ * 向上检测委托匹配。
  * 专用于委托绑定时，向上递进到委托容器时止。
- * 注：不包含容器本身。
+ * 不包含容器本身。
  * @param  {Element} box 容器元素
  * @param  {Element} beg 匹配起点元素
  * @param  {String} slr 选择器串（已合法）
  * @return {Element|null} 匹配的子级元素
  */
-function closest( box, beg, slr ) {
+function delegateClosest( box, beg, slr ) {
     while ( beg !== box ) {
         if ( $is(beg, slr) ) return beg;
         beg = beg.parentNode;

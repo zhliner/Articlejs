@@ -135,14 +135,15 @@ $.isXML( document.body );  // false
 ```
 
 
-### [$.contains( box, node ): Boolean](docs/$.contains.md)
+### [$.contains( box, node, strict ): Boolean](docs/$.contains.md)
 
-检查目标节点 `node` 是否包含在 `box` 元素之内。
+检查目标节点 `node` 是否包含在 `box` 元素之内。默认情况下，目标节点为容器时也返回真（DOM行为）。
 
 - `box: Element` 是否包含目标节点的容器元素。
 - `node: Node` 待检测的目标节点。
+- `strict: Boolean` 是否严格子级约束（不含容器测试），可选。
 
-这只是一个对元素 `.contains` 接口的简单封装，匹配检查包含容器元素自身。**注**：`jQuery.contains()` 的行为稍有不同。
+与标准的元素 `.contains` 方法稍有差异，增加了严格子级约束选项。**注**：也与 `jQuery.contains()` 的行为稍有不同。
 
 
 ### $.cloneEvent( to, src, evns ): Element
