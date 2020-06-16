@@ -52,21 +52,25 @@ aside#help {
  ****************************************************************************/
 
 /* 鼠标指向 */
-.___Content ._msCur {
+.___Content ._point {
     background-color: rgba(235,235,235,0.3);
     background-image: url('images/current.png') !important;
 }
-/* 已选取 */
-.___Content ._okSel {
-    background-image: url('images/selected.png') !important;
-    background-color: #ffffd7;
+
+/* 已选取。
+ * 参与编辑历史撤销/重做。
+ */
+.___Content *[data-pb~='selected'] {
     color: #333;
+    background-color: #ffffd7;
+    background-image: url('images/selected.png') !important;
 }
-/* 微编辑 */
-.___Content ._inMed {
+
+/* 微编辑下 */
+.___Content *[contenteditable] {
+    cursor: text;
     background-color: #e9ab7d !important;
     border: 1px #0f514f solid !important;
-    cursor: text;
 }
 
 

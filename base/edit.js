@@ -13,3 +13,20 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
+
+import { Util } from "./tpb/tools/util.js";
+
+
+//
+// 选取元素队列。
+//
+class ElemQueue extends Set {
+    /**
+     * 创建选取元素集。
+     * mark是一个data-pb选项词。
+     * @param {String} mark 选取标记
+     */
+    constructor( mark ) {
+        //
+    }
+}

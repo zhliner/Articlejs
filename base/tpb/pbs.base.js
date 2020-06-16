@@ -1114,10 +1114,11 @@ const _Process = {
      * 目标：暂存区/栈顶2项。
      * 前者是否为后者的上级容器元素。
      * @data: [Element, Node]
+     * @param  {Boolean} strict 是否严格子级约束
      * @return {Boolean}
      */
-    contains( evo ) {
-        return $.contains( evo.data[0], evo.data[1] );
+    contains( evo, strict ) {
+        return $.contains( evo.data[0], evo.data[1], strict );
     },
 
     __contains: 2,

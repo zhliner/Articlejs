@@ -93,8 +93,15 @@
         <!-- 内容区 -->
         <!-- 微编辑：on="mouseup keyup input|rangeKeep stop" -->
         <main id="content" class="content"
-            on_="click"
-            by_="Edit.xx">
+            on="click;
+                @mouseover|('_point');
+                @mouseout|('_point');
+                ^obted"
+            by_="Edit.xx"
+            to="-;
+                #|addClass;
+                #|removeClass;
+                |bind('mouseover mouseout', '*')">
             <hgroup>
                 <h1 id="文章内容的规范化结构">文章内容的规范化结构</h1>
                 <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>

@@ -338,7 +338,7 @@ gte( v?:Value ): Boolean    // (x, y) => x >= y
 eqarr( arr?:Array )
 // 数组相等比较。
 
-contains(): Boolean
+contains( strict:Boolean ): Boolean
 // 元素包含测试。
 
 
