@@ -200,7 +200,7 @@
         // @return {Boolean}
         $contains = function( box, sub, strict ) {
             let _is = !!(box.compareDocumentPosition(sub) & 16);
-            return strict ? _is : box === sub || _is;
+            return _is || !strict && box === sub;
         },
 
         // 去除重复并排序。
@@ -4333,7 +4333,7 @@ function hasFltr( its ) {
         return e => !!tQuery.get(its, e);
     }
     if (its && its.nodeType) {
-        return e => its !== e && $contains(e, its);
+        return e => $contains(e, its, true);
     }
     return () => false;
 }
