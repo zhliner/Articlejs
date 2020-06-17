@@ -57,10 +57,8 @@ aside#help {
     background-image: url('images/current.png') !important;
 }
 
-/* 已选取。
- * 参与编辑历史撤销/重做。
- */
-.___Content *[data-pb~='selected'] {
+/* 已选取 */
+.___Content ._selected {
     color: #333;
     background-color: #ffffd7;
     background-image: url('images/selected.png') !important;

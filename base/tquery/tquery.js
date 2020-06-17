@@ -3149,8 +3149,8 @@ class Collector extends Array {
 
 
     //
-    // 衍生对象直接上层构造。
-    // 如：.map() .filter() 等。
+    // 继承方法的衍生对象保持为Array。
+    // 如：.fill() .splice() 等。
     //
     static get [Symbol.species]() { return Array; }
 

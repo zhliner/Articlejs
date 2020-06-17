@@ -760,7 +760,6 @@ class Cell {
      * 返回同步序列最后一个指令单元调用的返回值。
      * @param  {Event} ev 事件对象
      * @param  {Object} elo 事件关联对象
-     * @param  {Value} extra 初始传递值，可选
      * @return {Value}
      */
     handleEvent( ev, elo ) {
