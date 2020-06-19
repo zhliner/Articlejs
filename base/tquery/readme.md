@@ -105,15 +105,21 @@
 
     为了跟踪DOM节点的变化，为编写DOM编辑器或需要记录节点变化历史的应用提供方便，设计加入了5组定制事件：
 
-    1. `attrvary|attrfail/attrdone` 元素特性：`设置/出错/完成` 事件。由 `.attr()|.attribute()|.removeAttr()|.toggleAttr()` 接口触发。
-    2. `propvary|propfail/propdone` 元素属性：`设置/出错/完成` 事件。由 `.prop()|.property()|.val()` 接口触发。
-    3. `cssvary|cssfail/cssdone` 元素内联样式：`设置/出错/完成` 事件。由 `.css()|.cssSets()` 接口触发。
-    4. `classvary|classfail/classdone` 元素类名：`设置/出错/完成` 事件。由 `.addClass()|.removeClass()|.toggleClass()` 接口触发。
-    5. `nodevary|nodefail/nodedone` 节点/元素：`修改/出错/完成` 事件。由 `.before()|.after()|.prepend()|.append()|.remove()|.html()|.text()|...` 等节点操作类接口触发。
+    1. `attrvary, attrfail | attrdone` 元素特性：`设置/出错/完成` 事件。由 `.attr()|.attribute()|.removeAttr()|.toggleAttr()` 接口触发。
+    2. `propvary, propfail | propdone` 元素属性：`设置/出错/完成` 事件。由 `.prop()|.property()|.val()` 接口触发。
+    3. `cssvary, cssfail | cssdone` 元素内联样式：`设置/出错/完成` 事件。由 `.css()|.cssSets()` 接口触发。
+    4. `classvary, classfail | classdone` 元素类名：`设置/出错/完成` 事件。由 `.addClass()|.removeClass()|.toggleClass()` 接口触发。
+    5. `nodevary, nodefail | nodedone` 节点/元素：`修改/出错/完成` 事件。由 `.before()|.after()|.prepend()|.append()|.remove()|.html()|.text()|...` 等节点操作类接口触发。
 
     需要跟踪DOM节点变化的应用可以获得节点改变之前、出错和完成之后三个阶段的监控和应对能力。事件冒泡但不可取消，附加的消息（`event.detail`）包含了相关联的数据。出错和完成事件不会同时发生，两者仅有其一。
 
-    **注**：定制事件的功能默认关闭，需要执行 `$.config({varyevent:true})` 开启。
+    另外，对于在元素上绑定和解绑事件处理器也提供了如下通知事件：
+
+    - `bound` 在元素上绑定事件处理器之后，适用 `tQuery.on()` 接口。
+    - `unbound` 在元素上解绑事件处理器之后，适用 `tQuery.off()` 接口。
+    - `boundone` 在元素上单次绑定（激发后自动解绑）事件处理器之后，适用 `tQuery.one()` 接口。
+
+    **注**：定制事件的功能默认关闭，需要执行 `$.config( {bindevent:true, varyevent:true} )` 开启（也可仅开启其中之一）。
 
 
 ## 注意事项

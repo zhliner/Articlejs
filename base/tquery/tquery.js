@@ -47,8 +47,11 @@
         tQuery.find('p>b', p)    => [<b>]
 
 
-    定制事件：
-    提供5组定制事件，用于监听DOM节点的变化。可方便实现节点修改的历史记录类应用。
+    定制事件
+    --------
+
+    节点变化事件
+    监听元素的各种变化（可辅助实现节点修改历史应用）。
     开启：tQuery.config({varyevent: true});
 
     - attrvary|attrfail/attrdone    // 特性设置/出错/完成
@@ -65,6 +68,11 @@
     // 复合操作：fill, wrap, wrapInner, wrapAll, unwrap, html, text
     // 注：
     // removes表示删除连续的兄弟元素集，仅限于表格操作（行段|列段）。
+
+    事件绑定变化事件
+    如果元素绑定或解绑事件处理器时触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
+    事件名：bound, unbound, boundone
+    开启：tQuery.config({bindevent: true})
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -384,11 +392,13 @@
 
         //
         // 功能配置集。
-        // 注：
-        // 目前仅支持节点变化事件，默认关闭。
-        // 可通过 $.config({varyevent:true}) 开启。
+        // 目前仅支持定制事件激发配置，默认关闭。
+        // 通过 $.config({...}) 开启。
         //
-        Options  = { varyevent: false };
+        Options  = {
+            varyevent: null, // 节点变化类事件
+            bindevent: null, // 事件注册类事件
+        };
 
 
 
@@ -522,7 +532,7 @@ function tQuery( its, ctx ) {
 // 设置时返回的是内部原始的配置对象。
 //
 tQuery.config = option =>
-    Object.assign( option && Options || {}, option || Options );
+    Object.assign( option ? Options : {}, option || Options );
 
 
 //
@@ -1881,7 +1891,7 @@ Object.assign( tQuery, {
      * 获取/设置元素样式。
      * 获取为计算后的样式值，设置为内联样式（style）。
      * 设置：
-     * - val值支持取值回调，接口：fn.bind(el)( oldval, cso )。
+     * - val值支持取值回调，接口：function( oldval, el )。
      * - val为空串或null，会删除目标样式。
      * 注记：
      * Edge/Chrome/FF已支持短横线样式属性名。
@@ -5448,16 +5458,22 @@ const
     evnClassDone    = 'classdone',
     evnNodeVary     = 'nodevary',
     evnNodeFail     = 'nodefail',
-    evnNodeDone     = 'nodedone';
+    evnNodeDone     = 'nodedone',
+    evnBound        = 'bound',
+    evnUnbound      = 'unbound',
+    evnBoundone     = 'boundone';
 
 
 /**
  * 激发定制事件（受限名称）。
  * 事件冒泡，不可取消。
+ * 返回值：
+ * - 返回 null 表示未配置定制事件发送。
+ * - 返回 Boolean 类型则为 Element.dispatchEvent() 的返回值。
  * @param  {Element} el 目标元素
  * @param  {String} evn 事件名
- * @param  {Array} data 发送数据
- * @return {Boolean} 是否已发送消息
+ * @param  {Value} data 发送数据（Array|Object）
+ * @return {Boolean|null}
  */
 function limitTrigger( el, evn, data ) {
     return Options.varyevent && el.dispatchEvent(
@@ -5471,7 +5487,7 @@ function limitTrigger( el, evn, data ) {
  * data结构：[错误对象, 新值, 旧值]。
  * @param  {Element} el 目标元素
  * @param  {String} evn 事件名
- * @param  {Array2} data 错误关联对象
+ * @param  {[Error, ...]} data 错误关联对象
  * @return {void}
  */
 function failTrigger( el, evn, data ) {
@@ -5480,6 +5496,36 @@ function failTrigger( el, evn, data ) {
     }
     el.dispatchEvent(
         new CustomEvent( evn, {detail: data, bubbles: true, cancelable: false} )
+    );
+}
+
+
+/**
+ * 激发事件绑定事件。
+ * 事件冒泡，不可取消。
+ * 适用：tQuery.on|one, tQuery.off接口。
+ * 发送数据：{
+ *      type,       绑定事件名
+ *      selector,   委托选择器
+ *      handler     事件处理器
+ * }
+  * 返回值：
+ * - 返回 null 表示未配置定制事件发送。
+ * - 返回 Boolean 类型则为 Element.dispatchEvent() 的返回值。
+*  @param  {Element} el 目标元素
+ * @param  {String} evn 事件名
+ * @param  {String} type 绑定事件名
+ * @param  {String} selector 委托选择器
+ * @param  {Function|EventListener} handler 事件处理器
+ * @return {Boolean|null}
+ */
+function boundTrigger( el, evn, type, selector, handler ) {
+    return Options.bindevent && el.dispatchEvent(
+        new CustomEvent( evn, {
+            detail: { type, selector, handler },
+            bubbles: true,
+            cancelable: false
+        })
     );
 }
 
@@ -6531,7 +6577,7 @@ const Event = {
             [_slr, _get] = this.matches(slr);
 
         if ( this.isBound(el, _evn, _slr, handle) ) {
-            return this;
+            return;
         }
         let _bound = this._handler(handle, _get, _slr);
 
@@ -6540,7 +6586,7 @@ const Event = {
             this.setBuffer( this.buffer(el, _evn, _slr), handle, _bound, _cap, false ),
             _cap
         );
-        return this;
+        return boundTrigger( el, evnBound, evn, slr, handle );
     },
 
 
@@ -6558,7 +6604,7 @@ const Event = {
             [_slr, _get] = this.matches(slr);
 
         if ( this.isBound(el, _evn, _slr, handle) ) {
-            return this;
+            return;
         }
         let _pool = this.buffer(el, _evn, _slr),
             // 存储普通封装（便于clone）。
@@ -6569,7 +6615,7 @@ const Event = {
             this._onceHandler( el, _evn, _bound, _cap, _pool, handle ),
             _cap
         );
-        return this;
+        return boundTrigger( el, evnBoundone, evn, slr, handle );
     },
 
 
@@ -6586,18 +6632,17 @@ const Event = {
      */
     off( el, evn, slr, handle ) {
         let _m1 = this.store.get(el);
+        if ( !_m1 ) return;
 
-        if ( _m1 ) {
-            if ( !evn ) {
-                this._clearAll( el, _m1 );
-            } else {
-                this._clearSome( el, _m1, evn, slr, handle );
-            }
-            if (_m1.size == 0) {
-                this.store.delete(el);
-            }
+        if ( !evn ) {
+            this._clearAll( el, _m1 );
+        } else {
+            this._clearSome( el, _m1, evn, slr, handle );
         }
-        return this;
+        if (_m1.size == 0) {
+            this.store.delete(el);
+        }
+        return boundTrigger( el, evnUnbound, evn, slr, handle );
     },
 
 
