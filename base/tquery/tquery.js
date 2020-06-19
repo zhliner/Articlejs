@@ -6632,17 +6632,18 @@ const Event = {
      */
     off( el, evn, slr, handle ) {
         let _m1 = this.store.get(el);
-        if ( !_m1 ) return;
 
-        if ( !evn ) {
-            this._clearAll( el, _m1 );
-        } else {
-            this._clearSome( el, _m1, evn, slr, handle );
-        }
-        if (_m1.size == 0) {
-            this.store.delete(el);
-        }
-        return boundTrigger( el, evnUnbound, evn, slr, handle );
+        if ( _m1 ) {
+            if ( !evn ) {
+                this._clearAll( el, _m1 );
+            } else {
+                this._clearSome( el, _m1, evn, slr, handle );
+            }
+            if (_m1.size == 0) {
+                this.store.delete(el);
+            }
+        };
+        return this;
     },
 
 
@@ -6676,6 +6677,7 @@ const Event = {
                             v3[2] ? this._onceHandler(to, n, v3[0], v3[1], _pool, h) : v3[0],
                             v3[1]
                         );
+                        boundTrigger( el, v3[2] ? evnBoundone : evnBound, n, s, h );
                     }
                 }
             }
@@ -6810,6 +6812,7 @@ const Event = {
     /**
      * 构造单次调用处理器。
      * 执行之后会自动移除绑定和配置存储。
+     * 注：自动解绑由用户触发，不执行解绑通知（evnUnbound）。
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名
      * @param  {Function} bound 普通封装处理器
@@ -6939,9 +6942,10 @@ const Event = {
      */
     _clearAll( el, map1 ) {
         for (let [n, m2] of map1) {
-            for (const m3 of m2.values()) {
-                for (const av of m3.values()) {
+            for (const [s, m3] of m2) {
+                for (const [h, av] of m3) {
                     el.removeEventListener( n, av[0], av[1] );
+                    boundTrigger( el, evnUnbound, n, s, h );
                 }
             }
         }
@@ -6968,6 +6972,7 @@ const Event = {
                     if ( _fltr(n, s, h) ) {
                         el.removeEventListener( n, av[0], av[1] );
                         m3.delete( h );
+                        boundTrigger( el, evnUnbound, n, s, h );
                     }
                 }
                 if ( m3.size == 0 ) m2.delete( s );
