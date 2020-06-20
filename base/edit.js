@@ -22,12 +22,6 @@ const
 //
 // 选取元素队列。
 //
-// 包含选取集的各个操作方法，返回值：[
-//      [Element],  新添加的元素
-//      [Element]   被移除的元素
-// ]
-// 这个返回集对可用于辅助撤销/重做编码。
-//
 class ElemQueue extends Set {
     /**
      * 创建选取元素集。
@@ -41,12 +35,15 @@ class ElemQueue extends Set {
 
 
     //-- 批量接口 ------------------------------------------------------------
-    // 用于外部undo/redo操作。
+    // 注记：
+    // 主要用于外部undo/redo操作。
+    // 可分别取调用之前/后的集合成员存储。
 
 
     /**
      * 压入元素序列。
-     * @param  {[Element]} els 元素集
+     * 不检查原集合中是否已经存在。
+     * @param  {[Element]} els 目标元素集
      * @return {ElemQueue} 当前实例
      */
     pushes( els ) {
@@ -59,12 +56,13 @@ class ElemQueue extends Set {
 
     /**
      * 移除元素序列。
-     * @param  {[Element]} els 元素集
+     * 假定目标元素已全部存在于集合内。
+     * @param  {[Element]} els 目标元素集
      * @return {ElemQueue} 当前实例
      */
     removes( els ) {
         els.forEach(
-            el => this._delete( el )
+            el => this._delete(el)
         );
         return this;
     }
@@ -72,34 +70,30 @@ class ElemQueue extends Set {
 
     //-- 操作集 --------------------------------------------------------------
     // 用户操作接口。
-    // @return {Array2} 集对
+    // @return {void}
 
 
     /**
      * 添加一个元素成员。
+     * 如果元素已经存在则无行为。
      * @param {Element} el 目标元素
      */
     add( el ) {
-        if ( super.has(el) ) {
-            return [];
+        if ( !super.has(el) ) {
+            this._clean(el)._add(el);
         }
-        this._clean(el)._add(el);
-
-        return [ [el], null ];
     }
 
 
     /**
      * 删除一个元素成员。
+     * 如果元素不存在，无任何行为。
      * @param {Element} el 目标元素
      */
     delete( el ) {
-        if ( !super.has(el) ) {
-            return [];
+        if ( super.has(el) ) {
+            this._delete( el );
         }
-        this._delete(el);
-
-        return [ null, [el] ];
     }
 
 
@@ -109,15 +103,94 @@ class ElemQueue extends Set {
      * @param {Element} el 目标元素
      */
     only( el ) {
-        let _old = [];
-
         for (const el of this) {
-            _old.push( $.removeClass(el, this._cls) );
+            $.removeClass(el, this._cls);
         }
         super.clear();
         this._add( el );
+    }
 
-        return [ [el], _old ];
+
+    /**
+     * 切换选取。
+     * 已存在则移除，否则为添加。
+     * 注：添加时仍需考虑父子包含关系。
+     * @param {Element} el 目标元素
+     */
+    turn( el ) {
+        if ( super.has(el) ) {
+            this._delete(el);
+        } else {
+            this._clean(el)._add(el);
+        }
+    }
+
+
+    /**
+     * 兄弟元素添加。
+     * 不检查父子包含关系，但排除已存在成员。
+     * @param {Element} els 元素序列
+     */
+    siblings( els ) {
+        els.forEach(
+            el => super.has(el) || this._add(el)
+        );
+    }
+
+
+    /**
+     * 同级反选。
+     * 已经存在的移除，否则添加。
+     * 总集为兄弟元素，添加时不检查父子包含关系。
+     * @param {[Element]} all 总集
+     */
+    reverse( all ) {
+        all.forEach(
+            el => super.has(el) ? this._delete(el) : this._add(el)
+        )
+    }
+
+
+    /**
+     * 清除全部选取。
+     */
+    empty() {
+        super.forEach(
+            el => this._delete( el )
+        );
+    }
+
+
+    /**
+     * 子级添加。
+     * 明确知道为集合中某成员的子元素。
+     * 会移除所属的父元素。
+     * 注：如键盘改选。
+     * @param {Element} el 子元素
+     */
+    child( el ) {
+        let _box = this._containItem(el);
+
+        if ( _box ) {
+            this._delete( _box );
+        }
+        this._add( el );
+    }
+
+
+    /**
+     * 父级添加。
+     * 明确知道为集合中某成员的父元素。
+     * 会清除集合中所包含的子元素。
+     * 注：如键盘改选。
+     * @param {Element} el 父元素
+     */
+    parent( el ) {
+        this._parentFilter(el)
+        .forEach(
+            el => this._delete(el)
+        )
+        this._add( el );
     }
 
 
@@ -128,13 +201,13 @@ class ElemQueue extends Set {
      * 添加元素成员。
      * 会设置成员的选取标记类名。
      * @param  {Element} el 目标元素
-     * @return {ElemQueue} 当前实例
+     * @return {Element} el
      */
     _add( el ) {
         super.add(
             $.addClass(el, this._cls)
         );
-        return this;
+        return el;
     }
 
 
@@ -142,13 +215,13 @@ class ElemQueue extends Set {
      * 移除元素成员。
      * 会清除成员的选取标记类名。
      * @param  {Element} el 目标元素
-     * @return {ElemQueue} 当前实例
+     * @return {Element} el
      */
     _delete( el ) {
         super.delete(
             $.removeClass(el, this._cls)
         )
-        return this;
+        return el;
     }
 
 
@@ -160,9 +233,10 @@ class ElemQueue extends Set {
      * @return {ElemQueue} 当前实例
      */
     _clean( el ) {
-        let _box = this._containItem( el );
+        let _box = this._containItem(el);
         if ( _box ) {
-            return this._delete( _box );
+            this._delete( _box );
+            return this;
         }
         for (const sub of this._parentFilter(el)) {
             this._delete( sub );

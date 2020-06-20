@@ -14,30 +14,6 @@
 
 
 //
-// 节点树监听器。
-// 监听并记录DOM节点树的内容/节点特性变化等。
-// 即：tQuery:XXXvary 系列事件。
-//
-class DOMListener {
-
-    constructor( ) {
-        //
-    }
-
-
-    /**
-     * 事件触发处理器。
-     * @param {CustomEvent} ev 定制事件对象
-     * @param {Object} elo 事件关联对象（tQuery）
-     */
-    handleEvent( ev, elo ) {
-        //
-    }
-
-}
-
-
-//
 // 编辑历史处理器。
 // - 管理编辑历史的通用处理。
 // - 内部管理的对象需要实现 undo/redo/destroy 接口。
@@ -65,11 +41,6 @@ class DOMEdit {
     }
 
 
-    done() {
-        //
-    }
-
-
     undo() {
         //
     }
@@ -89,41 +60,49 @@ class DOMEdit {
 
 //
 // 元素选取集编辑。
-// 主要为对全局 ElemQueue 实例的操作。
+// 注记：
+// 选取集成员需要保持原始的顺序，较为复杂，
+// 因此这里简化取操作前后的全集成员存储。
 //
 class ElemSels {
     /**
      * 创建一个操作单元。
      * @param {ElemQueue} queue 选取集实例
+     * @param {[Element]} old 操作之前的元素集
+     * @param {[Element]} els 操作之后的元素集
      */
-    constructor( queue ) {
-        //
+    constructor( queue, old, els ) {
+        this._old = old;
+        this._new = els;
+        this._set = queue;
     }
 
 
     /**
-     * 初始完成。
-     * 注：op实际上就是ElemQueue的方法。
-     * @param {String} op 操作名
-     * @param {[Element]} els 操作元素集
+     * 撤销选取。
+     * 先移除新添加的，然后添加被移除的。
      */
-    done( op, els ) {
-        //
-    }
-
-
     undo() {
-        //
+        this._set.removes( this._new ).pushes( this._old );
     }
 
 
+    /**
+     * 重新选取。
+     * 先移除需要移除的，然后添加新添加的。
+     */
     redo() {
-        //
+        this._set.removes( this._old ).pushes( this._new );
     }
 
 
+    /**
+     * 销毁：切断引用。
+     */
     destroy() {
-        //
+        this._set = null;
+        this._new = null;
+        this._del = null;
     }
 
 }
