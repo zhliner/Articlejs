@@ -5541,33 +5541,28 @@ function removeAttr( el, name ) {
     if ( !el.hasAttribute(name) ) {
         return;
     }
-    let _val = el.getAttribute( name );
-
     limitTrigger( el, evnAttrSet, [name, null] );
     el.removeAttribute( name );
-    limitTrigger( el, evnAttrDone, [name, _val] );
+    limitTrigger( el, evnAttrDone, name );
 }
 
 
 /**
  * 特性设置封装。
- * val传递null会删除特性本身，若特性名为布尔型，传递false也同样如此。
  * @param  {Element} el 目标元素
  * @param  {String} name 特性名（最终）
  * @param  {Value|null|false} val 特性值
  * @return {void}
  */
 function setAttr( el, name, val ) {
-    let _old = el.getAttribute(name);
-
     limitTrigger( el, evnAttrSet, [name, val] );
     try {
         el.setAttribute( name, val );
     }
     catch(e) {
-        return failTrigger( el, evnAttrFail, [e, name, _old] );
+        return failTrigger( el, evnAttrFail, [e, name, val] );
     }
-    limitTrigger( el, evnAttrDone, [name, _old] );
+    limitTrigger( el, evnAttrDone, name );
 }
 
 
@@ -5580,8 +5575,6 @@ function setAttr( el, name, val ) {
  * @return {void}
  */
 function setProp( el, name, dname, val ) {
-    let _old = elemProp._get(el, name, dname);
-
     limitTrigger( el, evnPropSet, [name, val] );
     try {
         if (dname) {
@@ -5591,9 +5584,9 @@ function setProp( el, name, dname, val ) {
         }
     }
     catch(e) {
-        return failTrigger( el, evnPropFail, [e, name, _old] );
+        return failTrigger( el, evnPropFail, [e, name, val] );
     }
-    limitTrigger( el, evnPropDone, [name, _old] );
+    limitTrigger( el, evnPropDone, name );
 }
 
 
@@ -5608,32 +5601,29 @@ function setProp( el, name, dname, val ) {
  */
 function clearChecked( els ) {
     for ( let e of els ) {
-        let _old = e.checked;
         limitTrigger( e, evnPropSet, ['checked', false] );
         e.checked = false;
-        limitTrigger( e, evnPropDone, ['checked', _old] );
+        limitTrigger( e, evnPropDone, 'checked' );
     }
 }
 
 
 /**
- * select控件选取清除。
+ * <select>控件选取清除。
  * 无 propfail 事件。
  * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
  * @param  {Element} el 控件元素
  * @return {void}
  */
 function clearSelected( el ) {
-    let _old = valHooks.select.get(el);
-
     limitTrigger( el, evnPropSet, ['select', null] );
     el.selectedIndex = -1;
-    limitTrigger( el, evnPropDone, ['select', _old] );
+    limitTrigger( el, evnPropDone, 'select' );
 }
 
 
 /**
- * select控件操作（单选）。
+ * <select>控件操作（单选）。
  * 即便没有匹配项，原选中条目也会被清除选取。
  * 无 propfail 事件。
  * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
@@ -5642,10 +5632,7 @@ function clearSelected( el ) {
  * @return {void}
  */
 function selectOne( el, val ) {
-    let _old = valHooks.select.get(el);
-
     limitTrigger( el, evnPropSet, ['select', val] );
-
     el.selectedIndex = -1;
 
     for ( const op of el.options ) {
@@ -5654,12 +5641,12 @@ function selectOne( el, val ) {
             break;
         }
     }
-    limitTrigger( el, evnPropDone, ['select', _old] );
+    limitTrigger( el, evnPropDone, 'select' );
 }
 
 
 /**
- * select控件操作（多选）。
+ * <select>控件操作（多选）。
  * 匹配项被选取，非匹配项被清除选取。
  * 无 propfail 事件。
  * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
@@ -5668,10 +5655,7 @@ function selectOne( el, val ) {
  * @return {void}
  */
 function selects( el, val ) {
-    let _old = valHooks.select.get(el);
-
     limitTrigger( el, evnPropSet, ['select', val] );
-
     el.selectedIndex = -1;
 
     if ( !isArr(val) ) {
@@ -5682,7 +5666,7 @@ function selects( el, val ) {
             op.selected = val.includes( op.value );
         }
     }
-    limitTrigger( el, evnPropDone, ['select', _old] );
+    limitTrigger( el, evnPropDone, 'select' );
 }
 
 
@@ -5694,37 +5678,34 @@ function selects( el, val ) {
  * @return {void}
  */
 function setStyle( el, name, val ) {
-    let _old = getStyles(el)[name];
-
     limitTrigger( el, evnCssSet, [name, val] );
     try {
         el.style[name] = val;
     }
     catch(e) {
-        return failTrigger( el, evnCssFail, [e, name, _old] );
+        return failTrigger( el, evnCssFail, [e, name, val] );
     }
-    limitTrigger( el, evnCssDone, [name, _old] );
+    limitTrigger( el, evnCssDone, name );
 }
 
 
 /**
  * 类名添加封装。
  * 可一次添加多个名称，但仅发送一次事件。
+ * 注记：第二/三个数据项表示动作（添加）。
  * @param  {Element} el 目标元素
  * @param  {[String]} names 类名集
  * @return {void}
  */
 function addClass( el, names ) {
-    let _old = Arr(el.classList);
-
-    limitTrigger( el, evnClassSet, names );
+    limitTrigger( el, evnClassSet, [names, 'add'] );
     try {
         names.forEach( n => el.classList.add(n) );
     }
     catch(e) {
-        return failTrigger( el, evnClassFail, [e, names, _old] );
+        return failTrigger( el, evnClassFail, [e, names, 'add'] );
     }
-    limitTrigger( el, evnClassDone, _old );
+    limitTrigger( el, evnClassDone, [names, 'add'] );
 }
 
 
@@ -5733,6 +5714,7 @@ function addClass( el, names ) {
  * 事件名同上。
  * 如果名称未传递或为null，会删除全部类名（移除class特性）。
  * 可一次删除多个名称，但仅发送一次事件。
+ * 注记：第二/三个数据项表示动作（移除）。
  * @param  {Element} el 目标元素
  * @param  {[String]|null} names 类名集
  * @return {void}
@@ -5741,37 +5723,34 @@ function removeClass( el, names ) {
     if ( names === null ) {
         return removeAttr( el, 'class' );
     }
-    let _old = Arr(el.classList);
-
-    limitTrigger( el, evnClassSet, names );
+    limitTrigger( el, evnClassSet, [names, 'remove'] );
     try {
         names.forEach( n => el.classList.remove(n) );
     }
     catch(e) {
-        return failTrigger( el, evnClassFail, [e, names, _old] );
+        return failTrigger( el, evnClassFail, [e, names, 'remove'] );
     }
-    limitTrigger( el, evnClassDone, _old );
+    limitTrigger( el, evnClassDone, [names, 'remove'] );
 }
 
 
 /**
  * 类名切换封装。
  * 事件名同上（仅简单切换）。
+ * 注记：第二/三个数据项表示动作（切换）。
  * @param  {Element} el 目标元素
  * @param  {[String]} names 类名集
  * @return {void}
  */
 function toggleClass( el, names ) {
-    let _old = Arr(el.classList);
-
-    limitTrigger( el, evnClassSet, names );
+    limitTrigger( el, evnClassSet, [names, 'toggle'] );
     try {
         names.forEach( n => el.classList.toggle(n) );
     }
     catch(e) {
-        return failTrigger( el, evnClassFail, [e, names, _old] );
+        return failTrigger( el, evnClassFail, [e, names, 'toggle'] );
     }
-    limitTrigger( el, evnClassDone, _old );
+    limitTrigger( el, evnClassDone, [names, 'toggle'] );
 }
 
 
