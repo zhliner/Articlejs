@@ -33,7 +33,14 @@
 //
 
 
-class DOMListener {
+//
+// 节点监听器。
+// 汇集节点改变事件的回溯实例（.back()接口实现者）。
+// 即实现 .undo() 逻辑。
+// 注记：
+// redo() 由上层管理者 History 实例实现。
+//
+class NodeListener {
     /**
      * 构造一个监听器。
      * @param {Number} size 历史长度
@@ -41,7 +48,6 @@ class DOMListener {
     constructor( size ) {
         this._max = size;
         this._buf = [];
-        this._tmp = [];
     }
 
 
@@ -78,218 +84,125 @@ class DOMListener {
 
 
 //
-// 注意：
-// $ 需要局部化，保留之前的值。
+// 历史记录器。
+// 汇集节点改变的操作实例。
+// 管理内部的
 //
-(function( $ ) {
+class History {
 
-    const
-        // 追踪历史存储
-        // [Node|Nodes|Attr|Prop|Value|Style|Scroll|xxx] 实例
-        // 注：仅在修改时记录。
-        __History = [],
-
-        // 代理追踪集。
-        // 成员调用返回false表示未拦截（无关）。
-        __Handles = {},
-
-        // 排除清单。
-        // 清单中的条目不被跟踪记录。
-        __Exclude = {
-            func: new Set(),  // 函数名集
-            attr: new Set(),  // 特性名集
-            prop: new Set(),  // 属性名集
-        };
+    constructor() {
+        this._buf = __History;
+    }
 
 
-//
-// 节点操作（前置记录）
-///////////////////////////////////////////////////////////////////////////////
+    /**
+     * 嵌入代理并开启追踪。
+     * @return {$Proxy}
+     */
+    startup() {
+        $.embedProxy(proxyHandle);
+        return this;
+    }
 
-// 数据节点
-[
-    'before',
-    'after',
-    'prepend',
-    'append',
-    'fill',
-    'replace',
-]
-.forEach( function(fn) {
-    __Handles[fn] = function( el, cons/*, clone, event, eventdeep*/ ) {
-        if (typeof cons == 'function') {
-            cons = cons(el);
+
+    /**
+     * 回退。
+     * @param  {Number} cnt 回退步数
+     * @param  {Array} buf  回退数据存储，可选
+     * @return {Array|this} 回退数据或this
+     */
+    back( cnt = 1, buf = null ) {
+        while (0 < cnt-- && this._buf.length) {
+            let _dt = this._buf.pop().back();
+            if (buf) buf.push(_dt);
         }
-        // 节点可能为克隆，
-        // 需要在新插入的位置处理节点集。
-        return pushStack( new Node2(cons) );
-    };
-});
+        return buf || this;
+    }
 
 
-// 自身内部
-[
-    'html',
-    'text',
-]
-.forEach( function(fn) {
-    __Handles[fn] = function( el, code, where/*, sep*/ ) {
-        if (!el || code === undefined) {
-            return false;
+    /**
+     * 跳转到。
+     * - 支持负数从末尾计算，-1为末尾；
+     * - 跳转到的下标位置的操作已经被回退（pop）；
+     *
+     * @param  {Number} idx 操作历史下标
+     * @param  {Array} buf  回退数据存储，可选
+     * @return {Array|this} 回退数据或this
+     */
+    goto( idx, buf ) {
+        let _cnt = idx < 0 ? -idx : this._buf.length - idx;
+        return this.back(_cnt, buf);
+    }
+
+
+    /**
+     * 修改操作历史栈大小。
+     * @return {Number}
+     */
+    size() {
+        return this._buf.length;
+    }
+
+
+    /**
+     * 清空修改操作历史栈。
+     * @return {this}
+     */
+    clear() {
+        return this._buf.length = 0, this;
+    }
+
+
+    /**
+     * 清除头部数据段。
+     * @param  {Number} len 清除长度
+     * @return {Array} 清除的部分
+     */
+    shift( len = 1 ) {
+        return this._buf.splice(0, len);
+    }
+
+
+    /**
+     * 外部压入接口。
+     * - 压入一个函数或包含back接口的对象；
+     * - 供外部补充$系之外的回退操作；
+     * - 返回压入后栈的大小或无接口时返回false；
+     * 注：
+     * - 接口返回的数据可以在回退时被收集；
+     *
+     * @param  {Object|Function} item 目标对象
+     * @return {Number|false}
+     */
+    push( item ) {
+        let _obj = item;
+
+        if (typeof _obj == 'function') {
+            _obj = { back: item };
         }
-        // fill/replace方式需要跟踪节点丢失。
-        // 新插入的节点集需要处理。
-        return pushStack( new Node2(whereData(el, where)) );
-    };
-});
+        return _obj.back ? this._buf.push(_obj) : false;
+    }
 
 
-//
-// 自身内部
-// 原始返回代理$
-//
-__Handles.normalize = function( el, level ) {
-    let _val = abutTexts(el, !level);
-    if (_val) pushStack( new NormText(_val) );
-};
-
-
-//
-// 自身内部
-// 原始返回代理$
-//
-__Handles.empty = function( el ) {
-    pushStack( new Node2($.contents(el)) );
-};
-
-
-//
-// 节点自身
-// 原始返回调用结果。
-//
-__Handles.detach = function( el ) {
-    return pushStack( new Node(el) ), false;
-};
-
-//
-// 节点自身
-// 原始返回代理$
-//
-__Handles.remove = function( el ) {
-    pushStack( new Node(el) );
-};
-
-
-//
-// 类名修改。
-// 原始返回代理$
-///////////////////////////////////////////////////////////////////////////////
-
-[
-    'addClass',
-    'removeClass',
-    'toggleClass',
-]
-.forEach( function(fn) {
-    __Handles[fn] = function( el ) {
-        if (__Exclude.attr.has('class') || __Exclude.prop.has('className')) {
-            return false;
+    /**
+     * 设置/获取排除清单。
+     * - 传递list为null，清空排除名单；
+     * @param  {String} type 排除类型（func|attr|prop）
+     * @param  {Array|Set} list 名称清单
+     * @return {Array}
+     */
+    exclude( type, list ) {
+        if (list === undefined) {
+            return [ ...__Exclude[type] ];
         }
-        pushStack( new Attr(el, 'class') );
-    };
-});
-
-
-//
-// 属性/特性修改。
-// 取值/设置同一个Api，排除取值调用。
-// 原始返回代理$（设置时）
-///////////////////////////////////////////////////////////////////////////////
-
-__Handles.attr = function( el, names, val ) {
-    if (val === undefined && $.type(names) != 'Object') {
-        return false;
-    }
-    if (!__Exclude.attr.has(names)) pushStack( new Attr(el, keyNames(names)) );
-};
-
-
-__Handles.prop = function(el, names, val) {
-    if (val === undefined && $.type(names) != 'Object') {
-        return false;
-    }
-    if (!__Exclude.prop.has(names)) pushStack( new Prop(el, keyNames(names)) );
-};
-
-
-__Handles.removeAttr = function( el, names ) {
-    if (!__Exclude.attr.has(names)) pushStack( new Attr(el, names) );
-};
-
-
-__Handles.val = function(el, val) {
-    if (val === undefined) {
-        return false;
-    }
-    if (!__Exclude.prop.has('value')) pushStack( new Value(el) );
-};
-
-
-//
-// 样式修改。
-// 取值/设置合一，排除取值调用。
-// 原始返回代理$（设置时）
-///////////////////////////////////////////////////////////////////////////////
-
-__Handles.css = function( el, names, val ) {
-    if (val === undefined && $.type(names) != 'Object') {
-        return false;
-    }
-    pushStack( new Style(el) );
-};
-
-
-__Handles.offset = function( el, val ) {
-    if (val === undefined) {
-        return false;
-    }
-    pushStack( new Style(el) );
-};
-
-
-//
-// 滚动条修改。
-// 取值/设置合一，排除取值调用。
-// 原始返回代理$（设置时）
-///////////////////////////////////////////////////////////////////////////////
-
-[
-    'scrollTop',
-    'scrollLeft',
-]
-.forEach( function(fn) {
-    __Handles[fn] = function( el, val ) {
-        if (val === undefined) {
-            return false;
+        if (list === null) {
+            return __Exclude[type].clear();
         }
-        pushStack( new Scroll(el, fn) );
-    };
-});
+        list.forEach( n => __Exclude[type].add(n) );
+    }
+}
 
 
-//
-// 事件绑定/解绑。
-// 原始返回代理$
-///////////////////////////////////////////////////////////////////////////////
-
-__Handles.on = function( ...args ) {
-    pushStack( new Event( 'off', ...args ) );
-};
-
-
-__Handles.off = function( ...args ) {
-    pushStack( new Event( 'on', ...args ) );
-};
 
 
 
@@ -473,137 +386,197 @@ function proxyCall( ...args ) {
 }
 
 
-/**
- * 获取代理调用函数。
- * - 仅对白名单里的函数进行代理。
- * - 已存储先前的 $，故忽略第二个参数。
- *
- * @param  {String} fn 目标函数名
- * @return {Function} 代理函数
- */
-function proxyHandle( fn/*, $*/ ) {
-    return !__Exclude.func.has(fn) && __Handles[fn] && proxyCall.bind(fn);
-}
 
+/**
+ * 调用回溯接口。
+ * 封装定制事件激发的关闭和开启。
+ * 这在调用回溯接口时需要。
+ * @param {Function} handle 回调函数
+ */
+function callBack( handle ) {
+    let _old = $.config({
+        varyevent: false, bindevent: false
+    });
+    try {
+        return handle();
+    }
+    finally {
+        $.config( _old );
+    }
+}
 
 
 //
-// 基础类定义。
+// 基础操作类。
+// 注意：调用回退（.back）接口时需要关闭定制事件激发。
 ///////////////////////////////////////////////////////////////////////////////
 
-class History {
 
-    constructor() {
-        this._buf = __History;
+//
+// 元素特性修改。
+// 关联事件：attrvary
+//
+class Attr {
+    /**
+     * @param {Element} el 目标元素
+     */
+    constructor( el ) {
+        this._el = el;
     }
 
 
-    /**
-     * 嵌入代理并开启追踪。
-     * @return {$Proxy}
-     */
-    startup() {
-        $.embedProxy(proxyHandle);
-        return this;
+    vary( name ) {
+        this._name = name;
+        this._old = $.attr( el, name );
     }
 
 
-    /**
-     * 回退。
-     * @param  {Number} cnt 回退步数
-     * @param  {Array} buf  回退数据存储，可选
-     * @return {Array|this} 回退数据或this
-     */
-    back( cnt = 1, buf = null ) {
-        while (0 < cnt-- && this._buf.length) {
-            let _dt = this._buf.pop().back();
-            if (buf) buf.push(_dt);
-        }
-        return buf || this;
-    }
-
-
-    /**
-     * 跳转到。
-     * - 支持负数从末尾计算，-1为末尾；
-     * - 跳转到的下标位置的操作已经被回退（pop）；
-     *
-     * @param  {Number} idx 操作历史下标
-     * @param  {Array} buf  回退数据存储，可选
-     * @return {Array|this} 回退数据或this
-     */
-    goto( idx, buf ) {
-        let _cnt = idx < 0 ? -idx : this._buf.length - idx;
-        return this.back(_cnt, buf);
-    }
-
-
-    /**
-     * 修改操作历史栈大小。
-     * @return {Number}
-     */
-    size() {
-        return this._buf.length;
-    }
-
-
-    /**
-     * 清空修改操作历史栈。
-     * @return {this}
-     */
-    clear() {
-        return this._buf.length = 0, this;
-    }
-
-
-    /**
-     * 清除头部数据段。
-     * @param  {Number} len 清除长度
-     * @return {Array} 清除的部分
-     */
-    shift( len = 1 ) {
-        return this._buf.splice(0, len);
-    }
-
-
-    /**
-     * 外部压入接口。
-     * - 压入一个函数或包含back接口的对象；
-     * - 供外部补充$系之外的回退操作；
-     * - 返回压入后栈的大小或无接口时返回false；
-     * 注：
-     * - 接口返回的数据可以在回退时被收集；
-     *
-     * @param  {Object|Function} item 目标对象
-     * @return {Number|false}
-     */
-    push( item ) {
-        let _obj = item;
-
-        if (typeof _obj == 'function') {
-            _obj = { back: item };
-        }
-        return _obj.back ? this._buf.push(_obj) : false;
-    }
-
-
-    /**
-     * 设置/获取排除清单。
-     * - 传递list为null，清空排除名单；
-     * @param  {String} type 排除类型（func|attr|prop）
-     * @param  {Array|Set} list 名称清单
-     * @return {Array}
-     */
-    exclude( type, list ) {
-        if (list === undefined) {
-            return [ ...__Exclude[type] ];
-        }
-        if (list === null) {
-            return __Exclude[type].clear();
-        }
-        list.forEach( n => __Exclude[type].add(n) );
+    back() {
+        $.attr( this._el, this._name, this._old );
     }
 }
+
+
+//
+// 元素属性修改。
+// 关联事件：propvary
+// 注记：
+// select名称是操作<select>控件的定制名。
+//
+class Prop {
+    /**
+     * @param {Element} el 目标元素
+     */
+    constructor( el ) {
+        this._el = el;
+    }
+
+
+    vary( name ) {
+        this._name = name;
+
+        if ( name == 'select' ) {
+            this._old = $.val( this._el );
+        } else {
+            this._old = $.prop( this._el, name );
+        }
+    }
+
+
+    back() {
+        if ( this._name == 'select' ) {
+            return $.val( this._el, this._old );
+        }
+        $.prop( this._el, this._name, this._old );
+    }
+}
+
+
+//
+// 内联样式修改。
+// 关联事件：cssvary
+//
+class Style {
+    /**
+     * @param {Element} el 目标元素
+     */
+    constructor( el ) {
+        this._el = el;
+    }
+
+
+    vary() {
+        // 简化处理且保持内容顺序。
+        this._old = this._el.style.cssText;
+    }
+
+
+    back() {
+        this._el.style.cssText = this._old;
+    }
+}
+
+
+//
+// 元素类名修改。
+//
+class Class {
+    /**
+     * @param {Element} el 目标元素
+     */
+    constructor( el ) {
+        this._el = el;
+    }
+
+
+    vary() {
+        this._old = $.classAll( this._el );
+    }
+
+
+    back() {
+        $.removeClass( this._el );
+
+        if ( this._old.length > 0 ) {
+            $.addClass( this._el, this._old );
+        }
+    }
+}
+
+
+//
+// 事件绑定操作。
+// 关联事件：bound
+//
+class Bound {
+    /**
+     * @param {Element} el 目标元素
+     */
+    constructor( el ) {
+        this._el = el;
+    }
+
+
+    back() {
+    }
+}
+
+
+//
+// 事件解绑操作。
+// 关联事件：unbound
+//
+class Unbound {
+    /**
+     * @param {Element} el 目标元素
+     */
+    constructor( el ) {
+        this._el = el;
+    }
+
+
+    back() {
+    }
+}
+
+
+//
+// 单次绑定事件操作。
+// 关联事件：boundone
+//
+class Boundone {
+    /**
+     * @param {Element} el 目标元素
+     */
+    constructor( el ) {
+        this._el = el;
+    }
+
+
+    back() {
+    }
+}
+
 
 
 //
@@ -726,66 +699,6 @@ class NormText {
 
 
 //
-// 特性操作类。
-// 注记：单个字符串名称已在__Handles中检查过滤。
-// @data {Map} 特性值（集）
-//
-class Attr {
-    /**
-     * @param {Element} el 目标元素
-     * @param {String|Array} 特性名（集）
-     */
-    constructor( el, names ) {
-        this._data = $.attr(el, cleanList(names, 'attr'));
-        // 无属性的设置值为null
-        if (this._data === undefined) {
-            this._data = null;
-        }
-        this._el = el;
-        this._names = names;
-    }
-
-
-    back() {
-        if ($.isArray(this._names)) {
-            $.attr(this._el, $.mapObj(this._data));
-        } else {
-            $.attr(this._el, this._names, this._data);
-        }
-        return this._data;
-    }
-}
-
-
-//
-// 属性操作类。
-// 注记：（类似同Attr）
-// @data {Map} 属性值（集）
-//
-class Prop {
-    /**
-     * @param {Element} el 目标元素
-     * @param {String|Array} 属性名（集）
-     */
-    constructor( el, names ) {
-        this._data = $.prop(el, cleanList(names, 'prop'));
-        this._el = el;
-        this._names = names;
-    }
-
-
-    back() {
-        if ($.isArray(this._names)) {
-            $.prop(this._el, $.mapObj(this._data));
-        } else {
-            $.prop(this._el, this._names, this._data);
-        }
-        return this._data;
-    }
-}
-
-
-//
 // 值属性操作。
 // @data {String|Boolean|Number|Array} value属性值
 //
@@ -803,75 +716,7 @@ class Value {
 }
 
 
-//
-// 内联样式操作。
-// @data {String} 样式属性全值
-//
-class Style {
-    /**
-     * @param {Element} el 目标元素
-     */
-    constructor( el ) {
-        this._data = el.style.cssText;
-        this._el = el;
-    }
-
-
-    back() {
-        this._el.style.cssText = this._data;
-        return this._data;
-    }
-}
-
-
-//
-// 滚动条操作。
-// @data {Number} 当前位置
-//
-class Scroll {
-    /**
-     * @param {Element} box 滚动容器
-     * @param {String} fn 滚动函数名（scrollTop|scrollLeft）
-     */
-    constructor( box, fn ) {
-        this._data = $[fn](box);
-        this._box = box;
-        this._fn = fn;
-    }
-
-
-    back() {
-        $[this._fn](this._box, this._data);
-        return this._data;
-    }
-}
-
-
-//
-// 事件监听操作。
-//
-class Event {
-    /**
-     * @param {String} op  操作类型（on|off）
-     * @param {...Mixed} args $.on|.off参数序列
-     */
-    constructor( op, ...args ) {
-        this._op = op;
-        this._data = args;
-    }
-
-
-    back() {
-        $[this._op](...this._data);
-        return this._data;
-    }
-}
-
-
 // Expose
 ///////////////////////////////////////////////////////////////////////////////
 
 $.Fx.Tracker = new History().startup();
-
-
-})( window.$ );
