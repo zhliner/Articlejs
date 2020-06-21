@@ -1479,7 +1479,7 @@ Object.assign( tQuery, {
      * - 支持空格分隔的类名序列。
      * - 支持回调函数获取类名，接口：function([name]):String。
      * @param  {Element} el 目标元素
-     * @param  {String|Function} names
+     * @param  {String|[String]|Function} names
      * @return {Element} el
      */
     addClass( el, names ) {
@@ -1487,9 +1487,9 @@ Object.assign( tQuery, {
             names = names( Arr(el.classList) );
         }
         if (typeof names == 'string') {
-            addClass( el, names.trim().split(__reSpace) );
+            names = names.trim().split(__reSpace);
         }
-        return el;
+        return addClass( el, names ), el;
     },
 
 
@@ -1499,7 +1499,7 @@ Object.assign( tQuery, {
      * - 支持回调函数获取类名，接口：function([name]):String。
      * - 未指定名称移除全部类名（删除class属性）。
      * @param  {Element} el 目标元素
-     * @param  {String|Function} names
+     * @param  {String|[String]|Function} names
      * @return {Element} el
      */
     removeClass( el, names ) {
@@ -1507,11 +1507,13 @@ Object.assign( tQuery, {
             names = names( Arr(el.classList) );
         }
         if (names == null) {
-            return removeClass(el, names), el;
+            return removeClass(el, null), el;
         }
         if ( typeof names == 'string' ) {
-            removeClass( el, names.trim().split(__reSpace) );
+            names = names.trim().split(__reSpace);
         }
+        removeClass( el, names );
+
         if (el.classList.length == 0) {
             // 清理：不激发attr系事件。
             el.removeAttribute('class');
@@ -1536,10 +1538,13 @@ Object.assign( tQuery, {
             val = val( Arr(el.classList) );
         }
         if ( !val) {
-            classAttrToggle( el );
-        } else {
-            classToggle(el, val.trim().split(__reSpace), force);
+            return classAttrToggle( el ), el;
         }
+        if ( typeof val == 'string' ) {
+            val = val.trim().split(__reSpace);
+        }
+        classToggle(el, val, force);
+
         if (el.classList.length == 0) {
             // 清理：不激发attr系事件
             el.removeAttribute('class');
@@ -1570,14 +1575,14 @@ Object.assign( tQuery, {
      * 获取元素的类名集。
      * 如果没有任何定义，返回一个空串（而非一个空数组）。
      * @param  {Element} el 目标元素
-     * @return {[String]|''} 类名集（或空串）
+     * @return {[String]} 类名集
      */
     classAll( el ) {
         if ( el.nodeType != 1 ) {
             window.console.error('el is not a element.');
             return null;
         }
-        return el.className && Arr( el.classList );
+        return Arr( el.classList );
     },
 
 

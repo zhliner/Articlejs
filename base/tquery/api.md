@@ -806,11 +806,11 @@ option: {
 
 ### $.classAll( el ): [String]
 
-获取元素 `el` 的类名集。注意不是 `$.attr(el, 'class')` 的结果，而是一个名称数组。非元素实参返回一个 `null`。本接口也有**集合版**，会合并集合内所有元素的类名为一个一维数组。
+获取元素 `el` 的类名集。注意不是 `$.attr(el, 'class')` 的结果，而是一个名称数组。非元素实参返回一个 `null`。本接口也有**集合版**，返回集合内各元素对应的类名数组（二维）。
 
 - `el: Element` 取值的目标元素。
 
-如果元素上没有任何 `class` 的定义，返回一个空串（即 `el.className` 的值）。
+如果元素上没有任何 `class` 的定义，返回一个空数组。
 
 
 ### [$.attribute( el, names, value ): Value | Object | Element](docs/$.attribute.md)
