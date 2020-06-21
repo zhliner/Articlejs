@@ -527,12 +527,18 @@ function tQuery( its, ctx ) {
 
 //
 // 功能配置。
-// 目前仅支持 varyevent:{Boolean}
-// 无参数调用返回内部配置对象的一个副本。
-// 设置时返回的是内部原始的配置对象。
+// 无参数调用返回内部配置对象。
+// 否则设置时返回原配置对象的一个副本。
 //
-tQuery.config = option =>
-    Object.assign( option ? Options : {}, option || Options );
+tQuery.config = function( option ) {
+    if ( !option ) {
+        return Options;
+    }
+    let _old = Object.assign( {}, Options );
+    Object.assign( Options, option );
+
+    return _old;
+}
 
 
 //
@@ -5569,7 +5575,7 @@ function setAttr( el, name, val ) {
 /**
  * 属性设置封装。
  * @param  {Element} el 目标元素
- * @param  {String} name 普通属性名
+ * @param  {String} name 属性名（普通形式）
  * @param  {String} dname data属性名
  * @param  {Value} val 属性值
  * @return {void}

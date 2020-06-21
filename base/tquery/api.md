@@ -244,6 +244,20 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 如果文档已就绪并已调用 `ready()` 注册的回调，本操作无效（同 jQuery）。
 
 
+### config( option? ): Object
+
+配置 tQuery 节点变化定制事件是否开启（默认值 `null`，关闭）。
+
+- `option: Object` 配置对象。目前支持 `varyevent:Boolean` 和 `bindevent:Boolean` 两个选项。
+
+```js
+option: {
+    varyevent: Boolean,  // 节点变化类事件，true 开启，false 关闭。
+    bindevent: Boolean,  // 事件注册类事件，true 开启，false 关闭。
+}
+```
+
+
 ### $.Fx = {}
 
 一个空的功能扩展区，由外部扩展使用。这只是一个名称空间约定。
