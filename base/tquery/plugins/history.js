@@ -319,12 +319,11 @@ function textNodes( box, all ) {
 /**
  * 提取节点引用参考。
  * @param  {Node} node 目标节点
- * @return {Array} [prev, parend]
+ * @return {Array2} [prev, parent]
  */
 function nodeRefs( node ) {
     return [
-        node.previousSibling,
-        node.previousSibling || node.parentNode
+        node.previousSibling, node.parentElement
     ];
 }
 
@@ -403,6 +402,29 @@ function callBack( handle ) {
     finally {
         $.config( _old );
     }
+}
+
+
+function textNodes( el, buf = [] ) {
+    for (const nd of el.childNodes) {
+        let _t = nd.nodeType;
+        if ( _t === 1 ) textNodes( nd, buf );
+        else if ( _t === 3 ) buf.push( nd );
+    }
+    return buf;
+}
+
+
+/**
+ * 相邻节点过滤器。
+ * 检查集合中的节点是否为相邻节点。
+ * @param {Node} cur 当前节点
+ * @param {Node|undefined} prev 集合中前一个节点
+ * @param {Node|undefined} next 集合中下一个节点
+ */
+function adjacent( cur, prev, next ) {
+    // null !== undefined
+    return cur.previousSibling === prev || cur.nextSibling === next;
 }
 
 
@@ -537,7 +559,15 @@ class Bound {
     }
 
 
+    vary( evn, slr, handle ) {
+        this._evn = evn;
+        this._slr = slr;
+        this._handle = handle;
+    }
+
+
     back() {
+        $.off( this._el, this._evn, this._slr, this._handle );
     }
 }
 
@@ -555,7 +585,15 @@ class Unbound {
     }
 
 
+    vary( evn, slr, handle ) {
+        this._evn = evn;
+        this._slr = slr;
+        this._handle = handle;
+    }
+
+
     back() {
+        $.on( this._el, this._evn, this._slr, this._handle );
     }
 }
 
@@ -563,6 +601,8 @@ class Unbound {
 //
 // 单次绑定事件操作。
 // 关联事件：boundone
+// 注记：
+// 可能已经由于事件触发自动解绑，不过这里的解绑是无害的。
 //
 class Boundone {
     /**
@@ -573,145 +613,157 @@ class Boundone {
     }
 
 
+    vary( evn, slr, handle ) {
+        this._evn = evn;
+        this._slr = slr;
+        this._handle = handle;
+    }
+
+
     back() {
+        $.off( this._el, this._evn, this._slr, this._handle );
     }
 }
 
 
+//
+// 节点操作类。
+// 因为DOM节点是移动式操作，故仅需记录节点的脱离行为。
+//////////////////////////////////////////////////////////////////////////////
+
 
 //
-// 节点单操作。
-// - 仅包含恢复到DOM中的行为；
-// @data {Node} 节点元素
+// 节点通用操作类。
+// 关联事件：nodevary
+//
+class NodeVary {
+    /**
+     * @param {Node|[Node]} data 数据节点/集
+     * @param {String} type 插入方法
+     */
+    constructor( data, type ) {
+        this._obj = this._init( data, type );
+    }
+
+
+    back() {
+        this._obj.back();
+    }
+
+
+    _init( data, type ) {
+        // 兄弟关系。
+        if ( type == 'removes' || type == 'empty' ) {
+            return new Siblings(data);
+        }
+        if ( type == 'normalize' ) {
+            return new Texts(data);
+        }
+        return $.isArray(data) ? new Nodes(data) : Node(data);
+    }
+}
+
+
+//
+// 单节点操作。
 //
 class Node {
     /**
-     * @param {Node|null} data 数据节点
+     * @param {Node} node 数据节点
      */
-    constructor( data ) {
-        if (data) {
-            [this._prev, this._box] = nodeRefs(data);
-        }
-        this._data = data;
+    constructor( node ) {
+        this._prev = node.previousSibling;
+        this._box  = node.parentElement;
+        this._data = node;
     }
 
 
     back() {
-        if (this._prev) {
-            $.after(this._prev, this._data);
+        if ( this._prev ) {
+            return $.after( this._prev, this._data );
         }
-        // 可能为离散节点
-        else if (this._box) {
-            $.prepend(this._box, this._data);
+        if (this._box) {
+            $.prepend( this._box, this._data );
         }
-        return this._data;
     }
 }
 
 
 //
-// 节点双操作。
-// - 包含新内容的移除和原节点的恢复；
-// @data  {Array} 节点集
-// @value {Node[s]} 调用返回值存储（外部赋值）
+// 多节点操作。
 //
-class Node2 {
+class Nodes {
     /**
-     * @param {Node|Array|null} data 数据（集）
+     * @param {[Node]} data 数据节点集
      */
     constructor( data ) {
-        this._data = data;
-
-        if (!$.isArray(data)) {
-            data = [data];
-        }
-        this._sets = data.map( nd => new Node(nd) );
-
-        this.value = null;
+        this._buf = data.map( nd => new Node(nd) );
     }
 
 
     back() {
-        if (this.value) {
-            $(this.value).remove();
-        }
-        this._sets.forEach( it => it.back() );
+        this._buf.forEach( nd => nd.back() );
+    }
+}
 
-        return this._data;
+
+//
+// 兄弟节点操作。
+// 注记：
+// 实际上也可用Nodes代替，这是一个优化。
+//
+class Siblings {
+    /**
+     * 容错空集忽略。
+     * @param {Node} nodes 数据节点集（兄弟）
+     */
+    constructor( nodes ) {
+        if ( nodes.length ) {
+            this._prev = nodes[0].previousSibling;
+            this._box  = nodes[0].parentElement;
+            this._data = nodes;
+        }
+    }
+
+
+    back() {
+        if ( this._prev ) {
+            return $.after( this._prev, this._data );
+        }
+        if (this._box) {
+            $.prepend( this._box, this._data );
+        }
     }
 }
 
 
 //
 // 文本节点恢复。
-// 处理normalize的回退（单个）。
-// @data {Set} 文本节点集
+// 处理normalize的回退。
 //
 class Texts {
     /**
-     * 节点数据为集合时，会传递first求取参考节点；
-     * 否则为单个节点，直接求取其参考。
-     * @param {Set} set 文本节点集
+     * @param {Element} el 目标元素
      */
-    constructor( set ) {
-        [this._prev, this._box] = nodeRefs( first(set) );
-        this._data = set;
-    }
-
-
-    //
-    // 规范化后的文本节点只有一个，
-    // 先删除后恢复，UI动静较小。
-    //
-    back() {
-        if (this._prev) {
-            $.remove(this._prev.nextSibling);
-            $.after(this._prev, this._data);
-        } else {
-            $.remove(this._box.firstChild);
-            $.prepend(this._box, this._data);
-        }
-        return this._data;
-    }
-}
-
-
-//
-// 规范化文本。
-// 处理normalize的回退。
-//
-class NormText {
-    /**
-     * 相邻文本节点集序列。
-     * @param {[Set]} sets 节点集数组
-     */
-    constructor( sets ) {
-        this._data = sets;
-        this._sets = sets.map( it => new Texts(it) );
-    }
-
-
-    back() {
-        this._sets.forEach( it => it.back() );
-        return this._data;
-    }
-}
-
-
-//
-// 值属性操作。
-// @data {String|Boolean|Number|Array} value属性值
-//
-class Value {
     constructor( el ) {
-        this._data = $.val(el);
-        this._el = el;
+        this._obj = new Nodes( this._nodes(el) );
     }
 
 
     back() {
-        $.val(this._el, this._data);
-        return this._data;
+        this._obj.back();
+    }
+
+
+    /**
+     * 检索获取元素内相邻文本节点集。
+     * @param  {Element} el 容器元素
+     * @return {[Node]}
+     */
+    _nodes( el ) {
+        return textNodes(el).filter(
+            (nd, i, arr) => adjacent( nd, arr[i-1], arr[i+1] )
+        );
     }
 }
 

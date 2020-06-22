@@ -1388,23 +1388,16 @@ Object.assign( tQuery, {
 
     /**
      * 内容节点规范化。
-     * - 合并相邻文本节点，元素同名Api的简单封装。
-     * - level参数是一个告知，说明实际会影响的子孙元素的层级（子元素为1，0表示全部）。
-     * - 如果您不理解level参数的用途，简单忽略即可。
-     * 说明：
-     * - DOM原生normalize接口会处理所有子孙节点，没有办法由用户控制。
-     * - 这是一个对DOM树进行修改的接口，因此需要向事件处理器提供信息。
-     * - 这里只能设计为由用户主动告知（用于优化）。
-     *
+     * 合并相邻文本节点，这只是元素同名Api的简单封装，
+     * 但提供定制事件通知机制。
      * @param  {Element} el  目标元素
-     * @param  {Number} depth 影响的子元素深度
      * @return {Element} 目标元素
      */
-    normalize( el, depth = 0 ) {
+    normalize( el ) {
         if (el.nodeType !== 1) {
             throw new Error(`[${el}] is not a element.`);
         }
-        return varyNormalize( el, depth );
+        return varyNormalize( el );
     },
 
 
@@ -5861,10 +5854,10 @@ function varyEmpty( el ) {
  * @param  {Number} depth 影响的子元素深度
  * @return {Element} el
  */
-function varyNormalize( el, depth ) {
+function varyNormalize( el ) {
     let _msg = {
             type: 'normalize',
-            data: depth,
+            data: null,
         };
     limitTrigger( el, evnNodeVary, _msg );
     el.normalize();
@@ -5943,7 +5936,7 @@ function varyRemoves( subs, box ) {
 
 /**
  * 元素填充。
- * 包含事件：[empty, append]。
+ * 包含操作：[empty, append]。
  * @param  {Element} el 目标元素
  * @param  {Node|[Node]} nodes 数据节点（集）
  * @return {Node|[Node]} nodes
