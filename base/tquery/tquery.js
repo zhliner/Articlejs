@@ -1388,8 +1388,7 @@ Object.assign( tQuery, {
 
     /**
      * 内容节点规范化。
-     * 合并相邻文本节点，这只是元素同名Api的简单封装，
-     * 但提供定制事件通知机制。
+     * 合并相邻文本节点，提供定制事件通知机制。
      * @param  {Element} el  目标元素
      * @return {Element} 目标元素
      */
@@ -5851,13 +5850,12 @@ function varyEmpty( el ) {
  * 元素内容规范化封装。
  * 注：无 nodefail 事件。
  * @param  {Element} el 目标元素
- * @param  {Number} depth 影响的子元素深度
  * @return {Element} el
  */
 function varyNormalize( el ) {
     let _msg = {
             type: 'normalize',
-            data: null,
+            data: el,
         };
     limitTrigger( el, evnNodeVary, _msg );
     el.normalize();
