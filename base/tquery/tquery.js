@@ -81,9 +81,11 @@
 
 	"use strict";
 
+	// eslint-disable-next-line no-undef
 	if ( typeof module === "object" && typeof module.exports === "object" ) {
 
 		// jQuery v3.4.1.
+		// eslint-disable-next-line no-undef
 		module.exports = global.document ?
 			factory( global, true ) :
 			function( w ) {
@@ -5785,7 +5787,7 @@ function varyNodes( el, meth, nodes ) {
     }
     let _msg = {
             // replaceWith => replace
-            type: meth.substring(0, 7),
+            method: meth.substring(0, 7),
             data: nodes,
         };
 
@@ -5814,7 +5816,7 @@ function varyNodes( el, meth, nodes ) {
     let _pel = node.parentElement;
     if ( _pel ) {
         let _msg = {
-            type: 'remove',
+            method: 'remove',
             data: node,
         };
         limitTrigger( _pel, evnNodeVary, _msg );
@@ -5835,7 +5837,7 @@ function varyNodes( el, meth, nodes ) {
 function varyEmpty( el ) {
     let _nodes = Arr(el.childNodes),
         _msg = {
-            type: 'empty',
+            method: 'empty',
             data: _nodes,
         };
     limitTrigger( el, evnNodeVary, _msg );
@@ -5854,7 +5856,7 @@ function varyEmpty( el ) {
  */
 function varyNormalize( el ) {
     let _msg = {
-            type: 'normalize',
+            method: 'normalize',
             data: el,
         };
     limitTrigger( el, evnNodeVary, _msg );
@@ -5876,7 +5878,7 @@ function varyNormalize( el ) {
  */
 function varyNewNode( el, meth, node ) {
     let _msg = {
-            type: meth,
+            method: meth,
             data: node,
         };
     limitTrigger( el, evnNodeVary, _msg );
@@ -5898,7 +5900,7 @@ function varyNewNode( el, meth, node ) {
  */
 function varyNewNodes( el, meth, nodes ) {
     let _msg = {
-            type: meth.substring(0, 7),
+            method: meth.substring(0, 7),
             data: nodes,
         };
     limitTrigger( el, evnNodeVary, _msg );
@@ -5921,7 +5923,7 @@ function varyNewNodes( el, meth, nodes ) {
 function varyRemoves( subs, box ) {
     if ( box ) {
         let _msg = {
-                type: 'removes',
+                method: 'removes',
                 data: subs,
             };
         limitTrigger( box, evnNodeVary, _msg );
@@ -6623,7 +6625,7 @@ const Event = {
             if (_m1.size == 0) {
                 this.store.delete(el);
             }
-        };
+        }
         return this;
     },
 
@@ -6658,7 +6660,7 @@ const Event = {
                             v3[2] ? this._onceHandler(to, n, v3[0], v3[1], _pool, h) : v3[0],
                             v3[1]
                         );
-                        boundTrigger( el, v3[2] ? evnBoundone : evnBound, n, s, h );
+                        boundTrigger(to, v3[2] ? evnBoundone : evnBound, n, s, h);
                     }
                 }
             }
