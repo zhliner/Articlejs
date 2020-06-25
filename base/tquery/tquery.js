@@ -6800,7 +6800,7 @@ const Event = {
     /**
      * 构造单次调用处理器。
      * 执行之后会自动移除绑定和配置存储。
-     * 注：自动解绑由用户触发，不执行解绑通知（evnUnbound）。
+     * 由用户触发的自动解绑也有解绑通知（evnUnbound）。
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名
      * @param  {Function} bound 普通封装处理器
