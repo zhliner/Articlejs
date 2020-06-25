@@ -6601,7 +6601,7 @@ const Event = {
 
         el.addEventListener(
             _evn,
-            this._onceHandler( el, _evn, _bound, _cap, _pool, handle ),
+            this._onceHandler( el, _evn, _bound, _cap, _pool, slr, handle ),
             _cap
         );
         return boundTrigger( el, evnBoundone, evn, slr, handle );
@@ -6663,7 +6663,7 @@ const Event = {
                         let _pool = this.buffer( to, n, s );
                         to.addEventListener(
                             n,
-                            v3[2] ? this._onceHandler(to, n, v3[0], v3[1], _pool, h) : v3[0],
+                            v3[2] ? this._onceHandler(to, n, v3[0], v3[1], _pool, s, h) : v3[0],
                             v3[1]
                         );
                         boundTrigger(to, v3[2] ? evnBoundone : evnBound, n, s, h);
@@ -6807,14 +6807,20 @@ const Event = {
      * @param  {Function} bound 普通封装处理器
      * @param  {Boolean} cap 是否为捕获
      * @param  {Map} pool 末端存储器
+     * @param  {String} slr 委托选择器
      * @param  {Function} handle 用户处理器
      * @return {Function} 封装处理器（单次逻辑）
      */
-    _onceHandler( el, evn, bound, cap, pool, handle ) {
+    _onceHandler( el, evn, bound, cap, pool, slr, handle ) {
         return function caller(...args) {
-            pool.delete(handle);
-            el.removeEventListener(evn, caller, cap);
-            return bound(...args);
+            try {
+                return bound(...args);
+            }
+            finally {
+                pool.delete( handle );
+                el.removeEventListener( evn, caller, cap );
+                boundTrigger( el, evnUnbound, evn, slr, handle, true );
+            }
         };
     },
 
