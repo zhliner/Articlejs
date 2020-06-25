@@ -5481,9 +5481,13 @@ const
  * @return {Boolean|null}
  */
 function limitTrigger( el, evn, data ) {
-    return Options.varyevent && el.dispatchEvent(
-        new CustomEvent( evn, {detail: data, bubbles: true, cancelable: false} )
-    );
+    return Options.varyevent &&
+        el.dispatchEvent(
+            new CustomEvent(
+                evn,
+                { detail: data, bubbles: true, cancelable: false }
+            )
+        );
 }
 
 
@@ -5509,11 +5513,11 @@ function failTrigger( el, evn, data ) {
  * 激发事件绑定事件。
  * 事件冒泡，不可取消。
  * 适用：tQuery.on|one, tQuery.off接口。
- * 发送数据：{
+ * 发送数据：[
  *      type,       绑定事件名
  *      selector,   委托选择器
- *      handler     事件处理器
- * }
+ *      handler,    事件处理器
+ * ]
   * 返回值：
  * - 返回 null 表示未配置定制事件发送。
  * - 返回 Boolean 类型则为 Element.dispatchEvent() 的返回值。
@@ -5522,16 +5526,18 @@ function failTrigger( el, evn, data ) {
  * @param  {String} type 绑定事件名
  * @param  {String} selector 委托选择器
  * @param  {Function|EventListener} handler 事件处理器
+ * @param  {Boolean} once 是否单次绑定
  * @return {Boolean|null}
  */
-function boundTrigger( el, evn, type, selector, handler ) {
-    return Options.bindevent && el.dispatchEvent(
-        new CustomEvent( evn, {
-            detail: { type, selector, handler },
-            bubbles: true,
-            cancelable: false
-        })
-    );
+function boundTrigger( el, evn, type, selector, handler, once ) {
+    return Options.bindevent &&
+        el.dispatchEvent(
+            new CustomEvent( evn, {
+                detail: [ type, selector, handler, once ],
+                bubbles: true,
+                cancelable: false
+            })
+        );
 }
 
 
@@ -6926,9 +6932,9 @@ const Event = {
     _clearAll( el, map1 ) {
         for (let [n, m2] of map1) {
             for (const [s, m3] of m2) {
-                for (const [h, av] of m3) {
-                    el.removeEventListener( n, av[0], av[1] );
-                    boundTrigger( el, evnUnbound, n, s, h );
+                for (const [h, v3] of m3) {
+                    el.removeEventListener( n, v3[0], v3[1] );
+                    boundTrigger( el, evnUnbound, n, s, h, v3[2] );
                 }
             }
         }
@@ -6951,11 +6957,11 @@ const Event = {
 
         for (let [n, m2] of map1) {
             for (const [s, m3] of m2) {
-                for (const [h, av] of m3) {
+                for (const [h, v3] of m3) {
                     if ( _fltr(n, s, h) ) {
-                        el.removeEventListener( n, av[0], av[1] );
+                        el.removeEventListener( n, v3[0], v3[1] );
                         m3.delete( h );
-                        boundTrigger( el, evnUnbound, n, s, h );
+                        boundTrigger( el, evnUnbound, n, s, h, v3[2] );
                     }
                 }
                 if ( m3.size == 0 ) m2.delete( s );
