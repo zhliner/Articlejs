@@ -21,5 +21,8 @@
   "homepage": "https://github.com/zhliner/Articlejs#readme",
   "devDependencies": {
     "eslint": "^5.16.0"
+  },
+  "dependencies": {
+    "espree": "^7.1.0"
   }
 }

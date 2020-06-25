@@ -6581,8 +6581,7 @@ const Event = {
 
     /**
      * 单次绑定执行。
-     * - 执行一次之后自动删除绑定。
-     * - 连续的多次绑定是有效的。
+     * 执行一次之后自动解除绑定。
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
      * @param {String} slr 委托选择器，可选
@@ -6640,8 +6639,6 @@ const Event = {
      * 事件绑定克隆。
      * 可以传递事件名序列，只克隆相应事件名的绑定。
      * 如果没有传递事件名集，则全部事件绑定都会克隆。
-     * 注记：
-     * 事件处理器和事件配置会共享同一个对象。
      * @param  {Element} to  目标元素
      * @param  {Element} src 事件源元素
      * @param  {[String]|Function} evns 事件名序列或过滤回调，可选
@@ -6660,10 +6657,12 @@ const Event = {
                 for (const [h, v3] of sm) {
                     // h:handle
                     if ( _fltr(n, s, h ) ) {
-                        let _pool = this.buffer( to, n, s );
+                        let _pool = this.buffer( to, n, s ),
+                            _call = this.setBuffer( _pool, h, v3[0], v3[1], v3[2] );
+
                         to.addEventListener(
                             n,
-                            v3[2] ? this._onceHandler(to, n, v3[0], v3[1], _pool, s, h) : v3[0],
+                            v3[2] ? this._onceHandler(to, n, _call, v3[1], _pool, s, h) : _call,
                             v3[1]
                         );
                         boundTrigger(to, v3[2] ? evnBoundone : evnBound, n, s, h);
@@ -6898,7 +6897,7 @@ const Event = {
 
     /**
      * 事件原始记录匹配器。
-     * @param  {[String]} evns 匹配事件名集
+     * @param  {[String]|Function} evns 匹配事件名集或过滤函数
      * @return {Function} 匹配函数
      */
     _compRecord( evns ) {
