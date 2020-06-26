@@ -25,7 +25,7 @@
 //  仅限于tQuery接口调用，如果用户直接调用DOM接口修改节点则无法跟踪。
 //
 //  使用：
-//  将事件处理器绑定到根元素上，即可追踪该元素及其下子元素（target）的变化。
+//  将事件处理器绑定到根元素上，即可追踪其子孙元素（target）的变化。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,9 +87,7 @@ class History {
      * @param {CustomEvent} ev 定制事件对象
      */
     handleEvent( ev ) {
-        this.push(
-            __varyHandles[ev.type]( ev )
-        );
+        this.push( __varyHandles[ev.type](ev) );
     }
 
 
@@ -99,6 +97,7 @@ class History {
      */
     undo( n ) {
         this._buf.splice( -n )
+            .reverse()
             .forEach( obj => obj.back() );
     }
 
