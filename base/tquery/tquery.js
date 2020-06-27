@@ -1509,7 +1509,7 @@ Object.assign( tQuery, {
         removeClass( el, names );
 
         if (el.classList.length == 0) {
-            // 清理：不激发attr系事件。
+            // 清理，与attr系事件无关。
             el.removeAttribute('class');
         }
         return el;
@@ -1540,7 +1540,7 @@ Object.assign( tQuery, {
         classToggle( el, val, force );
 
         if ( el.classList.length == 0 ) {
-            // 清理：不激发attr系事件
+            // 清理，与attr系事件无关。
             el.removeAttribute( 'class' );
         }
         return el;
@@ -1915,7 +1915,7 @@ Object.assign( tQuery, {
         cssSet( el, name, val, _cso );
 
         if (el.style.cssText.trim() == '') {
-            // 清理，与attr无关。
+            // 清理，与attr系事件无关。
             el.removeAttribute('style');
         }
         return el;
@@ -1958,7 +1958,7 @@ Object.assign( tQuery, {
         cssSets(el, names, val, getStyles(el));
 
         if (el.style.cssText == '') {
-            // 清理，与attr无关。
+            // 清理，与attr系事件无关。
             el.removeAttribute('style');
         }
         return el;
