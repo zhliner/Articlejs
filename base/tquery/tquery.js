@@ -1519,8 +1519,8 @@ Object.assign( tQuery, {
     /**
      * 类名切换。
      * - 支持空格分隔的多个类名。
-     * - 支持回调函数获取类名，接口：function([name]):String。
-     * - 无val传递时针对整个类名属性切换。
+     * - 支持回调函数获取类名，接口：function([name]):String|[String]。
+     * - 无val传递时切换全部类名。
      * 注：可正确处理SVG元素的class类属性。
      * @param  {Element} el 目标元素
      * @param  {String|Function} val 目标值，可选
@@ -1528,20 +1528,20 @@ Object.assign( tQuery, {
      * @return {Element} el
      */
     toggleClass( el, val, force ) {
-        if (isFunc(val)) {
+        if ( isFunc(val) ) {
             val = val( Arr(el.classList) );
         }
-        if ( !val) {
-            return classAttrToggle( el ), el;
+        if ( !val ) {
+            return toggleClassAll( el ), el;
         }
         if ( typeof val == 'string' ) {
             val = val.trim().split(__reSpace);
         }
-        classToggle(el, val, force);
+        classToggle( el, val, force );
 
-        if (el.classList.length == 0) {
+        if ( el.classList.length == 0 ) {
             // 清理：不激发attr系事件
-            el.removeAttribute('class');
+            el.removeAttribute( 'class' );
         }
         return el;
     },
@@ -1915,7 +1915,7 @@ Object.assign( tQuery, {
         cssSet( el, name, val, _cso );
 
         if (el.style.cssText.trim() == '') {
-            // 清理：不激发attr系事件
+            // 清理，与attr无关。
             el.removeAttribute('style');
         }
         return el;
@@ -1958,7 +1958,7 @@ Object.assign( tQuery, {
         cssSets(el, names, val, getStyles(el));
 
         if (el.style.cssText == '') {
-            // 清理：不激发attr系事件
+            // 清理，与attr无关。
             el.removeAttribute('style');
         }
         return el;
@@ -4760,7 +4760,6 @@ function wrapBox( box, clone, event, eventdeep, doc ) {
 
 /**
  * 类名切换。
- * 支持空格分隔的多个类名。
  * @param  {Element} el 目标元素
  * @param  {[String]} names 类名称集
  * @param  {Boolean} force 强制设定，可选
@@ -4778,17 +4777,21 @@ function classToggle( el, names, force ) {
 
 
 /**
- * 元素类属性切换。
+ * 切换全部类名。
  * @param  {Element} el 目标元素
  * @return {void}
  */
-function classAttrToggle( el ) {
-    let _cls = el.getAttribute('class');
+function toggleClassAll( el ) {
+    let _cls = Arr( el.classList );
 
-    if ( _cls ) {
-        __classNames.set( el, _cls.trim() );
+    if ( !__classNames.has(el) ) {
+        if ( !_cls.length ) {
+            // 初始即无值可切换。
+            return;
+        }
+        __classNames.set( el, _cls );
     }
-    toggleClassAttr( el, _cls ? null : __classNames.get(el) || null );
+    classToggle( el, __classNames.get(el) );
 }
 
 
@@ -5732,7 +5735,8 @@ function addClass( el, names ) {
  */
 function removeClass( el, names ) {
     if ( names === null ) {
-        return removeAttr( el, 'class' );
+        // 不属attrvary管辖。
+        return el.removeAttribute('class');
     }
     limitTrigger( el, evnClassSet, [names, 'remove'] );
     try {
@@ -5748,7 +5752,7 @@ function removeClass( el, names ) {
 /**
  * 类名切换封装。
  * 事件名同上（仅简单切换）。
- * 注记：第二/三个数据项表示动作（切换）。
+ * 第二/三个数据项表示动作（切换）。
  * @param  {Element} el 目标元素
  * @param  {[String]} names 类名集
  * @return {void}
@@ -5762,20 +5766,6 @@ function toggleClass( el, names ) {
         return failTrigger( el, evnClassFail, [e, names, 'toggle'] );
     }
     limitTrigger( el, evnClassDone, [names, 'toggle'] );
-}
-
-
-/**
- * 类特性切换封装。
- * 注：针对class特性操作，故事件名为 attrvary。
- * @param {Element} el 目标元素
- * @param {String|null} val 设置值
- */
-function toggleClassAttr( el, val ) {
-    if ( val == null ) {
-        return removeAttr( el, 'class' );
-    }
-    return setAttr( el, 'class', val );
 }
 
 
