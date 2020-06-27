@@ -1532,7 +1532,7 @@ Object.assign( tQuery, {
             val = val( Arr(el.classList) );
         }
         if ( !val ) {
-            return toggleClassAll( el ), el;
+            return classToggleAll( el ), el;
         }
         if ( typeof val == 'string' ) {
             val = val.trim().split(__reSpace);
@@ -4781,7 +4781,7 @@ function classToggle( el, names, force ) {
  * @param  {Element} el 目标元素
  * @return {void}
  */
-function toggleClassAll( el ) {
+function classToggleAll( el ) {
     let _cls = Arr( el.classList );
 
     if ( !__classNames.has(el) ) {
