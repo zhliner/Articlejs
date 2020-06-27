@@ -112,16 +112,33 @@ const _By = {
 
 
 /**
- * 创建一个App调用域。
+ * 创建一个cmv-App调用域。
  * @param  {App__} app 一个App实例
  * @param  {Array} meths 方法名集
  * @return {Object}
  */
 function appScope( app, meths ) {
-    return meths.reduce(
-        (obj, m) => ( obj[m] = app.call.bind(app, m), obj ),
-        { run: app.run.bind(app) }
-    );
+    return meths
+        .reduce(
+            (obj, m) => ( obj[m] = app.call.bind(app, m), obj ),
+            { run: app.run.bind(app) }
+        );
+}
+
+
+/**
+ * 创建一个类实例调用域。
+ * 适用任意直接使用的类实例，但需要提供应用方法集。
+ * @param  {Instance} obj 类实例
+ * @param  {[String]} meths 方法名集
+ * @return {Object}
+ */
+function instanceScope( obj, meths ) {
+    return meths
+        .reduce(
+            (o, m) => ( o[m] = obj[m].bind(obj), o ),
+            {}
+        );
 }
 
 
@@ -146,17 +163,24 @@ By.x = X;
 
 /**
  * 接口：普通扩展。
- * 扩展中的方法默认会绑定（bind）到所属宿主对象。
- * 支持多层嵌套的子域，子域是一种分组，由普通的Object封装。
- * 扩展时会自动创建不存在的中间子域。
- * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
+ * 对象：
+ * - 扩展中的方法默认会绑定（bind）到所属宿主对象。
+ * - 支持多层嵌套的子域，子域是一种分组，由普通的Object封装。
+ * - 扩展时会自动创建不存在的中间子域。
+ * - 如果方法需要访问指令单元（this:Cell），传递args为true。
+ * 类实例：
+ * 支持扩展类实例的方法，此时args需要是一个方法名数组。
+ *
  * @param  {String} name 子域/链（多级由句点分隔）
- * @param  {Object} exts 扩展集
- * @param  {Boolean} nobind 无需绑定（可访问Cell实例），可选。
+ * @param  {Object|Instance} exts 扩展集或类实例
+ * @param  {Boolean|[String]} args 无需绑定或方法名集，可选。
  * @return {Object} 目标子域
  */
-export function processExtend( name, exts, nobind ) {
-    return subExtend( name, exts, nobind, By );
+export function processExtend( name, exts, args ) {
+    if ( $.isArray(args) ) {
+        return instanceScope( exts, args );
+    }
+    return subExtend( name, exts, args, By );
 }
 
 
