@@ -6,103 +6,100 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//	通用基本工具类集。
+//	通用基本工具集。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+const
+    $ = window.$;
+
 
 //
-// 编辑历史处理器。
-// - 管理编辑历史的通用处理。
-// - 内部管理的对象需要实现 undo/redo/destroy 接口。
-// - 支持成组的源操作合并为一个操作组单元。
+// 元素选取集。
+// 封装类名设置/取消逻辑。
+// 注：继承自Set可获取展开特性。
 //
-class History {
+class ESet extends Set {
+    /**
+     * 创建选取元素集。
+     * 注：mark为类名，不参与节点的vary事件处理。
+     * @param {String} mark 选取标记类
+     */
+    constructor( mark ) {
+        super();
+        this._cls = mark;
+    }
 
-    constructor() {
-        //
+
+    /**
+     * 添加元素成员。
+     * 会设置成员的选取标记类名。
+     * @param  {Element} el 目标元素
+     * @return {Element} el
+     */
+    add( el ) {
+        super.add(
+            $.addClass( el, this._cls )
+        );
+        return el;
+    }
+
+
+    /**
+     * 移除元素成员。
+     * 会清除成员的选取标记类名。
+     * @param  {Element} el 目标元素
+     * @return {Element} el
+     */
+    delete( el ) {
+        super.delete(
+            $.removeClass( el, this._cls )
+        )
+        return el;
+    }
+
+
+    //-- 批量接口 ------------------------------------------------------------
+    // 主要用于外部undo/redo操作。
+
+
+    /**
+     * 压入元素序列。
+     * 不检查原集合中是否已经存在。
+     * @param  {[Element]} els 目标元素集
+     * @return {ESet} 当前实例
+     */
+    pushes( els ) {
+        els.forEach(
+            el => this.add( el )
+        );
+        return this;
+    }
+
+
+    /**
+     * 移除元素序列。
+     * 假定目标元素已全部存在于集合内。
+     * @param  {[Element]} els 目标元素集
+     * @return {ESet} 当前实例
+     */
+    removes( els ) {
+        els.forEach(
+            el => this.delete(el)
+        );
+        return this;
     }
 }
 
 
-//
-// 通用节点编辑类。
-// 实现节点编辑的撤销和重做操作。
-// 注记：
-// 从 DOMLister 实例获取当前变化段。
-// 用当前的变化段批量操作 DOMListener 的逐条记录。
-//
-class DOMEdit {
-
-    constructor( ) {
-        //
-    }
-
-
-    undo() {
-        //
-    }
-
-
-    redo() {
-        //
-    }
-
-
-    destroy() {
-        //
-    }
-
-}
-
 
 //
-// 元素选取集编辑。
-// 注记：
-// 选取集成员需要保持原始的顺序，较为复杂，
-// 因此这里简化取操作前后的全集成员存储。
-//
-class ElemSels {
-    /**
-     * 创建一个操作单元。
-     * @param {ElemQueue} queue 选取集实例
-     * @param {[Element]} old 操作之前的元素集
-     * @param {[Element]} els 操作之后的元素集
-     */
-    constructor( queue, old, els ) {
-        this._old = old;
-        this._new = els;
-        this._set = queue;
-    }
+// 导出
+//////////////////////////////////////////////////////////////////////////////
 
 
-    /**
-     * 撤销选取。
-     * 先移除新添加的，然后添加被移除的。
-     */
-    undo() {
-        this._set.removes( this._new ).pushes( this._old );
-    }
-
-
-    /**
-     * 重新选取。
-     * 先移除需要移除的，然后添加新添加的。
-     */
-    redo() {
-        this._set.removes( this._old ).pushes( this._new );
-    }
-
-
-    /**
-     * 销毁：切断引用。
-     */
-    destroy() {
-        this._set = null;
-        this._new = null;
-        this._del = null;
-    }
-
+export {
+    ESet,
 }

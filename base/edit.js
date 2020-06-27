@@ -14,63 +14,156 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { ESet } from './common.js';
+import { Setup } from "../config.js";
+
 
 const
-    $ = window.$;
+    $ = window.$,
+
+    // DOM节点变化历史实例。
+    __History = new $.Fx.History(),
+
+    // 元素选取集实例。
+    __Selectx = new ESet( Setup.selectedClass );
 
 
 //
-// 选取元素队列。
+// 编辑历史管理器。
+// 管理内部实现了 undo/redo 接口的编辑处理实例。
 //
-class ElemQueue extends Set {
+class History {
     /**
-     * 创建选取元素集。
-     * 注：mark为类名，不参与节点的vary事件处理。
-     * @param {String} mark 选取标记类
+     * 构造一个编辑实例。
+     * @param {Number} size 编辑历史长度
+     */
+    constructor( size ) {
+        this._max = size;
+        this._buf = [];
+        this._idx = -1;
+
+        // 初始上限相同。
+        __History.limit( size );
+    }
+
+
+    /**
+     * 记录一个操作实例。
+     * @param  {.undo/.redo} obj 操作实例
+     * @return {.undo/.redo|false} 头部被移出的操作实例
+     */
+    push( obj ) {
+        this._buf.lenght = ++this._idx;
+        let _len = this._buf.push(obj) - this._max;
+
+        return _len > 0 && this._buf.shift();
+    }
+
+
+    undo() {
+        this._buf[ this._idx-- ].undo();
+    }
+
+
+    redo() {
+        this._buf[ this._idx++ ].redo();
+    }
+}
+
+
+//
+// 节点编辑类。
+// 封装用户的单次DOM编辑（可能牵涉多个节点变化）。
+//
+class DOMEdit {
+    /**
+     * 构造一个编辑实例。
+     * @param {Function} handle 操作函数
+     * @param {History} obj 全局历史对象引用
+     */
+    constructor( handle, obj ) {
+        this._dom = obj;
+        this._fun = handle;
+        this._cnt = null;
+        this.redo();
+    }
+
+
+    undo() {
+        if ( this._cnt > 0 ) {
+            this._dom.back( this._cnt );
+        }
+    }
+
+
+    redo() {
+        let _old = this._dom.size();
+
+        this._fun();
+        this._cnt = this._dom.size() - _old;
+
+        // 准确调校。
+        this._dom.limit( this._dom.limit() + this._cnt - 1 );
+    }
+}
+
+
+//
+// 元素选取集编辑。
+// 注记：
+// 选取集成员需要保持原始的顺序，较为复杂，
+// 因此这里简化取操作前后的全集成员存储。
+//
+class ESEdit {
+    /**
+     * 创建一个操作单元。
+     * @param {[Element]} old 操作之前的元素集
+     * @param {[Element]} els 操作之后的元素集
+     * @param {ESet} eset 选取集实例
+     */
+    constructor( old, els, eset ) {
+        this._old = old;
+        this._new = els;
+        this._set = eset;
+    }
+
+
+    /**
+     * 撤销选取。
+     * 先移除新添加的，然后添加被移除的。
+     */
+    undo() {
+        this._set.removes( this._new ).pushes( this._old );
+    }
+
+
+    /**
+     * 重新选取。
+     * 先移除需要移除的，然后添加新添加的。
+     */
+    redo() {
+        this._set.removes( this._old ).pushes( this._new );
+    }
+}
+
+
+//
+// 操作单元。
+//////////////////////////////////////////////////////////////////////////////
+
+
+//
+// 元素选取集操作类。
+// 使用：
+// 声明一个全局实例用于 Tpb:By 扩展。
+//
+class ElemSels {
+    /**
+     * @param {String} mark 标记类名
      */
     constructor( mark ) {
-        super();
-        this._cls = mark;
+        this._set = new ESet( mark );
     }
-
-
-    //-- 批量接口 ------------------------------------------------------------
-    // 注记：
-    // 主要用于外部undo/redo操作。
-    // 可分别取调用之前/后的集合成员存储。
-
-
-    /**
-     * 压入元素序列。
-     * 不检查原集合中是否已经存在。
-     * @param  {[Element]} els 目标元素集
-     * @return {ElemQueue} 当前实例
-     */
-    pushes( els ) {
-        els.forEach(
-            el => this._add( el )
-        );
-        return this;
-    }
-
-
-    /**
-     * 移除元素序列。
-     * 假定目标元素已全部存在于集合内。
-     * @param  {[Element]} els 目标元素集
-     * @return {ElemQueue} 当前实例
-     */
-    removes( els ) {
-        els.forEach(
-            el => this._delete(el)
-        );
-        return this;
-    }
-
-
-    //-- 操作集 --------------------------------------------------------------
-    // 用户操作接口。
-    // @return {void}
 
 
     /**
@@ -79,8 +172,8 @@ class ElemQueue extends Set {
      * @param {Element} el 目标元素
      */
     add( el ) {
-        if ( !super.has(el) ) {
-            this._clean(el)._add(el);
+        if ( !this._set.has(el) ) {
+            this._clean(el)._set.add(el);
         }
     }
 
@@ -91,8 +184,8 @@ class ElemQueue extends Set {
      * @param {Element} el 目标元素
      */
     delete( el ) {
-        if ( super.has(el) ) {
-            this._delete( el );
+        if ( this._set.has(el) ) {
+            this._set.delete( el );
         }
     }
 
@@ -198,48 +291,21 @@ class ElemQueue extends Set {
 
 
     /**
-     * 添加元素成员。
-     * 会设置成员的选取标记类名。
-     * @param  {Element} el 目标元素
-     * @return {Element} el
-     */
-    _add( el ) {
-        super.add(
-            $.addClass(el, this._cls)
-        );
-        return el;
-    }
-
-
-    /**
-     * 移除元素成员。
-     * 会清除成员的选取标记类名。
-     * @param  {Element} el 目标元素
-     * @return {Element} el
-     */
-    _delete( el ) {
-        super.delete(
-            $.removeClass(el, this._cls)
-        )
-        return el;
-    }
-
-
-    /**
      * 父子关系清理。
      * 检查目标元素与集合内成员的父子关系，如果存在则先移除。
      * 不存在目标元素同时是集合内成员的子元素和父元素的情况。
      * @param  {Element} el 目标元素（待添加）
-     * @return {ElemQueue} 当前实例
+     * @return {this} 当前实例
      */
     _clean( el ) {
         let _box = this._containItem(el);
+
         if ( _box ) {
-            this._delete( _box );
+            this._set.delete( _box );
             return this;
         }
         for (const sub of this._parentFilter(el)) {
-            this._delete( sub );
+            this._set.delete( sub );
         }
         return this;
     }
@@ -257,7 +323,7 @@ class ElemQueue extends Set {
      * @return {Element|null}
      */
     _containItem( sub ) {
-        for (const el of this) {
+        for ( const el of this._set ) {
             if ( $.contains(el, sub, true) ) return el;
         }
         return null;
@@ -277,7 +343,7 @@ class ElemQueue extends Set {
     _parentFilter( el ) {
         let _buf = [];
 
-        super.forEach(
+        this._set.forEach(
             it => $.contains(el, it, true) && _buf.push(it)
         );
         return _buf;

@@ -25,7 +25,13 @@
 //  仅限于tQuery接口调用，如果用户直接调用DOM接口修改节点则无法跟踪。
 //
 //  使用：
-//  将事件处理器绑定到根元素上，即可追踪其子孙元素（target）的变化。
+//  0. 配置 tQuery.config() 以支持定制事件的激发。
+//  1. 将事件处理器绑定到根元素上，即可追踪其子孙元素（target）的变化。
+//  2. 创建一个全局的 History 对象，籍由上面的事件触发会自动记录变化历史。
+//  3. 调用 .back(n) 即可回退 DOM 的变化。
+//
+//  注意：
+//  back即为undo的逻辑，如果需要redo，用户需要自己编写（操作实例化即可）。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,7 +43,7 @@
     //
     // 变化处理器映射。
     // event-name: process-handler
-    // process-handler: function(event): {.back()}
+    // process-handler: function(event): {.back(n)}
     //
     const __varyHandles = {
         // 特性处理器。
@@ -92,25 +98,30 @@ class History {
 
 
     /**
-     * 撤销操作。
-     * @param {Number} n 撤销项数
+     * 回溯操作。
+     * @param {Number} n 回溯项数
      */
-    undo( n ) {
-        this._buf.splice( -n )
-            .reverse()
-            .forEach( obj => obj.back() );
+    back( n ) {
+        if ( n <= 0 ) {
+            return;
+        }
+        callBack( () =>
+            this._buf.splice(-n).reverse().forEach( obj => obj.back() )
+        );
     }
 
 
     /**
      * 压入一个操作实例。
      * 会维护缓存池长度不超出上限。
-     * @param {.back()} its 操作实例
+     * 注记：
+     * this._max可能被动态改变。
+     * @param  {.back} its 操作实例
+     * @return {Array|false} 被移除的实例集。
      */
     push( its ) {
-        if ( this._buf.push(its) > this._max ) {
-            this._buf.shift();
-        }
+        let _len = this._buf.push(its) - this._max;
+        return _len > 0 && this._buf.splice( 0, _len );
     }
 
 
@@ -124,11 +135,15 @@ class History {
 
 
     /**
-     * 获取缓存池大小上限。
-     * @return {Number}
+     * 设置/获取缓存池大小上限。
+     * @param  {Number} max
+     * @return {Number|void}
      */
-    limit() {
-        return this._max;
+    limit( max ) {
+        if ( max === undefined ) {
+            return this._max;
+        }
+        this._max = max;
     }
 
 
@@ -560,6 +575,23 @@ function adjacentTexts( el ) {
         textNodes(el)
         .filter( (nd, i, arr) => adjacent(nd, arr[i-1], arr[i+1]) )
     );
+}
+
+
+/**
+ * 调用回溯函数。
+ * 注：会临时关闭节点变化跟踪。
+ * @param {Function} handle 回调操作
+ */
+function callBack( handle ) {
+    let _old = $.config({
+        varyevent: false,
+        bindevent: false,
+    });
+    try {
+        return handle();
+    }
+    finally { $.config( _old ) }
 }
 
 

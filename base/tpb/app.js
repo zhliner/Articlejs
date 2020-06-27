@@ -7,9 +7,9 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //  页面App实现（CMV）。
+//  与服务器进行交互，提交数据并获取响应。
 //
-//  和服务器交互，提交数据并获取响应。
-//
+//  三个入口函数：
 //  - Control
 //      对提交的数据进行前置控制和预处理，数据实参（data）为当前条目（前阶主动取出）。
 //      接口：function( meth:String, data, ...rest:Value ): Promise
@@ -47,6 +47,7 @@ export class App__ {
     /**
      * 程序运行。
      * @data: Any
+     * @param  {Object} evo 事件关联对象
      * @param  {String} meth 运行方法
      * @param  {...Value} rest 剩余参数
      * @return {Promise}
