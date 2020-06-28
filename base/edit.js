@@ -15,17 +15,25 @@
 //
 
 import { ESet } from './common.js';
-import { Setup } from "../config.js";
+import { Setup, Limit } from "../config.js";
+import { processExtend } from "./tpb/pbs.by.js";
 
 
 const
     $ = window.$,
 
     // DOM节点变化历史实例。
-    __History = new $.Fx.History(),
+    __TQHistory = new $.Fx.History(),
 
     // 元素选取集实例。
-    __Selectx = new ESet( Setup.selectedClass );
+    __ESet = new ESet( Setup.selectedClass ),
+
+    // 元素选取集操作实例。
+    __Selects = new ElemSels( __ESet ),
+
+    // 编辑器操作历史。
+    __History = new History( Limit.history, __TQHistory );
+
 
 
 //
@@ -36,14 +44,15 @@ class History {
     /**
      * 构造一个编辑实例。
      * @param {Number} size 编辑历史长度
+     * @param {Fx.History} xhist 节点变化历史对象
      */
-    constructor( size ) {
+    constructor( size, xhist ) {
         this._max = size;
         this._buf = [];
         this._idx = -1;
 
         // 初始上限相同。
-        __History.limit( size );
+        xhist.limit( size );
     }
 
 
@@ -54,6 +63,7 @@ class History {
      */
     push( obj ) {
         this._buf.lenght = ++this._idx;
+
         let _len = this._buf.push(obj) - this._max;
 
         return _len > 0 && this._buf.shift();
@@ -79,10 +89,10 @@ class DOMEdit {
     /**
      * 构造一个编辑实例。
      * @param {Function} handle 操作函数
-     * @param {History} obj 全局历史对象引用
+     * @param {Fx.History} xhist 节点变化历史对象
      */
-    constructor( handle, obj ) {
-        this._dom = obj;
+    constructor( handle, xhist ) {
+        this._dom = xhist;
         this._fun = handle;
         this._cnt = null;
         this.redo();
@@ -118,13 +128,12 @@ class ESEdit {
     /**
      * 创建一个操作单元。
      * @param {[Element]} old 操作之前的元素集
-     * @param {[Element]} els 操作之后的元素集
-     * @param {ESet} eset 选取集实例
+     * @param {ESet} eset 选取集实例引用
      */
-    constructor( old, els, eset ) {
+    constructor( old, eset ) {
         this._old = old;
-        this._new = els;
         this._set = eset;
+        this._cur = [...eset];
     }
 
 
@@ -133,7 +142,7 @@ class ESEdit {
      * 先移除新添加的，然后添加被移除的。
      */
     undo() {
-        this._set.removes( this._new ).pushes( this._old );
+        this._set.removes( this._cur ).pushes( this._old );
     }
 
 
@@ -142,7 +151,7 @@ class ESEdit {
      * 先移除需要移除的，然后添加新添加的。
      */
     redo() {
-        this._set.removes( this._old ).pushes( this._new );
+        this._set.removes( this._old ).pushes( this._cur );
     }
 }
 
@@ -153,16 +162,15 @@ class ESEdit {
 
 
 //
-// 元素选取集操作类。
-// 使用：
-// 声明一个全局实例用于 Tpb:By 扩展。
+// 元素选取集操作。
+// 对应到用户的快捷操作类型。
 //
 class ElemSels {
     /**
-     * @param {String} mark 标记类名
+     * @param {ESet} eset 选取集实例引用
      */
-    constructor( mark ) {
-        this._set = new ESet( mark );
+    constructor( eset ) {
+        this._set = eset;
     }
 
 
@@ -196,11 +204,8 @@ class ElemSels {
      * @param {Element} el 目标元素
      */
     only( el ) {
-        for (const el of this) {
-            $.removeClass(el, this._cls);
-        }
-        super.clear();
-        this._add( el );
+        this._set.clear();
+        this._set.add( el );
     }
 
 
@@ -211,10 +216,10 @@ class ElemSels {
      * @param {Element} el 目标元素
      */
     turn( el ) {
-        if ( super.has(el) ) {
-            this._delete(el);
+        if ( this._set.has(el) ) {
+            this._set.delete(el);
         } else {
-            this._clean(el)._add(el);
+            this._clean(el)._set.add(el);
         }
     }
 
@@ -226,7 +231,7 @@ class ElemSels {
      */
     siblings( els ) {
         els.forEach(
-            el => super.has(el) || this._add(el)
+            el => this._set.has(el) || this._set.add(el)
         );
     }
 
@@ -239,7 +244,7 @@ class ElemSels {
      */
     reverse( all ) {
         all.forEach(
-            el => super.has(el) ? this._delete(el) : this._add(el)
+            el => this._set.has(el) ? this._set.delete(el) : this._set.add(el)
         )
     }
 
@@ -248,9 +253,7 @@ class ElemSels {
      * 清除全部选取。
      */
     empty() {
-        super.forEach(
-            el => this._delete( el )
-        );
+        this._set.clear();
     }
 
 
@@ -265,9 +268,9 @@ class ElemSels {
         let _box = this._containItem(el);
 
         if ( _box ) {
-            this._delete( _box );
+            this._set.delete( _box );
         }
-        this._add( el );
+        this._set.add( el );
     }
 
 
@@ -281,9 +284,9 @@ class ElemSels {
     parent( el ) {
         this._parentFilter(el)
         .forEach(
-            el => this._delete(el)
+            el => this._set.delete(el)
         )
-        this._add( el );
+        this._set.add( el );
     }
 
 
@@ -350,3 +353,70 @@ class ElemSels {
     }
 
 }
+
+
+//
+// 节点操作/修改。
+// - 节点删除、移动、克隆。
+// - 元素样式设置、清除等。
+//
+class NodeVary {
+    constructor() {
+        //
+    }
+}
+
+
+
+//
+// 导出。
+//////////////////////////////////////////////////////////////////////////////
+
+
+const _Edit = {
+    /**
+     * 选取队列操作。
+     * 操作全局__Selects实例。
+     * @param  {String} op 操作名
+     * @return {void}
+     */
+    queue( evo, op ) {
+        let _old = [...__ESet];
+
+        __Selects[op]( evo.data );
+        __History.push( new ESEdit(_old, __ESet) );
+    },
+
+
+    /**
+     * 封装节点处理。
+     * 需要构造操作实例以便于撤销/重做。
+     * @param  {String} op 操作名
+     * @return {void}
+     */
+    nodes( evo, op ) {
+        //
+    },
+
+
+    /**
+     * 撤销操作。
+     * 注记：
+     * 为避免一次大量撤销（可能为误操作）浏览器假死，
+     * 仅支持单步逐次撤销。
+     */
+    undo() {
+        __History.undo();
+    },
+
+
+    /**
+     * 重做操作。
+     */
+    redo() {
+        __History.redo();
+    },
+
+}
+
+processExtend( 'Edit', _Edit );

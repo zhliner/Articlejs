@@ -21,7 +21,7 @@ const
 // 封装类名设置/取消逻辑。
 // 注：继承自Set可获取展开特性。
 //
-class ESet extends Set {
+export class ESet extends Set {
     /**
      * 创建选取元素集。
      * 注：mark为类名，不参与节点的vary事件处理。
@@ -61,6 +61,17 @@ class ESet extends Set {
     }
 
 
+    /**
+     * 清空集合。
+     */
+    clear() {
+        for ( const el of this ) {
+            $.removeClass( el, this._cls );
+        }
+        super.clear();
+    }
+
+
     //-- 批量接口 ------------------------------------------------------------
     // 主要用于外部undo/redo操作。
 
@@ -91,15 +102,4 @@ class ESet extends Set {
         );
         return this;
     }
-}
-
-
-
-//
-// 导出
-//////////////////////////////////////////////////////////////////////////////
-
-
-export {
-    ESet,
 }

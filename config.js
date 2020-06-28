@@ -15,7 +15,7 @@
 //
 
 
-const Setup = {
+export const Setup = {
 
     // 元素选取态类名。
     selectedClass:  '_selected',
@@ -23,18 +23,17 @@ const Setup = {
 };
 
 
-const Local = {
+export const Limit = {
+
+    // 历史栈长度
+    history:    999,
+
+}
+
+
+export const Local = {
 
     // 目标名。
     tocLabel:   "【目 录】",
 
 };
-
-
-// 导出。
-//////////////////////////////////////////////////////////////////////////////
-
-export {
-    Setup,
-    Local,
-}
