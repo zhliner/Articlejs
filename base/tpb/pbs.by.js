@@ -34,7 +34,7 @@
 import { Util } from "./tools/util.js";
 import { X } from "./lib.x.js";
 import { App__ } from "./app.js";
-import { bindMethod, Web, subExtend } from "./config.js";
+import { bindMethod, Web, subExtend, subObj } from "./config.js";
 import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
@@ -107,43 +107,6 @@ const _By = {
 
 
 //
-// 工具函数
-//////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 创建一个cmv-App调用域。
- * @param  {App__} app 一个App实例
- * @param  {Array} meths 方法名集
- * @return {Object}
- */
-function appScope( app, meths ) {
-    return meths
-        .reduce(
-            (obj, m) => ( obj[m] = app.call.bind(app, m), obj ),
-            { run: app.run.bind(app) }
-        );
-}
-
-
-/**
- * 创建一个类实例调用域。
- * 适用任意直接使用的类实例，但需要提供应用方法集。
- * @param  {Instance} obj 类实例
- * @param  {[String]} meths 方法名集
- * @return {Object}
- */
-function instanceScope( obj, meths ) {
-    return meths
-        .reduce(
-            (o, m) => ( o[m] = obj[m].bind(obj), o ),
-            {}
-        );
-}
-
-
-
-//
 // 预处理/导出。
 //////////////////////////////////////////////////////////////////////////////
 
@@ -162,6 +125,21 @@ By.x = X;
 
 
 /**
+ * 类实例扩展。
+ * 适用任意直接使用的类实例，但需要提供应用方法集。
+ * @param {String} name 目标域（子域由句点分隔）
+ * @param {Instance} obj 类实例
+ * @param {[String]} meths 方法名集
+ */
+function instanceExtend( name, obj, meths ) {
+    let host = subObj(
+            name.split('.'), By
+        );
+    meths.forEach( m => host[m] = obj[m].bind(obj) );
+}
+
+
+/**
  * 接口：普通扩展。
  * 对象：
  * - 扩展中的方法默认会绑定（bind）到所属宿主对象。
@@ -171,22 +149,22 @@ By.x = X;
  * 类实例：
  * 支持扩展类实例的方法，此时args需要是一个方法名数组。
  *
- * @param  {String} name 子域/链（多级由句点分隔）
+ * @param  {String} name 目标域（子域由句点分隔）
  * @param  {Object|Instance} exts 扩展集或类实例
  * @param  {Boolean|[String]} args 无需绑定或方法名集，可选。
- * @return {Object} 目标子域
+ * @return {void}
  */
 export function processExtend( name, exts, args ) {
     if ( $.isArray(args) ) {
-        return instanceScope( exts, args );
+        return instanceExtend( name, exts, args );
     }
-    return subExtend( name, exts, args, By );
+    subExtend( name, exts, args, By );
 }
 
 
 /**
  * 接口：创建CMV小程序。
- * 每个程序遵循CMV（Control/Model/View）三层划分逻辑。
+ * 每个程序遵循CMV（Control/Model/View）三层划分。
  * 模板中调用需要传递方法名：[MyApp].run([meth], ...)，用于区分不同的调用。
  * 传递meths可以构造友好的调用集：[MyApp].[meth](...)。
  * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
@@ -195,21 +173,23 @@ export function processExtend( name, exts, args ) {
  *      model:   function(meth, data ): Value,
  *      view:    function(meth, data ): Value,
  * }
+ * 如果程序名称（name）重复，会抛出异常（而非覆盖）。
+ *
  * 注记：与By普通用户扩展一样，占用By顶层空间。
- * @param {String} name 程序名
- * @param {Object} conf CMV配置对象
- * @param {[String]} meths 方法名序列，可选
+ * @param  {String} name 程序名
+ * @param  {Object} conf CMV配置对象
+ * @param  {[String]} meths 方法名序列，可选
+ * @return {void}
  */
-export function cmvApp( name, conf, meths ) {
-    let _app = By[name];
-
-    if ( _app != null ) {
-        throw new Error(`[${name}]:${_app} is already exist.`);
+export function cmvApp( name, conf, meths = [] ) {
+    if ( By[name] != null ) {
+        throw new Error(`By[${name}] is already exist.`);
     }
-    let _cmv = [
-            conf.control,
-            conf.model,
-            conf.view
-        ];
-    processExtend( name, appScope(new App__(..._cmv), meths) );
+    let app = new App__(conf.control, conf.model, conf.view),
+        obj = subObj(name, By);
+
+    obj.run = app.run.bind(app);
+
+    // 可能覆盖.run
+    meths.forEach( m => obj[m] = app.call.bind(app, m) );
 }

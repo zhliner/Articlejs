@@ -202,7 +202,7 @@ function funcSets( f, n, ix ) {
  * 如果目标子域不存在，则自动创建。
  * 子域链上的子域必须是普通对象类型（Object）。
  * @param {[String]} names 子域链
- * @param {Object} obj 取值顶级域
+ * @param {Object} obj 取值域对象
  */
 function subObj( names, obj ) {
     let _sub;
@@ -234,14 +234,15 @@ function subObj( names, obj ) {
  * @param  {String} name 扩展域
  * @param  {Object} exts 扩展集，可选
  * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
+ * @param  {Object} base 扩展根域
  * @return {Object} 目标子域
  */
-function subExtend( name, exts, nobind, host ) {
+function subExtend( name, exts, nobind, base ) {
     let _f = nobind ?
         getMethod :
         bindMethod;
 
-    return $.assign( subObj(name.split('.'), host), exts || {}, _f );
+    return $.assign( subObj(name.split('.'), base), exts || {}, _f );
 }
 
 
@@ -279,6 +280,7 @@ export {
     bindMethod,
     getMethod,
     funcSets,
+    subObj,
     subExtend,
     methodSelf,
     Globals,
