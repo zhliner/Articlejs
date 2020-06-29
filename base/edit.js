@@ -22,17 +22,20 @@ import { processExtend } from "./tpb/pbs.by.js";
 const
     $ = window.$,
 
-    // DOM节点变化历史实例。
-    __TQHistory = new $.Fx.History(),
-
     // 元素选取集实例。
     __ESet = new ESet( Setup.selectedClass ),
 
     // 元素选取集操作实例。
     __Selects = new ElemSels( __ESet ),
 
+    // 元素修改操作实例。
+    __Elemedit = new NodeVary( __ESet ),
+
+    // DOM节点变化历史实例。
+    __TQHistory = new $.Fx.History( Limit.history ),
+
     // 编辑器操作历史。
-    __History = new History( Limit.history, __TQHistory );
+    __History = new History( Limit.history );
 
 
 
@@ -44,15 +47,11 @@ class History {
     /**
      * 构造一个编辑实例。
      * @param {Number} size 编辑历史长度
-     * @param {Fx.History} xhist 节点变化历史对象
      */
-    constructor( size, xhist ) {
+    constructor( size ) {
         this._max = size;
         this._buf = [];
         this._idx = -1;
-
-        // 初始上限相同。
-        xhist.limit( size );
     }
 
 
@@ -162,8 +161,9 @@ class ESEdit {
 
 
 //
-// 元素选取集操作。
-// 对应到用户的快捷操作类型。
+// 元素选取操作。
+// 各方法对应到用户的快捷选取操作类型。
+// 操作全局选取集实例（__ESet）。
 //
 class ElemSels {
     /**
@@ -356,13 +356,17 @@ class ElemSels {
 
 
 //
-// 节点操作/修改。
+// 元素节点操作。
 // - 节点删除、移动、克隆。
 // - 元素样式设置、清除等。
+// 大多数操作针对全局选取集实例（__ESet）。
 //
 class NodeVary {
-    constructor() {
-        //
+    /**
+     * @param {ESet} eset 全局选取集实例
+     */
+    constructor( eset ) {
+        this._set = eset;
     }
 }
 
@@ -376,7 +380,8 @@ class NodeVary {
 const _Edit = {
     /**
      * 选取队列操作。
-     * 操作全局__Selects实例。
+     * 引用全局__Selects实例并执行其操作（方法）。
+     * 流程数据为唯一实参。
      * @param  {String} op 操作名
      * @return {void}
      */
@@ -390,12 +395,16 @@ const _Edit = {
 
     /**
      * 封装节点处理。
-     * 需要构造操作实例以便于撤销/重做。
+     * 引用全局__Elemedit实例并执行其操作（方法）。
+     * 流程数据为唯一实参。
      * @param  {String} op 操作名
      * @return {void}
      */
     nodes( evo, op ) {
-        //
+        let _fun = () =>
+            __Elemedit[op]( evo.data );
+
+        __History.push( new DOMEdit(_fun, __TQHistory) );
     },
 
 
@@ -419,4 +428,4 @@ const _Edit = {
 
 }
 
-processExtend( 'Edit', _Edit );
+processExtend( 'Ed', _Edit );
