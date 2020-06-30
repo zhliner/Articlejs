@@ -25,17 +25,8 @@ const
     // 元素选取集实例。
     __ESet = new ESet( Setup.selectedClass ),
 
-    // 元素选取集操作实例。
-    __Selects = new ElemSels( __ESet ),
-
-    // 元素修改操作实例。
-    __Elemedit = new NodeVary( __ESet ),
-
     // DOM节点变化历史实例。
-    __TQHistory = new $.Fx.History( Limit.history ),
-
-    // 编辑器操作历史。
-    __History = new History( Limit.history );
+    __TQHistory = new $.Fx.History( Limit.history );
 
 
 
@@ -83,6 +74,8 @@ class History {
 //
 // 节点编辑类。
 // 封装用户的单次DOM编辑（可能牵涉多个节点变化）。
+// 注记：
+// 用户需要配置 tQuery:config() 启用节点变化事件通知机制。
 //
 class DOMEdit {
     /**
@@ -174,34 +167,13 @@ class ElemSels {
     }
 
 
-    /**
-     * 添加一个元素成员。
-     * 如果元素已经存在则无行为。
-     * @param {Element} el 目标元素
-     */
-    add( el ) {
-        if ( !this._set.has(el) ) {
-            this._clean(el)._set.add(el);
-        }
-    }
-
-
-    /**
-     * 删除一个元素成员。
-     * 如果元素不存在，无任何行为。
-     * @param {Element} el 目标元素
-     */
-    delete( el ) {
-        if ( this._set.has(el) ) {
-            this._set.delete( el );
-        }
-    }
+    //-- 用户操作 ------------------------------------------------------------
 
 
     /**
      * 排它添加一个元素成员。
      * 会先清空整个集合。
-     * @param {Element} el 目标元素
+     * @param {Element} el 焦点元素
      */
     only( el ) {
         this._set.clear();
@@ -213,7 +185,7 @@ class ElemSels {
      * 切换选取。
      * 已存在则移除，否则为添加。
      * 注：添加时仍需考虑父子包含关系。
-     * @param {Element} el 目标元素
+     * @param {Element} el 焦点元素
      */
     turn( el ) {
         if ( this._set.has(el) ) {
@@ -225,27 +197,66 @@ class ElemSels {
 
 
     /**
-     * 兄弟元素添加。
-     * 不检查父子包含关系，但排除已存在成员。
-     * @param {Element} els 元素序列
+     * 同级反选。
+     * 已经存在的移除，否则添加。
+     * 添加的元素中，其子元素可能已经选取（故需滤除）。
+     * @param {Element} el 焦点元素
      */
-    siblings( els ) {
-        els.forEach(
-            el => this._set.has(el) || this._set.add(el)
+    reverse( el ) {
+        Array.from( el.parentElement.children )
+        .forEach(
+            el => this._set.has(el) ? this._set.delete(el) : this._parentAdd(el)
+        )
+    }
+
+
+    /**
+     * 前兄弟元素添加。
+     * @param {Element} el 焦点元素
+     * @param {Number} n 延伸个数
+     */
+    siblingsPrev( [el, n] ) {
+        this._siblingAdd(
+            $.prevAll( el, (_, i) => i <= n )
         );
     }
 
 
     /**
-     * 同级反选。
-     * 已经存在的移除，否则添加。
-     * 总集为兄弟元素，添加时不检查父子包含关系。
-     * @param {[Element]} all 总集
+     * 后兄弟元素添加。
+     * @param {Element} el 焦点元素
+     * @param {Number} n 延伸个数
      */
-    reverse( all ) {
-        all.forEach(
-            el => this._set.has(el) ? this._set.delete(el) : this._set.add(el)
-        )
+    siblingsNext( [el, n] ) {
+        this._siblingAdd(
+            $.nextAll( el, (_, i) => i <= n )
+        );
+    }
+
+
+    /**
+     * 子元素添加。
+     * 仅递进到首个子元素。
+     * 会移除所属父元素。
+     * @param {Element} el 焦点元素
+     */
+    child( el ) {
+        let _sub = el.firstElementChild;
+
+        if ( _sub ) {
+            this.delete( el );
+            this._set.add( _sub );
+        }
+    }
+
+
+    /**
+     * 父元素添加。
+     * 会清除集合中所包含的子元素。
+     * @param {Element} el 焦点元素
+     */
+    parent( el ) {
+        this._parentAdd( el.parentElement );
     }
 
 
@@ -257,36 +268,31 @@ class ElemSels {
     }
 
 
-    /**
-     * 子级添加。
-     * 明确知道为集合中某成员的子元素。
-     * 会移除所属的父元素。
-     * 注：如键盘改选。
-     * @param {Element} el 子元素
-     */
-    child( el ) {
-        let _box = this._containItem(el);
+    //-- 辅助接口 ------------------------------------------------------------
 
-        if ( _box ) {
-            this._set.delete( _box );
+
+    /**
+     * 安全添加。
+     * 会检查与集合内成员的父子包含关系。
+     * 如果元素已经存在则无行为。
+     * @param {Element} el 目标元素
+     */
+    add( el ) {
+        if ( !this._set.has(el) ) {
+            this._clean(el)._set.add(el);
         }
-        this._set.add( el );
     }
 
 
     /**
-     * 父级添加。
-     * 明确知道为集合中某成员的父元素。
-     * 会清除集合中所包含的子元素。
-     * 注：如键盘改选。
-     * @param {Element} el 父元素
+     * 安全删除。
+     * 如果元素不存在，无任何行为。
+     * @param {Element} el 目标元素
      */
-    parent( el ) {
-        this._parentFilter(el)
-        .forEach(
-            el => this._set.delete(el)
-        )
-        this._set.add( el );
+    delete( el ) {
+        if ( this._set.has(el) ) {
+            this._set.delete( el );
+        }
     }
 
 
@@ -311,6 +317,33 @@ class ElemSels {
             this._set.delete( sub );
         }
         return this;
+    }
+
+
+    /**
+     * 父级添加。
+     * 会清除集合内属于子级元素的选取。
+     * @param {Element} el 父元素
+     */
+    _parentAdd( el ) {
+        this._parentFilter( el )
+            .forEach(
+                el => this._set.delete( el )
+            )
+        this._set.add( el );
+    }
+
+
+    /**
+     * 兄弟元素添加。
+     * 忽略已经存在的成员，新成员添加时需检查父子包含关系。
+     * 注记：父元素不会在集合内。
+     * @param {[Element]} els 元素序列
+     */
+    _siblingAdd( els ) {
+        els.forEach(
+            el => this._set.has(el) || this._parentAdd(el)
+        );
     }
 
 
@@ -368,7 +401,26 @@ class NodeVary {
     constructor( eset ) {
         this._set = eset;
     }
+
+
+    //
 }
+
+
+//
+// 全局操作对象。
+//////////////////////////////////////////////////////////////////////////////
+
+
+const
+    // 元素选取集操作实例。
+    __Selects = new ElemSels( __ESet ),
+
+    // 元素修改操作实例。
+    __Elemedit = new NodeVary( __ESet ),
+
+    // 编辑器操作历史。
+    __History = new History( Limit.history );
 
 
 
@@ -428,4 +480,4 @@ const _Edit = {
 
 }
 
-processExtend( 'Ed', _Edit );
+processExtend( 'Edit', _Edit );

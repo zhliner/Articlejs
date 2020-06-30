@@ -64,6 +64,12 @@ aside#help {
     background-image: url('images/selected.png') !important;
 }
 
+/* 选取焦点 */
+.___Content ._focus {
+    border: 1px red dotted;
+    border-radius: 6px;
+}
+
 /* 微编辑下 */
 .___Content *[contenteditable] {
     cursor: text;
