@@ -99,7 +99,7 @@
 	}
 
 // Pass this if window is not defined yet
-})( typeof window !== "undefined" ? window : this, function( window, noGlobal, undefined ) {
+})( typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
 
     "use strict";
 
@@ -7219,7 +7219,8 @@ const domReady = {
  function assignProc( to, src, proc ) {
 
     for (const k of Reflect.ownKeys(src)) {
-        if ( src.propertyIsEnumerable(k) ) {
+        // if ( src.propertyIsEnumerable(k) ) {
+        if ( {}.propertyIsEnumerable.call(src) ) {
             let _v = proc(
                 src[k], k, src, to
             );

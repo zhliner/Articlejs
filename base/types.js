@@ -541,7 +541,7 @@ export const ChildTypes = {
     [ TOC ]:            [ H3, CASCADE ],
     [ SEEALSO ]:        [ LI, ALI ],
     [ REFERENCE ]:      [ LI, ALI ],
-    [ HEADER ]:         [ P, H3, _BLOLIMIT ],
+    [ HEADER ]:         [ P, H3, _BLOLIMIT, ULX, OLX ],
     [ FOOTER ]:         [ P, H3, _BLOLIMIT, ADDRESS ],
     [ ARTICLE ]:        [ HEADER, S1, FOOTER ],
     [ S1 ]:             [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
