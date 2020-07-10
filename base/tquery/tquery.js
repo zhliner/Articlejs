@@ -7220,7 +7220,7 @@ const domReady = {
 
     for (const k of Reflect.ownKeys(src)) {
         // if ( src.propertyIsEnumerable(k) ) {
-        if ( {}.propertyIsEnumerable.call(src) ) {
+        if ( Object.prototype.propertyIsEnumerable.call(src, k) ) {
             let _v = proc(
                 src[k], k, src, to
             );
