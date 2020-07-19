@@ -84,8 +84,8 @@ const _Gets = {
      * 例：
      * 1. $('/p')  // 检索事件绑定元素内的首个<p>子元素
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
-     * 4. push('/p') $(_)     // rid从流程获取，效果同1。
-     * 5. push('/a') evo(1) pop $(_)  // 效果同2.
+     * 4. push('/p') $(_1)    // rid从流程获取，效果同1
+     * 5. push('/a') evo(1) pop $(_1)  // 效果同2
      * @param  {Object} evo 事件关联对象
      * @param  {String} rid 相对ID，可选
      * @return {Element}
@@ -104,7 +104,8 @@ const _Gets = {
      * 如果rid非字符串，则返回简单的Collector封装。
      * 例：
      * 1. push(['a','b','c']) $$(_1) // 从流程取1个实参：封装数组 $(['a','b','c'])
-     * 2. push(['a','b','c']) $$(_)  // 从流程取不定数量实参，rid为'a'，'b'和'c'展开后被忽略
+     * 2. push('abc') $$(_1)  // 从流程取相对ID，rid为'abc'
+     * 2. push('abc') $$(_)   // 从流程取不定数量实参，'abc'会被展开传递，实际上rid仅为'a'
      * @param  {Object} evo 事件关联对象
      * @param  {String|Value} rid 相对ID或待封装值
      * @return {Collector}
@@ -411,7 +412,7 @@ const _Gets = {
      * - array(3, 'a', 'b')  // ['a', 'b', 'b']
      * - array(3)  // [undefined, undefined, undefined]
      * - push([10,11]) array(3, _)  // [10, 11, 11]
-     * - push([10,11]) push(['x','y']) pop array(3, _)  // [10, 11, 'x']
+     * - push([10,11]) push('xyz') pop array(4, _)  // [10, 11, 'xyz', 'xyz]
      * @param  {Number} size 集合大小
      * @param  {...Value} vals 填充值序列，可选
      * @return {[Value]}
@@ -758,8 +759,7 @@ const _Gets = {
      * names支持空格分隔的多个名称，And关系。
      * 例：
      * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
-     * push('shift ctrl') pop scam  // 同上
-     * push('shift ctrl') pack scam(_)   // 同上
+     * push('shift ctrl') scam(_1)      // 同上
      * scam inside('shift ctrl', true)  // 效果同上
      * @param  {String} names 键名序列，可选
      * @return {Object|Boolean}

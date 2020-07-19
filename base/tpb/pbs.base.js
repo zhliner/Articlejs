@@ -114,9 +114,8 @@ const _Control = {
      * - 该指令需要在异步指令之前使用。
      * - 如果调用链包含元素方法调用（如submit()），还应当在立即Promise之前调用。
      * 例：
-     * push(1) avoid('ok') 无条件停止，入栈 'ok'
-     * push(1) pop avoid('ok') 1为真故停止，入栈 'ok'
-     * push('ok') push(1) pop avoid(_) 同上。
+     * - push(1) pop avoid('ok') 目标值1为真，停止并入栈 'ok'
+     * - push(0) avoid('ok') 目标为空，无条件停止，入栈 'ok'
      *
      * @param  {Value} back 执行后结果，可选
      * @return {void|back}

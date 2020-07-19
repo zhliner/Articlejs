@@ -19,7 +19,7 @@
             与内联单元和字符种类共享快捷键指向，检查通过（dup pass）。 -->
         <select id="input-items" name="items" size="5" class="_list"
             on="change|evo(3) val pop tpl;
-                input.select|ev('detail') slr('/','-k', _) $(_) dup pass prop('value')"
+                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="form/._body|replace;
                 |val|goto('change')">
             <option title="<h1,+h2>" value="input:heading">标题</option>
@@ -74,7 +74,7 @@
             与行块单元和字符种类共享快捷键指向，需检查通过。 -->
         <select name="inlines" size="5" class="_list _inlines" tpl-name="item:inlines"
             on="change|evo(3) val str('inlines:') pop tpl;
-                input.select|ev('detail') slr('/','-k', _) $(_) dup pass prop('value')"
+                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="2/._prop|replace;
                 |val|goto('change')">
             <!-- tpl: inlines:[value] -->

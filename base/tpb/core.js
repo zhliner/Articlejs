@@ -127,7 +127,7 @@ const
     },
 
     // 流程数据取项数量映射。
-    // {Symbol(0):0, Symbol(1):1, ...}
+    // { Symbol(0):0, Symbol(1):1, ... }
     __flowCnts = Object.keys(__fromStack)
     .reduce( (o, k) => (o[__fromStack[k]] = +k.substring(1), o), {} );
 
@@ -818,18 +818,21 @@ class Cell {
     /**
      * 获取最终模板实参序列。
      * 处理 _[n] 标识从流程数据中补充模板实参。
-     * n为0或空时，表示取栈顶1项展开，可能需要预先打包（pack）。
      * @param  {Object} evo 数据引用
      * @param  {Array} args 原实参集
      * @param  {Number|undefined} rest 提取项数
      * @return {Array} 最终实参集
      */
     args( evo, args, rest ) {
-        if ( rest !== undefined ) {
-            args = args
-            .concat( rest === 0 ? this[_SID].pop() : this[_SID].pops(rest) );
+        if ( rest === 0 ) {
+            // 强制展开
+            args = args.concat( ...this[_SID].pop() );
+        }
+        else if ( rest > 0 ) {
+            args = args.concat( this[_SID].pops(rest) );
         }
         evo.data = this.data( this._want );
+
         return args;
     }
 

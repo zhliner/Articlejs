@@ -85,8 +85,8 @@
                         save|ev('detail') dup xattr('-val');
                         ^obted;
                         ^done"
-                    to="~|fill|target(0) goto('save', _);
-                        |data(_)|fire('', 'done');
+                    to="~|fill|target(0) goto('save', _1);
+                        |data(_1)|fire('', 'done');
                         (/span)|trigger('init', true);
                         |off('init save')">
                     <!-- <span><b>...</span> -->
