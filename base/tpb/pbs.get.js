@@ -1253,6 +1253,7 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
+    // @data:  {Node|Collector}
     // @return {Value|Collector}
     _Gets[meth] = function( evo, arg ) {
         return $.isCollector(evo.data) ?
@@ -1262,9 +1263,11 @@ const _arrayGets = {
     _Gets[`__${meth}`] = 1;
 
 
+    // 集合版。
+    // @data:  {Array|Collector}
     // @return {[Value]}
     _arrayGets[meth] = function( evo, arg ) {
-        return evo.data.map( el => $[meth](el, arg) );
+        return Array.prototype.map.call( evo.data, el => $[meth](el, arg) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1295,6 +1298,7 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
+    // @data:  {Element|Collector}
     // @return {Value|Collector}
     _Gets[meth] = function( evo ) {
         return $.isCollector(evo.data) ?
@@ -1304,9 +1308,11 @@ const _arrayGets = {
     _Gets[`__${meth}`] = 1;
 
 
+    // 集合版。
+    // @data:  {Array|Collector}
     // @return {[Value]}
     _arrayGets[meth] = function( evo ) {
-        return evo.data.map( el => $[meth](el) );
+        return Array.prototype.map.call( evo.data, el => $[meth](el) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1336,6 +1342,7 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
+    // @data:  {Element|Collector}
     // @return {Value|Collector}
     _Gets[meth] = function( evo, ...args ) {
         return $.isCollector(evo.data) ?
@@ -1345,9 +1352,11 @@ const _arrayGets = {
     _Gets[`__${meth}`] = 1;
 
 
+    // 集合版：
+    // @data:  {Array|Collector}
     // @return {[Value]}
     _arrayGets[meth] = function( evo, ...args ) {
-        return evo.data.map( el => $[meth](el,...args) );
+        return Array.prototype.map.call( evo.data, el => $[meth](el, ...args) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1366,6 +1375,7 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
+    // @data:  {String|Collector}
     // @return {Text|DocumentFragment|Collector}
     _Gets[meth] = function( evo, arg ) {
         return $.isCollector(evo.data) ?
@@ -1375,9 +1385,11 @@ const _arrayGets = {
     _Gets[`__${meth}`] = 1;
 
 
+    // 集合版：
+    // @data:  {Array|Collector}
     // @return {[Node|DocumentFragment]}
     _arrayGets[meth] = function( evo, arg ) {
-        return evo.data.map( con => $[meth]( con, arg) );
+        return Array.prototype.map.call( evo.data, con => $[meth](con, arg) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1449,7 +1461,7 @@ const _arrayGets = {
 //
 // Collector专有。
 // 目标：暂存区/栈顶1项。
-// 目标应当是一个Collector集合（如果不是会被自动封装）。
+// 目标通常为一个Collector，但也适用普通集合（会被自动转换）。
 // 注记：
 // 不支持.slice方法，已被用于数据栈操作。等价：call('slice', ...)
 // 不支持.eq方法，已被用于比较操作。等价：item(i) $$(_1)
@@ -1513,8 +1525,7 @@ const __uiState = [ '-', '', '^' ];
 
     // 集合版。
     _arrayGets[names[0]] = function( evo, s = 1 ) {
-        evo.data
-        .forEach(
+        evo.data.forEach(
             el => Util.pbo(el, [`${__uiState[s]}${names[1]}`])
         );
     };
@@ -1526,7 +1537,6 @@ const __uiState = [ '-', '', '^' ];
 
 //
 // 状态判断。
-// @return {Boolean|[Boolean]}
 //-------------------------------------
 [
     'hidden',
@@ -1539,6 +1549,7 @@ const __uiState = [ '-', '', '^' ];
 .forEach(function( name ) {
 
     // 单元素版。
+    // @return {Boolean}
     _Gets[name] = function( evo ) {
         return Util.pbo( evo.data ).includes(name);
     };
@@ -1547,8 +1558,12 @@ const __uiState = [ '-', '', '^' ];
 
 
     // 集合版。
+    // @return {[Boolean]}
     _arrayGets[name] = function( evo ) {
-        return evo.data.map( el => Util.pbo(el).includes(name) );
+        return Array.prototype.map.call(
+            evo.data,
+            el => Util.pbo(el).includes(name)
+        );
     };
 
     _arrayGets[`__${name}`] = 1;
@@ -1580,10 +1595,11 @@ const __uiState = [ '-', '', '^' ];
     _Gets[`__${meth}`] = 1;
 
 
+    // 集合版：
     // @param  {String} box 封装结构（同上）
     // @return {[Element]} 包裹的容器根元素集
     _arrayGets[meth] = function( evo, box ) {
-        return evo.data.map( el => $[meth](el, box) );
+        return Array.prototype.map.call( evo.data, el => $[meth](el, box) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1617,7 +1633,7 @@ const __uiState = [ '-', '', '^' ];
     // @param  {Boolean} back 入栈指示
     // @return {[[Node]]|void}
     _arrayGets[meth] = function( evo, back ) {
-        let vs = evo.data.map( el => $[meth](el) );
+        let vs = Array.prototype.map.call( evo.data, el => $[meth](el) );
         if ( back ) return vs;
     };
 

@@ -211,26 +211,24 @@ class ElemSels {
 
 
     /**
-     * 前兄弟元素添加。
+     * 前端兄弟元素添加/移出。
      * @param {Element} el 焦点元素
      * @param {Number} n 延伸个数
      */
-    siblingsPrev( [el, n] ) {
-        this._siblingAdd(
-            $.prevAll( el, (_, i) => i <= n )
-        );
+    prevn( [el, n] ) {
+        let _els = $.prevAll( el, (_, i) => i <= n );
+        this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
     }
 
 
     /**
-     * 后兄弟元素添加。
+     * 后端兄弟元素添加/移出。
      * @param {Element} el 焦点元素
      * @param {Number} n 延伸个数
      */
-    siblingsNext( [el, n] ) {
-        this._siblingAdd(
-            $.nextAll( el, (_, i) => i <= n )
-        );
+    nextn( [el, n] ) {
+        let _els = $.nextAll( el, (_, i) => i <= n );
+        this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
     }
 
 
@@ -302,7 +300,7 @@ class ElemSels {
     /**
      * 父子关系清理。
      * 检查目标元素与集合内成员的父子关系，如果存在则先移除。
-     * 不存在目标元素同时是集合内成员的子元素和父元素的情况。
+     * 注：不存在目标元素同时是集合内成员的子元素和父元素的情况。
      * @param  {Element} el 目标元素（待添加）
      * @return {this} 当前实例
      */
@@ -321,6 +319,30 @@ class ElemSels {
 
 
     /**
+     * 兄弟元素集添加。
+     * 新成员可能是集合内成员的父元素。
+     * 因为焦点元素为同级兄弟，共同的父元素不会在集合内。
+     * @param {[Element]} els 兄弟元素集
+     */
+    _addSiblings( els ) {
+        els.forEach(
+            el => this._set.has(el) || this._parentAdd(el)
+        );
+    }
+
+
+    /**
+     * 兄弟元素移出。
+     * @param {[Element]} els 兄弟元素集
+     */
+    _delSiblings( els ) {
+        els.forEach(
+            el => this._set.has(el) && this._set.delete(el)
+        );
+    }
+
+
+    /**
      * 父级添加。
      * 会清除集合内属于子级元素的选取。
      * @param {Element} el 父元素
@@ -331,19 +353,6 @@ class ElemSels {
                 el => this._set.delete( el )
             )
         this._set.add( el );
-    }
-
-
-    /**
-     * 兄弟元素添加。
-     * 忽略已经存在的成员，新成员添加时需检查父子包含关系。
-     * 注记：父元素不会在集合内。
-     * @param {[Element]} els 元素序列
-     */
-    _siblingAdd( els ) {
-        els.forEach(
-            el => this._set.has(el) || this._parentAdd(el)
-        );
     }
 
 
