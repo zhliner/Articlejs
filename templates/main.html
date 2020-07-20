@@ -99,8 +99,8 @@
                 ^obted"
             by_="Edit.xx"
             to="-;
-                #|addClass;
-                #|removeClass;
+                =|addClass;
+                =|removeClass;
                 |bind('mouseover mouseout', '*')">
             <hgroup>
                 <h1 id="文章内容的规范化结构">文章内容的规范化结构</h1>
@@ -132,12 +132,12 @@
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');
-        #|%backgroundPositionY">
+        =|%backgroundPositionY">
     <div class="_tabs"
         on="click(b)|evo(2) attr('-tpl') pop tpl;
             click(b)|evo(2) hasClass('_press') end $$('/b')"
         to="1/form|replace;
-            #|only('_press')">
+            =|only('_press')">
         <b data-tpl="slave:input" class="_press">内容</b>
         <b data-tpl="slave:style">样式</b>
         <b data-tpl="slave:attr">特性</b>

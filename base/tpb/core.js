@@ -42,7 +42,7 @@ const
 
     // To
     __toqOrig   = '~',  // 事件起始元素（evo.target）
-    __toqCurr   = '#',  // 事件当前元素（evo.current）
+    __toqCurr   = '=',  // 事件当前元素（evo.current）
     __tosAttr   = '@',  // 特性指定
     __tosProp   = '$',  // 属性指定
     __tosCSS    = '%',  // 样式指定
