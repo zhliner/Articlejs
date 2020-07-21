@@ -103,3 +103,18 @@ export class ESet extends Set {
         return this;
     }
 }
+
+
+//
+// 元素选取焦点。
+// 封装类名设置、取消逻辑。
+//
+export class EHot {
+    /**
+     * @param {String} mark 焦点标记类
+     */
+    constructor( mark ) {
+        this._cls = mark;
+        this._its = null;
+    }
+}

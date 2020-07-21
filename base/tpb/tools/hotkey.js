@@ -154,6 +154,8 @@ export class HotKey {
 // 热键对象式处理器。
 // 热键直接激发对象的方法调用。
 // 这便于集中处理热键的激发逻辑（无需大量的绑定）。
+// 即：
+// command 映射到对象内的方法名。
 //
 export class ObjKey extends HotKey {
     /**

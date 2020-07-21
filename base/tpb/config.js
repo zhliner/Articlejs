@@ -121,9 +121,10 @@ let Templater = null;
  * 这是 $.assign() 函数的处理器。
  * 创建已绑定的方法供全局共享，而不是每次创建一个绑定的新方法。
  *
- * @param  {Function} f 方法
+ * @param  {Function} f 源方法
  * @param  {String} k 方法名
- * @param  {Object} obj 宿主对象
+ * @param  {Object} obj 源宿主对象
+ * @param  {Object} to 目标宿主对象
  * @return {[Function,]} 值/键对（键忽略）
  */
  function bindMethod( f, k, obj, to ) {
@@ -146,9 +147,11 @@ let Templater = null;
  * - 处理取栈条目数（[EXTENT]），由前置两个下划线的属性表达。
  * - 处理特权设置（[ACCESS]），由前置两个下划线和_x结尾的属性表达。
  * 注：这是 $.assign() 函数的非绑定处理器。
- * @param {Function} f 方法
- * @param {String|Symbol} k 属性键
- * @param {Object} obj 源对象
+ * @param  {Function} f 源方法
+ * @param  {String} k 方法名
+ * @param  {Object} obj 源对象
+ * @param  {Object} to 目标宿主对象
+ * @return {[Function,]} 值/键对（键忽略）
  */
 function getMethod( f, k, obj, to ) {
     if ( $.type(f) == 'Object' ) {
@@ -231,8 +234,8 @@ function subObj( names, obj ) {
  * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
  * 可无exts实参调用返回子域本身。
  *
- * @param  {String} name 扩展域
- * @param  {Object} exts 扩展集，可选
+ * @param  {String} name 扩展标识（域链）
+ * @param  {Object} exts 待扩展集，可选
  * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
  * @param  {Object} base 扩展根域
  * @return {Object} 目标子域
@@ -243,6 +246,26 @@ function subExtend( name, exts, nobind, base ) {
         bindMethod;
 
     return $.assign( subObj(name.split('.'), base), exts || {}, _f );
+}
+
+
+/**
+ * 类实例扩展。
+ * 适用任意直接使用的类实例，但需要提供应用方法集。
+ * @param {String} name 扩展标识（域链）
+ * @param {Instance} obj 类实例（待扩展）
+ * @param {[String]} meths 方法名集
+ * @param {Object} base 扩展根域
+ */
+function instanceExtend( name, obj, meths, base ) {
+    let host = subObj(
+            name.split('.'), base
+        );
+    // 支持内嵌特权、取栈数量配置。
+    // 注：双下划线后跟方法名及“_x”标识。
+    for (const m of meths) {
+        host[m] = funcSets( obj[m].bind(obj), obj[`__${m}`], obj[`__${m}_x`] )
+    }
 }
 
 
@@ -282,6 +305,7 @@ export {
     funcSets,
     subObj,
     subExtend,
+    instanceExtend,
     methodSelf,
     Globals,
     DataStore,

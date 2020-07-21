@@ -34,7 +34,7 @@
 import { Util } from "./tools/util.js";
 import { X } from "./lib.x.js";
 import { App__ } from "./app.js";
-import { bindMethod, Web, subExtend, subObj } from "./config.js";
+import { bindMethod, Web, subExtend, instanceExtend, subObj } from "./config.js";
 import { Control } from "./pbs.base.js";
 
 // 无渲染占位。
@@ -125,21 +125,6 @@ By.x = X;
 
 
 /**
- * 类实例扩展。
- * 适用任意直接使用的类实例，但需要提供应用方法集。
- * @param {String} name 目标域（子域由句点分隔）
- * @param {Instance} obj 类实例
- * @param {[String]} meths 方法名集
- */
-function instanceExtend( name, obj, meths ) {
-    let host = subObj(
-            name.split('.'), By
-        );
-    meths.forEach( m => host[m] = obj[m].bind(obj) );
-}
-
-
-/**
  * 接口：普通扩展。
  * 对象：
  * - 扩展中的方法默认会绑定（bind）到所属宿主对象。
@@ -156,7 +141,7 @@ function instanceExtend( name, obj, meths ) {
  */
 export function processExtend( name, exts, args ) {
     if ( $.isArray(args) ) {
-        return instanceExtend( name, exts, args );
+        return instanceExtend( name, exts, args, By );
     }
     subExtend( name, exts, args, By );
 }

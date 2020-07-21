@@ -66,8 +66,8 @@ aside#help {
 
 /* 选取焦点 */
 .___Content ._focus {
-    border: 1px red dotted;
-    border-radius: 6px;
+    border: 1px #f30 dashed;
+    border-radius: 4px;
 }
 
 /* 微编辑下 */

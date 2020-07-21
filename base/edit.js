@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { ESet } from './common.js';
+import { ESet, EHot } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 
@@ -24,6 +24,9 @@ const
 
     // 元素选取集实例。
     __ESet = new ESet( Setup.selectedClass ),
+
+    // 选取焦点类实例。
+    __EHot = new EHot( Setup.focusClass ),
 
     // DOM节点变化历史实例。
     __TQHistory = new $.Fx.History( Limit.history );
@@ -156,26 +159,35 @@ class ESEdit {
 //
 // 元素选取操作。
 // 各方法对应到用户的快捷选取操作类型。
-// 操作全局选取集实例（__ESet）。
+// 注：操作全局选取集实例（__ESet）。
 //
 class ElemSels {
     /**
      * @param {ESet} eset 选取集实例引用
+     * @param {EHot} ehot 选取焦点实例引用
      */
-    constructor( eset ) {
+    constructor( eset, ehot ) {
         this._set = eset;
+        this._hot = ehot;
     }
 
 
     //-- 用户操作 ------------------------------------------------------------
+    // @data:  {Element|[Element, Number]}
+    // @return {void|false} 返回false表示操作无效
 
 
     /**
-     * 排它添加一个元素成员。
+     * 排它添加。
      * 会先清空整个集合。
+     * 友好：忽略简单的重复单击。
+     * @行为：单击
      * @param {Element} el 焦点元素
      */
     only( el ) {
+        if ( this._set.size == 1 && this._set.has(el) ) {
+            return false;
+        }
         this._set.clear();
         this._set.add( el );
     }
@@ -185,6 +197,7 @@ class ElemSels {
      * 切换选取。
      * 已存在则移除，否则为添加。
      * 注：添加时仍需考虑父子包含关系。
+     * @行为：Ctrl+单击
      * @param {Element} el 焦点元素
      */
     turn( el ) {
@@ -212,22 +225,32 @@ class ElemSels {
 
     /**
      * 前端兄弟元素添加/移出。
+     * 友好：前端无兄弟元素时忽略。
      * @param {Element} el 焦点元素
      * @param {Number} n 延伸个数
      */
-    prevn( [el, n] ) {
+    prevn( el, n ) {
         let _els = $.prevAll( el, (_, i) => i <= n );
+
+        if ( _els.length == 0 ) {
+            return false;
+        }
         this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
     }
 
 
     /**
      * 后端兄弟元素添加/移出。
+     * 友好：后端无兄弟元素时忽略。
      * @param {Element} el 焦点元素
      * @param {Number} n 延伸个数
      */
-    nextn( [el, n] ) {
+    nextn( el, n ) {
         let _els = $.nextAll( el, (_, i) => i <= n );
+
+        if ( _els.lenght == 0 ) {
+            return false;
+        }
         this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
     }
 
@@ -235,33 +258,43 @@ class ElemSels {
     /**
      * 子元素添加。
      * 仅递进到首个子元素。
-     * 会移除所属父元素。
+     * 友好：无子元素时简单忽略。
      * @param {Element} el 焦点元素
      */
     child( el ) {
         let _sub = el.firstElementChild;
 
-        if ( _sub ) {
-            this.delete( el );
-            this._set.add( _sub );
+        if ( !_sub ) {
+            return false;
         }
+        this.delete( el );
+        this._set.add( _sub );
     }
 
 
     /**
      * 父元素添加。
      * 会清除集合中所包含的子元素。
+     * 友好：抵达限定根元素时简单忽略。
      * @param {Element} el 焦点元素
+     * @param {Element} root 终止根元素
      */
-    parent( el ) {
+    parent( el, root ) {
+        if ( el.parentElement === root ) {
+            return false;
+        }
         this._parentAdd( el.parentElement );
     }
 
 
     /**
      * 清除全部选取。
+     * 友好：空集时简单忽略。
      */
     empty() {
+        if ( this._set.size == 0 ) {
+            return false;
+        }
         this._set.clear();
     }
 
@@ -423,7 +456,7 @@ class NodeVary {
 
 const
     // 元素选取集操作实例。
-    __Selects = new ElemSels( __ESet ),
+    __Selects = new ElemSels( __ESet, __EHot ),
 
     // 元素修改操作实例。
     __Elemedit = new NodeVary( __ESet ),
@@ -434,38 +467,72 @@ const
 
 
 //
+// 操作封装（含历史功能）
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 元素选取。
+ * 引用全局__Selects实例并执行其操作（方法）。
+ * 友好：会简单忽略无效的操作。
+ * @param {String} op 操作名
+ * @param {...Value} args 参数序列
+ */
+function histSelect( op, ...args ) {
+    let _old = [...__ESet];
+
+    if ( __Selects[op](...args) === false ) {
+        return;
+    }
+    __History.push( new ESEdit(_old, __ESet) );
+}
+
+
+/**
+ * 节点处理。
+ * 引用全局__Elemedit实例并执行其操作（方法）。
+ * 友好：选取集为空时忽略用户操作。
+ * @param {String} op 操作名
+ * @param {...Value} args 参数序列
+ */
+function histNodes( op, ...args ) {
+    if ( __ESet.size == 0 ) {
+        return;
+    }
+    __History.push( new DOMEdit( () => __Elemedit[op](...args), __TQHistory ) );
+}
+
+
+
+//
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
 
+//
+// By扩展集。
+//
 const _Edit = {
     /**
-     * 选取队列操作。
-     * 引用全局__Selects实例并执行其操作（方法）。
-     * 流程数据为唯一实参。
+     * 选取集。
+     * 适用鼠标操作：only, turn
      * @param  {String} op 操作名
      * @return {void}
      */
-    queue( evo, op ) {
-        let _old = [...__ESet];
-
-        __Selects[op]( evo.data );
-        __History.push( new ESEdit(_old, __ESet) );
+    eset( evo, op ) {
+        histSelect( op, evo.data );
     },
+
+    __eset: 1,
 
 
     /**
-     * 封装节点处理。
-     * 引用全局__Elemedit实例并执行其操作（方法）。
-     * 流程数据为唯一实参。
+     * 节点操作。
      * @param  {String} op 操作名
      * @return {void}
      */
-    nodes( evo, op ) {
-        let _fun = () =>
-            __Elemedit[op]( evo.data );
-
-        __History.push( new DOMEdit(_fun, __TQHistory) );
+    node( evo, op ) {
+        histNodes( op, evo.data );
     },
 
 
@@ -489,4 +556,55 @@ const _Edit = {
 
 }
 
-processExtend( 'Edit', _Edit );
+// 扩展到By。
+processExtend( 'Ed', _Edit );
+
+
+
+//
+// 选取类快捷键处理集。
+// 含选取焦点的移动处理。
+// 注记：
+// 选取参考 ElemSels 实例中适用键盘的处理方法。
+//
+export const KeySels =
+{
+    turn() {
+        //
+    },
+
+
+    reverse() {
+        //
+    },
+
+
+    prevn() {
+        //
+    },
+
+
+    nextn() {
+        //
+    },
+
+
+    child() {
+        //
+    },
+
+
+    parent() {
+        //
+    },
+
+
+    empty() {
+        //
+    },
+}
+
+
+
+// debug:
+window.ESet = __ESet;

@@ -1466,11 +1466,11 @@ const _Process = {
      * - acmsk ev('key') 为两个动态的实参。
      *
      * @param  {String} key 快捷键序列
-     * @param  {Value} extra 发送的数据
+     * @param  {...Value} args 发送的数据或实参序列
      * @return {Boolean} 是否已捕获激发
      */
-    hotKey( evo, key, extra ) {
-        return evo.data.fire( key, evo.event, extra );
+    hotKey( evo, key, ...args ) {
+        return evo.data.fire( key, evo.event, ...args );
     },
 
     __hotKey: 1,

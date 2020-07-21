@@ -45,7 +45,8 @@
         <b id="cross-h"></b><b id="cross-v"></b>
     </span>
     <!--滚动封装 -->
-    <div id="g-scroll" class="_scroll" tabindex="0">
+    <div id="g-scroll" class="_scroll" tabindex="0"
+        on="keydown|(CHK) acmsk evo hotKey(_2)">
         <!-- 选取创建（mouseup） -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pb="lost">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
@@ -93,21 +94,22 @@
         <!-- 内容区 -->
         <!-- 微编辑：on="mouseup keyup input|rangeKeep stop" -->
         <main id="content" class="content"
-            on="click;
-                @mouseover|('_point');
-                @mouseout|('_point');
+            on="click(*)|evo(1) (KM.turnSelect) scam(_1) $if('turn', 'only');
+                @mouseover:1|('_point');
+                @mouseout:1|('_point');
                 ^obted"
-            by_="Edit.xx"
+            by="Ed.eset(_1)"
             to="-;
                 =|addClass;
                 =|removeClass;
-                |bind('mouseover mouseout', '*')">
+                |bind('mouseover:1 mouseout:1', '*')">
             <hgroup>
                 <h1 id="文章内容的规范化结构">文章内容的规范化结构</h1>
                 <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
             </hgroup>
             <article>
                 <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式价值不菲，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
+                <p>依通常的情形和需求，这里提供最多5个层级的支持，分别命名为：<strong>章</strong>、<strong>节</strong>、<strong>区</strong>、<strong>段</strong>、<strong>末</strong>。它们逐层嵌套，每一层都由一个 <code>&lt;section&gt;</code> 封装，为便于识别和定位，<code>&lt;section&gt;</code> 元素上分别定义 <code>role</code> 属性值为：<code>s1 ~ s5</code>。</p>
             </article>
         </main>
     </div>

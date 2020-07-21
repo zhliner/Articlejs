@@ -38,15 +38,16 @@
     <script type="module" async>
         import Tpb from "./tpb/tpb.js";
         import { Web } from "./tpb/config.js";
-        import { HotKey } from './tpb/tools/hotkey.js';
+        import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
+        import { KeySels } from "./edit.js";
 
         window.KM = cfg.Keys;
         window.GHK = new HotKey().config( cfg.Global );
         window.MHK = new HotKey().config( cfg.Menu );
-        window.CHK = new HotKey().config( cfg.Content );
         window.SHK = new HotKey().config( cfg.Slave );
         window.DHK = new HotKey().config( cfg.Modal );
+        window.CHK = new ObjKey(KeySels).config( cfg.Content );
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
@@ -76,7 +77,7 @@
         panel.slave;
         panel.help;
         panel.plugins;
-        cmdline.active|evo(1) ev('detail');
+        cmdline.active|ev('detail');
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize);
         ^finish"

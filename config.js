@@ -20,6 +20,9 @@ export const Setup = {
     // 元素选取态类名。
     selectedClass:  '_selected',
 
+    // 选取焦点类名。
+    focusClass: '_focus',
+
 };
 
 
