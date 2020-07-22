@@ -40,14 +40,14 @@
         import { Web } from "./tpb/config.js";
         import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
-        import { KeySels } from "./edit.js";
+        import { KeyOps } from "./edit.js";
 
         window.KM = cfg.Keys;
         window.GHK = new HotKey().config( cfg.Global );
         window.MHK = new HotKey().config( cfg.Menu );
         window.SHK = new HotKey().config( cfg.Slave );
         window.DHK = new HotKey().config( cfg.Modal );
-        window.CHK = new ObjKey(KeySels).config( cfg.Content );
+        window.CHK = new ObjKey(KeyOps).config( cfg.Content );
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
@@ -78,6 +78,7 @@
         panel.help;
         panel.plugins;
         cmdline.active|ev('detail');
+        focus.content;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize);
         ^finish"
@@ -92,6 +93,7 @@
         #x-help||click;
         #x-plugins||click;
         #g-cmdx|trigger('setv');
+        #g-scroll|trigger('focus');
         |data('all pls');
         #g-keytip|text;
         |trigger('pcheck')">

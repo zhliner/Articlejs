@@ -86,6 +86,7 @@ const _Gets = {
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
      * 4. push('/p') $(_1)    // rid从流程获取，效果同1
      * 5. push('/a') evo(1) pop $(_1)  // 效果同2
+     * 6. $  // 起点元素自身
      * @param  {Object} evo 事件关联对象
      * @param  {String} rid 相对ID，可选
      * @return {Element}

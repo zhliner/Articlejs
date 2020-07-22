@@ -10,6 +10,9 @@
 //
 //  包含普通模式下的选取、移动、样式/源码的设置，以及临时态的操作。
 //
+//  注记：
+//  元素选取包含在编辑历史的记录里（可Undo/Redo），但选取焦点的移动不包含。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -159,16 +162,13 @@ class ESEdit {
 //
 // 元素选取操作。
 // 各方法对应到用户的快捷选取操作类型。
-// 注：操作全局选取集实例（__ESet）。
 //
 class ElemSels {
     /**
      * @param {ESet} eset 选取集实例引用
-     * @param {EHot} ehot 选取焦点实例引用
      */
-    constructor( eset, ehot ) {
+    constructor( eset ) {
         this._set = eset;
-        this._hot = ehot;
     }
 
 
@@ -182,7 +182,7 @@ class ElemSels {
      * 会先清空整个集合。
      * 友好：忽略简单的重复单击。
      * @行为：单击
-     * @param {Element} el 焦点元素
+     * @param {Element} el 目标元素
      */
     only( el ) {
         if ( this._set.size == 1 && this._set.has(el) ) {
@@ -198,7 +198,7 @@ class ElemSels {
      * 已存在则移除，否则为添加。
      * 注：添加时仍需考虑父子包含关系。
      * @行为：Ctrl+单击
-     * @param {Element} el 焦点元素
+     * @param {Element} el 焦点/目标元素
      */
     turn( el ) {
         if ( this._set.has(el) ) {
@@ -260,15 +260,16 @@ class ElemSels {
      * 仅递进到首个子元素。
      * 友好：无子元素时简单忽略。
      * @param {Element} el 焦点元素
+     * @param {Number} n 递进最大深度
      */
-    child( el ) {
-        let _sub = el.firstElementChild;
+    child( el, n ) {
+        let _end = deepChild( el, n );
 
-        if ( !_sub ) {
+        if ( _end === el ) {
             return false;
         }
         this.delete( el );
-        this._set.add( _sub );
+        this._set.add( _end );
     }
 
 
@@ -277,13 +278,15 @@ class ElemSels {
      * 会清除集合中所包含的子元素。
      * 友好：抵达限定根元素时简单忽略。
      * @param {Element} el 焦点元素
+     * @param {Number} n 上升最大层级数
      * @param {Element} root 终止根元素
      */
-    parent( el, root ) {
-        if ( el.parentElement === root ) {
-            return false;
-        }
-        this._parentAdd( el.parentElement );
+    parent( el, n, root ) {
+        let _to = $.closest(
+            el,
+            (e, i) => i == n || e === root
+        );
+        return _to !== root && this._parentAdd( _to );
     }
 
 
@@ -456,7 +459,7 @@ class NodeVary {
 
 const
     // 元素选取集操作实例。
-    __Selects = new ElemSels( __ESet, __EHot ),
+    __Selects = new ElemSels( __ESet ),
 
     // 元素修改操作实例。
     __Elemedit = new NodeVary( __ESet ),
@@ -467,12 +470,30 @@ const
 
 
 //
-// 操作封装（含历史功能）
+// 工具函数
 //////////////////////////////////////////////////////////////////////////////
 
 
 /**
- * 元素选取。
+ * 提取深层子元素。
+ * 如果目标层数超出范围，则返回最终递进到的元素。
+ * 注：仅沿首个子元素递进。
+ * @param  {Element} el 目标元素
+ * @param  {Number} n 递进层数
+ * @return {Element}
+ */
+function deepChild( el, n ) {
+    let _sub = el.firstElementChild;
+
+    if ( n <= 0 || !_sub ) {
+        return el;
+    }
+    return deepChild( _sub, --n );
+}
+
+
+/**
+ * 元素选取封装（含历史功能）。
  * 引用全局__Selects实例并执行其操作（方法）。
  * 友好：会简单忽略无效的操作。
  * @param {String} op 操作名
@@ -489,7 +510,7 @@ function histSelect( op, ...args ) {
 
 
 /**
- * 节点处理。
+ * 节点处理封装（含历史功能）。
  * 引用全局__Elemedit实例并执行其操作（方法）。
  * 友好：选取集为空时忽略用户操作。
  * @param {String} op 操作名
@@ -515,15 +536,17 @@ function histNodes( op, ...args ) {
 const _Edit = {
     /**
      * 选取集。
-     * 适用鼠标操作：only, turn
+     * 适用方法：only, turn
+     * 注：仅用于鼠标点选。
      * @param  {String} op 操作名
      * @return {void}
      */
-    eset( evo, op ) {
+    mouse( evo, op ) {
         histSelect( op, evo.data );
+        __EHot.set( evo.data );
     },
 
-    __eset: 1,
+    __mouse: 1,
 
 
     /**
@@ -531,9 +554,11 @@ const _Edit = {
      * @param  {String} op 操作名
      * @return {void}
      */
-    node( evo, op ) {
+    nodes( evo, op ) {
         histNodes( op, evo.data );
     },
+
+    __nodes: 1,
 
 
     /**
@@ -562,46 +587,121 @@ processExtend( 'Ed', _Edit );
 
 
 //
-// 选取类快捷键处理集。
-// 含选取焦点的移动处理。
-// 注记：
-// 选取参考 ElemSels 实例中适用键盘的处理方法。
+// 内容区快捷键处理集。
+// 包含：
+// - 焦点移动。无需进入编辑历史记录。
+// - 元素选取。进入历史记录（可撤销），有混合操作。
+// - 元素编辑。移动、克隆、删除等。
 //
-export const KeySels =
-{
+export const KeyOps = {
+
+    //-- 焦点移动 ------------------------------------------------------------
+
+    /**
+     * 平级：前端元素。
+     * @param {Number} n 移动距离
+     */
+    focusPrev( n ) {
+        let _beg = __EHot.get();
+
+        if ( !_beg || n <= 0 ) {
+            return;
+        }
+        __EHot.set( $.prev(_beg, (_, i) => i == n, true) || _beg.parentElement.firstElementChild );
+    },
+
+
+    /**
+     * 平级：后端元素。
+     * @param {Number} n 移动距离
+     */
+    focusNext( n ) {
+        let _beg = __EHot.get();
+
+        if ( !_beg || n <= 0 ) {
+            return;
+        }
+        __EHot.set( $.next(_beg, (_, i) => i == n, true) || _beg.parentElement.lastElementChild );
+    },
+
+
+    /**
+     * 纵深：上级元素。
+     * 返回false表示目标超出范围。
+     * @param  {Number} n 移动距离
+     * @param  {Element} root 终止根元素
+     * @return {false|void}
+     */
+    focusUp( n, root ) {
+        let _beg = __EHot.get();
+
+        if ( !_beg || n <= 0 ) {
+            return;
+        }
+        let _to = $.closest( _beg, (el, i) => i == n || el === root );
+
+        return _to !== root && __EHot.set( _to );
+    },
+
+
+    /**
+     * 纵深：下级元素。
+     * 注：容错超出的层级数量。
+     * @param {Number} n 移动距离
+     */
+    focusDown( n ) {
+        let _beg = __EHot.get();
+
+        if ( !_beg || n <= 0 ) {
+            return;
+        }
+        __EHot.set( deepChild(_beg, n) );
+    },
+
+
+    //-- 元素选取 ------------------------------------------------------------
+
     turn() {
-        //
+        histSelect( 'turn', __EHot.get() );
     },
 
 
     reverse() {
-        //
+        histSelect( 'reverse', __EHot.get() );
     },
 
 
-    prevn() {
-        //
+    prevn( n ) {
+        histSelect( 'prevn', __EHot.get(), n );
     },
 
 
-    nextn() {
-        //
+    nextn( n ) {
+        histSelect( 'nextn', __EHot.get(), n );
     },
 
 
-    child() {
-        //
+    child( n ) {
+        histSelect( 'child', __EHot.get(), n );
     },
 
 
-    parent() {
-        //
+    parent( n, root ) {
+        histSelect( 'parent', __EHot.get(), n, root );
     },
 
 
     empty() {
-        //
+        histSelect( 'empty' );
     },
+
+
+    //-- 混合操作 ------------------------------------------------------------
+    // 移动焦点的同时进行选取。
+
+
+    //-- 元素编辑 ------------------------------------------------------------
+
 }
 
 

@@ -1082,7 +1082,7 @@ Object.assign( tQuery, {
      * 可选的用slr进行匹配过滤。
      * 注：结果集保持逆向顺序（靠近起点的元素在前）。
      * @param  {Element} el 参考元素
-     * @param  {String|Function} slr 匹配选择器，可选
+     * @param  {String|Function} slr 匹配条件，可选
      * @return {[Element]}
      */
     prevAll( el, slr ) {
@@ -1094,7 +1094,7 @@ Object.assign( tQuery, {
      * 获取前端兄弟元素，直到slr匹配（不包含匹配的元素）。
      * 注：结果集成员保持逆向顺序。
      * @param  {Element} el 参考元素
-     * @param  {String|Element} slr 选择器或元素，可选
+     * @param  {String|Element|Function} slr 终止条件，可选
      * @return {[Element]}
      */
     prevUntil( el, slr = '' ) {

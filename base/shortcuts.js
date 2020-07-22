@@ -45,46 +45,58 @@ export default {
 /////////////////////////////////////////////////
 
 Global: [
-    //
-    // 各面板隐/显切换
-    //-----------------------------------------------------
+    // 大纲面板切换（隐/显）
     {
-        // 隐/显大纲面板
         "key":      ":f2",
         "command":  "panel.outline",
     },
+
+    // 主面板切换（隐/显）
     {
-        // 隐/显主面板
         "key":      ":f3",
         "command":  "panel.slave"
     },
+
+    // 帮助面板切换（隐/显）
     {
-        // 隐/显帮助面板
         "key":      ":f4",
         "command":  "panel.help"
     },
+
+    // 当前已显示面板切换（全隐/全显）
+    // 注：若无任何显示的面板，则针对全部面板。
+    {
+        "key":      ":f9",
+        "command":  "panel.clearall"
+    },
+
+    // 显示插件面板
+    // 注：插件面板有焦点时可通过 ESC 隐藏。
     {
         "key":      ":f7",
         "command":  "panel.plugins"
     },
+
+    // 编辑器最大化
     {
-        // 隐/显当前显示的面板
-        // 若本无显示则针对全部面板。
-        "key":      ":f9",
-        "command":  "panel.clearall"
-    },
-    {
-        // 同编辑器最大化按钮
         "key":      ":f10",
         "command":  "panel.maximize"
     },
+
+    // 录入框铺满
+    // 需由样式定义容器范围（position:relative）。
     {
-        // 录入框充满（通用）
         "key":      "alt:f",
         // "key":      "meta:f",  // MacOS
         "command":  "input.full",
     },
 
+    // 内容区聚焦
+    // 便于对内容区的快捷键操作。
+    {
+        "key":      ":f6",
+        "command":  "focus.content"
+    },
 
     //
     // 命令行直达
@@ -126,7 +138,9 @@ Content: [
     {
         // 切换选取。
         "command":  "turn",
-        "key":      [":space", ":enter"],
+        // 注：
+        // 空格键为实际的空格字符。
+        "key":      [": ", ":enter"],
     }
 ],
 

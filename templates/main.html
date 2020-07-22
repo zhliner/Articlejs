@@ -44,9 +44,14 @@
     <span id="g-cross" data-pb="lost">
         <b id="cross-h"></b><b id="cross-v"></b>
     </span>
-    <!--滚动封装 -->
+    <!--滚动封装
+        keydown 快捷键操作
+        keyup 数值设置（非数字无效） -->
     <div id="g-scroll" class="_scroll" tabindex="0"
-        on="keydown|(CHK) acmsk evo hotKey(_2)">
+        on="keydown|(CHK) acmsk $('#g-count') val $('#content') hotKey(_3) pass;
+            keyup|ev('key') isNumeric pass $('#g-count') val ev('key') add(_1)"
+        to="#g-count|trigger('reset');
+            #g-count|trigger('set')">
         <!-- 选取创建（mouseup） -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pb="lost">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
@@ -98,7 +103,7 @@
                 @mouseover:1|('_point');
                 @mouseout:1|('_point');
                 ^obted"
-            by="Ed.eset(_1)"
+            by="Ed.mouse(_1)"
             to="-;
                 =|addClass;
                 =|removeClass;
@@ -161,6 +166,14 @@
     <!-- 提示区 -->
     <div class="_tips">
         <span id="status-tips" title=""></span>
+        <!-- 计数暂存 -->
+        <input id="g-count" name="count" type="hidden"
+            on="reset|('');
+                set|ev('detail') dup;
+                info|ev('detail')"
+            to="|val|goto('info', '');
+                |val|goto('info', _1);
+                #status-tips|attribute('title text')" />
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">

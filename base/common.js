@@ -117,4 +117,28 @@ export class EHot {
         this._cls = mark;
         this._its = null;
     }
+
+
+    set( el ) {
+        if ( !el || el === this._its ) {
+            return;
+        }
+        if ( this._its ) {
+            $.removeClass( this._its, this._cls );
+        }
+        this._its = $.addClass( el, this._cls );
+    }
+
+
+    get() {
+        return this._its;
+    }
+
+
+    cancel() {
+        if ( this._its ) {
+            $.removeClass( this._its, this._cls );
+            this._its = null;
+        }
+    }
 }
