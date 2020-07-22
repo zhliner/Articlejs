@@ -40,14 +40,14 @@
         import { Web } from "./tpb/config.js";
         import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
-        import { KeyOps } from "./edit.js";
+        import { MainOps } from "./edit.js";
 
         window.KM = cfg.Keys;
         window.GHK = new HotKey().config( cfg.Global );
         window.MHK = new HotKey().config( cfg.Menu );
         window.SHK = new HotKey().config( cfg.Slave );
         window.DHK = new HotKey().config( cfg.Modal );
-        window.CHK = new ObjKey(KeyOps).config( cfg.Content );
+        window.CHK = new ObjKey(MainOps).config( cfg.Content );
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
