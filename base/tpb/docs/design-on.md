@@ -71,12 +71,6 @@ evo( name:String|Number ): Value
 ev( name?:String ): Value|[Value]
 // 从事件对象上取值入栈。
 
-nil(): undefined
-// 空值指令。
-
-push( ...val:Value|[Value] ): void
-// 直接数据。
-
 get( name:String ): Value | [Value]
 // 对象成员取值。
 
@@ -138,13 +132,28 @@ els( tag:String, n:Number ): Element | [Element]
 clone( event:?, deep?:, eventdeep?:Boolean ): Element|Collector
 // 元素克隆。
 
+Element( tag:String ): Element | Collector
+// 创建元素。
+
+svg( tag?:String ): Element | Collector
+// 创建SVG域元素。
+
+wrapAll( box:String ): Collector
+// 元素集封装。
+
+einfo( hasid:Boolean, hascls:Boolean ): String | [String]
+// 生成元素基本信息。
+
 
 
 // 复杂取值。
 //-----------------------------------------------
 
-tpl( name?:String, clone?:Boolean ): Promise<Element>
+tpl( name:String, clone?:Boolean ): Promise<Element>
 // 获取name模板节点。
+
+node( name:String, clone?:Boolean ): Element | [Element|null] | null
+// 获取模板节点（集）。
 
 keys(): [Value]
 // 获得键数组。

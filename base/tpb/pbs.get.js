@@ -160,47 +160,6 @@ const _Gets = {
 
 
     /**
-     * 空值指令。
-     * 压入特殊值undefined。
-     * 特权：是，特殊操作。
-     * 可用于向栈内填充无需实参的占位值。
-     * @param {Stack} stack 数据栈
-     */
-    nil( evo, stack ) {
-        stack.undefined();
-    },
-
-    __nil_x: true,
-
-
-    /**
-     * 数据直接入栈。
-     * 目标：暂存区条目可选。
-     * 特权：是，自行入栈。
-     * 多个实参会自动展开入栈，数组实参视为单个值。
-     * 如果目标有值，会附加（作为单一值）在实参序列之后。
-     * 例：
-     * - push('abc', 123)  // 分别入栈字符串'abc'和数值123两个值
-     * - pop(3) push(true) // 入栈布尔值true和暂存区条目（3项一体）两个值
-     * 友好：
-     * 系统支持空名称指代，即：('hello') => push('hello') 相同。
-     * 这让数据入栈更简洁（如果无需明确的push表意）。
-     * @param  {Stack} stack 数据栈
-     * @param  {...Value} vals 值序列
-     * @return {void} 自行入栈
-     */
-    push( evo, stack, ...vals ) {
-        if ( evo.data !== undefined ) {
-            vals.push( evo.data );
-        }
-        stack.push( ...vals );
-    },
-
-    __push: 0,
-    __push_x: true,
-
-
-    /**
      * 从目标上取成员值。
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称，返回一个值数组。
@@ -518,7 +477,7 @@ const _Gets = {
      * 目标：暂存区1项可选。
      * 目标作为元素的内容或属性配置。
      * @param  {String} tag 标签名
-     * @return {Element}
+     * @return {Element|Collector}
      */
     Element( evo, tag ) {
         return $.isCollector(evo.data) ?
@@ -529,7 +488,7 @@ const _Gets = {
 
 
     /**
-     * 创建一个SVG域元素。
+     * 创建SVG域元素。
      * 目标：暂存区1项可选。
      * 目标为SVG元素的内容或配置对象。
      * 注：tag无值时创建<svg>元素。
@@ -558,6 +517,19 @@ const _Gets = {
     },
 
     __wrapAll: 1,
+
+
+    /**
+     * 生成元素基本信息。
+     * @param  {Boolean} hasid 包含ID信息
+     * @param  {Boolean} hascls 包含类名信息
+     * @return {String}
+     */
+    einfo( evo, hasid, hascls ) {
+        return elemInfo( evo.data, hasid, hascls );
+    },
+
+    __einfo: 1,
 
 
 
@@ -1058,6 +1030,19 @@ const _arrayGets = {
     __calls: 1,
 
 
+    /**
+     * 生成元素基本信息。
+     * @param  {Boolean} hasid 包含ID信息
+     * @param  {Boolean} hascls 包含类名信息
+     * @return {[String]|Collector}
+     */
+    einfo( evo, hasid, hascls ) {
+        return evo.data.map( el => elemInfo(el, hasid, hascls) );
+    },
+
+    __einfo: 1,
+
+
 
     // 类型转换。
     //-----------------------------------------------------
@@ -1123,7 +1108,7 @@ const _arrayGets = {
 
 
 
-    // 元素集操作。
+    // 节点创建。
     // 返回类型与目标类型相同。
     //-----------------------------------------------------
 
@@ -1161,6 +1146,10 @@ const _arrayGets = {
 
     __svg: -1,
 
+
+
+    // 元素自身改变。
+    //-----------------------------------------------------
 
     /**
      * 移除元素集。
@@ -1465,12 +1454,11 @@ const _arrayGets = {
 // 目标通常为一个Collector，但也适用普通集合（会被自动转换）。
 // 注记：
 // 不支持.slice方法，已被用于数据栈操作。等价：call('slice', ...)
-// 不支持.eq方法，已被用于比较操作。等价：item(i) $$(_1)
 //////////////////////////////////////////////////////////////////////////////
 [
+    'first',    // ( slr? ): Value
+    'last',     // ( slr? ): Value
     'item',     // ( idx? ): Value | [Value]
-    'first',    // ( slr? ): Collector
-    'last',     // ( slr? ): Collector
 ]
 .forEach(function( meth ) {
     /**
@@ -1789,6 +1777,27 @@ function arrayFill( arr, size ) {
 
     arr.length = size;
     return i < size ? arr.fill(v, i) : arr;
+}
+
+
+/**
+ * 提取元素简单信息。
+ * 格式：tag#id.className
+ * @param  {Element} el 目标元素
+ * @param  {Boolean} hasid 包含ID信息
+ * @param  {Boolean} hascls 包含类名信息
+ * @return {String}
+ */
+function elemInfo( el, hasid, hascls ) {
+    let _s = el.tagName.toLowerCase();
+
+    if ( hasid && el.id ) {
+        _s += `#${el.id}`;
+    }
+    if ( hascls && el.className ) {
+        _s += `#${el.className}`;
+    }
+    return _s;
 }
 
 

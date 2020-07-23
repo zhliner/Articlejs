@@ -48,7 +48,7 @@
         keydown 快捷键操作
         keyup 数值设置（非数字无效） -->
     <div id="g-scroll" class="_scroll" tabindex="0"
-        on="keydown|(CHK) acmsk $('#g-count') val $('#content') hotKey(_3) pass;
+        on="keydown|(CHK) acmsk $('#g-count') val int $('#content') hotKey(_3) pass;
             keyup|ev('key') isNumeric pass $('#g-count') val ev('key') add(_1)"
         to="#g-count|trigger('reset');
             #g-count|trigger('set')">
@@ -102,11 +102,13 @@
             on="click(*)|evo(1) (KM.turnSelect) scam(_1) $if('turn', 'only');
                 @mouseover:1|('_point');
                 @mouseout:1|('_point');
+                mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
                 ^obted"
             by="Ed.mouse(_1)"
             to="-;
                 =|addClass;
                 =|removeClass;
+                #status-tips|trigger('info');
                 |bind('mouseover:1 mouseout:1', '*')">
             <hgroup>
                 <h1 id="文章内容的规范化结构">文章内容的规范化结构</h1>
@@ -165,15 +167,15 @@
 <div class=" ___Panel Status" tpl-name="main:status">
     <!-- 提示区 -->
     <div class="_tips">
-        <span id="status-tips" title=""></span>
+        <span id="status-tips" title=""
+            on="info|ev('detail')"
+            to="|attribute('title text')"></span>
         <!-- 计数暂存 -->
         <input id="g-count" name="count" type="hidden"
-            on="reset|('');
-                set|ev('detail') dup;
-                info|ev('detail')"
-            to="|val|goto('info', '');
-                |val|goto('info', _1);
-                #status-tips|attribute('title text')" />
+            on="reset|('') dup;
+                set|ev('detail') dup"
+            to="|val|pop fire('#status-tips', 'info');
+                |val|pop fire('#status-tips', 'info')" />
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">

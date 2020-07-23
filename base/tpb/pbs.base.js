@@ -228,6 +228,47 @@ const _Control = {
     //-----------------------------------------------------
 
     /**
+     * 空值入栈。
+     * 压入特殊值undefined。
+     * 特权：是，特殊操作。
+     * 可用于向栈内填充无需实参的占位值。
+     * @param {Stack} stack 数据栈
+     */
+    nil( evo, stack ) {
+        stack.undefined();
+    },
+
+    __nil_x: true,
+
+
+    /**
+     * 数据直接入栈。
+     * 目标：暂存区条目可选。
+     * 特权：是，自行入栈。
+     * 多个实参会自动展开入栈，数组实参视为单个值。
+     * 如果目标有值，会附加（作为单一值）在实参序列之后。
+     * 例：
+     * - push('abc', 123)  // 分别入栈字符串'abc'和数值123两个值
+     * - pop(3) push(true) // 入栈布尔值true和暂存区条目（3项一体）两个值
+     * 友好：
+     * 系统支持空名称指代，即：('hello') => push('hello') 相同。
+     * 这让数据入栈更简洁（如果无需明确的push表意）。
+     * @param  {Stack} stack 数据栈
+     * @param  {...Value} vals 值序列
+     * @return {void} 自行入栈
+     */
+    push( evo, stack, ...vals ) {
+        if ( evo.data !== undefined ) {
+            vals.push( evo.data );
+        }
+        stack.push( ...vals );
+    },
+
+    __push: 0,
+    __push_x: true,
+
+
+    /**
      * 栈顶复制（浅）。
      * 复制栈顶n项并入栈（原样展开）。
      * 目标：无。

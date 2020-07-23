@@ -602,9 +602,10 @@ export const MainOps = {
      * @param {Number} n 移动距离
      */
     focusPrev( n ) {
+        n = n || 1;
         let _beg = __EHot.get();
 
-        if ( !_beg || n <= 0 ) {
+        if ( !_beg || n < 0 ) {
             return;
         }
         __EHot.set( $.prev(_beg, (_, i) => i == n, true) || _beg.parentElement.firstElementChild );
@@ -616,9 +617,10 @@ export const MainOps = {
      * @param {Number} n 移动距离
      */
     focusNext( n ) {
+        n = n || 1;
         let _beg = __EHot.get();
 
-        if ( !_beg || n <= 0 ) {
+        if ( !_beg || n < 0 ) {
             return;
         }
         __EHot.set( $.next(_beg, (_, i) => i == n, true) || _beg.parentElement.lastElementChild );
@@ -628,14 +630,16 @@ export const MainOps = {
     /**
      * 纵深：上级元素。
      * 返回false表示目标超出范围。
+     * 注意：需要提供准确距离值。
      * @param  {Number} n 移动距离
      * @param  {Element} root 终止根元素
      * @return {false|void}
      */
     focusUp( n, root ) {
+        n = n || 1;
         let _beg = __EHot.get();
 
-        if ( !_beg || n <= 0 ) {
+        if ( !_beg || n < 0 ) {
             return;
         }
         let _to = $.closest( _beg, (el, i) => i == n || el === root );
@@ -646,16 +650,16 @@ export const MainOps = {
 
     /**
      * 纵深：下级元素。
-     * 注：容错超出的层级数量。
+     * 注：向下容错超出的层级数。
      * @param {Number} n 移动距离
      */
     focusDown( n ) {
         let _beg = __EHot.get();
 
-        if ( !_beg || n <= 0 ) {
+        if ( !_beg || n < 0 ) {
             return;
         }
-        __EHot.set( deepChild(_beg, n) );
+        __EHot.set( deepChild(_beg, n || 1) );
     },
 
 
@@ -672,22 +676,22 @@ export const MainOps = {
 
 
     prevn( n ) {
-        histSelect( 'prevn', __EHot.get(), n );
+        histSelect( 'prevn', __EHot.get(), n || 1 );
     },
 
 
     nextn( n ) {
-        histSelect( 'nextn', __EHot.get(), n );
+        histSelect( 'nextn', __EHot.get(), n || 1 );
     },
 
 
     child( n ) {
-        histSelect( 'child', __EHot.get(), n );
+        histSelect( 'child', __EHot.get(), n || 1 );
     },
 
 
     parent( n, root ) {
-        histSelect( 'parent', __EHot.get(), n, root );
+        histSelect( 'parent', __EHot.get(), n || 1, root );
     },
 
 

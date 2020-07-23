@@ -49,6 +49,11 @@
         window.DHK = new HotKey().config( cfg.Modal );
         window.CHK = new ObjKey(MainOps).config( cfg.Content );
 
+        // 取消实例栈。
+        // 逐次取消。对栈顶成员发送cancel消息。
+        // 注：由目标自己管理出/入栈。
+        window.ESC = [];
+
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
@@ -79,6 +84,7 @@
         panel.plugins;
         cmdline.active|ev('detail');
         focus.content;
+        escape.cancel|(ESC) last dup pass pop;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize);
         ^finish"
@@ -94,6 +100,7 @@
         #x-plugins||click;
         #g-cmdx|trigger('setv');
         #g-scroll|trigger('focus');
+        -|trigger('cancel');
         |data('all pls');
         #g-keytip|text;
         |trigger('pcheck')">
@@ -105,11 +112,11 @@
         to="body|bind('mousemove:1') once('mouseup')" />
     <div id="editor">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb="lost"
-            on="click(~._close) modal.escape;
-                open|evo(3) dup lose(0) focus stop;
-                close|evo(3) lose stop;
+            on="click(~._close);
+                open|stop (ESC) evo(3) dup lose(0) apply('push', _1);
+                cancel|stop (ESC) evo(3) dup lose apply('pop', _1);
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
-            to="|trigger('close')">
+            to="|trigger('cancel')">
             <form class="_prop" on="submit|avoid">
                 <header>
                     <h5>[标题]</h5>

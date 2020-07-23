@@ -1089,7 +1089,7 @@ aside#help {
 
 .Status > ._tips {
     min-width: 120px;
-    max-width: 220px;
+    max-width: 200px;
     flex: 1 1 auto;
     padding-left: 5px;
     overflow: hidden;

@@ -216,6 +216,12 @@ index( ...ns:Number ): void
 // 数据栈操作。
 //-----------------------------------------------
 
+nil(): void
+// 空值入栈。
+
+push( ...val:Value|[Value] ): void
+// 直接入栈。
+
 dup( n = 1 ): Value|[Value]
 // 复制栈顶n项。
 
