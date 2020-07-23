@@ -3101,9 +3101,9 @@ function _siblingUntil( el, slr, dir ) {
  * 测试匹配函数接口：function(el): Boolean
  * @param  {[Element]} els 元素集（数组）
  * @param  {String|Element|Function} slr 选择器或匹配测试
- * @return {Element|null}
+ * @return {Element|undefined}
  */
-function _first( els, slr, beg = 0, step = 1 ) {
+function _first( els, slr, _beg = 0, _step = 1 ) {
     let _fun = slr,
         _cnt = els.length;
 
@@ -3111,10 +3111,9 @@ function _first( els, slr, beg = 0, step = 1 ) {
         _fun = el => $is(el, slr);
     }
     while ( _cnt-- ) {
-        if ( _fun(els[beg]) ) return els[beg];
-        beg += step;
+        if ( _fun(els[_beg]) ) return els[_beg];
+        _beg += _step;
     }
-    return null;
 }
 
 
@@ -3449,7 +3448,32 @@ class Collector extends Array {
 
 
     /**
-     * 获取集合内单元。
+     * 获取集合内首个匹配的成员。
+     * 取值接口：function( Element ): Boolean
+     * 注意：如果传递了匹配选择器但未匹配，返回undefined.
+     * @param  {String|Element|Function} slr 匹配选择器
+     * @return {Value|undefined}
+     */
+    first( slr ) {
+        return slr ? _first( this, slr ) : this[0];
+    }
+
+
+    /**
+     * 获取集合内最后一个匹配的成员。
+     * 取值接口：function( Element ): Boolean
+     * 注意：（同上）
+     * @param  {String|Element|Function} slr 匹配选择器
+     * @return {Value|undefined}
+     */
+    last( slr ) {
+        let _len = this.length;
+        return slr ? _first( this, slr, _len-1, -1 ) : this[ _len-1 ];
+    }
+
+
+    /**
+     * 获取集合内目标成员。
      * - 获取特定下标位置的元素，支持负数倒数计算。
      * - 未指定下标返回整个集合的一个普通数组表示。
      * 注：兼容字符串数字，但空串不为0。
@@ -3458,51 +3482,6 @@ class Collector extends Array {
      */
     item( idx ) {
         return idx ? indexItem(this, +idx) : ( idx === 0 ? this[0] : Arr(this) );
-    }
-
-
-    /**
-     * 用特定下标的成员构造一个新实例。
-     * - 下标超出集合大小时构造一个空集合。
-     * - 支持负下标从末尾算起。
-     * @param  {Number} idx 下标值，支持负数
-     * @return {Collector}
-     */
-    eq( idx ) {
-        if ( !idx ) idx = 0;
-        return new Collector( indexItem(this, +idx), this );
-    }
-
-
-    /**
-     * 用集合的首个匹配成员构造一个新集合。
-     * 取值接口：function( Element ): Boolean
-     * 注：如果当前集合已为空，返回当前空集合。
-     * @param  {String|Element|Function} slr 匹配选择器
-     * @return {Collector}
-     */
-    first( slr ) {
-        if (this.length == 0) {
-            return this;
-        }
-        return new Collector( (slr ? _first(this, slr) : this[0]), this );
-    }
-
-
-    /**
-     * 用集合的最后一个匹配成员构造一个新集合。
-     * 取值接口：function( Element ): Boolean
-     * 注：如果当前集合已为空，返回当前空集合。
-     * @param  {String|Element|Function} slr 匹配选择器
-     * @return {Collector}
-     */
-    last( slr ) {
-        let _len = this.length;
-
-        if (_len == 0) {
-            return this;
-        }
-        return new Collector( (slr ? _first(this, slr, _len-1, -1) : this[_len-1]), this );
     }
 
 
