@@ -103,20 +103,114 @@
                 @mouseover:1|('_point');
                 @mouseout:1|('_point');
                 mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
-                ^obted"
+                cancel|stop (MainOps) call('empty');
+                ^obted|(ESC) evo(3) apply('push', _1)"
             by="Ed.mouse(_1)"
             to="-;
                 =|addClass;
                 =|removeClass;
                 #status-tips|trigger('info');
+                -;
                 |bind('mouseover:1 mouseout:1', '*')">
             <hgroup>
                 <h1 id="文章内容的规范化结构">文章内容的规范化结构</h1>
                 <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
             </hgroup>
             <article>
-                <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式价值不菲，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
-                <p>依通常的情形和需求，这里提供最多5个层级的支持，分别命名为：<strong>章</strong>、<strong>节</strong>、<strong>区</strong>、<strong>段</strong>、<strong>末</strong>。它们逐层嵌套，每一层都由一个 <code>&lt;section&gt;</code> 封装，为便于识别和定位，<code>&lt;section&gt;</code> 元素上分别定义 <code>role</code> 属性值为：<code>s1 ~ s5</code>。</p>
+                <header>
+                    <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式价值不菲，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
+                    <p>依通常的情形和需求，这里提供最多5个层级的支持，分别命名为：<strong>章</strong>、<strong>节</strong>、<strong>区</strong>、<strong>段</strong>、<strong>末</strong>。它们逐层嵌套，每一层都由一个 <code>&lt;section&gt;</code> 封装，为便于识别和定位，<code>&lt;section&gt;</code> 元素上分别定义 <code>role</code> 属性值为：<code>s1 ~ s5</code>。</p>
+                </header>
+                <section role="s1">
+                    <h2 id="组成">组成</h2>
+                    <section role="s2">
+                        <h2 id="内容块">内容块</h2>
+                        <header>
+                            <p>独立的行块内容单元，占据单独的一行（<code>display:block</code>）。如
+                                <code>&lt;ol&gt;</code>、<code>&lt;p&gt;</code>，前者为固定结构类单元，后者可以直接包含文本内容。</p>
+                        </header>
+                        <section role="s3">
+                            <h2 id="结构类">结构类</h2>
+                            <p>内部不能直接包含文本或内联元素，有固定的子级结构。</p>
+
+                        </section>
+                        <section role="s3">
+                            <h2 id="文本类">文本类</h2>
+                            <p>可直接包含文本内容和内联单元，没有固定的DOM结构可单独占据一行的块级元素。</p>
+                            <pre><code data-lang="html">&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i>
+&lt;<b role="tag">p</b> role=<b role="str">"note"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i>
+&lt;<b role="tag">p</b> role=<b role="str">"tips"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i>
+&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;     <i>&lt;!-- 地址信息：ADDRESS --&gt;</i>
+&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;             <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i>
+</code></pre>
+                        </section>
+                        <section role="s3">
+                            <h2 id="单体类">单体类</h2>
+                            <p>不包含任何内容，是一个独立存在的单元。</p>
+                            <pre><code data-lang="html">&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i>
+&lt;<b role="tag">div</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i>
+</code></pre>
+                            <aside>
+                                <p><strong>注：</strong>
+                                    白板可插入内容，但仅适用在运行时下且应当是临时的。</p>
+                            </aside>
+                        </section>
+                    </section>
+                    <section role="s2">
+                        <h2 id="内容件">内容件</h2>
+                        <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <strong>提要</strong>、<strong>目录</strong>
+                            等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。</p>
+                    </section>
+                    <section role="s2">
+                        <h2 id="内容行和内容元素">内容行和内容元素</h2>
+                        <p>可直接包含文本和内联元素的行级元素，上面的文本类内容件就是 <strong>内容行</strong>。但内容行还包括不能单独作为内容的行元素，如
+                            <code>&lt;li&gt;</code>、<code>&lt;caption&gt;</code>、<code>&lt;dt&gt;</code>、<code>&lt;dd&gt;</code> 等。</p>
+                        <p><strong>内容元素</strong> 是所有可以直接包含文本和其它内联元素的元素。上面的内容行是内容元素，但还有其它非行级的元素也可以直接包含文本，如
+                            <code>&lt;td&gt;</code>、<code>&lt;strong&gt;</code>、<code>&lt;small&gt;</code> 等，前者是表格的内容单元，而后两者则是内联元素。</p>
+                    </section>
+                    <section role="s2">
+                        <h2 id="内联单元">内联单元</h2>
+                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如
+                            <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
+                        <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如
+                            <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
+                        <pre><code data-lang="html">&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;                 <i>&lt;!-- 音频：AUDIO /track,source, #text --&gt;</i>
+&lt;<b role="tag">video</b>&gt;&lt;/<b role="tag">video</b>&gt;                 <i>&lt;!-- 视频：VIDEO /track,source, #text --&gt;</i>
+&lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;             <i>&lt;!-- 图片：PICTURE /source,img --&gt;</i>
+&lt;<b role="tag">a</b>&gt;&lt;/<b role="tag">a</b>&gt;                         <i>&lt;!-- 链接：A --&gt;</i>
+&lt;<b role="tag">strong</b>&gt;&lt;/<b role="tag">strong</b>&gt;               <i>&lt;!-- 重点：STRONG --&gt;</i>
+&lt;<b role="tag">em</b>&gt;&lt;/<b role="tag">em</b>&gt;                       <i>&lt;!-- 强调：EM --&gt;</i>
+&lt;<b role="tag">q</b>&gt;&lt;/<b role="tag">q</b>&gt;                         <i>&lt;!-- 短引用：Q --&gt;</i>
+&lt;<b role="tag">abbr</b>&gt;&lt;/<b role="tag">abbr</b>&gt;                   <i>&lt;!-- 缩写：ABBR --&gt;</i>
+&lt;<b role="tag">cite</b>&gt;&lt;/<b role="tag">cite</b>&gt;                   <i>&lt;!-- 来源：CITE --&gt;</i>
+&lt;<b role="tag">small</b>&gt;&lt;/<b role="tag">small</b>&gt;                 <i>&lt;!-- 注脚：SMALL --&gt;</i>
+&lt;<b role="tag">time</b>&gt;&lt;/<b role="tag">time</b>&gt;                   <i>&lt;!-- 时间：TIME --&gt;</i>
+&lt;<b role="tag">del</b>&gt;&lt;/<b role="tag">del</b>&gt;                     <i>&lt;!-- 删除：DEL --&gt;</i>
+&lt;<b role="tag">ins</b>&gt;&lt;/<b role="tag">ins</b>&gt;                     <i>&lt;!-- 插入：INS --&gt;</i>
+&lt;<b role="tag">sub</b>&gt;&lt;/<b role="tag">sub</b>&gt;                     <i>&lt;!-- 下标：SUB --&gt;</i>
+&lt;<b role="tag">sup</b>&gt;&lt;/<b role="tag">sup</b>&gt;                     <i>&lt;!-- 上标：SUP --&gt;</i>
+&lt;<b role="tag">mark</b>&gt;&lt;/<b role="tag">mark</b>&gt;                   <i>&lt;!-- 标记：MARK --&gt;</i>
+&lt;<b role="tag">code</b> data-lang=<b role="str">".."</b>&gt;&lt;/<b role="tag">code</b>&gt;    <i>&lt;!-- 代码：CODE，可定义语言 --&gt;</i>
+&lt;<b role="tag">code</b> role=<b role="str">"orz"</b>&gt;&lt;/<b role="tag">code</b>&gt;        <i>&lt;!-- 表情：ORZ --&gt;</i>
+&lt;<b role="tag">ruby</b>&gt;&lt;/<b role="tag">ruby</b>&gt;                   <i>&lt;!-- 注音：RUBY /rb,rp,rt --&gt;</i>
+&lt;<b role="tag">dfn</b>&gt;&lt;/<b role="tag">dfn</b>&gt;                     <i>&lt;!-- 定义：DFN --&gt;</i>
+&lt;<b role="tag">samp</b>&gt;&lt;/<b role="tag">samp</b>&gt;                   <i>&lt;!-- 样本：SAMP --&gt;</i>
+&lt;<b role="tag">kbd</b>&gt;&lt;/<b role="tag">kbd</b>&gt;                     <i>&lt;!-- 键盘字：KBD --&gt;</i>
+&lt;<b role="tag">s</b>&gt;&lt;/<b role="tag">s</b>&gt;                         <i>&lt;!-- 失效：S --&gt;</i>
+&lt;<b role="tag">u</b>&gt;&lt;/<b role="tag">u</b>&gt;                         <i>&lt;!-- 注记：U --&gt;</i>
+&lt;<b role="tag">var</b>&gt;&lt;/<b role="tag">var</b>&gt;                     <i>&lt;!-- 变量：VAR --&gt;</i>
+&lt;<b role="tag">bdo</b>&gt;&lt;/<b role="tag">bdo</b>&gt;                     <i>&lt;!-- 有向文本：BDO --&gt;</i>
+&lt;<b role="tag">meter</b>&gt;&lt;/<b role="tag">meter</b>&gt;                 <i>&lt;!-- 度量：METER --&gt;</i>
+&lt;<b role="tag">img</b> /&gt;                         <i>&lt;!-- 图片：IMG --&gt;</i>
+&lt;<b role="tag">br</b> /&gt;                          <i>&lt;!-- 换行：BR --&gt;</i>
+&lt;<b role="tag">wbr</b> /&gt;                         <i>&lt;!-- 软换行：WBR --&gt;</i>
+&lt;<b role="tag">span</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">span</b>&gt;      <i>&lt;!-- 空白：SPACE --&gt;</i>
+&lt;<b role="tag">b</b>&gt;                             <i>&lt;!-- 特用：代码关键字封装 --&gt;</i>
+&lt;<b role="tag">i</b>&gt;                             <i>&lt;!-- 特用：代码注释/标题编号 --&gt;</i>
+<b role="imp">#text</b>                           <i>&lt;!-- 文本节点：$text --&gt;</i>
+</code></pre>
+                    </section>
+                </section>
             </article>
         </main>
     </div>

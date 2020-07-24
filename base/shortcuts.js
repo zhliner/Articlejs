@@ -170,46 +170,69 @@ Content: [
     // 元素选取
     //-----------------------------------------------------
 
-    // 切换选取。
+    // 切换选取
     {
         // 空格键为实际的空格字符。
         "key":      [": ", ":enter"],
         "command":  "turn",
     },
 
+    // 同级反选
     {
-        "key":      "",
-        "command":  ""
+        "key":      ":v",
+        "command":  "reverse"
     },
 
+    // 同级全选
     {
-        "key":      "",
-        "command":  ""
+        "key":      ":a",
+        "command":  "siblings"
     },
 
+    // 同级同类兄弟元素
     {
-        "key":      "",
-        "command":  ""
+        "key":      ":e",
+        "command":  "tagsame"
     },
 
+    // 同级叔伯元素内同类子元素
     {
-        "key":      "",
-        "command":  ""
+        "key":      "shift:e",
+        "command":  "sibling2x"
     },
 
+    // 取消焦点所在兄弟元素选取
     {
-        "key":      "",
-        "command":  ""
+        "key":      ":q",
+        "command":  "clean"
     },
 
+    // 同级向前（previous）扩选
+    // 注：接受前置数字指定。
     {
-        "key":      "",
-        "command":  ""
+        "key":      "shift:k",
+        "command":  "prevn"
     },
 
+    // 同级向后（next）扩选
+    // 注：接受前置数字指定。
     {
-        "key":      "",
-        "command":  ""
+        "key":      "shift:j",
+        "command":  "nextn"
+    },
+
+    // 子级换选
+    // 注：支持前置数字指定递进层级。
+    {
+        "key":      "shift:l",
+        "command":  "child"
+    },
+
+    // 父级换选
+    // 注：支持前置数字指定上升层级（准确值）。
+    {
+        "key":      "shift:h",
+        "command":  "parent"
     },
 
     {

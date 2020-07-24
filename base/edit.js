@@ -58,7 +58,7 @@ class History {
      * @return {.undo/.redo|false} 头部被移出的操作实例
      */
     push( obj ) {
-        this._buf.lenght = ++this._idx;
+        this._buf.length = ++this._idx;
 
         let _len = this._buf.push(obj) - this._max;
 
@@ -213,6 +213,8 @@ class ElemSels {
      * 同级反选。
      * 已经存在的移除，否则添加。
      * 添加的元素中，其子元素可能已经选取（故需滤除）。
+     * 提示：
+     * 如果同级仅有焦点元素一个，则与切换选取效果相同。
      * @param {Element} el 焦点元素
      */
     reverse( el ) {
@@ -224,10 +226,44 @@ class ElemSels {
 
 
     /**
+     * 选取全部兄弟元素。
+     * 如果兄弟元素已经全部选取，返回false。
+     * @param  {Element} el 焦点元素
+     * @return {Boolean} 是否实际操作
+     */
+    siblings( el ) {
+        return this._addSiblings( el.parentElement.children );
+    }
+
+
+    /**
+     * 选取同类兄弟元素。
+     * 注记：焦点元素可能尚未选取。
+     * @param  {Element} el 焦点元素
+     * @return {Boolean} 是否实际操作
+     */
+    tagsame( el ) {
+        let _els = $.find( `>${el.tagName}`, el.parentElement );
+        return _els.length > 0 && this._addSiblings( _els );
+    }
+
+
+    /**
+     * 选取叔伯元素内的同类子元素。
+     * @param {Element} el 焦点元素
+     */
+    sibling2x( el ) {
+        let _els = $.find( `>* >${el.tagName}`, el.parentElement.parentElement )
+        return _els.length > 0 && this._addSiblings( _els );
+    }
+
+
+    /**
      * 前端兄弟元素添加/移出。
      * 友好：前端无兄弟元素时忽略。
-     * @param {Element} el 焦点元素
-     * @param {Number} n 延伸个数
+     * @param  {Element} el 焦点元素
+     * @param  {Number} n 延伸个数
+     * @return {Boolean} 是否实际执行
      */
     prevn( el, n ) {
         let _els = $.prevAll( el, (_, i) => i <= n );
@@ -235,23 +271,34 @@ class ElemSels {
         if ( _els.length == 0 ) {
             return false;
         }
-        this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
+        return this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
     }
 
 
     /**
      * 后端兄弟元素添加/移出。
      * 友好：后端无兄弟元素时忽略。
-     * @param {Element} el 焦点元素
-     * @param {Number} n 延伸个数
+     * @param  {Element} el 焦点元素
+     * @param  {Number} n 延伸个数
+     * @return {Boolean} 是否实际执行
      */
     nextn( el, n ) {
         let _els = $.nextAll( el, (_, i) => i <= n );
 
-        if ( _els.lenght == 0 ) {
+        if ( _els.length == 0 ) {
             return false;
         }
-        this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
+        return this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
+    }
+
+
+    /**
+     * 清除兄弟元素选取。
+     * 注：包含焦点元素自身。
+     * @param {Element} el 焦点元素
+     */
+    clean( el ) {
+        return this._delSiblings( el.parentElement.children );
     }
 
 
@@ -358,12 +405,20 @@ class ElemSels {
      * 兄弟元素集添加。
      * 新成员可能是集合内成员的父元素。
      * 因为焦点元素为同级兄弟，共同的父元素不会在集合内。
-     * @param {[Element]} els 兄弟元素集
+     * @param  {[Element]} els 兄弟元素集
+     * @return {Boolean} 是否实际执行
      */
     _addSiblings( els ) {
-        els.forEach(
-            el => this._set.has(el) || this._parentAdd(el)
-        );
+        let _does = false;
+
+        for ( const el of els ) {
+            if ( this._set.has(el) ) {
+                continue;
+            }
+            _does = true;
+            this._parentAdd( el );
+        }
+        return _does;
     }
 
 
@@ -372,9 +427,15 @@ class ElemSels {
      * @param {[Element]} els 兄弟元素集
      */
     _delSiblings( els ) {
-        els.forEach(
-            el => this._set.has(el) && this._set.delete(el)
-        );
+        let _does = false;
+
+        for ( const el of els ) {
+            if ( this._set.has(el) ) {
+                _does = true;
+                this._parentAdd( el );
+            }
+        }
+        return _does;
     }
 
 
@@ -672,6 +733,21 @@ export const MainOps = {
 
     reverse() {
         histSelect( 'reverse', __EHot.get() );
+    },
+
+
+    siblings() {
+        histSelect( 'siblings', __EHot.get() );
+    },
+
+
+    tagsame() {
+        histSelect( 'tagsame', __EHot.get() );
+    },
+
+
+    sibling2x() {
+        histSelect( 'sibling2x', __EHot.get() );
     },
 
 

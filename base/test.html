@@ -33,6 +33,13 @@
         $.ready( () => $.trigger(window, 'resize') );
 
         window.Config = {};
+
+        // 取消实例栈。
+        // 逐次取消。对栈顶成员发送cancel消息。
+        // 注记：
+        // 通常由目标自己管理实例的出/入栈。
+        window.ESC = [];
+
     </script>
 
     <script type="module" async>
@@ -49,10 +56,9 @@
         window.DHK = new HotKey().config( cfg.Modal );
         window.CHK = new ObjKey(MainOps).config( cfg.Content );
 
-        // 取消实例栈。
-        // 逐次取消。对栈顶成员发送cancel消息。
-        // 注：由目标自己管理出/入栈。
-        window.ESC = [];
+        // 供直接使用。
+        // 主要用于ESC取消选取集。
+        window.MainOps = MainOps;
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );

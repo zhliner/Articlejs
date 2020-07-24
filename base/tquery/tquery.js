@@ -1152,6 +1152,7 @@ Object.assign( tQuery, {
      */
     siblings( el, slr ) {
         let _pel = el.parentElement;
+
         if (_pel == null) {
             return null;
         }
