@@ -68,16 +68,16 @@ const _Control = {
     /**
      * 通过性检查。
      * 目标：暂存区/栈顶1项。
-     * 检查目标值是否为真（非假）或是否与val相等（===），
+     * 检查目标值是否为真（非假）或是否为实参序列之一（===），
      * 结果为假会中断执行流。
-     * @param  {Value} val 对比值，可选
+     * @param  {...Value} vals 对比值集，可选
      * @return {void|reject}
      */
-    pass( evo, val ) {
+    pass( evo, ...vals ) {
         let _v = evo.data;
 
-        if ( val !== undefined ) {
-            _v = val === _v;
+        if ( vals.length ) {
+            _v = vals.includes( _v );
         }
         if ( !_v ) return Promise.reject();
     },
@@ -88,16 +88,16 @@ const _Control = {
     /**
      * 流程结束。
      * 目标：暂存区/栈顶1项。
-     * 检查目标值是否为真（非假）或是否与val相等（===），
+     * 检查目标值是否为真（非假）或是否为实参序列之一（===），
      * 结果为真会结束执行流。
-     * @param  {Value} val 对比值，可选
+     * @param  {...Value} vals 对比值集，可选
      * @return {void|reject}
      */
-    end( evo, val ) {
+    end( evo, vals ) {
         let _v = evo.data;
 
-        if ( val !== undefined ) {
-            _v = val === _v;
+        if ( vals.length ) {
+            _v = vals.includes( _v );
         }
         if ( _v ) return Promise.reject();
     },
@@ -764,7 +764,7 @@ const _Process = {
 
     //
     // Math大部分方法。
-    /////////////////////////
+    /////////////////////////////////////////////
 
 
     /**
@@ -1020,8 +1020,6 @@ const _Process = {
     __atanh: 1,
 
 
-
-
     /**
      * 创建一个伪随机数。
      * 目标：无。
@@ -1162,6 +1160,18 @@ const _Process = {
     },
 
     __contains: 2,
+
+
+    /**
+     * 匹配测试。
+     * @data: RegExp
+     * @param {String} str 测试串
+     */
+    test( evo, str ) {
+        return evo.data.test( str );
+    },
+
+    __test: 1,
 
 
 

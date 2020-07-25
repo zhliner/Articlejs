@@ -180,19 +180,19 @@ OBT的定义被书写在HTML元素的属性上，它们是字符串的形式，�
 // 基本控制
 //-----------------------------------------------
 
-pass( val?:Value ): void
+pass( ...vals: Value ): void
 // 通过性检查。
 
-end( val?:Value ): void
+end( ...vals: Value ): void
 // 流程终止。
 
-avoid( back?:Value ): back|void
+avoid( back?: Value ): back|void
 // 停止事件默认的行为。
 
-stop( back?:Value ): back|void
+stop( back?: Value ): back|void
 // 停止事件冒泡。
 
-stopAll( back?:Value ): back|void
+stopAll( back?: Value ): back|void
 // 停止事件冒泡并阻止本事件其它处理器的执行。
 
 
@@ -202,13 +202,13 @@ stopAll( back?:Value ): back|void
 // 特权：是，操作数据栈接口。
 //-----------------------------------------------
 
-pop( n?:Number ): void
+pop( n?: Number ): void
 // 弹出栈顶n项。
 
-shift( n?:Number ): void
+shift( n?: Number ): void
 // 取出栈底n项。
 
-index( ...ns:Number ): void
+index( ...ns: Number ): void
 // 引用目标位置项。
 
 
@@ -219,7 +219,7 @@ index( ...ns:Number ): void
 nil(): void
 // 空值入栈。
 
-push( ...val:Value|[Value] ): void
+push( ...val: Value|[Value] ): void
 // 直接入栈。
 
 dup( n = 1 ): Value|[Value]
@@ -228,16 +228,16 @@ dup( n = 1 ): Value|[Value]
 ddup( n = 1 ): Value|[Value]
 // 深度复制栈顶n项。
 
-pack( n:Number ): [Value]
+pack( n: Number ): [Value]
 // 栈顶n项打包封装。
 
-slice( begin:Number, end:Number ): [Value]
+slice( begin: Number, end:Number ): [Value]
 // 任意区段打包。
 
 spread(): [...Value]
 // 将条目展开入栈。
 
-vain( n:Number ): void
+vain( n: Number ): void
 // 剔除栈顶多余的项。
 
 
@@ -247,7 +247,7 @@ vain( n:Number ): void
 // 需要this为指令单元（Cell），无预绑定。
 //-----------------------------------------------
 
-prune( cnt = 1, n:Number = 1 ): void
+prune( cnt: Number = 1, n: Number = 1 ): void
 // 移除后端跟随指令（单次）。
 
 entry(): void
@@ -262,22 +262,22 @@ loop( cnt, val ): void
 // 简单值操作。
 //-----------------------------------------------
 
-env( names:String, its?:Value|String ): void|Value
+env( names: String, its?: Value|String ): void|Value
 // 设置/获取全局变量。
 
-sess( name:String|null, its?:Value|String|null): void|Value
+sess( name: String|null, its?: Value|String|null): void|Value
 // 设置/取值浏览器会话数据（sessionStorage）。
 
-local( name:String|null, its?:Value|String|null): void|Value
+local( name: String|null, its?: Value|String|null): void|Value
 // 设置/取值浏览器本地数据（localStorage）。
 
-$if( val, elseval?:Value ): Value
+$if( val, elseval?: Value ): Value
 // 条件赋值。
 
-$case( ...vals:String ): [Boolean]
+$case( ...vals: String ): [Boolean]
 // 分支比较。
 
-$switch( ...vals:String ): Value
+$switch( ...vals: String ): Value
 // 分支判断赋值。
 
 
@@ -285,7 +285,7 @@ $switch( ...vals:String ): Value
 // 其它
 //-----------------------------------------------
 
-debug( keep:false ): Value
+debug( keep: false ): Value
 // 控制台调试打印。
 ```
 
@@ -299,18 +299,18 @@ debug( keep:false ): Value
 // 支持前一个操作数是数组的情况（对成员计算）。
 //-----------------------------------------------
 
-add( val?:Number ): Number|String|[...] // (x, y) => x + y
-sub( val?:Number ): Number|[Number]     // (x, y) => x - y
-mul( val?:Number ): Number|[Number]     // (x, y) => x * y
-div( val?:Number ): Number|[Number]     // (x, y) => x / y
-mod( val?:Number ): Number|[Number]     // (x, y) => x % y
-pow( val?:Number ): Number|[Number]     // (x, y) => x ** y
+add( val?: Number ): Number|String|[...] // (x, y) => x + y
+sub( val?: Number ): Number|[Number]     // (x, y) => x - y
+mul( val?: Number ): Number|[Number]     // (x, y) => x * y
+div( val?: Number ): Number|[Number]     // (x, y) => x / y
+mod( val?: Number ): Number|[Number]     // (x, y) => x % y
+pow( val?: Number ): Number|[Number]     // (x, y) => x ** y
 // 标准算术。
 
-divi( val?:Number ): Number|[Number]    // (x, y) => parseInt(x/y)   // 小数截断
-fdiv( val?:Number ): Number|[Number]    // (x, y) => Math.floor(x/y) // 向小取整
-cdiv( val?:Number ): Number|[Number]    // (x, y) => Math.ceil(x/y)  // 向大取整
-rdiv( val?:Number ): Number|[Number]    // (x, y) => Math.round(x/y) // 四舍五入
+divi( val?: Number ): Number|[Number]    // (x, y) => parseInt(x/y)   // 小数截断
+fdiv( val?: Number ): Number|[Number]    // (x, y) => Math.floor(x/y) // 向小取整
+cdiv( val?: Number ): Number|[Number]    // (x, y) => Math.ceil(x/y)  // 向大取整
+rdiv( val?: Number ): Number|[Number]    // (x, y) => Math.round(x/y) // 四舍五入
 // 除法定制。
 
 neg(): Number|[Number]
@@ -319,7 +319,7 @@ neg(): Number|[Number]
 vnot(): Boolean|[Boolean]
 // 逻辑取反（!x）。
 
-divmod( val?:Number ): [Number, Number]
+divmod( val?: Number ): [Number, Number]
 // 除并求余。(x, y) => [商, 模]
 
 
@@ -328,18 +328,21 @@ divmod( val?:Number ): [Number, Number]
 // 目标：当前条目/栈顶2项。
 //-----------------------------------------------
 
-eq( v?:Value ): Boolean     // (x, y) => x === y
-neq( v?:Value ): Boolean    // (x, y) => x !== y
-lt( v?:Value ): Boolean     // (x, y) => x < y
-lte( v?:Value ): Boolean    // (x, y) => x <= y
-gt( v?:Value ): Boolean     // (x, y) => x > y
-gte( v?:Value ): Boolean    // (x, y) => x >= y
+eq( v?: Value ): Boolean     // (x, y) => x === y
+neq( v?: Value ): Boolean    // (x, y) => x !== y
+lt( v?: Value ): Boolean     // (x, y) => x < y
+lte( v?: Value ): Boolean    // (x, y) => x <= y
+gt( v?: Value ): Boolean     // (x, y) => x > y
+gte( v?: Value ): Boolean    // (x, y) => x >= y
 
-eqarr( arr?:Array )
+eqarr( arr?: Array )
 // 数组相等比较。
 
-contains( strict:Boolean ): Boolean
+contains( strict: Boolean ): Boolean
 // 元素包含测试。
+
+test( str: String ): Boolean
+// 正则表达式测试。
 
 
 
@@ -352,7 +355,7 @@ within( min, max ): Boolean
 include( ...vals ): Boolean
 // 目标是否在实参序列内。
 
-both( strict:Boolean ): Boolean
+both( strict: Boolean ): Boolean
 // 二者为真判断。
 
 either(): Boolean
@@ -428,7 +431,7 @@ hotKey( key, extra ): Boolean
 rangeKeep(): void
 // 活动选取记忆。
 
-exeCmd( type:String ): void
+exeCmd( type: String ): void
 // 执行document命令
 // 即：document.execCommand(...)
 ```

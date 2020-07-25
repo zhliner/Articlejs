@@ -249,6 +249,7 @@ const _Gets = {
 
     /**
      * 转为整数（parseInt）。
+     * 注意：空串转换为 NaN 而非数值 0。
      * @param  {Number} radix 进制基数
      * @return {Number}
      */
@@ -261,6 +262,7 @@ const _Gets = {
 
     /**
      * 将目标转为浮点数（parseFloat）。
+     * 注意：空串转换为 NaN 而非数值 0。
      * @return {Number}
      */
     float( evo ) {

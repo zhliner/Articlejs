@@ -49,7 +49,7 @@
         keyup 数值设置（非数字无效） -->
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|(CHK) acmsk $('#g-count') val int $('#content') hotKey(_3) pass;
-            keyup|ev('key') isNumeric pass $('#g-count') val ev('key') add(_1)"
+            keyup|(/[\d-]/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1)"
         to="#g-count|trigger('reset');
             #g-count|trigger('set')">
         <!-- 选取创建（mouseup） -->
