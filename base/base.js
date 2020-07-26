@@ -257,7 +257,7 @@ function nameType( name ) {
  * 分析节点类型值。
  * 仅处理文本节点和元素。
  * @param  {Element|Text} el 目标节点
- * @return {Number}
+ * @return {Number} 类型值
  */
 function type( el ) {
     if ( el.nodeType === 3 ) {
@@ -382,7 +382,7 @@ function isStruct( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isStructSub( tval ) {
+function isStructX( tval ) {
     return !!( T.Specials[tval] & T.STRUCTX );
 }
 
@@ -395,18 +395,6 @@ function isStructSub( tval ) {
  */
 function isSpecial( tval ) {
     return !!( T.Specials[tval] & T.SPECIAL );
-}
-
-
-/**
- * 获取列表根元素。
- * 处理包含3种级联表类型。
- * @param  {Element} el 起点列表
- * @return {<ol>|<ul>}
- */
-function listRoot( el ) {
-    let _li = el.parentElement;
-    return _li.tagName !== 'LI' ? el : listRoot( _li.parentElement );
 }
 
 
@@ -430,32 +418,39 @@ function tableObj( tbl ) {
 
 
 /**
- * 是否为同类表格行。
- * 检查表格行所属表格Table实例的列头和列数，
- * 以及所属表格片区是否相同。
- * @param  {Element} tr1 表格行
- * @param  {Element} tr2 表格行
- * @return {Boolean}
+ * 获取列表根元素。
+ * 处理包含3种级联表类型。
+ * @param  {Element} el 起点列表
+ * @return {<ol>|<ul>}
  */
-function sameTr( tr1, tr2 ) {
-    let _s1 = tr1.parentElement,
-        _s2 = tr2.parentElement;
-
-    return _s1.tagName == _s2.tagName &&
-        alikeTable( _s1.parentElement, _s2.parentElement );
+function listRoot( el ) {
+    let _li = el.parentElement;
+    return _li.tagName !== 'LI' ? el : listRoot( _li.parentElement );
 }
 
 
 /**
- * 是否为相似表格。
- * @param {Element} t1 表格1
- * @param {Element} t2 表格2
+ * 获取元素选取根。
+ * 即当用于执行Top选取操作时的目标元素。
+ * - 起点为内联元素时，向上获取内容行元素。
+ * - 起点为结构子时，向上获取单元根元素（内联或行块）。
+ * - 起点为行块根时，无行为（返回null）。
+ * 注：
+ * 这是一种用户友好，以便直达内容行元素或单元根。
+ *
+ * @param  {Element} beg 起点元素
+ * @return {Element} 顶元素
  */
-function alikeTable( t1, t2 ) {
-    let _t1 = tableObj( t1 ),
-        _t2 = tableObj( t2 );
+function selectRoot( beg ) {
+    let _tv = getType( beg );
 
-    return _t1.columns() == _t2.columns() && _t1.vth() == _t2.vth();
+    if ( isInlines(_tv) ) {
+        return parentContent( beg );
+    }
+    if ( isStructX(_tv) ) {
+        return parentRoot( beg );
+    }
+    return null;
 }
 
 
@@ -486,6 +481,61 @@ function simpleName( el ) {
 }
 
 
+/**
+ * 是否为同类表格行。
+ * 检查表格行所属表格Table实例的列头和列数，
+ * 以及所属表格片区类型是否相同。
+ * @param  {Element} tr1 表格行
+ * @param  {Element} tr2 表格行
+ * @return {Boolean}
+ */
+function sameTr( tr1, tr2 ) {
+    let _s1 = tr1.parentElement,
+        _s2 = tr2.parentElement;
+
+    return _s1.tagName == _s2.tagName &&
+        alikeTable( _s1.parentElement, _s2.parentElement );
+}
+
+
+/**
+ * 是否为同规格的表格。
+ * 即：列数相同且列头位置相同。
+ * @param {Element} t1 表格1
+ * @param {Element} t2 表格2
+ */
+function alikeTable( t1, t2 ) {
+    let _t1 = tableObj( t1 ),
+        _t2 = tableObj( t2 );
+
+    return _t1.columns() == _t2.columns() && _t1.vth() == _t2.vth();
+}
+
+
+/**
+ * 向上获取首个内容行。
+ * 特例：
+ * 单元格属于其内部节点的内容行元素。
+ *
+ * @param  {Element} beg 起点元素
+ * @return {Element} 内容行元素
+ */
+function parentContent( beg ) {
+    //
+}
+
+
+/**
+ * 向上获取单元根元素。
+ * 完整单元指内联或行块两种逻辑独立的单元。
+ * @param  {Element} beg 起点元素
+ * @return {Element} 根元素
+ */
+function parentRoot( beg ) {
+    //
+}
+
+
 //
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
@@ -494,4 +544,5 @@ export {
     type,
     nameType,
     tableObj,
+    selectRoot,
 }

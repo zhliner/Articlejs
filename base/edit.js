@@ -20,6 +20,7 @@
 import { ESet, EHot } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
+import { selectRoot } from "./base.js";
 
 
 const
@@ -249,93 +250,26 @@ class ElemSels {
 
 
     /**
-     * 前端兄弟元素添加/移出。
-     * 友好：前端无兄弟元素时忽略。
-     * @param  {Element} el 焦点元素
-     * @param  {Number} n 延伸个数
+     * 兄弟元素扩展添加/移出。
+     * 假设父容器未选取，外部需要保证此约束。
+     * @param  {[Element]} els 元素序列
+     * @param  {Element} hot 焦点元素引用
      * @return {Boolean} 是否实际执行
      */
-    prevn( el, n ) {
-        let _els = $.prevAll( el, (_, i) => i <= n );
-
-        if ( _els.length == 0 ) {
-            return false;
-        }
-        return this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
+    expand( els, hot ) {
+        return els.length > 0 &&
+            ( this._set.has(hot) ? this.adds(els) : this.removes(els) );
     }
 
 
     /**
-     * 后端兄弟元素添加/移出。
-     * 友好：后端无兄弟元素时忽略。
-     * @param  {Element} el 焦点元素
-     * @param  {Number} n 延伸个数
-     * @return {Boolean} 是否实际执行
-     */
-    nextn( el, n ) {
-        let _els = $.nextAll( el, (_, i) => i <= n );
-
-        if ( _els.length == 0 ) {
-            return false;
-        }
-        return this._set.has(el) ? this._addSiblings(_els) : this._delSiblings(_els);
-    }
-
-
-    /**
-     * 子元素添加。
-     * 错误定位子元素时简单忽略。
-     * @param {Element} el 焦点元素
-     * @param {Number} n 子元素位置下标（从0开始，支持负值）
-     */
-    child( el, n ) {
-        let _end = $.children( el, n );
-
-        if ( !_end ) {
-            return false;
-        }
-        this.delete( el );
-        this._set.add( _end );
-    }
-
-
-    /**
-     * 父元素添加。
-     * 会清除集合中所包含的子元素。
-     * 友好：抵达限定根元素时简单忽略。
-     * @param {Element} el 焦点元素
-     * @param {Number} n 上升最大层级数
-     * @param {Element} root 终止根元素
-     */
-    parent( el, n, root ) {
-        let _to = $.closest(
-            el,
-            (e, i) => i == n || e === root
-        );
-        return _to !== root && this.parentAdd( _to );
-    }
-
-
-    /**
-     * 清除全部选取。
-     * 友好：空集时简单忽略。
-     */
-    empty() {
-        if ( this._set.size == 0 ) {
-            return false;
-        }
-        this._set.clear();
-    }
-
-
-    /**
-     * 兄弟元素集添加。
+     * 元素集添加。
      * 新成员可能是集合内成员的父元素。
-     * 注记：假设父容器未选取，外部需要保证此约束。
+     * 约束：假设父容器未选取，外部需要保证此约束。
      * @param  {[Element]} els 兄弟元素集
      * @return {Boolean} 是否实际执行
      */
-    siblings( els ) {
+    adds( els ) {
         let _does = false;
 
         for ( const el of els ) {
@@ -368,15 +302,68 @@ class ElemSels {
 
 
     /**
+     * 获取父级元素。
+     * 获取有效父元素后会清除其所包含的子元素选取。
+     * 抵达限定根元素时返回false。
+     * @param  {Element} el 焦点元素
+     * @param  {Number} n 上升最大层级数
+     * @param  {Element} root 终止根元素
+     * @return {Element|false}
+     */
+    parent( el, n, root ) {
+        let _to = $.closest(
+            el,
+            (e, i) => i == n || e === root
+        );
+        return _to !== root && ( this.cleanDown(_to), _to );
+    }
+
+
+    /**
+     * 获取子元素。
+     * 获取到有效子元素后会移出父元素的选取。
+     * @param  {Element} el 焦点元素
+     * @param  {Number} n 子元素位置下标（从0开始，支持负值）
+     * @return {Element|void}
+     */
+    child( el, n ) {
+        let _sub = $.children( el, n );
+        return _sub && ( this.delete(el), _sub );
+    }
+
+
+    /**
+     * 清除全部选取。
+     * 友好：空集时简单忽略。
+     */
+    empty() {
+        if ( this._set.size == 0 ) {
+            return false;
+        }
+        this._set.clear();
+    }
+
+
+    /**
+     * 简单添加。
+     * 外部需要自行清理父子已选取。
+     * @param  {Element} el 选取元素
+     * @return {any|false}
+     */
+    add( el ) {
+        return !this._set.has(el) && this._set.add( el );
+    }
+
+
+    /**
      * 安全添加。
      * 会检查父子包含关系并清理。
      * 如果已经选取则无行为。
-     * @param {Element} el 目标元素
+     * @param  {Element} el 目标元素
+     * @return {any|false}
      */
-    add( el ) {
-        if ( !this._set.has(el) ) {
-            this.clean(el)._set.set(el);
-        }
+    safeAdd( el ) {
+        return !this._set.has(el) && this.clean(el)._set.add(el);
     }
 
 
@@ -386,10 +373,7 @@ class ElemSels {
      * @param {Element} el 父元素
      */
     parentAdd( el ) {
-        this._contains( el )
-            .forEach(
-                el => this._set.delete( el )
-            )
+        this.cleanDown( el );
         this._set.add( el );
     }
 
@@ -402,6 +386,9 @@ class ElemSels {
      * @return {this|false}
      */
     cleanUp( el ) {
+        if ( !this._set.has(el) ) {
+            return;
+        }
         let _box = this._parentItem(el);
 
         if ( !_box ) {
@@ -524,20 +511,78 @@ const
 
 
 /**
- * 元素选取封装（含历史功能）。
- * 引用全局__Selects实例并执行其操作（方法）。
+ * 扩展选取封装。
+ * 包含两种状态：选取/取消选取。
+ * 选取焦点会移动到集合最后一个元素上（如果已执行）。
  * 友好：会简单忽略无效的操作。
- * @param {String} op 操作名
- * @param {Element} el 焦点元素
- * @param {...Value} rest 其它参数序列
+ * @param {Element} hot 焦点元素
+ * @param {[Element]} els 扩展集
  */
-function histSelect( op, el, ...rest ) {
+function expandSelect( hot, els ) {
     let _old = [...__ESet];
+    __Selects.cleanUp( hot );
 
-    if ( __Selects[op](el, ...rest) === false ) {
+    if ( __Selects.expand(els, hot) === false ) {
         return;
     }
-    __History.push( new ESEdit(_old, el) );
+    hot = els[ els.length-1 ];
+
+    __EHot.set( hot );
+    __History.push( new ESEdit(_old, hot) );
+}
+
+
+/**
+ * 兄弟元素选取封装。
+ * 注：焦点不变。
+ * @param {[Element]} els 选取集
+ * @param {Element} hot 焦点元素
+ */
+function siblingsSelect( els, hot ) {
+    let _old = [...__ESet];
+    __Selects.cleanUp( hot );
+
+    if ( __Selects.adds(els) === false ) {
+        return;
+    }
+    __History.push( new ESEdit(_old, hot) );
+}
+
+
+/**
+ * 普通元素集选取封装。
+ * 需要检查每一个成员的父级选取并清除之。
+ * 注：焦点不变。
+ * @param {[Element]} els 选取集
+ * @param {Element} hot 焦点元素
+ */
+function elementsSelect( els, hot ) {
+    let _old = [...__ESet];
+
+    els.forEach(
+        el => __Selects.cleanUp(el)
+    );
+    if ( __Selects.adds(els) === false ) {
+        return;
+    }
+    __History.push( new ESEdit(_old, hot) );
+}
+
+
+/**
+ * 单元素选取封装。
+ * 不检查目标元素的父子选取情况。
+ * 注：焦点移动到目标元素。
+ * @param {Element} to 目标元素
+ */
+function elementSelect( to ) {
+    let _old = [...__ESet];
+
+    if ( __Selects.add(to) === false ) {
+        return;
+    }
+    __EHot.set( to );
+    __History.push( new ESEdit(_old, to) );
 }
 
 
@@ -635,7 +680,7 @@ export const MainOps = {
      * n: 0值会移动到头部首个元素。
      * @param {Number} n 移动距离
      */
-    focusPrev( n ) {
+    focusPrevious( n ) {
         n = isNaN(n) ? 1 : n;
 
         let _beg = __EHot.get();
@@ -736,13 +781,7 @@ export const MainOps = {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _old = [...ESet];
-        __Selects.cleanUp( _el );
-
-        if ( __Selects.siblings(_el.parentElement.children) === false ) {
-            return;
-        }
-        __History.push( new ESEdit(_old, _el) );
+        siblingsSelect( _el.parentElement.children, _el );
     },
 
 
@@ -752,60 +791,103 @@ export const MainOps = {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _old = [...ESet],
-            _els = $.find( `>${_el.tagName}`, _el.parentElement );
-
-        __Selects.cleanUp( _el );
-
-        if ( __Selects.siblings(_els) === false ) {
-            return;
-        }
-        __History.push( new ESEdit(_old, _el) );
+        siblingsSelect( $.find(`>${_el.tagName}`, _el.parentElement), _el );
     },
 
 
     // 叔伯元素内的同类子元素。
-    // 主要用于同章节内的子章节标题选取。
+    // 注：主要用于同章节内的子章节标题选取。
     sibling2x() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _old = [...ESet],
-            _els = $.find( `>* >${_el.tagName}`, _el.parentElement.parentElement );
+        elementsSelect( $.find(`>* >${_el.tagName}`, _el.parentElement.parentElement), _el );
+    },
 
-        // 不共父元素，因此需要逐一清理。
-        _els.forEach(
-            el => __Selects.cleanUp( el )
-        );
-        if ( __Selects.siblings(_els) === false ) {
+
+    // 前端兄弟元素添加/移出。
+    // 注记：选取焦点会移动到目标集最后一个元素。
+    previousN( n ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        n = isNaN(n) ? 1 : n;
+
+        expandSelect( _el, $.prevAll(_el, (_, i) => i <= n) );
+    },
+
+
+    // 前端兄弟元素添加/移出。
+    // 注记：选取焦点会移动到目标集最后一个元素。
+    nextN( n ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        n = isNaN(n) ? 1 : n;
+
+        expandSelect( _el, $.nextAll(_el, (_, i) => i <= n) );
+    },
+
+
+    // 父级元素选取。
+    parentN( n, root ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        n = isNaN(n) ? 1 : n;
+        _el = __Selects.parent( _el, n, root );
+
+        if ( _el ) elementSelect( _el );
+    },
+
+
+    // 子元素选取。
+    childN( n ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        _el = __Selects.child( _el, n || 0 );
+
+        if ( _el ) elementSelect( _el );
+    },
+
+
+    // 取消同级兄弟元素选取。
+    cleanSiblings() {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        let _old = [...__ESet];
+
+        if ( __Selects.removes(_el.parentElement.children) === false ) {
             return;
         }
         __History.push( new ESEdit(_old, _el) );
     },
 
 
-    prevn( n ) {
-        histSelect( 'prevn', __EHot.get(), n );
-    },
-
-
-    nextn( n ) {
-        histSelect( 'nextn', __EHot.get(), n );
-    },
-
-
-    child( n ) {
-        histSelect( 'child', __EHot.get(), n );
-    },
-
-
-    parent( n, root ) {
-        histSelect( 'parent', __EHot.get(), n, root );
-    },
-
-
+    // 清空选取集。
     empty() {
-        histSelect( 'empty', __EHot.get() );
+        let _old = [...ESet];
+
+        if ( __Selects.empty() === false ) {
+            return;
+        }
+        __History.push( new ESEdit(_old, __EHot.get()) );
+    },
+
+
+    // 选取内容根。
+    // - 内联单元：行内容元素或单元格元素。
+    // - 行块单元：单元逻辑根元素。
+    contentRoot() {
+        let _el = __EHot.get(),
+            _to = _el && selectRoot(_el);
+
+        if ( _to ) {
+            __Selects.clean( _to );
+            elementSelect( _to );
+        }
     },
 
 

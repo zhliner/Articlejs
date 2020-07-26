@@ -55,7 +55,7 @@ export const
 export const
     TBLCELL = Symbol( 'tblcell' ),      // 表格单元元件
     DLITEM  = Symbol( 'dlitem' ),       // 定义列表项
-    SECTED  = Symbol( 'sected' ),       // 分级片区单元
+    SECTED  = Symbol( 'sections' ),     // 分级片区单元
     XLIST   = Symbol( 'normal-list'),   // 列表
     XBLOCK  = Symbol( 'small-block'),   // 小区块
     XCODES  = Symbol( 'code-block');    // 行块代码
@@ -285,8 +285,8 @@ export const Specials = {
     [ H2 ]:             STRUCTX | FIXED | CONTENT,
     [ H3 ]:             STRUCTX | FIXED | CONTENT,
     [ H4 ]:             STRUCTX | FIXED | CONTENT,
-    [ H5 ]:             CONTENT,
-    [ H6 ]:             CONTENT,
+    [ H5 ]:             STRUCTX | CONTENT,
+    [ H6 ]:             STRUCTX | CONTENT,
     [ SUMMARY ]:        STRUCTX | FIXED | CONTENT,
     [ FIGCAPTION ]:     STRUCTX | FIXED | CONTENT,
     [ CAPTION ]:        STRUCTX | FIXED | CONTENT,
@@ -601,13 +601,18 @@ const optionCustom = {
 
 
 /**
- * 获取子单元值集。
+ * 获取允许的子单元值集。
  * @param  {Number} v 父单元值
  * @return {[Number]}
  */
-function childTypes( v ) {
+function childCanTypes( v ) {
     return optionCustom[v] || ChildTypes[v] || [];
 }
+
+
+//
+// 导出。
+//////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -621,10 +626,10 @@ function childTypes( v ) {
  */
 export function options( ref ) {
     if ( !$.isArray(ref) ) {
-        return childTypes( ref );
+        return childCanTypes( ref );
     }
     return ref.reduce(
-        (vs, p) => vs.filter( v => childTypes(p).includes(v) ),
-        childTypes( ref.shift() )
+        (vs, p) => vs.filter( v => childCanTypes(p).includes(v) ),
+        childCanTypes( ref.shift() )
     );
 }

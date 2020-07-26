@@ -120,8 +120,11 @@ export class EHot {
 
 
     set( el ) {
-        if ( !el || el === this._its ) {
+        if ( el === this._its ) {
             return;
+        }
+        if ( !el ) {
+            return this.cancel();
         }
         if ( this._its ) {
             $.removeClass( this._its, this._cls );

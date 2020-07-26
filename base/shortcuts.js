@@ -147,7 +147,7 @@ Content: [
 
     {
         "key":      ":k",  // ↑
-        "command":  "focusPrev"
+        "command":  "focusPrevious"
     },
 
     {
@@ -204,40 +204,41 @@ Content: [
     // 取消焦点所在兄弟元素选取
     {
         "key":      ":q",
-        "command":  "clean"
+        "command":  "cleanSiblings"
     },
 
     // 同级向前（previous）扩选
     // 注：接受前置数字指定。
     {
         "key":      "shift:k",
-        "command":  "prevn"
+        "command":  "previousN"
     },
 
     // 同级向后（next）扩选
     // 注：接受前置数字指定。
     {
         "key":      "shift:j",
-        "command":  "nextn"
+        "command":  "nextN"
     },
 
     // 子级换选
     // 注：支持前置数字指定递进层级。
     {
         "key":      "shift:l",
-        "command":  "child"
+        "command":  "childN"
     },
 
     // 父级换选
     // 注：支持前置数字指定上升层级（准确值）。
     {
         "key":      "shift:h",
-        "command":  "parent"
+        "command":  "parentN"
     },
 
+    // 选取单元顶元素。
     {
-        "key":      "",
-        "command":  ""
+        "key":      ":t",
+        "command":  "contentRoot"
     },
 
 
