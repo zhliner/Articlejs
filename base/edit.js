@@ -387,7 +387,7 @@ class ElemSels {
      */
     cleanUp( el ) {
         if ( !this._set.has(el) ) {
-            return;
+            return this;
         }
         let _box = this._parentItem(el);
 
@@ -619,8 +619,13 @@ const _Edit = {
      * @return {void}
      */
     mouse( evo, op ) {
+        let _old = [...__ESet];
+
+        if ( __Selects[op](evo.data) === false ) {
+            return;
+        }
         __EHot.set( evo.data );
-        histSelect( op, evo.data );
+        __History.push( new ESEdit(_old, evo.data) );
     },
 
     __mouse: 1,
@@ -737,10 +742,10 @@ export const MainOps = {
      * @param {Number} n 位置下标
      */
     focusDown( n ) {
-        let _beg = __EHot.get();
+        let _beg = __EHot.get(),
+            _sub = _beg && $.children( _beg, n || 0 );
 
-        // NaN为默认值0
-        return _beg && __EHot.set( $.children(_beg, n || 0) );
+        return _sub && __EHot.set( _sub );
     },
 
 
@@ -752,7 +757,7 @@ export const MainOps = {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _old = [...ESet];
+        let _old = [...__ESet];
         if ( __Selects.turn(_el) === false ) {
             return;
         }
@@ -765,7 +770,7 @@ export const MainOps = {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _old = [...ESet];
+        let _old = [...__ESet];
         __Selects.cleanUp( _el );
 
         if ( __Selects.reverse(_el.parentElement.children) === false ) {
@@ -868,7 +873,7 @@ export const MainOps = {
 
     // 清空选取集。
     empty() {
-        let _old = [...ESet];
+        let _old = [...__ESet];
 
         if ( __Selects.empty() === false ) {
             return;

@@ -93,7 +93,7 @@ const _Control = {
      * @param  {...Value} vals 对比值集，可选
      * @return {void|reject}
      */
-    end( evo, vals ) {
+    end( evo, ...vals ) {
         let _v = evo.data;
 
         if ( vals.length ) {
