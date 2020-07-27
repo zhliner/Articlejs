@@ -585,6 +585,20 @@ Object.assign( tQuery, {
 
 
     /**
+     * 创建简单内容元素。
+     * 仅限于文本内容，这是上面.Element()的极简版。
+     * 不支持名称空间指定。
+     * @param {String} tag 标签名
+     * @param {String} text 内容文本
+     * @param {Document} doc 所属文档，可选
+     */
+    element( tag, text, doc = Doc ) {
+        let _el = doc.createElement(tag);
+        return ( _el.append(text), _el );
+    },
+
+
+    /**
      * 创建一个文本节点。
      * - 如果data参数为节点元素，取其文本创建。
      * - data支持字符串或节点的数组，数组单元转为字符串后连接。
@@ -1184,12 +1198,12 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取目标元素的上级元素集。
+     * 获取匹配的上级元素集。
      * - 可用可选的选择器或测试函数进行过滤。
      * - 自定义测试函数支持向上递进的层计数（_i）。
      * 注：最终的顶层不是document而是html。
      * @param  {Element} el 目标元素
-     * @param  {String|Function} slr 选择器或测试函数，可选
+     * @param  {String|Function} slr 选择器或匹配测试，可选
      * @return {[Element]}
      */
     parents( el, slr ) {
@@ -1198,14 +1212,16 @@ Object.assign( tQuery, {
             _i = 0;
 
         while ( (el = el.parentElement) ) {
-            _buf.push(el);
+            if ( _fun(el, ++_i) ) {
+                _buf.push(el);
+            }
         }
-        return _buf.filter( e => _fun(e, ++_i) );
+        return _buf;
     },
 
 
     /**
-     * 汇集当前元素的全部上级元素，直到匹配。
+     * 汇集上级元素直到匹配为止。
      * - 从父元素开始检查匹配。
      * - 不包含终止匹配的父级元素。
      * - 自定义测试函数支持向上递进的层计数（_i）。
@@ -3579,6 +3595,7 @@ function elsEx( list, get ) {
 /////////////////////////////////////////////////
 elsEx([
         'Element',
+        'element',
         'svg',
     ],
     // @param {String} tag 元素标签

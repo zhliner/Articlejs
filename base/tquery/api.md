@@ -4,14 +4,25 @@
 
 ### [$.Element( tag, data, ns, doc? ): Element](docs/$.Element.md)
 
-创建 `tag` 指定的元素。
+创建一个 `tag` 名称的元素，支持源码（`html`）内容和属性数据配置指定。
 
 - `tag: String` 标签名称。
-- `data: Node | [Node] | String | [String] | Object` 元素内容的数据集或配置对象。
+- `data: String | Object` 元素的源码内容或属性配置对象。
 - `ns: String` 元素的名称空间，可选。
 - `doc?: Document` 元素所属文档，可选。
 
 可指定所属名称空间和所属文档对象。如果数据源 `data` 包含节点，源节点通常会被移出DOM原来的位置。
+
+
+### $.element( tag, text, doc? ): Element
+
+简单地创建一个 `tag` 名称的元素，仅支持文本内容。它是上面 `.Element(...)` 方法的极简版，用于对效率需求较高的场景。
+
+- `tag: String` 标签名称。
+- `data: String` 元素的文本内容。
+- `doc?: Document` 元素所属文档，可选。
+
+> **注**：同样地，该方法也有一个集合版。
 
 
 ### [$.Text( data, sep?, doc? ): Text](docs/$.TextNode.md)
