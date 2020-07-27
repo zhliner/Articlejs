@@ -594,7 +594,7 @@ Object.assign( tQuery, {
      */
     element( tag, text, doc = Doc ) {
         let _el = doc.createElement(tag);
-        return ( _el.append(text), _el );
+        return text && _el.append(text) || _el;
     },
 
 
