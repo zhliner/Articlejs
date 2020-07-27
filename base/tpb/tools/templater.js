@@ -113,7 +113,7 @@ class Templater {
 
     /**
      * 模板构建。
-     * 需要先处理可能有的子模版的导入。
+     * 会先处理可能有的子模版的导入。
      * 注：子模版中可能包含子模版。
      * @param  {Element|DocumentFragment|Document} root 构建目标
      * @return {Promise}

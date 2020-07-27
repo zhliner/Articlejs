@@ -60,7 +60,7 @@ aside#help {
 /* 已选取 */
 .___Content ._selected {
     color: #333;
-    background-color: #ffffd7 !important;
+    background-color: #ffffb8;
     background-image: url('images/selected.png') !important;
 }
 
@@ -457,21 +457,21 @@ aside#help {
     font-family: monospace, Consolas, 'Courier New';
     min-width: 20px;
     padding: 5px 10px;
-    background-color: #444;
+    background-color: #0e4962;
     text-align: center;
     font-weight: normal;
-    border-top: 1px #666 solid;
-    border-right: 1px #666 solid;
+    border-top: 1px #0e4962 solid;
+    border-right: 1px #405e6b solid;
     color: #ddd;
 }
 .___Content ._path b:hover {
     color: #fff;
-    background-color: #888;
+    background-color: #066375;
 }
 .___Content ._path b:last-child {
     font-weight: bold;
     color: #fff;
-    background-color: #888;
+    background-color: #45a5b8;
 }
 
 .___Content > ._scroll {

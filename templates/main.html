@@ -48,8 +48,8 @@
         keydown 快捷键操作
         keyup 数值设置（非数字无效） -->
     <div id="g-scroll" class="_scroll" tabindex="0"
-        on="keydown|(CHK) acmsk $('#g-count') val int $('#content') hotKey(_3) pass;
-            keyup|(/[\d-]/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1)"
+        on="keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
+            keyup|(/^[\d-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1)"
         to="#g-count|trigger('reset');
             #g-count|trigger('set')">
         <!-- 选取创建（mouseup） -->
@@ -103,13 +103,15 @@
                 @mouseover:1|('_point');
                 @mouseout:1|('_point');
                 mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
-                cancel|stop (MainOps) call('empty');
+                mouseleave|$('#g-count') val end;
+                cancel|stop (MainOps) call('selsEmpty');
                 ^obted|(ESC) evo(3) apply('push', _1)"
-            by="Ed.mouse(_1)"
-            to="-;
+            by="Ed.mouse(_1) $('#g-count') val pass"
+            to="#g-count|trigger('reset');
                 =|addClass;
                 =|removeClass;
                 #status-tips|trigger('info');
+                #g-count|trigger('reset');
                 -;
                 |bind('mouseover:1 mouseout:1', '*')">
             <hgroup>
@@ -266,7 +268,7 @@
             to="|attribute('title text')"></span>
         <!-- 计数暂存 -->
         <input id="g-count" name="count" type="hidden"
-            on="reset|('') dup;
+            on="reset|(MainOps) call('esetSize') str('[ ', ' ]') ('');
                 set|ev('detail') dup"
             to="|val|pop fire('#status-tips', 'info');
                 |val|pop fire('#status-tips', 'info')" />

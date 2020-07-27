@@ -86,8 +86,10 @@ Global: [
     // 录入框铺满
     // 需由样式定义容器范围（position:relative）。
     {
-        "key":      "alt:f",
-        // "key":      "meta:f",  // MacOS
+        "key": [
+            "alt:f",    // windows
+            "meta:f"    // MacOS
+        ],
         "command":  "input.full",
     },
 

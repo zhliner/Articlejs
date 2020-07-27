@@ -43,7 +43,7 @@
     //
     // 变化处理器映射。
     // event-name: process-handler
-    // process-handler: function(event): {.back(n)}
+    // process-handler: function(event): {.back}
     //
     const __varyHandles = {
         // 特性处理器。
@@ -102,9 +102,8 @@ class History {
      * @param {Number} n 回溯项数
      */
     back( n ) {
-        if ( n <= 0 ) {
-            return;
-        }
+        if ( n <= 0 ) return;
+
         callBack( () =>
             this._buf.splice(-n).reverse().forEach( obj => obj.back() )
         );

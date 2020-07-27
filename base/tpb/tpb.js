@@ -208,7 +208,9 @@ function orderList( vals ) {
  * - 单纯传递 root 可用于页面中既有OBT构建（页面使用或效果测试）。
  * - 传递 conf 为 OBT 配置对象（必含on成员）可用于即时测试外部的OBT配置。
  * - 如果 root 中包含模板语法且需要引入外部子模版，则 conf 可以是配置文件路径或配置对象（{file:[node]}）。
- * 注：子模板配置对象不应包含on属性（键为文件名，因此通常不会冲突）。
+ * 注意：
+ * 如果conf为子模板配置对象，不应包含“on”文件名（否则视为OBT配置对象）。
+ * 返回的承诺对象承诺了根元素内所有的处理逻辑。
  * @param  {Element|DocumentFragment|Object} root 根容器或处理对象
  * @param  {Object3|String} conf 外部OBT配置（{on,by,to}）或模板节点配置文件（相对于URL根）或配置对象，可选
  * @return {Promise<void>|root}

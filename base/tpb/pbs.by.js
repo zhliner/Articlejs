@@ -35,7 +35,7 @@ import { Util } from "./tools/util.js";
 import { X } from "./lib.x.js";
 import { App__ } from "./app.js";
 import { bindMethod, Web, subExtend, instanceExtend, subObj } from "./config.js";
-import { Control } from "./pbs.base.js";
+import { Get } from "./pbs.get.js";
 
 // 无渲染占位。
 // import { Render } from "./tools/render.x.js";
@@ -112,9 +112,9 @@ const _By = {
 
 
 // 绑定：this固化。
-// @proto: Control
+// @proto: Get < Process < Control
 export const By = $.proto(
-    $.assign( {}, _By, bindMethod ), Control
+    $.assign( {}, _By, bindMethod ), Get
 );
 
 //
@@ -125,7 +125,7 @@ By.x = X;
 
 
 /**
- * 接口：普通扩展。
+ * 接口：用户扩展。
  * 对象：
  * - 扩展中的方法默认会绑定（bind）到所属宿主对象。
  * - 支持多层嵌套的子域，子域是一种分组，由普通的Object封装。

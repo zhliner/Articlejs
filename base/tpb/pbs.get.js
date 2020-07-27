@@ -433,10 +433,10 @@ const _Gets = {
     /**
      * 创建元素集。
      * 目标：暂存区条目可选。
-     * 如果目标有值，作为创建元素的源码或配置对象。
+     * 如果目标有值，作为创建元素的文本内容。
      * 目标可以是数组，成员值按顺序作为元素集成员的内容。
      * 注：
-     * 这是 ...array(size) pop a.Element(tag) 的简洁版。
+     * 这是 ...array(size) pop a.element(tag) 的简洁版。
      * @param  {String} tag 元素标签名
      * @param  {Number} n 元素数量
      * @return {[Element]}
@@ -447,7 +447,7 @@ const _Gets = {
         if ( !$.isArray(v) ) {
             v = [v];
         }
-        return arrayFill( v, n ).map( d => $.Element(tag, d) );
+        return arrayFill( v, n ).map( d => $.element(tag, d) );
     },
 
     __els: 0,
@@ -490,6 +490,21 @@ const _Gets = {
 
 
     /**
+     * 创建元素。
+     * 目标：暂存区1项可选。
+     * 目标作为元素的文本内容。
+     * @param  {String} tag 标签名
+     * @return {Element|Collector}
+     */
+    element( evo, tag ) {
+        return $.isCollector(evo.data) ?
+            evo.data.element(tag) : $.element(tag, evo.data);
+    },
+
+    __element: -1,
+
+
+    /**
      * 创建SVG域元素。
      * 目标：暂存区1项可选。
      * 目标为SVG元素的内容或配置对象。
@@ -528,7 +543,7 @@ const _Gets = {
      * @return {String}
      */
     einfo( evo, hasid, hascls ) {
-        return elemInfo( evo.data, hasid, hascls );
+        return evo.data ? elemInfo( evo.data, hasid, hascls ) : '';
     },
 
     __einfo: 1,
@@ -984,8 +999,9 @@ const _Gets = {
 //
 // 集合版处理器。
 // 流程数据为数组，对成员逐个执行同样的单独处理（.map(...)）。
-// 也支持Collector实例，但仅按普通数组对待。
-// @return {[Value]|Collector}
+// 注意：
+// Collector实例实际上也是数组，但返回值只是一个普通数组（Array）。
+// @return {[Value]}
 //////////////////////////////////////////////////////////////////////////////
 
 const _arrayGets = {
@@ -997,7 +1013,7 @@ const _arrayGets = {
      * @return {[Value]|[[Value]]}
      */
     get( evo, name ) {
-        return evo.data.map( o => namesValue(name, o) );
+        return map.call( evo.data, o => namesValue(name, o) );
     },
 
     __get: 1,
@@ -1011,7 +1027,7 @@ const _arrayGets = {
      * @return {[Value]}
      */
     call( evo, meth, ...rest ) {
-        return evo.data.map( o => o[meth](...rest) );
+        return map.call( evo.data, o => o[meth](...rest) );
     },
 
     __call: 1,
@@ -1026,7 +1042,7 @@ const _arrayGets = {
      */
     calls( evo, meths, ...args ) {
         meths = meths.split(__reSpace);
-        return evo.data.map( obj => methsCall(meths, obj, ...args) );
+        return map.call( evo.data, obj => methsCall(meths, obj, ...args) );
     },
 
     __calls: 1,
@@ -1039,7 +1055,7 @@ const _arrayGets = {
      * @return {[String]|Collector}
      */
     einfo( evo, hasid, hascls ) {
-        return evo.data.map( el => elemInfo(el, hasid, hascls) );
+        return map.call( evo.data, el => elemInfo(el, hasid, hascls) );
     },
 
     __einfo: 1,
@@ -1055,7 +1071,7 @@ const _arrayGets = {
      * @return {[Number]}
      */
     int( evo, radix ) {
-        return evo.data.map( v => parseInt(v, radix) );
+        return map.call( evo.data, v => parseInt(v, radix) );
     },
 
     __int: 1,
@@ -1066,7 +1082,7 @@ const _arrayGets = {
      * @return {[Number]}
      */
     float( evo ) {
-        return evo.data.map( v => parseFloat(v) );
+        return map.call( evo.data, v => parseFloat(v) );
     },
 
     __float: 1,
@@ -1078,7 +1094,7 @@ const _arrayGets = {
      * @return {[RegExp]}
      */
     re( evo, flag ) {
-        return evo.data.map( v => RegExp(v, flag) );
+        return map.call( evo.data, v => RegExp(v, flag) );
     },
 
     __re: 1,
@@ -1090,7 +1106,7 @@ const _arrayGets = {
      * @return {[Boolean]}
      */
     bool( evo, all ) {
-        return all ? evo.data.map(v => !!hasValue(v)) : evo.data.map(v => !!v);
+        return all ? map.call( evo.data, v => !!hasValue(v)) : map.call( evo.data, v => !!v);
     },
 
     __bool: 1,
@@ -1103,7 +1119,7 @@ const _arrayGets = {
      * @return {[String]}
      */
     str( evo, pre = '', suf = '' ) {
-        return evo.data.map( v => `${pre}${v}${suf}` );
+        return map.call( evo.data, v => `${pre}${v}${suf}` );
     },
 
     __str: 1,
@@ -1111,15 +1127,14 @@ const _arrayGets = {
 
 
     // 节点创建。
-    // 返回类型与目标类型相同。
     //-----------------------------------------------------
 
     /**
      * 元素克隆。
-     * @return {[Element]|Collector}
+     * @return {[Element]}
      */
     clone( evo, event, deep, eventdeep ) {
-        return evo.data.map( el => $.clone(el, event, deep, eventdeep) );
+        return map.call( evo.data, el => $.clone(el, event, deep, eventdeep) )
     },
 
     __clone: 1,
@@ -1128,22 +1143,34 @@ const _arrayGets = {
     /**
      * 创建元素集。
      * @param  {String} tag 标签名
-     * @return {[Element]|Collector}
+     * @return {[Element]}
      */
     Element( evo, tag ) {
-        return evo.data.map( data => $.Element(tag, data) );
+        return map.call( evo.data, data => $.Element(tag, data) )
     },
 
     __Element: -1,
 
 
     /**
+     * 创建元素集。
+     * @param  {String} tag 标签名
+     * @return {[Element]}
+     */
+    element( evo, tag ) {
+        return map.call( evo.data, text => $.element(tag, text) )
+    },
+
+    __element: -1,
+
+
+    /**
      * 创建SVG元素集。
      * @param  {String} tag 标签名，可选
-     * @return {[Element]|Collector}
+     * @return {[Element]}
      */
     svg( evo, tag = 'svg' ) {
-        return evo.data.map( opts => $.svg(tag, opts) );
+        return map.call( evo.data, opts => $.svg(tag, opts) )
     },
 
     __svg: -1,
@@ -1156,10 +1183,10 @@ const _arrayGets = {
     /**
      * 移除元素集。
      * @param  {Boolean} back 入栈指示，可选
-     * @return {[Element]|Collector|void}
+     * @return {[Element]|void}
      */
     remove( evo, back ) {
-        let _vs = evo.data.map( el => $.remove(el) );
+        let _vs = map.call( evo.data, el => $.remove(el) );
         if ( back ) return _vs;
     },
 
@@ -1212,7 +1239,7 @@ const _arrayGets = {
 
     // 集合版。
     // @return {[[String]]|[String]}
-    _arrayGets[name] = function( evo ) { evo.data.map(el => Util[name](el)) };
+    _arrayGets[name] = function( evo ) { map.call( evo.data, el => Util[name](el)) };
 
     _arrayGets[`__${name}`] = 1;
 });
@@ -1259,7 +1286,7 @@ const _arrayGets = {
     // @data:  {Array|Collector}
     // @return {[Value]}
     _arrayGets[meth] = function( evo, arg ) {
-        return Array.prototype.map.call( evo.data, el => $[meth](el, arg) );
+        return map.call( evo.data, el => $[meth](el, arg) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1304,7 +1331,7 @@ const _arrayGets = {
     // @data:  {Array|Collector}
     // @return {[Value]}
     _arrayGets[meth] = function( evo ) {
-        return Array.prototype.map.call( evo.data, el => $[meth](el) );
+        return map.call( evo.data, el => $[meth](el) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1348,7 +1375,7 @@ const _arrayGets = {
     // @data:  {Array|Collector}
     // @return {[Value]}
     _arrayGets[meth] = function( evo, ...args ) {
-        return Array.prototype.map.call( evo.data, el => $[meth](el, ...args) );
+        return map.call( evo.data, el => $[meth](el, ...args) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1381,7 +1408,7 @@ const _arrayGets = {
     // @data:  {Array|Collector}
     // @return {[Node|DocumentFragment]}
     _arrayGets[meth] = function( evo, arg ) {
-        return Array.prototype.map.call( evo.data, con => $[meth](con, arg) );
+        return map.call( evo.data, con => $[meth](con, arg) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1551,7 +1578,7 @@ const __uiState = [ '-', '', '^' ];
     // 集合版。
     // @return {[Boolean]}
     _arrayGets[name] = function( evo ) {
-        return Array.prototype.map.call(
+        return map.call(
             evo.data,
             el => Util.pbo(el).includes(name)
         );
@@ -1590,7 +1617,7 @@ const __uiState = [ '-', '', '^' ];
     // @param  {String} box 封装结构（同上）
     // @return {[Element]} 包裹的容器根元素集
     _arrayGets[meth] = function( evo, box ) {
-        return Array.prototype.map.call( evo.data, el => $[meth](el, box) );
+        return map.call( evo.data, el => $[meth](el, box) );
     };
 
     _arrayGets[`__${meth}`] = 1;
@@ -1624,7 +1651,7 @@ const __uiState = [ '-', '', '^' ];
     // @param  {Boolean} back 入栈指示
     // @return {[[Node]]|void}
     _arrayGets[meth] = function( evo, back ) {
-        let vs = Array.prototype.map.call( evo.data, el => $[meth](el) );
+        let vs = map.call( evo.data, el => $[meth](el) );
         if ( back ) return vs;
     };
 
@@ -1674,6 +1701,10 @@ const __uiState = [ '-', '', '^' ];
 //
 // 工具函数。
 ///////////////////////////////////////////////////////////////////////////////
+
+
+// 简化引用。
+const map = Array.prototype.map;
 
 
 /**
@@ -1796,8 +1827,8 @@ function elemInfo( el, hasid, hascls ) {
     if ( hasid && el.id ) {
         _s += `#${el.id}`;
     }
-    if ( hascls && el.className ) {
-        _s += `#${el.className}`;
+    if ( hascls && el.classList.length ) {
+        _s += '.' + [...el.classList].join('.');
     }
     return _s;
 }

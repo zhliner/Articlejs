@@ -146,7 +146,7 @@ class ESEdit {
      */
     undo() {
         __ESet.removes( this._els ).pushes( this._old );
-        __EHot.set( this._el0 );
+        setFocus( this._el0 );
         this._focus( this._el0 );
     }
 
@@ -157,7 +157,7 @@ class ESEdit {
      */
     redo() {
         __ESet.removes( this._old ).pushes( this._els );
-        __EHot.set( this._el1 );
+        setFocus( this._el1 );
         this._focus( this._el1 );
     }
 
@@ -307,15 +307,15 @@ class ElemSels {
      * 抵达限定根元素时返回false。
      * @param  {Element} el 焦点元素
      * @param  {Number} n 上升最大层级数
-     * @param  {Element} root 终止根元素
+     * @param  {Element} end 终止边界元素（不含）
      * @return {Element|false}
      */
-    parent( el, n, root ) {
+    parent( el, n, end ) {
         let _to = $.closest(
             el,
-            (e, i) => i == n || e === root
+            (e, i) => i == n || e === end
         );
-        return _to !== root && ( this.cleanDown(_to), _to );
+        return _to !== end && ( this.cleanDown(_to), _to );
     }
 
 
@@ -328,7 +328,7 @@ class ElemSels {
      */
     child( el, n ) {
         let _sub = $.children( el, n );
-        return _sub && ( this.delete(el), _sub );
+        return _sub && ( this._set.delete(el), _sub );
     }
 
 
@@ -386,9 +386,6 @@ class ElemSels {
      * @return {this|false}
      */
     cleanUp( el ) {
-        if ( !this._set.has(el) ) {
-            return this;
-        }
         let _box = this._parentItem(el);
 
         if ( !_box ) {
@@ -426,7 +423,7 @@ class ElemSels {
      * @return {this|false} 当前实例
      */
     clean( el ) {
-        return this.cleanUp(el) || this.cleanDown(el);
+        return this.cleanUp(el) || this.cleanDown(el) || this;
     }
 
 
@@ -504,10 +501,64 @@ const
     __History = new History( Limit.history );
 
 
+let
+    // 内容根元素。
+    contentElem = null,
+
+    // 路径信息容器。
+    pathElem = null;
+
+
+
 
 //
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 构建元素路径序列。
+ * 返回沿DOM树正向逐层元素信息的一个<b>封装序列。
+ * @param  {Element} el 起点元素
+ * @param  {Element} root 终止根元素
+ * @return {[Element]}
+ */
+function elemPath( el, root ) {
+    let _els = [el].concat(
+        $.parentsUntil( el, e => e === root )
+    );
+    return _els.reverse().map( el => $.element('b', elemInfo(el)) );
+}
+
+
+/**
+ * 获取元素信息。
+ * - 支持role特性，与标签名用分号分隔。
+ * - 不支持其它如类名和ID。
+ * @param {Element} el 目标元素
+ */
+function elemInfo( el ) {
+    let _s = el.tagName.toLowerCase();
+
+    if ( el.hasAttribute('role') ) {
+        _s += ':' + el.getAttribute( 'role' );
+    }
+    return _s;
+}
+
+
+/**
+ * 设置元素焦点。
+ * 会同时设置焦点元素的路径提示序列。
+ * @param  {Element} el 焦点元素
+ * @param  {Element} root 终止根元素
+ * @param  {Element} box 路径序列容器
+ * @return {void}
+ */
+function setFocus( el ) {
+    __EHot.set( el );
+    $.fill( pathElem, elemPath(el, contentElem) );
+}
 
 
 /**
@@ -527,7 +578,7 @@ function expandSelect( hot, els ) {
     }
     hot = els[ els.length-1 ];
 
-    __EHot.set( hot );
+    setFocus( hot );
     __History.push( new ESEdit(_old, hot) );
 }
 
@@ -581,7 +632,7 @@ function elementSelect( to ) {
     if ( __Selects.add(to) === false ) {
         return;
     }
-    __EHot.set( to );
+    setFocus( to );
     __History.push( new ESEdit(_old, to) );
 }
 
@@ -607,6 +658,18 @@ function histNodes( op, ...args ) {
 //////////////////////////////////////////////////////////////////////////////
 
 
+/**
+ * 初始化全局数据。
+ * 用于编辑器设置此模块中操作的全局目标。
+ * @param {Element} content 编辑器容器（根元素）
+ * @param {Element} pathbox 路径蓄力容器
+ */
+export function init( content, pathbox ) {
+    contentElem = content;
+    pathElem = pathbox;
+}
+
+
 //
 // By扩展集。
 //
@@ -621,10 +684,12 @@ const _Edit = {
     mouse( evo, op ) {
         let _old = [...__ESet];
 
+        // 无条件改变焦点
+        setFocus( evo.data );
+
         if ( __Selects[op](evo.data) === false ) {
             return;
         }
-        __EHot.set( evo.data );
         __History.push( new ESEdit(_old, evo.data) );
     },
 
@@ -674,6 +739,8 @@ processExtend( 'Ed', _Edit );
 // - 焦点移动。无需进入编辑历史记录。
 // - 元素选取。进入历史记录（可撤销），有混合操作。
 // - 元素编辑。移动、克隆、删除等。
+// 注记：
+// 会使用全局对象进行处理。
 //
 export const MainOps = {
 
@@ -693,7 +760,7 @@ export const MainOps = {
         if ( !_beg || n < 0 ) {
             return;
         }
-        __EHot.set( $.prev(_beg, (_, i) => i == n, true) || _beg.parentElement.firstElementChild );
+        setFocus( $.prev(_beg, (_, i) => i == n, true) || _beg.parentElement.firstElementChild );
     },
 
 
@@ -710,7 +777,7 @@ export const MainOps = {
         if ( !_beg || n < 0 ) {
             return;
         }
-        __EHot.set( $.next(_beg, (_, i) => i == n, true) || _beg.parentElement.lastElementChild );
+        setFocus( $.next(_beg, (_, i) => i == n, true) || _beg.parentElement.lastElementChild );
     },
 
 
@@ -719,10 +786,9 @@ export const MainOps = {
      * 返回false表示目标超出范围。
      * 注意：需要提供准确距离值，0值没有特殊含义。
      * @param  {Number} n 上升层级数
-     * @param  {Element} root 终止根元素
      * @return {false|void}
      */
-    focusUp( n, root ) {
+    focusUp( n ) {
         n = isNaN(n) ? 1 : n;
 
         let _beg = __EHot.get();
@@ -730,9 +796,9 @@ export const MainOps = {
         if ( !_beg || n <= 0 ) {
             return;
         }
-        let _to = $.closest( _beg, (el, i) => i == n || el === root );
+        let _to = $.closest( _beg, (el, i) => i == n || el === contentElem );
 
-        return _to !== root && __EHot.set( _to );
+        return _to !== contentElem && setFocus( _to );
     },
 
 
@@ -745,7 +811,7 @@ export const MainOps = {
         let _beg = __EHot.get(),
             _sub = _beg && $.children( _beg, n || 0 );
 
-        return _sub && __EHot.set( _sub );
+        return _sub && setFocus( _sub );
     },
 
 
@@ -835,12 +901,12 @@ export const MainOps = {
 
 
     // 父级元素选取。
-    parentN( n, root ) {
+    parentN( n ) {
         let _el = __EHot.get();
         if ( !_el ) return;
 
         n = isNaN(n) ? 1 : n;
-        _el = __Selects.parent( _el, n, root );
+        _el = __Selects.parent( _el, n, contentElem );
 
         if ( _el ) elementSelect( _el );
     },
@@ -871,17 +937,6 @@ export const MainOps = {
     },
 
 
-    // 清空选取集。
-    empty() {
-        let _old = [...__ESet];
-
-        if ( __Selects.empty() === false ) {
-            return;
-        }
-        __History.push( new ESEdit(_old, __EHot.get()) );
-    },
-
-
     // 选取内容根。
     // - 内联单元：行内容元素或单元格元素。
     // - 行块单元：单元逻辑根元素。
@@ -901,6 +956,36 @@ export const MainOps = {
 
 
     //-- 元素编辑 ------------------------------------------------------------
+
+
+    //-- 杂项功能 ------------------------------------------------------------
+    // 供模板中直接取值使用
+
+
+    // 获取焦点元素。
+    // 用途：如内容区mouseout重置焦点信息。
+    focusElem() {
+        return __EHot.get();
+    },
+
+
+    // 清空选取集。
+    // 用途：ESC键最底层取消操作。
+    selsEmpty() {
+        let _old = [...__ESet];
+
+        if ( __Selects.empty() === false ) {
+            return;
+        }
+        __History.push( new ESEdit(_old, __EHot.get()) );
+    },
+
+
+    // 获取选取集大小。
+    // 用途：状态栏友好提示。
+    esetSize() {
+        return __ESet.size;
+    },
 
 }
 

@@ -47,7 +47,7 @@
         import { Web } from "./tpb/config.js";
         import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
-        import { MainOps } from "./edit.js";
+        import { MainOps, init } from "./edit.js";
 
         window.KM = cfg.Keys;
         window.GHK = new HotKey().config( cfg.Global );
@@ -59,9 +59,15 @@
         // 供直接使用。
         // 主要用于ESC取消选取集。
         window.MainOps = MainOps;
+        window.edInit = init;
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
+
+        init({
+            content: $.get( '#content' ),
+            pathbox: $.get( '#g-path' ),
+        });
 
         //:Debug
         window.Tpb = Tpb;
@@ -90,10 +96,11 @@
         panel.plugins;
         cmdline.active|ev('detail');
         focus.content;
-        escape.cancel|(ESC) last dup pass pop;
+        escape.cancel|(ESC) last pop;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize);
-        ^finish"
+        ^finish;
+        ^finish|(edInit) $('#content') $('#g-path') exec(_2)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
