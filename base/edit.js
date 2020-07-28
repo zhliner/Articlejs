@@ -20,11 +20,15 @@
 import { ESet, EHot } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { selectRoot } from "./base.js";
+import { selectTop } from "./base.js";
 
 
 const
     $ = window.$,
+
+    // 路径单元存储键。
+    // 在路径序列元素上存储源元素。
+    pathsKey = Symbol(),
 
     // 元素选取集实例。
     __ESet = new ESet( Setup.selectedClass ),
@@ -244,7 +248,7 @@ class ElemSels {
      */
     reverse( els ) {
         els.forEach(
-            el => this._set.has(el) ? this._set.delete(el) : this.parentAdd(el)
+            el => this._set.has(el) ? this._set.delete(el) : this._parentAdd(el)
         )
     }
 
@@ -277,7 +281,7 @@ class ElemSels {
                 continue;
             }
             _does = true;
-            this.parentAdd( el );
+            this._parentAdd( el );
         }
         return _does;
     }
@@ -348,7 +352,7 @@ class ElemSels {
      * 简单添加。
      * 外部需要自行清理父子已选取。
      * @param  {Element} el 选取元素
-     * @return {any|false}
+     * @return {el|false}
      */
     add( el ) {
         return !this._set.has(el) && this._set.add( el );
@@ -360,21 +364,10 @@ class ElemSels {
      * 会检查父子包含关系并清理。
      * 如果已经选取则无行为。
      * @param  {Element} el 目标元素
-     * @return {any|false}
+     * @return {el|false}
      */
     safeAdd( el ) {
         return !this._set.has(el) && this.clean(el)._set.add(el);
-    }
-
-
-    /**
-     * 父级添加。
-     * 会清除集合内属于子级元素的选取。
-     * @param {Element} el 父元素
-     */
-    parentAdd( el ) {
-        this.cleanDown( el );
-        this._set.add( el );
     }
 
 
@@ -428,6 +421,17 @@ class ElemSels {
 
 
     //-- 私有辅助 ------------------------------------------------------------
+
+
+    /**
+     * 父级添加。
+     * 会清除集合内属于子级元素的选取。
+     * @param {Element} el 父元素
+     */
+    _parentAdd( el ) {
+        this.cleanDown( el );
+        this._set.add( el );
+    }
 
 
     /**
@@ -506,7 +510,7 @@ let
     contentElem = null,
 
     // 路径信息容器。
-    pathElem = null;
+    pathContainer = null;
 
 
 
@@ -523,11 +527,27 @@ let
  * @param  {Element} root 终止根元素
  * @return {[Element]}
  */
-function elemPath( el, root ) {
+function pathList( el, root ) {
     let _els = [el].concat(
-        $.parentsUntil( el, e => e === root )
-    );
-    return _els.reverse().map( el => $.element('b', elemInfo(el)) );
+            $.parentsUntil( el, e => e === root )
+        );
+    return _els.reverse().map( el => pathElem( $.element('b', elemInfo(el)), el ) );
+}
+
+
+/**
+ * 存储/获取路径元素上的源目标元素。
+ * - 存储时返回路径元素自身。
+ * - 取值时返回路径上存储的源目标。
+ * @param  {Element} to 路径元素
+ * @param  {Element} src 源目标元素
+ * @return {Element} 源目标或路径元素
+ */
+function pathElem( to, src ) {
+    if ( src === undefined ) {
+        return to[ pathsKey ];
+    }
+    return to[ pathsKey ] = src, to;
 }
 
 
@@ -557,7 +577,24 @@ function elemInfo( el ) {
  */
 function setFocus( el ) {
     __EHot.set( el );
-    $.fill( pathElem, elemPath(el, contentElem) );
+    scrollIntoView( el );
+    $.fill( pathContainer, pathList(el, contentElem) );
+}
+
+
+/**
+ * 焦点元素滚动到视口（就近显示）。
+ * 注记：
+ * - Safari 包含 scrollIntoViewIfNeeded 但不包含 scrollIntoView。
+ * - Firefox 包含 scrollIntoView 但不包含 scrollIntoViewIfNeeded。
+ * - Chrome, Edge 则同时包含两者。
+ * @param {Element} el 目标元素
+ */
+function scrollIntoView( el ) {
+    if ( el.scrollIntoViewIfNeeded ) {
+        return el.scrollIntoViewIfNeeded( false );
+    }
+    el.scrollIntoView( {block: 'nearest'} );
 }
 
 
@@ -666,7 +703,7 @@ function histNodes( op, ...args ) {
  */
 export function init( content, pathbox ) {
     contentElem = content;
-    pathElem = pathbox;
+    pathContainer = pathbox;
 }
 
 
@@ -676,7 +713,7 @@ export function init( content, pathbox ) {
 const _Edit = {
     /**
      * 选取集。
-     * 适用方法：only, turn
+     * 适用方法：only, turn, safeAdd
      * 注：仅用于鼠标点选。
      * @param  {String} op 操作名
      * @return {void}
@@ -937,12 +974,12 @@ export const MainOps = {
     },
 
 
-    // 选取内容根。
+    // 选取内容顶元素。
     // - 内联单元：行内容元素或单元格元素。
     // - 行块单元：单元逻辑根元素。
-    contentRoot() {
+    contentTop() {
         let _el = __EHot.get(),
-            _to = _el && selectRoot(_el);
+            _to = _el && selectTop(_el);
 
         if ( _to ) {
             __Selects.clean( _to );
@@ -987,6 +1024,12 @@ export const MainOps = {
         return __ESet.size;
     },
 
+
+    // 获取路径上存储的源目标。
+    // 用途：鼠标指向路径时提示源目标（友好）。
+    pathElem( box ) {
+        return box[ pathsKey ];
+    },
 }
 
 

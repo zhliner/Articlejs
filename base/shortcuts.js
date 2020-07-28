@@ -148,22 +148,22 @@ Content: [
     //-----------------------------------------------------
 
     {
-        "key":      ":k",  // ↑
+        "key":      ":h",  // ←
         "command":  "focusPrevious"
     },
 
     {
-        "key":      ":j",  // ↓
+        "key":      ":l",  // →
         "command":  "focusNext"
     },
 
     {
-        "key":      ":h",  // ←
+        "key":      ":k",  // ↑
         "command":  "focusUp"
     },
 
     {
-        "key":      ":l",  // →
+        "key":      ":j",  // ↓
         "command":  "focusDown"
     },
 
@@ -212,35 +212,35 @@ Content: [
     // 同级向前（previous）扩选
     // 注：接受前置数字指定。
     {
-        "key":      "shift:k",
+        "key":      "shift:h",
         "command":  "previousN"
     },
 
     // 同级向后（next）扩选
     // 注：接受前置数字指定。
     {
-        "key":      "shift:j",
+        "key":      "shift:l",
         "command":  "nextN"
     },
 
     // 子级换选
     // 注：支持前置数字指定递进层级。
     {
-        "key":      "shift:l",
+        "key":      "shift:j",
         "command":  "childN"
     },
 
     // 父级换选
     // 注：支持前置数字指定上升层级（准确值）。
     {
-        "key":      "shift:h",
+        "key":      "shift:k",
         "command":  "parentN"
     },
 
     // 选取单元顶元素。
     {
         "key":      ":t",
-        "command":  "contentRoot"
+        "command":  "contentTop"
     },
 
 

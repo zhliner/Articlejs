@@ -441,7 +441,7 @@ function listRoot( el ) {
  * @param  {Element} beg 起点元素
  * @return {Element} 顶元素
  */
-function selectRoot( beg ) {
+function selectTop( beg ) {
     let _tv = getType( beg );
 
     if ( isInlines(_tv) ) {
@@ -544,5 +544,5 @@ export {
     type,
     nameType,
     tableObj,
-    selectRoot,
+    selectTop,
 }
