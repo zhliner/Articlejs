@@ -247,9 +247,9 @@ class ElemSels {
      * @param {[Element]} els 元素集
      */
     reverse( els ) {
-        els.forEach(
-            el => this._set.has(el) ? this._set.delete(el) : this._parentAdd(el)
-        )
+        for ( const el of els ) {
+            this._set.has(el) ? this._set.delete(el) : this._parentAdd(el);
+        }
     }
 
 
@@ -914,7 +914,7 @@ export const MainOps = {
 
 
     // 前端兄弟元素添加/移出。
-    // 注记：选取焦点会移动到目标集最后一个元素。
+    // 选取焦点会移动到目标集最后一个元素。
     previousN( n ) {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -926,7 +926,7 @@ export const MainOps = {
 
 
     // 前端兄弟元素添加/移出。
-    // 注记：选取焦点会移动到目标集最后一个元素。
+    // 选取焦点会移动到目标集最后一个元素。
     nextN( n ) {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -938,6 +938,7 @@ export const MainOps = {
 
 
     // 父级元素选取。
+    // 焦点会同时移动到目标元素。
     parentN( n ) {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -950,6 +951,7 @@ export const MainOps = {
 
 
     // 子元素选取。
+    // 焦点会同时移动到目标元素。
     childN( n ) {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -977,9 +979,10 @@ export const MainOps = {
     // 选取内容顶元素。
     // - 内联单元：行内容元素或单元格元素。
     // - 行块单元：单元逻辑根元素。
+    // 注：焦点会同时移动。
     contentTop() {
         let _el = __EHot.get(),
-            _to = _el && selectTop(_el);
+            _to = _el && selectTop(_el, contentElem);
 
         if ( _to ) {
             __Selects.clean( _to );

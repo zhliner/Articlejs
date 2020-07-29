@@ -220,7 +220,8 @@
     <div id="g-path" class="_path"
         on="click(b)|(MainOps) evo(2) call('pathElem', _1);
             mouseover(b)|('_point') (MainOps) evo(2) call('pathElem', _1) pop;
-            mouseout(b)|('_point') (MainOps) evo(2) call('pathElem', _1) pop;"
+            mouseout(b)|('_point') (MainOps) evo(2) call('pathElem', _1) pop;
+            toggle|evo(3) hide(2)"
         by="Ed.mouse('safeAdd')"
         to="#g-count|trigger('reset')|fire('body/', 'focus.content');
             -|addClass;

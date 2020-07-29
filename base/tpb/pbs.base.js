@@ -822,6 +822,7 @@ const _Process = {
     /**
      * 返回实参的整数部分。
      * 目标：暂存区/栈顶1项。
+     * 与 Get:int 方法稍有不同，空串的结果为数值0。
      * @data: Number
      * @return {Number}
      */

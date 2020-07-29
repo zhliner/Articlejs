@@ -96,6 +96,7 @@
         panel.plugins;
         cmdline.active|ev('detail');
         focus.content;
+        toggle.path;
         escape.cancel|(ESC) last pop;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize);
@@ -113,6 +114,7 @@
         #x-plugins||click;
         #g-cmdx|trigger('setv');
         #g-scroll|trigger('focus');
+        #g-path|trigger('toggle');
         -|trigger('cancel');
         |data('all pls');
         #g-keytip|text;

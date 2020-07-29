@@ -21,50 +21,13 @@ const
     // SVG系名称空间。
     __svgNS = 'http://www.w3.org/2000/svg',
 
+    // 类型值存储键。
+    __typeKey = Symbol('type-value'),
+
     // 表格实例缓存。
     // { Element: $.Table }
     __tablePool = new WeakMap();
 
-
-//
-// 内联元素集。
-// 用于提取内容时判断是否为内联单元。
-//
-const InlineTags = new Set([
-    'AUDIO',
-    'VIDEO',
-    'PICTURE',
-    'A',
-    'STRONG',
-    'EM',
-    'Q',
-    'ABBR',
-    'CITE',
-    'SMALL',
-    'TIME',
-    'DEL',
-    'INS',
-    'SUB',
-    'SUP',
-    'MARK',
-    'CODE',
-    'RUBY',
-    'DFN',
-    'SAMP',
-    'KBD',
-    'S',
-    'U',
-    'VAR',
-    'BDO',
-    'METER',
-    'IMG',
-    'BR',
-    'WBR',
-    'SPAN',
-    'B',
-    'I',
-    'svg',  // 小写
-]);
 
 
 //
@@ -259,7 +222,7 @@ function nameType( name ) {
  * @param  {Element|Text} el 目标节点
  * @return {Number} 类型值
  */
-function type( el ) {
+function typeValue( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
@@ -273,9 +236,42 @@ function type( el ) {
 
 
 /**
+ * 提取元素类型值。
+ * 如果值未知，即时分析获取并存储。
+ * @param  {Element} el 目标元素
+ * @return {Number}
+ */
+function getType( el ) {
+    let _v = el[ __typeKey ];
+
+    if ( _v === undefined ) {
+        setType( el, (_v = typeValue(el)) );
+    }
+    return _v;
+}
+
+
+/**
+ * 存储元素类型值。
+ * 注：用一个Symbol键存储在元素对象上，非枚举。
+ * @param  {Element} el 目标元素
+ * @param  {Number} tval 类型值
+ * @return {Element} el
+ */
+function setType( el, tval ) {
+    Reflect.defineProperty(el, __typeKey, {
+        value: tval,
+        enumerable: false,
+    });
+    return el;
+}
+
+
+/**
  * 获取目标元素的内容。
  * 仅限内联节点和非空文本节点。
  * 如果初始即传入一个空文本节点，会返回null。
+ * 注记：$.contents()会滤除空文本内容。
  * @param  {Element|Text} el 目标节点
  * @return {[Node]|Node|null}
  */
@@ -283,7 +279,7 @@ function contents( el ) {
     if ( el.nodeType == 3 ) {
         return el.textContent.trim() ? el : null;
     }
-    if ( InlineTags.has(el.tagName) ) {
+    if ( isInlines( getType(el) ) ) {
         return el;
     }
     return $.contents(el).map( nd => contents(nd) ).flat();
@@ -439,18 +435,16 @@ function listRoot( el ) {
  * 这是一种用户友好，以便直达内容行元素或单元根。
  *
  * @param  {Element} beg 起点元素
+ * @param  {Element} end 终点限定元素
  * @return {Element} 顶元素
  */
-function selectTop( beg ) {
+function selectTop( beg, end ) {
     let _tv = getType( beg );
 
     if ( isInlines(_tv) ) {
-        return parentContent( beg );
+        return contentRoot( beg.parentElement, end );
     }
-    if ( isStructX(_tv) ) {
-        return parentRoot( beg );
-    }
-    return null;
+    return entityRoot( beg.parentElement, end );
 }
 
 
@@ -514,14 +508,22 @@ function alikeTable( t1, t2 ) {
 
 /**
  * 向上获取首个内容行。
- * 特例：
- * 单元格属于其内部节点的内容行元素。
- *
+ * 向上找到首个非内联的内容元素即可。
+ * 注：包含单元格和插图讲解等。
  * @param  {Element} beg 起点元素
- * @return {Element} 内容行元素
+ * @param  {Element} end 终点限定元素
+ * @return {Element|null} 内容行元素
  */
-function parentContent( beg ) {
-    //
+function contentRoot( beg, end ) {
+    if ( beg === end ) {
+        return null;
+    }
+    let _val = getType(beg);
+
+    if ( isContent(_val) && !isInlines(_val) ) {
+        return beg;
+    }
+    return contentRoot( beg.parentElement );
 }
 
 
@@ -529,10 +531,19 @@ function parentContent( beg ) {
  * 向上获取单元根元素。
  * 完整单元指内联或行块两种逻辑独立的单元。
  * @param  {Element} beg 起点元素
- * @return {Element} 根元素
+ * @param  {Element} end 终点限定元素
+ * @return {Element|null} 根元素
  */
-function parentRoot( beg ) {
-    //
+function entityRoot( beg, end ) {
+    if ( beg === end ) {
+        return null;
+    }
+    let _val = getType(beg);
+
+    if ( isBlocks(_val) || isInlines(_val) ) {
+        return beg;
+    }
+    return entityRoot( beg.parentElement );
 }
 
 
@@ -541,8 +552,10 @@ function parentRoot( beg ) {
 //////////////////////////////////////////////////////////////////////////////
 
 export {
-    type,
     nameType,
+    typeValue,
+    getType,
+    setType,
     tableObj,
     selectTop,
 }

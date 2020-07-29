@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { type, nameType, tableObj } from "./base.js";
+import { typeValue, nameType, getType, setType, tableObj } from "./base.js";
 import { SVG, SVGITEM } from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 
@@ -33,10 +33,7 @@ const
     $ = window.$,
 
     // ID标识字符限定
-    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g,
-
-    // 类型值存储键。
-    __typeKey = Symbol('type-value');
+    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
 
 
 //
@@ -639,44 +636,12 @@ const Content = {
  * @return {Element}
  */
 function create( tag, opts, name ) {
-    let _el = $.Element( tag );
+    let _el = $.element( tag );
 
     if ( opts ) {
         $.attribute( _el, opts );
     }
     return setType( _el, nameType(name || tag.toUpperCase()) );
-}
-
-
-/**
- * 存储元素类型值。
- * 注：用一个Symbol键存储在元素对象上，非枚举。
- * @param  {Element} el 目标元素
- * @param  {Number} tval 类型值
- * @return {Element} el
- */
-function setType( el, tval ) {
-    Reflect.defineProperty(el, __typeKey, {
-        value: tval,
-        enumerable: false,
-    });
-    return el;
-}
-
-
-/**
- * 提取元素类型值。
- * 如果值未知，即时分析获取并存储。
- * @param  {Element} el 目标元素
- * @return {Number}
- */
-function getType( el ) {
-    let _v = el[ __typeKey ];
-
-    if ( _v === undefined ) {
-        setType( el, (_v = type(el)) );
-    }
-    return _v;
 }
 
 
@@ -709,7 +674,7 @@ function html( box, html ) {
     $.html( box, html );
 
     $.find( '*', box )
-    .forEach( el => setType( el, type(el) ) );
+    .forEach( el => setType( el, typeValue(el) ) );
 
     return box;
 }

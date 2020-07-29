@@ -71,7 +71,6 @@ Global: [
     },
 
     // 显示插件面板
-    // 注：插件面板有焦点时可通过 ESC 隐藏。
     {
         "key":      ":f7",
         "command":  "panel.plugins"
@@ -100,7 +99,15 @@ Global: [
         "command":  "focus.content"
     },
 
+    // 焦点元素路径信息显示切换
+    {
+        "key":      "shift:f6",
+        "command":  "toggle.path"
+    },
+
+
     // 逐次取消
+    // 注：此配置不应修改。
     {
         "key":      ":escape",
         "command":  "escape.cancel",
