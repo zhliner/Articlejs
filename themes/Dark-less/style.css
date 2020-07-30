@@ -491,6 +491,8 @@ aside#help {
     gap: 1px;
     padding: 1px;
     background-color: #e6e6e6;
+    /* 覆盖 */
+    font-size: 11pt;
 
     /* 测试 */
     top: 20px;
@@ -1279,7 +1281,7 @@ aside#help {
 menu {
     border-radius: 2px;
     box-shadow: 1px 1px 3px #444;
-    font-size: 11pt;
+    font-size: 14px;
     margin: 0;
     padding: 0;
     cursor: default;

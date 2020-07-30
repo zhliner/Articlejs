@@ -66,21 +66,52 @@ class History {
     push( obj ) {
         // 新入截断。
         this._buf.length = ++this._idx;
-        let _len = this._buf.push(obj) - this._max;
-
-        return _len > 0 && this._buf.shift();
+        return (this._buf.push(obj) - this._max) > 0 && this._shift();
     }
 
 
+    /**
+     * 撤销一步。
+     * 操作实例可能是一个数组。
+     */
     undo() {
+        if ( this._idx < 0 ) {
+            return warn('[undo] overflow.');
+        }
         let _obj = this._buf[ this._idx-- ];
+
         $.isArray(_obj) ? _obj.reverse().forEach( o => o.undo() ) : _obj.undo();
     }
 
 
+    /**
+     * 重做一步。
+     * 操作实例可能是一个数组。
+     */
     redo() {
-        let _obj = this._buf[ this._idx++ ];
+        if ( this._idx >= this._buf.length - 1 ) {
+            return warn('[redo] overflow.');
+        }
+        let _obj = this._buf[ ++this._idx ];
+
         $.isArray(_obj) ? _obj.forEach( o => o.redo() ) : _obj.redo();
+    }
+
+
+    /**
+     * 历史栈头部移除。
+     * 游标从头部算起，因此需要同步减1。
+     * 注记：
+     * 仅 DOMEdit 实例包含 count 属性。
+     */
+    _shift() {
+        let _obj = this._buf.shift();
+        this._idx --;
+
+        if ( !$.isArray(_obj) ) {
+            _obj = [_obj];
+        }
+        _obj.forEach( o => o.count && __TQHistory.prune(o.count) );
     }
 }
 
@@ -98,15 +129,17 @@ class DOMEdit {
      * @param {Function} handle 操作函数
      */
     constructor( handle ) {
-        this._fun = handle;
-        this._cnt = null;
+        this._func = handle;
+
+        // 外部只读
+        this.count = null;
         this.redo();
     }
 
 
     undo() {
-        if ( this._cnt > 0 ) {
-            __TQHistory.back( this._cnt );
+        if ( this.count > 0 ) {
+            __TQHistory.back( this.count );
         }
     }
 
@@ -114,11 +147,8 @@ class DOMEdit {
     redo() {
         let _old = __TQHistory.size();
 
-        this._fun();
-        this._cnt = __TQHistory.size() - _old;
-
-        // 准确调校。
-        __TQHistory.limit( __TQHistory.limit() + this._cnt - 1 );
+        this._func();
+        this.count = __TQHistory.size() - _old;
     }
 }
 
@@ -128,6 +158,7 @@ class DOMEdit {
 // 注记：
 // 选取集成员需要保持原始的顺序，较为复杂，
 // 因此这里简化取操作前后的全集成员存储。
+// @ElementSelect
 //
 class ESEdit {
     /**
@@ -184,6 +215,60 @@ class ESEdit {
 // 仅记录选取操作执行时的焦点（焦点自身的移动被忽略）。
 //
 ESEdit.currentFocus = null;
+
+
+//
+// 文本选取编辑。
+// 用于鼠标划选插入内联单元。
+// 注记：采用DOM原生接口，无需配置tQuery暂停激发。
+// @TextSelection
+//
+class TSEdit {
+    /**
+     * 注：rng不可为空。
+     * @param {Range} rng 范围对象
+     */
+    constructor( rng ) {
+        //
+    }
+}
+
+
+//
+// 微编辑进出编辑。
+// 微编辑完整内容的撤销和重做。
+// 注记：
+// 被微编辑的为内联元素，暂不考虑克隆上面的事件处理器。
+// 如果这些元素上需要事件处理，用户可以采用委托方式。
+//
+class MiniEdit {
+    /**
+     * 在进入微编辑前构造。
+     * @param {Element} el 目标内容元素
+     */
+    constructor( el ) {
+        this._box = el;
+        this._old = $.html(el);
+        // this._new = '';
+    }
+
+
+    /**
+     * 撤销微编辑的结果。
+     */
+    undo() {
+        this._new = $.html( this._box );
+        $.html( this._box, this._html );
+    }
+
+
+    /**
+     * 恢复微编辑的结果。
+     */
+    redo() {
+        $.html( this._box, this._new );
+    }
+}
 
 
 //
@@ -577,6 +662,9 @@ function elemInfo( el ) {
  */
 function setFocus( el ) {
     __EHot.set( el );
+    if ( el == null ) {
+        return $.empty( pathContainer );
+    }
     scrollIntoView( el );
     $.fill( pathContainer, pathList(el, contentElem) );
 }
@@ -686,6 +774,11 @@ function histNodes( op, ...args ) {
         return;
     }
     __History.push( new DOMEdit( () => __Elemedit[op](...args) ) );
+}
+
+
+function warn( msg ) {
+    window.console.warn( msg );
 }
 
 
@@ -1032,6 +1125,25 @@ export const MainOps = {
     // 用途：鼠标指向路径时提示源目标（友好）。
     pathElem( box ) {
         return box[ pathsKey ];
+    },
+
+
+    /**
+     * 撤销操作。
+     * 注记：
+     * 为避免一次大量撤销（可能为误操作）浏览器假死，
+     * 仅支持单步逐次撤销。
+     */
+    editUndo() {
+        __History.undo();
+    },
+
+
+    /**
+     * 重做操作。
+     */
+    editRedo() {
+        __History.redo();
     },
 }
 

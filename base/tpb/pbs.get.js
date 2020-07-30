@@ -174,7 +174,7 @@ const _Gets = {
 
 
     /**
-     * 从目标上取值集。
+     * 从目标上取值序列。
      * 目标：暂存区/栈顶1项。
      * 特权：是，自行入栈。
      * name支持空格分隔的多个名称，此时值为一个数组。
@@ -211,13 +211,13 @@ const _Gets = {
      * 调用目标的多个方法。
      * 目标：暂存区/栈顶1项。
      * 方法名为空格分隔的多个名称序列。
-     * 实参序列与名称序列一一对应，如果是数组会自动展开。
+     * 实参序列与名称序列一一对应，如果成员是数组会自动展开。
      * @param  {String} meths 方法名序列
      * @param  {...Value} args 实参组
      * @return {[Value]} 值集
      */
     calls( evo, meths, ...args ) {
-        return methsCall( meths.split(__reSpace), evo.data, ...args );
+        return methsCall( evo.data, meths.split(__reSpace), ...args );
     },
 
     __calls: 1,
@@ -538,15 +538,43 @@ const _Gets = {
 
     /**
      * 生成元素基本信息。
+     * 目标：暂存区/栈顶1项。
+     * @data: Element 待提取信息的元素。
      * @param  {Boolean} hasid 包含ID信息
      * @param  {Boolean} hascls 包含类名信息
      * @return {String}
      */
     einfo( evo, hasid, hascls ) {
-        return evo.data ? elemInfo( evo.data, hasid, hascls ) : '';
+        return elemInfo( evo.data, hasid, hascls );
     },
 
     __einfo: 1,
+
+
+    /**
+     * 获取当前内容选区。
+     * 目标：无。
+     * 即获取用户在页面中的划选部分。
+     * 如果未指定强制取值，则选区首尾需在同一容器元素内（完整嵌套）。
+     * 无选区时返回 null。
+     * @param  {Boolean} force 强制取值
+     * @return {Range|null}
+     */
+    selrng( evo, force = false ) {
+        var _sel = window.getSelection();
+
+        if ( _sel.rangeCount == 0 ) {
+            return null;
+        }
+        var _rng = _sel.getRangeAt(0);
+
+        if ( force ) {
+            return _rng;
+        }
+        return _rng.startContainer.parentNode === _rng.endContainer.parentNode ? _rng : null;
+    },
+
+    __selrng: null,
 
 
 
@@ -1042,7 +1070,7 @@ const _arrayGets = {
      */
     calls( evo, meths, ...args ) {
         meths = meths.split(__reSpace);
-        return map.call( evo.data, obj => methsCall(meths, obj, ...args) );
+        return map.call( evo.data, obj => methsCall(obj, meths, ...args) );
     },
 
     __calls: 1,
@@ -1724,12 +1752,12 @@ function namesValue( name, obj ) {
 /**
  * 调用对象的多个方法。
  * 实参组成员与名称集成员一一对应，数组成员会自动展开。
- * @param  {[String]} names 方法名集
  * @param  {Object} obj 目标对象
+ * @param  {[String]} names 方法名集
  * @param  {...Value} args 实参组
  * @return {[Value]} 结果集
  */
-function methsCall( names, obj, ...args ) {
+function methsCall( obj, names, ...args ) {
     return names.map(
             (n, i) => obj[n]( ...[].concat(args[i]) )
         );

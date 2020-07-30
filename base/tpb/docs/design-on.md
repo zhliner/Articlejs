@@ -144,6 +144,9 @@ wrapAll( box:String ): Collector
 einfo( hasid:Boolean, hascls:Boolean ): String | [String]
 // 生成元素基本信息。
 
+selrng( force:Boolean ): Range
+// 获取当前选区。
+
 
 
 // 复杂取值。
