@@ -26,8 +26,8 @@
 //
 //  使用：
 //  0. 配置 tQuery.config() 以支持定制事件的激发。
-//  1. 将事件处理器绑定到根元素上，即可追踪其子孙元素（target）的变化。
-//  2. 创建一个全局的 History 对象，籍由上面的事件触发会自动记录变化历史。
+//  1. 创建一个全局的 History 实例作为事件处理器，绑定上面的事件到目标根元素上。
+//  2. 籍由事件的触发，会自动记录该元素及其子孙元素的变化历史。
 //  3. 调用 .back(n) 即可回退 DOM 的变化。
 //
 //  注意：
@@ -75,16 +75,16 @@
 
 //
 // 历史记录器。
-// 汇集节点改变的回溯（.undo）操作实例。
+// 汇集节点改变的回溯（.back）操作实例。
+// 注记：
+// 内部缓存池的大小（头部缩减）由外部来处理。
 //
 class History {
     /**
      * 构造一个记录器。
-     * @param {Number} size 历史长度
      */
-    constructor( size ) {
+    constructor() {
         this._buf = [];
-        this._max = size;
     }
 
 
@@ -119,8 +119,7 @@ class History {
      * @return {Array|false} 被移除的实例集。
      */
     push( its ) {
-        let _len = this._buf.push(its) - this._max;
-        return _len > 0 && this._buf.splice( 0, _len );
+        return this._buf.push( its );
     }
 
 
@@ -134,15 +133,13 @@ class History {
 
 
     /**
-     * 设置/获取缓存池大小上限。
-     * @param  {Number} max
-     * @return {Number|void}
+     * 缓存池头部剪除。
+     * @param {Number} n
      */
-    limit( max ) {
-        if ( max === undefined ) {
-            return this._max;
+    prune( n ) {
+        if ( n > 0 ) {
+            this._buf.splice( 0, -n );
         }
-        this._max = max;
     }
 
 
@@ -350,10 +347,11 @@ class Boundone {
 //
 class NodeVary {
     /**
+     * @param {Element} el 主元素（激发事件）。
      * @param {Object} detail 事件数据
      */
-    constructor( detail ) {
-        this._obj = this._init( detail.data, detail.method );
+    constructor( el, detail ) {
+        this._obj = this._init( el, detail.data, detail.method );
     }
 
 
@@ -363,16 +361,20 @@ class NodeVary {
 
 
     /**
+     * @param {Element} el 主元素
      * @param {Node|[Node]} data 数据节点/集
      * @param {String} meth 插入方法
      */
-    _init( data, meth ) {
-        // 兄弟关系。
+    _init( el, data, meth ) {
+        // 确定为兄弟。
         if ( meth == 'removes' || meth == 'empty' ) {
             return new Siblings( data );
         }
+        if ( meth == 'replace' ) {
+            return new Replace( el, data );
+        }
         if ( meth == 'normalize' ) {
-            return new Normalize( data );
+            return new Normalize( el );
         }
         return $.isArray(data) ? new Nodes(data) : new Node(data);
     }
@@ -425,8 +427,35 @@ class Nodes {
 
 
 //
+// 节点替换操作。
+// 实际上包含了两个行为的后果：
+// - 数据源脱离原位置。
+// - 主节点脱离原位置。
+//
+class Replace {
+    /**
+     * @param {Element} el 事件主元素
+     * @param {Node|[Node]} data 数据节点/集
+     */
+    constructor( el, data ) {
+        this._op0 = new Node(el);
+        this._op1 = $.isArray(data) ? new Nodes(data) : new Node(data);
+    }
+
+
+    // 注记：
+    // 先脱离再插入为优化行为。
+    back() {
+        this._op1.back();
+        this._op0.back();
+    }
+}
+
+
+//
 // 兄弟节点操作。
-// 注记：确定为非游离节点数据。
+// 注记：
+// 适用'removes'和'empty'方法，确定为非游离节点数据。
 //
 class Siblings {
     /**
@@ -461,7 +490,7 @@ class Normalize {
      * 准备：
      * 1. 提取相邻文本节点集分组（并克隆）。
      * 2. 记录位置参考节点。
-     * @param {Element} el 目标元素
+     * @param {Element} el 事件主元素
      */
     constructor( el ) {
         this._buf = adjacentTexts(el)
