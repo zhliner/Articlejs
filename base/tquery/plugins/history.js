@@ -493,8 +493,11 @@ class Normalize {
      * @param {Element} el 事件主元素
      */
     constructor( el ) {
-        this._buf = adjacentTexts(el)
-            .map( nodes => new Texts(nodes) );
+        let _all = textNodes( el )
+            .filter(
+                (nd, i, arr) => adjacent(nd, arr[i - 1], arr[i + 1])
+            );
+        this._buf = adjacentTeam(_all).map( nodes => new Texts(nodes) );
     }
 
 
@@ -512,9 +515,8 @@ class Normalize {
 //
 // 相邻文本节点处理。
 // 辅助处理normalize的回退。
-// 注意：
-// 原文本节点上附加的额外（用户）数据无法保持，
-// 当然，这样的数据通常不存在。
+// 注记：
+// 需要保持原文本节点的引用（其它节点可能依赖与它）。
 //
 class Texts {
     /**
@@ -525,16 +527,24 @@ class Texts {
         this._prev = nodes[0].previousSibling;
         this._box  = nodes[0].parentElement;
 
-        // 原节点会被修改，故克隆。
-        this._data = nodes.map( nd => nd.cloneNode() );
+        this._orig = nodes;
+        this._data = nodes.map( nd => nd.textContent );
     }
 
 
+    /**
+     * 注记：
+     * ref实际上是首个原始文本节点（this._orig[0]）。
+     * 但这不影响替换操作（实现会忽略相同的替换目标）。
+     */
     back() {
-        let _new = this._prev ?
+        let _ref = this._prev ?
             this._prev.nextSibling : this._box.firstChild;
-        // 原始接口
-        _new.replaceWith( ...this._data );
+
+        this._orig.forEach(
+            (e, i) => e.textContent = this._data[i]
+        );
+        _ref.replaceWith( ...this._orig );
     }
 }
 
@@ -576,7 +586,7 @@ function adjacent( cur, prev, next ) {
 /**
  * 相邻节点集分组。
  * @param  {[Node]} nodes 相邻节点集
- * @return {[Array]}
+ * @return {[[Text]]}
  */
 function adjacentTeam( nodes ) {
     let _sub = [nodes.shift()],
@@ -590,19 +600,6 @@ function adjacentTeam( nodes ) {
         _buf.push( (_sub = [nd]) );
     }
     return _buf;
-}
-
-
-/**
- * 提取相邻文本节点集组。
- * @param  {Element} el 容器元素
- * @return {[[Text]]}
- */
-function adjacentTexts( el ) {
-    return adjacentTeam(
-        textNodes(el)
-        .filter( (nd, i, arr) => adjacent(nd, arr[i-1], arr[i+1]) )
-    );
 }
 
 
@@ -628,6 +625,9 @@ function callBack( handle ) {
 ///////////////////////////////////////////////////////////////////////////////
 
 $.Fx.History = History;
+
+// 友好导出备用。
+$.Fx.History.Normalize = Normalize;
 
 
 })( window.$ );

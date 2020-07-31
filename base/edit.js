@@ -218,38 +218,73 @@ ESEdit.currentFocus = null;
 
 
 //
-// 文本选取编辑。
-// 用于鼠标划选插入内联单元。
-// 注记：采用DOM原生接口，无需配置tQuery暂停激发。
-// @TextSelection
+// 选区编辑。
+// 用于鼠标划选创建内联单元时。
+// 注记：
+// 使用DOM原生接口，避免tQuery定制事件激发记录。
 //
-class TSEdit {
+class RngEdit {
     /**
-     * 注：rng不可为空。
+     * 外部条件：
+     * 范围的首尾点需要在同一父元素内（正确嵌套）。
      * @param {Range} rng 范围对象
+     * @param {Element} el 内联元素（数据）
      */
-    constructor( rng ) {
-        //
+    constructor( rng, el ) {
+        this._old = [
+            ...rng.extractContents().childNodes
+        ];
+        rng.insertNode( el );
+        this._el = el;
+        // this._tmp = null;
+    }
+
+
+    undo() {
+        let _box = this._el.parentElement;
+        this._el.replaceWith( ...this._old );
+
+        // 碎片化记录
+        this._tmp = new RngEdit.Normalize( _box );
+        _box.normalize();
+    }
+
+
+    redo() {
+        this._tmp.back();
+        this._old[0].replaceWith( this._el );
+
+        this._old.slice(1).forEach( nd => nd.remove() );
     }
 }
+
+//
+// 规范化回退实现。
+// 注：撤销操作可能带来文本节点的碎片化。
+//
+RngEdit.Normalize = $.Fx.History.Normalize;
 
 
 //
 // 微编辑进出编辑。
-// 微编辑完整内容的撤销和重做。
+// 管理初始进入微编辑状态以及确认或取消。
+// 提供完整内容的撤销和重做。
 // 注记：
-// 被微编辑的为内联元素，暂不考虑克隆上面的事件处理器。
-// 如果这些元素上需要事件处理，用户可以采用委托方式。
+// 用一个新的元素执行微编辑以保持撤销后的引用有效。
+// 注意使用原生DOM接口，避免tQuery相关事件激发记录。
 //
 class MiniEdit {
     /**
      * 在进入微编辑前构造。
-     * @param {Element} el 目标内容元素
+     * 管理元素的可编辑状态。
+     * @param {Element} el 内容元素
      */
     constructor( el ) {
-        this._box = el;
-        this._old = $.html(el);
-        // this._new = '';
+        this._el = el;
+        this._cp = $.clone( el, true, true, true );
+
+        el.replaceWith( this._cp );
+        this._cp.setAttribute( 'contenteditable', true );
     }
 
 
@@ -257,16 +292,36 @@ class MiniEdit {
      * 撤销微编辑的结果。
      */
     undo() {
-        this._new = $.html( this._box );
-        $.html( this._box, this._html );
+        this._cp.replaceWith( this._el );
     }
 
 
     /**
      * 恢复微编辑的结果。
+     * 注记：
+     * 无需重新进入微编辑，新的元素用于之后的引用。
      */
     redo() {
-        $.html( this._box, this._new );
+        this._el.replaceWith( this._cp );
+    }
+
+
+    /**
+     * 微编辑完成。
+     * 因为是在新的元素上编辑，不影响原始引用，
+     * 所以简单移除可编辑属性即可。
+     */
+    done() {
+        this._cp.removeAttribute( 'contenteditable' );
+    }
+
+
+    /**
+     * 取消编辑。
+     * 通常在用户键入ESC键时执行，逻辑同undo。
+     */
+    cancel() {
+        this._cp.replaceWith( this._el );
     }
 }
 
