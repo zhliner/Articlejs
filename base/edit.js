@@ -260,7 +260,7 @@ class RngEdit {
 
 //
 // 规范化回退实现。
-// 注：撤销操作可能带来文本节点的碎片化。
+// 注：撤销操作通常带来文本节点的碎片化。
 //
 RngEdit.Normalize = $.Fx.History.Normalize;
 
@@ -280,29 +280,11 @@ class MiniEdit {
      * @param {Element} el 内容元素
      */
     constructor( el ) {
-        this._el = el;
         this._cp = $.clone( el, true, true, true );
+        this._el = el;
 
         el.replaceWith( this._cp );
         this._cp.setAttribute( 'contenteditable', true );
-    }
-
-
-    /**
-     * 撤销微编辑的结果。
-     */
-    undo() {
-        this._cp.replaceWith( this._el );
-    }
-
-
-    /**
-     * 恢复微编辑的结果。
-     * 注记：
-     * 无需重新进入微编辑，新的元素用于之后的引用。
-     */
-    redo() {
-        this._el.replaceWith( this._cp );
     }
 
 
@@ -322,6 +304,24 @@ class MiniEdit {
      */
     cancel() {
         this._cp.replaceWith( this._el );
+    }
+
+
+    /**
+     * 撤销微编辑的结果。
+     */
+    undo() {
+        this._cp.replaceWith( this._el );
+    }
+
+
+    /**
+     * 恢复微编辑的结果。
+     * 注记：
+     * 无需重新进入微编辑，新的元素用于之后的引用。
+     */
+    redo() {
+        this._el.replaceWith( this._cp );
     }
 }
 
