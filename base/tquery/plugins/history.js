@@ -589,6 +589,9 @@ function adjacent( cur, prev, next ) {
  * @return {[[Text]]}
  */
 function adjacentTeam( nodes ) {
+    if ( nodes.length == 0 ) {
+        return [];
+    }
     let _sub = [nodes.shift()],
         _buf = [_sub];
 
