@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { ESet, EHot } from './common.js';
+import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { selectTop } from "./base.js";
@@ -35,6 +35,10 @@ const
 
     // 选取焦点类实例。
     __EHot = new EHot( Setup.focusClass ),
+
+    // 光标实现实例。
+    // 仅用于内容元素的微编辑。
+    __elemCursor = new ElemCursor(),
 
     // DOM节点变化历史实例。
     __TQHistory = new $.Fx.History( Limit.history );
@@ -266,17 +270,18 @@ RngEdit.Normalize = $.Fx.History.Normalize;
 
 
 //
-// 微编辑进出编辑。
+// 微编辑进出管理。
 // 管理初始进入微编辑状态以及确认或取消。
 // 提供完整内容的撤销和重做。
 // 注记：
 // 用一个新的元素执行微编辑以保持撤销后的引用有效。
+// 外部可能需要先插入光标元素（考虑预先normalize），合并进入历史栈。
 // 注意使用原生DOM接口，避免tQuery相关事件激发记录。
 //
 class MiniEdit {
     /**
-     * 在进入微编辑前构造。
-     * 管理元素的可编辑状态。
+     * 创建管理实例。
+     * 管理元素的可编辑状态，在进入微编辑前构造。
      * @param {Element} el 内容元素
      */
     constructor( el ) {
@@ -285,15 +290,16 @@ class MiniEdit {
 
         el.replaceWith( this._cp );
         this._cp.setAttribute( 'contenteditable', true );
+
+        __elemCursor.cursor( this._cp );
     }
 
 
     /**
      * 微编辑完成。
-     * 因为是在新的元素上编辑，不影响原始引用，
-     * 所以简单移除可编辑属性即可。
      */
     done() {
+        this._cp.normalize();
         this._cp.removeAttribute( 'contenteditable' );
     }
 

@@ -436,7 +436,7 @@ const _Gets = {
      * 如果目标有值，作为创建元素的文本内容。
      * 目标可以是数组，成员值按顺序作为元素集成员的内容。
      * 注：
-     * 这是 ...array(size) pop a.element(tag) 的简洁版。
+     * 这是 ...array(size) pop a.elem(tag) 的简洁版。
      * @param  {String} tag 元素标签名
      * @param  {Number} n 元素数量
      * @return {[Element]}
@@ -496,7 +496,7 @@ const _Gets = {
      * @param  {String} tag 标签名
      * @return {Element|Collector}
      */
-    element( evo, tag ) {
+    elem( evo, tag ) {
         return $.isCollector(evo.data) ?
             evo.data.element(tag) : $.element(tag, evo.data);
     },
@@ -557,10 +557,10 @@ const _Gets = {
      * 即获取用户在页面中的划选部分。
      * 如果未指定强制取值，则选区首尾需在同一容器元素内（完整嵌套）。
      * 无选区时返回 null。
-     * @param  {Boolean} force 强制取值
+     * @param  {Boolean} loose 非严格约束
      * @return {Range|null}
      */
-    selrng( evo, force = false ) {
+    currentRange( evo, loose = false ) {
         var _sel = window.getSelection();
 
         if ( _sel.rangeCount == 0 ) {
@@ -568,13 +568,31 @@ const _Gets = {
         }
         var _rng = _sel.getRangeAt(0);
 
-        if ( force ) {
+        if ( loose ) {
             return _rng;
         }
         return _rng.startContainer.parentNode === _rng.endContainer.parentNode ? _rng : null;
     },
 
-    __selrng: null,
+    __currentRange: null,
+
+
+    /**
+     * 检查是否包含选区。
+     * 目标：暂存区/栈顶1项。
+     * 检查选区对象是否完全在目标容器元素之内。
+     * @data: Range
+     * @param  {Element|String} el 容器元素或其选择器
+     * @return {Boolean}
+     */
+    containRange( evo, el ) {
+        if ( typeof el === 'string' ) {
+            el = Util.find( el, evo.delegate );
+        }
+        return $.contains( el, evo.data.commonAncestorContainer );
+    },
+
+    __containRange: 1,
 
 
 
@@ -1185,11 +1203,11 @@ const _arrayGets = {
      * @param  {String} tag 标签名
      * @return {[Element]}
      */
-    element( evo, tag ) {
+    elem( evo, tag ) {
         return map.call( evo.data, text => $.element(tag, text) )
     },
 
-    __element: -1,
+    __elem: -1,
 
 
     /**

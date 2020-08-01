@@ -135,6 +135,9 @@ clone( event:?, deep?:, eventdeep?:Boolean ): Element|Collector
 Element( tag:String ): Element | Collector
 // 创建元素。
 
+elem( tag:String ): Element | Collector
+// 简单创建元素。
+
 svg( tag?:String ): Element | Collector
 // 创建SVG域元素。
 
@@ -144,8 +147,11 @@ wrapAll( box:String ): Collector
 einfo( hasid:Boolean, hascls:Boolean ): String | [String]
 // 生成元素基本信息。
 
-selrng( force:Boolean ): Range
+currentRange( force:Boolean ): Range
 // 获取当前选区。
+
+containRange( el:Element|String ): Boolean
+// 选区是否在元素之内。
 
 
 
