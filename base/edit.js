@@ -233,7 +233,7 @@ class RngEdit {
     /**
      * 外部条件：
      * 范围的首尾点需要在同一父元素内（正确嵌套）。
-     * 选区所在文本节点应当是连续的（如事前normalize）。
+     * 范围所在的容器元素normalize（文本节点连续）。
      * @param {Range} rng 范围对象
      * @param {Element} el 内联元素（数据）
      */
@@ -254,7 +254,7 @@ class RngEdit {
         // 碎片记忆（便于redo）。
         this._tmp = new Normalize( _box );
 
-        // 会丢失引用。
+        // 复原，会丢失引用。
         _box.normalize();
     }
 
@@ -276,6 +276,7 @@ class RngEdit {
 // 提供单击点即为活动插入点（rng无效时插入点位于末尾）。
 // 注记：
 // 用一个新的元素执行微编辑以保持撤销后的引用有效。
+// 外部无需预先规范化（normalize）。
 // 使用原生DOM接口，避免tQuery相关事件激发记录。
 //
 class MiniEdit {
