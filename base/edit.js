@@ -839,18 +839,17 @@ function elementsSelect( els, hot ) {
 
 /**
  * 单元素选取封装。
- * 不检查目标元素的父子选取情况。
+ * 不检查目标元素的父子选取情况（假定已合法）。
  * 注：焦点移动到目标元素。
  * @param {Element} to 目标元素
+ * @param {[Element]} els 之前的选取集
  */
-function elementSelect( to ) {
-    let _old = [...__ESet];
-
+function elementSelect( to, els ) {
     if ( __Selects.add(to) === false ) {
         return;
     }
     setFocus( to );
-    __History.push( new ESEdit(_old, to) );
+    __History.push( new ESEdit(els, to) );
 }
 
 
@@ -1128,10 +1127,12 @@ export const MainOps = {
         let _el = __EHot.get();
         if ( !_el ) return;
 
+        let _old = [...__ESet];
+
         n = isNaN(n) ? 1 : n;
         _el = __Selects.parent( _el, n, contentElem );
 
-        if ( _el ) elementSelect( _el );
+        if ( _el ) elementSelect( _el, _old );
     },
 
 
@@ -1141,9 +1142,10 @@ export const MainOps = {
         let _el = __EHot.get();
         if ( !_el ) return;
 
+        let _old = [...__ESet];
         _el = __Selects.child( _el, n || 0 );
 
-        if ( _el ) elementSelect( _el );
+        if ( _el ) elementSelect( _el, _old );
     },
 
 
@@ -1166,13 +1168,16 @@ export const MainOps = {
     // - 行块单元：单元逻辑根元素。
     // 注：焦点会同时移动。
     contentTop() {
-        let _el = __EHot.get(),
-            _to = _el && selectTop(_el, contentElem);
+        let _el = __EHot.get();
+        if ( !_el ) return;
 
-        if ( _to ) {
-            __Selects.clean( _to );
-            elementSelect( _to );
-        }
+        let _to = selectTop( _el, contentElem );
+        if ( !_to ) return;
+
+        let _old = [...__ESet];
+
+        __Selects.clean( _to );
+        elementSelect( _to, _old );
     },
 
 
