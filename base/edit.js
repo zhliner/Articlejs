@@ -26,6 +26,8 @@ import { selectTop } from "./base.js";
 const
     $ = window.$,
 
+    Normalize = $.Fx.History.Normalize,
+
     // 路径单元存储键。
     // 在路径序列元素上存储源元素。
     pathsKey = Symbol(),
@@ -231,6 +233,7 @@ class RngEdit {
     /**
      * 外部条件：
      * 范围的首尾点需要在同一父元素内（正确嵌套）。
+     * 选区所在文本节点应当是连续的（如事前normalize）。
      * @param {Range} rng 范围对象
      * @param {Element} el 内联元素（数据）
      */
@@ -240,7 +243,7 @@ class RngEdit {
         ];
         rng.insertNode( el );
         this._el = el;
-        // this._tmp = null;
+        this._tmp = null;
     }
 
 
@@ -248,55 +251,56 @@ class RngEdit {
         let _box = this._el.parentElement;
         this._el.replaceWith( ...this._old );
 
-        // 碎片化记录
-        this._tmp = new RngEdit.Normalize( _box );
+        // 碎片记忆（便于redo）。
+        this._tmp = new Normalize( _box );
+
+        // 会丢失引用。
         _box.normalize();
     }
 
 
     redo() {
+        // 碎片复原使_old系有效。
         this._tmp.back();
-        this._old[0].replaceWith( this._el );
 
+        this._old[0].replaceWith( this._el );
         this._old.slice(1).forEach( nd => nd.remove() );
     }
 }
 
-//
-// 规范化回退实现。
-// 注：撤销操作通常带来文本节点的碎片化。
-//
-RngEdit.Normalize = $.Fx.History.Normalize;
-
 
 //
-// 微编辑进出管理。
+// 微编辑管理。
 // 管理初始进入微编辑状态以及确认或取消。
 // 提供完整内容的撤销和重做。
+// 提供单击点即为活动插入点（rng无效时插入点位于末尾）。
 // 注记：
 // 用一个新的元素执行微编辑以保持撤销后的引用有效。
-// 外部可能需要先插入光标元素（考虑预先normalize），合并进入历史栈。
-// 注意使用原生DOM接口，避免tQuery相关事件激发记录。
+// 使用原生DOM接口，避免tQuery相关事件激发记录。
 //
 class MiniEdit {
     /**
      * 创建管理实例。
      * 管理元素的可编辑状态，在进入微编辑前构造。
+     * 会预先对内容元素执行规范化。
      * @param {Element} el 内容元素
+     * @param {Range} rng 范围对象（插入点）
      */
-    constructor( el ) {
-        this._cp = $.clone( el, true, true, true );
+    constructor( el, rng ) {
+        this._cp = this._clone( el, rng );
         this._el = el;
 
         el.replaceWith( this._cp );
         this._cp.setAttribute( 'contenteditable', true );
 
+        // 激活光标。
         __elemCursor.cursor( this._cp );
     }
 
 
     /**
      * 微编辑完成。
+     * 注记：光标元素已经不存在了。
      */
     done() {
         this._cp.normalize();
@@ -323,11 +327,37 @@ class MiniEdit {
 
     /**
      * 恢复微编辑的结果。
-     * 注记：
-     * 无需重新进入微编辑，新的元素用于之后的引用。
+     * 不再进入微编辑，新的元素用于之后的引用。
      */
     redo() {
         this._el.replaceWith( this._cp );
+    }
+
+
+    /**
+     * 创建用于微编辑的新元素。
+     * 包含可能需要的光标标记元素。
+     * @param {Element} el 内容元素
+     * @param {Range} rng 范围对象
+     */
+    _clone( el, rng ) {
+        // 预先规范化。
+        let _tmp = new Normalize( el );
+        el.normalize();
+
+        // 插入光标元素。
+        if ( rng && $.contains(el, rng.commonAncestorContainer) ) {
+            __elemCursor.insert( rng );
+        }
+        let _new = $.clone( el, true, true, true );
+
+        // 恢复原元素状态。
+        if ( __elemCursor.clean(el) ) {
+            el.normalize();
+        }
+        _tmp.back;
+
+        return _new; // 含可能的光标标记。
     }
 }
 

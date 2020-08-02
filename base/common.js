@@ -222,9 +222,9 @@ export class ElemCursor {
      * 移除插入的光标元素并规范化元素文本。
      * 如果用户只是使用了容器元素的克隆副本，可以对原本执行清理。
      * 注意：
-     * 外部可能需要执行规范化（normalize）操作。
+     * 返回false表示无光标元素，外部无需规范化（normalize）。
      * @param  {Element} el 容器元素
-     * @return {this}
+     * @return {el|false}
      */
     clean( el ) {
         let _cur = $.get( this._slr, el );
@@ -232,7 +232,7 @@ export class ElemCursor {
         if ( _cur ) {
             _cur.remove();
         }
-        return this;
+        return _cur && el;
     }
 
 
