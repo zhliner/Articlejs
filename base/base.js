@@ -556,6 +556,7 @@ export {
     typeValue,
     getType,
     setType,
+    isContent,
     tableObj,
     selectTop,
 }

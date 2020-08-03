@@ -77,6 +77,13 @@ aside#help {
     border: 1px #0f514f solid !important;
 }
 
+/* 空元素视觉提示 */
+.___Content main *:empty::before {
+    content: '=== EMPTY ===';
+    color: darkgray;
+    font-style: italic;
+}
+
 
 /* [ 全局默认 ]
  ****************************************************************************/
@@ -379,14 +386,11 @@ aside#help {
     height: 18px;
     border: 1px #d3d3d3 solid;
     border-right-color: #f7f7f7;
+    margin: auto 5px;
 }
-.Tools ._active > hr {
-    margin: auto 6px;
+.Tools ._usual {
+    display: contents;
 }
-.Tools > ._start {
-    margin-right: 3px;
-}
-
 .Tools > ._end {
     margin-left: auto;
 }

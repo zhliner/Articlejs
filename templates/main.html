@@ -1,6 +1,5 @@
 <!-- 工具栏 -->
 <div class="___Panel Tools" tpl-name="main:tools">
-    <!-- 面板按钮 -->
     <div class="_start _icons">
         <b id="x-outline" title="大纲" class="_press"
             on="toggle|$$('#outline,#lineLeft') a.lose(2) ('_press');
@@ -17,16 +16,17 @@
             <i id="b-slave"></i>
         </b>
     </div>
-    <!-- 动态区 -->
-    <div id="tools-active" class="_active _icons" data-pb="">
-        <hr>
-        <b title="文本化"><i id="b-totext"></i></b>
-        <b title="内容提升"><i id="b-conup"></i></b>
-        <hr>
+    <hr>
+    <div class="_middle _icons">
+        <!-- 动态 -->
+        <span id="tools-usual" class="_usual _icons" data-pb="">
+            <b title="文本化"><i id="b-totext"></i></b>
+            <b title="内容提升"><i id="b-conup"></i></b>
+            <hr>
+        </span>
         <b title="撤消"><i id="b-undo"></i></b>
         <b title="重做" data-pb="disabled"><i id="b-redo"></i></b>
     </div>
-    <!-- 末端 -->
     <div class="_end _icons">
         <b id="x-plugins" title="插件"
             on="click|tpl('modal:plugins')"
@@ -86,7 +86,6 @@
         </menu>
         <!-- 上下文菜单 -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
-            <!-- <li data-op="abspos" class="_fixed"><b id="l-abspos">定位</b><kbd></kbd></li> -->
             <li data-op="minied"><b id="l-minied">微编辑</b><kbd>i/I, Ctrl+Enter</kbd></li>
             <hr>
             <li data-op="copy"><b id="l-copy">复制</b><kbd>c</kbd></li>

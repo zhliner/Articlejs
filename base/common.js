@@ -77,6 +77,14 @@ export class ESet extends Set {
     }
 
 
+    /**
+     * 返回首个成员。
+     */
+    first() {
+        for (const el of this) return el;
+    }
+
+
     //-- 批量接口 ------------------------------------------------------------
     // 主要用于外部undo/redo操作。
 
@@ -124,6 +132,10 @@ export class EHot {
     }
 
 
+    /**
+     * 设置为选取焦点。
+     * @param {Element} el 目标元素
+     */
     set( el ) {
         if ( el === this._its ) {
             return;
@@ -138,11 +150,27 @@ export class EHot {
     }
 
 
+    /**
+     * 获取焦点元素。
+     */
     get() {
         return this._its;
     }
 
 
+    /**
+     * 判断是否为焦点。
+     * @param  {Element} el 测试元素
+     * @return {Boolean}
+     */
+    is( el ) {
+        return !!el && el === this._its;
+    }
+
+
+    /**
+     * 取消焦点。
+     */
     cancel() {
         if ( this._its ) {
             $.removeClass( this._its, this._cls );
@@ -168,7 +196,7 @@ export class ElemCursor {
         let _val = prefix +
             (Date.now() % 0xffffffff).toString(16);
 
-        this._src = $.attr( $.element('i'), _val );
+        this._cel = $.attr( $.element('i'), _val );
         this._slr = `[${ _val }]`;
     }
 
@@ -185,7 +213,7 @@ export class ElemCursor {
         if ( rep ) {
             rng.deleteContents();
         }
-        rng.insertNode( this._src );
+        rng.insertNode( this._cel );
         return this;
     }
 

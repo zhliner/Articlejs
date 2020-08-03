@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { selectTop } from "./base.js";
+import { selectTop, isContent } from "./base.js";
 
 
 const
@@ -226,14 +226,14 @@ ESEdit.currentFocus = null;
 //
 // 选区编辑。
 // 用于鼠标划选创建内联单元时。
+// 外部：
+// - 范围的首尾点需要在同一父元素内（正确嵌套）。
+// - 范围所在的容器元素normalize（文本节点连续）。
 // 注记：
 // 使用DOM原生接口，避免tQuery定制事件激发记录。
 //
 class RngEdit {
     /**
-     * 外部条件：
-     * 范围的首尾点需要在同一父元素内（正确嵌套）。
-     * 范围所在的容器元素normalize（文本节点连续）。
      * @param {Range} rng 范围对象
      * @param {Element} el 内联元素（数据）
      */
@@ -274,16 +274,16 @@ class RngEdit {
 // 管理初始进入微编辑状态以及确认或取消。
 // 提供完整内容的撤销和重做。
 // 提供单击点即为活动插入点（rng无效时插入点位于末尾）。
+// 外部：
+// 被编辑的内容元素应当已规范（文本节点连续，如被normalize过）。
 // 注记：
 // 用一个新的元素执行微编辑以保持撤销后的引用有效。
-// 外部无需预先规范化（normalize）。
 // 使用原生DOM接口，避免tQuery相关事件激发记录。
 //
 class MiniEdit {
     /**
      * 创建管理实例。
      * 管理元素的可编辑状态，在进入微编辑前构造。
-     * 会预先对内容元素执行规范化。
      * @param {Element} el 内容元素
      * @param {Range} rng 范围对象（插入点）
      */
@@ -339,15 +339,11 @@ class MiniEdit {
      * 创建用于微编辑的新元素。
      * 包含可能需要的光标标记元素。
      * @param {Element} el 内容元素
-     * @param {Range} rng 范围对象
+     * @param {Range} rng 范围对象，可选
      */
     _clone( el, rng ) {
-        // 预先规范化。
-        let _tmp = new Normalize( el );
-        el.normalize();
-
         // 插入光标元素。
-        if ( rng && $.contains(el, rng.commonAncestorContainer) ) {
+        if ( rng ) {
             __elemCursor.insert( rng );
         }
         let _new = $.clone( el, true, true, true );
@@ -356,9 +352,8 @@ class MiniEdit {
         if ( __elemCursor.clean(el) ) {
             el.normalize();
         }
-        _tmp.back;
-
-        return _new; // 含可能的光标标记。
+        // 含可能的光标标记。
+        return _new;
     }
 }
 
@@ -687,7 +682,10 @@ let
     contentElem = null,
 
     // 路径信息容器。
-    pathContainer = null;
+    pathContainer = null,
+
+    // 当前微编辑对象暂存。
+    currentMinied = null;
 
 
 
@@ -851,6 +849,36 @@ function elementSelect( to, els ) {
     setFocus( to );
     __History.push( new ESEdit(els, to) );
 }
+
+
+/**
+ * 微编辑开始。
+ * 非内容元素简单忽略。
+ * @param  {Element} el 内容元素
+ * @param  {Range} rng 选区范围对象
+ * @return {MiniEdit|null} 微编辑实例
+ */
+function miniedStart( el, rng ) {
+    if ( !el || !isContent(el) ) {
+        return null;
+    }
+    let _obj = new MiniEdit(
+        el,
+        $.contains(el, rng.commonAncestorContainer) && rng
+    );
+    return __History.push(_obj), _obj;
+}
+
+
+/**
+ * 提取选取集首个成员。
+ * @return {Element|void}
+ */
+function esetFirstOut() {
+    let _el = __ESet.first();
+    return _el && __ESet.delete( _el );
+}
+
 
 
 /**??
@@ -1037,9 +1065,12 @@ export const MainOps = {
 
 
     //-- 元素选取 ------------------------------------------------------------
+    // 原地扩展，焦点不会移动。
 
 
-    // 切换选取
+    /**
+     * 切换选取
+     */
     turn() {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -1052,7 +1083,9 @@ export const MainOps = {
     },
 
 
-    // 集合反选。
+    /**
+     * 集合反选。
+     */
     reverse() {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -1067,8 +1100,10 @@ export const MainOps = {
     },
 
 
-    // 全部兄弟元素。
-    // 注记：焦点元素可能尚未选取。
+    /**
+     * 全部兄弟元素。
+     * 注记：焦点元素可能尚未选取。
+     */
     siblings() {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -1077,8 +1112,10 @@ export const MainOps = {
     },
 
 
-    // 同类兄弟元素。
-    // 注记：焦点元素可能尚未选取。
+    /**
+     * 同类兄弟元素。
+     * 注记：焦点元素可能尚未选取。
+     */
     tagsame() {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -1087,8 +1124,10 @@ export const MainOps = {
     },
 
 
-    // 叔伯元素内的同类子元素。
-    // 注：主要用于同章节内的子章节标题选取。
+    /**
+     * 叔伯元素内的同类子元素。
+     * 主要用于同章节内的子章节标题选取。
+     */
     sibling2x() {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -1097,59 +1136,9 @@ export const MainOps = {
     },
 
 
-    // 前端兄弟元素添加/移出。
-    // 选取焦点会移动到目标集最后一个元素。
-    previousN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        n = isNaN(n) ? 1 : n;
-
-        expandSelect( _el, $.prevAll(_el, (_, i) => i <= n) );
-    },
-
-
-    // 前端兄弟元素添加/移出。
-    // 选取焦点会移动到目标集最后一个元素。
-    nextN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        n = isNaN(n) ? 1 : n;
-
-        expandSelect( _el, $.nextAll(_el, (_, i) => i <= n) );
-    },
-
-
-    // 父级元素选取。
-    // 焦点会同时移动到目标元素。
-    parentN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _old = [...__ESet];
-
-        n = isNaN(n) ? 1 : n;
-        _el = __Selects.parent( _el, n, contentElem );
-
-        if ( _el ) elementSelect( _el, _old );
-    },
-
-
-    // 子元素选取。
-    // 焦点会同时移动到目标元素。
-    childN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _old = [...__ESet];
-        _el = __Selects.child( _el, n || 0 );
-
-        if ( _el ) elementSelect( _el, _old );
-    },
-
-
-    // 取消同级兄弟元素选取。
+    /**
+     * 取消同级兄弟元素选取。
+     */
     cleanSiblings() {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -1163,10 +1152,77 @@ export const MainOps = {
     },
 
 
-    // 选取内容顶元素。
-    // - 内联单元：行内容元素或单元格元素。
-    // - 行块单元：单元逻辑根元素。
-    // 注：焦点会同时移动。
+    //-- 扩展选取 ------------------------------------------------------------
+    // 焦点会移动到扩展目标。
+
+
+    /**
+     * 前端兄弟元素添加/移出。
+     * 焦点移动到集合最后一个成员。
+     * @param {Number} n 扩展距离
+     */
+    previousN( n ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        n = isNaN(n) ? 1 : n;
+
+        expandSelect( _el, $.prevAll(_el, (_, i) => i <= n) );
+    },
+
+
+    /**
+     * 前端兄弟元素添加/移出。
+     * 焦点移动到集合最后一个成员。
+     * @param {Number} n 扩展距离
+     */
+    nextN( n ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        n = isNaN(n) ? 1 : n;
+
+        expandSelect( _el, $.nextAll(_el, (_, i) => i <= n) );
+    },
+
+
+    /**
+     * 父级元素选取。
+     * @param {Number} n 上升层数
+     */
+    parentN( n ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        let _old = [...__ESet];
+
+        n = isNaN(n) ? 1 : n;
+        _el = __Selects.parent( _el, n, contentElem );
+
+        if ( _el ) elementSelect( _el, _old );
+    },
+
+
+    /**
+     * 子元素选取。
+     * @param {Number} n 子元素位置下标（从0开始）
+     */
+    childN( n ) {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        let _old = [...__ESet];
+        _el = __Selects.child( _el, n || 0 );
+
+        if ( _el ) elementSelect( _el, _old );
+    },
+
+
+    /**
+     * 选取内容顶元素。
+     * - 内联单元：行内容元素或单元格元素。
+     * - 行块单元：单元逻辑根元素。
+     */
     contentTop() {
         let _el = __EHot.get();
         if ( !_el ) return;
@@ -1181,10 +1237,6 @@ export const MainOps = {
     },
 
 
-    //-- 混合操作 ------------------------------------------------------------
-    // 移动焦点的同时进行选取。
-
-
     //-- 元素编辑 ------------------------------------------------------------
 
 
@@ -1192,15 +1244,20 @@ export const MainOps = {
     // 供模板中直接取值使用
 
 
-    // 获取焦点元素。
-    // 用途：如内容区mouseout重置焦点信息。
+    /**
+     * 获取焦点元素。
+     * 用途：如内容区mouseout重置焦点信息。
+     * @return {Element}
+     */
     focusElem() {
         return __EHot.get();
     },
 
 
-    // 清空选取集。
-    // 用途：ESC键最底层取消操作。
+    /**
+     * 清空选取集。
+     * 用途：ESC键最底层取消操作。
+     */
     selsEmpty() {
         let _old = [...__ESet];
 
@@ -1211,15 +1268,37 @@ export const MainOps = {
     },
 
 
-    // 获取选取集大小。
-    // 用途：状态栏友好提示。
+    /**
+     * 获取选取集大小。
+     * 用途：状态栏友好提示。
+     * @return {Number}
+     */
     esetSize() {
         return __ESet.size;
     },
 
 
-    // 获取路径上存储的源目标。
-    // 用途：鼠标指向路径时提示源目标（友好）。
+    /**
+     * 提取（移出）选取集首个成员。
+     * @param  {Boolean} blur 取消焦点，可选
+     * @return {Element|void}
+     */
+    esetShift( blur ) {
+        let _el = esetFirstOut();
+
+        if ( blur && __EHot.is(_el) ) {
+            __EHot.cancel();
+        }
+        return _el;
+    },
+
+
+    /**
+     * 获取路径上存储的源目标。
+     * 用途：鼠标指向路径时提示源目标（友好）。
+     * @param  {Element} box 路径元素（容器）
+     * @return {Element}
+     */
     pathElem( box ) {
         return box[ pathsKey ];
     },
@@ -1242,6 +1321,60 @@ export const MainOps = {
     editRedo() {
         __History.redo();
     },
+
+
+    /**
+     * 进入微编辑。
+     * 如果目标不是内容元素，会移动焦点到目标元素上。
+     * 注记：
+     * 内容元素应当已预先移出选取集。
+     * 这样既清理了元素上的视觉表现（焦点/选取/路径提示），
+     * 也使得克隆更干净。
+     * @param {Element} el 内容元素
+     */
+    miniedIn( el ) {
+        currentMinied = miniedStart( el, window.getSelection.getRangeAt(0) );
+
+        if ( !currentMinied ) {
+            // 友好提示，
+            // 同时也便于向下选取内容子元素。
+            __EHot.set( el );
+        }
+    },
+
+
+    /**
+     * 微编辑完成。
+     * 同一时间最多只有一个元素处于微编辑态。
+     * @param {Element} el 内容元素
+     * @param {Boolean} done 是否为确认（否则为取消）
+     */
+    miniedOut( done = true ) {
+        currentMinied[done ? 'done' : 'cancel']()
+        currentMinied = null;
+    },
+
+
+    /**
+     * 逐次微编辑。
+     * - 对选取集成员进行逐个修订编辑。
+     * - 选取成员需要全部是内容元素，否则忽略。
+     * - 可能首个成员已经进入微编辑。
+     * 注记：
+     * 通常是在按Tab键，在多个已选取目标间跳转编辑时。
+     * 友好：
+     * 如果目标不是内容元素，会移动焦点到目标元素上。
+     */
+    miniEdits() {
+        // 前阶结束。
+        if ( currentMinied ) {
+            currentMinied.done();
+        }
+        let _el = this.esetShift( true );
+
+        if ( !(currentMinied = miniedStart(_el)) ) __EHot.set( _el );
+    },
+
 }
 
 
