@@ -105,6 +105,26 @@ class History {
 
 
     /**
+     * 是否可执行撤销。
+     * 注记：撤销在当前实例上执行。
+     * @return {Boolean}
+     */
+    canUndo() {
+        return this._idx >= 0;
+    }
+
+
+    /**
+     * 是否可执行重做。
+     * 注记：重做在下一个实例上开启。
+     * @return {Boolean}
+     */
+    canRedo() {
+        return this._idx < this._buf.length - 1;
+    }
+
+
+    /**
      * 历史栈头部移除。
      * 游标从头部算起，因此需要同步减1。
      * 注记：
@@ -696,6 +716,38 @@ let
 
 
 /**
+ * 历史栈压入。
+ * 封装 Undo/Redo 状态通知。
+ * @param  {Instance|[Instance]} obj 操作实例集
+ * @return {obj}
+ */
+function historyPush( obj ) {
+    stateNewEdit();
+    return __History.push(obj), obj;
+}
+
+
+/**
+ * 执行了一个新编辑。
+ * 更新 Undo/Redo 按钮状态：重做不可用。
+ */
+function stateNewEdit() {
+    $.trigger( contentElem, Setup.undoEvent, true, true );
+    $.trigger( contentElem, Setup.redoEvent, false, true );
+}
+
+
+/**
+ * 状态重置。
+ * 设置 Undo/Redo 按钮为失效状态（初始）。
+ */
+function undoRedoReset() {
+    $.trigger( contentElem, Setup.undoEvent, false, true );
+    $.trigger( contentElem, Setup.redoEvent, false, true );
+}
+
+
+/**
  * 构建元素路径序列。
  * 返回沿DOM树正向逐层元素信息的一个<b>封装序列。
  * @param  {Element} el 起点元素
@@ -794,7 +846,7 @@ function expandSelect( hot, els ) {
     hot = els[ els.length-1 ];
 
     setFocus( hot );
-    __History.push( new ESEdit(_old, hot) );
+    historyPush( new ESEdit(_old, hot) );
 }
 
 
@@ -811,7 +863,7 @@ function siblingsSelect( els, hot ) {
     if ( __Selects.adds(els) === false ) {
         return;
     }
-    __History.push( new ESEdit(_old, hot) );
+    historyPush( new ESEdit(_old, hot) );
 }
 
 
@@ -831,7 +883,7 @@ function elementsSelect( els, hot ) {
     if ( __Selects.adds(els) === false ) {
         return;
     }
-    __History.push( new ESEdit(_old, hot) );
+    historyPush( new ESEdit(_old, hot) );
 }
 
 
@@ -847,25 +899,28 @@ function elementSelect( to, els ) {
         return;
     }
     setFocus( to );
-    __History.push( new ESEdit(els, to) );
+    historyPush( new ESEdit(els, to) );
 }
 
 
 /**
  * 微编辑开始。
+ * 会重置 Undo/Redo 按钮为失效状态。
  * 非内容元素简单忽略。
  * @param  {Element} el 内容元素
- * @param  {Range} rng 选区范围对象
  * @return {MiniEdit|null} 微编辑实例
  */
-function miniedStart( el, rng ) {
+function miniedStart( el ) {
     if ( !el || !isContent(el) ) {
         return null;
     }
-    let _obj = new MiniEdit(
-        el,
-        $.contains(el, rng.commonAncestorContainer) && rng
-    );
+    let _rng = window.getSelection.getRangeAt(0),
+        _obj = new MiniEdit(
+            el,
+            $.contains(el, _rng.commonAncestorContainer) && _rng
+        );
+    undoRedoReset();
+
     return __History.push(_obj), _obj;
 }
 
@@ -877,6 +932,46 @@ function miniedStart( el, rng ) {
 function esetFirstOut() {
     let _el = __ESet.first();
     return _el && __ESet.delete( _el );
+}
+
+
+/**
+ * 普通模式：撤销。
+ * @return {Boolean} 是否可以再撤销
+ */
+function undoNormal() {
+    __History.undo();
+    return __History.canUndo();
+}
+
+
+/**
+ * 普通模式：重做。
+ * @return {Boolean} 是否可以再重做
+ */
+function redoNormal() {
+    __History.redo();
+    return __History.canRedo();
+}
+
+
+/**
+ * 修订模式：撤销。
+ * @return {Boolean} 是否可以再撤销
+ */
+function undoMinied() {
+    document.execCommand( 'undo' );
+    return document.queryCommandEnabled( 'undo' );
+}
+
+
+/**
+ * 修订模式：重做。
+ * @return {Boolean} 是否可以再重做
+ */
+function redoMinied() {
+    document.execCommand( 'redo' );
+    return document.queryCommandEnabled( 'redo' );
 }
 
 
@@ -892,7 +987,7 @@ function histNodes( op, ...args ) {
     if ( __ESet.size == 0 ) {
         return;
     }
-    __History.push( new DOMEdit( () => __Elemedit[op](...args) ) );
+    historyPush( new DOMEdit( () => __Elemedit[op](...args) ) );
 }
 
 
@@ -939,7 +1034,7 @@ const _Edit = {
         if ( __Selects[op](evo.data) === false ) {
             return;
         }
-        __History.push( new ESEdit(_old, evo.data) );
+        historyPush( new ESEdit(_old, evo.data) );
     },
 
     __mouse: 1,
@@ -1079,7 +1174,7 @@ export const MainOps = {
         if ( __Selects.turn(_el) === false ) {
             return;
         }
-        __History.push( new ESEdit(_old, _el) );
+        historyPush( new ESEdit(_old, _el) );
     },
 
 
@@ -1096,7 +1191,7 @@ export const MainOps = {
         if ( __Selects.reverse(_el.parentElement.children) === false ) {
             return;
         }
-        __History.push( new ESEdit(_old, _el) );
+        historyPush( new ESEdit(_old, _el) );
     },
 
 
@@ -1148,7 +1243,7 @@ export const MainOps = {
         if ( __Selects.removes(_el.parentElement.children) === false ) {
             return;
         }
-        __History.push( new ESEdit(_old, _el) );
+        historyPush( new ESEdit(_old, _el) );
     },
 
 
@@ -1264,7 +1359,7 @@ export const MainOps = {
         if ( __Selects.empty() === false ) {
             return;
         }
-        __History.push( new ESEdit(_old, __EHot.get()) );
+        historyPush( new ESEdit(_old, __EHot.get()) );
     },
 
 
@@ -1307,19 +1402,30 @@ export const MainOps = {
     /**
      * 撤销操作。
      * 注记：
-     * 为避免一次大量撤销（可能为误操作）浏览器假死，
-     * 仅支持单步逐次撤销。
+     * 为避免一次性大量撤销可能导致浏览器假死，仅支持单步逐次撤销。
+     * 因为共用按钮，微编辑状态下的撤销也集成于此，虽然它们逻辑上是独立的。
      */
     editUndo() {
-        __History.undo();
+        $.trigger(
+            contentElem,
+            Setup.undoEvent,
+            currentMinied ? undoMinied() : undoNormal(),
+            true
+        );
     },
 
 
     /**
      * 重做操作。
+     * 注记：（同上）
      */
     editRedo() {
-        __History.redo();
+        $.trigger(
+            contentElem,
+            Setup.redoEvent,
+            currentMinied ? redoMinied() : redoNormal(),
+            true
+        );
     },
 
 
@@ -1333,13 +1439,14 @@ export const MainOps = {
      * @param {Element} el 内容元素
      */
     miniedIn( el ) {
-        currentMinied = miniedStart( el, window.getSelection.getRangeAt(0) );
+        currentMinied = miniedStart( el );
 
         if ( !currentMinied ) {
             // 友好提示，
             // 同时也便于向下选取内容子元素。
-            __EHot.set( el );
+            return __EHot.set( el );
         }
+        currentMinied.cursor( el );
     },
 
 
@@ -1350,6 +1457,7 @@ export const MainOps = {
      * @param {Boolean} done 是否为确认（否则为取消）
      */
     miniedOut( done = true ) {
+        stateNewEdit();
         currentMinied[done ? 'done' : 'cancel']()
         currentMinied = null;
     },
@@ -1372,7 +1480,11 @@ export const MainOps = {
         }
         let _el = this.esetShift( true );
 
-        if ( !(currentMinied = miniedStart(_el)) ) __EHot.set( _el );
+        if ( !(currentMinied = miniedStart(_el)) ) {
+            stateNewEdit();
+            return __EHot.set( _el );
+        }
+        currentMinied.cursor( _el );
     },
 
 }

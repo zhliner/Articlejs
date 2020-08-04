@@ -98,6 +98,8 @@
         focus.content;
         toggle.path;
         escape.cancel|(ESC) last pop;
+        button.undo|ev('detail') vnot;
+        button.redo|ev('detail') vnot;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize);
         ^finish;
@@ -116,9 +118,12 @@
         #g-scroll|trigger('focus');
         #g-path|trigger('toggle');
         -|trigger('cancel');
+        #tools-undo|trigger('state');
+        #tools-redo|trigger('state');
         |data('all pls');
         #g-keytip|text;
-        |trigger('pcheck')">
+        |trigger('pcheck');
+        -">
     <aside id="outline" class="___Panel" data-pb="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>

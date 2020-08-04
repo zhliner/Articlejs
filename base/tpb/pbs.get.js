@@ -1564,9 +1564,9 @@ const __uiState = [ '-', '', '^' ];
 // 目标：暂存区/栈顶1项。
 // 目标为元素或元素集。
 // 状态标识 s：
-//      1  状态执行，默认
-//      0  状态取消
-//      2  状态切换
+//      1|true  状态执行，默认
+//      0|false 状态取消
+//      2       状态切换
 // @return {void}
 //===============================================
 [
@@ -1581,6 +1581,7 @@ const __uiState = [ '-', '', '^' ];
 
     // 单元素版。
     _Gets[names[0]] = function( evo, s = 1 ) {
+        s = Math.trunc( s );
         Util.pbo( evo.data, [`${__uiState[s]}${names[1]}`] );
     };
 
@@ -1589,6 +1590,7 @@ const __uiState = [ '-', '', '^' ];
 
     // 集合版。
     _arrayGets[names[0]] = function( evo, s = 1 ) {
+        s = Math.trunc( s );
         evo.data.forEach(
             el => Util.pbo(el, [`${__uiState[s]}${names[1]}`])
         );

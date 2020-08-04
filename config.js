@@ -23,6 +23,14 @@ export const Setup = {
     // 选取焦点类名。
     focusClass: '_focus',
 
+
+    // 撤销/重做事件名。
+    // 在用户执行撤销/重做操作时，向内容区元素发送该事件，
+    // 上层可根据发送信息修改按钮状态。
+    undoEvent: 'button.undo',
+
+    redoEvent: 'button.redo',
+
 };
 
 
