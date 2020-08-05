@@ -6,22 +6,25 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  页面App实现（CMV）。
-//  与服务器进行交互，提交数据并获取响应。
+//  页面小程序。
+//  将程序的逻辑划分为三个平行的层次，在此实现这三个层次之间的连系调用。
 //
-//  三个入口函数：
+//  三个入口实现：
 //  - Control
-//      对提交的数据进行前置控制和预处理，数据实参（data）为当前条目（前阶主动取出）。
-//      接口：function( meth:String, data, ...rest:Value ): Promise
+//      对流程数据（前阶pop）进行前置的控制和预处理。
+//      Control[method]：function( data, ...rest:Value ): Promise<val>
 //
 //  - Model
-//      业务模型处理，控制部分的返回值传递到此（data）。
-//      接口：function( meth:String, data:Value ): Value
+//      处理业务模型。方法的实参为控制部分返回的值。
+//      Model[method]：function( val:Value ): Value
 //
 //  - View
-//      视图部分的数据整理，可与控制部分呼应，接收模型的返回值。
-//      注：该部分的返回值回到执行流（数据栈）。
-//      接口：function( meth:String, data:Value ): Value
+//      用于与视图相关的后期处理，也可能与控制部分相呼应。
+//      方法的实参为模型返回的值。返回值回到流程里。
+//      View[method]：function( val:Value ): Value
+//
+//  实现可以为普通对象或类实例。
+//  每个层次都是可选的，三个层次之间通过相同的方法名（method）进行关联（串联调用）。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,16 +34,16 @@
 export class App__ {
     /**
      * 构建一个App。
-     * 仅ctrl接口接受额外模板实参，其它接口接受ctrl的返回值。
-     * 无ctrl实现时，默认返回流程数据供后续接口使用。
+     * 仅ctrl接口接受额外模板实参，其它接口仅接受前阶的返回值。
+     * 无ctrl实现时，直接返回流程数据供后续接口使用。
      * @param {Function} ctrl 控制调用
      * @param {Function} model 模型调用
      * @param {Function} view 视图调用
      */
     constructor( ctrl, model, view ) {
-        this.control = ctrl  || ( (n, ...vs) => Promise.resolve(vs[0]) );
-        this.model   = model || ( (n, d) => d );
-        this.view    = view  || ( (n, d) => d );
+        this._cobj = ctrl  || new Proxy( {}, { get: () => d => Promise.resolve(d) } );
+        this._mobj = model || new Proxy( {}, { get: () => d => d } );
+        this._vobj = view  || new Proxy( {}, { get: () => d => d } );
     }
 
 
@@ -53,9 +56,9 @@ export class App__ {
      * @return {Promise}
      */
     run( evo, meth, ...rest ) {
-        return this.control( meth, evo.data, ...rest )
-            .then( d => this.model( meth, d ) )
-            .then( d => this.view( meth, d ) );
+        return this._cobj[meth]( evo.data, ...rest )
+            .then( d => this._mobj[meth]( d ) )
+            .then( d => this._vobj[meth]( d ) );
     }
 
 

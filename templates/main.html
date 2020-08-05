@@ -20,7 +20,8 @@
     <div class="_middle _icons">
         <!-- 动态 -->
         <span id="tools-usual" class="_usual _icons" data-pb="">
-            <b title="文本化"><i id="b-totext"></i></b>
+            <b title="文本化"
+                on=""><i id="b-totext"></i></b>
             <b title="内容提升"><i id="b-conup"></i></b>
             <hr>
         </span>
@@ -29,14 +30,14 @@
             enable 仅用于直接开启。-->
         <b id="tools-undo" title="撤消" data-pb="disabled"
             on="state|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (MainOps) call('editUndo');
+                click|evo(3) disabled end (Edit) call('editUndo');
                 enable|evo(1) disable(0)"
             to="#tools-redo|trigger('enable');
                 #g-scroll||focus"><i id="b-undo"></i></b>
         <!-- 重做 -->
         <b id="tools-redo" title="重做" data-pb="disabled"
             on="state|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (MainOps) call('editRedo');
+                click|evo(3) disabled end (Edit) call('editRedo');
                 enable|evo(1) disable(0)"
             to="#tools-undo|trigger('enable');
                 #g-scroll||focus"><i id="b-redo"></i></b>
@@ -112,14 +113,14 @@
         <!-- 内容区 -->
         <!-- 微编辑：on="mouseup keyup input|rangeKeep stop" -->
         <main id="content" class="content"
-            on="click(*)|evo(1) (KM.turnSelect) scam(_1) $if('turn', 'only');
+            on="click(*)|evo(1) (KM.turnSelect) scam(_1);
                 @mouseover:1|('_point');
                 @mouseout:1|('_point');
                 mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|$('#g-count') val end;
-                cancel|stop (MainOps) call('selsEmpty');
+                cancel|stop (Edit) call('selsEmpty');
                 ^obted|(ESC) evo(3) apply('push', _1)"
-            by="Ed.mouse(_1) $('#g-count') val pass"
+            by="Ed.click(_1) $('#g-count') val pass"
             to="#g-count|trigger('reset');
                 =|addClass;
                 =|removeClass;
@@ -231,11 +232,11 @@
     </div>
     <!-- 元素路径 -->
     <div id="g-path" class="_path"
-        on="click(b)|(MainOps) evo(2) call('pathElem', _1);
-            mouseover(b)|('_point') (MainOps) evo(2) call('pathElem', _1) pop;
-            mouseout(b)|('_point') (MainOps) evo(2) call('pathElem', _1) pop;
+        on="click(b)|(Edit) evo(2) call('pathElem', _1);
+            mouseover(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
+            mouseout(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
             toggle|evo(3) hide(2)"
-        by="Ed.mouse('safeAdd')"
+        by="Ed.pathTo"
         to="#g-count|trigger('reset')|fire('body/', 'focus.content');
             -|addClass;
             -|removeClass">
@@ -291,7 +292,7 @@
             reset: 清空值，提供选取集大小默认显示。
             setv:  设置值并提供该值的显示。-->
         <input id="g-count" name="count" type="hidden"
-            on="reset|(MainOps) call('esetSize') str('[ ', ' ]') ('');
+            on="reset|(Edit) call('esetSize') str('[ ', ' ]') ('');
                 setv|ev('detail') dup"
             to="|val|pop fire('#status-tips', 'info');
                 |val|pop fire('#status-tips', 'info')" />

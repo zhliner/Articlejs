@@ -34,7 +34,7 @@
 import { Util } from "./tools/util.js";
 import { X } from "./lib.x.js";
 import { App__ } from "./app.js";
-import { bindMethod, Web, subExtend, instanceExtend, subObj } from "./config.js";
+import { bindMethod, Web, deepExtend, namedExtend, subObj } from "./config.js";
 import { Get } from "./pbs.get.js";
 
 // 无渲染占位。
@@ -141,26 +141,32 @@ By.x = X;
  */
 export function processExtend( name, exts, args ) {
     if ( $.isArray(args) ) {
-        return instanceExtend( name, exts, args, By );
+        return namedExtend( name, exts, args, By );
     }
-    subExtend( name, exts, args, By );
+    deepExtend( name, exts, args, By );
 }
 
 
 /**
- * 接口：创建CMV小程序。
- * 每个程序遵循CMV（Control/Model/View）三层划分。
- * 模板中调用需要传递方法名：[MyApp].run([meth], ...)，用于区分不同的调用。
- * 传递meths可以构造友好的调用集：[MyApp].[meth](...)。
- * 注意不应覆盖run名称，除非你希望这样（如固定方法集）。
+ * 创建CMV程序。
+ *
+ * 每个程序遵循 CMV（Control/Model/View）三层划分，
+ * 三层逻辑各自实现，依靠相同的命名达成关联。
+ *
+ * 模板调用：[MyApp].run([meth], ...)
+ * 可传递 methods 构造友好的调用集：[MyApp].[meth](...)。
+ * 注意 run 为总调用方法，不应覆盖（除非你希望这样）。
+ *
+ * 每一层逻辑的实现需要提供一个入口。
  * conf: {
  *      control: function(meth, data, ...rest ): Promise,
  *      model:   function(meth, data ): Value,
  *      view:    function(meth, data ): Value,
  * }
+ * 注：
+ * 与By普通用户扩展一样，占用By顶层空间。
  * 如果程序名称（name）重复，会抛出异常（而非覆盖）。
  *
- * 注记：与By普通用户扩展一样，占用By顶层空间。
  * @param  {String} name 程序名
  * @param  {Object} conf CMV配置对象
  * @param  {[String]} meths 方法名序列，可选
@@ -170,8 +176,8 @@ export function cmvApp( name, conf, meths = [] ) {
     if ( By[name] != null ) {
         throw new Error(`By[${name}] is already exist.`);
     }
-    let app = new App__(conf.control, conf.model, conf.view),
-        obj = subObj(name, By);
+    let app = new App__( conf.control, conf.model, conf.view ),
+        obj = subObj( name, By );
 
     obj.run = app.run.bind(app);
 

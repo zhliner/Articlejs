@@ -225,22 +225,23 @@ function subObj( names, obj ) {
 
 
 /**
- * 子域扩展。
- * 扩展中的方法默认会绑定（bind）到所属宿主对象。
- * 子域是一种分组，支持句点分隔的子域链。
- * 最终的目标子域内的成员是赋值逻辑，重名会被覆盖。
- * 注：
+ * 深度扩展。
+ * 对待扩展集内的所有方法进行扩展，支持对象嵌套（递进处理）。
+ * 被扩展的方法默认会绑定（bind）到所属宿主对象（父容器）。
+ * 接受扩展的目标子域可以是深层的（句点连接），重名方法会被覆盖。
+ * 注记：
  * 如果目标子域不存在，会自动创建，包括中间层级的子域。
- * 如果方法需要访问指令单元（this:Cell），传递nobind为真。
- * 可无exts实参调用返回子域本身。
+ * 如果方法需要访问指令单元（this:Cell），可以传递nobind为真。
+ * 可无exts实参调用，返回子域本身。
+ * 源定义支持取栈数量（__[name]）和特权（__[name]_x）配置。
  *
- * @param  {String} name 扩展标识（域链）
- * @param  {Object} exts 待扩展集，可选
- * @param  {Boolean} nobind 无需绑定（可能需要访问Cell实例），可选。
+ * @param  {String} name 接受域标识
+ * @param  {Object} exts 待扩展目标集，可选
+ * @param  {Boolean} nobind 无需绑定，可选。
  * @param  {Object} base 扩展根域
  * @return {Object} 目标子域
  */
-function subExtend( name, exts, nobind, base ) {
+function deepExtend( name, exts, nobind, base ) {
     let _f = nobind ?
         getMethod :
         bindMethod;
@@ -250,21 +251,22 @@ function subExtend( name, exts, nobind, base ) {
 
 
 /**
- * 类实例扩展。
- * 适用任意直接使用的类实例，但需要提供应用方法集。
- * @param {String} name 扩展标识（域链）
- * @param {Instance} obj 类实例（待扩展）
- * @param {[String]} meths 方法名集
+ * 具名扩展。
+ * 需要指定待扩展的目标方法，且仅限于成员的直接引用。
+ * 适用普通对象和任意直接使用的类实例。
+ * 注记同上。
+ * @param {String} name 接受域标识
+ * @param {Instance} obj 待扩展对象或类实例
+ * @param {[String]} methods 方法名集
  * @param {Object} base 扩展根域
  */
-function instanceExtend( name, obj, meths, base ) {
+function namedExtend( name, obj, methods, base ) {
     let host = subObj(
-            name.split('.'), base
+            name.split('.'),
+            base
         );
-    // 支持内嵌特权、取栈数量配置。
-    // 注：双下划线后跟方法名及“_x”标识。
-    for (const m of meths) {
-        host[m] = funcSets( obj[m].bind(obj), obj[`__${m}`], obj[`__${m}_x`] )
+    for ( const m of methods ) {
+        host[ m ] = funcSets( obj[m].bind(obj), obj[`__${m}`], obj[`__${m}_x`] )
     }
 }
 
@@ -304,8 +306,8 @@ export {
     getMethod,
     funcSets,
     subObj,
-    subExtend,
-    instanceExtend,
+    deepExtend,
+    namedExtend,
     methodSelf,
     Globals,
     DataStore,

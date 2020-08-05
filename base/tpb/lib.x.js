@@ -28,7 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { subExtend } from "./config.js";
+import { deepExtend } from "./config.js";
 
 
 //
@@ -42,5 +42,5 @@ export const X = {
     Fun:    {},     // 功能函数区
 
     // X库扩展。
-    extend: (name, exts, nobind) => subExtend(name, exts, nobind, X),
+    extend: (name, exts, nobind) => deepExtend(name, exts, nobind, X),
 };

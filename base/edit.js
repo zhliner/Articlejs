@@ -672,12 +672,18 @@ class NodeVary {
     /**
      * @param {ESet} eset 全局选取集实例
      */
-    constructor( eset ) {
-        this._set = eset;
+    constructor() {
     }
 
 
-    //
+    toText( $els ) {
+        $els.text( $els.text() );
+    }
+
+
+    unWrap( $els ) {
+        $els.unwrap();
+    }
 }
 
 
@@ -983,11 +989,13 @@ function redoMinied() {
  * @param {String} op 操作名
  * @param {...Value} args 参数序列
  */
-function histNodes( op, ...args ) {
+function editingNodes( op, ...args ) {
     if ( __ESet.size == 0 ) {
         return;
     }
-    historyPush( new DOMEdit( () => __Elemedit[op](...args) ) );
+    historyPush(
+        new DOMEdit( () => __Elemedit[op]( $(__ESet), ...args) )
+    );
 }
 
 
@@ -1014,79 +1022,13 @@ export function init( content, pathbox ) {
 }
 
 
-//
-// By扩展集。
-//
-const _Edit = {
-    /**
-     * 选取集。
-     * 适用方法：only, turn, safeAdd
-     * 注：仅用于鼠标点选。
-     * @param  {String} op 操作名
-     * @return {void}
-     */
-    mouse( evo, op ) {
-        let _old = [...__ESet];
-
-        // 无条件改变焦点
-        setFocus( evo.data );
-
-        if ( __Selects[op](evo.data) === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old, evo.data) );
-    },
-
-    __mouse: 1,
-
-
-    /**
-     * 节点操作。
-     * @param  {String} op 操作名
-     * @return {void}
-     */
-    nodes( evo, op ) {
-        // histNodes( op, evo.data );
-    },
-
-    __nodes: 1,
-
-
-    /**
-     * 撤销操作。
-     * 注记：
-     * 为避免一次大量撤销（可能为误操作）浏览器假死，
-     * 仅支持单步逐次撤销。
-     */
-    undo() {
-        __History.undo();
-    },
-
-
-    /**
-     * 重做操作。
-     */
-    redo() {
-        __History.redo();
-    },
-
-}
-
-// 扩展到By。
-processExtend( 'Ed', _Edit );
-
-
 
 //
-// 内容区快捷键处理集。
-// 包含：
-// - 焦点移动。无需进入编辑历史记录。
-// - 元素选取。进入历史记录（可撤销），有混合操作。
-// - 元素编辑。移动、克隆、删除等。
-// 注记：
-// 会使用全局对象进行处理。
+// 内容区编辑处理集。
+// 1. 可供快捷键映射对应。
+// 2. 可供导入执行流直接调用（其方法）。
 //
-export const MainOps = {
+export const Edit = {
 
     //-- 焦点移动 ------------------------------------------------------------
     // n注记：空串会被转换为NaN。
@@ -1164,7 +1106,48 @@ export const MainOps = {
 
 
     /**
-     * 切换选取
+     * [By] 单击选取。
+     * @param {Boolean} turn 是否为切换
+     */
+    click( evo, turn ) {
+        let _fn = turn ? 'turn' : 'only',
+            _old = [...__ESet];
+
+        // 无条件改变焦点
+        setFocus( evo.data );
+
+        if ( __Selects[_fn](evo.data) === false ) {
+            return;
+        }
+        historyPush( new ESEdit(_old, evo.data) );
+    },
+
+    __click: 1,
+
+
+    /**
+     * [By] 从路径添加。
+     * 当用户单击路径上的目标时选取其关联元素。
+     * 会检查父子包含关系并清理。
+     */
+    pathTo( evo ) {
+        let _old = [...__ESet];
+
+        setFocus( evo.data );
+
+        if ( __Selects.safeAdd(evo.data) === false ) {
+            return;
+        }
+        historyPush( new ESEdit(_old, evo.data) );
+    },
+
+    __pathTo: 1,
+
+
+
+    /**
+     * 切换选取。
+     * 键盘快捷键选取切换（Space）。
      */
     turn() {
         let _el = __EHot.get();
@@ -1335,6 +1318,11 @@ export const MainOps = {
     //-- 元素编辑 ------------------------------------------------------------
 
 
+    toText( el ) {
+        historyPush( new DOMEdit())
+    },
+
+
     //-- 杂项功能 ------------------------------------------------------------
     // 供模板中直接取值使用
 
@@ -1489,6 +1477,9 @@ export const MainOps = {
 
 }
 
+
+// 扩展到By（部分）。
+processExtend( 'Ed', Edit, ['click', 'pathTo'] );
 
 
 // debug:

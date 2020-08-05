@@ -47,19 +47,19 @@
         import { Web } from "./tpb/config.js";
         import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
-        import { MainOps, init } from "./edit.js";
+        import { Edit, init } from "./edit.js";
 
         window.KM = cfg.Keys;
         window.GHK = new HotKey().config( cfg.Global );
         window.MHK = new HotKey().config( cfg.Menu );
         window.SHK = new HotKey().config( cfg.Slave );
         window.DHK = new HotKey().config( cfg.Modal );
-        window.CHK = new ObjKey(MainOps).config( cfg.Content );
+        window.CHK = new ObjKey(Edit).config( cfg.Content );
 
         // 供直接使用。
         // 主要用于ESC取消选取集。
-        window.MainOps = MainOps;
-        window.edInit = init;
+        window.Edit = Edit;
+        window.editInit = init;
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
@@ -103,7 +103,7 @@
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveSize);
         ^finish;
-        ^finish|(edInit) $('#content') $('#g-path') exec(_2)"
+        ^finish|(editInit) $('#content') $('#g-path') exec(_2)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
