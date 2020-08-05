@@ -990,12 +990,9 @@ function redoMinied() {
  * @param {...Value} args 参数序列
  */
 function editingNodes( op, ...args ) {
-    if ( __ESet.size == 0 ) {
-        return;
+    if ( __ESet.size ) {
+        historyPush( new DOMEdit( () => __Elemedit[op]($(__ESet), ...args) ) );
     }
-    historyPush(
-        new DOMEdit( () => __Elemedit[op]( $(__ESet), ...args) )
-    );
 }
 
 
@@ -1318,8 +1315,19 @@ export const Edit = {
     //-- 元素编辑 ------------------------------------------------------------
 
 
-    toText( el ) {
-        historyPush( new DOMEdit())
+    /**
+     * 内容文本化。
+     */
+    toText() {
+        editingNodes( 'toText' );
+    },
+
+
+    /**
+     * 内容提升（unwrap）。
+     */
+    unWrap() {
+        editingNodes( 'unWrap' );
     },
 
 
