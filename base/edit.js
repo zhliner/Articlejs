@@ -32,6 +32,9 @@ const
     // 在路径序列元素上存储源元素。
     pathsKey = Symbol(),
 
+    // 编辑需要监听的变化事件。
+    varyEvents = 'attrvary cssvary nodevary',
+
     // 元素选取集实例。
     __ESet = new ESet( Setup.selectedClass ),
 
@@ -65,20 +68,24 @@ class History {
 
 
     /**
-     * 记录一个操作实例。
-     * @param  {Instance|[Instance]} obj 操作实例（集）
-     * @return {Instance|[Instance]|false} 头部被移出的操作实例
+     * 入栈一个操作。
+     * 仅作为单个实体压入。
+     * @param  {...Instance} obj 操作实例序列
+     * @return {[Instance]|false} 头部被移出的操作实例序列
      */
-    push( obj ) {
+    push( ...obj ) {
         // 新入截断。
         this._buf.length = ++this._idx;
-        return (this._buf.push(obj) - this._max) > 0 && this._shift();
+
+        let _len = this._buf.push(
+            obj.length == 1 ? obj[0] : obj
+        );
+        return ( _len - this._max ) > 0 && this._shift();
     }
 
 
     /**
      * 撤销一步。
-     * 操作实例可能是一个数组。
      */
     undo() {
         if ( this._idx < 0 ) {
@@ -86,7 +93,11 @@ class History {
         }
         let _obj = this._buf[ this._idx-- ];
 
-        $.isArray(_obj) ? _obj.reverse().forEach( o => o.undo() ) : _obj.undo();
+        if ( !$.isArray(_obj) ) {
+            return _obj.undo();
+        }
+        // 副本避免被修改。
+        _obj.slice().reverse().forEach( o => o.undo() );
     }
 
 
@@ -374,6 +385,38 @@ class MiniEdit {
         }
         // 含可能的光标标记。
         return _new;
+    }
+}
+
+
+//
+// 焦点编辑管理。
+// 用于需要管理焦点历史时（如：unWrap）。
+// 注记：
+// 单纯的焦点移动并不进入编辑历史栈。
+//
+class HotEdit {
+    /**
+     * @param {Element} old 之前的焦点元素
+     */
+    constructor( old ) {
+        this._old = old;
+        this._hot = __EHot.get();
+    }
+
+
+    undo() {
+        this._set( this._old );
+    }
+
+
+    redo() {
+        this._set( this._hot );
+    }
+
+
+    _set( hot ) {
+        return hot ? setFocus(hot, true) : clearFocus(true);
     }
 }
 
@@ -676,13 +719,30 @@ class NodeVary {
     }
 
 
+    /**
+     * 内容文本化。
+     * @param {Collector} $els 处理集
+     */
     toText( $els ) {
         $els.text( $els.text() );
     }
 
 
+    /**
+     * 内容提升。
+     * 会对每个成员的公共父元素执行文本规范化。
+     * 注记：集合成员本身不会有嵌套。
+     * @param {Collector} $els 处理集
+     */
     unWrap( $els ) {
+        let _set = new Set();
+
+        $els.forEach(
+            el => _set.add( el.parentElement )
+        );
         $els.unwrap();
+
+        $(_set).normalize();
     }
 }
 
@@ -724,12 +784,12 @@ let
 /**
  * 历史栈压入。
  * 封装 Undo/Redo 状态通知。
- * @param  {Instance|[Instance]} obj 操作实例集
+ * @param  {...Instance} obj 操作实例序列
  * @return {obj}
  */
-function historyPush( obj ) {
+function historyPush( ...obj ) {
     stateNewEdit();
-    return __History.push(obj), obj;
+    return __History.push(...obj), obj;
 }
 
 
@@ -803,18 +863,38 @@ function elemInfo( el ) {
 /**
  * 设置元素焦点。
  * 会同时设置焦点元素的路径提示序列。
- * @param  {Element} el 焦点元素
- * @param  {Element} root 终止根元素
- * @param  {Element} box 路径序列容器
+ * @param  {Element} el 待设置焦点元素
+ * @param  {Boolean} update 更新全局焦点存储
  * @return {void}
  */
-function setFocus( el ) {
+function setFocus( el, update ) {
     __EHot.set( el );
+
+    // 仅当退回最初选取时。
     if ( el == null ) {
         return $.empty( pathContainer );
     }
     scrollIntoView( el );
+
+    if ( update ) {
+        ESEdit.currentFocus = el;
+    }
     $.fill( pathContainer, pathList(el, contentElem) );
+}
+
+
+/**
+ * 清除选取焦点。
+ * @param {Boolean} update 更新全局焦点存储
+ */
+function clearFocus( update ) {
+    __EHot.cancel();
+
+    // 全局更新。
+    if ( update ) {
+        ESEdit.currentFocus = null;
+    }
+    $.empty( pathContainer );
 }
 
 
@@ -981,21 +1061,10 @@ function redoMinied() {
 }
 
 
-
-/**??
- * 节点处理封装（含历史功能）。
- * 引用全局__Elemedit实例并执行其操作（方法）。
- * 友好：选取集为空时忽略用户操作。
- * @param {String} op 操作名
- * @param {...Value} args 参数序列
+/**
+ * 控制台警告。
+ * @param {String} msg 输出消息
  */
-function editingNodes( op, ...args ) {
-    if ( __ESet.size ) {
-        historyPush( new DOMEdit( () => __Elemedit[op]($(__ESet), ...args) ) );
-    }
-}
-
-
 function warn( msg ) {
     window.console.warn( msg );
 }
@@ -1016,6 +1085,13 @@ function warn( msg ) {
 export function init( content, pathbox ) {
     contentElem = content;
     pathContainer = pathbox;
+
+    // 开启tQuery变化事件监听。
+    $.config({
+        varyevent: true,
+        // bindevent: true
+    });
+    $.on( content, varyEvents, null, __TQHistory );
 }
 
 
@@ -1317,17 +1393,32 @@ export const Edit = {
 
     /**
      * 内容文本化。
+     * 注：对焦点不产生影响。
      */
     toText() {
-        editingNodes( 'toText' );
+        if ( __ESet.size ) {
+            historyPush( new DOMEdit( () => __Elemedit.toText($(__ESet)) ) );
+        }
     },
 
 
     /**
      * 内容提升（unwrap）。
+     * 注：如果焦点在选取元素上，则取消。
      */
     unWrap() {
-        editingNodes( 'unWrap' );
+        if ( !__ESet.size ) return;
+
+        let _old = __EHot.get(),
+            _buf = [];
+
+        if ( __ESet.has(_old) ) {
+            clearFocus( true );
+            _buf.push( new HotEdit(_old) );
+        }
+        _buf.push( new DOMEdit( () => __Elemedit.unWrap($(__ESet)) ) );
+
+        historyPush( ..._buf );
     },
 
 
@@ -1486,8 +1577,15 @@ export const Edit = {
 }
 
 
-// 扩展到By（部分）。
-processExtend( 'Ed', Edit, ['click', 'pathTo'] );
+//
+// 扩展到By（仅部分）。
+//
+processExtend( 'Ed', Edit, [
+    'click',
+    'pathTo',
+    'toText',
+    'unWrap'
+]);
 
 
 // debug:

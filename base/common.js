@@ -177,6 +177,17 @@ export class EHot {
             this._its = null;
         }
     }
+
+
+    /**
+     * 检查焦点状态。
+     * 如果焦点元素存在且仍在DOM中，返回焦点。
+     * 否则返回null。
+     * @return {Element|null}
+     */
+    check() {
+        return this._its && this._its.isConnected ? this._its : null;
+    }
 }
 
 

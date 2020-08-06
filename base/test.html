@@ -64,11 +64,6 @@
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
-        init({
-            content: $.get( '#content' ),
-            pathbox: $.get( '#g-path' ),
-        });
-
         //:Debug
         window.Tpb = Tpb;
 

@@ -5517,6 +5517,7 @@ function failTrigger( el, evn, data ) {
  *      type,       绑定事件名
  *      selector,   委托选择器
  *      handler,    事件处理器
+ *      offone,     是否为单次解绑
  * ]
   * 返回值：
  * - 返回 null 表示未配置定制事件发送。
@@ -5526,14 +5527,14 @@ function failTrigger( el, evn, data ) {
  * @param  {String} type 绑定事件名
  * @param  {String} selector 委托选择器
  * @param  {Function|EventListener} handler 事件处理器
- * @param  {Boolean} once 是否单次绑定
+ * @param  {Boolean} offone 是否one解绑
  * @return {Boolean|null}
  */
-function boundTrigger( el, evn, type, selector, handler, once ) {
+function boundTrigger( el, evn, type, selector, handler, offone ) {
     return Options.bindevent &&
         el.dispatchEvent(
             new CustomEvent( evn, {
-                detail: [ type, selector, handler, once ],
+                detail: [ type, selector, handler, offone ],
                 bubbles: true,
                 cancelable: false
             })

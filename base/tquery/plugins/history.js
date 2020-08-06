@@ -68,7 +68,7 @@
         boundone:   ev => new Boundone( ev.target, ...ev.detail ),
 
         // 节点变化处理器。
-        nodevary:   ev => new NodeVary( ev.detail ),
+        nodevary:   ev => new NodeVary( ev.target, ev.detail ),
     };
 
 
@@ -93,6 +93,7 @@ class History {
      * @param {CustomEvent} ev 定制事件对象
      */
     handleEvent( ev ) {
+        ev.stopPropagation();
         this.push( __varyHandles[ev.type](ev) );
     }
 

@@ -22,10 +22,12 @@
         <span id="tools-usual" class="_usual _icons" data-pb="">
             <b title="文本化"
                 on="click"
-                by="Ed.toText"><i id="b-totext"></i></b>
+                by="Ed.toText"
+                to="#g-scroll||focus"><i id="b-totext"></i></b>
             <b title="内容提升"
                 on="click"
-                by="Ed.unWrap"><i id="b-conup"></i></b>
+                by="Ed.unWrap"
+                to="#g-scroll||focus"><i id="b-conup"></i></b>
             <hr>
         </span>
         <!--撤销：
@@ -145,8 +147,7 @@
                     <section role="s2">
                         <h2 id="内容块">内容块</h2>
                         <header>
-                            <p>独立的行块内容单元，占据单独的一行（<code>display:block</code>）。如
-                                <code>&lt;ol&gt;</code>、<code>&lt;p&gt;</code>，前者为固定结构类单元，后者可以直接包含文本内容。</p>
+                            <p>独立的行块内容单元，占据单独的一行（<code>display:block</code>）。如 <code>&lt;ol&gt;</code>、<code>&lt;p&gt;</code>，前者为固定结构类单元，后者可以直接包含文本内容。</p>
                         </header>
                         <section role="s3">
                             <h2 id="结构类">结构类</h2>
@@ -170,29 +171,23 @@
 &lt;<b role="tag">div</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i>
 </code></pre>
                             <aside>
-                                <p><strong>注：</strong>
-                                    白板可插入内容，但仅适用在运行时下且应当是临时的。</p>
+                                <p><strong>注：</strong> 白板可插入内容，但仅适用在运行时下且应当是临时的。</p>
                             </aside>
                         </section>
                     </section>
                     <section role="s2">
                         <h2 id="内容件">内容件</h2>
-                        <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <strong>提要</strong>、<strong>目录</strong>
-                            等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。</p>
+                        <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <strong>提要</strong>、<strong>目录</strong> 等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。</p>
                     </section>
                     <section role="s2">
                         <h2 id="内容行和内容元素">内容行和内容元素</h2>
-                        <p>可直接包含文本和内联元素的行级元素，上面的文本类内容件就是 <strong>内容行</strong>。但内容行还包括不能单独作为内容的行元素，如
-                            <code>&lt;li&gt;</code>、<code>&lt;caption&gt;</code>、<code>&lt;dt&gt;</code>、<code>&lt;dd&gt;</code> 等。</p>
-                        <p><strong>内容元素</strong> 是所有可以直接包含文本和其它内联元素的元素。上面的内容行是内容元素，但还有其它非行级的元素也可以直接包含文本，如
-                            <code>&lt;td&gt;</code>、<code>&lt;strong&gt;</code>、<code>&lt;small&gt;</code> 等，前者是表格的内容单元，而后两者则是内联元素。</p>
+                        <p>可直接包含文本和内联元素的行级元素，上面的文本类内容件就是 <strong>内容行</strong>。但内容行还包括不能单独作为内容的行元素，如 <code>&lt;li&gt;</code>、<code>&lt;caption&gt;</code>、<code>&lt;dt&gt;</code>、<code>&lt;dd&gt;</code> 等。</p>
+                        <p><strong>内容元素</strong> 是所有可以直接包含文本和其它内联元素的元素。上面的内容行是内容元素，但还有其它非行级的元素也可以直接包含文本，如 <code>&lt;td&gt;</code>、<code>&lt;strong&gt;</code>、<code>&lt;small&gt;</code> 等，前者是表格的内容单元，而后两者则是内联元素。</p>
                     </section>
                     <section role="s2">
                         <h2 id="内联单元">内联单元</h2>
-                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如
-                            <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
-                        <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如
-                            <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
+                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
+                        <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
                         <pre><code data-lang="html">&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;                 <i>&lt;!-- 音频：AUDIO /track,source, #text --&gt;</i>
 &lt;<b role="tag">video</b>&gt;&lt;/<b role="tag">video</b>&gt;                 <i>&lt;!-- 视频：VIDEO /track,source, #text --&gt;</i>
 &lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;             <i>&lt;!-- 图片：PICTURE /source,img --&gt;</i>
