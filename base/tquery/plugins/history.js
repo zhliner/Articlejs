@@ -64,9 +64,6 @@
         // 事件解绑处理器。
         unbound:    ev => new Unbound( ev.target, ...ev.detail ),
 
-        // 事件单次绑定处理器。
-        boundone:   ev => new Boundone( ev.target, ...ev.detail ),
-
         // 节点变化处理器。
         nodevary:   ev => new NodeVary( ev.target, ev.detail ),
     };
@@ -260,6 +257,8 @@ class Class {
 //
 class Bound {
     /**
+     * 注记：
+     * 无需区分是否为单次（one）绑定。
      * @param {Element} el 目标元素
      * @param {String} evn 目标事件名
      * @param {String} slr 委托选择器
@@ -308,32 +307,6 @@ class Unbound {
     }
 }
 
-
-//
-// 单次绑定事件操作。
-// 关联事件：boundone
-// 注记：
-// 可能已经由于事件触发自动解绑，不过这里的解绑是无害的。
-//
-class Boundone {
-    /**
-     * @param {Element} el 目标元素
-     * @param {String} evn 目标事件名
-     * @param {String} slr 委托选择器
-     * @param {Function|EventListener} handle 事件处理器（用户）
-     */
-    constructor( el, evn, slr, handle ) {
-        this._el = el;
-        this._evn = evn;
-        this._slr = slr;
-        this._handle = handle;
-    }
-
-
-    back() {
-        $.off( this._el, this._evn, this._slr, this._handle );
-    }
-}
 
 
 //
