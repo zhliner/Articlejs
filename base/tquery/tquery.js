@@ -71,7 +71,7 @@
 
     事件绑定变化事件
     如果元素绑定或解绑事件处理器时触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
-    事件名：bound, unbound, boundone
+    事件名：bound, unbound
     开启：tQuery.config({bindevent: true})
 
 
@@ -5465,8 +5465,7 @@ const
     evnNodeFail     = 'nodefail',
     evnNodeDone     = 'nodedone',
     evnBound        = 'bound',
-    evnUnbound      = 'unbound',
-    evnBoundone     = 'boundone';
+    evnUnbound      = 'unbound';
 
 
 /**
@@ -5517,7 +5516,7 @@ function failTrigger( el, evn, data ) {
  *      type,       绑定事件名
  *      selector,   委托选择器
  *      handler,    事件处理器
- *      offone,     是否为单次解绑
+ *      once,       是否为单次逻辑
  * ]
   * 返回值：
  * - 返回 null 表示未配置定制事件发送。
@@ -5527,14 +5526,14 @@ function failTrigger( el, evn, data ) {
  * @param  {String} type 绑定事件名
  * @param  {String} selector 委托选择器
  * @param  {Function|EventListener} handler 事件处理器
- * @param  {Boolean} offone 是否one解绑
+ * @param  {Boolean} once 是否为单次逻辑
  * @return {Boolean|null}
  */
-function boundTrigger( el, evn, type, selector, handler, offone ) {
+function boundTrigger( el, evn, type, selector, handler, once ) {
     return Options.bindevent &&
         el.dispatchEvent(
             new CustomEvent( evn, {
-                detail: [ type, selector, handler, offone ],
+                detail: [ type, selector, handler, once ],
                 bubbles: true,
                 cancelable: false
             })
@@ -6591,7 +6590,7 @@ const Event = {
             this._onceHandler( el, _evn, _bound, _cap, _pool, slr, handle ),
             _cap
         );
-        return boundTrigger( el, evnBoundone, evn, slr, handle );
+        return boundTrigger( el, evnBound, evn, slr, handle, true );
     },
 
 
@@ -6653,7 +6652,7 @@ const Event = {
                             v3[2] ? this._onceHandler(to, n, _call, v3[1], _pool, s, h) : _call,
                             v3[1]
                         );
-                        boundTrigger(to, v3[2] ? evnBoundone : evnBound, n, s, h);
+                        boundTrigger(to, evnBound, n, s, h, v3[2]);
                     }
                 }
             }
