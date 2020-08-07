@@ -106,9 +106,8 @@ const _Update = {
      * 如果目标是一个集合，相同的值发送到所有元素（tQuery行为）。
      * 可将事件名放在内容中（[0]），从而简单地获取动态性。
      *
-     * 目标：{Element|[Element]|String|.dispatchEvent}
-     * - 如果是字符串会被视为选择器，向匹配的元素发送消息。
-     * - 也可以是任意支持.dispatchEvent()接口的对象，这在某些情况下很有用。
+     * 目标：{Element|[Element]|String}
+     * 如果是字符串会被视为选择器，向匹配的元素发送消息。
      *
      * @data: 发送值 | [事件名, 发送值]
      * @param {Element|Collector} to 待激发元素/集

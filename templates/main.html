@@ -69,7 +69,7 @@
         keyup 数值设置（非数字无效） -->
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
-            keyup|(/^[\d-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1)"
+            keyup|(/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1)"
         to="#g-count|trigger('reset');
             #g-count|trigger('setv')">
         <!-- 选取创建（mouseup） -->
@@ -118,14 +118,14 @@
         <!-- 内容区 -->
         <!-- 微编辑：on="mouseup keyup input|rangeKeep stop" -->
         <main id="content" class="content"
-            on="click(*)|evo(1) (KM.turnSelect) scam(_1);
+            on="click(*)|evo(1) scam;
                 @mouseover:1|('_point');
                 @mouseout:1|('_point');
                 mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|$('#g-count') val end;
                 cancel|stop (Edit) call('selsEmpty');
-                ^obted|(ESC) evo(3) apply('push', _1)"
-            by="Ed.click(_1) $('#g-count') val pass"
+                ^obted"
+            by="Ed.click(_1)"
             to="#g-count|trigger('reset');
                 =|addClass;
                 =|removeClass;
@@ -250,7 +250,7 @@
 <div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
-        mousedown|scam(KM.slaveSize) pass stop;
+        mousedown|scam(KM.slaveResize) pass stop;
         scroll(textarea)|evo(2) scrollTop neg add('px');
         input.full(~textarea)|evo(2) full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
@@ -291,9 +291,11 @@
             setv:  设置值并提供该值的显示。-->
         <input id="g-count" name="count" type="hidden"
             on="reset|(Edit) call('esetSize') str('[ ', ' ]') ('');
-                setv|ev('detail') dup"
+                setv|(ESC) evo(3) apply('add', _1) ev('detail') dup;
+                cancel|(ESC) apply('pop')"
             to="|val|pop fire('#status-tips', 'info');
-                |val|pop fire('#status-tips', 'info')" />
+                |val|pop fire('#status-tips', 'info');
+                |trigger('reset')" />
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">

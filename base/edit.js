@@ -21,6 +21,7 @@ import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { selectTop, isContent } from "./base.js";
+import cfg from "./shortcuts.js";
 
 
 const
@@ -294,8 +295,8 @@ class RngEdit {
         // 碎片复原使_old系有效。
         this._tmp.back();
 
-        this._old[0].replaceWith( this._el );
         this._old.slice(1).forEach( nd => nd.remove() );
+        this._old[0].replaceWith( this._el );
     }
 }
 
@@ -1067,6 +1068,42 @@ function redoMinied() {
 
 
 /**
+ * 是否包含子元素。
+ * 集合中任一成员满足要求即可。
+ * @param  {[Element]} els 元素集
+ * @return {Boolean}
+ */
+function hasChildElement( els ) {
+    for ( const el of els ) {
+        if ( el.childElementCount > 0 ) return true;
+    }
+    return false;
+}
+
+
+/**
+ * 是否按下元素焦点辅助键。
+ * obj: { shift, ctrl, alt, meta }
+ * @param {Object} obj 辅助键状态集
+ */
+function isElemFocus( obj ) {
+    return cfg.Keys.elemFocus
+        .split( /\s+/ ).every( n => obj[n.toLowerCase()] );
+}
+
+
+/**
+ * 是否按下切换选取辅助键。
+ * obj: { shift, ctrl, alt, meta }
+ * @param {Object} obj 辅助键状态集
+ */
+function isTurnSelect( obj ) {
+    return cfg.Keys.turnSelect
+        .split( /\s+/ ).every( n => obj[n.toLowerCase()] );
+}
+
+
+/**
  * 控制台警告。
  * @param {String} msg 输出消息
  */
@@ -1184,15 +1221,20 @@ export const Edit = {
 
 
     /**
-     * [By] 单击选取。
-     * @param {Boolean} turn 是否为切换
+     * [By] 单击聚焦/选取。
+     * cfg.Keys.turnSelect 切换选取键配置
+     * cfg.Keys.elemFocus  单纯焦点键配置
+     * @param {Object} aux 辅助键状态
      */
-    click( evo, turn ) {
-        let _fn = turn ? 'turn' : 'only',
-            _old = [...__ESet];
-
-        // 无条件改变焦点
+    click( evo, aux ) {
+        // 无条件执行。
         setFocus( evo.data );
+
+        if ( isElemFocus(aux) ) {
+            return;
+        }
+        let _fn = isTurnSelect(aux) ? 'turn' : 'only',
+            _old = [...__ESet];
 
         if ( __Selects[_fn](evo.data) === false ) {
             return;
@@ -1398,12 +1440,16 @@ export const Edit = {
 
     /**
      * 内容文本化。
+     * 会忽略选取元素都没有子元素的情形。
      * 注：对焦点不产生影响。
      */
     toText() {
-        if ( __ESet.size ) {
-            historyPush( new DOMEdit( () => __Elemedit.toText($(__ESet)) ) );
+        let $els = $(__ESet);
+
+        if ( $els.length === 0 || !hasChildElement($els) ) {
+            return;
         }
+        historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
     },
 
 

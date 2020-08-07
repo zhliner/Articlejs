@@ -326,7 +326,7 @@ class Builder {
 
     /**
      * 构建调用链。
-     * @param  {[[Evn],[Call]]} ons On调用序列
+     * @param  {[[Evn], [Call]]} ons On调用序列
      * @param  {[Call]} bys By调用序列
      * @param  {Query} query To查询配置实例
      * @param  {[Update]} updates To更新调用序列
@@ -358,13 +358,13 @@ class Builder {
     bind( its, evns, chain ) {
         for (const evn of evns) {
             if ( evn.store ) {
-                this._store(its, evn.name, chain);
+                this._store( its, evn.name, chain );
                 continue;
             }
             let _fn = evn.once ?
                 'one' :
                 'on';
-            $[_fn](its, evn.name, evn.selector, chain);
+            $[_fn]( its, evn.name, evn.selector, chain );
         }
     }
 

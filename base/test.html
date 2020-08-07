@@ -34,12 +34,6 @@
 
         window.Config = {};
 
-        // 取消实例栈。
-        // 逐次取消。对栈顶成员发送cancel消息。
-        // 注记：
-        // 通常由目标自己管理实例的出/入栈。
-        window.ESC = [];
-
     </script>
 
     <script type="module" async>
@@ -48,6 +42,7 @@
         import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
         import { Edit, init } from "./edit.js";
+        import { ArrSet } from "./common.js";
 
         window.KM = cfg.Keys;
         window.GHK = new HotKey().config( cfg.Global );
@@ -60,6 +55,11 @@
         // 主要用于ESC取消选取集。
         window.Edit = Edit;
         window.editInit = init;
+
+        // 取消实例栈。
+        // 逐次取消。对栈顶成员发送cancel消息。
+        // 注记：由目标自己管理实例的出/入栈。
+        window.ESC = new ArrSet();
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
@@ -96,8 +96,8 @@
         button.undo|ev('detail') vnot;
         button.redo|ev('detail') vnot;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
-        ^finish|(KM.slaveSize);
-        ^finish;
+        ^finish|(KM.slaveResize);
+        ^finish|(ESC) $('#content') apply('add', _1);
         ^finish|(editInit) $('#content') $('#g-path') exec(_2)"
     to="#outline|width(true);
         #help|width(true);
@@ -128,8 +128,8 @@
     <div id="editor">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb="lost"
             on="click(~._close);
-                open|stop (ESC) evo(3) dup lose(0) apply('push', _1);
-                cancel|stop (ESC) evo(3) dup lose apply('pop', _1);
+                open|stop (ESC) evo(3) dup lose(0) apply('add', _1);
+                cancel|evo(3) lose (ESC) apply('pop');
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel')">
             <form class="_prop" on="submit|avoid">

@@ -290,6 +290,65 @@ export class ElemCursor {
 }
 
 
+//
+// 唯一成员集。
+// 实现几个基本的数组/集合方法。
+// 注记：可用于ESC逐层取消栈功能。
+//
+export class ArrSet extends Set {
+    /**
+     * 逐个入栈。
+     * 重复的值会被忽略。
+     * @param  {...Value} vals 值序列
+     * @return {Number} 栈大小
+     */
+    push( ...vals ) {
+        vals.forEach( v => super.add(v) );
+        return this.size;
+    }
+
+
+    /**
+     * 弹出末尾值。
+     * @return {Value}
+     */
+    pop() {
+        let _v = this.last();
+        super.delete( _v );
+        return _v;
+    }
+
+
+    /**
+     * 移除头部值。
+     * @return {Value}
+     */
+    shift() {
+        let _v = this.first();
+        super.delete( _v );
+        return _v;
+    }
+
+
+    /**
+     * 返回首个成员。
+     */
+    first() {
+        for (const it of this) return it;
+    }
+
+
+    /**
+     * 返回最后一个成员。
+     */
+    last() {
+        let it;
+        for ( it of this );
+        return it;
+    }
+}
+
+
 
 //
 // 基本函数集。
