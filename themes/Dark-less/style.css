@@ -421,31 +421,11 @@ aside#help {
     overflow: hidden;
 }
 
-.___Content b#cross-h,
-.___Content b#cross-v,
 .___Content menu,
 .___Content > ._path {
     position: absolute;
     /* 内容之上 */
     z-index: 10;
-}
-
-/* 临时态指示线 */
-.___Content b#cross-h {
-    left: 0;
-    height: 0;
-    width: calc(100% - 17px);
-    border-top: 1px #999 dashed;
-    /* 动态 */
-    top: 40px;
-}
-.___Content b#cross-v {
-    top: 0;
-    width: 0;
-    height: 100%;
-    border-left: 1px #999 dashed;
-    /* 动态 */
-    left: 40px;
 }
 
 /* 底部路径指示 */
