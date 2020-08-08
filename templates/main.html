@@ -1,5 +1,6 @@
 <!-- 工具栏 -->
-<div class="___Panel Tools" tpl-name="main:tools">
+<div class="___Panel Tools" tpl-name="main:tools"
+    on="click|$('#g-scroll') focus">
     <div class="_start _icons">
         <b id="x-outline" title="大纲" class="_press"
             on="toggle|$$('#outline,#lineLeft') a.lose(2) ('_press');
@@ -22,12 +23,10 @@
         <span id="tools-usual" class="_usual _icons" data-pb="">
             <b title="文本化"
                 on="click"
-                by="Ed.toText"
-                to="#g-scroll||focus"><i id="b-totext"></i></b>
+                by="Ed.toText"><i id="b-totext"></i></b>
             <b title="内容提升"
                 on="click"
-                by="Ed.unWrap"
-                to="#g-scroll||focus"><i id="b-conup"></i></b>
+                by="Ed.unWrap"><i id="b-conup"></i></b>
             <hr>
         </span>
         <!--撤销：
@@ -37,15 +36,13 @@
             on="state|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Edit) call('editUndo');
                 enable|evo(1) disable(0)"
-            to="#tools-redo|trigger('enable');
-                #g-scroll||focus"><i id="b-undo"></i></b>
+            to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
         <!-- 重做 -->
         <b id="tools-redo" title="重做" data-pb="disabled"
             on="state|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Edit) call('editRedo');
                 enable|evo(1) disable(0)"
-            to="#tools-undo|trigger('enable');
-                #g-scroll||focus"><i id="b-redo"></i></b>
+            to="#tools-undo|trigger('enable')"><i id="b-redo"></i></b>
     </div>
     <div class="_end _icons">
         <b id="x-plugins" title="插件"
@@ -153,7 +150,7 @@
                         <section role="s3">
                             <h2 id="文本类">文本类</h2>
                             <p>可直接包含文本内容和内联单元，没有固定的DOM结构可单独占据一行的块级元素。</p>
-                            <pre><code data-lang="html">&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i>
+                            <pre role="codeblock"><code data-lang="html">&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i>
 &lt;<b role="tag">p</b> role=<b role="str">"note"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i>
 &lt;<b role="tag">p</b> role=<b role="str">"tips"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i>
 &lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;     <i>&lt;!-- 地址信息：ADDRESS --&gt;</i>
@@ -163,7 +160,7 @@
                         <section role="s3">
                             <h2 id="单体类">单体类</h2>
                             <p>不包含任何内容，是一个独立存在的单元。</p>
-                            <pre><code data-lang="html">&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i>
+                            <pre role="codeblock"><code data-lang="html">&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i>
 &lt;<b role="tag">div</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i>
 </code></pre>
                             <aside>
@@ -184,7 +181,7 @@
                         <h2 id="内联单元">内联单元</h2>
                         <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
                         <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
-                        <pre><code data-lang="html">&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;                 <i>&lt;!-- 音频：AUDIO /track,source, #text --&gt;</i>
+                        <pre role="codeblock"><code data-lang="html">&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;                 <i>&lt;!-- 音频：AUDIO /track,source, #text --&gt;</i>
 &lt;<b role="tag">video</b>&gt;&lt;/<b role="tag">video</b>&gt;                 <i>&lt;!-- 视频：VIDEO /track,source, #text --&gt;</i>
 &lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;             <i>&lt;!-- 图片：PICTURE /source,img --&gt;</i>
 &lt;<b role="tag">a</b>&gt;&lt;/<b role="tag">a</b>&gt;                         <i>&lt;!-- 链接：A --&gt;</i>

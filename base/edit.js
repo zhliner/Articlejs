@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { selectTop, isContent } from "./base.js";
+import { isContent, selectTop, contentsBox } from "./base.js";
 import cfg from "./shortcuts.js";
 
 
@@ -490,7 +490,7 @@ class ElemSels {
 
 
     /**
-     * 兄弟元素扩展添加/移出。
+     * 元素扩展：添加/移出。
      * 假设父容器未选取，外部需要保证此约束。
      * @param  {[Element]} els 元素序列
      * @param  {Element} hot 焦点元素引用
@@ -591,7 +591,17 @@ class ElemSels {
      * @return {el|false}
      */
     add( el ) {
-        return !this._set.has(el) && this._set.add( el );
+        return !this._set.has(el) && this._set.add(el);
+    }
+
+
+    /**
+     * 简单移除。
+     * @param  {Element} el 选取元素
+     * @return {el|false}
+     */
+    delete( el ) {
+        return this._set.has(el) && this._set.delete(el);
     }
 
 
@@ -604,6 +614,27 @@ class ElemSels {
      */
     safeAdd( el ) {
         return !this._set.has(el) && this.clean(el)._set.add(el);
+    }
+
+
+    /**
+     * 头部添加。
+     * 将新元素集插入到集合的头部。
+     * 注记：
+     * 容许新集合中的元素与选取集内的成员重合。
+     *
+     * @param {[Element]} els 元素集
+     */
+    unshift( els ) {
+        if ( els.length === 0 ) {
+            return false;
+        }
+        let _tmp = [...this._set];
+
+        if ( _tmp.length ) {
+            this._set.clear();
+        }
+        this.adds( els.concat(_tmp) );
     }
 
 
@@ -924,7 +955,6 @@ function scrollIntoView( el ) {
  * 扩展选取封装。
  * 包含两种状态：选取/取消选取。
  * 选取焦点会移动到集合最后一个元素上（如果已执行）。
- * 友好：会简单忽略无效的操作。
  * @param {Element} hot 焦点元素
  * @param {[Element]} els 扩展集
  */
@@ -943,16 +973,16 @@ function expandSelect( hot, els ) {
 
 
 /**
- * 兄弟元素选取封装。
+ * 兄弟元素同态（选取/取消选取）封装。
  * 注：焦点不变。
  * @param {[Element]} els 选取集
  * @param {Element} hot 焦点元素
  */
-function siblingsSelect( els, hot ) {
+function siblingsUnify( els, hot ) {
     let _old = [...__ESet];
     __Selects.cleanUp( hot );
 
-    if ( __Selects.adds(els) === false ) {
+    if ( __Selects.expand(els, hot) === false ) {
         return;
     }
     historyPush( new ESEdit(_old, hot) );
@@ -960,19 +990,41 @@ function siblingsSelect( els, hot ) {
 
 
 /**
- * 普通元素集选取封装。
+ * 普通元素集同态（选取/取消选取）封装。
  * 需要检查每一个成员的父级选取并清除之。
  * 注：焦点不变。
  * @param {[Element]} els 选取集
  * @param {Element} hot 焦点元素
  */
-function elementsSelect( els, hot ) {
+function elementsUnify( els, hot ) {
     let _old = [...__ESet];
 
     els.forEach(
         el => __Selects.cleanUp(el)
     );
-    if ( __Selects.adds(els) === false ) {
+    if ( __Selects.expand(els, hot) === false ) {
+        return;
+    }
+    historyPush( new ESEdit(_old, hot) );
+}
+
+
+/**
+ * 元素集选取封装。
+ * 集合内的成员可能属于不同的父元素，
+ * 因此需要逐一清理。
+ * @param {[Element]} els 内容子元素
+ * @param {Element} hot 焦点元素
+ * @param {Boolean} start 是否头部插入，可选
+ */
+function elementsSelect( els, hot, start ) {
+    let _old = [...__ESet],
+        _fn = start ? 'unshift' : 'adds';
+
+    els.forEach(
+        el => __Selects.cleanUp(el)
+    );
+    if ( __Selects[_fn](els) === false ) {
         return;
     }
     historyPush( new ESEdit(_old, hot) );
@@ -1299,43 +1351,22 @@ export const Edit = {
 
 
     /**
-     * 全部兄弟元素。
+     * 选取焦点全部兄弟元素。
      * 注记：焦点元素可能尚未选取。
      */
     siblings() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        siblingsSelect( _el.parentElement.children, _el );
+        if ( !__ESet.has(_el) ) {
+            __ESet.add( _el );
+        }
+        siblingsUnify( _el.parentElement.children, _el );
     },
 
 
     /**
-     * 同类兄弟元素。
-     * 注记：焦点元素可能尚未选取。
-     */
-    tagsame() {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        siblingsSelect( $.find(`>${_el.tagName}`, _el.parentElement), _el );
-    },
-
-
-    /**
-     * 叔伯元素内的同类子元素。
-     * 主要用于同章节内的子章节标题选取。
-     */
-    sibling2x() {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        elementsSelect( $.find(`>* >${_el.tagName}`, _el.parentElement.parentElement), _el );
-    },
-
-
-    /**
-     * 取消同级兄弟元素选取。
+     * 取消焦点同级兄弟元素选取。
      */
     cleanSiblings() {
         let _el = __EHot.get();
@@ -1350,7 +1381,58 @@ export const Edit = {
     },
 
 
-    //-- 扩展选取 ------------------------------------------------------------
+    /**
+     * 同态同类兄弟元素。
+     * 同态：保持与焦点元素状态相同（选取/取消选取）。
+     */
+    tagsame() {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        siblingsUnify( $.find(`>${_el.tagName}`, _el.parentElement), _el );
+    },
+
+
+    /**
+     * 同态叔伯元素内的同类子元素。
+     * 主要用于同章节内的子章节标题选取/取消选取。
+     */
+    tagsame2x() {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        elementsUnify( $.find(`>* >${_el.tagName}`, _el.parentElement.parentElement), _el );
+    },
+
+
+    /**
+     * 选取焦点元素内顶层内容元素。
+     * 注记：
+     * 当用户选取了非内容元素时，微编辑跳转仅定位为焦点，
+     * 用户可以立即执行该操作以选取内部的内容根元素。
+     */
+    contentsBox() {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        elementsSelect( contentsBox(_el), _el );
+    },
+
+
+    /**
+     * 获取焦点元素内顶层内容元素，
+     * 但新的元素集插入到集合的头部（unshift）。
+     * 注记：（同上）
+     */
+    contentsBoxStart() {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        elementsSelect( contentsBox(_el), _el, true );
+    },
+
+
+    //-- 选取扩展 ------------------------------------------------------------
     // 焦点会移动到扩展目标。
 
 
@@ -1432,19 +1514,6 @@ export const Edit = {
 
         __Selects.clean( _to );
         elementSelect( _to, _old );
-    },
-
-
-    /**
-     * 选取焦点元素内顶层内容元素。
-     * 注记：
-     * 当用户选取了非内容元素时，微编辑跳转仅定位为焦点，
-     * 用户可以立即执行该操作以选取内部的内容根元素。
-     *
-     * @param {Boolean} start 是否插入到选取集前端
-     */
-    contentsRoot( start ) {
-        //
     },
 
 

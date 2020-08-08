@@ -268,25 +268,6 @@ function setType( el, tval ) {
 
 
 /**
- * 获取目标元素的内容。
- * 仅限内联节点和非空文本节点。
- * 如果初始即传入一个空文本节点，会返回null。
- * 注记：$.contents()会滤除空文本内容。
- * @param  {Element|Text} el 目标节点
- * @return {[Node]|Node|null}
- */
-function contents( el ) {
-    if ( el.nodeType == 3 ) {
-        return el.textContent.trim() ? el : null;
-    }
-    if ( isInlines( getType(el) ) ) {
-        return el;
-    }
-    return $.contents(el).map( nd => contents(nd) ).flat();
-}
-
-
-/**
  * 是否为合法子单元。
  * @param  {Number} sub 测试目标
  * @param  {Number} box 容器单元
@@ -426,6 +407,41 @@ function listRoot( el ) {
 
 
 /**
+ * 获取目标元素的内容。
+ * 仅限内联节点和非空文本节点。
+ * 如果初始即传入一个空文本节点，会返回null。
+ * 注记：$.contents()会滤除空文本内容。
+ * @param  {Element|Text} el 目标节点
+ * @return {[Node]|Node|null}
+ */
+function contents( el ) {
+    if ( el.nodeType == 3 ) {
+        return el.textContent.trim() ? el : null;
+    }
+    if ( isInlines( getType(el) ) ) {
+        return el;
+    }
+    return $.contents(el).map( nd => contents(nd) ).flat();
+}
+
+
+/**
+ * 获取元素内的内容根容器。
+ * 始终会返回一个数组（可能为空）。
+ * @param  {Element} el 目标元素
+ * @return {[Element]}
+ */
+function contentsBox( el ) {
+    let _els = _contentsBox(el);
+
+    if ( !_els ) {
+        return [];
+    }
+    return $.isArray(_els) ? _els : [_els];
+}
+
+
+/**
  * 获取元素选取根。
  * 即当用于执行Top选取操作时的目标元素。
  * - 起点为内联元素时，向上获取内容行元素。
@@ -547,6 +563,24 @@ function entityRoot( beg, end ) {
 }
 
 
+/**
+ * 获取元素内的内容根容器。
+ * 如果初始传入一个文本节点，会返回null（不能作为内容容器使用）。
+ * 注：会忽略混嵌的文本节点。
+ * @param  {Element} el 目标元素
+ * @return {[Element]|Element|null}
+ */
+function _contentsBox( el ) {
+    if ( el.nodeType == 3 ) {
+        return null;
+    }
+    if ( isContent( getType(el) ) ) {
+        return el;
+    }
+    return $.children(el).map( el => _contentsBox(el) ).flat();
+}
+
+
 //
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
@@ -558,5 +592,6 @@ export {
     setType,
     isContent,
     tableObj,
+    contentsBox,
     selectTop,
 }

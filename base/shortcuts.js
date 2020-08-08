@@ -198,6 +198,12 @@ Content: [
         "command":  "siblings"
     },
 
+    // 取消焦点所在兄弟元素选取
+    {
+        "key":      ":q",
+        "command":  "cleanSiblings"
+    },
+
     // 同级同类兄弟元素
     {
         "key":      ":e",
@@ -207,13 +213,7 @@ Content: [
     // 同级叔伯元素内同类子元素
     {
         "key":      "shift:e",
-        "command":  "sibling2x"
-    },
-
-    // 取消焦点所在兄弟元素选取
-    {
-        "key":      ":q",
-        "command":  "cleanSiblings"
+        "command":  "tagsame2x"
     },
 
     // 同级向前（previous）扩选
@@ -251,6 +251,19 @@ Content: [
     {
         "key":      ":t",
         "command":  "contentTop"
+    },
+
+    // 选取单元的内容根元素集。
+    {
+        "key":      ":z",
+        "command":  "contentsBox"
+    },
+
+    // 选取单元的内容根元素集。
+    // 注：新元素集插入选取集头部。
+    {
+        "key":      "shift:z",
+        "command":  "contentsBoxStart"
     },
 
 
