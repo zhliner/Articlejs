@@ -92,17 +92,17 @@ Global: [
         "command":  "input.full",
     },
 
+    // 焦点元素路径信息显示切换
+    {
+        "key":      ":f6",
+        "command":  "toggle.path"
+    },
+
     // 内容区聚焦
     // 便于对内容区的快捷键操作。
     {
-        "key":      ":f6",
-        "command":  "focus.content"
-    },
-
-    // 焦点元素路径信息显示切换
-    {
         "key":      "shift:f6",
-        "command":  "toggle.path"
+        "command":  "focus.content"
     },
 
 
