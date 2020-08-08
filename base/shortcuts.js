@@ -216,33 +216,33 @@ Content: [
         "command":  "tagsame2x"
     },
 
-    // 同级向前（previous）扩选
+    // 同级向前（←）扩选
     // 接受前置数字指定扩展距离（默认值1）。
     {
         "key":      "shift:h",
         "command":  "previousN"
     },
 
-    // 同级向后（next）扩选
+    // 同级向后（→）扩选
     // 接受前置数字指定扩展距离（默认值1）。
     {
         "key":      "shift:l",
         "command":  "nextN"
     },
 
-    // 子级换选
+    // 父级换选（↑）
+    // 支持前置数字指定上升层级（准确值）。
+    {
+        "key":      "shift:k",
+        "command":  "parentN"
+    },
+
+    // 子级换选（↓）
     // 支持前置数字指定子元素下标，
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
         "key":      "shift:j",
         "command":  "childN"
-    },
-
-    // 父级换选
-    // 支持前置数字指定上升层级（准确值）。
-    {
-        "key":      "shift:k",
-        "command":  "parentN"
     },
 
     // 选取单元顶元素。
