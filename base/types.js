@@ -17,8 +17,8 @@ const $ = window.$;
 //
 // 分类定义：
 // 0. 特别类型。存在但不归类（如：<b>,<i>）。
-// 1. 结构容器。包含固定结构的子元素，插入需合法。
-// 2. 结构子件。自身为结构容器内的子元素，可能也为结构容器。
+// 1. 结构元素。包含固定结构的子元素或自身即为结构子元素，如果不是结构根，自身的插入需合法。
+// 2. 结构灵活件。自身为结构子元素，但可以被简单删除（如<li>）。
 // 3. 内容元素。可包含非空文本节点和内联单元。
 // 4. 内联单元。可作为内容行独立内容（逻辑完整）的单元。
 // 5. 行块单元。可作为内容片区独立行块内容的单元。
@@ -33,8 +33,8 @@ const $ = window.$;
 export const
     TEXT    = 0,        // 文本节点
     SPECIAL = 1,        // 特别用途
-    STRUCT  = 1 << 1,   // 结构容器
-    STRUCTX = 1 << 2,   // 结构子件
+    STRUCT  = 1 << 1,   // 结构元素
+    STRUCTX = 1 << 2,   // 结构灵活件（可删除）
     CONTENT = 1 << 3,   // 内容元素
     INLINES = 1 << 4,   // 内联单元
     BLOCKS  = 1 << 5,   // 行块单元
@@ -238,13 +238,15 @@ export const Specials = {
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ SVGITEM ]:        STRUCTX | SEALED,
-    [ TRACK ]:          STRUCTX | EMPTY,
-    [ SOURCE ]:         STRUCTX | EMPTY,
-    [ RB ]:             STRUCTX | FIXED | CONTENT,
-    [ RT ]:             STRUCTX | FIXED | CONTENT,
-    [ RP ]:             STRUCTX | FIXED | SEALED,
-    [ EXPLAIN ]:        STRUCTX | FIXED | CONTENT,   // figure/p/img,span:explain
+    [ SVGITEM ]:        STRUCT | STRUCTX | SEALED,
+    [ TRACK ]:          STRUCT | STRUCTX | EMPTY,
+    [ SOURCE ]:         STRUCT | STRUCTX | EMPTY,
+    [ EXPLAIN ]:        STRUCT | STRUCTX | FIXED | CONTENT,   // figure/p/img,span:explain
+    // 不可简单删除
+    // 删除：应当先文本化，微编辑，然后内容提升或转换。
+    [ RB ]:             STRUCT | FIXED | CONTENT,
+    [ RT ]:             STRUCT | FIXED | CONTENT,
+    [ RP ]:             STRUCT | FIXED | SEALED,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -281,33 +283,34 @@ export const Specials = {
     //
     // 块内结构子
     /////////////////////////////////////////////
-    [ H1 ]:             STRUCTX | FIXED | CONTENT,
-    [ H2 ]:             STRUCTX | FIXED | CONTENT,
-    [ H3 ]:             STRUCTX | FIXED | CONTENT,
-    [ H4 ]:             STRUCTX | FIXED | CONTENT,
-    [ H5 ]:             STRUCTX | CONTENT,
-    [ H6 ]:             STRUCTX | CONTENT,
-    [ SUMMARY ]:        STRUCTX | FIXED | CONTENT,
-    [ FIGCAPTION ]:     STRUCTX | FIXED | CONTENT,
-    [ CAPTION ]:        STRUCTX | FIXED | CONTENT,
-    [ LI ]:             STRUCTX | CONTENT,
-    [ DT ]:             STRUCTX | CONTENT,
-    [ DD ]:             STRUCTX | CONTENT,
-    [ TH ]:             STRUCTX | CONTENT,
-    [ TD ]:             STRUCTX | CONTENT,
-    [ TR ]:             STRUCTX | STRUCT,
-    [ THEAD ]:          STRUCTX | STRUCT,
-    [ TBODY ]:          STRUCTX | STRUCT,
-    [ TFOOT ]:          STRUCTX | STRUCT,
+    [ H1 ]:             STRUCT | STRUCTX | FIXED | CONTENT,
+    [ H2 ]:             STRUCT | STRUCTX | FIXED | CONTENT,
+    [ H3 ]:             STRUCT | STRUCTX | FIXED | CONTENT,
+    [ H4 ]:             STRUCT | STRUCTX | FIXED | CONTENT,
+    [ H5 ]:             STRUCT | STRUCTX | CONTENT,
+    [ H6 ]:             STRUCT | STRUCTX | CONTENT,
+    [ SUMMARY ]:        STRUCT | STRUCTX | FIXED | CONTENT,
+    [ FIGCAPTION ]:     STRUCT | STRUCTX | FIXED | CONTENT,
+    [ CAPTION ]:        STRUCT | STRUCTX | FIXED | CONTENT,
+    [ LI ]:             STRUCT | STRUCTX | CONTENT,
+    [ DT ]:             STRUCT | STRUCTX | CONTENT,
+    [ DD ]:             STRUCT | STRUCTX | CONTENT,
+    [ TR ]:             STRUCT | STRUCTX,
+    [ TH ]:             STRUCT | CONTENT,
+    [ TD ]:             STRUCT | CONTENT,
+    [ TBODY ]:          STRUCT,
+    [ THEAD ]:          STRUCT | STRUCTX,
+    [ TFOOT ]:          STRUCT | STRUCTX,
 
-    [ CODELI ]:         STRUCTX | STRUCT | SEALED,
-    [ ALI ]:            STRUCTX | STRUCT | SEALED,
-    [ AH4LI ]:          STRUCTX | STRUCT | SEALED,
-    [ AH4 ]:            STRUCTX | STRUCT | SEALED,
-    [ ULXH4LI ]:        STRUCTX | STRUCT | SEALED,
-    [ OLXH4LI ]:        STRUCTX | STRUCT | SEALED,
-    [ CASCADEH4LI ]:    STRUCTX | STRUCT | SEALED,
-    [ FIGIMGP ]:        STRUCTX | STRUCT | SEALED,
+    [ CODELI ]:         STRUCT | STRUCTX | SEALED,
+    [ ALI ]:            STRUCT | STRUCTX | SEALED,
+    [ AH4LI ]:          STRUCT | STRUCTX | SEALED,
+    [ AH4 ]:            STRUCT | STRUCTX | SEALED,
+    [ ULXH4LI ]:        STRUCT | STRUCTX | SEALED,
+    [ OLXH4LI ]:        STRUCT | STRUCTX | SEALED,
+    [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
+    // 插图内允许多个<p>容器。
+    [ FIGIMGP ]:        STRUCT | STRUCTX | SEALED,
 
     //
     // 行块结构元素

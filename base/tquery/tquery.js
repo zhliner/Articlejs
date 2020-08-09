@@ -77,7 +77,7 @@
     另外：
     如果发生了事件克隆，则在触发目标元素（可能游离）上的 eventbound 事件前，
     会在源元素上先触发 eventclone 事件。
-    如果在源元素的 eventclone 处理器中调用 Event.preventDefault()，
+    如果在源元素的 eventclone 处理器中调用了 Event.preventDefault()，
     则会取消目标元素上的 eventbound 激发。
 
     开启：tQuery.config({bindevent: true})

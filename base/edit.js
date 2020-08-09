@@ -1071,11 +1071,18 @@ function miniedStart( el ) {
 
 /**
  * 提取选取集首个成员。
+ * 注：用于Tab逐个微编辑各选取元素。
+ * @param  {Boolean} blur 取消焦点，可选
  * @return {Element|void}
  */
-function esetFirstOut() {
+function esetShift( blur ) {
     let _el = __ESet.first();
-    return _el && __ESet.delete( _el );
+    if ( !_el ) return;
+
+    if ( blur && __EHot.is(_el) ) {
+        __EHot.cancel();
+    }
+    return __ESet.delete( _el );
 }
 
 
@@ -1517,58 +1524,6 @@ export const Edit = {
     },
 
 
-    //-- 元素编辑 ------------------------------------------------------------
-
-
-    /**
-     * 内容文本化。
-     * 会忽略选取元素都没有子元素的情形。
-     * 注：对焦点不产生影响。
-     */
-    toText() {
-        let $els = $(__ESet);
-
-        if ( $els.length === 0 || !hasChildElement($els) ) {
-            return;
-        }
-        historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
-    },
-
-
-    /**
-     * 内容提升（unwrap）。
-     * 注：如果焦点在选取元素上，则取消。
-     */
-    unWrap() {
-        if ( !__ESet.size ) return;
-
-        let _old = __EHot.get(),
-            _buf = [];
-
-        if ( __ESet.has(_old) ) {
-            clearFocus( true );
-            _buf.push( new HotEdit(_old) );
-        }
-        _buf.push( new DOMEdit( () => __Elemedit.unWrap($(__ESet)) ) );
-
-        historyPush( ..._buf );
-    },
-
-
-    //-- 杂项功能 ------------------------------------------------------------
-    // 供模板中直接取值使用
-
-
-    /**
-     * 获取焦点元素。
-     * 用途：如内容区mouseout重置焦点信息。
-     * @return {Element}
-     */
-    focusElem() {
-        return __EHot.get();
-    },
-
-
     /**
      * 清空选取集。
      * 用途：ESC键最底层取消操作。
@@ -1583,39 +1538,73 @@ export const Edit = {
     },
 
 
-    /**
-     * 获取选取集大小。
-     * 用途：状态栏友好提示。
-     * @return {Number}
-     */
-    esetSize() {
-        return __ESet.size;
-    },
+    //-- 元素编辑 ------------------------------------------------------------
 
 
     /**
-     * 提取（移出）选取集首个成员。
-     * @param  {Boolean} blur 取消焦点，可选
-     * @return {Element|void}
+     * 内容文本化。
+     * 会忽略选取元素都没有子元素的情形。
+     * 注：对焦点不产生影响。
+     * 注记：
+     * 扩展到By部分，但此不需要evo实参。
      */
-    esetShift( blur ) {
-        let _el = esetFirstOut();
+    toText() {
+        let $els = $(__ESet);
 
-        if ( blur && __EHot.is(_el) ) {
-            __EHot.cancel();
+        if ( $els.length === 0 || !hasChildElement($els) ) {
+            return;
         }
-        return _el;
+        historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
     },
 
 
     /**
-     * 获取路径上存储的源目标。
-     * 用途：鼠标指向路径时提示源目标（友好）。
-     * @param  {Element} box 路径元素（容器）
-     * @return {Element}
+     * 内容提升（unwrap）。
+     * 注：如果焦点在选取元素上，则取消。
+     * 注记：（同上）
      */
-    pathElem( box ) {
-        return box[ pathsKey ];
+    unWrap() {
+        if ( !__ESet.size ) return;
+
+        let _hot = __EHot.get(),
+            _buf = [];
+
+        if ( __ESet.has(_hot) ) {
+            clearFocus( true );
+            _buf.push( new HotEdit(_hot) );
+        }
+        _buf.push( new DOMEdit( () => __Elemedit.unWrap($(__ESet)) ) );
+
+        historyPush( ..._buf );
+    },
+
+
+    /**
+     * 删除当前选取集。
+     * 不会破坏单元的中间结构：
+     * - 目标为中间结构元素时，删除其内容根元素的内容。
+     * - 目标为完整单元时（行块或内联），删除单元本身。
+     */
+    deletes() {
+        //
+    },
+
+
+    /**
+     * 强制删除。
+     * 不再保护结构单元的结构。
+     */
+    deletesForce() {
+        //
+    },
+
+
+    /**
+     * 删除元素的可编辑内容。
+     * 即内部内容根元素的文本/内联内容。
+     */
+    deleteContents() {
+        //
     },
 
 
@@ -1698,13 +1687,48 @@ export const Edit = {
         if ( currentMinied ) {
             currentMinied.done();
         }
-        let _el = this.esetShift( true );
+        let _el = esetShift( true );
 
         if ( !(currentMinied = miniedStart(_el)) ) {
             stateNewEdit();
             return __EHot.set( _el );
         }
         currentMinied.cursor( _el );
+    },
+
+
+    //-- 杂项功能 ------------------------------------------------------------
+    // 供模板中直接取值使用
+
+
+    /**
+     * 获取焦点元素。
+     * 用途：如内容区mouseout重置焦点信息。
+     * @return {Element}
+     */
+    focusElem() {
+        return __EHot.get();
+    },
+
+
+    /**
+     * 获取选取集大小。
+     * 用途：状态栏友好提示。
+     * @return {Number}
+     */
+    esetSize() {
+        return __ESet.size;
+    },
+
+
+    /**
+     * 获取路径上存储的源目标。
+     * 用途：鼠标指向路径时提示源目标（友好）。
+     * @param  {Element} box 路径元素（容器）
+     * @return {Element}
+     */
+    pathElem( box ) {
+        return box[ pathsKey ];
     },
 
 }
