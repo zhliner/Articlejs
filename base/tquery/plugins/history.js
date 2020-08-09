@@ -59,10 +59,14 @@
         classvary:  ev => new Class( ev.target ),
 
         // 事件绑定处理器。
-        bound:      ev => new Bound( ev.target, ...ev.detail ),
+        eventbound: ev => new Bound( ev.target, ...ev.detail ),
 
         // 事件解绑处理器。
-        unbound:    ev => new Unbound( ev.target, ...ev.detail ),
+        eventunbound: ev => new Unbound( ev.target, ...ev.detail ),
+
+        // 事件克隆处理器。
+        // 注：无需克隆源实参。
+        eventclone: ev => new EventClone( ...ev.detail ),
 
         // 节点变化处理器。
         nodevary:   ev => new NodeVary( ev.target, ev.detail ),
@@ -258,21 +262,30 @@ class Class {
 class Bound {
     /**
      * 注记：
-     * 无需区分是否为单次（one）绑定。
+     * 无需区分是否为单次（one）绑定，所以once参数仅为占位用。
      * @param {Element} el 目标元素
      * @param {String} evn 目标事件名
      * @param {String} slr 委托选择器
      * @param {Function|EventListener} handle 事件处理器（用户）
+     * @param {Boolean} once 是否单次逻辑，忽略
+     * @param {Element} src 克隆源元素，可选
      */
-    constructor( el, evn, slr, handle ) {
+    constructor( el, evn, slr, handle, once, src ) {
         this._el = el;
         this._evn = evn;
         this._slr = slr;
         this._handle = handle;
+        this._clone = !!src;
     }
 
 
+    /**
+     * 如果为克隆绑定，交由EventClone处理。
+     */
     back() {
+        if ( this._clone ) {
+            return;
+        }
         $.off( this._el, this._evn, this._slr, this._handle );
     }
 }
@@ -304,6 +317,34 @@ class Unbound {
             'one' :
             'on';
         $[_fn]( this._el, this._evn, this._slr, this._handle );
+    }
+}
+
+
+//
+// 事件克隆处理。
+// 克隆的目标（受者）可能为游离状态，此时Bound可能无法处理。
+// 因此无差别解绑。
+//
+class EventClone {
+    /**
+     * 无需区分是否为单次（one）绑定。
+     * @param {String} evn 目标事件名
+     * @param {String} slr 委托选择器
+     * @param {Function|EventListener} handle 事件处理器（用户）
+     * @param {Boolean} once 是否单次，占位忽略
+     * @param {Element} to 克隆目标元素（受者）
+     */
+    constructor( evn, slr, handle, once, to ) {
+        this._el = to;
+        this._evn = evn;
+        this._slr = slr;
+        this._handle = handle;
+    }
+
+
+    back() {
+        $.off( this._el, this._evn, this._slr, this._handle );
     }
 }
 

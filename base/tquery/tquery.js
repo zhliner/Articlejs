@@ -69,9 +69,14 @@
     // 注：
     // removes表示删除连续的兄弟元素集，仅限于表格操作（行段|列段）。
 
+
     事件绑定变化事件
     如果元素绑定或解绑事件处理器时触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
-    事件名：bound, unbound
+    事件名：eventbound, eventunbound
+
+    另外，如果发生了事件克隆，则在触发目标元素（可能游离）上的 eventbound 事件前，
+    会在源元素上先触发 eventclone 事件。
+
     开启：tQuery.config({bindevent: true})
 
 
@@ -5464,8 +5469,9 @@ const
     evnNodeVary     = 'nodevary',
     evnNodeFail     = 'nodefail',
     evnNodeDone     = 'nodedone',
-    evnBound        = 'bound',
-    evnUnbound      = 'unbound';
+    evnBound        = 'eventbound',
+    evnUnbound      = 'eventunbound',
+    evnCloneEvent   = 'eventclone';
 
 
 /**
@@ -5517,6 +5523,7 @@ function failTrigger( el, evn, data ) {
  *      selector,   委托选择器
  *      handler,    事件处理器
  *      once,       是否为单次逻辑
+ *      el2,        克隆关联元素
  * ]
   * 返回值：
  * - 返回 null 表示未配置定制事件发送。
@@ -5527,13 +5534,14 @@ function failTrigger( el, evn, data ) {
  * @param  {String} selector 委托选择器
  * @param  {Function|EventListener} handler 事件处理器
  * @param  {Boolean} once 是否为单次逻辑
+ * @param  {Element} el2 关联元素
  * @return {Boolean|null}
  */
-function boundTrigger( el, evn, type, selector, handler, once ) {
+function boundTrigger( el, evn, type, selector, handler, once, el2 ) {
     return Options.bindevent &&
         el.dispatchEvent(
             new CustomEvent( evn, {
-                detail: [ type, selector, handler, once ],
+                detail: [ type, selector, handler, once, el2 ],
                 bubbles: true,
                 cancelable: false
             })
@@ -6652,7 +6660,8 @@ const Event = {
                             v3[2] ? this._onceHandler(to, n, _call, v3[1], _pool, s, h) : _call,
                             v3[1]
                         );
-                        boundTrigger(to, evnBound, n, s, h, v3[2]);
+                        boundTrigger(src, evnCloneEvent, n, s, h, v3[2], to);
+                        boundTrigger(to, evnBound, n, s, h, v3[2], src);
                     }
                 }
             }
