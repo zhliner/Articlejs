@@ -74,8 +74,11 @@
     如果元素绑定或解绑事件处理器时触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
     事件名：eventbound, eventunbound
 
-    另外，如果发生了事件克隆，则在触发目标元素（可能游离）上的 eventbound 事件前，
+    另外：
+    如果发生了事件克隆，则在触发目标元素（可能游离）上的 eventbound 事件前，
     会在源元素上先触发 eventclone 事件。
+    如果在源元素的 eventclone 处理器中调用 Event.preventDefault()，
+    则会取消目标元素上的 eventbound 激发。
 
     开启：tQuery.config({bindevent: true})
 
