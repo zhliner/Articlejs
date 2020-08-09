@@ -2175,7 +2175,7 @@ Object.assign( tQuery, {
             if (evn in el && Event.callable(evn)) {
                 // 原始参数传递
                 el[evn]( ...(isArr(extra) ? extra : [extra]) );
-                return this;
+                return true;
             }
             evn = new CustomEvent(evn, {
                 detail:     extra,
@@ -5516,7 +5516,7 @@ function failTrigger( el, evn, data ) {
 
 /**
  * 激发事件绑定事件。
- * 事件冒泡，不可取消。
+ * 事件冒泡且可取消（取消对eventclone有用）。
  * 适用：tQuery.on|one, tQuery.off接口。
  * 发送数据：[
  *      type,       绑定事件名
@@ -5543,7 +5543,7 @@ function boundTrigger( el, evn, type, selector, handler, once, el2 ) {
             new CustomEvent( evn, {
                 detail: [ type, selector, handler, once, el2 ],
                 bubbles: true,
-                cancelable: false
+                cancelable: true,
             })
         );
 }
@@ -6660,8 +6660,9 @@ const Event = {
                             v3[2] ? this._onceHandler(to, n, _call, v3[1], _pool, s, h) : _call,
                             v3[1]
                         );
-                        boundTrigger(src, evnCloneEvent, n, s, h, v3[2], to);
-                        boundTrigger(to, evnBound, n, s, h, v3[2], src);
+                        // 如果前者的处理器中调用了Event.preventDefault()，
+                        // 返回的false会导致后者不再激发。
+                        boundTrigger(src, evnCloneEvent, n, s, h, v3[2], to) && boundTrigger(to, evnBound, n, s, h, v3[2], src);
                     }
                 }
             }
