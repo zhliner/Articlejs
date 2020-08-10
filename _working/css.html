@@ -35,6 +35,10 @@
         .Style ._color ._pick {
             background-color: #48cf75;
         }
+        .___Content menu._cmenu {
+            top: 20px;
+            left: 340px;
+        }
     </style>
     <script type="module" async>
         import Tpb from "../base/tpb/tpb.js";
@@ -125,8 +129,53 @@
     <!--滚动封装：
         滚动内容<main>直接获取焦点时可能存在移位。-->
     <div id="g-scroll" class="_scroll" tabindex="0">
+        <!-- 上下文菜单 -->
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="">
+            <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
+            <hr>
+            <li role="submenu" data-pb="folded">
+                <h5><b id="l-convert">转换</b></h5>
+                <menu class="_cells" tabindex="0" data-pb="">
+                    <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
+                    <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+                    <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+                    <li data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+                    <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
+                    <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
+                    <li data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
+                    <li data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+                    <li data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
+                    <li data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
+                    <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
+                    <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
+                    <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
+                    <li data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
+                    <li data-val="ruby" title="<ruby>">
+                        <b><ruby>
+                                <rb>注音</rb>
+                                <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
+                            </ruby></b>
+                        <kbd>r</kbd>
+                    </li>
+                    <li data-val="orz" title="表情"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+                    <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>f</kbd></li>
+                    <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd>p</kbd></li>
+                    <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+                    <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
+                    <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+                    <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+                    <li data-val="bdo" title="<bdo dir='rtl'>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+                </menu>
+            </li>
+            <hr>
+            <li data-val="clone"><b id="l-clone">克隆</b><kbd>c/C</kbd></li>
+            <li data-val="move"><b id="l-move">移动</b><kbd>m/M</kbd></li>
+            <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
+            <hr>
+            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+        </menu>
         <!-- 选取创建（mouseup） -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pb="lost">
+        <menu id="g-cells" class="_cells" tabindex="0" data-pb="" style="top:20px; left:20px">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
             <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -157,18 +206,7 @@
             <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
             <li data-val="bdo" title="<bdo dir='rtl'>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
         </menu>
-        <!-- 上下文菜单 -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="">
-            <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
-            <hr>
-            <li data-val="convert"><b id="l-convert">转换</b><kbd>></kbd></li>
-            <hr>
-            <li data-val="clone"><b id="l-clone">克隆</b><kbd>c/C</kbd></li>
-            <li data-val="move"><b id="l-move">移动</b><kbd>m/M</kbd></li>
-            <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
-            <hr>
-            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
-        </menu>
+
         <!-- 内容区 -->
         <main id="content" class="content">
             <!-- 例： -->
@@ -280,7 +318,7 @@
 </div>
 
 <!-- 主面板区 -->
-<div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+<div id="main-slave" class="___Panel Slave" tpl-name="main:slave" data-pb="lost">
     <div class="_tabs">
         <b>内容</b>
         <b class="_press">样式</b>

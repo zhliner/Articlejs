@@ -65,6 +65,21 @@
             keyup|(/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1)"
         to="#g-count|trigger('reset');
             #g-count|trigger('setv')">
+        <!-- 上下文菜单 -->
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
+            <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
+            <hr>
+            <li role="submenu" data-pb="folded">
+                <h5><b id="l-convert">转换</b></h5>
+                <menu></menu>
+            </li>
+            <hr>
+            <li data-val="clone"><b id="l-clone">克隆</b><kbd>c/C</kbd></li>
+            <li data-val="move"><b id="l-move">移动</b><kbd>m/M</kbd></li>
+            <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
+            <hr>
+            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+        </menu>
         <!-- 选取创建（mouseup） -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pb="lost">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
@@ -96,18 +111,6 @@
             <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
             <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
             <li data-val="bdo" title="<bdo dir='rtl'>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
-        </menu>
-        <!-- 上下文菜单 -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
-            <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
-            <hr>
-            <li data-val="convert"><b id="l-convert">转换</b><kbd>></kbd></li>
-            <hr>
-            <li data-val="clone"><b id="l-clone">克隆</b><kbd>c/C</kbd></li>
-            <li data-val="move"><b id="l-move">移动</b><kbd>m/M</kbd></li>
-            <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li>
-            <hr>
-            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内容区 -->
         <!-- 微编辑：on="mouseup keyup input|rangeKeep stop" -->

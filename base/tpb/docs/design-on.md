@@ -214,6 +214,9 @@ chain( evnid:String, clone:Boolean ): Cell
 chains( evnid:String, clone:Boolean ): Map<evnid:Cell>
 // 预绑定调用链提取。
 
+timeOut( delay:Number|null, ...args ): timeoutID | void
+// 创建/清除计时器。
+
 movementX( v?:null ): Number | void
 movementY( v?:null ): Number | void
 // 鼠标移动量取值。

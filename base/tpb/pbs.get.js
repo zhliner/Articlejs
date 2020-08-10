@@ -893,6 +893,36 @@ const _Gets = {
     __chains: 1,
 
 
+    /**
+     * 创建/清除定时器。
+     * 目标：暂存区/栈顶1项。
+     * 创建时目标为函数，可以是Cell实例（自动调用.handleEvent）。
+     * 清除时目标为定时器ID。
+     * 创建和清除由 delay 实参表达: 数值时为创建，null时为清除。
+     * 创建时返回一个定时器ID，清除时无返回值。
+     *
+     * @data: {Function|Cell|timemotID}
+     * @param  {Number|null} delay 延迟时间或清除标记
+     * @param  {...Value} args 目标函数调用时的实参
+     * @return {timeoutID|void}
+     */
+    timeOut( evo, delay, ...args ) {
+        let x = evo.data;
+
+        if ( delay == null ) {
+            return window.clearTimeout( x );
+        }
+        // 通用支持Cell实例。
+        if ( $.isFunction(x.handleEvent) ) {
+            return window.setTimeout( (ev, elo) => x.handleEvent(ev, elo), delay, evo.event, newElobj(evo) );
+        }
+        return window.setTimeout( x, delay, ...args );
+    },
+
+
+    __timeOut: 1,
+
+
 
     // 元素自身行为。
     //-------------------------------------------
@@ -1843,6 +1873,22 @@ function cloneMap( map ) {
         _buf.set( n, cel.clone() );
     }
     return _buf;
+}
+
+
+/**
+ * 创建一个新的初始事件关联对象。
+ * 注：用于.handleEvent()调用中的elo实参。
+ * @param  {Object} evo 事件关联对象
+ * @return {Object}
+ */
+function newElobj( evo ) {
+    return {
+        target:     evo.target,
+        current:    evo.current,
+        selector:   evo.selector,
+        delegate:   evo.delegate,
+    };
 }
 
 
