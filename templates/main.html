@@ -69,7 +69,15 @@
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
             <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
             <hr>
-            <li role="submenu" data-pb="folded">
+            <!-- 300:延迟显示，400:延迟隐藏 -->
+            <li role="submenu" data-pb="folded"
+                on="@sm-1|evo(3) fold(0);
+                    @sm-0|evo(3) fold(1);
+                    mouseenter|data('sub-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
+                    mouseleave|data('sub-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
+                to="-;-;
+                    |data('sub-1');
+                    |data('sub-0')">
                 <h5><b id="l-convert">转换</b></h5>
                 <menu></menu>
             </li>

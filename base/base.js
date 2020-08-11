@@ -63,7 +63,7 @@ const LogicRoles = new Set([
 // 含非独立的中间结构。
 // {tagName: function(Element): Number}
 //
-const typeStruct = {
+const customStruct = {
     /**
      * 段落判断。
      * - FIGIMGP: 插图子结构（figure/p/img,span）
@@ -229,7 +229,7 @@ function typeValue( el ) {
     if ( el.namespaceURI === __svgNS ) {
         return el.tagName === 'svg' ? T.SVG : T.SVGITEM;
     }
-    let _fn = typeStruct[ el.tagName ];
+    let _fn = customStruct[ el.tagName ];
 
     return _fn ? _fn(el) : nameType( simpleName(el) );
 }
@@ -273,7 +273,7 @@ function setType( el, tval ) {
  * @param  {Number} box 容器单元
  * @return {Boolean}
  */
-function inSubs( sub, box ) {
+function _inSubs( sub, box ) {
     return T.ChildTypes[ box ].includes( sub );
 }
 
@@ -283,7 +283,7 @@ function inSubs( sub, box ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isEmpty( tval ) {
+function _isEmpty( tval ) {
     return !!( T.Specials[tval] & T.EMPTY );
 }
 
@@ -293,7 +293,7 @@ function isEmpty( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isFixed( tval ) {
+function _isFixed( tval ) {
     return !!( T.Specials[tval] & T.FIXED );
 }
 
@@ -304,7 +304,7 @@ function isFixed( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isSealed( tval ) {
+function _isSealed( tval ) {
     return !!( T.Specials[tval] & T.SEALED );
 }
 
@@ -315,7 +315,7 @@ function isSealed( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isBlocks( tval ) {
+function _isBlocks( tval ) {
     return !!( T.Specials[tval] & T.BLOCKS );
 }
 
@@ -326,7 +326,7 @@ function isBlocks( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isInlines( tval ) {
+function _isInlines( tval ) {
     return !!( T.Specials[tval] & T.INLINES );
 }
 
@@ -337,7 +337,7 @@ function isInlines( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isContent( tval ) {
+function _isContent( tval ) {
     return !!( T.Specials[tval] & T.CONTENT );
 }
 
@@ -348,7 +348,7 @@ function isContent( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isStruct( tval ) {
+function _isStruct( tval ) {
     return !!( T.Specials[tval] & T.STRUCT );
 }
 
@@ -359,7 +359,7 @@ function isStruct( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isStructX( tval ) {
+function _isStructX( tval ) {
     return !!( T.Specials[tval] & T.STRUCTX );
 }
 
@@ -370,39 +370,8 @@ function isStructX( tval ) {
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-function isSpecial( tval ) {
+function _isSpecial( tval ) {
     return !!( T.Specials[tval] & T.SPECIAL );
-}
-
-
-/**
- * 缓存/检索表格实例。
- * 如果传递元素，则为检索，否则为设置。
- * @param  {Element|Table} tbl 表格元素或$.Table实例
- * @return {Table|void}
- */
-function tableObj( tbl ) {
-    if ( tbl.nodeType ) {
-        let _tbo = __tablePool.get(tbl);
-
-        if ( !_tbo ) {
-            __tablePool.set( tbl, new $.Table(tbl) );
-        }
-        return _tbo;
-    }
-    __tablePool.set( tbl.element(), tbl );
-}
-
-
-/**
- * 获取列表根元素。
- * 处理包含3种级联表类型。
- * @param  {Element} el 起点列表
- * @return {<ol>|<ul>}
- */
-function listRoot( el ) {
-    let _li = el.parentElement;
-    return _li.tagName !== 'LI' ? el : listRoot( _li.parentElement );
 }
 
 
@@ -418,7 +387,7 @@ function contents( el ) {
     if ( el.nodeType == 3 ) {
         return el.textContent.trim() ? el : null;
     }
-    if ( isInlines( getType(el) ) ) {
+    if ( isInlines(el) ) {
         return el;
     }
     return $.contents(el).map( nd => contents(nd) ).flat();
@@ -426,51 +395,13 @@ function contents( el ) {
 
 
 /**
- * 获取元素内的内容根容器。
- * 始终会返回一个数组（可能为空）。
- * @param  {Element} el 目标元素
- * @return {[Element]}
+ * 帮助：
+ * 提示错误并提供帮助索引。
+ * 帮助ID会嵌入到提示链接中，并显示到状态栏。
+ * @param {Number} hid 帮助ID
+ * @param {String} msg 提示信息
  */
-function contentsBox( el ) {
-    let _els = _contentsBox(el);
-
-    if ( !_els ) {
-        return [];
-    }
-    return $.isArray(_els) ? _els : [_els];
-}
-
-
-/**
- * 获取元素选取根。
- * 即当用于执行Top选取操作时的目标元素。
- * - 起点为内联元素时，向上获取内容行元素。
- * - 起点为结构子时，向上获取单元根元素（内联或行块）。
- * - 起点为行块根时，无行为（返回null）。
- * 注：
- * 这是一种用户友好，以便直达内容行元素或单元根。
- *
- * @param  {Element} beg 起点元素
- * @param  {Element} end 终点限定元素
- * @return {Element} 顶元素
- */
-function selectTop( beg, end ) {
-    let _tv = getType( beg );
-
-    if ( isInlines(_tv) ) {
-        return contentRoot( beg.parentElement, end );
-    }
-    return entityRoot( beg.parentElement, end );
-}
-
-
-/**
- * 获取错误提示。
- * 友好的错误提示和详细帮助链接。
- * @param  {Number} hid 帮助ID
- * @return {[String, String]} [msg, link]
- */
-function errorMsg( hid ) {
+function help( hid, msg ) {
     //
 }
 
@@ -488,6 +419,18 @@ function errorMsg( hid ) {
 function simpleName( el ) {
     let _role = el.getAttribute('role');
     return (LogicRoles.has(_role) ? _role :  el.tagName).toUpperCase();
+}
+
+
+/**
+ * 获取列表根元素。
+ * 处理包含3种级联表类型。
+ * @param  {Element} el 起点列表
+ * @return {<ol>|<ul>}
+ */
+function listRoot( el ) {
+    let _li = el.parentElement;
+    return _li.tagName !== 'LI' ? el : listRoot( _li.parentElement );
 }
 
 
@@ -554,9 +497,7 @@ function entityRoot( beg, end ) {
     if ( beg === end ) {
         return null;
     }
-    let _val = getType(beg);
-
-    if ( isBlocks(_val) || isInlines(_val) ) {
+    if ( isEntity(beg) ) {
         return beg;
     }
     return entityRoot( beg.parentElement );
@@ -585,13 +526,105 @@ function _contentsBox( el ) {
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-export {
-    nameType,
-    typeValue,
-    getType,
-    setType,
-    isContent,
-    tableObj,
-    contentsBox,
-    selectTop,
+
+/**
+ * 是否为内容元素。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function isInlines( el ) {
+    return _isInlines( getType(el) );
 }
+
+
+/**
+ * 是否为内容元素。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function isBlocks( el ) {
+    return _isBlocks( getType(el) );
+}
+
+
+/**
+ * 是否为内容元素。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function isContent( el ) {
+    return _isContent( getType(el) );
+}
+
+
+/**
+ * 是否为完整逻辑单元。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function isEntity( el ) {
+    let _tv = getType( el );
+    return _isBlocks( _tv ) || _isInlines( _tv );
+}
+
+
+/**
+ * 缓存/检索表格实例。
+ * 如果传递元素，则为检索，否则为设置。
+ * @param  {Element|Table} tbl 表格元素或$.Table实例
+ * @return {Table|void}
+ */
+export function tableObj( tbl ) {
+    if ( tbl.nodeType ) {
+        let _tbo = __tablePool.get(tbl);
+
+        if ( !_tbo ) {
+            __tablePool.set( tbl, new $.Table(tbl) );
+        }
+        return _tbo;
+    }
+    __tablePool.set( tbl.element(), tbl );
+}
+
+
+/**
+ * 获取元素内的内容根容器。
+ * 始终会返回一个数组（可能为空）。
+ * @param  {Element} el 目标元素
+ * @return {[Element]}
+ */
+export function contentsBox( el ) {
+    let _els = _contentsBox(el);
+
+    if ( !_els ) {
+        return [];
+    }
+    return $.isArray(_els) ? _els : [_els];
+}
+
+
+/**
+ * 获取元素选取根。
+ * 即当用于执行Top选取操作时的目标元素。
+ * - 起点为内联元素时，向上获取内容行元素。
+ * - 起点为结构子时，向上获取单元根元素（内联或行块）。
+ * - 起点为行块根时，无行为（返回null）。
+ * 注：
+ * 这是一种用户友好，以便直达内容行元素或单元根。
+ *
+ * @param  {Element} beg 起点元素
+ * @param  {Element} end 终点限定元素
+ * @return {Element} 顶元素
+ */
+export function selectTop( beg, end ) {
+    if ( isInlines(beg) ) {
+        return contentRoot( beg.parentElement, end );
+    }
+    return entityRoot( beg.parentElement, end );
+}
+
+
+//
+// 其它补充。
+//
+export { nameType, typeValue, getType, setType, help }

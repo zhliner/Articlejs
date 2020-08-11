@@ -23,7 +23,7 @@
 *[data-pb] {
     opacity: 1;
     transition-property: opacity;
-    transition-duration: 0.24s;
+    transition-duration: 0.3s;
 }
 
 
@@ -51,6 +51,7 @@
  * 隐藏除首个子元素之外的子元素。
  */
 *[data-pb~='folded'] > :first-child ~ * {
+    opacity: 0;
     display: none !important;
 }
 

@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, selectTop, contentsBox } from "./base.js";
+import { isContent, isEntity, selectTop, contentsBox, help } from "./base.js";
 import cfg from "./shortcuts.js";
 
 
@@ -390,37 +390,6 @@ class MiniEdit {
 }
 
 
-//
-// 焦点编辑管理。
-// 用于需要管理焦点历史时，如元素操作类（delete/unwrap）。
-// 注记：
-// 单纯的焦点移动并不进入编辑历史栈。
-//
-class HotEdit {
-    /**
-     * @param {Element} old 之前的焦点元素
-     */
-    constructor( old ) {
-        this._old = old;
-        this._hot = __EHot.get();
-    }
-
-
-    undo() {
-        this._set( this._old );
-    }
-
-
-    redo() {
-        this._set( this._hot );
-    }
-
-
-    _set( hot ) {
-        return hot ? setFocus(hot, true) : clearFocus(true);
-    }
-}
-
 
 //
 // 操作单元。
@@ -741,16 +710,8 @@ class ElemSels {
 //
 // 元素节点操作。
 // 节点删除、移动、克隆，元素的样式设置、清除等。
-// 大多数操作针对全局选取集实例（__ESet）。
 //
 class NodeVary {
-    /**
-     * @param {ESet} eset 全局选取集实例
-     */
-    constructor() {
-    }
-
-
     /**
      * 内容文本化。
      * @param {Collector} $els 处理集
@@ -775,6 +736,18 @@ class NodeVary {
         $els.unwrap();
 
         $(_set).normalize();
+    }
+
+
+    /**
+     * 智能删除。
+     * 仅删除完整的单元，中间结构元素不会被删除。
+     * @param {Collector} $els 选取集
+     */
+    deletes( $els ) {
+        $els.forEach(
+            el => isEntity(el) && $.remove(el)
+        );
     }
 }
 
@@ -898,7 +871,7 @@ function elemInfo( el ) {
  * 注记：
  * 如果无需跟踪焦点移动历史，则无需更新全局存储（如单纯的移动焦点）。
  * 选取类操作全局更新已在 ESEdit 内实现，无需在此处理。
- * 此处的更新主要用于元素编辑类需要特别处理焦点时使用（HotEdit）。
+ * 此处的更新主要用于元素编辑类需要处理焦点时。
  *
  * @param  {Element} el 待设置焦点元素
  * @param  {Boolean} update 更新全局焦点存储
@@ -1543,14 +1516,21 @@ export const Edit = {
 
     /**
      * 内容文本化。
-     * 会忽略选取元素都没有子元素的情形。
-     * 注：对焦点不产生影响。
+     * 仅内容元素有效。
+     * 会忽略集合中都没有子元素的情形。
+     * 影响：
+     * - 对焦点和选取集不产生影响。
      * 注记：
      * 扩展到By部分，但此不需要evo实参。
      */
     toText() {
-        let $els = $(__ESet);
+        let $els = $(__ESet)
+            .filter( el => isContent(el) );
 
+        if ( $els.length != __ESet.size ) {
+            // 选取集包含非内容元素。
+            help();
+        }
         if ( $els.length === 0 || !hasChildElement($els) ) {
             return;
         }
@@ -1560,33 +1540,47 @@ export const Edit = {
 
     /**
      * 内容提升（unwrap）。
-     * 注：如果焦点在选取元素上，则取消。
+     * 目标和目标的父元素都必须是内容元素。
+     * 影响：
+     * - 被操作的元素取消选取。
+     * - 如果焦点在目标元素上，取消焦点。
      * 注记：（同上）
      */
     unWrap() {
-        if ( !__ESet.size ) return;
-
-        let _hot = __EHot.get(),
+        let $els = $(__ESet)
+            .filter( el => isContent(el) && isContent(el.parentElement) ),
+            _hot = __EHot.get(),
             _buf = [];
 
-        if ( __ESet.has(_hot) ) {
-            clearFocus( true );
-            _buf.push( new HotEdit(_hot) );
+        if ( $els.length != __ESet.size ) {
+            // 选取元素及其父元素都必须为内容元素。
+            help();
         }
-        _buf.push( new DOMEdit( () => __Elemedit.unWrap($(__ESet)) ) );
+        if ( $els.length === 0 ) {
+            return;
+        }
+        // 取消选取。
+        let _old = $els.item();
+        __ESet.removes( _old );
+        _buf.push( new ESEdit(_old, _hot) );
+
+        // 取消焦点。
+        if ( $els.includes(_hot) ) {
+            clearFocus( true );
+        }
+        _buf.push( new DOMEdit( () => __Elemedit.unWrap($els) ) );
 
         historyPush( ..._buf );
     },
 
 
     /**
-     * 删除当前选取集。
-     * 不会破坏单元的中间结构：
-     * - 目标为中间结构元素时，删除其内容根元素的内容。
-     * - 目标为完整单元时（行块或内联），删除单元本身。
+     * 智能删除。
      */
     deletes() {
-        //
+        if ( !__ESet.size ) return;
+
+        let _hot = __EHot.get();
     },
 
 

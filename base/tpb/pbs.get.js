@@ -1882,7 +1882,7 @@ function cloneMap( map ) {
  * @param  {Object} evo 事件关联对象
  * @return {Object}
  */
-function newElobj( evo ) {
+function newElobj( evo, extra ) {
     return {
         target:     evo.target,
         current:    evo.current,
