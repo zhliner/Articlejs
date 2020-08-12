@@ -5941,12 +5941,15 @@ function varyRemoves( subs, box ) {
 /**
  * 元素填充。
  * 包含操作：[empty, append]。
+ * 优化：内容本来为空时不再触发empty行为。
  * @param  {Element} el 目标元素
  * @param  {Node|[Node]} nodes 数据节点（集）
  * @return {Node|[Node]} nodes
  */
 function varyFill( el, nodes ) {
-    varyEmpty( el );
+    if ( el.textContent || el.childElementCount > 0 ) {
+        varyEmpty( el );
+    }
     return varyNodes( el, 'append', nodes );
 }
 
