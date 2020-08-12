@@ -215,7 +215,10 @@ chains( evnid:String, clone:Boolean ): Map<evnid:Cell>
 // 预绑定调用链提取。
 
 timeOut( delay:Number|null, ...args ): timeoutID | void
-// 创建/清除计时器。
+// 创建/清除计时器（单次：setTimeout）。
+
+timeTick( delay:Number|null, ...args ): intervalID | void
+// 创建/清除计时器（持续：setInterval）。
 
 movementX( v?:null ): Number | void
 movementY( v?:null ): Number | void

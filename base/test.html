@@ -98,7 +98,7 @@
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveResize);
         ^finish|(ESC) $('#content') apply('add', _1);
-        ^finish|(editInit) $('#content') $('#g-path') exec(_2)"
+        ^finish|(editInit) $('#content') $('#g-path') $('#g-errmsg') exec(_3)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');

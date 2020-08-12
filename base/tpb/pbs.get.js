@@ -900,7 +900,7 @@ const _Gets = {
      * 清除时目标为定时器ID。
      * 创建和清除由 delay 实参表达: 数值时为创建，null时为清除。
      * 创建时返回一个定时器ID，清除时无返回值。
-     *
+     * 注：setTimeout 的定时器只执行一次。
      * @data: {Function|Cell|timemotID}
      * @param  {Number|null} delay 延迟时间或清除标记
      * @param  {...Value} args 目标函数调用时的实参
@@ -919,8 +919,32 @@ const _Gets = {
         return window.setTimeout( x, delay, ...args );
     },
 
-
     __timeOut: 1,
+
+
+    /**
+     * 创建/清除持续定时器。
+     * 目标：暂存区/栈顶1项。
+     * 目标为函数或之前存储的定时器ID，说明参考上面timeOut。
+     * 注：setInterval 的定时器会持续执行。
+     * @param  {Number|null} dist 间隔时间（毫秒）
+     * @param  {...Value} args 目标函数调用时的实参
+     * @return {intervalID|void}
+     */
+    timeTick( evo, dist, ...args ) {
+        let x = evo.data;
+
+        if ( dist == null ) {
+            return window.clearInterval( x );
+        }
+        // 通用支持Cell实例。
+        if ( $.isFunction(x.handleEvent) ) {
+            return window.setInterval( (ev, elo) => x.handleEvent(ev, elo), dist, evo.event, newElobj(evo) );
+        }
+        return window.setInterval( x, dist, ...args );
+    },
+
+    __timeTick: 1,
 
 
 

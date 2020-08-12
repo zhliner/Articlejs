@@ -280,13 +280,12 @@ class Bound {
 
 
     /**
-     * 如果为克隆绑定，交由EventClone处理。
+     * 如果为克隆绑定，由EventClone处理。
      */
     back() {
-        if ( this._clone ) {
-            return;
+        if ( !this._clone ) {
+            $.off( this._el, this._evn, this._slr, this._handle );
         }
-        $.off( this._el, this._evn, this._slr, this._handle );
     }
 }
 

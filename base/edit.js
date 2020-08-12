@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, isEntity, selectTop, contentsBox, help } from "./base.js";
+import { isContent, canDelete, selectTop, contentsBox } from "./base.js";
 import cfg from "./shortcuts.js";
 
 
@@ -738,17 +738,6 @@ class NodeVary {
         $(_set).normalize();
     }
 
-
-    /**
-     * 智能删除。
-     * 仅删除完整的单元，中间结构元素不会被删除。
-     * @param {Collector} $els 选取集
-     */
-    deletes( $els ) {
-        $els.forEach(
-            el => isEntity(el) && $.remove(el)
-        );
-    }
 }
 
 
@@ -775,6 +764,9 @@ let
     // 路径信息容器。
     pathContainer = null,
 
+    // 出错信息容器
+    errContainer = null,
+
     // 当前微编辑对象暂存。
     currentMinied = null;
 
@@ -788,13 +780,14 @@ let
 
 /**
  * 历史栈压入。
- * 封装 Undo/Redo 状态通知。
- * @param  {...Instance} obj 操作实例序列
- * @return {obj}
+ * - 封装 Undo/Redo 状态通知。
+ * - 清除出错帮助提示。
+ * @param {...Instance} obj 操作实例序列
  */
 function historyPush( ...obj ) {
     stateNewEdit();
-    return __History.push(...obj), obj;
+    help( null );
+    __History.push( ...obj );
 }
 
 
@@ -1136,11 +1129,51 @@ function isTurnSelect( obj ) {
 
 
 /**
+ * 清除被删除元素的选取。
+ * 返回false表示目标集为空，后续的编辑没有意义。
+ * 返回的选取编辑实例需要进入历史栈。
+ * @param  {[Element]} els 元素集
+ * @return {ESEdit|false}
+ */
+function clearDeletes( els ) {
+    if ( els.length == 0 ) {
+        return false;
+    }
+    let _old = [...__ESet],
+        _hot = __EHot.get();
+
+    if ( els.includes(_hot) ) {
+        clearFocus( true );
+    }
+    __ESet.removes( els );
+
+    return new ESEdit( _old, _hot );
+}
+
+
+/**
  * 控制台警告。
  * @param {String} msg 输出消息
  */
 function warn( msg ) {
     window.console.warn( msg );
+}
+
+
+/**
+ * 帮助：
+ * 提示错误并提供帮助索引。
+ * 帮助ID会嵌入到提示链接中，并显示到状态栏。
+ * @param {Number} hid 帮助ID
+ * @param {String} msg 提示信息
+ */
+function help( hid, msg ) {
+    if ( hid === null ) {
+        return $.trigger( errContainer, 'off' );
+    }
+    // 构造链接……
+
+    $.trigger( errContainer, 'on' );
 }
 
 
@@ -1155,10 +1188,12 @@ function warn( msg ) {
  * 用于编辑器设置此模块中操作的全局目标。
  * @param {Element} content 编辑器容器（根元素）
  * @param {Element} pathbox 路径蓄力容器
+ * @param {Element} errbox 出错信息提示容器
  */
-export function init( content, pathbox ) {
+export function init( content, pathbox, errbox ) {
     contentElem = content;
     pathContainer = pathbox;
+    errContainer = errbox;
 
     // 开启tQuery变化事件监听。
     $.config({
@@ -1548,39 +1583,36 @@ export const Edit = {
      */
     unWrap() {
         let $els = $(__ESet)
-            .filter( el => isContent(el) && isContent(el.parentElement) ),
-            _hot = __EHot.get(),
-            _buf = [];
+            .filter( el => isContent(el) && isContent(el.parentElement) );
 
         if ( $els.length != __ESet.size ) {
             // 选取元素及其父元素都必须为内容元素。
             help();
         }
-        if ( $els.length === 0 ) {
-            return;
-        }
-        // 取消选取。
-        let _old = $els.item();
-        __ESet.removes( _old );
-        _buf.push( new ESEdit(_old, _hot) );
+        let _op = clearDeletes( $els );
 
-        // 取消焦点。
-        if ( $els.includes(_hot) ) {
-            clearFocus( true );
-        }
-        _buf.push( new DOMEdit( () => __Elemedit.unWrap($els) ) );
-
-        historyPush( ..._buf );
+        if ( _op ) historyPush( _op, new DOMEdit(() => __Elemedit.unWrap($els)) );
     },
 
 
     /**
      * 智能删除。
+     * - 完整的逻辑单元（行块、内联）。
+     * - 删除不影响结构逻辑的元素（如：<li>、<tr>等）。
+     * 注：
+     * 删除会破坏结构的中间结构元素不受影响（简单忽略）。
      */
     deletes() {
-        if ( !__ESet.size ) return;
+        let $els = $(__ESet)
+            .filter( el => canDelete(el) );
 
-        let _hot = __EHot.get();
+        if ( $els.length != __ESet.size ) {
+            // 删除的元素必须是完整的单元。
+            help();
+        }
+        let _op = clearDeletes( $els );
+
+        if ( _op ) historyPush( _op, new DOMEdit(() => $els.remove()) );
     },
 
 
@@ -1589,15 +1621,36 @@ export const Edit = {
      * 不再保护结构单元的结构。
      */
     deletesForce() {
-        //
+        let $els = $(__ESet),
+            _op = clearDeletes( $els );
+
+        if ( _op ) {
+            historyPush( _op, new DOMEdit(() => $els.remove()) );
+        }
     },
 
 
     /**
-     * 删除元素的可编辑内容。
-     * 即内部内容根元素的文本/内联内容。
+     * 内容删除。
+     * 目标内部内容根元素的文本、内联等内容（即可编辑内容）。
      */
     deleteContents() {
+        let $cons = $(__ESet)
+            .map( el => contentsBox(el) ).flat(),
+            _op = clearDeletes( $cons );
+
+        if ( _op ) {
+            historyPush( _op, new DOMEdit(() => $cons.empty()) );
+        }
+    },
+
+
+    elementFill() {
+        //
+    },
+
+
+    elementCloneFill() {
         //
     },
 

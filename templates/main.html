@@ -335,8 +335,12 @@
         <input id="cmd-input" type="text" spellcheck="false" class="_code" value="" />
     </div>
     <!-- 出错信息区 -->
-    <div class="_err" title="单击显示帮助" data-pb="lost">
-        <a id="status-err" href="#" title="[这是一段错误提示，单击显示帮助]">[这是一段错误提示，单击显示帮助]</a>
+    <div id="g-errmsg" class="_err" data-pb=""
+        on="on|evo(3) lose(1);
+            off|evo(3) lose">
+        <a data-hid="" title=""
+            on="setv|ev('detail')"
+            to="|attribute('-hid title text')">[单击将在帮助框里显示详细信息]</a>
     </div>
     <!-- 帮助入口 -->
     <div id="x-help" class="_help" title="帮助"

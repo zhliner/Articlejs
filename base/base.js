@@ -394,18 +394,6 @@ function contents( el ) {
 }
 
 
-/**
- * 帮助：
- * 提示错误并提供帮助索引。
- * 帮助ID会嵌入到提示链接中，并显示到状态栏。
- * @param {Number} hid 帮助ID
- * @param {String} msg 提示信息
- */
-function help( hid, msg ) {
-    //
-}
-
-
 //
 // 工具函数。
 //////////////////////////////////////////////////////////////////////////////
@@ -515,7 +503,7 @@ function _contentsBox( el ) {
     if ( el.nodeType == 3 ) {
         return null;
     }
-    if ( isContent( getType(el) ) ) {
+    if ( _isContent( getType(el) ) ) {
         return el;
     }
     return $.children(el).map( el => _contentsBox(el) ).flat();
@@ -565,6 +553,16 @@ export function isContent( el ) {
 export function isEntity( el ) {
     let _tv = getType( el );
     return _isBlocks( _tv ) || _isInlines( _tv );
+}
+
+
+/**
+ * 判断元素是否可正常删除。
+ * @param {Element} el 目标元素
+ */
+export function canDelete( el ) {
+    let _tv = getType( el );
+    return _isBlocks( _tv ) || _isInlines( _tv ) || _isStructX( _tv );
 }
 
 
@@ -627,4 +625,4 @@ export function selectTop( beg, end ) {
 //
 // 其它补充。
 //
-export { nameType, typeValue, getType, setType, help }
+export { nameType, typeValue, getType, setType }
