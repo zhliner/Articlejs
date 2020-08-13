@@ -256,14 +256,14 @@ Content: [
     // 选取单元的内容根元素集。
     {
         "key":      ":z",
-        "command":  "contentsBox"
+        "command":  "contentBoxes"
     },
 
     // 选取单元的内容根元素集。
     // 注：新元素集插入选取集头部。
     {
         "key":      "shift:z",
-        "command":  "contentsBoxStart"
+        "command":  "contentBoxesStart"
     },
 
 

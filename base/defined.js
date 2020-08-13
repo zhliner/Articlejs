@@ -162,3 +162,49 @@ export const InputOption = {
     [ T.HR ]:           'option:hr',
     [ T.BLANK ]:        'option:blank',
 };
+
+
+//
+// 子单元选单合并定制。
+// 注记：
+// 部分单元的子单元构建存在约束，故此定制。
+//
+const OptionCustom = {
+    [ T.RUBY ]:   [ T.RBPT ],
+};
+
+
+
+//
+// 工具函数。
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 获取允许的子单元值集。
+ * @param  {Number} v 父单元值
+ * @return {[Number]}
+ */
+function childCanTypes(v) {
+    return OptionCustom[v] || ChildTypes[v] || [];
+}
+
+
+/**
+ * 获取可插入选单集。
+ * 根据参考单元值返回可插入子单元的值集。
+ * 如果参考是一个集合，返回各成员子单元值集的交集。
+ * 用于可插入项选单构建。
+ * 注意：传入的数组实参会被修改。
+ * @param  {Number|[Number]} ref 参考单元值（集）
+ * @return {[Number]}
+ */
+export function options( ref ) {
+    if ( !$.isArray(ref) ) {
+        return childCanTypes( ref );
+    }
+    return ref.reduce(
+        (vs, p) => vs.filter( v => childCanTypes(p).includes(v) ),
+        childCanTypes( ref.shift() )
+    );
+}

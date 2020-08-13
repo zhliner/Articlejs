@@ -18,11 +18,12 @@ import * as T from "./types.js";
 const
     $ = window.$,
 
+    // 类型值存储键。
+    // 数值的类型存储在元素对象上。
+    __typeKey = Symbol('type-value'),
+
     // SVG系名称空间。
     __svgNS = 'http://www.w3.org/2000/svg',
-
-    // 类型值存储键。
-    __typeKey = Symbol('type-value'),
 
     // 表格实例缓存。
     // { Element: $.Table }
@@ -63,7 +64,7 @@ const LogicRoles = new Set([
 // 含非独立的中间结构。
 // {tagName: function(Element): Number}
 //
-const customStruct = {
+const CustomStruct = {
     /**
      * 段落判断。
      * - FIGIMGP: 插图子结构（figure/p/img,span）
@@ -75,7 +76,7 @@ const customStruct = {
      * @return {Number} 单元值
      */
     P( el ) {
-        let name = simpleName( el );
+        let name = name( el );
 
         return name === 'P' && el.parentElement.tagName === 'FIGURE' ?
             T.FIGIMGP : T[name];
@@ -151,7 +152,7 @@ const customStruct = {
      * @return {Number}
      */
     _liParent( el ) {
-        switch ( simpleName(listRoot(el)) ) {
+        switch ( name(listRoot(el)) ) {
             case 'ULX':
                 return T.ULXH4LI;
             case 'OLX':
@@ -162,6 +163,69 @@ const customStruct = {
         return T.LI;
     },
 
+};
+
+
+//
+// 兼容类型标记：
+// 用于简单判断并同级插入（可能需要微调），
+// 或者单元自身的类型转换。
+// - TBLSECT 表格区段元件：{<thead>|<tbody>|<tfoot>}
+// - TBLCELL 表格单元元件：{<th>|<td>}
+// - DLITEM  定义列表项：  {<dt>|<dd>}
+// - SECTED  分级片区，有严格的嵌套层级，转换时可能需要修改role值。
+//
+const
+    TBLCELL = Symbol( 'tblcell' ),      // 表格单元元件
+    DLITEM  = Symbol( 'dlitem' ),       // 定义列表项
+    SECTED  = Symbol( 'sections' ),     // 分级片区单元
+    XLIST   = Symbol( 'normal-list'),   // 列表
+    XBLOCK  = Symbol( 'small-block'),   // 小区块
+    XCODES  = Symbol( 'code-block');    // 行块代码
+
+
+//
+// 兼容类型定义。
+// - 视为同类单元可在平级位置插入。
+// - 可原地相互转换。
+// 注记：
+// 原地转换通常由上下文菜单激发。
+//
+const Compatible = {
+    // 快速平级插入
+    [ T.DT ]:       DLITEM,
+    [ T.DD ]:       DLITEM,
+
+    // 简单转换
+    [ T.TH ]:       TBLCELL,
+    [ T.TD ]:       TBLCELL,
+
+    // 片区转移
+    // 相同标签结构，修正层级（role）即可。
+    [ T.S1 ]:       SECTED,
+    [ T.S2 ]:       SECTED,
+    [ T.S3 ]:       SECTED,
+    [ T.S4 ]:       SECTED,
+    [ T.S5 ]:       SECTED,
+
+    // 小区块转换
+    // 结构相似：小标题加段落内容集。
+    [ T.BLOCKQUOTE ]:   XBLOCK,
+    [ T.ASIDE ]:        XBLOCK,
+    [ T.DETAILS ]:      XBLOCK,
+
+    // 行块代码转换
+    // 虽然标签结构迥异，但外观逻辑相似。
+    [ T.CODELIST ]:     XCODES,
+    [ T.CODEBLOCK ]:    XCODES,
+
+    // 列表转换
+    // 根级改变或递进处理（级联编号表时）。
+    [ T.UL ]:       XLIST,
+    [ T.OL ]:       XLIST,
+    [ T.ULX ]:      XLIST,
+    [ T.OLX ]:      XLIST,
+    [ T.CASCADE ]:  XLIST, // 递进处理
 };
 
 
@@ -195,8 +259,20 @@ const compatibleMovement = {
 
 
 //
-// 方法集。
+// 工具函数。
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 获取单元名称。
+ * 仅限于标签名和role定义名。
+ * @param  {Element} el 目标元素
+ * @return {String} 名称，全大写
+ */
+function name( el ) {
+    let _role = el.getAttribute('role');
+    return (LogicRoles.has(_role) ? _role :  el.tagName).toUpperCase();
+}
 
 
 /**
@@ -222,191 +298,16 @@ function nameType( name ) {
  * @param  {Element|Text} el 目标节点
  * @return {Number} 类型值
  */
-function typeValue( el ) {
+function parseType( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
     if ( el.namespaceURI === __svgNS ) {
         return el.tagName === 'svg' ? T.SVG : T.SVGITEM;
     }
-    let _fn = customStruct[ el.tagName ];
+    let _fn = CustomStruct[ el.tagName ];
 
-    return _fn ? _fn(el) : nameType( simpleName(el) );
-}
-
-
-/**
- * 提取元素类型值。
- * 如果值未知，即时分析获取并存储。
- * @param  {Element} el 目标元素
- * @return {Number}
- */
-function getType( el ) {
-    let _v = el[ __typeKey ];
-
-    if ( _v === undefined ) {
-        setType( el, (_v = typeValue(el)) );
-    }
-    return _v;
-}
-
-
-/**
- * 存储元素类型值。
- * 注：用一个Symbol键存储在元素对象上，非枚举。
- * @param  {Element} el 目标元素
- * @param  {Number} tval 类型值
- * @return {Element} el
- */
-function setType( el, tval ) {
-    Reflect.defineProperty(el, __typeKey, {
-        value: tval,
-        enumerable: false,
-    });
-    return el;
-}
-
-
-/**
- * 是否为合法子单元。
- * @param  {Number} sub 测试目标
- * @param  {Number} box 容器单元
- * @return {Boolean}
- */
-function _inSubs( sub, box ) {
-    return T.ChildTypes[ box ].includes( sub );
-}
-
-
-/**
- * 是否为空元素。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isEmpty( tval ) {
-    return !!( T.Specials[tval] & T.EMPTY );
-}
-
-
-/**
- * 是否位置固定。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isFixed( tval ) {
-    return !!( T.Specials[tval] & T.FIXED );
-}
-
-
-/**
- * 是否为密封单元。
- * 可修改但不可新插入，除非已为空。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isSealed( tval ) {
-    return !!( T.Specials[tval] & T.SEALED );
-}
-
-
-/**
- * 是否为行块单元。
- * 可作为各片区单元的实体内容。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isBlocks( tval ) {
-    return !!( T.Specials[tval] & T.BLOCKS );
-}
-
-
-/**
- * 是否为内联单元。
- * 可作为内容元素里的实体内容。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isInlines( tval ) {
-    return !!( T.Specials[tval] & T.INLINES );
-}
-
-
-/**
- * 是否为内容元素。
- * 可直接包含文本和内联单元。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isContent( tval ) {
-    return !!( T.Specials[tval] & T.CONTENT );
-}
-
-
-/**
- * 是否为结构容器。
- * 包含固定逻辑的子元素结构。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isStruct( tval ) {
-    return !!( T.Specials[tval] & T.STRUCT );
-}
-
-
-/**
- * 是否为结构子单元。
- * 自身为结构容器元素内的子元素。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isStructX( tval ) {
-    return !!( T.Specials[tval] & T.STRUCTX );
-}
-
-
-/**
- * 是否为特别用途元素。
- * 即：<b>|<i>，用于代码内逻辑封装。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-function _isSpecial( tval ) {
-    return !!( T.Specials[tval] & T.SPECIAL );
-}
-
-
-/**
- * 获取目标元素的内容。
- * 仅限内联节点和非空文本节点。
- * 如果初始即传入一个空文本节点，会返回null。
- * 注记：$.contents()会滤除空文本内容。
- * @param  {Element|Text} el 目标节点
- * @return {[Node]|Node|null}
- */
-function contents( el ) {
-    if ( el.nodeType == 3 ) {
-        return el.textContent.trim() ? el : null;
-    }
-    if ( isInlines(el) ) {
-        return el;
-    }
-    return $.contents(el).map( nd => contents(nd) ).flat();
-}
-
-
-//
-// 工具函数。
-//////////////////////////////////////////////////////////////////////////////
-
-/**
- * 简单获取单元名称。
- * 仅限于标签名和role定义名。
- * @param  {Element} el 目标元素
- * @return {String} 名称，全大写
- */
-function simpleName( el ) {
-    let _role = el.getAttribute('role');
-    return (LogicRoles.has(_role) ? _role :  el.tagName).toUpperCase();
+    return _fn ? _fn(el) : nameType( name(el) );
 }
 
 
@@ -467,7 +368,7 @@ function contentRoot( beg, end ) {
     }
     let _val = getType(beg);
 
-    if ( isContent(_val) && !isInlines(_val) ) {
+    if ( T.isContent(_val) && !T.isInlines(_val) ) {
         return beg;
     }
     return contentRoot( beg.parentElement );
@@ -493,20 +394,20 @@ function entityRoot( beg, end ) {
 
 
 /**
- * 获取元素内的内容根容器。
+ * 获取元素内的内容元素。
  * 如果初始传入一个文本节点，会返回null（不能作为内容容器使用）。
  * 注：会忽略混嵌的文本节点。
  * @param  {Element} el 目标元素
  * @return {[Element]|Element|null}
  */
-function _contentsBox( el ) {
+function elemContents( el ) {
     if ( el.nodeType == 3 ) {
         return null;
     }
-    if ( _isContent( getType(el) ) ) {
+    if ( isContent(el) ) {
         return el;
     }
-    return $.children(el).map( el => _contentsBox(el) ).flat();
+    return $.children(el).map( el => elemContents(el) ).flat();
 }
 
 
@@ -516,12 +417,98 @@ function _contentsBox( el ) {
 
 
 /**
+ * 提取元素类型值。
+ * 如果值未知，即时分析获取并存储。
+ * @param  {Element} el 目标元素
+ * @return {Number}
+ */
+export function getType( el ) {
+    let _v = el[ __typeKey ];
+
+    if ( _v === undefined ) {
+        setType( el, (_v = parseType(el)) );
+    }
+    return _v;
+}
+
+
+/**
+ * 存储元素类型值。
+ * 注：用一个Symbol键存储在元素对象上，非枚举。
+ * @param  {Element} el 目标元素
+ * @param  {Number} tval 类型值
+ * @return {Element} el
+ */
+export function setType( el, tval ) {
+    Reflect.defineProperty(el, __typeKey, {
+        value: tval,
+        enumerable: false,
+    });
+    return el;
+}
+
+
+/**
+ * 单元克隆（深度）。
+ * 包括元素上绑定的事件处理器和类型值。
+ * @param  {Element} src 源元素
+ * @return {Element} 新元素
+ */
+function cloneElem( src ) {
+    let _new = $.clone( src, true, true, true ),
+        _els = $.find( '*', src );
+
+    $.find( '*', _new )
+    .forEach(
+        (to, i) => setType( to, getType(_els[i]) )
+    );
+    return setType( _new, getType(src) );
+}
+
+
+/**
+ * 源码填充。
+ * 会对插入构成的元素节点设置类型值。
+ * @param  {Element} box 容器元素
+ * @param  {String} html 源码
+ * @return {Element} box
+ */
+function htmlFill( box, html ) {
+    $.html( box, html );
+
+    $.find( '*', box )
+    .forEach( el => setType( el, parseType(el) ) );
+
+    return box;
+}
+
+
+/**
+ * 获取目标元素的内容。
+ * 仅限内联节点和非空文本节点。
+ * 如果初始即传入一个空文本节点，会返回null。
+ * 注记：$.contents()会滤除空文本内容。
+ * @param  {Element|Text} el 目标节点
+ * @return {[Node]|Node|null}
+ */
+export function contents( el ) {
+    if ( el.nodeType == 3 ) {
+        return el.textContent.trim() ? el : null;
+    }
+    if ( isInlines(el) ) {
+        return el;
+    }
+    return $.contents(el).map( nd => contents(nd) ).flat();
+}
+
+
+/**
  * 是否为内容元素。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
 export function isInlines( el ) {
-    return _isInlines( getType(el) );
+    return T.isInlines( getType(el) );
 }
 
 
@@ -531,7 +518,7 @@ export function isInlines( el ) {
  * @return {Boolean}
  */
 export function isBlocks( el ) {
-    return _isBlocks( getType(el) );
+    return T.isBlocks( getType(el) );
 }
 
 
@@ -541,7 +528,7 @@ export function isBlocks( el ) {
  * @return {Boolean}
  */
 export function isContent( el ) {
-    return _isContent( getType(el) );
+    return T.isContent( getType(el) );
 }
 
 
@@ -552,7 +539,7 @@ export function isContent( el ) {
  */
 export function isEntity( el ) {
     let _tv = getType( el );
-    return _isBlocks( _tv ) || _isInlines( _tv );
+    return T.isBlocks( _tv ) || T.isInlines( _tv );
 }
 
 
@@ -562,7 +549,7 @@ export function isEntity( el ) {
  */
 export function canDelete( el ) {
     let _tv = getType( el );
-    return _isBlocks( _tv ) || _isInlines( _tv ) || _isStructX( _tv );
+    return T.isBlocks( _tv ) || T.isInlines( _tv ) || T.isStructX( _tv );
 }
 
 
@@ -591,8 +578,8 @@ export function tableObj( tbl ) {
  * @param  {Element} el 目标元素
  * @return {[Element]}
  */
-export function contentsBox( el ) {
-    let _els = _contentsBox(el);
+export function contentBoxes( el ) {
+    let _els = elemContents(el);
 
     if ( !_els ) {
         return [];
@@ -622,7 +609,18 @@ export function selectTop( beg, end ) {
 }
 
 
-//
-// 其它补充。
-//
-export { nameType, typeValue, getType, setType }
+/**
+ * 元素转换到目标类型。
+ * 如果源元素类型属于目标类型集成员，则直接使用。
+ * 否则取类型集首个成员为默认类型，构造元素并提取源内容填充。
+ * @param  {Element}} el 数据源元素
+ * @param  {[Number]} types 目标类型集
+ * @return {Element}
+ */
+function elementConvert( el, types ) {
+    let _tv = getType( el );
+
+    if ( types.includes(_tv) ) {
+        return el;
+    }
+}

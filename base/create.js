@@ -24,8 +24,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { typeValue, nameType, getType, setType, tableObj } from "./base.js";
-import { SVG, SVGITEM } from "./types.js";
+import * as T from "./types.js";
+import { setType, tableObj } from "./base.js";
 import { processExtend } from "./tpb/pbs.by.js";
 
 
@@ -43,6 +43,158 @@ const
     __msgAudio = "Sorry, your browser doesn't support embedded audios.",
     __msgVideo = "Sorry, your browser doesn't support embedded videos.";
 
+
+
+//
+// 标签定义集。
+// 可能附带角色配置（冒号分隔）。
+// { 单元类型值： 标签 | 标签\角色 }
+//
+const Tags = {
+    //
+    // 内联结构元素
+    /////////////////////////////////////////////
+    [ T.AUDIO ]:        'audio',
+    [ T.VIDEO ]:        'video',
+    [ T.PICTURE ]:      'picture',
+    [ T.SVG ]:          'svg',
+    [ T.RUBY ]:         'ruby',
+    [ T.TIME ]:         'time',
+    [ T.METER ]:        'meter',
+    [ T.SPACE ]:        'span\\space',
+    [ T.IMG ]:          'img',
+    [ T.BR ]:           'br',
+    [ T.WBR ]:          'wbr',
+    //
+    // 内联结构子
+    /////////////////////////////////////////////
+    [ T.SVGITEM ]:      null,
+    [ T.TRACK ]:        'track',
+    [ T.SOURCE ]:       'source',
+    [ T.EXPLAIN ]:      'span\\explain',
+    [ T.RB ]:           'rb',
+    [ T.RT ]:           'rt',
+    [ T.RP ]:           'rp',
+    //
+    // 内联内容元素
+    /////////////////////////////////////////////
+    [ T.A ]:            'a',
+    [ T.STRONG ]:       'strong',
+    [ T.EM ]:           'em',
+    [ T.Q ]:            'q',
+    [ T.ABBR ]:         'abbr',
+    [ T.CITE ]:         'cite',
+    [ T.SMALL ]:        'small',
+    [ T.DEL ]:          'del',
+    [ T.INS ]:          'ins',
+    [ T.SUB ]:          'sub',
+    [ T.SUP ]:          'sup',
+    [ T.MARK ]:         'mark',
+    [ T.CODE ]:         'code',
+    [ T.ORZ ]:          'code\\orz',
+    [ T.DFN ]:          'dfn',
+    [ T.SAMP ]:         'samp',
+    [ T.KBD ]:          'kbd',
+    [ T.S ]:            's',
+    [ T.U ]:            'u',
+    [ T.VAR ]:          'var',
+    [ T.BDO ]:          'bdo',
+
+    //
+    // 行块内容元素
+    /////////////////////////////////////////////
+    [ T.P ]:            'p',
+    [ T.NOTE ]:         'p\\note',
+    [ T.TIPS ]:         'p\\tips',
+    [ T.ADDRESS ]:      'address',
+    [ T.PRE ]:          'pre',
+    //
+    // 块内结构子
+    /////////////////////////////////////////////
+    [ T.H1 ]:           'h1',
+    [ T.H2 ]:           'h2',
+    [ T.H3 ]:           'h3',
+    [ T.H4 ]:           'h4',
+    [ T.H5 ]:           'h5',
+    [ T.H6 ]:           'h6',
+    [ T.SUMMARY ]:      'summary',
+    [ T.FIGCAPTION ]:   'figcaption',
+    [ T.CAPTION ]:      'caption',
+    [ T.LI ]:           'li',
+    [ T.DT ]:           'dt',
+    [ T.DD ]:           'dd',
+    [ T.TR ]:           'tr',
+    [ T.TH ]:           'th',
+    [ T.TD ]:           'td',
+    [ T.TBODY ]:        'tbody',
+    [ T.THEAD ]:        'thead',
+    [ T.TFOOT ]:        'tfoot',
+    // 定制结构（无role）。
+    [ T.CODELI ]:       'li',
+    [ T.ALI ]:          'li',
+    [ T.AH4LI ]:        'li',
+    [ T.AH4 ]:          'h4',
+    [ T.ULXH4LI ]:      'li',
+    [ T.OLXH4LI ]:      'li',
+    [ T.CASCADEH4LI ]:  'li',
+    [ T.FIGIMGP ]:      'p',
+
+    //
+    // 行块结构元素
+    /////////////////////////////////////////////
+    [ T.HGROUP ]:       'hgroup',
+    [ T.ABSTRACT ]:     'header\\abstract',
+    [ T.TOC ]:          'nav\\toc',
+    [ T.SEEALSO ]:      'ul\\seealso',
+    [ T.REFERENCE ]:    'ol\\reference',
+    [ T.HEADER ]:       'header',
+    [ T.FOOTER ]:       'footer',
+    [ T.ARTICLE ]:      'article',
+    [ T.S1 ]:           'section\\s1',
+    [ T.S2 ]:           'section\\s2',
+    [ T.S3 ]:           'section\\s3',
+    [ T.S4 ]:           'section\\s4',
+    [ T.S5 ]:           'section\\s5',
+    [ T.UL ]:           'ul',
+    [ T.OL ]:           'ol',
+    [ T.CODELIST ]:     'ol\\codelist',
+    [ T.ULX ]:          'ul\\ulx',
+    [ T.OLX ]:          'ol\\olx',
+    [ T.CASCADE ]:      'ol\\cascade',
+    [ T.DL ]:           'dl',
+    [ T.TABLE ]:        'table',
+    [ T.FIGURE ]:       'figure',
+    [ T.BLOCKQUOTE ]:   'blockquote',
+    [ T.ASIDE ]:        'aside',
+    [ T.DETAILS ]:      'details',
+    [ T.CODEBLOCK ]:    'pre\\codeblock',
+    [ T.HR ]:           'hr',
+    [ T.BLANK ]:        'div\\blank',
+
+    //
+    // 特殊用途。
+    /////////////////////////////////////////////
+    [ T.B ]:            'b',
+    [ T.I ]:            'i',
+};
+
+
+//
+// 定制创建集。
+// 覆盖简单的默认创建方式。
+// { 单元类型值：function(Number): Element }
+//
+const customMaker = {
+
+    [ T.SVG ]: function( tval ) {
+        //
+    },
+
+    [ T.SVGITEM ]: function( tval ) {
+        //
+    },
+
+};
 
 
 //
@@ -627,56 +779,29 @@ const Content = {
 
 
 /**
- * 创建单元（通用）。
+ * 创建元素（通用）。
  * 类型值会被存储，以使得不需要每次都检查判断。
- * 注：不含文本节点和svg创建。
- * @param  {String} tag 标签名
- * @param  {Object} opts 特性配置对象，可选
- * @param  {String} name 单元类型名，可选
+ * @param  {Number} tval 类型值
  * @return {Element}
  */
-function create( tag, opts, name ) {
+function create( tval ) {
+    let _fn = customMaker[ tval ],
+        _el = _fn ?
+            _fn( tval ) :
+            _create( ...Tags[tval].split('\\') );
+
+    return setType( _el, tval );
+}
+
+
+/**
+ * 简单创建元素。
+ * @param {String} tag 标签名
+ * @param {String} role 角色名
+ */
+function _create( tag, role ) {
     let _el = $.element( tag );
-
-    if ( opts ) {
-        $.attribute( _el, opts );
-    }
-    return setType( _el, nameType(name || tag.toUpperCase()) );
-}
-
-
-/**
- * 单元克隆（深度）。
- * 包括元素上绑定的事件处理器和类型值。
- * @param  {Element} src 源元素
- * @return {Element} 新元素
- */
-function clone( src ) {
-    let _new = $.clone( src, true, true, true ),
-        _els = $.find( '*', src );
-
-    $.find( '*', _new )
-    .forEach(
-        (to, i) => setType( to, getType(_els[i]) )
-    );
-    return setType( _new, getType(src) );
-}
-
-
-/**
- * 填充源码。
- * 会对插入构成的元素节点设置类型值。
- * @param  {Element} box 容器元素
- * @param  {String} html 源码
- * @return {Element} box
- */
-function html( box, html ) {
-    $.html( box, html );
-
-    $.find( '*', box )
-    .forEach( el => setType( el, typeValue(el) ) );
-
-    return box;
+    return role && _el.setAttribute( 'role', role ) || _el;
 }
 
 

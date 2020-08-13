@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, canDelete, selectTop, contentsBox } from "./base.js";
+import { isContent, canDelete, selectTop, contentBoxes } from "./base.js";
 import cfg from "./shortcuts.js";
 
 
@@ -1426,11 +1426,11 @@ export const Edit = {
      * 当用户选取了非内容元素时，微编辑跳转仅定位为焦点，
      * 用户可以立即执行该操作以选取内部的内容根元素。
      */
-    contentsBox() {
+    contentBoxes() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        elementsSelect( contentsBox(_el), _el );
+        elementsSelect( contentBoxes(_el), _el );
     },
 
 
@@ -1439,11 +1439,11 @@ export const Edit = {
      * 但新的元素集插入到集合的头部（unshift）。
      * 注记：（同上）
      */
-    contentsBoxStart() {
+    contentBoxesStart() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        elementsSelect( contentsBox(_el), _el, true );
+        elementsSelect( contentBoxes(_el), _el, true );
     },
 
 
