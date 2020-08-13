@@ -664,7 +664,7 @@ Object.assign( tQuery, {
      * @return {Element} 新元素
      */
     svg( tag, opts, doc = Doc ) {
-        if (typeof tag != 'string') {
+        if ( typeof tag != 'string' ) {
             doc = opts || doc;
             [tag, opts] = ['svg', tag];
         }

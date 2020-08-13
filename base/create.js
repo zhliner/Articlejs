@@ -68,7 +68,7 @@ const Tags = {
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ T.SVGITEM ]:      null,
+    [ T.SVGITEM ]:      '',  // []
     [ T.TRACK ]:        'track',
     [ T.SOURCE ]:       'source',
     [ T.EXPLAIN ]:      'span\\explain',
@@ -182,16 +182,23 @@ const Tags = {
 //
 // 定制创建集。
 // 覆盖简单的默认创建方式。
-// { 单元类型值：function(Number): Element }
+// { 单元类型值：function(tag, role): Element }
 //
 const customMaker = {
-
-    [ T.SVG ]: function( tval ) {
-        //
+    //
+    // 名称空间不同，特别创建。
+    //
+    [ T.SVG ]: function() {
+        return $.svg();
     },
 
-    [ T.SVGITEM ]: function( tval ) {
-        //
+
+    //
+    // SVG子系通用。
+    // 注：不支持无数据创建。
+    //
+    [ T.SVGITEM ]: function() {
+        return null;
     },
 
 };
@@ -781,16 +788,15 @@ const Content = {
 /**
  * 创建元素（通用）。
  * 类型值会被存储，以使得不需要每次都检查判断。
+ * 返回null表示无法创建元素。
  * @param  {Number} tval 类型值
- * @return {Element}
+ * @return {Element|null}
  */
 function create( tval ) {
-    let _fn = customMaker[ tval ],
-        _el = _fn ?
-            _fn( tval ) :
-            _create( ...Tags[tval].split('\\') );
-
-    return setType( _el, tval );
+    let _el = ( customMaker[tval] || _create )(
+            ...Tags[tval].split( '\\' )
+        );
+    return _el && setType( _el, tval );
 }
 
 
