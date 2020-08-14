@@ -379,7 +379,6 @@ const _BLOCKITS =
 // - 可用于源码结构检查。
 // - 可用于判断目标的可插入单元（向内）。
 // - 取父容器可判断平级插入时的合法单元。
-// - 首个成员为默认构造单元（如果可行）。
 // - 特许分级片区与其它行块单元同级存在（便利性且CSS可区分）。
 //
 const ChildTypes = {
@@ -463,9 +462,9 @@ const ChildTypes = {
     [ ALI ]:            [ A ],
     [ AH4LI ]:          [ AH4 ],
     [ AH4 ]:            [ A ],
-    [ ULXH4LI ]:        [ UL, H4, OL ],
-    [ OLXH4LI ]:        [ OL, H4, UL ],
-    [ CASCADEH4LI ]:    [ OL, H4 ],
+    [ ULXH4LI ]:        [ H4, UL, OL ],
+    [ OLXH4LI ]:        [ H4, OL, UL ],
+    [ CASCADEH4LI ]:    [ H4, OL ],
     [ FIGIMGP ]:        [ IMG, EXPLAIN ],
     [ TR ]:             [ TH, TD ],
     [ THEAD ]:          [ TR ],
@@ -474,13 +473,13 @@ const ChildTypes = {
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:         [ H2, H1 ],
-    [ ABSTRACT ]:       [ P, H3, _BLOLIMIT ],
+    [ HGROUP ]:         [ H1, H2 ],
+    [ ABSTRACT ]:       [ H3, P, _BLOLIMIT ],
     [ TOC ]:            [ H3, CASCADE ],
     [ SEEALSO ]:        [ LI, ALI ],
     [ REFERENCE ]:      [ LI, ALI ],
-    [ HEADER ]:         [ P, H3, _BLOLIMIT, ULX, OLX ],
-    [ FOOTER ]:         [ P, H3, _BLOLIMIT, ADDRESS ],
+    [ HEADER ]:         [ H3, P, _BLOLIMIT, ULX, OLX ],
+    [ FOOTER ]:         [ H3, P, _BLOLIMIT, ADDRESS ],
     [ ARTICLE ]:        [ HEADER, S1, FOOTER ],
     [ S1 ]:             [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
     [ S2 ]:             [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
@@ -496,9 +495,9 @@ const ChildTypes = {
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
     [ FIGURE ]:         [ FIGCAPTION, FIGIMGP ],
-    [ BLOCKQUOTE ]:     [ P, H3, _BLOLIMIT, TABLE ],
-    [ ASIDE ]:          [ P, H3, _BLOLIMIT, TABLE ],
-    [ DETAILS ]:        [ P, SUMMARY, _BLOLIMIT, TABLE ],
+    [ BLOCKQUOTE ]:     [ H3, P, _BLOLIMIT, TABLE ],
+    [ ASIDE ]:          [ H3, P, _BLOLIMIT, TABLE ],
+    [ DETAILS ]:        [ SUMMARY, P, _BLOLIMIT, TABLE ],
     [ CODEBLOCK ]:      [ CODE ],
     // 单体单元
     [ HR ]:             [],
@@ -623,6 +622,17 @@ export function isStructX( tval ) {
  */
 export function isSpecial( tval ) {
     return !!( Specials[tval] & SPECIAL );
+}
+
+
+/**
+ * 是否只能包含纯文本。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function onlyText( tval ) {
+    let _subs = ChildTypes[ tval ] || [];
+    return _subs.length === 1 && _subs[0] === $TEXT;
 }
 
 

@@ -68,14 +68,14 @@ const Tags = {
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ T.SVGITEM ]:      '',  // []
+    [ T.SVGITEM ]:      null,
     [ T.TRACK ]:        'track',
     [ T.SOURCE ]:       'source',
     [ T.EXPLAIN ]:      'span\\explain',
     [ T.RB ]:           'rb',
     [ T.RT ]:           'rt',
     [ T.RP ]:           'rp',
-    [ T.RBPT ]:         '',  // []
+    [ T.RBPT ]:         null,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -182,7 +182,7 @@ const Tags = {
 
 //
 // 定制创建集。
-// 覆盖默认的简单创建方式。
+// 覆盖默认的简单创建方式（element()）。
 // 返回null表示需手动创建。
 // 接口：function(tag, role): Element|null
 //
@@ -215,17 +215,24 @@ const customMaker = {
 
     //
     // SVG子系通用。
-    // 注：不支持无数据创建。
+    // 不支持无数据创建，交由手动创建。
     //
     [ T.SVGITEM ]: function() {
         return null;
     },
 
+
+    //
+    // 抽象组。交由手动创建。
+    //
+    [ T.RBPT ]: function() {
+        return null;
+    },
 };
 
 
 //
-// 内容生成器。
+// 子内容生成器。
 // 创建目标应有的的内容节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
 // 返回的元素皆没有内容，内容应当由外部插入（$.append）。
 // 仅包含部分目标的定义，通用的生成由 element(...) 实现。
@@ -233,6 +240,7 @@ const customMaker = {
 // - 不涉及多层中间结构，其应当自动迭代生成。
 // - 返回null表示不支持内容创建（需手动创建）。
 // - 仅有特性设置的元素也无需在这里定义（由外部 $.attribute() 实现）。
+// - 如果返回的是内容元素，则可以接收内联节点插入（移动/克隆时）。
 //////////////////////////////////////////////////////////////////////////////
 // @return {Element|[Element]}
 //
@@ -249,17 +257,18 @@ const Contents = {
         return elements( T.RB, T.RP, T.RT, T.RP );
     },
 
+    [ T.RBPT ]: function() {
+        return elements( T.RB, T.RP, T.RT, T.RP );
+    },
+
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ T.SVGITEM ]:      '',  // []
-    [ T.TRACK ]:        '',
-    [ T.SOURCE ]:       '',
-    [ T.EXPLAIN ]:      '',
-    [ T.RB ]:           '',
-    [ T.RT ]:           '',
-    [ T.RP ]:           '',
-    [ T.RBPT ]:         '',  // []
+
+    [ T.SVGITEM ]: function() {
+        return null;
+    },
+
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -473,42 +482,24 @@ const Creater = {
 
 
     /**
-     * 创建注音内容组。
-     * 返回集成员顺序与ruby()实参顺序一致。
-     * rp1和rp2必须成对出现。
-     * 注记：
-     * 仅用于ruby完整子单元封装，不存储单元类型值（因为无法从DOM中选取）。
-     * 具体各子单元的创建由相应的方法完成。
-     * @param  {Element} rb 注音文本
-     * @param  {Element} rt 注音拼音
-     * @param  {Element} rp1 左包围，可选
-     * @param  {Element} rp2 右包围，可选
-     * @return {[Element]}
-     */
-    rbpt( rb, rt, rp1, rp2 ) {
-        let _els = [ rb, rt ];
-
-        if ( rp1 && rp2 ) {
-            _els.push( rp1, rp2 );
-        }
-        return _els;
-    },
-
-
-    /**
      * 创建代码单元。
-     * 对内部的<b><i>不设置类型值，
-     * 因为内部的语法单元是即时解析和构建的。
-     * opts: {data-lang, data-tab}
-     * @param  {Node|[Node]|String} cons 单元内容
-     * @param  {Object} opts 属性配置，可选
+     * 这里只是创建一个代码容器，并设置必要的特性配置。
+     * 注记：
+     * 外部插入内容时，根据容器配置即时解析。
+     *
+     * @attr: [data-lang, data-tab]
+     * @param  {String} lang 代码语言，可选
+     * @param  {Number} tabn Tab置换空格数，可选
      * @return {Element}
      */
-    code( cons, opts ) {
-        let _el = create( 'code', opts ),
-            _fn = typeof cons === 'string' ? 'html' : 'append';
+    code( lang, tabn ) {
+        let _el = element( T.CODE ),
+            _op = {};
 
-        return $[_fn]( _el, cons ), _el;
+        if ( lang ) _op['-lang'] = lang;
+        if ( tabn ) _op['-tab'] = tabn;
+
+        return $.attribute( _el, _op );
     },
 
 

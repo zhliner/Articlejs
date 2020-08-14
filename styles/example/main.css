@@ -100,11 +100,13 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-.content aside > *,
 .content blockquote > *,
 .content details > *,
 .content figure > * {
     margin: 0.5em auto;
+}
+.content aside > * {
+    margin: 0.1em auto;
 }
 
 
@@ -422,7 +424,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content aside {
-    padding: 4px 1.5em 6px;
+    padding: 6px 1.8em 10px;
     background-color: #f4faf8;
     border: 1px #d8ebee dotted;
     border-radius: 24px;

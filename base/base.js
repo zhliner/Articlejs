@@ -486,14 +486,14 @@ function htmlFill( box, html ) {
 /**
  * 获取目标元素的内容。
  * 仅限内联节点和非空文本节点。
- * 如果初始即传入一个空文本节点，会返回null。
+ * 如果初始即传入一个空文本节点，则返回该节点。
  * 注记：$.contents()会滤除空文本内容。
  * @param  {Element|Text} el 目标节点
- * @return {[Node]|Node|null}
+ * @return {[Node]|Node}
  */
 export function contents( el ) {
     if ( el.nodeType == 3 ) {
-        return el.textContent.trim() ? el : null;
+        return el;
     }
     if ( isInlines(el) ) {
         return el;
