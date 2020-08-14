@@ -235,11 +235,11 @@
     </div>
     <!-- 元素路径 -->
     <div id="g-path" class="_path"
-        on="click(b)|(Edit) evo(2) call('pathElem', _1);
+        on="click(b)|(Edit) evo(2) call('pathElem', _1) scam;
             mouseover(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
             mouseout(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
             toggle|evo(3) hide(2)"
-        by="Ed.pathTo"
+        by="Ed.pathTo(_1)"
         to="#g-count|trigger('reset')|fire('body/', 'focus.content');
             -|addClass;
             -|removeClass">

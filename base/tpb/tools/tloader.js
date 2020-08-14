@@ -177,7 +177,7 @@ export class Loader {
         let _pro = fetch(url).then(
                 resp => resp.ok ? resp[type]() : Promise.reject(resp.statusText)
             );
-        return node ? _pro.then( html => $.create(html) ) : _pro;
+        return node ? _pro.then( html => $.fragment(html) ) : _pro;
     }
 
 }

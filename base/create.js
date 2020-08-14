@@ -75,6 +75,7 @@ const Tags = {
     [ T.RB ]:           'rb',
     [ T.RT ]:           'rt',
     [ T.RP ]:           'rp',
+    [ T.RBPT ]:         '',  // []
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -181,10 +182,29 @@ const Tags = {
 
 //
 // 定制创建集。
-// 覆盖简单的默认创建方式。
-// { 单元类型值：function(tag, role): Element }
+// 覆盖默认的简单创建方式。
+// 返回null表示需手动创建。
+// 接口：function(tag, role): Element|null
 //
 const customMaker = {
+    //
+    // 音频：嵌入不支持提示。
+    //
+    [ T.AUDIO ]: function() {
+        let _el = element( T.AUDIO );
+        return _el.append( __msgAudio ), _el;
+    },
+
+
+    //
+    // 视频：嵌入不支持提示。
+    //
+    [ T.VIDEO ]: function() {
+        let _el = element( T.VIDEO );
+        return _el.append( __msgVideo ), _el;
+    },
+
+
     //
     // 名称空间不同，特别创建。
     //
@@ -205,88 +225,167 @@ const customMaker = {
 
 
 //
-// 单元创建集。
-// 包含全部中间结构单元。
-// 用于主面板中的新单元构建和复制/移动时的默认单元创建。
-//////////////////////////////////////////////////////////////////////////////
+// 内容生成器。
+// 创建目标应有的的内容节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
+// 返回的元素皆没有内容，内容应当由外部插入（$.append）。
+// 仅包含部分目标的定义，通用的生成由 element(...) 实现。
 // 注记：
-// 除非为最基本单元，实参尽量为节点/集以便于移动转换适用。
-// 返回节点集时，如果目标为集合，可实现一一对应插入。
+// - 不涉及多层中间结构，其应当自动迭代生成。
+// - 返回null表示不支持内容创建（需手动创建）。
+// - 仅有特性设置的元素也无需在这里定义（由外部 $.attribute() 实现）。
+//////////////////////////////////////////////////////////////////////////////
+// @return {Element|[Element]}
 //
-const Content = {
+const Contents = {
+    //
+    // 内联结构元素
+    /////////////////////////////////////////////
+
+    [ T.SVG ]: function() {
+        return null;
+    },
+
+    [ T.RUBY ]: function() {
+        return elements( T.RB, T.RP, T.RT, T.RP );
+    },
+
+    //
+    // 内联结构子
+    /////////////////////////////////////////////
+    [ T.SVGITEM ]:      '',  // []
+    [ T.TRACK ]:        '',
+    [ T.SOURCE ]:       '',
+    [ T.EXPLAIN ]:      '',
+    [ T.RB ]:           '',
+    [ T.RT ]:           '',
+    [ T.RP ]:           '',
+    [ T.RBPT ]:         '',  // []
+    //
+    // 内联内容元素
+    /////////////////////////////////////////////
+    [ T.A ]:            'a',
+    [ T.STRONG ]:       'strong',
+    [ T.EM ]:           'em',
+    [ T.Q ]:            'q',
+    [ T.ABBR ]:         'abbr',
+    [ T.CITE ]:         'cite',
+    [ T.SMALL ]:        'small',
+    [ T.DEL ]:          'del',
+    [ T.INS ]:          'ins',
+    [ T.SUB ]:          'sub',
+    [ T.SUP ]:          'sup',
+    [ T.MARK ]:         'mark',
+    [ T.CODE ]:         'code',
+    [ T.ORZ ]:          'code\\orz',
+    [ T.DFN ]:          'dfn',
+    [ T.SAMP ]:         'samp',
+    [ T.KBD ]:          'kbd',
+    [ T.S ]:            's',
+    [ T.U ]:            'u',
+    [ T.VAR ]:          'var',
+    [ T.BDO ]:          'bdo',
+
+    //
+    // 行块内容元素
+    /////////////////////////////////////////////
+    [ T.P ]:            'p',
+    [ T.NOTE ]:         'p\\note',
+    [ T.TIPS ]:         'p\\tips',
+    [ T.ADDRESS ]:      'address',
+    [ T.PRE ]:          'pre',
+    //
+    // 块内结构子
+    /////////////////////////////////////////////
+    [ T.H1 ]:           'h1',
+    [ T.H2 ]:           'h2',
+    [ T.H3 ]:           'h3',
+    [ T.H4 ]:           'h4',
+    [ T.H5 ]:           'h5',
+    [ T.H6 ]:           'h6',
+    [ T.SUMMARY ]:      'summary',
+    [ T.FIGCAPTION ]:   'figcaption',
+    [ T.CAPTION ]:      'caption',
+    [ T.LI ]:           'li',
+    [ T.DT ]:           'dt',
+    [ T.DD ]:           'dd',
+    [ T.TR ]:           'tr',
+    [ T.TH ]:           'th',
+    [ T.TD ]:           'td',
+    [ T.TBODY ]:        'tbody',
+    [ T.THEAD ]:        'thead',
+    [ T.TFOOT ]:        'tfoot',
+    // 定制结构（无role）。
+    [ T.CODELI ]:       'li',
+    [ T.ALI ]:          'li',
+    [ T.AH4LI ]:        'li',
+    [ T.AH4 ]:          'h4',
+    [ T.ULXH4LI ]:      'li',
+    [ T.OLXH4LI ]:      'li',
+    [ T.CASCADEH4LI ]:  'li',
+    [ T.FIGIMGP ]:      'p',
+
+    //
+    // 行块结构元素
+    /////////////////////////////////////////////
+    [ T.HGROUP ]:       'hgroup',
+    [ T.ABSTRACT ]:     'header\\abstract',
+    [ T.TOC ]:          'nav\\toc',
+    [ T.SEEALSO ]:      'ul\\seealso',
+    [ T.REFERENCE ]:    'ol\\reference',
+    [ T.HEADER ]:       'header',
+    [ T.FOOTER ]:       'footer',
+    [ T.ARTICLE ]:      'article',
+    [ T.S1 ]:           'section\\s1',
+    [ T.S2 ]:           'section\\s2',
+    [ T.S3 ]:           'section\\s3',
+    [ T.S4 ]:           'section\\s4',
+    [ T.S5 ]:           'section\\s5',
+    [ T.UL ]:           'ul',
+    [ T.OL ]:           'ol',
+    [ T.CODELIST ]:     'ol\\codelist',
+    [ T.ULX ]:          'ul\\ulx',
+    [ T.OLX ]:          'ol\\olx',
+    [ T.CASCADE ]:      'ol\\cascade',
+    [ T.DL ]:           'dl',
+    [ T.TABLE ]:        'table',
+    [ T.FIGURE ]:       'figure',
+    [ T.BLOCKQUOTE ]:   'blockquote',
+    [ T.ASIDE ]:        'aside',
+    [ T.DETAILS ]:      'details',
+    [ T.CODEBLOCK ]:    'pre\\codeblock',
+    [ T.HR ]:           'hr',
+    [ T.BLANK ]:        'div\\blank',
+
+    //
+    // 特殊用途。
+    /////////////////////////////////////////////
+    [ T.B ]:            'b',
+    [ T.I ]:            'i',
+};
+
+
+//
+// 定制创建。
+// 涉及复杂的配置参数或异类创建，简化模板用法。
+// 返回值：{Element|[Element]|DocumentFragment}
+//
+const Creater = {
 
     //-- 内联单元 ------------------------------------------------------------
 
-    /**
-     * 创建音频单元。
-     * @param  {Object} opts 属性配置集
-     * @return {Element}
-     */
-    audio( opts = {} ) {
-        opts.text = __msgAudio;
-        return create( 'audio', opts );
-    },
-
 
     /**
-     * 创建视频单元。
-     * @param  {Object} opts 属性配置集
-     * @return {Element}
+     * 创建SVG子单元。
+     * @param  {String} xml SVG源码
+     * @return {DocumentFragment}
      */
-    video( opts = {} ) {
-        opts.text = __msgVideo;
-        return create( 'video', opts );
-    },
+    svgitem( xml ) {
+        let _frg = $.fragment( xml, true );
 
+        $.find('*', _frg)
+        .forEach( el => setType(el, T.SVGITEM) );
 
-    /**
-     * 创建兼容图片。
-     * @param  {Element} img 图片元素
-     * @param  {[Element]} sources 兼容图片源元素
-     * @return {Element}
-     */
-    picture( img, sources ) {
-        let _el = create( 'picture' );
-
-        $.append( _el, sources.concat(img) );
-        return _el;
-    },
-
-
-    /**
-     * 创建SVG单元。
-     * opts通常是必须的。
-     * @param  {Object} opts 属性配置集
-     * @param  {String} xml SVG源码，可选
-     * @return {Element}
-     */
-    svg( opts = {}, xml = '' ) {
-        if ( xml ) {
-            opts.html = xml;
-        }
-        let _el = $.svg( opts );
-
-        $.find('*', _el)
-        .forEach( el => setType(el, SVGITEM) );
-
-        return setType( _el, SVG );
-    },
-
-
-    /**
-     * 创建注音单元。
-     * 注意实参传递的顺序。
-     * @param  {Element} rb 注音字
-     * @param  {Element} rt 注音
-     * @param  {Element} rp1 左包围
-     * @param  {Element} rp2 右包围
-     * @return {Element}
-     */
-    ruby( rb, rt, rp1, rp2 ) {
-        let _el = create( 'ruby' );
-
-        $.append( _el, [rb, rp1, rt, rp2] )
-        return _el;
+        return _frg;
     },
 
 
@@ -300,12 +399,15 @@ const Content = {
      * @return {Element}
      */
     time( text, date, time ) {
-        let dt = '';
+        date = date || '';
 
-        if ( date ) dt = date;
-        if ( time ) dt = dt ? `${dt} ${time}` : `${time}`;
-
-        return create( 'time', {text: text || dt, datetime: dt || null} );
+        if ( time ) {
+            date = date ? `${date} ${time}` : `${time}`;
+        }
+        return $.attribute(
+            element( T.TIME ),
+            { text: text || date, datetime: date || null }
+        );
     },
 
 
@@ -329,7 +431,7 @@ const Content = {
         if ( low ) opts.low = low;
         if ( opm ) opts.optimum = opm;
 
-        return create( 'meter', opts );
+        return $.attribute( element(T.METER), opts );
     },
 
 
@@ -337,37 +439,36 @@ const Content = {
      * 创建空白段。
      * @param  {Number} n 数量
      * @param  {String} width 宽度
-     * @return {Element|[Element]}
+     * @return {[Element]}
      */
     space( n, width ) {
-        let _els = handleCalls( n, create, 'space' );
-
+        let _els = elements(
+            ...new Array(n).fill( T.SPACE )
+        );
         if ( width != null ) {
             _els.forEach( el => $.css(el, 'width', width) );
         }
-        return _els.length == 1 ? _els[0] : _els;
+        return _els;
     },
 
 
     /**
      * 创建换行。
      * @param  {Number} n 数量
-     * @return {Element|[Element]}
+     * @return {[Element]}
      */
     br( n ) {
-        let _els = handleCalls( n, create, 'br' );
-        return _els.length == 1 ? _els[0] : _els;
+        return elements( ...new Array(n).fill(T.BR) );
     },
 
 
     /**
      * 创建软换行。
      * @param  {Number} n 数量
-     * @return {Element|[Element]}
+     * @return {[Element]}
      */
     wbr( n ) {
-        let _els = handleCalls( n, create, 'wbr' );
-        return _els.length == 1 ? _els[0] : _els;
+        return elements( ...new Array(n).fill(T.WBR) );
     },
 
 
@@ -792,11 +893,21 @@ const Content = {
  * @param  {Number} tval 类型值
  * @return {Element|null}
  */
-function create( tval ) {
-    let _el = ( customMaker[tval] || _create )(
+function element( tval ) {
+    let _el = ( customMaker[tval] || create )(
             ...Tags[tval].split( '\\' )
         );
     return _el && setType( _el, tval );
+}
+
+
+/**
+ * 创建元素序列。
+ * @param  {...Number} types 类型值序列
+ * @return {[Element]}
+ */
+function elements( ...types ) {
+    return types.map( tv => element(tv) );
 }
 
 
@@ -805,7 +916,7 @@ function create( tval ) {
  * @param {String} tag 标签名
  * @param {String} role 角色名
  */
-function _create( tag, role ) {
+function create( tag, role ) {
     let _el = $.element( tag );
     return role && _el.setAttribute( 'role', role ) || _el;
 }

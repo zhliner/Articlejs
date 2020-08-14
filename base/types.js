@@ -190,10 +190,10 @@ export const
     I               = -2,   // 代码注释/标题编号
 
     //
-    // 特殊结构。
-    // 全部文章的内容（含页面标题等）的容器。
+    // 文章顶层。
+    // 抽象结构，文章的顶层内容容器。
     /////////////////////////////////////////////
-    $CONTENT        = -10;
+    $TOP            = -10;
 
 
 
@@ -511,9 +511,9 @@ const ChildTypes = {
     [ I ]:              [ $TEXT ],
 
     //
-    // 特殊结构（编辑器专属）。
+    // 文章顶层（编辑器专属）。
     /////////////////////////////////////////////
-    [ $CONTENT ]:       [ H1, HGROUP, ABSTRACT, TOC, HEADER, ARTICLE, SEEALSO, REFERENCE, FOOTER ],
+    [ $TOP ]:           [ H1, HGROUP, ABSTRACT, TOC, HEADER, ARTICLE, SEEALSO, REFERENCE, FOOTER ],
 
 };
 

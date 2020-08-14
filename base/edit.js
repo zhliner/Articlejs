@@ -1289,18 +1289,16 @@ export const Edit = {
 
     /**
      * [By] 单击聚焦/选取。
-     * cfg.Keys.turnSelect 切换选取键配置
-     * cfg.Keys.elemFocus  单纯焦点键配置
-     * @param {Object} aux 辅助键状态
+     * @param {Object} keys 辅助键状态
      */
-    click( evo, aux ) {
+    click( evo, keys ) {
         // 无条件执行。
         setFocus( evo.data );
 
-        if ( isElemFocus(aux) ) {
+        if ( isElemFocus(keys) ) {
             return;
         }
-        let _fn = isTurnSelect(aux) ? 'turn' : 'only',
+        let _fn = isTurnSelect(keys) ? 'turn' : 'only',
             _old = [...__ESet];
 
         if ( __Selects[_fn](evo.data) === false ) {
@@ -1316,11 +1314,15 @@ export const Edit = {
      * [By] 从路径添加。
      * 当用户单击路径上的目标时选取其关联元素。
      * 会检查父子包含关系并清理。
+     * @param {Object} keys 辅助键状态
      */
-    pathTo( evo ) {
-        let _old = [...__ESet];
-
+    pathTo( evo, keys ) {
         setFocus( evo.data );
+
+        if ( isElemFocus(keys) ) {
+            return;
+        }
+        let _old = [...__ESet];
 
         if ( __Selects.safeAdd(evo.data) === false ) {
             return;
