@@ -627,23 +627,27 @@ Object.assign( tQuery, {
 
     /**
      * 创建文档片段。
+     * 默认情况下（clean为null时）
      * - <script>,<style>,<link>三种元素会默认被清除。
      * - [onerror],[onload],[onabort] 三个属性会被默认清除。
-     * - 如果需要避免上面的清除行为，请明确传递clean为一个非null值。
-     * - 如果需要保留默认的清理且传递文档实参，clean可为null值（占位）。
-     * - 可以传递一个自己的函数自己处理尚未导入（document.adoptNode）的文档片段。
-     *   接口：function(DocumentFragment): void。
+     *
+     * 可以传递一个函数自行处理尚未导入的文档片段，接口：function(DocumentFragment): void。
+     * 传递clean为非null或非函数的任意假值时，会取消默认的清除行为。
+     * 如果传递clean为true，表示创建的是一个SVG文档片段（用于插入<svg>元素内）。
      * 注：
-     * 文档片段在被导入当前文档（document）之前，其中的脚本不会运行。
+     * 文档片段在被导入（document.adoptNode）之前，其中的脚本不会运行。
+     * 创建SVG文档片段时，无节点清理功能（占用clean实参位置）。
      *
      * @param  {String} html 源码
-     * @param  {Function|null|false} clean 文档片段清理器，可选
+     * @param  {Function|null|true} clean 文档片段清理器或SVG指示，可选
      * @param  {Document} doc 所属文档，可选
      * @return {DocumentFragment} 文档片段
      */
     create( html, clean, doc = Doc ) {
-        return typeof html == 'string' ?
-            buildFragment( html, doc, clean ) : null;
+        if ( typeof html !== 'string' ) {
+            return null;
+        }
+        return clean === true ? buildFragmentSVG(html, doc) : buildFragment(html, doc, clean);
     },
 
 

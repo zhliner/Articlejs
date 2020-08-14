@@ -41,12 +41,15 @@
 创建一个文档片段。
 
 - `html: String` 文档片段的HTML内容。
-- `clean: Function | null | false` 节点清理函数，可选。
+- `clean: Function | null | true` 节点清理函数或SVG指示，可选。
 - `doc?: Document` 文档片段所属文档，可选。
 
-默认的节点清理函数会移除 `<script>`、`<style>`、`<link>` 三种元素，同时也会清除掉 `onerror`, `onload`, `onabort` 三个脚本类特性定义。如果不需要对创建的文档片段做任何清理，可传递 `clean` 为 `false`，如果需要传递后续的文档实参，`clean` 可传递为 `null`（占位）。
+默认的节点清理函数会移除 `<script>`、`<style>`、`<link>` 三种元素，同时也会清除掉 `onerror`, `onload`, `onabort` 三个脚本类特性定义。如果不需要对创建的文档片段做任何清理，可传递 `clean` 为一个非null的任意假值（保留 `null` 为占位实参，便于后续传递 `doc`）。如果需要创建一个SVG文档片段，传递 `clean` 值为 `true`。
 
 节点清理函数接口：`function( DocumentFragment ): void`，其中唯一的实参为尚未导入当前文档（`document.adoptNode()`）的文档片段。
+
+> **注：**
+> 创建 SVG 文档片段时无清理功能。
 
 
 ### [$.svg( tag, opts, doc? ): Element](docs/$.svg.md)
