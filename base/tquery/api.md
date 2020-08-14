@@ -36,7 +36,7 @@
 数据源为节点时取其文本（`textContent`）值，数组单元取值为字符串后以 `sep` 串连。
 
 
-### [$.create( html, clean, doc? ): DocumentFragment](docs/$.create.md)
+### [$.fragment( html, clean, doc? ): DocumentFragment](docs/$.fragment.md)
 
 创建一个文档片段。
 

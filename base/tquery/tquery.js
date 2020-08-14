@@ -643,7 +643,7 @@ Object.assign( tQuery, {
      * @param  {Document} doc 所属文档，可选
      * @return {DocumentFragment} 文档片段
      */
-    create( html, clean, doc = Doc ) {
+    fragment( html, clean, doc = Doc ) {
         if ( typeof html !== 'string' ) {
             return null;
         }
@@ -3623,7 +3623,7 @@ elsEx([
 /////////////////////////////////////////////////
 elsEx([
         'Text',
-        'create',
+        'fragment',
     ],
     (fn, list, ...rest) => list.map( data => tQuery[fn](data, ...rest) )
 );
