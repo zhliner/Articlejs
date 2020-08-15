@@ -324,23 +324,6 @@ function listRoot( el ) {
 
 
 /**
- * 是否为同类表格行。
- * 检查表格行所属表格Table实例的列头和列数，
- * 以及所属表格片区类型是否相同。
- * @param  {Element} tr1 表格行
- * @param  {Element} tr2 表格行
- * @return {Boolean}
- */
-function sameTr( tr1, tr2 ) {
-    let _s1 = tr1.parentElement,
-        _s2 = tr2.parentElement;
-
-    return _s1.tagName == _s2.tagName &&
-        alikeTable( _s1.parentElement, _s2.parentElement );
-}
-
-
-/**
  * 是否为同规格的表格。
  * 即：列数相同且列头位置相同。
  * @param {Element} t1 表格1
@@ -394,20 +377,20 @@ function entityRoot( beg, end ) {
 
 
 /**
- * 获取元素内的内容元素。
+ * 获取元素内的内容容器。
  * 如果初始传入一个文本节点，会返回null（不能作为内容容器使用）。
  * 注：会忽略混嵌的文本节点。
  * @param  {Element} el 目标元素
  * @return {[Element]|Element|null}
  */
-function elemContents( el ) {
+function _contentBoxes( el ) {
     if ( el.nodeType == 3 ) {
         return null;
     }
     if ( isContent(el) ) {
         return el;
     }
-    return $.children(el).map( el => elemContents(el) ).flat();
+    return $.children(el).map( el => _contentBoxes(el) ).flat();
 }
 
 
@@ -454,7 +437,7 @@ export function setType( el, tval ) {
  * @param  {Element} src 源元素
  * @return {Element} 新元素
  */
-function cloneElem( src ) {
+export function cloneElem( src ) {
     let _new = $.clone( src, true, true, true ),
         _els = $.find( '*', src );
 
@@ -473,7 +456,7 @@ function cloneElem( src ) {
  * @param  {String} html 源码
  * @return {Element} box
  */
-function htmlFill( box, html ) {
+export function htmlFill( box, html ) {
     $.html( box, html );
 
     $.find( '*', box )
@@ -554,6 +537,23 @@ export function canDelete( el ) {
 
 
 /**
+ * 是否为同类表格行。
+ * 检查表格行所属表格Table实例的列头和列数，
+ * 以及所属表格片区类型是否相同。
+ * @param  {Element} tr1 表格行
+ * @param  {Element} tr2 表格行
+ * @return {Boolean}
+ */
+export function isSameTr( tr1, tr2 ) {
+    let _s1 = tr1.parentElement,
+        _s2 = tr2.parentElement;
+
+    return _s1.tagName == _s2.tagName &&
+        alikeTable( _s1.parentElement, _s2.parentElement );
+}
+
+
+/**
  * 缓存/检索表格实例。
  * 如果传递元素，则为检索，否则为设置。
  * @param  {Element|Table} tbl 表格元素或$.Table实例
@@ -573,13 +573,37 @@ export function tableObj( tbl ) {
 
 
 /**
+ * 获取所属表格元素。
+ * @param  {Element} sub 表格子级元素
+ * @param  {Number} tval sub类型值，可选
+ * @return {Element} <table>
+ */
+export function tableNode( sub, tval ) {
+    tval = tval || getType(sub);
+
+    switch ( tval ) {
+        case T.TR:
+            return sub.parentElement.parentElement;
+        case T.TBODY:
+        case T.THEAD:
+        case T.TFOOT:
+        case T.CAPTION:
+            return sub.parentElement;
+        case T.TH:
+        case T.TD:
+            return sub.parentElement.parentElement.parentElement;
+    }
+}
+
+
+/**
  * 获取元素内的内容根容器。
  * 始终会返回一个数组（可能为空）。
  * @param  {Element} el 目标元素
  * @return {[Element]}
  */
 export function contentBoxes( el ) {
-    let _els = elemContents(el);
+    let _els = _contentBoxes(el);
 
     if ( !_els ) {
         return [];
@@ -606,21 +630,4 @@ export function selectTop( beg, end ) {
         return contentRoot( beg.parentElement, end );
     }
     return entityRoot( beg.parentElement, end );
-}
-
-
-/**
- * 元素转换到目标类型。
- * 如果源元素类型属于目标类型集成员，则直接使用。
- * 否则取类型集首个成员为默认类型，构造元素并提取源内容填充。
- * @param  {Element}} el 数据源元素
- * @param  {[Number]} types 目标类型集
- * @return {Element}
- */
-function elementConvert( el, types ) {
-    let _tv = getType( el );
-
-    if ( types.includes(_tv) ) {
-        return el;
-    }
 }

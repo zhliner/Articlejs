@@ -24,9 +24,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { processExtend } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
 import { setType, tableObj } from "./base.js";
-import { processExtend } from "./tpb/pbs.by.js";
 
 
 const
@@ -235,94 +235,71 @@ const customMaker = {
 // 子内容生成器。
 // 创建目标应有的的内容节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
 // 返回的元素皆没有内容，内容应当由外部插入（$.append）。
-// 仅包含部分目标的定义，通用的生成由 element(...) 实现。
+// 仅包含部分目标的定义：不含内容元素和部分密封单元。
 // 注记：
 // - 不涉及多层中间结构，其应当自动迭代生成。
 // - 返回null表示不支持内容创建（需手动创建）。
 // - 仅有特性设置的元素也无需在这里定义（由外部 $.attribute() 实现）。
 // - 如果返回的是内容元素，则可以接收内联节点插入（移动/克隆时）。
 //////////////////////////////////////////////////////////////////////////////
-// @return {Element|[Element]}
+// function( self:Element ): Element|Collector
 //
-const Contents = {
+const Children = {
     //
     // 内联结构元素
     /////////////////////////////////////////////
 
+    // 注记：
+    // 子元素自由，故定义限定。
     [ T.SVG ]: function() {
         return null;
     },
 
+    // @return {Collector}
     [ T.RUBY ]: function() {
-        return elements( T.RB, T.RP, T.RT, T.RP );
+        return $( elements(T.RB, T.RP, T.RT, T.RP) );
     },
 
+    // @return {Collector}
     [ T.RBPT ]: function() {
-        return elements( T.RB, T.RP, T.RT, T.RP );
+        return $( elements(T.RB, T.RP, T.RT, T.RP) );
     },
 
     //
     // 内联结构子
     /////////////////////////////////////////////
 
+    // 注记：
+    // 子元素自由，故定义限定。
     [ T.SVGITEM ]: function() {
         return null;
     },
 
     //
-    // 内联内容元素
-    /////////////////////////////////////////////
-    [ T.A ]:            'a',
-    [ T.STRONG ]:       'strong',
-    [ T.EM ]:           'em',
-    [ T.Q ]:            'q',
-    [ T.ABBR ]:         'abbr',
-    [ T.CITE ]:         'cite',
-    [ T.SMALL ]:        'small',
-    [ T.DEL ]:          'del',
-    [ T.INS ]:          'ins',
-    [ T.SUB ]:          'sub',
-    [ T.SUP ]:          'sup',
-    [ T.MARK ]:         'mark',
-    [ T.CODE ]:         'code',
-    [ T.ORZ ]:          'code\\orz',
-    [ T.DFN ]:          'dfn',
-    [ T.SAMP ]:         'samp',
-    [ T.KBD ]:          'kbd',
-    [ T.S ]:            's',
-    [ T.U ]:            'u',
-    [ T.VAR ]:          'var',
-    [ T.BDO ]:          'bdo',
-
-    //
-    // 行块内容元素
-    /////////////////////////////////////////////
-    [ T.P ]:            'p',
-    [ T.NOTE ]:         'p\\note',
-    [ T.TIPS ]:         'p\\tips',
-    [ T.ADDRESS ]:      'address',
-    [ T.PRE ]:          'pre',
-    //
     // 块内结构子
     /////////////////////////////////////////////
-    [ T.H1 ]:           'h1',
-    [ T.H2 ]:           'h2',
-    [ T.H3 ]:           'h3',
-    [ T.H4 ]:           'h4',
-    [ T.H5 ]:           'h5',
-    [ T.H6 ]:           'h6',
-    [ T.SUMMARY ]:      'summary',
-    [ T.FIGCAPTION ]:   'figcaption',
-    [ T.CAPTION ]:      'caption',
-    [ T.LI ]:           'li',
-    [ T.DT ]:           'dt',
-    [ T.DD ]:           'dd',
-    [ T.TR ]:           'tr',
-    [ T.TH ]:           'th',
-    [ T.TD ]:           'td',
-    [ T.TBODY ]:        'tbody',
-    [ T.THEAD ]:        'thead',
-    [ T.TFOOT ]:        'tfoot',
+
+    // @return {Collector} <th>,<td>
+    [ T.TR ]: function( tr ) {
+        return $( appendTr(tr.parentElement).children );
+    },
+
+    // 新行已插入末尾，下同。
+    // @return {Element} <tr>
+    [ T.TBODY ]: function( ts ) {
+        return tableObj( ts.parentElement ).body( 1 );
+    },
+
+    // @return {Element} <tr>
+    [ T.THEAD ]: function( ts ) {
+        return tableObj( ts.parentElement ).head( 1 );
+    },
+
+    // @return {Element} <tr>
+    [ T.TFOOT ]: function( ts ) {
+        return tableObj( ts.parentElement ).foot( 1 );
+    },
+
     // 定制结构（无role）。
     [ T.CODELI ]:       'li',
     [ T.ALI ]:          'li',
@@ -376,6 +353,7 @@ const Contents = {
 //
 // 定制创建。
 // 涉及复杂的配置参数或异类创建，简化模板用法。
+// 密封单元也在此创建。
 // 返回值：{Element|[Element]|DocumentFragment}
 //
 const Creater = {
@@ -1017,6 +995,24 @@ function tocH4li( h2 ) {
  */
 function createID(text) {
     return text.match(__reIDs).join('-');
+}
+
+
+/**
+ * 插入一个新表格行。
+ * @param  {Element} ts 表体元素（<tbody>|<thead>|<tfoot>）
+ * @return {Element} <tr>
+ */
+function appendTr( ts ) {
+    let _tbo = tableObj( ts.parentElement );
+
+    switch ( ts.tagName ) {
+        case 'THEAD':
+            return _tbo.head(1);
+        case 'TFOOT':
+            return _tbo.foot(1);
+    }
+    return _tbo.body(1);
 }
 
 

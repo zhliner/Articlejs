@@ -1152,6 +1152,23 @@ function clearDeletes( els ) {
 
 
 /**
+ * 元素转换到目标类型。
+ * 如果源元素类型属于目标类型集成员，则直接使用。
+ * 否则取类型集首个成员为默认类型，构造元素并提取源内容填充。
+ * @param  {Element}} el 数据源元素
+ * @param  {[Number]} types 目标类型集
+ * @return {Element}
+ */
+function elementConvert( el, types ) {
+    let _tv = getType( el );
+
+    if ( types.includes(_tv) ) {
+        return el;
+    }
+}
+
+
+/**
  * 控制台警告。
  * @param {String} msg 输出消息
  */
@@ -1638,7 +1655,7 @@ export const Edit = {
      */
     deleteContents() {
         let $cons = $(__ESet)
-            .map( el => contentsBox(el) ).flat(),
+            .map( el => contentBoxes(el) ).flat(),
             _op = clearDeletes( $cons );
 
         if ( _op ) {

@@ -28,7 +28,7 @@ const $ = window.$;
 //
 // 特性标记：
 // 1. EMPTY   空元素（单标签）
-// 2. SEALED  密封单元，定制创建，内部成员只能更新。
+// 2. SEALED  密封单元，定制创建，内部成员只能更新（不接受移动插入）。
 // 3. FIXED   位置固定。只能自我移动（不能被其它元素移动），如：{<caption>}
 //
 const
@@ -193,7 +193,7 @@ export const
     // 文章顶层。
     // 抽象结构，文章的顶层内容容器。
     /////////////////////////////////////////////
-    $TOP            = -10;
+    $TOPBOX         = -10;
 
 
 
@@ -205,9 +205,9 @@ const Specials = {
     //
     // 内联结构元素
     /////////////////////////////////////////////
-    [ AUDIO ]:          INLINES | STRUCT,
-    [ VIDEO ]:          INLINES | STRUCT,
-    [ PICTURE ]:        INLINES | STRUCT,
+    [ AUDIO ]:          INLINES | STRUCT | SEALED,
+    [ VIDEO ]:          INLINES | STRUCT | SEALED,
+    [ PICTURE ]:        INLINES | STRUCT | SEALED,
     [ SVG ]:            INLINES | STRUCT,
     [ RUBY ]:           INLINES | STRUCT | SEALED,
     [ TIME ]:           INLINES | SEALED,
@@ -512,7 +512,7 @@ const ChildTypes = {
     //
     // 文章顶层（编辑器专属）。
     /////////////////////////////////////////////
-    [ $TOP ]:           [ H1, HGROUP, ABSTRACT, TOC, HEADER, ARTICLE, SEEALSO, REFERENCE, FOOTER ],
+    [ $TOPBOX ]:        [ H1, HGROUP, ABSTRACT, TOC, HEADER, ARTICLE, SEEALSO, REFERENCE, FOOTER ],
 
 };
 
