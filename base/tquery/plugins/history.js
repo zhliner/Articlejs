@@ -16,7 +16,7 @@
 //  内容变化：nodevary
 //      type: [
 //          append, prepend, before, after, replace,
-//          empty, remove, removes, normalize
+//          empty, remove, normalize
 //      ]
 //  事件处理绑定变化：bound, unbound, boundone
 //
@@ -381,7 +381,7 @@ class NodeVary {
      */
     _init( el, data, meth ) {
         // 确定为兄弟。
-        if ( meth == 'removes' || meth == 'empty' ) {
+        if ( meth == 'empty' ) {
             return new Siblings( data );
         }
         if ( meth == 'replace' ) {
@@ -469,7 +469,7 @@ class Replace {
 //
 // 兄弟节点操作。
 // 注记：
-// 适用'removes'和'empty'方法，确定为非游离节点数据。
+// 适用'empty'方法，确定为非游离节点数据。
 //
 class Siblings {
     /**

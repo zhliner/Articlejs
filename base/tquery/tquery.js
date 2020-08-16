@@ -63,11 +63,9 @@
     // 节点设置/出错/完成
     // type: [
     //      append, prepend, before, after, replace,
-    //      empty, remove, removes, normalize
+    //      empty, remove, normalize
     // ]
     // 复合操作：fill, wrap, wrapInner, wrapAll, unwrap, html, text
-    // 注：
-    // removes表示删除连续的兄弟元素集，仅限于表格操作（行段|列段）。
 
 
     事件绑定变化事件
@@ -2205,578 +2203,10 @@ Reflect.defineProperty(tQuery, 'version', {
 
 //
 // 简单表格类。
-// 表格成员（如行/列）的简单添加或删除等。
-// 仅适用规范行列的表格，不支持单元格合并/拆分。
-// 不涉及内容操作，需由外部获取内容元素（如单元格）后自行设置。
-//
-class _Table {
-    /**
-     * 创建表格实例。
-     * 不包含表头/脚部分，调用时注意去除表头/脚部分的行计数。
-     * rows 若为表格元素，必须至少包含一行（获取列数）。
-     * @param  {Number|Element} rows 行数或待封装表格元素
-     * @param  {Number} cols 列数
-     * @param  {Number} vth 垂直表头单元位置（1|-1）
-     * @param  {Document} 所属文档对象，可选
-     * @return {Table|Proxy}
-     */
-    constructor( rows, cols, vth, doc = Doc ) {
-        if (rows.nodeType == 1) {
-            return Table._build(this, rows);
-        }
-        let _tbl = doc.createElement('table'),
-            _body = _tbl.createTBody();
-
-        this._tbl = _tbl;
-        this._vth = vth || null;
-        this._cols = cols;
-
-        // 初始为整体逻辑，不激发事件。
-        for (let r = 0; r < rows; r++) {
-            this._buildTR( _body.insertRow(), 'td' );
-        }
-    }
-
-
-    /**
-     * 获取/创建或删除表标题。
-     * op: {
-     *      undefined   返回表标题，不存在则新建
-     *      null        删除并返回表标题（可能为null）
-     * }
-     * @param  {null} op 表标题移除标记
-     * @return {Element|null} 表标题元素
-     */
-    caption( op ) {
-        let _cap = this._tbl.caption;
-
-        if ( op === null ) {
-            return _cap && varyRemove( _cap );
-        }
-        return _cap || varyNewNode(
-            this._tbl,
-            'prepend',
-            this._tbl.ownerDocument.createElement( 'caption' )
-        );
-    }
-
-
-    /**
-     * 获取/删除表体元素。
-     * 传递op为null表示删除目标位置的表体元素（并返回之）。
-     * 未指定下标时返回表体元素数组。
-     * 删除表体元素时必须指定下标位置。
-     * @param  {Number} idx 表体元素序号（从0开始）
-     * @param  {null} op 删除操作标识，可选
-     * @return {Element|[Element]} 表体元素（集）
-     */
-    bodies( idx, op ) {
-        let _bd = this._tbl.tBodies[idx];
-
-        if ( op === null ) {
-            return _bd && varyRemove( _bd );
-        }
-        return idx == null ? Arr(this._tbl.tBodies) : _bd;
-    }
-
-
-    /**
-     * 获取/删除表体元素或添加表格行。
-     * 简单的无参数调用返回首个表体元素。
-     * 传递rows为null会删除首个表体元素或传入的tsec（并返回之）。
-     * 添加表格行时会保持列数合法（空单元格）。
-     * idx为null|undefined，表示新行插入到末尾。
-     * 注：如果缺少表体元素，会自动创建。
-     * @param  {Number} rows 行数，可选
-     * @param  {Number} idx 插入位置，支持负数从末尾算起，可选
-     * @param  {TableSection} tsec 目标<tbody>元素，可选
-     * @return {Element|Collector} 表体元素或新添加的行元素集
-     */
-    body( rows, idx, tsec ) {
-        tsec = tsec || this._tbl.tBodies[0];
-
-        if ( rows === undefined ) {
-            return tsec
-        }
-        if ( rows === null ) {
-            return tsec && varyRemove( tsec );
-        }
-        if ( !tsec ) {
-            tsec = insertNode(
-                this._tbl,
-                this._tbl.ownerDocument.createElement( 'tbody' ),
-                this._tbl.tFoot
-            );
-        }
-        return this._insertRows( tsec, idx, rows );
-    }
-
-
-    /**
-     * 获取/删除表头元素或添加表头行。
-     * 无参数调用返回表头元素（可能为null）。
-     * 传递创建参数时，如果不存在表头元素（THead）会新建。
-     * rows 为null会删除表头元素并返回之。
-     * idx 支持负数从末尾算起，null|undefined表示末尾之后。
-     * @param  {Number|null} rows 行数，可选
-     * @param  {Number} idx 插入位置，可选
-     * @return {Element|Collector} 表头元素或新添加的行元素集
-     */
-    head( rows, idx ) {
-        let _tsec = this._tbl.tHead;
-
-        if ( rows === undefined ) {
-            return _tsec;
-        }
-        if ( rows === null ) {
-            return _tsec && varyRemove( _tsec );
-        }
-        if ( !_tsec ) {
-            _tsec = insertNode(
-                this._tbl,
-                this._tbl.ownerDocument.createElement( 'thead' ),
-                this._tbl.tBodies[0] || this._tbl.tFoot
-            );
-        }
-        return this._insertRows( _tsec, idx, rows, 'th' );
-    }
-
-
-    /**
-     * 获取/删除表脚元素或添加表脚行。
-     * 简单的无参数调用返回表脚元素（可能为null）。
-     * 传递rows为null会删除表脚元素并返回它（可能为null）。
-     * 传递创建参数时，如果不存在表脚元素（TFoot）会新建。
-     * rows 实参为null会删除表脚元素。
-     * idx 支持负数从末尾算起，null|undefined表示末尾之后。
-     * @param  {Number|null} rows 行数，可选
-     * @param  {Number} idx 插入位置，可选
-     * @return {Element|Collector} 表脚元素或新添加的行元素集
-     */
-    foot( rows, idx ) {
-        let _tsec = this._tbl.tFoot;
-
-        if ( rows === undefined ) {
-            return _tsec;
-        }
-        if ( rows === null ) {
-            return _tsec && varyRemove( _tsec );
-        }
-        if ( !_tsec ) {
-            _tsec = varyNewNode(
-                this._tbl,
-                'append',
-                this._tbl.ownerDocument.createElement( 'tfoot' )
-            );
-        }
-        return this._insertRows( _tsec, idx, rows );
-    }
-
-
-    /**
-     * 获取目标行元素。
-     * 如果未指定tsec，表格行计数包含表头和表尾部分。
-     * idx 支持负数从末尾算起。
-     * @param  {Number} idx 目标行下标
-     * @param  {TableSection} tsec 表体区，可选
-     * @return {Element|null} 表格行
-     */
-    get( idx, tsec ) {
-        let _rows = (tsec || this._tbl).rows;
-        return _rows[ this._index(idx, _rows.length) ] || null;
-    }
-
-
-    /**
-     * 获取目标行集。
-     * 如果未指定tsec，表格行计数指整个表格（thead/tbody/tfoot）。
-     * idx 支持负数从末尾算起。
-     * @param  {Number} idx 起始位置
-     * @param  {Number} count 获取行数（null|undefined表示全部），可选
-     * @param  {TableSection} tsec 表体区，可选
-     * @return {Collector} 行元素集
-     */
-    gets( idx, count, tsec ) {
-        let _rows = (tsec || this._tbl).rows;
-
-        idx = this._index( idx, _rows.length );
-        count = this._count( idx, _rows.length, count );
-
-        return new Collector(
-            [...rangeNumber(idx, count)].map( i => _rows[i] )
-        );
-    }
-
-
-    /**
-     * 删除单个表格行。
-     * idx 支持负数从末尾算起。
-     * @param  {Number} idx 目标位置下标
-     * @param  {TableSection} tsec 表体区，可选
-     * @return {Element|null} 删除的行元素
-     */
-    remove( idx, tsec ) {
-        let _tr = this.get( idx, tsec );
-        return _tr && varyRemove( _tr );
-    }
-
-
-    /**
-     * 删除多个表格行。
-     * 如果未指定tsec，行计数指整个表格（thead/tbody/tfoot）。
-     * idx 支持负数从末尾算起。
-     * count 为null|undefined表示起始位置之后全部。
-     * count 计数大于剩余行数，取剩余行数（容错超出范围）。
-     * @param  {Number} idx 起始位置（从0开始）
-     * @param  {Number} count 删除数量
-     * @param  {TableSection} tsec 表体区，可选
-     * @return {Collector} 删除的行元素集
-     */
-    removes( idx, count, tsec ) {
-        tsec = tsec || this._tbl;
-        return varyRemoves( this.gets(idx, count, tsec), tsec );
-    }
-
-
-    /**
-     * 插入一列。
-     * 在下标位置前插（新列即在下标位置）。
-     * idx 支持负值从末尾算起。
-     * 传递idx为null|undefined表示插入到末尾之后。
-     * 注：表格必须有参考列（即至少已有1列）。
-     * @param  {Number} idx 下标位置，可选
-     * @return {Collector} 新插入的列单元格集
-     */
-    insertColumn( idx ) {
-        let _buf = [];
-        idx = this._index( idx, this._cols );
-
-        for (const tr of this._tbl.rows) {
-            let _ref = tr.cells[idx],
-                _tag = this._cellTag(tr);
-            _buf.push(
-                insertNode( tr, this._columnCell(_ref, tr.cells[idx-1], _tag), _ref )
-            );
-        }
-        this._cols += 1;
-
-        return new Collector( _buf );
-    }
-
-
-    /**
-     * 插入多列。
-     * idx 支持负值从末尾算起。
-     * 传递idx为null|undefined表示插入到末尾之后。
-     * @param  {Number} cols 新列数量
-     * @param  {Number} idx 列下标位置，可选
-     * @return {Collector} 新插入的列单元格数组集（二维）
-     */
-    insertColumns( cols, idx ) {
-        let _buf = [];
-        idx = this._index( idx, this._tbl.rows[0].cells.length );
-
-        for (const tr of this._tbl.rows) {
-            let _ref = tr.cells[idx],
-                _tag = this._cellTag(tr);
-            _buf.push(
-                insertNodes( tr, this._newCells(_ref, tr.cells[idx-1], cols, _tag), _ref )
-            );
-        }
-        this._cols += cols;
-
-        return new Collector( _buf );
-    }
-
-
-    /**
-     * 删除一列。
-     * idx 支持负值从末尾算起。
-     * @param  {Number} idx 位置下标
-     * @return {Collector} 删除的列单元格集
-     */
-    removeColumn( idx ) {
-        let _buf = [];
-        idx = this._index( idx, this._cols );
-
-        if ( idx < this._cols ) {
-            for (const tr of this._tbl.rows) {
-                _buf.push( varyRemove(tr.cells[idx]) );
-            }
-        }
-        this._cols -= 1;
-
-        return new Collector( _buf );
-    }
-
-
-    /**
-     * 删除多列。
-     * idx 支持负值从末尾算起。
-     * cols 未传递（undefined）或超出范围，会删除到末尾。
-     * 注：若未实际删除内容，返回集的成员将全部为空数组。
-     * @param  {Number} idx 起始位置下标
-     * @param  {Number} cols 待删除的列数，可选
-     * @return {Collector} 删除的列单元格数组集
-     */
-    removeColumns( idx, cols ) {
-        let _buf = [],
-            _max = this._tbl.rows[0].cells.length;
-
-        idx = this._index( idx, _max );
-        cols = this._count( idx, _max, cols );
-
-        for (const tr of this._tbl.rows) {
-            _buf.push(
-                varyRemoves( this._columnCells(tr, idx, cols), tr )
-            );
-        }
-        this._cols -= cols;
-
-        return new Collector( _buf );
-    }
-
-
-    /**
-     * 返回表格目标区的行数。
-     * 未指定实参时计数针对整个表格。
-     * @param  {TableSection} 表格目标区，可选
-     * @return {Number}
-     */
-    rows( tsec ) {
-        return (tsec || this._tbl).rows.length;
-    }
-
-
-    /**
-     * 返回表格的列数。
-     * @return {Number}
-     */
-    columns() {
-        return this._cols;
-    }
-
-
-    /**
-     * 创建并插入一个新的<tbody>元素。
-     * 注：一个表格中允许多个<tbody>（可模拟分片效果）。
-     * @return {Element} 新建的<tbody>
-     */
-    newBody() {
-        return this._tbl.createTBody();
-    }
-
-
-    /**
-     * 列表头位置。
-     * @return {Number|null}
-     */
-    vth() {
-        return this._vth;
-    }
-
-
-    /**
-     * 返回原始的表格元素。
-     * @return {Element}
-     */
-    element() {
-        return this._tbl;
-    }
-
-
-    //-- 私有辅助 -------------------------------------------------------------
-
-
-    /**
-     * 构建表格行。
-     * 仅包含空的单元格（内容赋值由外部处理）。
-     * @param  {Element} tr 表格行容器（空）
-     * @param  {String} tag 单元格标签名，可选
-     * @return {Element} tr 原表格行
-     */
-     _buildTR( tr, tag, doc = tr.ownerDocument ) {
-        if ( this._cols > 0 ) {
-            // 整体逻辑，不激发事件。
-            tr.append( ...this._rowCells(this._cols, this._vth, tag, doc) );
-        }
-        return tr;
-    }
-
-
-    /**
-     * 插入表格行。
-     * 保持合法的列数，全部为空单元格。
-     * 可适用表格行已被全部删除后的情况。
-     * @param  {TableSection} sect 表格区域（TBody|THead|TFoot）
-     * @param  {Number} idx 插入位置（>=0）
-     * @param  {Number} rows 插入行数
-     * @param  {String} tag 主要单元格名称
-     * @return {Collector} 新插入的行元素（集）
-     */
-    _insertRows( sect, idx, rows = 1, tag = 'td', doc = sect.ownerDocument ) {
-        idx = this._index(idx, sect.rows.length);
-        let _buf = [];
-
-        for (let r = 0; r < rows; r++) {
-            _buf.push(
-                this._buildTR( doc.createElement('tr'), tag )
-            );
-        }
-        // 行集作为一个整体插入/激发事件。
-        return new Collector( insertNodes(sect, _buf, sect.rows[idx]) );
-    }
-
-
-    /**
-     * 创建一个列单元格。
-     * 注：可能已经没有表格列（全部空<tr>）。
-     * @param  {Element} ref 参考单元格
-     * @param  {Element} prev 参考单元格前一个单元格
-     * @param  {String} tag 单元格标签名（th|td）
-     * @return {Element}
-     */
-    _columnCell( ref, prev, tag ) {
-        ref = ref || prev;
-
-        if ( ref ) {
-            return ref.cloneNode();
-        }
-        return this._tbl.ownerDocument.createElement( this._vth ? 'th' : tag );
-    }
-
-
-    /**
-     * 创建列单元格集（行段）。
-     * 新单元格参考目标位置的单元格创建（同类）。
-     * 末尾列参考原末尾列单元格创建。
-     * @param  {Element} ref 参考单元格
-     * @param  {Element} prev 参考单元格前一个单元格
-     * @param  {Number} cols 列数（段长度）
-     * @param  {String} tag 单元格标签名（th|td）
-     * @return {[Element]}
-     */
-    _newCells( ref, prev, cols, tag ) {
-        ref = ref || prev;
-
-        if ( !ref ) {
-            return this._rowCells( cols, this._vth, tag, this._tbl.ownerDocument );
-        }
-        let _buf = [];
-
-        for (let i = 0; i < cols; i++) {
-            _buf.push( ref.cloneNode() );
-        }
-        return _buf;
-    }
-
-
-    /**
-     * 新建一行单元格（集）。
-     * @param  {Number} cols 列数
-     * @param  {Number} vth 列表头位置（1|-1）
-     * @param  {String} tag 单元格标签名（th|td）
-     * @param  {Document} doc 所属文档对象
-     * @return {[Element]}
-     */
-    _rowCells( cols, vth, tag, doc ) {
-        let _buf = [];
-
-        for (let i = 0; i < cols-1; i++) {
-            _buf.push( doc.createElement(tag) );
-        }
-        return insertVth( vth, _buf, doc );
-    }
-
-
-    /**
-     * 获取连续单元格段。
-     * 注：idx已与size正确匹配（idx溢出时size为0）。
-     * @param  {Element} tr 表格行
-     * @param  {Number} idx 目标位置
-     * @param  {Number} size 删除数量
-     * @return {[Element]} 被删除的单元格集
-     */
-    _columnCells( tr, idx, size ) {
-        let _buf = [];
-
-        for (let i = 0; i < size; i++) {
-            _buf.push( tr.cells[idx++] );
-        }
-        return _buf;
-    }
-
-
-    /**
-     * 检查获取单元格标签名。
-     * 用户可能错误地插入多个<thead>，但容错（依然为<th>）。
-     * @param  {Element} tr 表格行
-     * @return {String}
-     */
-    _cellTag( tr ) {
-        return this._tbl.tHead &&
-            tr.parentNode.nodeName === 'THEAD' ? 'th' : 'td';
-    }
-
-
-    /**
-     * 计算合法的下标值。
-     * idx:
-     * - 支持负值从末尾算起（-1为最末一行）。
-     * - null值或超出max时，视为max本身。
-     * @param  {Number} idx 位置下标
-     * @param  {Number} max 最多行/列数限制
-     * @return {Number}
-     */
-    _index( idx, max ) {
-        if ( idx < 0 ) {
-            idx += max;
-        }
-        return idx == null || idx < 0 || idx > max ? max : idx;
-    }
-
-
-    /**
-     * 计算合法的行数（或列数）。
-     * idx 已为正数有效值。
-     * count 如果未指定表示后续全部。
-     * @param  {Number} idx 起点位置
-     * @param  {Number} max 最多行/列数限制
-     * @param  {Number} count 获取行/列数，可选
-     * @return {Number}
-     */
-    _count( idx, max, count ) {
-        let _sz = max - idx;
-
-        if ( count == null ) {
-            return _sz;
-        }
-        return count >= 0 && count < _sz ? count : _sz;
-    }
-
-
-    /**
-     * 删除目标行。
-     * 假设idx参数已合法。
-     * @param  {Number} idx 目标位置
-     * @param  {TableSection} tsec 表体区
-     * @return {Element} 删除的元素
-     */
-    _remove( idx, tsec ) {
-        let _row = tsec.rows[idx];
-        tsec.deleteRow(idx);
-        return _row;
-    }
-
-}
-
-
-//
-// 简单表格类。
-// 新建的行或单元格序列不再自动插入，需由用户执行。
-// 新建的<caption>/<tbody>/<thead>/<tfoot>有位置约束，因此默认插入。
 // 仅适用规范行列的表格，不支持单元格合并/拆分。
 // 不涉及表标题或单元格内容的操作，需由外部负责。
+// 注记：
+// 大部分创建的单元需要由用户主动插入（有专用插入方法）。
 //
 class Table {
     /**
@@ -2809,9 +2239,9 @@ class Table {
 
 
     /**
-     * 标题集操作：获取/删除。
+     * 标体集操作：获取/删除。
      * idx: {
-     *      undefined   返回表体集合（可能为空）
+     *      undefined   返回表体集合（可能为空数组）
      *      {Number}    定位表体位置，操作视op而定
      * }
      * op: {
@@ -2820,7 +2250,7 @@ class Table {
      * }
      * @param  {Number} idx 表体元素序号（从0开始）
      * @param  {null} op 删除标识，可选
-     * @return {Element|[Element]|null} 表体元素（集）
+     * @return {Element|[Element]|undefined} 表体元素（集）
      */
     bodies( idx, op ) {
         let _bd = this._tbl.tBodies[idx];
@@ -2833,7 +2263,7 @@ class Table {
 
 
     /**
-     * 表标题：获取/新建/删除。
+     * 表标题：新建/获取/删除。
      * op: {
      *      true        无条件创建一个表标题（未插入）
      *      undefined   返回表标题（可能为null）
@@ -2869,14 +2299,14 @@ class Table {
 
 
     /**
-     * 0号表体：获取/新建/删除。
+     * 0号表体：新建/获取/删除。
      * op: {
      *      true        无条件新建一个表体元素（未插入）
      *      undefined   返回下标为0的表体元素（可能为null）
      *      null        删除并返回0位表体元素（可能为null）
      * }
      * @param  {null|true} op 删除/新建标识，可选
-     * @return {Element|null} 首个表体元素
+     * @return {Element|undefined} 首个表体元素
      */
     body( op ) {
         if ( op === true ) {
@@ -2909,7 +2339,7 @@ class Table {
 
 
     /**
-     * 表头：获取/新建/删除。
+     * 表头：新建/获取/删除。
      * op: {
      *      true        无条件创建一个表头元素（未插入）
      *      undefined   返回表头元素（可能为null）
@@ -2946,7 +2376,7 @@ class Table {
 
 
     /**
-     * 获取/删除表脚元素。
+     * 表脚：新建/获取/删除。
      * op: {
      *      true        无条件创建一个表脚元素（未插入）
      *      undefined   返回表脚元素（可能为null）
@@ -2983,31 +2413,39 @@ class Table {
 
     /**
      * 创建一行。
-     * 不会默认插入，由用户自行处理。
-     * 包含了合法的单元格子元素。
+     * 新行不会默认插入，由用户自行处理。
+     * 但行内已经插入了合规的单元格序列（如列头）。
      * @param  {Boolean} head 是否为表头行
      * @return {Element} 行元素
      */
     newTr( head ) {
-        //
+        return this._buildTR( this._create('tr'), head ? 'th' : 'td' );
     }
 
 
     /**
      * 插入一行。
-     * @param {Number} idx 位置下标
-     * @param {Element} el 表格行元素
-     * @param {TableSection} tsec 表区域
+     * 位置下标支持负数从末尾算起。
+     * @param  {Element} tr 表格行元素
+     * @param  {Number} idx 位置下标（从0开始），可选
+     * @param  {TableSection} tsec 表区域，可选
+     * @return {Element} tr
      */
-    insertTr( idx, el, tsec ) {
-        //
+    insertTr( tr, idx, tsec ) {
+        return insertNode(
+            tsec || this._tbl,
+            tr,
+            tsec.rows[ this._index(idx, tsec.rows.length) ]
+        );
     }
 
 
     /**
      * 删除一行。
-     * @param {Number} idx 行下标（从0算起）
-     * @param {TableSection} 表区域元素
+     * 如果指定的位置超出范围，则无效果（返回undefined）。
+     * @param  {Number} idx 行下标（从0算起）
+     * @param  {TableSection} 表区域元素
+     * @return {Element|undefined} 删除的行元素
      */
     removeTr( idx, tsec ) {
         let _tr = this.tr( idx, tsec );
@@ -3021,11 +2459,11 @@ class Table {
      * idx 支持负数从末尾算起。
      * @param  {Number} idx 目标行下标
      * @param  {TableSection} tsec 表体区，可选
-     * @return {Element|null} 表格行
+     * @return {Element|undefined} 表格行
      */
     tr( idx, tsec ) {
         let _rows = (tsec || this._tbl).rows;
-        return _rows[ this._index(idx, _rows.length) ] || null;
+        return _rows[ this._index(idx, _rows.length) ];
     }
 
 
@@ -3036,19 +2474,34 @@ class Table {
      * @return {[Element]} 列单元格集
      */
     newColumn( vth ) {
-        //
+        let _buf = [];
+
+        for (const tr of this._tbl.rows) {
+            let _tag = vth ?
+                'th' :
+                this._cellTag( tr );
+
+            _buf.push( this._create( _tag) );
+        }
+        return _buf;
     }
 
 
     /**
      * 插入一列。
-     * 实参cells应当是调用 column() 的返回值。
-     * 注记：非常规插入，因此提供接口。
-     * @param {Number} idx 列位置下标（从0开始）
-     * @param {[Element]} cells 列单元格序列
+     * 实参cells应当是调用 newColumn() 的返回值。
+     * @param  {Number} idx 列位置下标（从0开始）
+     * @param  {[Element]} cells 列单元格序列
+     * @return {[Element]} cells
      */
     insertColumn( idx, cells ) {
-        //
+        let _n = 0;
+        idx = this._index( idx, this._cols );
+
+        for ( const tr of this._tbl.rows ) {
+            insertNode( tr, cells[_n++], tr.cells[idx] );
+        }
+        return cells;
     }
 
 
@@ -3058,7 +2511,13 @@ class Table {
      * @return {[Element]} 被删除的单元格集
      */
     removeColumn( idx ) {
-        //
+        let _buf = this.column( idx );
+
+        if ( _buf.length ) {
+            this._cols -= 1;
+            _buf.forEach( el => varyRemove(el) );
+        }
+        return _buf;
     }
 
 
@@ -3068,7 +2527,15 @@ class Table {
      * @return {[Element]} 列单元格序列
      */
     column( idx ) {
-        //
+        let _buf = [];
+        idx = this._index( idx, this._cols );
+
+        if ( idx < this._cols ) {
+            for ( const tr of this._tbl.rows ) {
+                _buf.push( tr.cells[idx] );
+            }
+        }
+        return _buf;
     }
 
 
@@ -3131,113 +2598,26 @@ class Table {
      */
      _buildTR( tr, tag, doc = tr.ownerDocument ) {
         if ( this._cols > 0 ) {
-            // 整体逻辑，不激发事件。
-            tr.append( ...this._rowCells(this._cols, this._vth, tag, doc) );
+            // 新建游离，不激发事件。
+            tr.append( ...this._rowCells(tag, doc) );
         }
         return tr;
     }
 
 
     /**
-     * 插入表格行。
-     * 保持合法的列数，全部为空单元格。
-     * 可适用表格行已被全部删除后的情况。
-     * @param  {TableSection} sect 表格区域（TBody|THead|TFoot）
-     * @param  {Number} idx 插入位置（>=0）
-     * @param  {Number} rows 插入行数
-     * @param  {String} tag 主要单元格名称
-     * @return {Collector} 新插入的行元素（集）
-     */
-    _insertRows( sect, idx, rows = 1, tag = 'td', doc = sect.ownerDocument ) {
-        idx = this._index(idx, sect.rows.length);
-        let _buf = [];
-
-        for (let r = 0; r < rows; r++) {
-            _buf.push(
-                this._buildTR( doc.createElement('tr'), tag )
-            );
-        }
-        // 行集作为一个整体插入/激发事件。
-        return new Collector( insertNodes(sect, _buf, sect.rows[idx]) );
-    }
-
-
-    /**
-     * 创建一个列单元格。
-     * 注：可能已经没有表格列（全部空<tr>）。
-     * @param  {Element} ref 参考单元格
-     * @param  {Element} prev 参考单元格前一个单元格
-     * @param  {String} tag 单元格标签名（th|td）
-     * @return {Element}
-     */
-    _columnCell( ref, prev, tag ) {
-        ref = ref || prev;
-
-        if ( ref ) {
-            return ref.cloneNode();
-        }
-        return this._tbl.ownerDocument.createElement( this._vth ? 'th' : tag );
-    }
-
-
-    /**
-     * 创建列单元格集（行段）。
-     * 新单元格参考目标位置的单元格创建（同类）。
-     * 末尾列参考原末尾列单元格创建。
-     * @param  {Element} ref 参考单元格
-     * @param  {Element} prev 参考单元格前一个单元格
-     * @param  {Number} cols 列数（段长度）
-     * @param  {String} tag 单元格标签名（th|td）
-     * @return {[Element]}
-     */
-    _newCells( ref, prev, cols, tag ) {
-        ref = ref || prev;
-
-        if ( !ref ) {
-            return this._rowCells( cols, this._vth, tag, this._tbl.ownerDocument );
-        }
-        let _buf = [];
-
-        for (let i = 0; i < cols; i++) {
-            _buf.push( ref.cloneNode() );
-        }
-        return _buf;
-    }
-
-
-    /**
-     * 新建一行单元格（集）。
-     * @param  {Number} cols 列数
-     * @param  {Number} vth 列表头位置（1|-1）
+     * 新建一行单元格集。
      * @param  {String} tag 单元格标签名（th|td）
      * @param  {Document} doc 所属文档对象
      * @return {[Element]}
      */
-    _rowCells( cols, vth, tag, doc ) {
+    _rowCells( tag, doc ) {
         let _buf = [];
 
-        for (let i = 0; i < cols-1; i++) {
+        for (let i = 0; i < this._cols-1; i++) {
             _buf.push( doc.createElement(tag) );
         }
-        return insertVth( vth, _buf, doc );
-    }
-
-
-    /**
-     * 获取连续单元格段。
-     * 注：idx已与size正确匹配（idx溢出时size为0）。
-     * @param  {Element} tr 表格行
-     * @param  {Number} idx 目标位置
-     * @param  {Number} size 删除数量
-     * @return {[Element]} 被删除的单元格集
-     */
-    _columnCells( tr, idx, size ) {
-        let _buf = [];
-
-        for (let i = 0; i < size; i++) {
-            _buf.push( tr.cells[idx++] );
-        }
-        return _buf;
+        return insertVth( this._vth, _buf, doc );
     }
 
 
@@ -3248,8 +2628,7 @@ class Table {
      * @return {String}
      */
     _cellTag( tr ) {
-        return this._tbl.tHead &&
-            tr.parentNode.nodeName === 'THEAD' ? 'th' : 'td';
+        return tr.parentNode.nodeName === 'THEAD' ? 'th' : 'td';
     }
 
 
@@ -3268,40 +2647,6 @@ class Table {
         }
         return idx == null || idx < 0 || idx > max ? max : idx;
     }
-
-
-    /**
-     * 计算合法的行数（或列数）。
-     * idx 已为正数有效值。
-     * count 如果未指定表示后续全部。
-     * @param  {Number} idx 起点位置
-     * @param  {Number} max 最多行/列数限制
-     * @param  {Number} count 获取行/列数，可选
-     * @return {Number}
-     */
-    _count( idx, max, count ) {
-        let _sz = max - idx;
-
-        if ( count == null ) {
-            return _sz;
-        }
-        return count >= 0 && count < _sz ? count : _sz;
-    }
-
-
-    /**
-     * 删除目标行。
-     * 假设idx参数已合法。
-     * @param  {Number} idx 目标位置
-     * @param  {TableSection} tsec 表体区
-     * @return {Element} 删除的元素
-     */
-    _remove( idx, tsec ) {
-        let _row = tsec.rows[idx];
-        tsec.deleteRow(idx);
-        return _row;
-    }
-
 }
 
 
@@ -6451,29 +5796,6 @@ function varyNewNodes( el, meth, nodes ) {
     limitTrigger( el, evnNodeDone, _msg );
 
     return nodes;
-}
-
-
-/**
- * 子元素集删除封装。
- * subs为连续的子元素集，仅用于表格单元操作：
- * - 删除连续的表格行<tr>。
- * - 删除连续的单元格<th>|<td>（列段）。
- * @param  {[Element]} subs 待删除子元素集
- * @param  {Element} box 容器元素（tbody|thead|tfoot|tr）
- * @return {[Element]} 删除的子元素集
- */
-function varyRemoves( subs, box ) {
-    if ( box ) {
-        let _msg = {
-            method: 'removes',
-            data: subs,
-        };
-        limitTrigger( box, evnNodeVary, _msg );
-        subs.forEach( nd => nd.remove() );
-        limitTrigger( box, evnNodeDone, _msg );
-    }
-    return subs;
 }
 
 
