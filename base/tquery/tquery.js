@@ -5895,21 +5895,6 @@ function insertNode( box, sub, ref ) {
 
 
 /**
- * 子元素集插入封装。
- * 注：子元素是新建的游离元素。
- * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
- * @param  {[Element]} subs 子元素集
- * @param  {Element} ref 位置引用（前插），可选
- * @return {[Element]} 新插入的子元素集
- */
-function insertNodes( box, subs, ref ) {
-    return ref ?
-        varyNewNodes( ref, 'before', subs ) :
-        varyNewNodes( box, 'append', subs );
-}
-
-
-/**
  * 让节点集脱离父元素。
  * @param  {Node|[Node]} nodes 节点（集）
  * @return {[Node]} 节点集
