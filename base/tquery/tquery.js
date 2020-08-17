@@ -676,16 +676,27 @@ Object.assign( tQuery, {
 
     /**
      * 创建或封装Table实例。
-     * vth 并不标准，但这样可以简单获得列表头的效果。
-     * vth 为1表示首列为<th>，-1表示末尾列为<th>。
+     * th0 表示表格的首列全为<th>单元格，
+     * 这并不标准，但可以简单获得列表头的效果。
      * @param  {Number|Element} rows 表格行数或表格元素
-     * @param  {Number} cols 表格列数
-     * @param  {Number} vth 垂直列表头位置（1|-1），可选
+     * @param  {Number} cols 表格列数（含列头）
+     * @param  {Boolean} th0 是否包含列表头，可选
      * @param  {Document} doc 所属文档对象
      * @return {Table} 表格实例
      */
-    table( rows, cols, vth, doc = Doc ) {
-        return new Table( rows, cols, vth, doc );
+    table( rows, cols, th0, doc = Doc ) {
+        if ( rows.nodeType ) {
+            return new Table( rows );
+        }
+        if ( th0 ) {
+            cols--;
+        }
+        let _tbo = new Table( rows, cols, doc );
+
+        if ( th0 ) {
+            _tbo.insertColumn( _tbo.newColumn(true), 0 );
+        }
+        return _tbo;
     },
 
 
@@ -2203,7 +2214,8 @@ Reflect.defineProperty(tQuery, 'version', {
 
 //
 // 简单表格类。
-// 仅适用规范行列的表格，不支持单元格合并/拆分。
+// 仅适用规范行列的表格，不支持单元格合并/拆分（但容错）。
+// 用户可以在任意列位置插入列表头（纵列为<th>）。
 // 不涉及表标题或单元格内容的操作，需由外部负责。
 // 注记：
 // 大部分创建的单元需要由用户主动插入（有专用插入方法）。
@@ -2213,25 +2225,22 @@ class Table {
      * 创建表格实例。
      * 不包含表头/脚部分，调用时注意去除表头/脚部分的行计数。
      * rows 若为表格元素，必须至少包含一行（获取列数）。
-     * 初始强制创建表体元素（不发送创建事件）。
      * @param  {Number|Element} rows 行数或待封装表格元素
      * @param  {Number} cols 列数
-     * @param  {Number} vth 垂直表头单元位置（1|-1）
      * @param  {Document} 所属文档对象，可选
      * @return {Table|Proxy}
      */
-    constructor( rows, cols, vth, doc = Doc ) {
-        if (rows.nodeType == 1) {
+    constructor( rows, cols, doc = Doc ) {
+        if ( rows.nodeType ) {
             return Table._build(this, rows);
         }
         let _tbl = doc.createElement('table'),
             _body = _tbl.createTBody();
 
         this._tbl = _tbl;
-        this._vth = vth || null;
         this._cols = cols;
 
-        // 初始为整体逻辑，不激发事件。
+        // 初始构造不激发事件。
         for (let r = 0; r < rows; r++) {
             this._buildTR( _body.insertRow(), 'td' );
         }
@@ -2413,27 +2422,42 @@ class Table {
 
     /**
      * 创建一行。
-     * 新行不会默认插入，由用户自行处理。
-     * 但行内已经插入了合规的单元格序列（如列头）。
+     * 行内已经插入了合规的单元格序列（如列头）。
+     * 非表头时，单元格类型与表体或表脚首行相同（足量不跨列）。
+     * 注记：容错表格全空状态（无行）。
      * @param  {Boolean} head 是否为表头行
      * @return {Element} 行元素
      */
-    newTr( head ) {
-        return this._buildTR( this._create('tr'), head ? 'th' : 'td' );
+    newTR( head ) {
+        let _tr = this._create( 'tr' );
+
+        if ( head ) {
+            return this._buildTR( _tr, 'th' );
+        }
+        let _ref = this._tbl.tBodies[0].rows[0] || this._tbl.tFoot.rows[0];
+
+        if ( !_ref ) {
+            return this._buildTR( _tr, 'td' );
+        }
+        _tr.append( ...this._rowCells(_ref) );
+
+        return _tr;
     }
 
 
     /**
      * 插入一行。
-     * 位置下标支持负数从末尾算起。
+     * 位置下标支持负数从末尾算起。默认插入到sec末尾。
+     * 注意：-1 定位到最后一行，但为插入其前。
+     * 未传递表区域实参sec时，默认为首个表体元素。
      * @param  {Element} tr 表格行元素
      * @param  {Number} idx 位置下标（从0开始），可选
      * @param  {TableSection} sec 表区域，可选
      * @return {Element} tr
      */
-    insertTr( tr, idx, sec ) {
+    insertTR( tr, idx, sec ) {
+        sec = sec || this._tbl.tBodies[0];
         idx = this._index( idx, sec.rows.length );
-        sec = sec || this._tbl;
 
         return insertNode( sec, tr, sec.rows[idx] );
     }
@@ -2446,7 +2470,7 @@ class Table {
      * @param  {TableSection} 表区域元素
      * @return {Element|undefined} 删除的行元素
      */
-    removeTr( idx, tsec ) {
+    removeTR( idx, tsec ) {
         let _tr = this.tr( idx, tsec );
         return _tr && varyRemove( _tr );
     }
@@ -2468,7 +2492,6 @@ class Table {
 
     /**
      * 创建一列单元格序列。
-     * 会考虑是否存在表头（首个成员为<th>）。
      * @param  {Boolean} vth 是否为列头（全<th>）
      * @return {[Element]} 列单元格集
      */
@@ -2489,17 +2512,19 @@ class Table {
     /**
      * 插入一列。
      * 实参cells应当是调用 newColumn() 的返回值。
-     * @param  {Number} idx 列位置下标（从0开始）
      * @param  {[Element]} cells 列单元格序列
+     * @param  {Number} idx 列位置下标（从0开始）
      * @return {[Element]} cells
      */
-    insertColumn( idx, cells ) {
+    insertColumn( cells, idx ) {
         let _n = 0;
         idx = this._index( idx, this._cols );
 
         for ( const tr of this._tbl.rows ) {
             insertNode( tr, cells[_n++], tr.cells[idx] );
         }
+        this._cols++;
+
         return cells;
     }
 
@@ -2559,15 +2584,6 @@ class Table {
 
 
     /**
-     * 列表头位置。
-     * @return {Number|null}
-     */
-    vth() {
-        return this._vth;
-    }
-
-
-    /**
      * 返回原始的表格元素。
      * @return {Element}
      */
@@ -2589,45 +2605,69 @@ class Table {
 
 
     /**
-     * 构建表格行。
-     * 仅包含空的单元格（内容赋值由外部处理）。
+     * 构建一个表格行。
+     * 包含空的单元格（内容赋值由用户负责）。
+     * 注记：tr为初始构造或游离元素，不激发事件。
      * @param  {Element} tr 表格行容器（空）
-     * @param  {String} tag 单元格标签名，可选
+     * @param  {String} tag 单元格标签名
      * @return {Element} tr 原表格行
      */
      _buildTR( tr, tag, doc = tr.ownerDocument ) {
         if ( this._cols > 0 ) {
-            // 新建游离，不激发事件。
-            tr.append( ...this._rowCells(tag, doc) );
+            let _buf = [];
+
+            for ( let i = 0; i < this._cols; i++ ) {
+                _buf.push( doc.createElement(tag) );
+            }
+            tr.append( ..._buf );
         }
         return tr;
     }
 
 
     /**
-     * 新建一行单元格集。
-     * @param  {String} tag 单元格标签名（th|td）
+     * 新建一行单元格序列。
+     * 取参考行的单元格类型创建相同类型单元格（<th>|<td>）。
+     * 返回的单元格包含了完整列数。
+     * @param  {Element} ref 参考行
      * @param  {Document} doc 所属文档对象
      * @return {[Element]}
      */
-    _rowCells( tag, doc ) {
-        let _buf = [];
-
-        for (let i = 0; i < this._cols-1; i++) {
-            _buf.push( doc.createElement(tag) );
-        }
-        return insertVth( this._vth, _buf, doc );
+    _rowCells( ref, doc = ref.ownerDocument ) {
+        return this._cellsTag( ref )
+            .map( tag => doc.createElement(tag) )
+            // 容错异常多出。
+            .splice( 0, this._cols );
     }
 
 
     /**
-     * 检查获取单元格标签名。
-     * 用户可能错误地插入多个<thead>，但容错（依然为<th>）。
+     * 获取行内足量单元格标签名集。
+     * 兼容跨列单元格，提取为多个相同标签名。
+     * @param  {Element} tr 表格行元素
+     * @return {[String]}
+     */
+    _cellsTag( tr ) {
+        let _buf = [];
+
+        for ( const cell of tr.cells ) {
+            let _n = cell.colSpan;
+            while ( _n-- ) _buf.push( cell.tagName );
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 获取单元格标签名。
+     * 仅检查行元素是否在表头之中（<thead>）。
+     * 用户可能错误地插入多个表头，此可容错。
+     * 注记：用于列创建时。
      * @param  {Element} tr 表格行
      * @return {String}
      */
     _cellTag( tr ) {
-        return tr.parentNode.nodeName === 'THEAD' ? 'th' : 'td';
+        return tr.parentElement.tagName === 'THEAD' ? 'th' : 'td';
     }
 
 
@@ -2657,14 +2697,24 @@ class Table {
 // @return {Table}
 //
 Table._build = function( self, tbl ) {
-    if ( tbl.rows.length == 0 ) {
+    if ( !tbl.rows.length ) {
         return null;
     }
-    self._cols = tbl.rows[0].cells.length;
-    self._vth = whereVth( tbl.tBodies[0].rows[0] || tbl.tFoot.rows[0] );
     self._tbl = tbl;
+    self._cols = cellCount( [...tbl.rows[0].cells] );
 
     return self;
+}
+
+
+/**
+ * 单元格计数。
+ * 注记：用于统计列数。
+ * @param  {[Element]} cells 单元格序列
+ * @return {Number}
+ */
+function cellCount( cells ) {
+    return cells.reduce( (n, td) => n + td.colSpan, 0 );
 }
 
 
@@ -4392,50 +4442,6 @@ function setElem( el, conf, frag ) {
         }
     }
     return el;
-}
-
-
-/**
- * 插入列表头<th>。
- * 如果没有指定位置，插入一个普通单元格（<td>）。
- * @param  {Number} where 插入位置（1|-1）
- * @param  {[Element]} buf 元素集存储
- * @param  {Document} doc 所属文档对象
- * @return {[Element]} buf
- */
-function insertVth( where, buf, doc ) {
-    switch ( where ) {
-        case -1:
-            buf.push( doc.createElement('th') ); break;
-        case 1:
-            buf.unshift( doc.createElement('th') ); break;
-        default:
-            buf.push( doc.createElement('td') );
-    }
-    return buf;
-}
-
-
-/**
- * 判断列表头位置。
- * - 首列：1
- * - 尾列：-1
- * - 无：null
- * @param  {Element} tr 表格行
- * @return {Number|null}
- */
-function whereVth( tr ) {
-    if ( tr ) {
-        let _tds = tr.cells;
-
-        if ( _tds[0].nodeName == 'TH' ) {
-            return 1;
-        }
-        if ( _tds[_tds.lenght-1].nodeName == 'TH' ) {
-            return -1;
-        }
-    }
-    return null;
 }
 
 
