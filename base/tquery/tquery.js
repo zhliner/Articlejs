@@ -678,20 +678,20 @@ Object.assign( tQuery, {
      * 创建或封装Table实例。
      * th0 表示表格的首列全为<th>单元格，
      * 这并不标准，但可以简单获得列表头的效果。
-     * @param  {Number|Element} rows 表格行数或表格元素
-     * @param  {Number} cols 表格列数（含列头）
+     * @param  {Number|Element} cols 表格列数（含列头）或表格元素
+     * @param  {Number} rows 表格行数
      * @param  {Boolean} th0 是否包含列表头，可选
      * @param  {Document} doc 所属文档对象
      * @return {Table} 表格实例
      */
-    table( rows, cols, th0, doc = Doc ) {
-        if ( rows.nodeType ) {
-            return new Table( rows );
+    table( cols, rows, th0, doc = Doc ) {
+        if ( cols.nodeType ) {
+            return Table.build( cols );
         }
         if ( th0 ) {
             cols--;
         }
-        let _tbo = new Table( rows, cols, doc );
+        let _tbo = new Table( cols, rows, doc );
 
         if ( th0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
@@ -2224,26 +2224,21 @@ class Table {
     /**
      * 创建表格实例。
      * 不包含表头/脚部分，调用时注意去除表头/脚部分的行计数。
-     * rows 若为表格元素，必须至少包含一行（获取列数）。
-     * @param  {Number|Element} rows 行数或待封装表格元素
+     * 注记：
+     * 零行表格是有效的，但列数必须大于零。
      * @param  {Number} cols 列数
+     * @param  {Number} rows 行数
      * @param  {Document} 所属文档对象，可选
      * @return {Table|Proxy}
      */
-    constructor( rows, cols, doc = Doc ) {
-        if ( rows.nodeType ) {
-            return Table._build(this, rows);
-        }
+    constructor( cols, rows, doc = Doc ) {
         let _tbl = doc.createElement('table'),
-            _body = _tbl.createTBody();
+            _tbd = _tbl.createTBody();
 
         this._tbl = _tbl;
         this._cols = cols;
 
-        // 初始构造不激发事件。
-        for (let r = 0; r < rows; r++) {
-            this._buildTR( _body.insertRow(), 'td' );
-        }
+        if ( rows ) this._init(_tbd, rows);
     }
 
 
@@ -2434,7 +2429,7 @@ class Table {
         if ( head ) {
             return this._buildTR( _tr, 'th' );
         }
-        let _ref = this._tbl.tBodies[0].rows[0] || this._tbl.tFoot.rows[0];
+        let _ref = this._tbl.tBodies[0].rows[0] || (this._tbl.tFoot && this._tbl.tFoot.rows[0]);
 
         if ( !_ref ) {
             return this._buildTR( _tr, 'td' );
@@ -2596,6 +2591,20 @@ class Table {
 
 
     /**
+     * 表体初始化。
+     * 初始仅创建为<td>单元格。
+     * 注：初始创建不发送变化事件。
+     * @param {TableSection} body 表体元素
+     * @param {Number} rows 行数
+     */
+    _init( body, rows ) {
+        for ( let r = 0; r < rows; r++ ) {
+            this._buildTR( body.insertRow(), 'td' );
+        }
+    }
+
+
+    /**
      * 创建一个元素。
      * @param {String} tag 标签名
      */
@@ -2694,16 +2703,18 @@ class Table {
 // 传入的tbl实参必须是一个表格元素且至少包含一行。
 // @param  {Table} self 一个空实例
 // @param  {Element} tbl 表格元素
-// @return {Table}
+// @return {Table|null}
 //
-Table._build = function( self, tbl ) {
+Table.build = function( tbl ) {
     if ( !tbl.rows.length ) {
         return null;
     }
-    self._tbl = tbl;
-    self._cols = cellCount( [...tbl.rows[0].cells] );
+    let _tbo = new Table();
 
-    return self;
+    _tbo._tbl = tbl;
+    _tbo._cols = cellCount( [...tbl.rows[0].cells] );
+
+    return _tbo;
 }
 
 
