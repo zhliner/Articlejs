@@ -2428,15 +2428,14 @@ class Table {
      * 位置下标支持负数从末尾算起。
      * @param  {Element} tr 表格行元素
      * @param  {Number} idx 位置下标（从0开始），可选
-     * @param  {TableSection} tsec 表区域，可选
+     * @param  {TableSection} sec 表区域，可选
      * @return {Element} tr
      */
-    insertTr( tr, idx, tsec ) {
-        return insertNode(
-            tsec || this._tbl,
-            tr,
-            tsec.rows[ this._index(idx, tsec.rows.length) ]
-        );
+    insertTr( tr, idx, sec ) {
+        idx = this._index( idx, sec.rows.length );
+        sec = sec || this._tbl;
+
+        return insertNode( sec, tr, sec.rows[idx] );
     }
 
 
