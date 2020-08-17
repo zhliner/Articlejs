@@ -235,14 +235,14 @@ const customMaker = {
 // 子内容生成器。
 // 创建目标应有的的内容节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
 // 返回的元素皆没有内容，内容应当由外部插入（$.append）。
-// 仅包含部分目标的定义：不含内容元素和部分密封单元。
+// 仅包含部分目标的定义，内容元素无需定制创建子元素。
 // 注记：
 // - 不涉及多层中间结构，其应当自动迭代生成。
 // - 返回null表示不支持内容创建（需手动创建）。
 // - 仅有特性设置的元素也无需在这里定义（由外部 $.attribute() 实现）。
 // - 如果返回的是内容元素，则可以接收内联节点插入（移动/克隆时）。
 //////////////////////////////////////////////////////////////////////////////
-// function( self:Element ): Element|Collector
+// function( self:Element ): Element | [Element]
 //
 const Children = {
     //
@@ -255,14 +255,14 @@ const Children = {
         return null;
     },
 
-    // @return {Collector}
+    // @return {[Element]}
     [ T.RUBY ]: function() {
-        return $( elements(T.RB, T.RP, T.RT, T.RP) );
+        return elements( T.RB, T.RP, T.RT, T.RP );
     },
 
-    // @return {Collector}
+    // @return {[Element]}
     [ T.RBPT ]: function() {
-        return $( elements(T.RB, T.RP, T.RT, T.RP) );
+        return elements( T.RB, T.RP, T.RT, T.RP );
     },
 
     //
@@ -279,25 +279,30 @@ const Children = {
     // 块内结构子
     /////////////////////////////////////////////
 
-    // @return {Collector} <th>,<td>
+    // 注记：单元格已经存在。
+    // @return {[Element]} <th>,<td>
     [ T.TR ]: function( tr ) {
-        return $( appendTr(tr.parentElement).children );
-    },
-
-    // 新行已插入末尾，下同。
-    // @return {Element} <tr>
-    [ T.TBODY ]: function( ts ) {
-        return tableObj( ts.parentElement ).body( 1 );
+        return [ ...tr.children ];
     },
 
     // @return {Element} <tr>
-    [ T.THEAD ]: function( ts ) {
-        return tableObj( ts.parentElement ).head( 1 );
+    [ T.TBODY ]: function( tsec ) {
+        let _tbl = tsec.parentElement;
+        // 如果表格被清空（无<tr>），
+        // 则从缓存中获取（列配置有效）。
+        return ( $.table(_tbl) || tableObj(_tbl) ).newTR();
     },
 
     // @return {Element} <tr>
-    [ T.TFOOT ]: function( ts ) {
-        return tableObj( ts.parentElement ).foot( 1 );
+    [ T.THEAD ]: function( tsec ) {
+        let _tbl = tsec.parentElement;
+        return ( $.table(_tbl) || tableObj(_tbl) ).newTR( true );
+    },
+
+    // @return {Element} <tr>
+    [ T.TFOOT ]: function( tsec ) {
+        let _tbl = tsec.parentElement;
+        return ( $.table(_tbl) || tableObj(_tbl) ).newTR();
     },
 
     // 定制结构（无role）。
@@ -1003,7 +1008,7 @@ function createID(text) {
  * @param  {Element} ts 表体元素（<tbody>|<thead>|<tfoot>）
  * @return {Element} <tr>
  */
-function appendTr( ts ) {
+function appendTR( ts ) {
     let _tbo = tableObj( ts.parentElement );
 
     switch ( ts.tagName ) {

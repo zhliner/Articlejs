@@ -219,7 +219,7 @@ const Specials = {
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ SVGITEM ]:        STRUCT | STRUCTX | SEALED,
+    [ SVGITEM ]:        STRUCT | STRUCTX,
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY,
     [ SOURCE ]:         STRUCT | STRUCTX | EMPTY,
     [ EXPLAIN ]:        STRUCT | STRUCTX | FIXED | CONTENT,   // figure/p/img,span:explain
