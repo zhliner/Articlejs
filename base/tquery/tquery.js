@@ -1384,20 +1384,21 @@ Object.assign( tQuery, {
     /**
      * 元素解包裹。
      * - 用元素内容替换元素本身（内容上升到父级）。
-     * - 内容可能包含注释节点和空文本节点，会从返回集中清除。
+     * - 可以传递clean为真指示清除返回集中的空文本和注释节点。
      * @param  {Element} el 容器元素
+     * @param  {Boolean} clean 是否清理返回集，可选
      * @return {[Node]} 容器内子节点集
      */
-    unwrap( el ) {
+    unwrap( el, clean ) {
         if (el.nodeType != 1) {
             throw new Error('el must be a Element');
         }
-        return varyNewNodes(
+        let _cons = varyNewNodes(
             el,
             'replaceWith',
             varyEmpty(el)
-        )
-        .filter( masterNode );
+        );
+        return clean ? _cons.filter( masterNode ) : _cons;
     },
 
 
@@ -1414,15 +1415,19 @@ Object.assign( tQuery, {
     /**
      * 清空元素内容。
      * 仅适用于元素节点，非法实参返回一个空数组。
-     * 返回集中不包含注释节点和纯空白文本节点。
+     * 可以传递clean为真指示清除返回集中的空文本和注释节点。
+     * 传递非法实参返回该实参本身。
      * @param  {Element} el 目标元素
-     * @return {[Node]} 被清除的节点集
+     * @param  {Boolean} clean 是否清理返回集，可选
+     * @return {[Node]|Value} 被清除的节点集
      */
-    empty( el ) {
-        if (el.nodeType != 1) {
-            return [];
+    empty( el, clean ) {
+        if ( el.nodeType != 1 ) {
+            return el;
         }
-        return varyEmpty(el).filter(masterNode);
+        let _cons = varyEmpty( el );
+
+        return clean ? _cons.filter( masterNode ) : _cons;
     },
 
 
@@ -3609,9 +3614,9 @@ elsEx([
         // 节点集
         // 扁平化时无需去重。
         'unwrap',
+        'empty',
         'children',
         'contents',
-        'empty',
 
         // 单成员
         // 无需扁平化和去重。

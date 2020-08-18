@@ -76,10 +76,10 @@ class UmpString {
      * @param {String} ch 当前字符
      */
     _escape( ch ) {
-        if ( !this._qch || ch != '\\' ) {
+        if ( !this._qch || ch !== '\\' ) {
             return this._esc = false;
         }
-        if ( ch == '\\' ) this._esc = !this._esc;
+        if ( ch === '\\' ) this._esc = !this._esc;
     }
 }
 
