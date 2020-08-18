@@ -47,7 +47,7 @@ const
 
 //
 // 标签定义集。
-// 可能附带角色配置（冒号分隔）。
+// 可能附带角色配置（\分隔）。
 // { 单元类型值： 标签 | 标签\角色 }
 //
 const Tags = {
@@ -181,10 +181,11 @@ const Tags = {
 
 
 //
-// 定制创建集。
+// 定制创建集（自身）。
 // 覆盖默认的简单创建方式（element()）。
-// 返回null表示需手动创建。
-// 接口：function(tag, role): Element|null
+// 返回 false 表示需手动创建。
+// 返回 null 表示无法独立创建（如<tr>）。
+// 接口：function( tag, role ): Element | false
 //
 const customMaker = {
     //
@@ -218,7 +219,7 @@ const customMaker = {
     // 不支持无数据创建，交由手动创建。
     //
     [ T.SVGITEM ]: function() {
-        return null;
+        return false;
     },
 
 
@@ -226,23 +227,35 @@ const customMaker = {
     // 抽象组。交由手动创建。
     //
     [ T.RBPT ]: function() {
+        return false;
+    },
+
+
+    //
+    // 需要由父容器创建。
+    //
+    [ T.TR ]: function() {
+        return null;
+    },
+
+
+    [ T.TBODY ]: function() {
         return null;
     },
 };
 
 
 //
-// 子内容生成器。
+// 子内容创建集。
 // 创建目标应有的的内容节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
 // 返回的元素皆没有内容，内容应当由外部插入（$.append）。
 // 仅包含部分目标的定义，内容元素无需定制创建子元素。
 // 注记：
-// - 不涉及多层中间结构，其应当自动迭代生成。
-// - 返回null表示不支持内容创建（需手动创建）。
-// - 仅有特性设置的元素也无需在这里定义（由外部 $.attribute() 实现）。
+// - 仅有特性设置的元素无需在这里定义（外部 $.attribute() 即可）。
 // - 如果返回的是内容元素，则可以接收内联节点插入（移动/克隆时）。
+// - 返回 false 表示特殊情况，需手动创建。
 //////////////////////////////////////////////////////////////////////////////
-// function( self:Element ): Element | [Element]
+// function( self:Element ): Element | [Element] | false
 //
 const Children = {
     //
@@ -252,7 +265,7 @@ const Children = {
     // 注记：
     // 子元素自由，故定义限定。
     [ T.SVG ]: function() {
-        return null;
+        return false;
     },
 
     // @return {[Element]}
@@ -272,7 +285,7 @@ const Children = {
     // 注记：
     // 子元素自由，故定义限定。
     [ T.SVGITEM ]: function() {
-        return null;
+        return false;
     },
 
     //
@@ -287,22 +300,17 @@ const Children = {
 
     // @return {Element} <tr>
     [ T.TBODY ]: function( tsec ) {
-        let _tbl = tsec.parentElement;
-        // 如果表格被清空（无<tr>），
-        // 则从缓存中获取（列配置有效）。
-        return ( $.table(_tbl) || tableObj(_tbl) ).newTR();
+        return tableObj( tsec.parentElement ).newTR();
     },
 
     // @return {Element} <tr>
     [ T.THEAD ]: function( tsec ) {
-        let _tbl = tsec.parentElement;
-        return ( $.table(_tbl) || tableObj(_tbl) ).newTR( true );
+        return tableObj( tsec.parentElement ).newTR( true );
     },
 
     // @return {Element} <tr>
     [ T.TFOOT ]: function( tsec ) {
-        let _tbl = tsec.parentElement;
-        return ( $.table(_tbl) || tableObj(_tbl) ).newTR();
+        return tableObj( tsec.parentElement ).newTR();
     },
 
     // 定制结构（无role）。
@@ -338,7 +346,12 @@ const Children = {
     [ T.OLX ]:          'ol\\olx',
     [ T.CASCADE ]:      'ol\\cascade',
     [ T.DL ]:           'dl',
-    [ T.TABLE ]:        'table',
+
+    [ T.TABLE ]: function( tbl ) {
+        let _tbo = tableObj( tbl );
+        return _tbo.body() || _tbo.insertBody( _tbo.body(true) );
+    },
+
     [ T.FIGURE ]:       'figure',
     [ T.BLOCKQUOTE ]:   'blockquote',
     [ T.ASIDE ]:        'aside',
@@ -861,27 +874,17 @@ const Creater = {
 
 
 /**
- * 创建元素（通用）。
+ * 创建空元素（通用）。
  * 类型值会被存储，以使得不需要每次都检查判断。
  * 返回null表示无法创建元素。
  * @param  {Number} tval 类型值
  * @return {Element|null}
  */
 function element( tval ) {
-    let _el = ( customMaker[tval] || create )(
+    let _el = ( customMaker[tval] || _element )(
             ...Tags[tval].split( '\\' )
         );
     return _el && setType( _el, tval );
-}
-
-
-/**
- * 创建元素序列。
- * @param  {...Number} types 类型值序列
- * @return {[Element]}
- */
-function elements( ...types ) {
-    return types.map( tv => element(tv) );
 }
 
 
@@ -890,9 +893,19 @@ function elements( ...types ) {
  * @param {String} tag 标签名
  * @param {String} role 角色名
  */
-function create( tag, role ) {
+function _element( tag, role ) {
     let _el = $.element( tag );
     return role && _el.setAttribute( 'role', role ) || _el;
+}
+
+
+/**
+ * 创建空元素序列。
+ * @param  {...Number} types 类型值序列
+ * @return {[Element]}
+ */
+function elements( ...types ) {
+    return types.map( tv => element(tv) );
 }
 
 
@@ -1023,8 +1036,30 @@ function appendTR( ts ) {
 
 
 //
-// 扩展&导出。
+// 导出。
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 创建新条目（通用）。
+ * 用于无约束的自由创建时。
+ * @param {Number} tval 单元类型值
+ * @param {[Node]} data 内容节点集
+ */
+function create( tval, data ) {
+    //
+}
+
+
+/**
+ * 创建默认条目。
+ * @param  {Element} box 父容器元素
+ * @param  {[Node]} data 内容节点集
+ * @return {Element}
+ */
+function createItem( box, data ) {
+    //
+}
 
 
 //
@@ -1034,4 +1069,3 @@ function appendTR( ts ) {
 processExtend( 'New', Content );
 
 
-export { create };

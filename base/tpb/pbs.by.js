@@ -149,23 +149,22 @@ export function processExtend( name, exts, args ) {
 
 /**
  * 创建CMV程序。
- *
  * 每个程序遵循 CMV（Control/Model/View）三层划分，
- * 三层逻辑各自实现，依靠相同的命名达成关联。
+ * 三层逻辑各自实现，依靠相同的方法名称达成关联。
  *
  * 模板调用：[MyApp].run([meth], ...)
  * 可传递 methods 构造友好的调用集：[MyApp].[meth](...)。
  * 注意 run 为总调用方法，不应覆盖（除非你希望这样）。
  *
- * 每一层逻辑的实现需要提供一个入口。
+ * 每一层逻辑实现为一个调用集。
  * conf: {
- *      control: function(meth, data, ...rest ): Promise,
- *      model:   function(meth, data ): Value,
- *      view:    function(meth, data ): Value,
+ *      control: Object[n]:function( data, ...rest ): Promise,
+ *      model:   Object[n]:function( data ): Value,
+ *      view:    Object[n]:function( data ): Value,
  * }
  * 注：
  * 与By普通用户扩展一样，占用By顶层空间。
- * 如果程序名称（name）重复，会抛出异常（而非覆盖）。
+ * 如果程序名称（name）重复，会抛出异常（而非静默覆盖）。
  *
  * @param  {String} name 程序名
  * @param  {Object} conf CMV配置对象

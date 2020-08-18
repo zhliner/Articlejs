@@ -216,7 +216,7 @@ function subObj( names, obj ) {
         if ( !_sub ) {
             obj[name] = _sub = {};
         }
-        else if ( $.type(_sub) != 'Object' ) {
+        else if ( $.type(_sub) !== 'Object' ) {
             throw new Error(`the ${name} field is not a Object.`);
         }
     }

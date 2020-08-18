@@ -1730,7 +1730,9 @@ const __uiState = [ '-', '', '^' ];
 //
 // 自我修改。
 // 目标：暂存区/栈顶1项。
-// 执行结果可能入栈，由布尔实参（back）决定。
+// 如果传递实参clean有值（非undefined），则结果入栈。
+// 注记：
+// 明确要求结果集是否清理，表示需要该结果集。
 //===============================================
 [
     'empty',
@@ -1738,23 +1740,23 @@ const __uiState = [ '-', '', '^' ];
 ]
 .forEach(function( meth ) {
 
-    // @param  {Boolean} back 入栈指示
+    // @param  {Boolean} clean 结果集清理指示
     // @return {[Node]|Collector|void}
-    _Gets[meth] = function( evo, back ) {
+    _Gets[meth] = function( evo, clean ) {
         let vs = $.isCollector(evo.data) ?
-            evo.data[meth]() : $[meth]( evo.data );
+            evo.data[meth]( clean ) : $[meth]( evo.data, clean );
 
-        if ( back ) return vs;
+        if ( clean !== undefined ) return vs;
     };
 
     _Gets[`__${meth}`] = 1;
 
 
-    // @param  {Boolean} back 入栈指示
+    // @param  {Boolean} clean 结果集清理指示
     // @return {[[Node]]|void}
-    _arrayGets[meth] = function( evo, back ) {
-        let vs = map.call( evo.data, el => $[meth](el) );
-        if ( back ) return vs;
+    _arrayGets[meth] = function( evo, clean ) {
+        let vs = map.call( evo.data, el => $[meth](el, clean) );
+        if ( clean !== undefined ) return vs;
     };
 
     _arrayGets[`__${meth}`] = 1;

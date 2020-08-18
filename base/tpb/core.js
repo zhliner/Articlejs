@@ -779,7 +779,7 @@ class Cell {
      * @param  {Number} n 取条目数，可选
      * @return {this}
      */
-    bind( args, meth, isx, n = null ) {
+    bind( args, meth, isx, n ) {
         if ( isx ) {
             args = [this[_SID]].concat(args ? args : []);
         }
@@ -1201,7 +1201,7 @@ function rejectInfo( msg ) {
     if ( !msg || !DEBUG ) {
         return;
     }
-    if ( typeof msg != 'string' ) {
+    if ( typeof msg !== 'string' ) {
         return window.console.dir( msg );
     }
     if ( msg.startsWith('warn:') ) {

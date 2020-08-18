@@ -34,11 +34,9 @@
 export class App__ {
     /**
      * 构建一个App。
-     * 仅ctrl接口接受额外模板实参，其它接口仅接受前阶的返回值。
-     * 无ctrl实现时，直接返回流程数据供后续接口使用。
-     * @param {Function} ctrl 控制调用
-     * @param {Function} model 模型调用
-     * @param {Function} view 视图调用
+     * @param {Object} ctrl 控制调用集
+     * @param {Object} model 模型调用集
+     * @param {Object} view 视图调用集
      */
     constructor( ctrl, model, view ) {
         this._cobj = ctrl  || new Proxy( {}, { get: () => d => Promise.resolve(d) } );

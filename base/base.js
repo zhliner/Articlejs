@@ -555,20 +555,12 @@ export function isSameTr( tr1, tr2 ) {
 
 /**
  * 缓存/检索表格实例。
- * 如果传递元素，则为检索，否则为设置。
- * @param  {Element|Table} tbl 表格元素或$.Table实例
- * @return {Table|void}
+ * @param  {Element} tbl 表格元素
+ * @return {Table}
  */
 export function tableObj( tbl ) {
-    if ( tbl.nodeType ) {
-        let _tbo = __tablePool.get(tbl);
-
-        if ( !_tbo ) {
-            __tablePool.set( tbl, new $.Table(tbl) );
-        }
-        return _tbo;
-    }
-    __tablePool.set( tbl.element(), tbl );
+    return __tablePool.get( tbl ) ||
+        __tablePool.set( tbl, $.table(tbl) ).get( tbl );
 }
 
 

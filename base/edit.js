@@ -1581,7 +1581,7 @@ export const Edit = {
         let $els = $(__ESet)
             .filter( el => isContent(el) );
 
-        if ( $els.length != __ESet.size ) {
+        if ( $els.length !== __ESet.size ) {
             // 选取集包含非内容元素。
             help();
         }
@@ -1604,7 +1604,7 @@ export const Edit = {
         let $els = $(__ESet)
             .filter( el => isContent(el) && isContent(el.parentElement) );
 
-        if ( $els.length != __ESet.size ) {
+        if ( $els.length !== __ESet.size ) {
             // 选取元素及其父元素都必须为内容元素。
             help();
         }
@@ -1625,7 +1625,7 @@ export const Edit = {
         let $els = $(__ESet)
             .filter( el => canDelete(el) );
 
-        if ( $els.length != __ESet.size ) {
+        if ( $els.length !== __ESet.size ) {
             // 删除的元素必须是完整的单元。
             help();
         }
