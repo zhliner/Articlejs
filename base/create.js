@@ -26,7 +26,8 @@
 
 import { processExtend } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { setType, tableObj } from "./base.js";
+import { getType, setType, tableObj } from "./base.js";
+import { indentSpace } from "./common.js";
 
 
 const
@@ -49,7 +50,7 @@ const
 // 标签定义集。
 // 可能附带角色配置（\分隔）。
 // { 单元类型值： 标签 | 标签\角色 }
-//
+//////////////////////////////////////////////////////////////////////////////
 const Tags = {
     //
     // 内联结构元素
@@ -183,10 +184,9 @@ const Tags = {
 //
 // 定制创建集（自身）。
 // 覆盖默认的简单创建方式（element()）。
-// 返回 false 表示需手动创建。
 // 返回 null 表示无法独立创建（如<tr>）。
 // 接口：function( tag, role ): Element | false
-//
+//////////////////////////////////////////////////////////////////////////////
 const customMaker = {
     //
     // 音频：嵌入不支持提示。
@@ -216,10 +216,10 @@ const customMaker = {
 
     //
     // SVG子系通用。
-    // 不支持无数据创建，交由手动创建。
+    // 不支持无数据创建。
     //
     [ T.SVGITEM ]: function() {
-        return false;
+        return null;
     },
 
 
@@ -227,7 +227,7 @@ const customMaker = {
     // 抽象组。交由手动创建。
     //
     [ T.RBPT ]: function() {
-        return false;
+        return null;
     },
 
 
@@ -239,6 +239,11 @@ const customMaker = {
     },
 
 
+    //
+    // 不支持独立创建。
+    // 注记：
+    // 表格的多个<tbody>由该元素的移动/克隆产生（如果兼容）。
+    //
     [ T.TBODY ]: function() {
         return null;
     },
@@ -251,11 +256,10 @@ const customMaker = {
 // 返回的元素皆没有内容，内容应当由外部插入（$.append）。
 // 仅包含部分目标的定义，内容元素无需定制创建子元素。
 // 注记：
-// - 仅有特性设置的元素无需在这里定义（外部 $.attribute() 即可）。
 // - 如果返回的是内容元素，则可以接收内联节点插入（移动/克隆时）。
-// - 返回 false 表示特殊情况，需手动创建。
+// - 返回 null 表示特殊情况，需手动创建。
 //////////////////////////////////////////////////////////////////////////////
-// function( self:Element ): Element | [Element] | false
+// function( box:Element ): Element | [Element] | null
 //
 const Children = {
     //
@@ -265,17 +269,17 @@ const Children = {
     // 注记：
     // 子元素自由，故定义限定。
     [ T.SVG ]: function() {
-        return false;
+        return null;
     },
 
     // @return {[Element]}
     [ T.RUBY ]: function() {
-        return elements( T.RB, T.RP, T.RT, T.RP );
+        return creates( T.RB, T.RP, T.RT, T.RP );
     },
 
     // @return {[Element]}
     [ T.RBPT ]: function() {
-        return elements( T.RB, T.RP, T.RT, T.RP );
+        return creates( T.RB, T.RP, T.RT, T.RP );
     },
 
     //
@@ -285,7 +289,7 @@ const Children = {
     // 注记：
     // 子元素自由，故定义限定。
     [ T.SVGITEM ]: function() {
-        return false;
+        return null;
     },
 
     //
@@ -372,20 +376,20 @@ const Children = {
 // 定制创建。
 // 涉及复杂的配置参数或异类创建，简化模板用法。
 // 密封单元也在此创建。
-// 返回值：{Element|[Element]|DocumentFragment}
-//
+// 接口：function( Element, Object ): Element | DocumentFragment
+//////////////////////////////////////////////////////////////////////////////
 const Creater = {
 
     //-- 内联单元 ------------------------------------------------------------
 
-
     /**
-     * 创建SVG子单元。
-     * @param  {String} xml SVG源码
+     * SVG子单元。
+     * @param  {false} _ 实参占位
+     * @param  {String} html SVG源码
      * @return {DocumentFragment}
      */
-    svgitem( xml ) {
-        let _frg = $.fragment( xml, true );
+    [ T.SVGITEM ]: function( _, {html} ) {
+        let _frg = $.fragment( html, true );
 
         $.find('*', _frg)
         .forEach( el => setType(el, T.SVGITEM) );
@@ -395,107 +399,73 @@ const Creater = {
 
 
     /**
-     * 创建时间单元。
+     * 时间单元。
      * 文本为空时即默认为datetime的标准格式文本。
      * date/time通常至少需要一个有值。
+     * @param  {Element} el 时间空元素
      * @param  {String} text 时间表达文本，可选
      * @param  {String} date 日期表达串，可选
      * @param  {String} time 时间表达串，可选
      * @return {Element}
      */
-    time( text, date, time ) {
+    [ T.TIME ]: function( el, {text, date, time} ) {
         date = date || '';
 
         if ( time ) {
             date = date ? `${date} ${time}` : `${time}`;
         }
-        return $.attribute(
-            element( T.TIME ),
-            { text: text || date, datetime: date || null }
-        );
+        return $.attribute( el, { text: text || date, datetime: date || null } );
     },
 
 
     /**
-     * 创建量度标示。
-     * 注：!!'0' => true
-     * @param  {String} val 数量
-     * @param  {String} max 最大值，可选
-     * @param  {String} min 最小值，可选
-     * @param  {String} high 高值，可选
-     * @param  {String} low 低值，可选
-     * @param  {String} opm 最优值，可选
+     * 量度标示。
+     * @param  {Object} opts 配置集
      * @return {Element}
      */
-    meter( val, max, min, high, low, opm ) {
-        let opts = { value: val };
-
-        if ( max ) opts.max = max;
-        if ( min ) opts.min = min;
-        if ( high ) opts.high = high;
-        if ( low ) opts.low = low;
-        if ( opm ) opts.optimum = opm;
-
-        return $.attribute( element(T.METER), opts );
+    [ T.METER ]: function( el, opts ) {
+        opts = objectPick(opts, [
+            'value',    // 数量
+            'max',      // 最大值，可选
+            'min',      // 最小值，可选
+            'high',     // 高值，可选
+            'low',      // 低值，可选
+            'optimum'   // 最优值，可选
+        ]);
+        return $.attribute( el, opts );
     },
 
 
     /**
-     * 创建空白段。
-     * @param  {Number} n 数量
+     * 空白段。
      * @param  {String} width 宽度
-     * @return {[Element]}
+     * @return {Element}
      */
-    space( n, width ) {
-        let _els = elements(
-            ...new Array(n).fill( T.SPACE )
-        );
+    [ T.SPACE ]: function( el, {width} ) {
         if ( width != null ) {
-            _els.forEach( el => $.css(el, 'width', width) );
+            $.css( el, 'width', width );
         }
-        return _els;
+        return el;
     },
 
 
     /**
-     * 创建换行。
-     * @param  {Number} n 数量
-     * @return {[Element]}
-     */
-    br( n ) {
-        return elements( ...new Array(n).fill(T.BR) );
-    },
-
-
-    /**
-     * 创建软换行。
-     * @param  {Number} n 数量
-     * @return {[Element]}
-     */
-    wbr( n ) {
-        return elements( ...new Array(n).fill(T.WBR) );
-    },
-
-
-    /**
-     * 创建代码单元。
-     * 这里只是创建一个代码容器，并设置必要的特性配置。
-     * 注记：
-     * 外部插入内容时，根据容器配置即时解析。
-     *
+     * 代码单元。
+     * 如果tab有值，源代码应当已经替换处理。
+     * 如果lang有值，源代码应当已经解析为高亮代码。
      * @attr: [data-lang, data-tab]
      * @param  {String} lang 代码语言，可选
-     * @param  {Number} tabn Tab置换空格数，可选
+     * @param  {Number} tabs Tab置换空格数，可选
      * @return {Element}
      */
-    code( lang, tabn ) {
-        let _el = element( T.CODE ),
-            _op = {};
-
-        if ( lang ) _op['-lang'] = lang;
-        if ( tabn ) _op['-tab'] = tabn;
-
-        return $.attribute( _el, _op );
+    [ T.CODE ]: function( el, {html, lang, tab} ) {
+        if ( lang ) {
+            $.attr( el, '-lang', lang );
+        }
+        if ( tab ) {
+            $.attr( el, '-tab', tab );
+        }
+        return $.append( el, $.fragment(html, false) );
     },
 
 
@@ -648,244 +618,8 @@ const Creater = {
 
 
 //
-// 空元素创建。
-// 仅涉及设置元素特性集操作。
-// tag == NAME
-/////////////////////////////////////////////////
-[
-    'img',
-    'track',
-    'source',
-]
-.forEach(function( tag ) {
-    /**
-     * @param  {Object} opts 属性配置集
-     * @return {Element}
-     */
-    Content[ tag ] = function( opts ) {
-        return create( tag, opts );
-    };
-});
-
-
-//
-// 内容单元创建。
-// 内容：纯文本（text）或内联单元/集。
-// 包含元素特性设置。
-// tag == NAME
-/////////////////////////////////////////////////
-[
-    'a',            // cons, {href, target}
-    'strong',       // cons
-    'em',           // cons
-    'q',            // cons, {cite}
-    'abbr',         // text, {title}
-    'cite',         // cons
-    'small',        // cons
-    'del',          // cons, {datetime, cite}
-    'ins',          // cons, {datetime, cite}
-    'sub',          // cons
-    'sup',          // cons
-    'mark',         // cons
-    'dfn',          // cons, {title}
-    'samp',         // cons
-    'kbd',          // text
-    's',            // cons
-    'u',            // cons
-    'var',          // text
-    'bdo',          // cons, {dir}
-    'rb',           // text
-    'rt',           // text
-    'rp',           // text
-    'p',            // cons
-    'pre',          // cons
-    'address',      // cons
-    'h1',           // cons
-    'h2',           // cons
-    'h3',           // cons
-    'h4',           // cons
-    'h5',           // cons
-    'h6',           // cons
-    'summary',      // cons
-    'figcaption',   // cons
-    'caption',      // cons
-    'li',           // cons, {value:Number} // 当前起始编号
-    'dt',           // cons
-    'dd',           // cons
-    'th',           // cons // 暂不支持任何属性设置
-    'td',           // cons // 同上
-]
-.forEach(function( name ) {
-    /**
-     * 字符串实参优化为数组。
-     * @param {Node|[Node]|String} cons 内容（集）
-     * @param {Object} opts 属性配置，可选
-     */
-    Content[ name ] = function( cons, opts ) {
-        if ( typeof cons === 'string' ) {
-            cons = [cons];
-        }
-        let _el = create( name, opts );
-
-        return $.append( _el, cons ), _el;
-    };
-});
-
-
-//
-// 定制内容元素创建。
-// 内容：纯文本或内联节点（集）。
-// [ role/NAME, tag ]
-/////////////////////////////////////////////////
-[
-    [ 'explain',    'span' ],
-    [ 'orz',        'code' ],
-    [ 'note',       'p' ],
-    [ 'tips',       'p' ],
-]
-.forEach(function( names ) {
-    /**
-     * 字符串实参优化为数组。
-     * @param {Node|[Node]|String} cons 内容（集）
-     */
-    Content[ names[0] ] = function( cons ) {
-        if ( typeof cons === 'string' ) {
-            cons = [cons];
-        }
-        let _el = create(
-                names[1],
-                null,
-                names[0].toUpperCase()
-            );
-        $.append( _el, cons );
-
-        return $.attr( _el, 'role', names[0] );
-    };
-});
-
-
-//
-// 定制结构元素创建。
-// 内容：结构子元素（非源码）。
-// [ role/NAME, tag ]
-/////////////////////////////////////////////////
-[
-    [ 'abstract',   'header' ],     // header/h3, p...
-    [ 'toc',        'nav' ],        // nav/h3, ol:cascade/li/h4, ol
-    [ 'seealso',    'ol' ],         // ul/li/#text
-    [ 'reference',  'ul' ],         // ol/li/#text
-    [ 's1',         'section' ],    // section/h2, header?, s2 | {content}, footer?
-    [ 's2',         'section' ],    // section/h2, header?, s3 | {content}, footer?
-    [ 's3',         'section' ],    // section/h2, header?, s4 | {content}, footer?
-    [ 's4',         'section' ],    // section/h2, header?, s5 | {content}, footer?
-    [ 's5',         'section' ],    // section/h2, header?, {content}, footer?
-    [ 'codelist',   'ol' ],         // ol/li/code
-    [ 'ulx',        'ul' ],         // ul/li/h4, ul|ol
-    [ 'olx',        'ol' ],         // ol/li/h4, ol|ul
-    [ 'cascade',    'ol' ],         // ol/li/h4, ol
-    [ 'codeblock',  'pre' ],        // pre/code
-    [ 'blank',      'div' ],        // div
-    [ 'space',      'span' ],       // span
-]
-.forEach(function( names ) {
-    /**
-     * @param  {...Element} nodes 子元素序列
-     * @return {Element}
-     */
-    Content[ names[0] ] = function( ...nodes ) {
-        let _box = create(
-                names[1],
-                null,
-                names[0].toUpperCase()
-            );
-        if ( nodes.length ) {
-            $.append( _box, nodes );
-        }
-        return $.attr( _box, 'role', names[0] );
-    };
-});
-
-
-//
-// 中间定制结构元素创建。
-// 内容：结构子元素（非源码或文本）。
-// [ NAME, tag ]
-/////////////////////////////////////////////////
-[
-    [ 'codeli',      'li' ],  // li/code
-    [ 'ali',         'li' ],  // li/a
-    [ 'ah4li',       'li' ],  // li/h4/a
-    [ 'ah4',         'h4' ],  // h4/a
-    [ 'ulxh4li',     'li' ],  // li/h4, ul|ol
-    [ 'olxh4li',     'li' ],  // li/h4, ol|ul
-    [ 'cascadeh4li', 'li' ],  // li/h4, ol
-    [ 'figimgp',     'p' ],   // p/img, span
-]
-.forEach(function( names ) {
-    /**
-     * @param  {...Element} nodes 子元素序列
-     * @return {Element}
-     */
-    Content[ names[0] ] = function( ...nodes ) {
-        let _box = create(
-                names[1],
-                null,
-                names[0].toUpperCase()
-            );
-        return $.append( _box, nodes ), _box;
-    };
-});
-
-
-//
-// 结构单元创建。
-// 内容：结构子元素。
-// tag/NAME
-/////////////////////////////////////////////////
-[
-    'header',       // h3, p...
-    'footer',       // h3, p...
-    'article',      // header?, s1 | {content}, footer?, hr?
-    'ul',           // li...
-    'ol',           // li...
-    'dl',           // dt, dd...
-    'figure',       // figcaption, p/img, span:explain
-    'blockquote',   // h3, p...
-    'aside',        // h3, p...
-    'details',      // summary, p...
-]
-.forEach(function( name ) {
-    /**
-     * @param  {...Element} nodes 子元素序列
-     * @return {Element}
-     */
-    Content[ name ] = function( ...nodes ) {
-        let _box = create( name );
-        $.append( _box, nodes );
-        return _box;
-    };
-});
-
-
-
-//
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 创建空元素（通用）。
- * 类型值会被存储，以使得不需要每次都检查判断。
- * 返回null表示无法创建元素。
- * @param  {Number} tval 类型值
- * @return {Element|null}
- */
-function element( tval ) {
-    let _el = ( customMaker[tval] || _element )(
-            ...Tags[tval].split( '\\' )
-        );
-    return _el && setType( _el, tval );
-}
 
 
 /**
@@ -893,19 +627,25 @@ function element( tval ) {
  * @param {String} tag 标签名
  * @param {String} role 角色名
  */
-function _element( tag, role ) {
+function _create( tag, role ) {
     let _el = $.element( tag );
     return role && _el.setAttribute( 'role', role ) || _el;
 }
 
 
 /**
- * 创建空元素序列。
- * @param  {...Number} types 类型值序列
- * @return {[Element]}
+ * 提取成员构建新对象。
+ * 仅有定义的成员才进入新对象中。
+ * @param {Object} obj 源对象
+ * @param {[String]} names 键名序列
  */
-function elements( ...types ) {
-    return types.map( tv => element(tv) );
+function objectPick( obj, names ) {
+    let _o = {};
+
+    names.forEach(
+        k => obj[k] !== undefined && ( _o[k] = obj[k] )
+    );
+    return _o;
 }
 
 
@@ -1041,24 +781,84 @@ function appendTR( ts ) {
 
 
 /**
- * 创建新条目（通用）。
- * 用于无约束的自由创建时。
- * @param {Number} tval 单元类型值
- * @param {[Node]} data 内容节点集
+ * 空元素创建。
+ * 类型值会被存储，以使得不需要每次都检查判断。
+ * 返回null表示无法创建元素。
+ * @param  {Number} tval 类型值
+ * @return {Element|null|false}
  */
-function create( tval, data ) {
-    //
+export function create( tval ) {
+    let _el = ( customMaker[tval] || _create )(
+            ...Tags[tval].split( '\\' )
+        );
+    return _el && setType( _el, tval );
 }
 
 
 /**
- * 创建默认条目。
- * @param  {Element} box 父容器元素
- * @param  {[Node]} data 内容节点集
+ * 空元素序列创建。
+ * @param  {...Number} types 类型值序列
+ * @return {[Element]}
+ */
+export function creates( ...types ) {
+    return types.map( tv => create(tv) );
+}
+
+
+/**
+ * 元素创建（含内容）。
+ * 可能被定制创建{Creater}拦截更新。
+ * 如果是内容元素，则直接添加数据后结束。
+ * 如果是结构性容器，则会获取子元素序列并插入。
+ * opts: {
+ *      text:   纯文本（插入为文本节点）
+ *      html:   源码（$.html()方式插入）
+ *      data:   混合数据（节点/集、文本）
+ *      date:   日期
+ *      time:   时间
+ *      lang:   代码语言
+ *      tab:    Tab键空格数
+ *      ....    正常的元素特性
+ * }
+ * @param  {Element} el 空容器元素
+ * @param  {Object} opts 特性配置集
  * @return {Element}
  */
-function createItem( box, data ) {
-    //
+export function element( el, opts ) {
+    let _tv = getType( el ),
+        _fn = Creater[ _tv ];
+
+    if ( _fn ) {
+        el = _fn( el, opts );
+        _tv = getType( el );
+    }
+    if ( T.isContent(_tv) ) {
+        $.append( el, opts.data );
+    }
+    else if ( Children[_tv] ) {
+        $.append( el, children(el, opts) );
+    }
+    return el;
+}
+
+
+/**
+ * 创建子条目。
+ * 有父容器限定，用户无法指定目标类型。
+ * 主要适用中间结构的确定性单元。
+ * opts: 同上。
+ * @param  {Element} box 父容器元素
+ * @param  {Object} opts 子元素特性配置集
+ * @return {Element|[Element]}
+ */
+export function children( box, opts ) {
+    let _tv = getType( box ),
+        _el = Children[_tv]( box );
+
+    if ( $.isArray(_el) ) {
+        return _el.map( el => element(el, opts) );
+    }
+    return element( _el, opts );
 }
 
 

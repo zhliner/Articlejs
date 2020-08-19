@@ -302,6 +302,9 @@ function parseType( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
+    if ( el.nodeType !== 1 ) {
+        return null;
+    }
     if ( el.namespaceURI === __svgNS ) {
         return el.tagName === 'svg' ? T.SVG : T.SVGITEM;
     }

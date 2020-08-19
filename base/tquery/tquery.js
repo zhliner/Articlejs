@@ -630,7 +630,7 @@ Object.assign( tQuery, {
      * - [onerror],[onload],[onabort] 三个属性会被默认清除。
      *
      * 可以传递一个函数自行处理尚未导入的文档片段，接口：function(DocumentFragment): void。
-     * 传递clean为非null或非函数的任意假值时，会取消默认的清除行为。
+     * 传递clean为非null的任意假值可以取消默认的清除行为。
      * 如果传递clean为true，表示创建的是一个SVG文档片段（用于插入<svg>元素内）。
      * 注：
      * 文档片段在被导入（document.adoptNode）之前，其中的脚本不会运行。

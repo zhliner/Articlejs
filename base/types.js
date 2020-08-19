@@ -243,7 +243,7 @@ const Specials = {
     [ SUB ]:            INLINES | CONTENT,
     [ SUP ]:            INLINES | CONTENT,
     [ MARK ]:           INLINES | CONTENT,
-    [ CODE ]:           INLINES | CONTENT,
+    [ CODE ]:           INLINES | SEALED,
     [ ORZ ]:            INLINES | CONTENT,
     [ DFN ]:            INLINES | CONTENT,
     [ SAMP ]:           INLINES | CONTENT,

@@ -351,5 +351,25 @@ export class ArrSet extends Set {
 
 
 //
+// 工具函数。
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+//
 // 基本函数集。
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 空格缩进替换。
+ * - 前导缩进。
+ * - 文内的Tab键。
+ * @param  {String} text 源文本
+ * @param  {Number} tabs Tab空格数
+ * @param  {Boolean} all 是否包含文内Tab处理
+ * @return {String} 处理后的文本
+ */
+export function indentSpace( text, tabs, all ) {
+    //
+}
