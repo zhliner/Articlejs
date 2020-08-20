@@ -2742,12 +2742,8 @@ tQuery.Table = Table;
 
 //
 // 6种插入方式。
-// 数据源仅为节点类型，不支持html源码。
-// 注记：
-// 实际上也支持字符串，但会被当做普通文本插入。
-// 未对字符串实参做优化，因此字符串会被分解为单个字符构造节点。
-// 可以传入字符串数组避免这种分解。
-/////////////////////////////////////////////////
+// 数据源仅为节点类型，纯文本视为文本节点（不支持html模式）。
+///////////////////////////////////////////////////////////
 [
     'before',
     'after',
@@ -2769,7 +2765,7 @@ tQuery.Table = Table;
      * 数据集内的文本会作为文本节点插入。
      *
      * @param  {Node} el 目标元素或文本节点
-     * @param  {Node|DocumentFragment|[Node]|Collector|Set|Iterator|Function} cons 数据节点（集）或回调
+     * @param  {Node|DocumentFragment|[Node]|Collector|Set|Iterator|Function|String} cons 数据节点（集）或回调
      * @param  {Boolean} clone 数据节点克隆
      * @param  {Boolean} event 是否克隆事件处理器（容器）
      * @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
@@ -5196,7 +5192,7 @@ function nodesItem( cons ) {
     if ( cons.nodeType == 11 ) {
         return Arr( cons.childNodes );
     }
-    return cons.nodeType ? cons : $A( cons );
+    return cons.nodeType || typeof cons === 'string' ? cons : $A( cons );
 }
 
 
@@ -5684,9 +5680,10 @@ function toggleClass( el, names ) {
 /**
  * 节点（集）的通用插入方法。
  * meth: append|prepend|before|after|replaceWith
+ * 注记：纯文本视为文本节点。
  * @param  {Element} el 目标元素
  * @param  {String} meth 插入方法
- * @param  {Node|[Node]} nodes 数据节点（集）
+ * @param  {Node|String|[Node|String]} nodes 数据节点（集）
  * @return {Node|[Node]} nodes
  */
 function varyNodes( el, meth, nodes ) {
@@ -5698,10 +5695,11 @@ function varyNodes( el, meth, nodes ) {
             method: meth.substring(0, 7),
             data: nodes,
         };
-
     limitTrigger( el, evnNodeVary, _msg );
     try {
-        el[meth]( ...detachNodes(nodes) );
+        typeof nodes === 'string' ?
+            el[meth]( nodes ) :
+            el[meth]( ...detachNodes(nodes) );
     }
     catch(e) {
         return failTrigger( el, evnNodeFail, [e, _msg])
@@ -5717,6 +5715,7 @@ function varyNodes( el, meth, nodes ) {
  * 事件目标：待移除节点父元素。
  * 如果节点无父元素（游离），不会产生任何行为。
  * 注：无 nodefail 事件。
+ * 注记：容错 node:String 类型。
  * @param  {Node} node 待移除节点
  * @return {Node} node
  */

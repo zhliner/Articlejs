@@ -63,22 +63,22 @@ export const
     //
     // 内联结构元素
     /////////////////////////////////////////////
-    AUDIO           = 1,    // 音频
-    VIDEO           = 2,    // 视频
+    AUDIO           = 1,    // 音频 {src, autoplay, loop, controls}
+    VIDEO           = 2,    // 视频 {src, autoplay, loop, controls}
     PICTURE         = 3,    // 兼容图片
-    SVG             = 4,    // 图形
+    SVG             = 4,    // 图形 {width, height}
     RUBY            = 5,    // 注音
-    TIME            = 6,    // 时间
-    METER           = 7,    // 量度
+    TIME            = 6,    // 时间 {datetime}
+    METER           = 7,    // 量度 {value, max, min, high, low, optimum}
     SPACE           = 8,    // 空白
-    IMG             = 9,    // 图片
+    IMG             = 9,    // 图片 {src, alt, width, height}
     BR              = 10,   // 换行
     WBR             = 11,   // 软换行
     //
     // 内联内结构
     /////////////////////////////////////////////
-    TRACK           = 100,  // 字幕轨
-    SOURCE          = 101,  // 媒体资源
+    TRACK           = 100,  // 字幕轨 {kind, src, srclang, label, default?}
+    SOURCE          = 101,  // 媒体资源 {src, type}
     RB              = 102,  // 注音文本
     RT              = 103,  // 注音拼音
     RP              = 104,  // 注音拼音包围
@@ -88,27 +88,27 @@ export const
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    A               = 200,  // 链接
+    A               = 200,  // 链接 {href, target}
     STRONG          = 201,  // 重点
     EM              = 202,  // 强调
-    Q               = 203,  // 短引用
-    ABBR            = 204,  // 缩写
+    Q               = 203,  // 短引用 {cite}
+    ABBR            = 204,  // 缩写 {title}
     CITE            = 205,  // 来源
     SMALL           = 206,  // 注脚
-    DEL             = 207,  // 删除
-    INS             = 208,  // 插入
+    DEL             = 207,  // 删除 {datetime, cite}
+    INS             = 208,  // 插入 {datetime, cite}
     SUB             = 209,  // 下标
     SUP             = 210,  // 上标
     MARK            = 211,  // 标记
-    CODE            = 212,  // 代码（code/#text, b, i）
+    CODE            = 212,  // 代码（code/#text, b, i） {data-lang, data-tab}
     ORZ             = 213,  // 表情
-    DFN             = 214,  // 定义
+    DFN             = 214,  // 定义 {title}
     SAMP            = 215,  // 样本
     KBD             = 216,  // 键盘字
     S               = 217,  // 失效
     U               = 218,  // 注记
     VAR             = 219,  // 变量
-    BDO             = 220,  // 有向文本
+    BDO             = 220,  // 有向文本 {dir}
 
     //
     // 行块内容元素
@@ -141,7 +141,7 @@ export const
     TFOOT           = 417,  // 表脚
     // 定制类：
     // 容器：<li>, <p>, <h4>
-    CODELI          = 419,  // 代码表条目（li/code）
+    CODELI          = 419,  // 代码表条目（li/code） {start}
     ALI             = 420,  // 目录：普通条目（li/a）
     AH4LI           = 421,  // 目录：标题条目（li/h4/a）
     AH4             = 422,  // 目录：链接小标题（h4/a）
@@ -167,14 +167,14 @@ export const
     S5              = 512,  // 末 （section:s5/h2, header?, {content}, footer?）
     UL              = 513,  // 无序列表 （ul/li）
     OL              = 514,  // 有序列表 （ol/li）
-    CODELIST        = 515,  // 代码表 （ol:codelist/li/code/#text, b, i）
+    CODELIST        = 515,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab}
     ULX             = 516,  // 无序级联表 （ul/li/h4, ul|ol/...）
     OLX             = 517,  // 有序级联表 （ol/li/h4, ol|ul/...）
     CASCADE         = 518,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）
     DL              = 519,  // 定义列表 （dl/dt, dd+）
     TABLE           = 520,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
     FIGURE          = 521,  // 插图 （figure/figcaption, p/img, span:explain）
-    BLOCKQUOTE      = 522,  // 块引用 （blockquote/h3, p...）
+    BLOCKQUOTE      = 522,  // 块引用 （blockquote/h3, p...） {cite}
     ASIDE           = 523,  // 批注 （aside/h3, p...）
     DETAILS         = 524,  // 详细内容 （details/summary, p...）
     CODEBLOCK       = 525,  // 代码块 （pre:codeblock/code/#text, b, i）
