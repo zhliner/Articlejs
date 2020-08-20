@@ -703,6 +703,17 @@ function objectPick( obj, names ) {
 
 
 /**
+ * 是否为游离元素。
+ * 外部保证els为平级兄弟关系。
+ * @param  {Element|[Element]} els 元素（集）
+ * @return {Boolean}
+ */
+function isDetach( els ) {
+    return !($.isArray(els) ? els[0] : els).parentElement;
+}
+
+
+/**
  * 多次调用。
  * 返回多次调用的返回值集。
  * @param  {Number} n 次数
@@ -897,7 +908,7 @@ export function create( el, opts, data, more ) {
     }
     // SVGITEM 无子元素规则，安全。
     if ( Children[_tv] ) {
-        $.append( el, children(el, opts, data, more) );
+        $.append( el, children(el, opts, data, more) || '' );
     }
     return el;
 }
@@ -906,6 +917,7 @@ export function create( el, opts, data, more ) {
 /**
  * 创建子条目。
  * 由父容器限定，用户无法指定目标类型。
+ * 如果子节点已经插入，则返回false（外部无需插入）。
  * 适用：
  * 1. 由create新建开始的子结构迭代完成。
  * 2. 移动插入中间结构位置时的直接使用。
@@ -914,16 +926,18 @@ export function create( el, opts, data, more ) {
  * @param  {Object} opts 子元素特性配置集
  * @param  {Node|[Node]|[String]} data 数据源
  * @param  {Boolean} more 需要创建更多
- * @return {Element|[Element]}
+ * @return {Element|[Element]|false}
  */
 export function children( box, opts, data, more ) {
     let tval = getType( box ),
         subs = Children[tval]( box );
 
     if ( $.isArray(subs) ) {
-        return subs.map( el => create(el, opts, data, more) );
+        subs = subs.map( el => create(el, opts, data, more) );
+    } else {
+        subs = create( subs, opts, data, more );
     }
-    return create( subs, opts, data, more );
+    return isDetach(subs) && subs;
 }
 
 
