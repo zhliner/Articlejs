@@ -804,9 +804,8 @@ class Cell {
      * @return {Value}
      */
     call( evo, val ) {
-        if ( val !== undefined) {
-            this[_SID].push( val );
-        }
+        this[_SID].push( val );
+
         val = this._meth(
             evo,
             ...this.args(evo, this._args || [], this._rest)

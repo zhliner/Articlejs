@@ -475,6 +475,15 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
+/* 表格
+ *----------------------------------------------------------------------------
+ */
+.content tbody th:first-child {
+    text-align: start;
+    padding-inline-start: 0.5em;
+}
+
+
 /* 分隔
  * (Horizontal Rule)
  *----------------------------------------------------------------------------
@@ -790,4 +799,9 @@ code[data-lang="css"] b[role=tag] {
 /* 竖（列）边框 */
 .content table[data-border=v] td {
     border-width: 0 1px 0 0;
+}
+
+/* 表头区隔 */
+.content thead > tr:last-child {
+    border-bottom: 3px gray double;
 }

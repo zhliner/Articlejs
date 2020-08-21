@@ -490,18 +490,15 @@
                         <header class="_affix">
                             <input name="caption" type="text" placeholder="标题" class="_scale" />
                             <label>
-                                <input name="rows" type="text" class="_nums" placeholder="行数" />
+                                <input name="cols" type="text" class="_nums" placeholder="列数" />
                                 x
-                                <input name="columns" type="text" class="_nums" placeholder="列数" />
+                                <input name="rows" type="text" class="_nums" placeholder="行数" />
                             </label>
                         </header>
-                        <textarea name="table" placeholder="一行一个单元格，空行忽略"></textarea>
+                        <textarea name="table" class="_code" placeholder="一行一个单元格"></textarea>
                     </div>
                     <aside>
                         <div class="_option">
-                            <label>表头
-                                <input name="thead" type="text" class="_char" placeholder="1" title="行数" />
-                            </label>
                             <label>边框
                                 <select name="border" tpl-name="item:tborder">
                                     <option value="0">------</option>
@@ -513,12 +510,16 @@
                                     <option value="3">上接式</option>
                                 </select>
                             </label>
-                            <label>列头
-                                <select name="vth" tpl-name="item:vth">
-                                    <option value="">------</option>
-                                    <option value="1">左侧</option>
-                                    <option value="-1">右侧</option>
-                                </select>
+                            <hr />
+                            <label title="<thead>">
+                                <input name="thead" type="checkbox" value="THEAD" />包含表头
+                            </label>
+                            <label title="首列为<th>">
+                                <input name="th0" type="checkbox" />首列表头
+                            </label>
+                            <hr />
+                            <label title="<tfoot>">
+                                <input name="tfoot" type="checkbox" value="TFOOT" />包含表脚
                             </label>
                         </div>
                         <!-- [插入2] -->

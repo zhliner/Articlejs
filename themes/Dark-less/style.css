@@ -69,6 +69,16 @@ aside#help {
     border: 1px #f63 dashed !important;
     border-radius: 4px !important;
 }
+/* 覆盖表格默认1px边框 */
+.___Content td._focus,
+.___Content th._focus,
+.___Content tr._focus,
+.___Content tbody._focus,
+.___Content thead._focus,
+.___Content tfoot._focus,
+.___Content table._focus {
+    border-width: 2px !important;
+}
 
 /* 微编辑下 */
 .___Content *[contenteditable] {
@@ -516,7 +526,7 @@ aside#help {
 
 .Slave {
     flex: 0 0 auto;
-    min-height: 220px;
+    min-height: 240px;
     background-color: #f0efef;
     display: flex;
     flex-direction: column;
@@ -624,7 +634,7 @@ aside#help {
 .Slave hr {
     border: 1px #d5d5d5 solid;
     border-bottom-color: #f8f8f8;
-    margin: 8px 0;
+    margin: 8px 0 9px;
 }
 
 /* 录入框填充 */

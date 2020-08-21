@@ -187,7 +187,7 @@ const Tags = {
 // 返回 null 表示无法独立创建（如<tr>）。
 // 接口：function( tag, role ): Element | false
 //////////////////////////////////////////////////////////////////////////////
-const customMaker = {
+const CustomMaker = {
     //
     // 音频：嵌入不支持提示。
     //
@@ -223,7 +223,7 @@ const customMaker = {
     [ T.TR ],       // 由专用接口创建（Table）
     [ T.TBODY ],    // 注记：多个<tbody>由移动/克隆产生（如果兼容）
 ]
-.forEach( key => customMaker[key] = () => null );
+.forEach( key => CustomMaker[key] = () => null );
 
 
 //
@@ -262,9 +262,10 @@ const Children = {
     /////////////////////////////////////////////
 
     // 注记：
-    // 子元素自由，故定义限定。
+    // 当用户直接向内插入时用到（children()）。
+    // @return {Number}
     [ T.SVGITEM ]: function() {
-        return null;
+        return T.SVGITEM;
     },
 
     //
@@ -278,18 +279,18 @@ const Children = {
     },
 
     // @return {Element} <tr>
-    [ T.TBODY ]: function( tsec ) {
-        return tableObj( tsec.parentElement ).newTR();
+    [ T.TBODY ]: function( body ) {
+        return tableObj( body.parentElement ).newTR();
     },
 
     // @return {Element} <tr>
-    [ T.THEAD ]: function( tsec ) {
-        return tableObj( tsec.parentElement ).newTR( true );
+    [ T.THEAD ]: function( head ) {
+        return tableObj( head.parentElement ).newTR( true );
     },
 
     // @return {Element} <tr>
-    [ T.TFOOT ]: function( tsec ) {
-        return tableObj( tsec.parentElement ).newTR();
+    [ T.TFOOT ]: function( foot ) {
+        return tableObj( foot.parentElement ).newTR();
     },
 
     // 定制结构（无role）。
@@ -367,7 +368,8 @@ const Creater = {
      * @param {String} param1 SVG源码
      */
     [ T.SVG ]: function( el, {html} ) {
-        return $.html( el, html ) && el;
+        $.html( el, html );
+        return svgItem( el );
     },
 
 
@@ -379,12 +381,7 @@ const Creater = {
      * @return {DocumentFragment}
      */
     [ T.SVGITEM ]: function( _, {html} ) {
-        let _frg = $.fragment( html, true );
-
-        $.find('*', _frg)
-        .forEach( el => setType(el, T.SVGITEM) );
-
-        return _frg;
+        return svgItem( $.fragment(html, true) );
     },
 
 
@@ -614,7 +611,7 @@ const Creater = {
 ]
 .forEach(function( its ) {
     // @return {Element}
-    Creater[its[0]] = (el, opts) => $.attribute( el, objectPick(opts, its[1]) );
+    Creater[ its[0] ] = (el, opts) => $.attribute( el, attrPicks(opts, its[1]) );
 });
 
 
@@ -665,7 +662,7 @@ const Creater = {
 .forEach(function( its ) {
     // @param  {Node|String|[Node|String]} data
     // @return {Element}
-    Creater[its[0]] = (el, _, data) => ( $.append(el, data), el );
+    Creater[ its ] = (el, _, data) => ( $.append(el, data), el );
 });
 
 
@@ -692,7 +689,7 @@ function _element( tag, role ) {
  * @param {Object} obj 源对象
  * @param {[String]} names 键名序列
  */
-function objectPick( obj, names ) {
+function attrPicks( obj, names ) {
     let _o = {};
 
     names.forEach(
@@ -708,8 +705,8 @@ function objectPick( obj, names ) {
  * @param  {Element|[Element]} els 元素（集）
  * @return {Boolean}
  */
-function isDetach( els ) {
-    return !($.isArray(els) ? els[0] : els).parentElement;
+function isDetached( els ) {
+    return ($.isArray(els) ? els[0] : els).isConnected;
 }
 
 
@@ -821,30 +818,26 @@ function createID(text) {
 
 
 /**
- * 插入一个新表格行。
- * @param  {Element} ts 表体元素（<tbody>|<thead>|<tfoot>）
- * @return {Element} <tr>
- */
-function appendTR( ts ) {
-    let _tbo = tableObj( ts.parentElement );
-
-    switch ( ts.tagName ) {
-        case 'THEAD':
-            return _tbo.head(1);
-        case 'TFOOT':
-            return _tbo.foot(1);
-    }
-    return _tbo.body(1);
-}
-
-
-/**
  * 视情况取数据。
  * @param {[Value]} data 数据集
  * @param {Boolean} shift 前端提取
  */
 function dataItem( data, shift ) {
     return shift ? data && data.shift() : data;
+}
+
+
+/**
+ * 检索并设置SVG子元素类型值。
+ * @param  {Element|DocumentFragment} box SVG容器
+ * @return {box}
+ */
+function svgItem( box ) {
+    $.find( '*', box )
+        .forEach(
+            el => setType( el, T.SVGITEM )
+        );
+    return box;
 }
 
 
@@ -862,7 +855,7 @@ function dataItem( data, shift ) {
  * @return {Element|null|false}
  */
 export function element( tval ) {
-    let _el = ( customMaker[tval] || _element )(
+    let _el = ( CustomMaker[tval] || _element )(
             ...Tags[tval].split( '\\' )
         );
     return _el && setType( _el, tval );
@@ -906,7 +899,6 @@ export function create( el, opts, data, more ) {
     if ( _fn ) {
         el = _fn( el, opts, dataItem(data, more) );
     }
-    // SVGITEM 无子元素规则，安全。
     if ( Children[_tv] ) {
         $.append( el, children(el, opts, data, more) || '' );
     }
@@ -937,7 +929,7 @@ export function children( box, opts, data, more ) {
     } else {
         subs = create( subs, opts, data, more );
     }
-    return isDetach(subs) && subs;
+    return isDetached(subs) && subs;
 }
 
 
