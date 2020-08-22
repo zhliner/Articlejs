@@ -748,56 +748,47 @@ code[data-lang="css"] b[role=tag] {
 
 
 
-/* [ 固定 ] 表格边框，谨慎修改！
+/* 表格边框
+ * 6种预定义格式：0|1|2|4|h|v
  ****************************************************************************/
 
 /* 边框 */
-.content table {
+.content table[data-border] {
     border-collapse: collapse;
 }
-.content table,
-.content th,
-.content td {
-    border: 1px solid #666;
+
+/* 默认普通（1） */
+.content table[data-border],
+.content table[data-border] tr > * {
+    border: 1px #666 solid;
 }
 
 /* 无边框 */
-.content table[data-border=0],
-.content table[data-border=0] td {
+.content table[data-border='0'],
+.content table[data-border='0'] tr > * {
     border-width: 0;
-}
-
-/* 普通（1px） */
-.content table[data-border=1] {
-    border-width: 1px;
 }
 
 /* 内边框（纵/横）
  * 技巧：外框原宽度 +1px，框色透明
  */
-.content table[data-border=2] {
+.content table[data-border='2'] {
     border-width: 2px;
     border-color: transparent;
 }
 
-/* 上接边框（3面，上为0） */
-.content table[data-border=3] {
-    border-top-width: 2px;
-    border-top-color: transparent;
-}
-
 /* 外边框（4边） */
-.content table[data-border=4] td {
+.content table[data-border='4'] tr > * {
     border-width: 0;
 }
 
 /* 横（行）边框 */
-.content table[data-border=h] td {
+.content table[data-border='h'] tr > * {
     border-width: 0 0 1px 0;
 }
 
 /* 竖（列）边框 */
-.content table[data-border=v] td {
+.content table[data-border='v'] tr > * {
     border-width: 0 1px 0 0;
 }
 

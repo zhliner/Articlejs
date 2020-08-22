@@ -101,25 +101,32 @@
     - *jQuery*: 事件处理器的绑定可以用一个选择器限定事件触发的目标。从事件的触发起始元素（`target`）开始到委托绑定的元素，如果有多个目标元素匹配，就会触发多次事件处理器的调用。
     - *tQuery*: 委托绑定的规则与jQuery相同，但事件的触发仅有一次，触发的目标是从起始元素（`target`）开始（含 `target`），向上第一个匹配的元素。**注**：从事件处理器接口（`function(event, elo): Any`）的第二个实参 `elo` 上取当前匹配元素（`elo.current`）。
 
-5. 定制事件（`varyevent`）。
+5. 节点变化事件（`varyevent, bindevent`）。
 
-    为了跟踪DOM节点的变化，为编写DOM编辑器或需要记录节点变化历史的应用提供方便，设计加入了5组定制事件：
+    为了跟踪DOM节点的变化，设计加入了如下定制事件：
 
-    1. `attrvary, attrfail | attrdone` 元素特性：`设置/出错/完成` 事件。由 `.attr()|.attribute()|.removeAttr()|.toggleAttr()` 接口触发。
-    2. `propvary, propfail | propdone` 元素属性：`设置/出错/完成` 事件。由 `.prop()|.property()|.val()` 接口触发。
-    3. `cssvary, cssfail | cssdone` 元素内联样式：`设置/出错/完成` 事件。由 `.css()|.cssSets()` 接口触发。
-    4. `classvary, classfail | classdone` 元素类名：`设置/出错/完成` 事件。由 `.addClass()|.removeClass()|.toggleClass()` 接口触发。
-    5. `nodevary, nodefail | nodedone` 节点/元素：`修改/出错/完成` 事件。由 `.before()|.after()|.prepend()|.append()|.remove()|.html()|.text()|...` 等节点操作类接口触发。
+    - `attrvary, attrdone | attrfail` 元素特性：`设置/完成/出错` 事件。由 `.attr()|.attribute()|.removeAttr()|.toggleAttr()` 接口触发。
+    - `propvary, propdone | propfail` 元素属性：`设置/完成/出错` 事件。由 `.prop()|.property()|.val()` 接口触发。
+    - `cssvary, cssdone | cssfail` 元素内联样式：`设置/完成/出错` 事件。由 `.css()|.cssSets()` 接口触发。
+    - `classvary, classdone | classfail` 元素类名：`设置/完成/出错` 事件。由 `.addClass()|.removeClass()|.toggleClass()` 接口触发。
+    - `varyprepend, prependdone | prependfail` 节点内前插入事件，由接口 `.prepend()` 触发。也可能由复合类操作 `fill, wrap, wrapInner, wrapAll, unwrap, html, text` 等触发，下同。
+    - `varyappend, appenddone | appendfail` 节点内后添加事件，由接口 `.append()` 触发。
+    - `varybefore, beforedone | beforefail` 节点前插入事件，由接口 `.before()` 触发。
+    - `varyafter, afterdone | afterfail` 节点后添加事件，由接口 `.after()` 触发。
+    - `varyreplace, replacedone | replacefail` 节点替换事件，由接口 `.replace()` 触发。
+    - `varyempty, emptydone` 节点内清空事件，由接口 `.empty()` 触发。
+    - `varyremove, removedone` 节点移除事件，由接口 `.remove()` 触发。
+    - `varynormalize, normalizedone` 节点规范化事件，仅由接口 `.normalize()` 触发。
 
-    需要跟踪DOM节点变化的应用可以获得节点改变之前、出错和完成之后三个阶段的监控和应对能力。事件冒泡但不可取消，附加的消息（`event.detail`）包含了相关联的数据。出错和完成事件不会同时发生，两者仅有其一。
+    这对于需要跟踪DOM节点变化的应用，可以获得节点改变之前、完成或出错三个阶段的监听处理能力。事件冒泡且不可取消，附加的消息（`event.detail`）包含了关联的数据。**注**：出错和完成事件不会同时发生，两者仅有其一。
 
     另外，对于在元素上绑定和解绑事件处理器也提供了如下通知事件：
 
-    - `bound` 在元素上绑定事件处理器之后，适用 `tQuery.on()` 接口。
-    - `unbound` 在元素上解绑事件处理器之后，适用 `tQuery.off()` 接口。
-    - `boundone` 在元素上单次绑定（激发后自动解绑）事件处理器之后，适用 `tQuery.one()` 接口。
+    - `eventbound` 在元素上绑定事件处理器之后，适用 `tQuery.on()/one()` 接口。
+    - `eventunbound` 在元素上解绑事件处理器之后，适用 `tQuery.off()` 接口。
+    - `eventclone` 当对元素进行事件克隆时，在源元素上触发。**注**：之后会在新元素上触发 `eventbound` 事件（如果 `eventclone` 的处理器中未调用 `Event.preventDefault()`）。
 
-    **注**：定制事件的功能默认关闭，需要执行 `$.config( {bindevent:true, varyevent:true} )` 开启（也可仅开启其中之一）。
+    节点变化事件的功能默认关闭，需要执行 `$.config( {bindevent:true, varyevent:true} )` 开启。
 
 
 ## 注意事项

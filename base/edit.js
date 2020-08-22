@@ -34,7 +34,7 @@ const
     pathsKey = Symbol(),
 
     // 编辑需要监听的变化事件。
-    varyEvents = 'attrvary cssvary nodevary',
+    varyEvents = 'attrvary cssvary prependvary appendvary beforevary aftervary replacevary emptyvary removevary normalizevary',
 
     // 元素选取集实例。
     __ESet = new ESet( Setup.selectedClass ),

@@ -381,11 +381,13 @@
             </article>
         </main>
     </div>
-    <!-- 元素路径 -->
+    <!-- 元素路径
+        - toggle 快捷隐显切换 -->
     <div id="g-path" class="_path"
         on="click(b)|(Edit) evo(2) call('pathElem', _1) scam;
-            mouseover(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
-            mouseout(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
+            mouseenter(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
+            mouseleave(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
+            varyempty|debug;
             toggle|evo(3) hide(2)"
         by="Ed.pathTo(_1)"
         to="#g-count|trigger('reset')|fire('body/', 'focus.content');
