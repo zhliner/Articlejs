@@ -5955,7 +5955,9 @@ function insertNode( box, sub, ref ) {
 
 /**
  * 专用：游离节点集替换。
- * 注记：专用于unwrap()，兄弟节点皆合法。
+ * 注记：
+ * 即便节点集为空（原容器为空），也会替换。
+ * 专用于unwrap()，兄弟节点皆合法。
  * @param  {Element} el 目标元素
  * @param  {String} meth 插入方法
  * @param  {[Node]} subs 游离节点集
@@ -5978,9 +5980,11 @@ function varyReplace2s( el, subs ) {
  * @return {[Node]} subs
  */
 function varyPrepend2s( el, subs ) {
-    limitTrigger( el, evnPrepend, subs );
-    el.prepend( ...subs );
-    limitTrigger( el, evnPrepended, subs );
+    if ( subs.length ) {
+        limitTrigger( el, evnPrepend, subs );
+        el.prepend( ...subs );
+        limitTrigger( el, evnPrepended, subs );
+    }
     return subs;
 }
 
