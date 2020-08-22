@@ -43,34 +43,30 @@
 
     //
     // 变化处理器映射。
-    // event-name: process-handler
-    // process-handler: function(event): {.back}
+    // event-name: function(event): {.back}
     //
     const __varyHandles = {
-        // 特性处理器。
+        // 简单值变化处理器。
         attrvary:   ev => new Attr( ev.target, ev.detail[0] ),
-
-        // 属性处理器。
         propvary:   ev => new Prop( ev.target, ev.detail[0] ),
-
-        // 样式处理器。
         cssvary:    ev => new Style( ev.target ),
-
-        // 类名处理器。
         classvary:  ev => new Class( ev.target ),
 
-        // 事件绑定处理器。
-        eventbound: ev => new Bound( ev.target, ...ev.detail ),
-
-        // 事件解绑处理器。
-        eventunbound: ev => new Unbound( ev.target, ...ev.detail ),
-
-        // 事件克隆处理器。
-        // 注：无需克隆源实参。
-        eventclone: ev => new EventClone( ...ev.detail ),
-
         // 节点变化处理器。
-        nodevary:   ev => new NodeVary( ev.target, ev.detail ),
+        // 注：共8个基本变化。
+        varyprepend:    ev => new NodeVary( ev.detail ),
+        varyappend:     ev => new NodeVary( ev.detail ),
+        varybefore:     ev => new NodeVary( ev.detail ),
+        varyafter:      ev => new NodeVary( ev.detail ),
+        varyremove:     ev => new Node( ev.target ),
+        varyempty:      ev => new Empty( ev.target ),
+        varyreplace:    ev => new Replace( ev.target, ev.detail ),
+        varynormalize:  ev => new Normalize( ev.target ),
+
+        // 事件绑定变化处理器。
+        eventbound:     ev => new Bound( ev.target, ...ev.detail ),
+        eventunbound:   ev => new Unbound( ev.target, ...ev.detail ),
+        eventclone:     ev => new EventClone( ...ev.detail ),
     };
 
 
@@ -323,8 +319,8 @@ class Unbound {
 
 //
 // 事件克隆处理。
-// 克隆的目标（受者）可能为游离状态，此时Bound可能无法处理。
-// 因此无差别解绑。
+// 克隆的目标（受者）可能为游离状态，其Bound无法冒泡，
+// 因此在源处理中即无差别解绑。
 //
 class EventClone {
     /**
@@ -363,35 +359,15 @@ class EventClone {
 class NodeVary {
     /**
      * @param {Element} el 主元素（激发事件）。
-     * @param {Object} detail 事件数据
+     * @param {Value} data 事件数据
      */
-    constructor( el, detail ) {
-        this._obj = this._init( el, detail.data, detail.method );
+    constructor( data ) {
+        this._obj = $.isArray(data) ? new Nodes(data) : new Node(data);
     }
 
 
     back() {
         this._obj.back();
-    }
-
-
-    /**
-     * @param {Element} el 主元素
-     * @param {Node|[Node]} data 数据节点/集
-     * @param {String} meth 插入方法
-     */
-    _init( el, data, meth ) {
-        // 确定为兄弟。
-        if ( meth == 'empty' ) {
-            return new Siblings( data );
-        }
-        if ( meth == 'replace' ) {
-            return new Replace( el, data );
-        }
-        if ( meth == 'normalize' ) {
-            return new Normalize( el );
-        }
-        return $.isArray(data) ? new Nodes(data) : new Node(data);
     }
 }
 
@@ -458,8 +434,8 @@ class Replace {
     }
 
 
-    // 注记：
-    // 先脱离再插入为优化行为。
+    // 优化：
+    // 数据先脱离，之后再插入恢复原节点。
     back() {
         this._op1.back();
         this._op0.back();
@@ -468,28 +444,21 @@ class Replace {
 
 
 //
-// 兄弟节点操作。
-// 注记：
-// 适用'empty'方法，确定为非游离节点数据。
+// 元素清空操作。
+// 注：空集忽略。
 //
-class Siblings {
+class Empty {
     /**
-     * 容错空集忽略。
-     * @param {Node} nodes 数据节点集（兄弟）
+     * @param {Element} el 容器元素
      */
-    constructor( nodes ) {
-        if ( nodes.length ) {
-            this._prev = nodes[0].previousSibling;
-            this._box  = nodes[0].parentElement;
-            this._data = nodes;
-        }
+    constructor( el ) {
+        this._box = el;
+        this._data = [...el.childNodes];
     }
 
 
     back() {
-        if ( this._prev ) {
-            $.after( this._prev, this._data );
-        } else {
+        if ( this._data.length ) {
             $.prepend( this._box, this._data );
         }
     }
