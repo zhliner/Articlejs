@@ -91,7 +91,9 @@ class History {
      * @param {CustomEvent} ev 定制事件对象
      */
     handleEvent( ev ) {
+        // 仅记录一次。
         ev.stopPropagation();
+
         this.push( __varyHandles[ev.type](ev) );
     }
 
@@ -359,7 +361,7 @@ class EventClone {
 class NodeVary {
     /**
      * @param {Element} el 主元素（激发事件）。
-     * @param {Value} data 事件数据
+     * @param {Node|[Node]} data 事件数据（集）
      */
     constructor( data ) {
         this._obj = $.isArray(data) ? new Nodes(data) : new Node(data);
@@ -381,7 +383,8 @@ class Node {
      */
     constructor( node ) {
         this._prev = node.previousSibling;
-        this._box  = node.parentElement;
+        // 兼容DocumentFragment
+        this._box  = node.parentNode;
         this._data = node;
     }
 
@@ -509,7 +512,7 @@ class Texts {
      */
     constructor( nodes ) {
         this._prev = nodes[0].previousSibling;
-        this._box  = nodes[0].parentElement;
+        this._box  = nodes[0].parentNode;
 
         this._orig = nodes;
         this._data = nodes.map( nd => nd.textContent );

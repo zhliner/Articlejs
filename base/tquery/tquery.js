@@ -1194,13 +1194,14 @@ Object.assign( tQuery, {
 
     /**
      * 获取当前元素的兄弟元素。
-     * 目标元素需要在一个父元素内，否则返回null（游离节点）。
+     * 目标元素需要在同一个父容器内，否则返回null（游离节点）。
      * @param  {Element} el 参考元素
      * @param  {String} slr 过滤选择器，可选
      * @return {[Element]|null}
      */
     siblings( el, slr ) {
-        let _pel = el.parentElement;
+        // 兼容DocumentFragment子元素。
+        let _pel = el.parentNode;
 
         if (_pel == null) {
             return null;
@@ -1236,7 +1237,7 @@ Object.assign( tQuery, {
      * 获取匹配的上级元素集。
      * - 可用可选的选择器或测试函数进行过滤。
      * - 自定义测试函数支持向上递进的层计数（_i）。
-     * 注：最终的顶层不是document而是html。
+     * 注：最终的顶层是<html>而不是Document/DocumentFragment。
      * @param  {Element} el 目标元素
      * @param  {String|Function} slr 选择器或匹配测试，可选
      * @return {[Element]}
@@ -5844,13 +5845,14 @@ function varyEmpty( el ) {
 
 /**
  * 节点移除。
- * 如果节点游离（无父元素），无任何行为。
- * 完成事件会携带节点的原父元素。
+ * 如果节点游离（无父容器），无任何行为。
+ * 完成事件会携带节点的原父容器。
+ * 注：兼容DocumentFragment容器。
  * @param  {Node} node 待移除节点
  * @return {Node} node
  */
 function varyRemove( node ) {
-    let _pel = node.parentElement;
+    let _pel = node.parentNode;
 
     if ( _pel ) {
         limitTrigger( node, evnRemove );
