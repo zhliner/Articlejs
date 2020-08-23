@@ -191,7 +191,7 @@
                     </section>
                     <section role="s2">
                         <h2 id="内联单元">内联单元</h2>
-                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
+                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的 <ruby><rb>注音</rb><rp>（</rp><rt>zhù yīn</rt><rp>）</rp></ruby>、或媒体类的 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
                         <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
                         <table>
                             <caption>内联单元基本情况清单</caption>
@@ -382,17 +382,19 @@
         </main>
     </div>
     <!-- 元素路径
-        - toggle 快捷隐显切换 -->
+        - toggle 快捷键隐显切换。
+        - varyempty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。-->
     <div id="g-path" class="_path"
         on="click(b)|(Edit) evo(2) call('pathElem', _1) scam;
             mouseenter(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
-            mouseleave(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
-            varyempty|debug;
+            mouseleave(b)|stop ('_point') (Edit) evo(2) call('pathElem', _1) pop;
+            varyempty;
             toggle|evo(3) hide(2)"
         by="Ed.pathTo(_1)"
         to="#g-count|trigger('reset')|fire('body/', 'focus.content');
             -|addClass;
-            -|removeClass">
+            -|removeClass;
+            /b:hover|trigger('mouseleave', true)">
         <!-- <b> -->
     </div>
 </div>

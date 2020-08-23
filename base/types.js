@@ -61,19 +61,18 @@ const
 export const
     $TEXT           = 0,    // 文本节点（#text）
     //
-    // 内联结构元素
+    // 内联结构&单元素
     /////////////////////////////////////////////
     AUDIO           = 1,    // 音频 {src, autoplay, loop, controls}
     VIDEO           = 2,    // 视频 {src, autoplay, loop, controls}
     PICTURE         = 3,    // 兼容图片
     SVG             = 4,    // 图形 {width, height}
     RUBY            = 5,    // 注音
-    TIME            = 6,    // 时间 {datetime}
-    METER           = 7,    // 量度 {value, max, min, high, low, optimum}
-    SPACE           = 8,    // 空白
-    IMG             = 9,    // 图片 {src, alt, width, height}
-    BR              = 10,   // 换行
-    WBR             = 11,   // 软换行
+    METER           = 6,    // 量度 {value, max, min, high, low, optimum}
+    SPACE           = 7,    // 空白
+    IMG             = 8,    // 图片 {src, alt, width, height}
+    BR              = 9,    // 换行
+    WBR             = 10,   // 软换行
     //
     // 内联内结构
     /////////////////////////////////////////////
@@ -94,21 +93,22 @@ export const
     Q               = 203,  // 短引用 {cite}
     ABBR            = 204,  // 缩写 {title}
     CITE            = 205,  // 来源
-    SMALL           = 206,  // 注脚
-    DEL             = 207,  // 删除 {datetime, cite}
-    INS             = 208,  // 插入 {datetime, cite}
-    SUB             = 209,  // 下标
-    SUP             = 210,  // 上标
-    MARK            = 211,  // 标记
-    CODE            = 212,  // 代码（code/#text, b, i） {data-lang, data-tab}
-    ORZ             = 213,  // 表情
-    DFN             = 214,  // 定义 {title}
-    SAMP            = 215,  // 样本
-    KBD             = 216,  // 键盘字
-    S               = 217,  // 失效
-    U               = 218,  // 注记
-    VAR             = 219,  // 变量
-    BDO             = 220,  // 有向文本 {dir}
+    TIME            = 206,  // 时间 {datetime}
+    SMALL           = 207,  // 注脚
+    DEL             = 208,  // 删除 {datetime, cite}
+    INS             = 209,  // 插入 {datetime, cite}
+    SUB             = 210,  // 下标
+    SUP             = 211,  // 上标
+    MARK            = 212,  // 标记
+    CODE            = 213,  // 代码（code/#text, b, i） {data-lang, data-tab}
+    ORZ             = 214,  // 表情
+    DFN             = 215,  // 定义 {title}
+    SAMP            = 216,  // 样本
+    KBD             = 217,  // 键盘字
+    S               = 218,  // 失效
+    U               = 219,  // 注记
+    VAR             = 220,  // 变量
+    BDO             = 221,  // 有向文本 {dir}
 
     //
     // 行块内容元素
@@ -210,7 +210,6 @@ const Specials = {
     [ PICTURE ]:        INLINES | STRUCT | SEALED,
     [ SVG ]:            INLINES | STRUCT,
     [ RUBY ]:           INLINES | STRUCT | SEALED,
-    [ TIME ]:           INLINES | SEALED,
     [ METER ]:          INLINES | SEALED,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY,
@@ -237,13 +236,14 @@ const Specials = {
     [ Q ]:              INLINES | CONTENT,
     [ ABBR ]:           INLINES | CONTENT,
     [ CITE ]:           INLINES | CONTENT,
+    [ TIME ]:           INLINES | CONTENT | SEALED,
     [ SMALL ]:          INLINES | CONTENT,
     [ DEL ]:            INLINES | CONTENT,
     [ INS ]:            INLINES | CONTENT,
     [ SUB ]:            INLINES | CONTENT,
     [ SUP ]:            INLINES | CONTENT,
     [ MARK ]:           INLINES | CONTENT,
-    [ CODE ]:           INLINES | SEALED,
+    [ CODE ]:           INLINES | CONTENT | SEALED,
     [ ORZ ]:            INLINES | CONTENT,
     [ DFN ]:            INLINES | CONTENT,
     [ SAMP ]:           INLINES | CONTENT,
@@ -340,10 +340,9 @@ const Specials = {
 //
 const _INLINES =
 [
-    AUDIO, VIDEO, PICTURE, IMG, SVG,
-    STRONG, EM, Q, ABBR, CITE, SMALL, DEL, INS, SUB, SUP, MARK, CODE, ORZ, DFN, SAMP, KBD, S, U, VAR, BDO,
-    BR, WBR,
-    RUBY, TIME, METER, SPACE,
+    AUDIO, VIDEO, PICTURE, RUBY, SVG,
+    METER, SPACE, IMG, BR, WBR,
+    STRONG, EM, Q, ABBR, CITE, TIME, SMALL, DEL, INS, SUB, SUP, MARK, CODE, ORZ, DFN, SAMP, KBD, S, U, VAR, BDO,
 ];
 
 
@@ -391,13 +390,12 @@ const ChildTypes = {
     [ VIDEO ]:          [ SOURCE, TRACK, $TEXT ],
     [ PICTURE ]:        [ SOURCE, IMG ],
     [ SVG ]:            [ SVGITEM ],
-    [ IMG ]:            [],
     [ RUBY ]:           [ RB, RT, RP ],
-    [ TIME ]:           [ $TEXT ],
     [ METER ]:          [ $TEXT ],
+    [ SPACE ]:          [],
+    [ IMG ]:            [],
     [ BR ]:             [],
     [ WBR ]:            [],
-    [ SPACE ]:          [],
     //
     // 内联内结构
     /////////////////////////////////////////////
@@ -417,6 +415,7 @@ const ChildTypes = {
     [ Q ]:              [ $TEXT, _INLINES, A ],
     [ ABBR ]:           [ $TEXT ],
     [ CITE ]:           [ $TEXT, _INLINES, A ],
+    [ TIME ]:           [ $TEXT ],
     [ SMALL ]:          [ $TEXT, _INLINES, A ],
     [ DEL ]:            [ $TEXT, _INLINES, A ],
     [ INS ]:            [ $TEXT, _INLINES, A ],

@@ -76,10 +76,10 @@ const CustomStruct = {
      * @return {Number} 单元值
      */
     P( el ) {
-        let name = name( el );
+        let _name = name( el );
 
-        return name === 'P' && el.parentElement.tagName === 'FIGURE' ?
-            T.FIGIMGP : T[name];
+        return _name === 'P' && el.parentElement.tagName === 'FIGURE' ?
+            T.FIGIMGP : T[_name];
     },
 
 
@@ -485,6 +485,16 @@ export function contents( el ) {
         return el;
     }
     return $.contents(el).map( nd => contents(nd) ).flat();
+}
+
+
+/**
+ * 是否为单标签元素。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function isEmpty( el ) {
+    return T.isEmpty( getType(el) );
 }
 
 

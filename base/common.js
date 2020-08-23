@@ -170,12 +170,13 @@ export class EHot {
 
     /**
      * 取消焦点。
+     * @return {null}
      */
     cancel() {
         if ( this._its ) {
             $.removeClass( this._its, this._cls );
-            this._its = null;
         }
+        return this._its = null;
     }
 
 

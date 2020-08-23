@@ -74,12 +74,11 @@
 //
 // 历史记录器。
 // 汇集节点改变的回溯（.back）操作实例。
-// 注记：
-// 内部缓存池的大小（头部缩减）由外部来处理。
 //
 class History {
     /**
      * 构造一个记录器。
+     * 注：缓存池长度由外部管理（.prune）。
      */
     constructor() {
         this._buf = [];
@@ -106,16 +105,15 @@ class History {
         if ( n <= 0 ) return;
 
         callBack( () =>
-            this._buf.splice(-n).reverse().forEach( obj => obj.back() )
+            this._buf.splice( -n )
+            .reverse()
+            .forEach( obj => obj.back() )
         );
     }
 
 
     /**
      * 压入一个操作实例。
-     * 会维护缓存池长度不超出上限。
-     * 注记：
-     * this._max可能被动态改变。
      * @param  {.back} its 操作实例
      * @return {Array|false} 被移除的实例集。
      */
@@ -595,7 +593,7 @@ function adjacentTeam( nodes ) {
 
 /**
  * 调用回溯函数。
- * 注：会临时关闭节点变化跟踪。
+ * 需要临时关闭节点变化跟踪。
  * @param {Function} handle 回调操作
  */
 function callBack( handle ) {

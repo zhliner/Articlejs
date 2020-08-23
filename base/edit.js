@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, canDelete, selectTop, contentBoxes } from "./base.js";
+import { isContent, isInlines, isEmpty, canDelete, selectTop, contentBoxes } from "./base.js";
 import cfg from "./shortcuts.js";
 
 
@@ -34,7 +34,7 @@ const
     pathsKey = Symbol(),
 
     // 编辑需要监听的变化事件。
-    varyEvents = 'attrvary cssvary prependvary appendvary beforevary aftervary replacevary emptyvary removevary normalizevary',
+    varyEvents = 'attrvary cssvary varyprepend varyappend varybefore varyafter varyreplace varyempty varyremove varynormalize',
 
     // 元素选取集实例。
     __ESet = new ESet( Setup.selectedClass ),
@@ -47,7 +47,7 @@ const
     __elemCursor = new ElemCursor(),
 
     // DOM节点变化历史实例。
-    __TQHistory = new $.Fx.History( Limit.history );
+    __TQHistory = new $.Fx.History();
 
 
 
@@ -723,7 +723,7 @@ class NodeVary {
 
     /**
      * 内容提升。
-     * 会对每个成员的公共父元素执行文本规范化。
+     * 会对成员的公共父元素执行文本规范化。
      * 注记：集合成员本身不会有嵌套。
      * @param {Collector} $els 处理集
      */
@@ -888,16 +888,11 @@ function setFocus( el, update ) {
 
 /**
  * 清除选取焦点。
- * @param {Boolean} update 更新全局焦点存储
+ * @return {null}
  */
-function clearFocus( update ) {
-    __EHot.cancel();
-
-    // 全局更新。
-    if ( update ) {
-        ESEdit.currentFocus = null;
-    }
+function clearFocus() {
     $.empty( pathContainer );
+    return __EHot.cancel();
 }
 
 
@@ -1129,6 +1124,37 @@ function isTurnSelect( obj ) {
 
 
 /**
+ * 是否可以内容文本化。
+ * - 允许内容元素。
+ * - 允许非单结构的内联元素（无害），如对<ruby>解构。
+ * @param  {Element} el 容器元素
+ * @return {Boolean}
+ */
+function canTotext( el ) {
+    return isContent( el ) || (
+        isInlines( el ) && !isEmpty( el )
+    );
+}
+
+
+/**
+ * 是否可以内容提升。
+ * 专用：Edit.unWrap 操作。
+ * 宽容：
+ * 应当允许纯内容的元素向上展开，即便不是内容元素，
+ * 如编辑过程中的破坏性操作（如<ruby>）。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+function canUnwrap( el ) {
+    return isContent( el.parentElement ) && (
+        isContent( el ) ||
+        ( el.childElementCount === 0 && el.innerText.trim() )
+    );
+}
+
+
+/**
  * 清除被删除元素的选取。
  * 返回false表示目标集为空，后续的编辑没有意义。
  * 返回的选取编辑实例需要进入历史栈。
@@ -1143,7 +1169,7 @@ function clearDeletes( els ) {
         _hot = __EHot.get();
 
     if ( els.includes(_hot) ) {
-        clearFocus( true );
+        _hot = clearFocus();
     }
     __ESet.removes( els );
 
@@ -1570,7 +1596,6 @@ export const Edit = {
 
     /**
      * 内容文本化。
-     * 仅内容元素有效。
      * 会忽略集合中都没有子元素的情形。
      * 影响：
      * - 对焦点和选取集不产生影响。
@@ -1578,8 +1603,7 @@ export const Edit = {
      * 扩展到By部分，但此不需要evo实参。
      */
     toText() {
-        let $els = $(__ESet)
-            .filter( el => isContent(el) );
+        let $els = $(__ESet).filter( canTotext );
 
         if ( $els.length !== __ESet.size ) {
             // 选取集包含非内容元素。
@@ -1601,8 +1625,7 @@ export const Edit = {
      * 注记：（同上）
      */
     unWrap() {
-        let $els = $(__ESet)
-            .filter( el => isContent(el) && isContent(el.parentElement) );
+        let $els = $(__ESet).filter( canUnwrap );
 
         if ( $els.length !== __ESet.size ) {
             // 选取元素及其父元素都必须为内容元素。
