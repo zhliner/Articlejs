@@ -2589,7 +2589,7 @@ class Table {
     _bodies( idx ) {
         let _el;
 
-        if ( !isNaN(idx) ) {
+        if ( idx >= 0 ) {
             while ( !this._tbl.tBodies[idx] ) {
                 _el = insertNode( this._tbl, this._create('tbody'), this._tbl.tFoot );
             }
