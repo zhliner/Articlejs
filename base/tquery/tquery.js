@@ -2237,8 +2237,6 @@ Reflect.defineProperty(tQuery, 'version', {
 // 仅适用规范行列的表格，不支持单元格合并/拆分（但容错）。
 // 用户可以在任意列位置插入列表头（纵列为<th>）。
 // 不涉及表标题或单元格内容的操作，需由外部负责。
-// 注记：
-// 大部分创建的单元需要由用户主动插入（有专用插入方法）。
 //
 class Table {
     /**
@@ -2263,17 +2261,21 @@ class Table {
 
 
     /**
-     * 标体集操作：获取/删除。
+     * 标体集操作：获取/删除/新建。
      * idx: {
-     *      undefined   返回表体集合（可能为空数组）
      *      {Number}    定位表体位置，操作视op而定
+     *      undefined   返回表体集合（可能为空数组）
      * }
      * op: {
-     *      undefined   返回idx位置的表体元素（可能为null）
+     *      true        新建目标位置的表体（如果不存在）
      *      null        删除并返回idx位置表体元素（可能为null）
+     *      undefined   返回idx位置的表体元素（可能为null）
      * }
-     * @param  {Number} idx 表体元素序号（从0开始）
-     * @param  {null} op 删除标识，可选
+     * 注意：
+     * 在创建时（op:true），指定一个大的序号会创建一批表体元素。
+     *
+     * @param  {Number|null} idx 表体元素序号（从0开始）
+     * @param  {true|null} op 创建/删除标识，可选
      * @return {Element|[Element]|undefined} 表体元素（集）
      */
     bodies( idx, op ) {
@@ -2282,156 +2284,100 @@ class Table {
         if ( op === null ) {
             return _bd && varyRemove( _bd );
         }
+        if ( op === true ) {
+            return _bd || this._bodies( idx );
+        }
         return idx === undefined ? Arr(this._tbl.tBodies) : _bd;
     }
 
 
     /**
-     * 表标题：新建/获取/删除。
+     * 表标题：获取/删除/创建。
      * op: {
-     *      true        无条件创建一个表标题（未插入）
-     *      undefined   返回表标题（可能为null）
+     *      true        创建表标题（如果不存在）并返回之
      *      null        删除并返回表标题（可能为null）
+     *      undefined   返回表标题（可能为null）
      * }
      * @param  {null|true} op 删除/新建标识，可选
      * @return {Element|null} 表标题元素
      */
     caption( op ) {
+        let _cap = this._tbl.caption;
+
         if ( op === true ) {
-            return this._create( 'caption' );
+            return _cap || varyPrepend(
+                this._tbl,
+                this._create( 'caption' )
+            );
         }
-        let _cap = this._tbl.caption;
-
-        return op === null && _cap && varyRemove(_cap) || _cap;
+        return op === null ? _cap && varyRemove(_cap) : _cap;
     }
 
 
     /**
-     * 插入表标题。
-     * 如果已经存在表标题，则简单替换（维持唯一性）。
-     * @param  {Element} el 表标题元素
-     * @return {Element} el
-     */
-    insertCaption( el ) {
-        let _cap = this._tbl.caption;
-
-        if ( _cap ) {
-            return varyReplace( _cap, el );
-        }
-        return varyPrepend( this._tbl, el );
-    }
-
-
-    /**
-     * 0号表体：新建/获取/删除。
+     * 0号表体：获取/删除/创建。
      * op: {
-     *      true        无条件新建一个表体元素（未插入）
-     *      undefined   返回下标为0的表体元素（可能为null）
+     *      true        创建0号表体元素（如果不存在）并返回之
      *      null        删除并返回0位表体元素（可能为null）
+     *      undefined   返回下标为0的表体元素（可能为null）
      * }
      * @param  {null|true} op 删除/新建标识，可选
      * @return {Element|undefined} 首个表体元素
      */
     body( op ) {
-        if ( op === true ) {
-            return this._create( 'tbody' );
-        }
         let _bd = this._tbl.tBodies[0];
 
-        return op === null && _bd && varyRemove(_bd) || _bd;
+        if ( op === true ) {
+            return _bd || this._bodies( 0 );
+        }
+        return op === null ? _bd && varyRemove(_bd) : _bd;
     }
 
 
     /**
-     * 插入表体元素。
-     * 下标位置支持负数，默认插入到表体集的末尾。
-     * @param  {Element} el 表体元素
-     * @param  {Number} idx 位置下标，可选
-     * @return {Element} el
-     */
-    insertBody( el, idx ) {
-        idx = this._index(
-            idx,
-            this._tbl.tBodies.length
-        );
-        return insertNode(
-            this._tbl,
-            el,
-            this._tbl.tBodies[idx] || this._tbl.tFoot
-        );
-    }
-
-
-    /**
-     * 表头：新建/获取/删除。
+     * 表头：获取/删除/创建。
      * op: {
-     *      true        无条件创建一个表头元素（未插入）
-     *      undefined   返回表头元素（可能为null）
+     *      true        创建表头元素（如果不存在）并返回之
      *      null        删除并返回表头元素（可能为null）
+     *      undefined   返回表头元素（可能为null）
      * }
      * @param  {null|true} op 删除/新建标识，可选
      * @return {Element|null} 表头元素
      */
     head( op ) {
+        let _th = this._tbl.tHead;
+
         if ( op === true ) {
-            return this._create( 'thead' );
+            return _th || insertNode(
+                this._tbl,
+                this._create( 'thead' ),
+                this._tbl.tBodies[0] || this._tbl.tFoot
+            );
         }
-        let _th = this._tbl.tHead;
-
-        return op === null && _th && varyRemove(_th) || _th;
+        return op === null ? _th && varyRemove(_th) : _th;
     }
 
 
     /**
-     * 插入表头元素。
-     * 如果表头已经存在则替换（维持唯一性）。
-     * @param  {Element} el 表头元素
-     * @return {Element} el
-     */
-    insertHead( el ) {
-        let _th = this._tbl.tHead;
-
-        if ( _th ) {
-            return varyReplace( _th, el );
-        }
-        // 位置控制。
-        return insertNode( this._tbl, el, this._tbl.tBodies[0] || this._tbl.tFoot );
-    }
-
-
-    /**
-     * 表脚：新建/获取/删除。
+     * 表脚：获取/删除/创建。
      * op: {
-     *      true        无条件创建一个表脚元素（未插入）
-     *      undefined   返回表脚元素（可能为null）
+     *      true        创建表脚元素（如果不存在）并返回之
      *      null        删除并返回表脚元素（可能为null）
+     *      undefined   返回表脚元素（可能为null）
      * }
      * @param  {null|true} op 删除/新建标识，可选
      * @return {Element|null} 表脚元素
      */
     foot( op ) {
+        let _tf = this._tbl.tFoot;
+
         if ( op === true ) {
-            return this._create( 'tfoot' );
+            return _tf || varyAppend(
+                this._tbl,
+                this._create( 'tfoot' )
+            );
         }
-        let _tf = this._tbl.tFoot;
-
-        return op === null && _tf && varyRemove(_tf) || _tf;
-    }
-
-
-    /**
-     * 插入表脚元素。
-     * 如果表脚已经存在则替换（维持唯一性）。
-     * @param  {Element} el 表脚元素
-     * @return {Element} el
-     */
-    insertFoot( el ) {
-        let _tf = this._tbl.tFoot;
-
-        if ( _tf ) {
-            return varyReplace( _tf, el );
-        }
-        return varyAppend( this._tbl, el );
+        return op === null ? _tf && varyRemove(_tf) : _tf;
     }
 
 
@@ -2449,7 +2395,7 @@ class Table {
         if ( head ) {
             return this._buildTR( _tr, 'th' );
         }
-        let _ref = this._tbl.tBodies[0].rows[0] || (this._tbl.tFoot && this._tbl.tFoot.rows[0]);
+        let _ref = this._basicTR();
 
         if ( !_ref ) {
             return this._buildTR( _tr, 'td' );
@@ -2630,6 +2576,36 @@ class Table {
      */
     _create( tag ) {
         return this._tbl.ownerDocument.createElement( tag );
+    }
+
+
+    /**
+     * 创建至目标位置的表体序列。
+     * 返回目标位置的表体元素。
+     * 注：如果指定了非数字下标，返回undefined。
+     * @param  {Number} idx 下标位置
+     * @return {Element}
+     */
+    _bodies( idx ) {
+        let _el;
+
+        if ( !isNaN(idx) ) {
+            while ( !this._tbl.tBodies[idx] ) {
+                _el = insertNode( this._tbl, this._create('tbody'), this._tbl.tFoot );
+            }
+        }
+        return _el;
+    }
+
+
+    /**
+     * 获取参考行。
+     * @param  {Element} tbl 表格元素
+     * @return {Element|null}
+     */
+    _basicTR() {
+        let _tsec = this._tbl.tBodies[0] || this._tbl.tFoot;
+        return _tsec && _tsec.rows[0];
     }
 
 
