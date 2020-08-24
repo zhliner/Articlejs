@@ -69,15 +69,16 @@
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
             <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
             <hr>
-            <!-- 300:延迟显示，400:延迟隐藏 -->
+            <!-- 300:延迟显示，400:延迟隐藏
+                注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
             <li role="submenu" data-pb="folded"
                 on="@sm-1|evo(3) fold(0);
                     @sm-0|evo(3) fold(1);
-                    mouseenter|data('sub-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
-                    mouseleave|data('sub-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
+                    mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
+                    mouseleave|data('tk-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
                 to="-;-;
-                    |data('sub-1');
-                    |data('sub-0')">
+                    |data('tk-1');
+                    |data('tk-0')">
                 <h5><b id="l-convert">转换</b></h5>
                 <menu></menu>
             </li>
@@ -191,7 +192,7 @@
                     </section>
                     <section role="s2">
                         <h2 id="内联单元">内联单元</h2>
-                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的 <ruby><rb>注音</rb><rp>（</rp><rt>zhù yīn</rt><rp>）</rp></ruby>、或媒体类的 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
+                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的 <ruby><rb>注音</rb><rp>(</rp><rt>zhù yīn</rt><rp>)</rp></ruby>、或媒体类的 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
                         <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
                         <table>
                             <caption>内联单元基本情况清单</caption>

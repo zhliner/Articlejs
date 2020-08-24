@@ -143,7 +143,7 @@ export const
     // 容器：<li>, <p>, <h4>
     CODELI          = 419,  // 代码表条目（li/code） {start}
     ALI             = 420,  // 目录：普通条目（li/a）
-    AH4LI           = 421,  // 目录：标题条目（li/h4/a）
+    AH4LI           = 421,  // 目录：标题条目（li/[h4/a]）
     AH4             = 422,  // 目录：链接小标题（h4/a）
     ULXH4LI         = 423,  // 无序级联表项标题（li/h4, ul|ol）
     OLXH4LI         = 424,  // 有序级联表项标题（li/h4, ol|ul）

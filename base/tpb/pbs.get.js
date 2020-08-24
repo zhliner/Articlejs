@@ -926,7 +926,9 @@ const _Gets = {
      * 创建/清除持续定时器。
      * 目标：暂存区/栈顶1项。
      * 目标为函数或之前存储的定时器ID，说明参考上面timeOut。
-     * 注：setInterval 的定时器会持续执行。
+     * 注：
+     * 每一次都会创建一个定时器，因此通常在单次事件中使用。
+     * setInterval 的定时器会持续执行。
      * @param  {Number|null} dist 间隔时间（毫秒）
      * @param  {...Value} args 目标函数调用时的实参
      * @return {intervalID|void}
@@ -1908,7 +1910,7 @@ function cloneMap( map ) {
  * @param  {Object} evo 事件关联对象
  * @return {Object}
  */
-function newElobj( evo, extra ) {
+function newElobj( evo ) {
     return {
         target:     evo.target,
         current:    evo.current,

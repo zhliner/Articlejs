@@ -60,7 +60,6 @@ const Tags = {
     [ T.PICTURE ]:      'picture',
     [ T.SVG ]:          'svg',
     [ T.RUBY ]:         'ruby',
-    [ T.TIME ]:         'time',
     [ T.METER ]:        'meter',
     [ T.SPACE ]:        'span\\space',
     [ T.IMG ]:          'img',
@@ -86,6 +85,7 @@ const Tags = {
     [ T.Q ]:            'q',
     [ T.ABBR ]:         'abbr',
     [ T.CITE ]:         'cite',
+    [ T.TIME ]:         'time',
     [ T.SMALL ]:        'small',
     [ T.DEL ]:          'del',
     [ T.INS ]:          'ins',
@@ -235,7 +235,7 @@ const CustomMaker = {
 // 如果返回的是内容元素，则可以接收内联节点插入（移动/克隆时）。
 // 返回子元素类型值表示无法直接创建，需后阶create创建。
 //////////////////////////////////////////////////////////////////////////////
-// function( box:Element ): Element | [Element] | Number
+// function( box:Element, cnt:Number ): Element | [Element] | Number
 //
 const Children = {
     //
@@ -293,20 +293,39 @@ const Children = {
         return tableObj( foot.parentElement ).newTR();
     },
 
-    // 定制结构（无role）。
-    [ T.CODELI ]:       'li',
-    [ T.ALI ]:          'li',
-    [ T.AH4LI ]:        'li',
-    [ T.AH4 ]:          'h4',
-    [ T.ULXH4LI ]:      'li',
-    [ T.OLXH4LI ]:      'li',
-    [ T.CASCADEH4LI ]:  'li',
-    [ T.FIGIMGP ]:      'p',
+    //
+    // 返回两个成员。
+    // 外部传递数据时需要注意集合成员顺序，
+    // 这里是一种深度递进构建的逻辑。
+    //---------------------------------
+
+    // @return {[Element]}
+    [ T.ULXH4LI ]: function() {
+        return elements( T.H4, T.UL );
+    },
+
+    // @return {[Element]}
+    [ T.OLXH4LI ]: function() {
+        return elements( T.H4, T.OL );
+    },
+
+    // @return {[Element]}
+    [ T.CASCADEH4LI ]: function() {
+        return elements( T.H4, T.OL );
+    },
+
+    // @return {[Element]}
+    [ T.FIGIMGP ]: function() {
+        return elements( T.IMG, T.EXPLAIN );
+    },
+
 
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ T.HGROUP ]:       'hgroup',
+    [ T.HGROUP ]: function() {
+        //
+    },
     [ T.ABSTRACT ]:     'header\\abstract',
     [ T.TOC ]:          'nav\\toc',
     [ T.SEEALSO ]:      'ul\\seealso',
@@ -327,9 +346,30 @@ const Children = {
     [ T.CASCADE ]:      'ol\\cascade',
     [ T.DL ]:           'dl',
 
-    [ T.TABLE ]: function( tbl ) {
+    /**
+     * 表格子单元创建。
+     * 不提供删除子单元能力（非真即忽略）。
+     * 标题内容作为选项成员出现。
+     * 注记：仅需返回表体单元供进阶的行元素插入。
+     * @param  {Element} tbl 表格元素
+     * @param  {String|Node|[Node]} caption 表标题内容
+     * @param  {Boolean} head 添加表头
+     * @param  {Boolean} foot 添加表脚
+     * @return {Element} 表体元素
+     */
+    [ T.TABLE ]: function( tbl, {caption, head, foot} ) {
         let _tbo = tableObj( tbl );
-        return _tbo.body() || _tbo.insertBody( _tbo.body(true) );
+
+        if ( caption ) {
+            $.append( _tbo.caption(true), caption );
+        }
+        if ( head ) {
+            _tbo.head( true );
+        }
+        if ( foot ) {
+            _tbo.foot( true );
+        }
+        return _tbo.body( true );
     },
 
     [ T.FIGURE ]:       'figure',
@@ -349,16 +389,28 @@ const Children = {
 
 
 //
-// 定制创建。
-// 涉及复杂的配置参数或异类创建，简化模板用法。
-// 密封单元也在此创建。
-// 接口：function( Element, Object ): Element | DocumentFragment
-//////////////////////////////////////////////////////////////////////////////
-// 通用创建：
-//      element( create(), data, shift );
-//      $.attribute( el, opts );
+// 简单的子单元创建。
+//-------------------------------------
+[
+    [ T.CODELI,     T.CODE ],
+    [ T.ALI,        T.A ],
+    [ T.AH4LI,      T.AH4 ],
+    [ T.AH4,        T.A ],
+]
+.forEach(function( its ) {
+    // @return {Element}
+    Children[ its[0] ] = () => element( its[1] );
+});
+
+
 //
-const Creater = {
+// 元素构建集。
+// 对已经创建的元素（空）设置特性或插入内容。
+// 接口：function( Element, Object ): Element | DocumentFragment
+// 注记：
+// 对无需任何特性设置的中间结构性元素，此处无需定义。
+//////////////////////////////////////////////////////////////////////////////
+const Builder = {
 
     //-- 内联单元 ------------------------------------------------------------
 
@@ -375,8 +427,9 @@ const Creater = {
 
     /**
      * SVG子单元。
-     * 注记：应当只在children场景使用。
-     * @param  {false} _ 实参占位
+     * 应当只在children场景使用，
+     * _ 实参为 Children:SVG 的返回值。
+     * @param  {Number} _ 实参占位
      * @param  {String} html SVG源码
      * @return {DocumentFragment}
      */
@@ -439,35 +492,6 @@ const Creater = {
 
 
     //-- 块内结构元素 --------------------------------------------------------
-
-
-    /**
-     * 创建表格行。
-     * 内容可以是一个二维数组，一维成员对应到各单元格。
-     * @param  {Table} tbl 表格实例（$.Table）
-     * @param  {[Node|[Node]|String]} cons 内容集
-     * @param  {TableSection} tsec 表格片区（<thead>|<tbody>|<tfoot>）
-     * @param  {Number} idx 位置下标，可选
-     * @return {Collector} 新行元素集
-     */
-    tr( tbl, cons, tsec, idx ) {
-        let _rows = Math.ceil( cons.length / tbl.columns() ),
-            _trs = null;
-
-        switch (tsec.tagName) {
-            case 'THEAD':
-                _trs = tbl.head(_rows, idx);
-                break;
-            case 'TFOOT':
-                _trs = tbl.foot(_rows, idx);
-                break;
-            case 'TBODY':
-                _trs = tbl.body(_rows, idx, tsec);
-        }
-        _trs.find('th,td').flat().fill( cellWraps(cons) );
-        return _trs;
-    },
-
 
     /**
      * 创建/更新表头元素。
@@ -611,7 +635,7 @@ const Creater = {
 ]
 .forEach(function( its ) {
     // @return {Element}
-    Creater[ its[0] ] = (el, opts) => $.attribute( el, attrPicks(opts, its[1]) );
+    Builder[ its[0] ] = (el, opts) => $.attribute( el, attrPicks(opts, its[1]) );
 });
 
 
@@ -662,7 +686,7 @@ const Creater = {
 .forEach(function( its ) {
     // @param  {Node|String|[Node|String]} data
     // @return {Element}
-    Creater[ its ] = (el, _, data) => ( $.append(el, data), el );
+    Builder[ its ] = (el, _, data) => ( $.append(el, data), el );
 });
 
 
@@ -706,7 +730,7 @@ function attrPicks( obj, names ) {
  * @return {Boolean}
  */
 function isDetached( els ) {
-    return ($.isArray(els) ? els[0] : els).isConnected;
+    return !($.isArray(els) ? els[0] : els).parentElement;
 }
 
 
@@ -830,7 +854,7 @@ function dataItem( data, shift ) {
 /**
  * 检索并设置SVG子元素类型值。
  * @param  {Element|DocumentFragment} box SVG容器
- * @return {box}
+ * @return {...} box
  */
 function svgItem( box ) {
     $.find( '*', box )
@@ -875,7 +899,7 @@ export function elements( ...types ) {
 /**
  * 元素创建（含内容）。
  * 如果是结构性容器，会获取子元素序列并插入。
- * el支持元素类型值，因为有的元素不能直接创建（如 Children:SVG）。
+ * 作为特例，el支持元素类型值（部分单元不能直接创建，如 SVGITEM）。
  * 适用初始新建或节点树迭代完成。
  * opts: {
  *      text:   纯文本（文本节点）
@@ -886,6 +910,9 @@ export function elements( ...types ) {
  *      tab:    Tab键空格数
  *      ....    正常的元素特性
  * }
+ * 注记：
+ * el为数值仅是特例，元素需要由外部创建（除非无法执行，如SVGITEM）。
+ *
  * @param  {Element|Number} el 空元素或元素类型值
  * @param  {Object} opts 特性配置集
  * @param  {Node|[Node]|[String]} data 数据源
@@ -894,7 +921,7 @@ export function elements( ...types ) {
  */
 export function create( el, opts, data, more ) {
     let _tv = isNaN(el) ? getType(el) : el,
-        _fn = Creater[ _tv ];
+        _fn = Builder[ _tv ];
 
     if ( _fn ) {
         el = _fn( el, opts, dataItem(data, more) );
@@ -913,7 +940,19 @@ export function create( el, opts, data, more ) {
  * 适用：
  * 1. 由create新建开始的子结构迭代完成。
  * 2. 移动插入中间结构位置时的直接使用。
- * opts: 同上。
+ * opts: {
+ *      caption     创建表标题
+ *      head:       添加表头元素
+ *      foot:       添加表脚元素
+ *      figcaption  创建插图标题
+ *      h3          创建行块小标题
+ *      h4          创建级联表标题
+ *      explain     创建图片讲解
+ *      h2          创建片区（section）标题
+ *      header      创建导言部分
+ *      footer      创建结语部分
+ *      ....        （同上）
+ * }
  * @param  {Element} box 父容器元素
  * @param  {Object} opts 子元素特性配置集
  * @param  {Node|[Node]|[String]} data 数据源
@@ -921,15 +960,15 @@ export function create( el, opts, data, more ) {
  * @return {Element|[Element]|false}
  */
 export function children( box, opts, data, more ) {
-    let tval = getType( box ),
-        subs = Children[tval]( box );
+    let _tv = getType( box ),
+        _el = Children[_tv]( box, opts );
 
-    if ( $.isArray(subs) ) {
-        subs = subs.map( el => create(el, opts, data, more) );
+    if ( $.isArray(_el) ) {
+        _el = _el.map( el => create(el, opts, data, more) );
     } else {
-        subs = create( subs, opts, data, more );
+        _el = create( _el, opts, data, more );
     }
-    return isDetached(subs) && subs;
+    return isDetached( _el ) && _el;
 }
 
 
