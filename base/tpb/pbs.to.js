@@ -506,13 +506,13 @@ const _Update = {
 
 //
 // PB专项设置。
-// 内容：[String]|String
-// 注：简单调用 Util.pba/pbo/pbv。
+// 内容：[String]
+// 目标为多个元素时，仅支持设置为相同的值。
+// 注：简单调用 Util.pba/pbo。
 ///////////////////////////////////////////////////////////////////////////////
 [
-    'pba',  // ( wds:Array )
-    'pbo',  // ( wds:Array )
-    'pbv',  // ( val:String )
+    'pbo',
+    'pba',
 ]
 .forEach(function( name ) {
     /**

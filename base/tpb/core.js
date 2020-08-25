@@ -94,17 +94,17 @@ const
     __toQuery   = /^\(([^]*?)\)\s*([([{][^]+[)\]}])?$/,
 
     // To:Query
-    // 集合范围子集匹配：( beg, end )。
+    // 不匹配选择器：(selector)。
     // 取值：[1]
-    __toRange   = /^\(([\d,\s]*)\)$/,
+    __toExclude = /^\(([^]*?)\)$/,
 
     // To:Query
-    // 集合定位取值匹配：[ 0, 2, 5... ]。
-    // 取值：[0]
-    __toIndex   = /^\[[\d,\s]*\]$/,
+    // 数值定位匹配：[x:y] 或 [m,n,...]。
+    // 取值：[1]
+    __toNumber  = /^\[([\d:,\s]*)\]$/,
 
     // To:Query
-    // 集合过滤表达式匹配：{ filter-expr }。
+    // 集合过滤表达式匹配：{expression}。
     // 取值：[1]
     __toFilter  = /^\{([^]*)\}$/,
 
@@ -1019,7 +1019,7 @@ class Query {
      _matchMore( result ) {
         if ( result ) {
             this._slr = result[1];
-            this._flr = this._handle(result[2]);
+            this._flr = this._handle( result[2] );
             this._one = false;
         }
     }
@@ -1034,11 +1034,11 @@ class Query {
     _handle( fmt ) {
         if ( !fmt ) return null;
 
-        if ( __toRange.test(fmt) ) {
-            return this._range( fmt.match(__toRange)[1] );
+        if ( __toExclude.test(fmt) ) {
+            return this._exclude( fmt.match(__toExclude)[1] );
         }
-        if ( __toIndex.test(fmt) ) {
-            return this._index( fmt.match(__toIndex)[0] );
+        if ( __toNumber.test(fmt) ) {
+            return this._number( fmt.match(__toNumber)[1] );
         }
         if ( __toFilter.test(fmt) ) {
             return this._filter( fmt.match(__toFilter)[1] );
@@ -1047,25 +1047,44 @@ class Query {
 
 
     /**
-     * 范围成员提取。
-     * @param  {String} fmt 参数串：beg, end
+     * 匹配排除过滤。
+     * @param  {String} slr 选择器
      * @return {Function}
      */
-    _range( fmt ) {
-        let _n2 = JSON.parse( `[${fmt}]` );
-        return all => all.slice( _n2[0], _n2[1] );
+    _exclude( slr ) {
+        return all => all.filter( el => !$.is(el, slr) );
     }
 
 
     /**
-     * 定点成员提取。
-     * 越界下标的值会被忽略。
-     * @param  {String} fmt 定位串：[m, n, ...]
+     * 数值定位提取。
+     * @param  {String} fmt 定位串：[x:y]|[m,n,...]
      * @return {Function}
      */
-    _index( fmt ) {
-        let _nx = JSON.parse( fmt );
-        return all => _nx.map( i => all[i] ).filter( v => v );
+    _number( fmt ) {
+        let _vs = fmt.split(':');
+
+        if ( _vs.length > 1 ) {
+            return this._range( _vs );
+        }
+        _vs = JSON.parse( `[${fmt}]` );
+
+        // 越界下标的值被滤除。
+        return all => _vs.map( i => all[i] ).filter( v => v );
+    }
+
+
+    /**
+     * 按范围提取。
+     * @param  {String} beg 起始下标，可选
+     * @param  {String} end 终点下标，可选
+     * @return {Function}
+     */
+    _range( [beg, end] ) {
+        beg = Math.trunc( beg ) || 0;
+        end = end ? Math.trunc( end ) : undefined;
+
+        return all => all.slice( beg, end );
     }
 
 
@@ -1076,7 +1095,7 @@ class Query {
      */
     _filter( fmt ) {
         let _fn = new Function(
-                'v', 'i', 'o', `return ${fmt};`
+                'e', 'n', 'c', `return ${fmt};`
             );
         return all => all.filter( _fn );
     }

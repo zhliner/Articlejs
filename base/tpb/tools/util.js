@@ -22,19 +22,11 @@ const
     __chrSp2    = '/',
 
     // PB属性名。
-    __attrPB    = 'data-pb',
+    __attrPBo   = 'data-pbo',   // 选项词
+    __attrPBa   = 'data-pba',   // 参数序列
 
     __chrOpt1   = '-',  // 选项词：减
     __chrOpt2   = '^',  // 选项词：切换
-
-    // PB参数模式。
-    // 尾部短横线，后跟空白或结束。
-    __pbArgs    = /^\w[\w-]*-(?=\s|$)/,
-
-    // PB选项模式。
-    // 前端空格或起始限定，避免匹配参数段。
-    // 注：选项词不能包含短横线。
-    __pbOpts    = /(^|\s+)\w[\w\s]*$/,
 
     // 调用表达式
     // 首尾空白需要预先清除。
@@ -120,20 +112,21 @@ const Util = {
      * 特性设置采用tQuery库接口，以支持varyevent事件通知机制。
      *
      * @param  {Element} el 目标元素
-     * @param  {[String]|null} wds 参数词序列
+     * @param  {[String]|null} wds 参数词序列（有序）
      * @return {[String]|void}
      */
     pba( el, wds ) {
-        let _v = el.getAttribute( __attrPB );
+        let _v = el.getAttribute( __attrPBa );
 
         if ( wds === undefined ) {
-            return _v ? pbArgs( attrArgs(_v) ) : [];
+            // 末尾-会切分出一个空串。
+            return _v ? _v.split('-').slice(0, -1) : [];
         }
         if ( wds === null ) {
-            // 移除参数选项保留。
-            return _v && $.attr( el, __attrPB, _v.replace(__pbArgs, '').trim() );
+            return _v && $.removeAttr( el, __attrPBa );
         }
-        $.attr( el, __attrPB, pbaAttr(pbArgs(wds), _v).trim() );
+        // 末尾需要一个-，以匹配 |= 选择器。
+        $.attr( el, __attrPBa, wds.join('-') + '-' );
     },
 
 
@@ -153,30 +146,16 @@ const Util = {
      * @return {[String]|void}
      */
     pbo( el, wds ) {
-        let _v = el.getAttribute( __attrPB ),
-            _o = _v ? pbOpts( attrOpts(_v) ) : [];
+        let _v = el.getAttribute( __attrPBo ),
+            _o = _v ? _v.split(/\s+/) : [];
 
         if ( wds === undefined ) {
             return _o;
         }
         if ( wds === null ) {
-            // 移除选项保留参数。
-            return _v && $.attr( el, __attrPB, _v.replace(__pbOpts, '').trim() );
+            return _v && $.removeAttr( el, __attrPBo );
         }
-        $.attr( el, __attrPB, pboAttr(pbOpts(wds, new Set(_o)), _v).trim() );
-    },
-
-
-    /**
-     * PB属性简单取值/设置。
-     * @param {Element} el 目标元素
-     * @param {String} val 设置值
-     */
-    pbv( el, val ) {
-        if ( val === undefined ) {
-            return el.getAttribute( __attrPB );
-        }
-        $.attr( el, __attrPB, val );
+        $.attr( el, __attrPBo, pboSet(wds, _o).join(' ') );
     },
 
 
@@ -313,85 +292,29 @@ function query2( slr, beg ) {
 }
 
 
-//
-// PB辅助（pba/pbo）
-///////////////////////////////////////////////////////////////////////////////
-
-
 /**
- * 提取参数串部分。
- * @param {String} attr 属性值
- */
-function attrArgs( attr ) {
-    return __pbArgs.test(attr) ? attr.split(/\s+/, 1)[0] : '';
-}
-
-
-/**
- * 解析/构造PB参数序列。
- * 解析返回词序列，构造返回串值。
- * @param  {String|[String]} val 参数串或词序列
- * @return {[String]|String}
- */
-function pbArgs( val ) {
-    if ( $.isArray(val) ) {
-        return val.join('-') + '-';
-    }
-    // 排除末尾空串单元
-    return val ? val.split('-').slice(0, -1) : [];
-}
-
-
-/**
- * 构造data-pb属性值。
- * - 参数串替换或前端新插入。
- * @param  {String} val PB参数串
- * @param  {String} attr 原属性值
- * @return {String}
- */
-function pbaAttr( val, attr ) {
-    if ( !attr ) {
-        return val;
-    }
-    return __pbArgs.test(attr) ? attr.replace(__pbArgs, val) : `${val} ${attr}`;
-}
-
-
-/**
- * 提取选项串部分。
- * @param {String} attr 属性值
- */
-function attrOpts( attr ) {
-    return __pbOpts.test(attr) ? attr.match(__pbOpts)[0].trim() : '';
-}
-
-
-/**
- * 解析/提取PB选项序列。
- * 解析返回词序列，构造返回串值。
- * 支持前置 - 表示移除。
- * 支持前置 ^ 表示切换。
+ * 处理PB选项序列。
+ * - 前置 - 表示移除。
+ * - 前置 ^ 表示切换。
  * 注：无前置加号（+）功能。
- * @param  {String|[String]} val 选项串或词序列
- * @param  {Set} opts 原选项集
- * @return {[String]|String}
+ * @param  {[String]} wds 目标词序列
+ * @param  {[String]} opts 原选项词集
+ * @return {[String]}
  */
-function pbOpts( val, opts ) {
-    if ( !opts ) {
-        return val ? val.split(/\s+/) : [];
-    }
-    for ( const _x of val ) {
-        switch (_x[0]) {
+function pboSet( wds, opts ) {
+    let _set = new Set( opts );
+
+    for ( const w of wds ) {
+        switch (w[0]) {
             case __chrOpt1:
-                opts.delete( _x.substring(1) );
-                break;
+                _set.delete( w.substring(1) ); break;
             case __chrOpt2:
-                optToggle( opts, _x.substring(1) );
-                break;
-            default: opts.add( _x );
+                optToggle( _set, w.substring(1) ); break;
+            default:
+                _set.add( w );
         }
     }
-    return ' ' + [...opts].join(' ');
+    return [ ..._set ];
 }
 
 
@@ -402,22 +325,6 @@ function pbOpts( val, opts ) {
  */
 function optToggle( set, name ) {
     return set.has(name) ? set.delete(name) : set.add(name);
-}
-
-
-/**
- * 构造data-pb属性值。
- * - 选项串替换或参数段后添加。
- * @param  {String} opts PB选项串
- * @param  {String} attr 原属性值
- * @return {String}
- */
-function pboAttr( opts, attr ) {
-    if ( !attr ) {
-        return opts;
-    }
-    // opts已含前置空格。
-    return __pbOpts.test(attr) ? attr.replace(__pbOpts, opts) : `${attr}${opts}`;
 }
 
 

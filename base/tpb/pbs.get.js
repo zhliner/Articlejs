@@ -1323,24 +1323,23 @@ const _arrayGets = {
 //
 // PB专项取值。
 // 目标：暂存区/栈顶1项。
-// 即目标元素上data-pb特性的格式值（-分隔表示参数，空格分隔表示选项）。
-// 注：简单调用 Util.pba/pbo/pbv 即可。
+// 即目标元素上 data-pbo|pba 特性的格式值。
+// 注：简单调用 Util.pba/pbo 即可。
 //////////////////////////////////////////////////////////////////////////////
 [
-    'pba',  // (): [String] | [[String]] 有序的参数词序列
-    'pbo',  // (): [String] | [[String]] 选项词序列
-    'pbv',  // (): String | [String] 属性值
+    'pbo',  // 选项词序列
+    'pba',  // 有序的参数词序列
 ]
 .forEach(function( name ) {
     // 单元素版。
-    // @return {[String]|String}
+    // @return {[String]}
     _Gets[name] = function( evo ) { return Util[name](evo.data) };
 
     _Gets[`__${name}`] = 1;
 
 
     // 集合版。
-    // @return {[[String]]|[String]}
+    // @return {[[String]]}
     _arrayGets[name] = function( evo ) { map.call( evo.data, el => Util[name](el)) };
 
     _arrayGets[`__${name}`] = 1;

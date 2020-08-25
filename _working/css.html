@@ -50,17 +50,17 @@
     <div id="editor">
 
 <!-- 模态框：屏蔽层 -->
-<div id="g-modal" class="___Panel Modal" data-pb="lost"
+<div id="g-modal" class="___Panel Modal" data-pbo="lost"
     on="click('~._close')|evo(3) lose">
     <form class="_prop" tpl-name="modal:prop">
         <header>
             <h5>[标题]</h5>
             <b class="_close" title="关闭">✕</b>
         </header>
-        <p id="modal-note" class="_note" data-pb="">
+        <p id="modal-note" class="_note" data-pbo="">
             [这里是当前属性的一些必要说明或提示。]
         </p>
-        <div class="_list" data-pb="">
+        <div class="_list" data-pbo="">
             <table tpl-name="input:img">
                 <tr tpl-name="prop:srcbase">
                     <th title="相对于网站根目录">根路径</th>
@@ -105,13 +105,13 @@
         <b title="主面板" class="_press"><i id="b-slave"></i></b>
     </div>
     <!-- 动态区 -->
-    <div id="tools-active" class="_active _icons" data-pb="">
+    <div id="tools-active" class="_active _icons" data-pbo="">
         <hr>
         <b title="文本化"><i id="b-totext"></i></b>
         <b title="内容提升"><i id="b-conup"></i></b>
         <hr>
         <b title="撤消"><i id="b-undo"></i></b>
-        <b title="重做" data-pb="disabled"><i id="b-redo"></i></b>
+        <b title="重做" data-pbo="disabled"><i id="b-redo"></i></b>
     </div>
     <!-- 功能按钮 -->
     <div class="_end _icons">
@@ -123,18 +123,18 @@
 <!-- 内容区 -->
 <div class="___Content" tpl-name="main:content">
     <!-- 临时态：视觉提示 -->
-    <span id="g-cross" data-pb="">
+    <span id="g-cross" data-pbo="">
         <b id="cross-h"></b><b id="cross-v"></b>
     </span>
     <!--滚动封装：
         滚动内容<main>直接获取焦点时可能存在移位。-->
     <div id="g-scroll" class="_scroll" tabindex="0">
         <!-- 上下文菜单 -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="">
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="">
             <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
             <hr>
             <!-- 延迟300毫秒显示，延迟400毫秒隐藏 -->
-            <li role="submenu" data-pb="folded"
+            <li role="submenu" data-pbo="folded"
                 on="@sm-1|evo(3) fold(0);
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
@@ -143,7 +143,7 @@
                     |data('tk-1');
                     |data('tk-0')">
                 <h5><b id="l-convert">转换</b></h5>
-                <menu class="_cells" tabindex="0" data-pb="">
+                <menu class="_cells" tabindex="0" data-pbo="">
                     <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
                     <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
                     <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -183,7 +183,7 @@
             <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 选取创建（mouseup） -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pb="" style="top:20px; left:20px">
+        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="" style="top:20px; left:20px">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
             <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -303,7 +303,7 @@
         </main>
     </div>
     <!-- 元素路径提示 -->
-    <div id="g-path" class="_path" data-pb="">
+    <div id="g-path" class="_path" data-pbo="">
         <!-- 例： -->
         <b>main</b>
         <b>article</b>
@@ -326,7 +326,7 @@
 </div>
 
 <!-- 主面板区 -->
-<div id="main-slave" class="___Panel Slave" tpl-name="main:slave" data-pb="lost">
+<div id="main-slave" class="___Panel Slave" tpl-name="main:slave" data-pbo="lost">
     <div class="_tabs">
         <b>内容</b>
         <b class="_press">样式</b>
@@ -384,7 +384,7 @@
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span id="cmd-chars" class="_code" data-pb="lost">
+        <span id="cmd-chars" class="_code" data-pbo="lost">
             <b title="选择器模式">/</b>
             <b title="普通命令">:</b>
             <b title="简单计算">=</b>
@@ -408,7 +408,7 @@
         <input id="cmd-input" type="text" spellcheck="false" class="_code" value="Hello world!" />
     </div>
     <!-- 出错信息区 -->
-    <div class="_err" title="单击显示帮助" data-pb="lost">
+    <div class="_err" title="单击显示帮助" data-pbo="lost">
         <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
     </div>
     <!-- 帮助入口 -->
@@ -2600,15 +2600,15 @@
                 <div class="_body">
                     <div class="_main">
                         <!-- OBT: 分组对应提示 -->
-                        <header class="_tips" data-pb="">
-                            <label data-pb="">
+                        <header class="_tips" data-pbo="">
+                            <label data-pbo="">
                                 <b>on</b><input type="text" spellcheck="false" class="_code" disabled
                                     value="^obted|evo(3) dup text clean(true) split(',') str('#') dup str('background-color:') elem;" />
                             </label>
-                            <label data-pb="">
+                            <label data-pbo="">
                                 <b>by</b><input type="text" spellcheck="false" class="_code" disabled />
                             </label>
-                            <label data-pb="lost">
+                            <label data-pbo="lost">
                                 <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
                             </label>
                         </header>

@@ -20,7 +20,7 @@
     <hr>
     <div class="_middle _icons">
         <!-- 动态 -->
-        <span id="tools-usual" class="_usual _icons" data-pb="">
+        <span id="tools-usual" class="_usual _icons" data-pbo="">
             <b title="文本化"
                 on="click"
                 by="Ed.toText"><i id="b-totext"></i></b>
@@ -32,13 +32,13 @@
         <!--撤销：
             state  状态设置：true禁用，false启用。
             enable 仅用于直接开启。-->
-        <b id="tools-undo" title="撤消" data-pb="disabled"
+        <b id="tools-undo" title="撤消" data-pbo="disabled"
             on="state|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Edit) call('editUndo');
                 enable|evo(1) disable(0)"
             to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
         <!-- 重做 -->
-        <b id="tools-redo" title="重做" data-pb="disabled"
+        <b id="tools-redo" title="重做" data-pbo="disabled"
             on="state|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Edit) call('editRedo');
                 enable|evo(1) disable(0)"
@@ -66,12 +66,12 @@
         to="#g-count|trigger('reset');
             #g-count|trigger('setv')">
         <!-- 上下文菜单 -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pb="lost">
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="lost">
             <li data-val="minied"><b id="l-minied">编辑</b><kbd>i/I</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
-            <li role="submenu" data-pb="folded"
+            <li role="submenu" data-pbo="folded"
                 on="@sm-1|evo(3) fold(0);
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
@@ -90,7 +90,7 @@
             <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 选取创建（mouseup） -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pb="lost">
+        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="lost">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
             <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -457,7 +457,7 @@
     </div>
     <!-- 指令符 -->
     <div class="_cmdx">
-        <span class="_code" data-pb="lost"
+        <span class="_code" data-pbo="lost"
             on="click(b)|evo(1) text"
             to="1/code|trigger('setv')">
             <b title="选择器模式">/</b>
@@ -488,7 +488,7 @@
         <input id="cmd-input" type="text" spellcheck="false" class="_code" value="" />
     </div>
     <!-- 出错信息区 -->
-    <div id="g-errmsg" class="_err" data-pb=""
+    <div id="g-errmsg" class="_err" data-pbo=""
         on="on|evo(3) lose(1);
             off|evo(3) lose">
         <a data-hid="" title=""

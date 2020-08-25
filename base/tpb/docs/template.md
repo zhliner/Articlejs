@@ -17,7 +17,7 @@
 
 ```html
 <i id="logo" title="系统菜单" on="click|folds, stop"></i>
-<menu id="menu-sys" data-pb="fold" on="off|lose">
+<menu id="menu-sys" data-pbo="fold" on="off|lose">
 <!--单击折叠切换（folds）后续菜单元素，并停止事件冒泡（stop）
     事件与行为链间用竖线“|”分隔。
     多个指令间用空格“ ”分隔。

@@ -2,25 +2,20 @@
  ++++++++++++++++++++++++++++++++++++++
  *
  *  基础PB样式定义
- *  实现一些基础性的效果，比如元素折叠、隐藏、子菜单等。
+ *  实现一些基础性的效果，比如元素隐藏、折叠/子菜单、禁用等。
  *
- *  元素的 data-pb 属性值例如：<span data-pb="args-one-two opt1 opt2"></span>
- *  根据 CSS 的选择器能力被描述为两个部分。
+ *  元素的 data-pbo 特性值用于表达一种选项逻辑，如：<span data-pbo="opt1 opt2"></span>，
+ *  这有点类似于类名特性。CSS样式通过 ~= 选择器定位。
  *
- *  1. 参数：可采用 |= 定位的部分。如 args-one-two，可逐段选取，但有顺序限制。
- *  2. 选项：可采用 ~= 定位的部分，为参数之后空格分隔的单词。如 opt1 或 opt2。
- *
- *  对于两者的逻辑，可以这样理解以便于设计你自己的标识。
- *  - 参数：是什么，可以分层。
- *  - 选项：做什么，独立的行为。
- *
+ *  元素的 data-pba 特性值用于表达一种有序的参数逻辑，如：<span data-pba="one-two-"></span>，
+ *  这可方便样式的分段共享设计。CSS通过 |= 选择器定位。
  *
  *  @author 风林 zhliner@gmail.com
  *
  *****************************************************************************/
 
 
-*[data-pb] {
+*[data-pbo] {
     opacity: 1;
     transition-property: opacity;
     transition-duration: 0.3s;
@@ -31,18 +26,18 @@
  ***********************************************/
 
 /* 隐藏 */
-*[data-pb~='hidden'] {
+*[data-pbo~='hidden'] {
     visibility: hidden !important;
     opacity: 0;
 }
 
 /* 消失 */
-*[data-pb~='lost'] {
+*[data-pbo~='lost'] {
     display: none !important;
 }
 
 /* 冻结 */
-*[data-pb~='disabled'] {
+*[data-pbo~='disabled'] {
     color: #abc !important;
     filter: grayscale(1) !important;
 }
@@ -50,7 +45,7 @@
 /* 折叠：
  * 隐藏除首个子元素之外的子元素。
  */
-*[data-pb~='folded'] > :first-child ~ * {
+*[data-pbo~='folded'] > :first-child ~ * {
     opacity: 0;
     display: none !important;
 }
@@ -58,14 +53,14 @@
 /* 截断：
  * 隐藏后续兄弟元素。
  */
-*[data-pb~='truncated'] ~ * {
+*[data-pbo~='truncated'] ~ * {
     display: none !important;
 }
 
 /* 充满容器：
  * 需设置容器的position样式非static。
  */
-*[data-pb~='fulled'] {
+*[data-pbo~='fulled'] {
     position: absolute !important;
     top: 0;
     left: 0;

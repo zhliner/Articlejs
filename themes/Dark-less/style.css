@@ -386,7 +386,7 @@ aside#help {
 }
 
 /* 冻结效果 */
-.Tools b[data-pb=disabled]:hover {
+.Tools b[data-pbo=disabled]:hover {
     border-color: transparent;
     background-color: transparent;
 }
@@ -638,7 +638,7 @@ aside#help {
 }
 
 /* 录入框填充 */
-.Slave textarea[data-pb=fulled] {
+.Slave textarea[data-pbo=fulled] {
     border-radius: 0;
     border-width: 1px 0 0;
     margin-top: 0 !important;

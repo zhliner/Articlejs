@@ -119,14 +119,14 @@
         #g-keytip|text;
         |trigger('pcheck');
         -">
-    <aside id="outline" class="___Panel" data-pb="">
+    <aside id="outline" class="___Panel" data-pbo="">
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-    <hr id="lineLeft" data-pb=""
+    <hr id="lineLeft" data-pbo=""
         on="mousedown"
         to="body|bind('mousemove:1') once('mouseup')" />
     <div id="editor">
-        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pb="lost"
+        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
                 open|stop (ESC) evo(3) dup lose(0) apply('add', _1);
                 cancel|evo(3) lose (ESC) apply('pop');
@@ -137,10 +137,10 @@
                     <h5>[标题]</h5>
                     <b class="_close" title="关闭">✕</b>
                 </header>
-                <p id="modal-note" class="_note" data-pb="">
+                <p id="modal-note" class="_note" data-pbo="">
                     [这里是当前属性的一些必要说明或提示。]
                 </p>
-                <div class="_list" data-pb="">
+                <div class="_list" data-pbo="">
                 </div>
                 <div class="_submit">
                     <button type="submit">确定</button>
@@ -155,14 +155,14 @@
             [状态栏]
         </pre>
     </div>
-    <hr id="lineRight" data-pb="lost"
+    <hr id="lineRight" data-pbo="lost"
         on="mousedown"
         to="body|bind('mousemove:2') once('mouseup')" />
-    <aside id="help" class="___Panel _docs" data-pb="lost">
+    <aside id="help" class="___Panel _docs" data-pbo="lost">
         <span class="_walk">
             <b title="上一项">◀</b>
             <b title="目录" class="_top">▤</b>
-            <b title="下一项" data-pb="disabled">▶</b>
+            <b title="下一项" data-pbo="disabled">▶</b>
             <!-- ⚘ -->
             <b title="关于..." class="_about">⚘</b>
         </span>
