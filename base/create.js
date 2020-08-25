@@ -804,22 +804,20 @@ function isDetached( els ) {
 
 /**
  * 插入唯一标题。
- * 如果标题已经存在则简单忽略，
- * 否则在内部最前端插入。
+ * 标题在内部最前端，如果不存在则新建并插入。
+ * 如果内容有值，则填充更新标题。
  * @param  {Element} box 容器元素
  * @param  {Number} tval 标题类型值
- * @param  {String|Node|[Node]} data 插入内容
+ * @param  {String|Node|[Node]} data 插入内容，可选
  * @return {Element} 标题元素
  */
 function insertHeading( box, tval, data ) {
     let _hx = box.firstElementChild;
 
-    if ( _hx && getType(_hx) === tval ) {
-        return _hx;
+    if ( !_hx || getType(_hx) !== tval ) {
+        _hx = $.prepend( box, element(tval) );
     }
-    _hx = element( tval );
-
-    return $.append( $.prepend(box, _hx), data || '' ), _hx;
+    return data && $.fill(_hx, data), _hx;
 }
 
 
