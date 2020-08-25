@@ -272,7 +272,7 @@ const Children = {
     // 块内结构子
     /////////////////////////////////////////////
 
-    // 注记：单元格已经存在。
+    // 单元格已经存在。
     // @return {[Element]} <th>,<td>
     [ T.TR ]: function( tr ) {
         return [ ...tr.children ];
@@ -293,57 +293,31 @@ const Children = {
         return tableObj( foot.parentElement ).newTR();
     },
 
-    //
-    // 返回两个成员。
-    // 外部传递数据时需要注意集合成员顺序，
-    // 这里是一种深度递进构建的逻辑。
-    //---------------------------------
-
+    // @param  {String|Node|[Node]} explain 图片讲解，可选
     // @return {[Element]}
-    [ T.ULXH4LI ]: function() {
-        return elements( T.H4, T.UL );
-    },
+    [ T.FIGIMGP ]: function( _, {explain}) {
+        let _expl = element( T.EXPLAIN );
 
-    // @return {[Element]}
-    [ T.OLXH4LI ]: function() {
-        return elements( T.H4, T.OL );
-    },
-
-    // @return {[Element]}
-    [ T.CASCADEH4LI ]: function() {
-        return elements( T.H4, T.OL );
-    },
-
-    // @return {[Element]}
-    [ T.FIGIMGP ]: function() {
-        return elements( T.IMG, T.EXPLAIN );
+        if ( explain ) {
+            $.append( _expl, explain );
+        }
+        return [ element(T.IMG), _expl ];
     },
 
 
     //
     // 行块结构元素
     /////////////////////////////////////////////
+
+    // @return {[Element]}
     [ T.HGROUP ]: function() {
-        //
+        return elements( T.H1, T.H2 );
     },
-    [ T.ABSTRACT ]:     'header\\abstract',
-    [ T.TOC ]:          'nav\\toc',
-    [ T.SEEALSO ]:      'ul\\seealso',
-    [ T.REFERENCE ]:    'ol\\reference',
-    [ T.HEADER ]:       'header',
-    [ T.FOOTER ]:       'footer',
+
+    // 内容不可编辑，单独创建。
+    [ T.TOC ]:          null,
+
     [ T.ARTICLE ]:      'article',
-    [ T.S1 ]:           'section\\s1',
-    [ T.S2 ]:           'section\\s2',
-    [ T.S3 ]:           'section\\s3',
-    [ T.S4 ]:           'section\\s4',
-    [ T.S5 ]:           'section\\s5',
-    [ T.UL ]:           'ul',
-    [ T.OL ]:           'ol',
-    [ T.CODELIST ]:     'ol\\codelist',
-    [ T.ULX ]:          'ul\\ulx',
-    [ T.OLX ]:          'ol\\olx',
-    [ T.CASCADE ]:      'ol\\cascade',
     [ T.DL ]:           'dl',
 
     /**
@@ -373,8 +347,6 @@ const Children = {
     },
 
     [ T.FIGURE ]:       'figure',
-    [ T.BLOCKQUOTE ]:   'blockquote',
-    [ T.ASIDE ]:        'aside',
     [ T.DETAILS ]:      'details',
     [ T.CODEBLOCK ]:    'pre\\codeblock',
     [ T.HR ]:           'hr',
@@ -390,7 +362,7 @@ const Children = {
 
 //
 // 简单的子单元创建。
-//-------------------------------------
+//-----------------------------------------------
 [
     [ T.CODELI,     T.CODE ],
     [ T.ALI,        T.A ],
@@ -400,6 +372,102 @@ const Children = {
 .forEach(function( its ) {
     // @return {Element}
     Children[ its[0] ] = () => element( its[1] );
+});
+
+
+//
+// 级联表标题项创建。
+//-----------------------------------------------
+[
+    [ T.ULXH4LI,     T.UL ],
+    [ T.OLXH4LI,     T.OL ],
+    [ T.CASCADEH4LI, T.OL ],
+]
+.forEach(function( its ) {
+    // @param  {Element} li 列表项容器
+    // @param  {String|Node|[Node]} h4 列表标题项
+    // @return {Element}
+    Children[ its[0] ] = function( li, {h4} ) {
+        insertHeading(
+            li, T.H4, h4
+        );
+        return element( its[1] );
+    };
+});
+
+
+//
+// 小行块创建。
+// 结构：[ <h3>, <p>... ]
+// 标题在最前，智能补足（不存在则创建，否则忽略）。
+// 主体内容支持多个段落。
+//-----------------------------------------------
+[
+    T.ABSTRACT,
+    T.HEADER,
+    T.FOOTER,
+    T.BLOCKQUOTE,
+    T.ASIDE,
+]
+.forEach(function( it ) {
+    // @param  {Element} box 容器元素
+    // @param  {String|Node|[Node]} h3 标题内容
+    // @return {Element}
+    Children[ it ] = function( box, {h3} ) {
+        insertHeading(
+            box, T.H3, h3
+        );
+        return element( T.P );
+    };
+});
+
+
+//
+// 顶层列表。
+// 只是简单的构建<li>条目。
+//-----------------------------------------------
+[
+    T.SEEALSO,
+    T.REFERENCE,
+    T.UL,
+    T.OL,
+    T.CODELIST,
+    T.ULX,
+    T.OLX,
+    T.CASCADE,
+]
+.forEach(function( it ) {
+    Children[ it ] = () => element( T.LI );
+});
+
+
+//
+// 5级片区。
+// 此为通用容器，内容自由，因此无返回值。
+// 选项集：
+// - h2     标题，必需，唯一
+// - header 导言，可选，唯一
+// - footer 结语，可选，唯一
+//-----------------------------------------------
+[
+    T.S1,
+    T.S2,
+    T.S3,
+    T.S4,
+    T.S5,
+]
+.forEach(function( it ) {
+    // @return {void}
+    Children[ it ] = function( box, {h2, header, footer}) {
+        let _hx = insertHeading( box, T.H2, h2 );
+
+        if ( header && !$.get('>header', box) ) {
+            $.after( _hx, element(T.HEADER) );
+        }
+        if ( footer && !$.get('>footer', box) ) {
+            $.append( box, element(T.FOOTER) );
+        }
+    };
 });
 
 
@@ -731,6 +799,27 @@ function attrPicks( obj, names ) {
  */
 function isDetached( els ) {
     return !($.isArray(els) ? els[0] : els).parentElement;
+}
+
+
+/**
+ * 插入唯一标题。
+ * 如果标题已经存在则简单忽略，
+ * 否则在内部最前端插入。
+ * @param  {Element} box 容器元素
+ * @param  {Number} tval 标题类型值
+ * @param  {String|Node|[Node]} data 插入内容
+ * @return {Element} 标题元素
+ */
+function insertHeading( box, tval, data ) {
+    let _hx = box.firstElementChild;
+
+    if ( _hx && getType(_hx) === tval ) {
+        return _hx;
+    }
+    _hx = element( tval );
+
+    return $.append( $.prepend(box, _hx), data || '' ), _hx;
 }
 
 
