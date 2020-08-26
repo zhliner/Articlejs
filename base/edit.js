@@ -256,6 +256,27 @@ ESEdit.currentFocus = null;
 
 
 //
+// 焦点元素记录。
+//
+class HotEdit {
+
+    constructor( el ) {
+        //
+    }
+
+
+    undo() {
+        //
+    }
+
+
+    redo() {
+        //
+    }
+}
+
+
+//
 // 选区编辑。
 // 用于鼠标划选创建内联单元时。
 // 外部：
@@ -867,10 +888,9 @@ function elemInfo( el ) {
  * 此处的更新主要用于元素编辑类需要处理焦点时。
  *
  * @param  {Element} el 待设置焦点元素
- * @param  {Boolean} update 更新全局焦点存储
  * @return {void}
  */
-function setFocus( el, update ) {
+function setFocus( el ) {
     __EHot.set( el );
 
     // 仅当退回最初选取时。
@@ -879,9 +899,6 @@ function setFocus( el, update ) {
     }
     scrollIntoView( el );
 
-    if ( update ) {
-        ESEdit.currentFocus = el;
-    }
     $.fill( pathContainer, pathList(el, contentElem) );
 }
 
@@ -1178,6 +1195,43 @@ function clearDeletes( els ) {
 
 
 /**
+ * 构造兄弟元素集组
+ * @param  {Set} sels 选取集
+ * @return {[[Element]]} 元素集组
+ */
+function teamSiblings( sels ) {
+    let _map = new Map();
+
+    for ( const el of sels ) {
+        childSet( _map, el.parentElement ).push( el );
+    }
+    return [ ..._map.values() ];
+}
+
+
+/**
+ * 获取子元素存储集。
+ * 以父元素为键，如果不存在则自动创建。
+ * @param  {Map} 存储集映射集
+ * @param  {Element} key 存储键
+ * @return {Set} 存储集
+ */
+function childSet( map, key ) {
+    return map.get( key ) || map.set( key, [] ).get( key );
+}
+
+
+/**
+ * 返回集合末尾成员。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function last( els ) {
+    return els[ els.length - 1 ];
+}
+
+
+/**
  * 元素转换到目标类型。
  * 如果源元素类型属于目标类型集成员，则直接使用。
  * 否则取类型集首个成员为默认类型，构造元素并提取源内容填充。
@@ -1250,7 +1304,7 @@ export function init( content, pathbox, errbox ) {
 
 //
 // 内容区编辑处理集。
-// 1. 可供快捷键映射对应。
+// 注：仅供快捷键映射对应。
 // 2. 可供导入执行流直接调用（其方法）。
 //
 export const Edit = {
@@ -1326,6 +1380,20 @@ export const Edit = {
     },
 
 
+    /**
+     * 纵深：顶元素。
+     * 注记：不支持计数逻辑。
+     */
+    focusTop() {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        let _to = selectTop( _el, contentElem );
+
+        return _to && setFocus( _to );
+    },
+
+
     //-- 元素选取 ------------------------------------------------------------
     // 原地扩展，焦点不会移动。
 
@@ -1357,11 +1425,13 @@ export const Edit = {
      * [By] 从路径添加。
      * 当用户单击路径上的目标时选取其关联元素。
      * 会检查父子包含关系并清理。
+     * 如果辅助键匹配，仅移动焦点而非选取。
      * @param {Object} keys 辅助键状态
      */
     pathTo( evo, keys ) {
         setFocus( evo.data );
 
+        // 仅移动焦点。
         if ( isElemFocus(keys) ) {
             return;
         }
@@ -1378,7 +1448,7 @@ export const Edit = {
 
 
     /**
-     * 切换选取。
+     * 选取切换。
      * 键盘快捷键选取切换（Space）。
      */
     turn() {
@@ -1394,7 +1464,7 @@ export const Edit = {
 
 
     /**
-     * 集合反选。
+     * 集合成员反选。
      */
     reverse() {
         let _el = __EHot.get();
@@ -1411,22 +1481,18 @@ export const Edit = {
 
 
     /**
-     * 选取焦点全部兄弟元素。
-     * 注记：焦点元素可能尚未选取。
+     * 同态全部兄弟元素。
      */
     siblings() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        if ( !__ESet.has(_el) ) {
-            __ESet.add( _el );
-        }
         siblingsUnify( _el.parentElement.children, _el );
     },
 
 
     /**
-     * 取消焦点同级兄弟元素选取。
+     * 取消同级兄弟元素选取。
      */
     cleanSiblings() {
         let _el = __EHot.get();
@@ -1574,20 +1640,6 @@ export const Edit = {
 
         __Selects.clean( _to );
         elementSelect( _to, _old );
-    },
-
-
-    /**
-     * 清空选取集。
-     * 用途：ESC键最底层取消操作。
-     */
-    selsEmpty() {
-        let _old = [...__ESet];
-
-        if ( __Selects.empty() === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old, __EHot.get()) );
     },
 
 
@@ -1785,18 +1837,42 @@ export const Edit = {
         currentMinied.cursor( _el );
     },
 
+};
 
-    //-- 杂项功能 ------------------------------------------------------------
-    // 供模板中直接取值使用
+
+//
+// 模板辅助工具集。
+// 仅供模板中在调用链中使用。
+//
+export const Kit = {
+    /**
+     * 清空选取集。
+     * ESC键最底层取消操作。
+     * 注记：固定配置不提供外部定制。
+     */
+    selsEmpty() {
+        let _old = [...__ESet];
+
+        if ( __Selects.empty() === false ) {
+            return;
+        }
+        historyPush( new ESEdit(_old, __EHot.get()) );
+    },
 
 
     /**
-     * 获取焦点元素。
-     * 用途：如内容区mouseout重置焦点信息。
-     * @return {Element}
+     * 撤销：工具栏按钮。
      */
-    focusElem() {
-        return __EHot.get();
+    undo() {
+        Edit.editUndo();
+    },
+
+
+    /**
+     * 重做：工具栏按钮。
+     */
+    redo() {
+        Edit.editRedo();
     },
 
 
@@ -1819,8 +1895,7 @@ export const Edit = {
     pathElem( box ) {
         return box[ pathsKey ];
     },
-
-}
+};
 
 
 //

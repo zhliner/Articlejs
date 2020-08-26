@@ -174,6 +174,11 @@ Content: [
         "command":  "focusDown"
     },
 
+    {
+        "key":      ":t",
+        "command":  "focusTop"
+    },
+
 
     //
     // 元素选取
@@ -249,7 +254,7 @@ Content: [
     // - 内联元素的顶元素为内容行元素（或<td>,<th>）。
     // - 结构元素的顶元素为所属单元的根元素。
     {
-        "key":      ":t",
+        "key":      "shift:t",
         "command":  "contentTop"
     },
 

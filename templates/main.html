@@ -34,13 +34,13 @@
             enable 仅用于直接开启。-->
         <b id="tools-undo" title="撤消" data-pbo="disabled"
             on="state|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (Edit) call('editUndo');
+                click|evo(3) disabled end (Kit) call('undo');
                 enable|evo(1) disable(0)"
             to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
         <!-- 重做 -->
         <b id="tools-redo" title="重做" data-pbo="disabled"
             on="state|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (Edit) call('editRedo');
+                click|evo(3) disabled end (Kit) call('redo');
                 enable|evo(1) disable(0)"
             to="#tools-undo|trigger('enable')"><i id="b-redo"></i></b>
     </div>
@@ -57,8 +57,8 @@
 
 <!-- 内容区 -->
 <div class="___Content" tpl-name="main:content">
-    <!--滚动封装
-        keydown 快捷键操作
+    <!--滚动封装（不在<main>上，避免聚焦影响）
+        keydown 快捷键操作（key, count）
         keyup 数值设置（非数字无效） -->
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
@@ -129,7 +129,7 @@
                 @mouseout:1|('_point');
                 mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|$('#g-count') val end;
-                cancel|stop (Edit) call('selsEmpty');
+                cancel|stop (Kit) call('selsEmpty');
                 ^obted"
             by="Ed.click(_1)"
             to="#g-count|trigger('reset');
@@ -386,9 +386,9 @@
         - toggle 快捷键隐显切换。
         - varyempty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。-->
     <div id="g-path" class="_path"
-        on="click(b)|(Edit) evo(2) call('pathElem', _1) scam;
-            mouseenter(b)|('_point') (Edit) evo(2) call('pathElem', _1) pop;
-            mouseleave(b)|stop ('_point') (Edit) evo(2) call('pathElem', _1) pop;
+        on="click(b)|(Kit) evo(2) call('pathElem', _1) scam;
+            mouseenter(b)|('_point') (Kit) evo(2) call('pathElem', _1) pop;
+            mouseleave(b)|stop ('_point') (Kit) evo(2) call('pathElem', _1) pop;
             varyempty;
             toggle|evo(3) hide(2)"
         by="Ed.pathTo(_1)"
@@ -448,7 +448,7 @@
             reset: 清空值，提供选取集大小默认显示。
             setv:  设置值并提供该值的显示。-->
         <input id="g-count" name="count" type="hidden"
-            on="reset|(Edit) call('esetSize') str('[ ', ' ]') ('');
+            on="reset|(Kit) call('esetSize') str('[ ', ' ]') ('');
                 setv|(ESC) evo(3) apply('add', _1) ev('detail') dup;
                 cancel|(ESC) apply('pop')"
             to="|val|pop fire('#status-tips', 'info');

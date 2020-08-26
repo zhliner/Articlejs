@@ -41,7 +41,7 @@
         import { Web } from "./tpb/config.js";
         import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
         import cfg from "./shortcuts.js";
-        import { Edit, init } from "./edit.js";
+        import { Edit, init, Kit } from "./edit.js";
         import { ArrSet } from "./common.js";
 
         window.KM = cfg.Keys;
@@ -51,9 +51,9 @@
         window.DHK = new HotKey().config( cfg.Modal );
         window.CHK = new ObjKey(Edit).config( cfg.Content );
 
-        // 供直接使用。
-        // 主要用于ESC取消选取集。
-        window.Edit = Edit;
+        // 供模板中直接使用。
+        // 主要用于调用链中使用其方法。
+        window.Kit = Kit;
         window.editInit = init;
 
         // 取消实例栈。

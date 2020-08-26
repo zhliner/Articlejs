@@ -103,6 +103,9 @@ const
     // 取值：[1]
     __toNumber  = /^\[([\d:,\s]*)\]$/,
 
+    // 范围分隔符（:）
+    __toRange   = /\s*:\s*/,
+
     // To:Query
     // 集合过滤表达式匹配：{expression}。
     // 取值：[1]
@@ -1062,7 +1065,7 @@ class Query {
      * @return {Function}
      */
     _number( fmt ) {
-        let _vs = fmt.split(':');
+        let _vs = fmt.split(__toRange);
 
         if ( _vs.length > 1 ) {
             return this._range( _vs );
@@ -1082,7 +1085,7 @@ class Query {
      */
     _range( [beg, end] ) {
         beg = Math.trunc( beg ) || 0;
-        end = end ? Math.trunc( end ) : undefined;
+        end = end.trim() ? Math.trunc( end ) : undefined;
 
         return all => all.slice( beg, end );
     }

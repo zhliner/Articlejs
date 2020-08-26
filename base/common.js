@@ -133,20 +133,13 @@ export class EHot {
 
 
     /**
-     * 设置为选取焦点。
-     * @param {Element} el 目标元素
+     * 设置焦点元素。
+     * @param  {Element|null} el 目标元素
+     * @return {Element|null} 之前的焦点
      */
     set( el ) {
-        if ( el === this._its ) {
-            return;
-        }
-        if ( !el ) {
-            return this.cancel();
-        }
-        if ( this._its ) {
-            $.removeClass( this._its, this._cls );
-        }
-        this._its = $.addClass( el, this._cls );
+        let _its = this._its;
+        return el !== _its && this._set(el), _its;
     }
 
 
@@ -181,13 +174,18 @@ export class EHot {
 
 
     /**
-     * 检查焦点状态。
-     * 如果焦点元素存在且仍在DOM中，返回焦点。
-     * 否则返回null。
-     * @return {Element|null}
+     * 设置焦点元素。
+     * @param  {Element|null} el 目标元素
+     * @return {void}
      */
-    check() {
-        return this._its && this._its.isConnected ? this._its : null;
+    _set( el ) {
+        if ( !el ) {
+            return this.cancel();
+        }
+        if ( this._its ) {
+            $.removeClass( this._its, this._cls );
+        }
+        this._its = $.addClass( el, this._cls );
     }
 }
 
