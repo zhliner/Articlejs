@@ -1352,7 +1352,7 @@ const __uiState = [ '-', '', '^' ];
         mapCall(
             evo.data,
             (el, wds) => Util.pbo( el, wds ),
-            [ __uiState[s] + names[1] ]
+            [ __uiState[+s] + names[1] ]
         );
     };
 
