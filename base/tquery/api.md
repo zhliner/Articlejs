@@ -1261,10 +1261,8 @@ elo: {
 
 - `proc: Function` 成员处理函数，接口：`function( val, index, this ): Value`。
 
-这是对父类 `Array.map()` 的简单封装，以支持对 `Collector` 实例链栈的操作。
-
-> **注意：**<br>
-> 与工具版的 `$.map()` 有所不同，本方法并不排除 `null` 和 `undefined` 的返回值。
+> **注意：**
+> 回调返回的 `null` 和 `undefined` 值会被忽略（不进入返回集内）。
 
 
 ### [.sort( comp? ): Collector](docs/$().sort.md)
@@ -1406,7 +1404,8 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 - `proc: Function` 回调处理器函数，接口：`function( val, key, obj ): Value | [Value]`。
 - `thisObj: Any` 回调处理器函数内的 `this` 绑定目标。
 
-**注意**：回调返回的 `null` 和 `undefined` 值会被忽略（不进入返回集内）。
+> **注意：**
+> 回调返回的 `null` 和 `undefined` 值会被忽略（不进入返回集内）。
 
 
 ### $.every( obj, test, thisObj ): Boolean

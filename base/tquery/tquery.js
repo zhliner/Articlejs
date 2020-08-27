@@ -3157,12 +3157,16 @@ class Collector extends Array {
 
     /**
      * 父类覆盖。
+     * 会滤除返回值为null或undefined的成员。
      * 支持内部的实例链栈。
      * @param  {Function} proc 回调函数
      * @return {Collector}
      */
     map( proc ) {
-        return new Collector( super.map(proc), this );
+        return new Collector(
+            super.map(proc).filter( v => v != null ),
+            this
+        );
     }
 
 
