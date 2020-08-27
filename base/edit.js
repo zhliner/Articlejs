@@ -193,9 +193,9 @@ class DOMEdit {
 
 //
 // 元素选取集编辑。
+// 包含焦点元素的当前设置。
 // 注记：
-// 选取集成员需要保持原始的顺序，较为复杂，
-// 因此这里简化取操作前后的全集成员存储。
+// 选取集成员需要保持原始的顺序，较为复杂，因此这里简化为全集成员存储。
 // @ElementSelect
 //
 class ESEdit {
@@ -208,7 +208,7 @@ class ESEdit {
         this._old = old;
         this._els = [...__ESet];
 
-        this._el0 = this._focus( focus );
+        this._el0 = setFocus( focus );
         this._el1 = focus;
     }
 
@@ -218,9 +218,8 @@ class ESEdit {
      * 先移除新添加的，然后添加被移除的。
      */
     undo() {
-        __ESet.removes( this._els ).pushes( this._old );
         setFocus( this._el0 );
-        this._focus( this._el0 );
+        __ESet.removes( this._els ).pushes( this._old );
     }
 
 
@@ -229,49 +228,8 @@ class ESEdit {
      * 先移除需要移除的，然后添加新添加的。
      */
     redo() {
-        __ESet.removes( this._old ).pushes( this._els );
         setFocus( this._el1 );
-        this._focus( this._el1 );
-    }
-
-
-    /**
-     * 记录当前焦点（全局）。
-     * @param  {Element} el 焦点元素
-     * @return {Element} 之前的焦点元素
-     */
-    _focus( el ) {
-        let _old = ESEdit.currentFocus;
-        ESEdit.currentFocus = el;
-        return _old;
-    }
-}
-
-
-//
-// 当前焦点元素记录。
-// 仅记录选取操作执行时的焦点（焦点自身的移动被忽略）。
-//
-ESEdit.currentFocus = null;
-
-
-//
-// 焦点元素记录。
-//
-class HotEdit {
-
-    constructor( el ) {
-        //
-    }
-
-
-    undo() {
-        //
-    }
-
-
-    redo() {
-        //
+        __ESet.removes( this._old ).pushes( this._els );
     }
 }
 
@@ -887,29 +845,17 @@ function elemInfo( el ) {
  * 选取类操作全局更新已在 ESEdit 内实现，无需在此处理。
  * 此处的更新主要用于元素编辑类需要处理焦点时。
  *
- * @param  {Element} el 待设置焦点元素
- * @return {void}
+ * @param  {Element|null} el 待设置焦点元素
+ * @return {Element|null} 之前的焦点
  */
 function setFocus( el ) {
-    __EHot.set( el );
-
-    // 仅当退回最初选取时。
     if ( el == null ) {
-        return $.empty( pathContainer );
+        $.empty( pathContainer );
+    } else {
+        scrollIntoView( el );
+        $.fill( pathContainer, pathList(el, contentElem) );
     }
-    scrollIntoView( el );
-
-    $.fill( pathContainer, pathList(el, contentElem) );
-}
-
-
-/**
- * 清除选取焦点。
- * @return {null}
- */
-function clearFocus() {
-    $.empty( pathContainer );
-    return __EHot.cancel();
+    return __EHot.set( el );
 }
 
 
@@ -945,7 +891,6 @@ function expandSelect( hot, els ) {
     }
     hot = els[ els.length-1 ];
 
-    setFocus( hot );
     historyPush( new ESEdit(_old, hot) );
 }
 
@@ -1020,7 +965,6 @@ function elementSelect( to, els ) {
     if ( __Selects.add(to) === false ) {
         return;
     }
-    setFocus( to );
     historyPush( new ESEdit(els, to) );
 }
 
@@ -1186,7 +1130,7 @@ function clearDeletes( els ) {
         _hot = __EHot.get();
 
     if ( els.includes(_hot) ) {
-        _hot = clearFocus();
+        _hot = setFocus( null );
     }
     __ESet.removes( els );
 
@@ -1403,11 +1347,9 @@ export const Edit = {
      * @param {Object} keys 辅助键状态
      */
     click( evo, keys ) {
-        // 无条件执行。
-        setFocus( evo.data );
-
+        // 仅设置焦点。
         if ( isElemFocus(keys) ) {
-            return;
+            return setFocus( evo.data );
         }
         let _fn = isTurnSelect(keys) ? 'turn' : 'only',
             _old = [...__ESet];
@@ -1429,11 +1371,9 @@ export const Edit = {
      * @param {Object} keys 辅助键状态
      */
     pathTo( evo, keys ) {
-        setFocus( evo.data );
-
         // 仅移动焦点。
         if ( isElemFocus(keys) ) {
-            return;
+            return setFocus( evo.data );
         }
         let _old = [...__ESet];
 

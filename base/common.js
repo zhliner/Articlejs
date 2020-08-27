@@ -139,7 +139,7 @@ export class EHot {
      */
     set( el ) {
         let _its = this._its;
-        return el !== _its && this._set(el), _its;
+        return _its !== el && this._set(el), _its;
     }
 
 
@@ -179,7 +179,7 @@ export class EHot {
      * @return {void}
      */
     _set( el ) {
-        if ( !el ) {
+        if ( el === null ) {
             return this.cancel();
         }
         if ( this._its ) {
