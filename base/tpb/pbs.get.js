@@ -164,10 +164,10 @@ const _Gets = {
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称，返回一个值数组。
      * @param  {String} name 名称/序列
-     * @return {Value|[Value]}
+     * @return {Value|[Value]|[[Value]]}
      */
     get( evo, name ) {
-        return namesValue( name, evo.data );
+        return mapCall( evo.data, o => namesValue(name, o) );
     },
 
     __get: 1,
@@ -196,12 +196,13 @@ const _Gets = {
     /**
      * 调用目标的方法。
      * 目标：暂存区/栈顶1项。
-     * @param  {String} meth 方法名
+     * 实参序列对应单个方法的调用。
+     * @param  {String} meth 方法名（单个）
      * @param  {...Value} rest 实参序列
-     * @return {Value} 方法调用的返回值
+     * @return {Value|[Value]} 方法调用的返回值
      */
     call( evo, meth, ...rest ) {
-        return evo.data[meth]( ...rest );
+        return mapCall( evo.data, o => o[meth](...rest) );
     },
 
     __call: 1,
@@ -214,10 +215,11 @@ const _Gets = {
      * 实参序列与名称序列一一对应，如果成员是数组会自动展开。
      * @param  {String} meths 方法名序列
      * @param  {...Value} args 实参组
-     * @return {[Value]} 值集
+     * @return {[Value]|[[Value]]} 值集
      */
     calls( evo, meths, ...args ) {
-        return methsCall( evo.data, meths.split(__reSpace), ...args );
+        meths = meths.split(__reSpace);
+        return mapCall( evo.data, o => methsCall(o, meths, ...args) );
     },
 
     __calls: 1,
@@ -254,7 +256,7 @@ const _Gets = {
      * @return {Number}
      */
     int( evo, radix ) {
-        return parseInt( evo.data, radix );
+        return mapCall( evo.data, v => parseInt(v, radix) );
     },
 
     __int: 1,
@@ -266,7 +268,7 @@ const _Gets = {
      * @return {Number}
      */
     float( evo ) {
-        return parseFloat( evo.data );
+        return mapCall( evo.data, v => parseFloat(v) );
     },
 
     __float: 1,
@@ -280,7 +282,7 @@ const _Gets = {
      * @return {RegExp}
      */
     re( evo, flag ) {
-        return RegExp( evo.data, flag );
+        return mapCall( evo.data, v => RegExp(v, flag) );
     },
 
     __re: 1,
@@ -294,7 +296,10 @@ const _Gets = {
      * @return {Boolean}
      */
     bool( evo, all ) {
-        return all ? !!hasValue( evo.data ) : !!evo.data;
+        if ( all ) {
+            return mapCall( evo.data, v => !!hasValue(v) );
+        }
+        return mapCall( evo.data, v => !!v );
     },
 
     __bool: 1,
@@ -308,7 +313,7 @@ const _Gets = {
      * @return {String}
      */
     str( evo, pre = '', suf = '' ) {
-        return `${ pre }${ evo.data }${ suf }`;
+        return mapCall( evo.data, v => `${pre}${v}${suf}` );
     },
 
     __str: 1,
@@ -467,8 +472,7 @@ const _Gets = {
      * @return {Element|Collector}
      */
     clone( evo, event, deep, eventdeep ) {
-        return $.isCollector(evo.data) ?
-            evo.data.clone(event, deep, eventdeep) : $.clone(evo.data, event, deep, eventdeep);
+        return $mapCall( evo.data, 'clone', event, deep, eventdeep );
     },
 
     __clone: 1,
@@ -477,46 +481,16 @@ const _Gets = {
     /**
      * 创建元素。
      * 目标：暂存区1项可选。
-     * 目标作为元素的内容或属性配置。
-     * @param  {String} tag 标签名
-     * @return {Element|Collector}
-     */
-    Element( evo, tag ) {
-        return $.isCollector(evo.data) ?
-            evo.data.Element(tag) : $.Element(tag, evo.data);
-    },
-
-    __Element: -1,
-
-
-    /**
-     * 创建元素。
-     * 目标：暂存区1项可选。
-     * 目标作为元素的文本内容。
+     * 目标作为元素的文本内容，$.element的改名版。
      * @param  {String} tag 标签名
      * @return {Element|Collector}
      */
     elem( evo, tag ) {
-        return $.isCollector(evo.data) ?
-            evo.data.element(tag) : $.element(tag, evo.data);
+        return $.isArray( evo.data ) ?
+            $(evo.data).element( tag ) : $.element( tag, evo.data );
     },
 
-    __element: -1,
-
-
-    /**
-     * 创建SVG域元素。
-     * 目标：暂存区1项可选。
-     * 目标为SVG元素的内容或配置对象。
-     * 注：tag无值时创建<svg>元素。
-     * @param  {String} tag 标签名，可选
-     * @return {Element|Collector}
-     */
-    svg( evo, tag = 'svg' ) {
-        return $.isCollector(evo.data) ? evo.data.svg(tag) : $.svg(tag, evo.data);
-    },
-
-    __svg: -1,
+    __elem: -1,
 
 
     /**
@@ -539,13 +513,13 @@ const _Gets = {
     /**
      * 生成元素基本信息。
      * 目标：暂存区/栈顶1项。
-     * @data: Element 待提取信息的元素。
+     * @data: Element|[Element]|Collector
      * @param  {Boolean} hasid 包含ID信息
      * @param  {Boolean} hascls 包含类名信息
-     * @return {String}
+     * @return {String|[String]|Collector}
      */
     einfo( evo, hasid, hascls ) {
-        return elemInfo( evo.data, hasid, hascls );
+        return mapCall( evo.data, el => elemInfo(el, hasid, hascls) );
     },
 
     __einfo: 1,
@@ -958,17 +932,16 @@ const _Gets = {
      * 移除元素。
      * 目标：暂存区/栈顶1项。
      * 如果传递back为真，则移除的元素返回入栈。
+     * 选择器slr仅适用于集合，但单元素版传递无害。
      * @param  {String|Boolean} slr 选择器或入栈指示，可选
-     * @param  {Boolean} back 入栈指示
+     * @param  {Boolean} back 入栈指示，可选
      * @return {Element|Collector|void}
      */
     remove( evo, slr, back ) {
         if ( typeof slr === 'boolean' ) {
             [back, slr] = [slr];
         }
-        let _v = $.isCollector(evo.data) ?
-            evo.data.remove() : $.remove( evo.data );
-
+        let _v = $mapCall( evo.data, 'remove', slr );
         if ( back ) return _v;
     },
 
@@ -978,13 +951,10 @@ const _Gets = {
     /**
      * 文本节点规范化。
      * 目标：暂存区/栈顶1项。
-     * 目标为操作的元素（集），不会改变原引用本身。
-     * @param  {Number} depth 影响深度
      * @return {void}
      */
-    normalize( evo, depth ) {
-        $.isCollector(evo.data) ?
-            evo.data.normalize( depth ) : $.normalize( evo.data, depth );
+    normalize( evo ) {
+        $mapCall( evo.data, 'normalize' );
     },
 
     __normalize: 1,
@@ -998,7 +968,12 @@ const _Gets = {
      * @return {void}
      */
     clear( evo ) {
-        $.val( evo.data, null );
+        let x = evo.data;
+
+        if ( !$.isArray(x) ) {
+            x = [ x ];
+        }
+        x.forEach( el => $.val(el, null) );
     },
 
     __clear: 1,
@@ -1099,228 +1074,6 @@ const _Gets = {
 
 
 //
-// 集合版处理器。
-// 流程数据为数组，对成员逐个执行同样的单独处理（.map(...)）。
-// 注意：
-// Collector实例实际上也是数组，但返回值只是一个普通数组（Array）。
-// @return {[Value]}
-//////////////////////////////////////////////////////////////////////////////
-
-const _arrayGets = {
-    /**
-     * 取对象成员值。
-     * 目标：暂存区/栈顶1项。
-     * name支持空格分隔的多个名称，返回一个二维数组。
-     * @param  {String} name 名称/序列
-     * @return {[Value]|[[Value]]}
-     */
-    get( evo, name ) {
-        return map.call( evo.data, o => namesValue(name, o) );
-    },
-
-    __get: 1,
-
-
-    /**
-     * 调用目标的方法。
-     * 目标：暂存区/栈顶1项。
-     * @param  {String} meth 方法名
-     * @param  {...Value} rest 实参序列
-     * @return {[Value]}
-     */
-    call( evo, meth, ...rest ) {
-        return map.call( evo.data, o => o[meth](...rest) );
-    },
-
-    __call: 1,
-
-
-    /**
-     * 调用目标的多个方法。
-     * 目标：暂存区/栈顶1项。
-     * @param  {String} meths 方法名序列
-     * @param  {...Value} args 实参组
-     * @return {[[Value]]} 值集数组
-     */
-    calls( evo, meths, ...args ) {
-        meths = meths.split(__reSpace);
-        return map.call( evo.data, obj => methsCall(obj, meths, ...args) );
-    },
-
-    __calls: 1,
-
-
-    /**
-     * 生成元素基本信息。
-     * @param  {Boolean} hasid 包含ID信息
-     * @param  {Boolean} hascls 包含类名信息
-     * @return {[String]|Collector}
-     */
-    einfo( evo, hasid, hascls ) {
-        return map.call( evo.data, el => elemInfo(el, hasid, hascls) );
-    },
-
-    __einfo: 1,
-
-
-
-    // 类型转换。
-    //-----------------------------------------------------
-
-    /**
-     * 转为整数（parseInt）。
-     * @param  {Number} radix 进制基数
-     * @return {[Number]}
-     */
-    int( evo, radix ) {
-        return map.call( evo.data, v => parseInt(v, radix) );
-    },
-
-    __int: 1,
-
-
-    /**
-     * 将目标转为浮点数（parseFloat）。
-     * @return {[Number]}
-     */
-    float( evo ) {
-        return map.call( evo.data, v => parseFloat(v) );
-    },
-
-    __float: 1,
-
-
-    /**
-     * 转化为正则表达式。
-     * @param  {String} flag 正则修饰符
-     * @return {[RegExp]}
-     */
-    re( evo, flag ) {
-        return map.call( evo.data, v => RegExp(v, flag) );
-    },
-
-    __re: 1,
-
-
-    /**
-     * 转为布尔值（true|false）。
-     * @param  {Boolean} all 是否测试空对象/数组
-     * @return {[Boolean]}
-     */
-    bool( evo, all ) {
-        return all ? map.call( evo.data, v => !!hasValue(v)) : map.call( evo.data, v => !!v);
-    },
-
-    __bool: 1,
-
-
-    /**
-     * 转为字符串。
-     * @param  {String} pre 前缀，可选
-     * @param  {String} suf 后缀，可选
-     * @return {[String]}
-     */
-    str( evo, pre = '', suf = '' ) {
-        return map.call( evo.data, v => `${pre}${v}${suf}` );
-    },
-
-    __str: 1,
-
-
-
-    // 节点创建。
-    //-----------------------------------------------------
-
-    /**
-     * 元素克隆。
-     * @return {[Element]}
-     */
-    clone( evo, event, deep, eventdeep ) {
-        return map.call( evo.data, el => $.clone(el, event, deep, eventdeep) )
-    },
-
-    __clone: 1,
-
-
-    /**
-     * 创建元素集。
-     * @param  {String} tag 标签名
-     * @return {[Element]}
-     */
-    Element( evo, tag ) {
-        return map.call( evo.data, data => $.Element(tag, data) )
-    },
-
-    __Element: -1,
-
-
-    /**
-     * 创建元素集。
-     * @param  {String} tag 标签名
-     * @return {[Element]}
-     */
-    elem( evo, tag ) {
-        return map.call( evo.data, text => $.element(tag, text) )
-    },
-
-    __elem: -1,
-
-
-    /**
-     * 创建SVG元素集。
-     * @param  {String} tag 标签名，可选
-     * @return {[Element]}
-     */
-    svg( evo, tag = 'svg' ) {
-        return map.call( evo.data, opts => $.svg(tag, opts) )
-    },
-
-    __svg: -1,
-
-
-
-    // 元素自身改变。
-    //-----------------------------------------------------
-
-    /**
-     * 移除元素集。
-     * @param  {Boolean} back 入栈指示，可选
-     * @return {[Element]|void}
-     */
-    remove( evo, back ) {
-        let _vs = map.call( evo.data, el => $.remove(el) );
-        if ( back ) return _vs;
-    },
-
-    __remove: 1,
-
-
-    /**
-     * 文本节点规范化。
-     * @return {void}
-     */
-    normalize( evo, depth ) {
-        evo.data.forEach( el => $.normalize(el, depth) );
-    },
-
-    __normalize: 1,
-
-
-    /**
-     * 表单控件集清空。
-     * @return {void}
-     */
-    clear( evo ) {
-        evo.data.forEach( el => $.val(el, null) );
-    },
-
-    __clear: 1,
-
-};
-
-
-
-//
 // PB专项取值。
 // 目标：暂存区/栈顶1项。
 // 即目标元素上 data-pbo|pba 特性的格式值。
@@ -1331,18 +1084,14 @@ const _arrayGets = {
     'pba',  // 有序的参数词序列
 ]
 .forEach(function( name ) {
-    // 单元素版。
-    // @return {[String]}
-    _Gets[name] = function( evo ) { return Util[name](evo.data) };
+
+    // @return {[String]|[[String]]}
+    _Gets[name] = function( evo ) {
+        return mapCall( evo.data, (el, fn) => Util[fn](el), name );
+    };
 
     _Gets[`__${name}`] = 1;
 
-
-    // 集合版。
-    // @return {[[String]]}
-    _arrayGets[name] = function( evo ) { map.call( evo.data, el => Util[name](el)) };
-
-    _arrayGets[`__${name}`] = 1;
 });
 
 
@@ -1369,28 +1118,22 @@ const _arrayGets = {
     'hasClass',     // ( name:String ): Boolean
     'parentsUntil', // ( slr:String|Function ): [Element]
     'closest',      // ( slr:String|Function ): Element | null
-    'is',           // ( slr|Element ): Boolean
+    'is',           // ( slr:String|Element ): Boolean
+
+    // To部分存在同名接口
+    // 放在此处方便构造新元素（实用性考虑）。
+    'wrap',         // ( box:String ): Element | Collector
+    'wrapInner',    // ( box:String ): Element | Collector
 ]
 .forEach(function( meth ) {
 
-    // @data:  {Node|Collector}
+    // @data:  {Node|Array|Collector}
     // @return {Value|Collector}
     _Gets[meth] = function( evo, arg ) {
-        return $.isCollector(evo.data) ?
-            evo.data[meth](arg) : $[meth](evo.data, arg);
+        return $mapCall( evo.data, meth, arg );
     };
 
     _Gets[`__${meth}`] = 1;
-
-
-    // 集合版。
-    // @data:  {Array|Collector}
-    // @return {[Value]}
-    _arrayGets[meth] = function( evo, arg ) {
-        return map.call( evo.data, el => $[meth](el, arg) );
-    };
-
-    _arrayGets[`__${meth}`] = 1;
 
 });
 
@@ -1418,24 +1161,13 @@ const _arrayGets = {
 ]
 .forEach(function( meth ) {
 
-    // @data:  {Element|Collector}
+    // @data:  {Element|Array|Collector}
     // @return {Value|Collector}
     _Gets[meth] = function( evo ) {
-        return $.isCollector(evo.data) ?
-            evo.data[meth]() : $[meth](evo.data);
+        return $mapCall( evo.data, meth );
     };
 
     _Gets[`__${meth}`] = 1;
-
-
-    // 集合版。
-    // @data:  {Array|Collector}
-    // @return {[Value]}
-    _arrayGets[meth] = function( evo ) {
-        return map.call( evo.data, el => $[meth](el) );
-    };
-
-    _arrayGets[`__${meth}`] = 1;
 
 });
 
@@ -1459,60 +1191,42 @@ const _arrayGets = {
     'siblings',     // ( slr? ): [Element]
     'parent',       // ( slr? ): Element | null
     'parents',      // ( slr? ): [Element]
+
+    'Text',         // ( sep?:String, doc?:Document ): Text
+    'fragment',     // ( clean?:Function|true, doc?:Document ): DocumentFragment
 ]
 .forEach(function( meth ) {
 
     // @data:  {Element|Collector}
     // @return {Value|Collector}
     _Gets[meth] = function( evo, ...args ) {
-        return $.isCollector(evo.data) ?
-            evo.data[meth](...args) : $[meth](evo.data, ...args);
+        return $mapCall( evo.data, meth, ...args );
     };
 
     _Gets[`__${meth}`] = 1;
-
-
-    // 集合版：
-    // @data:  {Array|Collector}
-    // @return {[Value]}
-    _arrayGets[meth] = function( evo, ...args ) {
-        return map.call( evo.data, el => $[meth](el, ...args) );
-    };
-
-    _arrayGets[`__${meth}`] = 1;
 
 });
 
 
 //
-// 节点创建。
-// 目标：暂存区/栈顶1项。
-// 目标作为元素内容（text|html）。
+// 元素创建。
+// 目标：暂存区1项可选。
+// 目标作为元素的内容或属性配置。
 //===============================================
 [
-    'Text',     // ( sep? ): Text
-    'create',   // ( clean? ): DocumentFragment
+    'Element',
+    'svg',
 ]
 .forEach(function( meth ) {
 
-    // @data:  {String|Collector}
-    // @return {Text|DocumentFragment|Collector}
-    _Gets[meth] = function( evo, arg ) {
-        return $.isCollector(evo.data) ?
-            evo.data[meth](arg) : $[meth](evo.data, arg);
+    // @data:  {String|Object|Array|Collector}
+    // @return {Element|Collector}
+    _Gets[meth] = function( evo, tag ) {
+        return $.isArray( evo.data ) ?
+            $(evo.data)[meth]( tag ) : $[meth]( tag, evo.data );
     };
 
-    _Gets[`__${meth}`] = 1;
-
-
-    // 集合版：
-    // @data:  {Array|Collector}
-    // @return {[Node|DocumentFragment]}
-    _arrayGets[meth] = function( evo, arg ) {
-        return map.call( evo.data, con => $[meth](con, arg) );
-    };
-
-    _arrayGets[`__${meth}`] = 1;
+    _Gets[`__${meth}`] = -1;
 
 });
 
@@ -1622,7 +1336,6 @@ const __uiState = [ '-', '', '^' ];
 //      1|true  状态执行，默认
 //      0|false 状态取消
 //      2       状态切换
-// @return {void}
 //===============================================
 [
     ['hide',     'hidden'],
@@ -1634,24 +1347,16 @@ const __uiState = [ '-', '', '^' ];
 ]
 .forEach(function( names ) {
 
-    // 单元素版。
+    // @return {void}
     _Gets[names[0]] = function( evo, s = 1 ) {
-        s = Math.trunc( s );
-        Util.pbo( evo.data, [`${__uiState[s]}${names[1]}`] );
-    };
-
-    _Gets[`__${names[0]}`] = 1;
-
-
-    // 集合版。
-    _arrayGets[names[0]] = function( evo, s = 1 ) {
-        s = Math.trunc( s );
-        evo.data.forEach(
-            el => Util.pbo(el, [`${__uiState[s]}${names[1]}`])
+        mapCall(
+            evo.data,
+            (el, wds) => Util.pbo( el, wds ),
+            [ __uiState[s] + names[1] ]
         );
     };
 
-    _arrayGets[`__${names[0]}`] = 1;
+    _Gets[`__${names[0]}`] = 1;
 
 });
 
@@ -1669,61 +1374,12 @@ const __uiState = [ '-', '', '^' ];
 ]
 .forEach(function( name ) {
 
-    // 单元素版。
-    // @return {Boolean}
+    // @return {Boolean|[Boolean]}
     _Gets[name] = function( evo ) {
-        return Util.pbo( evo.data ).includes(name);
+        return mapCall( evo.data, (el, n) => Util.pbo(el).includes(n), name );
     };
 
     _Gets[`__${name}`] = 1;
-
-
-    // 集合版。
-    // @return {[Boolean]}
-    _arrayGets[name] = function( evo ) {
-        return map.call(
-            evo.data,
-            el => Util.pbo(el).includes(name)
-        );
-    };
-
-    _arrayGets[`__${name}`] = 1;
-
-});
-
-
-//
-// 节点封装。
-// 目标：暂存区/栈顶1项。
-// wrap目标可以为元素或文本内容。
-// 注记：
-// 与To部分的同名方法不同，这里只接收字符串实参。
-// 将封装接口放在这里（On）是一种实用的便利考虑。
-//===============================================
-[
-    'wrap',
-    'wrapInner',
-]
-.forEach(function( meth ) {
-
-    // @param  {String} box 封装元素的HTML结构串
-    // @return {Element|Collector} 包裹的容器根元素（集）
-    _Gets[meth] = function( evo, box ) {
-        return $.isCollector(evo.data) ?
-            evo.data[meth](box) : $[meth](evo.data, box)
-    };
-
-    _Gets[`__${meth}`] = 1;
-
-
-    // 集合版：
-    // @param  {String} box 封装结构（同上）
-    // @return {[Element]} 包裹的容器根元素集
-    _arrayGets[meth] = function( evo, box ) {
-        return map.call( evo.data, el => $[meth](el, box) );
-    };
-
-    _arrayGets[`__${meth}`] = 1;
 
 });
 
@@ -1741,26 +1397,15 @@ const __uiState = [ '-', '', '^' ];
 ]
 .forEach(function( meth ) {
 
+    // 注意：集合版返回的是数组集。
     // @param  {Boolean} clean 结果集清理指示
     // @return {[Node]|Collector|void}
     _Gets[meth] = function( evo, clean ) {
-        let vs = $.isCollector(evo.data) ?
-            evo.data[meth]( clean ) : $[meth]( evo.data, clean );
-
-        if ( clean !== undefined ) return vs;
+        let _vs = $mapCall( evo.data, meth, clean );
+        if ( clean !== undefined ) return _vs;
     };
 
     _Gets[`__${meth}`] = 1;
-
-
-    // @param  {Boolean} clean 结果集清理指示
-    // @return {[[Node]]|void}
-    _arrayGets[meth] = function( evo, clean ) {
-        let vs = map.call( evo.data, el => $[meth](el, clean) );
-        if ( clean !== undefined ) return vs;
-    };
-
-    _arrayGets[`__${meth}`] = 1;
 
 });
 
@@ -1770,7 +1415,6 @@ const __uiState = [ '-', '', '^' ];
 // 目标：暂存区/栈顶1项（激发元素）。
 // 注：To:NextStage部分存在同名方法（目标不同）。
 // 理解：重在“调用”。
-// @return {void}
 //===============================================
 [
     'blur',
@@ -1785,19 +1429,12 @@ const __uiState = [ '-', '', '^' ];
 ]
 .forEach(function( meth ) {
 
+    // @return {void}
     _Gets[meth] = function( evo ) {
-        $.isCollector(evo.data) ?
-            evo.data[meth]() : $[meth](evo.data);
+        mapCall( evo.data, (el, m) => $[m](el), meth );
     };
 
     _Gets[`__${meth}`] = 1;
-
-
-    _arrayGets[meth] = function( evo ) {
-        evo.data.forEach( el => $[meth](el) );
-    };
-
-    _arrayGets[`__${meth}`] = 1;
 
 });
 
@@ -1808,8 +1445,33 @@ const __uiState = [ '-', '', '^' ];
 ///////////////////////////////////////////////////////////////////////////////
 
 
-// 简化引用。
-const map = Array.prototype.map;
+/**
+ * 单值/集合调用封装。
+ * @param  {Value|[Value]} data 数据/集
+ * @param  {Function} handle 调用句柄
+ * @param  {...Value} rest 剩余实参序列
+ * @return {Value|[Value]}
+ */
+function mapCall( data, handle, ...rest ) {
+    if ( $.isArray(data) ) {
+        return data.map( v => handle(v, ...rest) );
+    }
+    return handle( data, ...rest );
+}
+
+
+/**
+ * 单值/集合调用封装（tQuery版）。
+ * 数据为集合时，返回的集合会封装为Collector。
+ * @param  {Element|[Element]|Collector} data 数据（集）
+ * @param  {String} meth 方法名
+ * @param  {...Value} args 实参序列
+ * @return {Value|Collector}
+ */
+function $mapCall( data, meth, ...args ) {
+    return $.isArray( data ) ?
+        $(data)[meth]( ...args ) : $[meth]( data, ...args );
+}
 
 
 /**
@@ -1963,9 +1625,6 @@ function elemInfo( el, hasid, hascls ) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-// 集合版命名空间。
-_Gets.a = _arrayGets;
-
 //
 // 取值指令集。
 // @proto: Process < Control
@@ -1973,9 +1632,6 @@ _Gets.a = _arrayGets;
 export const Get = $.proto(
     $.assign( {}, _Gets, bindMethod ), Process
 );
-
-// 原型桥接。
-$.proto( Get.a, Process.a );
 
 
 //

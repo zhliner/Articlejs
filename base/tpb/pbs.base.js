@@ -626,7 +626,7 @@ const _Process = {
 
 
     // 数学运算。
-    // 多数方法有一个集合版（对成员计算），详见后 _Process.a。
+    // 多数方法有一个集合版（对成员计算）。
     //-----------------------------------------------------
 
     /**
@@ -635,10 +635,10 @@ const _Process = {
      * 目标：暂存区/栈顶1项
      * 注记：Collector的同名方法没有被使用。
      * @param  {Number|String} y 第二个操作数
-     * @return {Number|String}
+     * @return {Number|[Number]|String|[String]}
      */
     add( evo, y ) {
-        return evo.data + y;
+        return mapCall( evo.data, x => x + y );
     },
 
     __add: 1,
@@ -648,10 +648,10 @@ const _Process = {
      * 减运算。
      * 目标：暂存区/栈顶1项。
      * @param  {Number} y 第二个操作数
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     sub( evo, y ) {
-        return evo.data - y;
+        return mapCall( evo.data, x => x - y );
     },
 
     __sub: 1,
@@ -661,11 +661,10 @@ const _Process = {
      * 乘运算。
      * 目标：暂存区/栈顶1项。
      * @param  {Number} y 第二个操作数
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     mul( evo, y ) {
-        return evo.data * y;
-
+        return mapCall( evo.data, x => x * y );
     },
 
     __mul: 1,
@@ -675,10 +674,10 @@ const _Process = {
      * 除运算。
      * 目标：暂存区/栈顶1项。
      * @param  {Number} y 第二个操作数
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     div( evo, y ) {
-        return evo.data / y;
+        return mapCall( evo.data, x => x / y );
     },
 
     __div: 1,
@@ -689,10 +688,10 @@ const _Process = {
      * 目标：暂存区/栈顶1项。
      * 注：简单的截断小数部分。
      * @param  {Number} y 第二个操作数
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     idiv( evo, y ) {
-        return parseInt( evo.data / y );
+        return mapCall( evo.data, x => parseInt(x/y) );
     },
 
     __idiv: 1,
@@ -702,10 +701,10 @@ const _Process = {
      * 模运算。
      * 目标：暂存区/栈顶1项。
      * @param  {Number} y 第二个操作数
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     mod( evo, y ) {
-        return evo.data % y;
+        return mapCall( evo.data, x => x % y );
     },
 
     __mod: 1,
@@ -715,10 +714,10 @@ const _Process = {
      * 幂运算。
      * 目标：暂存区/栈顶1项。
      * @param  {Number} y 第二个操作数
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     pow( evo, y ) {
-        return evo.data ** y;
+        return mapCall( evo.data, x => x ** y );
     },
 
     __pow: 1,
@@ -727,10 +726,10 @@ const _Process = {
     /**
      * 数值取负。
      * 目标：暂存区/栈顶1项。
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     neg( evo ) {
-        return -evo.data;
+        return mapCall( evo.data, n => -n );
     },
 
     __neg: 1,
@@ -739,10 +738,10 @@ const _Process = {
     /**
      * 逻辑取反。
      * 目标：暂存区/栈顶1项。
-     * @return {Boolean}
+     * @return {Boolean|[Boolean]}
      */
     vnot( evo ) {
-        return !evo.data;
+        return mapCall( evo.data, v => !v );
     },
 
     __vnot: 1,
@@ -753,10 +752,10 @@ const _Process = {
      * 目标：暂存区/栈顶1项
      * 注记：|商| * |y| + |余| == |x|
      * @param  {Number} y 第二个操作数
-     * @return {[Number, Number]} [商数, 余数]
+     * @return {[Number, Number]|[[Number, Number]]} [商数, 余数]
      */
     divmod( evo, y ) {
-        return [ parseInt(evo.data/y), evo.data%y ];
+        return mapCall( evo.data, x => [parseInt(x/y), x%y] );
     },
 
     __divmod: 1,
@@ -764,17 +763,17 @@ const _Process = {
 
     //
     // Math大部分方法。
+    // @data: Number|[Number]
     /////////////////////////////////////////////
 
 
     /**
      * 计算绝对值。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     abs( evo ) {
-        return Math.abs( evo.data );
+        return mapCall( evo.data, n => Math.abs(n) );
     },
 
     __abs: 1,
@@ -783,11 +782,10 @@ const _Process = {
     /**
      * 返回向上取整后的值。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     ceil( evo ) {
-        return Math.ceil( evo.data );
+        return mapCall( evo.data, n => Math.ceil(n) );
     },
 
     __ceil: 1,
@@ -796,11 +794,10 @@ const _Process = {
     /**
      * 返回小于目标的最大整数。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     floor( evo ) {
-        return Math.floor( evo.data );
+        return mapCall( evo.data, n => Math.floor(n) );
     },
 
     __floor: 1,
@@ -809,11 +806,10 @@ const _Process = {
     /**
      * 返回目标四舍五入后的整数。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     round( evo ) {
-        return Math.round( evo.data );
+        return mapCall( evo.data, n => Math.round(n) );
     },
 
     __round: 1,
@@ -823,11 +819,10 @@ const _Process = {
      * 返回实参的整数部分。
      * 目标：暂存区/栈顶1项。
      * 与 Get:int 方法稍有不同，空串的结果为数值0。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     trunc( evo ) {
-        return Math.trunc( evo.data );
+        return mapCall( evo.data, n => Math.trunc(n) );
     },
 
     __trunc: 1,
@@ -836,11 +831,10 @@ const _Process = {
     /**
      * 返回自然对数（logE，即ln）。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     log( evo ) {
-        return Math.log( evo.data );
+        return mapCall( evo.data, n => Math.log(n) );
     },
 
     __log: 1,
@@ -849,11 +843,10 @@ const _Process = {
     /**
      * 返回以2为底数的对数。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     log2( evo ) {
-        return Math.log2( evo.data );
+        return mapCall( evo.data, n => Math.log2(n) );
     },
 
     __log2: 1,
@@ -862,11 +855,10 @@ const _Process = {
     /**
      * 返回以10为底数的对数。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     log10( evo ) {
-        return Math.log10( evo.data );
+        return mapCall( evo.data, n => Math.log10(n) );
     },
 
     __log10: 1,
@@ -875,11 +867,10 @@ const _Process = {
     /**
      * 计算正弦值。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     sin( evo ) {
-        return Math.sin( evo.data );
+        return mapCall( evo.data, n => Math.sin(n) );
     },
 
     __sin: 1,
@@ -888,11 +879,10 @@ const _Process = {
     /**
      * 计算余弦值。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     cos( evo ) {
-        return Math.cos( evo.data );
+        return mapCall( evo.data, n => Math.cos(n) );
     },
 
     __cos: 1,
@@ -901,11 +891,10 @@ const _Process = {
     /**
      * 计算正切值。
      * 目标：暂存区/栈顶1项。
-     * @data: Number
-     * @return {Number}
+     * @return {Number|[Number]}
      */
     tan( evo ) {
-        return Math.tan( evo.data );
+        return mapCall( evo.data, n => Math.tan(n) );
     },
 
     __tan: 1,
@@ -913,9 +902,11 @@ const _Process = {
 
     /**
      * 计算平方根。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     sqrt( evo ) {
-        return Math.sqrt( evo.data );
+        return mapCall( evo.data, n => Math.sqrt(n) );
     },
 
     __sqrt: 1,
@@ -923,9 +914,11 @@ const _Process = {
 
     /**
      * 计算立方根。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     cbrt( evo ) {
-        return Math.cbrt( evo.data );
+        return mapCall( evo.data, n => Math.cbrt(n) );
     },
 
     __cbrt: 1,
@@ -933,9 +926,11 @@ const _Process = {
 
     /**
      * 计算双曲正弦值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     sinh( evo ) {
-        return Math.sinh( evo.data );
+        return mapCall( evo.data, n => Math.sinh(n) );
     },
 
     __sinh: 1,
@@ -943,9 +938,11 @@ const _Process = {
 
     /**
      * 计算双曲余弦值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     cosh( evo ) {
-        return Math.cosh( evo.data );
+        return mapCall( evo.data, n => Math.cosh(n) );
     },
 
     __cosh: 1,
@@ -953,9 +950,11 @@ const _Process = {
 
     /**
      * 计算双曲正切值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     tanh( evo ) {
-        return Math.tanh( evo.data );
+        return mapCall( evo.data, n => Math.tanh(n) );
     },
 
     __tanh: 1,
@@ -963,9 +962,11 @@ const _Process = {
 
     /**
      * 计算反余弦值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     acos( evo ) {
-        return Math.acos( evo.data );
+        return mapCall( evo.data, n => Math.acos(n) );
     },
 
     __acos: 1,
@@ -973,9 +974,11 @@ const _Process = {
 
     /**
      * 计算反双曲余弦值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     acosh( evo ) {
-        return Math.acosh( evo.data );
+        return mapCall( evo.data, n => Math.acosh(n) );
     },
 
     __acosh: 1,
@@ -983,9 +986,11 @@ const _Process = {
 
     /**
      * 计算反正弦值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     asin( evo ) {
-        return Math.asin( evo.data );
+        return mapCall( evo.data, n => Math.asin(n) );
     },
 
     __asin: 1,
@@ -993,9 +998,11 @@ const _Process = {
 
     /**
      * 计算反双曲正弦值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     asinh( evo ) {
-        return Math.asinh( evo.data );
+        return mapCall( evo.data, n => Math.asinh(n) );
     },
 
     __asinh: 1,
@@ -1003,9 +1010,11 @@ const _Process = {
 
     /**
      * 计算反正切值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     atan( evo ) {
-        return Math.atan( evo.data );
+        return mapCall( evo.data, n => Math.atan(n) );
     },
 
     __atan: 1,
@@ -1013,23 +1022,29 @@ const _Process = {
 
     /**
      * 计算反双曲正切值。
+     * 目标：暂存区/栈顶1项。
+     * @return {Number|[Number]}
      */
     atanh( evo ) {
-        return Math.atanh( evo.data );
+        return mapCall( evo.data, n => Math.atanh(n) );
     },
 
     __atanh: 1,
 
 
     /**
-     * 创建一个伪随机数。
+     * 创建伪随机数。
      * 目标：无。
      * 如果未传递max值，返回一个 [0,1) 区间的随机数。
      * 注：随机数不包含上限值。
      * @param  {Number} max 上限值，可选
-     * @return {Number}
+     * @param  {Number} n 创建个数，可选
+     * @return {Number|[Number]}
      */
-    random( evo, max ) {
+    random( evo, max, n = 1 ) {
+        if ( n > 1 ) {
+            return randoms( n, max );
+        }
         if ( max === undefined ) {
             return Math.random();
         }
@@ -1042,7 +1057,7 @@ const _Process = {
     /**
      * 取最大值。
      * 目标：暂存区/栈顶1项。
-     * @data Number|[Number]
+     * 目标本身即为数值集合，但容错单值。
      * @param  {Number} v 对比值
      * @return {Number}
      */
@@ -1056,7 +1071,7 @@ const _Process = {
     /**
      * 取最小值。
      * 目标：暂存区/栈顶1项。
-     * @data Number|[Number]
+     * 目标本身即为数值集合，但容错单值。
      * @param  {Number} v 对比值
      * @return {Number}
      */
@@ -1071,7 +1086,8 @@ const _Process = {
     // 比较运算。
     // 目标：暂存区/栈顶1项。
     // 模板传递的实参为比较操作的第二个操作数。
-    // @return {Boolean}
+    // @data: Value|[Value]
+    // @return {Boolean|[Boolean]}
     //-----------------------------------------------------
 
 
@@ -1079,7 +1095,7 @@ const _Process = {
      * 相等比较（===）。
      */
     eq( evo, val ) {
-        return evo.data === val;
+        return mapCall( evo.data, x => x === val );
     },
 
     __eq: 1,
@@ -1089,7 +1105,7 @@ const _Process = {
      * 不相等比较（!==）。
      */
     neq( evo, val ) {
-        return evo.data !== val;
+        return mapCall( evo.data, x => x !== val );
     },
 
     __neq: 1,
@@ -1099,7 +1115,7 @@ const _Process = {
      * 小于比较。
      */
     lt( evo, val ) {
-        return evo.data < val;
+        return mapCall( evo.data, x => x < val );
     },
 
     __lt: 1,
@@ -1109,7 +1125,7 @@ const _Process = {
      * 小于等于比较。
      */
     lte( evo, val ) {
-        return evo.data <= val;
+        return mapCall( evo.data, x => x <= val );
     },
 
     __lte: 1,
@@ -1119,7 +1135,7 @@ const _Process = {
      * 大于比较。
      */
     gt( evo, val ) {
-        return evo.data > val;
+        return mapCall( evo.data, x => x > val );
     },
 
     __gt: 1,
@@ -1129,7 +1145,7 @@ const _Process = {
      * 大于等于比较。
      */
     gte( evo, val ) {
-        return evo.data >= val;
+        return mapCall( evo.data, x => x >= val );
     },
 
     __gte: 1,
@@ -1238,7 +1254,8 @@ const _Process = {
      * 目标：暂存区/栈顶1项。
      * 测试函数可选，默认非严格真值测试。
      * test接口：function(value, key, obj): Boolean
-     * 注：适用于数组和其它集合（如Object）。
+     *
+     * @data: Array|Object|Collector|[.entries]
      * @param {Function} test 测试函数，可选
      */
     every( evo, test ) {
@@ -1291,7 +1308,7 @@ const _Process = {
 
     // String简单处理。
     // 目标：暂存区/栈顶1项。
-    // @data: {String}
+    // @data: {String|[String]}
     //-----------------------------------------------
 
     /**
@@ -1302,10 +1319,14 @@ const _Process = {
      *     -1   后端（trimRight）
      * }
      * @param  {Number} where 清理位置
-     * @return {String}
+     * @return {String|[String]}
      */
     trim( evo, where = 0 ) {
-        return evo.data[ trimFunc[where] ]();
+        return mapCall(
+            evo.data,
+            (ss, fn) => ss[ fn ](),
+            trimFunc[ where ]
+        );
     },
 
     __trim: 1,
@@ -1316,13 +1337,15 @@ const _Process = {
      * 将字符串内多个空白替换为单个空格或删除。
      * 字符串首尾空白会被清除。
      * @param  {Boolean} all 全部删除
-     * @return {String}
+     * @return {String|[String]}
      */
     clean( evo, all ) {
-        let r = all ? __reSpace1n : __reSpace2n,
-            v = all ? '' : ' ';
-
-        return evo.data.trim().replace(r, v);
+        return mapCall(
+            evo.data,
+            (s, r, v) => s.replace(r, v),
+            all ? __reSpace1n : __reSpace2n,
+            all ? '' : ' '
+        );
     },
 
     __clean: 1,
@@ -1332,10 +1355,10 @@ const _Process = {
      * 内容替换。
      * 对String.replace的简单封装。
      * @param  {...Value} args 参数序列
-     * @return {String}
+     * @return {String|[String]}
      */
     replace( evo, ...args ) {
-        return evo.data.replace( ...args );
+        return mapCall( evo.data, s => s.replace(...args) );
     },
 
     __replace: 1,
@@ -1346,10 +1369,10 @@ const _Process = {
      * 支持4子节Unicode字符空白切分。
      * @param  {String} sep 分隔符，可选
      * @param  {Number} cnt 最多切分数量，可选
-     * @return {[String]}
+     * @return {[String]|[[String]]}
      */
     split( evo, sep, cnt ) {
-        return $.split( evo.data, sep, cnt );
+        return mapCall( evo.data, s => $.split(s, sep, cnt) );
     },
 
     __split: 1,
@@ -1362,7 +1385,7 @@ const _Process = {
      * @return {String}
      */
     caseUpper( evo, n ) {
-        return upperCase( evo.data, n );
+        return mapCall( evo.data, s => upperCase(s, n) );
     },
 
     __caseUpper: 1,
@@ -1374,7 +1397,7 @@ const _Process = {
      * @return {String}
      */
     caseLower( evo ) {
-        return evo.data.toLowerCase();
+        return mapCall( evo.data, s => s.toLowerCase() );
     },
 
     __caseLower: 1,
@@ -1386,7 +1409,7 @@ const _Process = {
      * @return {String}
      */
     rgb16( evo ) {
-        return rgb16Val( evo.data );
+        return mapCall( evo.data, s => rgb16Val(s) );
     },
 
     __rgb16: 1,
@@ -1398,7 +1421,7 @@ const _Process = {
      * @return {String}
      */
     rgba16( evo ) {
-        return rgba16Val( evo.data );
+        return mapCall( evo.data, s => rgba16Val(s) );
     },
 
     __rgba16: 1,
@@ -1596,10 +1619,8 @@ const _Process = {
     'filter',   // ( fltr?: String|Function )
     'not',      // ( fltr?: String|Function )
     'has',      // ( slr?: String )
-    'map',      // ( proc?: Function )
-                // 普通集合版会忽略proc返回的undefined或null值。
-    'each',     // ( proc?: Function )
-                // 返回操作目标。处理器返回false会中断迭代。
+    'map',      // ( proc?: Function ) 会忽略proc返回的undefined或null值。
+    'each',     // ( proc?: Function ) 返回操作目标。处理器返回false会中断迭代。
 ]
 .forEach(function( meth ) {
     /**
@@ -1618,430 +1639,41 @@ const _Process = {
 
 
 //
-// 集合版处理器。
-// 流程数据为数组时对各个成员的单独处理。
-// 调用时前置名称 'a'，如：a.str(...) a.add(...)。
-// 注：指令说明请参考单数据版。
-// @return {[Value]}
-//////////////////////////////////////////////////////////////////////////////
-
-_Process.a = {
-
-    // 数学运算。
-    //-----------------------------------------------------
-
-    add( evo, y ) {
-        return evo.data.map( v => v+y );
-    },
-
-    __add: 1,
-
-
-    sub( evo, y ) {
-        return evo.data.map( v => v-y );
-    },
-
-    __sub: 1,
-
-
-    mul( evo, y ) {
-        return evo.data.map( v => v*y );
-    },
-
-    __mul: 1,
-
-
-    div( evo, y ) {
-        return evo.data.map( v => v/y );
-    },
-
-    __div: 1,
-
-
-    idiv( evo, y ) {
-        return evo.data.map( v => parseInt(v/y) );
-    },
-
-    __idiv: 1,
-
-
-    mod( evo, y ) {
-        return evo.data.map( v => v%y );
-    },
-
-    __mod: 1,
-
-
-    pow( evo, y ) {
-        return evo.data.map( v => v**y );
-    },
-
-    __pow: 1,
-
-
-    neg( evo ) {
-        return evo.data.map( v => -v );
-    },
-
-    __neg: 1,
-
-
-    vnot( evo ) {
-        return evo.data.map( v => !v );
-    },
-
-    __vnot: 1,
-
-
-    divmod( evo, y ) {
-        return evo.data.map( v => [parseInt(v/y), v%y] );
-    },
-
-    __divmod: 1,
-
-
-    //
-    // Math大部分方法。
-    /////////////////////////
-
-
-    abs( evo ) {
-        return evo.data.map( v => Math.abs(v) );
-    },
-
-    __abs: 1,
-
-
-    ceil( evo ) {
-        return evo.data.map( v => Math.ceil(v) );
-    },
-
-    __ceil: 1,
-
-
-    floor( evo ) {
-        return evo.data.map( v => Math.floor(v) );
-    },
-
-    __floor: 1,
-
-
-    round( evo ) {
-        return evo.data.map( v => Math.round(v) );
-    },
-
-    __round: 1,
-
-
-    trunc( evo ) {
-        return evo.data.map( v => Math.trunc(v) );
-    },
-
-    __trunc: 1,
-
-
-    log( evo ) {
-        return evo.data.map( v => Math.log(v) );
-    },
-
-    __log: 1,
-
-
-    log2( evo ) {
-        return evo.data.map( v => Math.log2(v) );
-    },
-
-    __log2: 1,
-
-
-    log10( evo ) {
-        return evo.data.map( v => Math.log10(v) );
-    },
-
-    __log10: 1,
-
-
-    sin( evo ) {
-        return evo.data.map( v => Math.sin(v) );
-    },
-
-    __sin: 1,
-
-
-    cos( evo ) {
-        return evo.data.map( v => Math.cos(v) );
-    },
-
-    __cos: 1,
-
-
-    tan( evo ) {
-        return evo.data.map( v => Math.tan(v) );
-    },
-
-    __tan: 1,
-
-
-    sqrt( evo ) {
-        return evo.data.map( v => Math.sqrt(v) );
-    },
-
-    __sqrt: 1,
-
-
-    cbrt( evo ) {
-        return evo.data.map( v => Math.cbrt(v) );
-    },
-
-    __cbrt: 1,
-
-
-    sinh( evo ) {
-        return evo.data.map( v => Math.sinh(v) );
-    },
-
-    __sinh: 1,
-
-
-    cosh( evo ) {
-        return evo.data.map( v => Math.cosh(v) );
-    },
-
-    __cosh: 1,
-
-
-    tanh( evo ) {
-        return evo.data.map( v => Math.tanh(v) );
-    },
-
-    __tanh: 1,
-
-
-    acos( evo ) {
-        return evo.data.map( v => Math.acos(v) );
-    },
-
-    __acos: 1,
-
-
-    acosh( evo ) {
-        return evo.data.map( v => Math.acosh(v) );
-    },
-
-    __acosh: 1,
-
-
-    asin( evo ) {
-        return evo.data.map( v => Math.asin(v) );
-    },
-
-    __asin: 1,
-
-
-    asinh( evo ) {
-        return evo.data.map( v => Math.asinh(v) );
-    },
-
-    __asinh: 1,
-
-
-    atan( evo ) {
-        return evo.data.map( v => Math.atan(v) );
-    },
-
-    __atan: 1,
-
-
-    atanh( evo ) {
-        return evo.data.map( v => Math.atanh(v) );
-    },
-
-    __atanh: 1,
-
-
-    /**
-     * 创建n个伪随机数。
-     * 目标：无。
-     * 如果未传递max值，随机数在 [0,1) 区间。
-     * 注：随机数不包含上限值。
-     * @param  {Number} n 数量
-     * @param  {Number} max 上限值，可选
-     * @return {[Number]}
-     */
-    random( evo, n, max ) {
-        let _ns = new Array(n).fill();
-
-        if ( max === undefined ) {
-            return _ns.map( () => Math.random() );
-        }
-        return _ns.map( () => Math.floor(Math.random() * Math.floor(max)) );
-    },
-
-    __random: null,
-
-
-
-    // 比较运算。
-    // 目标：暂存区/栈顶1项。
-    // @return {[Boolean]}
-    //-----------------------------------------------------
-
-    eq( evo, val ) {
-        return evo.data.map( v => v === val );
-    },
-
-    __eq: 1,
-
-
-    neq( evo, val ) {
-        return evo.data.map( v => v !== val );
-    },
-
-    __neq: 1,
-
-
-    lt( evo, val ) {
-        return evo.data.map( v => v < val );
-    },
-
-    __lt: 1,
-
-
-    lte( evo, val ) {
-        return evo.data.map( v => v <= val );
-    },
-
-    __lte: 1,
-
-
-    gt( evo, val ) {
-        return evo.data.map( v => v > val );
-    },
-
-    __gt: 1,
-
-
-    gte( evo, val ) {
-        return evo.data.map( v => v >= val );
-    },
-
-    __gte: 1,
-
-
-
-    // String简单处理。
-    // 目标：暂存区/栈顶1项。
-    // @data: {[String]}
-    //-----------------------------------------------
-
-    /**
-     * 空白修整。
-     * @param  {Number} where 清理位置
-     * @return {[String]}
-     */
-    trim( evo, where = 0 ) {
-        let _fn = trimFunc[where];
-        return evo.data.map( s => s[_fn]() );
-    },
-
-    __trim: 1,
-
-
-    /**
-     * 空白清理。
-     * @param {Boolean} all 全部删除
-     * @return {[String]}
-     */
-    clean( evo, all ) {
-        let r = all ? __reSpace1n : __reSpace2n,
-            v = all ? '' : ' ';
-
-        return evo.data.map( s => s.trim().replace(r, v) );
-    },
-
-    __clean: 1,
-
-
-    /**
-     * 内容替换。
-     * @param  {...Value} args 参数序列
-     * @return {[String]}
-     */
-    replace( evo, ...args ) {
-        return evo.data.map( s => s.replace(...args) );
-    },
-
-    __replace: 1,
-
-
-    /**
-     * 切分字符串为数组。
-     * @param  {String} sep 分隔符，可选
-     * @param  {Number} cnt 切分数量，可选
-     * @return {[[String]]} 二维数组
-     */
-    split( evo, sep, cnt ) {
-        return evo.data.map( s => $.split(s, sep, cnt) );
-    },
-
-    __split: 1,
-
-
-    /**
-     * 转为大写。
-     * 目标：暂存区/栈顶1项。
-     * @param  {Boolean|1} n 首字母大写，可选
-     * @return {[String]}
-     */
-    caseUpper( evo, n ) {
-        return evo.data.map( s => upperCase(s, n) );
-    },
-
-    __caseUpper: 1,
-
-
-    /**
-     * 转为全小写。
-     * 目标：暂存区/栈顶1项。
-     * @return {[String]}
-     */
-    caseLower( evo ) {
-        return evo.data.map( s => s.toLowerCase() );
-    },
-
-    __caseLower: 1,
-
-
-    /**
-     * RGB 16进制颜色值转换。
-     * rgb(n, n, n) => #rrggbb。
-     * @return {[String]}
-     */
-    rgb16( evo ) {
-        return evo.data.map( v => rgb16Val(v) );
-    },
-
-    __rgb16: 1,
-
-
-    /**
-     * RGBA 16进制值转换。
-     * rgba(n, n, n, a) => #rrggbbaa。
-     * @return {[String]}
-     */
-    rgba16( evo ) {
-        return evo.data.map( v => rgba16Val(v) );
-    },
-
-    __rgba16: 1,
-
-};
-
-
-
-//
 // 工具函数
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 单值/集合调用封装。
+ * @param  {Value|[Value]} data 数据/集
+ * @param  {Function} handle 调用句柄
+ * @param  {...Value} rest 剩余实参序列
+ * @return {Value|[Value]}
+ */
+function mapCall( data, handle, ...rest ) {
+    if ( $.isArray(data) ) {
+        return data.map( v => handle(v, ...rest) );
+    }
+    return handle( data, ...rest );
+}
+
+
+/**
+ * 创建n个伪随机数。
+ * 如果max值为null或undefined，随机数在 [0,1) 区间。
+ * 注：随机数不包含上限值。
+ * @param  {Number} n 数量
+ * @param  {Number} max 上限值，可选
+ * @return {[Number]}
+ */
+function randoms(n, max) {
+    let _ns = new Array(n).fill();
+
+    if (max == null) {
+        return _ns.map(() => Math.random());
+    }
+    return _ns.map(() => Math.floor(Math.random() * Math.floor(max)));
+}
 
 
 /**

@@ -82,7 +82,7 @@
     on="@mousemove:1|movementX avoid;
         @mousemove:2|movementX neg avoid;
         @mouseup|movementX(null);
-        pcheck|data('all') arr dup a.hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
+        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
         pstore|data('pls') dup apply('clear') ev('detail') applies('add', _);
         panel.clearall|data('all') data('pls') dup get('size') vnot pop $if(_2) pop;
         panel.outline;

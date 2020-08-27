@@ -3314,7 +3314,7 @@ class Collector extends Array {
     remove( slr ) {
         let _fun = getFltr( slr ),
             _els = super.filter(
-                (e, i, o) => _fun(e, i, o) ? tQuery.remove(e) : false
+                (e, i, o) => _fun(e, i, o) ? varyRemove(e) : false
             );
         return new Collector( _els, this );
     }
@@ -5244,10 +5244,11 @@ const insertHandles = {
  * - 如果需要包含被排除的元素，可明确传递clean为非null。
  * @param  {String} html 源码
  * @param  {Document} doc 文档对象
- * @param  {Function} clean 文档片段清理器
+ * @param  {Function} clean 文档片段清理器，可选
  * @return {DocumentFragment} 文档片段
  */
 function buildFragment( html, doc, clean ) {
+    // null|undefined
     if (clean == null) {
         clean = cleanFragment
     }

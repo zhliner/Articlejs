@@ -3,7 +3,7 @@
     on="click|$('#g-scroll') focus">
     <div class="_start _icons">
         <b id="x-outline" title="大纲" class="_press"
-            on="toggle|$$('#outline,#lineLeft') a.lose(2) ('_press');
+            on="toggle|$$('#outline,#lineLeft') lose(2) ('_press');
                 click"
             to="|toggleClass;
                 |trigger('toggle')|fire('body', 'pcheck')">
@@ -497,7 +497,7 @@
     </div>
     <!-- 帮助入口 -->
     <div id="x-help" class="_help" title="帮助"
-        on="toggle|$$('#help,#lineRight') a.lose(2) ('_press');
+        on="toggle|$$('#help,#lineRight') lose(2) ('_press');
             click"
         to="|toggleClass;
             |trigger('toggle')|fire('body', 'pcheck')">
