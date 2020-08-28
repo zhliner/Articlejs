@@ -228,14 +228,13 @@ const CustomMaker = {
 
 //
 // 子内容创建集。
-// 创建目标应有的的内容节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
-// 返回的元素皆没有内容，内容应当由外部插入（$.append）。
-// 仅包含部分目标的定义，内容元素无需定制创建子元素。
+// 创建目标应有的子节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
+// 返回的节点需要进一步构建（Builder），无需构建的节点不返回。
 // 注记：
 // 如果返回的是内容元素，则可以接收内联节点插入（移动/克隆时）。
-// 返回子元素类型值表示无法直接创建，需后阶create创建。
+// 返回元素类型值表示无法直接创建，需后阶create创建。
 //////////////////////////////////////////////////////////////////////////////
-// function( box:Element, cnt:Number ): Element | [Element] | Number
+// function( box:Element, opts:Object, data:Value ): Element | [Element] | Number | void
 //
 const Children = {
     //
@@ -247,26 +246,30 @@ const Children = {
         return T.SVGITEM;
     },
 
+
     // @return {[Element]}
     [ T.RUBY ]: function() {
         return elements( T.RB, T.RP, T.RT, T.RP );
     },
+
 
     // @return {[Element]}
     [ T.RBPT ]: function() {
         return elements( T.RB, T.RP, T.RT, T.RP );
     },
 
+
     //
     // 内联结构子
     /////////////////////////////////////////////
 
     // 注记：
-    // 当用户直接向内插入时用到（children()）。
+    // 当用户向内插入子单元时用到（children:create）。
     // @return {Number}
     [ T.SVGITEM ]: function() {
         return T.SVGITEM;
     },
+
 
     //
     // 块内结构子
@@ -278,30 +281,35 @@ const Children = {
         return [ ...tr.children ];
     },
 
+
     // @return {Element} <tr>
     [ T.TBODY ]: function( body ) {
         return tableObj( body.parentElement ).newTR();
     },
+
 
     // @return {Element} <tr>
     [ T.THEAD ]: function( head ) {
         return tableObj( head.parentElement ).newTR( true );
     },
 
+
     // @return {Element} <tr>
     [ T.TFOOT ]: function( foot ) {
         return tableObj( foot.parentElement ).newTR();
     },
 
-    // @param  {String|Node|[Node]} explain 图片讲解，可选
-    // @return {[Element]}
-    [ T.FIGIMGP ]: function( _, {explain}) {
-        let _expl = element( T.EXPLAIN );
 
+    // 注记：
+    // 讲解是可选的，因此由属性配置创建。
+    // 图片预插入以保持位置在前。
+    // @param  {String|Node|[Node]} explain 图片讲解，可选
+    // @return {Element}
+    [ T.FIGIMGP ]: function( box, {explain} ) {
         if ( explain ) {
-            $.append( _expl, explain );
+            $.append( box, element(T.EXPLAIN, explain) );
         }
-        return [ element(T.IMG), _expl ];
+        return $.prepend( box, element(T.IMG) );
     },
 
 
@@ -314,11 +322,41 @@ const Children = {
         return elements( T.H1, T.H2 );
     },
 
-    // 内容不可编辑，单独创建。
-    [ T.TOC ]:          null,
 
-    [ T.ARTICLE ]:      'article',
-    [ T.DL ]:           'dl',
+    // 内容不可编辑，单独创建。
+    [ T.TOC ]:  null,
+
+
+    // 选项单元位置确定，无内容构建。
+    // @param  {Boolean} header 有无导言
+    // @param  {Boolean} footer 有无结语
+    // @return {void}
+    [ T.ARTICLE ]: function( box, {header, footer} ) {
+        if ( header && !hasChild(box, 'HEADER') ) {
+            $.prepend( box, element(T.HEADER) );
+        }
+        if ( footer && !hasChild(box, 'FOOTER') ) {
+            $.append( box, element(T.FOOTER) );
+        }
+    },
+
+
+    // 一次构建允许创建一个标题项。
+    // 如果未传递标题内容，表示只创建数据条目（<dd>）。
+    // 按数据量一次性创建完毕，无返回值。
+    // @param  {String|Node|[Node]} dt 标题内容，可选
+    // @param  {Value|[Value]} dd 数据条目（集）
+    // @return {void}
+    [ T.DL ]: function( box, {dt}, data ) {
+        if ( dt ) {
+            $.append( box, element(T.DT, dt) );
+        }
+        if ( !$.isArray(data) ) {
+            data = [ data ];
+        }
+        data.forEach( dd => $.append(box, element(T.DD, dd)) );
+    },
+
 
     /**
      * 表格子单元创建。
@@ -345,6 +383,7 @@ const Children = {
         }
         return _tbo.body( true );
     },
+
 
     [ T.FIGURE ]:       'figure',
     [ T.DETAILS ]:      'details',
@@ -457,14 +496,16 @@ const Children = {
     T.S5,
 ]
 .forEach(function( it ) {
+
+    // 容许导言/结语位置偏差。
     // @return {void}
     Children[ it ] = function( box, {h2, header, footer}) {
         let _hx = insertHeading( box, T.H2, h2 );
 
-        if ( header && !$.get('>header', box) ) {
+        if ( header && !hasChild(box, 'HEADER') ) {
             $.after( _hx, element(T.HEADER) );
         }
-        if ( footer && !$.get('>footer', box) ) {
+        if ( footer && !hasChild(box, 'FOOTER') ) {
             $.append( box, element(T.FOOTER) );
         }
     };
@@ -929,6 +970,20 @@ function createID(text) {
 
 
 /**
+ * 检查是否包含目标子元素。
+ * @param  {Element} box 容器元素
+ * @param  {String} tag 子元素标签
+ * @return {Boolean}
+ */
+function hasChild( box, tag ) {
+    for ( const el of box.children ) {
+        if ( el.tagName === tag ) return true;
+    }
+    return false;
+}
+
+
+/**
  * 视情况取数据。
  * @param {[Value]} data 数据集
  * @param {Boolean} shift 前端提取
@@ -959,16 +1014,21 @@ function svgItem( box ) {
 
 
 /**
- * 空元素创建。
+ * 元素创建。
  * 类型值会被存储，以使得不需要每次都检查判断。
  * 返回null表示无法创建元素。
  * @param  {Number} tval 类型值
- * @return {Element|null|false}
+ * @param  {Node|[Node]|String} data 元素内容，可选
+ * @return {Element|null}
  */
-export function element( tval ) {
+export function element( tval, data ) {
     let _el = ( CustomMaker[tval] || _element )(
             ...Tags[tval].split( '\\' )
         );
+    if ( data ) {
+        // _el 应当有值。
+        $.append( _el, data );
+    }
     return _el && setType( _el, tval );
 }
 
@@ -984,7 +1044,7 @@ export function elements( ...types ) {
 
 
 /**
- * 元素创建（含内容）。
+ * 单元创建（节点树）。
  * 如果是结构性容器，会获取子元素序列并插入。
  * 作为特例，el支持元素类型值（部分单元不能直接创建，如 SVGITEM）。
  * 适用初始新建或节点树迭代完成。
@@ -1028,17 +1088,17 @@ export function create( el, opts, data, more ) {
  * 1. 由create新建开始的子结构迭代完成。
  * 2. 移动插入中间结构位置时的直接使用。
  * opts: {
- *      caption     创建表标题
- *      head:       添加表头元素
- *      foot:       添加表脚元素
- *      figcaption  创建插图标题
- *      h3          创建行块小标题
- *      h4          创建级联表标题
- *      explain     创建图片讲解
- *      h2          创建片区（section）标题
- *      header      创建导言部分
- *      footer      创建结语部分
- *      ....        （同上）
+ *      caption:    {Value}   创建表标题
+ *      head:       {Boolean} 添加表头元素
+ *      foot:       {Boolean} 添加表脚元素
+ *      figcaption: {Value}   创建插图标题
+ *      h3:         {Value}   创建行块小标题
+ *      h4:         {Value}   创建级联表标题
+ *      explain:    {Value}   创建图片讲解
+ *      h2:         {Value}   创建片区（section）标题
+ *      header:     {Boolean} 创建导言部分
+ *      footer:     {Boolean} 创建结语部分
+ *      dt:         {Value}   定义列表标题项
  * }
  * @param  {Element} box 父容器元素
  * @param  {Object} opts 子元素特性配置集
@@ -1050,6 +1110,9 @@ export function children( box, opts, data, more ) {
     let _tv = getType( box ),
         _el = Children[_tv]( box, opts );
 
+    if ( !_el ) {
+        return;  // end.
+    }
     if ( $.isArray(_el) ) {
         _el = _el.map( el => create(el, opts, data, more) );
     } else {
