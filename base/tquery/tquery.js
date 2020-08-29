@@ -2486,6 +2486,7 @@ class Table {
     /**
      * 插入一列。
      * 实参cells应当是调用 newColumn() 的返回值。
+     * 注记：可获得跨列时的正确下标。
      * @param  {[Element]} cells 列单元格序列
      * @param  {Number} idx 列位置下标（从0开始）
      * @return {[Element]} cells
@@ -2495,7 +2496,7 @@ class Table {
         idx = this._index( idx, this._cols );
 
         for ( const tr of this._tbl.rows ) {
-            insertNode( tr, cells[_n++], tr.cells[idx] );
+            insertNode( tr, cells[_n++], indexCell(tr, idx) );
         }
         this._cols++;
 
