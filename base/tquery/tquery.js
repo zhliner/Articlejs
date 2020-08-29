@@ -692,18 +692,15 @@ Object.assign( tQuery, {
      * 创建或封装Table实例。
      * th0 表示表格的首列全为<th>单元格，
      * 这并不标准，但可以简单获得列表头的效果。
-     * @param  {Number|Element} cols 表格列数（含列头）或表格元素
+     * @param  {Number|Element} cols 表格列数（不含列头）或表格元素
      * @param  {Number} rows 表格行数
-     * @param  {Boolean} th0 是否包含列表头，可选
-     * @param  {Document} doc 所属文档对象
+     * @param  {Boolean} th0 是否添加列表头，可选
+     * @param  {Document} doc 所属文档对象，可选
      * @return {Table} 表格实例
      */
     table( cols, rows, th0, doc = Doc ) {
         if ( cols.nodeType ) {
             return Table.build( cols );
-        }
-        if ( th0 ) {
-            cols--;
         }
         let _tbo = new Table( cols, rows, doc );
 
