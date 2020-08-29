@@ -286,19 +286,19 @@ Content: [
     },
 
 
-    // 强制删除。
-    // 删除任意已选取元素（不保护中间结构逻辑）。
-    {
-        "key":      "shift:d",
-        "command":  "deletesForce"
-    },
-
-
     // 内容删除。
     // 删除元素内的可编辑内容（内容根元素的内容）。
     {
-        "key":      "alt:d",
+        "key":      "shift:d",
         "command":  "deleteContents"
+    },
+
+
+    // 强制删除。
+    // 删除任意已选取元素，有破坏性（不保护中间结构逻辑）。
+    {
+        "key":      "alt:d",
+        "command":  "deletesForce"
     },
 
 

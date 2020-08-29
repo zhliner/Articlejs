@@ -637,24 +637,23 @@ span[role=space] {
 .content ol[role=codelist] {
     font-size: 10pt;
     padding: 0;
-    border: 1px #ddd solid;
-    background-color: #eef;
-    padding-left: 50px;
-    color: #888;
-    border-radius: 3px;
+    border: 3px #fff double;
+    background-color: #38728d;
+    padding-left: 64px;
+    color: #aaf2f2;
+    border-radius: 8px;
     overflow-x: auto;
-    resize: none;
+    font-family: monospace;
 }
 .content ol[role=codelist] li {
-    border-left: 3px #dde solid;
+    padding-left: 4px;
     line-height: 120%;
+    background-color: cornsilk;
 }
 .content ol[role=codelist] code {
     color: #000;
-    white-space: pre;
-    word-break: break-all;
+    white-space: pre-wrap;
     background-color: transparent;
-    display: block;
     border-width: 0;
 }
 

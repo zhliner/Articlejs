@@ -1108,7 +1108,7 @@ export function create( el, opts, data, more ) {
  */
 export function children( box, opts, data, more ) {
     let _tv = getType( box ),
-        _el = Children[_tv]( box, opts );
+        _el = Children[_tv]( box, opts, data );
 
     if ( !_el ) {
         return;  // end.

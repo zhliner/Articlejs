@@ -141,7 +141,7 @@ export const
     TFOOT           = 417,  // 表脚
     // 定制类：
     // 容器：<li>, <p>, <h4>
-    CODELI          = 419,  // 代码表条目（li/code） {start}
+    CODELI          = 419,  // 代码表条目（li/code） {value}
     ALI             = 420,  // 目录：普通条目（li/a）
     AH4LI           = 421,  // 目录：标题条目（li/[h4/a]）
     AH4             = 422,  // 目录：链接小标题（h4/a）
@@ -167,7 +167,7 @@ export const
     S5              = 512,  // 末 （section:s5/h2, header?, {content}, footer?）
     UL              = 513,  // 无序列表 （ul/li）
     OL              = 514,  // 有序列表 （ol/li）
-    CODELIST        = 515,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab}
+    CODELIST        = 515,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab, start}
     ULX             = 516,  // 无序级联表 （ul/li/h4, ul|ol/...）
     OLX             = 517,  // 有序级联表 （ol/li/h4, ol|ul/...）
     CASCADE         = 518,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）

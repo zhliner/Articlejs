@@ -395,29 +395,26 @@ p.ani {
         <caption>这是一个表格的标题22</caption>
         <thead>
             <tr dir="rtl">
-                <th>1</th>
-                <th>2</th>
-                <th>3</th>
-                <th>4</th>
-                <th>5</th>
-            </tr>
-        </thead>
-        <thead>
-            <tr>
-                <td>Tdx1</td>
-                <td>Tdx2</td>
-                <td>Tdx3</td>
-                <td>Tdx4</td>
-                <td>Tdx5</td>
+                <th>TH1</th>
+                <th>TH2</th>
+                <th>TH3</th>
+                <th>TH4</th>
+                <th>TH5</th>
             </tr>
         </thead>
         <tbody>
+            <tr>
+                <td>Tdx1</td>
+                <td colspan="2">Tdx2-3</td>
+                <td>Tdx4</td>
+                <td>Tdx5</td>
+            </tr>
             <tr class="_odd">
                 <th>1</th>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
             </tr>
             <tr class="_even">
                 <th>2</th>
@@ -429,8 +426,7 @@ p.ani {
             <tr class="_odd">
                 <th>3</th>
                 <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
+                <td id="td2" colspan="2">&nbsp;</td>
                 <td>&nbsp;</td>
             </tr>
             <tr class="_even">
