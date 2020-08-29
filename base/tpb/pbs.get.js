@@ -1087,7 +1087,7 @@ const _Gets = {
 
     // @return {[String]|[[String]]}
     _Gets[name] = function( evo ) {
-        return mapCall( evo.data, (el, fn) => Util[fn](el), name );
+        return mapCall( evo.data, el => Util[name](el) );
     };
 
     _Gets[`__${name}`] = 1;
@@ -1349,10 +1349,9 @@ const __uiState = [ '-', '', '^' ];
 
     // @return {void}
     _Gets[names[0]] = function( evo, s = 1 ) {
-        mapCall(
+        eachCall(
             evo.data,
-            (el, wds) => Util.pbo( el, wds ),
-            [ __uiState[+s] + names[1] ]
+            el => Util.pbo( el, [__uiState[+s] + names[1]] )
         );
     };
 
@@ -1376,7 +1375,7 @@ const __uiState = [ '-', '', '^' ];
 
     // @return {Boolean|[Boolean]}
     _Gets[name] = function( evo ) {
-        return mapCall( evo.data, (el, n) => Util.pbo(el).includes(n), name );
+        return mapCall( evo.data, el => Util.pbo(el).includes(name) );
     };
 
     _Gets[`__${name}`] = 1;
@@ -1431,7 +1430,7 @@ const __uiState = [ '-', '', '^' ];
 
     // @return {void}
     _Gets[meth] = function( evo ) {
-        mapCall( evo.data, (el, m) => $[m](el), meth );
+        eachCall( evo.data, el => $[meth](el) );
     };
 
     _Gets[`__${meth}`] = 1;
@@ -1448,15 +1447,27 @@ const __uiState = [ '-', '', '^' ];
 /**
  * 单值/集合调用封装。
  * @param  {Value|[Value]} data 数据/集
- * @param  {Function} handle 调用句柄
- * @param  {...Value} rest 剩余实参序列
+ * @param  {Function} handle 回调函数
  * @return {Value|[Value]}
  */
-function mapCall( data, handle, ...rest ) {
+function mapCall( data, handle ) {
     if ( $.isArray(data) ) {
-        return data.map( v => handle(v, ...rest) );
+        return data.map( v => handle(v) );
     }
-    return handle( data, ...rest );
+    return handle( data );
+}
+
+
+/**
+ * 单值/集合调用封装。
+ * @param {Value|[Value]} data 数据/集
+ * @param {Function} handle 调用句柄
+ */
+function eachCall( data, handle ) {
+    if ( !$.isArray(data) ) {
+        return handle( data );
+    }
+    data.forEach( v => handle(v) );
 }
 
 
