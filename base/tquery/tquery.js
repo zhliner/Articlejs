@@ -2234,9 +2234,11 @@ Reflect.defineProperty(tQuery, 'version', {
 
 //
 // 简单表格类。
-// 仅适用规范行列的表格，不支持单元格合并/拆分（但容错）。
+// 仅适用规范行列的表格，不支持单元格合并/拆分。
 // 用户可以在任意列位置插入列表头（纵列为<th>）。
-// 不涉及表标题或单元格内容的操作，需由外部负责。
+// 不涉及表标题或单元格的内容操作，需由外部负责。
+// 注记：
+// 简单容错跨列（非跨行）的情况：正确取值或删除列。
 //
 class Table {
     /**
@@ -2452,6 +2454,17 @@ class Table {
 
 
     /**
+     * 获取目标行的位置下标。
+     * @param  {Element} tr 行元素
+     * @param  {TableSection} tsec 表格目标表区，可选
+     * @return {Number}
+     */
+    trIndex( tr, tsec ) {
+        return tsec ? tr.sectionRowIndex : tr.rowIndex;
+    }
+
+
+    /**
      * 创建一列单元格序列。
      * @param  {Boolean} vth 是否为列头（全<th>）
      * @return {[Element]} 列单元格集
@@ -2492,6 +2505,7 @@ class Table {
 
     /**
      * 删除一列。
+     * 注记：支持跨列单元格，但会导致列不整齐。
      * @param  {Number} idx 列位置下标（从0开始）
      * @return {[Element]} 被删除的单元格集
      */
@@ -2508,6 +2522,7 @@ class Table {
 
     /**
      * 获取一列。
+     * 注记：兼容单元格跨列的情况。
      * @param  {Number} idx 列位置下标（从0开始）
      * @return {[Element]} 列单元格序列
      */
@@ -2517,10 +2532,29 @@ class Table {
 
         if ( idx < this._cols ) {
             for ( const tr of this._tbl.rows ) {
-                _buf.push( tr.cells[idx] );
+                _buf.push( indexCell(tr, idx) );
             }
         }
         return _buf;
+    }
+
+
+    /**
+     * 获取单元格的列下标。
+     * 容错跨列的情况。
+     * 如果目标单元格跨列，返回一个下标范围。
+     * @param  {Element} cell 单元格元素
+     * @return {Number|[Number]}
+     */
+    cellIndex( cell ) {
+        let _i = 0;
+
+        for ( const td of cell.parentElement.children ) {
+            if ( td === cell ) {
+                return td.colSpan == 1 ? _i : [_i, _i+td.colSpan];
+            }
+            _i += td.colSpan;
+        }
     }
 
 
@@ -2722,6 +2756,20 @@ Table.build = function( tbl ) {
  */
 function cellCount( cells ) {
     return cells.reduce( (n, td) => n + td.colSpan, 0 );
+}
+
+
+/**
+ * 获取行内特定下标的单元格。
+ * @param  {Element} tr 表格行元素
+ * @param  {Number} idx 单元格下标
+ * @return {Element}
+ */
+function indexCell( tr, idx ) {
+    for ( const td of tr.cells ) {
+        idx -= td.colSpan;
+        if ( idx < 0 ) return td;
+    }
 }
 
 
