@@ -1098,7 +1098,7 @@ class Query {
      */
     _filter( fmt ) {
         let _fn = new Function(
-                'e', 'n', 'c', `return ${fmt};`
+                'v', 'i', 'c', `return ${fmt};`
             );
         return all => all.filter( _fn );
     }

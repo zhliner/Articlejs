@@ -652,7 +652,7 @@ Object.assign( tQuery, {
      *
      * 如果数据源不是字符串，则视为节点数据，简单封装为文档片段。
      *
-     * @param  {String|Node} data 源码或数据源
+     * @param  {String|Node|.Iterator} data 源码或数据源
      * @param  {Function|null|true} clean 文档片段清理器或SVG指示，可选
      * @param  {Document} doc 所属文档，可选
      * @return {DocumentFragment} 文档片段
