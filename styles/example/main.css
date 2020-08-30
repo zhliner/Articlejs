@@ -46,7 +46,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 /* 级联表 */
-.content li > h5 {
+.content li > h4 {
     margin: 2px 0;
     display: inline;
 }
@@ -197,7 +197,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 多级编号表
- * ol:cascade/li/h5, ol/...
+ * ol:cascade/li/h4, ol/...
  *----------------------------------------------------------------------------
  */
 .content ol[role=cascade],
