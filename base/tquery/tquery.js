@@ -650,16 +650,18 @@ Object.assign( tQuery, {
      * 文档片段在被导入（document.adoptNode）之前，其中的脚本不会运行。
      * 创建SVG文档片段时，无节点清理功能（占用clean实参位置）。
      *
-     * @param  {String} html 源码
+     * 如果数据源不是字符串，则视为节点数据，简单封装为文档片段。
+     *
+     * @param  {String|Node} data 源码或数据源
      * @param  {Function|null|true} clean 文档片段清理器或SVG指示，可选
      * @param  {Document} doc 所属文档，可选
      * @return {DocumentFragment} 文档片段
      */
-    fragment( html, clean, doc = Doc ) {
-        if ( typeof html !== 'string' ) {
-            return null;
+    fragment( data, clean, doc = Doc ) {
+        if ( typeof data !== 'string' ) {
+            return fragmentNodes( data, doc );
         }
-        return clean === true ? buildFragmentSVG(html, doc) : buildFragment(html, doc, clean);
+        return clean === true ? buildFragmentSVG(data, doc) : buildFragment(data, doc, clean);
     },
 
 
@@ -5321,6 +5323,22 @@ function buildFragmentSVG( html, doc ) {
     _frg.append( ..._box.childNodes );
 
     return _frg;
+}
+
+
+/**
+ * 从节点数据创建文档片段。
+ * @param {Node|[Node]|.Iterator} nodes 数据集
+ * @param {Document} doc 文档对象
+ */
+function fragmentNodes( nodes, doc ) {
+    let _frg = doc.createDocumentFragment(),
+        _buf = [];
+
+    for ( const it of arrayArgs(nodes) ) {
+        _buf.push( it.nodeType ? varyRemove(it) : it )
+    }
+    return _frg.append(..._buf), _frg;
 }
 
 
