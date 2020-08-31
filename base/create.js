@@ -567,9 +567,8 @@ const Children = {
 .forEach(function( it ) {
 
     // @node {Element|[Element]|void}
-    Children[ it ] = function( box, {h2, header, footer}) {
-        let _hel = insertHeading( box, T.H2, h2 ),
-            _buf = [];
+    Children[ it ] = function( box, {header, footer}) {
+        let _buf = [ insertHeading(box, T.H2) ];
 
         if ( header ) {
             _buf.push( insertHeader(box, box.firstElementChild) );
@@ -577,10 +576,8 @@ const Children = {
         if ( footer ) {
             _buf.push( appendFooter(box) );
         }
-        if ( !_buf.length ) {
-            return { node: _hel, end: true };
-        }
-        return { node: _hel ? [_hel].concat(_buf) : _buf };
+
+        return { node: itemArray( _buf.filter(v => v != null) ) };
     };
 });
 
