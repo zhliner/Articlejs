@@ -2262,6 +2262,34 @@ class Table {
 
 
     /**
+     * 表标题：获取/删除/创建/设置。
+     * val: {
+     *      null        删除并返回表标题（可能为null）
+     *      undefined   返回表标题（可能为null）
+     *      true        返回表标题（确保有一个表标题）
+     *      {String}    设置表标题，如果不存在则新建
+     * }
+     * @param  {String|null} val 内容或删除标识，可选
+     * @return {Element|null} 表标题元素
+     */
+    caption( val ) {
+        let _cap = this._tbl.caption;
+
+        if ( val != null && !_cap ) {
+            _cap = varyPrepend(this._tbl, this._create('caption'));
+        }
+        switch (val) {
+            case true:
+            case undefined:
+                return _cap;
+            case null:
+                return _cap && varyRemove(_cap);
+        }
+        return varyFill(_cap, val), _cap;
+    }
+
+
+    /**
      * 标体集操作：获取/删除/新建。
      * idx: {
      *      {Number}    定位表体位置，操作视op而定
@@ -2289,29 +2317,6 @@ class Table {
             return _bd || this._bodies( idx );
         }
         return idx === undefined ? Arr(this._tbl.tBodies) : _bd;
-    }
-
-
-    /**
-     * 表标题：获取/删除/创建。
-     * op: {
-     *      true        创建表标题（如果不存在）并返回之
-     *      null        删除并返回表标题（可能为null）
-     *      undefined   返回表标题（可能为null）
-     * }
-     * @param  {null|true} op 删除/新建标识，可选
-     * @return {Element|null} 表标题元素
-     */
-    caption( op ) {
-        let _cap = this._tbl.caption;
-
-        if ( op === true ) {
-            return _cap || varyPrepend(
-                this._tbl,
-                this._create( 'caption' )
-            );
-        }
-        return op === null ? _cap && varyRemove(_cap) : _cap;
     }
 
 

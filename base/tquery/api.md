@@ -66,19 +66,16 @@
 > 系统会自动采用 `http://www.w3.org/2000/svg` 名称空间创建SVG元素。
 
 
-### [$.table( rows, cols, th0, doc? ): Table](docs/$.table.md)
+### [$.table( cols, rows, th0, doc? ): Table](docs/$.table.md)
 
 创建一个指定行列数的空表格（封装为 `Table` 实例），或封装一个已有的规范表格元素为 `Table` 实例。
 
-- `rows: Number | Element` 表格的行数或一个已有的规范表格元素。
-- `cols: Number` 表格的列数，可选
-- `th0: Boolean` 首列是否为 `<th>` 单元格（列表头）。仅适用指定行列数时，可选。
+- `cols: Number | Element` 表格的列数（不含列头）或一个已有的表格元素。
+- `rows: Number` 表格的行数，可选。
+- `th0: Boolean` 是否添加列头（首列为 `<th>`）。如果为真，表格至少需要有1行。可选。
 - `doc?: Document` 表格元素所属文档，可选。
 
 返回的 `Table` 类实例仅提供简单的表格操作（不支持单元格合并/拆分），另外也不支持单元格的内容操作，而需要由外部的 `.html()` 或 `.text()` 来实现。这让 `Table` 的实现简单并轻量。
-
-> **注：**
-> 规范的表格指无单元格合并的情况，即所有单元格的 `colSpan` 和 `rowSpan` 值都为 `1`。
 
 
 ### [$.Table](docs/$.table.md#table-接口)
