@@ -50,47 +50,53 @@
     <div id="editor">
 
 <!-- 模态框：屏蔽层 -->
-<div id="g-modal" class="___Panel Modal" data-pbo="lost"
-    on="click('~._close')|evo(3) lose">
-    <form class="_prop" tpl-name="modal:prop">
+<div id="g-modal" class="___Panel Modal" data-pbo=""
+    on="click(~._close)|evo(3) lose">
+    <form class="_usual" on="submit|avoid">
         <header>
-            <h5>[标题]</h5>
+            <h4>[标题]</h4>
             <b class="_close" title="关闭">✕</b>
         </header>
         <p id="modal-note" class="_note" data-pbo="">
             [这里是当前属性的一些必要说明或提示。]
         </p>
         <div class="_list" data-pbo="">
-            <table tpl-name="input:img">
-                <tr tpl-name="prop:srcbase">
-                    <th title="相对于网站根目录">根路径</th>
+            <ul class="_prop" tpl-name="inlines:img">
+                <li tpl-name="prop:srcbase">
+                    <b>根路径</b>
                     <!-- 依配置自动设置 -->
-                    <td><input type="text" name="srcbase" placeholder="/upload" /></td>
-                </tr>
-                <tr tpl-name="prop:sources">
-                    <th title="支持多条目">数据源</th>
-                    <td><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></td>
-                </tr>
-                <tr tpl-name="prop:alts">
-                    <th title="与数据源分别对应">图片说明</th>
-                    <td><input type="text" name="alts" placeholder="alt11; alt22" /></td>
-                </tr>
-                <tr class="_upload" tpl-name="prop:upload">
-                    <th>上传</th>
-                    <td><input type="file" name="upload" value=""
-                            @on="change|evo(1) val"
-                            @by="x.Fun.upload(null)" />
-                    </td>
-                </tr>
-                <tr tpl-name="prop:preview">
-                    <th>预览</th>
-                    <td class="_preview">
-                        <!-- img|video|audio -->
-                    </td>
-                </tr>
-            </table>
+                    <span><input type="url" name="srcbase" placeholder="/upload" /></span>
+                </li>
+                <li tpl-name="prop:src">
+                    <b>数据源</b>
+                    <span><input type="text" name="source" placeholder="src=..." /></span>
+                </li>
+                <li tpl-name="prop:alt">
+                    <b>图片说明</b>
+                    <span><input type="text" name="alts" placeholder="alt=..." /></span>
+                </li>
+                <li class="_upload" tpl-name="prop:upload">
+                    <b>上传</b>
+                    <span><input type="file" name="upload" value="" @on="change|evo(3) val" @by="x.Fun.upload(null)" />
+                    </span>
+                </li>
+                <li tpl-name="prop:preview">
+                    <b>预览</b>
+                    <span class="_preview">
+                        <!-- img|video|audio --></span>
+                </li>
+                <li tpl-name="prop:wh">
+                    <b>宽/高度</b>
+                    <span>
+                        <input type="text" name="width" title="width" class="_nums" />
+                        x
+                        <input type="text" name="height" title="height" class="_nums" />
+                        像素
+                    </span>
+                </li>
+            </ul>
         </div>
-        <div class="_submit" tpl-name="modal:okreset">
+        <div class="_submit">
             <button type="submit">确定</button>
             <button type="reset">重置</button>
         </div>
@@ -501,13 +507,13 @@
                         <div class="_option">
                             <label>边框
                                 <select name="border" tpl-name="item:tborder">
-                                    <option value="0">------</option>
+                                    <option value="">------</option>
                                     <option value="1">普通</option>
                                     <option value="4">外围</option>
                                     <option value="2">内部</option>
                                     <option value="h">横向</option>
                                     <option value="v">纵向</option>
-                                    <option value="3">上接式</option>
+                                    <option value="0">无边框</option>
                                 </select>
                             </label>
                             <hr />

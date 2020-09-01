@@ -246,11 +246,12 @@ const Children = {
      * SVG内容插入。
      * 内容支持源码和节点数据。
      * 无特性配置。
+     * @param {Element} svg SVG根元素
      * @param {Node|[Node]|String} data
      * @node: {[Node]|data}
      */
     [ T.SVG ]: function( svg, _, data ) {
-        return { node: svgInsert(svg, data), end: true }
+        return result( null, svgInsert(svg, data), true );
     },
 
 
@@ -258,24 +259,33 @@ const Children = {
      * SVG子单元内容插入。
      * 内容支持源码和节点数据。
      * 无特性配置。
+     * @param {Element} sel 普通SVG容器元素
      * @param {Node|[Node]|String} data
      * @node: {[Node]|data}
      */
-    [ T.SVGITEM ]: function( box, _, data ) {
-        return { node: svgInsert(box, data), end: true }
+    [ T.SVGITEM ]: function( sel, _, data ) {
+        result( null, svgInsert(sel, data), true );
     },
 
 
     /**
      * 空元素由下阶处理（下同）。
+     * @param {Element} ruby 注音元素
      * @node: {[Element]}
      */
-    [ T.RUBY ]: function() {
-        return { node: elements(T.RB, T.RP, T.RT, T.RP) };
+    [ T.RUBY ]: function( ruby ) {
+        return result(
+            null,
+            $.append( ruby, elements(T.RB, T.RP, T.RT, T.RP) )
+        );
     },
 
-    [ T.RBPT ]: function() {
-        return { node: elements(T.RB, T.RP, T.RT, T.RP) };
+    [ T.RBPT ]: function( ruby ) {
+        return result(
+            null,
+            $.append( ruby, elements(T.RB, T.RP, T.RT, T.RP) )
+        );
+
     },
 
 
@@ -289,7 +299,7 @@ const Children = {
      * @node: {[Element]} <th>,<td>
      */
     [ T.TR ]: function( tr ) {
-        return { node: [...tr.children] };
+        return result( null, [...tr.children] );
     },
 
 
@@ -301,29 +311,39 @@ const Children = {
      * @node: {Element|[Element]} 行元素/集
      */
     [ T.TBODY ]: function( body, _, data ) {
-        return { node: appendRows(body, size(data)) };
+        return result(
+            null,
+            appendRows( body, size(data) )
+        );
     },
 
     [ T.THEAD ]: function( head, _, data ) {
-        return { node: appendRows(head, size(data), true) };
+        return result(
+            null,
+            appendRows( head, size(data), true )
+        );
     },
 
     [ T.TFOOT ]: function( foot, _, data ) {
-        return { node: appendRows(foot, size(data)) };
+        return result(
+            null,
+            appendRows( foot, size(data) )
+        );
     },
 
 
     /**
      * 仅返回图片元素供递进构建。
-     * 注记：讲解可选，故由属性配置。
+     * 注记：讲解可选故由属性配置。
+     * @param {Element} p 段落容器
      * @param {String|Node|[Node]} explain 图片讲解，可选
      * @node: {Element}
      */
-    [ T.FIGIMGP ]: function( box, {explain} ) {
-        if ( explain ) {
-            $.append( box, element(T.EXPLAIN, explain) );
-        }
-        return { node: $.prepend(box, element(T.IMG)) };
+    [ T.FIGIMGP ]: function( p, {explain} ) {
+        return result(
+            explain && $.append( p, element(T.EXPLAIN, explain) ),
+            $.prepend( p, element(T.IMG) )
+        );
     },
 
 
@@ -333,10 +353,14 @@ const Children = {
 
 
     /**
+     * @param {Element} hgroup
      * @node: {[Element]}
      */
-    [ T.HGROUP ]: function() {
-        return { node: elements(T.H1, T.H2) };
+    [ T.HGROUP ]: function( hgroup ) {
+        return result(
+            null,
+            $.append( hgroup, elements(T.H1, T.H2) )
+        );
     },
 
 
@@ -347,45 +371,39 @@ const Children = {
     /**
      * 两个子单元位置确定。
      * 仅为容器创建，需向后续传递进构建。
+     * @param {Element} art 文章元素
      * @param {Boolean} header 有无导言
      * @param {Boolean} footer 有无结语
-     * @node: {Element|[Element]|[]}
+     * @node: {Element|[Element]}
      */
-    [ T.ARTICLE ]: function( box, {header, footer} ) {
+    [ T.ARTICLE ]: function( art, {header, footer} ) {
         let _buf = [];
 
         if ( header  ) {
-            _buf.push( insertHeader(box) );
+            _buf.push( insertHeader(art) );
         }
         if ( footer ) {
-            _buf.push( appendFooter(box) );
+            _buf.push( appendFooter(art) );
         }
-        _buf = _buf.filter( v => v != null );
-
-        return { node: itemArray(_buf), end: !_buf.length };
+        return result( null, _buf.filter(v => v) );
     },
 
 
     /**
      * 允许创建一个标题项。
      * 如果未传递标题内容，表示只创建数据条目（<dd>）。
-     * 按数据量一次性创建完毕，无递进构建。
+     * data仅取成员数量特性。
+     * @param {Element} dl 定义列表根容器
      * @param {String|Node|[Node]} dt 标题内容，可选
      * @param {Value|[Value]} dd 数据条目（集）
+     * @head: {Element|null}
      * @node: {Element|[Element]}
      */
-    [ T.DL ]: function( box, {dt}, data ) {
-        let _buf = [];
-
-        if ( dt ) {
-            _buf.push( element(T.DT, dt) );
-        }
-        if ( data ) {
-            _buf.push(
-                ...dataElement( data, dd => element(T.DD, dd) )
-            );
-        }
-        return { node: $.append(box, _buf), end: true };
+    [ T.DL ]: function( dl, {dt}, data ) {
+        return result(
+            dt && $.append( dl, element(T.DT, dt) ),
+            appendNodes( dl, size(data), () => element(T.DD) )
+        );
     },
 
 
@@ -403,67 +421,52 @@ const Children = {
      * @node: {Element} 表体元素
      */
     [ T.TABLE ]: function( tbl, {caption, head, foot} ) {
-        let _tbo = tableObj( tbl );
+        let _tbo = tableObj( tbl ),
+            _buf = [];
 
         if ( caption ) {
-            _tbo.caption( caption );
+            _buf.push( _tbo.caption(caption) );
         }
         if ( head ) {
-            _tbo.head( true );
+            _buf.push( _tbo.head(true) );
         }
         if ( foot ) {
-            _tbo.foot( true );
+            _buf.push( _tbo.foot(true) );
         }
-        return { node: _tbo.body(true) };
+        return result( _buf, _tbo.body(true) );
     },
 
 
     /**
      * 插图标题可选。
      * 注：仅测试标题有效性，由下一阶构建。
+     * @param {Element} fig 插图根元素
      * @node: {Element|[Element]}
      */
-    [ T.FIGURE ]: function( box, {figcaption} ) {
-        let _buf = [];
-
-        if ( figcaption ) {
-            _buf.push( insertHeading(box, T.FIGCAPTION) );
-        }
-        _buf.push( $.append(box, element(T.FIGIMGP)) );
-
-        return { node: itemArray(_buf) };
-    },
-
-
-    // 内容简介必需。
-    // data如果没有值，会创建一个空段落，
-    // 除非data传递一个空数组。
-    // - 内容构建，终止递进。
-    // - 支持在现有<details>上添加内容。
-    // @node {Element|[Element]}
-    [ T.DETAILS ]: function( box, {summary}, data ) {
-        let _sel = insertHeading( box, T.SUMMARY, summary ),
-            _buf = [];
-
-        if ( _sel ) {
-            _buf.push( _sel );
-        }
-        _buf.push(
-            ...$.append( box, dataElement(data, dd => element(T.P, dd)) )
+    [ T.FIGURE ]: function( fig, {figcaption} ) {
+        return result(
+            figcaption && insertHeading( fig, T.FIGCAPTION, figcaption ),
+            $.append( fig, element(T.FIGIMGP) )
         );
-        return { node: _buf, end: true };
     },
 
 
-    [ T.CODEBLOCK ]:    'pre\\codeblock',
-    [ T.HR ]:           'hr',
-    [ T.BLANK ]:        'div\\blank',
+    /**
+     * 内容简介必需。
+     * data无值会创建一个空段落，除非传递一个空数组。
+     * 支持在现有<details>上添加内容。
+     * @param {Element} box 容器元素
+     * @param {String|Node|[Node]} summary 简介
+     * @param {Value|[Value]} data 数据集
+     * @node: {Element|[Element]}
+     */
+    [ T.DETAILS ]: function( box, {summary}, data ) {
+        return result(
+            insertHeading( box, T.SUMMARY, summary ),
+            appendNodes( box, size(data), () => element(T.P) )
+        );
+    },
 
-    //
-    // 特殊用途。
-    /////////////////////////////////////////////
-    [ T.B ]:            'b',
-    [ T.I ]:            'i',
 };
 
 
@@ -475,10 +478,17 @@ const Children = {
     [ T.ALI,        T.A ],
     [ T.AH4LI,      T.AH4 ],
     [ T.AH4,        T.A ],
+    [ T.CODEBLOCK,  T.CODE ],
 ]
 .forEach(function( its ) {
-    // @return {Element}
-    Children[ its[0] ] = () => element( its[1] );
+    /**
+     * @param {Element} box 容器元素
+     * @node: {Element}
+     */
+    Children[ its[0] ] = box => result(
+        null,
+        $.append( box, element(its[1]) )
+    );
 });
 
 
@@ -491,14 +501,17 @@ const Children = {
     [ T.CASCADEH4LI, T.OL ],
 ]
 .forEach(function( its ) {
-    // @param  {Element} li 列表项容器
-    // @param  {String|Node|[Node]} h4 列表标题项
-    // @return {Element}
+    /**
+     * 标题项为必需。
+     * @param {Element} li 列表项容器
+     * @param {String|Node|[Node]} h4 列表标题项
+     * @node: {Element}
+     */
     Children[ its[0] ] = function( li, {h4} ) {
-        insertHeading(
-            li, T.H4, h4
+        return result(
+            insertHeading( li, T.H4, h4 ),
+            $.append( li, element(its[1]) )
         );
-        return element( its[1] );
     };
 });
 
@@ -517,21 +530,25 @@ const Children = {
     T.ASIDE,
 ]
 .forEach(function( it ) {
-    // @param  {Element} box 容器元素
-    // @param  {String|Node|[Node]} h3 标题内容，可选
-    // @param  {Value|[Value]} data 条目数据
-    // @return {Element}
-    Children[ it ] = function( box, {h3} ) {
-        insertHeading(
-            box, T.H3, h3
+    /**
+     * 标题项为可选。
+     * data仅取数据条目数。
+     * @param {Element} box 容器元素
+     * @param {String|Node|[Node]} h3 标题内容，可选
+     * @param {Value|[Value]} data 条目数据
+     * @node: {Element|[Element]}
+     */
+    Children[ it ] = function( box, {h3}, data ) {
+        return result(
+            h3 && insertHeading( box, T.H3, h3 ),
+            appendNodes( box, size(data), () => element(T.P) )
         );
-        return element( T.P );
     };
 });
 
 
 //
-// 顶层列表。
+// 根列表（顶级）。
 // 只是简单的构建<li>条目。
 //-----------------------------------------------
 [
@@ -545,7 +562,18 @@ const Children = {
     T.CASCADE,
 ]
 .forEach(function( it ) {
-    Children[ it ] = () => element( T.LI );
+    /**
+     * data仅取数据集大小。
+     * @param {Element} box 容器元素
+     * @param {Value|[Value]} data 数据（集）
+     * @node: {Element|[Element]}
+     */
+    Children[ it ] = function( box, _, data ) {
+        return result(
+            null,
+            appendNodes( box, size(data), () => element(T.LI) )
+        )
+    };
 });
 
 
@@ -565,30 +593,38 @@ const Children = {
     T.S5,
 ]
 .forEach(function( it ) {
-
-    // @node {Element|[Element]|void}
-    Children[ it ] = function( box, {header, footer}) {
-        let _buf = [ insertHeading(box, T.H2) ];
+    /**
+     * 标题为必需。
+     * @param {Element} sec 片区容器
+     * @param {String|Node|[Node]} h2 标题内容
+     * @param {Boolean} header 创建导言，可选
+     * @param {Boolean} footer 创建结语，可选
+     * @node: {Element|[Element]}
+     */
+    Children[ it ] = function( sec, {h2, header, footer}) {
+        let _h2 = insertHeading( sec, T.H2, h2 ),
+            _buf = [];
 
         if ( header ) {
-            _buf.push( insertHeader(box, box.firstElementChild) );
+            _buf.push( insertHeader(sec, sec.firstElementChild) );
         }
         if ( footer ) {
-            _buf.push( appendFooter(box) );
+            _buf.push( appendFooter(sec) );
         }
-
-        return { node: itemArray( _buf.filter(v => v != null) ) };
+        return result( _h2, _buf.filter( v => v ) );
     };
 });
 
 
+
 //
 // 元素构建集。
-// 对已经创建的元素（空）设置特性或插入内容。
+// 对已经创建的元素（可能为空）设置特性或插入内容。
+// 插入方法为 append，如果需要 fill，应当由外部自行清空。
 // 无需构建的中间结构简单返回自身即可。
 // 接口：function( Element, Object, Value|[Value] ): Element | null
 // 注记：
-// 返回 null 或 undefined 表示终结且未实际构建，
+// 返回假值表示终结且未实际构建，
 // 这是对调用者的反馈，通常是用于滤除作为新目标的选取。
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -597,34 +633,36 @@ const Builder = {
     //-- 内联单元 ------------------------------------------------------------
 
     /**
-     * 仅提供了两个基本特性。
+     * SVG 根元素。
+     * 通用特性设置，由用户控制配置集。
      * 注记：应该只用于单独新建。
      * @param  {Element} svg 目标元素
-     * @param  {Number} width 宽度
-     * @param  {Number} height 高度
+     * @param  {Object} opts 特性配置集
      * @param  {String} xml SVG源码
-     * @return {void}
+     * @return {Element} svg
      */
-    [ T.SVG ]: function( svg, {width, height}, xml ) {
+    [ T.SVG ]: function( svg, opts, xml ) {
         svgInsert(
-            $.attribute( svg, 'width height', [width, height] ),
-            xml,
-            'fill'
+            $.attribute(svg, opts), xml
         );
+        return svg;
     },
 
 
     /**
-     * SVG子单元。
+     * SVG 子单元。
      * 通用特性设置，由用户控制配置集。
      * 注记：应该只用于单独新建。
      * @param  {Element} el 目标元素
      * @param  {Object} opts 特性配置集
      * @param  {String} xml SVG源码
-     * @return {void}
+     * @return {Element} el
      */
     [ T.SVGITEM ]: function( el, opts, xml ) {
-        svgInsert( $.attribute(el, opts), xml, 'fill' );
+        svgInsert(
+            $.attribute(el, opts), xml
+        );
+        return el;
     },
 
 
@@ -636,7 +674,7 @@ const Builder = {
      * @param  {String} date 日期表达串，可选
      * @param  {String} time 时间表达串，可选
      * @param  {String} text 时间表达文本，可选
-     * @return {void}
+     * @return {Element} el
      */
     [ T.TIME ]: function( el, {date, time}, text ) {
         date = date || '';
@@ -644,19 +682,23 @@ const Builder = {
         if ( time ) {
             date = date ? `${date} ${time}` : `${time}`;
         }
-        $.attribute( el, { text: text || date, datetime: date || null } );
+        return $.attribute(
+            el,
+            { text: text || date, datetime: date || null }
+        );
     },
 
 
     /**
      * 空白段。
+     * 如果未作设置，返回null。
+     * @param  {Element} el 目标元素
      * @param  {String} width 宽度
-     * @return {void}
+     * @return {Element|null} el
      */
     [ T.SPACE ]: function( el, {width} ) {
-        if ( width != null ) {
-            $.css( el, 'width', width );
-        }
+        return width != null ?
+            $.css(el, 'width', width) : null;
     },
 
 
@@ -665,18 +707,19 @@ const Builder = {
      * 如果tab有值，源代码应当已经替换处理。
      * 如果lang有值，源代码应当已经解析为高亮代码。
      * @attr: [data-lang, data-tab]
+     * @param  {Element} code 代码元素
      * @param  {String} lang 代码语言，可选
      * @param  {Number} tabs Tab置换空格数，可选
-     * @return {void}
+     * @param  {String|Node|[Node]} data 源码或数据集
+     * @return {Element} code
      */
-    [ T.CODE ]: function( el, {html, lang, tab} ) {
-        if ( lang ) {
-            $.attr( el, '-lang', lang );
+    [ T.CODE ]: function( code, {lang, tab}, data ) {
+        if ( typeof data === 'string' ) {
+            data = $.fragment( data, false );
         }
-        if ( tab ) {
-            $.attr( el, '-tab', tab );
-        }
-        $.append( el, $.fragment(html, false) );
+        $.append( code, data );
+
+        return $.attribute( code, '-lang -tab', [lang, tab] );
     },
 
 
@@ -939,18 +982,19 @@ function isDetached( els ) {
  * 插入唯一标题。
  * 标题在内部最前端，如果不存在则新建并插入。
  * 如果内容有值，则填充更新标题。
+ * 如果已有标题且未更新，返回假值data。
  * @param  {Element} box 容器元素
  * @param  {Number} tval 标题类型值
  * @param  {String|Node|[Node]} data 插入内容，可选
- * @return {Element} 原有或新插入的标题元素
+ * @return {Element|data} 新插入或更新的标题元素
  */
 function insertHeading( box, tval, data ) {
     let _hx = box.firstElementChild;
 
-    if ( !_hx || getType(_hx) !== tval ) {
-        _hx = $.prepend( box, element(tval) );
+    if ( _hx && getType(_hx) === tval ) {
+        return data && $.fill(_hx, data) && _hx;
     }
-    return data && $.fill(_hx, data), _hx;
+    return $.prepend( box, element(tval, data) );
 }
 
 
@@ -1105,7 +1149,10 @@ function size( data ) {
     if ( data.nodeType ) {
         return 1;
     }
-    return $.isArray(data) ? data.length : data.size || 0;
+    if ( $.isArray(data) ) {
+        return data.length;
+    }
+    return data.size === undefined ? 1 : data.size;
 }
 
 
@@ -1132,10 +1179,8 @@ function itemArray( buf ) {
  * @return {Element|[Element]} 新行（集）
  */
 function appendRows( tsec, rows, head ) {
-    let _tbo = tableObj( tsec.parentElement ),
-        _els = appendNodes( tsec, rows, () => _tbo.newTR(head) );
-
-    return itemArray( _els );
+    let _tbo = tableObj( tsec.parentElement );
+    return appendNodes( tsec, rows, () => _tbo.newTR(head) );
 }
 
 
@@ -1160,21 +1205,6 @@ function appendNodes( box, num, maker ) {
 
 
 /**
- * 用数据创建子条目。
- * 始终返回一个值数组。
- * @param  {Value|[Value]} data 内容数据（集）
- * @param  {Function} maker 创建器
- * @return {[Value]}
- */
-function dataElement( data, maker ) {
-    if ( !$.isArray(data) ) {
-        data = [ data ];
-    }
-    return data.map( dd => maker(dd) );
-}
-
-
-/**
  * 检索并设置SVG子元素类型值。
  * @param  {Element|DocumentFragment} box SVG容器
  * @return {...} box
@@ -1195,11 +1225,46 @@ function svgItem( box ) {
  * @param  {Node|[Node]|String} data 数据（集），可选
  * @return {Element|[Element]} 新插入的节点集
  */
-function svgInsert( box, data, meth = 'append' ) {
+function svgInsert( box, data ) {
     if ( typeof data === 'string' ) {
         data = svgItem( $.fragment(data, true) );
     }
-    return $[meth]( box, data );
+    return $.append( box, data );
+}
+
+
+/**
+ * 构造返回结果。
+ * - head 表达标题头是否新建或修改，用于决定是否再选取。
+ *        也包含除主体内容之外无需递进构建的部分。
+ * - body 携带可能需要递进构建的内容单元序列。
+ * - end  表示已经构建完成，body部分无需再递进处理。
+ *
+ * @param  {Element|[Element]} head 标题头或内容额外部分
+ * @param  {Element|[Element]} main 内容主体
+ * @param  {Boolean} end 是否结束（构建），可选
+ * @return {Object3}
+ */
+function result( head, body, end = false ) {
+    if ( $.isArray(body) && body.length === 1 ) {
+        body = body[0];
+    }
+    return { head: head || null, body, end };
+}
+
+
+/**
+ * 构造结果集（数组）。
+ * 主要用于整理最终结果为数组，供自动选取。
+ * @param  {Element} head 标题头
+ * @param  {Element|[Element]} body 主体内容
+ * @return {[Element]} 结果集
+ */
+function resultArr( head, body ) {
+    if ( !head ) {
+        return body;
+    }
+    return ( $.isArray(head) ? head : [head] ).concat( body );
 }
 
 
@@ -1252,24 +1317,23 @@ export function elements( ...types ) {
  * @param  {Element} el 待构建的目标元素
  * @param  {Object} opts 特性配置集
  * @param  {Node|[Node]|String} data 源数据
- * @return {Element|null} 构建结果
+ * @return {Element|null} el或null
  */
 export function create( el, opts, data ) {
     let _tv = getType( el );
 
-    el = Builder[_tv]( el, opts, data );
-
-    if ( el && Children[_tv] ) {
-        children( el, opts, data );
+    if ( !Builder[_tv](el, opts, data) ) {
+        return null;
     }
-    return el || null;
+    // 返回el，以确保children返回值正确
+    return Children[_tv] && children(el, opts, data), el;
 }
 
 
 /**
  * 创建子条目。
  * 由父容器限定，用户无法指定目标类型。
- * 如果子节点已经插入，则返回false（外部无需插入）。
+ * 内容元素不应当作为父容器在此使用（无定义导致抛出异常）。
  * 适用：
  * 1. 由create新建开始的子结构迭代完成。
  * 2. 移动插入中间结构位置时的直接使用。
@@ -1278,6 +1342,7 @@ export function create( el, opts, data ) {
  *      head:       {Boolean} 添加表头元素
  *      foot:       {Boolean} 添加表脚元素
  *      figcaption: {Value}   创建插图标题
+ *      summary     {Value}   详细简介
  *      h3:         {Value}   创建行块小标题
  *      h4:         {Value}   创建级联表标题
  *      explain:    {Value}   创建图片讲解
@@ -1289,20 +1354,23 @@ export function create( el, opts, data ) {
  * @param  {Element} box 父容器元素
  * @param  {Object} opts 子元素特性配置集
  * @param  {Node|[Node]|[String]} data 数据源
- * @return {Element|[Element]}
+ * @return {[Element]} 构建的子元素集
  */
 export function children( box, opts, data ) {
     let _tv = getType( box ),
         _vs = Children[_tv]( box, opts, data );
 
     if ( _vs.end ) {
-        return _vs.node;
+        resultArr( _vs.head, _vs.body )
     }
-    if ( $.isArray(_vs.node) ) {
+    if ( $.isArray(_vs.body) ) {
         // 滤除掉未构建者。
-        return $.map(_vs.node, (el, i) => create(el, opts, data[i]) );
+        return resultArr(
+            _vs.head,
+            $.map( _vs.body, (el, i) => create(el, opts, data[i]) )
+        );
     }
-    return create( _vs.node, opts, data );
+    return resultArr( _vs.head, create(_vs.body, opts, data) );
 }
 
 

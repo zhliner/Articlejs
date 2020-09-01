@@ -20,7 +20,7 @@
 <!-- 模态页（通用） -->
 <form class="_page" tpl-name="modal:page">
     <header>
-        <h5>[标题]</h5>
+        <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <div id="modal-list" class="_list">
@@ -32,17 +32,17 @@
 </form>
 
 
-<!-- 模态框：属性 -->
-<form class="_prop" tpl-name="modal:prop">
+<!-- 模态框：普通 -->
+<form class="_usual" tpl-name="modal:prop">
     <header>
-        <h5>[标题]</h5>
+        <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <p id="modal-note" class="_note" data-pbo="">
-        [属性说明/提示]
+        [可选的说明/提示]
     </p>
     <div id="modal-list" class="_list" data-pbo="">
-        <!-- <table> -->
+        <!-- <ul> -->
     </div>
     <hr tpl-node="modal:okreset" />
 </form>
@@ -50,7 +50,7 @@
 <!-- 模态框：单行 -->
 <form class="_small" tpl-name="modal:small">
     <header>
-        <h5>[标题]</h5>
+        <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <p><input type="text" name="txtline" /></p>
@@ -61,7 +61,7 @@
 <!-- 模态框：消息 -->
 <form class="_message" tpl-name="modal:message">
     <header>
-        <h5>[标题]</h5>
+        <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <p id="modal-msg" class="_note">
@@ -72,9 +72,9 @@
 
 
 <!-- 插件页 -->
-<form class="_page" tpl-name="modal:plugins">
+<form class="_page _plugins" tpl-name="modal:plugins">
     <header>
-        <h5>插件</h5>
+        <h4>插件</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <p id="g-plugins" class="_list">
@@ -86,7 +86,7 @@
 <!-- 模态页：脚本历史 -->
 <form class="_page _history" tpl-name="script:history">
     <header>
-        <h5>脚本历史</h5>
+        <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <div class="_search">
@@ -101,7 +101,7 @@
 <!-- 模态页：脚本执行结果 -->
 <div class="_page _result" tpl-name="script:result">
     <header>
-        <h5>脚本执行结果</h5>
+        <h4>脚本执行结果</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <ul>
