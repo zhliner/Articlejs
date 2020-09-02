@@ -2256,7 +2256,7 @@ class Table {
      * 表格初始构建。
      * 如果表格是一个空元素，则用实参构建。
      * 如果表格已经存在行元素，则解析设置列数并返回之。
-     * 注：初始化不包含表头/表脚部分。
+     * 注：不包含表头/表脚部分。
      * @param  {Number} cols 列数，可选
      * @param  {Number} rows 行数，可选
      * @return {Number|void} 解析的列数或为空
@@ -5229,6 +5229,8 @@ function nodesClone( cons, event, eventdeep ) {
  * @return {Node|[Node]} 节点或节点数组
  */
 function nodesItem( cons ) {
+    if ( !cons ) return '';
+
     if ( cons.nodeType == 11 ) {
         return Arr( cons.childNodes );
     }
@@ -6039,6 +6041,8 @@ function varyPrepend2s( el, subs ) {
  * @return {[Node]} 节点集
  */
 function detachNodes( nodes ) {
+    if ( !nodes ) return '';
+
     if ( nodes.nodeType ) {
         return [ varyRemove(nodes) ];
     }
