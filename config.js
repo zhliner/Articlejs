@@ -44,7 +44,7 @@ export const Limit = {
 
 export const Local = {
 
-    // 目标名。
+    // 目录标题。
     tocLabel:   "【目 录】",
 
 };

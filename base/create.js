@@ -27,7 +27,7 @@
 import { processExtend } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
 import { getType, setType, tableObj } from "./base.js";
-import { mapCall } from "./common.js";
+import { Local } from "../config.js";
 
 
 const
@@ -183,7 +183,7 @@ const Tags = {
 
 //
 // 定制创建（空元素）。
-// 覆盖默认的 create() 创建方法。
+// 覆盖默认的 element() 创建方法。
 // 返回 null 表示无法独立创建（如<tr>）。
 // 接口：function( tag, role ): Element | false
 //////////////////////////////////////////////////////////////////////////////
@@ -241,6 +241,31 @@ const Children = {
     //
     // 内联结构元素
     /////////////////////////////////////////////
+
+
+    /**
+     * @param {Element} el 音频元素
+     */
+    [ T.AUDIO ]: function( el ) {
+        //
+    },
+
+
+    /**
+     * @param {Element} el 视频元素
+     */
+    [ T.VIDEO ]: function( el ) {
+        //
+    },
+
+
+    /**
+     * @param {Element} el 兼容图片元素
+     */
+    [ T.PICTURE ]: function( el ) {
+        //
+    },
+
 
     /**
      * SVG内容插入。
@@ -305,8 +330,7 @@ const Children = {
 
     /**
      * 数据集仅需大小信息。
-     * 无元素特性配置。
-     * 下同。
+     * 无元素特性配置。下同。
      * @param {[Value]} data 数据集
      * @node: {Element|[Element]} 行元素/集
      */
@@ -364,8 +388,19 @@ const Children = {
     },
 
 
-    // 单独创建，内容不可编辑。
-    // [ T.TOC ]:  null,
+    /**
+     * 仅构建标签和级联表根。
+     * 注记：目录内容由专用函数构建和更新。
+     * @param {Element} toc 目标根元素
+     * @param {String} h3 目录显示标签
+     */
+    [ T.TOC ]: function( toc, {h3} ) {
+        result(
+            insertHeading( toc, T.H3, h3 ),
+            $.append( toc, element(T.CASCADE) ),
+            true
+        );
+    },
 
 
     /**
@@ -386,6 +421,21 @@ const Children = {
             _buf.push( appendFooter(art) );
         }
         return result( null, _buf.filter(v => v) );
+    },
+
+
+    /**
+     * 代码表内容。
+     * 根容器已经设置了必要特性。
+     * @param {Element} ol 代码表容器
+     * @param {String} lang 语言编码
+     * @param {[String]} data 源码行集
+     */
+    [ T.CODELIST ]: function( ol, _, data ) {
+        return result(
+            null,
+            appendNodes( ol, size(data), () => element(T.CODELI) )
+        );
     },
 
 
@@ -556,7 +606,6 @@ const Children = {
     T.REFERENCE,
     T.UL,
     T.OL,
-    T.CODELIST,
     T.ULX,
     T.OLX,
     T.CASCADE,
@@ -620,7 +669,7 @@ const Children = {
 //
 // 元素构建集。
 // 对已经创建的元素（可能为空）设置特性或插入内容。
-// 插入方法为 append，如果需要 fill，应当由外部自行清空。
+// 插入方法为 append，如果需要 fill，应当由外部保证清空。
 // 无需构建的中间结构简单返回自身即可。
 // 接口：function( Element, Object, Value|[Value] ): Element | null
 // 注记：
@@ -723,127 +772,55 @@ const Builder = {
     },
 
 
-    //-- 块内结构元素 --------------------------------------------------------
-
     /**
-     * 创建/更新表头元素。
-     * 需要实际的表格行数据，可作为重复添加接口。
-     * @param  {Table} tbl 表格实例（$.Table）
-     * @param  {[Node|[Node]|String]} cons 内容集
-     * @param  {Number} idx 插入位置下标
-     * @return {Collector} 新行元素集
+     * 间隔元素。
+     * @param  {Element} hr 间隔元素
+     * @param  {String} thick 厚度
+     * @param  {String} length 长度
+     * @param  {String} space 中间空白高
+     * @return {Element} hr
      */
-    thead( tbl, cons, idx ) {
-        let _rows = Math.ceil( cons.length / tbl.columns() ),
-            _trs = tbl.head( _rows, idx );
-
-        _trs.find('th').flat().fill( cellWraps(cons) );
-        return _trs;
+    [ T.HR ]: function( hr, {thick, length, space} ) {
+        return $.cssSets(
+            hr,
+            'borderWidth width height',
+            [ thick, length, space ]
+        );
     },
 
 
     /**
-     * 创建表格行。
-     * 内容可以是一个二维数组，一维成员对应到各单元格。
-     * @param  {Table} tbl 表格实例（$.Table）
-     * @param  {[Node|[Node]|String]} cons 内容集
-     * @param  {Number} idx 位置下标，可选
-     * @param  {TableSection} tsec 表体片区（<tbody>[n]），可选
-     * @return {Collector} 新行元素集
-     */
-    tbody( tbl, cons, idx, tsec ) {
-        let _rows = Math.ceil( cons.length / tbl.columns() ),
-            _trs = tbl.body( _rows, idx, tsec );
-
-        _trs.find('th,td').flat().fill( cellWraps(cons) );
-        return _trs;
-    },
-
-
-    /**
-     * 创建/更新表脚元素。
-     * 需要实际的表格行数据，可作为重复添加接口。
-     * @param  {Table} tbl 表格实例（$.Table）
-     * @param  {[Node|[Node]|String]} cons 内容集
-     * @param  {Number} idx 插入位置下标
-     * @return {Collector} 新行元素集
-     */
-    tfoot( tbl, cons, idx ) {
-        let _rows = Math.ceil( cons.length / tbl.columns() ),
-            _trs = tbl.foot( _rows, idx );
-
-        _trs.find('th,td').flat().fill( cellWraps(cons) );
-        return _trs;
-    },
-
-
-    //-- 行块结构元素 --------------------------------------------------------
-
-
-    /**
-     * 创建标题/组。
-     * 如果未传递副标题，简单返回<h1>元素。
-     * @param {Element} h1 主标题
-     * @param {Element} h2 副标题，可选
-     */
-    hgroup( h1, h2 ) {
-        if ( h2 == null ) {
-            return h1;
-        }
-        let _hg = create( 'hgroup' );
-
-        $.prepend( _hg, [h1, h2] );
-        return _hg;
-    },
-
-
-    /**
-     * 创建表格。
-     * 会缓存$.Table实例。
-     * @param  {Element} caption 表标题
-     * @param  {Number} rows 行数
+     * 表格元素构建。
+     * 注记：无需在此缓存 Table 实例。
+     * @param  {Element} tbl 表格元素
      * @param  {Number} cols 列数
-     * @param  {Number} vth 列表头（1|-1），可选
-     * @return {Element}
+     * @param  {Number} rows 行数
+     * @param  {Boolean} th0 是否添加列头
+     * @return {Element} tbl
      */
-    table( caption, rows, cols, vth ) {
-        let _tbo = $.table( rows, cols, vth ),
-            _tbl = _tbo.element();
+    [ T.TABLE ]: function( tbl, {cols, rows, th0} ) {
+        let _tbo = new $.Table( tbl );
+        _tbo.build( cols, rows );
 
-        if ( caption ) {
-            $.prepend( _tbl, caption );
+        if ( th0 ) {
+            _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
-        return tableObj( _tbo ), _tbl;
-    },
-
-
-    /**
-     * 创建隔断。
-     * css:
-     * - borderWidth 厚度
-     * - width 长度
-     * - height 空白
-     * @param  {Object} css 样式配置
-     * @return {Element}
-     */
-    hr( css ) {
-        let _hr = create( 'hr' );
-        return $.cssSets( _hr, css );
+        return tbl;
     },
 
 
     //-- 特别用途元素 --------------------------------------------------------
     // 代码内标注，由特定的函数解析构建。
 
-    // b( text ) {},
-    // i( text ) {},
+    // [ T.B ]: null,
+    // [ T.I ]: null,
 
 };
 
 
 //
 // 单纯特性设置。
-//-------------------------------------
+//-----------------------------------------------
 [
     // 规范特性。
     [ T.AUDIO,      ['src', 'autoplay', 'loop', 'controls'] ],
@@ -854,16 +831,24 @@ const Builder = {
     [ T.METER,      ['value', 'max', 'min', 'high', 'low', 'optimum'] ],
     [ T.CODELIST,   ['-lang', '-tab', 'start'] ],
     [ T.CODELI,     ['value'] ],
+    [ T.BLOCKQUOTE, ['cite'] ],
+    [ T.DETAILS,    ['open'] ],
 ]
 .forEach(function( its ) {
-    // @return {Element}
-    Builder[ its[0] ] = (el, opts) => $.attribute( el, attrPicks(opts, its[1]) );
+    /**
+     * @param {Element} el 目标根元素
+     * @param {Object} opts 特性配置集
+     * @return {Element} el
+     */
+    Builder[ its[0] ] = (el, opts) =>
+        $.attribute( el, attrPicks(opts, its[1]) );
+
 });
 
 
 //
 // 特性+内容设置。
-//-------------------------------------
+//-----------------------------------------------
 [
     // 规范特性+文本。
     [ T.A,          ['href', 'target'] ],
@@ -875,19 +860,25 @@ const Builder = {
     [ T.BDO,        ['dir'] ],
 ]
 .forEach(function( its ) {
-    // @return {void}
+    /**
+     * @param  {Element} el 内容根元素
+     * @param  {Object} opts 特性配置集
+     * @param  {Node|[Node]|String} cons 内容
+     * @return {Element} el
+     */
     Builder[ its[0] ] = (el, opts, cons) => {
         $.append(
             $.attribute( el, attrPicks(opts, its[1]) ),
             cons
         );
+        return el;
     };
 });
 
 
 //
-// 内容元素设置。
-//-------------------------------------
+// 单纯内容设置。
+//-----------------------------------------------
 [
     // 内联单元。
     T.STRONG,
@@ -928,10 +919,60 @@ const Builder = {
     T.TD,
 ]
 .forEach(function( its ) {
-    // @param  {Node|String|[Node|String]} cons
-    // @return {false}
-    Builder[ its ] = (el, _, cons) => $.append( el, cons ) && false;
+    /**
+     * 数据为空时内容不会被改变，此时返回空串。
+     * 注记：
+     * 如果需要 fill 方式，应当由用户作特定操作。
+     * @param  {Element} el 内容根元素
+     * @param  {String|Node|[Node]} cons 内容
+     * @return {Element|null} el
+     */
+    Builder[ its ] = (el, _, cons) => $.append(el, cons) && el;
 });
+
+
+//
+// 无需特别构建的结构元素。
+// 简单返回实参即可。
+//-----------------------------------------------
+[
+    T.THEAD,
+    T.TBODY,
+    T.TFOOT,
+    T.TR,
+    T.CODELI,
+    T.ALI,
+    T.AH4,
+    T.ULXH4LI,
+    T.OLXH4LI,
+    T.CASCADEH4LI,
+    T.FIGIMGP,
+    T.HGROUP,
+    T.ABSTRACT,
+    T.TOC,
+    T.SEEALSO,
+    T.REFERENCE,
+    T.HEADER,
+    T.FOOTER,
+    T.ARTICLE,
+    T.S1,
+    T.S2,
+    T.S3,
+    T.S4,
+    T.S5,
+    T.UL,
+    T.OL,
+    T.ULX,
+    T.OLX,
+    T.CASCADE,
+    T.DL,
+    T.TABLE,
+    T.FIGURE,
+    T.ASIDE,
+    T.CODEBLOCK,
+    T.BLANK,
+]
+.forEach( it => Builder[ it ] = el => el );
 
 
 
@@ -968,17 +1009,6 @@ function attrPicks( obj, names ) {
 
 
 /**
- * 是否为游离元素。
- * 外部保证els为平级兄弟关系。
- * @param  {Element|[Element]} els 元素（集）
- * @return {Boolean}
- */
-function isDetached( els ) {
-    return !($.isArray(els) ? els[0] : els).parentElement;
-}
-
-
-/**
  * 插入唯一标题。
  * 标题在内部最前端，如果不存在则新建并插入。
  * 如果内容有值，则填充更新标题。
@@ -999,59 +1029,13 @@ function insertHeading( box, tval, data ) {
 
 
 /**
- * 多次调用。
- * 返回多次调用的返回值集。
- * @param  {Number} n 次数
- * @param  {Function} handle 回调函数
- * @param  {...Value} ...rest 回调实参
- * @return {[Value]}
- */
-function handleCalls( n, handle, ...rest ) {
-    let _buf = [];
-
-    for (let i = 0; i < n; i++) {
-        _buf.push( handle(...rest) );
-    }
-    return _buf;
-}
-
-
-/**
- * 单元格数据封装。
- * 将内容集中的字符串成员封装为子数组（优化）。
- * 适用：Collector节点插入类接口（.fill|.append|...）。
- * @param  {[Node|[Node]|String]} cons 内容集
- * @return {[Node|[Node]|[String]]}
- */
-function cellWraps( cons ) {
-    return cons.map( d => typeof d == 'string' ? [d] : d );
-}
-
-
-/**
- * 构建目录。
- * 用于初始创建，不牵涉复制粘贴的逻辑。
- * 注：label可能是一个指向主标题的链接元素。
- * @param  {Element} article 文章元素
- * @param  {String|Node|[Node]} label 目录标题（h3/...）
- * @return {Element} 目录元素（nav:toc/...）
- */
-function createToc( article, label ) {
-    return Content.toc(
-        Content.h3( label ),
-        secList( Content.cascade(), article )
-    );
-}
-
-
-/**
  * 创建目录列表（单层）。
  * 注意：仅取片区标题之后的<section>元素处理。
  * @param  {Element} ol 列表容器
  * @param  {Element} box 片区容器（父片区或<article>）
  * @return {Element} ol
  */
-function secList( ol, box ) {
+function tocList( ol, box ) {
     let _h2 = $.get( '>h2', box ),
         _els = $.nextAll( _h2, 'section[role]' ),
         _li = _els.length ? tocH4li( _h2 ) : tocLi( _h2 );
@@ -1060,7 +1044,7 @@ function secList( ol, box ) {
 
     if ( _els.length ) {
         let _ol = _li.lastElementChild;
-        _els.forEach( sec => secList(_ol, sec) );
+        _els.forEach( sec => tocList(_ol, sec) );
     }
     return ol;
 }
@@ -1091,17 +1075,6 @@ function tocH4li( h2 ) {
         ),
         create( 'ol' )
     );
-}
-
-
-/**
- * 构造ID标识。
- * 提取源文本内的合法片段用短横线（-）串接。
- * @param  {String} text 源文本
- * @return {String} 标识串
- */
-function createID(text) {
-    return text.match(__reIDs).join('-');
 }
 
 
@@ -1153,20 +1126,6 @@ function size( data ) {
         return data.length;
     }
     return data.size === undefined ? 1 : data.size;
-}
-
-
-/**
- * 取值或值集。
- * 如果值集只有一个成员，提取并返回。
- * 注记：
- * 值和值集的不同会导致数据条目的取值方式不同。
- *
- * @param  {[Value]} buf 值集
- * @return {Value|[Value]}
- */
-function itemArray( buf ) {
-    return buf.length === 1 ? buf[0] : buf;
 }
 
 
@@ -1275,6 +1234,52 @@ function resultArr( head, body ) {
 
 
 /**
+ * 构造ID标识。
+ * 提取源文本内的合法片段用短横线（-）串接。
+ * @param  {String} text 源文本
+ * @return {String} 标识串
+ */
+export function createID(text) {
+    return text.match(__reIDs).join('-');
+}
+
+
+/**
+ * 目录构建。
+ * 结构：nav:toc/h3, cascade/...
+ * 注记：目录仅能构建或更新，不能编辑。
+ * @param  {Element} root 文章根元素
+ * @return {Element} 目录元素（nav:toc/...）
+ */
+export function createToc( root ) {
+    let _toc = build( element(T.TOC) );
+
+    $.append(
+        _toc.firstElementChild,
+        Local.tocLabel || 'Contents'
+    );
+    return tocList( _toc.lastElementChild, root );
+}
+
+
+/**
+ * 更新目录条目。
+ * 在标题元素微编辑或新片区插入时。
+ * 编辑状态为实时更新（注：提前定位目标）。
+ * 原理：
+ * 1. 提取当前片区元素所在容器的位置下标。
+ * 2. 构造当前片区的选择器路径（文章为根）。
+ * 3. 将片区选择器路径转换为目录条目的选择器。
+ * 4. 检索目录条目实现更新（修改或插入）。
+ * @param {Element} sect 片区元素
+ * @param {Element} casc 目录级联根
+ */
+export function updateToc( sect, toc ) {
+    //
+}
+
+
+/**
  * 元素创建。
  * 类型值会被存储，以使得不需要每次都检查判断。
  * 返回null表示无法创建元素。
@@ -1305,21 +1310,29 @@ export function elements( ...types ) {
 
 
 /**
- * 单元创建，包含节点树。
+ * 单元构建，包含节点树。
  * 适用初始新建或节点树迭代构建。
  * opts: {
- *      date:   日期
- *      time:   时间
- *      lang:   代码语言
- *      tab:    Tab键空格数
+ *      date:   {String}    日期
+ *      time:   {String}    时间
+ *      lang:   {String}    代码语言
+ *      tab:    {Number}    Tab键空格数
  *      ....    正常的元素特性
+ *
+ *      thick:  {String}    分割线厚度（CSS: border-width）
+ *      length: {String}    分割线长度（CSS: width）
+ *      space:  {String}    分割线空白（CSS: height）
+ *
+ *      cols:   {Number}    表格列数
+ *      rows:   {Number}    表格行数
+ *      th0:    {Boolean}   添加列表头
  * }
  * @param  {Element} el 待构建的目标元素
  * @param  {Object} opts 特性配置集
  * @param  {Node|[Node]|String} data 源数据
  * @return {Element|null} el或null
  */
-export function create( el, opts, data ) {
+export function build( el, opts, data ) {
     let _tv = getType( el );
 
     if ( !Builder[_tv](el, opts, data) ) {
@@ -1367,10 +1380,10 @@ export function children( box, opts, data ) {
         // 滤除掉未构建者。
         return resultArr(
             _vs.head,
-            $.map( _vs.body, (el, i) => create(el, opts, data[i]) )
+            $.map( _vs.body, (el, i) => build(el, opts, data[i]) )
         );
     }
-    return resultArr( _vs.head, create(_vs.body, opts, data) );
+    return resultArr( _vs.head, build(_vs.body, opts, data) );
 }
 
 
@@ -1379,5 +1392,3 @@ export function children( box, opts, data ) {
 // New.[cell-name](...)
 //
 processExtend( 'New', Content );
-
-

@@ -372,18 +372,3 @@ export class ArrSet extends Set {
 export function indentSpace( text, tabs, all ) {
     //
 }
-
-
-/**
- * 单值/集合调用封装。
- * @param  {Value|[Value]} data 数据/集
- * @param  {Function} handle 调用句柄
- * @param  {...Value} rest 剩余实参序列
- * @return {Value|[Value]}
- */
-export function mapCall( data, handle, ...rest ) {
-    if ( $.isArray(data) ) {
-        return data.map( v => handle(v, ...rest) );
-    }
-    return handle( data, ...rest );
-}

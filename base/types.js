@@ -176,10 +176,10 @@ export const
     FIGURE          = 521,  // 插图 （figure/figcaption, p/img, span:explain）
     BLOCKQUOTE      = 522,  // 块引用 （blockquote/h3, p...） {cite}
     ASIDE           = 523,  // 批注 （aside/h3, p...）
-    DETAILS         = 524,  // 详细内容 （details/summary, p...）
+    DETAILS         = 524,  // 详细内容 （details/summary, p...） {open}
     CODEBLOCK       = 525,  // 代码块 （pre:codeblock/code/#text, b, i）
     // 单体单元。
-    HR              = 526,  // 分隔 （hr）
+    HR              = 526,  // 分隔 （hr） CSS:{borderWidth, width, height}
     BLANK           = 527,  // 白板 （div:blank/x）
 
     //

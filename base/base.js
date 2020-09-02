@@ -568,6 +568,7 @@ export function isSameTr( tr1, tr2 ) {
 
 /**
  * 缓存/检索表格实例。
+ * 如果尚未缓存，会自动解析并存储。
  * @param  {Element} tbl 表格元素
  * @return {Table}
  */
