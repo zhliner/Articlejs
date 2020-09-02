@@ -701,10 +701,11 @@ Object.assign( tQuery, {
      * @return {Table} 表格实例
      */
     table( cols, rows, th0, doc = Doc ) {
-        if ( cols.nodeType ) {
-            return Table.build( cols );
-        }
-        let _tbo = new Table( cols, rows, doc );
+        let _tbo = new Table(
+                cols.nodeType === 1 && cols,
+                doc
+            );
+        _tbo.build( cols, rows );
 
         if ( th0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
@@ -2242,22 +2243,33 @@ Reflect.defineProperty(tQuery, 'version', {
 class Table {
     /**
      * 创建表格实例。
-     * 不包含表头/脚部分，调用时注意去除表头/脚部分的行计数。
-     * 注记：
-     * 零行表格是有效的，但列数必须大于零。
-     * @param  {Number} cols 列数
-     * @param  {Number} rows 行数
+     * @param  {Element} tbl 表格元素，可选
      * @param  {Document} 所属文档对象，可选
-     * @return {Table|Proxy}
+     * @return {Table}
      */
-    constructor( cols, rows, doc = Doc ) {
-        let _tbl = doc.createElement('table'),
-            _tbd = _tbl.createTBody();
+    constructor( tbl, doc = Doc ) {
+        this._tbl = tbl || doc.createElement('table');
+    }
 
-        this._tbl = _tbl;
+
+    /**
+     * 表格初始构建。
+     * 如果表格是一个空元素，则用实参构建。
+     * 如果表格已经存在行元素，则解析设置列数并返回之。
+     * 注：初始化不包含表头/表脚部分。
+     * @param  {Number} cols 列数，可选
+     * @param  {Number} rows 行数，可选
+     * @return {Number|void} 解析的列数或为空
+     */
+    build( cols, rows ) {
+        let _trs = this._tbl.rows;
+
+        if ( _trs.length ) {
+            return this._cols = cellCount( [..._trs[0].cells] );
+        }
         this._cols = cols;
 
-        if ( rows ) this._init(_tbd, rows);
+        this._init( this.body(true), rows );
     }
 
 
@@ -2730,26 +2742,6 @@ class Table {
         }
         return idx == null || idx < 0 || idx > max ? max : idx;
     }
-}
-
-
-//
-// 构建Table实例。
-// 传入的tbl实参必须是一个表格元素且至少包含一行。
-// @param  {Table} self 一个空实例
-// @param  {Element} tbl 表格元素
-// @return {Table|null}
-//
-Table.build = function( tbl ) {
-    if ( !tbl.rows.length ) {
-        return null;
-    }
-    let _tbo = new Table();
-
-    _tbo._tbl = tbl;
-    _tbo._cols = cellCount( [...tbl.rows[0].cells] );
-
-    return _tbo;
 }
 
 
