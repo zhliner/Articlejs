@@ -484,14 +484,14 @@ option: {
 > 内容全部为空白（如换行、空格等）的文本节点会被忽略，因此计数也不会包含。
 
 
-### [$.siblings( el, slr ): [Element] | null](docs/$.siblings.md)
+### [$.siblings( el, slr ): [Element](docs/$.siblings.md)
 
-获取 `el` 元素的兄弟元素。
+获取 `el` 元素的兄弟元素。始终返回一个数组。
 
 - `el: Element` 取值的参考元素。
-- `slr: String` 匹配过滤选择器，可选。
+- `slr: String | Function` 匹配过滤函数或选择器，可选。
 
-可用 `slr` 进行匹配过滤，匹配者入选。`el` 需要存在一个父元素，否则兄弟的逻辑不成立，此时会返回 `null`。
+可用 `slr` 进行匹配过滤，匹配者入选。`el` 需要存在一个父元素，否则兄弟的逻辑不成立，抛出异常。
 
 
 ### [$.parent( el, slr ): Element | null](docs/$.parent.md)

@@ -1194,22 +1194,21 @@ Object.assign( tQuery, {
 
     /**
      * 获取当前元素的兄弟元素。
-     * 目标元素需要在同一个父容器内，否则返回null（游离节点）。
-     * @param  {Element} el 参考元素
-     * @param  {String} slr 过滤选择器，可选
-     * @return {[Element]|null}
+     * 如果目标元素为游离节点，会抛出异常。
+     * 注：兼容DocumentFragment子元素。
+     * @param  {Element} el 目标元素
+     * @param  {String|Function} slr 过滤函数或选择器，可选
+     * @return {[Element]}
      */
     siblings( el, slr ) {
-        // 兼容DocumentFragment子元素。
-        let _pel = el.parentNode;
+        let _els = Arr( el.parentNode.children );
 
-        if (_pel == null) {
-            return null;
-        }
-        let _els = Arr(_pel.children);
-        _els.splice(_els.indexOf(el), 1);
+        _els.splice(
+            _els.indexOf(el), 1
+        );
+        if ( !slr ) return _els;
 
-        return slr ? _els.filter(e => $is(e, slr)) : _els;
+        return isFunc(slr) ? _els.filter(slr) : _els.filter(e => $is(e, slr));
     },
 
 
@@ -1221,15 +1220,12 @@ Object.assign( tQuery, {
      * @return {Element|null}
      */
     parent( el, slr ) {
-        let _pel = el.parentNode;
+        let _pel = el.parentElement;
 
-        if ( !_pel ) {
-            return null;
+        if ( slr && _pel ) {
+            return isFunc(slr) ? slr(_pel) : $is(_pel, slr);
         }
-        if ( isFunc(slr) ) {
-            return slr(_pel) ? _pel : null;
-        }
-        return !slr || $is(_pel, slr) ? _pel : null;
+        return _pel;
     },
 
 
