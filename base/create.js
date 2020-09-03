@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { processExtend } from "./tpb/pbs.by.js";
+import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
 import { getType, setType, tableObj } from "./base.js";
 import { Local } from "../config.js";
@@ -1242,6 +1242,22 @@ function resultEnd( head, body ) {
 }
 
 
+/**
+ * 返回创建目标名称单元的函数。
+ * @param  {Object} _ 代理目标占位（target）
+ * @param  {String} name 单元名称
+ * @return {Function} 创建函数
+ */
+function createHandler( _, name ) {
+    let _tv = T[ name.toUpperCase() ];
+
+    if ( _tv == null ) {
+        throw new Error( 'invalid target name.' );
+    }
+    return (opts, data) => build( element(_tv), opts, data );
+}
+
+
 
 //
 // 导出。
@@ -1419,4 +1435,4 @@ export function children( box, opts, data ) {
 // By扩展：
 // New.[cell-name](...)
 //
-processExtend( 'New', Content );
+processProxy( 'New', createHandler );

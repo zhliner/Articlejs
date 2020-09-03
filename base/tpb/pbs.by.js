@@ -114,7 +114,8 @@ const _By = {
 // 绑定：this固化。
 // @proto: Get < Process < Control
 export const By = $.proto(
-    $.assign( {}, _By, bindMethod ), Get
+    $.assign( {}, _By, bindMethod ),
+    Get
 );
 
 //
@@ -148,7 +149,23 @@ export function processExtend( name, exts, args ) {
 
 
 /**
- * 创建CMV程序。
+ * 接口：代理扩展。
+ * 仅支持取值代理：function(target, propKey, receiver): Function。
+ * 通常，取值代理会返回一个操作函数或结果值。
+ * @param  {String} name 目标域（子域由句点分隔）
+ * @param  {Function} getter 取值函数
+ * @return {void}
+ */
+export function processProxy( name, getter ) {
+    let _ns = name.split( '.' ),
+        _nx = _ns.pop();
+
+    ( subObj(_ns) || By )[_nx] = new Proxy( {}, {get: getter} );
+}
+
+
+/**
+ * 接口：创建CMV程序。
  * 每个程序遵循 CMV（Control/Model/View）三层划分，
  * 三层逻辑各自实现，依靠相同的方法名称达成关联。
  *
