@@ -33,6 +33,9 @@ import { Local } from "../config.js";
 const
     $ = window.$,
 
+    // 片区选择器。
+    __slrSect = 'section[role]',
+
     // ID标识字符限定
     __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
 
@@ -241,30 +244,6 @@ const Children = {
     //
     // 内联结构元素
     /////////////////////////////////////////////
-
-
-    /**
-     * @param {Element} el 音频元素
-     */
-    [ T.AUDIO ]: function( el ) {
-        //
-    },
-
-
-    /**
-     * @param {Element} el 视频元素
-     */
-    [ T.VIDEO ]: function( el ) {
-        //
-    },
-
-
-    /**
-     * @param {Element} el 兼容图片元素
-     */
-    [ T.PICTURE ]: function( el ) {
-        //
-    },
 
 
     /**
@@ -644,7 +623,7 @@ const Children = {
 .forEach(function( it ) {
     /**
      * 标题为必需。
-     * @param {Element} sec 片区容器
+     * @param {Element} sec 片区元素
      * @param {String|Node|[Node]} h2 标题内容
      * @param {Boolean} header 创建导言，可选
      * @param {Boolean} footer 创建结语，可选
@@ -942,6 +921,7 @@ const Builder = {
     T.TR,
     T.CODELI,
     T.ALI,
+    T.AH4LI,
     T.AH4,
     T.ULXH4LI,
     T.OLXH4LI,
@@ -1030,51 +1010,86 @@ function insertHeading( box, tval, data ) {
 
 /**
  * 创建目录列表（单层）。
- * 注意：仅取片区标题之后的<section>元素处理。
+ * 容忍片区标题不在最前端（非首个子元素），
+ * 但仅取片区标题之后的<section>作为子片区。
+ * 结构：article/h2, section:s1, .../h2, section:s2, ...
  * @param  {Element} ol 列表容器
  * @param  {Element} box 片区容器（父片区或<article>）
  * @return {Element} ol
  */
 function tocList( ol, box ) {
     let _h2 = $.get( '>h2', box ),
-        _els = $.nextAll( _h2, 'section[role]' ),
-        _li = _els.length ? tocH4li( _h2 ) : tocLi( _h2 );
+        _ss = $.nextAll( _h2, __slrSect );
 
-    $.append( ol, _li );
-
-    if ( _els.length ) {
-        let _ol = _li.lastElementChild;
-        _els.forEach( sec => tocList(_ol, sec) );
-    }
-    return ol;
-}
-
-
-/**
- * 创建目录列表项（单个）。
- * 如果片区内包含子片区（非纯内容），会递进处理。
- * @param  {Element} h2 标题元素
- * @return {Element} 列表项（<li>）
- */
-function tocLi( h2 ) {
-    return Content.ali(
-        Content.a( h2.textContent, {href: h2.id ? `#${h2.id}` : ''} )
+    $.append(
+        ol,
+        _ss.length ? tocH4li(_h2, _ss) : tocLi(_h2)
     );
+    return ol;
 }
 
 
 /**
  * 创建目录子片区标题。
  * 结构：li/[h4/a], ol（含一个空<ol>）。
- * @param {Element} h2 片区标题
+ * @param  {Element} h2 片区标题
+ * @param  {[Element]} ses 跟随子片区集
+ * @return {Element} 列表标题项
  */
-function tocH4li( h2 ) {
-    return Content.ah4li(
-        Content.ah4(
-            Content.a( h2.textContent, { href: h2.id ? `#${h2.id}` : '' } )
+function tocH4li( h2, ses ) {
+    let _li = build(
+            element( T.AH4LI ),
+            { href: h2.id ? `#${h2.id}` : null },
+            h2
         ),
-        create( 'ol' )
+        _ol = $.append( _li, element(T.OL) );
+
+    ses.forEach( el => tocList(_ol, el) );
+
+    return _li;
+}
+
+
+/**
+ * 创建目录列表项。
+ * @param  {Element} h2 标题元素
+ * @return {Element} 列表项（<li>）
+ */
+function tocLi( h2 ) {
+    return build(
+        element( T.ALI ),
+        { href: h2.id ? `#${h2.id}` : null },
+        h2
     );
+}
+
+
+/**
+ * 获取片区在父片区内的位置（从1开始）。
+ * @param  {Element} sec 片区元素
+ * @return {Number}
+ */
+function sectIndex( sec ) {
+    let _n = 1;
+
+    while ( (sec = sec.previousElementSibling) ) {
+        if ( $.is(sec, __slrSect) ) _n ++;
+    }
+    return _n;
+}
+
+
+/**
+ * 获取片区路径序列。
+ * 即标题所属各父级片区在各自层级的位置序列。
+ * 位置从1开始计数，便于构造标题序号或目录条目选择器。
+ * @param  {Element} h2 片区标题
+ * @return {[Number]} 位置序列
+ */
+function sectPath( h2 ) {
+    return $.parentsUntil( h2, 'article' )
+        .reverse()
+        .map( sec => sectIndex(sec) )
 }
 
 
@@ -1214,14 +1229,14 @@ function result( head, body, end = false ) {
 
 /**
  * 构造结果集（数组）。
- * 主要用于整理最终结果为数组，供自动选取。
+ * 主要用于整理最终结果供自动选取。
  * @param  {Element} head 标题头
  * @param  {Element|[Element]} body 主体内容
  * @return {[Element]} 结果集
  */
-function resultArr( head, body ) {
+function resultEnd( head, body ) {
     if ( !head ) {
-        return body;
+        return $.isArray(body) ? body : [body];
     }
     return ( $.isArray(head) ? head : [head] ).concat( body );
 }
@@ -1237,10 +1252,23 @@ function resultArr( head, body ) {
  * 构造ID标识。
  * 提取源文本内的合法片段用短横线（-）串接。
  * @param  {String} text 源文本
+ * @param  {String} prefix ID前缀
  * @return {String} 标识串
  */
-export function createID(text) {
-    return text.match(__reIDs).join('-');
+export function createID( text, prefix = '' ) {
+    return prefix + text.match(__reIDs).join('-');
+}
+
+
+/**
+ * 构造片区标题的章节编号。
+ * 即以逐层片区所在位置（从1开始）串联。如：5.2.3
+ * @param  {Element} h2 片区标题
+ * @param  {String} sep 连接字符，可选
+ * @return {String} 序列号串
+ */
+export function sectSerial( h2, sep = '.' ) {
+    return sectPath( h2 ).join( sep );
 }
 
 
@@ -1258,24 +1286,24 @@ export function createToc( root ) {
         _toc.firstElementChild,
         Local.tocLabel || 'Contents'
     );
-    return tocList( _toc.lastElementChild, root );
+    tocList( _toc.lastElementChild, root );
+
+    return _toc;
 }
 
 
 /**
- * 更新目录条目。
- * 在标题元素微编辑或新片区插入时。
- * 编辑状态为实时更新（注：提前定位目标）。
- * 原理：
- * 1. 提取当前片区元素所在容器的位置下标。
- * 2. 构造当前片区的选择器路径（文章为根）。
- * 3. 将片区选择器路径转换为目录条目的选择器。
- * 4. 检索目录条目实现更新（修改或插入）。
- * @param {Element} sect 片区元素
- * @param {Element} casc 目录级联根
+ * 获取标题的目录条目路径。
+ * 即构造标题对应目录条目的选择器。
+ * 注记：
+ * 这在标题元素微编辑或新片区插入时有用。
+ * @param  {Element} h2 片区标题
+ * @return {String} 目录条目（<li>）的选择器
  */
-export function updateToc( sect, toc ) {
-    //
+export function tocPath( h2 ) {
+    return sectPath( h2 )
+        .map( n => `ol>li:nth-child(${n})` )
+        .join( ' > ' );
 }
 
 
@@ -1374,16 +1402,16 @@ export function children( box, opts, data ) {
         _vs = Children[_tv]( box, opts, data );
 
     if ( _vs.end ) {
-        resultArr( _vs.head, _vs.body )
+        resultEnd( _vs.head, _vs.body )
     }
     if ( $.isArray(_vs.body) ) {
         // 滤除掉未构建者。
-        return resultArr(
+        return resultEnd(
             _vs.head,
             $.map( _vs.body, (el, i) => build(el, opts, data[i]) )
         );
     }
-    return resultArr( _vs.head, build(_vs.body, opts, data) );
+    return resultEnd( _vs.head, build(_vs.body, opts, data) );
 }
 
 
