@@ -927,6 +927,40 @@ Object.assign( tQuery, {
 
 
     /**
+     * 获取元素的路径。
+     * 即每层父级匹配元素的位置下标序列。
+     * 匹配不含终点元素。
+     * slp:
+     * 路径上父元素的匹配过滤，提供路径跨级的能力。
+     * 可选，空值与通配选择器 * 相同。
+     * slr:
+     * 匹配父元素在同级中相对于slr匹配集的下标位置，
+     * 可选，默认为与父元素相同。
+     * 注记：
+     * 可用于辅助构造元素的定位，如大纲视图。
+     * 与DOM树严格的节点层次不同，这可以只是逻辑上的。
+     * 注意：
+     * 如果要用于构建 nth-of-type() 选择器，slp/slr 应当只是标签名。
+     *
+     * @param  {Element} el 起点元素
+     * @param  {Element|String} end 终点元素或选择器，可选
+     * @param  {String} slp 路径元素选择器，可选
+     * @param  {String} slr 同级参考选择器，可选
+     * @return {[Number]}
+     */
+    paths( el, end, slp, slr = slp ) {
+        let _els = tQuery.parentsUntil(el, end)
+            .reverse()
+            .concat( el );
+
+        if ( slp ) {
+            _els = _els.filter( e => $is(e, slp) );
+        }
+        return _els.map( e => siblingIndex(e, slr) );
+    },
+
+
+    /**
      * 文档就绪绑定。
      * - 可以绑定多个，会按绑定先后逐个调用。
      * - 若文档已载入并且未被hold，会立即执行。
@@ -1258,12 +1292,12 @@ Object.assign( tQuery, {
      * - 不包含终止匹配的父级元素。
      * - 自定义测试函数支持向上递进的层计数（_i）。
      * @param  {Element} el 当前元素
-     * @param  {String|Function|Element|[Element]} slr 终止匹配
+     * @param  {String|Function|Element|[Element]} slr 终止匹配，可选
      * @return {[Element]}
      */
-    parentsUntil( el, slr = '' ) {
+    parentsUntil( el, slr ) {
         let _buf = [],
-            _fun = getFltr( slr ),
+            _fun = getFltr( slr || Doc ),
             _i = 0;
 
         while ( (el = el.parentElement) ) {
@@ -5402,6 +5436,25 @@ function cleanMap( list, handle ) {
         if ( _v != null ) _buf.push( _v );
     }
     return _buf;
+}
+
+
+/**
+ * 获取元素在兄弟元素间的位置。
+ * 位置计数从1开始，主要用于选择器构造。
+ * @param  {Element} el 起点元素
+ * @param  {String} slr 匹配选择器，可选
+ * @return {Number}
+ */
+function siblingIndex( el, slr ) {
+    let _n = 1;
+
+    while ( (el = el.previousElementSibling) ) {
+        if ( !slr || $is(el, slr) ) {
+            _n ++;
+        }
+    }
+    return _n;
 }
 
 
