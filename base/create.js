@@ -135,11 +135,11 @@ const Tags = {
     // 定制结构（无role）。
     [ T.CODELI ]:       'li',
     [ T.ALI ]:          'li',
-    [ T.AH4LI ]:        'li',
     [ T.AH4 ]:          'h4',
     [ T.ULXH4LI ]:      'li',
     [ T.OLXH4LI ]:      'li',
     [ T.CASCADEH4LI ]:  'li',
+    [ T.CASCADEAH4LI ]: 'li',
     [ T.FIGIMGP ]:      'p',
 
     //
@@ -184,7 +184,7 @@ const Tags = {
 
 //
 // 定制创建（空元素）。
-// 覆盖默认的 element() 创建方法。
+// 覆盖默认的 elem() 创建方法。
 // 返回 null 表示无法独立创建（如<tr>）。
 // 接口：function( tag, role ): Element | false
 //////////////////////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ const CustomMaker = {
     // 音频：嵌入不支持提示。
     //
     [ T.AUDIO ]: function( tag ) {
-        return $.element( tag, __msgAudio );
+        return $.elem( tag, __msgAudio );
     },
 
 
@@ -201,7 +201,7 @@ const CustomMaker = {
     // 视频：嵌入不支持提示。
     //
     [ T.VIDEO ]: function( tag ) {
-        return $.element( tag, __msgVideo );
+        return $.elem( tag, __msgVideo );
     },
 
 
@@ -266,7 +266,7 @@ const Children = {
      * @node: {[Node]|data}
      */
     [ T.SVGITEM ]: function( sel, _, data ) {
-        result( null, svgInsert(sel, data), true );
+        return result( null, svgInsert(sel, data), true );
     },
 
 
@@ -334,6 +334,22 @@ const Children = {
 
 
     /**
+     * 级联标题链接条目。
+     * 标题内容应当是一个构建好的链接元素，
+     * 因为标题不在正常的递进构建流程里。
+     * 注：主要用于目录小标题项。
+     * @param {Element} li 列表项容器
+     * @param {Element} h4 链接内容
+     */
+    [ T.CASCADEAH4LI ]: function( li, {h4} ) {
+        return result(
+            insertHeading( li, T.AH4, h4 ),
+            $.append( li, elem(T.OL) )
+        );
+    },
+
+
+    /**
      * 仅返回图片元素供递进构建。
      * 注记：讲解可选故由属性配置。
      * @param {Element} p 段落容器
@@ -342,8 +358,8 @@ const Children = {
      */
     [ T.FIGIMGP ]: function( p, {explain} ) {
         return result(
-            explain && $.append( p, element(T.EXPLAIN, explain) ),
-            $.prepend( p, element(T.IMG) )
+            explain && $.append( p, elem(T.EXPLAIN, explain) ),
+            $.prepend( p, elem(T.IMG) )
         );
     },
 
@@ -372,9 +388,9 @@ const Children = {
      * @param {String} h3 目录显示标签
      */
     [ T.TOC ]: function( toc, {h3} ) {
-        result(
+        return result(
             insertHeading( toc, T.H3, h3 ),
-            $.append( toc, element(T.CASCADE) ),
+            $.append( toc, elem(T.CASCADE) ),
             true
         );
     },
@@ -411,7 +427,7 @@ const Children = {
     [ T.CODELIST ]: function( ol, _, data ) {
         return result(
             null,
-            appendNodes( ol, size(data), () => element(T.CODELI) )
+            appendNodes( ol, size(data), () => elem(T.CODELI) )
         );
     },
 
@@ -428,8 +444,8 @@ const Children = {
      */
     [ T.DL ]: function( dl, {dt}, data ) {
         return result(
-            dt && $.append( dl, element(T.DT, dt) ),
-            appendNodes( dl, size(data), () => element(T.DD) )
+            dt && $.append( dl, elem(T.DT, dt) ),
+            appendNodes( dl, size(data), () => elem(T.DD) )
         );
     },
 
@@ -473,7 +489,7 @@ const Children = {
     [ T.FIGURE ]: function( fig, {figcaption} ) {
         return result(
             figcaption && insertHeading( fig, T.FIGCAPTION, figcaption ),
-            $.append( fig, element(T.FIGIMGP) )
+            $.append( fig, elem(T.FIGIMGP) )
         );
     },
 
@@ -490,7 +506,7 @@ const Children = {
     [ T.DETAILS ]: function( box, {summary}, data ) {
         return result(
             insertHeading( box, T.SUMMARY, summary ),
-            appendNodes( box, size(data), () => element(T.P) )
+            appendNodes( box, size(data), () => elem(T.P) )
         );
     },
 
@@ -503,7 +519,6 @@ const Children = {
 [
     [ T.CODELI,     T.CODE ],
     [ T.ALI,        T.A ],
-    [ T.AH4LI,      T.AH4 ],
     [ T.AH4,        T.A ],
     [ T.CODEBLOCK,  T.CODE ],
 ]
@@ -514,7 +529,7 @@ const Children = {
      */
     Children[ its[0] ] = box => result(
         null,
-        $.append( box, element(its[1]) )
+        $.append( box, elem(its[1]) )
     );
 });
 
@@ -530,6 +545,7 @@ const Children = {
 .forEach(function( its ) {
     /**
      * 标题项为必需。
+     * 仅创建一个空列表容器。
      * @param {Element} li 列表项容器
      * @param {String|Node|[Node]} h4 列表标题项
      * @node: {Element}
@@ -537,7 +553,7 @@ const Children = {
     Children[ its[0] ] = function( li, {h4} ) {
         return result(
             insertHeading( li, T.H4, h4 ),
-            $.append( li, element(its[1]) )
+            $.append( li, elem(its[1]) )
         );
     };
 });
@@ -568,7 +584,7 @@ const Children = {
     Children[ it ] = function( box, {h3}, data ) {
         return result(
             h3 && insertHeading( box, T.H3, h3 ),
-            appendNodes( box, size(data), () => element(T.P) )
+            appendNodes( box, size(data), () => elem(T.P) )
         );
     };
 });
@@ -597,7 +613,7 @@ const Children = {
     Children[ it ] = function( box, _, data ) {
         return result(
             null,
-            appendNodes( box, size(data), () => element(T.LI) )
+            appendNodes( box, size(data), () => elem(T.LI) )
         )
     };
 });
@@ -919,11 +935,11 @@ const Builder = {
     T.TR,
     T.CODELI,
     T.ALI,
-    T.AH4LI,
     T.AH4,
     T.ULXH4LI,
     T.OLXH4LI,
     T.CASCADEH4LI,
+    T.CASCADEAH4LI,
     T.FIGIMGP,
     T.HGROUP,
     T.ABSTRACT,
@@ -965,7 +981,7 @@ const Builder = {
  * @param {String} role 角色名
  */
 function _element( tag, role ) {
-    let _el = $.element( tag );
+    let _el = $.elem( tag );
     return role && _el.setAttribute( 'role', role ) || _el;
 }
 
@@ -989,7 +1005,8 @@ function attrPicks( obj, names ) {
 /**
  * 插入唯一标题。
  * 标题在内部最前端，如果不存在则新建并插入。
- * 如果内容有值，则填充更新标题。
+ * 如果已有标题且内容非假，则填充更新。
+ * 如果新建标题且内容有值，则构建更新。
  * 如果已有标题且未更新，返回假值data。
  * @param  {Element} box 容器元素
  * @param  {Number} tval 标题类型值
@@ -1002,49 +1019,56 @@ function insertHeading( box, tval, data ) {
     if ( _hx && getType(_hx) === tval ) {
         return data && $.fill(_hx, data) && _hx;
     }
-    return $.prepend( box, element(tval, data) );
+    return $.prepend( box, elem(tval, data) );
 }
 
 
 /**
- * 创建目录列表（单层）。
- * 容忍片区标题不在最前端（非首个子元素），
- * 但仅取片区标题之后的<section>作为子片区。
- * 结构：article/h2, section:s1, .../h2, section:s2, ...
- * @param  {Element} ol 列表容器
- * @param  {Element} box 片区容器（父片区或<article>）
- * @return {Element} ol
+ * 创建目录列表项集。
+ * @param  {[Element]} secs 片区集
+ * @return {[Element]} [<li>] 目录条目集
  */
-function tocList( ol, box ) {
-    let _h2 = $.get( '>h2', box ),
-        _ss = $.nextAll( _h2, __slrSect );
+function tocList( secs ) {
+    return secs.map( sec => tocItem(sec) );
+}
+
+
+/**
+ * 创建目录列表条目。
+ * 容忍片区标题不在最前端（非首个子元素）。
+ * 结构：article/section:s1, .../h2, section:s2, ...
+ * @param {Element} sec 片区元素
+ */
+function tocItem( sec ) {
+    let _h2 = $.get( '>h2', sec ),
+        _ss = $.children( sec, 'section' );
+
+    if ( !_ss.length ) {
+        return tocLi( _h2 );
+    }
+    let _li = tocH4li( _h2 );
 
     $.append(
-        ol,
-        _ss.length ? tocH4li(_h2, _ss) : tocLi(_h2)
+        _li.lastElementChild, tocList( _ss )
     );
-    return ol;
+    return _li;
 }
 
 
 /**
- * 创建目录子片区标题。
+ * 创建目录子片区标题项。
  * 结构：li/[h4/a], ol（含一个空<ol>）。
  * @param  {Element} h2 片区标题
  * @param  {[Element]} ses 跟随子片区集
  * @return {Element} 列表标题项
  */
-function tocH4li( h2, ses ) {
-    let _li = build(
-            element( T.AH4LI ),
-            { href: h2.id ? `#${h2.id}` : null },
-            h2
-        ),
-        _ol = $.append( _li, element(T.OL) );
-
-    ses.forEach( el => tocList(_ol, el) );
-
-    return _li;
+function tocH4li( h2 ) {
+    let _a = build(
+        elem( T.AH4 ),
+        { href: h2.id ? `#${h2.id}` : null },
+        h2.innerText
+    );
+    return build( elem(T.CASCADEAH4LI), { h4: _a } );
 }
 
 
@@ -1055,34 +1079,35 @@ function tocH4li( h2, ses ) {
  */
 function tocLi( h2 ) {
     return build(
-        element( T.ALI ),
+        elem( T.ALI ),
         { href: h2.id ? `#${h2.id}` : null },
-        h2
+        h2.innerText
     );
 }
 
 
 /**
- * 插入导言（如果必要）。
- * 新插入在标题之后或容器的最前端，但容忍既有导言不在前端。
+ * 插入导言（如果没有）。
+ * 容忍既有导言不在前端。
+ * 新插入导言在标题之后或容器内最前端
  * 如果未新建，则无返回值。
  * @param  {Element} box 导言父元素
  * @param  {Element} hx 章节标题，可选
  * @return {Element|void} 新建的导言
  */
-function insertHeader( box, buf, hx ) {
+function insertHeader( box, hx ) {
     let _el = $.get( '>header', box );
     if ( _el ) return;
 
     if ( hx ) {
-        return $.after( hx, element(T.HEADER) );
+        return $.after( hx, elem(T.HEADER) );
     }
-    return $.prepend( box, element(T.HEADER) );
+    return $.prepend( box, elem(T.HEADER) );
 }
 
 
 /**
- * 插入结语（如果必要）。
+ * 插入结语（如果没有）。
  * 将新结语添加在容器末端，但容忍既有结语不在末端。
  * 如果未新建，则无返回值。
  * @param  {Element} box 结语父元素
@@ -1092,7 +1117,7 @@ function appendFooter( box ) {
     let _el = $.get( '>footer', box );
 
     if ( !_el ) {
-        return $.append( box, element(T.FOOTER) );
+        return $.append( box, elem(T.FOOTER) );
     }
 }
 
@@ -1103,6 +1128,9 @@ function appendFooter( box ) {
  * @return {Number}
  */
 function size( data ) {
+    if ( data == null ) {
+        return 0;
+    }
     if ( data.nodeType ) {
         return 1;
     }
@@ -1122,6 +1150,8 @@ function size( data ) {
  * @return {Element|[Element]} 新行（集）
  */
 function appendRows( tsec, rows, head ) {
+    if ( rows === 0 ) return;
+
     let _tbo = tableObj( tsec.parentElement );
     return appendNodes( tsec, rows, () => _tbo.newTR(head) );
 }
@@ -1139,6 +1169,8 @@ function appendRows( tsec, rows, head ) {
  * @return {[Element]} 新元素集
  */
 function appendNodes( box, num, maker ) {
+    if ( num === 0 ) return;
+
     let _els = new Array(num)
             .fill()
             .map( (_, i) => maker(i) );
@@ -1223,7 +1255,7 @@ function createHandler( _, name ) {
     if ( _tv == null ) {
         throw new Error( 'invalid target name.' );
     }
-    return (opts, data) => build( element(_tv), opts, data );
+    return (opts, data) => build( elem(_tv), opts, data );
 }
 
 
@@ -1241,14 +1273,16 @@ function createHandler( _, name ) {
  * @return {Element} 目录元素（nav:toc/...）
  */
 export function createToc( root ) {
-    let _toc = build( element(T.TOC) );
+    let _toc = build( elem(T.TOC), {} );
 
     $.append(
         _toc.firstElementChild,
         Local.tocLabel || 'Contents'
     );
-    tocList( _toc.lastElementChild, root );
-
+    $.append(
+        _toc.lastElementChild,
+        tocList( $.children(root, 'section') )
+    )
     return _toc;
 }
 
@@ -1308,7 +1342,7 @@ export function h2PathSelector( chsn, sep = '.' ) {
 
 
 /**
- * 元素创建。
+ * 元素简单创建。
  * 类型值会被存储，以使得不需要每次都检查判断。
  * 返回null表示无法创建元素。
  * 注意data必须是目标类型的合法子元素内容。
@@ -1316,7 +1350,7 @@ export function h2PathSelector( chsn, sep = '.' ) {
  * @param  {Node|[Node]|String} data 元素内容，可选
  * @return {Element|null}
  */
-export function element( tval, data ) {
+export function elem( tval, data ) {
     let _el = ( CustomMaker[tval] || _element )(
         ...Tags[tval].split( '\\' )
     );
@@ -1333,7 +1367,7 @@ export function element( tval, data ) {
  * @return {[Element]}
  */
 export function elements( ...types ) {
-    return types.map( tv => element(tv) );
+    return types.map( tv => elem(tv) );
 }
 
 
@@ -1379,15 +1413,15 @@ export function build( el, opts, data ) {
  * 1. 由create新建开始的子结构迭代完成。
  * 2. 移动插入中间结构位置时的直接使用。
  * opts: {
- *      caption:    {Value}   创建表标题
+ *      caption:    {Value}   表标题
  *      head:       {Boolean} 添加表头元素
  *      foot:       {Boolean} 添加表脚元素
- *      figcaption: {Value}   创建插图标题
+ *      figcaption: {Value}   插图标题
  *      summary     {Value}   详细简介
- *      h3:         {Value}   创建行块小标题
- *      h4:         {Value}   创建级联表标题
- *      explain:    {Value}   创建图片讲解
- *      h2:         {Value}   创建片区（section）标题
+ *      h3:         {Value}   行块小标题
+ *      h4:         {Value}   级联表标题
+ *      explain:    {Value}   图片讲解
+ *      h2:         {Value}   片区（section）标题
  *      header:     {Boolean} 创建导言部分
  *      footer:     {Boolean} 创建结语部分
  *      dt:         {Value}   定义列表标题项
@@ -1402,7 +1436,7 @@ export function children( box, opts, data ) {
         _vs = Children[_tv]( box, opts, data );
 
     if ( _vs.end ) {
-        resultEnd( _vs.head, _vs.body )
+        return resultEnd( _vs.head, _vs.body )
     }
     if ( $.isArray(_vs.body) ) {
         // 滤除掉未构建者。

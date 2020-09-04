@@ -87,10 +87,10 @@ const CustomStruct = {
      * 多种列表项判断。
      * - CODELI: 代码表条目（li/code）：唯一子元素
      * - ALI: 目录表普通条目（li/a）：唯一子元素
-     * - AH4LI: 目录表标题条目（li/h4/a）：唯一子单元
      * - ULXH4LI: 无序级联表项标题（li/h4, ol|ul）
      * - OLXH4LI: 有序级联表项标题（li/h4, ul|ol）
      * - CASCADEH4LI: 级联编号表项标题（li/h4, ol）
+     * - CASCADEAH4LI: 目录表标题条目（li/[h4/a], ol）
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
@@ -100,7 +100,7 @@ const CustomStruct = {
         if ( el.childElementCount <= 1 ) {
             return this._liChild(_sub) || T.LI;
         }
-        return el.childElementCount === 2 && _sub.tagName === 'H4' ? this._liParent(el.parentElement) : T.LI;
+        return el.childElementCount === 2 && _sub.tagName === 'H4' ? this._liParent(el.parentElement, _sub) : T.LI;
     },
 
 
@@ -125,40 +125,39 @@ const CustomStruct = {
      * 从列表项子元素判断取值。
      * 注：兼容<h4>从父元素判断取值。
      * @param  {Element} el 列表项子元素
-     * @param  {Element} li 列表项元素
      * @return {Number}
      */
-    _liChild( el, li ) {
-        if ( el ) {
-            switch (el.tagName) {
+    _liChild( el ) {
+        if ( !el ) return;
+
+        switch ( el.tagName ) {
             case 'CODE':
                 return T.CODELI;
             case 'A':
                 return T.ALI;
-            case 'H4':
-                return this.H4(el) === T.AH4 ? T.AH4LI : this._liParent(li.parentElement);
-            }
         }
     },
 
 
     /**
      * 从父元素判断列表项值。
-     * - 无序级联表项
-     * - 有序级联表项
-     * - 级联编号表项
+     * - 无序级联表小标题
+     * - 有序级联表小标题
+     * - 级联编号表小标题
+     * - 级联编号表链接小标题
      * - 普通列表项（默认）
      * @param  {Element} el 列表元素
+     * @param  {Element} h4 小标题元素
      * @return {Number}
      */
-    _liParent( el ) {
+    _liParent( el, h4 ) {
         switch ( name(listRoot(el)) ) {
             case 'ULX':
                 return T.ULXH4LI;
             case 'OLX':
                 return T.OLXH4LI;
             case 'CASCADE':
-                return T.CASCADEH4LI;
+                return this.H4( h4 ) === T.AH4 ? T.CASCADEAH4LI : T.CASCADEH4LI;
         }
         return T.LI;
     },

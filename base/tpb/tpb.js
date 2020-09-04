@@ -23,7 +23,7 @@
 //
 
 import { On } from "./pbs.get.js";
-import { By, processExtend, cmvApp } from "./pbs.by.js";
+import { By, processExtend, cmvApp, processProxy } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
 import { Builder } from "./core.js";
@@ -40,8 +40,9 @@ const
 
     // 用户库空间。
     Lib = {
-        extend: processExtend,
         App: cmvApp,
+        extend: processExtend,
+        extendProxy: processProxy,
     },
 
     // OBT属性选择器
