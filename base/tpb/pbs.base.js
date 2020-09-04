@@ -1509,18 +1509,19 @@ const _Process = {
      * 设置目标成员值。
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称。
-     * 如果名称为多个，值需要是一个数组，与名称一一对应。
+     * 如果名称为多个，值应当是一个序列且与名称一一对应。
      * 注：会改变原对象自身。
      * @param  {String} name 名称/序列
-     * @param  {Value|[Value]} val 值或值集
+     * @param  {...Value} vals 值序列
      * @return {@data}
      */
-    set( evo, name, val ) {
-        if ( !__reSpace.test(name) ) {
-            evo.data[name] = val;
-            return evo.data;
-        }
-        return name.split(__reSpace).reduce( (o, k, i) => (o[k] = val[i], o), evo.data );
+    set( evo, name, ...vals ) {
+        name
+        .split(__reSpace)
+        .forEach(
+            (n, i) => evo.data[n] = vals[i]
+        );
+        return evo.data;
     },
 
     __set: 1,

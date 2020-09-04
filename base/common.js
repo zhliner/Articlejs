@@ -13,7 +13,10 @@
 //
 
 const
-    $ = window.$;
+    $ = window.$,
+
+    // ID标识字符限定
+    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
 
 
 //
@@ -358,6 +361,18 @@ export class ArrSet extends Set {
 //
 // 基本函数集。
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 构造ID标识。
+ * 提取源文本内的合法片段用短横线（-）串接。
+ * @param  {String} text 源文本
+ * @param  {String} prefix ID前缀
+ * @return {String} 标识串
+ */
+export function createID( text, prefix = '' ) {
+    return prefix + text.match(__reIDs).join('-');
+}
 
 
 /**

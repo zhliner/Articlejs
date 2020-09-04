@@ -949,7 +949,7 @@ Object.assign( tQuery, {
      * @return {[Number]}
      */
     paths( el, end, slp, slr = slp ) {
-        let _els = tQuery.parentsUntil(el, end)
+        let _els = tQuery.parentsUntil( el, end )
             .reverse()
             .concat( el );
 

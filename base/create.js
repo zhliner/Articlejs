@@ -34,10 +34,8 @@ const
     $ = window.$,
 
     // 片区选择器。
-    __slrSect = 'section[role]',
-
-    // ID标识字符限定
-    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
+    // 不包含role约束，因为nth-of-type()只支持标签区分。
+    __slrSect = 'section';
 
 
 //
@@ -1065,35 +1063,6 @@ function tocLi( h2 ) {
 
 
 /**
- * 获取片区在父片区内的位置（从1开始）。
- * @param  {Element} sec 片区元素
- * @return {Number}
- */
-function sectIndex( sec ) {
-    let _n = 1;
-
-    while ( (sec = sec.previousElementSibling) ) {
-        if ( $.is(sec, __slrSect) ) _n ++;
-    }
-    return _n;
-}
-
-
-/**
- * 获取片区路径序列。
- * 即标题所属各父级片区在各自层级的位置序列。
- * 位置从1开始计数，便于构造标题序号或目录条目选择器。
- * @param  {Element} h2 片区标题
- * @return {[Number]} 位置序列
- */
-function sectPath( h2 ) {
-    return $.parentsUntil( h2, 'article' )
-        .reverse()
-        .map( sec => sectIndex(sec) )
-}
-
-
-/**
  * 插入导言（如果必要）。
  * 新插入在标题之后或容器的最前端，但容忍既有导言不在前端。
  * 如果未新建，则无返回值。
@@ -1265,30 +1234,6 @@ function createHandler( _, name ) {
 
 
 /**
- * 构造ID标识。
- * 提取源文本内的合法片段用短横线（-）串接。
- * @param  {String} text 源文本
- * @param  {String} prefix ID前缀
- * @return {String} 标识串
- */
-export function createID( text, prefix = '' ) {
-    return prefix + text.match(__reIDs).join('-');
-}
-
-
-/**
- * 构造片区标题的章节编号。
- * 即以逐层片区所在位置（从1开始）串联。如：5.2.3
- * @param  {Element} h2 片区标题
- * @param  {String} sep 连接字符，可选
- * @return {String} 序列号串
- */
-export function sectSerial( h2, sep = '.' ) {
-    return sectPath( h2 ).join( sep );
-}
-
-
-/**
  * 目录构建。
  * 结构：nav:toc/h3, cascade/...
  * 注记：目录仅能构建或更新，不能编辑。
@@ -1309,17 +1254,56 @@ export function createToc( root ) {
 
 
 /**
- * 获取标题的目录条目路径。
- * 即构造标题对应目录条目的选择器。
- * 注记：
- * 这在标题元素微编辑或新片区插入时有用。
- * @param  {Element} h2 片区标题
+ * 获取目录条目表达的章节序列。
+ * @param  {Element} li 目录条目元素
+ * @return {[Number]} 章节序列
+ */
+export function pathsFromToc( li ) {
+    return $.paths( li, 'nav[role=toc]', 'li' );
+}
+
+
+/**
+ * 获取片区章节序列。
+ * @param  {Element} h2 片区标题或片区元素
+ * @return {[Number]} 章节序列
+ */
+export function sectionPaths( h2 ) {
+    return $.paths( h2, 'article', __slrSect );
+}
+
+
+/**
+ * 构建片区标题的目录条目选择路径。
+ * 用途：
+ * - 在标题元素微编辑时实时更新相应目录条目。
+ * - 在新片区插入后在目录相应位置添加条目。
+ * 注意：
+ * 检索时需要提供直接父容器元素作为上下文（<nav:toc>）。
+ * @param  {[Number]} chsn 章节序列
  * @return {String} 目录条目（<li>）的选择器
  */
-export function tocPath( h2 ) {
-    return sectPath( h2 )
-        .map( n => `ol>li:nth-child(${n})` )
-        .join( ' > ' );
+export function tocLiSelector( chsn ) {
+    return chsn.map( n => `>ol>li:nth-child(${n})` ).join( ' ' );
+}
+
+
+/**
+ * 构建片区标题选择路径。
+ * 可用于数字章节序号定位到目标片区。
+ * 也可用于单击目录条目时定位显示目标片区（而不用ID）。
+ * 注意：
+ * 检索时需要提供直接父容器元素作为上下文（<article>）。
+ *
+ * @param  {[Number]|String} chsn 章节序列（兼容字符串表示）
+ * @param  {String} sep 章节序列分隔符（仅在ns为字符串时有用）
+ * @return {String} 片区标题（<h2>）的选择器
+ */
+export function h2PathSelector( chsn, sep = '.' ) {
+    if ( typeof chsn === 'string' ) {
+        chsn = chsn.split( sep );
+    }
+    return chsn.map( n => `>${__slrSect}:nth-of-type(${+n})` ).join( ' ' ) + ' >h2';
 }
 
 

@@ -1270,6 +1270,7 @@ const _Gets = {
     'controls',     // ( ...names ): [Element]
     'serialize',    // ( ...names ): [Array2]
     'queryURL',     // (): String
+    'paths',        // ( end?, slp?, slr? ): [Number]
     'isArray',      // (): Boolean
     'isNumeric',    // (): Boolean
     'isFunction',   // (): Boolean
