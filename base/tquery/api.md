@@ -14,7 +14,7 @@
 可指定所属名称空间和所属文档对象。如果数据源 `data` 包含节点，源节点通常会被移出DOM原来的位置。
 
 
-### $.element( tag, text, doc? ): Element
+### $.elem( tag, text, doc? ): Element
 
 简单地创建一个 `tag` 名称的元素，仅支持文本内容。它是上面 `.Element(...)` 方法的极简版，用于对效率需求较高的场景。
 

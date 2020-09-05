@@ -440,8 +440,6 @@ const _Gets = {
      * 目标：暂存区条目可选。
      * 如果目标有值，作为创建元素的文本内容。
      * 目标可以是数组，成员值按顺序作为元素集成员的内容。
-     * 注：
-     * 这是 ...array(size) pop a.elem(tag) 的简洁版。
      * @param  {String} tag 元素标签名
      * @param  {Number} n 元素数量
      * @return {[Element]}
@@ -452,7 +450,7 @@ const _Gets = {
         if ( !$.isArray(v) ) {
             v = [v];
         }
-        return arrayFill( v, n ).map( d => $.element(tag, d) );
+        return arrayFill( v, n ).map( d => $.elem(tag, d) );
     },
 
     __els: 0,
@@ -476,21 +474,6 @@ const _Gets = {
     },
 
     __clone: 1,
-
-
-    /**
-     * 创建元素。
-     * 目标：暂存区1项可选。
-     * 目标作为元素的文本内容，$.element的改名版。
-     * @param  {String} tag 标签名
-     * @return {Element|Collector}
-     */
-    elem( evo, tag ) {
-        return $.isArray( evo.data ) ?
-            $(evo.data).element( tag ) : $.element( tag, evo.data );
-    },
-
-    __elem: -1,
 
 
     /**
@@ -1108,6 +1091,7 @@ const _Gets = {
 // 注：固定参数为1以限定为取值。
 //===============================================
 [
+                    // 单元素版参数说明
     'attr',         // ( name:String ): String | null
     'attribute',    // ( name:String ): String | Object | null
     'xattr',        // ( name:String|[String]): String | Object | [String|null] | [Object] | null
@@ -1144,6 +1128,7 @@ const _Gets = {
 // 注：无参数以限定为取值。
 //===============================================
 [
+                    // 单元素版参数说明
     'height',       // (): Number
     'width',        // (): Number
     'innerHeight',  // (): Number
@@ -1178,6 +1163,7 @@ const _Gets = {
 // 注：多余实参无副作用。
 //===============================================
 [
+                    // 单元素版参数说明
     'outerWidth',   // ( margin? ): Number
     'outerHeight',  // ( margin? ): Number
     'next',         // ( slr?, until? ): Element | null
@@ -1198,7 +1184,6 @@ const _Gets = {
 .forEach(function( meth ) {
 
     // @data:  {Element|Collector}
-    // @return {Value|Collector}
     _Gets[meth] = function( evo, ...args ) {
         return $mapCall( evo.data, meth, ...args );
     };
@@ -1214,12 +1199,12 @@ const _Gets = {
 // 目标作为元素的内容或属性配置。
 //===============================================
 [
-    'Element',
-    'svg',
+    'Element',  // data: String|Object|Map
+    'elem',     // data: String
+    'svg',      // data: String|Object|Map
 ]
 .forEach(function( meth ) {
 
-    // @data:  {String|Object|Array|Collector}
     // @return {Element|Collector}
     _Gets[meth] = function( evo, tag ) {
         return $.isArray( evo.data ) ?
@@ -1243,7 +1228,7 @@ const _Gets = {
 // 注：多余实参无副作用。
 //===============================================
 [
-    'table',        // ( rows?, cols?, th0?, doc? ): $.Table
+    'table',        // ( cols?, rows?, th0?, doc? ): $.Table
     'dataName',     // ( attr? ): String
     'tags',         // ( code? ): String
     'slr',          // ( tag, attr?, val?, op? ): String

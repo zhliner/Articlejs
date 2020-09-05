@@ -1139,7 +1139,8 @@ function clearDeletes( els ) {
 
 
 /**
- * 构造兄弟元素集组
+ * 构造兄弟元素集组。
+ * 用于选取集分组执行相同操作。
  * @param  {Set} sels 选取集
  * @return {[[Element]]} 元素集组
  */
@@ -1175,21 +1176,69 @@ function last( els ) {
 }
 
 
-/**
- * 元素转换到目标类型。
- * 如果源元素类型属于目标类型集成员，则直接使用。
- * 否则取类型集首个成员为默认类型，构造元素并提取源内容填充。
- * @param  {Element}} el 数据源元素
- * @param  {[Number]} types 目标类型集
- * @return {Element}
- */
-function elementConvert( el, types ) {
-    let _tv = getType( el );
+//
+// 目录定位工具
+//----------------------------------------------------------------------------
 
-    if ( types.includes(_tv) ) {
-        return el;
-    }
+
+/**
+ * 获取目录条目表达的章节序列。
+ * @param  {Element} li 目录条目元素
+ * @return {[Number]} 章节序列
+ */
+function pathsFromToc( li ) {
+    return $.paths( li, 'nav[role=toc]', 'li' );
 }
+
+
+/**
+ * 获取片区章节序列。
+ * @param  {Element} h2 片区标题或片区元素
+ * @return {[Number]} 章节序列
+ */
+function sectionPaths( h2 ) {
+    return $.paths( h2, 'article', 'section' );
+}
+
+
+/**
+ * 构建片区标题的目录条目选择路径。
+ * 用途：
+ * - 在标题元素微编辑时实时更新相应目录条目。
+ * - 在新片区插入后在目录相应位置添加条目。
+ * 注意：
+ * 检索时需要提供直接父容器元素作为上下文（<nav:toc>）。
+ * @param  {[Number]} chsn 章节序列
+ * @return {String} 目录条目（<li>）的选择器
+ */
+function tocLiSelector( chsn ) {
+    return chsn.map( n => `>ol>li:nth-child(${n})` ).join( ' ' );
+}
+
+
+/**
+ * 构建片区标题选择路径。
+ * 可用于数字章节序号定位到目标片区。
+ * 也可用于单击目录条目时定位显示目标片区（不用ID）。
+ * 注意：
+ * 检索时需要提供直接父容器元素作为上下文（<article>）。
+ * nth-of-type()只支持标签区分，故无role约束。
+ *
+ * @param  {[Number]|String} chsn 章节序列（兼容字符串表示）
+ * @param  {String} sep 章节序列分隔符（仅在ns为字符串时有用）
+ * @return {String} 片区标题（<h2>）的选择器
+ */
+function h2PathSelector( chsn, sep = '.' ) {
+    if ( typeof chsn === 'string' ) {
+        chsn = chsn.split( sep );
+    }
+    return chsn.map( n => `>section:nth-of-type(${+n})` ).join( ' ' ) + ' >h2';
+}
+
+
+//
+// 通用工具。
+//----------------------------------------------------------------------------
 
 
 /**

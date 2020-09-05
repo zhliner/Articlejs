@@ -589,8 +589,12 @@ Object.assign( tQuery, {
      *      text:   值为文本
      *      ....    特性（Attribute）定义
      * }
+     * 注记：
+     * 考虑简单性，不支持节点数据。
+     * 如果需要插入节点内容，用户应当先创建一个空元素后使用.append()接口。
+     *
      * @param  {String} tag 标签名
-     * @param  {String|Object} data 源码或置对象
+     * @param  {String|Object|Map} data 源码或置对象
      * @param  {String} ns 所属名称空间
      * @param  {Document} doc 所属文档
      * @return {Element} 新元素
@@ -600,21 +604,20 @@ Object.assign( tQuery, {
             doc.createElementNS(ns, tag) :
             doc.createElement(tag);
 
-        return typeof data == 'string' ? fillElem(_el, data) : setElem(_el, data);
+        return typeof data === 'string' ? fillElem(_el, data) : setElem(_el, data);
     },
 
 
     /**
      * 创建简单内容元素。
-     * 仅限于文本内容，这是上面.Element()的极简版。
-     * 不支持名称空间指定。
+     * 仅限文本内容，不支持名称空间指定。
      * @param {String} tag 标签名
-     * @param {String} text 内容文本
+     * @param {String} text 内容文本，可选
      * @param {Document} doc 所属文档，可选
      */
-    element( tag, text, doc = Doc ) {
-        let _el = doc.createElement(tag);
-        return text && _el.append(text) || _el;
+    elem( tag, text, doc = Doc ) {
+        let _el = doc.createElement( tag );
+        return text && _el.append( text ), _el;
     },
 
 
@@ -676,13 +679,13 @@ Object.assign( tQuery, {
      *      text:   取值为文本
      *      ....    特性（Attribute）值
      * }
-     * @param  {String|Object} tag SVG子元素标签或svg元素配置
-     * @param  {Object} opts 元素特性配置（Attribute），可选
+     * @param  {String|Object|Map} tag SVG子元素标签或svg元素配置
+     * @param  {Object|Map} opts 元素特性配置（Attribute），可选
      * @param  {Document} doc 元素所属文档对象，可选
      * @return {Element} 新元素
      */
     svg( tag, opts, doc = Doc ) {
-        if ( typeof tag != 'string' ) {
+        if ( typeof tag !== 'string' ) {
             doc = opts || doc;
             [tag, opts] = ['svg', tag];
         }
@@ -3617,7 +3620,7 @@ function elsEx( list, get ) {
 /////////////////////////////////////////////////
 elsEx([
         'Element',
-        'element',
+        'elem',
         'svg',
     ],
     // @param {String} tag 元素标签

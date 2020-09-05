@@ -43,8 +43,5 @@ export const Limit = {
 
 
 export const Local = {
-
-    // 目录标题。
-    tocLabel:   "【目 录】",
-
+    // 本地化信息
 };

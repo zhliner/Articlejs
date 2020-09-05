@@ -141,13 +141,14 @@ export const
     TFOOT           = 417,  // 表脚
     // 定制类：
     // 容器：<li>, <p>, <h4>
-    CODELI          = 419,  // 代码表条目（li/code） {value}
-    ALI             = 420,  // 链接列表项（li/a）
-    AH4             = 421,  // 链接小标题（h4/a）
-    ULXH4LI         = 422,  // 无序级联表项标题（li/h4, ul|ol）
-    OLXH4LI         = 423,  // 有序级联表项标题（li/h4, ol|ul）
-    CASCADEH4LI     = 424,  // 级联编号表项标题（li/h4, ol）
-    CASCADEAH4LI    = 425,  // 级联编号表链接标题项（li/[h4/a], ol）
+    CODELI          = 418,  // 代码表条目（li/code） {value}
+    ALI             = 429,  // 链接列表项（li/a）
+    AH4             = 420,  // 链接小标题（h4/a）
+    ULXH4LI         = 421,  // 无序级联表项标题（li/h4, ul|ol）
+    OLXH4LI         = 422,  // 有序级联表项标题（li/h4, ol|ul）
+    CASCADEH4LI     = 423,  // 级联编号表项标题（li/h4, ol）
+    CASCADEAH4LI    = 424,  // 级联编号表链接标题项（li/[h4/a], ol）
+    TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
     FIGIMGP         = 426,  // 插图内容区（p/img, span:explain）
     //
     // 行块结构元素
@@ -290,6 +291,7 @@ const Specials = {
     [ OLXH4LI ]:        STRUCT | STRUCTX | SEALED,
     [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
     [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
+    [ TOCCASCADE ]:     STRUCT | SEALED,
     // 插图内允许多个<p>容器。
     [ FIGIMGP ]:        STRUCT | STRUCTX | SEALED,
 
@@ -464,6 +466,7 @@ const ChildTypes = {
     [ OLXH4LI ]:        [ H4, OL, UL ],
     [ CASCADEH4LI ]:    [ H4, OL ],
     [ CASCADEAH4LI ]:   [ AH4, OL ],
+    [ TOCCASCADE ]:     [ ALI, CASCADEAH4LI ],
     [ FIGIMGP ]:        [ IMG, EXPLAIN ],
     [ TR ]:             [ TH, TD ],
     [ THEAD ]:          [ TR ],

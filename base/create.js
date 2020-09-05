@@ -27,15 +27,10 @@
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
 import { getType, setType, tableObj } from "./base.js";
-import { Local } from "../config.js";
 
 
 const
-    $ = window.$,
-
-    // 片区选择器。
-    // 不包含role约束，因为nth-of-type()只支持标签区分。
-    __slrSect = 'section';
+    $ = window.$;
 
 
 //
@@ -140,6 +135,7 @@ const Tags = {
     [ T.OLXH4LI ]:      'li',
     [ T.CASCADEH4LI ]:  'li',
     [ T.CASCADEAH4LI ]: 'li',
+    [ T.TOCCASCADE ]:   'ol\\cascade',
     [ T.FIGIMGP ]:      'p',
 
     //
@@ -337,7 +333,7 @@ const Children = {
      * 级联标题链接条目。
      * 标题内容应当是一个构建好的链接元素，
      * 因为标题不在正常的递进构建流程里。
-     * 注：主要用于目录小标题项。
+     * 主要用于目录小标题项。
      * @param {Element} li 列表项容器
      * @param {Element} h4 链接内容
      */
@@ -350,11 +346,29 @@ const Children = {
 
 
     /**
+     * 目录级联编号表。
+     * 与普通级联表不同，列表条目为链接（单击定位目标）。
+     * 注：定制创建，不参与编辑。
+     * @param {Element} ol 级联表根元素
+     * @param {Element} root 正文根元素（<article）
+     * @node: {[Element]} [<li>]
+     */
+    [ T.TOCCASCADE ]: function( ol, _, root ) {
+        return result(
+            null,
+            // 不含role约束，因为nth-of-type()只支持标签区分。
+            $.append( ol, tocList( $.children(root, 'section') ) ),
+            true
+        );
+    },
+
+
+    /**
      * 仅返回图片元素供递进构建。
      * 注记：讲解可选故由属性配置。
      * @param {Element} p 段落容器
      * @param {String|Node|[Node]} explain 图片讲解，可选
-     * @node: {Element}
+     * @node: {Element} <img>
      */
     [ T.FIGIMGP ]: function( p, {explain} ) {
         return result(
@@ -390,8 +404,7 @@ const Children = {
     [ T.TOC ]: function( toc, {h3} ) {
         return result(
             insertHeading( toc, T.H3, h3 ),
-            $.append( toc, elem(T.CASCADE) ),
-            true
+            $.append( toc, elem(T.TOCCASCADE) ),
         );
     },
 
@@ -940,6 +953,7 @@ const Builder = {
     T.OLXH4LI,
     T.CASCADEH4LI,
     T.CASCADEAH4LI,
+    T.TOCCASCADE,
     T.FIGIMGP,
     T.HGROUP,
     T.ABSTRACT,
@@ -1037,12 +1051,17 @@ function tocList( secs ) {
  * 创建目录列表条目。
  * 容忍片区标题不在最前端（非首个子元素）。
  * 结构：article/section:s1, .../h2, section:s2, ...
- * @param {Element} sec 片区元素
+ * 注记：section不含role约束，便于构造nth-of-type()定位。
+ * @param  {Element} sec 片区元素
+ * @return {Element} 目录条目项<li>
  */
 function tocItem( sec ) {
     let _h2 = $.get( '>h2', sec ),
         _ss = $.children( sec, 'section' );
 
+    if ( !_h2 ) {
+        error( '<H2> is missed...!!', sec );
+    }
     if ( !_ss.length ) {
         return tocLi( _h2 );
     }
@@ -1060,22 +1079,22 @@ function tocItem( sec ) {
  * 结构：li/[h4/a], ol（含一个空<ol>）。
  * @param  {Element} h2 片区标题
  * @param  {[Element]} ses 跟随子片区集
- * @return {Element} 列表标题项
+ * @return {Element} 列表标题项<li/h4/a>
  */
 function tocH4li( h2 ) {
-    let _a = build(
-        elem( T.AH4 ),
+    let _h4a = build(
+        elem( T.A ),
         { href: h2.id ? `#${h2.id}` : null },
         h2.innerText
     );
-    return build( elem(T.CASCADEAH4LI), { h4: _a } );
+    return build( elem(T.CASCADEAH4LI), { h4: _h4a } );
 }
 
 
 /**
  * 创建目录列表项。
  * @param  {Element} h2 标题元素
- * @return {Element} 列表项（<li>）
+ * @return {Element} 列表项（<li/a>）
  */
 function tocLi( h2 ) {
     return build(
@@ -1150,8 +1169,6 @@ function size( data ) {
  * @return {Element|[Element]} 新行（集）
  */
 function appendRows( tsec, rows, head ) {
-    if ( rows === 0 ) return;
-
     let _tbo = tableObj( tsec.parentElement );
     return appendNodes( tsec, rows, () => _tbo.newTR(head) );
 }
@@ -1169,13 +1186,11 @@ function appendRows( tsec, rows, head ) {
  * @return {[Element]} 新元素集
  */
 function appendNodes( box, num, maker ) {
-    if ( num === 0 ) return;
-
     let _els = new Array(num)
             .fill()
             .map( (_, i) => maker(i) );
 
-    return $.append( box, _els );
+    return _els.length ? $.append(box, _els) : [];
 }
 
 
@@ -1244,101 +1259,21 @@ function resultEnd( head, body ) {
 
 
 /**
- * 返回创建目标名称单元的函数。
- * @param  {Object} _ 代理目标占位（target）
- * @param  {String} name 单元名称
- * @return {Function} 创建函数
+ * 抛出错误。
+ * @param {String} msg 错误消息
+ * @param {Value} data 提示关联数据
  */
-function createHandler( _, name ) {
-    let _tv = T[ name.toUpperCase() ];
-
-    if ( _tv == null ) {
-        throw new Error( 'invalid target name.' );
+function error( msg, data ) {
+    if ( data ) {
+        window.console.info( data );
     }
-    return (opts, data) => build( elem(_tv), opts, data );
+    throw new Error( msg );
 }
-
 
 
 //
-// 导出。
-//////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 目录构建。
- * 结构：nav:toc/h3, cascade/...
- * 注记：目录仅能构建或更新，不能编辑。
- * @param  {Element} root 文章根元素
- * @return {Element} 目录元素（nav:toc/...）
- */
-export function createToc( root ) {
-    let _toc = build( elem(T.TOC), {} );
-
-    $.append(
-        _toc.firstElementChild,
-        Local.tocLabel || 'Contents'
-    );
-    $.append(
-        _toc.lastElementChild,
-        tocList( $.children(root, 'section') )
-    )
-    return _toc;
-}
-
-
-/**
- * 获取目录条目表达的章节序列。
- * @param  {Element} li 目录条目元素
- * @return {[Number]} 章节序列
- */
-export function pathsFromToc( li ) {
-    return $.paths( li, 'nav[role=toc]', 'li' );
-}
-
-
-/**
- * 获取片区章节序列。
- * @param  {Element} h2 片区标题或片区元素
- * @return {[Number]} 章节序列
- */
-export function sectionPaths( h2 ) {
-    return $.paths( h2, 'article', __slrSect );
-}
-
-
-/**
- * 构建片区标题的目录条目选择路径。
- * 用途：
- * - 在标题元素微编辑时实时更新相应目录条目。
- * - 在新片区插入后在目录相应位置添加条目。
- * 注意：
- * 检索时需要提供直接父容器元素作为上下文（<nav:toc>）。
- * @param  {[Number]} chsn 章节序列
- * @return {String} 目录条目（<li>）的选择器
- */
-export function tocLiSelector( chsn ) {
-    return chsn.map( n => `>ol>li:nth-child(${n})` ).join( ' ' );
-}
-
-
-/**
- * 构建片区标题选择路径。
- * 可用于数字章节序号定位到目标片区。
- * 也可用于单击目录条目时定位显示目标片区（而不用ID）。
- * 注意：
- * 检索时需要提供直接父容器元素作为上下文（<article>）。
- *
- * @param  {[Number]|String} chsn 章节序列（兼容字符串表示）
- * @param  {String} sep 章节序列分隔符（仅在ns为字符串时有用）
- * @return {String} 片区标题（<h2>）的选择器
- */
-export function h2PathSelector( chsn, sep = '.' ) {
-    if ( typeof chsn === 'string' ) {
-        chsn = chsn.split( sep );
-    }
-    return chsn.map( n => `>${__slrSect}:nth-of-type(${+n})` ).join( ' ' ) + ' >h2';
-}
+// 基本工具。
+//----------------------------------------------------------------------------
 
 
 /**
@@ -1350,7 +1285,7 @@ export function h2PathSelector( chsn, sep = '.' ) {
  * @param  {Node|[Node]|String} data 元素内容，可选
  * @return {Element|null}
  */
-export function elem( tval, data ) {
+function elem( tval, data ) {
     let _el = ( CustomMaker[tval] || _element )(
         ...Tags[tval].split( '\\' )
     );
@@ -1366,7 +1301,7 @@ export function elem( tval, data ) {
  * @param  {...Number} types 类型值序列
  * @return {[Element]}
  */
-export function elements( ...types ) {
+function elements( ...types ) {
     return types.map( tv => elem(tv) );
 }
 
@@ -1394,7 +1329,7 @@ export function elements( ...types ) {
  * @param  {Node|[Node]|String} data 源数据
  * @return {Element|null} el或null
  */
-export function build( el, opts, data ) {
+function build( el, opts, data ) {
     let _tv = getType( el );
 
     if ( !Builder[_tv](el, opts, data) ) {
@@ -1431,7 +1366,7 @@ export function build( el, opts, data ) {
  * @param  {Node|[Node]|[String]} data 数据源
  * @return {[Element]} 构建的子元素集
  */
-export function children( box, opts, data ) {
+function children( box, opts, data ) {
     let _tv = getType( box ),
         _vs = Children[_tv]( box, opts, data );
 
@@ -1449,8 +1384,26 @@ export function children( box, opts, data ) {
 }
 
 
+/**
+ * 返回创建目标名称单元的函数。
+ * @param  {Object} _ 代理目标占位（target）
+ * @param  {String} name 单元名称
+ * @return {Function} 创建函数
+ */
+function createHandler( _, name ) {
+    let _tv = T[ name.toUpperCase() ];
+
+    if ( _tv == null ) {
+        throw new Error( 'invalid target name.' );
+    }
+    return (opts, data) => build( elem(_tv), opts || {}, data );
+}
+
+
+
 //
 // By扩展：
 // New.[cell-name](...)
-//
+//////////////////////////////////////////////////////////////////////////////
+
 processProxy( 'New', createHandler );
