@@ -2541,13 +2541,15 @@ class Table {
      * @return {[Element]} cells
      */
     insertColumn( cells, idx ) {
-        let _n = 0;
+        let _x = this._inSelf( cells[0] ),
+            _n = 0;
+
         idx = this._index( idx, this._cols );
 
         for ( const tr of this._tbl.rows ) {
             insertNode( tr, cells[_n++], indexCell(tr, idx) );
         }
-        this._cols++;
+        if ( !_x ) this._cols++;
 
         return cells;
     }
@@ -2757,6 +2759,17 @@ class Table {
      */
     _cellTag( tr ) {
         return tr.parentElement.tagName === 'THEAD' ? 'th' : 'td';
+    }
+
+
+    /**
+     * 单元格是否在同一表格内。
+     * @param  {Element} cell 单元格
+     * @return {Boolean}
+     */
+    _inSelf( cell ) {
+        let _tr = cell.parentElement;
+        return _tr && _tr.parentElement.parentElement === this._tbl;
     }
 
 

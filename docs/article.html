@@ -220,54 +220,53 @@
                     <section role="s3">
                         <h2 id="结构类">结构类</h2>
                         <p>内部不能直接包含文本或内联元素，有固定的子级结构。</p>
-                        <pre>
-<code data-lang="html">                                    <i>&lt;!-- 说明：Name --&gt;</i>
-&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h2 --&gt;</i>
-&lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h3, p... --&gt;</i>
-&lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h3, ol:cascade/li/a（可多级） --&gt;</i>
-&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">ul</b>&gt;            <i>&lt;!-- 另参见：SEEALSO /li/... --&gt;</i>
-&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">ol</b>&gt;          <i>&lt;!-- 文献参考：REFERENCE /li/... --&gt;</i>
-&lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 导言：HEADER /h3, p... --&gt;</i>
-&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结：FOOTER /h3, p... --&gt;</i>
-&lt;<b role="tag">article</b>&gt;&lt;/<b role="tag">article</b>&gt;                 <i>&lt;!-- 文章区：ARTICLE /header, s1, footer, hr --&gt;</i>
-&lt;<b role="tag">section</b> role=<b role="str">"s1"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S1 /h2, header, s2, footer --&gt;</i>
-&lt;<b role="tag">section</b> role=<b role="str">"s2"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S2 /h2, header, s3, footer --&gt;</i>
-&lt;<b role="tag">section</b> role=<b role="str">"s3"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S3 /h2, header, s4, footer --&gt;</i>
-&lt;<b role="tag">section</b> role=<b role="str">"s4"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S4 /h2, header, s5, footer --&gt;</i>
-&lt;<b role="tag">section</b> role=<b role="str">"s5"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S5 /h2, header, [content], footer --&gt;</i>
-&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li/... --&gt;</i>
-&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li/... --&gt;</i>
-&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, #text --&gt;</i>
-&lt;<b role="tag">ul</b> role=<b role="str">"ulx"</b>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h4, ol|ul/... --&gt;</i>
-&lt;<b role="tag">ol</b> role=<b role="str">"olx"</b>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h4, ul|ol/... --&gt;</i>
-&lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol, ... --&gt;</i>
-&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 定义列表：DL /dt, dd/... --&gt;</i>
-&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td/... --&gt;</i>
-&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [p/img, span:explain?]... --&gt;</i>
-&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i>
-&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h3, p... --&gt;</i>
-&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i>
-&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code/b, #text --&gt;</i>
-</code></pre>
+                        <ol role="codelist" data-lang="html">
+                            <li><code>&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h2 --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h3, ol:cascade/li/a（可多级） --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">ul</b>&gt;            <i>&lt;!-- 另参见：SEEALSO /li/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">ol</b>&gt;          <i>&lt;!-- 文献参考：REFERENCE /li/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 导言：HEADER /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结：FOOTER /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">article</b>&gt;&lt;/<b role="tag">article</b>&gt;                 <i>&lt;!-- 文章区：ARTICLE /header, s1, footer, hr --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s1"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S1 /h2, header, s2, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s2"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S2 /h2, header, s3, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s3"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S3 /h2, header, s4, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s4"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S4 /h2, header, s5, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s5"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S5 /h2, header, [content], footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, #text --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"ulx"</b>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h4, ol|ul/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"olx"</b>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h4, ul|ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol, ... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 定义列表：DL /dt, dd/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [p/img, span:explain?]... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code/b, #text --&gt;</i></code></li>
+                        </ol>
                     </section>
                     <section role="s3">
                         <h2 id="文本类">文本类</h2>
                         <p>可直接包含文本内容和内联单元，没有固定的DOM结构可单独占据一行的块级元素。</p>
-                        <pre>
-<code data-lang="html">&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i>
-&lt;<b role="tag">p</b> role=<b role="str">"note"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i>
-&lt;<b role="tag">p</b> role=<b role="str">"tips"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i>
-&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;     <i>&lt;!-- 地址信息：ADDRESS --&gt;</i>
-&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;             <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i>
-</code></pre>
+                        <ol role="codelist" data-lang="html" start="27">
+                            <li><code>&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">p</b> role=<b role="str">"note"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">p</b> role=<b role="str">"tips"</b>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;     <i>&lt;!-- 地址信息：ADDRESS --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;             <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i></code></li>
+                        </ol>
                     </section>
                     <section role="s3">
                         <h2 id="单体类">单体类</h2>
                         <p>不包含任何内容，是一个独立存在的单元。</p>
-                        <pre>
-<code data-lang="html">&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i>
-&lt;<b role="tag">div</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i>
-</code></pre>
+                        <ol role="codelist" data-lang="html" start="32">
+                            <li><code>&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">div</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i></code></li>
+                        </ol>
                     <aside>
                         <p><strong>注：</strong>
                             白板可插入内容，但仅适用在运行时下且应当是临时的。</p>
@@ -287,42 +286,222 @@
                     <h2 id="内联单元">内联单元</h2>
                     <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的 <code>&lt;ruby&gt;/&lt;rb&gt;&lt;rp&gt;/&lt;rt&gt;</code>、或媒体类的 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
                     <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
-                    <pre>
-<code data-lang="html">&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;                 <i>&lt;!-- 音频：AUDIO /track,source, #text --&gt;</i>
-&lt;<b role="tag">video</b>&gt;&lt;/<b role="tag">video</b>&gt;                 <i>&lt;!-- 视频：VIDEO /track,source, #text --&gt;</i>
-&lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;             <i>&lt;!-- 图片：PICTURE /source,img --&gt;</i>
-&lt;<b role="tag">a</b>&gt;&lt;/<b role="tag">a</b>&gt;                         <i>&lt;!-- 链接：A --&gt;</i>
-&lt;<b role="tag">strong</b>&gt;&lt;/<b role="tag">strong</b>&gt;               <i>&lt;!-- 重点：STRONG --&gt;</i>
-&lt;<b role="tag">em</b>&gt;&lt;/<b role="tag">em</b>&gt;                       <i>&lt;!-- 强调：EM --&gt;</i>
-&lt;<b role="tag">q</b>&gt;&lt;/<b role="tag">q</b>&gt;                         <i>&lt;!-- 短引用：Q --&gt;</i>
-&lt;<b role="tag">abbr</b>&gt;&lt;/<b role="tag">abbr</b>&gt;                   <i>&lt;!-- 缩写：ABBR --&gt;</i>
-&lt;<b role="tag">cite</b>&gt;&lt;/<b role="tag">cite</b>&gt;                   <i>&lt;!-- 来源：CITE --&gt;</i>
-&lt;<b role="tag">small</b>&gt;&lt;/<b role="tag">small</b>&gt;                 <i>&lt;!-- 注脚：SMALL --&gt;</i>
-&lt;<b role="tag">time</b>&gt;&lt;/<b role="tag">time</b>&gt;                   <i>&lt;!-- 时间：TIME --&gt;</i>
-&lt;<b role="tag">del</b>&gt;&lt;/<b role="tag">del</b>&gt;                     <i>&lt;!-- 删除：DEL --&gt;</i>
-&lt;<b role="tag">ins</b>&gt;&lt;/<b role="tag">ins</b>&gt;                     <i>&lt;!-- 插入：INS --&gt;</i>
-&lt;<b role="tag">sub</b>&gt;&lt;/<b role="tag">sub</b>&gt;                     <i>&lt;!-- 下标：SUB --&gt;</i>
-&lt;<b role="tag">sup</b>&gt;&lt;/<b role="tag">sup</b>&gt;                     <i>&lt;!-- 上标：SUP --&gt;</i>
-&lt;<b role="tag">mark</b>&gt;&lt;/<b role="tag">mark</b>&gt;                   <i>&lt;!-- 标记：MARK --&gt;</i>
-&lt;<b role="tag">code</b> data-lang=<b role="str">".."</b>&gt;&lt;/<b role="tag">code</b>&gt;    <i>&lt;!-- 代码：CODE，可定义语言 --&gt;</i>
-&lt;<b role="tag">code</b> role=<b role="str">"orz"</b>&gt;&lt;/<b role="tag">code</b>&gt;        <i>&lt;!-- 表情：ORZ --&gt;</i>
-&lt;<b role="tag">ruby</b>&gt;&lt;/<b role="tag">ruby</b>&gt;                   <i>&lt;!-- 注音：RUBY /rb,rp,rt --&gt;</i>
-&lt;<b role="tag">dfn</b>&gt;&lt;/<b role="tag">dfn</b>&gt;                     <i>&lt;!-- 定义：DFN --&gt;</i>
-&lt;<b role="tag">samp</b>&gt;&lt;/<b role="tag">samp</b>&gt;                   <i>&lt;!-- 样本：SAMP --&gt;</i>
-&lt;<b role="tag">kbd</b>&gt;&lt;/<b role="tag">kbd</b>&gt;                     <i>&lt;!-- 键盘字：KBD --&gt;</i>
-&lt;<b role="tag">s</b>&gt;&lt;/<b role="tag">s</b>&gt;                         <i>&lt;!-- 失效：S --&gt;</i>
-&lt;<b role="tag">u</b>&gt;&lt;/<b role="tag">u</b>&gt;                         <i>&lt;!-- 注记：U --&gt;</i>
-&lt;<b role="tag">var</b>&gt;&lt;/<b role="tag">var</b>&gt;                     <i>&lt;!-- 变量：VAR --&gt;</i>
-&lt;<b role="tag">bdo</b>&gt;&lt;/<b role="tag">bdo</b>&gt;                     <i>&lt;!-- 有向文本：BDO --&gt;</i>
-&lt;<b role="tag">meter</b>&gt;&lt;/<b role="tag">meter</b>&gt;                 <i>&lt;!-- 度量：METER --&gt;</i>
-&lt;<b role="tag">img</b> /&gt;                         <i>&lt;!-- 图片：IMG --&gt;</i>
-&lt;<b role="tag">br</b> /&gt;                          <i>&lt;!-- 换行：BR --&gt;</i>
-&lt;<b role="tag">wbr</b> /&gt;                         <i>&lt;!-- 软换行：WBR --&gt;</i>
-&lt;<b role="tag">span</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">span</b>&gt;      <i>&lt;!-- 空白：SPACE --&gt;</i>
-&lt;<b role="tag">b</b>&gt;                             <i>&lt;!-- 特用：代码关键字封装 --&gt;</i>
-&lt;<b role="tag">i</b>&gt;                             <i>&lt;!-- 特用：代码注释/标题编号 --&gt;</i>
-<b role="imp">#text</b>                           <i>&lt;!-- 文本节点：$text --&gt;</i>
-</code></pre>
+                    <table data-border="1">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>标签</th>
+                                <th>类型/结构</th>
+                                <th>No.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>音频</th>
+                                <td><code>&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;</code></td>
+                                <td><code><i>AUDIO /track,source, #text</i></code></td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <th>视频</th>
+                                <td><code>&lt;<b role="tag">video</b>&gt;&lt;/<b role="tag">video</b>&gt;</code></td>
+                                <td><code><i>VIDEO /track,source, #text</i></code></td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <th>图片</th>
+                                <td><code>&lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;</code></td>
+                                <td><code><i>PICTURE /source,img</i></code></td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <th>链接</th>
+                                <td><code>&lt;<b role="tag">a</b>&gt;&lt;/<b role="tag">a</b>&gt;</code></td>
+                                <td><code><i>A</i></code></td>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <th>重点</th>
+                                <td><code>&lt;<b role="tag">strong</b>&gt;&lt;/<b role="tag">strong</b>&gt;</code></td>
+                                <td><code><i>STRONG</i></code></td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <th>强调</th>
+                                <td><code>&lt;<b role="tag">em</b>&gt;&lt;/<b role="tag">em</b>&gt;</code></td>
+                                <td><code><i>EM</i></code></td>
+                                <td>6</td>
+                            </tr>
+                            <tr>
+                                <th>短引用</th>
+                                <td><code>&lt;<b role="tag">q</b>&gt;&lt;/<b role="tag">q</b>&gt;</code></td>
+                                <td><code><i>Q</i></code></td>
+                                <td>7</td>
+                            </tr>
+                            <tr>
+                                <th>缩写</th>
+                                <td><code>&lt;<b role="tag">abbr</b>&gt;&lt;/<b role="tag">abbr</b>&gt;</code></td>
+                                <td><code><i>ABBR</i></code></td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <th>来源</th>
+                                <td><code>&lt;<b role="tag">cite</b>&gt;&lt;/<b role="tag">cite</b>&gt;</code></td>
+                                <td><code><i>CITE</i></code></td>
+                                <td>9</td>
+                            </tr>
+                            <tr>
+                                <th>注脚</th>
+                                <td><code>&lt;<b role="tag">small</b>&gt;&lt;/<b role="tag">small</b>&gt;</code></td>
+                                <td><code><i>SMALL</i></code></td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <th>时间</th>
+                                <td><code>&lt;<b role="tag">time</b>&gt;&lt;/<b role="tag">time</b>&gt;</code></td>
+                                <td><code><i>TIME</i></code></td>
+                                <td>11</td>
+                            </tr>
+                            <tr>
+                                <th>删除</th>
+                                <td><code>&lt;<b role="tag">del</b>&gt;&lt;/<b role="tag">del</b>&gt;</code></td>
+                                <td><code><i>DEL</i></code></td>
+                                <td>12</td>
+                            </tr>
+                            <tr>
+                                <th>插入</th>
+                                <td><code>&lt;<b role="tag">ins</b>&gt;&lt;/<b role="tag">ins</b>&gt;</code></td>
+                                <td><code><i>INS</i></code></td>
+                                <td>13</td>
+                            </tr>
+                            <tr>
+                                <th>下标</th>
+                                <td><code>&lt;<b role="tag">sub</b>&gt;&lt;/<b role="tag">sub</b>&gt;</code></td>
+                                <td><code><i>SUB</i></code></td>
+                                <td>14</td>
+                            </tr>
+                            <tr>
+                                <th>上标</th>
+                                <td><code>&lt;<b role="tag">sup</b>&gt;&lt;/<b role="tag">sup</b>&gt;</code></td>
+                                <td><code><i>SUP</i></code></td>
+                                <td>15</td>
+                            </tr>
+                            <tr>
+                                <th>标记</th>
+                                <td><code>&lt;<b role="tag">mark</b>&gt;&lt;/<b role="tag">mark</b>&gt;</code></td>
+                                <td><code><i>MARK</i></code></td>
+                                <td>16</td>
+                            </tr>
+                            <tr>
+                                <th>代码</th>
+                                <td><code>&lt;<b role="tag">code</b> data-lang=<b role="str">".."</b>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
+                                <td><code><i>CODE，可定义语言</i></code></td>
+                                <td>17</td>
+                            </tr>
+                            <tr>
+                                <th>表情</th>
+                                <td><code>&lt;<b role="tag">code</b> role=<b role="str">"orz"</b>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
+                                <td><code><i>ORZ</i></code></td>
+                                <td>18</td>
+                            </tr>
+                            <tr>
+                                <th>注音</th>
+                                <td><code>&lt;<b role="tag">ruby</b>&gt;&lt;/<b role="tag">ruby</b>&gt;</code></td>
+                                <td><code><i>RUBY /rb,rp,rt</i></code></td>
+                                <td>19</td>
+                            </tr>
+                            <tr>
+                                <th>定义</th>
+                                <td><code>&lt;<b role="tag">dfn</b>&gt;&lt;/<b role="tag">dfn</b>&gt;</code></td>
+                                <td><code><i>DFN</i></code></td>
+                                <td>20</td>
+                            </tr>
+                            <tr>
+                                <th>样本</th>
+                                <td><code>&lt;<b role="tag">samp</b>&gt;&lt;/<b role="tag">samp</b>&gt;</code></td>
+                                <td><code><i>SAMP</i></code></td>
+                                <td>21</td>
+                            </tr>
+                            <tr>
+                                <th>键盘字</th>
+                                <td><code>&lt;<b role="tag">kbd</b>&gt;&lt;/<b role="tag">kbd</b>&gt;</code></td>
+                                <td><code><i>KBD</i></code></td>
+                                <td>22</td>
+                            </tr>
+                            <tr>
+                                <th>失效</th>
+                                <td><code>&lt;<b role="tag">s</b>&gt;&lt;/<b role="tag">s</b>&gt;</code></td>
+                                <td><code><i>S</i></code></td>
+                                <td>23</td>
+                            </tr>
+                            <tr>
+                                <th>注记</th>
+                                <td><code>&lt;<b role="tag">u</b>&gt;&lt;/<b role="tag">u</b>&gt;</code></td>
+                                <td><code><i>U</i></code></td>
+                                <td>24</td>
+                            </tr>
+                            <tr>
+                                <th>变量</th>
+                                <td><code>&lt;<b role="tag">var</b>&gt;&lt;/<b role="tag">var</b>&gt;</code></td>
+                                <td><code><i>VAR</i></code></td>
+                                <td>25</td>
+                            </tr>
+                            <tr>
+                                <th>有向文本</th>
+                                <td><code>&lt;<b role="tag">bdo</b>&gt;&lt;/<b role="tag">bdo</b>&gt;</code></td>
+                                <td><code><i>BDO</i></code></td>
+                                <td>26</td>
+                            </tr>
+                            <tr>
+                                <th>度量</th>
+                                <td><code>&lt;<b role="tag">meter</b>&gt;&lt;/<b role="tag">meter</b>&gt;</code></td>
+                                <td><code><i>METER</i></code></td>
+                                <td>27</td>
+                            </tr>
+                            <tr>
+                                <th>图片</th>
+                                <td><code>&lt;<b role="tag">img</b> /&gt;</code></td>
+                                <td><code><i>IMG</i></code></td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <th>换行</th>
+                                <td><code>&lt;<b role="tag">br</b> /&gt;</code></td>
+                                <td><code><i>BR</i></code></td>
+                                <td>29</td>
+                            </tr>
+                            <tr>
+                                <th>软换行</th>
+                                <td><code>&lt;<b role="tag">wbr</b> /&gt;</code></td>
+                                <td><code><i>WBR</i></code></td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <th>空白</th>
+                                <td><code>&lt;<b role="tag">span</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
+                                <td><code><i>SPACE</i></code></td>
+                                <td>31</td>
+                            </tr>
+                            <tr>
+                                <th>特用</th>
+                                <td><code>&lt;<b role="tag">b</b>&gt;</code></td>
+                                <td><code><i>代码关键字封装</i></code></td>
+                                <td>32</td>
+                            </tr>
+                            <tr>
+                                <th>特用</th>
+                                <td><code>&lt;<b role="tag">i</b>&gt;</code></td>
+                                <td><code><i>代码注释/标题编号</i></code></td>
+                                <td>33</td>
+                            </tr>
+                            <tr>
+                                <th>文本节点</th>
+                                <td><code><b role="imp">#text</b></code></td>
+                                <td><code><i>$text</i></code></td>
+                                <td>34</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </section>
             </section>
             <hr />
@@ -675,22 +854,90 @@
                     <h2 id="封装规则">封装规则</h2>
                     <p>代码内的各种单元采用 <code>&lt;b&gt;</code> 元素封装，由 <code>role</code> 定义单元类型，但注释类型采用 <code>&lt;i&gt;</code> 封装。通常所有的 <code>&lt;b&gt;</code> 和 <code>&lt;i&gt;</code> 都处于同一层级（<code>&lt;code&gt;</code> 的直接子元素），没有嵌套。</p>
                     <p>基本名称（简写）定义如下：</p>
-                    <pre>
-<code data-lang="js">简写      <i>// 选择器        说明</i>
------------------------------------------------------------
-<b role="dt">kw</b>        <i>// b[role=kw]   keyword 关键字</i>
-<b role="dt">str</b>       <i>// b[role=str]  string 字符串</i>
-<b role="dt">fn</b>        <i>// b[role=fn]   function-name 函数名</i>
-<b role="dt">op</b>        <i>// b[role=op]   operator 运算符</i>
-<b role="dt">dt</b>        <i>// b[role=dt]   data-type 数据类型</i>
-<b role="dt">tag</b>       <i>// b[role=tag]  tag-name HTML标签名</i>
-<b role="dt">an</b>        <i>// b[role=an]   attribute-name 属性名</i>
-<b role="dt">imp</b>       <i>// b[role=imp]  important 重要</i>
-<b role="dt">doc</b>       <i>// b[role=doc]  &lt;!DOCTYPE...&gt; HTML文档声明</i>
-<b role="dt">cd</b>        <i>// b[role=cd]   &lt;![CDATA[...]]&gt; HTML代码片段</i>
-<b role="dt">re</b>        <i>// b[role=re]   RegExp 正则表达式（如：/.../gi）</i>
-<b role="dt">err</b>       <i>// b[role=err]  error 错误提示</i>
-</code></pre>
+                    <table data-border="v">
+                        <thead>
+                            <tr>
+                                <th>类型</th>
+                                <th>简写</th>
+                                <th>选择器</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>关键字</th>
+                                <td><code><b role="dt">kw</b></code></td>
+                                <td><code><i>b[role=kw]</i></code></td>
+                                <td>keyword</td>
+                            </tr>
+                            <tr>
+                                <th>字符串</th>
+                                <td><code><b role="dt">str</b></code></td>
+                                <td><code><i>b[role=str]</i></code></td>
+                                <td>string</td>
+                            </tr>
+                            <tr>
+                                <th>函数名</th>
+                                <td><code><b role="dt">fn</b></code></td>
+                                <td><code><i>b[role=fn]</i></code></td>
+                                <td>function-name</td>
+                            </tr>
+                            <tr>
+                                <th>运算符</th>
+                                <td><code><b role="dt">op</b></code></td>
+                                <td><code><i>b[role=op]</i></code></td>
+                                <td>operator</td>
+                            </tr>
+                            <tr>
+                                <th>数据类型</th>
+                                <td><code><b role="dt">dt</b></code></td>
+                                <td><code><i>b[role=dt]</i></code></td>
+                                <td>data-type</td>
+                            </tr>
+                            <tr>
+                                <th>标签名</th>
+                                <td><code><b role="dt">tag</b></code></td>
+                                <td><code><i>b[role=tag]</i></code></td>
+                                <td>tag-name</td>
+                            </tr>
+                            <tr>
+                                <th>属性名</th>
+                                <td><code><b role="dt">an</b></code></td>
+                                <td><code><i>b[role=an]</i></code></td>
+                                <td>attribute-name</td>
+                            </tr>
+                            <tr>
+                                <th>重要</th>
+                                <td><code><b role="dt">imp</b></code></td>
+                                <td><code><i>b[role=imp]</i></code></td>
+                                <td>important</td>
+                            </tr>
+                            <tr>
+                                <th>文档声明</th>
+                                <td><code><b role="dt">doc</b></code></td>
+                                <td><code><i>b[role=doc]</i></code></td>
+                                <td>&lt;!DOCTYPE...&gt;</td>
+                            </tr>
+                            <tr>
+                                <th>代码片段</th>
+                                <td><code><b role="dt">cd</b></code></td>
+                                <td><code><i>b[role=cd]</i></code></td>
+                                <td>&lt;![CDATA[...]]&gt;</td>
+                            </tr>
+                            <tr>
+                                <th>正则表达式</th>
+                                <td><code><b role="dt">re</b></code></td>
+                                <td><code><i>b[role=re]</i></code></td>
+                                <td>RegExp（/....../gi）</td>
+                            </tr>
+                            <tr>
+                                <th>错误提示</th>
+                                <td><code><b role="dt">err</b></code></td>
+                                <td><code><i>b[role=err]</i></code></td>
+                                <td>error</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <aside>
                         <h3>注记：</h3>
                         <ul>

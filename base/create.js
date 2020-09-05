@@ -217,8 +217,10 @@ const CustomMaker = {
 [
     [ T.SVGITEM ],  // 通用标识，手动创建
     [ T.RBPT ],     // 抽象类型，无创建
-    [ T.TR ],       // 由专用接口创建（Table）
-    [ T.TBODY ],    // 注记：多个<tbody>由移动/克隆产生（如果兼容）
+    [ T.TR ],       // 基于已有表格创建（Table）
+    [ T.THEAD ],    // 基于已有表格创建
+    [ T.TBODY ],    // 多个<tbody>由移动/克隆产生（如果兼容）
+    [ T.TFOOT ],    // 基于已有表格创建
 ]
 .forEach( key => CustomMaker[key] = () => null );
 

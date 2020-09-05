@@ -209,7 +209,7 @@ export class ElemCursor {
         let _val = prefix +
             (Date.now() % 0xffffffff).toString(16);
 
-        this._cel = $.attr( $.element('i'), _val );
+        this._cel = $.attr( $.elem('i'), _val );
         this._slr = `[${ _val }]`;
     }
 

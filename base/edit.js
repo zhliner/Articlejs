@@ -801,7 +801,7 @@ function pathList( el, root ) {
     let _els = [el].concat(
             $.parentsUntil( el, e => e === root )
         );
-    return _els.reverse().map( el => pathElem( $.element('b', elemInfo(el)), el ) );
+    return _els.reverse().map( el => pathElem( $.elem('b', elemInfo(el)), el ) );
 }
 
 

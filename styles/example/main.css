@@ -35,8 +35,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 .content table {
-    width: 97%;
-    /* margin: auto; */
+    width: 99%;
+    margin: 1em 0;
+    color: #2d2d2d;
 }
 .content dt {
     margin: 8px 0 2px;
@@ -425,7 +426,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  */
 .content aside {
     padding: 6px 1.8em 10px;
-    background-color: #f4faf8;
+    background-color: #f5faf8;
     border: 1px #d8ebee dotted;
     border-radius: 24px;
 }
@@ -478,9 +479,26 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 表格
  *----------------------------------------------------------------------------
  */
+
 .content tbody th:first-child {
     text-align: start;
     padding-inline-start: 0.5em;
+}
+.content thead th {
+    background-color: #f8f8f8;
+    padding: 5px;
+}
+.content table td:last-child {
+    color: #aaa;
+}
+
+.content caption,
+.content th,
+.content td {
+    padding: 1px 3px;
+}
+.content caption {
+    font-weight: bold;
 }
 
 
@@ -547,19 +565,6 @@ div[role=blank] > * {
 }
 
 
-/* 表格元件
- *----------------------------------------------------------------------------
- */
-.content caption,
-.content th,
-.content td {
-    padding: 2px;
-}
-.content caption {
-    font-weight: bold;
-}
-
-
 /* [ 内联 ]
  ****************************************************************************/
 
@@ -616,6 +621,10 @@ span[role=space] {
     border: 1px #e8e8e8 solid;
 }
 
+.content table code {
+    background-color: transparent;
+}
+
 /* 代码块
  * pre/code/b
  * ------------------------------------
@@ -636,19 +645,19 @@ span[role=space] {
  */
 .content ol[role=codelist] {
     font-size: 10pt;
-    padding: 0;
-    border: 3px #fff double;
-    background-color: #38728d;
+    padding: 1px;
+    background-color: #39898e;
     padding-left: 60px;
-    color: #aaf2f2;
-    border-radius: 8px;
+    color: #9fd0d0;
+    border-radius: 4px;
     overflow-x: auto;
     font-family: monospace;
 }
 .content ol[role=codelist] li {
-    padding-left: 4px;
+    padding-left: 9px;
     line-height: 120%;
-    background-color: cornsilk;
+    background-color: #fffbeb;
+    border-radius: inherit;
 }
 .content ol[role=codelist] code {
     color: #000;
@@ -759,7 +768,7 @@ code[data-lang="css"] b[role=tag] {
 /* 默认普通（1） */
 .content table[data-border],
 .content table[data-border] tr > * {
-    border: 1px #666 solid;
+    border: 1px #aaa solid;
 }
 
 /* 无边框 */
