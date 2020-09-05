@@ -853,87 +853,93 @@
                 <section role="s2">
                     <h2 id="封装规则">封装规则</h2>
                     <p>代码内的各种单元采用 <code>&lt;b&gt;</code> 元素封装，由 <code>role</code> 定义单元类型，但注释类型采用 <code>&lt;i&gt;</code> 封装。通常所有的 <code>&lt;b&gt;</code> 和 <code>&lt;i&gt;</code> 都处于同一层级（<code>&lt;code&gt;</code> 的直接子元素），没有嵌套。</p>
-                    <p>基本名称（简写）定义如下：</p>
+                    <p>基本名称（<strong>标识</strong>）定义如下：</p>
                     <table data-border="v">
                         <thead>
                             <tr>
                                 <th>类型</th>
-                                <th>简写</th>
+                                <th>标识</th>
                                 <th>选择器</th>
                                 <th>说明</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <th>关键字</th>
+                                <td>关键字</td>
                                 <td><code><b role="dt">kw</b></code></td>
-                                <td><code><i>b[role=kw]</i></code></td>
+                                <td><code><b role="slr">b[role=kw]</b></code></td>
                                 <td>keyword</td>
                             </tr>
                             <tr>
-                                <th>字符串</th>
+                                <td>字符串</td>
                                 <td><code><b role="dt">str</b></code></td>
-                                <td><code><i>b[role=str]</i></code></td>
+                                <td><code><b role="slr">b[role=str]</b></code></td>
                                 <td>string</td>
                             </tr>
                             <tr>
-                                <th>函数名</th>
+                                <td>函数名</td>
                                 <td><code><b role="dt">fn</b></code></td>
-                                <td><code><i>b[role=fn]</i></code></td>
+                                <td><code><b role="slr">b[role=fn]</b></code></td>
                                 <td>function-name</td>
                             </tr>
                             <tr>
-                                <th>运算符</th>
+                                <td>运算符</td>
                                 <td><code><b role="dt">op</b></code></td>
-                                <td><code><i>b[role=op]</i></code></td>
+                                <td><code><b role="slr">b[role=op]</b></code></td>
                                 <td>operator</td>
                             </tr>
                             <tr>
-                                <th>数据类型</th>
+                                <td>数据类型</td>
                                 <td><code><b role="dt">dt</b></code></td>
-                                <td><code><i>b[role=dt]</i></code></td>
+                                <td><code><b role="slr">b[role=dt]</b></code></td>
                                 <td>data-type</td>
                             </tr>
                             <tr>
-                                <th>标签名</th>
+                                <td>标签名</td>
                                 <td><code><b role="dt">tag</b></code></td>
-                                <td><code><i>b[role=tag]</i></code></td>
+                                <td><code><b role="slr">b[role=tag]</b></code></td>
                                 <td>tag-name</td>
                             </tr>
                             <tr>
-                                <th>属性名</th>
+                                <td>属性名</td>
                                 <td><code><b role="dt">an</b></code></td>
-                                <td><code><i>b[role=an]</i></code></td>
+                                <td><code><b role="slr">b[role=an]</b></code></td>
                                 <td>attribute-name</td>
                             </tr>
                             <tr>
-                                <th>重要</th>
+                                <td>选择器</td>
+                                <td><code><b role="dt">slr</b></code></td>
+                                <td><code><b role="slr">b[role=slr]</b></code></td>
+                                <td>selector</td>
+                            </tr>
+                            <tr>
+                                <td>重要</td>
                                 <td><code><b role="dt">imp</b></code></td>
-                                <td><code><i>b[role=imp]</i></code></td>
+                                <td><code><b role="slr">b[role=imp]</b></code></td>
                                 <td>important</td>
                             </tr>
                             <tr>
-                                <th>文档声明</th>
+                                <td>文档声明</td>
                                 <td><code><b role="dt">doc</b></code></td>
-                                <td><code><i>b[role=doc]</i></code></td>
+                                <td><code><b role="slr">b[role=doc]</b></code></td>
                                 <td>&lt;!DOCTYPE...&gt;</td>
                             </tr>
                             <tr>
-                                <th>代码片段</th>
+                                <td>代码片段</td>
                                 <td><code><b role="dt">cd</b></code></td>
-                                <td><code><i>b[role=cd]</i></code></td>
+                                <td><code><b role="slr">b[role=cd]</b></code></td>
                                 <td>&lt;![CDATA[...]]&gt;</td>
                             </tr>
                             <tr>
-                                <th>正则表达式</th>
+                                <td>正则表达式</td>
                                 <td><code><b role="dt">re</b></code></td>
-                                <td><code><i>b[role=re]</i></code></td>
+                                <td><code><b role="slr">b[role=re]</b></code></td>
                                 <td>RegExp（/....../gi）</td>
                             </tr>
                             <tr>
-                                <th>错误提示</th>
+                                <td>错误提示</td>
                                 <td><code><b role="dt">err</b></code></td>
-                                <td><code><i>b[role=err]</i></code></td>
+                                <td><code><b role="slr">b[role=err]</b></code></td>
                                 <td>error</td>
                             </tr>
                         </tbody>

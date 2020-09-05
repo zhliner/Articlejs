@@ -701,7 +701,7 @@ code > b[role=op] {
 
 /* data-type */
 code > b[role=dt] {
-    color: #14a505;
+    color: #23ad00;
 }
 
 /* tag-name */
@@ -713,6 +713,11 @@ code > b[role=tag] {
 /* attribute-name */
 code > b[role=an] {
     color: #090;
+}
+
+/* selector */
+code > b[role=slr] {
+    color: #d65600;
 }
 
 /* css: !important
