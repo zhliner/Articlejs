@@ -17,7 +17,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 兼容性 */
 .content * {
-    line-height: 175%;
+    line-height: 180%;
 }
 .content img,
 .content video {
@@ -484,8 +484,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     text-align: start;
     padding-inline-start: 0.5em;
 }
-.content thead th {
+.content thead {
     background-color: #f8f8f8;
+}
+.content thead th {
     padding: 5px;
 }
 .content table td:last-child {
@@ -499,6 +501,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 .content caption {
     font-weight: bold;
+    margin: 4px;
 }
 
 
@@ -630,7 +633,7 @@ span[role=space] {
  * ------------------------------------
  */
 .content pre * {
-    line-height: 160%;
+    line-height: 170%;
 }
 .content pre > code {
     display: block;
@@ -658,10 +661,9 @@ span[role=space] {
 }
 .content ol[role=codelist] li {
     padding: 1px 6px;
-    line-height: 120%;
     background-color: #fffbeb;
-    /* border-radius: inherit; */
-    /* border-bottom: 1px #eee dashed; */
+    border-bottom: 1px #eee dashed;
+    border-top-right-radius: inherit;
 }
 .content ol[role=codelist] li:first-child {
     border-top-right-radius: inherit;
@@ -772,46 +774,46 @@ code[data-lang="css"] b[role=tag] {
 
 
 /* 表格边框
- * 6种预定义格式：0|1|2|4|h|v
+ * 6种预定义格式：0|1|i|r|h|v
  ****************************************************************************/
 
 /* 边框 */
-.content table[data-border] {
+.content table[border] {
     border-collapse: collapse;
 }
 
 /* 默认普通（1） */
-.content table[data-border],
-.content table[data-border] tr > * {
+.content table[border],
+.content table[border] tr > * {
     border: 1px #aaa solid;
 }
 
 /* 无边框 */
-.content table[data-border='0'],
-.content table[data-border='0'] tr > * {
+.content table[border='0'],
+.content table[border='0'] tr > * {
     border-width: 0;
 }
 
-/* 内边框（纵/横）
+/* 内边框（纵/横）: inside
  * 技巧：外框原宽度 +1px，框色透明
  */
-.content table[data-border='2'] {
+.content table[border='i'] {
     border-width: 2px;
     border-color: transparent;
 }
 
-/* 外边框（4边） */
-.content table[data-border='4'] tr > * {
+/* 外边框（四边）：round */
+.content table[border='r'] tr > * {
     border-width: 0;
 }
 
-/* 横（行）边框 */
-.content table[data-border='h'] tr > * {
+/* 横边框（行） */
+.content table[border='h'] tr > * {
     border-width: 0 0 1px 0;
 }
 
-/* 竖（列）边框 */
-.content table[data-border='v'] tr > * {
+/* 竖边框（列） */
+.content table[border='v'] tr > * {
     border-width: 0 1px 0 0;
 }
 

@@ -116,10 +116,10 @@
         "input:wbr",
         "item:ctypes",
         "item:languages",
-        "item:tborder",
         "minied:chars",
         "minied:inlines",
-        "struct:track"
+        "struct:track",
+        "table:border"
     ],
     "styles.html": [
         "common:submit",

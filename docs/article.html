@@ -137,20 +137,20 @@
         </nav>
         <article>
             <header>
-                <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式价值不菲，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
+                <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式意义非凡，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
                 <p>依通常的情形和需求，这里提供最多5个层级的支持，分别命名为：<strong>章</strong>、<strong>节</strong>、<strong>区</strong>、<strong>段</strong>、<strong>末</strong>。它们逐层嵌套，每一层都由一个 <code>&lt;section&gt;</code> 封装，为便于识别和定位，<code>&lt;section&gt;</code> 元素上分别定义 <code>role</code> 属性值为：<code>s1 ~ s5</code>。</p>
             </header>
             <section role="s1">
                 <h2 id="层次">层次</h2>
                 <section role="s2">
                     <h2 id="标题规划">标题规划</h2>
-                    <p>逐层嵌套的 <code>&lt;section&gt;</code> 封装会隔离标题的层次逻辑，但标题自身的层级依然是可以被规划和利用的，这可能带来一些额外的好处或便利。细节如下：</p>
+                    <p>逐层嵌套的 <code>&lt;section&gt;</code> 封装会隔离标题的层次逻辑，但标题自身的层级依然是可以被规划和利用的，这能带来一些好处：内容的层次逻辑更清晰，CSS定位也更简单。</p>
                     <ul>
-                        <li><strong>h1</strong>: 仅用于文章的主标题，通常就是页面主标题。</li>
-                        <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的主标题（作为首个子元素存在）。另外也作为文章的副标题，和主标题 <code>h1</code> 一起存在于一个 <code>hgroup</code> 容器内。</li>
-                        <li><strong>h3</strong>: 各行块单元的主标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、导言（<code>&lt;header&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、目录（<code>&lt;nav:toc&gt;/&lt;h3&gt;, &lt;ol&gt;</code>）等。</li>
-                        <li><strong>h4</strong>: 级联表的小标题。以及行块单元内主标题（<code>h3</code>）逻辑以下细粒度的自由扩展。</li>
-                        <li><strong>h5~h6</strong>: 未定义。可能用于行块单元内 <code>h4</code> 小标题逻辑以下的扩展。</li>
+                        <li><strong>h1</strong>: 仅用于文章的主标题，通常也就是页面的主标题。</li>
+                        <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的标题，作为首个子元素存在。另外也作为文章的副标题，和主标题 <code>&lt;h1&gt;</code> 一起存在于一个 <code>&lt;hgroup&gt;</code> 容器内（如果需要副标题的话）。</li>
+                        <li><strong>h3</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、导言（<code>&lt;header&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、目录（<code>&lt;nav:toc&gt;/&lt;h3&gt;, &lt;ol&gt;</code>）等。</li>
+                        <li><strong>h4</strong>: 级联表里子列表的标题条目项（<code>&lt;li&gt;/&lt;h4&gt;, &lt;ol&gt;</code>）。</li>
+                        <li><strong>h5, h6</strong>: 未使用。</li>
                     </ul>
                 </section>
                 <section role="s2">
@@ -176,7 +176,7 @@
                     &lt;<b role="tag">section</b> role=<b role="str">"s5"</b>&gt;     <i>&lt;!-- 末片区。第五层 section --&gt;</i>
                         &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;           <i>&lt;!-- 末标题 --&gt;</i>
                         &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 末导言 --&gt;</i>
-                        {content} ...       <i>&lt;!-- 正文内容 --&gt;</i>
+                        {content} ...       <i>&lt;!-- 正文内容（各种行块内容件，如：&lt;p&gt;, &lt;ol&gt;） --&gt;</i>
                         &lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;   <i>&lt;!-- 末小结 --&gt;</i>
                     &lt;/<b role="tag">section</b>&gt;
                     ...                     <i>&lt;!-- 平级 section:s5 --&gt;</i>
@@ -215,7 +215,7 @@
                 <section role="s2">
                     <h2 id="内容块">内容块</h2>
                     <header>
-                        <p>独立的行块内容单元，占据单独的一行（<code>display:block</code>）。如 <code>&lt;ol&gt;</code>、<code>&lt;p&gt;</code>，前者为固定结构类单元，后者可以直接包含文本内容。</p>
+                        <p>独立的行块内容单元，占据单独的一行（<code>display:block</code>）。如 <code>&lt;hgroup&gt;</code>、<code>&lt;ol&gt;</code>、<code>&lt;p&gt;</code>，前两者为拥有固定结构的单元，后者可以直接包含文本内容或内联元素（<code>display:inline|inline-block</code>）。</p>
                     </header>
                     <section role="s3">
                         <h2 id="结构类">结构类</h2>
@@ -224,8 +224,8 @@
                             <li><code>&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h2 --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h3, ol:cascade/li/a（可多级） --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">ul</b>&gt;            <i>&lt;!-- 另参见：SEEALSO /li/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">ol</b>&gt;          <i>&lt;!-- 文献参考：REFERENCE /li/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">ul</b>&gt;            <i>&lt;!-- 另参见：SEEALSO /li... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">ol</b>&gt;          <i>&lt;!-- 文献参考：REFERENCE /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 导言：HEADER /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结：FOOTER /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">article</b>&gt;&lt;/<b role="tag">article</b>&gt;                 <i>&lt;!-- 文章区：ARTICLE /header, s1, footer, hr --&gt;</i></code></li>
@@ -234,14 +234,14 @@
                             <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s3"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S3 /h2, header, s4, footer --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s4"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S4 /h2, header, s5, footer --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s5"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S5 /h2, header, [content], footer --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, #text --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"ulx"</b>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h4, ol|ul/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"olx"</b>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h4, ul|ol/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol, ... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 定义列表：DL /dt, dd/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 定义列表：DL /dt, dd... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [p/img, span:explain?]... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h3, p... --&gt;</i></code></li>
@@ -285,8 +285,8 @@
                 <section role="s2">
                     <h2 id="内联单元">内联单元</h2>
                     <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的 <code>&lt;ruby&gt;/&lt;rb&gt;&lt;rp&gt;/&lt;rt&gt;</code>、或媒体类的 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
-                    <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
-                    <table data-border="1">
+                    <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，而必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;li&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
+                    <table border="1">
                         <thead>
                             <tr>
                                 <th>名称</th>
@@ -394,7 +394,7 @@
                             </tr>
                             <tr>
                                 <th>代码</th>
-                                <td><code>&lt;<b role="tag">code</b> data-lang=<b role="str">".."</b>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
+                                <td><code>&lt;<b role="tag">code</b> data-lang=<b role="str">"go"</b>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
                                 <td><code><i>CODE，可定义语言</i></code></td>
                                 <td>17</td>
                             </tr>
@@ -478,20 +478,20 @@
                             </tr>
                             <tr>
                                 <th>空白</th>
-                                <td><code>&lt;<b role="tag">span</b> role=<b role="str">"blank"</b>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
+                                <td><code>&lt;<b role="tag">span</b> role=<b role="str">"space"</b>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
                                 <td><code><i>SPACE</i></code></td>
                                 <td>31</td>
                             </tr>
                             <tr>
                                 <th>特用</th>
                                 <td><code>&lt;<b role="tag">b</b>&gt;</code></td>
-                                <td><code><i>代码关键字封装</i></code></td>
+                                <td><code><i>代码着色封装</i></code></td>
                                 <td>32</td>
                             </tr>
                             <tr>
                                 <th>特用</th>
                                 <td><code>&lt;<b role="tag">i</b>&gt;</code></td>
-                                <td><code><i>代码注释/标题编号</i></code></td>
+                                <td><code><i>代码注释</i></code></td>
                                 <td>33</td>
                             </tr>
                             <tr>
@@ -514,10 +514,10 @@
                 </header>
                 <section role="s2">
                     <h2 id="合法子类型">合法子类型</h2>
-                    <p>每个结构性元素或普通单元的子单元都是类型受限的（<strong>注</strong>：详见 <code>base/types.js</code> 文件配置）。</p>
-                    <p>从面板录入时，面板只会显示合法的条目构造。当对已有节点移动/克隆插入时则遵循如下原则：</p>
+                    <p>每个结构性元素或普通单元的子单元都是类型受限的（<strong>注</strong>：详见 <code>base/types.js</code> 文件配置）。从面板录入时，面板只会显示其相应的合法条目。</p>
+                    <p>当对已有节点执行移动或克隆插入时，遵循如下原则：</p>
                     <ol>
-                        <li><strong>平级插入</strong>：目标参考元素的父元素允许哪些子单元？符合即简单插入（元素），否则提取内容节点，构造默认单元插入。</li>
+                        <li><strong>平级插入</strong>：目标参考元素的父元素允许哪些子单元？符合即简单插入，否则提取内容节点，构造默认单元插入。</li>
                         <li><strong>向内插入</strong>：目标参考元素自身作为容器允许哪些子单元，符合即简单添加，否则提取内容节点构造默认条目插入。</li>
                     </ol>
                 </section>
@@ -583,8 +583,9 @@
                     </section>
                     <section role="s3">
                         <h2 id="表格">表格</h2>
+                        <p>表格的 <code>border</code> 特性描述了边框的大小，它的值应当是一个数字。但这里对它进行了扩展。</p>
                         <pre>
-<code data-lang="html">&lt;<b role="tag">table</b>&gt;
+<code data-lang="html">&lt;<b role="tag">table</b> border=<b role="str">"1"</b>&gt; <i>&lt;!-- border="0|1|i|r|h|v" --&gt;</i>
     &lt;<b role="tag">caption</b>&gt;&lt;/<b role="tag">caption</b>&gt;
     &lt;<b role="tag">thead</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
         &lt;<b role="tag">tr</b>&gt;&lt;<b role="tag">td</b>&gt;&lt;/<b role="tag">td</b>&gt;&lt;/<b role="tag">tr</b>&gt;
@@ -597,6 +598,17 @@
     &lt;/<b role="tag">tfoot</b>&gt;
 &lt;/<b role="tag">table</b>&gt;
 </code></pre>
+                        <aside>
+                            <h3>border 值含义：</h3>
+                            <ul>
+                                <li><code>0</code> 数字，依然表示表格没有边框。</li>
+                                <li><code>1</code> 数字，依然表示边框为 <strong>1</strong> 个像素。</li>
+                                <li><code>i</code> 字母，表示表格仅拥有内部（inside）边框，四边无框。</li>
+                                <li><code>r</code> 字母，表示表格仅拥有外围（round）边框。</li>
+                                <li><code>h</code> 字母，表示表格拥有横行（horizontal）的边框。</li>
+                                <li><code>v</code> 字母，表示表格拥有竖向（vertical）的边框。</li>
+                            </ul>
+                        </aside>
                     </section>
                     <section role="s3">
                         <h2 id="插图">插图</h2>
@@ -854,7 +866,7 @@
                     <h2 id="封装规则">封装规则</h2>
                     <p>代码内的各种单元采用 <code>&lt;b&gt;</code> 元素封装，由 <code>role</code> 定义单元类型，但注释类型采用 <code>&lt;i&gt;</code> 封装。通常所有的 <code>&lt;b&gt;</code> 和 <code>&lt;i&gt;</code> 都处于同一层级（<code>&lt;code&gt;</code> 的直接子元素），没有嵌套。</p>
                     <p>基本名称（<strong>标识</strong>）定义如下：</p>
-                    <table data-border="v">
+                    <table border="v">
                         <thead>
                             <tr>
                                 <th>类型</th>
