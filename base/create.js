@@ -1382,7 +1382,7 @@ function creater( _, name ) {
     if ( _tv == null ) {
         throw new Error( 'invalid target name.' );
     }
-    return (opts, data) => build( elem(_tv), opts || {}, data );
+    return (evo, opts = {}) => build( elem(_tv), opts, evo.data );
 }
 
 
@@ -1396,5 +1396,9 @@ function creater( _, name ) {
 // 代理创建（新）。
 processProxy( 'New', creater );
 
-// 构建处理（既有父元素）。
-processExtend( 'Build', children );
+
+//
+// 导出。
+//////////////////////////////////////////////////////////////////////////////
+
+export { children };

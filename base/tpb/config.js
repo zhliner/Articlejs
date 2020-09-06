@@ -274,6 +274,7 @@ function namedExtend( name, obj, methods, base ) {
 //
 // 获取对象方法自身。
 // 方法名支持句点（.）分隔的多级引用。
+// 仅能获取已经存在的成员。
 //
 function methodSelf( name, obj ) {
     name = name.split('.');

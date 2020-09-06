@@ -21,6 +21,7 @@ import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { isContent, isInlines, isEmpty, canDelete, selectTop, contentBoxes } from "./base.js";
+import { children } from "./create.js";
 import cfg from "./shortcuts.js";
 
 
@@ -1896,6 +1897,17 @@ processExtend( 'Ed', Edit, [
     'toText',
     'unWrap'
 ]);
+
+
+//
+// 在父元素内添加合法成员。
+// 注：由创建模块（create）提供支持。
+//
+processExtend(
+    'Ed.append',
+    (evo, box, args = {}) => children(box, args, evo.data)
+);
+
 
 
 // debug:

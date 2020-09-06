@@ -120,7 +120,7 @@ function hostSet( name, val, host ) {
     let _ns = name.split( '.' ),
         _nx = _ns.pop();
 
-    ( subObj(_ns) || host)[_nx] = val;
+    ( subObj(_ns, host) || host)[_nx] = val;
 }
 
 
