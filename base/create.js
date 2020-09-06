@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { processProxy, processExtend } from "./tpb/pbs.by.js";
+import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
 import { getType, setType, tableObj } from "./base.js";
 
@@ -1372,11 +1372,10 @@ function children( box, opts, data ) {
 
 /**
  * 返回创建目标名称单元的函数。
- * @param  {Object} _ 代理目标占位（target）
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
  */
-function creater( _, name ) {
+function creater( name ) {
     let _tv = T[ name.toUpperCase() ];
 
     if ( _tv == null ) {
@@ -1393,8 +1392,10 @@ function creater( _, name ) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-// 代理创建（新）。
-processProxy( 'New', creater );
+//
+// 取栈数量：1
+//
+processProxy( 'New', creater, 1 );
 
 
 //

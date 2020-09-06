@@ -1901,11 +1901,13 @@ processExtend( 'Ed', Edit, [
 
 //
 // 在父元素内添加合法成员。
+// 取栈数量：1
 // 注：由创建模块（create）提供支持。
 //
 processExtend(
     'Ed.append',
-    (evo, box, args = {}) => children(box, args, evo.data)
+    (evo, box, args = {}) => children(box, args, evo.data),
+    1
 );
 
 

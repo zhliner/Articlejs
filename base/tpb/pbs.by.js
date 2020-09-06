@@ -34,7 +34,7 @@
 import { Util } from "./tools/util.js";
 import { X } from "./lib.x.js";
 import { App__ } from "./app.js";
-import { bindMethod, Web, deepExtend, namedExtend, subObj } from "./config.js";
+import { bindMethod, Web, deepExtend, namedExtend, subObj, EXTENT, funcSets } from "./config.js";
 import { Get } from "./pbs.get.js";
 
 // 无渲染占位。
@@ -110,17 +110,21 @@ const _By = {
 //////////////////////////////////////////////////////////////////////////////
 
 /**
- * 直接赋值设置。
- * @param  {String} name 名称序列（句点分隔）
- * @param  {Value} val 待设置值
+ * 简单赋值成员。
  * @param  {Object} host 宿主对象
+ * @param  {String} name 名称序列（句点分隔）
+ * @param  {Proxy|Function} item 代理对象或操作句柄
+ * @param  {Number} n 取栈数量
  * @return {void}
  */
-function hostSet( name, val, host ) {
+function hostSet( host, name, item, n ) {
     let _ns = name.split( '.' ),
         _nx = _ns.pop();
 
-    ( subObj(_ns, host) || host)[_nx] = val;
+    if ( n !== undefined ) {
+        item[EXTENT] = n;
+    }
+    ( subObj(_ns, host) || host )[ _nx ] = item;
 }
 
 
@@ -156,12 +160,12 @@ By.x = X;
  *
  * @param  {String} name 目标域（子域由句点分隔）
  * @param  {Object|Instance|Function} exts 扩展集或类实例或操作句柄
- * @param  {Boolean|[String]} args 无需绑定或方法名集，可选。
+ * @param  {Boolean|[String]|Number} args 无需绑定或方法名集或取栈数量，可选。
  * @return {void}
  */
 export function processExtend( name, exts, args ) {
     if ( $.isFunction(exts) ) {
-        return hostSet( name, exts, By );
+        return hostSet( By, name, exts, args );
     }
     if ( $.isArray(args) ) {
         return namedExtend( name, exts, args, By );
@@ -172,14 +176,19 @@ export function processExtend( name, exts, args ) {
 
 /**
  * 接口：代理扩展。
- * 仅支持取值代理：function(target, propKey, receiver): Function。
+ * 仅支持取值代理：function( name ): Function。
  * 通常，取值代理会返回一个操作函数或结果值。
  * @param  {String} name 目标域（子域由句点分隔）
  * @param  {Function} getter 取值函数
+ * @param  {Number} n 取栈数量
  * @return {void}
  */
-export function processProxy( name, getter ) {
-    hostSet( name, new Proxy({}, {get: getter}), By );
+export function processProxy( name, getter, n ) {
+    let _pro = new Proxy(
+            {},
+            { get: (_, k) => funcSets(getter(k), n) }
+        );
+    hostSet( By, name, _pro );
 }
 
 
