@@ -568,12 +568,15 @@ export function isSameTr( tr1, tr2 ) {
 /**
  * 缓存/检索表格实例。
  * 如果尚未缓存，会自动解析并存储。
+ * tbl可能为ull，表示游离的表格内单元（不合理使用）。
  * @param  {Element} tbl 表格元素
  * @return {Table}
  */
 export function tableObj( tbl ) {
-    return __tablePool.get( tbl ) ||
-        __tablePool.set( tbl, $.table(tbl) ).get( tbl );
+    return tbl && (
+        __tablePool.get( tbl ) ||
+        __tablePool.set( tbl, $.table(tbl) ).get( tbl )
+    );
 }
 
 

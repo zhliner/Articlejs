@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { processProxy } from "./tpb/pbs.by.js";
+import { processProxy, processExtend } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
 import { getType, setType, tableObj } from "./base.js";
 
@@ -64,14 +64,14 @@ const Tags = {
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ T.SVGITEM ]:      null,
+    [ T.SVGITEM ]:      null,  // 异常阻断（不合理使用）
     [ T.TRACK ]:        'track',
     [ T.SOURCE ]:       'source',
     [ T.EXPLAIN ]:      'span\\explain',
     [ T.RB ]:           'rb',
     [ T.RT ]:           'rt',
     [ T.RP ]:           'rp',
-    [ T.RBPT ]:         null,
+    [ T.RBPT ]:         null,  // 异常阻断。
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -188,16 +188,16 @@ const CustomMaker = {
     //
     // 音频：嵌入不支持提示。
     //
-    [ T.AUDIO ]: function( tag ) {
-        return $.elem( tag, __msgAudio );
+    [ T.AUDIO ]: function() {
+        return $.elem( 'audio', __msgAudio );
     },
 
 
     //
     // 视频：嵌入不支持提示。
     //
-    [ T.VIDEO ]: function( tag ) {
-        return $.elem( tag, __msgVideo );
+    [ T.VIDEO ]: function() {
+        return $.elem( 'video', __msgVideo );
     },
 
 
@@ -208,21 +208,6 @@ const CustomMaker = {
         return $.svg();
     },
 };
-
-//
-// 不支持直接简单创建。
-// 接口：function(): null
-// 注记：调用children()才是正确的场景。
-///////////////////////////////////////
-[
-    [ T.SVGITEM ],  // 通用标识，手动创建
-    [ T.RBPT ],     // 抽象类型，无创建
-    [ T.TR ],       // 基于已有表格创建（Table）
-    [ T.THEAD ],    // 基于已有表格创建
-    [ T.TBODY ],    // 多个<tbody>由移动/克隆产生（如果兼容）
-    [ T.TFOOT ],    // 基于已有表格创建
-]
-.forEach( key => CustomMaker[key] = () => null );
 
 
 //
@@ -295,7 +280,7 @@ const Children = {
 
 
     /**
-     * 单元格已经存在。
+     * 单元格应该已经存在。
      * @node: {[Element]} <th>,<td>
      */
     [ T.TR ]: function( tr ) {
@@ -356,12 +341,11 @@ const Children = {
      * @node: {[Element]} [<li>]
      */
     [ T.TOCCASCADE ]: function( ol, _, root ) {
-        return result(
-            null,
-            // 不含role约束，因为nth-of-type()只支持标签区分。
-            $.append( ol, tocList( $.children(root, 'section') ) ),
-            true
+        let _ses = $.children(
+            root,
+            'section' // 不含role，后续用到nth-of-type()
         );
+        return result( null, $.append( ol, tocList(_ses) ), true );
     },
 
 
@@ -944,10 +928,10 @@ const Builder = {
 // 简单返回实参即可。
 //-----------------------------------------------
 [
+    T.TR,
     T.THEAD,
     T.TBODY,
     T.TFOOT,
-    T.TR,
     T.CODELI,
     T.ALI,
     T.AH4,
@@ -1392,7 +1376,7 @@ function children( box, opts, data ) {
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
  */
-function createHandler( _, name ) {
+function creater( _, name ) {
     let _tv = T[ name.toUpperCase() ];
 
     if ( _tv == null ) {
@@ -1408,4 +1392,9 @@ function createHandler( _, name ) {
 // New.[cell-name](...)
 //////////////////////////////////////////////////////////////////////////////
 
-processProxy( 'New', createHandler );
+
+// 代理创建（新）。
+processProxy( 'New', creater );
+
+// 构建处理（既有父元素）。
+processExtend( 'Build', children );

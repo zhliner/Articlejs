@@ -105,6 +105,25 @@ const _By = {
 };
 
 
+//
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 直接赋值设置。
+ * @param  {String} name 名称序列（句点分隔）
+ * @param  {Value} val 待设置值
+ * @param  {Object} host 宿主对象
+ * @return {void}
+ */
+function hostSet( name, val, host ) {
+    let _ns = name.split( '.' ),
+        _nx = _ns.pop();
+
+    ( subObj(_ns) || host)[_nx] = val;
+}
+
+
 
 //
 // 预处理/导出。
@@ -136,11 +155,14 @@ By.x = X;
  * 支持扩展类实例的方法，此时args需要是一个方法名数组。
  *
  * @param  {String} name 目标域（子域由句点分隔）
- * @param  {Object|Instance} exts 扩展集或类实例
+ * @param  {Object|Instance|Function} exts 扩展集或类实例或操作句柄
  * @param  {Boolean|[String]} args 无需绑定或方法名集，可选。
  * @return {void}
  */
 export function processExtend( name, exts, args ) {
+    if ( $.isFunction(exts) ) {
+        return hostSet( name, exts, By );
+    }
     if ( $.isArray(args) ) {
         return namedExtend( name, exts, args, By );
     }
@@ -157,10 +179,7 @@ export function processExtend( name, exts, args ) {
  * @return {void}
  */
 export function processProxy( name, getter ) {
-    let _ns = name.split( '.' ),
-        _nx = _ns.pop();
-
-    ( subObj(_ns) || By )[_nx] = new Proxy( {}, {get: getter} );
+    hostSet( name, new Proxy({}, {get: getter}), By );
 }
 
 
