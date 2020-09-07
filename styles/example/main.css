@@ -443,6 +443,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 .content details > summary {
     font-style: italic;
+    cursor: pointer;
+    outline: none;
 }
 
 .content details > p {}

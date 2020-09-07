@@ -290,17 +290,27 @@ const Children = {
 
     /**
      * 数据集仅需大小信息。
-     * 无元素特性配置。下同。
+     * 仅在表体处理时提供添加列头的能力。
+     * 注记：
+     * 需要先有行元素才能插入列头。
+     * @param {Boolean} th0 添加列表头
      * @param {[Value]} data 数据集
      * @node: {Element|[Element]} 行元素/集
      */
-    [ T.TBODY ]: function( body, _, data ) {
-        return result(
-            null,
-            appendRows( body, size(data) )
-        );
+    [ T.TBODY ]: function( body, {th0}, data ) {
+        let _trs = appendRows( body, size(data) );
+
+        if ( th0 && _trs.length ) {
+            insertVth( body.parentElement, 0 );
+        }
+        return result( null, _trs );
     },
 
+
+    /**
+     * 表头行构建。
+     * 仅取数据集大小信息。
+     */
     [ T.THEAD ]: function( head, _, data ) {
         return result(
             null,
@@ -308,6 +318,11 @@ const Children = {
         );
     },
 
+
+    /**
+     * 表脚行构建。
+     * 仅取数据集大小信息。
+     */
     [ T.TFOOT ]: function( foot, _, data ) {
         return result(
             null,
@@ -783,21 +798,18 @@ const Builder = {
 
     /**
      * 表格元素构建。
-     * 注记：无需在此缓存 Table 实例。
-     * @param  {Element} tbl 表格元素
+     * 注意缓存 Table 实例。
+     * @param  {Element} tbl 表格元素（空）
      * @param  {Number} cols 列数
      * @param  {Number} rows 行数
      * @param  {Boolean} th0 是否添加列头
      * @return {Element} tbl
      */
-    [ T.TABLE ]: function( tbl, {cols, rows, th0} ) {
+    [ T.TABLE ]: function( tbl, {cols, rows} ) {
         let _tbo = new $.Table( tbl );
         _tbo.build( cols, rows );
 
-        if ( th0 ) {
-            _tbo.insertColumn( _tbo.newColumn(true), 0 );
-        }
-        return tbl;
+        return tableObj(tbl, _tbo), tbl;
     },
 
 
@@ -960,7 +972,6 @@ const Builder = {
     T.OLX,
     T.CASCADE,
     T.DL,
-    T.TABLE,
     T.FIGURE,
     T.ASIDE,
     T.CODEBLOCK,
@@ -1147,16 +1158,40 @@ function size( data ) {
 
 
 /**
+ * 获取数据项。
+ * 如果是数组则按下标取值，否则返回该值。
+ * @param  {Value|[Value]} data 数据（集）
+ * @param  {Number} i 值下标
+ * @return {Value}
+ */
+function data( data, i ) {
+    return $.isArray(data) ? data[i] : data;
+}
+
+
+/**
  * 插入表格行。
  * 注意：返回值区分数组与单个值。
  * @param  {TableSection} tsec 表格片区
  * @param  {Number} rows 新建行数
- * @param  {Boolean} head 是否表头
+ * @param  {Boolean} head 是否在表头
  * @return {Element|[Element]} 新行（集）
  */
 function appendRows( tsec, rows, head ) {
     let _tbo = tableObj( tsec.parentElement );
     return appendNodes( tsec, rows, () => _tbo.newTR(head) );
+}
+
+
+/**
+ * 插入列表头。
+ * @param  {Element} tbl 表格元素
+ * @param  {Number} idx 列头位置，可选
+ * @return {void}
+ */
+function insertVth( tbl, idx ) {
+    let _tbo = tableObj( tbl );
+    _tbo.insertColumn( _tbo.newColumn(true), idx );
 }
 
 
@@ -1217,14 +1252,11 @@ function svgInsert( box, data ) {
  * - end  表示已经构建完成，body部分无需再递进处理。
  *
  * @param  {Element|[Element]} head 标题头或内容额外部分
- * @param  {Element|[Element]} main 内容主体
+ * @param  {Element|[Element]} body 内容主体
  * @param  {Boolean} end 是否结束（构建），可选
  * @return {Object3}
  */
 function result( head, body, end = false ) {
-    if ( $.isArray(body) && body.length === 1 ) {
-        body = body[0];
-    }
     return { head: head || null, body, end };
 }
 
@@ -1349,12 +1381,12 @@ function build( el, opts, data ) {
  * }
  * @param  {Element} box 父容器元素
  * @param  {Object} opts 子元素特性配置集
- * @param  {Node|[Node]|[String]} data 数据源
+ * @param  {Node|[Node]|[String]} cons 内容数据
  * @return {[Element]} 构建的子元素集
  */
-function children( box, opts, data ) {
+function children( box, opts, cons ) {
     let _tv = getType( box ),
-        _vs = Children[_tv]( box, opts, data );
+        _vs = Children[_tv]( box, opts, cons );
 
     if ( _vs.end ) {
         return resultEnd( _vs.head, _vs.body )
@@ -1363,10 +1395,10 @@ function children( box, opts, data ) {
         // 滤除掉未构建者。
         return resultEnd(
             _vs.head,
-            $.map( _vs.body, (el, i) => build(el, opts, data[i]) )
+            $.map( _vs.body, (el, i) => build(el, opts, data(cons, i)) )
         );
     }
-    return resultEnd( _vs.head, build(_vs.body, opts, data) );
+    return resultEnd( _vs.head, build(_vs.body, opts, cons) );
 }
 
 

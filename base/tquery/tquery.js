@@ -709,7 +709,8 @@ Object.assign( tQuery, {
                 cols.nodeType === 1 && cols,
                 doc
             );
-        _tbo.build( cols, rows );
+        // 可能是一个空<table>
+        _tbo.build( +cols || 0, rows );
 
         if ( th0 && rows > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
@@ -2277,9 +2278,8 @@ Reflect.defineProperty(tQuery, 'version', {
 class Table {
     /**
      * 创建表格实例。
-     * @param  {Element} tbl 表格元素，可选
-     * @param  {Document} 所属文档对象，可选
-     * @return {Table}
+     * @param {Element} tbl 表格元素，可选
+     * @param {Document} 所属文档对象，可选
      */
     constructor( tbl, doc = Doc ) {
         this._tbl = tbl || doc.createElement('table');
