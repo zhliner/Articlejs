@@ -1657,6 +1657,8 @@ export const Edit = {
         historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
     },
 
+    __toText: null,
+
 
     /**
      * 内容提升（unwrap）。
@@ -1677,6 +1679,8 @@ export const Edit = {
 
         if ( _op ) historyPush( _op, new DOMEdit(() => __Elemedit.unWrap($els)) );
     },
+
+    __unWrap: null,
 
 
     /**
@@ -1704,7 +1708,7 @@ export const Edit = {
      * 强制删除。
      * 不再保护结构单元的结构。
      */
-    deletesForce() {
+    deleteForce() {
         let $els = $(__ESet),
             _op = clearDeletes( $els );
 
@@ -1735,6 +1739,26 @@ export const Edit = {
 
 
     elementCloneFill() {
+        //
+    },
+
+
+    elementBefore() {
+        //
+    },
+
+
+    elementCloneBefore() {
+        //
+    },
+
+
+    elementAfter() {
+        //
+    },
+
+
+    elementCloneAfter() {
         //
     },
 
@@ -1897,18 +1921,6 @@ processExtend( 'Ed', Edit, [
     'toText',
     'unWrap'
 ]);
-
-
-//
-// 在父元素内添加合法成员。
-// 取栈数量：1
-// 注：由创建模块（create）提供支持。
-//
-processExtend(
-    'Ed.append',
-    (evo, box, args = {}) => children(box, args, evo.data),
-    1
-);
 
 
 

@@ -298,13 +298,13 @@ Content: [
     // 删除任意已选取元素，有破坏性（不保护中间结构逻辑）。
     {
         "key":      "alt:d",
-        "command":  "deletesForce"
+        "command":  "deleteForce"
     },
 
 
     // 移动填充。
-    // 将选取元素的内容移动填充到焦点元素内。
-    // 注：焦点元素可以被选取（成为内容之一）。
+    // 将选取元素或其内容移动填充到焦点元素内。
+    // 注记：目标焦点不应当被选取。
     {
         "key":      ":f",
         "command":  "elementFill"
@@ -312,10 +312,49 @@ Content: [
 
 
     // 克隆填充。
-    // 将选取元素的内容克隆填充到焦点元素内。
+    // 将选取元素或其内容克隆填充到焦点元素内。
+    // 注记：目标焦点可以被选取作为内容之一。
+    {
+        "key":      "shift:f",
+        "command":  "elementCloneFill"
+    },
+
+
+    // 移动式前插入。
+    // 将选取元素移动到焦点元素之前。
+    // 如果位置非法，自动提取内容构建默认单元插入。
+    // 注记：目标焦点不应当被选取。
     {
         "key":      ":f",
-        "command":  "elementCloneFill"
+        "command":  "elementBefore"
+    },
+
+
+    // 克隆式前插入。
+    // 说明：参考 elementBefore。
+    // 注记：目标焦点可以被选取作为内容之一。
+    {
+        "key":      ":f",
+        "command":  "elementCloneBefore"
+    },
+
+
+    // 移动式后插入。
+    // 将选取元素移动到焦点元素之后。
+    // 如果位置非法，自动提取内容构建默认单元插入。
+    // 注记：目标焦点不应当被选取。
+    {
+        "key":      ":f",
+        "command":  "elementAfter"
+    },
+
+
+    // 克隆式后插入。
+    // 说明：参考 elementAfter
+    // 注记：目标焦点可以被选取作为内容之一。
+    {
+        "key":      ":f",
+        "command":  "elementCloneAfter"
     },
 
 

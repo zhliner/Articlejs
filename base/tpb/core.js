@@ -775,7 +775,7 @@ class Cell {
 
 
     /**
-     * 方法/参数设置。
+     * 设置方法/参数。
      * 特权方法的数据栈对象自动插入到实参序列首位。
      * @param  {Array|null} args 模板配置的参数序列
      * @param  {Function} meth 目标方法
@@ -783,7 +783,7 @@ class Cell {
      * @param  {Number} n 取条目数，可选
      * @return {this}
      */
-    bind( args, meth, isx, n ) {
+    build( args, meth, isx, n ) {
         if ( isx ) {
             args = [this[_SID]].concat(args ? args : []);
         }
@@ -911,7 +911,7 @@ class Evn {
         if ( DEBUG ) {
             fn = fn.bind( evns ); // 信息查看。
         }
-        return cell.bind( null, fn );
+        return cell.build( null, fn );
     }
 
 }
@@ -966,7 +966,7 @@ class Call {
         if ( _f[PREVCELL] ) {
             cell.setPrev( prev );
         }
-        return cell.bind( this._args, _f, _f[ACCESS], _f[EXTENT] );
+        return cell.build( this._args, _f, _f[ACCESS], _f[EXTENT] );
     }
 
 }
@@ -1010,7 +1010,7 @@ class Query {
      */
     apply( cell ) {
         // n:-1 支持暂存区1项可选
-        return cell.bind( [this._slr, this._one, this._flr], query, false, -1 );
+        return cell.build( [this._slr, this._one, this._flr], query, false, -1 );
     }
 
 
@@ -1151,7 +1151,7 @@ class Update {
         if ( _f[ACCESS] === undefined ) {
             _x = false;
         }
-        return cell.bind( this._args, update.bind(_f), _x, _n );
+        return cell.build( this._args, update.bind(_f), _x, _n );
     }
 
 

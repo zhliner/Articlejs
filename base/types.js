@@ -373,14 +373,14 @@ const _BLOCKITS =
 
 //
 // 合法子单元类型。
-// 值为空数组表示无任何内容，通常为空元素。
-// 成员值为子数组表示类型，适用该类型所有单元。
-// 特殊值 null 仅用于文本节点。
+// 子数组类型是一种分组抽象，表示使用该组所有类型。
+// 值 null 表示空元素和文本节点。
 // 注记：
 // - 可用于源码结构检查。
 // - 可用于判断目标的可插入单元（向内）。
 // - 取父容器可判断平级插入时的合法单元。
-// - 特许分级片区与其它行块单元同级存在（便利性且CSS可区分）。
+//
+// { Number: Set }
 //
 const ChildTypes = {
     //
@@ -394,16 +394,16 @@ const ChildTypes = {
     [ SVG ]:            [ SVGITEM ],
     [ RUBY ]:           [ RB, RT, RP ],
     [ METER ]:          [ $TEXT ],
-    [ SPACE ]:          [],
-    [ IMG ]:            [],
-    [ BR ]:             [],
-    [ WBR ]:            [],
+    [ SPACE ]:          null,
+    [ IMG ]:            null,
+    [ BR ]:             null,
+    [ WBR ]:            null,
     //
     // 内联内结构
     /////////////////////////////////////////////
     [ SVGITEM ]:        [ SVGITEM ],
-    [ TRACK ]:          [],
-    [ SOURCE ]:         [],
+    [ TRACK ]:          null,
+    [ SOURCE ]:         null,
     [ RB ]:             [ $TEXT ],
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
@@ -477,12 +477,13 @@ const ChildTypes = {
     /////////////////////////////////////////////
     [ HGROUP ]:         [ H1, H2 ],
     [ ABSTRACT ]:       [ H3, P, _BLOLIMIT ],
-    [ TOC ]:            [ H3, CASCADE ],
+    [ TOC ]:            [ H3, TOCCASCADE ],
     [ SEEALSO ]:        [ LI, ALI ],
     [ REFERENCE ]:      [ LI, ALI ],
     [ HEADER ]:         [ H3, P, _BLOLIMIT, ULX, OLX ],
     [ FOOTER ]:         [ H3, P, _BLOLIMIT, ADDRESS ],
     [ ARTICLE ]:        [ HEADER, S1, FOOTER ],
+    // 特许分级片区与其它行块单元同级存在（操作便利性）。
     [ S1 ]:             [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
     [ S2 ]:             [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
     [ S3 ]:             [ H2, HEADER, S4, _BLOCKITS, FOOTER ],
@@ -493,7 +494,7 @@ const ChildTypes = {
     [ CODELIST ]:       [ CODELI ],
     [ ULX ]:            [ LI, ALI, ULXH4LI ],
     [ OLX ]:            [ LI, ALI, OLXH4LI ],
-    [ CASCADE ]:        [ LI, ALI, CASCADEH4LI ],
+    [ CASCADE ]:        [ LI, CASCADEH4LI, ALI, CASCADEAH4LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
     [ FIGURE ]:         [ FIGCAPTION, FIGIMGP ],
@@ -502,8 +503,8 @@ const ChildTypes = {
     [ DETAILS ]:        [ SUMMARY, P, _BLOLIMIT, TABLE ],
     [ CODEBLOCK ]:      [ CODE ],
     // 单体单元
-    [ HR ]:             [],
-    [ BLANK ]:          [],
+    [ HR ]:             null,
+    [ BLANK ]:          null,
 
     //
     // 特别单元
@@ -518,9 +519,12 @@ const ChildTypes = {
 
 };
 
-// 配置展开。
+//
+// 配置构造。
+//
 $.each(
-    ChildTypes, (v, k, o) => o[k] = v && v.flat()
+    ChildTypes,
+    (v, k, o) => o[k] = v && new Set(v.flat())
 );
 
 
@@ -633,16 +637,18 @@ export function isSpecial( tval ) {
  * @return {Boolean}
  */
 export function onlyText( tval ) {
-    let _subs = ChildTypes[ tval ] || [];
-    return _subs.length === 1 && _subs[0] === $TEXT;
+    let _subs = ChildTypes[ tval ];
+    return _subs && _subs.size === 1 && _subs.has( $TEXT );
 }
 
 
 /**
- * 返回合法值类型值集。
- * @param  {Number} tval 类型值
- * @return {[Number]}
+ * 是否为合法子类型。
+ * @param  {Number} tval 父类型值
+ * @param  {Number} sub 子类型值
+ * @return {Boolean}
  */
-export function childTypes( tval ) {
-    return ChildTypes[ tval ] || [];
+export function isChildType( tval, sub ) {
+    let _subs = ChildTypes[ tval ];
+    return _subs && _subs.has( sub );
 }
