@@ -2535,7 +2535,7 @@ class Table {
 
     /**
      * 插入一列。
-     * 实参cells应当是调用 newColumn() 的返回值。
+     * 实参cells应当是调用 .newColumn(n) 获取的完整列。
      * 注记：可获得跨列时的正确下标。
      * @param  {[Element]} cells 列单元格序列
      * @param  {Number} idx 列位置下标（从0开始）
@@ -2576,15 +2576,19 @@ class Table {
     /**
      * 获取一列。
      * 兼容单元格跨列的情况。
+     * 如果传递tsec实参，获取的是局部列（非完整）。
      * @param  {Number} idx 列位置下标（从0开始）
+     * @param  {TableSection} 表区域，可选
      * @return {[Element]} 列单元格序列
      */
-    column( idx ) {
+    column( idx, tsec ) {
         let _buf = [];
+
+        tsec = tsec || this._tbl;
         idx = this._index( idx, this._cols );
 
         if ( idx < this._cols ) {
-            for ( const tr of this._tbl.rows ) {
+            for ( const tr of tsec.rows ) {
                 _buf.push( indexCell(tr, idx) );
             }
         }
