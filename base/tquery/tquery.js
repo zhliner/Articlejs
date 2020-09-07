@@ -697,6 +697,7 @@ Object.assign( tQuery, {
      * 创建或封装Table实例。
      * th0 表示表格的首列全为<th>单元格，
      * 这并不标准，但可以简单获得列表头的效果。
+     * 注意：如果需要设置列头，行数必须至少为1。
      * @param  {Number|Element} cols 表格列数（不含列头）或表格元素
      * @param  {Number} rows 表格行数
      * @param  {Boolean} th0 是否添加列表头，可选
@@ -710,7 +711,7 @@ Object.assign( tQuery, {
             );
         _tbo.build( cols, rows );
 
-        if ( th0 ) {
+        if ( th0 && rows > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
         return _tbo;
@@ -2292,13 +2293,13 @@ class Table {
      * 注：不包含表头/表脚部分。
      * @param  {Number} cols 列数，可选
      * @param  {Number} rows 行数，可选
-     * @return {Number|void} 解析的列数或为空
+     * @return {Number|void} 解析的列数或无值
      */
     build( cols, rows ) {
-        let _trs = this._tbl.rows;
+        let _tr0 = this._tbl.rows[0];
 
-        if ( _trs.length ) {
-            return this._cols = cellCount( [..._trs[0].cells] );
+        if ( _tr0 ) {
+            return this._cols = cellCount([..._tr0.cells]);
         }
         this._cols = cols;
 
@@ -2768,7 +2769,7 @@ class Table {
      * @return {Boolean}
      */
     _inSelf( cell ) {
-        let _tr = cell.parentElement;
+        let _tr = cell && cell.parentElement;
         return _tr && _tr.parentElement.parentElement === this._tbl;
     }
 
