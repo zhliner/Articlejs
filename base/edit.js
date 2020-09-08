@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Setup, Limit } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, isInlines, isEmpty, canDelete, selectTop, contentBoxes } from "./base.js";
+import { isContent, isInlines, isEmpty, canDelete, virtualBox, contentBoxes, tableObj } from "./base.js";
 import { children } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -491,37 +491,6 @@ class ElemSels {
 
 
     /**
-     * 获取父级元素。
-     * 获取有效父元素后会清除其所包含的子元素选取。
-     * 抵达限定根元素时返回false。
-     * @param  {Element} el 焦点元素
-     * @param  {Number} n 上升最大层级数
-     * @param  {Element} end 终止边界元素（不含）
-     * @return {Element|false}
-     */
-    parent( el, n, end ) {
-        let _to = $.closest(
-            el,
-            (e, i) => i == n || e === end
-        );
-        return _to !== end && ( this.cleanDown(_to), _to );
-    }
-
-
-    /**
-     * 获取子元素。
-     * 获取到有效子元素后会移出父元素的选取。
-     * @param  {Element} el 焦点元素
-     * @param  {Number} n 子元素位置下标（从0开始，支持负值）
-     * @return {Element|void}
-     */
-    child( el, n ) {
-        let _sub = $.children( el, n );
-        return _sub && ( this._set.delete(el), _sub );
-    }
-
-
-    /**
      * 清除全部选取。
      * 友好：空集时简单忽略。
      */
@@ -956,17 +925,111 @@ function elementsSelect( els, hot, start ) {
 
 
 /**
- * 单元素选取封装。
- * 不检查目标元素的父子选取情况（假定已合法）。
+ * 单元素简单操作。
+ * 通过 clean 回调自行必要的清理（如果需要）。
  * 注：焦点移动到目标元素。
- * @param {Element} to 目标元素
- * @param {[Element]} els 之前的选取集
+ * @param {Element} el 目标元素
+ * @param {String} meth 操作方法（turn|only|add|safeAdd）
+ * @param {Function} clean 前置清理回调，可选
  */
-function elementSelect( to, els ) {
-    if ( __Selects.add(to) === false ) {
+function elementOne( el, meth, clean ) {
+    let _old = [...__ESet];
+    clean && clean();
+    __Selects[meth](el) !== false && historyPush( new ESEdit(_old, el) );
+}
+
+
+/**
+ * 平级：向前端移动。
+ * n: 0值会移动到头部首个元素。
+ * handle:
+ * function( els:[Element], beg:Element ): void
+ * 注记：
+ * 只有状态合适时才会调用 handle，下同。
+ * @param {Number} n 移动距离
+ * @param {Function} handle 调用句柄
+ */
+function previousCall( n, handle ) {
+    n = isNaN(n) ? 1 : n;
+
+    let _beg = __EHot.get();
+
+    if (!_beg || n < 0) {
         return;
     }
-    historyPush( new ESEdit(els, to) );
+    handle( $.prevAll(_beg, (_, i) => i <= n), _beg );
+}
+
+
+/**
+ * 平级：向后端移动。
+ * n: 0值会移动到末尾元素。
+ * @param {Number} n 移动距离
+ * @param {Function} handle 调用句柄
+ */
+function nextCall( n, handle ) {
+    n = isNaN(n) ? 1 : n;
+
+    let _beg = __EHot.get();
+
+    if (!_beg || n < 0) {
+        return;
+    }
+    handle( $.nextAll(_beg, (_, i) => i <= n), _beg );
+}
+
+
+/**
+ * 纵深：上级元素。
+ * 返回false表示目标超出范围。
+ * 注意：需要提供准确距离值，0值没有特殊含义。
+ * @param {Number} n 上升层级数
+ * @param {Function} handle 调用句柄
+ */
+function upCall( n, handle ) {
+    n = isNaN(n) ? 1 : n;
+
+    let _beg = __EHot.get();
+
+    if (!_beg || n <= 0) {
+        return;
+    }
+    let _to = $.closest( _beg, (el, i) => i == n || el === contentElem );
+
+    if ( _to !== contentElem ) handle(_to);
+}
+
+
+/**
+ * 纵深：目标子元素。
+ * handle: function( to, hot:Element ): null
+ * @param {Number} n 子元素位置下标（从0开始，支持负值）
+ * @param {Function} handle 调用句柄
+ */
+function downCall( n, handle ) {
+    n = n || 0;
+    let _beg = __EHot.get();
+
+    if ( !_beg || n < 0 ) {
+        return;
+    }
+    let _sub = $.children( _beg, n );
+
+    if ( _sub ) handle(_sub, _beg);
+}
+
+
+/**
+ * 纵深：顶元素操作。
+ * @param {Function} handle 调用句柄
+ */
+function topCall( handle ) {
+    let _el = __EHot.get();
+    if (!_el) return;
+
+    let _to = virtualBox( _el, contentElem );
+
+    if ( _to ) handle( _to );
 }
 
 
@@ -1237,6 +1300,54 @@ function h2PathSelector( chsn, sep = '.' ) {
 }
 
 
+/**
+ * 选取单元格所属列。
+ * 局限于同一表区域之内。
+ * @param  {Element} cell 单元格
+ * @param  {$.Table} tbo 表格实例
+ * @param  {TableSection} tsec 表区域（<tbody>|<thead>|<tfoot>），可选
+ * @return {[Element]} 单元格集
+ */
+function columnCells( cell, tbo, tsec ) {
+    let _idx = tbo.cellIndex( cell );
+
+    if ( $.isArray(_idx) ) {
+        return columnCells2( tbo, _idx, tsec );
+    }
+    return tbo.column( _idx, tsec );
+}
+
+
+/**
+ * 获取多列单元格。
+ * 可以正常处理跨列的情况。
+ * 结果集成员为按列纵向顺序。
+ * @param  {$.Table} tbo 表格实例
+ * @param  {Number} beg 起始下标
+ * @param  {Number} end 终点下标（不含）
+ * @param  {TableSection} tsec 表区域
+ * @return {[Element]}
+ */
+function columnCells2( tbo, [beg, end], tsec ) {
+    let _buf = new Set();
+
+    for (let i = beg; i < end; i++) {
+        tbo.column( i, tsec ).forEach( el => _buf.add(el) );
+    }
+    return [ ..._buf ];
+}
+
+
+/**
+ * 构建“元素:位置”选择器。
+ * @param  {Element} el 目标元素
+ * @return {String}
+ */
+function nthSlr( el ) {
+    return `${ el.tagName }:nth-child(${ $.prevAll(el).length + 1 })`;
+}
+
+
 //
 // 通用工具。
 //----------------------------------------------------------------------------
@@ -1312,65 +1423,44 @@ export const Edit = {
      * @param {Number} n 移动距离
      */
     focusPrevious( n ) {
-        n = isNaN(n) ? 1 : n;
-
-        let _beg = __EHot.get();
-
-        if ( !_beg || n < 0 ) {
-            return;
-        }
-        setFocus( $.prev(_beg, (_, i) => i == n, true) || _beg.parentElement.firstElementChild );
+        previousCall(
+            n,
+            els => els.length && setFocus( last(els) )
+        );
     },
 
 
     /**
      * 平级：后端元素。
-     * n: 0值会移动到末尾元素
+     * n: 0值会移动到末尾元素。
      * @param {Number} n 移动距离
      */
     focusNext( n ) {
-        n = isNaN(n) ? 1 : n;
-
-        let _beg = __EHot.get();
-
-        if ( !_beg || n < 0 ) {
-            return;
-        }
-        setFocus( $.next(_beg, (_, i) => i == n, true) || _beg.parentElement.lastElementChild );
+        nextCall(
+            n,
+            els => els.length && setFocus( last(els) )
+        );
     },
 
 
     /**
      * 纵深：上级元素。
-     * 返回false表示目标超出范围。
+     * 超出范围的目标指定被忽略。
      * 注意：需要提供准确距离值，0值没有特殊含义。
-     * @param  {Number} n 上升层级数
-     * @return {false|void}
+     * @param {Number} n 上升层级数
      */
     focusUp( n ) {
-        n = isNaN(n) ? 1 : n;
-
-        let _beg = __EHot.get();
-
-        if ( !_beg || n <= 0 ) {
-            return;
-        }
-        let _to = $.closest( _beg, (el, i) => i == n || el === contentElem );
-
-        return _to !== contentElem && setFocus( _to );
+        upCall( n, el => setFocus(el) );
     },
 
 
     /**
-     * 纵深：子元素序列。
+     * 纵深：目标子元素。
      * 位置下标支持负值从末尾算起（-1为末尾子元素）。
      * @param {Number} n 位置下标
      */
     focusDown( n ) {
-        let _beg = __EHot.get(),
-            _sub = _beg && $.children( _beg, n || 0 );
-
-        return _sub && setFocus( _sub );
+        downCall( n, el => setFocus(el) );
     },
 
 
@@ -1379,12 +1469,7 @@ export const Edit = {
      * 注记：不支持计数逻辑。
      */
     focusTop() {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _to = selectTop( _el, contentElem );
-
-        return _to && setFocus( _to );
+        topCall( el => setFocus(el) );
     },
 
 
@@ -1401,23 +1486,15 @@ export const Edit = {
         if ( isElemFocus(keys) ) {
             return setFocus( evo.data );
         }
-        let _fn = isTurnSelect(keys) ? 'turn' : 'only',
-            _old = [...__ESet];
-
-        if ( __Selects[_fn](evo.data) === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old, evo.data) );
+        elementOne( evo.data, isTurnSelect(keys) ? 'turn' : 'only' );
     },
 
     __click: 1,
 
 
     /**
-     * [By] 从路径添加。
-     * 当用户单击路径上的目标时选取其关联元素。
-     * 会检查父子包含关系并清理。
-     * 如果辅助键匹配，仅移动焦点而非选取。
+     * [By] 从路径添加关联元素。
+     * 需要检查父子包含关系并清理。
      * @param {Object} keys 辅助键状态
      */
     pathTo( evo, keys ) {
@@ -1425,12 +1502,7 @@ export const Edit = {
         if ( isElemFocus(keys) ) {
             return setFocus( evo.data );
         }
-        let _old = [...__ESet];
-
-        if ( __Selects.safeAdd(evo.data) === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old, evo.data) );
+        elementOne( evo.data, 'safeAdd' );
     },
 
     __pathTo: 1,
@@ -1443,13 +1515,7 @@ export const Edit = {
      */
     turn() {
         let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _old = [...__ESet];
-        if ( __Selects.turn(_el) === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old, _el) );
+        return _el && elementOne( _el, 'turn' );
     },
 
 
@@ -1511,13 +1577,34 @@ export const Edit = {
 
     /**
      * 同态叔伯元素内的同类子元素。
-     * 主要用于同章节内的子章节标题选取/取消选取。
+     * 用途：同章节内的子章节标题选取/取消选取。
+     * 注记：父级叔伯可能已选取。
+     */
+    tagsame2() {
+        let _el = __EHot.get();
+        if ( !_el ) return;
+
+        elementsUnify( $.find(`>* >${_el.tagName}`, _el.parentElement.parentElement), _el );
+    },
+
+
+    /**
+     * 同态叔伯元素内的同类同位置子元素。
+     * 用途：对表区域（如<tbody>）内同列单元格选取或取消选取。
+     * 注记：父级叔伯可能已选取。
      */
     tagsame2x() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        elementsUnify( $.find(`>* >${_el.tagName}`, _el.parentElement.parentElement), _el );
+        let _pel = _el.parentElement;
+
+        if ( _pel.tagName !== 'TR' ) {
+            return elementsUnify( $.find( `>* >${ nthSlr(_el) }`, _pel.parentElement ), _el );
+        }
+        let _tsec = _pel.parentElement;
+
+        elementsUnify( columnCells(_el, tableObj(_tsec.parentElement), _tsec), _el );
     },
 
 
@@ -1548,69 +1635,122 @@ export const Edit = {
     },
 
 
+    //-- 移动选取 ------------------------------------------------------------
+    // 单选：焦点移动到目标元素
+
+
+    /**
+     * 单选：平级前端元素。
+     * n: 0值会移动到头部首个元素。
+     * @param {Number} n 移动距离
+     */
+    onlyPrevious( n ) {
+        previousCall(
+            n,
+            els => els.length && elementOne( last(els), 'only' )
+        );
+    },
+
+
+    /**
+     * 单选：平级后端元素。
+     * n: 0值会移动到末尾元素。
+     * @param {Number} n 移动距离
+     */
+    onlyNext( n ) {
+        nextCall(
+            n,
+            els => els.length && elementOne( last(els), 'only' )
+        );
+    },
+
+
+    /**
+     * 单选：上级元素。
+     * 返回false表示目标超出范围。
+     * 注意：需要提供准确距离值，0值没有特殊含义。
+     * @param {Number} n 移动距离
+     */
+    onlyUp( n ) {
+        upCall( n, el => elementOne(el, 'only') );
+    },
+
+
+    /**
+     * 单选：目标子元素。
+     * 位置下标支持负值从末尾算起（-1为末尾子元素）。
+     * @param {Number} n 移动距离
+     */
+    onlyDown( n ) {
+        downCall( n, el => elementOne(el, 'only') );
+    },
+
+
+    /**
+     * 单选：顶元素。
+     * 位置下标支持负值从末尾算起（-1为末尾子元素）。
+     * @param {Number} n 移动距离
+     */
+    onlyTop( n ) {
+        topCall( n, el => elementOne(el, 'only') );
+    },
+
+
     //-- 选取扩展 ------------------------------------------------------------
     // 焦点会移动到扩展目标。
 
 
     /**
-     * 前端兄弟元素添加/移出。
+     * 同态：前端兄弟元素添加/移出。
      * 焦点移动到集合最后一个成员。
      * @param {Number} n 扩展距离
      */
     previousN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        n = isNaN(n) ? 1 : n;
-
-        expandSelect( _el, $.prevAll(_el, (_, i) => i <= n) );
+        previousCall(
+            n,
+            (els, beg) => expandSelect( beg, els )
+        );
     },
 
 
     /**
-     * 前端兄弟元素添加/移出。
+     * 同态：前端兄弟元素添加/移出。
      * 焦点移动到集合最后一个成员。
      * @param {Number} n 扩展距离
      */
     nextN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        n = isNaN(n) ? 1 : n;
-
-        expandSelect( _el, $.nextAll(_el, (_, i) => i <= n) );
+        nextCall(
+            n,
+            (els, beg) => expandSelect( beg, els )
+        );
     },
 
 
     /**
      * 父级元素选取。
+     * 可能存在同级兄弟元素选取，因此需要向下清理。
+     * 焦点元素可能在已选取父级元素内，而目标父级元素并未抵达该选取元素，
+     * 因此也需要向上级清理。
      * @param {Number} n 上升层数
      */
     parentN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _old = [...__ESet];
-
-        n = isNaN(n) ? 1 : n;
-        _el = __Selects.parent( _el, n, contentElem );
-
-        if ( _el ) elementSelect( _el, _old );
+        return upCall(
+            n,
+            el => elementOne( el, 'add', () => __Selects.clean(el) )
+        );
     },
 
 
     /**
      * 子元素选取。
+     * 需要移出原父元素的选取。
      * @param {Number} n 子元素位置下标（从0开始）
      */
     childN( n ) {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _old = [...__ESet];
-        _el = __Selects.child( _el, n || 0 );
-
-        if ( _el ) elementSelect( _el, _old );
+        return downCall(
+            n,
+            (el, box) => elementOne( el, 'add', () => __Selects.delete(box) )
+        );
     },
 
 
@@ -1618,18 +1758,12 @@ export const Edit = {
      * 选取内容顶元素。
      * - 内联单元：行内容元素或单元格元素。
      * - 行块单元：单元逻辑根元素。
+     * 注记：清理逻辑同.parentN。
      */
     contentTop() {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _to = selectTop( _el, contentElem );
-        if ( !_to ) return;
-
-        let _old = [...__ESet];
-
-        __Selects.clean( _to );
-        elementSelect( _to, _old );
+        topCall( el =>
+            elementOne( el, 'add', () => __Selects.clean(el) )
+        );
     },
 
 

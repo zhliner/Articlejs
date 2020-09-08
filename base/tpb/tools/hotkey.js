@@ -86,7 +86,7 @@ export class HotKey {
      */
     bind( key, cmd, exclude = null ) {
         this._map.set(
-            key,
+            this._key(key),
             {
                 commands: cmd.trim().split( __reSpace ),
                 match: exclude && ( el => !$.is(el, exclude) )
@@ -147,6 +147,21 @@ export class HotKey {
     _matches( key, target ) {
         let _cmo = this._map.get(key);
         return _cmo && (!_cmo.match || _cmo.match(target)) && _cmo.commands;
+    }
+
+
+    /**
+     * 规范化键序列表示。
+     * - 去除空白。
+     * - 全小写。
+     * - 空格占位符转为空格。
+     * @param  {String} ss 键序列
+     * @return {String}
+     */
+    _key( ss ) {
+        return ss.replace( /\s+/g, '' )
+            .toLowerCase()
+            .replace( /\bspace\b/g, ' ' );
     }
 
 }

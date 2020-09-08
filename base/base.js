@@ -568,15 +568,19 @@ export function isSameTr( tr1, tr2 ) {
 /**
  * 缓存/检索表格实例。
  * tbl可能为ull，表示游离的表格内单元（不合理使用）。
+ * 如果tbo有值，表示仅存储。
+ * 容错没有主动缓存的表格实例，即时解析（应当非空<table>）。
  * @param  {Element} tbl 表格元素
  * @param  {$.Table} 表格实例
  * @return {Table|void}
  */
 export function tableObj( tbl, tbo ) {
-    if ( tbo && tbl ) {
+    if ( tbo ) {
         return __tablePool.set( tbl, tbo );
     }
-    return __tablePool.get( tbl );
+    return tbl && (
+        __tablePool.get(tbl) || __tablePool.set(tbl, $.table(tbl)).get(tbl)
+    );
 }
 
 
@@ -621,7 +625,7 @@ export function contentBoxes( el ) {
 
 
 /**
- * 获取元素选取根。
+ * 获取元素虚拟根容器。
  * 即当用于执行Top选取操作时的目标元素。
  * - 起点为内联元素时，向上获取内容行元素。
  * - 起点为结构子时，向上获取单元根元素（内联或行块）。
@@ -633,7 +637,7 @@ export function contentBoxes( el ) {
  * @param  {Element} end 终点限定元素
  * @return {Element} 顶元素
  */
-export function selectTop( beg, end ) {
+export function virtualBox( beg, end ) {
     if ( isInlines(beg) ) {
         return contentRoot( beg.parentElement, end );
     }
