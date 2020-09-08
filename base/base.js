@@ -118,6 +118,23 @@ const CustomStruct = {
     },
 
 
+    /**
+     * 代码条目。
+     * pre/code 和 li/code 为非内联结构。
+     * @param {Element} el 代码元素
+     */
+    CODE( el ) {
+        switch ( el.parentElement.tagName ) {
+            case 'PRE':
+                return T.PRECODE;
+            case 'LI':
+                return T.LICODE;
+            default:
+                return T.CODE;
+        }
+    },
+
+
     //-- 私有辅助 ------------------------------------------------------------
 
 

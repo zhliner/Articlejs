@@ -139,17 +139,21 @@ export const
     THEAD           = 415,  // 表头
     TBODY           = 416,  // 表体
     TFOOT           = 417,  // 表脚
-    // 定制类：
-    // 容器：<li>, <p>, <h4>
+    // 定制结构类
     CODELI          = 418,  // 代码表条目（li/code） {value}
-    ALI             = 429,  // 链接列表项（li/a）
-    AH4             = 420,  // 链接小标题（h4/a）
-    ULXH4LI         = 421,  // 无序级联表项标题（li/h4, ul|ol）
-    OLXH4LI         = 422,  // 有序级联表项标题（li/h4, ol|ul）
-    CASCADEH4LI     = 423,  // 级联编号表项标题（li/h4, ol）
-    CASCADEAH4LI    = 424,  // 级联编号表链接标题项（li/[h4/a], ol）
-    TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
-    FIGIMGP         = 426,  // 插图内容区（p/img, span:explain）
+    LICODE          = 419,  // 代码表条目代码（[li]/code）非内联
+    ALI             = 420,  // 链接列表项（li/a）
+    LIA             = 421,  //
+    AH4             = 422,  // 链接小标题（h4/a）
+    H4A             = 423,  //
+    ULXH4LI         = 424,  // 无序级联表项标题（li/h4, ul|ol）
+    OLXH4LI         = 425,  // 有序级联表项标题（li/h4, ol|ul）
+    CASCADEH4LI     = 426,  // 级联编号表项标题（li/h4, ol）
+    CASCADEAH4LI    = 427,  // 级联编号表链接标题项（li/[h4/a], ol）
+    TOCCASCADE      = 428,  // 目录级联表（ol:cascade/[li/a]）
+    PRECODE         = 429,  // 代码块代码（[pre]/code） 非内联
+    FIGIMGP         = 430,  // 插图内容区（p/img, span:explain）
+    FIGPIMG         = 431,  //
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -277,9 +281,9 @@ const Specials = {
     [ LI ]:             STRUCT | STRUCTX | CONTENT,
     [ DT ]:             STRUCT | STRUCTX | CONTENT,
     [ DD ]:             STRUCT | STRUCTX | CONTENT,
-    [ TR ]:             STRUCT | STRUCTX,
     [ TH ]:             STRUCT | CONTENT,
     [ TD ]:             STRUCT | CONTENT,
+    [ TR ]:             STRUCT | STRUCTX,
     [ TBODY ]:          STRUCT,
     [ THEAD ]:          STRUCT | STRUCTX,
     [ TFOOT ]:          STRUCT | STRUCTX,
@@ -292,6 +296,8 @@ const Specials = {
     [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
     [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | SEALED,
+    [ PRECODE ]:        STRUCT | FIXED | CONTENT | SEALED,
+    [ LICODE ]:         STRUCT | FIXED | CONTENT | SEALED,
     // 插图内允许多个<p>容器。
     [ FIGIMGP ]:        STRUCT | STRUCTX | SEALED,
 
@@ -459,7 +465,12 @@ const ChildTypes = {
     [ DD ]:             [ $TEXT, _INLINES, A ],
     [ TH ]:             [ $TEXT, _INLINES, A ],
     [ TD ]:             [ $TEXT, _INLINES, A ],
-    [ CODELI ]:         [ CODE ],
+    [ TR ]:             [ TH, TD ],
+    [ THEAD ]:          [ TR ],
+    [ TBODY ]:          [ TR ],
+    [ TFOOT ]:          [ TR ],
+
+    [ CODELI ]:         [ LICODE ],
     [ ALI ]:            [ A ],
     [ AH4 ]:            [ A ],
     [ ULXH4LI ]:        [ H4, UL, OL ],
@@ -467,11 +478,9 @@ const ChildTypes = {
     [ CASCADEH4LI ]:    [ H4, OL ],
     [ CASCADEAH4LI ]:   [ AH4, OL ],
     [ TOCCASCADE ]:     [ ALI, CASCADEAH4LI ],
+    [ PRECODE ]:        [ $TEXT, B, I ],
+    [ LICODE ]:         [ $TEXT, B, I ],
     [ FIGIMGP ]:        [ IMG, EXPLAIN ],
-    [ TR ]:             [ TH, TD ],
-    [ THEAD ]:          [ TR ],
-    [ TBODY ]:          [ TR ],
-    [ TFOOT ]:          [ TR ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -501,7 +510,7 @@ const ChildTypes = {
     [ BLOCKQUOTE ]:     [ H3, P, _BLOLIMIT, TABLE ],
     [ ASIDE ]:          [ H3, P, _BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, _BLOLIMIT, TABLE ],
-    [ CODEBLOCK ]:      [ CODE ],
+    [ CODEBLOCK ]:      [ PRECODE ],
     // 单体单元
     [ HR ]:             null,
     [ BLANK ]:          null,
