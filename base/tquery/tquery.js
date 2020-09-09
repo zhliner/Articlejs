@@ -932,40 +932,6 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取元素的路径。
-     * 即每层父级匹配元素的位置下标序列。
-     * 匹配不含终点元素。
-     * slp:
-     * 路径上父元素的匹配过滤，提供路径跨级的能力。
-     * 可选，空值与通配选择器 * 相同。
-     * slr:
-     * 匹配父元素在同级中相对于slr匹配集的下标位置，
-     * 可选，默认为与父元素相同。
-     * 注记：
-     * 可用于辅助构造元素的定位，如大纲视图。
-     * 与DOM树严格的节点层次不同，这可以只是逻辑上的。
-     * 注意：
-     * 如果要用于构建 nth-of-type() 选择器，slp/slr 应当只是标签名。
-     *
-     * @param  {Element} el 起点元素
-     * @param  {Element|String} end 终点元素或选择器，可选
-     * @param  {String} slp 路径元素选择器，可选
-     * @param  {String} slr 同级参考选择器，可选
-     * @return {[Number]}
-     */
-    paths( el, end, slp, slr = slp ) {
-        let _els = tQuery.parentsUntil( el, end )
-            .reverse()
-            .concat( el );
-
-        if ( slp ) {
-            _els = _els.filter( e => $is(e, slp) );
-        }
-        return _els.map( e => siblingIndex(e, slr) );
-    },
-
-
-    /**
      * 文档就绪绑定。
      * - 可以绑定多个，会按绑定先后逐个调用。
      * - 若文档已载入并且未被hold，会立即执行。
@@ -5478,6 +5444,135 @@ function siblingIndex( el, slr ) {
 }
 
 
+/**
+ * 对象成员处理赋值。
+ * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
+ * 接口：function(v, k, source, target): [v, k] | null
+ * 返回假值忽略赋值，这提供了一种排除机制。
+ * 注：
+ * 这是一种浅赋值，相同的键会被后来者覆盖。
+ * 属性仅为自身所有，且排除了不可枚举类型（同 Object.assign 行为）。
+ *
+ * @param  {Object} to 目标对象
+ * @param  {Object} src 数据源对象
+ * @param  {Function} proc 处理器函数
+ * @return {Object} to
+ */
+ function assignProc( to, src, proc ) {
+
+    for (const k of Reflect.ownKeys(src)) {
+        // if ( src.propertyIsEnumerable(k) ) {
+        if ( Object.prototype.propertyIsEnumerable.call(src, k) ) {
+            let _v = proc(
+                src[k], k, src, to
+            );
+            if ( _v ) to[ _v[1] == null ? k : _v[1] ] = _v[0];
+        }
+    }
+    return to;
+}
+
+
+
+//
+// 滚动到当前可视。
+// - 就近显示（nearest）。
+// - 视口起点显示（start）。
+// - 居中显示（center）。
+// - 视口末尾显示（end）。
+// 注记：
+// - Safari 包含 scrollIntoViewIfNeeded 但不包含 scrollIntoView。
+// - Firefox 包含 scrollIntoView 但不包含 scrollIntoViewIfNeeded。
+// - Chrome, Edge 则同时包含两者。
+// @param {Element} el 目标元素
+//----------------------------------------------------------------------------
+
+function scrollToNearestY( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {block: 'nearest'} );
+    }
+    el.scrollIntoViewIfNeeded( false );
+}
+
+function scrollToStartY( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {block: 'start'} );
+    }
+    el.scrollIntoViewIfNeeded( true );
+}
+
+function scrollToCenterY( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {block: 'center'} );
+    }
+    el.scrollIntoViewIfNeeded( true );
+}
+
+function scrollToEndY( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {block: 'end'} );
+    }
+    el.scrollIntoViewIfNeeded( true );
+}
+
+
+function scrollToNearestX( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {inline: 'nearest'} );
+    }
+    el.scrollIntoViewIfNeeded( false );
+}
+
+function scrollToStartX( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {inline: 'start'} );
+    }
+    el.scrollIntoViewIfNeeded( true );
+}
+
+function scrollToCenterX( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {inline: 'center'} );
+    }
+    el.scrollIntoViewIfNeeded( true );
+}
+
+function scrollToEndX( el ) {
+    if ( el.scrollIntoView ) {
+        return el.scrollIntoView( {inline: 'end'} );
+    }
+    el.scrollIntoViewIfNeeded( true );
+}
+
+
+//
+// 视口显示配置。
+//  1: start
+//  0: nearest
+// -1: end
+//  2: center（默认）
+//
+const intoViewConfig = {
+    'X0':       scrollToNearestX,
+    'Xnearest': scrollToNearestX,
+    'X1':       scrollToStartX,
+    'Xstart':   scrollToStartX,
+    'X-1':      scrollToEndX,
+    'Xend':     scrollToEndX,
+    'X2':       scrollToCenterX,
+    'Xcenter':  scrollToCenterX,
+
+    'Y0':       scrollToNearestY,
+    'Ynearest': scrollToNearestY,
+    'Y1':       scrollToStartY,
+    'Ystart':   scrollToStartY,
+    'Y-1':      scrollToEndY,
+    'Yend':     scrollToEndY,
+    'Y2':       scrollToCenterY,
+    'Ycenter':  scrollToCenterY,
+}
+
+
 
 //
 // 定制事件激发封装。
@@ -7289,36 +7384,6 @@ const domReady = {
 
 
 
-/**
- * 对象成员处理赋值。
- * 对数据源的每个成员用处理器处理，结果赋值到目标对象。
- * 接口：function(v, k, source, target): [v, k] | null
- * 返回假值忽略赋值，这提供了一种排除机制。
- * 注：
- * 这是一种浅赋值，相同的键会被后来者覆盖。
- * 属性仅为自身所有，且排除了不可枚举类型（同 Object.assign 行为）。
- *
- * @param  {Object} to 目标对象
- * @param  {Object} src 数据源对象
- * @param  {Function} proc 处理器函数
- * @return {Object} to
- */
- function assignProc( to, src, proc ) {
-
-    for (const k of Reflect.ownKeys(src)) {
-        // if ( src.propertyIsEnumerable(k) ) {
-        if ( Object.prototype.propertyIsEnumerable.call(src, k) ) {
-            let _v = proc(
-                src[k], k, src, to
-            );
-            if ( _v ) to[ _v[1] == null ? k : _v[1] ] = _v[0];
-        }
-    }
-    return to;
-}
-
-
-
 //
 // 实用工具集
 ///////////////////////////////////////////////////////////////////////////////
@@ -7610,6 +7675,84 @@ Object.assign( tQuery, {
      */
     now( json ) {
         return json ? new Date().toJSON() : Date.now();
+    },
+
+
+    /**
+     * 获取元素的路径。
+     * 即每层父级匹配元素的位置下标序列。
+     * 匹配不含终点元素。
+     * slp:
+     * 路径上父元素的匹配过滤，提供路径跨级的能力。
+     * 可选，空值与通配选择器 * 相同。
+     * slr:
+     * 匹配父元素在同级中相对于slr匹配集的下标位置，
+     * 可选，默认为与父元素相同。
+     * 注记：
+     * 可用于辅助构造元素的定位，如大纲视图。
+     * 与DOM树严格的节点层次不同，这可以只是逻辑上的。
+     * 注意：
+     * 如果要用于构建 nth-of-type() 选择器，slp/slr 应当只是标签名。
+     *
+     * @param  {Element} el 起点元素
+     * @param  {Element|String} end 终点元素或选择器，可选
+     * @param  {String} slp 路径元素选择器，可选
+     * @param  {String} slr 同级参考选择器，可选
+     * @return {[Number]}
+     */
+    paths( el, end, slp, slr = slp ) {
+        let _els = tQuery.parentsUntil( el, end )
+            .reverse()
+            .concat( el );
+
+        if ( slp ) {
+            _els = _els.filter( e => $is(e, slp) );
+        }
+        return _els.map( e => siblingIndex(e, slr) );
+    },
+
+
+    /**
+     * 纵向滚动元素到当前视口。
+     * pos: {
+     *     0   就近显示（如果需要）（nearest）
+     *     1   视口起点位置（start）
+     *    -1   视口末尾位置（end）
+     *     2   居中显示，默认（center）
+     * }
+     * 注：默认行为与 scrollIntoViewIfNeeded 一致。
+     * @param  {Element} el 待滚动元素
+     * @param  {Number} pos 位置标识
+     * @return {void}
+     */
+    intoViewY( el, pos ) {
+        ( intoViewConfig[`Y${pos}`] || scrollToCenterY )( el );
+    },
+
+
+    /**
+     * 横向滚动元素到当前视口。
+     * pos: 同上。
+     * 注：默认行为与 scrollIntoViewIfNeeded 一致。
+     * @param {Element} el 待滚动元素
+     * @param {Number|String} pos 位置标识
+     */
+    intoViewX( el, pos ) {
+        ( intoViewConfig[`X${pos}`] || scrollToCenterX )( el );
+    },
+
+
+    /**
+     * 滚动元素到当前视口。
+     * 两个方向同时处理，pos2成员值同上。
+     * 注：默认行为与 scrollIntoView 规范一致。
+     * @param {Element} el 待滚动元素
+     * @param {[Number|String]} pos2 位置标识对 [X, Y]
+     */
+    intoView( el, pos2 = [0, 1] ) {
+        let [x, y] = pos2;
+        if ( x != null ) tQuery.intoViewX( el, x );
+        if ( y != null ) tQuery.intoViewY( el, y );
     },
 
 });
