@@ -7744,13 +7744,14 @@ Object.assign( tQuery, {
 
     /**
      * 滚动元素到当前视口。
-     * 两个方向同时处理，pos2成员值同上。
+     * 两个方向同时处理，x/y值含义同上。
+     * 位置实参传递null可忽略该方向上的滚动。
      * 注：默认行为与 scrollIntoView 规范一致。
      * @param {Element} el 待滚动元素
-     * @param {[Number|String]} pos2 位置标识对 [X, Y]
+     * @param {Number|String|null} x 水平位置标识
+     * @param {Number|String|null} y 垂直位置标识
      */
-    intoView( el, pos2 = [0, 1] ) {
-        let [x, y] = pos2;
+    intoView( el, x = 0, y = 1 ) {
         if ( x != null ) tQuery.intoViewX( el, x );
         if ( y != null ) tQuery.intoViewY( el, y );
     },

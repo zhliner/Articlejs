@@ -660,7 +660,27 @@ const _NextStage = {
 ]
 .forEach(function( meth ) {
 
-    _NextStage[meth] = function( evo ) { target(evo)[meth](); };
+    _NextStage[meth] = function( evo ) { target(evo)[meth]() };
+
+    _NextStage[`__${meth}`] = -1;
+
+});
+
+
+//
+// 元素滚动可视。
+// 注：覆盖On部分同名方法。
+//===============================================
+[
+    'intoViewX',    // ( pos )
+    'intoViewY',    // ( pos )
+    'intoView',     // ( x, y )
+]
+.forEach(function( meth ) {
+    /**
+     * @return {void}
+     */
+    _NextStage[meth] = function( evo, v1, v2 ) { $[meth](target(evo), v1, v2) };
 
     _NextStage[`__${meth}`] = -1;
 

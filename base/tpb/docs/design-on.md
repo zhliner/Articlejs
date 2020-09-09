@@ -224,8 +224,8 @@ movementX( v?:null ): Number | void
 movementY( v?:null ): Number | void
 // 鼠标移动量取值。
 
-scrollX( v:?null ): Number | void
-scrollY( v:?null ): Number | void
+scrolledX( v:?null ): Number | void
+scrolledY( v:?null ): Number | void
 // 内容滚动量取值。
 ```
 
@@ -343,6 +343,7 @@ lose( sure?:Boolean )       // 元素显示丢失，对应CSS display:none。
 disable( sure?:Boolean )    // 元素失活，模拟表单控件的 disabled 外观（灰化）。
 fold( sure?:Boolean )       // 元素折叠，除:first-child之外的子元素 display:none。
 truncate( sure?:Boolean )   // 截断，即后续兄弟元素 display:none
+full( sure?:Boolean )       // 充满容器。需要定义容器元素 position 样式非 static。
 // 注：
 // 传递 sure 为假值可反向表现，即取消该表现。
 // 默认 sure 为真值。
@@ -365,4 +366,9 @@ unwrap( back?:Boolean ): void | data
 // slr: 选择器或入栈指示。
 // back: 被移除的节点是否入栈。
 // data: 被移除的节点/集或展开（unwrap）的节点集。
+
+intoViewX( pos:Number|String): void
+intoViewY( pos:Number|String): void
+intoView( x, y:Number|String): void
+// 滚动到当前视口。
 ```

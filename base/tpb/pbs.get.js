@@ -53,11 +53,11 @@ const
     // 鼠标移动存储键（纵向）。
     __movementY = Symbol('mouse-movementY'),
 
-    // 内容滚动存储键（横向）。
-    __scrollX = Symbol('scroll-horizontal'),
+    // 内容滚动值存储键（横向）。
+    __scrolledX = Symbol('scroll-horizontal'),
 
-    // 内容滚动存储键（垂直）。
-    __scrollY = Symbol('scroll-vertical');
+    // 内容滚动值存储键（垂直）。
+    __scrolledY = Symbol('scroll-vertical');
 
 
 // 几个出错中断提示信息。
@@ -979,12 +979,14 @@ const _Gets = {
      * @return {Number|void} 变化量（像素）
      */
     movementX( evo, nil ) {
+        let _el = evo.current;
+
         if ( nil !== null ) {
-            let _v = evo.current[__movementX];
+            let _v = _el[__movementX];
             // n - undefined == NaN => 0
-            return ( evo.current[__movementX] = evo.event.pageX ) - _v || 0;
+            return ( _el[__movementX] = evo.event.pageX ) - _v || 0;
         }
-        delete evo.current[__movementX];
+        delete _el[__movementX];
     },
 
     __movementX: null,
@@ -997,11 +999,13 @@ const _Gets = {
      * @return {Number|void} 变化量（像素）
      */
     movementY( evo, nil ) {
+        let _el = evo.current;
+
         if ( nil !== null ) {
-            let _v = evo.current[__movementY];
-            return ( evo.current[__movementY] = evo.event.pageY ) - _v || 0;
+            let _v = _el[__movementY];
+            return ( _el[__movementY] = evo.event.pageY ) - _v || 0;
         }
-        delete evo.current[__movementY];
+        delete _el[__movementY];
     },
 
     __movementY: null,
@@ -1013,23 +1017,21 @@ const _Gets = {
      * 支持指定目标滚动元素，如果目标为空，则取事件当前元素。
      * 前值存储在事件当前元素上，因此目标元素的滚动量是特定于当前事件的。
      * 通常在事件解绑时移除该存储（传递null）。
-     * 注记：
-     * 文档内容的滚动有多种途径，鼠标的wheel不能响应键盘对内容的滚动。
      * @param  {null} nil 清除存储
      * @return {Number|void} 变化量（像素）
      */
-    scrollX( evo, nil ) {
+    scrolledX( evo, nil ) {
         let _box = evo.current,
             _its = evo.data || _box;
 
         if ( nil !== null ) {
-            let _v = _box[__scrollX];
-            return ( _box[__scrollX] = _its.scrollLeft ) - _v || 0;
+            let _v = _box[__scrolledX];
+            return ( _box[__scrolledX] = _its.scrollLeft ) - _v || 0;
         }
-        delete _box[__scrollX];
+        delete _box[__scrolledX];
     },
 
-    __scrollX: -1,
+    __scrolledX: -1,
 
 
     /**
@@ -1039,18 +1041,18 @@ const _Gets = {
      * @param  {null} nil 清除存储
      * @return {Number|void} 变化量（像素）
      */
-    scrollY( evo, nil ) {
+    scrolledY( evo, nil ) {
         let _box = evo.current,
             _its = evo.data || _box;
 
         if ( nil !== null ) {
-            let _v = _box[__scrollY];
-            return ( _box[__scrollY] = _its.scrollTop ) - _v || 0;
+            let _v = _box[__scrolledY];
+            return ( _box[__scrolledY] = _its.scrollTop ) - _v || 0;
         }
-        delete _box[__scrollY];
+        delete _box[__scrolledY];
     },
 
-    __scrollY: -1,
+    __scrolledY: -1,
 
 };
 
@@ -1255,13 +1257,13 @@ const _Gets = {
     'controls',     // ( ...names ): [Element]
     'serialize',    // ( ...names ): [Array2]
     'queryURL',     // (): String
-    'paths',        // ( end?, slp?, slr? ): [Number]
     'isArray',      // (): Boolean
     'isNumeric',    // (): Boolean
     'isFunction',   // (): Boolean
     'isCollector',  // (): Boolean
     'type',         // (): String
     'kvsMap',       // ( kname?, vname? ): [Object2]
+    'paths',        // ( end?, slp?, slr? ): [Number]
 
     // 与concat效果类似，但会改变目标本身。
     'mergeArray',   // ( ...src ): Array
@@ -1389,6 +1391,26 @@ const __uiState = [ '-', '', '^' ];
         let _vs = $mapCall( evo.data, meth, clean );
         if ( clean !== undefined ) return _vs;
     };
+
+    _Gets[`__${meth}`] = 1;
+
+});
+
+
+//
+// 元素滚动可视。
+// 多余实参无害。
+//===============================================
+[
+    'intoViewX',    // ( pos )
+    'intoViewY',    // ( pos )
+    'intoView',     // ( x, y )
+]
+.forEach(function( meth ) {
+    /**
+     * @return {void}
+     */
+    _Gets[meth] = function( evo, v1, v2 ) { $[meth](evo.data, v1, v2) };
 
     _Gets[`__${meth}`] = 1;
 

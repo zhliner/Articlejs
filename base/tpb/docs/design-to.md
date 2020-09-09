@@ -354,6 +354,10 @@ submit()
 scroll( x, y )
 // 滚动到目标位置。
 
+intoViewX( pos )
+intoViewY( pos )
+intoView( x, y )
+// 滚动到当前视口。
 
 
 // 友好定制。

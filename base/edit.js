@@ -822,26 +822,10 @@ function setFocus( el ) {
     if ( el == null ) {
         $.empty( pathContainer );
     } else {
-        scrollIntoView( el );
+        $.intoView( el, 0, 0 );
         $.fill( pathContainer, pathList(el, contentElem) );
     }
     return __EHot.set( el );
-}
-
-
-/**
- * 焦点元素滚动到视口（就近显示）。
- * 注记：
- * - Safari 包含 scrollIntoViewIfNeeded 但不包含 scrollIntoView。
- * - Firefox 包含 scrollIntoView 但不包含 scrollIntoViewIfNeeded。
- * - Chrome, Edge 则同时包含两者。
- * @param {Element} el 目标元素
- */
-function scrollIntoView( el ) {
-    if ( el.scrollIntoViewIfNeeded ) {
-        return el.scrollIntoViewIfNeeded( false );
-    }
-    el.scrollIntoView( {block: 'nearest'} );
 }
 
 

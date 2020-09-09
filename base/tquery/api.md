@@ -1674,7 +1674,7 @@ $.now(true);
 纵向滚动（`Y` 坐标）元素到当前视口。**注**：默认行为与 `scrollIntoViewIfNeeded` 一致。
 
 - `el: Element` 待滚动元素。
-- `pos: Number | String` 位置定义。
+- `pos: Number | String` 位置标识。
 
 > 位置（pos）含义：
 > - `0`  就近显示（如果需要）（`nearest`）。
@@ -1688,15 +1688,16 @@ $.now(true);
 横向滚动（`X` 坐标）元素到当前视口。**注**：默认行为与 `scrollIntoViewIfNeeded` 一致。
 
 - `el: Element` 待滚动元素。
-- `pos: Number | String` 位置定义，含义同上。
+- `pos: Number | String` 位置标识，含义同上。
 
 
-### $.intoView( el, pos2 ): void
+### $.intoView( el, x, y ): void
 
 滚动元素到当前视口。`X` 和 `Y` 两个方向同时处理。**注**：默认行为与 `scrollIntoView` 规范一致。
 
 - `el: Element` 待滚动元素。
-- `pos2: [X, Y]` 两个维度上的位置定义。类型参考前 `.intoViewY` 说明。
+- `x: Number | String` 水平方向上的位置标识。
+- `y: Number | String` 垂直方向上的位置标识。
 
 
 ### $.isArray( obj ): Boolean
