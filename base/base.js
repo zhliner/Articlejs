@@ -118,23 +118,6 @@ const CustomStruct = {
     },
 
 
-    /**
-     * 代码条目。
-     * pre/code 和 li/code 为非内联结构。
-     * @param {Element} el 代码元素
-     */
-    CODE( el ) {
-        switch ( el.parentElement.tagName ) {
-            case 'PRE':
-                return T.PRECODE;
-            case 'LI':
-                return T.LICODE;
-            default:
-                return T.CODE;
-        }
-    },
-
-
     //-- 私有辅助 ------------------------------------------------------------
 
 
@@ -370,8 +353,11 @@ function contentRoot( beg, end ) {
     }
     let _val = getType(beg);
 
-    if ( T.isContent(_val) && !T.isInlines(_val) ) {
-        return beg;
+    if ( !T.isInlines(_val) ) {
+        // 容错部分定制结构：
+        // 如：CODELI/code, FIGIMGP/img
+        // 由内联上溯而来，但到此却非内容元素。
+        return T.isContent(_val) ? beg : entityRoot( beg, end );
     }
     return contentRoot( beg.parentElement );
 }
