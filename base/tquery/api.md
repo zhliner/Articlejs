@@ -1669,35 +1669,23 @@ $.now(true);
 > 与严格的 DOM 节点树不同，这里的路径可以只是逻辑上的：父级匹配选择器提供了 **跨级** 的能力，同级参考选择器则让位置变得 **相对**。
 
 
-### $.intoViewY( el, pos ): void
+### $.intoView( el, y, x ): void
 
-纵向滚动（`Y` 坐标）元素到当前视口。**注**：默认行为与 `scrollIntoViewIfNeeded` 一致。
-
-- `el: Element` 待滚动元素。
-- `pos: Number | String` 位置标识。
-
-> 位置（pos）含义：
-> - `0`  就近显示（如果需要）（`nearest`）。
-> - `1`  视口起点位置（`start`）。
-> - `-1` 视口末尾位置（`end`）。
-> - `2`  居中显示，默认（`center`）。
-
-
-### $.intoViewX( el, pos ): void
-
-横向滚动（`X` 坐标）元素到当前视口。**注**：默认行为与 `scrollIntoViewIfNeeded` 一致。
+滚动元素到当前视口。
 
 - `el: Element` 待滚动元素。
-- `pos: Number | String` 位置标识，含义同上。
-
-
-### $.intoView( el, x, y ): void
-
-滚动元素到当前视口。`X` 和 `Y` 两个方向同时处理。**注**：默认行为与 `scrollIntoView` 规范一致。
-
-- `el: Element` 待滚动元素。
+- `y: Number | String | true | false` 垂直方向上的位置标识。
 - `x: Number | String` 水平方向上的位置标识。
-- `y: Number | String` 垂直方向上的位置标识。
+
+> 位置（y|x）含义：
+> - `0`     就近显示（如果需要）（`nearest`）。
+> - `1`     视口起点位置（`start`）。
+> - `-1`    视口末尾位置（`end`）。
+> - `2`     居中显示，默认（`center`）。
+> - `true`  居中显示（如果需要），仅适用 scrollIntoViewIfNeeded （Safari）。
+> - `false` 就近显示（如果需要），同上。
+
+默认行为与 `scrollIntoView/scrollIntoViewIfNeeded` 规范一致。
 
 
 ### $.isArray( obj ): Boolean

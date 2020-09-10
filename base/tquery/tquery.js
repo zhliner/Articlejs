@@ -5473,103 +5473,29 @@ function siblingIndex( el, slr ) {
 }
 
 
-
 //
-// 滚动到当前可视。
-// - 就近显示（nearest）。
-// - 视口起点显示（start）。
-// - 居中显示（center）。
-// - 视口末尾显示（end）。
+// 滚动到当前可视配置。
+//  0: 就近显示（nearest）。
+//  1: 视口起点显示（start）。
+// -1: 视口末尾显示（end）。
+//  2: 居中显示（center）。
 // 注记：
 // - Safari 包含 scrollIntoViewIfNeeded 但不包含 scrollIntoView。
 // - Firefox 包含 scrollIntoView 但不包含 scrollIntoViewIfNeeded。
 // - Chrome, Edge 则同时包含两者。
-// @param {Element} el 目标元素
-//----------------------------------------------------------------------------
-
-function scrollToNearestY( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {block: 'nearest'} );
-    }
-    el.scrollIntoViewIfNeeded( false );
-}
-
-function scrollToStartY( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {block: 'start'} );
-    }
-    el.scrollIntoViewIfNeeded( true );
-}
-
-function scrollToCenterY( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {block: 'center'} );
-    }
-    el.scrollIntoViewIfNeeded( true );
-}
-
-function scrollToEndY( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {block: 'end'} );
-    }
-    el.scrollIntoViewIfNeeded( true );
-}
-
-
-function scrollToNearestX( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {inline: 'nearest'} );
-    }
-    el.scrollIntoViewIfNeeded( false );
-}
-
-function scrollToStartX( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {inline: 'start'} );
-    }
-    el.scrollIntoViewIfNeeded( true );
-}
-
-function scrollToCenterX( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {inline: 'center'} );
-    }
-    el.scrollIntoViewIfNeeded( true );
-}
-
-function scrollToEndX( el ) {
-    if ( el.scrollIntoView ) {
-        return el.scrollIntoView( {inline: 'end'} );
-    }
-    el.scrollIntoViewIfNeeded( true );
-}
-
-
 //
-// 视口显示配置。
-//  1: start
-//  0: nearest
-// -1: end
-//  2: center（默认）
-//
-const intoViewConfig = {
-    'X0':       scrollToNearestX,
-    'Xnearest': scrollToNearestX,
-    'X1':       scrollToStartX,
-    'Xstart':   scrollToStartX,
-    'X-1':      scrollToEndX,
-    'Xend':     scrollToEndX,
-    'X2':       scrollToCenterX,
-    'Xcenter':  scrollToCenterX,
-
-    'Y0':       scrollToNearestY,
-    'Ynearest': scrollToNearestY,
-    'Y1':       scrollToStartY,
-    'Ystart':   scrollToStartY,
-    'Y-1':      scrollToEndY,
-    'Yend':     scrollToEndY,
-    'Y2':       scrollToCenterY,
-    'Ycenter':  scrollToCenterY,
+const intoViewWhere = {
+    '0':        'nearest',
+    '1':        'start',
+    '-1':       'end',
+    '2':        'center',
+    'nearest':  'nearest',
+    'start':    'start',
+    'end':      'end',
+    'center':   'center',
+    // scrollIntoViewIfNeeded
+    'true':     'center',
+    'false':    'nearest',
 }
 
 
@@ -7713,47 +7639,31 @@ Object.assign( tQuery, {
 
 
     /**
-     * 纵向滚动元素到当前视口。
-     * pos: {
+     * 滚动元素到当前视口。
+     * x, y: {
      *     0   就近显示（如果需要）（nearest）
      *     1   视口起点位置（start）
      *    -1   视口末尾位置（end）
      *     2   居中显示，默认（center）
      * }
-     * 注：默认行为与 scrollIntoViewIfNeeded 一致。
-     * @param  {Element} el 待滚动元素
-     * @param  {Number} pos 位置标识
-     * @return {void}
-     */
-    intoViewY( el, pos ) {
-        ( intoViewConfig[`Y${pos}`] || scrollToCenterY )( el );
-    },
-
-
-    /**
-     * 横向滚动元素到当前视口。
-     * pos: 同上。
-     * 注：默认行为与 scrollIntoViewIfNeeded 一致。
+     * 默认行为与 scrollIntoView/scrollIntoViewIfNeeded 规范一致。
+     * 注记：
+     * y 值兼容 scrollIntoViewIfNeeded 的实参值（Safari）。
+     *
      * @param {Element} el 待滚动元素
-     * @param {Number|String} pos 位置标识
+     * @param {Number|String|true|false} y 垂直位置标识
+     * @param {Number|String} x 水平位置标识
      */
-    intoViewX( el, pos ) {
-        ( intoViewConfig[`X${pos}`] || scrollToCenterX )( el );
-    },
+    intoView( el, y = 1, x = 0 ) {
+        let inline = intoViewWhere[x] || 'nearest',
+            block = intoViewWhere[y] || 'start';
 
-
-    /**
-     * 滚动元素到当前视口。
-     * 两个方向同时处理，x/y值含义同上。
-     * 位置实参传递null可忽略该方向上的滚动。
-     * 注：默认行为与 scrollIntoView 规范一致。
-     * @param {Element} el 待滚动元素
-     * @param {Number|String|null} x 水平位置标识
-     * @param {Number|String|null} y 垂直位置标识
-     */
-    intoView( el, x = 0, y = 1 ) {
-        if ( x != null ) tQuery.intoViewX( el, x );
-        if ( y != null ) tQuery.intoViewY( el, y );
+        if ( el.scrollIntoView ) {
+            return el.scrollIntoView( {block, inline} );
+        }
+        // Y轴指定 nearest 才有效。
+        // 以符合 scrollIntoViewIfNeeded 的默认效果。
+        el.scrollIntoViewIfNeeded( block !== 'nearest' );
     },
 
 });
