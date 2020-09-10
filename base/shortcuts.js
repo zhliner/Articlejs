@@ -156,28 +156,32 @@ Content: [
     //-----------------------------------------------------
 
     {
-        "key":      ":h",  // ←
+        // ArrowLeft（←）
+        "key":      ":h",
         "command":  "focusPrevious"
     },
 
     {
-        "key":      ":l",  // →
+        // ArrowRight（→）
+        "key":      ":l",
         "command":  "focusNext"
     },
 
     {
-        "key":      ":k",  // ↑
-        "command":  "focusUp"
+        // ArrowUp（↑）
+        "key":      ":k",
+        "command":  "focusParent"
     },
 
     {
-        "key":      ":j",  // ↓
-        "command":  "focusDown"
+        // ArrowDown（↓）
+        "key":      ":j",
+        "command":  "focusChild"
     },
 
     {
         "key":      ":t",
-        "command":  "focusTop"
+        "command":  "focusItemTop"
     },
 
 
@@ -244,51 +248,49 @@ Content: [
     // 选取单元的内容根元素集。
     // 注：新元素集插入选取集头部。
     {
-        "key":      "shift:z",
+        "key":      "alt:z",
         "command":  "contentBoxesStart"
     },
 
 
     //
-    // 移动选取
-    // 单选：焦点移动到目标元素。
+    // 单选游走
+    // 焦点移动到目标元素。
     //-----------------------------------------------------
 
     // 同级向前（←）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "ctrl:h",
+        "key":      "alt:h",
         "command":  "onlyPrevious"
     },
 
     // 同级向后（→）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "ctrl:l",
+        "key":      "alt:l",
         "command":  "onlyNext"
     },
 
     // 父级选取（↑）
     // 支持前置数字指定上升层级（准确值）。
     {
-        "key":      "ctrl:k",
-        "command":  "onlyUp"
+        "key":      "alt:k",
+        "command":  "onlyParent"
     },
 
     // 子级选取（↓）
     // 支持前置数字指定子元素下标，
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
-        "key":      "ctrl:j",
-        "command":  "onlyDown"
+        "key":      "alt:j",
+        "command":  "onlyChild"
     },
 
     // 顶元素选取。
-    // - 内联元素的顶元素为内容行元素（或<td>,<th>）。
-    // - 结构元素的顶元素为所属单元的根元素。
     {
-        "key":      "ctrl:t",
-        "command":  "onlyTop"
+        "key":      "alt:t",
+        "command":  "onlyItemTop"
     },
 
 
@@ -301,21 +303,21 @@ Content: [
     // 接受前置数字指定扩展距离（默认值1）。
     {
         "key":      "shift:h",
-        "command":  "previousN"
+        "command":  "previous"
     },
 
     // 同级向后（→）扩选
     // 接受前置数字指定扩展距离（默认值1）。
     {
         "key":      "shift:l",
-        "command":  "nextN"
+        "command":  "next"
     },
 
     // 父级换选（↑）
     // 支持前置数字指定上升层级（准确值）。
     {
         "key":      "shift:k",
-        "command":  "parentN"
+        "command":  "parent"
     },
 
     // 子级换选（↓）
@@ -323,16 +325,21 @@ Content: [
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
         "key":      "shift:j",
-        "command":  "childN"
+        "command":  "child"
     },
 
-    // 选取单元顶元素。
+    // 选取顶元素。
     // - 内联元素的顶元素为内容行元素（或<td>,<th>）。
     // - 结构元素的顶元素为所属单元的根元素。
     {
         "key":      "shift:t",
-        "command":  "contentTop"
+        "command":  "itemTop"
     },
+
+
+    //
+    // 虚焦点相关
+    //-----------------------------------------------------
 
 
     //

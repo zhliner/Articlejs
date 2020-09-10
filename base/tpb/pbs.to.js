@@ -637,6 +637,20 @@ const _NextStage = {
 
     __changes: -1,
 
+
+    /**
+     * 滚动到当前视口。
+     * y, x 值说明参考On部分同名接口。
+     * @param  {Number|String|true|false} y 垂直位置标识
+     * @param  {Number} x 水平位置标识
+     * @return {void}
+     */
+    intoView( evo, y, x ) {
+        $.intoView( target(evo), y, x );
+    },
+
+    __intoView: -1,
+
 };
 
 
@@ -661,26 +675,6 @@ const _NextStage = {
 .forEach(function( meth ) {
 
     _NextStage[meth] = function( evo ) { target(evo)[meth]() };
-
-    _NextStage[`__${meth}`] = -1;
-
-});
-
-
-//
-// 元素滚动可视。
-// 注：覆盖On部分同名方法。
-//===============================================
-[
-    'intoViewX',    // ( pos )
-    'intoViewY',    // ( pos )
-    'intoView',     // ( x, y )
-]
-.forEach(function( meth ) {
-    /**
-     * @return {void}
-     */
-    _NextStage[meth] = function( evo, v1, v2 ) { $[meth](target(evo), v1, v2) };
 
     _NextStage[`__${meth}`] = -1;
 

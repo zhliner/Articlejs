@@ -822,7 +822,7 @@ function setFocus( el ) {
     if ( el == null ) {
         $.empty( pathContainer );
     } else {
-        $.intoView( el, 0, 0 );
+        $.intoView( el, 0 );
         $.fill( pathContainer, pathList(el, contentElem) );
     }
     return __EHot.set( el );
@@ -970,7 +970,7 @@ function nextCall( n, handle ) {
  * @param {Number} n 上升层级数
  * @param {Function} handle 调用句柄
  */
-function upCall( n, handle ) {
+function parentCall( n, handle ) {
     n = isNaN(n) ? 1 : n;
 
     let _beg = __EHot.get();
@@ -980,7 +980,7 @@ function upCall( n, handle ) {
     }
     let _to = $.closest( _beg, (el, i) => i == n || el === contentElem );
 
-    if ( _to !== contentElem ) handle(_to);
+    handle( _to !== contentElem && _to);
 }
 
 
@@ -990,16 +990,14 @@ function upCall( n, handle ) {
  * @param {Number} n 子元素位置下标（从0开始，支持负值）
  * @param {Function} handle 调用句柄
  */
-function downCall( n, handle ) {
+function childCall( n, handle ) {
     n = n || 0;
     let _beg = __EHot.get();
 
     if ( !_beg || n < 0 ) {
         return;
     }
-    let _sub = $.children( _beg, n );
-
-    if ( _sub ) handle(_sub, _beg);
+    handle( $.children(_beg, n) );
 }
 
 
@@ -1009,11 +1007,9 @@ function downCall( n, handle ) {
  */
 function topCall( handle ) {
     let _el = __EHot.get();
-    if (!_el) return;
+    if ( !_el ) return;
 
-    let _to = virtualBox( _el, contentElem );
-
-    if ( _to ) handle( _to );
+    handle( virtualBox(_el, contentElem) );
 }
 
 
@@ -1433,8 +1429,8 @@ export const Edit = {
      * 注意：需要提供准确距离值，0值没有特殊含义。
      * @param {Number} n 上升层级数
      */
-    focusUp( n ) {
-        upCall( n, el => setFocus(el) );
+    focusParent( n ) {
+        parentCall( n, el => el && setFocus(el) );
     },
 
 
@@ -1443,8 +1439,8 @@ export const Edit = {
      * 位置下标支持负值从末尾算起（-1为末尾子元素）。
      * @param {Number} n 位置下标
      */
-    focusDown( n ) {
-        downCall( n, el => setFocus(el) );
+    focusChild( n ) {
+        childCall( n, el => el && setFocus(el) );
     },
 
 
@@ -1452,8 +1448,8 @@ export const Edit = {
      * 纵深：顶元素。
      * 注记：不支持计数逻辑。
      */
-    focusTop() {
-        topCall( el => setFocus(el) );
+    focusItemTop() {
+        topCall( el => el && setFocus(el) );
     },
 
 
@@ -1586,6 +1582,8 @@ export const Edit = {
         if ( _pel.tagName !== 'TR' ) {
             return elementsUnify( $.find( `>* >${ nthSlr(_el) }`, _pel.parentElement ), _el );
         }
+        // 单元格单独处理。
+        // 因为存在跨列单元格的逻辑列问题。
         let _tsec = _pel.parentElement;
 
         elementsUnify( columnCells(_el, tableObj(_tsec.parentElement), _tsec), _el );
@@ -1655,8 +1653,8 @@ export const Edit = {
      * 注意：需要提供准确距离值，0值没有特殊含义。
      * @param {Number} n 移动距离
      */
-    onlyUp( n ) {
-        upCall( n, el => elementOne(el, 'only') );
+    onlyParent( n ) {
+        parentCall( n, el => el && elementOne(el, 'only') );
     },
 
 
@@ -1665,18 +1663,16 @@ export const Edit = {
      * 位置下标支持负值从末尾算起（-1为末尾子元素）。
      * @param {Number} n 移动距离
      */
-    onlyDown( n ) {
-        downCall( n, el => elementOne(el, 'only') );
+    onlyChild( n ) {
+        childCall( n, el => el && elementOne(el, 'only') );
     },
 
 
     /**
      * 单选：顶元素。
-     * 位置下标支持负值从末尾算起（-1为末尾子元素）。
-     * @param {Number} n 移动距离
      */
-    onlyTop( n ) {
-        topCall( n, el => elementOne(el, 'only') );
+    onlyItemTop() {
+        topCall( el =>  el && elementOne(el, 'only') );
     },
 
 
@@ -1689,7 +1685,7 @@ export const Edit = {
      * 焦点移动到集合最后一个成员。
      * @param {Number} n 扩展距离
      */
-    previousN( n ) {
+    previous( n ) {
         previousCall(
             n,
             (els, beg) => expandSelect( beg, els )
@@ -1702,7 +1698,7 @@ export const Edit = {
      * 焦点移动到集合最后一个成员。
      * @param {Number} n 扩展距离
      */
-    nextN( n ) {
+    next( n ) {
         nextCall(
             n,
             (els, beg) => expandSelect( beg, els )
@@ -1717,37 +1713,86 @@ export const Edit = {
      * 因此也需要向上级清理。
      * @param {Number} n 上升层数
      */
-    parentN( n ) {
-        return upCall(
+    parent( n ) {
+        return parentCall(
             n,
-            el => elementOne( el, 'add', () => __Selects.clean(el) )
+            el => el && elementOne( el, 'add', () => __Selects.clean(el) )
         );
     },
 
 
     /**
      * 子元素选取。
-     * 需要移出原父元素的选取。
+     * 焦点元素可能在已选取父级元素之内，因此需要向上清理。。
      * @param {Number} n 子元素位置下标（从0开始）
      */
-    childN( n ) {
-        return downCall(
+    child( n ) {
+        return childCall(
             n,
-            (el, box) => elementOne( el, 'add', () => __Selects.delete(box) )
+            el => el && elementOne( el, 'add', () => __Selects.cleanUp(el) )
         );
     },
 
 
     /**
-     * 选取内容顶元素。
+     * 选取顶元素。
      * - 内联单元：行内容元素或单元格元素。
      * - 行块单元：单元逻辑根元素。
+     * - 内联内结构：所属内联元素。
      * 注记：清理逻辑同.parentN。
      */
-    contentTop() {
+    itemTop() {
         topCall( el =>
-            elementOne( el, 'add', () => __Selects.clean(el) )
+            el && elementOne( el, 'add', () => __Selects.clean(el) )
         );
+    },
+
+
+    //-- 虚焦点相关 ----------------------------------------------------------
+
+
+    siblingsVF() {
+        //
+    },
+
+
+    reverseVF() {
+        //
+    },
+
+
+    tagsameVF() {
+        //
+    },
+
+
+    previousVF( n ) {
+        //
+    },
+
+
+    nextVF( n ) {
+        //
+    },
+
+
+    contentBoxesVF() {
+        //
+    },
+
+
+    childVF( n ) {
+        //
+    },
+
+
+    parentVF( n ) {
+        //
+    },
+
+
+    itemTopVF() {
+        //
     },
 
 

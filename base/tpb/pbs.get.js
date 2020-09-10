@@ -962,6 +962,25 @@ const _Gets = {
     __clear: 1,
 
 
+    /**
+     * 滚动到当前视口。
+     * y, x: {
+     *     0   就近显示（如果需要）（nearest）
+     *     1   视口起点位置（start）
+     *    -1   视口末尾位置（end）
+     *     2   居中显示，默认（center）
+     * }
+     * @param  {Number|String|true|false} y 垂直位置标识
+     * @param  {Number} x 水平位置标识
+     * @return {void}
+     */
+    intoView( evo, y, x ) {
+        $.intoView( evo.data, y, x );
+    },
+
+    __intoView: 1,
+
+
 
     // 专有补充。
     //-------------------------------------------
@@ -1391,26 +1410,6 @@ const __uiState = [ '-', '', '^' ];
         let _vs = $mapCall( evo.data, meth, clean );
         if ( clean !== undefined ) return _vs;
     };
-
-    _Gets[`__${meth}`] = 1;
-
-});
-
-
-//
-// 元素滚动可视。
-// 多余实参无害。
-//===============================================
-[
-    'intoViewX',    // ( pos )
-    'intoViewY',    // ( pos )
-    'intoView',     // ( x, y )
-]
-.forEach(function( meth ) {
-    /**
-     * @return {void}
-     */
-    _Gets[meth] = function( evo, v1, v2 ) { $[meth](evo.data, v1, v2) };
 
     _Gets[`__${meth}`] = 1;
 
