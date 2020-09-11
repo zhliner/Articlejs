@@ -202,10 +202,11 @@ class DOMEdit {
 class ESEdit {
     /**
      * 创建一个操作单元。
+     * 友好：未传递新的焦点元素表示焦点不变。
      * @param {[Element]} old 操作之前的元素集
-     * @param {Element} focus 焦点元素
+     * @param {Element} focus 焦点元素，可选
      */
-    constructor( old, focus ) {
+    constructor( old, focus = __EHot.get() ) {
         this._old = old;
         this._els = [...__ESet];
 
@@ -503,12 +504,24 @@ class ElemSels {
 
 
     /**
-     * 简单添加。
+     * 普通添加。
+     * 会检查父子包含关系并清理。
+     * 如果已经选取则无行为。
+     * @param  {Element} el 目标元素
+     * @return {el|false}
+     */
+    add( el ) {
+        return !this._set.has(el) && this.clean(el)._set.add(el);
+    }
+
+
+    /**
+     * 安全添加。
      * 外部需要自行清理父子已选取。
      * @param  {Element} el 选取元素
      * @return {el|false}
      */
-    add( el ) {
+    safeAdd( el ) {
         return !this._set.has(el) && this._set.add(el);
     }
 
@@ -520,18 +533,6 @@ class ElemSels {
      */
     delete( el ) {
         return this._set.has(el) && this._set.delete(el);
-    }
-
-
-    /**
-     * 安全添加。
-     * 会检查父子包含关系并清理。
-     * 如果已经选取则无行为。
-     * @param  {Element} el 目标元素
-     * @return {el|false}
-     */
-    safeAdd( el ) {
-        return !this._set.has(el) && this.clean(el)._set.add(el);
     }
 
 
@@ -559,7 +560,8 @@ class ElemSels {
     /**
      * 向上父级清理。
      * 检索集合内包含目标子元素的成员并清除其选取。
-     * 即：清理目标元素的上级已选取。
+     * 即清理目标元素的上级已选取。
+     * 如果不存在上级选取，返回 false。
      * @param  {Element} el 目标子元素
      * @return {this|false}
      */
@@ -576,7 +578,8 @@ class ElemSels {
     /**
      * 向下子级清理。
      * 检索集合内为目标元素子元素的成员并清除其选取。
-     * 即：清理目标元素的子级已选取，可能包含多个成员。
+     * 即清理目标元素的子级已选取，可能包含多个成员。
+     * 如果未实际执行清理，返回 false。
      * @param  {Element} el 目标父元素
      * @return {this|false}
      */
@@ -1328,8 +1331,35 @@ function nthSlr( el ) {
 }
 
 
+/**
+ * 获取首个兄弟元素。
+ * 如果在集合中找到为其它成员兄弟的元素，返回该元素。
+ * 如果所有成员都是唯一子元素，返回 true。
+ * 如果集合成员都是平级单一元素，返回 false。
+ * 注记：
+ * 用于虚焦点平级操作前的合法性检测，返回的元素可用于帮助提示。
+ * @param  {[Element]} els 元素集
+ * @return {Element|Boolean}
+ */
+function theSibling( els ) {
+    let _set = new Set(),
+        _cnt = 0;
+
+    for ( const [i, el] of els.entries() ) {
+        let _box = el.parentElement;
+        _cnt += _box.childElementCount;
+
+        if ( _set.add(_box).size === i ) {
+            return warn('repeat sibling:', el) || el;
+        }
+    }
+    return _cnt === els.length;
+}
+
+
+
 //
-// 通用工具。
+// 通用工具
 //----------------------------------------------------------------------------
 
 
@@ -1337,8 +1367,8 @@ function nthSlr( el ) {
  * 控制台警告。
  * @param {String} msg 输出消息
  */
-function warn( msg ) {
-    window.console.warn( msg );
+function warn( msg, data ) {
+    window.console.warn( msg, data );
 }
 
 
@@ -1482,7 +1512,7 @@ export const Edit = {
         if ( isElemFocus(keys) ) {
             return setFocus( evo.data );
         }
-        elementOne( evo.data, 'safeAdd' );
+        elementOne( evo.data, 'add' );
     },
 
     __pathTo: 1,
@@ -1507,6 +1537,8 @@ export const Edit = {
         if ( !_el ) return;
 
         let _old = [...__ESet];
+
+        // 可能为已选取元素子元素。
         __Selects.cleanUp( _el );
 
         if ( __Selects.reverse(_el.parentElement.children) === false ) {
@@ -1716,7 +1748,7 @@ export const Edit = {
     parent( n ) {
         return parentCall(
             n,
-            el => el && elementOne( el, 'add', () => __Selects.clean(el) )
+            el => el && elementOne( el, 'safeAdd', () => __Selects.clean(el) )
         );
     },
 
@@ -1729,7 +1761,7 @@ export const Edit = {
     child( n ) {
         return childCall(
             n,
-            el => el && elementOne( el, 'add', () => __Selects.cleanUp(el) )
+            el => el && elementOne( el, 'safeAdd', () => __Selects.cleanUp(el) )
         );
     },
 
@@ -1743,54 +1775,96 @@ export const Edit = {
      */
     itemTop() {
         topCall( el =>
-            el && elementOne( el, 'add', () => __Selects.clean(el) )
+            el && elementOne( el, 'safeAdd', () => __Selects.clean(el) )
         );
     },
 
 
     //-- 虚焦点相关 ----------------------------------------------------------
+    // 实际焦点不变了。
 
 
+    /**
+     * 兄弟全选（a）。
+     * 如果选取集成员存在叔侄关系，就会有清理覆盖，
+     * 后选取的元素会清理掉先选取的元素。
+     */
     siblingsVF() {
-        //
+        let _old = [...__ESet];
+
+        if ( theSibling(_old) ) {
+            return;
+        }
+        // 清理会影响选取集，因此用副本迭代。
+        for ( const el of _old ) {
+            __Selects.cleanUp( el );
+
+            // 当前el可能已被叔伯清理掉。
+            __Selects.adds( el.parentElement.children );
+        }
+        historyPush( new ESEdit(_old) );
     },
 
 
+    /**
+     * 同级反选（v）。
+     */
     reverseVF() {
         //
     },
 
 
+    /**
+     * 兄弟同类全选（e）
+     */
     tagsameVF() {
         //
     },
 
 
+    /**
+     * 前向扩选。
+     */
     previousVF( n ) {
         //
     },
 
 
+    /**
+     * 后向扩选。
+     */
     nextVF( n ) {
         //
     },
 
 
+    /**
+     * 向下内容根子集（z）。
+     */
     contentBoxesVF() {
         //
     },
 
 
+    /**
+     * 子元素定位。
+     */
     childVF( n ) {
         //
     },
 
 
+    /**
+     * 父级选取。
+     */
     parentVF( n ) {
         //
     },
 
 
+    /**
+     * 上级顶元素。
+     */
     itemTopVF() {
         //
     },
@@ -2033,7 +2107,7 @@ export const Kit = {
         if ( __Selects.empty() === false ) {
             return;
         }
-        historyPush( new ESEdit(_old, __EHot.get()) );
+        historyPush( new ESEdit(_old) );
     },
 
 

@@ -142,7 +142,8 @@ export class EHot {
      */
     set( el ) {
         let _its = this._its;
-        return _its !== el && this._set(el), _its;
+        if ( _its !== el ) this._set(el);
+        return _its;
     }
 
 

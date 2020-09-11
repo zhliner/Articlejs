@@ -22,18 +22,18 @@
 //      [alt+][ctrl+][meta+][shift]:[event.key]
 //
 //  映射键是一个修饰键加键名称的序列（有序）。
-//  修饰键之间以加号（+）连接，而与键名称的连接则采用冒号（:）。注：修饰键也有键名称。
+//  修饰键之间以加号（+）连接，而与键名称的连接则采用冒号（:）。
 //  例：
 //      alt:alt         单纯按 Alt 键
 //      ctrl:control    单纯按 ctrl 键
 //      alt+ctrl:f      组合按 Alt+Ctrl+F 三个键（注意顺序）
 //      :a              单纯按 A 键
-//      shift:a         按 Shift 和 A 键（大写A）
+//      shift:a         按 Shift 和 A 键（即大写A）
 //
 //  说明：
 //  支持多个键序列映射到同一指令标识，此时键序列为数组。
-//  键名称忽略大小写，支持空格分隔美化视觉（注：空格键本身用 Space 表示）。
-//  外部的用户配置可覆盖此处的默认值（接口：'tpb/tools/HotKey.bind|config'）。
+//  键名称忽略大小写，容错空格分隔友好阅读（注：空格键本身用 Space 标识）。
+//  如果有外部的用户配置，可参考：'tpb/tools/hotkey.js:HotKey.bind|config'。
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -235,7 +235,7 @@ Content: [
     // 用途：
     // 基于当前单元格，选取表格<tbody>内单个列（<th>或<td>）。
     {
-        "key":      "alt+shift:e",
+        "key":      "ctrl+shift:e",
         "command":  "tagsame2x"
     },
 
@@ -248,7 +248,7 @@ Content: [
     // 选取单元的内容根元素集。
     // 注：新元素集插入选取集头部。
     {
-        "key":      "alt:z",
+        "key":      "shift:z",
         "command":  "contentBoxesStart"
     },
 
@@ -341,11 +341,64 @@ Content: [
     // 虚焦点相关
     //-----------------------------------------------------
 
+    // 兄弟全选。
+    {
+        "key":      "ctrl+shift:a",
+        "command":  "siblingsVF"
+    },
+
+    // 兄弟反选。
+    {
+        "key":      "ctrl+shift:v",
+        "command":  "reverseVF"
+    },
+
+    // 兄弟同类全选。
+    {
+        "key":      "ctrl+shift:e",
+        "command":  "tagsameVF"
+    },
+
+    // 向前扩选。
+    {
+        "key":      "ctrl+shift:h",
+        "command":  "previousVF"
+    },
+
+    // 向后扩选。
+    {
+        "key":      "ctrl+shift:l",
+        "command":  "nextVF"
+    },
+
+    // 向下内容根子集。
+    {
+        "key":      "ctrl+shift:z",
+        "command":  "contentBoxesVF"
+    },
+
+    // 子元素定位。
+    {
+        "key":      "ctrl+shift:j",
+        "command":  "childVF"
+    },
+
+    // 父级选取。
+    {
+        "key":      "ctrl+shift:k",
+        "command":  "parentVF"
+    },
+
+    // 上级顶元素。
+    {
+        "key":      "ctrl+shift:t",
+        "command":  "itemTopVF"
+    },
+
 
     //
     // 编辑相关
     //-----------------------------------------------------
-
 
     // 智能删除。
     // - 完整的逻辑单元（行块、内联）。
