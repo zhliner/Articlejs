@@ -339,59 +339,60 @@ Content: [
 
     //
     // 虚焦点相关
+    // 注记：原相关操作键上 +Alt
     //-----------------------------------------------------
 
     // 兄弟全选。
     {
-        "key":      "ctrl+shift:a",
+        "key":      "alt:a",
         "command":  "siblingsVF"
     },
 
     // 兄弟反选。
     {
-        "key":      "ctrl+shift:v",
+        "key":      "alt:v",
         "command":  "reverseVF"
     },
 
     // 兄弟同类全选。
     {
-        "key":      "ctrl+shift:e",
+        "key":      "alt:e",
         "command":  "tagsameVF"
     },
 
     // 向前扩选。
     {
-        "key":      "ctrl+shift:h",
+        "key":      "alt+shift:h",
         "command":  "previousVF"
     },
 
     // 向后扩选。
     {
-        "key":      "ctrl+shift:l",
+        "key":      "alt+shift:l",
         "command":  "nextVF"
     },
 
     // 向下内容根子集。
     {
-        "key":      "ctrl+shift:z",
+        "key":      "alt:z",
         "command":  "contentBoxesVF"
     },
 
     // 子元素定位。
     {
-        "key":      "ctrl+shift:j",
+        "key":      "alt+shift:j",
         "command":  "childVF"
     },
 
     // 父级选取。
     {
-        "key":      "ctrl+shift:k",
+        "key":      "alt+shift:k",
         "command":  "parentVF"
     },
 
     // 上级顶元素。
     {
-        "key":      "ctrl+shift:t",
+        "key":      "alt+shift:t",
         "command":  "itemTopVF"
     },
 
@@ -420,7 +421,7 @@ Content: [
     // 强制删除。
     // 删除任意已选取元素，有破坏性（不保护中间结构逻辑）。
     {
-        "key":      "alt:d",
+        "key":      "alt+shift:d",
         "command":  "deleteForce"
     },
 

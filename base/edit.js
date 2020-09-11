@@ -527,6 +527,16 @@ class ElemSels {
 
 
     /**
+     * 安全添加元素集。
+     * 外部保证父子选取已清理。
+     * @param {[Element]} els 元素集
+     */
+    safeAdds( els ) {
+        this._set.pushes( els );
+    }
+
+
+    /**
      * 简单移除。
      * @param  {Element} el 选取元素
      * @return {el|false}
@@ -891,7 +901,7 @@ function elementsUnify( els, hot ) {
 
 /**
  * 元素集选取封装。
- * 集合内的成员可能属于不同的父元素，
+ * 内容子单元可能属于不同的父容器，而焦点元素也可能未选取，
  * 因此需要逐一清理。
  * @param {[Element]} els 内容子元素
  * @param {Element} hot 焦点元素
@@ -902,7 +912,7 @@ function elementsSelect( els, hot, start ) {
         _fn = start ? 'unshift' : 'adds';
 
     els.forEach(
-        el => __Selects.cleanUp(el)
+        el => __Selects.cleanUp( el )
     );
     if ( __Selects[_fn](els) === false ) {
         return;
@@ -923,6 +933,27 @@ function elementOne( el, meth, clean ) {
     let _old = [...__ESet];
     clean && clean();
     __Selects[meth](el) !== false && historyPush( new ESEdit(_old, el) );
+}
+
+
+/**
+ * 添加元素集选取。
+ * 假定父级未选取，会自动清理子级已选取成员。
+ * 用途：虚焦点系列操作。
+ * @param {[Element]} els 当前选取集
+ * @param {Function} gets 获取新元素集回调
+ */
+function elementAdds( els, gets ) {
+    if ( theSibling(els) ) {
+        return;
+    }
+    for ( const el of els ) {
+        __Selects.cleanUp( el );
+
+        // 当前el可能已被叔伯清理掉。
+        __Selects.adds( gets(el) );
+    }
+    historyPush( new ESEdit(els) );
 }
 
 
@@ -1013,6 +1044,19 @@ function topCall( handle ) {
     if ( !_el ) return;
 
     handle( virtualBox(_el, contentElem) );
+}
+
+
+/**
+ * 检查选取集是否变化。
+ * @param  {[Element]} old 原选取集
+ * @return {Boolean}
+ */
+function stillSame( old ) {
+    if ( old.length !== __ESet.size ) {
+        return false;
+    }
+    return $.every( __ESet, (el, i) => old[i] === el );
 }
 
 
@@ -1186,34 +1230,6 @@ function clearDeletes( els ) {
 
 
 /**
- * 构造兄弟元素集组。
- * 用于选取集分组执行相同操作。
- * @param  {Set} sels 选取集
- * @return {[[Element]]} 元素集组
- */
-function teamSiblings( sels ) {
-    let _map = new Map();
-
-    for ( const el of sels ) {
-        childSet( _map, el.parentElement ).push( el );
-    }
-    return [ ..._map.values() ];
-}
-
-
-/**
- * 获取子元素存储集。
- * 以父元素为键，如果不存在则自动创建。
- * @param  {Map} 存储集映射集
- * @param  {Element} key 存储键
- * @return {Set} 存储集
- */
-function childSet( map, key ) {
-    return map.get( key ) || map.set( key, [] ).get( key );
-}
-
-
-/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -1332,9 +1348,9 @@ function nthSlr( el ) {
 
 
 /**
- * 获取首个兄弟元素。
+ * 获取首个互为兄弟的元素。
  * 如果在集合中找到为其它成员兄弟的元素，返回该元素。
- * 如果所有成员都是唯一子元素，返回 true。
+ * 空集或所有成员都是唯一子元素时，返回 true。
  * 如果集合成员都是平级单一元素，返回 false。
  * 注记：
  * 用于虚焦点平级操作前的合法性检测，返回的元素可用于帮助提示。
@@ -1649,65 +1665,6 @@ export const Edit = {
     },
 
 
-    //-- 移动选取 ------------------------------------------------------------
-    // 单选：焦点移动到目标元素
-
-
-    /**
-     * 单选：平级前端元素。
-     * n: 0值会移动到头部首个元素。
-     * @param {Number} n 移动距离
-     */
-    onlyPrevious( n ) {
-        previousCall(
-            n,
-            els => els.length && elementOne( last(els), 'only' )
-        );
-    },
-
-
-    /**
-     * 单选：平级后端元素。
-     * n: 0值会移动到末尾元素。
-     * @param {Number} n 移动距离
-     */
-    onlyNext( n ) {
-        nextCall(
-            n,
-            els => els.length && elementOne( last(els), 'only' )
-        );
-    },
-
-
-    /**
-     * 单选：上级元素。
-     * 返回false表示目标超出范围。
-     * 注意：需要提供准确距离值，0值没有特殊含义。
-     * @param {Number} n 移动距离
-     */
-    onlyParent( n ) {
-        parentCall( n, el => el && elementOne(el, 'only') );
-    },
-
-
-    /**
-     * 单选：目标子元素。
-     * 位置下标支持负值从末尾算起（-1为末尾子元素）。
-     * @param {Number} n 移动距离
-     */
-    onlyChild( n ) {
-        childCall( n, el => el && elementOne(el, 'only') );
-    },
-
-
-    /**
-     * 单选：顶元素。
-     */
-    onlyItemTop() {
-        topCall( el =>  el && elementOne(el, 'only') );
-    },
-
-
     //-- 选取扩展 ------------------------------------------------------------
     // 焦点会移动到扩展目标。
 
@@ -1780,77 +1737,150 @@ export const Edit = {
     },
 
 
+    //-- 移动选取 ------------------------------------------------------------
+    // 单选：焦点移动到目标元素
+
+
+    /**
+     * 单选：平级前端元素。
+     * n: 0值会移动到头部首个元素。
+     * @param {Number} n 移动距离
+     */
+    onlyPrevious( n ) {
+        previousCall(
+            n,
+            els => els.length && elementOne( last(els), 'only' )
+        );
+    },
+
+
+    /**
+     * 单选：平级后端元素。
+     * n: 0值会移动到末尾元素。
+     * @param {Number} n 移动距离
+     */
+    onlyNext( n ) {
+        nextCall(
+            n,
+            els => els.length && elementOne( last(els), 'only' )
+        );
+    },
+
+
+    /**
+     * 单选：上级元素。
+     * 返回false表示目标超出范围。
+     * 注意：需要提供准确距离值，0值没有特殊含义。
+     * @param {Number} n 移动距离
+     */
+    onlyParent( n ) {
+        parentCall( n, el => el && elementOne(el, 'only') );
+    },
+
+
+    /**
+     * 单选：目标子元素。
+     * 位置下标支持负值从末尾算起（-1为末尾子元素）。
+     * @param {Number} n 移动距离
+     */
+    onlyChild( n ) {
+        childCall( n, el => el && elementOne(el, 'only') );
+    },
+
+
+    /**
+     * 单选：顶元素。
+     */
+    onlyItemTop() {
+        topCall( el =>  el && elementOne(el, 'only') );
+    },
+
+
     //-- 虚焦点相关 ----------------------------------------------------------
     // 实际焦点不变了。
 
 
     /**
      * 兄弟全选（a）。
+     * 注记：
      * 如果选取集成员存在叔侄关系，就会有清理覆盖，
      * 后选取的元素会清理掉先选取的元素。
      */
     siblingsVF() {
-        let _old = [...__ESet];
-
-        if ( theSibling(_old) ) {
-            return;
-        }
-        // 清理会影响选取集，因此用副本迭代。
-        for ( const el of _old ) {
-            __Selects.cleanUp( el );
-
-            // 当前el可能已被叔伯清理掉。
-            __Selects.adds( el.parentElement.children );
-        }
-        historyPush( new ESEdit(_old) );
+        elementAdds(
+            [...__ESet],
+            el => el.parentElement.children
+        )
     },
 
 
     /**
-     * 同级反选（v）。
-     */
-    reverseVF() {
-        //
-    },
-
-
-    /**
-     * 兄弟同类全选（e）
+     * 兄弟同类选取（e）
+     * 注记同上。
      */
     tagsameVF() {
-        //
+        elementAdds(
+            [...__ESet],
+            el => $.find( `>${el.tagName}`, el.parentElement )
+        );
     },
 
 
     /**
      * 前向扩选。
+     * 注记同前。
      */
     previousVF( n ) {
-        //
+        elementAdds(
+            [...__ESet],
+            el => $.prevAll( el, (_, i) => i <= n )
+        );
     },
 
 
     /**
      * 后向扩选。
+     * 注记同前。
      */
     nextVF( n ) {
-        //
+        elementAdds(
+            [...__ESet],
+            el => $.nextAll( el, (_, i) => i <= n )
+        );
     },
 
 
     /**
-     * 向下内容根子集（z）。
+     * 向下内容根（z）。
+     * 注记：向内检索各自独立，先移除自身即可。
      */
     contentBoxesVF() {
-        //
+        let _old = [ ...ESet ];
+
+        for ( const el of _old ) {
+            __Selects.delete( el );
+            __Selects.safeAdds( contentBoxes(el) );
+        }
+        stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
 
     /**
      * 子元素定位。
+     * 注记同上。
      */
     childVF( n ) {
-        //
+        let _old = [ ...__ESet ];
+
+        for ( const el of _old ) {
+            let _sub = $.children( el, n );
+
+            if ( _sub ) {
+                __Selects.delete( el );
+                __Selects.safeAdd( _sub );
+            }
+        }
+        stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
 
