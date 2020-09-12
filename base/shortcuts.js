@@ -398,7 +398,7 @@ Content: [
 
 
     //
-    // 编辑相关
+    // 编辑操作
     //-----------------------------------------------------
 
     // 智能删除。
@@ -482,6 +482,75 @@ Content: [
     },
 
 
+    // 编辑撤销（含选取）
+    {
+        "key":      ":u",
+        "command":  "editUndo"
+    },
+
+    // 编辑重做（含选取）
+    {
+        "key":      ":r",
+        "command":  "editRedo"
+    },
+
+
+    //
+    // 定位移动
+    // 普通：1px/键次
+    // 增强：10px/键次
+    //-----------------------------------------------------
+
+
+    {
+        "key":      "Ctrl:ArrowLeft",
+        "command":  "moveLeft"
+    },
+
+    {
+        "key":      "Ctrl+Shift:ArrowLeft",
+        "command":  "moveLeftTen"
+    },
+
+
+    {
+        "key":      "Ctrl:ArrowRight",
+        "command":  "moveRight"
+    },
+
+    {
+        "key":      "Ctrl+Shift:ArrowRight",
+        "command":  "moveRightTen"
+    },
+
+
+    {
+        "key":      "Ctrl:ArrowUp",
+        "command":  "moveUp"
+    },
+
+    {
+        "key":      "Ctrl+Shift:ArrowUp",
+        "command":  "moveUpTen"
+    },
+
+
+    {
+        "key":      "Ctrl:ArrowDown",
+        "command":  "moveDown"
+    },
+
+    {
+        "key":      "Ctrl+Shift:ArrowDown",
+        "command":  "moveDownTen"
+    },
+
+
+    //
+    // 杂项功能
+    //-----------------------------------------------------
+
+
     // 新建关联。
     // 显示焦点元素关联的新建面板（并聚焦到列表栏）。
     {
@@ -512,19 +581,6 @@ Content: [
     {
         "key":      ":g",
         "command":  "gotoChapter"
-    },
-
-
-    // 编辑撤销（含选取）
-    {
-        "key":      ":u",
-        "command":  "editUndo"
-    },
-
-    // 编辑重做（含选取）
-    {
-        "key":      ":r",
-        "command":  "editRedo"
     },
 
 ],
@@ -615,8 +671,10 @@ Keys: {
     // 注：不能为空。
     turnSelect: 'Ctrl',
 
-    // 焦点元素设置。
+    // 焦点元素辅助。
     // 单纯的设置元素为焦点元素（不选取）。
+    // [Key] + 单击
+    // 支持内容区目标和路径关联方式。
     elemFocus: 'Alt',
 
 },

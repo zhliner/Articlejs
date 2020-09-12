@@ -964,36 +964,34 @@ function elementAdds( els, gets ) {
  * function( els:[Element], beg:Element ): void
  * 注记：
  * 只有状态合适时才会调用 handle，下同。
+ * @param {Element} hot 焦点元素
  * @param {Number} n 移动距离
  * @param {Function} handle 调用句柄
  */
-function previousCall( n, handle ) {
+function previousCall( hot, n, handle ) {
     n = isNaN(n) ? 1 : n;
 
-    let _beg = __EHot.get();
-
-    if (!_beg || n < 0) {
+    if (!hot || n < 0) {
         return;
     }
-    handle( $.prevAll(_beg, (_, i) => i <= n), _beg );
+    handle( $.prevAll(hot, (_, i) => i <= n), hot );
 }
 
 
 /**
  * 平级：向后端移动。
  * n: 0值会移动到末尾元素。
+ * @param {Element} hot 焦点元素
  * @param {Number} n 移动距离
  * @param {Function} handle 调用句柄
  */
-function nextCall( n, handle ) {
+function nextCall( hot, n, handle ) {
     n = isNaN(n) ? 1 : n;
 
-    let _beg = __EHot.get();
-
-    if (!_beg || n < 0) {
+    if (!hot || n < 0) {
         return;
     }
-    handle( $.nextAll(_beg, (_, i) => i <= n), _beg );
+    handle( $.nextAll(hot, (_, i) => i <= n), hot );
 }
 
 
@@ -1001,18 +999,17 @@ function nextCall( n, handle ) {
  * 纵深：上级元素。
  * 返回false表示目标超出范围。
  * 注意：需要提供准确距离值，0值没有特殊含义。
+ * @param {Element} hot 焦点元素
  * @param {Number} n 上升层级数
  * @param {Function} handle 调用句柄
  */
-function parentCall( n, handle ) {
+function parentCall( hot, n, handle ) {
     n = isNaN(n) ? 1 : n;
 
-    let _beg = __EHot.get();
-
-    if (!_beg || n <= 0) {
+    if (!hot || n <= 0) {
         return;
     }
-    let _to = $.closest( _beg, (el, i) => i == n || el === contentElem );
+    let _to = $.closest( hot, (el, i) => i == n || el === contentElem );
 
     handle( _to !== contentElem && _to);
 }
@@ -1021,29 +1018,27 @@ function parentCall( n, handle ) {
 /**
  * 纵深：目标子元素。
  * handle: function( to, hot:Element ): null
+ * @param {Element} hot 焦点元素
  * @param {Number} n 子元素位置下标（从0开始，支持负值）
  * @param {Function} handle 调用句柄
  */
-function childCall( n, handle ) {
+function childCall( hot, n, handle ) {
     n = n || 0;
-    let _beg = __EHot.get();
 
-    if ( !_beg || n < 0 ) {
+    if ( !hot || n < 0 ) {
         return;
     }
-    handle( $.children(_beg, n) );
+    handle( $.children(hot, n) );
 }
 
 
 /**
  * 纵深：顶元素操作。
+ * @param {Element} hot 焦点元素
  * @param {Function} handle 调用句柄
  */
-function topCall( handle ) {
-    let _el = __EHot.get();
-    if ( !_el ) return;
-
-    handle( virtualBox(_el, contentElem) );
+function topCall( hot, handle ) {
+    hot && handle( virtualBox(hot, contentElem) );
 }
 
 
@@ -1450,6 +1445,7 @@ export const Edit = {
      */
     focusPrevious( n ) {
         previousCall(
+            __EHot.get(),
             n,
             els => els.length && setFocus( last(els) )
         );
@@ -1463,6 +1459,7 @@ export const Edit = {
      */
     focusNext( n ) {
         nextCall(
+            __EHot.get(),
             n,
             els => els.length && setFocus( last(els) )
         );
@@ -1476,7 +1473,11 @@ export const Edit = {
      * @param {Number} n 上升层级数
      */
     focusParent( n ) {
-        parentCall( n, el => el && setFocus(el) );
+        parentCall(
+            __EHot.get(),
+            n,
+            el => el && setFocus(el)
+        );
     },
 
 
@@ -1486,7 +1487,11 @@ export const Edit = {
      * @param {Number} n 位置下标
      */
     focusChild( n ) {
-        childCall( n, el => el && setFocus(el) );
+        childCall(
+            __EHot.get(),
+            n,
+            el => el && setFocus(el)
+        );
     },
 
 
@@ -1495,7 +1500,10 @@ export const Edit = {
      * 注记：不支持计数逻辑。
      */
     focusItemTop() {
-        topCall( el => el && setFocus(el) );
+        topCall(
+            __EHot.get(),
+            el => el && setFocus(el)
+        );
     },
 
 
@@ -1676,6 +1684,7 @@ export const Edit = {
      */
     previous( n ) {
         previousCall(
+            __EHot.get(),
             n,
             (els, beg) => expandSelect( beg, els )
         );
@@ -1689,6 +1698,7 @@ export const Edit = {
      */
     next( n ) {
         nextCall(
+            __EHot.get(),
             n,
             (els, beg) => expandSelect( beg, els )
         );
@@ -1704,6 +1714,7 @@ export const Edit = {
      */
     parent( n ) {
         return parentCall(
+            __EHot.get(),
             n,
             el => el && elementOne( el, 'safeAdd', () => __Selects.clean(el) )
         );
@@ -1717,6 +1728,7 @@ export const Edit = {
      */
     child( n ) {
         return childCall(
+            __EHot.get(),
             n,
             el => el && elementOne( el, 'safeAdd', () => __Selects.cleanUp(el) )
         );
@@ -1731,8 +1743,9 @@ export const Edit = {
      * 注记：清理逻辑同.parentN。
      */
     itemTop() {
-        topCall( el =>
-            el && elementOne( el, 'safeAdd', () => __Selects.clean(el) )
+        topCall(
+            __EHot.get(),
+            el => el && elementOne( el, 'safeAdd', () => __Selects.clean(el) )
         );
     },
 
@@ -1748,6 +1761,7 @@ export const Edit = {
      */
     onlyPrevious( n ) {
         previousCall(
+            __EHot.get(),
             n,
             els => els.length && elementOne( last(els), 'only' )
         );
@@ -1761,6 +1775,7 @@ export const Edit = {
      */
     onlyNext( n ) {
         nextCall(
+            __EHot.get(),
             n,
             els => els.length && elementOne( last(els), 'only' )
         );
@@ -1774,7 +1789,10 @@ export const Edit = {
      * @param {Number} n 移动距离
      */
     onlyParent( n ) {
-        parentCall( n, el => el && elementOne(el, 'only') );
+        parentCall(
+            __EHot.get(),
+            n, el => el && elementOne(el, 'only')
+        );
     },
 
 
@@ -1784,7 +1802,10 @@ export const Edit = {
      * @param {Number} n 移动距离
      */
     onlyChild( n ) {
-        childCall( n, el => el && elementOne(el, 'only') );
+        childCall(
+            __EHot.get(),
+            n, el => el && elementOne(el, 'only')
+        );
     },
 
 
@@ -1792,7 +1813,10 @@ export const Edit = {
      * 单选：顶元素。
      */
     onlyItemTop() {
-        topCall( el =>  el && elementOne(el, 'only') );
+        topCall(
+            __EHot.get(),
+            el =>  el && elementOne(el, 'only')
+        );
     },
 
 
@@ -1831,6 +1855,8 @@ export const Edit = {
      * 注记同前。
      */
     previousVF( n ) {
+        n = isNaN(n) ? 1 : n;
+
         elementAdds(
             [...__ESet],
             el => $.prevAll( el, (_, i) => i <= n )
@@ -1843,6 +1869,8 @@ export const Edit = {
      * 注记同前。
      */
     nextVF( n ) {
+        n = isNaN(n) ? 1 : n;
+
         elementAdds(
             [...__ESet],
             el => $.nextAll( el, (_, i) => i <= n )
@@ -1855,12 +1883,13 @@ export const Edit = {
      * 注记：向内检索各自独立，先移除自身即可。
      */
     contentBoxesVF() {
-        let _old = [ ...ESet ];
+        let _old = [ ...__ESet ];
 
         for ( const el of _old ) {
             __Selects.delete( el );
             __Selects.safeAdds( contentBoxes(el) );
         }
+        // 原元素自身即可能为内容根。
         stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
@@ -1871,6 +1900,7 @@ export const Edit = {
      */
     childVF( n ) {
         let _old = [ ...__ESet ];
+        n = n || 0;
 
         for ( const el of _old ) {
             let _sub = $.children( el, n );
@@ -1886,17 +1916,36 @@ export const Edit = {
 
     /**
      * 父级选取。
+     * 注记：叔伯元素选取重叠，需上下清理。
      */
     parentVF( n ) {
-        //
+        let _old = [ ...__ESet ];
+
+        for ( const el of _old ) {
+            parentCall(
+                el,
+                n,
+                box => box && __Selects.add( box )
+            );
+        }
+        stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
 
     /**
      * 上级顶元素。
+     * 注记同上。
      */
     itemTopVF() {
-        //
+        let _old = [ ...__ESet ];
+
+        for ( const el of _old ) {
+            topCall(
+                el,
+                top => top && __Selects.add( top )
+            );
+        }
+        stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
 
@@ -2116,6 +2165,51 @@ export const Edit = {
             return __EHot.set( _el );
         }
         currentMinied.cursor( _el );
+    },
+
+
+    //-- 定位移动 ------------------------------------------------------------
+    // 目标元素需已设置 position:absolute 样式。
+    // 普通移动为 1px/次，增强移动为 10px/次
+
+
+    moveLeft() {
+        //
+    },
+
+
+    moveLeftTen() {
+        //
+    },
+
+
+    moveRight() {
+        //
+    },
+
+
+    moveRightTen() {
+        //
+    },
+
+
+    moveUp() {
+        //
+    },
+
+
+    moveUpTen() {
+        //
+    },
+
+
+    moveDown() {
+        //
+    },
+
+
+    moveDownTen() {
+        //
     },
 
 };
