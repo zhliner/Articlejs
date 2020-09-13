@@ -2867,7 +2867,7 @@ tQuery.Table = Table;
             return _h;
         }
         if ( isFunc(val) ) {
-            val = val.bind(el)(_h);
+            val = val.bind(el)( _h );
         }
         if ( inc ) {
             val = +val + _h;
@@ -2876,7 +2876,7 @@ tQuery.Table = Table;
 
         if ( el.style.cssText.trim() == '' ) {
             // 内部清理，不激发事件。
-            el.removeAttribute('style');
+            el.removeAttribute( 'style' );
         }
         return el;
     };

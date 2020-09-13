@@ -405,7 +405,10 @@ Content: [
     // - 完整的逻辑单元（行块、内联）。
     // - 删除不影响结构逻辑的元素（如：<li>、<tr>等）。
     {
-        "key":      ":d",
+        "key": [
+            ":d",
+            ":delete"
+        ],
         "command":  "deletes"
     },
 
@@ -413,7 +416,10 @@ Content: [
     // 内容删除。
     // 删除元素内的可编辑内容（内容根元素的内容）。
     {
-        "key":      "shift:d",
+        "key": [
+            "shift:d",
+            "shift:delete"
+        ],
         "command":  "deleteContents"
     },
 
@@ -421,7 +427,10 @@ Content: [
     // 强制删除。
     // 删除任意已选取元素，有破坏性（不保护中间结构逻辑）。
     {
-        "key":      "alt+shift:d",
+        "key": [
+            "alt+shift:d",
+            "alt+shift:delete"
+        ],
         "command":  "deleteForce"
     },
 
@@ -504,45 +513,45 @@ Content: [
 
     {
         "key":      "Ctrl:ArrowLeft",
-        "command":  "moveLeft"
+        "command":  "moveToLeft"
     },
 
     {
         "key":      "Ctrl+Shift:ArrowLeft",
-        "command":  "moveLeftTen"
+        "command":  "moveToLeftTen"
     },
 
 
     {
         "key":      "Ctrl:ArrowRight",
-        "command":  "moveRight"
+        "command":  "moveToRight"
     },
 
     {
         "key":      "Ctrl+Shift:ArrowRight",
-        "command":  "moveRightTen"
+        "command":  "moveToRightTen"
     },
 
 
     {
         "key":      "Ctrl:ArrowUp",
-        "command":  "moveUp"
+        "command":  "moveToUp"
     },
 
     {
         "key":      "Ctrl+Shift:ArrowUp",
-        "command":  "moveUpTen"
+        "command":  "moveToUpTen"
     },
 
 
     {
         "key":      "Ctrl:ArrowDown",
-        "command":  "moveDown"
+        "command":  "moveToDown"
     },
 
     {
         "key":      "Ctrl+Shift:ArrowDown",
-        "command":  "moveDownTen"
+        "command":  "moveToDownTen"
     },
 
 

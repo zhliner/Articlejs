@@ -15,10 +15,54 @@
 //
 
 
-export const Setup = {
+//
+// 限制配置集。
+//
+export const Limit = {
+
+    // 历史栈长度
+    // 注意定位移动可能会占据大量的步数。
+    history:    999,
+
+};
+
+
+//
+// 帮助提示集。
+// key: [hid, msg]
+// 消息段（msg）可以作本地化修改。
+//
+export const Help = {
+
+    'hasNotCons': [
+        'type:content',
+        '选取集包含非内容元素。'
+    ],
+
+
+    'bothCons': [
+        'type:content',
+        '选取元素及其父元素都必须为内容元素。'
+    ],
+
+
+    'hasNotDels': [
+        'edit:delete',
+        '包含了不能被删除的元素。'
+    ],
+
+};
+
+
+//
+// 系统配置集。
+// 注：不可修改！
+//////////////////////////////////////////////////////////////////////////////
+
+export const Sys = {
 
     // 元素选取态类名。
-    selectedClass:  '_selected',
+    selectedClass: '_selected',
 
     // 选取焦点类名。
     focusClass: '_focus',
@@ -31,17 +75,4 @@ export const Setup = {
 
     redoEvent: 'button.redo',
 
-};
-
-
-export const Limit = {
-
-    // 历史栈长度
-    history:    999,
-
-}
-
-
-export const Local = {
-    // 本地化信息
 };

@@ -334,7 +334,7 @@ const Specials = {
     // 特殊用途。
     /////////////////////////////////////////////
     [ B ]:              SPECIAL | CONTENT,
-    [ I ]:              SPECIAL | CONTENT,
+    [ I ]:              SPECIAL | STRUCTX | CONTENT,
 };
 
 

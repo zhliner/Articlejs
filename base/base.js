@@ -552,6 +552,38 @@ export function canDelete( el ) {
 
 
 /**
+ * 是否可以内容文本化。
+ * - 允许内容元素。
+ * - 允许非单结构的内联元素（无害），如对<ruby>解构。
+ * @param  {Element} el 容器元素
+ * @return {Boolean}
+ */
+export function canTotext( el ) {
+    let _tv = getType( el );
+    return T.isContent( _tv ) || ( T.isInlines(_tv) && !T.isEmpty(_tv) );
+}
+
+
+/**
+ * 是否可以内容提升。
+ * 专用：Edit.unWrap 操作。
+ * 宽容：
+ * 应当允许纯内容的元素向上展开，即便不是内容元素，
+ * 如编辑过程中的破坏性操作（如<ruby>）。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function canUnwrap( el ) {
+    return isContent( el.parentElement ) &&
+        (
+            isContent( el ) ||
+            // 宽容：纯内容元素
+            ( el.childElementCount === 0 && el.innerText.trim() )
+        );
+}
+
+
+/**
  * 是否为同类表格行。
  * 检查表格行所属表格Table实例的列头和列数，
  * 以及所属表格片区类型是否相同。

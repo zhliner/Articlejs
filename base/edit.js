@@ -18,9 +18,9 @@
 //
 
 import { ESet, EHot, ElemCursor } from './common.js';
-import { Setup, Limit } from "../config.js";
+import { Sys, Limit, Help } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, isInlines, isEmpty, canDelete, virtualBox, contentBoxes, tableObj } from "./base.js";
+import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj } from "./base.js";
 import { children } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -38,10 +38,10 @@ const
     varyEvents = 'attrvary cssvary varyprepend varyappend varybefore varyafter varyreplace varyempty varyremove varynormalize',
 
     // 元素选取集实例。
-    __ESet = new ESet( Setup.selectedClass ),
+    __ESet = new ESet( Sys.selectedClass ),
 
     // 选取焦点类实例。
-    __EHot = new EHot( Setup.focusClass ),
+    __EHot = new EHot( Sys.focusClass ),
 
     // 光标实现实例。
     // 仅用于内容元素的微编辑。
@@ -758,8 +758,8 @@ function historyPush( ...obj ) {
  * 更新 Undo/Redo 按钮状态：重做不可用。
  */
 function stateNewEdit() {
-    $.trigger( contentElem, Setup.undoEvent, true, true );
-    $.trigger( contentElem, Setup.redoEvent, false, true );
+    $.trigger( contentElem, Sys.undoEvent, true, true );
+    $.trigger( contentElem, Sys.redoEvent, false, true );
 }
 
 
@@ -768,8 +768,8 @@ function stateNewEdit() {
  * 设置 Undo/Redo 按钮为失效状态（初始）。
  */
 function undoRedoReset() {
-    $.trigger( contentElem, Setup.undoEvent, false, true );
-    $.trigger( contentElem, Setup.redoEvent, false, true );
+    $.trigger( contentElem, Sys.undoEvent, false, true );
+    $.trigger( contentElem, Sys.redoEvent, false, true );
 }
 
 
@@ -1056,6 +1056,24 @@ function stillSame( old ) {
 
 
 /**
+ * 设置元素位置。
+ * 外部需要预先设置元素的 position:absolute 样式。
+ * @param  {Collector} $els 目标元素集
+ * @param  {String} name 样式名（left|top|right|bottom）
+ * @param  {Number} inc 递增像素值
+ * @return {void}
+ */
+function elementsPostion( $els, name, inc ) {
+    if ( !$els.length ) {
+        return;
+    }
+    let _set = v => `${(parseFloat(v) || 0) + inc}px`;
+
+    historyPush( new DOMEdit(() => $els.css(name, _set)) );
+}
+
+
+/**
  * 微编辑开始。
  * 会重置 Undo/Redo 按钮为失效状态。
  * 非内容元素简单忽略。
@@ -1171,56 +1189,61 @@ function isTurnSelect( obj ) {
 
 
 /**
- * 是否可以内容文本化。
- * - 允许内容元素。
- * - 允许非单结构的内联元素（无害），如对<ruby>解构。
- * @param  {Element} el 容器元素
- * @return {Boolean}
- */
-function canTotext( el ) {
-    return isContent( el ) || (
-        isInlines( el ) && !isEmpty( el )
-    );
-}
-
-
-/**
- * 是否可以内容提升。
- * 专用：Edit.unWrap 操作。
- * 宽容：
- * 应当允许纯内容的元素向上展开，即便不是内容元素，
- * 如编辑过程中的破坏性操作（如<ruby>）。
- * @param  {Element} el 目标元素
- * @return {Boolean}
- */
-function canUnwrap( el ) {
-    return isContent( el.parentElement ) && (
-        isContent( el ) ||
-        ( el.childElementCount === 0 && el.innerText.trim() )
-    );
-}
-
-
-/**
  * 清除被删除元素的选取。
  * 返回false表示目标集为空，后续的编辑没有意义。
  * 返回的选取编辑实例需要进入历史栈。
- * @param  {[Element]} els 元素集
+ * @param  {[Element]} els 待删除元素集
+ * @param  {[Element]} old 原选取集
  * @return {ESEdit|false}
  */
-function clearDeletes( els ) {
+function clearDeletes( els, old = els ) {
     if ( els.length == 0 ) {
         return false;
     }
-    let _old = [...__ESet],
-        _hot = __EHot.get();
+    let _hot = __EHot.get();
 
     if ( els.includes(_hot) ) {
-        _hot = setFocus( null );
+        _hot = null;
     }
     __ESet.removes( els );
 
-    return new ESEdit( _old, _hot );
+    return new ESEdit( old, _hot );
+}
+
+
+/**
+ * 检索集合中首个不能删除的元素。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function deleteBadit( els ) {
+    for ( const el of els ) {
+        if ( !canDelete(el) ) return el;
+    }
+}
+
+
+/**
+ * 检索集合中首个不能文本化的元素。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function totextBadit( els ) {
+    for ( const el of els ) {
+        if ( !canTotext(el) ) return el;
+    }
+}
+
+
+/**
+ * 检索集合中首个不能解封装的元素。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function unwrapBadit( els ) {
+    for ( const el of els ) {
+        if ( !canUnwrap(el) ) return el;
+    }
 }
 
 
@@ -1387,10 +1410,12 @@ function warn( msg, data ) {
  * 帮助：
  * 提示错误并提供帮助索引。
  * 帮助ID会嵌入到提示链接中，并显示到状态栏。
- * @param {Number} hid 帮助ID
+ * 如果有关联元素，鼠标指向可背影提示，单击设置焦点。
+ * @param {String} hid 帮助ID
  * @param {String} msg 提示信息
+ * @param {Element} el 关联元素，可选
  */
-function help( hid, msg ) {
+function help( hid, msg, el ) {
     if ( hid === null ) {
         return $.trigger( errContainer, 'off' );
     }
@@ -1961,14 +1986,18 @@ export const Edit = {
      * 扩展到By部分，但此不需要evo实参。
      */
     toText() {
-        let $els = $(__ESet).filter( canTotext );
+        let $els = $(__ESet);
 
-        if ( $els.length !== __ESet.size ) {
-            // 选取集包含非内容元素。
-            help();
-        }
         if ( $els.length === 0 || !hasChildElement($els) ) {
             return;
+        }
+        if ( !$els.every(canTotext) ) {
+            // 选取集包含非内容元素。
+            return help(
+                Help.hasNotCons[0],
+                Help.hasNotCons[1],
+                totextBadit( $els )
+            );
         }
         historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
     },
@@ -1985,11 +2014,15 @@ export const Edit = {
      * 注记：（同上）
      */
     unWrap() {
-        let $els = $(__ESet).filter( canUnwrap );
+        let $els = $(__ESet);
 
-        if ( $els.length !== __ESet.size ) {
+        if ( $els.every(canUnwrap) ) {
             // 选取元素及其父元素都必须为内容元素。
-            help();
+            return help(
+                Help.bothCons[0],
+                Help.bothCons[1],
+                unwrapBadit( $els )
+            );
         }
         let _op = clearDeletes( $els );
 
@@ -2007,12 +2040,15 @@ export const Edit = {
      * 删除会破坏结构的中间结构元素不受影响（简单忽略）。
      */
     deletes() {
-        let $els = $(__ESet)
-            .filter( el => canDelete(el) );
+        let $els = $(__ESet);
 
-        if ( $els.length !== __ESet.size ) {
-            // 删除的元素必须是完整的单元。
-            help();
+        if ( !$els.every(canDelete) ) {
+            // 包含了不能被删除的元素。
+            return help(
+                Help.hasNotDels[0],
+                Help.hasNotDels[1],
+                deleteBadit( $els )
+            );
         }
         let _op = clearDeletes( $els );
 
@@ -2040,7 +2076,7 @@ export const Edit = {
      */
     deleteContents() {
         let $cons = $(__ESet)
-            .map( el => contentBoxes(el) ).flat(),
+                .map( el => contentBoxes(el) ).flat(),
             _op = clearDeletes( $cons );
 
         if ( _op ) {
@@ -2088,7 +2124,7 @@ export const Edit = {
     editUndo() {
         $.trigger(
             contentElem,
-            Setup.undoEvent,
+            Sys.undoEvent,
             currentMinied ? undoMinied() : undoNormal(),
             true
         );
@@ -2102,7 +2138,7 @@ export const Edit = {
     editRedo() {
         $.trigger(
             contentElem,
-            Setup.redoEvent,
+            Sys.redoEvent,
             currentMinied ? redoMinied() : redoNormal(),
             true
         );
@@ -2173,43 +2209,43 @@ export const Edit = {
     // 普通移动为 1px/次，增强移动为 10px/次
 
 
-    moveLeft() {
-        //
+    moveToLeft() {
+        elementsPostion( $(__ESet), 'left', -1 );
     },
 
 
-    moveLeftTen() {
-        //
+    moveToLeftTen() {
+        elementsPostion( $(__ESet), 'left', -10 );
     },
 
 
-    moveRight() {
-        //
+    moveToRight() {
+        elementsPostion( $(__ESet), 'left', 1 );
     },
 
 
-    moveRightTen() {
-        //
+    moveToRightTen() {
+        elementsPostion( $(__ESet), 'left', 10 );
     },
 
 
-    moveUp() {
-        //
+    moveToUp() {
+        elementsPostion( $(__ESet), 'top', -1 );
     },
 
 
-    moveUpTen() {
-        //
+    moveToUpTen() {
+        elementsPostion( $(__ESet), 'top', -10 );
     },
 
 
-    moveDown() {
-        //
+    moveToDown() {
+        elementsPostion( $(__ESet), 'top', 1 );
     },
 
 
-    moveDownTen() {
-        //
+    moveToDownTen() {
+        elementsPostion( $(__ESet), 'top', 10 );
     },
 
 };
