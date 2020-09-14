@@ -1,8 +1,8 @@
 //! $Id: util.js 2019.08.18 Tpb.Tools $
 // ++++++++++++++++++++++++++++++++++++++
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
+//  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -192,8 +192,8 @@ const Util = {
      * - 支持无参数时省略调用括号。
      * - 无法匹配时抛出异常。
      * Object {
-     *  	name: {String} 调用名
-     *  	args: {Array|''} 实参序列
+     *      name: {String} 调用名
+     *      args: {Array|''} 实参序列
      * }
      * @param  {String} fmt 调用格式串
      * @return {Object} 解析结果

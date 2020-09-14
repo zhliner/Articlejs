@@ -1,8 +1,8 @@
 //! $Id: lib.x.js 2019.09.07 Tpb.Base $
 // ++++++++++++++++++++++++++++++++++++++
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2020 - 20120 铁皮工作室  MIT License
+//  Copyright (c) 2020 - 20120 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //

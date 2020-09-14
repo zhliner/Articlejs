@@ -1,8 +1,8 @@
 // $Id: ease.js 2020.09.14 Tpb.Tools $
 // +++++++++++++++++++++++++++++++++++++
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2020 - 2020 铁皮工作室  MIT License
+//  Copyright (c) 2020 - 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -19,7 +19,7 @@
 //  - 流程重入（PB:loop => PB:entry）。
 //
 //  干扰事件：
-// 	- 提取目标缓动实例。
+//  - 提取目标缓动实例。
 //  - 重置计数值或设置相关标识。
 //
 //  终止事件：
@@ -77,21 +77,21 @@ export class Ease {
 
 
 //
-//	From jQuery.easing 1.3:
-//	Open source under the BSD License.
-//	Copyright © 2008 George McGinley Smith
-//	http://gsgd.co.uk/sandbox/jquery/easing/
+// From jQuery.easing 1.3:
+// Open source under the BSD License.
+// Copyright © 2008 George McGinley Smith
+// http://gsgd.co.uk/sandbox/jquery/easing/
 //
-// 	X轴为迭代次数（时间），Y轴为曲线比值（0-1）。
+// X轴为迭代次数（时间），Y轴为曲线比值（0-1）。
 //
-// 	@param  {Number} t 当前计次
-// 	@param  {Number} d 迭代总次数
-// 	@return {Number} 当前点曲线比值（Y, 0-1），浮点数
+// @param  {Number} t 当前计次
+// @param  {Number} d 迭代总次数
+// @return {Number} 当前点曲线比值（Y, 0-1），浮点数
 //
-// 	注记：
-// 	去掉了引用原代码中的b和c参数，b可外部处理，c固定为 1。
-// 	b：初始基数值
-// 	c：变化量
+// 注记：
+// 去掉了引用原代码中的b和c参数，b可外部处理，c固定为 1。
+// b：初始基数值
+// c：变化量
 //
 //////////////////////////////////////////////////////////////////////////////
 

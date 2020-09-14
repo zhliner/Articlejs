@@ -1,8 +1,8 @@
 //! $Id: core.js 2019.08.19 Tpb.Base $
 // +++++++++++++++++++++++++++++++++++++
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2017 - 2019 铁皮工作室  MIT License
+//  Copyright (c) 2017 - 2019 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //

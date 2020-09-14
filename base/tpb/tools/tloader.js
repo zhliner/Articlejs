@@ -1,24 +1,24 @@
 // $Id: tloader.js 2019.09.02 Tpb.Tools $
 // ++++++++++++++++++++++++++++++++++++++++
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2019 - 2020 铁皮工作室  MIT License
+//  Copyright (c) 2019 - 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Loader 远端数据载入器
 //  --------------------
-// 	实现 Promise<...> 数据的临时缓存，避免短时间内的重复请求。
+//  实现 Promise<...> 数据的临时缓存，避免短时间内的重复请求。
 //  如果全部载入完毕，可以调用.clear()清空缓存。或者在新的请求阶段前clear。
 //
 //
-// 	TplLoader 模板节点载入器
+//  TplLoader 模板节点载入器
 //  -----------------------
 //  载入模板根目录下的模板文件，用于 Tpb:Templater 中对模板节点的获取。
 //
-// 	用法：
+//  用法：
 //  let loader = new TplLoader(...);
-// 	const tpl = new Templater( loader.load.bind(loader), ... );
+//  const tpl = new Templater( loader.load.bind(loader), ... );
 //
 //  注：
 //  任何时候都可以添加新的映射配置，从而持续（动态）地载入新的模板节点集。

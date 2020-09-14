@@ -1,8 +1,8 @@
 //! $Id: filter.js 2019.09.17 Tpb.Tools $
 // ++++++++++++++++++++++++++++++++++++++++
-// 	Project: Tpb v0.4.0
+//  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2019 - 2020 铁皮工作室  MIT License
+//  Copyright (c) 2019 - 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -70,13 +70,13 @@ const Filter = {
     /**
      * 格式化日期和时间。
      * 格式：{
-     *  	yy|yyyy 年
-     *  	M|MM 	月
-     *  	d|dd 	日
-     *  	h|hh 	时
-     *  	m|mm 	分
-     *  	s|ss 	秒
-     *  	S 	    毫秒
+     *      yy|yyyy 年
+     *      M|MM    月
+     *      d|dd    日
+     *      h|hh    时
+     *      m|mm    分
+     *      s|ss    秒
+     *      S       毫秒
      * }
      * 例：
      *   yyyy-MM-dd hh:mm:ss.S => 2017-02-08 16:49:09.643
