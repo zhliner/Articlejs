@@ -1067,9 +1067,9 @@ function elementsPostion( $els, name, inc ) {
     if ( !$els.length ) {
         return;
     }
-    let _set = v => `${(parseFloat(v) || 0) + inc}px`;
+    let _fx = v => `${(parseFloat(v) || 0) + inc}px`;
 
-    historyPush( new DOMEdit(() => $els.css(name, _set)) );
+    historyPush( new DOMEdit(() => $els.css(name, _fx)) );
 }
 
 
@@ -1980,8 +1980,6 @@ export const Edit = {
     /**
      * 内容文本化。
      * 会忽略集合中都没有子元素的情形。
-     * 影响：
-     * - 对焦点和选取集不产生影响。
      * 注记：
      * 扩展到By部分，但此不需要evo实参。
      */
@@ -2008,7 +2006,6 @@ export const Edit = {
     /**
      * 内容提升（unwrap）。
      * 目标和目标的父元素都必须是内容元素。
-     * 影响：
      * - 被操作的元素取消选取。
      * - 如果焦点在目标元素上，取消焦点。
      * 注记：（同上）
@@ -2016,7 +2013,7 @@ export const Edit = {
     unWrap() {
         let $els = $(__ESet);
 
-        if ( $els.every(canUnwrap) ) {
+        if ( !$els.every(canUnwrap) ) {
             // 选取元素及其父元素都必须为内容元素。
             return help(
                 Help.bothCons[0],
@@ -2072,7 +2069,7 @@ export const Edit = {
 
     /**
      * 内容删除。
-     * 目标内部内容根元素的文本、内联等内容（即可编辑内容）。
+     * 内部内容根元素的内容（文本、内联等）。
      */
     deleteContents() {
         let $cons = $(__ESet)

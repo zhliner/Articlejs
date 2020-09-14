@@ -655,22 +655,29 @@ const _NextStage = {
 
 
 //
-// 原生事件调用。
+// 原生事件/方法调用。
 // 内容：暂存区1项可选。
 // 如果内容有值，作为触发事件的目标元素。
 // 注：覆盖On部分同名方法。
 // 理解：重在“激发”。
 //===============================================
 [
-    'blur',
     'click',
+    'blur',
     'focus',
-    'pause',
-    'play',
-    'reset',
     'select',
-    'load',
+    'reset',
     'submit',
+    'load',
+    'play',
+    'pause',
+    'finish',
+    'cancel',
+
+    // 注记：
+    // On存在同名集合方法，兼容原生方法调用（Animation）。
+    // 此处不再定义，注意调用需先获取目标。
+    // 'reverse',
 ]
 .forEach(function( meth ) {
 

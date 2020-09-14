@@ -220,6 +220,15 @@ timeOut( delay:Number|null, ...args ): timeoutID | void
 timeTick( delay:Number|null, ...args ): intervalID | void
 // 创建/清除计时器（持续：setInterval）。
 
+ease( name, kind, count? ): Ease
+// 创建一个缓动实例。
+
+easing( total?, base? ): Number
+// 获取当前缓动值。
+
+animate( kfs, opts ): Animation
+// 创建一个动画对象。
+
 movementX( v?:null ): Number | void
 movementY( v?:null ): Number | void
 // 鼠标移动量取值。

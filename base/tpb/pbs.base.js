@@ -538,12 +538,18 @@ const _Process = {
     /**
      * 集合成员序位反转。
      * 目标：暂存区/栈顶1项。
-     * 返回的是一个新的集合（保留原始类型）。
-     * @return {[Value]|Collector}
+     * 注意数组会在原值上修改并返回。
+     * 注记：
+     * 兼容动画对象上的同名方法（无返回值）。
+     * @return {[Value]|Collector|void}
      */
     reverse( evo ) {
-        return $.isCollector(evo.data) ?
-            evo.data.reverse() : Array.from(evo.data).reverse();
+        let x = evo.data;
+
+        if ( $.isFunction(x.reverse) ) {
+            return x.reverse();
+        }
+        return Array.from(x).reverse();
     },
 
     __reverse: 1,
@@ -1817,6 +1823,7 @@ function num16ch2( n ) {
 
 //
 // 特殊指令（Control）。
+// this: {Cell} （无预绑定）
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -1835,7 +1842,6 @@ const
  * 可以指定移除的指令数量，-1表示后续全部指令，0表示当前指令（无意义）。
  * 非法的cnt值无效，取默认值1。
  * 注记：仅适用 On/By/To:NextStage 链段。
- * this: {Cell}
  * @param  {Number} cnt 执行次数，可选
  * @param  {Number} n 移除的指令数，可选
  * @return {void}
@@ -1867,7 +1873,6 @@ prune[PREVCELL] = true;
  *      entry       // 设置入口。
  *      loop(...)   // 从entry处开始执行。
  * 注：
- * this为当前指令单元（Cell）。
  * 一个loop之前应当只有一个入口（或最后一个有效）。
  * @return {void}
  */
@@ -1879,7 +1884,7 @@ function entry( evo ) {
 
 
 /**
- * 区段循环。
+ * 区段循环（=> entry）。
  * 目标：暂存区条目，可选
  * 执行前面entry指令设置的入口函数。
  * cnt 为迭代次数，0值与1相同，负值表示无限。
@@ -1890,6 +1895,9 @@ function entry( evo ) {
  * 注意：
  * - 循环结束之后并不会移除入口，后面依然可以启动循环。
  * - 若后面启动循环，会同时激活当前循环（嵌套关系）。
+ * 注记：
+ * 可能主要在 To.NextStage 阶段使用，
+ * 但定义在此可全局共享（无 To:Query 需求）。
  * @param  {Number} cnt 迭代次数
  * @param  {Value} val 起始指令初始值
  * @return {void}

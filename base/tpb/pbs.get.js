@@ -15,6 +15,7 @@
 //
 
 import { Util } from "./tools/util.js";
+import { Ease } from "./tools/ease.js";
 import { bindMethod, DataStore, Templater, ChainStore, DEBUG } from "./config.js";
 import { Process } from "./pbs.base.js";
 
@@ -906,6 +907,63 @@ const _Gets = {
     __timeTick: 1,
 
 
+    /**
+     * 创建缓动对象。
+     * 目标：暂存区/栈顶1项可选。
+     * 目标为迭代总次数定义，可通过count实参覆盖。
+     * count的假值视为无穷大。
+     * 提示：新建的缓动对象可用 data 存储。
+     * @param  {String} name 缓动名称（如 Cubic）
+     * @param  {String} kind 缓动方式（如 InOut）
+     * @param  {Number} count 总迭代次数，可选
+     * @return {Ease} 缓动实例
+     */
+    ease( evo, name, kind, count ) {
+        return new Ease(
+            name,
+            kind,
+            count || evo.data || Infinity
+        );
+    },
+
+    __ease: -1,
+
+
+    /**
+     * 获取当前缓动值。
+     * 目标：暂存区/栈顶1项。
+     * @data {Ease}
+     * @param  {Number} total 总值，可选
+     * @param  {Number} base 基数值，可选
+     * @return {Number}
+     */
+    easing( evo, total = 1, base = 0 ) {
+        return evo.data.value() * total + base;
+    },
+
+    __easing: 1,
+
+
+    /**
+     * 创建一个动画实例。
+     * 目标：暂存区/栈顶1项。
+     * 在目标元素上创建一个动画实例（Element.animate()）。
+     * 目标支持多个元素，但共用相同的实参。
+     * 提示：
+     * 作为 To:Query 的目标可用于绑定事件处理。
+     * 可用 data 存储以备其它事件控制使用。
+     *
+     * @param  {[Object]} kfs 关键帧对象集
+     * @param  {Object} opts 动画配置对象
+     * @return {Animation|[Animation]}
+     */
+    animate( evo, kfs, opts ) {
+        return mapCall( evo.data, el => el.animate(kfs, opts) );
+    },
+
+    __animate: 1,
+
+
 
     // 元素自身行为。
     //-------------------------------------------
@@ -1423,15 +1481,17 @@ const __uiState = [ '-', '', '^' ];
 // 理解：重在“调用”。
 //===============================================
 [
-    'blur',
     'click',
+    'blur',
     'focus',
-    'pause',
-    'play',
-    'reset',
     'select',
-    'load',
+    'reset',
     'submit',
+    'load',
+    'play',
+    'pause',
+    'finish',
+    'cancel',
 ]
 .forEach(function( meth ) {
 
