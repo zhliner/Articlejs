@@ -1103,6 +1103,7 @@ aside#help {
     padding-top: 14px;
     border-bottom-color: transparent;
     left: -1px;
+    outline: none;
 }
 .Status > ._cmdx b {
     height: 23px;
