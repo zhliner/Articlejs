@@ -195,6 +195,9 @@ stop( back?: Value ): back|void
 stopAll( back?: Value ): back|void
 // 停止事件冒泡并阻止本事件其它处理器的执行。
 
+sleep( ms:Number ): void
+// 执行流暂停。
+
 
 
 // 暂存区赋值。
@@ -255,6 +258,9 @@ entry(): void
 
 loop( cnt, val ): void
 // 区段循环（entry开始）。
+
+effect( cnt, val ): void
+// 动效启动（entry开始）。
 
 
 

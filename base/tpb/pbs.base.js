@@ -174,6 +174,23 @@ const _Control = {
     __stopAll: -1,
 
 
+    /**
+     * 睡眠延时。
+     * 目标：暂存区1项可选。
+     * 目标为延时毫秒数，实参ms可覆盖暂存区数据。
+     * 这会让执行流暂停（可用于动效）。
+     * @param  {Number} ms 延时毫秒数
+     * @return {void}
+     */
+    sleep( evo, ms ) {
+        return new Promise(
+            resolve => window.setTimeout( resolve, ms || evo.data )
+        );
+    },
+
+    __sleep: -1,
+
+
 
     // 暂存区赋值。
     // 目标：无。
@@ -1820,6 +1837,27 @@ function num16ch2( n ) {
 }
 
 
+/**
+ * 迭代计数处理。
+ * - 初始化。
+ * - 递增。
+ * - 完成后重置。
+ * @param  {Cell} self 指令单元
+ * @param  {Number} cnt 迭代次数
+ * @return {true|void} 迭代结束返回true
+ */
+function countStage( self, cnt ) {
+    if ( self[__ENTRY] == 0 ) {
+        delete self[__ENTRY];
+        return true;
+    }
+    if ( self[__ENTRY] === undefined ) {
+        self[__ENTRY] = +cnt || 1;
+    }
+    if ( cnt > 0 ) self[__ENTRY]--;
+}
+
+
 
 //
 // 特殊指令（Control）。
@@ -1894,33 +1932,46 @@ function entry( evo ) {
  * - 如果val为空则暂存区的值会传入起始指令。
  * 注意：
  * - 循环结束之后并不会移除入口，后面依然可以启动循环。
- * - 若后面启动循环，会同时激活当前循环（嵌套关系）。
- * 注记：
- * 可能主要在 To.NextStage 阶段使用，
- * 但定义在此可全局共享（无 To:Query 需求）。
+ * - 若后面启动循环，会连带激活当前循环（嵌套）。
  * @param  {Number} cnt 迭代次数
- * @param  {Value} val 起始指令初始值
+ * @param  {Value} val 起始指令初始值，可选
  * @return {void}
  */
 function loop( evo, cnt, val = evo.data ) {
-    if ( this[__ENTRY] == 0 ) {
-        delete this[__ENTRY];
-        return;
-    }
-    if ( this[__ENTRY] === undefined ) {
-        this[__ENTRY] = +cnt || 1;
-    }
-    if ( cnt > 0 ) this[__ENTRY]--;
+    countStage( this, cnt ) || evo.entry( val );
+}
 
+//
+// 暂存区条目可选。
+// 注记：
+// loop之后的指令从一个干净的暂存区开始。
+//
+loop[EXTENT] = 0;
+
+
+/**
+ * 动效启动（=> entry）
+ * 目标：暂存区条目，可选
+ * 说明参考loop指令。
+ * 注记：
+ * 循环迭代的频率受限于浏览器的重绘频率（硬件相关）。
+ * 可以结合 sleep 指令获得较为确定的时间控制。
+ * 主要在 To.NextStage 段使用，但定义在此可全局共享。
+ *
+ * @param  {Number} cnt 迭代次数
+ * @param  {Value} val 起始指令初始值，可选
+ * @return {void}
+ */
+function effect( evo, cnt, val = evo.data ) {
+    countStage( this, cnt ) ||
+    // 循环速率受限。
     requestAnimationFrame( () => evo.entry(val) );
 }
 
 //
-// 目标：暂存区条目，可选。
-// 注记：
-// loop之后的指令应当从一个干净的暂存区开始。
+// 暂存区条目可选。
 //
-loop[EXTENT] = 0;
+effect[EXTENT] = 0;
 
 
 /**
@@ -1962,6 +2013,7 @@ const Control = $.assign( {}, _Control, bindMethod );
 Control.prune  = prune;
 Control.entry  = entry;
 Control.loop   = loop;
+Control.effect = effect;
 Control.debug  = debug;
 
 

@@ -867,7 +867,7 @@ const _Gets = {
     timeOut( evo, delay, ...args ) {
         let x = evo.data;
 
-        if ( delay == null ) {
+        if ( delay === null ) {
             return window.clearTimeout( x );
         }
         // 通用支持Cell实例。
@@ -894,7 +894,7 @@ const _Gets = {
     timeTick( evo, dist, ...args ) {
         let x = evo.data;
 
-        if ( dist == null ) {
+        if ( dist === null ) {
             return window.clearInterval( x );
         }
         // 通用支持Cell实例。
@@ -909,7 +909,7 @@ const _Gets = {
 
     /**
      * 创建缓动对象。
-     * 目标：暂存区/栈顶1项可选。
+     * 目标：暂存区1项可选。
      * 目标为迭代总次数定义，可通过count实参覆盖。
      * count的假值视为无穷大。
      * 提示：新建的缓动对象可用 data 存储。
