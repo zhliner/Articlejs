@@ -1909,9 +1909,9 @@ prune[PREVCELL] = true;
  * 可用于动画类场景：前阶收集数据，至此开启循环迭代。
  * 模板用法：
  *      entry       // 设置入口。
- *      loop(...)   // 从entry处开始执行。
+ *      effect(...) // 从entry处开始执行。
  * 注：
- * 一个loop之前应当只有一个入口（或最后一个有效）。
+ * 一个effect之前应当只有一个入口（或最后一个有效）。
  * @return {void}
  */
 function entry( evo ) {
@@ -1922,7 +1922,7 @@ function entry( evo ) {
 
 
 /**
- * 区段循环（=> entry）。
+ * 动效启动（=> entry）
  * 目标：暂存区条目，可选
  * 执行前面entry指令设置的入口函数。
  * cnt 为迭代次数，0值与1相同，负值表示无限。
@@ -1933,26 +1933,6 @@ function entry( evo ) {
  * 注意：
  * - 循环结束之后并不会移除入口，后面依然可以启动循环。
  * - 若后面启动循环，会连带激活当前循环（嵌套）。
- * @param  {Number} cnt 迭代次数
- * @param  {Value} val 起始指令初始值，可选
- * @return {void}
- */
-function loop( evo, cnt, val = evo.data ) {
-    countStage( this, cnt ) || evo.entry( val );
-}
-
-//
-// 暂存区条目可选。
-// 注记：
-// loop之后的指令从一个干净的暂存区开始。
-//
-loop[EXTENT] = 0;
-
-
-/**
- * 动效启动（=> entry）
- * 目标：暂存区条目，可选
- * 说明参考loop指令。
  * 注记：
  * 循环迭代的频率受限于浏览器的重绘频率（硬件相关）。
  * 可以结合 sleep 指令获得较为确定的时间控制。
@@ -1970,8 +1950,31 @@ function effect( evo, cnt, val = evo.data ) {
 
 //
 // 暂存区条目可选。
+// 注记：
+// 之后的指令从一个干净的暂存区开始。
 //
 effect[EXTENT] = 0;
+
+
+/**
+ * 区段循环（=> entry）。
+ * 目标：暂存区条目，可选
+ * 参考 effect 指令说明。
+ * 与effect类似，但循环迭代不受制于浏览器刷新率。
+ * 注记：
+ * 应当主要用于计算而非界面更新。
+ * @param  {Number} cnt 迭代次数
+ * @param  {Value} val 起始指令初始值，可选
+ * @return {void}
+ */
+function loop( evo, cnt, val = evo.data ) {
+    countStage( this, cnt ) || evo.entry( val );
+}
+
+//
+// 暂存区条目可选。
+//
+loop[EXTENT] = 0;
 
 
 /**
@@ -2012,8 +2015,8 @@ const Control = $.assign( {}, _Control, bindMethod );
 //
 Control.prune  = prune;
 Control.entry  = entry;
-Control.loop   = loop;
 Control.effect = effect;
+Control.loop   = loop;
 Control.debug  = debug;
 
 
