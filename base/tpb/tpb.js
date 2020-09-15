@@ -34,6 +34,9 @@ import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader, Web } from "./confi
 // 模板功能支持。
 import { Templater } from "./tools/templater.js";
 
+// 初始化支持。
+import './lib.x.js';
+
 
 const
     $ = window.$,
