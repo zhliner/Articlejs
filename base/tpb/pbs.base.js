@@ -1880,11 +1880,11 @@ const
  * 可以指定移除的指令数量，-1表示后续全部指令，0表示当前指令（无意义）。
  * 非法的cnt值无效，取默认值1。
  * 注记：仅适用 On/By/To:NextStage 链段。
- * @param  {Number} cnt 执行次数，可选
  * @param  {Number} n 移除的指令数，可选
+ * @param  {Number} cnt 执行次数，可选
  * @return {void}
  */
-function prune( evo, cnt = 1, n = 1 ) {
+function prune( evo, n = 1, cnt = 1 ) {
     if ( this[__PRUNE] === undefined ) {
         this[__PRUNE] = cnt > 0 ? cnt : 1;
     }

@@ -250,17 +250,17 @@ vain( n: Number ): void
 // 需要this为指令单元（Cell），无预绑定。
 //-----------------------------------------------
 
-prune( cnt: Number = 1, n: Number = 1 ): void
-// 移除后端跟随指令（单次）。
+prune( n = 1, cnt = 1 ): void
+// 移除后端跟随指令。
 
 entry(): void
 // 创建入口方法。
 
-loop( cnt, val ): void
-// 区段循环（entry开始）。
-
 effect( cnt, val ): void
 // 动效启动（entry开始）。
+
+loop( cnt, val ): void
+// 区段循环（entry开始）。
 
 
 
