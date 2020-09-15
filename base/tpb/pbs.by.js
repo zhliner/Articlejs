@@ -31,11 +31,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./tools/util.js";
-import { X } from "./lib.x.js";
-import { App__ } from "./app.js";
 import { bindMethod, Web, deepExtend, namedExtend, subObj, EXTENT, funcSets } from "./config.js";
 import { Get } from "./pbs.get.js";
+import { App__ } from "./app.js";
 
 // 无渲染占位。
 // import { Render } from "./tools/render.x.js";
@@ -88,20 +86,6 @@ const _By = {
 
     __render: 1,
 
-
-    /**
-     * 导入X库成员。
-     * 目标：无。
-     * 注意：有一个小写的 x 名称空间。
-     * @param  {String} path 引用路径（句点分隔）
-     * @return {Value}
-     */
-    X( evo, path ) {
-        return Util.subObj( path.split('.'), X );
-    },
-
-    __X: null,
-
 };
 
 
@@ -140,12 +124,6 @@ export const By = $.proto(
     $.assign( {}, _By, bindMethod ),
     Get
 );
-
-//
-// X引入。
-// 模板中使用小写形式。
-//
-By.x = X;
 
 
 /**
