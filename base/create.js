@@ -653,7 +653,7 @@ const Children = {
 
 //
 // 5级片区。
-// 此为通用容器，内容自由，因此无返回值。
+// 此为通用容器，内容自由。
 // 选项集：
 // - h2     标题，必需，唯一
 // - header 导言，可选，唯一
@@ -673,20 +673,25 @@ const Children = {
      * @param {String|Node|[Node]} h2 标题内容
      * @param {Boolean} header 创建导言，可选
      * @param {Boolean} footer 创建结语，可选
+     * @param {Node} data 数据单元，可选
      * @node: {Element|[Element]}
      */
-    Children[ it ] = function( sec, {h2, header, footer}) {
-        let _h2 = insertHeading( sec, T.H2, h2 ),
-            _buf = [];
+    Children[ it ] = function( sec, {h2, header, footer}, data ) {
+        let _hxs = [ insertHeading(sec, T.H2, h2) ],
+            _new = null;
 
         if ( header ) {
-            _buf.push( insertHeader(sec, sec.firstElementChild) );
+            _hxs.push( insertHeader(sec, sec.firstElementChild) );
+        }
+        if ( data ) {
+            _new = appendChild( sec, data, () => elem(T.P) );
         }
         if ( footer ) {
-            _buf.push( appendFooter(sec) );
+            _hxs.push( appendFooter(sec) );
         }
-        return result( _h2, _buf.filter( v => v ) );
+        return result( _hxs.filter( v => v ), _new, !_new );
     };
+
 });
 
 
@@ -1287,6 +1292,25 @@ function dataCons( data, tval ) {
     return contents( data ).map(
         nd => T.isChildType( tval, getType(nd) ) ? nd : nd.textContent
     );
+}
+
+
+/**
+ * 子单元判断插入或新建。
+ * 如果子单元合法会插入，不创建默认单元，返回null。
+ * @param  {Element} box 容器元素
+ * @param  {Node} sub 子单元
+ * @param  {Function} maker 创建默认单元回调
+ * @return {Element|null} 新建的默认单元
+ */
+function appendChild( box, sub, maker ) {
+    let _tv0 = getType( box ),
+        _tv1 = sub.nodeType ? getType( sub ) : 0;
+
+    if ( $.isChildType(_tv0, _tv1) ) {
+        return $.append( box, sub ) && null;
+    }
+    return $.append( box, maker() );
 }
 
 
