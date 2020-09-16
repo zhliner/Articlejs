@@ -1838,7 +1838,7 @@ Object.assign( tQuery, {
      * }
      * select {
      *      set: 选中同值的option项（清除其它），多选时支持值数组匹配。
-     *      get: 获取选中项的值，多选时返回一个数组（无选中时为空）。
+     *      get: 获取选中项的值，多选时返回一个数组（无选中时为空数组）。
      * }
      * 普通控件：
      * _default {
@@ -5133,7 +5133,7 @@ function usualNode( node ) {
  */
 function masterNode( node ) {
     let _nt = node.nodeType;
-    return _nt == 1 || _nt == 3 && node.textContent.trim();
+    return _nt === 1 || _nt === 3 && node.textContent.trim();
 }
 
 
@@ -5222,7 +5222,7 @@ function htmlText( code ) {
 /**
  * 克隆节点（集）。
  * 节点集成员支持假值忽略。
- * @param  {Node|[Node]} cons 节点（集）
+ * @param  {Node|[Node]|DocumentFragment} cons 节点（集）
  * @param  {Boolean} event 事件克隆
  * @param  {Boolean} eventdeep 事件深层克隆
  * @return {Node|[Node]}
@@ -5293,10 +5293,10 @@ const insertHandles = {
 
     // append
     // 表格容器非法内容时返回null（会自动异常）。
-    '-2': (node, data) => varyAppend( trContainer(node, data), data ),
+    '-2': (el, data) => varyAppend( trContainer(el, data), data ),
 
     // prepend
-    '2': (node, data) => varyPrepend( trContainer(node, data), data )
+    '2': (el, data) => varyPrepend( trContainer(el, data), data )
 };
 
 
@@ -5702,14 +5702,14 @@ function clearChecked( els ) {
 /**
  * <select>控件选取清除。
  * 无 propfail 事件。
- * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
  * @param  {Element} el 控件元素
+ * @param  {String} name 标识名（虚拟）
  * @return {void}
  */
-function clearSelected( el ) {
-    limitTrigger( el, evnPropSet, ['select', null] );
+function clearSelected( el, name ) {
+    limitTrigger( el, evnPropSet, [name, null] );
     el.selectedIndex = -1;
-    limitTrigger( el, evnPropDone, 'select' );
+    limitTrigger( el, evnPropDone, name );
 }
 
 
@@ -5717,22 +5717,23 @@ function clearSelected( el ) {
  * <select>控件操作（单选）。
  * 即便没有匹配项，原选中条目也会被清除选取。
  * 无 propfail 事件。
- * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
  * @param  {Element} el 控件元素
+ * @param  {String} name 标识名（虚拟）
  * @param  {Value} 对比值
+ * @param  {Boolean} prop 属性设置（不检查:disabled）
  * @return {void}
  */
-function selectOne( el, val ) {
-    limitTrigger( el, evnPropSet, ['select', val] );
+function selectOne( el, name, val, prop ) {
+    limitTrigger( el, evnPropSet, [name, val] );
     el.selectedIndex = -1;
 
     for ( const op of el.options ) {
-        if ( op.value === val && !$is(op, ':disabled') ) {
+        if ( op.value === val && (prop || !$is(op, ':disabled')) ) {
             op.selected = true;
             break;
         }
     }
-    limitTrigger( el, evnPropDone, 'select' );
+    limitTrigger( el, evnPropDone, name );
 }
 
 
@@ -5740,24 +5741,25 @@ function selectOne( el, val ) {
  * <select>控件操作（多选）。
  * 匹配项被选取，非匹配项被清除选取。
  * 无 propfail 事件。
- * 注：'select' 是一个定制属性名，仅用于<select>控件元素。
  * @param  {Element} el 控件元素
+ * @param  {String} name 标识名（虚拟）
  * @param  {Value|[Value]} 对比值/集
+ * @param  {Boolean} prop 属性设置（不检查:disabled）
  * @return {void}
  */
-function selects( el, val ) {
-    limitTrigger( el, evnPropSet, ['select', val] );
+function selects( el, name, val, prop ) {
+    limitTrigger( el, evnPropSet, [name, val] );
     el.selectedIndex = -1;
 
     if ( !isArr(val) ) {
         val = [val];
     }
     for ( const op of el.options ) {
-        if ( !$is(op, ':disabled') ) {
+        if ( prop || !$is(op, ':disabled') ) {
             op.selected = val.includes( op.value );
         }
     }
-    limitTrigger( el, evnPropDone, 'select' );
+    limitTrigger( el, evnPropDone, name );
 }
 
 
@@ -5986,6 +5988,7 @@ function varyEmpty( el ) {
  * @return {Node} node
  */
 function varyRemove( node ) {
+    // 容错字符串数据。
     let _pel = node.parentNode;
 
     if ( _pel ) {
@@ -6092,7 +6095,7 @@ function insertNode( box, sub, ref ) {
 /**
  * 专用：游离节点集替换。
  * 注记：
- * 即便节点集为空（原容器为空），也会替换。
+ * 即便节点集为空也会替换（移除效果）。
  * 专用于unwrap()，兄弟节点皆合法。
  * @param  {Element} el 目标元素
  * @param  {String} meth 插入方法
@@ -6173,7 +6176,7 @@ const elemAttr = {
         if ( value === null ) {
             return removeAttr( el, name );
         }
-        return boolAttr.test(name) ? boolHook.set(el, name, value) : setAttr(el, name, value);
+        boolAttr.test(name) ? boolHook.set(el, name, value) : setAttr(el, name, value);
     },
 
 };
@@ -6204,20 +6207,22 @@ const elemProp = {
             return el.dataset[dname];
         }
         name = propFix[name] || name;
-        let _hook = propHooks[name];
+        let _hook = propHooks[name] || propHooks[el.type];
 
-        return _hook ? _hook.get(el) : el[name];
+        return _hook && _hook.get ? _hook.get(el, name) : el[name];
     },
 
 
     /**
      * 设置属性。
-     * @param {Element} el 目标元素
-     * @param {String} name 属性名（支持data-简写）
-     * @param {Value} value 设置值
+     * @param  {Element} el 目标元素
+     * @param  {String} name 属性名（支持data-简写）
+     * @param  {Value} value 设置值
+     * @return {void}
      */
     set( el, name, val ) {
-        return setProp( el, name, dataName(name), val );
+        let _hook = propHooks[el.type];
+        _hook && _hook.set && _hook.set(el, name, val) || setProp(el, name, dataName(name), val);
     },
 
 };
@@ -6255,13 +6260,44 @@ const
     };
 
 const propHooks = {
+
     tabIndex: {
         get: function( el ) {
             return el.hasAttribute( "tabindex" ) || focusable.test( el.nodeName ) || el.href ?
                 parseInt(el.tabIndex) || 0 :
                 -1;
         }
-    }
+    },
+
+    // <select>.type
+    // 属性名：value。
+    // @return {Boolean} 返回true表示接收处理。
+    'select-one': {
+        set: function( el, name, val ) {
+            if ( name === 'value' ) {
+                val === null ? clearSelected(el, name) : selectOne(el, name, val, true);
+                return true;
+            }
+        }
+    },
+
+    // 同上。
+    // 支持数组值设置多选。
+    'select-multiple': {
+        get: function( el, name ) {
+            if ( name === 'value' ) {
+                return Arr(el.selectedOptions || el.options).filter( op => op.selected ).map( e => e.value );
+            }
+            return el[ name ];
+        },
+
+        set: function( el, name, val ) {
+            if ( name === 'value' ) {
+                val === null ? clearSelected(el, name) : selects(el, name, val, true);
+                return true;
+            }
+        }
+    },
 };
 
 
@@ -6389,13 +6425,13 @@ const valHooks = {
         // 多选列表支持一个匹配值数组。
         // 会清除其它已选取项。
         set: function( el, val ) {
-            if (!valPass(el)) {
+            if ( !valPass(el) ) {
                 return;
             }
             if (val === null) {
-                return clearSelected(el);
+                return clearSelected(el, 'value');
             }
-            return el.type == 'select-one' ? selectOne(el, val) : selects(el, val);
+            return el.type == 'select-one' ? selectOne(el, 'value', val) : selects(el, 'value', val);
         },
     },
 
