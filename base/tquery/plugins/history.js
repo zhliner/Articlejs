@@ -92,7 +92,6 @@ class History {
     handleEvent( ev ) {
         // 仅记录一次。
         ev.stopPropagation();
-
         this.push( __varyHandles[ev.type](ev) );
     }
 
@@ -183,9 +182,6 @@ class Attr {
 //
 // 元素属性修改。
 // 关联事件：propvary
-// 注记：
-// select名称是操作<select>控件的定制名。
-// $.val()实际上是$.prop()逻辑，也是在有变化后才会触发事件。
 //
 class Prop {
     /**
@@ -195,14 +191,11 @@ class Prop {
     constructor( el, name ) {
         this._el = el;
         this._name = name;
-        this._old = name == 'select' ? $.val(el) : $.prop(el, name);
+        this._old = $.prop( el, name );
     }
 
 
     back() {
-        if ( this._name == 'select' ) {
-            return $.val( this._el, this._old );
-        }
         $.prop( this._el, this._name, this._old );
     }
 }
@@ -211,6 +204,7 @@ class Prop {
 //
 // 内联样式修改。
 // 关联事件：cssvary
+// 注记：使用原生接口。
 //
 class Style {
     /**
@@ -231,6 +225,8 @@ class Style {
 
 //
 // 元素类名修改。
+// 关联事件：classvary
+// 注记：使用原生接口。
 //
 class Class {
     /**
@@ -238,16 +234,15 @@ class Class {
      */
     constructor( el ) {
         this._el = el;
-        this._old = $.classAll( el );
+        this._old = el.className;
     }
 
 
     back() {
-        $.removeClass( this._el );
-
-        if ( this._old.length > 0 ) {
-            $.addClass( this._el, this._old );
+        if ( !this._old ) {
+            return this._el.removeAttribute( 'class' );
         }
+        this._el.className = this._old;
     }
 }
 
@@ -374,6 +369,7 @@ class NodeVary {
 
 //
 // 单节点操作。
+// 注记：使用原生接口。
 //
 class Node {
     /**
@@ -389,10 +385,10 @@ class Node {
 
     back() {
         if ( this._prev ) {
-            $.after( this._prev, this._data );
+            this._prev.after( this._data );
         }
         else if (this._box) {
-            $.prepend( this._box, this._data );
+            this._box.prepend( this._data );
         }
         // 原为游离节点
         else this._data.remove();
@@ -421,8 +417,11 @@ class Nodes {
 //
 // 节点替换操作。
 // 实际上包含了两个行为的后果：
-// - 数据源脱离原位置。
+// - 数据源脱离原位置（可由 varyremove 恢复）。
 // - 主节点脱离原位置。
+// 注记：
+// 游离节点无法通过 varyremove 回退移除此处的存在，
+// 因此需要附加处理。
 //
 class Replace {
     /**
@@ -431,12 +430,17 @@ class Replace {
      */
     constructor( el, data ) {
         this._op0 = new Node(el);
+        // 容错 remove 回退，
+        // 无需提取游离节点单独处理。
         this._op1 = $.isArray(data) ? new Nodes(data) : new Node(data);
     }
 
 
-    // 优化：
-    // 数据先脱离，之后再插入恢复原节点。
+    /**
+     * 数据先脱离，之后再插入恢复原节点。
+     * 注记：
+     * 如果有 remove 先回退，重复回退无副作用。
+     */
     back() {
         this._op1.back();
         this._op0.back();
@@ -446,7 +450,7 @@ class Replace {
 
 //
 // 元素清空操作。
-// 注：空集忽略。
+// 注：使用原生接口，空集忽略。
 //
 class Empty {
     /**
@@ -460,7 +464,7 @@ class Empty {
 
     back() {
         if ( this._data.length ) {
-            $.prepend( this._box, this._data );
+            this._box.prepend( ...this._data );
         }
     }
 }

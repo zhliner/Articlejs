@@ -405,12 +405,17 @@ function _contentBoxes( el ) {
 
 
 /**
- * 提取元素类型值。
+ * 提取节点类型值。
  * 如果值未知，即时分析获取并存储。
- * @param  {Element} el 目标元素
+ * 注记：
+ * 返回 $TEXT 是有意义的，可用于合法子单元判断。
+ * @param  {Node} el 目标节点
  * @return {Number}
  */
 export function getType( el ) {
+    if ( el.nodeType === 3 ) {
+        return T.$TEXT;
+    }
     let _v = el[ __typeKey ];
 
     if ( _v === undefined ) {
@@ -474,19 +479,17 @@ export function htmlFill( box, html ) {
 /**
  * 获取目标元素的内容。
  * 仅限内联节点和非空文本节点。
- * 如果初始即传入一个空文本节点，则返回该节点。
- * 注记：$.contents()会滤除空文本内容。
- * @param  {Element|Text} el 目标节点
- * @return {[Node]|Node}
+ * 注记：$.contents()会滤除空文本和注释节点。
+ * @param  {Element} el 目标元素
+ * @return {[Node]} 节点集
  */
 export function contents( el ) {
-    if ( el.nodeType == 3 ) {
-        return el;
-    }
     if ( isInlines(el) ) {
-        return el;
+        return [ el ];
     }
-    return $.contents(el).map( nd => contents(nd) ).flat();
+    return $.contents( el )
+        .map( nd => nd.nodeType === 1 ? contents(nd) : nd )
+        .flat();
 }
 
 

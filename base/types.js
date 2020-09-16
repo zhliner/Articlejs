@@ -88,27 +88,27 @@ export const
     // 内联内容元素
     /////////////////////////////////////////////
     A               = 200,  // 链接 {href, target}
-    STRONG          = 201,  // 重点
-    EM              = 202,  // 强调
-    Q               = 203,  // 短引用 {cite}
-    ABBR            = 204,  // 缩写 {title}
-    CITE            = 205,  // 来源
-    TIME            = 206,  // 时间 {datetime}
-    SMALL           = 207,  // 注脚
-    DEL             = 208,  // 删除 {datetime, cite}
-    INS             = 209,  // 插入 {datetime, cite}
-    SUB             = 210,  // 下标
-    SUP             = 211,  // 上标
-    MARK            = 212,  // 标记
-    CODE            = 213,  // 代码（code/#text, b, i） {data-lang, data-tab}
-    ORZ             = 214,  // 表情
-    DFN             = 215,  // 定义 {title}
-    SAMP            = 216,  // 样本
-    KBD             = 217,  // 键盘字
-    S               = 218,  // 失效
-    U               = 219,  // 注记
-    VAR             = 220,  // 变量
-    BDO             = 221,  // 有向文本 {dir}
+    Q               = 201,  // 短引用 {cite}
+    ABBR            = 202,  // 缩写 {title}
+    DEL             = 203,  // 删除 {datetime, cite}
+    INS             = 204,  // 插入 {datetime, cite}
+    DFN             = 205,  // 定义 {title}
+    BDO             = 206,  // 有向文本 {dir}
+    TIME            = 207,  // 时间 {datetime}
+    CODE            = 208,  // 代码（code/#text, b, i） {data-lang, data-tab}
+    STRONG          = 209,  // 重点
+    EM              = 210,  // 强调
+    CITE            = 211,  // 来源
+    SMALL           = 212,  // 注脚
+    SUB             = 213,  // 下标
+    SUP             = 214,  // 上标
+    MARK            = 215,  // 标记
+    ORZ             = 216,  // 表情
+    SAMP            = 217,  // 样本
+    KBD             = 218,  // 键盘字
+    S               = 219,  // 失效
+    U               = 220,  // 注记
+    VAR             = 221,  // 变量
 
     //
     // 行块内容元素
@@ -234,27 +234,27 @@ const Specials = {
     // 内联内容元素
     /////////////////////////////////////////////
     [ A ]:              INLINES | CONTENT,
-    [ STRONG ]:         INLINES | CONTENT,
-    [ EM ]:             INLINES | CONTENT,
     [ Q ]:              INLINES | CONTENT,
     [ ABBR ]:           INLINES | CONTENT,
-    [ CITE ]:           INLINES | CONTENT,
-    [ TIME ]:           INLINES | CONTENT | SEALED,
-    [ SMALL ]:          INLINES | CONTENT,
     [ DEL ]:            INLINES | CONTENT,
     [ INS ]:            INLINES | CONTENT,
+    [ DFN ]:            INLINES | CONTENT,
+    [ BDO ]:            INLINES | CONTENT,
+    [ TIME ]:           INLINES | CONTENT | SEALED,
+    [ CODE ]:           INLINES | CONTENT | SEALED,
+    [ STRONG ]:         INLINES | CONTENT,
+    [ EM ]:             INLINES | CONTENT,
+    [ CITE ]:           INLINES | CONTENT,
+    [ SMALL ]:          INLINES | CONTENT,
     [ SUB ]:            INLINES | CONTENT,
     [ SUP ]:            INLINES | CONTENT,
     [ MARK ]:           INLINES | CONTENT,
-    [ CODE ]:           INLINES | CONTENT | SEALED,
     [ ORZ ]:            INLINES | CONTENT,
-    [ DFN ]:            INLINES | CONTENT,
     [ SAMP ]:           INLINES | CONTENT,
     [ KBD ]:            INLINES | CONTENT,
     [ S ]:              INLINES | CONTENT,
     [ U ]:              INLINES | CONTENT,
     [ VAR ]:            INLINES | CONTENT,
-    [ BDO ]:            INLINES | CONTENT,
 
     //
     // 行块内容元素
@@ -414,27 +414,27 @@ const ChildTypes = {
     // 内联内容元素
     /////////////////////////////////////////////
     [ A ]:              [ $TEXT, _INLINES ],
-    [ STRONG ]:         [ $TEXT, _INLINES, A ],
-    [ EM ]:             [ $TEXT, _INLINES, A ],
     [ Q ]:              [ $TEXT, _INLINES, A ],
     [ ABBR ]:           [ $TEXT ],
-    [ CITE ]:           [ $TEXT, _INLINES, A ],
-    [ TIME ]:           [ $TEXT ],
-    [ SMALL ]:          [ $TEXT, _INLINES, A ],
     [ DEL ]:            [ $TEXT, _INLINES, A ],
     [ INS ]:            [ $TEXT, _INLINES, A ],
+    [ DFN ]:            [ $TEXT, ABBR ],
+    [ BDO ]:            [ $TEXT, _INLINES, A ],
+    [ TIME ]:           [ $TEXT ],
+    [ CODE ]:           [ $TEXT, B, I ],
+    [ STRONG ]:         [ $TEXT, _INLINES, A ],
+    [ EM ]:             [ $TEXT, _INLINES, A ],
+    [ CITE ]:           [ $TEXT, _INLINES, A ],
+    [ SMALL ]:          [ $TEXT, _INLINES, A ],
     [ SUB ]:            [ $TEXT, _INLINES ],
     [ SUP ]:            [ $TEXT, _INLINES ],
     [ MARK ]:           [ $TEXT, _INLINES ],
-    [ CODE ]:           [ $TEXT, B, I ],
     [ ORZ ]:            [ $TEXT ],
-    [ DFN ]:            [ $TEXT, ABBR ],
     [ SAMP ]:           [ $TEXT, _INLINES, A ],
     [ KBD ]:            [ $TEXT ],
     [ S ]:              [ $TEXT, _INLINES, A ],
     [ U ]:              [ $TEXT, _INLINES, A ],
     [ VAR ]:            [ $TEXT ],
-    [ BDO ]:            [ $TEXT, _INLINES, A ],
 
     //
     // 行块内容元素
@@ -527,7 +527,7 @@ const ChildTypes = {
 //
 $.each(
     ChildTypes,
-    (v, k, o) => o[k] = v && new Set(v.flat())
+    (v, k, o) => o[k] = v && new Set( v.flat() )
 );
 
 

@@ -268,6 +268,7 @@ class RngEdit {
         this._tmp = new Normalize( _box );
 
         // 复原，会丢失引用。
+        // 原生调用，不影响编辑历史。
         _box.normalize();
     }
 

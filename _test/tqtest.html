@@ -126,8 +126,7 @@ p.ani {
     // $.holdReady(true);
     $.ready(function(){
         console.info('tQuery load and DOMContentLoaded.');
-        let _el = frm;
-        console.dir(_el);
+        // console.dir(frm);
     });
 </script>
 </head>
@@ -362,7 +361,7 @@ p.ani {
             <option value="Banana">Banana</option>
         </select>
         <br>
-        <select name="sel" id="mySelect1">
+        <select name="sel" id="sel">
             <option value="Apple">Apple</option>
             <option value="Orange">Orange</option>
             <option value="Pineapple">Pineapple</option>
@@ -464,8 +463,5 @@ p.ani {
     //     $.holdReady(false);
     // });
     // console.info('DOM first loaded.');
-    function check(ev) {
-        console.info(ev, this.value);
-    }
 </script>
 </html>

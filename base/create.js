@@ -26,7 +26,7 @@
 
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { getType, setType, tableObj } from "./base.js";
+import { getType, setType, tableObj, contents } from "./base.js";
 
 
 const
@@ -271,6 +271,24 @@ const Children = {
             $.append( ruby, elements(T.RB, T.RP, T.RT, T.RP) )
         );
 
+    },
+
+
+    /**
+     * 代码单元。
+     * 源代码应当已经处理好Tab替换。
+     * 源代码应当已经解析为高亮代码。
+     * @param  {Element} code 代码元素
+     * @param  {String|Node|[Node]} data 源码或数据集
+     * @return {Element} code
+     */
+    [ T.CODE ]: function( code, _, data ) {
+        if ( typeof data === 'string' ) {
+            data = $.fragment( data, false );
+        }
+        $.append( code, data );
+
+        return result( null, code, true );
     },
 
 
@@ -672,219 +690,27 @@ const Children = {
 });
 
 
-
 //
-// 元素构建集。
-// 对已经创建的元素（可能为空）设置特性或插入内容。
-// 插入方法为 append，如果需要 fill，应当由外部保证清空。
-// 无需构建的中间结构简单返回自身即可。
-// 接口：function( Element, Object, Value|[Value] ): Element | null
-// 注记：
-// 返回假值表示终结且未实际构建，
-// 这是对调用者的反馈，通常是用于滤除作为新目标的选取。
-//////////////////////////////////////////////////////////////////////////////
-//
-const Builder = {
-
-    //-- 内联单元 ------------------------------------------------------------
-
-    /**
-     * SVG 根元素。
-     * 通用特性设置，由用户控制配置集。
-     * 注记：应该只用于单独新建。
-     * @param  {Element} svg 目标元素
-     * @param  {Object} opts 特性配置集
-     * @param  {String} xml SVG源码
-     * @return {Element} svg
-     */
-    [ T.SVG ]: function( svg, opts, xml ) {
-        svgInsert(
-            $.attribute(svg, opts), xml
-        );
-        return svg;
-    },
-
-
-    /**
-     * SVG 子单元。
-     * 通用特性设置，由用户控制配置集。
-     * 注记：应该只用于单独新建。
-     * @param  {Element} el 目标元素
-     * @param  {Object} opts 特性配置集
-     * @param  {String} xml SVG源码
-     * @return {Element} el
-     */
-    [ T.SVGITEM ]: function( el, opts, xml ) {
-        svgInsert(
-            $.attribute(el, opts), xml
-        );
-        return el;
-    },
-
-
-    /**
-     * 时间单元。
-     * 文本为空时即默认为datetime的标准格式文本。
-     * date/time通常至少需要一个有值。
-     * @param  {Element} el 时间空元素
-     * @param  {String} date 日期表达串，可选
-     * @param  {String} time 时间表达串，可选
-     * @param  {String} text 时间表达文本，可选
-     * @return {Element} el
-     */
-    [ T.TIME ]: function( el, {date, time}, text ) {
-        date = date || '';
-
-        if ( time ) {
-            date = date ? `${date} ${time}` : `${time}`;
-        }
-        return $.attribute(
-            el,
-            { text: text || date, datetime: date || null }
-        );
-    },
-
-
-    /**
-     * 空白段。
-     * 如果未作设置，返回null。
-     * @param  {Element} el 目标元素
-     * @param  {String} width 宽度
-     * @return {Element|null} el
-     */
-    [ T.SPACE ]: function( el, {width} ) {
-        return width != null ?
-            $.css(el, 'width', width) : null;
-    },
-
-
-    /**
-     * 代码单元。
-     * 如果tab有值，源代码应当已经替换处理。
-     * 如果lang有值，源代码应当已经解析为高亮代码。
-     * @attr: [data-lang, data-tab]
-     * @param  {Element} code 代码元素
-     * @param  {String} lang 代码语言，可选
-     * @param  {Number} tabs Tab置换空格数，可选
-     * @param  {String|Node|[Node]} data 源码或数据集
-     * @return {Element} code
-     */
-    [ T.CODE ]: function( code, {lang, tab}, data ) {
-        if ( typeof data === 'string' ) {
-            data = $.fragment( data, false );
-        }
-        $.append( code, data );
-
-        return $.attribute( code, '-lang -tab', [lang, tab] );
-    },
-
-
-    /**
-     * 间隔元素。
-     * @param  {Element} hr 间隔元素
-     * @param  {String} thick 厚度
-     * @param  {String} length 长度
-     * @param  {String} space 中间空白高
-     * @return {Element} hr
-     */
-    [ T.HR ]: function( hr, {thick, length, space} ) {
-        return $.cssSets(
-            hr,
-            'borderWidth width height',
-            [ thick, length, space ]
-        );
-    },
-
-
-    /**
-     * 表格元素构建。
-     * 注意缓存 Table 实例。
-     * @param  {Element} tbl 表格元素（空）
-     * @param  {Number} cols 列数
-     * @param  {Number} rows 行数
-     * @param  {Boolean} th0 是否添加列头
-     * @return {Element} tbl
-     */
-    [ T.TABLE ]: function( tbl, {cols, rows} ) {
-        let _tbo = new $.Table( tbl );
-        _tbo.build( cols, rows );
-
-        return tableObj(tbl, _tbo), tbl;
-    },
-
-
-    //-- 特别用途元素 --------------------------------------------------------
-    // 代码内标注，由特定的函数解析构建。
-
-    // [ T.B ]: null,
-    // [ T.I ]: null,
-
-};
-
-
-//
-// 单纯特性设置。
+// 内容设置。
+// 会检查数据源的匹配性或提取其内容。
 //-----------------------------------------------
 [
-    // 规范特性。
-    [ T.AUDIO,      ['src', 'autoplay', 'loop', 'controls'] ],
-    [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls'] ],
-    [ T.IMG,        ['src', 'alt', 'width', 'height'] ],
-    [ T.TRACK,      ['kind', 'src', 'srclang', 'label', 'default'] ],
-    [ T.SOURCE,     ['src', 'type'] ],
-    [ T.METER,      ['value', 'max', 'min', 'high', 'low', 'optimum'] ],
-    [ T.CODELIST,   ['-lang', '-tab', 'start'] ],
-    [ T.CODELI,     ['value'] ],
-    [ T.BLOCKQUOTE, ['cite'] ],
-    [ T.DETAILS,    ['open'] ],
-]
-.forEach(function( its ) {
-    /**
-     * @param {Element} el 目标根元素
-     * @param {Object} opts 特性配置集
-     * @return {Element} el
-     */
-    Builder[ its[0] ] = (el, opts) =>
-        $.attribute( el, attrPicks(opts, its[1]) );
+    // 内联结构内容元素。
+    T.METER,
+    T.RB,
+    T.RT,
+    T.RP,
+    T.EXPLAIN,
 
-});
-
-
-//
-// 特性+内容设置。
-//-----------------------------------------------
-[
-    // 规范特性+文本。
-    [ T.A,          ['href', 'target'] ],
-    [ T.Q,          ['cite'] ],
-    [ T.ABBR,       ['title'] ],
-    [ T.DEL,        ['datetime', 'cite'] ],
-    [ T.INS,        ['datetime', 'cite'] ],
-    [ T.DFN,        ['title'] ],
-    [ T.BDO,        ['dir'] ],
-]
-.forEach(function( its ) {
-    /**
-     * @param  {Element} el 内容根元素
-     * @param  {Object} opts 特性配置集
-     * @param  {Node|[Node]|String} cons 内容
-     * @return {Element} el
-     */
-    Builder[ its[0] ] = (el, opts, cons) => {
-        $.append(
-            $.attribute( el, attrPicks(opts, its[1]) ),
-            cons
-        );
-        return el;
-    };
-});
-
-
-//
-// 单纯内容设置。
-//-----------------------------------------------
-[
-    // 内联单元。
+    // 内联内容元素。
+    T.A,
+    T.Q,
+    T.ABBR,
+    T.DEL,
+    T.INS,
+    T.DFN,
+    T.BDO,
+    T.TIME,
     T.STRONG,
     T.EM,
     T.CITE,
@@ -924,22 +750,182 @@ const Builder = {
 ]
 .forEach(function( its ) {
     /**
-     * 数据为空时内容不会被改变，此时返回空串。
+     * 到内容元素后会终止向下迭代。
+     * 返回内容元素自身而非插入的子节点。
      * 注记：
-     * 如果需要 fill 方式，应当由用户作特定操作。
+     * 此为添加方式，如果需要 fill，用户可先清空操作。
+     * 可能包含离散文本节点，应当由编辑模块执行规范化。
      * @param  {Element} el 内容根元素
-     * @param  {String|Node|[Node]} cons 内容
+     * @param  {String|Node} data 内容数据
      * @return {Element|null} el
      */
-    Builder[ its ] = (el, _, cons) => $.append(el, cons) && el;
+    Children[ its ] = function(el, _, data) {
+        $.append(
+            el,
+            dataCons( data, getType(el) )
+        );
+        return result( null, el, true );
+    };
+});
+
+
+
+//
+// 元素构建集。
+// 对已经创建的元素（可能为空）设置特性或插入内容。
+// 插入方法为 append，如果需要 fill，应当由外部保证清空。
+// 无需构建的中间结构简单返回自身即可。
+// 接口：function( Element, Object, Value|[Value] ): Element | null
+// 注记：
+// 返回假值表示终结且未实际构建，
+// 这是对调用者的反馈，通常是用于滤除作为新目标的选取。
+//////////////////////////////////////////////////////////////////////////////
+//
+const Builder = {
+
+    //-- 内联单元 ------------------------------------------------------------
+
+    /**
+     * SVG 根元素。
+     * 通用特性设置，由用户控制配置集。
+     * 注记：内容留待 Children 段处理（否则重复）。
+     * @param  {Element} svg 目标元素
+     * @param  {Object} opts 特性配置集
+     * @return {Element} svg
+     */
+    [ T.SVG ]: function( svg, opts ) {
+        return $.attribute( svg, opts );
+    },
+
+
+    /**
+     * SVG 子单元。
+     * 通用特性设置，由用户控制配置集。
+     * 注记：应该只用于单独新建。
+     * @param  {Element} el 目标元素
+     * @param  {Object} opts 特性配置集
+     * @return {Element} el
+     */
+    [ T.SVGITEM ]: function( el, opts ) {
+        return $.attribute( el, opts );
+    },
+
+
+    /**
+     * 时间单元。
+     * 文本为空时即默认为datetime的标准格式文本。
+     * date/time通常至少需要一个有值。
+     * @param  {Element} el 时间空元素
+     * @param  {String} date 日期表达串，可选
+     * @param  {String} time 时间表达串，可选
+     * @param  {String} text 时间表达文本，可选
+     * @return {Element} el
+     */
+    [ T.TIME ]: function( el, {date, time} ) {
+        date = date || '';
+
+        if ( time ) {
+            date = date ? `${date} ${time}` : `${time}`;
+        }
+        return $.attr( el, 'datetime', date || null );
+    },
+
+
+    /**
+     * 空白段。
+     * @param  {Element} el 目标元素
+     * @param  {String} width 宽度
+     * @return {Element} el
+     */
+    [ T.SPACE ]: function( el, {width} ) {
+        if ( width != null ) {
+            $.css( el, 'width', width );
+        }
+        return el;
+    },
+
+
+    /**
+     * 间隔元素。
+     * @param  {Element} hr 间隔元素
+     * @param  {String} thick 厚度
+     * @param  {String} length 长度
+     * @param  {String} space 中间空白高
+     * @return {Element} hr
+     */
+    [ T.HR ]: function( hr, {thick, length, space} ) {
+        return $.cssSets(
+            hr,
+            'borderWidth width height',
+            [ thick, length, space ]
+        );
+    },
+
+
+    /**
+     * 表格元素构建。
+     * 注意缓存 Table 实例。
+     * @param  {Element} tbl 表格元素（空）
+     * @param  {Number} cols 列数
+     * @param  {Number} rows 行数
+     * @param  {Boolean} th0 是否添加列头
+     * @return {Element} tbl
+     */
+    [ T.TABLE ]: function( tbl, {cols, rows} ) {
+        let _tbo = new $.Table( tbl );
+        _tbo.build( cols, rows );
+
+        return tableObj(tbl, _tbo), tbl;
+    },
+
+
+    // 定制构建。
+    // [ T.B ]: null,
+    // [ T.I ]: null,
+
+};
+
+
+//
+// 正常特性设置。
+//-----------------------------------------------
+[
+    // 规范特性。
+    [ T.AUDIO,      ['src', 'autoplay', 'loop', 'controls'] ],
+    [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls'] ],
+    [ T.IMG,        ['src', 'alt', 'width', 'height'] ],
+    [ T.TRACK,      ['kind', 'src', 'srclang', 'label', 'default'] ],
+    [ T.SOURCE,     ['src', 'type'] ],
+    [ T.METER,      ['value', 'max', 'min', 'high', 'low', 'optimum'] ],
+    [ T.CODELIST,   ['-lang', '-tab', 'start'] ],
+    [ T.CODELI,     ['value'] ],
+    [ T.BLOCKQUOTE, ['cite'] ],
+    [ T.DETAILS,    ['open'] ],
+    [ T.A,          ['href', 'target'] ],
+    [ T.Q,          ['cite'] ],
+    [ T.ABBR,       ['title'] ],
+    [ T.DEL,        ['datetime', 'cite'] ],
+    [ T.INS,        ['datetime', 'cite'] ],
+    [ T.DFN,        ['title'] ],
+    [ T.BDO,        ['dir'] ],
+    [ T.CODE,       ['-lang', '-tab'] ],
+]
+.forEach(function( its ) {
+    /**
+     * @param  {Element} el 目标根元素
+     * @param  {Object} opts 特性配置集
+     * @return {Element} el
+     */
+    Builder[ its[0] ] = (el, opts) => $.attribute( el, attrPicks(opts, its[1]) );
 });
 
 
 //
-// 无需特别构建的结构元素。
-// 简单返回实参即可。
+// 自身无需特别构建。
+// 注：简单返回实参即可。
 //-----------------------------------------------
 [
+    // 结构元素
     T.TR,
     T.THEAD,
     T.TBODY,
@@ -976,6 +962,44 @@ const Builder = {
     T.ASIDE,
     T.CODEBLOCK,
     T.BLANK,
+
+    // 内联内容元素
+    T.STRONG,
+    T.EM,
+    T.CITE,
+    T.SMALL,
+    T.SUB,
+    T.SUP,
+    T.MARK,
+    T.ORZ,
+    T.SAMP,
+    T.KBD,
+    T.S,
+    T.U,
+    T.VAR,
+
+    // 内容行单元。
+    T.P,
+    T.NOTE,
+    T.TIPS,
+    T.PRE,
+    T.ADDRESS,
+
+    // 内容元素
+    T.H1,
+    T.H2,
+    T.H3,
+    T.H4,
+    T.H5,
+    T.H6,
+    T.SUMMARY,
+    T.FIGCAPTION,
+    T.CAPTION,
+    T.LI,
+    T.DT,
+    T.DD,
+    T.TH,
+    T.TD,
 ]
 .forEach( it => Builder[ it ] = el => el );
 
@@ -1241,6 +1265,28 @@ function svgInsert( box, data ) {
         data = svgItem( $.fragment(data, true) );
     }
     return $.append( box, data );
+}
+
+
+/**
+ * 检查提取数据内容。
+ * 汇集符合目标元素子元素类型的数据。
+ * 如果不符合子元素类型，则取其文本内容。
+ * 注：仅用于内容元素。
+ * @param  {String|Node} data 目标数据
+ * @param  {Number} tval 容器元素类型
+ * @return {Node|String|[Node|String]} 合法数据（集）
+ */
+function dataCons( data, tval ) {
+    if ( typeof data === 'string' || data.nodeType === 3 ) {
+        return data;
+    }
+    if ( T.onlyText(tval) ) {
+        return data.textContent;
+    }
+    return contents( data ).map(
+        nd => T.isChildType( tval, getType(nd) ) ? nd : nd.textContent
+    );
 }
 
 
