@@ -131,8 +131,7 @@ const Tags = {
     [ T.CODELI ]:       'li',
     [ T.ALI ]:          'li',
     [ T.AH4 ]:          'h4',
-    [ T.ULXH4LI ]:      'li',
-    [ T.OLXH4LI ]:      'li',
+    [ T.XH4LI ]:        'li',
     [ T.CASCADEH4LI ]:  'li',
     [ T.CASCADEAH4LI ]: 'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
@@ -350,6 +349,47 @@ const Children = {
 
 
     /**
+     * 级联表标题项。
+     * 如果没有传递 h4，取<li>容器内容创建。
+     * 如果传递了 h4，原<li>内容会被清空丢弃。
+     * 子列表有则插入，不支持自动递进创建。
+     * @param {Element} li 列表项元素
+     * @param {String|Node|[Node]} h4 标题内容
+     * @param {Element} data 子列表，可选
+     */
+    [ T.XH4LI ]: function( li, {h4}, data ) {
+        let _h4 = $.empty( li );
+
+        return result(
+            insertHeading( li, T.H4, h4 || _h4 ),
+            // 合法插入时返回供选取。
+            appendChild(li, data) === null && data,
+            true
+        );
+    },
+
+
+    /**
+     * 级联编号表标题项。
+     * 如果没有传递 h4，取<li>容器内容创建。
+     * 如果传递了 h4，原<li>内容会被清空丢弃。
+     * @param {Element} li 列表项元素
+     * @param {String|Node|[Node]} h4 标题内容
+     * @param {Element} data 子列表，可选
+     */
+    [ T.CASCADEH4LI ]: function( li, {h4}, data ) {
+        let _h4 = $.empty( li ),
+            _ol = appendChild( li, data, () => elem(T.OL) );
+
+        return result(
+            insertHeading( li, T.H4, h4 || _h4 ),
+            _ol || data,
+            !_ol
+        );
+    },
+
+
+    /**
      * 级联标题链接条目。
      * 标题内容应当是一个构建好的链接元素，
      * 因为标题不在正常的递进构建流程里。
@@ -559,35 +599,15 @@ const Children = {
      * @param {Element} box 容器元素
      * @node: {Element}
      */
-    Children[ its[0] ] = box => result(
-        null,
-        $.append( box, elem(its[1]) )
-    );
-});
-
-
-//
-// 级联表标题项创建。
-//-----------------------------------------------
-[
-    [ T.ULXH4LI,     T.UL ],
-    [ T.OLXH4LI,     T.OL ],
-    [ T.CASCADEH4LI, T.OL ],
-]
-.forEach(function( its ) {
-    /**
-     * 标题项为必需。
-     * 仅创建一个空列表容器。
-     * @param {Element} li 列表项容器
-     * @param {String|Node|[Node]} h4 列表标题项
-     * @node: {Element}
-     */
-    Children[ its[0] ] = function( li, {h4} ) {
-        return result(
-            insertHeading( li, T.H4, h4 ),
-            $.append( li, elem(its[1]) )
+    Children[ its[0] ] = function( box, _, data ) {
+        let _new = appendChild(
+            box,
+            data,
+            () => elem( its[1] )
         );
+        return result( null, _new || data, !_new );
     };
+
 });
 
 
@@ -595,7 +615,7 @@ const Children = {
 // 小行块创建。
 // 结构：[ <h3>, <p>... ]
 // 标题在最前，智能补足（不存在则创建，否则忽略）。
-// 主体内容支持多个段落。
+// 注记：一次只处理一个段落数据。
 //-----------------------------------------------
 [
     T.ABSTRACT,
@@ -607,24 +627,24 @@ const Children = {
 .forEach(function( it ) {
     /**
      * 标题项为可选。
-     * data仅取数据条目数。
      * @param {Element} box 容器元素
      * @param {String|Node|[Node]} h3 标题内容，可选
-     * @param {Value|[Value]} data 条目数据
-     * @node: {Element|[Element]}
+     * @param {Element} data 子单元数据
      */
     Children[ it ] = function( box, {h3}, data ) {
-        return result(
-            h3 && insertHeading( box, T.H3, h3 ),
-            appendNodes( box, size(data), () => elem(T.P) )
+        let _el = appendChild(
+            box,
+            data,
+            () => elem( T.P )
         );
+        return result( h3 && insertHeading(box, T.H3, h3), _el || data, !_el );
     };
 });
 
 
 //
 // 根列表（顶级）。
-// 只是简单的构建<li>条目。
+// 如果子单元不合法，简单构建<li>条目。
 //-----------------------------------------------
 [
     T.SEEALSO,
@@ -637,16 +657,16 @@ const Children = {
 ]
 .forEach(function( it ) {
     /**
-     * data仅取数据集大小。
      * @param {Element} box 容器元素
-     * @param {Value|[Value]} data 数据（集）
-     * @node: {Element|[Element]}
+     * @param {Element} data 列表项元素
      */
     Children[ it ] = function( box, _, data ) {
-        return result(
-            null,
-            appendNodes( box, size(data), () => elem(T.LI) )
-        )
+        let _new = appendChild(
+            box,
+            data,
+            () => elem( T.LI )
+        );
+        return result( null, _new || data, !_new );
     };
 });
 
@@ -668,28 +688,25 @@ const Children = {
 ]
 .forEach(function( it ) {
     /**
-     * 标题为必需。
+     * 如果data无内容或已合法插入，则停止迭代。
+     * 否则创建一个默认子单元后继续。
      * @param {Element} sec 片区元素
      * @param {String|Node|[Node]} h2 标题内容
      * @param {Boolean} header 创建导言，可选
      * @param {Boolean} footer 创建结语，可选
-     * @param {Node} data 数据单元，可选
-     * @node: {Element|[Element]}
+     * @param {Node} data 子单元数据，可选
      */
     Children[ it ] = function( sec, {h2, header, footer}, data ) {
-        let _hxs = [ insertHeading(sec, T.H2, h2) ],
-            _new = null;
+        let _buf = [
+            h2 && insertHeading( sec, T.H2, h2 ),
+            header && insertHeader( sec )
+        ];
+        let _new = appendChild( sec, data, () => elem(T.P) );
 
-        if ( header ) {
-            _hxs.push( insertHeader(sec, sec.firstElementChild) );
-        }
-        if ( data ) {
-            _new = appendChild( sec, data, () => elem(T.P) );
-        }
         if ( footer ) {
-            _hxs.push( appendFooter(sec) );
+            _buf.push( appendFooter(sec) );
         }
-        return result( _hxs.filter( v => v ), _new, !_new );
+        return result( _buf.filter(v => v), _new || data, !_new );
     };
 
 });
@@ -759,17 +776,16 @@ const Children = {
      * 返回内容元素自身而非插入的子节点。
      * 注记：
      * 此为添加方式，如果需要 fill，用户可先清空操作。
-     * 可能包含离散文本节点，应当由编辑模块执行规范化。
-     * @param  {Element} el 内容根元素
-     * @param  {String|Node} data 内容数据
-     * @return {Element|null} el
+     * 可能有游离文本节点，需要规范化（最近）。
+     * @param {Element} el 内容根元素
+     * @param {String|Node} data 内容数据
      */
     Children[ its ] = function(el, _, data) {
         $.append(
             el,
             dataCons( data, getType(el) )
         );
-        return result( null, el, true );
+        return result( null, $.normalize(el), true );
     };
 });
 
@@ -938,8 +954,7 @@ const Builder = {
     T.CODELI,
     T.ALI,
     T.AH4,
-    T.ULXH4LI,
-    T.OLXH4LI,
+    T.XH4LI,
     T.CASCADEH4LI,
     T.CASCADEAH4LI,
     T.TOCCASCADE,
@@ -1045,21 +1060,72 @@ function attrPicks( obj, names ) {
 /**
  * 插入唯一标题。
  * 标题在内部最前端，如果不存在则新建并插入。
- * 如果已有标题且内容非假，则填充更新。
- * 如果新建标题且内容有值，则构建更新。
- * 如果已有标题且未更新，返回假值data。
+ * 更新标题内容并返回标题元素。
  * @param  {Element} box 容器元素
  * @param  {Number} tval 标题类型值
- * @param  {String|Node|[Node]} data 插入内容，可选
- * @return {Element|data} 新插入或更新的标题元素
+ * @param  {String|Node|[Node]} data 插入内容
+ * @return {Element|null} 新插入或更新的标题元素
  */
 function insertHeading( box, tval, data ) {
     let _hx = box.firstElementChild;
 
-    if ( _hx && getType(_hx) === tval ) {
-        return data && $.fill(_hx, data) && _hx;
+    if ( !_hx || getType(_hx) !== tval ) {
+        _hx = $.prepend( box, elem(tval) );
     }
-    return $.prepend( box, elem(tval, data) );
+    return $.fill( _hx, data ), _hx;
+}
+
+
+/**
+ * 插入导言（如果没有）。
+ * 容忍既有导言不在前端。
+ * 新插入导言在标题之后或容器内最前端。
+ * @param  {Element} box 导言父元素
+ * @param  {String} hslr 依附标题选择器
+ * @return {Element} 既有或新建的导言
+ */
+function insertHeader( box, hslr = '>h2' ) {
+    let _el = $.get( '>header', box );
+    if ( _el ) return _el;
+
+    let _hx = $.get( hslr, box );
+
+    return _hx ? $.after( _hx, elem(T.HEADER) ) : $.prepend( box, elem(T.HEADER) );
+}
+
+
+/**
+ * 判断插入结语并返回。
+ * 如果没有就新建插入（到容器末端）。
+ * 容忍既有结语不在末端。
+ * @param  {Element} box 结语父元素
+ * @return {Element} 结语元素
+ */
+function appendFooter( box ) {
+    let _el = $.get( '>footer', box );
+    return _el || $.append( box, elem(T.FOOTER) );
+}
+
+
+/**
+ * 子单元判断插入或新建。
+ * 如果子单元合法会插入，不创建默认单元，返回null。
+ * 如果子单元为假，无任何行为，返回undefined。
+ * @param  {Element} box 容器元素
+ * @param  {Node} sub 子单元
+ * @param  {Function} maker 创建默认单元回调，可选
+ * @return {Element|null|void} 新建的默认单元
+ */
+function appendChild( box, sub, maker ) {
+    if ( !sub ) return;
+
+    let _tv0 = getType( box ),
+        _tv1 = sub.nodeType ? getType( sub ) : 0;
+
+    if ( $.isChildType(_tv0, _tv1) ) {
+        return $.append( box, sub ) && null;
+    }
+    return maker && $.append( box, maker() );
 }
 
 
@@ -1128,42 +1194,6 @@ function tocLi( h2 ) {
         { href: h2.id ? `#${h2.id}` : null },
         h2.innerText
     );
-}
-
-
-/**
- * 插入导言（如果没有）。
- * 容忍既有导言不在前端。
- * 新插入导言在标题之后或容器内最前端
- * 如果未新建，则无返回值。
- * @param  {Element} box 导言父元素
- * @param  {Element} hx 章节标题，可选
- * @return {Element|void} 新建的导言
- */
-function insertHeader( box, hx ) {
-    let _el = $.get( '>header', box );
-    if ( _el ) return;
-
-    if ( hx ) {
-        return $.after( hx, elem(T.HEADER) );
-    }
-    return $.prepend( box, elem(T.HEADER) );
-}
-
-
-/**
- * 插入结语（如果没有）。
- * 将新结语添加在容器末端，但容忍既有结语不在末端。
- * 如果未新建，则无返回值。
- * @param  {Element} box 结语父元素
- * @return {Element|void} 新建的结语
- */
-function appendFooter( box ) {
-    let _el = $.get( '>footer', box );
-
-    if ( !_el ) {
-        return $.append( box, elem(T.FOOTER) );
-    }
 }
 
 
@@ -1292,25 +1322,6 @@ function dataCons( data, tval ) {
     return contents( data ).map(
         nd => T.isChildType( tval, getType(nd) ) ? nd : nd.textContent
     );
-}
-
-
-/**
- * 子单元判断插入或新建。
- * 如果子单元合法会插入，不创建默认单元，返回null。
- * @param  {Element} box 容器元素
- * @param  {Node} sub 子单元
- * @param  {Function} maker 创建默认单元回调
- * @return {Element|null} 新建的默认单元
- */
-function appendChild( box, sub, maker ) {
-    let _tv0 = getType( box ),
-        _tv1 = sub.nodeType ? getType( sub ) : 0;
-
-    if ( $.isChildType(_tv0, _tv1) ) {
-        return $.append( box, sub ) && null;
-    }
-    return $.append( box, maker() );
 }
 
 

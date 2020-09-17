@@ -140,18 +140,15 @@ export const
     TBODY           = 416,  // 表体
     TFOOT           = 417,  // 表脚
     // 定制结构类
-    // 注记：
-    // 无需 LICODE、LIA 之类的细分，容器条目本身不是内容元素即可。
-    // 同时子单元被视为内联类型，也可兼容部分内联操作（如内容提取）。
+    // 注记：无需LICODE设计，容器非CONTENT即可。
     CODELI          = 418,  // 代码表条目（li/code） {value}
     ALI             = 429,  // 链接列表项（li/a）
     AH4             = 420,  // 链接小标题（h4/a）
-    ULXH4LI         = 421,  // 无序级联表项标题（li/h4, ul|ol）
-    OLXH4LI         = 422,  // 有序级联表项标题（li/h4, ol|ul）
-    CASCADEH4LI     = 423,  // 级联编号表项标题（li/h4, ol）
-    CASCADEAH4LI    = 424,  // 级联编号表链接标题项（li/[h4/a], ol）
-    TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
-    FIGIMGP         = 426,  // 插图内容区（p/img, span:explain）
+    XH4LI           = 421,  // 级联表标题项（li/h4, ul|ol）
+    CASCADEH4LI     = 422,  // 级联编号表标题项（li/h4, ol）
+    CASCADEAH4LI    = 423,  // 级联编号表链接标题项（li/[h4/a], ol）
+    TOCCASCADE      = 424,  // 目录级联表（ol:cascade/[li/a]）
+    FIGIMGP         = 425,  // 插图内容区（p/img, span:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -289,8 +286,7 @@ const Specials = {
     [ CODELI ]:         STRUCT | STRUCTX | SEALED,
     [ ALI ]:            STRUCT | STRUCTX | CONTENT, // 宽容
     [ AH4 ]:            STRUCT | FIXED | CONTENT,   // 宽容
-    [ ULXH4LI ]:        STRUCT | STRUCTX | SEALED,
-    [ OLXH4LI ]:        STRUCT | STRUCTX | SEALED,
+    [ XH4LI ]:          STRUCT | STRUCTX | SEALED,
     [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
     [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | FIXED | SEALED,
@@ -469,8 +465,7 @@ const ChildTypes = {
     [ CODELI ]:         [ CODE ],
     [ ALI ]:            [ A ],
     [ AH4 ]:            [ A ],
-    [ ULXH4LI ]:        [ H4, UL, OL ],
-    [ OLXH4LI ]:        [ H4, OL, UL ],
+    [ XH4LI ]:          [ H4, UL, OL ],
     [ CASCADEH4LI ]:    [ H4, OL ],
     [ CASCADEAH4LI ]:   [ AH4, OL ],
     [ TOCCASCADE ]:     [ ALI, CASCADEAH4LI ],
@@ -495,8 +490,8 @@ const ChildTypes = {
     [ UL ]:             [ LI, ALI ],
     [ OL ]:             [ LI, ALI ],
     [ CODELIST ]:       [ CODELI ],
-    [ ULX ]:            [ LI, ALI, ULXH4LI ],
-    [ OLX ]:            [ LI, ALI, OLXH4LI ],
+    [ ULX ]:            [ LI, ALI, XH4LI ],
+    [ OLX ]:            [ LI, ALI, XH4LI ],
     [ CASCADE ]:        [ LI, CASCADEH4LI, ALI, CASCADEAH4LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],

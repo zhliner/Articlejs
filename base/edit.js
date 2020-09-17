@@ -183,6 +183,10 @@ class DOMEdit {
     }
 
 
+    /**
+     * 记录了本次操作关联的全部变化，
+     * 内部的变化可以在任何地方发生。
+     */
     redo() {
         let _old = __TQHistory.size();
 
@@ -970,7 +974,7 @@ function elementAdds( els, gets ) {
  * @param {Function} handle 调用句柄
  */
 function previousCall( hot, n, handle ) {
-    n = isNaN(n) ? 1 : n;
+    n = isNaN(n) ? 1 : n || Infinity;
 
     if (!hot || n < 0) {
         return;
@@ -987,7 +991,7 @@ function previousCall( hot, n, handle ) {
  * @param {Function} handle 调用句柄
  */
 function nextCall( hot, n, handle ) {
-    n = isNaN(n) ? 1 : n;
+    n = isNaN(n) ? 1 : n || Infinity;
 
     if (!hot || n < 0) {
         return;

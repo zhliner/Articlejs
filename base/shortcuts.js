@@ -156,26 +156,26 @@ Content: [
     //-----------------------------------------------------
 
     {
-        // ArrowLeft（←）
-        "key":      ":h",
-        "command":  "focusPrevious"
-    },
-
-    {
-        // ArrowRight（→）
-        "key":      ":l",
-        "command":  "focusNext"
-    },
-
-    {
         // ArrowUp（↑）
         "key":      ":k",
-        "command":  "focusParent"
+        "command":  "focusPrevious"
     },
 
     {
         // ArrowDown（↓）
         "key":      ":j",
+        "command":  "focusNext"
+    },
+
+    {
+        // ArrowLeft（←）
+        "key":      ":h",
+        "command":  "focusParent"
+    },
+
+    {
+        // ArrowRight（→）
+        "key":      ":l",
         "command":  "focusChild"
     },
 
@@ -258,32 +258,32 @@ Content: [
     // 焦点移动到目标元素。
     //-----------------------------------------------------
 
-    // 同级向前（←）
+    // 同级向前（↑）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "alt:h",
+        "key":      "alt:k",
         "command":  "onlyPrevious"
     },
 
-    // 同级向后（→）
+    // 同级向后（↓）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "alt:l",
+        "key":      "alt:j",
         "command":  "onlyNext"
     },
 
-    // 父级选取（↑）
+    // 父级选取（←）
     // 支持前置数字指定上升层级（准确值）。
     {
-        "key":      "alt:k",
+        "key":      "alt:h",
         "command":  "onlyParent"
     },
 
-    // 子级选取（↓）
+    // 子级选取（→）
     // 支持前置数字指定子元素下标，
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
-        "key":      "alt:j",
+        "key":      "alt:l",
         "command":  "onlyChild"
     },
 
@@ -299,32 +299,32 @@ Content: [
     // 焦点会移动到扩展目标。
     //-----------------------------------------------------
 
-    // 同级向前（←）扩选
+    // 同级向前（↑）扩选
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "shift:h",
+        "key":      "shift:k",
         "command":  "previous"
     },
 
-    // 同级向后（→）扩选
+    // 同级向后（↓）扩选
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "shift:l",
+        "key":      "shift:j",
         "command":  "next"
     },
 
-    // 父级换选（↑）
+    // 父级换选（←）
     // 支持前置数字指定上升层级（准确值）。
     {
-        "key":      "shift:k",
+        "key":      "shift:h",
         "command":  "parent"
     },
 
-    // 子级换选（↓）
+    // 子级换选（→）
     // 支持前置数字指定子元素下标，
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
-        "key":      "shift:j",
+        "key":      "shift:l",
         "command":  "child"
     },
 
@@ -362,13 +362,13 @@ Content: [
 
     // 向前扩选。
     {
-        "key":      "alt+shift:h",
+        "key":      "alt+shift:k",
         "command":  "previousVF"
     },
 
     // 向后扩选。
     {
-        "key":      "alt+shift:l",
+        "key":      "alt+shift:j",
         "command":  "nextVF"
     },
 
@@ -378,16 +378,16 @@ Content: [
         "command":  "contentBoxesVF"
     },
 
-    // 子元素定位。
-    {
-        "key":      "alt+shift:j",
-        "command":  "childVF"
-    },
-
     // 父级选取。
     {
-        "key":      "alt+shift:k",
+        "key":      "alt+shift:h",
         "command":  "parentVF"
+    },
+
+    // 子元素定位。
+    {
+        "key":      "alt+shift:l",
+        "command":  "childVF"
     },
 
     // 上级顶元素。
@@ -458,7 +458,7 @@ Content: [
     // 如果位置非法，自动提取内容构建默认单元插入。
     // 注记：目标焦点不应当被选取。
     {
-        "key":      ":f",
+        "key":      ":i",
         "command":  "elementBefore"
     },
 
@@ -467,7 +467,7 @@ Content: [
     // 说明：参考 elementBefore。
     // 注记：目标焦点可以被选取作为内容之一。
     {
-        "key":      ":f",
+        "key":      "shift:i",
         "command":  "elementCloneBefore"
     },
 
@@ -477,7 +477,7 @@ Content: [
     // 如果位置非法，自动提取内容构建默认单元插入。
     // 注记：目标焦点不应当被选取。
     {
-        "key":      ":f",
+        "key":      ":b",
         "command":  "elementAfter"
     },
 
@@ -486,7 +486,7 @@ Content: [
     // 说明：参考 elementAfter
     // 注记：目标焦点可以被选取作为内容之一。
     {
-        "key":      ":f",
+        "key":      "shift:b",
         "command":  "elementCloneAfter"
     },
 

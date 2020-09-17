@@ -1430,9 +1430,8 @@ Object.assign( tQuery, {
 
     /**
      * 清空元素内容。
-     * 仅适用于元素节点，非法实参返回一个空数组。
+     * 仅适用于元素节点，非法实参返回其自身。
      * 可以传递clean为真指示清除返回集中的空文本和注释节点。
-     * 传递非法实参返回该实参本身。
      * @param  {Element} el 目标元素
      * @param  {Boolean} clean 是否清理返回集，可选
      * @return {[Node]|Value} 被清除的节点集

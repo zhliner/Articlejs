@@ -87,8 +87,7 @@ const CustomStruct = {
      * 多种列表项判断。
      * - CODELI: 代码表条目（li/code）：唯一子元素
      * - ALI: 目录表普通条目（li/a）：唯一子元素
-     * - ULXH4LI: 无序级联表项标题（li/h4, ol|ul）
-     * - OLXH4LI: 有序级联表项标题（li/h4, ul|ol）
+     * - XH4LI: 无序级联表项标题（li/h4, ol|ul）
      * - CASCADEH4LI: 级联编号表项标题（li/h4, ol）
      * - CASCADEAH4LI: 目录表标题条目（li/[h4/a], ol）
      * @param  {Element} el 当前元素
@@ -153,9 +152,8 @@ const CustomStruct = {
     _liParent( el, h4 ) {
         switch ( name(listRoot(el)) ) {
             case 'ULX':
-                return T.ULXH4LI;
             case 'OLX':
-                return T.OLXH4LI;
+                return T.XH4LI;
             case 'CASCADE':
                 return this.H4( h4 ) === T.AH4 ? T.CASCADEAH4LI : T.CASCADEH4LI;
         }
