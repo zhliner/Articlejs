@@ -597,6 +597,7 @@ const Children = {
 .forEach(function( its ) {
     /**
      * @param {Element} box 容器元素
+     * @param {Element} data 子单元数据，可选
      * @node: {Element}
      */
     Children[ its[0] ] = function( box, _, data ) {

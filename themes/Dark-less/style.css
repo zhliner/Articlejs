@@ -477,6 +477,7 @@ aside#help {
 
 .___Content menu {
     z-index: 10;
+    outline: none;
 }
 /* 单元创建（双栏） */
 .___Content menu._cells {
@@ -1267,7 +1268,7 @@ menu {
 
 menu > hr {
     margin: 5px;
-    border: 1px #c3c3c3 solid;
+    border: 1px #c8c8c8 solid;
     border-bottom-color: #f3f3f3;
 }
 menu > li {
@@ -1302,7 +1303,7 @@ menu li[role=submenu] {
 }
 menu > li[role=submenu] > menu {
     top: -1px;
-    left: 144px;
+    left: 142px;
 }
 menu li[role=submenu] h4 {
     display: contents;
@@ -1316,7 +1317,10 @@ menu li > h4::after {
     color: #bbb;
     font-family: monospace;
 }
+menu li:hover > h4::after {
+    color: #a3a3a3;
+}
 menu li[role=submenu]:hover {
-    background-color: #ddd;
+    background-color: #ccc;
     text-shadow: none;
 }
