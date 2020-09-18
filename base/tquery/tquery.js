@@ -2328,10 +2328,10 @@ class Table {
         if ( its === true ) {
             return _bd || this._bodies( idx );
         }
-        if ( its && its.nodeType === 1 ) {
-            return this._insertBody( idx, its );
+        if ( idx === undefined ) {
+            return Arr( this._tbl.tBodies );
         }
-        return idx === undefined ? Arr(this._tbl.tBodies) : _bd;
+        return its ? this._insertBody(idx, its) : _bd;
     }
 
 
