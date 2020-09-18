@@ -79,8 +79,8 @@ b[id|=l]::before {
     margin-right: 6px;
 }
 #l-minied::before   { background-position: -200px -200px; }
-#l-clone::before    { background-position: -200px -250px; }
-#l-move::before     { background-position: -200px -300px; }
+#l-toup::before     { background-position: -200px -250px; }
+#l-todown::before   { background-position: -200px -300px; }
 #l-delete::before   { background-position: -200px -350px; }
 /* 空白透明 */
 #l-convert::before  { background-position: -250px 0; }

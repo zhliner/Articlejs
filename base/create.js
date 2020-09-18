@@ -586,7 +586,7 @@ const Children = {
 
 
 //
-// 简单的子单元创建。
+// 子单元唯一性约束。
 //-----------------------------------------------
 [
     [ T.CODELI,     T.CODE ],
@@ -601,6 +601,10 @@ const Children = {
      * @node: {Element}
      */
     Children[ its[0] ] = function( box, _, data ) {
+        if ( box.childElementCount > 0 ) {
+            // 后阶内容处理。
+            return result( null, box.firstElementChild );
+        }
         let _new = appendChild(
             box,
             data,
