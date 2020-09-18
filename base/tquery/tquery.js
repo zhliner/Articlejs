@@ -2287,7 +2287,7 @@ class Table {
         let _cap = this._tbl.caption;
 
         if ( val != null && !_cap ) {
-            _cap = varyPrepend(this._tbl, this._create('caption'));
+            _cap = varyPrepend( this._tbl, this._create('caption') );
         }
         switch (val) {
             case true:
@@ -2296,7 +2296,7 @@ class Table {
             case null:
                 return _cap && varyRemove(_cap);
         }
-        return varyFill(_cap, val), _cap;
+        return varyFill( _cap, val ), _cap;
     }
 
 
@@ -2306,26 +2306,30 @@ class Table {
      *      {Number}    定位表体位置，操作视op而定
      *      undefined   返回表体集合（可能为空数组）
      * }
-     * op: {
+     * its: {
      *      true        新建目标位置的表体（如果不存在）
      *      null        删除并返回idx位置表体元素（可能为null）
      *      undefined   返回idx位置的表体元素（可能为null）
+     *      {Element}   表体元素，验证后插入
      * }
      * 注意：
-     * 在创建时（op:true），指定一个大的序号会创建一批表体元素。
+     * 在创建时（its:true），指定一个大的序号会创建一批表体元素。
      *
-     * @param  {Number|null} idx 表体元素序号（从0开始）
-     * @param  {true|null} op 创建/删除标识，可选
+     * @param  {Number} idx 表体元素序号（从0开始），可选
+     * @param  {true|null|Element} its 创建/删除标识或表体元素，可选
      * @return {Element|[Element]|undefined} 表体元素（集）
      */
-    bodies( idx, op ) {
+    bodies( idx, its ) {
         let _bd = this._tbl.tBodies[idx];
 
-        if ( op === null ) {
+        if ( its === null ) {
             return _bd && varyRemove( _bd );
         }
-        if ( op === true ) {
+        if ( its === true ) {
             return _bd || this._bodies( idx );
+        }
+        if ( its && its.nodeType === 1 ) {
+            return this._insertBody( idx, its );
         }
         return idx === undefined ? Arr(this._tbl.tBodies) : _bd;
     }
@@ -2650,6 +2654,33 @@ class Table {
             }
         }
         return _el;
+    }
+
+
+    /**
+     * 从外部插入一个表体。
+     * 如果body不是一个表体元素，返回undefined。
+     * 如果表体元素不合法，返回false。
+     * @param  {Number} idx 位置下标
+     * @param  {Element} body 表体元素
+     * @return {Element|false|void} body
+     */
+    _insertBody( idx, body ) {
+        if ( body.tagName !== 'TBODY' ) {
+            return;
+        }
+        let _tr0 = body.rows[0];
+
+        if ( _tr0 && cellCount([..._tr0.cells]) !== this._cols ) {
+            return false;
+        }
+        let _ref = this._bodies( idx-1 );
+
+        if ( _ref ) {
+            return varyAfter( _ref, body );
+        }
+        // [0] 位置。
+        return insertNode( this._tbl, body, this._tbl.tBodies[0] || this._tbl.tFoot );
     }
 
 
