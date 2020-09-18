@@ -524,20 +524,22 @@ const Children = {
 
     /**
      * 表格子单元创建。
-     * 标题内容作为选项成员出现。
-     * 表头/表脚仅创建为空元素，返回忽略。
+     * 允许外部插入表体元素（同列数）。
+     * 表头/表脚仅创建为空元素。
      * 注记：
-     * 仅需返回表体单元供递进的行元素处理。
+     * 仅提供表体单元的递进处理（表格行）。
      * 不提供删除选项子单元的能力。
      * @param {Element} tbl 表格元素
      * @param {String|Node|[Node]} caption 表标题内容
      * @param {Boolean} head 添加表头
      * @param {Boolean} foot 添加表脚
+     * @param {Element} body 兼容表体元素
      * @node: {Element} 表体元素
      */
-    [ T.TABLE ]: function( tbl, {caption, head, foot} ) {
+    [ T.TABLE ]: function( tbl, {caption, head, foot}, body ) {
         let _tbo = tableObj( tbl ),
-            _buf = [];
+            _buf = [],
+            _tbd = null;
 
         if ( caption ) {
             _buf.push( _tbo.caption(caption) );
@@ -548,38 +550,41 @@ const Children = {
         if ( foot ) {
             _buf.push( _tbo.foot(true) );
         }
-        return result( _buf, _tbo.body(true) );
+        if ( body ) {
+            _tbd = _tbo.bodies( 0, body );
+        }
+        return result( _buf, _tbd || _tbo.body(true), !!_tbd );
     },
 
 
     /**
-     * 插图标题可选。
-     * 注：仅测试标题有效性，由下一阶构建。
+     * 插图/标题。
      * @param {Element} fig 插图根元素
-     * @node: {Element|[Element]}
+     * @param {Element} data 子单元数据
      */
-    [ T.FIGURE ]: function( fig, {figcaption} ) {
-        return result(
-            figcaption && insertHeading( fig, T.FIGCAPTION, figcaption ),
-            $.append( fig, elem(T.FIGIMGP) )
+    [ T.FIGURE ]: function( fig, {figcaption}, data ) {
+        let _el = appendChild(
+            fig,
+            data,
+            () => elem( T.FIGIMGP )
         );
+        return result( figcaption && insertHeading(fig, T.FIGCAPTION, figcaption), _el || data, !_el );
     },
 
 
     /**
-     * 内容简介必需。
-     * data无值会创建一个空段落，除非传递一个空数组。
-     * 支持在现有<details>上添加内容。
+     * 详细内容/简介。
      * @param {Element} box 容器元素
      * @param {String|Node|[Node]} summary 简介
-     * @param {Value|[Value]} data 数据集
-     * @node: {Element|[Element]}
+     * @param {Element} data 子单元数据
      */
     [ T.DETAILS ]: function( box, {summary}, data ) {
-        return result(
-            insertHeading( box, T.SUMMARY, summary ),
-            appendNodes( box, size(data), () => elem(T.P) )
+        let _el = appendChild(
+            box,
+            data,
+            () => elem( T.P )
         );
+        return result( summary && insertHeading(box, T.SUMMARY, summary), _el || data, !_el );
     },
 
 };
@@ -633,7 +638,7 @@ const Children = {
     /**
      * 标题项为可选。
      * @param {Element} box 容器元素
-     * @param {String|Node|[Node]} h3 标题内容，可选
+     * @param {String|Node|[Node]} h3 小标题内容，可选
      * @param {Element} data 子单元数据
      */
     Children[ it ] = function( box, {h3}, data ) {
@@ -891,17 +896,22 @@ const Builder = {
     /**
      * 表格元素构建。
      * 注意缓存 Table 实例。
+     * 注记：
+     * 列头在 Children:T.TBODY 处处理。
+     * 行数体现在数据集上（每条一行）。
      * @param  {Element} tbl 表格元素（空）
      * @param  {Number} cols 列数
-     * @param  {Number} rows 行数
-     * @param  {Boolean} th0 是否添加列头
      * @return {Element} tbl
      */
-    [ T.TABLE ]: function( tbl, {cols, rows} ) {
+    [ T.TABLE ]: function( tbl, {cols, border} ) {
         let _tbo = new $.Table( tbl );
-        _tbo.build( cols, rows );
 
-        return tableObj(tbl, _tbo), tbl;
+        if ( border != null ) {
+            $.attr( tbl, 'border', border );
+        }
+        _tbo.build( cols, 0 );
+
+        return tableObj( tbl, _tbo ), tbl;
     },
 
 
@@ -1424,9 +1434,8 @@ function elements( ...types ) {
  *      length: {String}    分割线长度（CSS: width）
  *      space:  {String}    分割线空白（CSS: height）
  *
- *      cols:   {Number}    表格列数
- *      rows:   {Number}    表格行数
- *      th0:    {Boolean}   添加列表头
+ *      cols:   {Number}    表格列数（注：无rows）
+ *      border: {String}    边框类型
  * }
  * @param  {Element} el 待构建的目标元素
  * @param  {Object} opts 特性配置集
@@ -1464,6 +1473,7 @@ function build( el, opts, data ) {
  *      header:     {Boolean} 创建导言部分
  *      footer:     {Boolean} 创建结语部分
  *      dt:         {Value}   定义列表标题项
+ *      th0:        {Boolean} 表格列表头
  * }
  * @param  {Element} box 父容器元素
  * @param  {Object} opts 子元素特性配置集

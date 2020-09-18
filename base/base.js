@@ -603,20 +603,17 @@ export function isSameTr( tr1, tr2 ) {
 
 /**
  * 缓存/检索表格实例。
- * tbl可能为ull，表示游离的表格内单元（不合理使用）。
  * 如果tbo有值，表示仅存储。
  * 容错没有主动缓存的表格实例，即时解析（应当非空<table>）。
  * @param  {Element} tbl 表格元素
  * @param  {$.Table} 表格实例
- * @return {Table|void}
+ * @return {Table|null}
  */
 export function tableObj( tbl, tbo ) {
     if ( tbo ) {
         return __tablePool.set( tbl, tbo );
     }
-    return tbl && (
-        __tablePool.get(tbl) || __tablePool.set(tbl, $.table(tbl)).get(tbl)
-    );
+    return __tablePool.get(tbl) || __tablePool.set( tbl, $.table(tbl) ).get( tbl )
 }
 
 

@@ -481,7 +481,8 @@ const ChildTypes = {
     [ HEADER ]:         [ H3, P, _BLOLIMIT, ULX, OLX ],
     [ FOOTER ]:         [ H3, P, _BLOLIMIT, ADDRESS ],
     [ ARTICLE ]:        [ HEADER, S1, FOOTER ],
-    // 特许分级片区与其它行块单元同级存在（操作便利性）。
+    // 操作便利性：
+    // 允许分级片区与其它行块单元同级存在。
     [ S1 ]:             [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
     [ S2 ]:             [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
     [ S3 ]:             [ H2, HEADER, S4, _BLOCKITS, FOOTER ],
