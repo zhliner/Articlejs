@@ -538,8 +538,7 @@ const Children = {
      */
     [ T.TABLE ]: function( tbl, {caption, head, foot}, body ) {
         let _tbo = tableObj( tbl ),
-            _buf = [],
-            _tbd = null;
+            _buf = [], _tbd;
 
         if ( caption ) {
             _buf.push( _tbo.caption(caption) );
@@ -550,7 +549,7 @@ const Children = {
         if ( foot ) {
             _buf.push( _tbo.foot(true) );
         }
-        if ( body ) {
+        if ( body && body.tagName === 'TBODY' ) {
             _tbd = _tbo.bodies( 0, body );
         }
         return result( _buf, _tbd || _tbo.body(true), !!_tbd );
@@ -559,6 +558,7 @@ const Children = {
 
     /**
      * 插图/标题。
+     * 合法插入则终止，否则创建默认单元并继续。
      * @param {Element} fig 插图根元素
      * @param {Element} data 子单元数据
      */
@@ -909,6 +909,7 @@ const Builder = {
         if ( border != null ) {
             $.attr( tbl, 'border', border );
         }
+        // 非空表格自然忽略。
         _tbo.build( cols, 0 );
 
         return tableObj( tbl, _tbo ), tbl;

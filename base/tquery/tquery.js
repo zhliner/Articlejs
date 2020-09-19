@@ -2674,7 +2674,6 @@ class Table {
             return false;
         }
         let _ref = this._bodies( idx-1 );
-
         if ( _ref ) {
             return varyAfter( _ref, body );
         }

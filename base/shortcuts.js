@@ -235,7 +235,7 @@ Content: [
     // 用途：
     // 基于当前单元格，选取表格<tbody>内单个列（<th>或<td>）。
     {
-        "key":      "ctrl+shift:e",
+        "key":      "alt+shift:e",
         "command":  "tagsame2x"
     },
 
@@ -261,21 +261,21 @@ Content: [
     // 同级向前（↑）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "alt:k",
+        "key":      "ctrl+shift:k",
         "command":  "onlyPrevious"
     },
 
     // 同级向后（↓）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "alt:j",
+        "key":      "ctrl+shift:j",
         "command":  "onlyNext"
     },
 
     // 父级选取（←）
     // 支持前置数字指定上升层级（准确值）。
     {
-        "key":      "alt:h",
+        "key":      "ctrl+shift:h",
         "command":  "onlyParent"
     },
 
@@ -283,13 +283,13 @@ Content: [
     // 支持前置数字指定子元素下标，
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
-        "key":      "alt:l",
+        "key":      "ctrl+shift:l",
         "command":  "onlyChild"
     },
 
     // 顶元素选取。
     {
-        "key":      "alt:t",
+        "key":      "ctrl+shift:t",
         "command":  "onlyItemTop"
     },
 

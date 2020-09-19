@@ -379,8 +379,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     margin: 0;
     padding: 0;
 }
-/* 顶部标题粗体 */
-.content figure > figcaption:first-child {
+.content figure > figcaption {
     font-weight: bold;
 }
 /* 底部标题居中 */
@@ -395,16 +394,24 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     border: 1px #ccc solid;
     padding: 1px;
 }
-/* 讲解覆盖 */
-.content figure > p > span {
+.content figure span[role=explain] {
+}
+
+/* 绝对定位：
+ * 参考四角设置 margin- 调整。
+ *-------------------------------------
+ */
+.content figure [class|=fix] {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    margin-left: 50%;
     color: #eee;
     background-color: rgba(102, 102, 102, 0.3);
     z-index: 1;
 }
+/* 左上/右上/右下/左下 */
+.content figure .fix-lt { left: 0; top: 0; }
+.content figure .fix-rt { right: 0; top: 0; }
+.content figure .fix-rb { right: 0; bottom: 0; }
+.content figure .fix-lb { left: 0; bottom: 0; }
 
 
 /* 引用块

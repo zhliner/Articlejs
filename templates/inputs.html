@@ -369,12 +369,24 @@
     <aside>
         <div class="_option">
             <label>类型
-                <select name="type" on="change|$ val" to="4/#url|trigger('tips')">
+                <select name="type"
+                    on="change|$ val"
+                    to="4/#url|trigger('tips')">
                     <option value="-iurl">图片URL</option>
                     <option value="-durl">DataURL</option>
                     <option value="-svgx">SVG源码</option>
                 </select>
             </label>
+            <!-- 注记：讲解定位放到属性定义 -->
+            <!-- <label>讲解
+                <select name="position">
+                    <option value="">------</option>
+                    <option value="fix-lt">左上方</option>
+                    <option value="fix-rt">右上方</option>
+                    <option value="fix-rb">右下方</option>
+                    <option value="fix-lb">左下方</option>
+                </select>
+            </label> -->
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
     </aside>
