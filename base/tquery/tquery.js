@@ -2430,14 +2430,18 @@ class Table {
     /**
      * 插入一行。
      * 位置下标支持负数从末尾算起。默认插入到sec末尾。
-     * 注意：-1 定位到最后一行，但为插入其前。
+     * 注意：-1 定位到最后一行，为插入其前。
      * 未传递表区域实参sec时，默认为首个表体元素。
+     * 外部的表格行会检查是否合法（同列数），非法时返回false。
      * @param  {Element} tr 表格行元素
      * @param  {Number} idx 位置下标（从0开始），可选
      * @param  {TableSection} sec 表区域，可选
-     * @return {Element} tr
+     * @return {Element|false} tr
      */
     insertTR( tr, idx, sec ) {
+        if ( !$contains(this._tbl, tr) && !this._sameCols(tr) ) {
+            return false;
+        }
         sec = sec || this._tbl.tBodies[0];
         idx = this._index( idx, sec.rows.length );
 
@@ -2511,7 +2515,7 @@ class Table {
      * @return {[Element]} cells
      */
     insertColumn( cells, idx ) {
-        let _x = this._inSelf( cells[0] ),
+        let _x = $contains(this._tbl, cells[0]),
             _n = 0;
 
         idx = this._index( idx, this._cols );
@@ -2659,19 +2663,14 @@ class Table {
 
     /**
      * 从外部插入一个表体。
-     * 如果body不是一个表体元素，返回undefined。
      * 如果表体元素不合法，返回false。
+     * 注：无行的空表体无条件合法。
      * @param  {Number} idx 位置下标
      * @param  {Element} body 表体元素
-     * @return {Element|false|void} body
+     * @return {Element|false} body
      */
     _insertBody( idx, body ) {
-        if ( body.tagName !== 'TBODY' ) {
-            return;
-        }
-        let _tr0 = body.rows[0];
-
-        if ( _tr0 && cellCount([..._tr0.cells]) !== this._cols ) {
+        if ( !this._sameCols(body.rows[0]) ) {
             return false;
         }
         let _ref = this._bodies( idx-1 );
@@ -2681,6 +2680,17 @@ class Table {
         }
         // [0] 位置。
         return insertNode( this._tbl, body, this._tbl.tBodies[0] || this._tbl.tFoot );
+    }
+
+
+    /**
+     * 检查是否同列数。
+     * 无表格行表示列数自由，返回true;
+     * @param  {Element} tr 表格行元素
+     * @return {Boolean}
+     */
+    _sameCols( tr ) {
+        return !tr || cellCount( [...tr.cells] ) === this._cols;
     }
 
 
@@ -2759,17 +2769,6 @@ class Table {
      */
     _cellTag( tr ) {
         return tr.parentElement.tagName === 'THEAD' ? 'th' : 'td';
-    }
-
-
-    /**
-     * 单元格是否在同一表格内。
-     * @param  {Element} cell 单元格
-     * @return {Boolean}
-     */
-    _inSelf( cell ) {
-        let _tr = cell && cell.parentElement;
-        return _tr && _tr.parentElement.parentElement === this._tbl;
     }
 
 
