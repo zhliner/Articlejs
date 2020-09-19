@@ -393,11 +393,11 @@ const Children = {
      * 级联标题链接条目。
      * 标题内容应当是一个构建好的链接元素，
      * 因为标题不在正常的递进构建流程里。
-     * 主要用于目录小标题项。
      * @param {Element} li 列表项容器
-     * @param {Element} h4 链接内容
+     * @param {Element} h4 链接内容（<a>）
+     * @param {Element} data 子列表（<ol>）
      */
-    [ T.CASCADEAH4LI ]: function( li, {h4} ) {
+    [ T.CASCADEAH4LI ]: function( li, {h4}, data ) {
         return result(
             insertHeading( li, T.AH4, h4 ),
             $.append( li, elem(T.OL) )
@@ -416,24 +416,26 @@ const Children = {
     [ T.TOCCASCADE ]: function( ol, _, root ) {
         let _ses = $.children(
             root,
-            'section' // 不含role，后续用到nth-of-type()
+            // 不含role，需要nth-of-type()
+            'section'
         );
-        return result( null, $.append( ol, tocList(_ses) ), true );
+        return result( null, $.append(ol, tocList(_ses)), true );
     },
 
 
     /**
      * 仅返回图片元素供递进构建。
-     * 注记：讲解可选故由属性配置。
      * @param {Element} p 段落容器
      * @param {String|Node|[Node]} explain 图片讲解，可选
-     * @node: {Element} <img>
+     * @param {Element} data 主体内容（<img>, <svg>）
      */
-    [ T.FIGIMGP ]: function( p, {explain} ) {
-        return result(
-            explain && $.append( p, elem(T.EXPLAIN, explain) ),
-            $.prepend( p, elem(T.IMG) )
+    [ T.FIGIMGP ]: function( p, {explain}, data ) {
+        let _img = appendChild(
+            p,
+            data,
+            () => elem( T.IMG )
         );
+        return result( explain && $.append(p, elem(T.EXPLAIN, explain)), _img || data, !_img );
     },
 
 
@@ -443,8 +445,8 @@ const Children = {
 
 
     /**
+     * 留待下阶填充内容。
      * @param {Element} hgroup
-     * @node: {[Element]}
      */
     [ T.HGROUP ]: function( hgroup ) {
         return result(
@@ -456,7 +458,7 @@ const Children = {
 
     /**
      * 仅构建标签和级联表根。
-     * 注记：目录内容由专用函数构建和更新。
+     * 注记：下阶专用函数构建目录内容。
      * @param {Element} toc 目标根元素
      * @param {String} h3 目录显示标签
      */
@@ -474,18 +476,20 @@ const Children = {
      * @param {Element} art 文章元素
      * @param {Boolean} header 有无导言
      * @param {Boolean} footer 有无结语
-     * @node: {Element|[Element]}
+     * @param {Element} data 子单元数据，可选
      */
-    [ T.ARTICLE ]: function( art, {header, footer} ) {
+    [ T.ARTICLE ]: function( art, {header, footer}, data ) {
         let _buf = [];
 
         if ( header  ) {
             _buf.push( insertHeader(art) );
         }
+        let _new = appendChild( art, data, () => elem(T.P) );
+
         if ( footer ) {
             _buf.push( appendFooter(art) );
         }
-        return result( null, _buf.filter(v => v) );
+        return result( _buf, _new || data, !_new );
     },
 
 
@@ -493,32 +497,31 @@ const Children = {
      * 代码表内容。
      * 根容器已经设置了必要特性。
      * @param {Element} ol 代码表容器
-     * @param {String} lang 语言编码
-     * @param {[String]} data 源码行集
+     * @param {String} data 源码行
      */
     [ T.CODELIST ]: function( ol, _, data ) {
-        return result(
-            null,
-            appendNodes( ol, size(data), () => elem(T.CODELI) )
+        let _el = appendChild(
+            ol,
+            data,
+            () => elem( T.CODELI )
         );
+        return result( null, _el || data, !_el );
     },
 
 
     /**
      * 允许创建一个标题项。
-     * 如果未传递标题内容，表示只创建数据条目（<dd>）。
-     * data仅取成员数量特性。
      * @param {Element} dl 定义列表根容器
      * @param {String|Node|[Node]} dt 标题内容，可选
-     * @param {Value|[Value]} dd 数据条目（集）
-     * @head: {Element|null}
-     * @node: {Element|[Element]}
+     * @param {Element} data 数据条目，可选
      */
     [ T.DL ]: function( dl, {dt}, data ) {
-        return result(
-            dt && $.append( dl, elem(T.DT, dt) ),
-            appendNodes( dl, size(data), () => elem(T.DD) )
+        let _dd = appendChild(
+            dl,
+            data,
+            () => elem( T.DD )
         );
+        return result( dt && $.append(dl, elem(T.DT, dt)), _dd || data, !_dd );
     },
 
 
@@ -534,7 +537,6 @@ const Children = {
      * @param {Boolean} head 添加表头
      * @param {Boolean} foot 添加表脚
      * @param {Element} body 兼容表体元素
-     * @node: {Element} 表体元素
      */
     [ T.TABLE ]: function( tbl, {caption, head, foot}, body ) {
         let _tbo = tableObj( tbl ),
@@ -552,6 +554,7 @@ const Children = {
         if ( body && body.tagName === 'TBODY' ) {
             _tbd = _tbo.bodies( 0, body );
         }
+        // 合法插入返回表体元素，结束递进。
         return result( _buf, _tbd || _tbo.body(true), !!_tbd );
     },
 
@@ -704,7 +707,7 @@ const Children = {
      * @param {String|Node|[Node]} h2 标题内容
      * @param {Boolean} header 创建导言，可选
      * @param {Boolean} footer 创建结语，可选
-     * @param {Node} data 子单元数据，可选
+     * @param {Element} data 子单元数据，可选
      */
     Children[ it ] = function( sec, {h2, header, footer}, data ) {
         let _buf = [

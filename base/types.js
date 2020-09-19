@@ -469,7 +469,7 @@ const ChildTypes = {
     [ CASCADEH4LI ]:    [ H4, OL ],
     [ CASCADEAH4LI ]:   [ AH4, OL ],
     [ TOCCASCADE ]:     [ ALI, CASCADEAH4LI ],
-    [ FIGIMGP ]:        [ IMG, EXPLAIN ],
+    [ FIGIMGP ]:        [ IMG, SVG, EXPLAIN ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
