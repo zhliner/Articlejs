@@ -26,7 +26,7 @@
 
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { getType, setType, tableObj, contents } from "./base.js";
+import { getType, setType, tableObj, contents, isCodeCons, isValidTR } from "./base.js";
 
 
 const
@@ -275,18 +275,21 @@ const Children = {
 
     /**
      * 代码单元。
-     * 源代码应当已经处理好Tab替换。
-     * 源代码应当已经解析为高亮代码。
-     * @param  {Element} code 代码元素
-     * @param  {String|Node|[Node]} data 源码或数据集
-     * @return {Element} code
+     * 源代码应当已经处理好Tab和语法高亮。
+     * 会检查传入或生成的节点集是否合法。
+     * @param {Element} code 代码元素
+     * @param {String|Node|[Node]} data 源码或数据集
      */
     [ T.CODE ]: function( code, _, data ) {
         if ( typeof data === 'string' ) {
-            data = $.fragment( data, false );
+            data = $.contents( $.fragment(data, false) );
         }
-        $.append( code, data );
-
+        else if ( data.nodeType ) {
+            data = [ data ];
+        }
+        if ( isCodeCons(data) ) {
+            $.append( code, data );
+        }
         return result( null, code, true );
     },
 
@@ -297,8 +300,10 @@ const Children = {
 
 
     /**
-     * 单元格应该已经存在。
-     * @node: {[Element]} <th>,<td>
+     * 单元格已经存在。
+     * 单元格内容插入留到后阶内容元素段处理。
+     * @node: {[Element]}
+     * @param {Element} tr 表格行元素
      */
     [ T.TR ]: function( tr ) {
         return result( null, [...tr.children] );
@@ -306,45 +311,52 @@ const Children = {
 
 
     /**
-     * 数据集仅需大小信息。
-     * 仅在表体处理时提供添加列头的能力。
+     * 表体行元素。
+     * 如果数据行合法，则简单添加后结束递进。
+     * 数据可能是一个集合，此时视为单元格数据集。
      * 注记：
-     * 需要先有行元素才能插入列头。
+     * 仅在表体处理时提供添加列头的能力，
+     * 因为需要先有行元素才能插入列头。
+     * @param {Element} body 表体元素
      * @param {Boolean} th0 添加列表头
-     * @param {[Value]} data 数据集
-     * @node: {Element|[Element]} 行元素/集
+     * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.TBODY ]: function( body, {th0}, data ) {
-        let _trs = appendRows( body, size(data) );
+        let _tbo = tableObj( body.parentElement ),
+            _new = appendRow( _tbo, body, data );
 
-        if ( th0 && _trs.length ) {
-            insertVth( body.parentElement, 0 );
+        if ( th0 && _tbo.rows() > 0 ) {
+            _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
-        return result( null, _trs );
+        return result( null, _new, !_new );
     },
 
 
     /**
-     * 表头行构建。
-     * 仅取数据集大小信息。
+     * 表头行元素。
+     * @param {Element} head 表头元素
+     * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.THEAD ]: function( head, _, data ) {
-        return result(
-            null,
-            appendRows( head, size(data), true )
+        let _new = appendRow(
+            tableObj( head.parentElement ),
+            head, data, true
         );
+        return result( null, _new, !_new );
     },
 
 
     /**
-     * 表脚行构建。
-     * 仅取数据集大小信息。
+     * 表脚行元素。
+     * @param {Element} foot 表脚元素
+     * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.TFOOT ]: function( foot, _, data ) {
-        return result(
-            null,
-            appendRows( foot, size(data) )
+        let _new = appendRow(
+            tableObj( foot.parentElement ),
+            foot, data
         );
+        return result( null, _new, !_new );
     },
 
 
@@ -352,7 +364,10 @@ const Children = {
      * 级联表标题项。
      * 如果没有传递 h4，取<li>容器内容创建。
      * 如果传递了 h4，原<li>内容会被清空丢弃。
-     * 子列表有则插入，不支持自动递进创建。
+     * 子列表有则插入，不支持自动递进（不确定为OL或UL）。
+     * 注记：
+     * 子列表只能由既有的列表传入构建。
+     *
      * @param {Element} li 列表项元素
      * @param {String|Node|[Node]} h4 标题内容
      * @param {Element} data 子列表，可选
@@ -379,13 +394,12 @@ const Children = {
      */
     [ T.CASCADEH4LI ]: function( li, {h4}, data ) {
         let _h4 = $.empty( li ),
-            _ol = appendChild( li, data, () => elem(T.OL) );
-
-        return result(
-            insertHeading( li, T.H4, h4 || _h4 ),
-            _ol || data,
-            !_ol
-        );
+            _ol = appendChild(
+                li,
+                data,
+                () => elem(T.OL)
+            );
+        return result( insertHeading(li, T.H4, h4 || _h4), _ol || data, !_ol );
     },
 
 
@@ -394,14 +408,21 @@ const Children = {
      * 标题内容应当是一个构建好的链接元素，
      * 因为标题不在正常的递进构建流程里。
      * @param {Element} li 列表项容器
-     * @param {Element} h4 链接内容（<a>）
+     * @param {Element} h4a 链接内容（<a>）
      * @param {Element} data 子列表（<ol>）
      */
-    [ T.CASCADEAH4LI ]: function( li, {h4}, data ) {
-        return result(
-            insertHeading( li, T.AH4, h4 ),
-            $.append( li, elem(T.OL) )
+    [ T.CASCADEAH4LI ]: function( li, {h4a}, data ) {
+        let _h4a = null;
+
+        if ( h4a && h4a.tagName === 'A' ) {
+            _h4a = insertHeading( li, T.AH4, h4a );
+        }
+        let _ol = appendChild(
+            li,
+            data,
+            () => elem( T.OL )
         );
+        return result( _h4a, _ol || data, !_ol );
     },
 
 
@@ -793,7 +814,7 @@ const Children = {
      * @param {Element} el 内容根元素
      * @param {String|Node} data 内容数据
      */
-    Children[ its ] = function(el, _, data) {
+    Children[ its ] = function( el, _, data ) {
         $.append(
             el,
             dataCons( data, getType(el) )
@@ -1217,25 +1238,6 @@ function tocLi( h2 ) {
 
 
 /**
- * 返回数据集大小。
- * @param  {Value|[Value]|Set} data 数据（集）
- * @return {Number}
- */
-function size( data ) {
-    if ( data == null ) {
-        return 0;
-    }
-    if ( data.nodeType ) {
-        return 1;
-    }
-    if ( $.isArray(data) ) {
-        return data.length;
-    }
-    return data.size === undefined ? 1 : data.size;
-}
-
-
-/**
  * 获取数据项。
  * 如果是数组则按下标取值，否则返回该值。
  * @param  {Value|[Value]} data 数据（集）
@@ -1249,47 +1251,20 @@ function data( data, i ) {
 
 /**
  * 插入表格行。
- * 注意：返回值区分数组与单个值。
+ * @param  {$.Table} tbo 表格实例
  * @param  {TableSection} tsec 表格片区
- * @param  {Number} rows 新建行数
+ * @param  {Element} row 行元素
  * @param  {Boolean} head 是否在表头
- * @return {Element|[Element]} 新行（集）
+ * @return {Element} 新行
  */
-function appendRows( tsec, rows, head ) {
-    let _tbo = tableObj( tsec.parentElement );
-    return appendNodes( tsec, rows, () => _tbo.newTR(head) );
-}
+function appendRow( tbo, tsec, row, head ) {
+    if ( !row ) return;
 
-
-/**
- * 插入列表头。
- * @param  {Element} tbl 表格元素
- * @param  {Number} idx 列头位置，可选
- * @return {void}
- */
-function insertVth( tbl, idx ) {
-    let _tbo = tableObj( tbl );
-    _tbo.insertColumn( _tbo.newColumn(true), idx );
-}
-
-
-/**
- * 插入指定数量的子元素。
- * 主要用于平级自由（无标题项）元素的构建，如<tr>, <li>。
- * 注记：
- * 有标题项时，标题无法与后续内容元素一起递进构建。
- *
- * @param  {Element} box 容器元素
- * @param  {Nunber} num 创建数量
- * @param  {Function} maker 创建器
- * @return {[Element]} 新元素集
- */
-function appendNodes( box, num, maker ) {
-    let _els = new Array(num)
-            .fill()
-            .map( (_, i) => maker(i) );
-
-    return _els.length ? $.append(box, _els) : [];
+    if ( row.tagName === 'TR' && isValidTR(row, tbo) ) {
+        return tbo.insertTR(row, null, tsec), null;
+    }
+    // 可能不是一个元素。
+    return tbo.newTR( head );
 }
 
 
@@ -1332,8 +1307,8 @@ function svgInsert( box, data ) {
  * @return {Node|String|[Node|String]} 合法数据（集）
  */
 function dataCons( data, tval ) {
-    if ( typeof data === 'string' || data.nodeType === 3 ) {
-        return data;
+    if ( !data || typeof data === 'string' || data.nodeType === 3 ) {
+        return data || '';
     }
     if ( T.onlyText(tval) ) {
         return data.textContent;
@@ -1472,6 +1447,7 @@ function build( el, opts, data ) {
  *      summary     {Value}   详细简介
  *      h3:         {Value}   行块小标题
  *      h4:         {Value}   级联表标题
+ *      h4a:        {Element} 级联表标题链接（<a>）
  *      explain:    {Value}   图片讲解
  *      h2:         {Value}   片区（section）标题
  *      header:     {Boolean} 创建导言部分

@@ -2264,7 +2264,7 @@ class Table {
         let _tr0 = this._tbl.rows[0];
 
         if ( _tr0 ) {
-            return this._cols = cellCount([..._tr0.cells]);
+            return this._cols = columnCount( _tr0 );
         }
         this._cols = cols;
 
@@ -2432,16 +2432,13 @@ class Table {
      * 位置下标支持负数从末尾算起。默认插入到sec末尾。
      * 注意：-1 定位到最后一行，为插入其前。
      * 未传递表区域实参sec时，默认为首个表体元素。
-     * 外部的表格行会检查是否合法（同列数），非法时返回false。
+     * 表格行是否有相同的列数由外部负责，此不再检查。
      * @param  {Element} tr 表格行元素
      * @param  {Number} idx 位置下标（从0开始），可选
      * @param  {TableSection} sec 表区域，可选
-     * @return {Element|false} tr
+     * @return {Element} tr
      */
     insertTR( tr, idx, sec ) {
-        if ( !$contains(this._tbl, tr) && !this._sameCols(tr) ) {
-            return false;
-        }
         sec = sec || this._tbl.tBodies[0];
         idx = this._index( idx, sec.rows.length );
 
@@ -2663,7 +2660,7 @@ class Table {
 
     /**
      * 从外部插入一个表体。
-     * 如果表体元素不合法，返回false。
+     * 如果表体元素不合法（列数不同），返回false。
      * 注：无行的空表体无条件合法。
      * @param  {Number} idx 位置下标
      * @param  {Element} body 表体元素
@@ -2689,7 +2686,7 @@ class Table {
      * @return {Boolean}
      */
     _sameCols( tr ) {
-        return !tr || cellCount( [...tr.cells] ) === this._cols;
+        return !tr || columnCount( tr ) === this._cols;
     }
 
 
@@ -2790,13 +2787,12 @@ class Table {
 
 
 /**
- * 单元格计数。
- * 注记：用于统计列数。
- * @param  {[Element]} cells 单元格序列
- * @return {Number}
+ * 列数计算。
+ * @param  {Element} tr 表格行元素
+ * @return {Number} 列数
  */
-function cellCount( cells ) {
-    return cells.reduce( (n, td) => n + td.colSpan, 0 );
+function columnCount( tr ) {
+    return [...tr.cells].reduce( (n, td) => n + td.colSpan, 0 );
 }
 
 

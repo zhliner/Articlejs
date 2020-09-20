@@ -324,16 +324,12 @@ function listRoot( el ) {
 
 
 /**
- * 是否为同规格的表格。
- * 即：列数相同且列头位置相同。
- * @param {Element} t1 表格1
- * @param {Element} t2 表格2
+ * 计算表格行逻辑列数。
+ * @param  {Element} tr 表格行元素
+ * @return {Number} 列数
  */
-function alikeTable( t1, t2 ) {
-    let _t1 = tableObj( t1 ),
-        _t2 = tableObj( t2 );
-
-    return _t1.columns() == _t2.columns() && _t1.vth() == _t2.vth();
+function columnCells( tr ) {
+    return [ ...tr.cells ].reduce( (n, td) => n + td.colSpan, 0 );
 }
 
 
@@ -585,19 +581,37 @@ export function canUnwrap( el ) {
 
 
 /**
- * 是否为同类表格行。
- * 检查表格行所属表格Table实例的列头和列数，
- * 以及所属表格片区类型是否相同。
- * @param  {Element} tr1 表格行
- * @param  {Element} tr2 表格行
+ * 是否为代码的合法内容。
+ * @param  {[Node]} nodes 节点集
  * @return {Boolean}
  */
-export function isSameTr( tr1, tr2 ) {
-    let _s1 = tr1.parentElement,
-        _s2 = tr2.parentElement;
+export function isCodeCons( nodes ) {
+    return nodes.every(
+        nd => nd.nodeType === 3 || T.isSpecial( getType(nd) )
+    );
+}
 
-    return _s1.tagName == _s2.tagName &&
-        alikeTable( _s1.parentElement, _s2.parentElement );
+
+/**
+ * 是否为合法表格行。
+ * 列数相同即可，不要求逐列同类。
+ * @param  {Element} tr 目标表格行
+ * @param  {$.Table} tbo 表格类实例
+ * @return {Boolean}
+ */
+export function isValidTR( tr, tbo ) {
+    return columnCells( tr ) === tbo.cols();
+}
+
+
+/**
+ * 是否可为表头行。
+ * 所以单元格都为<th>。
+ * @param  {Element} tr 表格行元素
+ * @return {Boolean}
+ */
+export function isHeadTR( tr ) {
+    return [ ...tr.cells ].every( c => c.tagName === 'TH' );
 }
 
 
@@ -619,25 +633,25 @@ export function tableObj( tbl, tbo ) {
 
 /**
  * 获取所属表格元素。
- * @param  {Element} sub 表格子级元素
- * @param  {Number} tval sub类型值，可选
+ * @param  {Element} el 表格子级元素
  * @return {Element} <table>
  */
-export function tableNode( sub, tval ) {
-    tval = tval || getType(sub);
-
-    switch ( tval ) {
-        case T.TR:
-            return sub.parentElement.parentElement;
-        case T.TBODY:
-        case T.THEAD:
-        case T.TFOOT:
-        case T.CAPTION:
-            return sub.parentElement;
-        case T.TH:
-        case T.TD:
-            return sub.parentElement.parentElement.parentElement;
+export function tableNode( el ) {
+    switch ( el.tagName ) {
+        case 'TR':
+            return el.parentElement.parentElement;
+        case 'TBODY':
+        case 'THEAD':
+        case 'TFOOT':
+        case 'CAPTION':
+            return el.parentElement;
+        case 'TH':
+        case 'TD':
+            return el.parentElement.parentElement.parentElement;
+        case 'TABLE':
+            return el;
     }
+    throw new Error( 'not in table element.' );
 }
 
 
