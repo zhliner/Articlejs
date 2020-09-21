@@ -7706,6 +7706,10 @@ Object.assign( tQuery, {
      *    -1   视口末尾位置（end）
      *     2   居中显示，默认（center）
      * }
+     * y: {
+     *      true  居中显示（如果需要）
+     *      false 就近显示（如果需要）
+     * }
      * 默认行为与 scrollIntoView/scrollIntoViewIfNeeded 规范一致。
      * 注记：
      * y 值兼容 scrollIntoViewIfNeeded 的实参值（Safari）。

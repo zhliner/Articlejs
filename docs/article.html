@@ -47,7 +47,9 @@
                     一篇结构良好的文章除了主标题外，通常只会包含最多3-4个层级，即：<strong>章/节/区/段</strong>，再多的层级阅读友好性会较差。</p>
             </blockquote>
         </header>
-        <nav role="toc">
+        <!-- on: 单击显示章节到当前视口，可代替链接锚点。 -->
+        <nav role="toc"
+            on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>【目 录】</h3>
             <ol role="cascade">
                 <li>

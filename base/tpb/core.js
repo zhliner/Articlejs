@@ -26,6 +26,9 @@ import { ACCESS, EXTENT, PREVCELL, DEBUG, methodSelf } from "./config.js";
 const
     $ = window.$,
 
+    // 数据栈控制台输出标识名
+    __STACKX    = 'STACKDATA',
+
     // OBT构建完成事件
     // 可便于共享的预定义调用链及时绑定。
     __obtDone   = 'obted',
@@ -510,6 +513,12 @@ class Stack {
      */
     push( ...vals ) {
         vals.forEach ( v => v !== undefined && this._buf.push(v) );
+
+        //:debug
+        // 控制台设置标识变量为真即可。
+        // 会显示调用链每一个指令的入值（包括undefined）。
+        window[__STACKX] && window.console.info( ...vals );
+        //:end
     }
 
 

@@ -203,9 +203,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  */
 .content ol[role=cascade],
 .content ol[role=cascade] ol {
-    list-style-type: none;
     counter-reset: numer;
     padding: 0;
+    list-style-type: none;
 }
 
 .content ol[role=cascade] h4 {
