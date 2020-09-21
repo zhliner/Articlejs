@@ -540,6 +540,11 @@ menu li[role=submenu]:hover {
     /* outline: none; */
 }
 
+/* 目录导航 */
+.___Content nav[role=toc] a {
+    cursor: default;
+}
+
 
 /* 菜单
  *************************************/

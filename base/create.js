@@ -213,11 +213,11 @@ const CustomMaker = {
 // 子内容创建集。
 // 创建目标应有的子节点，可能是一个节点序列（如<tr>: <th>|<td>...）。
 // 返回值：{
-//      node: 新插入的子节点（集）
-//      end:  构建结束，无需进入下一步（Builder）。
+//      head: 标题部分，可选
+//      body: 主体部分，新插入的子节点（集）
+//      end:  构建结束，无需下一步（Builder）的迭代
 // }
-// function( box:Element, opts:Object, data:Value ): Object
-// - Object: { node: Node|[Node], end: Boolean }
+// function( box:Element, opts:Object, data:Value ): Object3
 //////////////////////////////////////////////////////////////////////////////
 //
 const Children = {
@@ -243,19 +243,19 @@ const Children = {
      * SVG子单元内容插入。
      * 内容支持源码和节点数据。
      * 无特性配置。
-     * @param {Element} sel 普通SVG容器元素
+     * @param {Element} box 普通SVG容器元素
      * @param {Node|[Node]|String} data
      * @node: {[Node]|data}
      */
-    [ T.SVGITEM ]: function( sel, _, data ) {
-        return result( null, svgInsert(sel, data), true );
+    [ T.SVGITEM ]: function( box, _, data ) {
+        return result( null, svgInsert(box, data), true );
     },
 
 
     /**
-     * 空元素由下阶处理（下同）。
-     * @param {Element} ruby 注音元素
+     * 留到下阶内容元素段处理。
      * @node: {[Element]}
+     * @param {Element} ruby 注音元素
      */
     [ T.RUBY ]: function( ruby ) {
         return result(
@@ -264,6 +264,7 @@ const Children = {
         );
     },
 
+    // 同上。
     [ T.RBPT ]: function( ruby ) {
         return result(
             null,
@@ -276,20 +277,19 @@ const Children = {
     /**
      * 代码单元。
      * 源代码应当已经处理好Tab和语法高亮。
-     * 会检查传入或生成的节点集是否合法。
+     * 注记：
+     * 只接受源码数据，不接受不同代码内容的混入。
+     * 这可以保证代码语言和Tab的一致性，
+     * 且代码被设计为特例编辑（高亮解析，严格语法合规）。
      * @param {Element} code 代码元素
-     * @param {String|Node|[Node]} data 源码或数据集
+     * @param {String} html 已解析源码
      */
-    [ T.CODE ]: function( code, _, data ) {
-        if ( typeof data === 'string' ) {
-            data = $.contents( $.fragment(data, false) );
+    [ T.CODE ]: function( code, _, html ) {
+        if ( typeof html !== 'string' ) {
+            return result( null, null, true );
         }
-        else if ( data.nodeType ) {
-            data = [ data ];
-        }
-        if ( isCodeCons(data) ) {
-            $.append( code, data );
-        }
+        $.append( code, $.fragment(data, false) );
+
         return result( null, code, true );
     },
 
@@ -306,7 +306,7 @@ const Children = {
      * @param {Element} tr 表格行元素
      */
     [ T.TR ]: function( tr ) {
-        return result( null, [...tr.children] );
+        return result( null, [...tr.cells] );
     },
 
 
@@ -373,6 +373,9 @@ const Children = {
      * @param {Element} data 子列表，可选
      */
     [ T.XH4LI ]: function( li, {h4}, data ) {
+        if ( !data ) {
+            return result( null, data, true );
+        }
         let _h4 = $.empty( li );
 
         return result(
@@ -389,7 +392,7 @@ const Children = {
      * 如果没有传递 h4，取<li>容器内容创建。
      * 如果传递了 h4，原<li>内容会被清空丢弃。
      * @param {Element} li 列表项元素
-     * @param {String|Node|[Node]} h4 标题内容
+     * @param {String|Node|[Node]} h4 标题内容，可选
      * @param {Element} data 子列表，可选
      */
     [ T.CASCADEH4LI ]: function( li, {h4}, data ) {
@@ -408,21 +411,16 @@ const Children = {
      * 标题内容应当是一个构建好的链接元素，
      * 因为标题不在正常的递进构建流程里。
      * @param {Element} li 列表项容器
-     * @param {Element} h4a 链接内容（<a>）
-     * @param {Element} data 子列表（<ol>）
+     * @param {Element} h4a 链接内容（<a>），可选
+     * @param {Element} data 子列表（<ol>），可选
      */
     [ T.CASCADEAH4LI ]: function( li, {h4a}, data ) {
-        let _h4a = null;
-
-        if ( h4a && h4a.tagName === 'A' ) {
-            _h4a = insertHeading( li, T.AH4, h4a );
-        }
         let _ol = appendChild(
             li,
             data,
             () => elem( T.OL )
         );
-        return result( _h4a, _ol || data, !_ol );
+        return result( h4a && insertHeading(li, T.AH4, h4a), _ol || data, !_ol );
     },
 
 
@@ -982,84 +980,85 @@ const Builder = {
 
 
 //
-// 自身无需特别构建。
-// 注：简单返回实参即可。
+// 自身无需特别构建，
+// 简单返回实参即可。
+// 注记：默认处理无需定义，罗列供参考。
 //-----------------------------------------------
 [
     // 结构元素
-    T.TR,
-    T.THEAD,
-    T.TBODY,
-    T.TFOOT,
-    T.CODELI,
-    T.ALI,
-    T.AH4,
-    T.XH4LI,
-    T.CASCADEH4LI,
-    T.CASCADEAH4LI,
-    T.TOCCASCADE,
-    T.FIGIMGP,
-    T.HGROUP,
-    T.ABSTRACT,
-    T.TOC,
-    T.SEEALSO,
-    T.REFERENCE,
-    T.HEADER,
-    T.FOOTER,
-    T.ARTICLE,
-    T.S1,
-    T.S2,
-    T.S3,
-    T.S4,
-    T.S5,
-    T.UL,
-    T.OL,
-    T.ULX,
-    T.OLX,
-    T.CASCADE,
-    T.DL,
-    T.FIGURE,
-    T.ASIDE,
-    T.CODEBLOCK,
-    T.BLANK,
+    // T.TR,
+    // T.THEAD,
+    // T.TBODY,
+    // T.TFOOT,
+    // T.CODELI,
+    // T.ALI,
+    // T.AH4,
+    // T.XH4LI,
+    // T.CASCADEH4LI,
+    // T.CASCADEAH4LI,
+    // T.TOCCASCADE,
+    // T.FIGIMGP,
+    // T.HGROUP,
+    // T.ABSTRACT,
+    // T.TOC,
+    // T.SEEALSO,
+    // T.REFERENCE,
+    // T.HEADER,
+    // T.FOOTER,
+    // T.ARTICLE,
+    // T.S1,
+    // T.S2,
+    // T.S3,
+    // T.S4,
+    // T.S5,
+    // T.UL,
+    // T.OL,
+    // T.ULX,
+    // T.OLX,
+    // T.CASCADE,
+    // T.DL,
+    // T.FIGURE,
+    // T.ASIDE,
+    // T.CODEBLOCK,
+    // T.BLANK,
 
     // 内联内容元素
-    T.STRONG,
-    T.EM,
-    T.CITE,
-    T.SMALL,
-    T.SUB,
-    T.SUP,
-    T.MARK,
-    T.ORZ,
-    T.SAMP,
-    T.KBD,
-    T.S,
-    T.U,
-    T.VAR,
+    // T.STRONG,
+    // T.EM,
+    // T.CITE,
+    // T.SMALL,
+    // T.SUB,
+    // T.SUP,
+    // T.MARK,
+    // T.ORZ,
+    // T.SAMP,
+    // T.KBD,
+    // T.S,
+    // T.U,
+    // T.VAR,
 
     // 内容行单元。
-    T.P,
-    T.NOTE,
-    T.TIPS,
-    T.PRE,
-    T.ADDRESS,
+    // T.P,
+    // T.NOTE,
+    // T.TIPS,
+    // T.PRE,
+    // T.ADDRESS,
 
     // 内容元素
-    T.H1,
-    T.H2,
-    T.H3,
-    T.H4,
-    T.H5,
-    T.H6,
-    T.SUMMARY,
-    T.FIGCAPTION,
-    T.CAPTION,
-    T.LI,
-    T.DT,
-    T.DD,
-    T.TH,
-    T.TD,
+    // T.H1,
+    // T.H2,
+    // T.H3,
+    // T.H4,
+    // T.H5,
+    // T.H6,
+    // T.SUMMARY,
+    // T.FIGCAPTION,
+    // T.CAPTION,
+    // T.LI,
+    // T.DT,
+    // T.DD,
+    // T.TH,
+    // T.TD,
 ]
 .forEach( it => Builder[ it ] = el => el );
 
@@ -1152,7 +1151,7 @@ function appendFooter( box ) {
  * 如果子单元合法会插入，不创建默认单元，返回null。
  * 如果子单元为假，无任何行为，返回undefined。
  * @param  {Element} box 容器元素
- * @param  {Node} sub 子单元
+ * @param  {Node|String} sub 子单元
  * @param  {Function} maker 创建默认单元回调，可选
  * @return {Element|null|void} 新建的默认单元
  */
@@ -1162,7 +1161,7 @@ function appendChild( box, sub, maker ) {
     let _tv0 = getType( box ),
         _tv1 = sub.nodeType ? getType( sub ) : 0;
 
-    if ( $.isChildType(_tv0, _tv1) ) {
+    if ( T.isChildType(_tv0, _tv1) ) {
         return $.append( box, sub ) && null;
     }
     return maker && $.append( box, maker() );
@@ -1219,7 +1218,7 @@ function tocH4li( h2 ) {
         { href: h2.id ? `#${h2.id}` : null },
         h2.innerText
     );
-    return build( elem(T.CASCADEAH4LI), { h4: _h4a } );
+    return build( elem(T.CASCADEAH4LI), { h4a: _h4a }, elem(T.OL) );
 }
 
 
@@ -1307,7 +1306,7 @@ function svgInsert( box, data ) {
  * @return {Node|String|[Node|String]} 合法数据（集）
  */
 function dataCons( data, tval ) {
-    if ( !data || typeof data === 'string' || data.nodeType === 3 ) {
+    if ( data.nodeType !== 1 && data.nodeType !== 11 ) {
         return data || '';
     }
     if ( T.onlyText(tval) ) {
@@ -1316,6 +1315,21 @@ function dataCons( data, tval ) {
     return contents( data ).map(
         nd => T.isChildType( tval, getType(nd) ) ? nd : nd.textContent
     );
+}
+
+
+/**
+ * 子单元创建调用。
+ * @param {Element} el 容器元素
+ * @param {Object} opts 选项集
+ * @param {Value|[Value]} data 子单元数据（集）
+ * @param {Boolean} more 是否多条创建
+ */
+function childrenCalls( el, opts, data, more ) {
+    if ( more ) {
+        return data.forEach( dd => children(el, opts, dd) );
+    }
+    children( el, opts, data );
 }
 
 
@@ -1416,19 +1430,31 @@ function elements( ...types ) {
  *      cols:   {Number}    表格列数（注：无rows）
  *      border: {String}    边框类型
  * }
+ * 注记：
+ * 如果需要创建多条子单元，data必须是一个数据集（数组）。
+ * 多条创建指重复的子单元而非一个子单元包含多个元素，如：
+ * - <tr>   包含多个单元格，但一行的单元格仅视为一次创建
+ * - <ruby> 包含固定结构的多个子元素，但一组也只是一次创建
+ *
+ * 如要重复创建这样的单元，data通常是一个二维数组。
+ *
  * @param  {Element} el 待构建的目标元素
  * @param  {Object} opts 特性配置集
  * @param  {Node|[Node]|String} data 源数据
+ * @param  {Boolean} more 是否重复子单元创建
  * @return {Element|null} el或null
  */
-function build( el, opts, data ) {
-    let _tv = getType( el );
+function build( el, opts, data, more ) {
+    let _tv = getType( el ),
+        _fx = Builder[ _tv ];
 
-    if ( !Builder[_tv](el, opts, data) ) {
-        return null;
+    if ( _fx ) {
+        el = _fx( el, opts );
     }
-    // 返回el，以确保children返回值正确
-    return Children[_tv] && children(el, opts, data), el;
+    if ( Children[_tv] ) {
+        childrenCalls( el, opts, data, more );
+    }
+    return el;  // 关联到children
 }
 
 
@@ -1468,10 +1494,9 @@ function children( box, opts, cons ) {
         return resultEnd( _vs.head, _vs.body )
     }
     if ( $.isArray(_vs.body) ) {
-        // 滤除掉未构建者。
         return resultEnd(
             _vs.head,
-            $.map( _vs.body, (el, i) => build(el, opts, data(cons, i)) )
+            _vs.body.map( (el, i) => build(el, opts, data(cons, i)) )
         );
     }
     return resultEnd( _vs.head, build(_vs.body, opts, cons) );
@@ -1489,7 +1514,7 @@ function creater( name ) {
     if ( _tv == null ) {
         throw new Error( 'invalid target name.' );
     }
-    return (evo, opts = {}) => build( elem(_tv), opts, evo.data );
+    return (evo, opts = {}, more) => build( elem(_tv), opts, evo.data, more );
 }
 
 
