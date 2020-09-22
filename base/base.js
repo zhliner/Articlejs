@@ -441,7 +441,7 @@ export function setType( el, tval ) {
  * @param  {Element} src 源元素
  * @return {Element} 新元素
  */
-export function cloneElem( src ) {
+export function cloneElement( src ) {
     let _new = $.clone( src, true, true, true ),
         _els = $.find( '*', src );
 

@@ -51,7 +51,7 @@
     ========
 
     节点变化事件
-    监听元素的各种变化（可辅助实现节点修改历史应用）。
+    监听元素的特性修改、样式设置、节点插入等各种变化，触发事件通知。
     开启：tQuery.config({varyevent: true});
 
     - attrvary, attrdone | attrfail             // 特性设置
@@ -91,8 +91,11 @@
     注：
     如果在源元素的 eventclone 处理器中调用了 Event.preventDefault()，
     则会取消新元素上的 eventbound 触发。
-
     开启：tQuery.config({bindevent: true})
+
+    注意：
+    定制事件通知机制不包含用户对选区（Selection/Range）的编辑操作。
+    但依然可以辅助实现大部分节点修改类历史记录/回退类应用。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -5502,7 +5505,7 @@ function siblingIndex( el, slr ) {
 //  0: 就近显示（nearest）。
 //  1: 视口起点显示（start）。
 // -1: 视口末尾显示（end）。
-//  2: 居中显示（center）。
+//  2: 视口居中显示（center）。
 // 注记：
 // - Safari 包含 scrollIntoViewIfNeeded 但不包含 scrollIntoView。
 // - Firefox 包含 scrollIntoView 但不包含 scrollIntoViewIfNeeded。
@@ -7704,7 +7707,7 @@ Object.assign( tQuery, {
      *     0   就近显示（如果需要）（nearest）
      *     1   视口起点位置（start）
      *    -1   视口末尾位置（end）
-     *     2   居中显示，默认（center）
+     *     2   视口居中位置（center）
      * }
      * y: {
      *      true  居中显示（如果需要）

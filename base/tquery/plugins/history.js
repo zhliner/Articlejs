@@ -562,9 +562,10 @@ function textNodes( el, buf = [] ) {
 /**
  * 相邻节点过滤器。
  * 检查集合中的节点是否为相邻节点。
- * @param {Node} cur 当前节点
- * @param {Node|undefined} prev 集合中前一个节点
- * @param {Node|undefined} next 集合中下一个节点
+ * @param  {Node} cur 当前节点
+ * @param  {Node|undefined} prev 集合中前一个节点
+ * @param  {Node|undefined} next 集合中下一个节点
+ * @return {Boolean}
  */
 function adjacent( cur, prev, next ) {
     // null !== undefined
@@ -574,8 +575,9 @@ function adjacent( cur, prev, next ) {
 
 /**
  * 相邻节点集分组。
- * @param  {[Node]} nodes 相邻节点集
- * @return {[[Text]]}
+ * 源节点集中包含了多组不同的相邻节点。
+ * @param  {[Node]} nodes 有序节点集
+ * @return {[[Node]]}
  */
 function adjacentTeam( nodes ) {
     if ( nodes.length == 0 ) {

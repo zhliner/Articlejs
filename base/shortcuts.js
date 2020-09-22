@@ -491,6 +491,24 @@ Content: [
     },
 
 
+    // 原地克隆（各别）。
+    // 选取集成员克隆插入原元素之前（before），各自独立。
+    // 注记：与焦点元素无关。
+    {
+        "key":      ":c",
+        "command":  "elementCloneSelf"
+    },
+
+
+    // 原地克隆（分组）。
+    // 选取集内相邻元素分组克隆，插入原组之前（before）。
+    // 注记：与焦点元素无关。
+    {
+        "key":      "shift:c",
+        "command":  "elementCloneTeam"
+    },
+
+
     // 编辑撤销（含选取）
     {
         "key":      ":u",

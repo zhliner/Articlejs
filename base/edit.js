@@ -20,7 +20,7 @@
 import { ESet, EHot, ElemCursor } from './common.js';
 import { Sys, Limit, Help } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj } from "./base.js";
+import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj, cloneElement } from "./base.js";
 import { children } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -236,6 +236,33 @@ class ESEdit {
     redo() {
         setFocus( this._el1 );
         __ESet.removes( this._old ).pushes( this._els );
+    }
+}
+
+
+//
+// 焦点编辑。
+// 用于编辑中的焦点取消和恢复。
+// 注：
+// 用户选取焦点无需进入历史栈。
+//
+class HotEdit {
+    /**
+     * @param {Element} hot 新焦点
+     */
+    constructor( hot ) {
+        this._hot = hot;
+        this._old = __EHot.set(hot);
+    }
+
+
+    undo() {
+        __EHot.set( this._old );
+    }
+
+
+    redo() {
+        __EHot.set( this._hot );
     }
 }
 
@@ -705,6 +732,20 @@ class NodeVary {
         $(_set).normalize();
     }
 
+
+    /**
+     * 各别前插。
+     * 将新元素一一对应下标插入目标元素之前。
+     * 注：两个集合大小一样。
+     * @param {Collector} $els 目标集
+     * @param {Collector} $new 新元素集
+     */
+    befores( $els, $new ) {
+        $els.forEach(
+            (el, i) => $.before(el, $new[i] )
+        );
+    }
+
 }
 
 
@@ -945,8 +986,9 @@ function elementOne( el, meth, clean ) {
  * 添加元素集选取。
  * 假定父级未选取，会自动清理子级已选取成员。
  * 用途：虚焦点系列操作。
- * @param {[Element]} els 当前选取集
- * @param {Function} gets 获取新元素集回调
+ * @param  {[Element]} els 当前选取集
+ * @param  {Function} gets 获取新元素集回调
+ * @return {ESEdit|void}
  */
 function elementAdds( els, gets ) {
     if ( theSibling(els) ) {
@@ -958,7 +1000,7 @@ function elementAdds( els, gets ) {
         // 当前el可能已被叔伯清理掉。
         __Selects.adds( gets(el) );
     }
-    historyPush( new ESEdit(els) );
+    return new ESEdit( els );
 }
 
 
@@ -1066,7 +1108,7 @@ function stillSame( old ) {
  * @param  {Collector} $els 目标元素集
  * @param  {String} name 样式名（left|top|right|bottom）
  * @param  {Number} inc 递增像素值
- * @return {void}
+ * @return {DOMEdit|void}
  */
 function elementsPostion( $els, name, inc ) {
     if ( !$els.length ) {
@@ -1074,7 +1116,7 @@ function elementsPostion( $els, name, inc ) {
     }
     let _fx = v => `${(parseFloat(v) || 0) + inc}px`;
 
-    historyPush( new DOMEdit(() => $els.css(name, _fx)) );
+    return new DOMEdit( () => $els.css(name, _fx) );
 }
 
 
@@ -1194,25 +1236,88 @@ function isTurnSelect( obj ) {
 
 
 /**
- * 清除被删除元素的选取。
- * 返回false表示目标集为空，后续的编辑没有意义。
+ * 清除元素集的选取。
  * 返回的选取编辑实例需要进入历史栈。
  * @param  {[Element]} els 待删除元素集
- * @param  {[Element]} old 原选取集
- * @return {ESEdit|false}
+ * @param  {Boolean} xhot 是否移除元素焦点
+ * @return {ESEdit} 选取操作实例
  */
-function clearDeletes( els, old = els ) {
-    if ( els.length == 0 ) {
-        return false;
-    }
+function clearSelected( els, xhot ) {
     let _hot = __EHot.get();
 
-    if ( els.includes(_hot) ) {
+    if ( xhot && els.includes(_hot) ) {
         _hot = null;
     }
     __ESet.removes( els );
 
-    return new ESEdit( old, _hot );
+    return new ESEdit( els, _hot );
+}
+
+
+/**
+ * 压入元素选取。
+ * @param  {[Element]} els 目标元素集
+ * @param  {Element} hot 当前焦点元素，可选
+ * @return {ESEdit} 选取操作实例
+ */
+function pushesSelect( els, hot ) {
+    let _old = [...__ESet];
+    __ESet.pushes( els );
+    return new ESEdit( _old, hot );
+}
+
+
+/**
+ * 相邻元素集分组。
+ * 相邻判断忽略中间间隔的纯文本节点。
+ * @param  {[Element]} els 有序元素集
+ * @return {[[Element]]} 相邻元素集组
+ */
+function adjacentTeam( els ) {
+    let _sub = [ els.shift() ],
+        _buf = [ _sub ];
+
+    for ( const el of els ) {
+        if ( el.previousElementSibling === last(_sub) ) {
+            _sub.push( el );
+        } else {
+            _buf.push( (_sub = [el]) );
+        }
+    }
+    return _buf;
+}
+
+
+/**
+ * 克隆元素集组。
+ * 克隆的新元素依然保持原样的分组模式。
+ * @param  {[[Element]]} els2 相邻元素集组
+ * @return {[[Element]]} 克隆集
+ */
+function cloneTeam( els2 ) {
+    return els2.map(
+        els => els.map( el => cleanedClone(el) )
+    );
+}
+
+
+/**
+ * 元素干净克隆。
+ * 避免焦点元素的状态被克隆。
+ * @param  {Element} el 目标元素
+ * @return {Element} 新元素
+ */
+function cleanedClone( el ) {
+    let _hot = __EHot.get();
+    try {
+        if ( _hot === el ) {
+            __EHot.set( null );
+        }
+        return cloneElement( el );
+    }
+    finally {
+        __EHot.set( _hot );
+    }
 }
 
 
@@ -1253,18 +1358,78 @@ function unwrapBadit( els ) {
 
 
 /**
- * 返回集合末尾成员。
- * @param  {[Element]} els 元素集
- * @return {Element}
+ * 选取单元格所属列。
+ * 局限于同一表区域之内。
+ * @param  {Element} cell 单元格
+ * @param  {$.Table} tbo 表格实例
+ * @param  {TableSection} tsec 表区域（<tbody>|<thead>|<tfoot>），可选
+ * @return {[Element]} 单元格集
  */
-function last( els ) {
-    return els[ els.length - 1 ];
+function columnCells( cell, tbo, tsec ) {
+    let _idx = tbo.cellIndex( cell );
+
+    if ( $.isArray(_idx) ) {
+        return columnCells2( tbo, _idx, tsec );
+    }
+    return tbo.column( _idx, tsec );
 }
 
 
-//
-// 目录定位工具
-//----------------------------------------------------------------------------
+/**
+ * 获取多列单元格。
+ * 可以正常处理跨列的情况。
+ * 结果集成员为按列纵向顺序。
+ * @param  {$.Table} tbo 表格实例
+ * @param  {Number} beg 起始下标
+ * @param  {Number} end 终点下标（不含）
+ * @param  {TableSection} tsec 表区域
+ * @return {[Element]}
+ */
+function columnCells2( tbo, [beg, end], tsec ) {
+    let _buf = new Set();
+
+    for (let i = beg; i < end; i++) {
+        tbo.column( i, tsec ).forEach( el => _buf.add(el) );
+    }
+    return [ ..._buf ];
+}
+
+
+/**
+ * 获取首个互为兄弟的元素。
+ * 如果在集合中找到为其它成员兄弟的元素，返回该元素。
+ * 空集或所有成员都是其父元素内唯一子元素时，返回 true。
+ * 如果集合成员都是平级单一选取元素时，返回 false。
+ * 注记：
+ * 用于虚焦点平级操作前的合法性检测，返回真值即不可继续。
+ * @param  {[Element]} els 元素集
+ * @return {Element|Boolean}
+ */
+function theSibling( els ) {
+    let _set = new Set(),
+        _cnt = 0;
+
+    for ( const [i, el] of els.entries() ) {
+        let _box = el.parentElement;
+        _cnt += _box.childElementCount;
+
+        if ( _set.add(_box).size === i ) {
+            // 返回元素可用于帮助提示。
+            return warn('repeat sibling:', el) || el;
+        }
+    }
+    return _cnt === els.length;
+}
+
+
+/**
+ * 构建“元素:位置”选择器。
+ * @param  {Element} el 目标元素
+ * @return {String}
+ */
+function nthSelector( el ) {
+    return `${ el.tagName }:nth-child(${ $.prevAll(el).length + 1 })`;
+}
 
 
 /**
@@ -1310,104 +1475,11 @@ function tocLiSelector( chsn ) {
  * 检索时需要提供直接父容器元素作为上下文（<article>）。
  * nth-of-type()只支持标签区分，故无role约束。
  *
- * @param  {[Number]|String} chsn 章节序列（兼容字符串表示）
- * @param  {String} sep 章节序列分隔符（仅在ns为字符串时有用）
+ * @param  {[Number]} chsn 章节序列
  * @return {String} 片区标题（<h2>）的选择器
  */
-function h2PathSelector( chsn, sep = '.' ) {
-    if ( typeof chsn === 'string' ) {
-        chsn = chsn.split( sep );
-    }
+function h2PathSelector( chsn ) {
     return chsn.map( n => `>section:nth-of-type(${+n})` ).join( ' ' ) + ' >h2';
-}
-
-
-/**
- * 选取单元格所属列。
- * 局限于同一表区域之内。
- * @param  {Element} cell 单元格
- * @param  {$.Table} tbo 表格实例
- * @param  {TableSection} tsec 表区域（<tbody>|<thead>|<tfoot>），可选
- * @return {[Element]} 单元格集
- */
-function columnCells( cell, tbo, tsec ) {
-    let _idx = tbo.cellIndex( cell );
-
-    if ( $.isArray(_idx) ) {
-        return columnCells2( tbo, _idx, tsec );
-    }
-    return tbo.column( _idx, tsec );
-}
-
-
-/**
- * 获取多列单元格。
- * 可以正常处理跨列的情况。
- * 结果集成员为按列纵向顺序。
- * @param  {$.Table} tbo 表格实例
- * @param  {Number} beg 起始下标
- * @param  {Number} end 终点下标（不含）
- * @param  {TableSection} tsec 表区域
- * @return {[Element]}
- */
-function columnCells2( tbo, [beg, end], tsec ) {
-    let _buf = new Set();
-
-    for (let i = beg; i < end; i++) {
-        tbo.column( i, tsec ).forEach( el => _buf.add(el) );
-    }
-    return [ ..._buf ];
-}
-
-
-/**
- * 构建“元素:位置”选择器。
- * @param  {Element} el 目标元素
- * @return {String}
- */
-function nthSlr( el ) {
-    return `${ el.tagName }:nth-child(${ $.prevAll(el).length + 1 })`;
-}
-
-
-/**
- * 获取首个互为兄弟的元素。
- * 如果在集合中找到为其它成员兄弟的元素，返回该元素。
- * 空集或所有成员都是唯一子元素时，返回 true。
- * 如果集合成员都是平级单一元素，返回 false。
- * 注记：
- * 用于虚焦点平级操作前的合法性检测，返回的元素可用于帮助提示。
- * @param  {[Element]} els 元素集
- * @return {Element|Boolean}
- */
-function theSibling( els ) {
-    let _set = new Set(),
-        _cnt = 0;
-
-    for ( const [i, el] of els.entries() ) {
-        let _box = el.parentElement;
-        _cnt += _box.childElementCount;
-
-        if ( _set.add(_box).size === i ) {
-            return warn('repeat sibling:', el) || el;
-        }
-    }
-    return _cnt === els.length;
-}
-
-
-
-//
-// 通用工具
-//----------------------------------------------------------------------------
-
-
-/**
- * 控制台警告。
- * @param {String} msg 输出消息
- */
-function warn( msg, data ) {
-    window.console.warn( msg, data );
 }
 
 
@@ -1427,6 +1499,25 @@ function help( hid, msg, el ) {
     // 构造链接……
 
     $.trigger( errContainer, 'on' );
+}
+
+
+/**
+ * 返回集合末尾成员。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function last( els ) {
+    return els[ els.length - 1 ];
+}
+
+
+/**
+ * 控制台警告。
+ * @param {String} msg 输出消息
+ */
+function warn( msg, data ) {
+    window.console.warn( msg, data );
 }
 
 
@@ -1666,7 +1757,7 @@ export const Edit = {
         let _pel = _el.parentElement;
 
         if ( _pel.tagName !== 'TR' ) {
-            return elementsUnify( $.find( `>* >${ nthSlr(_el) }`, _pel.parentElement ), _el );
+            return elementsUnify( $.find( `>* >${ nthSelector(_el) }`, _pel.parentElement ), _el );
         }
         // 单元格单独处理。
         // 因为存在跨列单元格的逻辑列问题。
@@ -1861,10 +1952,11 @@ export const Edit = {
      * 后选取的元素会清理掉先选取的元素。
      */
     siblingsVF() {
-        elementAdds(
+        let _op = elementAdds(
             [...__ESet],
             el => el.parentElement.children
-        )
+        );
+        _op && historyPush( _op );
     },
 
 
@@ -1873,10 +1965,11 @@ export const Edit = {
      * 注记同上。
      */
     tagsameVF() {
-        elementAdds(
+        let _op = elementAdds(
             [...__ESet],
             el => $.find( `>${el.tagName}`, el.parentElement )
         );
+        _op && historyPush( _op );
     },
 
 
@@ -1887,10 +1980,11 @@ export const Edit = {
     previousVF( n ) {
         n = isNaN(n) ? 1 : n;
 
-        elementAdds(
+        let _op = elementAdds(
             [...__ESet],
             el => $.prevAll( el, (_, i) => i <= n )
         );
+        _op && historyPush( _op );
     },
 
 
@@ -1901,10 +1995,11 @@ export const Edit = {
     nextVF( n ) {
         n = isNaN(n) ? 1 : n;
 
-        elementAdds(
+        let _op = elementAdds(
             [...__ESet],
             el => $.nextAll( el, (_, i) => i <= n )
         );
+        _op && historyPush( _op );
     },
 
 
@@ -2018,6 +2113,9 @@ export const Edit = {
     unWrap() {
         let $els = $(__ESet);
 
+        if ( $els.length === 0 ) {
+            return;
+        }
         if ( !$els.every(canUnwrap) ) {
             // 选取元素及其父元素都必须为内容元素。
             return help(
@@ -2026,9 +2124,7 @@ export const Edit = {
                 unwrapBadit( $els )
             );
         }
-        let _op = clearDeletes( $els );
-
-        if ( _op ) historyPush( _op, new DOMEdit(() => __Elemedit.unWrap($els)) );
+        historyPush( clearSelected($els, true), new DOMEdit(() => __Elemedit.unWrap($els)) );
     },
 
     __unWrap: null,
@@ -2044,6 +2140,9 @@ export const Edit = {
     deletes() {
         let $els = $(__ESet);
 
+        if ( $els.length === 0 ) {
+            return;
+        }
         if ( !$els.every(canDelete) ) {
             // 包含了不能被删除的元素。
             return help(
@@ -2052,9 +2151,7 @@ export const Edit = {
                 deleteBadit( $els )
             );
         }
-        let _op = clearDeletes( $els );
-
-        if ( _op ) historyPush( _op, new DOMEdit(() => $els.remove()) );
+        historyPush( clearSelected($els, true), new DOMEdit(() => $els.remove()) );
     },
 
 
@@ -2063,12 +2160,12 @@ export const Edit = {
      * 不再保护结构单元的结构。
      */
     deleteForce() {
-        let $els = $(__ESet),
-            _op = clearDeletes( $els );
+        let $els = $(__ESet);
 
-        if ( _op ) {
-            historyPush( _op, new DOMEdit(() => $els.remove()) );
+        if ( $els.length === 0 ) {
+            return;
         }
+        historyPush( clearSelected($els, true), new DOMEdit(() => $els.remove()) );
     },
 
 
@@ -2078,12 +2175,12 @@ export const Edit = {
      */
     deleteContents() {
         let $cons = $(__ESet)
-                .map( el => contentBoxes(el) ).flat(),
-            _op = clearDeletes( $cons );
+            .map( el => contentBoxes(el) ).flat();
 
-        if ( _op ) {
-            historyPush( _op, new DOMEdit(() => $cons.empty()) );
+        if ( $cons.length === 0 ) {
+            return;
         }
+        historyPush( clearSelected($cons, true), new DOMEdit(() => $cons.empty()) );
     },
 
 
@@ -2114,6 +2211,46 @@ export const Edit = {
 
     elementCloneAfter() {
         //
+    },
+
+
+    /**
+     * 原地克隆（各别）。
+     * 与焦点元素无关。
+     * 注记：
+     * 出于编辑灵活性，允许任意中间结构元素克隆。
+     */
+    elementCloneSelf() {
+        let $els = $( __ESet );
+        if ( !$els.length ) return;
+
+        let $new = $els.map( el => cleanedClone(el) );
+
+        historyPush(
+            clearSelected( $els ),
+            new DOMEdit( () => __Elemedit.befores($els, $new) ),
+            pushesSelect( $new )
+        );
+    },
+
+
+    /**
+     * 原地克隆（分组）。
+     * 与焦点元素无关。
+     */
+    elementCloneTeam() {
+        let $els = $( __ESet );
+        if ( !$els.length ) return;
+
+        let _els2 = adjacentTeam( $els.sort() ),
+            _refs = _els2.map( els => els[0] ),
+            _new2 = cloneTeam( _els2 );
+
+        historyPush(
+            clearSelected( $els ),
+            new DOMEdit( () => __Elemedit.befores(_refs, _new2) ),
+            pushesSelect( _new2.flat() )
+        );
     },
 
 
@@ -2207,47 +2344,55 @@ export const Edit = {
 
 
     //-- 定位移动 ------------------------------------------------------------
-    // 目标元素需已设置 position:absolute 样式。
+    // 前提：position:absolute
     // 普通移动为 1px/次，增强移动为 10px/次
 
 
     moveToLeft() {
-        elementsPostion( $(__ESet), 'left', -1 );
+        let _op = elementsPostion( $(__ESet), 'left', -1 );
+        _op && historyPush( _op );
     },
 
 
     moveToLeftTen() {
-        elementsPostion( $(__ESet), 'left', -10 );
+        let _op = elementsPostion( $(__ESet), 'left', -10 );
+        _op && historyPush( _op );
     },
 
 
     moveToRight() {
-        elementsPostion( $(__ESet), 'left', 1 );
+        let _op = elementsPostion( $(__ESet), 'left', 1 );
+        _op && historyPush( _op );
     },
 
 
     moveToRightTen() {
-        elementsPostion( $(__ESet), 'left', 10 );
+        let _op = elementsPostion( $(__ESet), 'left', 10 );
+        _op && historyPush( _op );
     },
 
 
     moveToUp() {
-        elementsPostion( $(__ESet), 'top', -1 );
+        let _op = elementsPostion( $(__ESet), 'top', -1 );
+        _op && historyPush( _op );
     },
 
 
     moveToUpTen() {
-        elementsPostion( $(__ESet), 'top', -10 );
+        let _op = elementsPostion( $(__ESet), 'top', -10 );
+        _op && historyPush( _op );
     },
 
 
     moveToDown() {
-        elementsPostion( $(__ESet), 'top', 1 );
+        let _op = elementsPostion( $(__ESet), 'top', 1 );
+        _op && historyPush( _op );
     },
 
 
     moveToDownTen() {
-        elementsPostion( $(__ESet), 'top', 10 );
+        let _op = elementsPostion( $(__ESet), 'top', 10 );
+        _op && historyPush( _op );
     },
 
 };

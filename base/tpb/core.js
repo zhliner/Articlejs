@@ -515,8 +515,8 @@ class Stack {
         vals.forEach ( v => v !== undefined && this._buf.push(v) );
 
         //:debug
-        // 控制台设置标识变量为真即可。
-        // 会显示调用链每一个指令的入值（包括undefined）。
+        // 控制台设置标识变量为真。
+        // 会显示调用链每一个指令的前入值（含undefined）。
         window[__STACKX] && window.console.info( ...vals );
         //:end
     }

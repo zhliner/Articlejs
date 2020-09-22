@@ -378,13 +378,25 @@ export function createID( text, prefix = '' ) {
 
 /**
  * 空格缩进替换。
- * - 前导缩进。
- * - 文内的Tab键。
- * @param  {String} text 源文本
- * @param  {Number} tabs Tab空格数
- * @param  {Boolean} all 是否包含文内Tab处理
+ * 包含前导的缩进和文内的Tab键。
+ * 码值小于 0xff 的视为1个字节宽度。
+ * @param  {String} text 源文本（单行）
+ * @param  {String} tabs Tab空格序列
  * @return {String} 处理后的文本
  */
-export function indentSpace( text, tabs, all ) {
-    //
+export function indentSpace( text, tabs ) {
+    let _mod = tabs.length,
+        _idx = 0,
+        _str = '';
+
+    for ( const ch of text ) {
+        if ( ch === '\t' ) {
+            _str += tabs.substring( _idx );
+            _idx = 0;
+        } else {
+            _str += ch;
+            _idx = (_idx + (ch.codePointAt(0) < 0xff ? 1 : 2)) % _mod;
+        }
+    }
+    return _str;
 }
