@@ -1310,13 +1310,11 @@ function cloneTeam( els2 ) {
 function cleanedClone( el ) {
     let _hot = __EHot.get();
     try {
-        if ( _hot === el ) {
-            __EHot.set( null );
-        }
+        if ( _hot === el ) __EHot.set( null );
         return cloneElement( el );
     }
     finally {
-        __EHot.set( _hot );
+        if ( _hot === el ) __EHot.set( _hot );
     }
 }
 
@@ -2254,6 +2252,16 @@ export const Edit = {
     },
 
 
+    //-- 移动&缩进 -----------------------------------------------------------
+
+
+    movePrevious() {
+        //
+    },
+
+
+    //-- 杂项编辑 ------------------------------------------------------------
+
     /**
      * 撤销操作。
      * 注记：
@@ -2394,6 +2402,9 @@ export const Edit = {
         let _op = elementsPostion( $(__ESet), 'top', 10 );
         _op && historyPush( _op );
     },
+
+
+    //-- 杂项功能 ------------------------------------------------------------
 
 };
 
