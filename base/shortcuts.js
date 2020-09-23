@@ -491,31 +491,56 @@ Content: [
     },
 
 
+    // 原地克隆（成组）。
+    // 选取集内相邻元素分组克隆，插入原组之前（before）。
+    // 注记：与焦点元素无关。
+    {
+        "key":      ":c",
+        "command":  "elementCloneTeam"
+    },
+
+
     // 原地克隆（各别）。
     // 选取集成员克隆插入原元素之前（before），各自独立。
     // 注记：与焦点元素无关。
     {
-        "key":      ":c",
-        "command":  "elementCloneSelf"
-    },
-
-
-    // 原地克隆（分组）。
-    // 选取集内相邻元素分组克隆，插入原组之前（before）。
-    // 注记：与焦点元素无关。
-    {
         "key":      "shift:c",
-        "command":  "elementCloneTeam"
+        "command":  "elementCloneSelf"
     },
 
 
     //
     // 移动&缩进
     //-----------------------------------------------------
+    // 同时支持 kjhl 和箭头键。
 
+    // 向前移动（↑）。
+    // 支持数字指定移动距离。
+    // 并列兄弟元素逐个移动，因此超出限度的距离会导致部分或全部反序排列。
     {
-        "key":      "alt:k",
+        "key":      ["alt:k", "alt:ArrowUp"],
         "command":  "movePrevious"
+    },
+
+    // 向后移动（↓）。
+    // 支持数字指定移动距离，说明同上。
+    {
+        "key":      ["alt:j", "alt:ArrowDown"],
+        "command":  "moveNext"
+    },
+
+    // 减少缩进（←）。
+    // 每次缩减一层，不支持数字指定层级数。
+    {
+        "key":      ["alt:h", "alt:ArrowLeft"],
+        "command":  "indentLess"
+    },
+
+    // 增加缩进（→）。
+    // 每次增加一层，不支持同上。
+    {
+        "key":      ["alt:l", "alt:ArrowRight"],
+        "command":  "indentMore"
     },
 
 
@@ -587,7 +612,7 @@ Content: [
 
 
     //
-    // 杂项功能
+    // 系统功能
     //-----------------------------------------------------
 
     // 新建关联。

@@ -17,10 +17,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { ESet, EHot, ElemCursor } from './common.js';
 import { Sys, Limit, Help } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj, cloneElement } from "./base.js";
+import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj, cloneElement, getType } from "./base.js";
+import { ESet, EHot, ElemCursor, prevNode, nextNode, siblingIndex } from './common.js';
 import { children } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -735,10 +735,10 @@ class NodeVary {
 
     /**
      * 各别前插。
-     * 将新元素一一对应下标插入目标元素之前。
+     * 将新元素（集）一一对应下标插入目标元素之前。
      * 注：两个集合大小一样。
      * @param {Collector} $els 目标集
-     * @param {Collector} $new 新元素集
+     * @param {Collector} $new 新元素集（支持二维）
      */
     befores( $els, $new ) {
         $els.forEach(
@@ -746,6 +746,69 @@ class NodeVary {
         );
     }
 
+
+    /**
+     * 定位前插。
+     * 将同级兄弟元素向前移动/克隆到指定距离。
+     * 零值距离表示端部，汇集插入。
+     * @param {[Element]} els 目标元素集
+     * @param {Number} n 前端距离
+     */
+    insertPrev( els, n ) {
+        for ( const el of els ) {
+            let _ref = prevNode( el, n );
+
+            if ( _ref ) {
+                $.before( _ref, el );
+            } else {
+                $.prepend( el.parentElement, el );
+            }
+        }
+    }
+
+
+    /**
+     * 汇聚前插。
+     * 每一组元素移动插入到自身容器最前端。
+     * @param {[[Element]]} els2 兄弟元素集组
+     */
+    prepends( els2 ) {
+        els2.forEach(
+            subs => $.prepend( subs[0].parentElement, subs )
+        );
+    }
+
+
+    /**
+     * 定位后添加。
+     * 将同级兄弟元素向后移动/克隆到指定距离。
+     * 零值距离表示端部，汇集添加。
+     * @param {[Element]} els 目标元素集
+     * @param {Number} n 后端距离
+     */
+    appendNext( els, n ) {
+        for ( const el of els ) {
+            let _ref = nextNode( el, n );
+
+            if ( _ref ) {
+                $.after( _ref, el );
+            } else {
+                $.append( el.parentElement, el );
+            }
+        }
+    }
+
+
+    /**
+     * 汇聚后添加。
+     * 每一组元素移动插入到自身容器末端。
+     * @param {[[Element]]} els2 兄弟元素集组
+     */
+    appends( els2 ) {
+        els2.forEach(
+            subs => $.append( subs[0].parentElement, subs )
+        );
+    }
 }
 
 
@@ -1302,6 +1365,24 @@ function cloneTeam( els2 ) {
 
 
 /**
+ * 兄弟节点分组。
+ * @param  {[Element]} els 元素集
+ * @return {[[Element]]}
+ */
+function siblingTeam( els ) {
+    let _map = new Map();
+
+    for ( const el of els ) {
+        let _pel = el.parentElement;
+
+        ( _map.get(_pel) || _map.set(_pel, []).get(_pel) )
+        .push( el );
+    }
+    return [ ..._map.values() ];
+}
+
+
+/**
  * 元素干净克隆。
  * 避免焦点元素的状态被克隆。
  * @param  {Element} el 目标元素
@@ -1421,6 +1502,34 @@ function theSibling( els ) {
 
 
 /**
+ * 集合成员是否为相同单元。
+ * 如果tval无值，取首个成员类型即可。
+ * 用于相同类型的属性批量修改。
+ * @param  {[Element]} els 元素集
+ * @param  {Number} tval 单元类型值，可选
+ * @return {Boolean}
+ */
+function sameType( els, tval ) {
+    tval = tval || getType( els[0] );
+    return els.every( el => getType(el) === tval );
+}
+
+
+/**
+ * 集合成员是否为相同类型元素。
+ * 如果tag无值，取首个成员取值即可。
+ * 如用于判断片区类型（s1-s5）。
+ * @param  {[Element]} els 元素集
+ * @param  {Number} tag 单元标签名，可选
+ * @return {Boolean}
+ */
+function sameTag( els, tag ) {
+    tag = tag || els[0].tagName;
+    return els.every( el => el.tagName === tag );
+}
+
+
+/**
  * 构建“元素:位置”选择器。
  * @param  {Element} el 目标元素
  * @return {String}
@@ -1482,6 +1591,16 @@ function h2PathSelector( chsn ) {
 
 
 /**
+ * 返回集合末尾成员。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function last( els ) {
+    return els[ els.length - 1 ];
+}
+
+
+/**
  * 帮助：
  * 提示错误并提供帮助索引。
  * 帮助ID会嵌入到提示链接中，并显示到状态栏。
@@ -1497,16 +1616,6 @@ function help( hid, msg, el ) {
     // 构造链接……
 
     $.trigger( errContainer, 'on' );
-}
-
-
-/**
- * 返回集合末尾成员。
- * @param  {[Element]} els 元素集
- * @return {Element}
- */
-function last( els ) {
-    return els[ els.length - 1 ];
 }
 
 
@@ -2012,7 +2121,7 @@ export const Edit = {
             __Selects.delete( el );
             __Selects.safeAdds( contentBoxes(el) );
         }
-        // 原元素自身即可能为内容根。
+        // 元素自身即可能为内容根（无改选）。
         stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
@@ -2033,6 +2142,7 @@ export const Edit = {
                 __Selects.safeAdd( _sub );
             }
         }
+        // 可能无子元素（无改选）。
         stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
@@ -2051,6 +2161,7 @@ export const Edit = {
                 box => box && __Selects.add( box )
             );
         }
+        // 顶层再向上无效（无改选）。
         stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
@@ -2068,6 +2179,7 @@ export const Edit = {
                 top => top && __Selects.add( top )
             );
         }
+        // 顶层再向上无效（无改选）。
         stillSame(_old) || historyPush( new ESEdit(_old) );
     },
 
@@ -2253,9 +2365,81 @@ export const Edit = {
 
 
     //-- 移动&缩进 -----------------------------------------------------------
+    // 操作选取集，与焦点元素无关。
+    // 当前选取不变。
+
+    /**
+     * 向前移动（平级）。
+     * 并列兄弟元素按DOM节点顺序移动，
+     * 距离超出范围会导致部分或全部兄弟元素反序排列。
+     * n: {
+     *      0: 正序端部，离散节点会汇聚
+     *     -n: 负数表示极大数（到顶端且全反序）
+     * }
+     * @param {Number} n 移动距离
+     */
+    movePrevious( n ) {
+        let $els = $(__ESet).sort();
+
+        if ( !$els.length || !prevNode($els[0]) ) {
+            return;
+        }
+        n = isNaN(n) ? 1 : n;
+
+        if ( n === 0 ) {
+            let _els2 = siblingTeam( $els );
+            return historyPush( new DOMEdit(() => __Elemedit.prepends(_els2)) );
+        }
+
+        historyPush( new DOMEdit(() => __Elemedit.insertPrev($els, n)) );
+    },
 
 
-    movePrevious() {
+    /**
+     * 向后移动（平级）。
+     * 并列兄弟元素按DOM节点逆序移动，
+     * 距离超出范围会导致部分或全部兄弟元素反序排列。
+     * n: 参考同 movePrevious
+     * @param {Number} n 移动距离
+     */
+    moveNext( n ) {
+        let $els = $(__ESet).sort();
+
+        if ( !$els.length || !nextNode(last($els)) ) {
+            return;
+        }
+        n = isNaN(n) ? 1 : n;
+
+        if ( n === 0 ) {
+            let _els2 = siblingTeam( $els );
+            return historyPush( new DOMEdit(() => __Elemedit.appends(_els2)) );
+        }
+
+        historyPush( new DOMEdit(() => __Elemedit.appendNext($els, n)) );
+    },
+
+
+    /**
+     * 减少缩进。
+     * 仅适用章节（section）单元。
+     * 当前章节提升一级插入到原所属章节之前。
+     */
+    indentLess() {
+        let $els = $( __ESet );
+
+        if ( !$els.length || !sameTag($els, 'SECTION') ) {
+            return;
+        }
+        // ...
+    },
+
+
+    /**
+     * 增加缩进。
+     * 仅适用章节（section）单元。
+     * 当前章节降一级，插入原地构造的一个平级空章节。
+     */
+    indentMore() {
         //
     },
 
@@ -2354,6 +2538,7 @@ export const Edit = {
     //-- 定位移动 ------------------------------------------------------------
     // 前提：position:absolute
     // 普通移动为 1px/次，增强移动为 10px/次
+    // 操作的是 left/top 两个样式，与 right/bottom 无关。
 
 
     moveToLeft() {

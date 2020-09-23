@@ -5459,7 +5459,7 @@ function cleanMap( list, handle ) {
  * @param  {String} slr 匹配选择器，可选
  * @return {Number}
  */
-function siblingIndex( el, slr ) {
+function siblingNth( el, slr ) {
     let _n = 1;
 
     while ( (el = el.previousElementSibling) ) {
@@ -7697,7 +7697,7 @@ Object.assign( tQuery, {
         if ( slp ) {
             _els = _els.filter( e => $is(e, slp) );
         }
-        return _els.map( e => siblingIndex(e, slr) );
+        return _els.map( e => siblingNth(e, slr) );
     },
 
 

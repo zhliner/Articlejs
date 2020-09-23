@@ -358,6 +358,21 @@ export class ArrSet extends Set {
 //////////////////////////////////////////////////////////////////////////////
 
 
+/**
+ * 判断是否为可视节点。
+ * @param  {Node} node 测试节点
+ * @return {Boolean}
+ */
+function visibleNode( node ) {
+    let _nt = node.nodeType;
+
+    if ( _nt === 1 ) {
+        return true;
+    }
+    return _nt === 3 && node.textContent.trim() ? true : false;
+}
+
+
 
 //
 // 基本函数集。
@@ -399,4 +414,83 @@ export function indentSpace( text, tabs ) {
         }
     }
     return _str;
+}
+
+
+/**
+ * 获取节点所在父元素内下标位置。
+ * 忽略空文本节点和注释节点，位置计数从0开始。
+ * @param  {Node} node 目标元素
+ * @return {Number} 所在下标
+ */
+export function siblingIndex( node ) {
+    let _n = 0;
+    while ( (node = node.previousSibling) ) {
+        visibleNode(node) && _n ++;
+    }
+    return _n;
+}
+
+
+/**
+ * 向前获取目标位置节点。
+ * 位置计数仅限于可视节点（元素和非空文本节点）。
+ * @param  {Node} node 起始节点
+ * @param  {Number} n 向前步进计数，可选（默认1）
+ * @return {Node|null}
+ */
+export function prevNode( node, n = 1 ) {
+    while ( (node = node.previousSibling) ) {
+        visibleNode(node) && n--;
+        if ( !n ) return node;
+    }
+    return null;
+}
+
+
+/**
+ * 向后获取目标位置节点。
+ * 位置计数仅限于可视节点（元素和非空文本节点）。
+ * @param  {Node} node 起始节点
+ * @param  {Number} n 向后步进计数，可选（默认1）
+ * @return {Node|null}
+ */
+export function nextNode( node, n = 1 ) {
+    while ( (node = node.nextSibling) ) {
+        visibleNode(node) && n--;
+        if ( !n ) return node;
+    }
+    return null;
+}
+
+
+/**
+ * 获取第一个可视节点。
+ * @param  {Element} box 容器元素
+ * @return {Node|null}
+ */
+export function firstNode( box ) {
+    let _nd = box.firstChild;
+
+    while ( _nd ) {
+        if ( visibleNode(_nd) ) return _nd;
+        _nd = _nd.nextSibling;
+    }
+    return null;
+}
+
+
+/**
+ * 获取最后一个可视节点。
+ * @param  {Element} box 容器元素
+ * @return {Node|null}
+ */
+export function lastNode( box ) {
+    let _nd = box.lastChild;
+
+    while ( _nd ) {
+        if ( visibleNode(_nd) ) return _nd;
+        _nd = _nd.previousSibling;
+    }
+    return null;
 }
