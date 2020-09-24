@@ -153,18 +153,20 @@ export const
     // 行块结构元素
     /////////////////////////////////////////////
     HGROUP          = 500,  // 主/副标题组 （hgroup/h1, h2）
-    ABSTRACT        = 501,  // 提要 （header:abstract/h3, p...）
-    TOC             = 502,  // 目录 （nav:toc/h3, ol:cascade/li/(h4/a), ol/[li/a]+）
-    SEEALSO         = 503,  // 另参见 （ul:seealso/li/#text）
-    REFERENCE       = 504,  // 文献参考 （ol:reference/li/#text）
-    HEADER          = 505,  // 导言 （header/h3, p...）
-    FOOTER          = 506,  // 结语 （footer/h3, p...）
-    ARTICLE         = 507,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
-    S1              = 508,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
-    S2              = 509,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
-    S3              = 510,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
-    S4              = 511,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
-    S5              = 512,  // 末 （section:s5/h2, header?, {content}, footer?）
+    //:有序+1
+    S1              = 501,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
+    S2              = 502,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
+    S3              = 503,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
+    S4              = 504,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
+    S5              = 505,  // 末 （section:s5/h2, header?, {content}, footer?）
+    //:end
+    ABSTRACT        = 506,  // 提要 （header:abstract/h3, p...）
+    TOC             = 507,  // 目录 （nav:toc/h3, ol:cascade/li/(h4/a), ol/[li/a]+）
+    SEEALSO         = 508,  // 另参见 （ul:seealso/li/#text）
+    REFERENCE       = 509,  // 文献参考 （ol:reference/li/#text）
+    HEADER          = 510,  // 导言 （header/h3, p...）
+    FOOTER          = 511,  // 结语 （footer/h3, p...）
+    ARTICLE         = 512,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
     UL              = 513,  // 无序列表 （ul/li）
     OL              = 514,  // 有序列表 （ol/li）
     CODELIST        = 515,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab, start}

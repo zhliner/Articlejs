@@ -17,11 +17,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Sys, Limit, Help } from "../config.js";
+import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj, cloneElement, getType } from "./base.js";
-import { ESet, EHot, ElemCursor, prevNode, nextNode, siblingIndex } from './common.js';
-import { children } from "./create.js";
+import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange } from "./base.js";
+import { ESet, EHot, ElemCursor, prevNode, nextNode } from './common.js';
+import { children, create } from "./create.js";
 import cfg from "./shortcuts.js";
 
 
@@ -36,6 +36,9 @@ const
 
     // 编辑需要监听的变化事件。
     varyEvents = 'attrvary cssvary varyprepend varyappend varybefore varyafter varyreplace varyempty varyremove varynormalize',
+
+    // 章节角色名（s1-s5）
+    __sectionRole = /^s[1-5]$/,
 
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
@@ -809,6 +812,60 @@ class NodeVary {
             subs => $.append( subs[0].parentElement, subs )
         );
     }
+
+
+    /**
+     * 章节提升。
+     * s1-s5为连续嵌套的递进结构。
+     * 章节元素必须包含role配置，否则不予处理。
+     * 注记：附加检查（实际不应当存在）。
+     * @param {Element} sec 章节元素
+     */
+    sectionUp( sec ) {
+        let _pel = sec.parentElement,
+            _lev = $.attr( _pel, 'role' );
+
+        if ( __sectionRole.test(_lev) ) {
+            throw new Error( 'parent is not a s1-s5.' );
+        }
+        $.before( _pel, sectionUpAll(sec) || sec );
+    }
+
+
+    /**
+     * 多个章节提升。
+     * @param {[Element]} secs 章节元素集
+     */
+    sectionsUp( secs ) {
+        secs.forEach( el => this.sectionUp(el) );
+    }
+
+
+    /**
+     * 章节降级。
+     * - 新建一个同级章节容器。
+     * - 将当前章节降级并移入空容器内。
+     * @param {Element} sec 章节元素
+     */
+    sectionDown( sec ) {
+        let _lev = $.attr( sec, 'role' );
+
+        if ( !__sectionRole.test(_lev) ) {
+            return warn( 'section is not a s1-s5.', sec );
+        }
+        let _box = create( _lev, {h2: Tips.sectionH2} );
+
+        $.append( _box.lastElementChild, sectionDownAll(sec) || sec );
+    }
+
+
+    /**
+     * 多个章节降级。
+     * @param {[Element]} secs 章节元素集
+     */
+    sectionsDown( secs ) {
+        secs.forEach( el => this.sectionDown(el) );
+    }
 }
 
 
@@ -1526,6 +1583,43 @@ function sameType( els, tval ) {
 function sameTag( els, tag ) {
     tag = tag || els[0].tagName;
     return els.every( el => el.tagName === tag );
+}
+
+
+/**
+ * 章节提升。
+ * 包含内部全部子章节的升级。
+ * 外部应当保证sec非顶层章节（s1）。
+ * @param  {Element} sec 章节根
+ * @return {void}
+ */
+function sectionUpAll( sec ) {
+    $.find( 'section[role]', sec, true ).forEach( el => sectionChange(el, -1) );
+}
+
+
+/**
+ * 章节降级。
+ * 包含内部全部子章节降级。
+ * 末端章节（s5）没有递进逻辑，会解包（unwrap）。
+ * @param  {Element} sec 章节根
+ * @return {void}
+ */
+function sectionDownAll( sec ) {
+    $.find( 'section[role=s5]', sec, true ).forEach(
+        el => $.unwrap( el )
+    );
+    $.find( 'section[role]', sec, true ).forEach( el => sectionChange(el, 1) );
+}
+
+
+/**
+ * 是否都为顶层章节。
+ * @param  {[Element]} els 章节元素集
+ * @return {Boolean}
+ */
+function allSectionS1( els ) {
+    return els.every( el => $.attr(el, 'role') === 's1' );
 }
 
 
@@ -2373,7 +2467,7 @@ export const Edit = {
      * 并列兄弟元素按DOM节点顺序移动，
      * 距离超出范围会导致部分或全部兄弟元素反序排列。
      * n: {
-     *      0: 正序端部，离散节点会汇聚
+     *      0: 原序端部，离散节点会汇聚
      *     -n: 负数表示极大数（到顶端且全反序）
      * }
      * @param {Number} n 移动距离
@@ -2430,7 +2524,10 @@ export const Edit = {
         if ( !$els.length || !sameTag($els, 'SECTION') ) {
             return;
         }
-        // ...
+        if ( allSectionS1($els) ) {
+            return warn( Tips.sectionNotUp );
+        }
+        historyPush( new DOMEdit(() => __Elemedit.sectionsUp($els)) );
     },
 
 

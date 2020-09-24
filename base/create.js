@@ -26,7 +26,7 @@
 
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { getType, setType, tableObj, contents, isCodeCons, isValidTR } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionContents } from "./base.js";
 
 
 const
@@ -733,7 +733,7 @@ const Children = {
             h2 && insertHeading( sec, T.H2, h2 ),
             header && insertHeader( sec )
         ];
-        let _new = appendChild( sec, data, () => elem(T.P) );
+        let _new = appendChild( sec, data, () => sectionAppend(sec, data) );
 
         if ( footer ) {
             _buf.push( appendFooter(sec) );
@@ -1153,7 +1153,7 @@ function appendFooter( box ) {
  * @param  {Element} box 容器元素
  * @param  {Node|String} sub 子单元
  * @param  {Function} maker 创建默认单元回调，可选
- * @return {Element|null|void} 新建的默认单元
+ * @return {Element|null|void} maker创建的单元
  */
 function appendChild( box, sub, maker ) {
     if ( !sub ) return;
@@ -1165,6 +1165,23 @@ function appendChild( box, sub, maker ) {
         return $.append( box, sub ) && null;
     }
     return maker && $.append( box, maker() );
+}
+
+
+/**
+ * 章节内容提取添加。
+ * 如果插入内容是不同层级的章节，提取纯粹的章节内容。
+ * 否则创建一个默认段落继续。
+ * @param  {Element} box 容器元素
+ * @param  {Element|Value} sub 子单元内容
+ * @return {Element|void} 新建默认单元
+ */
+function sectionAppend( box, sub ) {
+    if ( sub.tagName !== 'SECTION' ) {
+        return elem( T.P );
+    }
+    // void for end.
+    $.append( box, sectionContents(sub) );
 }
 
 
@@ -1504,6 +1521,27 @@ function children( box, opts, cons ) {
 
 
 /**
+ * 创建单元。
+ * 支持字符串名称指定。
+ * @param  {String|Number} name 目标名或类型值
+ * @param  {Object} opts 特性配置集
+ * @param  {Node|[Node]|String} data 源数据
+ * @param  {Boolean} more 是否重复子单元创建
+ * @return {Element} 目标单元
+ */
+function create( name, opts, data, more ) {
+    if ( typeof name === 'string' ) {
+        name = T[ name.toUpperCase() ];
+    }
+    if ( name == null ) {
+        throw new Error( 'invalid target name.' );
+    }
+    return build( elem(name), opts, data, more );
+}
+
+
+/**
+ * 单元创建器。
  * 返回创建目标名称单元的函数。
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
@@ -1535,4 +1573,4 @@ processProxy( 'New', creater, 1 );
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-export { children };
+export { children, create };

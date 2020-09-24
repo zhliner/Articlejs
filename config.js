@@ -28,6 +28,21 @@ export const Limit = {
 
 
 //
+// 系统级提示信息。
+// 注：可视情况进行本地化。
+//
+export const Tips = {
+
+    // 章节空标题占位
+    sectionH2:      '== Heading ==',
+
+    // 顶层章节不可再提升
+    sectionNotUp:   'section:s1 can not up again.',
+
+};
+
+
+//
 // 帮助提示集。
 // key: [hid, msg]
 // 消息段（msg）可以作本地化修改。

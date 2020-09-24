@@ -393,6 +393,19 @@ function _contentBoxes( el ) {
 }
 
 
+/**
+ * 获取章节标识名（s1-s5）。
+ * @param  {String} sx 章节名（role）
+ * @param  {Number} n 增减层级
+ * @return {String|false}
+ */
+function sectionRole( sx, n ) {
+    n = +sx.substring(1) + n;
+    return n > 0 && n < 6 && `s${n}`;
+}
+
+
+
 //
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
@@ -430,6 +443,8 @@ export function setType( el, tval ) {
     Reflect.defineProperty(el, __typeKey, {
         value: tval,
         enumerable: false,
+        // 可移除
+        configurable: true,
     });
     return el;
 }
@@ -689,4 +704,44 @@ export function virtualBox( beg, end ) {
         return contentRoot( beg.parentElement, end );
     }
     return entityRoot( beg.parentElement, end );
+}
+
+
+/**
+ * 获取章节的内容。
+ * 会递进提取子章节的内容。
+ * @param  {Element} root 章节根元素
+ * @return {[Element]} 行块单元集
+ */
+export function sectionContents( root ) {
+    let _buf = [];
+
+    for ( const el of root.children ) {
+        if ( el.tagName !== 'SECTION' ) {
+            _buf.push( el );
+        } else {
+            _buf.push( ...sectionContents(el) );
+        }
+    }
+    return _buf;
+}
+
+
+/**
+ * 章节层级修改。
+ * - 修改 role 特性值。
+ * - 移除元素的类型值。
+ * 注记：
+ * 移除类型值以简化处理，避免撤销重做的复杂性。
+ * @param  {Element} sec 章节元素
+ * @param  {Number} n 增减层级数
+ * @return {Element} sec
+ */
+export function sectionChange( sec, n ) {
+    let _sx = sectionRole( $.attr(sec, 'role'), n );
+
+    if ( !_sx ) {
+        throw new Error( 'invalid section level.' );
+    }
+    return Reflect.deleteProperty( $.attr(sec, 'role', _sx), __typeKey );
 }
