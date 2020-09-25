@@ -34,10 +34,13 @@ export const Limit = {
 export const Tips = {
 
     // 章节空标题占位
-    sectionH2:      '== Heading ==',
+    sectionH2:      '[ Empty heading ]',
 
     // 顶层章节不可再提升
     sectionNotUp:   'section:s1 can not up again.',
+
+    // 末级章节不可再降级。
+    sectionNotDown: 'section:s5 can not down again.',
 
 };
 

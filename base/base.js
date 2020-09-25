@@ -66,24 +66,6 @@ const LogicRoles = new Set([
 //
 const CustomStruct = {
     /**
-     * 段落判断。
-     * - FIGIMGP: 插图子结构（figure/p/img,span）
-     * - P: 段落（p）。
-     * - NOTE: 注解（p:note）。
-     * - TIPS: 提示（p:tips）。
-     * 注：插图仅需检查父元素类型即可。
-     * @param  {Element} el 当前元素
-     * @return {Number} 单元值
-     */
-    P( el ) {
-        let _name = name( el );
-
-        return _name === 'P' && el.parentElement.tagName === 'FIGURE' ?
-            T.FIGIMGP : T[_name];
-    },
-
-
-    /**
      * 多种列表项判断。
      * - CODELI: 代码表条目（li/code）：唯一子元素
      * - ALI: 目录表普通条目（li/a）：唯一子元素
@@ -114,6 +96,18 @@ const CustomStruct = {
     H4( el ) {
         return el.childElementCount === 1 && el.firstElementChild.tagName === 'A' ?
             T.AH4 : T.H4
+    },
+
+
+    /**
+     * 仅两种可能：
+     * - SPACE 空白。
+     * - FIGIMGBOX 插图子结构（figure/span/img, i:explain）
+     * @param  {Element} el 当前元素
+     * @return {Number} 单元值
+     */
+    SPAN( el ) {
+        return el.parentElement.tagName === 'FIGURE' ? T.FIGIMGBOX : T.SPACE
     },
 
 
@@ -348,9 +342,9 @@ function contentRoot( beg, end ) {
     let _val = getType(beg);
 
     if ( !T.isInlines(_val) ) {
-        // 容错部分定制结构：
-        // 如：CODELI/code, FIGIMGP/img
-        // 由内联上溯而来，但到此却非内容元素。
+        // 容错定制结构：
+        // 如：CODELI/code, FIGIMGBOX/img 子单元为内联，但父容器非内容元素。
+        // 因此转为单元根获取。
         return T.isContent(_val) ? beg : entityRoot( beg, end );
     }
     return contentRoot( beg.parentElement );
@@ -691,7 +685,7 @@ export function contentBoxes( el ) {
  * 即当用于执行Top选取操作时的目标元素。
  * - 起点为内联元素时，向上获取内容行元素。
  * - 起点为结构子时，向上获取单元根元素（内联或行块）。
- * - 起点为行块根时，无行为（返回null）。
+ * - 起点为行块根时，向上获取最近上级根。
  * 注：
  * 这是一种用户友好，以便直达内容行元素或单元根。
  *

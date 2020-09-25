@@ -102,8 +102,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 .content blockquote > *,
-.content details > *,
-.content figure > * {
+.content details > * {
     margin: 0.5em auto;
 }
 .content aside > * {
@@ -284,7 +283,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 
-
 /* 章：
  * section:s1/[h2,header,section:s2,footer]
  * ----------------------------------------------
@@ -309,6 +307,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 1.3em;
     padding: 6px 2px;
     border-bottom: 1px #eee solid;
+    margin: 0.9em auto 0;
+}
+.content section[role=s2] > h2 + p {
+    margin-top: 0.5em;
 }
 
 
@@ -320,8 +322,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 .content section[role=s3] > h2 {
     font-size: 1.1em;
-    padding: 4px;
-    margin-bottom: -0.7em;
+    margin: 0.8em auto 0;
+}
+.content section[role=s3] > h2 + p {
+    margin-top: 0.3em;
 }
 
 
@@ -334,7 +338,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s4] > h2 {
     font-size: 1.0em;
     color: #093;
+    padding-left: 0.2em;
     border-bottom: 1px #3c6 dotted;
+    margin: 0.5em auto 0;
+}
+.content section[role=s4] > h2 + p {
+    margin-top: 0.2em;
 }
 
 
@@ -375,43 +384,47 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * figure/figcaption, p/img, svg, audio, video
  *----------------------------------------------------------------------------
  */
-.content figure {
-    margin: 0;
-    padding: 0;
-}
 .content figure > figcaption {
     font-weight: bold;
+    margin: 4px;
 }
 /* 底部标题居中 */
 .content figure > figcaption:last-child {
     text-align: center;
 }
-.content figure > p {
+.content figure > span {
     overflow: auto;
     position: relative;
+    display: inline-block;
 }
-.content figure > p > img {
+.content figure img {
     border: 1px #ccc solid;
     padding: 1px;
+    margin: 0;
 }
-.content figure span[role=explain] {
+.content figure i[role=explain] {
+    display: inline-block;
 }
 
 /* 绝对定位：
- * 参考四角设置 margin- 调整。
+ * 通过 top, left 设置准确位置。
+ * 参考四角设置 margin-x 调整边沿。
  *-------------------------------------
  */
-.content figure [class|=fix] {
+.content figure i[class|=fix] {
     position: absolute;
-    color: #eee;
     background-color: rgba(102, 102, 102, 0.3);
     z-index: 1;
+    max-width: 180px;
+    padding: 10px;
+    border-radius: 5px;
+    /* 配合图片边框 */
+    margin: 2px;
 }
-/* 左上/右上/右下/左下 */
-.content figure .fix-lt { left: 0; top: 0; }
-.content figure .fix-rt { right: 0; top: 0; }
-.content figure .fix-rb { right: 0; bottom: 0; }
-.content figure .fix-lb { left: 0; bottom: 0; }
+.content figure i.fix-lt { left: 0; top: 0; }     /* 左上 */
+.content figure i.fix-rt { right: 0; top: 0; }    /* 右上 */
+.content figure i.fix-rb { right: 0; bottom: 0; } /* 右下 */
+.content figure i.fix-lb { left: 0; bottom: 0; }  /* 左下 */
 
 
 /* 引用块
@@ -463,6 +476,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  */
 .content header {
     padding: 2px;
+}
+.content header > p:first-child {
+    margin-top: 0.5em;
 }
 
 
@@ -654,7 +670,7 @@ span[role=space] {
     font-size: 10pt;
     background-color: #f8f8f8;
     border-radius: 5px;
-    overflow-x: auto;
+    overflow: auto;
     box-shadow: 1px 1px 4px #eee;
 }
 

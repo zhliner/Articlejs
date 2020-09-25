@@ -148,18 +148,16 @@ export const
     CASCADEH4LI     = 422,  // 级联编号表标题项（li/h4, ol）
     CASCADEAH4LI    = 423,  // 级联编号表链接标题项（li/[h4/a], ol）
     TOCCASCADE      = 424,  // 目录级联表（ol:cascade/[li/a]）
-    FIGIMGP         = 425,  // 插图内容区（p/img, span:explain）
+    FIGIMGBOX       = 425,  // 插图内容区（span/img, i:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
     HGROUP          = 500,  // 主/副标题组 （hgroup/h1, h2）
-    //:有序+1
     S1              = 501,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
     S2              = 502,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
     S3              = 503,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
     S4              = 504,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
     S5              = 505,  // 末 （section:s5/h2, header?, {content}, footer?）
-    //:end
     ABSTRACT        = 506,  // 提要 （header:abstract/h3, p...）
     TOC             = 507,  // 目录 （nav:toc/h3, ol:cascade/li/(h4/a), ol/[li/a]+）
     SEEALSO         = 508,  // 另参见 （ul:seealso/li/#text）
@@ -175,7 +173,7 @@ export const
     CASCADE         = 518,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）
     DL              = 519,  // 定义列表 （dl/dt, dd+）
     TABLE           = 520,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
-    FIGURE          = 521,  // 插图 （figure/figcaption, p/img, span:explain）
+    FIGURE          = 521,  // 插图 （figure/figcaption, span/img, i:explain）
     BLOCKQUOTE      = 522,  // 块引用 （blockquote/h3, p...） {cite}
     ASIDE           = 523,  // 批注 （aside/h3, p...）
     DETAILS         = 524,  // 详细内容 （details/summary, p...） {open}
@@ -223,7 +221,7 @@ const Specials = {
     [ SVGITEM ]:        STRUCT | STRUCTX,
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY,
     [ SOURCE ]:         STRUCT | STRUCTX | EMPTY,
-    [ EXPLAIN ]:        STRUCT | STRUCTX | FIXED | CONTENT,   // figure/p/img,span:explain
+    [ EXPLAIN ]:        STRUCT | STRUCTX | FIXED | CONTENT,
     // 不可简单删除
     // 删除：应当先文本化，微编辑，然后内容提升或转换。
     [ RB ]:             STRUCT | FIXED | CONTENT,
@@ -292,8 +290,8 @@ const Specials = {
     [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
     [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | FIXED | SEALED,
-    // 插图内允许多个<p>容器。
-    [ FIGIMGP ]:        STRUCT | STRUCTX | SEALED,
+    // 插图内允许多个<span>容器。
+    [ FIGIMGBOX ]:      STRUCT | STRUCTX | SEALED,
 
     //
     // 行块结构元素
@@ -319,7 +317,7 @@ const Specials = {
     [ CASCADE ]:        BLOCKS | STRUCT,
     [ DL ]:             BLOCKS | STRUCT,
     [ TABLE ]:          BLOCKS | STRUCT,  // 支持多<tbody>
-    [ FIGURE ]:         BLOCKS | STRUCT,  // 支持多<p/img,span>
+    [ FIGURE ]:         BLOCKS | STRUCT,  // 支持多<span/img, i:explain>
     [ BLOCKQUOTE ]:     BLOCKS | STRUCT,
     [ ASIDE ]:          BLOCKS | STRUCT,
     [ DETAILS ]:        BLOCKS | STRUCT,
@@ -471,7 +469,7 @@ const ChildTypes = {
     [ CASCADEH4LI ]:    [ H4, OL ],
     [ CASCADEAH4LI ]:   [ AH4, OL ],
     [ TOCCASCADE ]:     [ ALI, CASCADEAH4LI ],
-    [ FIGIMGP ]:        [ IMG, SVG, EXPLAIN ],
+    [ FIGIMGBOX ]:      [ IMG, SVG, EXPLAIN ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -498,7 +496,7 @@ const ChildTypes = {
     [ CASCADE ]:        [ LI, CASCADEH4LI, ALI, CASCADEAH4LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
-    [ FIGURE ]:         [ FIGCAPTION, FIGIMGP ],
+    [ FIGURE ]:         [ FIGCAPTION, FIGIMGBOX ],
     [ BLOCKQUOTE ]:     [ H3, P, _BLOLIMIT, TABLE ],
     [ ASIDE ]:          [ H3, P, _BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, _BLOLIMIT, TABLE ],
@@ -511,7 +509,7 @@ const ChildTypes = {
     // 特别单元
     /////////////////////////////////////////////
     [ B ]:              [ $TEXT ],
-    [ I ]:              [ $TEXT ],
+    [ I ]:              [ $TEXT, A ],
 
     //
     // 文章顶层（编辑器专属）。

@@ -67,7 +67,7 @@ const Tags = {
     [ T.SVGITEM ]:      null,  // 异常阻断（不合理使用）
     [ T.TRACK ]:        'track',
     [ T.SOURCE ]:       'source',
-    [ T.EXPLAIN ]:      'span\\explain',
+    [ T.EXPLAIN ]:      'i\\explain',
     [ T.RB ]:           'rb',
     [ T.RT ]:           'rt',
     [ T.RP ]:           'rp',
@@ -135,7 +135,7 @@ const Tags = {
     [ T.CASCADEH4LI ]:  'li',
     [ T.CASCADEAH4LI ]: 'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
-    [ T.FIGIMGP ]:      'p',
+    [ T.FIGIMGBOX ]:    'span',
 
     //
     // 行块结构元素
@@ -444,17 +444,17 @@ const Children = {
 
     /**
      * 仅返回图片元素供递进构建。
-     * @param {Element} p 段落容器
+     * @param {Element} box 图片容器
      * @param {String|Node|[Node]} explain 图片讲解，可选
      * @param {Element} data 主体内容（<img>, <svg>）
      */
-    [ T.FIGIMGP ]: function( p, {explain}, data ) {
+    [ T.FIGIMGBOX ]: function( box, {explain}, data ) {
         let _img = appendChild(
-            p,
+            box,
             data,
             () => elem( T.IMG )
         );
-        return result( explain && $.append(p, elem(T.EXPLAIN, explain)), _img || data, !_img );
+        return result( explain && $.append(box, elem(T.EXPLAIN, explain)), _img || data, !_img );
     },
 
 
@@ -588,7 +588,7 @@ const Children = {
         let _el = appendChild(
             fig,
             data,
-            () => elem( T.FIGIMGP )
+            () => elem( T.FIGIMGBOX )
         );
         return result( figcaption && insertHeading(fig, T.FIGCAPTION, figcaption), _el || data, !_el );
     },
@@ -997,7 +997,7 @@ const Builder = {
     // T.CASCADEH4LI,
     // T.CASCADEAH4LI,
     // T.TOCCASCADE,
-    // T.FIGIMGP,
+    // T.FIGIMGBOX,
     // T.HGROUP,
     // T.ABSTRACT,
     // T.TOC,

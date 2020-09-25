@@ -184,6 +184,20 @@
                     <section role="s2">
                         <h2 id="内容件">内容件</h2>
                         <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <strong>提要</strong>、<strong>目录</strong> 等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。</p>
+                        <section role="s3">
+                            <h2>插图</h2>
+                            <p>单元结构：<code>figure/figcaption,p/img, span:explain</code>，包含标题、作为正文的图片，以及可选的对图片的讲解。</p>
+                            <p>在大部分的内容样式中，讲解段应当包含了绝对定位（<code>position:absolute</code>）样式。这样，你就可以通过负边距（<code>margin-*</code>）值和绝对位置样式（<code>top|left</code>）来准确设置，使得讲解可重叠于图片之上。</p>
+                            <figure>
+                                <figcaption>贵州江口梵净山断肠崖</figcaption>
+                                <span>
+                                    <img src="../docs/images/pic01.jpg" alt="寻爱巅峰" />
+                                    <i role="explain" class="_fix-rt">
+                                        这是贵州梵净山顶的一段突峰，位于金顶之对峙大坡侧翼，著名景点蘑菇石旁边。突兀支立，雄奇险峻，悬屹于万丈深渊，经风沐雨……静候爱的到来。
+                                    </i>
+                                </span>
+                            </figure>
+                        </section>
                     </section>
                     <section role="s2">
                         <h2 id="内容行和内容元素">内容行和内容元素</h2>

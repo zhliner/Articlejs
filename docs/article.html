@@ -244,17 +244,17 @@
                             <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s5"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 片区：S5 /h2, header, [content], footer --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, #text --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, i, #text --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"ulx"</b>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h4, ol|ul/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"olx"</b>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h4, ul|ol/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 定义列表：DL /dt, dd... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [p/img, span:explain?]... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [span/img, i:explain?]... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code/b, #text --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code/b, i, #text --&gt;</i></code></li>
                         </ol>
                     </section>
                     <section role="s3">
@@ -623,10 +623,10 @@
                         <pre>
 <code data-lang="html">&lt;<b role="tag">figure</b>&gt;
     &lt;<b role="tag">figcaption</b>&gt;&lt;/<b role="tag">figcaption</b>&gt;
-    &lt;<b role="tag">p</b>&gt;
+    &lt;<b role="tag">span</b>&gt;
         &lt;<b role="tag">img</b> /&gt;
-        &lt;<b role="tag">span</b> role=<b role="str">"explain"</b>&gt;[图片讲解，可选]&lt;/<b role="tag">span</b>&gt;
-    &lt;/<b role="tag">p</b>&gt;
+        &lt;<b role="tag">i</b> role=<b role="str">"explain"</b>&gt;[图片讲解，可选]&lt;/<b role="tag">i</b>&gt;
+    &lt;/<b role="tag">span</b>&gt;
     ...
 &lt;/<b role="tag">figure</b>&gt;
 </code></pre>
@@ -1018,7 +1018,7 @@
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b> data-lang=<b role="str">"go"</b> start=<b role="str">"3"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<b role="str">"str"</b>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">b</b> role=<b role="str">"str"</b>&gt;"Hello, 世界"&lt;/<b role="tag">b</b>&gt;) &lt;<b role="tag">i</b>&gt;// 这是一条长行，测试折行的效果。如果编号列的背景色与代码部分不一样的话，CSS不应当设计为水平滚动。代码是否为折行，可以通过编号看出来。&lt;/<b role="tag">i</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">b</b> role=<b role="str">"str"</b>&gt;"Hello, 世界"&lt;/<b role="tag">b</b>&gt;) &lt;<b role="tag">i</b>&gt;// 这是一条长行，测试折行的效果。如果编号列的背景色与代码部分不一样的话，CSS可能不宜设计为水平滚动。代码是否为折行，可以通过编号看出来。&lt;/<b role="tag">i</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;type&lt;/<b role="tag">b</b>&gt; MapSort &lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;struct&lt;/<b role="tag">b</b>&gt; {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    m &lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;map&lt;/<b role="tag">b</b>&gt;[&lt;<b role="tag">b</b> role=<b role="str">"dt"</b>&gt;string&lt;/<b role="tag">b</b>&gt;]&lt;<b role="tag">b</b> role=<b role="str">"dt"</b>&gt;int&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
@@ -1032,7 +1032,7 @@
                         <ol role="codelist" data-lang="go" start="3">
                             <li><code><b role="kw">import</b> <b role="str">"fmt"</b></code></li>
                             <li><code><b role="kw">func</b> main() {</code></li>
-                            <li><code>    fmt.Println(<b role="str">"Hello, 世界"</b>) <i>// 这是一条长行，测试折行的效果。如果编号列的背景色与代码部分不一样的话，CSS不应当设计为水平滚动。代码是否为折行，可以通过编号看出来。</i></code></li>
+                            <li><code>    fmt.Println(<b role="str">"Hello, 世界"</b>) <i>// 这是一条长行，测试折行的效果。如果编号列的背景色与代码部分不一样的话，CSS可能不宜设计为水平滚动。代码是否为折行，可以通过编号看出来。</i></code></li>
                             <li><code>}</code></li>
                             <li><code><b role="kw">type</b> MapSort <b role="kw">struct</b> {</code></li>
                             <li><code>    m <b role="kw">map</b>[<b role="dt">string</b>]<b role="dt">int</b></code></li>

@@ -183,6 +183,7 @@ class DOMEdit {
         if ( this.count > 0 ) {
             __TQHistory.back( this.count );
         }
+        updateFocus();
     }
 
 
@@ -195,6 +196,8 @@ class DOMEdit {
 
         this._func();
         this.count = __TQHistory.size() - _old;
+
+        updateFocus();
     }
 }
 
@@ -816,17 +819,17 @@ class NodeVary {
 
     /**
      * 章节提升。
-     * s1-s5为连续嵌套的递进结构。
-     * 章节元素必须包含role配置，否则不予处理。
-     * 注记：附加检查（实际不应当存在）。
+     * 章节元素必须包含role配置，否则不予处理（控制台错误提示）。
+     * 注记：s1-s5为连续嵌套的递进结构。
      * @param {Element} sec 章节元素
      */
     sectionUp( sec ) {
         let _pel = sec.parentElement,
             _lev = $.attr( _pel, 'role' );
 
-        if ( __sectionRole.test(_lev) ) {
-            throw new Error( 'parent is not a s1-s5.' );
+        if ( !__sectionRole.test(_lev) ) {
+            // 正常情况下不应当出现。
+            return error( 'parent is not a s1-s5.' );
         }
         $.before( _pel, sectionUpAll(sec) || sec );
     }
@@ -843,28 +846,25 @@ class NodeVary {
 
     /**
      * 章节降级。
-     * - 新建一个同级章节容器。
-     * - 将当前章节降级并移入空容器内。
+     * 将目标章节降级并移入空章节容器内。
+     * 注记：空容器由外部创建完成（Redo节省）。
      * @param {Element} sec 章节元素
+     * @param {Element} box 同级空章节容器
      */
-    sectionDown( sec ) {
-        let _lev = $.attr( sec, 'role' );
-
-        if ( !__sectionRole.test(_lev) ) {
-            return warn( 'section is not a s1-s5.', sec );
-        }
-        let _box = create( _lev, {h2: Tips.sectionH2} );
-
-        $.append( _box.lastElementChild, sectionDownAll(sec) || sec );
+    sectionDown( sec, box ) {
+        sectionDownAll( sec );
+        // 注记：
+        // 先特性修改再替换，否则无法冒泡触发历史记录。
+        $.append( $.replace(sec, box), sec );
     }
 
 
     /**
      * 多个章节降级。
-     * @param {[Element]} secs 章节元素集
+     * @param {[[Element]]} els2 [章节元素，空容器]对集
      */
-    sectionsDown( secs ) {
-        secs.forEach( el => this.sectionDown(el) );
+    sectionsDown( els2 ) {
+        els2.forEach( els => this.sectionDown(els[0], els[1]) );
     }
 }
 
@@ -1005,6 +1005,19 @@ function setFocus( el ) {
         $.fill( pathContainer, pathList(el, contentElem) );
     }
     return __EHot.set( el );
+}
+
+
+/**
+ * 焦点更新。
+ * 用于会改变焦点元素位置而选取集又不变的编辑操作。
+ * 如：章节缩进。
+ * 仅在焦点元素包含在选取集内时才工作。
+ *
+ * @param {Element} hot 焦点元素
+ */
+function updateFocus( hot = __EHot.get() ) {
+    __ESet.has( hot ) && setFocus( hot );
 }
 
 
@@ -1601,25 +1614,64 @@ function sectionUpAll( sec ) {
 /**
  * 章节降级。
  * 包含内部全部子章节降级。
- * 末端章节（s5）没有递进逻辑，会解包（unwrap）。
+ * 外部应当保证sec非末级章节（s5）。
  * @param  {Element} sec 章节根
  * @return {void}
  */
 function sectionDownAll( sec ) {
-    $.find( 'section[role=s5]', sec, true ).forEach(
-        el => $.unwrap( el )
-    );
     $.find( 'section[role]', sec, true ).forEach( el => sectionChange(el, 1) );
 }
 
 
 /**
- * 是否都为顶层章节。
+ * 检查提取低层章节（除s1外）。
+ * 如果没有合法章节提取到，返回false。
+ * 注记：用于章节提升的目标过滤。
  * @param  {[Element]} els 章节元素集
- * @return {Boolean}
+ * @return {[Element]|false}
  */
-function allSectionS1( els ) {
-    return els.every( el => $.attr(el, 'role') === 's1' );
+function sectionLowers( els ) {
+    let _buf = [];
+
+    for ( const el of els ) {
+        let _sx = $.attr( el, 'role' );
+
+        if ( _sx === 's1' ) {
+            warn( 's1 is the top of section.' );
+        } else {
+            _buf.push( el );
+        }
+    }
+    return _buf.length ? _buf : false;
+}
+
+
+/**
+ * 创建章节同级空容器。
+ * 末级（s5）会简单忽略，因为无法再降级。
+ * 返回一个 [原章节, 空容器] 值对的集合。
+ * 如果全部章节都不满足要求，返回false。
+ * 注记：
+ * 用于章节降级时原章节的父元素容器创建。
+ * @param  {[Element]} secs 章节元素集
+ * @return {[[Element]]|false}
+ */
+function sectionBoxes( secs ) {
+    let _buf = [];
+
+    for ( const sec of secs ) {
+        let _sx = $.attr( sec, 'role' );
+
+        if ( _sx === 's5' ) {
+            warn( Tips.sectionNotDown, sec );
+            continue;
+        }
+        _buf.push([
+            sec,
+            create( _sx, {h2: Tips.sectionH2} )
+        ]);
+    }
+    return _buf.length ? _buf : false;
 }
 
 
@@ -1716,9 +1768,20 @@ function help( hid, msg, el ) {
 /**
  * 控制台警告。
  * @param {String} msg 输出消息
+ * @param {Value} data 关联数据
  */
 function warn( msg, data ) {
-    window.console.warn( msg, data );
+    window.console.warn( msg, data || '' );
+}
+
+
+/**
+ * 控制台错误提示。
+ * @param {String} msg 输出消息
+ * @param {Value} data 关联数据
+ */
+function error( msg, data ) {
+    window.console.warn( msg, data || '' );
 }
 
 
@@ -2474,12 +2537,12 @@ export const Edit = {
      */
     movePrevious( n ) {
         let $els = $(__ESet).sort();
-
-        if ( !$els.length || !prevNode($els[0]) ) {
-            return;
-        }
         n = isNaN(n) ? 1 : n;
 
+        if ( !$els.length ||
+            (!prevNode($els[0]) && n !== 0) ) {
+            return;
+        }
         if ( n === 0 ) {
             let _els2 = siblingTeam( $els );
             return historyPush( new DOMEdit(() => __Elemedit.prepends(_els2)) );
@@ -2498,12 +2561,12 @@ export const Edit = {
      */
     moveNext( n ) {
         let $els = $(__ESet).sort();
-
-        if ( !$els.length || !nextNode(last($els)) ) {
-            return;
-        }
         n = isNaN(n) ? 1 : n;
 
+        if ( !$els.length ||
+            (!nextNode(last($els)) && n !== 0) ) {
+            return;
+        }
         if ( n === 0 ) {
             let _els2 = siblingTeam( $els );
             return historyPush( new DOMEdit(() => __Elemedit.appends(_els2)) );
@@ -2517,17 +2580,20 @@ export const Edit = {
      * 减少缩进。
      * 仅适用章节（section）单元。
      * 当前章节提升一级插入到原所属章节之前。
+     * 本身就是顶层章节的被简单忽略。
      */
     indentLess() {
         let $els = $( __ESet );
 
         if ( !$els.length || !sameTag($els, 'SECTION') ) {
-            return;
+            return warn( 'only for section.' );
         }
-        if ( allSectionS1($els) ) {
-            return warn( Tips.sectionNotUp );
+        let _secs = sectionLowers( $els );
+
+        if ( !_secs ) {
+            return warn( 'all selected: ' + Tips.sectionNotUp );
         }
-        historyPush( new DOMEdit(() => __Elemedit.sectionsUp($els)) );
+        historyPush( new DOMEdit(() => __Elemedit.sectionsUp(_secs)) );
     },
 
 
@@ -2535,9 +2601,20 @@ export const Edit = {
      * 增加缩进。
      * 仅适用章节（section）单元。
      * 当前章节降一级，插入原地构造的一个平级空章节。
+     * 末级（s5）章节会被简单忽略。
      */
     indentMore() {
-        //
+        let $els = $( __ESet );
+
+        if ( !$els.length || !sameTag($els, 'SECTION') ) {
+            return warn( 'only for section.' );
+        }
+        let _els2 = sectionBoxes( $els );
+
+        if ( !_els2 ) {
+            return warn( 'all selected: ' + Tips.sectionNotDown );
+        }
+        historyPush( new DOMEdit(() => __Elemedit.sectionsDown(_els2)) );
     },
 
 
