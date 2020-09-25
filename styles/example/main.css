@@ -381,7 +381,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 插画
- * figure/figcaption, p/img, svg, audio, video
+ * figure/figcaption, span/img, svg, video, i:explain
  *----------------------------------------------------------------------------
  */
 .content figure > figcaption {
@@ -393,7 +393,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     text-align: center;
 }
 .content figure > span {
-    overflow: auto;
     position: relative;
     display: inline-block;
 }
