@@ -852,10 +852,10 @@ class NodeVary {
      * @param {Element} box 同级空章节容器
      */
     sectionDown( sec, box ) {
-        sectionDownAll( sec );
-        // 注记：
-        // 先特性修改再替换，否则无法冒泡触发历史记录。
-        $.append( $.replace(sec, box), sec );
+        // 注意：插入DOM之后再修改特性。
+        sectionDownAll(
+            $.append( $.replace(sec, box), sec )
+        );
     }
 
 
