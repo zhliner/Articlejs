@@ -468,7 +468,7 @@
     </div>
 
     <h4>表格：table/caption,thead,tbody,tfoot/tr/th,td</h4>
-    <div class="panel inputs" style="height: 400px;">
+    <div class="panel inputs" style="height: 360px;">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b class="_press">内容</b>
@@ -497,12 +497,90 @@
                         <header class="_affix">
                             <input name="caption" type="text" placeholder="标题" class="_scale" />
                             <label>
-                                <input name="cols" type="text" class="_nums" placeholder="列数" />
+                                <input name="cols" type="text" class="_nums" placeholder="列数" value="4" />
                                 x
-                                <input name="rows" type="text" class="_nums" placeholder="行数" />
+                                <input name="rows" type="text" class="_nums" placeholder="行数" value="10" />
                             </label>
                         </header>
-                        <textarea name="table" class="_code" placeholder="一行一个单元格"></textarea>
+                        <div class="_list">
+                            <!--编辑：
+                                Tab 单元格顺序切换（横折）。
+                                Enter 列单元格纵向切换。
+                                paste 内容按换行切分，自当前单元格顺序填充。
+                                换行切分：兼容源数据为单元格集。 -->
+                            <table border="i">
+                                <thead>
+                                    <tr>
+                                        <th contenteditable="true"></th>
+                                        <th contenteditable="true"></th>
+                                        <th contenteditable="true"></th>
+                                        <th contenteditable="true"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                        <td contenteditable="true"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <aside>
                         <div class="_option">
@@ -519,7 +597,7 @@
                             </label>
                             <hr />
                             <label title="<thead>">
-                                <input name="thead" type="checkbox" value="THEAD" />包含表头
+                                <input name="thead" type="checkbox" value="THEAD" checked />包含表头
                             </label>
                             <label title="首列为<th>">
                                 <input name="th0" type="checkbox" />首列表头

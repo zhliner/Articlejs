@@ -760,6 +760,31 @@ menu li[role=submenu]:hover {
 .Input ._Table ._affix > label {
     min-width: 175px;
 }
+.Input ._Table table[border='i'] {
+    width: 100%;
+    border-collapse: collapse;
+    border-width: 2px;
+    border-color: transparent;
+    table-layout: fixed;
+    color: #eee;
+    background-color: #32575f;
+}
+.Input ._Table table[border] tr > * {
+    padding: 2px;
+    border: 1px #aaa solid;
+}
+.Input ._Table thead > tr:last-child {
+    border-bottom: 3px #ddd double;
+}
+.Input ._Table tfoot > tr:first-child {
+    border-top: 3px #ddd double;
+}
+.Input ._Table tr > th:first-child {
+    border-right: 1px #f3871a solid;
+}
+.Input ._Table ._list {
+    flex: 1 1 auto;
+}
 
 /* 片区 */
 .Input ._Section textarea,

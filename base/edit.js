@@ -740,15 +740,16 @@ class NodeVary {
 
 
     /**
-     * 各别前插。
-     * 将新元素（集）一一对应下标插入目标元素之前。
+     * 分组后插入。
+     * 将新元素（集）一一对应下标插入目标元素之后。
+     * 主要用于原地克隆。
      * 注：两个集合大小一样。
      * @param {Collector} $els 目标集
      * @param {Collector} $new 新元素集（支持二维）
      */
-    befores( $els, $new ) {
+    afters( $els, $new ) {
         $els.forEach(
-            (el, i) => $.before(el, $new[i] )
+            (el, i) => $.after(el, $new[i] )
         );
     }
 
@@ -2495,7 +2496,7 @@ export const Edit = {
 
         historyPush(
             clearSelected( $els ),
-            new DOMEdit( () => __Elemedit.befores($els, $new) ),
+            new DOMEdit( () => __Elemedit.afters($els, $new) ),
             pushesSelect( $new )
         );
     },
@@ -2510,12 +2511,12 @@ export const Edit = {
         if ( !$els.length ) return;
 
         let _els2 = adjacentTeam( $els.sort() ),
-            _refs = _els2.map( els => els[0] ),
+            _refs = _els2.map( els => last(els) ),
             _new2 = cloneTeam( _els2 );
 
         historyPush(
             clearSelected( $els ),
-            new DOMEdit( () => __Elemedit.befores(_refs, _new2) ),
+            new DOMEdit( () => __Elemedit.afters(_refs, _new2) ),
             pushesSelect( _new2.flat() )
         );
     },
@@ -2547,7 +2548,6 @@ export const Edit = {
             let _els2 = siblingTeam( $els );
             return historyPush( new DOMEdit(() => __Elemedit.prepends(_els2)) );
         }
-
         historyPush( new DOMEdit(() => __Elemedit.insertPrev($els, n)) );
     },
 
@@ -2571,7 +2571,7 @@ export const Edit = {
             let _els2 = siblingTeam( $els );
             return historyPush( new DOMEdit(() => __Elemedit.appends(_els2)) );
         }
-
+        $els = $els.reverse();
         historyPush( new DOMEdit(() => __Elemedit.appendNext($els, n)) );
     },
 
