@@ -29,7 +29,7 @@ const $ = window.$;
 // 特性标记：
 // 1. EMPTY   空元素（单标签）
 // 2. SEALED  密封单元，定制创建，内部成员只能更新（不接受移动插入）。
-// 3. FIXED   位置固定。只能自我移动（不能被其它元素移动），如：{<caption>}
+// 3. FIXED   位置固定。自己不能移动，也不能被动移动。
 //
 const
     TEXT        = 0,        // 文本节点
@@ -152,7 +152,7 @@ export const
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    HGROUP          = 500,  // 主/副标题组 （hgroup/h1, h2）
+    HGROUP          = 500,  // 主/副标题组 （hgroup/h1, h3）
     S1              = 501,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
     S2              = 502,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
     S3              = 503,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
@@ -266,12 +266,12 @@ const Specials = {
     /////////////////////////////////////////////
     [ H1 ]:             STRUCT | FIXED | CONTENT,
     [ H2 ]:             STRUCT | FIXED | CONTENT,
-    [ H3 ]:             STRUCT | FIXED | CONTENT,
+    [ H3 ]:             STRUCT | STRUCTX | FIXED | CONTENT,
     [ H4 ]:             STRUCT | FIXED | CONTENT,
-    [ H5 ]:             STRUCT | CONTENT,
-    [ H6 ]:             STRUCT | CONTENT,
+    [ H5 ]:             STRUCT | STRUCTX | CONTENT,
+    [ H6 ]:             STRUCT | STRUCTX | CONTENT,
     [ SUMMARY ]:        STRUCT | FIXED | CONTENT,
-    [ FIGCAPTION ]:     STRUCT | STRUCTX | FIXED | CONTENT,
+    [ FIGCAPTION ]:     STRUCT | STRUCTX | CONTENT, // 可移动
     [ CAPTION ]:        STRUCT | STRUCTX | FIXED | CONTENT,
     [ LI ]:             STRUCT | STRUCTX | CONTENT,
     [ DT ]:             STRUCT | STRUCTX | CONTENT,
@@ -473,7 +473,7 @@ const ChildTypes = {
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:         [ H1, H2 ],
+    [ HGROUP ]:         [ H1, H3 ],
     [ ABSTRACT ]:       [ H3, P, _BLOLIMIT ],
     [ TOC ]:            [ H3, TOCCASCADE ],
     [ SEEALSO ]:        [ LI, ALI ],

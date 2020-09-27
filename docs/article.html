@@ -35,7 +35,7 @@
     <main class="content">
         <hgroup>
             <h1>文章内容的规范化结构</h1>
-            <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
+            <h3>—— 简单干净的源码，清爽愉悦的阅读</h3>
         </hgroup>
         <header role="abstract">
             <h3>【提 要】</h3>
@@ -155,8 +155,8 @@
                     <p>逐层嵌套的 <code>&lt;section&gt;</code> 封装会隔离标题的层次逻辑，但标题自身的层级依然是可以被规划和利用的，这能带来一些好处：内容的层次逻辑更清晰，CSS定位也更简单。</p>
                     <ul>
                         <li><strong>h1</strong>: 仅用于文章的主标题，通常也就是页面的主标题。</li>
-                        <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的标题，作为首个子元素存在。另外也作为文章的副标题，和主标题 <code>&lt;h1&gt;</code> 一起存在于一个 <code>&lt;hgroup&gt;</code> 容器内（如果需要副标题的话）。</li>
-                        <li><strong>h3</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、导言（<code>&lt;header&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、目录（<code>&lt;nav:toc&gt;/&lt;h3&gt;, &lt;ol&gt;</code>）等。</li>
+                        <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的标题，作为首个子元素存在。</li>
+                        <li><strong>h3</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）等。另外也作为文章的副标题，和主标题一起存在于一个 <code>&lt;hgroup&gt;</code> 之内（如果需要副标题的话）。</li>
                         <li><strong>h4</strong>: 级联表里子列表的标题条目项（<code>&lt;li&gt;/&lt;h4&gt;, &lt;ol&gt;</code>）。</li>
                         <li><strong>h5, h6</strong>: 未使用。</li>
                     </ul>
@@ -229,7 +229,7 @@
                         <h2 id="结构类">结构类</h2>
                         <p>内部不能直接包含文本或内联元素，有固定的子级结构。</p>
                         <ol role="codelist" data-lang="html">
-                            <li><code>&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h2 --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h3 --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h3, ol:cascade/li/a（可多级） --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">ul</b>&gt;            <i>&lt;!-- 另参见：SEEALSO /li... --&gt;</i></code></li>

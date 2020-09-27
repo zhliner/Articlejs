@@ -73,8 +73,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 2.2em;
 }
 /* 副标题 */
-.content hgroup > h2 {
-    font-size: 1.15em;
+.content hgroup > h3 {
     font-style: italic;
     font-weight: normal;
     margin-top: -10px;

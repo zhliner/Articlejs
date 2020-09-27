@@ -470,7 +470,7 @@ const Children = {
     [ T.HGROUP ]: function( hgroup ) {
         return result(
             null,
-            $.append( hgroup, elements(T.H1, T.H2) )
+            $.append( hgroup, elements(T.H1, T.H3) )
         );
     },
 
