@@ -29,7 +29,8 @@ const $ = window.$;
 // 特性标记：
 // 1. EMPTY   空元素（单标签）
 // 2. SEALED  密封单元，定制创建，内部成员只能更新（不接受移动插入）。
-// 3. FIXED   位置固定。自己不能移动，也不能被动移动。
+// 3. FIXED1  位置向前固定。自己不能移动，其它元素也不能插入之前。
+// 4. FIXED2  位置向后固定。自己不能移动，其它元素也不能插入之后。
 //
 const
     TEXT        = 0,        // 文本节点
@@ -41,7 +42,8 @@ const
     BLOCKS      = 1 << 5,   // 行块单元
     EMPTY       = 1 << 6,   // 空元素（单标签）
     SEALED      = 1 << 7,   // 密封单元
-    FIXED       = 1 << 8;   // 位置确定性
+    FIXED1      = 1 << 8,   // 位置向前固定
+    FIXED2      = 1 << 9;   // 位置向后固定
 
 
 //
@@ -221,12 +223,12 @@ const Specials = {
     [ SVGITEM ]:        STRUCT | STRUCTX,
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY,
     [ SOURCE ]:         STRUCT | STRUCTX | EMPTY,
-    [ EXPLAIN ]:        STRUCT | STRUCTX | FIXED | CONTENT,
+    [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 不可简单删除
     // 删除：应当先文本化，微编辑，然后内容提升或转换。
-    [ RB ]:             STRUCT | FIXED | CONTENT,
-    [ RT ]:             STRUCT | FIXED | CONTENT,
-    [ RP ]:             STRUCT | FIXED | SEALED,
+    [ RB ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
+    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
+    [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -264,15 +266,15 @@ const Specials = {
     //
     // 块内结构子
     /////////////////////////////////////////////
-    [ H1 ]:             STRUCT | FIXED | CONTENT,
-    [ H2 ]:             STRUCT | FIXED | CONTENT,
-    [ H3 ]:             STRUCT | STRUCTX | FIXED | CONTENT,
-    [ H4 ]:             STRUCT | FIXED | CONTENT,
+    [ H1 ]:             STRUCT | FIXED1 | CONTENT,
+    [ H2 ]:             STRUCT | FIXED1 | CONTENT,
+    [ H3 ]:             STRUCT | STRUCTX | FIXED1 | CONTENT,
+    [ H4 ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ H5 ]:             STRUCT | STRUCTX | CONTENT,
     [ H6 ]:             STRUCT | STRUCTX | CONTENT,
-    [ SUMMARY ]:        STRUCT | FIXED | CONTENT,
+    [ SUMMARY ]:        STRUCT | FIXED1 | CONTENT,
     [ FIGCAPTION ]:     STRUCT | STRUCTX | CONTENT, // 可移动
-    [ CAPTION ]:        STRUCT | STRUCTX | FIXED | CONTENT,
+    [ CAPTION ]:        STRUCT | STRUCTX | FIXED1 | CONTENT,
     [ LI ]:             STRUCT | STRUCTX | CONTENT,
     [ DT ]:             STRUCT | STRUCTX | CONTENT,
     [ DD ]:             STRUCT | STRUCTX | CONTENT,
@@ -285,25 +287,25 @@ const Specials = {
 
     [ CODELI ]:         STRUCT | STRUCTX | SEALED,
     [ ALI ]:            STRUCT | STRUCTX | CONTENT, // 宽容
-    [ AH4 ]:            STRUCT | FIXED | CONTENT,   // 宽容
+    [ AH4 ]:            STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ XH4LI ]:          STRUCT | STRUCTX | SEALED,
     [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
     [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
-    [ TOCCASCADE ]:     STRUCT | FIXED | SEALED,
+    [ TOCCASCADE ]:     STRUCT | FIXED1 | FIXED2 | SEALED,
     // 插图内允许多个<span>容器。
     [ FIGIMGBOX ]:      STRUCT | STRUCTX | SEALED,
 
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:         BLOCKS | STRUCT | FIXED | SEALED,
-    [ ABSTRACT ]:       BLOCKS | STRUCT | FIXED,
-    [ TOC ]:            BLOCKS | STRUCT | FIXED | SEALED,
-    [ SEEALSO ]:        BLOCKS | STRUCT | FIXED,
-    [ REFERENCE ]:      BLOCKS | STRUCT | FIXED,
-    [ HEADER ]:         BLOCKS | STRUCT | FIXED,
-    [ FOOTER ]:         BLOCKS | STRUCT | FIXED,
-    [ ARTICLE ]:        BLOCKS | STRUCT | FIXED,
+    [ HGROUP ]:         BLOCKS | STRUCT | FIXED1 | SEALED,
+    [ ABSTRACT ]:       BLOCKS | STRUCT | FIXED1,
+    [ TOC ]:            BLOCKS | STRUCT | FIXED1 | SEALED,
+    [ SEEALSO ]:        BLOCKS | STRUCT,
+    [ REFERENCE ]:      BLOCKS | STRUCT,
+    [ HEADER ]:         BLOCKS | STRUCT | FIXED1,
+    [ FOOTER ]:         BLOCKS | STRUCT | FIXED2,
+    [ ARTICLE ]:        BLOCKS | STRUCT,
     [ S1 ]:             BLOCKS | STRUCT,
     [ S2 ]:             BLOCKS | STRUCT,
     [ S3 ]:             BLOCKS | STRUCT,
@@ -544,12 +546,32 @@ export function isEmpty( tval ) {
 
 
 /**
- * 是否位置固定。
+ * 是否位置向前固定。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isFixed1( tval ) {
+    return !!( Specials[tval] & FIXED1 );
+}
+
+
+/**
+ * 是否位置向后固定。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isFixed2( tval ) {
+    return !!( Specials[tval] & FIXED2 );
+}
+
+
+/**
+ * 是否位置完全固定。
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
 export function isFixed( tval ) {
-    return !!( Specials[tval] & FIXED );
+    return !!( Specials[tval] & FIXED1 ) && !!( Specials[tval] & FIXED1 );
 }
 
 
