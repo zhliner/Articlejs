@@ -743,10 +743,16 @@ Keys: {
     // 支持内容区目标和路径关联方式。
     elemFocus: 'Alt',
 
+
     // 跨选（同态）。
     // 从焦点元素至目标元素之间平级选取。
     // [Key] + 单击
     acrossSelect: 'Shift',
+
+    // 浮选（同态）。
+    // 与焦点元素同级，选取目标的父级同级元素。
+    // [Key] + 单击
+    smartSelect: 'Ctrl Alt',
 
 },
 

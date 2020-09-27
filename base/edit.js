@@ -20,7 +20,7 @@
 import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange } from "./base.js";
-import { ESet, EHot, ElemCursor, prevNode, nextNode } from './common.js';
+import { ESet, EHot, ElemCursor, prevNode, nextNode, siblingIndex } from './common.js';
 import { children, create } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -36,6 +36,9 @@ const
 
     // 编辑需要监听的变化事件。
     varyEvents = 'attrvary cssvary varyprepend varyappend varybefore varyafter varyreplace varyempty varyremove varynormalize',
+
+    // 空白匹配。
+    __reSpace = /\s+/g,
 
     // 章节角色名（s1-s5）
     __sectionRole = /^s[1-5]$/,
@@ -1224,6 +1227,23 @@ function topCall( hot, handle ) {
 
 
 /**
+ * 提取起点到目标的全部兄弟元素。
+ * 目标元素可能在起点的前面，也可能是后面。
+ * 结果集保持从起点到目标的顺序。
+ * 约束：外部保证两个元素必然为兄弟元素。
+ * @param  {Element} beg 起点元素
+ * @param  {Element} to 目标元素（包含）
+ * @return {[Element]}
+ */
+function siblingTo( beg, to ) {
+    let _dir = $.next( beg, to, true ),
+        _els = _dir ? $.nextUntil( beg, to ) : $.prevUntil( beg, to );
+
+    return [ beg, ..._els, to ];
+}
+
+
+/**
  * 检查选取集是否变化。
  * @param  {[Element]} old 原选取集
  * @return {Boolean}
@@ -1348,24 +1368,15 @@ function hasChildElement( els ) {
 
 
 /**
- * 是否按下元素焦点辅助键。
- * obj: { shift, ctrl, alt, meta }
- * @param {Object} obj 辅助键状态集
+ * 是否按下目标辅助键序列。
+ * 注记：准确按下（排他性）。
+ * @param  {Set} set 按下辅助键集
+ * @param  {String} keys 键名序列（空格分隔）
+ * @return {Boolean}
  */
-function isElemFocus( obj ) {
-    return cfg.Keys.elemFocus
-        .split( /\s+/ ).every( n => obj[n.toLowerCase()] );
-}
-
-
-/**
- * 是否按下切换选取辅助键。
- * obj: { shift, ctrl, alt, meta }
- * @param {Object} obj 辅助键状态集
- */
-function isTurnSelect( obj ) {
-    return cfg.Keys.turnSelect
-        .split( /\s+/ ).every( n => obj[n.toLowerCase()] );
+function scamPressed( set, keys ) {
+    let _ns = keys.split( __reSpace );
+    return _ns.every( n => set.has(n.toLowerCase()) ) && _ns.length === set.size;
 }
 
 
@@ -1542,6 +1553,28 @@ function columnCells2( tbo, [beg, end], tsec ) {
         tbo.column( i, tsec ).forEach( el => _buf.add(el) );
     }
     return [ ..._buf ];
+}
+
+
+/**
+ * 获取与焦点同级的起点元素的父容器。
+ * 如果焦点与起始元素不在同一父容器下，返回null。
+ * 用途：单击跨选或浮选。
+ * @param  {Element} hot 焦点元素
+ * @param  {Element} beg 起始元素
+ * @return {Element|null}
+ */
+function closestFocus( hot, beg ) {
+    if ( !hot ) return;
+    let _box = hot.parentElement;
+
+    if ( !$.contains(_box, beg, true) ) {
+        return null;
+    }
+    while ( beg.parentElement !== _box ) {
+        beg = beg.parentElement;
+    }
+    return beg;
 }
 
 
@@ -1898,15 +1931,33 @@ export const Edit = {
 
 
     /**
-     * [By] 单击聚焦/选取。
-     * @param {Object} keys 辅助键状态
+     * [By] 单击相关操作。
+     * - 单选：取消其它已选。
+     * - 聚焦：无选取行为。
+     * - 多选：多选或切换选。
+     * - 跨选：焦点平级跨越扩选。
+     * - 浮选：焦点平级切换选。
+     * @data: Element 点击的目标元素
+     * @param {Set} scam 辅助键按下集
      */
-    click( evo, keys ) {
-        // 仅设置焦点。
-        if ( isElemFocus(keys) ) {
+    click( evo, scam ) {
+        let _hot = __EHot.get();
+        // 聚焦
+        if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
             return setFocus( evo.data );
         }
-        elementOne( evo.data, isTurnSelect(keys) ? 'turn' : 'only' );
+        // 跨选
+        if ( scamPressed(scam, cfg.Keys.acrossSelect) ) {
+            let _to = closestFocus( _hot, evo.data );
+            return _to && expandSelect( _hot, siblingTo(_hot, _to) );
+        }
+        // 浮选
+        if ( scamPressed(scam, cfg.Keys.smartSelect) ) {
+            let _to = closestFocus( _hot, evo.data );
+            return _to && elementOne( _to, 'turn' );
+        }
+        // 多选/单选
+        elementOne( evo.data, scamPressed(scam, cfg.Keys.turnSelect) ? 'turn' : 'only' );
     },
 
     __click: 1,
@@ -1915,11 +1966,11 @@ export const Edit = {
     /**
      * [By] 从路径添加关联元素。
      * 需要检查父子包含关系并清理。
-     * @param {Object} keys 辅助键状态
+     * @param {Set} scam 辅助键按下集
      */
-    pathTo( evo, keys ) {
+    pathTo( evo, scam ) {
         // 仅移动焦点。
-        if ( isElemFocus(keys) ) {
+        if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
             return setFocus( evo.data );
         }
         elementOne( evo.data, 'add' );

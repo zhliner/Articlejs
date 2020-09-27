@@ -38,7 +38,7 @@ const
 
     // 修饰键属性名。
     // 注：按名称有序排列。
-    modKeys = [
+    __modKeys = [
         'altKey',
         'ctrlKey',
         'metaKey',
@@ -514,7 +514,7 @@ const _Gets = {
      * 目标：无。
      * 即获取用户在页面中的划选部分。
      * 如果未指定强制取值，则选区首尾需在同一容器元素内（完整嵌套）。
-     * 无选区时返回 null。
+     * 无选区或选区闭合时返回 null。
      * @param  {Boolean} loose 非严格约束
      * @return {Range|null}
      */
@@ -529,7 +529,7 @@ const _Gets = {
         if ( loose ) {
             return _rng;
         }
-        return _rng.startContainer.parentNode === _rng.endContainer.parentNode ? _rng : null;
+        return _rng.startContainer.parentNode === _rng.endContainer.parentNode && !_rng.collapsed ? _rng : null;
     },
 
     __currentRange: null,
@@ -746,26 +746,28 @@ const _Gets = {
 
 
     /**
-     * 修饰键状态检查|封装。
-     * 即 shift/ctrl/alt/meta 键是否按下。
+     * 修饰键按下检测集。
+     * 修饰键指 shift/ctrl/alt/meta 4个键。
      * 目标：无。
-     * 如果指定键名则为检查，否则简单封装4个键的状态。
+     * 如果指定键名则为检查，否则简单返回按下键名集（全小写）。
      * names支持空格分隔的多个名称，And关系。
      * 例：
      * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
-     * push('shift ctrl') scam(_1)      // 同上
-     * scam inside('shift ctrl', true)  // 效果同上
+     * scam('Ctrl', true)  // 是否只按下了Ctrl键。
      * @param  {String} names 键名序列，可选
-     * @return {Object|Boolean}
+     * @param  {Boolean} strict 是否为严格匹配（排他性）
+     * @return {Set|Boolean}
      */
-    scam( evo, names ) {
-        let _map = {
-                'shift': evo.event.shiftKey,
-                'ctrl':  evo.event.ctrlKey,
-                'alt':   evo.event.altKey,
-                'meta':  evo.event.metaKey,
-            };
-        return names ? names.split(__reSpace).every(n => _map[n.toLowerCase()]) : _map;
+    scam( evo, names, strict ) {
+        let _ks = new Set(
+            scamKeys( evo.event )
+        );
+        if ( !names ) return _ks;
+
+        let _ns = names.split( __reSpace ),
+            _ok = _ns.every( n => _ks.has(n.toLowerCase()) );
+
+        return strict ? _ok && _ns.length === _ks.size : _ok;
     },
 
     __scam: null,
@@ -784,9 +786,7 @@ const _Gets = {
      * @return {String}
      */
     acmsk( evo ) {
-        let _ks = modKeys
-            .filter( n => evo.event[n] )
-            .map( n => n.slice(0, -3) );
+        let _ks = scamKeys( evo.event );
 
         return `${_ks.join('+')}:${evo.event.key.toLowerCase()}`;
     },
@@ -1656,6 +1656,18 @@ function newElobj( evo ) {
         selector:   evo.selector,
         delegate:   evo.delegate,
     };
+}
+
+
+/**
+ * 获取修饰键真值集。
+ * 状态为真的键才记录，名称为全小写。
+ * @param  {Event} ev 事件对象
+ * @return {[String]}
+ */
+function scamKeys( ev ) {
+    return __modKeys
+        .filter( n => ev[n] ).map( n => n.slice(0, -3) );
 }
 
 

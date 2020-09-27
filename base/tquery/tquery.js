@@ -1113,7 +1113,6 @@ Object.assign( tQuery, {
 
     /**
      * 获取后续兄弟元素，直到slr匹配（不包含匹配的元素）。
-     * 注记：slr默认为空串是必须的。
      * @param  {Element} el 参考元素
      * @param  {String|Element|Function} slr 终止条件，可选
      * @return {[Element]}
@@ -1287,7 +1286,7 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取最近的匹配的父级元素。
+     * 获取最近匹配的父级元素。
      * - 向上逐级检查父级元素是否匹配。
      * - 从当前元素自身开始测试（同标准 Element:closest）。
      * - 如果抵达document或DocumentFragment会返回null。

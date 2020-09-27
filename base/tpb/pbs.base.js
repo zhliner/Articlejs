@@ -1309,12 +1309,11 @@ const _Process = {
      * 如果name为多名称指定，val可以是一个数组（一一对应）。
      * 当所有的检查/比较都为真时，返回true。
      * 例：
-     * - inside('shift ctrl', true) // 是否shift和ctrl成员值都为true。
-     * - inside('selector') // 是否selector成员在目标内。
+     * - inside('selector') // 是否selector属性在目标内。
      * - inside('AA BB', [1, 2]) // 是否AA成员值为1且BB成员值为2。
      * 注意：
      * 对比值通常只是简单类型，对象或数组只取引用本身。
-     *
+     * @data: Object
      * @param {String} name 成员名称（集）
      * @param {Value|[Value]} val 对比值或值集
      */
