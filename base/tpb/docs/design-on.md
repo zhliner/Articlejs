@@ -147,11 +147,11 @@ wrapAll( box:String ): Collector
 einfo( hasid:Boolean, hascls:Boolean ): String | [String]
 // 生成元素基本信息。
 
-currentRange( force:Boolean ): Range
+Range( force:Boolean ): Range
 // 获取当前选区。
 
-containRange( el:Element|String ): Boolean
-// 选区是否在元素之内。
+holdRange( el:Element|String ): Boolean
+// 元素是否容纳选区。
 
 
 

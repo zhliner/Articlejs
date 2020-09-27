@@ -518,7 +518,7 @@ const _Gets = {
      * @param  {Boolean} loose 非严格约束
      * @return {Range|null}
      */
-    currentRange( evo, loose = false ) {
+    Range( evo, loose = false ) {
         var _sel = window.getSelection();
 
         if ( _sel.rangeCount == 0 ) {
@@ -536,14 +536,14 @@ const _Gets = {
 
 
     /**
-     * 检查是否包含选区。
+     * 检查是否容纳选区。
      * 目标：暂存区/栈顶1项。
      * 检查选区对象是否完全在目标容器元素之内。
      * @data: Range
      * @param  {Element|String} el 容器元素或其选择器
      * @return {Boolean}
      */
-    containRange( evo, el ) {
+    holdRange( evo, el ) {
         if ( typeof el === 'string' ) {
             el = Util.find( el, evo.delegate );
         }
