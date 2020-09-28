@@ -1081,6 +1081,64 @@ Object.assign( tQuery, {
 
     //-- DOM 节点遍历 ---------------------------------------------------------
 
+
+    /**
+     * 获取前一个兄弟元素。
+     * 参数说明参考.next()。
+     * @param  {Element} el 起点元素
+     * @param  {String|Function} slr 匹配选择器或测试函数，可选
+     * @param  {Boolean} until 持续测试
+     * @return {Element|null}
+     */
+    prev( el, slr, until ) {
+        return until ?
+            _sibling2(el, slr, 'previousElementSibling') :
+            _sibling(el, slr, 'previousElementSibling');
+    },
+
+
+    /**
+     * 获取前部全部兄弟。
+     * 可选的用slr进行匹配过滤。
+     * 注：结果集保持逆向顺序（靠近起点的元素在前）。
+     * @param  {Element} el 起点元素
+     * @param  {String|Function} slr 匹配条件，可选
+     * @return {[Element]}
+     */
+    prevAll( el, slr ) {
+        return _siblingAll( el, slr, 'previousElementSibling' );
+    },
+
+
+    /**
+     * 获取前端兄弟元素，直到slr匹配（不包含匹配的元素）。
+     * 注：结果集成员保持逆向顺序。
+     * @param  {Element} el 起点元素
+     * @param  {String|Element|Function} slr 终止条件，可选
+     * @return {[Element]}
+     */
+    prevUntil( el, slr = '' ) {
+        return _siblingUntil( el, slr, 'previousElementSibling' );
+    },
+
+
+    /**
+     * 获取起始节点之前的兄弟节点。
+     * 仅包含元素、非空文本节点和可能的注释节点。
+     * @param  {Node} node 起始节点
+     * @param  {Boolean} comment 包含注释节点，可选
+     * @return {[Node]}
+     */
+    prevNodes( node, comment ) {
+        return _siblingAll(
+            node,
+            null,
+            'previousSibling'
+        )
+        .filter( comment ? usualNode : masterNode );
+    },
+
+
     /**
      * 获取下一个兄弟元素。
      * slr用于匹配测试，不匹配时返回null。
@@ -1123,42 +1181,19 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取前一个兄弟元素。
-     * 参数说明参考.next()。
-     * @param  {Element} el 参考元素
-     * @param  {String|Function} slr 匹配选择器或测试函数，可选
-     * @param  {Boolean} until 持续测试
-     * @return {Element|null}
+     * 获取起始节点之后的兄弟节点。
+     * 仅包含元素、非空文本节点和可能的注释节点。
+     * @param  {Node} node 起始节点
+     * @param  {Boolean} comment 包含注释节点，可选
+     * @return {[Node]}
      */
-    prev( el, slr, until ) {
-        return until ?
-            _sibling2(el, slr, 'previousElementSibling') :
-            _sibling(el, slr, 'previousElementSibling');
-    },
-
-
-    /**
-     * 获取前部全部兄弟。
-     * 可选的用slr进行匹配过滤。
-     * 注：结果集保持逆向顺序（靠近起点的元素在前）。
-     * @param  {Element} el 参考元素
-     * @param  {String|Function} slr 匹配条件，可选
-     * @return {[Element]}
-     */
-    prevAll( el, slr ) {
-        return _siblingAll(el, slr, 'previousElementSibling');
-    },
-
-
-    /**
-     * 获取前端兄弟元素，直到slr匹配（不包含匹配的元素）。
-     * 注：结果集成员保持逆向顺序。
-     * @param  {Element} el 参考元素
-     * @param  {String|Element|Function} slr 终止条件，可选
-     * @return {[Element]}
-     */
-    prevUntil( el, slr = '' ) {
-        return _siblingUntil(el, slr, 'previousElementSibling');
+    nextNodes( node, comment ) {
+        return _siblingAll(
+            node,
+            null,
+            'nextSibling'
+        )
+        .filter( comment ? usualNode : masterNode );
     },
 
 
@@ -1189,10 +1224,10 @@ Object.assign( tQuery, {
      * - 位置计数不含空文本节点，支持负值从末尾算起。
      * @param  {Element} el 容器元素
      * @param  {Number|null} idx 子节点位置（从0开始）
-     * @param  {Boolean} comment 包含注释节点
+     * @param  {Boolean} comment 包含注释节点，可选
      * @return {[Node]|Node}
      */
-    contents( el, idx, comment = false ) {
+    contents( el, idx, comment ) {
         let _proc = comment ?
                 usualNode :
                 masterNode,
@@ -1220,6 +1255,23 @@ Object.assign( tQuery, {
         if ( !slr ) return _els;
 
         return isFunc(slr) ? _els.filter(slr) : _els.filter(e => $is(e, slr));
+    },
+
+
+    /**
+     * 获取兄弟节点集。
+     * 仅包含元素、非空文本节点和可能的注释节点。
+     * @param  {Node} node 当前节点
+     * @param  {Boolean} comment 包含注释节点
+     * @return {Node}
+     */
+    siblingNodes( node, comment ) {
+        let _nodes = Arr( node.parentNode.childNodes );
+
+        _nodes.splice(
+            _nodes.indexOf(node), 1
+        );
+        return _nodes.filter( comment ? usualNode : masterNode );
     },
 
 
@@ -3685,12 +3737,15 @@ elsEx([
 elsEx([
         // 元素集
         // 扁平化时需去重/排序。
-        'nextAll',
-        'nextUntil',
         'prevAll',
         'prevUntil',
+        'prevNodes',
+        'nextAll',
+        'nextUntil',
+        'nextNodes',
         'parents',
         'siblings',
+        'siblingNodes',
         'parentsUntil',
 
         // 节点集

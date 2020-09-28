@@ -381,6 +381,48 @@ option: {
 
 ## 节点遍历
 
+### [$.prev( el, slr, until ): Element | null](docs/$.prev.md)
+
+获取 `el` 的前一个（匹配的）兄弟元素。
+
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String | Function` 匹配测试的选择器或函数，可选。
+- `until: Boolean` 是否持续测试。
+
+这是 `$.next()` 方法的逆向版，其它说明相同。
+
+
+### [$.prevAll( el, slr ): [Element]](docs/$.prevAll.md)
+
+获取 `el` 前部的全部兄弟元素。
+
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String | Function` 匹配测试的选择器或函数，可选。
+
+这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配。测试函数接口和说明同前。未传递 `slr` 时表示不执行过滤，返回全集。
+
+> **注：**
+> 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
+
+
+### [$.prevUntil( el, slr ): [Element]](docs/$.prevUntil.md)
+
+获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
+
+- `el: Element` 取值的目标源元素，不适用文本节点。
+- `slr: String | Element | Function` 终点匹配测试的选择器或元素或测试函数，可选。
+
+这是方法 `$.nextUntil` 的逆向版。始终会返回一个数组，如果最开始的前一个元素就匹配或为 `null`，会返回一个空数组。测试函数接口和说明同前。
+
+> **注：**
+> 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
+
+
+### $.prevNodes( node, comment? ): [Node]
+
+获取 `node` 节点之前的兄弟节点集。包含元素、非空文本节点和可选的注释节点。
+
+
 ### [$.next( el, slr, until ): Element | null](docs/$.next.md)
 
 获取 `el` 的下一个（匹配的）兄弟元素。
@@ -419,41 +461,9 @@ option: {
 始终会返回一个数组，如果最开始的下一个元素就匹配或为 `null`，会返回一个空数组。匹配测试函数接口为：`function( el:Element, i:Number ): Boolean`，`i` 为后续元素顺序计数（从 `el` 开始计数为 `0`）。
 
 
-### [$.prev( el, slr, until ): Element | null](docs/$.prev.md)
+### $.nextNodes( node, comment? ): [Node]
 
-获取 `el` 的前一个（匹配的）兄弟元素。
-
-- `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String | Function` 匹配测试的选择器或函数，可选。
-- `until: Boolean` 是否持续测试。
-
-这是 `$.next()` 方法的逆向版，其它说明相同。
-
-
-### [$.prevAll( el, slr ): [Element]](docs/$.prevAll.md)
-
-获取 `el` 前部的全部兄弟元素。
-
-- `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String | Function` 匹配测试的选择器或函数，可选。
-
-这是 `$.nextAll()` 方法的逆向版。可用 `slr` 进行匹配过滤，匹配者入选。始终会返回一个数组，即便没有任何匹配。测试函数接口和说明同前。未传递 `slr` 时表示不执行过滤，返回全集。
-
-> **注：**
-> 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
-
-
-### [$.prevUntil( el, slr ): [Element]](docs/$.prevUntil.md)
-
-获取 `el` 的前端兄弟元素，直到 `slr` 匹配（不包含 `slr` 匹配的元素）。
-
-- `el: Element` 取值的目标源元素，不适用文本节点。
-- `slr: String | Element | Function` 终点匹配测试的选择器或元素或测试函数，可选。
-
-这是方法 `$.nextUntil` 的逆向版。始终会返回一个数组，如果最开始的前一个元素就匹配或为 `null`，会返回一个空数组。测试函数接口和说明同前。
-
-> **注：**
-> 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
+获取 `node` 节点之后的兄弟节点集。包含元素、非空文本节点和可选的注释节点。
 
 
 ### [$.children( el, slr ): [Element] | Element](docs/$.children.md)
@@ -492,6 +502,11 @@ option: {
 - `slr: String | Function` 匹配过滤函数或选择器，可选。
 
 可用 `slr` 进行匹配过滤，匹配者入选。`el` 需要存在一个父元素，否则兄弟的逻辑不成立，抛出异常。
+
+
+### $.siblingNodes( node, comment? ): [Node]
+
+获取 `node` 节点的兄弟节点集。包含元素、非空文本节点和可选的注释节点。
 
 
 ### [$.parent( el, slr ): Element | null](docs/$.parent.md)
