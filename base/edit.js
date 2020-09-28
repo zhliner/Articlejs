@@ -21,7 +21,7 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed } from "./base.js";
-import { ESet, EHot, ElemCursor, prevNode, nextNode } from './common.js';
+import { ESet, EHot, ElemCursor, prevNode, nextNode, elem2Swap } from './common.js';
 import { children, create } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -760,14 +760,16 @@ class NodeVary {
 
 
     /**
-     * 逆序插入。
-     * 分开的兄弟元素会汇聚在一起。
+     * 逆序化。
+     * 会保持元素原始的位置。
      * @param {[[Element]]} els2 兄弟元素集组
      */
     reverses( els2 ) {
         for ( const els of els2 ) {
-            if ( els.length > 1 ) {
-                $.before( els[0], els.slice(1).reverse() );
+            let _end = els.length - 1;
+
+            for (let i = 0; i < parseInt(els.length/2); i++) {
+                elem2Swap( els[i], els[_end-i] );
             }
         }
     }
@@ -2729,15 +2731,21 @@ export const Edit = {
 
 
     /**
-     * 同级逆序插入。
-     * 分开的兄弟元素会汇聚在一起。
+     * 同级逆序化。
      */
-    reverseMerges() {
+    reversePlaces() {
         let $els = $(__ESet).sort(),
             els2 = siblingTeam( $els );
 
-        if ( $els.length < 2 || els2.every( els => els.length < 2 ) ) {
+        if ( $els.length < 2 || els2.every(els => els.length < 2) ) {
             return;
+        }
+        if ( $els.some(isFixed) ) {
+            return help(
+                Help.hasFixed[0],
+                Help.hasFixed[1],
+                moveBadit($els)
+            );
         }
         historyPush( new DOMEdit(() => __Elemedit.reverses(els2)) );
     },

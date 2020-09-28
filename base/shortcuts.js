@@ -543,10 +543,9 @@ Content: [
 
 
     // 同级兄弟逆序。
-    // 分开的兄弟元素会汇聚在一起。
     {
         "key":      ":z",
-        "command":  "reverseMerges"
+        "command":  "reversePlaces"
     },
 
 

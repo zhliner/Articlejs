@@ -479,3 +479,17 @@ export function nextNode( beg, n = 1 ) {
     }
     return nodes[i-1] || beg;
 }
+
+
+/**
+ * 交换DOM中两个元素。
+ * @param {Element} a 元素a
+ * @param {Element} b 元素b
+ */
+export function elem2Swap( a, b ) {
+    let _box = b.parentNode,
+        _ref = b.previousSibling;
+
+    $.replace( a, b );
+    return _ref ? $.after( _ref, a ) : $.prepend( _box, a );
+}
