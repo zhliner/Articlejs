@@ -18,9 +18,10 @@
 //
 
 import { Sys, Limit, Help, Tips } from "../config.js";
+import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, canDelete, canTotext, canUnwrap, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange } from "./base.js";
-import { ESet, EHot, ElemCursor, prevNode, nextNode, siblingIndex } from './common.js';
+import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed } from "./base.js";
+import { ESet, EHot, ElemCursor, prevNode, nextNode } from './common.js';
 import { children, create } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -82,6 +83,7 @@ class History {
      * @return {[Instance]|false} 头部被移出的操作实例序列
      */
     push( ...obj ) {
+        if ( !obj.length ) return;
         // 新入截断。
         this._buf.length = ++this._idx;
 
@@ -252,7 +254,7 @@ class ESEdit {
 //
 // 焦点编辑。
 // 用于编辑中的焦点取消和恢复。
-// 注：
+// 注记：
 // 用户选取焦点无需进入历史栈。
 //
 class HotEdit {
@@ -266,12 +268,12 @@ class HotEdit {
 
 
     undo() {
-        __EHot.set( this._old );
+        setFocus( this._old );
     }
 
 
     redo() {
-        __EHot.set( this._hot );
+        setFocus( this._hot );
     }
 }
 
@@ -758,66 +760,54 @@ class NodeVary {
 
 
     /**
-     * 定位前插。
+     * 逆序插入。
+     * 分开的兄弟元素会汇聚在一起。
+     * @param {[[Element]]} els2 兄弟元素集组
+     */
+    reverses( els2 ) {
+        for ( const els of els2 ) {
+            if ( els.length > 1 ) {
+                $.before( els[0], els.slice(1).reverse() );
+            }
+        }
+    }
+
+
+    /**
+     * 定位前插入。
      * 将同级兄弟元素向前移动/克隆到指定距离。
+     * 超出范围的距离会导致部分或全部逆序插入。
      * 零值距离表示端部，汇集插入。
-     * @param {[Element]} els 目标元素集
+     * @param {[[Element]]} els2 兄弟元素集组
      * @param {Number} n 前端距离
      */
-    insertPrev( els, n ) {
-        for ( const el of els ) {
-            let _ref = prevNode( el, n );
-
-            if ( _ref ) {
-                $.before( _ref, el );
+    movePrev( els2, n ) {
+        for ( const els of els2 ) {
+            if ( n === 0 ) {
+                $.before( prevNode(els[0], Infinity), els );
             } else {
-                $.prepend( el.parentElement, el );
+                els.forEach( el => $.before(prevNode(el, n), el) );
             }
         }
     }
 
 
     /**
-     * 汇聚前插。
-     * 每一组元素移动插入到自身容器最前端。
-     * @param {[[Element]]} els2 兄弟元素集组
-     */
-    prepends( els2 ) {
-        els2.forEach(
-            subs => $.prepend( subs[0].parentElement, subs )
-        );
-    }
-
-
-    /**
-     * 定位后添加。
+     * 定位后插入。
      * 将同级兄弟元素向后移动/克隆到指定距离。
-     * 零值距离表示端部，汇集添加。
-     * @param {[Element]} els 目标元素集
+     * 其它说明参考movePrev。
+     * @param {[[Element]]} els2 兄弟元素集组
      * @param {Number} n 后端距离
      */
-    appendNext( els, n ) {
-        for ( const el of els ) {
-            let _ref = nextNode( el, n );
-
-            if ( _ref ) {
-                $.after( _ref, el );
+    moveNext( els2, n ) {
+        for ( const els of els2 ) {
+            if ( n === 0 ) {
+                $.after( nextNode(last(els), Infinity), els );
             } else {
-                $.append( el.parentElement, el );
+                els.reverse()
+                .forEach( el => $.after(nextNode(el, n), el) );
             }
         }
-    }
-
-
-    /**
-     * 汇聚后添加。
-     * 每一组元素移动插入到自身容器末端。
-     * @param {[[Element]]} els2 兄弟元素集组
-     */
-    appends( els2 ) {
-        els2.forEach(
-            subs => $.append( subs[0].parentElement, subs )
-        );
     }
 
 
@@ -914,12 +904,13 @@ let
  * 历史栈压入。
  * - 封装 Undo/Redo 状态通知。
  * - 清除出错帮助提示。
+ * 容错空值实参成员。
  * @param {...Instance} obj 操作实例序列
  */
 function historyPush( ...obj ) {
     stateNewEdit();
     help( null );
-    __History.push( ...obj );
+    __History.push( ...obj.filter(v => v) );
 }
 
 
@@ -1381,21 +1372,26 @@ function scamPressed( set, keys ) {
 
 
 /**
+ * 清理元素焦点。
+ * 如果焦点元素在容器元素内（含容器自身），清除之。
+ * @param  {[Element]} els 容器元素集
+ * @return {HotEdit|null}
+ */
+function cleanHot( els ) {
+    let _hot = __EHot.get();
+    return _hot && els.some( el => $.contains(el, _hot) ) && new HotEdit(null);
+}
+
+
+/**
  * 清除元素集的选取。
  * 返回的选取编辑实例需要进入历史栈。
- * @param  {[Element]} els 待删除元素集
- * @param  {Boolean} xhot 是否移除元素焦点
+ * @param  {[Element]} els 待清理元素集
  * @return {ESEdit} 选取操作实例
  */
-function clearSelected( els, xhot ) {
-    let _hot = __EHot.get();
-
-    if ( xhot && els.includes(_hot) ) {
-        _hot = null;
-    }
+function clearSelected( els ) {
     __ESet.removes( els );
-
-    return new ESEdit( els, _hot );
+    return new ESEdit( els );
 }
 
 
@@ -1405,7 +1401,7 @@ function clearSelected( els, xhot ) {
  * @param  {Element} hot 当前焦点元素，可选
  * @return {ESEdit} 选取操作实例
  */
-function pushesSelect( els, hot ) {
+function pushesSelect( els, hot = __EHot.get() ) {
     let _old = [...__ESet];
     __ESet.pushes( els );
     return new ESEdit( _old, hot );
@@ -1471,13 +1467,14 @@ function siblingTeam( els ) {
  * @return {Element} 新元素
  */
 function cleanedClone( el ) {
-    let _hot = __EHot.get();
+    let _hot = __EHot.get(),
+        _clr = $.contains( el, _hot );
     try {
-        if ( _hot === el ) __EHot.set( null );
+        _clr && __EHot.set( null );
         return cloneElement( el );
     }
     finally {
-        if ( _hot === el ) __EHot.set( _hot );
+        _clr && __EHot.set( _hot );
     }
 }
 
@@ -1514,6 +1511,17 @@ function totextBadit( els ) {
 function unwrapBadit( els ) {
     for ( const el of els ) {
         if ( !canUnwrap(el) ) return el;
+    }
+}
+
+
+/**
+ * 检索首个固定类单元。
+ * @param {[Element]} els 元素集
+ */
+function moveBadit( els ) {
+    for ( const el of els ) {
+        if ( isFixed(el) ) return el;
     }
 }
 
@@ -1767,6 +1775,48 @@ function tocLiSelector( chsn ) {
  */
 function h2PathSelector( chsn ) {
     return chsn.map( n => `>section:nth-of-type(${+n})` ).join( ' ' ) + ' >h2';
+}
+
+
+/**
+ * 判断元素是否可正常删除。
+ * @param {Element} el 目标元素
+ */
+function canDelete( el ) {
+    let _tv = getType( el );
+    return T.isBlocks( _tv ) || T.isInlines( _tv ) || T.isStructX( _tv );
+}
+
+
+/**
+ * 是否可以内容文本化。
+ * - 允许内容元素。
+ * - 允许非单结构的内联元素（无害），如对<ruby>解构。
+ * @param  {Element} el 容器元素
+ * @return {Boolean}
+ */
+function canTotext( el ) {
+    let _tv = getType( el );
+    return T.isContent( _tv ) || ( T.isInlines(_tv) && !T.isEmpty(_tv) );
+}
+
+
+/**
+ * 是否可以内容提升。
+ * 专用：Edit.unWrap 操作。
+ * 宽容：
+ * 应当允许纯内容的元素向上展开，即便不是内容元素，
+ * 如编辑过程中的破坏性操作（如<ruby>）。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+function canUnwrap( el ) {
+    return isContent( el.parentElement ) &&
+        (
+            isContent( el ) ||
+            // 宽容：纯内容元素
+            ( el.childElementCount === 0 && el.innerText.trim() )
+        );
 }
 
 
@@ -2188,7 +2238,7 @@ export const Edit = {
 
 
     //-- 移动选取 ------------------------------------------------------------
-    // 单选：焦点移动到目标元素
+    // 单选游走：焦点移动到目标元素
 
 
     /**
@@ -2443,7 +2493,7 @@ export const Edit = {
                 unwrapBadit( $els )
             );
         }
-        historyPush( clearSelected($els, true), new DOMEdit(() => __Elemedit.unWrap($els)) );
+        historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => __Elemedit.unWrap($els)) );
     },
 
     __unWrap: null,
@@ -2470,7 +2520,7 @@ export const Edit = {
                 deleteBadit( $els )
             );
         }
-        historyPush( clearSelected($els, true), new DOMEdit(() => $els.remove()) );
+        historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => $els.remove()) );
     },
 
 
@@ -2484,7 +2534,7 @@ export const Edit = {
         if ( $els.length === 0 ) {
             return;
         }
-        historyPush( clearSelected($els, true), new DOMEdit(() => $els.remove()) );
+        historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => $els.remove()) );
     },
 
 
@@ -2493,13 +2543,14 @@ export const Edit = {
      * 内部内容根元素的内容（文本、内联等）。
      */
     deleteContents() {
-        let $cons = $(__ESet)
-            .map( el => contentBoxes(el) ).flat();
+        let $els = $(__ESet),
+            $cons = $els.map( el => contentBoxes(el) ).flat();
 
         if ( $cons.length === 0 ) {
             return;
         }
-        historyPush( clearSelected($cons, true), new DOMEdit(() => $cons.empty()) );
+        // 选取根内容元素集
+        historyPush( clearSelected($els), cleanHot($cons), new DOMEdit(() => $cons.empty()), pushesSelect($cons) );
     },
 
 
@@ -2579,27 +2630,31 @@ export const Edit = {
 
     /**
      * 向前移动（平级）。
-     * 并列兄弟元素按DOM节点顺序移动，
-     * 距离超出范围会导致部分或全部兄弟元素反序排列。
-     * n: {
-     *      0: 原序端部，离散节点会汇聚
-     *     -n: 负数表示极大数（到顶端且全反序）
-     * }
+     * 同级兄弟元素按DOM节点顺序向前移动。
+     * n 零值表示无穷大（端部），零散节点会汇聚。
+     * 注记：
+     * - 前端的位置固定元素会被视为端部。
+     * - 选取集内如果包含位置固定元素，则不可移动。
      * @param {Number} n 移动距离
      */
     movePrevious( n ) {
-        let $els = $(__ESet).sort();
+        let $els = $(__ESet).sort(),
+            _beg = $els[0];
+
         n = isNaN(n) ? 1 : n;
 
-        if ( !$els.length ||
-            (!prevNode($els[0]) && n !== 0) ) {
+        if ( n < 0 || !$els.length || (prevNode(_beg, n) === _beg && n > 0) ) {
             return;
         }
-        if ( n === 0 ) {
-            let _els2 = siblingTeam( $els );
-            return historyPush( new DOMEdit(() => __Elemedit.prepends(_els2)) );
+        if ( $els.some(isFixed) ) {
+            // 包含有固定不可以被移动的元素。
+            return help(
+                Help.hasFixed[0],
+                Help.hasFixed[1],
+                moveBadit( $els )
+            );
         }
-        historyPush( new DOMEdit(() => __Elemedit.insertPrev($els, n)) );
+        historyPush( new DOMEdit(() => __Elemedit.movePrev(siblingTeam($els), n)) );
     },
 
 
@@ -2611,19 +2666,23 @@ export const Edit = {
      * @param {Number} n 移动距离
      */
     moveNext( n ) {
-        let $els = $(__ESet).sort();
+        let $els = $(__ESet).sort(),
+            _beg = last( $els );
+
         n = isNaN(n) ? 1 : n;
 
-        if ( !$els.length ||
-            (!nextNode(last($els)) && n !== 0) ) {
+        if ( n < 0 || !$els.length || (nextNode(_beg, n) === _beg && n > 0) ) {
             return;
         }
-        if ( n === 0 ) {
-            let _els2 = siblingTeam( $els );
-            return historyPush( new DOMEdit(() => __Elemedit.appends(_els2)) );
+        if ( $els.some(isFixed) ) {
+            // 包含有固定不可以被移动的元素。
+            return help(
+                Help.hasFixed[0],
+                Help.hasFixed[1],
+                moveBadit($els)
+            );
         }
-        $els = $els.reverse();
-        historyPush( new DOMEdit(() => __Elemedit.appendNext($els, n)) );
+        historyPush( new DOMEdit(() => __Elemedit.moveNext(siblingTeam($els), n)) );
     },
 
 
@@ -2666,6 +2725,21 @@ export const Edit = {
             return warn( 'all selected: ' + Tips.sectionNotDown );
         }
         historyPush( new DOMEdit(() => __Elemedit.sectionsDown(_els2)) );
+    },
+
+
+    /**
+     * 同级逆序插入。
+     * 分开的兄弟元素会汇聚在一起。
+     */
+    reverseMerges() {
+        let $els = $(__ESet).sort(),
+            els2 = siblingTeam( $els );
+
+        if ( $els.length < 2 || els2.every( els => els.length < 2 ) ) {
+            return;
+        }
+        historyPush( new DOMEdit(() => __Elemedit.reverses(els2)) );
     },
 
 

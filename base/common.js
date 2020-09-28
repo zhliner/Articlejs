@@ -12,6 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { beforeFixed, afterFixed } from "./base.js";
+
 const
     $ = window.$,
 
@@ -359,7 +361,7 @@ export class ArrSet extends Set {
 
 
 /**
- * 判断是否为可视节点。
+ * 是否为可视节点。
  * @param  {Node} node 测试节点
  * @return {Boolean}
  */
@@ -435,62 +437,45 @@ export function siblingIndex( node ) {
 /**
  * 向前获取目标位置节点。
  * 位置计数仅限于可视节点（元素和非空文本节点）。
- * @param  {Node} node 起始节点
+ * 固定属性单元视为端头阻挡，返回后阶节点。
+ * 如果一开始就被阻挡，则返回者为起点元素自身。
+ * 注记：
+ * 用于移动插入到目标位置之前。
+ * @param  {Node} beg 起始节点
  * @param  {Number} n 向前步进计数，可选（默认1）
- * @return {Node|null}
+ * @return {Node}
  */
-export function prevNode( node, n = 1 ) {
-    while ( (node = node.previousSibling) ) {
-        visibleNode(node) && n--;
-        if ( !n ) return node;
+export function prevNode( beg, n = 1 ) {
+    let nodes = $.prevNodes( beg ),
+        i = 0;
+
+    for ( ; i < nodes.length; i++ ) {
+        let _nd = nodes[i];
+        if ( --n < 0 || beforeFixed(_nd) ) {
+            break;
+        }
     }
-    return null;
+    return nodes[i-1] || beg;
 }
 
 
 /**
  * 向后获取目标位置节点。
- * 位置计数仅限于可视节点（元素和非空文本节点）。
- * @param  {Node} node 起始节点
+ * 说明参考同上。
+ * 注记：用于移动插入到目标位置之后。
+ * @param  {Node} beg 起始节点
  * @param  {Number} n 向后步进计数，可选（默认1）
- * @return {Node|null}
+ * @return {Node}
  */
-export function nextNode( node, n = 1 ) {
-    while ( (node = node.nextSibling) ) {
-        visibleNode(node) && n--;
-        if ( !n ) return node;
+export function nextNode( beg, n = 1 ) {
+    let nodes = $.nextNodes( beg ),
+        i = 0;
+
+    for ( ; i < nodes.length; i++ ) {
+        let _nd = nodes[i];
+        if ( --n < 0 || afterFixed(_nd) ) {
+            break;
+        }
     }
-    return null;
-}
-
-
-/**
- * 获取第一个可视节点。
- * @param  {Element} box 容器元素
- * @return {Node|null}
- */
-export function firstNode( box ) {
-    let _nd = box.firstChild;
-
-    while ( _nd ) {
-        if ( visibleNode(_nd) ) return _nd;
-        _nd = _nd.nextSibling;
-    }
-    return null;
-}
-
-
-/**
- * 获取最后一个可视节点。
- * @param  {Element} box 容器元素
- * @return {Node|null}
- */
-export function lastNode( box ) {
-    let _nd = box.lastChild;
-
-    while ( _nd ) {
-        if ( visibleNode(_nd) ) return _nd;
-        _nd = _nd.previousSibling;
-    }
-    return null;
+    return nodes[i-1] || beg;
 }

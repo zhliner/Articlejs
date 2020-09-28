@@ -116,16 +116,16 @@ Global: [
 
     //
     // 命令行直达
-    // 不可修改！键与系统功能固定相关。
+    // 不可修改。键与系统功能固定相关。
     //-----------------------------------------------------
     {
         "key": [
-            ":/",       // /  选择器（全局上下文）
+            "shift:>",  // >  选择器（焦点元素为起点）
             "shift:|",  // |  选取集过滤
-            "shift:?",  // ?  文本搜索
+            ":/",       // /  文本搜索
             "shift::",  // :  普通命令
             ":=",       // =  简单计算
-            "shift:!",  // !  扩展指令
+            "shift:!",  // !  扩展指令（高级）
         ],
         "command":  "cmdline.active",
         "exclude":  "textarea,input,[contenteditable]",
@@ -241,14 +241,14 @@ Content: [
 
     // 选取单元的内容根元素集。
     {
-        "key":      ":z",
+        "key":      ":w",
         "command":  "contentBoxes"
     },
 
     // 选取单元的内容根元素集。
     // 注：新元素集插入选取集头部。
     {
-        "key":      "shift:z",
+        "key":      "shift:w",
         "command":  "contentBoxesStart"
     },
 
@@ -374,7 +374,7 @@ Content: [
 
     // 向下内容根子集。
     {
-        "key":      "alt:z",
+        "key":      "alt:w",
         "command":  "contentBoxesVF"
     },
 
@@ -412,7 +412,6 @@ Content: [
         "command":  "deletes"
     },
 
-
     // 内容删除。
     // 删除元素内的可编辑内容（内容根元素的内容）。
     {
@@ -422,7 +421,6 @@ Content: [
         ],
         "command":  "deleteContents"
     },
-
 
     // 强制删除。
     // 删除任意已选取元素，有破坏性（不保护中间结构逻辑）。
@@ -541,6 +539,14 @@ Content: [
     {
         "key":      ["alt:l", "alt:ArrowRight"],
         "command":  "indentMore"
+    },
+
+
+    // 同级兄弟逆序。
+    // 分开的兄弟元素会汇聚在一起。
+    {
+        "key":      ":z",
+        "command":  "reverseMerges"
     },
 
 

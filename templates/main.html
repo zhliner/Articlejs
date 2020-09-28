@@ -144,7 +144,7 @@
                 -">
             <hgroup>
                 <h1 id="文章内容的规范化结构">文章内容的规范化结构</h1>
-                <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
+                <h3>—— 简单干净的源码，清爽愉悦的阅读</h3>
             </hgroup>
             <article>
                 <header>
@@ -472,26 +472,32 @@
                 |val|pop fire('#status-tips', 'info');
                 |trigger('reset')" />
     </div>
-    <!-- 指令符 -->
+    <!--指令符：
+        > 选择器，焦点元素为起点
+        | 选取集过滤，支持 PB:To 的 []{} 语法
+        / 文本搜索（选取/替换）
+        : 普通命令
+        = 简单计算
+        ! 扩展命令（高级）-->
     <div class="_cmdx">
         <span class="_code" tabindex="0" data-pbo="lost"
             on="click(b)|evo(1) text;
                 blur|evo(3) lose"
             to="1/code|trigger('setv')">
-            <b title="选择器模式">/</b>
+            <b title="选择器模式">&gt;</b>
             <b title="选取集过滤">|</b>
-            <b title="文本搜索">?</b>
+            <b title="文本搜索">/</b>
             <b title="普通命令">:</b>
             <b title="简单计算">=</b>
             <b title="扩展指令...">!</b>
         </span>
         <!-- data-v: CSS辅助 -->
-        <code id="g-cmdx" data-v="/"
+        <code id="g-cmdx" data-v=">"
             on="setv|ev('detail') dup;
                 done|$('1/span') lose;
                 click|$('1/span') dup lose(0) focus"
             to="|@text @-v|goto('done');
-                #cmd-input|-|focus">/</code>
+                #cmd-input|-|focus">&gt;</code>
     </div>
     <!-- 命令行 -->
     <div class="_cmdline">
@@ -505,7 +511,9 @@
         -->
         <input id="cmd-input" type="text" spellcheck="false" class="_code" value="" />
     </div>
-    <!-- 出错信息区 -->
+    <!--出错提示：
+        click 打开帮助框并定位到问题ID
+        Alt + click 设置问题元素为焦点元素 -->
     <div id="g-errmsg" class="_err" data-pbo=""
         on="on|evo(3) lose(1);
             off|evo(3) lose">

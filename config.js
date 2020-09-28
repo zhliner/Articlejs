@@ -69,6 +69,12 @@ export const Help = {
         '包含了不能被删除的元素。'
     ],
 
+
+    'hasFixed': [
+        'edit:fixed',
+        '包含有固定不可以被移动的元素。'
+    ],
+
 };
 
 

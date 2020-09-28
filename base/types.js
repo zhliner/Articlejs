@@ -200,9 +200,9 @@ export const
 
 
 //
-// 单元的类型/特性。
+// 单元特性定义。
 //
-const Specials = {
+const Properties = {
     [ $TEXT ]:          TEXT,
     //
     // 内联结构元素
@@ -224,8 +224,7 @@ const Specials = {
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY,
     [ SOURCE ]:         STRUCT | STRUCTX | EMPTY,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
-    // 不可简单删除
-    // 删除：应当先文本化，微编辑，然后内容提升或转换。
+    // 解包：先文本化，然后内容提升。
     [ RB ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED,
@@ -541,7 +540,7 @@ $.each(
  * @return {Boolean}
  */
 export function isEmpty( tval ) {
-    return !!( Specials[tval] & EMPTY );
+    return !!( Properties[tval] & EMPTY );
 }
 
 
@@ -551,7 +550,7 @@ export function isEmpty( tval ) {
  * @return {Boolean}
  */
 export function isFixed1( tval ) {
-    return !!( Specials[tval] & FIXED1 );
+    return !!( Properties[tval] & FIXED1 );
 }
 
 
@@ -561,17 +560,7 @@ export function isFixed1( tval ) {
  * @return {Boolean}
  */
 export function isFixed2( tval ) {
-    return !!( Specials[tval] & FIXED2 );
-}
-
-
-/**
- * 是否位置完全固定。
- * @param  {Number} tval 类型值
- * @return {Boolean}
- */
-export function isFixed( tval ) {
-    return !!( Specials[tval] & FIXED1 ) && !!( Specials[tval] & FIXED1 );
+    return !!( Properties[tval] & FIXED2 );
 }
 
 
@@ -582,7 +571,7 @@ export function isFixed( tval ) {
  * @return {Boolean}
  */
 export function isSealed( tval ) {
-    return !!( Specials[tval] & SEALED );
+    return !!( Properties[tval] & SEALED );
 }
 
 
@@ -593,7 +582,7 @@ export function isSealed( tval ) {
  * @return {Boolean}
  */
 export function isBlocks( tval ) {
-    return !!( Specials[tval] & BLOCKS );
+    return !!( Properties[tval] & BLOCKS );
 }
 
 
@@ -604,7 +593,7 @@ export function isBlocks( tval ) {
  * @return {Boolean}
  */
 export function isInlines( tval ) {
-    return !!( Specials[tval] & INLINES );
+    return !!( Properties[tval] & INLINES );
 }
 
 
@@ -615,7 +604,7 @@ export function isInlines( tval ) {
  * @return {Boolean}
  */
 export function isContent( tval ) {
-    return !!( Specials[tval] & CONTENT );
+    return !!( Properties[tval] & CONTENT );
 }
 
 
@@ -626,7 +615,7 @@ export function isContent( tval ) {
  * @return {Boolean}
  */
 export function isStruct( tval ) {
-    return !!( Specials[tval] & STRUCT );
+    return !!( Properties[tval] & STRUCT );
 }
 
 
@@ -637,7 +626,7 @@ export function isStruct( tval ) {
  * @return {Boolean}
  */
 export function isStructX( tval ) {
-    return !!( Specials[tval] & STRUCTX );
+    return !!( Properties[tval] & STRUCTX );
 }
 
 
@@ -648,7 +637,7 @@ export function isStructX( tval ) {
  * @return {Boolean}
  */
 export function isSpecial( tval ) {
-    return !!( Specials[tval] & SPECIAL );
+    return !!( Properties[tval] & SPECIAL );
 }
 
 
