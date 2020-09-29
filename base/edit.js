@@ -31,12 +31,12 @@ const
 
     Normalize = $.Fx.History.Normalize,
 
-    // 路径单元存储键。
-    // 在路径序列元素上存储源元素。
-    pathsKey = Symbol(),
-
     // 编辑需要监听的变化事件。
     varyEvents = 'attrvary cssvary varyprepend varyappend varybefore varyafter varyreplace varyempty varyremove varynormalize',
+
+    // 路径单元存储键。
+    // 在路径序列元素上存储源元素。
+    __linkElem = Symbol(),
 
     // 空白匹配。
     __reSpace = /\s+/g,
@@ -947,23 +947,23 @@ function pathList( el, root ) {
     let _els = [el].concat(
             $.parentsUntil( el, e => e === root )
         );
-    return _els.reverse().map( el => pathElem( $.elem('b', elemInfo(el)), el ) );
+    return _els.reverse().map( el => linkElem( $.elem('b', elemInfo(el)), el ) );
 }
 
 
 /**
- * 存储/获取路径元素上的源目标元素。
- * - 存储时返回路径元素自身。
- * - 取值时返回路径上存储的源目标。
+ * 存储/获取引导元素上的源目标元素。
+ * - 存储时返回引导元素自身。
+ * - 取值时返回引导元素上存储的源目标。
  * @param  {Element} to 路径元素
  * @param  {Element} src 源目标元素
  * @return {Element} 源目标或路径元素
  */
-function pathElem( to, src ) {
+function linkElem( to, src ) {
     if ( src === undefined ) {
-        return to[ pathsKey ];
+        return to[ __linkElem ];
     }
-    return to[ pathsKey ] = src, to;
+    return to[ __linkElem ] = src, to;
 }
 
 
@@ -1833,21 +1833,22 @@ function last( els ) {
 
 
 /**
- * 帮助：
  * 提示错误并提供帮助索引。
+ * msgid: [hid, tips]
+ * 注记：
  * 帮助ID会嵌入到提示链接中，并显示到状态栏。
- * 如果有关联元素，鼠标指向可背影提示，单击设置焦点。
- * @param {String} hid 帮助ID
- * @param {String} msg 提示信息
+ * 鼠标指向背影提示关联元素，单击滚动问题元素到视口中间。
+ * @param {String} msgid 消息ID
  * @param {Element} el 关联元素，可选
  */
-function help( hid, msg, el ) {
-    if ( hid === null ) {
+function help( msgid, el ) {
+    if ( msgid === null ) {
         return $.trigger( errContainer, 'off' );
     }
-    // 构造链接……
+    let [hid, msg] = Help[ msgid ];
 
-    $.trigger( errContainer, 'on' );
+    $.trigger( linkElem(errContainer, el), 'on' );
+    $.trigger( $.get('a', errContainer), 'setv', [hid, msg, msg] );
 }
 
 
@@ -2021,9 +2022,11 @@ export const Edit = {
      * @param {Set} scam 辅助键按下集
      */
     pathTo( evo, scam ) {
-        // 仅移动焦点。
+        // 无条件聚焦。
+        setFocus( evo.data );
+
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
-            return setFocus( evo.data );
+            return;
         }
         elementOne( evo.data, 'add' );
     },
@@ -2461,12 +2464,8 @@ export const Edit = {
             return;
         }
         if ( !$els.every(canTotext) ) {
-            // 选取集包含非内容元素。
-            return help(
-                Help.hasNotCons[0],
-                Help.hasNotCons[1],
-                totextBadit( $els )
-            );
+            // 选取元素必须全为内容元素。
+            return help( 'need_conelem', totextBadit($els) );
         }
         historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
     },
@@ -2489,11 +2488,7 @@ export const Edit = {
         }
         if ( !$els.every(canUnwrap) ) {
             // 选取元素及其父元素都必须为内容元素。
-            return help(
-                Help.bothCons[0],
-                Help.bothCons[1],
-                unwrapBadit( $els )
-            );
+            return help( 'both_conelem', unwrapBadit($els) );
         }
         historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => __Elemedit.unWrap($els)) );
     },
@@ -2516,11 +2511,7 @@ export const Edit = {
         }
         if ( !$els.every(canDelete) ) {
             // 包含了不能被删除的元素。
-            return help(
-                Help.hasNotDels[0],
-                Help.hasNotDels[1],
-                deleteBadit( $els )
-            );
+            return help( 'has_cannot_del', deleteBadit($els) );
         }
         historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => $els.remove()) );
     },
@@ -2553,36 +2544,6 @@ export const Edit = {
         }
         // 选取根内容元素集
         historyPush( clearSelected($els), cleanHot($cons), new DOMEdit(() => $cons.empty()), pushesSelect($cons) );
-    },
-
-
-    elementFill() {
-        //
-    },
-
-
-    elementCloneFill() {
-        //
-    },
-
-
-    elementBefore() {
-        //
-    },
-
-
-    elementCloneBefore() {
-        //
-    },
-
-
-    elementAfter() {
-        //
-    },
-
-
-    elementCloneAfter() {
-        //
     },
 
 
@@ -2626,6 +2587,46 @@ export const Edit = {
     },
 
 
+    elementFill() {
+        //
+    },
+
+
+    elementCloneFill() {
+        //
+    },
+
+
+    elementAppend() {
+        //
+    },
+
+
+    elementCloneAppend() {
+        //
+    },
+
+
+    elementBefore() {
+        //
+    },
+
+
+    elementCloneBefore() {
+        //
+    },
+
+
+    elementAfter() {
+        //
+    },
+
+
+    elementCloneAfter() {
+        //
+    },
+
+
     //-- 移动&缩进 -----------------------------------------------------------
     // 操作选取集，与焦点元素无关。
     // 当前选取不变。
@@ -2650,11 +2651,7 @@ export const Edit = {
         }
         if ( $els.some(isFixed) ) {
             // 包含有固定不可以被移动的元素。
-            return help(
-                Help.hasFixed[0],
-                Help.hasFixed[1],
-                moveBadit( $els )
-            );
+            return help( 'has_fixed', moveBadit($els) );
         }
         historyPush( new DOMEdit(() => __Elemedit.movePrev(siblingTeam($els), n)) );
     },
@@ -2678,11 +2675,7 @@ export const Edit = {
         }
         if ( $els.some(isFixed) ) {
             // 包含有固定不可以被移动的元素。
-            return help(
-                Help.hasFixed[0],
-                Help.hasFixed[1],
-                moveBadit($els)
-            );
+            return help( 'has_fixed', moveBadit($els) );
         }
         historyPush( new DOMEdit(() => __Elemedit.moveNext(siblingTeam($els), n)) );
     },
@@ -2741,11 +2734,7 @@ export const Edit = {
             return;
         }
         if ( $els.some(isFixed) ) {
-            return help(
-                Help.hasFixed[0],
-                Help.hasFixed[1],
-                moveBadit($els)
-            );
+            return help( 'has_fixed', moveBadit($els) );
         }
         historyPush( new DOMEdit(() => __Elemedit.reverses(els2)) );
     },
@@ -2948,13 +2937,16 @@ export const Kit = {
 
 
     /**
-     * 获取路径上存储的源目标。
-     * 用途：鼠标指向路径时提示源目标（友好）。
+     * 获取引导元素上存储的源目标。
+     * 用途：
+     * - 鼠标指向路径时提示源目标（友好）。
+     * - 单击路径元素选取或聚焦关联的目标元素。
+     * - 出错提示区源目标指示等。
      * @param  {Element} box 路径元素（容器）
      * @return {Element}
      */
-    pathElem( box ) {
-        return box[ pathsKey ];
+    linkElem( box ) {
+        return box[ __linkElem ];
     },
 };
 

@@ -98,7 +98,7 @@
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveResize);
         ^finish|(ESC) $('#content') apply('add', _1);
-        ^finish|(editInit) $('#content') $('#g-path') $('#g-errmsg') exec(_3)"
+        ^finish|(editInit) $('#content') $('#g-path') $('#err-tips') exec(_3)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
@@ -158,7 +158,8 @@
     <hr id="lineRight" data-pbo="lost"
         on="mousedown"
         to="body|bind('mousemove:2') once('mouseup')" />
-    <aside id="help" class="___Panel _docs" data-pbo="lost">
+    <aside id="help" class="___Panel _docs" data-pbo="lost"
+        on="index|ev('detail') debug('hai')">
         <span class="_walk">
             <b title="上一项">◀</b>
             <b title="目录" class="_top">▤</b>

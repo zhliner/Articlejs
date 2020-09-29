@@ -4990,9 +4990,11 @@ function hookSet( el, name, val, scope ) {
  */
 function customSet( el, name, value, scope ) {
     switch (name) {
+        // null数据为空串，表达清除的效果。
         case 'html':
             return Insert(el, htmlFrag(el, value, ''), '');
         case 'text':
+            value = value === null ? '' : value;
             return Insert(el, el.ownerDocument.createTextNode(value), '');
     }
     scope.set( el, name, value );
@@ -5451,6 +5453,9 @@ function fragmentNodes( nodes, doc ) {
  * @return {DocumentFragment}
  */
 function htmlFrag( ref, html, where ) {
+    if ( html === null ) {
+        html = '';
+    }
     if ( ref.namespaceURI === svgNS &&
         (ref.tagName !== 'svg' || childWhere.has(where)) ) {
         return buildFragmentSVG( html, ref.ownerDocument );

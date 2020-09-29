@@ -433,62 +433,6 @@ Content: [
     },
 
 
-    // 移动填充。
-    // 将选取元素或其内容移动填充到焦点元素内。
-    // 注记：目标焦点不应当被选取。
-    {
-        "key":      ":f",
-        "command":  "elementFill"
-    },
-
-
-    // 克隆填充。
-    // 将选取元素或其内容克隆填充到焦点元素内。
-    // 注记：目标焦点可以被选取作为内容之一。
-    {
-        "key":      "shift:f",
-        "command":  "elementCloneFill"
-    },
-
-
-    // 移动式前插入。
-    // 将选取元素移动到焦点元素之前。
-    // 如果位置非法，自动提取内容构建默认单元插入。
-    // 注记：目标焦点不应当被选取。
-    {
-        "key":      ":i",
-        "command":  "elementBefore"
-    },
-
-
-    // 克隆式前插入。
-    // 说明：参考 elementBefore。
-    // 注记：目标焦点可以被选取作为内容之一。
-    {
-        "key":      "shift:i",
-        "command":  "elementCloneBefore"
-    },
-
-
-    // 移动式后插入。
-    // 将选取元素移动到焦点元素之后。
-    // 如果位置非法，自动提取内容构建默认单元插入。
-    // 注记：目标焦点不应当被选取。
-    {
-        "key":      ":b",
-        "command":  "elementAfter"
-    },
-
-
-    // 克隆式后插入。
-    // 说明：参考 elementAfter
-    // 注记：目标焦点可以被选取作为内容之一。
-    {
-        "key":      "shift:b",
-        "command":  "elementCloneAfter"
-    },
-
-
     // 原地克隆（成组）。
     // 选取集内相邻元素分组克隆，插入原组之前（before）。
     // 注记：与焦点元素无关。
@@ -504,6 +448,80 @@ Content: [
     {
         "key":      "shift:c",
         "command":  "elementCloneSelf"
+    },
+
+
+    // 移动填充。
+    // 将选取元素或其内容移动填充到焦点元素内。
+    // 注记：目标焦点可以被选取，会提取其内容。
+    {
+        "key":      ":f",
+        "command":  "elementFill"
+    },
+
+
+    // 克隆填充。
+    // 将选取元素或其内容克隆填充到焦点元素内。
+    // 注记：同上。
+    {
+        "key":      "shift:f",
+        "command":  "elementCloneFill"
+    },
+
+
+    // 移动内插入。
+    // 即普通子单元添加，将选取元素或其内容移动添加到焦点元素内。
+    // 注记：同上。
+    {
+        "key":      ":z",
+        "command":  "elementAppend"
+    },
+
+
+    // 克隆内插入。
+    // 同上说明，数据源为克隆。
+    // 注记：同上。
+    {
+        "key":      "shift:z",
+        "command":  "elementCloneAppend"
+    },
+
+
+    // 移动式前插入。
+    // 将选取元素移动到焦点元素之前。
+    // 如果位置非法，自动提取内容构建默认单元插入。
+    // 注记：选取的目标焦点会被忽略。
+    {
+        "key":      ":i",
+        "command":  "elementBefore"
+    },
+
+
+    // 克隆式前插入。
+    // 说明同上，数据源为克隆。
+    // 注记：目标焦点可以被选取作为内容之一。
+    {
+        "key":      "shift:i",
+        "command":  "elementCloneBefore"
+    },
+
+
+    // 移动式后插入。
+    // 将选取元素移动到焦点元素之后。
+    // 如果位置非法，自动提取内容构建默认单元插入。
+    // 注记：选取的目标焦点会被忽略。。
+    {
+        "key":      ":b",
+        "command":  "elementAfter"
+    },
+
+
+    // 克隆式后插入。
+    // 说明同上，数据源为克隆。
+    // 注记：目标焦点可以被选取作为内容之一。
+    {
+        "key":      "shift:b",
+        "command":  "elementCloneAfter"
     },
 
 
@@ -544,7 +562,7 @@ Content: [
 
     // 同级兄弟逆序。
     {
-        "key":      ":z",
+        "key":      ":x",
         "command":  "reversePlaces"
     },
 
@@ -757,7 +775,7 @@ Keys: {
     // 浮选（同态）。
     // 与焦点元素同级，选取目标的父级同级元素。
     // [Key] + 单击
-    smartSelect: 'Ctrl Alt',
+    smartSelect: 'Ctrl Shift',
 
 },
 

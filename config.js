@@ -52,25 +52,25 @@ export const Tips = {
 //
 export const Help = {
 
-    'hasNotCons': [
-        'type:content',
-        '选取集包含非内容元素。'
+    'need_conelem': [
+        'type:contents',
+        '选取元素必须全为内容元素。'
     ],
 
 
-    'bothCons': [
-        'type:content',
+    'both_conelem': [
+        'type:contents',
         '选取元素及其父元素都必须为内容元素。'
     ],
 
 
-    'hasNotDels': [
-        'edit:delete',
+    'has_cannot_del': [
+        'edit:deletes',
         '包含了不能被删除的元素。'
     ],
 
 
-    'hasFixed': [
+    'has_fixed': [
         'edit:fixed',
         '包含有固定不可以被移动的元素。'
     ],
