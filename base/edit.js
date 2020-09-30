@@ -2097,11 +2097,12 @@ export const Edit = {
      * @param {Set} scam 辅助键按下集
      */
     pathTo( evo, scam ) {
-        // 无条件聚焦。
-        setFocus( evo.data );
+        // 冗余：
+        // 单击路径末端已选取时。
+        $.intoView( evo.data, 0 );
 
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
-            return;
+            return setFocus( evo.data );
         }
         elementOne( evo.data, 'add' );
     },
