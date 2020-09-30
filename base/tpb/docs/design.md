@@ -440,6 +440,10 @@ rangeKeep(): void
 exeCmd( type: String ): void
 // 执行document命令
 // 即：document.execCommand(...)
+
+clipboard( fmt:String ): String
+// 剪贴板设置或取值。
+// 注记：仅 copy, cut|paste 事件适用。
 ```
 
 

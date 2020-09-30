@@ -600,7 +600,7 @@ const _NextStage = {
      * 内容：暂存区1项可选。
      * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
      * 仅限于当前绑定/委托元素上绑定的事件。
-     * @param {String}} name 事件名
+     * @param {String} name 事件名
      * @param {Value} extra 附加数据，可选
      */
     goto( evo, name, extra ) {

@@ -86,6 +86,8 @@ calls( meths:String, ...args:Value ): [Value]
 vals( ...name:String ): Object{name:value}
 // 获取目标名称的控件值集。
 
+Range( force:Boolean ): Range
+// 获取当前选区。
 
 
 // 类型转换&构造。
@@ -144,14 +146,14 @@ svg( tag?:String ): Element | Collector
 wrapAll( box:String ): Collector
 // 元素集封装。
 
-einfo( hasid:Boolean, hascls:Boolean ): String | [String]
-// 生成元素基本信息。
+Date( ...args? ): Date
+// 构造日期对象入栈。
 
-Range( force:Boolean ): Range
-// 获取当前选区。
+Map( n:Number ): Map
+// 构造Map实例。
 
-holdRange( el:Element|String ): Boolean
-// 元素是否容纳选区。
+Set( n:Number ): Set
+// 构造Set实例。
 
 
 
@@ -173,40 +175,20 @@ values(): [Value]
 func( ...argn: String ): Function
 // 创建函数入栈。
 
-
-
-// Tpb专有取值。
-//-----------------------------------------------
-
-pba(): [String]
-// PB参数取值（|=）。
-
-pbo(): [String]
-// PB选项取值（~=）。
-
-pdv(): String
-// PB属性取值。
-
-Data( name: String ): void|Value
+data( name: String ): void|Value
 // 关联数据取出。
 
-Map( n:Number ): Map
-// 构造Map实例。
+einfo( hasid:Boolean, hascls:Boolean ): String | [String]
+// 生成元素基本信息。
 
-Set( n:Number ): Set
-// 构造Set实例。
-
-date( ...args? ): Date
-// 构造日期对象入栈。
+holdRange( el:Element|String ): Boolean
+// 元素是否容纳选区。
 
 scam( names?:String ): Boolean | Object
 // 修饰键{Alt|Ctrl|Shift|Meta}状态检查|封装。
 
 acmsk(): String
 // 构建组合键序列：alt+ctrl+shift+meta:[key]。
-
-hotkey(): HotKey
-// 返回系统快捷键处理器。
 
 chain( evnid:String, clone:Boolean ): Cell
 // 预绑定调用链提取（单个）。
@@ -228,6 +210,17 @@ easing( total?, base? ): Number
 
 animate( kfs, opts ): Animation
 // 创建一个动画对象。
+
+
+
+// Tpb专有补充。
+//-----------------------------------------------
+
+pba(): [String]
+// PB参数取值（|=）。
+
+pbo(): [String]
+// PB选项取值（~=）。
 
 movementX( v?:null ): Number | void
 movementY( v?:null ): Number | void
@@ -376,8 +369,6 @@ unwrap( back?:Boolean ): void | data
 // back: 被移除的节点是否入栈。
 // data: 被移除的节点/集或展开（unwrap）的节点集。
 
-intoViewX( pos:Number|String): void
-intoViewY( pos:Number|String): void
-intoView( x, y:Number|String): void
+intoView( y:Number|String|true|false, x:Number|String): void
 // 滚动到当前视口。
 ```

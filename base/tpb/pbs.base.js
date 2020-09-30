@@ -37,12 +37,9 @@ const
     __reSpace = /\s+/,
 
     // 至少1个空白。
+    // 保留首个匹配字符记忆。
     // 注：clean专用。
-    __reSpace1n = /\s+/g,
-
-    // 至少2个空白。
-    // 注：clean专用。
-    __reSpace2n = /\s\s+/g,
+    __reSpace1n = /(\s)\s*/g,
 
     // 颜色值：rgb(0, 0, 0)
     __rgbDecimal = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/,
@@ -1356,18 +1353,14 @@ const _Process = {
 
     /**
      * 空白清理。
-     * 将字符串内多个空白替换为单个空格或删除。
-     * 字符串首尾空白会被清除。
-     * @param  {Boolean} all 全部删除
+     * 将字符串内连续的空白替换为其首个空白，
+     * 首尾空白只会在传递 rch 为空串时才有清除的效果。
+     * 默认替换为空白匹配序列的首个空白。
+     * @param  {String|Function} rch 空白替换符，可选
      * @return {String|[String]}
      */
-    clean( evo, all ) {
-        return mapCall(
-            evo.data,
-            (s, r, v) => s.replace(r, v),
-            all ? __reSpace1n : __reSpace2n,
-            all ? '' : ' '
-        );
+    clean( evo, rch = '$1' ) {
+        return mapCall( evo.data, s => s.replace(__reSpace1n, rch) );
     },
 
     __clean: 1,
@@ -1375,7 +1368,7 @@ const _Process = {
 
     /**
      * 内容替换。
-     * 对String.replace的简单封装。
+     * 对String:replace的简单封装但支持数组。
      * @param  {...Value} args 参数序列
      * @return {String|[String]}
      */
@@ -1389,7 +1382,7 @@ const _Process = {
     /**
      * 切分字符串为数组。
      * 支持4子节Unicode字符空白切分。
-     * @param  {String} sep 分隔符，可选
+     * @param  {String|RegExp} sep 分隔符，可选
      * @param  {Number} cnt 最多切分数量，可选
      * @return {[String]|[[String]]}
      */
@@ -1629,6 +1622,27 @@ const _Process = {
     },
 
     __exeCmd: -1,
+
+
+    /**
+     * 剪贴板操作（取值/设置）。
+     * 目标：暂存区1项可选。
+     * 如果暂存区有值则为设置，否则为取值。
+     * 注记：
+     * - 取值适用粘贴（paste）事件。
+     * - 设置适用复制或剪切（copy|cut）事件。
+     * @data: String|void
+     * @param  {String} fmt 取值类型，可选（默认纯文本）
+     * @return {String|void}
+     */
+    clipboard( evo, fmt = 'text/plain' ) {
+        if ( evo.data === undefined ) {
+            return evo.event.clipboardData.getData( fmt );
+        }
+        evo.event.clipboardData.setData( fmt, evo.data );
+    },
+
+    __clipboard: -1,
 
 };
 

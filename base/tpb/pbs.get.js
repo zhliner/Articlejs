@@ -244,6 +244,32 @@ const _Gets = {
     __vals: 1,
 
 
+    /**
+     * 获取当前内容选区。
+     * 目标：无。
+     * 即获取用户在页面中的划选部分。
+     * 如果未指定强制取值，则选区首尾需在同一容器元素内（完整嵌套）。
+     * 无选区或选区闭合时返回 null。
+     * @param  {Boolean} loose 非严格约束
+     * @return {Range|null}
+     */
+    Range( evo, loose = false ) {
+        var _sel = window.getSelection();
+
+        if ( _sel.rangeCount == 0 ) {
+            return null;
+        }
+        var _rng = _sel.getRangeAt(0);
+
+        if ( loose ) {
+            return _rng;
+        }
+        return _rng.startContainer.parentNode === _rng.endContainer.parentNode && !_rng.collapsed ? _rng : null;
+    },
+
+    __Range: null,
+
+
 
     // 类型转换&构造。
     // 目标：暂存区/栈顶1项。
@@ -495,62 +521,54 @@ const _Gets = {
 
 
     /**
-     * 生成元素基本信息。
-     * 目标：暂存区/栈顶1项。
-     * @data: Element|[Element]|Collector
-     * @param  {Boolean} hasid 包含ID信息
-     * @param  {Boolean} hascls 包含类名信息
-     * @return {String|[String]|Collector}
+     * 构造日期对象。
+     * 目标：暂存区条目可选。
+     * 目标如果有值，补充到模板实参序列之后（数组会展开）。
+     * 无实参无目标时构造一个当前时间对象。
+     * @param  {...Value} vals 实参值
+     * @return {Date}
      */
-    einfo( evo, hasid, hascls ) {
-        return mapCall( evo.data, el => elemInfo(el, hasid, hascls) );
+    Date( evo, ...vals ) {
+        return new Date( ...vals );
     },
 
-    __einfo: 1,
+    __Date: null,
 
 
     /**
-     * 获取当前内容选区。
-     * 目标：无。
-     * 即获取用户在页面中的划选部分。
-     * 如果未指定强制取值，则选区首尾需在同一容器元素内（完整嵌套）。
-     * 无选区或选区闭合时返回 null。
-     * @param  {Boolean} loose 非严格约束
-     * @return {Range|null}
+     * 创建Map实例。
+     * 目标：暂存区1项可选。
+     * 目标作为创建实例的初始数据。
+     * 注：多个实例会初始化为相同的数据。
+     * @param  {Number} n 实例数量
+     * @return {Map|[Map]}
      */
-    Range( evo, loose = false ) {
-        var _sel = window.getSelection();
-
-        if ( _sel.rangeCount == 0 ) {
-            return null;
+    Map( evo, n = 1 ) {
+        if ( n == 1 ) {
+            return new Map( evo.data );
         }
-        var _rng = _sel.getRangeAt(0);
-
-        if ( loose ) {
-            return _rng;
-        }
-        return _rng.startContainer.parentNode === _rng.endContainer.parentNode && !_rng.collapsed ? _rng : null;
+        return Array(n).fill().map( () => new Map(evo.data) );
     },
 
-    __currentRange: null,
+    __Map: -1,
 
 
     /**
-     * 检查是否容纳选区。
-     * 目标：暂存区/栈顶1项。
-     * 检查选区对象是否完全在目标容器元素之内。
-     * @data: Range
-     * @param  {Element|String} el 容器元素或其选择器
-     * @return {Boolean}
+     * 创建Set实例。
+     * 目标：暂存区1项可选。
+     * 目标作为创建实例的初始数据。
+     * 注：多个实例会初始化为相同的数据。
+     * @param  {Number} n 实例数量
+     * @return {Set|[Set]}
      */
-    holdRange( evo, el ) {
-        if ( typeof el === 'string' ) {
-            el = Util.find( el, evo.delegate );
+    Set( evo, n = 1 ) {
+        if ( n == 1 ) {
+            return new Set( evo.data );
         }
-        return $.contains( el, evo.data.commonAncestorContainer );
+        return Array(n).fill().map( () => new Set(evo.data) );
     },
 
-    __containRange: 1,
+    __Set: -1,
 
 
 
@@ -695,54 +713,36 @@ const _Gets = {
 
 
     /**
-     * 构造日期对象。
-     * 目标：暂存区条目可选。
-     * 目标如果有值，补充到模板实参序列之后（数组会展开）。
-     * 无实参无目标时构造一个当前时间对象。
-     * @param  {...Value} vals 实参值
-     * @return {Date}
+     * 生成元素基本信息。
+     * 目标：暂存区/栈顶1项。
+     * @data: Element|[Element]|Collector
+     * @param  {Boolean} hasid 包含ID信息
+     * @param  {Boolean} hascls 包含类名信息
+     * @return {String|[String]|Collector}
      */
-    Date( evo, ...vals ) {
-        return new Date( ...vals );
+    einfo( evo, hasid, hascls ) {
+        return mapCall( evo.data, el => elemInfo(el, hasid, hascls) );
     },
 
-    __Date: null,
+    __einfo: 1,
 
 
     /**
-     * 创建Map实例。
-     * 目标：暂存区1项可选。
-     * 目标作为创建实例的初始数据。
-     * 注：多个实例会初始化为相同的数据。
-     * @param  {Number} n 实例数量
-     * @return {Map|[Map]}
+     * 检查是否容纳选区。
+     * 目标：暂存区/栈顶1项。
+     * 检查选区对象是否完全在目标容器元素之内。
+     * @data: Range
+     * @param  {Element|String} el 容器元素或其选择器
+     * @return {Boolean}
      */
-    Map( evo, n = 1 ) {
-        if ( n == 1 ) {
-            return new Map( evo.data );
+    holdRange( evo, el ) {
+        if ( typeof el === 'string' ) {
+            el = Util.find( el, evo.delegate );
         }
-        return Array(n).fill().map( () => new Map(evo.data) );
+        return $.contains( el, evo.data.commonAncestorContainer );
     },
 
-    __Map: -1,
-
-
-    /**
-     * 创建Set实例。
-     * 目标：暂存区1项可选。
-     * 目标作为创建实例的初始数据。
-     * 注：多个实例会初始化为相同的数据。
-     * @param  {Number} n 实例数量
-     * @return {Set|[Set]}
-     */
-    Set( evo, n = 1 ) {
-        if ( n == 1 ) {
-            return new Set( evo.data );
-        }
-        return Array(n).fill().map( () => new Set(evo.data) );
-    },
-
-    __Set: -1,
+    __holdRange: 1,
 
 
     /**
@@ -1029,7 +1029,7 @@ const _Gets = {
      *     2   居中显示，默认（center）
      * }
      * @param  {Number|String|true|false} y 垂直位置标识
-     * @param  {Number} x 水平位置标识
+     * @param  {Number|String} x 水平位置标识
      * @return {void}
      */
     intoView( evo, y, x ) {

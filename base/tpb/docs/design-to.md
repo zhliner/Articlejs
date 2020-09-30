@@ -245,9 +245,6 @@ chains()
 // 事件名标识与调用链是作为Map的键值传递的，
 // 这里不能修改事件名标识（若需此能力请使用chain）。
 
-couple( path, evn:String )
-// 指令路径关联事件目标。
-
 only( name:String )
 // 类名独占设置。
 
