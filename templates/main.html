@@ -131,7 +131,7 @@
                 @mouseout:1|('_point');
                 mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|$('#g-count') val end;
-                cancel|stop (Kit) call('selsEmpty');
+                cancel|stop (Kit) call('ecancel');
                 ^obted;
                 mousedown|scam('shift') pop avoid"
             by="Ed.click(_1)"
@@ -404,9 +404,9 @@
         - toggle 快捷键隐显切换。
         - varyempty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。-->
     <div id="g-path" class="_path"
-        on="click(b)|(Kit) evo(2) call('linkElem', _1) scam;
-            mouseenter(b)|('_point') (Kit) evo(2) call('linkElem', _1) pop;
-            mouseleave(b)|stop ('_point') (Kit) evo(2) call('linkElem', _1) pop;
+        on="click(b)|(Kit) evo(2) call('source', _1) scam;
+            mouseenter(b)|('_point') (Kit) evo(2) call('source', _1) pop;
+            mouseleave(b)|stop ('_point') (Kit) evo(2) call('source', _1) pop;
             varyempty;
             toggle|evo(3) hide(2)"
         by="Ed.pathTo(_1)"
@@ -466,7 +466,7 @@
             reset: 清空值，提供选取集大小默认显示。
             setv:  设置值并提供该值的显示。-->
         <input id="g-count" name="count" type="hidden"
-            on="reset|(Kit) call('esetSize') str('[ ', ' ]') ('');
+            on="reset|(Kit) call('esize') str('[ ', ' ]') ('');
                 setv|(ESC) evo(3) apply('add', _1) ev('detail') dup;
                 cancel|(ESC) apply('pop')"
             to="|val|pop fire('#status-tips', 'info');
@@ -518,9 +518,9 @@
     <div id="err-tips" class="_err" data-pbo="lost"
         on="off|evo(3) lose;
             on|evo(3) lose(0);
-            mouseenter|('_warn') (Kit) evo(3) call('linkElem', _1) pop;
-            mouseleave|('_warn') (Kit) evo(3) call('linkElem', _1) pop;
-            click|(Kit) evo(3) call('linkElem', _1) intoView(2)"
+            mouseenter|('_warn') (Kit) evo(3) call('source', _1) pop;
+            mouseleave|('_warn') (Kit) evo(3) call('source', _1) pop;
+            click|(Kit) evo(3) call('source', _1) intoView(2)"
         to="/a|trigger('clear');
             -;
             -|addClass;

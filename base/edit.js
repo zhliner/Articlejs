@@ -84,6 +84,7 @@ class History {
      */
     push( ...obj ) {
         if ( !obj.length ) return;
+
         // 新入截断。
         this._buf.length = ++this._idx;
 
@@ -1135,6 +1136,74 @@ function elementAdds( els, gets ) {
 
 
 /**
+ * 删除节点集。
+ * @param  {[Node]} nodes 节点集
+ * @param  {Boolean} check 检查可否删除
+ * @return {DOMEdit|null} 操作实例
+ */
+function removeNodes( nodes, check ) {
+    if ( nodes.length === 0 ) {
+        return;
+    }
+    if ( check && !nodes.every(canDelete) ) {
+        help( 'has_cannot_del', deleteBadit(nodes) );
+        return null;
+    }
+    return new DOMEdit( () => $(nodes).remove() );
+}
+
+
+/**
+ * 清空元素集。
+ * 注记：清空之后内容重新开始，因此无需检查可否删除。
+ * @param  {[Element]} els 容器元素集
+ * @return {DOMEdit|null} 操作实例
+ */
+function elementsEmpty( els ) {
+    if ( els.length === 0 ) {
+        return;
+    }
+    return new DOMEdit( () => $(els).empty() );
+}
+
+
+/**
+ * 填充元素集。
+ * 如果值为数组，与成员一一对应填充（tQuery）。
+ * @param  {[Element]} els 容器元素集
+ * @param  {Value|[Value]} data 数据（集）
+ * @return {DOMEdit|null} 操作实例
+ */
+function elementsFill( els, data ) {
+    return els.length > 0 && new DOMEdit( () => $(els).fill(data) );
+}
+
+
+/**
+ * 填充元素集组。
+ * 如果集组内只有一个成员（一个选取），视为元素集填充（内部内容根元素集）。
+ * 数据组成员仅与元素集组成员（选取目标）一一对应。
+ * 如果数据组只有一个成员，表示对应到集组全部。
+ * 注记：
+ * 可用于选取集取值填充到新的选取集目标。
+ * 也可用于外部多行文本内容分别填充到多个选取目标。
+ * @param  {[[Element]]} els2 元素集组（2维）
+ * @param  {[Value]} data 数据组（1维）
+ * @return {[DOMEdit]} 操作实例集
+ */
+function elementsFill2( els2, data ) {
+    if ( els2.length === 1 ) {
+        // 值为一体。
+        return [elementsFill( els2[0], data.join(' ') )];
+    }
+    if ( data.length === 1 ) {
+        data = new Array(els2.length).fill( data[0] );
+    }
+    return els2.map( (els, i) => elementsFill(els, data[i]) );
+}
+
+
+/**
  * 平级：向前端移动。
  * n: 0值会移动到头部首个元素。
  * handle:
@@ -1375,25 +1444,31 @@ function scamPressed( set, keys ) {
 
 /**
  * 清理元素焦点。
- * 如果焦点元素在容器元素内（含容器自身），清除之。
+ * 如果焦点元素在容器元素内，清除之。
  * @param  {[Element]} els 容器元素集
+ * @param  {Boolean} self 包含自身检查
  * @return {HotEdit|null}
  */
-function cleanHot( els ) {
+function cleanHot( els, self ) {
     let _hot = __EHot.get();
-    return _hot && els.some( el => $.contains(el, _hot) ) && new HotEdit(null);
+
+    if ( !_hot || !els.length ) {
+        return null;
+    }
+    return els.some( el => $.contains(el, _hot, !self) ) && new HotEdit(null);
 }
 
 
 /**
  * 清除元素集的选取。
  * 返回的选取编辑实例需要进入历史栈。
+ * 返回false用于清除无效集。
  * @param  {[Element]} els 待清理元素集
- * @return {ESEdit} 选取操作实例
+ * @return {ESEdit|false} 选取操作实例
  */
 function clearSelected( els ) {
     __ESet.removes( els );
-    return new ESEdit( els );
+    return els.length > 0 && new ESEdit( els );
 }
 
 
@@ -2490,7 +2565,7 @@ export const Edit = {
             // 选取元素及其父元素都必须为内容元素。
             return help( 'both_conelem', unwrapBadit($els) );
         }
-        historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => __Elemedit.unWrap($els)) );
+        historyPush( cleanHot($els, true), clearSelected($els), new DOMEdit(() => __Elemedit.unWrap($els)) );
     },
 
     __unWrap: null,
@@ -2500,21 +2575,22 @@ export const Edit = {
      * 智能删除。
      * - 完整的逻辑单元（行块、内联）。
      * - 删除不影响结构逻辑的元素（如：<li>、<tr>等）。
-     * 注：
-     * 删除会破坏结构的中间结构元素不受影响（简单忽略）。
+     * 注记：
+     * 兼容OBT和程序快捷键两种操作。
+     * 返回值用于模板 OBT:on 中进阶判断。
+     * @return {Boolean} 是否成功删除。
      */
-    deletes() {
-        let $els = $(__ESet);
+    deletes( evo ) {
+        let $els = $( evo.data || __ESet ),
+            _op = removeNodes( $els, true );
 
-        if ( $els.length === 0 ) {
-            return;
+        if ( _op ) {
+            historyPush( cleanHot($els, true), clearSelected($els), _op );
         }
-        if ( !$els.every(canDelete) ) {
-            // 包含了不能被删除的元素。
-            return help( 'has_cannot_del', deleteBadit($els) );
-        }
-        historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => $els.remove()) );
+        return !!_op;
     },
+
+    __deletes: null,
 
 
     /**
@@ -2522,12 +2598,10 @@ export const Edit = {
      * 不再保护结构单元的结构。
      */
     deleteForce() {
-        let $els = $(__ESet);
+        let $els = $( __ESet ),
+            _op = removeNodes( $els );
 
-        if ( $els.length === 0 ) {
-            return;
-        }
-        historyPush( cleanHot($els), clearSelected($els), new DOMEdit(() => $els.remove()) );
+        _op && historyPush( cleanHot($els, true), clearSelected($els), _op );
     },
 
 
@@ -2537,13 +2611,11 @@ export const Edit = {
      */
     deleteContents() {
         let $els = $(__ESet),
-            $cons = $els.map( el => contentBoxes(el) ).flat();
+            $cons = $els.map( el => contentBoxes(el) ).flat(),
+            _op = elementsEmpty( $cons );
 
-        if ( $cons.length === 0 ) {
-            return;
-        }
         // 选取根内容元素集
-        historyPush( clearSelected($els), cleanHot($cons), new DOMEdit(() => $cons.empty()), pushesSelect($cons) );
+        _op && historyPush( clearSelected($els), cleanHot($cons), _op, pushesSelect($cons) );
     },
 
 
@@ -2740,6 +2812,57 @@ export const Edit = {
     },
 
 
+    //-- 复制/粘贴 ----------------------------------------------------------
+    // 浏览器剪贴板处理。
+    // 注：在模板的调用链中使用。
+
+
+    /**
+     * 复制（copy）：
+     * 提取选取元素的文本内容（textContent）到剪贴板。
+     * 多个选取元素的内容以换行分隔。
+     * 空文本内容的元素会表现出占位效果。
+     * On: "copy|eset;"
+     *     "_clipboard|ev('detail') text clean(' ') trim join('\n') pop clipboard"
+     * To: "|trigger('_clipboard')"
+     */
+
+
+    /**
+     * 剪切（cut）：
+     * 提取内容和规则同复制，同时会删除元素自身。
+     * 如果有不可删除的内容，剪贴板内容会被设置为空（友好）。
+     * On: "eset dup"
+     * By: "Ed.deletes pass"
+     * To: "|trigger('_clipboard')"
+     */
+
+
+    /**
+     * 粘贴：
+     * 以剪贴板内容里的换行为切分，添加内容到选取集元素内的根内容元素里。
+     * 内容分组与选取集成员一一对应，多出的内容或目标简单忽略。
+     * 如果选取的目标只有一个，则源数据集视为一个整体粘贴或复制粘贴（多个内容根）。
+     * 注记：
+     * 此处填充规则稍为复杂故定制（不能直接使用 OBT:To.Update）。
+     *
+     * 目标：暂存区/栈顶1项。
+     * @data: [String]
+     * On: "paste|clipboard trim pass split('\n')"
+     * By: "Ed.paste"
+     */
+    paste( evo ) {
+        let _con2 = [...__ESet].map( el => contentBoxes(el) ),
+            _cons = _con2.flat();
+
+        if ( _cons.length ) {
+            historyPush( cleanHot(_cons), ...elementsFill2(_con2, evo.data) );
+        }
+    },
+
+    __paste: 1,
+
+
     //-- 杂项编辑 ------------------------------------------------------------
 
     /**
@@ -2892,24 +3015,9 @@ export const Edit = {
 
 //
 // 模板辅助工具集。
-// 仅供模板中在调用链中使用。
+// 仅供模板中在调用链上使用。
 //
 export const Kit = {
-    /**
-     * 清空选取集。
-     * ESC键最底层取消操作。
-     * 注记：固定配置不提供外部定制。
-     */
-    selsEmpty() {
-        let _old = [...__ESet];
-
-        if ( __Selects.empty() === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old) );
-    },
-
-
     /**
      * 撤销：工具栏按钮。
      */
@@ -2927,12 +3035,36 @@ export const Kit = {
 
 
     /**
+     * 获取选取集。
+     * @return {[Element]}
+     */
+    eset() {
+        return [ ...__ESet ];
+    },
+
+
+    /**
      * 获取选取集大小。
      * 用途：状态栏友好提示。
      * @return {Number}
      */
-    esetSize() {
+    esize() {
         return __ESet.size;
+    },
+
+
+    /**
+     * 选取集取消（清空）。
+     * ESC键最底层取消操作。
+     * 注记：固定配置不提供外部定制。
+     */
+    ecancel() {
+        let _old = [...__ESet];
+
+        if ( __Selects.empty() === false ) {
+            return;
+        }
+        historyPush( new ESEdit(_old) );
     },
 
 
@@ -2945,9 +3077,10 @@ export const Kit = {
      * @param  {Element} box 路径元素（容器）
      * @return {Element}
      */
-    linkElem( box ) {
+    source( box ) {
         return box[ __linkElem ];
     },
+
 };
 
 
@@ -2958,7 +3091,10 @@ processExtend( 'Ed', Edit, [
     'click',
     'pathTo',
     'toText',
-    'unWrap'
+    'unWrap',
+    // cut中的符合处理
+    'deletes',
+    'paste',
 ]);
 
 
