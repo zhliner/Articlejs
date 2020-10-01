@@ -1196,8 +1196,8 @@ function elementsFill2( els2, data ) {
         // 值为一体。
         return [elementsFill( els2[0], data.join(' ') )];
     }
-    if ( data.length === 1 ) {
-        data = new Array(els2.length).fill( data[0] );
+    if ( typeof data === 'string' ) {
+        data = new Array(els2.length).fill( data );
     }
     return els2.map( (els, i) => elementsFill(els, data[i]) );
 }
@@ -2827,11 +2827,6 @@ export const Edit = {
      * 提取选取元素的文本内容（textContent）到剪贴板。
      * 多个选取元素的内容以换行分隔。
      * 空文本内容的元素会表现出占位效果。
-     * 剪贴板设置：
-     * "xxx|ev('detail') text clean(' ') trim join('\n') pop clipboard"
-     *
-     * On: "[ESet]"
-     * To: "|trigger('xxx')" // 触发剪贴板设置
      */
 
 
@@ -2839,9 +2834,6 @@ export const Edit = {
      * 剪切（cut）：
      * 提取内容和规则同复制，同时会删除元素自身。
      * 如果有不可删除的内容，剪贴板内容会被设置为空（友好）。
-     * On: "[ESet] dup"
-     * By: "Ed.deletes pass"
-     * To: "|trigger('xxx')" // 触发剪贴板设置
      */
 
 
@@ -2851,19 +2843,21 @@ export const Edit = {
      * 内容分组与选取集成员一一对应，多出的内容或目标简单忽略。
      * 如果选取的目标只有一个，则源数据集视为一个整体粘贴或复制粘贴（多个内容根）。
      * 注记：
-     * 此处填充规则稍为复杂故定制（不能直接使用 OBT:To.Update）。
+     * 此处填充规则稍为复杂故定制（不宜直接使用 OBT:To.Update）。
      *
      * 目标：暂存区/栈顶1项。
+     * 目标为从剪贴板取得的文本内容（已分解为数组）。
      * @data: [String]
-     * On: "paste|clipboard trim pass split('\n')"
+     * On: "paste|avoid clipboard trim pass split('\n')"
      * By: "Ed.paste"
      */
     paste( evo ) {
         let _con2 = [...__ESet].map( el => contentBoxes(el) ),
-            _cons = _con2.flat();
+            _cons = _con2.flat(),
+            _data = evo.data.length === 1 ? evo.data[0] : evo.data;
 
         if ( _cons.length ) {
-            historyPush( cleanHot(_cons), ...elementsFill2(_con2, evo.data) );
+            historyPush( cleanHot(_cons), ...elementsFill2(_con2, _data) );
         }
     },
 
