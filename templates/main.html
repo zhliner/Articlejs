@@ -63,16 +63,14 @@
         focus 设置选取范围到内部，以捕获copy|cut事件。
     -->
     <div id="g-scroll" class="_scroll" tabindex="0"
-        on="cut|avoid ev('clipboardData') (Kit) call('eset') pack(2);
-            copy|avoid ev('clipboardData') (Kit) call('eset') pack(2);
-            keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
+        on="keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
             keyup|(/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
-            focus|$('/menu') nodeRange(true) addRange;
-            _clipset|ev('detail') spread text clean(' ') trim join('\n') shift clipboard(_1)"
-        by="Ed.deletes pass"
-        to="|trigger('_clipset');
-            |trigger('_clipset');
-            #g-count|trigger('reset');
+            cut|avoid (Kit) call('eset') text clean(' ') trim join('\n');
+            copy|avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
+            focus|$('/menu') nodeRange(true) addRange"
+        by="-;-;
+            Ed.deletes pass pop clipboard"
+        to="#g-count|trigger('reset');
             #g-count|trigger('setv')">
         <!-- 上下文菜单 -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="lost">
@@ -422,7 +420,7 @@
             varyempty;
             toggle|evo(3) hide(2)"
         by="Ed.pathTo(_1)"
-        to="#g-count|trigger('reset')|fire('body/', 'focus.content');
+        to="#g-count|trigger('reset')|fire('body', 'focus.content');
             -|addClass;
             -|removeClass;
             /b:hover|trigger('mouseleave', true)">
@@ -525,7 +523,7 @@
         <input id="cmd-input" type="text" spellcheck="false" class="_code" value="" />
     </div>
     <!--出错提示：
-        click 滚动问题元素到视口中间。
+        click 滚动问题元素到视口中间（主窗口聚焦友好）。
         mouseover 问题元素背影提示。-->
     <div id="err-tips" class="_err" data-pbo="lost"
         on="off|evo(3) lose;
@@ -536,7 +534,8 @@
         to="/a|trigger('clear');
             -;
             -|addClass;
-            -|removeClass">
+            -|removeClass;
+            body|trigger('focus.content')">
         <a data-hid="" title="这里也设置提示，便于超长的信息可以简单查看"
             on="setv|ev('detail');
                 clear|(null)"

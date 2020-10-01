@@ -3027,6 +3027,7 @@ export const Edit = {
 export const Kit = {
     /**
      * 撤销：工具栏按钮。
+     * @return {void}
      */
     undo() {
         Edit.editUndo();
@@ -3035,6 +3036,7 @@ export const Kit = {
 
     /**
      * 重做：工具栏按钮。
+     * @return {void}
      */
     redo() {
         Edit.editRedo();
@@ -3064,6 +3066,7 @@ export const Kit = {
      * 选取集取消（清空）。
      * ESC键最底层取消操作。
      * 注记：固定配置不提供外部定制。
+     * @return {void}
      */
     ecancel() {
         let _old = [...__ESet];

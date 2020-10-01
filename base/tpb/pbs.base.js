@@ -37,9 +37,9 @@ const
     __reSpace = /\s+/,
 
     // 至少1个空白。
-    // 保留首个匹配字符记忆。
+    // 保留首个匹配字符和剩余部分记忆。
     // 注：clean专用。
-    __reSpace1n = /(\s)\s*/g,
+    __reSpace1n = /(\s)(\s*)/g,
 
     // 颜色值：rgb(0, 0, 0)
     __rgbDecimal = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/,
@@ -1368,7 +1368,7 @@ const _Process = {
 
     /**
      * 空白清理。
-     * 将字符串内连续的空白替换为其首个空白，
+     * 将字符串内连续的空白替换为指定的字符序列，
      * 首尾空白只会在传递 rch 为空串时才有清除的效果。
      * 默认替换为空白匹配序列的首个空白。
      * @param  {String|Function} rch 空白替换符，可选
@@ -1654,23 +1654,21 @@ const _Process = {
     /**
      * 剪贴板操作（取值/设置）。
      * 目标：暂存区1项可选。
-     * 目标为剪贴板DataTransfer实例，如果无值则从当前事件剪贴板获取。
-     * 实参data有值时为设置，无值时为取值。
+     * 目标为待设置数据，有值时为设置，无值时为取值。
      * 提示：
      * - 取值适用粘贴（paste）事件。
      * - 设置适用复制或剪切（copy|cut）事件。
-     * @data: DataTransfer|void
-     * @param  {Value} data 要设置的数据，可选
+     * 注记：
+     * 仅支持在直接的事件调用链中使用。
+     * @data: Value|void
      * @param  {String} fmt 数据类型，可选（默认纯文本）
      * @return {String|void}
      */
-    clipboard( evo, data, fmt = 'text/plain' ) {
-        let _cb = evo.data || evo.event.clipboardData;
-
-        if ( data === undefined ) {
-            return _cb.getData( fmt );
+    clipboard( evo, fmt = 'text/plain' ) {
+        if ( evo.data === undefined ) {
+            return evo.event.clipboardData.getData( fmt );
         }
-        _cb.setData( fmt, data );
+        evo.event.clipboardData.setData( fmt, evo.data );
     },
 
     __clipboard: -1,
