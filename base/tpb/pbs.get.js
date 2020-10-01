@@ -245,29 +245,54 @@ const _Gets = {
 
 
     /**
-     * 获取当前内容选区。
+     * 获取当前选取范围。
      * 目标：无。
      * 即获取用户在页面中的划选部分。
-     * 如果未指定强制取值，则选区首尾需在同一容器元素内（完整嵌套）。
-     * 无选区或选区闭合时返回 null。
+     * 严格约束下，选区首尾需在同一容器元素内（完整嵌套）。
+     * 无选取时返回 null。
+     * 严格约束下非完整嵌套返回 false。
      * @param  {Boolean} loose 非严格约束
-     * @return {Range|null}
+     * @return {Range|null|false}
      */
     Range( evo, loose = false ) {
-        var _sel = window.getSelection();
+        let _sel = window.getSelection(),
+            _rng = null;
 
-        if ( _sel.rangeCount == 0 ) {
-            return null;
+        if ( _sel.rangeCount > 0 ) {
+            _rng = _sel.getRangeAt(0);
         }
-        var _rng = _sel.getRangeAt(0);
-
         if ( loose ) {
             return _rng;
         }
-        return _rng.startContainer.parentNode === _rng.endContainer.parentNode && !_rng.collapsed ? _rng : null;
+        return _rng && _rng.startContainer.parentNode === _rng.endContainer.parentNode && _rng;
     },
 
     __Range: null,
+
+
+    /**
+     * 选取目标节点为一个范围（Range）。
+     * 目标：暂存区/栈顶1项。
+     * collapse: {
+     *      true    折叠到元素前端
+     *      false   折叠到元素末端
+     *      undefined 元素为选取状态（无折叠）
+     * }
+     * @data: Element
+     * @param  {Boolean} collapse 选区折叠位置，可选
+     * @return {Range}
+     */
+    nodeRange( evo, collapse ) {
+        let _rng = document.createRange();
+        _rng.selectNode( evo.data );
+
+        if ( collapse != null ) {
+            _rng.collapse( !!collapse );
+        }
+        return _rng;
+    },
+
+    __nodeRange: 1,
 
 
 

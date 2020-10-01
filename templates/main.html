@@ -58,12 +58,21 @@
 <!-- 内容区 -->
 <div class="___Content" tpl-name="main:content">
     <!--滚动封装（不在<main>上，避免聚焦影响）
-        keydown 快捷键操作（key, count）
-        keyup 数值设置（非数字无效） -->
+        keydown 快捷键操作（key, count）。
+        keyup 数值设置（非数字无效）。
+        focus 设置选取范围到内部，以捕获copy|cut事件。
+    -->
     <div id="g-scroll" class="_scroll" tabindex="0"
-        on="keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
-            keyup|(/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1)"
-        to="#g-count|trigger('reset');
+        on="cut|avoid ev('clipboardData') (Kit) call('eset') pack(2);
+            copy|avoid ev('clipboardData') (Kit) call('eset') pack(2);
+            keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
+            keyup|(/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
+            focus|$('/menu') nodeRange(true) addRange;
+            _clipset|ev('detail') spread text clean(' ') trim join('\n') shift clipboard(_1)"
+        by="Ed.deletes pass"
+        to="|trigger('_clipset');
+            |trigger('_clipset');
+            #g-count|trigger('reset');
             #g-count|trigger('setv')">
         <!-- 上下文菜单 -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="lost">
@@ -124,9 +133,12 @@
         <!--内容区：
             mousedown|avoid: 避免 Shift+单击 变成划选。
             click|avoid: 取消链接单击跳转。
-            微编辑：on="mouseup keyup input|rangeKeep stop" -->
+            微编辑：
+            on="mouseup keyup input|rangeKeep stop"
+            @mouseover:1, @mouseout:1 解绑。
+        -->
         <main id="content" class="content"
-            on="click(*)|avoid Range end evo(1) scam;
+            on="click(*)|avoid Range str end evo(1) scam;
                 @mouseover:1|('_point');
                 @mouseout:1|('_point');
                 mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');

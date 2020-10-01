@@ -47,9 +47,11 @@ const
     // 颜色值：rgba(0, 0, 0, 0.n)
     __rgbaDecimal = /rgba\((\d+),\s*(\d+),\s*(\d+),\s*([.0-9]+)\)/,
 
-    // 选取对象暂存。
-    // 由rangeKeep操作，供exeCmd方法使用。
-    __tmpRanges = [];
+    // 选区对象存储池。
+    __tmpRanges = {},
+
+    // 选区默认存储键。
+    __rngKey = Symbol( 'Range-store' );
 
 
 
@@ -235,6 +237,19 @@ const _Control = {
     },
 
     __index_x: true,
+
+
+    /**
+     * 截取数据栈任意区段。
+     * @param {Stack} stack 数据栈
+     * @param {Number} idx 起始位置
+     * @param {Number} cnt 移除计数，可选
+     */
+    splice( evo, stack, idx, cnt = 1 ) {
+        stack.tsplice( idx, cnt );
+    },
+
+    __splice_x: true,
 
 
 
@@ -1569,77 +1584,93 @@ const _Process = {
 
 
     /**
-     * 活动选取记忆。
-     * 目标：无。
-     * 自动更新全局Range集存储。
-     * 通常绑定在离可编辑元素最近的容器元素上。
+     * 选取范围记忆与提取。
+     * 目标：暂存区1项可选。
+     * 目标有值时为 Range 对象存储（内部池），否则为取值。
+     * 通常绑定在离可编辑元素较近的容器元素上。
      * 如：
-     * <main on="mouseup keyup input|rangeKeep stop">
+     * <main on="mouseup keyup input|Range pop xRange stop">
      *      <p contenteditable>可编辑区域...</p>
      * </main>
-     * @return {void}
+     * @return {Range|void}
      */
-    rangeKeep() {
-        let _sln = window.getSelection();
-        __tmpRanges.length = 0;
-
-        for (let i = 0; i < _sln.rangeCount; i++) {
-            __tmpRanges.push( _sln.getRangeAt(i) );
+    xRange( evo, key = __rngKey ) {
+        if ( evo.data === undefined ) {
+            return __tmpRanges[ key ];
         }
-        // 用于重新聚焦。
-        __tmpRanges.active = document.activeElement;
+        __tmpRanges[ key ] = evo.data;
     },
 
-    __rangeKeep: null,
+    __xRange: -1,
+
+
+    /**
+     * 将选取范围添加到浏览器全局Selection上。
+     * 目标：暂存区/栈顶1项。
+     * 目标为待添加的选取范围（Range）实例。
+     * @param  {Boolean} clear 清除之前的选取，可选
+     * @return {Range} 被添加的选区
+     */
+    addRange( evo, clear = true ) {
+        let _sln = window.getSelection();
+
+        if ( clear ) {
+            _sln.removeAllRanges();
+        }
+        return _sln.addRange(evo.data), evo.data;
+    },
+
+    __addRange: 1,
 
 
     /**
      * 执行document命令。
-     * 目标：暂存区1项可选。
-     * 目标为待使用的数据（部分命令不需要）。
-     * 需配合rangeKeep使用（定位编辑区）。
+     * 目标：暂存区/栈顶1项。
+     * 目标为用户划选或定义的选取范围（Range）。
      * 用法：
-     *      on="click(b)|evo(2) text pop exeCmd('insertText')"
+     * click(b)|xRange addRange evo(2) text exeCmd('insertText', _1)
      * 说明：
-     * - 绑定单击元素内的<b>元素事件。
-     * - 取当前目标元素内的文本，提取至暂存区。
-     * - 执行 insertText 命令，内容为暂存区数据。
+     * 提取预先存储/记忆的选区，添加到全局Selection上。
+     * 激活选区所在可编辑容器元素，执行命令。
      * 注：
-     * 插入的内容可受浏览器自身撤销/重做操作的影响。
-     *
+     * 插入的内容可进入浏览器自身撤销/重做栈。
+     * @data: Range
      * @param  {String} name 命令名称
+     * @param  {Value} data 待使用的数据
      * @return {Boolean} 调用命令返回的值
      */
-    exeCmd( evo, name ) {
-        let _sln = window.getSelection();
+    exeCmd( evo, name, data ) {
+        $.closest(
+            evo.data.commonAncestorContainer,
+            '[contenteditable], [tabindex]'
+        ).focus();
 
-        _sln.removeAllRanges();
-        _sln.addRange( __tmpRanges[0] );
-
-        __tmpRanges.active.focus();
-
-        return document.execCommand( name, false, evo.data );
+        return document.execCommand( name, false, data );
     },
 
-    __exeCmd: -1,
+    __exeCmd: 1,
 
 
     /**
      * 剪贴板操作（取值/设置）。
      * 目标：暂存区1项可选。
-     * 如果暂存区有值则为设置，否则为取值。
-     * 注记：
+     * 目标为剪贴板DataTransfer实例，如果无值则从当前事件剪贴板获取。
+     * 实参data有值时为设置，无值时为取值。
+     * 提示：
      * - 取值适用粘贴（paste）事件。
      * - 设置适用复制或剪切（copy|cut）事件。
-     * @data: String|void
-     * @param  {String} fmt 取值类型，可选（默认纯文本）
+     * @data: DataTransfer|void
+     * @param  {Value} data 要设置的数据，可选
+     * @param  {String} fmt 数据类型，可选（默认纯文本）
      * @return {String|void}
      */
-    clipboard( evo, fmt = 'text/plain' ) {
-        if ( evo.data === undefined ) {
-            return evo.event.clipboardData.getData( fmt );
+    clipboard( evo, data, fmt = 'text/plain' ) {
+        let _cb = evo.data || evo.event.clipboardData;
+
+        if ( data === undefined ) {
+            return _cb.getData( fmt );
         }
-        evo.event.clipboardData.setData( fmt, evo.data );
+        _cb.setData( fmt, data );
     },
 
     __clipboard: -1,

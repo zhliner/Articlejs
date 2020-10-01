@@ -214,6 +214,9 @@ shift( n?: Number ): void
 index( ...ns: Number ): void
 // 引用目标位置项。
 
+splice( idx, cnt:Number ): void
+// 截取栈任意段。
+
 
 
 // 数据栈操作。
@@ -434,10 +437,13 @@ set( name:String, val:Value|[Value] ): evo.data
 hotKey( key, extra ): Boolean
 // 热键触发。
 
-rangeKeep(): void
-// 活动选取记忆。
+xRange( key?:String ): Range | void
+// 选取范围记忆存取。
 
-exeCmd( type: String ): void
+addRange( clear:Boolean ): Range
+// 添加范围到全局Selection上。
+
+exeCmd( type:String, data:Value ): Return
 // 执行document命令
 // 即：document.execCommand(...)
 

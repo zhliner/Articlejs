@@ -2065,27 +2065,33 @@ export const Edit = {
      * - 多选：多选或切换选。
      * - 跨选：焦点平级跨越扩选。
      * - 浮选：焦点平级切换选。
+     * - 父选：目标的父元素。
      * @data: Element 点击的目标元素
      * @param {Set} scam 辅助键按下集
      */
     click( evo, scam ) {
-        let _hot = __EHot.get();
+        let _hot = __EHot.get(),
+            _el = evo.data;
         // 聚焦
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
-            return setFocus( evo.data );
+            return setFocus( _el );
         }
         // 跨选
         if ( scamPressed(scam, cfg.Keys.acrossSelect) ) {
-            let _to = closestFocus( _hot, evo.data );
+            let _to = closestFocus( _hot, _el );
             return _to && expandSelect( _hot, siblingTo(_hot, _to) );
         }
         // 浮选
         if ( scamPressed(scam, cfg.Keys.smartSelect) ) {
-            let _to = closestFocus( _hot, evo.data );
+            let _to = closestFocus( _hot, _el );
             return _to && elementOne( _to, 'turn' );
         }
+        // 父选
+        if ( scamPressed(scam, cfg.Keys.parentSelect) ) {
+            return elementOne( _el.parentElement, 'turn' );
+        }
         // 多选/单选
-        elementOne( evo.data, scamPressed(scam, cfg.Keys.turnSelect) ? 'turn' : 'only' );
+        elementOne( _el, scamPressed(scam, cfg.Keys.turnSelect) ? 'turn' : 'only' );
     },
 
     __click: 1,
@@ -2581,8 +2587,8 @@ export const Edit = {
      * 返回值用于模板 OBT:on 中进阶判断。
      * @return {Boolean} 是否成功删除。
      */
-    deletes( evo ) {
-        let $els = $( evo.data || __ESet ),
+    deletes() {
+        let $els = $( __ESet ),
             _op = removeNodes( $els, true );
 
         if ( _op ) {
@@ -2590,8 +2596,6 @@ export const Edit = {
         }
         return !!_op;
     },
-
-    __deletes: null,
 
 
     /**
@@ -2823,9 +2827,11 @@ export const Edit = {
      * 提取选取元素的文本内容（textContent）到剪贴板。
      * 多个选取元素的内容以换行分隔。
      * 空文本内容的元素会表现出占位效果。
-     * On: "copy|eset;"
-     *     "_clipboard|ev('detail') text clean(' ') trim join('\n') pop clipboard"
-     * To: "|trigger('_clipboard')"
+     * 剪贴板设置：
+     * "xxx|ev('detail') text clean(' ') trim join('\n') pop clipboard"
+     *
+     * On: "[ESet]"
+     * To: "|trigger('xxx')" // 触发剪贴板设置
      */
 
 
@@ -2833,9 +2839,9 @@ export const Edit = {
      * 剪切（cut）：
      * 提取内容和规则同复制，同时会删除元素自身。
      * 如果有不可删除的内容，剪贴板内容会被设置为空（友好）。
-     * On: "eset dup"
+     * On: "[ESet] dup"
      * By: "Ed.deletes pass"
-     * To: "|trigger('_clipboard')"
+     * To: "|trigger('xxx')" // 触发剪贴板设置
      */
 
 

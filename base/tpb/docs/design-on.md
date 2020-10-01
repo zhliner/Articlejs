@@ -71,7 +71,7 @@ evo( name:String|Number ): Value
 ev( name?:String ): Value|[Value]
 // 从事件对象上取值入栈。
 
-get( name:String ): Value | [Value]
+get( name:String ): Value|[Value]
 // 对象成员取值。
 
 gets( ...name:String ): void
@@ -86,8 +86,11 @@ calls( meths:String, ...args:Value ): [Value]
 vals( ...name:String ): Object{name:value}
 // 获取目标名称的控件值集。
 
-Range( force:Boolean ): Range
-// 获取当前选区。
+Range( loose:Boolean ): Range|null|false
+// 获取当前选取范围。
+
+nodeRange( collapse:Boolean|void ): Range
+// 选取目标节点为一个范围（Range）。
 
 
 // 类型转换&构造。

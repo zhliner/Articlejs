@@ -643,6 +643,16 @@ class Stack {
     }
 
 
+    /**
+     * 截取数据栈任意段。
+     * @param {Number} idx 起始下标
+     * @param {Number} cnt 移除计数
+     */
+    tsplice( idx, cnt ) {
+        this._tmp.push( ...this._buf.splice(idx, cnt) );
+    }
+
+
     //-- 私有辅助 -------------------------------------------------------------
 
     /**
