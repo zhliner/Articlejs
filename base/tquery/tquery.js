@@ -1340,17 +1340,21 @@ Object.assign( tQuery, {
     /**
      * 获取最近匹配的父级元素。
      * - 向上逐级检查父级元素是否匹配。
-     * - 从当前元素自身开始测试（同标准 Element:closest）。
+     * - 从当前节点自身开始测试（同标准 Element:closest）。
      * - 如果抵达document或DocumentFragment会返回null。
      * - 自定义匹配函数支持向上递进的层数（_i）。
-     * - 未传入slr时无任何匹配（Element.closest抛出异常）。
-     * @param  {Element} el 参考元素
+     * - slr为假值时抛出异常（同Element.closest）。
+     * 注：支持从文本节点开始。
+     * @param  {Node} el 起始节点
      * @param  {String|Function|Element|[Element]} slr 匹配选择器
      * @return {Element|null}
      */
     closest( el, slr = '' ) {
-        if (el.closest && typeof slr == 'string') {
+        if ( typeof slr == 'string' && el.closest ) {
             return el.closest( slr );
+        }
+        if ( !slr ) {
+            throw new Error( 'The provided selector is empty.' );
         }
         let _fun = getFltr( slr ),
             _i = 0;
@@ -7806,7 +7810,6 @@ Object.assign( tQuery, {
 //
 // Expose only $
 ///////////////////////////////////////////////////////////////////////////////
-
 
 let _w$ = window.$;
 
