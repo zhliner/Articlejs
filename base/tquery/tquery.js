@@ -2915,7 +2915,7 @@ tQuery.Table = Table;
         if ( isFunc(cons) ) {
             cons = cons(el);
         }
-        return Insert( el, clone ? nodesClone(cons, event, eventdeep) : nodesItem(cons), _meth );
+        return Insert( el, clone ? nodesClone(cons, event, eventdeep) : nodesItem(cons, el.ownerDocument), _meth );
     };
 });
 
@@ -5331,25 +5331,44 @@ function nodesClone( cons, event, eventdeep ) {
 
 /**
  * 提取节点/节点集。
- * 注：处理多种集合类型。
- * @param  {Node|DocumentFragment|[Node]|Set|Iterator}} cons 节点或节点集
+ * 文档片段需要提取内容（用于最终返回值）。
+ * 字符串创建为一个文本节点。
+ * 注：数据集滤除了假值条目。
+ * @param  {Node|DocumentFragment|[Node]|Set|Iterator|String}} cons 节点或节点集
  * @return {Node|[Node]} 节点或节点数组
  */
-function nodesItem( cons ) {
-    if ( !cons ) return '';
-
-    if ( cons.nodeType == 11 ) {
-        return Arr( cons.childNodes );
+function nodesItem( cons, doc ) {
+    if ( !cons || cons.nodeType ) {
+        return cons && cons.nodeType === 11 ? Arr(cons.childNodes) : cons;
     }
-    return cons.nodeType || typeof cons === 'string' ? cons : $A( cons );
+    if ( typeof cons === 'string' ) {
+        return doc.createTextNode( cons );
+    }
+    return cleanMap( cons, nd => nodeItem(nd, doc) ).flat();
+}
+
+
+/**
+ * 获取节点数据。
+ * @param  {Node|String} data 节点数据
+ * @param  {Document} doc 所属文档，可选
+ * @return {Node|null}
+ */
+function nodeItem( data, doc ) {
+    if ( typeof data === 'string' ) {
+        return doc.createTextNode( data );
+    }
+    let _nt = data && data.nodeType;
+    return _nt ? ( _nt === 11 ? Arr(data.childNodes) : data ) : null;
 }
 
 
 /**
  * 通用节点（集）插入。
- * - 返回实际插入的节点（集）。
+ * 数据为假值时不会产生插入行为。
+ * 返回实际插入的节点（集）。
  * @param  {Node} node 目标节点
- * @param  {Node|[Node]} data 节点（集）
+ * @param  {Node|[Node]|String} data 节点（集）
  * @param  {String|Number} where 插入位置
  * @return {Node|[Node]} 内容节点（集）
  */
@@ -5359,14 +5378,15 @@ function Insert( node, data, where ) {
     if ( !_fun ) {
         throw new Error(`[${where}] is invalid method.`);
     }
-    return _fun( node, data );
+    return data && _fun( node, data );
 }
 
 
 //
 // 6种插入方式。
+// 数据已保证为节点或节点集。
 // @param  {Node|Element} node 目标节点。
-// @param  {[Node|Element]} data 节点集
+// @param  {[Node|Element]} data 节点（集）
 // @return {void}
 //
 const insertHandles = {
@@ -5947,7 +5967,7 @@ function toggleClass( el, names ) {
 /**
  * 元素内前插入。
  * @param  {Element} el 容器元素
- * @param  {Node|[Node]|String} nodes 节点数据（集）
+ * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
  */
 function varyPrepend( el, nodes ) {
@@ -5965,7 +5985,7 @@ function varyPrepend( el, nodes ) {
  * 元素内后添加。
  * 注记：兼容字符串视为普通文本插入，下同。
  * @param  {Element} el 容器元素
- * @param  {Node|[Node]|String} nodes 节点数据（集）
+ * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
  */
 function varyAppend( el, nodes ) {
@@ -5982,7 +6002,7 @@ function varyAppend( el, nodes ) {
 /**
  * 节点前插入。
  * @param  {Node} el 参考节点
- * @param  {Node|[Node]|String} nodes 节点数据（集）
+ * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
  */
 function varyBefore( el, nodes ) {
@@ -5999,7 +6019,7 @@ function varyBefore( el, nodes ) {
 /**
  * 节点后插入。
  * @param  {Node} el 参考节点
- * @param  {Node|[Node]|String} nodes 节点数据（集）
+ * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
  */
 function varyAfter( el, nodes ) {
@@ -6018,7 +6038,7 @@ function varyAfter( el, nodes ) {
  * 替换之后的完成事件实际上无法向上传递了，
  * 但这可能依然有它的价值。
  * @param  {Node} el 参考节点
- * @param  {Node|[Node]|String} nodes 节点数据（集）
+ * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
  */
 function varyReplace( el, nodes ) {
@@ -6036,7 +6056,7 @@ function varyReplace( el, nodes ) {
  * 辅助：节点基本操作。
  * meth: prepend|append|before|after|replaceWith
  * @param {Element|Node} el 目标/参考节点
- * @param {Node|[Node]|String} nodes 节点数据（集）
+ * @param {Node|[Node]} nodes 节点数据（集）
  * @param {String} evn0 改变事件名
  * @param {String} evn1 完成事件名
  * @param {String} evnx 出错事件名
@@ -6044,9 +6064,7 @@ function varyReplace( el, nodes ) {
 function varyNodes( el, meth, nodes, evn0, evn1, evnx ) {
     limitTrigger( el, evn0, nodes );
     try {
-        typeof nodes === 'string' ?
-            el[meth]( nodes ) :
-            el[meth]( ...detachNodes(nodes) );
+        el[meth]( ...detachNodes(nodes) );
     }
     catch ( err ) {
         return failTrigger( el, evnx, [err, nodes] );
