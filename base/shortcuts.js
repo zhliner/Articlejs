@@ -756,12 +756,12 @@ Keys: {
     slaveResize:  'Alt',
 
 
-    // 切换选取辅助
+    // 多选/切换
     // [Key] + 单击
     // 注：不能为空。
     turnSelect: 'Ctrl',
 
-    // 聚焦辅助。
+    // 仅聚焦。
     // 单纯的设置元素为焦点元素（不选取）。
     // [Key] + 单击
     // 支持内容区目标和路径关联方式。
@@ -778,9 +778,14 @@ Keys: {
     smartSelect: 'Ctrl Shift',
 
     // 父选（切换）。
-    // 与焦点元素无关，选取单击目标的父元素。
+    // 选取或取消选取单击目标的父元素，与焦点元素无关。
     // [Key] + 单击
-    parentSelect: 'Alt Ctrl',
+    parentSelects: 'Alt Ctrl',
+
+    // 父选（单选）。
+    // 单选单击目标的父元素（取消原有选取）。
+    // [Key] + 单击
+    parentSelect: 'Alt Shift',
 
 },
 

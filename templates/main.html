@@ -66,10 +66,12 @@
         on="keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
             keyup|(/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
             cut|avoid (Kit) call('eset') text clean(' ') trim join('\n');
+            paste|avoid clipboard trim dup pass split('\n');
             copy|avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
             focus|$('/menu') nodeRange(true) addRange"
         by="-;-;
-            Ed.deletes pass pop clipboard"
+            Ed.deletes pass pop clipboard;
+            Ed.paste"
         to="#g-count|trigger('reset');
             #g-count|trigger('setv')">
         <!-- 上下文菜单 -->

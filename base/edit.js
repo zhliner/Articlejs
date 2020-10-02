@@ -2065,29 +2065,34 @@ export const Edit = {
      * - 多选：多选或切换选。
      * - 跨选：焦点平级跨越扩选。
      * - 浮选：焦点平级切换选。
-     * - 父选：目标的父元素。
+     * - 父选（单）：单选目标的父元素。
+     * - 父选（复）：切换选目标的父元素。
      * @data: Element 点击的目标元素
      * @param {Set} scam 辅助键按下集
      */
     click( evo, scam ) {
         let _hot = __EHot.get(),
             _el = evo.data;
-        // 聚焦
+        // 仅聚焦
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
             return setFocus( _el );
         }
-        // 跨选
+        // 跨选（焦点同级）
         if ( scamPressed(scam, cfg.Keys.acrossSelect) ) {
             let _to = closestFocus( _hot, _el );
             return _to && expandSelect( _hot, siblingTo(_hot, _to) );
         }
-        // 浮选
+        // 浮选（焦点同级）
         if ( scamPressed(scam, cfg.Keys.smartSelect) ) {
             let _to = closestFocus( _hot, _el );
             return _to && elementOne( _to, 'turn' );
         }
-        // 父选
+        // 父选（单）
         if ( scamPressed(scam, cfg.Keys.parentSelect) ) {
+            return elementOne( _el.parentElement, 'only' );
+        }
+        // 父选（复）
+        if ( scamPressed(scam, cfg.Keys.parentSelects) ) {
             return elementOne( _el.parentElement, 'turn' );
         }
         // 多选/单选
