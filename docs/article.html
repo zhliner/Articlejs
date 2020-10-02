@@ -52,7 +52,9 @@
         <nav role="toc"
             on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>【目 录】</h3>
-            <ol role="cascade">
+            <!-- On: 单击子表标题（非<a>）折叠切换 -->
+            <ol role="cascade"
+                on="click(~h4)|evo(2) parent fold(2)">
                 <li>
                     <h4><a href="#层次">层次</a></h4>
                     <ol>

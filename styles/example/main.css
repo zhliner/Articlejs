@@ -49,7 +49,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 级联表 */
 .content li > h4 {
     margin: 2px 0;
-    display: inline;
 }
 .content li > ul,
 .content li > ol {
@@ -132,69 +131,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 
-/* 目录
- * nav:toc/ol:cascade/li/a
- *----------------------------------------------------------------------------
- */
-.content nav[role=toc] {
-    padding: 5px;
-    background-color: #fffff7;
-    border: 1px #e3e3e0 solid;
-    display: inline-block;
-    border-radius: 4px;
-    font-size: 9.6pt;
-    box-shadow: 1px 1px 4px #bbb;
-}
-
-/* 页面固定 */
-.content nav[role=toc] {
-    position: fixed;
-    top: 5px;
-    left: 20px;
-    background-color: rgba(245, 245, 245, 0.7);
-    height: 96%;
-}
-
-/* 多级编号 */
-.content nav[role=toc] > ol[role=cascade] {
-    height: calc(100% - 80px);
-    overflow-y: auto;
-}
-
-.content nav[role=toc] h3 {
-    font-size: 1.17em;
-    margin: 5px 2px;
-    padding-bottom: 10px;
-    text-align: center;
-    border-bottom: 1px #ddd dotted;
-}
-
-.content nav[role=toc] > ol {
-    margin: 2px 0;
-    padding: 5px 2px;
-    padding-bottom: 11pt;
-}
-
-.content nav[role=toc] li {
-    line-height: 150%;
-}
-
-.content nav[role=toc] > ol li {
-    margin-left: 2em;
-}
-
-.content nav[role=toc] a {
-    display: block;
-    text-decoration: none;
-    color: #039;
-    line-height: 150%;
-}
-
-.content nav[role=toc] a:hover {
-    text-decoration: underline;
-}
-
-
 /* 多级编号表
  * ol:cascade/li/h4, ol/...
  *----------------------------------------------------------------------------
@@ -211,7 +147,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-weight: normal;
 }
 
-.content ol[role=cascade] li:before {
+.content ol[role=cascade] li::before {
     position: absolute;
     top: 0;
     left: 0;
@@ -227,45 +163,119 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 1. */
 .content ol[role=cascade] > li {
     /* 缩进，与序号宽度适配 */
-    margin-left: 3.0em;
+    margin-left: 2.5em;
 }
-
-.content ol[role=cascade] > li:before {
-    margin-left: -3.0em;
+.content ol[role=cascade] > li::before {
+    width: 1.5em;
+    margin-left: -1.5em;
 }
 
 /* 1.2 */
 .content ol[role=cascade] > li>ol > li {
-    margin-left: 3.0em;
+    margin-left: 2.2em;
 }
-
-.content ol[role=cascade] > li>ol > li:before {
-    margin-left: -3.0em;
+.content ol[role=cascade] > li>ol > li::before {
+    width: 2.2em;
+    margin-left: -2.2em;
 }
 
 /* 1.2.3 */
 .content ol[role=cascade] > li>ol > li>ol > li {
-    margin-left: 3.5em;
+    margin-left: 3.3em;
 }
 
-.content ol[role=cascade] > li>ol > li>ol > li:before {
-    margin-left: -3.5em;
+.content ol[role=cascade] > li>ol > li>ol > li::before {
+    width: 3.3em;
+    margin-left: -3.3em;
 }
 
 /* 1.2.3.4 */
 .content ol[role=cascade] > li>ol > li>ol > li>ol li {
-    margin-left: 4.2em;
+    margin-left: 4.4em;
 }
 
-.content ol[role=cascade] > li>ol > li>ol > li>ol li:before {
-    margin-left: -4.2em;
+.content ol[role=cascade] > li>ol > li>ol > li>ol li::before {
+    width: 4.4em;
+    margin-left: -4.4em;
 }
 
-/* 编号右对齐 */
-.content ol[role=cascade] li:before {
-    width: 2.5em;
-    padding: 0;
-    text-align: right;
+
+/* 目录
+ * nav:toc/ol:cascade/li/a
+ *----------------------------------------------------------------------------
+ */
+.content nav[role=toc] {
+    padding: 6px 0;
+    background-color: #fffff7;
+    border: 1px #e3e3e0 solid;
+    display: inline-block;
+    border-radius: 4px;
+    font-size: 9.6pt;
+    box-shadow: 1px 1px 4px #bbb;
+    min-width: 18em;
+}
+
+/* 页面固定 */
+.content nav[role=toc] {
+    position: fixed;
+    top: 5px;
+    left: 20px;
+    background-color: rgba(245, 245, 245, 0.7);
+    height: 96%;
+}
+
+/* 目录级联编号 */
+.content nav[role=toc] > ol[role=cascade] {
+    height: calc(100% - 80px);
+    overflow-y: auto;
+}
+
+.content nav[role=toc] h3 {
+    font-size: 1.17em;
+    margin: 7px 4px;
+    padding-bottom: 10px;
+    text-align: center;
+    border-bottom: 1px #ccc dashed;
+}
+
+.content nav[role=toc] > ol {
+    margin: 0;
+    padding: 5px 12px 5px 6px;
+    padding-bottom: 11pt;
+}
+.content nav[role=toc] li {
+    margin-top: 1px;
+    padding-left: 4px;
+}
+.content nav[role=toc] li,
+.content nav[role=toc] h4,
+.content nav[role=toc] a {
+    line-height: 140%;
+}
+
+.content nav[role=toc] a {
+    color: #039;
+    text-decoration: none;
+}
+
+.content nav[role=toc] a:hover {
+    text-decoration: underline;
+}
+
+/* 子表折叠 */
+.content nav[role=toc] li[data-pbo=folded] {
+    background-color: #e8f2f2;
+    border-radius: 4px 2em 0 0;
+}
+.content nav[role=toc] li > h4::after {
+    content: '－';
+    float: right;
+    margin-right: 1em;
+    color: green;
+}
+.content nav[role=toc] li[data-pbo=folded] > h4::after {
+    content: '＋';
+    color: #e9a279;
 }
 
 
