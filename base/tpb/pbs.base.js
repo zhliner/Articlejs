@@ -240,12 +240,12 @@ const _Control = {
 
 
     /**
-     * 截取数据栈任意区段。
+     * 剪取数据栈任意区段。
      * @param {Stack} stack 数据栈
      * @param {Number} idx 起始位置
      * @param {Number} cnt 移除计数，可选
      */
-    splice( evo, stack, idx, cnt = 1 ) {
+    clip( evo, stack, idx, cnt = 1 ) {
         stack.tsplice( idx, cnt );
     },
 

@@ -398,6 +398,38 @@ Content: [
 
 
     //
+    // 杂项
+    //-----------------------------------------------------
+
+    // 选取集正序（DOM）。
+    // 焦点移到首个成员。
+    {
+        "key":      "alt:s",
+        "command":  "selectSort"
+    },
+
+    // 选取集逆序（DOM）。
+    // 焦点移到首个成员。
+    {
+        "key":      "alt+shift:s",
+        "command":  "selectReverse"
+    },
+
+
+    // 撤销（Undo）
+    {
+        "key":      ":u",
+        "command":  "editUndo"
+    },
+
+    // 重做（Redo）
+    {
+        "key":      ":r",
+        "command":  "editRedo"
+    },
+
+
+    //
     // 编辑操作
     //-----------------------------------------------------
 
@@ -568,28 +600,12 @@ Content: [
 
 
     //
-    // 杂项编辑
+    // 定位移动。
+    // 普通：1px/键次   Ctrl + 箭头键
+    // 增强：10px/键次  Ctrl + Shift + 箭头键
     //-----------------------------------------------------
 
-    // 编辑撤销（含选取）
-    {
-        "key":      ":u",
-        "command":  "editUndo"
-    },
-
-    // 编辑重做（含选取）
-    {
-        "key":      ":r",
-        "command":  "editRedo"
-    },
-
-
-    //
-    // 定位移动
-    // 普通：1px/键次
-    // 增强：10px/键次
-    //-----------------------------------------------------
-
+    // 向左移动。
     {
         "key":      "Ctrl:ArrowLeft",
         "command":  "moveToLeft"
@@ -601,6 +617,7 @@ Content: [
     },
 
 
+    // 向右移动。
     {
         "key":      "Ctrl:ArrowRight",
         "command":  "moveToRight"
@@ -612,6 +629,7 @@ Content: [
     },
 
 
+    // 向上移动。
     {
         "key":      "Ctrl:ArrowUp",
         "command":  "moveToUp"
@@ -623,6 +641,7 @@ Content: [
     },
 
 
+    // 向下移动。
     {
         "key":      "Ctrl:ArrowDown",
         "command":  "moveToDown"

@@ -214,8 +214,8 @@ shift( n?: Number ): void
 index( ...ns: Number ): void
 // 引用目标位置项。
 
-splice( idx, cnt:Number ): void
-// 截取栈任意段。
+clip( idx, cnt:Number ): void
+// 剪取栈任意段。
 
 
 

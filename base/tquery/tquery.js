@@ -3639,7 +3639,7 @@ class Collector extends Array {
      * @param  {Number} n 回溯的层数
      * @return {Collector}
      */
-    end( n = 1) {
+    end( n = 1 ) {
         let _it = this, _c0;
 
         while ( n-- && _it ) {

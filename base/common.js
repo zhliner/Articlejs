@@ -73,17 +73,19 @@ export class ESet extends Set {
 
     /**
      * 清空集合。
+     * @return {this}
      */
     clear() {
         for ( const el of this ) {
             $.removeClass( el, this._cls );
         }
-        super.clear();
+        return super.clear(), this;
     }
 
 
     /**
      * 返回首个成员。
+     * @return {Element}
      */
     first() {
         for (const el of this) return el;

@@ -2400,7 +2400,7 @@ export const Edit = {
 
 
     //-- 虚焦点相关 ----------------------------------------------------------
-    // 实际焦点不变了。
+    // 与实际焦点无关了。
 
 
     /**
@@ -2532,6 +2532,39 @@ export const Edit = {
         }
         // 顶层再向上无效（无改选）。
         stillSame(_old) || historyPush( new ESEdit(_old) );
+    },
+
+
+    //-- 选取集排序 ----------------------------------------------------------
+
+
+    /**
+     * 正序（DOM树）。
+     * 焦点设置到首个成员。
+     */
+    selectSort() {
+        let $els = $( __ESet ).sort();
+
+        if ( !$els.length ) return;
+
+        __ESet.clear().pushes( $els );
+
+        historyPush( new ESEdit($els.end(), $els[0]) );
+    },
+
+
+    /**
+     * 逆序。
+     * 焦点设置到首个成员。
+     */
+    selectReverse() {
+        let $els = $( __ESet ).sort().reverse();
+
+        if ( !$els.length ) return;
+
+        __ESet.clear().pushes( $els );
+
+        historyPush( new ESEdit($els.end(2), $els[0]) );
     },
 
 
@@ -2822,6 +2855,60 @@ export const Edit = {
     },
 
 
+    //-- 定位移动 ------------------------------------------------------------
+    // 前提：position:absolute
+    // 普通移动为 1px/次，增强移动为 10px/次
+    // 操作的是 left/top 两个样式，与 right/bottom 无关。
+
+
+    moveToLeft() {
+        let _op = elementsPostion( $(__ESet), 'left', -1 );
+        _op && historyPush( _op );
+    },
+
+
+    moveToLeftTen() {
+        let _op = elementsPostion( $(__ESet), 'left', -10 );
+        _op && historyPush( _op );
+    },
+
+
+    moveToRight() {
+        let _op = elementsPostion( $(__ESet), 'left', 1 );
+        _op && historyPush( _op );
+    },
+
+
+    moveToRightTen() {
+        let _op = elementsPostion( $(__ESet), 'left', 10 );
+        _op && historyPush( _op );
+    },
+
+
+    moveToUp() {
+        let _op = elementsPostion( $(__ESet), 'top', -1 );
+        _op && historyPush( _op );
+    },
+
+
+    moveToUpTen() {
+        let _op = elementsPostion( $(__ESet), 'top', -10 );
+        _op && historyPush( _op );
+    },
+
+
+    moveToDown() {
+        let _op = elementsPostion( $(__ESet), 'top', 1 );
+        _op && historyPush( _op );
+    },
+
+
+    moveToDownTen() {
+        let _op = elementsPostion( $(__ESet), 'top', 10 );
+        _op && historyPush( _op );
+    },
+
+
     //-- 复制/粘贴 ----------------------------------------------------------
     // 浏览器剪贴板处理。
     // 注：在模板的调用链中使用。
@@ -2960,62 +3047,11 @@ export const Edit = {
     },
 
 
-    //-- 定位移动 ------------------------------------------------------------
-    // 前提：position:absolute
-    // 普通移动为 1px/次，增强移动为 10px/次
-    // 操作的是 left/top 两个样式，与 right/bottom 无关。
-
-
-    moveToLeft() {
-        let _op = elementsPostion( $(__ESet), 'left', -1 );
-        _op && historyPush( _op );
-    },
-
-
-    moveToLeftTen() {
-        let _op = elementsPostion( $(__ESet), 'left', -10 );
-        _op && historyPush( _op );
-    },
-
-
-    moveToRight() {
-        let _op = elementsPostion( $(__ESet), 'left', 1 );
-        _op && historyPush( _op );
-    },
-
-
-    moveToRightTen() {
-        let _op = elementsPostion( $(__ESet), 'left', 10 );
-        _op && historyPush( _op );
-    },
-
-
-    moveToUp() {
-        let _op = elementsPostion( $(__ESet), 'top', -1 );
-        _op && historyPush( _op );
-    },
-
-
-    moveToUpTen() {
-        let _op = elementsPostion( $(__ESet), 'top', -10 );
-        _op && historyPush( _op );
-    },
-
-
-    moveToDown() {
-        let _op = elementsPostion( $(__ESet), 'top', 1 );
-        _op && historyPush( _op );
-    },
-
-
-    moveToDownTen() {
-        let _op = elementsPostion( $(__ESet), 'top', 10 );
-        _op && historyPush( _op );
-    },
-
-
     //-- 杂项功能 ------------------------------------------------------------
 
+    gotoSection() {
+        //
+    },
 };
 
 
@@ -3101,7 +3137,8 @@ processExtend( 'Ed', Edit, [
     'pathTo',
     'toText',
     'unWrap',
-    // cut中的符合处理
+
+    // 配合cut处理
     'deletes',
     'paste',
 ]);
