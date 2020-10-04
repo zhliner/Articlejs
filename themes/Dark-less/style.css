@@ -51,17 +51,13 @@ aside#help {
 /* [ 操作可视性 ]
  ****************************************************************************/
 
-/* 鼠标指向 */
-.___Content ._point {
-    background-color: rgba(235,235,235,0.3);
-    background-image: url('images/current.png') !important;
-}
-
 /* 已选取 */
 .___Content ._selected {
     color: #333;
     background-color: #ffffb8;
     background-image: url('images/selected.png') !important;
+    /* for <hr> */
+    min-height: 1.4em;
 }
 
 /* 选取焦点 */
@@ -79,9 +75,23 @@ aside#help {
 
 /* 空元素视觉提示 */
 .___Content main *:empty::before {
-    content: '=== EMPTY ===';
+    content: '=== Empty ===';
     color: darkgray;
     font-style: italic;
+}
+
+/* 分隔优化 */
+.___Content main hr::before {
+    display: none;
+}
+.___Content main hr:hover {
+    min-height: 1.4em;
+}
+
+/* 路径指向 */
+.___Content ._point {
+    background-color: rgba(235,235,235,0.3);
+    background-image: url('images/current.png') !important;
 }
 
 /* 出错警告背影提示 */

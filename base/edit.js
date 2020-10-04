@@ -1664,6 +1664,18 @@ function closestFocus( hot, beg ) {
 
 
 /**
+ * 获取容器内的父元素。
+ * 注：不超出主容器范围。
+ * @param  {Element} el 目标元素
+ * @return {Element|false}
+ */
+function closestParent( el ) {
+    el = el.parentElement;
+    return el !== contentElem && el;
+}
+
+
+/**
  * 获取首个互为兄弟的元素。
  * 如果在集合中找到为其它成员兄弟的元素，返回该元素。
  * 空集或所有成员都是其父元素内唯一子元素时，返回 true。
@@ -2089,11 +2101,13 @@ export const Edit = {
         }
         // 父选（单）
         if ( scamPressed(scam, cfg.Keys.parentSelect) ) {
-            return elementOne( _el.parentElement, 'only' );
+            let _to = closestParent( _el );
+            return _to && elementOne( _to, 'only' );
         }
         // 父选（复）
         if ( scamPressed(scam, cfg.Keys.parentSelects) ) {
-            return elementOne( _el.parentElement, 'turn' );
+            let _to = closestParent( _el );
+            return _to && elementOne( _to, 'turn' );
         }
         // 多选/单选
         elementOne( _el, scamPressed(scam, cfg.Keys.turnSelect) ? 'turn' : 'only' );

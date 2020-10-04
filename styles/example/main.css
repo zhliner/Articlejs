@@ -316,10 +316,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 1.3em;
     padding: 6px 2px;
     border-bottom: 1px #eee solid;
-    margin: 0.9em auto 0;
-}
-.content section[role=s2] > h2 + p {
-    margin-top: 0.5em;
+    margin-block-end: 0;
 }
 
 
@@ -331,10 +328,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 .content section[role=s3] > h2 {
     font-size: 1.1em;
-    margin: 0.8em auto 0;
+    margin-block-end: 0;
 }
-.content section[role=s3] > h2 + p {
-    margin-top: 0.3em;
+.content section[role=s3] > h2 + * {
+    margin-block-start: 0.4em;
 }
 
 
@@ -349,10 +346,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     color: #093;
     padding-left: 0.2em;
     border-bottom: 1px #3c6 dotted;
-    margin: 0.5em auto 0;
+    margin-block-end: 0;
 }
-.content section[role=s4] > h2 + p {
-    margin-top: 0.2em;
+.content section[role=s4] > h2 + * {
+    margin-block-start: 0.3em;
 }
 
 
@@ -365,6 +362,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s5] > h2 {
     font-size: 0.9em;
     color: #036;
+    margin-block-end: 0
+}
+.content section[role=s5] > h2 + * {
+    margin-block-start: 0.2em;
 }
 
 
@@ -483,10 +484,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content header {
-    padding: 2px;
-}
-.content header > p:first-child {
-    margin-top: 0.5em;
 }
 
 
@@ -495,7 +492,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content footer {
-    padding: 2px;
 }
 
 

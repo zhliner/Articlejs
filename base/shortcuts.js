@@ -130,6 +130,33 @@ Global: [
         "command":  "cmdline.active",
         "exclude":  "textarea,input,[contenteditable]",
     },
+
+
+    //
+    // 内容区功能
+    //-----------------------------------------------------
+
+    // 章节跳转。
+    // 由用户键入的前置数字表达（如：3.2.5）。
+    {
+        "key":      ":g",
+        "command":  "main.chapter"
+    },
+
+    // 手动暂存。
+    // 保存到 localStorage 空间。
+    {
+        "key":      "ctrl:s",
+        "command":  "main.saving"
+    },
+
+    // 内容导出。
+    // 打开一个导出对话框，导出源码。
+    {
+        "key":      "shift:p",
+        "command":  "main.export"
+    },
+
 ],
 
 
@@ -404,14 +431,14 @@ Content: [
     // 选取集正序（DOM）。
     // 焦点移到首个成员。
     {
-        "key":      "alt:s",
+        "key":      ":s",
         "command":  "selectSort"
     },
 
     // 选取集逆序（DOM）。
     // 焦点移到首个成员。
     {
-        "key":      "alt+shift:s",
+        "key":      "shift:s",
         "command":  "selectReverse"
     },
 
@@ -426,6 +453,22 @@ Content: [
     {
         "key":      ":r",
         "command":  "editRedo"
+    },
+
+    // 属性编辑。
+    // 打开选取元素的属性编辑面板，
+    // 如果选取的是多个元素，则编辑结果全部应用（批量）。
+    {
+        "key":      ":p",
+        "command":  "properties"
+    },
+
+    // 新建关联。
+    // 显示或切换到焦点元素关联的新建面板。
+    // 更新关联条目并聚焦到列表栏。
+    {
+        "key":      ":n",
+        "command":  "relatedTo"
     },
 
 
@@ -650,43 +693,6 @@ Content: [
     {
         "key":      "Ctrl+Shift:ArrowDown",
         "command":  "moveToDownTen"
-    },
-
-
-    //
-    // 系统功能
-    //-----------------------------------------------------
-
-    // 新建关联。
-    // 显示焦点元素关联的新建面板（并聚焦到列表栏）。
-    {
-        "key":      ":n",
-        "command":  "listNewOne"
-    },
-
-
-    // 本地暂存。
-    // 手动保存到 window.localStorage 空间。
-    {
-        "key":      ":s",
-        "command":  "localSave"
-    },
-
-
-    // 属性编辑。
-    // 打开选取元素的属性编辑面板，
-    // 如果选取的是多个元素，则编辑结果全部应用（批量）。
-    {
-        "key":      ":p",
-        "command":  "properties"
-    },
-
-
-    // 章节跳转。
-    // 由用户键入的前置数字表达（如：3.2.5）。
-    {
-        "key":      ":g",
-        "command":  "gotoChapter"
     },
 
 ],

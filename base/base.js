@@ -296,12 +296,12 @@ function parseType( el ) {
     if ( el.nodeType !== 1 ) {
         return null;
     }
-    if ( el.namespaceURI === __svgNS ) {
-        return el.tagName === 'svg' ? T.SVG : T.SVGITEM;
-    }
-    let _fn = CustomStruct[ el.tagName ];
+    let _tag = el.tagName;
 
-    return _fn ? _fn(el) : nameType( name(el) );
+    if ( el.namespaceURI === __svgNS ) {
+        return _tag === 'svg' ? T.SVG : T.SVGITEM;
+    }
+    return CustomStruct[_tag] ? CustomStruct[_tag](el) : nameType( name(el) );
 }
 
 
