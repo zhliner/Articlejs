@@ -136,7 +136,14 @@
     <hr id="lineLeft" data-pbo=""
         on="mousedown"
         to="body|bind('mousemove:1') once('mouseup')" />
-    <div id="editor">
+    <div id="editor"
+        on="main.chapter|$('#g-count') val split('.');
+            main.saving|$('/main') clone;
+            main.export"
+        by="Kit.chapter;
+            Kit.save"
+        to="#g-count|trigger('reset');
+            #status-tips|trigger('info')">
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
                 open|stop (ESC) evo(3) dup lose(0) apply('add', _1);

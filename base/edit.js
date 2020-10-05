@@ -34,6 +34,12 @@ const
     // 编辑需要监听的变化事件。
     varyEvents = 'attrvary cssvary varyprepend varyappend varybefore varyafter varyreplace varyempty varyremove varynormalize',
 
+    // 临时类名序列。
+    __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
+
+    // 临时类名选择器。
+    __tmpclsSlr = `.${Sys.selectedClass}, .${Sys.focusClass}`,
+
     // 路径单元存储键。
     // 在路径序列元素上存储源元素。
     __linkElem = Symbol(),
@@ -3060,17 +3066,11 @@ export const Edit = {
         currentMinied.cursor( _el );
     },
 
-
-    //-- 杂项功能 ------------------------------------------------------------
-
-    gotoSection() {
-        //
-    },
 };
 
 
 //
-// 模板辅助工具集。
+// 辅助工具集。
 // 仅供模板中在调用链上使用。
 //
 export const Kit = {
@@ -3140,6 +3140,42 @@ export const Kit = {
         return box[ __linkElem ];
     },
 
+
+
+    //-- By 扩展 -------------------------------------------------------------
+
+    /**
+     * 章节滚动。
+     * 滚动目标章节到当前视口。
+     * @data: [Number] 章节序列
+     */
+    chapter( evo ) {
+        let _el = $.get( h2PathSelector(evo.data), $.get('article', contentElem) );
+        return _el && $.intoView( _el, 2, 1 );
+    },
+
+    __chapter: 1,
+
+
+    /**
+     * 本地暂存。
+     * 存储数据元素的内容HTML源码。
+     * 会清除临时的状态类名（焦点、选取）。
+     * 注记：
+     * 出于简化和浏览器空间局限，仅支持单个编辑器实例存储。
+     * @data: Element
+     * @return {String} 存储完成提示
+     */
+    save( evo ) {
+        $( __tmpclsSlr, evo.data )
+        .removeClass( __tmpcls );
+
+        window.localStorage.setItem( Sys.storeMain, $.html(evo.data) );
+        return Tips.localStoreDone;
+    },
+
+    __save: 1,
+
 };
 
 
@@ -3155,6 +3191,15 @@ processExtend( 'Ed', Edit, [
     // 配合cut处理
     'deletes',
     'paste',
+]);
+
+
+//
+// 综合工具集。
+//
+processExtend( 'Kit', Kit, [
+    'chapter',
+    'save',
 ]);
 
 

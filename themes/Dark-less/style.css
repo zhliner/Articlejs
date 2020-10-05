@@ -624,8 +624,11 @@ menu li[role=submenu]:hover {
     background-color: #f0efef;
     display: flex;
     flex-direction: column;
+
     /* 文本框最大化根 */
     position: relative;
+    /* 保存操作需要焦点 */
+    outline: none;
 }
 
 .Slave ._tabs {

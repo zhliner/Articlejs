@@ -42,6 +42,9 @@ export const Tips = {
     // 末级章节不可再降级。
     sectionNotDown: 'section:s5 can not down again.',
 
+    // 本地暂存完成提示。
+    localStoreDone: 'saving done.'
+
 };
 
 
@@ -98,5 +101,19 @@ export const Sys = {
     undoEvent: 'button.undo',
 
     redoEvent: 'button.redo',
+
+
+    // 本地暂存键
+    // window.localStorage
+    //-------------------------------------------
+
+    // 内容主体
+    storeMain: '__cooljHTML',
+
+    // 编辑器主题
+    storeTheme: '__cooljTheme',
+
+    // 内容样式
+    storeStyle: '__cooljStyle',
 
 };

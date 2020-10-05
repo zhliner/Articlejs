@@ -598,8 +598,10 @@
 <!-- 主面板：
     - mousedown 面板高度调整。
     - keydown   面板快捷键处理。
-    - scroll    背景/行线跟随 -->
-<div id="main-slave" class="___Panel Slave" tpl-name="main:slave"
+    - scroll    背景/行线跟随。
+    注：
+    tabindex 使保存键有效。 -->
+<div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveResize) pass stop;
