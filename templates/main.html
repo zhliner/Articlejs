@@ -59,17 +59,18 @@
 <div class="___Content" tpl-name="main:content">
     <!--滚动封装（不在<main>上，避免聚焦影响）
         keydown 快捷键操作（key, count）。
-        keyup 数值设置（非数字无效）。
+        keyup 状态栏数字设置（非数字无效）。
         focus 设置选取范围到内部，以捕获copy|cut事件。
     -->
     <div id="g-scroll" class="_scroll" tabindex="0"
-        on="keydown|(CHK) acmsk $('#g-count') val int hotKey(_2) pass;
-            keyup|(/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
-            cut|avoid (Kit) call('eset') text clean(' ') trim join('\n');
-            paste|avoid clipboard trim dup pass split('\n');
-            copy|avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
-            focus|$('/menu') nodeRange(true) addRange"
-        by="-;-;
+        on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass;
+            keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
+            cut|env('minied') end avoid (Kit) call('eset') text clean(' ') trim join('\n');
+            paste|env('minied') end avoid clipboard trim dup pass split('\n');
+            copy|env('minied') end avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
+            focus|env('minied') end $('/menu') nodeRange(true) addRange"
+        by="Kit.minied env('minied', _1);
+            -;
             Ed.deletes pass pop clipboard;
             Ed.paste"
         to="#g-count|trigger('reset');
@@ -137,13 +138,16 @@
             on="mouseup keyup input|rangeKeep stop"
         -->
         <main id="content" class="content"
-            on="click(*)|avoid Range str end evo(1) scam;
-                mouseover(*)|$('#g-count') val end evo(1) einfo(true) str('<', '>');
-                mouseleave|$('#g-count') val end;
-                cancel|stop (Kit) call('ecancel');
-                mousedown|scam('shift') pop avoid"
-            by="Ed.click(_1)"
+            on="click(*)|avoid env('minied') end Range str end evo(1) scam;
+                cancel|stop env('minied') pass;
+                mouseover(*)|env('minied') end $('#g-count') val end evo(1) einfo(true) str('<', '>');
+                mouseleave|env('minied') end $('#g-count') val end;
+                cancel|stop env('minied') end (Kit) call('ecancel');
+                mousedown|env('minied') end scam('shift') pop avoid"
+            by="Ed.click(_1);
+                Kit.medcancel"
             to="#g-count|trigger('reset');
+                -;
                 #status-tips|trigger('info');
                 #g-count|trigger('reset');
                 #g-count|trigger('reset');

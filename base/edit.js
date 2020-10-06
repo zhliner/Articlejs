@@ -21,7 +21,7 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed } from "./base.js";
-import { ESet, EHot, ElemCursor, prevNode, nextNode, elem2Swap } from './common.js';
+import { ESet, EHot, ECursor, prevNode, nextNode, elem2Swap } from './common.js';
 import { children, create } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -58,7 +58,7 @@ const
 
     // 光标实现实例。
     // 仅用于内容元素的微编辑。
-    __elemCursor = new ElemCursor(),
+    __eCursor = new ECursor(),
 
     // DOM节点变化历史实例。
     __TQHistory = new $.Fx.History();
@@ -335,8 +335,8 @@ class RngEdit {
 //
 // 微编辑管理。
 // 管理初始进入微编辑状态以及确认或取消。
-// 提供完整内容的撤销和重做。
-// 提供单击点即为活动插入点（rng无效时插入点位于末尾）。
+// 提供内容整体的撤销和重做。
+// 提供单击点即为活动插入点（单击点不在元素内部时为全选状态）。
 // 外部：
 // 被编辑的内容元素应当已规范（文本节点连续，如被normalize过）。
 // 注记：
@@ -347,6 +347,7 @@ class MiniEdit {
     /**
      * 创建管理实例。
      * 管理元素的可编辑状态，在进入微编辑前构造。
+     * rng为false时表示单击点在外部，此时全选目标内容。
      * @param {Element} el 内容元素
      * @param {Range} rng 范围对象（插入点）
      */
@@ -355,16 +356,16 @@ class MiniEdit {
         this._el = el;
 
         el.replaceWith( this._cp );
+        // 不记录历史。
         this._cp.setAttribute( 'contenteditable', true );
 
         // 激活光标。
-        __elemCursor.cursor( this._cp );
+        __eCursor.active( this._cp );
     }
 
 
     /**
      * 微编辑完成。
-     * 注记：光标元素已经不存在了。
      */
     done() {
         this._cp.normalize();
@@ -405,18 +406,12 @@ class MiniEdit {
      * @param {Range} rng 范围对象，可选
      */
     _clone( el, rng ) {
-        // 插入光标元素。
-        if ( rng ) {
-            __elemCursor.insert( rng );
-        }
+        __eCursor.cursor( el, rng );
+
+        // 含可能的光标占位元素。
         let _new = $.clone( el, true, true, true );
 
-        // 恢复原元素状态。
-        if ( __elemCursor.clean(el) ) {
-            el.normalize();
-        }
-        // 含可能的光标标记。
-        return _new;
+        return __eCursor.clean( el ), _new;
     }
 }
 
@@ -1345,22 +1340,16 @@ function elementsPostion( $els, name, inc ) {
 /**
  * 微编辑开始。
  * 会重置 Undo/Redo 按钮为失效状态。
- * 非内容元素简单忽略。
+ * 支持单击点成为初始光标位置。
  * @param  {Element} el 内容元素
  * @return {MiniEdit|null} 微编辑实例
  */
 function miniedStart( el ) {
-    if ( !el || !isContent(el) ) {
+    if ( !isContent(el) ) {
         return null;
     }
-    let _rng = window.getSelection.getRangeAt(0),
-        _obj = new MiniEdit(
-            el,
-            $.contains(el, _rng.commonAncestorContainer) && _rng
-        );
     undoRedoReset();
-
-    return __History.push(_obj), _obj;
+    return new MiniEdit( el, window.getSelection().getRangeAt(0) );
 }
 
 
@@ -2588,7 +2577,9 @@ export const Edit = {
     },
 
 
-    //-- 元素编辑 ------------------------------------------------------------
+    //
+    // 元素编辑
+    //////////////////////////////////////////////////////////////////////////
 
 
     /**
@@ -2976,7 +2967,7 @@ export const Edit = {
     __paste: 1,
 
 
-    //-- 杂项编辑 ------------------------------------------------------------
+    //-- 杂项 ----------------------------------------------------------------
 
     /**
      * 撤销操作。
@@ -3010,34 +3001,34 @@ export const Edit = {
 
     /**
      * 进入微编辑。
-     * 如果目标不是内容元素，会移动焦点到目标元素上。
-     * 注记：
-     * 内容元素应当已预先移出选取集。
-     * 这样既清理了元素上的视觉表现（焦点/选取/路径提示），
-     * 也使得克隆更干净。
-     * @param {Element} el 内容元素
+     * 如果焦点元素已选取，针对焦点元素。
+     * 否则针对首个已选取元素，同时移动焦点到目标元素上。
      */
-    miniedIn( el ) {
-        currentMinied = miniedStart( el );
+    miniedIn() {
+        let _el = __EHot.get();
+
+        if ( !_el || !__ESet.has(_el) ) {
+            _el = __ESet.first();
+        }
+        currentMinied = miniedStart( _el );
 
         if ( !currentMinied ) {
             // 友好提示，
             // 同时也便于向下选取内容子元素。
-            return __EHot.set( el );
+            return setFocus( _el );
         }
-        currentMinied.cursor( el );
+        currentMinied.cursor();
     },
 
 
     /**
-     * 微编辑完成。
+     * 微编辑完成并退出。
+     * 注记：
      * 同一时间最多只有一个元素处于微编辑态。
-     * @param {Element} el 内容元素
-     * @param {Boolean} done 是否为确认（否则为取消）
      */
-    miniedOut( done = true ) {
+    miniedOk() {
         stateNewEdit();
-        currentMinied[done ? 'done' : 'cancel']()
+        currentMinied.done()
         currentMinied = null;
     },
 
@@ -3045,12 +3036,10 @@ export const Edit = {
     /**
      * 逐次微编辑。
      * - 对选取集成员进行逐个修订编辑。
-     * - 选取成员需要全部是内容元素，否则忽略。
+     * - 选取成员需要是内容元素，否则仅移动焦点到目标元素上。
      * - 可能首个成员已经进入微编辑。
      * 注记：
      * 通常是在按Tab键，在多个已选取目标间跳转编辑时。
-     * 友好：
-     * 如果目标不是内容元素，会移动焦点到目标元素上。
      */
     miniEdits() {
         // 前阶结束。
@@ -3176,6 +3165,29 @@ export const Kit = {
 
     __save: 1,
 
+
+    /**
+     * 是否为微编辑状态。
+     * @return {Boolean}
+     */
+    minied() {
+        return !!currentMinied;
+    },
+
+    __minied: null,
+
+
+    /**
+     * 微编辑取消。
+     */
+    medcancel() {
+        stateNewEdit();
+        currentMinied.cancel()
+        currentMinied = null;
+    },
+
+    __medcancel: null,
+
 };
 
 
@@ -3200,6 +3212,8 @@ processExtend( 'Ed', Edit, [
 processExtend( 'Kit', Kit, [
     'chapter',
     'save',
+    'minied',
+    'medcancel',
 ]);
 
 

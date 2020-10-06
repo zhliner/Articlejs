@@ -68,8 +68,6 @@
         window.editInit = init;
 
         // 取消实例栈。
-        // 逐次取消。对栈顶成员发送cancel消息。
-        // 注记：由目标自己管理实例的出/入栈。
         window.ESC = new ArrSet();
 
         Tpb.Build( document, Web.tplmap )
@@ -88,7 +86,15 @@
     - 当前显示面板隐显切换。
     - 命令行直达。
     - 通用录入框充满（<textarea>）。
-    - 主面板辅助键[Alt]提示替换。 -->
+    - 主面板辅助键[Alt]提示替换。
+    ESC 原理:
+    1. ESC 键触发 escape.cancel 事件。
+    2. 全局 ESC 实例池弹出栈顶实例。
+    3. 向栈顶实例发送 cancel 事件。
+    注：
+    各实例需自行管理自身压入/弹出 ESC 池，
+    如果不弹出自身，会成为最终阻断项（常驻）。
+-->
 <body lang="zh-cn"
     on="@mousemove:1|movementX avoid;
         @mousemove:2|movementX neg avoid;
@@ -136,6 +142,8 @@
     <hr id="lineLeft" data-pbo=""
         on="mousedown"
         to="body|bind('mousemove:1') once('mouseup')" />
+    <!--杂项功能：
+        主区激活范围。 -->
     <div id="editor"
         on="main.chapter|$('#g-count') val split('.');
             main.saving|$('/main') clone;

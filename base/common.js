@@ -204,7 +204,7 @@ export class EHot {
 // 注记：
 // 通常只需要一个全局的类实例。
 //
-export class ElemCursor {
+export class ECursor {
     /**
      * 内部会维护一个光标元素（实例级），
      * 用于插入占位和定位。
@@ -220,78 +220,93 @@ export class ElemCursor {
 
 
     /**
-     * 插入光标。
-     * 正常的插入光标通常不需要删除选区内容，
-     * 但提供一个可选的明确指定。
+     * 植入光标。
+     * 在容器元素内植入光标占位元素。
+     * 如果范围对象不在容器元素内则不会植入（返回false）。
+     * @param  {Element} box 容器元素
      * @param  {Range} rng 范围对象
-     * @param  {Boolean} rep 替换选区，可选
-     * @return {this}
+     * @return {Element|false} box
      */
-    insert( rng, rep = false ) {
-        if ( rep ) {
-            rng.deleteContents();
+    cursor( box, rng ) {
+        let _ok = $.contains( box, rng.commonAncestorContainer );
+
+        if ( _ok ) {
+            rng.insertNode( this._cel );
         }
-        rng.insertNode( this._cel );
-        return this;
+        return _ok && box;
     }
 
 
     /**
-     * 创建光标。
+     * 激活光标或全选。
      * 对可编辑的容器元素创建并激活一个光标。
      * 元素属性：contenteditable=true
      * 前提：
-     * - 实参元素应当是调用insert时rng实参的容器元素或其克隆版本，
-     *   即已经包含了光标元素。
-     * - 如果容器元素内没有光标元素，则定位到末尾。
-     *
+     * 实参元素应当已经包含了光标占位元素。
      * @param  {Element} el 容器元素
      * @return {Element} el
      */
-    cursor( el ) {
+    active( el ) {
         let _cur = $.get( this._slr, el ),
             _rng = document.createRange();
 
         if ( _cur ) {
             _rng.selectNode( _cur );
+            _rng.deleteContents();
         } else {
-            this._activeEnd( el, _rng );
+            _rng.selectNodeContents( el );
         }
-        _rng.deleteContents();
+        return this._active( _rng, el );
+    }
 
-        return el;
+
+    /**
+     * 激活光标到首/尾。
+     * 默认激活光标到末尾。
+     * @param {Element} el 容器元素
+     * @param {Boolean} start 到元素内容前端，可选
+     */
+    active2( el, start = false ) {
+        let _rng = document.createRange();
+
+        _rng.selectNodeContents( el )
+        _rng.collapse( start );
+
+        return this._active( _rng, el );
     }
 
 
     /**
      * 元素光标清理。
      * 移除插入的光标元素并规范化元素文本。
-     * 如果用户只是使用了容器元素的克隆副本，可以对原本执行清理。
-     * 注意：
-     * 返回false表示无光标元素，外部无需规范化（normalize）。
+     * 返回false表示无占位光标元素。
      * @param  {Element} el 容器元素
-     * @return {el|false}
+     * @return {Element|false}
      */
     clean( el ) {
         let _cur = $.get( this._slr, el );
 
         if ( _cur ) {
             _cur.remove();
+            el.normalize();
         }
         return _cur && el;
     }
 
 
     /**
-     * 激活光标到末尾。
-     * @param {Element} el 容器元素
-     * @param {Range} rng 一个范围对象
+     * 激活到文档。
+     * @param  {Range} rng 范围对象
+     * @param  {Element} box 待编辑元素
+     * @return {Element} box
      */
-    _activeEnd( el, rng ) {
-        rng.selectNode(
-            el.childNodes[ el.childNodes.length - 1 ]
-        );
-        rng.collapse( false );
+    _active( rng, box ) {
+        let _ss = window.getSelection();
+
+        _ss.removeAllRanges();
+        _ss.addRange( rng );
+
+        return box.focus(), box;
     }
 
 }
