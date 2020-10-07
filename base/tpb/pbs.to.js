@@ -52,10 +52,13 @@ const
 const _Update = {
     /**
      * 绑定预定义调用链。
+     * 从目标元素自身提取预存储的调用链。
      * evn支持空格分隔多个事件名，假值表示通配（目标上的全部存储）。
      * 如果目标是一个集合，相同的事件名/选择器/初始数据被应用。
+     * 提示：
+     * 如果需要绑定其它元素的调用链，可预先提取后使用on/one接口。
      * @param {Element|Collector} to 目标元素/集
-     * @param {Value|[Value]} ival 初始数据
+     * @param {Value|[Value]} ival 链头初始赋值
      * @param {String} evnid 事件名ID/序列，可选
      * @param {String} slr 委托选择器，可选
      */
@@ -65,39 +68,11 @@ const _Update = {
 
 
     /**
-     * 绑定单次触发。
+     * 绑定单次触发（当前元素）。
      * 其它说明同bind。
      */
     once( to, ival, evnid, slr ) {
         bindsChain( 'one', to, ival, evnid, slr );
-    },
-
-
-    /**
-     * 绑定预定义调用链（跨元素）。
-     * 其它说明同 bind。
-     * @param {Element|Collector} to 目标元素（集）
-     * @param {Element} src 调用链存储源元素
-     * @param {String} evnid 事件名标识
-     * @param {String} slr 委托选择器，可选
-     * @param {Value} ival 初始传入数据，可选
-     */
-    xbind( to, src, evnid, slr, ival ) {
-        xBindsChain( 'on', src, to, evnid, slr, ival );
-    },
-
-
-    /**
-     * 预定义调用链绑定单次触发（跨元素）。
-     * 其它说明同 bind。
-     * @param {Element|Collector} to 目标元素（集）
-     * @param {Element} src 调用链存储源元素
-     * @param {String} evnid 事件名标识
-     * @param {String} slr 委托选择器，可选
-     * @param {Value} ival 初始传入数据，可选
-     */
-    xonce( to, src, evnid, slr, ival ) {
-        xBindsChain( 'one', src, to, evnid, slr, ival );
     },
 
 
@@ -487,13 +462,18 @@ const _Update = {
     /**
      * 目标为数组时返回目标的Collector封装。
      * 目标为元素时保持不变。
+     * 注意：传递ival时处理器必须为调用链头（Cell）。
      * @param  {Element|Collector} to 目标元素（集）
      * @param  {EventListener|Function|false|null|undefined} handler 事件处理器
      * @param  {String} evn 事件名
      * @param  {String} slr 委托选择器，可选
+     * @param  {Value} ival 调用链初始赋值，可选
      * @return {Collector|void}
      */
-    _Update[meth] = function( to, handler, evn, slr ) {
+    _Update[meth] = function( to, handler, evn, slr, ival ) {
+        if ( ival !== undefined ) {
+            handler.initVal( ival );
+        }
         if ( $.isArray(to) ) {
             return $(to)[meth]( evn, slr, handler );
         }
@@ -815,26 +795,6 @@ function bindsChain( type, to, ival, evnid, slr ) {
         return to.forEach( el => bindChain(type, el, el, ival, evnid, slr) );
     }
     bindChain( type, to, to, ival, evnid, slr );
-}
-
-
-/**
- * 调用链绑定到事件。
- * 从延迟绑定存储中检索调用链并绑定到目标事件。
- * 仅支持从一个源元素取调用链，但可同时绑定到多个目标元素。
- * @param  {String} type 绑定方式（on|one）
- * @param  {Element} src 取值元素
- * @param  {Element|[Element]} to 绑定目标元素（集）
- * @param  {String} evnid 事件名标识
- * @param  {String} slr 委托选择器
- * @param  {Value} ival 初始传入数据
- * @return {void}
- */
-function xBindsChain( type, src, to, evnid, slr, ival ) {
-    if ( $.isArray(to) ) {
-        return to.forEach( el => bindChain(type, src, el, ival, evnid, slr) );
-    }
-    bindChain( type, src, to, ival, evnid, slr );
 }
 
 

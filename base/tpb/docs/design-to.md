@@ -165,21 +165,15 @@ cssSets( names:String )
 // 事件处理。
 /////////////////////////////////////////////////
 bind( evnid:String, slr?:String )
-// 内容：{Value|[Value]} 初始传入值
+// 内容：{Cell|Value|[Value]} 调用链头或初始传入值
 // 用预定义的调用链作为事件处理器，绑定到目标。
 // evnid为 [事件名:ID] 结构，支持空格分隔多个名称，假值表示通配（目标上的全部存储）。
 // 注：
-// 在目标上检索并绑定到目标（同源）。
+// 如果内容不是Cell实例，从目标上检索（并绑定到目标）。
 
 once( evnid:String, slr?:String )
 // 绑定事件的单次处理。
 // 内容/说明同上。
-
-xbind( evnid:String, slr?:String, ival:Value )
-xonce( evnid:String, slr?:String, ival:Value )
-// 绑定与存储调用链。
-// 与bind/once不同，这里支持跨元素绑定。
-// 其它说明相同。
 
 on( evn?:String, slr?:String )
 one( evn?:String, slr?:String )
@@ -220,11 +214,6 @@ pba()
 pbo()
 // PB选项设置。
 // 内容：{[String]}
-
-pbv()
-// PB属性设置。
-// 内容：{String}
-// 注：对data-pb特性值本身的设置。
 
 render()
 // 渲染目标元素（原地更新）。

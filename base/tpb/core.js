@@ -20,7 +20,7 @@
 
 import { Util } from "./tools/util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./tools/spliter.js";
-import { ACCESS, EXTENT, PREVCELL, DEBUG, methodSelf } from "./config.js";
+import { ACCESS, EXTENT, PREVCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
 
 
 const
@@ -771,10 +771,17 @@ class Cell {
 
     /**
      * 克隆当前指令实例。
-     * @return {Cell}
+     * 主要用于链头不同的初始值赋值。
+     * @param  {Stack} stack 关联数据栈，可选
+     * @return {Cell} 新实例
      */
-    clone() {
-        return Object.assign( new Cell(), this );
+    clone( stack ) {
+        let _cell = Object.assign( new Cell(), this );
+
+        if ( stack ) {
+            _cell[_SID] = stack;
+        }
+        return _cell;
     }
 
 
@@ -920,17 +927,19 @@ class Evn {
 
     /**
      * 起始指令对象绑定。
-     * 注：实际上只是一个空调用。
+     * 绑定事件名序列仅用于控制台查看（调试）。
+     * 设置链头标识便于外部判断。
      * @param  {Cell} cell 指令单元
      * @param  {[Evn]} evns 事件名定义集
      * @return {Cell} cell
      */
     static apply( cell, evns ) {
-        let fn = empty;
+        let fn = empty.bind( evns );
 
-        if ( DEBUG ) {
-            fn = fn.bind( evns ); // 信息查看。
-        }
+        Reflect.defineProperty(cell, HEADCELL, {
+            value: true,
+            enumerable: false,
+        });
         return cell.build( null, fn );
     }
 
@@ -1323,4 +1332,4 @@ function update( evo, ...rest ) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-export { Builder }
+export { Builder, Stack }

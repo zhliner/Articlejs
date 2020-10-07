@@ -384,21 +384,23 @@ class MiniEdit {
     /**
      * 微编辑完成。
      * 注记：返回值供历史栈记录。
-     * @return {this}
+     * @return {Element} 新完成的元素
      */
     done() {
         this._cp.normalize();
         this._cp.removeAttribute( 'contenteditable' );
-        return this;
+        return this._cp;
     }
 
 
     /**
      * 取消编辑。
      * 通常在用户键入ESC键时执行，逻辑同undo。
+     * @return {Element} 原始元素
      */
     cancel() {
         this._cp.replaceWith( this._el );
+        return this._el;
     }
 
 
@@ -416,6 +418,15 @@ class MiniEdit {
      */
     redo() {
         this._el.replaceWith( this._cp );
+    }
+
+
+    /**
+     * 获取当前编辑的元素。
+     * @return {Element}
+     */
+    elem() {
+        return this._cp;
     }
 
 
@@ -1368,7 +1379,7 @@ function elementsPostion( $els, name, inc ) {
 
 /**
  * 获取微编辑元素。
- * @return {Element}
+ * @return {Element|void}
  */
 function miniedElem() {
     let _el = __EHot.get();
@@ -1376,7 +1387,9 @@ function miniedElem() {
     if ( _el && __ESet.has(_el) ) {
         return _el;
     }
-    return __ESet.first();
+    _el = __ESet.first();
+
+    return _el && setFocus(_el), _el;
 }
 
 
@@ -1927,6 +1940,18 @@ function canUnwrap( el ) {
             // 宽容：纯内容元素
             ( el.childElementCount === 0 && el.innerText.trim() )
         );
+}
+
+
+/**
+ * 延迟激发。
+ * 注：脱离当前调用链序列。
+ * @param {Element} el 目标元素
+ * @param {String} evn 事件名
+ * @param {Number} delay 延迟时间，可选
+ */
+function delayFire( el, evn, extra = null ) {
+    setTimeout( () => $.trigger(el, evn, extra, true), 1 );
 }
 
 
@@ -3035,12 +3060,11 @@ export const Edit = {
         if ( !_el ) return;
 
         currentMinied = miniedStart( _el );
-
-        setFocus( _el );
         currentMinied.active();
 
+        historyPush( new HotEdit(currentMinied.elem()), currentMinied );
         // 关联模板逻辑。
-        $.trigger( contentElem, Sys.medIn, null, true );
+        delayFire( contentElem, Sys.medIn );
     },
 
 
@@ -3053,11 +3077,16 @@ export const Edit = {
         if ( !_el ) return;
 
         currentMinied = miniedStart( _el );
-
-        setFocus( _el );
         currentMinied.activeEnd();
 
-        $.trigger( contentElem, Sys.medIn, null, true );
+        let _old = [...__ESet],
+            _med = currentMinied.elem();
+
+        __Selects.delete( _el );
+        __Selects.safeAdd( _med );
+
+        historyPush( new HotEdit(_med), currentMinied, new ESEdit(_old) );
+        delayFire( contentElem, Sys.medIn );
     },
 
 
@@ -3068,16 +3097,10 @@ export const Edit = {
      * 仅在编辑确认后才需要进入普通模式的历史栈记录。
      */
     miniedOk() {
-        let _old = [...__ESet];
-
-        __Elemedit.delete(
-            currentMinied.original()
-        );
         stateNewEdit();
-        historyPush( currentMinied.done(), new ESEdit(_old) );
-
+        currentMinied.done();
         currentMinied = null;
-        $.trigger( contentElem, Sys.medOk, null, true );
+        delayFire( contentElem, Sys.medOk );
     },
 
 
@@ -3209,11 +3232,26 @@ export const Kit = {
 
 
     /**
+     * 微编辑完成处理。
+     * - Enter          确认并退出，元素取消选取。
+     * - Shift + Enter  插入一个换行，浏览器默认行为（无需实现）。
+     * - Ctrl + Enter   新建一个同类行（<p>|<li>|<dt>|<dd>），原行确认。
+     * - Alt + Enter    新建一个逻辑行（dt > dd, td|th ~ tr）。
+     * - Tab            当前完成，切换到下一个选取元素。
+     */
+    medpass( evo, scam, key ) {
+        //
+        Edit.miniedOk();
+    },
+
+
+    /**
      * 微编辑取消。
      */
     medcancel() {
         stateNewEdit();
-        currentMinied.cancel()
+        currentMinied.cancel();
+        setFocus( currentMinied.original() );
         currentMinied = null;
     },
 
@@ -3243,7 +3281,7 @@ processExtend( 'Ed', Edit, [
 processExtend( 'Kit', Kit, [
     'chapter',
     'save',
-    'minied',
+    'medpass',
     'medcancel',
 ]);
 

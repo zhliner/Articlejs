@@ -214,7 +214,7 @@ export class ECursor {
         let _val = prefix +
             (Date.now() % 0xffffffff).toString(16);
 
-        this._cel = $.attr( $.elem('i'), _val );
+        this._cel = $.attr( $.elem('i'), _val, '' );
         this._slr = `[${ _val }]`;
     }
 
@@ -253,6 +253,7 @@ export class ECursor {
         if ( _cur ) {
             _rng.selectNode( _cur );
             _rng.deleteContents();
+            el.normalize();
         } else {
             _rng.selectNodeContents( el );
         }
@@ -267,8 +268,13 @@ export class ECursor {
      * @param {Boolean} start 到元素内容前端，可选
      */
     active2( el, start = false ) {
-        let _rng = document.createRange();
+        let _cur = $.get( this._slr, el ),
+            _rng = document.createRange();
 
+        if ( _cur ) {
+            _cur.remove();
+            el.normalize();
+        }
         _rng.selectNodeContents( el )
         _rng.collapse( start );
 

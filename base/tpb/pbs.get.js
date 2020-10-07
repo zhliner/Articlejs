@@ -18,6 +18,7 @@ import { Util } from "./tools/util.js";
 import { Ease } from "./tools/ease.js";
 import { bindMethod, DataStore, Templater, ChainStore, DEBUG } from "./config.js";
 import { Process } from "./pbs.base.js";
+import { Stack } from "./core.js";
 
 
 const
@@ -831,7 +832,7 @@ const _Gets = {
      * 如果没有目标存储集或目标调用链，返回错误并中断。
      *
      * @param  {String} evnid 事件名标识
-     * @param  {Boolean} clone 是否克隆
+     * @param  {Boolean} clone 是否克隆，可选
      * @return {Cell|reject}
      */
     chain( evo, evnid, clone ) {
@@ -839,7 +840,7 @@ const _Gets = {
             _cel = _map && _map.get( evnid );
 
         if ( _cel ) {
-            return clone ? _cel.clone() : _cel;
+            return clone ? cloneChain(_cel) : _cel;
         }
         return Promise.reject( chainUnfound2 );
     },
@@ -848,17 +849,18 @@ const _Gets = {
 
 
     /**
-     * 预绑定调用链提取。
+     * 预绑定调用链提取（批量）。
      * 目标：暂存区/栈顶1项。
      * 提取目标元素上预绑定的调用链集。
      * 主要用于预绑定调用链的不同元素间转存（模板定义复用）。
-     * 与chain不同，此处会保持原始名称（名值对对象）。
      * evnid 支持空格分隔多个名称指定。
      * evnid 为空或假值表示通配，匹配目标元素上的全部预存储。
+     * clone 克隆会让调用链拥有一个新的数据栈。
      * 错误：
      * 如果目标元素没有预绑定存储，返回错误并中断。
      * @param  {String} evnid 事件名标识/序列
-     * @param  {Boolean} clone 是否克隆
+     * @param  {Value|[Value]} ival 初始赋值，可选
+     * @param  {Boolean} clone 是否克隆，可选
      * @return {Map<evnid:Cell>}
      */
     chains( evo, evnid, clone ) {
@@ -868,7 +870,7 @@ const _Gets = {
             return Promise.reject( chainUnfound );
         }
         if ( !evnid ) {
-            return clone ? cloneMap( _src ) : _src;
+            return mapAll( _src, clone );
         }
         return chainMap( _src, evnid.split(__reSpace), clone );
     },
@@ -1645,7 +1647,7 @@ function chainMap( src, evns, clone ) {
         let _cell = src.get( nid );
 
         if ( _cell ) {
-            _buf.set( nid, clone ? _cell.clone() : _cell );
+            _buf.set( nid, clone ? cloneChain(_cell) : _cell );
         }
     }
     return _buf;
@@ -1653,18 +1655,40 @@ function chainMap( src, evns, clone ) {
 
 
 /**
- * 克隆调用链存储集。
- * 注：若Cell无需克隆则源存储集可直接引用。
+ * 调用链存储集。
  * @param  {Map} map 源存储集
+ * @param  {Boolean} clone 克隆方式
  * @return {Map}
  */
-function cloneMap( map ) {
+function mapAll( map, clone ) {
     let _buf = new Map();
 
     for (const [n, cel] of map) {
-        _buf.set( n, cel.clone() );
+        _buf.set(
+            n,
+            clone ? cloneChain(cel) : cel
+        );
     }
     return _buf;
+}
+
+
+/**
+ * 克隆调用链。
+ * 会更新调用链全部指令上的数据栈引用。
+ * @param  {Cell} cell 链头实例
+ * @return {Cell} cell
+ */
+function cloneChain( cell ) {
+    let _stack = new Stack(),
+        _first = cell.clone( _stack ),
+        _cell = _first;
+
+    while ( (cell = cell.next) ) {
+        _cell.next = cell.clone( _stack );
+        _cell = _cell.next;
+    }
+    return _first;
 }
 
 

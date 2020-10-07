@@ -80,6 +80,9 @@ const
     // 前阶指令存储标记。
     PREVCELL = Symbol('previous Cell'),
 
+    // 调用链头实例标记。
+    HEADCELL = Symbol('first-cell'),
+
     // 全局变量空间。
     Globals = new Map(),
 
@@ -303,6 +306,7 @@ export {
     EXTENT,
     ACCESS,
     PREVCELL,
+    HEADCELL,
     bindMethod,
     getMethod,
     funcSets,
