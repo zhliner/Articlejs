@@ -1598,7 +1598,7 @@ const _Process = {
         if ( evo.data === undefined ) {
             return __tmpRanges[ key ];
         }
-        __tmpRanges[ key ] = evo.data;
+        if ( evo.data ) __tmpRanges[ key ] = evo.data;
     },
 
     __xRange: -1,
@@ -1627,6 +1627,7 @@ const _Process = {
      * 执行document命令。
      * 目标：暂存区/栈顶1项。
      * 目标为用户划选或定义的选取范围（Range）。
+     * 仅适用特性被设置为 contenteditable="true" 的可编辑元素。
      * 用法：
      * click(b)|xRange addRange evo(2) text exeCmd('insertText', _1)
      * 说明：

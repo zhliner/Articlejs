@@ -70,7 +70,7 @@ aside#help {
 .___Content *[contenteditable] {
     cursor: text;
     background-color: #e9ab7d !important;
-    border: 1px #0f514f solid !important;
+    outline: none;
 }
 
 /* 空元素视觉提示 */

@@ -55,8 +55,17 @@
 </div>
 
 
-<!-- 内容区 -->
-<div class="___Content" tpl-name="main:content">
+<!--内容区
+    medin 进入微编辑（Sys.medIn）
+    medok 确认微编辑（Sys.medOk） -->
+<div class="___Content" tpl-name="main:content"
+    on="cancel|(ESC) apply('pop') env('minied', false) stop;
+        medin|(ESC) evo(3) apply('add', _1) env('minied', true) stop;
+        medok|(ESC) apply('pop') env('minied', false) stop"
+    by="Kit.medcancel"
+    to="#g-count|trigger('reset');
+        #g-count|trigger('reset');
+        #g-count|trigger('reset')">
     <!--滚动封装（不在<main>上，避免聚焦影响）
         keydown 快捷键操作（key, count）。
         keyup 状态栏数字设置（非数字无效）。
@@ -69,8 +78,7 @@
             paste|env('minied') end avoid clipboard trim dup pass split('\n');
             copy|env('minied') end avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
             focus|env('minied') end $('/menu') nodeRange(true) addRange"
-        by="Kit.minied env('minied', _1);
-            -;
+        by="-; -;
             Ed.deletes pass pop clipboard;
             Ed.paste"
         to="#g-count|trigger('reset');
@@ -132,26 +140,23 @@
             <li data-val="bdo" title="<bdo>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
         </menu>
         <!--内容区：
-            mousedown|avoid: 避免 Shift+单击 变成划选。
-            click|avoid: 取消链接单击跳转。
-            微编辑：
-            on="mouseup keyup input|rangeKeep stop"
+            mousedown|avoid 避免 Shift+单击 变成划选。
+            click|avoid 取消链接单击跳转。
+            cancel 选取集取消（ESC）。
+            ...([contenteditable]) 微编辑光标记忆，用于特殊字符插入。
         -->
         <main id="content" class="content"
             on="click(*)|avoid env('minied') end Range str end evo(1) scam;
-                cancel|stop env('minied') pass;
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 cancel|stop env('minied') end (Kit) call('ecancel');
-                mousedown|env('minied') end scam('shift') pop avoid"
-            by="Ed.click(_1);
-                Kit.medcancel"
+                mousedown|env('minied') end scam('shift') pop avoid;
+                mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass Range pop xRange stop"
+            by="Ed.click(_1)"
             to="#g-count|trigger('reset');
-                -;
                 #status-tips|trigger('info');
                 #g-count|trigger('reset');
-                #g-count|trigger('reset');
-                -">
+                #g-count|trigger('reset')">
             <hgroup>
                 <h1>文章内容的规范化结构</h1>
                 <h3>—— 简单干净的源码，清爽愉悦的阅读</h3>

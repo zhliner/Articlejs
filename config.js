@@ -103,6 +103,12 @@ export const Sys = {
     redoEvent: 'button.redo',
 
 
+    // 微编辑关联事件
+    // 在模板中定义，由程序中激发。
+    medIn:  'medin',
+    medOk:  'medok',
+
+
     // 本地暂存键
     // window.localStorage
     //-------------------------------------------

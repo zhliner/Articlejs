@@ -694,14 +694,14 @@ Content: [
     // 内容元素末尾光标。
     {
         "key":      "shift:m",
-        "command":  "miniedIn"
+        "command":  "miniedInEnd"
     },
 
     // 确认并进入新的微编辑。
     // 光标到末尾。
     {
         "key":      ":tab",
-        "command":  "miniedIn"
+        "command":  "miniEdits"
     },
 
 

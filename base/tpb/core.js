@@ -88,6 +88,7 @@ const
     // 方法名支持字母、数字和 [$._-] 字符。
     // 参数段支持任意字符（包括换行），可选。
     // 特例：允许空名称（之后应当为括号）。
+    // 注记：暂不支持调用链的跨行定义，以避免 On/ByTo 对应混乱。
     __obtCall   = /^(^|[$\w][$\w.-]*)(?:\(([^]*)\))?$/,
 
     // To:Query
@@ -953,14 +954,14 @@ class Call {
      * @param {String} fmt 调用格式串
      */
     constructor( fmt ) {
-        let _vs = fmt.match(__obtCall);
+        let _vs = fmt.match( __obtCall );
         if ( !_vs ) {
-            throw new Error('call-attr config is invalid.');
+            throw new Error( `[${fmt}] is invalid calling.` );
         }
         // 特例：
         // 友好支持空名称为push指令。
         this._meth = _vs[1] || __zeroName;
-        this._args = arrArgs(_vs[2]);
+        this._args = arrArgs( _vs[2] );
     }
 
 

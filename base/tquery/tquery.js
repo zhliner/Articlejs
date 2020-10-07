@@ -227,6 +227,7 @@
             if (typeof slr != 'string') {
                 return el === slr;
             }
+            // 容错文本节点。
             return slr[0] != '>' && !!el.matches && el.matches(slr);
         },
 

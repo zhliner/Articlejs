@@ -355,21 +355,41 @@ class MiniEdit {
         this._cp = this._clone( el, rng );
         this._el = el;
 
+        // 原生调用。
         el.replaceWith( this._cp );
-        // 不记录历史。
         this._cp.setAttribute( 'contenteditable', true );
+    }
 
-        // 激活光标。
+
+    /**
+     * 激活光标。
+     * 如果当前单击点在元素内，设置光标到单击点，
+     * 否则为全选可编辑内容。
+     * @return {this}
+     */
+    active() {
         __eCursor.active( this._cp );
     }
 
 
     /**
+     * 激活光标到内容末尾。
+     * @return {this}
+     */
+    activeEnd() {
+        __eCursor.active2( this._cp, false );
+    }
+
+
+    /**
      * 微编辑完成。
+     * 注记：返回值供历史栈记录。
+     * @return {this}
      */
     done() {
         this._cp.normalize();
         this._cp.removeAttribute( 'contenteditable' );
+        return this;
     }
 
 
@@ -396,6 +416,15 @@ class MiniEdit {
      */
     redo() {
         this._el.replaceWith( this._cp );
+    }
+
+
+    /**
+     * 获取原始编辑元素。
+     * @return {Element}
+     */
+    original() {
+        return this._el;
     }
 
 
@@ -1338,6 +1367,20 @@ function elementsPostion( $els, name, inc ) {
 
 
 /**
+ * 获取微编辑元素。
+ * @return {Element}
+ */
+function miniedElem() {
+    let _el = __EHot.get();
+
+    if ( _el && __ESet.has(_el) ) {
+        return _el;
+    }
+    return __ESet.first();
+}
+
+
+/**
  * 微编辑开始。
  * 会重置 Undo/Redo 按钮为失效状态。
  * 支持单击点成为初始光标位置。
@@ -1345,28 +1388,11 @@ function elementsPostion( $els, name, inc ) {
  * @return {MiniEdit|null} 微编辑实例
  */
 function miniedStart( el ) {
-    if ( !isContent(el) ) {
+    if ( !el || !isContent(el) ) {
         return null;
     }
     undoRedoReset();
     return new MiniEdit( el, window.getSelection().getRangeAt(0) );
-}
-
-
-/**
- * 提取选取集首个成员。
- * 注：用于Tab逐个微编辑各选取元素。
- * @param  {Boolean} blur 取消焦点，可选
- * @return {Element|void}
- */
-function esetShift( blur ) {
-    let _el = __ESet.first();
-    if ( !_el ) return;
-
-    if ( blur && __EHot.is(_el) ) {
-        __EHot.cancel();
-    }
-    return __ESet.delete( _el );
 }
 
 
@@ -3005,19 +3031,33 @@ export const Edit = {
      * 否则针对首个已选取元素，同时移动焦点到目标元素上。
      */
     miniedIn() {
-        let _el = __EHot.get();
+        let _el = miniedElem();
+        if ( !_el ) return;
 
-        if ( !_el || !__ESet.has(_el) ) {
-            _el = __ESet.first();
-        }
         currentMinied = miniedStart( _el );
 
-        if ( !currentMinied ) {
-            // 友好提示，
-            // 同时也便于向下选取内容子元素。
-            return setFocus( _el );
-        }
-        currentMinied.cursor();
+        setFocus( _el );
+        currentMinied.active();
+
+        // 关联模板逻辑。
+        $.trigger( contentElem, Sys.medIn, null, true );
+    },
+
+
+    /**
+     * 进入微编辑。
+     * 注：光标设置在内容元素末尾。
+     */
+    miniedInEnd() {
+        let _el = miniedElem();
+        if ( !_el ) return;
+
+        currentMinied = miniedStart( _el );
+
+        setFocus( _el );
+        currentMinied.activeEnd();
+
+        $.trigger( contentElem, Sys.medIn, null, true );
     },
 
 
@@ -3025,11 +3065,19 @@ export const Edit = {
      * 微编辑完成并退出。
      * 注记：
      * 同一时间最多只有一个元素处于微编辑态。
+     * 仅在编辑确认后才需要进入普通模式的历史栈记录。
      */
     miniedOk() {
+        let _old = [...__ESet];
+
+        __Elemedit.delete(
+            currentMinied.original()
+        );
         stateNewEdit();
-        currentMinied.done()
+        historyPush( currentMinied.done(), new ESEdit(_old) );
+
         currentMinied = null;
+        $.trigger( contentElem, Sys.medOk, null, true );
     },
 
 
@@ -3044,15 +3092,9 @@ export const Edit = {
     miniEdits() {
         // 前阶结束。
         if ( currentMinied ) {
-            currentMinied.done();
+            this.miniedOk();
         }
-        let _el = esetShift( true );
-
-        if ( !(currentMinied = miniedStart(_el)) ) {
-            stateNewEdit();
-            return __EHot.set( _el );
-        }
-        currentMinied.cursor( _el );
+        this.miniedIn();
     },
 
 };
@@ -3164,17 +3206,6 @@ export const Kit = {
     },
 
     __save: 1,
-
-
-    /**
-     * 是否为微编辑状态。
-     * @return {Boolean}
-     */
-    minied() {
-        return !!currentMinied;
-    },
-
-    __minied: null,
 
 
     /**
