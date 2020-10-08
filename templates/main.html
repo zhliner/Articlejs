@@ -594,14 +594,16 @@
             </article>
         </main>
     </div>
-    <!-- 元素路径
+    <!-- 元素路径：
         - toggle 快捷键隐显切换。
-        - varyempty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。-->
+        - varyempty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
+        - click(b:x) 微编辑找回编辑点友好。-->
     <div id="g-path" class="_path"
-        on="click(b)|(Kit) evo(2) call('source', _1) scam;
+        on="click(b)|env('minied') end (Kit) evo(2) call('source', _1) scam;
             mouseenter(b)|('_point') (Kit) evo(2) call('source', _1) pop;
             mouseleave(b)|stop ('_point') (Kit) evo(2) call('source', _1) pop;
             varyempty;
+            click(b:last-child)|env('minied') pass (Kit) evo(2) call('source', _1) intoView(2);
             toggle|evo(3) hide(2)"
         by="Ed.pathTo(_1)"
         to="#g-count|trigger('reset')|fire('body', 'focus.content');

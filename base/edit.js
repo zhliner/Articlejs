@@ -1428,6 +1428,18 @@ function miniedIn( el ) {
 
 
 /**
+ * 微编辑确认。
+ */
+function miniedOk() {
+    currentMinied.done();
+    currentMinied = null;
+    delayTrigger(contentElem, Sys.medOk);
+    // 工具栏U/R重置。
+    stateNewEdit();
+}
+
+
+/**
  * 普通模式：撤销。
  * @return {Boolean} 是否可以再撤销
  */
@@ -3099,20 +3111,6 @@ export const Edit = {
         delayTrigger( contentElem, Sys.medIn );
     },
 
-
-    /**
-     * 微编辑完成并退出。
-     * 注记：
-     * 同一时间最多只有一个元素处于微编辑态。
-     * 仅在编辑确认后才需要进入普通模式的历史栈记录。
-     */
-    miniedOk() {
-        stateNewEdit();
-        currentMinied.done();
-        currentMinied = null;
-        delayTrigger( contentElem, Sys.medOk );
-    },
-
 };
 
 
@@ -3231,10 +3229,12 @@ export const Kit = {
      * - Ctrl + Enter   新建一个同类行（<p>|<li>|<dt>|<dd>），原行确认。
      * - Alt + Enter    新建一个逻辑行（dt > dd, td|th ~ tr）。
      * - Tab            当前完成，切换到下一个选取元素。
+     * 注记：
+     * 同一时间最多只有一个元素处于微编辑态。
      */
     medpass( evo, scam, key ) {
         //
-        // Edit.miniedOk();
+        // miniedOk();
         warn( 'in medpass...', evo, scam, key );
     },
 
