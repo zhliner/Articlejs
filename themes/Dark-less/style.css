@@ -69,7 +69,7 @@ aside#help {
 /* 微编辑下 */
 .___Content *[contenteditable] {
     cursor: text;
-    background-color: #e9ab7d !important;
+    background-color: #e9ab7d99 !important;
     outline: none;
 }
 
@@ -559,6 +559,11 @@ menu li[role=submenu]:hover {
 /* 目录导航 */
 .___Content nav[role=toc] a {
     cursor: default;
+}
+
+.___Content ol[role=codelist] li > code {
+    /* 微编辑友好 */
+    display: block;
 }
 
 

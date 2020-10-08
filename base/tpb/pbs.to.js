@@ -465,7 +465,7 @@ const _Update = {
      * 注意：传递ival时处理器必须为调用链头（Cell）。
      * @param  {Element|Collector} to 目标元素（集）
      * @param  {EventListener|Function|false|null|undefined} handler 事件处理器
-     * @param  {String} evn 事件名
+     * @param  {String} evn 事件名（序列）
      * @param  {String} slr 委托选择器，可选
      * @param  {Value} ival 调用链初始赋值，可选
      * @return {Collector|void}

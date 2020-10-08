@@ -102,6 +102,21 @@ class History {
 
 
     /**
+     * 栈顶弹出并执行。
+     * 注记：可用于模拟“取消”行为（微编辑）。
+     */
+    pop() {
+        let _obj = this._buf.pop();
+        this._idx --;
+
+        if ( !$.isArray(_obj) ) {
+            return _obj.undo();
+        }
+        _obj.slice().reverse().forEach( o => o.undo() );
+    }
+
+
+    /**
      * 撤销一步。
      */
     undo() {
@@ -390,17 +405,6 @@ class MiniEdit {
         this._cp.normalize();
         this._cp.removeAttribute( 'contenteditable' );
         return this._cp;
-    }
-
-
-    /**
-     * 取消编辑。
-     * 通常在用户键入ESC键时执行，逻辑同undo。
-     * @return {Element} 原始元素
-     */
-    cancel() {
-        this._cp.replaceWith( this._el );
-        return this._el;
     }
 
 
@@ -934,7 +938,11 @@ let
     errContainer = null,
 
     // 当前微编辑对象暂存。
-    currentMinied = null;
+    currentMinied = null,
+
+    // 两个工具栏按钮。
+    undoButton = null,
+    redoButton = null;
 
 
 
@@ -960,20 +968,9 @@ function historyPush( ...obj ) {
 
 /**
  * 执行了一个新编辑。
- * 更新 Undo/Redo 按钮状态：重做不可用。
+ * 重做不可用，更新 Undo/Redo 按钮状态。
  */
 function stateNewEdit() {
-    $.trigger( contentElem, Sys.undoEvent, true, true );
-    $.trigger( contentElem, Sys.redoEvent, false, true );
-}
-
-
-/**
- * 状态重置。
- * 设置 Undo/Redo 按钮为失效状态（初始）。
- */
-function undoRedoReset() {
-    $.trigger( contentElem, Sys.undoEvent, false, true );
     $.trigger( contentElem, Sys.redoEvent, false, true );
 }
 
@@ -1379,6 +1376,8 @@ function elementsPostion( $els, name, inc ) {
 
 /**
  * 获取微编辑元素。
+ * 如果焦点元素已选取，则为焦点元素，
+ * 否则为选取集首个成员。
  * @return {Element|void}
  */
 function miniedElem() {
@@ -1387,25 +1386,44 @@ function miniedElem() {
     if ( _el && __ESet.has(_el) ) {
         return _el;
     }
-    _el = __ESet.first();
-
-    return _el && setFocus(_el), _el;
+    return __ESet.first();
 }
 
 
 /**
- * 微编辑开始。
- * 会重置 Undo/Redo 按钮为失效状态。
- * 支持单击点成为初始光标位置。
+ * 创建一个微编辑实例。
+ * 目标元素需要是内容元素。
+ * 成功创建后会移除原元素的选取（先移出）。
  * @param  {Element} el 内容元素
- * @return {MiniEdit|null} 微编辑实例
+ * @return {MiniEdit|void} 微编辑实例
  */
-function miniedStart( el ) {
-    if ( !el || !isContent(el) ) {
-        return null;
+function minied( el ) {
+    if ( !isContent(el) ) {
+        setFocus( el );
+        return help( 'need_conelem', el );
     }
-    undoRedoReset();
+    __Selects.delete( el );
     return new MiniEdit( el, window.getSelection().getRangeAt(0) );
+}
+
+
+/**
+ * 进入目标元素的微编辑。
+ * 目标元素应当是一个内容元素，否则仅简单设置焦点。
+ * 事项：
+ * - 将微编辑实例赋值到一个全局变量。
+ * - 移除目标元素的选取。
+ * - 将目标元素的可编辑副本设置为焦点。
+ * @param  {Element} el 目标元素
+ * @return {[Instance]|null} 编辑历史记录实例序列
+ */
+function miniedIn( el ) {
+    if ( !el ) return;
+
+    let _old = [...__ESet];
+    currentMinied = minied( el );
+
+    return currentMinied && [ new ESEdit(_old, currentMinied.elem()), currentMinied ];
 }
 
 
@@ -1950,7 +1968,7 @@ function canUnwrap( el ) {
  * @param {String} evn 事件名
  * @param {Number} delay 延迟时间，可选
  */
-function delayFire( el, evn, extra = null ) {
+function delayTrigger( el, evn, extra = null ) {
     setTimeout( () => $.trigger(el, evn, extra, true), 1 );
 }
 
@@ -1971,8 +1989,9 @@ function last( els ) {
  * 注记：
  * 帮助ID会嵌入到提示链接中，并显示到状态栏。
  * 鼠标指向背影提示关联元素，单击滚动问题元素到视口中间。
- * @param {String} msgid 消息ID
- * @param {Element} el 关联元素，可选
+ * @param  {String} msgid 消息ID
+ * @param  {Element} el 关联元素，可选
+ * @return {true|void}
  */
 function help( msgid, el ) {
     if ( msgid === null ) {
@@ -2646,7 +2665,7 @@ export const Edit = {
             return;
         }
         if ( !$els.every(canTotext) ) {
-            // 选取元素必须全为内容元素。
+            // 目标必须为内容元素。
             return help( 'need_conelem', totextBadit($els) );
         }
         historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
@@ -3056,15 +3075,13 @@ export const Edit = {
      * 否则针对首个已选取元素，同时移动焦点到目标元素上。
      */
     miniedIn() {
-        let _el = miniedElem();
-        if ( !_el ) return;
+        let _ops = miniedIn( miniedElem() );
+        if ( !_ops ) return;
 
-        currentMinied = miniedStart( _el );
+        historyPush( ..._ops );
         currentMinied.active();
 
-        historyPush( new HotEdit(currentMinied.elem()), currentMinied );
-        // 关联模板逻辑。
-        delayFire( contentElem, Sys.medIn );
+        delayTrigger( contentElem, Sys.medIn );
     },
 
 
@@ -3073,20 +3090,13 @@ export const Edit = {
      * 注：光标设置在内容元素末尾。
      */
     miniedInEnd() {
-        let _el = miniedElem();
-        if ( !_el ) return;
+        let _ops = miniedIn( miniedElem() );
+        if ( !_ops ) return;
 
-        currentMinied = miniedStart( _el );
+        historyPush( ..._ops );
         currentMinied.activeEnd();
 
-        let _old = [...__ESet],
-            _med = currentMinied.elem();
-
-        __Selects.delete( _el );
-        __Selects.safeAdd( _med );
-
-        historyPush( new HotEdit(_med), currentMinied, new ESEdit(_old) );
-        delayFire( contentElem, Sys.medIn );
+        delayTrigger( contentElem, Sys.medIn );
     },
 
 
@@ -3100,24 +3110,7 @@ export const Edit = {
         stateNewEdit();
         currentMinied.done();
         currentMinied = null;
-        delayFire( contentElem, Sys.medOk );
-    },
-
-
-    /**
-     * 逐次微编辑。
-     * - 对选取集成员进行逐个修订编辑。
-     * - 选取成员需要是内容元素，否则仅移动焦点到目标元素上。
-     * - 可能首个成员已经进入微编辑。
-     * 注记：
-     * 通常是在按Tab键，在多个已选取目标间跳转编辑时。
-     */
-    miniEdits() {
-        // 前阶结束。
-        if ( currentMinied ) {
-            this.miniedOk();
-        }
-        this.miniedIn();
+        delayTrigger( contentElem, Sys.medOk );
     },
 
 };
@@ -3241,7 +3234,8 @@ export const Kit = {
      */
     medpass( evo, scam, key ) {
         //
-        Edit.miniedOk();
+        // Edit.miniedOk();
+        warn( 'in medpass...', evo, scam, key );
     },
 
 
@@ -3249,9 +3243,8 @@ export const Kit = {
      * 微编辑取消。
      */
     medcancel() {
+        __History.pop();
         stateNewEdit();
-        currentMinied.cancel();
-        setFocus( currentMinied.original() );
         currentMinied = null;
     },
 

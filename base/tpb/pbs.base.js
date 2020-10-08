@@ -174,20 +174,19 @@ const _Control = {
 
 
     /**
-     * 睡眠延时。
-     * 目标：暂存区1项可选。
-     * 目标为延时毫秒数，实参ms可覆盖暂存区数据。
+     * 延时暂停。
+     * 目标：无。
      * 这会让执行流暂停（可用于动效）。
      * @param  {Number} ms 延时毫秒数
      * @return {void}
      */
-    sleep( evo, ms ) {
+    delay( evo, ms = 1 ) {
         return new Promise(
-            resolve => window.setTimeout( resolve, ms || evo.data )
+            resolve => window.setTimeout( resolve, ms )
         );
     },
 
-    __sleep: -1,
+    __delay: null,
 
 
 

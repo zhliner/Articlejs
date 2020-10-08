@@ -79,7 +79,7 @@ const CustomStruct = {
         let _sub = el.firstElementChild;
 
         if ( el.childElementCount <= 1 ) {
-            return this._liChild(_sub) || T.LI;
+            return this._liChild( _sub ) || T.LI;
         }
         return el.childElementCount === 2 && _sub.tagName === 'H4' ? this._liParent(el.parentElement, _sub) : T.LI;
     },
@@ -94,7 +94,9 @@ const CustomStruct = {
      * @return {Number} 单元值
      */
     H4( el ) {
-        return el.childElementCount === 1 && el.firstElementChild.tagName === 'A' ?
+        let _sub = el.firstElementChild;
+
+        return el.childElementCount === 1 && _sub.tagName === 'A' && $.siblingNodes(_sub).length === 0 ?
             T.AH4 : T.H4
     },
 
@@ -121,8 +123,9 @@ const CustomStruct = {
      * @return {Number}
      */
     _liChild( el ) {
-        if ( !el ) return;
-
+        if ( !el || $.siblingNodes(el).length ) {
+            return;
+        }
         switch ( el.tagName ) {
             case 'CODE':
                 return T.CODELI;
@@ -144,6 +147,11 @@ const CustomStruct = {
      * @return {Number}
      */
     _liParent( el, h4 ) {
+        let _nxt = h4.nextElementSibling;
+
+        if ( _nxt.tagName !== 'OL' && _nxt.tagName !== 'UL' ) {
+            return T.LI;
+        }
         switch ( name(listRoot(el)) ) {
             case 'ULX':
             case 'OLX':

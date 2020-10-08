@@ -57,7 +57,7 @@ export const Help = {
 
     'need_conelem': [
         'type:contents',
-        '选取元素必须全为内容元素。'
+        '目标必须为内容元素。'
     ],
 
 
@@ -99,7 +99,6 @@ export const Sys = {
     // 在用户执行撤销/重做操作时，向内容区元素发送该事件，
     // 上层可根据发送信息修改按钮状态。
     undoEvent: 'button.undo',
-
     redoEvent: 'button.redo',
 
 
