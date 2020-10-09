@@ -2,16 +2,18 @@
 <div class="___Panel Tools" tpl-name="main:tools"
     on="click|$('#g-scroll') focus">
     <div class="_start _icons">
+        <!--click|stop:
+            保持现有焦点不转移。-->
         <b id="x-outline" title="大纲" class="_press"
             on="toggle|$$('#outline,#lineLeft') lose(2) ('_press');
-                click"
+                click|stop"
             to="|toggleClass;
                 |trigger('toggle')|fire('body', 'pcheck')">
             <i id="b-outline"></i>
         </b>
-        <b id="x-slave" title="主面板" class="_press"
+        <b id="x-slave" title="功能区" class="_press"
             on="toggle|$('#main-slave') lose(2) ('_press');
-                click"
+                click|stop"
             to="|toggleClass;
                 |trigger('toggle')|fire('body', 'pcheck')">
             <i id="b-slave"></i>
@@ -62,7 +64,7 @@
     @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（仅放过ESC键）。
     @paste 粘贴为纯文本。 -->
 <div class="___Content" tpl-name="main:content"
-    on="@keydown|ev('key') end('Escape') stop ev('key') pass('Enter', 'Tab') avoid scam ev('key');
+    on="@keydown|key(2) end stop ev('key') pass('Enter', 'Tab') avoid scam ev('key');
         cancel|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
         medok|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
         medin|env('minied') end (ESC) evo(3) apply('add', _1) env('minied', true) stop;
@@ -615,12 +617,11 @@
 </div>
 
 
-<!-- 主面板：
+<!-- 功能面板：
     - mousedown 面板高度调整。
     - keydown   面板快捷键处理。
     - scroll    背景/行线跟随。
-    注：
-    tabindex 使保存键有效。 -->
+    注：tabindex 使保存键（Ctrl+s）随时有效。 -->
 <div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);

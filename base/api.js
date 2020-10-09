@@ -66,7 +66,7 @@ const Api = {
      * 限于编辑器本身（不含侧面板）。
      * name: {
      *      tools   工具栏
-     *      slave   主面板
+     *      slave   功能区
      *      status  状态栏
      *      content 内容区
      * }

@@ -193,6 +193,9 @@ scam( names?:String ): Boolean | Object
 acmsk(): String
 // 构建组合键序列：alt+ctrl+shift+meta:[key]。
 
+key(...ch:String|Number): Boolean
+// 判断是否为目标键位。
+
 chain( evnid:String, clone:Boolean ): Cell
 // 预绑定调用链提取（单个）。
 

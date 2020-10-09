@@ -37,6 +37,15 @@ const
         9: 'updated',   // To更新目标/集（动态变化）
     },
 
+    // 归类键区。
+    // 用于 iskey 方法判断键位（Event.key）。
+    __keyArea = {
+        1:  /^F[0-9]+$/,
+        2:  /^F[0-9]+$|^Escape$/,
+        3:  /^Home|End|PgUp|PgDn$/,
+        4:  /^Arrow(?:Up|Left|Down|Right)$/,
+    },
+
     // 修饰键属性名。
     // 注：按名称有序排列。
     __modKeys = [
@@ -818,6 +827,29 @@ const _Gets = {
     },
 
     __acmsk: null,
+
+
+    /**
+     * 是否为目标键之一。
+     * 目标：无。
+     * 指定数字键时需要包含引号，而不是直接的数值。
+     * 数值实参表达被区分的键区：
+     * - 1: F1-F12 功能键系列。
+     * - 2: F1-F12 功能键系列（含ESC键）。
+     * - 3: Home/End/PgUp/PgDn 4个页面键。
+     * - 4: 四个箭头键（← → ↑ ↓）。
+     * @param  {...String|Number} keys 键名序列或键区值
+     * @return {Boolean}
+     */
+    key( evo, ...keys ) {
+        let _k = evo.event.key;
+
+        return keys.some( n =>
+            typeof n === 'number' ? __keyArea[n].test(_k) : _k === n
+        );
+    },
+
+    __key: null,
 
 
     /**

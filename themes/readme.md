@@ -29,7 +29,7 @@ images/     图片/图标等
 面板根：
 ```
 ___Panel.Tools  工具栏
-___Panel.Slave  主面板
+___Panel.Slave  功能区
 ___Panel.Status 状态栏
 ___Panel.Modal  模态框
 ___Panel.Plugs  插件区
