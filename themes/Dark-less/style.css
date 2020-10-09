@@ -590,6 +590,10 @@ menu li[role=submenu]:hover {
     border: 0 #bbb solid;
     border-width: 0 1px 1px 0;
 }
+.___Content menu._cells > li:nth-child(2n) {
+    /* 右栏右边0 */
+    border-right-width: 0;
+}
 .___Content menu._cells b {
     min-width: 60px;
 }
@@ -608,7 +612,7 @@ menu li[role=submenu]:hover {
     padding: 3px 12px 4px;
     display: grid;
     grid-template-columns: 1fr auto;
-    column-gap: 12px;
+    column-gap: 14px;
 }
 .___Content menu._cmenu > li > kbd {
     min-width: 60px;
@@ -616,7 +620,7 @@ menu li[role=submenu]:hover {
 /* 子菜单 */
 .___Content menu > li[role=submenu] > menu {
     top: -2px;
-    left: 160px;
+    left: 147px;
 }
 
 

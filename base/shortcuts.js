@@ -831,6 +831,15 @@ Keys: {
     // [Key] + 单击
     parentSelect: 'Alt Shift',
 
+
+    // 微编辑新行创建辅助。
+    // 仅支持：<p>, <li>, <dt>, <dd>
+    miniedNewLine: 'Ctrl',
+
+    // 微编辑逻辑行创建辅助。
+    // 仅支持：<dt> ~ <dd>, <td|th> ~ <tr>
+    miniedLogicLine: 'Alt',
+
 },
 
 };

@@ -50,6 +50,12 @@ const
     // 章节角色名（s1-s5）
     __sectionRole = /^s[1-5]$/,
 
+    // 微编辑新行适用集。
+    __medNLineTags = [ 'P', 'LI', 'DT', 'DD' ],
+
+    // 微编辑逻辑行适用集。
+    __medLLineMap = { DT: 'dd', TD: 'tr', TH: 'tr' },
+
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
 
@@ -285,7 +291,7 @@ class HotEdit {
      */
     constructor( hot ) {
         this._hot = hot;
-        this._old = __EHot.set(hot);
+        this._old = setFocus( hot );
     }
 
 
@@ -1423,7 +1429,7 @@ function miniedIn( el ) {
     let _old = [...__ESet];
     currentMinied = minied( el );
 
-    return currentMinied && [ new ESEdit(_old, currentMinied.elem()), currentMinied ];
+    return currentMinied && [ new ESEdit(_old, null), currentMinied, new HotEdit(currentMinied.elem()) ];
 }
 
 
@@ -1436,6 +1442,38 @@ function miniedOk() {
     delayTrigger(contentElem, Sys.medOk);
     // 工具栏U/R重置。
     stateNewEdit();
+}
+
+
+/**
+ * 微编辑创建同类新行。
+ * @param {Element} src 源行元素
+ */
+function miniedNewLine( src ) {
+    //
+}
+
+
+/**
+ * 微编辑创建逻辑新行。
+ * 适用：<dt>
+ * 创建一个定义列表数据项，插入当前标题项之后。
+ * @param {Element} src 源行元素
+ */
+function miniedLogicDD( src ) {
+    //
+}
+
+
+/**
+ * 微编辑创建逻辑新行。
+ * 适用：单元格。
+ * 创建当前单元格所在表格的一个新行（<tr>），
+ * 插入到当前行之后。
+ * @param {Element} src 源行元素
+ */
+function miniedLogicTR( src ) {
+    //
 }
 
 
@@ -3224,19 +3262,39 @@ export const Kit = {
 
     /**
      * 微编辑完成处理。
-     * - Enter          确认并退出，元素取消选取。
+     * 目标：暂存区/栈顶1项。
+     * 目标为确认键，仅限于 Enter|Tab（外部保证）。
+     * - Enter          确认并退出。
      * - Shift + Enter  插入一个换行，浏览器默认行为（无需实现）。
      * - Ctrl + Enter   新建一个同类行（<p>|<li>|<dt>|<dd>），原行确认。
      * - Alt + Enter    新建一个逻辑行（dt > dd, td|th ~ tr）。
      * - Tab            当前完成，切换到下一个选取元素。
-     * 注记：
-     * 同一时间最多只有一个元素处于微编辑态。
+     * @data: String
+     * @param  {Set} scam 按下的辅助键集
+     * @return {void}
      */
-    medpass( evo, scam, key ) {
-        //
-        // miniedOk();
-        warn( 'in medpass...', evo, scam, key );
+    medpass( evo, scam ) {
+        let _src = currentMinied.elem(),
+            _tag = _src.tagName;
+
+        miniedOk();
+
+        if ( evo.data === 'Tab' ) {
+            return Edit.miniedIn();
+        }
+        if ( scamPressed(scam, cfg.Keys.miniedNewLine) && __medNLineTags.includes(_tag) ) {
+            return miniedNewLine( _src );
+        }
+        if ( !scamPressed(scam, cfg.Keys.miniedLogicLine) ) {
+            return;
+        }
+        let _sub = __medLLineMap[_tag];
+
+        if ( _sub === 'tr' ) miniedLogicTR( _src );
+        if ( _sub === 'dd' ) miniedLogicDD( _src );
     },
+
+    __medpass: 1,
 
 
     /**
