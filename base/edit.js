@@ -1384,7 +1384,7 @@ function elementsPostion( $els, name, inc ) {
  * 获取微编辑元素。
  * 如果焦点元素已选取，则为焦点元素，
  * 否则为选取集首个成员。
- * @return {Element|void}
+ * @return {Element|null}
  */
 function miniedElem() {
     let _el = __EHot.get();
@@ -1392,24 +1392,7 @@ function miniedElem() {
     if ( _el && __ESet.has(_el) ) {
         return _el;
     }
-    return __ESet.first();
-}
-
-
-/**
- * 创建一个微编辑实例。
- * 目标元素需要是内容元素。
- * 成功创建后会移除原元素的选取（先移出）。
- * @param  {Element} el 内容元素
- * @return {MiniEdit|void} 微编辑实例
- */
-function minied( el ) {
-    if ( !isContent(el) ) {
-        setFocus( el );
-        return help( 'need_conelem', el );
-    }
-    __Selects.delete( el );
-    return new MiniEdit( el, window.getSelection().getRangeAt(0) );
+    return __ESet.first() || null;
 }
 
 
@@ -1421,15 +1404,18 @@ function minied( el ) {
  * - 移除目标元素的选取。
  * - 将目标元素的可编辑副本设置为焦点。
  * @param  {Element} el 目标元素
- * @return {[Instance]|null} 编辑历史记录实例序列
+ * @return {[Instance]} 编辑历史记录实例序列
  */
 function miniedIn( el ) {
-    if ( !el ) return;
+    let _old = [ ...__ESet ],
+        _op1 = null;
 
-    let _old = [...__ESet];
-    currentMinied = minied( el );
+    if ( __Selects.delete(el) ) {
+        _op1 = new ESEdit( _old, null );
+    }
+    currentMinied = new MiniEdit( el, window.getSelection().getRangeAt(0) );
 
-    return currentMinied && [ new ESEdit(_old, null), currentMinied, new HotEdit(currentMinied.elem()) ];
+    return [ _op1, currentMinied, new HotEdit(currentMinied.elem()) ];
 }
 
 
@@ -3125,10 +3111,14 @@ export const Edit = {
      * 否则针对首个已选取元素，同时移动焦点到目标元素上。
      */
     miniedIn() {
-        let _ops = miniedIn( miniedElem() );
-        if ( !_ops ) return;
+        let _el = miniedElem();
+        if ( !_el ) return;
 
-        historyPush( ..._ops );
+        if ( !isContent(_el) ) {
+            setFocus( _el );
+            return help( 'need_conelem', _el );
+        }
+        historyPush( ...miniedIn(_el) );
         currentMinied.active();
 
         delayTrigger( contentElem, Sys.medIn );
@@ -3140,10 +3130,14 @@ export const Edit = {
      * 注：光标设置在内容元素末尾。
      */
     miniedInEnd() {
-        let _ops = miniedIn( miniedElem() );
-        if ( !_ops ) return;
+        let _el = miniedElem();
+        if ( !_el ) return;
 
-        historyPush( ..._ops );
+        if ( !isContent(_el) ) {
+            setFocus( _el );
+            return help( 'need_conelem', _el );
+        }
+        historyPush( ...miniedIn(_el) );
         currentMinied.activeEnd();
 
         delayTrigger( contentElem, Sys.medIn );
