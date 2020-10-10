@@ -647,6 +647,7 @@ span[role=space] {
 
 .content code {
     word-wrap: break-word;
+    white-space: pre-wrap;
     padding: 0 2px;
     background-color: #f3f3f3;
     border-radius: 2px;
@@ -706,7 +707,6 @@ span[role=space] {
 }
 .content ol[role=codelist] code {
     color: #000;
-    white-space: pre-wrap;
     background-color: transparent;
     border-width: 0;
 }

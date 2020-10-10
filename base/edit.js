@@ -407,16 +407,11 @@ class MiniEdit {
 
     /**
      * 微编辑完成。
-     * 会清理<pre>和<pre:codeblock>内的换行元素（<br>），
-     * 以保持不同浏览器兼容。
      * @return {Element} 新完成的元素
      */
     done() {
-        let _tv = getType( this._cp );
+        this._clean( this._cp );
 
-        if ( _tv === T.PRE || _tv === T.CODEBLOCK ) {
-            $('br', this._cp).replace( '\n' );
-        }
         // 原生调用不进入历史栈。
         this._cp.normalize();
         this._cp.removeAttribute( 'contenteditable' );
@@ -473,6 +468,26 @@ class MiniEdit {
         let _new = $.clone( el, true, true, true );
 
         return __eCursor.clean( el ), _new;
+    }
+
+
+    /**
+     * 清理目标元素内容。
+     * - 替换 <pre> 和 <code> 内的 <br> 元素为换行字符（\n），
+     *   确保不同浏览器的兼容性。
+     * - 解包非代码内的 <b> 和 <i> 元素，
+     *   它们由浏览器默认行为带来（格式元素删除后遗留了样式）。
+     * @param {Element} el 目标元素
+     */
+    _clean( el ) {
+        let _tv = getType( el );
+
+        if ( _tv === T.PRE || _tv === T.CODE ) {
+            cleanCall( () => $('br', el).replace( '\n' ) );
+        }
+        if ( _tv !== T.CODE ) {
+            cleanCall( () => $('b, i', el).unwrap() );
+        }
     }
 }
 
@@ -2029,6 +2044,23 @@ function help( msgid, el ) {
 
     $.trigger( linkElem(errContainer, el), 'on' );
     $.trigger( $.get('a', errContainer), 'setv', [hid, msg, msg] );
+}
+
+
+/**
+ * 干净回调。
+ * 临时关闭节点变化跟踪以避免历史记录。
+ * @param {Function} handle 回调操作
+ */
+function cleanCall( handle ) {
+    let _old = $.config({
+        varyevent: false,
+        bindevent: false,
+    });
+    try {
+        return handle();
+    }
+    finally { $.config(_old) }
 }
 
 

@@ -203,7 +203,7 @@
                 </section>
                 <section role="s2">
                     <h2 id="层次示意">层次示意</h2>
-                    <pre>
+                    <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">h1</b>&gt;&lt;/<b role="tag">h1</b>&gt;                                   <i>&lt;!-- 页/主标题 --&gt;</i>
 &lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;           <i>&lt;!-- 提要 --&gt;</i>
 &lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;                      <i>&lt;!-- 目录 --&gt;</i>
@@ -736,7 +736,7 @@
     <!--帮助入口：
         click toggle 打开/关闭帮助栏。
         help 如果帮助栏开启，获取问题ID，发送帮助索引请求。-->
-    <div id="x-help" class="_help" title="帮助"
+    <div id="x-help" class="_help" title="帮助〔F4〕"
         on="toggle|$$('#help,#lineRight') lose(2) ('_press');
             click;
             help|$('#help') lost end $('#err-tips > a') attr('-hid')"
