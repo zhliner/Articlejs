@@ -744,30 +744,31 @@ Slave: [
     {
         //-----------------元素单元     | 字符种类      | 行块单元
         "key": [
-            ":g",       // <img>        | geometric
-            "shift:a",  // <audio>
-            "shift:v",  // <video>
             ":a",       // <a>          | alphabet      | address
-            ":c",       // <code>       | custom        | codeblock
-            ":s",       // <strong>     | special       | section
-            ":e",       // <em>         | emotion
-            ":q",       // <q>
-            ":t",       // <time>       | ...           | table
-            ":i",       // <ins>        | ipa87
-            ":d",       // <del>        | ...           | details
-            ":m",       // <mark>       | math
-            ":r",       // <ruby>       | radical       | reference
-            ":o",       // <code:orz>   | ...           | ol
-            ":f",       // <dfn>        | ...           | figure
-            ":p",       // <samp>       | punctuation   | p
-            ":k",       // <kbd>
-            ":u",       // <u>          | unit          | ul
-            ":v",       // <var>
             ":b",       // <bdo>        | ...           | blockquote
-            ":n",       // ...          | number        | p:note
-            ":z",       // ...          | phonetic
+            ":c",       // <code>       | custom        | codeblock
+            ":d",       // <del>        | ...           | details
+            ":e",       // <em>         | emotion
+            ":f",       // <dfn>        | ...           | figure
+            ":g",       // ...          | geometric
             ":h",       // ...          | ...           | header
-            ":l",       // ...          | ...           | codelist
+            ":i",       // <img>        | ipa87
+            ":k",       // <kbd>
+            ":l",       // <small>      | ...           | codelist
+            ":m",       // <mark>       | math
+            ":n",       // ...          | number        | p:note
+            ":o",       // <code:orz>   | ...           | ol
+            ":p",       // <picture>    | punctuation   | p
+            ":q",       // <q>
+            ":r",       // <ruby>       | radical       | reference
+            ":s",       // <strong>     | special       | section
+            ":t",       // <time>       | ...           | table
+            ":u",       // <u>          | unit          | ul
+            ":v",       // <video>
+            ":w",       // <wbr>
+            ":x",       // <sub>, 特例（常）
+            ":y",       // <sup>, 特例（常）
+            ":z",       // ...          | phonetic
         ],
         "command":  "input.select",
         "exclude":  "textarea, input"
@@ -832,12 +833,12 @@ Keys: {
     parentSelect: 'Alt Shift',
 
 
-    // 微编辑新行创建辅助。
+    // 微编辑同类行创建辅助。
     // 仅支持：<p>, <li>, <dt>, <dd>
-    miniedNewLine: 'Ctrl',
+    miniedSameLine: 'Ctrl',
 
     // 微编辑逻辑行创建辅助。
-    // 仅支持：<dt> ~ <dd>, <td|th> ~ <tr>
+    // 仅支持 <dt> ~ <dd>，暂不支持 <td|th> ~ <tr>
     miniedLogicLine: 'Alt',
 
 },

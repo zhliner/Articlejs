@@ -53,8 +53,11 @@ const
     // 微编辑新行适用集。
     __medNLineTags = [ 'P', 'LI', 'DT', 'DD' ],
 
-    // 微编辑逻辑行适用集。
-    __medLLineMap = { DT: 'dd', TD: 'tr', TH: 'tr' },
+    // 微编辑逻辑行适用。
+    // 注记：
+    // 因预先克隆表格行十分简单，故暂不支持 <td|th> ~ <tr> 创建，
+    // 而微编辑下反而不易确定新行单元格的选取逻辑。
+    __medLLineMap = { DT: 'dd' },
 
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
@@ -404,12 +407,20 @@ class MiniEdit {
 
     /**
      * 微编辑完成。
-     * 注记：返回值供历史栈记录。
+     * 会清理<pre>和<pre:codeblock>内的换行元素（<br>），
+     * 以保持不同浏览器兼容。
      * @return {Element} 新完成的元素
      */
     done() {
+        let _tv = getType( this._cp );
+
+        if ( _tv === T.PRE || _tv === T.CODEBLOCK ) {
+            $('br', this._cp).replace( '\n' );
+        }
+        // 原生调用不进入历史栈。
         this._cp.normalize();
         this._cp.removeAttribute( 'contenteditable' );
+
         return this._cp;
     }
 
@@ -1397,16 +1408,14 @@ function miniedElem() {
 
 
 /**
- * 进入目标元素的微编辑。
- * 目标元素应当是一个内容元素，否则仅简单设置焦点。
- * 事项：
+ * 微编辑目标元素。
  * - 将微编辑实例赋值到一个全局变量。
  * - 移除目标元素的选取。
  * - 将目标元素的可编辑副本设置为焦点。
  * @param  {Element} el 目标元素
  * @return {[Instance]} 编辑历史记录实例序列
  */
-function miniedIn( el ) {
+function minied( el ) {
     let _old = [ ...__ESet ],
         _op1 = null;
 
@@ -1421,11 +1430,13 @@ function miniedIn( el ) {
 
 /**
  * 微编辑确认。
+ * 清理<pre>内容中的换行元素（改为\n）。
  */
 function miniedOk() {
     currentMinied.done();
     currentMinied = null;
-    delayTrigger(contentElem, Sys.medOk);
+    $.trigger( contentElem, Sys.medOk, null, true );
+
     // 工具栏U/R重置。
     stateNewEdit();
 }
@@ -1433,33 +1444,26 @@ function miniedOk() {
 
 /**
  * 微编辑创建同类新行。
- * @param {Element} src 源行元素
+ * 新行创建与微编辑合为一个编辑历史序列。
+ * @param  {Element} src 源行元素
+ * @return {[Instance]} 编辑实例序列
  */
-function miniedNewLine( src ) {
-    //
+function medSameLine( src ) {
+    let _new = $.elem( src.tagName );
+    return [ new DOMEdit(() => $.after(src, _new)) ].concat( minied(_new) );
 }
 
 
 /**
  * 微编辑创建逻辑新行。
- * 适用：<dt>
+ * 适用：<dt> ~ <dd>
  * 创建一个定义列表数据项，插入当前标题项之后。
- * @param {Element} src 源行元素
+ * @param  {Element} src 源行元素
+ * @return {[Instance]} 编辑实例序列
  */
-function miniedLogicDD( src ) {
-    //
-}
-
-
-/**
- * 微编辑创建逻辑新行。
- * 适用：单元格。
- * 创建当前单元格所在表格的一个新行（<tr>），
- * 插入到当前行之后。
- * @param {Element} src 源行元素
- */
-function miniedLogicTR( src ) {
-    //
+function medLogicLine( src, tag ) {
+    let _new = $.elem( tag );
+    return [ new DOMEdit(() => $.after(src, _new)) ].concat( minied(_new) );
 }
 
 
@@ -1998,18 +2002,6 @@ function canUnwrap( el ) {
 
 
 /**
- * 延迟激发。
- * 注：脱离当前调用链序列。
- * @param {Element} el 目标元素
- * @param {String} evn 事件名
- * @param {Number} delay 延迟时间，可选
- */
-function delayTrigger( el, evn, extra = null ) {
-    setTimeout( () => $.trigger(el, evn, extra, true), 1 );
-}
-
-
-/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -2056,7 +2048,7 @@ function warn( msg, data ) {
  * @param {Value} data 关联数据
  */
 function error( msg, data ) {
-    window.console.warn( msg, data || '' );
+    window.console.error( msg, data || '' );
 }
 
 
@@ -3109,19 +3101,21 @@ export const Edit = {
      * 进入微编辑。
      * 如果焦点元素已选取，针对焦点元素。
      * 否则针对首个已选取元素，同时移动焦点到目标元素上。
+     * 目标元素应当是一个内容元素，否则仅简单设置焦点。
+     * @param {Element} el 微编辑的目标元素，可选
      */
-    miniedIn() {
-        let _el = miniedElem();
-        if ( !_el ) return;
+    miniedIn( el ) {
+        el = el || miniedElem();
+        if ( !el ) return;
 
-        if ( !isContent(_el) ) {
-            setFocus( _el );
-            return help( 'need_conelem', _el );
+        if ( !isContent(el) ) {
+            setFocus( el );
+            return help( 'need_conelem', el );
         }
-        historyPush( ...miniedIn(_el) );
+        historyPush( ...minied(el) );
         currentMinied.active();
 
-        delayTrigger( contentElem, Sys.medIn );
+        $.trigger( contentElem, Sys.medIn, null, true );
     },
 
 
@@ -3129,18 +3123,18 @@ export const Edit = {
      * 进入微编辑。
      * 注：光标设置在内容元素末尾。
      */
-    miniedInEnd() {
-        let _el = miniedElem();
-        if ( !_el ) return;
+    miniedInEnd( el ) {
+        el = el || miniedElem();
+        if ( !el ) return;
 
-        if ( !isContent(_el) ) {
-            setFocus( _el );
-            return help( 'need_conelem', _el );
+        if ( !isContent(el) ) {
+            setFocus( el );
+            return help( 'need_conelem', el );
         }
-        historyPush( ...miniedIn(_el) );
+        historyPush( ...minied(el) );
         currentMinied.activeEnd();
 
-        delayTrigger( contentElem, Sys.medIn );
+        $.trigger( contentElem, Sys.medIn, null, true );
     },
 
 };
@@ -3259,33 +3253,35 @@ export const Kit = {
      * 目标：暂存区/栈顶1项。
      * 目标为确认键，仅限于 Enter|Tab（外部保证）。
      * - Enter          确认并退出。
-     * - Shift + Enter  插入一个换行，浏览器默认行为（无需实现）。
      * - Ctrl + Enter   新建一个同类行（<p>|<li>|<dt>|<dd>），原行确认。
      * - Alt + Enter    新建一个逻辑行（dt > dd, td|th ~ tr）。
      * - Tab            当前完成，切换到下一个选取元素。
+     * 注：Shift+Enter 为插入一个换行，浏览器默认行为无需实现。
      * @data: String
      * @param  {Set} scam 按下的辅助键集
      * @return {void}
      */
     medpass( evo, scam ) {
         let _src = currentMinied.elem(),
-            _tag = _src.tagName;
-
+            _tag = _src.tagName,
+            _lgn = __medLLineMap[ _tag ];
         miniedOk();
 
         if ( evo.data === 'Tab' ) {
             return Edit.miniedIn();
         }
-        if ( scamPressed(scam, cfg.Keys.miniedNewLine) && __medNLineTags.includes(_tag) ) {
-            return miniedNewLine( _src );
+        // 同类新行。
+        if ( scamPressed(scam, cfg.Keys.miniedSameLine) && __medNLineTags.includes(_tag) ) {
+            historyPush( ...medSameLine(_src) );
         }
-        if ( !scamPressed(scam, cfg.Keys.miniedLogicLine) ) {
-            return;
+        // 逻辑新行。
+        else if ( scamPressed(scam, cfg.Keys.miniedLogicLine) && _lgn ) {
+            historyPush( ...medLogicLine(_src, _lgn) );
         }
-        let _sub = __medLLineMap[_tag];
+        if ( !currentMinied ) return;
 
-        if ( _sub === 'tr' ) miniedLogicTR( _src );
-        if ( _sub === 'dd' ) miniedLogicDD( _src );
+        currentMinied.active();
+        $.trigger( contentElem, Sys.medIn, null, true );
     },
 
     __medpass: 1,

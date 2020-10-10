@@ -4,14 +4,14 @@
     <div class="_start _icons">
         <!--click|stop:
             保持现有焦点不转移。-->
-        <b id="x-outline" title="大纲" class="_press"
+        <b id="x-outline" title="大纲〔F2〕" class="_press"
             on="toggle|$$('#outline,#lineLeft') lose(2) ('_press');
                 click|stop"
             to="|toggleClass;
                 |trigger('toggle')|fire('body', 'pcheck')">
             <i id="b-outline"></i>
         </b>
-        <b id="x-slave" title="功能区" class="_press"
+        <b id="x-slave" title="功能区〔F3〕" class="_press"
             on="toggle|$('#main-slave') lose(2) ('_press');
                 click|stop"
             to="|toggleClass;
@@ -34,21 +34,21 @@
         <!--撤销：
             press 按下并设置是否可继续：
                   true不可继续，false可继续。同时会激活Redo。-->
-        <b id="tools-undo" title="撤消" data-pbo="disabled"
+        <b id="tools-undo" title="撤消〔u〕" data-pbo="disabled"
             on="press|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Kit) call('undo');
                 enable|evo(1) disable(0)"
             to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
         <!--重做：
             press 同上。同时会激活Undo。-->
-        <b id="tools-redo" title="重做" data-pbo="disabled"
+        <b id="tools-redo" title="重做〔r〕" data-pbo="disabled"
             on="press|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Kit) call('redo');
                 enable|evo(1) disable(0)"
             to="#tools-undo|trigger('enable')"><i id="b-redo"></i></b>
     </div>
     <div class="_end _icons">
-        <b id="x-plugins" title="插件"
+        <b id="x-plugins" title="插件〔F7〕"
             on="click|tpl('modal:plugins')"
             to="#g-modal>*|replace trigger('open', true)">
             <i id="b-plugins"></i>
@@ -61,13 +61,15 @@
 <!--内容区
     medin 进入微编辑（Sys.medIn）
     medok 确认微编辑（Sys.medOk）
-    @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（仅放过ESC键）。
+    info|focus 确认后聚焦根容器，便于键盘控。
+    medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
+    @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
     @paste 粘贴为纯文本。 -->
 <div class="___Content" tpl-name="main:content"
-    on="@keydown|key(2) end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
+    on="@keydown|key(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
         cancel|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
         medok|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
-        medin|env('minied') end (ESC) evo(3) apply('add', _1) env('minied', true) stop;
+        medin|env('minied') end (ESC) evo(3) apply('add', _1) env('minied', true) stop delay;
         info|$('#g-scroll') focus;
         @paste|avoid xRange addRange clipboard exeCmd('insertText', _1)"
     by="Kit.medpass(_1);
