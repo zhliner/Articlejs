@@ -416,7 +416,7 @@
             'play',
             'reset',
             // 'scroll',  // 定制
-            'select',
+            // 'select',  // 定制
             'submit',
         ],
 
@@ -3049,6 +3049,24 @@ tQuery.scroll = function( el, pair ) {
 
 
 /**
+ * 选取动作定制。
+ * 注：可编辑（contenteditable=true）的普通元素无此方法。
+ * @param {Element} el 目标元素
+ */
+tQuery.select = function( el ) {
+    if ( 'select' in el ) {
+        return el.select();
+    }
+    let _sel = window.getSelection(),
+        _rng = el.ownerDocument.createRange();
+
+    _sel.removeAllRanges();
+    _sel.addRange( _rng );
+    _rng.selectNodeContents( el );
+}
+
+
+/**
  * 获取窗口尺寸。
  * 注意！
  * - 这与浏览器原生的innerXXX/outerXXX逻辑不同。
@@ -3880,6 +3898,7 @@ elsExfn([
         // 'blur'
         // 'click'
         // ...
+        'select',
     ].concat(callableNative),
     fn =>
     function( ...rest ) {
