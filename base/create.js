@@ -230,12 +230,13 @@ const Children = {
      * SVG内容插入。
      * 内容支持源码和节点数据。
      * 无特性配置。
+     * @param {Element|null} ref 插入参考元素
      * @param {Element} svg SVG根元素
      * @param {Node|[Node]|String} data
      * @node: {[Node]|data}
      */
-    [ T.SVG ]: function( svg, _, data ) {
-        return result( null, svgInsert(svg, data), true );
+    [ T.SVG ]: function( ref, svg, _, data ) {
+        return result( null, svgInsert(ref, svg, data), true );
     },
 
 
@@ -243,32 +244,34 @@ const Children = {
      * SVG子单元内容插入。
      * 内容支持源码和节点数据。
      * 无特性配置。
+     * @param {Element|null} ref 插入参考元素
      * @param {Element} box 普通SVG容器元素
      * @param {Node|[Node]|String} data
      * @node: {[Node]|data}
      */
-    [ T.SVGITEM ]: function( box, _, data ) {
-        return result( null, svgInsert(box, data), true );
+    [ T.SVGITEM ]: function( ref, box, _, data ) {
+        return result( null, svgInsert(ref, box, data), true );
     },
 
 
     /**
      * 留到下阶内容元素段处理。
      * @node: {[Element]}
+     * @param {Element|null} ref 插入参考元素
      * @param {Element} ruby 注音元素
      */
-    [ T.RUBY ]: function( ruby ) {
+    [ T.RUBY ]: function( ref, ruby ) {
         return result(
             null,
-            $.append( ruby, elements(T.RB, T.RP, T.RT, T.RP) )
+            insertChild( ref, ruby, elements(T.RB, T.RP, T.RT, T.RP) )
         );
     },
 
     // 同上。
-    [ T.RBPT ]: function( ruby ) {
+    [ T.RBPT ]: function( ref, ruby ) {
         return result(
             null,
-            $.append( ruby, elements(T.RB, T.RP, T.RT, T.RP) )
+            insertChild( ref, ruby, elements(T.RB, T.RP, T.RT, T.RP) )
         );
 
     },
@@ -281,14 +284,15 @@ const Children = {
      * 只接受源码数据，不接受不同代码内容的混入。
      * 这可以保证代码语言和Tab的一致性，
      * 且代码被设计为特例编辑（高亮解析，严格语法合规）。
+     * @param {Element|null} ref 插入参考元素
      * @param {Element} code 代码元素
      * @param {String} html 已解析源码
      */
-    [ T.CODE ]: function( code, _, html ) {
+    [ T.CODE ]: function( ref, code, _, html ) {
         if ( typeof html !== 'string' ) {
             return result( null, null, true );
         }
-        $.append( code, $.fragment(data, false) );
+        insertChild( ref, code, $.fragment(data, false) );
 
         return result( null, code, true );
     },
@@ -303,9 +307,10 @@ const Children = {
      * 单元格已经存在。
      * 单元格内容插入留到后阶内容元素段处理。
      * @node: {[Element]}
+     * @param {null} ref 插入参考（占位）
      * @param {Element} tr 表格行元素
      */
-    [ T.TR ]: function( tr ) {
+    [ T.TR ]: function( ref, tr ) {
         return result( null, [...tr.cells] );
     },
 
@@ -317,13 +322,14 @@ const Children = {
      * 注记：
      * 仅在表体处理时提供添加列头的能力，
      * 因为需要先有行元素才能插入列头。
+     * @param {Element|null} ref 参考行元素
      * @param {Element} body 表体元素
      * @param {Boolean} th0 添加列表头
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
-    [ T.TBODY ]: function( body, {th0}, data ) {
+    [ T.TBODY ]: function( ref, body, {th0}, data ) {
         let _tbo = tableObj( body.parentElement ),
-            _new = appendRow( _tbo, body, data );
+            _new = appendRow( _tbo, ref, body, data );
 
         if ( th0 && _tbo.rows() > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
@@ -334,13 +340,17 @@ const Children = {
 
     /**
      * 表头行元素。
+     * @param {Element|null} ref 参考行元素
      * @param {Element} head 表头元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
-    [ T.THEAD ]: function( head, _, data ) {
+    [ T.THEAD ]: function( ref, head, _, data ) {
         let _new = appendRow(
+            ref,
             tableObj( head.parentElement ),
-            head, data, true
+            head,
+            data,
+            true
         );
         return result( null, _new, !_new );
     },
@@ -348,13 +358,16 @@ const Children = {
 
     /**
      * 表脚行元素。
+     * @param {Element|null} ref 参考行元素
      * @param {Element} foot 表脚元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
-    [ T.TFOOT ]: function( foot, _, data ) {
+    [ T.TFOOT ]: function( ref, foot, _, data ) {
         let _new = appendRow(
+            ref,
             tableObj( foot.parentElement ),
-            foot, data
+            foot,
+            data
         );
         return result( null, _new, !_new );
     },
@@ -367,12 +380,12 @@ const Children = {
      * 子列表有则插入，不支持自动递进（不确定为OL或UL）。
      * 注记：
      * 子列表只能由既有的列表传入构建。
-     *
+     * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项元素
      * @param {String|Node|[Node]} h4 标题内容
      * @param {Element} data 子列表，可选
      */
-    [ T.XH4LI ]: function( li, {h4}, data ) {
+    [ T.XH4LI ]: function( ref, li, {h4}, data ) {
         if ( !data ) {
             return result( null, data, true );
         }
@@ -381,7 +394,7 @@ const Children = {
         return result(
             insertHeading( li, T.H4, h4 || _h4 ),
             // 合法插入时返回供选取。
-            appendChild(li, data) === null && data,
+            appendChild(ref, li, data) === null && data,
             true
         );
     },
@@ -391,13 +404,15 @@ const Children = {
      * 级联编号表标题项。
      * 如果没有传递 h4，取<li>容器内容创建。
      * 如果传递了 h4，原<li>内容会被清空丢弃。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项元素
      * @param {String|Node|[Node]} h4 标题内容，可选
      * @param {Element} data 子列表，可选
      */
-    [ T.CASCADEH4LI ]: function( li, {h4}, data ) {
+    [ T.CASCADEH4LI ]: function( ref, li, {h4}, data ) {
         let _h4 = $.empty( li ),
             _ol = appendChild(
+                ref,
                 li,
                 data,
                 () => elem(T.OL)
@@ -410,12 +425,14 @@ const Children = {
      * 级联标题链接条目。
      * 标题内容应当是一个构建好的链接元素，
      * 因为标题不在正常的递进构建流程里。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项容器
      * @param {Element} h4a 链接内容（<a>），可选
      * @param {Element} data 子列表（<ol>），可选
      */
-    [ T.CASCADEAH4LI ]: function( li, {h4a}, data ) {
+    [ T.CASCADEAH4LI ]: function( ref, li, {h4a}, data ) {
         let _ol = appendChild(
+            ref,
             li,
             data,
             () => elem( T.OL )
@@ -427,7 +444,7 @@ const Children = {
     /**
      * 目录级联编号表。
      * 与普通级联表不同，列表条目为链接（单击定位目标）。
-     * 注：定制创建，不参与编辑。
+     * 注：定制创建，不参与编辑（无ref实参）。
      * @param {Element} ol 级联表根元素
      * @param {Element} root 正文根元素（<article）
      * @node: {[Element]} [<li>]
@@ -444,12 +461,14 @@ const Children = {
 
     /**
      * 仅返回图片元素供递进构建。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} box 图片容器
      * @param {String|Node|[Node]} explain 图片讲解，可选
      * @param {Element} data 主体内容（<img>, <svg>）
      */
-    [ T.FIGIMGBOX ]: function( box, {explain}, data ) {
+    [ T.FIGIMGBOX ]: function( ref, box, {explain}, data ) {
         let _img = appendChild(
+            ref,
             box,
             data,
             () => elem( T.IMG )
@@ -465,45 +484,56 @@ const Children = {
 
     /**
      * 留待下阶填充内容。
-     * @param {Element} hgroup
+     * @param {Element|null} ref 参考子元素
+     * @param {Element} hgroup 标题组容器
+     * @param {Element} h1 主标题
+     * @param {Element|String} h3 副标题数据。
      */
-    [ T.HGROUP ]: function( hgroup ) {
-        return result(
-            null,
-            $.append( hgroup, elements(T.H1, T.H3) )
-        );
+    [ T.HGROUP ]: function( ref, hgroup, {h1}, h3 ) {
+        let _h3 = appendChild(
+            ref,
+            hgroup,
+            h3,
+            () => elem( T.H3 )
+        )
+        return result( h1 && insertHeading(hgroup, T.H1, h1), _h3 || h3, !_h3 );
     },
 
 
     /**
      * 仅构建标签和级联表根。
      * 注记：下阶专用函数构建目录内容。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} toc 目标根元素
      * @param {String} h3 目录显示标签
      */
-    [ T.TOC ]: function( toc, {h3} ) {
-        return result(
-            insertHeading( toc, T.H3, h3 ),
-            $.append( toc, elem(T.TOCCASCADE) ),
-        );
+    [ T.TOC ]: function( ref, toc, {h3}, ol ) {
+        let _ol = appendChild(
+            ref,
+            toc,
+            ol,
+            () => elem( T.TOCCASCADE )
+        )
+        return result( h3 && insertHeading(toc, T.H3, h3), _ol || ol, !_ol );
     },
 
 
     /**
-     * 两个子单元位置确定。
+     * 导言和结语位置确定。
      * 仅为容器创建，需向后续传递进构建。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} art 文章元素
      * @param {Boolean} header 有无导言
      * @param {Boolean} footer 有无结语
      * @param {Element} data 子单元数据，可选
      */
-    [ T.ARTICLE ]: function( art, {header, footer}, data ) {
+    [ T.ARTICLE ]: function( ref, art, {header, footer}, data ) {
         let _buf = [];
 
         if ( header  ) {
             _buf.push( insertHeader(art) );
         }
-        let _new = appendChild( art, data, () => elem(T.P) );
+        let _new = appendChild( ref, art, data, () => elem(T.P) );
 
         if ( footer ) {
             _buf.push( appendFooter(art) );
@@ -515,11 +545,13 @@ const Children = {
     /**
      * 代码表内容。
      * 根容器已经设置了必要特性。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} ol 代码表容器
      * @param {String} data 源码行
      */
-    [ T.CODELIST ]: function( ol, _, data ) {
+    [ T.CODELIST ]: function( ref, ol, _, data ) {
         let _el = appendChild(
+            ref,
             ol,
             data,
             () => elem( T.CODELI )
@@ -530,17 +562,20 @@ const Children = {
 
     /**
      * 允许创建一个标题项。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} dl 定义列表根容器
      * @param {String|Node|[Node]} dt 标题内容，可选
      * @param {Element} data 数据条目，可选
      */
-    [ T.DL ]: function( dl, {dt}, data ) {
+    [ T.DL ]: function( ref, dl, {dt}, data ) {
         let _dd = appendChild(
+            ref,
             dl,
             data,
             () => elem( T.DD )
         );
-        return result( dt && $.append(dl, elem(T.DT, dt)), _dd || data, !_dd );
+        // 标题项插入到数据项之前。
+        return result( dt && insertChild(_dd || data || ref, dl, elem(T.DT, dt)), _dd || data, !_dd );
     },
 
 
@@ -551,13 +586,14 @@ const Children = {
      * 注记：
      * 仅提供表体单元的递进处理（表格行）。
      * 不提供删除选项子单元的能力。
+     * @param {null} ref 参考子元素（占位）
      * @param {Element} tbl 表格元素
      * @param {String|Node|[Node]} caption 表标题内容
      * @param {Boolean} head 添加表头
      * @param {Boolean} foot 添加表脚
      * @param {Element} body 兼容表体元素
      */
-    [ T.TABLE ]: function( tbl, {caption, head, foot}, body ) {
+    [ T.TABLE ]: function( ref, tbl, {caption, head, foot}, body ) {
         let _tbo = tableObj( tbl ),
             _buf = [], _tbd;
 
@@ -581,11 +617,13 @@ const Children = {
     /**
      * 插图/标题。
      * 合法插入则终止，否则创建默认单元并继续。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} fig 插图根元素
      * @param {Element} data 子单元数据
      */
-    [ T.FIGURE ]: function( fig, {figcaption}, data ) {
+    [ T.FIGURE ]: function( ref, fig, {figcaption}, data ) {
         let _el = appendChild(
+            ref,
             fig,
             data,
             () => elem( T.FIGIMGBOX )
@@ -596,12 +634,14 @@ const Children = {
 
     /**
      * 详细内容/简介。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} box 容器元素
      * @param {String|Node|[Node]} summary 简介
      * @param {Element} data 子单元数据
      */
-    [ T.DETAILS ]: function( box, {summary}, data ) {
+    [ T.DETAILS ]: function( ref, box, {summary}, data ) {
         let _el = appendChild(
+            ref,
             box,
             data,
             () => elem( T.P )
@@ -623,16 +663,18 @@ const Children = {
 ]
 .forEach(function( its ) {
     /**
+     * @param {null} ref 参考子元素（占位）
      * @param {Element} box 容器元素
      * @param {Element} data 子单元数据，可选
      * @node: {Element}
      */
-    Children[ its[0] ] = function( box, _, data ) {
-        if ( box.childElementCount > 0 ) {
+    Children[ its[0] ] = function( ref, box, _, data ) {
+        if ( box.childElementCount ) {
             // 后阶内容处理。
             return result( null, box.firstElementChild );
         }
         let _new = appendChild(
+            null,
             box,
             data,
             () => elem( its[1] )
@@ -659,12 +701,14 @@ const Children = {
 .forEach(function( it ) {
     /**
      * 标题项为可选。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} box 容器元素
      * @param {String|Node|[Node]} h3 小标题内容，可选
      * @param {Element} data 子单元数据
      */
-    Children[ it ] = function( box, {h3}, data ) {
+    Children[ it ] = function( ref, box, {h3}, data ) {
         let _el = appendChild(
+            ref,
             box,
             data,
             () => elem( T.P )
@@ -689,11 +733,13 @@ const Children = {
 ]
 .forEach(function( it ) {
     /**
+     * @param {Element|null} ref 参考子元素
      * @param {Element} box 容器元素
      * @param {Element} data 列表项元素
      */
-    Children[ it ] = function( box, _, data ) {
+    Children[ it ] = function( ref, box, _, data ) {
         let _new = appendChild(
+            ref,
             box,
             data,
             () => elem( T.LI )
@@ -722,19 +768,24 @@ const Children = {
     /**
      * 如果data无内容或已合法插入，则停止迭代。
      * 否则创建一个默认子单元后继续。
+     * @param {Element|null} ref 参考子元素
      * @param {Element} sec 片区元素
      * @param {String|Node|[Node]} h2 标题内容
      * @param {Boolean} header 创建导言，可选
      * @param {Boolean} footer 创建结语，可选
      * @param {Element} data 子单元数据，可选
      */
-    Children[ it ] = function( sec, {h2, header, footer}, data ) {
+    Children[ it ] = function( ref, sec, {h2, header, footer}, data ) {
         let _buf = [
             h2 && insertHeading( sec, T.H2, h2 ),
             header && insertHeader( sec )
         ];
-        let _new = appendChild( sec, data, () => sectionAppend(sec, data) );
-
+        let _new = appendChild(
+            ref,
+            sec,
+            data,
+            () => sectionFitted( sec, data )
+        );
         if ( footer ) {
             _buf.push( appendFooter(sec) );
         }
@@ -805,18 +856,18 @@ const Children = {
 .forEach(function( its ) {
     /**
      * 到内容元素后会终止向下迭代。
+     * 可能有游离文本节点，需要规范化（就近处理）。
      * 返回内容元素自身而非插入的子节点。
-     * 注记：
-     * 此为添加方式，如果需要 fill，用户可先清空操作。
-     * 可能有游离文本节点，需要规范化（最近）。
+     * @param {Element|null} ref 插入参考子元素
      * @param {Element} el 内容根元素
      * @param {String|Node} data 内容数据
      */
-    Children[ its ] = function( el, _, data ) {
-        $.append(
+    Children[ its ] = function( ref, el, _, data ) {
+        insertChild(
+            ref,
             el,
             dataCons( data, getType(el) )
-        );
+        )
         return result( null, $.normalize(el), true );
     };
 });
@@ -1150,37 +1201,52 @@ function appendFooter( box ) {
  * 子单元判断插入或新建。
  * 如果子单元合法会插入，不创建默认单元，返回null。
  * 如果子单元为假，无任何行为，返回undefined。
+ * @param  {Element} ref 参考子元素
  * @param  {Element} box 容器元素
  * @param  {Node|String} sub 子单元
  * @param  {Function} maker 创建默认单元回调，可选
  * @return {Element|null|void} maker创建的单元
  */
-function appendChild( box, sub, maker ) {
+function appendChild( ref, box, sub, maker ) {
     if ( !sub ) return;
 
     let _tv0 = getType( box ),
         _tv1 = sub.nodeType ? getType( sub ) : 0;
 
     if ( T.isChildType(_tv0, _tv1) ) {
-        return $.append( box, sub ) && null;
+        insertChild( ref, box, sub );
+        return null;
     }
-    return maker && $.append( box, maker() );
+    return maker && insertChild( ref, box, maker() );
 }
 
 
 /**
- * 章节内容提取添加。
- * 如果插入内容是不同层级的章节，提取纯粹的章节内容。
+ * 插入子单元。
+ * 如果传递同级的子元素为参考，则插入它之前。
+ * @param {Element} ref 参考子元素
+ * @param {Element} box 容器元素
+ * @param {Node|[Node]} sub 子单元数据
+ */
+function insertChild( ref, box, sub ) {
+    return ref ? $.before(ref, sub) : $.append(box, sub);
+}
+
+
+/**
+ * 章节层级适配。
+ * 如果插入内容是不同层级的章节，递进修改适配。
  * 否则创建一个默认段落继续。
  * @param  {Element} box 容器元素
  * @param  {Element|Value} sub 子单元内容
  * @return {Element|void} 新建默认单元
  */
-function sectionAppend( box, sub ) {
+function sectionFitted( box, sub ) {
     if ( sub.tagName !== 'SECTION' ) {
         return elem( T.P );
     }
     // void for end.
+    // ？
     $.append( box, sectionContents(sub) );
 }
 
@@ -1268,18 +1334,24 @@ function data( data, i ) {
 /**
  * 插入表格行。
  * @param  {$.Table} tbo 表格实例
+ * @param  {Element|null} ref 参考行元素
  * @param  {TableSection} tsec 表格片区
  * @param  {Element} row 行元素
  * @param  {Boolean} head 是否在表头
  * @return {Element} 新行
  */
-function appendRow( tbo, tsec, row, head ) {
+function appendRow( tbo, ref, tsec, row, head ) {
     if ( !row ) return;
 
     if ( row.tagName === 'TR' && isValidTR(row, tbo) ) {
-        return tbo.insertTR(row, null, tsec), null;
+        tbo.insertTR(
+            row,
+            ref ? tbo.trIndex(ref, tsec) : null,
+            tsec
+        );
+        return null;
     }
-    // 可能不是一个元素。
+    // 忽略row非法的情况。
     return tbo.newTR( head );
 }
 
@@ -1301,15 +1373,16 @@ function svgItem( box ) {
 /**
  * 插入SVG子内容。
  * 可能需要检索子单元设置类型值。
+ * @param  {Element|null} ref 插入参考元素
  * @param  {Element} box SVG容器元素
  * @param  {Node|[Node]|String} data 数据（集），可选
  * @return {Element|[Element]} 新插入的节点集
  */
-function svgInsert( box, data ) {
+function svgInsert( ref, box, data ) {
     if ( typeof data === 'string' ) {
         data = svgItem( $.fragment(data, true) );
     }
-    return $.append( box, data );
+    return insertChild( ref, box, data );
 }
 
 
@@ -1344,9 +1417,9 @@ function dataCons( data, tval ) {
  */
 function childrenCalls( el, opts, data, more ) {
     if ( more ) {
-        return data.forEach( dd => children(el, opts, dd) );
+        return data.forEach( dd => children(null, el, opts, dd) );
     }
-    children( el, opts, data );
+    children( null, el, opts, data );
 }
 
 
@@ -1478,16 +1551,17 @@ function build( el, opts, data, more ) {
 /**
  * 创建子条目。
  * 由父容器限定，用户无法指定目标类型。
- * 内容元素不应当作为父容器在此使用（无定义导致抛出异常）。
+ * 如果指定了参考的兄弟元素，则新内容插入到该元素之前。
  * 适用：
- * 1. 由create新建开始的子结构迭代完成。
- * 2. 移动插入中间结构位置时的直接使用。
+ * - 由create新建开始的子结构迭代完成。
+ * - 移动插入中间结构位置时的直接使用。
  * opts: {
  *      caption:    {Value}   表标题
  *      head:       {Boolean} 添加表头元素
  *      foot:       {Boolean} 添加表脚元素
  *      figcaption: {Value}   插图标题
  *      summary     {Value}   详细简介
+ *      h1:         {Value}   页面主标题
  *      h3:         {Value}   行块小标题
  *      h4:         {Value}   级联表标题
  *      h4a:        {Element} 级联表标题链接（<a>）
@@ -1498,14 +1572,15 @@ function build( el, opts, data, more ) {
  *      dt:         {Value}   定义列表标题项
  *      th0:        {Boolean} 表格列表头
  * }
- * @param  {Element} box 父容器元素
+ * @param  {Element|null} ref 插入参考元素
+ * @param  {Element|null} box 父容器元素
  * @param  {Object} opts 子元素特性配置集
  * @param  {Node|[Node]|[String]} cons 内容数据
  * @return {[Element]} 构建的子元素集
  */
-function children( box, opts, cons ) {
+function children( ref, box, opts, cons ) {
     let _tv = getType( box ),
-        _vs = Children[_tv]( box, opts, cons );
+        _vs = Children[_tv]( ref, box, opts, cons );
 
     if ( _vs.end ) {
         return resultEnd( _vs.head, _vs.body )

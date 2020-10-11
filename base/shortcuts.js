@@ -500,7 +500,6 @@ Content: [
         "command":  "elementCloneTeam"
     },
 
-
     // 原地克隆（各别）。
     // 选取集成员克隆插入原元素之前（before），各自独立。
     // 注记：与焦点元素无关。
@@ -518,7 +517,6 @@ Content: [
         "command":  "elementFill"
     },
 
-
     // 克隆填充。
     // 将选取元素或其内容克隆填充到焦点元素内。
     // 注记：同上。
@@ -527,7 +525,6 @@ Content: [
         "command":  "elementCloneFill"
     },
 
-
     // 移动内插入。
     // 即普通子单元添加，将选取元素或其内容移动添加到焦点元素内。
     // 注记：同上。
@@ -535,7 +532,6 @@ Content: [
         "key":      ":z",
         "command":  "elementAppend"
     },
-
 
     // 克隆内插入。
     // 同上说明，数据源为克隆。
@@ -555,7 +551,6 @@ Content: [
         "command":  "elementBefore"
     },
 
-
     // 克隆式前插入。
     // 说明同上，数据源为克隆。
     // 注记：目标焦点可以被选取作为内容之一。
@@ -563,7 +558,6 @@ Content: [
         "key":      "shift:i",
         "command":  "elementCloneBefore"
     },
-
 
     // 移动式后插入。
     // 将选取元素移动到焦点元素之后。
@@ -573,7 +567,6 @@ Content: [
         "key":      ":b",
         "command":  "elementAfter"
     },
-
 
     // 克隆式后插入。
     // 说明同上，数据源为克隆。

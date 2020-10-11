@@ -846,7 +846,7 @@ class NodeVary {
         for ( const els of els2 ) {
             let _end = els.length - 1;
 
-            for (let i = 0; i < parseInt(els.length/2); i++) {
+            for ( let i = 0; i < parseInt(els.length/2); i++ ) {
                 elem2Swap( els[i], els[_end-i] );
             }
         }
@@ -1147,14 +1147,14 @@ function elementsUnify( els, hot ) {
 
 
 /**
- * 元素集选取封装。
+ * 根内容元素集选取封装。
  * 内容子单元可能属于不同的父容器，而焦点元素也可能未选取，
  * 因此需要逐一清理。
+ * 焦点元素移动到内容子元素的首个成员上。
  * @param {[Element]} els 内容子元素
- * @param {Element} hot 焦点元素
  * @param {Boolean} start 是否头部插入，可选
  */
-function elementsSelect( els, hot, start ) {
+function contentSelect( els, start ) {
     let _old = [...__ESet],
         _fn = start ? 'unshift' : 'adds';
 
@@ -1164,7 +1164,7 @@ function elementsSelect( els, hot, start ) {
     if ( __Selects[_fn](els) === false ) {
         return;
     }
-    historyPush( new ESEdit(_old, hot) );
+    historyPush( new ESEdit(_old, els[0]) );
 }
 
 
@@ -1898,15 +1898,15 @@ function sectionBoxes( secs ) {
     let _buf = [];
 
     for ( const sec of secs ) {
-        let _sx = $.attr( sec, 'role' );
+        let _tv = getType( sec );
 
-        if ( _sx === 's5' ) {
+        if ( _tv === T.S5 ) {
             warn( Tips.sectionNotDown, sec );
             continue;
         }
         _buf.push([
             sec,
-            create( _sx, {h2: Tips.sectionH2} )
+            create( _tv, {h2: Tips.sectionH2} )
         ]);
     }
     return _buf.length ? _buf : false;
@@ -2366,15 +2366,12 @@ export const Edit = {
 
     /**
      * 选取焦点元素内顶层内容元素。
-     * 注记：
-     * 当用户选取了非内容元素时，微编辑跳转仅定位为焦点，
-     * 用户可以立即执行该操作以选取内部的内容根元素。
      */
     contentBoxes() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        elementsSelect( contentBoxes(_el), _el );
+        contentSelect( contentBoxes(_el) );
     },
 
 
@@ -2387,7 +2384,7 @@ export const Edit = {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        elementsSelect( contentBoxes(_el), _el, true );
+        contentSelect( contentBoxes(_el), true );
     },
 
 
@@ -2612,7 +2609,7 @@ export const Edit = {
             __Selects.safeAdds( contentBoxes(el) );
         }
         // 元素自身即可能为内容根（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old) );
+        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
     },
 
 
@@ -2633,7 +2630,7 @@ export const Edit = {
             }
         }
         // 可能无子元素（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old) );
+        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
     },
 
 
@@ -2652,7 +2649,7 @@ export const Edit = {
             );
         }
         // 顶层再向上无效（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old) );
+        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
     },
 
 
@@ -2670,7 +2667,7 @@ export const Edit = {
             );
         }
         // 顶层再向上无效（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old) );
+        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
     },
 
 
@@ -2844,7 +2841,15 @@ export const Edit = {
 
 
     elementFill() {
-        //
+        let $els = $( __ESet ),
+            _hot = __EHot.get();
+
+        if ( !$els.length ) return;
+
+        if ( __ESet.has(_hot) ) {
+            return help( 'cannot_selected', _hot );
+        }
+        // ...
     },
 
 

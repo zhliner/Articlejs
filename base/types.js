@@ -155,6 +155,7 @@ export const
     // 行块结构元素
     /////////////////////////////////////////////
     HGROUP          = 500,  // 主/副标题组 （hgroup/h1, h3）
+    // S1-5保持有序连续
     S1              = 501,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
     S2              = 502,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
     S3              = 503,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）

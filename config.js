@@ -57,26 +57,32 @@ export const Help = {
 
     'need_conelem': [
         'type:contents',
-        '目标必须为内容元素。'
+        '目标必须为内容元素'
     ],
 
 
     'both_conelem': [
         'type:contents',
-        '选取元素及其父元素都必须为内容元素。'
+        '选取元素及其父元素都必须为内容元素'
     ],
 
 
     'has_cannot_del': [
         'edit:deletes',
-        '包含了不能被删除的元素。'
+        '包含了不能被删除的元素'
     ],
 
 
     'has_fixed': [
         'edit:fixed',
-        '包含有固定不可以被移动的元素。'
+        '包含有固定不可以被移动的元素'
     ],
+
+
+    'cannot_selected': [
+        'edit:insert',
+        '插入操作的目标元素不可为选取'
+    ]
 
 };
 

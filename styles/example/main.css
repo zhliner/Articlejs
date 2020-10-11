@@ -378,15 +378,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content dl {}
 .content dl > dt {
     font-weight: bold;
+    border-bottom: 1px #ccc dashed;
 }
 .content dl > dd {
-    background-color: #f3f3f3;
-    border: 1px #ccc dotted;
-    padding: 0 8px;
-    border-radius: 3px;
-}
-.content dl > dd > p {
-    margin: 5px auto;
 }
 
 
