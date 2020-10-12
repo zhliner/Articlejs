@@ -36,14 +36,15 @@ export const Tips = {
     // 章节空标题占位
     sectionH2:      '[ Empty heading ]',
 
+    // 本地暂存完成提示。
+    localStoreDone: 'saving done.',
+
+
     // 顶层章节不可再提升
     sectionNotUp:   'section:s1 can not up again.',
 
-    // 末级章节不可再降级。
-    sectionNotDown: 'section:s5 can not down again.',
-
-    // 本地暂存完成提示。
-    localStoreDone: 'saving done.'
+    // 元素不是章节单元。
+    sectionNot15:   'the element is not s1-s5.',
 
 };
 
@@ -82,6 +83,11 @@ export const Help = {
     'cannot_selected': [
         'edit:insert',
         '插入操作的目标元素不可为选取'
+    ],
+
+    'only_section': [
+        'edit:indent',
+        '仅章节单元（section）支持缩进操作'
     ]
 
 };

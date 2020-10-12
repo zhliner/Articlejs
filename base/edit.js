@@ -20,7 +20,7 @@
 import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed } from "./base.js";
+import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isChapter } from "./base.js";
 import { ESet, EHot, ECursor, prevNode, nextNode, elem2Swap } from './common.js';
 import { children, create } from "./create.js";
 import cfg from "./shortcuts.js";
@@ -893,19 +893,21 @@ class NodeVary {
 
     /**
      * 章节提升。
-     * 章节元素必须包含role配置，否则不予处理（控制台错误提示）。
-     * 注记：s1-s5为连续嵌套的递进结构。
+     * 顶层章节被简单忽略，避免结构混乱（不易被察觉）。
+     * 章节元素必须包含role配置，否则不予处理。
      * @param {Element} sec 章节元素
      */
     sectionUp( sec ) {
         let _pel = sec.parentElement,
-            _lev = $.attr( _pel, 'role' );
+            _sxn = $.attr( sec, 'role' );
 
-        if ( !__sectionRole.test(_lev) ) {
-            // 正常情况下不应当出现。
-            return error( 'parent is not a s1-s5.' );
+        if ( !__sectionRole.test(_sxn) ) {
+            return error( Tips.sectionNot15 );
         }
-        $.before( _pel, sectionUpAll(sec) || sec );
+        if ( _sxn === 's1' ) {
+            return error( Tips.sectionNotUp );
+        }
+        $.before( _pel, sectionUpAll(sec) ? null : sec );
     }
 
 
@@ -921,15 +923,15 @@ class NodeVary {
     /**
      * 章节降级。
      * 将目标章节降级并移入空章节容器内。
+     * 末章节会自动解包其内容（原地替换）。
      * 注记：空容器由外部创建完成（Redo节省）。
      * @param {Element} sec 章节元素
      * @param {Element} box 同级空章节容器
      */
     sectionDown( sec, box ) {
-        // 注意：插入DOM之后再修改特性。
-        sectionDownAll(
-            $.append( $.replace(sec, box), sec )
-        );
+        let _tmp = sectionDownAll( sec );
+        // 插入内末端。
+        _tmp || $.append( $.replace(sec, box), sec );
     }
 
 
@@ -970,11 +972,7 @@ let
     errContainer = null,
 
     // 当前微编辑对象暂存。
-    currentMinied = null,
-
-    // 两个工具栏按钮。
-    undoButton = null,
-    redoButton = null;
+    currentMinied = null;
 
 
 
@@ -1701,11 +1699,24 @@ function unwrapBadit( els ) {
 
 /**
  * 检索首个固定类单元。
- * @param {[Element]} els 元素集
+ * @param  {[Element]} els 元素集
+ * @return {Element}
  */
 function moveBadit( els ) {
     for ( const el of els ) {
         if ( isFixed(el) ) return el;
+    }
+}
+
+
+/**
+ * 检索首个非章节元素。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function indentBadit(els) {
+    for ( const el of els ) {
+        if ( !isChapter(el) ) return el;
     }
 }
 
@@ -1840,47 +1851,34 @@ function sameTag( els, tag ) {
 /**
  * 章节提升。
  * 包含内部全部子章节的升级。
- * 外部应当保证sec非顶层章节（s1）。
+ * 如果章节根已为顶层，会解包内容并返回内容。
+ * 注记：
+ * 返回内容时，外部无需在异地插入。
  * @param  {Element} sec 章节根
- * @return {void}
+ * @return {[Node]|void}
  */
 function sectionUpAll( sec ) {
-    $.find( 'section[role]', sec, true ).forEach( el => sectionChange(el, -1) );
+    $.find( 'section[role]', sec )
+        .forEach(
+            el => sectionChange( el, -1 )
+        );
+    return sectionChange( sec, -1 );
 }
 
 
 /**
  * 章节降级。
  * 包含内部全部子章节降级。
- * 外部应当保证sec非末级章节（s5）。
+ * 如果章节根已为末层，会解包内容并返回内容。
  * @param  {Element} sec 章节根
- * @return {void}
+ * @return {[Node]|void}
  */
 function sectionDownAll( sec ) {
-    $.find( 'section[role]', sec, true ).forEach( el => sectionChange(el, 1) );
-}
-
-
-/**
- * 检查提取低层章节（除s1外）。
- * 如果没有合法章节提取到，返回false。
- * 注记：用于章节提升的目标过滤。
- * @param  {[Element]} els 章节元素集
- * @return {[Element]|false}
- */
-function sectionLowers( els ) {
-    let _buf = [];
-
-    for ( const el of els ) {
-        let _sx = $.attr( el, 'role' );
-
-        if ( _sx === 's1' ) {
-            warn( 's1 is the top of section.' );
-        } else {
-            _buf.push( el );
-        }
-    }
-    return _buf.length ? _buf : false;
+    $.find( 'section[role]', sec )
+        .forEach(
+            el => sectionChange( el, 1 )
+        );
+    return sectionChange( sec, 1 );
 }
 
 
@@ -1892,7 +1890,7 @@ function sectionLowers( els ) {
  * 注记：
  * 用于章节降级时原章节的父元素容器创建。
  * @param  {[Element]} secs 章节元素集
- * @return {[[Element]]|false}
+ * @return {[Array2]|false}
  */
 function sectionBoxes( secs ) {
     let _buf = [];
@@ -1900,10 +1898,6 @@ function sectionBoxes( secs ) {
     for ( const sec of secs ) {
         let _tv = getType( sec );
 
-        if ( _tv === T.S5 ) {
-            warn( Tips.sectionNotDown, sec );
-            continue;
-        }
         _buf.push([
             sec,
             create( _tv, {h2: Tips.sectionH2} )
@@ -2950,16 +2944,12 @@ export const Edit = {
      */
     indentLess() {
         let $els = $( __ESet );
+        if ( !$els.length ) return;
 
-        if ( !$els.length || !sameTag($els, 'SECTION') ) {
-            return warn( 'only for section.' );
+        if ( !sameTag($els, 'SECTION') ) {
+            return help( 'only_section', indentBadit($els) );
         }
-        let _secs = sectionLowers( $els );
-
-        if ( !_secs ) {
-            return warn( 'all selected: ' + Tips.sectionNotUp );
-        }
-        historyPush( new DOMEdit(() => __Elemedit.sectionsUp(_secs)) );
+        historyPush( new DOMEdit(() => __Elemedit.sectionsUp($els)) );
     },
 
 
@@ -2971,15 +2961,13 @@ export const Edit = {
      */
     indentMore() {
         let $els = $( __ESet );
+        if ( !$els.length ) return;
 
-        if ( !$els.length || !sameTag($els, 'SECTION') ) {
-            return warn( 'only for section.' );
+        if ( !sameTag($els, 'SECTION') ) {
+            return help( 'only_section', indentBadit($els) );
         }
         let _els2 = sectionBoxes( $els );
 
-        if ( !_els2 ) {
-            return warn( 'all selected: ' + Tips.sectionNotDown );
-        }
         historyPush( new DOMEdit(() => __Elemedit.sectionsDown(_els2)) );
     },
 
@@ -3252,6 +3240,21 @@ export const Kit = {
 
     //-- By 扩展 -------------------------------------------------------------
 
+
+    /**
+     * 错误元素提示。
+     * 按住聚焦辅助键单击设置焦点。
+     * @param {Element} el 目标元素
+     */
+    tips( evo, scam ) {
+        if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
+            setFocus( evo.data );
+        }
+    },
+
+    __tips: 1,
+
+
     /**
      * 章节滚动。
      * 滚动目标章节到当前视口。
@@ -3357,6 +3360,7 @@ processExtend( 'Ed', Edit, [
 // 综合工具集。
 //
 processExtend( 'Kit', Kit, [
+    'tips',
     'chapter',
     'save',
     'medpass',

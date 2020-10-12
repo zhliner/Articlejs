@@ -1238,16 +1238,15 @@ function insertChild( ref, box, sub ) {
  * 如果插入内容是不同层级的章节，递进修改适配。
  * 否则创建一个默认段落继续。
  * @param  {Element} box 容器元素
- * @param  {Element|Value} sub 子单元内容
+ * @param  {Element|Value} sec 子章节内容
  * @return {Element|void} 新建默认单元
  */
-function sectionFitted( box, sub ) {
-    if ( sub.tagName !== 'SECTION' ) {
+function sectionFitted( box, sec ) {
+    if ( sec.tagName !== 'SECTION' ) {
         return elem( T.P );
     }
     // void for end.
-    // ？
-    $.append( box, sectionContents(sub) );
+    $.append( box, sectionContents(sec) );
 }
 
 

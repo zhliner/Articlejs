@@ -396,7 +396,7 @@ function _contentBoxes( el ) {
 
 
 /**
- * 获取章节标识名（s1-s5）。
+ * 计算章节标识名（s1-s5）。
  * @param  {String} sx 章节名（role）
  * @param  {Number} n 增减层级
  * @return {String|false}
@@ -589,6 +589,17 @@ export function isFixed( el ) {
 
 
 /**
+ * 是否为章节片区元素（s1-s5）。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function isChapter( el ) {
+    let _tv = getType( el );
+    return _tv >= T.S1 && _tv <= T.S5;
+}
+
+
+/**
  * 是否为代码的合法内容。
  * @param  {[Node]} nodes 节点集
  * @return {Boolean}
@@ -724,17 +735,18 @@ export function sectionContents( root ) {
  * 章节层级修改。
  * - 修改 role 特性值。
  * - 移除元素的类型值。
+ * - 超出层级的章节会执行解包操作（unwrap）。
  * 注记：
  * 移除类型值以简化处理，避免撤销重做的复杂性。
  * @param  {Element} sec 章节元素
  * @param  {Number} n 增减层级数
- * @return {Element} sec
+ * @return {[Node]|true|void} 解包的节点集（可能）
  */
 export function sectionChange( sec, n ) {
     let _sx = sectionRole( $.attr(sec, 'role'), n );
 
     if ( !_sx ) {
-        throw new Error( 'invalid section level.' );
+        return $.unwrap( sec );
     }
-    return Reflect.deleteProperty( $.attr(sec, 'role', _sx), __typeKey );
+    Reflect.deleteProperty( $.attr(sec, 'role', _sx), __typeKey );
 }
