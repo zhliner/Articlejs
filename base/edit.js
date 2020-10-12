@@ -1432,6 +1432,7 @@ function minied( el ) {
     let _old = [ ...__ESet ],
         _op1 = null;
 
+    // 创建同类新行时未选取。
     if ( __Selects.delete(el) ) {
         _op1 = new ESEdit( _old, null );
     }
@@ -3289,6 +3290,19 @@ export const Kit = {
 
 
     /**
+     * 进入微编辑。
+     * 目标：暂存区/栈顶1项。
+     * 目标为待编辑的内容元素。
+     * 注记：用于鼠标双击进入微编辑。
+     */
+    medin( evo ) {
+        Edit.miniedIn( evo.data );
+    },
+
+    __medin: 1,
+
+
+    /**
      * 微编辑完成处理。
      * 目标：暂存区/栈顶1项。
      * 目标为确认键，仅限于 Enter|Tab（外部保证）。
@@ -3363,6 +3377,7 @@ processExtend( 'Kit', Kit, [
     'tips',
     'chapter',
     'save',
+    'medin',
     'medpass',
     'medcancel',
 ]);

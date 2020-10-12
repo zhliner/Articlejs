@@ -63,6 +63,7 @@
     medok 确认微编辑（Sys.medOk）
     info|focus 确认后聚焦根容器，便于键盘控。
     medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
+          注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
     @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
     @paste 粘贴为纯文本。 -->
 <div class="___Content" tpl-name="main:content"
@@ -80,7 +81,7 @@
         |bind('keydown paste');
         #g-count|trigger('reset')">
     <!--滚动封装（不在<main>上，避免聚焦影响）
-        keydown 快捷键操作（key, count）。
+        keydown 快捷键操作（key, count），会重置状态栏提示。
         keyup 状态栏数字设置（非数字无效）。
         focus 设置选取范围到内部，以捕获copy|cut事件。
     -->
@@ -160,13 +161,16 @@
         -->
         <main id="content" class="content"
             on="click(*)|avoid env('minied') end Range str end evo(1) scam;
+                dblclick(*)|env('minied') end avoid evo(1);
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 cancel|stop env('minied') end (Kit) call('ecancel');
                 mousedown|env('minied') end scam('shift') pop avoid;
                 mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass Range pop xRange stop"
-            by="Ed.click(_1)"
+            by="Ed.click(_1);
+                Kit.medin"
             to="#g-count|trigger('reset');
+                -;
                 #status-tips|trigger('info');
                 #g-count|trigger('reset');
                 #g-count|trigger('reset')">
