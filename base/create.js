@@ -26,7 +26,7 @@
 
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR } from "./base.js";
 
 
 const
@@ -1356,26 +1356,28 @@ function data( data, i ) {
 
 /**
  * 插入表格行。
+ * 成功插入时返回null。
  * @param  {$.Table} tbo 表格实例
  * @param  {Element|null} ref 参考行元素
  * @param  {TableSection} tsec 表格片区
  * @param  {Element} row 行元素
  * @param  {Boolean} head 是否在表头
- * @return {Element} 新行
+ * @return {Element|null} 新行
  */
 function appendRow( tbo, ref, tsec, row, head ) {
     if ( !row ) return;
 
-    if ( row.tagName === 'TR' && isValidTR(row, tbo) ) {
-        tbo.insertTR(
-            row,
-            ref ? tbo.trIndex(ref, tsec) : null,
-            tsec
-        );
-        return null;
+    if ( row.tagName !== 'TR' ||
+        !isValidTR(row, tbo) ||
+        (head && !isHeadTR(row)) ) {
+        return tbo.newTR( head );
     }
-    // 忽略row非法的情况。
-    return tbo.newTR( head );
+    tbo.insertTR(
+        row,
+        ref ? tbo.trIndex(ref, tsec) : null,
+        tsec
+    );
+    return null;
 }
 
 

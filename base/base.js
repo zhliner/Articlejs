@@ -60,6 +60,24 @@ const LogicRoles = new Set([
 
 
 //
+// 唯一子结构成员。
+// 较为宽松的约束（不含大部分小标题）。
+//
+const OnlyChild = new Set([
+    T.THEAD,
+    T.TFOOT,
+    T.H1,
+    T.SUMMARY,
+    T.ABSTRACT,
+    T.TOC,
+    T.TOCCASCADE,
+    T.REFERENCE,
+    T.ARTICLE,
+    T.EXPLAIN,
+]);
+
+
+//
 // 定制结构单元取值。
 // 含非独立的中间结构。
 // {tagName: function(Element): Number}
@@ -600,6 +618,19 @@ export function isCodeCons( nodes ) {
 
 
 /**
+ * 是否仅为一个成员。
+ * 严格排他性子结构（如<thead>、<h1>等）。
+ * 主要用于判断是否可原地克隆。
+ * 注记：
+ * 出于编辑的灵活性，大部分的标题允许重复。
+ * @param {Element} el 目标元素
+ */
+export function isOnly( el ) {
+    return OnlyChild.has( getType(el) );
+}
+
+
+/**
  * 是否为合法表格行。
  * 列数相同即可，不要求逐列同类。
  * @param  {Element} tr 目标表格行
@@ -613,7 +644,7 @@ export function isValidTR( tr, tbo ) {
 
 /**
  * 是否可为表头行。
- * 所以单元格都为<th>。
+ * 所有单元格都为<th>。
  * @param  {Element} tr 表格行元素
  * @return {Boolean}
  */
@@ -701,7 +732,7 @@ export function virtualBox( beg, end ) {
 
 /**
  * 获取章节的内容。
- * 会递进提取子章节的内容。
+ * 会递进提取全部子章节的内容。
  * @param  {Element} root 章节根元素
  * @return {[Element]} 行块单元集
  */

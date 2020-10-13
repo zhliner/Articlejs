@@ -20,7 +20,7 @@
 import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isChapter } from "./base.js";
+import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
 import { ESet, EHot, ECursor, prevNode, nextNode, elem2Swap } from './common.js';
 import { children, create } from "./create.js";
 import cfg from "./shortcuts.js";
@@ -472,7 +472,7 @@ class MiniEdit {
      * 清理目标元素内容。
      * - 替换 <pre> 和 <code> 内的 <br> 元素为换行字符（\n），
      *   确保不同浏览器的兼容性。
-     * - 解包非代码内的 <b> 和 <i> 元素，
+     * - 解包非代码内的 <b> 和 <i> 直接子元素，
      *   它们由浏览器默认行为带来（格式元素删除后遗留了样式）。
      * @param {Element} el 目标元素
      */
@@ -483,7 +483,7 @@ class MiniEdit {
             cleanCall( () => $('br', el).replace( '\n' ) );
         }
         if ( _tv !== T.CODE ) {
-            cleanCall( () => $('b, i', el).unwrap() );
+            cleanCall( () => $('>b, >i', el).unwrap() );
         }
     }
 }
@@ -1606,19 +1606,6 @@ function adjacentTeam( els ) {
 
 
 /**
- * 克隆元素集组。
- * 克隆的新元素依然保持原样的分组模式。
- * @param  {[[Element]]} els2 相邻元素集组
- * @return {[[Element]]} 克隆集
- */
-function cloneTeam( els2 ) {
-    return els2.map(
-        els => els.map( el => cleanedClone(el) )
-    );
-}
-
-
-/**
  * 兄弟节点分组。
  * @param  {[Element]} els 元素集
  * @return {[[Element]]}
@@ -1652,6 +1639,32 @@ function cleanedClone( el ) {
     finally {
         _clr && __EHot.set( _hot );
     }
+}
+
+
+/**
+ * 克隆元素集组。
+ * 克隆的新元素依然保持原样的分组模式。
+ * @param  {[[Element]]} els2 相邻元素集组
+ * @return {[[Element]]} 克隆集
+ */
+function cloneTeam( els2 ) {
+    return els2.map(
+        els => els.map( el => cleanedClone(el) )
+    );
+}
+
+
+/**
+ * 创建多个重复元素。
+ * @param {Element} el 目标元素
+ * @param {Number} n 克隆数量
+ */
+function repeatN( el, n ) {
+    n = isNaN(n) ? 1 : n;
+    return new Array(n)
+        .fill()
+        .map( () => cloneElement(el) );
 }
 
 
@@ -1708,9 +1721,21 @@ function moveBadit( els ) {
  * @param  {[Element]} els 元素集
  * @return {Element}
  */
-function indentBadit(els) {
+function indentBadit( els ) {
     for ( const el of els ) {
         if ( !isChapter(el) ) return el;
+    }
+}
+
+
+/**
+ * 检索首个不能重复元素。
+ * 注：用于原地克隆判断。
+ * @param {[Element]} els 元素集
+ */
+function repeatBadit( els ) {
+    for ( const el of els ) {
+        if ( isOnly(el) ) return el;
     }
 }
 
@@ -2791,19 +2816,24 @@ export const Edit = {
     /**
      * 原地克隆（各别）。
      * 与焦点元素无关。
-     * 注记：
-     * 出于编辑灵活性，允许任意中间结构元素克隆。
+     * 选取集单一成员时支持数字指定克隆数量。
      */
-    elementCloneSelf() {
+    elementCloneSelf( n ) {
         let $els = $( __ESet );
         if ( !$els.length ) return;
 
+        if ( $els.some(isOnly) ) {
+            return help( 'only_child', repeatBadit($els) );
+        }
         let $new = $els.map( el => cleanedClone(el) );
 
+        if ( $new.length === 1 ) {
+            $new = [ repeatN($new[0], n) ];
+        }
         historyPush(
             clearSelected( $els ),
             new DOMEdit( () => __Elemedit.afters($els, $new) ),
-            pushesSelect( $new )
+            pushesSelect( $new.flat() )
         );
     },
 
@@ -2811,15 +2841,22 @@ export const Edit = {
     /**
      * 原地克隆（分组）。
      * 与焦点元素无关。
+     * 选取集单一成员时支持数字指定克隆数量。
      */
-    elementCloneTeam() {
+    elementCloneTeam( n ) {
         let $els = $( __ESet );
         if ( !$els.length ) return;
 
+        if ( $els.some(isOnly) ) {
+            return help( 'only_child', repeatBadit($els) );
+        }
         let _els2 = adjacentTeam( $els.sort() ),
             _refs = _els2.map( els => last(els) ),
             _new2 = cloneTeam( _els2 );
 
+        if ( _new2.length === 1 && _new2[0].length === 1 ) {
+            _new2[0] = repeatN( _new2[0][0], n );
+        }
         historyPush(
             clearSelected( $els ),
             new DOMEdit( () => __Elemedit.afters(_refs, _new2) ),

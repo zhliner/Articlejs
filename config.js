@@ -84,6 +84,11 @@ export const Help = {
     'only_section': [
         'edit:indent',
         '仅章节单元（section）支持缩进操作'
+    ],
+
+    'only_child': [
+        'edit:onlyone',
+        '只能作为唯一子元素存在'
     ]
 
 };
