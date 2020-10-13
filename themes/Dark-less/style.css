@@ -1269,7 +1269,7 @@ menu li[role=submenu]:hover {
     flex: 1 1 auto;
     border-color: transparent;
     min-width: 12em;
-    max-width: 22em;
+    max-width: 24em;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: default;
@@ -1288,7 +1288,7 @@ menu li[role=submenu]:hover {
     background-color: #f4f5f6;
 }
 .Status > ._help > code {
-    color: #e53;
+    color: #01839d;
 }
 
 
