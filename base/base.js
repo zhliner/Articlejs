@@ -395,18 +395,6 @@ function _contentBoxes( el ) {
 }
 
 
-/**
- * 计算章节标识名（s1-s5）。
- * @param  {String} sx 章节名（role）
- * @param  {Number} n 增减层级
- * @return {String|false}
- */
-function sectionRole( sx, n ) {
-    n = +sx.substring(1) + n;
-    return n > 0 && n < 6 && `s${n}`;
-}
-
-
 
 //
 // 导出。
@@ -732,21 +720,38 @@ export function sectionContents( root ) {
 
 
 /**
+ * 计算章节层级。
+ * @param  {Element} el 章节元素
+ * @return {Number}
+ */
+export function sectionLevel( el ) {
+    let _sx = $.attr( el, 'role' );
+
+    if ( _sx ) {
+        return +_sx.substring(1);
+    }
+    if ( !el.parentElement ) {
+        return 6;
+    }
+    return $.parentsUntil( el, 'section[role=s5]' ).length + 6;
+}
+
+
+/**
  * 章节层级修改。
- * - 修改 role 特性值。
- * - 移除元素的类型值。
- * - 超出层级的章节会执行解包操作（unwrap）。
- * 注记：
- * 移除类型值以简化处理，避免撤销重做的复杂性。
+ * - 修改 role 特性值，超出层级的深片区无role特性。
+ * - 移除元素的类型值（简化处理，避免Undo/Redo的复杂性）。
+ * 返回false表示超过顶层章节（无修改）。
  * @param  {Element} sec 章节元素
  * @param  {Number} n 增减层级数
- * @return {[Node]|true|void} 解包的节点集（可能）
+ * @return {void|false}
  */
 export function sectionChange( sec, n ) {
-    let _sx = sectionRole( $.attr(sec, 'role'), n );
+    n += sectionLevel( sec );
+    let _v = n < 6 ? `s${n}` : null;
 
-    if ( !_sx ) {
-        return $.unwrap( sec );
+    if ( n === 0 ) {
+        return false;
     }
-    Reflect.deleteProperty( $.attr(sec, 'role', _sx), __typeKey );
+    Reflect.deleteProperty( $.attr(sec, 'role', _v), __typeKey );
 }

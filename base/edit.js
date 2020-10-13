@@ -47,9 +47,6 @@ const
     // 空白匹配。
     __reSpace = /\s+/g,
 
-    // 章节角色名（s1-s5）
-    __sectionRole = /^s[1-5]$/,
-
     // 微编辑新行适用集。
     __medNLineTags = [ 'P', 'LI', 'DT', 'DD' ],
 
@@ -894,20 +891,16 @@ class NodeVary {
     /**
      * 章节提升。
      * 顶层章节被简单忽略，避免结构混乱（不易被察觉）。
-     * 章节元素必须包含role配置，否则不予处理。
      * @param {Element} sec 章节元素
      */
     sectionUp( sec ) {
         let _pel = sec.parentElement,
             _sxn = $.attr( sec, 'role' );
 
-        if ( !__sectionRole.test(_sxn) ) {
-            return error( Tips.sectionNot15 );
-        }
         if ( _sxn === 's1' ) {
             return error( Tips.sectionNotUp );
         }
-        $.before( _pel, sectionUpAll(sec) ? null : sec );
+        $.before( _pel, sectionUpAll(sec) || sec );
     }
 
 
@@ -923,15 +916,15 @@ class NodeVary {
     /**
      * 章节降级。
      * 将目标章节降级并移入空章节容器内。
-     * 末章节会自动解包其内容（原地替换）。
-     * 注记：空容器由外部创建完成（Redo节省）。
+     * 末章节会降级为深章节（无role特性）。
+     * 注记：外部创建空容器可节省Redo开销。
      * @param {Element} sec 章节元素
      * @param {Element} box 同级空章节容器
      */
     sectionDown( sec, box ) {
-        let _tmp = sectionDownAll( sec );
+        sectionDownAll( sec );
         // 插入内末端。
-        _tmp || $.append( $.replace(sec, box), sec );
+        $.append( $.replace(sec, box), sec );
     }
 
 
@@ -1856,10 +1849,10 @@ function sameTag( els, tag ) {
  * 注记：
  * 返回内容时，外部无需在异地插入。
  * @param  {Element} sec 章节根
- * @return {[Node]|void}
+ * @return {void|false}
  */
 function sectionUpAll( sec ) {
-    $.find( 'section[role]', sec )
+    $.find( 'section', sec )
         .forEach(
             el => sectionChange( el, -1 )
         );
@@ -1872,10 +1865,10 @@ function sectionUpAll( sec ) {
  * 包含内部全部子章节降级。
  * 如果章节根已为末层，会解包内容并返回内容。
  * @param  {Element} sec 章节根
- * @return {[Node]|void}
+ * @return {void|false}
  */
 function sectionDownAll( sec ) {
-    $.find( 'section[role]', sec )
+    $.find( 'section', sec )
         .forEach(
             el => sectionChange( el, 1 )
         );
@@ -3290,19 +3283,6 @@ export const Kit = {
 
 
     /**
-     * 进入微编辑。
-     * 目标：暂存区/栈顶1项。
-     * 目标为待编辑的内容元素。
-     * 注记：用于鼠标双击进入微编辑。
-     */
-    medin( evo ) {
-        Edit.miniedIn( evo.data );
-    },
-
-    __medin: 1,
-
-
-    /**
      * 微编辑完成处理。
      * 目标：暂存区/栈顶1项。
      * 目标为确认键，仅限于 Enter|Tab（外部保证）。
@@ -3377,7 +3357,6 @@ processExtend( 'Kit', Kit, [
     'tips',
     'chapter',
     'save',
-    'medin',
     'medpass',
     'medcancel',
 ]);

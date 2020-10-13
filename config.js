@@ -39,12 +39,8 @@ export const Tips = {
     // 本地暂存完成提示。
     localStoreDone: 'saving done.',
 
-
     // 顶层章节不可再提升
     sectionNotUp:   'section:s1 can not up again.',
-
-    // 元素不是章节单元。
-    sectionNot15:   'the element is not s1-s5.',
 
 };
 

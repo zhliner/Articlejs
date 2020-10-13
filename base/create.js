@@ -26,7 +26,7 @@
 
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionContents } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel } from "./base.js";
 
 
 const
@@ -153,6 +153,7 @@ const Tags = {
     [ T.S3 ]:           'section\\s3',
     [ T.S4 ]:           'section\\s4',
     [ T.S5 ]:           'section\\s5',
+    [ T.SECTION ]:      'section',
     [ T.UL ]:           'ul',
     [ T.OL ]:           'ol',
     [ T.CODELIST ]:     'ol\\codelist',
@@ -750,7 +751,7 @@ const Children = {
 
 
 //
-// 5级片区。
+// 章节片区。
 // 此为通用容器，内容自由。
 // 选项集：
 // - h2     标题，必需，唯一
@@ -763,6 +764,7 @@ const Children = {
     T.S3,
     T.S4,
     T.S5,
+    T.SECTION,
 ]
 .forEach(function( it ) {
     /**
@@ -784,7 +786,7 @@ const Children = {
             ref,
             sec,
             data,
-            () => sectionFitted( sec, data )
+            () => sectionFitted( ref, sec, data )
         );
         if ( footer ) {
             _buf.push( appendFooter(sec) );
@@ -1062,6 +1064,7 @@ const Builder = {
     // T.S3,
     // T.S4,
     // T.S5,
+    // T.SECTION,
     // T.UL,
     // T.OL,
     // T.ULX,
@@ -1237,16 +1240,37 @@ function insertChild( ref, box, sub ) {
  * 章节层级适配。
  * 如果插入内容是不同层级的章节，递进修改适配。
  * 否则创建一个默认段落继续。
+ * @param  {Element} ref 参考子元素
  * @param  {Element} box 容器元素
  * @param  {Element|Value} sec 子章节内容
- * @return {Element|void} 新建默认单元
+ * @return {Element|void} 新建的默认单元
  */
-function sectionFitted( box, sec ) {
+function sectionFitted( ref, box, sec ) {
     if ( sec.tagName !== 'SECTION' ) {
         return elem( T.P );
     }
+    let _n1 = sectionLevel( box ),
+        _n2 = sectionLevel( sec );
+
     // void for end.
-    $.append( box, sectionContents(sec) );
+    $.insertChild( ref, box, sectionsFitted(sec, _n1-_n2 + 1) );
+}
+
+
+/**
+ * 章节树层级适配。
+ * 注记：
+ * 向内插入的子章节处理，无需考虑顶层（s1）超出。
+ * @param  {Element} sec 目标片区
+ * @param  {Number} n 增减层级数
+ * @return {Element} sec
+ */
+function sectionsFitted( sec, n ) {
+    $.find( 'section', sec, true )
+    .forEach(
+        el => sectionChange( el, n )
+    );
+    return sec;
 }
 
 

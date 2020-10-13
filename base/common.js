@@ -231,6 +231,7 @@ export class ECursor {
         let _ok = $.contains( box, rng.commonAncestorContainer );
 
         if ( _ok ) {
+            rng.collapse( false );
             rng.insertNode( this._cel );
         }
         return _ok && box;

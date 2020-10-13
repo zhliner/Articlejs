@@ -168,22 +168,23 @@ export const
     HEADER          = 510,  // 导言 （header/h3, p...）
     FOOTER          = 511,  // 结语 （footer/h3, p...）
     ARTICLE         = 512,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
-    UL              = 513,  // 无序列表 （ul/li）
-    OL              = 514,  // 有序列表 （ol/li）
-    CODELIST        = 515,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab, start}
-    ULX             = 516,  // 无序级联表 （ul/li/h4, ul|ol/...）
-    OLX             = 517,  // 有序级联表 （ol/li/h4, ol|ul/...）
-    CASCADE         = 518,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）
-    DL              = 519,  // 定义列表 （dl/dt, dd+）
-    TABLE           = 520,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
-    FIGURE          = 521,  // 插图 （figure/figcaption, span/img, i:explain）
-    BLOCKQUOTE      = 522,  // 块引用 （blockquote/h3, p...） {cite}
-    ASIDE           = 523,  // 批注 （aside/h3, p...）
-    DETAILS         = 524,  // 详细内容 （details/summary, p...） {open}
-    CODEBLOCK       = 525,  // 代码块 （pre:codeblock/code/#text, b, i）
+    SECTION         = 513,  // 深片区 ([s5]/section)
+    UL              = 514,  // 无序列表 （ul/li）
+    OL              = 515,  // 有序列表 （ol/li）
+    CODELIST        = 516,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab, start}
+    ULX             = 517,  // 无序级联表 （ul/li/h4, ul|ol/...）
+    OLX             = 518,  // 有序级联表 （ol/li/h4, ol|ul/...）
+    CASCADE         = 519,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）
+    DL              = 520,  // 定义列表 （dl/dt, dd+）
+    TABLE           = 521,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
+    FIGURE          = 522,  // 插图 （figure/figcaption, span/img, i:explain）
+    BLOCKQUOTE      = 523,  // 块引用 （blockquote/h3, p...） {cite}
+    ASIDE           = 524,  // 批注 （aside/h3, p...）
+    DETAILS         = 525,  // 详细内容 （details/summary, p...） {open}
+    CODEBLOCK       = 526,  // 代码块 （pre:codeblock/code/#text, b, i）
     // 单体单元。
-    HR              = 526,  // 分隔 （hr） CSS:{borderWidth, width, height}
-    BLANK           = 527,  // 白板 （div:blank/x）
+    HR              = 527,  // 分隔 （hr） CSS:{borderWidth, width, height}
+    BLANK           = 528,  // 白板 （div:blank/x）
 
     //
     // 特殊用途。
@@ -311,6 +312,7 @@ const Properties = {
     [ S3 ]:             BLOCKS | STRUCT,
     [ S4 ]:             BLOCKS | STRUCT,
     [ S5 ]:             BLOCKS | STRUCT,
+    [ SECTION ]:        BLOCKS | STRUCT,
     [ UL ]:             BLOCKS | STRUCT,
     [ OL ]:             BLOCKS | STRUCT,
     [ CODELIST ]:       BLOCKS | STRUCT,
@@ -489,7 +491,8 @@ const ChildTypes = {
     [ S2 ]:             [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
     [ S3 ]:             [ H2, HEADER, S4, _BLOCKITS, FOOTER ],
     [ S4 ]:             [ H2, HEADER, S5, _BLOCKITS, FOOTER ],
-    [ S5 ]:             [ H2, HEADER, _BLOCKITS, FOOTER ],
+    [ S5 ]:             [ H2, HEADER, _BLOCKITS, SECTION, FOOTER ],
+    [ SECTION ]:        [ H2, HEADER, _BLOCKITS, SECTION, FOOTER ],
     [ UL ]:             [ LI, ALI ],
     [ OL ]:             [ LI, ALI ],
     [ CODELIST ]:       [ CODELI ],
