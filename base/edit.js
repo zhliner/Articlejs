@@ -47,14 +47,29 @@ const
     // 空白匹配。
     __reSpace = /\s+/g,
 
-    // 微编辑新行适用集。
-    __medNLineTags = [ 'P', 'LI', 'DT', 'DD' ],
+    // 微编辑：
+    // 智能逻辑行适用集。
+    // 源行类型：[新行标签名, 父类型约束]
+    // 注记：不支持 <td|th> ~ <tr>（新行单元格选取逻辑问题）
+    __medLLineMap = {
+        [ T.DT ]:       [ 'dd', T.DL ],
+        [ T.SUMMARY ]:  [ 'p',  T.DETAILS ],
+        [ T.H3 ]:       [ 'p',  T.ABSTRACT ],
+        [ T.H3 ]:       [ 'p',  T.HEADER ],
+        [ T.H3 ]:       [ 'p',  T.FOOTER ],
+        [ T.H3 ]:       [ 'p',  T.BLOCKQUOTE ],
+        [ T.H3 ]:       [ 'p',  T.ASIDE ],
+    },
 
-    // 微编辑逻辑行适用。
-    // 注记：
-    // 因预先克隆表格行十分简单，故暂不支持 <td|th> ~ <tr> 创建，
-    // 而微编辑下反而不易确定新行单元格的选取逻辑。
-    __medLLineMap = { DT: 'dd' },
+    // 微编辑：
+    // 同类新行适用集。
+    __medNewLines = new Set([
+        T.LI,
+        T.DT,
+        T.DD,
+        T.P, T.TIPS, T.NOTE,
+        T.ADDRESS,
+    ]),
 
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
@@ -1425,12 +1440,14 @@ function minied( el ) {
     let _old = [ ...__ESet ],
         _op1 = null;
 
-    // 创建同类新行时未选取。
+    // 创建同类新行时为未选取。
     if ( __Selects.delete(el) ) {
         _op1 = new ESEdit( _old, null );
     }
-    currentMinied = new MiniEdit( el, window.getSelection().getRangeAt(0) );
-
+    currentMinied = new MiniEdit(
+        el,
+        window.getSelection().getRangeAt(0)
+    );
     return [ _op1, currentMinied, new HotEdit(currentMinied.elem()) ];
 }
 
@@ -1451,26 +1468,41 @@ function miniedOk() {
 
 /**
  * 微编辑创建同类新行。
- * 新行创建与微编辑合为一个编辑历史序列。
+ * 注记：游离元素的特性设置不会进入历史栈。
  * @param  {Element} src 源行元素
  * @return {[Instance]} 编辑实例序列
  */
 function medSameLine( src ) {
-    let _new = $.elem( src.tagName );
+    let _new = $.attr(
+        $.elem( src.tagName ),
+        'role',
+        $.attr( src, 'role' )
+    );
+    // 合为一个编辑历史序列。
     return [ new DOMEdit(() => $.after(src, _new)) ].concat( minied(_new) );
 }
 
 
 /**
  * 微编辑创建逻辑新行。
- * 适用：<dt> ~ <dd>
- * 创建一个定义列表数据项，插入当前标题项之后。
  * @param  {Element} src 源行元素
+ * @param  {String} tag 新行标签名
  * @return {[Instance]} 编辑实例序列
  */
 function medLogicLine( src, tag ) {
     let _new = $.elem( tag );
     return [ new DOMEdit(() => $.after(src, _new)) ].concat( minied(_new) );
+}
+
+
+/**
+ * 是否可以创建逻辑新行。
+ * @param  {[String, Number]} conf 逻辑新行配置对
+ * @param  {Element} src 源行元素
+ * @return {Boolean}
+ */
+function medLogicOk( conf, src ) {
+    return conf && conf[1] === getType( src.parentElement );
 }
 
 
@@ -3334,20 +3366,21 @@ export const Kit = {
      */
     medpass( evo, scam ) {
         let _src = currentMinied.elem(),
-            _tag = _src.tagName,
-            _lgn = __medLLineMap[ _tag ];
+            _typ = getType( _src ),
+            _cfg = __medLLineMap[ _typ ];
+
         miniedOk();
 
         if ( evo.data === 'Tab' ) {
             return Edit.miniedIn();
         }
         // 同类新行。
-        if ( scamPressed(scam, cfg.Keys.miniedSameLine) && __medNLineTags.includes(_tag) ) {
+        if ( scamPressed(scam, cfg.Keys.miniedSameLine) && __medNewLines.has(_typ) ) {
             historyPush( ...medSameLine(_src) );
         }
         // 逻辑新行。
-        else if ( scamPressed(scam, cfg.Keys.miniedLogicLine) && _lgn ) {
-            historyPush( ...medLogicLine(_src, _lgn) );
+        else if ( scamPressed(scam, cfg.Keys.miniedLogicLine) && medLogicOk(_cfg, _src) ) {
+            historyPush( ...medLogicLine(_src, _cfg[0]) );
         }
         if ( !currentMinied ) return;
 
