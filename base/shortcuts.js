@@ -464,30 +464,21 @@ Content: [
     // - 完整的逻辑单元（行块、内联）。
     // - 删除不影响结构逻辑的元素（如：<li>、<tr>等）。
     {
-        "key": [
-            ":d",
-            ":delete"
-        ],
+        "key":      ":delete",
         "command":  "deletes"
     },
 
     // 内容删除。
     // 删除元素内的可编辑内容（内容根元素的内容）。
     {
-        "key": [
-            "shift:d",
-            "shift:delete"
-        ],
+        "key":      "shift:delete",
         "command":  "deleteContents"
     },
 
     // 强制删除。
     // 删除任意已选取元素，有破坏性（不保护中间结构逻辑）。
     {
-        "key": [
-            "alt+shift:d",
-            "alt+shift:delete"
-        ],
+        "key":      "alt+shift:delete",
         "command":  "deleteForce"
     },
 
@@ -529,7 +520,7 @@ Content: [
     // 即普通子单元添加，将选取元素或其内容移动添加到焦点元素内。
     // 注记：同上。
     {
-        "key":      ":z",
+        "key":      ":d",
         "command":  "elementAppend"
     },
 
@@ -537,7 +528,7 @@ Content: [
     // 同上说明，数据源为克隆。
     // 注记：同上。
     {
-        "key":      "shift:z",
+        "key":      "shift:d",
         "command":  "elementCloneAppend"
     },
 

@@ -2062,6 +2062,17 @@ function canUnwrap( el ) {
 
 
 /**
+ * 是否可以向内插入。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+function canAppend( el ) {
+    let _tv = getType( el );
+    return !T.isEmpty( _tv ) && !T.isSealed( _tv );
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -2897,21 +2908,56 @@ export const Edit = {
     },
 
 
+    /**
+     * 向内填充（移动）。
+     * 遵循编辑器默认的内插入逻辑（逐层测试构建）。
+     */
     elementFill() {
         let $els = $( __ESet ),
             _hot = __EHot.get();
 
-        if ( !$els.length ) return;
-
+        if ( !$els.length || !_hot ) {
+            return;
+        }
         if ( __ESet.has(_hot) ) {
             return help( 'cannot_selected', _hot );
         }
-        // ...
+        if ( !canAppend(_hot) ) {
+            return help( 'cannot_append', _hot );
+        }
+        let _old = [...__ESet],
+            _op1 = new DOMEdit( $.empty(_hot) ),
+            _op2 = new ESEdit( _old, _hot ),
+            _op3 = new DOMEdit( () => children(null, _hot, {}, $els) ),
+            // 可能是提取了子单元。
+            _op4 = new DOMEdit( () => $els.remove() );
+
+        historyPush( _op1, _op2, _op3, _op4 );
     },
 
 
+    /**
+     * 向内填充（克隆）。
+     * 遵循编辑器默认的内插入逻辑。
+     * 注记：
+     * 克隆的节点为游离态，内容提取不会被记录。
+     */
     elementCloneFill() {
-        //
+        let $els = $( __ESet ),
+            _hot = __EHot.get();
+
+        if ( !$els.length || !_hot ) {
+            return;
+        }
+        if ( !canAppend(_hot) ) {
+            return help( 'cannot_append', _hot );
+        }
+        let _old = [...__ESet],
+            _op1 = new DOMEdit( $.empty(_hot) ),
+            _op2 = new ESEdit( _old, _hot ),
+            _op3 = new DOMEdit( () => children(null, _hot, {}, $els.clone()) );
+
+        historyPush( _op1, _op2, _op3 );
     },
 
 

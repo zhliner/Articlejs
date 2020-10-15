@@ -78,7 +78,12 @@ export const Help = {
 
     'cannot_selected': [
         'edit:insert',
-        '插入操作的目标元素不可为选取'
+        '插入的目标元素不可为已选取'
+    ],
+
+    'cannot_append': [
+        'edit:insert',
+        '不能向元素内插入内容'
     ],
 
     'only_section': [
