@@ -2359,6 +2359,9 @@ class Table {
             case null:
                 return _cap && varyRemove(_cap);
         }
+        if ( !val.nodeType ) {
+            val = this._tbl.ownerDocument.createTextNode(val);
+        }
         return varyFill( _cap, val ), _cap;
     }
 

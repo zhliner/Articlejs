@@ -32,6 +32,8 @@ body > hr {
 /* 大纲面板 */
 aside#outline {
     width: 200px;
+    min-width: 180px;
+    background-color: rgba(245, 245, 245, 0.55);
 }
 /* 编辑器容器 */
 div#editor {
@@ -45,6 +47,8 @@ div#editor {
 /* 帮助面板 */
 aside#help {
     width: 260px;
+    min-width: 200px;
+    background-color: rgba(245, 245, 245, 0.55);
 }
 
 
@@ -399,12 +403,156 @@ menu li[role=submenu]:hover {
 
 /* [ 顶层 ]
  ****************************************************************************/
-#help {
-    padding: 2px;
+
+/* 级联表 */
+#outline ol[role=cascade],
+#outline ol[role=cascade] ol {
+    counter-reset: numer;
+    padding: 0;
+    list-style-type: none;
 }
+#outline ol[role=cascade] h4 {
+    margin: 0;
+    font-weight: normal;
+}
+#outline ol[role=cascade] li::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: counters(numer, '.') '.';
+    counter-increment: numer;
+    white-space: nowrap;
+}
+#outline ol[role=cascade] li {
+    position: relative;
+}
+
+/* 1. */
+#outline ol[role=cascade] > li {
+    /* 缩进，与序号宽度适配 */
+    margin-left: 2.5em;
+}
+#outline ol[role=cascade] > li::before {
+    width: 1.5em;
+    margin-left: -1.5em;
+}
+
+/* 1.2 */
+#outline ol[role=cascade] > li>ol > li {
+    margin-left: 2.2em;
+}
+#outline ol[role=cascade] > li>ol > li::before {
+    width: 2.2em;
+    margin-left: -2.2em;
+}
+
+/* 1.2.3 */
+#outline ol[role=cascade] > li>ol > li>ol > li {
+    margin-left: 3.3em;
+}
+
+#outline ol[role=cascade] > li>ol > li>ol > li::before {
+    width: 3.3em;
+    margin-left: -3.3em;
+}
+
+/* 1.2.3.4 */
+#outline ol[role=cascade] > li>ol > li>ol > li>ol li {
+    margin-left: 4.4em;
+}
+
+#outline ol[role=cascade] > li>ol > li>ol > li>ol li::before {
+    width: 4.4em;
+    margin-left: -4.4em;
+}
+
+/* 大纲栏 */
+#outline nav[role=toc] {
+    border-radius: inherit;
+    font-size: 9.6pt;
+    height: 100%;
+    box-sizing: border-box;
+    cursor: default;
+}
+
+/* 目录级联编号 */
+#outline nav[role=toc] > ol[role=cascade] {
+    height: calc(100% - 70px);
+    overflow-y: auto;
+}
+#outline nav[role=toc] h3 {
+    font-size: 1.1em;
+    padding: 12px 1em 10px;
+    border-bottom: 1px #bbb inset;
+    font-weight: normal;
+    background-color: #f0f0f0;
+    border-radius: inherit;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+#outline nav[role=toc] h3 > b {
+    float: right;
+    font-family: monospace;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-top: -3px;
+    margin-right: -3px;
+    color: green;
+}
+#outline nav[role=toc] h3 > b:hover {
+    background-color: #b3ebb8;
+    border-radius: 16px;
+}
+#outline nav[role=toc] > ol {
+    margin: 0;
+    padding: 10px 3px;
+}
+#outline nav[role=toc] li {
+    margin-top: 1px;
+    padding-left: 4px;
+}
+#outline nav[role=toc] li,
+#outline nav[role=toc] h4,
+#outline nav[role=toc] a {
+    line-height: 140%;
+}
+
+#outline nav[role=toc] a {
+    color: #039;
+    text-decoration: none;
+}
+
+#outline nav[role=toc] a:hover {
+    text-decoration: underline;
+}
+
+/* 子表折叠 */
+#outline nav[role=toc] li[data-pbo=folded] {
+    background-color: #e8f2f2;
+    border-radius: 4px 2em 0 0;
+}
+#outline nav[role=toc] li > h4::after {
+    content: '－';
+    float: right;
+    margin-right: 1em;
+    color: green;
+}
+#outline nav[role=toc] li[data-pbo=folded] > h4::after {
+    content: '＋';
+    color: #e9a279;
+}
+
+
+/* 帮助栏 */
 #help > ._walk {
+    padding: 4px 6px;
+    border-bottom: 1px #bbb inset;
+    background-color: #f0f0f0;
+    border-radius: inherit;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     display: flex;
-    margin: 0 4px 2px;
 }
 #help > ._walk > b {
     margin: 1px;

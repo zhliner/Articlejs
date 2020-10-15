@@ -862,14 +862,18 @@ const Children = {
      * 返回内容元素自身而非插入的子节点。
      * @param {Element|null} ref 插入参考子元素
      * @param {Element} el 内容根元素
-     * @param {String|Node} data 内容数据
+     * @param {String|Node|Array} data 内容数据
      */
     Children[ its ] = function( ref, el, _, data ) {
-        insertChild(
-            ref,
-            el,
-            dataCons( data, getType(el) )
-        )
+        let _tv = getType( el );
+
+        if ( $.isArray(data) ) {
+            data = data.map( dd => dataCons(dd, _tv) ).flat();
+        } else {
+            data = dataCons( data, _tv );
+        }
+        insertChild( ref, el, data );
+
         return result( null, $.normalize(el), true );
     };
 });
@@ -1237,6 +1241,30 @@ function insertChild( ref, box, sub ) {
 
 
 /**
+ * 插入表格行。
+ * 成功插入时返回null。
+ * @param  {$.Table} tbo 表格实例
+ * @param  {Element|null} ref 参考行元素
+ * @param  {TableSection} tsec 表格片区
+ * @param  {Element} row 行元素
+ * @param  {Boolean} head 是否在表头
+ * @return {Element|null} 新行
+ */
+function appendRow( tbo, ref, tsec, row, head ) {
+    if ( !row ) return;
+    let _idx = ref ? tbo.trIndex(ref, tsec) : null;
+
+    if ( row.tagName !== 'TR' ||
+        !isValidTR(row, tbo) ||
+        (head && !isHeadTR(row)) ) {
+        return tbo.insertTR( tbo.newTR(head), _idx, tsec );
+    }
+    tbo.insertTR( row, _idx, tsec );
+    return null;
+}
+
+
+/**
  * 章节层级适配。
  * 如果插入内容是不同层级的章节，递进修改适配。
  * 否则创建一个默认段落继续。
@@ -1351,33 +1379,6 @@ function tocLi( h2 ) {
  */
 function data( data, i ) {
     return $.isArray(data) ? data[i] : data;
-}
-
-
-/**
- * 插入表格行。
- * 成功插入时返回null。
- * @param  {$.Table} tbo 表格实例
- * @param  {Element|null} ref 参考行元素
- * @param  {TableSection} tsec 表格片区
- * @param  {Element} row 行元素
- * @param  {Boolean} head 是否在表头
- * @return {Element|null} 新行
- */
-function appendRow( tbo, ref, tsec, row, head ) {
-    if ( !row ) return;
-
-    if ( row.tagName !== 'TR' ||
-        !isValidTR(row, tbo) ||
-        (head && !isHeadTR(row)) ) {
-        return tbo.newTR( head );
-    }
-    tbo.insertTR(
-        row,
-        ref ? tbo.trIndex(ref, tsec) : null,
-        tsec
-    );
-    return null;
 }
 
 
@@ -1673,4 +1674,4 @@ processProxy( 'New', creater, 1 );
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-export { children, create };
+export { children, create, tocList };

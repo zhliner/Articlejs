@@ -137,6 +137,38 @@
         |trigger('pcheck');
         -">
     <aside id="outline" class="___Panel" data-pbo="">
+        <nav role="toc"
+            on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
+            <h3>大纲视图
+                <b title="刷新">↻</b>
+            </h3>
+            <!-- On: 单击子表标题（非<a>）折叠切换 -->
+            <ol role="cascade" on="click(~h4)|evo(2) parent fold(2)">
+                <li>
+                    <h4><a href="#层次">层次</a></h4>
+                    <ol>
+                        <li><a href="#标题规划">标题规划</a></li>
+                        <li><a href="#层次示意">层次示意</a></li>
+                    </ol>
+                </li>
+                <li>
+                    <h4><a href="#组成">组成</a></h4>
+                    <ol>
+                        <li>
+                            <h4><a href="#内容块">内容块</a></h4>
+                            <ol>
+                                <li><a href="#结构类">结构类</a></li>
+                                <li><a href="#文本类">文本类</a></li>
+                                <li><a href="#单体类">单体类</a></li>
+                            </ol>
+                        </li>
+                        <li><a href="#内容件">内容件</a></li>
+                        <li><a href="#内容行和内容元素">内容行和内容元素</a></li>
+                        <li><a href="#内联单元">内联单元</a></li>
+                    </ol>
+                </li>
+            </ol>
+        </nav>
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
     <hr id="lineLeft" data-pbo=""
@@ -187,14 +219,13 @@
         to="body|bind('mousemove:2') once('mouseup')" />
     <aside id="help" class="___Panel _docs" data-pbo="lost"
         on="index|ev('detail') debug('hai')">
-        <span class="_walk">
+        <div class="_walk">
             <b title="上一项">◀</b>
             <b title="目录" class="_top">▤</b>
             <b title="下一项" data-pbo="disabled">▶</b>
             <!-- ⚘ -->
             <b title="关于..." class="_about">⚘</b>
-        </span>
-        <hr>
+        </div>
         <div id="help-xbox" class="_xbox">
             <!-- dl/dt,dd -->
         </div>

@@ -206,8 +206,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  */
 .content nav[role=toc] {
     padding: 6px 0;
-    background-color: #fffff7;
     border: 1px #e3e3e0 solid;
+    background-color: rgba(245, 245, 245, 0.7);
     display: inline-block;
     border-radius: 4px;
     font-size: 9.6pt;
@@ -220,7 +220,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     position: fixed;
     top: 5px;
     left: 20px;
-    background-color: rgba(245, 245, 245, 0.7);
     height: 96%;
 }
 
@@ -232,7 +231,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 .content nav[role=toc] h3 {
     font-size: 1.17em;
-    margin: 7px 4px;
+    margin: 7px 4px 0;
     padding-bottom: 10px;
     text-align: center;
     border-bottom: 1px #ccc dashed;
@@ -240,8 +239,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 .content nav[role=toc] > ol {
     margin: 0;
-    padding: 5px 12px 5px 6px;
-    padding-bottom: 11pt;
+    padding: 15px 5px;
 }
 .content nav[role=toc] li {
     margin-top: 1px;
