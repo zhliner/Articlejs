@@ -47,10 +47,10 @@
                     一篇结构良好的文章除了主标题外，通常只会包含最多3-4个层级，即：<strong>章/节/区/段</strong>，再多的层级阅读友好性会较差。</p>
             </blockquote>
         </header>
-        <!--On: 单击显示章节到当前视口，可代替链接锚点。
-            avoid 停止链接锚点的默认跳转，回避无ID或重复ID的问题。-->
+        <!--On: 构造章节选择器，定位显示到视口。
+                兼容ID锚跳转（不avoid） -->
         <nav role="toc"
-            on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
+            on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>【目 录】</h3>
             <!-- On: 单击子表标题（非<a>）折叠切换 -->
             <ol role="cascade"
@@ -105,7 +105,7 @@
                                 <li><a href="#白板">白板</a></li>
                             </ol>
                         </li>
-                        <li>
+                        <li data-pbo="folded">
                             <h4><a href="#原生结构">原生结构</a></h4>
                             <ol>
                                 <li><a href="#文章">文章</a></li>
@@ -141,6 +141,23 @@
                                 <li><a href="#效果1">效果</a></li>
                                 <li><a href="#源码2（代码表）">源码2（代码表）</a></li>
                                 <li><a href="#效果2">效果</a></li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+                <li>
+                    <h4><a>附录</a></h4>
+                    <ol>
+                        <li>
+                            <h4><a>插图</a></h4>
+                            <ol>
+                                <li><a>实例</a></li>
+                            </ol>
+                        </li>
+                        <li>
+                            <h4><a>定义列表</a></h4>
+                            <ol>
+                                <li><a>实例</a></li>
                             </ol>
                         </li>
                     </ol>
@@ -288,7 +305,7 @@
                 </section>
                 <section role="s2">
                     <h2 id="内容件">内容件</h2>
-                    <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <strong>提要</strong>、<strong>目录</strong> 等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。</p>
+                    <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <em>提要</em>、<em>目录</em> 等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。如后面 <strong>附录</strong> 中的 <em>插图</em>、<em>定义列表</em> 等。</p>
                 </section>
                 <section role="s2">
                     <h2 id="内容行和内容元素">内容行和内容元素</h2>
@@ -498,13 +515,13 @@
                             <tr>
                                 <th>特用</th>
                                 <td><code>&lt;<b role="tag">b</b>&gt;</code></td>
-                                <td><code><i>代码着色封装</i></code></td>
+                                <td><code><i>代码着色，其它</i></code></td>
                                 <td>32</td>
                             </tr>
                             <tr>
                                 <th>特用</th>
                                 <td><code>&lt;<b role="tag">i</b>&gt;</code></td>
-                                <td><code><i>代码注释</i></code></td>
+                                <td><code><i>代码注释，其它</i></code></td>
                                 <td>33</td>
                             </tr>
                             <tr>
@@ -1060,6 +1077,49 @@
                             <li><code>    s []<b role="dt">string</b></code></li>
                             <li><code>}</code></li>
                         </ol>
+                    </section>
+                </section>
+            </section>
+            <hr />
+            <section role="s1">
+                <h2>附录</h2>
+                <section role="s2">
+                    <h2>插图</h2>
+                    <header>
+                        <p>结构：<code>figure/figcaption,p/img, span:explain</code>，包含标题、作为正文的图片，以及可选的对图片的讲解。</p>
+                        <p>在大部分的内容样式中，讲解段应当包含了绝对定位（<code>position:absolute</code>）样式。这样，你就可以通过负边距（<code>margin-*</code>）值和绝对位置样式（<code>top|left</code>）来准确设置，使得讲解可重叠于图片之上。</p>
+                    </header>
+                    <section role="s3">
+                        <h2>实例</h2>
+                        <figure>
+                            <figcaption>贵州江口梵净山断肠崖</figcaption>
+                            <span>
+                                <img src="../docs/images/pic01.jpg" alt="寻爱巅峰" />
+                                <i role="explain" class="_fix-rt">
+                                    这是贵州梵净山顶的一段突峰，位于金顶对面之大坡侧翼，著名景点蘑菇石旁边。突兀支立，雄奇险峻，悬屹于万丈深渊，经风沐雨……
+                                </i>
+                            </span>
+                        </figure>
+                    </section>
+                </section>
+                <section role="s2">
+                    <h2>定义列表</h2>
+                    <header>
+                        <p>结构：<code>dl/dt,dd</code>。主要用于描述专业的术语，由术语标题项（<code>&lt;dt&gt;</code>）和描述内容的数据项（<code>&lt;dd&gt;</code>）构成。</p>
+                        <p>标题项和数据项并列为兄弟元素的关系。一条标题项可以跟随多条数据项，或者多条标题项由一条数据项进行说明。</p>
+                    </header>
+                    <section role="s3">
+                        <h2>实例</h2>
+                        <dl>
+                            <dt>Firefox</dt>
+                            <dd>A free, open source, cross-platform, graphical web browser developed by the Mozilla Corporation and hundreds of volunteers.</dd>
+                            <dt>Chrome</dt>
+                            <dt>Firefox</dt>
+                            <dd>A free, open source, cross-platform, graphical web browser developed by the Mozilla Corporation and hundreds of volunteers.</dd>
+                            <dt>Firefox</dt>
+                            <dd>A free, open source, cross-platform, graphical web browser developed by the Mozilla Corporation and hundreds of volunteers.</dd>
+                            <dd>The Red Panda also known as the Lesser Panda, Wah, Bear Cat or Firefox, is a mostly herbivorous mammal, slightly larger than a domestic cat (60 cm long).</dd>
+                        </dl>
                     </section>
                 </section>
             </section>

@@ -22,7 +22,7 @@ import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
 import { ESet, EHot, ECursor, prevNode, nextNode, elem2Swap } from './common.js';
-import { children, create } from "./create.js";
+import { children, create, tocList } from "./create.js";
 import cfg from "./shortcuts.js";
 
 
@@ -3398,6 +3398,18 @@ export const Kit = {
 
 
     /**
+     * 构造目录清单。
+     * @data: Element 章节根
+     * @return {[Element]} [<li>] 目录条目集
+     */
+    toclist( evo ) {
+        return tocList( $.find('>section', evo.data) );
+    },
+
+    __toclist: 1,
+
+
+    /**
      * 微编辑完成处理。
      * 目标：暂存区/栈顶1项。
      * 目标为确认键，仅限于 Enter|Tab（外部保证）。
@@ -3473,6 +3485,7 @@ processExtend( 'Kit', Kit, [
     'tips',
     'chapter',
     'save',
+    'toclist',
     'medpass',
     'medcancel',
 ]);

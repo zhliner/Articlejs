@@ -400,6 +400,11 @@ menu li[role=submenu]:hover {
     text-shadow: none;
 }
 
+/* 冻结效果 */
+menu li[data-pbo=disabled]:hover {
+    background-color: transparent;
+}
+
 
 /* [ 顶层 ]
  ****************************************************************************/
@@ -419,7 +424,7 @@ menu li[role=submenu]:hover {
     position: absolute;
     top: 0;
     left: 0;
-    content: counters(numer, '.') '.';
+    content: counters(numer, '.');
     counter-increment: numer;
     white-space: nowrap;
 }
@@ -430,46 +435,46 @@ menu li[role=submenu]:hover {
 /* 1. */
 #outline ol[role=cascade] > li {
     /* 缩进，与序号宽度适配 */
-    margin-left: 2.5em;
+    margin-left: 2.2em;
 }
 #outline ol[role=cascade] > li::before {
-    width: 1.5em;
-    margin-left: -1.5em;
+    width: 1.2em;
+    margin-left: -1.2em;
 }
 
 /* 1.2 */
 #outline ol[role=cascade] > li>ol > li {
-    margin-left: 2.2em;
+    margin-left: 2.0em;
 }
 #outline ol[role=cascade] > li>ol > li::before {
-    width: 2.2em;
-    margin-left: -2.2em;
+    width: 2.0em;
+    margin-left: -2.0em;
 }
 
 /* 1.2.3 */
 #outline ol[role=cascade] > li>ol > li>ol > li {
-    margin-left: 3.3em;
+    margin-left: 3.0em;
 }
 
 #outline ol[role=cascade] > li>ol > li>ol > li::before {
-    width: 3.3em;
-    margin-left: -3.3em;
+    width: 3.0em;
+    margin-left: -3.0em;
 }
 
 /* 1.2.3.4 */
 #outline ol[role=cascade] > li>ol > li>ol > li>ol li {
-    margin-left: 4.4em;
+    margin-left: 4.0em;
 }
 
 #outline ol[role=cascade] > li>ol > li>ol > li>ol li::before {
-    width: 4.4em;
-    margin-left: -4.4em;
+    width: 4.0em;
+    margin-left: -4.0em;
 }
 
 /* 大纲栏 */
 #outline nav[role=toc] {
     border-radius: inherit;
-    font-size: 9.6pt;
+    font-size: 10pt;
     height: 100%;
     box-sizing: border-box;
     cursor: default;
@@ -511,15 +516,16 @@ menu li[role=submenu]:hover {
 #outline nav[role=toc] li {
     margin-top: 1px;
     padding-left: 4px;
+    color: #333;
 }
 #outline nav[role=toc] li,
 #outline nav[role=toc] h4,
 #outline nav[role=toc] a {
-    line-height: 140%;
+    line-height: 150%;
 }
 
 #outline nav[role=toc] a {
-    color: #039;
+    color: #36a;
     text-decoration: none;
 }
 
@@ -729,7 +735,6 @@ menu li[role=submenu]:hover {
     gap: 1px;
     padding: 2px 0 4px;
     background-color: #f6f6f6;
-    font-size: 11pt;
 }
 .___Content menu._cells > li {
     padding: 4px 10px 3px 26px;

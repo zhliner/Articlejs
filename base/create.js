@@ -26,7 +26,7 @@
 
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes } from "./base.js";
 
 
 const
@@ -306,13 +306,23 @@ const Children = {
 
     /**
      * 单元格已经存在。
-     * 单元格内容插入留到后阶内容元素段处理。
-     * @node: {[Element]}
+     * 单元格数据取各内容根内容。
+     * 注记：
+     * 友好非同类表格行，其它单元也可较好转换。
      * @param {null} ref 插入参考（占位）
      * @param {Element} tr 表格行元素
+     * @param {Element|Value} 表格行数据
      */
-    [ T.TR ]: function( ref, tr ) {
-        return result( null, [...tr.cells] );
+    [ T.TR ]: function( ref, tr, _, data ) {
+        let $els = $( tr.cells );
+
+        if ( !data || !data.nodeType ) {
+            return result( null, $els );
+        }
+        $els.append(
+            contentBoxes(data).map( el => $.contents(el) )
+        );
+        return result( null, $els, true );
     },
 
 
@@ -1422,7 +1432,7 @@ function svgInsert( ref, box, data ) {
  * @return {Node|String|[Node|String]} 合法数据（集）
  */
 function dataCons( data, tval ) {
-    if ( data.nodeType !== 1 && data.nodeType !== 11 ) {
+    if ( !data || data.nodeType !== 1 && data.nodeType !== 11 ) {
         return data || '';
     }
     if ( T.onlyText(tval) ) {

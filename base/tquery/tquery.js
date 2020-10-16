@@ -1224,7 +1224,7 @@ Object.assign( tQuery, {
      * - 可以指定仅返回目标位置的一个子节点。
      * - 位置计数不含空文本节点，支持负值从末尾算起。
      * @param  {Element} el 容器元素
-     * @param  {Number|null} idx 子节点位置（从0开始）
+     * @param  {Number|null} idx 子节点位置（从0开始），可选
      * @param  {Boolean} comment 包含注释节点，可选
      * @return {[Node]|Node}
      */

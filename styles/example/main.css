@@ -151,7 +151,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     position: absolute;
     top: 0;
     left: 0;
-    content: counters(numer, '.') '.';
+    content: counters(numer, '.');
     counter-increment: numer;
     white-space: nowrap;
 }
@@ -163,40 +163,40 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 1. */
 .content ol[role=cascade] > li {
     /* 缩进，与序号宽度适配 */
-    margin-left: 2.5em;
+    margin-left: 2.2em;
 }
 .content ol[role=cascade] > li::before {
-    width: 1.5em;
-    margin-left: -1.5em;
+    width: 1.2em;
+    margin-left: -1.2em;
 }
 
 /* 1.2 */
 .content ol[role=cascade] > li>ol > li {
-    margin-left: 2.2em;
+    margin-left: 2.0em;
 }
 .content ol[role=cascade] > li>ol > li::before {
-    width: 2.2em;
-    margin-left: -2.2em;
+    width: 2.0em;
+    margin-left: -2.0em;
 }
 
 /* 1.2.3 */
 .content ol[role=cascade] > li>ol > li>ol > li {
-    margin-left: 3.3em;
+    margin-left: 3.0em;
 }
 
 .content ol[role=cascade] > li>ol > li>ol > li::before {
-    width: 3.3em;
-    margin-left: -3.3em;
+    width: 3.0em;
+    margin-left: -3.0em;
 }
 
 /* 1.2.3.4 */
 .content ol[role=cascade] > li>ol > li>ol > li>ol li {
-    margin-left: 4.4em;
+    margin-left: 4.0em;
 }
 
 .content ol[role=cascade] > li>ol > li>ol > li>ol li::before {
-    width: 4.4em;
-    margin-left: -4.4em;
+    width: 4.0em;
+    margin-left: -4.0em;
 }
 
 
@@ -210,7 +210,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     background-color: rgba(245, 245, 245, 0.7);
     display: inline-block;
     border-radius: 4px;
-    font-size: 9.6pt;
+    font-size: 10pt;
     box-shadow: 1px 1px 4px #bbb;
     min-width: 18em;
 }
@@ -221,6 +221,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     top: 5px;
     left: 20px;
     height: 96%;
+    cursor: default;
 }
 
 /* 目录级联编号 */
@@ -244,16 +245,20 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content nav[role=toc] li {
     margin-top: 1px;
     padding-left: 4px;
+    color: #333;
 }
 .content nav[role=toc] li,
 .content nav[role=toc] h4,
 .content nav[role=toc] a {
-    line-height: 140%;
+    line-height: 150%;
 }
 
 .content nav[role=toc] a {
-    color: #039;
+    color: #36b;
     text-decoration: none;
+}
+.content nav[role=toc] a:visited {
+    color: #386;
 }
 
 .content nav[role=toc] a:hover {
