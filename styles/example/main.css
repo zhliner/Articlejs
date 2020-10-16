@@ -226,7 +226,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 目录级联编号 */
 .content nav[role=toc] > ol[role=cascade] {
-    height: calc(100% - 80px);
+    height: calc(100% - 70px);
     overflow-y: auto;
 }
 
