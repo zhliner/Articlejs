@@ -941,9 +941,8 @@ Object.assign( tQuery, {
 
     /**
      * 文档就绪绑定。
-     * - 可以绑定多个，会按绑定先后逐个调用。
+     * - 可以多次调用，会按绑定的先后逐个执行。
      * - 若文档已载入并且未被hold，会立即执行。
-     *
      * @param  {Function} handle 就绪回调
      * @return {this}
      */
@@ -2758,12 +2757,17 @@ class Table {
 
     /**
      * 获取参考行。
+     * 注记：
+     * 首个表体元素<tbody>可能被清空，从而.rows为空，
+     * 因此从表格元素上获取更可靠。
      * @param  {Element} tbl 表格元素
      * @return {Element|null}
      */
     _basicTR() {
-        let _tsec = this._tbl.tBodies[0] || this._tbl.tFoot;
-        return _tsec && _tsec.rows[0];
+        let _rows = this._tbl.rows,
+            _tr = _rows[ _rows.length - 1 ];
+
+        return _tr.parentElement.tagName === 'THEAD' ? null : _tr;
     }
 
 

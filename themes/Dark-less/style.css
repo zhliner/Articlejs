@@ -55,6 +55,12 @@ aside#help {
 /* [ 操作可视性 ]
  ****************************************************************************/
 
+/* 路径指向 */
+.___Content ._point {
+    background-color: rgba(235,235,235,0.3);
+    background-image: url('images/current.png');
+}
+
 /* 已选取 */
 .___Content ._selected {
     color: #333;
@@ -79,7 +85,7 @@ aside#help {
 
 /* 空元素视觉提示 */
 .___Content main *:empty::before {
-    content: '=== Empty ===';
+    content: '== Empty ==';
     color: darkgray;
     font-style: italic;
 }
@@ -90,12 +96,6 @@ aside#help {
 }
 .___Content main hr:hover {
     min-height: 1.4em;
-}
-
-/* 路径指向 */
-.___Content ._point {
-    background-color: rgba(235,235,235,0.3);
-    background-image: url('images/current.png') !important;
 }
 
 /* 出错警告背影提示 */

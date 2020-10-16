@@ -850,6 +850,20 @@ class NodeVary {
 
 
     /**
+     * 分别内添加。
+     * 遵循编辑器默认的子单元逻辑（迭代插入）。
+     * @param {Element|null} ref 插入参考（兄弟元素）
+     * @param {Element} box 父容器元素
+     * @param {Collector} $data 选取集元素
+     */
+    appends( ref, box, $data ) {
+        $data.forEach(
+            el => children( ref,  box, {}, el )
+        );
+    }
+
+
+    /**
      * 逆序化。
      * 会保持元素原始的位置。
      * @param {[[Element]]} els2 兄弟元素集组
@@ -1185,7 +1199,11 @@ function contentSelect( els, start ) {
 function elementOne( el, meth, clean ) {
     let _old = [...__ESet];
     clean && clean();
-    __Selects[meth](el) !== false && historyPush( new ESEdit(_old, el) );
+
+    if ( __Selects[meth](el) === false ) {
+        return setFocus( el );
+    }
+    historyPush( new ESEdit(_old, el) );
 }
 
 
@@ -2164,6 +2182,12 @@ export function init( content, pathbox, errbox ) {
         // bindevent: true
     });
     $.on( content, varyEvents, null, __TQHistory );
+
+
+    // 内容数据初始处理。
+    // 预存储保留表格列特征。
+    $( 'table' )
+    .forEach( tbl => tableObj(tbl, $.table(tbl)) );
 }
 
 
@@ -2266,6 +2290,7 @@ export const Edit = {
     click( evo, scam ) {
         let _hot = __EHot.get(),
             _el = evo.data;
+
         // 仅聚焦
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
             return setFocus( _el );
@@ -2280,13 +2305,13 @@ export const Edit = {
             let _to = closestFocus( _hot, _el );
             return _to && elementOne( _to, 'turn' );
         }
-        // 父选（单）
-        if ( scamPressed(scam, cfg.Keys.parentSelect) ) {
+        // 父选（聚焦）
+        if ( scamPressed(scam, cfg.Keys.parentFocus) ) {
             let _to = closestParent( _el );
-            return _to && elementOne( _to, 'only' );
+            return _to && setFocus( _to );
         }
-        // 父选（复）
-        if ( scamPressed(scam, cfg.Keys.parentSelects) ) {
+        // 父选（多选/切换）
+        if ( scamPressed(scam, cfg.Keys.parentSelect) ) {
             let _to = closestParent( _el );
             return _to && elementOne( _to, 'turn' );
         }
@@ -2298,23 +2323,17 @@ export const Edit = {
 
 
     /**
-     * [By] 从路径添加关联元素。
-     * 需要检查父子包含关系并清理。
-     * @param {Set} scam 辅助键按下集
+     * [By] 从路径聚焦/选取。
+     * 点击时同时按住多选键即为切换选取。
      */
     pathTo( evo, scam ) {
-        // 冗余：
-        // 单击路径末端已选取时。
-        $.intoView( evo.data, 0 );
-
-        if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
-            return setFocus( evo.data );
+        if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
+            return elementOne( evo.data, 'turn' );
         }
-        elementOne( evo.data, 'add' );
+        setFocus( evo.data );
     },
 
     __pathTo: 1,
-
 
 
     /**
@@ -2925,10 +2944,12 @@ export const Edit = {
         if ( !canAppend(_hot) ) {
             return help( 'cannot_append', _hot );
         }
-        let _old = [...__ESet],
-            _op1 = new DOMEdit( $.empty(_hot) ),
-            _op2 = new ESEdit( _old, _hot ),
-            _op3 = new DOMEdit( () => children(null, _hot, {}, $els) ),
+        if ( __Selects.only(_hot) === false ) {
+            return;
+        }
+        let _op1 = new DOMEdit( () => $.empty(_hot) ),
+            _op2 = new ESEdit( $els, _hot ),
+            _op3 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els) ),
             // 可能是提取了子单元。
             _op4 = new DOMEdit( () => $els.remove() );
 
@@ -2952,10 +2973,12 @@ export const Edit = {
         if ( !canAppend(_hot) ) {
             return help( 'cannot_append', _hot );
         }
-        let _old = [...__ESet],
-            _op1 = new DOMEdit( $.empty(_hot) ),
-            _op2 = new ESEdit( _old, _hot ),
-            _op3 = new DOMEdit( () => children(null, _hot, {}, $els.clone()) );
+        if ( __Selects.only(_hot) === false ) {
+            return;
+        }
+        let _op1 = new DOMEdit( () =>$.empty(_hot) ),
+            _op2 = new ESEdit( $els, _hot ),
+            _op3 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els.clone()) );
 
         historyPush( _op1, _op2, _op3 );
     },

@@ -790,7 +790,7 @@ Keys: {
     turnSelect: 'Ctrl',
 
     // 仅聚焦。
-    // 单纯的设置元素为焦点元素（不选取）。
+    // 单纯的设置元素为焦点元素。
     // [Key] + 单击
     elemFocus: 'Alt',
 
@@ -807,15 +807,15 @@ Keys: {
     smartSelect: 'Ctrl Shift',
 
 
-    // 父选（切换）。
+    // 父选（聚焦）。
     // 定位：目标元素的父元素。
     // [Key] + 单击
-    parentSelects: 'Alt Ctrl',
+    parentFocus: 'Alt Shift',
 
-    // 父选（单选）。
+    // 父选（多选/切换）。
     // 定位：目标元素的父元素。
     // [Key] + 单击
-    parentSelect: 'Alt Shift',
+    parentSelect: 'Alt Ctrl',
 
 
     // 微编辑同类行创建辅助。
