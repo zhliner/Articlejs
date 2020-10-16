@@ -54,7 +54,11 @@
             <h3>【目 录】</h3>
             <!-- On: 单击子表标题（非<a>）折叠切换 -->
             <ol role="cascade"
-                on="click(~h4)|evo(2) parent fold(2)">
+                on="mouseenter|('auto');
+                    mouseleave|('hidden');
+                    click(~h4)|evo(2) parent fold(2)"
+                to="|css('overflow-y');
+                    |css('overflow-y')">
                 <li>
                     <h4><a href="#层次">层次</a></h4>
                     <ol>

@@ -819,12 +819,12 @@ Keys: {
 
 
     // 微编辑同类行创建辅助。
-    // 仅支持：<li>, <dt>, <dd> 和 <p:...> 系列。
+    // 支持：<li>, <dt>, <dd> 和 <p:...> 系列。
     miniedSameLine: 'Ctrl',
 
     // 微编辑逻辑行创建辅助。
-    // 支持 <dt> ~ <dd>。
-    // 注：暂不支持 <td|th> ~ <tr>
+    // 支持 <dt> ~ <dd>, <h3> ~ <p> 等。
+    // 注：不支持 <td|th> ~ <tr>
     miniedLogicLine: 'Alt',
 
 },

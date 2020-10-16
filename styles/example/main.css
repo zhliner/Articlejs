@@ -258,7 +258,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     text-decoration: none;
 }
 .content nav[role=toc] a:visited {
-    color: #386;
+    color: #398;
 }
 
 .content nav[role=toc] a:hover {
