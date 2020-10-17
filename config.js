@@ -94,7 +94,7 @@ export const Help = {
     'only_child': [
         'edit:onlyone',
         '只能作为唯一子元素存在'
-    ]
+    ],
 
 };
 

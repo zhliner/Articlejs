@@ -306,19 +306,23 @@ const Children = {
 
     /**
      * 单元格已经存在。
-     * 单元格数据取各内容根内容。
+     * 容错表格行被清空的情况。
      * 注记：
      * 友好非同类表格行，其它单元也可较好转换。
      * @param {null} ref 插入参考（占位）
      * @param {Element} tr 表格行元素
-     * @param {Element|Value} 表格行数据
+     * @param {Element|Value|[Value]} 表格行数据
      */
     [ T.TR ]: function( ref, tr, _, data ) {
         let $els = $( tr.cells );
 
+        if ( $els.length === 0 ) {
+            $els = $( appendCells(tr) );
+        }
         if ( !data || !data.nodeType ) {
             return result( null, $els );
         }
+        // 单元素取各内容根。
         $els.append(
             contentBoxes(data).map( el => $.contents(el) )
         );
@@ -345,7 +349,7 @@ const Children = {
         if ( th0 && _tbo.rows() > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
-        return result( null, _new, !_new );
+        return result( null, _new || data, !_new );
     },
 
 
@@ -363,7 +367,7 @@ const Children = {
             data,
             true
         );
-        return result( null, _new, !_new );
+        return result( null, _new || data, !_new );
     },
 
 
@@ -380,7 +384,7 @@ const Children = {
             foot,
             data
         );
-        return result( null, _new, !_new );
+        return result( null, _new || data, !_new );
     },
 
 
@@ -388,9 +392,7 @@ const Children = {
      * 级联表标题项。
      * 如果没有传递 h4，取<li>容器内容创建。
      * 如果传递了 h4，原<li>内容会被清空丢弃。
-     * 子列表有则插入，不支持自动递进（不确定为OL或UL）。
-     * 注记：
-     * 子列表只能由既有的列表传入构建。
+     * 注：非子表数据默认创建<ul>子表。
      * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项元素
      * @param {String|Node|[Node]} h4 标题内容
@@ -400,14 +402,14 @@ const Children = {
         if ( !data ) {
             return result( null, data, true );
         }
-        let _h4 = $.empty( li );
-
-        return result(
-            insertHeading( li, T.H4, h4 || _h4 ),
-            // 合法插入时返回供选取。
-            appendChild(ref, li, data) === null && data,
-            true
-        );
+        let _h4 = $.empty( li ),
+            _ul = appendChild(
+                ref,
+                li,
+                data,
+                () => elem( T.UL )
+            );
+        return result( insertHeading( li, T.H4, h4 || _h4 ), _ul || data, !_ul );
     },
 
 
@@ -426,7 +428,7 @@ const Children = {
                 ref,
                 li,
                 data,
-                () => elem(T.OL)
+                () => elem( T.OL )
             );
         return result( insertHeading(li, T.H4, h4 || _h4), _ol || data, !_ol );
     },
@@ -1271,6 +1273,20 @@ function appendRow( tbo, ref, tsec, row, head ) {
     }
     tbo.insertTR( row, _idx, tsec );
     return null;
+}
+
+
+/**
+ * 补足缺失的单元格。
+ * 注记：如填充操作会移除单元格。
+ * @param  {Element} tr 表格行元素
+ * @return {[Element]} 添加的单元格序列
+ */
+function appendCells( tr ) {
+    let _sec = tr.parentElement,
+        _tbo = tableObj( _sec.parentElement );
+
+    return $.append( tr, _tbo.newTR(_sec.tagName === 'THEAD').children );
 }
 
 

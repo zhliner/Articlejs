@@ -277,21 +277,19 @@ class ESEdit {
 
     /**
      * 撤销选取。
-     * 先移除新添加的，然后添加被移除的。
      */
     undo() {
         setFocus( this._el0 );
-        __ESet.removes( this._els ).pushes( this._old );
+        __ESet.clear().pushes( this._old );
     }
 
 
     /**
      * 重新选取。
-     * 先移除需要移除的，然后添加新添加的。
      */
     redo() {
         setFocus( this._el1 );
-        __ESet.removes( this._old ).pushes( this._els );
+        __ESet.clear().pushes( this._els );
     }
 }
 
@@ -868,6 +866,7 @@ class NodeVary {
     /**
      * 分别内添加。
      * 遵循编辑器默认的子单元逻辑（迭代插入）。
+     * 焦点移动到首个成员（友好）。
      * 注记：
      * 从内部添加选取，因为每次redo都会再执行一次。
      * @param {Element|null} ref 插入参考（兄弟元素）
@@ -875,10 +874,12 @@ class NodeVary {
      * @param {Collector} $data 选取集元素
      */
     appends( ref, box, $data ) {
-        let _els = $data.map(
-                el => children( ref,  box, {}, el )
-            );
-        __Selects.update( _els.flat() );
+        let _els = $data
+            .map( el => children(ref,  box, {}, el) )
+            .flat();
+
+        setFocus( _els[0] );
+        __Selects.update( _els );
     }
 
 
@@ -1299,8 +1300,8 @@ function elementsEmpty( els ) {
  * @param  {Value|[Value]} data 数据（集）
  * @return {DOMEdit|null} 操作实例
  */
-function elementsFill( els, data ) {
-    return els.length > 0 && new DOMEdit( () => $(els).fill(data) );
+function textAppend( els, data ) {
+    return els.length > 0 && new DOMEdit( () => $(els).append(data) );
 }
 
 
@@ -1316,15 +1317,83 @@ function elementsFill( els, data ) {
  * @param  {[Value]} data 数据组（1维）
  * @return {[DOMEdit]} 操作实例集
  */
-function elementsFill2( els2, data ) {
+function textAppend2( els2, data ) {
     if ( els2.length === 1 ) {
         // 值为一体。
-        return [elementsFill( els2[0], data.join(' ') )];
+        return [ textAppend(els2[0], data.join(' ')) ];
     }
-    if ( typeof data === 'string' ) {
-        data = new Array(els2.length).fill( data );
+    if ( data.length === 1 ) {
+        data = new Array(els2.length).fill( data[0] );
     }
-    return els2.map( (els, i) => elementsFill(els, data[i]) );
+    return els2.map( (els, i) => textAppend(els, data[i]) );
+}
+
+
+/**
+ * 移动内添加操作。
+ * 检查：
+ * - 焦点元素不可选取。
+ * - 选取元素必须为可删除。
+ * - 目标可以向内添加内容。
+ * @param  {Collector} $els 数据元素集
+ * @param  {Element} to 目标容器元素
+ * @param  {Element} ref 同级参考元素
+ * @param  {Boolean} empty 是否清空容器
+ * @return {Instance} 操作实例集
+ */
+function moveAppend( $els, to, ref, empty ) {
+    if ( !$els.length || !to ) {
+        return;
+    }
+    if ( __ESet.has(to) ) {
+        return help( 'cannot_selected', to );
+    }
+    if ( !$els.every(canDelete) ) {
+        return help('has_cannot_del', deleteBadit($els));
+    }
+    if ( !canAppend(to) ) {
+        return help( 'cannot_append', to );
+    }
+    // 先取消。appends内部有添加。
+    __Selects.empty();
+
+    return [
+        new ESEdit( $els, to ),
+        empty && new DOMEdit( () => $.empty(to) ),
+        new DOMEdit( () => __Elemedit.appends(ref, to, $els) )
+    ];
+}
+
+
+/**
+ * 克隆内添加操作。
+ * 检查：
+ * - 单选取自我填充忽略。
+ * - 目标可以向内添加内容。
+ * @param  {Collector} $els 数据元素集
+ * @param  {Element} to 目标容器元素
+ * @param  {Element} ref 同级参考元素
+ * @param  {Boolean} empty 是否清空容器
+ * @return {Instance} 操作实例集
+ */
+function cloneAppend( $els, to, ref, empty ) {
+    if ( !$els.length || !to ) {
+        return;
+    }
+    // 自我填充。
+    if ( __ESet.size === 1 && __ESet.has(to) ) {
+        return;
+    }
+    if ( !canAppend(to) ) {
+        return help( 'cannot_append', to );
+    }
+    __Selects.empty();
+
+    return [
+        new ESEdit( $els, to ),
+        empty && new DOMEdit( () => $.empty(to) ),
+        new DOMEdit( () => __Elemedit.appends(ref, to, $els.clone()) )
+    ];
 }
 
 
@@ -2962,75 +3031,55 @@ export const Edit = {
     /**
      * 向内填充（移动）。
      * 遵循编辑器默认的内插入逻辑（逐层测试构建）。
-     * 检查：
-     * - 焦点元素不可选取。
-     * - 选取元素必须为可删除。
-     * - 目标可以向内添加内容。
      */
     elementFill() {
-        let $els = $( __ESet ),
-            _hot = __EHot.get();
-
-        if ( !$els.length || !_hot ) {
-            return;
-        }
-        if ( __ESet.has(_hot) ) {
-            return help( 'cannot_selected', _hot );
-        }
-        if ( !$els.every(canDelete) ) {
-            return help( 'has_cannot_del', deleteBadit($els) );
-        }
-        if ( !canAppend(_hot) ) {
-            return help( 'cannot_append', _hot );
-        }
-        if ( __Selects.empty() === false ) {
-            return;
-        }
-        let _op0 = new ESEdit( $els, _hot ),
-            _op1 = new DOMEdit( () => $.empty(_hot) ),
-            _op2 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els) ),
-            // 可能是提取了子单元。
-            _op3 = new DOMEdit( () => $els.remove() );
-
-        historyPush( _op0, _op1, _op2, _op3 );
+        let _ops = moveAppend(
+                $( __ESet ),
+                __EHot.get(),
+                null,
+                true
+            );
+        if ( _ops ) historyPush( ..._ops );
     },
 
 
     /**
      * 向内填充（克隆）。
-     * 遵循编辑器默认的内插入逻辑。
-     * 克隆的节点为游离态，内容提取不会被记录。
-     * 检查：
-     * 目标可以向内添加内容。
      */
     elementCloneFill() {
-        let $els = $( __ESet ),
-            _hot = __EHot.get();
-
-        if ( !$els.length || !_hot ) {
-            return;
-        }
-        if ( !canAppend(_hot) ) {
-            return help( 'cannot_append', _hot );
-        }
-        if ( __Selects.only(_hot) === false ) {
-            return;
-        }
-        let _op0 = new ESEdit( $els, _hot ),
-            _op1 = new DOMEdit( () =>$.empty(_hot) ),
-            _op2 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els.clone()) );
-
-        historyPush( _op0, _op1, _op2 );
+        let _ops = cloneAppend(
+                $(__ESet),
+                __EHot.get(),
+                null,
+                true
+            );
+        if ( _ops ) historyPush( ..._ops );
     },
 
 
+    /**
+     * 向内末尾添加（移动）。
+     */
     elementAppend() {
-        //
+        let _ops = moveAppend(
+                $( __ESet ),
+                __EHot.get(),
+                null
+            );
+        if ( _ops ) historyPush( ..._ops );
     },
 
 
+    /**
+     * 向内末尾添加（克隆）。
+     */
     elementCloneAppend() {
-        //
+        let _ops = cloneAppend(
+                $(__ESet),
+                __EHot.get(),
+                null
+            );
+        if ( _ops ) historyPush( ..._ops );
     },
 
 
@@ -3239,7 +3288,7 @@ export const Edit = {
      * 粘贴：
      * 以剪贴板内容里的换行为切分，添加内容到选取集元素内的根内容元素里。
      * 内容分组与选取集成员一一对应，多出的内容或目标简单忽略。
-     * 如果选取的目标只有一个，则源数据集视为一个整体粘贴或复制粘贴（多个内容根）。
+     * 如果选取的目标只有一个，则源数据集视为一个整体粘贴或复制粘贴（多个内容根时）。
      * 注记：
      * 此处填充规则稍为复杂故定制（不宜直接使用 OBT:To.Update）。
      *
@@ -3251,11 +3300,10 @@ export const Edit = {
      */
     paste( evo ) {
         let _con2 = [...__ESet].map( el => contentBoxes(el) ),
-            _cons = _con2.flat(),
-            _data = evo.data.length === 1 ? evo.data[0] : evo.data;
+            _cons = _con2.flat();
 
         if ( _cons.length ) {
-            historyPush( cleanHot(_cons), ...elementsFill2(_con2, _data) );
+            historyPush( cleanHot(_cons), ...textAppend2(_con2, evo.data) );
         }
     },
 

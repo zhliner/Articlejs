@@ -187,7 +187,7 @@ export class EHot {
      * @return {void}
      */
     _set( el ) {
-        if ( el === null ) {
+        if ( el == null ) {
             return this.cancel();
         }
         if ( this._its ) {

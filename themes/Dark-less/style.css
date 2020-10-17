@@ -89,8 +89,9 @@ aside#help {
     color: darkgray;
     font-style: italic;
 }
-
-/* 分隔优化 */
+.___Content main tr >*:empty::before {
+    font-size: 8px;
+}
 .___Content main hr::before {
     display: none;
 }

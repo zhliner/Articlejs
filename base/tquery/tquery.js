@@ -2767,7 +2767,7 @@ class Table {
         let _rows = this._tbl.rows,
             _tr = _rows[ _rows.length - 1 ];
 
-        return _tr.parentElement.tagName === 'THEAD' ? null : _tr;
+        return _tr && _tr.parentElement.tagName !== 'THEAD' ? _tr : null;
     }
 
 
