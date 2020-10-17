@@ -695,8 +695,12 @@ menu li[data-pbo=disabled]:hover {
     color: #fff;
     background-color: #066375;
 }
-.___Content ._path b:last-child {
+.___Content ._path b._press {
     font-weight: bold;
+    color: #fff;
+    background-color: #0e7b4f;
+}
+.___Content ._path b:last-child {
     color: #fff;
     background-color: #45a5b8;
 }

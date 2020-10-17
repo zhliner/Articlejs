@@ -222,7 +222,9 @@ class DOMEdit {
         this._func = handle;
 
         // 外部只读
+        this.data = null;
         this.count = null;
+
         this.redo();
     }
 
@@ -242,7 +244,7 @@ class DOMEdit {
     redo() {
         let _old = __TQHistory.size();
 
-        this._func();
+        this.data = this._func();
         this.count = __TQHistory.size() - _old;
 
         updateFocus();
@@ -637,6 +639,20 @@ class ElemSels {
 
 
     /**
+     * 更新选取集。
+     * 清除全部旧的已选取。
+     * 外部保证新元素集无父子关系。
+     * @param {[Element]} els 新元素集
+     */
+    update( els ) {
+        if ( this._set.size > 0 ) {
+            this._set.clear();
+        }
+        this._set.pushes( els );
+    }
+
+
+    /**
      * 普通添加。
      * 会检查父子包含关系并清理。
      * 如果已经选取则无行为。
@@ -852,14 +868,17 @@ class NodeVary {
     /**
      * 分别内添加。
      * 遵循编辑器默认的子单元逻辑（迭代插入）。
+     * 注记：
+     * 从内部添加选取，因为每次redo都会再执行一次。
      * @param {Element|null} ref 插入参考（兄弟元素）
      * @param {Element} box 父容器元素
      * @param {Collector} $data 选取集元素
      */
     appends( ref, box, $data ) {
-        $data.forEach(
-            el => children( ref,  box, {}, el )
-        );
+        let _els = $data.map(
+                el => children( ref,  box, {}, el )
+            );
+        __Selects.update( _els.flat() );
     }
 
 
@@ -1054,7 +1073,8 @@ function linkElem( to, src ) {
     if ( src === undefined ) {
         return to[ __linkElem ];
     }
-    return to[ __linkElem ] = src, to;
+    to[ __linkElem ] = src;
+    return to;
 }
 
 
@@ -1106,6 +1126,17 @@ function setFocus( el ) {
  */
 function updateFocus( hot = __EHot.get() ) {
     __ESet.has( hot ) && setFocus( hot );
+}
+
+
+/**
+ * 路径聚焦。
+ * 单击路径段设置对应元素为焦点。
+ * @param {Element} hot 焦点元素
+ */
+function pathFocus( hot ) {
+    $.intoView( hot, 0 );
+    return __EHot.set( hot );
 }
 
 
@@ -2328,9 +2359,10 @@ export const Edit = {
      */
     pathTo( evo, scam ) {
         if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
-            return elementOne( evo.data, 'turn' );
+            elementOne( evo.data, 'turn' );
+        } else {
+            pathFocus( evo.data );
         }
-        setFocus( evo.data );
     },
 
     __pathTo: 1,
@@ -2930,6 +2962,10 @@ export const Edit = {
     /**
      * 向内填充（移动）。
      * 遵循编辑器默认的内插入逻辑（逐层测试构建）。
+     * 检查：
+     * - 焦点元素不可选取。
+     * - 选取元素必须为可删除。
+     * - 目标可以向内添加内容。
      */
     elementFill() {
         let $els = $( __ESet ),
@@ -2941,27 +2977,31 @@ export const Edit = {
         if ( __ESet.has(_hot) ) {
             return help( 'cannot_selected', _hot );
         }
+        if ( !$els.every(canDelete) ) {
+            return help( 'has_cannot_del', deleteBadit($els) );
+        }
         if ( !canAppend(_hot) ) {
             return help( 'cannot_append', _hot );
         }
-        if ( __Selects.only(_hot) === false ) {
+        if ( __Selects.empty() === false ) {
             return;
         }
-        let _op1 = new DOMEdit( () => $.empty(_hot) ),
-            _op2 = new ESEdit( $els, _hot ),
-            _op3 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els) ),
+        let _op0 = new ESEdit( $els, _hot ),
+            _op1 = new DOMEdit( () => $.empty(_hot) ),
+            _op2 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els) ),
             // 可能是提取了子单元。
-            _op4 = new DOMEdit( () => $els.remove() );
+            _op3 = new DOMEdit( () => $els.remove() );
 
-        historyPush( _op1, _op2, _op3, _op4 );
+        historyPush( _op0, _op1, _op2, _op3 );
     },
 
 
     /**
      * 向内填充（克隆）。
      * 遵循编辑器默认的内插入逻辑。
-     * 注记：
      * 克隆的节点为游离态，内容提取不会被记录。
+     * 检查：
+     * 目标可以向内添加内容。
      */
     elementCloneFill() {
         let $els = $( __ESet ),
@@ -2976,11 +3016,11 @@ export const Edit = {
         if ( __Selects.only(_hot) === false ) {
             return;
         }
-        let _op1 = new DOMEdit( () =>$.empty(_hot) ),
-            _op2 = new ESEdit( $els, _hot ),
-            _op3 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els.clone()) );
+        let _op0 = new ESEdit( $els, _hot ),
+            _op1 = new DOMEdit( () =>$.empty(_hot) ),
+            _op2 = new DOMEdit( () => __Elemedit.appends(null, _hot, $els.clone()) );
 
-        historyPush( _op1, _op2, _op3 );
+        historyPush( _op0, _op1, _op2 );
     },
 
 
@@ -3365,7 +3405,7 @@ export const Kit = {
      * @return {Element}
      */
     source( box ) {
-        return box[ __linkElem ];
+        return linkElem( box );
     },
 
 

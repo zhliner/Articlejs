@@ -1612,7 +1612,7 @@ function build( el, opts, data, more ) {
  * @param  {Element|null} box 父容器元素
  * @param  {Object} opts 子元素特性配置集
  * @param  {Node|[Node]|[String]} cons 内容数据
- * @return {[Element]} 构建的子元素集
+ * @return {[Element]} 构建的子元素集（首层）
  */
 function children( ref, box, opts, cons ) {
     let _tv = getType( box ),

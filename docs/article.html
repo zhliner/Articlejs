@@ -52,9 +52,9 @@
         <nav role="toc"
             on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>【目 录】</h3>
-            <!-- On: 单击子表标题（非<a>）折叠切换 -->
+            <!-- click 子表标题（非<a>）折叠切换 -->
             <ol role="cascade"
-                on="mouseenter|('scroll');
+                on="mouseenter|('auto');
                     mouseleave|('hidden');
                     click(~h4)|evo(2) parent fold(2)"
                 to="|css('overflow-y');

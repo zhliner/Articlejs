@@ -628,8 +628,8 @@
             varyempty;
             click(b:last-child)|env('minied') pass (Kit) evo(2) call('source', _1) intoView(2);
             toggle|evo(3) hide(2)"
-        by="Ed.pathTo(_1)"
-        to="#g-count|trigger('reset')|fire('body', 'focus.content');
+        by="Ed.pathTo(_1) $$('/b')"
+        to="=|only('_press')|fire('body', 'focus.content');
             -|addClass;
             -|removeClass;
             /b:hover|trigger('mouseleave', true)">
