@@ -218,8 +218,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content nav[role=toc] {
     position: fixed;
     top: 5px;
-    left: 20px;
-    height: 96%;
+    left: 24px;
+    box-sizing: border-box;
+    height: 98%;
     cursor: default;
 }
 
