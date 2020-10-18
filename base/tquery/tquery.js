@@ -1123,6 +1123,21 @@ Object.assign( tQuery, {
 
 
     /**
+     * 获取前一个非空节点。
+     * @param  {Node} node 起始节点
+     * @param  {Boolean} comment 是否包含注释，可选
+     * @return {Node|null}
+     */
+    prevNode( node, comment ) {
+        return _sibling2(
+            node,
+            comment ? usualNode : masterNode,
+            'previousSibling'
+        );
+    },
+
+
+    /**
      * 获取起始节点之前的兄弟节点。
      * 仅包含元素、非空文本节点和可能的注释节点。
      * @param  {Node} node 起始节点
@@ -1177,6 +1192,21 @@ Object.assign( tQuery, {
      */
     nextUntil( el, slr = '' ) {
         return _siblingUntil(el, slr, 'nextElementSibling');
+    },
+
+
+    /**
+     * 获取下一个非空节点。
+     * @param  {Node} node 起始节点
+     * @param  {Boolean} comment 是否包含注释，可选
+     * @return {Node|null}
+     */
+    nextNode( node, comment ) {
+        return _sibling2(
+            node,
+            comment ? usualNode : masterNode,
+            'nextSibling'
+        );
     },
 
 
@@ -3747,6 +3777,8 @@ elsEx([
 elsEx([
         'next',
         'prev',
+        'nextNode',
+        'prevNode',
         'parent',
         'closest',
         'offsetParent',

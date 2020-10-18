@@ -418,9 +418,14 @@ option: {
 > 结果集会保持DOM的逆向顺序（即：靠近 `el` 的元素在前）。
 
 
+### $.prevNode( node, comment? ): Node
+
+获取 `node` 节点之前一个兄弟节点：包含元素、非空文本节点和可选的注释节点。
+
+
 ### $.prevNodes( node, comment? ): [Node]
 
-获取 `node` 节点之前的兄弟节点集。包含元素、非空文本节点和可选的注释节点。
+获取 `node` 节点之前的兄弟节点集：包含元素、非空文本节点和可选的注释节点。
 
 
 ### [$.next( el, slr, until ): Element | null](docs/$.next.md)
@@ -461,9 +466,14 @@ option: {
 始终会返回一个数组，如果最开始的下一个元素就匹配或为 `null`，会返回一个空数组。匹配测试函数接口为：`function( el:Element, i:Number ): Boolean`，`i` 为后续元素顺序计数（从 `el` 开始计数为 `0`）。
 
 
+### $.nextNode( node, comment? ): Node
+
+获取 `node` 节点之后下一个兄弟节点：包含元素、非空文本节点和可选的注释节点。
+
+
 ### $.nextNodes( node, comment? ): [Node]
 
-获取 `node` 节点之后的兄弟节点集。包含元素、非空文本节点和可选的注释节点。
+获取 `node` 节点之后的兄弟节点集：包含元素、非空文本节点和可选的注释节点。
 
 
 ### [$.children( el, slr ): [Element] | Element](docs/$.children.md)
