@@ -12,8 +12,8 @@
  *
  *  @author 风林 zhliner@gmail.com
  *
- *****************************************************************************/
-
+ ******************************************************************************
+ */
 
 *[data-pbo] {
     opacity: 1;
@@ -68,3 +68,18 @@
     height: 100%;
     box-sizing: border-box;
 }
+
+
+
+/* 绝对定位：
+ * - 通过 top, left 设置准确位置。
+ * - 参考四角设置 margin-x 调整边沿。
+ *-------------------------------------
+ */
+[data-pba|=fix] {
+    position: absolute;
+}
+[data-pba=fix-lt] { left: 0; top: 0; }     /* 左上 */
+[data-pba=fix-rt] { right: 0; top: 0; }    /* 右上 */
+[data-pba=fix-rb] { right: 0; bottom: 0; } /* 右下 */
+[data-pba=fix-lb] { left: 0; bottom: 0; }  /* 左下 */

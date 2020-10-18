@@ -871,10 +871,12 @@ const Children = {
     /**
      * 到内容元素后会终止向下迭代。
      * 可能有游离文本节点，需要规范化（就近处理）。
-     * 返回内容元素自身而非插入的子节点。
-     * @param {Element|null} ref 插入参考子元素
-     * @param {Element} el 内容根元素
-     * @param {String|Node|Array} data 内容数据
+     * 注记：
+     * 因为需要规范化内容，所以返回的是容器元素本身。
+     * @param  {Element|null} ref 插入参考子元素
+     * @param  {Element} el 内容根元素
+     * @param  {String|Node|Array} data 内容数据
+     * @return {Element} el
      */
     Children[ its ] = function( ref, el, _, data ) {
         let _tv = getType( el );

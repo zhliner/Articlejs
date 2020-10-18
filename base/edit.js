@@ -21,7 +21,7 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
-import { ESet, EHot, ECursor, prevNode, nextNode, elem2Swap } from './common.js';
+import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap } from './common.js';
 import { children, create, tocList } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -910,9 +910,9 @@ class NodeVary {
     movePrev( els2, n ) {
         for ( const els of els2 ) {
             if ( n === 0 ) {
-                $.before( prevNode(els[0], Infinity), els );
+                $.before( prevNodeN(els[0], Infinity), els );
             } else {
-                els.forEach( el => $.before(prevNode(el, n), el) );
+                els.forEach( el => $.before(prevNodeN(el, n), el) );
             }
         }
     }
@@ -928,10 +928,10 @@ class NodeVary {
     moveNext( els2, n ) {
         for ( const els of els2 ) {
             if ( n === 0 ) {
-                $.after( nextNode(last(els), Infinity), els );
+                $.after( nextNodeN(last(els), Infinity), els );
             } else {
                 els.reverse()
-                .forEach( el => $.after(nextNode(el, n), el) );
+                .forEach( el => $.after(nextNodeN(el, n), el) );
             }
         }
     }
@@ -1337,19 +1337,19 @@ function textAppend2( els2, data ) {
  * - 目标可以向内添加内容。
  * @param  {Collector} $els 数据元素集
  * @param  {Element} to 目标容器元素
- * @param  {Element} ref 同级参考元素
- * @param  {Boolean} empty 是否清空容器
+ * @param  {Element} ref 同级参考元素，可选
+ * @param  {Boolean} empty 是否清空容器，可选
  * @return {Instance} 操作实例集
  */
 function moveAppend( $els, to, ref, empty ) {
-    if ( !$els.length || !to ) {
+    if ( !$els.length ) {
         return;
     }
     if ( __ESet.has(to) ) {
         return help( 'cannot_selected', to );
     }
     if ( !$els.every(canDelete) ) {
-        return help('has_cannot_del', deleteBadit($els));
+        return help( 'has_cannot_del', deleteBadit($els) );
     }
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
@@ -1372,15 +1372,15 @@ function moveAppend( $els, to, ref, empty ) {
  * - 目标可以向内添加内容。
  * @param  {Collector} $els 数据元素集
  * @param  {Element} to 目标容器元素
- * @param  {Element} ref 同级参考元素
- * @param  {Boolean} empty 是否清空容器
+ * @param  {Element} ref 同级参考元素，可选
+ * @param  {Boolean} empty 是否清空容器，可选
  * @return {Instance} 操作实例集
  */
 function cloneAppend( $els, to, ref, empty ) {
-    if ( !$els.length || !to ) {
+    if ( !$els.length ) {
         return;
     }
-    // 自我填充。
+    // 自我填充
     if ( __ESet.size === 1 && __ESet.has(to) ) {
         return;
     }
@@ -3033,12 +3033,11 @@ export const Edit = {
      * 遵循编辑器默认的内插入逻辑（逐层测试构建）。
      */
     elementFill() {
-        let _ops = moveAppend(
-                $( __ESet ),
-                __EHot.get(),
-                null,
-                true
-            );
+        let _box = __EHot.get();
+        if ( !_box ) return;
+
+        let _ops = moveAppend( $(__ESet), _box, null, true );
+
         if ( _ops ) historyPush( ..._ops );
     },
 
@@ -3047,12 +3046,11 @@ export const Edit = {
      * 向内填充（克隆）。
      */
     elementCloneFill() {
-        let _ops = cloneAppend(
-                $(__ESet),
-                __EHot.get(),
-                null,
-                true
-            );
+        let _box = __EHot.get();
+        if ( !_box ) return;
+
+        let _ops = cloneAppend( $(__ESet), _box, null, true );
+
         if ( _ops ) historyPush( ..._ops );
     },
 
@@ -3061,11 +3059,11 @@ export const Edit = {
      * 向内末尾添加（移动）。
      */
     elementAppend() {
-        let _ops = moveAppend(
-                $( __ESet ),
-                __EHot.get(),
-                null
-            );
+        let _box = __EHot.get();
+        if ( !_box ) return;
+
+        let _ops = moveAppend( $(__ESet), _box );
+
         if ( _ops ) historyPush( ..._ops );
     },
 
@@ -3074,32 +3072,76 @@ export const Edit = {
      * 向内末尾添加（克隆）。
      */
     elementCloneAppend() {
-        let _ops = cloneAppend(
-                $(__ESet),
-                __EHot.get(),
-                null
+        let _box = __EHot.get();
+        if ( !_box ) return;
+
+        let _ops = cloneAppend( $(__ESet), _box );
+
+        if ( _ops ) historyPush( ..._ops );
+    },
+
+
+    /**
+     * 同级前插入（移动）。
+     */
+    elementBefore() {
+        let _to = __EHot.get();
+        if ( !_to ) return;
+
+        let _ops = moveAppend(
+                $( __ESet ),
+                _to.parentElement,
+                _to
             );
         if ( _ops ) historyPush( ..._ops );
     },
 
 
-    elementBefore() {
-        //
-    },
-
-
+    /**
+     * 同级前插入（克隆）。
+     */
     elementCloneBefore() {
-        //
+        let _to = __EHot.get();
+        if ( !_to ) return;
+
+        let _ops = cloneAppend(
+                $(__ESet),
+                _to.parentElement,
+                _to
+            );
+        if ( _ops ) historyPush( ..._ops );
     },
 
 
+    /**
+     * 同级后插入（移动）。
+     */
     elementAfter() {
-        //
+        let _to = __EHot.get();
+        if ( !_to ) return;
+
+        let _ops = moveAppend(
+                $( __ESet ),
+                _to.parentElement,
+                $.nextNode( _to )
+            );
+        if ( _ops ) historyPush( ..._ops );
     },
 
 
+    /**
+     * 同级后插入（克隆）。
+     */
     elementCloneAfter() {
-        //
+        let _to = __EHot.get();
+        if ( !_to ) return;
+
+        let _ops = cloneAppend(
+                $( __ESet ),
+                _to.parentElement,
+                $.nextNode( _to )
+            );
+        if ( _ops ) historyPush( ..._ops );
     },
 
 
@@ -3122,7 +3164,7 @@ export const Edit = {
 
         n = isNaN(n) ? 1 : n;
 
-        if ( n < 0 || !$els.length || (prevNode(_beg, n) === _beg && n > 0) ) {
+        if ( n < 0 || !$els.length || (prevNodeN(_beg, n) === _beg && n > 0) ) {
             return;
         }
         if ( $els.some(isFixed) ) {
@@ -3146,7 +3188,7 @@ export const Edit = {
 
         n = isNaN(n) ? 1 : n;
 
-        if ( n < 0 || !$els.length || (nextNode(_beg, n) === _beg && n > 0) ) {
+        if ( n < 0 || !$els.length || (nextNodeN(_beg, n) === _beg && n > 0) ) {
             return;
         }
         if ( $els.some(isFixed) ) {

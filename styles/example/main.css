@@ -1,5 +1,5 @@
 /*! example.css 2019.11.16 Articlejs.Style $
- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ +++++++++++++++++++++++++++++++++++++++++++++
  *
  *  基本样式的格式示例，
  *  其它样式可据此结构修改创建。
@@ -10,7 +10,6 @@
  *****************************************************************************/
 
 
-/* block */
 main, header, section, footer, article, figure, figcaption, hgroup, aside, details {
     display: block;
 }
@@ -423,25 +422,15 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     display: inline-block;
 }
 
-/* 绝对定位：
- * 通过 top, left 设置准确位置。
- * 参考四角设置 margin-x 调整边沿。
- *-------------------------------------
- */
-.content figure i[class|=fix] {
-    position: absolute;
-    background-color: rgba(102, 102, 102, 0.3);
-    z-index: 1;
+.content figure i[data-pba|=fix] {
     max-width: 180px;
     padding: 10px;
     border-radius: 5px;
+    z-index: 1;
+    background-color: rgba(102, 102, 102, 0.3);
     /* 配合图片边框 */
     margin: 2px;
 }
-.content figure i.fix-lt { left: 0; top: 0; }     /* 左上 */
-.content figure i.fix-rt { right: 0; top: 0; }    /* 右上 */
-.content figure i.fix-rb { right: 0; bottom: 0; } /* 右下 */
-.content figure i.fix-lb { left: 0; bottom: 0; }  /* 左下 */
 
 
 /* 引用块

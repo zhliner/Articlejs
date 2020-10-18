@@ -699,11 +699,11 @@ menu li[data-pbo=disabled]:hover {
 .___Content ._path b._press {
     font-weight: bold;
     color: #fff;
-    background-color: #0e7b4f;
+    background-color: #2d7000;
 }
 .___Content ._path b:last-child {
     color: #fff;
-    background-color: #45a5b8;
+    background-color: #3e9aa3;
 }
 
 .___Content > ._scroll {
@@ -742,7 +742,7 @@ menu li[data-pbo=disabled]:hover {
     background-color: #f6f6f6;
 }
 .___Content menu._cells > li {
-    padding: 4px 10px 3px 26px;
+    padding: 3px 10px 3px 26px;
     display: grid;
     grid-template-columns: 2fr 1fr;
     border: 0 #bbb solid;
@@ -767,7 +767,7 @@ menu li[data-pbo=disabled]:hover {
     background-color: #eeeeed;
 }
 .___Content menu._cmenu > li {
-    padding: 3px 12px 4px;
+    padding: 2px 12px 3px;
     display: grid;
     grid-template-columns: 1fr auto;
     column-gap: 14px;

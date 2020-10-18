@@ -469,7 +469,7 @@ export function siblingIndex( node ) {
  * @param  {Number} n 向前步进计数，可选（默认1）
  * @return {Node}
  */
-export function prevNode( beg, n = 1 ) {
+export function prevNodeN( beg, n = 1 ) {
     let nodes = $.prevNodes( beg ),
         i = 0;
 
@@ -491,7 +491,7 @@ export function prevNode( beg, n = 1 ) {
  * @param  {Number} n 向后步进计数，可选（默认1）
  * @return {Node}
  */
-export function nextNode( beg, n = 1 ) {
+export function nextNodeN( beg, n = 1 ) {
     let nodes = $.nextNodes( beg ),
         i = 0;
 
