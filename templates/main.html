@@ -90,7 +90,7 @@
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
             cut|env('minied') end avoid (Kit) call('eset') text clean(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n');
-            copy|env('minied') end avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
+            copy|env('minied') end Range str end avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
             focus|env('minied') end $('/menu') nodeRange(true) addRange"
         by="-;-;
             Ed.deletes pass pop clipboard;
@@ -121,8 +121,13 @@
             <hr>
             <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
-        <!-- 选取创建（mouseup） -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="lost">
+        <!-- 内联创建
+            store 检查范围对象（内容元素但非代码内）并存储 -->
+        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="lost"
+            on="store|ev('detail') dup (Kit) pop call('rngok', _1) pass;
+                on|evo(3) dup lose(false) focus;
+                off|evo(3) lose(true)"
+            to="|data('range')|goto('on')">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
             <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -154,9 +159,10 @@
             <li data-val="bdo" title="<bdo>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
         </menu>
         <!--内容区：
-            mousedown|avoid 避免 Shift+单击 变成划选。
+            mousedown|avoid 避免 Shift+单击 变成划选，已经有划选除外。
             click|avoid 取消链接单击跳转。
             cancel 选取集取消（ESC）。
+            mouseup 划选创建内联单元：完整嵌套，非空，发送Range。
             ...([contenteditable]) 微编辑光标记忆，用于特殊字符插入。
         -->
         <main id="content" class="content"
@@ -164,13 +170,15 @@
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 cancel|stop env('minied') end (Kit) call('ecancel');
-                mousedown|env('minied') end scam('shift') pop avoid;
+                mouseup|stop env('minied') end Range dup pass dup str pass;
+                mousedown|env('minied') end Range str vnot scam('shift') both pop avoid;
                 mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass Range pop xRange stop"
             by="Ed.click(_1)"
             to="#g-count|trigger('reset');
                 #status-tips|trigger('info');
                 #g-count|trigger('reset');
-                #g-count|trigger('reset')">
+                #g-count|trigger('reset');
+                #g-cells|trigger('store')">
             <hgroup>
                 <h1>文章内容的规范化结构</h1>
                 <h3>—— 简单干净的源码，清爽愉悦的阅读</h3>
@@ -641,19 +649,16 @@
 <!-- 功能面板：
     - mousedown 面板高度调整。
     - keydown   面板快捷键处理。
-    - scroll    背景/行线跟随。
     注：tabindex 使保存键（Ctrl+s）随时有效。 -->
 <div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
     on="@mousemove|movementY neg avoid;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveResize) pass stop;
-        scroll(textarea)|evo(2) scrollTop neg add('px');
         input.full(~textarea)|evo(2) full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
-        |bind('mousemove') once('mouseup');
-        =|%backgroundPositionY">
+        |bind('mousemove') once('mouseup')">
     <div class="_tabs"
         on="click(b)|evo(2) attr('-tpl') pop tpl;
             click(b)|evo(2) hasClass('_press') end $$('/b')"

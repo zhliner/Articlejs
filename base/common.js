@@ -234,6 +234,8 @@ export class ECursor {
             rng.collapse( false );
             rng.insertNode( this._cel );
         }
+        rng.detach();
+
         return _ok && box;
     }
 
@@ -312,6 +314,7 @@ export class ECursor {
 
         _ss.removeAllRanges();
         _ss.addRange( rng );
+        rng.detach();
 
         return box.focus(), box;
     }

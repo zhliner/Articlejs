@@ -115,7 +115,7 @@
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveResize);
         ^finish|(ESC) $('#content') apply('add', _1);
-        ^finish|(editInit) $('#content') $('#g-path') $('#err-tips') exec(_3)"
+        ^finish|(editInit) $('#content') $('#g-path') $('#err-tips') $('#outline') exec(_4)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
@@ -136,8 +136,12 @@
         #g-keytip|text;
         |trigger('pcheck');
         -">
-    <aside id="outline" class="___Panel" data-pbo="">
-        <!-- On: 构造章节选择器，定位显示到视口 -->
+    <!-- medok 内容区章节标题微编辑更新跟随。
+               注：不支持Undo/Redo变化跟随，用户需手动刷新。-->
+    <aside id="outline" class="___Panel" data-pbo=""
+        on="medok|ev('detail') dup paths('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
+        to="-|text">
+        <!-- click 构造章节选择器，定位显示到视口 -->
         <nav role="toc"
             on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>大纲视图 <b title="刷新"
@@ -145,7 +149,7 @@
                 by="Kit.toclist"
                 to="nav/ol|fill">↻</b>
             </h3>
-            <!-- On: 单击子表标题（非<a>）折叠切换 -->
+            <!-- click 单击子表标题（非<a>）折叠切换 -->
             <ol role="cascade" on="click(~h4)|evo(2) parent fold(2)">
                 <li>
                     <h4><a href="#层次">层次</a></h4>

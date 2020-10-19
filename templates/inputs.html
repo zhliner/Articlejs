@@ -547,7 +547,7 @@
 
 <!-- 主栏：字符表 -->
 <div class="_body _Inline" tpl-name="minied:chars"
-    on="click(b)|evo(2) text pop exeCmd('insertText')">
+    on="click(b)|xRange addRange evo(2) text exeCmd('insertText', _1)">
     <div class="_main _list"
         on="mouseenter(b)|evo(2) text"
         to="#g-zoomin|text">

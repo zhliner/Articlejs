@@ -173,19 +173,15 @@ aside#help {
     white-space: pre-wrap;
 }
 
-/* 注：
- * 系统已实现背景跟随。
- * 覆盖：background-position-y: xxx !important;
- */
 .___Panel textarea {
     border: 1px #355c64 solid;
-    padding: 2px 2px 2px 8px;
+    padding: 2px 2px 2px 5px;
     flex: 1 1 auto;
     border-radius: 3px 1px 1px 3px;
     font-size: 12pt;
-    background: #32575f url('images/txtline.png') repeat;
+    background: local url('images/txtline.png') repeat #173745;
     line-height: 30px;
-    color: #eee;
+    color: #ccc;
     overflow-y: scroll;
     resize: none;
     box-sizing: border-box;
@@ -291,7 +287,8 @@ aside#help {
     font-weight: bold;
 }
 .___Panel textarea._code {
-    background: #444 url('images/line20.png') repeat;
+    background-color: #444;
+    background-image: url('images/line20.png');
     line-height: 20px;
     border: 1px #666 solid;
 }
@@ -661,7 +658,7 @@ menu li[data-pbo=disabled]:hover {
 }
 .___Content main.content {
     /* 视觉友好 */
-    padding: 0 1em 3em;
+    padding: 0 1em 25em;
     cursor: default;
     /* 初始可点击 */
     min-height: 100%;
@@ -697,13 +694,12 @@ menu li[data-pbo=disabled]:hover {
     background-color: #066375;
 }
 .___Content ._path b._press {
+    color: red;
     font-weight: bold;
-    color: #fff;
-    background-color: #2d7000;
 }
 .___Content ._path b:last-child {
     color: #fff;
-    background-color: #3f9ea6;
+    background-color: #41a1aa;
 }
 
 .___Content > ._scroll {

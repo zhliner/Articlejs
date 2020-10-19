@@ -325,7 +325,7 @@ class HotEdit {
 // 选区编辑。
 // 用于鼠标划选创建内联单元时。
 // 外部：
-// - 范围的首尾点需要在同一父元素内（正确嵌套）。
+// - 范围的首尾点需要在同一父元素内（完整嵌套）。
 // - 范围所在的容器元素normalize（文本节点连续）。
 // 注记：
 // 使用DOM原生接口，避免tQuery定制事件激发记录。
@@ -339,6 +339,7 @@ class RngEdit {
         this._old = [
             ...rng.extractContents().childNodes
         ];
+        rng.detach();
         rng.insertNode( el );
         this._el = el;
         this._tmp = null;
@@ -1013,6 +1014,10 @@ let
     // 出错信息容器
     errContainer = null,
 
+    // 大纲视图容器
+    // 用于目录适时更新。
+    outlineElem = null,
+
     // 当前微编辑对象暂存。
     currentMinied = null;
 
@@ -1572,15 +1577,18 @@ function minied( el ) {
 
 /**
  * 微编辑确认。
- * 清理<pre>内容中的换行元素（改为\n）。
+ * 如果编辑的是章节/片区的标题，会发送通知用于更新目录。
+ * 回到普通模式工具栏Undo/Redo按钮需重置。
+ * @param {Element|false} 章节/片区标题
  */
-function miniedOk() {
+function miniedOk( h2 ) {
     currentMinied.done();
     currentMinied = null;
-    $.trigger( contentElem, Sys.medOk, null, true );
-
-    // 工具栏U/R重置。
     stateNewEdit();
+    if ( h2 ) {
+        $.trigger( outlineElem, Sys.medOk, h2 );
+    }
+    $.trigger( contentElem, Sys.medOk, null, true );
 }
 
 
@@ -2087,41 +2095,6 @@ function nthSelector( el ) {
 
 
 /**
- * 获取目录条目表达的章节序列。
- * @param  {Element} li 目录条目元素
- * @return {[Number]} 章节序列
- */
-function pathsFromToc( li ) {
-    return $.paths( li, 'nav[role=toc]', 'li' );
-}
-
-
-/**
- * 获取片区章节序列。
- * @param  {Element} h2 片区标题或片区元素
- * @return {[Number]} 章节序列
- */
-function sectionPaths( h2 ) {
-    return $.paths( h2, 'article', 'section' );
-}
-
-
-/**
- * 构建片区标题的目录条目选择路径。
- * 用途：
- * - 在标题元素微编辑时实时更新相应目录条目。
- * - 在新片区插入后在目录相应位置添加条目。
- * 注意：
- * 检索时需要提供直接父容器元素作为上下文（<nav:toc>）。
- * @param  {[Number]} chsn 章节序列
- * @return {String} 目录条目（<li>）的选择器
- */
-function tocLiSelector( chsn ) {
-    return chsn.map( n => `>ol>li:nth-child(${n})` ).join( ' ' );
-}
-
-
-/**
  * 构建片区标题选择路径。
  * 可用于数字章节序号定位到目标片区。
  * 也可用于单击目录条目时定位显示目标片区（不用ID）。
@@ -2270,11 +2243,13 @@ function error( msg, data ) {
  * @param {Element} content 编辑器容器（根元素）
  * @param {Element} pathbox 路径蓄力容器
  * @param {Element} errbox 出错信息提示容器
+ * @param {Element} outline 大纲视图容器
  */
-export function init( content, pathbox, errbox ) {
+export function init( content, pathbox, errbox, outline ) {
     contentElem = content;
     pathContainer = pathbox;
     errContainer = errbox;
+    outlineElem = outline;
 
     // 开启tQuery变化事件监听。
     $.config({
@@ -3499,6 +3474,19 @@ export const Kit = {
     },
 
 
+    /**
+     * 检查范围是否合法。
+     * 范围需在文本节点或内容元素但排除代码容器内。
+     * @param  {Range} rng 划选范围对象
+     * @return {Boolean}
+     */
+    rngok( rng ) {
+        let _btv = getType( rng.commonAncestorContainer );
+        rng.detach();
+        return _btv === 0 || T.isContent(_btv) && _btv !== T.CODE;
+    },
+
+
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -3580,7 +3568,7 @@ export const Kit = {
             _typ = getType( _src ),
             _cfg = __medLLineMap[ _typ ];
 
-        miniedOk();
+        miniedOk( _typ === T.H2 && _src );
 
         if ( evo.data === 'Tab' ) {
             return Edit.miniedIn();

@@ -2146,17 +2146,17 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取相对位置。
+     * 获取元素相对位置。
      * - 相对于上层含定位属性的元素。
-     * - 包含元素外边距（从外边距左上角计算）。
-     * - 不处理元素为window/document的情况（同jQuery）。
-     * 注记：
-     * - 元素相关属性.offsetTop/.offsetLeft未使用（仅工作草案）。
-     *   上面的两个属性计算时不包含外边距。
-     * @param  {Element} 目标元素
+     * - 可要求包含元素的外边距（从外边距左上角计算）。
+     * @param  {Element} el 目标元素
+     * @param  {Boolean} margin 是否包含外边距
      * @return {Object} {top, left}
      */
-    position( el ) {
+    position( el, margin ) {
+        if ( !margin ) {
+            return { top: el.offsetTop, left: el.offsetLeft };
+        }
         let _cso = getStyles(el);
 
         if (_cso.position == "fixed") {
@@ -5149,7 +5149,7 @@ function getOffset( el ) {
     // Return zeros for disconnected and hidden (display: none) elements (gh-2310)
     // Support: IE <=11 only
     // Running getBoundingClientRect on a disconnected node in IE throws an error
-    if (!el.getClientRects().length) {
+    if ( !el.getClientRects().length ) {
         return { top: 0, left: 0 };
     }
     let _doc  = el.ownerDocument,
