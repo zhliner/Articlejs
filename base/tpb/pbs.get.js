@@ -205,32 +205,54 @@ const _Gets = {
 
 
     /**
+     * 获取数据长度。
+     * 目标：暂存区/栈顶1项。
+     * 目标可能是数组、字符串或类数组。
+     */
+    length( evo ) {
+        return evo.data.length;
+    },
+
+    __length: 1,
+
+
+    /**
+     * 获取集合大小。
+     * 目标：暂存区/栈顶1项。
+     * 目标通常是 Set、Map 等实例。
+     */
+    size( evo ) {
+        return evo.data.size;
+    },
+
+    __size: 1,
+
+
+    /**
      * 调用目标的方法。
      * 目标：暂存区/栈顶1项。
-     * 实参序列对应单个方法的调用。
-     * @param  {String} meth 方法名（单个）
+     * 目标是一个调用方法的宿主（数组作为单个对象看待）。
+     * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
-     * @return {Value|[Value]} 方法调用的返回值
+     * @return {Value} 方法调用的返回值
      */
     call( evo, meth, ...rest ) {
-        return mapCall( evo.data, o => o[meth](...rest) );
+        return evo.data[meth]( ...rest );
     },
 
     __call: 1,
 
 
     /**
-     * 调用目标的多个方法。
+     * 调用目标的方法（集合）。
      * 目标：暂存区/栈顶1项。
-     * 方法名为空格分隔的多个名称序列。
-     * 实参序列与名称序列一一对应，如果成员是数组会自动展开。
-     * @param  {String} meths 方法名序列
-     * @param  {...Value} args 实参组
-     * @return {[Value]|[[Value]]} 值集
+     * 目标需要是一个数组或支持.map方法的对象。
+     * @param  {String} meth 方法名
+     * @param  {...Value} rest 实参序列
+     * @return {[Value]} 全部调用的返回值集
      */
-    calls( evo, meths, ...args ) {
-        meths = meths.split(__reSpace);
-        return mapCall( evo.data, o => methsCall(o, meths, ...args) );
+    calls( evo, meth, ...rest ) {
+        return evo.data.map( o => o[meth](...rest) );
     },
 
     __calls: 1,
@@ -383,36 +405,22 @@ const _Gets = {
 
     /**
      * 转换为数组。
-     * 如果已经是数组则原样返回。
-     * 注：无法转换不能转为数组的值（会是一个空数组）。
-     * @data: {LikeArray|Symbol.iterator}
+     * 如果数据源本就是一个数组则简单返回。
+     * 传递wrap为真会封装无法转为数组的值为一个单成员数组。
+     * 注：$$ 有类似能力，但始终会创建为一个新集合。
+     * @param  {Boolean} wrap 强制封装，可选
      * @return {Array|data}
      */
-    arr( evo ) {
-        return $.isArray(evo.data) ? evo.data : Array.from(evo.data);
+    arr( evo, wrap ) {
+        if ( $.isArray(evo.data) ) {
+            return evo.data;
+        }
+        let _new = Array.from( evo.data );
+
+        return wrap && !_new.length ? Array.of( evo.data ) : _new;
     },
 
     __arr: 1,
-
-
-    /**
-     * 转换/构造为数组。
-     * 如果不是数组则构造为数组。
-     * 如果已经是数组，返回一个浅复制的新数组或封装数组（二维）。
-     * 注：
-     * 如果流程数据为 LikeArray|Symbol.iterator，则与arr行为一致。
-     * 如果需要原值为数组时原样保持，则应当使用arr方法。
-     * 与arr不同，始终会返回一个新的数组。
-     *
-     * @data: {LikeArray|Symbol.iterator|Value|Array}
-     * @param  {Boolean} wrap 简单封装，可选
-     * @return {Array|[Array]} 新数组
-     */
-    Arr( evo, wrap ) {
-        return wrap ? Array.of( evo.data ) : Array.from( evo.data );
-    },
-
-    __Arr: 1,
 
 
     /**
@@ -794,9 +802,7 @@ const _Gets = {
      * @return {Set|Boolean}
      */
     scam( evo, names, strict ) {
-        let _ks = new Set(
-            scamKeys( evo.event )
-        );
+        let _ks = new Set( scamKeys(evo.event) );
         if ( !names ) return _ks;
 
         let _ns = names.split( __reSpace ),
@@ -1420,8 +1426,6 @@ const _Gets = {
 // Collector专有。
 // 目标：暂存区/栈顶1项。
 // 目标通常为一个Collector，普通集合会被自动转换。
-// 注记：
-// 不支持.slice方法，已被用于数据栈操作。等价：call('slice', ...)
 //////////////////////////////////////////////////////////////////////////////
 [
     'first',    // ( slr? ): Value
@@ -1434,7 +1438,35 @@ const _Gets = {
      * @param  {Number|String} its 位置下标或选择器
      * @return {Value|[Value]|Collector}
      */
-    _Gets[meth] = function( evo, its ) { return $(evo.data)[meth](its) };
+    _Gets[meth] = function( evo, its ) { return $(evo.data)[meth]( its ) };
+
+    _Gets[`__${meth}`] = 1;
+
+});
+
+
+//
+// 数组处理（兼容Collector）。
+// 目标：暂存区/栈顶1项。
+// 目标需要是一个数组，返回一个具体的值。
+//////////////////////////////////////////////////////////////////////////////
+[
+    'join',         // (chr?: String): String
+    'includes',     // (val: Value, beg?: Number): Boolean
+    'indexOf',      // (val: Value, beg?: Number): Number
+    'lastIndexOf',  // (val: Value, beg?: Number): Number
+]
+.forEach(function( meth ) {
+    /**
+     * 集合成员取值。
+     * 注：v1 默认空串为 join 优化。
+     * @param  {Value} v1 首个实参，可选
+     * @param  {Value} v2 第二个实参，可选
+     * @return {Value}
+     */
+    _Gets[meth] = function( evo, v1 = '', v2 ) {
+        return evo.data[meth]( v1, v2 );
+    };
 
     _Gets[`__${meth}`] = 1;
 
@@ -1622,21 +1654,6 @@ function $mapCall( data, meth, ...args ) {
 function namesValue( name, obj ) {
     return __reSpace.test(name) ?
         name.split(__reSpace).map( n => obj[n] ) : obj[name];
-}
-
-
-/**
- * 调用对象的多个方法。
- * 实参组成员与名称集成员一一对应，数组成员会自动展开。
- * @param  {Object} obj 目标对象
- * @param  {[String]} names 方法名集
- * @param  {...Value} args 实参组
- * @return {[Value]} 结果集
- */
-function methsCall( obj, names, ...args ) {
-    return names.map(
-            (n, i) => obj[n]( ...[].concat(args[i]) )
-        );
 }
 
 

@@ -248,7 +248,7 @@ const _Control = {
         stack.tsplice( idx, cnt );
     },
 
-    __splice_x: true,
+    __clip_x: true,
 
 
 
@@ -361,11 +361,11 @@ const _Control = {
      * @param {Number} beg 起始位置，可选
      * @param {Number} end 结束位置（不含），可选
      */
-    slice( evo, stack, beg, end ) {
+    part( evo, stack, beg, end ) {
         return stack.slice( beg, end );
     },
 
-    __slice_x: true,
+    __part_x: true,
 
 
     /**
@@ -551,6 +551,7 @@ const _Process = {
      * 目标：暂存区/栈顶1项。
      * 对于元素Collector集合，comp应当为空获得默认的排序算法。
      * 对于普通值Collector集合，comp可传递null获得JS环境默认排序规则。
+     * 排序不影响原集合。
      * comp接口：function(a, b): Boolean
      * @param  {Function|null} comp 排序函数，可选
      * @return {[Value]|Collector}
@@ -566,65 +567,21 @@ const _Process = {
     /**
      * 集合成员序位反转。
      * 目标：暂存区/栈顶1项。
-     * 注意数组会在原值上修改并返回。
-     * 注记：
+     * 反转不影响原始集合。
      * 兼容动画对象上的同名方法（无返回值）。
      * @return {[Value]|Collector|void}
      */
     reverse( evo ) {
         let x = evo.data;
 
-        if ( $.isFunction(x.reverse) ) {
-            return x.reverse();
+        if ( $.isArray(x) ) {
+            return $.isCollector(x) ? x.reverse() : Array.from(x).reverse();
         }
-        return Array.from(x).reverse();
+        // 动画对象。
+        return x.reverse();
     },
 
     __reverse: 1,
-
-
-    /**
-     * 数组扁平化。
-     * 将目标内可能嵌套的子数组扁平化。
-     * 目标：暂存区/栈顶1项。
-     * 如果是元素Collector集合，deep可以为true附加去重排序（1级扁平化）。
-     * @data: Array
-     * @param  {Number|true} deep 深度或去重排序，可选
-     * @return {[Value]|Collector}
-     */
-    flat( evo, deep ) {
-        return evo.data.flat( deep );
-    },
-
-    __flat: 1,
-
-
-    /**
-     * 数组串接。
-     * 目标：暂存区/栈顶1项。
-     * 返回一个新的数组。
-     * @param  {...Value} vals 值或数组
-     * @return {[Value]}
-     */
-    concat( evo, ...vals ) {
-        return evo.data.concat( ...vals );
-    },
-
-    __concat: 1,
-
-
-    /**
-     * 连接数组各成员。
-     * 目标：暂存区/栈顶1项。
-     * @data: Array
-     * @param  {String} chr 连接字符串
-     * @return {String}
-     */
-    join( evo, chr = '' ) {
-        return evo.data.join( chr );
-    },
-
-    __join: 1,
 
 
     /**
@@ -1503,11 +1460,11 @@ const _Process = {
      * 注：
      * 无返回值，用于目标对象的设置类操作。
      * @param  {String} meth 方法名
-     * @param  {...Value} args 实参序列
+     * @param  {...Value} rest 实参序列
      * @return {void}
      */
-    apply( evo, meth, ...args ) {
-        evo.data[meth]( ...args );
+    apply( evo, meth, ...rest ) {
+        evo.data[meth]( ...rest );
     },
 
     __apply: 1,
@@ -1516,9 +1473,9 @@ const _Process = {
     /**
      * 应用目标的方法（多次）。
      * 目标：暂存区/栈顶1项。
+     * 目标是一个接受调用的单个对象。
      * 实参组成员是每次调用时传入的实参。
-     * 如果成员是一个数组，它们会被展开传入，
-     * 因此，如果方法需要一个数组实参，需要预先封装。
+     * 数组成员会被展开传入，因此实参可能需要预先封装（二维）。
      * 注：
      * 无返回值，用于目标对象的批量设置。
      * @param  {String} meth 方法名
@@ -1678,16 +1635,16 @@ const _Process = {
 
 
 //
-// 集合操作。
+// Collector操作（部分兼容数组）。
 // 目标：暂存区/栈顶1项。
 // 注：map、each方法操作的目标支持Object。
 //////////////////////////////////////////////////////////////////////////////
 [
-    'filter',   // ( fltr?: String|Function )
     'not',      // ( fltr?: String|Function )
     'has',      // ( slr?: String )
-    'map',      // ( proc?: Function ) 会忽略proc返回的undefined或null值。
-    'each',     // ( proc?: Function ) 返回操作目标。处理器返回false会中断迭代。
+    'filter',   // ( fltr?: String|Function ) 兼容数组
+    'map',      // ( proc?: Function ) 兼容数组
+    'each',     // ( proc?: Function )
 ]
 .forEach(function( meth ) {
     /**
@@ -1697,6 +1654,32 @@ const _Process = {
     _Process[meth] = function( evo, arg ) {
         return $.isCollector(evo.data) ?
             evo.data[meth]( arg ) : $[meth]( evo.data, arg );
+    };
+
+    _Process[`__${meth}`] = 1;
+
+});
+
+
+//
+// 数组操作（兼容Collector）。
+// 目标：暂存区/栈顶1项。
+// 目标已经为数组或Collector实例。
+// 注记：pop/shift/push 方法被数据栈处理占用。
+//////////////////////////////////////////////////////////////////////////////
+[
+    'slice',    // (beg, end?: Number): Array | Collector
+    'flat',     // (deep?: Number|true): Array | Collector
+    'concat',   // (...Value): Array | Collector
+    'splice',   // (start, delcnt, ...): Array
+]
+.forEach(function( meth ) {
+    /**
+     * @param  {...Value} args 模板实参序列
+     * @return {[Value]|Collector}
+     */
+    _Process[meth] = function( evo, ...args ) {
+        return evo.data[meth]( ...args );
     };
 
     _Process[`__${meth}`] = 1;

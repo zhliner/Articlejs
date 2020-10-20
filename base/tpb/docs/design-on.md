@@ -77,6 +77,12 @@ get( name:String ): Value|[Value]
 gets( ...name:String ): void
 // 对象成员自由取值。
 
+length(): Number
+// 获取数据值长度。
+
+size(): Number
+// 获取集合大小。
+
 call( meth:String, ...rest:Value ): Value
 // 调用目标的方法。
 
@@ -113,10 +119,7 @@ bool( all:Boolean ): Boolean
 str( prefix?, suffix? ): String
 // 转换为字符串。
 
-arr(): Array
-// 转换为数组。
-
-Arr( wrap:Boolean ): Array
+arr( wrap:Boolean ): Array
 // 转换/封装为数组。
 
 obj(): Object
@@ -334,6 +337,19 @@ kvsMap( kname?, vname?: String ): [Object2]
 item( idx? ): Value | [Value]
 first( slr? ): Collector
 last( slr? ): Collector
+
+
+// 数组处理（兼容Collector）
+//-----------------------------------------------
+
+join( chr ): String
+// 接数组各成员。
+includes(val: Value, beg?: Number): Boolean
+// 值包含判断。
+indexOf(val: Value, beg?: Number): Number
+// 值位置查询。
+lastIndexOf(val: Value, beg?: Number): Number
+// 值位置查询（逆向）。
 ```
 
 

@@ -908,11 +908,6 @@ export const To = {};
 // 注：不继承任何基础指令集。
 To.Update = $.assign( {}, _Update, bindMethod )
 
-//
-// 允许调试。
-//
-To.Update.debug = debug;
-
 
 // 绑定：this固化。
 // @proto: Get < Process < Control
