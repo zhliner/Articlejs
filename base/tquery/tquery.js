@@ -2662,10 +2662,22 @@ class Table {
 
 
     /**
+     * 获取行内目标位置的单元格。
+     * 支持负数下标从末尾算起，兼容跨列单元格。
+     * @param  {Element} tr 表格行
+     * @param  {Number} idx 位置下标
+     * @return {Element|null}
+     */
+    cell( tr, idx ) {
+        return indexCell( tr, this._index(idx, this._cols) );
+    }
+
+
+    /**
      * 获取单元格的列下标。
      * 如果目标单元格跨列，返回一个下标范围（不含终点）。
      * @param  {Element} cell 单元格元素
-     * @return {Number|[Number]}
+     * @return {Number|[Number, Number]}
      */
     cellIndex( cell ) {
         let _i = 0;
@@ -2676,6 +2688,49 @@ class Table {
             }
             _i += td.colSpan;
         }
+    }
+
+
+    /**
+     * 获取当前列的下一个单元格。
+     * 即：垂直方向的下一个单元格。
+     * @param  {Element} cell 单元格
+     * @param  {TableSection} tsec 表区域限定，可选
+     * @return {Element|[Element]|null}
+     */
+    nextCell( cell, tsec ) {
+        return this.columnCell( cell, 1, tsec );
+    }
+
+
+    /**
+     * 获取当前列的前一个单元格。
+     * @param {Element} cell 单元格
+     * @param  {TableSection} tsec 表区域限定，可选
+     * @return {Element|[Element]|null}
+     */
+    prevCell( cell, tsec ) {
+        return this.columnCell( cell, -1, tsec );
+    }
+
+
+    /**
+     * 获取列单元格。
+     * 相对当前单元格的距离定位。
+     * - 负值：向前定位（DOM头部方向）。
+     * - 正值：向后定位（DOM尾部方向）。
+     * @param  {Element} cell 单元格
+     * @param  {Number} n 距离值（行）
+     * @param  {TableSection} tsec 表区域，可选
+     * @return {Element|[Element]|null}
+     */
+    columnCell( cell, n, tsec ) {
+        let _tr = this._distanceTR( cell.parentElement, n, tsec );
+        if ( !_tr ) return null;
+
+        let _idx = this.cellIndex( cell );
+
+        return isArr(_idx) ? _range(..._idx).map(i => indexCell(_tr, i)) : indexCell(_tr, _idx);
     }
 
 
@@ -2823,6 +2878,22 @@ class Table {
 
 
     /**
+     * 获取目标距离的表格行。
+     * @param  {Element} tr 起始表格行
+     * @param  {Number} n 距离值
+     * @param  {TableSection} tsec 表区域限定，可选
+     * @return {Element|undefined}
+     */
+    _distanceTR( tr, n, tsec ) {
+        let _i = tsec ?
+            tr.sectionRowIndex :
+            tr.rowIndex;
+
+        return ( tsec || this._tbl ).rows[ _i + n ];
+    }
+
+
+    /**
      * 新建一行单元格序列。
      * 取参考行的单元格类型创建相同类型单元格（<th>|<td>）。
      * 返回的单元格包含了完整列数。
@@ -2907,6 +2978,18 @@ function indexCell( tr, idx ) {
         idx -= td.colSpan;
         if ( idx < 0 ) return td;
     }
+}
+
+
+/**
+ * 创建一个范围值集。
+ * @param {Number} beg 起始值
+ * @param {Number} end 终点值
+ * @param {[Number]} buf 值序列
+ */
+function _range( beg, end, buf = [] ) {
+    for ( let i = beg; i < end; i++ ) buf.push( i );
+    return buf;
 }
 
 
