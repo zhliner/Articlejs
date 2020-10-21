@@ -336,13 +336,13 @@ function contentRoot( beg, end ) {
     if ( beg === end ) {
         return null;
     }
-    let _val = getType(beg);
+    let _tv = getType( beg );
 
-    if ( !T.isInlines(_val) ) {
+    if ( !T.isInlines(_tv) ) {
         // 容错定制结构：
         // 如：CODELI/code, FIGIMGBOX/img 子单元为内联，但父容器非内容元素。
         // 因此转为单元根获取。
-        return T.isContent(_val) ? beg : entityRoot( beg, end );
+        return T.isContent(_tv) ? beg : entityRoot( beg, end );
     }
     return contentRoot( beg.parentElement );
 }
@@ -686,10 +686,11 @@ export function contentBoxes( el ) {
  * - 起点为内联元素时，向上获取内容行元素。
  * - 起点为结构子时，向上获取单元根元素（内联或行块）。
  * - 起点为行块根时，向上获取最近上级根。
+ * - 起点为特用单元时（<b|i>），向上获取代码元素。
  * 注：
  * 这是一种用户友好，以便直达内容行元素或单元根。
  *
- * @param  {Element} beg 起点元素
+ * @param  {Element} beg 起始节点
  * @param  {Element} end 终点限定元素
  * @return {Element} 顶元素
  */

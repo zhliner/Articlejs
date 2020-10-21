@@ -187,8 +187,8 @@ data( name: String ): void|Value
 einfo( hasid:Boolean, hascls:Boolean ): String | [String]
 // 生成元素基本信息。
 
-holdRange( el:Element|String ): Boolean
-// 元素是否容纳选区。
+hasRange( el:Element|String ): Boolean
+// 元素是否含有选区。
 
 scam( names?:String ): Boolean | Object
 // 修饰键{Alt|Ctrl|Shift|Meta}状态检查|封装。

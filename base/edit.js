@@ -3481,9 +3481,37 @@ export const Kit = {
      * @return {Boolean}
      */
     rngok( rng ) {
-        let _btv = getType( rng.commonAncestorContainer );
+        let _box = rng.commonAncestorContainer;
         rng.detach();
-        return _btv === 0 || T.isContent(_btv) && _btv !== T.CODE;
+
+        if ( _box.nodeType === 3 ) {
+            _box = _box.parentElement;
+        }
+        let _tv = getType( _box );
+
+        return T.isContent( _tv ) && _tv !== T.CODE;
+    },
+
+
+    /**
+     * 计算弹出菜单定位点。
+     * 超出右边界时，菜单靠右边显示。
+     * @param  {Element} box 滚动容器
+     * @param  {Element} menu 菜单元素
+     * @param  {[Number, Number]} x/y 定位点坐标（相对文档）
+     * @return {[Number, Number]} x/y 的合法坐标
+     */
+    menupos( box, menu, [x, y, s] ) {
+        let _mw = $.innerWidth( menu ),
+            _co = $.offset( box ),
+            _bw = $.innerWidth( box ),
+            _y2 = y - _co.top + s;
+
+        if ( x + _mw < _bw + _co.left ) {
+            return [ x - _co.left, _y2 ];
+        }
+        // 2 视觉友好
+        return [ _bw - _mw - 2, _y2 ];
     },
 
 

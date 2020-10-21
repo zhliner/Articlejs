@@ -2118,11 +2118,10 @@ Object.assign( tQuery, {
     /**
      * 获取/设置元素偏移。
      * - 相对于文档根元素，返回值格式：{top, left}。
-     * - 设置值也用同样格式指定。
+     * - 设置值除了同样格式外也支持双值数组（[x, y]）。
      * - 传递值为null会清除偏移设置并返回之前的值。
-     *
      * @param  {Element} 目标元素
-     * @param  {Object|Function|null} pair 配置对象或取值回调
+     * @param  {Object|[x, y]|Function|null} pair 配置对象或取值回调
      * @return {Object|Element}
      */
     offset( el, pair ) {
@@ -2134,14 +2133,12 @@ Object.assign( tQuery, {
         if ( isFunc(pair) ) {
             pair = pair( _cur );
         }
-        pair = useOffset( _cur, pair, calcOffset(el) );
-        let _cso = getStyles(el);
-
-        if ( _cso.position == 'static' ) {
-            el.style.position = "relative";
+        if ( isArr(pair) ) {
+            pair = { left: pair[0], top: pair[1] };
         }
+        cssSets( el, useOffset(_cur, pair, calcOffset(el)), null, getStyles(el) );
 
-        return cssSets(el, pair, null, _cso), el;
+        return el;
     },
 
 
@@ -2154,27 +2151,13 @@ Object.assign( tQuery, {
      * @return {Object} {top, left}
      */
     position( el, margin ) {
-        if ( !margin ) {
-            return { top: el.offsetTop, left: el.offsetLeft };
-        }
-        let _cso = getStyles(el);
+        let _cso = getStyles(el),
+            _obj = { top: el.offsetTop, left: el.offsetLeft };
 
-        if (_cso.position == "fixed") {
-            // getBoundingClientRect
-            // - 参考边框左上角计算，不含外边距；
-            // - 此时已与滚动无关；
-            return toPosition(el.getBoundingClientRect(), _cso);
+        if ( _cso.position == "fixed" ) {
+            _obj = el.getBoundingClientRect();
         }
-        let _cur = getOffset(el),
-            _pel = tQuery.offsetParent(el),
-            _pot = getOffset(_pel),
-            _pcs = getStyles(_pel),
-            _new = {
-                top:  _cur.top - (_pot ? _pot.top + parseFloat(_pcs.borderTopWidth) : 0),
-                left: _cur.left - (_pot ? _pot.left + parseFloat(_pcs.borderLeftWidth) : 0)
-            };
-
-        return toPosition(_new, _cso);
+        return margin ? toPosition( _obj, _cso ) : _obj;
     },
 
 
@@ -5270,20 +5253,11 @@ function useOffset( cur, conf, self ) {
 
 /**
  * 清除目标元素的偏移样式。
- * 注：这不是撤消之前的设置，而是清除（包括定位样式）。
  * @param {Element} el 目标元素
  */
 function clearOffset( el ) {
-    let _cso = el.style;
-
-    _cso.top = null;
-    _cso.left = null;
-    _cso.position = null;
-
-    if (_cso.cssText.trim() == '') {
-        // 清理：不激发attr系事件
-        el.removeAttribute('style');
-    }
+    el.style.top = null;
+    el.style.left = null;
 }
 
 

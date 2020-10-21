@@ -1187,8 +1187,8 @@ class Update {
     /**
      * 提取更新方法及实参序列。
      * 友好方法：{
-     *      @   特性（attribute）
-     *      &   属性（property）
+     *      @   特性（attr）
+     *      &   属性（prop）
      *      %   样式（css）
      *      ^   特性切换（toggleAttr）
      * }
@@ -1198,7 +1198,7 @@ class Update {
     methArgs( fmt ) {
         let _m = __updateMethod[ fmt[0] ];
 
-        if (_m) {
+        if ( _m ) {
             return [ _m, `'${fmt.substring(1)}'` ];
         }
         // :result[1~]

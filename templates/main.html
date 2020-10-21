@@ -98,7 +98,7 @@
         to="#g-count|trigger('reset');
             #g-count|trigger('setv')">
         <!-- 上下文菜单 -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="lost">
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden">
             <li data-val="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
@@ -115,19 +115,24 @@
                 <menu></menu>
             </li>
             <hr>
-            <li data-val="toup"><b id="l-toup">升级</b><kbd>Alt_Ctrl_←</kbd></li>
-            <li data-val="todown"><b id="l-todown">降级</b><kbd>Alt_Ctrl_→</kbd></li>
-            <!-- <li data-val="delete"><b id="l-delete">删除</b><kbd>d/D</kbd></li> -->
+            <li data-val="toup"><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
+            <li data-val="todown"><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
+            <hr>
+            <li data-val="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
             <hr>
             <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内联创建
-            store 检查范围对象（内容元素但非代码内）并存储 -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="lost"
+            store 检查范围对象（内容元素但非代码内）并存储。
+            to|focus 聚焦菜单，延时避免滚动框跳动。 -->
+        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="hidden"
             on="store|ev('detail') dup (Kit) pop call('rngok', _1) pass;
-                on|evo(3) dup lose(false) focus;
-                off|evo(3) lose(true)"
-            to="|data('range')|goto('on')">
+                show|(ESC) evo(3) dup hide(false) apply('add', _1) (Kit) $('1/') evo(3) env('pointerXY') call('menupos', _3);
+                cancel blur|evo(3) hide(true) (ESC) apply('pop') (null);
+                click|debug"
+            to="|data('range')|goto('show');
+                |cssSets('left top')|fire('', 'focus');
+                |data('range')">
             <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
             <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -162,7 +167,7 @@
             mousedown|avoid 避免 Shift+单击 变成划选，已经有划选除外。
             click|avoid 取消链接单击跳转。
             cancel 选取集取消（ESC）。
-            mouseup 划选创建内联单元：完整嵌套，非空，发送Range。
+            mouseup 划选创建内联单元：完整嵌套，非空，发送Range。注：同时存储鼠标指针位置。
             ...([contenteditable]) 微编辑光标记忆，用于特殊字符插入。
         -->
         <main id="content" class="content"
@@ -170,7 +175,7 @@
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 cancel|stop env('minied') end (Kit) call('ecancel');
-                mouseup|stop env('minied') end Range dup pass dup str pass;
+                mouseup|stop env('minied') end ev('pageX') ev('pageY') $('1/') scrollTop pack(3) env('pointerXY', _1) Range dup pass dup str pass;
                 mousedown|env('minied') end Range str vnot scam('shift') both pop avoid;
                 mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass Range pop xRange stop"
             by="Ed.click(_1)"
@@ -635,7 +640,7 @@
             mouseleave(b)|stop ('_point') (Kit) evo(2) call('source', _1) pop;
             varyempty;
             click(b:last-child)|env('minied') pass (Kit) evo(2) call('source', _1) intoView(2);
-            toggle|evo(3) hide(2)"
+            toggle|evo(3) lose(2)"
         by="Ed.pathTo(_1) $$('/b')"
         to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
             -|addClass;

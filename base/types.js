@@ -333,7 +333,7 @@ const Properties = {
     //
     // 特殊用途。
     /////////////////////////////////////////////
-    [ B ]:              SPECIAL | CONTENT,
+    [ B ]:              SPECIAL,
     [ I ]:              SPECIAL | STRUCTX | CONTENT,
 };
 

@@ -1073,22 +1073,21 @@ option: {
 获取或设置 `el` 元素相对于文档的位置偏移。
 
 - `el: Element` 操作的目标元素。
-- `pair: Object | Function | null` 设置的位置配置对象或取值回调。
+- `pair: Object | [x, y] | Function | null` 设置的位置配置或取值回调。
 
 偏移定义采用一个包含 `top` 和 `left` 键名的对象（如 `{top:200, left:10}`），位置计算不包含元素的外边距（`margin`），但包含边框。获取的值可能不是一个整数。
 
-设置元素的偏移时，如果元素的 `position` 值是浏览器默认的 `static`，则会自动修改为 `relative`。`pair` 也可以是一个取值回调，接口：`function( curVal ): Object`。传递 `pair` 为 `null` 会清除偏移设置并返回之前的偏移值。
+设置元素偏移时，元素的 `position` 值不能是 `static`，否则会没有效果。`pair` 也可以是一个取值回调，接口：`function( curVal ): Object`。传递 `pair` 为 `null` 会清除偏移设置并返回之前的偏移值。
 
 设置时返回被目标元素自身（即实参 `el`）。
 
 
-### [$.position( el ): Object](docs/$.position.md)
+### [$.position( el, margin ): Object](docs/$.position.md)
 
-获取 `el` 元素相对于上层定位元素边框内左上角的位置（不含边框和外边距）。
+获取 `el` 元素相对于上层定位元素边框内左上角的位置（不含外边距）。
 
 - `el: Element` 取值的目标元素。
-
-计算的起点是 `el` 元素的外边距左上角（**注**：元素的 `.offsetTop/.offsetLeft` 属性值计算不包含外边距）。不能在 `window/document` 上调用本方法。对于SVG的子节点，调用本方法可以获得子节点相对于 `<svg>` 根容器的偏移值。
+- `margin: Boolean` 是否包含外边距（从外边距的右上角算起）。
 
 返回一个包含 `top` 和 `left` 键名及其值的对象，值为浮点数（单位像素）。
 

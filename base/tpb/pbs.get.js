@@ -157,8 +157,8 @@ const _Gets = {
     /**
      * 从事件对象上取值。
      * 目标：无。
-     * name可用空格分隔多个名称（返回一个值数组）。
      * 无实参调用取事件对象自身入栈。
+     * 传递单个名称时返回单个值，否则为一个数组。
      * @param  {String} name 事件属性名（序列）
      * @return {Value|[Value]} 值或值集
      */
@@ -174,34 +174,30 @@ const _Gets = {
      * 从目标上取成员值。
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称，返回一个值数组。
-     * @param  {String} name 名称/序列
-     * @return {Value|[Value]|[[Value]]}
+     * 单个名称时返回一个值。
+     * @param  {String} name 名称（序列）
+     * @return {Value|[Value]}
      */
     get( evo, name ) {
-        return mapCall( evo.data, o => namesValue(name, o) );
+        return namesValue( name, evo.data );
     },
 
     __get: 1,
 
 
     /**
-     * 从目标上取值序列。
+     * 从目标集上取成员值。
      * 目标：暂存区/栈顶1项。
-     * 特权：是，自行入栈。
-     * name支持空格分隔的多个名称，此时值为一个数组。
-     * 多个名称实参取值会自动展开入栈。
-     * @param  {Stack} stack 数据栈
-     * @param  {...String} names 属性名序列
-     * @return {void} 自行入栈
+     * name支持空格分隔的多个名称，取值为一个数组，
+     * 整个返回集则是一个二维数组。
+     * @param  {String} name 属性名（序列）
+     * @return {[Value]|[[Value]]}
      */
-    gets( evo, stack, ...names ) {
-        stack.push(
-            ...names.map( n => namesValue(n, evo.data) )
-        );
+    gets( evo, name ) {
+        return evo.data.map( o => namesValue(name, o) );
     },
 
     __gets: 1,
-    __gets_x: true,
 
 
     /**
@@ -736,7 +732,6 @@ const _Gets = {
      * 如果不存在关联存储（Map），返回null。
      * 注记：
      * 因为主要是直接使用（如插入DOM），故返回值数组（而不是键值对象）。
-     * 如chains主要用于转储，所以保留键信息。
      * 返回null可用于判断状况，但无法区分本来就存储的null。
      * @data: Element
      * @param  {String} name 名称/序列
@@ -778,14 +773,14 @@ const _Gets = {
      * @param  {Element|String} el 容器元素或其选择器
      * @return {Boolean}
      */
-    holdRange( evo, el ) {
+    hasRange( evo, el ) {
         if ( typeof el === 'string' ) {
             el = Util.find( el, evo.delegate );
         }
         return $.contains( el, evo.data.commonAncestorContainer );
     },
 
-    __holdRange: 1,
+    __hasRange: 1,
 
 
     /**
