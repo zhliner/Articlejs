@@ -126,6 +126,12 @@ export const Sys = {
     medOk:  'medok',
 
 
+    // 弹出菜单边距友好（像素）
+    // 顶部距划选文本和右侧靠时距容器边框距离。
+    popupGapTop:    12,
+    popupGapRight:  4,
+
+
     // 本地暂存键
     // window.localStorage
     //-------------------------------------------

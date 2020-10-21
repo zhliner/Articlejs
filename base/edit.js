@@ -3505,13 +3505,12 @@ export const Kit = {
         let _mw = $.innerWidth( menu ),
             _co = $.offset( box ),
             _bw = $.innerWidth( box ),
-            _y2 = y - _co.top + s;
+            _y2 = y - _co.top + s + Sys.popupGapTop;
 
         if ( x + _mw < _bw + _co.left ) {
             return [ x - _co.left, _y2 ];
         }
-        // 2 视觉友好
-        return [ _bw - _mw - 2, _y2 ];
+        return [ _bw - _mw - Sys.popupGapRight, _y2 ];
     },
 
 
