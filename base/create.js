@@ -256,25 +256,31 @@ const Children = {
 
 
     /**
-     * 留到下阶内容元素段处理。
-     * @node: {[Element]}
-     * @param {Element|null} ref 插入参考元素
+     * 注音内容。
+     * 固定子结构，不支持插入参考。
+     * 返回ruby容器本身供选取。
+     * @param {null} ref 插入参考（占位）
      * @param {Element} ruby 注音元素
+     * @param {String} rpl 拼音左包围字符
+     * @param {String} rt  拼音
+     * @param {String} rpl 拼音右包围字符
+     * @param {Value|Node|Array} data 待注音文本
      */
-    [ T.RUBY ]: function( ref, ruby ) {
-        return result(
-            null,
-            insertChild( ref, ruby, elements(T.RB, T.RP, T.RT, T.RP) )
+    [ T.RUBY ]: function( ref, ruby, {rpl, rt, rpr}, data ) {
+        $.append(
+            ruby,
+            rubySubs( rpl, rt, rpr, dataText(data) )
         );
+        return result( null, ruby, true );
     },
 
     // 同上。
-    [ T.RBPT ]: function( ref, ruby ) {
-        return result(
-            null,
-            insertChild( ref, ruby, elements(T.RB, T.RP, T.RT, T.RP) )
+    [ T.RBPT ]: function( ref, ruby, {rpl, rt, rpr}, data ) {
+        $.append(
+            ruby,
+            rubySubs( rpl, rt, rpr, dataText(data) )
         );
-
+        return result( null, ruby, true );
     },
 
 
@@ -817,8 +823,8 @@ const Children = {
     // 内联结构内容元素。
     T.METER,
     T.RB,
-    T.RT,
-    T.RP,
+    // T.RT,  // 作为选项
+    // T.RP,  // 作为选项
     T.EXPLAIN,
 
     // 内联内容元素。
@@ -1399,6 +1405,41 @@ function tocLi( h2 ) {
 
 
 /**
+ * 创建注音子单元组。
+ * @param {String} rpl 拼音左包围字符
+ * @param {String} rt  拼音
+ * @param {String} rpr 拼音右包围字符
+ * @param {Value} data 待注音文本
+ */
+function rubySubs( rpl, rt, rpr, data ) {
+    let _els = [
+        elem( T.RB, data )
+    ];
+    if ( rt ) {
+        _els.push(
+            elem( T.RP, rpl ),
+            elem( T.RT, rt ),
+            elem( T.RP, rpr )
+        );
+    }
+    return _els;
+}
+
+
+/**
+ * 数据源文本化。
+ * @param  {Value|Node|Array} data 数据源
+ * @return {String}
+ */
+function dataText( data ) {
+    if ( $.isArray(data) ) {
+        return data.map( nd => nd.textContent ).join('');
+    }
+    return data.nodeType ? data.textContent : data + '';
+}
+
+
+/**
  * 获取数据项。
  * 如果是数组则按下标取值，否则返回该值。
  * @param  {Value|[Value]} data 数据（集）
@@ -1548,16 +1589,6 @@ function elem( tval, data ) {
 
 
 /**
- * 空元素序列创建。
- * @param  {...Number} types 类型值序列
- * @return {[Element]}
- */
-function elements( ...types ) {
-    return types.map( tv => elem(tv) );
-}
-
-
-/**
  * 单元构建，包含节点树。
  * 适用初始新建或节点树迭代构建。
  * opts: {
@@ -1625,6 +1656,9 @@ function build( el, opts, data, more ) {
  *      footer:     {Boolean} 创建结语部分
  *      dt:         {Value}   定义列表标题项
  *      th0:        {Boolean} 表格列表头
+ *      rpl:        {String}  左包围（<rp>）
+ *      rpr:        {String}  右包围（<rp>）
+ *      rt:         {String}  注音拼音（<rt>）
  * }
  * @param  {Element|null} ref 插入参考元素
  * @param  {Element|null} box 父容器元素
@@ -1665,7 +1699,7 @@ function create( name, opts, data, more ) {
     if ( name == null ) {
         throw new Error( 'invalid target name.' );
     }
-    return build( elem(name), opts, data, more );
+    return build( elem(name), opts || {}, data, more );
 }
 
 

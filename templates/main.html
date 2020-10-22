@@ -123,45 +123,57 @@
             <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内联创建
-            store 检查范围对象（内容元素但非代码内）并存储。
-            to|focus 聚焦菜单，延时避免滚动框跳动。 -->
+            store 检查范围对象（在内容元素但非代码内）并存储。
+            show  显示菜单并压入ESC取消栈，提取单击位置相关存储值判断取值。
+                  to|focus 聚焦菜单，延时避免滚动框跳动。
+            keydown 快捷键直达（单个字符 data-k）
+        -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pbo="hidden"
-            on="store|ev('detail') dup (Kit) pop call('rngok', _1) pass;
+            on="create|data('range') ev('detail');
+                store|ev('detail') dup (Kit) pop call('rngok', _1) pass;
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) (Kit) $('1/') evo(3) env('pointerXY') call('menupos', _3);
                 cancel blur|evo(3) hide(true) (ESC) apply('pop') (null);
-                click|debug"
-            to="|data('range')|goto('show');
+                keydown|ev('key') slr('/li', '-k', _1) $(_1) dup pass attr('-val');
+                click(li)|evo(2) attr('-val')"
+            by="Kit.rngelem(_1)"
+            to="#g-scroll|trigger('focus');
+                |data('range')|goto('show');
                 |cssSets('left top')|fire('', 'focus');
-                |data('range')">
-            <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
-            <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
-            <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
-            <li data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+                |data('range');
+                |trigger('create');
+                |trigger('create')">
+            <li data-k="a" data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
+            <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+            <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+            <li data-k="e" data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
             <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
             <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
-            <li data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
-            <li data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
-            <li data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
-            <li data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
+            <li data-k="q" data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
+            <li data-k="t" data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+            <li data-k="i" data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
+            <li data-k="d" data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
             <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
             <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
             <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
-            <li data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
-            <li data-val="ruby" title="<ruby>">
+            <li data-k="m" data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
+            <li data-k="r" data-val="ruby" title="<ruby>">
                 <b><ruby>
                     <rb>注音</rb>
                     <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
                 </ruby></b>
                 <kbd>r</kbd>
             </li>
-            <li data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
-            <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>f</kbd></li>
-            <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd>p</kbd></li>
-            <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+            <li data-k="o" data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+            <li data-k="f" data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>f</kbd></li>
+            <li data-k="p" data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd>p</kbd></li>
+            <li data-k="k" data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
             <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
-            <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
-            <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
-            <li data-val="bdo" title="<bdo>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+            <li data-k="u" data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+            <li data-k="v" data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+            <li data-k="b" data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+            <li data-pbo="disabled">&nbsp;</li>
+            <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li>
+            <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li>
         </menu>
         <!--内容区：
             mousedown|avoid 避免 Shift+单击 变成划选，已经有划选除外。

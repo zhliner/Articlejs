@@ -220,9 +220,7 @@ class DOMEdit {
      */
     constructor( handle ) {
         this._func = handle;
-
         // 外部只读
-        this.data = null;
         this.count = null;
 
         this.redo();
@@ -244,7 +242,7 @@ class DOMEdit {
     redo() {
         let _old = __TQHistory.size();
 
-        this.data = this._func();
+        this._func();
         this.count = __TQHistory.size() - _old;
 
         updateFocus();
@@ -326,41 +324,44 @@ class HotEdit {
 // 用于鼠标划选创建内联单元时。
 // 外部：
 // - 范围的首尾点需要在同一父元素内（完整嵌套）。
-// - 范围所在的容器元素normalize（文本节点连续）。
+// - 范围所在的容器元素需要预先.normalize。
 // 注记：
-// 使用DOM原生接口，避免tQuery定制事件激发记录。
+// 部分内联单元也有结构（如<ruby>），因此由create创建。
 //
 class RngEdit {
     /**
      * @param {Range} rng 范围对象
-     * @param {Element} el 内联元素（数据）
+     * @param {String} name 单元名（tag|role）
      */
-    constructor( rng, el ) {
+    constructor( rng, name ) {
         this._old = [
             ...rng.extractContents().childNodes
         ];
+        this._el = create( name, null, this._old );
+
         rng.detach();
-        rng.insertNode( el );
-        this._el = el;
+        rng.insertNode( this._el );
+
         this._tmp = null;
     }
 
 
     undo() {
         let _box = this._el.parentElement;
+
+        // DOM内使用原生接口
         this._el.replaceWith( ...this._old );
 
-        // 碎片记忆（便于redo）。
+        // 碎片记忆（便于redo）
         this._tmp = new Normalize( _box );
 
-        // 复原，会丢失引用。
-        // 原生调用，不影响编辑历史。
+        // 原生接口
         _box.normalize();
     }
 
 
     redo() {
-        // 碎片复原使_old系有效。
+        // 使this._subs引用有效
         this._tmp.back();
 
         this._old.slice(1).forEach( nd => nd.remove() );
@@ -3627,6 +3628,24 @@ export const Kit = {
     },
 
     __medcancel: null,
+
+
+    /**
+     * 从范围创建内联单元。
+     * 目标：暂存区/栈顶1项。
+     * @data: Range
+     * @param {String} name 单元名称
+     */
+    rngelem( evo, name ) {
+        let _box = evo.data.commonAncestorContainer;
+
+        if ( _box.nodeType === 3 ) {
+            _box = _box.parentElement;
+        }
+        historyPush( new DOMEdit(() => $.normalize(_box)), new RngEdit(evo.data, name) );
+    },
+
+    __rngelem: 1,
 
 };
 
