@@ -738,7 +738,7 @@ menu li[data-pbo=disabled]:hover {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1px;
-    padding: 2px 0 4px;
+    padding: 1px 1px 0;
     background-color: #f6f6f6;
 }
 .___Content menu._cells > li {

@@ -2847,8 +2847,9 @@ export const Edit = {
     selectSort() {
         let $els = $( __ESet ).sort();
 
-        if ( !$els.length ) return;
-
+        if ( $els.length < 2 ) {
+            return;
+        }
         __ESet.clear().pushes( $els );
 
         historyPush( new ESEdit($els.end(), $els[0]) );
@@ -2862,8 +2863,9 @@ export const Edit = {
     selectReverse() {
         let $els = $( __ESet ).sort().reverse();
 
-        if ( !$els.length ) return;
-
+        if ( $els.length < 2 ) {
+            return;
+        }
         __ESet.clear().pushes( $els );
 
         historyPush( new ESEdit($els.end(2), $els[0]) );

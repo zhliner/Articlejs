@@ -846,6 +846,10 @@ const Children = {
     T.U,
     T.VAR,
 
+    // 特用
+    T.B,
+    T.I,
+
     // 内容行单元。
     T.P,
     T.NOTE,
@@ -1057,7 +1061,7 @@ const Builder = {
 // 简单返回实参即可。
 // 注记：默认处理无需定义，罗列供参考。
 //-----------------------------------------------
-[
+// [
     // 结构元素
     // T.TR,
     // T.THEAD,
@@ -1110,6 +1114,8 @@ const Builder = {
     // T.S,
     // T.U,
     // T.VAR,
+    // T.B
+    // T.I
 
     // 内容行单元。
     // T.P,
@@ -1133,8 +1139,8 @@ const Builder = {
     // T.DD,
     // T.TH,
     // T.TD,
-]
-.forEach( it => Builder[ it ] = el => el );
+// ]
+// .forEach( it => Builder[ it ] = el => el );
 
 
 

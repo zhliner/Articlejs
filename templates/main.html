@@ -124,17 +124,18 @@
         </menu>
         <!-- 内联创建
             store 检查范围对象（在内容元素但非代码内）并存储。
-            show  显示菜单并压入ESC取消栈，提取单击位置相关存储值判断取值。
+            show  显示菜单并压入ESC取消栈，提取单击位置相关存储值计算菜单显示位置。
                   to|focus 聚焦菜单，延时避免滚动框跳动。
-            keydown 快捷键直达（单个字符 data-k）
+            keydown 快捷键直达（data-k），stop避免上层快捷键触发。
+            click 单击条目创建。[data-val] 排除占位<li>。
         -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pbo="hidden"
             on="create|data('range') ev('detail');
                 store|ev('detail') dup (Kit) pop call('rngok', _1) pass;
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) (Kit) $('1/') evo(3) env('pointerXY') call('menupos', _3);
                 cancel blur|evo(3) hide(true) (ESC) apply('pop') (null);
-                keydown|ev('key') slr('/li', '-k', _1) $(_1) dup pass attr('-val');
-                click(li)|evo(2) attr('-val')"
+                keydown|stop ev('key') slr('/li', '-k', _1) $(_1) dup pass attr('-val');
+                click(li[data-val])|evo(2) attr('-val')"
             by="Kit.rngelem(_1)"
             to="#g-scroll|trigger('focus');
                 |data('range')|goto('show');
@@ -142,10 +143,9 @@
                 |data('range');
                 |trigger('create');
                 |trigger('create')">
-            <!--bug:
-                <a>如果包含href，点击事件无法正常冒泡到<li>（内容区有选取时）。
-                感觉像是点击透过菜单层到了内容区，而不是在上层<menu>中发生。 -->
-            <li data-k="a" data-val="a" title="<a>"><b><a href="#">链接</a></b><kbd>a</kbd></li>
+            <!--注记:
+                包含href特性的<a>元素有聚焦能力，单击后会让菜单失焦。-->
+            <li data-k="a" data-val="a" title="<a>"><b><a>链接</a></b><kbd>a</kbd></li>
             <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
             <li data-k="e" data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
