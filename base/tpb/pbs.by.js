@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, Web, deepExtend, namedExtend, subObj, EXTENT, funcSets } from "./config.js";
+import { bindMethod, Web, deepExtend, namedExtend, subObj, hostSet, funcSets } from "./config.js";
 import { Get } from "./pbs.get.js";
 import { App__ } from "./app.js";
 
@@ -90,30 +90,6 @@ const _By = {
 
 
 //
-// 工具函数
-//////////////////////////////////////////////////////////////////////////////
-
-/**
- * 简单赋值成员。
- * @param  {Object} host 宿主对象
- * @param  {String} name 名称序列（句点分隔）
- * @param  {Proxy|Function} item 代理对象或操作句柄
- * @param  {Number} n 取栈数量
- * @return {void}
- */
-function hostSet( host, name, item, n ) {
-    let _ns = name.split( '.' ),
-        _nx = _ns.pop();
-
-    if ( n !== undefined ) {
-        item[EXTENT] = n;
-    }
-    ( subObj(_ns, host) || host )[ _nx ] = item;
-}
-
-
-
-//
 // 预处理/导出。
 //////////////////////////////////////////////////////////////////////////////
 
@@ -135,10 +111,12 @@ export const By = $.proto(
  * - 如果方法需要访问指令单元（this:Cell），传递args为true。
  * 类实例：
  * 支持扩展类实例的方法，此时args需要是一个方法名数组。
+ * 函数：
+ * 支持单个函数扩展到目标子域，此时args为取栈数量实参。
  *
  * @param  {String} name 目标域（子域由句点分隔）
  * @param  {Object|Instance|Function} exts 扩展集或类实例或操作句柄
- * @param  {Boolean|[String]|Number} args 无需绑定或方法名集或取栈数量，可选。
+ * @param  {Boolean|[String]|Number} args 是否无需绑定或方法名集或取栈数量，可选。
  * @return {void}
  */
 export function processExtend( name, exts, args ) {

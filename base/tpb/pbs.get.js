@@ -16,7 +16,7 @@
 
 import { Util } from "./tools/util.js";
 import { Ease } from "./tools/ease.js";
-import { bindMethod, DataStore, Templater, ChainStore, DEBUG } from "./config.js";
+import { bindMethod, DataStore, Templater, ChainStore, DEBUG, hostSet, namedExtend } from "./config.js";
 import { Process } from "./pbs.base.js";
 import { Stack } from "./core.js";
 
@@ -1824,4 +1824,31 @@ export const Get = $.proto(
 export const On = Get;
 
 
-// window.console.info( 'Gets:', Object.keys(Get).length );
+//
+// 用户自定义取值方法空间。
+//
+Get.v = {};
+
+
+/**
+ * 自定义取值方法。
+ * 对象/类实例：
+ * - 方法默认会绑定（bind）到所属宿主对象。
+ * - 可以注入到深层子域，但扩展集本身不支持深层嵌套（不用于By）。
+ * - 如果目标中间子域不存在，会自动创建。
+ * 函数：
+ * 支持单个函数扩展到目标子域，此时args为取栈数量实参。
+ * 注记：
+ * - 这是简化版的 By:processExtend 逻辑。
+ * - 只能在 On.v 空间设置。
+ * @param  {String} name 目标域（可由句点分隔子域）
+ * @param  {Object|Function} exts 扩展集或取值函数
+ * @param  {[String]|Number} args 方法名集或取栈数量，可选。
+ * @return {void}
+ */
+export function customHandle( name, exts, args ) {
+    if ( $.isFunction(exts) ) {
+        return hostSet( Get.v, name, exts, args );
+    }
+    namedExtend( name, exts, args, Get.v );
+}

@@ -184,6 +184,25 @@ function funcSets( f, n, ix ) {
 
 
 /**
+ * 宿主成员简单赋值。
+ * @param  {Object} host 宿主对象
+ * @param  {String} name 名称序列（句点分隔）
+ * @param  {Proxy|Function} item 代理对象或操作句柄
+ * @param  {Number} n 取栈数量
+ * @return {void}
+ */
+function hostSet( host, name, item, n ) {
+    let _ns = name.split( '.' ),
+        _nx = _ns.pop();
+
+    if ( n !== undefined ) {
+        item[EXTENT] = n;
+    }
+    ( subObj(_ns, host) || host )[ _nx ] = item;
+}
+
+
+/**
  * 存储调用链。
  * 如果存在相同事件名，后者会覆盖前者。
  * 只有chain非假时才会存储，但空操作可以创建存储集。
@@ -211,9 +230,9 @@ function funcSets( f, n, ix ) {
  * @param {Object} obj 取值域对象
  */
 function subObj( names, obj ) {
-    let _sub;
+    let _sub = obj;
 
-    for (const name of names) {
+    for ( const name of names || '' ) {
         _sub = obj[name];
 
         if ( !_sub ) {
@@ -257,15 +276,16 @@ function deepExtend( name, exts, nobind, base ) {
  * 具名扩展。
  * 需要指定待扩展的目标方法，且仅限于成员的直接引用。
  * 适用普通对象和任意直接使用的类实例。
+ * 如果接收域标识为空字符串，则接收域会是base本身。
  * 注记同上。
- * @param {String} name 接受域标识
+ * @param {String} name 接收域标识
  * @param {Instance} obj 待扩展对象或类实例
  * @param {[String]} methods 方法名集
  * @param {Object} base 扩展根域
  */
 function namedExtend( name, obj, methods, base ) {
     let host = subObj(
-            name.split('.'),
+            name && name.split('.'),
             base
         );
     for ( const m of methods ) {
@@ -310,6 +330,7 @@ export {
     bindMethod,
     getMethod,
     funcSets,
+    hostSet,
     subObj,
     deepExtend,
     namedExtend,
