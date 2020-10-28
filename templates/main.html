@@ -88,15 +88,17 @@
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass;
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
-            cut|env('minied') end avoid (Kit) call('eset') text clean(' ') trim join('\n');
+            cut|env('minied') end avoid v.elset text clean(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n');
-            copy|env('minied') end Range str end avoid (Kit) call('eset') text clean(' ') trim join('\n') pop clipboard;
-            focus|env('minied') end $('/menu') nodeRange(true) addRange"
+            focus|env('minied') end $('/menu') nodeRange(true) addRange;
+            copy|env('minied') end Range str end avoid v.elset text clean(' ') trim join('\n') pop clipboard"
         by="-;-;
             Ed.deletes pass pop clipboard;
             Ed.paste"
         to="#g-count|trigger('reset');
-            #g-count|trigger('setv')">
+            #g-count|trigger('setv');
+            -;-;
+            #g-count|trigger('reset')">
         <!-- 上下文菜单 -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden">
             <li data-val="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
@@ -131,8 +133,8 @@
         -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pbo="hidden"
             on="create|data('range') ev('detail');
-                store|ev('detail') dup (Kit) pop call('rngok', _1) pass;
-                show|(ESC) evo(3) dup hide(false) apply('add', _1) (Kit) $('1/') evo(3) env('pointerXY') call('menupos', _3);
+                store|ev('detail') dup v.rngok pass;
+                show|(ESC) evo(3) dup hide(false) apply('add', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
                 cancel blur|evo(3) hide(true) (ESC) apply('pop') (null);
                 keydown|stop ev('key') slr('/li', '-k', _1) $(_1) dup pass attr('-val');
                 click(li[data-val])|evo(2) attr('-val')"
@@ -650,11 +652,11 @@
         - varyempty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
         - click(b:x) 微编辑找回编辑点友好。-->
     <div id="g-path" class="_path"
-        on="click(b)|env('minied') end (Kit) evo(2) call('source', _1) scam;
-            mouseenter(b)|('_point') (Kit) evo(2) call('source', _1) pop;
-            mouseleave(b)|stop ('_point') (Kit) evo(2) call('source', _1) pop;
+        on="click(b)|env('minied') end evo(2) v.source scam;
+            mouseenter(b)|('_point') evo(2) v.source pop;
+            mouseleave(b)|stop ('_point') evo(2) v.source pop;
             varyempty;
-            click(b:last-child)|env('minied') pass (Kit) evo(2) call('source', _1) intoView(2);
+            click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
             toggle|evo(3) lose(2)"
         by="Ed.pathTo(_1) $$('/b')"
         to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
@@ -711,7 +713,7 @@
             reset: 清空值，提供选取集大小默认显示。
             setv:  设置值并提供该值的显示。-->
         <input id="g-count" name="count" type="hidden"
-            on="reset|(Kit) call('esize') str('[ ', ' ]') ('');
+            on="reset|v.esize str('[ ', ' ]') ('');
                 setv|(ESC) evo(3) apply('add', _1) ev('detail') dup;
                 cancel|(ESC) apply('pop')"
             to="|val|pop fire('#status-tips', 'info');
@@ -761,9 +763,9 @@
         click 滚动问题元素到视口中间（主窗口聚焦友好）。
         mouseover 问题元素背影提示。-->
     <div id="err-tips" class="_err" data-pbo="lost"
-        on="click|(Kit) evo(3) call('source', _1) dup intoView(2) scam;
-            mouseenter|('_warn') (Kit) evo(3) call('source', _1) pop;
-            mouseleave|('_warn') (Kit) evo(3) call('source', _1) pop;
+        on="click evo(3) v.source dup intoView(2) scam;
+            mouseenter|('_warn') evo(3) v.source pop;
+            mouseleave|('_warn') evo(3) v.source pop;
             off|evo(3) lose;
             on|evo(3) lose(0)"
         by="Kit.tips(_1)"

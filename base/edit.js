@@ -20,6 +20,7 @@
 import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
+import { customHandle } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap } from './common.js';
 import { children, create, tocList } from "./create.js";
@@ -216,10 +217,13 @@ class History {
 class DOMEdit {
     /**
      * 构造一个编辑实例。
+     * 注：检查焦点更新仅适用少数操作。
      * @param {Function} handle 操作函数
+     * @param {Boolean} focus 检查焦点更新
      */
-    constructor( handle ) {
+    constructor( handle, focus ) {
         this._func = handle;
+        this._focus = focus;
         // 外部只读
         this.count = null;
 
@@ -231,7 +235,7 @@ class DOMEdit {
         if ( this.count > 0 ) {
             __TQHistory.back( this.count );
         }
-        updateFocus();
+        this._focus && updateFocus();
     }
 
 
@@ -245,7 +249,7 @@ class DOMEdit {
         this._func();
         this.count = __TQHistory.size() - _old;
 
-        updateFocus();
+        this._focus && updateFocus();
     }
 }
 
@@ -3204,7 +3208,7 @@ export const Edit = {
         if ( !sameTag($els, 'SECTION') ) {
             return help( 'only_section', indentBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Elemedit.sectionsUp($els)) );
+        historyPush( new DOMEdit(() => __Elemedit.sectionsUp($els), true) );
     },
 
 
@@ -3223,7 +3227,7 @@ export const Edit = {
         }
         let _els2 = sectionBoxes( $els );
 
-        historyPush( new DOMEdit(() => __Elemedit.sectionsDown(_els2)) );
+        historyPush( new DOMEdit(() => __Elemedit.sectionsDown(_els2), true) );
     },
 
 
@@ -3443,25 +3447,6 @@ export const Kit = {
 
 
     /**
-     * 获取选取集。
-     * @return {[Element]}
-     */
-    eset() {
-        return [ ...__ESet ];
-    },
-
-
-    /**
-     * 获取选取集大小。
-     * 用途：状态栏友好提示。
-     * @return {Number}
-     */
-    esize() {
-        return __ESet.size;
-    },
-
-
-    /**
      * 选取集取消（清空）。
      * ESC键最底层取消操作。
      * 注记：固定配置不提供外部定制。
@@ -3478,28 +3463,53 @@ export const Kit = {
 
 
     /**
-     * 获取引导元素上存储的源目标。
+     * 获取选取集。
+     * @return {[Element]}
+     */
+    elset() {
+        return [ ...__ESet ];
+    },
+
+
+    /**
+     * 获取选取集大小。
+     * 用途：状态栏友好提示。
+     * @return {Number}
+     */
+    esize() {
+        return __ESet.size;
+    },
+
+
+    /**
+     * 获取导引元素上存储的源目标。
+     * 目标：暂存区/栈顶1项。
+     * 目标为路径导引元素。
      * 用途：
      * - 鼠标指向路径时提示源目标（友好）。
      * - 单击路径元素选取或聚焦关联的目标元素。
      * - 出错提示区源目标指示等。
-     * @param  {Element} box 路径元素（容器）
+     * data: Element
      * @return {Element}
      */
-    source( box ) {
-        return linkElem( box );
+    source( evo ) {
+        return linkElem( evo.data );
     },
+
+    __source: 1,
 
 
     /**
      * 检查范围是否合法。
      * 范围需在文本节点或内容元素但排除代码容器内。
-     * @param  {Range} rng 划选范围对象
+     * 目标：暂存区/栈顶1项。
+     * 目标为划选范围对象。
+     * @data: Range
      * @return {Boolean}
      */
-    rngok( rng ) {
-        let _box = rng.commonAncestorContainer;
-        rng.detach();
+    rngok( evo ) {
+        let _box = evo.data.commonAncestorContainer;
+        evo.data.detach();
 
         if ( _box.nodeType === 3 ) {
             _box = _box.parentElement;
@@ -3509,17 +3519,22 @@ export const Kit = {
         return T.isContent( _tv ) && _tv !== T.CODE;
     },
 
+    __rngok: 1,
+
 
     /**
      * 计算弹出菜单定位点。
      * 超出右边界时，菜单靠右边显示。
+     * 目标：暂存区/栈顶1项。
+     * 目标为菜单元素。
+     * @data: Element
      * @param  {Element} box 滚动容器
      * @param  {Element} menu 菜单元素
      * @param  {[Number, Number]} x/y 定位点坐标（相对文档）
      * @return {[Number, Number]} x/y 的合法坐标
      */
-    menupos( box, menu, [x, y, s] ) {
-        let _mw = $.innerWidth( menu ),
+    menupos( evo, box, [x, y, s] ) {
+        let _mw = $.innerWidth( evo.data ),
             _co = $.offset( box ),
             _bw = $.innerWidth( box ),
             _y2 = y - _co.top + s + Sys.popupGapTop;
@@ -3529,6 +3544,8 @@ export const Kit = {
         }
         return [ _bw - _mw - Sys.popupGapRight, _y2 ];
     },
+
+    __menupos: 1,
 
 
 
@@ -3674,7 +3691,7 @@ export const Kit = {
 
 
 //
-// 扩展到By（仅部分）。
+// By: 编辑操作（部分）。
 //
 processExtend( 'Ed', Edit, [
     'click',
@@ -3689,7 +3706,7 @@ processExtend( 'Ed', Edit, [
 
 
 //
-// 综合工具集。
+// By: 综合工具集。
 //
 processExtend( 'Kit', Kit, [
     'tips',
@@ -3701,6 +3718,17 @@ processExtend( 'Kit', Kit, [
     'rngelem',
 ]);
 
+
+//
+// On.v: 杂项取值。
+//
+customHandle( null, Kit, [
+    'elset',
+    'esize',
+    'source',
+    'rngok',
+    'menupos',
+]);
 
 
 // debug:
