@@ -334,11 +334,14 @@ class RngEdit {
      * @param {String} name 单元名（tag|role）
      */
     constructor( rng, name ) {
+        this._el = create(
+            name,
+            null,
+            rng.cloneContents()
+        );
         this._old = [
             ...rng.extractContents().childNodes
         ];
-        this._el = create( name, null, this._old );
-
         rng.detach();
         rng.insertNode( this._el );
 
@@ -364,8 +367,19 @@ class RngEdit {
         // 使this._subs引用有效
         this._tmp.back();
 
-        this._old.slice(1).forEach( nd => nd.remove() );
+        this._old
+            .slice(1)
+            .forEach( nd => nd.remove() );
+
         this._old[0].replaceWith( this._el );
+    }
+
+
+    /**
+     * 获取新建元素。
+     */
+    elem() {
+        return this._el;
     }
 }
 
@@ -3633,6 +3647,7 @@ export const Kit = {
     /**
      * 从范围创建内联单元。
      * 目标：暂存区/栈顶1项。
+     * 新建的内联元素加入选取集并聚焦。
      * @data: Range
      * @param {String} name 单元名称
      */
@@ -3642,7 +3657,13 @@ export const Kit = {
         if ( _box.nodeType === 3 ) {
             _box = _box.parentElement;
         }
-        historyPush( new DOMEdit(() => $.normalize(_box)), new RngEdit(evo.data, name) );
+        let _old = [...__ESet],
+            _op = new RngEdit( evo.data, name ),
+            _el = _op.elem();
+
+        __Selects.add( _el );
+
+        historyPush( new DOMEdit(() => $.normalize(_box)), _op, new ESEdit(_old, _el) );
     },
 
     __rngelem: 1,
@@ -3675,6 +3696,7 @@ processExtend( 'Kit', Kit, [
     'toclist',
     'medpass',
     'medcancel',
+    'rngelem',
 ]);
 
 

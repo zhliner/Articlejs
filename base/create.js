@@ -286,21 +286,17 @@ const Children = {
 
     /**
      * 代码单元。
-     * 源代码应当已经处理好Tab和语法高亮。
-     * 注记：
-     * 只接受源码数据，不接受不同代码内容的混入。
-     * 这可以保证代码语言和Tab的一致性，
-     * 且代码被设计为特例编辑（高亮解析，严格语法合规）。
+     * 如果是源代码，应当已经处理好Tab和语法高亮。
+     * 对于非源码实参，提取文本插入（内联<code>需要）。
      * @param {Element|null} ref 插入参考元素
      * @param {Element} code 代码元素
-     * @param {String} html 已解析源码
+     * @param {String|Value} data 已解析源码
      */
-    [ T.CODE ]: function( ref, code, _, html ) {
-        if ( typeof html !== 'string' ) {
-            return result( null, null, true );
-        }
-        insertChild( ref, code, $.fragment(data, false) );
-
+    [ T.CODE ]: function( ref, code, _, data ) {
+        $.append(
+            code,
+            typeof data === 'string' ? $.fragment(data, false) : $.Text(data, '')
+        );
         return result( null, code, true );
     },
 

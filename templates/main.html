@@ -142,7 +142,10 @@
                 |data('range');
                 |trigger('create');
                 |trigger('create')">
-            <li data-k="a" data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
+            <!--bug:
+                <a>如果包含href，点击事件无法正常冒泡到<li>（内容区有选取时）。
+                感觉像是点击透过菜单层到了内容区，而不是在上层<menu>中发生。 -->
+            <li data-k="a" data-val="a" title="<a>"><b><a href="#">链接</a></b><kbd>a</kbd></li>
             <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
             <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
             <li data-k="e" data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
