@@ -584,14 +584,14 @@ Content: [
     // 每次缩减一层，不支持数字指定层级数。
     {
         "key":      ["alt:h", "alt:ArrowLeft"],
-        "command":  "indentLess"
+        "command":  "indentReduce"
     },
 
     // 增加缩进（→）。
     // 每次增加一层，不支持同上。
     {
         "key":      ["alt:l", "alt:ArrowRight"],
-        "command":  "indentMore"
+        "command":  "indentIncrease"
     },
 
 
@@ -599,6 +599,13 @@ Content: [
     {
         "key":      ":x",
         "command":  "reversePlaces"
+    },
+
+    // 内容合并。
+    // 以首个被选取元素为容器，仅限于内容元素。
+    {
+        "key":      ":z",
+        "command":  "contentsMerge"
     },
 
 

@@ -186,9 +186,13 @@
             cancel 选取集取消（ESC）。
             mouseup 划选创建内联单元：完整嵌套，非空，发送Range。注：同时存储鼠标指针位置。
             ...([contenteditable]) 微编辑光标记忆，用于特殊字符插入。
+            mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
+            mouseleave|end 重置状态栏，除非已有计数指定。
         -->
         <main id="content" class="content"
             on="click(*)|avoid env('minied') end Range str end evo(1) scam;
+                mouseover(*)|env('minied') end ('_hover');
+                mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) einfo(true) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 cancel|stop env('minied') end (Kit) call('ecancel');
@@ -197,6 +201,8 @@
                 mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass Range pop xRange stop"
             by="Ed.click(_1)"
             to="#g-count|trigger('reset');
+                =|addClass;
+                =|removeClass;
                 #status-tips|trigger('info');
                 #g-count|trigger('reset');
                 #g-count|trigger('reset');

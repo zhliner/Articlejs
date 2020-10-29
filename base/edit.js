@@ -3201,7 +3201,7 @@ export const Edit = {
      * 当前章节提升一级插入到原所属章节之前。
      * 本身就是顶层章节的被简单忽略。
      */
-    indentLess() {
+    indentReduce() {
         let $els = $( __ESet );
         if ( !$els.length ) return;
 
@@ -3218,7 +3218,7 @@ export const Edit = {
      * 当前章节降一级，插入原地构造的一个平级空章节。
      * 末级（s5）章节会被简单忽略。
      */
-    indentMore() {
+    indentIncrease() {
         let $els = $( __ESet );
         if ( !$els.length ) return;
 
@@ -3245,6 +3245,16 @@ export const Edit = {
             return help( 'has_fixed', moveBadit($els) );
         }
         historyPush( new DOMEdit(() => __Elemedit.reverses(els2)) );
+    },
+
+
+    /**
+     * 内容合并。
+     * 仅限于内容元素，按选取顺序执行。首个选取元素为容器。
+     * 被提取内容的元素自身会被移除。
+     */
+    contentsMerge() {
+        //
     },
 
 

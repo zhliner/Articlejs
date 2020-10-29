@@ -106,6 +106,14 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     margin: 0.1em auto;
 }
 
+/* 内联单元显示友好 */
+.content p > *,
+.content li > *,
+.content dd > *,
+.content address > * {
+    padding: 0 2px;
+}
+
 
 /* 提要
  * header:abstract/h3, p+
