@@ -920,6 +920,21 @@ class NodeVary {
 
 
     /**
+     * 内容合并。
+     * 同时会移除内容被合并的容器元素。
+     * @param {Element} box 目标容器
+     * @param {[Element]} els 待合并内容元素集
+     */
+    merges( box, els ) {
+        $.append(
+            box,
+            els.contents().flat()
+        );
+        els.not( canDelete ).remove();
+    }
+
+
+    /**
      * 定位前插入。
      * 将同级兄弟元素向前移动/克隆到指定距离。
      * 超出范围的距离会导致部分或全部逆序插入。
@@ -1556,16 +1571,12 @@ function elementsPostion( $els, name, inc ) {
 
 /**
  * 获取微编辑元素。
- * 如果焦点元素已选取，则为焦点元素，
- * 否则为选取集首个成员。
+ * 仅需提取选取集的首个成员，因为微编辑完成后元素会被取消选取。
+ * 注记：
+ * 与焦点元素无关，按选取集顺序较为友好。
  * @return {Element|null}
  */
 function miniedElem() {
-    let _el = __EHot.get();
-
-    if ( _el && __ESet.has(_el) ) {
-        return _el;
-    }
     return __ESet.first() || null;
 }
 
@@ -1906,13 +1917,27 @@ function indentBadit( els ) {
 
 
 /**
- * 检索首个不能重复元素。
+ * 检索首个不能重复的元素。
  * 注：用于原地克隆判断。
- * @param {[Element]} els 元素集
+ * @param  {[Element]} els 元素集
+ * @return {Element}
  */
 function repeatBadit( els ) {
     for ( const el of els ) {
         if ( isOnly(el) ) return el;
+    }
+}
+
+
+/**
+ * 检索首个非内容元素。
+ * 注：用于内容元素合并。
+ * @param {[Element]} els 元素集
+ * @return {Element}
+ */
+function mergeBadit( els ) {
+    for ( const el of els ) {
+        if ( !isContent(el) ) return el;
     }
 }
 
@@ -3251,10 +3276,18 @@ export const Edit = {
     /**
      * 内容合并。
      * 仅限于内容元素，按选取顺序执行。首个选取元素为容器。
-     * 被提取内容的元素自身会被移除。
+     * 被提取内容的元素自身会被移除（除了不可移除单元）。
      */
     contentsMerge() {
-        //
+        let $els = $(__ESet);
+
+        if ( $els.length < 2 ) {
+            return;
+        }
+        if ( !$els.every(isContent) ) {
+            return help( 'need_conelem', mergeBadit );
+        }
+        historyPush( new DOMEdit( () => __Elemedit.merges($els.shift(), $els) ) );
     },
 
 
