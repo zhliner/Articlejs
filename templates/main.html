@@ -100,34 +100,41 @@
             -;-;
             #g-count|trigger('reset')">
         <!--上下文菜单
-            keydown 快捷处理直达，ESC按下或子菜单未弹出时忽略。
+            keydown 快捷处理直达，ESC按下或子菜单隐藏时忽略（自然由普通模式处理）。
             cancel  按ESC取消显示。简单聚焦内容区使菜单失焦/隐藏即可。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
             on="process|debug;
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
-                keydown|ev('key') eq('Escape') $('/#convert') folded either end stop ev('key') slr('/#convert li', '-k', _1) $(_1) dup pass attr('-val');
+                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-val');
+                click(li)|stop;
                 cancel;
                 blur|evo(3) hide(true) (ESC) apply('pop')"
             by="Kit.process"
             to="#g-scroll||fire('', 'focus');
                 |cssSets('left top') trigger('focus');
                 |trigger('process');
-                #g-scroll|trigger('focus')">
+                |trigger('process');
+                #g-scroll|trigger('focus');
+                -">
             <li data-val="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
-            <li id="convert" role="submenu" data-pbo="folded"
-                on="@sm-1|evo(3) fold(0);
+            <li id="m-conv" role="submenu" data-pbo="folded"
+                on="@sm-1|evo(3) dup fold(0) v.submenu;
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
                     mouseleave|data('tk-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
-                to="-;-;
+                to="/menu|cssSets(_1);
+                    -;
                     |data('tk-1');
                     |data('tk-0')">
                 <h4><b id="l-convert">转换</b></h4>
-                <menu>
+                <!--动态菜单
+                    检查当前选取集，构造可用条目交集。-->
+                <menu
+                    on="click(li)|stop">
                     <li data-k="a" data-val="a" title="<a>"><b><a>链接</a></b><kbd>a</kbd></li>
                     <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
                     <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>

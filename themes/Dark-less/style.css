@@ -345,7 +345,7 @@ aside#help {
 menu {
     position: absolute;
     border-radius: 2px;
-    box-shadow: 1px 1px 3px #444;
+    box-shadow: 0.5px 0.6px 2.5px #333;
     font-size: 14px;
     margin: 0;
     padding: 0;
@@ -465,9 +465,8 @@ menu._cmenu > li > kbd {
 
 /* 子菜单 */
 li[role=submenu] > menu {
-    top: -2px;
     min-width: 146px;
-    left: 144px;
+    /* left: 不可设置; */
 }
 li[role=submenu] > menu > li {
     border-bottom: 1px #ccc solid;
@@ -732,8 +731,10 @@ li[role=submenu] > menu > li {
 }
 .___Content main.content {
     /* 视觉友好 */
-    padding: 0 1em 25em;
+    padding: 0 1em 24em;
     cursor: default;
+    /* 内容充满 */
+    border: 1px transparent solid;
     /* 初始可点击 */
     min-height: 100%;
 }

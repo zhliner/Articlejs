@@ -3474,6 +3474,9 @@ export const Edit = {
 // 仅供模板中在调用链上使用。
 //
 export const Kit = {
+
+    //-- 功能调用 ------------------------------------------------------------
+
     /**
      * 撤销：工具栏按钮。
      * @return {void}
@@ -3506,6 +3509,9 @@ export const Kit = {
         }
         historyPush( new ESEdit(_old) );
     },
+
+
+    //-- On 扩展 -------------------------------------------------------------
 
 
     /**
@@ -3590,6 +3596,26 @@ export const Kit = {
     },
 
     __menupos: 1,
+
+
+    /**
+     * 计算子菜单位置。
+     * 对比子菜单宽度和父菜单的right值：
+     * 小于right正常右侧弹出，否则弹出到左侧（通过返回的配置体现）。
+     * @data Element 当前<li>条目
+     * @return {Object} 样式配置对象
+     */
+    submenu( evo ) {
+        let _box = $.parent( evo.data ),
+            // 友好：-1
+            _bow = $.outerWidth( _box ) - 1 + 'px',
+            _sub = $.children( evo.data, -1 ),
+            _rsp = parseFloat( $.css(_box, 'right') );
+
+        return $.outerWidth(_sub) > _rsp ? { left: null, right: _bow } : { left: _bow, right: null };
+    },
+
+    __submenu: 1,
 
 
 
@@ -3785,6 +3811,7 @@ customGetter( null, Kit, [
     'source',
     'rngok',
     'menupos',
+    'submenu',
 ]);
 
 

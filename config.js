@@ -128,8 +128,8 @@ export const Sys = {
 
     // 弹出菜单边距友好（像素）
     // 顶部距划选文本和右侧靠时距容器边框距离。
-    popupGapTop:    12,
-    popupGapRight:  4,
+    popupGapTop:    10,
+    popupGapRight:  3,
 
 
     // 本地暂存键
