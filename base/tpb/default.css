@@ -34,6 +34,7 @@
 /* 消失 */
 *[data-pbo~='lost'] {
     display: none !important;
+    opacity: 0;
 }
 
 /* 冻结 */
@@ -46,8 +47,8 @@
  * 隐藏除首个子元素之外的子元素。
  */
 *[data-pbo~='folded'] > :first-child ~ * {
-    opacity: 0;
     display: none !important;
+    opacity: 0;
 }
 
 /* 截断：
@@ -55,6 +56,7 @@
  */
 *[data-pbo~='truncated'] ~ * {
     display: none !important;
+    opacity: 0;
 }
 
 /* 充满容器：

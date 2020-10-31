@@ -43,6 +43,7 @@
     <script type="module" async>
         import Tpb from "../base/tpb/tpb.js";
         window.Tpb = Tpb;
+        window.ESC = new Set();
         Tpb.Build( editor );
     </script>
 </head>
@@ -141,7 +142,7 @@
             <li data-val="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 延迟300毫秒显示，延迟400毫秒隐藏 -->
-            <li role="submenu" data-pbo="folded"
+            <li role="submenu" data-pbo=""
                 on="@sm-1|evo(3) fold(0);
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
@@ -150,7 +151,7 @@
                     |data('tk-1');
                     |data('tk-0')">
                 <h4><b id="l-convert">转换</b></h4>
-                <menu class="_cells" tabindex="0" data-pbo="">
+                <menu data-pbo="">
                     <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
                     <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
                     <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
@@ -173,8 +174,8 @@
                         <kbd>r</kbd>
                     </li>
                     <li data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
-                    <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>f</kbd></li>
-                    <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd>p</kbd></li>
+                    <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd></kbd></li>
+                    <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
                     <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
                     <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
                     <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
@@ -215,8 +216,8 @@
                 <kbd>r</kbd>
             </li>
             <li data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
-            <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>f</kbd></li>
-            <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd>p</kbd></li>
+            <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd></kbd></li>
+            <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
             <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
             <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
             <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
@@ -229,8 +230,9 @@
 
         <!-- 内容区 -->
         <main id="content" class="content"
-            on="mouseup|stop;
-                click(*)|avoid">
+            on="contextmenu|avoid;
+                click(*)|avoid"
+            to="#g-cmenu|trigger('show')">
             <!-- 例： -->
             <hgroup>
                 <h1 id="文章的内容结构">文章的内容结构</h1>

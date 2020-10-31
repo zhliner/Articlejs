@@ -20,7 +20,7 @@
 import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
-import { customHandle } from "./tpb/pbs.get.js";
+import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap } from './common.js';
 import { children, create, tocList } from "./create.js";
@@ -3425,20 +3425,18 @@ export const Edit = {
 
     /**
      * 进入微编辑。
-     * 如果焦点元素已选取，针对焦点元素。
-     * 否则针对首个已选取元素，同时移动焦点到目标元素上。
-     * 目标元素应当是一个内容元素，否则仅简单设置焦点。
-     * @param {Element} el 微编辑的目标元素，可选
+     * 需要是一个内容元素，否则仅简单设置焦点。
+     * 注：对选取集逐个处理。
      */
-    miniedIn( el ) {
-        el = el || miniedElem();
-        if ( !el ) return;
+    miniedIn() {
+        let _el = miniedElem();
+        if ( !_el ) return;
 
-        if ( !isContent(el) ) {
-            setFocus( el );
-            return help( 'need_conelem', el );
+        if ( !isContent(_el) ) {
+            setFocus( _el );
+            return help( 'need_conelem', _el );
         }
-        historyPush( ...minied(el) );
+        historyPush( ...minied(_el) );
         currentMinied.active();
 
         $.trigger( contentElem, Sys.medIn, null, true );
@@ -3449,18 +3447,23 @@ export const Edit = {
      * 进入微编辑。
      * 注：光标设置在内容元素末尾。
      */
-    miniedInEnd( el ) {
-        el = el || miniedElem();
-        if ( !el ) return;
+    miniedInEnd() {
+        let _el = miniedElem();
+        if ( !_el ) return;
 
-        if ( !isContent(el) ) {
-            setFocus( el );
-            return help( 'need_conelem', el );
+        if ( !isContent(_el) ) {
+            setFocus( _el );
+            return help( 'need_conelem', _el );
         }
-        historyPush( ...minied(el) );
+        historyPush( ...minied(_el) );
         currentMinied.activeEnd();
 
         $.trigger( contentElem, Sys.medIn, null, true );
+    },
+
+
+    properties() {
+
     },
 
 };
@@ -3569,18 +3572,16 @@ export const Kit = {
      * 计算弹出菜单定位点。
      * 超出右边界时，菜单靠右边显示。
      * 目标：暂存区/栈顶1项。
-     * 目标为菜单元素。
-     * @data: Element
+     * @data: Element 菜单元素
      * @param  {Element} box 滚动容器
-     * @param  {Element} menu 菜单元素
-     * @param  {[Number, Number]} x/y 定位点坐标（相对文档）
-     * @return {[Number, Number]} x/y 的合法坐标
+     * @param  {Number} x 鼠标点x坐标
+     * @return {Number} y 鼠标点y坐标
      */
-    menupos( evo, box, [x, y, s] ) {
-        let _mw = $.innerWidth( evo.data ),
+    menupos( evo, box, [x, y] ) {
+        let _mw = $.outerWidth( evo.data ),
             _co = $.offset( box ),
             _bw = $.innerWidth( box ),
-            _y2 = y - _co.top + s + Sys.popupGapTop;
+            _y2 = y - _co.top + $.scrollTop(box) + Sys.popupGapTop;
 
         if ( x + _mw < _bw + _co.left ) {
             return [ x - _co.left, _y2 ];
@@ -3730,6 +3731,18 @@ export const Kit = {
 
     __rngelem: 1,
 
+
+    /**
+     * 上下文菜单条目处理。
+     * 目标：无。
+     * @param {String} name 处理名称
+     */
+    process( evo, name ) {
+        //
+    },
+
+    __process: null,
+
 };
 
 
@@ -3759,13 +3772,14 @@ processExtend( 'Kit', Kit, [
     'medpass',
     'medcancel',
     'rngelem',
+    'process',
 ]);
 
 
 //
 // On.v: 杂项取值。
 //
-customHandle( null, Kit, [
+customGetter( null, Kit, [
     'elset',
     'esize',
     'source',

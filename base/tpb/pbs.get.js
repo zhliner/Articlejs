@@ -1846,7 +1846,7 @@ Get.v = {};
  * @param  {[String]|Number} args 方法名集或取栈数量，可选。
  * @return {void}
  */
-export function customHandle( name, exts, args ) {
+export function customGetter( name, exts, args ) {
     if ( $.isFunction(exts) ) {
         return hostSet( Get.v, name, exts, args );
     }

@@ -1149,7 +1149,10 @@ const _Process = {
      * @param {[Value]} arr 对比数组
      */
     eqarr( evo, arr ) {
-        return arrayEqual( evo.data, arr );
+        if ( evo.data.length != arr.length ) {
+            return false;
+        }
+        return evo.data.every( (v, i) => v === arr[i] );
     },
 
     __eqarr: 1,
@@ -1769,20 +1772,6 @@ function existValue( obj, name, val ) {
 function existHandle( obj, val ) {
     return $.isArray(val) ?
         (n, i) => existValue(obj, n, val[i]) : n => existValue(obj, n, val);
-}
-
-
-/**
- * 对比两个数组是否相等。
- * 仅为数组成员的浅层相等对比。
- * @param {[Value]} a1 数组1
- * @param {[Value]} a2 数组2
- */
-function arrayEqual( a1, a2 ) {
-    if ( a1.length != a2.length ) {
-        return false;
-    }
-    a1.every( (v, i) => v === a2[i] );
 }
 
 

@@ -56,9 +56,8 @@ aside#help {
  ****************************************************************************/
 
 /* 鼠标滑过 */
-.___Content ._hover{
-    /* background-color: #f9eddc66; */
-}
+.___Content ._hover{}
+
 /* 路径指向 */
 .___Content ._point {
     background-color: rgba(235,235,235,0.3);
@@ -338,8 +337,11 @@ aside#help {
 }
 
 
-/* 菜单默认。
+/* 菜单。
  ****************************************************************************/
+
+/* 通用部分 */
+
 menu {
     position: absolute;
     border-radius: 2px;
@@ -352,13 +354,15 @@ menu {
 }
 
 menu > hr {
-    margin: 5px;
+    margin: 3px 1px;
     border: 1px #c8c8c8 solid;
     border-bottom-color: #f3f3f3;
 }
 menu > li {
     list-style: none;
     border-radius: inherit;
+    display: grid;
+    grid-template-columns: 1fr auto;
 }
 menu > li b {
     font-weight: normal;
@@ -382,14 +386,14 @@ menu li:not([role=submenu]):hover a {
     color: #70b9fc;
 }
 
-/* 子菜单 */
+/* 子菜单项 */
 menu li[role=submenu] {
     position: relative;
 }
 menu li[role=submenu] h4 {
     display: contents;
     font-size: 1em;
-    /* grid-column: 1 / 3; */
+    grid-column: 1 / 3;
 }
 menu li > h4::after {
     /* ⋙﹥▶» */
@@ -410,6 +414,68 @@ menu li[role=submenu]:hover {
 menu li[data-pbo=disabled]:hover {
     background-color: transparent;
 }
+
+
+/* 局部定制 */
+
+menu {
+    z-index: 10;
+    outline: none;
+    padding: 1px 1px 0;
+    background-color: #f6f6f6;
+}
+/* 单元创建（双栏） */
+menu._cells {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+}
+menu._cells > li {
+    padding: 3px 10px 3px 24px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    border: 0 #bbb solid;
+    border-width: 0 1px 1px 0;
+}
+menu._cells > li:nth-child(2n) {
+    /* 右栏右边0 */
+    border-right-width: 0;
+}
+menu._cells b {
+    min-width: 60px;
+}
+/* 个别修订 */
+menu._cells code {
+    vertical-align: middle;
+}
+
+/* 上下文菜单 */
+menu._cmenu {
+    padding: 5px 1px;
+    text-shadow: 1px 1px 1px #f9f9f9;
+    background-color: #eeeeed;
+}
+menu._cmenu > li {
+    padding: 4px 10px;
+    column-gap: 14px;
+}
+menu._cmenu > li > kbd {
+    min-width: 60px;
+}
+
+/* 子菜单 */
+li[role=submenu] > menu {
+    top: -2px;
+    min-width: 146px;
+    left: 144px;
+}
+li[role=submenu] > menu > li {
+    border-bottom: 1px #ccc solid;
+    margin: 1px 0;
+    padding: 3px 12px 4px 24px;
+    column-gap: 14px;
+}
+
 
 
 /* [ 顶层 ]
@@ -727,62 +793,6 @@ menu li[data-pbo=disabled]:hover {
 .___Content ol[role=codelist] li > code {
     /* 微编辑友好 */
     display: block;
-}
-
-
-/* 菜单
- *************************************/
-
-.___Content menu {
-    z-index: 10;
-    outline: none;
-}
-/* 单元创建（双栏） */
-.___Content menu._cells {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    padding: 1px 1px 0;
-    background-color: #f6f6f6;
-}
-.___Content menu._cells > li {
-    padding: 3px 10px 3px 26px;
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    border: 0 #bbb solid;
-    border-width: 0 1px 1px 0;
-}
-.___Content menu._cells > li:nth-child(2n) {
-    /* 右栏右边0 */
-    border-right-width: 0;
-}
-.___Content menu._cells b {
-    min-width: 60px;
-}
-/* 个别修订 */
-.___Content menu._cells code {
-    vertical-align: middle;
-}
-
-/* 上下文菜单 */
-.___Content menu._cmenu {
-    padding: 5px 1px;
-    text-shadow: 1px 1px 1px #f9f9f9;
-    background-color: #eeeeed;
-}
-.___Content menu._cmenu > li {
-    padding: 2px 12px 3px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: 14px;
-}
-.___Content menu._cmenu > li > kbd {
-    min-width: 60px;
-}
-/* 子菜单 */
-.___Content menu > li[role=submenu] > menu {
-    top: -2px;
-    left: 147px;
 }
 
 

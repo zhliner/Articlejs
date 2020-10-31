@@ -732,7 +732,7 @@ Slave: [
             ":c",       // <code>       | custom        | codeblock
             ":d",       // <del>        | ...           | details
             ":e",       // <em>         | emotion
-            ":f",       // <dfn>        | ...           | figure
+            ":f",       // ...          | ...           | figure
             ":g",       // ...          | geometric
             ":h",       // ...          | ...           | header
             ":i",       // <img>        | ipa87
@@ -749,9 +749,7 @@ Slave: [
             ":u",       // <u>          | unit          | ul
             ":v",       // <video>
             ":w",       // <wbr>
-            ":x",       // <sub>, 特例（常）
-            ":y",       // <sup>, 特例（常）
-            ":z",       // ...          | phonetic
+            ":z",       // ...          | phonetic（拼音）
         ],
         "command":  "input.select",
         "exclude":  "textarea, input"
