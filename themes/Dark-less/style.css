@@ -466,7 +466,6 @@ menu._cmenu > li > kbd {
 /* 子菜单 */
 li[role=submenu] > menu {
     min-width: 146px;
-    /* left: 不可设置; */
 }
 li[role=submenu] > menu > li {
     border-bottom: 1px #ccc solid;

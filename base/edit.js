@@ -72,6 +72,16 @@ const
         T.ADDRESS,
     ]),
 
+    // 上下文菜单条目处理。
+    // 对应相应的操作函数（Edit.xxx）。
+    __cmenuOpers = {
+        minied:     'miniedIn',
+        toup:       'indentReduce',
+        todown:     'indentIncrease',
+        delete:     'deletes',
+        property:   'properties',
+    },
+
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
 
@@ -3612,7 +3622,7 @@ export const Kit = {
             _sub = $.children( evo.data, -1 ),
             _rsp = parseFloat( $.css(_box, 'right') );
 
-        return $.outerWidth(_sub) > _rsp ? { left: null, right: _bow } : { left: _bow, right: null };
+        return $.outerWidth(_sub) > _rsp ? { left: 'auto', right: _bow } : { left: _bow, right: 'auto' };
     },
 
     __submenu: 1,
@@ -3760,14 +3770,17 @@ export const Kit = {
 
     /**
      * 上下文菜单条目处理。
-     * 目标：无。
-     * @param {String} name 处理名称
+     * 目标：暂存区/栈顶1项。
+     * 目标为菜单条目处理项名称（data-op）。
+     * 注：不包含转换子菜单。
+     * @data: String 处理名称
      */
-    process( evo, name ) {
-        //
+    context( evo ) {
+        let _fn = __cmenuOpers[evo.data];
+        return _fn && Edit[ _fn ]();
     },
 
-    __process: null,
+    __context: 1,
 
 };
 
@@ -3798,7 +3811,7 @@ processExtend( 'Kit', Kit, [
     'medpass',
     'medcancel',
     'rngelem',
-    'process',
+    'context',
 ]);
 
 

@@ -61,11 +61,11 @@
 <!--内容区
     medin 进入微编辑（Sys.medIn）
     medok 确认微编辑（Sys.medOk）
-    info|focus 确认后聚焦根容器，便于键盘控。
+    info|focus  确认后聚焦根容器，便于键盘控。
     medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
-          注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
+                注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
     @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
-    @paste 粘贴为纯文本。 -->
+    @paste   粘贴为纯文本。 -->
 <div class="___Content" tpl-name="main:content"
     on="@keydown|key(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
         cancel|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
@@ -101,23 +101,23 @@
             #g-count|trigger('reset')">
         <!--上下文菜单
             keydown 快捷处理直达，ESC按下或子菜单隐藏时忽略（自然由普通模式处理）。
-            cancel  按ESC取消显示。简单聚焦内容区使菜单失焦/隐藏即可。
+            cancel  按ESC隐藏菜单。简单聚焦内容区使菜单失焦/隐藏即可。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
-            on="process|debug;
+            on="context|ev('detail');
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
-                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-val');
-                click(li)|stop;
+                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-op');
+                click(li[data-op])|evo(2) attr('-op');
                 cancel;
                 blur|evo(3) hide(true) (ESC) apply('pop')"
-            by="Kit.process"
+            by="Kit.context"
             to="#g-scroll||fire('', 'focus');
-                |cssSets('left top') trigger('focus');
-                |trigger('process');
-                |trigger('process');
+                |cssSets('left top')|fire('', 'focus');
+                |trigger('context');
+                |trigger('context');
                 #g-scroll|trigger('focus');
                 -">
-            <li data-val="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
+            <li data-op="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
@@ -152,12 +152,12 @@
                 </menu>
             </li>
             <hr>
-            <li data-val="toup"><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
-            <li data-val="todown"><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
+            <li data-op="toup"><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
+            <li data-op="todown"><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
             <hr>
-            <li data-val="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
+            <li data-op="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
             <hr>
-            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+            <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内联创建
             store 检查范围对象（在内容元素但非代码内）并存储。
@@ -810,7 +810,7 @@
         click 滚动问题元素到视口中间（主窗口聚焦友好）。
         mouseover 问题元素背影提示。-->
     <div id="err-tips" class="_err" data-pbo="lost"
-        on="click evo(3) v.source dup intoView(2) scam;
+        on="click|evo(3) v.source dup intoView(2) scam;
             mouseenter|('_warn') evo(3) v.source pop;
             mouseleave|('_warn') evo(3) v.source pop;
             off|evo(3) lose;
@@ -819,8 +819,7 @@
         to="body|trigger('focus.content');
             -|addClass;
             -|removeClass;
-            /a|trigger('clear');
-            -">
+            /a|trigger('clear')">
         <a data-hid="" title="这里也设置提示，便于超长的信息可以简单查看"
             on="setv|ev('detail');
                 clear|(null)"
