@@ -1,12 +1,17 @@
-//! $Id: defined.js 2020.05.09 Articlejs.Config $
-// ++++++++++++++++++++++++++++++++++++++++++++++++
+//! $Id: templates.js 2020.05.09 Articlejs.Config $
+// ++++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2019 - 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  全局定义集。
+//  模板配置集。
+//
+//  包含各单元对应的创建/转换条目模板项（<option>|<li>）。
+//  以及转换的合法目标项集配置。
+//
+//  另外还包含单元属性编辑的属性条目清单。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,51 +21,16 @@ import * as T from "./types.js";
 
 
 //
-// 模板名映射。
-//////////////////////////////////////////////////////////////////////////////
-
-
-//
-// 单元属性编辑：{
-//      单元值：模板名,
-// }
-// 上下文菜单中“属性”条目匹配的模板。
-// 注：不是所有的单元都有属性可编辑。
-//
-export const PropItems = {
-    [ T.AUDIO ]:        'property:audio',       // source, track, text
-    [ T.VIDEO ]:        'property:video',       // 同上
-    [ T.PICTURE ]:      'property:picture',     // img, source...
-    [ T.SVG ]:          'property:svg',         // width, height, html
-    [ T.IMG ]:          'property:img',         // src, width, height, alt
-    [ T.RUBY ]:         'property:ruby',        // rb, rt, rp
-    [ T.TIME ]:         'property:time',        // datetime, text
-    [ T.METER ]:        'property:meter',       // max, min, high, low, value, optimum
-    [ T.SPACE ]:        'property:space',       // width
-    [ T.A ]:            'property:a',           // href, target, download[checkbox, text]
-    [ T.Q ]:            'property:q',           // cite
-    [ T.ABBR ]:         'property:abbr',        // title
-    [ T.DEL ]:          'property:del',         // datetime
-    [ T.INS ]:          'property:ins',         // 同上
-    [ T.CODE ]:         'property:code',        // data-lang, data-tab
-    [ T.DFN ]:          'property:dfn',         // title
-    [ T.BDO ]:          'property:bdo',         // dir
-    [ T.CODELIST ]:     'property:codelist',    // data-lang, data-tab, start
-    [ T.OL ]:           'property:ol',          // start, type, reversed
-    [ T.OLX ]:          'property:olx',         // 同上
-    [ T.TABLE ]:        'property:table',       // rows, cols, caption
-    [ T.HR ]:           'property:hr',          // thick, length, height
-    [ T.BLANK ]:        'property:blank',       // width, height
-};
-
-
-//
-// 插入条目选单：{
+// 插入条目：{
 //      单元值：模板名
 // }
-// 普通插入模式下待插入条目的 选单=>模板名 映射。
+// 普通模式下待插入条目的 选单/模板名 映射。
+//////////////////////////////////////////////////////////////////////////////
+// 注记：
+// <option value="[录入模板名]">[条目名]</option>
+// 用户单击选单，OBT提取录入模板并在录入区显示，供用户录入内容。
 //
-export const InputOption = {
+const InputItems = {
     [ T.$TEXT ]:        'option:text',  // 单行文本
     [ T.AUDIO ]:        'option:audio',
     [ T.VIDEO ]:        'option:video',
@@ -163,13 +133,65 @@ export const InputOption = {
 };
 
 
+
 //
-// 子单元选单合并定制。
+// 转换条目：{
+//      单元值：模板名
+// }
+// 上下文菜单中转换子菜单的转换目标条目。
+//////////////////////////////////////////////////////////////////////////////
 // 注记：
-// 部分单元的子单元构建存在约束，故此定制。
+// <li data-val="">目标名</li>
+// 单击将选取集逐一转换为目标类型单元。这是一个交集。
 //
-const OptionCustom = {
-    [ T.RUBY ]:   [ T.RBPT ],
+const ConvItems = {
+    //
+};
+
+
+//
+// 可转换配置映射。
+//----------------------------------------------------------------------------
+//
+const Converts = {
+    //
+};
+
+
+
+//
+// 单元属性：{
+//      单元值：模板名,
+// }
+// 即上下文菜单中“属性”条目匹配的模板。
+// 不是所有的单元都有属性可编辑。
+//////////////////////////////////////////////////////////////////////////////
+// 注记：选取集单元必须相同，才能调出属性编辑框。
+//
+const Properties = {
+    [ T.AUDIO ]:        'property:audio',       // source, track, text
+    [ T.VIDEO ]:        'property:video',       // 同上
+    [ T.PICTURE ]:      'property:picture',     // img, source...
+    [ T.SVG ]:          'property:svg',         // width, height, html
+    [ T.IMG ]:          'property:img',         // src, width, height, alt
+    [ T.RUBY ]:         'property:ruby',        // rb, rt, rp
+    [ T.TIME ]:         'property:time',        // datetime, text
+    [ T.METER ]:        'property:meter',       // max, min, high, low, value, optimum
+    [ T.SPACE ]:        'property:space',       // width
+    [ T.A ]:            'property:a',           // href, target, download[checkbox, text]
+    [ T.Q ]:            'property:q',           // cite
+    [ T.ABBR ]:         'property:abbr',        // title
+    [ T.DEL ]:          'property:del',         // datetime
+    [ T.INS ]:          'property:ins',         // 同上
+    [ T.CODE ]:         'property:code',        // data-lang, data-tab
+    [ T.DFN ]:          'property:dfn',         // title
+    [ T.BDO ]:          'property:bdo',         // dir
+    [ T.CODELIST ]:     'property:codelist',    // data-lang, data-tab, start
+    [ T.OL ]:           'property:ol',          // start, type, reversed
+    [ T.OLX ]:          'property:olx',         // 同上
+    [ T.TABLE ]:        'property:table',       // rows, cols, caption
+    [ T.HR ]:           'property:hr',          // thick, length, height
+    [ T.BLANK ]:        'property:blank',       // width, height
 };
 
 
