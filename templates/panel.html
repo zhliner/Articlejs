@@ -14,39 +14,13 @@
                 <input type="radio" name="where"><i id="l-children"></i>
             </label>
         </div>
-        <!--动态更新：与目标关联的合法单元
-            input.select:
-            与内联单元和字符种类共享快捷键指向，检查通过（dup pass）。 -->
+        <!--input.select 快捷键选取。从data-k特性取值触发，仅部分（dup pass）。-->
         <select id="input-items" name="items" size="5" class="_list"
             on="change|evo(3) val pop tpl;
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="form/._body|replace;
                 |val|goto('change')">
-            <option title="<h1,+h2>" value="input:heading">标题</option>
-            <option title="<header:abstract>" value="input:abstract">提要</option>
-            <option data-k="r" title="<ol:reference>" value="input:reference">文献参考〔r〕</option>
-            <option title="<ul:seealso>" value="input:seealso">另参见</option>
-            <option data-k="h" title="<header>" value="input:header">导言〔h〕</option>
-            <option title="<footer>" value="input:footer">结语</option>
-            <option data-k="s" title="<section>" value="input:section">片区〔s〕</option>
-            <option data-k="u" title="<ul>" value="input:ul">无序列表〔u〕</option>
-            <option data-k="o" title="<ol>" value="input:ol">有序列表〔o〕</option>
-            <option title="<ol:cascade>" value="input:cascade">级联表</option>
-            <option title="<dl>" value="input:dl">定义列表</option>
-            <option data-k="b" title="<blockquote>" value="input:blockquote">引用块〔b〕</option>
-            <option title="<aside>" value="input:aside">批注块</option>
-            <option data-k="d" title="<details>" value="input:details">详细内容〔d〕</option>
-            <option data-k="l" title="<ol:codelist>" value="input:codelist">代码表〔l〕</option>
-            <option data-k="c" title="<pre:codeblock>" value="input:codeblock">代码块〔c〕</option>
-            <option data-k="t" title="<table>" value="input:table">表格〔t〕</option>
-            <option data-k="f" title="<figure>" value="input:figure">插图〔f〕</option>
-            <option data-k="p" title="<p>" value="input:p">段落〔p〕</option>
-            <option data-k="n" title="<p:note>" value="input:note">注解〔n〕</option>
-            <option title="<p:tips>" value="input:tips">提示</option>
-            <option data-k="a" title="<address>" value="input:address">地址〔a〕</option>
-            <option title="<pre>" value="input:pre">预排版</option>
-            <option title="<hr>" value="input:hr">分割</option>
-            <option title="<div:blank>" value="input:blank">白板</option>
+            <!-- 动态更新：与目标关联的合法单元。 -->
         </select>
     </div>
     <div class="_body _Empty" tpl-name="input:empty">
@@ -70,48 +44,13 @@
                 <input type="radio" name="where" value="item:ctypes" data-val="minied:chars" /><i id="l-schar"></i>
             </label>
         </div>
-        <!--input.select:
-            与行块单元和字符种类共享快捷键指向，需检查通过。 -->
+        <!--input.select 快捷键选取。从data-k特性取值触发。-->
         <select name="inlines" size="5" class="_list _inlines" tpl-name="item:inlines"
-            on="change|evo(3) val str('inlines:') pop tpl;
+            on="change|evo(3) val pop tpl;
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="2/._prop|replace;
                 |val|goto('change')">
-            <!-- tpl: inlines:[value] -->
-            <option data-k="i" title="<img>" value="img">图片〔i〕</option>
-            <option title="<audio>" value="audio">音频</option>
-            <option data-k="v" title="<video>" value="video">视频〔v〕</option>
-            <option data-k="p" title="<picture>" value="picture">最佳图片〔p〕</option>
-            <option title="<svg>" value="svg">图形</option>
-            <option data-k="a" title="<a>" value="a">链接〔a〕</option>
-            <option data-k="c" title="<code>" value="code">代码〔c〕</option>
-            <option data-k="s" title="<strong>" value="strong">重点〔s〕</option>
-            <option data-k="e" title="<em>" value="em">强调〔e〕</option>
-            <option data-k="x" title="<sub>" value="sub">下标〔x〕</option>
-            <option data-k="y" title="<sup>" value="sup">上标〔y〕</option>
-            <option data-k="q" title="<q>" value="q">短引用〔q〕</option>
-            <option data-k="t" title="<time>" value="times">日期/时间〔t〕</option>
-            <option title="<ins>" value="ins">插入性</option>
-            <option data-k="d" title="<del>" value="del">已删除〔d〕</option>
-            <option title="<abbr>" value="abbr">缩写</option>
-            <option data-k="l" title="<small>" value="small">注脚〔l〕</option>
-            <option title="<cite>" value="cite">来源</option>
-            <option data-k="m" title="<mark>" value="mark">标记〔m〕</option>
-            <option data-k="r" title="<ruby/rb,rp,rt>" value="ruby">注音单元〔r〕</option>
-            <option data-k="o" title="<code:orz>" value="orz">表情〔o〕</option>
-            <option data-k="f" title="<dfn>" value="dfn">定义条目〔f〕</option>
-            <option title="<samp>" value="samp">样本</option>
-            <option data-k="k" title="<kbd>" value="kbd">键盘字〔k〕</option>
-            <option title="<meter>" value="meter">量度标示</option>
-            <option title="<s>" value="s">失效</option>
-            <option data-k="u" title="<u>" value="u">注记〔u〕</option>
-            <option title="<var>" value="var">变量</option>
-            <option data-k="b" title="<bdo>" value="bdo">有向文本〔b〕</option>
-            <option title="<br>" value="br">换行</option>
-            <option data-k="w" title="<wbr>" value="wbr">软换行〔w〕</option>
-            <option title="<span:space>" value="space">空白段</option>
-            <!-- 友好保留 -->
-            <option title="#text" value="text">文本</option>
+            <!-- 内联单元清单 -->
         </select>
     </div>
     <div class="_body" tpl-source="minied:inlines"> [主栏：单元属性] </div>

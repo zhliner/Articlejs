@@ -821,7 +821,6 @@ const Children = {
     T.RB,
     // T.RT,  // 作为选项
     // T.RP,  // 作为选项
-    T.EXPLAIN,
 
     // 内联内容元素。
     T.A,
@@ -1014,26 +1013,22 @@ const Builder = {
         return tableObj( tbl, _tbo ), tbl;
     },
 
-
-    // 定制构建。
-    // [ T.B ]: null,
-    // [ T.I ]: null,
-
 };
 
 
 //
-// 正常特性设置。
+// 特性设置。
+// 格式：取值名:特性名?
+// 如果省略特性名定义，表示与取值名相同。
 //-----------------------------------------------
 [
-    // 规范特性。
+    // 普通特性。
     [ T.AUDIO,      ['src', 'autoplay', 'loop', 'controls'] ],
     [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls'] ],
     [ T.IMG,        ['src', 'alt', 'width', 'height'] ],
     [ T.TRACK,      ['kind', 'src', 'srclang', 'label', 'default'] ],
     [ T.SOURCE,     ['src', 'type'] ],
     [ T.METER,      ['value', 'max', 'min', 'high', 'low', 'optimum'] ],
-    [ T.CODELIST,   ['-lang', '-tab', 'start'] ],
     [ T.CODELI,     ['value'] ],
     [ T.BLOCKQUOTE, ['cite'] ],
     [ T.DETAILS,    ['open'] ],
@@ -1044,7 +1039,11 @@ const Builder = {
     [ T.INS,        ['datetime', 'cite'] ],
     [ T.DFN,        ['title'] ],
     [ T.BDO,        ['dir'] ],
-    [ T.CODE,       ['-lang', '-tab'] ],
+
+    // 含定制取值名
+    [ T.CODELIST,   ['lang:-lang', 'tab:-tab', 'start'] ],
+    [ T.CODE,       ['lang:-lang', 'tab:-tab'] ],
+    [ T.EXPLAIN,    ['fix:-pba'] ],
 ]
 .forEach(function( its ) {
     /**
@@ -1161,17 +1160,19 @@ function _element( tag, role ) {
 
 
 /**
- * 提取成员构建新对象。
- * 仅有定义的成员才进入新对象中。
+ * 提取配置成员。
+ * 仅当配置中有值时才会被提取。
+ * 配置串格式：取值名:特性名?
  * @param {Object} obj 源对象
  * @param {[String]} names 键名序列
  */
 function attrPicks( obj, names ) {
     let _o = {};
 
-    names.forEach(
-        k => obj[k] !== undefined && ( _o[k] = obj[k] )
-    );
+    for ( const k2 of names ) {
+        let [n, k] = k2.split( ':' );
+        if ( obj[n] !== undefined ) _o[k || n] = obj[n];
+    }
     return _o;
 }
 
@@ -1594,18 +1595,17 @@ function elem( tval, data ) {
  * 单元构建，包含节点树。
  * 适用初始新建或节点树迭代构建。
  * opts: {
- *      date:   {String}    日期
- *      time:   {String}    时间
- *      lang:   {String}    代码语言
- *      tab:    {Number}    Tab键空格数
- *      ....    正常的元素特性
- *
- *      thick:  {String}    分割线厚度（CSS: border-width）
- *      length: {String}    分割线长度（CSS: width）
- *      space:  {String}    分割线空白（CSS: height）
- *
- *      cols:   {Number}    表格列数（注：无rows）
- *      border: {String}    边框类型
+ *      date:   {String}  日期
+ *      time:   {String}  时间
+ *      lang:   {String}  代码语言（data-lang）
+ *      tab:    {Number}  Tab键空格数（data-tab）
+ *      thick:  {String}  分割线厚度（CSS: border-width）
+ *      length: {String}  分割线长度（CSS: width）
+ *      space:  {String}  分割线空白（CSS: height）
+ *      cols:   {Number}  表格列数。注记：无rows
+ *      border: {String}  边框类型
+ *      fix:    {String}  定位对齐（explain:pba）
+ *      ....    {String}  正常的元素特性
  * }
  * 注记：
  * 如果需要创建多条子单元，data必须是一个数据集（数组）。
@@ -1653,7 +1653,7 @@ function build( el, opts, data, more ) {
  *      h4:         {Value}   级联表标题
  *      h4a:        {Element} 级联表标题链接（<a>）
  *      explain:    {Value}   图片讲解
- *      h2:         {Value}   片区（section）标题
+ *      h2:         {Value}   片区（<section>）标题
  *      header:     {Boolean} 创建导言部分
  *      footer:     {Boolean} 创建结语部分
  *      dt:         {Value}   定义列表标题项

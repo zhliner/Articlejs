@@ -737,7 +737,7 @@ Slave: [
             ":h",       // ...          | ...           | header
             ":i",       // <img>        | ipa87
             ":k",       // <kbd>
-            ":l",       // <small>      | ...           | codelist
+            ":l",       // ...          | ...           | codelist
             ":m",       // <mark>       | math
             ":n",       // ...          | number        | p:note
             ":o",       // <code:orz>   | ...           | ol
