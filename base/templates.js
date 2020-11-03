@@ -30,45 +30,51 @@ import * as T from "./types.js";
 // <option value="[录入模板名]">[条目名]</option>
 // 用户单击选单，OBT提取录入模板并在录入区显示，供用户录入内容。
 //
-const InputItems = {
-    [ T.$TEXT ]:        'option:text',  // 单行文本
+const InputOptions = {
+    [ T.$TEXT ]:        'option:text',
+
     [ T.AUDIO ]:        'option:audio',
     [ T.VIDEO ]:        'option:video',
     [ T.PICTURE ]:      'option:picture',
     [ T.SVG ]:          'option:svg',
-    [ T.IMG ]:          'option:img',
     [ T.RUBY ]:         'option:ruby',
-    [ T.TIME ]:         'option:time',
     [ T.METER ]:        'option:meter',
+    [ T.SPACE ]:        'option:space',
+    [ T.IMG ]:          'option:img',
     [ T.BR ]:           'option:br',
     [ T.WBR ]:          'option:wbr',
-    [ T.SPACE ]:        'option:space',
 
     [ T.TRACK ]:        'option:track',
     [ T.SOURCE ]:       'option:source',
+    [ T.EXPLAIN ]:      'option:explain',
     [ T.RBPT ]:         'option:rbpt',
+    [ T.SVGITEM ]:      'option:svgitem',
 
     [ T.A ]:            'option:a',
-    [ T.STRONG ]:       'option:strong',
-    [ T.EM ]:           'option:em',
     [ T.Q ]:            'option:q',
     [ T.ABBR ]:         'option:abbr',
-    [ T.CITE ]:         'option:cite',
-    [ T.SMALL ]:        'option:small',
     [ T.DEL ]:          'option:del',
     [ T.INS ]:          'option:ins',
+    [ T.DFN ]:          'option:dfn',
+    [ T.BDO ]:          'option:bdo',
+    [ T.TIME ]:         'option:time',
+    [ T.CODE ]:         'option:code',
+    [ T.STRONG ]:       'option:strong',
+    [ T.EM ]:           'option:em',
+    [ T.CITE ]:         'option:cite',
+    [ T.SMALL ]:        'option:small',
     [ T.SUB ]:          'option:sub',
     [ T.SUP ]:          'option:sup',
     [ T.MARK ]:         'option:mark',
-    [ T.CODE ]:         'option:code',
     [ T.ORZ ]:          'option:orz',
-    [ T.DFN ]:          'option:dfn',
     [ T.SAMP ]:         'option:samp',
     [ T.KBD ]:          'option:kbd',
     [ T.S ]:            'option:s',
     [ T.U ]:            'option:u',
     [ T.VAR ]:          'option:var',
-    [ T.BDO ]:          'option:bdo',
+    // 不支持单独创建
+    // [ T.B ]:         '',
+    // [ T.I ]:         '',
 
     [ T.P ]:            'option:p',
     [ T.NOTE ]:         'option:note',
@@ -90,30 +96,31 @@ const InputItems = {
     [ T.DD ]:           'option:dd',
     [ T.TH ]:           'option:th',
     [ T.TD ]:           'option:td',
-    [ T.CODELI ]:       'option:codeli',
-    [ T.ALI ]:          'option:ali',
-    [ T.AH4LI ]:        'option:ah4li',
-    [ T.AH4 ]:          'option:ah4',
-    [ T.XH4LI ]:        'option:xh4li',
-    [ T.CASCADEH4LI ]:  'option:cascadeh4li',
     [ T.TR ]:           'option:tr',
     [ T.THEAD ]:        'option:thead',
     [ T.TBODY ]:        'option:tbody',
     [ T.TFOOT ]:        'option:tfoot',
 
+    [ T.CODELI ]:       'option:codeli',
+    [ T.ALI ]:          'option:ali',
+    [ T.AH4 ]:          'option:ah4',
+    [ T.XH4LI ]:        'option:xh4li',
+    [ T.CASCADEH4LI ]:  'option:cascadeh4li',
+    [ T.CASCADEAH4LI ]: 'option:cascadeah4li',
+    [ T.FIGIMGBOX ]:    'option:figimgbox',
+
     [ T.HGROUP ]:       'option:hgroup',
-    [ T.ABSTRACT ]:     'option:abstract',
-    [ T.TOC ]:          'option:toc',
-    [ T.SEEALSO ]:      'option:seealso',
-    [ T.REFERENCE ]:    'option:reference',
-    [ T.HEADER ]:       'option:header',
-    [ T.FOOTER ]:       'option:footer',
-    [ T.ARTICLE ]:      'option:article',
     [ T.S1 ]:           'option:s1',
     [ T.S2 ]:           'option:s2',
     [ T.S3 ]:           'option:s3',
     [ T.S4 ]:           'option:s4',
     [ T.S5 ]:           'option:s5',
+    [ T.ABSTRACT ]:     'option:abstract',
+    [ T.SEEALSO ]:      'option:seealso',
+    [ T.REFERENCE ]:    'option:reference',
+    [ T.HEADER ]:       'option:header',
+    [ T.FOOTER ]:       'option:footer',
+    [ T.SECTION ]:      'option:section',
     [ T.UL ]:           'option:ul',
     [ T.OL ]:           'option:ol',
     [ T.CODELIST ]:     'option:codelist',
@@ -144,17 +151,48 @@ const InputItems = {
 // <li data-val="">目标名</li>
 // 单击将选取集逐一转换为目标类型单元。这是一个交集。
 //
-const ConvItems = {
-    //
-};
+const ConvertItems = {
+    // 内联单元。
+    [ T.A ]:            'item:a',
+    [ T.Q ]:            'item:q',
+    [ T.ABBR ]:         'item:abbr',
+    [ T.DEL ]:          'item:del',
+    [ T.INS ]:          'item:ins',
+    [ T.DFN ]:          'item:dfn',
+    [ T.BDO ]:          'item:bdo',
+    [ T.TIME ]:         'item:time',
+    [ T.CODE ]:         'item:code',
+    [ T.STRONG ]:       'item:strong',
+    [ T.EM ]:           'item:em',
+    [ T.CITE ]:         'item:cite',
+    [ T.SMALL ]:        'item:small',
+    [ T.SUB ]:          'item:sub',
+    [ T.SUP ]:          'item:sup',
+    [ T.MARK ]:         'item:mark',
+    [ T.ORZ ]:          'item:orz',
+    [ T.SAMP ]:         'item:samp',
+    [ T.KBD ]:          'item:kbd',
+    [ T.S ]:            'item:s',
+    [ T.U ]:            'item:u',
+    [ T.VAR ]:          'item:var',
+    [ T.B ]:            'item:b',   // 转换支持
+    [ T.I ]:            'item:i',   // 转换支持
 
-
-//
-// 可转换配置映射。
-//----------------------------------------------------------------------------
-//
-const Converts = {
-    //
+    // 行块单元。
+    [ T.P ]:            'item:p',
+    [ T.NOTE ]:         'item:note',
+    [ T.TIPS ]:         'item:tips',
+    [ T.PRE ]:          'item:pre',
+    [ T.ADDRESS ]:      'item:address',
+    [ T.UL ]:           'item:ul',
+    [ T.OL ]:           'item:ol',
+    [ T.ULX ]:          'item:ulx',
+    [ T.OLX ]:          'item:olx',
+    [ T.CASCADE ]:      'item:cascade',
+    [ T.DL ]:           'item:dl',
+    [ T.BLOCKQUOTE ]:   'item:blockquote',
+    [ T.ASIDE ]:        'item:aside',
+    [ T.DETAILS ]:      'item:details',
 };
 
 
