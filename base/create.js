@@ -394,7 +394,7 @@ const Children = {
      * 级联表标题项。
      * 如果没有传递 h4，取<li>容器内容创建。
      * 如果传递了 h4，原<li>内容会被清空丢弃。
-     * 注：非子表数据默认创建<ul>子表。
+     * 注：数据非子列表时默认创建<ul>。
      * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项元素
      * @param {String|Node|[Node]} h4 标题内容
@@ -1144,6 +1144,106 @@ const Builder = {
 
 
 //
+// 转换取值集。
+// 可能需要提取必要的特性设置。
+// @return {[opts:Object, data:String|Element]}
+//
+const Convertor = {
+    // 内联单元
+    //-------------------------------------------
+
+    [ T.Q ]: function( el, opts = {} ) {
+        opts.cite = $.attr( el, 'cite' );
+        return [ opts, el.textContent ];
+    },
+
+    [ T.ABBR ]:     titleGetter,
+    [ T.DEL ]:      datetimeGetter,
+    [ T.INS ]:      datetimeGetter,
+    [ T.DFN ]:      titleGetter,
+
+    [ T.BDO ]: function( el, opts = {} ) {
+        opts.dir = $.attr( el, 'dir' );
+        return [ opts, el.textContent ];
+    },
+
+    [ T.TIME ]:     datetimeGetter,
+
+
+    // 行块单元
+    //-------------------------------------------
+
+    [ T.BLOCKQUOTE ]: '',
+    [ T.ASIDE ]:    '',
+    [ T.DETAILS ]:  '',
+};
+
+
+//
+// 普通内容：
+// 仅取纯文本内容（无特性提取）。
+//-----------------------------------------------
+[
+    T.A,
+    T.CODE,
+    T.STRONG,
+    T.EM,
+    T.CITE,
+    T.SMALL,
+    T.SUB,
+    T.SUP,
+    T.MARK,
+    T.ORZ,
+    T.SAMP,
+    T.KBD,
+    T.S,
+    T.U,
+    T.VAR,
+    T.B,
+    T.I,
+]
+.forEach(function( tv ) {
+    Convertor[ tv ] = (el, opts) => [ opts || {}, el.textContent ];
+});
+
+
+//
+// 数据元素：
+// 仅单元自身，无选项属性取值。
+// 注记：Children.xx 会自动判断提取内容。
+//-----------------------------------------------
+[
+    T.P,
+    T.NOTE,
+    T.TIPS,
+    T.PRE,
+    T.ADDRESS,
+]
+.forEach(function( tv ) {
+    Convertor[ tv ] = (el, opts) => [ opts || {}, el ];
+});
+
+
+//
+// 子项单元：
+// 取单元的子元素集，无选项属性取值。
+// 注记：转换操作会检查数据是否为一个数组并分别注入。
+//-----------------------------------------------
+[
+    T.UL,
+    T.OL,
+    T.ULX,
+    T.OLX,
+    T.CASCADE,
+    T.DL,
+]
+.forEach(function( tv ) {
+    Convertor[ tv ] = (el, opts) => [ opts || {}, $.children(el) ];
+});
+
+
+
+//
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1518,6 +1618,39 @@ function childrenCalls( el, opts, data, more ) {
         return data.forEach( dd => children(null, el, opts, dd) );
     }
     children( null, el, opts, data );
+}
+
+
+/**
+ * 含title特性取值。
+ * @param  {Element} el 待转换元素
+ * @param  {Object} opts 特性存储空间
+ * @return {[Object, String]}
+ */
+function titleGetter( el, opts = {} ) {
+    opts.title = $.attr( el, 'title' );
+    return [ opts, el.textContent ];
+}
+
+
+/**
+ * 含datetime特性取值。
+ * - 可选的 cite 特性值。
+ * - datetime 分解供可能的<time>构造。
+ * @param  {Element} el 待转换元素
+ * @param  {Object} opts 特性存储空间
+ * @return {[Object, String]}
+ */
+function datetimeGetter( el, opts = {} ) {
+    let _dt = $.attr( el, 'datetime' );
+
+    if ( _dt ) {
+        [opts.date, opts.time] = _dt.split( /\s+/ );
+    }
+    opts.cite = $.attr( el, 'cite' );
+    opts.datetime = _dt;
+
+    return [ opts, el.textContent ];
 }
 
 

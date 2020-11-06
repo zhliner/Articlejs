@@ -338,6 +338,7 @@ const Properties = {
 };
 
 
+
 //
 // 内联单元集。
 // 注：不含<a>单元，不含<b><i>单元。
@@ -382,8 +383,6 @@ const _BLOCKITS =
 // - 可用于判断目标的可插入单元（向内）。
 // - 取父容器可判断平级插入时的合法单元。
 //
-// { Number: Set }
-//
 const ChildTypes = {
     //
     // 内联结构元素。
@@ -409,58 +408,58 @@ const ChildTypes = {
     [ RB ]:             [ $TEXT ],
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
-    [ EXPLAIN ]:        [ $TEXT, _INLINES, A ], // 插图讲解
+    [ EXPLAIN ]:        [ $TEXT, ..._INLINES, A ], // 插图讲解
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    [ A ]:              [ $TEXT, _INLINES ],
-    [ Q ]:              [ $TEXT, _INLINES, A ],
+    [ A ]:              [ $TEXT, ..._INLINES ],
+    [ Q ]:              [ $TEXT, ..._INLINES, A ],
     [ ABBR ]:           [ $TEXT ],
-    [ DEL ]:            [ $TEXT, _INLINES, A ],
-    [ INS ]:            [ $TEXT, _INLINES, A ],
+    [ DEL ]:            [ $TEXT, ..._INLINES, A ],
+    [ INS ]:            [ $TEXT, ..._INLINES, A ],
     [ DFN ]:            [ $TEXT, ABBR ],
-    [ BDO ]:            [ $TEXT, _INLINES, A ],
+    [ BDO ]:            [ $TEXT, ..._INLINES, A ],
     [ TIME ]:           [ $TEXT ],
     [ CODE ]:           [ $TEXT, B, I ],
-    [ STRONG ]:         [ $TEXT, _INLINES, A ],
-    [ EM ]:             [ $TEXT, _INLINES, A ],
-    [ CITE ]:           [ $TEXT, _INLINES, A ],
-    [ SMALL ]:          [ $TEXT, _INLINES, A ],
-    [ SUB ]:            [ $TEXT, _INLINES ],
-    [ SUP ]:            [ $TEXT, _INLINES ],
-    [ MARK ]:           [ $TEXT, _INLINES ],
+    [ STRONG ]:         [ $TEXT, ..._INLINES, A ],
+    [ EM ]:             [ $TEXT, ..._INLINES, A ],
+    [ CITE ]:           [ $TEXT, ..._INLINES, A ],
+    [ SMALL ]:          [ $TEXT, ..._INLINES, A ],
+    [ SUB ]:            [ $TEXT, ..._INLINES ],
+    [ SUP ]:            [ $TEXT, ..._INLINES ],
+    [ MARK ]:           [ $TEXT, ..._INLINES ],
     [ ORZ ]:            [ $TEXT ],
-    [ SAMP ]:           [ $TEXT, _INLINES, A ],
+    [ SAMP ]:           [ $TEXT, ..._INLINES, A ],
     [ KBD ]:            [ $TEXT ],
-    [ S ]:              [ $TEXT, _INLINES, A ],
-    [ U ]:              [ $TEXT, _INLINES, A ],
+    [ S ]:              [ $TEXT, ..._INLINES, A ],
+    [ U ]:              [ $TEXT, ..._INLINES, A ],
     [ VAR ]:            [ $TEXT ],
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    [ P ]:              [ $TEXT, _INLINES, A ],
-    [ NOTE ]:           [ $TEXT, _INLINES, A ],
-    [ TIPS ]:           [ $TEXT, _INLINES, A ],
-    [ PRE ]:            [ $TEXT, _INLINES, A ],
-    [ ADDRESS ]:        [ $TEXT, _INLINES, A ],
+    [ P ]:              [ $TEXT, ..._INLINES, A ],
+    [ NOTE ]:           [ $TEXT, ..._INLINES, A ],
+    [ TIPS ]:           [ $TEXT, ..._INLINES, A ],
+    [ PRE ]:            [ $TEXT, ..._INLINES, A ],
+    [ ADDRESS ]:        [ $TEXT, ..._INLINES, A ],
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    [ H1 ]:             [ $TEXT, _INLINES, A, I ],
-    [ H2 ]:             [ $TEXT, _INLINES, A, I ],
-    [ H3 ]:             [ $TEXT, _INLINES, A, I ],
-    [ H4 ]:             [ $TEXT, _INLINES, A, I ],
-    [ H5 ]:             [ $TEXT, _INLINES, A, I ],
-    [ H6 ]:             [ $TEXT, _INLINES, A, I ],
-    [ SUMMARY ]:        [ $TEXT, _INLINES, A ],
-    [ FIGCAPTION ]:     [ $TEXT, _INLINES, A ],
-    [ CAPTION ]:        [ $TEXT, _INLINES, A ],
-    [ LI ]:             [ $TEXT, _INLINES, A ],
-    [ DT ]:             [ $TEXT, _INLINES, A, I ],
-    [ DD ]:             [ $TEXT, _INLINES, A ],
-    [ TH ]:             [ $TEXT, _INLINES, A ],
-    [ TD ]:             [ $TEXT, _INLINES, A ],
+    [ H1 ]:             [ $TEXT, ..._INLINES, A, I ],
+    [ H2 ]:             [ $TEXT, ..._INLINES, A, I ],
+    [ H3 ]:             [ $TEXT, ..._INLINES, A, I ],
+    [ H4 ]:             [ $TEXT, ..._INLINES, A, I ],
+    [ H5 ]:             [ $TEXT, ..._INLINES, A, I ],
+    [ H6 ]:             [ $TEXT, ..._INLINES, A, I ],
+    [ SUMMARY ]:        [ $TEXT, ..._INLINES, A ],
+    [ FIGCAPTION ]:     [ $TEXT, ..._INLINES, A ],
+    [ CAPTION ]:        [ $TEXT, ..._INLINES, A ],
+    [ LI ]:             [ $TEXT, ..._INLINES, A ],
+    [ DT ]:             [ $TEXT, ..._INLINES, A, I ],
+    [ DD ]:             [ $TEXT, ..._INLINES, A ],
+    [ TH ]:             [ $TEXT, ..._INLINES, A ],
+    [ TD ]:             [ $TEXT, ..._INLINES, A ],
     [ TR ]:             [ TH, TD ],
     [ THEAD ]:          [ TR ],
     [ TBODY ]:          [ TR ],
@@ -478,21 +477,21 @@ const ChildTypes = {
     // 行块结构元素
     /////////////////////////////////////////////
     [ HGROUP ]:         [ H1, H3 ],
-    [ ABSTRACT ]:       [ H3, P, _BLOLIMIT ],
+    [ ABSTRACT ]:       [ H3, P, ..._BLOLIMIT ],
     [ TOC ]:            [ H3, TOCCASCADE ],
     [ SEEALSO ]:        [ LI, ALI ],
     [ REFERENCE ]:      [ LI, ALI ],
-    [ HEADER ]:         [ H3, P, _BLOLIMIT, ULX, OLX ],
-    [ FOOTER ]:         [ H3, P, _BLOLIMIT, ADDRESS ],
+    [ HEADER ]:         [ H3, P, ..._BLOLIMIT, ULX, OLX ],
+    [ FOOTER ]:         [ H3, P, ..._BLOLIMIT, ADDRESS ],
     [ ARTICLE ]:        [ HEADER, S1, FOOTER ],
     // 操作便利性：
     // 允许分级片区与其它行块单元同级存在。
-    [ S1 ]:             [ H2, HEADER, S2, _BLOCKITS, FOOTER ],
-    [ S2 ]:             [ H2, HEADER, S3, _BLOCKITS, FOOTER ],
-    [ S3 ]:             [ H2, HEADER, S4, _BLOCKITS, FOOTER ],
-    [ S4 ]:             [ H2, HEADER, S5, _BLOCKITS, FOOTER ],
-    [ S5 ]:             [ H2, HEADER, _BLOCKITS, SECTION, FOOTER ],
-    [ SECTION ]:        [ H2, HEADER, _BLOCKITS, SECTION, FOOTER ],
+    [ S1 ]:             [ H2, HEADER, S2, ..._BLOCKITS, FOOTER ],
+    [ S2 ]:             [ H2, HEADER, S3, ..._BLOCKITS, FOOTER ],
+    [ S3 ]:             [ H2, HEADER, S4, ..._BLOCKITS, FOOTER ],
+    [ S4 ]:             [ H2, HEADER, S5, ..._BLOCKITS, FOOTER ],
+    [ S5 ]:             [ H2, HEADER, ..._BLOCKITS, SECTION, FOOTER ],
+    [ SECTION ]:        [ H2, HEADER, ..._BLOCKITS, SECTION, FOOTER ],
     [ UL ]:             [ LI, ALI ],
     [ OL ]:             [ LI, ALI ],
     [ CODELIST ]:       [ CODELI ],
@@ -502,9 +501,9 @@ const ChildTypes = {
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
     [ FIGURE ]:         [ FIGCAPTION, FIGIMGBOX ],
-    [ BLOCKQUOTE ]:     [ H3, P, _BLOLIMIT, TABLE ],
-    [ ASIDE ]:          [ H3, P, _BLOLIMIT, TABLE ],
-    [ DETAILS ]:        [ SUMMARY, P, _BLOLIMIT, TABLE ],
+    [ BLOCKQUOTE ]:     [ H3, P, ..._BLOLIMIT, TABLE ],
+    [ ASIDE ]:          [ H3, P, ..._BLOLIMIT, TABLE ],
+    [ DETAILS ]:        [ SUMMARY, P, ..._BLOLIMIT, TABLE ],
     [ CODEBLOCK ]:      [ CODE ],
     // 单体单元
     [ HR ]:             null,
@@ -525,11 +524,37 @@ const ChildTypes = {
 
 //
 // 配置构造。
+// Number: Set
 //
 $.each(
     ChildTypes,
-    (v, k, o) => o[k] = v && new Set( v.flat() )
+    (v, k, o) => o[k] = v && new Set( v )
 );
+
+
+
+//
+// 文本类内联单元。
+// 用于相互转换定义。
+//
+const _INLINE_T = [
+    A, Q, ABBR, DEL, INS, DFN, BDO,
+    CODE, ORZ,
+    STRONG, EM, CITE, TIME,
+    SMALL, SUB, SUP,
+    MARK, SAMP, KBD, S, U, VAR,
+    B, I,
+];
+
+//
+// 可转换行块单元。
+//
+const _BLOCKIT_C = [
+    P, NOTE, TIPS,
+    PRE, ADDRESS,
+    UL, OL, ULX, OLX, CASCADE,
+    DL, BLOCKQUOTE, ASIDE, DETAILS,
+];
 
 
 //
@@ -540,47 +565,56 @@ $.each(
 //
 const Converts = {
     // 内联单元。
-    [ T.A ]:            [],
-    [ T.Q ]:            [],
-    [ T.ABBR ]:         [],
-    [ T.DEL ]:          [],
-    [ T.INS ]:          [],
-    [ T.DFN ]:          [],
-    [ T.BDO ]:          [],
-    [ T.TIME ]:         [],
-    [ T.CODE ]:         [],
-    [ T.STRONG ]:       [],
-    [ T.EM ]:           [],
-    [ T.CITE ]:         [],
-    [ T.SMALL ]:        [],
-    [ T.SUB ]:          [],
-    [ T.SUP ]:          [],
-    [ T.MARK ]:         [],
-    [ T.ORZ ]:          [],
-    [ T.SAMP ]:         [],
-    [ T.KBD ]:          [],
-    [ T.S ]:            [],
-    [ T.U ]:            [],
-    [ T.VAR ]:          [],
-    [ T.B ]:            [],
-    [ T.I ]:            [],
+    [ A ]:          [ ..._INLINE_T ],
+    [ Q ]:          [ ..._INLINE_T ],
+    [ ABBR ]:       [ ..._INLINE_T ],
+    [ DEL ]:        [ ..._INLINE_T ],
+    [ INS ]:        [ ..._INLINE_T ],
+    [ DFN ]:        [ ..._INLINE_T ],
+    [ BDO ]:        [ ..._INLINE_T ],
+    [ TIME ]:       [ ..._INLINE_T ],
+    [ CODE ]:       [ ..._INLINE_T ],
+    [ STRONG ]:     [ ..._INLINE_T ],
+    [ EM ]:         [ ..._INLINE_T ],
+    [ CITE ]:       [ ..._INLINE_T ],
+    [ SMALL ]:      [ ..._INLINE_T ],
+    [ SUB ]:        [ ..._INLINE_T ],
+    [ SUP ]:        [ ..._INLINE_T ],
+    [ MARK ]:       [ ..._INLINE_T ],
+    [ ORZ ]:        [ ..._INLINE_T ],
+    [ SAMP ]:       [ ..._INLINE_T ],
+    [ KBD ]:        [ ..._INLINE_T ],
+    [ S ]:          [ ..._INLINE_T ],
+    [ U ]:          [ ..._INLINE_T ],
+    [ VAR ]:        [ ..._INLINE_T ],
+    [ B ]:          [ ..._INLINE_T ],
+    [ I ]:          [ ..._INLINE_T ],
 
     // 行块单元。
-    [ T.P ]:            [],
-    [ T.NOTE ]:         [],
-    [ T.TIPS ]:         [],
-    [ T.PRE ]:          [],
-    [ T.ADDRESS ]:      [],
-    [ T.UL ]:           [],
-    [ T.OL ]:           [],
-    [ T.ULX ]:          [],
-    [ T.OLX ]:          [],
-    [ T.CASCADE ]:      [],
-    [ T.DL ]:           [],
-    [ T.BLOCKQUOTE ]:   [],
-    [ T.ASIDE ]:        [],
-    [ T.DETAILS ]:      [],
+    [ P ]:          [ ..._BLOCKIT_C ],
+    [ NOTE ]:       [ ..._BLOCKIT_C ],
+    [ TIPS ]:       [ ..._BLOCKIT_C ],
+    [ PRE ]:        [ ..._BLOCKIT_C ],
+    [ ADDRESS ]:    [ ..._BLOCKIT_C ],
+    [ UL ]:         [ ..._BLOCKIT_C ],
+    [ OL ]:         [ ..._BLOCKIT_C ],
+    [ ULX ]:        [ ..._BLOCKIT_C ],
+    [ OLX ]:        [ ..._BLOCKIT_C ],
+    [ CASCADE ]:    [ ..._BLOCKIT_C ],
+    [ DL ]:         [ ..._BLOCKIT_C ],
+    [ BLOCKQUOTE ]: [ ..._BLOCKIT_C ],
+    [ ASIDE ]:      [ ..._BLOCKIT_C ],
+    [ DETAILS ]:    [ ..._BLOCKIT_C ],
 };
+
+//
+// 移除键值自身。
+// 无需自我转换，保持顺序。
+//
+$.each(
+    Converts,
+    (v, k) => v.includes(k) && v.splice( v.indexOf(k), 1 )
+);
 
 
 
