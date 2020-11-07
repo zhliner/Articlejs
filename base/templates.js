@@ -142,62 +142,6 @@ const InputOptions = {
 
 
 //
-// 转换条目：{
-//      单元值：模板名
-// }
-// 上下文菜单中转换子菜单的转换目标条目。
-//////////////////////////////////////////////////////////////////////////////
-// 注记：
-// <li data-val="">目标名</li>
-// 单击将选取集逐一转换为目标类型单元。这是一个交集。
-//
-const ConvertItems = {
-    // 内联单元。
-    [ T.A ]:            'item:a',
-    [ T.Q ]:            'item:q',
-    [ T.ABBR ]:         'item:abbr',
-    [ T.DEL ]:          'item:del',
-    [ T.INS ]:          'item:ins',
-    [ T.DFN ]:          'item:dfn',
-    [ T.BDO ]:          'item:bdo',
-    [ T.TIME ]:         'item:time',
-    [ T.CODE ]:         'item:code',
-    [ T.STRONG ]:       'item:strong',
-    [ T.EM ]:           'item:em',
-    [ T.CITE ]:         'item:cite',
-    [ T.SMALL ]:        'item:small',
-    [ T.SUB ]:          'item:sub',
-    [ T.SUP ]:          'item:sup',
-    [ T.MARK ]:         'item:mark',
-    [ T.ORZ ]:          'item:orz',
-    [ T.SAMP ]:         'item:samp',
-    [ T.KBD ]:          'item:kbd',
-    [ T.S ]:            'item:s',
-    [ T.U ]:            'item:u',
-    [ T.VAR ]:          'item:var',
-    [ T.B ]:            'item:b',   // 转换支持
-    [ T.I ]:            'item:i',   // 转换支持
-
-    // 行块单元。
-    [ T.P ]:            'item:p',
-    [ T.NOTE ]:         'item:note',
-    [ T.TIPS ]:         'item:tips',
-    [ T.PRE ]:          'item:pre',
-    [ T.ADDRESS ]:      'item:address',
-    [ T.UL ]:           'item:ul',
-    [ T.OL ]:           'item:ol',
-    [ T.ULX ]:          'item:ulx',
-    [ T.OLX ]:          'item:olx',
-    [ T.CASCADE ]:      'item:cascade',
-    [ T.DL ]:           'item:dl',
-    [ T.BLOCKQUOTE ]:   'item:blockquote',
-    [ T.ASIDE ]:        'item:aside',
-    [ T.DETAILS ]:      'item:details',
-};
-
-
-
-//
 // 单元属性：{
 //      单元值：模板名,
 // }

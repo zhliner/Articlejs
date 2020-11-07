@@ -23,7 +23,7 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap } from './common.js';
-import { children, create, tocList } from "./create.js";
+import { children, create, convert, tocList } from "./create.js";
 import cfg from "./shortcuts.js";
 
 
@@ -278,11 +278,11 @@ class ESEdit {
      * @param {[Element]} old 操作之前的元素集
      * @param {Element} focus 焦点元素，可选
      */
-    constructor( old, focus = __EHot.get() ) {
+    constructor( old, focus ) {
         this._old = old;
         this._els = [...__ESet];
 
-        this._el0 = setFocus( focus );
+        this._el0 = focus ? setFocus(focus) : __EHot.get();
         this._el1 = focus;
     }
 
@@ -1028,6 +1028,26 @@ class NodeVary {
      */
     sectionsDown( els2 ) {
         els2.forEach( els => this.sectionDown(els[0], els[1]) );
+    }
+
+
+    /**
+     * 转换为目标类型单元。
+     * 新的元素添加到选取集（原来的集合应当已清空）。
+     * 注记：
+     * 因为每一次都会重新执行，故内部添加。
+     * @param {[Element]} els 目标元素集
+     * @param {String} name 目标单元名
+     */
+    convert( els, name ) {
+        let _buf = [];
+
+        for ( const el of els ) {
+            _buf.push(
+                $.replace( el, convert(el, name) )
+            );
+        }
+        __Selects.update( _buf );
     }
 }
 
@@ -3775,12 +3795,33 @@ export const Kit = {
      * 注：不包含转换子菜单。
      * @data: String 处理名称
      */
-    context( evo ) {
+    cmenudo( evo ) {
         let _fn = __cmenuOpers[evo.data];
         return _fn && Edit[ _fn ]();
     },
 
-    __context: 1,
+    __cmenudo: 1,
+
+
+    /**
+     * 单元转换。
+     * 目标：暂存区/栈顶1项。
+     * 目标为转换到的单元名称。
+     */
+    convert( evo ) {
+        let $els = $(__ESet),
+            _old = [...__ESet],
+            _name = evo.data;
+
+        if ( !$els.length || !_name ) {
+            return;
+        }
+        __Selects.empty();
+
+        historyPush( cleanHot($els, true), new ESEdit(_old), new DOMEdit(() => __Elemedit.convert($els, _name)) );
+    },
+
+    __convert: 1,
 
 };
 
@@ -3811,7 +3852,8 @@ processExtend( 'Kit', Kit, [
     'medpass',
     'medcancel',
     'rngelem',
-    'context',
+    'cmenudo',
+    'convert',
 ]);
 
 

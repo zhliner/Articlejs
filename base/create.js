@@ -290,12 +290,12 @@ const Children = {
      * 对于非源码实参，提取文本插入（内联<code>需要）。
      * @param {Element|null} ref 插入参考元素
      * @param {Element} code 代码元素
-     * @param {String|Value} data 已解析源码
+     * @param {String|Node} data 已解析源码或节点
      */
     [ T.CODE ]: function( ref, code, _, data ) {
         $.append(
             code,
-            typeof data === 'string' ? $.fragment(data, false) : $.Text(data, '')
+            typeof data === 'string' ? $.fragment(data, false) : data
         );
         return result( null, code, true );
     },
@@ -1154,7 +1154,7 @@ const Convertor = {
 
     [ T.Q ]: function( el, opts = {} ) {
         opts.cite = $.attr( el, 'cite' );
-        return [ opts, el.textContent ];
+        return [ opts, $.Text(el) ];
     },
 
     [ T.ABBR ]:     titleGetter,
@@ -1164,7 +1164,7 @@ const Convertor = {
 
     [ T.BDO ]: function( el, opts = {} ) {
         opts.dir = $.attr( el, 'dir' );
-        return [ opts, el.textContent ];
+        return [ opts, $.Text(el) ];
     },
 
     [ T.TIME ]:     datetimeGetter,
@@ -1173,9 +1173,20 @@ const Convertor = {
     // 行块单元
     //-------------------------------------------
 
-    [ T.BLOCKQUOTE ]: '',
-    [ T.ASIDE ]:    '',
-    [ T.DETAILS ]:  '',
+    [ T.BLOCKQUOTE ]: h3Getter,
+    [ T.ASIDE ]:      h3Getter,
+
+    // 详细内容。
+    [ T.DETAILS ]: function( el, opts = {} ) {
+        let _hx = $.get( 'summary', el ),
+            _subs = $.children( el );
+
+        if ( _hx ) {
+            opts.h3 = _hx.textContent;
+            _subs.splice( _subs.indexOf(_hx), 1 );
+        }
+        return [ opts, _subs ];
+    },
 };
 
 
@@ -1203,14 +1214,16 @@ const Convertor = {
     T.I,
 ]
 .forEach(function( tv ) {
-    Convertor[ tv ] = (el, opts) => [ opts || {}, el.textContent ];
+    Convertor[ tv ] = (el, opts) => [ opts || {}, $.Text(el) ];
 });
 
 
 //
 // 数据元素：
 // 仅单元自身，无选项属性取值。
-// 注记：Children.xx 会自动判断提取内容。
+// 注记：
+// Children.xx 会自动判断并提取内容。
+// 最后为替换操作，因此需要保留原元素位置（clone）。
 //-----------------------------------------------
 [
     T.P,
@@ -1220,14 +1233,16 @@ const Convertor = {
     T.ADDRESS,
 ]
 .forEach(function( tv ) {
-    Convertor[ tv ] = (el, opts) => [ opts || {}, el ];
+    Convertor[ tv ] = (el, opts) => [ opts || {}, $.clone(el) ];
 });
 
 
 //
 // 子项单元：
 // 取单元的子元素集，无选项属性取值。
-// 注记：转换操作会检查数据是否为一个数组并分别注入。
+// 注记：
+// 转换操作会检查数据是否为一个数组并分别注入。
+// 原单元保留了容器根元素，因此无需克隆。
 //-----------------------------------------------
 [
     T.UL,
@@ -1622,19 +1637,19 @@ function childrenCalls( el, opts, data, more ) {
 
 
 /**
- * 含title特性取值。
+ * 含title特性单元取值。
  * @param  {Element} el 待转换元素
  * @param  {Object} opts 特性存储空间
  * @return {[Object, String]}
  */
 function titleGetter( el, opts = {} ) {
     opts.title = $.attr( el, 'title' );
-    return [ opts, el.textContent ];
+    return [ opts, $.Text(el) ];
 }
 
 
 /**
- * 含datetime特性取值。
+ * 含datetime特性单元取值。
  * - 可选的 cite 特性值。
  * - datetime 分解供可能的<time>构造。
  * @param  {Element} el 待转换元素
@@ -1650,7 +1665,25 @@ function datetimeGetter( el, opts = {} ) {
     opts.cite = $.attr( el, 'cite' );
     opts.datetime = _dt;
 
-    return [ opts, el.textContent ];
+    return [ opts, $.Text(el) ];
+}
+
+
+/**
+ * 含h3小标题单元取值。
+ * @param {Element} el 小区块单元根
+ * @param {Object} opts 属性配置空间
+ */
+function h3Getter( el, opts ) {
+    let _h3 = $.get( 'h3', el ),
+        _subs = $.children( el );
+
+    if ( _h3 ) {
+        opts.h3 = _h3.textContent;
+        opts.summary = _h3.textContent;
+        _subs.splice( _subs.indexOf(_h3), 1 );
+    }
+    return [ opts, _subs ];
 }
 
 
@@ -1700,7 +1733,7 @@ function error( msg, data ) {
 
 
 //
-// 基本工具。
+// 基本工具
 //----------------------------------------------------------------------------
 
 
@@ -1839,6 +1872,23 @@ function create( name, opts, data, more ) {
 
 
 /**
+ * 单元转换。
+ * @param  {Element} el 待转换单元
+ * @param  {String} name 转换目标单元名
+ * @return {Element} 转换后的单元根
+ *
+ */
+function convert( el, name ) {
+    let _fn = Convertor[ getType(el) ];
+    if ( !_fn ) return;
+
+    let [ opts, data ] = _fn( el );
+
+    return create( name, opts, data, $.isArray(data) );
+}
+
+
+/**
  * 单元创建器。
  * 返回创建目标名称单元的函数。
  * @param  {String} name 单元名称
@@ -1871,4 +1921,9 @@ processProxy( 'New', creater, 1 );
 // 导出。
 //////////////////////////////////////////////////////////////////////////////
 
-export { children, create, tocList };
+export {
+    children,
+    create,
+    convert,
+    tocList
+};

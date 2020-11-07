@@ -104,24 +104,29 @@
             cancel  按ESC隐藏菜单。简单聚焦内容区使菜单失焦/隐藏即可。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
-            on="context|ev('detail');
+            on="cmenudo|ev('detail');
+                convert|ev('detail');
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
-                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-op');
                 click(li[data-op])|evo(2) attr('-op');
+                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) debug dup pass attr('-val');
+                click(#m-conv li[data-val])|evo(2) attr('-val');
                 cancel;
                 blur|evo(3) hide(true) (ESC) apply('pop')"
-            by="Kit.context"
+            by="Kit.cmenudo;
+                Kit.convert"
             to="#g-scroll||fire('', 'focus');
+                #g-scroll||fire('', 'focus');
                 |cssSets('left top')|fire('', 'focus');
-                |trigger('context');
-                |trigger('context');
+                |trigger('cmenudo');
+                |trigger('convert');
+                |trigger('convert');
                 #g-scroll|trigger('focus');
                 -">
-            <li data-op="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
+            <li><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
-            <li id="m-conv" role="submenu" data-pbo="folded"
+            <li id="m-conv" role="menubar" data-pbo="folded"
                 on="@sm-1|evo(3) dup fold(0) v.submenu;
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
@@ -131,33 +136,15 @@
                     |data('tk-1');
                     |data('tk-0')">
                 <h4><b id="l-convert">转换</b></h4>
-                <!--动态菜单
-                    检查当前选取集，构造可用条目交集。-->
-                <menu
-                    on="click(li)|stop">
-                    <li data-k="a" data-val="a" title="<a>"><b><a>链接</a></b><kbd>a</kbd></li>
-                    <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
-                    <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
-                    <li data-k="e" data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
-                    <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
-                    <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
-                    <li data-k="q" data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
-                    <li data-k="t" data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
-                    <li data-k="i" data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
-                    <li data-k="d" data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
-                    <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
-                    <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
-                    <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
-                    <li data-k="m" data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
-                </menu>
+                <menu tpl-source="menu:inlines"></menu>
             </li>
             <hr>
-            <li data-op="toup"><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
-            <li data-op="todown"><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
+            <li><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
+            <li><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
             <hr>
-            <li data-op="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
+            <li><b id="l-delete">删除</b><kbd>Delete</kbd></li>
             <hr>
-            <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+            <li><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内联创建
             store 检查范围对象（在内容元素但非代码内）并存储。
@@ -204,7 +191,7 @@
                 <b><ruby>
                     <rb>注音</rb>
                     <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
-                </ruby></b>
+                    </ruby></b>
                 <kbd>r</kbd>
             </li>
             <li data-k="o" data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
