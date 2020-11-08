@@ -227,63 +227,72 @@ class History {
 class DOMEdit {
     /**
      * 构造一个编辑实例。
-     * 注：检查焦点更新仅适用少数操作。
      * @param {Function} handle 操作函数
-     * @param {Boolean} focus 检查焦点更新
+     * @param {...Value} args 实参序列
      */
-    constructor( handle, focus ) {
-        this._func = handle;
-        this._focus = focus;
+    constructor( handle, ...args ) {
+        this._fun = handle;
+        this._vals = args;
+
         // 外部只读
         this.count = null;
-
-        this.redo();
-    }
-
-
-    undo() {
-        if ( this.count > 0 ) {
-            __TQHistory.back( this.count );
-        }
-        this._focus && updateFocus();
     }
 
 
     /**
-     * 记录了本次操作关联的全部变化，
-     * 内部的变化可以在任何地方发生。
+     * 完成操作。
+     */
+    done() {
+        return this.redo(), this;
+    }
+
+
+    /**
+     * 撤销。
+     */
+    undo() {
+        if ( this.count > 0 ) {
+            __TQHistory.back( this.count );
+        }
+    }
+
+
+    /**
+     * 重做。
      */
     redo() {
         let _old = __TQHistory.size();
 
-        this._func();
+        this._fun( ...this._vals );
         this.count = __TQHistory.size() - _old;
-
-        this._focus && updateFocus();
     }
 }
 
 
 //
 // 元素选取集编辑。
-// 包含焦点元素的当前设置。
-// 注记：
-// 选取集成员需要保持原始的顺序，较为复杂，因此这里简化为全集成员存储。
-// @ElementSelect
 //
 class ESEdit {
     /**
      * 创建一个操作单元。
      * 友好：未传递新的焦点元素表示焦点不变。
-     * @param {[Element]} old 操作之前的元素集
-     * @param {Element} focus 焦点元素，可选
+     * @param {Function} handle 选取操作函数
+     * @param {...Value} args 实参序列
      */
-    constructor( old, focus ) {
-        this._old = old;
-        this._els = [...__ESet];
+    constructor( handle, ...args ) {
+        this._fun = handle;
+        this._vals = args;
+        this._old = [...__ESet];
+    }
 
-        this._el0 = focus ? setFocus(focus) : __EHot.get();
-        this._el1 = focus;
+
+    /**
+     * 完成操作。
+     * @return {this}
+     */
+    done() {
+        this._fun( ...this._vals );
+        return this;
     }
 
 
@@ -291,7 +300,6 @@ class ESEdit {
      * 撤销选取。
      */
     undo() {
-        setFocus( this._el0 );
         __ESet.clear().pushes( this._old );
     }
 
@@ -300,8 +308,7 @@ class ESEdit {
      * 重新选取。
      */
     redo() {
-        setFocus( this._el1 );
-        __ESet.clear().pushes( this._els );
+        this._fun( ...this._vals );
     }
 }
 
@@ -463,23 +470,6 @@ class MiniEdit {
 
 
     /**
-     * 撤销微编辑的结果。
-     */
-    undo() {
-        this._cp.replaceWith( this._el );
-    }
-
-
-    /**
-     * 恢复微编辑的结果。
-     * 不再进入微编辑，新的元素用于之后的引用。
-     */
-    redo() {
-        this._el.replaceWith( this._cp );
-    }
-
-
-    /**
      * 获取当前编辑的元素。
      * @return {Element}
      */
@@ -496,6 +486,25 @@ class MiniEdit {
         return this._el;
     }
 
+
+    /**
+     * 撤销微编辑的结果。
+     */
+    undo() {
+        this._cp.replaceWith( this._el );
+    }
+
+
+    /**
+     * 恢复微编辑的结果。
+     * 不再进入微编辑，新的元素用于之后的引用。
+     */
+    redo() {
+        this._el.replaceWith( this._cp );
+    }
+
+
+    //-- 私有辅助 -------------------------------------------------------------
 
     /**
      * 创建用于微编辑的新元素。
@@ -610,8 +619,7 @@ class ElemSels {
      * @return {Boolean} 是否实际执行
      */
     expand( els, hot ) {
-        return els.length > 0 &&
-            ( this._set.has(hot) ? this.adds(els) : this.removes(els) );
+        return this._set.has(hot) ? this.adds(els) : this.removes(els);
     }
 
 
@@ -638,19 +646,12 @@ class ElemSels {
 
     /**
      * 元素集移出。
-     * @param  {[Element]} els 元素集
-     * @return {Boolean} 是否实际执行
+     * @param {[Element]} els 元素集
      */
     removes( els ) {
-        let _does = false;
-
-        for ( const el of els ) {
-            if ( this._set.has(el) ) {
-                _does = true;
-                this._set.delete( el );
-            }
-        }
-        return _does;
+        els.forEach(
+            el => this._set.has(el) && this._set.delete(el)
+        );
     }
 
 
@@ -1000,10 +1001,12 @@ class NodeVary {
 
     /**
      * 多个章节提升。
+     * 检查焦点更新，因为DOM路径已变化。
      * @param {[Element]} secs 章节元素集
      */
     sectionsUp( secs ) {
         secs.forEach( el => this.sectionUp(el) );
+        updateFocus();
     }
 
 
@@ -1024,10 +1027,14 @@ class NodeVary {
 
     /**
      * 多个章节降级。
+     * 检查焦点更新，因为DOM路径已变化。
      * @param {[[Element]]} els2 [章节元素，空容器]对集
      */
     sectionsDown( els2 ) {
-        els2.forEach( els => this.sectionDown(els[0], els[1]) );
+        els2.forEach(
+            els => this.sectionDown(els[0], els[1])
+        );
+        updateFocus();
     }
 
 
@@ -1191,11 +1198,10 @@ function setFocus( el ) {
  * 用于会改变焦点元素位置而选取集又不变的编辑操作。
  * 如：章节缩进。
  * 仅在焦点元素包含在选取集内时才工作。
- *
- * @param {Element} hot 焦点元素
  */
-function updateFocus( hot = __EHot.get() ) {
-    __ESet.has( hot ) && setFocus( hot );
+function updateFocus() {
+    let _hot = __EHot.get();
+    __ESet.has( _hot ) && setFocus( _hot );
 }
 
 
@@ -1211,59 +1217,28 @@ function pathFocus( hot ) {
 
 
 /**
- * 扩展选取封装。
+ * 兄弟元素同态。
  * 包含两种状态：选取/取消选取。
- * 选取焦点会移动到集合最后一个元素上（如果已执行）。
- * @param {Element} hot 焦点元素
- * @param {[Element]} els 扩展集
- */
-function expandSelect( hot, els ) {
-    let _old = [...__ESet];
-    __Selects.cleanUp( hot );
-
-    if ( __Selects.expand(els, hot) === false ) {
-        return;
-    }
-    hot = els[ els.length-1 ];
-
-    historyPush( new ESEdit(_old, hot) );
-}
-
-
-/**
- * 兄弟元素同态（选取/取消选取）封装。
- * 注：焦点不变。
  * @param {[Element]} els 选取集
  * @param {Element} hot 焦点元素
  */
 function siblingsUnify( els, hot ) {
-    let _old = [...__ESet];
     __Selects.cleanUp( hot );
-
-    if ( __Selects.expand(els, hot) === false ) {
-        return;
-    }
-    historyPush( new ESEdit(_old, hot) );
+    __Selects.expand( els, hot );
 }
 
 
 /**
- * 普通元素集同态（选取/取消选取）封装。
+ * 普通元素集同态。
  * 需要检查每一个成员的父级选取并清除之。
- * 注：焦点不变。
  * @param {[Element]} els 选取集
  * @param {Element} hot 焦点元素
  */
 function elementsUnify( els, hot ) {
-    let _old = [...__ESet];
-
     els.forEach(
-        el => __Selects.cleanUp(el)
+        el => __Selects.cleanUp( el )
     );
-    if ( __Selects.expand(els, hot) === false ) {
-        return;
-    }
-    historyPush( new ESEdit(_old, hot) );
+    __Selects.expand( els, hot );
 }
 
 
@@ -1974,6 +1949,7 @@ function mergeBadit( els ) {
 
 /**
  * 选取单元格所属列。
+ * 因为可能存在跨列单元格，故用Table接口。
  * 局限于同一表区域之内。
  * @param  {Element} cell 单元格
  * @param  {$.Table} tbo 表格实例
@@ -2446,8 +2422,10 @@ export const Edit = {
         }
         // 跨选（焦点同级）
         if ( scamPressed(scam, cfg.Keys.acrossSelect) ) {
-            let _to = closestFocus( _hot, _el );
-            return _to && expandSelect( _hot, siblingTo(_hot, _to) );
+            let _to = closestFocus( _hot, _el ),
+                _els = _to && siblingTo( _hot, _to );
+            return _to && _els.length &&
+                historyPush( new ESEdit(siblingsUnify, _els, _hot).done(), new HotEdit(_hot) );
         }
         // 浮选（焦点同级）
         if ( scamPressed(scam, cfg.Keys.smartSelect) ) {
@@ -2517,75 +2495,85 @@ export const Edit = {
 
     /**
      * 同态全部兄弟元素。
+     * 焦点元素不变。
      */
     siblings() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        siblingsUnify( _el.parentElement.children, _el );
+        let _els = $.siblings( _el );
+
+        _els.length && historyPush( new ESEdit(siblingsUnify, _els, _el).done() );
     },
 
 
     /**
      * 取消同级兄弟元素选取。
+     * 焦点元素不变。
      */
     cleanSiblings() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _old = [...__ESet];
+        let _els = $.siblings( _el );
 
-        if ( __Selects.removes(_el.parentElement.children) === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old, _el) );
+        _els.some( el => __ESet.has(el) ) && historyPush( new ESEdit(siblingsUnify, _els, _el).done() );
     },
 
 
     /**
      * 同态同类兄弟元素。
-     * 同态：保持与焦点元素状态相同（选取/取消选取）。
+     * 焦点元素不变。
      */
     tagsame() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        siblingsUnify( $.find(`>${_el.tagName}`, _el.parentElement), _el );
+        let _els = $.siblings( _el, _el.tagName );
+
+        _els.length && historyPush( new ESEdit(siblingsUnify, _els, _el).done() );
     },
 
 
     /**
      * 同态叔伯元素内的同类子元素。
-     * 用途：同章节内的子章节标题选取/取消选取。
-     * 注记：父级叔伯可能已选取。
+     * 焦点元素不变。
+     * 用例：
+     * 选取或取消选取兄弟章节的标题以统一处理。
      */
     tagsame2() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        elementsUnify( $.find(`>* >${_el.tagName}`, _el.parentElement.parentElement), _el );
+        let _els = $.find( `>* >${_el.tagName}`, _el.parentElement.parentElement );
+
+        _els.splice( _els.indexOf(_el), 1 );
+        _els.length && historyPush( new ESEdit(elementsUnify, _els, _el).done() );
     },
 
 
     /**
      * 同态叔伯元素内的同类同位置子元素。
-     * 用途：对表区域（如<tbody>）内同列单元格选取或取消选取。
-     * 注记：父级叔伯可能已选取。
+     * 焦点元素不变。
+     * 用例：
+     * 选取或取消选取表区域（如<tbody>）内同列单元格。
      */
     tagsame2x() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _pel = _el.parentElement;
+        let _pel = _el.parentElement,
+            _els = null;
 
-        if ( _pel.tagName !== 'TR' ) {
-            return elementsUnify( $.find( `>* >${ nthSelector(_el) }`, _pel.parentElement ), _el );
+        if ( _pel.tagName === 'TR' ) {
+            let _tsec = _pel.parentElement;
+            _els = columnCells( _el, tableObj(_tsec.parentElement), _tsec );
+        } else {
+            _els = $.find( `>* >${ nthSelector(_el) }`, _pel.parentElement );
         }
-        // 单元格单独处理。
-        // 因为存在跨列单元格的逻辑列问题。
-        let _tsec = _pel.parentElement;
 
-        elementsUnify( columnCells(_el, tableObj(_tsec.parentElement), _tsec), _el );
+        _els.splice( _els.indexOf(_el), 1 );
+        _els.length && historyPush( new ESEdit(elementsUnify, _els, _el).done() );
     },
 
 
@@ -2626,7 +2614,7 @@ export const Edit = {
         previousCall(
             __EHot.get(),
             n,
-            (els, beg) => expandSelect( beg, els )
+            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg).done(), new HotEdit(beg) )
         );
     },
 
@@ -2640,7 +2628,7 @@ export const Edit = {
         nextCall(
             __EHot.get(),
             n,
-            (els, beg) => expandSelect( beg, els )
+            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg).done(), new HotEdit(beg) )
         );
     },
 
