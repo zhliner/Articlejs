@@ -585,7 +585,8 @@ class ElemSels {
     /**
      * 切换选取。
      * 已存在则移除，否则为添加。
-     * 注：添加时仍需考虑父子包含关系。
+     * 注意：
+     * 目标元素可能是已选取元素的子元素，因此仍需考虑父子包含关系。
      * @行为：Ctrl+单击
      * @param {Element} el 焦点/目标元素
      */
@@ -614,9 +615,8 @@ class ElemSels {
     /**
      * 元素扩展：添加/移出。
      * 假设父容器未选取，外部需要保证此约束。
-     * @param  {[Element]} els 元素序列
-     * @param  {Element} hot 焦点元素引用
-     * @return {Boolean} 是否实际执行
+     * @param {[Element]} els 元素序列
+     * @param {Element} hot 焦点元素引用
      */
     expand( els, hot ) {
         return this._set.has(hot) ? this.adds(els) : this.removes(els);
@@ -626,21 +626,13 @@ class ElemSels {
     /**
      * 元素集添加。
      * 新成员可能是集合内成员的父元素。
-     * 约束：假设父容器未选取，外部需要保证此约束。
-     * @param  {[Element]} els 兄弟元素集
-     * @return {Boolean} 是否实际执行
+     * 假设父容器未选取，外部需要保证此约束。
+     * @param {[Element]} els 兄弟元素集
      */
     adds( els ) {
-        let _does = false;
-
-        for ( const el of els ) {
-            if ( this._set.has(el) ) {
-                continue;
-            }
-            _does = true;
-            this._parentAdd( el );
-        }
-        return _does;
+        els.forEach(
+            el => this._set.has(el) || this._parentAdd(el)
+        );
     }
 
 
@@ -685,22 +677,20 @@ class ElemSels {
      * 普通添加。
      * 会检查父子包含关系并清理。
      * 如果已经选取则无行为。
-     * @param  {Element} el 目标元素
-     * @return {el|false}
+     * @param {Element} el 目标元素
      */
     add( el ) {
-        return !this._set.has(el) && this.clean(el)._set.add(el);
+        this._set.has(el) || this.clean(el)._set.add(el);
     }
 
 
     /**
      * 安全添加。
      * 外部需要自行清理父子已选取。
-     * @param  {Element} el 选取元素
-     * @return {el|false}
+     * @param {Element} el 选取元素
      */
     safeAdd( el ) {
-        return !this._set.has(el) && this._set.add(el);
+        this._set.has(el) || this._set.add(el);
     }
 
 
@@ -733,9 +723,6 @@ class ElemSels {
      * @param {[Element]} els 元素集
      */
     unshift( els ) {
-        if ( els.length === 0 ) {
-            return false;
-        }
         let _tmp = [...this._set];
 
         if ( _tmp.length ) {
@@ -1243,43 +1230,41 @@ function elementsUnify( els, hot ) {
 
 
 /**
- * 根内容元素集选取封装。
+ * 根内容元素集选取。
  * 内容子单元可能属于不同的父容器，而焦点元素也可能未选取，
  * 因此需要逐一清理。
- * 焦点元素移动到内容子元素的首个成员上。
  * @param {[Element]} els 内容子元素
- * @param {Boolean} start 是否头部插入，可选
+ * @param {String} meth 插入方法（adds|unshift）
  */
-function contentSelect( els, start ) {
-    let _old = [...__ESet],
-        _fn = start ? 'unshift' : 'adds';
-
+function contentSelect( els, meth ) {
     els.forEach(
         el => __Selects.cleanUp( el )
     );
-    if ( __Selects[_fn](els) === false ) {
-        return;
-    }
-    historyPush( new ESEdit(_old, els[0]) );
+    __Selects[ meth ]( els );
 }
 
 
 /**
  * 单元素简单操作。
- * 通过 clean 回调自行必要的清理（如果需要）。
- * 注：焦点移动到目标元素。
  * @param {Element} el 目标元素
  * @param {String} meth 操作方法（turn|only|add|safeAdd）
- * @param {Function} clean 前置清理回调，可选
+ * @param {Boolean} cleanup 向上清理，可选
  */
-function elementOne( el, meth, clean ) {
-    let _old = [...__ESet];
-    clean && clean();
+function elementOne( el, meth, cleanup ) {
+    cleanup && __Selects.cleanUp( el );
+    __Selects[ meth ]( el );
+}
 
-    if ( __Selects[meth](el) === false ) {
-        return setFocus( el );
-    }
-    historyPush( new ESEdit(_old, el) );
+
+/**
+ * 选取单个元素。
+ * 包含设置目标元素为焦点。
+ * @param  {Element} el 目标元素
+ * @param  {String} meth 方法名
+ * @return {Instance} 操作实例集
+ */
+function selectOne( el, meth ) {
+    return [ new ESEdit(elementOne, el, meth).done(), new HotEdit(el) ];
 }
 
 
@@ -1287,21 +1272,48 @@ function elementOne( el, meth, clean ) {
  * 添加元素集选取。
  * 假定父级未选取，会自动清理子级已选取成员。
  * 用途：虚焦点系列操作。
- * @param  {[Element]} els 当前选取集
- * @param  {Function} gets 获取新元素集回调
- * @return {ESEdit|void}
+ * @param {Set} eset 当前选取集
+ * @param {Function} gets 获取新元素集回调
  */
-function elementAdds( els, gets ) {
-    if ( theSibling(els) ) {
-        return;
-    }
-    for ( const el of els ) {
+function elementAdds( eset, gets ) {
+    for ( const el of eset ) {
         __Selects.cleanUp( el );
-
         // 当前el可能已被叔伯清理掉。
         __Selects.adds( gets(el) );
     }
-    return new ESEdit( els );
+}
+
+
+/**
+ * 简单全选取。
+ * 清除之前的选取集，安全添加新集合（无互为包含）。
+ * @param {[Element]} els 内容元素集
+ */
+function newSafeAdds( els ) {
+    __Selects.empty();
+    __Selects.safeAdds( els );
+}
+
+
+/**
+ * 清理全选取。
+ * 集合内可能存在互为包含的元素。
+ * @param {[Element]|Set} els 父级元素集
+ */
+function newCleanAdds( els ) {
+    __Selects.empty();
+    els.forEach( el => __Selects.add(el) );
+}
+
+
+/**
+ * 反选添加。
+ * 焦点元素可能是已选取元素的子元素，需向上清理。
+ * @param {Element} el 焦点元素
+ */
+function reverseAdds( el ) {
+    __Selects.cleanUp( el );
+    __Selects.reverse( el.parentElement.children );
 }
 
 
@@ -1458,7 +1470,9 @@ function previousCall( hot, n, handle ) {
     if (!hot || n < 0) {
         return;
     }
-    handle( $.prevAll(hot, (_, i) => i <= n), hot );
+    let _els = $.prevAll( hot, (_, i) => i <= n );
+
+    return _els.length && handle( _els, hot );
 }
 
 
@@ -1475,7 +1489,9 @@ function nextCall( hot, n, handle ) {
     if (!hot || n < 0) {
         return;
     }
-    handle( $.nextAll(hot, (_, i) => i <= n), hot );
+    let _els = $.nextAll( hot, (_, i) => i <= n );
+
+    return _els.length && handle( _els, hot );
 }
 
 
@@ -1495,7 +1511,7 @@ function parentCall( hot, n, handle ) {
     }
     let _to = $.closest( hot, (el, i) => i == n || el === contentElem );
 
-    handle( _to !== contentElem && _to);
+    return _to && _to !== contentElem && handle( _to );
 }
 
 
@@ -1512,7 +1528,9 @@ function childCall( hot, n, handle ) {
     if ( !hot || n < 0 ) {
         return;
     }
-    handle( $.children(hot, n) );
+    let _to = $.children( hot, n );
+
+    return _to && handle( _to );
 }
 
 
@@ -1522,7 +1540,8 @@ function childCall( hot, n, handle ) {
  * @param {Function} handle 调用句柄
  */
 function topCall( hot, handle ) {
-    hot && handle( virtualBox(hot, contentElem) );
+    let _to = virtualBox( hot, contentElem );
+    return _to && handle( _to );
 }
 
 
@@ -1544,15 +1563,16 @@ function siblingTo( beg, to ) {
 
 
 /**
- * 检查选取集是否变化。
- * @param  {[Element]} old 原选取集
+ * 是否为相同的成员集。
+ * @param  {ESet} eset 当前选取集
+ * @param  {[Element]} els 待检查元素集
  * @return {Boolean}
  */
-function stillSame( old ) {
-    if ( old.length !== __ESet.size ) {
+function sameSets( eset, els ) {
+    if ( eset.size !== els.length ) {
         return false;
     }
-    return $.every( __ESet, (el, i) => old[i] === el );
+    return $.every( eset, (el, i) => els[i] === el );
 }
 
 
@@ -2027,23 +2047,23 @@ function closestParent( el ) {
  * 如果集合成员都是平级单一选取元素时，返回 false。
  * 注记：
  * 用于虚焦点平级操作前的合法性检测，返回真值即不可继续。
- * @param  {[Element]} els 元素集
- * @return {Element|Boolean}
+ * @param  {Set} eset 元素集
+ * @return {Boolean}
  */
-function theSibling( els ) {
+function hasSibling( eset ) {
     let _set = new Set(),
         _cnt = 0;
 
-    for ( const [i, el] of els.entries() ) {
+    for ( const [i, el] of eset.entries() ) {
         let _box = el.parentElement;
         _cnt += _box.childElementCount;
 
         if ( _set.add(_box).size === i ) {
-            // 返回元素可用于帮助提示。
-            return warn('repeat sibling:', el) || el;
+            // true
+            return !warn( 'repeat sibling:', el );
         }
     }
-    return _cnt === els.length;
+    return _cnt === eset.size;
 }
 
 
@@ -2263,8 +2283,9 @@ function cleanCall( handle ) {
 
 /**
  * 控制台警告。
- * @param {String} msg 输出消息
- * @param {Value} data 关联数据
+ * @param  {String} msg 输出消息
+ * @param  {Value} data 关联数据
+ * @return {void}
  */
 function warn( msg, data ) {
     window.console.warn( msg, data || '' );
@@ -2273,8 +2294,9 @@ function warn( msg, data ) {
 
 /**
  * 控制台错误提示。
- * @param {String} msg 输出消息
- * @param {Value} data 关联数据
+ * @param  {String} msg 输出消息
+ * @param  {Value} data 关联数据
+ * @return {void}
  */
 function error( msg, data ) {
     window.console.error( msg, data || '' );
@@ -2336,7 +2358,7 @@ export const Edit = {
         previousCall(
             __EHot.get(),
             n,
-            els => els.length && setFocus( last(els) )
+            els => setFocus( last(els) )
         );
     },
 
@@ -2350,7 +2372,7 @@ export const Edit = {
         nextCall(
             __EHot.get(),
             n,
-            els => els.length && setFocus( last(els) )
+            els => setFocus( last(els) )
         );
     },
 
@@ -2365,7 +2387,7 @@ export const Edit = {
         parentCall(
             __EHot.get(),
             n,
-            el => el && setFocus(el)
+            el => setFocus(el)
         );
     },
 
@@ -2379,7 +2401,7 @@ export const Edit = {
         childCall(
             __EHot.get(),
             n,
-            el => el && setFocus(el)
+            el => setFocus(el)
         );
     },
 
@@ -2391,7 +2413,7 @@ export const Edit = {
     focusItemTop() {
         topCall(
             __EHot.get(),
-            el => el && setFocus(el)
+            el => setFocus(el)
         );
     },
 
@@ -2407,8 +2429,8 @@ export const Edit = {
      * - 多选：多选或切换选。
      * - 跨选：焦点平级跨越扩选。
      * - 浮选：焦点平级切换选。
-     * - 父选（单）：单选目标的父元素。
-     * - 父选（复）：切换选目标的父元素。
+     * - 父选：聚焦目标的父元素。
+     * - 父焦：切换选目标的父元素。
      * @data: Element 点击的目标元素
      * @param {Set} scam 辅助键按下集
      */
@@ -2430,9 +2452,9 @@ export const Edit = {
         // 浮选（焦点同级）
         if ( scamPressed(scam, cfg.Keys.smartSelect) ) {
             let _to = closestFocus( _hot, _el );
-            return _to && elementOne( _to, 'turn' );
+            return _to && historyPush( ...selectOne(_to, 'turn') );
         }
-        // 父选（聚焦）
+        // 父焦（仅聚焦）
         if ( scamPressed(scam, cfg.Keys.parentFocus) ) {
             let _to = closestParent( _el );
             return _to && setFocus( _to );
@@ -2440,10 +2462,10 @@ export const Edit = {
         // 父选（多选/切换）
         if ( scamPressed(scam, cfg.Keys.parentSelect) ) {
             let _to = closestParent( _el );
-            return _to && elementOne( _to, 'turn' );
+            return _to && historyPush( ...selectOne(_to, 'turn') );
         }
-        // 多选/单选
-        elementOne( _el, scamPressed(scam, cfg.Keys.turnSelect) ? 'turn' : 'only' );
+        // 多选|单选
+        historyPush( ...selectOne(_el, scamPressed(scam, cfg.Keys.turnSelect) ? 'turn' : 'only') );
     },
 
     __click: 1,
@@ -2454,11 +2476,10 @@ export const Edit = {
      * 点击时同时按住多选键即为切换选取。
      */
     pathTo( evo, scam ) {
-        if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
-            elementOne( evo.data, 'turn' );
-        } else {
-            pathFocus( evo.data );
+        if ( !scamPressed(scam, cfg.Keys.turnSelect) ) {
+            return pathFocus( evo.data );
         }
+        historyPush( ...selectOne(evo.data, 'turn') );
     },
 
     __pathTo: 1,
@@ -2470,7 +2491,7 @@ export const Edit = {
      */
     turn() {
         let _el = __EHot.get();
-        return _el && elementOne( _el, 'turn' );
+        _el && historyPush( ...selectOne(_el, 'turn') );
     },
 
 
@@ -2479,17 +2500,7 @@ export const Edit = {
      */
     reverse() {
         let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _old = [...__ESet];
-
-        // 可能为已选取元素子元素。
-        __Selects.cleanUp( _el );
-
-        if ( __Selects.reverse(_el.parentElement.children) === false ) {
-            return;
-        }
-        historyPush( new ESEdit(_old, _el) );
+        _el && historyPush( new ESEdit(reverseAdds, _el).done() );
     },
 
 
@@ -2571,33 +2582,40 @@ export const Edit = {
         } else {
             _els = $.find( `>* >${ nthSelector(_el) }`, _pel.parentElement );
         }
-
         _els.splice( _els.indexOf(_el), 1 );
+
         _els.length && historyPush( new ESEdit(elementsUnify, _els, _el).done() );
     },
 
 
     /**
      * 选取焦点元素内顶层内容元素。
+     * 友好：
+     * 焦点元素定位到首个内容子元素。
      */
     contentBoxes() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        contentSelect( contentBoxes(_el) );
+        let _els = contentBoxes( _el );
+
+        _els.some( el => !__ESet.has(el) ) &&
+        historyPush( new ESEdit(contentSelect, 'adds').done(), new HotEdit(_els[0]) );
     },
 
 
     /**
      * 获取焦点元素内顶层内容元素，
-     * 但新的元素集插入到集合的头部（unshift）。
-     * 注记：（同上）
+     * 注：新的元素集插入到集合的头部。
      */
     contentBoxesStart() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        contentSelect( contentBoxes(_el), true );
+        let _els = contentBoxes( _el );
+
+        _els.some( el => !__ESet.has(el) ) &&
+        historyPush( new ESEdit(contentSelect, 'unshift').done(), new HotEdit(_els[0]) );
     },
 
 
@@ -2644,7 +2662,7 @@ export const Edit = {
         return parentCall(
             __EHot.get(),
             n,
-            el => el && elementOne( el, 'safeAdd', () => __Selects.clean(el) )
+            el => __ESet.has(el) || historyPush( ...selectOne(el, 'add') )
         );
     },
 
@@ -2658,7 +2676,7 @@ export const Edit = {
         return childCall(
             __EHot.get(),
             n,
-            el => el && elementOne( el, 'safeAdd', () => __Selects.cleanUp(el) )
+            el => __ESet.has(el) || historyPush( new ESEdit(elementOne, el, 'safeAdd', true).done(), new HotEdit(el) )
         );
     },
 
@@ -2673,7 +2691,7 @@ export const Edit = {
     itemTop() {
         topCall(
             __EHot.get(),
-            el => el && elementOne( el, 'safeAdd', () => __Selects.clean(el) )
+            el => __ESet.has(el) || historyPush( ...selectOne(el, 'add') )
         );
     },
 
@@ -2691,7 +2709,7 @@ export const Edit = {
         previousCall(
             __EHot.get(),
             n,
-            els => els.length && elementOne( last(els), 'only' )
+            els => historyPush( ...selectOne(last(els), 'only') )
         );
     },
 
@@ -2705,7 +2723,7 @@ export const Edit = {
         nextCall(
             __EHot.get(),
             n,
-            els => els.length && elementOne( last(els), 'only' )
+            els => historyPush( ...selectOne(last(els), 'only') )
         );
     },
 
@@ -2719,7 +2737,8 @@ export const Edit = {
     onlyParent( n ) {
         parentCall(
             __EHot.get(),
-            n, el => el && elementOne(el, 'only')
+            n,
+            el => historyPush( ...selectOne(el, 'only') )
         );
     },
 
@@ -2732,7 +2751,8 @@ export const Edit = {
     onlyChild( n ) {
         childCall(
             __EHot.get(),
-            n, el => el && elementOne(el, 'only')
+            n,
+            el => historyPush( ...selectOne(el, 'only') )
         );
     },
 
@@ -2743,7 +2763,7 @@ export const Edit = {
     onlyItemTop() {
         topCall(
             __EHot.get(),
-            el =>  el && elementOne(el, 'only')
+            el => historyPush( ...selectOne(el, 'only') )
         );
     },
 
@@ -2753,134 +2773,118 @@ export const Edit = {
 
 
     /**
-     * 兄弟全选（a）。
+     * 兄弟全选。
      * 注记：
-     * 如果选取集成员存在叔侄关系，就会有清理覆盖，
-     * 后选取的元素会清理掉先选取的元素。
+     * 如果选取集成员存在叔侄关系，就会有清理覆盖，后选取的元素会清理掉先选取的元素。
+     * 下同。
      */
     siblingsVF() {
-        let _op = elementAdds(
-            [...__ESet],
-            el => el.parentElement.children
-        );
-        _op && historyPush( _op );
+        if ( hasSibling(__ESet) ) {
+            return;
+        }
+        historyPush( new ESEdit(elementAdds, __ESet, el => $.siblings(el)) )
     },
 
 
     /**
-     * 兄弟同类选取（e）
-     * 注记同上。
+     * 兄弟同类选取。
      */
     tagsameVF() {
-        let _op = elementAdds(
-            [...__ESet],
-            el => $.find( `>${el.tagName}`, el.parentElement )
-        );
-        _op && historyPush( _op );
+        if ( hasSibling(__ESet) ) {
+            return;
+        }
+        historyPush( new ESEdit(elementAdds, __ESet, el => $.find(`>${el.tagName}`, el.parentElement)) );
     },
 
 
     /**
      * 前向扩选。
-     * 注记同前。
      */
     previousVF( n ) {
+        if ( hasSibling(__ESet) ) {
+            return;
+        }
         n = isNaN(n) ? 1 : n;
 
-        let _op = elementAdds(
-            [...__ESet],
-            el => $.prevAll( el, (_, i) => i <= n )
-        );
-        _op && historyPush( _op );
+        historyPush( new ESEdit(elementAdds, __ESet, el => $.prevAll(el, (_, i) => i <= n)) );
     },
 
 
     /**
      * 后向扩选。
-     * 注记同前。
      */
     nextVF( n ) {
+        if ( hasSibling(__ESet) ) {
+            return;
+        }
         n = isNaN(n) ? 1 : n;
 
-        let _op = elementAdds(
-            [...__ESet],
-            el => $.nextAll( el, (_, i) => i <= n )
-        );
-        _op && historyPush( _op );
+        historyPush( new ESEdit(elementAdds, __ESet, el => $.nextAll(el, (_, i) => i <= n)) );
     },
 
 
     /**
-     * 向下内容根（z）。
-     * 注记：向内检索各自独立，先移除自身即可。
+     * 向下内容根。
+     * 向内检索各自独立，因此无需向上下清理。
+     * 友好：焦点定位到集合的首个成员上。
      */
     contentBoxesVF() {
-        let _old = [ ...__ESet ];
+        let _els = [...__ESet]
+            .map( el => contentBoxes(el) ).flat();
 
-        for ( const el of _old ) {
-            __Selects.delete( el );
-            __Selects.safeAdds( contentBoxes(el) );
+        if ( sameSets(__ESet, _els) ) {
+            return;
         }
-        // 元素自身即可能为内容根（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
+        historyPush( new ESEdit(newSafeAdds, _els).done(), new HotEdit(_els[0]) );
     },
 
 
     /**
      * 子元素定位。
-     * 注记同上。
+     * 向内检索各自独立，因此无需向上下清理。
+     * 友好：焦点定位到集合的首个成员上。
      */
     childVF( n ) {
-        let _old = [ ...__ESet ];
         n = n || 0;
+        let _els = $.map( __ESet, el => $.children(el, n) );
 
-        for ( const el of _old ) {
-            let _sub = $.children( el, n );
-
-            if ( _sub ) {
-                __Selects.delete( el );
-                __Selects.safeAdd( _sub );
-            }
+        if ( sameSets(__ESet, _els) ) {
+            return;
         }
-        // 可能无子元素（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
+        historyPush( new ESEdit(newSafeAdds, _els).done(), new HotEdit(_els[0]) );
     },
 
 
     /**
      * 父级选取。
-     * 注记：叔伯元素选取重叠，需上下清理。
+     * 叔伯元素可能重叠，选取方法需上下清理。
+     * 友好：焦点定位到集合的首个成员上。
      */
     parentVF( n ) {
-        let _old = [ ...__ESet ];
+        let _els = new Set();
 
-        for ( const el of _old ) {
-            parentCall(
-                el,
-                n,
-                box => box && __Selects.add( box )
-            );
+        for ( const el of __ESet ) {
+            parentCall( el, n, box => _els.add(box) );
         }
-        // 顶层再向上无效（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
+        _els = [..._els];
+
+        sameSets(__ESet, _els) || historyPush( new ESEdit(newCleanAdds, _els).done(), new HotEdit(_els[0]) );
     },
 
 
     /**
      * 上级顶元素。
-     * 注记同上。
      */
     itemTopVF() {
-        let _old = [ ...__ESet ];
+        let _els = new Set();
 
-        for ( const el of _old ) {
-            topCall(
-                el,
-                top => top && __Selects.add( top )
-            );
+        for ( const el of __ESet ) {
+            topCall( el, top => _els.add(top) );
         }
+        _els = [..._els];
+
         // 顶层再向上无效（无改选）。
-        stillSame(_old) || historyPush( new ESEdit(_old, __ESet.first()) );
+        sameSets(__ESet, _els) || historyPush( new ESEdit(newCleanAdds, _els).done(), new HotEdit(_els[0]) );
     },
 
 
@@ -2892,14 +2896,12 @@ export const Edit = {
      * 焦点设置到首个成员。
      */
     selectSort() {
-        let $els = $( __ESet ).sort();
+        let _els = $(__ESet).sort().item();
 
-        if ( $els.length < 2 ) {
+        if ( _els.length < 2 ) {
             return;
         }
-        __ESet.clear().pushes( $els );
-
-        historyPush( new ESEdit($els.end(), $els[0]) );
+        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) );
     },
 
 
@@ -2908,14 +2910,12 @@ export const Edit = {
      * 焦点设置到首个成员。
      */
     selectReverse() {
-        let $els = $( __ESet ).sort().reverse();
+        let _els = $(__ESet).sort().item().reverse();
 
-        if ( $els.length < 2 ) {
+        if ( _els.length < 2 ) {
             return;
         }
-        __ESet.clear().pushes( $els );
-
-        historyPush( new ESEdit($els.end(2), $els[0]) );
+        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) );
     },
 
 
@@ -3520,12 +3520,10 @@ export const Kit = {
      * @return {void}
      */
     ecancel() {
-        let _old = [...__ESet];
-
-        if ( __Selects.empty() === false ) {
+        if ( !__ESet.size ) {
             return;
         }
-        historyPush( new ESEdit(_old) );
+        historyPush( new ESEdit(() => __Selects.empty()).done() );
     },
 
 
