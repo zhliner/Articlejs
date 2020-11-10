@@ -233,17 +233,10 @@ class DOMEdit {
     constructor( handle, ...args ) {
         this._fun = handle;
         this._vals = args;
-
         // 外部只读
         this.count = null;
-    }
 
-
-    /**
-     * 完成操作。
-     */
-    done() {
-        return this.redo(), this;
+        this.redo();
     }
 
 
@@ -283,16 +276,8 @@ class ESEdit {
         this._fun = handle;
         this._vals = args;
         this._old = [...__ESet];
-    }
 
-
-    /**
-     * 完成操作。
-     * @return {this}
-     */
-    done() {
-        this._fun( ...this._vals );
-        return this;
+        this.redo();
     }
 
 
@@ -660,20 +645,6 @@ class ElemSels {
 
 
     /**
-     * 更新选取集。
-     * 清除全部旧的已选取。
-     * 外部保证新元素集无父子关系。
-     * @param {[Element]} els 新元素集
-     */
-    update( els ) {
-        if ( this._set.size > 0 ) {
-            this._set.clear();
-        }
-        this._set.pushes( els );
-    }
-
-
-    /**
      * 普通添加。
      * 会检查父子包含关系并清理。
      * 如果已经选取则无行为。
@@ -837,6 +808,8 @@ class ElemSels {
 //
 // 元素节点操作。
 // 节点删除、移动、克隆，元素的样式设置、清除等。
+// 约定：
+// 内部方法不互为调用（引用this），方法会被独立引用。
 //
 class NodeVary {
     /**
@@ -882,22 +855,18 @@ class NodeVary {
 
 
     /**
-     * 分别内添加。
-     * 遵循编辑器默认的子单元逻辑（迭代插入）。
-     * 焦点移动到首个成员（友好）。
-     * 注记：
-     * 从内部添加选取，因为每次redo都会再执行一次。
+     * 向内添加元素集。
+     * 如果有同级兄弟节点参考，则插入之前。
      * @param {Element|null} ref 插入参考（兄弟元素）
      * @param {Element} box 父容器元素
-     * @param {Collector} $data 选取集元素
+     * @param {[Element]} data 数据集
      */
-    appends( ref, box, $data ) {
-        let _els = $data
-            .map( el => children(ref,  box, {}, el) )
-            .flat();
-
-        setFocus( _els[0] );
-        __Selects.update( _els );
+    appends( ref, box, data ) {
+        if ( ref ) {
+            $.before( ref, data );
+        } else {
+            $.append( box, data );
+        }
     }
 
 
@@ -971,44 +940,13 @@ class NodeVary {
 
 
     /**
-     * 章节提升。
-     * 顶层章节被简单忽略，避免结构混乱（不易被察觉）。
-     * @param {Element} sec 章节元素
-     */
-    sectionUp( sec ) {
-        let _pel = sec.parentElement,
-            _sxn = $.attr( sec, 'role' );
-
-        if ( _sxn === 's1' ) {
-            return error( Tips.sectionNotUp );
-        }
-        $.before( _pel, sectionUpAll(sec) || sec );
-    }
-
-
-    /**
      * 多个章节提升。
      * 检查焦点更新，因为DOM路径已变化。
      * @param {[Element]} secs 章节元素集
      */
     sectionsUp( secs ) {
-        secs.forEach( el => this.sectionUp(el) );
+        secs.forEach( el => sectionUp(el) );
         updateFocus();
-    }
-
-
-    /**
-     * 章节降级。
-     * 将目标章节降级并移入空章节容器内。
-     * 末章节会降级为深章节（无role特性）。
-     * 注记：外部创建空容器可节省Redo开销。
-     * @param {Element} sec 章节元素
-     * @param {Element} box 同级空章节容器
-     */
-    sectionDown( sec, box ) {
-        sectionDownAll( sec );
-        // 插入内末端。
-        $.append( $.replace(sec, box), sec );
     }
 
 
@@ -1019,7 +957,7 @@ class NodeVary {
      */
     sectionsDown( els2 ) {
         els2.forEach(
-            els => this.sectionDown(els[0], els[1])
+            els => sectionDown(els[0], els[1])
         );
         updateFocus();
     }
@@ -1056,7 +994,7 @@ const
     __Selects = new ElemSels( __ESet ),
 
     // 元素修改操作实例。
-    __Elemedit = new NodeVary( __ESet ),
+    __Edits = new NodeVary(),
 
     // 编辑器操作历史。
     __History = new History( Limit.history );
@@ -1264,7 +1202,7 @@ function elementOne( el, meth, cleanup ) {
  * @return {Instance} 操作实例集
  */
 function selectOne( el, meth ) {
-    return [ new ESEdit(elementOne, el, meth).done(), new HotEdit(el) ];
+    return [ new ESEdit(elementOne, el, meth), new HotEdit(el) ];
 }
 
 
@@ -1314,6 +1252,45 @@ function newCleanAdds( els ) {
 function reverseAdds( el ) {
     __Selects.cleanUp( el );
     __Selects.reverse( el.parentElement.children );
+}
+
+
+/**
+ * 清除选取集。
+ * 返回的选取编辑实例需要进入历史栈。
+ * 返回false用于清除无效集。
+ * @return {ESEdit|false} 选取操作实例
+ */
+function clearSets() {
+    return __ESet.size > 0 && new ESEdit( () => __ESet.clear() );
+}
+
+
+/**
+ * 简单选取。
+ * @param  {[Element]} els 目标元素集
+ * @param  {Element} hot 当前焦点元素，可选
+ * @return {ESEdit} 选取操作实例
+ */
+function pushes( els ) {
+    return new ESEdit( () => __ESet.pushes(els) );
+}
+
+
+/**
+ * 清理元素焦点。
+ * 如果焦点元素在容器元素内，清除之。
+ * @param  {[Element]} els 容器元素集
+ * @param  {Boolean} self 包含自身检查
+ * @return {HotEdit|null}
+ */
+function cleanHot( els, self ) {
+    let _hot = __EHot.get();
+
+    if ( !_hot || !els.length ) {
+        return null;
+    }
+    return els.some( el => $.contains(el, _hot, !self) ) && new HotEdit(null);
 }
 
 
@@ -1391,32 +1368,43 @@ function textAppend2( els2, data ) {
  * - 焦点元素不可选取。
  * - 选取元素必须为可删除。
  * - 目标可以向内添加内容。
- * @param  {Collector} $els 数据元素集
+ * 操作：
+ * - 清空选取集选取。
+ * - 清空容器元素（可选）。
+ * - 移除原选取集元素。
+ * - 插入新元素集。
+ * - 新元素集自动选取。
+ * - 新元素集首个成员为焦点。
+ * @param  {Collector} $els 当前选取集
  * @param  {Element} to 目标容器元素
  * @param  {Element} ref 同级参考元素，可选
  * @param  {Boolean} empty 是否清空容器，可选
- * @return {Instance} 操作实例集
+ * @return {[Instance]} 操作实例集
  */
 function moveAppend( $els, to, ref, empty ) {
-    if ( !$els.length ) {
+    if ( $els.length === 0 ) {
         return;
     }
     if ( __ESet.has(to) ) {
         return help( 'cannot_selected', to );
     }
-    if ( !$els.every(canDelete) ) {
-        return help( 'has_cannot_del', deleteBadit($els) );
-    }
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
     }
-    // 先取消。appends内部有添加。
-    __Selects.empty();
+    if ( !$els.every(canDelete) ) {
+        return help( 'has_cannot_del', deleteBadit($els) );
+    }
+    // 用克隆的副本为数据，
+    // 不影响原始集移除的Undo/Redo。
+    $els = appendData( ref, to, $els.clone() );
 
     return [
-        new ESEdit( $els, to ),
+        clearSets(),
         empty && new DOMEdit( () => $.empty(to) ),
-        new DOMEdit( () => __Elemedit.appends(ref, to, $els) )
+        new DOMEdit( () => $els.remove() ),
+        new DOMEdit( __Edits.appends, ref, to, $els ),
+        pushes( $els ),
+        new HotEdit( $els[0] )
     ];
 }
 
@@ -1426,11 +1414,17 @@ function moveAppend( $els, to, ref, empty ) {
  * 检查：
  * - 单选取自我填充忽略。
  * - 目标可以向内添加内容。
- * @param  {Collector} $els 数据元素集
+ * 操作：
+ * - 清空选取集选取。
+ * - 清空容器元素（可选）。
+ * - 插入新元素集。
+ * - 新元素集自动选取。
+ * - 新元素集首个成员为焦点。
+ * @param  {Collector} $els 当前选取集
  * @param  {Element} to 目标容器元素
  * @param  {Element} ref 同级参考元素，可选
  * @param  {Boolean} empty 是否清空容器，可选
- * @return {Instance} 操作实例集
+ * @return {[Instance]} 操作实例集
  */
 function cloneAppend( $els, to, ref, empty ) {
     if ( !$els.length ) {
@@ -1443,13 +1437,38 @@ function cloneAppend( $els, to, ref, empty ) {
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
     }
-    __Selects.empty();
+    $els = appendData( ref, to, $els.clone() );
 
     return [
-        new ESEdit( $els, to ),
+        clearSets(),
         empty && new DOMEdit( () => $.empty(to) ),
-        new DOMEdit( () => __Elemedit.appends(ref, to, $els.clone()) )
+        new DOMEdit( __Edits.appends, ref, to, $els ),
+        pushes( $els ),
+        new HotEdit( $els[0] )
     ];
+}
+
+
+/**
+ * 构造append方式数据。
+ * - 暂停DOM编辑历史跟踪。
+ * - 用children构造链创建新元素（已插入）。
+ * - 提取这些新插入的根级元素作为数据。
+ * 注记：
+ * children的插入方式较为灵活，可能在每次执行时创建新的元素。
+ * 因此会带来先前插入节点的引用丢失问题，导致链式Redo无效。
+ * 所以需要用克隆的源数据预先构造出新节点，再用它们重新append。
+ *
+ * @param {Element|null} ref 兄弟参考
+ * @param {Element} box 父容器元素
+ * @param {Collector} $data 数据集（克隆版）
+ */
+function appendData( ref, box, $data ) {
+    return cleanCall( () =>
+        $data
+        .map( el => children(ref, box, {}, el) ).flat()
+        .map( el => $.remove(el) )
+    );
 }
 
 
@@ -1751,49 +1770,6 @@ function hasChildElement( els ) {
 function scamPressed( set, keys ) {
     let _ns = keys.split( __reSpace );
     return _ns.every( n => set.has(n.toLowerCase()) ) && _ns.length === set.size;
-}
-
-
-/**
- * 清理元素焦点。
- * 如果焦点元素在容器元素内，清除之。
- * @param  {[Element]} els 容器元素集
- * @param  {Boolean} self 包含自身检查
- * @return {HotEdit|null}
- */
-function cleanHot( els, self ) {
-    let _hot = __EHot.get();
-
-    if ( !_hot || !els.length ) {
-        return null;
-    }
-    return els.some( el => $.contains(el, _hot, !self) ) && new HotEdit(null);
-}
-
-
-/**
- * 清除元素集的选取。
- * 返回的选取编辑实例需要进入历史栈。
- * 返回false用于清除无效集。
- * @param  {[Element]} els 待清理元素集
- * @return {ESEdit|false} 选取操作实例
- */
-function clearSelected( els ) {
-    __ESet.removes( els );
-    return els.length > 0 && new ESEdit( els );
-}
-
-
-/**
- * 压入元素选取。
- * @param  {[Element]} els 目标元素集
- * @param  {Element} hot 当前焦点元素，可选
- * @return {ESEdit} 选取操作实例
- */
-function pushesSelect( els, hot = __EHot.get() ) {
-    let _old = [...__ESet];
-    __ESet.pushes( els );
-    return new ESEdit( _old, hot );
 }
 
 
@@ -2104,12 +2080,28 @@ function sameTag( els, tag ) {
  * @param  {Element} sec 章节根
  * @return {void|false}
  */
-function sectionUpAll( sec ) {
+function sectionUpTree( sec ) {
     $.find( 'section', sec )
         .forEach(
             el => sectionChange( el, -1 )
         );
     return sectionChange( sec, -1 );
+}
+
+
+/**
+ * 章节提升。
+ * 顶层章节被简单忽略，避免结构混乱（不易被察觉）。
+ * @param {Element} sec 章节元素
+ */
+function sectionUp( sec ) {
+    let _pel = sec.parentElement,
+        _sxn = $.attr( sec, 'role' );
+
+    if ( _sxn === 's1' ) {
+        return error( Tips.sectionNotUp );
+    }
+    $.before( _pel, sectionUpTree(sec) || sec );
 }
 
 
@@ -2120,12 +2112,27 @@ function sectionUpAll( sec ) {
  * @param  {Element} sec 章节根
  * @return {void|false}
  */
-function sectionDownAll( sec ) {
+function sectionDownTree( sec ) {
     $.find( 'section', sec )
         .forEach(
             el => sectionChange( el, 1 )
         );
     return sectionChange( sec, 1 );
+}
+
+
+/**
+ * 章节降级。
+ * 将目标章节降级并移入空章节容器内。
+ * 末章节会降级为深章节（无role特性）。
+ * 注记：外部创建空容器可节省Redo开销。
+ * @param {Element} sec 章节元素
+ * @param {Element} box 同级空章节容器
+ */
+function sectionDown( sec, box ) {
+    sectionDownTree( sec );
+    // 插入内末端。
+    $.append( $.replace(sec, box), sec );
 }
 
 
@@ -2267,7 +2274,8 @@ function help( msgid, el ) {
 /**
  * 干净回调。
  * 临时关闭节点变化跟踪以避免历史记录。
- * @param {Function} handle 回调操作
+ * @param  {Function} handle 回调操作
+ * @return {Value} 回调的返回值
  */
 function cleanCall( handle ) {
     let _old = $.config({
@@ -2447,7 +2455,7 @@ export const Edit = {
             let _to = closestFocus( _hot, _el ),
                 _els = _to && siblingTo( _hot, _to );
             return _to && _els.length &&
-                historyPush( new ESEdit(siblingsUnify, _els, _hot).done(), new HotEdit(_hot) );
+                historyPush( new ESEdit(siblingsUnify, _els, _hot), new HotEdit(_hot) );
         }
         // 浮选（焦点同级）
         if ( scamPressed(scam, cfg.Keys.smartSelect) ) {
@@ -2500,7 +2508,7 @@ export const Edit = {
      */
     reverse() {
         let _el = __EHot.get();
-        _el && historyPush( new ESEdit(reverseAdds, _el).done() );
+        _el && historyPush( new ESEdit(reverseAdds, _el) );
     },
 
 
@@ -2514,7 +2522,7 @@ export const Edit = {
 
         let _els = $.siblings( _el );
 
-        _els.length && historyPush( new ESEdit(siblingsUnify, _els, _el).done() );
+        _els.length && historyPush( new ESEdit(siblingsUnify, _els, _el) );
     },
 
 
@@ -2528,7 +2536,7 @@ export const Edit = {
 
         let _els = $.siblings( _el );
 
-        _els.some( el => __ESet.has(el) ) && historyPush( new ESEdit(siblingsUnify, _els, _el).done() );
+        _els.some( el => __ESet.has(el) ) && historyPush( new ESEdit(siblingsUnify, _els, _el) );
     },
 
 
@@ -2542,7 +2550,7 @@ export const Edit = {
 
         let _els = $.siblings( _el, _el.tagName );
 
-        _els.length && historyPush( new ESEdit(siblingsUnify, _els, _el).done() );
+        _els.length && historyPush( new ESEdit(siblingsUnify, _els, _el) );
     },
 
 
@@ -2559,7 +2567,7 @@ export const Edit = {
         let _els = $.find( `>* >${_el.tagName}`, _el.parentElement.parentElement );
 
         _els.splice( _els.indexOf(_el), 1 );
-        _els.length && historyPush( new ESEdit(elementsUnify, _els, _el).done() );
+        _els.length && historyPush( new ESEdit(elementsUnify, _els, _el) );
     },
 
 
@@ -2584,7 +2592,7 @@ export const Edit = {
         }
         _els.splice( _els.indexOf(_el), 1 );
 
-        _els.length && historyPush( new ESEdit(elementsUnify, _els, _el).done() );
+        _els.length && historyPush( new ESEdit(elementsUnify, _els, _el) );
     },
 
 
@@ -2600,7 +2608,7 @@ export const Edit = {
         let _els = contentBoxes( _el );
 
         _els.some( el => !__ESet.has(el) ) &&
-        historyPush( new ESEdit(contentSelect, 'adds').done(), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(contentSelect, 'adds'), new HotEdit(_els[0]) );
     },
 
 
@@ -2615,7 +2623,7 @@ export const Edit = {
         let _els = contentBoxes( _el );
 
         _els.some( el => !__ESet.has(el) ) &&
-        historyPush( new ESEdit(contentSelect, 'unshift').done(), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(contentSelect, 'unshift'), new HotEdit(_els[0]) );
     },
 
 
@@ -2632,7 +2640,7 @@ export const Edit = {
         previousCall(
             __EHot.get(),
             n,
-            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg).done(), new HotEdit(beg) )
+            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg), new HotEdit(beg) )
         );
     },
 
@@ -2646,7 +2654,7 @@ export const Edit = {
         nextCall(
             __EHot.get(),
             n,
-            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg).done(), new HotEdit(beg) )
+            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg), new HotEdit(beg) )
         );
     },
 
@@ -2676,7 +2684,7 @@ export const Edit = {
         return childCall(
             __EHot.get(),
             n,
-            el => __ESet.has(el) || historyPush( new ESEdit(elementOne, el, 'safeAdd', true).done(), new HotEdit(el) )
+            el => __ESet.has(el) || historyPush( new ESEdit(elementOne, el, 'safeAdd', true), new HotEdit(el) )
         );
     },
 
@@ -2835,7 +2843,7 @@ export const Edit = {
         if ( sameSets(__ESet, _els) ) {
             return;
         }
-        historyPush( new ESEdit(newSafeAdds, _els).done(), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) );
     },
 
 
@@ -2851,7 +2859,7 @@ export const Edit = {
         if ( sameSets(__ESet, _els) ) {
             return;
         }
-        historyPush( new ESEdit(newSafeAdds, _els).done(), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) );
     },
 
 
@@ -2868,7 +2876,7 @@ export const Edit = {
         }
         _els = [..._els];
 
-        sameSets(__ESet, _els) || historyPush( new ESEdit(newCleanAdds, _els).done(), new HotEdit(_els[0]) );
+        sameSets(__ESet, _els) || historyPush( new ESEdit(newCleanAdds, _els), new HotEdit(_els[0]) );
     },
 
 
@@ -2884,7 +2892,7 @@ export const Edit = {
         _els = [..._els];
 
         // 顶层再向上无效（无改选）。
-        sameSets(__ESet, _els) || historyPush( new ESEdit(newCleanAdds, _els).done(), new HotEdit(_els[0]) );
+        sameSets(__ESet, _els) || historyPush( new ESEdit(newCleanAdds, _els), new HotEdit(_els[0]) );
     },
 
 
@@ -2940,7 +2948,7 @@ export const Edit = {
             // 目标必须为内容元素。
             return help( 'need_conelem', totextBadit($els) );
         }
-        historyPush( new DOMEdit( () => __Elemedit.toText($els) ) );
+        historyPush( new DOMEdit(__Edits.toText, $els) );
     },
 
     __toText: null,
@@ -2963,7 +2971,7 @@ export const Edit = {
             // 选取元素及其父元素都必须为内容元素。
             return help( 'both_conelem', unwrapBadit($els) );
         }
-        historyPush( cleanHot($els, true), clearSelected($els), new DOMEdit(() => __Elemedit.unWrap($els)) );
+        historyPush( cleanHot($els, true), clearSets(), new DOMEdit(__Edits.unWrap, $els) );
     },
 
     __unWrap: null,
@@ -2983,7 +2991,7 @@ export const Edit = {
             _op = removeNodes( $els, true );
 
         if ( _op ) {
-            historyPush( cleanHot($els, true), clearSelected($els), _op );
+            historyPush( cleanHot($els, true), clearSets(), _op );
         }
         return !!_op;
     },
@@ -2997,7 +3005,7 @@ export const Edit = {
         let $els = $( __ESet ),
             _op = removeNodes( $els );
 
-        _op && historyPush( cleanHot($els, true), clearSelected($els), _op );
+        _op && historyPush( cleanHot($els, true), clearSets(), _op );
     },
 
 
@@ -3011,7 +3019,7 @@ export const Edit = {
             _op = elementsEmpty( $cons );
 
         // 选取根内容元素集
-        _op && historyPush( clearSelected($els), cleanHot($cons), _op, pushesSelect($cons) );
+        _op && historyPush( clearSets(), cleanHot($cons), _op, pushes($cons) );
     },
 
 
@@ -3032,11 +3040,7 @@ export const Edit = {
         if ( $new.length === 1 ) {
             $new = [ repeatN($new[0], n) ];
         }
-        historyPush(
-            clearSelected( $els ),
-            new DOMEdit( () => __Elemedit.afters($els, $new) ),
-            pushesSelect( $new.flat() )
-        );
+        historyPush( clearSets(), new DOMEdit(__Edits.afters, $els, $new), pushes($new.flat()) );
     },
 
 
@@ -3059,11 +3063,7 @@ export const Edit = {
         if ( _new2.length === 1 && _new2[0].length === 1 ) {
             _new2[0] = repeatN( _new2[0][0], n );
         }
-        historyPush(
-            clearSelected( $els ),
-            new DOMEdit( () => __Elemedit.afters(_refs, _new2) ),
-            pushesSelect( _new2.flat() )
-        );
+        historyPush( clearSets(), new DOMEdit(__Edits.afters, _refs, _new2), pushes(_new2.flat()) );
     },
 
 
@@ -3210,7 +3210,7 @@ export const Edit = {
             // 包含有固定不可以被移动的元素。
             return help( 'has_fixed', moveBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Elemedit.movePrev(siblingTeam($els), n)) );
+        historyPush( new DOMEdit(() => __Edits.movePrev(siblingTeam($els), n)) );
     },
 
 
@@ -3234,7 +3234,7 @@ export const Edit = {
             // 包含有固定不可以被移动的元素。
             return help( 'has_fixed', moveBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Elemedit.moveNext(siblingTeam($els), n)) );
+        historyPush( new DOMEdit(() => __Edits.moveNext(siblingTeam($els), n)) );
     },
 
 
@@ -3251,7 +3251,7 @@ export const Edit = {
         if ( !sameTag($els, 'SECTION') ) {
             return help( 'only_section', indentBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Elemedit.sectionsUp($els), true) );
+        historyPush( new DOMEdit(() => __Edits.sectionsUp($els), true) );
     },
 
 
@@ -3270,7 +3270,7 @@ export const Edit = {
         }
         let _els2 = sectionBoxes( $els );
 
-        historyPush( new DOMEdit(() => __Elemedit.sectionsDown(_els2), true) );
+        historyPush( new DOMEdit(() => __Edits.sectionsDown(_els2), true) );
     },
 
 
@@ -3287,7 +3287,7 @@ export const Edit = {
         if ( $els.some(isFixed) ) {
             return help( 'has_fixed', moveBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Elemedit.reverses(els2)) );
+        historyPush( new DOMEdit(() => __Edits.reverses(els2)) );
     },
 
 
@@ -3305,7 +3305,7 @@ export const Edit = {
         if ( !$els.every(isContent) ) {
             return help( 'need_conelem', mergeBadit );
         }
-        historyPush( new DOMEdit( () => __Elemedit.merges($els.shift(), $els) ) );
+        historyPush( new DOMEdit( () => __Edits.merges($els.shift(), $els) ) );
     },
 
 
@@ -3523,7 +3523,7 @@ export const Kit = {
         if ( !__ESet.size ) {
             return;
         }
-        historyPush( new ESEdit(() => __Selects.empty()).done() );
+        historyPush( new ESEdit(() => __Selects.empty()) );
     },
 
 
@@ -3804,7 +3804,7 @@ export const Kit = {
         }
         __Selects.empty();
 
-        historyPush( cleanHot($els, true), new ESEdit(_old), new DOMEdit(() => __Elemedit.convert($els, _name)) );
+        historyPush( cleanHot($els, true), new ESEdit(_old), new DOMEdit(() => __Edits.convert($els, _name)) );
     },
 
     __convert: 1,

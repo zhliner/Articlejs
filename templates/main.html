@@ -101,7 +101,9 @@
             #g-count|trigger('reset')">
         <!--上下文菜单
             keydown 快捷处理直达，ESC按下或子菜单隐藏时忽略（自然由普通模式处理）。
-            cancel  按ESC隐藏菜单。简单聚焦内容区使菜单失焦/隐藏即可。
+            cancel  按ESC隐藏菜单。简单聚焦内容区使菜单失焦即隐藏。
+            click(li[data-op]) 主菜单条目操作。
+            click(li[data-val]) 子菜单条目操作。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
             on="cmenudo|ev('detail');
@@ -122,7 +124,7 @@
                 |trigger('convert');
                 #g-scroll|trigger('focus');
                 -">
-            <li><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
+            <li data-op="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
@@ -139,12 +141,12 @@
                 <menu tpl-source="menu:inlines"></menu>
             </li>
             <hr>
-            <li><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
-            <li><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
+            <li data-op="toup"><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
+            <li data-op="todown"><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
             <hr>
-            <li><b id="l-delete">删除</b><kbd>Delete</kbd></li>
+            <li data-op="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
             <hr>
-            <li><b id="l-property">属性</b><kbd>p</kbd></li>
+            <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内联创建
             store 检查范围对象（在内容元素但非代码内）并存储。

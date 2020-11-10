@@ -3463,7 +3463,7 @@ class Collector extends Array {
 
 
     /**
-     * 集合扁平化。
+     * 扁平化，附带去重排序。
      * deep:
      * - Number 扁平化深度，适用原生支持的环境
      * - true   节点集去重排序
@@ -3622,7 +3622,7 @@ class Collector extends Array {
 
 
     /**
-     * 去重&排序。
+     * 去重，附带排序。
      * comp无实参传递时仅去重（无排序）。
      * comp: {
      *      true  DOM节点元素类排序
