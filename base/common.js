@@ -85,7 +85,7 @@ export class ESet extends Set {
 
     /**
      * 返回首个成员。
-     * @return {Element}
+     * @return {Element|void}
      */
     first() {
         for (const el of this) return el;
@@ -465,12 +465,12 @@ export function siblingIndex( node ) {
  * 向前获取目标位置节点。
  * 位置计数仅限于可视节点（元素和非空文本节点）。
  * 固定属性单元视为端头阻挡，返回后阶节点。
- * 如果一开始就被阻挡，则返回者为起点元素自身。
+ * 如果一开始就被阻挡，返回null。
  * 注记：
  * 用于移动插入到目标位置之前。
  * @param  {Node} beg 起始节点
  * @param  {Number} n 向前步进计数，可选（默认1）
- * @return {Node}
+ * @return {Node|null}
  */
 export function prevNodeN( beg, n = 1 ) {
     let nodes = $.prevNodes( beg ),
@@ -482,7 +482,18 @@ export function prevNodeN( beg, n = 1 ) {
             break;
         }
     }
-    return nodes[i-1] || beg;
+    return nodes[ i-1 ] || null;
+}
+
+
+/**
+ * 是否为向前移动结束。
+ * @param  {Element} el 待移动元素
+ * @return {Boolean}
+ */
+export function prevMoveEnd( el ) {
+    let _nd = $.prevNode( el );
+    return !_nd || beforeFixed( _nd );
 }
 
 
@@ -492,7 +503,7 @@ export function prevNodeN( beg, n = 1 ) {
  * 注记：用于移动插入到目标位置之后。
  * @param  {Node} beg 起始节点
  * @param  {Number} n 向后步进计数，可选（默认1）
- * @return {Node}
+ * @return {Node|null}
  */
 export function nextNodeN( beg, n = 1 ) {
     let nodes = $.nextNodes( beg ),
@@ -504,7 +515,18 @@ export function nextNodeN( beg, n = 1 ) {
             break;
         }
     }
-    return nodes[i-1] || beg;
+    return nodes[ i-1 ] || null;
+}
+
+
+/**
+ * 是否为向后移动结束。
+ * @param  {Element} el 待移动元素
+ * @return {Boolean}
+ */
+export function nextMoveEnd( el ) {
+    let _nd = $.nextNode( el );
+    return !_nd || afterFixed( _nd );
 }
 
 

@@ -22,7 +22,7 @@ import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
-import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap } from './common.js';
+import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
 import { children, create, convert, tocList } from "./create.js";
 import cfg from "./shortcuts.js";
 
@@ -840,16 +840,50 @@ class NodeVary {
 
 
     /**
+     * 简单后插入。
+     * @param {Element} el 参考元素
+     * @param {Node} data 数据元素
+     */
+    after( el, data ) {
+        $.after( el, data );
+    }
+
+
+    /**
      * 分组后插入。
-     * 将新元素（集）一一对应下标插入目标元素之后。
+     * 将新元素（集）一一对应下标插入参考元素之后。
      * 主要用于原地克隆。
      * 注：两个集合大小一样。
-     * @param {Collector} $els 目标集
-     * @param {Collector} $new 新元素集（支持二维）
+     * @param {[Element]} ref 参考元素集
+     * @param {[Element]} els 新元素集（支持二维）
      */
-    afters( $els, $new ) {
-        $els.forEach(
-            (el, i) => $.after(el, $new[i] )
+    afters( ref, els ) {
+        ref.forEach(
+            (el, i) => $.after( el, els[i] )
+        );
+    }
+
+
+    /**
+     * 简单向内添加。
+     * @param {[Element]} els 容器元素集
+     * @param {Value|[Value]} data 数据（集）
+     */
+    appends( els, data ) {
+        els.forEach(
+            el => $.append( el, data )
+        )
+    }
+
+
+    /**
+     * 简单填充。
+     * @param {[Element]} els 容器元素集
+     * @param {Value|[Value]} data 数据（集）
+     */
+    fills( els, data ) {
+        els.forEach(
+            el => $.fill( el, data )
         );
     }
 
@@ -861,7 +895,7 @@ class NodeVary {
      * @param {Element} box 父容器元素
      * @param {[Element]} data 数据集
      */
-    appends( ref, box, data ) {
+    insert( ref, box, data ) {
         if ( ref ) {
             $.before( ref, data );
         } else {
@@ -888,16 +922,16 @@ class NodeVary {
 
     /**
      * 内容合并。
-     * 同时会移除内容被合并的容器元素。
+     * 同时会移除（如果可以）内容被合并的容器元素。
      * @param {Element} box 目标容器
-     * @param {[Element]} els 待合并内容元素集
+     * @param {Collector} $els 待合并内容元素集
      */
-    merges( box, els ) {
+    merges( box, $els ) {
         $.append(
             box,
-            els.contents().flat()
+            $els.contents().flat()
         );
-        els.not( canDelete ).remove();
+        $els.not( canDelete ).remove();
     }
 
 
@@ -980,6 +1014,37 @@ class NodeVary {
             );
         }
         __Selects.update( _buf );
+    }
+
+
+    /**
+     * 设置样式（多个）。
+     * 全部元素统一设置为相同的值。
+     * 注记：
+     * 单纯的样式设置可以在OBT模板中完成，
+     * 但因为需要进入历史栈，故在此操作。
+     * @param {[Element]} els 元素集
+     * @param {String|Object} names 样式名序列或样式配置对象
+     * @param {Value|[Value]} val
+     */
+    styles( els, names, val ) {
+        els.forEach(
+            el => $.cssSets( el, names, val )
+        );
+    }
+
+
+    /**
+     * 样式设置（单个）。
+     * 全部元素统一设置为相同的值。
+     * @param {[Element]} els 元素集
+     * @param {String} name 样式名
+     * @param {Value} val 样式值
+     */
+    style( els, name, val ) {
+        els.forEach(
+            el => $.css( el, name, val )
+        );
     }
 }
 
@@ -1331,34 +1396,36 @@ function elementsEmpty( els ) {
  * 如果值为数组，与成员一一对应填充（tQuery）。
  * @param  {[Element]} els 容器元素集
  * @param  {Value|[Value]} data 数据（集）
+ * @param  {String} meth 插入方法（append|fill），可选
  * @return {DOMEdit|null} 操作实例
  */
-function textAppend( els, data ) {
-    return els.length > 0 && new DOMEdit( () => $(els).append(data) );
+function textAppend( els, data, meth ) {
+    return els.length > 0 && new DOMEdit( __Edits[meth], $(els), data );
 }
 
 
 /**
  * 填充元素集组。
- * 如果集组内只有一个成员（一个选取），视为元素集填充（内部内容根元素集）。
  * 数据组成员仅与元素集组成员（选取目标）一一对应。
+ * 如果元素集组内只有一个成员（一个选取），恢复数据为一体（换行连接）。
  * 如果数据组只有一个成员，表示对应到集组全部。
  * 注记：
  * 可用于选取集取值填充到新的选取集目标。
  * 也可用于外部多行文本内容分别填充到多个选取目标。
  * @param  {[[Element]]} els2 元素集组（2维）
  * @param  {[Value]} data 数据组（1维）
+ * @param  {String} meth 插入方法（appends|fills），可选
  * @return {[DOMEdit]} 操作实例集
  */
-function textAppend2( els2, data ) {
+function textAppend2( els2, data, meth ) {
     if ( els2.length === 1 ) {
         // 值为一体。
-        return [ textAppend(els2[0], data.join(' ')) ];
+        return [ textAppend(els2[0], data.join('\n'), meth) ];
     }
     if ( data.length === 1 ) {
         data = new Array(els2.length).fill( data[0] );
     }
-    return els2.map( (els, i) => textAppend(els, data[i]) );
+    return els2.map( (els, i) => textAppend(els, data[i], meth) );
 }
 
 
@@ -1402,7 +1469,7 @@ function moveAppend( $els, to, ref, empty ) {
         clearSets(),
         empty && new DOMEdit( () => $.empty(to) ),
         new DOMEdit( () => $els.remove() ),
-        new DOMEdit( __Edits.appends, ref, to, $els ),
+        new DOMEdit( __Edits.insert, ref, to, $els ),
         pushes( $els ),
         new HotEdit( $els[0] )
     ];
@@ -1442,7 +1509,7 @@ function cloneAppend( $els, to, ref, empty ) {
     return [
         clearSets(),
         empty && new DOMEdit( () => $.empty(to) ),
-        new DOMEdit( __Edits.appends, ref, to, $els ),
+        new DOMEdit( __Edits.insert, ref, to, $els ),
         pushes( $els ),
         new HotEdit( $els[0] )
     ];
@@ -1609,19 +1676,7 @@ function elementsPostion( $els, name, inc ) {
     }
     let _fx = v => `${(parseFloat(v) || 0) + inc}px`;
 
-    return new DOMEdit( () => $els.css(name, _fx) );
-}
-
-
-/**
- * 获取微编辑元素。
- * 仅需提取选取集的首个成员，因为微编辑完成后元素会被取消选取。
- * 注记：
- * 与焦点元素无关，按选取集顺序较为友好。
- * @return {Element|null}
- */
-function miniedElem() {
-    return __ESet.first() || null;
+    return new DOMEdit( __Edits.style, $els, name, _fx );
 }
 
 
@@ -1634,12 +1689,11 @@ function miniedElem() {
  * @return {[Instance]} 编辑历史记录实例序列
  */
 function minied( el ) {
-    let _old = [ ...__ESet ],
-        _op1 = null;
+    let _op1 = null;
 
-    // 创建同类新行时为未选取。
-    if ( __Selects.delete(el) ) {
-        _op1 = new ESEdit( _old, null );
+    // 创建同类新行时为未选取，无需取消。
+    if ( __ESet.has(el) ) {
+        _op1 = new ESEdit( () => __Selects.delete(el) );
     }
     currentMinied = new MiniEdit(
         el,
@@ -1679,7 +1733,7 @@ function medSameLine( src ) {
         $.attr( src, 'role' )
     );
     // 合为一个编辑历史序列。
-    return [ new DOMEdit(() => $.after(src, _new)) ].concat( minied(_new) );
+    return [ new DOMEdit(__Edits.after, src, _new), ...minied(_new) ];
 }
 
 
@@ -1691,7 +1745,7 @@ function medSameLine( src ) {
  */
 function medLogicLine( src, tag ) {
     let _new = $.elem( tag );
-    return [ new DOMEdit(() => $.after(src, _new)) ].concat( minied(_new) );
+    return [ new DOMEdit(__Edits.after(src, _new)), ...minied(_new) ];
 }
 
 
@@ -3077,7 +3131,7 @@ export const Edit = {
 
         let _ops = moveAppend( $(__ESet), _box, null, true );
 
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3090,7 +3144,7 @@ export const Edit = {
 
         let _ops = cloneAppend( $(__ESet), _box, null, true );
 
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3103,7 +3157,7 @@ export const Edit = {
 
         let _ops = moveAppend( $(__ESet), _box );
 
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3116,7 +3170,7 @@ export const Edit = {
 
         let _ops = cloneAppend( $(__ESet), _box );
 
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3128,11 +3182,11 @@ export const Edit = {
         if ( !_to ) return;
 
         let _ops = moveAppend(
-                $( __ESet ),
+                $(__ESet),
                 _to.parentElement,
                 _to
             );
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3148,7 +3202,7 @@ export const Edit = {
                 _to.parentElement,
                 _to
             );
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3160,11 +3214,11 @@ export const Edit = {
         if ( !_to ) return;
 
         let _ops = moveAppend(
-                $( __ESet ),
+                $(__ESet),
                 _to.parentElement,
                 $.nextNode( _to )
             );
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3176,11 +3230,11 @@ export const Edit = {
         if ( !_to ) return;
 
         let _ops = cloneAppend(
-                $( __ESet ),
+                $(__ESet),
                 _to.parentElement,
                 $.nextNode( _to )
             );
-        if ( _ops ) historyPush( ..._ops );
+        _ops && historyPush( ..._ops );
     },
 
 
@@ -3203,14 +3257,14 @@ export const Edit = {
 
         n = isNaN(n) ? 1 : n;
 
-        if ( n < 0 || !$els.length || (prevNodeN(_beg, n) === _beg && n > 0) ) {
+        if ( n < 0 || !$els.length || prevMoveEnd(_beg) ) {
             return;
         }
         if ( $els.some(isFixed) ) {
             // 包含有固定不可以被移动的元素。
             return help( 'has_fixed', moveBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Edits.movePrev(siblingTeam($els), n)) );
+        historyPush( new DOMEdit(__Edits.movePrev, siblingTeam($els), n) );
     },
 
 
@@ -3227,14 +3281,14 @@ export const Edit = {
 
         n = isNaN(n) ? 1 : n;
 
-        if ( n < 0 || !$els.length || (nextNodeN(_beg, n) === _beg && n > 0) ) {
+        if ( n < 0 || !$els.length || nextMoveEnd(_beg) ) {
             return;
         }
         if ( $els.some(isFixed) ) {
             // 包含有固定不可以被移动的元素。
             return help( 'has_fixed', moveBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Edits.moveNext(siblingTeam($els), n)) );
+        historyPush( new DOMEdit(__Edits.moveNext, siblingTeam($els), n) );
     },
 
 
@@ -3251,7 +3305,7 @@ export const Edit = {
         if ( !sameTag($els, 'SECTION') ) {
             return help( 'only_section', indentBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Edits.sectionsUp($els), true) );
+        historyPush( new DOMEdit(__Edits.sectionsUp, $els) );
     },
 
 
@@ -3270,7 +3324,7 @@ export const Edit = {
         }
         let _els2 = sectionBoxes( $els );
 
-        historyPush( new DOMEdit(() => __Edits.sectionsDown(_els2), true) );
+        historyPush( new DOMEdit(__Edits.sectionsDown, _els2) );
     },
 
 
@@ -3287,7 +3341,7 @@ export const Edit = {
         if ( $els.some(isFixed) ) {
             return help( 'has_fixed', moveBadit($els) );
         }
-        historyPush( new DOMEdit(() => __Edits.reverses(els2)) );
+        historyPush( new DOMEdit(__Edits.reverses, els2) );
     },
 
 
@@ -3305,7 +3359,7 @@ export const Edit = {
         if ( !$els.every(isContent) ) {
             return help( 'need_conelem', mergeBadit );
         }
-        historyPush( new DOMEdit( () => __Edits.merges($els.shift(), $els) ) );
+        historyPush( new DOMEdit(__Edits.merges, $els.shift(), $els) );
     },
 
 
@@ -3393,16 +3447,18 @@ export const Edit = {
      *
      * 目标：暂存区/栈顶1项。
      * 目标为从剪贴板取得的文本内容（已分解为数组）。
-     * @data: [String]
      * On: "paste|avoid clipboard trim pass split('\n')"
      * By: "Ed.paste"
+     * @data: [String]
+     * @param {Boolean} fill 是否为填充方式
      */
-    paste( evo ) {
+    paste( evo, fill ) {
         let _con2 = [...__ESet].map( el => contentBoxes(el) ),
-            _cons = _con2.flat();
+            _cons = _con2.flat(),
+            _meth = fill ? 'fills' : 'appends';
 
         if ( _cons.length ) {
-            historyPush( cleanHot(_cons), ...textAppend2(_con2, evo.data) );
+            historyPush( cleanHot(_cons), ...textAppend2(_con2, evo.data, _meth) );
         }
     },
 
@@ -3447,7 +3503,7 @@ export const Edit = {
      * 注：对选取集逐个处理。
      */
     miniedIn() {
-        let _el = miniedElem();
+        let _el = __ESet.first();
         if ( !_el ) return;
 
         if ( !isContent(_el) ) {
@@ -3466,7 +3522,7 @@ export const Edit = {
      * 注：光标设置在内容元素末尾。
      */
     miniedInEnd() {
-        let _el = miniedElem();
+        let _el = __ESet.first();
         if ( !_el ) return;
 
         if ( !isContent(_el) ) {
@@ -3481,7 +3537,7 @@ export const Edit = {
 
 
     properties() {
-
+        //
     },
 
 };

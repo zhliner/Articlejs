@@ -409,13 +409,16 @@ const _Control = {
      * 目标：无。
      * 存储值非空时为设置，否则为取值入栈。
      * 传递val为null时为删除目标值。
+     * 注记：
+     * undefined值无法入栈，因此返回null，这与设置时的null值功能相符。
      * @param  {String} name 键名
      * @param  {Value} val 存储值，可选
      * @return {Value|void}
      */
     env( evo, name, val ) {
         if ( val === undefined ) {
-            return Globals.get(name);
+            let _v = Globals.get(name);
+            return _v === undefined ? null : _v;
         }
         val === null ? Globals.delete(name) : Globals.set(name, val);
     },

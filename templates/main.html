@@ -67,7 +67,7 @@
     @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
     @paste   粘贴为纯文本。 -->
 <div class="___Content" tpl-name="main:content"
-    on="@keydown|key(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
+    on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
         cancel|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
         medok|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
         medin|env('minied') end (ESC) evo(3) apply('add', _1) env('minied', true) stop delay;
@@ -84,17 +84,22 @@
         keydown 普通模式快捷键操作（key, count），会重置状态栏提示。
         keyup 状态栏数字设置（非数字无效）。
         focus 设置选取范围到内部，以捕获copy|cut事件。
+        copy Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），clean清理内容中的换行，规范换行符用途。
+        keydown|scam('shift') 设置填充式粘贴标记。
+        keyup|env('pastefill', null) 清除填充粘贴标记（重置）。
     -->
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass;
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
             cut|env('minied') end avoid v.elset text clean(' ') trim join('\n');
-            paste|env('minied') end avoid clipboard trim dup pass split('\n');
+            paste|env('minied') end avoid clipboard trim dup pass split('\n') env('pastefill');
             focus|env('minied') end $('/menu') nodeRange(true) addRange;
-            copy|env('minied') end Range str end avoid v.elset text clean(' ') trim join('\n') pop clipboard"
+            copy|env('minied') end Range str end avoid v.elset text clean(' ') trim join('\n') pop clipboard;
+            keydown|env('minied') end scam('shift') pass env('pastefill', true);
+            keyup|env('minied') end env('pastefill', null)"
         by="-;-;
             Ed.deletes pass pop clipboard;
-            Ed.paste"
+            Ed.paste(_1)"
         to="#g-count|trigger('reset');
             #g-count|trigger('setv');
             -;-;
@@ -214,7 +219,7 @@
             mouseup 弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
             mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
             mouseleave|end 重置状态栏，除非已有计数指定。
-            mousedown|avoid 避免 Shift+单击 变成划选，已经有划选除外。
+            mousedown|...avoid 避免 Shift+单击 变成划选（已经有划选除外）。
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。
         -->
         <main id="content" class="content"

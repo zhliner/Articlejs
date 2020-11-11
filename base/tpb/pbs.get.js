@@ -834,7 +834,7 @@ const _Gets = {
      * 是否为目标键之一。
      * 目标：无。
      * 指定数字键时需要包含引号，而不是直接的数值。
-     * 数值实参表达被区分的键区：
+     * 数值实参表达约定的键区：
      * - 1: F1-F12 功能键系列。
      * - 2: F1-F12 功能键系列（含ESC键）。
      * - 3: Home/End/PgUp/PgDn 4个页面键。
@@ -842,11 +842,11 @@ const _Gets = {
      * @param  {...String|Number} keys 键名序列或键区值
      * @return {Boolean}
      */
-    key( evo, ...keys ) {
-        let _k = evo.event.key;
+    iskey( evo, ...keys ) {
+        let _k = evo.event.key();
 
-        return keys.some( n =>
-            typeof n === 'number' ? __keyArea[n].test(_k) : _k === n
+        return keys.some( v =>
+            typeof v === 'number' ? __keyArea[v].test(_k) : _k === v
         );
     },
 
