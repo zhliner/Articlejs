@@ -502,15 +502,18 @@ const _Control = {
      * 目标通常是$case执行的结果，但也可以是任意值集。
      * 注：
      * 仅取首个真值对应的实参值入栈。
-     * 目标集大小通常与实参序列长度相同，但容许超出（会被忽略）。
+     * 实参序列通常与目标集长度相同，若末尾多出一个，视为无匹配时的默认值。
      * @data: [Boolean]
      * @param  {...Value} vals 入栈值候选
      * @return {Value}
      */
     $switch( evo, ...vals ) {
-        for (const [i, b] of evo.data.entries()) {
-            if ( b ) return vals[i];
+        let i, b;
+
+        for ( [i, b] of evo.data.entries() ) {
+            if ( b ) return vals[ i ];
         }
+        return vals[ i+1 ];
     },
 
     __$switch: 1,

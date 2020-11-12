@@ -26,7 +26,8 @@
 
 import { processProxy } from "./tpb/pbs.by.js";
 import * as T from "./types.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode } from "./base.js";
+import { Sys } from "../config.js";
 
 
 const
@@ -881,7 +882,7 @@ const Children = {
      * @param  {Element|null} ref 插入参考子元素
      * @param  {Element} el 内容根元素
      * @param  {String|Node|Array} data 内容数据
-     * @return {Element} el
+     * @return {[Node]} 新插入的节点集
      */
     Children[ its ] = function( ref, el, _, data ) {
         let _tv = getType( el );
@@ -891,9 +892,10 @@ const Children = {
         } else {
             data = dataCons( data, _tv );
         }
-        insertChild( ref, el, data );
+        let _cons = insertChild( ref, el, data );
+        $.normalize( el );
 
-        return result( null, $.normalize(el), true );
+        return result( null, _cons, true );
     };
 });
 
@@ -1144,13 +1146,13 @@ const Builder = {
 
 
 //
-// 转换取值集。
+// 转换取值集（内联）。
 // 可能需要提取必要的特性设置。
+// 取内部子元素时采用克隆方式，避免影响原节点。
+//////////////////////////////////////////////////////////////////////////////
 // @return {[opts:Object, data:String|Element]}
 //
-const Convertor = {
-    // 内联单元
-    //-------------------------------------------
+const ConvInlines = {
 
     [ T.Q ]: function( el, opts = {} ) {
         opts.cite = $.attr( el, 'cite' );
@@ -1168,25 +1170,6 @@ const Convertor = {
     },
 
     [ T.TIME ]:     datetimeGetter,
-
-
-    // 行块单元
-    //-------------------------------------------
-
-    [ T.BLOCKQUOTE ]: h3Getter,
-    [ T.ASIDE ]:      h3Getter,
-
-    // 详细内容。
-    [ T.DETAILS ]: function( el, opts = {} ) {
-        let _hx = $.get( 'summary', el ),
-            _subs = $.children( el );
-
-        if ( _hx ) {
-            opts.h3 = _hx.textContent;
-            _subs.splice( _subs.indexOf(_hx), 1 );
-        }
-        return [ opts, _subs ];
-    },
 };
 
 
@@ -1210,12 +1193,43 @@ const Convertor = {
     T.S,
     T.U,
     T.VAR,
-    T.B,
-    T.I,
+
+    // 不可转换。
+    // 避免代码内标记扰乱，且创建简单。
+    // T.B,
+    // T.I,
 ]
 .forEach(function( tv ) {
-    Convertor[ tv ] = (el, opts) => [ opts || {}, $.Text(el) ];
+    ConvInlines[ tv ] = (el, opts) => [ opts || {}, $.Text(el) ];
 });
+
+
+//
+// 转换取值集（行块）。
+// 取内部子元素时采用克隆方式，避免影响原节点。
+// 注记：
+// 默认展开<details>元素，因为内容区单击默认行为已取消。
+//----------------------------------------------------------------------------
+// @return {[opts:Object, data:String|Element]}
+//
+const ConvBlocks = {
+
+    [ T.BLOCKQUOTE ]: h3Getter,
+    [ T.ASIDE ]:      h3Getter,
+
+    // 详细内容。
+    [ T.DETAILS ]: function( el, opts = {} ) {
+        let _hx = $.get( 'summary', el ),
+            _subs = $.children( el );
+
+        if ( _hx ) {
+            opts.h3 = _hx.textContent;
+            _subs.splice( _subs.indexOf(_hx), 1 );
+        }
+        opts.open = true;
+        return [ opts, $(_subs).clone() ];
+    },
+};
 
 
 //
@@ -1233,7 +1247,7 @@ const Convertor = {
     T.ADDRESS,
 ]
 .forEach(function( tv ) {
-    Convertor[ tv ] = (el, opts) => [ opts || {}, $.clone(el) ];
+    ConvBlocks[ tv ] = (el, opts = {}) => [ (opts.open = true, opts), $.clone(el) ];
 });
 
 
@@ -1250,10 +1264,15 @@ const Convertor = {
     T.ULX,
     T.OLX,
     T.CASCADE,
+
+    // 支持作为转换源（便利）
     T.DL,
 ]
 .forEach(function( tv ) {
-    Convertor[ tv ] = (el, opts) => [ opts || {}, $.children(el) ];
+    ConvBlocks[ tv ] = function( el, opts = {} ) {
+        opts.open = true;
+        return [ opts, $.children( el ).map( el => $.clone(el) ) ];
+    };
 });
 
 
@@ -1671,10 +1690,11 @@ function datetimeGetter( el, opts = {} ) {
 
 /**
  * 含h3小标题单元取值。
+ * 内容子元素提取时取克隆版本。
  * @param {Element} el 小区块单元根
  * @param {Object} opts 属性配置空间
  */
-function h3Getter( el, opts ) {
+function h3Getter( el, opts = {} ) {
     let _h3 = $.get( 'h3', el ),
         _subs = $.children( el );
 
@@ -1683,7 +1703,9 @@ function h3Getter( el, opts ) {
         opts.summary = _h3.textContent;
         _subs.splice( _subs.indexOf(_h3), 1 );
     }
-    return [ opts, _subs ];
+    opts.open = true;
+
+    return [ opts, $(_subs).clone() ];
 }
 
 
@@ -1873,15 +1895,18 @@ function create( name, opts, data, more ) {
 
 /**
  * 单元转换。
+ * 待转换单元的合法性由外部保证。
  * @param  {Element} el 待转换单元
  * @param  {String} name 转换目标单元名
  * @return {Element} 转换后的单元根
- *
  */
 function convert( el, name ) {
-    let _fn = Convertor[ getType(el) ];
-    if ( !_fn ) return;
+    let _tv = getType( el ),
+        _fn = ConvInlines[_tv] || ConvBlocks[_tv];
 
+    if ( !_fn || !name ) {
+        throw new Error(`can't convert ${el} to ${name}.`);
+    };
     let [ opts, data ] = _fn( el );
 
     return create( name, opts, data, $.isArray(data) );
@@ -1901,6 +1926,21 @@ function creater( name ) {
         throw new Error( 'invalid target name.' );
     }
     return (evo, opts = {}, more) => build( elem(_tv), opts, evo.data, more );
+}
+
+
+/**
+ * 检查转换类型。
+ * @param  {Element} el 目标元素
+ * @return {String|null} 类型标识（inlines|blocks）
+ */
+function convType( el ) {
+    let _tv = getType( el );
+
+    if ( ConvBlocks[_tv] ) {
+        return Sys.convBlocks;
+    }
+    return ConvInlines[_tv] && !isBlockCode(el) ? Sys.convInlines : null;
 }
 
 
@@ -1925,5 +1965,6 @@ export {
     children,
     create,
     convert,
-    tocList
+    tocList,
+    convType,
 };

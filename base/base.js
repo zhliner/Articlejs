@@ -589,6 +589,20 @@ export function isCodeCons( nodes ) {
 
 
 /**
+ * 是否为块代码。
+ * 即代码元素是否包含在代码块和代码表单元内。
+ * @param  {Element} code 代码元素
+ * @return {Boolean}
+ */
+export function isBlockCode( code ) {
+    let _pe = code.parentElement,
+        _tv = getType( _pe );
+
+    return _tv === T.CODEBLOCK || _tv === T.CODELI;
+}
+
+
+/**
  * 是否仅为一个成员。
  * 严格排他性子结构（如<thead>、<h1>等）。
  * 主要用于判断是否可原地克隆。

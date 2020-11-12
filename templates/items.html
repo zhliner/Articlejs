@@ -150,8 +150,9 @@
     <li data-k="v" data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
     <li data-k="b" data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
     <li data-pbo="disabled">&nbsp;</li>
-    <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li>
-    <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li>
+    <!-- 注：不支持，只可划选创建 -->
+    <!-- <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li> -->
+    <!-- <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li> -->
 </menu>
 
 
@@ -167,8 +168,14 @@
     <li data-val="ulx" title="<ul:ulx>"><b>无序级联表</b><kbd></kbd></li>
     <li data-val="olx" title="<ol:olx>"><b>有序级联表</b><kbd></kbd></li>
     <li data-k="c" data-val="cascade" title="<ol:cascade>"><b>级联编号表</b><kbd>c</kbd></li>
-    <li data-k="d" data-val="dl" title="<dl>"><b>定义列表</b><kbd>d</kbd></li>
     <li data-k="b" data-val="blockquote" title="<blockquote>"><b>块引用</b><kbd>b</kbd></li>
     <li data-k="a" data-val="aside" title="<aside>"><b>批注</b><kbd>a</kbd></li>
     <li data-val="details" title="<details>"><b>详细内容</b><kbd></kbd></li>
+    <!-- 注：不可为转换目标，因为无<dt>源（逻辑上）。 -->
+    <!-- <li data-k="d" data-val="dl" title="<dl>"><b>定义列表</b><kbd>d</kbd></li> -->
+</menu>
+
+<!-- 空占位菜单 -->
+<menu role="submenu" tpl-name="menu:empty">
+    <li data-pbo="disabled"><b>不可转换</b><kbd></kbd></li>
 </menu>

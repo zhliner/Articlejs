@@ -22,7 +22,12 @@ export const Limit = {
 
     // 历史栈长度
     // 注意定位移动可能会占据大量的步数。
-    history:    999,
+    history:        999,
+
+    // 弹出菜单边距友好（像素）
+    // 顶部距划选文本和右侧靠时距容器边框距离。
+    popupGapTop:    10,
+    popupGapRight:  3,
 
 };
 
@@ -48,7 +53,7 @@ export const Tips = {
 //
 // 帮助提示集。
 // key: [hid, msg]
-// 消息段（msg）可以作本地化修改。
+// 仅消息段（msg）可以作本地化修改，其余不可。
 //
 export const Help = {
 
@@ -126,14 +131,14 @@ export const Sys = {
     medOk:  'medok',
 
 
-    // 弹出菜单边距友好（像素）
-    // 顶部距划选文本和右侧靠时距容器边框距离。
-    popupGapTop:    10,
-    popupGapRight:  3,
+    // 转换类型标识名
+    // 用于区分内联转换或是行块转换（会引入不同的子菜单）。
+    convBlocks:  'blocks',
+    convInlines: 'inlines',
 
 
     // 本地暂存键
-    // window.localStorage
+    // 内容存储到 window.localStorage 的键名。
     //-------------------------------------------
 
     // 内容主体

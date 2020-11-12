@@ -93,7 +93,7 @@
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
             cut|env('minied') end avoid v.elset text clean(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('pastefill');
-            focus|env('minied') end $('/menu') nodeRange(true) addRange;
+            focus|env('minied') end $('/main') nodeRange(true) addRange;
             copy|env('minied') end Range str end avoid v.elset text clean(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end scam('shift') pass env('pastefill', true);
             keyup|env('minied') end env('pastefill', null)"
@@ -109,11 +109,14 @@
             cancel  按ESC隐藏菜单。简单聚焦内容区使菜单失焦即隐藏。
             click(li[data-op]) 主菜单条目操作。
             click(li[data-val]) 子菜单条目操作。
+            show 菜单显示位置计算/设置。
+            submenu 转换子菜单类型判断并导入。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
             on="cmenudo|ev('detail');
                 convert|ev('detail');
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
+                submenu|v.convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node(_1);
                 click(li[data-op])|evo(2) attr('-op');
                 keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) debug dup pass attr('-val');
                 click(#m-conv li[data-val])|evo(2) attr('-val');
@@ -123,7 +126,8 @@
                 Kit.convert"
             to="#g-scroll||fire('', 'focus');
                 #g-scroll||fire('', 'focus');
-                |cssSets('left top')|fire('', 'focus');
+                |cssSets('left top')|goto('submenu') fire('', 'focus');
+                /menu|replace;
                 |trigger('cmenudo');
                 |trigger('convert');
                 |trigger('convert');
@@ -226,7 +230,7 @@
             on="click(*)|avoid env('minied') end Range str end evo(1) scam;
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
-                mouseover(*)|env('minied') end $('#g-count') val end evo(1) einfo(true) str('<', '>');
+                mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) v.roleinfo(_1) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 cancel|stop env('minied') end (Kit) call('ecancel');
                 mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) Range dup pass dup str pass;

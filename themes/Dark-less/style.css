@@ -87,15 +87,18 @@ aside#help {
 }
 
 /* 空元素视觉提示 */
-.___Content main *:empty::before {
+.___Content main *:empty::after {
     content: '== Empty ==';
     color: darkgray;
     font-style: italic;
 }
-.___Content main tr >*:empty::before {
+.___Content main tr >*:empty::after {
     font-size: 8px;
 }
-.___Content main hr::before {
+.___Content main hr::after,
+.___Content main track::after,
+.___Content main source::after,
+.___Content main img::after {
     display: none;
 }
 .___Content main hr:hover {

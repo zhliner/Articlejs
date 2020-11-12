@@ -23,7 +23,7 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
-import { children, create, convert, tocList } from "./create.js";
+import { children, create, convert, tocList, convType } from "./create.js";
 import cfg from "./shortcuts.js";
 
 
@@ -840,24 +840,25 @@ class NodeVary {
 
 
     /**
-     * 简单后插入。
+     * 新建后插入。
+     * 主要用于微编辑新建单元插入。
      * @param {Element} el 参考元素
      * @param {Node} data 数据元素
      */
-    after( el, data ) {
+    newAfter( el, data ) {
         $.after( el, data );
     }
 
 
     /**
-     * 分组后插入。
+     * 克隆后插入。
      * 将新元素（集）一一对应下标插入参考元素之后。
      * 主要用于原地克隆。
      * 注：两个集合大小一样。
      * @param {[Element]} ref 参考元素集
      * @param {[Element]} els 新元素集（支持二维）
      */
-    afters( ref, els ) {
+    cloneAfter( ref, els ) {
         ref.forEach(
             (el, i) => $.after( el, els[i] )
         );
@@ -884,6 +885,19 @@ class NodeVary {
     fills( els, data ) {
         els.forEach(
             el => $.fill( el, data )
+        );
+    }
+
+
+    /**
+     * 替换操作。
+     * 两个集合成员为一一对应关系。
+     * @param {[Element]} els 目标元素集
+     * @param {[Element]} data 数据元素集
+     */
+    replace( els, data ) {
+        els.forEach(
+            (el, i) => $.replace( el, data[i] )
         );
     }
 
@@ -994,26 +1008,6 @@ class NodeVary {
             els => sectionDown(els[0], els[1])
         );
         updateFocus();
-    }
-
-
-    /**
-     * 转换为目标类型单元。
-     * 新的元素添加到选取集（原来的集合应当已清空）。
-     * 注记：
-     * 因为每一次都会重新执行，故内部添加。
-     * @param {[Element]} els 目标元素集
-     * @param {String} name 目标单元名
-     */
-    convert( els, name ) {
-        let _buf = [];
-
-        for ( const el of els ) {
-            _buf.push(
-                $.replace( el, convert(el, name) )
-            );
-        }
-        __Selects.update( _buf );
     }
 
 
@@ -1431,6 +1425,8 @@ function textAppend2( els2, data, meth ) {
 
 /**
  * 移动内添加操作。
+ * 因为是“移动”逻辑，保留可能绑定的事件处理器。
+ * 当然这只是一种模拟（克隆）。
  * 检查：
  * - 焦点元素不可选取。
  * - 选取元素必须为可删除。
@@ -1463,21 +1459,26 @@ function moveAppend( $els, to, ref, empty ) {
     }
     // 用克隆的副本为数据，
     // 不影响原始集移除的Undo/Redo。
-    $els = appendData( ref, to, $els.clone() );
+    let _op1 = clearSets(),
+        $new = appendData( ref, to, $els.clone(true, true, true) ),
+        _noc = !isContent( to );
 
     return [
-        clearSets(),
+        _op1,
         empty && new DOMEdit( () => $.empty(to) ),
         new DOMEdit( () => $els.remove() ),
-        new DOMEdit( __Edits.insert, ref, to, $els ),
-        pushes( $els ),
-        new HotEdit( $els[0] )
+        new DOMEdit( __Edits.insert, ref, to, $new ),
+        // 内容元素排除。
+        _noc ? pushes($new) : pushes([to]),
+        _noc && new HotEdit( $new[0] )
     ];
 }
 
 
 /**
  * 克隆内添加操作。
+ * 不支持元素上绑定的事件处理器克隆，
+ * 如果需要，用户应当有重新绑定的方式（OBT特性会正常克隆）。
  * 检查：
  * - 单选取自我填充忽略。
  * - 目标可以向内添加内容。
@@ -1504,14 +1505,16 @@ function cloneAppend( $els, to, ref, empty ) {
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
     }
-    $els = appendData( ref, to, $els.clone() );
+    let _op1 = clearSets(),
+        $new = appendData( ref, to, $els.clone() ),
+        _noc = !isContent( to );
 
     return [
-        clearSets(),
+        _op1,
         empty && new DOMEdit( () => $.empty(to) ),
-        new DOMEdit( __Edits.insert, ref, to, $els ),
-        pushes( $els ),
-        new HotEdit( $els[0] )
+        new DOMEdit( __Edits.insert, ref, to, $new ),
+        _noc ? pushes($new) : pushes([to]),
+        _noc && new HotEdit( $new[0] )
     ];
 }
 
@@ -1533,8 +1536,8 @@ function cloneAppend( $els, to, ref, empty ) {
 function appendData( ref, box, $data ) {
     return cleanCall( () =>
         $data
-        .map( el => children(ref, box, {}, el) ).flat()
-        .map( el => $.remove(el) )
+        .map( nd => children(ref, box, {}, nd) ).flat()
+        .map( nd => $.remove(nd) )
     );
 }
 
@@ -1733,7 +1736,7 @@ function medSameLine( src ) {
         $.attr( src, 'role' )
     );
     // 合为一个编辑历史序列。
-    return [ new DOMEdit(__Edits.after, src, _new), ...minied(_new) ];
+    return [ new DOMEdit(__Edits.newAfter, src, _new), ...minied(_new) ];
 }
 
 
@@ -1745,7 +1748,7 @@ function medSameLine( src ) {
  */
 function medLogicLine( src, tag ) {
     let _new = $.elem( tag );
-    return [ new DOMEdit(__Edits.after(src, _new)), ...minied(_new) ];
+    return [ new DOMEdit(__Edits.newAfter, src, _new), ...minied(_new) ];
 }
 
 
@@ -3094,7 +3097,7 @@ export const Edit = {
         if ( $new.length === 1 ) {
             $new = [ repeatN($new[0], n) ];
         }
-        historyPush( clearSets(), new DOMEdit(__Edits.afters, $els, $new), pushes($new.flat()) );
+        historyPush( clearSets(), new DOMEdit(__Edits.cloneAfter, $els, $new), pushes($new.flat()) );
     },
 
 
@@ -3117,7 +3120,7 @@ export const Edit = {
         if ( _new2.length === 1 && _new2[0].length === 1 ) {
             _new2[0] = repeatN( _new2[0][0], n );
         }
-        historyPush( clearSets(), new DOMEdit(__Edits.afters, _refs, _new2), pushes(_new2.flat()) );
+        historyPush( clearSets(), new DOMEdit(__Edits.cloneAfter, _refs, _new2), pushes(_new2.flat()) );
     },
 
 
@@ -3659,12 +3662,12 @@ export const Kit = {
         let _mw = $.outerWidth( evo.data ),
             _co = $.offset( box ),
             _bw = $.innerWidth( box ),
-            _y2 = y - _co.top + $.scrollTop(box) + Sys.popupGapTop;
+            _y2 = y - _co.top + $.scrollTop(box) + Limit.popupGapTop;
 
         if ( x + _mw < _bw + _co.left ) {
             return [ x - _co.left, _y2 ];
         }
-        return [ _bw - _mw - Sys.popupGapRight, _y2 ];
+        return [ _bw - _mw - Limit.popupGapRight, _y2 ];
     },
 
     __menupos: 1,
@@ -3688,6 +3691,36 @@ export const Kit = {
     },
 
     __submenu: 1,
+
+
+    /**
+     * 转换类型判断。
+     * 根据选取集成员判断可转换的类型。
+     * @return {String|null}
+     */
+    convtype() {
+        let _set = new Set();
+
+        for ( const el of __ESet ) {
+            _set.add( convType(el) );
+        }
+        return _set.size === 1 ? [..._set][0] : null;
+    },
+
+    __convtype: null,
+
+
+    /**
+     * 构造包含role指示的元素信息。
+     * 注：基于PB:einfo的基础信息，冒号分隔role内容。
+     * @param {String} einfo 元素基本信息
+     */
+    roleinfo( evo, einfo ) {
+        let _v = $.attr( evo.data, 'role' );
+        return _v ? `${einfo}:${_v}` : einfo;
+    },
+
+    __roleinfo: 1,
 
 
 
@@ -3809,6 +3842,8 @@ export const Kit = {
      * 从范围创建内联单元。
      * 目标：暂存区/栈顶1项。
      * 新建的内联元素加入选取集并聚焦。
+     * 注意：
+     * 用户可能在已选取元素内划选创建，因此使用add方法添加。
      * @data: Range
      * @param {String} name 单元名称
      */
@@ -3818,13 +3853,12 @@ export const Kit = {
         if ( _box.nodeType === 3 ) {
             _box = _box.parentElement;
         }
-        let _old = [...__ESet],
-            _op = new RngEdit( evo.data, name ),
+        let _op = new RngEdit( evo.data, name ),
             _el = _op.elem();
 
-        __Selects.add( _el );
-
-        historyPush( new DOMEdit(() => $.normalize(_box)), _op, new ESEdit(_old, _el) );
+        // 预先规范化，保证 RngEdit.undo 正常，
+        // 最终聚焦避免用户错觉。
+        historyPush( new DOMEdit(() => $.normalize(_box)), _op, new ESEdit(elementOne, _el, 'add'), new HotEdit(_el) );
     },
 
     __rngelem: 1,
@@ -3849,18 +3883,20 @@ export const Kit = {
      * 单元转换。
      * 目标：暂存区/栈顶1项。
      * 目标为转换到的单元名称。
+     * 注记：
+     * 模板中保证选取集转换到的可用清单合法。
+     * @data: String
      */
     convert( evo ) {
-        let $els = $(__ESet),
-            _old = [...__ESet],
-            _name = evo.data;
+        let $els = $( __ESet ),
+            _op1 = cleanHot( $els, true ),
+            _op2 = clearSets(),
+            $new = $els.map( el => convert(el, evo.data) );
 
-        if ( !$els.length || !_name ) {
+        if ( !$els.length ) {
             return;
         }
-        __Selects.empty();
-
-        historyPush( cleanHot($els, true), new ESEdit(_old), new DOMEdit(() => __Edits.convert($els, _name)) );
+        historyPush( _op1, _op2, new DOMEdit(__Edits.replace, $els, $new), pushes($new) );
     },
 
     __convert: 1,
@@ -3909,6 +3945,8 @@ customGetter( null, Kit, [
     'rngok',
     'menupos',
     'submenu',
+    'convtype',
+    'roleinfo',
 ]);
 
 
