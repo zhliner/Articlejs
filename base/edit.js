@@ -1457,20 +1457,15 @@ function moveAppend( $els, to, ref, empty ) {
     if ( !$els.every(canDelete) ) {
         return help( 'has_cannot_del', deleteBadit($els) );
     }
-    // 用克隆的副本为数据，
-    // 不影响原始集移除的Undo/Redo。
     let _op1 = clearSets(),
-        $new = appendData( ref, to, $els.clone(true, true, true) ),
-        _noc = !isContent( to );
+        _op2 = empty && new DOMEdit( () => $.empty(to) ),
+        $new = appendData( ref, to, $els.clone(true, true, true) );
 
     return [
-        _op1,
-        empty && new DOMEdit( () => $.empty(to) ),
+        _op1, _op2,
         new DOMEdit( () => $els.remove() ),
         new DOMEdit( __Edits.insert, ref, to, $new ),
-        // 内容元素排除。
-        _noc ? pushes($new) : pushes([to]),
-        _noc && new HotEdit( $new[0] )
+        ...appendContent( to, $new )
     ];
 }
 
@@ -1498,24 +1493,34 @@ function cloneAppend( $els, to, ref, empty ) {
     if ( !$els.length ) {
         return;
     }
-    // 自我填充
     if ( __ESet.size === 1 && __ESet.has(to) ) {
-        return;
+        return;  // 自我填充
     }
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
     }
     let _op1 = clearSets(),
-        $new = appendData( ref, to, $els.clone() ),
-        _noc = !isContent( to );
+        _op2 = empty && new DOMEdit( () => $.empty(to) ),
+        $new = appendData( ref, to, $els.clone() );
 
-    return [
-        _op1,
-        empty && new DOMEdit( () => $.empty(to) ),
-        new DOMEdit( __Edits.insert, ref, to, $new ),
-        _noc ? pushes($new) : pushes([to]),
-        _noc && new HotEdit( $new[0] )
-    ];
+    return [ _op1, _op2, new DOMEdit(__Edits.insert, ref, to, $new), ...appendContent(to, $new) ];
+}
+
+
+/**
+ * 向内插入内容。
+ * 判断容器是否为内容元素，构造操作实例集。
+ * - 内容元素容器仅需添加容器元素到选取。
+ * - 非内容元素容器会选取全部数据元素集，且定位到首个成员。
+ * @param  {Element} to 容器元素
+ * @param  {[Element]} $els 数据元素集
+ * @return {[Instance]}
+ */
+function appendContent( to, $els ) {
+    if ( isContent(to) ) {
+        return [ new ESEdit(() => __ESet.add(to)) ];
+    }
+    return [ pushes($els), new HotEdit($els[0]) ];
 }
 
 
@@ -1764,6 +1769,35 @@ function medLogicOk( conf, src ) {
 
 
 /**
+ * 微编辑下快捷创建新行。
+ * 包含创建同类新行和逻辑新行。
+ * - Ctrl + Enter 新建一个同类行，原行确认。
+ * - Alt + Enter  新建一个逻辑行，原行确认。如果无逻辑行则同 Ctrl+Enter。
+ * @param  {Set} scam 按下的辅助键集
+ * @param  {Element} src 参考的源元素
+ * @return {[Instance]|false} 操作实例集
+ */
+function medCreateLine( scam, src ) {
+    let _tv = getType( src ),
+        _lm = __medLLineMap[ _tv ];
+
+    // 同类新行。
+    if ( scamPressed(scam, cfg.Keys.miniedSameLine) ) {
+        return __medNewLines.has( _tv ) && medSameLine( src );
+    }
+    if ( !scamPressed(scam, cfg.Keys.miniedLogicLine) ) {
+        return false;
+    }
+    // 逻辑新行。
+    if ( medLogicOk(_lm, src) ) {
+        return medLogicLine( src, _lm[0] );
+    }
+    // 同类新行。
+    return __medNewLines.has( _tv ) && medSameLine( src );
+}
+
+
+/**
  * 普通模式：撤销。
  * @return {Boolean} 是否可以再撤销
  */
@@ -1819,7 +1853,7 @@ function hasChildElement( els ) {
 
 /**
  * 是否按下目标辅助键序列。
- * 注记：准确按下（排他性）。
+ * 此为准确按下，有排他性。
  * @param  {Set} set 按下辅助键集
  * @param  {String} keys 键名序列（空格分隔）
  * @return {Boolean}
@@ -3791,8 +3825,8 @@ export const Kit = {
      * 目标：暂存区/栈顶1项。
      * 目标为确认键，仅限于 Enter|Tab（外部保证）。
      * - Enter          确认并退出。
-     * - Ctrl + Enter   新建一个同类行（<p>|<li>|<dt>|<dd>），原行确认。
-     * - Alt + Enter    新建一个逻辑行（dt > dd, td|th ~ tr）。
+     * - Ctrl + Enter   新建一个同类行（<p>|<li>|<dt>...），原行确认。
+     * - Alt + Enter    新建一个逻辑行（如：<dt>到<dd>）或同类行，原行确认。
      * - Tab            当前完成，切换到下一个选取元素。
      * 注：Shift+Enter 为插入一个换行，浏览器默认行为无需实现。
      * @data: String
@@ -3800,22 +3834,16 @@ export const Kit = {
      * @return {void}
      */
     medpass( evo, scam ) {
-        let _src = currentMinied.elem(),
-            _typ = getType( _src ),
-            _cfg = __medLLineMap[ _typ ];
+        let _src = currentMinied.elem();
 
-        miniedOk( _typ === T.H2 && _src );
+        miniedOk( _src.tagName === 'H2' && _src );
 
         if ( evo.data === 'Tab' ) {
             return Edit.miniedIn();
         }
-        // 同类新行。
-        if ( scamPressed(scam, cfg.Keys.miniedSameLine) && __medNewLines.has(_typ) ) {
-            historyPush( ...medSameLine(_src) );
-        }
-        // 逻辑新行。
-        else if ( scamPressed(scam, cfg.Keys.miniedLogicLine) && medLogicOk(_cfg, _src) ) {
-            historyPush( ...medLogicLine(_src, _cfg[0]) );
+        let _ops = medCreateLine( scam, _src );
+        if ( _ops ) {
+            historyPush( ..._ops );
         }
         if ( !currentMinied ) return;
 

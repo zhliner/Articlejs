@@ -843,7 +843,7 @@ const _Gets = {
      * @return {Boolean}
      */
     iskey( evo, ...keys ) {
-        let _k = evo.event.key();
+        let _k = evo.event.key;
 
         return keys.some( v =>
             typeof v === 'number' ? __keyArea[v].test(_k) : _k === v

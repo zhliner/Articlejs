@@ -820,8 +820,9 @@ Keys: {
     miniedSameLine: 'Ctrl',
 
     // 微编辑逻辑行创建辅助。
-    // 支持 <dt> ~ <dd>, <h3> ~ <p> 等。
-    // 注：不支持 <td|th> ~ <tr>
+    // 支持 <dt>到<dd>, <h3>到<p> 等（不支持<td|th>到<tr>）。
+    // 注：
+    // 如果无逻辑新行的逻辑，则与创建同类行相同。
     miniedLogicLine: 'Alt',
 
 },
