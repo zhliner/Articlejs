@@ -2572,11 +2572,11 @@ export const Edit = {
 
 
     /**
-     * [By] 从路径聚焦/选取。
-     * 点击时同时按住多选键即为切换选取。
+     * [By] 从路径选取/聚焦。
+     * 点击的同时按住聚焦辅助键则为仅聚焦（路径序列不会重构）。
      */
     pathTo( evo, scam ) {
-        if ( !scamPressed(scam, cfg.Keys.turnSelect) ) {
+        if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
             return pathFocus( evo.data );
         }
         historyPush( ...selectOne(evo.data, 'turn') );

@@ -48,7 +48,7 @@
             </blockquote>
         </header>
         <!--On: 构造章节选择器，定位显示到视口。
-                兼容ID锚跳转（不avoid） -->
+                兼容ID锚跳转（不取消默认行为：avoid） -->
         <nav role="toc"
             on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>【目 录】</h3>

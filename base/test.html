@@ -141,7 +141,7 @@
     <aside id="outline" class="___Panel" data-pbo=""
         on="medok|ev('detail') dup paths('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
         to="-|text">
-        <!-- click 构造章节选择器，定位显示到视口 -->
+        <!-- click 构造章节选择器，定位显示到视口（非id定位） -->
         <nav role="toc"
             on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>大纲视图 <b title="刷新"
