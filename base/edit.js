@@ -1697,17 +1697,18 @@ function elementsPostion( $els, name, inc ) {
  * @return {[Instance]} 编辑历史记录实例序列
  */
 function minied( el ) {
-    let _op1 = null;
+    let _op1 = new HotEdit( null ),
+        _op2 = null;
 
     // 创建同类新行时为未选取，无需取消。
     if ( __ESet.has(el) ) {
-        _op1 = new ESEdit( () => __Selects.delete(el) );
+        _op2 = new ESEdit( () => __Selects.delete(el) );
     }
     currentMinied = new MiniEdit(
         el,
         window.getSelection().getRangeAt(0)
     );
-    return [ _op1, currentMinied, new HotEdit(currentMinied.elem()) ];
+    return [ _op1, _op2, currentMinied, new HotEdit(currentMinied.elem()) ];
 }
 
 
