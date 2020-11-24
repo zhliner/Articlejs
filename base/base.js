@@ -193,56 +193,30 @@ const CustomStruct = {
 // - SECTED  分级片区，有严格的嵌套层级，转换时可能需要修改role值。
 //
 const
-    TBLCELL = Symbol( 'tblcell' ),      // 表格单元元件
-    DLITEM  = Symbol( 'dlitem' ),       // 定义列表项
-    SECTED  = Symbol( 'sections' ),     // 分级片区单元
-    XLIST   = Symbol( 'normal-list'),   // 列表
-    XBLOCK  = Symbol( 'small-block'),   // 小区块
-    XCODES  = Symbol( 'code-block');    // 行块代码
+    NORMALLIST  = Symbol( 'normal-list'),    // 普通列表
+    SMALLBLOCK  = Symbol( 'small-block'),    // 普通小区块
+    BCODEITEM   = Symbol( 'blockcode-item'); // 块代码条目
 
 
 //
 // 兼容类型定义。
-// - 视为同类单元可在平级位置插入。
-// - 可原地相互转换。
-// 注记：
-// 原地转换通常由上下文菜单激发。
+// 可简单合并，取子单元直接插入。
 //
-const Compatible = {
-    // 快速平级插入
-    [ T.DT ]:       DLITEM,
-    [ T.DD ]:       DLITEM,
+const Compatibles = {
+    [ T.HEADER ]:       SMALLBLOCK,
+    [ T.FOOTER ]:       SMALLBLOCK,
+    [ T.BLOCKQUOTE ]:   SMALLBLOCK,
+    [ T.ASIDE ]:        SMALLBLOCK,
+    [ T.DETAILS ]:      SMALLBLOCK,
 
-    // 简单转换
-    [ T.TH ]:       TBLCELL,
-    [ T.TD ]:       TBLCELL,
+    [ T.CODELI ]:       BCODEITEM,
+    [ T.CODEBLOCK ]:    BCODEITEM,
 
-    // 片区转移
-    // 相同标签结构，修正层级（role）即可。
-    [ T.S1 ]:       SECTED,
-    [ T.S2 ]:       SECTED,
-    [ T.S3 ]:       SECTED,
-    [ T.S4 ]:       SECTED,
-    [ T.S5 ]:       SECTED,
-
-    // 小区块转换
-    // 结构相似：小标题加段落内容集。
-    [ T.BLOCKQUOTE ]:   XBLOCK,
-    [ T.ASIDE ]:        XBLOCK,
-    [ T.DETAILS ]:      XBLOCK,
-
-    // 行块代码转换
-    // 虽然标签结构迥异，但外观逻辑相似。
-    [ T.CODELIST ]:     XCODES,
-    [ T.CODEBLOCK ]:    XCODES,
-
-    // 列表转换
-    // 根级改变或递进处理（级联编号表时）。
-    [ T.UL ]:       XLIST,
-    [ T.OL ]:       XLIST,
-    [ T.ULX ]:      XLIST,
-    [ T.OLX ]:      XLIST,
-    [ T.CASCADE ]:  XLIST, // 递进处理
+    [ T.UL ]:           NORMALLIST,
+    [ T.OL ]:           NORMALLIST,
+    [ T.ULX ]:          NORMALLIST,
+    [ T.OLX ]:          NORMALLIST,
+    [ T.CASCADE ]:      NORMALLIST,
 };
 
 
@@ -771,4 +745,22 @@ export function sectionChange( sec, n ) {
         return false;
     }
     Reflect.deleteProperty( $.attr(sec, 'role', _v), __typeKey );
+}
+
+
+/**
+ * 是否为兼容集合。
+ * 注：兼容指内容可以合并。
+ * @param  {[Number]} tvs 元素类型值集
+ * @return {Boolean}
+ */
+export function isCompatibled( tvs ) {
+    let _prev = Compatibles[ tvs[0] ];
+
+    for ( const v of tvs ) {
+        let _s = Compatibles[v];
+        if ( _prev !== _s ) return false;
+        _prev = _s;
+    }
+    return _prev !== undefined;
 }

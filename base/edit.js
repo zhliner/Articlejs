@@ -21,7 +21,7 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
-import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter } from "./base.js";
+import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
 import cfg from "./shortcuts.js";
@@ -936,15 +936,13 @@ class NodeVary {
 
     /**
      * 内容合并。
-     * 同时会移除（如果可以）内容被合并的容器元素。
+     * 如果可以，会移除被合并内容的父元素。
      * @param {Element} box 目标容器
-     * @param {Collector} $els 待合并内容元素集
+     * @param {[Element]} subs 待合并的子元素集
+     * @param {Collector} $els 父元素集引用
      */
-    merges( box, $els ) {
-        $.append(
-            box,
-            $els.contents().flat()
-        );
+    merges( box, subs, $els ) {
+        $.append( box, subs );
         $els.not( canDelete ).remove();
     }
 
@@ -2023,19 +2021,6 @@ function repeatBadit( els ) {
 
 
 /**
- * 检索首个非内容元素。
- * 注：用于内容元素合并。
- * @param {[Element]} els 元素集
- * @return {Element}
- */
-function mergeBadit( els ) {
-    for ( const el of els ) {
-        if ( !isContent(el) ) return el;
-    }
-}
-
-
-/**
  * 选取单元格所属列。
  * 因为可能存在跨列单元格，故用Table接口。
  * 局限于同一表区域之内。
@@ -2136,20 +2121,6 @@ function hasSibling( eset ) {
 
 
 /**
- * 集合成员是否为相同单元。
- * 如果tval无值，取首个成员类型即可。
- * 用于相同类型的属性批量修改。
- * @param  {[Element]} els 元素集
- * @param  {Number} tval 单元类型值，可选
- * @return {Boolean}
- */
-function sameType( els, tval ) {
-    tval = tval || getType( els[0] );
-    return els.every( el => getType(el) === tval );
-}
-
-
-/**
  * 集合成员是否为相同类型元素。
  * 如果tag无值，取首个成员取值即可。
  * 如用于判断片区类型（s1-s5）。
@@ -2160,6 +2131,21 @@ function sameType( els, tval ) {
 function sameTag( els, tag ) {
     tag = tag || els[0].tagName;
     return els.every( el => el.tagName === tag );
+}
+
+
+/**
+ * 是否为相同的表格元素。
+ * 注：指列数相同。
+ * @param {[Element]} tbls 表格元素集
+ */
+function sameTable( tbls ) {
+    let _set = new Set();
+
+    tbls.forEach(
+        tbl => _set.add( tableObj(tbl).cols() )
+    );
+    return _set.size === 1;
 }
 
 
@@ -2333,6 +2319,19 @@ function canAppend( el ) {
 
 
 /**
+ * 构造元素集类型值集
+ * @param  {[Element]} els 元素集
+ * @return {Set}
+ */
+function typeSets( els ) {
+    return els.reduce(
+        ( set, el ) => set.add( getType(el) ),
+        new Set()
+    );
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -2400,6 +2399,159 @@ function warn( msg, data ) {
  */
 function error( msg, data ) {
     window.console.error( msg, data || '' );
+}
+
+
+//
+// 单元合并辅助。
+// 用于行块合并操作的子单元提取。
+//----------------------------------------------------------------------------
+
+// 定制集。
+// 默认提取器为 childrenGetter。
+const mergeGetters = {
+    [ T.S1 ]:           sectionGetter,
+    [ T.S2 ]:           sectionGetter,
+    [ T.S3 ]:           sectionGetter,
+    [ T.S4 ]:           sectionGetter,
+    [ T.S5 ]:           sectionGetter,
+    [ T.SECTION ]:      sectionGetter,
+
+    [ T.TABLE ]:        tableGetter,
+    [ T.TR ]:           null,
+
+    [ T.HEADER ]:       xblockGetter,
+    [ T.FOOTER ]:       xblockGetter,
+    [ T.BLOCKQUOTE ]:   xblockGetter,
+    [ T.ASIDE ]:        xblockGetter,
+    [ T.DETAILS ]:      detailsGetter,
+}
+
+
+/**
+ * 获取子单元取值器。
+ * 返回null表示目标元素不可取值（合并）。
+ * @param  {Number} tval 目标类型
+ * @return {Function|null}
+ */
+function subsGetter( tval ) {
+    let _fn = mergeGetters[ tval ];
+    return _fn === null ? null : _fn || childrenGetter;
+}
+
+
+/**
+ * 通用子单元提取器。
+ * @param  {Element} el 代码容器元素
+ * @return {[Element]}
+ */
+function childrenGetter(el) {
+    return $.children(el);
+}
+
+
+/**
+ * 小区块提取器。
+ * 会剔除小标题仅取主体内容，
+ * 可正常处理多个小标题的非正常状况。
+ * @param  {Element} el 小区块容器元素
+ * @return {[Element]}
+ */
+function xblockGetter(el) {
+    return _bodyGets(el, '>h3');
+}
+
+
+/**
+ * 详细内容提取器。
+ * @param  {Element} el 容器元素
+ * @return {[Element]}
+ */
+function detailsGetter(el) {
+    return _bodyGets(el, '>summary');
+}
+
+
+/**
+ * 片区内容提取。
+ * 仅适用相同层级的片区或深片区单元。
+ * @param  {Element} el 片区元素
+ * @return {[Element]}
+ */
+function sectionGetter(el) {
+    return _bodyGets(el, '>h2');
+}
+
+
+/**
+ * 表格内容提取。
+ * 仅取表体部分<tbody>集。
+ * 注：外部应当保证表格的列数相同。
+ * @param  {Element} el 表格元素
+ * @return {[Element]}
+ */
+function tableGetter(el) {
+    return _bodyGets(el, '>caption, >thead, >tfoot');
+}
+
+
+/**
+ * 主体内容提取。
+ * 会排除标题部分，容错多个标题的非正常情况。
+ * @param  {Element} el 容器元素
+ * @param  {String} hslr 标题选择器
+ * @return {[Element]}
+ */
+function _bodyGets(el, hslr) {
+    let _subs = $.children(el);
+
+    for (const hx of $.find(hslr, el)) {
+        let _i = _subs.indexOf(hx);
+        if (_i >= 0) _subs.splice(_i, 1);
+    }
+    return _subs;
+}
+
+
+/**
+ * 获取可合并单元内容集。
+ * - 全部为内容元素。
+ * - 全部为相同类型，如果为表格单元，列数必需相同。
+ * - 不同类型的行块单元必需兼容。
+ * 返回false表示集合不可合并。
+ * @param  {[Element]} els 元素集
+ * @return {[Element]|false}
+ */
+function merges( els ) {
+    let _tvs = [...typeSets(els)];
+
+    if ( _tvs.every(T.isContent) ) {
+        return els.map( el => $.contents(el) ).flat();
+    }
+    if ( _tvs.length > 1 ) {
+        return isCompatibled(_tvs) && mergeChildren(els);
+    }
+    if ( _tvs[0] === T.TABLE && !sameTable(els) ) {
+        return false;
+    }
+    return mergeChildren( els );
+}
+
+
+/**
+ * 提取合并的子单元集。
+ * 注：结果集已扁平化为1维数组。
+ * @param  {[Element]}} els 元素集
+ * @return {[Element]} 子元素集
+ */
+function mergeChildren( els ) {
+    let _buf = [];
+
+    for ( const el of els ) {
+        let _fn = subsGetter( getType(el) );
+        if ( _fn ) _buf.push( ..._fn(el) );
+    }
+    return _buf;
 }
 
 
@@ -3385,19 +3537,22 @@ export const Edit = {
 
     /**
      * 内容合并。
-     * 仅限于内容元素，按选取顺序执行。首个选取元素为容器。
-     * 被提取内容的元素自身会被移除（除了不可移除单元）。
+     * 适用内容元素、兼容行块元素、相同类型的元素。
+     * 按选取顺序执行。首个选取元素为容器。
+     * 被提取内容的元素自身会被移除（除非不可删除）。
      */
     contentsMerge() {
-        let $els = $(__ESet);
+        let $els = $( __ESet );
 
         if ( $els.length < 2 ) {
             return;
         }
-        if ( !$els.every(isContent) ) {
-            return help( 'need_conelem', mergeBadit );
+        let _subs = merges( $els );
+
+        if ( !_subs ) {
+            return help( 'merge_types', null );
         }
-        historyPush( new DOMEdit(__Edits.merges, $els.shift(), $els) );
+        historyPush( new DOMEdit(__Edits.merges, $els.shift(), _subs, $els) );
     },
 
 
@@ -3765,7 +3920,8 @@ export const Kit = {
     /**
      * 错误元素提示。
      * 按住聚焦辅助键单击设置焦点。
-     * @param {Element} el 目标元素
+     * @data: Element 问题元素
+     * @param {Set} scam 按下的修饰键集
      */
     tips( evo, scam ) {
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {

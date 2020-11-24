@@ -805,10 +805,10 @@
         <input id="cmd-input" type="text" spellcheck="false" class="_code" value="" />
     </div>
     <!--出错提示：
-        click 滚动问题元素到视口中间（主窗口聚焦友好）。
+        click 滚动问题元素（可能无值）到视口中间，主窗口聚焦友好。
         mouseover 问题元素背影提示。-->
     <div id="err-tips" class="_err" data-pbo="lost"
-        on="click|evo(3) v.source dup intoView(2) scam;
+        on="click|evo(3) v.source dup pass dup intoView(2) scam;
             mouseenter|('_warn') evo(3) v.source pop;
             mouseleave|('_warn') evo(3) v.source pop;
             off|evo(3) lose;
