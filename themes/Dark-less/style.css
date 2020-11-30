@@ -55,6 +55,14 @@ aside#help {
 /* [ 操作可视性 ]
  ****************************************************************************/
 
+/* 编辑区聚焦 */
+.___Content ._scroll {
+    outline: none;
+}
+.___Content ._scroll:focus {
+    background-color: #aac6d5;
+}
+
 /* 鼠标滑过 */
 .___Content ._hover{}
 
@@ -739,12 +747,16 @@ menu._cells code {
 }
 .___Content main.content {
     /* 视觉友好 */
-    padding: 0 1em 24em;
+    padding: 0 2em 24em;
     cursor: default;
     /* 内容充满 */
     border: 1px transparent solid;
     /* 初始可点击 */
     min-height: 100%;
+
+    /* 聚焦辅助 */
+    margin: 0 2px 0 1pt;
+    background-color: white;
 }
 
 .___Content > ._path {
@@ -791,7 +803,6 @@ menu._cells code {
     overflow-y: scroll !important;
     resize: none;
     position: relative;
-    /* outline: none; */
 }
 
 /* 目录导航 */

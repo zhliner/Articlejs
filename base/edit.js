@@ -21,7 +21,7 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
-import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled } from "./base.js";
+import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
 import cfg from "./shortcuts.js";
@@ -2135,17 +2135,14 @@ function sameTag( els, tag ) {
 
 
 /**
- * 是否为相同的表格元素。
- * 注：指列数相同。
- * @param {[Element]} tbls 表格元素集
+ * 是否与参考表格相同（列数）。
+ * @param  {Element} ref 参考表格
+ * @param  {[Element]} els 对比表格元素集
+ * @return {Boolean}
  */
-function sameTable( tbls ) {
-    let _set = new Set();
-
-    tbls.forEach(
-        tbl => _set.add( tableObj(tbl).cols() )
-    );
-    return _set.size === 1;
+function sameTable( ref, els ) {
+    let _n = tableObj(ref).cols();
+    return els.every( el => _n === tableObj(el).cols() );
 }
 
 
@@ -2519,22 +2516,24 @@ function _bodyGets(el, hslr) {
  * - 全部为相同类型，如果为表格单元，列数必需相同。
  * - 不同类型的行块单元必需兼容。
  * 返回false表示集合不可合并。
+ * @param  {Element} box 合并到的容器元素
  * @param  {[Element]} els 元素集
  * @return {[Element]|false}
  */
-function merges( els ) {
+function merges( box, els ) {
+    let _btv = getType( box );
+
+    if ( T.isContent(_btv) ) {
+        return els.every( isContent ) &&
+            els.map( el => $.contents(el) ).flat();
+    }
     let _tvs = [...typeSets(els)];
 
-    if ( _tvs.every(T.isContent) ) {
-        return els.map( el => $.contents(el) ).flat();
+    if ( _btv === T.TABLE ) {
+        return _tvs.length === 1 && _tvs[0] === T.TABLE && sameTable(box, els)
+            && mergeChildren(els);
     }
-    if ( _tvs.length > 1 ) {
-        return isCompatibled(_tvs) && mergeChildren(els);
-    }
-    if ( _tvs[0] === T.TABLE && !sameTable(els) ) {
-        return false;
-    }
-    return mergeChildren( els );
+    return isCompatibled(_btv, _tvs) && mergeChildren( els );
 }
 
 
@@ -2552,6 +2551,59 @@ function mergeChildren( els ) {
         if ( _fn ) _buf.push( ..._fn(el) );
     }
     return _buf;
+}
+
+
+/**
+ * 找到首个不可合并元素。
+ * - 容器为内容元素时，找到首个非内容元素。
+ * - 容器为表格元素时，找到首个非表格或不同列表格元素。
+ * - 容器为普通行块时，找到首个不兼容元素。
+ * @param  {Element} box 合并到的容器元素
+ * @param  {[Element]} els 待合并元素集
+ * @return {Element}
+ */
+function mergeBadit( box, els ) {
+    let _btv = getType( box );
+
+    if ( T.isContent(_btv) ) {
+        return _contentNoit( els );
+    }
+    if ( _btv === T.TABLE ) {
+        return _tableNoit( box, els );
+    }
+    return compatibleNoit( box, els );
+}
+
+
+/**
+ * 获取首个非内容元素。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function _contentNoit( els ) {
+    for ( const el of els ) {
+        if ( !isContent(el) ) return el;
+    }
+}
+
+
+/**
+ * 参考表格元素不同查找。
+ * 找到集合内首个与ref不同或列数不同的表格元素。
+ * @param  {Element} ref 参考表格元素
+ * @param  {[Element]} els 对比元素集，可能包含非表格元素
+ * @return {Element|null}
+ */
+function _tableNoit( ref, els ) {
+    let _n = tableObj(ref).cols();
+
+    for ( const el of els ) {
+        if ( el.tagName !== 'TABLE' || _n !== tableObj(el).cols() ) {
+            return el;
+        }
+    }
+    return null;
 }
 
 
@@ -3542,17 +3594,18 @@ export const Edit = {
      * 被提取内容的元素自身会被移除（除非不可删除）。
      */
     contentsMerge() {
-        let $els = $( __ESet );
+        let $els = $( __ESet ),
+            _box = $els.shift();
 
-        if ( $els.length < 2 ) {
+        if ( !$els.length ) {
             return;
         }
-        let _subs = merges( $els );
+        let _subs = merges( _box, $els );
 
         if ( !_subs ) {
-            return help( 'merge_types', null );
+            return help( 'merge_types', mergeBadit(_box, $els) );
         }
-        historyPush( new DOMEdit(__Edits.merges, $els.shift(), _subs, $els) );
+        historyPush( new DOMEdit(__Edits.merges, _box, _subs, $els) );
     },
 
 

@@ -199,7 +199,7 @@ const
 
 
 //
-// 兼容类型定义。
+// 兼容行块定义。
 // 可简单合并，取子单元直接插入。
 //
 const Compatibles = {
@@ -355,6 +355,22 @@ function _contentBoxes( el ) {
         return el;
     }
     return $.children(el).map( el => _contentBoxes(el) ).flat();
+}
+
+
+/**
+ * 找到首个不同类型的元素。
+ * @param  {Element} ref 参考元素
+ * @param  {[Element]} els 测试元素集
+ * @return {Element}
+ */
+function _typeNoit( ref, els ) {
+    let _tv = getType( ref );
+
+    for ( const el of els ) {
+        if ( _tv !== getType(el) ) return el;
+    }
+    return null;
 }
 
 
@@ -750,17 +766,37 @@ export function sectionChange( sec, n ) {
 
 /**
  * 是否为兼容集合。
+ * 相同类型的元素为兼容（不含表格）。
  * 注：兼容指内容可以合并。
+ * @param  {Number} ref 目标参考类型
  * @param  {[Number]} tvs 元素类型值集
  * @return {Boolean}
  */
-export function isCompatibled( tvs ) {
-    let _prev = Compatibles[ tvs[0] ];
+export function isCompatibled( ref, tvs ) {
+    let _ctv = Compatibles[ref];
 
-    for ( const v of tvs ) {
-        let _s = Compatibles[v];
-        if ( _prev !== _s ) return false;
-        _prev = _s;
+    if ( _ctv === undefined ) {
+        return tvs.every( tv => tv === ref );
     }
-    return _prev !== undefined;
+    return tvs.every( tv => _ctv === Compatibles[tv] );
+}
+
+
+/**
+ * 找到首个与ref不兼容元素。
+ * 如果没有兼容定义，则必需为相同类型（不含表格）。
+ * @param  {Element} ref 参考元素
+ * @param  {[Element]} els 元素集
+ * @return {Element|null}
+ */
+export function compatibleNoit( ref, els ) {
+    let _ctv = Compatibles[ getType(ref) ];
+
+    if ( _ctv === undefined ) {
+        return _typeNoit( ref, els );
+    }
+    for ( const el of els ) {
+        if ( _ctv !== Compatibles[getType(el)] ) return el;
+    }
+    return null;
 }
