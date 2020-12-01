@@ -943,7 +943,7 @@ class NodeVary {
      */
     merges( box, subs, $els ) {
         $.append( box, subs );
-        $els.not( canDelete ).remove();
+        $els.filter( canDelete ).remove();
     }
 
 
@@ -1509,7 +1509,7 @@ function cloneAppend( $els, to, ref, empty ) {
  * 向内插入内容。
  * 判断容器是否为内容元素，构造操作实例集。
  * - 内容元素容器仅需添加容器元素到选取。
- * - 非内容元素容器会选取全部数据元素集，且定位到首个成员。
+ * - 非内容元素容器会选取全部数据元素集，且定位焦点到首个成员。
  * @param  {Element} to 容器元素
  * @param  {[Element]} $els 数据元素集
  * @return {[Instance]}
@@ -3589,9 +3589,11 @@ export const Edit = {
 
     /**
      * 内容合并。
-     * 适用内容元素、兼容行块元素、相同类型的元素。
+     * 适用于内容元素、兼容行块元素、相同类型的元素（表格除外）。
      * 按选取顺序执行。首个选取元素为容器。
      * 被提取内容的元素自身会被移除（除非不可删除）。
+     * 注：
+     * 表格的合并需要列数相同，且仅抽取其<tbody>单元。
      */
     contentsMerge() {
         let $els = $( __ESet ),
@@ -3605,7 +3607,12 @@ export const Edit = {
         if ( !_subs ) {
             return help( 'merge_types', mergeBadit(_box, $els) );
         }
-        historyPush( new DOMEdit(__Edits.merges, _box, _subs, $els) );
+        historyPush(
+            cleanHot( $els, true ),
+            clearSets( $els ),
+            new DOMEdit( __Edits.merges, _box, _subs, $els ),
+            ...selectOne( _box, 'safeAdd' ),
+        );
     },
 
 
@@ -4118,7 +4125,7 @@ export const Kit = {
 
 
     /**
-     * 单元转换。
+     * 单元转换（各别）。
      * 目标：暂存区/栈顶1项。
      * 目标为转换到的单元名称。
      * 注记：

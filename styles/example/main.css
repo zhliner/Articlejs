@@ -465,9 +465,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     border: 1px #d8ebee dotted;
     border-radius: 24px;
 }
-.content aside > ul {
-    padding-left: 1.2em;
-}
 
 
 /* 详细内容

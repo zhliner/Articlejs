@@ -1194,8 +1194,8 @@ const ConvInlines = {
     T.U,
     T.VAR,
 
-    // 不可转换。
-    // 避免代码内标记扰乱，且创建简单。
+    // 不支持转换。
+    // 避免代码内标记扰乱，而非代码内创建简单。
     // T.B,
     // T.I,
 ]
@@ -1931,6 +1931,7 @@ function creater( name ) {
 
 /**
  * 检查转换类型。
+ * 注：代码块/代码表内代码不可转换。
  * @param  {Element} el 目标元素
  * @return {String|null} 类型标识（inlines|blocks）
  */
