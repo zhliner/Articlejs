@@ -1691,12 +1691,15 @@ function elementsPostion( $els, name, inc ) {
  * - 将微编辑实例赋值到一个全局变量。
  * - 移除目标元素的选取。
  * - 将目标元素的可编辑副本设置为焦点。
+ * 注：
+ * 预先规范化内容（内联内容元素的合并可能导致文本节点离散）。
  * @param  {Element} el 目标元素
  * @return {[Instance]} 编辑历史记录实例序列
  */
 function minied( el ) {
     let _op1 = new HotEdit( null ),
-        _op2 = null;
+        _op2 = null,
+        _op3 = new DOMEdit( () => $.normalize(el) );
 
     // 创建同类新行时为未选取，无需取消。
     if ( __ESet.has(el) ) {
@@ -1706,7 +1709,7 @@ function minied( el ) {
         el,
         window.getSelection().getRangeAt(0)
     );
-    return [ _op1, _op2, currentMinied, new HotEdit(currentMinied.elem()) ];
+    return [ _op1, _op2, _op3, currentMinied, new HotEdit(currentMinied.elem()) ];
 }
 
 
@@ -2777,13 +2780,20 @@ export const Edit = {
 
     /**
      * [By] 从路径选取/聚焦。
-     * 点击的同时按住聚焦辅助键则为仅聚焦（路径序列不会重构）。
+     * 按住聚焦辅助键单击为仅聚焦（路径序列不会重构）。
+     * 按住切换选辅助键单击为切换选，否则为多选。
      */
     pathTo( evo, scam ) {
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
             return pathFocus( evo.data );
         }
-        historyPush( ...selectOne(evo.data, 'turn') );
+        if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
+            return historyPush( ...selectOne(evo.data, 'turn') );
+        }
+        // 如果已选，避免添加重复记录。
+        if ( !__ESet.has(evo.data) ) {
+            historyPush( ...selectOne(evo.data, 'add') );
+        }
     },
 
     __pathTo: 1,
