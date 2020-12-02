@@ -213,7 +213,7 @@ const Properties = {
     [ VIDEO ]:          INLINES | STRUCT | SEALED,
     [ PICTURE ]:        INLINES | STRUCT | SEALED,
     [ SVG ]:            INLINES | STRUCT,
-    [ RUBY ]:           INLINES | STRUCT | SEALED,
+    [ RUBY ]:           INLINES | STRUCT,  // SEALED
     [ METER ]:          INLINES | SEALED,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY,
@@ -240,8 +240,8 @@ const Properties = {
     [ INS ]:            INLINES | CONTENT,
     [ DFN ]:            INLINES | CONTENT,
     [ BDO ]:            INLINES | CONTENT,
-    [ TIME ]:           INLINES | CONTENT | SEALED,
-    [ CODE ]:           INLINES | CONTENT | SEALED,
+    [ TIME ]:           INLINES | CONTENT,  // SEALED
+    [ CODE ]:           INLINES | CONTENT,  // SEALED
     [ STRONG ]:         INLINES | CONTENT,
     [ EM ]:             INLINES | CONTENT,
     [ CITE ]:           INLINES | CONTENT,

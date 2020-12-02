@@ -776,7 +776,9 @@ export function isCompatibled( ref, tvs ) {
     let _ctv = Compatibles[ref];
 
     if ( _ctv === undefined ) {
-        return tvs.every( tv => tv === ref );
+        return !T.isEmpty(ref) &&
+            !T.isSealed(ref) &&
+            tvs.every( tv => tv === ref );
     }
     return tvs.every( tv => _ctv === Compatibles[tv] );
 }

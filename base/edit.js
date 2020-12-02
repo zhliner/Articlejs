@@ -2518,6 +2518,10 @@ function _bodyGets(el, hslr) {
  * - 全部为内容元素。
  * - 全部为相同类型，如果为表格单元，列数必需相同。
  * - 不同类型的行块单元必需兼容。
+ * - 容器不能为空元素和密封类型元素。
+ * 友好：
+ * 允许表体单元（<tbody><thead><tfoot>）里的<tr>合并，
+ * 容器表格里的列数特性不变。
  * 返回false表示集合不可合并。
  * @param  {Element} box 合并到的容器元素
  * @param  {[Element]} els 元素集
@@ -2562,6 +2566,7 @@ function mergeChildren( els ) {
  * - 容器为内容元素时，找到首个非内容元素。
  * - 容器为表格元素时，找到首个非表格或不同列表格元素。
  * - 容器为普通行块时，找到首个不兼容元素。
+ * - 容器为空元素或密封单元时，返回容器本身。
  * @param  {Element} box 合并到的容器元素
  * @param  {[Element]} els 待合并元素集
  * @return {Element}
@@ -2574,6 +2579,9 @@ function mergeBadit( box, els ) {
     }
     if ( _btv === T.TABLE ) {
         return _tableNoit( box, els );
+    }
+    if ( T.isEmpty(_btv) || T.isSealed(_btv) ) {
+        return box;
     }
     return compatibleNoit( box, els );
 }
@@ -2771,8 +2779,12 @@ export const Edit = {
             let _to = closestParent( _el );
             return _to && historyPush( ...selectOne(_to, 'turn') );
         }
-        // 多选|单选
-        historyPush( ...selectOne(_el, scamPressed(scam, cfg.Keys.turnSelect) ? 'turn' : 'only') );
+        // 切换/多选
+        if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
+            return historyPush( ...selectOne(_el, 'turn') );
+        }
+        // 单选
+        return __ESet.has( _el ) || historyPush( ...selectOne(_el, 'only') );
     },
 
     __click: 1,
@@ -2790,7 +2802,7 @@ export const Edit = {
         if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
             return historyPush( ...selectOne(evo.data, 'turn') );
         }
-        // 如果已选，避免添加重复记录。
+        // 避免添加重复记录。
         if ( !__ESet.has(evo.data) ) {
             historyPush( ...selectOne(evo.data, 'add') );
         }
