@@ -2784,7 +2784,8 @@ export const Edit = {
             return historyPush( ...selectOne(_el, 'turn') );
         }
         // 单选
-        return __ESet.has( _el ) || historyPush( ...selectOne(_el, 'only') );
+        // 友好：聚焦也记入操作历史。
+        __ESet.has(_el) && _hot === _el || historyPush( ...selectOne(_el, 'only') );
     },
 
     __click: 1,
