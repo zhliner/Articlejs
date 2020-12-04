@@ -670,7 +670,7 @@
 
 <!-- 日期/时间 -->
 <ul class="_prop" tpl-name="inlines:times">
-    <li tpl-source="prop:datetext, prop:date, prop:time"></li>
+    <li tpl-node="prop:datetext, prop:date, prop:time"></li>
 </ul>
 
 <!-- 插入性 -->
@@ -685,7 +685,7 @@
 
 <!-- 缩写 -->
 <ul class="_prop" tpl-name="inlines:abbr">
-    <hr tpl-node="prop:textrow, prop:title" />
+    <li tpl-node="prop:textrow, prop:title"></li>
 </ul>
 
 <!-- 注脚 -->
@@ -732,10 +732,10 @@
 
 <!-- 量度标示 -->
 <ul class="_prop" tpl-name="inlines:meter">
-    <li tpl-source="prop:number"></li>
-    <li tpl-source="prop:maxmin"></li>
-    <li tpl-source="prop:highlow"></li>
-    <li tpl-source="prop:optimum"></li>
+    <li tpl-node="prop:number"></li>
+    <li tpl-node="prop:maxmin"></li>
+    <li tpl-node="prop:highlow"></li>
+    <li tpl-node="prop:optimum"></li>
 </ul>
 
 <!-- 失效 -->

@@ -144,34 +144,40 @@ const InputOptions = {
 //      单元值：模板名,
 // }
 // 即上下文菜单中“属性”条目匹配的模板。
-// 不是所有的单元都有属性可编辑。
+// 仅针对常见单元的常见属性，其它属性可通过特性面板直接编辑。
 //////////////////////////////////////////////////////////////////////////////
 // 注记：选取集单元必须相同，才能调出属性编辑框。
 //
 const Properties = {
-    [ T.AUDIO ]:        'property:audio',       // source, track, text
-    [ T.VIDEO ]:        'property:video',       // 同上
-    [ T.PICTURE ]:      'property:picture',     // img, source...
-    [ T.SVG ]:          'property:svg',         // width, height, html
+    [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls
+    [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster
     [ T.IMG ]:          'property:img',         // src, width, height, alt
+    [ T.SVG ]:          'property:svg',         // width, height
     [ T.RUBY ]:         'property:ruby',        // rb, rt, rp
-    [ T.TIME ]:         'property:time',        // datetime, text
+    [ T.TIME ]:         'property:time',        // datetime: date, time
     [ T.METER ]:        'property:meter',       // max, min, high, low, value, optimum
     [ T.SPACE ]:        'property:space',       // width
-    [ T.A ]:            'property:a',           // href, target, download[checkbox, text]
+    [ T.A ]:            'property:a',           // href, target
     [ T.Q ]:            'property:q',           // cite
     [ T.ABBR ]:         'property:abbr',        // title
-    [ T.DEL ]:          'property:del',         // datetime
-    [ T.INS ]:          'property:ins',         // 同上
+    [ T.DEL ]:          'property:del',         // datetime: date, time
+    [ T.INS ]:          'property:ins',         // datetime: date, time
     [ T.CODE ]:         'property:code',        // data-lang, data-tab
     [ T.DFN ]:          'property:dfn',         // title
     [ T.BDO ]:          'property:bdo',         // dir
+    [ T.BLOCKQUOTE ]:   'property:blockquote',  // cite
     [ T.CODELIST ]:     'property:codelist',    // data-lang, data-tab, start
     [ T.OL ]:           'property:ol',          // start, type, reversed
-    [ T.OLX ]:          'property:olx',         // 同上
-    [ T.TABLE ]:        'property:table',       // rows, cols, caption
-    [ T.HR ]:           'property:hr',          // thick, length, height
+    [ T.OLX ]:          'property:olx',         // start, type, reversed
+    [ T.TABLE ]:        'property:table',       // rows, cols, caption, border, vth
+    [ T.HR ]:           'property:hr',          // border, thick, length, height
     [ T.BLANK ]:        'property:blank',       // width, height
+    [ T.H1 ]:           'property:h1',          // id
+    [ T.H2 ]:           'property:h2',          // id
+    [ T.H3 ]:           'property:h3',          // id
+    [ T.H4 ]:           'property:h4',          // id
+    [ T.H5 ]:           'property:h5',          // id
+    [ T.H6 ]:           'property:h6',          // id
 };
 
 

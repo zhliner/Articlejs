@@ -2,10 +2,132 @@
     由上下文菜单中的“属性”条目激发。
 ----------------------------------------------------------------------------->
 
+<ul class="_prop" tpl-name="property:audio">
+    <li tpl-node="prop:srcbase, prop:src"></li>
+    <li tpl-node="prop:upload, prop:preview"></li>
+    <li tpl-node="prop:mediaopts"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:video">
+    <li tpl-node="prop:srcbase, prop:src, prop:poster"></li>
+    <li tpl-node="prop:upload, prop:preview"></li>
+    <li tpl-node="prop:wh, prop:mediaopts"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:img">
+    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
+    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:svg">
+    <li tpl-node="prop:wh"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:ruby">
+    <li tpl-node="prop:rb, prop:rt, prop:rp"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:time">
+    <li tpl-node="prop:date, prop:time"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:meter">
+    <li tpl-node="prop:number, prop:maxmin, prop:highlow, prop:optimum"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:space">
+    <li tpl-node="prop:width"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:a">
+    <li tpl-node="prop:href, prop:target"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:q">
+    <li tpl-node="prop:cite"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:abbr">
+    <li tpl-node="prop:title"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:del">
+    <li tpl-node="prop:date, prop:time"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:ins">
+    <li tpl-node="prop:date, prop:time"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:code">
+    <li tpl-node="prop:tab, prop:lang"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:dfn">
+    <li tpl-node="prop:title"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:bdo">
+    <li tpl-node="prop:dir"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:blockquote">
+    <li tpl-node="prop:cite"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:codelist">
+    <li tpl-node="prop:tab, prop:lang, prop:start"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:ol">
+
+</ul>
+
+<ul class="_prop" tpl-name="property:olx">
+
+</ul>
+
+<ul class="_prop" tpl-name="property:table">
+
+</ul>
+
+<ul class="_prop" tpl-name="property:hr">
+
+</ul>
+
+<ul class="_prop" tpl-name="property:blank">
+
+</ul>
+
+<ul class="_prop" tpl-name="property:h1">
+    <li tpl-node="prop:id"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:h2">
+    <li tpl-node="prop:id"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:h3">
+    <li tpl-node="prop:id"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:h4">
+    <li tpl-node="prop:id"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:h5">
+    <li tpl-node="prop:id"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:h6">
+    <li tpl-node="prop:id"></li>
+</ul>
 
 
-<!--单元属性条目：（prop:xxx）
-    也用于新建插入时定义单元属性（内联部分）。
+
+
+<!--属性条目：（prop:xxx）
+    适用：主面板内联单元的微编辑、新建和模态框区属性修改。
 ----------------------------------------------------------------------------->
 
 <li tpl-name="prop:thick">
@@ -37,7 +159,7 @@
 </li>
 
 <li tpl-name="prop:start">
-    <b>首行</b>
+    <b>起始行</b>
     <span><input type="text" name="start" class="_chars" /></span>
 </li>
 
@@ -136,6 +258,16 @@
     </span>
 </li>
 
+<li tpl-name="prop:width">
+    <b>宽度</b>
+    <span><input type="text" name="width" placeholder="4em" class="_chars"></span>
+</li>
+
+<li tpl-name="prop:id">
+    <b>ID属性</b>
+    <span><input type="text" name="width" class="_phrase"></span>
+</li>
+
 <li tpl-name="prop:poster">
     <b>视频画面</b>
     <span><input type="url" name="poster" placeholder="(poster)" /></span>
@@ -208,7 +340,7 @@
     <span><input type="text" name="heading" placeholder="无标题请置空"></span>
 </li>
 
-<!-- 用于内联单元文本 -->
+<!-- 单行文本 -->
 <li tpl-name="prop:textrow">
     <b>文本</b>
     <span><input type="text" name="textrow" class="_phrase" /></span>
@@ -298,13 +430,23 @@
 </li>
 
 <li tpl-name="prop:title">
-    <b>定义</b>
-    <span><input type="text" name="title" placeholder="（即 title 属性值，可选）" /></span>
+    <b>悬浮提示</b>
+    <span><input type="text" name="title" placeholder="title text" /></span>
 </li>
 
 <li tpl-name="prop:spwidth">
     <b>空白宽</b>
     <span><input type="text" name="spwidth" class="_chars" placeholder="2.45em" /></span>
+</li>
+
+<li tpl-name="prop:tab">
+    <b>制表符</b>
+    <span><input type="text" name="tabs" class="_char" value="4" title="空格数"></span>
+</li>
+
+<li tbl-name="prop:lang">
+    <b>语言</b>
+    <span><select tpl-node="item:languages"></select></span>
 </li>
 
 <!-- 适用：纯文本（批量添加） -->

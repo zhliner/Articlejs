@@ -2,7 +2,8 @@
     value 对应录入块模板名。
 ----------------------------------------------------------------------------->
 
-<!-- 内联单元 -->
+<!--内联单元
+    适用微编辑和普通模式下内联单元关联 -->
 <option title="#text" value="input:text" tpl-name="option:text">文本</option>
 <option title="<audio>" value="input:audio" tpl-name="option:audio">音频</option>
 <option data-k="v" title="<video>" value="input:video" tpl-name="option:video">视频〔v〕</option>
@@ -45,7 +46,8 @@
 <option title="<var>" value="input:var" tpl-name="option:var">变量</option>
 
 
-<!-- 行块单元 -->
+<!--行块单元
+    仅适用普通模式下行块单元关联 -->
 <option data-k="p" title="<p>" value="input:p" tpl-name="option:p">段落〔p〕</option>
 <option data-k="n" title="<p:note>" value="input:note" tpl-name="option:note">注解〔n〕</option>
 <option title="<p:tips>" value="input:tips" tpl-name="option:tips">提示</option>
@@ -109,73 +111,3 @@
 <option title="<li>/<h4>,<ol>" value="input:cascadeh4li" tpl-name="option:cascadeh4li"></option>
 <option title="<li>/<h4/a>,<ol>" value="input:cascadeah4li" tpl-name="option:cascadeah4li"></option>
 <option title="<span>/<img>,<i:explain>" value="input:figimgbox" tpl-name="option:figimgbox"></option>
-
-
-
-<!--转换条目
-    data-val 待转换目标单元名。
-    <kbd>    单字符快捷键直达。
-    注：仅包含完整的单元（不含中间结构）。
------------------------------------------------------------------------------>
-
-<!-- 内联单元 -->
-<menu role="submenu" class="_cells" tpl-name="menu:inlines">
-    <li data-k="a" data-val="a" title="<a>"><b><a>链接</a></b><kbd>a</kbd></li>
-    <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
-    <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
-    <li data-k="e" data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
-    <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
-    <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
-    <li data-k="q" data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
-    <li data-k="t" data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
-    <li data-k="i" data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
-    <li data-k="d" data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
-    <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
-    <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
-    <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
-    <li data-k="m" data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
-    <li data-k="r" data-val="ruby" title="<ruby>">
-        <b><ruby>
-                <rb>注音</rb>
-                <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
-            </ruby></b>
-        <kbd>r</kbd>
-    </li>
-    <li data-k="o" data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
-    <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd></kbd></li>
-    <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
-    <li data-k="k" data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
-    <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
-    <li data-k="u" data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
-    <li data-k="v" data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
-    <li data-k="b" data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
-    <li data-pbo="disabled">&nbsp;</li>
-    <!-- 注：不支持，只可划选创建 -->
-    <!-- <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li> -->
-    <!-- <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li> -->
-</menu>
-
-
-<!-- 行块单元（仅部分） -->
-<menu role="submenu" tpl-name="menu:blocks">
-    <li data-val="p" title="<p>"><b>段落</b><kbd>p</kbd></li>
-    <li data-k="n" data-val="note" title="<p:note>"><b>注解</b><kbd>n</kbd></li>
-    <li data-k="t" data-val="tips" title="<p:tips>"><b>提示</b><kbd>t</kbd></li>
-    <li data-val="pre" title="<pre>"><b>预排版</b><kbd></kbd></li>
-    <li data-val="address" title="<address>"><b>地址</b><kbd></kbd></li>
-    <li data-k="u" data-val="ul" title="<ul>"><b>无序列表</b><kbd>u</kbd></li>
-    <li data-k="o" data-val="ol" title="<ol>"><b>有序列表</b><kbd>o</kbd></li>
-    <li data-val="ulx" title="<ul:ulx>"><b>无序级联表</b><kbd></kbd></li>
-    <li data-val="olx" title="<ol:olx>"><b>有序级联表</b><kbd></kbd></li>
-    <li data-k="c" data-val="cascade" title="<ol:cascade>"><b>级联编号表</b><kbd>c</kbd></li>
-    <li data-k="b" data-val="blockquote" title="<blockquote>"><b>块引用</b><kbd>b</kbd></li>
-    <li data-k="a" data-val="aside" title="<aside>"><b>批注</b><kbd>a</kbd></li>
-    <li data-val="details" title="<details>"><b>详细内容</b><kbd></kbd></li>
-    <!-- 注：不可为转换目标，因为无<dt>源（逻辑上）。 -->
-    <!-- <li data-k="d" data-val="dl" title="<dl>"><b>定义列表</b><kbd>d</kbd></li> -->
-</menu>
-
-<!-- 空占位菜单 -->
-<menu role="submenu" tpl-name="menu:empty">
-    <li data-pbo="disabled"><b>无转换</b><kbd></kbd></li>
-</menu>
