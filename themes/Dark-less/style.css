@@ -1333,7 +1333,7 @@ menu._cells code {
     border-radius: 0 16px;
 }
 .Source ._option > button:hover {
-    background-color: #bffcd1;
+    background-color: #a8effe;
 }
 .Source ._info {
     flex: 1 1 auto;
