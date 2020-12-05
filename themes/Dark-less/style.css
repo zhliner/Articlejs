@@ -101,7 +101,7 @@ aside#help {
     font-style: italic;
 }
 .___Content main tr >*:empty::after {
-    font-size: 8px;
+    font-size: 0.8em;
 }
 .___Content main hr::after,
 .___Content main track::after,
@@ -347,8 +347,27 @@ aside#help {
     font-size: 10pt;
 }
 
+/* 分隔（hr）
+   板块：主面板，属性修改 */
+.___Panel span._border {
+    flex: 1 1 auto;
+    padding: 5px 0;
+}
+.___Panel span._border > b {
+    margin: 4px auto;
+    border-radius: 10px;
+}
+.___Panel span._border > b:hover {
+    background-color: #ddd;
+}
+.___Panel span._border hr {
+    height: 0;
+    width: 92%;
+    border-width: 10px;
+}
 
-/* 菜单。
+
+/* 菜单
  ****************************************************************************/
 
 /* 通用部分 */
@@ -1033,22 +1052,12 @@ menu._cells code {
     border-top-right-radius: 25px;
 }
 
-/* 分割（hr） */
+/* 分割（覆盖） */
 .Input ._Hr ._border {
     padding: 5px 15px;
-    flex: 1 1 auto;
 }
 .Input ._Hr ._border > b {
-    margin: 4px auto;
     border-radius: 16px;
-}
-.Input ._Hr ._border > b:hover {
-    background-color: #ddd;
-}
-.Input ._Hr ._border hr {
-    height: 0;
-    width: 92%;
-    border-width: 10px;
 }
 
 /* 白板 */
@@ -1550,7 +1559,7 @@ menu._cells code {
 }
 .Modal form._usual {
     width: 600px;
-    height: 450px;
+    height: 480px;
 }
 .Modal p._note {
     color: #b60;

@@ -312,10 +312,38 @@
                 <input name="rows" type="text" class="_nums" placeholder="行数" />
             </label>
         </header>
-        <!-- 注记：
-            - 考虑用<ol contenteditable>实现。
-            - 用户设定行数后，<li>可表现出行区隔，CSS:nth-child(xn){} -->
-        <textarea name="table" class="_code" placeholder="一行一个单元格"></textarea>
+        <!--编辑友好：
+            Enter 单元格列向切换（聚焦/选取）-->
+        <table border="i"
+            on="keydown(td,th)|ev('key') pass('Enter') scam('shift') vnot pop avoid evo(2);
+                nextcell|data('tbo1') ev('detail') call('nextCell', _1) dup pass pop;
+                ^obted|evo(1) table(_1)"
+            to="|trigger('nextcell');
+                -||focus select;
+                |data('tbo1')">
+            <thead>
+                <tr>
+                    <th contenteditable></th>
+                    <th contenteditable></th>
+                    <th contenteditable></th>
+                    <th contenteditable></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td contenteditable></td>
+                    <td contenteditable></td>
+                    <td contenteditable></td>
+                    <td contenteditable></td>
+                </tr>
+                <tr>
+                    <td contenteditable></td>
+                    <td contenteditable></td>
+                    <td contenteditable></td>
+                    <td contenteditable></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <aside>
         <div class="_option">
@@ -332,7 +360,7 @@
             </label>
             <hr />
             <label title="<thead>">
-                <input name="thead" type="checkbox" value="THEAD" />包含表头
+                <input name="thead" type="checkbox" value="THEAD" checked />包含表头
             </label>
             <label title="首列为<th>">
                 <input name="th0" type="checkbox" />首列表头
@@ -378,15 +406,6 @@
                 </select>
             </label>
             <!-- 注记：讲解定位放到属性定义 -->
-            <!-- <label>讲解
-                <select name="position">
-                    <option value="">------</option>
-                    <option value="fix-lt">左上方</option>
-                    <option value="fix-rt">右上方</option>
-                    <option value="fix-rb">右下方</option>
-                    <option value="fix-lb">左下方</option>
-                </select>
-            </label> -->
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
     </aside>
@@ -623,7 +642,7 @@
 
 <!-- 资源 -->
 <ul class="_prop" tpl-name="inlines:source">
-    <li tpl-node="prop:src, prop:type"></li>
+    <li tpl-node="prop:src, prop:srctype"></li>
 </ul>
 
 <!-- 图形（svg） -->

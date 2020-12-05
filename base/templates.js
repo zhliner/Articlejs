@@ -144,7 +144,7 @@ const InputOptions = {
 //      单元值：模板名,
 // }
 // 即上下文菜单中“属性”条目匹配的模板。
-// 仅针对常见单元的常见属性，其它属性可通过特性面板直接编辑。
+// 仅针对常见单元的常见属性，其它属性可通过特性面板直接编辑（attribute）。
 //////////////////////////////////////////////////////////////////////////////
 // 注记：选取集单元必须相同，才能调出属性编辑框。
 //
@@ -169,9 +169,11 @@ const Properties = {
     [ T.CODELIST ]:     'property:codelist',    // data-lang, data-tab, start
     [ T.OL ]:           'property:ol',          // start, type, reversed
     [ T.OLX ]:          'property:olx',         // start, type, reversed
-    [ T.TABLE ]:        'property:table',       // rows, cols, caption, border, vth
-    [ T.HR ]:           'property:hr',          // border, thick, length, height
+    [ T.LI ]:           'property:li',          // start
+    [ T.TABLE ]:        'property:table',       // cols, rows, border, th0
+    [ T.HR ]:           'property:hr',          // thick, length, space, border
     [ T.BLANK ]:        'property:blank',       // width, height
+    [ T.EXPLAIN ]:      'property:explain',     // position
     [ T.H1 ]:           'property:h1',          // id
     [ T.H2 ]:           'property:h2',          // id
     [ T.H3 ]:           'property:h3',          // id

@@ -20,7 +20,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:svg">
-    <li tpl-node="prop:wh"></li>
+    <li tpl-node="prop:width, prop:height"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:ruby">
@@ -80,23 +80,40 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:ol">
-
+    <li tpl-node="prop:start, prop:sntype, prop:reversed"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:olx">
+    <li tpl-node="prop:start, prop:sntype, prop:reversed"></li>
+</ul>
 
+<ul class="_prop" tpl-name="property:li">
+    <li tpl-node="prop:start"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:table">
-
+    <li tpl-node="prop:columns, prop:rows, prop:tborder, prop:th0"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:hr">
-
+    <li tpl-node="prop:thick, prop:length, prop:space, prop:hrstyle"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:blank">
+    <li tpl-node="prop:width, prop:height"></li>
+</ul>
 
+<ul class="_prop" tpl-name="property:explain">
+    <li><b>定位</b>
+        <span><select name="position" tpl-name="explain:position">
+                <option value="">------</option>
+                <option value="fix-lt">左上方</option>
+                <option value="fix-rt">右上方</option>
+                <option value="fix-rb">右下方</option>
+                <option value="fix-lb">左下方</option>
+            </select>
+        </span>
+    </li>
 </ul>
 
 <ul class="_prop" tpl-name="property:h1">
@@ -140,9 +157,14 @@
     <span><input type="text" name="length" class="_chars" /></span>
 </li>
 
-<li tpl-name="prop:height">
+<li tpl-name="prop:space">
     <b title="CSS: height">空白</b>
     <span><input type="text" name="height" class="_chars" /></span>
+</li>
+
+<li tpl-name="prop:hrstyle">
+    <b>分隔风格</b>
+    <span><hr tpl-node="hr:border"></span>
 </li>
 
 <li tpl-name="prop:sntype">
@@ -159,16 +181,16 @@
 </li>
 
 <li tpl-name="prop:start">
-    <b>起始行</b>
-    <span><input type="text" name="start" class="_chars" /></span>
+    <b>起始行号</b>
+    <span><input type="text" name="start" class="_chars" placeholder="1" /></span>
 </li>
 
-<li tpl-name="prop:cascade">
-    <b>级联表</b>
-    <span><label><input type="checkbox" name="cascade" />转为多级编号</label></span>
+<li tpl-name="prop:reversed">
+    <b><!-- 占位 --></b>
+    <span><label><input type="checkbox" name="reversed" />逆序</label></span>
 </li>
 
-<li tpl-name="prop:border">
+<li tpl-name="prop:tborder">
     <b>表格边框</b>
     <span><hr tpl-node="table:border"></span>
 </li>
@@ -183,14 +205,10 @@
     <span><input type="text" name="rows" class="_nums" /></span>
 </li>
 
-<li tpl-name="prop:tfoot">
+<!-- 无关现状，提供插入多列表头能力 -->
+<li tpl-name="prop:th0">
     <b><!-- 占位 --></b>
-    <span><label><input type="checkbox" name="tfoot" />包含表脚</label></span>
-</li>
-
-<li tpl-name="prop:thead">
-    <b><!-- 占位 --></b>
-    <span><label><input type="checkbox" name="thead" />包含表头</label></span>
+    <span><label><input type="checkbox" name="th0" />插入表头列</label></span>
 </li>
 
 <li tpl-name="prop:capwhere">
@@ -260,7 +278,12 @@
 
 <li tpl-name="prop:width">
     <b>宽度</b>
-    <span><input type="text" name="width" placeholder="4em" class="_chars"></span>
+    <span><input type="text" name="width" placeholder="90%" class="_chars"></span>
+</li>
+
+<li tpl-name="prop:height">
+    <b>高度</b>
+    <span><input type="text" name="width" placeholder="90%" class="_chars"></span>
 </li>
 
 <li tpl-name="prop:id">
@@ -330,7 +353,7 @@
 </li>
 
 <!-- <source type> -->
-<li tpl-name="prop:type">
+<li tpl-name="prop:srctype">
     <b>类型</b>
     <span><input type="text" name="type" class="_phrase" /></span>
 </li>
@@ -444,7 +467,7 @@
     <span><input type="text" name="tabs" class="_char" value="4" title="空格数"></span>
 </li>
 
-<li tbl-name="prop:lang">
+<li tpl-name="prop:lang">
     <b>语言</b>
     <span><select tpl-node="item:languages"></select></span>
 </li>
