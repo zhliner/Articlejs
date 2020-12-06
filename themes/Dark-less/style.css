@@ -441,7 +441,8 @@ menu li[role=menubar]:hover {
 }
 
 /* 冻结效果 */
-menu li[data-pbo=disabled]:hover {
+menu li[data-pbo~=disabled]:hover,
+menu li[data-pbo~=disabled]:hover > h4::after {
     background-color: transparent;
 }
 
@@ -721,7 +722,7 @@ menu._cells code {
 }
 
 /* 冻结效果 */
-.Tools b[data-pbo=disabled]:hover {
+.Tools b[data-pbo~=disabled]:hover {
     border-color: transparent;
     background-color: transparent;
 }

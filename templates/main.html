@@ -107,38 +107,40 @@
         <!--上下文菜单
             keydown 快捷处理直达，ESC按下或子菜单隐藏时忽略（自然由普通模式处理）。
             cancel  按ESC隐藏菜单。简单聚焦内容区使菜单失焦即隐藏。
-            click(li[data-op]) 主菜单条目操作。
+            click(li[data-op]) 主菜单条目操作（禁用时忽略）。
             click(li[data-val]) 子菜单条目操作。
             show 菜单显示位置计算/设置。
             submenu 转换子菜单类型判断并导入。
+            status 设置菜单条目可用性（注：先disable）。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
             on="cmenudo|ev('detail');
                 convert|ev('detail');
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
                 submenu|v.convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node(_1);
-                click(li[data-op])|evo(2) attr('-op');
+                click(li[data-op])|evo(2) dup disabled end attr('-op');
                 keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) debug dup pass attr('-val');
                 click(#m-conv li[data-val])|evo(2) attr('-val');
                 cancel;
+                status|$$('/>li') dup disable v.cmenable disable(false);
                 blur|evo(3) hide(true) (ESC) apply('pop')"
             by="Kit.cmenudo;
                 Kit.convert"
             to="#g-scroll||fire('', 'focus');
                 #g-scroll||fire('', 'focus');
-                |cssSets('left top')|goto('submenu') fire('', 'focus');
+                |cssSets('left top')|goto('submenu') goto('status') fire('', 'focus');
                 /menu|replace;
                 |trigger('cmenudo');
                 |trigger('convert');
                 |trigger('convert');
                 #g-scroll|trigger('focus');
-                -">
+                -;-">
             <li data-op="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
             <li id="m-conv" role="menubar" data-pbo="folded"
-                on="@sm-1|evo(3) dup fold(0) v.submenu;
+                on="@sm-1|evo(3) dup(2) disabled end fold(0) v.submenu;
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
                     mouseleave|data('tk-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"

@@ -228,11 +228,14 @@ nil(): void
 push( ...val: Value|[Value] ): void
 // 直接入栈。
 
-dup( n = 1 ): Value|[Value]
-// 复制栈顶n项。
+dup( cnt = 1 ): void
+// 复制栈顶项，可多次。
 
-ddup( n = 1 ): Value|[Value]
-// 深度复制栈顶n项。
+dups( n = 1 ): void
+// 复制栈顶n项（单次）。
+
+ddups( n = 1 ): void
+// 深度复制栈顶n项（单次）。
 
 pack( n: Number ): [Value]
 // 栈顶n项打包封装。

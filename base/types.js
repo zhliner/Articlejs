@@ -666,3 +666,15 @@ export function isChildType( tval, sub ) {
     let _subs = ChildTypes[ tval ];
     return _subs && _subs.has( sub );
 }
+
+
+/**
+ * 获取目标类型的合法子类型集。
+ * 始终返回一个数组，可能为空。
+ * @param  {Number} tval 目标类型值
+ * @return {[Number]}
+ */
+export function childTypes( tval ) {
+    let _subs = ChildTypes[ tval ];
+    return _subs ? [ ..._subs ] : [];
+}

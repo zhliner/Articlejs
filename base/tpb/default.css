@@ -38,7 +38,10 @@
 }
 
 /* 冻结 */
-*[data-pbo~='disabled'] {
+*[data-pbo~='disabled'],
+*[data-pbo~='disabled']:hover,
+*[data-pbo~='disabled'] *,
+*[data-pbo~='disabled']:hover * {
     color: #abc !important;
     filter: grayscale(1) !important;
 }

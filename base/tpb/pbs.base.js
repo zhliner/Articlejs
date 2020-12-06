@@ -298,6 +298,23 @@ const _Control = {
 
     /**
      * 栈顶复制（浅）。
+     * 复制栈顶项入栈，支持复制多次。
+     * 目标：暂存区/栈顶1项。
+     * 特权：是，自行入栈。
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} cnt 复制次数，可选
+     * @return {void}
+     */
+    dup( evo, stack, cnt = 1 ) {
+        let _val = stack.tops(1)[0];
+        while ( cnt-- > 0 ) stack.push( _val );
+    },
+
+    __dup_x: true,
+
+
+    /**
+     * 栈顶复制（浅）。
      * 复制栈顶n项并入栈（原样展开）。
      * 目标：无。
      * 特权：是，灵活取栈&自行入栈。
@@ -305,13 +322,13 @@ const _Control = {
      * @param  {Number} n 条目数，可选
      * @return {void}
      */
-    dup( evo, stack, n = 1 ) {
+    dups( evo, stack, n = 1 ) {
         if ( n > 0 ) {
             stack.push( ...stack.tops(n) );
         }
     },
 
-    __dup_x: true,
+    __dups_x: true,
 
 
     /**
@@ -324,15 +341,16 @@ const _Control = {
      * @param  {Number} n 条目数，可选
      * @return {void}
      */
-    ddup( evo, stack, n = 1 ) {
-        if ( n > 0 ) {
-            stack.push(
-                ...stack.tops(n).map(v => $.isArray(v) ? deepArray(v) : v)
-            );
+    ddups( evo, stack, n = 1 ) {
+        if ( n <= 0 ) {
+            return;
         }
+        stack.push(
+            ...stack.tops(n).map(v => $.isArray(v) ? deepArray(v) : v)
+        );
     },
 
-    __ddup_x: true,
+    __ddups_x: true,
 
 
     /**

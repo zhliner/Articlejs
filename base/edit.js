@@ -24,6 +24,7 @@ import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
+import { property } from "./templates.js";
 import cfg from "./shortcuts.js";
 
 
@@ -2403,6 +2404,80 @@ function error( msg, data ) {
 
 
 //
+// 上下文菜单条目可用性判断
+// @param  {[Element]} els 当前选取集
+// @return {Boolean}
+//----------------------------------------------------------------------------
+
+/**
+ * 微编辑项。
+ * 依微编辑逻辑，首个可编辑即可。
+ */
+function canMinied( els ) {
+    return isContent( els[0] );
+}
+
+
+/**
+ * 转换项。
+ */
+function canConvert() {
+    return Kit.convtype() !== null;
+}
+
+
+/**
+ * 缩进递减。
+ * 全为章节/片区单元且至少有一个非顶层章节。
+ */
+function canIndent1( els ) {
+    return sameTag( els, 'SECTION' ) && els.some( el => getType(el) !== T.S1 );
+}
+
+
+/**
+ * 缩进递增。
+ * 全为章节/片区单元即可。
+ */
+function canIndent2( els ) {
+    return sameTag( els, 'SECTION' );
+}
+
+
+/**
+ * 普通删除。
+ */
+function canDeletes( els ) {
+    return els.every( canDelete );
+}
+
+
+/**
+ * 属性编辑。
+ * 全部选取必需相同且可编辑属性。
+ */
+function canProperty( els ) {
+    let _tvs = [...typeSets(els)];
+    return _tvs.length === 1 && !!property( _tvs[0] );
+}
+
+
+//
+// 上下文菜单状态处理集
+// 注意与菜单条目顺序保持一致。
+//
+const cmenuStatusHandles = [
+    canMinied,
+    canConvert,
+    canIndent1,
+    canIndent2,
+    canDeletes,
+    canProperty,
+];
+
+
+
+//
 // 单元合并辅助。
 // 用于行块合并操作的子单元提取。
 //----------------------------------------------------------------------------
@@ -3567,7 +3642,7 @@ export const Edit = {
         let $els = $( __ESet );
         if ( !$els.length ) return;
 
-        if ( !sameTag($els, 'SECTION') ) {
+        if ( !canIndent1($els) ) {
             return help( 'only_section', indentBadit($els) );
         }
         historyPush( new DOMEdit(__Edits.sectionsUp, $els) );
@@ -3578,13 +3653,12 @@ export const Edit = {
      * 增加缩进。
      * 仅适用章节（section）单元。
      * 当前章节降一级，插入原地构造的一个平级空章节。
-     * 末级（s5）章节会被简单忽略。
      */
     indentIncrease() {
         let $els = $( __ESet );
         if ( !$els.length ) return;
 
-        if ( !sameTag($els, 'SECTION') ) {
+        if ( !canIndent2($els) ) {
             return help( 'only_section', indentBadit($els) );
         }
         let _els2 = sectionBoxes( $els );
@@ -3996,6 +4070,31 @@ export const Kit = {
     __roleinfo: 1,
 
 
+    /**
+     * 获取上下文菜单启用条目集。
+     * 目标：暂存区/栈顶1项。
+     * 目标为菜单全部可操作条目集（[<li>]），
+     * 顺序为：
+     *  1. 微编辑。
+     *  2. 转换（子菜单）。
+     *  3. 升级（缩进）。
+     *  4. 降级（缩进）。
+     *  5. 删除（普通）。
+     *  6. 属性。
+     * @return {[Element]} 可启用的条目集
+     */
+    cmenable( evo ) {
+        let _els = [...__ESet];
+
+        if ( _els.length === 0 ) {
+            return [];
+        }
+        return $.map( cmenuStatusHandles, (fn, i) => fn(_els) ? evo.data[i] : null );
+    },
+
+    __cmenable: 1,
+
+
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -4215,6 +4314,7 @@ customGetter( null, Kit, [
     'submenu',
     'convtype',
     'roleinfo',
+    'cmenable',
 ]);
 
 

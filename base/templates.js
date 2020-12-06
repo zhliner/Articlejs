@@ -71,8 +71,8 @@ const InputOptions = {
     [ T.U ]:            'option:u',
     [ T.VAR ]:          'option:var',
     // 不支持单独创建
-    // [ T.B ]:         '',
-    // [ T.I ]:         '',
+    // [ T.B ]:         null,
+    // [ T.I ]:         null,
 
     [ T.P ]:            'option:p',
     [ T.NOTE ]:         'option:note',
@@ -185,35 +185,27 @@ const Properties = {
 
 
 //
-// 工具函数。
+// 导出
 //////////////////////////////////////////////////////////////////////////////
 
 
 /**
- * 获取允许的子单元值集。
- * @param  {Number} v 父单元值
- * @return {[Number]}
+ * 获取可插入选单集。
+ * 根据参考元素获取可插入子单元的模板条目集。
+ * @param  {Number} ref 参考元素类型值
+ * @return {[String]}
  */
-function childCanTypes(v) {
-    return OptionCustom[v] || ChildTypes[v] || [];
+export function options( ref ) {
+    // 可滤除 null/undefined
+    return $.map( T.childTypes(ref), tv => InputOptions[tv] );
 }
 
 
 /**
- * 获取可插入选单集。
- * 根据参考单元值返回可插入子单元的值集。
- * 如果参考是一个集合，返回各成员子单元值集的交集。
- * 用于可插入项选单构建。
- * 注意：传入的数组实参会被修改。
- * @param  {Number|[Number]} ref 参考单元值（集）
- * @return {[Number]}
+ * 获取可编辑属性模板名。
+ * @param  {Number} tval 目标元素类型值
+ * @return {String|null}
  */
-export function options( ref ) {
-    if ( !$.isArray(ref) ) {
-        return childCanTypes( ref );
-    }
-    return ref.reduce(
-        (vs, p) => vs.filter( v => childCanTypes(p).includes(v) ),
-        childCanTypes( ref.shift() )
-    );
+export function property( tval ) {
+    return Properties[ tval ] || null;
 }
