@@ -91,10 +91,10 @@
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass;
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
-            cut|env('minied') end avoid v.elset text clean(' ') trim join('\n');
+            cut|env('minied') end avoid v.sels text clean(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('pastefill');
             focus|env('minied') end $('/main') nodeRange(true) addRange;
-            copy|env('minied') end Range str end avoid v.elset text clean(' ') trim join('\n') pop clipboard;
+            copy|env('minied') end Range str end avoid v.sels text clean(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end scam('shift') pass env('pastefill', true);
             keyup|env('minied') end env('pastefill', null)"
         by="-;-;

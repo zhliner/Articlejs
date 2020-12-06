@@ -3940,7 +3940,7 @@ export const Kit = {
      * 获取选取集。
      * @return {[Element]}
      */
-    elset() {
+    sels() {
         return [ ...__ESet ];
     },
 
@@ -4306,7 +4306,7 @@ processExtend( 'Kit', Kit, [
 // On.v: 杂项取值。
 //
 customGetter( null, Kit, [
-    'elset',
+    'sels',
     'esize',
     'source',
     'rngok',
