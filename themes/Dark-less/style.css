@@ -441,8 +441,7 @@ menu li[role=menubar]:hover {
 }
 
 /* 冻结效果 */
-menu li[data-pbo~=disabled]:hover,
-menu li[data-pbo~=disabled]:hover > h4::after {
+menu li[data-pbo~=disabled]:hover {
     background-color: transparent;
 }
 

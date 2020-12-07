@@ -1,109 +1,110 @@
 <!--单元属性：（property:xxx）
-    由上下文菜单中的“属性”条目激发。
+    - 由上下文菜单中的“属性”条目激发。
+    - data-label 用于模态框标题栏内容。
 ----------------------------------------------------------------------------->
 
-<ul class="_prop" tpl-name="property:audio">
+<ul class="_prop" tpl-name="property:audio" data-label="音频属性">
     <li tpl-node="prop:srcbase, prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:video">
+<ul class="_prop" tpl-name="property:video" data-label="视频属性">
     <li tpl-node="prop:srcbase, prop:src, prop:poster"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:wh, prop:mediaopts"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:img">
+<ul class="_prop" tpl-name="property:img" data-label="图片属性">
     <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:svg">
+<ul class="_prop" tpl-name="property:svg" data-label="SVG属性">
     <li tpl-node="prop:width, prop:height"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:ruby">
+<ul class="_prop" tpl-name="property:ruby" data-label="注音内容">
     <li tpl-node="prop:rb, prop:rt, prop:rp"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:time">
+<ul class="_prop" tpl-name="property:time" data-label="时间设定">
     <li tpl-node="prop:date, prop:time"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:meter">
+<ul class="_prop" tpl-name="property:meter" data-label="量度属性">
     <li tpl-node="prop:number, prop:maxmin, prop:highlow, prop:optimum"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:space">
+<ul class="_prop" tpl-name="property:space" data-label="空白属性">
     <li tpl-node="prop:width"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:a">
+<ul class="_prop" tpl-name="property:a" data-label="链接属性">
     <li tpl-node="prop:href, prop:target"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:q">
+<ul class="_prop" tpl-name="property:q" data-label="短引用属性">
     <li tpl-node="prop:cite"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:abbr">
+<ul class="_prop" tpl-name="property:abbr" data-label="缩写属性">
     <li tpl-node="prop:title"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:del">
+<ul class="_prop" tpl-name="property:del" data-label="删除属性">
     <li tpl-node="prop:date, prop:time"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:ins">
+<ul class="_prop" tpl-name="property:ins" data-label="插入属性">
     <li tpl-node="prop:date, prop:time"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:code">
+<ul class="_prop" tpl-name="property:code" data-label="代码属性">
     <li tpl-node="prop:tab, prop:lang"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:dfn">
+<ul class="_prop" tpl-name="property:dfn" data-label="定义词属性">
     <li tpl-node="prop:title"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:bdo">
+<ul class="_prop" tpl-name="property:bdo" data-label="方向定义">
     <li tpl-node="prop:dir"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:blockquote">
+<ul class="_prop" tpl-name="property:blockquote" data-label="引用块属性">
     <li tpl-node="prop:cite"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:codelist">
+<ul class="_prop" tpl-name="property:codelist" data-label="代码表属性">
     <li tpl-node="prop:tab, prop:lang, prop:start"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:ol">
+<ul class="_prop" tpl-name="property:ol" data-label="有序列表属性">
     <li tpl-node="prop:start, prop:sntype, prop:reversed"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:olx">
+<ul class="_prop" tpl-name="property:olx" data-label="有序级联表属性">
     <li tpl-node="prop:start, prop:sntype, prop:reversed"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:li">
+<ul class="_prop" tpl-name="property:li" data-label="列表项属性">
     <li tpl-node="prop:start"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:table">
+<ul class="_prop" tpl-name="property:table" data-label="表格属性">
     <li tpl-node="prop:columns, prop:rows, prop:tborder, prop:th0"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:hr">
+<ul class="_prop" tpl-name="property:hr" data-label="分隔线属性">
     <li tpl-node="prop:thick, prop:length, prop:space, prop:hrstyle"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:blank">
+<ul class="_prop" tpl-name="property:blank" data-label="白板属性">
     <li tpl-node="prop:width, prop:height"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:explain">
+<ul class="_prop" tpl-name="property:explain" data-label="插图讲解属性">
     <li><b>定位</b>
         <span><select name="position" tpl-name="explain:position">
                 <option value="">------</option>
@@ -116,27 +117,27 @@
     </li>
 </ul>
 
-<ul class="_prop" tpl-name="property:h1">
+<ul class="_prop" tpl-name="property:h1" data-label="主标题属性">
     <li tpl-node="prop:id"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:h2">
+<ul class="_prop" tpl-name="property:h2" data-label="标题属性">
     <li tpl-node="prop:id"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:h3">
+<ul class="_prop" tpl-name="property:h3" data-label="标题属性">
     <li tpl-node="prop:id"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:h4">
+<ul class="_prop" tpl-name="property:h4" data-label="标题属性">
     <li tpl-node="prop:id"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:h5">
+<ul class="_prop" tpl-name="property:h5" data-label="标题属性">
     <li tpl-node="prop:id"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:h6">
+<ul class="_prop" tpl-name="property:h6" data-label="标题属性">
     <li tpl-node="prop:id"></li>
 </ul>
 
@@ -287,7 +288,7 @@
 </li>
 
 <li tpl-name="prop:id">
-    <b>ID属性</b>
+    <b>ID定义</b>
     <span><input type="text" name="width" class="_phrase"></span>
 </li>
 

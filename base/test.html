@@ -80,7 +80,7 @@
         window.T = T;
     </script>
 </head>
-<!--OBT:
+<!--基本行为:
     - 左右面板大小改变。
     - 三个面板隐显切换（独立）。
     - 当前显示面板隐显切换。
@@ -115,7 +115,7 @@
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(KM.slaveResize);
         ^finish|(ESC) $('#content') apply('add', _1);
-        ^finish|(editInit) $('#content') $('#g-path') $('#err-tips') $('#outline') exec(_4)"
+        ^finish|(editInit) $('#content') $('#g-path') $('#err-tips') $('#outline') $('#tools-usual') $('#g-modal') exec(_6)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
@@ -191,28 +191,19 @@
             Kit.save"
         to="#g-count|trigger('reset');
             #status-tips|trigger('info')">
-        <!-- 模态框 -->
+        <!--模态框
+            open 打开模态框，插入目标表单。
+            focus 聚焦首个文本输入控件，延迟激发（待子模版就绪） -->
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
-                open|stop (ESC) evo(3) dup lose(0) apply('add', _1);
-                cancel|evo(3) lose (ESC) apply('pop');
+                open|stop (ESC) evo(3) dup lose(0) apply('add', _1) ev('detail');
+                cancel|stop evo(3) lose (ESC) apply('pop');
+                focus|$('/form') pop $('input[type=text], textarea, input[type=url]') dup pass focus;
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
-            to="|trigger('cancel')">
-            <form class="_usual" on="submit|avoid">
-                <header>
-                    <h4>[标题]</h4>
-                    <b class="_close" title="关闭">✕</b>
-                </header>
-                <p id="modal-note" class="_note" data-pbo="">
-                    [这里是当前属性的一些必要说明或提示。]
-                </p>
-                <div class="_list" data-pbo="">
-                </div>
-                <div class="_submit">
-                    <button type="submit">确定</button>
-                    <button type="reset">重置</button>
-                </div>
-            </form>
+            to="|trigger('cancel');
+                /:first-child|replace|fire('/', 'focus');
+                #g-scroll|trigger('focus')">
+            <form> <!-- 占位 --> </form>
         </div>
         <pre tpl-source="main:tools, main:content, main:slave, main:status">
             [工具栏]

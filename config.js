@@ -103,6 +103,11 @@ export const Help = {
         '只能作为唯一子元素存在'
     ],
 
+    'not_property': [
+        'edit:property',
+        '没有可编辑的属性'
+    ]
+
 };
 
 

@@ -666,13 +666,13 @@ span[role=space] {
 }
 
 /* 代码块
- * pre/code/b
+ * pre:codeblock/code/b
  * ------------------------------------
  */
-.content pre * {
+.content pre[role=codeblock] * {
     line-height: 170%;
 }
-.content pre > code {
+.content pre[role=codeblock] > code {
     display: block;
     padding: 5px 10px;
     font-size: 10pt;

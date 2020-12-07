@@ -18,7 +18,7 @@
 //
 //  用法：
 //  let loader = new TplLoader(...);
-//  const tpl = new Templater( loader.load.bind(loader), ... );
+//  const tpl = new Templater( ..., loader.load.bind(loader) );
 //
 //  注：
 //  任何时候都可以添加新的映射配置，从而持续（动态）地载入新的模板节点集。

@@ -254,12 +254,13 @@
 
 
 <!-- 模态页（通用） -->
-<form class="_page" tpl-name="modal:page">
+<form class="_page" tpl-name="modal:page"
+    on="submit|avoid">
     <header>
         <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <div id="modal-list" class="_list">
+    <div class="_list">
         <!-- [node] -->
     </div>
     <hr tpl-node="modal:okreset" />
@@ -268,23 +269,29 @@
 </form>
 
 
-<!-- 模态框：普通 -->
-<form class="_usual" tpl-name="modal:prop">
+<!-- 模态框：属性 -->
+<form class="_usual" tpl-name="modal:prop"
+    on="init|ev('detail') pop tpl;
+        label|$('/._prop') attr('-label');
+        submit|avoid"
+    to="/>._list|fill|goto('label');
+        /h4|text">
     <header>
         <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <p id="modal-note" class="_note" data-pbo="">
+    <p class="_note" data-pbo="lost">
         [可选的说明/提示]
     </p>
-    <div id="modal-list" class="_list" data-pbo="">
+    <div class="_list" data-pbo="">
         <!-- <ul> -->
     </div>
     <hr tpl-node="modal:okreset" />
 </form>
 
 <!-- 模态框：单行 -->
-<form class="_small" tpl-name="modal:small">
+<form class="_small" tpl-name="modal:small"
+    on="submit|avoid">
     <header>
         <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
@@ -295,12 +302,13 @@
 
 
 <!-- 模态框：消息 -->
-<form class="_message" tpl-name="modal:message">
+<form class="_message" tpl-name="modal:message"
+    on="submit|avoid">
     <header>
         <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <p id="modal-msg" class="_note">
+    <p class="_note">
         [消息内容]
     </p>
     <hr tpl-node="modal:ok" />
@@ -308,19 +316,21 @@
 
 
 <!-- 插件页 -->
-<form class="_page _plugins" tpl-name="modal:plugins">
+<form class="_page _plugins" tpl-name="modal:plugins"
+    on="submit|avoid">
     <header>
         <h4>插件</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <p id="g-plugins" class="_list">
+    <p class="_list">
         <!-- 点击执行：<b>... -->
     </p>
 </form>
 
 
 <!-- 模态页：脚本历史 -->
-<form class="_page _history" tpl-name="script:history">
+<form class="_page _history" tpl-name="script:history"
+    on="submit|avoid">
     <header>
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
@@ -335,7 +345,7 @@
 
 
 <!-- 模态页：脚本执行结果 -->
-<div class="_page _result" tpl-name="script:result">
+<form class="_page _result" tpl-name="script:result">
     <header>
         <h4>脚本执行结果</h4>
         <b class="_close" title="关闭">✕</b>
@@ -364,4 +374,4 @@
             <div _html="$.data"></div>
         </li>
     </ul>
-</div>
+</form>

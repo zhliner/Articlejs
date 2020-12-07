@@ -21,8 +21,10 @@
     </div>
     <hr>
     <div class="_middle _icons">
-        <!-- 动态 -->
-        <span id="tools-usual" class="_usual _icons" data-pbo="">
+        <!-- 动态：微编辑下隐藏 -->
+        <span id="tools-usual" class="_usual _icons" data-pbo=""
+            on="hide|evo(3) lose;
+                show|evo(3) lose(false)">
             <b title="文本化"
                 on="click"
                 by="Ed.toText"><i id="b-totext"></i></b>
@@ -50,7 +52,7 @@
     <div class="_end _icons">
         <b id="x-plugins" title="插件〔F7〕"
             on="click|tpl('modal:plugins')"
-            to="#g-modal>*|replace trigger('open', true)">
+            to="#g-modal|trigger('open')">
             <i id="b-plugins"></i>
         </b>
         <b title="最大化"><i id="b-maximize"></i></b>
@@ -100,7 +102,7 @@
         by="-;-;
             Ed.deletes pass pop clipboard;
             Ed.paste(_1)"
-        to="#g-count|trigger('reset');
+        to="#g-count|trigger('reset')|fire('/', 'focus');
             #g-count|trigger('setv');
             -;-;
             #g-count|trigger('reset')">
@@ -126,9 +128,9 @@
                 blur|evo(3) hide(true) (ESC) apply('pop')"
             by="Kit.cmenudo;
                 Kit.convert"
-            to="#g-scroll||fire('', 'focus');
-                #g-scroll||fire('', 'focus');
-                |cssSets('left top')|goto('submenu') goto('status') fire('', 'focus');
+            to="#g-scroll|trigger('focus');
+                #g-scroll|trigger('focus');
+                |cssSets('left top')|goto('status') goto('submenu') fire('', 'focus');
                 /menu|replace;
                 |trigger('cmenudo');
                 |trigger('convert');

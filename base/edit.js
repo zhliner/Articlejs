@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Templater } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
@@ -41,6 +42,9 @@ const
 
     // 临时类名选择器。
     __tmpclsSlr = `.${Sys.selectedClass}, .${Sys.focusClass}`,
+
+    // 属性模态框模板名（<form>）。
+    __propModal = 'modal:prop',
 
     // 路径单元存储键。
     // 在路径序列元素上存储源元素。
@@ -307,9 +311,11 @@ class ESEdit {
 //
 class HotEdit {
     /**
+     * 无实参传构造记录当前焦点，
+     * 这在序列操作时有用：避免焦点移动到可撤销区被撤销式移除。
      * @param {Element} hot 新焦点
      */
-    constructor( hot ) {
+    constructor( hot = __EHot.get() ) {
         this._hot = hot;
         this._old = setFocus( hot );
     }
@@ -1072,6 +1078,12 @@ let
     // 用于目录适时更新。
     outlineElem = null,
 
+    // 工具栏中段按钮（微编辑下隐藏）。
+    midtoolElem = null,
+
+    // 模态框根元素
+    modalDialog = null,
+
     // 当前微编辑对象暂存。
     currentMinied = null;
 
@@ -1461,6 +1473,7 @@ function moveAppend( $els, to, ref, empty ) {
         $new = appendData( ref, to, $els.clone(true, true, true) );
 
     return [
+        new HotEdit(),
         _op1, _op2,
         new DOMEdit( () => $els.remove() ),
         new DOMEdit( __Edits.insert, ref, to, $new ),
@@ -1502,7 +1515,7 @@ function cloneAppend( $els, to, ref, empty ) {
         _op2 = empty && new DOMEdit( () => $.empty(to) ),
         $new = appendData( ref, to, $els.clone() );
 
-    return [ _op1, _op2, new DOMEdit(__Edits.insert, ref, to, $new), ...appendContent(to, $new) ];
+    return [ new HotEdit(), _op1, _op2, new DOMEdit(__Edits.insert, ref, to, $new), ...appendContent(to, $new) ];
 }
 
 
@@ -1710,6 +1723,8 @@ function minied( el ) {
         el,
         window.getSelection().getRangeAt(0)
     );
+    $.trigger( midtoolElem, 'hide' );
+
     return [ _op1, _op2, _op3, currentMinied, new HotEdit(currentMinied.elem()) ];
 }
 
@@ -1727,7 +1742,10 @@ function miniedOk( h2 ) {
     if ( h2 ) {
         $.trigger( outlineElem, Sys.medOk, h2 );
     }
+    // 工具栏Undo/Redo重置。
     $.trigger( contentElem, Sys.medOk, null, true );
+    // 工具栏中间按钮可操作。
+    $.trigger( midtoolElem, 'show' );
 }
 
 
@@ -2333,6 +2351,16 @@ function typeSets( els ) {
 
 
 /**
+ * 打开目标属性编辑模态框。
+ * @param {String} name 条目模板名
+ */
+function propertyEdit( name ) {
+    Templater.get( __propModal )
+    .then( frm => $.trigger(frm, 'init', name) && $.trigger(modalDialog, 'open', frm) );
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -2707,11 +2735,13 @@ function _tableNoit( ref, els ) {
  * @param {Element} errbox 出错信息提示容器
  * @param {Element} outline 大纲视图容器
  */
-export function init( content, pathbox, errbox, outline ) {
-    contentElem = content;
+export function init( content, pathbox, errbox, outline, midtool, modal ) {
+    contentElem   = content;
     pathContainer = pathbox;
-    errContainer = errbox;
-    outlineElem = outline;
+    errContainer  = errbox;
+    outlineElem   = outline;
+    midtoolElem   = midtool;
+    modalDialog   = modal;
 
     // 开启tQuery变化事件监听。
     $.config({
@@ -3342,7 +3372,7 @@ export const Edit = {
             // 目标必须为内容元素。
             return help( 'need_conelem', totextBadit($els) );
         }
-        historyPush( new DOMEdit(__Edits.toText, $els) );
+        historyPush( cleanHot($els), new DOMEdit(__Edits.toText, $els) );
     },
 
     __toText: null,
@@ -3377,7 +3407,7 @@ export const Edit = {
      * - 删除不影响结构逻辑的元素（如：<li>、<tr>等）。
      * 注记：
      * 兼容OBT和程序快捷键两种操作。
-     * 返回值用于模板 OBT:on 中进阶判断。
+     * 返回值可用于模板 OBT:on 中进阶判断。
      * @return {Boolean} 是否成功删除。
      */
     deletes() {
@@ -3434,7 +3464,8 @@ export const Edit = {
         if ( $new.length === 1 ) {
             $new = [ repeatN($new[0], n) ];
         }
-        historyPush( clearSets(), new DOMEdit(__Edits.cloneAfter, $els, $new), pushes($new.flat()) );
+        // 记录焦点，避免焦点移动到新元素内后，Undo时删除焦点。
+        historyPush( new HotEdit(), cleanHot($els, true), clearSets(), new DOMEdit(__Edits.cloneAfter, $els, $new), pushes($new.flat()) );
     },
 
 
@@ -3457,7 +3488,8 @@ export const Edit = {
         if ( _new2.length === 1 && _new2[0].length === 1 ) {
             _new2[0] = repeatN( _new2[0][0], n );
         }
-        historyPush( clearSets(), new DOMEdit(__Edits.cloneAfter, _refs, _new2), pushes(_new2.flat()) );
+        // 同上记录焦点。
+        historyPush( new HotEdit(), clearSets(), new DOMEdit(__Edits.cloneAfter, _refs, _new2), pushes(_new2.flat()) );
     },
 
 
@@ -3886,8 +3918,16 @@ export const Edit = {
     },
 
 
+    /**
+     * 弹出属性编辑框。
+     */
     properties() {
-        //
+        let $els = $(__ESet);
+
+        if ( !canProperty($els) ) {
+            return help( 'not_property', $els[0] );
+        }
+        propertyEdit( property( getType($els[0]) ) );
     },
 
 };
@@ -4200,6 +4240,7 @@ export const Kit = {
         __History.pop();
         stateNewEdit();
         currentMinied = null;
+        $.trigger( midtoolElem, 'show' );
     },
 
     __medcancel: null,
@@ -4235,12 +4276,15 @@ export const Kit = {
      * 上下文菜单条目处理。
      * 目标：暂存区/栈顶1项。
      * 目标为菜单条目处理项名称（data-op）。
-     * 注：不包含转换子菜单。
+     * 注记：
+     * - 不包含转换子菜单。
+     * - 无返回值以不影响模板中后续的PB行为。
      * @data: String 处理名称
+     * @return {void}
      */
     cmenudo( evo ) {
         let _fn = __cmenuOpers[evo.data];
-        return _fn && Edit[ _fn ]();
+        if ( _fn ) Edit[ _fn ]();
     },
 
     __cmenudo: 1,
