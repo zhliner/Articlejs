@@ -89,6 +89,7 @@
         copy Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），clean清理内容中的换行，规范换行符用途。
         keydown|scam('shift') 设置填充式粘贴标记。
         keyup|env('pastefill', null) 清除填充粘贴标记（重置）。
+        _focus 编辑区聚焦（微编辑除外，否则影响光标）。使得上下文菜单显示时，操作非菜单快捷键可取消菜单。
     -->
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass;
@@ -98,11 +99,12 @@
             focus|env('minied') end $('/main') nodeRange(true) addRange;
             copy|env('minied') end Range str end avoid v.sels text clean(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end scam('shift') pass env('pastefill', true);
-            keyup|env('minied') end env('pastefill', null)"
+            keyup|env('minied') end env('pastefill', null);
+            _focus|env('minied') end evo(3) focus"
         by="-;-;
             Ed.deletes pass pop clipboard;
             Ed.paste(_1)"
-        to="#g-count|trigger('reset')|fire('/', 'focus');
+        to="#g-count|trigger('reset')|fire('/', '_focus');
             #g-count|trigger('setv');
             -;-;
             #g-count|trigger('reset')">

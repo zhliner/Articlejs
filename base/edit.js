@@ -312,7 +312,7 @@ class ESEdit {
 class HotEdit {
     /**
      * 无实参传构造记录当前焦点，
-     * 这在序列操作时有用：避免焦点移动到可撤销区被撤销式移除。
+     * 这在序列操作时有用，避免焦点移动到可撤销区被撤销式移除。
      * @param {Element} hot 新焦点
      */
     constructor( hot = __EHot.get() ) {
