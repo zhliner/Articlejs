@@ -25,7 +25,7 @@ import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
-import { property } from "./templates.js";
+import { childOptions, property, siblingOptions } from "./templates.js";
 import cfg from "./shortcuts.js";
 
 
@@ -1084,6 +1084,9 @@ let
     // 模态框根元素
     modalDialog = null,
 
+    // 主面板内容插入位置根容器
+    insertWhere = null,
+
     // 当前微编辑对象暂存。
     currentMinied = null;
 
@@ -1934,7 +1937,7 @@ function cleanedClone( el ) {
     let _hot = __EHot.get(),
         _clr = $.contains( el, _hot );
     try {
-        _clr && __EHot.set( null );
+        _clr && __EHot.cancel();
         return cloneElement( el );
     }
     finally {
@@ -2361,6 +2364,22 @@ function propertyEdit( name ) {
 
 
 /**
+ * 更新可插入条目选单集。
+ * 动态更新内容区参考/焦点元素可插入条目。
+ * 注记：
+ * 选单条目定义在同一个模板文件中且已经载入。
+ * @param {Element} ref 参考元素
+ */
+function updateInserts( ref ) {
+    let _ns = child ?
+        childOptions( ref ) :
+        siblingOptions( ref );
+
+    // return _ns.length > 0 ? Templater.nodes(_ns) : null;
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -2730,18 +2749,23 @@ function _tableNoit( ref, els ) {
 /**
  * 初始化全局数据。
  * 用于编辑器设置此模块中操作的全局目标。
- * @param {Element} content 编辑器容器（根元素）
- * @param {Element} pathbox 路径蓄力容器
- * @param {Element} errbox 出错信息提示容器
- * @param {Element} outline 大纲视图容器
+ * @param {String} content 编辑器容器（根元素）
+ * @param {String} pathbox 路径蓄力容器
+ * @param {String} errbox 出错信息提示容器
+ * @param {String} outline 大纲视图容器
+ * @param {String} midtool 工具栏动态按钮区
+ * @param {String} modal 模态框根容器
+ * @param {String} inswhere 主面板内容插入位置根容器
  */
-export function init( content, pathbox, errbox, outline, midtool, modal ) {
-    contentElem   = content;
-    pathContainer = pathbox;
-    errContainer  = errbox;
-    outlineElem   = outline;
-    midtoolElem   = midtool;
-    modalDialog   = modal;
+export function init( content, pathbox, errbox, outline, midtool, modal, inswhere ) {
+    contentElem   = $.get( content );
+    pathContainer = $.get( pathbox );
+    errContainer  = $.get( errbox );
+    outlineElem   = $.get( outline );
+    midtoolElem   = $.get( midtool );
+    modalDialog   = $.get( modal );
+    insertWhere   = $.get( inswhere );
+
 
     // 开启tQuery变化事件监听。
     $.config({
@@ -2753,7 +2777,7 @@ export function init( content, pathbox, errbox, outline, midtool, modal ) {
 
     // 内容数据初始处理。
     // 预存储保留表格列特征。
-    $( 'table' )
+    $( 'table', contentElem )
     .forEach( tbl => tableObj(tbl, $.table(tbl)) );
 }
 

@@ -41,7 +41,7 @@ const
     INLINES     = 1 << 4,   // 内联单元
     BLOCKS      = 1 << 5,   // 行块单元
     EMPTY       = 1 << 6,   // 空元素（单标签）
-    SEALED      = 1 << 7,   // 密封单元
+    SEALED      = 1 << 7,   // 密封单元（不可合并）
     FIXED1      = 1 << 8,   // 位置向前固定
     FIXED2      = 1 << 9;   // 位置向后固定
 
@@ -190,14 +190,14 @@ export const
     // 特殊用途。
     // 注：不作为独立的内联单元。
     /////////////////////////////////////////////
-    B               = -1,   // 代码关键字封装
-    I               = -2,   // 代码注释/标题编号
+    B       = -1,   // 代码关键字封装
+    I       = -2,   // 代码注释/标题编号
 
     //
-    // 文章顶层。
-    // 抽象结构，文章的顶层内容容器。
+    // 文章顶层容器。
+    // 不属于内容单元故单列。编辑器逻辑需要。
     /////////////////////////////////////////////
-    $TOPBOX         = -10;
+    MAIN    = -10;
 
 
 
@@ -377,7 +377,7 @@ const _BLOCKITS =
 //
 // 合法子单元类型。
 // 子数组类型是一种分组抽象，表示使用该组所有类型。
-// 值 null 表示空元素和文本节点。
+// 值 null 适用于空元素和文本节点。
 // 注记：
 // - 可用于源码结构检查。
 // - 可用于判断目标的可插入单元（向内）。
@@ -393,7 +393,8 @@ const ChildTypes = {
     [ VIDEO ]:          [ SOURCE, TRACK, $TEXT ],
     [ PICTURE ]:        [ SOURCE, IMG ],
     [ SVG ]:            [ SVGITEM ],
-    [ RUBY ]:           [ RB, RT, RP ],
+    // RB,RT,RP 为固定结构组。
+    [ RUBY ]:           [ RBPT ],
     [ METER ]:          [ $TEXT ],
     [ SPACE ]:          null,
     [ IMG ]:            null,
@@ -516,9 +517,9 @@ const ChildTypes = {
     [ I ]:              [ $TEXT, A ],
 
     //
-    // 文章顶层（编辑器专属）。
+    // 文章顶层容器
     /////////////////////////////////////////////
-    [ $TOPBOX ]:        [ H1, HGROUP, ABSTRACT, TOC, HEADER, ARTICLE, SEEALSO, REFERENCE, FOOTER ],
+    [ MAIN ]:           [ H1, HGROUP, ABSTRACT, TOC, HEADER, ARTICLE, SEEALSO, REFERENCE, FOOTER ],
 
 };
 

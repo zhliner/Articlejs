@@ -8,8 +8,10 @@
     by="-;"
     to="/._body|trigger('create')">
     <div class="_roll">
-        <!--focus: 快捷操作友好 -->
-        <div class="_where" on="click(input)|$('1/select') focus">
+        <!--插入位置定义
+            click focus 快捷操作友好。 -->
+        <div id="con-where" class="_where"
+            on="click(input)|$('1/select') focus">
             <label title="平级插入">
                 <input type="radio" name="where" checked /><i id="l-siblings"></i>
             </label>
@@ -17,7 +19,7 @@
                 <input type="radio" name="where"><i id="l-children"></i>
             </label>
         </div>
-        <!--input.select 快捷键选取。从data-k特性取值触发，仅部分（dup pass）。-->
+        <!--input.select 快捷键选取。从data-k特性取值触发（仅部分）。-->
         <select id="input-items" name="items" size="5" class="_list"
             on="change|evo(3) val pop tpl;
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
@@ -53,7 +55,40 @@
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="2/._prop|replace;
                 |val|goto('change')">
-            <!-- 内联单元清单 -->
+            <option tpl-node="
+                option:audio,
+                option:video,
+                option:picture,
+                option:svg,
+                option:ruby,
+                option:meter,
+                option:space,
+                option:img,
+                option:br,
+                option:wbr,
+                option:a,
+                option:q,
+                option:abbr,
+                option:del,
+                option:ins,
+                option:dfn,
+                option:bdo,
+                option:times,
+                option:code,
+                option:strong,
+                option:em,
+                option:cite,
+                option:small,
+                option:sub,
+                option:sup,
+                option:mark,
+                option:orz,
+                option:samp,
+                option:kbd,
+                option:s,
+                option:u,
+                option:var,
+                option:text"></option>
         </select>
     </div>
     <div class="_body" tpl-source="minied:inlines"> [主栏：单元属性] </div>

@@ -15,6 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { getType } from "./base.js";
 import * as T from "./types.js";
 
 
@@ -29,6 +30,7 @@ import * as T from "./types.js";
 // 用户单击选单，OBT提取录入模板并在录入区显示，供用户录入内容。
 //
 const InputOptions = {
+    // 内容元素向内插入时可用条目。
     [ T.$TEXT ]:        'option:text',
 
     [ T.AUDIO ]:        'option:audio',
@@ -45,7 +47,10 @@ const InputOptions = {
     [ T.TRACK ]:        'option:track',
     [ T.SOURCE ]:       'option:source',
     [ T.EXPLAIN ]:      'option:explain',
+    // <ruby>向内插入时可用条目。
     [ T.RBPT ]:         'option:rbpt',
+    // <svg>向内插入时可用条目。
+    // <svg>子元素平级和向内插入时可用条目。
     [ T.SVGITEM ]:      'option:svgitem',
 
     [ T.A ]:            'option:a',
@@ -183,6 +188,14 @@ const Properties = {
 };
 
 
+//
+// 不可平级自由插入类型。
+// 注记：
+// <main>不应当被选取，此处仅表达一种逻辑（冗余）。
+//
+const siblingNone = new Set( [T.RB, T.RT, T.RP, T.MAIN] );
+
+
 
 //
 // 导出
@@ -190,14 +203,25 @@ const Properties = {
 
 
 /**
- * 获取可插入选单集。
- * 根据参考元素获取可插入子单元的模板条目集。
- * @param  {Number} ref 参考元素类型值
- * @return {[String]}
+ * 获取向内插入选单集。
+ * @param  {Element} ref 参考元素
+ * @return {[String]} 模板名集
  */
-export function options( ref ) {
-    // 可滤除 null/undefined
-    return $.map( T.childTypes(ref), tv => InputOptions[tv] );
+export function childOptions( ref ) {
+    // 可滤除null/undefined
+    return $.map( T.childTypes(getType(ref)), tv => InputOptions[tv] );
+}
+
+
+/**
+ * 获取可平级插入选单集。
+ * @param  {Element} ref 参考元素
+ * @return {[String]} 模板名集
+ */
+export function siblingOptions( ref ) {
+    return siblingNone.has( getType(ref) ) ?
+        [] :
+        childOptions( ref.parentElement );
 }
 
 

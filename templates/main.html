@@ -109,6 +109,7 @@
             -;-;
             #g-count|trigger('reset')">
         <!--上下文菜单
+            cmenudo 菜单条目处理，发送_focus不影响微编辑焦点（minied进入时）。
             keydown 快捷处理直达，ESC按下或子菜单隐藏时忽略（自然由普通模式处理）。
             cancel  按ESC隐藏菜单。简单聚焦内容区使菜单失焦即隐藏。
             click(li[data-op]) 主菜单条目操作（禁用时忽略）。
@@ -130,7 +131,7 @@
                 blur|evo(3) hide(true) (ESC) apply('pop')"
             by="Kit.cmenudo;
                 Kit.convert"
-            to="#g-scroll|trigger('focus');
+            to="#g-scroll|trigger('_focus');
                 #g-scroll|trigger('focus');
                 |cssSets('left top')|goto('status') goto('submenu') fire('', 'focus');
                 /menu|replace;
@@ -414,7 +415,7 @@
                     </section>
                     <section role="s2">
                         <h2 id="内联单元">内联单元</h2>
-                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的 <code>&lt;ruby&gt;/&lt;rb&gt;&lt;rp&gt;/&lt;rt&gt;</code>、或媒体类的 <code>&lt;img&gt;</code>、<code>&lt;audio&gt;</code> 等。</p>
+                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的<ruby><rb>注音</rb><rp>(</rp><rt>zhùyīn</rt><rp>)</rp></ruby>（<code>&lt;ruby&gt;/&lt;rb&gt;,&lt;rp&gt;,&lt;rt&gt;</code>）、或媒体类的图片（<code>&lt;img&gt;</code>）、音频（<code>&lt;audio&gt;</code>）等。</p>
                         <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，而必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;li&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
                         <table border="1">
                             <thead>
