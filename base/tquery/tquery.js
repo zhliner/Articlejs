@@ -5481,7 +5481,6 @@ function nodeItem( data, doc ) {
 
 /**
  * 通用节点（集）插入。
- * 数据为假值时不会产生插入行为。
  * 返回实际插入的节点（集）。
  * @param  {Node} node 目标节点
  * @param  {Node|[Node]|String} data 节点（集）
@@ -5494,7 +5493,7 @@ function Insert( node, data, where ) {
     if ( !_fun ) {
         throw new Error(`[${where}] is invalid method.`);
     }
-    return data && _fun( node, data );
+    return _fun( node, data );
 }
 
 
@@ -5502,28 +5501,29 @@ function Insert( node, data, where ) {
 // 6种插入方式。
 // 数据已保证为节点或节点集。
 // @param  {Node|Element} node 目标节点。
-// @param  {[Node|Element]} data 节点（集）
+// @param  {[Node|Element]|null} data 节点（集）
 // @return {void}
 //
 const insertHandles = {
     // fill
+    // 允许data为假值（清空内容）。
     '': varyFill,
 
     // replace
-    '0': (node, data) => varyReplace( node, data ),
+    '0': (node, data) => data && varyReplace( node, data ),
 
     // before
-    '1': (node, data) => varyBefore( node, data ),
+    '1': (node, data) => data && varyBefore( node, data ),
 
     // after
-    '-1': (node, data) => varyAfter( node, data ),
+    '-1': (node, data) => data && varyAfter( node, data ),
 
     // append
     // 表格容器非法内容时返回null（会自动异常）。
-    '-2': (el, data) => varyAppend( trContainer(el, data), data ),
+    '-2': (el, data) => data && varyAppend( trContainer(el, data), data ),
 
     // prepend
-    '2': (el, data) => varyPrepend( trContainer(el, data), data )
+    '2': (el, data) => data && varyPrepend( trContainer(el, data), data )
 };
 
 
@@ -6245,16 +6245,17 @@ function varyNormalize( el ) {
 /**
  * 元素填充。
  * 包含操作：[empty, append]。
- * 优化：内容本来为空时不再触发empty行为。
+ * 如果数据为假值，仅清空容器。
  * @param  {Element} el 目标元素
  * @param  {Node|[Node]} nodes 数据节点（集）
  * @return {Node|[Node]} nodes
  */
 function varyFill( el, nodes ) {
+    // 内容为空时不触发empty。
     if ( el.textContent || el.childElementCount > 0 ) {
         varyEmpty( el );
     }
-    return varyAppend( el, nodes );
+    return nodes && varyAppend( el, nodes );
 }
 
 
