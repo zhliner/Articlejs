@@ -133,7 +133,7 @@
                 Kit.convert"
             to="#g-scroll|trigger('_focus');
                 #g-scroll|trigger('focus');
-                |cssSets('left top')|goto('status') goto('submenu') fire('', 'focus');
+                |cssSets('left top')|goto('status') goto('submenu') fire(1, 'focus');
                 /menu|replace;
                 |trigger('cmenudo');
                 |trigger('convert');
@@ -184,7 +184,7 @@
             by="Kit.rngelem(_1)"
             to="#g-scroll|trigger('focus');
                 |data('range')|goto('show');
-                |cssSets('left top')|fire('', 'focus');
+                |cssSets('left top')|fire(1, 'focus');
                 |data('range');
                 |trigger('create');
                 |trigger('create');

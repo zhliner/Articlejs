@@ -319,9 +319,6 @@ only( name:String )
 target( n )
 // To目标更新或取值入栈。
 
-swap()
-// 交换流程数据和目标。
-
 fire( rid, name, delay, bubble, cancelable )
 // 延迟激发事件。
 

@@ -517,34 +517,24 @@ const _Update = {
 
 const _NextStage = {
     /**
-     * 交换To目标两个成员。
-     * 可用于后续方法持续使用原始检索目标。
-     */
-    swap( evo ) {
-        [evo.updated, evo.primary] = [evo.primary, evo.updated];
-    },
-
-    __swap: null,
-
-
-    /**
      * To目标更新或取值入栈。
      * 内容：暂存区1项可选。
      * 如果暂存区有值，则赋值为更新目标（updated）。
      * 取两个目标之一入栈：
-     * - 0  原始To目标（evo.primary）
+     * - 0  原始To目标（evo.primary），默认
      * - 1  更新To目标（evo.updated）
-     * @param  {Number} n 目标标识
+     * @param  {Number} n 目标标识，可选
      * @return {Element|Collector|void}
      */
-    target( evo, n ) {
-        if ( n === 0 ) {
-            return evo.primary;
+    target( evo, n = 0 ) {
+        if ( evo.data !== undefined ) {
+            evo.updated = evo.data;
+            return;
         }
-        if ( n === 1 ) {
-            return evo.updated;
+        switch ( n ) {
+            case 0: return evo.primary;
+            case 1: return evo.updated;
         }
-        if ( evo.data !== undefined ) evo.updated = evo.data;
     },
 
     __target: -1,
@@ -556,18 +546,14 @@ const _NextStage = {
      * 如果内容有值，则为激发事件附带的数据。
      * rid可传递一个null或空串，表示目标沿用To更新目标。
      * 默认延迟，可设置具体的时间或0值（不延迟）。
-     * @param {String} rid 目标元素选择器（单个）
+     * @param {String|Number} rid 目标元素选择器（单个）
      * @param {String} name 事件名
      * @param {Number} delay 延迟时间（毫秒），可选
      * @param {Boolean} bubble 是否冒泡，可选。默认冒泡
      * @param {Boolean} cancelable 是否可取消，可选。默认可取消
      */
     fire( evo, rid, name, delay = 1, bubble = true, cancelable = true ) {
-        let _to = evo.updated;
-
-        if ( rid ) {
-            _to = Util.find( rid, evo.delegate, true );
-        }
+        let _to = target( evo, rid, true );
         Util.fireEvent( $(_to), name, delay, evo.data, bubble, cancelable );
     },
 
@@ -621,12 +607,14 @@ const _NextStage = {
     /**
      * 滚动到当前视口。
      * y, x 值说明参考On部分同名接口。
+     * 默认操作更新的结果（evo.updated）。
      * @param  {Number|String|true|false} y 垂直位置标识
      * @param  {Number} x 水平位置标识
+     * @param  {String|Number} 目标元素标识，可选
      * @return {void}
      */
-    intoView( evo, y, x ) {
-        $.intoView( target(evo), y, x );
+    intoView( evo, y, x, rid = 1 ) {
+        $.intoView( evo.data || target(evo, rid), y, x );
     },
 
     __intoView: -1,
@@ -654,14 +642,19 @@ const _NextStage = {
     'finish',
     'cancel',
 
-    // 注记：
-    // On存在同名集合方法，兼容原生方法调用（Animation）。
-    // 此处不再定义，注意调用需先获取目标。
+    // On存在同名集合方法，故此不再定义。
     // 'reverse',
 ]
 .forEach(function( meth ) {
-
-    _NextStage[meth] = function( evo ) { target(evo)[meth]() };
+    /**
+     * 默认目标为更新的结果/集（evo.updated），
+     * 或者单个目标检索。
+     * @param {String} rid 目标选择标识，可选
+     * @param {Boolean} much 是否检索多个目标，可选
+     */
+    _NextStage[meth] = function( evo, rid = 1, much ) {
+        $( evo.data || target(evo, rid, !much) )[ meth ]();
+    };
 
     _NextStage[`__${meth}`] = -1;
 
@@ -883,13 +876,23 @@ function selectChanged( sel ) {
 
 
 /**
- * 获取下一阶目标。
- * 如果内容有值，则为操作的目标，否则为更新目标。
- * 适用部分接口暂存区1项可选（-1）时。
- * @return {Collector}
+ * 获取操作目标。
+ * rid: {
+ *      0       To原始检索的目标
+ *      1       被To更新的结果
+ *      String  选择器检索的结果
+ * }
+ * 适用：部分接口暂存区1项可选（-1）时。
+ * @param  {String|Number} rid 目标标识，可选
+ * @param  {Boolean} one 是否单元素检索，可选
+ * @return {Element|Collector}
  */
-function target( evo ) {
-    return $( evo.data === undefined ? evo.updated : evo.data );
+function target( evo, rid, one ) {
+    switch ( rid ) {
+        case 0: return evo.primary;
+        case 1: return evo.updated;
+    }
+    return Util.find( rid, evo.delegate, one );
 }
 
 

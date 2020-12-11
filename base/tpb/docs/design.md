@@ -284,7 +284,10 @@ local( name: String|null, its?: Value|String|null): void|Value
 // 设置/取值浏览器本地数据（localStorage）。
 
 $if( val, elseval?: Value ): Value
-// 条件赋值。
+// 条件为真赋值。
+
+ifnot( val, elseval?: Value ): Value
+// 条件为假赋值。
 
 $case( ...vals: String ): [Boolean]
 // 分支比较。

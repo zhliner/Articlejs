@@ -484,7 +484,7 @@ const _Control = {
 
 
     /**
-     * 条件赋值。
+     * 条件为真赋值。
      * 目标：暂存区/栈顶1项。
      * 如果目标值为真（广义），val入栈，否则elseval入栈。
      * @param  {Value} val IF赋值
@@ -496,6 +496,21 @@ const _Control = {
     },
 
     __$if: 1,
+
+
+    /**
+     * 条件为假赋值。
+     * 目标：暂存区/栈顶1项。
+     * 如果目标值为假（广义），val入栈，否则elseval入栈。
+     * @param  {Value} val IF赋值
+     * @param  {Boolean} elseval ELSE赋值，可选
+     * @return {Value}
+     */
+    ifnot( evo, val, elseval ) {
+        return !evo.data ? val : elseval;
+    },
+
+    __ifnot: 1,
 
 
     /**

@@ -18,6 +18,7 @@
 //
 
 import { Templater } from "./tpb/config.js";
+import { Util } from "./tpb/tools/util.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
@@ -45,6 +46,9 @@ const
 
     // 属性模态框模板名（<form>）。
     __propModal = 'modal:prop',
+
+    // 插入位置选单更新事件名。
+    __whereUpdate = 'update',
 
     // 路径单元存储键。
     // 在路径序列元素上存储源元素。
@@ -85,6 +89,13 @@ const
         todown:     'indentIncrease',
         delete:     'deletes',
         property:   'properties',
+    },
+
+    // 插入位置选单处理器。
+    // 用于根据焦点元素提取可插入条目选单集。
+    __whereHandles = {
+        siblings:   siblingOptions,
+        children:   childOptions,
     },
 
     // 元素选取集实例。
@@ -1172,11 +1183,7 @@ function elemInfo( el ) {
 /**
  * 设置元素焦点。
  * 会同时设置焦点元素的路径提示序列。
- * 注记：
- * 如果无需跟踪焦点移动历史，则无需更新全局存储（如单纯的移动焦点）。
- * 选取类操作全局更新已在 ESEdit 内实现，无需在此处理。
- * 此处的更新主要用于元素编辑类需要处理焦点时。
- *
+ * 会激发插入点合法条目更新事件。
  * @param  {Element|null} el 待设置焦点元素
  * @return {Element|null} 之前的焦点
  */
@@ -1187,6 +1194,8 @@ function setFocus( el ) {
         $.intoView( el, 0 );
         $.fill( pathContainer, pathList(el, contentElem) );
     }
+    delayFire( insertWhere, __whereUpdate, el );
+
     return __EHot.set( el );
 }
 
@@ -1210,6 +1219,8 @@ function updateFocus() {
  */
 function pathFocus( hot ) {
     $.intoView( hot, 0 );
+    delayFire( insertWhere, __whereUpdate, hot );
+
     return __EHot.set( hot );
 }
 
@@ -2364,18 +2375,15 @@ function propertyEdit( name ) {
 
 
 /**
- * 更新可插入条目选单集。
- * 动态更新内容区参考/焦点元素可插入条目。
- * 注记：
- * 选单条目定义在同一个模板文件中且已经载入。
- * @param {Element} ref 参考元素
+ * 延迟激发事件。
+ * @param {Element} el 目标元素
+ * @param {String} evn 事件名
+ * @param {...Value} rest 剩余参数
  */
-function updateInserts( ref ) {
-    let _ns = child ?
-        childOptions( ref ) :
-        siblingOptions( ref );
-
-    // return _ns.length > 0 ? Templater.nodes(_ns) : null;
+function delayFire( el, evn, ...rest ) {
+    if ( el.isConnected ) {
+        setTimeout( () => $.trigger(el, evn, ...rest), 1 );
+    }
 }
 
 
@@ -2772,7 +2780,7 @@ export function init( content, pathbox, errbox, outline, midtool, modal, inswher
         varyevent: true,
         // bindevent: true
     });
-    $.on( content, varyEvents, null, __TQHistory );
+    $.on( contentElem, varyEvents, null, __TQHistory );
 
 
     // 内容数据初始处理。
@@ -4159,6 +4167,30 @@ export const Kit = {
     __cmenable: 1,
 
 
+    /**
+     * 构造可插入的条目选单集。
+     * 目标：暂存区/栈顶1项。
+     * 目标为内容区插入参考元素（焦点元素）。
+     * 用于动态更新内容区参考/焦点元素可插入条目。
+     * 注记：
+     * 选单条目定义在同一个模板文件中且已经载入。
+     * 焦点元素必需为已选取状态。
+     * @data: Element
+     * @param  {String} type 位置类型（siblings|children）
+     * @return {[Element]} 选单元素集（[<option>]）
+     */
+    inslist( evo, type ) {
+        if ( !__ESet.has(evo.data) ) {
+            return null;
+        }
+        let _ns = __whereHandles[type]( evo.data )
+
+        return _ns.length > 0 ? Templater.nodes(_ns) : null;
+    },
+
+    __inslist: 1,
+
+
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -4383,6 +4415,7 @@ customGetter( null, Kit, [
     'convtype',
     'roleinfo',
     'cmenable',
+    'inslist',
 ]);
 
 

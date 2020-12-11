@@ -11,17 +11,19 @@
         <!--插入位置定义
             click focus 快捷操作友好。 -->
         <div id="con-where" class="_where"
-            on="click(input)|$('1/select') focus">
+            on="update|ev('detail') $('/input') val('where') v.inslist(_1);
+                click(input)|$('1/select') focus"
+            to="1/select|fill|fire(0, 'change')">
             <label title="平级插入">
-                <input type="radio" name="where" checked /><i id="l-siblings"></i>
+                <input type="radio" name="where" value="siblings" checked /><i id="l-siblings"></i>
             </label>
             <label title="向内插入">
-                <input type="radio" name="where"><i id="l-children"></i>
+                <input type="radio" name="where" value="children"><i id="l-children"></i>
             </label>
         </div>
         <!--input.select 快捷键选取。从data-k特性取值触发（仅部分）。-->
         <select id="input-items" name="items" size="5" class="_list"
-            on="change|evo(3) val pop tpl;
+            on="change|evo(3) val dup ifnot('input:empty', _1) pop tpl;
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="form/._body|replace;
                 |val|goto('change')">
@@ -40,7 +42,7 @@
         <div class="_where"
             on="click(input)|evo(2) val pop tpl;
                 click(input)|evo(2) attr('-val') pop tpl"
-            to="1/select|replace|focus fire('', 'change');
+            to="1/select|replace|focus fire(1, 'change');
                 2/._body|replace">
             <label title="内联元素">
                 <input type="radio" name="where" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
