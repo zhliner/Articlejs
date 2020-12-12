@@ -34,12 +34,16 @@ const
 export class ESet extends Set {
     /**
      * 创建选取元素集。
-     * 注：mark为类名，不参与节点的vary事件处理。
+     * fire用于通知外部更新可插入条目。
+     * mark为类名，不参与节点的vary事件处理。
+     * fire: function(ESet): void
      * @param {String} mark 选取标记类
+     * @param {Function} fire 激发处理器
      */
-    constructor( mark ) {
+    constructor( mark, fire ) {
         super();
         this._cls = mark;
+        this._fun = fire;
     }
 
 
@@ -53,6 +57,7 @@ export class ESet extends Set {
         super.add(
             $.addClass( el, this._cls )
         );
+        this._fun( this );
         return el;
     }
 
@@ -67,6 +72,7 @@ export class ESet extends Set {
         super.delete(
             $.removeClass( el, this._cls )
         )
+        this._fun( this );
         return el;
     }
 
@@ -79,6 +85,8 @@ export class ESet extends Set {
         for ( const el of this ) {
             $.removeClass( el, this._cls );
         }
+        this._fun( this );
+
         return super.clear(), this;
     }
 
@@ -106,6 +114,7 @@ export class ESet extends Set {
         els.forEach(
             el => this.add( el )
         );
+        this._fun( this );
         return this;
     }
 
@@ -120,6 +129,7 @@ export class ESet extends Set {
         els.forEach(
             el => this.delete(el)
         );
+        this._fun( this );
         return this;
     }
 }

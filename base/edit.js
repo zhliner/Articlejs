@@ -26,7 +26,7 @@ import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
-import { childOptions, property, siblingOptions } from "./templates.js";
+import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
 
 
@@ -91,15 +91,19 @@ const
         property:   'properties',
     },
 
+    // 不可平级自由插入类型。
+    // <main>不会被选取，此仅为逻辑表达。
+    __siblingNone = new Set( [T.RB, T.RT, T.RP, T.MAIN] ),
+
     // 插入位置选单处理器。
     // 用于根据焦点元素提取可插入条目选单集。
     __whereHandles = {
-        siblings:   siblingOptions,
         children:   childOptions,
+        siblings:   siblingOptions,
     },
 
     // 元素选取集实例。
-    __ESet = new ESet( Sys.selectedClass ),
+    __ESet = new ESet( Sys.selectedClass, delayFire ),
 
     // 选取焦点类实例。
     __EHot = new EHot( Sys.focusClass ),
@@ -1194,8 +1198,6 @@ function setFocus( el ) {
         $.intoView( el, 0 );
         $.fill( pathContainer, pathList(el, contentElem) );
     }
-    delayFire( insertWhere, __whereUpdate, el );
-
     return __EHot.set( el );
 }
 
@@ -1219,8 +1221,6 @@ function updateFocus() {
  */
 function pathFocus( hot ) {
     $.intoView( hot, 0 );
-    delayFire( insertWhere, __whereUpdate, hot );
-
     return __EHot.set( hot );
 }
 
@@ -2354,11 +2354,25 @@ function canAppend( el ) {
 /**
  * 构造元素集类型值集
  * @param  {[Element]} els 元素集
- * @return {Set}
+ * @return {Set<Number>}
  */
 function typeSets( els ) {
     return els.reduce(
         ( set, el ) => set.add( getType(el) ),
+        new Set()
+    );
+}
+
+
+/**
+ * 获取目标元素集的父元素集。
+ * 注：已滤除重复。
+ * @param  {[Element]} els 目标元素集
+ * @return {Set<Element>}
+ */
+function parentSets( els ) {
+    return els.reduce(
+        (set, el) => set.add( el.parentElement ),
         new Set()
     );
 }
@@ -2380,10 +2394,36 @@ function propertyEdit( name ) {
  * @param {String} evn 事件名
  * @param {...Value} rest 剩余参数
  */
-function delayFire( el, evn, ...rest ) {
-    if ( el.isConnected ) {
-        setTimeout( () => $.trigger(el, evn, ...rest), 1 );
+function delayFire( eset ) {
+    if ( !insertWhere.isConnected ) {
+        return;
     }
+    setTimeout( () => $.trigger(insertWhere, __whereUpdate, [...eset]), 1 );
+}
+
+
+/**
+ * 获取可子级插入选单集。
+ * @param  {[Element]} els 目标元素集
+ * @return {[String]} 模板名集
+ */
+function childOptions( els ) {
+    return options( [...typeSets(els)] );
+}
+
+
+/**
+ * 获取可平级插入选单集。
+ * @param  {[Element]} els 目标元素集
+ * @return {[String]} 模板名集
+ */
+function siblingOptions( els ) {
+    let _tvs = [...typeSets(els)];
+
+    if ( _tvs.some(tv => __siblingNone.has(tv)) ) {
+        return [];
+    }
+    return childOptions( [...parentSets(els)] );
 }
 
 
@@ -4180,7 +4220,7 @@ export const Kit = {
      * @return {[Element]} 选单元素集（[<option>]）
      */
     inslist( evo, type ) {
-        if ( !__ESet.has(evo.data) ) {
+        if ( !evo.data.length ) {
             return null;
         }
         let _ns = __whereHandles[type]( evo.data )

@@ -203,25 +203,20 @@ const siblingNone = new Set( [T.RB, T.RT, T.RP, T.MAIN] );
 
 
 /**
- * 获取向内插入选单集。
- * @param  {Element} ref 参考元素
+ * 获取向内插入条目集。
+ * @param  {[Number]} tvs 目标元素类型集
  * @return {[String]} 模板名集
  */
-export function childOptions( ref ) {
-    // 可滤除null/undefined
-    return $.map( T.childTypes(getType(ref)), tv => InputOptions[tv] );
-}
-
-
-/**
- * 获取可平级插入选单集。
- * @param  {Element} ref 参考元素
- * @return {[String]} 模板名集
- */
-export function siblingOptions( ref ) {
-    return siblingNone.has( getType(ref) ) ?
-        [] :
-        childOptions( ref.parentElement );
+export function options( tvs ) {
+    let _subs = [
+        ...T.childTypes( tvs.shift() )
+    ];
+    if ( tvs.length > 0 ) {
+        _subs = _subs.filter(
+            tv => tvs.every( v => T.isChildType(v, tv) )
+        );
+    }
+    return $.map( _subs, tv => InputOptions[tv] );
 }
 
 
