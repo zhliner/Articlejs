@@ -8,7 +8,8 @@
 //
 //  模板管理器。
 //
-//  实现模板节点的实时导入、存储/提取和渲染。
+//  提取文档内定义的模板节点，解析构建OBT逻辑和渲染配置并存储节点供检索。
+//  如果DOM中有子模版配置，会实时导入并解析存储。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,6 +17,7 @@
 
 // 无渲染支持。
 // import { Render } from "./render.x.js";
+
 // 有渲染支持。
 import { Render } from "./render.js";
 
@@ -46,32 +48,31 @@ class Templater {
      */
     constructor( obter, loader ) {
         this._obter = obter;
-        this._load = loader;
+        this._loader = loader;
 
-        // 模板节点存储
+        // 模板节点存储（已就绪）
         // { String: Element }
         this._tpls = new Map();
 
-        // 子模版承诺临时存储
-        // {root: Promise}
-        this._pool = new Map();
+        // 临时存储（就绪后移除）
+        this._tplx = new Map();  // 节点 {name: Promise}
+        this._pool = new Map();  // 文档 {root: Promise}
     }
 
 
     /**
      * 获取模板节点（原始）。
      * 如果模板不存在会自动载入。
-     * 注：通常用于数据类模板（无需克隆）。
      * @param  {String} name 模板名
      * @return {Promise<Element>} 承诺对象
      */
     get( name ) {
-        if ( this._tpls.has(name) ) {
-            return Promise.resolve( this._tpls.get(name) );
+        let _tpl = this._tpls.get( name );
+
+        if ( _tpl ) {
+            return Promise.resolve( _tpl );
         }
-        return this._load(name)
-            .then( fg => this.build(fg) )
-            .then( () => this._tpls.get(name) );
+        return this._tplx.get(name) || this._load( name );
     }
 
 
@@ -83,7 +84,7 @@ class Templater {
      * @return {Promise<Element>} 承诺对象
      */
     clone( name ) {
-        return this.get(name).then( el => this._clone(el) );
+        return this.get( name ).then( el => this._clone(el) );
     }
 
 
@@ -113,10 +114,10 @@ class Templater {
 
     /**
      * 模板构建。
-     * 会先处理可能有的子模版的导入。
-     * 注：子模版中可能包含子模版。
-     * @param  {Element|DocumentFragment|Document} root 构建目标
-     * @return {Promise}
+     * 元素实参主要用于初始或手动调用，
+     * 系统自动载入并构建时，实参为文档片段。
+     * @param  {Element|Document|DocumentFragment} root 构建目标
+     * @return {Promise<true>}
      */
     build( root ) {
         if ( this._pool.has(root) ) {
@@ -125,22 +126,23 @@ class Templater {
         this._obter( root );
         Render.parse( root );
 
-        return this.picks( root );
+        return this.picks( root ).then( () => this._pool.delete(root) );
     }
 
 
     /**
-     * 提取命名的模板节点并存储。
-     * 会检查子模版导入配置并持续载入（如果有）。
+     * 提取并存储命名的模板节点。
+     * 检查不在命名模版节点内的子模版导入配置。
      * @param  {Element|DocumentFragment} root 根容器
      * @return {[Promise<void>]}
      */
     picks( root ) {
-        $.find(__nameSlr, root, true)
-            .forEach(
-                el => this.add(el)
-            );
-        let _ps = this._subs(root),
+        // 先提取命名模板。
+        for ( const tpl of $.find(__nameSlr, root, true) ) {
+            this.add( tpl );
+        }
+        // 不在模板节点内的导入配置。
+        let _ps = this._subs( root ),
             _pro = _ps ? Promise.all(_ps) : Promise.resolve();
 
         this._pool.set( root, _pro );
@@ -150,33 +152,38 @@ class Templater {
 
     /**
      * 添加模板节点。
-     * 若未传递模板名，元素应当包含模板命名属性。
-     * 可用于外部手动添加。
-     * @param {Element} el 节点元素
-     * @param {String} name 模板名，可选
+     * 元素应当包含tpl-name特性值。
+     * @param  {Element} tpl 模板节点元素
+     * @return {Map|void}
      */
-    add( el, name ) {
-        if ( !name ) {
-            name = $.xattr( el, __tplName );
-        }
-        if ( this._tpls.has(name) ) {
-            window.console.warn(`[${name}] template node was overwritten.`);
-        }
-        this._tpls.set( name, el );
-    }
+    add( tpl ) {
+        let _name = $.xattr( tpl, __tplName ),
+            _subs = this._subs( tpl );
 
+        if ( !_subs ) {
+            return this._tpls.set( _name, tpl );
+        }
+        let _pro = Promise.all( _subs )
+            .then( () => this._tpls.set(_name, tpl) )
+            .then( () => this._tplx.delete(_name) && tpl );
 
-    /**
-     * 清空缓存池。
-     * 在一个模板系（关联子模版）载入完毕之后使用。
-     * 注：仅用于手动回收内存。
-     */
-    clear() {
-        this._pool.clear();
+        this._tplx.set( _name, _pro );
     }
 
 
     //-- 私有辅助 -------------------------------------------------------------
+
+
+    /**
+     * 载入模板节点。
+     * @param  {String} name 模板名
+     * @return {Promise<Element>}
+     */
+    _load( name ) {
+        return this._loader( name )
+            .then( fg => this.build(fg) )
+            .then( () => this._tpls.get(name) || this._tplx.get(name) );
+    }
 
 
     /**
@@ -195,14 +202,14 @@ class Templater {
 
     /**
      * 解析/载入子模板。
-     * 无子模版载入配置时返回一个空数组。
+     * 即处理 tpl-node/tpl-source 两个指令。
      * @param  {Element|DocumentFragment} root 根容器
-     * @return {[Promise]} 子模版载入承诺集
+     * @return {[Promise<void>]} 子模版载入承诺集
      */
      _subs( root ) {
         let _els = $.find(__nodeSlr, root, true);
 
-        if ( _els.length == 0 ) {
+        if ( _els.length === 0 ) {
             return null;
         }
         return $.map( _els, el => this._imports(el) );
@@ -214,7 +221,7 @@ class Templater {
      * 子模版定义可能是一个列表（有序）。
      * 可能返回null，调用者应当滤除。
      * @param  {Element} el 配置元素
-     * @return {Promise|null}
+     * @return {Promise<void>|null}
      */
     _imports( el ) {
         let [meth, val] = this._reference(el);
