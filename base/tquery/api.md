@@ -1099,11 +1099,11 @@ option: {
 
 获取或设置 `el` 元素的内容高度（与 `box-sizing` 无关）。
 
-- `el: Element | Document | Window` 操作的目标元素、文档或窗口。
+- `el: Element` 操作的目标元素。
 - `val: String | Number | Function` 要设置的高度值，数值的单位为像素，可以是一个取值回调。
 - `inc: Boolean` 是否为增量模式。
 
-设置的字符串值可以包含任意单位，获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置高度。
+设置的字符串值可以包含任意单位，获取的值为纯数值（像素），以方便直接用于计算。仅适用于元素。
 
 如果 `val` 是取值回调，接口为：`function( curr-height ): String | Number`，实参为当前的高度值，`this` 为当前元素。
 
@@ -1120,11 +1120,11 @@ option: {
 
 获取或设置 `el` 元素的内容宽度（与 `box-sizing` 无关）。
 
-- `el: Element | Document | Window` 操作的目标元素、文档或窗口。
+- `el: Element` 操作的目标元素。
 - `val: String | Number | Function` 要设置的宽度值，数值的单位为像素，可以是一个取值回调。
 - `inc: Boolean` 是否为增量模式。
 
-设置的字符串值可以包含任意单位，获取的值为纯数值（像素），以方便直接用于计算。文档或窗口只能获取而不能设置宽度。
+设置的字符串值可以包含任意单位，获取的值为纯数值（像素），以方便直接用于计算。仅适用于元素。
 
 如果 `val` 是取值回调，接口为：`function( curr-width ): String | Number`，实参为当前的宽度值，`this` 为当前元素。
 

@@ -3045,22 +3045,22 @@ tQuery.Table = Table;
      *      content-box: css:height = con-height（默认）
      *      border-box:  css:height = con-height + padding + border
      * }
-     * @param  {Element|Document|Window} el 目标元素
+     * @param  {Element} el 目标元素
      * @param  {String|Number|Function} val 设置值
-     * @param  {Boolean} inc val是否为增量值（仅限像素）
+     * @param  {Boolean} inc val是否为增量值（val仅限数值）
      * @return {Number|Element}
      */
     tQuery[_n] = function( el, val, inc ) {
-        let _h = _rectWin(el, its[1], 'inner') || _rectDoc(el, its[1]) || _elemRect(el, _n);
+        if ( inc ) {
+            return _elemRectSetInc(el, _n, val);
+        }
+        let _x = _elemRect(el, _n);
 
         if ( val === undefined ) {
-            return _h;
+            return _x;
         }
         if ( isFunc(val) ) {
-            val = val.bind(el)( _h );
-        }
-        if ( inc ) {
-            val = +val + _h;
+            val = val.bind(el)( _x );
         }
         _elemRectSet( el, _n, val );
 
@@ -3202,6 +3202,19 @@ function _elemRectSet( el, name, val ) {
 
     // 非像素设置时微调
     if (_inc) el.style[name] = parseFloat(_cso[name]) + _inc + 'px';
+}
+
+
+/**
+ * 增量式设置高宽。
+ * 注：主要用于拖拽变化，提高效率。
+ * @param {Element} el 目标元素
+ * @param {String} name 类型名（height|width）
+ * @param {String|Number} val 增量值
+ */
+function _elemRectSetInc( el, name, val ) {
+    el.style[name] = +val + _elemRect(el, name) + 'px';
+    return el;
 }
 
 
@@ -6749,7 +6762,7 @@ const boxSizing = {
          */
         get: function( el, type, name, cso, margin ) {
             let _cv = parseFloat( cso[type] );
-            return _cv ? _cv + withCss[name](cso, margin) : rectSize(el, type) - withRect[name](cso, margin);
+            return isNaN(_cv) ? rectSize(el, type) - withRect[name](cso, margin) : _cv + withCss[name](cso, margin);
         },
 
 
