@@ -3098,7 +3098,7 @@ tQuery.Table = Table;
 //
 // 外高宽取值（Float）
 // outerHeight/outerWidth
-// 注：注：包含border，可选的包含margin。
+// 注：包含border，可选的包含margin。
 /////////////////////////////////////////////////
 [
     ['Height',  'outer'],
@@ -3116,57 +3116,6 @@ tQuery.Table = Table;
         return _rectWin(el, its[0], its[1]) || _rectDoc(el, its[0]) || _rectElem(el, _t, _n, margin);
     };
 });
-
-
-//
-// 可调用原生方法（事件类）。
-/////////////////////////////////////////////////
-
-callableNative
-.forEach(
-    name =>
-    tQuery[name] = function( el ) {
-        return (name in el) && el[name](), el;
-    }
-);
-
-
-/**
- * 滚动方法定制。
- * 包含无参数调用返回滚动条的位置对象：{top, left}。
- * 传递实参时调用原生滚动方法（会触发滚动事件）。
- * pair可以是一个配置对象，也可以是一个水平/垂直坐标的二元数组。
- * @param  {Element} el 包含滚动条的容器元素
- * @param  {Object2|[left, top]} pair 滚动位置配置对象。
- * @return {Object2|Element}
- */
-tQuery.scroll = function( el, pair ) {
-    if ( pair === undefined ) {
-        return {
-            top: tQuery.scrollTop(el),
-            left: tQuery.scrollLeft(el)
-        };
-    }
-    return ( isArr(pair) ? el.scroll(...pair) : el.scroll(pair) ), el;
-}
-
-
-/**
- * 选取动作定制。
- * 注：可编辑（contenteditable=true）的普通元素无此方法。
- * @param {Element} el 目标元素
- */
-tQuery.select = function( el ) {
-    if ( 'select' in el ) {
-        return el.select();
-    }
-    let _sel = window.getSelection(),
-        _rng = el.ownerDocument.createRange();
-
-    _sel.removeAllRanges();
-    _sel.addRange( _rng );
-    _rng.selectNodeContents( el );
-}
 
 
 /**
@@ -3219,7 +3168,7 @@ function _rectDoc( el, name ) {
  * @param  {Window} el   获取目标
  * @param  {String} type 取值类型（height|width）
  * @param  {String} name 取值名称
- * @return {Number|false}
+ * @return {Number}
  */
 function _rectElem( el, type, name, margin ) {
     let _cso = getStyles(el);
@@ -3253,6 +3202,57 @@ function _elemRectSet( el, name, val ) {
 
     // 非像素设置时微调
     if (_inc) el.style[name] = parseFloat(_cso[name]) + _inc + 'px';
+}
+
+
+//
+// 可调用原生方法（事件类）。
+/////////////////////////////////////////////////
+
+callableNative
+.forEach(
+    name =>
+    tQuery[name] = function( el ) {
+        return (name in el) && el[name](), el;
+    }
+);
+
+
+/**
+ * 滚动方法定制。
+ * 包含无参数调用返回滚动条的位置对象：{top, left}。
+ * 传递实参时调用原生滚动方法（会触发滚动事件）。
+ * pair可以是一个配置对象，也可以是一个水平/垂直坐标的二元数组。
+ * @param  {Element} el 包含滚动条的容器元素
+ * @param  {Object2|[left, top]} pair 滚动位置配置对象。
+ * @return {Object2|Element}
+ */
+tQuery.scroll = function( el, pair ) {
+    if ( pair === undefined ) {
+        return {
+            top: tQuery.scrollTop(el),
+            left: tQuery.scrollLeft(el)
+        };
+    }
+    return ( isArr(pair) ? el.scroll(...pair) : el.scroll(pair) ), el;
+}
+
+
+/**
+ * 选取动作定制。
+ * 注：可编辑（contenteditable=true）的普通元素无此方法。
+ * @param {Element} el 目标元素
+ */
+tQuery.select = function( el ) {
+    if ( 'select' in el ) {
+        return el.select();
+    }
+    let _sel = window.getSelection(),
+        _rng = el.ownerDocument.createRange();
+
+    _sel.removeAllRanges();
+    _sel.addRange( _rng );
+    _rng.selectNodeContents( el );
 }
 
 
