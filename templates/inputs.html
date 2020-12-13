@@ -22,8 +22,9 @@
 </div>
 
 
-<!-- 普通插入：行块单元 ------------------------------------------------------------------->
-
+<!--普通插入：行块单元
+    录入版右侧主栏版块（replace）。
+----------------------------------------------------------------------------->
 
 <!-- 文章标题 -->
 <div class="_body _Heading" tpl-name="input:heading"
@@ -528,12 +529,22 @@
 </div>
 
 
-<!-- 微编辑：内联单元 --------------------------------------------------------------->
+<!--微编辑：内联单元
+----------------------------------------------------------------------------->
+
+<!-- 右侧主栏：内联单元录入 -->
+<div class="_body _Inline" tpl-name="minied:inlines">
+    <div class="_main _list">
+        <!-- <ul tpl-node="inlines:img">[图片]</ul> -->
+    </div>
+    <aside>
+        <hr tpl-node="input:insert1" />
+    </aside>
+</div>
 
 
-<!--子版：字符种类
-    input.select:
-    与内联元素和行块单元共享快捷键指向，需检查通过。 -->
+<!--字符录入：左侧种类选单
+    input.select 单键快捷直选。 -->
 <select name="ctype" size="5" class="_list _inlines" tpl-name="item:ctypes"
     on="change|evo(3) val tpl('data:chars') pop data(_1);
         input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
@@ -553,18 +564,7 @@
     <option data-k="r" value="radical">偏旁部首 [r]</option>
 </select>
 
-
-<!-- 主栏：单元属性 -->
-<div class="_body _Inline" tpl-name="minied:inlines">
-    <div class="_main _list">
-        <ul class="_prop" tpl-node="inlines:img">[图片]</ul>
-    </div>
-    <aside>
-        <hr tpl-node="input:insert1" />
-    </aside>
-</div>
-
-<!-- 主栏：字符表 -->
+<!-- 字符录入：右侧主栏字符清单 -->
 <div class="_body _Inline" tpl-name="minied:chars"
     on="click(b)|xRange addRange evo(2) text exeCmd('insertText', _1)">
     <div class="_main _list"
@@ -606,201 +606,8 @@
 </div>
 
 
-<!-- 内联元素 -->
-
-<!-- 图片 -->
-<ul class="_prop" tpl-name="inlines:img">
-    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
-    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
-</ul>
-
-<!-- 音频 -->
-<ul class="_prop" data-new="audio" tpl-name="inlines:audio">
-    <li tpl-node="prop:srcbase, prop:src"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
-    <li tpl-node="prop:mediaopts"></li>
-</ul>
-
-<!-- 视频 -->
-<ul class="_prop" tpl-name="inlines:video">
-    <li tpl-node="prop:srcbase, prop:src, prop:poster"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
-    <li tpl-node="prop:wh, prop:mediaopts"></li>
-</ul>
-
-<!-- 最佳图片 -->
-<ul class="_prop" tpl-name="inlines:picture">
-    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
-    <li tpl-node="prop:sources, prop:upload, prop:preview, prop:wh"></li>
-</ul>
-
-<!-- 轨道 -->
-<ul class="_prop" tpl-name="inlines:track">
-    <li tpl-node="prop:kind, prop:src, prop:srclang, prop:label"></li>
-    <li tpl-node="prop:default"></li>
-</ul>
-
-<!-- 资源 -->
-<ul class="_prop" tpl-name="inlines:source">
-    <li tpl-node="prop:src, prop:srctype"></li>
-</ul>
-
-<!-- 图形（svg） -->
-<div class="_prop" tpl-name="inlines:svg">
-    <hr tpl-node="prop:svg" />
-</div>
-
-<!-- 链接 -->
-<ul class="_prop" tpl-name="inlines:a">
-    <li tpl-node="prop:textrow"></li>
-    <li tpl-node="prop:href"></li>
-    <li tpl-node="prop:target"></li>
-</ul>
-
-<!-- 代码 -->
-<div class="_prop" tpl-name="inlines:code">
-    <hr tpl-node="prop:codes" />
-</div>
-
-<!-- 重点 -->
-<div class="_prop" tpl-name="inlines:strong">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 强调 -->
-<div class="_prop" tpl-name="inlines:em">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 下标 -->
-<div class="_prop" tpl-name="inlines:sub">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 上标 -->
-<div class="_prop" tpl-name="inlines:sup">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 短引用 -->
-<ul class="_prop" tpl-name="inlines:q">
-    <hr tpl-node="prop:textrow, prop:cite" />
-</ul>
-
-<!-- 日期/时间 -->
-<ul class="_prop" tpl-name="inlines:times">
-    <li tpl-node="prop:datetext, prop:date, prop:time"></li>
-</ul>
-
-<!-- 插入性 -->
-<div class="_prop" tpl-name="inlines:ins">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 已删除 -->
-<div class="_prop" tpl-name="inlines:del">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 缩写 -->
-<ul class="_prop" tpl-name="inlines:abbr">
-    <li tpl-node="prop:textrow, prop:title"></li>
-</ul>
-
-<!-- 注脚 -->
-<div class="_prop" tpl-name="inlines:small">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 来源 -->
-<div class="_prop" tpl-name="inlines:cite">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 标记 -->
-<div class="_prop" tpl-name="inlines:mark">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 注音单元 -->
-<ul class="_prop" tpl-name="inlines:ruby">
-    <li tpl-node="prop:rb"></li>
-    <li tpl-node="prop:rt"></li>
-    <li tpl-node="prop:rp"></li>
-</ul>
-
-<!-- 表情 -->
-<div class="_prop" tpl-name="inlines:orz">
-    <hr tpl-node="prop:codes" />
-</div>
-
-<!-- 定义条目 -->
-<ul class="_prop" tpl-name="inlines:dfn">
-    <hr tpl-node="prop:textrow, prop:title" />
-</ul>
-
-<!-- 样本 -->
-<div class="_prop" tpl-name="inlines:samp">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 键盘字 -->
-<div class="_prop" tpl-name="inlines:kbd">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 量度标示 -->
-<ul class="_prop" tpl-name="inlines:meter">
-    <li tpl-node="prop:number"></li>
-    <li tpl-node="prop:maxmin"></li>
-    <li tpl-node="prop:highlow"></li>
-    <li tpl-node="prop:optimum"></li>
-</ul>
-
-<!-- 失效 -->
-<div class="_prop" tpl-name="inlines:s">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 注记 -->
-<div class="_prop" tpl-name="inlines:u">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 变量 -->
-<div class="_prop" tpl-name="inlines:var">
-    <hr tpl-node="prop:content" />
-</div>
-
-<!-- 有向文本 -->
-<ul class="_prop" tpl-name="inlines:bdo">
-    <li tpl-node="prop:textrow, prop:dir"></li>
-</ul>
-
-<!-- 换行 -->
-<ul class="_prop" tpl-name="inlines:br">
-    <li tpl-node="prop:amount"></li>
-</ul>
-
-<!-- 软换行 -->
-<ul class="_prop" tpl-name="inlines:wbr">
-    <li tpl-node="prop:amount"></li>
-</ul>
-
-<!-- 空白 -->
-<ul class="_prop" tpl-name="inlines:space">
-    <li tpl-node="prop:amount, prop:spwidth"></li>
-</ul>
-
-<!-- 文本节点 -->
-<div class="_prop" tpl-name="inlines:text">
-    <hr tpl-node="prop:content" />
-</div>
-
-
-
-<!-- 普通插入：内联单元 -------------------------------------------------------------->
-
+<!-- 普通插入：内联单元
+----------------------------------------------------------------------------->
 
 <div class="_body _Inline" tpl-name="input:img">
     <div class="_main _list">

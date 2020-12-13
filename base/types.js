@@ -150,7 +150,7 @@ export const
     CASCADEH4LI     = 422,  // 级联编号表标题项（li/h4, ol）
     CASCADEAH4LI    = 423,  // 级联编号表链接标题项（li/[h4/a], ol）
     TOCCASCADE      = 424,  // 目录级联表（ol:cascade/[li/a]）
-    FIGIMGBOX       = 425,  // 插图内容区（span/img, i:explain）
+    FIGIMGBOX       = 425,  // 插图内容块（span/img, i:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -341,13 +341,15 @@ const Properties = {
 
 //
 // 内联单元集。
-// 注：不含<a>单元，不含<b><i>单元。
+// 不含<a>单元，不含<b><i>单元。
+// 注：
+// 此处的顺序会体现在内容录入面板的选单上。
 //
 const _INLINES =
 [
-    AUDIO, VIDEO, PICTURE, RUBY, SVG,
-    METER, SPACE, IMG, BR, WBR,
-    STRONG, EM, Q, ABBR, CITE, TIME, SMALL, DEL, INS, SUB, SUP, MARK, CODE, ORZ, DFN, SAMP, KBD, S, U, VAR, BDO,
+    AUDIO, VIDEO, PICTURE, SVG, RUBY, METER, SPACE, IMG, BR, WBR,
+    Q, ABBR, DEL, INS, DFN, BDO, TIME, CODE,
+    STRONG, EM, CITE, SMALL, SUB, SUP, MARK, ORZ, SAMP, KBD, S, U, VAR,
 ];
 
 

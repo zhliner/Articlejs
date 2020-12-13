@@ -1,113 +1,114 @@
 <!--新建选单：
-    value 对应录入块模板名。
+    value 对应录入块模板名（后段）。
+    取值后需前置 input: 或 inlines: 构造模板名。
 ----------------------------------------------------------------------------->
 
-<!--内联单元
+<!--内联单元选单
     适用微编辑和普通模式下内联单元关联 -->
-<option title="#text" value="input:text" tpl-name="option:text">文本</option>
-<option title="<audio>" value="input:audio" tpl-name="option:audio">音频</option>
-<option data-k="v" title="<video>" value="input:video" tpl-name="option:video">视频〔v〕</option>
-<option data-k="p" title="<picture>" value="input:picture" tpl-name="option:picture">最佳图片〔p〕</option>
-<option title="<svg>" value="input:svg" tpl-name="option:svg">图形</option>
-<option data-k="r" title="<ruby/rb,rp,rt>" value="input:ruby" tpl-name="option:ruby">注音单元〔r〕</option>
-<option title="<meter>" value="input:meter" tpl-name="option:meter">度量标示</option>
-<option title="<span:space>" value="input:space" tpl-name="option:space">空白段</option>
-<option data-k="i" title="<img>" value="input:img" tpl-name="option:img">图片〔i〕</option>
-<option title="<br>" value="input:br" tpl-name="option:br">换行</option>
-<option title="<wbr>" value="input:wbr" tpl-name="option:wbr">软换行</option>
+<option title="#text" value="text" tpl-name="option:text">文本</option>
+<option title="<audio>" value="audio" tpl-name="option:audio">音频</option>
+<option data-k="v" title="<video>" value="video" tpl-name="option:video">视频〔v〕</option>
+<option data-k="p" title="<picture>" value="picture" tpl-name="option:picture">最佳图片〔p〕</option>
+<option title="<svg>" value="svg" tpl-name="option:svg">图形</option>
+<option data-k="r" title="<ruby/rb,rp,rt>" value="ruby" tpl-name="option:ruby">注音单元〔r〕</option>
+<option title="<meter>" value="meter" tpl-name="option:meter">度量标示</option>
+<option title="<span:space>" value="space" tpl-name="option:space">空白段</option>
+<option data-k="i" title="<img>" value="img" tpl-name="option:img">图片〔i〕</option>
+<option title="<br>" value="br" tpl-name="option:br">换行</option>
+<option title="<wbr>" value="wbr" tpl-name="option:wbr">软换行</option>
 
-<option title="<track>" value="input:track" tpl-name="option:track">字幕轨</option>
-<option title="<source>" value="input:source" tpl-name="option:source">媒体资源</option>
-<option title="<i:explain>" value="input:explain" tpl-name="option:explain">插图讲解</option>
-<option title="<rb,rt,rp>" value="input:rbpt" tpl-name="option:rbpt">注音片段</option>
-<option title="<svgitem>" value="input:svgitem" tpl-name="option:svgitem">图形内容</option>
+<option title="<track>" value="track" tpl-name="option:track">字幕轨</option>
+<option title="<source>" value="source" tpl-name="option:source">媒体资源</option>
+<option title="<i:explain>" value="explain" tpl-name="option:explain">插图讲解</option>
+<option title="<rb,rt,rp>" value="rbpt" tpl-name="option:rbpt">注音片段</option>
+<option title="<svgitem>" value="svgitem" tpl-name="option:svgitem">图形内容</option>
 
-<option data-k="a" title="<a>" value="input:a" tpl-name="option:a">链接〔a〕</option>
-<option data-k="q" title="<q>" value="input:q" tpl-name="option:q">短引用〔q〕</option>
-<option title="<abbr>" value="input:abbr" tpl-name="option:abbr">缩写</option>
-<option data-k="d" title="<del>" value="input:del" tpl-name="option:del">已删除〔d〕</option>
-<option title="<ins>" value="input:ins" tpl-name="option:ins">插入性</option>
-<option title="<dfn>" value="input:dfn" tpl-name="option:dfn">定义条目</option>
-<option data-k="b" title="<bdo>" value="input:bdo" tpl-name="option:bdo">有向文本〔b〕</option>
-<option data-k="t" title="<time>" value="input:times" tpl-name="option:times">日期/时间〔t〕</option>
-<option data-k="c" title="<code>" value="input:code" tpl-name="option:code">代码〔c〕</option>
-<option data-k="s" title="<strong>" value="input:strong" tpl-name="option:strong">重点〔s〕</option>
-<option data-k="e" title="<em>" value="input:em" tpl-name="option:em">强调〔e〕</option>
-<option title="<cite>" value="input:cite" tpl-name="option:cite">来源</option>
-<option title="<small>" value="input:small" tpl-name="option:small">注脚</option>
-<option title="<sub>" value="input:sub" tpl-name="option:sub">下标</option>
-<option title="<sup>" value="input:sup" tpl-name="option:sup">上标</option>
-<option data-k="m" title="<mark>" value="input:mark" tpl-name="option:mark">标记〔m〕</option>
-<option data-k="o" title="<code:orz>" value="input:orz" tpl-name="option:orz">表情〔o〕</option>
-<option title="<samp>" value="input:samp" tpl-name="option:samp">样本</option>
-<option data-k="k" title="<kbd>" value="input:kbd" tpl-name="option:kbd">键盘字〔k〕</option>
-<option title="<s>" value="input:s" tpl-name="option:s">失效</option>
-<option data-k="u" title="<u>" value="input:u" tpl-name="option:u">注记〔u〕</option>
-<option title="<var>" value="input:var" tpl-name="option:var">变量</option>
+<option data-k="a" title="<a>" value="a" tpl-name="option:a">链接〔a〕</option>
+<option data-k="q" title="<q>" value="q" tpl-name="option:q">短引用〔q〕</option>
+<option title="<abbr>" value="abbr" tpl-name="option:abbr">缩写</option>
+<option data-k="d" title="<del>" value="del" tpl-name="option:del">已删除〔d〕</option>
+<option title="<ins>" value="ins" tpl-name="option:ins">插入性</option>
+<option title="<dfn>" value="dfn" tpl-name="option:dfn">定义条目</option>
+<option data-k="b" title="<bdo>" value="bdo" tpl-name="option:bdo">有向文本〔b〕</option>
+<option data-k="t" title="<time>" value="times" tpl-name="option:times">日期/时间〔t〕</option>
+<option data-k="c" title="<code>" value="code" tpl-name="option:code">代码〔c〕</option>
+<option data-k="s" title="<strong>" value="strong" tpl-name="option:strong">重点〔s〕</option>
+<option data-k="e" title="<em>" value="em" tpl-name="option:em">强调〔e〕</option>
+<option title="<cite>" value="cite" tpl-name="option:cite">来源</option>
+<option title="<small>" value="small" tpl-name="option:small">注脚</option>
+<option title="<sub>" value="sub" tpl-name="option:sub">下标</option>
+<option title="<sup>" value="sup" tpl-name="option:sup">上标</option>
+<option data-k="m" title="<mark>" value="mark" tpl-name="option:mark">标记〔m〕</option>
+<option data-k="o" title="<code:orz>" value="orz" tpl-name="option:orz">表情〔o〕</option>
+<option title="<samp>" value="samp" tpl-name="option:samp">样本</option>
+<option data-k="k" title="<kbd>" value="kbd" tpl-name="option:kbd">键盘字〔k〕</option>
+<option title="<s>" value="s" tpl-name="option:s">失效</option>
+<option data-k="u" title="<u>" value="u" tpl-name="option:u">注记〔u〕</option>
+<option title="<var>" value="var" tpl-name="option:var">变量</option>
 
 
-<!--行块单元
-    仅适用普通模式下行块单元关联 -->
-<option data-k="p" title="<p>" value="input:p" tpl-name="option:p">段落〔p〕</option>
-<option data-k="n" title="<p:note>" value="input:note" tpl-name="option:note">注解〔n〕</option>
-<option title="<p:tips>" value="input:tips" tpl-name="option:tips">提示</option>
-<option data-k="a" title="<address>" value="input:address" tpl-name="option:address">地址〔a〕</option>
-<option title="<pre>" value="input:pre" tpl-name="option:pre">预排版</option>
+<!--行块单元选单
+    仅适用普通模式下行块单元的插入关联 -->
+<option data-k="p" title="<p>" value="p" tpl-name="option:p">段落〔p〕</option>
+<option data-k="n" title="<p:note>" value="note" tpl-name="option:note">注解〔n〕</option>
+<option title="<p:tips>" value="tips" tpl-name="option:tips">提示</option>
+<option data-k="a" title="<address>" value="address" tpl-name="option:address">地址〔a〕</option>
+<option title="<pre>" value="pre" tpl-name="option:pre">预排版</option>
 
-<option title="<hgroup/h1,h3?>" value="input:hgroup" tpl-name="option:hgroup">文章标题</option>
-<option data-k="s" title="<section:s1>" value="input:s1" tpl-name="option:s1">章片区〔s〕</option>
-<option data-k="s" title="<section:s2>" value="input:s2" tpl-name="option:s2">节片区〔s〕</option>
-<option data-k="s" title="<section:s3>" value="input:s3" tpl-name="option:s3">区片区〔s〕</option>
-<option data-k="s" title="<section:s4>" value="input:s4" tpl-name="option:s4">段片区〔s〕</option>
-<option data-k="s" title="<section:s5>" value="input:s5" tpl-name="option:s5">末片区〔s〕</option>
-<option title="<header:abstract>" value="input:abstract" tpl-name="option:abstract">提要</option>
-<option title="<ul:seealso>" value="input:seealso" tpl-name="option:seealso">另参见</option>
-<option data-k="r" title="<ol:reference>" value="input:reference" tpl-name="option:reference">文献参考〔r〕</option>
-<option data-k="h" title="<header>" value="input:header" tpl-name="option:header">导言〔h〕</option>
-<option title="<footer>" value="input:footer" tpl-name="option:footer">结语</option>
-<option data-k="s" title="<section>" value="input:section" tpl-name="option:section">深片区〔s〕</option>
-<option data-k="u" title="<ul>" value="input:ul" tpl-name="option:ul">无序列表〔u〕</option>
-<option data-k="o" title="<ol>" value="input:ol" tpl-name="option:ol">有序列表〔o〕</option>
-<option data-k="l" title="<ol:codelist>" value="input:codelist" tpl-name="option:codelist">代码表〔l〕</option>
-<option title="<ul:ulx>" value="input:ulx" tpl-name="option:ulx">无序级联表</option>
-<option title="<ol:olx>" value="input:olx" tpl-name="option:olx">有序级联表</option>
-<option title="<ol:cascade>" value="input:cascade" tpl-name="option:cascade">级联编号表</option>
-<option title="<dl>" value="input:dl" tpl-name="option:dl">定义列表</option>
-<option data-k="t" title="<table>" value="input:table" tpl-name="option:table">表格〔t〕</option>
-<option data-k="f" title="<figure>" value="input:figure" tpl-name="option:figure">插图〔f〕</option>
-<option data-k="b" title="<blockquote>" value="input:blockquote" tpl-name="option:blockquote">引用块〔b〕</option>
-<option title="<aside>" value="input:aside" tpl-name="option:aside">批注块</option>
-<option data-k="d" title="<details>" value="input:details" tpl-name="option:details">详细内容〔d〕</option>
-<option data-k="c" title="<pre:codeblock>" value="input:codeblock" tpl-name="option:codeblock">代码块〔c〕</option>
+<option title="<hgroup/h1,h3?>" value="hgroup" tpl-name="option:hgroup">文章标题</option>
+<option data-k="s" title="<section:s1>" value="s1" tpl-name="option:s1">章片区〔s〕</option>
+<option data-k="s" title="<section:s2>" value="s2" tpl-name="option:s2">节片区〔s〕</option>
+<option data-k="s" title="<section:s3>" value="s3" tpl-name="option:s3">区片区〔s〕</option>
+<option data-k="s" title="<section:s4>" value="s4" tpl-name="option:s4">段片区〔s〕</option>
+<option data-k="s" title="<section:s5>" value="s5" tpl-name="option:s5">末片区〔s〕</option>
+<option title="<header:abstract>" value="abstract" tpl-name="option:abstract">提要</option>
+<option title="<ul:seealso>" value="seealso" tpl-name="option:seealso">另参见</option>
+<option data-k="r" title="<ol:reference>" value="reference" tpl-name="option:reference">文献参考〔r〕</option>
+<option data-k="h" title="<header>" value="header" tpl-name="option:header">导言〔h〕</option>
+<option title="<footer>" value="footer" tpl-name="option:footer">结语</option>
+<option data-k="s" title="<section>" value="section" tpl-name="option:section">深片区〔s〕</option>
+<option data-k="u" title="<ul>" value="ul" tpl-name="option:ul">无序列表〔u〕</option>
+<option data-k="o" title="<ol>" value="ol" tpl-name="option:ol">有序列表〔o〕</option>
+<option data-k="l" title="<ol:codelist>" value="codelist" tpl-name="option:codelist">代码表〔l〕</option>
+<option title="<ul:ulx>" value="ulx" tpl-name="option:ulx">无序级联表</option>
+<option title="<ol:olx>" value="olx" tpl-name="option:olx">有序级联表</option>
+<option title="<ol:cascade>" value="cascade" tpl-name="option:cascade">级联编号表</option>
+<option title="<dl>" value="dl" tpl-name="option:dl">定义列表</option>
+<option data-k="t" title="<table>" value="table" tpl-name="option:table">表格〔t〕</option>
+<option data-k="f" title="<figure>" value="figure" tpl-name="option:figure">插图〔f〕</option>
+<option data-k="b" title="<blockquote>" value="blockquote" tpl-name="option:blockquote">引用块〔b〕</option>
+<option title="<aside>" value="aside" tpl-name="option:aside">批注块</option>
+<option data-k="d" title="<details>" value="details" tpl-name="option:details">详细内容〔d〕</option>
+<option data-k="c" title="<pre:codeblock>" value="codeblock" tpl-name="option:codeblock">代码块〔c〕</option>
 
-<option title="<hr>" value="input:hr" tpl-name="option:hr">分割</option>
-<option title="<div:blank>" value="input:blank" tpl-name="option:blank">白板</option>
+<option title="<hr>" value="hr" tpl-name="option:hr">分割</option>
+<option title="<div:blank>" value="blank" tpl-name="option:blank">白板</option>
 
 <!-- 行块结构 -->
-<option title="<h1>" value="input:h1" tpl-name="option:h1">主标题</option>
-<option title="<h2>" value="input:h2" tpl-name="option:h2">片区标题</option>
-<option title="<h3>" value="input:h3" tpl-name="option:h3">小标题</option>
-<option title="<h4>" value="input:h4" tpl-name="option:h4">列表项标题条目</option>
-<option title="<h5>" value="input:h5" tpl-name="option:h5">H5标题</option>
-<option title="<h6>" value="input:h6" tpl-name="option:h6">H6标题</option>
-<option title="<summary>" value="input:summary" tpl-name="option:summary">内容摘要</option>
-<option title="<figcaption>" value="input:figcaption" tpl-name="option:figcaption">插图标题</option>
-<option title="<caption>" value="input:caption" tpl-name="option:caption">表格标题</option>
-<option title="<li>" value="input:li" tpl-name="option:li">列表项</option>
-<option title="<dt>" value="input:dt" tpl-name="option:dt">定义列表条目</option>
-<option title="<dd>" value="input:dd" tpl-name="option:dd">定义列表数据</option>
-<option title="<th>" value="input:th" tpl-name="option:th">表头单元格</option>
-<option title="<td>" value="input:td" tpl-name="option:td">单元格</option>
-<option title="<tr>" value="input:tr" tpl-name="option:tr">表格行</option>
-<option title="<thead>" value="input:thead" tpl-name="option:thead">表头</option>
-<option title="<tbody>" value="input:tbody" tpl-name="option:tbody">表体</option>
-<option title="<tfoot>" value="input:tfoot" tpl-name="option:tfoot">表脚</option>
+<option title="<h1>" value="h1" tpl-name="option:h1">主标题</option>
+<option title="<h2>" value="h2" tpl-name="option:h2">片区标题</option>
+<option title="<h3>" value="h3" tpl-name="option:h3">小标题</option>
+<option title="<h4>" value="h4" tpl-name="option:h4">列表项标题条目</option>
+<option title="<h5>" value="h5" tpl-name="option:h5">H5标题</option>
+<option title="<h6>" value="h6" tpl-name="option:h6">H6标题</option>
+<option title="<summary>" value="summary" tpl-name="option:summary">内容摘要</option>
+<option title="<figcaption>" value="figcaption" tpl-name="option:figcaption">插图标题</option>
+<option title="<caption>" value="caption" tpl-name="option:caption">表格标题</option>
+<option title="<li>" value="li" tpl-name="option:li">列表项</option>
+<option title="<dt>" value="dt" tpl-name="option:dt">定义列表条目</option>
+<option title="<dd>" value="dd" tpl-name="option:dd">定义列表数据</option>
+<option title="<th>" value="th" tpl-name="option:th">表头单元格</option>
+<option title="<td>" value="td" tpl-name="option:td">单元格</option>
+<option title="<tr>" value="tr" tpl-name="option:tr">表格行</option>
+<option title="<thead>" value="thead" tpl-name="option:thead">表头</option>
+<option title="<tbody>" value="tbody" tpl-name="option:tbody">表体</option>
+<option title="<tfoot>" value="tfoot" tpl-name="option:tfoot">表脚</option>
 
 <!-- 定制结构 -->
-<option title="<li>/<code>" value="input:codeli" tpl-name="option:codeli"></option>
-<option title="<li>/<a>" value="input:ali" tpl-name="option:ali"></option>
-<option title="<h4>/<a>" value="input:ah4" tpl-name="option:ah4"></option>
-<option title="<li>/<h4>,<ul>" value="input:xh4li" tpl-name="option:xh4li"></option>
-<option title="<li>/<h4>,<ol>" value="input:cascadeh4li" tpl-name="option:cascadeh4li"></option>
-<option title="<li>/<h4/a>,<ol>" value="input:cascadeah4li" tpl-name="option:cascadeah4li"></option>
-<option title="<span>/<img>,<i:explain>" value="input:figimgbox" tpl-name="option:figimgbox"></option>
+<option title="<li>/<code>" value="codeli" tpl-name="option:codeli">代码行</option>
+<option title="<li>/<a>" value="ali" tpl-name="option:ali">链接列表项</option>
+<option title="<h4>/<a>" value="ah4" tpl-name="option:ah4">链接小标题</option>
+<option title="<li>/<h4>,<ul>" value="xh4li" tpl-name="option:xh4li">级联表标题项</option>
+<option title="<li>/<h4>,<ol>" value="cascadeh4li" tpl-name="option:cascadeh4li">级联编号表标题项</option>
+<option title="<li>/<h4/a>,<ol>" value="cascadeah4li" tpl-name="option:cascadeah4li">级联编号表链接标题项</option>
+<option title="<span>/<img>,<i:explain>" value="figimgbox" tpl-name="option:figimgbox">插图内容块</option>

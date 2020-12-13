@@ -44,12 +44,6 @@ const
     // 临时类名选择器。
     __tmpclsSlr = `.${Sys.selectedClass}, .${Sys.focusClass}`,
 
-    // 属性模态框模板名（<form>）。
-    __propModal = 'modal:prop',
-
-    // 插入位置选单更新事件名。
-    __whereUpdate = 'update',
-
     // 路径单元存储键。
     // 在路径序列元素上存储源元素。
     __linkElem = Symbol(),
@@ -1099,6 +1093,9 @@ let
     // 模态框根元素
     modalDialog = null,
 
+    // 主面板内容标签容器
+    slaveInsert = null,
+
     // 主面板内容插入位置根容器
     insertWhere = null,
 
@@ -1720,7 +1717,7 @@ function elementsPostion( $els, name, inc ) {
  * - 移除目标元素的选取。
  * - 将目标元素的可编辑副本设置为焦点。
  * 注：
- * 预先规范化内容（内联内容元素的合并可能导致文本节点离散）。
+ * 内联内容元素合并会带来文本节点离散，故先合并。
  * @param  {Element} el 目标元素
  * @return {[Instance]} 编辑历史记录实例序列
  */
@@ -1756,10 +1753,13 @@ function miniedOk( h2 ) {
     if ( h2 ) {
         $.trigger( outlineElem, Sys.medOk, h2 );
     }
-    // 工具栏Undo/Redo重置。
     $.trigger( contentElem, Sys.medOk, null, true );
+
     // 工具栏中间按钮可操作。
     $.trigger( midtoolElem, 'show' );
+
+    // 主面板恢复普通模式标签。
+    $.trigger( slaveInsert, Sys.insType, Sys.normalTpl );
 }
 
 
@@ -2383,7 +2383,7 @@ function parentSets( els ) {
  * @param {String} name 条目模板名
  */
 function propertyEdit( name ) {
-    Templater.get( __propModal )
+    Templater.get( Sys.modalProp )
     .then( frm => $.trigger(frm, 'init', name) && $.trigger(modalDialog, 'open', frm) );
 }
 
@@ -2398,7 +2398,7 @@ function delayFire( eset ) {
     if ( !insertWhere.isConnected ) {
         return;
     }
-    setTimeout( () => $.trigger(insertWhere, __whereUpdate, [...eset]), 1 );
+    setTimeout( () => $.trigger(insertWhere, Sys.insWhere, [...eset]), 1 );
 }
 
 
@@ -2804,14 +2804,16 @@ function _tableNoit( ref, els ) {
  * @param {String} midtool 工具栏动态按钮区
  * @param {String} modal 模态框根容器
  * @param {String} inswhere 主面板内容插入位置根容器
+ * @param {String} contab 主面板内容标签容器
  */
-export function init( content, pathbox, errbox, outline, midtool, modal, inswhere ) {
+export function init( content, pathbox, errbox, outline, midtool, modal, contab, inswhere ) {
     contentElem   = $.get( content );
     pathContainer = $.get( pathbox );
     errContainer  = $.get( errbox );
     outlineElem   = $.get( outline );
     midtoolElem   = $.get( midtool );
     modalDialog   = $.get( modal );
+    slaveInsert   = $.get( contab );
     insertWhere   = $.get( inswhere );
 
 
@@ -3967,6 +3969,7 @@ export const Edit = {
         historyPush( ...minied(_el) );
         currentMinied.active();
 
+        $.trigger( slaveInsert, Sys.insType, Sys.miniedTpl );
         $.trigger( contentElem, Sys.medIn, null, true );
     },
 
@@ -3986,6 +3989,7 @@ export const Edit = {
         historyPush( ...minied(_el) );
         currentMinied.activeEnd();
 
+        $.trigger( slaveInsert, Sys.insType, Sys.miniedTpl );
         $.trigger( contentElem, Sys.medIn, null, true );
     },
 
@@ -4331,12 +4335,16 @@ export const Kit = {
 
     /**
      * 微编辑取消。
+     * 注记：
+     * 进入时已更新历史栈，所以取消后无重做能力。
      */
     medcancel() {
         __History.pop();
         stateNewEdit();
         currentMinied = null;
+
         $.trigger( midtoolElem, 'show' );
+        $.trigger( slaveInsert, Sys.insType, Sys.normalTpl );
     },
 
     __medcancel: null,

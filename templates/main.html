@@ -61,11 +61,12 @@
 
 
 <!--内容区
-    medin 进入微编辑（Sys.medIn）
+    cancel 取消微编辑（按ESE）
     medok 确认微编辑（Sys.medOk）
-    info|focus  确认后聚焦根容器，便于键盘控。
+    medin 进入微编辑（Sys.medIn）
     medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
                 注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
+    info|focus  确认后聚焦根容器，便于键盘控。
     @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
     @paste   粘贴为纯文本。 -->
 <div class="___Content" tpl-name="main:content"
@@ -725,9 +726,9 @@
     - keydown   面板快捷键处理。
     注：tabindex 使保存键（Ctrl+s）随时有效。 -->
 <div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
-    on="@mousemove|movementY neg avoid;
+    on="@mousemove|movementY neg;
         @mouseup|movementY(null);
-        mousedown|scam(KM.slaveResize) pass stop;
+        mousedown|scam(KM.slaveResize) pass stop avoid;
         input.full(~textarea)|evo(2) full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
@@ -738,7 +739,12 @@
             click(b)|evo(2) hasClass('_press') end $$('/b')"
         to="1/form|replace;
             =|only('_press')">
-        <b data-tpl="slave:input" class="_press">内容</b>
+        <!--type 设置编辑类型：
+            更新模板名，视情况激发载入（替换） -->
+        <b id="g-contab" data-tpl="slave:input" class="_press"
+            on="type|ev('detail');
+                doit|evo(3) dup hasClass('_press') pass click"
+            to="|@-tpl|goto('doit')">内容</b>
         <b data-tpl="slave:style">样式</b>
         <b data-tpl="slave:attr">特性</b>
         <b data-tpl="slave:source">源码</b>
@@ -750,7 +756,6 @@
         </b>
     </div>
     <form tpl-source="slave:input"> [内容面板] </form>
-    <!-- <form tpl-source="slave:minied"> [微编辑面板] </form> -->
 </div>
 
 

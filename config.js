@@ -128,14 +128,23 @@ export const Sys = {
     // 撤销/重做事件名。
     // 在用户执行撤销/重做操作时，向内容区元素发送该事件，
     // 上层可根据发送信息修改按钮状态。
-    undoEvent: 'button.undo',
-    redoEvent: 'button.redo',
+    undoEvent:  'button.undo',
+    redoEvent:  'button.redo',
 
 
-    // 微编辑关联事件
+    // 事件名定义
     // 在模板中定义，由程序中激发。
-    medIn:  'medin',
-    medOk:  'medok',
+    medIn:      'medin',    // 进入微编辑
+    medOk:      'medok',    // 完成微编辑
+    insWhere:   'update',   // 插入位置选单更新
+    insType:    'type',     // 编辑类型更新（普通插入|微编辑）
+
+
+    // 模板名定义
+    // 在模板中定义，在程序中发送。
+    miniedTpl:  'slave:minied',     // 微编辑
+    normalTpl:  'slave:input',      // 普通录入
+    modalProp:  'modal:prop',       // 属性编辑模态框
 
 
     // 转换类型标识名

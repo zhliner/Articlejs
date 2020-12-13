@@ -878,9 +878,7 @@ class Cell {
             return val;
         }
         if ( $.type(val) !== 'Promise' ) {
-            // 保持线性！
-            // 否则后续对事件默认行为的取消操作（avoid）会延后，
-            // 影响事件名同是方法的调用链（如submit）。
+            // 保持线性，避免后续avoid无效。
             return this.next.call(evo, val);
         }
         val.then( v => this.next.call(evo, v), rejectInfo );

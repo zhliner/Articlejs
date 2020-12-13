@@ -689,12 +689,11 @@ Content: [
         "command":  "properties"
     },
 
-    // 新建关联。
-    // 显示或切换到焦点元素关联的新建面板。
-    // 更新关联条目并聚焦到列表栏。
+    // 新建直达。
+    // 显示或切换到内容新建面板。
     {
         "key":      ":n",
-        "command":  "relatedTo"
+        "command":  "contentMake"
     },
 
 ],
