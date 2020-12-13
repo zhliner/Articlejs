@@ -3051,11 +3051,12 @@ tQuery.Table = Table;
      * @return {Number|Element}
      */
     tQuery[_n] = function( el, val, inc ) {
-        if ( inc ) {
-            return _elemRectSetInc(el, _n, val);
-        }
-        let _x = _elemRect(el, _n);
+        let _x = _elemRect( el, _n );
 
+        if ( inc ) {
+            el.style[_n] = `${+val + _x}px`;
+            return el;
+        }
         if ( val === undefined ) {
             return _x;
         }
@@ -3065,7 +3066,7 @@ tQuery.Table = Table;
         _elemRectSet( el, _n, val );
 
         if ( el.style.cssText.trim() == '' ) {
-            // 内部清理，不激发事件。
+            // 内部清理。
             el.removeAttribute( 'style' );
         }
         return el;
@@ -3204,18 +3205,6 @@ function _elemRectSet( el, name, val ) {
     if (_inc) el.style[name] = parseFloat(_cso[name]) + _inc + 'px';
 }
 
-
-/**
- * 增量式设置高宽。
- * 注：主要用于拖拽变化，提高效率。
- * @param {Element} el 目标元素
- * @param {String} name 类型名（height|width）
- * @param {String|Number} val 增量值
- */
-function _elemRectSetInc( el, name, val ) {
-    el.style[name] = +val + _elemRect(el, name) + 'px';
-    return el;
-}
 
 
 //
