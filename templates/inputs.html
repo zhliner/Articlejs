@@ -21,7 +21,8 @@
     <button type="submit">插入</button>
 </div>
 
-<!--focus: 激活后扩展开。-->
+<!--章节内片段：s1-s5, section
+    focus: 激活后扩展开。-->
 <div class="_main" tpl-name="part:section"
     on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
     to="-|only('_inert')">
@@ -31,6 +32,7 @@
     <textarea name="header" placeholder="导言（可选）"></textarea>
     <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
 </div>
+
 
 <!--普通插入：行块单元
     录入版右侧主栏版块（replace）。
@@ -54,8 +56,63 @@
     </aside>
 </div>
 
-<!-- 片区：s1-s5 -->
+<!-- 章 -->
 <div class="_body _Section" tpl-name="input:s1">
+    <div tpl-node="part:section"></div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 节 -->
+<div class="_body _Section" tpl-name="input:s2">
+    <div tpl-node="part:section"></div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 区 -->
+<div class="_body _Section" tpl-name="input:s3">
+    <div tpl-node="part:section"></div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 段 -->
+<div class="_body _Section" tpl-name="input:s4">
+    <div tpl-node="part:section"></div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 末 -->
+<div class="_body _Section" tpl-name="input:s5">
+    <div tpl-node="part:section"></div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 深片区 -->
+<div class="_body _Section" tpl-name="input:section">
     <div tpl-node="part:section"></div>
     <aside>
         <pre tpl-node="input:option2, input:insert2">

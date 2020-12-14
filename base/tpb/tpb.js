@@ -110,15 +110,20 @@ function _obtattr( el ) {
 
 /**
  * 节点OBT构建。
+ * 返回承诺以支持外部OBT配置（obt-src）导入。
  * @param  {Element|DocumentFragment} root 根节点
- * @return {root}
+ * @return {Promise<void>}
  */
 function nodeBuild( root ) {
+    let _buf = [];
+
     for ( const el of $.find(__obtSlr, root, true) ) {
-        obtAttr( el )
-        .then( obts => obts.forEach(obt => __obter.build(el, obt)) );
+        _buf.push(
+            obtAttr( el )
+            .then( obts => obts.forEach(obt => __obter.build(el, obt)) )
+        );
     }
-    return root;
+    return Promise.all( _buf );
 }
 
 

@@ -929,7 +929,9 @@
                 </div>
                 <!-- [子模版：片区] -->
                 <div class="_body _Section" tpl-name="input:section">
-                    <div class="_main">
+                    <div class="_main"
+                        on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
+                        to="-|only('_inert')">
                         <header>
                             <input name="hx" type="text" placeholder="标题" class="_scale" />
                         </header>

@@ -41,7 +41,7 @@ const
 class Templater {
     /**
      * 创建实例。
-     * obter: function( Element ): Element
+     * obter: function( Element ): Promise<void>
      * loader: function( String ): Promise<DocumentFragment>
      * @param {Function} obter OBT解析回调
      * @param {Function} loader 节点载入回调
@@ -123,10 +123,9 @@ class Templater {
         if ( this._pool.has(root) ) {
             return this._pool.get(root);
         }
-        this._obter( root );
         Render.parse( root );
 
-        return this.picks( root ).then( () => this._pool.delete(root) );
+        return this._obter(root).then( () => this.picks(root) ).then( () => this._pool.delete(root) );
     }
 
 
