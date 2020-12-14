@@ -3040,6 +3040,7 @@ tQuery.Table = Table;
      * - 设置值可包含任意单位，纯数值视为像素单位。
      * - 传递val为null或一个空串会删除样式（与.css保持一致）。
      * - 获取时返回数值。便于数学计算。
+     * - 增量设置时，val仅支持像素值，且元素高宽样式有数值值（非auto）。
      * 注记：
      * box-sizing {
      *      content-box: css:height = con-height（默认）
@@ -3047,16 +3048,15 @@ tQuery.Table = Table;
      * }
      * @param  {Element} el 目标元素
      * @param  {String|Number|Function} val 设置值
-     * @param  {Boolean} inc val是否为增量值（val仅限数值）
+     * @param  {Boolean} inc 是否为增量模式
      * @return {Number|Element}
      */
     tQuery[_n] = function( el, val, inc ) {
+        if ( inc ) {
+            return _elemRectInc( el, _n, +val );
+        }
         let _x = _elemRect( el, _n );
 
-        if ( inc ) {
-            el.style[_n] = `${+val + _x}px`;
-            return el;
-        }
         if ( val === undefined ) {
             return _x;
         }
@@ -3203,6 +3203,27 @@ function _elemRectSet( el, name, val ) {
 
     // 非像素设置时微调
     if (_inc) el.style[name] = parseFloat(_cso[name]) + _inc + 'px';
+}
+
+
+/**
+ * 按增量设置。
+ * 仅适用高宽样式有数值（非auto）的元素。
+ * 注记：
+ * 未设置样式的内联元素的高宽值通常为auto，
+ * 如果需要设置它们，可先正常设置一次初始值。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 设置名称（width|height）
+ * @param  {Number} val 增量值
+ * @return {Element} el
+ */
+function _elemRectInc( el, name, val ) {
+    let _old = getStyles(el)[ name ];
+
+    // NaN会自然无效
+    el.style[ name ] = `${parseFloat(_old) + val}px`;
+
+    return el;
 }
 
 
