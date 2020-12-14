@@ -15,7 +15,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { getType } from "./base.js";
 import * as T from "./types.js";
 
 
@@ -60,7 +59,7 @@ const InputOptions = {
     [ T.INS ]:          'option:ins',
     [ T.DFN ]:          'option:dfn',
     [ T.BDO ]:          'option:bdo',
-    [ T.TIME ]:         'option:time',
+    [ T.TIME ]:         'option:times',
     [ T.CODE ]:         'option:code',
     [ T.STRONG ]:       'option:strong',
     [ T.EM ]:           'option:em',
@@ -154,12 +153,13 @@ const InputOptions = {
 // 注记：选取集单元必须相同，才能调出属性编辑框。
 //
 const Properties = {
-    [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls
-    [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster
+    [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls, sources
+    [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster, sources
+    [ T.IMG ]:          'property:picture',     // src, width, height, alt, sources
     [ T.IMG ]:          'property:img',         // src, width, height, alt
     [ T.SVG ]:          'property:svg',         // width, height
     [ T.RUBY ]:         'property:ruby',        // rb, rt, rp
-    [ T.TIME ]:         'property:time',        // datetime: date, time
+    [ T.TIME ]:         'property:times',       // datetime: date, time
     [ T.METER ]:        'property:meter',       // max, min, high, low, value, optimum
     [ T.SPACE ]:        'property:space',       // width
     [ T.A ]:            'property:a',           // href, target

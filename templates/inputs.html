@@ -21,13 +21,23 @@
     <button type="submit">插入</button>
 </div>
 
+<!--focus: 激活后扩展开。-->
+<div class="_main" tpl-name="part:section"
+    on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
+    to="-|only('_inert')">
+    <header>
+        <input name="hx" type="text" placeholder="标题" class="_scale" />
+    </header>
+    <textarea name="header" placeholder="导言（可选）"></textarea>
+    <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
+</div>
 
 <!--普通插入：行块单元
     录入版右侧主栏版块（replace）。
 ----------------------------------------------------------------------------->
 
 <!-- 文章标题 -->
-<div class="_body _Heading" tpl-name="input:heading"
+<div class="_body _Hgroup" tpl-name="input:hgroup"
     on="create|"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -44,6 +54,16 @@
     </aside>
 </div>
 
+<!-- 片区：s1-s5 -->
+<div class="_body _Section" tpl-name="input:s1">
+    <div tpl-node="part:section"></div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
 
 <!-- 提要 -->
 <div class="_body _Abstract" tpl-name="input:abstract">
@@ -58,7 +78,6 @@
     </aside>
 </div>
 
-
 <!-- 文献参考 -->
 <div class="_body _Reference" tpl-name="input:reference">
     <div class="_main">
@@ -72,7 +91,6 @@
     </aside>
 </div>
 
-
 <!-- 另参见 -->
 <div class="_body _Reference" tpl-name="input:seealso">
     <div class="_main">
@@ -85,7 +103,6 @@
         </pre>
     </aside>
 </div>
-
 
 <!-- 导言 -->
 <div class="_body _Header" tpl-name="input:header">
@@ -119,28 +136,6 @@
         </pre>
     </aside>
 </div>
-
-
-<!-- 片区：s1-s5 -->
-<div class="_body _Section" tpl-name="input:section">
-    <!--focus: 激活扩展友好。-->
-    <div class="_main"
-        on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
-        to="-|only('_inert')">
-        <header>
-            <input name="hx" type="text" placeholder="标题" class="_scale" />
-        </header>
-        <textarea name="header" placeholder="导言（可选）"></textarea>
-        <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option2, input:insert2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
 
 <!-- 无序列表 -->
 <div class="_body _Ul" tpl-name="input:ul">
@@ -579,8 +574,8 @@
 
 
 <!-- 数据：字符集
-    - 解析构造为：<b>...</b>序列。
-    - 各字符集清单（<span>）存储在data中备用。 -->
+    - 解析构造为：<b>...</b>序列填充。
+    - 各字符集清单（<span>）存储在data中备用（data-n值为键名）。 -->
 <div tpl-name="data:chars"
     on="init|evo(1) text split wrap('<b>');
         save|ev('detail') dup xattr('-n');
@@ -609,12 +604,16 @@
 <!-- 普通插入：内联单元
 ----------------------------------------------------------------------------->
 
-<div class="_body _Inline" tpl-name="input:img">
+<!-- 单行文本 -->
+<div class="_body _Inline" tpl-name="input:text">
     <div class="_main _list">
-        <hr tpl-node="inlines:img" />
+        <div class="_prop">
+            <hr tpl-node="inlines:text" />
+        </div>
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
             [插入2]
         </pre>
     </aside>
@@ -664,9 +663,189 @@
     </aside>
 </div>
 
+<div class="_body _Inline" tpl-name="input:ruby">
+    <div class="_main _list">
+        <hr tpl-node="inlines:ruby" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:meter">
+    <div class="_main _list">
+        <hr tpl-node="inlines:meter" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:space">
+    <div class="_main _list">
+        <hr tpl-node="inlines:space" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:img">
+    <div class="_main _list">
+        <hr tpl-node="inlines:img" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:br">
+    <div class="_main _list">
+        <hr tpl-node="inlines:br" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:wbr">
+    <div class="_main _list">
+        <hr tpl-node="inlines:wbr" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+
+<div class="_body _Inline" tpl-name="input:track">
+    <!--  -->
+</div>
+
+<div class="_body _Inline" tpl-name="input:source">
+    <!--  -->
+</div>
+
+<div class="_body _Inline" tpl-name="input:explain">
+    <!--  -->
+</div>
+
+
+<!--注音单元封装：
+    这是一个抽象结构，在选取<ruby>且向内插入时使用。-->
+<div class="_body _Inline" tpl-name="input:rbpt">
+    <div class="_main _list">
+        <hr tpl-node="inlines:ruby" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:svgitem">
+    <!--  -->
+</div>
+
+
 <div class="_body _Inline" tpl-name="input:a">
     <div class="_main _list">
         <hr tpl-node="inlines:a" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:q">
+    <div class="_main _list">
+        <hr tpl-node="inlines:q" />
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:abbr">
+    <div class="_main _list">
+        <hr tpl-node="inlines:abbr" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:del">
+    <div class="_main _list">
+        <hr tpl-node="inlines:del" />
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:ins">
+    <div class="_main _list">
+        <hr tpl-node="inlines:ins" />
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:dfn">
+    <div class="_main _list">
+        <hr tpl-node="inlines:dfn" />
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:bdo">
+    <div class="_main _list">
+        <hr tpl-node="inlines:bdo" />
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:times">
+    <div class="_main _list">
+        <hr tpl-node="inlines:times" />
     </div>
     <aside>
         <pre tpl-node="input:insert2">
@@ -710,6 +889,30 @@
     </aside>
 </div>
 
+<div class="_body _Inline" tpl-name="input:cite">
+    <div class="_main _list">
+        <hr tpl-node="inlines:cite" />
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:small">
+    <div class="_main _list">
+        <hr tpl-node="inlines:small" />
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
 <div class="_body _Inline" tpl-name="input:sub">
     <div class="_main _list">
         <hr tpl-node="inlines:sub" />
@@ -734,88 +937,6 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:q">
-    <div class="_main _list">
-        <hr tpl-node="inlines:q" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:times">
-    <div class="_main _list">
-        <hr tpl-node="inlines:times" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:ins">
-    <div class="_main _list">
-        <hr tpl-node="inlines:ins" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:del">
-    <div class="_main _list">
-        <hr tpl-node="inlines:del" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:abbr">
-    <div class="_main _list">
-        <hr tpl-node="inlines:abbr" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:small">
-    <div class="_main _list">
-        <hr tpl-node="inlines:small" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:cite">
-    <div class="_main _list">
-        <hr tpl-node="inlines:cite" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
 <div class="_body _Inline" tpl-name="input:mark">
     <div class="_main _list">
         <hr tpl-node="inlines:mark" />
@@ -828,49 +949,12 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:ruby">
-    <div class="_main _list">
-        <hr tpl-node="inlines:ruby" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<!--注音单元封装：
-    这是一个抽象结构，在选取<ruby>且向内插入时使用。
-    这样就可以在一个<ruby>中插入多组注音单元。-->
-<div class="_body _Inline" tpl-name="input:rbpt">
-    <div class="_main _list">
-        <hr tpl-node="inlines:ruby" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
 <div class="_body _Inline" tpl-name="input:orz">
     <div class="_main _list">
         <hr tpl-node="inlines:orz" />
     </div>
     <aside>
         <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:dfn">
-    <div class="_main _list">
-        <hr tpl-node="inlines:dfn" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
             [插入2]
         </pre>
     </aside>
@@ -891,17 +975,6 @@
 <div class="_body _Inline" tpl-name="input:kbd">
     <div class="_main _list">
         <hr tpl-node="inlines:kbd" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:meter">
-    <div class="_main _list">
-        <hr tpl-node="inlines:meter" />
     </div>
     <aside>
         <pre tpl-node="input:insert2">
@@ -943,71 +1016,4 @@
             [插入2]
         </pre>
     </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:bdo">
-    <div class="_main _list">
-        <hr tpl-node="inlines:bdo" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:br">
-    <div class="_main _list">
-        <hr tpl-node="inlines:br" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:wbr">
-    <div class="_main _list">
-        <hr tpl-node="inlines:wbr" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:space">
-    <div class="_main _list">
-        <hr tpl-node="inlines:space" />
-    </div>
-    <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<!-- 单行文本 -->
-<div class="_body _Inline" tpl-name="input:text">
-    <div class="_main _list">
-        <div class="_prop">
-            <input type="text" name="text" class="_text">
-        </div>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 普通插入：结构单元 -------------------------------------------------------------->
-
-<div class="_body" tpl-name="struct:track">
-    <!-- ? -->
 </div>

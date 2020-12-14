@@ -97,7 +97,7 @@ const
     },
 
     // 元素选取集实例。
-    __ESet = new ESet( Sys.selectedClass, delayFire ),
+    __ESet = new ESet( Sys.selectedClass ),
 
     // 选取焦点类实例。
     __EHot = new EHot( Sys.focusClass ),
@@ -300,6 +300,7 @@ class ESEdit {
      */
     undo() {
         __ESet.clear().pushes( this._old );
+        delayFire( this._old );
     }
 
 
@@ -308,6 +309,7 @@ class ESEdit {
      */
     redo() {
         this._fun( ...this._vals );
+        delayFire( __ESet );
     }
 }
 
@@ -1734,7 +1736,9 @@ function minied( el ) {
         el,
         window.getSelection().getRangeAt(0)
     );
+    $.trigger( contentElem, Sys.medIn, null, true );
     $.trigger( midtoolElem, 'hide' );
+    $.trigger( slaveInsert, Sys.insType, Sys.miniedTpl );
 
     return [ _op1, _op2, _op3, currentMinied, new HotEdit(currentMinied.elem()) ];
 }
@@ -2389,16 +2393,18 @@ function propertyEdit( name ) {
 
 
 /**
- * 延迟激发事件。
+ * 延迟激发选单更新。
+ * 注记：
+ * 因为内容面板的普通/微编辑切换中可能包含 PB:tpl 延后处理，
+ * 延迟激发以等待DOM更新完成。
  * @param {Element} el 目标元素
  * @param {String} evn 事件名
  * @param {...Value} rest 剩余参数
  */
 function delayFire( eset ) {
-    if ( !insertWhere.isConnected ) {
-        return;
-    }
-    setTimeout( () => $.trigger(insertWhere, Sys.insWhere, [...eset]), 1 );
+    setTimeout( () =>
+        insertWhere.isConnected && $.trigger( insertWhere, Sys.insWhere, [...eset] ), 1
+    );
 }
 
 
@@ -3968,9 +3974,6 @@ export const Edit = {
         }
         historyPush( ...minied(_el) );
         currentMinied.active();
-
-        $.trigger( slaveInsert, Sys.insType, Sys.miniedTpl );
-        $.trigger( contentElem, Sys.medIn, null, true );
     },
 
 
@@ -3988,9 +3991,6 @@ export const Edit = {
         }
         historyPush( ...minied(_el) );
         currentMinied.activeEnd();
-
-        $.trigger( slaveInsert, Sys.insType, Sys.miniedTpl );
-        $.trigger( contentElem, Sys.medIn, null, true );
     },
 
 
@@ -4321,13 +4321,10 @@ export const Kit = {
             return Edit.miniedIn();
         }
         let _ops = medCreateLine( scam, _src );
-        if ( _ops ) {
-            historyPush( ..._ops );
-        }
-        if ( !currentMinied ) return;
+        if ( !_ops ) return;
 
+        historyPush( ..._ops );
         currentMinied.active();
-        $.trigger( contentElem, Sys.medIn, null, true );
     },
 
     __medpass: 1,

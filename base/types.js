@@ -79,7 +79,7 @@ export const
     // 内联内结构
     /////////////////////////////////////////////
     TRACK           = 100,  // 字幕轨 {kind, src, srclang, label, default?}
-    SOURCE          = 101,  // 媒体资源 {src, type}
+    SOURCE          = 101,  // 媒体资源 {src, srcset, type, media}
     RB              = 102,  // 注音文本
     RT              = 103,  // 注音拼音
     RP              = 104,  // 注音拼音包围

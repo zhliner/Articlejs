@@ -188,7 +188,7 @@
                 </section>
                 <section role="s2">
                     <h2 id="层次示意">层次示意</h2>
-                    <pre>
+                    <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">h1</b>&gt;&lt;/<b role="tag">h1</b>&gt;                                   <i>&lt;!-- 页/主标题 --&gt;</i>
 &lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;           <i>&lt;!-- 提要 --&gt;</i>
 &lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;                      <i>&lt;!-- 目录 --&gt;</i>
@@ -563,7 +563,7 @@
                     <h2 id="定制结构">定制结构</h2>
                     <section role="s3">
                         <h2 id="提要">提 要</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;
     &lt;<b role="tag">h3</b>&gt;提要&lt;<b role="tag">h3</b>&gt;
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
@@ -572,7 +572,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="目录">目录</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt;
     &lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;
@@ -584,7 +584,7 @@
                     <section role="s3">
                         <h2 id="章节">章节</h2>
                         <p>系统提供 <strong>5</strong> 个默认层级的片区，它们由 <code>role</code> 特性标注，被称为 <strong>章节</strong> 片区（与普通的 <code>&lt;section&gt;</code> 相区别）。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">section</b> role=<b role="str">"s1"</b>&gt;     <i>&lt;!-- s1 ~ s5 --&gt;</i>
     &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;           <i>&lt;!-- 标题 --&gt;</i>
     &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 导言：可选 --&gt;</i>
@@ -596,7 +596,7 @@
                     <section role="s3">
                         <h2 id="另参见">另参见</h2>
                         <p>构造为一个无序列表，表示一种不区分先后或主次顺序的并列关系。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
 &lt;/<b role="tag">ul</b>&gt;
@@ -605,7 +605,7 @@
                     <section role="s3">
                         <h2 id="文献参考">文献参考</h2>
                         <p>用有序列表来表达，顺序通常体现引用出现在原文中的位置先后（而非主次分别）。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
 &lt;/<b role="tag">ol</b>&gt;
@@ -614,7 +614,7 @@
                     <section role="s3">
                         <h2 id="无序级联表">无序级联表</h2>
                         <p>以无序列表 <code>&lt;ul&gt;</code> 为根容器，内含多级子列表（可为任意 <code>&lt;ol&gt;</code> 或 <code>&lt;ul&gt;</code>）。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ul</b> role=<b role="str">"ulx"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;
@@ -629,7 +629,7 @@
                     <section role="s3">
                         <h2 id="有序级联表">有序级联表</h2>
                         <p>以有序列表 <code>&lt;ol&gt;</code> 为根容器，内含多级子列表（可为任意 <code>&lt;ul&gt;</code> 或 <code>&lt;ol&gt;</code>）。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="str">"olx"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;
@@ -644,7 +644,7 @@
                     <section role="s3">
                         <h2 id="级联编号表">级联编号表</h2>
                         <p>仅由有序列（<code>&lt;ol&gt;</code>）表构成，除了最终的层级，列表项（<code>&lt;li&gt;</code>）中仅有两个子元素：小标题（<code>&lt;h4&gt;</code>）和子列表（<code>&lt;ol&gt;</code>）。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt; <i>&lt;!-- 由CSS表达序号逻辑 --&gt;</i>
@@ -664,7 +664,7 @@
                             <li>行级。书写在 <code>&lt;code&gt;</code> 元素上，对应当前行的语言和制表符宽度（可选）。</li>
                         </ol>
                         <p>元素的 <code>start</code> 属性在引用代码片段时很有用。例：<a href="#源码2（代码表）">源码2（代码表）</a>。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code role="html">&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b> data-lang=<b role="str">"xx"</b> data-tab=<b role="str">"4"</b> start=<b role="str">"n"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt; <i>&lt;!-- 根封装 --&gt;</i>
         ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;... <i>&lt;!-- 代码内容，&lt;b&gt;着色封装，&lt;i&gt;注释封装 --&gt;</i>
@@ -683,7 +683,7 @@
                     <section role="s3">
                         <h2 id="代码块">代码块</h2>
                         <p>与代码表相似，包含 <code>data-lang</code> 和 <code>data-tab</code> 两个属性定义代码的特性，设置在 <code>&lt;code&gt;</code> 元素上。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
 &lt;<b role="tag">code</b> data-lang=<b role="str">"xx"</b> data-tab=<b role="str">"4"</b>&gt; ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;...
 <i>&lt;!-- 非零Tab会被自动转换为空格 --&gt;</i>
@@ -693,7 +693,7 @@
                     <section role="s3">
                         <h2 id="注解">注解</h2>
                         <p>用于解释正文中具体的名词或词组，在UI上可能是一种弹出展示。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">p</b> role=<b role="str">"note"</b>&gt;
     <i>&lt;!-- 文本或内联单元 --&gt;</i>
 &lt;/<b role="tag">p</b>&gt;</code></pre>
@@ -701,7 +701,7 @@
                     <section role="s3">
                         <h2 id="提示">提示</h2>
                         <p>一段小型的文本，通常用于小条目下的简单说明。外观可能像无序列表的 <code>&lt;li&gt;</code> 项。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">p</b> role=<b role="str">"tips"</b>&gt;
     <i>&lt;!-- 文本或内联单元 --&gt;</i>
 &lt;/<b role="tag">p</b>&gt;</code></pre>
@@ -709,7 +709,7 @@
                     <section role="s3">
                         <h2 id="白板">白板</h2>
                         <p>这是一种特别的内容单元，用于交互展示。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">div</b> role=<b role="str">"blank"</b>&gt;
     <i>&lt;!-- 动态表达区 --&gt;</i>
 &lt;/<b role="tag">div</b>&gt;
@@ -721,7 +721,7 @@
                     <section role="s3">
                         <h2 id="文章">文章</h2>
                         <p>这是文章内容的主容器，除了文章的主标题（页面标题 <code>&lt;h1&gt;</code>）、提要、目录等少数几个结构外，其它所有内容块都被包含在里面。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">article</b>&gt;
     &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt; <i>&lt;!-- 导言：可选 --&gt;</i>
     {content} ...     <i>&lt;!-- 主体内容 --&gt;</i>
@@ -731,7 +731,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="导言">导言</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">header</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
@@ -740,7 +740,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="结语">结语</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">footer</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
@@ -750,7 +750,7 @@
                     <section role="s3">
                         <h2 id="片区">片区</h2>
                         <p>如果系统默认的5层次章节（<code>s1 ~ s5</code>）不足以表达文章的层次结构，则在 <code>s5</code> 之下可以嵌入任意层数的普通片区。它们由未标注 <code>role</code> 特性的普通 <code>&lt;section&gt;</code> 元素表达，结构与 <code>s5</code> 相同。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">section</b>&gt;
     &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;           <i>&lt;!-- 标题 --&gt;</i>
     &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 导言：可选 --&gt;</i>
@@ -759,12 +759,12 @@
 &lt;/<b role="tag">section</b>&gt;
 </code></pre>
                     <aside>
-                        <p><strong>注：</strong>为便于准确表达普通片区的层次逻辑，在行文中有时用 <em>深片区</em> 来称呼。</p>
+                        <p><strong>注：</strong>为便于准确表达普通片区的层次逻辑，在行文中有时用 <strong>深片区</strong> 来称呼。</p>
                     </aside>
                     </section>
                     <section role="s3">
                         <h2 id="无序列表">无序列表</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ul</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt; ...
 &lt;/<b role="tag">ul</b>&gt;
@@ -772,7 +772,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="有序列表">有序列表</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ol</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt; ...
 &lt;/<b role="tag">ol</b>&gt;
@@ -780,7 +780,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="定义列表">定义列表</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">dl</b>&gt;
     &lt;<b role="tag">dt</b>&gt;&lt;/<b role="tag">dt</b>&gt;
     &lt;<b role="tag">dd</b>&gt;&lt;/<b role="tag">dd</b>&gt; ...
@@ -790,7 +790,7 @@
                     <section role="s3">
                         <h2 id="表格">表格</h2>
                         <p>表格的 <code>border</code> 特性描述了边框的大小，它的值应当是一个数字。但这里对它进行了扩展。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">table</b> border=<b role="str">"1"</b>&gt; <i>&lt;!-- border="0|1|i|r|h|v" --&gt;</i>
     &lt;<b role="tag">caption</b>&gt;&lt;/<b role="tag">caption</b>&gt;
     &lt;<b role="tag">thead</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
@@ -818,7 +818,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="插图">插图</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">figure</b>&gt;
     &lt;<b role="tag">figcaption</b>&gt;&lt;/<b role="tag">figcaption</b>&gt;
     &lt;<b role="tag">span</b>&gt;
@@ -831,7 +831,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="引用块">引用块</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">blockquote</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
@@ -840,7 +840,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="批注块">批注块</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">aside</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
@@ -849,7 +849,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="详细内容">详细内容</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">details</b>&gt;
     &lt;<b role="tag">summary</b>&gt;&lt;/<b role="tag">summary</b>&gt;
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
@@ -859,7 +859,7 @@
                     <section role="s3">
                         <h2 id="段落">段落</h2>
                         <p>最简单的内容行元素，也是大多数小区块里内容的默认封装单元。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">p</b>&gt;
     <i>&lt;!-- 文本或内联单元 --&gt;</i>
 &lt;/<b role="tag">p</b>&gt;
@@ -868,7 +868,7 @@
                     <section role="s3">
                         <h2 id="地址信息">地址信息</h2>
                         <p>内容的源码性质与段落类似，但表达了内容的逻辑含义。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">address</b>&gt;
     <i>&lt;!-- 文本或内联单元 --&gt;</i>
 &lt;/<b role="tag">address</b>&gt;
@@ -877,7 +877,7 @@
                     <section role="s3">
                         <h2 id="预排版">预排版</h2>
                         <p>与包含特定语言标注的代码表/代码块不同，这是一种需要保留原始版式的通用结构。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">pre</b> data-tab=<b role="str">"4"</b>&gt;
     <i>&lt;!--文本或内联单元
         首个换行会被浏览器友好清理，末尾换行会被原样保留。 --&gt;</i>
@@ -887,7 +887,7 @@
                     <section role="s3">
                         <h2 id="分隔">分隔</h2>
                         <p>分隔作为行块对待，样式由外部CSS定义。</p>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">hr</b> /&gt;
 &lt;<b role="tag">hr</b> role=<b role="str">"dotted"</b> /&gt;  <i>&lt;!-- 虚线 --&gt;</i>
 &lt;<b role="tag">hr</b> role=<b role="str">"solid"</b> /&gt;   <i>&lt;!-- 实线 --&gt;</i>
@@ -901,7 +901,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="注音">注音</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ruby</b>&gt;
     &lt;<b role="tag">rb</b>&gt;漢&lt;/<b role="tag">rb</b>&gt;&lt;<b role="tag">rp</b>&gt;(&lt;/<b role="tag">rp</b>&gt;&lt;<b role="tag">rt</b>&gt;ㄏㄢˋ&lt;/<b role="tag">rt</b>&gt;&lt;<b role="tag">rp</b>&gt;)&lt;/<b role="tag">rp</b>&gt;
 &lt;/<b role="tag">ruby</b>&gt;
@@ -1018,7 +1018,7 @@
                     <h2 id="示例">示例</h2>
                     <section role="s3">
                         <h2 id="源码1（代码块）">源码1（代码块）</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt;
 &lt;<b role="tag">code</b> data-lang=<b role="str">"go"</b>&gt;&lt;<b role="tag">i</b>&gt;// prints its command-line arguments.&lt;/<b role="tag">i</b>&gt;
 &lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;package&lt;/<b role="tag">b</b>&gt; main
@@ -1056,7 +1056,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="源码2（代码表）">源码2（代码表）</h2>
-                        <pre>
+                        <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="str">"codelist"</b> data-lang=<b role="str">"go"</b> start=<b role="str">"3"</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<b role="str">"str"</b>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<b role="str">"kw"</b>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;

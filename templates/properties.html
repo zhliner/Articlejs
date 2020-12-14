@@ -4,19 +4,27 @@
 ----------------------------------------------------------------------------->
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性">
-    <li tpl-node="prop:srcbase, prop:src"></li>
+    <li tpl-node="prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
+    <li tpl-node="prop:sources1, prop:tracks"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性">
-    <li tpl-node="prop:srcbase, prop:src, prop:poster"></li>
+    <li tpl-node="prop:src, prop:poster"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:wh, prop:mediaopts"></li>
+    <li tpl-node="prop:sources1, prop:tracks"></li>
+</ul>
+
+<ul class="_prop" tpl-name="property:picture" data-label="最佳图片属性">
+    <li tpl-node="prop:src, prop:alt"></li>
+    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="prop:sources2"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:img" data-label="图片属性">
-    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
+    <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
 </ul>
 
@@ -28,7 +36,7 @@
     <li tpl-node="prop:rb, prop:rt, prop:rp"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:time" data-label="时间设定">
+<ul class="_prop" tpl-name="property:times" data-label="时间设定">
     <li tpl-node="prop:date, prop:time"></li>
 </ul>
 
@@ -150,28 +158,31 @@
 
 <!-- 图片 -->
 <ul class="_prop" tpl-name="inlines:img">
-    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
+    <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
 </ul>
 
 <!-- 音频 -->
 <ul class="_prop" data-new="audio" tpl-name="inlines:audio">
-    <li tpl-node="prop:srcbase, prop:src"></li>
+    <li tpl-node="prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
+    <li tpl-node="prop:sources1, prop:tracks"></li>
 </ul>
 
 <!-- 视频 -->
 <ul class="_prop" tpl-name="inlines:video">
-    <li tpl-node="prop:srcbase, prop:src, prop:poster"></li>
+    <li tpl-node="prop:src, prop:poster"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:wh, prop:mediaopts"></li>
+    <li tpl-node="prop:sources1, prop:tracks"></li>
 </ul>
 
 <!-- 最佳图片 -->
 <ul class="_prop" tpl-name="inlines:picture">
-    <li tpl-node="prop:srcbase, prop:src, prop:alt"></li>
-    <li tpl-node="prop:sources, prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="prop:src, prop:alt"></li>
+    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="prop:sources2"></li>
 </ul>
 
 <!-- 轨道 -->
@@ -440,26 +451,14 @@
     </span>
 </li>
 
-<li tpl-name="prop:srcbase">
-    <b>根路径</b>
-    <!-- 依配置自动设置 -->
-    <span><input type="url" name="srcbase" placeholder="/upload" /></span>
-</li>
-
 <li tpl-name="prop:src">
-    <b>数据源</b>
-    <span><input type="text" name="source" placeholder="src=..." /></span>
-</li>
-
-<li tpl-name="prop:sources">
-    <b>图片参考集</b>
-    <span><textarea name="sources" rows="3" title="<source>" class="_code"
-        placeholder="111.xxx; { media: '...' }&#10;222.xxx; { media: '...' }"></textarea></span>
+    <b title="src">路径</b>
+    <span><input type="text" name="src" /></span>
 </li>
 
 <li tpl-name="prop:alt">
-    <b>图片说明</b>
-    <span><input type="text" name="alts" placeholder="alt=..." /></span>
+    <b title="alt">说明</b>
+    <span><input type="text" name="alt" /></span>
 </li>
 
 <li tpl-name="prop:wh">
@@ -470,6 +469,26 @@
         <input type="text" name="height" title="height" class="_nums" />
         像素
     </span>
+</li>
+
+<!-- 音频/视频用 -->
+<li tpl-name="prop:sources1">
+    <b>候选资源清单</b>
+    <span><textarea name="sources" rows="4" title="<source>" class="_code"
+        placeholder="{ src: '...', type: '...' }&#10;{ src: '...', type: '...' }"></textarea></span>
+</li>
+
+<li tpl-name="prop:tracks">
+    <b>字幕轨清单</b>
+    <span><textarea name="tracks" rows="4" title="<track>" class="_code"
+        placeholder="{ kind: '...', srclang: '...', src: '...', default: true }&#10;{ kind: '...', srclang: '...', src: '...' }"></textarea></span>
+</li>
+
+<!-- 最佳图片用 -->
+<li tpl-name="prop:sources2">
+    <b>候选图片集</b>
+    <span><textarea name="sources" rows="4" title="<source>" class="_code"
+        placeholder="{ srcset: '...', media: '...' }&#10;{ srcset: '...', media: '...' }"></textarea></span>
 </li>
 
 <li tpl-name="prop:width">
@@ -588,8 +607,9 @@
 <li tpl-name="prop:rp">
     <b>&lt;rp&gt;</b>
     <span>
-        <label><input type="text" name="leftrp" class="_char" value="(" /></label>
-        <label><input type="text" name="rightrp" class="_char" value=")" /></label>
+        <!-- 仅用于提示告知 -->
+        <label><input type="text" name="leftrp" class="_char" value="(" disabled /></label>
+        <label><input type="text" name="rightrp" class="_char" value=")" disabled /></label>
     </span>
 </li>
 
