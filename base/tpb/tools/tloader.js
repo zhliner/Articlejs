@@ -237,9 +237,6 @@ export class TplLoader {
         if ( !_file ) {
             return Promise.reject( `[${name}] not in any file.` );
         }
-        if ( DEBUG ) {
-            // window.console.log( `get [${name}] template-node.` );
-        }
         return this._loader.node( this._url(_file) );
     }
 
