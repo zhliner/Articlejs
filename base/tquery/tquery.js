@@ -3199,10 +3199,10 @@ function _elemRect( el, name ) {
  */
 function _elemRectSet( el, name, val ) {
     let _cso = getStyles(el),
-        _inc = boxSizing[ _cso.boxSizing ].set(el, name, val, _cso);
+        _pb2 = boxSizing[ _cso.boxSizing ].set(el, name, val, _cso);
 
-    // 非像素设置时微调
-    if (_inc) el.style[name] = parseFloat(_cso[name]) + _inc + 'px';
+    // border-box下非像素设置时，补充padding和border值。
+    if (_pb2) el.style[name] = parseFloat(_cso[name]) + _pb2 + 'px';
 }
 
 
@@ -4626,7 +4626,7 @@ function arrayArgs( obj ) {
 /**
  * 像素值转换数值。
  * - 像素单位转为纯数值。
- * - 非像素或数值返回null。
+ * - 非像素和数值时返回 null。
  * @param  {String|Number} val
  * @return {Number|null}
  */
@@ -6752,8 +6752,8 @@ const withCss = {
 
 //
 // 注记：
-// - 未使用元素的offsetHeight属性；
-// - 全部使用计算后样式值，浮点数；
+// 未使用元素的offsetHeight属性。
+// 全部使用计算后样式值，浮点数。
 //
 const boxSizing = {
     // 内容盒模型。
@@ -6799,10 +6799,10 @@ const boxSizing = {
 
 
         /**
-         * 返回非0值表示需要二次设置。
-         * - val非数值或像素单位时先试探性设置，返回补充高度。
-         * - 仅用于height/width。
-         * 注：非像素单位难以转换计算，故用此方法。
+         * val非数值或像素单位时：
+         * - 先直接设置宽高样式，返回需要补充的内边距和边框尺寸。
+         * - 返回非0值表示需要二次设置。
+         * 注：非像素单位难以转换计算，故此简化。
          * @param  {String} name 设置类型名（height|width）
          * @param  {String|Number} val
          * @return {Number}
