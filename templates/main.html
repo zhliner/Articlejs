@@ -739,10 +739,10 @@
             click(b)|evo(2) hasClass('_press') end $$('/b')"
         to="1/form|replace;
             =|only('_press')">
-        <!--type 设置编辑类型：
+        <!--edtype 设置编辑类型：
             更新模板名，如果当前显示则激发载入。 -->
         <b id="g-contab" data-tpl="slave:input" class="_press"
-            on="type|ev('detail');
+            on="edtype|ev('detail');
                 doit|evo(3) dup hasClass('_press') pass click"
             to="|@-tpl|goto('doit')">内容</b>
         <b data-tpl="slave:style">样式</b>

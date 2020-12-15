@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="no-cache">
+    <title>编辑器用户测试页</title>
+    <script src="main.js"></script>
+    <style>
+        main {
+            margin: 40px auto;
+        }
+        #content {
+            display: none;
+        }
+        #editorBox {
+        }
+        #editorBox > iframe {
+            width: 1000px;
+            height: 700px;
+            resize: both;
+            overflow: hidden;
+            border: none;
+            box-sizing: border-box;
+        }
+    </style>
+    <script>
+        // 创建编辑器并使用。
+    </script>
+</head>
+<body>
+    <main>
+        <h2>编辑器使用测试</h2>
+        <form action="">
+            <textarea name="content" id="content"><!-- 隐藏 --></textarea>
+            <div id="editorBox">
+                <iframe src="editor.html" scrolling="no"></iframe>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

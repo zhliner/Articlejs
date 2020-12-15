@@ -38,6 +38,74 @@
     录入版右侧主栏版块（replace）。
 ----------------------------------------------------------------------------->
 
+<!-- 段落 -->
+<div class="_body _P" tpl-name="input:p">
+    <div class="_main">
+        <textarea name="p" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 注解 -->
+<div class="_body _Note" tpl-name="input:note">
+    <div class="_main">
+        <textarea name="note" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 提示 -->
+<div class="_body _Tips" tpl-name="input:tips">
+    <div class="_main">
+        <textarea name="tips" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 地址 -->
+<div class="_body _Address" tpl-name="input:address">
+    <div class="_main">
+        <textarea name="address" placeholder="内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!-- 预排版 -->
+<div class="_body _Pre" tpl-name="input:pre">
+    <div class="_main">
+        <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
+        </div>
+        <pre tpl-node="input:insert2">[插入2]</pre>
+    </aside>
+</div>
+
+
 <!-- 文章标题 -->
 <div class="_body _Hgroup" tpl-name="input:hgroup"
     on="create|"
@@ -46,7 +114,8 @@
         <header>
             <input type="text" name="h1" placeholder="主标题" class="_scale" />
         </header>
-        <textarea name="h2" placeholder="副标题（可选）"></textarea>
+        <!-- 换行分隔多个副标题。 -->
+        <textarea name="h2" placeholder="副标题（每行一个），可选"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert1">
@@ -461,78 +530,6 @@
             <!-- 注记：讲解定位放到属性定义 -->
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
-    </aside>
-</div>
-
-
-<!-- 段落 -->
-<div class="_body _P" tpl-name="input:p">
-    <div class="_main">
-        <textarea name="p" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option2, input:insert2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 注解 -->
-<div class="_body _Note" tpl-name="input:note">
-    <div class="_main">
-        <textarea name="note" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 提示 -->
-<div class="_body _Tips" tpl-name="input:tips">
-    <div class="_main">
-        <textarea name="tips" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 地址 -->
-<div class="_body _Address" tpl-name="input:address">
-    <div class="_main">
-        <textarea name="address" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-
-<!-- 预排版 -->
-<div class="_body _Pre" tpl-name="input:pre">
-    <div class="_main">
-        <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
-    </div>
-    <aside>
-        <div class="_option">
-            <label>制表符
-                <input type="text" name="tabs" class="_char" value="4" title="空格数">
-            </label>
-        </div>
-        <pre tpl-node="input:insert2">[插入2]</pre>
     </aside>
 </div>
 

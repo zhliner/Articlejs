@@ -604,12 +604,16 @@
     <span><input type="text" name="rt" placeholder="<rt>" /></span>
 </li>
 
+<!--仅友好提示：
+    由程序配置以支持<ruby>的格式化解析创建。-->
 <li tpl-name="prop:rp">
     <b>&lt;rp&gt;</b>
-    <span>
-        <!-- 仅用于提示告知 -->
-        <label><input type="text" name="leftrp" class="_char" value="(" disabled /></label>
-        <label><input type="text" name="rightrp" class="_char" value=")" disabled /></label>
+    <!-- 注：input:disabled 下 $.val() 方法忽略赋值 -->
+    <span data-pbo="disabled"
+        on="^obted|([Sys.rpLeft, Sys.rpRight])"
+        to="(/input)|@value">
+        <label><input type="text" name="leftrp" class="_char" disabled /></label>
+        <label><input type="text" name="rightrp" class="_char" disabled /></label>
     </span>
 </li>
 

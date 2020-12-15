@@ -125,6 +125,12 @@ export const Sys = {
     focusClass: '_focus',
 
 
+    // <rt>包围定义（<rp>）。
+    // 全局定义以支持<ruby>解析式创建。
+    rpLeft:     '(',
+    rpRight:    ')',
+
+
     // 撤销/重做事件名。
     // 在用户执行撤销/重做操作时，向内容区元素发送该事件，
     // 上层可根据发送信息修改按钮状态。
@@ -137,7 +143,7 @@ export const Sys = {
     medIn:      'medin',    // 进入微编辑
     medOk:      'medok',    // 完成微编辑
     insWhere:   'update',   // 插入位置选单更新
-    insType:    'type',     // 编辑类型更新（普通插入|微编辑）
+    insType:    'edtype',   // 编辑类型更新（普通插入|微编辑）
 
 
     // 模板名定义

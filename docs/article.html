@@ -83,12 +83,6 @@
                     </ol>
                 </li>
                 <li>
-                    <h4><a href="#类型">类型</a></h4>
-                    <ol>
-                        <li><a href="#合法子类型">合法子类型</a></li>
-                    </ol>
-                </li>
-                <li>
                     <h4><a href="#单元结构">单元结构</a></h4>
                     <ol>
                         <li>
@@ -112,6 +106,7 @@
                         <li data-pbo="folded">
                             <h4><a href="#原生结构">原生结构</a></h4>
                             <ol>
+                                <li><a href="#标题">标题</a></li>
                                 <li><a href="#文章">文章</a></li>
                                 <li><a href="#导言">导言</a></li>
                                 <li><a href="#结语">结语</a></li>
@@ -540,24 +535,6 @@
             </section>
             <hr />
             <section role="s1">
-                <h2 id="类型">类型</h2>
-                <header>
-                    <blockquote>
-                        <p><strong>注：</strong>详见 <code>base/types.js</code> 文件定义。</p>
-                    </blockquote>
-                </header>
-                <section role="s2">
-                    <h2 id="合法子类型">合法子类型</h2>
-                    <p>每个结构性元素或普通单元的子单元都是类型受限的（<strong>注</strong>：详见 <code>base/types.js</code> 文件配置）。从面板录入时，面板只会显示其相应的合法条目。</p>
-                    <p>当对已有节点执行移动或克隆插入时，遵循如下原则：</p>
-                    <ol>
-                        <li><strong>平级插入</strong>：目标参考元素的父元素允许哪些子单元？符合即简单插入，否则提取内容节点，构造默认单元插入。</li>
-                        <li><strong>向内插入</strong>：目标参考元素自身作为容器允许哪些子单元，符合即简单添加，否则提取内容节点构造默认条目插入。</li>
-                    </ol>
-                </section>
-            </section>
-            <hr />
-            <section role="s1">
                 <h2 id="单元结构">单元结构</h2>
                 <section role="s2">
                     <h2 id="定制结构">定制结构</h2>
@@ -719,6 +696,21 @@
                 <section role="s2">
                     <h2 id="原生结构">原生结构</h2>
                     <section role="s3">
+                        <h2 id="标题">标题</h2>
+                        <p>文章应当有一个标题，在本设计中称之为 <strong>主标题</strong>。在某些情况下，文章还会有 <strong>副标题</strong>。</p>
+                        <p>如果文章存在副标题，标题的部分应当存放在一个 <code>&lt;hgroup&gt;</code> 容器中。主标题应当只有一个，而副标题可以有多个。</p>
+                        <pre role="codeblock">
+<code data-lang="html">&lt;<b role="tag">h1</b>&gt;单独一个主标题时&lt;/<b role="tag">h1</b>&gt;
+
+&lt;<b role="tag">hgroup</b>&gt; <i>&lt;!-- 组标题 --&gt;</i>
+    &lt;<b role="tag">h1</b>&gt;主标题&lt;/<b role="tag">h1</b>&gt;
+    &lt;<b role="tag">h3</b>&gt;副标题。可能是一段简述，或一列纲目（多个副标题）&lt;/<b role="tag">h3</b>&gt;
+    ...
+    &lt;<b role="tag">h3</b>&gt;副标题（纲目n）&lt;/<b role="tag">h3</b>&gt;
+&lt;/<b role="tag">hgroup</b>&gt;
+</code></pre>
+                    </section>
+                    <section role="s3">
                         <h2 id="文章">文章</h2>
                         <p>这是文章内容的主容器，除了文章的主标题（页面标题 <code>&lt;h1&gt;</code>）、提要、目录等少数几个结构外，其它所有内容块都被包含在里面。</p>
                         <pre role="codeblock">
@@ -731,6 +723,8 @@
                     </section>
                     <section role="s3">
                         <h2 id="导言">导言</h2>
+                        <p>在一个章节内的最前端（但在章节标题之后）。导言之后通常是正文内容（内容件）或一个子章节。</p>
+                        <p>在文章的顶层（<code>&lt;article&gt;</code>）也可以有一个导言，它作为 <code>&lt;article&gt;</code> 内的首个子元素存在（文章的标题被提取出来放到了 <code>&lt;article&gt;</code> 的外面——整个内容的最前端）。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">header</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
@@ -740,6 +734,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="结语">结语</h2>
+                        <p>在一个章节内的末尾，位置是固定的。作为文章本身也可以包含一个结语，它在文章（<code>&lt;article&gt;</code>）容器内的末尾。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">footer</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>

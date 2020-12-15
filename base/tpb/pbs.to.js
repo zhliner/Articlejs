@@ -57,10 +57,11 @@ const _Update = {
      * 如果目标是一个集合，相同的事件名/选择器/初始数据被应用。
      * 提示：
      * 如果需要绑定其它元素的调用链，可预先提取后使用on/one接口。
-     * @param {Element|Collector} to 目标元素/集
-     * @param {Value|[Value]} ival 链头初始赋值
-     * @param {String} evnid 事件名ID/序列，可选
-     * @param {String} slr 委托选择器，可选
+     * @param  {Element|Collector} to 目标元素/集
+     * @param  {Value|[Value]} ival 链头初始赋值
+     * @param  {String} evnid 事件名ID/序列，可选
+     * @param  {String} slr 委托选择器，可选
+     * @return {void}
      */
     bind( to, ival, evnid, slr ) {
         bindsChain( 'on', to, ival, evnid, slr );
@@ -69,7 +70,12 @@ const _Update = {
 
     /**
      * 绑定单次触发（当前元素）。
-     * 其它说明同bind。
+     * 注：说明参考 bind。
+     * @param  {Element|Collector} to 目标元素/集
+     * @param  {Value|[Value]} ival 链头初始赋值
+     * @param  {String} evnid 事件名ID/序列，可选
+     * @param  {String} slr 委托选择器，可选
+     * @return {void}
      */
     once( to, ival, evnid, slr ) {
         bindsChain( 'one', to, ival, evnid, slr );
@@ -81,41 +87,43 @@ const _Update = {
      * 如果目标是一个集合，相同的值发送到所有元素（tQuery），
      * 空集静默忽略。
      * 可将事件名放在内容中（[0]），从而简单地获取动态性。
-     *
      * 目标：{Element|[Element]|String}
      * 如果是字符串会被视为选择器，向匹配的元素发送消息。
      *
      * @data: 发送值 | [事件名, 发送值]
-     * @param {Element|Collector} to 待激发元素/集
-     * @param {Value|[String, Value]} data 内容数据
-     * @param {String} evn 目标事件名
-     * @param {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
-     * @param {Boolean} cancelable 是否可取消，可选（默认可取消）
+     * @param  {Element|Collector} to 待激发元素/集
+     * @param  {Value|[String, Value]} data 内容数据
+     * @param  {String} evn 目标事件名
+     * @param  {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
+     * @param  {Boolean} cancelable 是否可取消，可选（默认可取消）
+     * @return {void}
      */
     trigger( to, data, evn, bubble, cancelable ) {
         if ( !evn ) {
             [evn, data] = data;
         }
-        $(to).trigger( evn, data, bubble, cancelable );
+        if ( $.isArray(to) ) {
+            return to.forEach( el => trigger(el, evn, data, bubble, cancelable) );
+        }
+        $.trigger( to, evn, data, bubble, cancelable );
     },
 
 
     /**
      * 发送定制事件。
      * 此为多元素分别对应不同的发送值版（内容为一个数组）。
-     * 可将事件名作为首个成员放在内容中（同trigger）。
-     * @data: 发送值序列 | [事件名, ...发送值]
-     * @param {[Element]|Collector} tos 待激发元素集
-     * @param {Value|[String, ...Value]} data 内容数据
-     * @param {String} evn 目标事件名
-     * @param {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
-     * @param {Boolean} cancelable 是否可取消，可选（默认可取消）
+     * @data: 发送值序列
+     * @param  {[Element]|Collector} tos 待激发元素集
+     * @param  {Value|[Value]} data 内容数据
+     * @param  {String} evn 目标事件名
+     * @param  {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
+     * @param  {Boolean} cancelable 是否可取消，可选（默认可取消）
+     * @return {void}
      */
     triggers( tos, data, evn, bubble, cancelable ) {
-        if ( !evn ) {
-            evn = data.shift();
-        }
-        tos.forEach( (el, i) => $.trigger(el, evn, data[i], bubble, cancelable) );
+        tos.forEach(
+            (el, i) => $.trigger( el, evn, data[i], bubble, cancelable )
+        );
     },
 
 
@@ -174,6 +182,9 @@ const _Update = {
      * - Array2:  [left, top]
      * - Number:  top 单个数值时指垂直滚动条位置。
      * 注记：不影响未设置方向的现有位置。
+     * @param  {Element|Collector} to 目标元素/集
+     * @param  {Array2|Object2|Number} 位置配置
+     * @return {void}
      */
     scroll( to, pos ) {
         if ( !$.isArray(to) ) {
@@ -188,8 +199,9 @@ const _Update = {
      * 内容为发送的消息，显示为元素内的文本（fill）。
      * 持续时间由long定义，0表示永久。
      * long单位为秒，支持浮点数。
-     * @param {Number} long 持续时间（秒）
-     * @param {String} msg 消息文本，可选
+     * @param  {Number} long 持续时间（秒）
+     * @param  {String} msg 消息文本，可选
+     * @return {void}
      */
     tips( to, msg, long ) {
         if ( $.isArray(to) ) {

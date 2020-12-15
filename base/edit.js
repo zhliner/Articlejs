@@ -18,7 +18,6 @@
 //
 
 import { Templater } from "./tpb/config.js";
-import { Util } from "./tpb/tools/util.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
@@ -300,7 +299,7 @@ class ESEdit {
      */
     undo() {
         __ESet.clear().pushes( this._old );
-        delayFire( this._old );
+        delayFire( insertWhere, Sys.insWhere, this._old );
     }
 
 
@@ -309,7 +308,7 @@ class ESEdit {
      */
     redo() {
         this._fun( ...this._vals );
-        delayFire( __ESet );
+        delayFire( insertWhere, Sys.insWhere, [...__ESet] );
     }
 }
 
@@ -1228,7 +1227,7 @@ function pathFocus( hot ) {
  * 兄弟元素同态。
  * 包含两种状态：选取/取消选取。
  * @param {[Element]} els 选取集
- * @param {Element} hot 焦点元素
+ * @param {Element} hot 当前焦点元素
  */
 function siblingsUnify( els, hot ) {
     __Selects.cleanUp( hot );
@@ -1764,6 +1763,9 @@ function miniedOk( h2 ) {
 
     // 主面板恢复普通模式标签。
     $.trigger( slaveInsert, Sys.insType, Sys.normalTpl );
+
+    // 插入位置恢复普通模式
+    delayFire( insertWhere, Sys.insWhere, [...__ESet] );
 }
 
 
@@ -2393,17 +2395,16 @@ function propertyEdit( name ) {
 
 
 /**
- * 延迟激发选单更新。
- * 注记：
- * 因为内容面板的普通/微编辑切换中可能包含 PB:tpl 延后处理，
+ * 延迟激发。
+ * 因为OBT的调用链中可能包含 PB:tpl 延后类处理指令，
  * 延迟激发以等待DOM更新完成。
  * @param {Element} el 目标元素
  * @param {String} evn 事件名
  * @param {...Value} rest 剩余参数
  */
-function delayFire( eset ) {
+function delayFire( el, evn, ...rest ) {
     setTimeout( () =>
-        insertWhere.isConnected && $.trigger( insertWhere, Sys.insWhere, [...eset] ), 1
+        el.isConnected && $.trigger( el, evn, ...rest ), 1
     );
 }
 
@@ -3144,7 +3145,7 @@ export const Edit = {
         previousCall(
             __EHot.get(),
             n,
-            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg), new HotEdit(beg) )
+            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg), new HotEdit(last(els)) )
         );
     },
 
@@ -3158,7 +3159,7 @@ export const Edit = {
         nextCall(
             __EHot.get(),
             n,
-            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg), new HotEdit(beg) )
+            (els, beg) => historyPush( new ESEdit(siblingsUnify, els, beg), new HotEdit(last(els)) )
         );
     },
 

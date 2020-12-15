@@ -1,41 +1,232 @@
 <!DOCTYPE html>
-<html>
+<!--快捷键：
+    1. 全局捕获按键按下。
+    2. 依按键序列检索目标指令（定制事件）。
+    3. 在按键关联目标元素上激发指令（冒泡）。
+    4. 在较高层（如<body>）定义指令处理序列，接收冒泡的指令。
+    5. 触发指令序列执行。
+    灵活性：
+    - 指令触发定义可以设计选择器过滤，匹配才触发。
+    - 若在较低层级定义指令处理，可以约束事件起点来源。
+    - 按键捕获可以是DOM树局部的，实现分层次快捷键布局设计（有不同键映射表）。
+-->
+<html on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
-    <title>编辑器测试页（用户）</title>
-    <script src="main.js"></script>
+    <title>编辑器主体页测试</title>
+    <link rel="stylesheet" href="styles/example/main.css">
+    <link rel="stylesheet" href="base/tpb/default.css">
+    <link id="tstyle" rel="stylesheet" href="themes/Dark-less/style.css">
+    <script src="base/tquery/tquery.js"></script>
+    <script src="base/tquery/plugins/history.js"></script>
     <style>
-        main {
-            margin: 40px auto;
+        body {
+            margin: 100px 40px;
+            display: flex;
         }
-        #content {
-            display: none;
+        body > * {
+            flex-shrink: 0;
         }
-        #editorBox {
+        aside#outline {
+            width: 200px;
         }
-        #editorBox > iframe {
-            width: 1000px;
-            height: 700px;
-            resize: both;
-            overflow: hidden;
-            border: none;
-            box-sizing: border-box;
+        /* 侧面板宽度调整 */
+        aside#help {
+            width: 260px;
         }
     </style>
     <script>
-        // 创建编辑器并使用。
+        // 窗口大小自适应。
+        window.onresize = function () {
+            document.body.style.height = `${window.innerHeight*8/10}px`;
+        };
+        $.ready( () => $.trigger(window, 'resize') );
+
+        window.Config = {};
+
+    </script>
+
+    <script type="module" async>
+        import Tpb from "./base/tpb/tpb.js";
+        import cfg from "./base/shortcuts.js";
+        import { Web } from "./base/tpb/config.js";
+        import { HotKey, ObjKey } from './base/tpb/tools/hotkey.js';
+        import { Edit, init, Kit } from "./base/edit.js";
+        import { ArrSet } from "./base/common.js";
+        import { Sys } from "./config.js";
+
+        window.GHK = new HotKey().config( cfg.Global );
+        window.MHK = new HotKey().config( cfg.Menu );
+        window.SHK = new HotKey().config( cfg.Slave );
+        window.DHK = new HotKey().config( cfg.Modal );
+        window.CHK = new ObjKey(Edit).config( cfg.Content );
+
+        // 供模板中直接使用。
+        // 主要用于调用链中使用其方法。
+        window.Sys = Sys;
+        window.Kit = Kit;
+        window.KM = cfg.Keys;
+        window.edInit = init;
+
+        // 取消实例栈。
+        window.ESC = new ArrSet();
+
+        Tpb.Build( document, Web.tplmap )
+        .then( () => $.trigger(document.body, 'finish') );
+
+        //:Debug
+        window.Tpb = Tpb;
+        import * as T from "./base/types.js";
+        window.T = T;
+        //:End.
     </script>
 </head>
-<body>
-    <main>
-        <h2>编辑器使用测试</h2>
-        <form action="">
-            <textarea name="content" id="content"><!-- 隐藏 --></textarea>
-            <div id="editorBox">
-                <iframe src="editor.html" scrolling="no"></iframe>
-            </div>
-        </form>
-    </main>
+<!--基本行为:
+    - 左右面板大小改变。
+    - 三个面板隐显切换（独立），当前显示面板隐显切换。
+    - 命令行直达。
+    - 通用录入框充满（<textarea>）。
+    ESC 原理:
+    1. ESC 键触发 escape.cancel 事件。
+    2. 全局 ESC 实例池弹出栈顶实例。
+    3. 向栈顶实例发送 cancel 事件。
+    注：
+    各实例需自行管理自身压入/弹出 ESC 池，
+    如果不弹出自身，会成为最终阻断项（常驻）。
+-->
+<body lang="zh-cn"
+    on="@mousemove:1|movementX;
+        @mousemove:2|movementX neg;
+        @mouseup|movementX(null);
+        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
+        pstore|data('pls') dup apply('clear') ev('detail') applies('add', _);
+        panel.clearall|data('all') data('pls') dup get('size') vnot pop $if(_2) pop;
+        panel.outline;
+        panel.slave;
+        panel.help;
+        panel.plugins;
+        cmdline.active|ev('detail');
+        focus.content;
+        toggle.path;
+        escape.cancel|(ESC) last pop;
+        button.undo|ev('detail') vnot;
+        button.redo|ev('detail') vnot;
+        ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
+        ^finish|(ESC) $('#content') apply('add', _1);
+        ^finish|(edInit) ('#content','#g-path','#err-tips','#outline','#tools-usual','#g-modal','#g-contab','#con-where') exec(_8)"
+    to="#outline|width(true);
+        #help|width(true);
+        |off('mousemove');
+        |trigger('pstore');
+        -;
+        -|trigger('toggle');
+        #x-outline||click;
+        #x-slave||click;
+        #x-help||click;
+        #x-plugins||click;
+        #g-cmdx|trigger('setv');
+        #g-scroll|trigger('focus');
+        #g-path|trigger('toggle');
+        -|trigger('cancel');
+        #tools-undo|trigger('press');
+        #tools-redo|trigger('press');
+        |data('all pls');
+        |trigger('pcheck');
+        -">
+    <!-- medok 内容区章节标题微编辑更新跟随。
+               注：不支持Undo/Redo变化跟随，用户需手动刷新。-->
+    <aside id="outline" class="___Panel" data-pbo=""
+        on="medok|ev('detail') dup paths('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
+        to="-|text">
+        <!-- click 构造章节选择器，定位显示到视口（非id定位） -->
+        <nav role="toc"
+            on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
+            <h3>大纲视图 <b title="刷新"
+                on="click|$('#content article')"
+                by="Kit.toclist"
+                to="nav/ol|fill">↻</b>
+            </h3>
+            <!-- click 单击子表标题（非<a>）折叠切换 -->
+            <ol role="cascade" on="click(~h4)|evo(2) parent fold(2)">
+                <li>
+                    <h4><a href="#层次">层次</a></h4>
+                    <ol>
+                        <li><a href="#标题规划">标题规划</a></li>
+                        <li><a href="#层次示意">层次示意</a></li>
+                    </ol>
+                </li>
+                <li>
+                    <h4><a href="#组成">组成</a></h4>
+                    <ol>
+                        <li>
+                            <h4><a href="#内容块">内容块</a></h4>
+                            <ol>
+                                <li><a href="#结构类">结构类</a></li>
+                                <li><a href="#文本类">文本类</a></li>
+                                <li><a href="#单体类">单体类</a></li>
+                            </ol>
+                        </li>
+                        <li><a href="#内容件">内容件</a></li>
+                        <li><a href="#内容行和内容元素">内容行和内容元素</a></li>
+                        <li><a href="#内联单元">内联单元</a></li>
+                    </ol>
+                </li>
+            </ol>
+        </nav>
+        <!-- 大纲栏：自动/手动更新。 -->
+    </aside>
+    <hr id="lineLeft" data-pbo=""
+        on="mousedown|avoid"
+        to="body|bind('mousemove:1') once('mouseup')" />
+    <!--杂项功能：
+        适用主区激活范围。 -->
+    <div id="editor"
+        on="main.chapter|$('#g-count') val split('.');
+            main.saving|$('/main') clone;
+            main.export"
+        by="Kit.chapter;
+            Kit.save"
+        to="#g-count|trigger('reset');
+            #status-tips|trigger('info')">
+        <!--模态框
+            open 打开模态框，插入目标表单。
+            focus 聚焦首个文本输入控件，延迟激发（待子模版就绪） -->
+        <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
+            on="click(~._close);
+                open|stop (ESC) evo(3) dup lose(0) apply('add', _1) ev('detail');
+                cancel|stop evo(3) lose (ESC) apply('pop');
+                focus|$('/form') pop $('input[type=text], textarea, input[type=url]') dup pass focus;
+                keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
+            to="|trigger('cancel');
+                /:first-child|replace|fire('/', 'focus');
+                #g-scroll|trigger('focus')">
+            <form> <!-- 占位 --> </form>
+        </div>
+        <pre tpl-source="main:tools, main:content, main:slave, main:status">
+            [工具栏]
+            [内容区]
+            [功能区]
+            [状态栏]
+        </pre>
+    </div>
+    <hr id="lineRight" data-pbo="lost"
+        on="mousedown|avoid"
+        to="body|bind('mousemove:2') once('mouseup')" />
+    <aside id="help" class="___Panel _docs" data-pbo="lost"
+        on="index|ev('detail') debug('hai')">
+        <div class="_walk">
+            <b title="上一项">◀</b>
+            <b title="目录" class="_top">▤</b>
+            <b title="下一项" data-pbo="disabled">▶</b>
+            <!-- ⚘ -->
+            <b title="关于..." class="_about">⚘</b>
+        </div>
+        <div id="help-xbox" class="_xbox">
+            <!-- dl/dt,dd -->
+        </div>
+    </aside>
+    <!-- 播放 -->
+    <audio id="beeptip" src="themes/beep.ogg"></audio>
 </body>
 </html>
