@@ -2681,7 +2681,7 @@ class Table {
      * @param  {TableSection} tsec 表区域限定，可选
      * @return {Element|[Element]|null}
      */
-    nextCell( cell, tsec ) {
+    columnNextCell( cell, tsec ) {
         return this.columnCell( cell, 1, tsec );
     }
 
@@ -2692,7 +2692,7 @@ class Table {
      * @param  {TableSection} tsec 表区域限定，可选
      * @return {Element|[Element]|null}
      */
-    prevCell( cell, tsec ) {
+    columnPrevCell( cell, tsec ) {
         return this.columnCell( cell, -1, tsec );
     }
 
@@ -2702,7 +2702,7 @@ class Table {
      * 相对当前单元格的距离定位。
      * - 负值：向前定位（DOM头部方向）。
      * - 正值：向后定位（DOM尾部方向）。
-     * @param  {Element} cell 单元格
+     * @param  {Element} cell 当前单元格
      * @param  {Number} n 距离值（行）
      * @param  {TableSection} tsec 表区域，可选
      * @return {Element|[Element]|null}
@@ -2868,6 +2868,9 @@ class Table {
      * @return {Element|undefined}
      */
     _distanceTR( tr, n, tsec ) {
+        if ( tsec && tsec !== tr.parentElement ) {
+            return null;
+        }
         let _i = tsec ?
             tr.sectionRowIndex :
             tr.rowIndex;
