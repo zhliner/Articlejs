@@ -692,11 +692,24 @@
     <span><select tpl-node="item:languages"></select></span>
 </li>
 
-<!-- 适用：纯文本（批量添加） -->
+<!--纯文本录入
+    高度较小，主要用于内联单元。-->
 <textarea name="content" rows="3" placeholder="每行一项" tpl-name="prop:content"></textarea>
 
-<!-- 适用：代码块/代码表/颜文字 -->
+<!--源代码录入
+    Shift + 粘贴：清除多余缩进（纵向最顶行前多余空白）。
+    适用代码块/代码表/颜文字。-->
 <textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:codes"></textarea>
 
 <!-- 适用：<svg> -->
 <textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:svg" placeholder="<svg>...</svg>"></textarea>
+
+
+<!-- 代码语言清单 -->
+<select id="g-languages" name="languages" tpl-name="prop:languages">
+    <option value="golang">Golang</option>
+    <option value="cplus">C/C++</option>
+    <option value="javascript">JavaScript</option>
+    <option value="css">CSS</option>
+    <option value="html">HTML</option>
+</select>

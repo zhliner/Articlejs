@@ -395,8 +395,10 @@ const ChildTypes = {
     [ VIDEO ]:          [ SOURCE, TRACK, $TEXT ],
     [ PICTURE ]:        [ SOURCE, IMG ],
     [ SVG ]:            [ SVGITEM ],
-    // RB,RT,RP 为固定结构组。
-    [ RUBY ]:           [ RBPT ],
+    // RBPT 为固定结构组。
+    [ RUBY ]:           [ RBPT, RB, RT ],
+    [ RB ]:             [ $TEXT ],
+    [ RT ]:             [ $TEXT ],
     [ METER ]:          [ $TEXT ],
     [ SPACE ]:          null,
     [ IMG ]:            null,

@@ -506,9 +506,9 @@
                         <header class="_affix">
                             <input name="caption" type="text" placeholder="标题" class="_scale" />
                             <label>
-                                <input name="cols" type="text" class="_nums" placeholder="列数" value="4" />
+                                <input name="cols" type="text" class="_nums" title="列数" value="4" />
                                 x
-                                <input name="rows" type="text" class="_nums" placeholder="行数" value="10" />
+                                <input name="rows" type="text" class="_nums" title="行数" value="5" />
                             </label>
                         </header>
                         <div class="_list">
@@ -516,9 +516,9 @@
                                 Enter 单元格列向切换（聚焦/选取）-->
                             <table border="i"
                                 on="keydown(td,th)|ev('key') pass('Enter') scam('shift') vnot pop avoid evo(2);
-                                    nextcell|data('tbo') ev('detail') call('nextCell', _1) dup pass pop;
+                                    downcell|data('tbo') ev('detail') call('columnNextCell', _1) dup pass pop;
                                     ^obted|evo(1) table(_1)"
-                                to="|trigger('nextcell');
+                                to="|trigger('downcell');
                                     -||focus select;
                                     |data('tbo')">
                                 <thead>
@@ -530,36 +530,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                    </tr>
-                                    <tr>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                    </tr>
-                                    <tr>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                    </tr>
-                                    <tr>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                    </tr>
-                                    <tr>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                        <td contenteditable></td>
-                                    </tr>
                                     <tr>
                                         <td contenteditable></td>
                                         <td contenteditable></td>
@@ -1337,7 +1307,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>代码块：pre:codeblock/code/#text,b...（目标为块内时直接解析插入。位置按钮失效）</h4>
+    <h4>代码块：pre:codeblock/code/#text,b...</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1418,7 +1388,9 @@
                 </div>
                 <!-- [子模版：插图] -->
                 <div class="_body _Figure" tpl-name="input:figure">
-                    <div class="_main">
+                    <div class="_main"
+                        on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
+                        to="-|only('_inert')">
                         <header class="_affix">
                             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
                             <label><input name="below" type="checkbox" />标题在下</label>

@@ -46,8 +46,10 @@ const InputOptions = {
     [ T.TRACK ]:        'option:track',
     [ T.SOURCE ]:       'option:source',
     [ T.EXPLAIN ]:      'option:explain',
-    // <ruby>向内插入时可用条目。
+    // <ruby>子单元。
     [ T.RBPT ]:         'option:rbpt',
+    [ T.RB ]:           'option:rb',  // 更新模式
+    [ T.RT ]:           'option:rt',  // 更新模式
     // <svg>向内插入时可用条目。
     // <svg>子元素平级和向内插入时可用条目。
     [ T.SVGITEM ]:      'option:svgitem',
