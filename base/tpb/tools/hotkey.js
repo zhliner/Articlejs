@@ -112,24 +112,24 @@ export class HotKey {
 
     /**
      * 检索键序列并激发指令。
-     * 激发指令不表示指令就会执行，指令的绑定委托会进一步限定指令。
+     * 键序列存在匹配就会激发目标指令，
+     * 默认情况下，会取消该快捷键在浏览器的默认行为（除非明确禁止），
      * 注意：
-     * 键序列存在匹配就会激发并取消浏览器的默认行为，
-     * 如果需要避免这种宽泛拦截的影响，可以设置适当的排除项（exclude）。
-     * 比如用字符作为快捷键，通常就需要排除文本框元素。
+     * 激发指令不表示指令就会执行，指令的绑定委托会进一步限定指令。
      * @param  {String} key 键序列
      * @param  {Event} ev 事件对象
      * @param  {Value} extra 附加数据
+     * @param  {Boolean} prevent 阻止默认行为，默认阻止
      * @return {Boolean} 是否激发
      */
-    fire( key, ev, extra ) {
+    fire( key, ev, extra, prevent = true ) {
         let _cmds = this._matches(key, ev.target);
 
         if ( _cmds ) {
             for ( const cmd of _cmds ) {
                 $.trigger( ev.target, cmd, extra, true, true );
             }
-            ev.preventDefault();
+            if ( prevent ) ev.preventDefault();
         }
         return !!_cmds;
     }
@@ -177,10 +177,12 @@ export class HotKey {
 export class ObjKey extends HotKey {
     /**
      * @param {Object} obj 操作集
+     * @param {Boolean} prevent 阻止默认行为，默认阻止
      */
-    constructor( obj ) {
+    constructor( obj, prevent = true ) {
         super();
         this._obj = obj;
+        this._prd = prevent;
     }
 
 
@@ -198,7 +200,7 @@ export class ObjKey extends HotKey {
             for ( const cmd of _cmds ) {
                 this._obj[cmd]( ...args );
             }
-            ev.preventDefault();
+            if ( this._prd ) ev.preventDefault();
         }
         return !!_cmds;
     }

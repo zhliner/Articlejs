@@ -103,7 +103,7 @@ const _Update = {
             [evn, data] = data;
         }
         if ( $.isArray(to) ) {
-            return to.forEach( el => trigger(el, evn, data, bubble, cancelable) );
+            return to.forEach( el => $.trigger(el, evn, data, bubble, cancelable) );
         }
         $.trigger( to, evn, data, bubble, cancelable );
     },
