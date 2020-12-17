@@ -996,14 +996,15 @@ menu._cells code {
 }
 
 /* 表格 */
+.Input ._Table ._list {
+    background-color: #32575f;
+}
 .Input ._Table ._affix > label {
     min-width: 175px;
 }
-.Input ._Table table[border='i'] {
+.Input ._Table table {
     width: 100%;
     border-collapse: collapse;
-    border-width: 2px;
-    border-color: transparent;
     table-layout: fixed;
     color: #eee;
     background-color: #32575f;

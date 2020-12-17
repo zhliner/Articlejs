@@ -392,11 +392,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 
-/* 定义列表
+/* 描述列表
  *----------------------------------------------------------------------------
  */
 
-/* 定义列表 */
+/* 描述列表 */
 .content dl {}
 .content dl > dt {
     font-weight: bold;

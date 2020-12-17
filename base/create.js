@@ -579,7 +579,7 @@ const Children = {
     /**
      * 允许创建一个标题项。
      * @param {Element|null} ref 参考子元素
-     * @param {Element} dl 定义列表根容器
+     * @param {Element} dl 描述列表根容器
      * @param {String|Node|[Node]} dt 标题内容，可选
      * @param {Element} data 数据条目，可选
      */
@@ -1844,7 +1844,7 @@ function build( el, opts, data, more ) {
  *      h2:         {Value}   片区（<section>）标题
  *      header:     {Boolean} 创建导言部分
  *      footer:     {Boolean} 创建结语部分
- *      dt:         {Value}   定义列表标题项
+ *      dt:         {Value}   描述列表标题项
  *      th0:        {Boolean} 表格列表头
  *      rpl:        {String}  左包围（<rp>）
  *      rpr:        {String}  右包围（<rp>）

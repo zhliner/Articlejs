@@ -298,11 +298,11 @@ const _Control = {
 
     /**
      * 栈顶复制（浅）。
-     * 复制栈顶项入栈，支持复制多次。
+     * 复制栈顶项入栈，支持复制多份。
      * 目标：暂存区/栈顶1项。
      * 特权：是，自行入栈。
      * @param  {Stack} stack 数据栈
-     * @param  {Number} cnt 复制次数，可选
+     * @param  {Number} cnt 复制份数，可选
      * @return {void}
      */
     dup( evo, stack, cnt = 1 ) {
@@ -1184,7 +1184,7 @@ const _Process = {
     /**
      * 数组相等比较。
      * 目标：暂存区/栈顶1项。
-     * 注：仅对数组成员自身做相等（===）比较。
+     * 数组长度相同且成员相等（===）即为相等。
      * @param {[Value]} arr 对比数组
      */
     eqarr( evo, arr ) {

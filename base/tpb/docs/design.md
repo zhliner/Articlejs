@@ -229,7 +229,7 @@ push( ...val: Value|[Value] ): void
 // 直接入栈。
 
 dup( cnt = 1 ): void
-// 复制栈顶项，可多次。
+// 复制栈顶项，可多份。
 
 dups( n = 1 ): void
 // 复制栈顶n项（单次）。

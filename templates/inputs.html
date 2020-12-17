@@ -38,6 +38,13 @@
     <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
 </div>
 
+<div class="_option" tpl-name="part:rows">
+    <label>行数
+        <input name="rows" type="text" class="_nums" title="行数" />
+    </label>
+</div>
+
+
 
 <!--普通插入：行块单元
     录入版右侧主栏版块（replace）。
@@ -353,7 +360,7 @@
     </aside>
 </div>
 
-<!-- 定义列表 -->
+<!-- 描述列表 -->
 <div class="_body _Dl" tpl-name="input:dl">
     <div class="_main">
         <header>
@@ -380,56 +387,12 @@
                 <input name="rows" type="text" class="_nums" title="行数" value="5" />
             </label>
         </header>
-        <!--编辑友好：
-            Enter 单元格列向切换（聚焦/选取）-->
-        <table border="i"
-            on="keydown(td,th)|ev('key') pass('Enter') scam('shift') vnot pop avoid evo(2);
-                downcell|data('tbo') ev('detail') call('columnNextCell', _1) dup pass pop;
-                ^obted|evo(1) table(_1)"
-            to="|trigger('downcell');
-                -||focus select;
-                |data('tbo')">
-            <thead>
-                <tr>
-                    <th contenteditable></th>
-                    <th contenteditable></th>
-                    <th contenteditable></th>
-                    <th contenteditable></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                </tr>
-                <tr>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                </tr>
-                <tr>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                </tr>
-                <tr>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                </tr>
-                <tr>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                    <td contenteditable></td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="_list">
+            <table border="1" obt-src="obts/table.json">
+                <thead tpl-node="item:thead"></thead>
+                <tbody tpl-node="item:tbody"></tbody>
+            </table>
+        </div>
     </div>
     <aside>
         <div class="_option">
@@ -610,7 +573,7 @@
 
 
 <!-- 主标题 -->
-<div class="_body _Heading" tpl-name="input:h1">
+<div class="_body _H1" tpl-name="input:h1">
     <div class="_main">
         <textarea name="h1" placeholder="主标题"></textarea>
     </div>
@@ -623,7 +586,7 @@
 </div>
 
 <!-- 片区标题 -->
-<div class="_body _Heading" tpl-name="input:h2">
+<div class="_body _H2" tpl-name="input:h2">
     <div class="_main">
         <textarea name="h2" placeholder="片区标题"></textarea>
     </div>
@@ -636,7 +599,7 @@
 </div>
 
 <!-- 小标题 -->
-<div class="_body _Heading" tpl-name="input:h3">
+<div class="_body _H3" tpl-name="input:h3">
     <div class="_main">
         <textarea name="h3" placeholder="小标题"></textarea>
     </div>
@@ -649,7 +612,7 @@
 </div>
 
 <!-- 列表项标题 -->
-<div class="_body _Heading" tpl-name="input:h4">
+<div class="_body _H4" tpl-name="input:h4">
     <div class="_main">
         <textarea name="h4" placeholder="列表项标题"></textarea>
     </div>
@@ -662,7 +625,7 @@
 </div>
 
 <!-- 其它标题 -->
-<div class="_body _Heading" tpl-name="input:h5">
+<div class="_body _H5" tpl-name="input:h5">
     <div class="_main">
         <textarea name="h5" placeholder="H5标题"></textarea>
     </div>
@@ -674,14 +637,174 @@
     </aside>
 </div>
 
-<!-- 其它标题 -->
-<div class="_body _Heading" tpl-name="input:h6">
+<div class="_body _H6" tpl-name="input:h6">
     <div class="_main">
         <textarea name="h6" placeholder="H6标题"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
             [选项1]
+            [更新]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Summary" tpl-name="input:summary">
+    <div class="_main">
+        <textarea name="summary" placeholder="内容摘要"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:update">
+            [选项1]
+            [更新]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Figcaption" tpl-name="input:figcaption">
+    <div class="_main">
+        <textarea name="figcaption" placeholder="插图标题"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:update">
+            [选项1]
+            [更新]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Caption" tpl-name="input:caption">
+    <div class="_main">
+        <textarea name="caption" placeholder="表格标题"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:update">
+            [选项1]
+            [更新]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Li" tpl-name="input:li">
+    <div class="_main">
+        <textarea name="li" placeholder="列表项内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Dt" tpl-name="input:dt">
+    <div class="_main">
+        <textarea name="dt" placeholder="术语"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Dd" tpl-name="input:dd">
+    <div class="_main">
+        <textarea name="dd" placeholder="描述"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Th" tpl-name="input:th">
+    <div class="_main">
+        <textarea name="th" placeholder="头单元格内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Td" tpl-name="input:td">
+    <div class="_main">
+        <textarea name="td" placeholder="单元格内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Tr" tpl-name="input:tr">
+    <div class="_main">
+        <textarea name="tr" placeholder="表格行：一行一个单元格"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Thead" tpl-name="input:thead">
+    <div class="_main">
+        <div class="_list">
+            <table border="1" obt-src="obts/table.json">
+                <thead tpl-node="item:thead"></thead>
+            </table>
+        </div>
+    </div>
+    <aside>
+        <pre tpl-node="part:rows, input:update">
+            [行数]
+            [更新]
+        </pre>
+    </aside>
+</div>
+
+<!--OBT：列单元格与目标保持一致。-->
+<div class="_body _Tbody" tpl-name="input:tbody">
+    <div class="_main">
+        <div class="_list">
+            <!--匹配原表
+                列数和列类型必需相同。 -->
+            <table border="1" obt-src="obts/table.json"
+                on="renew|">
+                <tbody tpl-node="item:tbody"></tbody>
+            </table>
+        </div>
+    </div>
+    <aside>
+        <pre tpl-node="part:rows, input:insert2">
+            [行数]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<!--OBT：列单元格与目标保持一致。-->
+<div class="_body _Tfoot" tpl-name="input:tfoot">
+    <div class="_main">
+        <div class="_list">
+            <table border="1" obt-src="obts/table.json">
+                <tfoot tpl-node="item:tfoot"></tfoot>
+            </table>
+        </div>
+    </div>
+    <aside>
+        <pre tpl-node="part:rows, input:update">
+            [行数]
             [更新]
         </pre>
     </aside>
@@ -695,7 +818,7 @@
 <!-- 右侧主栏：内联单元录入 -->
 <div class="_body _Inline" tpl-name="minied:inlines">
     <div class="_main _list">
-        <!-- <ul tpl-node="inlines:img">[图片]</ul> -->
+        <!-- <ul tpl-node="inlines:img"></ul> -->
     </div>
     <aside>
         <hr tpl-node="input:insert1" />

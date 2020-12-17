@@ -512,13 +512,19 @@
                             </label>
                         </header>
                         <div class="_list">
-                            <!--编辑友好：
-                                Enter 单元格列向切换（聚焦/选取）-->
-                            <table border="i"
-                                on="keydown(td,th)|ev('key') pass('Enter') scam('shift') vnot pop avoid evo(2);
+                            <!--用户友好：
+                                Shift+Enter 向下单元格跳转并选取。
+                                Shift+↓ 同上效果。
+                                Shift+↑ 向上单元格跳转。
+                                注记：已转移到 /obts/table.json 供正式使用。-->
+                            <table border="1"
+                                on="keydown(td,th)|ev('key') include('Enter', 'ArrowUp', 'ArrowDown') scam('shift') both pass avoid evo(2);
                                     downcell|data('tbo') ev('detail') call('columnNextCell', _1) dup pass pop;
+                                    upcell|data('tbo') ev('detail') call('columnPrevCell', _1) dup pass pop;
                                     ^obted|evo(1) table(_1)"
-                                to="|trigger('downcell');
+                                by="ev('key') $case('Enter', 'ArrowUp', 'ArrowDown') $switch('downcell', 'upcell', 'downcell')"
+                                to="|trigger(_1);
+                                    -||focus select;
                                     -||focus select;
                                     |data('tbo')">
                                 <thead>
@@ -1055,7 +1061,7 @@
         <!-- 状态栏（略） -->
     </div>
 
-    <h4>定义列表：dl/dt,dd...（依目标判断创建为&lt;dl&gt;或是&lt;dt&gt;,&lt;dd&gt;）</h4>
+    <h4>描述列表：dl/dt,dd...（依目标判断创建为&lt;dl&gt;或是&lt;dt&gt;,&lt;dd&gt;）</h4>
     <div class="panel inputs">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -1079,7 +1085,7 @@
                     <select id="inputs-items" name="items" size="5">
                     </select>
                 </div>
-                <!-- [子模版：定义列表] -->
+                <!-- [子模版：描述列表] -->
                 <div class="_body _Dl" tpl-name="input:dl">
                     <div class="_main">
                         <header>
@@ -1284,7 +1290,7 @@
                                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
                             </label>
                             <label>语言
-                                <select id="g-languages" name="languages" tpl-name="item:languages">
+                                <select id="g-languages" name="languages" tpl-name="prop:languages">
                                     <option value="golang">Golang</option>
                                     <option value="cplus">C/C++</option>
                                     <option value="javascript">JavaScript</option>

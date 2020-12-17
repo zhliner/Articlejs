@@ -97,16 +97,16 @@ export class HotKey {
 
 
     /**
-     * 指令标识确认。
-     * 可用于指令准确限定。
-     * @param  {String} cmd 指令标识
+     * 检查键序列是否匹配。
+     * 可用于排除某子区域不触发快捷键指令。
+     * OBT：(HKObj) ev('key') evo(1) call('will', _2) pop stop;
+     * 检测并终止事件向上传递。
      * @param  {String} key 键序列
      * @param  {Element} target 目标元素
      * @return {Boolean}
      */
-    pass( cmd, key, target ) {
-        let _cmds = this._matches(key, target);
-        return _cmds && _cmds.includes( cmd );
+    will( key, target ) {
+        return !!this._matches( key, target );
     }
 
 

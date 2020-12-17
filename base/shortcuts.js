@@ -33,7 +33,10 @@
 //  说明：
 //  支持多个键序列映射到同一指令标识，此时键序列为数组。
 //  键名称忽略大小写，容错空格分隔友好阅读（注：空格键本身用 Space 标识）。
-//  如果有外部的用户配置，可参考：'tpb/tools/hotkey.js:HotKey.bind|config'。
+//
+//  提示：
+//  如果有匹配的快捷键定义，触发后会自动取消浏览器默认行为。
+//  因此如果快捷键采用可输入字符，通常应当设置排除项如：'textarea, input, [contenteditable]'
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -85,6 +88,7 @@ Global: [
 
     // 录入框铺满
     // 需由样式定义容器范围（position:relative）。
+    // 适用：主面板、模态框。
     {
         "key": [
             "alt:f",    // windows
@@ -128,7 +132,7 @@ Global: [
             "shift:!",  // !  扩展指令（高级）
         ],
         "command":  "cmdline.active",
-        "exclude":  "textarea,input,[contenteditable]",
+        "exclude":  "textarea,input,[contenteditable]"
     },
 
 
@@ -140,7 +144,8 @@ Global: [
     // 由用户键入的前置数字表达（如：3.2.5）。
     {
         "key":      ":g",
-        "command":  "main.chapter"
+        "command":  "main.chapter",
+        "exclude":  "textarea,input,[contenteditable]"
     },
 
     // 手动暂存。
@@ -154,18 +159,10 @@ Global: [
     // 打开一个导出对话框，导出源码。
     {
         "key":      "shift:p",
-        "command":  "main.export"
+        "command":  "main.export",
+        "exclude":  "textarea,input,[contenteditable]"
     },
 
-],
-
-
-//
-// 菜单快捷直达。
-// 触发焦点元素在编辑器内。
-///////////////////////////////////////////////////////////
-
-Menu: [
 ],
 
 
@@ -751,7 +748,7 @@ Slave: [
             ":z",       // ...          | phonetic（拼音）
         ],
         "command":  "input.select",
-        "exclude":  "textarea, input"
+        "exclude":  "textarea,input,[contenteditable]"
     },
 
 ],

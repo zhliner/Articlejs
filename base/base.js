@@ -189,7 +189,7 @@ const CustomStruct = {
 // 或者单元自身的类型转换。
 // - TBLSECT 表格区段元件：{<thead>|<tbody>|<tfoot>}
 // - TBLCELL 表格单元元件：{<th>|<td>}
-// - DLITEM  定义列表项：  {<dt>|<dd>}
+// - DLITEM  描述列表项：  {<dt>|<dd>}
 // - SECTED  分级片区，有严格的嵌套层级，转换时可能需要修改role值。
 //
 const

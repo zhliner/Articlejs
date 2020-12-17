@@ -133,8 +133,8 @@ export const
     FIGCAPTION      = 407,  // 插图标题
     CAPTION         = 408,  // 表格标题
     LI              = 409,  // 列表项（通用）
-    DT              = 410,  // 定义列表条目
-    DD              = 411,  // 定义列表数据
+    DT              = 410,  // 描述列表条目
+    DD              = 411,  // 描述列表数据
     TH              = 412,  // 表头单元格
     TD              = 413,  // 单元格
     TR              = 414,  // 表格行
@@ -175,7 +175,7 @@ export const
     ULX             = 517,  // 无序级联表 （ul/li/h4, ul|ol/...）
     OLX             = 518,  // 有序级联表 （ol/li/h4, ol|ul/...）
     CASCADE         = 519,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）
-    DL              = 520,  // 定义列表 （dl/dt, dd+）
+    DL              = 520,  // 描述列表 （dl/dt, dd+）
     TABLE           = 521,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
     FIGURE          = 522,  // 插图 （figure/figcaption, span/img, i:explain）
     BLOCKQUOTE      = 523,  // 块引用 （blockquote/h3, p...） {cite}

@@ -83,7 +83,7 @@
         |off('keydown paste')|goto('info');
         |bind('keydown paste');
         #g-count|trigger('reset')">
-    <!--滚动封装（不在<main>上，避免聚焦影响）
+    <!--滚动封装（不设计在<main>上，避免聚焦影响）
         keydown 普通模式快捷键操作（key, count），会重置状态栏提示。
         keyup 状态栏数字设置（非数字无效）。
         focus 设置选取范围到内部，以捕获copy|cut事件。
@@ -125,7 +125,7 @@
                 show|(ESC) evo(3) dup hide(false) apply('add', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
                 submenu|v.convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node(_1);
                 click(li[data-op])|evo(2) dup disabled end attr('-op');
-                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) debug dup pass attr('-val');
+                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-val');
                 click(#m-conv li[data-val])|evo(2) attr('-val');
                 cancel;
                 status|$$('/>li') dup disable v.cmenable disable(false);
@@ -372,7 +372,7 @@
                                 <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"ulx"</b>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h4, ol|ul/... --&gt;</i></code></li>
                                 <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"olx"</b>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h4, ul|ol/... --&gt;</i></code></li>
                                 <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"cascade"</b>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol/... --&gt;</i></code></li>
-                                <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 定义列表：DL /dt, dd... --&gt;</i></code></li>
+                                <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 描述列表：DL /dt, dd... --&gt;</i></code></li>
                                 <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
                                 <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [span/img, i:explain?]... --&gt;</i></code></li>
                                 <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i></code></li>
@@ -407,7 +407,7 @@
                     </section>
                     <section role="s2">
                         <h2 id="内容件">内容件</h2>
-                        <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <em>提要</em>、<em>目录</em> 等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。如后面 <strong>附录</strong> 中的 <em>插图</em>、<em>定义列表</em> 等。</p>
+                        <p>可直接作为文章正文内容的内容块被称为 <strong>内容件</strong>，上面的文本类内容块和除了顶层 <em>提要</em>、<em>目录</em> 等少数几个单元的结构类内容块都可以作为正文内容，它们都是内容件。如后面 <strong>附录</strong> 中的 <em>插图</em>、<em>描述列表</em> 等。</p>
                     </section>
                     <section role="s2">
                         <h2 id="内容行和内容元素">内容行和内容元素</h2>
@@ -677,7 +677,7 @@
                         </section>
                     </section>
                     <section role="s2">
-                        <h2>定义列表</h2>
+                        <h2>描述列表</h2>
                         <header>
                             <p>结构：<code>dl/dt,dd</code>。主要用于描述专业的术语，由术语标题项（<code>&lt;dt&gt;</code>）和描述内容的数据项（<code>&lt;dd&gt;</code>）构成。</p>
                             <p>标题项和数据项并列为兄弟元素的关系。一条标题项可以跟随多条数据项，或者多条标题项由一条数据项进行说明。</p>
