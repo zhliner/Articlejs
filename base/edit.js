@@ -4063,6 +4063,15 @@ export const Kit = {
 
 
     /**
+     * 获取首个被选取的元素。
+     * @return {Element}
+     */
+    sels0() {
+        return __ESet.first();
+    },
+
+
+    /**
      * 获取选取集大小。
      * 用途：状态栏友好提示。
      * @return {Number}
@@ -4220,7 +4229,7 @@ export const Kit = {
      * 注记：
      * 选单条目定义在同一个模板文件中且已经载入。
      * 焦点元素必需为已选取状态。
-     * @data: Element
+     * @data: [Element]
      * @param  {String} type 位置类型（siblings|children）
      * @return {[Element]} 选单元素集（[<option>]）
      */
@@ -4453,6 +4462,7 @@ processExtend( 'Kit', Kit, [
 //
 customGetter( null, Kit, [
     'sels',
+    'sels0',
     'esize',
     'source',
     'rngok',

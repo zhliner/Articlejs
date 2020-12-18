@@ -556,9 +556,11 @@ const _NextStage = {
      * 延迟激发事件。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
-     * rid可传递一个null或空串，表示目标沿用To更新目标。
+     * rid 支持两个特殊值：
+     * - '0' 原始检索结果（evo.primary）
+     * - '1' 更新后的结果（evo.updated）
      * 默认延迟，可设置具体的时间或0值（不延迟）。
-     * @param {String|Number} rid 目标元素选择器（单个）
+     * @param {String} rid 目标元素选择器（单个）
      * @param {String} name 事件名
      * @param {Number} delay 延迟时间（毫秒），可选
      * @param {Boolean} bubble 是否冒泡，可选。默认冒泡
@@ -890,17 +892,17 @@ function selectChanged( sel ) {
 /**
  * 获取操作目标。
  * rid: {
- *      0       To原始检索的目标
- *      1       被To更新的结果
+ *      '0'     To原始检索的目标
+ *      '1'     被To更新的结果
  *      String  选择器检索的结果
  * }
- * 适用：部分接口暂存区1项可选（-1）时。
- * @param  {String|Number} rid 目标标识，可选
+ * 适用：部分接口暂存区1项可选时。
+ * @param  {String} rid 目标标识，可选
  * @param  {Boolean} one 是否单元素检索，可选
  * @return {Element|Collector}
  */
 function target( evo, rid, one ) {
-    switch ( rid ) {
+    switch ( +rid ) {
         case 0: return evo.primary;
         case 1: return evo.updated;
     }
