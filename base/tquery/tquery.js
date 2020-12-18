@@ -2676,24 +2676,27 @@ class Table {
 
     /**
      * 获取当前列的下一个单元格。
-     * 即：垂直方向的下一个单元格。
+     * 注：如果返回值是一个数组，仅返回首个单元格。
      * @param  {Element} cell 单元格
      * @param  {TableSection} tsec 表区域限定，可选
-     * @return {Element|[Element]|null}
+     * @return {Element|null}
      */
     columnNextCell( cell, tsec ) {
-        return this.columnCell( cell, 1, tsec );
+        let _td = this.columnCell( cell, 1, tsec );
+        return isArr( _td ) ? _td[0] : _td;
     }
 
 
     /**
-     * 获取当前列的前一个单元格。
+     * 获取当前列的上一个单元格。
+     * 注：同上。
      * @param {Element} cell 单元格
      * @param  {TableSection} tsec 表区域限定，可选
-     * @return {Element|[Element]|null}
+     * @return {Element|null}
      */
     columnPrevCell( cell, tsec ) {
-        return this.columnCell( cell, -1, tsec );
+        let _td = this.columnCell( cell, -1, tsec );
+        return isArr( _td ) ? _td[0] : _td;
     }
 
 
