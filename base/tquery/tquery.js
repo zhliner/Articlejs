@@ -705,9 +705,11 @@ Object.assign( tQuery, {
      * 创建或封装Table实例。
      * th0 表示表格的首列全为<th>单元格，
      * 这并不标准，但可以简单获得列表头的效果。
-     * 注意：如果需要设置列头，行数必须至少为1。
+     * 注意：
+     * 如果需要设置列头，表体或表脚至少需要包含一行。
+     * 对一个已有表格可以添加列头，此时可传递rows为null。
      * @param  {Number|Element} cols 表格列数（不含列头）或表格元素
-     * @param  {Number} rows 表格行数
+     * @param  {Number|null} rows 表格行数
      * @param  {Boolean} th0 是否添加列表头，可选
      * @param  {Document} doc 所属文档对象，可选
      * @return {Table} 表格实例
@@ -720,7 +722,7 @@ Object.assign( tQuery, {
         // 可能是一个空<table>
         _tbo.build( +cols || 0, rows );
 
-        if ( th0 && rows > 0 ) {
+        if ( th0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
         return _tbo;
@@ -2323,6 +2325,7 @@ class Table {
      */
     constructor( tbl, doc = Doc ) {
         this._tbl = tbl || doc.createElement('table');
+        this._cols = null;
     }
 
 
@@ -2344,6 +2347,39 @@ class Table {
         this._cols = cols;
 
         this._init( this.body(true), rows );
+    }
+
+
+    /**
+     * 表格框架克隆。
+     * 如果表头/表脚行数为0，则不包含表头/表脚。
+     * 即便行数全为零，新表格实例也包含了相同列数属性。
+     * 注意：
+     * - 不包含单元格内容的克隆。
+     * - 不包含事件处理器的克隆。
+     * @param  {Number} rows 表体行数
+     * @param  {Number} head 表头行数，可选
+     * @param  {Number} foot 表脚行数，可选
+     * @return {Table} 新表格元素的Table实例
+     */
+    clone( rows, head = 0, foot = 0 ) {
+        let _tbo = new Table( false ),
+            _sec = null;
+        _tbo._cols = this._cols;
+
+        if ( head > 0 ) {
+            _sec = _tbo.head( true );
+            while ( head-- ) _tbo.insertTR( _tbo.newTR(true), 0, _sec );
+        }
+        if ( foot > 0 ) {
+            _sec = _tbo.foot( true );
+            while ( foot-- ) _tbo.insertTR( this.newTR(), 0, _sec );
+        }
+        if ( rows > 0 ) {
+            _sec = _tbo.body( true );
+            while ( rows-- ) _tbo.insertTR( this.newTR(), 0, _sec );
+        }
+        return _tbo;
     }
 
 
@@ -2590,6 +2626,9 @@ class Table {
      * @return {[Element]} cells
      */
     insertColumn( cells, idx ) {
+        if ( cells.length === 0 ) {
+            return cells;
+        }
         let _x = $contains(this._tbl, cells[0]),
             _n = 0;
 
@@ -2828,10 +2867,8 @@ class Table {
 
     /**
      * 获取参考行。
-     * 注记：
-     * 首个表体元素<tbody>可能被清空，从而.rows为空，
-     * 因此从表格元素上获取更可靠。
-     * @param  {Element} tbl 表格元素
+     * 从表格元素上取最后一行且非表头行。
+     * 注记：<tbody>可能被清空从而使得.rows无效。
      * @return {Element|null}
      */
     _basicTR() {
