@@ -105,18 +105,15 @@
 
     为了跟踪DOM节点的变化，设计加入了如下定制事件：
 
-    - `attrvary, attrdone | attrfail` 元素特性：`设置/完成/出错` 事件。由 `.attr()|.attribute()|.removeAttr()|.toggleAttr()` 接口触发。
-    - `propvary, propdone | propfail` 元素属性：`设置/完成/出错` 事件。由 `.prop()|.property()|.val()` 接口触发。
-    - `cssvary, cssdone | cssfail` 元素内联样式：`设置/完成/出错` 事件。由 `.css()|.cssSets()` 接口触发。
-    - `classvary, classdone | classfail` 元素类名：`设置/完成/出错` 事件。由 `.addClass()|.removeClass()|.toggleClass()` 接口触发。
-    - `varyprepend, prependdone | prependfail` 节点内前插入事件，由接口 `.prepend()` 触发。也可能由复合类操作 `fill, wrap, wrapInner, wrapAll, unwrap, html, text` 等触发，下同。
-    - `varyappend, appenddone | appendfail` 节点内后添加事件，由接口 `.append()` 触发。
-    - `varybefore, beforedone | beforefail` 节点前插入事件，由接口 `.before()` 触发。
-    - `varyafter, afterdone | afterfail` 节点后添加事件，由接口 `.after()` 触发。
-    - `varyreplace, replacedone | replacefail` 节点替换事件，由接口 `.replace()` 触发。
-    - `varyempty, emptydone` 节点内清空事件，由接口 `.empty()` 触发。
-    - `varyremove, removedone` 节点移除事件，由接口 `.remove()` 触发。
-    - `varynormalize, normalizedone` 节点规范化事件，仅由接口 `.normalize()` 触发。
+    - `attrvary, attrdone` 元素特性设置：`之前/完成` 事件。由 `.attr|.attribute|.removeAttr|.toggleAttr` 接口触发。
+    - `propvary, propdone` 元素属性设置：`之前/完成` 事件。由 `.prop|.property|.val` 接口触发。
+    - `stylevary, styledone` 元素内联样式设置：`之前/完成` 事件。由 `.css|.cssSets` 接口触发。
+    - `classvary, classdone | classfail` 元素类名设置：`之前/完成` 事件。由 `.addClass|.removeClass|.toggleClass` 接口触发。
+    - `nodein, nodedone` 节点插入DOM：`之前/完成` 事件。由4个接口 `.prepend|.append|.before|.after` 触发。也可能由复合类操作如 `fill, wrap, wrapInner, html, text` 等触发。
+    - `detach, detached` 节点脱离DOM：`之前/完成` 事件。由接口 `.remove` 触发。
+    - `replace, replaced` 节点替换：`之前/完成` 事件。由接口 `.replace` 触发。
+    - `empty, emptied` 节点内清空：`之前/完成` 事件。由接口 `.empty` 触发。
+    - `normalize, normalized` 节点规范化：`之前/完成` 事件。由接口 `.normalize` 触发。
 
     这对于需要跟踪DOM节点变化的应用，可以获得节点改变之前、完成或出错三个阶段的监听处理能力。事件冒泡且不可取消，附加的消息（`event.detail`）包含了关联的数据。**注**：出错和完成事件不会同时发生，两者仅有其一。
 

@@ -54,30 +54,26 @@
     监听元素的特性修改、样式设置、节点插入等各种变化，触发事件通知。
     开启：tQuery.config({varyevent: true});
 
-    - attrvary, attrdone | attrfail             // 特性设置
-    - propvary, propdone | propfail             // 属性设置
-    - cssvary, cssdone | cssfail                // 内联样式设置
-    - classvary, classdone | classfail          // 类名设置
+    - attrvary, attrdone        // 特性变化（之前、完成）
+    - propvary, propdone        // 属性变化（之前、完成）
+    - stylevary, styledone      // 样式变化（之前、完成）
+    - classvary, classdone      // 类名变化（之前、完成）
 
-    - varyprepend, prependdone | prependfail    // 节点内前插入事件
-    - varyappend, appenddone | appendfail       // 节点内后添加事件
-    - varybefore, beforedone | beforefail       // 节点前插入事件
-    - varyafter, afterdone | afterfail          // 节点后添加事件
-    - varyreplace, replacedone | replacefail    // 节点替换事件
-
-    - varyempty, emptydone                      // 节点内清空事件
-    - varyremove, removedone                    // 节点移除事件
-    - varynormalize, normalizedone              // 节点规范化事件
+    - nodein, nodedone          // 节点进入DOM（之前、完成）
+    - detach, detached          // 节点脱离DOM（之前、完成）
+    - replace, replaced         // 节点替换（之前、完成）
+    - empty, emptied            // 节点内容清空（之前、完成）
+    - normalize, normalized     // 节点规范化 （之前、完成）
 
     注：
     复合操作由多个基本操作组合而来。
 
     - fill:         empty, append
     - wrap:         replace, prepend
-    - wrapInner:    remove?（容器为数据子元素时）, empty, prepend, append
+    - wrapInner:    empty, prepend, append （若容器为元素子节点，会先remove）
     - wrapAll:      replace, prepend
     - unwrap:       empty, replace
-    - html:         prepend | append | before | after | replace | fill （视插入位置而定）
+    - html:         prepend | append | before | after | replace | fill
     - text:         同上（html）
 
 
@@ -5576,13 +5572,13 @@ const insertHandles = {
     '': varyFill,
 
     // replace
-    '0': (node, data) => data && varyReplace( node, data ),
+    '0': (node, data) => data === node ? data : varyReplace( node, data ),
 
     // before
-    '1': (node, data) => data && varyBefore( node, data ),
+    '1': (node, data) => data === node ? data : varyBefore( node, data ),
 
     // after
-    '-1': (node, data) => data && varyAfter( node, data ),
+    '-1': (node, data) => data === node ? data : varyAfter( node, data ),
 
     // append
     // 表格容器非法内容时返回null（会自动异常）。
@@ -5804,38 +5800,23 @@ const intoViewWhere = {
 const
     evnAttrSet      = 'attrvary',
     evnAttrDone     = 'attrdone',
-    evnAttrFail     = 'attrfail',
     evnPropSet      = 'propvary',
     evnPropDone     = 'propdone',
-    evnPropFail     = 'propfail',
-    evnCssSet       = 'cssvary',
-    evnCssDone      = 'cssdone',
-    evnCssFail      = 'cssfail',
+    evnCssSet       = 'stylevary',
+    evnCssDone      = 'styledone',
     evnClassSet     = 'classvary',
     evnClassDone    = 'classdone',
-    evnClassFail    = 'classfail',
 
-    evnPrepend      = 'varyprepend',
-    evnPrepended    = 'prependdone',
-    evnPrependFail  = 'prependfail',
-    evnAppend       = 'varyappend',
-    evnAppended     = 'appenddone',
-    evnAppendFail   = 'appendfail',
-    evnBefore       = 'varybefore',
-    evnBeforeDone   = 'beforedone',
-    evnBeforeFail   = 'beforefail',
-    evnAfter        = 'varyafter',
-    evnAfterDone    = 'afterdone',
-    evnAfterFail    = 'afterfail',
-    evnReplace      = 'varyreplace',
-    evnReplaced     = 'replacedone',
-    evnReplaceFail  = 'replacefail',
-    evnEmpty        = 'varyempty',
-    evnEmptied      = 'emptydone',
-    evnRemove       = 'varyremove',
-    evnRemoved      = 'removedone',
-    evnNormalize    = 'varynormalize',
-    evnNormalized   = 'normalizedone',
+    evnNodeIn       = 'nodein',
+    evnNodeDone     = 'nodedone',
+    evnDetach       = 'detach',
+    evnDetached     = 'detached',
+    evnReplace      = 'replace',
+    evnReplaced     = 'replaced',
+    evnEmpty        = 'empty',
+    evnEmptied      = 'emptied',
+    evnNormalize    = 'normalize',
+    evnNormalized   = 'normalized',
 
     evnBound        = 'eventbound',
     evnUnbound      = 'eventunbound',
@@ -5861,24 +5842,6 @@ function limitTrigger( el, evn, data ) {
                 { detail: data, bubbles: true, cancelable: false }
             )
         );
-}
-
-
-/**
- * 设置失败激发消息。
- * data结构：[错误对象, 新值, 旧值]。
- * @param  {Element} el 目标元素
- * @param  {String} evn 事件名
- * @param  {[Error, ...]} data 错误关联对象
- * @return {void}
- */
-function failTrigger( el, evn, data ) {
-    if ( !Options.varyevent ) {
-        throw data[0];
-    }
-    el.dispatchEvent(
-        new CustomEvent( evn, {detail: data, bubbles: true, cancelable: false} )
-    );
 }
 
 
@@ -5943,12 +5906,7 @@ function removeAttr( el, name ) {
  */
 function setAttr( el, name, val ) {
     limitTrigger( el, evnAttrSet, [name, val] );
-    try {
-        el.setAttribute( name, val );
-    }
-    catch(e) {
-        return failTrigger( el, evnAttrFail, [e, name, val] );
-    }
+    el.setAttribute( name, val );
     limitTrigger( el, evnAttrDone, name );
 }
 
@@ -5963,15 +5921,10 @@ function setAttr( el, name, val ) {
  */
 function setProp( el, name, dname, val ) {
     limitTrigger( el, evnPropSet, [name, val] );
-    try {
-        if (dname) {
-            el.dataset[ dname ] = val;
-        } else {
-            el[ propFix[name] || name ] = val;
-        }
-    }
-    catch(e) {
-        return failTrigger( el, evnPropFail, [e, name, val] );
+    if (dname) {
+        el.dataset[ dname ] = val;
+    } else {
+        el[ propFix[name] || name ] = val;
     }
     limitTrigger( el, evnPropDone, name );
 }
@@ -6036,7 +5989,6 @@ function selectOne( el, name, val, prop ) {
 /**
  * <select>控件操作（多选）。
  * 匹配项被选取，非匹配项被清除选取。
- * 无 propfail 事件。
  * @param  {Element} el 控件元素
  * @param  {String} name 标识名（虚拟）
  * @param  {Value|[Value]} 对比值/集
@@ -6068,12 +6020,7 @@ function selects( el, name, val, prop ) {
  */
 function setStyle( el, name, val ) {
     limitTrigger( el, evnCssSet, [name, val] );
-    try {
-        el.style[name] = val;
-    }
-    catch(e) {
-        return failTrigger( el, evnCssFail, [e, name, val] );
-    }
+    el.style[name] = val;
     limitTrigger( el, evnCssDone, name );
 }
 
@@ -6088,12 +6035,9 @@ function setStyle( el, name, val ) {
  */
 function addClass( el, names ) {
     limitTrigger( el, evnClassSet, [names, 'add'] );
-    try {
-        names.forEach( n => el.classList.add(n) );
-    }
-    catch(e) {
-        return failTrigger( el, evnClassFail, [e, names, 'add'] );
-    }
+    names.forEach(
+        n => el.classList.add( n )
+    );
     limitTrigger( el, evnClassDone, [names, 'add'] );
 }
 
@@ -6114,12 +6058,9 @@ function removeClass( el, names ) {
         return el.removeAttribute('class');
     }
     limitTrigger( el, evnClassSet, [names, 'remove'] );
-    try {
-        names.forEach( n => el.classList.remove(n) );
-    }
-    catch(e) {
-        return failTrigger( el, evnClassFail, [e, names, 'remove'] );
-    }
+    names.forEach(
+        n => el.classList.remove( n )
+    );
     limitTrigger( el, evnClassDone, [names, 'remove'] );
 }
 
@@ -6134,12 +6075,9 @@ function removeClass( el, names ) {
  */
 function toggleClass( el, names ) {
     limitTrigger( el, evnClassSet, [names, 'toggle'] );
-    try {
-        names.forEach( n => el.classList.toggle(n) );
-    }
-    catch(e) {
-        return failTrigger( el, evnClassFail, [e, names, 'toggle'] );
-    }
+    names.forEach(
+        n => el.classList.toggle( n )
+    );
     limitTrigger( el, evnClassDone, [names, 'toggle'] );
 }
 
@@ -6152,12 +6090,11 @@ function toggleClass( el, names ) {
  * @return {nodes}
  */
 function varyPrepend( el, nodes ) {
-    if ( el !== nodes ) {
-        varyNodes(
-            el, 'prepend', nodes,
-            evnPrepend, evnPrepended, evnPrependFail
-        );
-    }
+    limitTrigger( el, evnNodeIn, [nodes, 'prepend'] );
+    el.prepend(
+        ...detachNodes(nodes)
+    );
+    limitTrigger( el, evnNodeDone, [nodes, 'prepend'] );
     return nodes;
 }
 
@@ -6170,12 +6107,11 @@ function varyPrepend( el, nodes ) {
  * @return {nodes}
  */
 function varyAppend( el, nodes ) {
-    if ( el !== nodes ) {
-        varyNodes(
-            el, 'append', nodes,
-            evnAppend, evnAppended, evnAppendFail
-        )
-    }
+    limitTrigger( el, evnNodeIn, [nodes, 'append'] );
+    el.append(
+        ...detachNodes(nodes)
+    );
+    limitTrigger( el, evnNodeDone, [nodes, 'append'] );
     return nodes;
 }
 
@@ -6187,12 +6123,11 @@ function varyAppend( el, nodes ) {
  * @return {nodes}
  */
 function varyBefore( el, nodes ) {
-    if ( el !== nodes ) {
-        varyNodes(
-            el, 'before', nodes,
-            evnBefore, evnBeforeDone, evnBeforeFail
-        );
-    }
+    limitTrigger( el, evnNodeIn, [nodes, 'before'] );
+    el.before(
+        ...detachNodes(nodes)
+    );
+    limitTrigger( el, evnNodeDone, [nodes, 'before'] );
     return nodes;
 }
 
@@ -6204,12 +6139,11 @@ function varyBefore( el, nodes ) {
  * @return {nodes}
  */
 function varyAfter( el, nodes ) {
-    if ( el !== nodes ) {
-        varyNodes(
-            el, 'after', nodes,
-            evnAfter, evnAfterDone, evnAfterFail
-        );
-    }
+    limitTrigger( el, evnNodeIn, [nodes, 'after'] );
+    el.after(
+        ...detachNodes(nodes)
+    );
+    limitTrigger( el, evnNodeDone, [nodes, 'after'] );
     return nodes;
 }
 
@@ -6223,34 +6157,12 @@ function varyAfter( el, nodes ) {
  * @return {nodes}
  */
 function varyReplace( el, nodes ) {
-    if ( el !== nodes ) {
-        varyNodes(
-            el, 'replaceWith', nodes,
-            evnReplace, evnReplaced, evnReplaceFail
-        );
-    }
+    limitTrigger( el, evnReplace, nodes );
+    el.replaceWith(
+        ...detachNodes(nodes)
+    );
+    limitTrigger( el, evnReplaced, nodes );
     return nodes;
-}
-
-
-/**
- * 辅助：节点基本操作。
- * meth: prepend|append|before|after|replaceWith
- * @param {Element|Node} el 目标/参考节点
- * @param {Node|[Node]} nodes 节点数据（集）
- * @param {String} evn0 改变事件名
- * @param {String} evn1 完成事件名
- * @param {String} evnx 出错事件名
- */
-function varyNodes( el, meth, nodes, evn0, evn1, evnx ) {
-    limitTrigger( el, evn0, nodes );
-    try {
-        el[meth]( ...detachNodes(nodes) );
-    }
-    catch ( err ) {
-        return failTrigger( el, evnx, [err, nodes] );
-    }
-    limitTrigger( el, evn1, nodes );
 }
 
 
@@ -6261,7 +6173,7 @@ function varyNodes( el, meth, nodes, evn0, evn1, evnx ) {
  * @return {[Node]} 移除的节点集
  */
 function varyEmpty( el ) {
-    let _subs = Arr(el.childNodes);
+    let _subs = Arr( el.childNodes );
 
     if ( _subs.length ) {
         limitTrigger( el, evnEmpty );
@@ -6275,19 +6187,18 @@ function varyEmpty( el ) {
 /**
  * 节点移除。
  * 如果节点游离（无父容器），无任何行为。
- * 完成事件会携带节点的原父容器。
- * 注：兼容DocumentFragment容器。
+ * 完成事件会发送节点的原父容器。
  * @param  {Node} node 待移除节点
  * @return {Node} node
  */
 function varyRemove( node ) {
-    // 容错字符串数据。
+    // 兼容DocumentFragment
     let _pel = node.parentNode;
 
     if ( _pel ) {
-        limitTrigger( node, evnRemove );
+        limitTrigger( node, evnDetach );
         node.remove();
-        limitTrigger( node, evnRemoved, _pel );
+        limitTrigger( node, evnDetached, _pel );
     }
     return node;
 }
@@ -6318,7 +6229,7 @@ function varyNormalize( el ) {
  */
 function varyFill( el, nodes ) {
     // 内容为空时不触发empty。
-    if ( el.textContent || el.childElementCount > 0 ) {
+    if ( el.childNodes.length ) {
         varyEmpty( el );
     }
     return nodes && varyAppend( el, nodes );
@@ -6341,14 +6252,14 @@ function varyWrap( node, root, box ) {
 
 /**
  * 元素内容包裹封装。
- * 共激发3此节点改变事件：
- * 1. empty 原内容清空。
- * 2. prepend 封装容器内前插入。
- * 3. append 原元素内插入封装根。
+ * 共激发3种节点改变事件：
+ * 1. empty   清空元素，内容脱离。
+ * 2. prepend 脱离的内容插入容器内前端。
+ * 3. append  容器顶层封装根插入元素内。
  * @param  {Element} el 目标元素
- * @param  {Element} root 封装根元素
- * @param  {Element} box 数据容器（插入点）
- * @return {Element} 封装根容器
+ * @param  {Element} root 封装顶层根
+ * @param  {Element} box  数据容器（插入点）
+ * @return {Element} 封装顶层根元素
  */
 function varyWrapInner( el, root, box ) {
     varyPrepend2s(
@@ -6414,16 +6325,17 @@ function varyReplace2s( el, subs ) {
  */
 function varyPrepend2s( el, subs ) {
     if ( subs.length ) {
-        limitTrigger( el, evnPrepend, subs );
+        limitTrigger( el, evnNodeIn, subs );
         el.prepend( ...subs );
-        limitTrigger( el, evnPrepended, subs );
+        limitTrigger( el, evnNodeDone, subs );
     }
     return subs;
 }
 
 
 /**
- * 让节点集脱离父元素。
+ * 让节点脱离父元素。
+ * 集合中的空值会被忽略并在返回值中滤除。
  * @param  {Node|[Node]} nodes 节点（集）
  * @return {[Node]} 节点集
  */
