@@ -1657,7 +1657,7 @@ Object.assign( tQuery, {
         removeClass( el, names );
 
         if (el.classList.length == 0) {
-            // 清理，与attr系事件无关。
+            // 内部清理。
             el.removeAttribute('class');
         }
         return el;
@@ -1688,7 +1688,7 @@ Object.assign( tQuery, {
         classToggle( el, val, force );
 
         if ( el.classList.length == 0 ) {
-            // 清理，与attr系事件无关。
+            // 内部清理。
             el.removeAttribute( 'class' );
         }
         return el;
@@ -2057,13 +2057,13 @@ Object.assign( tQuery, {
     css( el, name, val ) {
         let _cso = getStyles(el);
 
-        if (val === undefined) {
+        if ( val === undefined ) {
             return _cso[ name ];
         }
         cssSet( el, name, val, _cso );
 
-        if (el.style.cssText.trim() == '') {
-            // 清理，与attr系事件无关。
+        if ( !el.style.cssText ) {
+            // 内部清理。
             el.removeAttribute('style');
         }
         return el;
@@ -2099,14 +2099,14 @@ Object.assign( tQuery, {
      * @return {Element} el
      */
     cssSets( el, names, val ) {
-        if (names === null) {
+        if ( names === null ) {
             el.removeAttribute('style');
             return el;
         }
-        cssSets(el, names, val, getStyles(el));
+        cssSets( el, names, val, getStyles(el) );
 
-        if (el.style.cssText == '') {
-            // 清理，与attr系事件无关。
+        if ( !el.style.cssText ) {
+            // 内部清理。
             el.removeAttribute('style');
         }
         return el;
@@ -3102,13 +3102,7 @@ tQuery.Table = Table;
         if ( isFunc(val) ) {
             val = val.bind(el)( _x );
         }
-        _elemRectSet( el, _n, val );
-
-        if ( el.style.cssText.trim() == '' ) {
-            // 内部清理。
-            el.removeAttribute( 'style' );
-        }
-        return el;
+        return _elemRectSet( el, _n, val );
     };
 });
 
@@ -3234,14 +3228,21 @@ function _elemRect( el, name ) {
  * @param  {Element} el  目标元素
  * @param  {String} name 设置类型/名称
  * @param  {String|Number} val 尺寸值
- * @return {Number}
+ * @return {Element} el
  */
 function _elemRectSet( el, name, val ) {
     let _cso = getStyles(el),
         _pb2 = boxSizing[ _cso.boxSizing ].set(el, name, val, _cso);
 
     // border-box下非像素设置时，补充padding和border值。
-    if (_pb2) el.style[name] = parseFloat(_cso[name]) + _pb2 + 'px';
+    if ( _pb2 ) {
+        el.style[name] = parseFloat(_cso[name]) + _pb2 + 'px';
+    }
+    if ( !el.style.cssText ) {
+        // 内部清理。
+        el.removeAttribute('style');
+    }
+    return el;
 }
 
 
