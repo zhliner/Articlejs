@@ -1,6 +1,6 @@
 /*! $Id: tquery.js 2019.10.31 tQuery $
 *******************************************************************************
-            Copyright (c) 铁皮工作室 2019 MIT License
+            Copyright (c) 铁皮工作室 2019 - 2021 MIT License
 
                 @Project: tQuery v0.5.x
                 @Author:  风林子 zhliner@gmail.com
@@ -340,7 +340,7 @@
 
 
     const
-        version = 'tQuery-0.5.0',
+        version = 'tQuery-0.5.1',
 
         // 临时属性名
         // 固定异样+动态，避免应用冲突。
@@ -2347,39 +2347,6 @@ class Table {
 
 
     /**
-     * 表格框架克隆。
-     * 如果表头/表脚行数为0，则不包含表头/表脚。
-     * 即便行数全为零，新表格实例也包含了相同列数属性。
-     * 注意：
-     * - 不包含单元格内容的克隆。
-     * - 不包含事件处理器的克隆。
-     * @param  {Number} rows 表体行数
-     * @param  {Number} head 表头行数，可选
-     * @param  {Number} foot 表脚行数，可选
-     * @return {Table} 新表格元素的Table实例
-     */
-    clone( rows, head = 0, foot = 0 ) {
-        let _tbo = new Table( false ),
-            _sec = null;
-        _tbo._cols = this._cols;
-
-        if ( head > 0 ) {
-            _sec = _tbo.head( true );
-            while ( head-- ) _tbo.insertTR( _tbo.newTR(true), 0, _sec );
-        }
-        if ( foot > 0 ) {
-            _sec = _tbo.foot( true );
-            while ( foot-- ) _tbo.insertTR( this.newTR(), 0, _sec );
-        }
-        if ( rows > 0 ) {
-            _sec = _tbo.body( true );
-            while ( rows-- ) _tbo.insertTR( this.newTR(), 0, _sec );
-        }
-        return _tbo;
-    }
-
-
-    /**
      * 表标题：获取/删除/创建/设置。
      * val: {
      *      null        删除并返回表标题（可能为null）
@@ -2479,7 +2446,7 @@ class Table {
         let _th = this._tbl.tHead;
 
         if ( op === true ) {
-            return _th || insertNode(
+            return _th || insertNodes(
                 this._tbl,
                 this._create( 'thead' ),
                 this._tbl.tBodies[0] || this._tbl.tFoot
@@ -2552,7 +2519,7 @@ class Table {
         sec = sec || this._tbl.tBodies[0];
         idx = this._index( idx, sec.rows.length );
 
-        return insertNode( sec, tr, sec.rows[idx] );
+        return insertNodes( sec, tr, sec.rows[idx] );
     }
 
 
@@ -2631,7 +2598,7 @@ class Table {
         idx = this._index( idx, this._cols );
 
         for ( const tr of this._tbl.rows ) {
-            insertNode( tr, cells[_n++], indexCell(tr, idx) );
+            insertNodes( tr, cells[_n++], indexCell(tr, idx) );
         }
         if ( !_x ) this._cols++;
 
@@ -2784,6 +2751,83 @@ class Table {
     }
 
 
+    //-- 增强接口 -------------------------------------------------------------
+
+
+    /**
+     * 移除多行元素。
+     * idx为针对表格整体下标位置，支持负数从末尾算起。
+     * @param  {Number} idx 起始位置
+     * @param  {Number} cnt 行计数，可选
+     * @return {[Element]} 移除的行元素集
+     */
+    removes( idx, cnt ) {
+        //
+    }
+
+
+    /**
+     * 插入多行元素（前插）。
+     * idx为针对表格整体下标位置，支持负数。
+     * idx默认值为0时，逻辑类似于prepend。
+     * @param  {Number} cnt 行计数
+     * @param  {Number} idx 目标位置，可选
+     * @return {[Element]} 新插入的行元素集
+     */
+    inserts( cnt, idx = 0 ) {
+        //
+    }
+
+
+    /**
+     * 向末尾添加多行。
+     * @param  {Number} cnt 行计数
+     * @param  {TableSection} tsec 表格区域，可选
+     * @return {[Element]} 新添加的行元素集
+     */
+    append( cnt, tsec ) {
+        tsec = tsec || this._tbl;
+
+        return varyAppend2(
+            tsec,
+            this._newTRs( cnt, tsec.rows[tsec.rows.length-1] )
+        );
+    }
+
+
+    /**
+     * 表格框架克隆。
+     * 如果表头/表脚行数为0，则不包含表头/表脚。
+     * 即便行数全为零，新表格实例也包含了相同列数属性。
+     * 注意：
+     * - 不包含单元格内容的克隆（新表）。
+     * - 不包含事件处理器的克隆（可另用.cloneEvent完成）。
+     * @param  {Number} rows 表体行数
+     * @param  {Number} head 表头行数，可选
+     * @param  {Number} foot 表脚行数，可选
+     * @return {Table} 新表格元素的Table实例
+     */
+    clone( rows, head = 0, foot = 0 ) {
+        let _tbo = new Table(),
+            _sec = null;
+        _tbo._cols = this._cols;
+
+        if ( head > 0 ) {
+            _sec = _tbo.head( true );
+            while ( head-- ) _tbo.insertTR( _tbo.newTR(true), 0, _sec );
+        }
+        if ( foot > 0 ) {
+            _sec = _tbo.foot( true );
+            while ( foot-- ) _tbo.insertTR( this.newTR(), 0, _sec );
+        }
+        if ( rows > 0 ) {
+            _sec = _tbo.body( true );
+            while ( rows-- ) _tbo.insertTR( this.newTR(), 0, _sec );
+        }
+        return _tbo;
+    }
+
+
     //-- 私有辅助 -------------------------------------------------------------
 
 
@@ -2822,7 +2866,7 @@ class Table {
 
         if ( idx >= 0 ) {
             while ( !this._tbl.tBodies[idx] ) {
-                _el = insertNode( this._tbl, this._create('tbody'), this._tbl.tFoot );
+                _el = insertNodes( this._tbl, this._create('tbody'), this._tbl.tFoot );
             }
         }
         return _el;
@@ -2846,7 +2890,24 @@ class Table {
             return varyAfter( _ref, body );
         }
         // [0] 位置。
-        return insertNode( this._tbl, body, this._tbl.tBodies[0] || this._tbl.tFoot );
+        return insertNodes( this._tbl, body, this._tbl.tBodies[0] || this._tbl.tFoot );
+    }
+
+
+    /**
+     * 创建新行集。
+     * @param  {Number} rows 行数
+     * @param  {Element} ref 参考行
+     * @return {[Element]} 新行元素集
+     */
+    _newTRs( rows, ref ) {
+        let _head = ref && ref.parentElement.tagName === 'THEAD',
+            _buf = [];
+
+        while ( rows-- > 0 ) {
+            _buf.push( this.newTR(_head) );
+        }
+        return _buf;
     }
 
 
@@ -5024,7 +5085,7 @@ function classToggleAll( el ) {
 
     if ( !__classNames.has(el) ) {
         if ( !_cls.length ) {
-            // 初始即无值可切换。
+            // 无值忽略，不影响再次调用。
             return;
         }
         __classNames.set( el, _cls );
@@ -5819,9 +5880,9 @@ const
     evnNormalize    = 'normalize',
     evnNormalized   = 'normalized',
 
-    evnBound        = 'eventbound',
-    evnUnbound      = 'eventunbound',
-    evnCloneEvent   = 'eventclone';
+    evnBound        = 'evbound',
+    evnUnbound      = 'evunbound',
+    evnCloneEvent   = 'evclone';
 
 
 /**
@@ -6102,7 +6163,6 @@ function varyPrepend( el, nodes ) {
 
 /**
  * 元素内后添加。
- * 注记：兼容字符串视为普通文本插入，下同。
  * @param  {Element} el 容器元素
  * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
@@ -6111,6 +6171,22 @@ function varyAppend( el, nodes ) {
     limitTrigger( el, evnNodeIn, [nodes, 'append'] );
     el.append(
         ...detachNodes(nodes)
+    );
+    limitTrigger( el, evnNodeDone, [nodes, 'append'] );
+    return nodes;
+}
+
+
+/**
+ * 元素内后添加（数据游离）。
+ * @param  {Element} el 容器元素
+ * @param  {Node|[Node]} nodes 节点数据（集）
+ * @return {nodes}
+ */
+function varyAppend2( el, nodes ) {
+    limitTrigger( el, evnNodeIn, [nodes, 'append'] );
+    el.append(
+        ...( isArr(nodes) ? nodes : [nodes] )
     );
     limitTrigger( el, evnNodeDone, [nodes, 'append'] );
     return nodes;
@@ -6127,6 +6203,22 @@ function varyBefore( el, nodes ) {
     limitTrigger( el, evnNodeIn, [nodes, 'before'] );
     el.before(
         ...detachNodes(nodes)
+    );
+    limitTrigger( el, evnNodeDone, [nodes, 'before'] );
+    return nodes;
+}
+
+
+/**
+ * 节点前插入（游离数据）。
+ * @param  {Node} el 参考节点
+ * @param  {Node|[Node]} nodes 节点数据（集）
+ * @return {nodes}
+ */
+function varyBefore2( el, nodes ) {
+    limitTrigger( el, evnNodeIn, [nodes, 'before'] );
+    el.before(
+        ...( isArr(nodes) ? nodes : [nodes] )
     );
     limitTrigger( el, evnNodeDone, [nodes, 'before'] );
     return nodes;
@@ -6289,12 +6381,12 @@ function varyWrapAll( root, box, nodes ) {
  * 子元素插入封装。
  * 注：子元素是新建的游离元素。
  * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
- * @param  {Element} sub 子元素
+ * @param  {Element|[Element]} sub 子元素（集）
  * @param  {Element} ref 位置引用（前插），可选
- * @return {Element} 新插入的子元素
+ * @return {Element|[Element]} 新插入的子元素（集）
  */
-function insertNode( box, sub, ref ) {
-    return ref ? varyBefore(ref, sub) : varyAppend(box, sub);
+function insertNodes( box, sub, ref ) {
+    return ref ? varyBefore2(ref, sub) : varyAppend2(box, sub);
 }
 
 

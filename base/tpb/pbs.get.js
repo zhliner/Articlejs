@@ -97,7 +97,11 @@ const _Gets = {
      * 2. evo(1) pop $('/a')  // 检索事件起始元素内的首个<a>元素
      * 4. push('/p') $(_1)    // rid从流程获取，效果同1
      * 5. push('/a') evo(1) pop $(_1)  // 效果同2
-     * 6. $  // 起点元素自身
+     * 6. $         // 起点元素自身
+     * 7. $('/')    // 同上
+     * 注意：
+     * 若以起点元素为上下文，选择器必需包含二阶分隔符（/）。
+     * 否则视为全局选择器（document为上下文）。
      * @param  {Object} evo 事件关联对象
      * @param  {String} rid 相对ID，可选
      * @return {Element}
@@ -528,8 +532,7 @@ const _Gets = {
      * 可选择同时克隆元素上绑定的事件处理器。
      * 注记：
      * 同时支持Collector实例，下同。
-     * 数组版也支持Collector，但仅采用.map方法逐个操作。
-     *
+     * @data: Element|[Element]
      * @param  {Boolean} event 包含事件处理器，可选
      * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
      * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
@@ -540,6 +543,31 @@ const _Gets = {
     },
 
     __clone: 1,
+
+
+    /**
+     * 单元素多次克隆。
+     * 目标：暂存区/栈顶1项。
+     * 可选择同时克隆元素上绑定的事件处理器。
+     * @data: Element
+     * @param  {Number} cnt 克隆个数
+     * @param  {Boolean} event 包含事件处理器，可选
+     * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
+     * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
+     * @return {[Element]}
+     */
+    clones( evo, cnt, event, deep, eventdeep ) {
+        let _buf = [];
+
+        while ( cnt-- > 0 ) {
+            _buf.push(
+                $.clone( evo.data, event, deep, eventdeep )
+            );
+        }
+        return _buf;
+    },
+
+    __clones: 1,
 
 
     /**

@@ -702,13 +702,13 @@
     </div>
     <!-- 元素路径：
         - toggle 快捷键隐显切换。
-        - varyempty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
+        - empty 鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
         - click(b:x) 微编辑找回编辑点友好。-->
     <div id="g-path" class="_path"
         on="click(b)|env('minied') end evo(2) v.source scam;
             mouseenter(b)|('_point') evo(2) v.source pop;
             mouseleave(b)|stop ('_point') evo(2) v.source pop;
-            varyempty;
+            empty;
             click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
             toggle|evo(3) lose(2)"
         by="Ed.pathTo(_1) $$('/b')"

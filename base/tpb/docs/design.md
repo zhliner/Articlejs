@@ -284,16 +284,19 @@ local( name: String|null, its?: Value|String|null): void|Value
 // 设置/取值浏览器本地数据（localStorage）。
 
 $if( val, elseval?: Value ): Value
-// 条件为真赋值。
-
-ifnot( val, elseval?: Value ): Value
-// 条件为假赋值。
+// 条件判断。
 
 $case( ...vals: String ): [Boolean]
 // 分支比较。
 
 $switch( ...vals: String ): Value
 // 分支判断赋值。
+
+or( val, strict ): Value
+// 假值替换
+
+and( val, strict ): Value
+// 真值替换
 
 
 

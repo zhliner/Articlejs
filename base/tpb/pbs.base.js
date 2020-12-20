@@ -484,11 +484,11 @@ const _Control = {
 
 
     /**
-     * 条件为真赋值。
+     * 条件判断传值。
      * 目标：暂存区/栈顶1项。
      * 如果目标值为真（广义），val入栈，否则elseval入栈。
-     * @param  {Value} val IF赋值
-     * @param  {Boolean} elseval ELSE赋值，可选
+     * @param  {Value} val 为真传值
+     * @param  {Boolean} elseval ELSE传值，可选
      * @return {Value}
      */
     $if( evo, val, elseval ) {
@@ -496,21 +496,6 @@ const _Control = {
     },
 
     __$if: 1,
-
-
-    /**
-     * 条件为假赋值。
-     * 目标：暂存区/栈顶1项。
-     * 如果目标值为假（广义），val入栈，否则elseval入栈。
-     * @param  {Value} val IF赋值
-     * @param  {Boolean} elseval ELSE赋值，可选
-     * @return {Value}
-     */
-    ifnot( evo, val, elseval ) {
-        return !evo.data ? val : elseval;
-    },
-
-    __ifnot: 1,
 
 
     /**
@@ -550,6 +535,42 @@ const _Control = {
     },
 
     __$switch: 1,
+
+
+    /**
+     * 假值替换。
+     * 目标：暂存区/栈顶1项。
+     * 如果目标为假，返回传递的替换值。
+     * @param  {Value} val 替换值
+     * @param  {Boolean} strict 严格相等比较（===）
+     * @return {Value} 替换值或原始值
+     */
+    or( evo, val, strict ) {
+        if ( strict ) {
+            return evo.data === false ? val : evo.data;
+        }
+        return evo.data || val;
+    },
+
+    __or: 1,
+
+
+    /**
+     * 真值替换。
+     * 目标：暂存区/栈顶1项。
+     * 如果目标为真，返回传递的替换值。
+     * @param  {Value} val 替换值
+     * @param  {Boolean} strict 严格相等比较（===）
+     * @return {Value} 替换值或原始值
+     */
+    and( evo, val, strict ) {
+        if ( strict ) {
+            return evo.data === true ? val : evo.data;
+        }
+        return evo.data && val;
+    },
+
+    __and: 1,
 
 };
 
@@ -1226,15 +1247,15 @@ const _Process = {
 
 
     // 逻辑运算
-    // @return {Boolean}
     //-----------------------------------------------------
 
     /**
      * 是否在[min, max]之内（含边界）。
      * 目标：暂存区/栈顶1项。
      * 注：全等（===）比较。
-     * @param {Number} min 最小值
-     * @param {Number} max 最大值
+     * @param  {Number} min 最小值
+     * @param  {Number} max 最大值
+     * @return {Boolean}
      */
     within( evo, min, max ) {
         return min <= evo.data && evo.data <= max;
@@ -1247,7 +1268,8 @@ const _Process = {
      * 目标是否在实参序列中。
      * 目标：暂存区/栈顶1项。
      * 注：与其中任一值相等（===）。
-     * @param {...Value} vals 实参序列
+     * @param  {...Value} vals 实参序列
+     * @return {Boolean}
      */
     include( evo, ...vals ) {
         return vals.includes( evo.data );
@@ -1259,7 +1281,8 @@ const _Process = {
     /**
      * 是否两者为真。
      * 目标：暂存区/栈顶2项。
-     * 如果传递strict为真则与true全等（===）比较。
+     * @param  {Boolean} strict 严格相等比较（===）
+     * @return {Boolean}
      */
     both( evo, strict ) {
         let [x, y] = evo.data;
@@ -1272,7 +1295,8 @@ const _Process = {
     /**
      * 是否任一为真。
      * 目标：暂存区/栈顶2项。
-     * 如果传递strict为真则与true全等（===）比较。
+     * @param  {Boolean} strict 严格相等比较（===）
+     * @return {Boolean}
      */
     either( evo, strict ) {
         let [x, y] = evo.data;
@@ -1289,7 +1313,8 @@ const _Process = {
      * test接口：function(value, key, obj): Boolean
      *
      * @data: Array|Object|Collector|[.entries]
-     * @param {Function} test 测试函数，可选
+     * @param  {Function} test 测试函数，可选
+     * @return {Boolean}
      */
     every( evo, test ) {
         return $.every( evo.data, test || (v => v), null );
@@ -1302,7 +1327,8 @@ const _Process = {
      * 是否有任一项为真。
      * 目标：暂存区/栈顶1项。
      * 说明参考every。
-     * @param {Function} test 测试函数，可选
+     * @param  {Function} test 测试函数，可选
+     * @return {Boolean}
      */
     some( evo, test ) {
         return $.some( evo.data, test || (v => v), null );
@@ -1324,8 +1350,9 @@ const _Process = {
      * 注意：
      * 对比值通常只是简单类型，对象或数组只取引用本身。
      * @data: Object
-     * @param {String} name 成员名称（集）
-     * @param {Value|[Value]} val 对比值或值集
+     * @param  {String} name 成员名称（集）
+     * @param  {Value|[Value]} val 对比值或值集
+     * @return {Boolean}
      */
     inside( evo, name, val ) {
         if ( __reSpace.test(name) ) {

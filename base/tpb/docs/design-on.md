@@ -137,8 +137,11 @@ gather( names:String ): Object
 els( tag:String, n:Number ): Element | [Element]
 // 批量创建元素。
 
-clone( event:?, deep?:, eventdeep?:Boolean ): Element|Collector
+clone( event?, deep?, eventdeep?:Boolean ): Element|Collector
 // 元素克隆。
+
+clones( cnt:Number, event?, deep?, eventdeep?:Boolean ): [Element]
+// 多次克隆（单元素）。
 
 Element( tag:String ): Element | Collector
 // 创建元素。

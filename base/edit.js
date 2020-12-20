@@ -35,7 +35,7 @@ const
     Normalize = $.Fx.History.Normalize,
 
     // 编辑需要监听的变化事件。
-    varyEvents = 'attrvary cssvary varyprepend varyappend varybefore varyafter varyreplace varyempty varyremove varynormalize',
+    varyEvents = 'attrvary stylevary nodein replace empty detach normalize',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
