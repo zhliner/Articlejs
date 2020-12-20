@@ -2,7 +2,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++
 // 	Project: dom-history v0.1.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2020 - 2020 铁皮工作室  MIT License
+// 	Copyright (c) 2020 - 2021 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -12,14 +12,11 @@
 //  改变包含：
 //  - 特性变化：attrvary
 //  - 属性变化：propvary
-//  - 样式变化：cssvary
+//  - 样式变化：stylevary
 //  - 类名变化：classvary
-//  - 内容变化：nodevary
-//    type: [
-//          append, prepend, before, after, replace,
-//          empty, remove, normalize
-//    ]
-//  事件处理绑定变化：bound, unbound, boundone
+//  - 内容变化：nodein, detach, replace, empty, normalize
+//
+//  事件处理绑定变化：evbound, evunbound, evclone
 //
 //  适用前提
 //  --------
@@ -32,7 +29,7 @@
 //  - 调用 .back(n) 即可回退 DOM 的变化。
 //
 //  注意：
-//  back即为undo的逻辑，如果需要redo，用户需要自己编写（操作实例化即可）。
+//  back即为undo的逻辑，redo需要用户自己编写（比如操作实例化）。
 //  监听事件通常绑定在上层容器上，因此脱离节点树的节点的变化会无法监听。
 //
 //
@@ -50,24 +47,21 @@
         // 简单值变化处理器。
         attrvary:   ev => new Attr( ev.target, ev.detail[0] ),
         propvary:   ev => new Prop( ev.target, ev.detail[0] ),
-        cssvary:    ev => new Style( ev.target ),
+        stylevary:  ev => new Style( ev.target ),
         classvary:  ev => new Class( ev.target ),
 
         // 节点变化处理器。
-        // 注：共8个基本变化。
-        varyprepend:    ev => new NodeVary( ev.detail ),
-        varyappend:     ev => new NodeVary( ev.detail ),
-        varybefore:     ev => new NodeVary( ev.detail ),
-        varyafter:      ev => new NodeVary( ev.detail ),
-        varyremove:     ev => new Node( ev.target ),
-        varyempty:      ev => new Empty( ev.target ),
-        varyreplace:    ev => new Replace( ev.target, ev.detail ),
-        varynormalize:  ev => new Normalize( ev.target ),
+        // 注：共5个事件类型。
+        nodein:     ev => new Nodein( ev.detail[0] ),
+        detach:     ev => new Remove( ev.target ),
+        empty:      ev => new Empty( ev.target ),
+        replace:    ev => new Replace( ev.target, ev.detail ),
+        normalize:  ev => new Normalize( ev.target ),
 
         // 事件绑定变化处理器。
-        eventbound:     ev => new Bound( ev.target, ...ev.detail ),
-        eventunbound:   ev => new Unbound( ev.target, ...ev.detail ),
-        eventclone:     ev => new EventClone( ...ev.detail ),
+        evbound:    ev => new Bound( ev.target, ...ev.detail ),
+        evunbound:  ev => new Unbound( ev.target, ...ev.detail ),
+        evclone:    ev => new EventClone( ...ev.detail ),
     };
 
 
@@ -106,8 +100,8 @@ class History {
 
         callBack( () =>
             this._buf.splice( -n )
-            .reverse()
-            .forEach( obj => obj.back() )
+                .reverse()
+                .forEach( obj => obj.back() )
         );
     }
 
@@ -204,7 +198,7 @@ class Prop {
 
 //
 // 内联样式修改。
-// 关联事件：cssvary
+// 关联事件：stylevary
 // 注记：使用原生接口。
 //
 class Style {
@@ -349,80 +343,57 @@ class EventClone {
 
 
 //
-// 节点通用操作封装。
-// 关联事件：nodevary
+// 节点进入操作。
+// 确定数据节点已事先脱离DOM。
+// 适用方法：.prepend, .append, .before, .after
 //
-class NodeVary {
+class Nodein {
     /**
-     * @param {Element} el 主元素（激发事件）。
-     * @param {Node|[Node]} data 事件数据（集）
+     * @param {Node|[Node]} data 待插入节点（集）
      */
     constructor( data ) {
-        this._obj = $.isArray(data) ? new Nodes(data) : new Node(data);
+        this._nodes = $.isArray( data ) ? data : [ data ];
     }
 
 
     back() {
-        this._obj.back();
+        this._nodes.forEach( node => node.remove() );
     }
 }
 
 
 //
-// 单节点操作。
-// 注记：使用原生接口。
+// 节点移除操作。
+// 确定节点在DOM中（否则不会触发）。
 //
-class Node {
+class Remove {
     /**
-     * @param {Node} node 数据节点
+     * @param {Node} node 待移除节点
      */
     constructor( node ) {
-        this._prev = node.previousSibling;
+        this._node = node;
         // 兼容DocumentFragment
-        this._box  = node.parentNode;
-        this._data = node;
+        this._prev = node.previousSibling;
+        this._box = node.parentNode;
     }
 
 
     back() {
         if ( this._prev ) {
-            this._prev.after( this._data );
+            return this._prev.after( this._node );
         }
-        else if (this._box) {
-            this._box.prepend( this._data );
-        }
-        // 原为游离节点
-        else this._data.remove();
-    }
-}
-
-
-//
-// 多节点操作。
-//
-class Nodes {
-    /**
-     * @param {[Node]} data 数据节点集
-     */
-    constructor( data ) {
-        this._buf = data.map( nd => new Node(nd) );
-    }
-
-
-    back() {
-        this._buf.forEach( obj => obj.back() );
+        this._box.prepend( this._node );
     }
 }
 
 
 //
 // 节点替换操作。
-// 实际上包含了两个行为的后果：
-// - 数据源脱离原位置（可由 varyremove 恢复）。
-// - 主节点脱离原位置。
+// 包含了两个行为：
+// 1. 数据节点的插入。
+// 2. 原节点的移除。
 // 注记：
-// 游离节点无法通过 varyremove 回退移除此处的存在，
-// 因此需要附加处理。
+// $.replace实现为数据节点已先脱离。
 //
 class Replace {
     /**
@@ -430,10 +401,8 @@ class Replace {
      * @param {Node|[Node]} data 数据节点/集
      */
     constructor( el, data ) {
-        this._op0 = new Node(el);
-        // 容错 remove 回退，
-        // 无需提取游离节点单独处理。
-        this._op1 = $.isArray(data) ? new Nodes(data) : new Node(data);
+        this._op0 = new Remove( el );
+        this._op1 = new Nodein( data );
     }
 
 
@@ -451,7 +420,8 @@ class Replace {
 
 //
 // 元素清空操作。
-// 注：使用原生接口，空集忽略。
+// 注记：
+// 已经为空的元素不会触发事件。
 //
 class Empty {
     /**
@@ -464,9 +434,7 @@ class Empty {
 
 
     back() {
-        if ( this._data.length ) {
-            this._box.prepend( ...this._data );
-        }
+        this._box.prepend( ...this._data );
     }
 }
 
@@ -506,7 +474,7 @@ class Normalize {
 // 相邻文本节点处理。
 // 辅助处理normalize的回退。
 // 注记：
-// 需要保持原文本节点的引用（其它节点可能依赖与它）。
+// 需要保持原文本节点的引用（其它节点可能依赖于它）。
 //
 class Texts {
     /**
