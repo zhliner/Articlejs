@@ -3404,6 +3404,7 @@ function _sibling2( el, slr, dir ) {
     return null;
 }
 
+
 /**
  * dir方向全部兄弟。
  * 可选的用slr进行匹配过滤。
@@ -7986,9 +7987,10 @@ Object.assign( tQuery, {
      * 注记：
      * y 值兼容 scrollIntoViewIfNeeded 的实参值（Safari）。
      *
-     * @param {Element} el 待滚动元素
-     * @param {Number|String|true|false} y 垂直位置标识
-     * @param {Number|String} x 水平位置标识
+     * @param  {Element} el 待滚动元素
+     * @param  {Number|String|true|false} y 垂直位置标识
+     * @param  {Number|String} x 水平位置标识
+     * @return {void}
      */
     intoView( el, y = 1, x = 0 ) {
         let inline = intoViewWhere[x] || 'nearest',

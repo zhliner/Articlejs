@@ -22,7 +22,7 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
-import { isContent, virtualBox, contentBoxes, tableObj, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
+import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
 import { options, property } from "./templates.js";
@@ -4063,11 +4063,12 @@ export const Kit = {
 
 
     /**
-     * 获取首个被选取的元素。
-     * @return {Element}
+     * 获取首个选取元素的表格实例。
+     * 注：选取元素可能是表格的子单元。
+     * @return {Table}
      */
-    sels0() {
-        return __ESet.first();
+    table() {
+        return tableObj( tableNode(__ESet.first()) );
     },
 
 
@@ -4253,7 +4254,8 @@ export const Kit = {
      * 错误元素提示。
      * 按住聚焦辅助键单击设置焦点。
      * @data: Element 问题元素
-     * @param {Set} scam 按下的修饰键集
+     * @param  {Set} scam 按下的修饰键集
+     * @return {void}
      */
     tips( evo, scam ) {
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
@@ -4268,10 +4270,11 @@ export const Kit = {
      * 章节滚动。
      * 滚动目标章节到当前视口。
      * @data: [Number] 章节序列
+     * @return {void}
      */
     chapter( evo ) {
         let _el = $.get( h2PathSelector(evo.data), $.get('article', contentElem) );
-        return _el && $.intoView( _el, 2, 1 );
+        if ( _el ) $.intoView( _el, 2, 1 );
     },
 
     __chapter: 1,
@@ -4344,6 +4347,7 @@ export const Kit = {
      * 微编辑取消。
      * 注记：
      * 进入时已更新历史栈，所以取消后无重做能力。
+     * @return {void}
      */
     medcancel() {
         __History.pop();
@@ -4364,7 +4368,8 @@ export const Kit = {
      * 注意：
      * 用户可能在已选取元素内划选创建，因此使用add方法添加。
      * @data: Range
-     * @param {String} name 单元名称
+     * @param  {String} name 单元名称
+     * @return {void}
      */
     rngelem( evo, name ) {
         let _box = evo.data.commonAncestorContainer;
@@ -4408,6 +4413,7 @@ export const Kit = {
      * 注记：
      * 模板中保证选取集转换到的可用清单合法。
      * @data: String
+     * @return {void}
      */
     convert( evo ) {
         let $els = $( __ESet ),
@@ -4422,6 +4428,25 @@ export const Kit = {
     },
 
     __convert: 1,
+
+
+    /**
+     * 裁剪表格行。
+     * 表格末尾添加或移除以保持目标行数。
+     * @data: TableSection
+     * @param  {Number} size 目标行数
+     * @return {[Element]|void} 新插入或移除的行集
+     */
+    croptr( evo, size ) {
+        let _tbd = evo.data,
+            _cnt = size - _tbd.rows.length,
+            _tbo = $.table( _tbd.parentElement );
+
+        if ( _cnt < 0 ) return _tbo.removes( _cnt, null, _tbd );
+        if ( _cnt > 0 ) return _tbo.inserts( _cnt, null, _tbd );
+    },
+
+    __croptr: 1,
 
 };
 
@@ -4454,6 +4479,7 @@ processExtend( 'Kit', Kit, [
     'rngelem',
     'cmenudo',
     'convert',
+    'croptr',
 ]);
 
 
@@ -4462,7 +4488,7 @@ processExtend( 'Kit', Kit, [
 //
 customGetter( null, Kit, [
     'sels',
-    'sels0',
+    'table',
     'esize',
     'source',
     'rngok',

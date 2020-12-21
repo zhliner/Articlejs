@@ -179,6 +179,7 @@ const _Gets = {
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称，返回一个值数组。
      * 单个名称时返回一个值。
+     * 单个名称可为包含句点（.）连接形式的递进取值。
      * @param  {String} name 名称（序列）
      * @return {Value|[Value]}
      */
@@ -1669,14 +1670,28 @@ function $mapCall( data, meth, ...args ) {
 /**
  * 对象成员取值。
  * name可能由空格分隔为多个名称。
+ * 单个名称内可用句点（.）连接表达递进取值。
  * 单名称时返回值，多个名称时返回值集。
  * @param  {String} name 名称/序列
  * @param  {Object} obj 取值对象
  * @return {Value|[Value]} 值（集）
  */
 function namesValue( name, obj ) {
-    return __reSpace.test(name) ?
-        name.split(__reSpace).map( n => obj[n] ) : obj[name];
+    if ( __reSpace.test(name) ) {
+        return name.split(__reSpace).map( n => subVal(n, obj) );
+    }
+    return subVal( name, obj );
+}
+
+
+/**
+ * 子级递进取值。
+ * @param  {String} name 名称序列
+ * @param  {Object} obj 取值对象
+ * @return {Value} 结果值
+ */
+function subVal( name, obj ) {
+    return name.split('.').reduce( (d, k) => d[k], obj );
 }
 
 

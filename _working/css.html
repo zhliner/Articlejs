@@ -518,7 +518,7 @@
                                 Shift+↑ 向上单元格跳转。
                                 注记：已转移到 /obts/table.json 供正式使用。-->
                             <table border="1"
-                                on="keydown(td,th)|ev('key') include('ArrowUp', 'ArrowDown') scam('shift') both pass avoid evo(2);
+                                on="keydown(td,th)|ev('key') include('ArrowUp', 'ArrowDown') (KM.tableCellx) scam(_1) both pass avoid evo(2);
                                     keydown(td,th)|ev('key') eq('Enter') scam('shift') vnot both pass avoid evo(2);
                                     downcell|data('tbo') ev('detail') call('columnNextCell', _1) dup pass pop;
                                     upcell|data('tbo') ev('detail') call('columnPrevCell', _1) dup pass pop;

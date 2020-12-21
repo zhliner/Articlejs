@@ -640,7 +640,7 @@ export function tableObj( tbl, tbo ) {
     if ( tbo ) {
         return __tablePool.set( tbl, tbo );
     }
-    return __tablePool.get(tbl) || __tablePool.set( tbl, $.table(tbl) ).get( tbl )
+    return __tablePool.get(tbl) || __tablePool.set( tbl, $.table(tbl) ).get( tbl );
 }
 
 

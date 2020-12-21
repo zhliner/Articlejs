@@ -777,6 +777,10 @@ Keys: {
     // [Key] + 鼠标拖动。
     slaveResize:  'Alt',
 
+    // 表格单元格列向切换
+    // [Key] + 上下箭头键
+    tableCellx: 'Shift',
+
 
     // 多选/切换
     // [Key] + 单击

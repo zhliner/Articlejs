@@ -23,7 +23,7 @@
 
 <!-- 更新：主要用于标题类 -->
 <div class="_submit" tpl-name="input:update">
-    <button type="submit">更新</button>
+    <button type="submit">插入/更新</button>
 </div>
 
 <!--章节内片段：s1-s5, section
@@ -38,7 +38,7 @@
     <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
 </div>
 
-<!-- 表格行数定义 -->
+<!--表格行数：仅表体<tbody>部分 -->
 <div class="_option" tpl-name="part:rows">
     <label>行数
         <input id="_rows" name="rows" type="text" class="_nums" title="行数" />
@@ -386,6 +386,7 @@
                 <input name="cols" type="text" class="_nums" title="列数" value="4" />
                 x
                 <input name="rows" type="text" class="_nums" title="行数" value="5" />
+                <!-- 行数不包含表头/表脚部分 -->
             </label>
         </header>
         <div class="_list">
@@ -758,12 +759,12 @@
     </aside>
 </div>
 
-<div class="_body _Thead" tpl-name="input:thead">
+<div class="_body _THead" tpl-name="input:thead">
     <div class="_main">
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->
             <table border="1" obt-src="obts/table.json"
-                on="new|v.sels0 table(_1) call('newTR', true) $('3/#_rows') val or(1) clones(_1)"
+                on="new|v.table call('newTR', true) $('3/#_rows') val or(1) clones(_1)"
                 to="/thead|fill">
                 <thead tpl-node="item:thead"></thead>
             </table>
@@ -777,16 +778,17 @@
     </aside>
 </div>
 
-<div class="_body _Tbody" tpl-name="input:tbody">
+<div class="_body _TBody" tpl-name="input:tbody">
     <div class="_main">
         <div class="_list">
             <!--原表匹配创建
                 new 创建与原表相同列类型的行集（默认5行）。
-                crop 裁剪为目标行数（删减/增加）。
-                注：仅适配选取的首个表格元素。-->
+                crop 裁剪为目标行数（末尾删减/增加）。强制保证至少1行（避免列头失效）。-->
             <table border="1" obt-src="obts/table.json"
-                on="new|v.sels0 table(_1) call('newTR') $('3/#_rows') val or(5) clones(_1);
-                    crop|"
+                on="new|v.table call('newTR') $('3/#_rows') val or(5) clones(_1);
+                    crop|$('/tbody') ev('detail') or(1)"
+                by="-;
+                    Kit.croptr(_1)"
                 to="/tbody|fill">
                 <tbody tpl-node="item:tbody"></tbody>
             </table>
@@ -801,12 +803,12 @@
 </div>
 
 <!--OBT：列单元格与目标保持一致。-->
-<div class="_body _Tfoot" tpl-name="input:tfoot">
+<div class="_body _TFoot" tpl-name="input:tfoot">
     <div class="_main">
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->
             <table border="1" obt-src="obts/table.json"
-                on="new|v.sels0 table(_1) call('newTR') $('3/#_rows') val or(1) clones(_1)"
+                on="new|v.table call('newTR') $('3/#_rows') val or(1) clones(_1)"
                 to="/tfoot|fill">
                 <tfoot tpl-node="item:tfoot"></tfoot>
             </table>
