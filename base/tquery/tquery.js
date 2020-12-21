@@ -2512,14 +2512,14 @@ class Table {
      * 表格行是否有相同的列数由外部负责，此不再检查。
      * @param  {Element} tr 表格行元素
      * @param  {Number} idx 位置下标（从0开始），可选
-     * @param  {TableSection} sec 表区域，可选
+     * @param  {TableSection} tsec 表区域，可选
      * @return {Element} tr
      */
-    insertTR( tr, idx, sec ) {
-        sec = sec || this._tbl.tBodies[0];
-        idx = this._index( idx, sec.rows.length );
+    insertTR( tr, idx, tsec ) {
+        tsec = tsec || this._tbl.tBodies[0];
+        idx = this._index( idx, tsec.rows.length );
 
-        return insertNodes( sec, tr, sec.rows[idx] );
+        return insertNodes( tsec, tr, tsec.rows[idx] );
     }
 
 
@@ -2751,47 +2751,48 @@ class Table {
     }
 
 
-    //-- 增强接口 -------------------------------------------------------------
+    //-- 便捷接口 -------------------------------------------------------------
+
+
+    /**
+     * 插入多行元素。
+     * idx为针对目标表区域的下标位置，支持负数从末尾算起。
+     * idx为0时插入最前端（prepend），未传值或null时添加到末尾（append）。
+     * 若未指定表区域tsec，默认为首个表体<tbody>元素。
+     * @param  {Number} cnt 行数
+     * @param  {Number|null} idx 目标位置
+     * @param  {TableSection} tsec 表格区域，可选
+     * @return {[Element]} 新插入的行元素集
+     */
+    inserts( cnt, idx, tsec ) {
+        tsec = tsec || this._tbl.tBodies[0];
+        return insertNodes( tsec, this._newTRs(cnt, tsec), this.tr(idx, tsec) );
+    }
 
 
     /**
      * 移除多行元素。
-     * idx为针对表格整体下标位置，支持负数从末尾算起。
-     * @param  {Number} idx 起始位置
-     * @param  {Number} cnt 行计数，可选
+     * idx为针对目标表区域的下标位置，支持负数从末尾算起。
+     * end为结束行位置（不包含），小于起始位置或为null，视为末尾。
+     * 若未指定表区域tsec，默认为首个表体<tbody>元素。
+     * @param  {Number} idx 起始下标
+     * @param  {Number} end 结束位置下标（不含）
+     * @param  {TableSection} tsec 表格区域，可选
      * @return {[Element]} 移除的行元素集
      */
-    removes( idx, cnt ) {
-        //
-    }
+    removes( idx, end, tsec ) {
+        tsec = tsec || this._tbl.tBodies[0];
 
+        let _beg = this.tr( idx, tsec );
+        if ( !_beg ) return [];
 
-    /**
-     * 插入多行元素（前插）。
-     * idx为针对表格整体下标位置，支持负数。
-     * idx默认值为0时，逻辑类似于prepend。
-     * @param  {Number} cnt 行计数
-     * @param  {Number} idx 目标位置，可选
-     * @return {[Element]} 新插入的行元素集
-     */
-    inserts( cnt, idx = 0 ) {
-        //
-    }
+        let _end = this.tr( end, tsec ),
+            _buf = [ _beg ];
 
-
-    /**
-     * 向末尾添加多行。
-     * @param  {Number} cnt 行计数
-     * @param  {TableSection} tsec 表格区域，可选
-     * @return {[Element]} 新添加的行元素集
-     */
-    append( cnt, tsec ) {
-        tsec = tsec || this._tbl;
-
-        return varyAppend2(
-            tsec,
-            this._newTRs( cnt, tsec.rows[tsec.rows.length-1] )
-        );
+        while ( (_beg = _beg.nextElementSibling) && _beg !== _end ) {
+            _buf.push( _beg );
+        }
+        return _buf.map( tr => varyRemove(tr) );
     }
 
 
@@ -2808,21 +2809,18 @@ class Table {
      * @return {Table} 新表格元素的Table实例
      */
     clone( rows, head = 0, foot = 0 ) {
-        let _tbo = new Table(),
-            _sec = null;
+        let _tbo = new Table();
+
         _tbo._cols = this._cols;
 
         if ( head > 0 ) {
-            _sec = _tbo.head( true );
-            while ( head-- ) _tbo.insertTR( _tbo.newTR(true), 0, _sec );
+            this.inserts( head, 0, _tbo.head(true) );
         }
         if ( foot > 0 ) {
-            _sec = _tbo.foot( true );
-            while ( foot-- ) _tbo.insertTR( this.newTR(), 0, _sec );
+            this.inserts( foot, 0, _tbo.foot(true) );
         }
         if ( rows > 0 ) {
-            _sec = _tbo.body( true );
-            while ( rows-- ) _tbo.insertTR( this.newTR(), 0, _sec );
+            this.inserts( rows, 0, _tbo.body(true) );
         }
         return _tbo;
     }
@@ -2897,11 +2895,11 @@ class Table {
     /**
      * 创建新行集。
      * @param  {Number} rows 行数
-     * @param  {Element} ref 参考行
+     * @param  {TableSection} tsec 所属表区域
      * @return {[Element]} 新行元素集
      */
-    _newTRs( rows, ref ) {
-        let _head = ref && ref.parentElement.tagName === 'THEAD',
+    _newTRs( rows, tsec ) {
+        let _head = tsec.tagName === 'THEAD',
             _buf = [];
 
         while ( rows-- > 0 ) {
@@ -3024,18 +3022,14 @@ class Table {
 
     /**
      * 计算合法的下标值。
-     * idx:
-     * - 支持负值从末尾算起（-1为最末一行）。
-     * - null值或超出max时，视为max本身。
+     * idx支持负值从末尾算起（-1为最末一行）。
+     * idx为null或未传值（undefined）时返回max本身。
      * @param  {Number} idx 位置下标
      * @param  {Number} max 最多行/列数限制
      * @return {Number}
      */
     _index( idx, max ) {
-        if ( idx < 0 ) {
-            idx += max;
-        }
-        return idx == null || idx < 0 || idx > max ? max : idx;
+        return idx < 0 ? idx + max : (idx == null ? max : idx);
     }
 }
 
@@ -6378,19 +6372,6 @@ function varyWrapAll( root, box, nodes ) {
 
 
 /**
- * 子元素插入封装。
- * 注：子元素是新建的游离元素。
- * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
- * @param  {Element|[Element]} sub 子元素（集）
- * @param  {Element} ref 位置引用（前插），可选
- * @return {Element|[Element]} 新插入的子元素（集）
- */
-function insertNodes( box, sub, ref ) {
-    return ref ? varyBefore2(ref, sub) : varyAppend2(box, sub);
-}
-
-
-/**
  * 专用：游离节点集替换。
  * 注记：
  * 即便节点集为空也会替换（移除效果）。
@@ -6439,6 +6420,19 @@ function detachNodes( nodes ) {
         return [ varyRemove(nodes) ];
     }
     return nodes.filter( nd => nd && varyRemove(nd) );
+}
+
+
+/**
+ * 子元素插入封装。
+ * 注：子元素是新建的游离元素。
+ * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
+ * @param  {Element|[Element]} sub 子元素（集）
+ * @param  {Element} ref 位置引用（前插），可选
+ * @return {Element|[Element]} 新插入的子元素（集）
+ */
+function insertNodes( box, sub, ref ) {
+    return ref ? varyBefore2(ref, sub) : varyAppend2(box, sub);
 }
 
 
