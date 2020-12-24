@@ -119,9 +119,9 @@
 
     另外，对于在元素上绑定和解绑事件处理器也提供了如下通知事件：
 
-    - `eventbound` 在元素上绑定事件处理器之后，适用 `tQuery.on()/one()` 接口。
-    - `eventunbound` 在元素上解绑事件处理器之后，适用 `tQuery.off()` 接口。
-    - `eventclone` 当对元素进行事件克隆时，在源元素上触发。**注**：之后会在新元素上触发 `eventbound` 事件（如果 `eventclone` 的处理器中未调用 `Event.preventDefault()`）。
+    - `evbound` 在元素上绑定事件处理器之后，适用 `tQuery.on()/one()` 接口。
+    - `evunbound` 在元素上解绑事件处理器之后，适用 `tQuery.off()` 接口。
+    - `evclone` 当对元素进行事件克隆时，在源元素上触发。**注**：之后会在新元素上触发 `evbound` 事件（如果 `evclone` 的处理器中未调用 `Event.preventDefault()`）。
 
     节点变化事件的功能默认关闭，需要执行 `$.config( {bindevent:true, varyevent:true} )` 开启。
 

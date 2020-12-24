@@ -41,7 +41,9 @@
 <!--表格行数：仅表体<tbody>部分 -->
 <div class="_option" tpl-name="part:rows">
     <label>行数
-        <input id="_rows" name="rows" type="text" class="_nums" title="行数" />
+        <input id="_rows" name="rows" type="text" class="_nums" title="行数"
+            on="change|evo(3) val int"
+            to="._body/table|trigger('trim')" />
     </label>
 </div>
 
@@ -783,10 +785,10 @@
         <div class="_list">
             <!--原表匹配创建
                 new 创建与原表相同列类型的行集（默认5行）。
-                crop 裁剪为目标行数（末尾删减/增加）。强制保证至少1行（避免列头失效）。-->
+                trim 裁剪为目标行数（末尾删减/增加）。强制保证至少1行（避免列头失效）。-->
             <table border="1" obt-src="obts/table.json"
                 on="new|v.table call('newTR') $('3/#_rows') val or(5) clones(_1);
-                    crop|$('/tbody') ev('detail') or(1)"
+                    trim|$('/tbody') ev('detail') or(1)"
                 by="-;
                     Kit.croptr(_1)"
                 to="/tbody|fill">

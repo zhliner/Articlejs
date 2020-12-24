@@ -80,13 +80,13 @@
     事件绑定变化事件
     如果元素绑定或解绑事件处理器时触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
 
-    - eventbound    // 事件绑定事件
-    - eventunbound  // 事件解绑事件
-    - eventclone    // 事件克隆事件（在新元素的 eventbound 之前，在源元素上触发）
+    - evbound    // 事件绑定事件
+    - evunbound  // 事件解绑事件
+    - evclone    // 事件克隆事件（在新元素的 evbound 之前，在源元素上触发）
 
     注：
-    如果在源元素的 eventclone 处理器中调用了 Event.preventDefault()，
-    则会取消新元素上的 eventbound 触发。
+    如果在源元素的 evclone 处理器中调用了 Event.preventDefault()，
+    则会取消新元素上的 evbound 触发。
     开启：tQuery.config({bindevent: true})
 
     注意：
