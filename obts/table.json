@@ -1,5 +1,5 @@
 {
-    "//": "Shift+Enter 向下单元格跳转并选取；Shift+↓ 同前效果；Shift+↑ 向上单元格跳转并选取。",
+    "//": "Enter 同列向下单元格跳转并选取；Shift+↓ 同前效果；Shift+↑ 同列向上单元格跳转并选取。",
     "on": "keydown(td,th)|ev('key') include('ArrowUp', 'ArrowDown') (KM.tableCellx) scam(_1) both pass avoid evo(2); keydown(td,th)|ev('key') eq('Enter') scam('shift') vnot both pass avoid evo(2); downcell|data('tbo') ev('detail') call('columnNextCell', _1) dup pass pop; upcell|data('tbo') ev('detail') call('columnPrevCell', _1) dup pass pop; ^obted|evo(1) table(_1)",
     "by": "ev('key') $case('ArrowUp', 'ArrowDown') $switch('upcell', 'downcell')",
     "to": "|trigger(_1); |trigger('downcell'); -||focus select; -||focus select; |data('tbo')"

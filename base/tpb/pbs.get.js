@@ -848,12 +848,18 @@ const _Gets = {
      * 1. 单纯的修饰键也有目标键名，形如：alt:alt。
      * 2. 所有名称皆为小写形式以保持良好约定。
      * 3. 即便没有修饰键按下，目标键名之前的冒号依然需要。如 ":a"。
-     * @return {String}
+     * @return {String|null}
      */
     acmsk( evo ) {
-        let _ks = scamKeys( evo.event );
+        let _ks = scamKeys( evo.event ),
+            _key = evo.event.key;
 
-        return `${_ks.join('+')}:${evo.event.key.toLowerCase()}`;
+        // 鼠标点击录入表单选历史记录时，也会触发keydown事件，
+        // 但此时无key键值（undefined）。
+        if ( _key === undefined ) {
+            return null;
+        }
+        return `${_ks.join('+')}:${_key.toLowerCase()}`;
     },
 
     __acmsk: null,
@@ -1686,12 +1692,18 @@ function namesValue( name, obj ) {
 
 /**
  * 子级递进取值。
+ * 如果成员不存在，返回null而非undefined，
+ * 这使得值可以有效入栈。
  * @param  {String} name 名称序列
  * @param  {Object} obj 取值对象
  * @return {Value} 结果值
  */
 function subVal( name, obj ) {
-    return name.split('.').reduce( (d, k) => d[k], obj );
+    return name.split( '.' )
+        .reduce(
+            (d, k) => d[k] === undefined ? null : d[k],
+            obj
+        );
 }
 
 

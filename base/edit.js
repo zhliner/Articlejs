@@ -2435,6 +2435,20 @@ function siblingOptions( els ) {
 
 
 /**
+ * 设置元素为可编辑状态。
+ * @param  {[Element]} els 元素集
+ * @param  {String} slr 子元素选择器
+ * @return {Element} els
+ */
+function editable( els, slr ) {
+    return $( els )
+        .find( slr )
+        .flat()
+        .attr( 'contenteditable', true );
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -4442,8 +4456,12 @@ export const Kit = {
             _cnt = size - _tbd.rows.length,
             _tbo = $.table( _tbd.parentElement );
 
-        if ( _cnt < 0 ) return _tbo.removes( _cnt, null, _tbd );
-        if ( _cnt > 0 ) return _tbo.inserts( _cnt, null, _tbd );
+        if ( _cnt < 0 ) {
+            return editable( _tbo.removes(_cnt, null, _tbd), 'th,td' );
+        }
+        if ( _cnt > 0 ) {
+            return editable( _tbo.inserts(_cnt, null, _tbd), 'th,td' );
+        }
     },
 
     __croptr: 1,

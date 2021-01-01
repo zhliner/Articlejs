@@ -43,7 +43,7 @@
     <label>行数
         <input id="_rows" name="rows" type="text" class="_nums" title="行数"
             on="change|evo(3) val int"
-            to="._body/table|trigger('trim')" />
+            to="._body/._tsec|trigger('trim')" />
     </label>
 </div>
 
@@ -761,14 +761,22 @@
     </aside>
 </div>
 
-<div class="_body _THead" tpl-name="input:thead">
+<div class="_body _Table" tpl-name="input:thead"
+    on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
+    to="|data('tbo')|pop fire('/thead', 'new')">
     <div class="_main">
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->
-            <table border="1" obt-src="obts/table.json"
-                on="new|v.table call('newTR', true) $('3/#_rows') val or(1) clones(_1)"
-                to="/thead|fill">
-                <thead tpl-node="item:thead"></thead>
+            <table border="1" obt-src="obts/table.json">
+                <thead class="_tsec"
+                    on="new|ev('detail') call('newTR', true);
+                        trim|evo(3) ev('detail') or(1);
+                        editable|(true)"
+                    by="-;
+                        Kit.croptr(_1)"
+                    to="|fill|goto('editable');
+                        -;
+                        (/th,td)|attr('contenteditable')|fire('4/#_rows', 'change')"></thead>
             </table>
         </div>
     </div>
@@ -780,19 +788,25 @@
     </aside>
 </div>
 
-<div class="_body _TBody" tpl-name="input:tbody">
+<div class="_body _Table" tpl-name="input:tbody"
+    on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
+    to="|data('tbo')|pop fire('/tbody', 'new')">
     <div class="_main">
         <div class="_list">
             <!--原表匹配创建
-                new 创建与原表相同列类型的行集（默认5行）。
-                trim 裁剪为目标行数（末尾删减/增加）。强制保证至少1行（避免列头失效）。-->
-            <table border="1" obt-src="obts/table.json"
-                on="new|v.table call('newTR') $('3/#_rows') val or(5) clones(_1);
-                    trim|$('/tbody') ev('detail') or(1)"
-                by="-;
-                    Kit.croptr(_1)"
-                to="/tbody|fill">
-                <tbody tpl-node="item:tbody"></tbody>
+                new 创建与原表相同列类型的一行，detail：内容表格实例。
+                trim 裁剪为目标行数（末尾删减/增加），默认5行（也避免列头失效）。
+                editable 让单元格可编辑。-->
+            <table border="1" obt-src="obts/table.json">
+                <tbody class="_tsec"
+                    on="new|ev('detail') call('newTR');
+                        trim|evo(3) ev('detail') or(5);
+                        editable|(true)"
+                    by="-;
+                        Kit.croptr(_1)"
+                    to="|fill|goto('editable');
+                        -;
+                        (/th,td)|attr('contenteditable')|fire('4/#_rows', 'change')"></tbody>
             </table>
         </div>
     </div>
@@ -805,14 +819,22 @@
 </div>
 
 <!--OBT：列单元格与目标保持一致。-->
-<div class="_body _TFoot" tpl-name="input:tfoot">
+<div class="_body _Table" tpl-name="input:tfoot"
+    on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
+    to="|data('tbo')|pop fire('/tfoot', 'new')">
     <div class="_main">
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->
-            <table border="1" obt-src="obts/table.json"
-                on="new|v.table call('newTR') $('3/#_rows') val or(1) clones(_1)"
-                to="/tfoot|fill">
-                <tfoot tpl-node="item:tfoot"></tfoot>
+            <table border="1" obt-src="obts/table.json">
+                <tfoot class="_tsec"
+                    on="new|ev('detail') call('newTR');
+                        trim|evo(3) ev('detail') or(1);
+                        editable|(true)"
+                    by="-;
+                        Kit.croptr(_1)"
+                    to="|fill|goto('editable');
+                        -;
+                        (/th,td)|attr('contenteditable')|fire('4/#_rows', 'change')"></tfoot>
             </table>
         </div>
     </div>
