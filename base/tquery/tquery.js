@@ -58,15 +58,22 @@
     - propvary, propdone        // 属性变化（之前、完成）
     - stylevary, styledone      // 样式变化（之前、完成）
     - classvary, classdone      // 类名变化（之前、完成）
+    注：
+    变化之前和之后激发在相同的目标元素上。
 
     - nodein, nodedone          // 节点进入DOM（之前、完成）
-    - detach, detached          // 节点脱离DOM（之前、完成）
     - replace, replaced         // 节点替换（之前、完成）
     - empty, emptied            // 节点内容清空（之前、完成）
-    - normalize, normalized     // 节点规范化 （之前、完成）
-
     注：
-    复合操作由多个基本操作组合而来。
+    变化之前激发在目标元素上，变化之后激发在数据节点上。
+
+    - detach, detached          // 节点脱离DOM（之前、完成）
+    - normalize, normalized     // 节点规范化 （之前、完成）
+    注：
+    变化之前和之后都只能激发在目标元素上。
+
+
+    另：复合操作由多个基本操作组合而来。
 
     - fill:         empty, append
     - wrap:         replace, prepend
@@ -80,9 +87,9 @@
     事件绑定变化事件
     如果元素绑定或解绑事件处理器时触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
 
-    - evbound    // 事件绑定事件
-    - evunbound  // 事件解绑事件
-    - evclone    // 事件克隆事件（在新元素的 evbound 之前，在源元素上触发）
+    - evbound       // 事件绑定事件
+    - evunbound     // 事件解绑事件
+    - evclone       // 事件克隆事件（在新元素的 evbound 之前，在源元素上触发）
 
     注：
     如果在源元素的 evclone 处理器中调用了 Event.preventDefault()，
@@ -5602,7 +5609,7 @@ function nodeItem( data, doc ) {
  * 通用节点（集）插入。
  * 返回实际插入的节点（集）。
  * @param  {Node} node 目标节点
- * @param  {Node|[Node]|String} data 节点（集）
+ * @param  {Node|[Node]} data 节点（集）
  * @param  {String|Number} where 插入位置
  * @return {Node|[Node]} 内容节点（集）
  */
@@ -5881,7 +5888,7 @@ const
 
 
 /**
- * 激发定制事件（受限名称）。
+ * 激发定制事件。
  * 事件冒泡，不可取消。
  * 返回值：
  * - 返回 null 表示未配置定制事件发送。
@@ -5891,7 +5898,7 @@ const
  * @param  {Value} data 发送数据（Array|Object）
  * @return {Boolean|null}
  */
-function limitTrigger( el, evn, data ) {
+function varyTrigger( el, evn, data ) {
     return Options.varyevent &&
         el.dispatchEvent(
             new CustomEvent(
@@ -5899,6 +5906,30 @@ function limitTrigger( el, evn, data ) {
                 { detail: data, bubbles: true, cancelable: false }
             )
         );
+}
+
+
+/**
+ * 批量激发事件。
+ * 主要用于节点插入后对数据节点激发事件。
+ * @param  {Node|[Node]} nodes 节点（集）
+ * @param  {String} evn 事件名
+ * @param  {Value} data 待发送数据
+ * @return {void}
+ */
+function nodesTrigger( nodes, evn, data ) {
+    if ( !isArr(nodes) ) {
+        return varyTrigger( nodes, evn, data );
+    }
+    Options.varyevent &&
+    nodes.forEach(
+        el => el.dispatchEvent(
+            new CustomEvent(
+                evn,
+                { detail: data, bubbles: true, cancelable: false }
+            )
+        )
+    );
 }
 
 
@@ -5948,9 +5979,9 @@ function removeAttr( el, name ) {
     if ( !el.hasAttribute(name) ) {
         return;
     }
-    limitTrigger( el, evnAttrSet, [name, null] );
+    varyTrigger( el, evnAttrSet, [name, null] );
     el.removeAttribute( name );
-    limitTrigger( el, evnAttrDone, name );
+    varyTrigger( el, evnAttrDone, name );
 }
 
 
@@ -5962,9 +5993,9 @@ function removeAttr( el, name ) {
  * @return {void}
  */
 function setAttr( el, name, val ) {
-    limitTrigger( el, evnAttrSet, [name, val] );
+    varyTrigger( el, evnAttrSet, [name, val] );
     el.setAttribute( name, val );
-    limitTrigger( el, evnAttrDone, name );
+    varyTrigger( el, evnAttrDone, name );
 }
 
 
@@ -5977,13 +6008,13 @@ function setAttr( el, name, val ) {
  * @return {void}
  */
 function setProp( el, name, dname, val ) {
-    limitTrigger( el, evnPropSet, [name, val] );
+    varyTrigger( el, evnPropSet, [name, val] );
     if (dname) {
         el.dataset[ dname ] = val;
     } else {
         el[ propFix[name] || name ] = val;
     }
-    limitTrigger( el, evnPropDone, name );
+    varyTrigger( el, evnPropDone, name );
 }
 
 
@@ -5998,9 +6029,9 @@ function setProp( el, name, dname, val ) {
  */
 function clearChecked( els ) {
     for ( let e of els ) {
-        limitTrigger( e, evnPropSet, ['checked', false] );
+        varyTrigger( e, evnPropSet, ['checked', false] );
         e.checked = false;
-        limitTrigger( e, evnPropDone, 'checked' );
+        varyTrigger( e, evnPropDone, 'checked' );
     }
 }
 
@@ -6013,9 +6044,9 @@ function clearChecked( els ) {
  * @return {void}
  */
 function clearSelected( el, name ) {
-    limitTrigger( el, evnPropSet, [name, null] );
+    varyTrigger( el, evnPropSet, [name, null] );
     el.selectedIndex = -1;
-    limitTrigger( el, evnPropDone, name );
+    varyTrigger( el, evnPropDone, name );
 }
 
 
@@ -6030,7 +6061,7 @@ function clearSelected( el, name ) {
  * @return {void}
  */
 function selectOne( el, name, val, prop ) {
-    limitTrigger( el, evnPropSet, [name, val] );
+    varyTrigger( el, evnPropSet, [name, val] );
     el.selectedIndex = -1;
 
     for ( const op of el.options ) {
@@ -6039,7 +6070,7 @@ function selectOne( el, name, val, prop ) {
             break;
         }
     }
-    limitTrigger( el, evnPropDone, name );
+    varyTrigger( el, evnPropDone, name );
 }
 
 
@@ -6053,7 +6084,7 @@ function selectOne( el, name, val, prop ) {
  * @return {void}
  */
 function selects( el, name, val, prop ) {
-    limitTrigger( el, evnPropSet, [name, val] );
+    varyTrigger( el, evnPropSet, [name, val] );
     el.selectedIndex = -1;
 
     if ( !isArr(val) ) {
@@ -6064,7 +6095,7 @@ function selects( el, name, val, prop ) {
             op.selected = val.includes( op.value );
         }
     }
-    limitTrigger( el, evnPropDone, name );
+    varyTrigger( el, evnPropDone, name );
 }
 
 
@@ -6076,9 +6107,9 @@ function selects( el, name, val, prop ) {
  * @return {void}
  */
 function setStyle( el, name, val ) {
-    limitTrigger( el, evnCssSet, [name, val] );
+    varyTrigger( el, evnCssSet, [name, val] );
     el.style[name] = val;
-    limitTrigger( el, evnCssDone, name );
+    varyTrigger( el, evnCssDone, name );
 }
 
 
@@ -6091,11 +6122,11 @@ function setStyle( el, name, val ) {
  * @return {void}
  */
 function addClass( el, names ) {
-    limitTrigger( el, evnClassSet, [names, 'add'] );
+    varyTrigger( el, evnClassSet, [names, 'add'] );
     names.forEach(
         n => el.classList.add( n )
     );
-    limitTrigger( el, evnClassDone, [names, 'add'] );
+    varyTrigger( el, evnClassDone, [names, 'add'] );
 }
 
 
@@ -6114,11 +6145,11 @@ function removeClass( el, names ) {
         // 不属attrvary管辖。
         return el.removeAttribute('class');
     }
-    limitTrigger( el, evnClassSet, [names, 'remove'] );
+    varyTrigger( el, evnClassSet, [names, 'remove'] );
     names.forEach(
         n => el.classList.remove( n )
     );
-    limitTrigger( el, evnClassDone, [names, 'remove'] );
+    varyTrigger( el, evnClassDone, [names, 'remove'] );
 }
 
 
@@ -6131,11 +6162,11 @@ function removeClass( el, names ) {
  * @return {void}
  */
 function toggleClass( el, names ) {
-    limitTrigger( el, evnClassSet, [names, 'toggle'] );
+    varyTrigger( el, evnClassSet, [names, 'toggle'] );
     names.forEach(
         n => el.classList.toggle( n )
     );
-    limitTrigger( el, evnClassDone, [names, 'toggle'] );
+    varyTrigger( el, evnClassDone, [names, 'toggle'] );
 }
 
 
@@ -6147,11 +6178,11 @@ function toggleClass( el, names ) {
  * @return {nodes}
  */
 function varyPrepend( el, nodes ) {
-    limitTrigger( el, evnNodeIn, [nodes, 'prepend'] );
+    varyTrigger( el, evnNodeIn, [nodes, 'prepend'] );
     el.prepend(
         ...detachNodes(nodes)
     );
-    limitTrigger( el, evnNodeDone, [nodes, 'prepend'] );
+    nodesTrigger( nodes, evnNodeDone, 'prepend' );
     return nodes;
 }
 
@@ -6163,11 +6194,11 @@ function varyPrepend( el, nodes ) {
  * @return {nodes}
  */
 function varyAppend( el, nodes ) {
-    limitTrigger( el, evnNodeIn, [nodes, 'append'] );
+    varyTrigger( el, evnNodeIn, [nodes, 'append'] );
     el.append(
         ...detachNodes(nodes)
     );
-    limitTrigger( el, evnNodeDone, [nodes, 'append'] );
+    nodesTrigger( nodes, evnNodeDone, 'append' );
     return nodes;
 }
 
@@ -6179,11 +6210,11 @@ function varyAppend( el, nodes ) {
  * @return {nodes}
  */
 function varyAppend2( el, nodes ) {
-    limitTrigger( el, evnNodeIn, [nodes, 'append'] );
+    varyTrigger( el, evnNodeIn, [nodes, 'append'] );
     el.append(
         ...( isArr(nodes) ? nodes : [nodes] )
     );
-    limitTrigger( el, evnNodeDone, [nodes, 'append'] );
+    nodesTrigger( nodes, evnNodeDone, 'append' );
     return nodes;
 }
 
@@ -6195,11 +6226,11 @@ function varyAppend2( el, nodes ) {
  * @return {nodes}
  */
 function varyBefore( el, nodes ) {
-    limitTrigger( el, evnNodeIn, [nodes, 'before'] );
+    varyTrigger( el, evnNodeIn, [nodes, 'before'] );
     el.before(
         ...detachNodes(nodes)
     );
-    limitTrigger( el, evnNodeDone, [nodes, 'before'] );
+    nodesTrigger( nodes, evnNodeDone, 'before' );
     return nodes;
 }
 
@@ -6211,11 +6242,11 @@ function varyBefore( el, nodes ) {
  * @return {nodes}
  */
 function varyBefore2( el, nodes ) {
-    limitTrigger( el, evnNodeIn, [nodes, 'before'] );
+    varyTrigger( el, evnNodeIn, [nodes, 'before'] );
     el.before(
         ...( isArr(nodes) ? nodes : [nodes] )
     );
-    limitTrigger( el, evnNodeDone, [nodes, 'before'] );
+    nodesTrigger( nodes, evnNodeDone, 'before' );
     return nodes;
 }
 
@@ -6227,29 +6258,28 @@ function varyBefore2( el, nodes ) {
  * @return {nodes}
  */
 function varyAfter( el, nodes ) {
-    limitTrigger( el, evnNodeIn, [nodes, 'after'] );
+    varyTrigger( el, evnNodeIn, [nodes, 'after'] );
     el.after(
         ...detachNodes(nodes)
     );
-    limitTrigger( el, evnNodeDone, [nodes, 'after'] );
+    nodesTrigger( nodes, evnNodeDone, 'after' );
     return nodes;
 }
 
 
 /**
  * 节点替换。
- * 替换之后的完成事件实际上无法向上传递了，
- * 但这可能依然有它的价值。
+ * 完成事件会发送原元素作为数据。
  * @param  {Node} el 参考节点
  * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
  */
 function varyReplace( el, nodes ) {
-    limitTrigger( el, evnReplace, nodes );
+    varyTrigger( el, evnReplace, nodes );
     el.replaceWith(
         ...detachNodes(nodes)
     );
-    limitTrigger( el, evnReplaced, nodes );
+    nodesTrigger( nodes, evnReplaced, el );
     return nodes;
 }
 
@@ -6264,9 +6294,9 @@ function varyEmpty( el ) {
     let _subs = Arr( el.childNodes );
 
     if ( _subs.length ) {
-        limitTrigger( el, evnEmpty );
+        varyTrigger( el, evnEmpty );
         el.textContent = '';
-        limitTrigger( el, evnEmptied, _subs );
+        nodesTrigger( _subs, evnEmptied, el );
     }
     return _subs;
 }
@@ -6275,7 +6305,7 @@ function varyEmpty( el ) {
 /**
  * 节点移除。
  * 如果节点游离（无父容器），无任何行为。
- * 完成事件会发送节点的原父容器。
+ * 完成事件会发送原父容器作为数据。
  * @param  {Node} node 待移除节点
  * @return {Node} node
  */
@@ -6284,9 +6314,9 @@ function varyRemove( node ) {
     let _pel = node.parentNode;
 
     if ( _pel ) {
-        limitTrigger( node, evnDetach );
+        varyTrigger( node, evnDetach );
         node.remove();
-        limitTrigger( node, evnDetached, _pel );
+        varyTrigger( node, evnDetached, _pel );
     }
     return node;
 }
@@ -6299,9 +6329,9 @@ function varyRemove( node ) {
  */
 function varyNormalize( el ) {
     if ( el.nodeType === 1 ) {
-        limitTrigger( el, evnNormalize );
+        varyTrigger( el, evnNormalize );
         el.normalize();
-        limitTrigger( el, evnNormalized );
+        varyTrigger( el, evnNormalized );
     }
     return el;
 }
@@ -6383,9 +6413,9 @@ function varyWrapAll( root, box, nodes ) {
  * @return {[Node]} subs
  */
 function varyReplace2s( el, subs ) {
-    limitTrigger( el, evnReplace, subs );
+    varyTrigger( el, evnReplace, subs );
     el.replaceWith( ...subs );
-    limitTrigger( el, evnReplaced, subs );
+    nodesTrigger( subs, evnReplaced, el );
     return subs;
 }
 
@@ -6400,9 +6430,9 @@ function varyReplace2s( el, subs ) {
  */
 function varyPrepend2s( el, subs ) {
     if ( subs.length ) {
-        limitTrigger( el, evnNodeIn, subs );
+        varyTrigger( el, evnNodeIn, subs );
         el.prepend( ...subs );
-        limitTrigger( el, evnNodeDone, subs );
+        nodesTrigger( subs, evnNodeDone, 'prepend' );
     }
     return subs;
 }
