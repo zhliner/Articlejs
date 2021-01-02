@@ -2435,16 +2435,55 @@ function siblingOptions( els ) {
 
 
 /**
- * 设置元素为可编辑状态。
- * @param  {[Element]} els 元素集
- * @param  {String} slr 子元素选择器
- * @return {Element} els
+ * 末尾添加表格列。
+ * @param  {Table} tbo 表格实例
+ * @param  {Number} cnt 添加列数
+ * @return {[[Element]]} 新添加的单元格集组
  */
-function editable( els, slr ) {
-    return $( els )
-        .find( slr )
-        .flat()
-        .attr( 'contenteditable', true );
+function appendColumns( tbo, cnt ) {
+    let _buf = [];
+
+    while ( cnt-- > 0 ) {
+        _buf.push(
+            tbo.insertColumn( tbo.newColumn() )
+        );
+    }
+    return _buf;
+}
+
+
+/**
+ * 裁剪表格列。
+ * @param  {Table} tbo 表格实例
+ * @param  {Number} cnt 裁剪行数
+ * @return {ignore}
+ */
+function cropCols( tbo, cnt ) {
+    if ( cnt < 0 ) {
+        while ( cnt++ < 0 ) tbo.removeColumn( -1 );
+        return;
+    }
+    appendColumns( tbo, cnt )
+    .flat()
+    .forEach( cell => $.attr(cell, 'contenteditable', true) );
+}
+
+
+/**
+ * 裁剪表格行。
+ * @param  {Table} tbo 表格实例
+ * @param  {Number} cnt 裁剪行数
+ * @param  {TableSection} tsec 表格区域元素
+ * @return {ignore}
+ */
+function cropTrs( tbo, cnt, tsec ) {
+    if ( cnt < 0 ) {
+        return tbo.removes( cnt, null, tsec );
+    }
+    tbo.inserts( cnt, null, tsec )
+    .map( tr => [...tr.children] )
+    .flat()
+    .forEach( cell => $.attr(cell, 'contenteditable', true) );
 }
 
 
@@ -3127,7 +3166,7 @@ export const Edit = {
         let _els = contentBoxes( _el );
 
         _els.some( el => !__ESet.has(el) ) &&
-        historyPush( new ESEdit(contentSelect, 'adds'), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(contentSelect, _els, 'adds'), new HotEdit(_els[0]) );
     },
 
 
@@ -3142,7 +3181,7 @@ export const Edit = {
         let _els = contentBoxes( _el );
 
         _els.some( el => !__ESet.has(el) ) &&
-        historyPush( new ESEdit(contentSelect, 'unshift'), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(contentSelect, _els, 'unshift'), new HotEdit(_els[0]) );
     },
 
 
@@ -4449,22 +4488,37 @@ export const Kit = {
      * 表格末尾添加或移除以保持目标行数。
      * @data: TableSection
      * @param  {Number} size 目标行数
-     * @return {[Element]|void} 新插入或移除的行集
+     * @return {void}
      */
     croptr( evo, size ) {
         let _tbd = evo.data,
-            _cnt = size - _tbd.rows.length,
-            _tbo = $.table( _tbd.parentElement );
+            _cnt = size - _tbd.rows.length;
 
-        if ( _cnt < 0 ) {
-            return editable( _tbo.removes(_cnt, null, _tbd), 'th,td' );
-        }
-        if ( _cnt > 0 ) {
-            return editable( _tbo.inserts(_cnt, null, _tbd), 'th,td' );
-        }
+        _cnt && cropTrs( $.table(_tbd.parentElement), _cnt, _tbd );
     },
 
     __croptr: 1,
+
+
+    /**
+     * 裁剪表格列。
+     * 在末尾添加或移除表格列以保持目标列数。
+     * 目标列数为null时表示保持现状不变。
+     * @data: <table>
+     * @param  {Number|null} size 目标列数
+     * @return {void}
+     */
+    colcrop( evo, size ) {
+        if ( size == null ) {
+            return;
+        }
+        let _tbo = $.table( evo.data ),
+            _cnt = size - _tbo.cols();
+
+        _cnt && cropCols( _tbo, _cnt );
+    },
+
+    __colcrop: 1,
 
 };
 
@@ -4498,6 +4552,7 @@ processExtend( 'Kit', Kit, [
     'cmenudo',
     'convert',
     'croptr',
+    'colcrop',
 ]);
 
 

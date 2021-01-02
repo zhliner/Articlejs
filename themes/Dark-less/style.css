@@ -997,7 +997,9 @@ menu._cells code {
 
 /* 表格 */
 .Input ._Table ._list {
+    flex: 1 1 auto;
     background-color: #32575f;
+    overflow-y: scroll;
 }
 .Input ._Table ._affix > label {
     min-width: 175px;
@@ -1024,9 +1026,6 @@ menu._cells code {
 }
 .Input ._Table tr > th:first-child {
     border-right: 1px #f3871a solid;
-}
-.Input ._Table ._list {
-    flex: 1 1 auto;
 }
 
 /* 片区 */

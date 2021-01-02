@@ -26,6 +26,12 @@
     <button type="submit">插入/更新</button>
 </div>
 
+<!-- 合并：<tbody> -->
+<div class="_submit" tpl-name="input:merge">
+    <label><input type="checkbox" name="merge">合并</label>
+    <button type="submit">插入</button>
+</div>
+
 <!--章节内片段：s1-s5, section
     focus: 激活后扩展开。-->
 <div class="_main" tpl-name="part:section"
@@ -385,16 +391,51 @@
         <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
             <label>
-                <input name="cols" type="text" class="_nums" title="列数" value="4" />
-                x
-                <input name="rows" type="text" class="_nums" title="行数" value="5" />
-                <!-- 行数不包含表头/表脚部分 -->
+                <input name="rows" type="text" class="_nums" title="行数<tbody>" value="4"
+                    on="change|evo(3) val int"
+                    to="._main/tbody|trigger('rows')" />
+                ×
+                <input name="cols" type="text" class="_nums" title="列数" value="3"
+                    on="change|evo(3) val int"
+                    to="._main/table|trigger('cols')" />
             </label>
         </header>
         <div class="_list">
-            <table border="1" obt-src="obts/table.json">
-                <thead tpl-node="item:thead"></thead>
-                <tbody tpl-node="item:tbody"></tbody>
+            <!--初始默认表格规格
+                cols 表格列裁剪为目标列数。-->
+            <table border="1" obt-src="obts/table.json"
+                on="cols|evo(3) ev('detail') or(null)"
+                by="Kit.colcrop(_1)">
+                <thead>
+                    <tr>
+                        <th contenteditable></th>
+                        <th contenteditable></th>
+                        <th contenteditable></th>
+                    </tr>
+                </thead>
+                <!-- rows 表格行裁剪为目标行数。 -->
+                <tbody on="rows|evo(3) ev('detail') or(1)" by="Kit.croptr(_1)">
+                    <tr>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                    </tr>
+                    <tr>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                    </tr>
+                    <tr>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                    </tr>
+                    <tr>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                        <td contenteditable></td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -751,7 +792,7 @@
 
 <div class="_body _Tr" tpl-name="input:tr">
     <div class="_main">
-        <textarea name="tr" placeholder="表格行：一行一个单元格"></textarea>
+        <textarea name="tr" placeholder="一行一个单元格，空行忽略"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -788,6 +829,9 @@
     </aside>
 </div>
 
+<!--自动提取首个选取的表格：
+    构造表格实例发送到<tbody>创建同类表格录入。
+    会暂存实例，简单切换不影响已录入。 -->
 <div class="_body _Table" tpl-name="input:tbody"
     on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
     to="|data('tbo')|pop fire('/tbody', 'new')">
@@ -811,14 +855,13 @@
         </div>
     </div>
     <aside>
-        <pre tpl-node="part:rows, input:insert2">
+        <pre tpl-node="part:rows, input:merge">
             [行数]
-            [插入2]
+            [合并]
         </pre>
     </aside>
 </div>
 
-<!--OBT：列单元格与目标保持一致。-->
 <div class="_body _Table" tpl-name="input:tfoot"
     on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
     to="|data('tbo')|pop fire('/tfoot', 'new')">

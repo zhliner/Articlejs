@@ -249,7 +249,7 @@ function fmtSplit( fmt, beg ) {
     if ( _s2.length == 1 ) {
         return [ fmt ];
     }
-    return [ _s2[1], closest(_s2[0].trimRight(), beg) ];
+    return [ _s2[1], closest(_s2[0].trim(), beg) ];
 }
 
 

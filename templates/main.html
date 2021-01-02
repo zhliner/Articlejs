@@ -724,12 +724,14 @@
 <!-- 功能面板：
     - mousedown 面板高度调整。
     - keydown   面板快捷键处理。
+    - input.full  文本框和表格录入最大化平铺。
     注：tabindex 使保存键（Ctrl+s）随时有效。 -->
 <div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
     on="@mousemove|movementY neg;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveResize) pass stop avoid;
         input.full(~textarea)|evo(2) full(2);
+        input.full(~[contenteditable])|evo(2) pop $('._list/') full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
