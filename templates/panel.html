@@ -4,9 +4,10 @@
 <!-- 内容：录入 -->
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
+        replaced|v.sels stop;
         insert|ev('detail')"
-    by="-;"
-    to="/._body|trigger('create')">
+    to="/._body|trigger('create');
+        /#con-where|trigger('update')">
     <div class="_roll">
         <!--插入位置定义：
             ev:detail 选单数组。
