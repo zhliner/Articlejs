@@ -3069,6 +3069,19 @@ function indexCell( tr, idx ) {
 
 
 /**
+ * 子元素插入封装。
+ * 注：子元素是新建的游离元素。
+ * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
+ * @param  {Element|[Element]} sub 子元素（集）
+ * @param  {Element} ref 位置引用（前插），可选
+ * @return {Element|[Element]} 新插入的子元素（集）
+ */
+function insertNodes( box, sub, ref ) {
+    return ref ? varyBefore2(ref, sub) : varyAppend2(box, sub);
+}
+
+
+/**
  * 创建一个范围值集。
  * @param {Number} beg 起始值
  * @param {Number} end 终点值
@@ -6463,19 +6476,6 @@ function detachNodes( nodes ) {
         return [ varyRemove(nodes) ];
     }
     return nodes.filter( nd => nd && varyRemove(nd) );
-}
-
-
-/**
- * 子元素插入封装。
- * 注：子元素是新建的游离元素。
- * @param  {Element} box 容器元素（tbody|thead|tfoot|tr|table）
- * @param  {Element|[Element]} sub 子元素（集）
- * @param  {Element} ref 位置引用（前插），可选
- * @return {Element|[Element]} 新插入的子元素（集）
- */
-function insertNodes( box, sub, ref ) {
-    return ref ? varyBefore2(ref, sub) : varyAppend2(box, sub);
 }
 
 
