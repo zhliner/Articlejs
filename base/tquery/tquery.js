@@ -5915,16 +5915,20 @@ function varyTrigger( el, evn, data ) {
 /**
  * 批量激发事件。
  * 主要用于节点插入后对数据节点激发事件。
+ * 如果数据为单个节点，返回 Element.dispatchEvent() 的返回值。
+ * 如果数据为一个集合，无条件返回true。
  * @param  {Node|[Node]} nodes 节点（集）
  * @param  {String} evn 事件名
  * @param  {Value} data 待发送数据
- * @return {void}
+ * @return {Boolean|null}
  */
 function nodesTrigger( nodes, evn, data ) {
+    if ( !Options.varyevent ) {
+        return null;
+    }
     if ( !isArr(nodes) ) {
         return varyTrigger( nodes, evn, data );
     }
-    Options.varyevent &&
     nodes.forEach(
         el => el.dispatchEvent(
             new CustomEvent(
@@ -5933,6 +5937,7 @@ function nodesTrigger( nodes, evn, data ) {
             )
         )
     );
+    return true;
 }
 
 
@@ -6273,6 +6278,8 @@ function varyAfter( el, nodes ) {
 /**
  * 节点替换。
  * 完成事件会发送原元素作为数据。
+ * 可能会向被替换节点发送节点脱离事件，
+ * 除非数据节点为单个且在替换完成事件中调用了 Event.preventDefault()。
  * @param  {Node} el 参考节点
  * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
@@ -6282,7 +6289,7 @@ function varyReplace( el, nodes ) {
     el.replaceWith(
         ...detachNodes(nodes)
     );
-    nodesTrigger( nodes, evnReplaced, el );
+    nodesTrigger( nodes, evnReplaced, el ) && varyTrigger( el, evnDetached, null );
     return nodes;
 }
 
