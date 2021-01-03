@@ -32,6 +32,7 @@
     <button type="submit">插入</button>
 </div>
 
+
 <!--章节内片段：s1-s5, section
     focus: 激活后扩展开。-->
 <div class="_main" tpl-name="part:section"
@@ -890,6 +891,97 @@
 </div>
 
 
+<!-- 定制结构 -->
+
+<div class="_body _Block" tpl-name="input:codeli">
+    <div class="_main _list">
+        <hr tpl-node="inlines:code" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Block" tpl-name="input:ali">
+    <div class="_main _list">
+        <hr tpl-node="inlines:a" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Block" tpl-name="input:ah4">
+    <div class="_main _list">
+        <hr tpl-node="inlines:a" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert1">
+            [插入]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Block" tpl-name="input:xh4li">
+    <div class="_main">
+        <header>
+            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+        </header>
+        <textarea name="sublist" placeholder="子列表，可选"></textarea>
+    </div>
+    <aside>
+        <div class="_option">
+            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+            <hr />
+            <label title="<ol>"><input type="checkbox" name="isol">有序子表</label>
+        </div>
+        <hr tpl-node="input:insert2" />
+    </aside>
+</div>
+
+<div class="_body _Block" tpl-name="input:cascadeh4li">
+    <div class="_main">
+        <header>
+            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+        </header>
+        <textarea name="sublist" placeholder="子列表，可选"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Block" tpl-name="input:cascadeah4li">
+    <div class="_main _list">
+        <hr tpl-node="prop:cascadeah4li" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert1">
+            [插入]
+        </pre>
+    </aside>
+</div>
+
+<div class="_body _Block" tpl-name="input:figimgbox">
+    <div class="_main _list">
+        <hr tpl-node="prop:figimgbox" />
+    </div>
+    <aside>
+        <pre tpl-node="input:insert2">
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
+
 
 <!--微编辑：内联单元
 ----------------------------------------------------------------------------->
@@ -1078,9 +1170,7 @@
         <hr tpl-node="inlines:br" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert1" />
     </aside>
 </div>
 
@@ -1089,29 +1179,49 @@
         <hr tpl-node="inlines:wbr" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert1" />
     </aside>
 </div>
 
 
-<div class="_body _Inline" tpl-name="input:track">
-    <!--  -->
+<div class="_body _Track" tpl-name="input:track">
+    <div class="_main _list">
+        <hr tpl-node="inlines:track" />
+    </div>
+    <aside>
+        <hr tpl-node="input:insert1" />
+    </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:source">
-    <!--  -->
+<div class="_body _Source" tpl-name="input:source">
+    <div class="_main _list">
+        <hr tpl-node="inlines:source" />
+    </div>
+    <aside>
+        <hr tpl-node="input:insert1" />
+    </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:explain">
-    <!--  -->
+<div class="_body _Explain" tpl-name="input:explain">
+    <div class="_main _list">
+        <hr tpl-node="inlines:text" />
+    </div>
+    <aside>
+        <div class="_option">
+            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+            <hr />
+            <label>定位
+                <section tpl-node="explain:position"></section>
+            </label>
+        </div>
+        <hr tpl-node="input:insert1" />
+    </aside>
 </div>
 
 
 <!--注音单元封装：
     这是一个抽象结构，在选取<ruby>且向内插入时使用。-->
-<div class="_body _Inline" tpl-name="input:rbpt">
+<div class="_body _Rbpt" tpl-name="input:rbpt">
     <div class="_main _list">
         <hr tpl-node="inlines:ruby" />
     </div>
@@ -1122,7 +1232,7 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:rb">
+<div class="_body _Rb" tpl-name="input:rb">
     <div class="_main _list">
         <hr tpl-node="inlines:text" />
     </div>
@@ -1134,7 +1244,7 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:rt">
+<div class="_body _Rt" tpl-name="input:rt">
     <div class="_main _list">
         <hr tpl-node="inlines:text" />
     </div>

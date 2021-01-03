@@ -694,7 +694,7 @@
 
 <!--纯文本录入
     高度较小，主要用于内联单元。-->
-<textarea name="content" rows="3" placeholder="每行一项" tpl-name="prop:content"></textarea>
+<textarea name="content" rows="3" tpl-name="prop:content"></textarea>
 
 <!--源代码录入
     Shift + 粘贴：清除多余缩进（纵向最顶行前多余空白）。
@@ -713,3 +713,26 @@
     <option value="css">CSS</option>
     <option value="html">HTML</option>
 </select>
+
+
+<!-- 两个定制结构 -->
+
+<ul class="_prop" tpl-name="prop:cascadeah4li">
+    <li tpl-node="prop:textrow"></li>
+    <li tpl-node="prop:href, prop:target"></li>
+    <li><b>子列表</b>
+        <span>
+            <textarea name="sublist" rows="5" placeholder="（可选）"></textarea>
+        </span>
+    </li>
+</ul>
+
+<ul class="_prop" tpl-name="prop:figimgbox">
+    <li tpl-node="prop:src, prop:alt"></li>
+    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+    <li><b>讲解</b>
+        <span>
+            <textarea name="explain" rows="4" placeholder="（可选）"></textarea>
+        </span>
+    </li>
+</ul>
