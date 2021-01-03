@@ -5906,7 +5906,7 @@ function varyTrigger( el, evn, data ) {
         el.dispatchEvent(
             new CustomEvent(
                 evn,
-                { detail: data, bubbles: true, cancelable: false }
+                { detail: data, bubbles: true, cancelable: true }
             )
         );
 }
@@ -5929,7 +5929,7 @@ function nodesTrigger( nodes, evn, data ) {
         el => el.dispatchEvent(
             new CustomEvent(
                 evn,
-                { detail: data, bubbles: true, cancelable: false }
+                { detail: data, bubbles: true, cancelable: true }
             )
         )
     );
@@ -6289,6 +6289,8 @@ function varyReplace( el, nodes ) {
 
 /**
  * 元素内容清空。
+ * 操作之后会激发两种事件：容器清空完成和内容脱离。
+ * 如果清空完成事件处理中调用了 Event.preventDefault()，内容脱离事件就不再激发。
  * 注记：空集忽略（无动作）。
  * @param  {Element} el 目标容器元素
  * @return {[Node]} 移除的节点集
@@ -6299,7 +6301,7 @@ function varyEmpty( el ) {
     if ( _subs.length ) {
         varyTrigger( el, evnEmpty );
         el.textContent = '';
-        nodesTrigger( _subs, evnEmptied, el );
+        varyTrigger( el, evnEmptied, _subs ) && nodesTrigger( _subs, evnDetached, el );
     }
     return _subs;
 }
