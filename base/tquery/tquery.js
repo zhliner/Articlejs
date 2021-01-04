@@ -6440,7 +6440,7 @@ function varyWrapAll( root, box, nodes ) {
 function varyReplace2s( el, subs ) {
     varyTrigger( el, evnReplace, subs );
     el.replaceWith( ...subs );
-    nodesTrigger( subs, evnReplaced, el );
+    nodesTrigger( subs, evnReplaced, el ) && varyTrigger( el, evnDetached, null );
     return subs;
 }
 
