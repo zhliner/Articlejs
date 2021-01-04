@@ -48,7 +48,7 @@
 // 基本取值。
 //-----------------------------------------------
 
-$( rid:String ): Element
+$( rid:String ): Element | null
 // 检索单个元素入栈。
 
 $$( rid:String|Value ): Collector
@@ -92,7 +92,13 @@ calls( meths:String, ...args:Value ): [Value]
 vals( ...name:String ): Object{name:value}
 // 获取目标名称的控件值集。
 
-Range( loose:Boolean ): Range|null|false
+check( name:String ): Boolean | [Boolean] | null
+// 获取选取按钮状态。
+
+value( name:String ): Value | [Value] | null
+// 获取控件值。
+
+Range( loose:Boolean ): Range | null | false
 // 获取当前选取范围。
 
 nodeRange( collapse:Boolean|void ): Range

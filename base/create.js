@@ -1925,7 +1925,7 @@ function creater( name ) {
     if ( _tv == null ) {
         throw new Error( 'invalid target name.' );
     }
-    return (evo, opts = {}, more) => build( elem(_tv), opts, evo.data, more );
+    return (evo, opts, more) => build( elem(_tv), opts || {}, evo.data, more );
 }
 
 

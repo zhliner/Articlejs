@@ -1,12 +1,12 @@
 <!-- 选项：1 -->
 <div class="_option" tpl-name="input:option1">
-    <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+    <label title="清除连续空白"><input type="checkbox" name="clean" checked>空白清理</label>
 </div>
 
 <!-- 选项：2 -->
 <div class="_option" tpl-name="input:option2">
-    <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-    <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+    <label title="清除连续空白"><input type="checkbox" name="clean" checked>空白清理</label>
+    <label title="连续多个空行视为一个"><input type="checkbox" name="hasps">空行分段</label>
 </div>
 
 
@@ -61,7 +61,13 @@
 ----------------------------------------------------------------------------->
 
 <!-- 段落 -->
-<div class="_body _P" tpl-name="input:p">
+<div class="_body _P" tpl-name="input:p"
+    on="create;
+        opts|$('/textarea') val $$('/._option input') prop('checked') v.pretreat(_);
+        elem|ev('detail') dup pass $$(_1) wrap('<p>')"
+    to="|trigger('opts');
+        |trigger('elem');
+        form/|trigger('insert')">
     <div class="_main">
         <textarea name="p" placeholder="内容"></textarea>
     </div>

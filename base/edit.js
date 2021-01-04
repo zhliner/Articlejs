@@ -2488,6 +2488,16 @@ function cropTrs( tbo, cnt, tsec ) {
 
 
 /**
+ * 文本空白清理。
+ * @param  {String} str 目标字符串
+ * @return {String}
+ */
+function textClean( str ) {
+    return str.replace( /(\s)(\s*)/g, '$1' );
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -4060,6 +4070,22 @@ export const Edit = {
         propertyEdit( property( getType($els[0]) ) );
     },
 
+
+    /**
+     * 从主面板录入插入。
+     * 目标：暂存区/栈顶1项。
+     * 目标为待插入的元素（集）。
+     * @data: Element|[Element]
+     * @param  {Boolean} before 向前插入
+     * @param  {String} where 插入位置（siblings|children）
+     * @return {void}
+     */
+    inserts( evo, before, where ) {
+        //
+    },
+
+    __inserts: 1,
+
 };
 
 
@@ -4299,6 +4325,29 @@ export const Kit = {
     __inslist: 1,
 
 
+    /**
+     * 主面板录入文本预处理。
+     * @data: String
+     * @param  {Boolean} split 是否切分（空行分段）
+     * @param  {Boolean} clean 是否清理空白
+     * @return {[String]|null}
+     */
+    pretreat( evo, split, clean ) {
+        let _s = evo.data;
+        if ( !_s ) return null;
+
+        if ( split ) {
+            _s = _s.split( /\n\n+/ );
+        }
+        if ( !clean ) {
+            return _s;
+        }
+        return split ? _s.map( textClean ) : textClean( _s );
+    },
+
+    __pretreat: 1,
+
+
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -4535,6 +4584,8 @@ processExtend( 'Ed', Edit, [
     // 配合cut处理
     'deletes',
     'paste',
+
+    'inserts',
 ]);
 
 
@@ -4571,6 +4622,7 @@ customGetter( null, Kit, [
     'roleinfo',
     'cmenable',
     'inslist',
+    'pretreat',
 ]);
 
 

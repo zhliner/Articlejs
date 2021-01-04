@@ -278,6 +278,47 @@ const _Gets = {
 
 
     /**
+     * 获取表单控件选取状态。
+     * 目标：暂存区1项可选。
+     * 如果暂存区有值，需为表单元素，否则取当前上下文表单元素。
+     * 如果目标控件不存在，返回null。
+     * 注：主要用于复选框（checkbox），支持重名成组。
+     * @param  {String} name 控件名
+     * @return {Boolean|[Boolean]|null}
+     */
+    check( evo, name ) {
+        let _el = (evo.data || evo.delegate)[name];
+
+        if ( !_el ) {
+            return null;
+        }
+        return _el.nodeType ? _el.checked : [..._el].map( el => el.checked );
+    },
+
+    __check: -1,
+
+
+    /**
+     * 获取表单控件值。
+     * 目标：暂存区1项可选。
+     * 如果暂存区有值，需为表单元素，否则取当前上下文表单元素。
+     * 如果目标控件不存在，返回null。
+     * 注：
+     * - 遵循表单提交逻辑（disabled无值）。
+     * - 主要用于单选按钮组，但也适用复选框（包括重名）。
+     * @param  {String} name 控件名
+     * @return {Value|[Value]|null}
+     */
+    value( evo, name ) {
+        let _el = (evo.data || evo.delegate)[name] ||
+            null;
+        return _el && $.val( _el.nodeType ? _el : _el[0] );
+    },
+
+    __value: -1,
+
+
+    /**
      * 获取当前选取范围。
      * 目标：无。
      * 即获取用户在页面中的划选部分。
@@ -409,7 +450,7 @@ const _Gets = {
      * 如果数据源本就是一个数组则简单返回。
      * 传递wrap为真会封装无法转为数组的值为一个单成员数组。
      * 注：$$ 有类似能力，但始终会创建为一个新集合。
-     * @param  {Boolean} wrap 强制封装，可选
+     * @param  {Boolean} wrap 简单封装，可选
      * @return {Array|data}
      */
     arr( evo, wrap ) {
@@ -1896,7 +1937,7 @@ Get.v = {};
  * 注记：
  * - 这是简化版的 By:processExtend 逻辑。
  * - 只能在 On.v 空间设置。
- * @param  {String} name 目标域（可由句点分隔子域）
+ * @param  {String|null} name 目标子域序列
  * @param  {Object|Function} exts 扩展集或取值函数
  * @param  {[String]|Number} args 方法名集或取栈数量，可选。
  * @return {void}
