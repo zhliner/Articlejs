@@ -3568,16 +3568,14 @@ class Collector extends Array {
 
     /**
      * 父类覆盖。
-     * 会滤除返回值为null或undefined的成员。
      * 支持内部的实例链栈。
+     * 注记：
+     * 与 tQuery.map 不同，此处并不排除返回的null或undefined值。
      * @param  {Function} proc 回调函数
      * @return {Collector}
      */
     map( proc ) {
-        return new Collector(
-            super.map(proc).filter( v => v != null ),
-            this
-        );
+        return new Collector( super.map(proc), this );
     }
 
 
@@ -5146,9 +5144,9 @@ function uniqueNamed( els ) {
  * @return {Array2|[Array2]}
  */
 function submitValues( ctrl ) {
-    let _v = tQuery.val(ctrl);
+    let _v = tQuery.val( ctrl );
 
-    if (isArr(_v)) {
+    if ( isArr(_v) ) {
         return _v.length ? _v.map( v => submitValue(ctrl, v) ) : null;
     }
     // null|undefined
