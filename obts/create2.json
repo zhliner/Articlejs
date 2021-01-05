@@ -1,0 +1,4 @@
+{
+    "on": "create|$('/textarea') val $$('/._option input') prop('checked') v.pretreat(_)",
+    "to": "|trigger('nodes')"
+}

@@ -1629,6 +1629,7 @@ function svgInsert( ref, box, data ) {
  */
 function dataCons( data, tval ) {
     if ( !data || data.nodeType !== 1 && data.nodeType !== 11 ) {
+        // string
         return data || '';
     }
     if ( T.onlyText(tval) ) {
@@ -1915,7 +1916,7 @@ function convert( el, name ) {
 
 /**
  * 单元创建器。
- * 返回创建目标名称单元的函数。
+ * 创建单个顶层单元，支持多个子单元创建。
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
  */
@@ -1926,6 +1927,23 @@ function creater( name ) {
         throw new Error( 'invalid target name.' );
     }
     return (evo, opts, more) => build( elem(_tv), opts || {}, evo.data, more );
+}
+
+
+/**
+ * 单元集创建器。
+ * 批量创建目标单元（顶层），无需支持多子单元创建（more）。
+ * 注：数据需要是一个数组。
+ * @param  {String} name 单元名称
+ * @return {Function} 创建函数
+ */
+function creater2( name ) {
+    let _tv = T[ name.toUpperCase() ];
+
+    if ( _tv == null ) {
+        throw new Error( 'invalid target name.' );
+    }
+    return (evo, opts) => evo.data.map( data => build(elem(_tv), opts || {}, data) );
 }
 
 
@@ -1952,10 +1970,11 @@ function convType( el ) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-//
-// 取栈数量：1
-//
+// 单个顶层单元创建。
 processProxy( 'New', creater, 1 );
+
+// 多个顶层单元创建。
+processProxy( 'New2', creater2, 1 );
 
 
 //

@@ -280,19 +280,21 @@ const _Gets = {
     /**
      * 获取表单控件选取状态。
      * 目标：暂存区1项可选。
-     * 如果暂存区有值，需为表单元素，否则取当前上下文表单元素。
-     * 如果目标控件不存在，返回null。
-     * 注：主要用于复选框（checkbox），支持重名成组。
-     * @param  {String} name 控件名
+     * 如果暂存区无值，取当前上下文表单元素。
+     * 如果目标控件不存在，取值为null。
+     * 单个名称返回单值，否则返回一个值数组。
+     * 注：
+     * 仅用于复选框（checkbox）控件，支持重名成组。
+     * @data: <form>
+     * @param  {String} names 控件名序列
      * @return {Boolean|[Boolean]|null}
      */
-    check( evo, name ) {
-        let _el = (evo.data || evo.delegate)[name];
-
-        if ( !_el ) {
-            return null;
-        }
-        return _el.nodeType ? _el.checked : [..._el].map( el => el.checked );
+    check( evo, ...names ) {
+        let _frm = (evo.data || evo.delegate),
+            _vs = names.map(
+                n => _frm[n] ? _frm[n].checked : null
+            );
+        return _vs.length > 1 ? _vs : _vs[0];
     },
 
     __check: -1,
@@ -304,8 +306,8 @@ const _Gets = {
      * 如果暂存区有值，需为表单元素，否则取当前上下文表单元素。
      * 如果目标控件不存在，返回null。
      * 注：
-     * - 遵循表单提交逻辑（disabled无值）。
-     * - 主要用于单选按钮组，但也适用复选框（包括重名）。
+     * 与tQuery.val行为相同，但此用控件名定位元素。
+     * @data: <form>
      * @param  {String} name 控件名
      * @return {Value|[Value]|null}
      */

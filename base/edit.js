@@ -50,6 +50,14 @@ const
     // 空白匹配。
     __reSpace = /\s+/g,
 
+    // 空白行匹配。
+    // 用于录入区内容空行分段。
+    __reBlankline = /\n\s*\n/,
+
+    // 连续空白匹配。
+    // 用于录入区内容空白清理。
+    __reSpaceN = /(\s)(\s*)/g,
+
     // 微编辑：
     // 智能逻辑行适用集。
     // 源行类型：[新行标签名, 父类型约束]
@@ -2488,16 +2496,6 @@ function cropTrs( tbo, cnt, tsec ) {
 
 
 /**
- * 文本空白清理。
- * @param  {String} str 目标字符串
- * @return {String}
- */
-function textClean( str ) {
-    return str.replace( /(\s)(\s*)/g, '$1' );
-}
-
-
-/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -4070,22 +4068,6 @@ export const Edit = {
         propertyEdit( property( getType($els[0]) ) );
     },
 
-
-    /**
-     * 从主面板录入插入。
-     * 目标：暂存区/栈顶1项。
-     * 目标为待插入的元素（集）。
-     * @data: Element|[Element]
-     * @param  {Boolean} before 向前插入
-     * @param  {String} where 插入位置（siblings|children）
-     * @return {void}
-     */
-    inserts( evo, before, where ) {
-        //
-    },
-
-    __inserts: 1,
-
 };
 
 
@@ -4328,21 +4310,19 @@ export const Kit = {
     /**
      * 主面板录入文本预处理。
      * @data: String
-     * @param  {Boolean} split 是否切分（空行分段）
      * @param  {Boolean} clean 是否清理空白
+     * @param  {Boolean} split 是否切分（空行分段）
      * @return {[String]|null}
      */
-    pretreat( evo, split, clean ) {
+    pretreat( evo, clean, split ) {
         let _s = evo.data;
         if ( !_s ) return null;
 
-        if ( split ) {
-            _s = _s.split( /\n\n+/ );
-        }
-        if ( !clean ) {
-            return _s;
-        }
-        return split ? _s.map( textClean ) : textClean( _s );
+        _s = split ?
+            _s.split( __reBlankline ) :
+            [ _s ];
+
+        return clean ? _s.map( s => s.replace(__reSpaceN, '$1') ) : _s;
     },
 
     __pretreat: 1,
@@ -4569,6 +4549,22 @@ export const Kit = {
 
     __colcrop: 1,
 
+
+    /**
+     * 从主面板录入插入。
+     * 目标：暂存区/栈顶1项。
+     * 目标为待插入的元素（集）。
+     * @data: Element|[Element]
+     * @param  {Boolean} before 向前插入
+     * @param  {String} where 插入位置（siblings|children）
+     * @return {void}
+     */
+    inserts( evo, before, where ) {
+        window.console.info( evo.data, before, where );
+    },
+
+    __inserts: 1,
+
 };
 
 
@@ -4584,8 +4580,6 @@ processExtend( 'Ed', Edit, [
     // 配合cut处理
     'deletes',
     'paste',
-
-    'inserts',
 ]);
 
 
@@ -4604,6 +4598,7 @@ processExtend( 'Kit', Kit, [
     'convert',
     'croptr',
     'colcrop',
+    'inserts',
 ]);
 
 

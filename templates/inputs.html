@@ -60,14 +60,14 @@
     录入版右侧主栏版块（replace）。
 ----------------------------------------------------------------------------->
 
-<!-- 段落 -->
-<div class="_body _P" tpl-name="input:p"
-    on="create;
-        opts|$('/textarea') val $$('/._option input') prop('checked') v.pretreat(_);
-        elem|ev('detail') dup pass $$(_1) wrap('<p>')"
-    to="|trigger('opts');
-        |trigger('elem');
-        form/|trigger('insert')">
+<!--段落：
+    create2.json create事件处理。提取文本框文本预处理，发送到nodes处理器。
+    nodes 用预处理的文本集创建段落集。发送到上级<form>的insert处理器。
+-->
+<div class="_body _P" obt-src="obts/create2.json" tpl-name="input:p"
+    on="nodes|ev('detail') dup pass"
+    by="New2.p"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="p" placeholder="内容"></textarea>
     </div>
