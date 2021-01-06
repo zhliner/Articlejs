@@ -159,6 +159,12 @@ export const Sys = {
     convInlines: 'inlines',
 
 
+    // 插入位置名称约定。
+    // 在模板和程序中协同使用。
+    whereName1: 'siblings', // 平级
+    whereName2: 'children', // 向内
+
+
     // 本地暂存键
     // 内容存储到 window.localStorage 的键名。
     //-------------------------------------------

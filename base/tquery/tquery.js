@@ -4872,10 +4872,8 @@ function setElem( el, conf, frag ) {
  * 用于<tr>直接插入到<table>时获取正确的容器。
  * - 若容器不是表格则简单返回容器。
  * - 若容器合法但内容不是<tr>元素，返回null。
- * - 兼容内容是包含<tr>的文档片段。
  * 注：
  * 不检查表格行插入到非表格元素时的情况。
- *
  * @param  {Element} box 容器元素
  * @param  {Node|[Node]} sub 内容节点（集）
  * @return {Element|null} 合适的容器元素
@@ -5645,25 +5643,19 @@ function Insert( node, data, where ) {
 // @return {void}
 //
 const insertHandles = {
-    // fill
-    // 允许data为假值（清空内容）。
-    '': varyFill,
-
     // replace
-    '0': (node, data) => data === node ? data : varyReplace( node, data ),
-
+    '0': (node, data) => data && data !== node ? varyReplace(node, data) : data,
     // before
-    '1': (node, data) => data === node ? data : varyBefore( node, data ),
-
+    '1': (node, data) => data && data !== node ? varyBefore(node, data) : data,
     // after
-    '-1': (node, data) => data === node ? data : varyAfter( node, data ),
+    '-1': (node, data) => data && data !== node ? varyAfter(node, data) : data,
 
+    '': varyFill,
     // append
     // 表格容器非法内容时返回null（会自动异常）。
     '-2': (el, data) => data && varyAppend( trContainer(el, data), data ),
-
     // prepend
-    '2': (el, data) => data && varyPrepend( trContainer(el, data), data )
+    '2': (el, data) => data && varyPrepend( trContainer(el, data), data ),
 };
 
 

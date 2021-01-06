@@ -834,7 +834,7 @@ class ElemSels {
 // 元素节点操作。
 // 节点删除、移动、克隆，元素的样式设置、清除等。
 // 约定：
-// 内部方法不互为调用（引用this），方法会被独立引用。
+// 内部方法不互为调用（this），因为方法会被独立引用。
 //
 class NodeVary {
     /**
@@ -865,13 +865,42 @@ class NodeVary {
 
 
     /**
-     * 新建后插入。
-     * 主要用于微编辑新建单元插入。
+     * 新建插入其后。
      * @param {Element} el 参考元素
-     * @param {Node} data 数据元素
+     * @param {Node|[Node]} data 数据节点
      */
     newAfter( el, data ) {
         $.after( el, data );
+    }
+
+
+    /**
+     * 新建插入其前。
+     * @param {Element} el 参考元素
+     * @param {Node|[Node]} data 数据节点
+     */
+    newBefore( el, data ) {
+        $.before( el, data );
+    }
+
+
+    /**
+     * 新建向内前插入。
+     * @param {Element} box 容器元素
+     * @param {Node|[Node]} data 数据节点
+     */
+    newPrepend( box, data ) {
+        $.prepend( box, data );
+    }
+
+
+    /**
+     * 新建向内末尾添加。
+     * @param {Element} box 容器元素
+     * @param {Node|[Node]} data 数据节点
+     */
+    newAppend( box, data ) {
+        $.append( box, data );
     }
 
 
@@ -893,7 +922,7 @@ class NodeVary {
     /**
      * 简单向内添加。
      * @param {[Element]} els 容器元素集
-     * @param {Value|[Value]} data 数据（集）
+     * @param {String|[String]} data 数据（集）
      */
     appends( els, data ) {
         els.forEach(
@@ -1358,12 +1387,15 @@ function clearSets() {
 
 /**
  * 简单选取。
- * @param  {[Element]} els 目标元素集
+ * @param  {Element|[Element]} els 目标元素（集）
  * @param  {Element} hot 当前焦点元素，可选
  * @return {ESEdit} 选取操作实例
  */
 function pushes( els ) {
-    return new ESEdit( () => __ESet.pushes(els) );
+    if ( !$.isArray(els) ) {
+        els = [ els ];
+    }
+    return els.length > 0 && new ESEdit( () => __ESet.pushes(els) );
 }
 
 
@@ -1420,7 +1452,7 @@ function elementsEmpty( els ) {
  * 填充元素集。
  * 如果值为数组，与成员一一对应填充（tQuery）。
  * @param  {[Element]} els 容器元素集
- * @param  {Value|[Value]} data 数据（集）
+ * @param  {String|[String]} data 数据（集）
  * @param  {String} meth 插入方法（append|fill），可选
  * @return {DOMEdit|null} 操作实例
  */
@@ -1438,7 +1470,7 @@ function textAppend( els, data, meth ) {
  * 可用于选取集取值填充到新的选取集目标。
  * 也可用于外部多行文本内容分别填充到多个选取目标。
  * @param  {[[Element]]} els2 元素集组（2维）
- * @param  {[Value]} data 数据组（1维）
+ * @param  {[String]} data 数据组（1维）
  * @param  {String} meth 插入方法（appends|fills），可选
  * @return {[DOMEdit]} 操作实例集
  */
@@ -1843,6 +1875,51 @@ function medCreateLine( scam, src ) {
     }
     // 同类新行。
     return __medNewLines.has( _tv ) && medSameLine( src );
+}
+
+
+//
+// 插入操作句柄配置。
+// 专用于主面板平级/向内的前后插入。
+//
+const insertHandles = {
+    [Sys.whereName1]: [ __Edits.newAfter, __Edits.newBefore ],
+    [Sys.whereName2]: [ __Edits.newAppend, __Edits.newPrepend ],
+};
+
+
+/**
+ * 在各参考元素相应位置插入数据节点集。
+ * @param  {[Element]} els 参考元素集
+ * @param  {[Collector]} nodes2 数据节点集组
+ * @param  {Boolean} before 是否前插入
+ * @param  {String} where 插入位置
+ * @return {[DOMEdit]} 操作实例集
+ */
+function insertsNodes( els, nodes2, before, where ) {
+    return els.map( (ref, i) =>
+        new DOMEdit( insertHandles[where][+before], ref, nodes2[i] )
+    );
+}
+
+
+/**
+ * 检查/创建数据节点集组。
+ * 用于多个选取目标时创建待插入的克隆集。
+ * @param  {Collector} $data 数据节点集
+ * @param  {Number} cnt 克隆次数
+ * @return {[Collector]} 节点集组
+ */
+function dataNodes( $data, cnt ) {
+    let _buf = [ $data ];
+
+    if ( cnt < 2 ) {
+        return _buf;
+    }
+    for (let i = 0; i < cnt-1; i++) {
+        _buf.push( $data.clone() );
+    }
+    return _buf;
 }
 
 
@@ -2380,13 +2457,15 @@ function typeSets( els ) {
 
 /**
  * 获取目标元素集的父元素集。
- * 注：已滤除重复。
+ * 注记：
+ * 因为 delayFile 为延迟激发，
+ * 所以目标可能已在 DOMEdit.undo() 过程中脱离DOM。
  * @param  {[Element]} els 目标元素集
  * @return {Set<Element>}
  */
 function parentSets( els ) {
     return els.reduce(
-        (set, el) => set.add( el.parentElement ),
+        (set, el) => el.parentElement ? set.add( el.parentElement ) : set,
         new Set()
     );
 }
@@ -4553,14 +4632,28 @@ export const Kit = {
     /**
      * 从主面板录入插入。
      * 目标：暂存区/栈顶1项。
-     * 目标为待插入的元素（集）。
-     * @data: Element|[Element]
+     * 插入后新元素集被选取，原选取集取消选取。
+     * 聚焦在首个数据元素上（友好）。
+     * 注：
+     * 数据节点可能为文本节点（不选取）。
+     * @data: Node|[Node] 待插入节点
      * @param  {Boolean} before 向前插入
-     * @param  {String} where 插入位置（siblings|children）
+     * @param  {String} where 插入位置
      * @return {void}
      */
     inserts( evo, before, where ) {
-        window.console.info( evo.data, before, where );
+        let _els = [...__ESet],
+            _dt2 = dataNodes( $(evo.data), _els.length ),
+            _op1 = clearSets(),
+            _ops = insertsNodes( _els, _dt2, before, where ),
+            _elx = _dt2.flat().filter( nd => nd.nodeType === 1 );
+
+        historyPush(
+            _op1,
+            ..._ops,
+            pushes( _elx ),
+            _elx[0] && new HotEdit( _elx[0] )
+        );
     },
 
     __inserts: 1,
