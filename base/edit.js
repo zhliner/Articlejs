@@ -23,7 +23,7 @@ import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
-import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd } from './common.js';
+import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
 import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
@@ -57,6 +57,9 @@ const
     // 连续空白匹配。
     // 用于录入区内容空白清理。
     __reSpaceN = /(\s)(\s*)/g,
+
+    // 兼容换行匹配。
+    __reNewline = /\r\n|\n|\r/,
 
     // 微编辑：
     // 智能逻辑行适用集。
@@ -307,7 +310,7 @@ class ESEdit {
      */
     undo() {
         __ESet.clear().pushes( this._old );
-        delayFire( insertWhere, Sys.insWhere, this._old );
+        delayFire( insertWhere, Sys.evnWhere, this._old );
     }
 
 
@@ -316,7 +319,7 @@ class ESEdit {
      */
     redo() {
         this._fun( ...this._vals );
-        delayFire( insertWhere, Sys.insWhere, [...__ESet] );
+        delayFire( insertWhere, Sys.evnWhere, [...__ESet] );
     }
 }
 
@@ -1805,7 +1808,7 @@ function miniedOk( h2 ) {
     $.trigger( slaveInsert, Sys.insType, Sys.normalTpl );
 
     // 插入位置恢复普通模式
-    delayFire( insertWhere, Sys.insWhere, [...__ESet] );
+    delayFire( insertWhere, Sys.evnWhere, [...__ESet] );
 }
 
 
@@ -4387,13 +4390,13 @@ export const Kit = {
 
 
     /**
-     * 主面板录入文本预处理。
+     * 主面板录入文本预处理（2项）。
      * @data: String
      * @param  {Boolean} clean 是否清理空白
      * @param  {Boolean} split 是否切分（空行分段）
      * @return {[String]|null}
      */
-    pretreat( evo, clean, split ) {
+    pretreat2( evo, clean, split ) {
         let _s = evo.data;
         if ( !_s ) return null;
 
@@ -4404,7 +4407,20 @@ export const Kit = {
         return clean ? _s.map( s => s.replace(__reSpaceN, '$1') ) : _s;
     },
 
-    __pretreat: 1,
+    __pretreat2: 1,
+
+
+    /**
+     * 主面板录入预处理（1项）。
+     * @data: String
+     * @param  {Boolean} clean 是否清理空白
+     * @return {String|null}
+     */
+    pretreat1( evo, clean ) {
+        return clean ? evo.data.replace(__reSpaceN, '$1') : evo.data || null;
+    },
+
+    __pretreat1: 1,
 
 
 
@@ -4658,6 +4674,25 @@ export const Kit = {
 
     __inserts: 1,
 
+
+    /**
+     * 剪除多余缩进。
+     * 以行集中最短的缩进为准，剪除前端缩进。
+     * 注：并不会清理首位空白。
+     * @return {String}
+     */
+    indentfix( evo ) {
+        let _ss = evo.data.split( __reNewline ),
+            _cut = shortIndent( _ss );
+
+        if ( !_cut ) {
+            return evo.data;
+        }
+        return _ss.map( str => str.substring(_cut) ).join( '\n' );
+    },
+
+    __indentfix: 1,
+
 };
 
 
@@ -4692,6 +4727,7 @@ processExtend( 'Kit', Kit, [
     'croptr',
     'colcrop',
     'inserts',
+    'indentfix',
 ]);
 
 
@@ -4710,7 +4746,8 @@ customGetter( null, Kit, [
     'roleinfo',
     'cmenable',
     'inslist',
-    'pretreat',
+    'pretreat2',
+    'pretreat1',
 ]);
 
 

@@ -696,10 +696,13 @@
     高度较小，主要用于内联单元。-->
 <textarea name="content" rows="3" tpl-name="prop:content"></textarea>
 
-<!--源代码录入
-    Shift + 粘贴：清除多余缩进（纵向最顶行前多余空白）。
-    适用代码块/代码表/颜文字。-->
-<textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:codes"></textarea>
+<!--源码录入
+    初始粘贴自动清除多余缩进（以最短的缩进为准）。
+    适用：代码块/代码表/颜文字/预排版。-->
+<textarea name="codes" rows="3" spellcheck="false" class="_code" placeholder="自动清除多余缩进" tpl-name="prop:codes"
+    on="paste|evo(3) val end avoid clipboard"
+    by="Kit.indentfix"
+    to="|val|focus"></textarea>
 
 <!-- 适用：<svg> -->
 <textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:svg" placeholder="<svg>...</svg>"></textarea>

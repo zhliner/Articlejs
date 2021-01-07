@@ -54,11 +54,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     padding-left: 22px;
 }
 
-/* 列表段落 */
-.content li > p {
-    margin: 6px auto;
-}
-
 .content aside {
     font-size: 10.5pt;
 }
@@ -509,6 +504,17 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content p[role=tips] {
+}
+
+
+/* 预排版
+ *----------------------------------------------------------------------------
+ */
+.content pre {
+    border: 1px #999 solid;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    padding: 5px 8px;
 }
 
 

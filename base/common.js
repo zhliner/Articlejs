@@ -402,6 +402,22 @@ function visibleNode( node ) {
 }
 
 
+/**
+ * 检查获取最小缩进量。
+ * @param  {String} str 待检查字符串
+ * @param  {Number} max 最大检查长度
+ * @return {Number}
+ */
+function minInds( str, max ) {
+    let _i = 0;
+
+    for ( ; _i < max; _i++ ) {
+        if ( !/\s/.test(str[_i]) ) break;
+    }
+    return _i;
+}
+
+
 
 //
 // 基本函数集。
@@ -443,6 +459,22 @@ export function indentSpace( text, tabs ) {
         }
     }
     return _str;
+}
+
+
+/**
+ * 查找并返回最短缩进。
+ * @param  {[String]} ss 文本行集
+ * @return {String} 最短的缩进字符串
+ */
+export function shortIndent( ss ) {
+    let _len = Infinity;
+
+    for ( const str of ss ) {
+        _len = minInds( str, _len );
+        if ( !_len ) return 0;
+    }
+    return _len;
 }
 
 

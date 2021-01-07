@@ -68,7 +68,7 @@
                 注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
     info|focus  确认后聚焦根容器，便于键盘控。
     @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
-    @paste   粘贴为纯文本。 -->
+    @paste   微编辑粘贴（纯文本）。 -->
 <div class="___Content" tpl-name="main:content"
     on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
         cancel|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
@@ -88,6 +88,7 @@
         keyup 状态栏数字设置（非数字无效）。
         focus 设置选取范围到内部，以捕获copy|cut事件。
         copy Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），clean清理内容中的换行，规范换行符用途。
+        paste 普通模式下的粘贴。
         keydown|scam('shift') 设置填充式粘贴标记。
         keyup|env('pastefill', null) 清除填充粘贴标记（重置）。
         _focus 编辑区聚焦（微编辑除外，否则影响光标）。使得上下文菜单显示时，操作非菜单快捷键可取消菜单。

@@ -61,10 +61,10 @@
 ----------------------------------------------------------------------------->
 
 <!--段落：
-    create2.json create事件处理。提取文本框文本预处理，发送到nodes处理器。
+    creates.json create事件处理。提取文本框文本预处理，发送到nodes处理器。
     nodes 用预处理的文本集创建段落集。发送到上级<form>的insert处理器。
 -->
-<div class="_body _P" obt-src="obts/create2.json" tpl-name="input:p"
+<div class="_body _P" obt-src="obts/creates.json" tpl-name="input:p"
     on="nodes|ev('detail') dup pass"
     by="New2.p"
     to="form/|trigger('insert')">
@@ -80,7 +80,10 @@
 </div>
 
 <!-- 注解 -->
-<div class="_body _Note" tpl-name="input:note">
+<div class="_body _Note" obt-src="obts/create.json" tpl-name="input:note"
+    on="node|ev('detail') dup pass"
+    by="New.note"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="note" placeholder="内容"></textarea>
     </div>
@@ -93,7 +96,10 @@
 </div>
 
 <!-- 提示 -->
-<div class="_body _Tips" tpl-name="input:tips">
+<div class="_body _Tips" obt-src="obts/create.json" tpl-name="input:tips"
+    on="node|ev('detail') dup pass"
+    by="New.tips"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="tips" placeholder="内容"></textarea>
     </div>
@@ -106,7 +112,10 @@
 </div>
 
 <!-- 地址 -->
-<div class="_body _Address" tpl-name="input:address">
+<div class="_body _Address" obt-src="obts/create.json" tpl-name="input:address"
+    on="node|ev('detail') dup pass"
+    by="New.address"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="address" placeholder="内容"></textarea>
     </div>
@@ -119,9 +128,12 @@
 </div>
 
 <!-- 预排版 -->
-<div class="_body _Pre" tpl-name="input:pre">
+<div class="_body _Pre" tpl-name="input:pre"
+    on="create|$('textarea') val dup pass"
+    by="New.pre"
+    to="form/|trigger('insert')">
     <div class="_main">
-        <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
+        <textarea tpl-node="prop:codes"></textarea>
     </div>
     <aside>
         <div class="_option">
@@ -224,7 +236,7 @@
 <!-- 另参见 -->
 <div class="_body _Reference" tpl-name="input:seealso">
     <div class="_main">
-        <textarea name="seealso" placeholder="另参见：每行一项"></textarea>
+        <textarea name="seealso" placeholder="另参见：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert1">
@@ -237,7 +249,7 @@
 <!-- 文献参考 -->
 <div class="_body _Reference" tpl-name="input:reference">
     <div class="_main">
-        <textarea name="reference" placeholder="文献参考：每行一项"></textarea>
+        <textarea name="reference" placeholder="文献参考：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert1">
@@ -293,7 +305,7 @@
 <!-- 无序列表 -->
 <div class="_body _Ul" tpl-name="input:ul">
     <div class="_main">
-        <textarea name="ul" placeholder="无序列表：每行一项"></textarea>
+        <textarea name="ul" placeholder="无序列表：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -306,7 +318,7 @@
 <!-- 有序列表 -->
 <div class="_body _Ol" tpl-name="input:ol">
     <div class="_main">
-        <textarea name="ol" placeholder="有序列表：每行一项"></textarea>
+        <textarea name="ol" placeholder="有序列表：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -340,7 +352,7 @@
 <!-- 无序级联表 -->
 <div class="_body _Ulx" tpl-name="input:ulx">
     <div class="_main">
-        <textarea name="ulx" placeholder="无序级联表：每行一项"></textarea>
+        <textarea name="ulx" placeholder="无序级联表：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -353,7 +365,7 @@
 <!-- 有序级联表 -->
 <div class="_body _Olx" tpl-name="input:olx">
     <div class="_main">
-        <textarea name="olx" placeholder="有序级联表：每行一项"></textarea>
+        <textarea name="olx" placeholder="有序级联表：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -366,7 +378,7 @@
 <!-- 级联编号表 -->
 <div class="_body _Cascade" tpl-name="input:cascade">
     <div class="_main">
-        <textarea name="cascade" placeholder="级联编号表：每行一项"></textarea>
+        <textarea name="cascade" placeholder="级联编号表：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert1">
@@ -382,7 +394,7 @@
         <header>
             <input name="dt" type="text" class="_scale" placeholder="条目（<dt>）" />
         </header>
-        <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
+        <textarea name="dd" placeholder="空行分项（<dd>）"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">

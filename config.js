@@ -142,7 +142,7 @@ export const Sys = {
     // 在模板中定义，由程序中激发。
     medIn:      'medin',    // 进入微编辑
     medOk:      'medok',    // 完成微编辑
-    insWhere:   'update',   // 插入位置选单更新
+    evnWhere:   'update',   // 插入位置选单更新
     insType:    'edtype',   // 编辑类型更新（普通插入|微编辑）
 
 
