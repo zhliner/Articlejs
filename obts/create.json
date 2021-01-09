@@ -1,5 +1,5 @@
 {
     "//": "提取文本预处理（空白清理）",
-    "on": "create|$('/textarea') val $('/._option input') prop('checked') v.pretreat1(_1)",
+    "on": "create|$('/textarea') val dup pass $('/._option input') prop('checked') v.pretreat1(_1)",
     "to": "|trigger('node')"
 }

@@ -4390,37 +4390,55 @@ export const Kit = {
 
 
     /**
-     * 主面板录入文本预处理（2项）。
+     * 主面板录入文本预处理
+     * 如果切分，首尾空白会被先清理掉。
      * @data: String
      * @param  {Boolean} clean 是否清理空白
      * @param  {Boolean} split 是否切分（空行分段）
-     * @return {[String]|null}
+     * @return {[String]}
      */
     pretreat2( evo, clean, split ) {
         let _s = evo.data;
-        if ( !_s ) return null;
 
         _s = split ?
-            _s.split( __reBlankline ) :
+            _s.trim().split( __reBlankline ) :
             [ _s ];
 
-        return clean ? _s.map( s => s.replace(__reSpaceN, '$1') ) : _s;
+        return clean ? _s.map( s => s.trim().replace(__reSpaceN, '$1') ) : _s;
     },
 
     __pretreat2: 1,
 
 
     /**
-     * 主面板录入预处理（1项）。
-     * @data: String
+     * 主面板录入预处理。
+     * 支持集合处理。
+     * @data: String|[String]
      * @param  {Boolean} clean 是否清理空白
-     * @return {String|null}
+     * @return {String|[String]}
      */
     pretreat1( evo, clean ) {
-        return clean ? evo.data.replace(__reSpaceN, '$1') : evo.data || null;
+        let _v = evo.data;
+
+        if ( $.isArray(_v) ) {
+            return clean ? _v.map( s => s.replace(__reSpaceN, '$1') ) : _v;
+        }
+        return clean ? _v.trim().replace( __reSpaceN, '$1' ) : _v;
     },
 
     __pretreat1: 1,
+
+
+    /**
+     * 空行切分。
+     * @data: String
+     * @return {[String]}
+     */
+    splitx( evo ) {
+        return evo.data.trim().split( __reBlankline );
+    },
+
+    __splitx: 1,
 
 
 
@@ -4748,6 +4766,7 @@ customGetter( null, Kit, [
     'inslist',
     'pretreat2',
     'pretreat1',
+    'splitx',
 ]);
 
 

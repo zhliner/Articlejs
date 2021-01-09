@@ -469,15 +469,19 @@ const _Gets = {
 
     /**
      * 转换为普通对象。
-     * 主要针对目标的entries接口，可用于Set/Map实例。
+     * 如果传递键名，创建一个新对象并设置键值映射。
+     * 如果目标拥有entries接口，可用于Set/Map实例。
      * 如果目标不包含entries，返回Object()的简单封装。
+     * @param  {String} key 封装键名，可选
      * @return {Object}
      */
-    obj( evo ) {
-        if ( !$.isFunction(evo.data.entries) ) {
-            return Object( evo.data );
+    obj( evo, key ) {
+        let _v = evo.data;
+
+        if ( key !== undefined ) {
+            return { [key]: _v };
         }
-        return Object.fromEntries( evo.data.entries() );
+        return $.isFunction( _v.entries ) ? Object.fromEntries( _v.entries() ) : Object( _v );
     },
 
     __obj: 1,

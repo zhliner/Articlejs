@@ -316,8 +316,11 @@ only( name:String )
 
 
 ```js
-target( n )
-// To目标更新或取值入栈。
+target()
+// To当前目标更新或取值。
+
+primary()
+// To初始目标获取。
 
 fire( rid, name, delay, bubble, cancelable )
 // 延迟激发事件。

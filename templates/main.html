@@ -135,7 +135,7 @@
                 Kit.convert"
             to="#g-scroll|trigger('_focus');
                 #g-scroll|trigger('focus');
-                |cssSets('left top')|goto('status') goto('submenu') fire(1, 'focus');
+                |cssSets('left top')|goto('status') goto('submenu') fire(11, 'focus');
                 /menu|replace;
                 |trigger('cmenudo');
                 |trigger('convert');
@@ -186,7 +186,7 @@
             by="Kit.rngelem(_1)"
             to="#g-scroll|trigger('focus');
                 |data('range')|goto('show');
-                |cssSets('left top')|fire(1, 'focus');
+                |cssSets('left top')|fire(11, 'focus');
                 |data('range');
                 |trigger('create');
                 |trigger('create');
@@ -722,21 +722,32 @@
 </div>
 
 
-<!-- 功能面板：
-    - mousedown 面板高度调整。
-    - keydown   面板快捷键处理。
-    - input.full  文本框和表格录入最大化平铺。
-    注：tabindex 使保存键（Ctrl+s）随时有效。 -->
+<!--功能面板：
+    mousedown 面板高度调整。
+    keydown   面板快捷键处理。
+    input.submit  直接快捷提交，保持录入框焦点。[contenteditable] 用于单元格。
+    input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
+    input.full    文本框和表格录入最大化平铺。
+    注：
+    tabindex 使保存键（Ctrl+s）随时有效。 -->
 <div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
     on="@mousemove|movementY neg;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveResize) pass stop avoid;
+        input.submit(~textarea);
+        input.submit(~[contenteditable]);
+        input.submit2(~textarea)|evo(2) full(false);
+        input.submit2(~[contenteditable])|evo(2) pop $('._list/') full(false);
         input.full(~textarea)|evo(2) full(2);
         input.full(~[contenteditable])|evo(2) pop $('._list/') full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
-        |bind('mousemove') once('mouseup')">
+        |bind('mousemove') once('mouseup');
+        /form|trigger('submit')|fire(1, 'focus');
+        /form|trigger('submit')|fire(1, 'focus');
+        /form|trigger('submit')|fire(1, 'focus');
+        /form|trigger('submit')|fire(1, 'focus')">
     <div class="_tabs"
         on="click(b)|evo(2) attr('-tpl') pop tpl;
             click(b)|evo(2) hasClass('_press') end $$('/b')"

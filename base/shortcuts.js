@@ -703,14 +703,14 @@ Content: [
 
 Slave: [
     {
-        // 内容提交（同插入按钮）
+        // 内容直接提交。
         "key":      "ctrl:enter",
         "command":  "input.submit",
     },
     {
-        // 内容提交后恢复正常
-        // 注：录入框满面板时。
-        "key":      "alt:enter",
+        // 内容直接提交。
+        // 若录入框充满则恢复正常。
+        "key":      "ctrl+shift:enter",
         "command":  "input.submit2",
     },
 

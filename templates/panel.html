@@ -20,7 +20,7 @@
         <div id="con-where" class="_where"
             on="update|ev('detail') $('/input') val('where') v.inslist(_1);
                 click(input)|$('1/select') focus v.sels"
-            to="1/select|fill|fire('0', 'change', 0);
+            to="1/select|fill|fire(10, 'change', 0);
                 |trigger('update')">
             <label title="平级插入">
                 <input type="radio" name="where" value="siblings" checked /><i id="l-siblings"></i>
@@ -54,7 +54,7 @@
         <div class="_where"
             on="click(input)|evo(2) val pop tpl;
                 click(input)|evo(2) attr('-val') pop tpl"
-            to="1/select|replace|focus fire(1, 'change');
+            to="1/select|replace|focus fire(11, 'change');
                 2/._body|replace">
             <label title="内联元素">
                 <input type="radio" name="where" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>

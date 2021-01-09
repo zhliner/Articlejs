@@ -529,38 +529,44 @@ const _Update = {
 
 const _NextStage = {
     /**
-     * To目标更新或取值入栈。
+     * To目标更新或获取。
      * 内容：暂存区1项可选。
      * 如果暂存区有值，则赋值为更新目标（updated）。
-     * 取两个目标之一入栈：
-     * - 0  原始To目标（evo.primary），默认
-     * - 1  更新To目标（evo.updated）
-     * @param  {Number} n 目标标识，可选
      * @return {Element|Collector|void}
      */
-    target( evo, n = 0 ) {
-        if ( evo.data !== undefined ) {
-            evo.updated = evo.data;
-            return;
+    target( evo ) {
+        if ( evo.data === undefined ) {
+            return evo.updated;
         }
-        switch ( n ) {
-            case 0: return evo.primary;
-            case 1: return evo.updated;
-        }
+        evo.updated = evo.data;
     },
 
     __target: -1,
 
 
     /**
+     * 获取To初始检索目标。
+     * @return {Element|Collector}
+     */
+    primary( evo ) {
+        return evo.primary;
+    },
+
+    __prime: null,
+
+
+    /**
      * 延迟激发事件。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
-     * rid 支持两个特殊值：
-     * - '0' 原始检索结果（evo.primary）
-     * - '1' 更新后的结果（evo.updated）
+     * rid 支持如下数字值：
+     * - 1  事件起始元素（evo.target）
+     * - 2  事件当前元素（evo.current）
+     * - 3  事件委托元素（evo.delegate）
+     * - 10 原始检索结果（evo.primary）
+     * - 11 更新后的结果（evo.updated）
      * 默认延迟，可设置具体的时间或0值（不延迟）。
-     * @param {String} rid 目标元素选择器（单个）
+     * @param {String|Number} rid 目标元素选择器（单个）
      * @param {String} name 事件名
      * @param {Number} delay 延迟时间（毫秒），可选
      * @param {Boolean} bubble 是否冒泡，可选。默认冒泡
@@ -891,11 +897,12 @@ function selectChanged( sel ) {
 
 /**
  * 获取操作目标。
- * rid: {
- *      '0'     To原始检索的目标
- *      '1'     被To更新的结果
- *      String  选择器检索的结果
- * }
+ * rid 支持如下数字值：
+ * - 1  事件起始元素（evo.target）
+ * - 2  事件当前元素（evo.current）
+ * - 3  事件委托元素（evo.delegate）
+ * - 10 原始检索结果（evo.primary）
+ * - 11 更新后的结果（evo.updated）
  * 适用：部分接口暂存区1项可选时。
  * @param  {String} rid 目标标识，可选
  * @param  {Boolean} one 是否单元素检索，可选
@@ -903,8 +910,11 @@ function selectChanged( sel ) {
  */
 function target( evo, rid, one ) {
     switch ( +rid ) {
-        case 0: return evo.primary;
-        case 1: return evo.updated;
+        case 1:  return evo.target;
+        case 2:  return evo.current;
+        case 3:  return evo.delegate;
+        case 10: return evo.primary;
+        case 11: return evo.updated;
     }
     return Util.find( rid, evo.delegate, one );
 }

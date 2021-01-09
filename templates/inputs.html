@@ -65,7 +65,7 @@
     nodes 用预处理的文本集创建段落集。发送到上级<form>的insert处理器。
 -->
 <div class="_body _P" obt-src="obts/creates.json" tpl-name="input:p"
-    on="nodes|ev('detail') dup pass"
+    on="nodes|ev('detail')"
     by="New2.p"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -81,7 +81,7 @@
 
 <!-- 注解 -->
 <div class="_body _Note" obt-src="obts/create.json" tpl-name="input:note"
-    on="node|ev('detail') dup pass"
+    on="node|ev('detail')"
     by="New.note"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -97,7 +97,7 @@
 
 <!-- 提示 -->
 <div class="_body _Tips" obt-src="obts/create.json" tpl-name="input:tips"
-    on="node|ev('detail') dup pass"
+    on="node|ev('detail')"
     by="New.tips"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -113,7 +113,7 @@
 
 <!-- 地址 -->
 <div class="_body _Address" obt-src="obts/create.json" tpl-name="input:address"
-    on="node|ev('detail') dup pass"
+    on="node|ev('detail')"
     by="New.address"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -129,7 +129,7 @@
 
 <!-- 预排版 -->
 <div class="_body _Pre" tpl-name="input:pre"
-    on="create|$('textarea') val dup pass"
+    on="create|$('/textarea') val dup pass"
     by="New.pre"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -147,15 +147,15 @@
 
 
 <!-- 文章标题 -->
-<div class="_body _Hgroup" tpl-name="input:hgroup"
-    on="create|"
+<div class="_body _Hgroup" obt-src="obts/createx.json" tpl-name="input:hgroup"
+    on="node|ev('detail') $('/input[name=h1]') val obj('h1') (true)"
+    by="New.hgroup(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
             <input type="text" name="h1" placeholder="主标题" class="_scale" />
         </header>
-        <!-- 换行分隔多个副标题。 -->
-        <textarea name="h2" placeholder="副标题（每行一个），可选"></textarea>
+        <textarea name="h2" placeholder="副标题（多个以空行分隔）"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert1">
@@ -639,7 +639,7 @@
 <!-- 主标题 -->
 <div class="_body _H1" tpl-name="input:h1">
     <div class="_main">
-        <textarea name="h1" placeholder="主标题"></textarea>
+        <textarea name="h1" placeholder="标题内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -652,7 +652,7 @@
 <!-- 片区标题 -->
 <div class="_body _H2" tpl-name="input:h2">
     <div class="_main">
-        <textarea name="h2" placeholder="片区标题"></textarea>
+        <textarea name="h2" placeholder="标题内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -665,7 +665,7 @@
 <!-- 小标题 -->
 <div class="_body _H3" tpl-name="input:h3">
     <div class="_main">
-        <textarea name="h3" placeholder="小标题"></textarea>
+        <textarea name="h3" placeholder="小标题内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -1059,7 +1059,7 @@
         ^obted;
         ^done"
     to="~|fill|target(0) goto('save', _1);
-        |data(_1)|fire(1, 'done');
+        |data(_1)|fire(11, 'done');
         (/span)|trigger('init', true);
         |off('init save')">
     <!-- <span><b>...</span> -->
