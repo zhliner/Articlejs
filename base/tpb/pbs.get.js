@@ -33,8 +33,8 @@ const
         4: 'selector',  // 委托匹配选择器（for match）]
         6: 'data',      // 自动获取的流程数据
         7: 'entry',     // 中段入口（迭代重入）
-        8: 'primary',   // To检索结果
-        9: 'updated',   // To更新目标/集（动态变化）
+        10: 'primary',  // To检索结果
+        11: 'updated',  // To更新目标/集（动态变化）
     },
 
     // 归类键区。
@@ -292,7 +292,7 @@ const _Gets = {
     check( evo, ...names ) {
         let _frm = (evo.data || evo.delegate),
             _vs = names.map(
-                n => _frm[n] ? _frm[n].checked : null
+                n => elemChecked( _frm, n )
             );
         return _vs.length > 1 ? _vs : _vs[0];
     },
@@ -312,9 +312,10 @@ const _Gets = {
      * @return {Value|[Value]|null}
      */
     value( evo, name ) {
-        let _el = (evo.data || evo.delegate)[name] ||
-            null;
-        return _el && $.val( _el.nodeType ? _el : _el[0] );
+        let _el = namedElem(
+            evo.data || evo.delegate, name
+        );
+        return _el && $.val( _el );
     },
 
     __value: -1,
@@ -1776,6 +1777,36 @@ function getData( map, name ) {
         return map.get( name );
     }
     return name.split(__reSpace).map( n => map.get(n) );
+}
+
+
+/**
+ * 获取表单控件。
+ * 通过控件名的方式检索控件元素。
+ * 注意：控件名称可能与表单的方法重名。
+ * @param  {Element} frm 表单元素
+ * @param  {String} name 控件名称
+ * @return {Element|null}
+ */
+function namedElem( frm, name ) {
+    let _el = frm[ name ];
+
+    if ( !_el ) {
+        return null;
+    }
+    return _el.nodeType ? _el : _el[0] || null;
+}
+
+
+/**
+ * 检索表单控件选取状态。
+ * @param  {Element} frm 表单元素
+ * @param  {String} name 控件名称
+ * @return {Boolean|null}
+ */
+function elemChecked( frm, name ) {
+    let _el = namedElem( frm, name );
+    return _el && _el.checked;
 }
 
 

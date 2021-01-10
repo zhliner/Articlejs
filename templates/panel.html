@@ -1,16 +1,30 @@
 <!--主面板区
 ----------------------------------------------------------------------------->
 
-<!-- 录入
-    insert 插入已创建的元素集（detail）。 -->
+<!--录入
+    insert 插入已创建的元素/集（detail），通用。
+    insheading 插入标题类，位置确定。
+    insheader  插入导言元素，位置在标题之后。
+    insfooter  插入结语元素，位置在章节末尾。 -->
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
         replaced|v.sels stop;
-        insert|ev('detail') check('before') value('where')"
+        insert|ev('detail') check('before') value('where');
+        topinsert|ev('detail') value('where');
+        insheading|ev('detail') value('where');
+        insheader|ev('detail') value('where');
+        insfooter|ev('detail') value('where');"
     by="-;-;
-        Kit.inserts(_2)"
+        Kit.inserts(_2);
+        Kit.insheading(_2);
+        Kit.insheader(_1);
+        Kit.insfooter(_1)"
     to="/._body|trigger('create');
         /#con-where|trigger('update');
+        #g-scroll|trigger('focus');
+        #g-scroll|trigger('focus');
+        #g-scroll|trigger('focus');
+        #g-scroll|trigger('focus');
         #g-scroll|trigger('focus')">
     <div class="_roll">
         <!--插入位置定义：

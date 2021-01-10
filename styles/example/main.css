@@ -70,7 +70,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-style: italic;
     font-weight: normal;
     margin-top: -10px;
-    margin-bottom: 30px;
     padding: 0 20px;
     color: #888;
     text-align: right;
@@ -117,7 +116,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content header[role=abstract] {
     border: 1px #eee solid;
     border-radius: 10px;
-    margin-bottom: 2em;
+    margin: 2em 0;
     padding: 10px 30px;
     background-color: #f7f7f7;
     color: #58859c;
@@ -293,10 +292,18 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 
-/* 章节区段末
+/* 文章区
  * 用逐层递进定位可能的正文区。
  *----------------------------------------------------------------------------
  */
+
+.content article {
+}
+.content article > header {
+    margin: 2em 0;
+    border: 1px transparent solid;
+}
+
 
 /* 章：
  * section:s1/[h2,header,section:s2,footer]

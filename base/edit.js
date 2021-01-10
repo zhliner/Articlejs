@@ -2649,6 +2649,19 @@ function error( msg, data ) {
 
 
 //
+// 顶层单元插入
+//----------------------------------------------------------------------------
+
+//
+// 处理器映射。
+//
+const topInserts = {
+    [ T.HGROUP ]:   null,
+};
+
+
+
+//
 // 上下文菜单条目可用性判断
 // @param  {[Element]} els 当前选取集
 // @return {Boolean}
@@ -4691,6 +4704,60 @@ export const Kit = {
     },
 
     __inserts: 1,
+
+
+    /**
+     * 插入顶层单元。
+     * 每个单元都有固定的位置。
+     */
+    topinsert( evo ) {
+        //
+    },
+
+    __topinsert: 1,
+
+
+    /**
+     * 插入标题。
+     * where相对于选取元素。
+     * 标题通常固定在区块前端。
+     * @data: Element
+     * @param  {String} where 目标位置
+     * @return {void}
+     */
+    insheading( evo, where ) {
+        //
+    },
+
+    __insheading: 1,
+
+
+    /**
+     * 插入导言。
+     * 在标题之后，仅有<article>和<section>会包含。
+     * @data: Element
+     * @param  {String} where 目标位置
+     * @return {void}
+     */
+    insheader( evo, where ) {
+        //
+    },
+
+    __insheader: 1,
+
+
+    /**
+     * 插入结语。
+     * 在区块末尾，仅有<article>和<section>会包含。
+     * @data: Element
+     * @param  {String} where 目标位置
+     * @return {void}
+     */
+    insfooter( evo, where ) {
+        //
+    },
+
+    __insfooter: 1,
 
 
     /**
