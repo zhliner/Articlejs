@@ -952,7 +952,7 @@ class NodeVary {
      * @param {[Element]} els 目标元素集
      * @param {[Element]} data 数据元素集
      */
-    replace( els, data ) {
+    replaces( els, data ) {
         els.forEach(
             (el, i) => $.replace( el, data[i] )
         );
@@ -1907,13 +1907,13 @@ function insertsNodes( els, nodes2, before, where ) {
 
 
 /**
- * 检查/创建数据节点集组。
+ * 创建数据节点集组。
  * 用于多个选取目标时创建待插入的克隆集。
  * @param  {Collector} $data 数据节点集
  * @param  {Number} cnt 克隆次数
  * @return {[Collector]} 节点集组
  */
-function dataNodes( $data, cnt ) {
+function dataNodes2( $data, cnt ) {
     let _buf = [ $data ];
 
     if ( cnt < 2 ) {
@@ -1921,6 +1921,26 @@ function dataNodes( $data, cnt ) {
     }
     for (let i = 0; i < cnt-1; i++) {
         _buf.push( $data.clone() );
+    }
+    return _buf;
+}
+
+
+/**
+ * 创建节点数组。
+ * 用于多个选取目标时创建待插入克隆集，
+ * 数据为单元数，主要针对标题类。
+ * @param {Element} data 数据元素
+ * @param {Number} cnt 克隆次数
+ */
+function dataNodes( data, cnt ) {
+    let _buf = [ data ];
+
+    if ( cnt < 2 ) {
+        return _buf;
+    }
+    for (let i = 0; i < cnt-1; i++) {
+        _buf.push( $.clone(data) );
     }
     return _buf;
 }
@@ -2648,16 +2668,206 @@ function error( msg, data ) {
 }
 
 
-//
-// 顶层单元插入
-//----------------------------------------------------------------------------
 
 //
-// 处理器映射。
+// 固定位置单元插入
+// 包含：顶层，标题，导言，结语。
+//----------------------------------------------------------------------------
+
+
 //
-const topInserts = {
-    [ T.HGROUP ]:   null,
+// 顶层单元选择器配置。
+// self: 自身选择器
+// prev: 前端元素序列（靠前优先）
+//
+const topItemslr = {
+
+    [ T.H1 ]: {
+        self: '>h1, >hgroup',
+        prev: null
+    },
+
+    [ T.HGROUP ]: {
+        self: '>h1, >hgroup',
+        prev: null
+    },
+
+    [ T.ABSTRACT ]: {
+        self: '>header[role=abstract]',
+        prev: [ T.H1 ]
+    },
+
+    [ T.TOC ]: {
+        self: '>nav[role=toc]',
+        prev: [ T.ABSTRACT, T.H1 ]
+    },
+
+    [ T.ARTICLE ]: {
+        self: '>article',
+        prev: [ T.TOC, T.ABSTRACT, T.H1 ]
+    },
+
+    [ T.SEEALSO ]: {
+        self: '>ul[role=seealso]',
+        prev: [ T.ARTICLE, T.TOC, T.ABSTRACT, T.H1 ]
+    },
+
+    [ T.REFERENCE ]: {
+        self: '>ol[role=reference]',
+        prev: [ T.SEEALSO, T.ARTICLE, T.TOC, T.ABSTRACT, T.H1 ]
+    }
 };
+
+
+//
+// 区块内标题配置。
+//
+const fixItemslr = {
+    // <hgroup/h1>
+    [ T.H1 ]: {
+        self: '>h1',
+        prev: null
+    },
+
+    // <section/h2>
+    [ T.H2 ]: {
+        self: '>h2',
+        prev: null
+    },
+
+    // 小区块标题
+    [ T.H3 ]: {
+        self: '>h3',
+        prev: null
+    },
+
+    // 子列表标题
+    [ T.H4 ]: {
+        self: '>h4',
+        prev: null
+    },
+
+    [ T.AH4 ]: {
+        self: '>h4',
+        prev: null
+    },
+
+    [ T.SUMMARY ]: {
+        self: '>summary',
+        prev: null
+    },
+
+    [ T.FIGCAPTION ]: {
+        self: '>figcaption',
+        prev: null
+    },
+
+    [ T.CAPTION ]: {
+        self: '>caption',
+        prev: null
+    },
+
+    [ T.THEAD ]: {
+        self: '>thead',
+        prev: [ T.CAPTION ]
+    },
+
+    [ T.TFOOT ]: {
+        self: '>tfoot',
+        prev: [ T.TBODY, T.THEAD, T.CAPTION ]
+    },
+
+    [ T.HEADER ]: {
+        self: '>header',
+        prev: [ T.H2 ]
+    },
+
+    [ T.FOOTER ]: {
+        self: '>footer',
+        prev: [ 'LastChild' ]
+    },
+
+    // 抽象位置
+    LastChild: {
+        self: ':last-child',
+        prev: null
+    }
+};
+
+
+/**
+ * 前端参考元素检索。
+ * @param  {Element} box 容器元素
+ * @param  {[Number]} tvs 前端元素类型序列
+ * @return {Element|null}
+ */
+function beforeRef( box, tvs ) {
+    let _ref = null;
+
+    if ( !tvs ) {
+        return _ref;
+    }
+    for ( const tv of tvs ) {
+        _ref = $.get( topItemslr[tv].self, box );
+        if ( _ref ) break;
+    }
+    return _ref;
+}
+
+
+/**
+ * 固定单元插入。
+ * 有则替换，否则按位置插入。
+ * @param {Element} box 文章容器
+ * @param {Element} el  标题/标题组元素
+ * @param {Object} cobj 配置对象
+ */
+function fixInsert( box, el, cobj ) {
+    let _cfg = cobj[ getType(el) ],
+        _its = $.get( _cfg.self, box );
+
+    if ( _its ) {
+        return new DOMEdit( () => $.replace(_its, el) );
+    }
+    _its = beforeRef( box, _cfg.prev );
+
+    return new DOMEdit(
+        _its ? () => $.after(_its, el) : () => $.prepend(box, el)
+    );
+}
+
+
+/**
+ * 插入标题元素。
+ * @param  {Element} box 容器元素
+ * @param  {Element} hx 标题元素
+ * @return {DOMEdit} 操作实例
+ */
+function insHeading( box, hx ) {
+    //
+}
+
+
+/**
+ * 插入导言元素。
+ * @param  {Element} box 容器元素
+ * @param  {Element} header 导言元素
+ * @return {DOMEdit} 操作实例
+ */
+function insHeader( box, header ) {
+    //
+}
+
+
+/**
+ * 插入结语元素。
+ * @param  {Element} box 容器元素
+ * @param  {Element} footer 结语元素
+ * @return {DOMEdit} 操作实例
+ */
+function insFooter( box, footer ) {
+    //
+}
 
 
 
@@ -4632,7 +4842,7 @@ export const Kit = {
         if ( !$els.length ) {
             return;
         }
-        historyPush( _op1, _op2, new DOMEdit(__Edits.replace, $els, $new), pushes($new) );
+        historyPush( _op1, _op2, new DOMEdit(__Edits.replaces, $els, $new), pushes($new) );
     },
 
     __convert: 1,
@@ -4677,7 +4887,7 @@ export const Kit = {
 
 
     /**
-     * 从主面板录入插入。
+     * 从主面板录入插入（通用）。
      * 目标：暂存区/栈顶1项。
      * 插入后新元素集被选取，原选取集取消选取。
      * 聚焦在首个数据元素上（友好）。
@@ -4690,7 +4900,7 @@ export const Kit = {
      */
     inserts( evo, before, where ) {
         let _els = [...__ESet],
-            _dt2 = dataNodes( $(evo.data), _els.length ),
+            _dt2 = dataNodes2( $(evo.data), _els.length ),
             _op1 = clearSets(),
             _ops = insertsNodes( _els, _dt2, before, where ),
             _elx = _dt2.flat().filter( nd => nd.nodeType === 1 );
@@ -4709,9 +4919,25 @@ export const Kit = {
     /**
      * 插入顶层单元。
      * 每个单元都有固定的位置。
+     * 注：
+     * where实际上只可能是siblings
+     * 顶层单元没有多选克隆逻辑。
+     *
+     * @data: Element
+     * @param  {String} where 目标位置
+     * @return {void}
      */
-    topinsert( evo ) {
-        //
+    topinsert( evo, where ) {
+        let _sel = __ESet.first(),
+            _box = where === Sys.whereName1 ?
+                _sel.parentElement :
+                _sel;
+
+        historyPush(
+            clearSets(),
+            fixInsert( _box, evo.data, topItemslr ),
+            ...selectOne( evo.data, 'safeAdd' )
+        );
     },
 
     __topinsert: 1,

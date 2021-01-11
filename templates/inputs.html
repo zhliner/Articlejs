@@ -850,7 +850,7 @@
 
 <!--自动提取首个选取的表格：
     构造表格实例发送到<tbody>创建同类表格录入。
-    会暂存实例，简单切换不影响已录入。 -->
+    会暂存实例，选单简单切换不影响已录入。 -->
 <div class="_body _Table" tpl-name="input:tbody"
     on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
     to="|data('tbo')|pop fire('/tbody', 'new')">
