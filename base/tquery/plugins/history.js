@@ -52,7 +52,7 @@
 
         // 节点变化处理器。
         // 注：共5个事件类型。
-        nodein:     ev => new Nodein( ev.detail[0] ),
+        nodedone:   ev => new Nodedone( ev.target ),
         detach:     ev => new Remove( ev.target ),
         empty:      ev => new Empty( ev.target ),
         replace:    ev => new Replace( ev.target, ev.detail ),
@@ -343,11 +343,11 @@ class EventClone {
 
 
 //
-// 节点进入操作。
+// 节点进入完成。
 // 确定数据节点已事先脱离DOM。
 // 适用方法：.prepend, .append, .before, .after
 //
-class Nodein {
+class Nodedone {
     /**
      * @param {Node|[Node]} data 待插入节点（集）
      */
@@ -402,7 +402,7 @@ class Replace {
      */
     constructor( el, data ) {
         this._op0 = new Remove( el );
-        this._op1 = new Nodein( data );
+        this._op1 = new Nodedone( data );
     }
 
 
