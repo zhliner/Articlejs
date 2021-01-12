@@ -114,6 +114,7 @@ const InputOptions = {
     [ T.FIGIMGBOX ]:    'option:figimgbox',
 
     [ T.HGROUP ]:       'option:hgroup',
+    [ T.ARTICLE ]:      'option:article',
     [ T.S1 ]:           'option:s1',
     [ T.S2 ]:           'option:s2',
     [ T.S3 ]:           'option:s3',

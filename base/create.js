@@ -539,21 +539,21 @@ const Children = {
      * 仅为容器创建，需向后续传递进构建。
      * @param {Element|null} ref 参考子元素
      * @param {Element} art 文章元素
-     * @param {Boolean} header 有无导言
-     * @param {Boolean} footer 有无结语
+     * @param {Element} header 导言，可选
      * @param {Element} data 子单元数据，可选
      */
-    [ T.ARTICLE ]: function( ref, art, {header, footer}, data ) {
+    [ T.ARTICLE ]: function( ref, art, {header}, data ) {
         let _buf = [];
 
         if ( header  ) {
-            _buf.push( insertHeader(art) );
+            _buf.push( insertHeader(art, header) );
         }
-        let _new = appendChild( ref, art, data, () => elem(T.P) );
-
-        if ( footer ) {
-            _buf.push( appendFooter(art) );
-        }
+        let _new = appendChild(
+            ref,
+            art,
+            data,
+            () => elem(T.P)
+        );
         return result( _buf, _new || data, !_new );
     },
 
@@ -772,7 +772,6 @@ const Children = {
 // 选项集：
 // - h2     标题，必需，唯一
 // - header 导言，可选，唯一
-// - footer 结语，可选，唯一
 //-----------------------------------------------
 [
     T.S1,
@@ -789,14 +788,13 @@ const Children = {
      * @param {Element|null} ref 参考子元素
      * @param {Element} sec 片区元素
      * @param {Element|String|[Node]} h2 标题元素或其内容
-     * @param {Boolean} header 创建导言，可选
-     * @param {Boolean} footer 创建结语，可选
+     * @param {Element} header 导言，可选
      * @param {Element} data 子单元数据，可选
      */
-    Children[ it ] = function( ref, sec, {h2, header, footer}, data ) {
+    Children[ it ] = function( ref, sec, {h2, header}, data ) {
         let _buf = [
             h2 && insertHeading( sec, T.H2, h2 ),
-            header && insertHeader( sec )
+            header && insertHeader( sec, header )
         ];
         let _new = appendChild(
             ref,
@@ -804,9 +802,6 @@ const Children = {
             data,
             () => sectionFitted( ref, sec, data )
         );
-        if ( footer ) {
-            _buf.push( appendFooter(sec) );
-        }
         return result( _buf.filter(v => v), _new || data, !_new );
     };
 
@@ -1343,33 +1338,22 @@ function insertHeading( box, tval, data ) {
 
 
 /**
- * 插入导言（如果没有）。
- * 容忍既有导言不在前端。
- * 新插入导言在标题之后或容器内最前端。
+ * 插入导言。
+ * 如果已有导言且与实参不同，替换之，否则插入。
+ * 注：容忍既有导言不在前端。
  * @param  {Element} box 导言父元素
- * @param  {String} hslr 依附标题选择器
- * @return {Element} 既有或新建的导言
+ * @param  {Element} header 导言元素
+ * @return {Element} header
  */
-function insertHeader( box, hslr = '>h2' ) {
+function insertHeader( box, header ) {
     let _el = $.get( '>header', box );
-    if ( _el ) return _el;
 
-    let _hx = $.get( hslr, box );
+    if ( _el ) {
+        return _el === header ? _el : $.replace(_el, header);
+    }
+    let _hx = $.get( '>h2', box );
 
-    return _hx ? $.after( _hx, elem(T.HEADER) ) : $.prepend( box, elem(T.HEADER) );
-}
-
-
-/**
- * 判断插入结语并返回。
- * 如果没有就新建插入（到容器末端）。
- * 容忍既有结语不在末端。
- * @param  {Element} box 结语父元素
- * @return {Element} 结语元素
- */
-function appendFooter( box ) {
-    let _el = $.get( '>footer', box );
-    return _el || $.append( box, elem(T.FOOTER) );
+    return _hx ? $.after( _hx, header ) : $.prepend( box, header );
 }
 
 
@@ -1464,7 +1448,7 @@ function sectionFitted( ref, box, sec ) {
         _n2 = sectionLevel( sec );
 
     // void for end.
-    $.insertChild( ref, box, sectionsFitted(sec, _n1-_n2 + 1) );
+    insertChild( ref, box, sectionsFitted(sec, _n1-_n2 + 1) );
 }
 
 
@@ -1855,8 +1839,7 @@ function build( el, opts, data, more ) {
  *      ah4:        {Element} 级联表标题链接（<a>）
  *      explain:    {Value}   图片讲解
  *      h2:         {Value}   片区（<section>）标题
- *      header:     {Boolean} 创建导言部分
- *      footer:     {Boolean} 创建结语部分
+ *      header:     {Element} 导言元素
  *      dt:         {Value}   描述列表标题项
  *      th0:        {Boolean} 表格列表头
  *      rpl:        {String}  左包围（<rp>）

@@ -33,16 +33,12 @@
 </div>
 
 
-<!--章节内片段：s1-s5, section
-    focus: 激活后扩展开。-->
-<div class="_main" tpl-name="part:section"
-    on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
-    to="-|only('_inert')">
+<!--章节内片段：s1-s5, section -->
+<div class="_main" tpl-name="part:section">
     <header>
         <input name="hx" type="text" placeholder="标题" class="_scale" />
     </header>
     <textarea name="header" placeholder="导言（可选）"></textarea>
-    <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
 </div>
 
 <!--表格行数：仅表体<tbody>部分 -->
@@ -150,7 +146,7 @@
 <div class="_body _Hgroup" obt-src="obts/createx.json" tpl-name="input:hgroup"
     on="node|ev('detail') $('/input[name=h1]') val obj('h1') (true)"
     by="New.hgroup(_2)"
-    to="form/|trigger('insert')">
+    to="form/|trigger('instop')">
     <div class="_main">
         <header>
             <input type="text" name="h1" placeholder="主标题" class="_scale" />
@@ -160,6 +156,19 @@
     <aside>
         <pre tpl-node="input:option1, input:insert1">
             [选项1]
+            [插入1]
+        </pre>
+    </aside>
+</div>
+
+<!-- 文章根 -->
+<div class="_body _Article" tpl-name="input:article">
+    <div class="_main">
+        <textarea name="header" placeholder="导言（可选）"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert1">
+            [选项2]
             [插入1]
         </pre>
     </aside>
@@ -268,9 +277,9 @@
         <textarea name="header" placeholder="导言内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:insert1">
+        <pre tpl-node="input:option2, input:update">
             [选项2]
-            [插入1]
+            [更新]
         </pre>
     </aside>
 </div>
@@ -284,9 +293,9 @@
         <textarea name="footer" placeholder="结语内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:insert1">
+        <pre tpl-node="input:option2, input:update">
             [选项2]
-            [插入1]
+            [更新]
         </pre>
     </aside>
 </div>
@@ -504,7 +513,7 @@
             data-iurl="/upload/20200515/picx.jpg&#10;{ width: 800, alt: '...' }"
             data-durl="data:image/png;base64,...&#10;{ width: 800, alt: '...' }"
             data-svgx="<svg>...</svg>"></textarea>
-        <textarea name="explain" placeholder="文字讲解（可选）" class="_inert"></textarea>
+        <textarea name="explain" placeholder="文字讲解（换行有效），可选" class="_inert"></textarea>
     </div>
     <aside>
         <div class="_option">

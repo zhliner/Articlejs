@@ -35,7 +35,7 @@ const
     Normalize = $.Fx.History.Normalize,
 
     // 编辑需要监听的变化事件。
-    varyEvents = 'attrvary stylevary nodein replace empty detach normalize',
+    varyEvents = 'attrvary stylevary nodedone replace empty detach normalize',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
@@ -2483,14 +2483,16 @@ function typeSets( els ) {
  * 注记：
  * 因为 delayFile 为延迟激发，
  * 所以目标可能已在 DOMEdit.undo() 过程中脱离DOM。
- * @param  {[Element]} els 目标元素集
+ * @param  {[Element]|Set} els 目标元素集
  * @return {Set<Element>}
  */
-function parentSets( els ) {
-    return els.reduce(
-        (set, el) => el.parentElement ? set.add( el.parentElement ) : set,
-        new Set()
-    );
+function parentsSet( els ) {
+    let _set = new Set();
+
+    for ( const el of els ) {
+        if ( el.parentElement ) _set.add( el.parentElement );
+    }
+    return _set;
 }
 
 
@@ -2540,7 +2542,7 @@ function siblingOptions( els ) {
     if ( _tvs.some(tv => __siblingNone.has(tv)) ) {
         return [];
     }
-    return childOptions( [...parentSets(els)] );
+    return childOptions( [...parentsSet(els)] );
 }
 
 
@@ -2681,7 +2683,7 @@ function error( msg, data ) {
 // prev: 前端元素序列（靠前优先）
 //
 const topItemslr = {
-
+    // 单纯页标题
     [ T.H1 ]: {
         self: '>h1, >hgroup',
         prev: null
@@ -2799,16 +2801,16 @@ const fixItemslr = {
  * 前端参考元素检索。
  * @param  {Element} box 容器元素
  * @param  {[Number]} tvs 前端元素类型序列
+ * @param  {Object} cobj 配置对象
  * @return {Element|null}
  */
-function beforeRef( box, tvs ) {
+function beforeRef( box, tvs, cobj ) {
     let _ref = null;
-
     if ( !tvs ) {
         return _ref;
     }
     for ( const tv of tvs ) {
-        _ref = $.get( topItemslr[tv].self, box );
+        _ref = $.get( cobj[tv].self, box );
         if ( _ref ) break;
     }
     return _ref;
@@ -2829,7 +2831,7 @@ function fixInsert( box, el, cobj ) {
     if ( _its ) {
         return new DOMEdit( () => $.replace(_its, el) );
     }
-    _its = beforeRef( box, _cfg.prev );
+    _its = beforeRef( box, _cfg.prev, cobj );
 
     return new DOMEdit(
         _its ? () => $.after(_its, el) : () => $.prepend(box, el)
@@ -2839,34 +2841,18 @@ function fixInsert( box, el, cobj ) {
 
 /**
  * 插入标题元素。
- * @param  {Element} box 容器元素
- * @param  {Element} hx 标题元素
+ * 标题集与父元素集的成员一一对应。
+ * @param  {[Element]} pels 父元素集
+ * @param  {[Element]} hx 标题元素集
  * @return {DOMEdit} 操作实例
  */
-function insHeading( box, hx ) {
-    //
-}
+function insFixnode( pels, subs ) {
+    let _buf = [];
 
-
-/**
- * 插入导言元素。
- * @param  {Element} box 容器元素
- * @param  {Element} header 导言元素
- * @return {DOMEdit} 操作实例
- */
-function insHeader( box, header ) {
-    //
-}
-
-
-/**
- * 插入结语元素。
- * @param  {Element} box 容器元素
- * @param  {Element} footer 结语元素
- * @return {DOMEdit} 操作实例
- */
-function insFooter( box, footer ) {
-    //
+    pels.forEach( (box, i) =>
+        _buf.push( fixInsert(box, subs[i], fixItemslr) )
+    );
+    return _buf;
 }
 
 
@@ -4944,46 +4930,24 @@ export const Kit = {
 
 
     /**
-     * 插入标题。
-     * where相对于选取元素。
-     * 标题通常固定在区块前端。
+     * 插入固定单元。
+     * 包含标题、表头、表脚、导言和结语等。
      * @data: Element
      * @param  {String} where 目标位置
      * @return {void}
      */
-    insheading( evo, where ) {
-        //
+    fixinsert( evo, where ) {
+        let _pels = where === Sys.whereName1 ?
+                [...parentsSet(__ESet)] :
+                [...__ESet],
+            _subs = dataNodes( evo.data, _pels.length ),
+            _op1 = clearSets(),
+            _ops = insFixnode( _pels, _subs );
+
+        historyPush( _op1, ..._ops, pushes(_subs), new HotEdit(_subs[0]) );
     },
 
-    __insheading: 1,
-
-
-    /**
-     * 插入导言。
-     * 在标题之后，仅有<article>和<section>会包含。
-     * @data: Element
-     * @param  {String} where 目标位置
-     * @return {void}
-     */
-    insheader( evo, where ) {
-        //
-    },
-
-    __insheader: 1,
-
-
-    /**
-     * 插入结语。
-     * 在区块末尾，仅有<article>和<section>会包含。
-     * @data: Element
-     * @param  {String} where 目标位置
-     * @return {void}
-     */
-    insfooter( evo, where ) {
-        //
-    },
-
-    __insfooter: 1,
+    __fixinsert: 1,
 
 
     /**
@@ -4992,7 +4956,7 @@ export const Kit = {
      * 注：并不会清理首位空白。
      * @return {String}
      */
-    indentfix( evo ) {
+    indentcut( evo ) {
         let _ss = evo.data.split( __reNewline ),
             _cut = shortIndent( _ss );
 
@@ -5002,7 +4966,7 @@ export const Kit = {
         return _ss.map( str => str.substring(_cut) ).join( '\n' );
     },
 
-    __indentfix: 1,
+    __indentcut: 1,
 
 };
 
@@ -5038,7 +5002,9 @@ processExtend( 'Kit', Kit, [
     'croptr',
     'colcrop',
     'inserts',
-    'indentfix',
+    'topinsert',
+    'fixinsert',
+    'indentcut',
 ]);
 
 

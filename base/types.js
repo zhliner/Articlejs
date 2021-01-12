@@ -488,7 +488,7 @@ const ChildTypes = {
     [ REFERENCE ]:      [ LI, ALI ],
     [ HEADER ]:         [ H3, P, ..._BLOLIMIT, ULX, OLX ],
     [ FOOTER ]:         [ H3, P, ..._BLOLIMIT, ADDRESS ],
-    [ ARTICLE ]:        [ HEADER, S1, FOOTER ],
+    [ ARTICLE ]:        [ HEADER, S1, ..._BLOCKITS, FOOTER ],
     // 操作便利性：
     // 允许分级片区与其它行块单元同级存在。
     [ S1 ]:             [ H2, HEADER, S2, ..._BLOCKITS, FOOTER ],
@@ -523,7 +523,7 @@ const ChildTypes = {
     //
     // 文章顶层容器
     /////////////////////////////////////////////
-    [ MAIN ]:           [ H1, HGROUP, ABSTRACT, TOC, HEADER, ARTICLE, SEEALSO, REFERENCE, FOOTER ],
+    [ MAIN ]:           [ H1, HGROUP, ABSTRACT, TOC, ARTICLE, SEEALSO, REFERENCE ],
 
 };
 

@@ -995,6 +995,13 @@ menu._cells code {
     flex: 5 5 420px;
 }
 
+/* 选单：
+ * 片区混杂条目。友好提示。
+ ***************************/
+.Input ._list option._tmp {
+    color: #888;
+}
+
 /* 表格 */
 .Input ._Table ._list {
     flex: 1 1 auto;
@@ -1028,13 +1035,11 @@ menu._cells code {
     border-right: 1px #f3871a solid;
 }
 
-/* 片区 */
-.Input ._Section textarea,
+/* 插图 */
 .Input ._Figure textarea {
     /*fix: firefox */
     flex: 1 1 50px;
 }
-.Input ._Section textarea:last-child,
 .Input ._Figure textarea:last-child {
     margin-top: 4px;
 }
