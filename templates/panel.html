@@ -21,8 +21,8 @@
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus')">
     <div class="_roll">
-        <!--插入位置定义：
-            ev:detail 选单数组。
+        <!--插入位置：
+            ev:detail 已选取元素的集合。
             update 选单更新。fire非延迟避免闪烁。
             click focus 快捷操作友好。 -->
         <div id="con-where" class="_where"
@@ -39,7 +39,9 @@
         </div>
         <!--动态选单
             input.select 快捷键选取。从data-k特性取值触发（仅部分）。
-            change 空选单时明确指定模板名，str 用前缀构造最终模板名。 -->
+            change 空选单时明确指定模板名，str 用前缀构造最终模板名。
+            scan   检查子片区&内容件混杂情况。
+                   注：data-all 总是有效条目。 -->
         <select id="input-items" name="items" size="5" class="_list"
             on="change|evo(3) val or('empty') str('input:') pop tpl;
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"

@@ -209,11 +209,11 @@ const Properties = {
     //
     // 内联结构元素
     /////////////////////////////////////////////
-    [ AUDIO ]:          INLINES | STRUCT | SEALED,
-    [ VIDEO ]:          INLINES | STRUCT | SEALED,
-    [ PICTURE ]:        INLINES | STRUCT | SEALED,
+    [ AUDIO ]:          INLINES | STRUCT,
+    [ VIDEO ]:          INLINES | STRUCT,
+    [ PICTURE ]:        INLINES | STRUCT,
     [ SVG ]:            INLINES | STRUCT,
-    [ RUBY ]:           INLINES | STRUCT,  // SEALED
+    [ RUBY ]:           INLINES | STRUCT,
     [ METER ]:          INLINES | SEALED,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY,
@@ -294,12 +294,12 @@ const Properties = {
     [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | FIXED1 | FIXED2 | SEALED,
     // 插图内允许多个<span>容器。
-    [ FIGIMGBOX ]:      STRUCT | STRUCTX | SEALED,
+    [ FIGIMGBOX ]:      STRUCT | STRUCTX,  // SEALED,
 
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:         BLOCKS | STRUCT | FIXED1 | SEALED,
+    [ HGROUP ]:         BLOCKS | STRUCT | FIXED1,
     [ ABSTRACT ]:       BLOCKS | STRUCT | FIXED1,
     [ TOC ]:            BLOCKS | STRUCT | FIXED1 | SEALED,
     [ SEEALSO ]:        BLOCKS | STRUCT,
@@ -488,15 +488,10 @@ const ChildTypes = {
     [ REFERENCE ]:      [ LI, ALI ],
     [ HEADER ]:         [ H3, P, ..._BLOLIMIT, ULX, OLX ],
     [ FOOTER ]:         [ H3, P, ..._BLOLIMIT, ADDRESS ],
-    [ ARTICLE ]:        [ HEADER, S1, ..._BLOCKITS, FOOTER ],
-    // 操作便利性：
-    // 允许分级片区与其它行块单元同级存在。
-    [ S1 ]:             [ H2, HEADER, S2, ..._BLOCKITS, FOOTER ],
-    [ S2 ]:             [ H2, HEADER, S3, ..._BLOCKITS, FOOTER ],
-    [ S3 ]:             [ H2, HEADER, S4, ..._BLOCKITS, FOOTER ],
-    [ S4 ]:             [ H2, HEADER, S5, ..._BLOCKITS, FOOTER ],
-    [ S5 ]:             [ H2, HEADER, ..._BLOCKITS, SECTION, FOOTER ],
-    [ SECTION ]:        [ H2, HEADER, ..._BLOCKITS, SECTION, FOOTER ],
+
+    // ARTICLE
+    // S1-5, SECTION 另配置
+
     [ UL ]:             [ LI, ALI ],
     [ OL ]:             [ LI, ALI ],
     [ CODELIST ]:       [ CODELI ],
@@ -529,7 +524,8 @@ const ChildTypes = {
 
 //
 // 配置构造。
-// Number: Set
+// 转换为用一个Set实例存储值集。
+// {Number: Set<number>}
 //
 $.each(
     ChildTypes,
@@ -537,9 +533,68 @@ $.each(
 );
 
 
+//
+// 片区子类型定义：
+// 片区与内容件互斥，但允许子片区与内容件临时并列。
+// 判断合法子类型时需根据源容器即时构造子集。
+// 如：结构检查、选单构造。
+// 通用项：
+// 标题、导言、结语
+//
+const ChildTypesX = {
+    [ ARTICLE ]:    [ HEADER, FOOTER, S1 ],
+    [ S1 ]:         [ H2, HEADER, FOOTER, S2 ],
+    [ S2 ]:         [ H2, HEADER, FOOTER, S3 ],
+    [ S3 ]:         [ H2, HEADER, FOOTER, S4 ],
+    [ S4 ]:         [ H2, HEADER, FOOTER, S5 ],
+    [ S5 ]:         [ H2, HEADER, FOOTER, SECTION ],
+    [ SECTION ]:    [ H2, HEADER, FOOTER, SECTION ],
+};
+
 
 //
-// 导出。
+// 工具集
+//////////////////////////////////////////////////////////////////////////////
+
+
+// 通用子单元选择器。
+const commonSelector  = 'h2, header, footer',
+
+// 片区选择器（通用）。
+const sectionSelector = 'section';
+
+
+/**
+ * 构造目标容器的合法子集。
+ * 实时检查容器的内容情况。
+ * 除通用项外：
+ * - 仅包含子片区时，子集附加子片区。
+ * - 包含非子片区时，子集附加内容件集。
+ * - 无其它任何内容，子集附加子片区和内容件集（由用户进一步创建确定）。
+ * @param  {Element} box 容器元素
+ * @param  {[Number]} subs 子集定义（ChildTypesX[n]）
+ * @return {Set}
+ */
+function sectionSubs( box, subs ) {
+    let _els = $.not( $.children(box), commonSelector ),
+        _ses = $.filter( _els, sectionSelector );
+
+    // 未定或混杂
+    if ( !_els.length || _els.length > _ses.length ) {
+        return new Set( subs.concat(_BLOCKITS) );
+    }
+    // 纯片区
+    if ( _els.length === _ses.length ) {
+        return new Set( subs );
+    }
+    // 纯内容件
+    return new Set( subs.slice(0, -1).concat(_BLOCKITS) );
+}
+
+
+
+//
+// 导出
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -652,12 +707,13 @@ export function isSpecial( tval ) {
 
 /**
  * 是否只能包含纯文本。
+ * 注记：仅需检查ChildTypes集合。
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
 export function onlyText( tval ) {
     let _subs = ChildTypes[ tval ];
-    return _subs && _subs.size === 1 && _subs.has( $TEXT );
+    return !!_subs && _subs.size === 1 && _subs.has( $TEXT );
 }
 
 
@@ -665,21 +721,23 @@ export function onlyText( tval ) {
  * 是否为合法子类型。
  * @param  {Number} tval 父类型值
  * @param  {Number} sub 子类型值
+ * @param  {Element} box 目标父容器
  * @return {Boolean}
  */
-export function isChildType( tval, sub ) {
-    let _subs = ChildTypes[ tval ];
-    return _subs && _subs.has( sub );
+export function isChildType( tval, sub, box ) {
+    let _subs = childTypes( tval, box );
+    return !!_subs && _subs.has( sub );
 }
 
 
 /**
- * 获取目标类型的合法子类型集。
- * 始终返回一个数组，可能为空。
+ * 获取目标的合法子类型集。
+ * 注：返回空串可便于展开为空集。
  * @param  {Number} tval 目标类型值
- * @return {[Number]}
+ * @param  {Element} box 目标父容器
+ * @return {Set|''}
  */
-export function childTypes( tval ) {
-    let _subs = ChildTypes[ tval ];
-    return _subs ? [ ..._subs ] : [];
+export function childTypes( tval, box ) {
+    let _subs = ChildTypesX[ tval ];
+    return _subs ? sectionSubs(box, _subs) : ChildTypes[tval] || '';
 }

@@ -219,7 +219,7 @@ export function options( tvs ) {
             tv => tvs.every( v => T.isChildType(v, tv) )
         );
     }
-    return $.map( _subs, tv => InputOptions[tv] );
+    return $.map( _subs.filter(tv => !siblingNone.has(tv)), tv => InputOptions[tv] );
 }
 
 

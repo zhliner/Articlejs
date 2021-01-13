@@ -95,10 +95,6 @@ const
         property:   'properties',
     },
 
-    // 不可平级自由插入类型。
-    // <main>不会被选取，此仅为逻辑表达。
-    __siblingNone = new Set( [T.RB, T.RT, T.RP, T.MAIN] ),
-
     // 插入位置选单处理器。
     // 用于根据焦点元素提取可插入条目选单集。
     __whereHandles = {
@@ -2527,6 +2523,9 @@ function delayFire( el, evn, ...rest ) {
  * @return {[String]} 模板名集
  */
 function childOptions( els ) {
+    els = els.filter(
+        el => !T.isSealed( getType(el) )
+    );
     return options( [...typeSets(els)] );
 }
 
@@ -2537,11 +2536,6 @@ function childOptions( els ) {
  * @return {[String]} 模板名集
  */
 function siblingOptions( els ) {
-    let _tvs = [...typeSets(els)];
-
-    if ( _tvs.some(tv => __siblingNone.has(tv)) ) {
-        return [];
-    }
     return childOptions( [...parentsSet(els)] );
 }
 
@@ -4577,11 +4571,9 @@ export const Kit = {
     /**
      * 构造可插入的条目选单集。
      * 目标：暂存区/栈顶1项。
-     * 目标为内容区插入参考元素（焦点元素）。
-     * 用于动态更新内容区参考/焦点元素可插入条目。
+     * 目标为内容区已选取元素集。
      * 注记：
      * 选单条目定义在同一个模板文件中且已经载入。
-     * 焦点元素必需为已选取状态。
      * @data: [Element]
      * @param  {String} type 位置类型（siblings|children）
      * @return {[Element]} 选单元素集（[<option>]）
