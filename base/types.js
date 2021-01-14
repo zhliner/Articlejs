@@ -370,17 +370,17 @@ const _BLOLIMIT = [ BLOCKQUOTE, UL, OL ];
 
 //
 // 正文行块单元集。
-// 可作为正文行块内容的单元，
-// 它们在<article/section>中可自由存在。
+// 即内容件，在<article/section>中可自由存在。
+// 注意此处的顺序会在主面板插入选单上表现出来。
 // 注：
-// - 不含 S1~S5，它们有明确的层级递进逻辑。
-// - 不含 ADDRESS，它应当出现在文档特定的位置。
+// 不含 S1~S5，它们有明确的层级递进逻辑。
+// 不含 ADDRESS，它应当出现在文档特定（<footer>）的位置。
 //
 const _BLOCKITS =
 [
     P, NOTE, TIPS, PRE,
     UL, OL, CODELIST, ULX, OLX, CASCADE, DL, TABLE, FIGURE, BLOCKQUOTE, ASIDE, DETAILS, CODEBLOCK,
-    HR, BLANK,
+    BLANK,
 ];
 
 
@@ -547,16 +547,16 @@ $.each(
 // 判断合法子类型时需根据源容器即时构造子集。
 // 如：结构检查、选单构造。
 // 通用项：
-// 标题、导言、结语
+// 标题、导言、结语、分隔
 //
 const ChildTypesX = {
-    [ ARTICLE ]:    [ HEADER, FOOTER, S1 ],
-    [ S1 ]:         [ H2, HEADER, FOOTER, S2 ],
-    [ S2 ]:         [ H2, HEADER, FOOTER, S3 ],
-    [ S3 ]:         [ H2, HEADER, FOOTER, S4 ],
-    [ S4 ]:         [ H2, HEADER, FOOTER, S5 ],
-    [ S5 ]:         [ H2, HEADER, FOOTER, SECTION ],
-    [ SECTION ]:    [ H2, HEADER, FOOTER, SECTION ],
+    [ ARTICLE ]:    [ HEADER, FOOTER, HR, S1 ],
+    [ S1 ]:         [ H2, HEADER, FOOTER, HR, S2 ],
+    [ S2 ]:         [ H2, HEADER, FOOTER, HR, S3 ],
+    [ S3 ]:         [ H2, HEADER, FOOTER, HR, S4 ],
+    [ S4 ]:         [ H2, HEADER, FOOTER, HR, S5 ],
+    [ S5 ]:         [ H2, HEADER, FOOTER, HR, SECTION ],
+    [ SECTION ]:    [ H2, HEADER, FOOTER, HR, SECTION ],
 };
 
 
@@ -583,7 +583,7 @@ function sectionSubs( box, subs ) {
         case 1: return subs.slice(0, -1).concat(_BLOCKITS);
         case 2: return subs;
     }
-    return subs.concat(_BLOCKITS);
+    return subs.concat( _BLOCKITS );
 }
 
 

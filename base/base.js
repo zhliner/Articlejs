@@ -772,7 +772,7 @@ export function sectionChange( sec, n ) {
 /**
  * 检查章节内容状态。
  * 返回值：{
- *      0   仅包含通用项（h2, header, footer）
+ *      0   仅包含通用项（h2, header, footer, hr）
  *      1   除通用项外，纯内容件
  *      2   除通用项外，纯子片区
  *      3   子片区和内容件混杂状态
@@ -781,7 +781,7 @@ export function sectionChange( sec, n ) {
  * @return {Number} 状态码
  */
 export function sectionState( sec ) {
-    let _els = $.not( $.children(sec), 'h2,header,footer' ),
+    let _els = $.not( $.children(sec), 'h2,header,footer,hr' ),
         _ses = $.filter( _els, 'section' );
 
     // 未定

@@ -61,6 +61,9 @@ const
     // 兼容换行匹配。
     __reNewline = /\r\n|\n|\r/,
 
+    // 章节容器匹配。
+    __reSecbox  = /section|article/i,
+
     // 微编辑：
     // 智能逻辑行适用集。
     // 源行类型：[新行标签名, 父类型约束]
@@ -4611,7 +4614,7 @@ export const Kit = {
             [...parentsSet(__ESet)] :
             [...__ESet];
 
-        return _els.some( el => el.tagName === 'SECTION' && sectionState(el) === 3 );
+        return _els.some( el => __reSecbox.test(el.tagName) && sectionState(el) === 3 );
     },
 
     __ismixed: 1,

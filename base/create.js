@@ -552,7 +552,7 @@ const Children = {
             ref,
             art,
             data,
-            () => elem(T.P)
+            () => sectionFitted( ref, art, data )
         );
         return result( _buf, _new, !_new );
     },
@@ -1431,9 +1431,9 @@ function appendCells( tr ) {
 /**
  * 章节层级适配。
  * 如果插入内容是不同层级的章节，递进修改适配。
- * 非章节元素简单忽略。
+ * 子内容非章节时简单忽略。
  * @param  {Element} ref 参考子元素
- * @param  {Element} box 容器元素
+ * @param  {Element} box 容器元素（含<article>）
  * @param  {Element|Value} sec 子章节内容
  * @return {Element|void} 新建的默认单元
  */
@@ -1441,7 +1441,7 @@ function sectionFitted( ref, box, sec ) {
     if ( sec.tagName !== 'SECTION' ) {
         return;
     }
-    let _n1 = sectionLevel( box ),
+    let _n1 = box.tagName === 'ARTICLE' ? 0 : sectionLevel(box),
         _n2 = sectionLevel( sec );
 
     // void for end.

@@ -23,7 +23,8 @@
     <div class="_roll">
         <!--插入位置：
             ev:detail 已选取元素的集合。
-            update 选单更新。fire非延迟避免闪烁。
+            update  选单更新。fire非延迟避免闪烁。
+            section 片区单元内容混杂检查（标记_mixed类名）。
             click focus 快捷操作友好。 -->
         <div id="con-where" class="_where"
             on="update|ev('detail') $('/input') val('where') v.inslist(_1);
