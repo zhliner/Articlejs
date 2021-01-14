@@ -996,8 +996,12 @@ menu._cells code {
 }
 
 /* 片区选单 */
-.Input ._list option._sx {
+.Input select option._sx {
     font-weight: bold;
+}
+/* 混杂警示 */
+.Input select._mixed  {
+    background-color: orange;
 }
 
 /* 表格 */

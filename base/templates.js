@@ -207,16 +207,16 @@ const siblingNone = new Set( [T.RB, T.RT, T.RP, T.MAIN] );
 
 /**
  * 获取向内插入条目集。
- * @param  {[Number]} tvs 目标元素类型集
+ * @param  {[Element]} els 目标元素集
  * @return {[String]} 模板名集
  */
-export function options( tvs ) {
+export function options( els ) {
     let _subs = [
-        ...T.childTypes( tvs.shift() )
+        ...T.childTypes( els.shift() )
     ];
-    if ( tvs.length > 0 ) {
+    if ( els.length > 0 ) {
         _subs = _subs.filter(
-            tv => tvs.every( v => T.isChildType(v, tv) )
+            tv => els.every( box => T.isChildType(box, tv) )
         );
     }
     return $.map( _subs.filter(tv => !siblingNone.has(tv)), tv => InputOptions[tv] );

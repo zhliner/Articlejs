@@ -19,10 +19,10 @@
 
 import { Templater } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
-import * as T from "./types.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
-import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit } from "./base.js";
+import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
+import * as T from "./types.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
 import { options, property } from "./templates.js";
@@ -1527,7 +1527,7 @@ function moveAppend( $els, to, ref, empty ) {
         new HotEdit(),
         _op1, _op2,
         new DOMEdit( () => $els.remove() ),
-        new DOMEdit( __Edits.insert, ref, to, $new ),
+        $new.length && new DOMEdit( __Edits.insert, ref, to, $new ),
         ...appendContent( to, $new )
     ];
 }
@@ -1566,7 +1566,13 @@ function cloneAppend( $els, to, ref, empty ) {
         _op2 = empty && new DOMEdit( () => $.empty(to) ),
         $new = appendData( ref, to, $els.clone() );
 
-    return [ new HotEdit(), _op1, _op2, new DOMEdit(__Edits.insert, ref, to, $new), ...appendContent(to, $new) ];
+    return [
+        new HotEdit(),
+        _op1,
+        _op2,
+        $new.length && new DOMEdit( __Edits.insert, ref, to, $new ),
+        ...appendContent( to, $new )
+    ];
 }
 
 
@@ -1580,6 +1586,9 @@ function cloneAppend( $els, to, ref, empty ) {
  * @return {[Instance]}
  */
 function appendContent( to, $els ) {
+    if ( !$els.length ) {
+        return [];
+    }
     if ( isContent(to) ) {
         return [ new ESEdit(() => __ESet.add(to)) ];
     }
@@ -1605,7 +1614,8 @@ function appendData( ref, box, $data ) {
     return cleanCall( () =>
         $data
         .map( nd => children(ref, box, {}, nd) ).flat()
-        .map( nd => $.remove(nd) )
+        .map( nd => nd && $.remove(nd) )
+        .filter( nd => nd )
     );
 }
 
@@ -2523,10 +2533,9 @@ function delayFire( el, evn, ...rest ) {
  * @return {[String]} 模板名集
  */
 function childOptions( els ) {
-    els = els.filter(
-        el => !T.isSealed( getType(el) )
+    return options(
+        els.filter( el => !T.isSealed( getType(el) ) )
     );
-    return options( [...typeSets(els)] );
 }
 
 
@@ -4576,7 +4585,7 @@ export const Kit = {
      * 选单条目定义在同一个模板文件中且已经载入。
      * @data: [Element]
      * @param  {String} type 位置类型（siblings|children）
-     * @return {[Element]} 选单元素集（[<option>]）
+     * @return {[Element]|null} 选单元素集（[<option>]）
      */
     inslist( evo, type ) {
         if ( !evo.data.length ) {
@@ -4588,6 +4597,24 @@ export const Kit = {
     },
 
     __inslist: 1,
+
+
+    /**
+     * 片区内容混杂检查。
+     * 即片区内是否同时包含子片区和内容件，这是不规范的结构。
+     * 目标：暂存区/栈顶1项。
+     * 目标为插入位置定义（siblings|children）。
+     * @return {Boolean} 是否混杂
+     */
+    ismixed( evo ) {
+        let _els = evo.data === Sys.whereName1 ?
+            [...parentsSet(__ESet)] :
+            [...__ESet];
+
+        return _els.some( el => el.tagName === 'SECTION' && sectionState(el) === 3 );
+    },
+
+    __ismixed: 1,
 
 
     /**
@@ -5015,6 +5042,7 @@ customGetter( null, Kit, [
     'roleinfo',
     'cmenable',
     'inslist',
+    'ismixed',
     'pretreat2',
     'pretreat1',
     'splitx',

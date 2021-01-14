@@ -12,6 +12,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+//
+// 注意：
+// ./types.js 中引用了本模块中的 getType() 方法，
+// 因此本模块应当先于 ./types.js 加载。
+//
 import * as T from "./types.js";
 
 
@@ -761,6 +766,32 @@ export function sectionChange( sec, n ) {
         return false;
     }
     Reflect.deleteProperty( $.attr(sec, 'role', _v), __typeKey );
+}
+
+
+/**
+ * 检查章节内容状态。
+ * 返回值：{
+ *      0   仅包含通用项（h2, header, footer）
+ *      1   除通用项外，纯内容件
+ *      2   除通用项外，纯子片区
+ *      3   子片区和内容件混杂状态
+ * }
+ * @param  {Element} sec 章节/片区元素
+ * @return {Number} 状态码
+ */
+export function sectionState( sec ) {
+    let _els = $.not( $.children(sec), 'h2,header,footer' ),
+        _ses = $.filter( _els, 'section' );
+
+    // 未定
+    if ( !_els.length ) return 0;
+    // 纯内容件
+    if ( !_ses.length ) return 1;
+    // 纯片区
+    if ( _els.length === _ses.length ) return 2;
+    // 混杂
+    return 3;
 }
 
 

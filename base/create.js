@@ -25,8 +25,8 @@
 //
 
 import { processProxy } from "./tpb/pbs.by.js";
-import * as T from "./types.js";
 import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode } from "./base.js";
+import * as T from "./types.js";
 import { Sys } from "../config.js";
 
 
@@ -352,7 +352,7 @@ const Children = {
         if ( th0 && _tbo.rows() > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
-        return result( null, _new || data, !_new );
+        return result( null, _new, !_new );
     },
 
 
@@ -370,7 +370,7 @@ const Children = {
             data,
             true
         );
-        return result( null, _new || data, !_new );
+        return result( null, _new, !_new );
     },
 
 
@@ -387,7 +387,7 @@ const Children = {
             foot,
             data
         );
-        return result( null, _new || data, !_new );
+        return result( null, _new, !_new );
     },
 
 
@@ -412,7 +412,7 @@ const Children = {
                 data,
                 () => elem( T.UL )
             );
-        return result( insertHeading( li, T.H4, h4 || _h4 ), _ul || data, !_ul );
+        return result( insertHeading( li, T.H4, h4 || _h4 ), _ul, !_ul );
     },
 
 
@@ -433,7 +433,7 @@ const Children = {
                 data,
                 () => elem( T.OL )
             );
-        return result( insertHeading(li, T.H4, h4 || _h4), _ol || data, !_ol );
+        return result( insertHeading(li, T.H4, h4 || _h4), _ol, !_ol );
     },
 
 
@@ -453,7 +453,7 @@ const Children = {
             data,
             () => elem( T.OL )
         );
-        return result( ah4 && insertHeading(li, T.AH4, ah4), _ol || data, !_ol );
+        return result( ah4 && insertHeading(li, T.AH4, ah4), _ol, !_ol );
     },
 
 
@@ -489,7 +489,7 @@ const Children = {
             data,
             () => elem( T.IMG )
         );
-        return result( explain && $.append(box, elem(T.EXPLAIN, explain)), _img || data, !_img );
+        return result( explain && $.append(box, elem(T.EXPLAIN, explain)), _img, !_img );
     },
 
 
@@ -554,7 +554,7 @@ const Children = {
             data,
             () => elem(T.P)
         );
-        return result( _buf, _new || data, !_new );
+        return result( _buf, _new, !_new );
     },
 
 
@@ -572,7 +572,7 @@ const Children = {
             data,
             () => elem( T.CODELI )
         );
-        return result( null, _el || data, !_el );
+        return result( null, _el, !_el );
     },
 
 
@@ -591,7 +591,7 @@ const Children = {
             () => elem( T.DD )
         );
         // 标题项插入到数据项之前。
-        return result( dt && insertChild(_dd || data || ref, dl, elem(T.DT, dt)), _dd || data, !_dd );
+        return result( dt && insertChild(_dd || data || ref, dl, elem(T.DT, dt)), _dd, !_dd );
     },
 
 
@@ -645,7 +645,7 @@ const Children = {
             data,
             () => elem( T.FIGIMGBOX )
         );
-        return result( figcaption && insertHeading(fig, T.FIGCAPTION, figcaption), _el || data, !_el );
+        return result( figcaption && insertHeading(fig, T.FIGCAPTION, figcaption), _el, !_el );
     },
 
 
@@ -663,7 +663,7 @@ const Children = {
             data,
             () => elem( T.P )
         );
-        return result( summary && insertHeading(box, T.SUMMARY, summary), _el || data, !_el );
+        return result( summary && insertHeading(box, T.SUMMARY, summary), _el, !_el );
     },
 
 };
@@ -696,7 +696,7 @@ const Children = {
             data,
             () => elem( its[1] )
         );
-        return result( null, _new || data, !_new );
+        return result( null, _new, !_new );
     };
 
 });
@@ -730,7 +730,7 @@ const Children = {
             data,
             () => elem( T.P )
         );
-        return result( h3 && insertHeading(box, T.H3, h3), _el || data, !_el );
+        return result( h3 && insertHeading(box, T.H3, h3), _el, !_el );
     };
 });
 
@@ -761,7 +761,7 @@ const Children = {
             data,
             () => elem( T.LI )
         );
-        return result( null, _new || data, !_new );
+        return result( null, _new, !_new );
     };
 });
 
@@ -802,7 +802,7 @@ const Children = {
             data,
             () => sectionFitted( ref, sec, data )
         );
-        return result( _buf.filter(v => v), _new || data, !_new );
+        return result( _buf.filter(v => v), _new, !_new );
     };
 
 });
@@ -881,12 +881,10 @@ const Children = {
      * @return {[Node]} 新插入的节点集
      */
     Children[ its ] = function( ref, el, _, data ) {
-        let _tv = getType( el );
-
         if ( $.isArray(data) ) {
-            data = data.map( dd => dataCons(dd, _tv) ).flat();
+            data = data.map( dd => dataCons(dd, el) ).flat();
         } else {
-            data = dataCons( data, _tv );
+            data = dataCons( data, el );
         }
         let _cons = insertChild( ref, el, data );
         $.normalize( el );
@@ -1359,21 +1357,20 @@ function insertHeader( box, header ) {
 
 /**
  * 子单元判断插入或新建。
- * 如果子单元合法会插入，不创建默认单元，返回null。
+ * 如果子单元合法且非单一成员，简单插入而不创建默认单元。
  * 如果子单元为假，无任何行为，返回undefined。
+ * 注记：为数据子单元逻辑。
  * @param  {Element} ref 参考子元素
  * @param  {Element} box 容器元素
  * @param  {Node|String} sub 子单元
  * @param  {Function} maker 创建默认单元回调，可选
- * @return {Element|null|void} maker创建的单元
+ * @return {Element|void} maker创建的单元
  */
 function appendChild( ref, box, sub, maker ) {
     if ( !sub ) return;
+    let _tv = sub.nodeType ? getType( sub ) : 0;
 
-    let _tv0 = getType( box ),
-        _tv1 = sub.nodeType ? getType( sub ) : 0;
-
-    if ( T.isChildType(_tv0, _tv1) ) {
+    if ( T.isChildType(box, _tv) && !T.isSingle(_tv) ) {
         insertChild( ref, box, sub );
         return null;
     }
@@ -1434,7 +1431,7 @@ function appendCells( tr ) {
 /**
  * 章节层级适配。
  * 如果插入内容是不同层级的章节，递进修改适配。
- * 否则创建一个默认段落继续。
+ * 非章节元素简单忽略。
  * @param  {Element} ref 参考子元素
  * @param  {Element} box 容器元素
  * @param  {Element|Value} sec 子章节内容
@@ -1442,7 +1439,7 @@ function appendCells( tr ) {
  */
 function sectionFitted( ref, box, sec ) {
     if ( sec.tagName !== 'SECTION' ) {
-        return elem( T.P );
+        return;
     }
     let _n1 = sectionLevel( box ),
         _n2 = sectionLevel( sec );
@@ -1620,19 +1617,19 @@ function svgInsert( ref, box, data ) {
  * 如果不符合子元素类型，则取其文本内容。
  * 注：仅用于内容元素。
  * @param  {String|Node} data 目标数据
- * @param  {Number} tval 容器元素类型
+ * @param  {Element} box 容器元素
  * @return {Node|String|[Node|String]} 合法数据（集）
  */
-function dataCons( data, tval ) {
+function dataCons( data, box ) {
     if ( !data || data.nodeType !== 1 && data.nodeType !== 11 ) {
         // string
         return data || '';
     }
-    if ( T.onlyText(tval) ) {
+    if ( T.onlyText(getType(box)) ) {
         return data.textContent;
     }
     return contents( data ).map(
-        nd => T.isChildType( tval, getType(nd) ) ? nd : nd.textContent
+        nd => T.isChildType( box, getType(nd) ) ? nd : nd.textContent
     );
 }
 

@@ -12,6 +12,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+//
+// 注意：
+// 与 ./types.js 存在交叉引用，
+// 用户需先加载 ./base.js，之后再加载 ./types.js
+//
+import { getType, sectionState } from "./base.js";
+
 const $ = window.$;
 
 
@@ -40,10 +47,11 @@ const
     CONTENT     = 1 << 3,   // 内容元素
     INLINES     = 1 << 4,   // 内联单元
     BLOCKS      = 1 << 5,   // 行块单元
-    EMPTY       = 1 << 6,   // 空元素（单标签）
-    SEALED      = 1 << 7,   // 密封单元（不可合并）
-    FIXED1      = 1 << 8,   // 位置向前固定
-    FIXED2      = 1 << 9;   // 位置向后固定
+    SINGLE      = 1 << 6,   // 单一成员（如标题）
+    EMPTY       = 1 << 7,   // 空元素（单标签）
+    SEALED      = 1 << 8,   // 密封单元（不可合并）
+    FIXED1      = 1 << 9,   // 位置向前固定
+    FIXED2      = 1 << 10;  // 位置向后固定
 
 
 //
@@ -267,15 +275,15 @@ const Properties = {
     //
     // 块内结构子
     /////////////////////////////////////////////
-    [ H1 ]:             STRUCT | FIXED1 | CONTENT,
-    [ H2 ]:             STRUCT | FIXED1 | CONTENT,
+    [ H1 ]:             STRUCT | SINGLE | FIXED1 | CONTENT,
+    [ H2 ]:             STRUCT | SINGLE | FIXED1 | CONTENT,
     [ H3 ]:             STRUCT | STRUCTX | FIXED1 | CONTENT,
-    [ H4 ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
+    [ H4 ]:             STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
     [ H5 ]:             STRUCT | STRUCTX | CONTENT,
     [ H6 ]:             STRUCT | STRUCTX | CONTENT,
-    [ SUMMARY ]:        STRUCT | FIXED1 | CONTENT,
-    [ FIGCAPTION ]:     STRUCT | STRUCTX | CONTENT, // 可移动
-    [ CAPTION ]:        STRUCT | STRUCTX | FIXED1 | CONTENT,
+    [ SUMMARY ]:        STRUCT | SINGLE | FIXED1 | CONTENT,
+    [ FIGCAPTION ]:     STRUCT | SINGLE | STRUCTX | CONTENT, // 可移动
+    [ CAPTION ]:        STRUCT | SINGLE | STRUCTX | FIXED1 | CONTENT,
     [ LI ]:             STRUCT | STRUCTX | CONTENT,
     [ DT ]:             STRUCT | STRUCTX | CONTENT,
     [ DD ]:             STRUCT | STRUCTX | CONTENT,
@@ -283,12 +291,12 @@ const Properties = {
     [ TD ]:             STRUCT | CONTENT,
     [ TR ]:             STRUCT | STRUCTX,
     [ TBODY ]:          STRUCT,
-    [ THEAD ]:          STRUCT | STRUCTX,
-    [ TFOOT ]:          STRUCT | STRUCTX,
+    [ THEAD ]:          STRUCT | STRUCTX | SINGLE,
+    [ TFOOT ]:          STRUCT | STRUCTX | SINGLE,
 
     [ CODELI ]:         STRUCT | STRUCTX | SEALED,
     [ ALI ]:            STRUCT | STRUCTX | CONTENT, // 宽容
-    [ AH4 ]:            STRUCT | FIXED1 | FIXED2 | CONTENT,
+    [ AH4 ]:            STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
     [ XH4LI ]:          STRUCT | STRUCTX | SEALED,
     [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
     [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
@@ -299,14 +307,14 @@ const Properties = {
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:         BLOCKS | STRUCT | FIXED1,
-    [ ABSTRACT ]:       BLOCKS | STRUCT | FIXED1,
-    [ TOC ]:            BLOCKS | STRUCT | FIXED1 | SEALED,
+    [ HGROUP ]:         BLOCKS | SINGLE | STRUCT | FIXED1,
+    [ ABSTRACT ]:       BLOCKS | SINGLE | STRUCT | FIXED1,
+    [ TOC ]:            BLOCKS | SINGLE | STRUCT | FIXED1 | SEALED,
     [ SEEALSO ]:        BLOCKS | STRUCT,
     [ REFERENCE ]:      BLOCKS | STRUCT,
-    [ HEADER ]:         BLOCKS | STRUCT | FIXED1,
-    [ FOOTER ]:         BLOCKS | STRUCT | FIXED2,
-    [ ARTICLE ]:        BLOCKS | STRUCT,
+    [ HEADER ]:         BLOCKS | SINGLE | STRUCT | FIXED1,
+    [ FOOTER ]:         BLOCKS | SINGLE | STRUCT | FIXED2,
+    [ ARTICLE ]:        BLOCKS | SINGLE | STRUCT,
     [ S1 ]:             BLOCKS | STRUCT,
     [ S2 ]:             BLOCKS | STRUCT,
     [ S3 ]:             BLOCKS | STRUCT,
@@ -557,38 +565,25 @@ const ChildTypesX = {
 //////////////////////////////////////////////////////////////////////////////
 
 
-// 通用子单元选择器。
-const commonSelector  = 'h2, header, footer',
-
-// 片区选择器（通用）。
-const sectionSelector = 'section';
-
-
 /**
  * 构造目标容器的合法子集。
  * 实时检查容器的内容情况。
  * 除通用项外：
- * - 仅包含子片区时，子集附加子片区。
- * - 包含非子片区时，子集附加内容件集。
- * - 无其它任何内容，子集附加子片区和内容件集（由用户进一步创建确定）。
+ * - 仅包含内容件。
+ * - 仅包含子片区。
+ * - 为空或子片区与内容件混杂。
  * @param  {Element} box 容器元素
  * @param  {[Number]} subs 子集定义（ChildTypesX[n]）
- * @return {Set}
+ * @return {[Number]}
  */
 function sectionSubs( box, subs ) {
-    let _els = $.not( $.children(box), commonSelector ),
-        _ses = $.filter( _els, sectionSelector );
+    let _n = sectionState( box );
 
-    // 未定或混杂
-    if ( !_els.length || _els.length > _ses.length ) {
-        return new Set( subs.concat(_BLOCKITS) );
+    switch ( _n ) {
+        case 1: return subs.slice(0, -1).concat(_BLOCKITS);
+        case 2: return subs;
     }
-    // 纯片区
-    if ( _els.length === _ses.length ) {
-        return new Set( subs );
-    }
-    // 纯内容件
-    return new Set( subs.slice(0, -1).concat(_BLOCKITS) );
+    return subs.concat(_BLOCKITS);
 }
 
 
@@ -605,6 +600,16 @@ function sectionSubs( box, subs ) {
  */
 export function isEmpty( tval ) {
     return !!( Properties[tval] & EMPTY );
+}
+
+
+/**
+ * 是否为单一成员。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isSingle( tval ) {
+    return !!( Properties[tval] & SINGLE );
 }
 
 
@@ -719,25 +724,27 @@ export function onlyText( tval ) {
 
 /**
  * 是否为合法子类型。
- * @param  {Number} tval 父类型值
- * @param  {Number} sub 子类型值
  * @param  {Element} box 目标父容器
+ * @param  {Number} subv 子类型值
  * @return {Boolean}
  */
-export function isChildType( tval, sub, box ) {
-    let _subs = childTypes( tval, box );
-    return !!_subs && _subs.has( sub );
+export function isChildType( box, subv ) {
+    let _subs = childTypes( box );
+    return !!_subs && _subs.has( subv );
 }
 
 
 /**
  * 获取目标的合法子类型集。
+ * 如果未传递父容器，表示宽泛定义（片区容错）。
  * 注：返回空串可便于展开为空集。
  * @param  {Number} tval 目标类型值
- * @param  {Element} box 目标父容器
+ * @param  {Element} box 目标父容器，可选
  * @return {Set|''}
  */
-export function childTypes( tval, box ) {
-    let _subs = ChildTypesX[ tval ];
-    return _subs ? sectionSubs(box, _subs) : ChildTypes[tval] || '';
+export function childTypes( box ) {
+    let _tval = getType( box ),
+        _subs = ChildTypesX[ _tval ];
+
+    return _subs ? new Set( sectionSubs(box, _subs) ) : ChildTypes[ _tval ] || '';
 }

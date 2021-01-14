@@ -27,8 +27,10 @@
             click focus 快捷操作友好。 -->
         <div id="con-where" class="_where"
             on="update|ev('detail') $('/input') val('where') v.inslist(_1);
+                section|('_mixed') $('/input') val('where') v.ismixed;
                 click(input)|$('1/select') focus v.sels"
-            to="1/select|fill|fire(10, 'change', 0);
+            to="1/select|fill|fire(10, 'change', 0) goto('section');
+                1/select|toggleClass(_1);
                 |trigger('update')">
             <label title="平级插入">
                 <input type="radio" name="where" value="siblings" checked /><i id="l-siblings"></i>
