@@ -4930,7 +4930,6 @@ export const Kit = {
      * 注：
      * where实际上只可能是siblings
      * 顶层单元没有多选克隆逻辑。
-     *
      * @data: Element
      * @param  {String} where 目标位置
      * @return {void}

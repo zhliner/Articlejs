@@ -36,7 +36,7 @@
 <!--章节内片段：s1-s5, section -->
 <div class="_main" tpl-name="part:section">
     <header>
-        <input name="hx" type="text" placeholder="标题" class="_scale" />
+        <input name="h2" type="text" placeholder="标题" class="_scale" />
     </header>
     <textarea name="header" placeholder="导言（可选）"></textarea>
 </div>
@@ -56,10 +56,7 @@
     录入版右侧主栏版块（replace）。
 ----------------------------------------------------------------------------->
 
-<!--段落：
-    creates.json create事件处理。提取文本框文本预处理，发送到nodes处理器。
-    nodes 用预处理的文本集创建段落集。发送到上级<form>的insert处理器。
--->
+<!-- 段落 -->
 <div class="_body _P" obt-src="obts/creates.json" tpl-name="input:p"
     on="nodes|ev('detail')"
     by="New2.p"
@@ -142,7 +139,8 @@
 </div>
 
 
-<!-- 文章标题 -->
+<!--文章标题
+    .hgroup: (data:[String], {h1}, more:true) -->
 <div class="_body _Hgroup" obt-src="obts/createx.json" tpl-name="input:hgroup"
     on="node|ev('detail') $('/input[name=h1]') val obj('h1') (true)"
     by="New.hgroup(_2)"
@@ -161,8 +159,12 @@
     </aside>
 </div>
 
-<!-- 文章根 -->
-<div class="_body _Article" tpl-name="input:article">
+<!--文章根
+    .article: (data:void, {header}) -->
+<div class="_body _Article" obt-src="obts/nodeps.json" tpl-name="input:article"
+    on="node|ev('detail') wrapAll('<header>') item(0) obj('header')"
+    by="New.article(_1)"
+    to="form/|trigger('instop')">
     <div class="_main">
         <textarea name="header" placeholder="导言（可选）"></textarea>
     </div>
@@ -175,7 +177,10 @@
 </div>
 
 <!-- 章 -->
-<div class="_body _Section" tpl-name="input:s1">
+<div class="_body _Section" obt-src="obts/h2header.json" tpl-name="input:s1"
+    on="node|ev('detail')"
+    by="New.s1(_1)"
+    to="form/|trigger('insert')">
     <div tpl-node="part:section"></div>
     <aside>
         <pre tpl-node="input:option2, input:insert2">
@@ -186,7 +191,10 @@
 </div>
 
 <!-- 节 -->
-<div class="_body _Section" tpl-name="input:s2">
+<div class="_body _Section" obt-src="obts/h2header.json" tpl-name="input:s2"
+    on="node|ev('detail')"
+    by="New.s2(_1)"
+    to="form/|trigger('insert')">
     <div tpl-node="part:section"></div>
     <aside>
         <pre tpl-node="input:option2, input:insert2">
@@ -197,7 +205,10 @@
 </div>
 
 <!-- 区 -->
-<div class="_body _Section" tpl-name="input:s3">
+<div class="_body _Section" obt-src="obts/h2header.json" tpl-name="input:s3"
+    on="node|ev('detail')"
+    by="New.s3(_1)"
+    to="form/|trigger('insert')">
     <div tpl-node="part:section"></div>
     <aside>
         <pre tpl-node="input:option2, input:insert2">
@@ -208,7 +219,10 @@
 </div>
 
 <!-- 段 -->
-<div class="_body _Section" tpl-name="input:s4">
+<div class="_body _Section" obt-src="obts/h2header.json" tpl-name="input:s4"
+    on="node|ev('detail')"
+    by="New.s4(_1)"
+    to="form/|trigger('insert')">
     <div tpl-node="part:section"></div>
     <aside>
         <pre tpl-node="input:option2, input:insert2">
@@ -219,7 +233,10 @@
 </div>
 
 <!-- 末 -->
-<div class="_body _Section" tpl-name="input:s5">
+<div class="_body _Section" obt-src="obts/h2header.json" tpl-name="input:s5"
+    on="node|ev('detail')"
+    by="New.s5(_1)"
+    to="form/|trigger('insert')">
     <div tpl-node="part:section"></div>
     <aside>
         <pre tpl-node="input:option2, input:insert2">
@@ -230,9 +247,15 @@
 </div>
 
 <!-- 提要 -->
-<div class="_body _Abstract" tpl-name="input:abstract">
+<div class="_body _Abstract" obt-src="obts/nodeps.json" tpl-name="input:abstract"
+    on="node|ev('detail') $('/input[name=h3]') val obj('h3') (true)"
+    by="New.abstract(_2)"
+    to="form/|trigger('instop')">
     <div class="_main">
-        <textarea name="header" placeholder="文章提要"></textarea>
+        <header>
+            <input name="h3" type="text" class="_scale" value="提要" />
+        </header>
+        <textarea name="ps" placeholder="文章提要"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option2, input:insert1">
@@ -243,7 +266,10 @@
 </div>
 
 <!-- 另参见 -->
-<div class="_body _Reference" tpl-name="input:seealso">
+<div class="_body _Reference" obt-src="obts/nodelis.json" tpl-name="input:seealso"
+    on="node|ev('detail')"
+    by="New.seealso(null, true)"
+    to="form/|trigger('instop')">
     <div class="_main">
         <textarea name="seealso" placeholder="另参见：空行分项"></textarea>
     </div>
@@ -256,7 +282,10 @@
 </div>
 
 <!-- 文献参考 -->
-<div class="_body _Reference" tpl-name="input:reference">
+<div class="_body _Reference" obt-src="obts/nodelis.json" tpl-name="input:reference"
+    on="node|ev('detail')"
+    by="New.reference(null, true)"
+    to="form/|trigger('instop')">
     <div class="_main">
         <textarea name="reference" placeholder="文献参考：空行分项"></textarea>
     </div>
@@ -269,10 +298,13 @@
 </div>
 
 <!-- 导言 -->
-<div class="_body _Header" tpl-name="input:header">
+<div class="_body _Header" obt-src="obts/nodeps.json" tpl-name="input:header"
+    on="node|ev('detail') $('/input[name=h3]') val obj('h3') (true)"
+    by="New.header(_2)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <header>
-            <input name="h4" type="text" class="_scale" value="导言" />
+            <input name="h3" type="text" class="_scale" value="导言" />
         </header>
         <textarea name="header" placeholder="导言内容"></textarea>
     </div>
@@ -288,7 +320,7 @@
 <div class="_body _Footer" tpl-name="input:footer">
     <div class="_main">
         <header>
-            <input name="h4" type="text" class="_scale" value="小结" />
+            <input name="h3" type="text" class="_scale" value="小结" />
         </header>
         <textarea name="footer" placeholder="结语内容"></textarea>
     </div>
@@ -536,7 +568,7 @@
 <div class="_body _Blockquote" tpl-name="input:blockquote">
     <div class="_main">
         <header>
-            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+            <input name="h3" type="text" placeholder="小标题" class="_scale" />
         </header>
         <label class="_cite">
             <input type="text" name="cite" placeholder="（来源）" />
@@ -555,7 +587,7 @@
 <div class="_body _Aside" tpl-name="input:aside">
     <div class="_main">
         <header>
-            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+            <input name="h3" type="text" placeholder="小标题" class="_scale" />
         </header>
         <textarea name="aside" placeholder="批注块内容"></textarea>
     </div>

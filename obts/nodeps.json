@@ -1,0 +1,5 @@
+{
+    "//": "提取文本，可选空白清理和空行分段。创建段落元素集。",
+    "on": "create|$('/textarea') val dup pass $$('/._option input') prop('checked') v.pretreat2(_) $$(_1) wrap('<p>')",
+    "to": "|trigger('node')"
+}

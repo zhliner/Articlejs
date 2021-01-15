@@ -535,8 +535,10 @@ const Children = {
 
 
     /**
-     * 导言和结语位置确定。
-     * 仅为容器创建，需向后续传递进构建。
+     * 导言位置确定。
+     * 内容需合法，否则简单忽略。
+     * 注记：
+     * 存在互斥的两种情况且为多层嵌套结构，故不支持创建默认单元。
      * @param {Element|null} ref 参考子元素
      * @param {Element} art 文章元素
      * @param {Element} header 导言，可选
@@ -554,7 +556,7 @@ const Children = {
             data,
             () => sectionFitted( ref, art, data )
         );
-        return result( _buf, _new, !_new );
+        return result( _buf, _new, true );
     },
 
 
@@ -783,8 +785,8 @@ const Children = {
 ]
 .forEach(function( it ) {
     /**
-     * 如果data无内容或已合法插入，则停止迭代。
-     * 否则创建一个默认子单元后继续。
+     * 内容必需合法，否则会简单忽略。
+     * 因此会无条件终止迭代。
      * @param {Element|null} ref 参考子元素
      * @param {Element} sec 片区元素
      * @param {Element|String|[Node]} h2 标题元素或其内容
@@ -802,7 +804,7 @@ const Children = {
             data,
             () => sectionFitted( ref, sec, data )
         );
-        return result( _buf.filter(v => v), _new, !_new );
+        return result( _buf.filter(v => v), _new, true );
     };
 
 });
@@ -1908,7 +1910,8 @@ function convert( el, name ) {
 
 /**
  * 单元创建器。
- * 创建单个顶层单元，支持多个子单元创建。
+ * 创建单个顶层单元，支持多个子单元创建（more）。
+ * @data: Node|[Node]
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
  */
@@ -1924,8 +1927,8 @@ function creater( name ) {
 
 /**
  * 单元集创建器。
- * 批量创建目标单元（顶层），无需支持多子单元创建（more）。
- * 注：数据需要是一个数组。
+ * 批量创建目标单元（顶层），不支持多子单元创建。
+ * @data: [Node]
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
  */

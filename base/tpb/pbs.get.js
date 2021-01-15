@@ -450,19 +450,22 @@ const _Gets = {
 
     /**
      * 转换为数组。
-     * 如果数据源本就是一个数组则简单返回。
-     * 传递wrap为真会封装无法转为数组的值为一个单成员数组。
-     * 注：$$ 有类似能力，但始终会创建为一个新集合。
+     * 传递wrap为真会强制封装为一个单成员数组，否则：
+     * - 如果数据源本就是一个数组会简单返回。
+     * - 转换为数组（Array.from），不能转换的会返回一个空数组。
+     * 注：
+     * $$ 有类似能力，但会始终创建为一个新集合。
      * @param  {Boolean} wrap 简单封装，可选
      * @return {Array|data}
      */
     arr( evo, wrap ) {
+        if ( wrap ) {
+            return [ evo.data ];
+        }
         if ( $.isArray(evo.data) ) {
             return evo.data;
         }
-        let _new = Array.from( evo.data );
-
-        return wrap && !_new.length ? Array.of( evo.data ) : _new;
+        return Array.from( evo.data );
     },
 
     __arr: 1,

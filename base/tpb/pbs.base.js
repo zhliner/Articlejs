@@ -1566,6 +1566,7 @@ const _Process = {
      * name支持空格分隔的多个名称。
      * 如果名称为多个，值应当是一个序列且与名称一一对应。
      * 注：会改变原对象自身。
+     * @data: Object
      * @param  {String} name 名称/序列
      * @param  {...Value} vals 值序列
      * @return {@data}
