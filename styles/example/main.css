@@ -682,17 +682,20 @@ span[role=space] {
  * pre:codeblock/code/b
  * ------------------------------------
  */
+.content pre[role=codeblock] {
+    border: 1px #eee solid;
+    box-shadow: 1px 1px 4px #eee;
+}
 .content pre[role=codeblock] * {
     line-height: 170%;
 }
 .content pre[role=codeblock] > code {
     display: block;
-    padding: 5px 10px;
     font-size: 10pt;
-    background-color: #f8f8f8;
     border-radius: 5px;
     overflow: auto;
-    box-shadow: 1px 1px 4px #eee;
+    border-width: 0;
+    background-color: transparent;
 }
 
 /* 代码表

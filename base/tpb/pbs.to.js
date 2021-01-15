@@ -633,7 +633,7 @@ const _NextStage = {
      * @param  {String|Number} 目标元素标识，可选
      * @return {void}
      */
-    intoView( evo, y, x, rid = 1 ) {
+    intoView( evo, y, x, rid = 11 ) {
         $.intoView( evo.data || target(evo, rid), y, x );
     },
 
@@ -672,7 +672,7 @@ const _NextStage = {
      * @param {String} rid 目标选择标识，可选
      * @param {Boolean} much 是否检索多个目标，可选
      */
-    _NextStage[meth] = function( evo, rid = 1, much ) {
+    _NextStage[meth] = function( evo, rid = 11, much ) {
         $( evo.data || target(evo, rid, !much) )[ meth ]();
     };
 
