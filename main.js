@@ -1,8 +1,8 @@
 //! $Id: main.js 2019.11.16 Articlejs.User $
 // +++++++++++++++++++++++++++++++++++++++++++
-// 	Project: Articlejs v0.1.0
+//  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2019 - 2020 铁皮工作室  MIT License
+//  Copyright (c) 2019 - 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //

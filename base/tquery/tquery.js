@@ -109,24 +109,24 @@
 */
 (function( global, factory ) {
 
-	"use strict";
+    "use strict";
 
-	// eslint-disable-next-line no-undef
-	if ( typeof module === "object" && typeof module.exports === "object" ) {
+    // eslint-disable-next-line no-undef
+    if ( typeof module === "object" && typeof module.exports === "object" ) {
 
-		// jQuery v3.4.1.
-		// eslint-disable-next-line no-undef
-		module.exports = global.document ?
-			factory( global, true ) :
-			function( w ) {
-				if ( !w.document ) {
-					throw new Error( "tQuery requires a window with a document" );
-				}
-				return factory( w );
-			};
-	} else {
-		factory( global );
-	}
+        // jQuery v3.4.1.
+        // eslint-disable-next-line no-undef
+        module.exports = global.document ?
+            factory( global, true ) :
+            function( w ) {
+                if ( !w.document ) {
+                    throw new Error( "tQuery requires a window with a document" );
+                }
+                return factory( w );
+            };
+    } else {
+        factory( global );
+    }
 
 // Pass this if window is not defined yet
 })( typeof window !== "undefined" ? window : this, function( window, noGlobal ) {

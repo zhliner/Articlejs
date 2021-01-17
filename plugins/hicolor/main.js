@@ -42,92 +42,92 @@
 //
 Class.Hiparse = function( code, regs, lang )
 {
-	this._code = code;
-	this._regs = regs || null;
+    this._code = code;
+    this._regs = regs || null;
 
-	this._lang = lang || '';
+    this._lang = lang || '';
 };
 
 
 Class.Hiparse.prototype = {
-	/**
-	 * 解析获取高亮代码。
-	 * - 空白字符串无需进一步匹配处理；
-	 * - 返回直接文本和标识包装的混合串；
-	 * 返回值：[
-	 *  	{string},  // 高亮代码字符串
-	 *  	{
-	 *  		lang: {string}  // 嵌入语言名
-	 *  	 	data: {array}  	// 迭代封装：[string, object]
-	 *  	},...
-	 * ]
-	 * @return {array} 高亮代码集
-	 */
-	'get': function()
-	{
-		if (!this._regs || !this._code.trim()) {
-			return [this._code];
-		}
-		var _buf = this._parse([this._code], this._regs);
+    /**
+     * 解析获取高亮代码。
+     * - 空白字符串无需进一步匹配处理；
+     * - 返回直接文本和标识包装的混合串；
+     * 返回值：[
+     *      {string},  // 高亮代码字符串
+     *      {
+     *      lang: {string}  // 嵌入语言名
+     *          data: {array}      // 迭代封装：[string, object]
+     *      },...
+     * ]
+     * @return {array} 高亮代码集
+     */
+    'get': function()
+    {
+        if (!this._regs || !this._code.trim()) {
+            return [this._code];
+        }
+        var _buf = this._parse([this._code], this._regs);
 
-		return __U.arrFlat(_buf).map(function(it) {
-			// 最终未匹配字串无封装
-			if (typeof it == 'string') {
-				return it;
-			}
-			return it.lang
-				? { 'lang': it.lang(), 'data': it.get() }
-				: it.html();
-		});
-	},
-
-
-	/**
-	 * 返回语言名。
-	 * @return {string}
-	 */
-	'lang': function()
-	{
-		return this._lang;
-	},
+        return __U.arrFlat(_buf).map(function(it) {
+            // 最终未匹配字串无封装
+            if (typeof it == 'string') {
+                return it;
+            }
+            return it.lang
+                ? { 'lang': it.lang(), 'data': it.get() }
+                : it.html();
+        });
+    },
 
 
-	//-- 私有辅助 -------------------------------------------------------------
+    /**
+     * 返回语言名。
+     * @return {string}
+     */
+    'lang': function()
+    {
+        return this._lang;
+    },
 
 
-	/**
-	 * 迭代解析缓存集。
-	 * - 对未处理字符串迭代匹配解析；
-	 * - 纯空白字符串略过匹配处理；
-	 * regs成员接口：{
-	 *  	item  正则匹配式
-	 *  	fun   定制调用句柄，接口：function(reg, str) return array
-	 *  	css   高亮名称
-	 * }
-	 * @param {array} buf 源数据缓存
-	 * @param  {array} regs 正则配置集
-	 * @return {array} 解析集
-	 */
-	'_parse': function( buf, regs )
-	{
-		if (! regs.length) return;
+    //-- 私有辅助 -------------------------------------------------------------
 
-		var _reg = regs[0].item,
-			_fun = regs[0].fun;
 
-		buf.forEach(function(its, i) {
-			if ($.type(its) !== 'string' || !its.trim()) return;
-			if (_fun) {
-				buf[i] = _fun(_reg, its);
-			} else {
-				buf[i] = __U.matchOne(_reg, its, function(prev, txt) {
-					return [prev, new Class.Hicoder(txt, regs[0].css)];
-				});
-			}
-			this._parse(buf[i], regs.slice(1));
-		}, this);
-		return buf;
-	},
+    /**
+     * 迭代解析缓存集。
+     * - 对未处理字符串迭代匹配解析；
+     * - 纯空白字符串略过匹配处理；
+     * regs成员接口：{
+     *      item  正则匹配式
+     *      fun   定制调用句柄，接口：function(reg, str) return array
+     *      css   高亮名称
+     * }
+     * @param {array} buf 源数据缓存
+     * @param  {array} regs 正则配置集
+     * @return {array} 解析集
+     */
+    '_parse': function( buf, regs )
+    {
+        if (! regs.length) return;
+
+        var _reg = regs[0].item,
+            _fun = regs[0].fun;
+
+        buf.forEach(function(its, i) {
+            if ($.type(its) !== 'string' || !its.trim()) return;
+            if (_fun) {
+                buf[i] = _fun(_reg, its);
+            } else {
+                buf[i] = __U.matchOne(_reg, its, function(prev, txt) {
+                    return [prev, new Class.Hicoder(txt, regs[0].css)];
+                });
+            }
+            this._parse(buf[i], regs.slice(1));
+        }, this);
+        return buf;
+    },
 
 };
 
@@ -146,45 +146,45 @@ Class.Hiparse.prototype = {
 //
 Class.Hicoder = function( text, name )
 {
-	this._text = text;
-	this._cls = name ? (this._cssMap[name] || '_non') : null;
+    this._text = text;
+    this._cls = name ? (this._cssMap[name] || '_non') : null;
 };
 
 
 Class.Hicoder.prototype = {
-	/**
-	 * 构造高亮代码。
-	 * @return {string}
-	 */
-	'html': function()
-	{
-		var _cls = this._cls
-			? ' class="' + this._cls + '"'
-			: '';
-		return '<b' + _cls + '>' + this._text + '</b>';
-	},
+    /**
+     * 构造高亮代码。
+     * @return {string}
+     */
+    'html': function()
+    {
+        var _cls = this._cls
+            ? ' class="' + this._cls + '"'
+            : '';
+        return '<b' + _cls + '>' + this._text + '</b>';
+    },
 
 
-	//
-	// 高亮名/类名映射。
-	//
-	'_cssMap':
-	{
-		'comments': 	'_cmt', 	// 通用注释
-		'string': 		'_str', 	// 字符串 string
-		'keyword': 		'_kws', 	// 关键字 keywords
-		'doctype': 		'_doc', 	// <!DOCTYPE ...>
-		'xmltag': 		'_tag', 	// 标签（含css中的选择器）
-		'selector': 	'_slr', 	// CSS选择器（类、ID、:xxx）
-		'attribute': 	'_atn', 	// 属性名（html、css）
-		'attrvalue': 	'_atv', 	// 属性值（html）
-		'function': 	'_fun', 	// 函数名 function
-		'datatype': 	'_dtt', 	// 数据类型
-		'important': 	'_imp', 	// !important（css）、预处理器（c/c++）
-		'xmlcdata': 	'_cdt', 	// <![CDATA[...
-		'regexp': 		'_rex', 	// 正则表达式直接量
-		'color16': 		'_c16', 	// CSS 16进制颜色 #fff #f0f0f0
-	},
+    //
+    // 高亮名/类名映射。
+    //
+    '_cssMap':
+    {
+        'comments':     '_cmt',     // 通用注释
+        'string':       '_str',     // 字符串 string
+        'keyword':      '_kws',     // 关键字 keywords
+        'doctype':      '_doc',     // <!DOCTYPE ...>
+        'xmltag':       '_tag',     // 标签（含css中的选择器）
+        'selector':     '_slr',     // CSS选择器（类、ID、:xxx）
+        'attribute':    '_atn',     // 属性名（html、css）
+        'attrvalue':    '_atv',     // 属性值（html）
+        'function':     '_fun',     // 函数名 function
+        'datatype':     '_dtt',     // 数据类型
+        'important':    '_imp',     // !important（css）、预处理器（c/c++）
+        'xmlcdata':     '_cdt',     // <![CDATA[...
+        'regexp':       '_rex',     // 正则表达式直接量
+        'color16':      '_c16',     // CSS 16进制颜色 #fff #f0f0f0
+    },
 
 };
 

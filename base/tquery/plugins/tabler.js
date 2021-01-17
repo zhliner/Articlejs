@@ -672,8 +672,8 @@ class Tabler {
      * - 从当前单元格所在行的下一行开始；
      * - 参考单元格所在元素行与其逻辑行相同；
      * 返回值：[{
-     *  	td:    参考单元格
-     *  	where: 插入位置/方法（after|before）
+     *      td:    参考单元格
+     *      where: 插入位置/方法（after|before）
      * }, ...]
      * @param  {Element} td 源单元格
      * @param  {Number} row 当前行次
@@ -1023,8 +1023,8 @@ class Table {
 // - 矩阵成员为Cell实例，便于跨行/列处理；
 // - 由于单元格可跨行，应当取首行计算列数；
 // 结构：{
-//  	Matrix: [Row, Row...]
-//  	Row: [Cell, Cell...]
+//      Matrix: [Row, Row...]
+//      Row: [Cell, Cell...]
 // }
 // 注：接口中所说行列皆指逻辑行和逻辑列。
 //
@@ -1979,8 +1979,8 @@ class RowBuf {
      * 行数据更新。
      * - 当跨行计数递减为1时，更新单元格引用；
      * 单元数据：{
-     *  	elem: 单元格元素
-     *  	rows: 跨行值（elem.rowSpan）
+     *      elem: 单元格元素
+     *      rows: 跨行值（elem.rowSpan）
      * }
      * @param  {Element} tr 当前行元素
      * @return {this}

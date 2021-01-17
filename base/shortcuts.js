@@ -1,8 +1,8 @@
 //! $Id: shortcuts.js 2019.10.11 Articlejs.Config $
 // ++++++++++++++++++++++++++++++++++++++++++++++++++
-// 	Project: Articlejs v0.1.0
+//  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
-// 	Copyright (c) 2020 铁皮工作室  MIT License
+//  Copyright (c) 2020 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
