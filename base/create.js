@@ -144,8 +144,8 @@ const Tags = {
     [ T.HGROUP ]:       'hgroup',
     [ T.ABSTRACT ]:     'header\\abstract',
     [ T.TOC ]:          'nav\\toc',
-    [ T.SEEALSO ]:      'ul\\seealso',
-    [ T.REFERENCE ]:    'ol\\reference',
+    [ T.REFERENCE ]:    'nav\\reference',
+    [ T.SEEALSO ]:      'aside\\seealso',
     [ T.HEADER ]:       'header',
     [ T.FOOTER ]:       'footer',
     [ T.ARTICLE ]:      'article',
@@ -347,12 +347,12 @@ const Children = {
      */
     [ T.TBODY ]: function( ref, body, {th0}, data ) {
         let _tbo = tableObj( body.parentElement ),
-            _new = appendRow( _tbo, ref, body, data );
+            [_new, _end] = appendRow( _tbo, ref, body, data );
 
         if ( th0 && _tbo.rows() > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
-        return result( null, _new, !_new );
+        return result( null, _new, _end );
     },
 
 
@@ -363,14 +363,14 @@ const Children = {
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.THEAD ]: function( ref, head, _, data ) {
-        let _new = appendRow(
+        let [_new, _end] = appendRow(
             ref,
             tableObj( head.parentElement ),
             head,
             data,
             true
         );
-        return result( null, _new, !_new );
+        return result( null, _new, _end );
     },
 
 
@@ -381,13 +381,13 @@ const Children = {
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.TFOOT ]: function( ref, foot, _, data ) {
-        let _new = appendRow(
+        let [_new, _end] = appendRow(
             ref,
             tableObj( foot.parentElement ),
             foot,
             data
         );
-        return result( null, _new, !_new );
+        return result( null, _new, _end );
     },
 
 
@@ -406,13 +406,13 @@ const Children = {
             return result( null, data, true );
         }
         let _h4 = $.empty( li ),
-            _ul = appendChild(
+            [_ul, _end] = appendChild(
                 ref,
                 li,
                 data,
                 () => elem( T.UL )
             );
-        return result( insertHeading( li, T.H4, h4 || _h4 ), _ul, !_ul );
+        return result( insertHeading( li, T.H4, h4 || _h4 ), _ul, _end );
     },
 
 
@@ -427,13 +427,13 @@ const Children = {
      */
     [ T.CASCADEH4LI ]: function( ref, li, {h4}, data ) {
         let _h4 = $.empty( li ),
-            _ol = appendChild(
+            [_ol, _end] = appendChild(
                 ref,
                 li,
                 data,
                 () => elem( T.OL )
             );
-        return result( insertHeading(li, T.H4, h4 || _h4), _ol, !_ol );
+        return result( insertHeading(li, T.H4, h4 || _h4), _ol, _end );
     },
 
 
@@ -447,13 +447,13 @@ const Children = {
      * @param {Element} data 子列表（<ol>），可选
      */
     [ T.CASCADEAH4LI ]: function( ref, li, {ah4}, data ) {
-        let _ol = appendChild(
+        let [_ol, _end] = appendChild(
             ref,
             li,
             data,
             () => elem( T.OL )
         );
-        return result( ah4 && insertHeading(li, T.AH4, ah4), _ol, !_ol );
+        return result( ah4 && insertHeading(li, T.AH4, ah4), _ol, _end );
     },
 
 
@@ -483,13 +483,13 @@ const Children = {
      * @param {Element} data 主体内容（<img>, <svg>）
      */
     [ T.FIGIMGBOX ]: function( ref, box, {explain}, data ) {
-        let _img = appendChild(
+        let [_img, _end] = appendChild(
             ref,
             box,
             data,
             () => elem( T.IMG )
         );
-        return result( explain && $.append(box, elem(T.EXPLAIN, explain)), _img, !_img );
+        return result( explain && $.append(box, elem(T.EXPLAIN, explain)), _img, _end );
     },
 
 
@@ -506,13 +506,13 @@ const Children = {
      * @param {Element|String} h3 副标题数据。
      */
     [ T.HGROUP ]: function( ref, hgroup, {h1}, h3 ) {
-        let _h3 = appendChild(
+        let [_h3, _end] = appendChild(
             ref,
             hgroup,
             h3,
             () => elem( T.H3 )
         )
-        return result( h1 && insertHeading(hgroup, T.H1, h1), _h3 || h3, !_h3 );
+        return result( h1 && insertHeading(hgroup, T.H1, h1), _h3, _end );
     },
 
 
@@ -524,39 +524,70 @@ const Children = {
      * @param {String} h3 目录显示标签
      */
     [ T.TOC ]: function( ref, toc, {h3}, ol ) {
-        let _ol = appendChild(
+        let [_ol, _end] = appendChild(
             ref,
             toc,
             ol,
             () => elem( T.TOCCASCADE )
         )
-        return result( h3 && insertHeading(toc, T.H3, h3), _ol || ol, !_ol );
+        return result( h3 && insertHeading(toc, T.H3, h3), _ol, _end );
     },
 
 
     /**
-     * 导言位置确定。
-     * 内容需合法，否则简单忽略。
-     * 注记：
-     * 存在互斥的两种情况且为多层嵌套结构，故不支持创建默认单元。
+     * 文献参考清单插入。
+     * @param {Element|null} ref 参考子元素
+     * @param {Element} box 列表根容器（<nav>）
+     * @param {String} h3 小标题
+     * @param {Element} 清单元素（<ol>）
+     */
+    [ T.REFERENCE ]: function( ref, box, {h3}, ol ) {
+        let [_el, _end] = appendChild(
+            ref,
+            box,
+            ol,
+            () => elem( T.OL )
+        );
+        return result( h3 && insertHeading(box, T.H3, h3), _el, _end );
+    },
+
+
+    /**
+     * 另参见清单插入。
+     * @param {Element|null} ref 参考子元素
+     * @param {Element} box 列表根容器（<aside>）
+     * @param {String} h3 小标题
+     * @param {Element} 清单元素（<ul>）
+     */
+    [ T.SEEALSO ]: function( ref, box, {h3}, ul ) {
+        let [_el, _end] = appendChild(
+            ref,
+            box,
+            ul,
+            () => elem( T.UL )
+        );
+        return result( h3 && insertHeading(box, T.H3, h3), _el, _end );
+    },
+
+
+    /**
+     * 正文区内容插入。
+     * 因为存在互斥的两种情况，故不支持默认单元创建。
+     * 即：内容需合法，否则简单忽略。
      * @param {Element|null} ref 参考子元素
      * @param {Element} art 文章元素
      * @param {Element} header 导言，可选
      * @param {Element} data 子单元数据，可选
      */
     [ T.ARTICLE ]: function( ref, art, {header}, data ) {
-        let _buf = [];
-
-        if ( header  ) {
-            _buf.push( insertHeader(art, header) );
-        }
-        let _new = appendChild(
+        // 忽略第2个返回值
+        let [_new] = appendChild(
             ref,
             art,
             data,
             () => sectionFitted( ref, art, data )
         );
-        return result( _buf, _new, true );
+        return result( header && insertHeader(art, header), _new, true );
     },
 
 
@@ -568,13 +599,13 @@ const Children = {
      * @param {String} data 源码行
      */
     [ T.CODELIST ]: function( ref, ol, _, data ) {
-        let _el = appendChild(
+        let [_el, _end] = appendChild(
             ref,
             ol,
             data,
             () => elem( T.CODELI )
         );
-        return result( null, _el, !_el );
+        return result( null, _el, _end );
     },
 
 
@@ -586,14 +617,14 @@ const Children = {
      * @param {Element} data 数据条目，可选
      */
     [ T.DL ]: function( ref, dl, {dt}, data ) {
-        let _dd = appendChild(
+        let [_dd, _end] = appendChild(
             ref,
             dl,
             data,
             () => elem( T.DD )
         );
         // 标题项插入到数据项之前。
-        return result( dt && insertChild(_dd || data || ref, dl, elem(T.DT, dt)), _dd, !_dd );
+        return result( dt && insertChild(_dd || data || ref, dl, elem(T.DT, dt)), _dd, _end );
     },
 
 
@@ -613,7 +644,8 @@ const Children = {
      */
     [ T.TABLE ]: function( ref, tbl, {caption, head, foot}, body ) {
         let _tbo = tableObj( tbl ),
-            _buf = [], _tbd;
+            _buf = [],
+            _tbd;
 
         if ( caption ) {
             _buf.push( _tbo.caption(caption) );
@@ -627,7 +659,7 @@ const Children = {
         if ( body && body.tagName === 'TBODY' ) {
             _tbd = _tbo.bodies( 0, body );
         }
-        // 合法插入返回表体元素，结束递进。
+        // 合法插入表体时结束递进。
         return result( _buf, _tbd || _tbo.body(true), !!_tbd );
     },
 
@@ -641,13 +673,13 @@ const Children = {
      * @param {Element} data 子单元数据
      */
     [ T.FIGURE ]: function( ref, fig, {figcaption}, data ) {
-        let _el = appendChild(
+        let [_el, _end] = appendChild(
             ref,
             fig,
             data,
             () => elem( T.FIGIMGBOX )
         );
-        return result( figcaption && insertHeading(fig, T.FIGCAPTION, figcaption), _el, !_el );
+        return result( figcaption && insertHeading(fig, T.FIGCAPTION, figcaption), _el, _end );
     },
 
 
@@ -659,13 +691,13 @@ const Children = {
      * @param {Element} data 子单元数据
      */
     [ T.DETAILS ]: function( ref, box, {summary}, data ) {
-        let _el = appendChild(
+        let [_el, _end] = appendChild(
             ref,
             box,
             data,
             () => elem( T.P )
         );
-        return result( summary && insertHeading(box, T.SUMMARY, summary), _el, !_el );
+        return result( summary && insertHeading(box, T.SUMMARY, summary), _el, _end );
     },
 
 };
@@ -688,17 +720,17 @@ const Children = {
      * @node: {Element}
      */
     Children[ its[0] ] = function( ref, box, _, data ) {
-        if ( box.childElementCount ) {
-            // 后阶内容处理。
+        if ( box.childElementCount > 0 ) {
+            // 直接后阶处理。
             return result( null, box.firstElementChild );
         }
-        let _new = appendChild(
+        let [_new, _end] = appendChild(
             null,
             box,
             data,
             () => elem( its[1] )
         );
-        return result( null, _new, !_new );
+        return result( null, _new, _end );
     };
 
 });
@@ -726,13 +758,13 @@ const Children = {
      * @param {Element} data 子单元数据
      */
     Children[ it ] = function( ref, box, {h3}, data ) {
-        let _el = appendChild(
+        let [_el, _end] = appendChild(
             ref,
             box,
             data,
             () => elem( T.P )
         );
-        return result( h3 && insertHeading(box, T.H3, h3), _el, !_el );
+        return result( h3 && insertHeading(box, T.H3, h3), _el, _end );
     };
 });
 
@@ -742,8 +774,6 @@ const Children = {
 // 如果子单元不合法，简单构建<li>条目。
 //-----------------------------------------------
 [
-    T.SEEALSO,
-    T.REFERENCE,
     T.UL,
     T.OL,
     T.ULX,
@@ -757,13 +787,13 @@ const Children = {
      * @param {Element} data 列表项元素
      */
     Children[ it ] = function( ref, box, _, data ) {
-        let _new = appendChild(
+        let [_new, _end] = appendChild(
             ref,
             box,
             data,
             () => elem( T.LI )
         );
-        return result( null, _new, !_new );
+        return result( null, _new, _end );
     };
 });
 
@@ -798,7 +828,8 @@ const Children = {
             h2 && insertHeading( sec, T.H2, h2 ),
             header && insertHeader( sec, header )
         ];
-        let _new = appendChild(
+        // 忽略第2个返回值
+        let [_new] = appendChild(
             ref,
             sec,
             data,
@@ -1360,32 +1391,33 @@ function insertHeader( box, header ) {
 /**
  * 子单元判断插入或新建。
  * 如果子单元合法且非单一成员，简单插入而不创建默认单元。
- * 如果子单元为假，无任何行为，返回undefined。
- * 注记：为数据子单元逻辑。
+ * 如果子单元为假，无任何行为。
  * @param  {Element} ref 参考子元素
  * @param  {Element} box 容器元素
  * @param  {Node|String} sub 子单元
- * @param  {Function} maker 创建默认单元回调，可选
- * @return {Element|void} maker创建的单元
+ * @param  {Function} maker 创建默认单元回调
+ * @return {[Element, Boolean]} 插入的元素和是否终止
  */
 function appendChild( ref, box, sub, maker ) {
-    if ( !sub ) return;
+    if ( !sub ) {
+        return [null, true];
+    }
     let _tv = sub.nodeType ? getType( sub ) : 0;
 
     if ( T.isChildType(box, _tv) && !T.isSingle(_tv) ) {
-        insertChild( ref, box, sub );
-        return null;
+        return [insertChild(ref, box, sub), true];
     }
-    return maker && insertChild( ref, box, maker() );
+    return [insertChild(ref, box, maker()), false];
 }
 
 
 /**
  * 插入子单元。
  * 如果传递同级的子元素为参考，则插入它之前。
- * @param {Element} ref 参考子元素
- * @param {Element} box 容器元素
- * @param {Node|[Node]} sub 子单元数据
+ * @param  {Element} ref 参考子元素
+ * @param  {Element} box 容器元素
+ * @param  {Node|[Node]} sub 子单元数据
+ * @return {Node|[Node]} sub
  */
 function insertChild( ref, box, sub ) {
     return ref ? $.before(ref, sub) : $.append(box, sub);
@@ -1394,25 +1426,25 @@ function insertChild( ref, box, sub ) {
 
 /**
  * 插入表格行。
- * 成功插入时返回null。
  * @param  {$.Table} tbo 表格实例
  * @param  {Element|null} ref 参考行元素
  * @param  {TableSection} tsec 表格片区
  * @param  {Element} row 行元素
  * @param  {Boolean} head 是否在表头
- * @return {Element|null} 新行
+ * @return {[Element,Boolean]} 插入的行和是否终止
  */
 function appendRow( tbo, ref, tsec, row, head ) {
-    if ( !row ) return;
+    if ( !row ) {
+        return [null, true];
+    }
     let _idx = ref ? tbo.trIndex(ref, tsec) : null;
 
     if ( row.tagName !== 'TR' ||
         !isValidTR(row, tbo) ||
         (head && !isHeadTR(row)) ) {
-        return tbo.insertTR( tbo.newTR(head), _idx, tsec );
+        return [tbo.insertTR(tbo.newTR(head), _idx, tsec), false];
     }
-    tbo.insertTR( row, _idx, tsec );
-    return null;
+    return [tbo.insertTR(row, _idx, tsec), true];
 }
 
 

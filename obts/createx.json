@@ -1,5 +1,5 @@
 {
     "//": "提取文本，强制空行分项。可选空白清理。",
-    "on": "create|$('/textarea') val dup pass v.splitx $('/._option input') prop('checked') v.pretreat1(_1)",
+    "on": "create|$('/textarea') val dup pass v.splitx $('/input[name=clean]') prop('checked') v.pretreat1(_1)",
     "to": "|trigger('node')"
 }

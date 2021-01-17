@@ -21,7 +21,7 @@ import { Templater } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
-import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
+import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
@@ -1004,7 +1004,7 @@ class NodeVary {
 
 
     /**
-     * 定位前插入。
+     * 移动前插入。
      * 将同级兄弟元素向前移动/克隆到指定距离。
      * 超出范围的距离会导致部分或全部逆序插入。
      * 零值距离表示端部，汇集插入。
@@ -1023,7 +1023,7 @@ class NodeVary {
 
 
     /**
-     * 定位后插入。
+     * 移动后插入。
      * 将同级兄弟元素向后移动/克隆到指定距离。
      * 其它说明参考movePrev。
      * @param {[[Element]]} els2 兄弟元素集组
@@ -2143,6 +2143,30 @@ function unwrapBadit( els ) {
 
 
 /**
+ * 检索首个向前固定类单元。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function moveBeforeBadit( els ) {
+    for ( const el of els ) {
+        if ( beforeFixed(el) ) return el;
+    }
+}
+
+
+/**
+ * 检索首个向后固定类单元。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function moveAfterBadit( els ) {
+    for ( const el of els ) {
+        if ( afterFixed(el) ) return el;
+    }
+}
+
+
+/**
  * 检索首个固定类单元。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -2715,14 +2739,19 @@ const topItemslr = {
         prev: [ T.TOC, T.ABSTRACT, T.H1 ]
     },
 
-    [ T.SEEALSO ]: {
-        self: '>ul[role=seealso]',
+    [ T.REFERENCE ]: {
+        self: '>nav[role=reference]',
         prev: [ T.ARTICLE, T.TOC, T.ABSTRACT, T.H1 ]
     },
 
-    [ T.REFERENCE ]: {
-        self: '>ol[role=reference]',
-        prev: [ T.SEEALSO, T.ARTICLE, T.TOC, T.ABSTRACT, T.H1 ]
+    [ T.SEEALSO ]: {
+        self: '>aside[role=seealso]',
+        prev: [ T.REFERENCE, T.ARTICLE, T.TOC, T.ABSTRACT, T.H1 ]
+    },
+
+    [ T.FOOTER ]: {
+        self: '>footer',
+        prev: [ T.SEEALSO, T.REFERENCE, T.ARTICLE, T.TOC, T.ABSTRACT, T.H1 ]
     }
 };
 
@@ -4071,9 +4100,9 @@ export const Edit = {
         if ( n < 0 || !$els.length || prevMoveEnd(_beg) ) {
             return;
         }
-        if ( $els.some(isFixed) ) {
+        if ( $els.some(afterFixed) ) {
             // 包含有固定不可以被移动的元素。
-            return help( 'has_fixed', moveBadit($els) );
+            return help( 'has_fixed', moveAfterBadit($els) );
         }
         historyPush( new DOMEdit(__Edits.movePrev, siblingTeam($els), n) );
     },
@@ -4095,9 +4124,9 @@ export const Edit = {
         if ( n < 0 || !$els.length || nextMoveEnd(_beg) ) {
             return;
         }
-        if ( $els.some(isFixed) ) {
+        if ( $els.some(beforeFixed) ) {
             // 包含有固定不可以被移动的元素。
-            return help( 'has_fixed', moveBadit($els) );
+            return help( 'has_fixed', moveBeforeBadit($els) );
         }
         historyPush( new DOMEdit(__Edits.moveNext, siblingTeam($els), n) );
     },

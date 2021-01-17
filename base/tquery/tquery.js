@@ -2401,7 +2401,7 @@ class Table {
      *
      * @param  {Number} idx 表体元素序号（从0开始），可选
      * @param  {true|null|Element} its 创建/删除标识或表体元素，可选
-     * @return {Element|[Element]|undefined} 表体元素（集）
+     * @return {Element|[Element]|false|void} 表体元素（集）
      */
     bodies( idx, its ) {
         let _bd = this._tbl.tBodies[idx];

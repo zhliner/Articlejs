@@ -91,8 +91,8 @@
                                 <li><a href="#提要">提要</a></li>
                                 <li><a href="#目录">目录</a></li>
                                 <li><a href="#章节">章节</a></li>
-                                <li><a href="#另参见">另参见</a></li>
                                 <li><a href="#文献参考">文献参考</a></li>
+                                <li><a href="#另参见">另参见</a></li>
                                 <li><a href="#无序级联表">无序级联表</a></li>
                                 <li><a href="#有序级联表">有序级联表</a></li>
                                 <li><a href="#级联编号表">级联编号表</a></li>
@@ -103,7 +103,7 @@
                                 <li><a href="#白板">白板</a></li>
                             </ol>
                         </li>
-                        <li data-pbo="folded">
+                        <li data-pbo="">
                             <h4><a href="#原生结构">原生结构</a></h4>
                             <ol>
                                 <li><a href="#标题">标题</a></li>
@@ -223,8 +223,9 @@
     ...                                     <i>&lt;!-- 平级 section:s1 --&gt;</i>
     &lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                       <i>&lt;!-- 结语 --&gt;</i>
 &lt;/<b role="tag">article</b>&gt;
-&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">ul</b>&gt;                    <i>&lt;!-- 另参见 --&gt;</i>
-&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">ol</b>&gt;                  <i>&lt;!-- 文献参考 --&gt;</i>
+&lt;<b role="tag">nav</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">nav</b>&gt;                <i>&lt;!-- 文献参考 --&gt;</i>
+&lt;<b role="tag">aside</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">aside</b>&gt;              <i>&lt;!-- 另参见 --&gt;</i>
+&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                           <i>&lt;!-- 声明 --&gt;</i>
 </code></pre>
                     <aside>
                         <h3>附：Markdown解析</h3>
@@ -252,10 +253,10 @@
                             <li><code>&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h3 --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">header</b> role=<b role="str">"abstract"</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">nav</b> role=<b role="str">"toc"</b>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h3, ol:cascade/li/a（可多级） --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">ul</b>&gt;            <i>&lt;!-- 另参见：SEEALSO /li... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">ol</b>&gt;          <i>&lt;!-- 文献参考：REFERENCE /li... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">nav</b> role=<b role="str">"reference"</b>&gt;&lt;/<b role="tag">nav</b>&gt;        <i>&lt;!-- 文献参考：REFERENCE /h3, ol --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">aside</b> role=<b role="str">"seealso"</b>&gt;&lt;/<b role="tag">aside</b>&gt;      <i>&lt;!-- 另参见：SEEALSO /h3, ul --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 导言：HEADER /h3, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结：FOOTER /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结/页脚：FOOTER /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">article</b>&gt;&lt;/<b role="tag">article</b>&gt;                 <i>&lt;!-- 文章区：ARTICLE /header, s1, footer, hr --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s1"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 章：S1 /h2, header, s2, footer --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">section</b> role=<b role="str">"s2"</b>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 节：S2 /h2, header, s3, footer --&gt;</i></code></li>
@@ -571,21 +572,27 @@
 </code></pre>
                     </section>
                     <section role="s3">
-                        <h2 id="另参见">另参见</h2>
-                        <p>构造为一个无序列表，表示一种不区分先后或主次顺序的并列关系。</p>
+                        <h2 id="文献参考">文献参考</h2>
+                        <p>用有序列表来表达，体现引用出现在原文中的先后位置。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">ul</b> role=<b role="str">"seealso"</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
-&lt;/<b role="tag">ul</b>&gt;
+<code data-lang="html">&lt;<b role="tag">nav</b> role=<b role="str">"reference"</b>&gt;
+    &lt;<b role="tag">h3</b>&gt;文献参考&lt;/<b role="tag">h3</b>&gt;
+    &lt;<b role="tag">ol</b>&gt;
+        &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;...
+    &lt;/<b role="tag">ol</b>&gt;
+&lt;/<b role="tag">nav</b>&gt;
 </code></pre>
                     </section>
                     <section role="s3">
-                        <h2 id="文献参考">文献参考</h2>
-                        <p>用有序列表来表达，顺序通常体现引用出现在原文中的位置先后（而非主次分别）。</p>
+                        <h2 id="另参见">另参见</h2>
+                        <p>构造为一个无序列表，体现出不区分先后或主次顺序的并列关系。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">ol</b> role=<b role="str">"reference"</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
-&lt;/<b role="tag">ol</b>&gt;
+<code data-lang="html">&lt;<b role="tag">aside</b> role=<b role="str">"seealso"</b>&gt;
+    &lt;<b role="tag">h3</b>&gt;另参见&lt;/<b role="tag">h3</b>&gt;
+    &lt;<b role="tag">ul</b>&gt;
+        &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;...
+    &lt;/<b role="tag">ul</b>&gt;
+&lt;/<b role="tag">aside</b>&gt;
 </code></pre>
                     </section>
                     <section role="s3">
@@ -734,7 +741,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="结语">结语</h2>
-                        <p>在一个章节内的末尾，位置是固定的。作为文章本身也可以包含一个结语，它在文章（<code>&lt;article&gt;</code>）容器内的末尾。</p>
+                        <p>在章节片区内的末尾，通常称为 <strong>小结</strong>。在文章根元素（<code>&lt;article&gt;</code>）内也可以包含，通常是一个总结（或 <strong>结语</strong>）。如果出现在文章根容器之上的顶层，可能会是一个 <strong>声明</strong>。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">footer</b>&gt;
     &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>

@@ -171,10 +171,10 @@ export const
     S5              = 505,  // 末 （section:s5/h2, header?, {content}, footer?）
     ABSTRACT        = 506,  // 提要 （header:abstract/h3, p...）
     TOC             = 507,  // 目录 （nav:toc/h3, ol:cascade/li/(h4/a), ol/[li/a]+）
-    SEEALSO         = 508,  // 另参见 （ul:seealso/li/#text）
-    REFERENCE       = 509,  // 文献参考 （ol:reference/li/#text）
+    REFERENCE       = 508,  // 文献参考 （nav:reference/h3, ol）
+    SEEALSO         = 509,  // 另参见 （aside:seealso/h3, ul）
     HEADER          = 510,  // 导言 （header/h3, p...）
-    FOOTER          = 511,  // 结语 （footer/h3, p...）
+    FOOTER          = 511,  // 结语/小结/声明 （footer/h3, p...）
     ARTICLE         = 512,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
     SECTION         = 513,  // 深片区 ([s5]/section)
     UL              = 514,  // 无序列表 （ul/li）
@@ -492,8 +492,8 @@ const ChildTypes = {
     [ HGROUP ]:         [ H1, H3 ],
     [ ABSTRACT ]:       [ H3, P, ..._BLOLIMIT ],
     [ TOC ]:            [ H3, TOCCASCADE ],
-    [ SEEALSO ]:        [ LI, ALI ],
-    [ REFERENCE ]:      [ LI, ALI ],
+    [ REFERENCE ]:      [ H3, OL ],
+    [ SEEALSO ]:        [ H3, UL ],
     [ HEADER ]:         [ H3, P, ..._BLOLIMIT, ULX, OLX ],
     [ FOOTER ]:         [ H3, P, ..._BLOLIMIT, ADDRESS ],
 
@@ -526,7 +526,7 @@ const ChildTypes = {
     //
     // 文章顶层容器
     /////////////////////////////////////////////
-    [ MAIN ]:           [ H1, HGROUP, ABSTRACT, TOC, ARTICLE, SEEALSO, REFERENCE ],
+    [ MAIN ]:           [ H1, HGROUP, ABSTRACT, TOC, ARTICLE, REFERENCE, SEEALSO, FOOTER ],
 
 };
 

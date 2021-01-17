@@ -6,7 +6,7 @@
 <!-- 选项：2 -->
 <div class="_option" tpl-name="input:option2">
     <label title="清除连续空白"><input type="checkbox" name="clean" checked>空白清理</label>
-    <label title="连续多个空行视为一个"><input type="checkbox" name="hasps">空行分段</label>
+    <label title="连续多个空行视为一个"><input type="checkbox" name="split">空行分段</label>
 </div>
 
 
@@ -139,7 +139,7 @@
 </div>
 
 
-<!--文章标题
+<!--文章标题组
     .hgroup: (data:[String], {h1}, more:true) -->
 <div class="_body _Hgroup" obt-src="obts/createx.json" tpl-name="input:hgroup"
     on="node|ev('detail') $('/input[name=h1]') val obj('h1') (true)"
@@ -152,9 +152,9 @@
         <textarea name="h2" placeholder="副标题（多个以空行分隔）"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert1">
+        <pre tpl-node="input:option1, input:update">
             [选项1]
-            [插入1]
+            [更新]
         </pre>
     </aside>
 </div>
@@ -169,9 +169,9 @@
         <textarea name="header" placeholder="导言（可选）"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:insert1">
+        <pre tpl-node="input:option2, input:update">
             [选项2]
-            [插入1]
+            [更新]
         </pre>
     </aside>
 </div>
@@ -258,41 +258,47 @@
         <textarea name="ps" placeholder="文章提要"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:insert1">
+        <pre tpl-node="input:option2, input:update">
             [选项2]
-            [插入1]
-        </pre>
-    </aside>
-</div>
-
-<!-- 另参见 -->
-<div class="_body _Reference" obt-src="obts/nodelis.json" tpl-name="input:seealso"
-    on="node|ev('detail')"
-    by="New.seealso(null, true)"
-    to="form/|trigger('instop')">
-    <div class="_main">
-        <textarea name="seealso" placeholder="另参见：空行分项"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert1">
-            [选项1]
-            [插入1]
+            [更新]
         </pre>
     </aside>
 </div>
 
 <!-- 文献参考 -->
 <div class="_body _Reference" obt-src="obts/nodelis.json" tpl-name="input:reference"
-    on="node|ev('detail')"
-    by="New.reference(null, true)"
+    on="node|ev('detail') wrapAll('<ol>') item(0) $('/input[name=h3]') val obj('h3')"
+    by="New.reference(_1)"
     to="form/|trigger('instop')">
     <div class="_main">
-        <textarea name="reference" placeholder="文献参考：空行分项"></textarea>
+        <header>
+            <input name="h3" type="text" class="_scale" value="文献参考" />
+        </header>
+        <textarea name="reference" placeholder="内容，空行分项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert1">
+        <pre tpl-node="input:option1, input:update">
             [选项1]
-            [插入1]
+            [更新]
+        </pre>
+    </aside>
+</div>
+
+<!-- 另参见 -->
+<div class="_body _Reference" obt-src="obts/nodelis.json" tpl-name="input:seealso"
+    on="node|ev('detail') wrapAll('<ul>') item(0) $('/input[name=h3]') val obj('h3')"
+    by="New.seealso(_1)"
+    to="form/|trigger('instop')">
+    <div class="_main">
+        <header>
+            <input name="h3" type="text" class="_scale" value="另参见" />
+        </header>
+        <textarea name="seealso" placeholder="内容，空行分项"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:update">
+            [选项1]
+            [更新]
         </pre>
     </aside>
 </div>
@@ -322,7 +328,7 @@
         <header>
             <input name="h3" type="text" class="_scale" value="小结" />
         </header>
-        <textarea name="footer" placeholder="结语内容"></textarea>
+        <textarea name="footer" placeholder="内容"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option2, input:update">
@@ -995,7 +1001,7 @@
     <aside>
         <div class="_option">
             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-            <label title="紧邻换行保留"><input type="checkbox" name="hasps">空行分段</label>
+            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
             <hr />
             <label title="<ol>"><input type="checkbox" name="isol">有序子表</label>
         </div>
