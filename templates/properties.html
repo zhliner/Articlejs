@@ -700,16 +700,17 @@
     初始粘贴自动清除多余缩进（以最短的缩进为准）。
     适用：代码块/代码表/颜文字/预排版。-->
 <textarea name="codes" rows="3" spellcheck="false" class="_code" placeholder="自动清除多余缩进" tpl-name="prop:codes"
-    on="paste|evo(3) val end avoid clipboard"
-    by="Kit.indentcut"
+    on="paste|evo(3) val end avoid clipboard v.indentcut"
     to="|val|focus"></textarea>
 
 <!-- 适用：<svg> -->
-<textarea name="codes" rows="3" spellcheck="false" class="_code" tpl-name="prop:svg" placeholder="<svg>...</svg>"></textarea>
+<textarea name="codes" rows="3" spellcheck="false" class="_code" placeholder="<svg>...</svg>" tpl-name="prop:svg"></textarea>
 
 
-<!-- 代码语言清单 -->
-<select id="g-languages" name="languages" tpl-name="prop:languages">
+<!--代码语言清单
+    normal 普通代码，仅标记字符串和注释（//）。-->
+<select id="g-languages" data-id="code" name="language" tpl-name="prop:languages">
+    <option value="normal">------</option>
     <option value="golang">Golang</option>
     <option value="cplus">C/C++</option>
     <option value="javascript">JavaScript</option>

@@ -260,14 +260,14 @@ const Children = {
      * 注音内容。
      * 固定子结构，不支持插入参考。
      * 返回ruby容器本身供选取。
-     * @param {null} ref 插入参考（占位）
+     * @param {null} _ 插入参考（占位）
      * @param {Element} ruby 注音元素
-     * @param {String} rpl 拼音左包围字符
      * @param {String} rt  拼音
-     * @param {String} rpl 拼音右包围字符
+     * @param {String} rpl 拼音左包围字符，可选
+     * @param {String} rpl 拼音右包围字符，可选
      * @param {Value|Node|Array} data 待注音文本
      */
-    [ T.RUBY ]: function( ref, ruby, {rpl, rt, rpr}, data ) {
+    [ T.RUBY ]: function( _, ruby, {rt, rpl, rpr}, data ) {
         $.append(
             ruby,
             rubySubs( rpl, rt, rpr, dataText(data) )
@@ -276,7 +276,7 @@ const Children = {
     },
 
     // 同上。
-    [ T.RBPT ]: function( ref, ruby, {rpl, rt, rpr}, data ) {
+    [ T.RBPT ]: function( _, ruby, {rpl, rt, rpr}, data ) {
         $.append(
             ruby,
             rubySubs( rpl, rt, rpr, dataText(data) )
@@ -287,9 +287,9 @@ const Children = {
 
     /**
      * 代码单元。
-     * 如果是源代码，应当已经处理好Tab和语法高亮。
-     * 对于非源码实参，提取文本插入（内联<code>需要）。
-     * @param {Element|null} ref 插入参考元素
+     * 如果是源码，应当已经处理好Tab和语法高亮。
+     * 对于非源码实参，视为合法内联节点。
+     * @param {null} ref 插入参考占位
      * @param {Element} code 代码元素
      * @param {String|Node} data 已解析源码或节点
      */
@@ -1581,9 +1581,9 @@ function rubySubs( rpl, rt, rpr, data ) {
     ];
     if ( rt ) {
         _els.push(
-            elem( T.RP, rpl ),
+            elem( T.RP, rpl || Sys.rpLeft ),
             elem( T.RT, rt ),
-            elem( T.RP, rpr )
+            elem( T.RP, rpr || Sys.rpRight )
         );
     }
     return _els;

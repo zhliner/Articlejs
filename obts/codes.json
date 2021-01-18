@@ -1,0 +1,5 @@
+{
+    "//": "提取源码，根据语言设定解析高亮并处理Tab配置。",
+    "on": "create|$('/textarea') val dup pass $('/[name=tabs]') val int $('/[name=language]') val v.codeparse(_2)",
+    "to": "|trigger('node')"
+}

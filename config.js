@@ -83,6 +83,16 @@ export const Help = {
         '包含有固定不可以被移动的元素'
     ],
 
+    'has_fixed1': [
+        'edit:fixed1',
+        '含有不可向后移动的元素'
+    ],
+
+    'has_fixed2': [
+        'edit:fixed2',
+        '含有不可向前移动的元素'
+    ],
+
     'cannot_selected': [
         'edit:insert',
         '插入的目标元素不可为已选取'

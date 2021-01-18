@@ -246,6 +246,20 @@
     </aside>
 </div>
 
+<!-- 深片区 -->
+<div class="_body _Section" obt-src="obts/h2header.json" tpl-name="input:section"
+    on="node|ev('detail')"
+    by="New.section(_1)"
+    to="form/|trigger('insert')">
+    <div tpl-node="part:section"></div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
 <!-- 提要 -->
 <div class="_body _Abstract" obt-src="obts/nodeps.json" tpl-name="input:abstract"
     on="node|ev('detail') $('/input[name=h3]') val obj('h3') (true)"
@@ -323,7 +337,10 @@
 </div>
 
 <!-- 结语 -->
-<div class="_body _Footer" tpl-name="input:footer">
+<div class="_body _Footer" obt-src="obts/nodeps.json" tpl-name="input:footer"
+    on="node|ev('detail') $('/input[name=h3]') val obj('h3') (true)"
+    by="New.footer(_2)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <header>
             <input name="h3" type="text" class="_scale" value="小结" />
@@ -338,19 +355,11 @@
     </aside>
 </div>
 
-<!-- 深片区 -->
-<div class="_body _Section" tpl-name="input:section">
-    <div tpl-node="part:section"></div>
-    <aside>
-        <pre tpl-node="input:option2, input:insert2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
 <!-- 无序列表 -->
-<div class="_body _Ul" tpl-name="input:ul">
+<div class="_body _Ul" obt-src="obts/nodelis.json" tpl-name="input:ul"
+    on="node|ev('detail')"
+    by="New.ul(null, true)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="ul" placeholder="无序列表：空行分项"></textarea>
     </div>
@@ -363,7 +372,10 @@
 </div>
 
 <!-- 有序列表 -->
-<div class="_body _Ol" tpl-name="input:ol">
+<div class="_body _Ol" obt-src="obts/nodelis.json" tpl-name="input:ol"
+    on="node|ev('detail')"
+    by="New.ol(null, true)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="ol" placeholder="有序列表：空行分项"></textarea>
     </div>
@@ -376,20 +388,23 @@
 </div>
 
 <!-- 代码表 -->
-<div class="_body _Codelist" tpl-name="input:codelist">
+<div class="_body _Codelist" obt-src="obts/codes.json" tpl-name="input:codelist"
+    on="node|ev('detail') split('\n') $$('/[data-id=code]') v.codeopts(_) (true);"
+    by="New.codelist(_2)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea tpl-node="prop:codes"></textarea>
     </div>
     <aside>
         <div class="_option">
             <label>制表符
-                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                <input data-id="code" type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
             <label>语言
-                <select tpl-node="prop:languages"></select>
+                <select data-id="code" tpl-node="prop:languages"></select>
             </label>
             <label title="起始行号">首行
-                <input type="text" name="start" placeholder="1" class="_chars">
+                <input data-id="code" type="text" name="start" placeholder="1" class="_chars">
             </label>
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>

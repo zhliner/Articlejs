@@ -260,7 +260,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     text-decoration: none;
 }
 .content nav[role=toc] a:visited {
-    color: #398;
+    color: gray;
 }
 
 .content nav[role=toc] a:hover {

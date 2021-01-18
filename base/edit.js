@@ -23,10 +23,13 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
-import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent } from './common.js';
+import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent, indentSpace } from './common.js';
 import { children, create, convert, tocList, convType } from "./create.js";
 import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
+
+// 代码解析插件
+import { Hiparse } from "../plugins/hicolor/main.js";
 
 
 const
@@ -59,6 +62,7 @@ const
     __reSpaceN = /(\s)(\s*)/g,
 
     // 兼容换行匹配。
+    // 注：粘贴的内容可能包含多种换行表示。
     __reNewline = /\r\n|\n|\r/,
 
     // 章节容器匹配。
@@ -369,8 +373,7 @@ class RngEdit {
     constructor( rng, name ) {
         this._el = create(
             name,
-            null,
-            rng.cloneContents()
+            ...this._optData(name, rng)
         );
         this._old = [
             ...rng.extractContents().childNodes
@@ -414,7 +417,63 @@ class RngEdit {
     elem() {
         return this._el;
     }
+
+
+    //-- 私有辅助 ----------------------------------------------------------------
+
+    /**
+     * 解析选项配置和数据。
+     * 分析文本内容智能判断提取选项，
+     * 主要针对<ruby>和<a>单元。
+     * @param  {String} name 单元名
+     * @param  {Range} rng 选取范围
+     * @return {[Object, Value]} 配置对象和数据值对
+     */
+    _optData( name, rng ) {
+        let _fn = this[ `_${name}` ];
+        return _fn ? _fn( rng.toString(), rng ) : [ null, rng.cloneContents() ];
+    }
+
+
+    /**
+     * 分析构造链接配置。
+     * @param  {String} text 链接文本
+     * @param  {Range} rng 选取范围
+     * @return {[Object, Value]} 配置对象和数据值对
+     */
+    _a( text, rng ) {
+        return [
+            RngEdit.url.test(text) && { href: text },
+            rng.cloneContents()
+        ];
+    }
+
+
+    /**
+     * 分析提取注音配置。
+     * @param  {String} text 注音文本
+     * @param  {Range} rng 选取范围
+     * @return {[Object, Value]} 配置对象和数据值对
+     */
+    _ruby( text, rng ) {
+        let _vs = text.match( RngEdit.ruby );
+        return _vs ? [ {rt: _vs[2]}, _vs[1] ] : [ null, rng.cloneContents() ];
+    }
 }
+
+//
+// 链接URL匹配模式。
+// 主机部分严格约束，路径/查询部分宽泛匹配。
+//
+RngEdit.url  = /^(?:http|https|ftp|email):\/\/[\w.-]+\/\S+$/i;
+
+//
+// <ruby>匹配提取模式。
+// 格式：/文本(拼音)/
+// 文本：任意非空白字符（容许空格）
+// 拼音：[À-ž ㄅ-ㄭ] （容许空格）
+//
+RngEdit.ruby = RegExp( `^([\\S ]+)\\${Sys.rpLeft}([\\w\\u00c0-\\u017e\\u3105-\\u312d ]+)\\${Sys.rpRight}$`, 'i' );
 
 
 //
@@ -4102,7 +4161,7 @@ export const Edit = {
         }
         if ( $els.some(afterFixed) ) {
             // 包含有固定不可以被移动的元素。
-            return help( 'has_fixed', moveAfterBadit($els) );
+            return help( 'has_fixed2', moveAfterBadit($els) );
         }
         historyPush( new DOMEdit(__Edits.movePrev, siblingTeam($els), n) );
     },
@@ -4126,7 +4185,7 @@ export const Edit = {
         }
         if ( $els.some(beforeFixed) ) {
             // 包含有固定不可以被移动的元素。
-            return help( 'has_fixed', moveBeforeBadit($els) );
+            return help( 'has_fixed1', moveBeforeBadit($els) );
         }
         historyPush( new DOMEdit(__Edits.moveNext, siblingTeam($els), n) );
     },
@@ -4691,6 +4750,7 @@ export const Kit = {
 
     /**
      * 空行切分。
+     * 非单个换行，连续多个空行视为一个。
      * @data: String
      * @return {[String]}
      */
@@ -4699,6 +4759,68 @@ export const Kit = {
     },
 
     __splitx: 1,
+
+
+    /**
+     * 剪除多余缩进。
+     * 以行集中最短的缩进为准，剪除前端缩进。
+     * 注：并不会清理首位空白。
+     * @data: String
+     * @return {String}
+     */
+    indentcut( evo ) {
+        let _ss = evo.data.split( __reNewline ),
+            _cut = shortIndent( _ss );
+
+        if ( !_cut ) {
+            return evo.data;
+        }
+        return _ss.map( str => str.substring(_cut) ).join( '\n' );
+    },
+
+    __indentcut: 1,
+
+
+    /**
+     * 源码语法解析。
+     * @data: String
+     * @param  {Number} tab Tab空格数
+     * @param  {String} lang 代码语言
+     * @return {String} 语法高亮后的代码（html）
+     */
+    codeparse( evo, tab, lang ) {
+        let _code = evo.data.split( __reNewline );
+
+        if ( tab > 0 ) {
+            let _ts = new Array(tab)
+                .fill(' ')
+                .join('');
+            _code = _code.map( s => indentSpace(s, _ts) );
+        }
+        _code = _code.join( '' );
+
+        return lang ? new Hiparse(_code, lang).html() : _code;
+    },
+
+    __codeparse: 1,
+
+
+    /**
+     * 提取并构造代码选项对象。
+     * @param  {Element} lang 语言定义控件
+     * @param  {Element} tab Tab配置控件
+     * @param  {Element} start 起始行定义控件
+     * @return {Object3} 配置选项
+     */
+    codeopts( evo, lang, tab, start ) {
+        return {
+            lang:  $.val( lang ),
+            tab:   $.val( tab ) || null,
+            start: $.val( start ) || null,
+        };
+    },
+
+    __codeopts: null,
 
 
 
@@ -4999,25 +5121,6 @@ export const Kit = {
 
     __fixinsert: 1,
 
-
-    /**
-     * 剪除多余缩进。
-     * 以行集中最短的缩进为准，剪除前端缩进。
-     * 注：并不会清理首位空白。
-     * @return {String}
-     */
-    indentcut( evo ) {
-        let _ss = evo.data.split( __reNewline ),
-            _cut = shortIndent( _ss );
-
-        if ( !_cut ) {
-            return evo.data;
-        }
-        return _ss.map( str => str.substring(_cut) ).join( '\n' );
-    },
-
-    __indentcut: 1,
-
 };
 
 
@@ -5054,7 +5157,6 @@ processExtend( 'Kit', Kit, [
     'inserts',
     'topinsert',
     'fixinsert',
-    'indentcut',
 ]);
 
 
@@ -5077,6 +5179,9 @@ customGetter( null, Kit, [
     'pretreat2',
     'pretreat1',
     'splitx',
+    'indentcut',
+    'codeparse',
+    'codeopts',
 ]);
 
 
