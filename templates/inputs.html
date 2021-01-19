@@ -389,7 +389,7 @@
 
 <!-- 代码表 -->
 <div class="_body _Codelist" obt-src="obts/codes.json" tpl-name="input:codelist"
-    on="node|ev('detail') split('\n') $$('/[data-id=code]') v.codeopts(_) (true);"
+    on="node|ev('detail') split('\n') $$('/[data-id=code]') v.codeopts(_) (true)"
     by="New.codelist(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -813,7 +813,7 @@
 
 <div class="_body _Li" tpl-name="input:li">
     <div class="_main">
-        <textarea name="li" placeholder="列表项内容"></textarea>
+        <textarea name="li" placeholder="列表项内容：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">

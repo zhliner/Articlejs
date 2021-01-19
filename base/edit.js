@@ -29,7 +29,7 @@ import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
 
 // 代码解析插件
-import { Hiparse } from "../plugins/hicolor/main.js";
+import { Hicolor } from "../plugins/hicolor/main.js";
 
 
 const
@@ -4782,13 +4782,13 @@ export const Kit = {
 
 
     /**
-     * 源码语法解析。
+     * 解析源码获取高亮代码。
      * @data: String
      * @param  {Number} tab Tab空格数
      * @param  {String} lang 代码语言
      * @return {String} 语法高亮后的代码（html）
      */
-    codeparse( evo, tab, lang ) {
+    codehtml( evo, tab, lang ) {
         let _code = evo.data.split( __reNewline );
 
         if ( tab > 0 ) {
@@ -4799,10 +4799,10 @@ export const Kit = {
         }
         _code = _code.join( '' );
 
-        return lang ? new Hiparse(_code, lang).html() : _code;
+        return lang ? new Hicolor(_code, lang).html() : _code;
     },
 
-    __codeparse: 1,
+    __codehtml: 1,
 
 
     /**
@@ -5180,7 +5180,7 @@ customGetter( null, Kit, [
     'pretreat1',
     'splitx',
     'indentcut',
-    'codeparse',
+    'codehtml',
     'codeopts',
 ]);
 

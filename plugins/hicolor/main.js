@@ -9,16 +9,26 @@
 //  代码高亮通用框架。
 //
 //  对字符串进行有序的迭代解析。按顺序剥离特定的语法结构后，剩余部分将更容易处理。
-//  解析顺序是由各自语言自己定义的。
+//  各语言继承 Hicode 实现，初始传递匹配器序列（Object3）。
 //
-//  注记：
-//  第三方对字符串解析的返回值有3种结果：
-//  1. 字符串：未被匹配的剩余字符串，需要下一阶的解析匹配。
-//  2. 结构块：内部包含更细粒度的语法结构，需要按其自身规则解析。接口：parse(): Value3
-//  3. 着色件：已经为最终的着色单元，可输出为规范的代码着色结构（<b role=xx>|<i>）。接口：toString()
 //
-//  可配置性：
-//  用户可自行配置类名映射：语言自身的语法分类词 => 文档代码高亮类名。
+//  高亮类型名，由具体的代码解析器用于类型标记：
+//  - keyword   关键字
+//  - literal   字面值（如 true, iota）
+//  - string    字符串
+//  - function  函数（名称）
+//  - operator  操作符
+//  - datatype  数据类型
+//  - xmltag    XML/HTML标签
+//  - attribute 属性名
+//  - selector  CSS选择器
+//  - important 重要声明
+//  - doctype   文档类型（<!DOCTYPE...>）
+//  - xmlcdata  HTML代码片段（<![CDATA[...]]>）
+//  - regexp    正则表达式
+//  - color16   颜色值（16进制）
+//  - error     出错提示
+//  - comments  注释
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,31 +36,40 @@
 
 
 //
-// 语法高亮解析类。
-// - 使用后续Hicoder类构造封装对象；
-// - 如果源码属于内嵌的语言，可进行注明；
-// 原理：
-// 1. 源码按正则式解析为“未匹配串+匹配封装对象”的数组；
-// 2. 按目标语言配置的正则集顺序，迭代处理前阶的未匹配串；
-// 3. 压平结果数组，包装输出字符串和封装对象代码；
-// 要点：
-// - 解析形成一个数组树，不会打乱源码顺序，压平输出即可；
-//
+// 语法高亮类。
+// 1. 源码按正则式解析为“未匹配串+匹配封装对象”的数组。
+// 2. 按目标语言配置的正则集顺序，迭代处理前阶的未匹配串。
+// 3. 压平结果数组，包装输出字符串和封装对象代码。
+// 注记：
+// 解析形成一个数组树，不会打乱源码顺序，压平输出即可。
 // @param {string} code 待解析源码
 // @param {array} regs  目标正则配置集
 // @param {string} lang 源码所属语言注明，可选
 //
-Class.Hiparse = function( code, regs, lang )
-{
-    this._code = code;
-    this._regs = regs || null;
-
-    this._lang = lang || '';
-};
-
-
-Class.Hiparse.prototype = {
+class Hicolor {
     /**
+     * @param {String} lang 语言名
+     */
+    constructor( lang ) {
+        this._lang = lang || '';
+    }
+
+
+    /**
+     * 代码文本解析。
+     * 返回值：{
+     *      text: {String} 代码文本
+     *      type: {String} 代码类型，可选。无此项时即为普通文本
+     * }
+     * @param  {String} text 待解析文本
+     * @return {[Object2]} 结果集
+     */
+    parse( text ) {
+        //
+    }
+
+
+    /**?
      * 解析获取高亮代码。
      * - 空白字符串无需进一步匹配处理；
      * - 返回直接文本和标识包装的混合串；
@@ -63,8 +82,7 @@ Class.Hiparse.prototype = {
      * ]
      * @return {array} 高亮代码集
      */
-    'get': function()
-    {
+    get() {
         if (!this._regs || !this._code.trim()) {
             return [this._code];
         }
@@ -79,23 +97,22 @@ Class.Hiparse.prototype = {
                 ? { 'lang': it.lang(), 'data': it.get() }
                 : it.html();
         });
-    },
+    }
 
 
     /**
      * 返回语言名。
      * @return {string}
      */
-    'lang': function()
-    {
+    lang() {
         return this._lang;
-    },
+    }
 
 
     //-- 私有辅助 -------------------------------------------------------------
 
 
-    /**
+    /**?
      * 迭代解析缓存集。
      * - 对未处理字符串迭代匹配解析；
      * - 纯空白字符串略过匹配处理；
@@ -108,8 +125,7 @@ Class.Hiparse.prototype = {
      * @param  {array} regs 正则配置集
      * @return {array} 解析集
      */
-    '_parse': function( buf, regs )
-    {
+    _parse( buf, regs ) {
         if (! regs.length) return;
 
         var _reg = regs[0].item,
@@ -127,70 +143,71 @@ Class.Hiparse.prototype = {
             this._parse(buf[i], regs.slice(1));
         }, this);
         return buf;
-    },
+    }
 
 };
 
 
 
 //
-// 高亮代码包装类。
-// - 结构：<b class="[name]">[text]</b>；
-// - 接口：html()，与Hlighter相同；
-// 注：
-// - 无名称指定时不设置类名；
-// - 内部单元划分用<b>，外部应当<code>封装；
+// 代码解析器。
+// 实现默认的解析匹配处理，
+// 特定的语言实现仅需继承（并定制）即可。
 //
-// @param {string} text 高亮内容
-// @param {string} name 高亮名
-//
-Class.Hicoder = function( text, name )
-{
-    this._text = text;
-    this._cls = name ? (this._cssMap[name] || '_non') : null;
-};
-
-
-Class.Hicoder.prototype = {
+class Hicode {
     /**
-     * 构造高亮代码。
-     * @return {string}
+     * Object3: {
+     *      begin: {RegExp} 起始匹配式。取[1]为文本，可为空。
+     *      end:   {RegExp} 结束匹配式。同上，可选。
+     *      type:  {String|Function} 类型名或进阶处理器。
+     * }
+     * Object3.type: {
+     *      String   语法词，如：keyword, string, operator...
+     *      Function 进阶处理器：function(text): Hicolor | [Object2]
+     * }
+     * 上面返回值：
+     * - Hicolor 表示文本为内嵌的其它语言块。
+     * - [Object2] 表示定制处理，结果可直接展开构造HTML。
+     *
+     * @param {[Object3]} matches 匹配器集
      */
-    'html': function()
-    {
-        var _cls = this._cls
-            ? ' class="' + this._cls + '"'
-            : '';
-        return '<b' + _cls + '>' + this._text + '</b>';
-    },
+    constructor( matches ) {
+        this._cfg = matches;
+    }
 
 
-    //
-    // 高亮名/类名映射。
-    //
-    '_cssMap':
-    {
-        'comments':     '_cmt',     // 通用注释
-        'string':       '_str',     // 字符串 string
-        'keyword':      '_kws',     // 关键字 keywords
-        'doctype':      '_doc',     // <!DOCTYPE ...>
-        'xmltag':       '_tag',     // 标签（含css中的选择器）
-        'selector':     '_slr',     // CSS选择器（类、ID、:xxx）
-        'attribute':    '_atn',     // 属性名（html、css）
-        'attrvalue':    '_atv',     // 属性值（html）
-        'function':     '_fun',     // 函数名 function
-        'datatype':     '_dtt',     // 数据类型
-        'important':    '_imp',     // !important（css）、预处理器（c/c++）
-        'xmlcdata':     '_cdt',     // <![CDATA[...
-        'regexp':       '_rex',     // 正则表达式直接量
-        'color16':      '_c16',     // CSS 16进制颜色 #fff #f0f0f0
-    },
+    /**
+     * 源码解析。
+     * @param  {String} text 源码文本
+     * @return {[Object2]} 解析结果对象集
+     */
+    parse( text ) {
+        //
+    }
+
+
+    /**
+     * 即时语法分析。
+     * 主要用于源码编辑时的实时分析着色。
+     * @param  {String} word 目标词
+     * @return {Object2} 解析结果对象
+     */
+    analyze( word ) {
+        //
+    }
 
 };
+
+
+//
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
+
+
 
 
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { Hiparse };
+export { Hicolor };

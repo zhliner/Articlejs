@@ -748,6 +748,11 @@ code > b[role=kw] {
     font-weight: bold;
 }
 
+/* literal */
+code > b[role=lit] {
+    color: #a70fce;
+}
+
 /* string */
 code > b[role=str] {
     color: #03c;
@@ -812,6 +817,11 @@ code > b[role=re] {
 /* error|warn */
 code > b[role=err] {
     color: #c00;
+}
+
+/* 未定义占位 */
+code > b[role=non] {
+    color: #774968;
 }
 
 

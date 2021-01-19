@@ -593,10 +593,10 @@ const Children = {
 
     /**
      * 代码表内容。
-     * 根容器已经设置了必要特性。
+     * 若为源码，应当已解析为高亮标记文本。
      * @param {Element|null} ref 参考子元素
-     * @param {Element} ol 代码表容器
-     * @param {String} data 源码行
+     * @param {Element} ol 代码表容器（<ol:codelist>）
+     * @param {Element|String} data 代码行
      */
     [ T.CODELIST ]: function( ref, ol, _, data ) {
         let [_el, _end] = appendChild(
@@ -604,6 +604,24 @@ const Children = {
             ol,
             data,
             () => elem( T.CODELI )
+        );
+        return result( null, _el, _end );
+    },
+
+
+    /**
+     * 代码块内容。
+     * 源码应当已解析为高亮语法标记文本。
+     * @param {Element} ref 参考子元素
+     * @param {Element} box 容器元素（<pre:codeblock>）
+     * @param {Element|String} data 代码子块或源码
+     */
+    [ T.CODEBLOCK ]: function( ref, box, _, data ) {
+        let [_el, _end] = appendChild(
+            ref,
+            box,
+            data,
+            () => elem( T.CODE )
         );
         return result( null, _el, _end );
     },

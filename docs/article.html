@@ -276,7 +276,7 @@
                             <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h3, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code/b, i, #text --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code... --&gt;</i></code></li>
                         </ol>
                     </section>
                     <section role="s3">
@@ -666,12 +666,14 @@
                     </section>
                     <section role="s3">
                         <h2 id="代码块">代码块</h2>
-                        <p>与代码表相似，包含 <code>data-lang</code> 和 <code>data-tab</code> 两个属性定义代码的特性，设置在 <code>&lt;code&gt;</code> 元素上。</p>
+                        <p>与代码表相似，包含 <code>data-lang</code> 和 <code>data-tab</code> 两个属性定义代码的特性，<strong>注意</strong>：是设置在 <code>&lt;code&gt;</code> 元素上。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">pre</b> role=<b role="str">"codeblock"</b>&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
 &lt;<b role="tag">code</b> data-lang=<b role="str">"xx"</b> data-tab=<b role="str">"4"</b>&gt; ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;...
-<i>&lt;!-- 非零Tab会被自动转换为空格 --&gt;</i>
-&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">pre</b>&gt; <i>&lt;!-- 末尾应当紧跟 --&gt;</i>
+    <i>&lt;!-- 制表符会被转换为空格 --&gt;</i>
+&lt;/<b role="tag">code</b>&gt;
+<i>&lt;!-- 可包含多个&lt;code&gt;块 --&gt;</i>
+...&lt;/<b role="tag">pre</b>&gt; <i>&lt;!-- 末尾应当紧随 --&gt;</i>
 </code></pre>
                     </section>
                     <section role="s3">
@@ -935,6 +937,12 @@
                                 <td>keyword</td>
                             </tr>
                             <tr>
+                                <td>字面值</td>
+                                <td><code><b role="dt">lit</b></code></td>
+                                <td><code><b role="slr">b[role=lit]</b></code></td>
+                                <td>literal (true, iota)</td>
+                            </tr>
+                            <tr>
                                 <td>字符串</td>
                                 <td><code><b role="dt">str</b></code></td>
                                 <td><code><b role="slr">b[role=str]</b></code></td>
@@ -1001,10 +1009,22 @@
                                 <td>RegExp（/....../gi）</td>
                             </tr>
                             <tr>
+                                <td>颜色值</td>
+                                <td><code><b role="dt">c16</b></code></td>
+                                <td><code><b role="slr">b[role=c16]</b></code></td>
+                                <td>color-16（#fff, #f0f0f0）</td>
+                            </tr>
+                            <tr>
                                 <td>错误提示</td>
                                 <td><code><b role="dt">err</b></code></td>
                                 <td><code><b role="slr">b[role=err]</b></code></td>
                                 <td>error</td>
+                            </tr>
+                            <tr>
+                                <td>未定义</td>
+                                <td><code><b role="dt">non</b></code></td>
+                                <td><code><b role="slr">b[role=non]</b></code></td>
+                                <td>no-name</td>
                             </tr>
                         </tbody>
                     </table>
