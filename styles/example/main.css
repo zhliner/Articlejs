@@ -814,6 +814,11 @@ code > b[role=re] {
     color: #e60;
 }
 
+/* 颜色值 #RGB */
+code > b[role=rgb] {
+    color: #e60;
+}
+
 /* error|warn */
 code > b[role=err] {
     color: #c00;

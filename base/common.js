@@ -17,33 +17,6 @@ import { beforeFixed, afterFixed } from "./base.js";
 const
     $ = window.$,
 
-    // 高亮名:角色映射。
-    // 高亮名清单见../plugins/hicolor，角色名为高亮元素<b>中的role值。
-    __Roles = {
-        'keyword':      'kw',   // 关键字
-        'literal':      'lit',  // 字面值（如 true, iota）
-        'string':       'str',  // 字符串
-        'function':     'fn',   // 函数名
-        'operator':     'op',   // 运算符
-        'datatype':     'dt',   // 数据类型
-        'xmltag':       'tag',  // 标签名
-        'attribute':    'an',   // 属性名（attribute-name）
-        'selector':     'slr',  // CSS选择器
-        'important':    'imp',  // 重要（CSS: !important; C/C++: 预处理器）
-        'doctype':      'doc',  // <!DOCTYPE ...>
-        'xmlcdata':     'cd',   // <![CDATA[...
-        'regexp':       're',   // 正则表达式
-        'color16':      'c16',  // CSS 16进制颜色 #fff #f0f0f0
-        'error':        'err',  // 错误提示
-        'comments':     null,   // 注释内容
-    },
-
-    // 未定义类型替换。
-    __nonRole = 'non',
-
-    // 注释类型名。
-    __cmtName = 'comments',
-
     // ID标识字符限定
     __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
 
@@ -450,27 +423,6 @@ function minInds( str, max ) {
 //
 // 基本函数集。
 //////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 构建高亮源码。
- * 注：注释包含在<i>元素内。
- * Object: {
- *      text: {String} 代码文本
- *      type: {String} 代码类型，可选。无此项时即为普通文本
- * }
- * @param  {Object} obj 解析结果对象
- * @return {String}
- */
-export function codeHTML( obj ) {
-    if ( obj.type == null ) {
-        return obj.text;
-    }
-    if ( obj.type == __cmtName ) {
-        return `<i>${obj.text}</i>`;
-    }
-    return `<b role="${__Roles[obj.type] || __nonRole}">${obj.text}</b>`;
-}
 
 
 /**

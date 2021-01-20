@@ -29,7 +29,7 @@ import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
 
 // 代码解析插件
-import { Hicolor } from "../plugins/hicolor/main.js";
+import { Hicolor } from "../plugins/hlcolor/main.js";
 
 
 const
