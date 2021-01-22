@@ -178,6 +178,11 @@ const Properties = {
     [ T.OL ]:           'property:ol',          // start, type, reversed
     [ T.OLX ]:          'property:olx',         // start, type, reversed
     [ T.LI ]:           'property:li',          // start
+    [ T.CODELI ]:       'property:li',          // start
+    [ T.ALI ]:          'property:li',          // start
+    [ T.XH4LI ]:        'property:li',          // start
+    [ T.CASCADEH4LI ]:  'property:li',          // start
+    [ T.CASCADEAH4LI ]: 'property:li',          // start
     [ T.TABLE ]:        'property:table',       // cols, rows, border, th0
     [ T.HR ]:           'property:hr',          // thick, length, space, border
     [ T.BLANK ]:        'property:blank',       // width, height
@@ -211,9 +216,12 @@ const siblingNone = new Set( [T.RB, T.RT, T.RP, T.MAIN] );
  * @return {[String]} 模板名集
  */
 export function options( els ) {
-    let _subs = [
-        ...T.childTypes( els.shift() )
-    ];
+    let _ref = els.shift();
+    if ( !_ref ) {
+        return [];
+    }
+    let _subs = [...T.childTypes(_ref)];
+
     if ( els.length > 0 ) {
         _subs = _subs.filter(
             tv => els.every( box => T.isChildType(box, tv) )

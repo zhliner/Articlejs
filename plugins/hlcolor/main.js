@@ -7,19 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //  代码高亮通用框架。
-//
-//  对字符串进行有序的迭代解析。按顺序剥离特定的语法结构后，剩余部分将更容易处理。
-//  各语言继承 Hicode 实现，初始传递匹配器序列（Object3）。
-//
-//  Object3: {
-//      begin: {RegExp} 起始匹配式。取[1]为文本，可为空。
-//      end:   {RegExp} 结束匹配式。同上，可选。
-//      type:  {String|Function} 类型名或进阶处理器。
-//  }
-//  Object3.type: {
-//      String   语法词，如：keyword, string, operator...
-//      Function 进阶处理器：function(text): Hicolor | [Object2]
-//  }
+//  导入并配置各语言定义的类名映射，多个名称（别名）可指向同一类名。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,25 +34,25 @@ const LangMap = {
 const
     //
     // 高亮名:角色映射。
-    // 高亮名清单见../plugins/hicolor，角色名为高亮元素<b>中的role值。
+    // 高亮名用于具体语言中使用，角色名用于封装元素<b>中的role值。
     //
     __Roles = {
         'keyword':      'kw',   // 关键字
         'literal':      'lit',  // 字面值（如 true, iota）
         'string':       'str',  // 字符串
+        'number':       'num',  // 数值
         'function':     'fn',   // 函数名
         'operator':     'op',   // 运算符
         'datatype':     'dt',   // 数据类型
         'xmltag':       'tag',  // 标签名
-        'attribute':    'an',   // 属性名（attribute-name）
+        'attribute':    'atn',  // 属性名（attribute-name）
         'selector':     'slr',  // CSS选择器
         'important':    'imp',  // 重要（CSS: !important; C/C++: 预处理器）
         'doctype':      'doc',  // <!DOCTYPE ...>
-        'xmlcdata':     'cd',   // <![CDATA[...
         'regexp':       're',   // 正则表达式
-        'color16':      'c16',  // CSS 16进制颜色 #fff #f0f0f0
+        'rgba':         'rgb',  // RGB, RGBA（#fff, #f0f0f0, #f0f0f080）
         'error':        'err',  // 错误提示
-        'comments':     null,   // 注释内容
+        'comments':     null,   // 注释（单独封装）
     },
 
     // 未定义类型替换。
@@ -77,14 +65,14 @@ const
 
 //
 // 语法高亮处理器。
-// 1. 源码按正则式解析为“未匹配串+匹配封装对象”的数组。
-// 2. 按目标语言配置的正则集顺序，迭代处理前阶的未匹配串。
-// 3. 压平结果数组，包装输出字符串和封装对象代码。
+// 使用LangMap中配置的具体实现。
 //
 class Hicolor {
     /**
+     * text实参是为了便于封装（嵌入块），
+     * 如果仅为了实时分析（），text实参可省略。
      * @param {String} lang 语言名
-     * @param {String} text 待解析文本
+     * @param {String} text 待解析文本，可选
      */
     constructor( lang, text ) {
         let clss = LangMap[lang];
@@ -125,12 +113,12 @@ class Hicolor {
 
 
     /**
-     * 即时分析词汇语法。
-     * @param  {String} word 目标词
-     * @return {Object2} 结果对象
+     * 返回语法解析器。
+     * 注：主要用于调用其analyze()实时解析。
+     * @return {x:Hicode} 解析实例
      */
-    analyze( word ) {
-        return this._obj.analyze( word );
+    parser() {
+        return this._inst;
     }
 
 

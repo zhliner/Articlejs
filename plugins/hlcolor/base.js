@@ -10,18 +10,39 @@
 //  各语言继承 Hicode 基类，定义匹配器序列（Object3）。
 //
 //  Object3: {
-//      begin: {RegExp} 起始匹配式。取[1]为文本，可为空。
-//      end:   {RegExp} 结束匹配式。同上，可选。
+//      begin: {[RegExp,Boolean] 起始 [匹配式, 包含]。
+//      end:   {[RegExp,Boolean] 结束 [匹配式, 包含]，可选。
 //      type:  {String|Function} 类型名或进阶处理器。
 //  }
-//  Object3.type: {
+//  .begin
+//      定义起点，布尔真值表示取值文本包含匹配文本，否则从匹配文本之后算起。
+//      如果end缺失，视为匹配式取值，取匹配结果的[1]子项。
+//  .end
+//      定义结束点，布尔真值表示取值文本包含匹配文本，否则结束于匹配式之前。
+//  .type: {
 //      String   语法词，如：keyword, string, operator...
 //      Function 进阶处理器：function(text): Hicolor | [Object2]
 //  }
 //
+//  begin/end 中的第二项 Boolean 配置，
+//  用例：
+//  - HTML源码中嵌入的CSS代码的范围标签为<style></style>，它们不应当包含在CSS处理中，
+//    因此此时的 包含 应为 false（或省略）。
+//  - 源码中的注释如果需要进阶标记，注释的范围标识 /*...*/ 应当包含在注释的逻辑里，
+//    此时配置中的 包含 就需要为 true。
+//
+//  匹配式取值[1]
+//  如果没有end匹配式，begin中的匹配式取值采用子匹配式（首个）提取。
+//  这样就把匹配和取值分开了，如函数调用式：
+//      funame(...)
+//  - 匹配式应当包含起始括号(，如：/^([a-zA-Z]\w+)\(/
+//  - 而取值仅取函数名，因此需要与完整匹配式分开。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
+
+import { Hicolor } from "./main.js";
 
 
 //
@@ -43,8 +64,8 @@ export class Hicode {
                 throw new Error( `[${begin}, ${end}] global or sticky flag cannot be set.` );
             }
         }
-        this._all = reall;
-        this._word = reword || reall;
+        this._rall = reall;
+        this._rsub = reword || reall;
     }
 
 
@@ -90,22 +111,23 @@ export class Hicode {
      * 即时语法分析。
      * 主要用于源码编辑时的实时分析着色。
      * 注意matches中的正则表达式也不应当包含g或y标记。
+     * 此时不支持结束匹配式。
      * 注记：
      * 匹配器集应当是构造函数中所传递集合的子集。
      * 也可以处理有上下文的子集，比如在注释内更细的分析，
-     * 此时matches就是一个更细的子集。
+     * 此时matches就是一个更特定的子集。
      *
      * @param  {String} word 目标词
      * @return {Object2} 解析结果对象
      */
     analyze( word ) {
-        for ( const {begin, end, type} of this._word ) {
-            let _beg = begin.exec( word );
+        for ( const {begin, type} of this._rsub ) {
+            let _beg = begin[0].exec( word );
 
             if ( !_beg || _beg.index > 0 ) {
                 continue;
             }
-            return { text: end ? this._text(word.substring(_beg[0].length))[0] : _beg[1], type };
+            return { text: _beg[1], type };
         }
         return null;
     }
@@ -123,18 +145,67 @@ export class Hicode {
      * @return {[Object2|[Object2]|Hicolor, Number]|null}
      */
     _parseOne( ss ) {
-        for ( let {begin, end, type} of this._all ) {
-            let _beg = begin.exec( ss );
+        for ( let {begin, end, type} of this._rall ) {
+            let _beg = begin[0].exec( ss );
 
             if ( !_beg || _beg.index > 0 ) {
                 continue;
             }
-            let [text, len] = end ? this._text(ss.substring(_beg[0].length)) : [_beg[1], 0],
-                _len = len + _beg[0].length;
-
-            return typeof type === 'function' ? [type(text), _len] : [{text, type}, _len];
+            if ( !end ) {
+                return this._alone( _beg[0], _beg[1], type );
+            }
+            if ( begin[1] ) {
+                return this._range( ss, end, type );
+            }
+            return this._range2( _beg[0], ss.substring(_beg[0].length), end, type );
         }
         return null;
+    }
+
+
+    /**
+     * 含结束点的范围处理（包含起始匹配）。
+     * @param  {String} ss 待处理截取串（含起始匹配段）
+     * @param  {[RegExp, Boolean]} end 终止匹配定义
+     * @param  {String|Function} type 类型名或处理器
+     * @return {[[Object2]|Hicolor, Number]}
+     */
+    _range( ss, end, type ) {
+        let text = this._text( ss, ...end ),
+            _obj = typeof type === 'function' ? type(text) : {text, type};
+
+        return [ _obj, text.length ];
+    }
+
+
+    /**
+     * 含结束点的范围处理（不含起始匹配）。
+     * 起始匹配的子串不包含在进阶处理中，因此依然需要上级处理。
+     * @param  {String} beg 起始匹配串
+     * @param  {String} ss 待处理截取串
+     * @param  {[RegExp, Boolean]} end 终止匹配定义
+     * @param  {String|Function} type 类型名或处理器
+     * @return {[[Object2]|Hicolor, Number]}
+     */
+    _range2( beg, ss, end, type ) {
+        let _pre = this._parseOne( beg ),
+            text = this._text( ss, ...end ),
+            _cur = typeof type === 'function' ? type(text) : {text, type};
+
+        return [ [_pre, _cur].flat(), beg.length + text.length ];
+    }
+
+
+    /**
+     * 无结束匹配式处理。
+     * @param  {String} beg 起始匹配串
+     * @param  {String} text 匹配取值串（[1]）
+     * @param  {String} type 类型名或处理器
+     * @return {[Object2|[Object2]|Hicolor, Number]}
+     */
+    _alone( beg, text, type ) {
+        let _obj = typeof type === 'function' ? type(text) : {text, type};
+        return [ _obj, beg.length ];
     }
 
 
@@ -142,17 +213,20 @@ export class Hicode {
      * 文本截取。
      * 子串终止于匹配开始的位置。
      * 无匹配时子串为目标串本身。
+     * 注记：
+     * 截取终于匹配串起点，因此匹配串本身被忽略，
+     * 它可能用于与begin测试匹配。
      * @param  {String} str 目标串
      * @param  {RegExp} end 终止匹配式
-     * @return {[String, Number]} 子串和匹配长度
+     * @param  {Boolean} has 包含匹配串
+     * @return {String} 截取串
      */
-    _text( str, end ) {
+    _text( str, end, has ) {
         let _v = end.exec( str );
-
-        if ( _v ) {
-            return [ str.substring(0, _v.index), _v.index + _v[0].length ];
+        if ( !_v ) {
+            return str;
         }
-        return [ str, str.length ];
+        return str.substring( 0, _v.index + (has ? _v[0].length : 0) );
     }
 
 
@@ -182,5 +256,24 @@ export class Hicode {
         for ( const ch of str ) return ch;
         return '';
     }
-
 }
+
+
+//
+// 共享定义集。
+// 以基础性为原则，不同语言多出的部分自行补充。
+// 注：
+// Object3可定义多个相同的类型（不同匹配式）。
+//
+export const RE = {
+    // 偶数\\合法
+    STRING:     /^("(?:(?:\\\\)+|.*?(?:[^\\](?:\\\\)+|[^\\]))")/,
+    // 简单数字
+    NUMBER:     /^(\d+(?:\.\d+)?)\b/,
+    // 复杂数字 0x..., 0..., decimal, float
+    NUMBER_C:   /^(-?(?:0x[a-f0-9]+|(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?))\b/i,
+    // 二进制 0b..
+    NUMBER_B:   /^(0b[01]+)\b/,
+    // 基本操作符
+    OPERATOR:   /^(!|!=|%|%=|&|&&|&=|\*|\*=|\+|\+=|-|-=|/|/=|<<|<<=|<=|<|==|=|>>=|>=|>>|>|\^|\^=|\||\|=|\|\||,|:|;)/,
+};

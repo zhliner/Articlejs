@@ -758,6 +758,11 @@ code > b[role=str] {
     color: #03c;
 }
 
+/* number */
+code > b[role=num] {
+    color: #920fb3;
+}
+
 /* function-name */
 code > b[role=fn] {
     color: #33beff;
