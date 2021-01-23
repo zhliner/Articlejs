@@ -6371,13 +6371,16 @@ function varyFill( el, nodes ) {
 
 /**
  * 节点包裹封装。
- * @param  {Node} node 被包裹节点
+ * 兼容文档片段为被包裹内容。
+ * @param  {Node|Fragment} node 被包裹节点
  * @param  {Element} root 封装根元素
  * @param  {Element} box 数据容器（插入点）
  * @return {Element} root 封装根容器
  */
 function varyWrap( node, root, box ) {
-    varyReplace( node, root );
+    if ( node.nodeType === 1 ) {
+        varyReplace( node, root );
+    }
     varyPrepend( box, node );
     return root;
 }
@@ -6404,14 +6407,17 @@ function varyWrapInner( el, root, box ) {
 
 /**
  * 集合被包裹封装。
- * 注：box包裹nodes，root替换nodes[0]的位置。
+ * box包裹nodes，root替换nodes[0]的位置。
+ * 注：数据节点兼容文档片段。
  * @param  {Element} root 封装根元素
  * @param  {Element} box 数据容器（插入点）
- * @param  {[Node]} nodes 节点集
+ * @param  {[Node|Fragment]} nodes 节点集
  * @return {Element} 封装根容器
  */
-function varyWrapAll( root, box, nodes ) {
-    varyReplace( nodes[0], root );
+function varyWrapAll( root, box, nodes, ref = nodes[0] ) {
+    if ( ref.nodeType === 1 ) {
+        varyReplace( ref, root );
+    }
     varyPrepend( box, nodes );
     return root;
 }
