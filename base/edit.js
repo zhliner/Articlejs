@@ -2689,6 +2689,44 @@ function cropTrs( tbo, cnt, tsec ) {
 
 
 /**
+ * 分解创建代码表项集。
+ * @param  {String} code 已解析源码
+ * @param  {String} lang 所属语言
+ * @return {[Element]} <li/code>集合
+ */
+function liCode( code, lang = null ) {
+    return code
+        .split( '\n' )
+        .map( html => create(T.CODELI, {lang}, html) );
+}
+
+
+/**
+ * 从解析结果创建代码表项集。
+ * 解析结果包含可能的其它语言代码块。
+ * Object2: {
+ *      lang: 所属语言
+ *      html: 子块源码集（与data相同结构）
+ * }
+ * 注：会扁平化结果集。
+ * @param {[String|Object2]} data 源码解析数据
+ * @param {String} lang 所属语言
+ */
+function codeLis( data, lang ) {
+    let _buf = [];
+
+    for ( const its of data ) {
+        if ( typeof its === 'string' ) {
+            _buf.push( ...liCode(its, lang) );
+            continue;
+        }
+        _buf.push( ...codeLis(its.html, its.lang) );
+    }
+    return _buf;
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -4786,7 +4824,7 @@ export const Kit = {
      * @data: String
      * @param  {Number} tab Tab空格数
      * @param  {String} lang 代码语言
-     * @return {String} 语法高亮后的代码（html）
+     * @return {[String|Object2]} 语法高亮后的代码（html）
      */
     codehtml( evo, tab, lang ) {
         let _code = evo.data.split( __reNewline );
@@ -4799,7 +4837,7 @@ export const Kit = {
         }
         _code = _code.join( '' );
 
-        return lang ? new Hicolor(_code, lang).html() : _code;
+        return lang ? new Hicolor(_code, lang).html() : [_code];
     },
 
     __codehtml: 1,
@@ -4821,6 +4859,20 @@ export const Kit = {
     },
 
     __codeopts: null,
+
+
+    /**
+     * 分解构造代码表行。
+     * 源码集中可能包含嵌入的其它语言子块。
+     * 嵌入的子块会被扁平化为一维。
+     * @data: {[String|Object2]}
+     * @return {[Element]} 代码行<li/code>集
+     */
+    codelis( evo ) {
+        return codeLis( evo.data );
+    },
+
+    __codelis: 1,
 
 
 
@@ -5182,6 +5234,7 @@ customGetter( null, Kit, [
     'indentcut',
     'codehtml',
     'codeopts',
+    'codelis',
 ]);
 
 

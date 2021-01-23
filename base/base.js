@@ -573,13 +573,14 @@ export function isChapter( el ) {
 
 /**
  * 是否为代码的合法内容。
- * @param  {[Node]} nodes 节点集
+ * @param  {[Node]|Node} nodes 节点集
  * @return {Boolean}
  */
 export function isCodeCons( nodes ) {
-    return nodes.every(
-        nd => nd.nodeType === 3 || T.isSpecial( getType(nd) )
-    );
+    if ( !$.isArray(nodes) ) {
+        nodes = [nodes];
+    }
+    return nodes.every( nd => nd.nodeType === 3 || T.isSpecial(getType(nd)) );
 }
 
 

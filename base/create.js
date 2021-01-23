@@ -25,7 +25,7 @@
 //
 
 import { processProxy } from "./tpb/pbs.by.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons } from "./base.js";
 import * as T from "./types.js";
 import { Sys } from "../config.js";
 
@@ -291,13 +291,17 @@ const Children = {
      * 对于非源码实参，视为合法内联节点。
      * @param {null} ref 插入参考占位
      * @param {Element} code 代码元素
-     * @param {String|Node} data 已解析源码或节点
+     * @param {String|[Node]|Node} data 已解析源码或节点集
      */
     [ T.CODE ]: function( ref, code, _, data ) {
-        $.append(
-            code,
-            typeof data === 'string' ? $.fragment(data, false) : data
-        );
+        if ( typeof data === 'string' ) {
+            data = $.fragment( data, false );
+        } else {
+            data = isCodeCons( data ) && data;
+        }
+        if ( data ) {
+            $.append( code, data );
+        }
         return result( null, code, true );
     },
 
