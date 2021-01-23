@@ -21,7 +21,7 @@
 //      定义结束点，布尔真值表示取值文本包含匹配文本，否则结束于匹配式之前。
 //  .type: {
 //      String   语法词，如：keyword, string, operator...
-//      Function 进阶处理器：function(text): Hicolor | [Object2]
+//      Function 进阶处理器：function(text): Hicolor|Object2|[Object2]
 //  }
 //
 //  begin/end 中的第二项 Boolean 配置，
@@ -59,9 +59,9 @@ export class Hicode {
     constructor( reall, reword ) {
         // 避免/gy标记
         for ( const {begin, end} of reall ) {
-            if (begin.global || end.global ||
-                begin.sticky || end.sticky) {
-                throw new Error( `[${begin}, ${end}] global or sticky flag cannot be set.` );
+            let _err = this._check(begin[0]) || this._check(end && end[0]);
+            if ( _err ) {
+                throw new Error( `[${err}] global or sticky flag cannot be set.` );
             }
         }
         this._rall = reall;
@@ -152,7 +152,7 @@ export class Hicode {
                 continue;
             }
             if ( !end ) {
-                return this._alone( _beg[0], _beg[1], type );
+                return this._alone( _beg[0], _beg[1], type, begin[1] );
             }
             if ( begin[1] ) {
                 return this._range( ss, end, type );
@@ -201,10 +201,15 @@ export class Hicode {
      * @param  {String} beg 起始匹配串
      * @param  {String} text 匹配取值串（[1]）
      * @param  {String} type 类型名或处理器
+     * @param  {Boolean} all 传递完整匹配串，可选
      * @return {[Object2|[Object2]|Hicolor, Number]}
      */
-    _alone( beg, text, type ) {
+    _alone( beg, text, type, all ) {
+        if ( all ) {
+            text = beg;
+        }
         let _obj = typeof type === 'function' ? type(text) : {text, type};
+
         return [ _obj, beg.length ];
     }
 
@@ -256,6 +261,16 @@ export class Hicode {
         for ( const ch of str ) return ch;
         return '';
     }
+
+
+    /**
+     * 检查是否包含gy标记。
+     * @param  {RegExp} re 检测目标
+     * @return {RegExp|false}
+     */
+    _check( re ) {
+        return !!re && (re.global || re.sticky) && re;
+    }
 }
 
 
@@ -266,14 +281,19 @@ export class Hicode {
 // Object3可定义多个相同的类型（不同匹配式）。
 //
 export const RE = {
+    // 行注释
+    COMMENTS:   /^(\/\/.*)$/m,
+    // 块注释
+    COMMENT_B:  /^(\/\*[^]*\*\/)/,
     // 偶数\\合法
-    STRING:     /^("(?:(?:\\\\)+|.*?(?:[^\\](?:\\\\)+|[^\\]))")/,
+    STRING:     /^("(?:(?:\\\\)*|.*?(?:[^\\](?:\\\\)+|[^\\]))")/,
     // 简单数字
-    NUMBER:     /^(\d+(?:\.\d+)?)\b/,
+    NUMBER:     /^(-?\d+(?:\.\d+)?)\b/,
     // 复杂数字 0x..., 0..., decimal, float
     NUMBER_C:   /^(-?(?:0x[a-f0-9]+|(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?))\b/i,
     // 二进制 0b..
     NUMBER_B:   /^(0b[01]+)\b/,
-    // 基本操作符
-    OPERATOR:   /^(!|!=|%|%=|&|&&|&=|\*|\*=|\+|\+=|-|-=|/|/=|<<|<<=|<=|<|==|=|>>=|>=|>>|>|\^|\^=|\||\|=|\|\||,|:|;)/,
+    // 基础操作符
+    // 注意复杂表示在前（不含?）。
+    OPERATOR:   /^(!=|!|%=|%|&&|&=|&|\*=|\*|\+\+|\+=|\+|--|-=|-|\/=|\/|<<=|<<|<=|<|==|=|>>=|>=|>>|>|\^=|\^|\|\||\|=|\||,|:)/,
 };

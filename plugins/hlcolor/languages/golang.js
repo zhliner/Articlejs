@@ -29,9 +29,16 @@ const
     built_in = /^(make|len|cap|new|append|copy|close|delete|complex|real|imag|panic|recover)\b/;
 
 
+//
+// 无需定制实现，
+// 简单继承即可。
+//
 class Go extends Hicode {
     /**
      * 传递匹配集构造。
+     * 注意：
+     * 匹配按顺序测试，因此需要注意定义的顺序。
+     * 语言特定的操作符可能更复杂，需要放在基础集之前。
      */
     constructor() {
         super([
@@ -52,6 +59,14 @@ class Go extends Hicode {
                 type:  'function'
             },
             {
+                begin: [RE.COMMENTS],
+                type:  'comments'
+            },
+            {
+                begin: [RE.COMMENT_B],
+                type:  'comments'
+            },
+            {
                 begin: [RE.STRING],
                 type:  'string'
             },
@@ -68,13 +83,14 @@ class Go extends Hicode {
                 type:  'number'
             },
             {
-                begin: [RE.OPERATOR],
+                // 基础集缺失补充
+                begin: [/^(&\^|:=)/],
                 type:  'operator'
             },
             {
-                begin: [/&\^/],
+                begin: [RE.OPERATOR],
                 type:  'operator'
-            }
+            },
         ]);
     }
 }
