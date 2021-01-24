@@ -1447,6 +1447,16 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 - `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
 
+### $.handler( el, evn? ): Object | [Function|EventListener] | undefined
+
+提取元素上绑定事件的原始处理器。如果未指定事件名，则检索全部注册项，返回一个对象：`{evn: [Function|EventListener]}`。如果未绑定任何事件处理器（仅限于 `.on()|.one()` 绑定），返回 `undefined`。
+
+- param  {Element} el 目标元素。
+- param  {String} evn 事件名，可选。仅限单个事件名。
+
+这可以让用户查看元素上绑定了哪些处理器，并且也可以方便复用它们。
+
+
 ### [$.Counter( proc, n, step ): Function](docs/$.Counter.md)
 
 封装用户的处理器函数包含一个自动计数器，返回一个封装后的处理器函数，接口：`function( count, ... )`。

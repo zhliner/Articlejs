@@ -7029,7 +7029,7 @@ const Event = {
      */
     on( el, evn, slr, handle ) {
         let [_evn, _cap] = this._evncap(evn, slr),
-            [_slr, _get] = this.matches(slr);
+            [_slr, _get] = this._matches(slr);
 
         if ( this.isBound(el, _evn, _slr, handle) ) {
             return;
@@ -7055,7 +7055,7 @@ const Event = {
      */
     one( el, evn, slr, handle ) {
         let [_evn, _cap] = this._evncap(evn, slr),
-            [_slr, _get] = this.matches(slr);
+            [_slr, _get] = this._matches(slr);
 
         if ( this.isBound(el, _evn, _slr, handle) ) {
             return;
@@ -7191,19 +7191,22 @@ const Event = {
 
 
     /**
-     * 获取匹配选择器和匹配句柄。
-     * 主要用于区分委托模式下的匹配类型（起点匹配或搜寻匹配）。
-     * @param  {String} slr 选择器
-     * @return {[String, Function]} 合法选择器和匹配函数
+     * 获取元素上绑定的原生用户处理器。
+     * 如果未指定事件名，则检索全部注册项，返回一个对象：{
+     *      evn: [Function|EventListener]
+     * }
+     * @param  {Element} el 绑定事件元素
+     * @param  {String} evn 事件名（单个），可选
+     * @return {Object[Function|EventListener]|undefined} 用户调用/处理器集
      */
-    matches( slr ) {
-        if ( !slr ) {
-            return [ null, this._current ];
+    handler( el, evn ) {
+        let _m1 = this.store.get( el );
+        if ( !_m1 ) return;
+
+        if ( evn ) {
+            return evnHandler( _m1, evn );
         }
-        if ( slr[0] == this.originPrefix) {
-            return [ slr.substring(1), this._target ];
-        }
-        return [ slr, this._delegate ];
+        return [..._m1.keys()].reduce( (o, n) => (o[n] = evnHandler(_m1, n), o), {} );
     },
 
 
@@ -7335,6 +7338,23 @@ const Event = {
             return;
         }
         return _fun.bind(el)( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
+    },
+
+
+    /**
+     * 获取匹配选择器和匹配句柄。
+     * 主要用于区分委托模式下的匹配类型（起点匹配或搜寻匹配）。
+     * @param  {String} slr 选择器
+     * @return {[String, Function]} 合法选择器和匹配函数
+     */
+    _matches( slr ) {
+        if ( !slr ) {
+            return [ null, this._current ];
+        }
+        if ( slr[0] == this.originPrefix) {
+            return [ slr.substring(1), this._target ];
+        }
+        return [ slr, this._delegate ];
     },
 
 
@@ -7620,6 +7640,19 @@ function evnsBatch( type, el, evn, slr, handle ) {
 }
 
 
+/**
+ * 提取事件名对应的原始处理器集。
+ * @param  {Map} map 存储集（evname:Map）
+ * @param  {String} evn 事件名
+ * @return {[Function|EventListener]|void} 用户调用/处理器集
+ */
+function evnHandler( map, evn ) {
+    let _m2 = map.get( evn );
+    return _m2 && [..._m2.values()].map( m3 => [...m3.keys()] ).flat();
+}
+
+
+
 //
 // 就绪载入部分。
 // 相关接口：tQuery.ready, tQuery.holdReady
@@ -7778,6 +7811,21 @@ Object.assign( tQuery, {
             if (comp(v, k, iter)) return true;
         }
         return false;
+    },
+
+
+    /**
+     * 提取绑定句柄。
+     * 返回的是用户绑定时提供的原始函数或处理器。
+     * 如果未指定事件名，则检索全部注册项，返回一个对象：{
+     *      evn: [Function|EventListener]
+     * }
+     * @param  {Element} el 目标元素
+     * @param  {String} evn 事件名（单个），可选
+     * @return {Object[Function|EventListener]|undefined} 用户调用/处理器集
+     */
+    handler( el, evn ) {
+        return Event.handler( el, evn );
     },
 
 
