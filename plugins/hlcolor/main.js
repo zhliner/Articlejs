@@ -15,6 +15,7 @@
 
 import { Go } from "./languages/golang.js";
 import { JavaScript } from "./languages/javascript.js";
+import { Normal } from "./languages/normal.js";
 
 
 //
@@ -28,6 +29,7 @@ const LangMap = {
     golang:     Go,
     js:         JavaScript,
     javascript: JavaScript,
+    normal:     Normal,
 };
 
 
@@ -160,11 +162,14 @@ class Hicolor {
 
 /**
  * 构建高亮源码。
- * 注：注释包含在<i>元素内。
+ * 注释包含在<i>元素内。
  * Object2: {
  *      text: {String} 代码文本
  *      type: {String} 代码类型，可选。无此项时即为普通文本
  * }
+ * 注记：
+ * 这里是将text直接插入封装元素内，因此它也可能是html。
+ * 这在嵌入解析时有用（如注释内解析）。
  * @param  {Object2} obj 解析结果对象
  * @return {String}
  */

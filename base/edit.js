@@ -4835,9 +4835,9 @@ export const Kit = {
                 .join('');
             _code = _code.map( s => indentSpace(s, _ts) );
         }
-        _code = _code.join( '' );
+        _code = _code.join( '\n' );
 
-        return lang ? new Hicolor(_code, lang).html() : [_code];
+        return lang ? new Hicolor(lang, _code).html() : [_code];
     },
 
     __codehtml: 1,
@@ -4850,7 +4850,7 @@ export const Kit = {
      * @param  {Element} start 起始行定义控件
      * @return {Object3} 配置选项
      */
-    codeopts( evo, lang, tab, start ) {
+    codeopts( evo, tab, lang, start ) {
         return {
             lang:  $.val( lang ),
             tab:   $.val( tab ) || null,

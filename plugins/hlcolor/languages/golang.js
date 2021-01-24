@@ -43,52 +43,52 @@ class Go extends Hicode {
     constructor() {
         super([
             {
-                begin: [keyword],
+                begin: keyword,
                 type:  'keyword'
             },
             {
-                begin: [literal],
+                begin: literal,
                 type:  'literal'
             },
             {
-                begin: [datatype],
+                begin: datatype,
                 type:  'datatype'
             },
             {
-                begin: [built_in],
+                begin: built_in,
                 type:  'function'
             },
             {
-                begin: [RE.COMMENTS],
+                begin: RE.COMMENTS,
                 type:  'comments'
             },
             {
-                begin: [RE.COMMENT_B],
+                begin: RE.COMMENT_B,
                 type:  'comments'
             },
             {
-                begin: [RE.STRING],
+                begin: RE.STRING,
                 type:  'string'
             },
             {
-                begin: [/^('.*[^\\]')/],
+                begin: /^('.*[^\\]')/,
                 type:  'number'  // rune
             },
             {
-                begin: [RE.NUMBER_B],
+                begin: RE.NUMBER_B,
                 type:  'number'
             },
             {
-                begin: [RE.NUMBER_C],
+                begin: RE.NUMBER_C,
                 type:  'number'
             },
             {
                 // 基础集缺失补充
-                begin: [/^(&\^|:=)/],
+                begin: /^(&\^|:=)/,
                 type:  'operator'
             },
             {
-                begin: [RE.OPERATOR],
+                begin: RE.OPERATOR,
                 type:  'operator'
             },
         ]);

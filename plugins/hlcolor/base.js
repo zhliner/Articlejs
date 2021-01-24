@@ -10,8 +10,8 @@
 //  各语言继承 Hicode 基类，定义匹配器序列（Object3）。
 //
 //  Object3: {
-//      begin: {[RegExp,Boolean] 起始 [匹配式, 包含]。
-//      end:   {[RegExp,Boolean] 结束 [匹配式, 包含]，可选。
+//      begin: {RegExp|[RegExp,Boolean] 起始匹配式。
+//      end:   {RegExp|[RegExp,Boolean] 结束匹配式，可选。
 //      type:  {String|Function} 类型名或进阶处理器。
 //  }
 //  .begin
@@ -59,13 +59,13 @@ export class Hicode {
     constructor( reall, reword ) {
         // 避免/gy标记
         for ( const {begin, end} of reall ) {
-            let _err = this._check(begin[0]) || this._check(end && end[0]);
+            let _err = this._check(begin) || this._check(end);
             if ( _err ) {
                 throw new Error( `[${err}] global or sticky flag cannot be set.` );
             }
         }
-        this._rall = reall;
-        this._rsub = reword || reall;
+        this._rall = this._config( reall );
+        this._rsub = this._config( reword ) || this._rall;
     }
 
 
@@ -265,11 +265,45 @@ export class Hicode {
 
     /**
      * 检查是否包含gy标记。
-     * @param  {RegExp} re 检测目标
-     * @return {RegExp|false}
+     * 不包含时返回false（通过），否则返回匹配式。
+     * @param  {RegExp|[RegExp,Boolean]} its 匹配式配置
+     * @return {RegExp|false|void}
      */
-    _check( re ) {
-        return !!re && (re.global || re.sticky) && re;
+    _check( its ) {
+        let _re = $.isArray( its ) ?
+            its[0] :
+            its;
+        return _re && (_re.global || _re.sticky) && _re;
+    }
+
+
+    /**
+     * 配置格式规范化。
+     * @param  {[Object3]} objs 原始配置集
+     * @return {objs} 规范配置集
+     */
+    _config( objs ) {
+        if ( !objs ) return;
+
+        for ( const obj of objs ) {
+            obj.begin = this._arr2( obj.begin );
+
+            if ( obj.end ) {
+                obj.end = this._arr2( obj.end );
+            }
+        }
+        return objs;
+    }
+
+
+    /**
+     * 返回数组封装。
+     * 原为数组时原样返回。
+     * @param  {Value|[Value]} its 检测值
+     * @return {[Value]}
+     */
+    _arr2( its ) {
+        return $.isArray( its ) ? its : [ its ];
     }
 }
 

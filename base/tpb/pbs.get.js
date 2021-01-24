@@ -1167,6 +1167,20 @@ const _Gets = {
 
 
     /**
+     * 获取绑定句柄。
+     * 目标：暂存区/栈顶1项。
+     * 目标为检索绑定信息的元素。
+     * @param  {String} evn 事件名（单个），可选
+     * @return {Object[Function|EventListener]|null} 用户调用/处理器集
+     */
+    handler( evo, evn ) {
+        return $.handler( evo.data, evn ) || null;
+    },
+
+    __handler: 1,
+
+
+    /**
      * 滚动到当前视口。
      * y, x: {
      *     0   就近显示（如果需要）（nearest）

@@ -703,7 +703,7 @@ span[role=space] {
  * ------------------------------------
  */
 .content ol[role=codelist] {
-    font-size: 10pt;
+    font-size: 12px;
     padding: 1px;
     background-color: #39898e;
     padding-left: 60px;
@@ -717,6 +717,7 @@ span[role=space] {
     background-color: #fffbeb;
     border-bottom: 1px #eee dashed;
     border-top-right-radius: inherit;
+    line-height: 150%;
 }
 .content ol[role=codelist] li:first-child {
     border-top-right-radius: inherit;
