@@ -12,20 +12,20 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, Fx } from "../base.js";
+import { Hicode, RE, escape } from "../base.js";
 
 
-class JavaScript extends Hicode {
+class CSS extends Hicode {
 
     constructor() {
         super([
             {
-                begin: RE.REGEX,
-                type:  Fx.escapeRegex
-            },
+                begin: /^/,
+                type:  slr => ({ text: escape(slr), type: 'selector' })
+            }
         ]);
     }
 }
 
 
-export { JavaScript };
+export { CSS };

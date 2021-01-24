@@ -339,15 +339,21 @@ const Fx = {
 
     // 操作符转义。
     // @return {Object2}
-    escapeOperator: str => ({ text: escape(str), type: 'operator' }),
+    escapeOperator: op => ({ text: escape(op), type: 'operator' }),
+
+    // 正则表达式转义。
+    // @return {Object2}
+    escapeRegex: val => ({ text: escape(val), type: 'regex' }),
+
+    // 错误提示内容转义。
+    // @return {Object2}
+    escapeError: msg => ({ text: escape(msg), type: 'error' }),
 }
 
 
 //
 // 共享定义集。
 // 以基础性为原则，不同语言多出的部分自行补充。
-// 注：
-// Object3可定义多个相同的类型（不同匹配式）。
 //
 const RE = {
     // 行注释
@@ -356,6 +362,8 @@ const RE = {
     COMMENT_B:  /^(\/\*[^]*\*\/)/,
     // 偶数\\合法
     STRING:     /^("(?:(?:\\\\)*|.*?(?:[^\\](?:\\\\)+|[^\\]))")/,
+    // 正则表达式
+    REGEX:      /^(\/[^/].*\/[gimsuy]*)/,
     // 简单数字
     NUMBER:     /^(-?\d+(?:\.\d+)?)\b/,
     // 复杂数字 0x..., 0..., decimal, float

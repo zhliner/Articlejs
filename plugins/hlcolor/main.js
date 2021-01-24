@@ -49,9 +49,9 @@ const
         'xmltag':       'tag',  // 标签名
         'attribute':    'atn',  // 属性名（attribute-name）
         'selector':     'slr',  // CSS选择器
+        'regex':        're',   // 正则表达式
         'important':    'imp',  // 重要（CSS: !important; C/C++: 预处理器）
         'doctype':      'doc',  // <!DOCTYPE ...>
-        'regexp':       're',   // 正则表达式
         'rgba':         'rgb',  // RGB, RGBA（#fff, #f0f0f0, #f0f0f080）
         'error':        'err',  // 错误提示
         'comments':     null,   // 注释（单独封装）
