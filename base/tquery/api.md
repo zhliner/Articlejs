@@ -1447,7 +1447,7 @@ $.embedProxy( fn => fn == 'hasClass' ? hasClassX : null );
 - `thisObj: Any` 回调测试函数内的 `this` 绑定目标。
 
 
-### $.handler( el, evn? ): Object | [Function|EventListener] | undefined
+### $.handles( el, evn? ): Object | [Function|EventListener] | undefined
 
 提取元素上绑定事件的原始处理器。如果未指定事件名，则检索全部注册项，返回一个对象：`{evn: [Function|EventListener]}`。如果未绑定任何事件处理器（仅限于 `.on()|.one()` 绑定），返回 `undefined`。
 

@@ -6926,8 +6926,6 @@ function rectSize( el, name ) {
 }
 
 
-
-
 //
 // 事件处理接口。
 // 事件处理器：function(event, elo): false|Any
@@ -7199,7 +7197,7 @@ const Event = {
      * @param  {String} evn 事件名（单个），可选
      * @return {Object[Function|EventListener]|undefined} 用户调用/处理器集
      */
-    handler( el, evn ) {
+    handles( el, evn ) {
         let _m1 = this.store.get( el );
         if ( !_m1 ) return;
 
@@ -7824,8 +7822,8 @@ Object.assign( tQuery, {
      * @param  {String} evn 事件名（单个），可选
      * @return {Object[Function|EventListener]|undefined} 用户调用/处理器集
      */
-    handler( el, evn ) {
-        return Event.handler( el, evn );
+    handles( el, evn ) {
+        return Event.handles( el, evn );
     },
 
 
