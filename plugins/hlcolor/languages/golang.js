@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE } from "../base.js";
+import { Hicode, RE, Fx } from "../base.js";
 
 
 const
@@ -60,15 +60,15 @@ class Go extends Hicode {
             },
             {
                 begin: RE.COMMENTS,
-                type:  'comments'
+                type:  Fx.escapeComment
             },
             {
                 begin: RE.COMMENT_B,
-                type:  'comments'
+                type:  Fx.escapeComment
             },
             {
                 begin: RE.STRING,
-                type:  'string'
+                type:  Fx.escapeString
             },
             {
                 begin: /^('.*[^\\]')/,
@@ -85,11 +85,11 @@ class Go extends Hicode {
             {
                 // 基础集缺失补充
                 begin: /^(&\^|:=)/,
-                type:  'operator'
+                type:  Fx.escapeOperator
             },
             {
                 begin: RE.OPERATOR,
-                type:  'operator'
+                type:  Fx.escapeOperator
             },
         ]);
     }

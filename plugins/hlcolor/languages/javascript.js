@@ -12,12 +12,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode } from "../base.js";
+import { Hicode, RE } from "../base.js";
 
 
-export class JavaScript extends Hicode {
+class JavaScript extends Hicode {
 
     constructor() {
-        //
+        super([
+            //
+        ]);
     }
 }
+
+
+export { JavaScript };

@@ -42,7 +42,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicolor } from "./main.js";
+const
+    $ = window.$,
+
+    // HTML 待转换字符。
+    __escapeMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;'
+    };
 
 
 //
@@ -50,7 +58,7 @@ import { Hicolor } from "./main.js";
 // 实现默认的解析匹配处理。
 // 如果需要，通过进阶处理器可以很容易实现定制调整。
 //
-export class Hicode {
+class Hicode {
     /**
      * Object3说明见页顶。
      * @param {[Object3]} reall 总匹配器集
@@ -61,7 +69,7 @@ export class Hicode {
         for ( const {begin, end} of reall ) {
             let _err = this._check(begin) || this._check(end);
             if ( _err ) {
-                throw new Error( `[${err}] global or sticky flag cannot be set.` );
+                throw new Error( `[${_err}] global or sticky flag cannot be set.` );
             }
         }
         this._rall = this._config( reall );
@@ -118,7 +126,7 @@ export class Hicode {
      * 此时matches就是一个更特定的子集。
      *
      * @param  {String} word 目标词
-     * @return {Object2} 解析结果对象
+     * @return {Object2|null} 解析结果对象
      */
     analyze( word ) {
         for ( const {begin, type} of this._rsub ) {
@@ -127,7 +135,9 @@ export class Hicode {
             if ( !_beg || _beg.index > 0 ) {
                 continue;
             }
-            return { text: _beg[1], type };
+            let text = begin[1] ? _beg[0] : _beg[1];
+
+            return typeof type === 'function' ? type(text) : {text, type};
         }
         return null;
     }
@@ -216,11 +226,8 @@ export class Hicode {
 
     /**
      * 文本截取。
-     * 子串终止于匹配开始的位置。
      * 无匹配时子串为目标串本身。
-     * 注记：
-     * 截取终于匹配串起点，因此匹配串本身被忽略，
-     * 它可能用于与begin测试匹配。
+     * 截取可能终于匹配串起点，因此匹配串本身可以忽略。
      * @param  {String} str 目标串
      * @param  {RegExp} end 终止匹配式
      * @param  {Boolean} has 包含匹配串
@@ -308,13 +315,41 @@ export class Hicode {
 }
 
 
+/**
+ * HTML转义处理。
+ * @param  {String} val 目标字符串
+ * @return {String}
+ */
+function escape( val ) {
+    return val.replace( /[&<>]/gm, ch => __escapeMap[ch] );
+}
+
+
+//
+// 简单工具函数。
+//
+const Fx = {
+    // 字符串转义。
+    // @return {Object2}
+    escapeString: str => ({ text: escape(str), type: 'string' }),
+
+    // 注释转义。
+    // @return {Object2}
+    escapeComment: str => ({ text: escape(str), type: 'comments' }),
+
+    // 操作符转义。
+    // @return {Object2}
+    escapeOperator: str => ({ text: escape(str), type: 'operator' }),
+}
+
+
 //
 // 共享定义集。
 // 以基础性为原则，不同语言多出的部分自行补充。
 // 注：
 // Object3可定义多个相同的类型（不同匹配式）。
 //
-export const RE = {
+const RE = {
     // 行注释
     COMMENTS:   /^(\/\/.*)$/m,
     // 块注释
@@ -331,3 +366,6 @@ export const RE = {
     // 注意复杂表示在前（不含?）。
     OPERATOR:   /^(!=|!|%=|%|&&|&=|&|\*=|\*|\+\+|\+=|\+|--|-=|-|\/=|\/|<<=|<<|<=|<|==|=|>>=|>=|>>|>|\^=|\^|\|\||\|=|\||,|:)/,
 };
+
+
+export { Hicode, escape, RE, Fx };

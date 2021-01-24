@@ -1173,11 +1173,11 @@ const _Gets = {
      * @param  {String} evn 事件名（单个），可选
      * @return {Object[Function|EventListener]|null} 用户调用/处理器集
      */
-    handler( evo, evn ) {
-        return $.handler( evo.data, evn ) || null;
+    handles( evo, evn ) {
+        return $.handles( evo.data, evn ) || null;
     },
 
-    __handler: 1,
+    __handles: 1,
 
 
     /**
