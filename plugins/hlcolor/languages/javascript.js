@@ -1,5 +1,5 @@
-//! $Id: plugins/hlcolor/javascript.js 2021.01.19 Articlejs.Plugins $
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//! $Id: javascript.js 2021.01.19 Articlejs.Plugins.hlcolor $
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  MIT License
