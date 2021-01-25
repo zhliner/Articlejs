@@ -1,4 +1,4 @@
-//! $Id: plugins/hlcolor 2021.01.19 Articlejs.Plugins $
+//! $Id: base.js 2021.01.19 Articlejs.Plugins.hlcolor $
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
@@ -6,13 +6,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  代码高亮通用实现。
-//  各语言继承 Hicode 基类，定义匹配器序列（Object3）。
+//  代码高亮通用框架。
+//
+//  各语言继承 Hicode 基类，定义匹配器序列（Object3）或实现定制处理。
+//  如果需要复用其它语言的实现，创建 Hicolor 实例即可，
+//  比如 HTML 中对 Javascript 或 CSS 的嵌入处理。
+//
+//  定制处理也可以实现一个内部的 Hicode 子类，然后创建 Hicolor 实例并传递子类实例，
+//  比如内部对注释或字符串类型更细粒度的解析。此时并非复用外部实现。
 //
 //  Object3: {
 //      begin: {RegExp|[RegExp,Boolean] 起始匹配式。
 //      end:   {RegExp|[RegExp,Boolean] 结束匹配式，可选。
-//      type:  {String|Function} 类型名或进阶处理器。
+//      type:  {String|Function} 类型名或进阶处理器（如子块分析）。
 //  }
 //  .begin
 //      定义起点，布尔真值表示取值文本包含匹配文本，否则从匹配文本之后算起。
@@ -21,7 +27,11 @@
 //      定义结束点，布尔真值表示取值文本包含匹配文本，否则结束于匹配式之前。
 //  .type: {
 //      String   语法词，如：keyword, string, operator...
-//      Function 进阶处理器：function(text): Hicolor|Object2|[Object2]
+//      Function 进阶处理器：function(text): Object2|[Object2]|Hicolor
+//  }
+//  其中 Object2: {
+//      text: String 匹配串。可直接为HTML源码。
+//      type: String 类型名。可选，未定义时text不被封装（普通文本/源码）。
 //  }
 //
 //  begin/end 中的第二项 Boolean 配置，
@@ -38,19 +48,153 @@
 //  - 匹配式应当包含起始括号(，如：/^([a-zA-Z]\w+)\(/
 //  - 而取值仅取函数名，因此需要与完整匹配式分开。
 //
+//  注记：
+//  本框架十分灵活，Object3.type 可为进阶处理，因此能够支持任意复杂的嵌入逻辑。
+//  Hicolor/Hicode 提供了基础性的解析和构造HTML能力，复用即可。
+//  Object3.type 也可用于处理简单的定制情形（返回 Object2|[Object2]）。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { languageClass } from "./main.js";
+
+
 const
     $ = window.$,
 
-    // HTML 待转换字符。
+    // 高亮名:角色映射。
+    // 高亮名用于具体语言中使用，角色名用于封装元素<b>中的role值。
+    // 此处的高亮名用于语言实现中的规范名称（type）。
+    __Roles = {
+        'keyword':      'kw',   // 关键字
+        'literal':      'lit',  // 字面值（如 true, iota）
+        'string':       'str',  // 字符串
+        'number':       'num',  // 数值
+        'function':     'fn',   // 函数名
+        'operator':     'op',   // 运算符
+        'datatype':     'dt',   // 数据类型
+        'xmltag':       'tag',  // 标签名
+        'attribute':    'atn',  // 属性名（attribute-name）
+        'selector':     'slr',  // CSS选择器
+        'regex':        're',   // 正则表达式
+        'important':    'imp',  // 重要（CSS: !important; C/C++: 预处理器）
+        'doctype':      'doc',  // <!DOCTYPE ...>
+        'rgba':         'rgb',  // RGB, RGBA（#fff, #f0f0f0, #f0f0f080）
+        'error':        'err',  // 错误提示
+        'comments':     null,   // 注释（单独封装）
+    },
+
+    // 未定义类型替换。
+    __nonRole = 'non',
+
+    // 注释类型名。
+    __cmtName = 'comments',
+
+    // HTML转义字符。
     __escapeMap = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;'
+        '<':    '&lt;',
+        '>':    '&gt;',
+        '&':    '&amp;',
     };
+
+
+
+//
+// 语法高亮处理器。
+// 使用 LangMap 中配置的具体实现。
+//
+class Hicolor {
+    /**
+     * lang:
+     * 实例实参在特定语言有内部子块实现时有用，
+     * 此时仅限于结构性子块（如注释内容），而不是语言子块。
+     * 注：语言子块只能复用全局实现集。
+     * text:
+     * 方便嵌入块封装，如果仅为了实时分析，可省略。
+     * @param {String|Hicode} lang 语言名或实现实例
+     * @param {String} text 待解析文本，可选
+     */
+    constructor( lang, text ) {
+        let _inst;
+
+        if ( typeof lang === 'string' ) {
+            _inst = new ( languageClass(lang) )();
+        }
+        if ( _inst ) {
+            this._lang = lang;
+        }
+        this._code = text;
+        this._inst = _inst || lang;
+    }
+
+
+    /**
+     * 解析获取HTML源码。
+     * 如果文本中嵌入了其它语言代码，结果集里会包含对象成员。
+     * String: 已解析源码字符串（含HTML标签）
+     * Object2: {
+     *      lang: 子块语言
+     *      html: 子块源码集{[String|Object2]}，可含子块嵌套
+     * }
+     * @return {[String|Object2]} 源码集
+     */
+    html() {
+        let _buf = [], _tmp = [];
+
+        for ( const obj of this._inst.parse(this._code) ) {
+            let _hi = obj instanceof Hicolor;
+            if ( !_hi ) {
+                _tmp.push( codeHTML(obj) );
+                continue;
+            }
+            this._string( _tmp, _buf );
+            _buf.push( {lang: obj.lang(), html: obj.html()} );
+        }
+
+        return this._string( _tmp, _buf );
+    }
+
+
+    /**
+     * 返回语法解析器。
+     * 主要用于调用其analyze()实时解析。
+     * @return {Hicode} 解析实例（子类）
+     */
+    parser() {
+        return this._inst;
+    }
+
+
+    /**
+     * 返回语言名。
+     * @return {string|null}
+     */
+    lang() {
+        return this._lang || null;
+    }
+
+
+    //-- 私有辅助 -------------------------------------------------------------
+
+
+    /**
+     * 添加字符串成员。
+     * 从子串存储区提取合并添加到结果存储区。
+     * 成功提取后会清空原存储区。
+     * @param  {[String]} tmp 子串存储区引用
+     * @param  {Array} buf 结果存储区引用
+     * @return {Array} buf
+     */
+    _string( tmp, buf ) {
+        if ( tmp.length ) {
+            buf.push( tmp.join('') );
+            tmp.length = 0;
+        }
+        return buf;
+    }
+
+}
 
 
 //
@@ -80,12 +224,16 @@ class Hicode {
     /**
      * 源码解析。
      * Object2: {
-     *      text: {String} 代码文本
-     *      type: {String} 代码类型，可选。无此项时即为普通文本
+     *      text: {String} 代码文本，可以为html
+     *      type: {String} 代码类型，可选。未定义时为普通文本
      * }
      * text:
-     * - 如果存在end匹配式，返回begin和end之间的文本（不含匹配文本本身）。
+     * - 如果存在end匹配式，取begin和end之间的文本。
      * - 如果没有end匹配式，则取begin中的首个子匹配（[1]）。
+     *
+     * 注记：
+     * 如果具体语言需要返回html源码，
+     * 在匹配式处理的返回Object2中，text直接赋值为源码即可。
      *
      * @param  {String} code 源码文本
      * @return {[Object2|Hicolor]} 解析结果对象集
@@ -150,7 +298,7 @@ class Hicode {
      * 单轮匹配解析。
      * 迭代每一个正则配置对象，从子串头部开始且仅测试一次。
      * 返回null表示全无匹配。
-     * 返回数组中第二个值为截取的文本长度。
+     * 返回数组中第二个值为上级可跳过的文本长度。
      * @param  {String} ss 目标子串
      * @return {[Object2|[Object2]|Hicolor, Number]|null}
      */
@@ -253,7 +401,7 @@ class Hicode {
         if ( !chs.length ) {
             return;
         }
-        buf.push( {text: chs.join('')} );
+        buf.push( {text: escape( chs.join('') )} );
         chs.length = 0;
     }
 
@@ -315,16 +463,6 @@ class Hicode {
 }
 
 
-/**
- * HTML转义处理。
- * @param  {String} val 目标字符串
- * @return {String}
- */
-function escape( val ) {
-    return val.replace( /[&<>]/gm, ch => __escapeMap[ch] );
-}
-
-
 //
 // 简单工具函数。
 //
@@ -373,7 +511,60 @@ const RE = {
     // 基础操作符
     // 注意复杂表示在前（不含?）。
     OPERATOR:   /^(!=|!|%=|%|&&|&=|&|\*=|\*|\+\+|\+=|\+|--|-=|-|\/=|\/|<<=|<<|<=|<|==|=|>>=|>=|>>|>|\^=|\^|\|\||\|=|\||,|:)/,
+    // 出错消息，前置：
+    // - error:
+    // - err:
+    // - [error]:
+    // - [err]:
+    ERROR:      /^("(?:\[?(?:error|err)\]?):.*?[^\\]")/i,
 };
 
 
-export { Hicode, escape, RE, Fx };
+//
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * HTML转义处理。
+ * @param  {String} val 目标字符串
+ * @return {String}
+ */
+function escape( val ) {
+    return val.replace( /[&<>]/gm, ch => __escapeMap[ch] );
+}
+
+
+/**
+ * 构建高亮源码。
+ * 注释包含在<i>元素内。
+ * Object2: {
+ *      text: {String} 代码文本
+ *      type: {String} 代码类型，可选。无此项时即为普通文本
+ * }
+ * 注记：
+ * 这里是将text直接插入封装元素内，因此它也可能是html。
+ * 这在嵌入解析时有用（如注释内解析）。
+ * @param  {Object2} obj 解析结果对象
+ * @return {String}
+ */
+function codeHTML( obj ) {
+    if ( obj.type == null ) {
+        return obj.text;
+    }
+    if ( obj.type == __cmtName ) {
+        return `<i>${obj.text}</i>`;
+    }
+    return `<b role="${__Roles[obj.type] || __nonRole}">${obj.text}</b>`;
+}
+
+
+//
+// 导出
+//////////////////////////////////////////////////////////////////////////////
+
+export { Hicolor, Hicode, escape, RE, Fx };
+
+
+//:debug
+window.Hicolor = Hicolor;
