@@ -76,11 +76,13 @@ const
         'datatype':     'dt',   // 数据类型
         'xmltag':       'tag',  // 标签名
         'attribute':    'atn',  // 属性名（attribute-name）
-        'selector':     'slr',  // CSS选择器
         'regex':        're',   // 正则表达式
+        'selector':     'slr',  // 选择器（ID, class, 伪类）
+        'rgba':         'rgb',  // RGB, RGBA: #fff, #f0f0f0, rgb(214, 86, 0)
+        'hsla':         'hsl',  // HSL, HSLA: hsl(24deg, 100%, 42%)
+        'unit':         'un',   // CSS单位
         'important':    'imp',  // 重要（CSS: !important; C/C++: 预处理器）
         'doctype':      'doc',  // <!DOCTYPE ...>
-        'rgba':         'rgb',  // RGB, RGBA（#fff, #f0f0f0, #f0f0f080）
         'error':        'err',  // 错误提示
         'comments':     null,   // 注释（单独封装）
     },
@@ -542,11 +544,8 @@ function escape( val ) {
  *      text: {String} 代码文本
  *      type: {String} 代码类型，可选。无此项时即为普通文本
  * }
- * 注记：
- * 这里是将text直接插入封装元素内，因此它也可能是html。
- * 这在嵌入解析时有用（如注释内解析）。
  * @param  {Object2} obj 解析结果对象
- * @return {String}
+ * @return {String} 封装的源码
  */
 function codeHTML( obj ) {
     if ( obj.type == null ) {

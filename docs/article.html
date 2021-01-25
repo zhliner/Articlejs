@@ -932,98 +932,110 @@
                         <tbody>
                             <tr>
                                 <td>关键字</td>
-                                <td><code><b role="dt">kw</b></code></td>
-                                <td><code><b role="slr">b[role=kw]</b></code></td>
+                                <td><code><b role="kw">kw</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>kw]</code></td>
                                 <td>keyword</td>
                             </tr>
                             <tr>
                                 <td>字面值</td>
-                                <td><code><b role="dt">lit</b></code></td>
-                                <td><code><b role="slr">b[role=lit]</b></code></td>
+                                <td><code><b role="kw">lit</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>lit]</code></td>
                                 <td>literal (true, iota, ...)</td>
                             </tr>
                             <tr>
                                 <td>字符串</td>
-                                <td><code><b role="dt">str</b></code></td>
-                                <td><code><b role="slr">b[role=str]</b></code></td>
+                                <td><code><b role="kw">str</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>str]</code></td>
                                 <td>string</td>
                             </tr>
                             <tr>
                                 <td>数值</td>
-                                <td><code><b role="dt">num</b></code></td>
-                                <td><code><b role="slr">b[role=num]</b></code></td>
+                                <td><code><b role="kw">num</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>num]</code></td>
                                 <td>number</td>
                             </tr>
                             <tr>
                                 <td>函数名</td>
-                                <td><code><b role="dt">fn</b></code></td>
-                                <td><code><b role="slr">b[role=fn]</b></code></td>
+                                <td><code><b role="kw">fn</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>fn]</code></td>
                                 <td>function-name</td>
                             </tr>
                             <tr>
                                 <td>运算符</td>
-                                <td><code><b role="dt">op</b></code></td>
-                                <td><code><b role="slr">b[role=op]</b></code></td>
+                                <td><code><b role="kw">op</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>op]</code></td>
                                 <td>operator</td>
                             </tr>
                             <tr>
                                 <td>数据类型</td>
-                                <td><code><b role="dt">dt</b></code></td>
-                                <td><code><b role="slr">b[role=dt]</b></code></td>
+                                <td><code><b role="kw">dt</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>dt]</code></td>
                                 <td>data-type</td>
                             </tr>
                             <tr>
                                 <td>标签名</td>
-                                <td><code><b role="dt">tag</b></code></td>
-                                <td><code><b role="slr">b[role=tag]</b></code></td>
+                                <td><code><b role="kw">tag</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>tag]</code></td>
                                 <td>tag-name</td>
                             </tr>
                             <tr>
                                 <td>属性名</td>
-                                <td><code><b role="dt">atn</b></code></td>
-                                <td><code><b role="slr">b[role=atn]</b></code></td>
+                                <td><code><b role="kw">atn</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>atn]</code></td>
                                 <td>attribute-name</td>
                             </tr>
                             <tr>
-                                <td>选择器</td>
-                                <td><code><b role="dt">slr</b></code></td>
-                                <td><code><b role="slr">b[role=slr]</b></code></td>
-                                <td>selector</td>
+                                <td>正则表达式</td>
+                                <td><code><b role="kw">re</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>re]</code></td>
+                                <td>regex（/....../gi）</td>
                             </tr>
                             <tr>
-                                <td>正则表达式</td>
-                                <td><code><b role="dt">re</b></code></td>
-                                <td><code><b role="slr">b[role=re]</b></code></td>
-                                <td>Regex（/....../gi）</td>
+                                <td>选择器</td>
+                                <td><code><b role="kw">slr</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>slr]</code></td>
+                                <td>selector (#id, .class, :pseudo)</td>
+                            </tr>
+                            <tr>
+                                <td>颜色值</td>
+                                <td><code><b role="kw">rgb</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>rgb]</code></td>
+                                <td>#fff, #f0f0f0, #f0f0f080, rgb(214, 86, 0)</td>
+                            </tr>
+                            <tr>
+                                <td>颜色值</td>
+                                <td><code><b role="kw">hsl</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>hsl]</code></td>
+                                <td>hsl(24deg, 100%, 42%)</td>
+                            </tr>
+                            <tr>
+                                <td>单位</td>
+                                <td><code><b role="kw">un</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>un]</code></td>
+                                <td>css-unit (px, em, pt, ...)</td>
                             </tr>
                             <tr>
                                 <td>重要</td>
-                                <td><code><b role="dt">imp</b></code></td>
-                                <td><code><b role="slr">b[role=imp]</b></code></td>
+                                <td><code><b role="kw">imp</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>imp]</code></td>
                                 <td>important</td>
                             </tr>
                             <tr>
                                 <td>文档声明</td>
-                                <td><code><b role="dt">doc</b></code></td>
-                                <td><code><b role="slr">b[role=doc]</b></code></td>
+                                <td><code><b role="kw">doc</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>doc]</code></td>
                                 <td>&lt;!DOCTYPE...&gt;</td>
                             </tr>
                             <tr>
-                                <td>颜色值</td>
-                                <td><code><b role="dt">rgb</b></code></td>
-                                <td><code><b role="slr">b[role=rgb]</b></code></td>
-                                <td>RGB, RGBA（#fff, #f0f0f0, #f0f0f080）</td>
-                            </tr>
-                            <tr>
                                 <td>错误提示</td>
-                                <td><code><b role="dt">err</b></code></td>
-                                <td><code><b role="slr">b[role=err]</b></code></td>
+                                <td><code><b role="kw">err</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>err]</code></td>
                                 <td>error</td>
                             </tr>
                             <tr>
                                 <td>未定义</td>
-                                <td><code><b role="dt">non</b></code></td>
-                                <td><code><b role="slr">b[role=non]</b></code></td>
+                                <td><code><b role="kw">non</b></code></td>
+                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>non]</code></td>
                                 <td>no-name</td>
                             </tr>
                         </tbody>

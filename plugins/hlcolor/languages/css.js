@@ -20,9 +20,13 @@ class CSS extends Hicode {
     constructor() {
         super([
             {
+                begin: /^(%|em|ex|ch|rem|vw|vh|vmin|vmax|cm|mm|in|pt|pc|px|deg|grad|rad|turn|s|ms|Hz|kHz|dpi|dpcm|dppx)\b/,
+                type:  'unit'
+            },
+            {
                 begin: /^/,
                 type:  slr => ({ text: escape(slr), type: 'selector' })
-            }
+            },
         ]);
     }
 }

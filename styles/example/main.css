@@ -786,13 +786,29 @@ code > b[role=tag] {
 }
 
 /* attribute-name */
-code > b[role=an] {
+code > b[role=atn] {
     color: #090;
 }
 
-/* selector */
+/* RegExp */
+code > b[role=re] {
+    color: #e60;
+}
+
+/* selector: id|class|:pseudo */
 code > b[role=slr] {
     color: #d65600;
+}
+
+/* 颜色值 */
+code > b[role=rgb],
+code > b[role=hsl] {
+    color: #e60;
+}
+
+/* CSS单位 */
+code > b[role=unit] {
+    color: #b10099;
 }
 
 /* css: !important
@@ -808,21 +824,6 @@ code > b[role=imp] {
 /* <!DOCTYPE ...> */
 code > b[role=doc] {
     color: #bb5;
-}
-
-/* <![CDATA[..]]> */
-code > b[role=cd] {
-    color: #960;
-}
-
-/* RegExp */
-code > b[role=re] {
-    color: #e60;
-}
-
-/* 颜色值 #RGB */
-code > b[role=rgb] {
-    color: #e60;
 }
 
 /* error|warn */
