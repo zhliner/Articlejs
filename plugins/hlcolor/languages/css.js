@@ -24,8 +24,9 @@ class CSS extends Hicode {
                 type:  'unit'
             },
             {
-                begin: /^/,
-                type:  slr => ({ text: escape(slr), type: 'selector' })
+                // id, class, ::pseudo, :pseudo
+                begin: /^(#[\w-]+|\.[\w-]+|::?[\w+()"'.-]+)\b/,
+                type:  'selector'
             },
         ]);
     }
