@@ -2599,15 +2599,15 @@ class Table {
         if ( cells.length === 0 ) {
             return cells;
         }
-        let _x = $contains(this._tbl, cells[0]),
-            _n = 0;
-
         idx = this._index( idx, this._cols );
+        let _n = 0, tr;
 
-        for ( const tr of this._tbl.rows ) {
+        for ( tr of this._tbl.rows ) {
             insertNodes( tr, cells[_n++], indexCell(tr, idx) );
         }
-        if ( !_x ) this._cols++;
+        // 重新计算更可靠，
+        // 可能cells并未脱离DOM。
+        this._cols = columnCount( tr );
 
         return cells;
     }
