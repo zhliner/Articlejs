@@ -1195,11 +1195,11 @@ const Builder = {
 
 
 //
-// 转换取值集（内联）。
-// 可能需要提取必要的特性设置。
+// 转换：内联取值。
+// 需要提取必要的特性设置。
 // 取内部子元素时采用克隆方式，避免影响原节点。
 //////////////////////////////////////////////////////////////////////////////
-// @return {[opts:Object, data:String|Element]}
+// @return {[Object, Node]}
 //
 const ConvInlines = {
 
@@ -1223,7 +1223,7 @@ const ConvInlines = {
 
 
 //
-// 普通内容：
+// 转换：内联取值
 // 仅取纯文本内容（无特性提取）。
 //-----------------------------------------------
 [
@@ -1248,18 +1248,17 @@ const ConvInlines = {
     // T.B,
     // T.I,
 ]
+// @return [Object, Node]
 .forEach(function( tv ) {
     ConvInlines[ tv ] = (el, opts) => [ opts || {}, $.Text(el) ];
 });
 
 
 //
-// 转换取值集（行块）。
-// 取内部子元素时采用克隆方式，避免影响原节点。
-// 注记：
-// 默认展开<details>元素，因为内容区单击默认行为已取消。
+// 转换：行块取值。
+// 注：采用克隆方式避免影响原节点。
 //----------------------------------------------------------------------------
-// @return {[opts:Object, data:String|Element]}
+// @return {[Object, [Node]]}
 //
 const ConvBlocks = {
 
@@ -1275,6 +1274,7 @@ const ConvBlocks = {
             opts.h3 = _hx.textContent;
             _subs.splice( _subs.indexOf(_hx), 1 );
         }
+        // 强制展开，因为内容区单击展开无效。
         opts.open = true;
         return [ opts, $(_subs).clone() ];
     },
@@ -1282,29 +1282,8 @@ const ConvBlocks = {
 
 
 //
-// 数据元素：
-// 仅单元自身，无选项属性取值。
-// 注记：
-// Children.xx 会自动判断并提取内容。
-//-----------------------------------------------
-[
-    T.P,
-    T.NOTE,
-    T.TIPS,
-    T.PRE,
-    T.ADDRESS,
-]
-.forEach(function( tv ) {
-    ConvBlocks[ tv ] = (el, opts = {}) => [ (opts.open = true, opts), $.clone(el) ];
-});
-
-
-//
-// 子项单元：
+// 转换：行块取值
 // 取单元的子元素集，无选项属性取值。
-// 注记：
-// 转换操作会检查数据是否为一个数组并分别注入。
-// 原单元保留了容器根元素，因此无需克隆。
 //-----------------------------------------------
 [
     T.UL,
@@ -1316,11 +1295,31 @@ const ConvBlocks = {
     // 支持作为转换源（便利）
     T.DL,
 ]
+// @return [Object, [Node]]
 .forEach(function( tv ) {
     ConvBlocks[ tv ] = function( el, opts = {} ) {
         opts.open = true;
         return [ opts, $.children( el ).map( el => $.clone(el) ) ];
     };
+});
+
+
+//
+// 转换：单行取值
+// 仅单元自身，无选项属性取值。
+//-----------------------------------------------
+const ConvLines = {};
+
+[
+    T.P,
+    T.NOTE,
+    T.TIPS,
+    T.PRE,
+    T.ADDRESS,
+]
+// @return [Object, Element]
+.forEach(function( tv ) {
+    ConvLines[ tv ] = (el, opts = {}) => [ (opts.open = true, opts), $.clone(el) ];
 });
 
 
@@ -1709,7 +1708,7 @@ function childrenCalls( el, opts, data, more ) {
  * 含title特性单元取值。
  * @param  {Element} el 待转换元素
  * @param  {Object} opts 特性存储空间
- * @return {[Object, String]}
+ * @return {[Object, Text]}
  */
 function titleGetter( el, opts = {} ) {
     opts.title = $.attr( el, 'title' );
@@ -1723,7 +1722,7 @@ function titleGetter( el, opts = {} ) {
  * - datetime 分解供可能的<time>构造。
  * @param  {Element} el 待转换元素
  * @param  {Object} opts 特性存储空间
- * @return {[Object, String]}
+ * @return {[Object, Text]}
  */
 function datetimeGetter( el, opts = {} ) {
     let _dt = $.attr( el, 'datetime' );
@@ -1741,8 +1740,9 @@ function datetimeGetter( el, opts = {} ) {
 /**
  * 含h3小标题单元取值。
  * 内容子元素提取时取克隆版本。
- * @param {Element} box 小区块单元根
- * @param {Object} opts 属性配置空间
+ * @param  {Element} box 小区块单元根
+ * @param  {Object} opts 属性配置空间
+ * @return {[Object, [Node]]}
  */
 function h3Getter( box, opts = {} ) {
     let _h3 = $.get( 'h3', box ),
@@ -1943,26 +1943,6 @@ function create( name, opts, data, more ) {
 
 
 /**
- * 单元转换。
- * 待转换单元的合法性由外部保证。
- * @param  {Element} el 待转换单元
- * @param  {String} name 转换目标单元名
- * @return {Element} 转换后的单元根
- */
-function convert( el, name ) {
-    let _tv = getType( el ),
-        _fn = ConvInlines[_tv] || ConvBlocks[_tv];
-
-    if ( !_fn || !name ) {
-        throw new Error(`can't convert ${el} to ${name}.`);
-    };
-    let [ opts, data ] = _fn( el );
-
-    return create( name, opts, data, $.isArray(data) );
-}
-
-
-/**
  * 单元创建器。
  * 创建单个顶层单元，支持多个子单元创建（more）。
  * @data: Node|[Node]
@@ -1997,7 +1977,7 @@ function creater2( name ) {
 
 
 /**
- * 检查转换类型。
+ * 检查可转换类型。
  * 注：代码块/代码表内代码不可转换。
  * @param  {Element} el 目标元素
  * @return {String|null} 类型标识（inlines|blocks）
@@ -2008,7 +1988,44 @@ function convType( el ) {
     if ( ConvBlocks[_tv] ) {
         return Sys.convBlocks;
     }
+    if ( ConvLines[_tv] ) {
+        return Sys.convLines;
+    }
     return ConvInlines[_tv] && !isBlockCode(el) ? Sys.convInlines : null;
+}
+
+
+/**
+ * 提取待转换单元数据。
+ * @param  {Element} el 待转换元
+ * @return {[Object, Node|[Node]]} 提取的选项集和节点（集）
+ */
+function convData( el ) {
+    let _tv = getType(el),
+        _fn = ConvInlines[_tv] || ConvLines[_tv] || ConvBlocks[_tv];
+
+    if ( !_fn ) {
+        throw new Error( `[${el}] convert is not supported.` );
+    }
+    return _fn( el );
+}
+
+
+/**
+ * 获取转换目标类型。
+ * @param  {String} name 单元名
+ * @return {String} 目标类型名
+ */
+function convToType( name ) {
+    let _tv = T[ name.toUpperCase() ];
+
+    if ( ConvBlocks[_tv] ) {
+        return Sys.convBlocks;
+    }
+    if ( ConvLines[_tv] ) {
+        return Sys.convLines;
+    }
+    return ConvInlines[_tv] ? Sys.convInlines : null;
 }
 
 
@@ -2033,7 +2050,8 @@ processProxy( 'New2', creater2, 1 );
 export {
     children,
     create,
-    convert,
     tocList,
     convType,
+    convData,
+    convToType,
 };

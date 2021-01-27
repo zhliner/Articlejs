@@ -164,8 +164,9 @@ export const Sys = {
 
 
     // 转换类型标识名
-    // 用于区分内联转换或是行块转换（会引入不同的子菜单）。
+    // 注：会引用不同的转换子菜单。
     convBlocks:  'blocks',
+    convLines:   'conline',
     convInlines: 'inlines',
 
 

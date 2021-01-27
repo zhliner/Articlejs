@@ -24,7 +24,7 @@ import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent, indentSpace } from './common.js';
-import { children, create, convert, tocList, convType } from "./create.js";
+import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
 
@@ -1005,7 +1005,7 @@ class NodeVary {
 
 
     /**
-     * 替换操作。
+     * 整齐替换。
      * 两个集合成员为一一对应关系。
      * @param {[Element]} els 目标元素集
      * @param {[Element]} data 数据元素集
@@ -1014,6 +1014,20 @@ class NodeVary {
         els.forEach(
             (el, i) => $.replace( el, data[i] )
         );
+    }
+
+
+    /**
+     * 替换并移除多余。
+     * 以目标集首个成员为替换位置，并移除其余目标成员。
+     * @param {[Element]} els 目标元素集
+     * @param {[Element]} data 数据元素集
+     */
+    replacex( els, data ) {
+        $.replace( els[0], data );
+
+        els.slice(1)
+        .forEach( el => $.remove(el) );
     }
 
 
@@ -2727,6 +2741,16 @@ function codeLis( data, lang ) {
 
 
 /**
+ * 获取第一个成员。
+ * @param  {Set|Map|.values} obj 取值目标
+ * @return {Value}
+ */
+function first( obj ) {
+    for ( const it of obj.values() ) return it;
+}
+
+
+/**
  * 返回集合末尾成员。
  * @param  {[Element]} els 元素集
  * @return {Element}
@@ -2794,6 +2818,111 @@ function warn( msg, data ) {
  */
 function error( msg, data ) {
     window.console.error( msg, data || '' );
+}
+
+
+
+//
+// 单元批量转换。
+//----------------------------------------------------------------------------
+
+
+/**
+ * 数据提取并合并。
+ * 如果源元素是行块，节点集会是二维数组。
+ * @param  {[Element]} els 数据元素
+ * @return {[Object, [Node]]} 提取的选项集和节点集
+ */
+function convData2( els ) {
+    let _obj = {},
+        _buf = [];
+
+    for ( const el of els ) {
+        let [opts, data] = convData( el );
+        _buf.push( data );
+        $.assign( _obj, opts );
+    }
+    return [ _obj, _buf ];
+}
+
+
+/**
+ * 创建内联单元转换。
+ * 各别转换，各别替换。
+ * @param  {String} name 转换目标名
+ * @param  {[Element]} els 选取集
+ * @return {[DOMEdit, [Element]]} [操作实例，新元素集]
+ */
+function convertInlines( name, els ) {
+    let [opts, data] = convData2( els ),
+        _new = data.map( nd => create(name, opts, nd) );
+
+    return [new DOMEdit(__Edits.replaces, els, _new), _new];
+}
+
+
+/**
+ * 创建内容行单元转换。
+ * 如果源数据为行块元素，其子单元独立转换，
+ * 行集替换行块根当前位置。
+ * @param  {String} name 转换目标名
+ * @param  {[Element]} els 选取集
+ * @return {[DOMEdit, [Element]]} [操作实例，新元素集]
+ */
+function convertLines( name, els ) {
+    let [opts, data] = convData2( els ),
+        _new = data.map(
+            el => $.isArray(el) ?
+                el.map( nd => create(name, opts, nd) ) :
+                create( name, opts, el )
+        );
+    return [new DOMEdit(__Edits.replaces, els, _new), _new];
+}
+
+
+/**
+ * 创建行块单元转换。
+ * 如果数据源为内容行元素，合并转换为单一目标，
+ * 否则各别自行转换。
+ * @param  {String} name 转换目标名
+ * @param  {[Element]} els 选取集
+ * @return {[DOMEdit, [Element]]} [操作实例，新元素集]
+ */
+function convertBlock( name, els ) {
+    let [opts, data] = convData2( els ),
+        _new = null;
+
+    if ( convType(els[0]) === Sys.convLines ) {
+        // 合并为单一目标。
+        _new = create( name, opts, data, true );
+        return [new DOMEdit(__Edits.replacex, els, _new), [_new]];
+    }
+    _new = data.map(
+        els => create( name, opts, els, true )
+    );
+    return [new DOMEdit(__Edits.replaces, els, _new), _new];
+}
+
+
+/**
+ * 实施判断转换。
+ * 选取约束已保证源元素为相同类型（convBlocks|convLines|convInlines）。
+ * @param  {String} name 转换目标名
+ * @param  {[Element]} els 选取集
+ * @return {Element|[Element]} 目标类型新元素（集）
+ */
+function convertTo( name, els ) {
+    let _to = convToType( name );
+
+    switch ( _to ) {
+        case Sys.convInlines:
+            return convertInlines( name, els );
+        case Sys.convLines:
+            return convertLines( name, els );
+        case Sys.convBlocks:
+            return convertBlock( name, els );
+    }
+    throw new Error( `[${name}] convert is not supported.` );
 }
 
 
@@ -4654,6 +4783,9 @@ export const Kit = {
     /**
      * 转换类型判断。
      * 根据选取集成员判断可转换的类型。
+     * 注记：
+     * 行元素视为行块（共享菜单），可互为转换，
+     * 但行块和行元素不可同时选取（混合）。
      * @return {String|null}
      */
     convtype() {
@@ -4662,7 +4794,12 @@ export const Kit = {
         for ( const el of __ESet ) {
             _set.add( convType(el) );
         }
-        return _set.size === 1 ? [..._set][0] : null;
+        if ( _set.size > 1 ) {
+            return null;
+        }
+        let _n = first( _set );
+
+        return _n === Sys.convLines ? Sys.convBlocks : _n;
     },
 
     __convtype: null,
@@ -5036,7 +5173,11 @@ export const Kit = {
 
 
     /**
-     * 单元转换（各别）。
+     * 单元转换。
+     * 转换创建的新单元数视目标类型而定。
+     * - 内联：每项数据转换为一个目标单元。
+     * - 段落：视为单体，同上效果。
+     * - 行块：为内容行容器，数据集为子元素序列，转换为单一单元。
      * 目标：暂存区/栈顶1项。
      * 目标为转换到的单元名称。
      * 注记：
@@ -5045,15 +5186,14 @@ export const Kit = {
      * @return {void}
      */
     convert( evo ) {
-        let $els = $( __ESet ),
-            _op1 = cleanHot( $els, true ),
-            _op2 = clearSets(),
-            $new = $els.map( el => convert(el, evo.data) );
+        if ( !__ESet.size ) return;
 
-        if ( !$els.length ) {
-            return;
-        }
-        historyPush( _op1, _op2, new DOMEdit(__Edits.replaces, $els, $new), pushes($new) );
+        let _els = [...__ESet],
+            _op1 = cleanHot( _els, true ),
+            _op2 = clearSets(),
+            [op3, _new] = convertTo( evo.data, _els );
+
+        historyPush( _op1, _op2, op3, pushes(_new.flat()) );
     },
 
     __convert: 1,

@@ -585,7 +585,7 @@ export function isCodeCons( nodes ) {
 
 
 /**
- * 是否为块代码。
+ * 是否为块内代码。
  * 即代码元素是否包含在代码块和代码表单元内。
  * @param  {Element} code 代码元素
  * @return {Boolean}
