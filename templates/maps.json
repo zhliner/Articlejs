@@ -347,6 +347,7 @@
         "prop:title",
         "prop:tracks",
         "prop:upload",
+        "prop:value",
         "prop:wh",
         "prop:width",
         "property:a",

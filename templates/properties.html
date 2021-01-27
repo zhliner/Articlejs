@@ -97,7 +97,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:li" data-label="列表项属性">
-    <li tpl-node="prop:start"></li>
+    <li tpl-node="prop:value, prop:sntype"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:table" data-label="表格属性">
@@ -115,7 +115,7 @@
 <ul class="_prop" tpl-name="property:explain" data-label="插图讲解属性">
     <li><b>定位</b>
         <span><select name="position" tpl-name="explain:position">
-                <option value="">------</option>
+                <option value=""> ------ </option>
                 <option value="fix-lt">左上方</option>
                 <option value="fix-rt">右上方</option>
                 <option value="fix-rb">右下方</option>
@@ -376,8 +376,8 @@
 
 <li tpl-name="prop:sntype">
     <b>编号类型</b>
-    <span><select name="sntype">
-            <option value="">----</option>
+    <span><select name="type">
+            <option value=""> ------ </option>
             <option>1</option>
             <option>A</option>
             <option>a</option>
@@ -390,6 +390,12 @@
 <li tpl-name="prop:start">
     <b>起始行号</b>
     <span><input type="text" name="start" class="_chars" placeholder="1" /></span>
+</li>
+
+<!-- 适用：<li> -->
+<li tpl-name="prop:value">
+    <b>起始行号</b>
+    <span><input type="text" name="value" class="_chars" placeholder="1" /></span>
 </li>
 
 <li tpl-name="prop:reversed">
@@ -442,7 +448,7 @@
 <li tpl-name="prop:target">
     <b>窗口</b>
     <span><select name="target">
-            <option value="">------</option>
+            <option value=""> ------ </option>
             <option value="_blank">_blank</option>
             <option value="_parent">_parent</option>
             <option value="_top">_top</option>
@@ -710,7 +716,7 @@
 <!--代码语言清单
     normal 普通代码，仅标记字符串和注释（//）。-->
 <select id="g-languages" data-id="code" name="language" tpl-name="prop:languages">
-    <option value="normal">------</option>
+    <option value="normal"> ------ </option>
     <option value="golang">Golang</option>
     <option value="cplus">C/C++</option>
     <option value="javascript">JavaScript</option>

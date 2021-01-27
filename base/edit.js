@@ -2857,7 +2857,7 @@ function convertInlines( name, els ) {
     let [opts, data] = convData2( els ),
         _new = data.map( nd => create(name, opts, nd) );
 
-    return [new DOMEdit(__Edits.replaces, els, _new), _new];
+    return [ new DOMEdit(__Edits.replaces, els, _new), _new ];
 }
 
 
@@ -2876,7 +2876,7 @@ function convertLines( name, els ) {
                 el.map( nd => create(name, opts, nd) ) :
                 create( name, opts, el )
         );
-    return [new DOMEdit(__Edits.replaces, els, _new), _new];
+    return [ new DOMEdit(__Edits.replaces, els, _new), _new.flat() ];
 }
 
 
@@ -2895,12 +2895,12 @@ function convertBlock( name, els ) {
     if ( convType(els[0]) === Sys.convLines ) {
         // 合并为单一目标。
         _new = create( name, opts, data, true );
-        return [new DOMEdit(__Edits.replacex, els, _new), [_new]];
+        return [ new DOMEdit(__Edits.replacex, els, _new), [_new] ];
     }
     _new = data.map(
         els => create( name, opts, els, true )
     );
-    return [new DOMEdit(__Edits.replaces, els, _new), _new];
+    return [ new DOMEdit(__Edits.replaces, els, _new), _new ];
 }
 
 
@@ -3125,8 +3125,9 @@ function insFixnode( pels, subs ) {
 //----------------------------------------------------------------------------
 
 /**
- * 微编辑项。
+ * 可否微编辑。
  * 依微编辑逻辑，首个可编辑即可。
+ * @return {Boolean}
  */
 function canMinied( els ) {
     return isContent( els[0] );
@@ -3134,7 +3135,8 @@ function canMinied( els ) {
 
 
 /**
- * 转换项。
+ * 是否可转换。
+ * @return {Boolean}
  */
 function canConvert() {
     return Kit.convtype() !== null;
@@ -3144,6 +3146,7 @@ function canConvert() {
 /**
  * 缩进递减。
  * 全为章节/片区单元且至少有一个非顶层章节。
+ * @return {Boolean}
  */
 function canIndent1( els ) {
     return sameTag( els, 'SECTION' ) && els.some( el => getType(el) !== T.S1 );
@@ -3153,6 +3156,7 @@ function canIndent1( els ) {
 /**
  * 缩进递增。
  * 全为章节/片区单元即可。
+ * @return {Boolean}
  */
 function canIndent2( els ) {
     return sameTag( els, 'SECTION' );
@@ -3161,6 +3165,7 @@ function canIndent2( els ) {
 
 /**
  * 普通删除。
+ * @return {Boolean}
  */
 function canDeletes( els ) {
     return els.every( canDelete );
@@ -3170,6 +3175,7 @@ function canDeletes( els ) {
 /**
  * 属性编辑。
  * 全部选取必需相同且可编辑属性。
+ * @return {Boolean}
  */
 function canProperty( els ) {
     let _tvs = [...typeSets(els)];
@@ -5193,7 +5199,7 @@ export const Kit = {
             _op2 = clearSets(),
             [op3, _new] = convertTo( evo.data, _els );
 
-        historyPush( _op1, _op2, op3, pushes(_new.flat()) );
+        historyPush( _op1, _op2, op3, pushes(_new) );
     },
 
     __convert: 1,
