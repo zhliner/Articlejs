@@ -2694,6 +2694,26 @@ class Table {
 
 
     /**
+     * 获取列单元格。
+     * 相对当前单元格的距离定位。
+     * - 负值：向前定位（DOM头部方向）。
+     * - 正值：向后定位（DOM尾部方向）。
+     * @param  {Element} cell 当前单元格
+     * @param  {Number} n 距离值（行）
+     * @param  {TableSection} tsec 表区域，可选
+     * @return {Element|[Element]|null}
+     */
+    columnCell( cell, n, tsec ) {
+        let _tr = this._distanceTR( cell.parentElement, n, tsec );
+        if ( !_tr ) return null;
+
+        let _idx = this.cellIndex( cell );
+
+        return isArr(_idx) ? _range(..._idx).map(i => indexCell(_tr, i)) : indexCell(_tr, _idx);
+    }
+
+
+    /**
      * 获取当前列的下一个单元格。
      * 注：如果返回值是一个数组，仅返回首个单元格。
      * @param  {Element} cell 单元格
@@ -2716,26 +2736,6 @@ class Table {
     columnPrevCell( cell, tsec ) {
         let _td = this.columnCell( cell, -1, tsec );
         return isArr( _td ) ? _td[0] : _td;
-    }
-
-
-    /**
-     * 获取列单元格。
-     * 相对当前单元格的距离定位。
-     * - 负值：向前定位（DOM头部方向）。
-     * - 正值：向后定位（DOM尾部方向）。
-     * @param  {Element} cell 当前单元格
-     * @param  {Number} n 距离值（行）
-     * @param  {TableSection} tsec 表区域，可选
-     * @return {Element|[Element]|null}
-     */
-    columnCell( cell, n, tsec ) {
-        let _tr = this._distanceTR( cell.parentElement, n, tsec );
-        if ( !_tr ) return null;
-
-        let _idx = this.cellIndex( cell );
-
-        return isArr(_idx) ? _range(..._idx).map(i => indexCell(_tr, i)) : indexCell(_tr, _idx);
     }
 
 
