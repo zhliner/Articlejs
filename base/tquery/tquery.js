@@ -890,16 +890,20 @@ Object.assign( tQuery, {
     /**
      * 获取表单元素内可提交类控件集。
      * 同名控件中用最后一个控件代表（用.val可获取值集）。
+     * 控件名以空格分隔。
+     * 返回的控件集遵循DOM中的顺序（而非名称指定）。
      * @param  {Element} form 表单元素
-     * @param  {...String} names 指定的控件名序列
+     * @param  {String} names 指定的控件名序列
      * @return {[Element]} 控件集
      */
-    controls( form, ...names ) {
+    controls( form, names ) {
         if ( form.elements.length == 0 ) {
             return [];
         }
-        let _flr = names.length ?
-            el => submittable(el) && names.includes(el.name) :
+        names = names && new Set( names.split(__reSpace) );
+
+        let _flr = names ?
+            el => submittable(el) && names.has(el.name) :
             submittable;
 
         return uniqueNamed( Arr(form.elements).filter( _flr ) );
@@ -907,18 +911,21 @@ Object.assign( tQuery, {
 
 
     /**
-     * 提取表单内可提交控件值为一个名值对数组。
+     * 提取控件名值对数组。
+     * 值为null或空数组的控件会被忽略（提交逻辑）。
+     * 控件名以空格分隔。
+     * 结果数组成员遵循控件在DOM中的顺序。
      * 名值对：[
      *      name,   // {String} 控件名
      *      value   // {String} 控件值
      * ]
-     * 注：值为空的表单控件会被忽略（提交逻辑如此）。
+     * 注：值为数组的成员会展开为多个值对（提交逻辑）。
      * @param  {Element} form 表单元素
-     * @param  {...String} names 指定的控件名序列
+     * @param  {String} names 指定的控件名序列，可选
      * @return {[Array2]} 键值对数组
      */
-    serialize( frm, ...names ) {
-        if ( names.length == 0 ) {
+    serialize( frm, names ) {
+        if ( !names ) {
             return [...new FormData(frm).entries()];
         }
         let _els = tQuery.controls(frm, names);
@@ -1895,11 +1902,11 @@ Object.assign( tQuery, {
      * 切换目标特性值。
      * 如果val是一个数组，就在前两个成员间切换。
      * 如果val只是一个值，就在值有无间切换（val|''）。
-     * 如果val未定义（null），则在属性有无间切换。
+     * 如果val未定义或为null，则在属性有无间切换。
      * 注：
      * 数组形式时以val[0]为对比目标，并不检查val[1]值。
      * @param  {Element} el 目标元素
-     * @param  {String} name 特性名
+     * @param  {String} name 特性名（单个）
      * @param  {Value|Array2|Function|null} val 切换值获取值回调，可选
      * @return {Element} el
      */
@@ -2370,7 +2377,7 @@ class Table {
         if ( val != null && !_cap ) {
             _cap = varyPrepend( this._tbl, this._create('caption') );
         }
-        switch (val) {
+        switch ( val ) {
             case true:
             case undefined:
                 return _cap;
@@ -2422,7 +2429,7 @@ class Table {
     /**
      * 0号表体：获取/删除/创建。
      * op: {
-     *      true        创建0号表体元素（如果不存在）并返回之
+     *      true        返回或创建0号表体元素
      *      null        删除并返回0位表体元素（可能为null）
      *      undefined   返回下标为0的表体元素（可能为null）
      * }
@@ -2442,7 +2449,7 @@ class Table {
     /**
      * 表头：获取/删除/创建。
      * op: {
-     *      true        创建表头元素（如果不存在）并返回之
+     *      true        返回既有或新建的表头元素
      *      null        删除并返回表头元素（可能为null）
      *      undefined   返回表头元素（可能为null）
      * }
@@ -2466,7 +2473,7 @@ class Table {
     /**
      * 表脚：获取/删除/创建。
      * op: {
-     *      true        创建表脚元素（如果不存在）并返回之
+     *      true        返回既有或新建的表脚元素
      *      null        删除并返回表脚元素（可能为null）
      *      undefined   返回表脚元素（可能为null）
      * }
@@ -5124,7 +5131,8 @@ function submittable( ctrl ) {
 /**
  * 按名称合并元素。
  * 注：相同名称的元素会重复获取值，故排除。
- * @param {[Element]} els 元素集
+ * @param  {[Element]} els 元素集
+ * @return {[Element]}
  */
 function uniqueNamed( els ) {
     let _map = els.reduce(
