@@ -478,17 +478,29 @@
     </aside>
 </div>
 
-<!-- 表格 -->
-<div class="_body _Table" tpl-name="input:table">
+<!--表格
+    传递必要的属性和表格元素引用，
+    由By处理器提取数据并构造。
+    data    表格:Element
+    caption 表标题:String|'' 空为不创建
+    border  边框类型:String|'' 空同null
+    th0     包含列头:on|null
+    head    包含表头:on|null
+    foot    包含表脚:on|null
+-->
+<div class="_body _Table" tpl-name="input:table"
+    on="create|$('/table') $('/[name=caption]') val $('form/') controls('border thead th0 tfoot') val"
+    by="Kit.table(_2)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
             <label>
-                <input name="rows" type="text" class="_nums" title="行数<tbody>" value="4"
+                <input name="rows" type="text" class="_nums" title="行数（<tbody>）" value="4"
                     on="change|evo(3) val int"
                     to="._main/tbody|trigger('rows')" />
                 ×
-                <input name="cols" type="text" class="_nums" title="列数" value="3"
+                <input name="cols" type="text" class="_nums" title="列数（不含列头）" value="3"
                     on="change|evo(3) val int"
                     to="._main/table|trigger('cols')" />
             </label>
@@ -497,38 +509,54 @@
             <!--初始默认表格规格
                 cols 表格列裁剪为目标列数。-->
             <table border="1" obt-src="obts/table.json"
-                on="cols|evo(3) ev('detail') or(null)"
+                on="cols|evo(3) ev('detail') or(0)"
                 by="Kit.colcrop(_1)">
                 <thead>
                     <tr>
-                        <th contenteditable></th>
-                        <th contenteditable></th>
-                        <th contenteditable></th>
+                        <th contenteditable="true" data-pbo="lost"></th>
+                        <th contenteditable="true"></th>
+                        <th contenteditable="true"></th>
+                        <th contenteditable="true"></th>
                     </tr>
                 </thead>
                 <!-- rows 表格行裁剪为目标行数。 -->
-                <tbody on="rows|evo(3) ev('detail') or(1)" by="Kit.croptr(_1)">
+                <tbody
+                    on="rows|evo(3) ev('detail') or(0)"
+                    by="Kit.croptr(_1)"
+                    to="._body/#_th0|trigger('check')">
                     <tr>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
+                        <th contenteditable="true" data-pbo="lost"></th>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
                     </tr>
                     <tr>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
+                        <th contenteditable="true" data-pbo="lost"></th>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
                     </tr>
                     <tr>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
+                        <th contenteditable="true" data-pbo="lost"></th>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
                     </tr>
                     <tr>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
-                        <td contenteditable></td>
+                        <th contenteditable="true" data-pbo="lost"></th>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
                     </tr>
                 </tbody>
+                <tfoot data-pbo="lost">
+                    <tr>
+                        <th contenteditable="true" data-pbo="lost"></th>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                        <td contenteditable="true"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -546,15 +574,24 @@
                 </select>
             </label>
             <hr />
-            <label title="<thead>">
-                <input name="thead" type="checkbox" value="THEAD" checked />包含表头
+            <label title="<thead>"
+                on="click|$('/input') val vnot"
+                to="._body/thead|lose">
+                <input name="thead" type="checkbox" checked />包含表头
             </label>
-            <label title="首列为<th>">
+            <!-- check 增加新行时需要列表头状态同步 -->
+            <label id="_th0" title="首列为<th>"
+                on="check|$('/input') val vnot;
+                    click"
+                to="(._body/th:first-child)|lose;
+                    |trigger('check')">
                 <input name="th0" type="checkbox" />首列表头
             </label>
             <hr />
-            <label title="<tfoot>">
-                <input name="tfoot" type="checkbox" value="TFOOT" />包含表脚
+            <label title="<tfoot>"
+                on="click|$('/input') val vnot"
+                to="._body/tfoot|lose">
+                <input name="tfoot" type="checkbox" />包含表脚
             </label>
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>

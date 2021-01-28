@@ -1167,17 +1167,12 @@ class Update {
      */
     apply( cell, pbs ) {
         let _f = methodSelf(this._meth, pbs),
-            _n, _x;
+            _n = _f[EXTENT],
+            _x = _f[ACCESS];
 
-        if ( !_f ) {
-            throw new Error(`${this._meth} is not in pbs:updates.`);
-        }
-        if ( _f[EXTENT] === undefined ) {
-            _n = 1;
-        }
-        if ( _f[ACCESS] === undefined ) {
-            _x = false;
-        }
+        if ( _n === undefined ) _n = 1;
+        if ( _x === undefined ) _x = false;
+
         return cell.build( this._args, update.bind(_f), _x, _n );
     }
 

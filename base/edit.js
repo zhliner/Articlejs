@@ -5208,11 +5208,15 @@ export const Kit = {
     /**
      * 裁剪表格行。
      * 表格末尾添加或移除以保持目标行数。
+     * 行数小于等于0时保持现状不变。
      * @data: TableSection
      * @param  {Number} size 目标行数
      * @return {void}
      */
     croptr( evo, size ) {
+        if ( size <= 0 ) {
+            return;
+        }
         let _tbd = evo.data,
             _cnt = size - _tbd.rows.length;
 
@@ -5225,19 +5229,19 @@ export const Kit = {
     /**
      * 裁剪表格列。
      * 在末尾添加或移除表格列以保持目标列数。
-     * 目标列数为null时表示保持现状不变。
+     * 目标列数小于等于0时保持现状不变。
      * @data: <table>
-     * @param  {Number|null} size 目标列数
+     * @param  {Number|null} size 目标列数（不含列头）
      * @return {void}
      */
     colcrop( evo, size ) {
-        if ( size == null ) {
+        if ( size <= 0 ) {
             return;
         }
         let _tbo = $.table( evo.data ),
-            _cnt = size - _tbo.cols();
+            _cnt = size - _tbo.cols() + 1;
 
-        _cnt && cropCols( _tbo, _cnt );
+        if ( _cnt ) cropCols( _tbo, _cnt );
     },
 
     __colcrop: 1,
@@ -5319,6 +5323,23 @@ export const Kit = {
 
     __fixinsert: 1,
 
+
+    /**
+     * 创建表格单元。
+     * @data: <table> 数据源
+     * @param  {String} caption 表标题内容
+     * @param  {String} border 边框类型
+     * @param  {Boolean} thead 包含表头
+     * @param  {Boolean} th0   首列表头
+     * @param  {Boolean} tfoot 包含表脚
+     * @return {Element} 表格元素
+     */
+    table( evo, caption, [border, thead, th0, tfoot]) {
+        //
+    },
+
+    __table: 1,
+
 };
 
 
@@ -5355,6 +5376,7 @@ processExtend( 'Kit', Kit, [
     'inserts',
     'topinsert',
     'fixinsert',
+    'table',
 ]);
 
 

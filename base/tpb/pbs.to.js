@@ -18,7 +18,6 @@
 import { Util } from "./tools/util.js";
 import { bindMethod, DataStore, ChainStore, storeChain } from "./config.js";
 import { Get } from "./pbs.get.js";
-import { debug } from "./pbs.base.js";
 
 // 无渲染占位。
 // import { Render } from "./tools/render.x.js";
@@ -145,22 +144,6 @@ const _Update = {
 
 
     /**
-     * 渲染目标元素/集。
-     * 如果目标是多个元素，它们采用相同的源数据渲染。
-     * 目标元素可能不是模板根元素，此时为局部渲染。
-     * @param  {Element|Collector} to 目标元素/集
-     * @param  {Object|Array} data 内容：渲染源数据
-     * @return {void}
-     */
-    render( to, data ) {
-        if ( $.isArray(to) ) {
-            return to.forEach( el => Render.update(el, data) );
-        }
-        Render.update( to, data );
-    },
-
-
-    /**
      * 集合包裹。
      * 注：tos视为一个整体作为待插入的内容。
      * @param  {Element|Collector} tos 检索目标
@@ -184,13 +167,29 @@ const _Update = {
      * 注记：不影响未设置方向的现有位置。
      * @param  {Element|Collector} to 目标元素/集
      * @param  {Array2|Object2|Number} 位置配置
-     * @return {void}
+     * @return {Collector|void}
      */
     scroll( to, pos ) {
-        if ( !$.isArray(to) ) {
-            to = [to];
+        if ( $.isArray(to) ) {
+            return $(to).scroll( scrollObj(pos) )
         }
-        to.forEach( el => $.scroll(el, scrollObj(pos)) );
+        $.scroll( to, scrollObj(pos) );
+    },
+
+
+    /**
+     * 渲染目标元素/集。
+     * 如果目标是多个元素，它们采用相同的源数据渲染。
+     * 目标元素可能不是模板根元素，此时为局部渲染。
+     * @param  {Element|Collector} to 目标元素/集
+     * @param  {Object|Array} data 内容：渲染源数据
+     * @return {void}
+     */
+    render( to, data ) {
+        if ( $.isArray(to) ) {
+            return to.forEach( el => Render.update(el, data) );
+        }
+        Render.update( to, data );
     },
 
 
@@ -379,10 +378,10 @@ const _Update = {
      * 否则返回参考节点的Collector封装。
      * @param  {Element|Collector} els 检索元素/集（数据）
      * @param  {Node|Element} ref 插入参考点或容器
-     * @param  {Boolean} clone 节点是否克隆
+     * @param  {Boolean} clone 数据节点是否克隆
      * @param  {Boolean} event 元素上的事件处理器是否克隆
      * @param  {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
-     * @return {Collector} 新克隆的节点集或插入参考节点
+     * @return {Collector} 插入参考节点或克隆插入的节点集的封装
      */
     _Update[ fns[0] ] = function( els, ref, clone, event, eventdeep  ) {
         ref = $(els)[fns[1]]( ref, clone, event, eventdeep );
@@ -507,14 +506,48 @@ const _Update = {
     'pba',
 ]
 .forEach(function( name ) {
-    /**
-     * @return {void}
-     */
+
+    // @return {void}
     _Update[name] = function( els, its ) {
         if ( $.isArray(els) ) {
             return els.forEach( el => Util[name](el, its) );
         }
         Util[name]( els, its );
+    };
+
+});
+
+
+//
+// 状态标识符。
+//
+const __uiState = [ '-', '', '^' ];
+
+
+//
+// 元素表现。
+// 状态标识 s：
+//      1|true  状态执行，默认
+//      0|false 状态取消
+//      2       状态切换
+// 注：
+// 与Get部分同名方法功能相同，仅目标不同。
+//===============================================
+[
+    ['hide',     'hidden'],
+    ['lose',     'lost'],
+    ['disable',  'disabled'],
+    ['fold',     'folded'],
+    ['truncate', 'truncated'],
+    ['full',     'fulled'],
+]
+.forEach(function( names ) {
+    // @return {void}
+    _Update[ names[0] ] = function( els, s ) {
+        if ( !$.isArray(els) ) {
+            els = [ els ];
+        }
+        els.forEach( el => Util.pbo(el, [`${__uiState[+s]}${names[1]}`]) );
     };
 
 });

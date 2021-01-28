@@ -653,15 +653,14 @@ const Children = {
     /**
      * 表格子单元创建。
      * 允许外部插入表体元素（同列数）。
-     * 表头/表脚仅创建为空元素。
+     * 如果head/foot明确为null，则为删除相应部分。
      * 注记：
      * 仅提供表体单元的递进处理（表格行）。
-     * 不提供删除选项子单元的能力。
      * @param {null} ref 参考子元素（占位）
      * @param {Element} tbl 表格元素
      * @param {String|Node|[Node]} caption 表标题内容
-     * @param {Boolean} head 添加表头
-     * @param {Boolean} foot 添加表脚
+     * @param {[String|Node]|null} head 表头数据
+     * @param {[String|Node]|null} foot 表脚数据
      * @param {Element} body 兼容表体元素
      */
     [ T.TABLE ]: function( ref, tbl, {caption, head, foot}, body ) {
@@ -669,15 +668,10 @@ const Children = {
             _buf = [],
             _tbd;
 
-        if ( caption ) {
-            _buf.push( _tbo.caption(caption) );
-        }
-        if ( head ) {
-            _buf.push( _tbo.head(true) );
-        }
-        if ( foot ) {
-            _buf.push( _tbo.foot(true) );
-        }
+        tableCaption( _tbo, caption, _buf );
+        tableHead( _tbo, head, _buf );
+        tableFoot( _tbo, foot, _buf );
+
         if ( body && body.tagName === 'TBODY' ) {
             _tbd = _tbo.bodies( 0, body );
         }
@@ -1046,7 +1040,7 @@ const Builder = {
      * 表格元素构建。
      * 注意缓存 Table 实例。
      * 注记：
-     * 列头在 Children:T.TBODY 处处理。
+     * 列头在 Children:T.TBODY 处理（需要有行）。
      * 行数体现在数据集上（每条一行）。
      * @param  {Element} tbl 表格元素（空）
      * @param  {Number} cols 列数
@@ -1055,7 +1049,7 @@ const Builder = {
     [ T.TABLE ]: function( tbl, {cols, border} ) {
         let _tbo = new $.Table( tbl );
 
-        if ( border != null ) {
+        if ( border ) {
             $.attr( tbl, 'border', border );
         }
         // 非空表格自然忽略。
@@ -1406,6 +1400,96 @@ function insertHeader( box, header ) {
     let _hx = $.get( '>h2', box );
 
     return _hx ? $.after( _hx, header ) : $.prepend( box, header );
+}
+
+
+/**
+ * 检查插入表标题。
+ * 如果已经存在，则替换标题内容。
+ * 明确传递caption为null，会删除表标题。
+ * @param  {Table} tbo 表格实例
+ * @param  {String|Node|null} data 表标题内容
+ * @param  {[Element]} 存储区引用
+ * @return {Element|null|void}
+ */
+function tableCaption( tbo, data, buf ) {
+    if ( !data ) {
+        return tbo.caption( data );
+    }
+    buf.push( tbo.caption(data) );
+}
+
+
+/**
+ * 检查插入表头单元。
+ * 如果已经存在，则替换单元格内容。
+ * 明确传递head为null，会删除表头元素。
+ * @param  {Table} tbo 表格实例
+ * @param  {[String|Node]|null} data 表头单元格数据集
+ * @param  {[Element]} 存储区引用
+ * @return {Element|null|void}
+ */
+function tableHead( tbo, data, buf ) {
+    if ( !data ) {
+        return tbo.head( data );
+    }
+    buf.push(
+        insertRows( tbo, createRows(tbo, data, true), tbo.head(true) )
+    );
+}
+
+
+/**
+ * 检查插入表脚单元。
+ * 如果已经存在，则替换单元格内容。
+ * 明确传递foot为null，会删除表脚元素。
+ * @param  {Table} tbo 表格实例
+ * @param  {[String|Node]|null} data 表头单元格数据集
+ * @param  {[Element]} 存储区引用
+ * @return {Element|null|void}
+ */
+function tableFoot( tbo, data, buf ) {
+    if ( !data ) {
+        return tbo.foot( data );
+    }
+    buf.push(
+        insertRows( tbo, createRows(tbo, data), tbo.foot(true) )
+    );
+}
+
+
+/**
+ * 插入表格行。
+ * @param  {Table} tbo 表格实例
+ * @param  {[Element]} trs 表格行集
+ * @param  {Element} tsec 表区域元素
+ * @return {Element} tsec
+ */
+function insertRows( tbo, trs, tsec ) {
+    trs.forEach(
+        tr => tbo.insertTR( tr, null, tsec )
+    );
+    return tsec;
+}
+
+
+/**
+ * 创建表格行集。
+ * @param  {Table} tbo 表格实例
+ * @param  {[[Value]]} data 行单元格集组（二维）
+ * @param  {Boolean} ishead 是否为表头行
+ * @return {[Element]} 行元素集
+ */
+function createRows( tbo, data, ishead ) {
+    let _buf = [];
+
+    for ( const dd of data ) {
+        _buf.push(
+            tbo.newTR( ishead )
+        );
+        $( 'th,td', _buf[_buf.length-1] ).fill( dd );
+    }
+    return _buf;
 }
 
 
@@ -1788,6 +1872,16 @@ function resultEnd( head, body ) {
         return $.isArray(body) ? body : [body];
     }
     return ( $.isArray(head) ? head : [head] ).concat( body );
+}
+
+
+/**
+ * 获取值集最后一项。
+ * @param  {[Value]} buf 值数组
+ * @return {Value}
+ */
+function last( buf ) {
+    return buf[ buf.length - 1 ];
 }
 
 

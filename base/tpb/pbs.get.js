@@ -1491,8 +1491,8 @@ const _Gets = {
 //===============================================
 [
     'isXML',        // (): Boolean
-    'controls',     // ( ...names ): [Element]
-    'serialize',    // ( ...names ): [Array2]
+    'controls',     // ( names ): [Element]
+    'serialize',    // ( names ): [Array2]
     'queryURL',     // (): String
     'isArray',      // (): Boolean
     'isNumeric',    // (): Boolean

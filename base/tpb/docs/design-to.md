@@ -101,147 +101,126 @@ xxxx   // 单元素检索，$.get(): Element | null
 //
 // 节点类赋值。
 /////////////////////////////////////////////////
-before( clone, event, eventdeep:Boolean )
-after( clone, event, eventdeep:Boolean )
-prepend( clone, event, eventdeep:Boolean )
-append( clone, event, eventdeep:Boolean )
-fill( clone, event, eventdeep:Boolean )
-replace( clone, event, eventdeep:Boolean )
-// 内容：{Node|[Node]|Collector|Set|Iterator|Function}
-// 附加：不支持。
+before( clone, event, eventdeep:Boolean ): Collector|Node|[Node]
+after( clone, event, eventdeep:Boolean ): Collector|Node|[Node]
+prepend( clone, event, eventdeep:Boolean ): Collector|Node|[Node]
+append( clone, event, eventdeep:Boolean ): Collector|Node|[Node]
+fill( clone, event, eventdeep:Boolean ): Collector|Node|[Node]
+replace( clone, event, eventdeep:Boolean ): Collector|Node|[Node]
 
-wrap( clone, event, eventdeep:Boolean )
-wrapInner( clone, event, eventdeep:Boolean )
-// 内容：{Element|String|[Element|String]}
-// 附加：不支持。
+wrap( clone, event, eventdeep:Boolean ): Element|[Element]
+wrapInner( clone, event, eventdeep:Boolean ): Element|[Element]
 
-wrapAll( clone, event, eventdeep:Boolean )
-// 内容：{Element|String} box
-// 附加：[clone, event, eventdeep:Boolean]
-// 说明：
-// 如果流程数据为数组，附加内容会补充到实参序列之后。
+wrapAll( clone, event, eventdeep:Boolean ): Collector
 
-cloneEvent( evns?:String|Function )
-// 事件处理器克隆。
-// 内容：{Element} 事件句柄源
-// 附加：{evns:String|Function}
-// 说明：
-// 如果无实参传递，流程数据为 [内容, evns] 时会被展开。
+//
+// 逆向插入。
+// 流程数据为目标，Query检索目标为内容。
+/////////////////////////////////////////////////
+beforeWith( clone, event, eventdeep:Boolean ): Collector
+afterWith( clone, event, eventdeep:Boolean ): Collector
+prependWith( clone, event, eventdeep:Boolean ): Collector
+appendWith( clone, event, eventdeep:Boolean ): Collector
+replaceWith( clone, event, eventdeep:Boolean ): Collector
+fillWith( clone, event, eventdeep:Boolean ): Collector
 
 
 //
 // 简单设置。
-// 内容：流程数据为唯一内容，数据本身可能为数组。
-// 附加：不支持，实参仅从模板传递。
-// 注：多余实参无副作用。
+// 注释内为内容类型。
 /////////////////////////////////////////////////
-height( inc?:Boolean )          // {Number}
-width( inc?:Boolean )           // {Number}
-scroll()                        // {top:Number, left:Number}
-scrollTop( inc?:Boolean )       // {Number}
-ScrollLeft( inc?:Boolean )      // {Number}
-addClass()                      // {String|Function}
-removeClass()                   // {String|Function}
-toggleClass( force?:Boolean )   // {String|Function|Boolean}
-removeAttr()                    // {String|Function}
-offset()                        // {top:Number, left:Number}
-val()                           // {Value|[Value]|Function}
-html( where?:String|Number, sep?:String)    // {String|[String]|Node|[Node]|Function|.values}
-text( where?:String|Number, sep?:String)    // {String|[String]|Node|[Node]|Function|.values}
+height( inc?:Boolean ): Collector|void          // {Number}
+width( inc?:Boolean ): Collector|void           // {Number}
+scroll(): Collector|void                        // {top:Number, left:Number}
+scrollTop( inc?:Boolean ): Collector|void       // {Number}
+scrollLeft( inc?:Boolean ): Collector|void      // {Number}
+addClass(): Collector|void                      // {String|Function}
+removeClass(): Collector|void                   // {String|Function}
+toggleClass( force?:Boolean ): Collector|void   // {String|Function|Boolean}
+removeAttr(): Collector|void                    // {String|Function}
+val(): Collector|void                           // {Value|[Value]|Function}
+offset(): Collector|void                        // {top:Number, left:Number}
+
+// {String|[String]|Node|[Node]|Function|.values}
+html( where?:String|Number, sep?:String): Collector|Node|[Node]
+text( where?:String|Number, sep?:String): Collector|Node|[Node]
 
 
 //
-// 特性/属性/样式设置增强版（空格分隔多个名称）。
+// 特性/属性/样式设置。
 /////////////////////////////////////////////////
-attr( names:String )
-prop( names:String )
-cssSets( names:String )
-// 内容：{Value|[Value]|Function|null}
-// 展开：[names:String|Object, 内容]
-// 说明：
-// 如果传递实参，流程数据视为单纯的值。
-// 如果实参为空，流程数据为数组时展开（非数组时应当为Object）。
+attr( name:String ): Collector|void
+attribute( names:String ): Collector|void
+toggleAttr( name:String ): Collector|void
+prop( name:String ): Collector|void
+property( names:String ): Collector|void
+css( name:String ): Collector|void
+cssSets( names:String ): Collector|void
 
 
 //
 // 事件处理。
 /////////////////////////////////////////////////
-bind( evnid:String, slr?:String )
-// 内容：{Cell|Value|[Value]} 调用链头或初始传入值
-// 用预定义的调用链作为事件处理器，绑定到目标。
-// evnid为 [事件名:ID] 结构，支持空格分隔多个名称，假值表示通配（目标上的全部存储）。
-// 注：
-// 如果内容不是Cell实例，从目标上检索（并绑定到目标）。
+bind( evnid:String, slr?:String ): void
+// 绑定预定义调用链。
 
-once( evnid:String, slr?:String )
-// 绑定事件的单次处理。
-// 内容/说明同上。
+once( evnid:String, slr?:String ): void
+// 绑定预定义调用链单次处理。
 
-on( evn?:String, slr?:String )
-one( evn?:String, slr?:String )
-off( evn?:String, slr?:String )
+on( evn?:String, slr?:String ): Collector|void
+one( evn?:String, slr?:String ): Collector|void
+off( evn?:String, slr?:String ): Collector|void
 // 事件绑定/解绑。
-// 内容：{EventListener|Function|false|null} 事件处理器。
-// 附加：[evn:String|Object, slr:String]
 
-trigger( name:String, bubble?, cancelable?:Boolean )
+trigger( name:String, bubble?, cancelable?:Boolean ): void
 // 发送事件到目标。
 
-triggers( name:String, bubble?, cancelable?:Boolean )
+triggers( name:String, bubble?, cancelable?:Boolean ): void
 // 发送事件到目标（元素与发送值分别对应版）。
 
-//
-// 逆向插入。
-// 流程数据为目标，Query检索目标为内容。
-// 注：一对一或一对多。
-/////////////////////////////////////////////////
-beforeWith( clone, event, eventdeep:Boolean )
-afterWith( clone, event, eventdeep:Boolean )
-prependWith( clone, event, eventdeep:Boolean )
-appendWith( clone, event, eventdeep:Boolean )
-replaceWith( clone, event, eventdeep:Boolean )
-fillWith( clone, event, eventdeep:Boolean )
-// 内容：{Element}
-// 附加：[clone, event, eventdeep:Boolean]
+cloneEvent( evns:String|Function ):void
+// 事件处理器克隆。
 
 
 //
 // 其它赋值。
 /////////////////////////////////////////////////
-pba()
-// PB参数设置。
-// 内容：{[String]}
-// 注：参数序列末尾存在-字符。
 
-pbo()
-// PB选项设置。
-// 内容：{[String]}
+render(): void
+// 渲染目标元素。
 
-render()
-// 渲染目标元素（原地更新）。
-// 内容：{Object|Array|Value}
-// 注：
-// 目标元素可以是模板根，也可以是局部（与渲染语法相关）。
+tips( long, msg ): void
+// 发送提示消息。
 
-data( name?:String )
+only( name:String ): void
+// 类名独占设置。
+
+data( name?:String ): void
 // 存储关联数据。
 
-chain( evnid:String )
-// 调用链存储（单个）。
-// 通常为从预存储中获取的调用链。
-// 如果目标是元素集合，单个调用链会存储到多个目标。
+chain( evnid:String ): void
+// 存储调用链（单个）。
 
-chains()
+chains(): void
 // 存储调用链集。
-// 事件名标识与调用链是作为Map的键值传递的，
-// 这里不能修改事件名标识（若需此能力请使用chain）。
 
-only( name:String )
-// 类名独占设置。
+pba(): void
+// PB参数设置。
+
+pbo(): void
+// PB选项设置。
+
+hide( v:Number|Boolean ): void
+lose( v:Number|Boolean ): void
+disable( v:Number|Boolean ): void
+fold( v:Number|Boolean ): void
+truncate( v:Number|Boolean ): void
+full( v:Number|Boolean ): void
+// 目标状态变化。
 
 
 //
-// 常用方法。
+// 简洁形式。
 // 采用前置特殊字符来简化实现。
 // 与增强版不同，这里仅支持单个名称。
 /////////////////////////////////////////////////
@@ -363,9 +342,4 @@ clear()
 // 表单控件清空。
 // 效果：选取类控件为取消选取，其它为清除value值。
 // 参考.select(), .focus()类用途。
-
-tips( long, msg )
-// 发送提示消息。
-// 内容：当前条目，可选。
-// 在目标元素上显示文本信息，通常仅持续一小段时间（long，毫秒）。
 ```
