@@ -1983,6 +1983,7 @@ const insertHandles = {
  */
 function insertsNodes( els, nodes2, before, where ) {
     return els.map( (ref, i) =>
+        // before: 0|1
         new DOMEdit( insertHandles[where][+before], ref, nodes2[i] )
     );
 }
@@ -2737,6 +2738,25 @@ function codeLis( data, lang ) {
         _buf.push( ...codeLis(its.html, its.lang) );
     }
     return _buf;
+}
+
+
+/**
+ * 提取表区域单元格数据。
+ * 返回值是一个按表格行分组的单元格值集（2-3维）。
+ * 方法名主要是取值接口：text|html|contents 等。
+ * 注记：
+ * 返回null是有用的，可用于移除目标表区域。
+ * @param  {[Element]|null} tsec 表区域元素
+ * @param  {String} slr 单元格选择器（th|td|th,td）
+ * @param  {String} meth 调用方法，可选
+ * @return {[[String]]|null}
+ */
+function tableCells( tsec, slr, meth = 'text' ) {
+    if ( !tsec ) {
+        return null;
+    }
+    return $( 'tr', tsec ).find( slr )[ meth ]();
 }
 
 
@@ -4686,7 +4706,7 @@ export const Kit = {
      * 注：选取元素可能是表格的子单元。
      * @return {Table}
      */
-    table() {
+    tobj() {
         return tableObj( tableNode(__ESet.first()) );
     },
 
@@ -5329,13 +5349,22 @@ export const Kit = {
      * @data: <table> 数据源
      * @param  {String} caption 表标题内容
      * @param  {String} border 边框类型
-     * @param  {Boolean} thead 包含表头
-     * @param  {Boolean} th0   首列表头
-     * @param  {Boolean} tfoot 包含表脚
+     * @param  {'no'|null} thead 包含表头
+     * @param  {'no'|null} th0   首列表头
+     * @param  {'no'|null} tfoot 包含表脚
      * @return {Element} 表格元素
      */
     table( evo, caption, [border, thead, th0, tfoot]) {
-        //
+        let _tbl = evo.data,
+            _slx = th0 ? '' : ':not(:first-child)',
+            _slr = th0 ? 'th,td' : 'td',
+            head = tableCells( thead && _tbl.tHead, `th${_slx}` ),
+            body = tableCells( _tbl.tBodies[0], _slr ),
+            foot = tableCells( tfoot && _tbl.tFoot, _slr ),
+            cols = body[0].length - !!th0;
+
+        th0 = !!th0;
+        return create( 'table', {cols, border, caption, th0, head, foot}, body, true );
     },
 
     __table: 1,
@@ -5385,7 +5414,7 @@ processExtend( 'Kit', Kit, [
 //
 customGetter( null, Kit, [
     'sels',
-    'table',
+    'tobj',
     'esize',
     'source',
     'rngok',

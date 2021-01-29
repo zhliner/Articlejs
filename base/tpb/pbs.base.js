@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals } from "./config.js";
+import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals, DEBUG } from "./config.js";
 
 
 const
@@ -41,11 +41,13 @@ const
     // 注：clean专用。
     __reSpace1n = /(\s)(\s*)/g,
 
-    // 颜色值：rgb(0, 0, 0)
-    __rgbDecimal = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/,
-
-    // 颜色值：rgba(0, 0, 0, 0.n)
-    __rgbaDecimal = /rgba\((\d+),\s*(\d+),\s*(\d+),\s*([.0-9]+)\)/,
+    // 颜色值：RGB|RGBA
+    __reRGBa = [
+        // rgb(128.0, 128, 128, 0.6)
+        /rgba?\(\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.%]+))?\s*\)/,
+        // rgb(34 12 64 / 0.6)
+        /rgba?\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.%]+))?\s*\)/,
+    ],
 
     // 选区对象存储池。
     __tmpRanges = {},
@@ -187,6 +189,43 @@ const _Control = {
     },
 
     __delay: null,
+
+
+    /**
+     * 循环执行启动。
+     * 从entry指令定义的入口处执行。
+     * 目标：暂存区/栈顶1项。
+     * 目标值用于判断是否继续循环（假值终止）。
+     * 传送的入栈值ival效果类似于entry指令的返回值。
+     * @param {Value} ival 起始入栈值
+     */
+    loop( evo, ival ) {
+        if ( DEBUG ) {
+            propectLoop( 0, '[loop] too many cycles.' );
+        }
+        evo.data && evo.entry( ival );
+    },
+
+    __loop: 1,
+
+
+    /**
+     * 动效循环启动。
+     * 从entry指令定义的入口处执行。
+     * 目标：暂存区/栈顶1项。
+     * 说明参考上面loop指令。
+     * 每次执行受限于硬件刷新率。
+     * @param  {Value} ival 起始入栈值
+     * @return {void}
+     */
+    effect( evo, ival ) {
+        if ( DEBUG ) {
+            propectLoop( 1, '[effect] too many cycles.' );
+        }
+        evo.data && requestAnimationFrame( () => evo.entry(ival) );
+    },
+
+    __effect: 1,
 
 
 
@@ -1461,25 +1500,14 @@ const _Process = {
     /**
      * RGB 16进制颜色值转换。
      * rgb(n, n, n) => #rrggbb。
-     * @return {String}
-     */
-    rgb16( evo ) {
-        return mapCall( evo.data, s => rgb16Val(s) );
-    },
-
-    __rgb16: 1,
-
-
-    /**
-     * RGBA 16进制值转换。
      * rgba(n, n, n, a) => #rrggbbaa。
      * @return {String}
      */
-    rgba16( evo ) {
-        return mapCall( evo.data, s => rgba16Val(s) );
+    rgb16( evo ) {
+        return mapCall( evo.data, s => rgb16str(s) );
     },
 
-    __rgba16: 1,
+    __rgb16: 1,
 
 
 
@@ -1654,7 +1682,7 @@ const _Process = {
      * 目标：暂存区/栈顶1项。
      * 目标为用户划选或定义的选取范围（Range）。
      * 仅适用特性被设置为 contenteditable="true" 的可编辑元素。
-     * 用法：
+     * 示例：
      * click(b)|xRange addRange evo(2) text exeCmd('insertText', _1)
      * 说明：
      * 提取预先存储/记忆的选区，添加到全局Selection上。
@@ -1664,15 +1692,15 @@ const _Process = {
      * @data: Range
      * @param  {String} name 命令名称
      * @param  {Value} data 待使用的数据
-     * @return {Boolean} 调用命令返回的值
+     * @return {void}
      */
     exeCmd( evo, name, data ) {
         $.closest(
             evo.data.commonAncestorContainer,
-            '[contenteditable], [tabindex]'
+            '[contenteditable]'
         ).focus();
 
-        return document.execCommand( name, false, data );
+        document.execCommand( name, false, data );
     },
 
     __exeCmd: 1,
@@ -1884,26 +1912,34 @@ function upperCase( str, first ) {
  * 获取RGB 16进制值。
  * 主要用于设置颜色控件（input:color）的有效值。
  * rgb(n, n, n) => #rrggbb。
+ * rgba(n, n, n, n) => #rrggbbaa
  * @param  {String} val 颜色值
  * @return {String}
  */
-function rgb16Val( val ) {
-    return '#' +
-        val.match(__rgbDecimal).slice(1, 4).map(n => num16ch2(+n)).join('');
+function rgb16str( val ) {
+    let _vs = null;
+
+    for ( const re of __reRGBa ) {
+        _vs = val.match( re );
+        if ( _vs ) break;
+    }
+    return _vs && `#${ rgb16val(..._vs.slice(1)) }`;
 }
 
 
 /**
- * 获取RGBA 16进制值。
- * rgba(n, n, n, a) => #rrggbbaa。
- * @param  {String} val 颜色值
+ * RGBA 16进制值构造。
+ * @param  {String} r Red
+ * @param  {String} g Green
+ * @param  {String} b Blue
+ * @param  {String} a 透明度，可选
  * @return {String}
  */
-function rgba16Val( val ) {
-    let _ns = val.match(__rgbaDecimal),
-        _al = parseInt(_ns[4]*256);
-
-    return '#' + _ns.slice(1, 4).map(n => num16ch2(+n)).join('') + num16ch2(_al);
+function rgb16val( r, g, b, a = '' ) {
+    if ( a ) {
+        a = (a.includes('%') ? parseFloat(a)/100 : parseFloat(a)) * 256;
+    }
+    return `${n16c2(+r)}${n16c2(+g)}${n16c2(+b)}` + ( a && n16c2(a) );
 }
 
 
@@ -1913,29 +1949,9 @@ function rgba16Val( val ) {
  * @param  {Number} n 数值
  * @return {String}
  */
-function num16ch2( n ) {
+function n16c2( n ) {
+    n = Math.floor(n);
     return n < 16 ? `0${n.toString(16)}` : n.toString(16);
-}
-
-
-/**
- * 迭代计数处理。
- * - 初始化。
- * - 递增。
- * - 完成后重置。
- * @param  {Cell} self 指令单元
- * @param  {Number} cnt 迭代次数
- * @return {true|void} 迭代结束返回true
- */
-function countStage( self, cnt ) {
-    if ( self[__ENTRY] == 0 ) {
-        delete self[__ENTRY];
-        return true;
-    }
-    if ( self[__ENTRY] === undefined ) {
-        self[__ENTRY] = +cnt || 1;
-    }
-    if ( cnt > 0 ) self[__ENTRY]--;
 }
 
 
@@ -1950,8 +1966,11 @@ const
     // 剪除：跳过计数属性。
     __PRUNE = Symbol('prune-count'),
 
-    // 入口/循环计数属性。
-    __ENTRY = Symbol('entry-loop');
+    // 保护计数器。
+    __propectLoop = [0, 0],
+
+    // 保护上限值。
+    __propectMax = 1 << 16;
 
 
 /**
@@ -1996,6 +2015,10 @@ prune[PREVCELL] = true;
  * @return {void}
  */
 function entry( evo ) {
+    if ( DEBUG ) {
+        __propectLoop[0] = 0;
+        __propectLoop[1] = 0;
+    }
     evo.entry = this.call.bind( this.next, evo );
 }
 
@@ -2003,59 +2026,16 @@ function entry( evo ) {
 
 
 /**
- * 动效启动（=> entry）
- * 目标：暂存区条目，可选
- * 执行前面entry指令设置的入口函数。
- * cnt 为迭代次数，0值与1相同，负值表示无限。
- * val 为每次迭代传入起始指令的值，可选。
- * 注：
- * - 每次重入会清空暂存区（全部取出）。
- * - 如果val为空则暂存区的值会传入起始指令。
- * 注意：
- * - 循环结束之后并不会移除入口，后面依然可以启动循环。
- * - 若后面启动循环，会连带激活当前循环（嵌套）。
- * 注记：
- * 循环迭代的频率受限于浏览器的重绘频率（硬件相关）。
- * 可以结合 sleep 指令获得较为确定的时间控制。
- * 主要在 To.NextStage 段使用，但定义在此可全局共享。
- *
- * @param  {Number} cnt 迭代次数
- * @param  {Value} val 起始指令初始值，可选
- * @return {void}
+ * 循环保护。
+ * 避免loop/effect指令执行时间过长。
+ * @param {String} msg 抛出的信息
  */
-function effect( evo, cnt, val = evo.data ) {
-    countStage( this, cnt ) ||
-    // 循环速率受限。
-    requestAnimationFrame( () => evo.entry(val) );
+function propectLoop( id, msg ) {
+    if ( __propectLoop[id]++ < __propectMax ) {
+        return;
+    }
+    throw new Error( msg );
 }
-
-//
-// 暂存区条目可选。
-// 注记：
-// 之后的指令从一个干净的暂存区开始。
-//
-effect[EXTENT] = 0;
-
-
-/**
- * 区段循环（=> entry）。
- * 目标：暂存区条目，可选
- * 参考 effect 指令说明。
- * 与effect类似，但循环迭代不受制于浏览器刷新率。
- * 注记：
- * 应当主要用于计算而非界面更新。
- * @param  {Number} cnt 迭代次数
- * @param  {Value} val 起始指令初始值，可选
- * @return {void}
- */
-function loop( evo, cnt, val = evo.data ) {
-    countStage( this, cnt ) || evo.entry( val );
-}
-
-//
-// 暂存区条目可选。
-//
-loop[EXTENT] = 0;
 
 
 /**
@@ -2096,8 +2076,6 @@ const Control = $.assign( {}, _Control, bindMethod );
 //
 Control.prune  = prune;
 Control.entry  = entry;
-Control.effect = effect;
-Control.loop   = loop;
 Control.debug  = debug;
 
 

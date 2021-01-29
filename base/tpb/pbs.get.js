@@ -210,11 +210,11 @@ const _Gets = {
      * 目标：暂存区/栈顶1项。
      * 目标可能是数组、字符串或类数组。
      */
-    length( evo ) {
+    len( evo ) {
         return evo.data.length;
     },
 
-    __length: 1,
+    __len: 1,
 
 
     /**
@@ -370,6 +370,19 @@ const _Gets = {
     },
 
     __nodeRange: 1,
+
+
+    /**
+     * 获取范围所在可编辑元素。
+     * @data: Range
+     * @return {Element}
+     */
+    rngbox( evo ) {
+        return evo.data &&
+            $.closest( evo.data.commonAncestorContainer, '[contenteditable]' );
+    },
+
+    __rngbox: 1,
 
 
 

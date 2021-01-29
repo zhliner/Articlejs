@@ -318,7 +318,7 @@ const Children = {
      * 友好非同类表格行，其它单元也可较好转换。
      * @param {null} ref 插入参考（占位）
      * @param {Element} tr 表格行元素
-     * @param {Element|Value|[Value]} 表格行数据
+     * @param {Element|Value|[Value]} data 表格行数据
      */
     [ T.TR ]: function( ref, tr, _, data ) {
         let $els = $( tr.cells );
@@ -346,16 +346,25 @@ const Children = {
      * 因为需要先有行元素才能插入列头。
      * @param {Element|null} ref 参考行元素
      * @param {Element} body 表体元素
-     * @param {Boolean} th0 添加列表头
+     * @param {Boolean} opts.th0 添加列表头
+     * @param {[String|Node]|null} opts.head 表头数据
+     * @param {[String|Node]|null} opts.foot 表脚数据
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
-    [ T.TBODY ]: function( ref, body, {th0}, data ) {
-        let _tbo = tableObj( body.parentElement ),
+    [ T.TBODY ]: function( ref, body, opts, data ) {
+        let {th0, head, foot} = opts,
+            _tbo = tableObj( body.parentElement ),
             [_new, _end] = appendRow( _tbo, ref, body, data );
 
         if ( th0 && _tbo.rows() > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
+        // 数据处理。
+        tableHeadTR( _tbo, head, _tbo.head() );
+        tableFootTR( _tbo, foot, _tbo.foot() );
+
+        cleanOptions( opts, 'th0', 'head', 'foot' );
+
         return result( null, _new, _end );
     },
 
@@ -506,16 +515,19 @@ const Children = {
      * 留待下阶填充内容。
      * @param {Element|null} ref 参考子元素
      * @param {Element} hgroup 标题组容器
-     * @param {Element|String|[Node]} h1 主标题或其内容
+     * @param {Element|String|[Node]} opts.h1 主标题或其内容
      * @param {Element|String} h3 副标题数据。
      */
-    [ T.HGROUP ]: function( ref, hgroup, {h1}, h3 ) {
-        let [_h3, _end] = appendChild(
-            ref,
-            hgroup,
-            h3,
-            () => elem( T.H3 )
-        )
+    [ T.HGROUP ]: function( ref, hgroup, opts, h3 ) {
+        let {h1} = opts,
+            [_h3, _end] = appendChild(
+                ref,
+                hgroup,
+                h3,
+                () => elem( T.H3 )
+            );
+        cleanOptions( opts, 'h1' );
+
         return result( h1 && insertHeading(hgroup, T.H1, h1), _h3, _end );
     },
 
@@ -526,6 +538,7 @@ const Children = {
      * @param {Element|null} ref 参考子元素
      * @param {Element} toc 目标根元素
      * @param {String} h3 目录显示标签
+     * @param {Element} ol 编号级联表
      */
     [ T.TOC ]: function( ref, toc, {h3}, ol ) {
         let [_ol, _end] = appendChild(
@@ -533,7 +546,7 @@ const Children = {
             toc,
             ol,
             () => elem( T.TOCCASCADE )
-        )
+        );
         return result( h3 && insertHeading(toc, T.H3, h3), _ol, _end );
     },
 
@@ -543,7 +556,7 @@ const Children = {
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 列表根容器（<nav>）
      * @param {String} h3 小标题
-     * @param {Element} 清单元素（<ol>）
+     * @param {Element} ol 清单元素
      */
     [ T.REFERENCE ]: function( ref, box, {h3}, ol ) {
         let [_el, _end] = appendChild(
@@ -561,7 +574,7 @@ const Children = {
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 列表根容器（<aside>）
      * @param {String} h3 小标题
-     * @param {Element} 清单元素（<ul>）
+     * @param {Element} ul 清单元素
      */
     [ T.SEEALSO ]: function( ref, box, {h3}, ul ) {
         let [_el, _end] = appendChild(
@@ -580,17 +593,20 @@ const Children = {
      * 即：内容需合法，否则简单忽略。
      * @param {Element|null} ref 参考子元素
      * @param {Element} art 文章元素
-     * @param {Element} header 导言，可选
+     * @param {Element} opts.header 导言，可选
      * @param {Element} data 子单元数据，可选
      */
-    [ T.ARTICLE ]: function( ref, art, {header}, data ) {
-        // 忽略第2个返回值
-        let [_new] = appendChild(
+    [ T.ARTICLE ]: function( ref, art, opts, data ) {
+        let {header} = opts,
+            // 忽略第2个返回值
+            [_new] = appendChild(
             ref,
             art,
             data,
             () => sectionFitted( ref, art, data )
         );
+        cleanOptions( opts, 'header' );
+
         return result( header && insertHeader(art, header), _new, true );
     },
 
@@ -635,18 +651,21 @@ const Children = {
      * 允许创建一个标题项。
      * @param {Element|null} ref 参考子元素
      * @param {Element} dl 描述列表根容器
-     * @param {String|Node|[Node]} dt 标题内容，可选
+     * @param {String|Node|[Node]} opts.dt 标题内容，可选
      * @param {Element} data 数据条目，可选
      */
-    [ T.DL ]: function( ref, dl, {dt}, data ) {
-        let [_dd, _end] = appendChild(
+    [ T.DL ]: function( ref, dl, opts, data ) {
+        let {dt} = opts,
+            [_dd, _end] = appendChild(
             ref,
             dl,
             data,
             () => elem( T.DD )
         );
+        cleanOptions( opts, 'dt' );
+
         // 标题项插入到数据项之前。
-        return result( dt && insertChild(_dd || data || ref, dl, elem(T.DT, dt)), _dd, _end );
+        return result( dt && insertChild(_dd || ref, dl, elem(T.DT, dt)), _dd, _end );
     },
 
 
@@ -658,23 +677,27 @@ const Children = {
      * 仅提供表体单元的递进处理（表格行）。
      * @param {null} ref 参考子元素（占位）
      * @param {Element} tbl 表格元素
-     * @param {String|Node|[Node]} caption 表标题内容
-     * @param {[String|Node]|null} head 表头数据
-     * @param {[String|Node]|null} foot 表脚数据
+     * @param {String|Node|[Node]} opts.caption 表标题内容
+     * @param {Value|null} opts.head 包含表头
+     * @param {Value|null} opts.foot 包含表脚
      * @param {Element} body 兼容表体元素
      */
-    [ T.TABLE ]: function( ref, tbl, {caption, head, foot}, body ) {
+    [ T.TABLE ]: function( ref, tbl, opts, body ) {
         let _tbo = tableObj( tbl ),
             _buf = [],
             _tbd;
 
-        tableCaption( _tbo, caption, _buf );
-        tableHead( _tbo, head, _buf );
-        tableFoot( _tbo, foot, _buf );
+        tableCaption( _tbo, opts.caption, _buf );
+        // 仅处理容器
+        tableHead( _tbo, opts.head );
+        tableFoot( _tbo, opts.foot );
 
         if ( body && body.tagName === 'TBODY' ) {
             _tbd = _tbo.bodies( 0, body );
         }
+        // head/foot留待.TBODY处理。
+        cleanOptions( opts, 'caption' );
+
         // 合法插入表体时结束递进。
         return result( _buf, _tbd || _tbo.body(true), !!_tbd );
     },
@@ -685,16 +708,19 @@ const Children = {
      * 合法插入则终止，否则创建默认单元并继续。
      * @param {Element|null} ref 参考子元素
      * @param {Element} fig 插图根元素
-     * @param {Element|String|[Node]} figcaption 标题元素或其内容
+     * @param {Element|String|[Node]} opts.figcaption 标题元素或其内容
      * @param {Element} data 子单元数据
      */
-    [ T.FIGURE ]: function( ref, fig, {figcaption}, data ) {
-        let [_el, _end] = appendChild(
+    [ T.FIGURE ]: function( ref, fig, opts, data ) {
+        let {figcaption} = opts,
+            [_el, _end] = appendChild(
             ref,
             fig,
             data,
             () => elem( T.FIGIMGBOX )
         );
+        cleanOptions( opts, 'figcaption' );
+
         return result( figcaption && insertHeading(fig, T.FIGCAPTION, figcaption), _el, _end );
     },
 
@@ -703,16 +729,19 @@ const Children = {
      * 详细内容/简介。
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 容器元素
-     * @param {Element|String|[Node]} summary 简介元素或其内容
+     * @param {Element|String|[Node]} opts.summary 简介元素或其内容
      * @param {Element} data 子单元数据
      */
-    [ T.DETAILS ]: function( ref, box, {summary}, data ) {
-        let [_el, _end] = appendChild(
+    [ T.DETAILS ]: function( ref, box, opts, data ) {
+        let {summary} = opts,
+            [_el, _end] = appendChild(
             ref,
             box,
             data,
             () => elem( T.P )
         );
+        cleanOptions( opts, 'summary' );
+
         return result( summary && insertHeading(box, T.SUMMARY, summary), _el, _end );
     },
 
@@ -770,16 +799,19 @@ const Children = {
      * 标题项为可选。
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 容器元素
-     * @param {Element|String|[Node]} h3 小标题元素或其内容，可选
+     * @param {Element|String|[Node]} opts.h3 小标题元素或其内容，可选
      * @param {Element} data 子单元数据
      */
-    Children[ it ] = function( ref, box, {h3}, data ) {
-        let [_el, _end] = appendChild(
+    Children[ it ] = function( ref, box, opts, data ) {
+        let {h3} = opts,
+            [_el, _end] = appendChild(
             ref,
             box,
             data,
             () => elem( T.P )
         );
+        cleanOptions( opts, 'h3' );
+
         return result( h3 && insertHeading(box, T.H3, h3), _el, _end );
     };
 });
@@ -835,15 +867,16 @@ const Children = {
      * 因此会无条件终止迭代。
      * @param {Element|null} ref 参考子元素
      * @param {Element} sec 片区元素
-     * @param {Element|String|[Node]} h2 标题元素或其内容
-     * @param {Element} header 导言，可选
+     * @param {Element|String|[Node]} opts.h2 标题元素或其内容
+     * @param {Element} opts.header 导言，可选
      * @param {Element} data 子单元数据，可选
      */
-    Children[ it ] = function( ref, sec, {h2, header}, data ) {
-        let _buf = [
-            h2 && insertHeading( sec, T.H2, h2 ),
-            header && insertHeader( sec, header )
-        ];
+    Children[ it ] = function( ref, sec, opts, data ) {
+        let {h2, header} = opts,
+            _buf = [
+                h2 && insertHeading( sec, T.H2, h2 ),
+                header && insertHeader( sec, header )
+            ];
         // 忽略第2个返回值
         let [_new] = appendChild(
             ref,
@@ -851,6 +884,8 @@ const Children = {
             data,
             () => sectionFitted( ref, sec, data )
         );
+        cleanOptions( opts, 'h2', 'header' );
+
         return result( _buf.filter(v => v), _new, true );
     };
 
@@ -1414,47 +1449,61 @@ function insertHeader( box, header ) {
  */
 function tableCaption( tbo, data, buf ) {
     if ( !data ) {
-        return tbo.caption( data );
+        return tbo.caption( null );
     }
     buf.push( tbo.caption(data) );
 }
 
 
 /**
- * 检查插入表头单元。
- * 如果已经存在，则替换单元格内容。
- * 明确传递head为null，会删除表头元素。
- * @param  {Table} tbo 表格实例
- * @param  {[String|Node]|null} data 表头单元格数据集
- * @param  {[Element]} 存储区引用
- * @return {Element|null|void}
+ * 创建/移除表头。
+ * @param {Table} tbo 表格实例
+ * @param {Value|null} val 值标记
  */
-function tableHead( tbo, data, buf ) {
-    if ( !data ) {
-        return tbo.head( data );
+function tableHead( tbo, val ) {
+    if ( val === null ) {
+        tbo.head( null );
     }
-    buf.push(
-        insertRows( tbo, createRows(tbo, data, true), tbo.head(true) )
-    );
+    if ( val ) tbo.head( true );
 }
 
 
 /**
- * 检查插入表脚单元。
- * 如果已经存在，则替换单元格内容。
- * 明确传递foot为null，会删除表脚元素。
- * @param  {Table} tbo 表格实例
- * @param  {[String|Node]|null} data 表头单元格数据集
- * @param  {[Element]} 存储区引用
- * @return {Element|null|void}
+ * 创建/移除表脚。
+ * @param {Table} tbo 表格实例
+ * @param {Value|null} val 值标记
  */
-function tableFoot( tbo, data, buf ) {
-    if ( !data ) {
-        return tbo.foot( data );
+function tableFoot( tbo, val ) {
+    if ( val === null ) {
+        tbo.foot( null );
     }
-    buf.push(
-        insertRows( tbo, createRows(tbo, data), tbo.foot(true) )
-    );
+    if ( val ) tbo.foot( true );
+}
+
+
+/**
+ * 插入表头内容。
+ * @param  {Table} tbo 表格实例
+ * @param  {[[String|Node]]|null} data 行单元格数据集组（二维）
+ * @param  {Element} thead 表头元素
+ * @return {void}
+ */
+function tableHeadTR( tbo, data, thead ) {
+    data &&
+    insertRows( tbo, createRows(tbo, data, true), thead );
+}
+
+
+/**
+ * 插入表脚内容。
+ * @param  {Table} tbo 表格实例
+ * @param  {[[String|Node]]|null} data 行单元格数据集组（二维）
+ * @param  {Element} tfoot 表脚元素
+ * @return {void}
+ */
+function tableFootTR( tbo, data, tfoot ) {
+    data &&
+    insertRows( tbo, createRows(tbo, data), tfoot );
 }
 
 
@@ -1789,6 +1838,20 @@ function childrenCalls( el, opts, data, more ) {
 
 
 /**
+ * 清除配置条目。
+ * 用于多次插入子单元时的配置清除（否则会重复操作）。
+ * 注记：
+ * 仅适用会同时插入多个子单元的容器。
+ * @param  {Object} opts 配置对象
+ * @return {Object}
+ */
+function cleanOptions( opts, ...names ) {
+    names
+    .forEach( name => delete opts[name] );
+}
+
+
+/**
  * 含title特性单元取值。
  * @param  {Element} el 待转换元素
  * @param  {Object} opts 特性存储空间
@@ -1975,23 +2038,23 @@ function build( el, opts, data, more ) {
  * - 由create新建开始的子结构迭代完成。
  * - 移动插入中间结构位置时的直接使用。
  * opts: {
- *      caption:    {Value}   表标题
- *      head:       {Boolean} 添加表头元素
- *      foot:       {Boolean} 添加表脚元素
- *      figcaption: {Value}   插图标题
- *      summary     {Value}   详细简介
- *      h1:         {Value}   页面主标题
- *      h3:         {Value}   行块小标题
- *      h4:         {Value}   级联表标题
- *      ah4:        {Element} 级联表标题链接（<a>）
- *      explain:    {Value}   图片讲解
- *      h2:         {Value}   片区（<section>）标题
- *      header:     {Element} 导言元素
- *      dt:         {Value}   描述列表标题项
- *      th0:        {Boolean} 表格列表头
- *      rpl:        {String}  左包围（<rp>）
- *      rpr:        {String}  右包围（<rp>）
- *      rt:         {String}  注音拼音（<rt>）
+ *      caption:    {Value}     表标题
+ *      head:       {[String]}  添加表头元素
+ *      foot:       {[String]}  添加表脚元素
+ *      figcaption: {Value}     插图标题
+ *      summary     {Value}     详细简介
+ *      h1:         {Value}     页面主标题
+ *      h3:         {Value}     行块小标题
+ *      h4:         {Value}     级联表标题
+ *      ah4:        {Element}   级联表标题链接（<a>）
+ *      explain:    {Value}     图片讲解
+ *      h2:         {Value}     片区（<section>）标题
+ *      header:     {Element}   导言元素
+ *      dt:         {Value}     描述列表标题项
+ *      th0:        {Boolean}   表格列表头
+ *      rpl:        {String}    左包围（<rp>）
+ *      rpr:        {String}    右包围（<rp>）
+ *      rt:         {String}    注音拼音（<rt>）
  * }
  * @param  {Element|null} ref 插入参考元素
  * @param  {Element|null} box 父容器元素

@@ -511,7 +511,9 @@
             <table border="1" obt-src="obts/table.json"
                 on="cols|evo(3) ev('detail') or(0)"
                 by="Kit.colcrop(_1)">
-                <thead>
+                <thead
+                    on="paste|avoid clipboard split('\n') env('_paste', _1) entry Range dup env('_paste') call('shift') exeCmd('insertText', _1) rngbox next dup(2) pass focus select"
+                    by="env('_paste') len loop">
                     <tr>
                         <th contenteditable="true" data-pbo="lost"></th>
                         <th contenteditable="true"></th>
@@ -933,7 +935,7 @@
 </div>
 
 <div class="_body _Table" tpl-name="input:thead"
-    on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
+    on="replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
     to="|data('tbo')|pop fire('/thead', 'new')">
     <div class="_main">
         <div class="_list">
@@ -963,7 +965,7 @@
     构造表格实例发送到<tbody>创建同类表格录入。
     会暂存实例，选单简单切换不影响已录入。 -->
 <div class="_body _Table" tpl-name="input:tbody"
-    on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
+    on="replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
     to="|data('tbo')|pop fire('/tbody', 'new')">
     <div class="_main">
         <div class="_list">
@@ -993,7 +995,7 @@
 </div>
 
 <div class="_body _Table" tpl-name="input:tfoot"
-    on="replaced|stop v.table dup(2) data('tbo') eq(_1) end"
+    on="replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
     to="|data('tbo')|pop fire('/tfoot', 'new')">
     <div class="_main">
         <div class="_list">
@@ -1169,7 +1171,7 @@
         save|ev('detail') dup xattr('-n');
         ^obted;
         ^done"
-    to="~|fill|target(0) goto('save', _1);
+    to="~|fill|primary goto('save', _1);
         |data(_1)|fire(11, 'done');
         (/span)|trigger('init', true);
         |off('init save')">

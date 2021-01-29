@@ -77,7 +77,7 @@ get( name:String ): Value|[Value]
 gets( ...name:String ): void
 // 对象成员自由取值。
 
-length(): Number
+len(): Number
 // 获取数据值长度。
 
 size(): Number
