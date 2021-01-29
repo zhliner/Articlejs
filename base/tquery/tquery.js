@@ -3525,6 +3525,9 @@ function _cloneEvents( src, to, top, deep ) {
 //
 // 元素收集器。
 // 继承自数组，部分数组的函数被重定义，但大部分保留。
+// 注记：
+// 集合类操作不支持二维源集合处理。
+// 非确定性检索也不支持二维源集合发起。
 //
 class Collector extends Array {
     /**
@@ -3692,9 +3695,9 @@ class Collector extends Array {
     /**
      * 在集合内的每一个元素中查询单个目标。
      * 注意父子关系的元素可能获取到重复的元素。
-     * 如果all为真，未找到的返回值（null）保留。
+     * 如果all为真，未找到的返回值null保留。
      * @param  {String} slr 选择器
-     * @param  {Boolean} all 全部保留
+     * @param  {Boolean} all 全部保留（含null）
      * @return {Collector}
      */
     get( slr, all ) {
@@ -3745,10 +3748,12 @@ class Collector extends Array {
      */
     xattr( name ) {
         if ( !isArr(name) ) {
-            return this.map( el => tQuery.xattr(el, name) );
+            // return this.map( el => tQuery.xattr(el, name) );
+            return this.map( el => mapCall('xattr', el, name) );
         }
         return new Collector(
-            cleanMap( this, (el, i) => name[i] && tQuery.xattr(el, name[i]) ),
+            // cleanMap( this, (el, i) => name[i] && tQuery.xattr(el, name[i]) ),
+            cleanMap( this, (el, i) => name[i] && mapCall('xattr', el, name[i]) ),
             this
         );
     }
@@ -3981,13 +3986,13 @@ elsEx([
 
 
 //
-// 元素检索。
-// tQuery.xx 成员调用返回单个元素或null。
-// 注：
-// next/prev因until参数可能导致重复。
-// 结果集已清除null值并去重排序。
+// 元素/节点（集）检索。
+// 注记：
+// 检索类接口不支持二维源集合操作。
 /////////////////////////////////////////////////
 elsEx([
+        // 单节点/元素，结果中可能包含null。
+        // next/prev因until参数可能导致重复。
         'next',
         'prev',
         'nextNode',
@@ -3995,23 +4000,8 @@ elsEx([
         'parent',
         'closest',
         'offsetParent',
-    ],
-    (fn, els, ...rest) =>
-        uniqueSort(
-            els.map( el => tQuery[fn](el, ...rest) ).filter( el => el != null ),
-            sortElements
-        )
-);
 
-
-//
-// 元素/节点（集）。
-// 大部分结果集是一个二维数组。
-// 注意结果集中可能存在 null 成员。
-/////////////////////////////////////////////////
-elsEx([
-        // 元素集
-        // 扁平化时需去重/排序。
+        // 结果集是一个二维数组，扁平化时需去重/排序。
         'prevAll',
         'prevUntil',
         'prevNodes',
@@ -4022,7 +4012,17 @@ elsEx([
         'siblings',
         'siblingNodes',
         'parentsUntil',
+    ],
+    (fn, els, ...rest) => els.map( el => tQuery[fn](el, ...rest) )
+);
 
+
+//
+// 元素/节点（集）。
+// 确定性取值，不存在重复。
+// 注记：非检索逻辑（但含过滤）。
+/////////////////////////////////////////////////
+elsEx([
         // 节点集
         // 扁平化时无需去重。
         'unwrap',
@@ -4034,7 +4034,9 @@ elsEx([
         // 无需扁平化和去重。
         'clone',
     ],
-    (fn, els, ...rest) => els.map( el => tQuery[fn](el, ...rest) )
+    (fn, els, ...rest) =>
+        // els.map( el => tQuery[fn](el, ...rest) )
+        els.map( el => mapCall(fn, el, ...rest) )
 );
 
 
@@ -4065,12 +4067,17 @@ elsEx([
 
         if ( isArr(box) ) {
             let _box = null;
-            els.forEach(
-                (el, i) => (_box = _validBox(box, i, _box)) && _buf.push( tQuery[fn](el, _box, clone, event, eventdeep) )
+
+            els.forEach( (el, i) =>
+                (_box = _validBox(box, i, _box)) &&
+                // _buf.push( tQuery[fn](el, _box, clone, event, eventdeep) )
+                _buf.push( mapCall(fn, el, _box, clone, event, eventdeep) )
             );
-        } else {
-            els.forEach(
-                el => _buf.push( tQuery[fn](el, box, clone, event, eventdeep) )
+        }
+        else {
+            els.forEach( el =>
+                // _buf.push( tQuery[fn](el, box, clone, event, eventdeep) )
+                _buf.push( mapCall(fn, el, box, clone, event, eventdeep) )
             );
         }
         return _buf;
@@ -4129,7 +4136,8 @@ elsExfn([
     ],
     fn =>
     function( ...rest ) {
-        return this.map( el => tQuery[fn](el, ...rest) );
+        // return this.map( el => tQuery[fn](el, ...rest) );
+        return this.map( el => mapCall(fn, el, ...rest) );
     }
 );
 
@@ -4154,7 +4162,8 @@ elsExfn([
     ].concat(callableNative),
     fn =>
     function( ...rest ) {
-        for ( let el of this ) tQuery[fn]( el, ...rest );
+        // for ( let el of this ) tQuery[fn]( el, ...rest );
+        for ( let el of this ) mapCall( fn, el, ...rest );
         return this;
     }
 );
@@ -4172,11 +4181,12 @@ elsExfn([
     ],
     fn =>
     function( names ) {
-        let _ia = isArr(names);
+        let _ia = isArr( names );
         // undefined成员自然忽略，
         // removeClass中undefined含义正确。
         this.forEach(
-            (el, i) => tQuery[fn](el, _ia ? names[i] : names)
+            // (el, i) => tQuery[fn](el, _ia ? names[i] : names)
+            (el, i) => mapCall(fn, el, _ia ? names[i] : names)
         );
         return this;
     }
@@ -4204,7 +4214,7 @@ elsExfn([
     ],
     fn =>
     function( name, value ) {
-        let _nia = isArr(name);
+        let _nia = isArr( name );
 
         if ( value === undefined &&
             (typeof name == 'string' || _nia && typeof name[0] == 'string') ) {
@@ -4229,12 +4239,14 @@ elsExfn([
  */
 function _customGets( fn, self, name, nia ) {
     if ( !nia ) {
-        return self.map( el => tQuery[fn](el, name) );
+        // return self.map( el => tQuery[fn](el, name) );
+        return self.map( el => mapCall(fn, el, name) );
     }
     let _buf = [];
 
     self.forEach( (el, i) =>
-        name[i] !== undefined && _buf.push( tQuery[fn](el, name[i]) )
+        // name[i] !== undefined && _buf.push( tQuery[fn](el, name[i]) )
+        name[i] !== undefined && _buf.push( mapCall(fn, el, name[i]) )
     )
     return new Collector( _buf, self );
 }
@@ -4255,10 +4267,12 @@ function _customSets( fn, els, name, val, nia ) {
         return _namesVals( fn, els, name, val );
     }
     if ( isArr(val) ) {
-        return els.forEach( (el, i) => val[i] !== undefined && tQuery[fn](el, name, val[i]) );
+        // return els.forEach( (el, i) => val[i] !== undefined && tQuery[fn](el, name, val[i]) );
+        return els.forEach( (el, i) => val[i] !== undefined && mapCall(fn, el, name, val[i]) );
     }
     // 全部相同赋值。
-    return els.forEach( el => tQuery[fn](el, name, val) );
+    // return els.forEach( el => tQuery[fn](el, name, val) );
+    return els.forEach( el => mapCall(fn, el, name, val) );
 }
 
 
@@ -4273,11 +4287,13 @@ function _customSets( fn, els, name, val, nia ) {
 function _namesVals( fn, els, name, val ) {
     if ( isArr(val) ) {
         return els.forEach( (el, i) =>
-            name[i] !== undefined && val[i] !== undefined && tQuery[fn](el, name[i], val[i])
+            // name[i] !== undefined && val[i] !== undefined && tQuery[fn](el, name[i], val[i])
+            name[i] !== undefined && val[i] !== undefined && mapCall(fn, el, name[i], val[i])
         );
     }
     // 全部相同赋值。
-    return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name[i], val) );
+    // return els.forEach( (el, i) => name[i] !== undefined && tQuery[fn](el, name[i], val) );
+    return els.forEach( (el, i) => name[i] !== undefined && mapCall(fn, el, name[i], val) );
 }
 
 
@@ -4301,13 +4317,16 @@ elsExfn([
     fn =>
     function( value ) {
         if (value === undefined) {
-            return this.map( el => tQuery[fn](el) );
+            // return this.map( el => tQuery[fn](el) );
+            return this.map( el => mapCall(fn, el) );
         }
         if (isArr(value)) {
-            this.forEach( (el, i) => value[i] !== undefined && tQuery[fn](el, value[i]) );
+            // this.forEach( (el, i) => value[i] !== undefined && tQuery[fn](el, value[i]) );
+            this.forEach( (el, i) => value[i] !== undefined && mapCall(fn, el, value[i]) );
         }
         else {
-            this.forEach( el => tQuery[fn](el, value) );
+            // this.forEach( el => tQuery[fn](el, value) );
+            this.forEach( el => mapCall(fn, el, value) );
         }
         return this;
     }
@@ -4332,10 +4351,12 @@ elsExfn([
     fn =>
     function( val, ...rest ) {
         if (val === undefined) {
-            return this.map( el => tQuery[fn](el) );
+            // return this.map( el => tQuery[fn](el) );
+            return this.map( el => mapCall(fn, el) );
         }
         let _vs = isArr(val) ?
-            _arrSets(fn, this, val, ...rest) : this.map(el => tQuery[fn](el, val, ...rest));
+            // _arrSets(fn, this, val, ...rest) : this.map(el => tQuery[fn](el, val, ...rest));
+            _arrSets(fn, this, val, ...rest) : this.map(el => mapCall(fn, el, val, ...rest));
 
         return new Collector( _vs, this );
     }
@@ -4355,7 +4376,8 @@ function _arrSets( fn, els, val, ...rest ) {
     let _buf = [];
 
     els.forEach( (el, i) =>
-        val[i] !== undefined && _buf.push( tQuery[fn](el, val[i], ...rest) )
+        // val[i] !== undefined && _buf.push( tQuery[fn](el, val[i], ...rest) )
+        val[i] !== undefined && _buf.push( mapCall(fn, el, val[i], ...rest) )
     );
     return _buf;
 }
@@ -4365,7 +4387,9 @@ function _arrSets( fn, els, val, ...rest ) {
 // 节点插入（多对多）。
 // 因为节点数据会移动，所以通常应该是克隆模式。
 // 支持值数组与集合成员一一对应。
-// 返回值可能是一个节点数组的集合（二维），与源数据形式有关。
+// 如果集合成员本身是一个数组，该数组视为单个成员（值成员应用到数组全部成员）。
+// 即：仅支持顶级一一对应。
+// 返回值可能是一个节点数组的集合（2-3维），与源数据形式有关。
 /////////////////////////////////////////////////
 elsExfn([
         'before',
@@ -4411,7 +4435,9 @@ function _arrInsert( fn, els, cons, clone, event, eventdeep ) {
         let _con = cons[i];
 
         if ( _con != null ) {
-            _buf.push( tQuery[fn](el, _con, clone, event, eventdeep) );
+            // _buf.push( tQuery[fn](el, _con, clone, event, eventdeep) );
+            // 如果成员本身是数组，可能返回三维值集。
+            _buf.push( mapCall(fn, el, _con, clone, event, eventdeep) );
         }
     }
     return _buf;
@@ -4421,7 +4447,7 @@ function _arrInsert( fn, els, cons, clone, event, eventdeep ) {
 //
 // 内容简单插入（非数组）。
 // 注：con可能为函数或迭代器，因此也可能返回数组。
-// @param  {Node|Set|Iterator|Function} cons 数据节点回调
+// @param  {Node|Set|Iterator|Function} con 数据项（非数组）
 // @param  {Boolean} clone 是否节点克隆
 // @param  {Boolean} event 是否克隆事件处理器（容器）
 // @param  {Boolean} eventdeep 是否深层克隆事件处理器（子孙元素）
@@ -4431,7 +4457,8 @@ function _conInsert( fn, els, con, clone, event, eventdeep ) {
     let _buf = [];
 
     for ( let el of els ) {
-        _buf.push( tQuery[fn](el, con, clone, event, eventdeep) );
+        // _buf.push( tQuery[fn](el, con, clone, event, eventdeep) );
+        _buf.push( mapCall(fn, el, con, clone, event, eventdeep) );
     }
     return _buf;
 }
@@ -5774,6 +5801,21 @@ function cleanFragment( frg ) {
         }
         window.console.warn('html-code contains forbidden attribute! removed.');
     }
+}
+
+
+/**
+ * 单体/集合映射调用。
+ * @param  {String} name 调用名
+ * @param  {Node|[Node]} its 目标节点（集）
+ * @param  {...Value} rest 剩余参数
+ * @return {Value|[Value]|[[Value]]}
+ */
+function mapCall( name, its, ...rest ) {
+    if ( isArr(its) ) {
+        return its.map( it => tQuery[name](it, ...rest) );
+    }
+    return tQuery[ name ]( its, ...rest );
 }
 
 
