@@ -431,7 +431,7 @@ class Builder {
 
     /**
      * To:Update构造。
-     * 返回最后一个Cell实例，接续To:NextStage。
+     * 返回最后一个Cell实例，接续To:Next。
      * @param  {Cell} prev 前一个指令单元
      * @param  {Stack} stack 数据栈实例
      * @param  {[Update]} updates To更新配置实例集

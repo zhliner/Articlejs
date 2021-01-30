@@ -512,7 +512,7 @@
                 on="cols|evo(3) ev('detail') or(0)"
                 by="Kit.colcrop(_1)">
                 <thead
-                    on="paste|avoid clipboard split('\n') env('_paste', _1) entry Range dup env('_paste') call('shift') exeCmd('insertText', _1) rngbox next dup(2) pass focus select"
+                    on="paste|avoid clipboard split('\n') env('_paste', _1) entry sRange edbox dup env('_paste') call('shift') exeCmd('insertText', _1) next dup(2) pass focus select"
                     by="env('_paste') len loop">
                     <tr>
                         <th contenteditable="true" data-pbo="lost"></th>
@@ -1151,7 +1151,7 @@
 
 <!-- 字符录入：右侧主栏字符清单 -->
 <div class="_body _Inline" tpl-name="minied:chars"
-    on="click(b)|xRange addRange evo(2) text exeCmd('insertText', _1)">
+    on="click(b)|xRange addRange edbox evo(2) text exeCmd('insertText', _1)">
     <div class="_main _list"
         on="mouseenter(b)|evo(2) text"
         to="#g-zoomin|text">
@@ -1171,7 +1171,7 @@
         save|ev('detail') dup xattr('-n');
         ^obted;
         ^done"
-    to="~|fill|primary goto('save', _1);
+    to="~|fill|target(0) goto('save', _1);
         |data(_1)|fire(11, 'done');
         (/span)|trigger('init', true);
         |off('init save')">

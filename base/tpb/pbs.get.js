@@ -81,7 +81,7 @@ const
 
 //
 // 取值类。
-// 适用于 On/To:NextStage 两个域。
+// 适用于 On/To:Next 两个域。
 //
 const _Gets = {
 
@@ -331,7 +331,7 @@ const _Gets = {
      * @param  {Boolean} loose 非严格约束
      * @return {Range|null|false}
      */
-    Range( evo, loose = false ) {
+    sRange( evo, loose = false ) {
         let _sel = window.getSelection(),
             _rng = null;
 
@@ -344,7 +344,7 @@ const _Gets = {
         return _rng && _rng.startContainer.parentNode === _rng.endContainer.parentNode && _rng;
     },
 
-    __Range: null,
+    __sRange: null,
 
 
     /**
@@ -373,16 +373,19 @@ const _Gets = {
 
 
     /**
-     * 获取范围所在可编辑元素。
-     * @data: Range
+     * 获取可编辑元素。
+     * @data: Range|Element
      * @return {Element}
      */
-    rngbox( evo ) {
-        return evo.data &&
-            $.closest( evo.data.commonAncestorContainer, '[contenteditable]' );
+    edbox( evo ) {
+        let _el = evo.data.nodeType ?
+            evo.data :
+            evo.data.commonAncestorContainer;
+
+        return $.closest( _el, '[contenteditable]' );
     },
 
-    __rngbox: 1,
+    __edbox: 1,
 
 
 
@@ -1309,29 +1312,6 @@ const _Gets = {
 
 
 //
-// PB专项取值。
-// 目标：暂存区/栈顶1项。
-// 即目标元素上 data-pbo|pba 特性的格式值。
-// 注：简单调用 Util.pba/pbo 即可。
-//////////////////////////////////////////////////////////////////////////////
-[
-    'pbo',  // 选项词序列
-    'pba',  // 有序的参数词序列
-]
-.forEach(function( name ) {
-
-    // @return {[String]|[[String]]}
-    _Gets[name] = function( evo ) {
-        return mapCall( evo.data, el => Util[name](el) );
-    };
-
-    _Gets[`__${name}`] = 1;
-
-});
-
-
-
-//
 // tQuery|Collector通用
 // 集合版会预先封装目标为一个Collector，以便获得其接口的优点。
 //////////////////////////////////////////////////////////////////////////////
@@ -1583,7 +1563,55 @@ const _Gets = {
 
 
 //
+// PB专项取值。
+// 目标：暂存区/栈顶1项。
+// 即目标元素上 data-pbo|pba 特性的格式值。
+// 注：简单调用 Util.pba/pbo 即可。
+//////////////////////////////////////////////////////////////////////////////
+[
+    'pbo',  // 选项词序列
+    'pba',  // 有序的参数词序列
+]
+.forEach(function( name ) {
+
+    // @return {[String]|[[String]]}
+    _Gets[name] = function( evo ) {
+        return mapCall( evo.data, el => Util[name](el) );
+    };
+
+    _Gets[`__${name}`] = 1;
+
+});
+
+
+//
+// 状态判断。
+//-------------------------------------
+[
+    'hidden',
+    'lost',
+    'disabled',
+    'folded',
+    'truncated',
+    'fulled',
+]
+.forEach(function( name ) {
+
+    // @return {Boolean|[Boolean]}
+    _Gets[name] = function( evo ) {
+        return mapCall( evo.data, el => Util.pbo(el).includes(name) );
+    };
+
+    _Gets[`__${name}`] = 1;
+
+});
+
+
+
+//
 // 元素自身行为。
+// 注记：
+// 下面的接口为To部分同名接口在On段的方便性支持。
 //////////////////////////////////////////////////////////////////////////////
 
 //
@@ -1625,34 +1653,12 @@ const __uiState = [ '-', '', '^' ];
 
 
 //
-// 状态判断。
-//-------------------------------------
-[
-    'hidden',
-    'lost',
-    'disabled',
-    'folded',
-    'truncated',
-    'fulled',
-]
-.forEach(function( name ) {
-
-    // @return {Boolean|[Boolean]}
-    _Gets[name] = function( evo ) {
-        return mapCall( evo.data, el => Util.pbo(el).includes(name) );
-    };
-
-    _Gets[`__${name}`] = 1;
-
-});
-
-
-//
 // 自我修改。
 // 目标：暂存区/栈顶1项。
 // 如果传递实参clean有值（非undefined），则结果入栈。
 // 注记：
-// 明确要求结果集是否清理，表示需要该结果集。
+// clean参数既是方法所需，也用于表达当前是否需要。
+// 明确要求结果集是否清理，表示结果集很重要。
 //===============================================
 [
     'empty',
@@ -1660,7 +1666,7 @@ const __uiState = [ '-', '', '^' ];
 ]
 .forEach(function( meth ) {
 
-    // 注意：集合版返回的是数组集。
+    // 注意：集合版返回的是二维数组。
     // @param  {Boolean} clean 结果集清理指示
     // @return {[Node]|Collector|void}
     _Gets[meth] = function( evo, clean ) {
@@ -1676,19 +1682,19 @@ const __uiState = [ '-', '', '^' ];
 //
 // 原生事件调用。
 // 目标：暂存区/栈顶1项（激发元素）。
-// 注：To:NextStage部分存在同名方法（目标不同）。
+// 注：To:Next部分存在同名方法（目标不同）。
 // 理解：重在“调用”。
 //===============================================
 [
     'click',
     'blur',
     'focus',
-    'select',
-    'reset',
-    'submit',
     'load',
     'play',
     'pause',
+    'reset',
+    'select',
+    'submit',
     'finish',
     'cancel',
 ]

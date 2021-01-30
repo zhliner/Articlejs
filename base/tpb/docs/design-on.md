@@ -98,11 +98,14 @@ check( name:String ): Boolean | [Boolean] | null
 value( name:String ): Value | [Value] | null
 // 获取控件值。
 
-Range( loose:Boolean ): Range | null | false
+sRange( loose:Boolean ): Range | null | false
 // 获取当前选取范围。
 
 nodeRange( collapse:Boolean|void ): Range
 // 选取目标节点为一个范围（Range）。
+
+edbox(): Element
+// 获取可编辑元素。
 
 
 // 类型转换&构造。

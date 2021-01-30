@@ -66,7 +66,7 @@ const __obter = new Builder( {
         on:     On,
         by:     By,
         update: To.Update,
-        next:   To.NextStage,
+        next:   To.Next,
     },
     storeChain
 );
@@ -142,7 +142,7 @@ if (DEBUG) {
     window.On = On;
     window.By = By;
     window.Update = To.Update;
-    window.Next = To.NextStage;
+    window.Next = To.Next;
     window.Tpl = __Tpl;
     window.Lib = Lib;
     window.namedTpls = namedTpls;

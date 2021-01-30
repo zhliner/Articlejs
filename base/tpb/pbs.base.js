@@ -59,7 +59,7 @@ const
 
 //
 // 控制类。
-// 适用 On/By/To:NextStage 三个域。
+// 适用 On/By/To:Next 三个域。
 //
 const _Control = {
 
@@ -1689,17 +1689,13 @@ const _Process = {
      * 激活选区所在可编辑容器元素，执行命令。
      * 注：
      * 插入的内容可进入浏览器自身撤销/重做栈。
-     * @data: Range
+     * @data: Element:contenteditable
      * @param  {String} name 命令名称
      * @param  {Value} data 待使用的数据
      * @return {void}
      */
     exeCmd( evo, name, data ) {
-        $.closest(
-            evo.data.commonAncestorContainer,
-            '[contenteditable]'
-        ).focus();
-
+        evo.data.focus();
         document.execCommand( name, false, data );
     },
 
@@ -1979,7 +1975,7 @@ const
  * 允许后端指令执行cnt次，之后再剪除衔接。
  * 可以指定移除的指令数量，-1表示后续全部指令，0表示当前指令（无意义）。
  * 非法的cnt值无效，取默认值1。
- * 注记：仅适用 On/By/To:NextStage 链段。
+ * 注记：仅适用 On/By/To:Next 链段。
  * @param  {Number} n 移除的指令数，可选
  * @param  {Number} cnt 执行次数，可选
  * @return {void}

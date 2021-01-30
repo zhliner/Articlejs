@@ -174,7 +174,7 @@ OBT的定义被书写在HTML元素的属性上，它们是字符串的形式，�
 
 ### 控制类
 
-适用于 On/By/To:NextStage 三个域。
+适用于 On/By/To:Next 三个域。
 
 ```js
 // 基本控制

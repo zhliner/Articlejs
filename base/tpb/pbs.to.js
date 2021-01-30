@@ -9,7 +9,7 @@
 //  OBT:To 方法集。
 //
 //  - Update 由 core.js/update 封装，取值数量默认固定为 1。
-//  - NextStage 依然可前置双下划线定义取栈条目数，大多数无返回值。
+//  - Next 依然可前置双下划线定义取栈条目数，大多数无返回值。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,15 +146,15 @@ const _Update = {
     /**
      * 集合包裹。
      * 注：tos视为一个整体作为待插入的内容。
-     * @param  {Element|Collector} tos 检索目标
+     * @param  {Element|Collector} to 检索目标
      * @param  {Element|String} box 包裹容器
      * @param  {Boolean} clone 包裹容器是否克隆（深层）
      * @param  {Boolean} event 是否克隆事件处理器
      * @param  {Boolean} eventdeep 是否克隆子元素事件处理器
      * @return {Collector} 包裹容器的Collector封装
      */
-    wrapAll( tos, box, clone, event, eventdeep ) {
-        return $(tos).wrapAll( box, clone, event, eventdeep );
+    wrapAll( to, box, clone, event, eventdeep ) {
+        return $(to).wrapAll( box, clone, event, eventdeep );
     },
 
 
@@ -313,19 +313,18 @@ const _Update = {
 .forEach(function( meth ) {
     /**
      * 如果目标是一个数组，返回新插入节点集的Collector封装。
-     * 注：结果集合已经扁平化。
-     * @param  {Element|Collector} tos 目标元素/集
+     * @param  {Element|Collector} to 目标元素/集
      * @param  {Node|[Node]|Collector|Set|Iterator|Function} data 数据内容
      * @param  {Boolean} clone 节点是否克隆
      * @param  {Boolean} event 元素上的事件处理器是否克隆
      * @param  {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
      * @return {Collector|Node|[Node]} 新插入的节点/集
      */
-    _Update[meth] = function( tos, data, clone, event, eventdeep ) {
-        if ( $.isArray(tos) ) {
-            return $(tos)[meth](data, clone, event, eventdeep).flat();
+    _Update[meth] = function( to, data, clone, event, eventdeep ) {
+        if ( $.isArray(to) ) {
+            return $(to)[meth](data, clone, event, eventdeep);
         }
-        return $[meth]( tos, data, clone, event, eventdeep );
+        return $[meth]( to, data, clone, event, eventdeep );
     };
 
 });
@@ -341,19 +340,41 @@ const _Update = {
 ]
 .forEach(function( meth ) {
     /**
-     * 如果目标是一个数组，返回新插入节点集的Collector封装。
-     * 同上，结果集已经扁平化。
-     * 注：如果不希望更新目标，可用特性（@text|@html）更新方法。
-     * @param  {Element|Collector} tos 目标元素/集
+     * 目标为数组时返回新插入节点集的Collector封装。
+     * 注：
+     * 如果不希望更新目标，可用特性更新接口（@text|@html）。
+     * @param  {Element|Collector} to 目标元素/集
      * @param  {Value} data 数据内容
      * @param  {...Value} args 额外参数
      * @return {Collector|Node|[Node]} 新插入的节点/集
      */
-    _Update[meth] = function( tos, data, where, sep ) {
-        if ( $.isArray(tos) ) {
-            return $(tos)[meth](data, where, sep).flat();
+    _Update[meth] = function( to, data, where, sep ) {
+        if ( $.isArray(to) ) {
+            return $(to)[meth]( data, where, sep );
         }
-        return $[meth](tos, data, where, sep);
+        return $[meth]( to, data, where, sep );
+    };
+
+});
+
+
+//
+// 自我修改。
+// 集合版返回的是二维数组。
+// 内容：{Boolean|void}
+// @return {[Node]|Collector}
+//===============================================
+[
+    'empty',
+    'unwrap',
+]
+.forEach(function( meth ) {
+
+    _Update[meth] = function( to, clean ) {
+        if ( $.isArray(to) ) {
+            return $( to )[meth]( clean );
+        }
+        return $[meth]( to, clean );
     };
 
 });
@@ -408,16 +429,16 @@ const _Update = {
     /**
      * 目标为数组时返回目标的Collector封装。
      * 目标为元素时保持不变。
-     * @param  {Element|Collector} tos 目标元素/集
+     * @param  {Element|Collector} to 目标元素/集
      * @param  {Value|[Value]|Function|null} val 内容
      * @param  {String} name 名称/序列
      * @return {Collector|void}
      */
-    _Update[meth] = function( tos, val, name ) {
-        if ( $.isArray(tos) ) {
-            return $(tos)[meth]( name, val );
+    _Update[meth] = function( to, val, name ) {
+        if ( $.isArray(to) ) {
+            return $(to)[meth]( name, val );
         }
-        $[meth]( tos, name, val );
+        $[meth]( to, name, val );
     };
 
 });
@@ -444,16 +465,16 @@ const _Update = {
     /**
      * 目标为数组时返回目标的Collector封装。
      * 目标为元素时保持不变。
-     * @param  {Element|Collector} tos 目标元素/集
+     * @param  {Element|Collector} to 目标元素/集
      * @param  {Value} data 数据内容
      * @param  {...Value} args 额外参数
      * @return {Collector|void}
      */
-    _Update[meth] = function( tos, data, ...args ) {
-        if ( $.isArray(tos) ) {
-            return $(tos)[meth]( data, ...args );
+    _Update[meth] = function( to, data, ...args ) {
+        if ( $.isArray(to) ) {
+            return $(to)[meth]( data, ...args );
         }
-        $[meth]( tos, data, ...args );
+        $[meth]( to, data, ...args );
     };
 
 });
@@ -497,9 +518,6 @@ const _Update = {
 
 //
 // PB专项设置。
-// 内容：[String]
-// 目标为多个元素时，仅支持设置为相同的值。
-// 注：简单调用 Util.pba/pbo。
 ///////////////////////////////////////////////////////////////////////////////
 [
     'pbo',
@@ -507,6 +525,8 @@ const _Update = {
 ]
 .forEach(function( name ) {
 
+    // 内容：[String]
+    // 目标为多个元素时，仅支持设置为相同的值。
     // @return {void}
     _Update[name] = function( els, its ) {
         if ( $.isArray(els) ) {
@@ -525,13 +545,15 @@ const __uiState = [ '-', '', '^' ];
 
 
 //
-// 元素表现。
+// 元素自身表现。
 // 状态标识 s：
 //      1|true  状态执行，默认
 //      0|false 状态取消
 //      2       状态切换
-// 注：
-// 与Get部分同名方法功能相同，仅目标不同。
+// 注记：
+// 与Get部分同名方法功能相同，但目标为Query的结果。
+// 另外状态标识由流程数据提供。
+// 这在根据前阶处理结果来决定状态时便于使用。
 //===============================================
 [
     ['hide',     'hidden'],
@@ -556,36 +578,23 @@ const __uiState = [ '-', '', '^' ];
 
 //
 // 下一阶处理。
-// 类似普通的 PB:Call 逻辑。
+// 普通的调用逻辑，但仅在To部分有效。
 // @return {void}
 ///////////////////////////////////////////////////////////////////////////////
 
-const _NextStage = {
+const _Next = {
     /**
-     * To目标更新或获取。
-     * 内容：暂存区1项可选。
-     * 如果暂存区有值，则赋值为更新目标（updated）。
-     * @return {Element|Collector|void}
+     * 获取To目标。
+     * - 0  primary
+     * - 1  updated 默认
+     * @param  {Number} 标识值（0|1），可选
+     * @return {Element|[Element]|Collector}
      */
-    target( evo ) {
-        if ( evo.data === undefined ) {
-            return evo.updated;
-        }
-        evo.updated = evo.data;
+    target( evo, n = 1 ) {
+        return n > 0 ? evo.updated : evo.primary;
     },
 
-    __target: -1,
-
-
-    /**
-     * 获取To初始检索目标。
-     * @return {Element|Collector}
-     */
-    primary( evo ) {
-        return evo.primary;
-    },
-
-    __prime: null,
+    __target: null,
 
 
     /**
@@ -606,7 +615,7 @@ const _NextStage = {
      * @param {Boolean} cancelable 是否可取消，可选。默认可取消
      */
     fire( evo, rid, name, delay = 1, bubble = true, cancelable = true ) {
-        let _to = target( evo, rid, true );
+        let _to = _target( evo, rid, true );
         Util.fireEvent( $(_to), name, delay, evo.data, bubble, cancelable );
     },
 
@@ -643,14 +652,11 @@ const _NextStage = {
      * @param {String} rid 表单元素选择器（单个）
      * @param {String} evn 定制事件名，可选
      */
-    changes( evo, rid, evn = 'changed' ) {
-        let _frm = evo.updated;
+    changes( evo, rid = 11, evn = 'changed' ) {
+        let _frm = _target( evo, rid );
 
-        if ( rid ) {
-            _frm = Util.find( rid, evo.delegate, true );
-        }
-        for ( const el of $(_frm) ) {
-            changedTrigger( $.controls(el), evn, evo.data );
+        for ( const frm of $(_frm) ) {
+            changedTrigger( $.controls(frm), evn, evo.data );
         }
     },
 
@@ -667,7 +673,7 @@ const _NextStage = {
      * @return {void}
      */
     intoView( evo, y, x, rid = 11 ) {
-        $.intoView( evo.data || target(evo, rid), y, x );
+        $.intoView( evo.data || _target(evo, rid), y, x );
     },
 
     __intoView: -1,
@@ -686,12 +692,12 @@ const _NextStage = {
     'click',
     'blur',
     'focus',
-    'select',
-    'reset',
-    'submit',
     'load',
     'play',
     'pause',
+    'reset',
+    'select',
+    'submit',
     'finish',
     'cancel',
 
@@ -705,11 +711,11 @@ const _NextStage = {
      * @param {String} rid 目标选择标识，可选
      * @param {Boolean} much 是否检索多个目标，可选
      */
-    _NextStage[meth] = function( evo, rid = 11, much ) {
-        $( evo.data || target(evo, rid, !much) )[ meth ]();
+    _Next[meth] = function( evo, rid = 11, much ) {
+        $( evo.data || _target(evo, rid, !much) )[ meth ]();
     };
 
-    _NextStage[`__${meth}`] = -1;
+    _Next[`__${meth}`] = -1;
 
 });
 
@@ -941,7 +947,7 @@ function selectChanged( sel ) {
  * @param  {Boolean} one 是否单元素检索，可选
  * @return {Element|Collector}
  */
-function target( evo, rid, one ) {
+function _target( evo, rid, one ) {
     switch ( +rid ) {
         case 1:  return evo.target;
         case 2:  return evo.current;
@@ -971,6 +977,6 @@ To.Update = $.assign( {}, _Update, bindMethod )
 
 // 绑定：this固化。
 // @proto: Get < Process < Control
-To.NextStage = $.proto(
-    $.assign( {}, _NextStage, bindMethod ), Get
+To.Next = $.proto(
+    $.assign( {}, _Next, bindMethod ), Get
 );

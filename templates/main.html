@@ -75,7 +75,7 @@
         medok|env('minied') pass (ESC) apply('pop') env('minied', false) stop;
         medin|env('minied') end (ESC) evo(3) apply('add', _1) env('minied', true) stop delay;
         info|$('#g-scroll') focus;
-        @paste|avoid xRange addRange clipboard exeCmd('insertText', _1)"
+        @paste|avoid xRange addRange edbox clipboard exeCmd('insertText', _1)"
     by="Kit.medpass(_1);
         Kit.medcancel"
     to="-;
@@ -99,7 +99,7 @@
             cut|env('minied') end avoid v.sels text clean(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('pastefill');
             focus|env('minied') end $('/main') nodeRange(true) addRange;
-            copy|env('minied') end Range str end avoid v.sels text clean(' ') trim join('\n') pop clipboard;
+            copy|env('minied') end sRange str end avoid v.sels text clean(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end scam('shift') pass env('pastefill', true);
             keyup|env('minied') end env('pastefill', null);
             _focus|env('minied') end evo(3) focus"
@@ -236,16 +236,16 @@
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。
         -->
         <main id="content" class="content"
-            on="click(*)|avoid env('minied') end Range str end evo(1) scam;
+            on="click(*)|avoid env('minied') end sRange str end evo(1) scam;
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) v.roleinfo(_1) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 cancel|stop env('minied') end (Kit) call('ecancel');
-                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) Range dup pass dup str pass;
+                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass dup str pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
-                mousedown|env('minied') end Range str vnot scam('shift') both pop avoid;
-                mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass Range pop xRange stop"
+                mousedown|env('minied') end sRange str vnot scam('shift') both pop avoid;
+                mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass sRange pop xRange stop"
             by="Ed.click(_1)"
             to="#g-count|trigger('reset');
                 =|addClass;

@@ -12,7 +12,7 @@
         save|ev('detail') dup xattr('-val');
         ^obted;
         ^done"
-    to="~|fill|primary goto('save', _1);
+    to="~|fill|target(0) goto('save', _1);
         |data(_1)|fire(11, 'done');
         (/span)|trigger('init', true);
         |off('init save')|data('unit number') debug">

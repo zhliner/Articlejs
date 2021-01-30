@@ -113,6 +113,12 @@ wrapInner( clone, event, eventdeep:Boolean ): Element|[Element]
 
 wrapAll( clone, event, eventdeep:Boolean ): Collector
 
+html( where?:String|Number, sep?:String): Collector|Node|[Node]
+text( where?:String|Number, sep?:String): Collector|Node|[Node]
+
+empty(): [Element]|Collector
+unwrap(): [Element]|Collector
+
 //
 // 逆向插入。
 // 流程数据为目标，Query检索目标为内容。
@@ -140,10 +146,6 @@ toggleClass( force?:Boolean ): Collector|void   // {String|Function|Boolean}
 removeAttr(): Collector|void                    // {String|Function}
 val(): Collector|void                           // {Value|[Value]|Function}
 offset(): Collector|void                        // {top:Number, left:Number}
-
-// {String|[String]|Node|[Node]|Function|.values}
-html( where?:String|Number, sep?:String): Collector|Node|[Node]
-text( where?:String|Number, sep?:String): Collector|Node|[Node]
 
 
 //
@@ -295,51 +297,34 @@ full( v:Number|Boolean ): void
 
 
 ```js
-target()
-// To当前目标更新或取值。
+target( n?:Number ): Element|[Element]|Collector
+// 获取To目标。
 
-primary()
-// To初始目标获取。
-
-fire( rid, name, delay, bubble, cancelable )
+fire( rid, name, delay, bubble, cancelable ): void
 // 延迟激发事件。
 
-goto( name, extra )
+goto( name, extra ): void
 // 跳转到目标事件。
 
-blur()
 click()
+blur()
 focus()
-pause()
+load()
 play()
+pause()
 reset()
 select()
-load()
 submit()
+finisht()
+cancel()
 // 在目标元素上触发。
 
 scroll( x, y )
 // 滚动到目标位置。
 
-intoViewX( pos )
-intoViewY( pos )
-intoView( x, y )
+intoView( y, x, rid ): void
 // 滚动到当前视口。
 
-
-// 友好定制。
-//===============================================
-
-changes()
+changes( rid, env ): void
 // 表单控件改变通知。
-// 目标：<form>（仅适用）。
-// 检查表单控件值是否非默认值，激发控件上的特定事件（默认changed）。
-// 注：如果都没有改变，不会激发事件。
-// 用例：
-// 在表单的reset中处理改变了默认状态的控件。
-
-clear()
-// 表单控件清空。
-// 效果：选取类控件为取消选取，其它为清除value值。
-// 参考.select(), .focus()类用途。
 ```

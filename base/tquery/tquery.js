@@ -411,16 +411,18 @@
         // 其中 submit() 和 load() 调用不会触发相应事件。
         //
         callableNative = [
-            'blur',
             'click',
+            'blur',
             'focus',
             'load',
-            'pause',
             'play',
+            'pause',
             'reset',
             // 'scroll',  // 定制
             // 'select',  // 定制
             'submit',
+            'finish',
+            'cancel',
         ],
 
         //
@@ -7022,11 +7024,11 @@ const Event = {
     // 元素的其它普通方法也可以被激发，但都需要预先绑定处理器（不可出现在此）。
     //
     nativeEvents: new Set([
-        'blur',
         'click',
+        'blur',
         'focus',
-        'pause',    // audio, video
         'play',     // audio, video
+        'pause',    // audio, video
         'reset',    // form
         'scroll',
         'select',   // textarea, input:text
