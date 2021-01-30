@@ -511,9 +511,7 @@
             <table border="1" obt-src="obts/table.json"
                 on="cols|evo(3) ev('detail') or(0)"
                 by="Kit.colcrop(_1)">
-                <thead
-                    on="paste|avoid clipboard split('\n') env('_paste', _1) entry sRange edbox dup env('_paste') call('shift') exeCmd('insertText', _1) next dup(2) pass focus select"
-                    by="env('_paste') len loop">
+                <thead obt-src="obts/pastes.json">
                     <tr>
                         <th contenteditable="true" data-pbo="lost"></th>
                         <th contenteditable="true"></th>
@@ -522,7 +520,7 @@
                     </tr>
                 </thead>
                 <!-- rows 表格行裁剪为目标行数。 -->
-                <tbody
+                <tbody obt-src="obts/pastes.json"
                     on="rows|evo(3) ev('detail') or(0)"
                     by="Kit.croptr(_1)"
                     to="._body/#_th0|trigger('check')">
@@ -551,7 +549,7 @@
                         <td contenteditable="true"></td>
                     </tr>
                 </tbody>
-                <tfoot data-pbo="lost">
+                <tfoot obt-src="obts/pastes.json" data-pbo="lost">
                     <tr>
                         <th contenteditable="true" data-pbo="lost"></th>
                         <td contenteditable="true"></td>

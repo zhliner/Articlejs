@@ -1,0 +1,5 @@
+{
+    "//": "连续兄弟元素内容粘贴。从当前光标位置开始，之后的兄弟元素为内容替换方式（select）。",
+    "on": "paste|avoid clipboard split('\\n') env('_paste', _1) entry sRange edbox dup env('_paste') call('shift') exeCmd('insertText', _1) next dup(2) pass focus select",
+    "by": "env('_paste') len loop"
+}
