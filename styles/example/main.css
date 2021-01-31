@@ -529,7 +529,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 
-.content tbody tr>:first-child {
+.content tbody tr>:first-child,
+.content tfoot tr>:first-child {
     text-align: start;
     padding-inline-start: 0.5em;
 }
@@ -551,6 +552,15 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content caption {
     font-weight: bold;
     margin: 4px;
+}
+
+/* 表头区隔 */
+.content thead > tr:last-child {
+    border-bottom: 3px gray double;
+}
+/* 表脚区隔 */
+.content tfoot > tr:first-child {
+    border-top: 2px #ccc solid;
 }
 
 
@@ -890,9 +900,4 @@ code[data-lang="css"] b[role=tag] {
 /* 竖边框（列） */
 .content table[border='v'] tr > * {
     border-width: 0 1px 0 0;
-}
-
-/* 表头区隔 */
-.content thead > tr:last-child {
-    border-bottom: 3px gray double;
 }

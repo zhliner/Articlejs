@@ -3618,12 +3618,16 @@ export const Edit = {
 
     /**
      * [By] 从路径选取/聚焦。
-     * 按住聚焦辅助键单击为仅聚焦（路径序列不会重构）。
-     * 按住切换选辅助键单击为切换选，否则为多选。
+     * 无条件聚焦。
+     * 按聚焦辅助键单击为仅聚焦，路径序列不重构。
+     * 按切换选辅助键单击为切换选/多选（同内容区操作）。
+     * 无按辅助键单击为普通多选。
      */
     pathTo( evo, scam ) {
+        pathFocus( evo.data );
+
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
-            return pathFocus( evo.data );
+            return;
         }
         if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
             return historyPush( ...selectOne(evo.data, 'turn') );

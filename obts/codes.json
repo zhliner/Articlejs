@@ -1,5 +1,5 @@
 {
-    "//": "提取源码，根据语言设定解析高亮并处理Tab配置。",
+    "//": "提取源码、Tab和语言设定，递交给语法解析方法（v.codehtml）",
     "on": "create|$('/textarea') val dup pass $('/[name=tabs]') val int $('/[name=language]') val v.codehtml(_2)",
     "to": "|trigger('node')"
 }

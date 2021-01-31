@@ -96,7 +96,7 @@ aside#help {
 
 /* 空元素视觉提示 */
 .___Content main *:empty::after {
-    content: '== Empty ==';
+    content: '==Empty==';
     color: darkgray;
     font-style: italic;
 }
