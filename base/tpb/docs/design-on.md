@@ -164,6 +164,12 @@ svg( tag?:String ): Element | Collector
 wrapAll( box:String ): Collector
 // 元素集封装。
 
+json( replacer, space ): String
+// JSON 序列化
+
+JSON( reviver ): Object | Value
+// JSON 解析
+
 Date( ...args? ): Date
 // 构造日期对象入栈。
 

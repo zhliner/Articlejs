@@ -491,18 +491,24 @@ const Children = {
     /**
      * 仅返回图片元素供递进构建。
      * @param {Element|null} ref 参考子元素
-     * @param {Element} box 图片容器
+     * @param {Element} box 图片容器（<span>）
      * @param {String|Node|[Node]} explain 图片讲解，可选
-     * @param {Element} data 主体内容（<img>, <svg>）
+     * @param {Element} data 主体内容（<img>|<svg>）
      */
     [ T.FIGIMGBOX ]: function( ref, box, {explain}, data ) {
         let [_img, _end] = appendChild(
-            ref,
-            box,
-            data,
-            () => elem( T.IMG )
-        );
-        return result( explain && $.append(box, elem(T.EXPLAIN, explain)), _img, _end );
+                ref,
+                box,
+                data,
+                () => elem( T.IMG )
+            ),
+            _expl = explain;
+
+        if ( typeof _expl === 'string' ) {
+            // 换行可转为<br>
+            _expl = $.prop( elem(T.EXPLAIN), 'innerText', explain );
+        }
+        return result( _expl && appendNode(box, _expl), _img, _end );
     },
 
 
@@ -1303,7 +1309,7 @@ const ConvBlocks = {
             opts.h3 = _hx.textContent;
             _subs.splice( _subs.indexOf(_hx), 1 );
         }
-        // 强制展开，因为内容区单击展开无效。
+        // 内容区取消了单击展开能力，故强制。
         opts.open = true;
         return [ opts, $(_subs).clone() ];
     },
@@ -1613,6 +1619,27 @@ function appendCells( tr ) {
         _tbo = tableObj( _sec.parentElement );
 
     return $.append( tr, _tbo.newTR(_sec.tagName === 'THEAD').children );
+}
+
+
+/**
+ * 简单插入子节点。
+ * 检查并插入，有任一非法时忽略并返回null，
+ * 否则返回插入的子单元。
+ * @param  {Element} box 容器元素
+ * @param  {Node|[Node]} node 节点数据
+ * @return {Element} node
+ */
+function appendNode( box, node ) {
+    let _nodes = node;
+
+    if ( !$.isArray(node) ) {
+        _nodes = [ node ];
+    }
+    if ( _nodes.some( el => !T.isChildType(box, el)) ) {
+        return null;
+    }
+    return $.append( box, node );
 }
 
 

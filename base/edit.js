@@ -23,7 +23,7 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
-import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent, indentSpace } from './common.js';
+import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent, indentSpace, parseJSON } from './common.js';
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
@@ -5042,6 +5042,30 @@ export const Kit = {
     __codelis: 1,
 
 
+    /**
+     * 根据内容类型创建图片。
+     * 注：用于插图构造内容图片。
+     * 内容格式：{
+     *      iurl    首行URL，第二行特性配置
+     *      durl    同上，但URL为DataURL
+     *      svgx    XML源码内容
+     * }
+     * @data: String
+     * @param  {String} type 图片类型（iurl|durl|svgx）
+     * @return {Element} <img>|<svg>
+     */
+    image( evo, type ) {
+        if ( type === 'svgx' ) {
+            return $.svg( { html: evo.data } );
+        }
+        let _v2 = evo.data.split( '\n' ),
+            _opts = _v2[1] ? parseJSON( _v2[1] ) : {};
+
+        return create( T.IMG, $.assign({src: _v2[0]}, _opts) );
+    },
+
+    __image: 1,
+
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -5436,6 +5460,7 @@ customGetter( null, Kit, [
     'codehtml',
     'codeopts',
     'codelis',
+    'image',
 ]);
 
 

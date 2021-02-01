@@ -21,7 +21,6 @@ const
     __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
 
 
-
 //
 // 基本类定义。
 //////////////////////////////////////////////////////////////////////////////
@@ -38,7 +37,7 @@ export class ESet extends Set {
      * mark为类名，不参与节点的vary事件处理。
      * @param {String} mark 选取标记类
      */
-    constructor( mark, fire ) {
+    constructor( mark ) {
         super();
         this._cls = mark;
     }
@@ -423,6 +422,18 @@ function minInds( str, max ) {
 //
 // 基本函数集。
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * JSON 解析。
+ * 容错对象属性和值的单引号表示，
+ * 属性还支持无引号表示。
+ * @param  {String} str 目标的字符串表示
+ * @return {Object|Value}
+ */
+export function parseJSON( str ) {
+    return new Function( `return ${str}` )();
+}
 
 
 /**

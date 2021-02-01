@@ -656,6 +656,29 @@ const _Gets = {
 
 
     /**
+     * JSON 序列化。
+     * @data: JSON对象
+     * @param  {[String]|Function|null} replacer 属性名或处理器
+     * @param  {String} space 缩进序列（美化）
+     * @return {String} JSON的字符串表示
+     */
+    json( evo, replacer, space ) {
+        return JSON.stringify( evo.data, replacer, space );
+    },
+
+
+    /**
+     * JSON 解析。
+     * @data: String
+     * @param  {Function} reviver 解析处理器
+     * @return {Object|Value}
+     */
+    JSON( evo, reviver ) {
+        return mapCall( evo.data, s => JSON.parse(s, reviver) );
+    },
+
+
+    /**
      * 构造日期对象。
      * 目标：暂存区条目可选。
      * 目标如果有值，补充到模板实参序列之后（数组会展开）。

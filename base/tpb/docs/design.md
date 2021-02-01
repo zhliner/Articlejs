@@ -400,6 +400,9 @@ trim( where = 0 ): String
 clean( all ): String
 // 空白清理。
 
+substr( start, end ): String
+// 子串截取（substring）
+
 replace( ...args ): String
 // 内容替换。
 

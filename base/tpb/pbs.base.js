@@ -1446,6 +1446,19 @@ const _Process = {
 
 
     /**
+     * 提取子串。
+     * 注意：
+     * 这是对 .substring() 方法的封装（而不是.substr()）。
+     * @param  {Number} start 起始位置下标
+     * @param  {Number} end 结束位置下标
+     * @return {String}
+     */
+    substr( evo, start, end ) {
+        return mapCall( evo.data, s => s.substring(start, end) );
+    },
+
+
+    /**
      * 内容替换。
      * 对String:replace的简单封装但支持数组。
      * @param  {...Value} args 参数序列

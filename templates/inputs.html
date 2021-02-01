@@ -607,11 +607,12 @@
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
             <label><input name="below" type="checkbox" />标题在下</label>
         </header>
+        <!-- 另一种图片创建方式（不用img创建子模版） -->
         <textarea name="figure" id="url" class="_code"
             on="tips|evo(1) ev('detail') attr(_1);
-                ^obted|$('2/select') val"
+                ^obted"
             to="|@placeholder;
-                |trigger('tips')"
+                2/select||fire(10, 'change')"
             data-iurl="/upload/20200515/picx.jpg&#10;{ width: 800, alt: '...' }"
             data-durl="data:image/png;base64,...&#10;{ width: 800, alt: '...' }"
             data-svgx="<svg>...</svg>"></textarea>
@@ -621,11 +622,11 @@
         <div class="_option">
             <label>类型
                 <select name="type"
-                    on="change|$ val"
+                    on="change|$ val str('data-')"
                     to="4/#url|trigger('tips')">
-                    <option value="-iurl">图片URL</option>
-                    <option value="-durl">DataURL</option>
-                    <option value="-svgx">SVG源码</option>
+                    <option value="iurl">图片URL</option>
+                    <option value="durl">DataURL</option>
+                    <option value="svgx">SVG源码</option>
                 </select>
             </label>
             <!-- 注记：讲解定位放到属性定义 -->

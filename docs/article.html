@@ -30,6 +30,11 @@
     window.Tpb = Tpb;
     window.EXTENT = EXTENT;
 </script>
+<script>
+    let wk = new Worker( '../base/scripter.js' );
+    window.work = wk;
+    window.console.info( wk );
+</script>
 </head>
 <body>
     <main class="content">

@@ -1,0 +1,43 @@
+//! $Id: scripter.js 2021.02.01 Articlejs.Libs $
+//++++++++++++++++++++++++++++++++++++++++++++++
+//  Project: Articlejs v0.1.0
+//  E-Mail:  zhliner@gmail.com
+//  Copyright (c) 2020 - 2021 铁皮工作室  MIT License
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+//	代码执行器（Worker环境）
+//
+//	用于封装js代码在较为安全的环境下执行，避免影响主程序。
+//  代码中通过 return 语句向外面返回值。
+//
+// 	代码中支持两个数据集：
+// 	- TEXT	选取集的文本数据
+// 	- HTML	选举权的源码数据：内容行元素的 innerHTML，内联单元的 outerHTML
+//
+// 	注记：
+//	Worker 不能访问 window 和文档对象（DOM）。
+//
+///////////////////////////////////////////////////////////////////////////////
+//
+
+//
+// 执行入口
+// ev.data
+// - text:  选取集内容文本（TEXT）
+// - html:  选取集源码（innerHTML/outerHTML）
+//
+onmessage = function( ev ) {
+    let _val;
+    try {
+        _val = new Function(
+                'TEXT',
+                'HTML',
+                ev.data
+            )( ev.text || [], ev.html || [] );
+    }
+    catch ( e ) {
+        _val = new Error( `${e.name}: ${e.message}` );
+    }
+    postMessage( _val );
+};
