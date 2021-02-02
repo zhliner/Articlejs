@@ -1627,7 +1627,7 @@ function appendCells( tr ) {
  * 检查并插入，有任一非法时忽略并返回null，
  * 否则返回插入的子单元。
  * @param  {Element} box 容器元素
- * @param  {Node|[Node]} node 节点数据
+ * @param  {Node} node 节点数据
  * @return {Element} node
  */
 function appendNode( box, node ) {
@@ -1636,7 +1636,7 @@ function appendNode( box, node ) {
     if ( !$.isArray(node) ) {
         _nodes = [ node ];
     }
-    if ( _nodes.some( el => !T.isChildType(box, el)) ) {
+    if ( _nodes.some( el => !T.isChildType(box, getType(el))) ) {
         return null;
     }
     return $.append( box, node );

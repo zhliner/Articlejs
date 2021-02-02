@@ -26,14 +26,11 @@
     import "../base/create.js";
     import "../base/edit.js";
     import {EXTENT} from '../base/tpb/config.js';
+    import { parseJSON } from "../base/common.js";
 
     window.Tpb = Tpb;
     window.EXTENT = EXTENT;
-</script>
-<script>
-    let wk = new Worker( '../base/scripter.js' );
-    window.work = wk;
-    window.console.info( wk );
+    window.parseJSON = parseJSON;
 </script>
 </head>
 <body>

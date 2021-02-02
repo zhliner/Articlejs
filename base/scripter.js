@@ -21,23 +21,27 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+
 //
-// 执行入口
 // ev.data
 // - text:  选取集内容文本（TEXT）
 // - html:  选取集源码（innerHTML/outerHTML）
+// - code:  需要执行的代码
+// 容错：
+// 可直接传递字符串代码执行，但没有TEXT/HTML两个数据集。
 //
 onmessage = function( ev ) {
-    let _val;
+    let _val,
+        _o = ev.data;
     try {
         _val = new Function(
                 'TEXT',
                 'HTML',
-                ev.data
-            )( ev.text || [], ev.html || [] );
+                _o.code || _o
+            )( _o.text || [], _o.html || [] );
     }
     catch ( e ) {
-        _val = new Error( `${e.name}: ${e.message}` );
+        throw new Error( `${e.name}: ${e.message}` );
     }
     postMessage( _val );
 };

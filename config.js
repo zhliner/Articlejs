@@ -1,5 +1,5 @@
-//! $Id: config.js 2020.04.05 $
-// +++++++++++++++++++++++++++++++++++++++++++++++
+//! $Id: config.js 2020.04.05 Articlejs.Base $
+// +++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2020 - 2020 铁皮工作室  MIT License
@@ -15,118 +15,116 @@
 //
 
 
-//
-// 限制配置集。
-//
-export const Limit = {
-
-    // 历史栈长度
-    // 注意定位移动可能会占据大量的步数。
-    history:        999,
-
-    // 弹出菜单边距友好（像素）
-    // 顶部距划选文本和右侧靠时距容器边框距离。
-    popupGapTop:    10,
-    popupGapRight:  3,
-
-};
+const
+    // 脚本执行器（Worker）
+    // 路径定位可能需要根据实际部署调整。
+    // 名称请勿修改！
+    Scripter = new Worker( '/base/scripter.js' ),
 
 
-//
-// 系统级提示信息。
-// 注：可视情况进行本地化。
-//
-export const Tips = {
+    Limit = {
+        // 历史栈长度
+        // 注意定位移动可能会占据大量的步数。
+        history:        999,
 
-    // 章节空标题占位
-    sectionH2:      '[ Empty heading ]',
+        // 弹出菜单边距友好（像素）
+        // 顶部距划选文本和右侧靠时距容器边框距离。
+        popupGapTop:    10,
+        popupGapRight:  3,
 
-    // 本地暂存完成提示。
-    localStoreDone: 'saving done.',
-
-    // 顶层章节不可再提升
-    sectionNotUp:   'section:s1 can not up again.',
-
-};
+    },
 
 
-//
-// 帮助提示集。
-// key: [hid, msg]
-// 仅消息段（msg）可以作本地化修改，其余不可。
-//
-export const Help = {
+    // 系统级提示信息（可本地化）。
+    Tips = {
 
-    'need_conelem': [
-        'type:contents',
-        '目标必须为内容元素'
-    ],
+        // 章节空标题占位
+        sectionH2:      '[ Empty heading ]',
 
-    'both_conelem': [
-        'type:contents',
-        '选取元素及其父元素都必须为内容元素'
-    ],
+        // 本地暂存完成提示。
+        localStoreDone: 'saving done.',
 
-    'merge_types': [
-        'type:merges',
-        '元素集成员必需为可合并类型'
-    ],
+        // 顶层章节不可再提升
+        sectionNotUp:   'section:s1 can not up again.',
+
+    },
 
 
-    'has_cannot_del': [
-        'edit:deletes',
-        '包含了不能被删除的元素'
-    ],
+    // 帮助提示集。
+    // key: [hid, msg]
+    // 消息段（msg）可本地化，其余不可。
+    Help = {
 
-    'has_fixed': [
-        'edit:fixed',
-        '包含有固定不可以被移动的元素'
-    ],
+        'need_conelem': [
+            'type:contents',
+            '目标必须为内容元素'
+        ],
 
-    'has_fixed1': [
-        'edit:fixed1',
-        '含有不可向后移动的元素'
-    ],
+        'both_conelem': [
+            'type:contents',
+            '选取元素及其父元素都必须为内容元素'
+        ],
 
-    'has_fixed2': [
-        'edit:fixed2',
-        '含有不可向前移动的元素'
-    ],
+        'merge_types': [
+            'type:merges',
+            '元素集成员必需为可合并类型'
+        ],
 
-    'cannot_selected': [
-        'edit:insert',
-        '插入的目标元素不可为已选取'
-    ],
 
-    'cannot_append': [
-        'edit:insert',
-        '不能向元素内插入内容'
-    ],
+        'has_cannot_del': [
+            'edit:deletes',
+            '包含了不能被删除的元素'
+        ],
 
-    'only_section': [
-        'edit:indent',
-        '仅章节单元（section）支持缩进操作'
-    ],
+        'has_fixed': [
+            'edit:fixed',
+            '包含有固定不可以被移动的元素'
+        ],
 
-    'only_child': [
-        'edit:onlyone',
-        '只能作为唯一子元素存在'
-    ],
+        'has_fixed1': [
+            'edit:fixed1',
+            '含有不可向后移动的元素'
+        ],
 
-    'not_property': [
-        'edit:property',
-        '没有可编辑的属性'
-    ]
+        'has_fixed2': [
+            'edit:fixed2',
+            '含有不可向前移动的元素'
+        ],
 
-};
+        'cannot_selected': [
+            'edit:insert',
+            '插入的目标元素不可为已选取'
+        ],
+
+        'cannot_append': [
+            'edit:insert',
+            '不能向元素内插入内容'
+        ],
+
+        'only_section': [
+            'edit:indent',
+            '仅章节单元（section）支持缩进操作'
+        ],
+
+        'only_child': [
+            'edit:onlyone',
+            '只能作为唯一子元素存在'
+        ],
+
+        'not_property': [
+            'edit:property',
+            '没有可编辑的属性'
+        ]
+
+    };
 
 
 //
 // 系统配置集。
-// 注：不可修改！
+// 不可修改！
 //////////////////////////////////////////////////////////////////////////////
 
-export const Sys = {
+const Sys = {
 
     // 元素选取态类名。
     selectedClass: '_selected',
@@ -190,3 +188,6 @@ export const Sys = {
     storeStyle: '__cooljStyle',
 
 };
+
+
+export { Scripter, Limit, Tips, Help, Sys };

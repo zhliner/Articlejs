@@ -13,6 +13,7 @@
 //
 
 import { beforeFixed, afterFixed } from "./base.js";
+import { Scripter } from "../config.js";
 
 const
     $ = window.$,
@@ -425,14 +426,16 @@ function minInds( str, max ) {
 
 
 /**
- * JSON 解析。
- * 容错对象属性和值的单引号表示，
- * 属性还支持无引号表示。
+ * JSON 安全解析。
+ * 采用Worker解析，支持任意合法的JS表示。
  * @param  {String} str 目标的字符串表示
- * @return {Object|Value}
+ * @return {Promise<Object|Value>}
  */
 export function parseJSON( str ) {
-    return new Function( `return ${str}` )();
+    return new Promise( resolve => {
+        Scripter.onmessage = ev => resolve(ev.data);
+        Scripter.postMessage( `return ${str}` );
+    });
 }
 
 

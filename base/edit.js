@@ -5044,7 +5044,7 @@ export const Kit = {
 
     /**
      * 根据内容类型创建图片。
-     * 注：用于插图构造内容图片。
+     * 图片选项由安全JSON解析（Worker），故返回一个Promise<Element>。
      * 内容格式：{
      *      iurl    首行URL，第二行特性配置
      *      durl    同上，但URL为DataURL
@@ -5052,16 +5052,19 @@ export const Kit = {
      * }
      * @data: String
      * @param  {String} type 图片类型（iurl|durl|svgx）
-     * @return {Element} <img>|<svg>
+     * @return {Element|Promise<Element>} <svg>|Promise<img>
      */
     image( evo, type ) {
         if ( type === 'svgx' ) {
             return $.svg( { html: evo.data } );
         }
         let _v2 = evo.data.split( '\n' ),
-            _opts = _v2[1] ? parseJSON( _v2[1] ) : {};
+            _opts = { src: _v2[0] };
 
-        return create( T.IMG, $.assign({src: _v2[0]}, _opts) );
+        if ( !_v2[1] ) {
+            return create( T.IMG, _opts );
+        }
+        return parseJSON( _v2[1] ).then( o => create(T.IMG, $.assign(_opts, o)) );
     },
 
     __image: 1,
