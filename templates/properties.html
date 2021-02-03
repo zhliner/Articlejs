@@ -700,17 +700,17 @@
 
 <!--纯文本录入
     高度较小，主要用于内联单元。-->
-<textarea name="content" rows="3" tpl-name="prop:content"></textarea>
+<textarea name="content" rows="5" tpl-name="prop:content"></textarea>
 
 <!--源码录入
     初始粘贴自动清除多余缩进（以最短的缩进为准）。
     适用：代码块/代码表/颜文字/预排版。-->
-<textarea name="codes" rows="3" spellcheck="false" class="_code" placeholder="自动清除多余缩进" tpl-name="prop:codes"
+<textarea name="codes" rows="5" spellcheck="false" class="_code" placeholder="自动清除多余缩进" tpl-name="prop:codes"
     on="paste|evo(3) val end avoid clipboard v.indentcut"
     to="|val|focus"></textarea>
 
 <!-- 适用：<svg> -->
-<textarea name="codes" rows="3" spellcheck="false" class="_code" placeholder="<svg>...</svg>" tpl-name="prop:svg"></textarea>
+<textarea name="codes" rows="11" spellcheck="false" class="_code" placeholder="<svg>...</svg>" tpl-name="prop:svg"></textarea>
 
 
 <!--代码语言清单
@@ -737,12 +737,19 @@
     </li>
 </ul>
 
-<ul class="_prop" tpl-name="prop:figimgbox">
+<!--插图内容块：图形/图片切换
+    svg 显示SVG源码录入框。
+    img 显示普通图片录入条目清单。 -->
+<ul class="_prop" tpl-name="prop:figimgbox"
+    on="svg|evo(3) children not(':last-child') lose(true) $('/li') lose(false);
+        img|evo(3) children not(':last-child') lose(false) $('/li') lose(true)">
+    <li data-pbo="lost">
+        <b>源码</b>
+        <span><hr tpl-node="prop:svg"></span>
+    </li>
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
     <li><b>讲解</b>
-        <span>
-            <textarea name="explain" rows="4" placeholder="（可选）"></textarea>
-        </span>
+        <span><textarea name="explain" rows="4" placeholder="（可选）"></textarea></span>
     </li>
 </ul>

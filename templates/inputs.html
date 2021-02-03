@@ -511,6 +511,7 @@
             <table border="1" obt-src="obts/table.json"
                 on="cols|evo(3) ev('detail') or(0)"
                 by="Kit.colcrop(_1)">
+                <!-- pastes.json 智能粘贴（下同）。 -->
                 <thead obt-src="obts/pastes.json">
                     <tr>
                         <th contenteditable="true" data-pbo="lost"></th>
@@ -599,7 +600,10 @@
 </div>
 
 <!-- 插图 -->
-<div class="_body _Figure" tpl-name="input:figure">
+<div class="_body _Figure" tpl-name="input:figure"
+    on=""
+    by=""
+    to="">
     <div class="_main"
         on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
         to="-|only('_inert')">
@@ -939,7 +943,7 @@
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->
             <table border="1" obt-src="obts/table.json">
-                <thead class="_tsec"
+                <thead obt-src="obts/pastes.json" class="_tsec"
                     on="new|ev('detail') call('newTR', true);
                         trim|evo(3) ev('detail') or(1);
                         editable|(true)"
@@ -972,7 +976,7 @@
                 trim 裁剪为目标行数（末尾删减/增加），默认5行（也避免列头失效）。
                 editable 让单元格可编辑。-->
             <table border="1" obt-src="obts/table.json">
-                <tbody class="_tsec"
+                <tbody obt-src="obts/pastes.json" class="_tsec"
                     on="new|ev('detail') call('newTR');
                         trim|evo(3) ev('detail') or(5);
                         editable|(true)"
@@ -999,7 +1003,7 @@
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->
             <table border="1" obt-src="obts/table.json">
-                <tfoot class="_tsec"
+                <tfoot obt-src="obts/pastes.json" class="_tsec"
                     on="new|ev('detail') call('newTR');
                         trim|evo(3) ev('detail') or(1);
                         editable|(true)"
@@ -1104,6 +1108,13 @@
         <hr tpl-node="prop:figimgbox" />
     </div>
     <aside>
+        <div class="_option">
+            <label title="SVG源码"
+                on="click|$('/input') val $if('svg', 'img')"
+                to="._body/._prop|trigger(_1)">
+                <input type="checkbox" name="svgx">矢量图
+            </label>
+        </div>
         <pre tpl-node="input:insert2">
             [插入2]
         </pre>

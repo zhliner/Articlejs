@@ -59,10 +59,10 @@ const
 
     // 连续空白匹配。
     // 用于录入区内容空白清理。
-    __reSpaceN = /(\s)(\s*)/g,
+    __reSpaceN = /(\s)\s*/g,
 
     // 兼容换行匹配。
-    // 注：粘贴的内容可能包含多种换行表示。
+    // 粘贴的内容可能包含多种换行表示。
     __reNewline = /\r\n|\n|\r/,
 
     // 章节容器匹配。
@@ -5058,7 +5058,7 @@ export const Kit = {
         if ( type === 'svgx' ) {
             return $.svg( { html: evo.data } );
         }
-        let _v2 = evo.data.split( '\n' ),
+        let _v2 = evo.data.split( __reSpace ).map( s => s.trim() ),
             _opts = { src: _v2[0] };
 
         if ( !_v2[1] ) {
