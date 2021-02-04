@@ -93,11 +93,14 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 .content blockquote > *,
-.content details > * {
-    margin: 0.5em auto;
-}
+.content details > *,
 .content aside > * {
-    margin: 0.1em auto;
+    margin: 0.6em auto;
+}
+.content blockquote > h3,
+.content details > h3,
+.content aside > h3 {
+    margin: 0.4em auto;
 }
 
 /* 内联单元显示友好 */

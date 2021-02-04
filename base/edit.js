@@ -4680,16 +4680,19 @@ export const Kit = {
 
 
     /**
-     * 选取集取消（清空）。
+     * 选取集取消。
+     * 如果焦点在选取的元素上/内，则同时取消焦点。
      * ESC键最底层取消操作。
      * 注记：固定配置不提供外部定制。
      * @return {void}
      */
     ecancel() {
-        if ( !__ESet.size ) {
+        let _els = [...__ESet];
+
+        if ( !_els.length ) {
             return;
         }
-        historyPush( new ESEdit(() => __Selects.empty()) );
+        historyPush( cleanHot(_els, true), new ESEdit(() => __Selects.empty()) );
     },
 
 
@@ -5058,7 +5061,7 @@ export const Kit = {
         if ( type === 'svgx' ) {
             return $.svg( { html: evo.data } );
         }
-        let _v2 = evo.data.split( __reSpace ).map( s => s.trim() ),
+        let _v2 = evo.data.split( __reNewline ).map( s => s.trim() ),
             _opts = { src: _v2[0] };
 
         if ( !_v2[1] ) {
@@ -5385,7 +5388,7 @@ export const Kit = {
      * @param  {'no'|null} tfoot 包含表脚
      * @return {Element} 表格元素
      */
-    table( evo, caption, [border, thead, th0, tfoot]) {
+    table( evo, caption, [border, thead, th0, tfoot] ) {
         let _tbl = evo.data,
             _slx = th0 ? '' : ':not(:first-child)',
             _slr = th0 ? 'th,td' : 'td',

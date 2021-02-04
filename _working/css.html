@@ -1403,7 +1403,7 @@
                             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
                             <label><input name="below" type="checkbox" />标题在下</label>
                         </header>
-                        <textarea name="figure" id="url"
+                        <textarea name="figure" id="_url"
                             on="tips|evo(1) ev('detail') attr(_1);
                                 ^obted"
                             to="|@placeholder;
@@ -1418,7 +1418,7 @@
                             <label>类型
                                 <select name="type"
                                     on="change|$ val"
-                                    to="4/#url|trigger('tips')">
+                                    to="4/#_url|trigger('tips')">
                                     <option value="-iurl">图片URL</option>
                                     <option value="-durl">DataURL</option>
                                     <option value="-svgx">SVG源码</option>

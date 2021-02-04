@@ -504,7 +504,7 @@ const Children = {
             ),
             _expl = explain;
 
-        if ( typeof _expl === 'string' ) {
+        if ( _expl && typeof _expl === 'string' ) {
             // 换行可转为<br>
             _expl = $.prop( elem(T.EXPLAIN), 'innerText', explain );
         }
