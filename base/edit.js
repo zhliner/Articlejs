@@ -421,6 +421,7 @@ class RngEdit {
 
     //-- 私有辅助 ----------------------------------------------------------------
 
+
     /**
      * 解析选项配置和数据。
      * 分析文本内容智能判断提取选项，
@@ -2705,37 +2706,54 @@ function cropTrs( tbo, cnt, tsec ) {
 
 /**
  * 分解创建代码表项集。
+ * 注记：
+ * 属性实参null值可保证清除该特性。
  * @param  {String} code 已解析源码
  * @param  {String} lang 所属语言
+ * @param  {Number} tab Tab空格数，可选
  * @return {[Element]} <li/code>集合
  */
-function liCode( code, lang = null ) {
+function liCode( code, lang = null, tab = null ) {
     return code
         .split( '\n' )
-        .map( html => create(T.CODELI, {lang}, html) );
+        .map( html => create(T.CODELI, {lang, tab}, html) );
 }
 
 
 /**
- * 从解析结果创建代码表项集。
- * 解析结果包含可能的其它语言代码块。
+ * 创建代码块子块。
+ * @param  {String} code 已解析源码
+ * @param  {String} lang 所属语言
+ * @param  {Number} tab Tab空格数，可选
+ * @return {[Element]} 子块代码（<code>）
+ */
+function blockCode( code, lang = null, tab = null ) {
+    return [ create(T.CODE, {lang, tab}, code) ];
+}
+
+
+/**
+ * 分解代码解析结果集。
+ * 对可能包含的其它语言代码块扁平化处理。
  * Object2: {
  *      lang: 所属语言
  *      html: 子块源码集（与data相同结构）
  * }
- * 注：会扁平化结果集。
- * @param {[String|Object2]} data 源码解析数据
- * @param {String} lang 所属语言
+ * @param  {[String|Object2]} data 源码解析数据
+ * @param  {String} lang 所属语言
+ * @param  {Function} make 封装创建回调
+ * @param  {Number} tab Tab空格数，可选
+ * @return {[Element]} <li/code>集
  */
-function codeLis( data, lang ) {
+function codeFlat( data, lang, make, tab ) {
     let _buf = [];
 
     for ( const its of data ) {
         if ( typeof its === 'string' ) {
-            _buf.push( ...liCode(its, lang) );
+            _buf.push( ...make(its, lang, tab) );
             continue;
         }
-        _buf.push( ...codeLis(its.html, its.lang) );
+        _buf.push( ...codeFlat(its.html, its.lang, make, tab) );
     }
     return _buf;
 }
@@ -4972,12 +4990,13 @@ export const Kit = {
     /**
      * 剪除多余缩进。
      * 以行集中最短的缩进为准，剪除前端缩进。
+     * 忽略纯粹的空行。
      * 注：并不会清理首位空白。
      * @data: String
      * @return {String}
      */
     indentcut( evo ) {
-        let _ss = evo.data.split( __reNewline ),
+        let _ss = evo.data.split( __reNewline ).filter( s => !!s ),
             _cut = shortIndent( _ss );
 
         if ( !_cut ) {
@@ -5024,7 +5043,7 @@ export const Kit = {
         return {
             lang:  $.val( lang ),
             tab:   $.val( tab ) || null,
-            start: $.val( start ) || null,
+            start: start && $.val( start ) || null,
         };
     },
 
@@ -5033,16 +5052,30 @@ export const Kit = {
 
     /**
      * 分解构造代码表行。
-     * 源码集中可能包含嵌入的其它语言子块。
-     * 嵌入的子块会被扁平化为一维。
+     * 顶层不需要传递语言实参（已解析）。
+     * 返回合法的子元素序列，可终止创建迭代（免于设置<code>属性）。
      * @data: {[String|Object2]}
      * @return {[Element]} 代码行<li/code>集
      */
     codelis( evo ) {
-        return codeLis( evo.data );
+        return codeFlat( evo.data, null, liCode );
     },
 
     __codelis: 1,
+
+
+    /**
+     * 分解构造代码块。
+     * 如果有嵌入其它语言，会有子块存在。
+     * @param  {String} lang 所属语言（顶层）
+     * @param  {Number} tab Tab空格数
+     * @return {[Element]} 代码块子块集（[<code>]）
+     */
+    codeblo( evo, {lang, tab} ) {
+        return codeFlat( evo.data, lang, blockCode, tab );
+    },
+
+    __codeblo: 1,
 
 
     /**
@@ -5466,6 +5499,7 @@ customGetter( null, Kit, [
     'codehtml',
     'codeopts',
     'codelis',
+    'codeblo',
     'image',
 ]);
 

@@ -675,7 +675,7 @@ span[role=space] {
  ****************************************************************************/
 
 .content code {
-    word-wrap: break-word;
+    word-break: break-word;
     white-space: pre-wrap;
     padding: 0 2px;
     background-color: #f3f3f3;

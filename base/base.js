@@ -346,6 +346,19 @@ function entityRoot( beg, end ) {
 
 
 /**
+ * 是否为代码内容。
+ * 需要检查内部嵌套的子节点。
+ * @param  {Node|Fragment} node 待检查节点
+ * @param  {Set} subs 合法类型集
+ * @return {Boolean}
+ */
+function isCodeCon( node, subs ) {
+    return $.find( '*', node, true )
+        .every( nd => subs.has(getType(nd)) );
+}
+
+
+/**
  * 获取元素内的内容容器。
  * 如果初始传入一个文本节点，会返回null（不能作为内容容器使用）。
  * 注：会忽略混嵌的文本节点。
@@ -577,10 +590,12 @@ export function isChapter( el ) {
  * @return {Boolean}
  */
 export function isCodeCons( nodes ) {
-    if ( !$.isArray(nodes) ) {
-        nodes = [nodes];
+    let _subs = T.childTypes( T.CODE );
+
+    if ( $.isArray(nodes) ) {
+        return nodes.every( nd => isCodeCon(nd, _subs) );
     }
-    return nodes.every( nd => nd.nodeType === 3 || T.isSpecial(getType(nd)) );
+    return isCodeCon( nodes, _subs );
 }
 
 

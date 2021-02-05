@@ -1,5 +1,5 @@
 {
     "//": "连续兄弟元素内容粘贴。从当前光标位置开始，之后的兄弟元素为内容替换方式（select）。加按Shift粘贴时取消此智能模式。",
-    "on": "paste|env('pastedefault') end avoid clipboard split('\\n') env('_pastedata', _1) entry sRange edbox dup env('_pastedata') call('shift') exeCmd('insertText', _1) next dup(2) pass focus select; keydown|scam('shift') pass env('pastedefault', true); keyup|env('pastedefault', null)",
+    "on": "paste|env('pastedefault') end avoid clipboard split('\\n') env('_pastedata', _1) entry sRange edbox dup env('_pastedata') call('shift') exeCmd('insertText', _1) vain next dup(2) pass focus select; keydown|scam('shift') pass env('pastedefault', true); keyup|env('pastedefault', null)",
     "by": "env('_pastedata') len loop"
 }

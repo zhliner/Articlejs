@@ -333,7 +333,7 @@ const Properties = {
     [ BLOCKQUOTE ]:     BLOCKS | STRUCT,
     [ ASIDE ]:          BLOCKS | STRUCT,
     [ DETAILS ]:        BLOCKS | STRUCT,
-    [ CODEBLOCK ]:      BLOCKS | STRUCT | SEALED,
+    [ CODEBLOCK ]:      BLOCKS | STRUCT,  // SEALED（可多块）
     // 行块单体元素
     [ HR ]:             BLOCKS | EMPTY,
     [ BLANK ]:          BLOCKS | SEALED,
@@ -736,13 +736,15 @@ export function isChildType( box, subv ) {
 
 /**
  * 获取目标的合法子类型集。
- * 如果未传递父容器，表示宽泛定义（片区容错）。
- * 注：返回空串可便于展开为空集。
- * @param  {Number} tval 目标类型值
- * @param  {Element} box 目标父容器，可选
+ * 如果传递类型值，则简单返回子类型值集。
+ * 返回空串可便于展开为空集。
+ * @param  {Element|Number} box 目标容器元素或类型值
  * @return {Set|''}
  */
 export function childTypes( box ) {
+    if ( typeof box === 'number' ) {
+        return ChildTypes[ box ];
+    }
     let _tval = getType( box ),
         _subs = ChildTypesX[ _tval ];
 

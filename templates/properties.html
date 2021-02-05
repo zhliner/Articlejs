@@ -703,11 +703,16 @@
 <textarea name="content" rows="5" tpl-name="prop:content"></textarea>
 
 <!--源码录入
-    初始粘贴自动清除多余缩进（以最短的缩进为准）。
-    适用：代码块/代码表/颜文字/预排版。-->
+    初始为空时粘贴自动清除多余缩进，加按Shift取消此功能（Chrome）。
+    适用：代码块/代码表/颜文字/预排版。
+    注记：
+    不使用 PB:exeCmd 指令，chrome下有奇怪的撤销重做行为，Firefox也不支持<textarea>内的相应命令。
+-->
 <textarea name="codes" rows="5" spellcheck="false" class="_code" placeholder="自动清除多余缩进" tpl-name="prop:codes"
-    on="paste|evo(3) val end avoid clipboard v.indentcut"
-    to="|val|focus"></textarea>
+    on="paste|evo(3) val env('pastedefault') either end avoid clipboard v.indentcut;
+        keydown|scam('shift') pass env('pastedefault', true);
+        keyup|env('pastedefault', null)"
+    to="|val"></textarea>
 
 <!-- 适用：<svg> -->
 <textarea name="codes" rows="11" spellcheck="false" class="_code" placeholder="<svg>...</svg>" tpl-name="prop:svg"></textarea>
@@ -716,7 +721,8 @@
 <!--代码语言清单
     normal 普通代码，仅标记字符串和注释（//）。-->
 <select id="g-languages" data-id="code" name="language" tpl-name="prop:languages">
-    <option value="normal"> ------ </option>
+    <option value=""> ------ </option>
+    <option value="normal">Normal</option>
     <option value="golang">Golang</option>
     <option value="cplus">C/C++</option>
     <option value="javascript">JavaScript</option>

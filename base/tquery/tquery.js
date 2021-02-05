@@ -3390,7 +3390,7 @@ tQuery.scroll = function( el, pair ) {
 
 /**
  * 选取动作定制。
- * 注：可编辑（contenteditable=true）的普通元素无此方法。
+ * 兼容普通元素（包括未设置contenteditable的元素）。
  * @param {Element} el 目标元素
  */
 tQuery.select = function( el ) {

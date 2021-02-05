@@ -679,8 +679,12 @@
     </aside>
 </div>
 
-<!-- 详细内容 -->
-<div class="_body _Details" tpl-name="input:details">
+<!--详细内容
+    open特性强制为真（内容区单击无法展开） -->
+<div class="_body _Details" obt-src="obts/list2.json" tpl-name="input:details"
+    on="node|ev('detail') wrap('<p>') $('/input') val obj('summary') set('open', true) (true)"
+    by="New.details(_2)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <header>
             <input name="summary" type="text" placeholder="摘要" class="_scale" />
@@ -696,17 +700,20 @@
 </div>
 
 <!-- 代码块 -->
-<div class="_body _Codeblock" tpl-name="input:codeblock">
+<div class="_body _Codeblock" obt-src="obts/codes.json" tpl-name="input:codeblock"
+    on="node|ev('detail') $$('/[data-id=code]') v.codeopts(_) v.codeblo(_1) (null, true)"
+    by="New.codeblock(_2)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea tpl-node="prop:codes"></textarea>
     </div>
     <aside>
         <div class="_option">
             <label>制表符
-                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                <input data-id="code" type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
             <label>语言
-                <select tpl-node="prop:languages"></select>
+                <select data-id="code" tpl-node="prop:languages"></select>
             </label>
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
@@ -1514,6 +1521,11 @@
         <hr tpl-node="inlines:code" />
     </div>
     <aside>
+        <div class="_option">
+            <label>语言
+                <select data-id="code" tpl-node="prop:languages"></select>
+            </label>
+        </div>
         <pre tpl-node="input:insert2">
             [插入2]
         </pre>

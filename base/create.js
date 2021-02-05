@@ -638,6 +638,7 @@ const Children = {
     /**
      * 代码块内容。
      * 源码应当已解析为高亮语法标记文本。
+     * 支持多个<code>顶级子块。
      * @param {Element} ref 参考子元素
      * @param {Element} box 容器元素（<pre:codeblock>）
      * @param {Element|String} data 代码子块或源码
@@ -761,7 +762,6 @@ const Children = {
     [ T.CODELI,     T.CODE ],
     [ T.ALI,        T.A ],
     [ T.AH4,        T.A ],
-    [ T.CODEBLOCK,  T.CODE ],
 ]
 .forEach(function( its ) {
     /**

@@ -18,6 +18,9 @@
 import * as T from "./types.js";
 
 
+const $ = window.$;
+
+
 //
 // 插入条目：{
 //      单元值：模板名

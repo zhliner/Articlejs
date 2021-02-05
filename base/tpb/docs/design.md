@@ -455,9 +455,8 @@ xRange( key?:String ): Range | void
 addRange( clear:Boolean ): Range
 // 添加范围到全局Selection上。
 
-exeCmd( type:String, data:Value ): Return
-// 执行document命令
-// 即：document.execCommand(...)
+exeCmd( type:String, data:Value ): Boolean
+// 执行 document.execCommand(...)
 
 clipboard( fmt:String ): String
 // 剪贴板设置或取值。

@@ -1705,11 +1705,11 @@ const _Process = {
      * @data: Element:contenteditable
      * @param  {String} name 命令名称
      * @param  {Value} data 待使用的数据
-     * @return {void}
+     * @return {Boolean} 是否支持目标命令
      */
     exeCmd( evo, name, data ) {
         evo.data.focus();
-        document.execCommand( name, false, data );
+        return document.execCommand( name, false, data );
     },
 
     __exeCmd: 1,
