@@ -454,10 +454,9 @@ function lastLine( node, from ) {
         return ['', true];
     }
     let _s = node.innerText || node.textContent,
-        _i = _s.lastIndexOf( '\n', from );
+        // -1：光标位于行尾避免
+        _i = _s.lastIndexOf( '\n', from-1 );
 
-    // 补足末尾字符本身。
-    from += 1;
     return _i < 0 ? [_s.substring(0, from)] : [_s.substring(_i+1, from), true];
 }
 
@@ -541,8 +540,7 @@ export function tabToSpace( text, tabs = 4 ) {
  */
 export function rangeLinePrev( rng ) {
     let _node = rng.startContainer,
-        // -1：避免光标位于行尾的换行符
-        _beg = rng.startOffset - 1,
+        _beg = rng.startOffset,
         _buf = [];
 
     while ( _node ) {
