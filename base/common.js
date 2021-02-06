@@ -495,6 +495,8 @@ export function createID( text, prefix = '' ) {
 
 /**
  * 按半角宽度计数。
+ * 浏览器Tab默认宽度8个半角字符。
+ * 包容混杂有制表符。
  * @param  {String} str 单行字符串
  * @return {Number} 折合半角数
  */
@@ -502,6 +504,10 @@ export function halfWidth( str ) {
     let _n = 0;
 
     for ( const ch of str ) {
+        if ( ch === '\t' ) {
+            _n += 8;
+            continue;
+        }
         _n += ch.codePointAt(0) >= __halfLimit || __fullChs.has(ch) ? 2 : 1;
     }
     return _n;
@@ -533,12 +539,13 @@ export function tabToSpace( text, tabs = 4 ) {
 
 
 /**
- * 获取光标点所在行前段。
+ * 获取到光标点的行段。
+ * 主要用于向当前位置插入Tab的空格序列（结合.halfWidth）。
  * 注记：向前平级检索，直到发现换行符。
  * @param  {Range} rng 范围对象（当前光标）
  * @return {String}
  */
-export function rangeLinePrev( rng ) {
+export function rangeLine( rng ) {
     let _node = rng.startContainer,
         _beg = rng.startOffset,
         _buf = [];
@@ -552,6 +559,17 @@ export function rangeLinePrev( rng ) {
         _node = _node.previousSibling;
     }
     return _buf.reverse().join( '' );
+}
+
+
+/**
+ * 获取光标所在单词。
+ * 主要用于代码语法即时解析。
+ * @param  {Range} rng 范围对象（光标点）
+ * @return {String} 当前单词
+ */
+export function rangeWord( rng ) {
+    //
 }
 
 
