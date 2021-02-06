@@ -19,7 +19,15 @@ const
     $ = window.$,
 
     // ID标识字符限定
-    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
+    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g,
+
+    // 全角字符码值起始
+    // 字符：⅏ （概略）。
+    __halfLimit = 0x214f,
+
+    // 零星全角字符排除。
+    // 仅限 0x214f 以内（概略）。
+    __fullChs = new Set( 'ೠೡೢೣൕൖൗ൘൙൚൛൜൝൞ൟൠൡൢൣ൧൨൩൪൫൬൭൮൯൰൱൲൳൴൵൶൷൸൹ൺൻർൽൾൿ᳓᳔᳕᳖᳗᳘᳙᳜᳝᳞᳟᳚᳛᳠ᳩᳪᳫᳬ᳭⁇※‱℃'.split('') );
 
 
 //
@@ -419,6 +427,41 @@ function minInds( str, max ) {
 }
 
 
+/**
+ * Tab切分。
+ * 查找到Tab字符后切分为2段。
+ * 如果后段为特殊值true，表示末尾为一个Tab。
+ * @param  {String} str 行字符串
+ * @param  {Number} tabs Tab空格数
+ * @return {String, String|true}
+ */
+function tabSplit( str ) {
+    let _i = str.indexOf( '\t' );
+    return _i < 0 ? [ str ] : [ str.substring(0, _i), str.substring(_i+1) || true ];
+}
+
+
+/**
+ * 检查提取最后一行。
+ * 如果目标是元素，取渲染文本（innerText）。
+ * 兼容<br>元素作为换行。
+ * @param  {Node} node 待检索节点
+ * @param  {Number} from 逆向起始位置
+ * @return {[String, Boolean]} [行段, 结束]
+ */
+function lastLine( node, from ) {
+    if ( node.tagName === 'BR' ) {
+        return ['', true];
+    }
+    let _s = node.innerText || node.textContent,
+        _i = _s.lastIndexOf( '\n', from );
+
+    // 补足末尾字符本身。
+    from += 1;
+    return _i < 0 ? [_s.substring(0, from)] : [_s.substring(_i+1, from), true];
+}
+
+
 
 //
 // 基本函数集。
@@ -452,28 +495,65 @@ export function createID( text, prefix = '' ) {
 
 
 /**
+ * 按半角宽度计数。
+ * @param  {String} str 单行字符串
+ * @return {Number} 折合半角数
+ */
+export function halfWidth( str ) {
+    let _n = 0;
+
+    for ( const ch of str ) {
+        _n += ch.codePointAt(0) >= __halfLimit || __fullChs.has(ch) ? 2 : 1;
+    }
+    return _n;
+}
+
+
+/**
  * 空格缩进替换。
  * 包含前导的缩进和文内的Tab键。
- * 码值小于 0xff 的视为1个字节宽度。
  * @param  {String} text 源文本（单行）
- * @param  {String} tabs Tab空格序列
+ * @param  {Number} tabs Tab空格数，可选
  * @return {String} 处理后的文本
  */
-export function indentSpace( text, tabs ) {
-    let _mod = tabs.length,
-        _idx = 0,
-        _str = '';
+export function tabToSpace( text, tabs = 4 ) {
+    let _buf = [],
+        _s1 = '',
+        _s2 = text;
 
-    for ( const ch of text ) {
-        if ( ch === '\t' ) {
-            _str += tabs.substring( _idx );
-            _idx = 0;
-        } else {
-            _str += ch;
-            _idx = (_idx + (ch.codePointAt(0) < 0xff ? 1 : 2)) % _mod;
+    while ( _s2 ) {
+        [_s1, _s2] = tabSplit( _s2 );
+        if ( _s2 ) {
+            _s1 = _s1 + ' '.repeat(tabs - halfWidth(_s1)%tabs);
+            if ( _s2 === true ) _s2 = null;
         }
+        _buf.push( _s1 );
     }
-    return _str;
+    return _buf.join( '' );
+}
+
+
+/**
+ * 获取光标点所在行前段。
+ * 注记：向前平级检索，直到发现换行符。
+ * @param  {Range} rng 范围对象（当前光标）
+ * @return {String}
+ */
+export function rangeLinePrev( rng ) {
+    let _node = rng.startContainer,
+        // -1：避免光标位于行尾的换行符
+        _beg = rng.startOffset - 1,
+        _buf = [];
+
+    while ( _node ) {
+        let [s, ok] = lastLine( _node, _beg );
+        _buf.push( s );
+        _beg = Infinity;
+
+        if ( ok ) break;
+        _node = _node.previousSibling;
+    }
+    return _buf.reverse().join( '' );
 }
 
 

@@ -22,7 +22,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { On } from "./pbs.get.js";
+import { On, customGetter } from "./pbs.get.js";
 import { By, processExtend, cmvApp, processProxy } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
@@ -46,6 +46,7 @@ const
         App: cmvApp,
         extend: processExtend,
         extendProxy: processProxy,
+        customGet: customGetter,
     },
 
     // OBT属性选择器

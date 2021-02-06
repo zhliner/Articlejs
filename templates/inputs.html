@@ -705,7 +705,7 @@
     by="New.codeblock(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
-        <textarea tpl-node="prop:codes"></textarea>
+        <pre tpl-node="prop:codes"></pre>
     </div>
     <aside>
         <div class="_option">
@@ -1413,7 +1413,9 @@
 <!-- SVG子元件（html） -->
 <div class="_body _Inline" tpl-name="input:svgitem">
     <div class="_main _list">
-        <hr tpl-node="inlines:code" />
+        <div class="_prop _svg">
+            <pre tpl-node="prop:codes"></pre>
+        </div>
     </div>
     <aside>
         <pre tpl-node="input:insert2">

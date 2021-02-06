@@ -124,6 +124,17 @@ aside#help {
 }
 
 
+/* 代码框提示 */
+.___Panel.Slave ._main pre:empty::after {
+    content: '自动清除多余缩进';
+    color: darkgray;
+    font-style: italic;
+}
+.___Panel.Slave ._main ._svg pre:empty::after {
+    content: '<svg>...</svg>';
+}
+
+
 /* [ 全局默认 ]
  ****************************************************************************/
 
@@ -191,19 +202,22 @@ aside#help {
     white-space: pre-wrap;
 }
 
-.___Panel textarea {
-    border: 1px #355c64 solid;
+.___Panel textarea,
+.___Panel pre._code {
+    color: #ccc;
     padding: 2px 2px 2px 5px;
     flex: 1 1 auto;
     border-radius: 3px 1px 1px 3px;
-    font-size: 12pt;
-    background: local url('images/txtline.png') repeat #173745;
-    line-height: 30px;
-    color: #ccc;
     overflow-y: scroll;
     resize: none;
     box-sizing: border-box;
     outline: none;
+}
+.___Panel textarea {
+    font-size: 12pt;
+    border: 1px #355c64 solid;
+    line-height: 30px;
+    background: local url('images/txtline.png') repeat #173745;
 }
 .___Panel textarea::placeholder {
     color: #aaa;
@@ -304,10 +318,9 @@ aside#help {
     background: #ffe url('images/heading.png') 4px 0 repeat-x;
     font-weight: bold;
 }
-.___Panel textarea._code {
-    background-color: #444;
-    background-image: url('images/line20.png');
+.___Panel pre._code {
     line-height: 20px;
+    background: local url('images/line20.png') repeat #444;
     border: 1px #666 solid;
 }
 

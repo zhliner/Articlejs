@@ -67,7 +67,7 @@
     medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
                 注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
     info|focus  确认后聚焦根容器，便于键盘控。
-    @keydown 微编辑确认专项（退出即解绑），stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
+    @keydown 微编辑确认专项（退出即解绑）。stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
     @paste   微编辑粘贴（纯文本）。 -->
 <div class="___Content" tpl-name="main:content"
     on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;

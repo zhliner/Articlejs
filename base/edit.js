@@ -23,7 +23,7 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
-import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent, indentSpace, parseJSON } from './common.js';
+import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent, tabToSpace, parseJSON } from './common.js';
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
@@ -4988,21 +4988,43 @@ export const Kit = {
 
 
     /**
+     * 构造Tab空格序列。
+     * 如果没有空格配置，则返回一个原生制表符。
+     * 如果不是Tab键，则只会是Enter键（外部约束）。
+     * @data: Boolean 确认为Tab
+     * @param  {Element} el Tab空格数配置控件（<input>）
+     * @return {String}
+     */
+    tabs( evo, el ) {
+        if ( !evo.data ) {
+            // 尾随一个空格用于选取（模拟光标，见.newline）。
+            return '\n ';
+        }
+        let _n = el && $.val( el );
+
+        return _n ? ' '.repeat( _n ) : '\t';
+    },
+
+    __tabs: 1,
+
+
+    /**
      * 剪除多余缩进。
      * 以行集中最短的缩进为准，剪除前端缩进。
      * 忽略纯粹的空行。
      * 注：并不会清理首位空白。
      * @data: String
+     * @param  {Boolean} skip 简单略过
      * @return {String}
      */
-    indentcut( evo ) {
+    indentcut( evo, skip ) {
+        if ( skip ) {
+            return evo.data;
+        }
         let _ss = evo.data.split( __reNewline ).filter( s => !!s ),
             _cut = shortIndent( _ss );
 
-        if ( !_cut ) {
-            return evo.data;
-        }
-        return _ss.map( str => str.substring(_cut) ).join( '\n' );
+        return _cut ? _ss.map( str => str.substring(_cut) ).join('\n') : evo.data;
     },
 
     __indentcut: 1,
@@ -5019,10 +5041,7 @@ export const Kit = {
         let _code = evo.data.split( __reNewline );
 
         if ( tab > 0 ) {
-            let _ts = new Array(tab)
-                .fill(' ')
-                .join('');
-            _code = _code.map( s => indentSpace(s, _ts) );
+            _code = _code.map( s => tabToSpace(s, tab) );
         }
         _code = _code.join( '\n' );
 
@@ -5157,6 +5176,27 @@ export const Kit = {
     },
 
     __save: 1,
+
+
+    /**
+     * 新起一行。
+     * 设置光标到新行（换行符之后）。
+     * 选取一个空格作光标（.tabs()插入），解决Firefox和Chrome的问题。
+     * 问题：
+     * - Firefox 键入Enter后光标无法定位到新行（浏览器等待有字符输入后才会认可换行）。
+     * - Chrome 整体末尾键入一个Enter会被忽略显示（其它位置正常）。
+     * @data: Range
+     * @param {Boolean} sure 确为Enter键入（否则为Tab）
+     */
+    newline( evo, sure ) {
+        if ( sure ) {
+            let rng = evo.data;
+            rng.setStart( rng.endContainer, rng.endOffset-1 );
+            rng.setEnd( rng.endContainer, rng.endOffset );
+        }
+    },
+
+    __newline: 1,
 
 
     /**
@@ -5461,6 +5501,7 @@ processExtend( 'Kit', Kit, [
     'tips',
     'chapter',
     'save',
+    'newline',
     'toclist',
     'medpass',
     'medcancel',
@@ -5495,6 +5536,7 @@ customGetter( null, Kit, [
     'pretreat2',
     'pretreat1',
     'splitx',
+    'tabs',
     'indentcut',
     'codehtml',
     'codeopts',

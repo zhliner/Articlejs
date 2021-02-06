@@ -1486,6 +1486,18 @@ const _Process = {
 
 
     /**
+     * 字符串重复串连。
+     * @param  {Number} cnt 重复数量
+     * @return {String|[String]}
+     */
+    repeat( evo, cnt ) {
+        return mapCall( evo.data, s => s.repeat(cnt) );
+    },
+
+    __repeat: 1,
+
+
+    /**
      * 转为大写。
      * 目标：暂存区/栈顶1项。
      * @param  {Boolean|1} n 首字母大写，可选

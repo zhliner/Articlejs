@@ -197,8 +197,8 @@
 </ul>
 
 <!-- 图形（svg） -->
-<div class="_prop" tpl-name="inlines:svg">
-    <hr tpl-node="prop:svg" />
+<div class="_prop _svg" tpl-name="inlines:svg">
+    <hr tpl-node="prop:codes" />
 </div>
 
 <!-- 链接 -->
@@ -210,7 +210,7 @@
 
 <!-- 代码 -->
 <div class="_prop" tpl-name="inlines:code">
-    <hr tpl-node="prop:codes" />
+    <pre tpl-node="prop:codes"></pre>
 </div>
 
 <!-- 重点 -->
@@ -703,19 +703,18 @@
 <textarea name="content" rows="5" tpl-name="prop:content"></textarea>
 
 <!--源码录入
-    初始为空时粘贴自动清除多余缩进，加按Shift取消此功能（Chrome）。
-    适用：代码块/代码表/颜文字/预排版。
-    注记：
-    不使用 PB:exeCmd 指令，chrome下有奇怪的撤销重做行为，Firefox也不支持<textarea>内的相应命令。
--->
-<textarea name="codes" rows="5" spellcheck="false" class="_code" placeholder="自动清除多余缩进" tpl-name="prop:codes"
-    on="paste|evo(3) val env('pastedefault') either end avoid clipboard v.indentcut;
-        keydown|scam('shift') pass env('pastedefault', true);
-        keyup|env('pastedefault', null)"
-    to="|val"></textarea>
-
-<!-- 适用：<svg> -->
-<textarea name="codes" rows="11" spellcheck="false" class="_code" placeholder="<svg>...</svg>" tpl-name="prop:svg"></textarea>
+    初始为空时粘贴自动清除多余缩进，加按Shift取消此功能。
+    适用：代码类/颜文字/预排版。
+    paste   粘贴内容，转换后按HTML方式插入，避免浏览器智能行为（不兼容）。
+    keydown 插入真实换行或Tab空格序列。
+    keydown 设置Shift键标记，决定是否清除多余缩进。
+    keyup   清除Shift标记，注意应当是false（非null）。 -->
+<pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
+    on="keydown|stop ev('key') pass('Enter', 'Tab') avoid evo(3) iskey('Tab') $('._body/[name=tabs]') v.tabs(_1) exeCmd('insertHTML', _1) sRange iskey('Enter');
+        paste|avoid evo(3) clipboard env('pastedefault') v.indentcut(_1) html exeCmd('insertHTML', _1);
+        keydown|stop scam('shift') pass env('pastedefault', true);
+        keyup|stop env('pastedefault', false)"
+    by="Kit.newline(_1)"></pre>
 
 
 <!--代码语言清单
@@ -751,7 +750,7 @@
         img|evo(3) children not(':last-child') lose(false) $('/li') lose(true)">
     <li data-pbo="lost">
         <b>源码</b>
-        <span><hr tpl-node="prop:svg"></span>
+        <span class="_svg"><pre tpl-node="prop:codes"></pre></span>
     </li>
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
