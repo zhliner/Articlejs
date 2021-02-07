@@ -23,7 +23,8 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
-import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, shortIndent, tabToSpace, parseJSON } from './common.js';
+import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
+import { shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
@@ -5035,7 +5036,7 @@ export const Kit = {
      * @data: String
      * @param  {Number} tab Tab空格数
      * @param  {String} lang 代码语言
-     * @return {[String|Object2]} 语法高亮后的代码（html）
+     * @return {[String|Object2]} 语法高亮后的HTML
      */
     codehtml( evo, tab, lang ) {
         let _code = evo.data.split( __reNewline );
@@ -5045,7 +5046,7 @@ export const Kit = {
         }
         _code = _code.join( '\n' );
 
-        return lang ? new Hicolor(lang, _code).html() : [_code];
+        return lang ? new Hicolor(lang, _code).htmlObj() : [_code];
     },
 
     __codehtml: 1,

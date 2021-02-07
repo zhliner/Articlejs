@@ -62,6 +62,8 @@ import { languageClass } from "./main.js";
 
 
 const
+    $ = window.$,
+
     // 高亮名:角色映射。
     // 高亮名用于具体语言中使用，角色名用于封装元素<b>中的role值。
     // 此处的高亮名用于语言实现中的规范名称（type）。
@@ -108,49 +110,45 @@ const
 class Hicolor {
     /**
      * lang:
-     * 实例实参在特定语言有内部子块实现时有用，
-     * 此时仅限于结构性子块（如注释内容），而不是语言子块。
-     * 注：语言子块只能复用全局实现集。
+     * 如果仅为了复用.htmlObj()方法，可以省略。
      * text:
-     * 方便嵌入块封装，如果仅为了实时分析，可省略。
-     * @param {String|Hicode} lang 语言名或实现实例
+     * 方便嵌入块封装，如果仅为了创建特定语言实现实例则可省略。
+     * @param {String} lang 语言名，可选
      * @param {String} text 待解析文本，可选
      */
     constructor( lang, text ) {
-        let _inst;
-
-        if ( typeof lang === 'string' ) {
-            _inst = new ( languageClass(lang) )();
-        }
-        if ( _inst ) {
-            this._lang = lang;
-        }
+        this._lang = lang;
         this._code = text;
-        this._inst = _inst || lang;
+        this._inst = lang && new ( languageClass(lang) )();
     }
 
 
     /**
-     * 解析获取HTML源码。
+     * 解析获取HTML源码集。
      * 如果文本中嵌入了其它语言代码，结果集里会包含对象成员。
+     * 传递inst实参可复用本方法的功能。
+     * 返回值：
      * String: 已解析源码字符串（含HTML标签）
      * Object2: {
      *      lang: 子块语言
      *      html: 子块源码集{[String|Object2]}，可含子块嵌套
      * }
+     * @param  {Hicode} inst 实现实例，可选
      * @return {[String|Object2]} 源码集
      */
-    html() {
-        let _buf = [], _tmp = [];
+    htmlObj( inst ) {
+        inst = inst || this._inst;
+        let _buf = [],
+            _tmp = [];
 
-        for ( const obj of this._inst.parse(this._code) ) {
+        for ( const obj of inst.parse(this._code) ) {
             let _hi = obj instanceof Hicolor;
             if ( !_hi ) {
                 _tmp.push( codeHTML(obj) );
                 continue;
             }
             this._string( _tmp, _buf );
-            _buf.push( {lang: obj.lang(), html: obj.html()} );
+            _buf.push( {lang: obj.lang(), html: obj.htmlObj()} );
         }
 
         return this._string( _tmp, _buf );
@@ -224,19 +222,38 @@ class Hicode {
 
 
     /**
+     * 公用：
      * 源码解析。
+     * 可用于已有源码解析，也可用于代码编辑时的实时分析着色。
+     * 对于后者，工作在已高亮代码内，子语言已成块，因此code为单语言。
+     *
+     * 附：实时分析：
+     * code提取：
+     * - 前端以空格或换行符或兄弟节点为分隔。
+     * - 后端以兄弟节点或换行符或解包节点末尾为结束。
+     * - 前后端的分隔标识内容都不包含在code内。
+     * 提示：
+     * 可以处理有上下文的子集，比如在注释内作更细的分析，
+     * 此时传递res为一个更特定的子集即可（需扩展__Roles支持）。
+     * 注记：
+     * 重点是code提取的合理性（范围和效率）。
+     * code所属语言可从代码容器上获取，可从Hicolor创建Hicode实例。
+     *
      * 返回值 Object2: {
      *      text: {String} 代码文本，应当已转义
      *      type: {String} 代码类型，可选。未定义时text为普通文本
      * }
      * @param  {String} code 源码文本
+     * @param  {[RegExp]} res 定制匹配式集合，可选
      * @return {[Object2|Hicolor]} 解析结果对象集
      */
-    parse( code ) {
-        let _chs = [], _buf = [];
+    parse( code, res ) {
+        res = res || this._re2s;
+        let _chs = [],
+            _buf = [];
 
         while ( code ) {
-            let _v2 = this._parseOne( code ),
+            let _v2 = this._parseOne( code, res ),
                 _len = 0;
 
             if ( _v2 ) {
@@ -258,29 +275,57 @@ class Hicode {
 
 
     /**
-     * 即时语法分析。
-     * 主要用于源码编辑时的实时分析着色。
-     * 不支持结束匹配式。
-     * 提示：
-     * 可以处理有上下文的子集，比如在注释内更细的分析，
-     * 此时传递res为一个更特定的子集即可。
-     * @param  {String} word 目标词
-     * @param  {[RegExp]} res 匹配式集合，可选
-     * @return {Object2|null} 解析结果对象
+     * 公用：
+     * HTML结果构造（单语言）。
+     * 友好：
+     * 如果data传递字符串，则解析后再构造。
+     * @param  {[Object2]|String} data 已解析结果集或待解析代码
+     * @param  {[RegExp]} res 定制匹配式集合，data为代码时有效，可选
+     * @return {String} 着色HTML源码
      */
-    analyze( word, res ) {
-        res = res || this._re2s;
-
-        for ( const {begin, type} of res ) {
-            let _beg = begin.exec( word );
-
-            if ( !_beg || _beg.index > 0 ) {
-                continue;
-            }
-            // 定制处理传递匹配集序列。
-            return typeof type === 'function' ? type(..._beg) : {text: _beg[0], type};
+    html( data, res ) {
+        if ( typeof data === 'string' ) {
+            data = this.parse( data, res );
         }
-        return null;
+        return $.isArray(data) ? data.map(codeHTML).join('') : codeHTML(data);
+    }
+
+
+    /**
+     * 重载：
+     * 创建注释接口。
+     * 默认实现为C类型行注释和块注释。
+     * 具体的语言可覆盖实现。
+     * 主要用于代码编辑中即时注释目标内容。
+     * 返回值约定：
+     * 块注释返回单个字符串，行注释返回一个多行集合。
+     * @param  {String} text 待注释文本
+     * @param  {Boolean} block 为块注释，可选
+     * @return {String|[String]}
+     */
+    comment( text, block ) {
+        if ( block ) {
+            return `/* ${text} */`;
+        }
+        return text.split('\n').map( s => `// ${s}` );
+    }
+
+
+    /**
+     * 重载：
+     * 获取块语法标识对。
+     * 方便外部解析处理单行不完整代码段。
+     * 此仅提供通用的类C语言块注释。
+     * 返回值：[
+     *      [ 起始标识, 结束标识 ]
+     * ]
+     * @return {[Array2]} 配置对集
+     */
+    blockPair() {
+        return [
+            // comments
+            [ '/*', '*/' ]
+        ];
     }
 
 
@@ -291,12 +336,15 @@ class Hicode {
      * 单轮匹配解析。
      * 迭代每一个正则配置对象，从子串头部开始且仅测试一次。
      * 返回null表示全无匹配。
-     * 返回数组中第二个值为上级可跳过的文本长度。
+     * 返回数组：
+     * [0]  解析后封装的对象，对象集或Hicolor由处理器带来。
+     * [1]  上级可跳过的文本长度（已封装）。
      * @param  {String} ss 目标子串
+     * @param  {[RegExp]} res 匹配式集合
      * @return {[Object2|[Object2]|Hicolor, Number]|null}
      */
-    _parseOne( ss ) {
-        for ( let {begin, end, type} of this._re2s ) {
+    _parseOne( ss, res ) {
+        for ( let {begin, end, type} of res ) {
             let _beg = begin.exec( ss );
 
             if ( !_beg || _beg.index > 0 ) {
@@ -319,7 +367,7 @@ class Hicode {
      * @param  {String} ss 待处理截取串
      * @param  {RegExp} rend 终止匹配式
      * @param  {String|Function} type 类型名或处理器
-     * @return {[[Object2]|Hicolor, Number]}
+     * @return {[Object2|[Object2]|Hicolor, Number]}
      */
     _range( beg, ss, rend, type ) {
         let [text, end] = this._text( ss, rend ),
