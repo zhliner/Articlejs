@@ -64,11 +64,17 @@ class Go extends Hicode {
             },
             {
                 begin: RE.COMMENT_B,
-                type:  Fx.escapeComment
+                type:  Fx.escapeComment,
+                block: [ '/*', '*/' ]
             },
             {
                 begin: RE.STRING,
                 type:  Fx.escapeString
+            },
+            {
+                begin: RE.STRING_RAW,
+                type:  Fx.escapeString,
+                block: [ '`', '`' ]
             },
             {
                 begin: /^('.*[^\\]')/,

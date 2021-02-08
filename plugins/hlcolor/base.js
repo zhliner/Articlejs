@@ -8,17 +8,18 @@
 //
 //  代码高亮通用框架。
 //
-//  各语言继承 Hicode 基类，定义匹配器序列（Object3）或实现定制处理。
+//  各语言继承 Hicode 基类，定义匹配器序列（Object4）或实现定制处理。
 //  如果需要复用其它语言的实现，创建 Hicolor 实例即可，
 //  比如 HTML 中对 Javascript 或 CSS 的嵌入处理。
 //
 //  定制处理也可以实现一个内部的 Hicode 子类，然后创建 Hicolor 实例并传递子类实例，
 //  比如内部对注释或字符串类型更细粒度的解析。此时并非复用外部实现。
 //
-//  Object3: {
-//      begin: RegExp 起始匹配式。
-//      end:   RegExp 结束匹配式，可选。
-//      type:  {String|Function} 类型名或进阶处理器（如子块分析、转义）。
+//  Object4: {
+//      begin:  RegExp 起始匹配式。
+//      end:    RegExp 结束匹配式，可选。
+//      type:   {String|Function} 类型名或进阶处理器（如子块分析、转义）。
+//      block:  [String, String] 块数据边界标识对
 //  }
 //  .begin
 //      定义起点。取值从匹配串之后开始。
@@ -29,10 +30,14 @@
 //      String   语法类型名，如：keyword, string, operator...
 //      Function 进阶处理器，传递匹配集，返回处理后的结果。
 //  }
+//  .block: [
+//      0   数据起始标识（如块注释的 /*）
+//      1   数据结尾标识（如块注释的 */）
+//  ]
 //  进阶处理器：
 //  - begin (无end)
 //    function(beg:String, ...subs:String): Object2|Hicolor|[Object2|Hicolor]
-//    参数：匹配串, 子匹配集序列
+//    参数：匹配串, ...子匹配序列
 //  - begin, end
 //    function(beg:[String], text:String, end:[String]): Object2|Hicolor|[Object2|Hicolor]
 //    参数：起始匹配集, 中间截取串, 结束匹配集
@@ -48,11 +53,11 @@
 //  此时返回集应当是 Object2 和CSS处理器 Hicolor 实例的混合。
 //  2.
 //  源码中的注释如果需要进阶标记，注释的范围标识 /*...*/ 属于注释本身，
-//  此时处理器应当返回一个 Object2 的集合。
+//  此时处理器可能返回一个 Object2 的集合。
 //
 //  注记：
-//  Object3.type 可作为进阶处理，因此可以支持复杂的嵌入逻辑。
-//  Hicolor/Hicode 提供了基础性的解析和构造HTML能力，简单复用即可。
+//  Object4.type 作为进阶处理可以支持复杂的嵌入逻辑。
+//  Hicolor/Hicode 提供了基础性的解析和管理，可以简单复用。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,38 +67,6 @@ import { languageClass } from "./main.js";
 
 
 const
-    $ = window.$,
-
-    // 高亮名:角色映射。
-    // 高亮名用于具体语言中使用，角色名用于封装元素<b>中的role值。
-    // 此处的高亮名用于语言实现中的规范名称（type）。
-    __Roles = {
-        'keyword':      'kw',   // 关键字
-        'literal':      'lit',  // 字面值（如 true, iota）
-        'string':       'str',  // 字符串
-        'number':       'num',  // 数值
-        'function':     'fn',   // 函数名
-        'operator':     'op',   // 运算符
-        'datatype':     'dt',   // 数据类型
-        'xmltag':       'tag',  // 标签名
-        'attribute':    'atn',  // 属性名（attribute-name）
-        'regex':        're',   // 正则表达式
-        'selector':     'slr',  // 选择器（ID, class, 伪类）
-        'rgba':         'rgb',  // RGB, RGBA: #fff, #f0f0f0, rgb(214, 86, 0)
-        'hsla':         'hsl',  // HSL, HSLA: hsl(24deg, 100%, 42%)
-        'unit':         'un',   // CSS单位
-        'important':    'imp',  // 重要（CSS: !important; C/C++: 预处理器）
-        'doctype':      'doc',  // <!DOCTYPE ...>
-        'error':        'err',  // 错误提示
-        'comments':     null,   // 注释（单独封装）
-    },
-
-    // 未定义类型替换。
-    __nonRole = 'non',
-
-    // 注释类型名。
-    __cmtName = 'comments',
-
     // HTML转义字符。
     __escapeMap = {
         '<':    '&lt;',
@@ -109,11 +82,9 @@ const
 //
 class Hicolor {
     /**
-     * lang:
-     * 如果仅为了复用.htmlObj()方法，可以省略。
      * text:
      * 方便嵌入块封装，如果仅为了创建特定语言实现实例则可省略。
-     * @param {String} lang 语言名，可选
+     * @param {String} lang 语言名
      * @param {String} text 待解析文本，可选
      */
     constructor( lang, text ) {
@@ -124,34 +95,35 @@ class Hicolor {
 
 
     /**
-     * 解析获取HTML源码集。
-     * 如果文本中嵌入了其它语言代码，结果集里会包含对象成员。
-     * 传递inst实参可复用本方法的功能。
-     * 返回值：
-     * String: 已解析源码字符串（含HTML标签）
+     * 执行语法着色解析。
+     * 源文本中可能嵌入其它语言代码，会执行其Hicolor解析，
+     * 因此结果集里可能包含子块封装。
+     * 解析结果
+     * Object: {
+     *      text:   String 源文本（待封装）
+     *      type?:  String 代码类型（规范名称），可选
+     *      block?: [String, String] 块数据边界标识对，可选
+     * }
+     * 子块封装
      * Object2: {
      *      lang: 子块语言
-     *      html: 子块源码集{[String|Object2]}，可含子块嵌套
+     *      data: 子块解析集，结构同这里的返回集
      * }
-     * @param  {Hicode} inst 实现实例，可选
-     * @return {[String|Object2]} 源码集
+     * @return {[Object|Object2]} 结果集
      */
-    htmlObj( inst ) {
-        inst = inst || this._inst;
-        let _buf = [],
-            _tmp = [];
+    effect() {
+        let _buf = [];
 
-        for ( const obj of inst.parse(this._code) ) {
+        for ( const obj of this._inst.parse(this._code) ) {
             let _hi = obj instanceof Hicolor;
             if ( !_hi ) {
-                _tmp.push( codeHTML(obj) );
+                _buf.push( obj );
                 continue;
             }
-            this._string( _tmp, _buf );
-            _buf.push( {lang: obj.lang(), html: obj.htmlObj()} );
+            _buf.push( {lang: obj.lang(), data: obj.effect()} );
         }
 
-        return this._string( _tmp, _buf );
+        return _buf;
     }
 
 
@@ -172,28 +144,8 @@ class Hicolor {
     lang() {
         return this._lang || null;
     }
-
-
-    //-- 私有辅助 -------------------------------------------------------------
-
-
-    /**
-     * 添加字符串成员。
-     * 从子串存储区提取合并添加到结果存储区。
-     * 成功提取后会清空原存储区。
-     * @param  {[String]} tmp 子串存储区引用
-     * @param  {Array} buf 结果存储区引用
-     * @return {Array} buf
-     */
-    _string( tmp, buf ) {
-        if ( tmp.length ) {
-            buf.push( tmp.join('') );
-            tmp.length = 0;
-        }
-        return buf;
-    }
-
 }
+
 
 
 //
@@ -206,8 +158,8 @@ class Hicolor {
 //
 class Hicode {
     /**
-     * Object3说明见页顶。
-     * @param {[Object3]} matches 匹配器集
+     * Object4说明见页顶。
+     * @param {[Object4]} matches 匹配器集
      */
     constructor( matches ) {
         // 避免/gy标记
@@ -217,7 +169,7 @@ class Hicode {
                 throw new Error( `[${_err}] global or sticky flag cannot be set.` );
             }
         }
-        this._re2s = matches;
+        this._re4s = matches;
     }
 
 
@@ -239,16 +191,17 @@ class Hicode {
      * 重点是code提取的合理性（范围和效率）。
      * code所属语言可从代码容器上获取，可从Hicolor创建Hicode实例。
      *
-     * 返回值 Object2: {
-     *      text: {String} 代码文本，应当已转义
-     *      type: {String} 代码类型，可选。未定义时text为普通文本
+     * 返回值 Object: {
+     *      text:   {String} 代码文本，应当已转义
+     *      type?:  {String} 代码类型，可选。未定义时text为普通文本
+     *      block?: [String, String] 块数据边界标识对，可选
      * }
      * @param  {String} code 源码文本
      * @param  {[RegExp]} res 定制匹配式集合，可选
-     * @return {[Object2|Hicolor]} 解析结果对象集
+     * @return {[Object|Hicolor]} 解析结果对象集
      */
     parse( code, res ) {
-        res = res || this._re2s;
+        res = res || this._re4s;
         let _chs = [],
             _buf = [];
 
@@ -275,23 +228,6 @@ class Hicode {
 
 
     /**
-     * 公用：
-     * HTML结果构造（单语言）。
-     * 友好：
-     * 如果data传递字符串，则解析后再构造。
-     * @param  {[Object2]|String} data 已解析结果集或待解析代码
-     * @param  {[RegExp]} res 定制匹配式集合，data为代码时有效，可选
-     * @return {String} 着色HTML源码
-     */
-    html( data, res ) {
-        if ( typeof data === 'string' ) {
-            data = this.parse( data, res );
-        }
-        return $.isArray(data) ? data.map(codeHTML).join('') : codeHTML(data);
-    }
-
-
-    /**
      * 重载：
      * 创建注释接口。
      * 默认实现为C类型行注释和块注释。
@@ -311,24 +247,6 @@ class Hicode {
     }
 
 
-    /**
-     * 重载：
-     * 获取块语法标识对。
-     * 方便外部解析处理单行不完整代码段。
-     * 此仅提供通用的类C语言块注释。
-     * 返回值：[
-     *      [ 起始标识, 结束标识 ]
-     * ]
-     * @return {[Array2]} 配置对集
-     */
-    blockPair() {
-        return [
-            // comments
-            [ '/*', '*/' ]
-        ];
-    }
-
-
     //-- 私有辅助 ----------------------------------------------------------------
 
 
@@ -341,19 +259,19 @@ class Hicode {
      * [1]  上级可跳过的文本长度（已封装）。
      * @param  {String} ss 目标子串
      * @param  {[RegExp]} res 匹配式集合
-     * @return {[Object2|[Object2]|Hicolor, Number]|null}
+     * @return {[Object|[Object]|Hicolor, Number]|null}
      */
     _parseOne( ss, res ) {
-        for ( let {begin, end, type} of res ) {
+        for ( let {begin, end, type, block} of res ) {
             let _beg = begin.exec( ss );
 
             if ( !_beg || _beg.index > 0 ) {
                 continue;
             }
             if ( end ) {
-                return this._range( _beg.slice(), ss.substring(_beg[0].length), end, type );
+                return this._range( _beg.slice(), ss.substring(_beg[0].length), end, type, block );
             }
-            return this._alone( _beg, type );
+            return this._alone( _beg, type, block );
         }
         return null;
     }
@@ -367,11 +285,12 @@ class Hicode {
      * @param  {String} ss 待处理截取串
      * @param  {RegExp} rend 终止匹配式
      * @param  {String|Function} type 类型名或处理器
-     * @return {[Object2|[Object2]|Hicolor, Number]}
+     * @param  {[String]} pair 块数据边界标识对，可选
+     * @return {[Object|[Object]|Hicolor, Number]}
      */
-    _range( beg, ss, rend, type ) {
+    _range( beg, ss, rend, type, pair ) {
         let [text, end] = this._text( ss, rend ),
-            _obj = typeof type === 'function' ? type(beg, text, end) : {text, type},
+            _obj = typeof type === 'function' ? type(beg, text, end) : this._obj(text, type, pair),
             _len = end ? end[0].length : 0;
 
         return [ _obj, beg[0].length + text.length + _len ];
@@ -383,11 +302,29 @@ class Hicode {
      * 处理器实参为匹配集序列。
      * @param  {String} beg 起始匹配集
      * @param  {String} type 类型名或处理器
-     * @return {[Object2|[Object2]|Hicolor, Number]}
+     * @param  {[String]} pair 块数据边界标识对，可选
+     * @return {[Object|[Object]|Hicolor, Number]}
      */
-    _alone( beg, type ) {
-        let _obj = typeof type === 'function' ? type(...beg) : {text: beg[0], type};
+    _alone( beg, type, pair ) {
+        let _obj = typeof type === 'function' ? type(...beg) : this._obj(beg[0], type, pair);
         return [ _obj, beg[0].length ];
+    }
+
+
+    /**
+     * 构建结果对象。
+     * @param  {String} text 待封装文本
+     * @param  {String} type 封装类型，可选
+     * @param  {[String]} pair 块数据边界标识对，可选
+     * @return {Object} 结果对象
+     */
+    _obj( text, type, pair ) {
+        let _obj = { text };
+
+        if ( type ) _obj.type = type;
+        if ( pair ) _obj.block = pair;
+
+        return _obj;
     }
 
 
@@ -454,14 +391,16 @@ class Hicode {
 // 首个子匹配即为完整匹配。
 //
 const RE = {
-    // 行注释
-    COMMENTS:   /^(\/\/.*)$/m,
-    // 块注释
-    COMMENT_B:  /^(\/\*[^]*\*\/)/,
+    // 行注释 //
+    COMMENTS:   /^\/\/.*$/m,
+    // 块注释 /**/
+    COMMENT_B:  /^\/\*[^]*\*\//,
     // 偶数\\合法
-    STRING:     /^("(?:(?:\\\\)*|.*?(?:[^\\](?:\\\\)+|[^\\]))")/,
-    // 正则表达式
-    REGEX:      /^(\/[^/].*\/[gimsuy]*)/,
+    STRING:     /^"(?:(?:\\\\)*|.*?(?:[^\\](?:\\\\)+|[^\\]))"/,
+    // 原生字符串
+    STRING_RAW: /^`[^]*`/,
+    // 正则表达式（JS）
+    REGEX:      /^\/[^/].*\/[gimsuy]*/,
     // 简单数字
     NUMBER:     /^(-?\d+(?:\.\d+)?)\b/,
     // 复杂数字 0x..., 0..., decimal, float
@@ -506,11 +445,6 @@ const Fx = {
 }
 
 
-//
-// 工具函数
-//////////////////////////////////////////////////////////////////////////////
-
-
 /**
  * HTML转义处理。
  * @param  {String} val 目标字符串
@@ -518,27 +452,6 @@ const Fx = {
  */
 function escape( val ) {
     return val.replace( /[&<>]/gm, ch => __escapeMap[ch] );
-}
-
-
-/**
- * 构建高亮源码。
- * 注释包含在<i>元素内。
- * Object2: {
- *      text: {String} 代码文本，应当已转义
- *      type: {String} 代码类型，可选。无此项时即为普通文本
- * }
- * @param  {Object2} obj 解析结果对象
- * @return {String} 封装的源码
- */
-function codeHTML( obj ) {
-    if ( obj.type == null ) {
-        return obj.text;
-    }
-    if ( obj.type == __cmtName ) {
-        return `<i>${obj.text}</i>`;
-    }
-    return `<b role="${__Roles[obj.type] || __nonRole}">${obj.text}</b>`;
 }
 
 

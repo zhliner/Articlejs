@@ -2706,15 +2706,17 @@ function cropTrs( tbo, cnt, tsec ) {
 
 
 /**
- * 分解创建代码表项集。
- * 注记：
+ * 创建代码表项集。
+ * data:{
+ *      text, type?, block?
+ * }
  * 属性实参null值可保证清除该特性。
- * @param  {String} code 已解析源码
+ * @param  {Object} data 解析结果对象
  * @param  {String} lang 所属语言
  * @param  {Number} tab Tab空格数，可选
  * @return {[Element]} <li/code>集合
  */
-function liCode( code, lang = null, tab = null ) {
+function liCode( data, lang = null, tab = null ) {
     return code
         .split( '\n' )
         .map( html => create(T.CODELI, {lang, tab}, html) );
@@ -2734,27 +2736,32 @@ function blockCode( code, lang = null, tab = null ) {
 
 
 /**
- * 分解代码解析结果集。
- * 对可能包含的其它语言代码块扁平化处理。
+ * 汇合解析结果集。
+ * 如果包含其它语言代码子块，会被扁平化。
+ * Object: {
+ *      text:   待封装文本（已HTML转义）
+ *      type?:  类型名（见 plugins/hlcolor 插件），可选
+ *      block?: 块数据边界标识符对，可选
+ * }
  * Object2: {
  *      lang: 所属语言
- *      html: 子块源码集（与data相同结构）
+ *      data: 子块源码集（与data相同结构）
  * }
- * @param  {[String|Object2]} data 源码解析数据
+ * @param  {[Object|Object2]} data 源码解析数据
  * @param  {String} lang 所属语言
  * @param  {Function} make 封装创建回调
  * @param  {Number} tab Tab空格数，可选
- * @return {[Element]} <li/code>集
+ * @return {[Element]} 代码元素集（<code>|<li/code>）
  */
 function codeFlat( data, lang, make, tab ) {
     let _buf = [];
 
     for ( const its of data ) {
-        if ( typeof its === 'string' ) {
+        if ( typeof its.text !== undefined ) {
             _buf.push( ...make(its, lang, tab) );
             continue;
         }
-        _buf.push( ...codeFlat(its.html, its.lang, make, tab) );
+        _buf.push( ...codeFlat(its.data, its.lang, make, tab) );
     }
     return _buf;
 }
@@ -5032,13 +5039,13 @@ export const Kit = {
 
 
     /**
-     * 解析源码获取高亮代码。
+     * 解析获取高亮代码。
      * @data: String
      * @param  {Number} tab Tab空格数
      * @param  {String} lang 代码语言
-     * @return {[String|Object2]} 语法高亮后的HTML
+     * @return {[Object3]} 高亮配置对象集
      */
-    codehtml( evo, tab, lang ) {
+    hlcode( evo, tab, lang ) {
         let _code = evo.data.split( __reNewline );
 
         if ( tab > 0 ) {
@@ -5046,10 +5053,10 @@ export const Kit = {
         }
         _code = _code.join( '\n' );
 
-        return lang ? new Hicolor(lang, _code).htmlObj() : [_code];
+        return lang ? new Hicolor(lang, _code).effect() : [{text: _code}];
     },
 
-    __codehtml: 1,
+    __hlcode: 1,
 
 
     /**
@@ -5539,7 +5546,7 @@ customGetter( null, Kit, [
     'splitx',
     'tabs',
     'indentcut',
-    'codehtml',
+    'hlcode',
     'codeopts',
     'codelis',
     'codeblo',
