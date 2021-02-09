@@ -68,11 +68,17 @@ const
     // 未定义类型替换。
     __nonRole = 'non',
 
+    // 字符串类型名。
+    __strName = 'string',
+
     // 注释类型名。
     __cmtName = 'comments',
 
-    // 缺位边界符存储。
-    __attrVacant = 'data-v';
+    // 缺位边界符存储特性。
+    __atnVacant = 'data-v',
+
+    // 缺位边界符分隔符。
+    __vacApart = ',';
 
 
 
@@ -83,27 +89,25 @@ const
 
 /**
  * 构建代码块高亮源码。
- * 注释包含在<i>元素内。
- * Object: {
- *      text:   {String} 代码文本，应当已转义
- *      type?:  {String} 代码类型，可选。无此项时即为普通文本
- *      block?: [String, String] 块数据边界字符对，可选
- * }
- * @param  {Object} obj 解析结果对象
- * @param  {String} vac 补齐的边界符（a,b|a,|,b）
+ * 注释用<i>封装，字符串用<s>封装。
+ * @param  {String} text 待封装文本
+ * @param  {String} type 代码类型，可选
+ * @param  {String} vac 补齐的边界符（a,b|a,|,b），可选
  * @return {String} HTML高亮源码
  */
-function codeHTML( obj, vac = '' ) {
-    if ( obj.type == null ) {
-        return obj.text;
+function codeHTML( text, type, vac = '' ) {
+    if ( type == null ) {
+        return text;
     }
-    if ( obj.type == __cmtName ) {
-        return `<i>${obj.text}</i>`;
+    vac = vac && ` ${__atnVacant}="${vac}"`;
+
+    if ( type == __strName ) {
+        return `<s${vac}>${text}</s>`;
     }
-    if ( vac ) {
-        vac = ` ${__attrVacant}="${vac}"`;
+    if ( type == __cmtName ) {
+        return `<i${vac}>${text}</i>`;
     }
-    return `<b role="${__Roles[obj.type] || __nonRole}"${vac}>${obj.text}</b>`;
+    return `<b role="${__Roles[type] || __nonRole}"${vac}>${text}</b>`;
 }
 
 

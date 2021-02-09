@@ -15,11 +15,14 @@
 //  定制处理也可以实现一个内部的 Hicode 子类，然后创建 Hicolor 实例并传递子类实例，
 //  比如内部对注释或字符串类型更细粒度的解析。此时并非复用外部实现。
 //
-//  Object4: {
-//      begin:  RegExp 起始匹配式。
-//      end:    RegExp 结束匹配式，可选。
-//      type:   {String|Function} 类型名或进阶处理器（如子块分析、转义）。
-//      block:  [String, String] 块数据边界标识对
+//
+//  配置对象
+//  --------
+//  Object4 {
+//      begin:  {RegExp} 起始匹配式。
+//      end:    {RegExp} 结束匹配式，可选。
+//      type:   {String|Function} 类型名或进阶处理器，约定俗成的规范名称。
+//      block:  [String, String] 块数据边界标识对，可选
 //  }
 //  .begin
 //      定义起点。取值从匹配串之后开始。
@@ -28,7 +31,7 @@
 //      结束匹配式。取值终点为匹配串之前，若无匹配则取测试串本身。
 //  .type: {
 //      String   语法类型名，如：keyword, string, operator...
-//      Function 进阶处理器，传递匹配集，返回处理后的结果。
+//      Function 进阶处理器，实参传递为匹配集，返回处理后的结果（集）。
 //  }
 //  .block: [
 //      0   数据起始标识（如块注释的 /*）
@@ -36,16 +39,24 @@
 //  ]
 //  进阶处理器：
 //  - begin (无end)
-//    function(beg:String, ...subs:String): Object2|Hicolor|[Object2|Hicolor]
+//    function(beg:String, ...subs:String): Object3|Hicolor|[Object3|Hicolor]
 //    参数：匹配串, ...子匹配序列
 //  - begin, end
-//    function(beg:[String], text:String, end:[String]): Object2|Hicolor|[Object2|Hicolor]
+//    function(beg:[String], text:String, end:[String]): Object3|Hicolor|[Object3|Hicolor]
 //    参数：起始匹配集, 中间截取串, 结束匹配集
-//  返回值：
-//  Object2 {
-//      text: String 匹配串。可为HTML。
-//      type: String 类型名。可选，未定义时text视为普通文本。
+//
+//
+//  解析结果
+//  --------
+//  Object3 {
+//      text:{String|[Object3]} 匹配的文本或进阶解析结果（集）
+//      type?:{String}          类型名，未定义时text视为普通文本，可选
+//      block?:[String, String] 块数据边界标识对，可选
 //  }
+//  .text:{[Object3]}
+//  当目标类型拥有嵌入的语法解析时，即为嵌入解析的结果集。
+//  注意，所有解析结果 Object3 结构相同，因此逻辑上可无限递进。
+//
 //
 //  进阶处理器用例：
 //  1.
@@ -98,18 +109,16 @@ class Hicolor {
      * 执行语法着色解析。
      * 源文本中可能嵌入其它语言代码，会执行其Hicolor解析，
      * 因此结果集里可能包含子块封装。
-     * 解析结果
-     * Object: {
-     *      text:   String 源文本（待封装）
-     *      type?:  String 代码类型（规范名称），可选
-     *      block?: [String, String] 块数据边界标识对，可选
+     * 返回值：
+     * Object3 {
+     *      // 见页顶说明
      * }
-     * 子块封装
-     * Object2: {
-     *      lang: 子块语言
-     *      data: 子块解析集，结构同这里的返回集
+     * Object2 {
+     *      // 子块封装
+     *      lang: 子块语言。
+     *      data: 子块解析集{[Object3|Object2]}，结构相同。
      * }
-     * @return {[Object|Object2]} 结果集
+     * @return {[Object3|Object2]} 结果集
      */
     effect() {
         let _buf = [];
@@ -191,14 +200,10 @@ class Hicode {
      * 重点是code提取的合理性（范围和效率）。
      * code所属语言可从代码容器上获取，可从Hicolor创建Hicode实例。
      *
-     * 返回值 Object: {
-     *      text:   {String} 代码文本，应当已转义
-     *      type?:  {String} 代码类型，可选。未定义时text为普通文本
-     *      block?: [String, String] 块数据边界标识对，可选
-     * }
+     * 返回值：见页顶 Object3 说明。
      * @param  {String} code 源码文本
      * @param  {[RegExp]} res 定制匹配式集合，可选
-     * @return {[Object|Hicolor]} 解析结果对象集
+     * @return {[Object3|Hicolor]} 解析结果对象集
      */
     parse( code, res ) {
         res = res || this._re4s;
@@ -259,7 +264,7 @@ class Hicode {
      * [1]  上级可跳过的文本长度（已封装）。
      * @param  {String} ss 目标子串
      * @param  {[RegExp]} res 匹配式集合
-     * @return {[Object|[Object]|Hicolor, Number]|null}
+     * @return {[Object3|[Object3]|Hicolor, Number]|null}
      */
     _parseOne( ss, res ) {
         for ( let {begin, end, type, block} of res ) {
@@ -286,7 +291,7 @@ class Hicode {
      * @param  {RegExp} rend 终止匹配式
      * @param  {String|Function} type 类型名或处理器
      * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {[Object|[Object]|Hicolor, Number]}
+     * @return {[Object3|[Object3]|Hicolor, Number]}
      */
     _range( beg, ss, rend, type, pair ) {
         let [text, end] = this._text( ss, rend ),
@@ -303,7 +308,7 @@ class Hicode {
      * @param  {String} beg 起始匹配集
      * @param  {String} type 类型名或处理器
      * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {[Object|[Object]|Hicolor, Number]}
+     * @return {[Object3|[Object3]|Hicolor, Number]}
      */
     _alone( beg, type, pair ) {
         let _obj = typeof type === 'function' ? type(...beg) : this._obj(beg[0], type, pair);
@@ -316,7 +321,7 @@ class Hicode {
      * @param  {String} text 待封装文本
      * @param  {String} type 封装类型，可选
      * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {Object} 结果对象
+     * @return {Object3} 结果对象
      */
     _obj( text, type, pair ) {
         let _obj = { text };
@@ -348,7 +353,7 @@ class Hicode {
      * 添加纯文本对象。
      * 如果添加了对象，原字符缓存会被清空。
      * @param  {[String]} chs 字符缓存引用
-     * @param  {[Object]} buf 结果缓存引用
+     * @param  {[Object3]} buf 结果缓存引用
      * @return {void}
      */
     _plain( chs, buf ) {

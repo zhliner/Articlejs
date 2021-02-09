@@ -93,7 +93,10 @@ function partBefore( node, from, end ) {
  * @return {[String, Boolean]} [行段, 结束]
  */
 function partAfter( node, from, end ) {
-    //
+    let _s = node.innerText || node.textContent,
+        _i = _s.indexOf( end, from );
+
+    return _i < 0 ? [_s] : [_s.substring(0, _i), true];
 }
 
 

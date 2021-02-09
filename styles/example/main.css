@@ -751,10 +751,15 @@ span[role=space] {
 code > b {
     font-weight: normal;
 }
+/* string */
+code > s {
+    text-decoration-line: none;
+    color: #03c;
+}
 /* comments */
 code > i {
-    color: #909090;
     font-style: normal;
+    color: #909090;
 }
 
 /* keywords */
@@ -766,11 +771,6 @@ code > b[role=kw] {
 /* literal */
 code > b[role=lit] {
     color: #a70fce;
-}
-
-/* string */
-code > b[role=str] {
-    color: #03c;
 }
 
 /* number */
