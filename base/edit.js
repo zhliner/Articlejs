@@ -2707,16 +2707,13 @@ function cropTrs( tbo, cnt, tsec ) {
 
 /**
  * 创建代码表项集。
- * data:{
- *      text, type?, block?
- * }
  * 属性实参null值可保证清除该特性。
- * @param  {Object} data 解析结果对象
+ * @param  {String} code 已解析源码
  * @param  {String} lang 所属语言
  * @param  {Number} tab Tab空格数，可选
  * @return {[Element]} <li/code>集合
  */
-function liCode( data, lang = null, tab = null ) {
+function liCode( code, lang = null, tab = null ) {
     return code
         .split( '\n' )
         .map( html => create(T.CODELI, {lang, tab}, html) );
@@ -2738,16 +2735,11 @@ function blockCode( code, lang = null, tab = null ) {
 /**
  * 汇合解析结果集。
  * 如果包含其它语言代码子块，会被扁平化。
- * Object: {
- *      text:   待封装文本（已HTML转义）
- *      type?:  类型名（见 plugins/hlcolor 插件），可选
- *      block?: 块数据边界标识符对，可选
- * }
  * Object2: {
  *      lang: 所属语言
  *      data: 子块源码集（与data相同结构）
  * }
- * @param  {[Object|Object2]} data 源码解析数据
+ * @param  {[String|Object2]} data 源码解析数据
  * @param  {String} lang 所属语言
  * @param  {Function} make 封装创建回调
  * @param  {Number} tab Tab空格数，可选
@@ -2757,7 +2749,7 @@ function codeFlat( data, lang, make, tab ) {
     let _buf = [];
 
     for ( const its of data ) {
-        if ( typeof its.text !== undefined ) {
+        if ( typeof its === 'string' ) {
             _buf.push( ...make(its, lang, tab) );
             continue;
         }

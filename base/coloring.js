@@ -6,21 +6,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  代码高亮即时分析封装工具集。
-//  用于高亮代码中即时编辑即时着色的场景。
-//
-//  这里并不提供具体语言的高亮匹配语法解析，它们由插件（/plugins/hlcolor）实现。
-//  反而，这里的工具函数需要该插件的支持（Hicode.parse）。
-//
-//  功能：
-//
-//  根据当前光标点（Range）获取当前行、当前单词。
-//  也即提取 Hicode.parse() 中的 code 实参。
-//
-//  支持当前光标点所在“环境”，根据环境的不同而有不同的处理：
-//  - 顶层代码环境：即可编辑元素顶层根容器，正常解析。
-//  - 局部语法环境：注释内编辑不启动解析；字符串内编辑为切分解析（与顶层平级）。
-//
+//  代码高亮着色渲染工具集。
+//  将插件（/plugins/hlcolor）解析的结果进行HTML封装。
+//  同时也提供代码即时编辑时提取必要的修订文本段。
 //
 //  跨行语法：
 //  代码表中的单行如果包含跨行的语法，则该语法通常会不完整。
@@ -28,11 +16,17 @@
 //
 //  这可以通过临时补齐边界字符的方式解决：
 //  - 起始：末端补齐结束标识，无论用户是否删除起始标识。
-//  - 中段：两端补齐边界标识，行内可能有切分解析的逻辑（如模板字符串）。
+//  - 中段：两端补齐边界标识。
 //  - 末尾：行首补齐开始标识，无论用户是否删除结束标识。
 //
-//  这可能对未被编辑的行产生影响，因此需要对关联行段完整解析修正（或手动要求）。
-//  这可能由Hicolor配置支持以实现通用的处理方式。
+//  这可能对未被编辑的行产生影响，因此需要对关联行段完整解析修正。
+//
+//  编辑辅助：
+//  根据当前光标点（Range）获取当前行中的需重新渲染的文本段。
+//  也即提取 Hicode.parse() 中的 code 实参。
+//
+//  注记：
+//  渲染的HTML结构规范，不存在元素属性值中包含换行符的情况。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,10 +69,10 @@ const
     __cmtName = 'comments',
 
     // 缺位边界符存储特性。
-    __atnVacant = 'data-v',
+    __atnVac = 'data-v',
 
     // 缺位边界符分隔符。
-    __vacApart = ',';
+    __vacSplit = ',';
 
 
 
@@ -88,18 +82,34 @@ const
 
 
 /**
- * 构建代码块高亮源码。
- * 注释用<i>封装，字符串用<s>封装。
+ * 代码HTML封装。
  * @param  {String} text 待封装文本
- * @param  {String} type 代码类型，可选
- * @param  {String} vac 补齐的边界符（a,b|a,|,b），可选
- * @return {String} HTML高亮源码
+ * @param  {String} type 代码类型名
+ * @return {String} 封装的源码
  */
-function codeHTML( text, type, vac = '' ) {
+function codeHTML( text, type ) {
     if ( type == null ) {
         return text;
     }
-    vac = vac && ` ${__atnVacant}="${vac}"`;
+    if ( type == __strName ) {
+        return `<s>${text}</s>`;
+    }
+    if ( type == __cmtName ) {
+        return `<i>${text}</i>`;
+    }
+    return `<b role="${__Roles[type] || __nonRole}">${text}</b>`;
+}
+
+
+/**
+ * 含边界符补充的源码封装。
+ * @param  {String} text 待封装文本行
+ * @param  {String} type 代码类型
+ * @param  {String} vac  边界符（,b|a,b|a,）
+ * @return {String} HTML高亮源码
+ */
+function htmlVac( text, type, vac ) {
+    vac = ` ${__atnVac}="${vac}"`;
 
     if ( type == __strName ) {
         return `<s${vac}>${text}</s>`;
@@ -111,6 +121,41 @@ function codeHTML( text, type, vac = '' ) {
 }
 
 
+/**
+ * 边界符构造。
+ * - 首行补充结尾（',b'）
+ * - 中间行补充两端（'a,b'）
+ * - 末行补充开头（'a,'）
+ * @param  {String} v1 起始边界符序列
+ * @param  {String} v2 结尾边界符序列
+ * @return {[String]} [首, 中, 末]
+ */
+function vacant( v1, v2 ) {
+    return [
+        `${__vacSplit}${v2}`,      // ',b'
+        `${v1}${__vacSplit}${v2}`, // 'a,b'
+        `${v1}${__vacSplit}`,      // 'a,'
+    ];
+}
+
+
+/**
+ * 源码集合并处理。
+ * 将临时的存储集合并压入结果对象集，
+ * 同时清空临时存储集。
+ * @param  {[String]} tmp 源码存储集
+ * @param  {[Object]} buf 渲染结果对象集
+ * @return {[Object]} buf
+ */
+function htmlMerge( tmp, buf ) {
+    if ( tmp.length > 0 ) {
+        buf.push( tmp.join('') );
+        tmp.length = 0;
+    }
+    return buf;
+}
+
+
 
 //
 // 导出函数
@@ -118,26 +163,96 @@ function codeHTML( text, type, vac = '' ) {
 
 
 /**
- * 构建代码块高亮源码。
- * 块数据边界符完整，无需标注。
+ * 代码块高亮源码构建。
+ * 块数据边界符完整，简单封装即可，无需标注。
  * 注记：结果会被插入到<pre/code>内。
- * Object: { text, type?, block? }
- * @param  {[Object]} obj 解析结果对象集（单语言）
+ * Object: { text, type? }
+ * @param  {Object} obj 解析结果对象集
  * @return {String} HTML高亮源码
  */
 export function htmlBlock( obj ) {
-    //
+    let [text, type] = obj;
+    return codeHTML( text, type );
 }
 
 
 /**
- * 构建代码表高亮源码。
- * 块类数据会被分开封装到多个<li/code>内，
- * 因此需要标注缺失的边界符，这由元素的data-v特性存储。
- * Object: { text, type?, block? }
- * @param  {[Object]} obj 解析结果对象集（单语言）
- * @return {[String]} HTML高亮源码集
+ * 代码表高亮源码构建。
+ * 如果是块类数据，需要检查多行并标注缺失边界符（单行无需标注）。
+ * 返回值依然以换行符连接。
+ * 注记：
+ * 块类数据必需包含block配置，否则会出错。
+ * Object: {
+ *      text, type, block?
+ * }
+ * @param  {Object} obj 解析结果对象集
+ * @return {String} HTML高亮源码
  */
 export function htmlList( obj ) {
+    let [text, type, block] = obj,
+        _rows = text.split( '\n' );
+
+    if ( _rows.length < 2 ) {
+        return codeHTML( text, type );
+    }
+    let _s1 = _rows.shift(),
+        _s2 = _rows.pop(),
+        [v1, vv, v2] = vacant( ...block ),
+        _buf = [
+            htmlVac(_s1, type, v1)
+        ];
+
+    if ( _rows.length > 0 ) {
+        _buf.push( ..._rows.map(s => htmlVac(s, type, vv)) );
+    }
+    _buf.push( htmlVac(_s2, type, v2) );
+
+    return _buf.join( '\n' );
+}
+
+
+/**
+ * HTML源码构造（渲染）。
+ * 将解析结果对象中的文本进行HTML封装，
+ * 如果有内嵌子块，则递进处理。
+ * Object: {
+ *      text, type?, block?
+ * }
+ * 实参 Object2: {
+ *      lang: 子块语言
+ *      data: 子块解析集（{[Object|Object2]}）
+ * }
+ * 返回值 Object2: {
+ *      lang: 子块语言
+ *      data: 子块源码集（{[String|Object2]）
+ * }
+ * @param  {[Object|Object2]} objs 解析结果集
+ * @param  {Function} html HTML渲染函数（htmlBlock|htmlList）
+ * @return {[String|Object2]} 渲染结果集
+ */
+export function colorHTML( objs, html ) {
+    let _buf = [],
+        _tmp = [];
+
+    for ( const o of objs ) {
+        if ( o.text !== undefined ) {
+            _tmp.push( html(o) );
+            continue;
+        }
+        htmlMerge( _tmp, _buf );
+        _buf.push( {lang: o.lang, data: colorHTML(o.data, html)} );
+    }
+
+    return htmlMerge( _tmp, _buf );
+}
+
+
+/**
+ * 提取需要重新分析的代码段。
+ * 注：用于代码编辑时的实时着色辅助。
+ * @param  {Range} rng 光标点范围
+ * @return {String}
+ */
+export function dirtyPart( rng ) {
     //
 }
