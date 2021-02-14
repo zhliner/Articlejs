@@ -14,8 +14,9 @@
 //  - Tab键会根据设置替换为多个空格。
 //  - 当前行或划选内容转换为注释（需高亮插件支持）。
 //
-//  注：
-//  本工具集并不用于实现语法高亮。
+//  编辑辅助：
+//  根据当前光标点（Range）获取当前行中的需重新渲染的文本段。
+//  也即提取 Hicode.parse() 中的 code 实参。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -251,5 +252,16 @@ export function rangeTextLine( rng, flag ) {
  * @return {String} 当前单词
  */
 export function rangeWord( rng ) {
+    //
+}
+
+
+/**
+ * 提取需要重新分析的代码段。
+ * 注：用于代码编辑时的实时着色辅助。
+ * @param  {Range} rng 光标点范围
+ * @return {String}
+ */
+export function dirtyPart( rng ) {
     //
 }

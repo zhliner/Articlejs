@@ -18,11 +18,11 @@
 export { Hicolor } from "./base.js";
 
 // 支持语言导入。
-import { Normal } from "./languages/normal.js";
-import { Go } from "./languages/golang.js";
-import { JavaScript } from "./languages/javascript.js";
-import { CSS } from "./languages/css.js";
-import { HTML } from "./languages/html.js";
+import { Normal } from      "./languages/normal.js";
+import { Go } from          "./languages/golang.js";
+import { JavaScript } from  "./languages/javascript.js";
+import { CSS } from         "./languages/css.js";
+import { HTML } from        "./languages/html.js";
 
 
 //
