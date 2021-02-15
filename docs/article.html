@@ -1061,14 +1061,14 @@
 &lt;<b role="tag">code</b> data-lang=<s>"go"</s>&gt;&lt;<b role="tag">i</b>&gt;// prints its command-line arguments.&lt;/<b role="tag">i</b>&gt;
 &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;package&lt;/<b role="tag">b</b>&gt; main
 &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;import&lt;/<b role="tag">b</b>&gt; (
-    &lt;<b role="tag">b</b> role=<s>"str"</s>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;
-    &lt;<b role="tag">b</b> role=<s>"str"</s>&gt;"os"&lt;/<b role="tag">b</b>&gt;
+    &lt;<b role="tag">s</b>&gt;"fmt"&lt;/<b role="tag">s</b>&gt;
+    &lt;<b role="tag">s</b>&gt;"os"&lt;/<b role="tag">s</b>&gt;
 )
 &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;func&lt;/<b role="tag">b</b>&gt; main() {
     &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;var&lt;/<b role="tag">b</b>&gt; s, sep &lt;<b role="tag">b</b> role=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;
     &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;for&lt;/<b role="tag">b</b>&gt; i &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;:=&lt;/<b role="tag">b</b>&gt; 1; i &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;&amp;lt;&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<s>"fn"</s>&gt;len&lt;/<b role="tag">b</b>&gt;(os.Args); i&lt;<b role="tag">b</b> role=<s>"op"</s>&gt;++&lt;/<b role="tag">b</b>&gt; {
         s &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;+=&lt;/<b role="tag">b</b>&gt; sep &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;+&lt;/<b role="tag">b</b>&gt; os.Args[i]
-        sep &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;=&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<s>"str"</s>&gt;" "&lt;/<b role="tag">b</b>&gt;
+        sep &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;=&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">s</b>&gt;" "&lt;/<b role="tag">s</b>&gt;
     }
     fmt.Println(s)
 }&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">pre</b>&gt;
@@ -1096,9 +1096,9 @@
                         <h2 id="源码2（代码表）">源码2（代码表）</h2>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<s>"codelist"</s> data-lang=<s>"go"</s> start=<s>"3"</s>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<s>"str"</s>&gt;"fmt"&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">s</b>&gt;"fmt"&lt;/<b role="tag">s</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">b</b> role=<s>"str"</s>&gt;"Hello, 世界"&lt;/<b role="tag">b</b>&gt;) &lt;<b role="tag">i</b>&gt;// 这是一条长行，测试折行的效果。如果编号列的背景色与代码部分不一样的话，CSS可能不宜设计为水平滚动。代码是否为折行，可以通过编号看出来。&lt;/<b role="tag">i</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">s</b>&gt;"Hello, 世界"&lt;/<b role="tag">s</b>&gt;) &lt;<b role="tag">i</b>&gt;// 这是一条长行，测试折行的效果。如果编号列的背景色与代码部分不一样的话，CSS可能不宜设计为水平滚动。代码是否为折行，可以通过编号看出来。&lt;/<b role="tag">i</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;type&lt;/<b role="tag">b</b>&gt; MapSort &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;struct&lt;/<b role="tag">b</b>&gt; {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    m &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;map&lt;/<b role="tag">b</b>&gt;[&lt;<b role="tag">b</b> role=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;]&lt;<b role="tag">b</b> role=<s>"dt"</s>&gt;int&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
