@@ -22,6 +22,10 @@
 //
 //  这可能对未被编辑的行产生影响，因此需要对关联行段完整解析修正。
 //
+//  编辑辅助：
+//  根据当前光标点（Range）获取当前行中的需重新渲染的文本段。
+//  也即提取 Hicode.parse() 中的 code 实参。
+//
 //  注记：
 //  渲染的HTML结构规范，不存在元素属性值中包含换行符的情况。
 //
@@ -166,7 +170,7 @@ function htmlMerge( tmp, buf ) {
  * @return {String} HTML高亮源码
  */
 export function htmlBlock( obj ) {
-    let [text, type] = obj;
+    let {text, type} = obj;
     return codeHTML( text, type );
 }
 
@@ -175,8 +179,6 @@ export function htmlBlock( obj ) {
  * 代码表高亮源码构建。
  * 如果是块类数据，需要检查多行并标注缺失边界符（单行无需标注）。
  * 返回值依然以换行符连接。
- * 注记：
- * 块类数据必需包含block配置，否则会出错。
  * Object: {
  *      text, type, block?
  * }
@@ -184,10 +186,10 @@ export function htmlBlock( obj ) {
  * @return {String} HTML高亮源码
  */
 export function htmlList( obj ) {
-    let [text, type, block] = obj,
+    let {text, type, block} = obj,
         _rows = text.split( '\n' );
 
-    if ( _rows.length < 2 ) {
+    if ( !block || _rows.length < 2 ) {
         return codeHTML( text, type );
     }
     let _s1 = _rows.shift(),
@@ -239,4 +241,29 @@ export function colorHTML( objs, html ) {
     }
 
     return htmlMerge( _tmp, _buf );
+}
+
+
+/**
+ * 提取需要重新分析的代码段。
+ * 如果光标容器为Text：
+ * 分析：取 .wholeText 成员。
+ * 替换：
+ * - 若在顶层，替换.wholeText本身。
+ *   查找前后边界节点：Range.setStartBefore()/Range.setEndAfter()
+ * - 若在内部着色容器内，范围为元素自身：Range.selectNode()
+ *
+ * 如果光标容器为Element：
+ * 分析：取 .textContent 成员。
+ * 替换：
+ * - 若属于顶层元素容器，范围：Range.selectNodeContents()
+ * - 若属于内部着色容器，范围为元素自身：Range.selectNode()
+ * 注：
+ * 用于代码编辑时的实时着色辅助。
+ * 如果处理的是代码表行，需要考虑块数据的边界辅助补齐。
+ * @param  {Range} rng 光标点范围
+ * @return {String}
+ */
+export function dirtyPart( rng ) {
+    //
 }

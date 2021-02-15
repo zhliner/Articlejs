@@ -295,9 +295,12 @@ class Hicode {
      */
     _range( beg, ss, rend, type, pair ) {
         let [text, end] = this._text( ss, rend ),
-            _obj = typeof type === 'function' ? type(beg, text, end) : this._obj(text, type, pair),
+            _obj = typeof type === 'function' ? type(beg, text, end) : {text, type},
             _len = end ? end[0].length : 0;
 
+        if ( pair ) {
+            _obj.block = pair;
+        }
         return [ _obj, beg[0].length + text.length + _len ];
     }
 
@@ -311,25 +314,12 @@ class Hicode {
      * @return {[Object3|[Object3]|Hicolor, Number]}
      */
     _alone( beg, type, pair ) {
-        let _obj = typeof type === 'function' ? type(...beg) : this._obj(beg[0], type, pair);
+        let _obj = typeof type === 'function' ? type(...beg) : {text:beg[0], type};
+
+        if ( pair ) {
+            _obj.block = pair;
+        }
         return [ _obj, beg[0].length ];
-    }
-
-
-    /**
-     * 构建结果对象。
-     * @param  {String} text 待封装文本
-     * @param  {String} type 封装类型，可选
-     * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {Object3} 结果对象
-     */
-    _obj( text, type, pair ) {
-        let _obj = { text };
-
-        if ( type ) _obj.type = type;
-        if ( pair ) _obj.block = pair;
-
-        return _obj;
     }
 
 

@@ -710,11 +710,11 @@
     keydown 设置Shift键标记，决定是否清除多余缩进。
     keyup   清除Shift标记，注意应当是false（非null）。 -->
 <pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
-    on="keydown|stop ev('key') pass('Enter', 'Tab') avoid evo(3) iskey('Tab') $('._body/[name=tabs]') v.tabs(_1) exeCmd('insertHTML', _1) sRange iskey('Enter');
+    on="keydown|stop ev('key') pass('Enter', 'Tab', 'Backspace') evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
         paste|avoid evo(3) clipboard env('pastedefault') v.indentcut(_1) html exeCmd('insertHTML', _1);
         keydown|stop scam('shift') pass env('pastedefault', true);
         keyup|stop env('pastedefault', false)"
-    by="Kit.newline(_1)"></pre>
+    by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
 
 
 <!--代码语言清单

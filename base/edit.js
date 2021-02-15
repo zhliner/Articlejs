@@ -24,13 +24,14 @@ import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
-import { shortIndent, tabToSpace } from "./coding.js";
+import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, property } from "./templates.js";
 import cfg from "./shortcuts.js";
 
-// 代码解析插件
+// 代码解析&高亮
 import { Hicolor } from "../plugins/hlcolor/main.js";
+import { colorHTML, htmlBlock, htmlList } from "./coloring.js";
 
 
 const
@@ -2779,6 +2780,29 @@ function tableCells( tsec, slr, meth = 'text' ) {
 
 
 /**
+ * 制表符对应空格序列。
+ * 如果n为值null，表示不替换，返回一个真实的Tab符。
+ * @param  {String} line 光标前段文本
+ * @param  {Number} n Tab对应空格数
+ * @return {String} 空格序列或Tab
+ */
+function tabSpaces( line, n ) {
+    return n > 0 ? ' '.repeat( n - halfWidth(line)%n ) : '\t';
+}
+
+
+/**
+ * 获取行文本的前端缩进序列。
+ * 前端缩进字符仅限于空格和Tab字符。
+ * @param  {String} line 行文本
+ * @return {String}
+ */
+function indentedPart( line ) {
+    return line.substring( 0, minInds(line, Infinity) );
+}
+
+
+/**
  * 获取第一个成员。
  * @param  {Set|Map|.values} obj 取值目标
  * @return {Value}
@@ -4988,24 +5012,38 @@ export const Kit = {
 
 
     /**
-     * 构造Tab空格序列。
-     * 如果没有空格配置，则返回一个原生制表符。
-     * 如果不是Tab键，则只会是Enter键（外部约束）。
-     * @data: Boolean 确认为Tab
+     * 3个特殊键的编辑处理。
+     * - Enter  回车键入换行，保持与原行相同的缩进。
+     * - Tab    制表符键入一个空格序列（如果有el控件设定）。
+     * - Backspace  退格键删除一个完整的缩进（如果前端为正常缩进）。
+     * @data: Element 编辑根容器
+     * @param  {String} key 键名（上面3个之一）
+     * @param  {Range} rng 当前光标点范围
      * @param  {Element} el Tab空格数配置控件（<input>）
      * @return {String}
      */
-    tabs( evo, el ) {
-        if ( !evo.data ) {
-            // 尾随一个空格用于选取（模拟光标，见.newline）。
-            return '\n ';
-        }
-        let _n = el && $.val( el );
+    k3edit( evo, key, rng, el ) {
+        let _lp = rangeTextLine( rng, true, evo.data ),
+            _n = el && $.val( el );
 
-        return _n ? ' '.repeat( _n ) : '\t';
+        switch ( key ) {
+            case 'Enter':
+                // 无缩进时尾随一个空格（参见.blankline）
+                return `\n${indentedPart(_lp) || ' '}`;
+            case 'Tab':
+                return tabSpaces( _lp, _n );
+        }
+        // Blankspace
+        // 选取一个缩进序列即可。
+        if ( _n > 0 && !rng.toString() && _lp.endsWith(' '.repeat(_n)) ) {
+            rng.setStart( rng.endContainer, rng.endOffset-_n );
+            rng.setEnd( rng.endContainer, rng.endOffset );
+        }
+        // 沿用浏览器默认行为
+        return null;
     },
 
-    __tabs: 1,
+    __k3edit: 1,
 
 
     /**
@@ -5035,7 +5073,7 @@ export const Kit = {
      * @data: String
      * @param  {Number} tab Tab空格数
      * @param  {String} lang 代码语言
-     * @return {[Object3]} 高亮配置对象集
+     * @return {[Object3|Object2]} 高亮配置对象集
      */
     hlcode( evo, tab, lang ) {
         let _code = evo.data.split( __reNewline );
@@ -5073,11 +5111,15 @@ export const Kit = {
      * 分解构造代码表行。
      * 顶层不需要传递语言实参（已解析）。
      * 返回合法的子元素序列，可终止创建迭代（免于设置<code>属性）。
-     * @data: {[String|Object2]}
+     * @data: [Object3|Object2]
      * @return {[Element]} 代码行<li/code>集
      */
     codelis( evo ) {
-        return codeFlat( evo.data, null, liCode );
+        return codeFlat(
+            colorHTML( evo.data, htmlList ),
+            null,
+            liCode
+        );
     },
 
     __codelis: 1,
@@ -5091,7 +5133,12 @@ export const Kit = {
      * @return {[Element]} 代码块子块集（[<code>]）
      */
     codeblo( evo, {lang, tab} ) {
-        return codeFlat( evo.data, lang, blockCode, tab );
+        return codeFlat(
+            colorHTML( evo.data, htmlBlock ),
+            lang,
+            blockCode,
+            tab
+        );
     },
 
     __codeblo: 1,
@@ -5179,24 +5226,31 @@ export const Kit = {
 
 
     /**
-     * 新起一行。
-     * 设置光标到新行（换行符之后）。
-     * 选取一个空格作光标（.tabs()插入），解决Firefox和Chrome的问题。
-     * 问题：
-     * - Firefox 键入Enter后光标无法定位到新行（浏览器等待有字符输入后才会认可换行）。
-     * - Chrome 整体末尾键入一个Enter会被忽略显示（其它位置正常）。
-     * @data: Range
-     * @param {Boolean} sure 确为Enter键入（否则为Tab）
+     * 空行检查处理。
+     * 换行之后跟随单个空格视为空行。
+     * 此时光标在空格之后，友好选取该空格作为光标。
+     * 注记：
+     * 换行后附加一个空格，用于解决 document.execCommand() 操作中浏览器插入换行的问题。
+     * - Chrome  容器内末尾键入一个Enter会被忽略显示，其它位置正常。
+     * - Firefox 键入Enter后光标无法定位到新行，浏览器等待有字符输入后才会认可换行。
+     * @data: Element 编辑根容器
+     * @param {Boolean} enter 确认为Enter键入
+     * @param {Range} rng 当前光标点
+     * @param {Element} box 编辑根容器
      */
-    newline( evo, sure ) {
-        if ( sure ) {
-            let rng = evo.data;
-            rng.setStart( rng.endContainer, rng.endOffset-1 );
-            rng.setEnd( rng.endContainer, rng.endOffset );
+    blankline( evo, enter, rng ) {
+        if ( !enter ) return;
+
+        let _line = rangeTextLine( rng, true, evo.data );
+
+        if ( _line.length > 1 || _line[0] !== ' ' ) {
+            return;
         }
+        rng.setStart( rng.endContainer, rng.endOffset-1 );
+        rng.setEnd( rng.endContainer, rng.endOffset );
     },
 
-    __newline: 1,
+    __blankline: 1,
 
 
     /**
@@ -5501,7 +5555,7 @@ processExtend( 'Kit', Kit, [
     'tips',
     'chapter',
     'save',
-    'newline',
+    'blankline',
     'toclist',
     'medpass',
     'medcancel',
@@ -5536,7 +5590,7 @@ customGetter( null, Kit, [
     'pretreat2',
     'pretreat1',
     'splitx',
-    'tabs',
+    'k3edit',
     'indentcut',
     'hlcode',
     'codeopts',

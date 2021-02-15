@@ -14,10 +14,6 @@
 //  - Tab键会根据设置替换为多个空格。
 //  - 当前行或划选内容转换为注释（需高亮插件支持）。
 //
-//  编辑辅助：
-//  根据当前光标点（Range）获取当前行中的需重新渲染的文本段。
-//  也即提取 Hicode.parse() 中的 code 实参。
-//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -31,28 +27,12 @@ const
 
     // 零星全角字符排除。
     // 仅限 0x214f 以内（概略）。
-    __fullChs = new Set( 'ೠೡೢೣൕൖൗ൘൙൚൛൜൝൞ൟൠൡൢൣ൧൨൩൪൫൬൭൮൯൰൱൲൳൴൵൶൷൸൹ൺൻർൽൾൿ᳓᳔᳕᳖᳗᳘᳙᳜᳝᳞᳟᳚᳛᳠ᳩᳪᳫᳬ᳭⁇※‱℃'.split('') );
+    __fullChs = new Set( 'ೠൕ൘൙൚൛൜൝൞ൟൠ൧൨൩൪൫൬൭൮൯൰൱൲൳൴൵൶൷൸൹ൺൻർൽൾൿᳩᳪᳫ⁇※‱℃'.split('') );
 
 
 //
 // 工具函数。
 //////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 检查获取最小缩进量。
- * @param  {String} str 待检查字符串
- * @param  {Number} max 最大检查长度
- * @return {Number}
- */
-function minInds( str, max ) {
-    let _i = 0;
-
-    for ( ; _i < max; _i++ ) {
-        if ( !/\s/.test(str[_i]) ) break;
-    }
-    return _i;
-}
 
 
 /**
@@ -97,7 +77,7 @@ function partAfter( node, from, end ) {
     let _s = node.innerText || node.textContent,
         _i = _s.indexOf( end, from );
 
-    return _i < 0 ? [_s] : [_s.substring(0, _i), true];
+    return _i < 0 ? [_s] : [_s.substring(from, _i), true];
 }
 
 
@@ -107,24 +87,23 @@ function partAfter( node, from, end ) {
  * 以范围起点为起点。
  * 注记：
  * 仅限于光标最近容器节点内检索。
- * @param  {Range} rng 范围对象（当前光标）
+ * @param  {Node} node 起始节点
+ * @param  {Number} idx 起始下标
  * @param  {String} end 终止字符
  * @return {String, Boolean} [行前段文本, 以换行结束]
  */
-function cursorPrev( rng, end ) {
-    let _node = rng.startContainer,
-        _idx = rng.startOffset,
-        _buf = [];
+function cursorPrev( node, idx, end ) {
+    let _buf = [];
 
-    while ( _node ) {
-        let [s, ok] = partBefore( _node, _idx, end );
+    while ( node ) {
+        let [s, ok] = partBefore( node, idx, end );
         _buf.push( s );
-        _idx = Infinity;
+        idx = Infinity;
 
         if ( ok ) break;
-        _node = _node.previousSibling;
+        node = node.previousSibling;
     }
-    return [ _buf.reverse().join(''), !_node ];
+    return [ _buf.reverse().join(''), !!node ];
 }
 
 
@@ -133,24 +112,23 @@ function cursorPrev( rng, end ) {
  * 向后逐节点平级检索，直到发现换行符。
  * 以范围起点（而非终点）为起点。
  * 注记：（同前）。
- * @param  {Range} rng 范围对象（当前光标）
+ * @param  {Node} node 起始节点
+ * @param  {Number} idx 起始下标
  * @param  {String} end 终止字符
  * @return {String, Boolean} [后前段文本, 以换行结束]
  */
-function cursorNext( rng, end ) {
-    let _node = rng.startContainer,
-        _idx = rng.startOffset,
-        _buf = [];
+function cursorNext( node, idx, end ) {
+    let _buf = [];
 
-    while ( _node ) {
-        let [s, ok] = partAfter( _node, _idx, end );
+    while ( node ) {
+        let [s, ok] = partAfter( node, idx, end );
         _buf.push( s );
-        _idx = 0;
+        idx = 0;
 
         if ( ok ) break;
-        _node = _node.nextSibling;
+        node = node.nextSibling;
     }
-    return [ _buf.join(''), !_node ];
+    return [ _buf.join(''), !!node ];
 }
 
 
@@ -158,6 +136,23 @@ function cursorNext( rng, end ) {
 //
 // 导出函数集。
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 检查获取最小缩进量。
+ * 缩进字符仅限于空格和Tab字符。
+ * @param  {String} str 待检查字符串
+ * @param  {Number} max 最大检查长度
+ * @return {Number}
+ */
+export function minInds( str, max ) {
+    let _i = 0;
+
+    for ( ; _i < max; _i++ ) {
+        if ( !/[ \t]/.test(str[_i]) ) break;
+    }
+    return _i;
+}
 
 
 /**
@@ -221,7 +216,7 @@ export function tabToSpace( text, tabs = 4 ) {
 
 
 /**
- * 获取光标所在行（段）。
+ * 获取光标所在行/段。
  * 主要用于向当前位置插入Tab的空格序列（结合.halfWidth）。
  * 适用光标在顶层（非子元素内）。
  * 段标识flag：
@@ -232,36 +227,21 @@ export function tabToSpace( text, tabs = 4 ) {
  * 检索范围内的<br>需要被预先处理（转为换行字符）。
  * @param  {Range} rng 范围对象（当前光标）
  * @param  {Boolean|void} flag 取段标识，可选
+ * @param  {Element} box 限定根容器
  * @return {String} 行前段文本
  */
-export function rangeTextLine( rng, flag ) {
+export function rangeTextLine( rng, flag, box ) {
+    let _node = rng.startContainer,
+        _idx = rng.startOffset;
+
+    if ( _node === box ) {
+        _node = $.contents( _node, _idx );
+    }
     if ( flag ) {
-        return cursorPrev(rng, '\n')[0];
+        return cursorPrev( _node, _idx, '\n' )[0];
     }
     if ( flag === false ) {
-        return cursorNext(rng, '\n')[0];
+        return cursorNext( _node, _idx, '\n' )[0];
     }
-    return cursorPrev(rng, '\n')[0] + cursorNext(rng, '\n')[0];
-}
-
-
-/**
- * 获取光标所在单词。
- * 主要用于代码语法即时解析。
- * @param  {Range} rng 范围对象（光标点）
- * @return {String} 当前单词
- */
-export function rangeWord( rng ) {
-    //
-}
-
-
-/**
- * 提取需要重新分析的代码段。
- * 注：用于代码编辑时的实时着色辅助。
- * @param  {Range} rng 光标点范围
- * @return {String}
- */
-export function dirtyPart( rng ) {
-    //
+    return cursorPrev(_node, _idx, '\n')[0] + cursorNext(_node, _idx, '\n')[0];
 }
