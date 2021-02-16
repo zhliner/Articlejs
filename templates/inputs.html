@@ -496,13 +496,13 @@
         <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
             <label>
-                <input name="rows" type="text" class="_nums" title="行数（<tbody>）" value="4"
-                    on="change|evo(3) val int"
-                    to="._main/tbody|trigger('rows')" />
-                ×
                 <input name="cols" type="text" class="_nums" title="列数（不含列头）" value="3"
                     on="change|evo(3) val int"
                     to="._main/table|trigger('cols')" />
+                ×
+                <input name="rows" type="text" class="_nums" title="行数（<tbody>）" value="4"
+                    on="change|evo(3) val int"
+                    to="._main/tbody|trigger('rows')" />
             </label>
         </header>
         <div class="_list">
@@ -722,31 +722,38 @@
 
 
 <!-- 分割 -->
-<div class="_body _Hr" tpl-name="input:hr">
-    <div class="_main _list">
+<div class="_body _Hr" tpl-name="input:hr"
+    on="create|$$('#_v') val gather('role thick length space')"
+    by="New.hr(_1)"
+    to="form/|trigger('insert')">
+    <div class="_main _list"
+        on="click(b)|$$('/b');
+            setv|ev('detail') pop $('/hr') attr('role')"
+        to="=|only('_press')|target goto('setv', _1);
+            /[name=hr]|val">
         <span class="_border content" tabindex="0" tpl-name="hr:border">
-            <b title="默认"><hr></b>
+            <b title="默认" class="_press"><hr></b>
             <b title="实线（solid）"><hr role="solid"></b>
             <b title="虚线（dashed）"><hr role="dashed"></b>
             <b title="点线（dotted）"><hr role="dotted"></b>
-            <b title="双划线（double）" class="_press"><hr role="double"></b>
+            <b title="双划线（double）"><hr role="double"></b>
             <b title="内槽线（groove）"><hr role="groove"></b>
             <b title="外槽线（ridge）"><hr role="ridge"></b>
             <b title="内嵌线（inset）"><hr role="inset"></b>
             <b title="外嵌线（outset）"><hr role="outset"></b>
-            <input type="hidden" name="hr" value="">
+            <input id="_v" type="hidden" name="hr" value="">
         </span>
     </div>
     <aside>
         <div class="_option">
             <label title="CSS: border-width">厚度
-                <input type="text" name="borderWidth" placeholder="10px" class="_chars">
+                <input id="_v" type="text" name="thick" placeholder="10px 0 0" class="_chars">
             </label>
             <label title="CSS: width">长度
-                <input type="text" name="width" placeholder="92%" class="_chars">
+                <input id="_v" type="text" name="length" placeholder="92%" class="_chars">
             </label>
             <label title="CSS: height">空白
-                <input type="text" name="height" placeholder="0" class="_chars">
+                <input id="_v" type="text" name="space" placeholder="0" class="_chars">
             </label>
         </div>
         <pre tpl-node="input:insert2"> [插入2] </pre>
@@ -754,7 +761,10 @@
 </div>
 
 <!-- 白板 -->
-<div class="_body _Blank" tpl-name="input:blank">
+<div class="_body _Blank" tpl-name="input:blank"
+    on="create"
+    by="New.blank"
+    to="form/|trigger('insert')">
     <div class="_main">
         <div role="blank"><span>（ 空 白 ）</span></div>
     </div>
@@ -765,7 +775,10 @@
 
 
 <!-- 主标题 -->
-<div class="_body _H1" tpl-name="input:h1">
+<div class="_body _H1" obt-src="obts/create.json" tpl-name="input:h1"
+    on="node|ev('detail')"
+    by="New.h1"
+    to="form/|trigger('insfix')">
     <div class="_main">
         <textarea name="h1" placeholder="标题内容"></textarea>
     </div>
@@ -778,7 +791,10 @@
 </div>
 
 <!-- 片区标题 -->
-<div class="_body _H2" tpl-name="input:h2">
+<div class="_body _H2" obt-src="obts/create.json" tpl-name="input:h2"
+    on="node|ev('detail')"
+    by="New.h2"
+    to="form/|trigger('insfix')">
     <div class="_main">
         <textarea name="h2" placeholder="标题内容"></textarea>
     </div>
@@ -791,7 +807,10 @@
 </div>
 
 <!-- 小标题 -->
-<div class="_body _H3" tpl-name="input:h3">
+<div class="_body _H3" obt-src="obts/create.json" tpl-name="input:h3"
+    on="node|ev('detail')"
+    by="New.h3"
+    to="form/|trigger('insfix')">
     <div class="_main">
         <textarea name="h3" placeholder="小标题内容"></textarea>
     </div>
@@ -799,6 +818,22 @@
         <pre tpl-node="input:option1, input:update">
             [选项1]
             [更新]
+        </pre>
+    </aside>
+</div>
+
+<!-- 副标题 -->
+<div class="_body _H3x" obt-src="obts/createx.json" tpl-name="input:h3x"
+    on="node|ev('detail')"
+    by="New2.h3x"
+    to="form/|trigger('insert')">
+    <div class="_main">
+        <textarea name="h3" placeholder="副标题内容：空行分项"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
         </pre>
     </aside>
 </div>

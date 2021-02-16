@@ -708,12 +708,18 @@
     paste   粘贴内容，转换后按HTML方式插入，避免浏览器智能行为（不兼容）。
     keydown 插入真实换行或Tab空格序列。
     keydown 设置Shift键标记，决定是否清除多余缩进。
-    keyup   清除Shift标记，注意应当是false（非null）。 -->
+    keyup   清除Shift标记，注意应当是false（非null）。
+    另：
+    data-tip 普通代码录入提示（CSS:attr）。
+    data-svg SVG 源码录入提示（CSS:attr）。
+-->
 <pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
-    on="keydown|stop ev('key') pass('Enter', 'Tab', 'Backspace') evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
+    data-tip="自动清除多余缩进"
+    data-svg="<svg>...</svg>"
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
         paste|avoid evo(3) clipboard env('pastedefault') v.indentcut(_1) html exeCmd('insertHTML', _1);
-        keydown|stop scam('shift') pass env('pastedefault', true);
-        keyup|stop env('pastedefault', false)"
+        keydown|scam('shift') pass stop env('pastedefault', true);
+        keyup|env('pastedefault', false)"
     by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
 
 

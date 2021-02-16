@@ -92,6 +92,7 @@ const InputOptions = {
     [ T.H1 ]:           'option:h1',
     [ T.H2 ]:           'option:h2',
     [ T.H3 ]:           'option:h3',
+    [ T.H3X ]:          'option:h3x',
     [ T.H4 ]:           'option:h4',
     [ T.H5 ]:           'option:h5',
     [ T.H6 ]:           'option:h6',

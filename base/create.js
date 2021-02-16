@@ -113,6 +113,7 @@ const Tags = {
     [ T.H1 ]:           'h1',
     [ T.H2 ]:           'h2',
     [ T.H3 ]:           'h3',
+    [ T.H3X ]:          'h3',
     [ T.H4 ]:           'h4',
     [ T.H5 ]:           'h5',
     [ T.H6 ]:           'h6',
@@ -530,7 +531,7 @@ const Children = {
                 ref,
                 hgroup,
                 h3,
-                () => elem( T.H3 )
+                () => elem( T.H3X )
             );
         cleanOptions( opts, 'h1' );
 
@@ -947,6 +948,7 @@ const Children = {
     T.H1,
     T.H2,
     T.H3,
+    T.H3X,
     T.H4,
     T.H5,
     T.H6,
@@ -1068,7 +1070,10 @@ const Builder = {
      * @param  {String} space 中间空白高
      * @return {Element} hr
      */
-    [ T.HR ]: function( hr, {thick, length, space} ) {
+    [ T.HR ]: function( hr, {role, thick, length, space} ) {
+        if ( role ) {
+            $.attr( hr, 'role', role );
+        }
         return $.cssSets(
             hr,
             'borderWidth width height',
@@ -2024,6 +2029,7 @@ function elem( tval, data ) {
  *      thick:  {String}  分割线厚度（CSS: border-width）
  *      length: {String}  分割线长度（CSS: width）
  *      space:  {String}  分割线空白（CSS: height）
+ *      role:   {String}  分隔线型（role）
  *      cols:   {Number}  表格列数。注记：无rows
  *      border: {String}  边框类型
  *      fix:    {String}  定位对齐（explain:pba）

@@ -5012,7 +5012,8 @@ export const Kit = {
 
 
     /**
-     * 3个特殊键的编辑处理。
+     * 代码编辑：
+     * 3个特殊键的处理。
      * - Enter  回车键入换行，保持与原行相同的缩进。
      * - Tab    制表符键入一个空格序列（如果有el控件设定）。
      * - Backspace  退格键删除一个完整的缩进（如果前端为正常缩进）。
@@ -5128,6 +5129,7 @@ export const Kit = {
     /**
      * 分解构造代码块。
      * 如果有嵌入其它语言，会有子块存在。
+     * @data: [Object3|Object2]
      * @param  {String} lang 所属语言（顶层）
      * @param  {Number} tab Tab空格数
      * @return {[Element]} 代码块子块集（[<code>]）
@@ -5226,6 +5228,7 @@ export const Kit = {
 
 
     /**
+     * 代码编辑：
      * 空行检查处理。
      * 换行之后跟随单个空格视为空行。
      * 此时光标在空格之后，友好选取该空格作为光标。
@@ -5496,10 +5499,11 @@ export const Kit = {
                 [...parentsSet(__ESet)] :
                 [...__ESet],
             _subs = dataNodes( evo.data, _pels.length ),
+            _op0 = cleanHot( _pels ),
             _op1 = clearSets(),
             _ops = insFixnode( _pels, _subs );
 
-        historyPush( _op1, ..._ops, pushes(_subs), new HotEdit(_subs[0]) );
+        historyPush( _op0, _op1, ..._ops, pushes(_subs), new HotEdit(_subs[0]) );
     },
 
     __fixinsert: 1,

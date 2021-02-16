@@ -133,32 +133,33 @@ export const
     /////////////////////////////////////////////
     H1              = 400,  // 主标题
     H2              = 401,  // 片区标题
-    H3              = 402,  // 小区块标题/副标题
-    H4              = 403,  // 列表项标题条目
-    H5              = 404,  // <h5>标题
-    H6              = 405,  // <h6>标题
-    SUMMARY         = 406,  // 内容摘要
-    FIGCAPTION      = 407,  // 插图标题
-    CAPTION         = 408,  // 表格标题
-    LI              = 409,  // 列表项（通用）
-    DT              = 410,  // 描述列表条目
-    DD              = 411,  // 描述列表数据
-    TH              = 412,  // 表头单元格
-    TD              = 413,  // 单元格
-    TR              = 414,  // 表格行
-    THEAD           = 415,  // 表头
-    TBODY           = 416,  // 表体
-    TFOOT           = 417,  // 表脚
+    H3              = 402,  // 小区块标题
+    H3X             = 403,  // 副标题
+    H4              = 404,  // 列表项标题条目
+    H5              = 405,  // <h5>标题
+    H6              = 406,  // <h6>标题
+    SUMMARY         = 407,  // 内容摘要
+    FIGCAPTION      = 408,  // 插图标题
+    CAPTION         = 409,  // 表格标题
+    LI              = 410,  // 列表项（通用）
+    DT              = 411,  // 描述列表条目
+    DD              = 412,  // 描述列表数据
+    TH              = 413,  // 表头单元格
+    TD              = 414,  // 单元格
+    TR              = 415,  // 表格行
+    THEAD           = 416,  // 表头
+    TBODY           = 417,  // 表体
+    TFOOT           = 418,  // 表脚
     // 定制结构类
     // 注记：无需LICODE设计，容器非CONTENT即可。
-    CODELI          = 418,  // 代码表条目（li/code） {value}
-    ALI             = 429,  // 链接列表项（li/a）
-    AH4             = 420,  // 链接小标题（h4/a）
-    XH4LI           = 421,  // 级联表标题项（li/h4, ul|ol）
-    CASCADEH4LI     = 422,  // 级联编号表标题项（li/h4, ol）
-    CASCADEAH4LI    = 423,  // 级联编号表链接标题项（li/[h4/a], ol）
-    TOCCASCADE      = 424,  // 目录级联表（ol:cascade/[li/a]）
-    FIGIMGBOX       = 425,  // 插图内容块（span/img, i:explain）
+    CODELI          = 419,  // 代码表条目（li/code） {value}
+    ALI             = 420,  // 链接列表项（li/a）
+    AH4             = 421,  // 链接小标题（h4/a）
+    XH4LI           = 422,  // 级联表标题项（li/h4, ul|ol）
+    CASCADEH4LI     = 423,  // 级联编号表标题项（li/h4, ol）
+    CASCADEAH4LI    = 424,  // 级联编号表链接标题项（li/[h4/a], ol）
+    TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
+    FIGIMGBOX       = 426,  // 插图内容块（span/img, i:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -278,6 +279,7 @@ const Properties = {
     [ H1 ]:             STRUCT | SINGLE | FIXED1 | CONTENT,
     [ H2 ]:             STRUCT | SINGLE | FIXED1 | CONTENT,
     [ H3 ]:             STRUCT | STRUCTX | FIXED1 | CONTENT,
+    [ H3X ]:            STRUCT | STRUCTX | CONTENT,
     [ H4 ]:             STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
     [ H5 ]:             STRUCT | STRUCTX | CONTENT,
     [ H6 ]:             STRUCT | STRUCTX | CONTENT,
@@ -462,6 +464,7 @@ const ChildTypes = {
     [ H1 ]:             [ $TEXT, A, ..._INLINES, I ],
     [ H2 ]:             [ $TEXT, A, ..._INLINES, I ],
     [ H3 ]:             [ $TEXT, A, ..._INLINES, I ],
+    [ H3X ]:            [ $TEXT, A, ..._INLINES, I ],
     [ H4 ]:             [ $TEXT, A, ..._INLINES, I ],
     [ H5 ]:             [ $TEXT, A, ..._INLINES, I ],
     [ H6 ]:             [ $TEXT, A, ..._INLINES, I ],
@@ -489,7 +492,7 @@ const ChildTypes = {
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:         [ H1, H3 ],
+    [ HGROUP ]:         [ H1, H3X ],
     [ ABSTRACT ]:       [ H3, P, ..._BLOLIMIT ],
     [ TOC ]:            [ H3, TOCCASCADE ],
     [ REFERENCE ]:      [ H3, OL ],

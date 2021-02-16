@@ -109,9 +109,20 @@ const CustomStruct = {
 
 
     /**
-     * 小标题。
-     * - AH4: 链接小标题（h4/a）：唯一子元素
-     * - H4: 普通小标题（h4）
+     * 副标题&块标题。
+     * 存在于<hgroup>内为副标题。
+     * @param  {Element} el 当前元素
+     * @return {Number} 单元值
+     */
+    H3( el ) {
+        return el.parentElement.tagName === 'HGROUP' ? T.H3X : T.H3;
+    },
+
+
+    /**
+     * 列表项小标题。
+     * - AH4: 链接列表项标题（h4/a）：唯一子元素
+     * - H4: 普通列表项标题（h4）
      * 注：AH4 通常用于目录内的父条目（li/h4/a）。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值

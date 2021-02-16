@@ -106,7 +106,8 @@ aside#help {
 .___Content main hr::after,
 .___Content main track::after,
 .___Content main source::after,
-.___Content main img::after {
+.___Content main img::after,
+.___Content main div[role=blank]::after {
     display: none;
 }
 .___Content main hr:hover {
@@ -126,12 +127,12 @@ aside#help {
 
 /* 代码框提示 */
 .___Panel.Slave ._main pre:empty::after {
-    content: '自动清除多余缩进';
+    content: attr(data-tip);
     color: darkgray;
     font-style: italic;
 }
 .___Panel.Slave ._main ._svg pre:empty::after {
-    content: '<svg>...</svg>';
+    content: attr(data-svg);
 }
 
 
@@ -288,8 +289,9 @@ aside#help {
 }
 .___Panel div._prop {
     display: flex;
-    margin: 12px;
+    padding: 12px;
     height: 100%;
+    box-sizing: border-box;
 }
 /* 单行文本 */
 .___Panel ._prop ._text {
@@ -318,7 +320,8 @@ aside#help {
     background: #ffe url('images/heading.png') 4px 0 repeat-x;
     font-weight: bold;
 }
-.___Panel pre._code {
+.___Panel pre._code,
+.___Panel textarea._code {
     line-height: 20px;
     background: local url('images/line20.png') repeat #444;
     border: 1px #666 solid;
@@ -964,7 +967,7 @@ menu._cells code {
 .Slave hr {
     border: 1px #d5d5d5 solid;
     border-bottom-color: #f8f8f8;
-    margin: 8px 0 9px;
+    margin: 6px 0 7px;
 }
 
 /* 录入框填充 */
@@ -1079,6 +1082,10 @@ menu._cells code {
 .Input ._Hr ._border > b {
     border-radius: 16px;
 }
+/* 选中 */
+.Input ._Hr ._border > b._press {
+    background-color: #f57d3d;
+}
 
 /* 白板 */
 .Input ._Blank div[role=blank] {
@@ -1121,15 +1128,6 @@ menu._cells code {
 }
 .Input ._Inline ._tips i {
     font-style: normal;
-}
-
-
-/* 定制部分
- *************************************/
-
-.Input ._Explain ._prop {
-    /* 取消内联单元特有填充 */
-    display: contents;
 }
 
 

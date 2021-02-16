@@ -725,9 +725,9 @@
 <!--功能面板：
     mousedown 面板高度调整。
     keydown   面板快捷键处理。
-    input.submit  直接快捷提交，保持录入框焦点。[contenteditable] 用于单元格。
+    input.submit  直接快捷提交，保持录入框焦点。
     input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
-    input.full    文本框和表格录入最大化平铺。
+    input.full    文本录入和表格录入最大化平铺。
     注：
     tabindex 使保存键（Ctrl+s）随时有效。 -->
 <div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
@@ -735,11 +735,11 @@
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveResize) pass stop avoid;
         input.submit(~textarea);
-        input.submit(~[contenteditable]);
-        input.submit2(~textarea)|evo(2) full(false);
-        input.submit2(~[contenteditable])|evo(2) pop $('._list/') full(false);
-        input.full(~textarea)|evo(2) full(2);
-        input.full(~[contenteditable])|evo(2) pop $('._list/') full(2);
+        input.submit(~th, td);
+        input.submit2(~textarea, ._code)|evo(2) full(false);
+        input.submit2(~th, td)|evo(2) pop $('._list/') full(false);
+        input.full(~textarea, ._code)|evo(2) full(2);
+        input.full(~th, td)|evo(2) pop $('._list/') full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
     to="|height(true);
         |off('mousemove');
