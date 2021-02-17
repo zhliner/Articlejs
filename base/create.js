@@ -314,18 +314,19 @@ const Children = {
 
     /**
      * 单元格已经存在。
-     * 容错表格行被清空的情况。
+     * 容错表格行为空的情况（清空或独立创建）。
      * 注记：
      * 友好非同类表格行，其它单元也可较好转换。
      * @param {null} ref 插入参考（占位）
      * @param {Element} tr 表格行元素
+     * @param {Element} tsec 表格行容器
      * @param {Element|Value|[Value]} data 表格行数据
      */
-    [ T.TR ]: function( ref, tr, _, data ) {
+    [ T.TR ]: function( ref, tr, {tsec}, data ) {
         let $els = $( tr.cells );
 
         if ( $els.length === 0 ) {
-            $els = $( appendCells(tr) );
+            $els = $( appendCells(tr, tsec) );
         }
         if ( !data || !data.nodeType ) {
             return result( null, $els );
@@ -1615,15 +1616,16 @@ function appendRow( tbo, ref, tsec, row, head ) {
 
 /**
  * 补足缺失的单元格。
- * 注记：如填充操作会移除单元格。
+ * 如新建独立的表格行，或单元格被异常移除时。
  * @param  {Element} tr 表格行元素
+ * @param  {Element} tsec 表格行容器
  * @return {[Element]} 添加的单元格序列
  */
-function appendCells( tr ) {
-    let _sec = tr.parentElement,
-        _tbo = tableObj( _sec.parentElement );
+function appendCells( tr, tsec ) {
+    tsec = tsec || tr.parentElement;
+    let _tbo = tableObj( tsec.parentElement );
 
-    return $.append( tr, _tbo.newTR(_sec.tagName === 'THEAD').children );
+    return $.append( tr, _tbo.newTR(tsec.tagName === 'THEAD').children );
 }
 
 
@@ -1971,16 +1973,6 @@ function resultEnd( head, body ) {
 
 
 /**
- * 获取值集最后一项。
- * @param  {[Value]} buf 值数组
- * @return {Value}
- */
-function last( buf ) {
-    return buf[ buf.length - 1 ];
-}
-
-
-/**
  * 抛出错误。
  * @param {String} msg 错误消息
  * @param {Value} data 提示关联数据
@@ -2084,6 +2076,7 @@ function build( el, opts, data, more ) {
  *      h2:         {Value}     片区（<section>）标题
  *      header:     {Element}   导言元素
  *      dt:         {Value}     描述列表标题项
+ *      tsec:       {Element}   表格行容器（<thead|tbody|tfoot>）
  *      th0:        {Boolean}   表格列表头
  *      rpl:        {String}    左包围（<rp>）
  *      rpr:        {String}    右包围（<rp>）

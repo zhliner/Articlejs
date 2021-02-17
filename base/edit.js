@@ -1986,6 +1986,7 @@ const insertHandles = {
  */
 function insertsNodes( els, nodes2, before, where ) {
     return els.map( (ref, i) =>
+        nodes2[i] != null &&
         // before: 0|1
         new DOMEdit( insertHandles[where][+before], ref, nodes2[i] )
     );
@@ -1993,42 +1994,56 @@ function insertsNodes( els, nodes2, before, where ) {
 
 
 /**
- * 创建数据节点集组。
+ * 创建数据节点集。
  * 用于多个选取目标时创建待插入的克隆集。
+ * 注：
+ * 单个选取时，多项数据合并为一。
  * @param  {Collector} $data 数据节点集
  * @param  {Number} cnt 克隆次数
  * @return {[Collector]} 节点集组
  */
 function dataNodes2( $data, cnt ) {
-    let _buf = [ $data ];
-
     if ( cnt < 2 ) {
-        return _buf;
+        return [ $data ];  // 合一
     }
+    if ( $data.length > 1 ) {
+        return $data;  // 原始各别
+    }
+    let _el = $data[0];
+
+    // 单成员时克隆到目标长度
     for (let i = 0; i < cnt-1; i++) {
-        _buf.push( $data.clone() );
+        $data.push( $.clone(_el) );
     }
-    return _buf;
+    return $data;
 }
 
 
 /**
  * 创建节点数组。
- * 用于多个选取目标时创建待插入克隆集，
- * 数据为单元数，主要针对标题类。
- * @param {Element} data 数据元素
- * @param {Number} cnt 克隆次数
+ * 用于多个选取目标时创建待插入克隆集：
+ * - 如果为单成员，克隆到cnt个成员。
+ * - 如果为多个成员，则保持原样（不再克隆）。
+ * 注：
+ * 单个选取但有多个成员时，不合并（非法），自然忽略。
+ * 主要用于标题类。
+ * @param  {Element|[Element]} data 数据元素
+ * @param  {Number} cnt 克隆次数
+ * @return {[Element]} 数据集
  */
 function dataNodes( data, cnt ) {
-    let _buf = [ data ];
+    if ( !$.isArray(data) ) {
+        data = [data];
+    }
+    if ( cnt < 2 || data.length > 1 ) {
+        return data;
+    }
+    let _node = data[0];
 
-    if ( cnt < 2 ) {
-        return _buf;
-    }
     for (let i = 0; i < cnt-1; i++) {
-        _buf.push( $.clone(data) );
+        data.push( $.clone(_node) );
     }
-    return _buf;
+    return data;
 }
 
 
@@ -2535,7 +2550,7 @@ function canDelete( el ) {
 /**
  * 是否可以内容文本化。
  * - 允许内容元素。
- * - 允许非单结构的内联元素（无害），如对<ruby>解构。
+ * - 允许内联的非单元素，如<ruby>（解构）。
  * @param  {Element} el 容器元素
  * @return {Boolean}
  */
@@ -2555,12 +2570,7 @@ function canTotext( el ) {
  * @return {Boolean}
  */
 function canUnwrap( el ) {
-    return isContent( el.parentElement ) &&
-        (
-            isContent( el ) ||
-            // 宽容：纯内容元素
-            ( el.childElementCount === 0 && el.innerText.trim() )
-        );
+    return isContent( el.parentElement ) && isContent( el );
 }
 
 
@@ -3166,13 +3176,14 @@ function fixInsert( box, el, cobj ) {
  * 插入标题元素。
  * 标题集与父元素集的成员一一对应。
  * @param  {[Element]} pels 父元素集
- * @param  {[Element]} hx 标题元素集
+ * @param  {[Element]} subs 子元素集（标题）
  * @return {DOMEdit} 操作实例
  */
 function insFixnode( pels, subs ) {
     let _buf = [];
 
     pels.forEach( (box, i) =>
+        subs[i] != null &&
         _buf.push( fixInsert(box, subs[i], fixItemslr) )
     );
     return _buf;
@@ -3651,8 +3662,8 @@ export const Edit = {
             return historyPush( ...selectOne(_el, 'turn') );
         }
         // 单选
-        // 友好：聚焦也记入操作历史。
-        __ESet.has(_el) && _hot === _el || historyPush( ...selectOne(_el, 'only') );
+        // 单击已聚焦单选忽略（冗余）。
+        __ESet.has(_el) && _hot === _el && __ESet.size === 1 || historyPush( ...selectOne(_el, 'only') );
     },
 
     __click: 1,
@@ -4761,6 +4772,18 @@ export const Kit = {
 
 
     /**
+     * 获取表格行容器。
+     * 仅参照首个选取的元素。
+     * 选取元素仅可能为<tr>或<thead|tbody|tfoot>（合法选单约束）。
+     * @return {Element}
+     */
+    trbox() {
+        let _el = __ESet.first();
+        return _el.tagName === 'TR' ? _el.parentElement : _el;
+    },
+
+
+    /**
      * 获取选取集大小。
      * 用途：状态栏友好提示。
      * @return {Number}
@@ -4999,13 +5022,14 @@ export const Kit = {
 
 
     /**
-     * 空行切分。
-     * 非单个换行，连续多个空行视为一个。
+     * 换行/空行切分。
+     * 连续多个空行视为一个。
      * @data: String
+     * @param  {Boolean} blank 空行切分
      * @return {[String]}
      */
-    splitx( evo ) {
-        return evo.data.trim().split( __reBlankline );
+    splitx( evo, blank ) {
+        return evo.data.trim().split( blank ? __reBlankline : __reNewline );
     },
 
     __splitx: 1,
@@ -5490,7 +5514,11 @@ export const Kit = {
     /**
      * 插入固定单元。
      * 包含标题、表头、表脚、导言和结语等。
-     * @data: Element
+     * 如果数据为数组，对应多个选取各别插入/更新。
+     * 注意：
+     * - 单选时数组数据只有首个成员有用。
+     * - 多选时单个成员会克隆，多个时简单对应（多出/不足忽略）。
+     * @data: Element|[Element]
      * @param  {String} where 目标位置
      * @return {void}
      */
@@ -5581,6 +5609,7 @@ processExtend( 'Kit', Kit, [
 customGetter( null, Kit, [
     'sels',
     'tobj',
+    'trbox',
     'esize',
     'source',
     'rngok',

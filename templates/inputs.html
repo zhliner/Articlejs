@@ -791,12 +791,13 @@
 </div>
 
 <!-- 片区标题 -->
-<div class="_body _H2" obt-src="obts/create.json" tpl-name="input:h2"
+<div class="_body _H2" obt-src="obts/createx.json" tpl-name="input:h2"
     on="node|ev('detail')"
-    by="New.h2"
+    by="New2.h2"
     to="form/|trigger('insfix')">
     <div class="_main">
-        <textarea name="h2" placeholder="标题内容"></textarea>
+        <!-- 多选时各别更新 -->
+        <textarea name="h2" placeholder="标题内容：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -807,12 +808,13 @@
 </div>
 
 <!-- 小标题 -->
-<div class="_body _H3" obt-src="obts/create.json" tpl-name="input:h3"
+<div class="_body _H3" obt-src="obts/createx.json" tpl-name="input:h3"
     on="node|ev('detail')"
-    by="New.h3"
+    by="New2.h3"
     to="form/|trigger('insfix')">
     <div class="_main">
-        <textarea name="h3" placeholder="小标题内容"></textarea>
+        <!-- 多选时各别更新 -->
+        <textarea name="h3" placeholder="小标题内容：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -839,9 +841,12 @@
 </div>
 
 <!-- 列表项标题 -->
-<div class="_body _H4" tpl-name="input:h4">
+<div class="_body _H4" obt-src="obts/createx.json" tpl-name="input:h4"
+    on="node|ev('detail')"
+    by="New2.h4"
+    to="form/|trigger('insfix')">
     <div class="_main">
-        <textarea name="h4" placeholder="列表项标题"></textarea>
+        <textarea name="h4" placeholder="列表项标题：：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -852,31 +857,40 @@
 </div>
 
 <!-- 其它标题 -->
-<div class="_body _H5" tpl-name="input:h5">
+<div class="_body _H5" obt-src="obts/create.json" tpl-name="input:h5"
+    on="node|ev('detail')"
+    by="New.h5"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="h5" placeholder="H5标题"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:update">
+        <pre tpl-node="input:option1, input:insert2">
             [选项1]
-            [更新]
+            [插入2]
         </pre>
     </aside>
 </div>
 
-<div class="_body _H6" tpl-name="input:h6">
+<div class="_body _H6" obt-src="obts/create.json" tpl-name="input:h6"
+    on="node|ev('detail')"
+    by="New.h6"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="h6" placeholder="H6标题"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:update">
+        <pre tpl-node="input:option1, input:insert2">
             [选项1]
-            [更新]
+            [插入2]
         </pre>
     </aside>
 </div>
 
-<div class="_body _Summary" tpl-name="input:summary">
+<div class="_body _Summary" obt-src="obts/createx.json" tpl-name="input:summary"
+    on="node|ev('detail')"
+    by="New2.summary"
+    to="form/|trigger('insfix')">
     <div class="_main">
         <textarea name="summary" placeholder="内容摘要"></textarea>
     </div>
@@ -888,7 +902,10 @@
     </aside>
 </div>
 
-<div class="_body _Figcaption" tpl-name="input:figcaption">
+<div class="_body _Figcap" obt-src="obts/createx.json" tpl-name="input:figcaption"
+    on="node|ev('detail')"
+    by="New2.figcaption"
+    to="form/|trigger('insfix')">
     <div class="_main">
         <textarea name="figcaption" placeholder="插图标题"></textarea>
     </div>
@@ -900,7 +917,10 @@
     </aside>
 </div>
 
-<div class="_body _Caption" tpl-name="input:caption">
+<div class="_body _Caption" obt-src="obts/createx.json" tpl-name="input:caption"
+    on="node|ev('detail')"
+    by="New2.caption"
+    to="form/|trigger('insfix')">
     <div class="_main">
         <textarea name="caption" placeholder="表格标题"></textarea>
     </div>
@@ -912,7 +932,10 @@
     </aside>
 </div>
 
-<div class="_body _Li" tpl-name="input:li">
+<div class="_body _Li" obt-src="obts/list1.json" tpl-name="input:li"
+    on="node|ev('detail') wrap('<li>')"
+    by="New2.li"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="li" placeholder="列表项内容：空行分项"></textarea>
     </div>
@@ -924,7 +947,10 @@
     </aside>
 </div>
 
-<div class="_body _Dt" tpl-name="input:dt">
+<div class="_body _Dt" obt-src="obts/list1.json" tpl-name="input:dt"
+    on="node|ev('detail') wrap('<li>')"
+    by="New2.dt"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="dt" placeholder="术语"></textarea>
     </div>
@@ -936,7 +962,10 @@
     </aside>
 </div>
 
-<div class="_body _Dd" tpl-name="input:dd">
+<div class="_body _Dd" obt-src="obts/list1.json" tpl-name="input:dd"
+    on="node|ev('detail') wrap('<li>')"
+    by="New2.dd"
+    to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="dd" placeholder="描述"></textarea>
     </div>
@@ -948,6 +977,7 @@
     </aside>
 </div>
 
+<!--
 <div class="_body _Th" tpl-name="input:th">
     <div class="_main">
         <textarea name="th" placeholder="头单元格内容"></textarea>
@@ -971,10 +1001,14 @@
         </pre>
     </aside>
 </div>
+-->
 
-<div class="_body _Tr" tpl-name="input:tr">
+<div class="_body _Tr" tpl-name="input:tr"
+    on="create|$('textarea') val dup pass v.splitx $('/input[name=clean]') prop('checked') v.pretreat1(_1) v.trbox obj('tsec')"
+    by="New.tr(_1)"
+    to="form/|trigger('insert')">
     <div class="_main">
-        <textarea name="tr" placeholder="一行一个单元格，空行忽略"></textarea>
+        <textarea name="tr" placeholder="一行一个单元格"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -1421,6 +1455,7 @@
     </aside>
 </div>
 
+<!--
 <div class="_body _Rb" tpl-name="input:rb">
     <div class="_main _list">
         <hr tpl-node="inlines:text" />
@@ -1444,6 +1479,7 @@
         </pre>
     </aside>
 </div>
+-->
 
 <!-- SVG子元件（html） -->
 <div class="_body _Inline" tpl-name="input:svgitem">

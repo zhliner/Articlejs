@@ -51,8 +51,8 @@ const InputOptions = {
     [ T.EXPLAIN ]:      'option:explain',
     // <ruby>子单元。
     [ T.RBPT ]:         'option:rbpt',
-    [ T.RB ]:           'option:rb',  // 更新模式
-    [ T.RT ]:           'option:rt',  // 更新模式
+    // [ T.RB ]:           'option:rb',
+    // [ T.RT ]:           'option:rt',
     // <svg>向内插入时可用条目。
     // <svg>子元素平级和向内插入时可用条目。
     [ T.SVGITEM ]:      'option:svgitem',
@@ -102,8 +102,8 @@ const InputOptions = {
     [ T.LI ]:           'option:li',
     [ T.DT ]:           'option:dt',
     [ T.DD ]:           'option:dd',
-    [ T.TH ]:           'option:th',
-    [ T.TD ]:           'option:td',
+    // [ T.TH ]:           'option:th',
+    // [ T.TD ]:           'option:td',
     [ T.TR ]:           'option:tr',
     [ T.THEAD ]:        'option:thead',
     [ T.TBODY ]:        'option:tbody',
@@ -202,10 +202,11 @@ const Properties = {
 
 //
 // 不可平级自由插入类型。
-// 注记：
-// <main>不应当被选取，此处仅表达一种逻辑（冗余）。
+// - <rb,rt,rp>子单元有顺序要求。
+// - 单元格涉及Table实例列数问题，需由属性修改实现。
+// - <main>不应当被选取，此处仅表达一种逻辑。
 //
-const siblingNone = new Set( [T.RB, T.RT, T.RP, T.MAIN] );
+const siblingNone = new Set( [T.RB, T.RT, T.RP, T.TH, T.TD, T.MAIN] );
 
 
 

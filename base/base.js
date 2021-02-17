@@ -532,11 +532,13 @@ export function isBlocks( el ) {
 
 /**
  * 是否为内容元素。
+ * 容错包含纯文本的非内容元素（如<ruby>解构后）。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
 export function isContent( el ) {
-    return T.isContent( getType(el) );
+    return T.isContent( getType(el) ) ||
+        el.childElementCount === 0 && el.innerText.trim();
 }
 
 
