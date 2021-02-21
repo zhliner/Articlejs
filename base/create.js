@@ -350,20 +350,20 @@ const Children = {
      * @param {Boolean} opts.th0 添加列表头
      * @param {[String|Node]|null} opts.head 表头数据
      * @param {[String|Node]|null} opts.foot 表脚数据
-     * @param {Element} opts.table 所属表格元素
+     * @param {Element} opts.table 参考表格元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.TBODY ]: function( ref, body, opts, data ) {
         let {th0, head, foot} = opts,
             _tbo = tableObj( body.parentElement || opts.table ),
-            [_new, _end] = appendRow( _tbo, ref, body, data );
+            [_new, _end] = appendRow( ref, _tbo, body, data );
 
         if ( th0 && _tbo.rows() > 0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
         }
         // 数据处理。
-        tableHeadTR( _tbo, head, _tbo.head() );
-        tableFootTR( _tbo, foot, _tbo.foot() );
+        if ( head ) tableHeadTR( _tbo, head, _tbo.head() );
+        if ( foot ) tableFootTR( _tbo, foot, _tbo.foot() );
 
         cleanOptions( opts, 'th0', 'head', 'foot' );
 
@@ -375,7 +375,7 @@ const Children = {
      * 表头行元素。
      * @param {Element|null} ref 参考行元素
      * @param {Element} head 表头元素
-     * @param {Element} opts.table 所属表格元素
+     * @param {Element} opts.table 参考表格元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.THEAD ]: function( ref, head, opts, data ) {
@@ -394,7 +394,7 @@ const Children = {
      * 表脚行元素。
      * @param {Element|null} ref 参考行元素
      * @param {Element} foot 表脚元素
-     * @param {Element} opts.table 所属表格元素
+     * @param {Element} opts.table 参考表格元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.TFOOT ]: function( ref, foot, opts, data ) {
@@ -1503,7 +1503,6 @@ function tableFoot( tbo, val ) {
  * @return {void}
  */
 function tableHeadTR( tbo, data, thead ) {
-    data &&
     insertRows( tbo, createRows(tbo, data, true), thead );
 }
 
@@ -1516,7 +1515,6 @@ function tableHeadTR( tbo, data, thead ) {
  * @return {void}
  */
 function tableFootTR( tbo, data, tfoot ) {
-    data &&
     insertRows( tbo, createRows(tbo, data), tfoot );
 }
 
@@ -1594,14 +1592,14 @@ function insertChild( ref, box, sub ) {
 
 /**
  * 插入表格行。
- * @param  {$.Table} tbo 表格实例
  * @param  {Element|null} ref 参考行元素
+ * @param  {$.Table} tbo 表格实例
  * @param  {TableSection} tsec 表格片区
  * @param  {Element} row 行元素
  * @param  {Boolean} head 是否在表头
  * @return {[Element,Boolean]} 插入的行和是否终止
  */
-function appendRow( tbo, ref, tsec, row, head ) {
+function appendRow( ref, tbo, tsec, row, head ) {
     if ( !row ) {
         return [null, true];
     }

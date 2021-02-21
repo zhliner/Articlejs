@@ -3096,6 +3096,11 @@ const fixItemslr = {
         prev: [ T.CAPTION ]
     },
 
+    [ T.TBODY ]: {
+        self: '>tbody',
+        prev: [ T.TBODY, T.THEAD, T.CAPTION ]
+    },
+
     [ T.TFOOT ]: {
         self: '>tfoot',
         prev: [ T.TBODY, T.THEAD, T.CAPTION ]
@@ -3142,7 +3147,7 @@ function beforeRef( box, tvs, cobj ) {
 /**
  * 固定单元插入。
  * 有则替换，否则按位置插入。
- * @param {Element} box 文章容器
+ * @param {Element} box 容器元素
  * @param {Element} el  标题/标题组元素
  * @param {Object} cobj 配置对象
  */
@@ -5541,6 +5546,24 @@ export const Kit = {
 
 
     /**
+     * 插入表体元素。
+     * 表体插入包含特殊的合并选项。
+     * - 合并到选取的目标，如果目标不是<tbody>，则合并到首个<tbody>。
+     * - 如果不合并，插入为最后一个<tbody>。
+     * 注记：只考虑单个<table>属主。
+     * @data: Element 已构造的<tbody>
+     * @param  {Boolean} merge 表体合并
+     * @param  {String} level 目标层级（siblings|children）
+     * @return {void}
+     */
+    instbody( evo, merge, level ) {
+        //
+    },
+
+    __instbody: 1,
+
+
+    /**
      * 创建表格单元。
      * @data: <table> 数据源
      * @param  {String} caption 表标题内容
@@ -5602,6 +5625,7 @@ processExtend( 'Kit', Kit, [
     'inserts',
     'topinsert',
     'fixinsert',
+    'instbody',
     'table',
 ]);
 

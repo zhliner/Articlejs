@@ -563,7 +563,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 /* 表脚区隔 */
 .content tfoot > tr:first-child {
-    border-top: 2px #ccc solid;
+    border-top: 3px #08c double;
 }
 
 

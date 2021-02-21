@@ -2520,10 +2520,12 @@ class Table {
 
     /**
      * 插入一行。
-     * 位置下标支持负数从末尾算起。默认插入到sec末尾。
+     * 位置下标支持负数从末尾算起。默认插入到tsec末尾。
      * 注意：-1 定位到最后一行，为插入其前。
-     * 未传递表区域实参sec时，默认为首个表体元素。
+     * 未传递表区域实参tsec时，默认为首个表体元素。
      * 表格行是否有相同的列数由外部负责，此不再检查。
+     * 注记：
+     * 如果提供tsec实参，它可以不必已在表格内，但列数应当相同。
      * @param  {Element} tr 表格行元素
      * @param  {Number} idx 位置下标（从0开始），可选
      * @param  {TableSection} tsec 表区域，可选
@@ -2540,8 +2542,9 @@ class Table {
     /**
      * 删除一行。
      * 如果指定的位置超出范围，则无效果（返回undefined）。
+     * 注记：tsec说明同上。
      * @param  {Number} idx 行下标（从0算起）
-     * @param  {TableSection} 表区域元素
+     * @param  {TableSection} tsec 表区域元素
      * @return {Element|undefined} 删除的行元素
      */
     removeTR( idx, tsec ) {
@@ -2554,6 +2557,7 @@ class Table {
      * 获取一行。
      * 如果未指定tsec，表格行计数包含表头和表尾部分。
      * idx 支持负数从末尾算起。
+     * 注记：tsec说明同前。
      * @param  {Number} idx 目标行下标
      * @param  {TableSection} tsec 表体区，可选
      * @return {Element|undefined} 表格行
@@ -2566,6 +2570,7 @@ class Table {
 
     /**
      * 获取目标行的位置下标。
+     * 注记：tsec说明同前。
      * @param  {Element} tr 行元素
      * @param  {TableSection} tsec 表格目标表区，可选
      * @return {Number}

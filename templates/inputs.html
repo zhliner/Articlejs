@@ -1052,8 +1052,11 @@
     构造表格实例发送到<tbody>创建同类表格录入。
     会暂存实例，选单简单切换不影响已录入。 -->
 <div class="_body _Table" tpl-name="input:tbody"
-    on="replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
-    to="|data('tbo')|pop fire('/tbody', 'new')">
+    on="create|$$('/tbody>tr') find('th,td') text v.tsecbox obj('table') (true);
+        replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
+    by="New.tbody(_2)"
+    to="form/|trigger('instbd');
+        |data('tbo')|pop fire('/tbody', 'new')">
     <div class="_main">
         <div class="_list">
             <!--原表匹配创建
@@ -1082,8 +1085,11 @@
 </div>
 
 <div class="_body _Table" tpl-name="input:tfoot"
-    on="replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
-    to="|data('tbo')|pop fire('/tfoot', 'new')">
+    on="create|$$('/tfoot>tr') find('th,td') text v.tsecbox obj('table') (true);
+        replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
+    by="New.tfoot(_2)"
+    to="form/|trigger('insfix');
+        |data('tbo')|pop fire('/tfoot', 'new')">
     <div class="_main">
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->

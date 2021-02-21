@@ -4,19 +4,24 @@
 <!--录入
     insert 插入已创建的元素/集（detail），通用。
     instop 插入顶层固定单元。
-    insfix 插入区块内固定性单元，如：标题、表头、导言等。-->
+    insfix 插入区块内固定性单元，如：标题、表头、导言等。
+    instbd 插入表体<tbody>元素（特例）。
+-->
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
         replaced|v.sels stop;
         insert|ev('detail') check('before') value('level');
         instop|ev('detail') value('level');
-        insfix|ev('detail') value('level')"
+        insfix|ev('detail') value('level');
+        instbd|ev('detail') check('merge') value('level')"
     by="-;-;
         Kit.inserts(_2);
         Kit.topinsert(_1);
-        Kit.fixinsert(_1)"
+        Kit.fixinsert(_1);
+        Kit.instbody(_2)"
     to="/._body|trigger('create');
         /#con-level|trigger('update');
+        #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus')">
