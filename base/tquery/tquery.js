@@ -1025,11 +1025,9 @@ Object.assign( tQuery, {
      * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {[Element]}
      */
-    find( slr, ctx = Doc, andOwn = false ) {
-        if ( !ctx ) {
-            return [];
-        }
+    find( slr, ctx, andOwn = false ) {
         slr = slr || '';
+        ctx = ctx || Doc;
         let _els = $all( slr.trim(), ctx );
 
         if ( andOwn && $is(ctx, slr) ) {

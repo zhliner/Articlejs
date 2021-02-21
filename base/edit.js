@@ -106,7 +106,7 @@ const
 
     // 插入位置选单处理器。
     // 用于根据焦点元素提取可插入条目选单集。
-    __whereHandles = {
+    __levelHandles = {
         children:   childOptions,
         siblings:   siblingOptions,
     },
@@ -315,7 +315,7 @@ class ESEdit {
      */
     undo() {
         __ESet.clear().pushes( this._old );
-        delayFire( insertWhere, Sys.evnWhere, this._old );
+        delayFire( insertWhere, Sys.evnLevel, this._old );
     }
 
 
@@ -324,7 +324,7 @@ class ESEdit {
      */
     redo() {
         this._fun( ...this._vals );
-        delayFire( insertWhere, Sys.evnWhere, [...__ESet] );
+        delayFire( insertWhere, Sys.evnLevel, [...__ESet] );
     }
 }
 
@@ -1328,17 +1328,6 @@ function updateFocus() {
 
 
 /**
- * 路径聚焦。
- * 单击路径段设置对应元素为焦点。
- * @param {Element} hot 焦点元素
- */
-function pathFocus( hot ) {
-    $.intoView( hot, 0 );
-    return __EHot.set( hot );
-}
-
-
-/**
  * 兄弟元素同态。
  * 包含两种状态：选取/取消选取。
  * @param {[Element]} els 选取集
@@ -1893,7 +1882,7 @@ function miniedOk( h2 ) {
     $.trigger( slaveInsert, Sys.insType, Sys.normalTpl );
 
     // 插入位置恢复普通模式
-    delayFire( insertWhere, Sys.evnWhere, [...__ESet] );
+    delayFire( insertWhere, Sys.evnLevel, [...__ESet] );
 }
 
 
@@ -1971,8 +1960,8 @@ function medCreateLine( scam, src ) {
 // 专用于主面板平级/向内的前后插入。
 //
 const insertHandles = {
-    [Sys.whereName1]: [ __Edits.newAfter, __Edits.newBefore ],
-    [Sys.whereName2]: [ __Edits.newAppend, __Edits.newPrepend ],
+    [Sys.levelName1]: [ __Edits.newAfter, __Edits.newBefore ],
+    [Sys.levelName2]: [ __Edits.newAppend, __Edits.newPrepend ],
 };
 
 
@@ -1981,14 +1970,14 @@ const insertHandles = {
  * @param  {[Element]} els 参考元素集
  * @param  {[Collector]} nodes2 数据节点集组
  * @param  {Boolean} before 是否前插入
- * @param  {String} where 插入位置
+ * @param  {String} level 插入层级（平级|子级）
  * @return {[DOMEdit]} 操作实例集
  */
-function insertsNodes( els, nodes2, before, where ) {
+function insertsNodes( els, nodes2, before, level ) {
     return els.map( (ref, i) =>
         nodes2[i] != null &&
         // before: 0|1
-        new DOMEdit( insertHandles[where][+before], ref, nodes2[i] )
+        new DOMEdit( insertHandles[level][+before], ref, nodes2[i] )
     );
 }
 
@@ -3671,15 +3660,16 @@ export const Edit = {
 
     /**
      * [By] 从路径选取/聚焦。
-     * 无条件聚焦。
+     * 无条件移动到当前视口。
      * 按聚焦辅助键单击为仅聚焦，路径序列不重构。
      * 按切换选辅助键单击为切换选/多选（同内容区操作）。
      * 无按辅助键单击为普通多选。
      */
     pathTo( evo, scam ) {
-        pathFocus( evo.data );
+        $.intoView( evo.data, 0 );
 
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
+            __EHot.set( evo.data );
             return;
         }
         if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
@@ -4784,6 +4774,19 @@ export const Kit = {
 
 
     /**
+     * 获取表区域元素容器。
+     * 仅参照首个选取的元素。
+     * 选取的元素仅可能为<table>或表区域（<thead|tbody|tfoot>）元素。
+     * 注记：
+     * 如果选取的是<table>，选单提取功能中已限定为单个选取。
+     */
+    tsecbox() {
+        let _el = __ESet.first();
+        return _el.tagName === 'TABLE' ? _el : _el.parentElement;
+    },
+
+
+    /**
      * 获取选取集大小。
      * 用途：状态栏友好提示。
      * @return {Number}
@@ -4955,7 +4958,7 @@ export const Kit = {
         if ( !evo.data.length ) {
             return null;
         }
-        let _ns = __whereHandles[type]( evo.data )
+        let _ns = __levelHandles[type]( evo.data )
 
         return _ns.length > 0 ? Templater.nodes(_ns) : null;
     },
@@ -4971,7 +4974,7 @@ export const Kit = {
      * @return {Boolean} 是否混杂
      */
     ismixed( evo ) {
-        let _els = evo.data === Sys.whereName1 ?
+        let _els = evo.data === Sys.levelName1 ?
             [...parentsSet(__ESet)] :
             [...__ESet];
 
@@ -5464,14 +5467,14 @@ export const Kit = {
      * 数据节点可能为文本节点（不选取）。
      * @data: Node|[Node] 待插入节点
      * @param  {Boolean} before 向前插入
-     * @param  {String} where 插入位置
+     * @param  {String} level 插入层级（siblings|children）
      * @return {void}
      */
-    inserts( evo, before, where ) {
+    inserts( evo, before, level ) {
         let _els = [...__ESet],
             _dt2 = dataNodes2( $(evo.data), _els.length ),
             _op1 = clearSets(),
-            _ops = insertsNodes( _els, _dt2, before, where ),
+            _ops = insertsNodes( _els, _dt2, before, level ),
             _elx = _dt2.flat().filter( nd => nd.nodeType === 1 );
 
         historyPush(
@@ -5492,12 +5495,12 @@ export const Kit = {
      * where实际上只可能是siblings
      * 顶层单元没有多选克隆逻辑。
      * @data: Element
-     * @param  {String} where 目标位置
+     * @param  {String} level 目标层级（siblings|children）
      * @return {void}
      */
-    topinsert( evo, where ) {
+    topinsert( evo, level ) {
         let _sel = __ESet.first(),
-            _box = where === Sys.whereName1 ?
+            _box = level === Sys.levelName1 ?
                 _sel.parentElement :
                 _sel;
 
@@ -5519,11 +5522,11 @@ export const Kit = {
      * - 单选时数组数据只有首个成员有用。
      * - 多选时单个成员会克隆，多个时简单对应（多出/不足忽略）。
      * @data: Element|[Element]
-     * @param  {String} where 目标位置
+     * @param  {String} level 目标层级（siblings|children）
      * @return {void}
      */
-    fixinsert( evo, where ) {
-        let _pels = where === Sys.whereName1 ?
+    fixinsert( evo, level ) {
+        let _pels = level === Sys.levelName1 ?
                 [...parentsSet(__ESet)] :
                 [...__ESet],
             _subs = dataNodes( evo.data, _pels.length ),
@@ -5610,6 +5613,7 @@ customGetter( null, Kit, [
     'sels',
     'tobj',
     'trbox',
+    'tsecbox',
     'esize',
     'source',
     'rngok',

@@ -217,12 +217,16 @@ const siblingNone = new Set( [T.RB, T.RT, T.RP, T.TH, T.TD, T.MAIN] );
 
 /**
  * 获取向内插入条目集。
+ * 简化处理：
+ * - 不支持多选表格（向内插入表区域）。
+ * - 容许多选表区域（向内插入表格行）。
  * @param  {[Element]} els 目标元素集
  * @return {[String]} 模板名集
  */
 export function options( els ) {
     let _ref = els.shift();
-    if ( !_ref ) {
+
+    if ( !_ref || _ref.tagName === 'TABLE' && els.length > 0 ) {
         return [];
     }
     let _subs = [...T.childTypes(_ref)];

@@ -1019,8 +1019,11 @@
 </div>
 
 <div class="_body _Table" tpl-name="input:thead"
-    on="replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
-    to="|data('tbo')|pop fire('/thead', 'new')">
+    on="create|$$('/thead>tr') find('th') text v.tsecbox obj('table') (true);
+        replaced|stop v.tobj dup(2) data('tbo') eq(_1) end"
+    by="New.thead(_2)"
+    to="form/|trigger('insfix');
+        |data('tbo')|pop fire('/thead', 'new')">
     <div class="_main">
         <div class="_list">
             <!--new 创建与原表相同列类型的行（默认1行）。-->

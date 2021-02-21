@@ -350,17 +350,42 @@ const Properties = {
 
 
 //
-// 内联单元集。
-// 不含<a>单元，不含<b><i>单元。
-// 注：
-// 此处的顺序会体现在内容录入面板的选单上。
+// 分组：内联单元。
+// 不含<a>和<b><i>单元（直接引用）。
+// 注：顺序会体现在内容录入面板的选单上。
+//===============================================
+
+
 //
-const _INLINES =
+// 内联媒体单元。
+//
+const _INLMEDIA =
 [
-    AUDIO, VIDEO, PICTURE, SVG, RUBY, METER, SPACE, IMG, BR, WBR,
-    Q, ABBR, DEL, INS, DFN, BDO, TIME, CODE,
-    STRONG, EM, CITE, SMALL, SUB, SUP, MARK, ORZ, SAMP, KBD, S, U, VAR,
+    AUDIO, VIDEO, PICTURE, SVG, METER, IMG
 ];
+
+
+//
+// 内联纯文本。
+//
+const _INLTEXT =
+[
+    Q, ABBR, DFN, BDO, TIME, CODE,
+    STRONG, EM, CITE, SMALL, SUB, SUP, MARK, ORZ, SAMP, KBD, S, U, VAR,
+    RUBY, SPACE,
+    BR, WBR,
+];
+
+
+//
+// 内联编辑元件。
+//
+const _INLEDIT = [ DEL, INS ];
+
+
+//
+// 分组：行块单元。
+//===============================================
 
 
 //
@@ -407,8 +432,6 @@ const ChildTypes = {
     [ SVG ]:            [ SVGITEM ],
     // RBPT 为固定结构组。
     [ RUBY ]:           [ RBPT, RB, RT ],
-    [ RB ]:             [ $TEXT ],
-    [ RT ]:             [ $TEXT ],
     [ METER ]:          [ $TEXT ],
     [ SPACE ]:          null,
     [ IMG ]:            null,
@@ -423,59 +446,59 @@ const ChildTypes = {
     [ RB ]:             [ $TEXT ],
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
-    [ EXPLAIN ]:        [ $TEXT, A, ..._INLINES ], // 插图讲解
+    [ EXPLAIN ]:        [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ], // 插图讲解
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    [ A ]:              [ $TEXT, ..._INLINES ],
-    [ Q ]:              [ $TEXT, A, ..._INLINES ],
-    [ ABBR ]:           [ $TEXT ],
-    [ DEL ]:            [ $TEXT, A, ..._INLINES ],
-    [ INS ]:            [ $TEXT, A, ..._INLINES ],
-    [ DFN ]:            [ $TEXT, ABBR ],
-    [ BDO ]:            [ $TEXT, A, ..._INLINES ],
-    [ TIME ]:           [ $TEXT ],
+    [ A ]:              [ $TEXT, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
+    [ Q ]:              [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ ABBR ]:           [ $TEXT, A, ..._INLEDIT ],
+    [ DEL ]:            [ $TEXT, A, ..._INLTEXT ],
+    [ INS ]:            [ $TEXT, A, ..._INLTEXT ],
+    [ DFN ]:            [ $TEXT, ABBR, ..._INLEDIT ],
+    [ BDO ]:            [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ TIME ]:           [ $TEXT, ..._INLEDIT ],
     [ CODE ]:           [ $TEXT, B, I ],
-    [ STRONG ]:         [ $TEXT, A, ..._INLINES ],
-    [ EM ]:             [ $TEXT, A, ..._INLINES ],
-    [ CITE ]:           [ $TEXT, A, ..._INLINES ],
-    [ SMALL ]:          [ $TEXT, A, ..._INLINES ],
-    [ SUB ]:            [ $TEXT, ..._INLINES ],
-    [ SUP ]:            [ $TEXT, ..._INLINES ],
-    [ MARK ]:           [ $TEXT, ..._INLINES ],
+    [ STRONG ]:         [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ EM ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ CITE ]:           [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ SMALL ]:          [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ SUB ]:            [ $TEXT, ..._INLEDIT ],
+    [ SUP ]:            [ $TEXT, ..._INLEDIT ],
+    [ MARK ]:           [ $TEXT, ..._INLTEXT, ..._INLEDIT ],
     [ ORZ ]:            [ $TEXT ],
-    [ SAMP ]:           [ $TEXT, A, ..._INLINES ],
-    [ KBD ]:            [ $TEXT ],
-    [ S ]:              [ $TEXT, A, ..._INLINES ],
-    [ U ]:              [ $TEXT, A, ..._INLINES ],
-    [ VAR ]:            [ $TEXT ],
+    [ SAMP ]:           [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ KBD ]:            [ $TEXT, ..._INLEDIT ],
+    [ S ]:              [ $TEXT, A, ..._INLTEXT ],
+    [ U ]:              [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ VAR ]:            [ $TEXT, ..._INLEDIT ],
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    [ P ]:              [ $TEXT, A, ..._INLINES ],
-    [ NOTE ]:           [ $TEXT, A, ..._INLINES ],
-    [ TIPS ]:           [ $TEXT, A, ..._INLINES ],
-    [ PRE ]:            [ $TEXT, A, ..._INLINES ],
-    [ ADDRESS ]:        [ $TEXT, A, ..._INLINES ],
+    [ P ]:              [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
+    [ NOTE ]:           [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
+    [ TIPS ]:           [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
+    [ PRE ]:            [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ ADDRESS ]:        [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
     //
     // 块内结构元素
     /////////////////////////////////////////////
-    [ H1 ]:             [ $TEXT, A, ..._INLINES, I ],
-    [ H2 ]:             [ $TEXT, A, ..._INLINES, I ],
-    [ H3 ]:             [ $TEXT, A, ..._INLINES, I ],
-    [ H3X ]:            [ $TEXT, A, ..._INLINES, I ],
-    [ H4 ]:             [ $TEXT, A, ..._INLINES, I ],
-    [ H5 ]:             [ $TEXT, A, ..._INLINES, I ],
-    [ H6 ]:             [ $TEXT, A, ..._INLINES, I ],
-    [ SUMMARY ]:        [ $TEXT, A, ..._INLINES ],
-    [ FIGCAPTION ]:     [ $TEXT, A, ..._INLINES ],
-    [ CAPTION ]:        [ $TEXT, A, ..._INLINES ],
-    [ LI ]:             [ $TEXT, A, ..._INLINES ],
-    [ DT ]:             [ $TEXT, A, ..._INLINES, I ],
-    [ DD ]:             [ $TEXT, A, ..._INLINES ],
-    [ TH ]:             [ $TEXT, A, ..._INLINES ],
-    [ TD ]:             [ $TEXT, A, ..._INLINES ],
+    [ H1 ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ H2 ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ H3 ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ H3X ]:            [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ H4 ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ H5 ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ H6 ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ SUMMARY ]:        [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ FIGCAPTION ]:     [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ CAPTION ]:        [ $TEXT, A, ..._INLTEXT, ..._INLEDIT ],
+    [ LI ]:             [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
+    [ DT ]:             [ $TEXT, A, ..._INLTEXT, ..._INLEDIT, SVG, IMG, I ],
+    [ DD ]:             [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
+    [ TH ]:             [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
+    [ TD ]:             [ $TEXT, A, ..._INLMEDIA, ..._INLTEXT, ..._INLEDIT ],
     [ TR ]:             [ TH, TD ],
     [ THEAD ]:          [ TR ],
     [ TBODY ]:          [ TR ],

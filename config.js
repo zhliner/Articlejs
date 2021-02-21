@@ -150,7 +150,7 @@ const Sys = {
     // 在模板中定义，由程序中激发。
     medIn:      'medin',    // 进入微编辑
     medOk:      'medok',    // 完成微编辑
-    evnWhere:   'update',   // 插入位置选单更新
+    evnLevel:   'update',   // 插入层级选单更新
     insType:    'edtype',   // 编辑类型更新（普通插入|微编辑）
 
 
@@ -168,10 +168,10 @@ const Sys = {
     convInlines: 'inlines',
 
 
-    // 插入位置名称约定。
+    // 插入层级名称约定。
     // 在模板和程序中协同使用。
-    whereName1: 'siblings', // 平级
-    whereName2: 'children', // 向内
+    levelName1: 'siblings', // 平级
+    levelName2: 'children', // 向内
 
 
     // 本地暂存键

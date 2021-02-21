@@ -313,10 +313,9 @@ const Children = {
 
 
     /**
-     * 单元格已经存在。
-     * 容错表格行为空的情况（清空或独立创建）。
-     * 注记：
-     * 友好非同类表格行，其它单元也可较好转换。
+     * 表格行单元格填充。
+     * 如果单元格不存在，将借助于tsec创建。
+     * 但仅仅是借助（相同类型的表格）。
      * @param {null} ref 插入参考（占位）
      * @param {Element} tr 表格行元素
      * @param {Element} tsec 表格行容器
@@ -340,22 +339,23 @@ const Children = {
 
 
     /**
-     * 表体行元素。
+     * 表体行元素插入。
      * 如果数据行合法，则简单添加后结束递进。
      * 数据可能是一个集合，此时视为单元格数据集。
      * 注记：
-     * 仅在表体处理时提供添加列头的能力，
-     * 因为需要先有行元素才能插入列头。
+     * 仅在表体处理时提供添加列头的能力，因为需要先有行元素才能插入列头。
+     * opts.table 用于单独创建<tbody>时有用。
      * @param {Element|null} ref 参考行元素
      * @param {Element} body 表体元素
      * @param {Boolean} opts.th0 添加列表头
      * @param {[String|Node]|null} opts.head 表头数据
      * @param {[String|Node]|null} opts.foot 表脚数据
+     * @param {Element} opts.table 所属表格元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
     [ T.TBODY ]: function( ref, body, opts, data ) {
         let {th0, head, foot} = opts,
-            _tbo = tableObj( body.parentElement ),
+            _tbo = tableObj( body.parentElement || opts.table ),
             [_new, _end] = appendRow( _tbo, ref, body, data );
 
         if ( th0 && _tbo.rows() > 0 ) {
@@ -375,12 +375,13 @@ const Children = {
      * 表头行元素。
      * @param {Element|null} ref 参考行元素
      * @param {Element} head 表头元素
+     * @param {Element} opts.table 所属表格元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
-    [ T.THEAD ]: function( ref, head, _, data ) {
+    [ T.THEAD ]: function( ref, head, opts, data ) {
         let [_new, _end] = appendRow(
             ref,
-            tableObj( head.parentElement ),
+            tableObj( head.parentElement || opts.table ),
             head,
             data,
             true
@@ -393,12 +394,13 @@ const Children = {
      * 表脚行元素。
      * @param {Element|null} ref 参考行元素
      * @param {Element} foot 表脚元素
+     * @param {Element} opts.table 所属表格元素
      * @param {[Value]|Element} data 单元格数据集或表格行元素
      */
-    [ T.TFOOT ]: function( ref, foot, _, data ) {
+    [ T.TFOOT ]: function( ref, foot, opts, data ) {
         let [_new, _end] = appendRow(
             ref,
-            tableObj( foot.parentElement ),
+            tableObj( foot.parentElement || opts.table ),
             foot,
             data
         );
@@ -2077,6 +2079,7 @@ function build( el, opts, data, more ) {
  *      header:     {Element}   导言元素
  *      dt:         {Value}     描述列表标题项
  *      tsec:       {Element}   表格行容器（<thead|tbody|tfoot>）
+ *      table:      {Element}   表区域容器
  *      th0:        {Boolean}   表格列表头
  *      rpl:        {String}    左包围（<rp>）
  *      rpr:        {String}    右包围（<rp>）

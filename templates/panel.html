@@ -8,15 +8,15 @@
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
         replaced|v.sels stop;
-        insert|ev('detail') check('before') value('where');
-        instop|ev('detail') value('where');
-        insfix|ev('detail') value('where')"
+        insert|ev('detail') check('before') value('level');
+        instop|ev('detail') value('level');
+        insfix|ev('detail') value('level')"
     by="-;-;
         Kit.inserts(_2);
         Kit.topinsert(_1);
         Kit.fixinsert(_1)"
     to="/._body|trigger('create');
-        /#con-where|trigger('update');
+        /#con-level|trigger('update');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus')">
@@ -26,18 +26,18 @@
             update  选单更新。fire非延迟避免闪烁。
             section 片区单元内容混杂检查（标记_mixed类名）。
             click focus 快捷操作友好。 -->
-        <div id="con-where" class="_where"
-            on="update|ev('detail') $('/input') val('where') v.inslist(_1);
-                section|('_mixed') $('/input') val('where') v.ismixed;
+        <div id="con-level" class="_level"
+            on="update|ev('detail') $('/input') val('level') v.inslist(_1);
+                section|('_mixed') $('/input') val('level') v.ismixed;
                 click(input)|$('1/select') focus v.sels"
             to="1/select|fill|fire(10, 'change', 0) goto('section');
                 1/select|toggleClass(_1);
                 |trigger('update')">
             <label title="平级插入">
-                <input type="radio" name="where" value="siblings" checked /><i id="l-siblings"></i>
+                <input type="radio" name="level" value="siblings" checked /><i id="l-siblings"></i>
             </label>
             <label title="向内插入">
-                <input type="radio" name="where" value="children"><i id="l-children"></i>
+                <input type="radio" name="level" value="children"><i id="l-children"></i>
             </label>
         </div>
         <!--动态选单
@@ -64,16 +64,16 @@
 <!-- 微编辑 -->
 <form class="Input Minied" onsubmit="return false" tpl-name="slave:minied">
     <div class="_roll">
-        <div class="_where"
+        <div class="_level"
             on="click(input)|evo(2) val pop tpl;
                 click(input)|evo(2) attr('-val') pop tpl"
             to="1/select|replace|focus fire(11, 'change');
                 2/._body|replace">
             <label title="内联元素">
-                <input type="radio" name="where" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
+                <input type="radio" name="ctype" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
             </label>
             <label title="文本字符">
-                <input type="radio" name="where" value="item:ctypes" data-val="minied:chars" /><i id="l-schar"></i>
+                <input type="radio" name="ctype" value="item:ctypes" data-val="minied:chars" /><i id="l-schar"></i>
             </label>
         </div>
         <!--固定选单

@@ -104,7 +104,7 @@ const _Gets = {
      * 否则视为全局选择器（document为上下文）。
      * @param  {Object} evo 事件关联对象
      * @param  {String} rid 相对ID，可选
-     * @return {Element}
+     * @return {Element|null}
      */
     $( evo, rid ) {
         return Util.find(rid, evo.data || evo.delegate, true);
@@ -134,6 +134,27 @@ const _Gets = {
     },
 
     __$$: -1,
+
+
+    /**
+     * 元素匹配查找。
+     * 目标：暂存区/栈顶1项。
+     * 目标为查找的上下文限定元素或集合。
+     * @data: Element|Document|Collector|[Element]
+     * @param  {String} slr 选择器
+     * @param  {Boolean} andOwn 包含上下文元素自身测试
+     * @return {[Element]} 元素集
+     */
+    find( evo, slr, andOwn ) {
+        let x = evo.data;
+
+        if ( $.isArray(x) ) {
+            return $(x).find( slr, andOwn );
+        }
+        return $.find( slr, x, andOwn );
+    },
+
+    __find: 1,
 
 
     /**
