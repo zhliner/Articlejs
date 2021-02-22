@@ -143,7 +143,7 @@ const _Gets = {
      * @data: Element|Document|Collector|[Element]
      * @param  {String} slr 选择器
      * @param  {Boolean} andOwn 包含上下文元素自身测试
-     * @return {[Element]} 元素集
+     * @return {[Element]|Collector} 元素集
      */
     find( evo, slr, andOwn ) {
         let x = evo.data;

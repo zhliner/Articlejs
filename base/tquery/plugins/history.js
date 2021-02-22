@@ -55,8 +55,10 @@
         nodedone:   ev => new Nodedone( ev.target ),
         detach:     ev => new Remove( ev.target ),
         empty:      ev => new Empty( ev.target ),
-        replace:    ev => new Replace( ev.target, ev.detail ),
         normalize:  ev => new Normalize( ev.target ),
+        // 替换操作：
+        // 只需记录移除行为，数据节点的插入由nodedone记录。
+        nodein:     ev => ev.detail[1] === 'replace' && new Remove( ev.target ),
 
         // 事件绑定变化处理器。
         evbound:    ev => new Bound( ev.target, ...ev.detail ),
@@ -87,7 +89,9 @@ class History {
     handleEvent( ev ) {
         // 仅记录一次。
         ev.stopPropagation();
-        this.push( __varyHandles[ev.type](ev) );
+
+        let _obj = __varyHandles[ev.type]( ev );
+        if ( _obj ) this.push( _obj );
     }
 
 
@@ -349,15 +353,15 @@ class EventClone {
 //
 class Nodedone {
     /**
-     * @param {Node|[Node]} data 待插入节点（集）
+     * @param {Node} node 已插入节点
      */
-    constructor( data ) {
-        this._nodes = $.isArray( data ) ? data : [ data ];
+    constructor( node ) {
+        this._node = node;
     }
 
 
     back() {
-        this._nodes.forEach( node => node.remove() );
+        this._node.remove();
     }
 }
 
@@ -383,37 +387,6 @@ class Remove {
             return this._prev.after( this._node );
         }
         this._box.prepend( this._node );
-    }
-}
-
-
-//
-// 节点替换操作。
-// 包含了两个行为：
-// 1. 数据节点的插入。
-// 2. 原节点的移除。
-// 注记：
-// $.replace实现为数据节点已先脱离。
-//
-class Replace {
-    /**
-     * @param {Element} el 事件主元素
-     * @param {Node|[Node]} data 数据节点/集
-     */
-    constructor( el, data ) {
-        this._op0 = new Remove( el );
-        this._op1 = new Nodedone( data );
-    }
-
-
-    /**
-     * 数据先脱离，之后再插入恢复原节点。
-     * 注记：
-     * 如果有 remove 先回退，重复回退无副作用。
-     */
-    back() {
-        this._op1.back();
-        this._op0.back();
     }
 }
 

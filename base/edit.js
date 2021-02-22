@@ -40,7 +40,7 @@ const
     Normalize = $.Fx.History.Normalize,
 
     // 编辑需要监听的变化事件。
-    varyEvents = 'attrvary stylevary nodedone replace empty detach normalize',
+    varyEvents = 'attrvary stylevary nodedone nodein empty detach normalize',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
@@ -3097,8 +3097,8 @@ const fixItemslr = {
     },
 
     [ T.TBODY ]: {
-        self: '>tbody',
-        prev: [ T.TBODY, T.THEAD, T.CAPTION ]
+        self: '>tbody:last-of-type',
+        prev: [ T.THEAD, T.CAPTION ]
     },
 
     [ T.TFOOT ]: {
@@ -3147,9 +3147,10 @@ function beforeRef( box, tvs, cobj ) {
 /**
  * 固定单元插入。
  * 有则替换，否则按位置插入。
- * @param {Element} box 容器元素
- * @param {Element} el  标题/标题组元素
- * @param {Object} cobj 配置对象
+ * @param  {Element} box 容器元素
+ * @param  {Element} el  数据元素（标题/标题组/固定单元）
+ * @param  {Object} cobj 配置对象
+ * @return {DOMEdit} 操作实例
  */
 function fixInsert( box, el, cobj ) {
     let _cfg = cobj[ getType(el) ],
@@ -3171,7 +3172,7 @@ function fixInsert( box, el, cobj ) {
  * 标题集与父元素集的成员一一对应。
  * @param  {[Element]} pels 父元素集
  * @param  {[Element]} subs 子元素集（标题）
- * @return {DOMEdit} 操作实例
+ * @return {[DOMEdit]} 操作实例集
  */
 function insFixnode( pels, subs ) {
     let _buf = [];
@@ -4762,7 +4763,7 @@ export const Kit = {
      * @return {Table}
      */
     tobj() {
-        return tableObj( tableNode(__ESet.first()) );
+        if ( __ESet.size ) tableObj( tableNode(__ESet.first()) );
     },
 
 
@@ -5549,15 +5550,39 @@ export const Kit = {
      * 插入表体元素。
      * 表体插入包含特殊的合并选项。
      * - 合并到选取的目标，如果目标不是<tbody>，则合并到首个<tbody>。
-     * - 如果不合并，插入为最后一个<tbody>。
-     * 注记：只考虑单个<table>属主。
+     * - 如果不合并，插入到选取的<tbody>之后或作为最后一个<tbody>。
+     * 注记：
+     * - 只考虑单个<table>属主。
+     * - 多个选取（同一<table>之下）仅承认首个选取。
      * @data: Element 已构造的<tbody>
      * @param  {Boolean} merge 表体合并
      * @param  {String} level 目标层级（siblings|children）
      * @return {void}
      */
     instbody( evo, merge, level ) {
-        //
+        let _td = evo.data,
+            _to = __ESet.first(),
+            _tbl = level === Sys.levelName1 ? _to.parentElement : _to,
+            _tbo = tableObj( _tbl ),
+            _op0 = cleanHot( [_tbl] ),
+            _op1 = clearSets(),
+            _opx = null;
+
+        if ( merge ) {
+            if ( _to.tagName !== 'TBODY' ) {
+                _to = _tbo.body( true );
+            }
+            _opx = new DOMEdit( __Edits.newAppend, _to, $.children(_td) );
+            _td = null;
+        }
+        else {
+            if ( _to.tagName !== 'TBODY' ) {
+                _to = $.get( 'tbody:last-of-type', _tbl );
+            }
+            _opx = new DOMEdit( __Edits.newAfter, _to, _td );
+        }
+
+        historyPush( _op0, _op1, _opx, ...selectOne(_td || _to, 'safeAdd') );
     },
 
     __instbody: 1,
