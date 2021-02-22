@@ -62,7 +62,6 @@
     变化之前和之后激发在相同的目标元素上。
 
     - nodein, nodedone          // 节点进入DOM（之前、完成）
-    - replace, replaced         // 节点替换（之前、完成）
     - empty, emptied            // 节点内容清空（之前、完成）
     注：
     变化之前激发在目标元素上，变化之后激发在数据节点上。
@@ -2356,7 +2355,8 @@ class Table {
         }
         this._cols = cols;
 
-        this._init( this.body(true), rows );
+        // 并不默认创建新表体
+        if ( rows ) this._init( this.body(true), rows );
     }
 
 
@@ -4910,12 +4910,12 @@ function setElem( el, conf, frag ) {
  * 获取表格行适当容器。
  * 用于<tr>直接插入到<table>时获取正确的容器。
  * - 若容器不是表格则简单返回容器。
- * - 若容器合法但内容不是<tr>元素，返回null。
+ * - 若容器是表格但内容不是<tr>元素，则假设为合法的<caption|tbody...>等。
  * 注：
  * 不检查表格行插入到非表格元素时的情况。
  * @param  {Element} box 容器元素
  * @param  {Node|[Node]} sub 内容节点（集）
- * @return {Element|null} 合适的容器元素
+ * @return {Element} 合适的容器元素
  */
 function trContainer( box, sub ) {
     if ( !box.tBodies ) return box;
@@ -4923,7 +4923,7 @@ function trContainer( box, sub ) {
     if ( isArr(sub) ) {
         sub = sub[0];
     }
-    return sub.cells ? box.tBodies[0] : null;
+    return sub.cells ? box.tBodies[0] : box;
 }
 
 
@@ -5692,7 +5692,6 @@ const insertHandles = {
 
     '': varyFill,
     // append
-    // 表格容器非法内容时返回null（会自动异常）。
     '-2': (el, data) => data && varyAppend( trContainer(el, data), data ),
     // prepend
     '2': (el, data) => data && varyPrepend( trContainer(el, data), data ),
@@ -5936,8 +5935,6 @@ const
     evnNodeDone     = 'nodedone',
     evnDetach       = 'detach',
     evnDetached     = 'detached',
-    evnReplace      = 'replace',
-    evnReplaced     = 'replaced',
     evnEmpty        = 'empty',
     evnEmptied      = 'emptied',
     evnNormalize    = 'normalize',
@@ -6343,11 +6340,11 @@ function varyAfter( el, nodes ) {
  * @return {nodes}
  */
 function varyReplace( el, nodes ) {
-    varyTrigger( el, evnReplace, nodes );
+    varyTrigger( el, evnNodeIn, [nodes, 'replace'] );
     el.replaceWith(
         ...detachNodes(nodes)
     );
-    nodesTrigger( nodes, evnReplaced, el ) && varyTrigger( el, evnDetached, null );
+    nodesTrigger( nodes, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
     return nodes;
 }
 
@@ -6489,9 +6486,9 @@ function varyWrapAll( root, box, nodes, ref = nodes[0] ) {
  * @return {[Node]} subs
  */
 function varyReplace2s( el, subs ) {
-    varyTrigger( el, evnReplace, subs );
+    varyTrigger( el, evnNodeIn, [subs, 'replace'] );
     el.replaceWith( ...subs );
-    nodesTrigger( subs, evnReplaced, el ) && varyTrigger( el, evnDetached, null );
+    nodesTrigger( subs, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
     return subs;
 }
 
