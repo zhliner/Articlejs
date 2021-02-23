@@ -1309,7 +1309,7 @@ function setFocus( el ) {
         $.empty( pathContainer );
     } else {
         $.intoView( el, 0 );
-        $.fill( pathContainer, pathList(el, contentElem) );
+        $.trigger( pathContainer, Sys.evnPath, pathList(el, contentElem) );
     }
     return __EHot.set( el );
 }
