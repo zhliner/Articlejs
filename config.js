@@ -152,7 +152,6 @@ const Sys = {
     medOk:      'medok',    // 完成微编辑
     evnLevel:   'update',   // 插入层级选单更新
     insType:    'edtype',   // 编辑类型更新（普通插入|微编辑）
-    evnPath:    'update',   // 路径信息更新
 
 
     // 模板名定义

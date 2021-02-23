@@ -704,13 +704,14 @@
     <!--元素路径：
         toggle 快捷键隐显切换。
         empty  鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
-        update 更新路径信息。
-        click(b:last-child) 微编辑找回编辑点友好。-->
+        click(b:last-child) 微编辑找回编辑点友好。
+        注记：
+        路径信息更新由程序（edit.js）直接执行。
+    -->
     <div id="g-path" class="_path"
         on="click(b)|env('minied') end evo(2) v.source scam;
             mouseenter(b)|('_point') evo(2) v.source pop;
             mouseleave(b)|stop ('_point') evo(2) v.source pop;
-            update|ev('detail');
             empty;
             click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
             toggle|evo(3) lose(2)"
@@ -718,7 +719,6 @@
         to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
             -|addClass;
             -|removeClass;
-            |fill;
             /b:hover|trigger('mouseleave', true)">
         <!-- <b> -->
     </div>
