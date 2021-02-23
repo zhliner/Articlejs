@@ -346,7 +346,7 @@
 
 
     const
-        version = 'tQuery-0.5.1',
+        version = 'tQuery-0.5.2',
 
         // 临时属性名
         // 固定异样+动态，避免应用冲突。
@@ -2270,7 +2270,7 @@ Object.assign( tQuery, {
     /**
      * 手动事件激发。
      * - evn可以是一个事件名或一个已经构造好的事件对象。
-     * - 自定义事件默认不冒泡但可以被取消。
+     * - 自定义事件默认不冒泡但可以被取消，原生事件则保持默认行为。
      * - 元素上原生的事件类函数可以直接被激发（如 click, focus）。
      * - 几个可前置on的非事件类方法（submit，load等）可以被激发，但需预先注册绑定。
      *
@@ -2279,24 +2279,26 @@ Object.assign( tQuery, {
      * 注：
      * 实际上只是简单调用 box.scroll(x, y) 触发scroll事件。
      *
-     * 注记：Element.dispatchEvent()返回值：
+     * 注记：
+     * EventTarget.dispatchEvent()返回值：
      * 如果处理器调用了Event.preventDefault()则返回false，否则返回true。
+     * 本方法也适用于文本节点（Event.target 为文本节点）。
      *
-     * @param  {Element} el 目标元素
+     * @param  {Node} node 目标节点
      * @param  {String|CustomEvent} evn 事件名（单个）或事件对象
      * @param  {Mixed} extra 发送数据，可选
      * @param  {Boolean} bubble 是否冒泡，可选
      * @param  {Boolean} cancelable 是否可取消，可选
-     * @return {Boolean} dispatchEvent()接口的返回值。
+     * @return {Boolean} dispatchEvent()的返回值。
      */
-    trigger( el, evn, extra, bubble = false, cancelable = true ) {
-        if ( !el || !el.dispatchEvent ) {
+    trigger( node, evn, extra, bubble = false, cancelable = true ) {
+        if ( !node || !node.dispatchEvent ) {
             return;
         }
         if ( typeof evn == 'string' ) {
-            if (evn in el && Event.callable(evn)) {
+            if (evn in node && Event.callable(evn)) {
                 // 原始参数传递
-                el[evn]( ...(isArr(extra) ? extra : [extra]) );
+                node[evn]( ...(isArr(extra) ? extra : [extra]) );
                 return true;
             }
             evn = new CustomEvent(evn, {
@@ -2305,7 +2307,7 @@ Object.assign( tQuery, {
                 cancelable: !!cancelable,
             });
         }
-        return el.dispatchEvent( evn );
+        return node.dispatchEvent( evn );
     },
 
 });
@@ -3360,6 +3362,7 @@ function _elemRectInc( el, name, val ) {
 
 //
 // 可调用原生方法（事件类）。
+// 注：仅原生调用的简单封装。
 /////////////////////////////////////////////////
 
 callableNative
@@ -5951,14 +5954,14 @@ const
  * 返回值：
  * - 返回 null 表示未配置定制事件发送。
  * - 返回 Boolean 类型则为 Element.dispatchEvent() 的返回值。
- * @param  {Element} el 目标元素
+ * @param  {Node} node 目标节点
  * @param  {String} evn 事件名
  * @param  {Value} data 发送数据（Array|Object）
  * @return {Boolean|null}
  */
-function varyTrigger( el, evn, data ) {
+function varyTrigger( node, evn, data ) {
     return Options.varyevent &&
-        el.dispatchEvent(
+        node.dispatchEvent(
             new CustomEvent(
                 evn,
                 { detail: data, bubbles: true, cancelable: true }
@@ -5970,7 +5973,7 @@ function varyTrigger( el, evn, data ) {
 /**
  * 批量激发事件。
  * 主要用于节点插入后对数据节点激发事件。
- * 如果数据为单个节点，返回 Element.dispatchEvent() 的返回值。
+ * 如果数据为单个节点，返回 EventTarget.dispatchEvent() 的返回值。
  * 如果数据为一个集合，无条件返回true。
  * @param  {Node|[Node]} nodes 节点（集）
  * @param  {String} evn 事件名
