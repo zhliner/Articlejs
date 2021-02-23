@@ -985,13 +985,15 @@ menu._cells code {
 .Script > ._body {
     flex: 8 8 600px;
 }
-.Input ._Empty {
-    color: #ccc;
-    align-items: center;
-}
 .Input ._Empty > p {
-    width: 100%;
-    text-align: center;
+    color: #c3c6c6;
+    margin: auto;
+    font-size: 12px;
+    line-height: 2.3em;
+    text-shadow: 1px 1px 3px #fff;
+}
+.Input ._Empty code {
+    font-weight: bold;
 }
 .Input header._affix {
     display: grid;

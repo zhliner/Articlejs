@@ -40,7 +40,7 @@ const
     Normalize = $.Fx.History.Normalize,
 
     // 编辑需要监听的变化事件。
-    varyEvents = 'attrvary stylevary nodedone nodein empty detach normalize',
+    varyEvents = 'attrvary stylevary nodeok nodein empty detach normalize',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
@@ -2706,17 +2706,18 @@ function cropTrs( tbo, cnt, tsec ) {
 
 
 /**
- * 创建代码表项集。
+ * 创建代码表代码行集。
  * 属性实参null值可保证清除该特性。
+ * 注记：不含<li>容器更灵活。
  * @param  {String} code 已解析源码
  * @param  {String} lang 所属语言
  * @param  {Number} tab Tab空格数，可选
- * @return {[Element]} <li/code>集合
+ * @return {[Element]} <code>行集
  */
-function liCode( code, lang = null, tab = null ) {
+function listCode( code, lang = null, tab = null ) {
     return code
         .split( '\n' )
-        .map( html => create(T.CODELI, {lang, tab}, html) );
+        .map( html => create(T.CODE, {lang, tab}, html) );
 }
 
 
@@ -2743,7 +2744,7 @@ function blockCode( code, lang = null, tab = null ) {
  * @param  {String} lang 所属语言
  * @param  {Function} make 封装创建回调
  * @param  {Number} tab Tab空格数，可选
- * @return {[Element]} 代码元素集（<code>|<li/code>）
+ * @return {[Element]} 代码元素集（<code>）
  */
 function codeFlat( data, lang, make, tab ) {
     let _buf = [];
@@ -4793,6 +4794,33 @@ export const Kit = {
 
 
     /**
+     * 获取代码容器。
+     * 用于提取语言和Tab设置。
+     * 选取元素限于：
+     * - <pre:codeblock>
+     * - <pre:codeblock>/<code>  // 含配置
+     * - <ol:codelist>  // 含全局配置
+     * - <ol:codelist>/<li>
+     * - <code>  // 含自身配置
+     */
+    codebox() {
+        let _el = __ESet.first(),
+            _tv = getType( _el );
+
+        switch ( _tv ) {
+            case T.CODEBLOCK:
+                return _el.firstElementChild;
+            case T.CODE:
+            case T.CODELIST:
+                return _el;
+            case T.CODELI:
+                return _el.parentElement;
+        }
+        throw new Error( `in v.codebox call.` );
+    },
+
+
+    /**
      * 获取选取集大小。
      * 用途：状态栏友好提示。
      * @return {Number}
@@ -5104,7 +5132,7 @@ export const Kit = {
 
     /**
      * 解析获取高亮代码。
-     * @data: String
+     * @data: String 原始代码
      * @param  {Number} tab Tab空格数
      * @param  {String} lang 代码语言
      * @return {[Object3|Object2]} 高亮配置对象集
@@ -5142,21 +5170,21 @@ export const Kit = {
 
 
     /**
-     * 分解构造代码表行。
+     * 分解构造代码集。
      * 顶层不需要传递语言实参（已解析）。
-     * 返回合法的子元素序列，可终止创建迭代（免于设置<code>属性）。
+     * 返回合法的子元素序列，无需再设置<code>属性。
      * @data: [Object3|Object2]
-     * @return {[Element]} 代码行<li/code>集
+     * @return {[Element]} 代码行集（[<code>]）
      */
-    codelis( evo ) {
+    codels( evo ) {
         return codeFlat(
             colorHTML( evo.data, htmlList ),
             null,
-            liCode
+            listCode
         );
     },
 
-    __codelis: 1,
+    __codels: 1,
 
 
     /**
@@ -5613,6 +5641,32 @@ export const Kit = {
 
     __table: 1,
 
+
+    /**
+     * 局部代码语言处理。
+     * 如果局部语言与全局语言相同，则不设置。
+     * 否则：
+     * - 如果代码元素已设置语言，则简单忽略（局部嵌入）。
+     * - 如果代码元素未设置语言，则设置局部语言。
+     * @data: [Element] 代码元素集（[<code>]）
+     * @param  {String} lang 局部语言
+     * @param  {Element} box 可含配置的代码容器（<ol:codelist>|<code>）
+     * @return {[Element]} 处理过的代码元素集
+     */
+    codelang( evo, lang, box ) {
+        let _els = evo.data;
+
+        if ( lang === $.attr(box, '-lang') ) {
+            return _els;
+        }
+        for ( const el of _els ) {
+            $.attr( el, '-lang' ) || $.attr( el, '-lang', lang );
+        }
+        return _els;
+    },
+
+    __codelang: 1,
+
 };
 
 
@@ -5652,6 +5706,7 @@ processExtend( 'Kit', Kit, [
     'fixinsert',
     'instbody',
     'table',
+    'codelang',
 ]);
 
 
@@ -5663,6 +5718,7 @@ customGetter( null, Kit, [
     'tobj',
     'trbox',
     'tsecbox',
+    'codebox',
     'esize',
     'source',
     'rngok',
@@ -5680,7 +5736,7 @@ customGetter( null, Kit, [
     'indentcut',
     'hlcode',
     'codeopts',
-    'codelis',
+    'codels',
     'codeblo',
     'image',
 ]);

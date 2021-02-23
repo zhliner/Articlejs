@@ -52,7 +52,7 @@
 
         // 节点变化处理器。
         // 共需记录5中情形。
-        nodedone:   ev => new Nodedone( ev.target ),
+        nodeok:     ev => new Nodedone( ev.target ),
         detach:     ev => new Remove( ev.target ),
         empty:      ev => new Empty( ev.target ),
         normalize:  ev => new Normalize( ev.target ),

@@ -74,9 +74,6 @@ ev( name?:String ): Value|[Value]
 get( name:String ): Value|[Value]
 // 对象成员取值。
 
-gets( ...name:String ): void
-// 对象成员自由取值。
-
 len(): Number
 // 获取数据值长度。
 

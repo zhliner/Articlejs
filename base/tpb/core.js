@@ -501,6 +501,7 @@ class Stack {
         if ( this._tmp.length ) {
             return this._tmpval(n);
         }
+        // 负值不取栈。
         if ( n > 0 ) {
             return n > 1 ? this._buf.splice(-n) : this._buf.pop();
         }
@@ -668,9 +669,11 @@ class Stack {
 
     /**
      * 暂存区取值。
-     * n为负值合法（不取栈）。
+     * n负值合法，在此与正值同义。
      * 如果|n|大于1，返回一个数组，否则返回一个值。
-     * 注：|n|大于1时取出的成员可能不足n项。
+     * 注：
+     * |n|大于1时取出的成员可能不足n项。
+     * 从头部顺序取值。
      * @param  {Number} n 取出数量
      * @return {Value|[Value]}
      */

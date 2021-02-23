@@ -184,12 +184,12 @@ const _Gets = {
      * 目标：无。
      * 无实参调用取事件对象自身入栈。
      * 传递单个名称时返回单个值，否则为一个数组。
-     * @param  {String} name 事件属性名（序列）
+     * @param  {String} names 事件属性名（序列）
      * @return {Value|[Value]} 值或值集
      */
-    ev( evo, name ) {
-        return name == null ?
-            evo.event : namesValue( name, evo.event );
+    ev( evo, names ) {
+        return names == null ?
+            evo.event : namesValue( names, evo.event );
     },
 
     __ev: null,
@@ -201,29 +201,16 @@ const _Gets = {
      * name支持空格分隔的多个名称，返回一个值数组。
      * 单个名称时返回一个值。
      * 单个名称可为包含句点（.）连接形式的递进取值。
-     * @param  {String} name 名称（序列）
+     * 如果目标是一个数组且取多个值，返回的将是一个二维数组。
+     * @data: Object|[Object]
+     * @param  {String} names 名称（序列）
      * @return {Value|[Value]}
      */
-    get( evo, name ) {
-        return namesValue( name, evo.data );
+    get( evo, names ) {
+        return mapCall( evo.data, o => namesValue(names, o) );
     },
 
     __get: 1,
-
-
-    /**
-     * 从目标集上取成员值。
-     * 目标：暂存区/栈顶1项。
-     * name支持空格分隔的多个名称，取值为一个数组，
-     * 整个返回集则是一个二维数组。
-     * @param  {String} name 属性名（序列）
-     * @return {[Value]|[[Value]]}
-     */
-    gets( evo, name ) {
-        return evo.data.map( o => namesValue(name, o) );
-    },
-
-    __gets: 1,
 
 
     /**
@@ -492,6 +479,7 @@ const _Gets = {
      * - 转换为数组（Array.from），不能转换的会返回一个空数组。
      * 注：
      * $$ 有类似能力，但会始终创建为一个新集合。
+     * 传递wrap为真的效果类似于 pack(1) 调用的结果。
      * @param  {Boolean} wrap 简单封装，可选
      * @return {Array|data}
      */

@@ -1117,6 +1117,7 @@ const Builder = {
 //-----------------------------------------------
 [
     // 普通特性。
+    // '配置名&取值特性名'
     [ T.AUDIO,      ['src', 'autoplay', 'loop', 'controls'] ],
     [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls'] ],
     [ T.IMG,        ['src', 'alt', 'width', 'height'] ],
@@ -1135,6 +1136,7 @@ const Builder = {
     [ T.BDO,        ['dir'] ],
 
     // 含定制取值名
+    // '配置名:取值特性名'
     [ T.CODELIST,   ['lang:-lang', 'tab:-tab', 'start'] ],
     [ T.CODE,       ['lang:-lang', 'tab:-tab'] ],
     [ T.EXPLAIN,    ['fix:-pba'] ],
