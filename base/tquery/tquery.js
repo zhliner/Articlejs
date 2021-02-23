@@ -61,8 +61,8 @@
     注：
     变化之前和之后激发在相同的目标元素上。
 
-    - nodein, nodedone          // 节点进入DOM（之前、完成）
-    - empty, emptied            // 节点内容清空（之前、完成）
+    - nodein, nodeok    // 节点进入DOM（之前、完成）
+    - empty, emptied    // 节点内容清空（之前、完成）
     注：
     变化之前激发在目标元素上，变化之后激发在数据节点上。
 
@@ -5315,16 +5315,16 @@ function customSet( el, name, value, scope ) {
  * 通用多取值。
  * 多个名称时返回一个名/值对象，否则返回单个值。
  * @param  {Element} el 目标元素
- * @param  {[String]} name 名称集
+ * @param  {[String]} names 名称集
  * @param  {Object} scope 适用域对象
  * @return {String|Object} 值或名/值对象
  */
-function hookGets( el, name, scope ) {
-    if ( name.length == 1 ) {
-        return customGet(el, name[0], scope);
+function hookGets( el, names, scope ) {
+    if ( names.length == 1 ) {
+        return customGet(el, names[0], scope);
     }
     let _obj = {};
-    name.forEach( n => _obj[n] = customGet(el, n, scope) );
+    names.forEach( n => _obj[n] = customGet(el, n, scope) );
 
     return _obj;
 }
@@ -5935,7 +5935,7 @@ const
     evnClassDone    = 'classdone',
 
     evnNodeIn       = 'nodein',
-    evnNodeDone     = 'nodedone',
+    evnNodeDone     = 'nodeok',
     evnDetach       = 'detach',
     evnDetached     = 'detached',
     evnEmpty        = 'empty',
