@@ -4595,9 +4595,13 @@ export const Edit = {
 
     /**
      * 粘贴：
-     * 以剪贴板内容里的换行为切分，添加内容到选取集元素内的根内容元素里。
+     * 以剪贴板内容里的换行为切分，填充内容到选取集元素内的根内容元素里。
      * 内容分组与选取集成员一一对应，多出的内容或目标简单忽略。
-     * 如果选取的目标只有一个，则源数据集视为一个整体粘贴或复制粘贴（多个内容根时）。
+     * 如果选取的目标只有一个，则源数据集视为一个整体粘贴，
+     * 如果目标非内容元素，取其内部的根内容元素（集），此时数据依然视为一个整体。
+     * 即：
+     * - 相同粘贴需单选，或多选但内容单一。
+     * - 各别对应粘贴需多选，且数据为多项（换行分隔）。
      * 注记：
      * 此处填充规则稍为复杂故定制（不宜直接使用 OBT:To.Update）。
      *
@@ -4606,12 +4610,12 @@ export const Edit = {
      * On: "paste|avoid clipboard trim pass split('\n')"
      * By: "Ed.paste"
      * @data: [String]
-     * @param {Boolean} fill 是否为填充方式
+     * @param {Boolean} toend 追加式粘贴
      */
-    paste( evo, fill ) {
+    paste( evo, toend ) {
         let _con2 = [...__ESet].map( el => contentBoxes(el) ),
             _cons = _con2.flat(),
-            _meth = fill ? 'fills' : 'appends';
+            _meth = toend ? 'appends' : 'fills';
 
         if ( _cons.length ) {
             historyPush( cleanHot(_cons), ...textAppend2(_con2, evo.data, _meth) );
@@ -5019,7 +5023,7 @@ export const Kit = {
 
 
     /**
-     * 主面板录入文本预处理
+     * 文本录入文本预处理
      * 如果切分，首尾空白会被先清理掉。
      * @data: String
      * @param  {Boolean} clean 是否清理空白
@@ -5040,8 +5044,8 @@ export const Kit = {
 
 
     /**
-     * 主面板录入预处理。
-     * 支持集合处理。
+     * 文本录入预处理。
+     * 可能已强制切分，支持集合处理。
      * @data: String|[String]
      * @param  {Boolean} clean 是否清理空白
      * @return {String|[String]}

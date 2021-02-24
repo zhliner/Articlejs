@@ -1306,10 +1306,15 @@
 <!-- 普通插入：内联单元
 ----------------------------------------------------------------------------->
 
-<!-- 单行文本 -->
-<div class="_body _Inline" tpl-name="input:text">
+<!--纯文本
+    空行分隔多个条目，多选分别填充。-->
+<div class="_body _Inline" obt-src="obts/createx.json" tpl-name="input:text"
+    on="node|ev('detail') Text"
+    to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:text" />
+        <div class="_prop">
+            <textarea name="content" placeholder="空行分项（多选对应）"></textarea>
+        </div>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
