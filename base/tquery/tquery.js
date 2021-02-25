@@ -890,24 +890,27 @@ Object.assign( tQuery, {
 
     /**
      * 获取表单元素内可提交类控件集。
-     * 同名控件中用最后一个控件代表（用.val可获取值集）。
+     * 同名控件中用最后一个控件代表（可用.val获取值集）。
      * 控件名以空格分隔。
-     * 返回的控件集遵循DOM中的顺序（而非名称指定）。
-     * @param  {Element} form 表单元素
+     * 返回的控件集成员按名称排序（友好）。
+     * @param  {Element} frm 表单元素
      * @param  {String} names 指定的控件名序列
      * @return {[Element]} 控件集
      */
-    controls( form, names ) {
-        if ( form.elements.length == 0 ) {
-            return [];
+    controls( frm, names ) {
+        let _els = Arr( frm.elements )
+                .filter( submittable );
+
+        if ( !names ) {
+            return [ ...uniqueNamed(_els).values() ];
         }
-        names = names && new Set( names.split(__reSpace) );
+        names = new Set( names.split(__reSpace) );
 
-        let _flr = names ?
-            el => submittable(el) && names.has(el.name) :
-            submittable;
+        let _map = uniqueNamed(
+            _els.filter( el => names.has(el.name) )
+        );
 
-        return uniqueNamed( Arr(form.elements).filter( _flr ) );
+        return cleanMap( names, n => _map.get(n) );
     },
 
 
@@ -5164,17 +5167,17 @@ function submittable( ctrl ) {
 
 
 /**
- * 按名称合并元素。
- * 注：相同名称的元素会重复获取值，故排除。
+ * 按名称创建映射。
+ * 相同名称的元素会重复获取值，故排除。
+ * 相同名称的控件会会保存最后一个。
  * @param  {[Element]} els 元素集
- * @return {[Element]}
+ * @return {Map<name:Element>}
  */
 function uniqueNamed( els ) {
-    let _map = els.reduce(
-            (buf, el) => buf.set(el.name, el),
-            new Map()
-        );
-    return [..._map.values()];
+    return els.reduce(
+        (buf, el) => buf.set(el.name, el),
+        new Map()
+    );
 }
 
 
