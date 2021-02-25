@@ -1145,10 +1145,12 @@ const Builder = {
     // 普通特性。
     // '配置名&取值特性名'
     [ T.AUDIO,      ['src', 'autoplay', 'loop', 'controls'] ],
-    [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls', 'width', 'height'] ],
+    [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls', 'poster', 'width', 'height'] ],
     [ T.IMG,        ['src', 'alt', 'width', 'height'] ],
+    // <audio|video/...>: src, type
+    // <picture/...>: srcset, media
+    [ T.SOURCE,     ['src', 'type', 'srcset', 'media'] ],
     [ T.TRACK,      ['kind', 'src', 'srclang', 'label', 'default'] ],
-    [ T.SOURCE,     ['src', 'type'] ],
     [ T.METER,      ['value', 'max', 'min', 'high', 'low', 'optimum'] ],
     [ T.CODELI,     ['value'] ],
     [ T.BLOCKQUOTE, ['cite'] ],

@@ -271,25 +271,27 @@ const _Gets = {
     /**
      * 获取表单控件值集。
      * 目标：暂存区/栈顶1项。
+     * 注记：
+     * 如果需要一个值数组，可以：controls(...) val
      * 注意控件需要包含name属性。
      * @data: <form>
-     * @param  {...String} names 控件名序列
-     * @return {Object}
+     * @param  {String} names 控件名序列
+     * @return {Object} 名:值对对象
      */
-    vals( evo, ...names ) {
-        return $.controls(evo.data, ...names)
+    valo( evo, names ) {
+        return $.controls(evo.data, names)
             .reduce(
                 (o, el) => (o[el.name] = $.val(el), o), {}
             );
     },
 
-    __vals: 1,
+    __valo: 1,
 
 
     /**
      * 获取表单控件选取状态。
      * 目标：暂存区1项可选。
-     * 如果暂存区无值，取当前上下文表单元素。
+     * 如果暂存区无值，取当前上下文表单元素（友好表单元素）。
      * 如果目标控件不存在，取值为null。
      * 单个名称返回单值，否则返回一个值数组。
      * 注：

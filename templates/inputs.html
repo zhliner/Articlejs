@@ -616,7 +616,7 @@
         <pre class="_code" data-tip="" tpl-node="prop:codes">
             [代码编辑框]
         </pre>
-        <textarea name="explain" placeholder="文字讲解，可选" class="_inert"></textarea>
+        <textarea name="explain" placeholder="讲解文字，可选" class="_inert"></textarea>
     </div>
     <aside>
         <div class="_option">
@@ -1322,7 +1322,9 @@
 </div>
 
 <div class="_body _Inline" tpl-name="input:audio"
-    on="create|">
+    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src autoplay loop controls') (true)"
+    by="New.audio(_2)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:audio" />
     </div>

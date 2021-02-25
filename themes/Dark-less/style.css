@@ -265,7 +265,7 @@ aside#help {
 .___Panel ul._prop {
     display: grid;
     grid-template-columns: 80px auto;
-    gap: 8px;
+    gap: 10px 7px;
     margin: 14px;
 }
 .___Panel ul._prop li {
@@ -280,7 +280,7 @@ aside#help {
     width: 100%;
 }
 .___Panel ul._prop span._preview {
-    height: 120px;
+    min-height: 120px;
     padding: 5px;
     border: 1px #888 solid;
     background-color: #999;
@@ -324,8 +324,14 @@ aside#help {
     background: local url('images/line20.png') repeat #444;
     border: 1px #666 solid;
 }
+.___Panel ._prop li>span {
+    max-height: 16em;
+    box-sizing: border-box;
+}
 .___Panel ._prop pre._code {
     min-height: 12em;
+    /* 撑满限定 */
+    height: 100%;
 }
 
 .___Panel ._submit > label {

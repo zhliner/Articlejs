@@ -2819,6 +2819,20 @@ function imgOpts( pair ) {
 
 
 /**
+ * 媒体子单元创建。
+ * @param  {[Object]} opts1 资源配置集
+ * @param  {[Object]} opts1 字幕轨配置集
+ * @return {[Element]} <source>和<track>的混合集
+ */
+function mediaSubs( [opts1, opts2] ) {
+    let _buf = opts1.map(
+        o => create( 'source', o )
+    );
+    return _buf.concat( opts2.map( o => create('track', o) ) );
+}
+
+
+/**
  * 获取第一个成员。
  * @param  {Set|Map|.values} obj 取值目标
  * @return {Value}
@@ -5235,6 +5249,7 @@ export const Kit = {
      *      b64 同上，但URL为DataURL
      *      svg XML源码内容
      * }
+     * 注：插图单元使用。
      * @data: String
      * @param  {String} type 图片类型（url|b64|svg）
      * @return {Element|Promise<Element>} <svg>|Promise<img>
@@ -5247,6 +5262,21 @@ export const Kit = {
     },
 
     __image: 1,
+
+
+    /**
+     * 创建媒体类子单元。
+     * 即：<source>和<track>元素集。
+     * 限于音频/视频容器。
+     * @data: [String, String] 两个配置串（串本身为数组格式）
+     * @return {[Element]}
+     */
+    mediasubs( evo ) {
+        let [ss, ts] = evo.data;
+        return Promise.all( parseJSON(ss), parseJSON(ts) ).then( mediaSubs );
+    },
+
+    __mediasubs: 1,
 
 
     //-- By 扩展 -------------------------------------------------------------
@@ -5753,6 +5783,7 @@ customGetter( null, Kit, [
     'codels',
     'codeblo',
     'image',
+    'mediasubs',
 ]);
 
 

@@ -1,6 +1,6 @@
 <!--单元属性：（property:xxx）
     - 由上下文菜单中的“属性”条目激发。
-    - data-label 用于模态框标题栏内容。
+    - data-label 用于模态框标题栏文本。
 ----------------------------------------------------------------------------->
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性">
@@ -482,21 +482,30 @@
     资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。-->
 <li tpl-name="prop:sources1">
     <b>候选资源清单</b>
-    <span><textarea name="sources" rows="5" title="<source>" class="_code"
-        placeholder="{ src: '...', type: '...' }&#10;{ src: '...', type: '...' }"></textarea></span>
+    <span title="<source>"
+        on="^nodeok|(`[ {src: '...', type: '...'}, ... ]`)"
+        to="/pre|@-tip">
+        <pre tpl-node="prop:codes"></pre>
+    </span>
 </li>
 
 <li tpl-name="prop:tracks">
     <b>字幕轨清单</b>
-    <span><textarea name="tracks" rows="5" title="<track>" class="_code"
-        placeholder="{ kind: '...', srclang: '...', src: '...', label: '...', default: true }&#10;{ kind: '...', srclang: '...', src: '...', label: '...' }"></textarea></span>
+    <span title="<track>"
+        on="^nodeok|(`[ {kind, srclang, src, label, default?: true}, ... ]`)"
+        to="/pre|@-tip">
+        <pre tpl-node="prop:codes"></pre>
+    </span>
 </li>
 
 <!-- 最佳图片用 -->
 <li tpl-name="prop:sources2">
     <b>候选图片集</b>
-    <span><textarea name="sources" rows="5" title="<source>" class="_code"
-        placeholder="{ srcset: '...', media: '...' }&#10;{ srcset: '...', media: '...' }"></textarea></span>
+    <span title="<source>"
+        on="^nodeok|(`[ {srcset: '...', media: '...'}, ... ]`)"
+        to="/pre|@-tip">
+        <pre tpl-node="prop:codes"></pre>
+    </span>
 </li>
 
 <li tpl-name="prop:width">
@@ -711,9 +720,9 @@
     keydown 设置Shift键标记，决定是否清除多余缩进。
     keyup   清除Shift标记，注意应当是false（非null）。
     另：
-    data-tip 代码录入提示（CSS:attr）。
+    data-tip 初始录入提示（CSS:attr）。
 -->
-<pre spellcheck="false" role="tip" class="_code" contenteditable="true" tpl-name="prop:codes"
+<pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
     data-tip="自动清除多余缩进"
     on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
         paste|avoid evo(3) clipboard env('paste.default') v.indentcut(_1) html exeCmd('insertHTML', _1);

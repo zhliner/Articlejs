@@ -86,7 +86,7 @@ call( meth:String, ...rest:Value ): Value
 calls( meths:String, ...args:Value ): [Value]
 // 调用目标的多个方法。
 
-vals( ...name:String ): Object{name:value}
+valo( name:String ): Object{name:value}
 // 获取目标名称的控件值集。
 
 check( name:String ): Boolean | [Boolean] | null
