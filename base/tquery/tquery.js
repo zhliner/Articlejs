@@ -6576,12 +6576,17 @@ const elemAttr = {
 const elemProp = {
     /**
      * 获取属性值。
+     * 支持一个定制的属性名selected，仅适用<select>元素：
+     * 返回首个选取的<option>元素或null（无任何选取）。
      * - 属性名可能为data系简写形式。
      * @param  {Element} el  目标元素
      * @param  {String} name 属性名
      * @return {Value} 结果值
      */
     get( el, name ) {
+        if ( name === 'selected' ) {
+            return el.selectedOptions[0] || null;
+        }
         return this._get( el, name, dataName(name) );
     },
 

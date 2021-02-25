@@ -914,6 +914,7 @@ option: {
 
 > **注：**<br>
 > 需要转换的属性名会自动转换（如：`class` => `clasName`），用户无需操心，两种形式皆可使用。
+> 定制属性名除了 `html, text` 外，还支持 `<select>` 元素的 `selected` 特性名，返回首个选取的 `<option>` 元素或 `null`（无任何选取）。
 
 
 ### $.prop( el, name, value ): Value | Element
@@ -921,7 +922,7 @@ option: {
 获取或设置 `el` 元素的属性值。
 
 - `el: Element` 目标元素
-- `name: String` 属性名（单个）。支持 `data-x` 系名称简写，支持 `text` 和 `html` 两个特殊名称。
+- `name: String` 属性名（单个）。支持 `data-x` 系名称简写，同上支持 `text`、`html` 和 `selected` 三个特殊名称。
 - `value: Value | Function | null` 要设置的属性值或取值回调，传递 `null` 通常会让目标属性恢复默认状态。
 
 这是 `.property()` 的轻量版，效率稍高一些。
