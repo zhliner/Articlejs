@@ -202,12 +202,13 @@ const _Gets = {
      * 单个名称时返回一个值。
      * 单个名称可为包含句点（.）连接形式的递进取值。
      * 如果目标是一个数组且取多个值，返回的将是一个二维数组。
+     * 注：数值名称针对数组。
      * @data: Object|[Object]
-     * @param  {String} names 名称（序列）
+     * @param  {String|Number} names 名称（序列）
      * @return {Value|[Value]}
      */
     get( evo, names ) {
-        return mapCall( evo.data, o => namesValue(names, o) );
+        return mapCall( evo.data, o => namesValue(names+'', o) );
     },
 
     __get: 1,

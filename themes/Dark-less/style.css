@@ -64,7 +64,9 @@ aside#help {
 }
 
 /* 鼠标滑过 */
-.___Content ._hover{}
+.___Content ._hover{
+    /* 略：干扰视觉 */
+}
 
 /* 路径指向 */
 .___Content ._point {
@@ -124,15 +126,11 @@ aside#help {
     color: #3355ff;
 }
 
-
 /* 代码框提示 */
 .___Panel.Slave ._main pre:empty::after {
     content: attr(data-tip);
     color: darkgray;
     font-style: italic;
-}
-.___Panel.Slave ._main ._svg pre:empty::after {
-    content: attr(data-svg);
 }
 
 
@@ -325,6 +323,9 @@ aside#help {
     line-height: 20px;
     background: local url('images/line20.png') repeat #444;
     border: 1px #666 solid;
+}
+.___Panel ._prop pre._code {
+    min-height: 12em;
 }
 
 .___Panel ._submit > label {
@@ -1063,7 +1064,7 @@ menu._cells code {
 .Input ._Figure textarea:last-child {
     margin-top: 4px;
 }
-.Input textarea._inert {
+.Input ._inert {
     max-height: 2.4em;
     /* 小字体有用 */
     min-height: 32px;

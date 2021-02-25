@@ -11,6 +11,12 @@
 //  提取文档内定义的模板节点，解析构建OBT逻辑和渲染配置并存储节点供检索。
 //  如果DOM中有子模版配置，会实时导入并解析存储。
 //
+//  解析顺序：
+//      1. 导入根模板节点。
+//      2. 解析渲染文法（Render.parse）。
+//      3. 解析OBT配置，构建调用链并绑定。
+//      4. 如果有模板中包含子模版，导入并解析之。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -231,8 +237,9 @@ class Templater {
         return Promise.all(
             val.split(__loadSplit).map( n => this[meth](n.trim()) )
         )
-        // 内部合并，不用$.replace
-        .then( els => el.replaceWith(...els) )
+        // $.replace
+        // tQuery:nodeok 定制事件可提供初始处理机制。
+        .then( els => $.replace( el, els) )
     }
 
 

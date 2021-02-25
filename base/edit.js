@@ -2803,6 +2803,22 @@ function indentedPart( line ) {
 
 
 /**
+ * 构造图片配置对象。
+ * 容错值对里的顺序错误。
+ * @param  {[String, Object]} pair 配置值对
+ * @return {Object}
+ */
+function imgOpts( pair ) {
+    let [src, opts] = pair;
+
+    if ( typeof src !== 'string' ) {
+        [opts, src] = [src, opts];
+    }
+    return Object.assign( {src}, opts );
+}
+
+
+/**
  * 获取第一个成员。
  * @param  {Set|Map|.values} obj 取值目标
  * @return {Value}
@@ -4765,10 +4781,10 @@ export const Kit = {
     /**
      * 获取首个选取元素的表格实例。
      * 注：选取元素可能是表格的子单元。
-     * @return {Table}
+     * @return {Table|null}
      */
     tobj() {
-        if ( __ESet.size ) tableObj( tableNode(__ESet.first()) );
+        return __ESet.size ? tableObj( tableNode(__ESet.first()) ) : null;
     },
 
 
@@ -4808,10 +4824,10 @@ export const Kit = {
      * - <code>  // 含自身配置
      */
     codebox() {
-        let _el = __ESet.first(),
-            _tv = getType( _el );
+        let _el = __ESet.first();
+        if ( !_el ) return null;
 
-        switch ( _tv ) {
+        switch ( getType(_el) ) {
             case T.CODEBLOCK:
                 return _el.firstElementChild;
             case T.CODE:
@@ -4820,7 +4836,7 @@ export const Kit = {
             case T.CODELI:
                 return _el.parentElement;
         }
-        throw new Error( `in v.codebox call.` );
+        throw new Error( `bad type of element.` );
     },
 
 
@@ -5215,25 +5231,19 @@ export const Kit = {
      * 根据内容类型创建图片。
      * 图片选项由安全JSON解析（Worker），故返回一个Promise<Element>。
      * 内容格式：{
-     *      iurl    首行URL，第二行特性配置
-     *      durl    同上，但URL为DataURL
-     *      svgx    XML源码内容
+     *      url 首行URL，第二行特性配置
+     *      b64 同上，但URL为DataURL
+     *      svg XML源码内容
      * }
      * @data: String
-     * @param  {String} type 图片类型（iurl|durl|svgx）
+     * @param  {String} type 图片类型（url|b64|svg）
      * @return {Element|Promise<Element>} <svg>|Promise<img>
      */
     image( evo, type ) {
-        if ( type === 'svgx' ) {
+        if ( type === 'svg' ) {
             return $.svg( { html: evo.data } );
         }
-        let _v2 = evo.data.split( __reNewline ).map( s => s.trim() ),
-            _opts = { src: _v2[0] };
-
-        if ( !_v2[1] ) {
-            return create( T.IMG, _opts );
-        }
-        return parseJSON( _v2[1] ).then( o => create(T.IMG, $.assign(_opts, o)) );
+        return parseJSON( evo.data ).then( v2 => create(T.IMG, imgOpts(v2)) );
     },
 
     __image: 1,

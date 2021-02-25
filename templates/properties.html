@@ -477,23 +477,25 @@
     </span>
 </li>
 
-<!-- 音频/视频用 -->
+<!--音频/视频用
+    注记：
+    资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。-->
 <li tpl-name="prop:sources1">
     <b>候选资源清单</b>
-    <span><textarea name="sources" rows="4" title="<source>" class="_code"
+    <span><textarea name="sources" rows="5" title="<source>" class="_code"
         placeholder="{ src: '...', type: '...' }&#10;{ src: '...', type: '...' }"></textarea></span>
 </li>
 
 <li tpl-name="prop:tracks">
     <b>字幕轨清单</b>
-    <span><textarea name="tracks" rows="4" title="<track>" class="_code"
-        placeholder="{ kind: '...', srclang: '...', src: '...', default: true }&#10;{ kind: '...', srclang: '...', src: '...' }"></textarea></span>
+    <span><textarea name="tracks" rows="5" title="<track>" class="_code"
+        placeholder="{ kind: '...', srclang: '...', src: '...', label: '...', default: true }&#10;{ kind: '...', srclang: '...', src: '...', label: '...' }"></textarea></span>
 </li>
 
 <!-- 最佳图片用 -->
 <li tpl-name="prop:sources2">
     <b>候选图片集</b>
-    <span><textarea name="sources" rows="4" title="<source>" class="_code"
+    <span><textarea name="sources" rows="5" title="<source>" class="_code"
         placeholder="{ srcset: '...', media: '...' }&#10;{ srcset: '...', media: '...' }"></textarea></span>
 </li>
 
@@ -709,16 +711,14 @@
     keydown 设置Shift键标记，决定是否清除多余缩进。
     keyup   清除Shift标记，注意应当是false（非null）。
     另：
-    data-tip 普通代码录入提示（CSS:attr）。
-    data-svg SVG 源码录入提示（CSS:attr）。
+    data-tip 代码录入提示（CSS:attr）。
 -->
-<pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
+<pre spellcheck="false" role="tip" class="_code" contenteditable="true" tpl-name="prop:codes"
     data-tip="自动清除多余缩进"
-    data-svg="<svg>...</svg>"
     on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
-        paste|avoid evo(3) clipboard env('pastedefault') v.indentcut(_1) html exeCmd('insertHTML', _1);
-        keydown|scam('shift') pass stop env('pastedefault', true);
-        keyup|env('pastedefault', false)"
+        paste|avoid evo(3) clipboard env('paste.default') v.indentcut(_1) html exeCmd('insertHTML', _1);
+        keydown|scam('shift') pass stop env('paste.default', true);
+        keyup|env('paste.default', false)"
     by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
 
 
@@ -755,7 +755,10 @@
         img|evo(3) children not(':last-child') lose(false) $('/li') lose(true)">
     <li data-pbo="lost">
         <b>源码</b>
-        <span class="_svg"><pre tpl-node="prop:codes"></pre></span>
+        <!-- 录入提示类别 -->
+        <span on="^nodeok|('<svg>...</svg>')" to="/pre|@-tip">
+            <pre tpl-node="prop:codes"></pre>
+        </span>
     </li>
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>

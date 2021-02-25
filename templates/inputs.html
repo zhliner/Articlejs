@@ -601,35 +601,32 @@
 
 <!-- 插图 -->
 <div class="_body _Figure" tpl-name="input:figure"
-    on="create|$('/#_url') val $('/select') val v.image(_1) $$('/[name=figcaption],[name=explain]') val gather('figcaption explain')"
+    on="create|$('/._code') text $('/select') val v.image(_1) $$('/[name=figcaption],[name=explain]') val gather('figcaption explain')"
     by="New.figure(_1)"
     to="form/|trigger('insert')">
     <div class="_main"
-        on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
-        to="-|only('_inert')">
+        on="^nodeok;
+            focus(pre,textarea)|$$('/pre,textarea') dup evo(2) not(_1) pop"
+        to="1/select|trigger('change');
+            -|only('_inert')">
         <header class="_affix">
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
             <label><input name="below" type="checkbox" />标题在下</label>
         </header>
-        <textarea name="figure" id="_url" class="_code"
-            on="tips|evo(1) ev('detail') attr(_1);
-                ^obted"
-            to="|@placeholder;
-                2/select||fire(10, 'change')"
-            data-iurl="/upload/20200515/picx.jpg&#10;{ width: 800, alt: '...' }"
-            data-durl="data:image/png;base64,...&#10;{ width: 800, alt: '...' }"
-            data-svgx="<svg>...</svg>"></textarea>
-        <textarea name="explain" placeholder="文字讲解（换行有效），可选" class="_inert"></textarea>
+        <pre class="_code" data-tip="" tpl-node="prop:codes">
+            [代码编辑框]
+        </pre>
+        <textarea name="explain" placeholder="文字讲解，可选" class="_inert"></textarea>
     </div>
     <aside>
         <div class="_option">
             <label>类型
                 <select name="type"
-                    on="change|$ val str('data-')"
-                    to="4/#_url|trigger('tips')">
-                    <option value="iurl">图片URL</option>
-                    <option value="durl">DataURL</option>
-                    <option value="svgx">SVG源码</option>
+                    on="change|evo(3) prop('selected') attr('-tip')"
+                    to="._body/pre._code|@-tip">
+                    <option value="url" data-tip="[ '/upload/20200515/pic.jpg', {width: 800, alt: '...'} ]">图片URL</option>
+                    <option value="b64" data-tip="[ 'data:image/png;base64,...', {width: 800, alt: '...'} ]">DataURL</option>
+                    <option value="svg" data-tip="<svg>...</svg>">SVG源码</option>
                 </select>
             </label>
             <!-- 注记：讲解定位放到属性定义 -->
@@ -1020,7 +1017,7 @@
 
 <div class="_body _Table" tpl-name="input:thead"
     on="create|$$('/thead>tr') find('th') text v.tsecbox obj('table') (true);
-        nodeok|stop v.tobj dup(2) data('tbo') eq(_1) end"
+        nodeok|stop v.tobj dup pass dup(2) data('tbo') eq(_1) end"
     by="New.thead(_2)"
     to="form/|trigger('insfix');
         |data('tbo')|pop fire('/thead', 'new')">
@@ -1053,7 +1050,7 @@
     会暂存实例，选单简单切换不影响已录入。 -->
 <div class="_body _Table" tpl-name="input:tbody"
     on="create|$$('/tbody>tr') find('th,td') text v.tsecbox obj('table') (true);
-        nodeok|stop v.tobj dup(2) data('tbo') eq(_1) end"
+        nodeok|stop v.tobj dup pass dup(2) data('tbo') eq(_1) end"
     by="New.tbody(_2)"
     to="form/|trigger('instbd');
         |data('tbo')|pop fire('/tbody', 'new')">
@@ -1086,7 +1083,7 @@
 
 <div class="_body _Table" tpl-name="input:tfoot"
     on="create|$$('/tfoot>tr') find('th,td') text v.tsecbox obj('table') (true);
-        nodeok|stop v.tobj dup(2) data('tbo') eq(_1) end"
+        nodeok|stop v.tobj dup pass dup(2) data('tbo') eq(_1) end"
     by="New.tfoot(_2)"
     to="form/|trigger('insfix');
         |data('tbo')|pop fire('/tfoot', 'new')">
@@ -1119,7 +1116,7 @@
 
 <div class="_body _Codeli" obt-src="obts/codes.json" tpl-name="input:codeli"
     on="node|ev('detail') v.codels $('/[name=language]') val v.codebox;
-        nodeok|v.codebox dup pop(2) attr('-tab') attr('-lang') or('') pack(2)"
+        nodeok|v.codebox dup(2) pass pop(2) attr('-tab') attr('-lang') or('') pack(2)"
     by="Kit.codelang(_2) New2.codeli"
     to="form/|trigger('insert');
         (/[data-id=code])|val">
@@ -1207,7 +1204,7 @@
 
 <div class="_body _Figimgbox" tpl-name="input:figimgbox">
     <div class="_main _list">
-        <hr tpl-node="prop:figimgbox" />
+        <hr tpl-source="prop:figimgbox" />
     </div>
     <aside>
         <div class="_option">
@@ -1234,7 +1231,7 @@
         <!-- <ul tpl-node="inlines:img"></ul> -->
     </div>
     <aside>
-        <hr tpl-node="input:insert1" />
+        <hr tpl-node="input:insert1" title="[插入1]" />
     </aside>
 </div>
 
@@ -1324,14 +1321,13 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:audio">
+<div class="_body _Inline" tpl-name="input:audio"
+    on="create|">
     <div class="_main _list">
         <hr tpl-node="inlines:audio" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1340,9 +1336,7 @@
         <hr tpl-node="inlines:video" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1351,9 +1345,7 @@
         <hr tpl-node="inlines:picture" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1362,9 +1354,7 @@
         <hr tpl-node="inlines:svg" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1373,9 +1363,7 @@
         <hr tpl-node="inlines:ruby" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1384,9 +1372,7 @@
         <hr tpl-node="inlines:meter" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1395,9 +1381,7 @@
         <hr tpl-node="inlines:space" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1406,9 +1390,7 @@
         <hr tpl-node="inlines:img" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1417,7 +1399,7 @@
         <hr tpl-node="inlines:br" />
     </div>
     <aside>
-        <hr tpl-node="input:insert1" />
+        <hr tpl-node="input:insert1" title="[插入1]" />
     </aside>
 </div>
 
@@ -1426,7 +1408,7 @@
         <hr tpl-node="inlines:wbr" />
     </div>
     <aside>
-        <hr tpl-node="input:insert1" />
+        <hr tpl-node="input:insert1" title="[插入1]" />
     </aside>
 </div>
 
@@ -1436,7 +1418,7 @@
         <hr tpl-node="inlines:track" />
     </div>
     <aside>
-        <hr tpl-node="input:insert1" />
+        <hr tpl-node="input:insert1" title="[插入1]" />
     </aside>
 </div>
 
@@ -1445,7 +1427,7 @@
         <hr tpl-node="inlines:source" />
     </div>
     <aside>
-        <hr tpl-node="input:insert1" />
+        <hr tpl-node="input:insert1" title="[插入1]" />
     </aside>
 </div>
 
@@ -1461,7 +1443,7 @@
                 <section tpl-node="explain:position"></section>
             </label>
         </div>
-        <hr tpl-node="input:insert1" />
+        <hr tpl-node="input:insert1" title="[插入1]" />
     </aside>
 </div>
 

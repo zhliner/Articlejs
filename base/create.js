@@ -228,7 +228,6 @@ const Children = {
     // 内联结构元素
     /////////////////////////////////////////////
 
-
     /**
      * SVG内容插入。
      * 内容支持源码和节点数据。
@@ -760,6 +759,33 @@ const Children = {
 
 
 //
+// 子单元简单验证插入。
+//-----------------------------------------------
+[
+    T.AUDIO,
+    T.VIDEO,
+    T.PICTURE,
+]
+.forEach(function( it ) {
+    /**
+     * 如果数据非法，简单忽略。
+     * 注：无默认的子单元逻辑。
+     * @param {Element|null} ref 插入参考（占位）
+     * @param {Element} el 媒体容器元素
+     * @param {Element} sub 资源/字幕元素
+     */
+    Children[ it ] = function( ref, el, _, sub ) {
+        let _tv = getType( sub );
+
+        if ( T.isChildType(el, _tv) ) {
+            $.append( el, sub );
+        }
+        return result( null, el, true );
+    };
+});
+
+
+//
 // 子单元唯一性约束。
 //-----------------------------------------------
 [
@@ -1119,7 +1145,7 @@ const Builder = {
     // 普通特性。
     // '配置名&取值特性名'
     [ T.AUDIO,      ['src', 'autoplay', 'loop', 'controls'] ],
-    [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls'] ],
+    [ T.VIDEO,      ['src', 'autoplay', 'loop', 'controls', 'width', 'height'] ],
     [ T.IMG,        ['src', 'alt', 'width', 'height'] ],
     [ T.TRACK,      ['kind', 'src', 'srclang', 'label', 'default'] ],
     [ T.SOURCE,     ['src', 'type'] ],
