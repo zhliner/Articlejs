@@ -648,10 +648,19 @@ div[role=blank] > * {
 
 /* 音频/视频/图画 */
 .content audio {
-    vertical-align: text-bottom;
+    width: 220px;
+    height: 1.8em;
+    vertical-align: bottom;
 }
 .content video {
-    vertical-align: text-bottom;
+    width: 480px;
+    height: 320px;
+    vertical-align: bottom;
+}
+.content audio,
+.content video {
+    /* 无法选中，但避免浏览器聚焦框线误解 */
+    outline: none;
 }
 .content picture {}
 

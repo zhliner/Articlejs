@@ -417,9 +417,11 @@ function visibleNode( node ) {
  * @return {Promise<Object|Value>}
  */
 export function parseJSON( str ) {
+    let _wk = Scripter();
+
     return new Promise( resolve => {
-        Scripter.onmessage = ev => resolve(ev.data);
-        Scripter.postMessage( `return ${str}` );
+        _wk.onmessage = ev => resolve(ev.data);
+        _wk.postMessage( `return ${str}` );
     });
 }
 

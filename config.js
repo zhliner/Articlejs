@@ -16,10 +16,9 @@
 
 
 const
-    // 脚本执行器（Worker）
-    // 路径定位可能需要根据实际部署调整。
-    // 名称请勿修改！
-    Scripter = new Worker( '/base/scripter.js' ),
+    // 脚本执行器创建器
+    // 路径视实际部署情况调整。
+    Scripter = () => new Worker( '/base/scripter.js' ),
 
 
     Limit = {

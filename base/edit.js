@@ -5273,7 +5273,11 @@ export const Kit = {
      */
     mediasubs( evo ) {
         let [ss, ts] = evo.data;
-        return Promise.all( parseJSON(ss), parseJSON(ts) ).then( mediaSubs );
+
+        return Promise.all([
+                parseJSON( ss.trim() || '[]' ),
+                parseJSON( ts.trim() || '[]' )
+            ]).then( mediaSubs );
     },
 
     __mediasubs: 1,

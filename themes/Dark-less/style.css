@@ -325,7 +325,7 @@ aside#help {
     border: 1px #666 solid;
 }
 .___Panel ._prop li>span {
-    max-height: 16em;
+    max-height: 18em;
     box-sizing: border-box;
 }
 .___Panel ._prop pre._code {
