@@ -89,6 +89,16 @@ aside#help {
     border-radius: 4px !important;
 }
 
+/* 视觉友好 */
+.___Content audio._focus,
+.___Content audio._selected {
+    padding: 2px 10px;
+}
+.___Content video._focus,
+.___Content video._selected {
+    padding: 5px 10px;
+}
+
 /* 微编辑下 */
 .___Content *[contenteditable] {
     cursor: text;

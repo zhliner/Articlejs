@@ -1329,17 +1329,24 @@
         <hr tpl-node="inlines:audio" />
     </div>
     <aside>
-        <!-- Tabs备用友好 -->
+        <!-- Tab备用友好 -->
         <input type="hidden" name="tabs" value="">
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:video">
+<!--valo(..., null)
+    避免宽高未设置时空串添加空特性。 -->
+<div class="_body _Inline" tpl-name="input:video"
+    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src poster autoplay loop controls width height', null) (true)"
+    by="New.video(_2)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:video" />
     </div>
     <aside>
+        <!-- Tab备用友好 -->
+        <input type="hidden" name="tabs" value="">
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>

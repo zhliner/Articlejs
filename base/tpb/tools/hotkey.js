@@ -154,7 +154,7 @@ export class HotKey {
      * 规范化键序列表示。
      * - 去除空白。
      * - 全小写。
-     * - 空格占位符转为空格。
+     * - 空格占位符（Space）转为空格。
      * @param  {String} ss 键序列
      * @return {String}
      */

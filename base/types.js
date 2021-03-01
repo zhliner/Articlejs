@@ -446,8 +446,8 @@ const ChildTypes = {
     /////////////////////////////////////////////
     [ $TEXT ]:          null,
 
-    [ AUDIO ]:          [ SOURCE, TRACK, $TEXT ],
-    [ VIDEO ]:          [ SOURCE, TRACK, $TEXT ],
+    [ AUDIO ]:          [ SOURCE, TRACK ],
+    [ VIDEO ]:          [ SOURCE, TRACK ],
     [ PICTURE ]:        [ SOURCE, IMG ],
     [ SVG ]:            [ SVGITEM ],
     // RBPT 为固定结构组。

@@ -271,44 +271,28 @@ const _Gets = {
     /**
      * 获取表单控件值集。
      * 目标：暂存区/栈顶1项。
+     * 支持假值默认替换值，比如用于元素特性设置为null，
+     * 这样就不会因为一个空串而在元素上设置一个无值的空特性。
      * 注记：
      * 如果需要一个值数组，可以：controls(...) val
      * 注意控件需要包含name属性。
      * @data: <form>
      * @param  {String} names 控件名序列
+     * @param  {Value} orval 假值默认值，可选
      * @return {Object} 名:值对对象
      */
-    valo( evo, names ) {
+    valo( evo, names, orval ) {
+        let _vf = v => v,
+            _df = v => v || orval,
+            _fx = orval === undefined ? _vf : _df;
+
         return $.controls(evo.data, names)
             .reduce(
-                (o, el) => (o[el.name] = $.val(el), o), {}
+                (o, el) => (o[el.name] = _fx( $.val(el) ), o), {}
             );
     },
 
     __valo: 1,
-
-
-    /**
-     * 获取表单控件选取状态。
-     * 目标：暂存区1项可选。
-     * 如果暂存区无值，取当前上下文表单元素（友好表单元素）。
-     * 如果目标控件不存在，取值为null。
-     * 单个名称返回单值，否则返回一个值数组。
-     * 注：
-     * 仅用于复选框（checkbox）控件，支持重名成组。
-     * @data: <form>
-     * @param  {String} names 控件名序列
-     * @return {Boolean|[Boolean]|null}
-     */
-    check( evo, ...names ) {
-        let _frm = (evo.data || evo.delegate),
-            _vs = names.map(
-                n => elemChecked( _frm, n )
-            );
-        return _vs.length > 1 ? _vs : _vs[0];
-    },
-
-    __check: -1,
 
 
     /**
@@ -329,7 +313,32 @@ const _Gets = {
         return _el && $.val( _el );
     },
 
+    // 注记：友好表单元素。
     __value: -1,
+
+
+    /**
+     * 获取表单控件选取状态。
+     * 目标：暂存区1项可选。
+     * 如果暂存区无值，取当前上下文表单元素（友好表单元素）。
+     * 如果目标控件不存在，取值为null。
+     * 单个名称返回单值，否则返回一个值数组。
+     * 注：
+     * 仅用于复选框（checkbox）控件，支持重名成组。
+     * @data: <form>
+     * @param  {String} names 控件名序列
+     * @return {Boolean|[Boolean]|null}
+     */
+    checked( evo, ...names ) {
+        let _frm = (evo.data || evo.delegate),
+            _vs = names.map(
+                n => elemChecked( _frm, n )
+            );
+        return _vs.length > 1 ? _vs : _vs[0];
+    },
+
+    // 注记：友好表单元素。
+    __checked: -1,
 
 
     /**

@@ -238,10 +238,7 @@ class History {
         let _obj = this._buf.shift();
         this._idx --;
 
-        if ( !$.isArray(_obj) ) {
-            _obj = [_obj];
-        }
-        _obj.forEach( o => o.count && __TQHistory.prune(o.count) );
+        arrVal( _obj ).forEach( o => o.count && __TQHistory.prune(o.count) );
     }
 }
 
@@ -1459,9 +1456,7 @@ function clearSets() {
  * @return {ESEdit} 选取操作实例
  */
 function pushes( els ) {
-    if ( !$.isArray(els) ) {
-        els = [ els ];
-    }
+    els = arrVal( els );
     return els.length > 0 && new ESEdit( () => __ESet.pushes(els) );
 }
 
@@ -2021,9 +2016,8 @@ function dataNodes2( $data, cnt ) {
  * @return {[Element]} 数据集
  */
 function dataNodes( data, cnt ) {
-    if ( !$.isArray(data) ) {
-        data = [data];
-    }
+    data = arrVal( data );
+
     if ( cnt < 2 || data.length > 1 ) {
         return data;
     }
@@ -2820,15 +2814,30 @@ function imgOpts( pair ) {
 
 /**
  * 媒体子单元创建。
- * @param  {[Object]} opts1 资源配置集
- * @param  {[Object]} opts1 字幕轨配置集
+ * 注：兼容单个对象（非数组）。
+ * @param  {[Object]|Object} opts1 资源配置（集）
+ * @param  {[Object]|Object} opts1 字幕轨配置（集）
  * @return {[Element]} <source>和<track>的混合集
  */
 function mediaSubs( [opts1, opts2] ) {
+    opts1 = arrVal( opts1 );
+    opts2 = arrVal( opts2 );
+
     let _buf = opts1.map(
         o => create( 'source', o )
     );
     return _buf.concat( opts2.map( o => create('track', o) ) );
+}
+
+
+/**
+ * 确定获取数组。
+ * 如果已经是数组则原样返回。
+ * @param  {Value|[Value]} val 任意值
+ * @return {[Value]}
+ */
+function arrVal( val ) {
+    return $.isArray( val ) ? val : [ val ];
 }
 
 
@@ -3723,7 +3732,7 @@ export const Edit = {
 
     /**
      * 选取切换。
-     * 键盘快捷键选取切换（Space）。
+     * 键盘快捷键选取切换。
      */
     turn() {
         let _el = __EHot.get();

@@ -89,11 +89,11 @@ calls( meths:String, ...args:Value ): [Value]
 valo( name:String ): Object{name:value}
 // 获取目标名称的控件值集。
 
-check( name:String ): Boolean | [Boolean] | null
-// 获取选取按钮状态。
-
 value( name:String ): Value | [Value] | null
 // 获取控件值。
+
+checked( name:String ): Boolean | [Boolean] | null
+// 获取选取按钮状态。
 
 sRange( loose:Boolean ): Range | null | false
 // 获取当前选取范围。

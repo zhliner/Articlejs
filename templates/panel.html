@@ -11,10 +11,10 @@
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
         nodeok|v.sels stop;
-        insert|ev('detail') check('before') value('level');
+        insert|ev('detail') checked('before') value('level');
         instop|ev('detail') value('level');
         insfix|ev('detail') value('level');
-        instbd|ev('detail') check('merge') value('level')"
+        instbd|ev('detail') checked('merge') value('level')"
     by="-;-;
         Kit.inserts(_2);
         Kit.topinsert(_1);

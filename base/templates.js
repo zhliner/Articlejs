@@ -181,12 +181,12 @@ const Properties = {
     [ T.CODELIST ]:     'property:codelist',    // data-lang, data-tab, start
     [ T.OL ]:           'property:ol',          // start, type, reversed
     [ T.OLX ]:          'property:olx',         // start, type, reversed
-    [ T.LI ]:           'property:li',          // start
-    [ T.CODELI ]:       'property:li',          // start
-    [ T.ALI ]:          'property:li',          // start
-    [ T.XH4LI ]:        'property:li',          // start
-    [ T.CASCADEH4LI ]:  'property:li',          // start
-    [ T.CASCADEAH4LI ]: 'property:li',          // start
+    [ T.LI ]:           'property:li',          // value
+    [ T.CODELI ]:       'property:li',          // value
+    [ T.ALI ]:          'property:li',          // value
+    [ T.XH4LI ]:        'property:li',          // value
+    [ T.CASCADEH4LI ]:  'property:li',          // value
+    [ T.CASCADEAH4LI ]: 'property:li',          // value
     [ T.TABLE ]:        'property:table',       // cols, rows, border, th0
     [ T.HR ]:           'property:hr',          // thick, length, space, border
     [ T.BLANK ]:        'property:blank',       // width, height

@@ -648,13 +648,12 @@ div[role=blank] > * {
 
 /* 音频/视频/图画 */
 .content audio {
-    width: 220px;
-    height: 1.8em;
+    max-width: 260px;
+    max-height: 2em;
     vertical-align: bottom;
 }
 .content video {
-    width: 480px;
-    height: 320px;
+    min-width: 320px;
     vertical-align: bottom;
 }
 .content audio,

@@ -94,7 +94,7 @@
         _focus 编辑区聚焦（微编辑除外，否则影响光标）。使得上下文菜单显示时，操作非菜单快捷键可取消菜单。
     -->
     <div id="g-scroll" class="_scroll" tabindex="0"
-        on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass;
+        on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass stop;
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
             cut|env('minied') end avoid v.sels text clean(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste.append');
@@ -106,7 +106,7 @@
         by="-;-;
             Ed.deletes pass pop clipboard;
             Ed.paste(_1)"
-        to="#g-count|trigger('reset')|fire('/', '_focus');
+        to="#g-count|trigger('reset')|fire(3, '_focus');
             #g-count|trigger('setv');
             -;-;
             #g-count|trigger('reset')">
@@ -228,6 +228,7 @@
         </menu>
         <!--内容区：
             click(*)|avoid 取消链接单击跳转。
+            focus(audio,video) 单击选取在音/视频元素上无效，故借助聚焦（但无键盘按键信息）。
             cancel 选取集取消（ESC）。
             mouseup 弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
             mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
@@ -236,7 +237,7 @@
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。
         -->
         <main id="content" class="content"
-            on="click(*)|avoid env('minied') end sRange str end evo(1) scam;
+            on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) scam;
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) v.roleinfo(_1) str('<', '>');
