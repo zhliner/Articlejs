@@ -222,7 +222,7 @@ const Properties = {
     [ VIDEO ]:          INLINES | STRUCT,
     [ PICTURE ]:        INLINES | STRUCT,
     [ SVG ]:            INLINES | STRUCT,
-    [ RUBY ]:           INLINES | STRUCT,
+    [ RUBY ]:           INLINES | STRUCT, // SEALED 可合并
     [ METER ]:          INLINES | SEALED,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY,

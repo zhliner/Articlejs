@@ -183,8 +183,6 @@ const Tags = {
 //
 // 定制创建（空元素）。
 // 覆盖默认的 elem() 创建方法。
-// 返回 null 表示无法独立创建（如<tr>）。
-// 接口：function( tag, role ): Element | false
 //////////////////////////////////////////////////////////////////////////////
 const CustomMaker = {
     //
@@ -2022,11 +2020,11 @@ function error( msg, data ) {
 /**
  * 元素简单创建。
  * 类型值会被存储，以使得不需要每次都检查判断。
- * 返回null表示无法创建元素。
- * 注意data必须是目标类型的合法子元素内容。
+ * 注意：
+ * data需要是目标类型的合法子元素内容。
  * @param  {Number} tval 类型值
  * @param  {Node|[Node]|String} data 元素内容，可选
- * @return {Element|null}
+ * @return {Element}
  */
 function elem( tval, data ) {
     let _el = ( CustomMaker[tval] || _element )(
@@ -2035,7 +2033,7 @@ function elem( tval, data ) {
     if ( data ) {
         $.append( _el, data );
     }
-    return _el && setType( _el, tval );
+    return setType( _el, tval );
 }
 
 

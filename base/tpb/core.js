@@ -26,7 +26,8 @@ import { ACCESS, EXTENT, PREVCELL, DEBUG, methodSelf, HEADCELL } from "./config.
 const
     $ = window.$,
 
-    // 数据栈控制台输出标识名
+    // 数据栈输出标识名。
+    // 在浏览器控制台设置该变量为true，即可显示数据入栈情况。
     __STACKX    = 'STACKDATA',
 
     // OBT构建完成事件
@@ -50,6 +51,11 @@ const
     __tosProp   = '$',  // 属性指定
     __tosCSS    = '%',  // 样式指定
     __tosToggle = '^',  // 特性（Attribute）切换
+
+    // 捕获实参标记。
+    // 附加在委托选择器之后，可选。
+    __capTrue   = '@true',    // 捕获阶段
+    __capFalse  = '@false',   // 冒泡阶段
 
     // To:Update
     // 友好方法名映射。
@@ -79,7 +85,7 @@ const
 
 
     // On事件定义模式。
-    // 事件名支持字母、数字和 [._:-] 字符（-可用于占位符匹配）。
+    // 事件名支持字母、数字和 [._:-] 字符。
     // 支持事件名前置 @ 或 ^ 标识字符。
     // 注意：委托选择器无引号包围。
     __onEvent   = /^[@^]?(\w[\w.:-]*)(?:\(([^]*?)\))?$/,
@@ -372,7 +378,7 @@ class Builder {
             let _fn = evn.once ?
                 'one' :
                 'on';
-            $[_fn]( its, evn.name, evn.selector, chain );
+            $[_fn]( its, evn.name, evn.selector, chain, evn.capture );
         }
     }
 
@@ -907,7 +913,15 @@ class Cell {
 
 //
 // On事件名定义。
-// 针对单个事件的定义，由外部分解提取。
+// 针对单个事件的定义，可包含委托选择器和捕获标记。
+// 捕获标记：
+//      @true   明确指定绑定到捕获阶段。
+//      @false  明确指定绑定到冒泡阶段。
+// 无附加标记时，系统智能判断（不冒泡的事件绑定在捕获阶段）。
+// 例：
+// - click(@true)   绑定click事件到捕获阶段，无委托选择器
+// - click(b@false) 绑定click事件到冒泡阶段，委托选择器为 'b'
+// - click(b)       无捕获标记，实际上效果同上。
 //
 class Evn {
     /**
@@ -923,9 +937,35 @@ class Evn {
             throw new Error('on-attr config is invalid.');
         }
         this.name     = _vs[1];
-        this.selector = _vs[2] || null;
-        this.once     = name[0] == __evnOnce;
-        this.store    = name[0] == __evnStore;
+        this.selector = null;
+        this.capture; // undefined
+
+        if ( _vs[2] ) {
+            this.slrcap( _vs[2].trim() );
+        }
+        this.once  = name[0] == __evnOnce;
+        this.store = name[0] == __evnStore;
+    }
+
+
+    /**
+     * 提取选择器&捕获模式。
+     * 事件名之后的括号内为委托选择器，可附带捕获标识（@true|@false）。
+     * 即：
+     * 用户可以指定事件绑定是否为捕获阶段。
+     * @param  {String} str 匹配串
+     * @return {void}
+     */
+    slrcap( str ) {
+        if ( str.endsWith(__capTrue) ) {
+            this.capture = true;
+            str = str.slice( 0, -5 );
+        }
+        else if ( str.endsWith(__capFalse) ) {
+            this.capture = false;
+            str = str.slice( 0, -6 );
+        }
+        this.selector = str || null;
     }
 
 

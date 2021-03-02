@@ -3424,14 +3424,14 @@ function _bodyGets(el, hslr) {
  * - 不同类型的行块单元必需兼容。
  * - 容器不能为空元素和密封类型元素。
  * 友好：
- * 允许表体单元（<tbody><thead><tfoot>）里的<tr>合并，
+ * 允许表区域单元（<tbody><thead><tfoot>）里的<tr>合并，
  * 容器表格里的列数特性不变。
  * 返回false表示集合不可合并。
  * @param  {Element} box 合并到的容器元素
  * @param  {[Element]} els 元素集
  * @return {[Element]|false}
  */
-function merges( box, els ) {
+function canMerges( box, els ) {
     let _btv = getType( box );
 
     if ( T.isContent(_btv) ) {
@@ -3440,6 +3440,7 @@ function merges( box, els ) {
     }
     let _tvs = [...typeSets(els)];
 
+    // 特例
     if ( _btv === T.TABLE ) {
         return _tvs.length === 1 && _tvs[0] === T.TABLE && sameTable(box, els)
             && mergeChildren(els);
@@ -4544,7 +4545,7 @@ export const Edit = {
         if ( !$els.length ) {
             return;
         }
-        let _subs = merges( _box, $els );
+        let _subs = canMerges( _box, $els );
 
         if ( !_subs ) {
             return help( 'merge_types', mergeBadit(_box, $els) );

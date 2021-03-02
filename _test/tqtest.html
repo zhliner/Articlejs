@@ -135,14 +135,22 @@ p.ani {
     <section id="s0" style="padding: 10px; border: 5px #ccc solid; width: 800px; position: relative;">
         <p title="\t\s">首个段落。</p>
         <p id="p2">第二个段落。</p>
-        <p id="p3" contenteditable="true">The third <b>paragraph</b>. and the <em>em-element</em></p>
+        <p id="p3" contenteditable="true">The third <b onclick="alert('hai')">paragraph</b>. and the <em>em-element</em></p>
         <pre contenteditable="true">
             这是一个&lt;pre&gt;可编辑区域
+            <audio src="../docs/media/horse.ogg" controls="controls">Sorry, your browser doesn't support
+                embedded audios.</audio>
         </pre>
     </section>
-    <section id="s1-1" on="hello('fine, it\'s ok.')">
-        <p>The first paragraph.</p>
+    <section id="s1" on="hello('fine, it\'s ok.')">
+        <p onclick="alert('hai')">The first paragraph.</p>
         <p>The second paragraph.</p>
+        <p><video src="../docs/media/movie.ogg" controls="controls">Sorry, your browser doesn't support
+            embedded videos.
+            <source src="../docs/media/cc0-videos/flower.webm" type="video/webm">
+            <source src="../docs/media/cc0-videos/flower.mp4" type="video/mp4">
+            <track kind="captions" src="../docs/media/examples/friday.vtt" srclang="en">
+        </video></p>
         <hr width="100" size="5">
     </section>
     <form name="frm" id="frm">

@@ -400,7 +400,7 @@ trim( where = 0 ): String
 clean( all ): String
 // 空白清理。
 
-substr( start, end ): String
+strsub( start, end ): String
 // 子串截取（substring）
 
 replace( ...args ): String
@@ -408,6 +408,9 @@ replace( ...args ): String
 
 split( sep, cnt ): [String]
 // 切分字符串为数组。
+
+repeat( cnt ): String|[String]
+// 字符串重复串连。
 
 caseUpper( n ): String
 // 转换为大写。
@@ -417,8 +420,6 @@ caseLower(): String
 
 rgb16(): String
 // rgb(n,n,n) => #rrggbb
-
-rgba16(): String
 // rgba(n,n,n,a) => #rrggbbaa
 
 

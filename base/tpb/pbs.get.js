@@ -358,10 +358,13 @@ const _Gets = {
         if ( _sel.rangeCount > 0 ) {
             _rng = _sel.getRangeAt(0);
         }
-        if ( loose ) {
+        // Firefox:
+        // <audio>|<video>上不可取 .startContainer 的属性，
+        // 但两个容器的对比值会为true（二者皆为 Restricted）。
+        if ( loose || !_rng || _rng.startContainer === _rng.endContainer ) {
             return _rng;
         }
-        return _rng && _rng.startContainer.parentNode === _rng.endContainer.parentNode && _rng;
+        return _rng.startContainer.parentNode === _rng.endContainer.parentNode && _rng;
     },
 
     __sRange: null,

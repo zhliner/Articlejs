@@ -7563,7 +7563,7 @@ const Event = {
             // 默认规则
             cap = slr ? !!this.captures[ evn ] : false;
         }
-        return [ evn, cap ];
+        return [ evn, !!cap ];
     },
 
 
