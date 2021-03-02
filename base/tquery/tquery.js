@@ -623,9 +623,10 @@ Object.assign( tQuery, {
     /**
      * 创建简单内容元素。
      * 仅限文本内容，不支持名称空间指定。
-     * @param {String} tag 标签名
-     * @param {String} text 内容文本，可选
-     * @param {Document} doc 所属文档，可选
+     * @param  {String} tag 标签名
+     * @param  {String} text 内容文本，可选
+     * @param  {Document} doc 所属文档，可选
+     * @return {Element}
      */
     elem( tag, text, doc = Doc ) {
         let _el = doc.createElement( tag );
@@ -2184,7 +2185,11 @@ Object.assign( tQuery, {
 
     /**
      * 绑定事件处理。
-     * 多次绑定同一个事件名和相同的调用函数是有效的。
+     * 多次绑定同一个事件名和相同的调用函数无效，除非cap不同。
+     * 支持明确指定是否为捕获阶段，默认为智能模式：
+     * - 无选择器时为 false
+     * - 有选择器时，无法冒泡的事件为true，否则为false。
+     *
      * 处理器接口：function( ev, elo ): false|Any
      * ev: Event 原生的事件对象。
      * elo: {
@@ -2203,9 +2208,10 @@ Object.assign( tQuery, {
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器
      * @param  {Function|EventListener|false|null} handle 事件处理器或特殊值
+     * @param  {Boolean} cap 是否为捕获，可选
      * @return {this}
      */
-    on( el, evn, slr, handle ) {
+    on( el, evn, slr, handle, cap ) {
         if (!evn) {
             return;
         }
@@ -2213,6 +2219,7 @@ Object.assign( tQuery, {
             'on',
             el,
             slr,
+            cap,
             ...customHandles(evn, handle)
         );
         return this;
@@ -2231,9 +2238,10 @@ Object.assign( tQuery, {
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器，可选
      * @param  {Function|EventListener|false|null} handle 处理器函数或对象或特殊值，可选
+     * @param  {Boolean} cap 是否为捕获，可选
      * @return {this}
      */
-    off( el, evn, slr, handle ) {
+    off( el, evn, slr, handle, cap ) {
         if (!evn) {
             evn = '';
         }
@@ -2241,6 +2249,7 @@ Object.assign( tQuery, {
             'off',
             el,
             slr,
+            cap,
             ...customHandles(evn, handle)
         );
         return this;
@@ -2254,9 +2263,10 @@ Object.assign( tQuery, {
      * @param  {String|Object} evn 事件名（序列）或配置对象
      * @param  {String} slr 委托选择器
      * @param  {Function|EventListener|false|null} handle 处理器函数或对象或特殊值
+     * @param  {Boolean} cap 是否为捕获，可选
      * @return {this}
      */
-    one( el, evn, slr, handle ) {
+    one( el, evn, slr, handle, cap ) {
         if (!evn) {
             return;
         }
@@ -2264,6 +2274,7 @@ Object.assign( tQuery, {
             'one',
             el,
             slr,
+            cap,
             ...customHandles(evn, handle)
         );
         return this;
@@ -7085,14 +7096,15 @@ const Event = {
      * 绑定事件调用。
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
-     * @param {String} slr 委托选择器，可选
+     * @param {String} slr 委托选择器
      * @param {Function|Object} handle 用户处理函数/对象
+     * @param {Boolean} cap 是否为捕获，可选
      */
-    on( el, evn, slr, handle ) {
-        let [_evn, _cap] = this._evncap(evn, slr),
+    on( el, evn, slr, handle, cap ) {
+        let [_evn, _cap] = this._evncap(evn, slr, cap),
             [_slr, _get] = this._matches(slr);
 
-        if ( this.isBound(el, _evn, _slr, handle) ) {
+        if ( this.isBound(el, _evn, _slr, handle, _cap) ) {
             return;
         }
         let _bound = this._handler(handle, _get, _slr);
@@ -7111,14 +7123,15 @@ const Event = {
      * 执行一次之后自动解除绑定。
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
-     * @param {String} slr 委托选择器，可选
+     * @param {String} slr 委托选择器
      * @param {Function|Object} handle 用户处理函数/对象
+     * @param {Boolean} cap 是否为捕获，可选
      */
-    one( el, evn, slr, handle ) {
-        let [_evn, _cap] = this._evncap(evn, slr),
+    one( el, evn, slr, handle, cap ) {
+        let [_evn, _cap] = this._evncap(evn, slr, cap),
             [_slr, _get] = this._matches(slr);
 
-        if ( this.isBound(el, _evn, _slr, handle) ) {
+        if ( this.isBound(el, _evn, _slr, handle, _cap) ) {
             return;
         }
         let _pool = this.buffer(el, _evn, _slr),
@@ -7144,15 +7157,16 @@ const Event = {
      * @param {String} evn 事件名
      * @param {String} slr 委托选择器，可选
      * @param {Function|Object} handle 处理函数/对象，可选
+     * @param {Boolean} cap 是否为捕获，可选
      */
-    off( el, evn, slr, handle ) {
+    off( el, evn, slr, handle, cap ) {
         let _m1 = this.store.get(el);
 
         if ( _m1 ) {
             if ( !evn ) {
                 this._clearAll( el, _m1 );
             } else {
-                this._clearSome( el, _m1, evn, slr, handle );
+                this._clearSome( el, _m1, evn, slr, handle, cap );
             }
             if (_m1.size == 0) {
                 this.store.delete(el);
@@ -7240,14 +7254,16 @@ const Event = {
      * @param  {String} evn 事件名
      * @param  {String} slr 委托选择器
      * @param  {Function|EventListener} handle 用户句柄
+     * @param  {Boolean} cap 是否为捕获，可选
      * @return {Boolean}
      */
-    isBound( el, evn, slr, handle ) {
+    isBound( el, evn, slr, handle, cap ) {
         let _m1 = this.store.get(el),
             _m2 = _m1 && _m1.get(evn),
-            _m3 = _m2 && _m2.get(slr);
+            _m3 = _m2 && _m2.get(slr),
+            _v3 = _m3 && _m3.get(handle);
 
-        return !!_m3 && _m3.has(handle);
+        return !!_v3 && _v3[1] === cap;
     },
 
 
@@ -7429,9 +7445,10 @@ const Event = {
      * @param  {String} evn 事件名
      * @param  {String} slr 选择器，可选
      * @param  {Function|Object} handle 用户调用句柄/对象，可选
+     * @param  {Boolean} cap 是否为捕获，可选
      * @return {[Function]} 过滤函数集
      */
-    _filter( evn, slr, handle ) {
+    _filter( evn, slr, handle, cap ) {
         let _fns = [ n => n == evn ];
 
         if ( slr || slr === null ) {
@@ -7440,7 +7457,10 @@ const Event = {
         if ( handle ) {
             _fns.push( (n, s, h) => h === handle );
         }
-        return _fns.length == 1 ? _fns[0] : (n, s, h) => _fns.every(f => f(n, s, h));
+        if ( cap !== undefined ) {
+            _fns.push( (n, s, h, c) => c === cap );
+        }
+        return _fns.length == 1 ? _fns[0] : (n, s, h, c) => _fns.every(f => f(n, s, h, c));
     },
 
 
@@ -7504,15 +7524,16 @@ const Event = {
      * @param  {String} evn 事件名
      * @param  {String} slr 委托选择器，可选
      * @param  {Function|Object} handle 处理函数/对象，可选
+     * @param  {Boolean} cap 是否为捕获，可选
      * @return {void}
      */
-    _clearSome( el, map1, evn, slr, handle ) {
-        let _fltr = this._filter(evn, slr, handle);
+    _clearSome( el, map1, evn, slr, handle, cap ) {
+        let _fltr = this._filter(evn, slr, handle, cap);
 
         for (let [n, m2] of map1) {
             for (const [s, m3] of m2) {
                 for (const [h, v3] of m3) {
-                    if ( _fltr(n, s, h) ) {
+                    if ( _fltr(n, s, h, v3[1]) ) {
                         el.removeEventListener( n, v3[0], v3[1] );
                         m3.delete( h );
                         boundTrigger( el, evnUnbound, n, s, h, v3[2] );
@@ -7531,13 +7552,18 @@ const Event = {
      * 注：仅在委托模式下才调整事件名和捕获模式。
      * @param  {String} evn 原始事件名
      * @param  {String} slr 选择器
+     * @param  {Boolean|void} cap 是否为捕获，可选
      * @return {[String, Boolean]} [事件名，是否为捕获]
      */
-    _evncap( evn, slr ) {
-        if (slr) {
+    _evncap( evn, slr, cap ) {
+        if ( slr ) {
             evn = this.sendon[evn] || evn;
         }
-        return [ evn, slr ? !!this.captures[evn] : false ];
+        if ( cap === undefined ) {
+            // 默认规则
+            cap = slr ? !!this.captures[ evn ] : false;
+        }
+        return [ evn, cap ];
     },
 
 
@@ -7671,18 +7697,19 @@ function customHandle( handle ) {
  * @param  {String} type 操作类型（on|off|one）
  * @param  {Element} el  目标元素
  * @param  {String} slr  委托选择器
+ * @param  {Boolean} cap 是否为捕获，可选
  * @param  {String|Object} evn 事件名（序列）或配置对象
  * @param  {Function} handle 事件处理函数
  * @return {void}
  */
-function eventBinds( type, el, slr, evn, handle ) {
+function eventBinds( type, el, slr, cap, evn, handle ) {
     if (! el) {
         throw new Error(`el is ${el}.`);
     }
     if (typeof evn == 'string') {
-        return evnsBatch( type, el, evn, slr, handle );
+        return evnsBatch( type, el, evn, slr, handle, cap );
     }
-    for ( let [n, f] of Object.entries(evn) ) evnsBatch(type, el, n, slr, f);
+    for ( let [n, f] of Object.entries(evn) ) evnsBatch(type, el, n, slr, f, cap);
 }
 
 
@@ -7694,10 +7721,11 @@ function eventBinds( type, el, slr, evn, handle ) {
  * @param {String} evn  事件名（序列）
  * @param {String} slr  委托选择器
  * @param {Function} handle 事件处理函数
+ * @param  {Boolean} cap 是否为捕获，可选
  */
-function evnsBatch( type, el, evn, slr, handle ) {
+function evnsBatch( type, el, evn, slr, handle, cap ) {
     evn.split(__reSpace)
-        .forEach( name => Event[type](el, name, slr, handle) );
+        .forEach( name => Event[type](el, name, slr, handle, cap) );
 }
 
 
