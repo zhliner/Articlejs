@@ -258,23 +258,15 @@ const Children = {
      * 注音内容。
      * 固定子结构，不支持插入参考。
      * 返回ruby容器本身供选取。
+     * 数据支持节点，取其文本，如果为数组，会取其值串联。
      * @param {null} _ 插入参考（占位）
      * @param {Element} ruby 注音元素
      * @param {String} rt  拼音
      * @param {String} rpl 拼音左包围字符，可选
      * @param {String} rpl 拼音右包围字符，可选
-     * @param {Value|Node|Array} data 待注音文本
+     * @param {Value|Node|[Node]} data 待注音文本
      */
     [ T.RUBY ]: function( _, ruby, {rt, rpl, rpr}, data ) {
-        $.append(
-            ruby,
-            rubySubs( rpl, rt, rpr, dataText(data) )
-        );
-        return result( null, ruby, true );
-    },
-
-    // 同上。
-    [ T.RBPT ]: function( _, ruby, {rpl, rt, rpr}, data ) {
         $.append(
             ruby,
             rubySubs( rpl, rt, rpr, dataText(data) )
@@ -1807,7 +1799,7 @@ function rubySubs( rpl, rt, rpr, data ) {
 
 /**
  * 数据源文本化。
- * @param  {Value|Node|Array} data 数据源
+ * @param  {Value|Node|[Node]} data 数据源
  * @return {String}
  */
 function dataText( data ) {

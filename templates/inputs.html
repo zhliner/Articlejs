@@ -601,7 +601,7 @@
 
 <!-- 插图 -->
 <div class="_body _Figure" tpl-name="input:figure"
-    on="create|$('/._code') text $('/select') val v.image(_1) $$('/[name=figcaption],[name=explain]') val gather('figcaption explain')"
+    on="create|$('/._code') text $('/select') val v.image3(_1) $$('/[name=figcaption],[name=explain]') val gather('figcaption explain')"
     by="New.figure(_1)"
     to="form/|trigger('insert')">
     <div class="_main"
@@ -1351,7 +1351,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:picture">
+<div class="_body _Inline" tpl-name="input:picture"
+    on="create|$('/pre._code') text v.picsubs $('form/') valo('src alt width height', null)"
+    by="New.img(_1) concat(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:picture" />
     </div>
@@ -1360,7 +1363,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:svg">
+<!-- 从源码创建，未用New.svg -->
+<div class="_body _Inline" tpl-name="input:svg"
+    on="create|$('/pre._code') text fragment('svg') children(0)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:svg" />
     </div>
@@ -1369,7 +1375,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:ruby">
+<div class="_body _Inline" tpl-name="input:ruby"
+    on="create|$('form/') dup pop(2) value('rb') valo('rt rpl rpr')"
+    by="New.ruby(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:ruby" />
     </div>
@@ -1378,7 +1387,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:meter">
+<div class="_body _Inline" tpl-name="input:meter"
+    on="create|$('form/') valo('value max min high low optimum', null)"
+    by="New.meter(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:meter" />
     </div>
@@ -1396,7 +1408,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:img">
+<div class="_body _Inline" tpl-name="input:img"
+    on="create|$('form/') valo('src alt width height', null)"
+    by="New.img(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:img" />
     </div>
@@ -1461,7 +1476,10 @@
 
 <!--注音单元封装：
     这是一个抽象结构，在选取<ruby>且向内插入时使用。-->
-<div class="_body _Rbpt" tpl-name="input:rbpt">
+<div class="_body _Ruby" tpl-name="input:rbpt"
+    on="create|$('form/') dup pop(2) value('rb') valo('rt rpl rpr')"
+    by="New.ruby(_1) children"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:ruby" />
     </div>

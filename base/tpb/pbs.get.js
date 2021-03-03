@@ -1453,7 +1453,7 @@ const _Gets = {
     'parents',      // ( slr? ): [Element]
 
     'Text',         // ( sep?:String, doc?:Document ): Text
-    'fragment',     // ( clean?:Function|true, doc?:Document ): DocumentFragment
+    'fragment',     // ( clean?:Function|'svg', doc?:Document ): DocumentFragment
 ]
 .forEach(function( meth ) {
 

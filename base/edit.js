@@ -2824,9 +2824,9 @@ function mediaSubs( [opts1, opts2] ) {
     opts2 = arrVal( opts2 );
 
     let _buf = opts1.map(
-        o => create( 'source', o )
+        o => create( T.SOURCE, o )
     );
-    return _buf.concat( opts2.map( o => create('track', o) ) );
+    return _buf.concat( opts2.map( o => create(T.TRACK, o) ) );
 }
 
 
@@ -5264,22 +5264,22 @@ export const Kit = {
      * @param  {String} type 图片类型（url|b64|svg）
      * @return {Element|Promise<Element>} <svg>|Promise<img>
      */
-    image( evo, type ) {
+    image3( evo, type ) {
         if ( type === 'svg' ) {
             return $.svg( { html: evo.data } );
         }
         return parseJSON( evo.data ).then( v2 => create(T.IMG, imgOpts(v2)) );
     },
 
-    __image: 1,
+    __image3: 1,
 
 
     /**
      * 创建媒体类子单元。
      * 即：<source>和<track>元素集。
      * 限于音频/视频容器。
-     * @data: [String, String] 两个配置串（串本身为数组格式）
-     * @return {[Element]}
+     * @data: [String, String] 两个配置串（对象或对象数组格式）
+     * @return {Promise<[Element]>}
      */
     mediasubs( evo ) {
         let [ss, ts] = evo.data;
@@ -5291,6 +5291,20 @@ export const Kit = {
     },
 
     __mediasubs: 1,
+
+
+    /**
+     * 创建最佳图片（<picture>）子单元。
+     * 即：<source>元素集（不含<img>子单元）。
+     * @data: String 配置格式串
+     * @return {Promise<[Element]>}
+     */
+    picsubs( evo ) {
+        return parseJSON( evo.data.trim() )
+            .then( v => arrVal(v).map(o => create(T.SOURCE, o)) );
+    },
+
+    __picsubs: 1,
 
 
     //-- By 扩展 -------------------------------------------------------------
@@ -5796,8 +5810,9 @@ customGetter( null, Kit, [
     'codeopts',
     'codels',
     'codeblo',
-    'image',
+    'image3',
     'mediasubs',
+    'picsubs',
 ]);
 
 

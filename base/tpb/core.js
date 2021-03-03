@@ -52,7 +52,7 @@ const
     __tosCSS    = '%',  // 样式指定
     __tosToggle = '^',  // 特性（Attribute）切换
 
-    // 捕获实参标记。
+    // 绑定到捕获标记。
     // 附加在委托选择器之后，可选。
     __capTrue   = '@true',    // 捕获阶段
     __capFalse  = '@false',   // 冒泡阶段

@@ -222,7 +222,7 @@ function orderList( vals ) {
  * 如果conf为子模板配置对象，不应包含“on”文件名（否则视为OBT配置对象）。
  * 返回的承诺对象承诺了根元素内所有的处理逻辑。
  * @param  {Element|Document|Object} root 根容器或处理对象
- * @param  {Object3|String} conf 外部OBT配置（{on,by,to}）或模板节点配置文件（相对于URL根）或配置对象，可选
+ * @param  {String|Object3} conf 模板节点配置文件路径或配置对象，可选
  * @return {Promise<void>|root}
  */
 function Build( root, conf ) {

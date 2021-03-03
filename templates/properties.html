@@ -197,7 +197,9 @@
 </ul>
 
 <!-- 图形（svg） -->
-<div class="_prop _svg" tpl-name="inlines:svg">
+<div class="_prop" tpl-name="inlines:svg"
+    on="^nodeok|('<svg>...</svg>')"
+    to="/pre|@-tip">
     <hr tpl-node="prop:codes" />
 </div>
 
@@ -629,8 +631,8 @@
     <span data-pbo="disabled"
         on="^obted|([Sys.rpLeft, Sys.rpRight])"
         to="(/input)|@value">
-        <label><input type="text" name="leftrp" class="_char" disabled /></label>
-        <label><input type="text" name="rightrp" class="_char" disabled /></label>
+        <label><input type="text" name="rpl" class="_char" disabled /></label>
+        <label><input type="text" name="rpr" class="_char" disabled /></label>
     </span>
 </li>
 
@@ -652,11 +654,11 @@
 
 <li tpl-name="prop:number">
     <b>数值</b>
-    <span><input type="text" name="amount" title="value" class="_chars" /></span>
+    <span><input type="text" name="value" title="value" class="_chars" /></span>
 </li>
 
 <li tpl-name="prop:maxmin">
-    <b>最大/小值</b>
+    <b>最大/最小值</b>
     <span>
         <input type="text" name="max" title="max" class="_nums" />
         <input type="text" name="min" title="min" class="_nums" />
