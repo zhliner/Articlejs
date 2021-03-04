@@ -890,28 +890,26 @@ Object.assign( tQuery, {
 
 
     /**
-     * 获取表单元素内可提交类控件集。
-     * 同名控件中用最后一个控件代表（可用.val获取值集）。
-     * 控件名以空格分隔。
-     * 返回的控件集成员按名称排序（友好）。
+     * 获取表单元素内控件集。
+     * 如果未指定名称，则仅返回可提交的控件集。
+     * 控件名以空格分隔，同名控件中用首个控件代表（可用.val获取值集）。
+     * 返回的控件集成员遵循传入的名称顺序。
      * @param  {Element} frm 表单元素
      * @param  {String} names 指定的控件名序列
      * @return {[Element]} 控件集
      */
     controls( frm, names ) {
-        let _els = Arr( frm.elements )
-                .filter( submittable );
-
-        if ( !names ) {
-            return [ ...uniqueNamed(_els).values() ];
+        if ( names ) {
+            return cleanMap( names.split(__reSpace), n => namedElem(frm, n) );
         }
-        names = new Set( names.split(__reSpace) );
+        let _map = new Map();
 
-        let _map = uniqueNamed(
-            _els.filter( el => names.has(el.name) )
-        );
-
-        return cleanMap( names, n => _map.get(n) );
+        for ( const el of frm.elements ) {
+            if ( submittable(el) ) {
+                _map.has(el.name) || _map.set( el.name, el );
+            }
+        }
+        return [ ..._map.values() ];
     },
 
 
@@ -5178,17 +5176,22 @@ function submittable( ctrl ) {
 
 
 /**
- * 按名称创建映射。
- * 相同名称的元素会重复获取值，故排除。
- * 相同名称的控件会会保存最后一个。
- * @param  {[Element]} els 元素集
- * @return {Map<name:Element>}
+ * 获取表单控件。
+ * 通过控件名的方式检索控件元素。
+ * 注意：
+ * 控件名称可能与表单的方法重名。
+ * 如果控件名对应一个数组（如单选按钮集），返回首个成员。
+ * @param  {Element} frm 表单元素
+ * @param  {String} name 控件名称
+ * @return {Element|null}
  */
-function uniqueNamed( els ) {
-    return els.reduce(
-        (buf, el) => buf.set(el.name, el),
-        new Map()
-    );
+function namedElem( frm, name ) {
+    let _el = frm[ name ];
+
+    if ( !_el ) {
+        return null;
+    }
+    return _el.nodeType ? _el : _el[0] || null;
 }
 
 
