@@ -282,14 +282,12 @@ const _Gets = {
      * @return {Object} 名:值对对象
      */
     valo( evo, names, orval ) {
-        let _vf = v => v,
-            _df = v => v || orval,
+        let _vf = e => $.val(e),
+            _df = e => $.val(e) || orval,
             _fx = orval === undefined ? _vf : _df;
 
-        return $.controls(evo.data, names)
-            .reduce(
-                (o, el) => (o[el.name] = _fx( $.val(el) ), o), {}
-            );
+        return $.controls( evo.data, names )
+            .reduce( (o, el) => (o[el.name] = _fx(el), o), {} );
     },
 
     __valo: 1,
@@ -299,18 +297,25 @@ const _Gets = {
      * 获取表单控件值。
      * 目标：暂存区1项可选。
      * 如果暂存区有值，需为表单元素，否则取当前上下文表单元素。
-     * 如果目标控件不存在，返回null。
+     * 目标控件需存在，否则会出错。
+     * 多个名称返回目标控件的值序列，与名称一一对应。
      * 注：
      * 与tQuery.val行为相同，但此用控件名定位元素。
      * @data: <form>
-     * @param  {String} name 控件名
-     * @return {Value|[Value]|null}
+     * @param  {String} names 控件名序列
+     * @param  {Boolean} strict 严格对应模式（null成员保留）
+     * @return {Value|[Value]|[[Value]]}
      */
-    value( evo, name ) {
-        let _el = namedElem(
-            evo.data || evo.delegate, name
+    value( evo, names, strict ) {
+        let _els = $.controls(
+            evo.data || evo.delegate,
+            names,
+            !strict
         );
-        return _el && $.val( _el );
+        if ( !_els.length ) {
+            return null;
+        }
+        return _els.length > 1 ? _els.map( e => $.val(e) ) : $.val( _els[0] );
     },
 
     // 注记：友好表单元素。
@@ -321,20 +326,25 @@ const _Gets = {
      * 获取表单控件选取状态。
      * 目标：暂存区1项可选。
      * 如果暂存区无值，取当前上下文表单元素（友好表单元素）。
-     * 如果目标控件不存在，取值为null。
      * 单个名称返回单值，否则返回一个值数组。
+     * 注意名称应当有效（有name或id属性），否则无法取值。
      * 注：
-     * 仅用于复选框（checkbox）控件，支持重名成组。
+     * 仅用于复选框（checkbox）控件，重名复选框仅认可首个。
      * @data: <form>
      * @param  {String} names 控件名序列
+     *  @param  {Boolean} strict 严格对应模式（null成员保留）
      * @return {Boolean|[Boolean]|null}
      */
-    checked( evo, ...names ) {
-        let _frm = (evo.data || evo.delegate),
-            _vs = names.map(
-                n => elemChecked( _frm, n )
-            );
-        return _vs.length > 1 ? _vs : _vs[0];
+    checked( evo, names, strict ) {
+        let _els = $.controls(
+            evo.data || evo.delegate,
+            names,
+            !strict
+        );
+        if ( !_els.length ) {
+            return null;
+        }
+        return _els.length > 1 ? _els.map( e => e.checked ) : _els[0].checked;
     },
 
     // 注记：友好表单元素。
@@ -641,12 +651,13 @@ const _Gets = {
      * 单元素多次克隆。
      * 目标：暂存区/栈顶1项。
      * 可选择同时克隆元素上绑定的事件处理器。
+     * 克隆1个时返回单个元素，否则返回一个集合。
      * @data: Element
      * @param  {Number} cnt 克隆个数
      * @param  {Boolean} event 包含事件处理器，可选
      * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
      * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
-     * @return {[Element]}
+     * @return {[Element]|Element}
      */
     clones( evo, cnt, event, deep, eventdeep ) {
         let _buf = [];
@@ -656,7 +667,7 @@ const _Gets = {
                 $.clone( evo.data, event, deep, eventdeep )
             );
         }
-        return _buf;
+        return _buf.length > 1 ? _buf : _buf[0];
     },
 
     __clones: 1,
@@ -1855,36 +1866,6 @@ function getData( map, name ) {
         return map.get( name );
     }
     return name.split(__reSpace).map( n => map.get(n) );
-}
-
-
-/**
- * 获取表单控件。
- * 通过控件名的方式检索控件元素。
- * 注意：控件名称可能与表单的方法重名。
- * @param  {Element} frm 表单元素
- * @param  {String} name 控件名称
- * @return {Element|null}
- */
-function namedElem( frm, name ) {
-    let _el = frm[ name ];
-
-    if ( !_el ) {
-        return null;
-    }
-    return _el.nodeType ? _el : _el[0] || null;
-}
-
-
-/**
- * 检索表单控件选取状态。
- * @param  {Element} frm 表单元素
- * @param  {String} name 控件名称
- * @return {Boolean|null}
- */
-function elemChecked( frm, name ) {
-    let _el = namedElem( frm, name );
-    return _el && _el.checked;
 }
 
 

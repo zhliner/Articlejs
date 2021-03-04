@@ -21,7 +21,7 @@ import { Templater } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
-import { isContent, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
+import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
 import * as T from "./types.js";
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
@@ -2824,7 +2824,7 @@ function mediaSubs( [opts1, opts2] ) {
     opts2 = arrVal( opts2 );
 
     let _buf = opts1.map(
-        o => create( T.SOURCE, o )
+        o => create( T.SOURCE1, o )
     );
     return _buf.concat( opts2.map( o => create(T.TRACK, o) ) );
 }
@@ -5301,7 +5301,7 @@ export const Kit = {
      */
     picsubs( evo ) {
         return parseJSON( evo.data.trim() )
-            .then( v => arrVal(v).map(o => create(T.SOURCE, o)) );
+            .then( v => v ? arrVal(v).map(o => create(T.SOURCE2, o)) : [] );
     },
 
     __picsubs: 1,
@@ -5581,7 +5581,7 @@ export const Kit = {
             _dt2 = dataNodes2( $(evo.data), _els.length ),
             _op1 = clearSets(),
             _ops = insertsNodes( _els, _dt2, before, level ),
-            _elx = _dt2.flat().filter( nd => nd.nodeType === 1 );
+            _elx = _dt2.flat().filter( nd => nd.nodeType === 1 && !isCovert(nd) );
 
         historyPush(
             _op1,

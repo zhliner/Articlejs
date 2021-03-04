@@ -67,7 +67,8 @@ const Tags = {
     /////////////////////////////////////////////
     [ T.SVGITEM ]:      null,  // 异常阻断（不合理使用）
     [ T.TRACK ]:        'track',
-    [ T.SOURCE ]:       'source',
+    [ T.SOURCE1 ]:      'source',
+    [ T.SOURCE2 ]:      'source',
     [ T.EXPLAIN ]:      'i\\explain',
     [ T.RB ]:           'rb',
     [ T.RT ]:           'rt',
@@ -1074,7 +1075,7 @@ const Builder = {
      * @return {Element} el
      */
     [ T.SPACE ]: function( el, {width} ) {
-        if ( width != null ) {
+        if ( width ) {
             $.css( el, 'width', width );
         }
         return el;
@@ -1137,9 +1138,8 @@ const Builder = {
     [ T.AUDIO,          ['src', 'autoplay', 'loop', 'controls'] ],
     [ T.VIDEO,          ['src', 'autoplay', 'loop', 'controls', 'poster', 'width', 'height'] ],
     [ T.IMG,            ['src', 'alt', 'width', 'height'] ],
-    // <audio|video/...>: src, type
-    // <picture/...>: srcset, media
-    [ T.SOURCE,         ['src', 'type', 'srcset', 'media'] ],
+    [ T.SOURCE1,        ['src', 'type'] ],
+    [ T.SOURCE2,        ['srcset', 'media'] ],
     [ T.TRACK,          ['kind', 'src', 'srclang', 'label', 'default'] ],
     [ T.METER,          ['value', 'max', 'min', 'high', 'low', 'optimum'] ],
     [ T.LI,             ['value'] ],

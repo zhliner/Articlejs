@@ -47,7 +47,8 @@ const InputOptions = {
     [ T.WBR ]:          'option:wbr',
 
     [ T.TRACK ]:        'option:track',
-    [ T.SOURCE ]:       'option:source',
+    [ T.SOURCE1 ]:      'option:source1',
+    [ T.SOURCE2 ]:      'option:source2',
     [ T.EXPLAIN ]:      'option:explain',
     // <ruby>子单元。
     [ T.RBPT ]:         'option:rbpt',

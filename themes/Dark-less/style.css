@@ -135,6 +135,9 @@ aside#help {
 .___Content a {
     color: #3355ff;
 }
+.___Content picture {
+    display: inline-block;
+}
 
 /* 代码框提示 */
 .___Panel.Slave ._main pre:empty::after {

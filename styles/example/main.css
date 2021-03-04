@@ -661,7 +661,9 @@ div[role=blank] > * {
     /* 无法选中，但避免浏览器聚焦框线误解 */
     outline: none;
 }
-.content picture {}
+.content picture {
+    display: inline-block;
+}
 
 
 /* 表情 */

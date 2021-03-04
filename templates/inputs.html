@@ -21,6 +21,14 @@
     <button type="submit">插入</button>
 </div>
 
+<!-- 插入：2x -->
+<div class="_submit" tpl-name="input:insert2x">
+    <label data-pbo="lost">
+        <input type="checkbox" name="before" checked>[强制前插]
+    </label>
+    <button type="submit">插入</button>
+</div>
+
 <!-- 更新：主要用于标题类 -->
 <div class="_submit" tpl-name="input:update">
     <button type="submit">插入/更新</button>
@@ -1352,8 +1360,8 @@
 </div>
 
 <div class="_body _Inline" tpl-name="input:picture"
-    on="create|$('/pre._code') text v.picsubs $('form/') valo('src alt width height', null)"
-    by="New.img(_1) concat(_1)"
+    on="create|$('/pre._code') text v.picsubs nil $('form/') valo('src alt width height', null)"
+    by="New.img(_1) concat(_1) (null, true) New.picture(_2)"
     to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:picture" />
@@ -1399,7 +1407,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:space">
+<div class="_body _Inline" tpl-name="input:space"
+    on="create|$('/[name=width]') val obj('width')"
+    by="New.space(_1) $('[name=amount]') val int or(1) clones(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:space" />
     </div>
@@ -1420,7 +1431,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:br">
+<div class="_body _Inline" tpl-name="input:br"
+    on="create"
+    by="New.br $('[name=amount]') val int or(1) clones(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:br" />
     </div>
@@ -1429,7 +1443,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:wbr">
+<div class="_body _Inline" tpl-name="input:wbr"
+    on="create"
+    by="New.wbr $('[name=amount]') val int or(1) clones(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:wbr" />
     </div>
@@ -1439,7 +1456,10 @@
 </div>
 
 
-<div class="_body _Track" tpl-name="input:track">
+<div class="_body _Track" tpl-name="input:track"
+    on="create|$('form/') valo('kind src srclang label default')"
+    by="New.track"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:track" />
     </div>
@@ -1448,12 +1468,27 @@
     </aside>
 </div>
 
-<div class="_body _Source" tpl-name="input:source">
+<div class="_body _Source" tpl-name="input:source1"
+    on="create|$('form/') valo('src type', null)"
+    by="New.source1(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:source" />
+        <hr tpl-node="inlines:source1" />
     </div>
     <aside>
-        <hr tpl-node="input:insert1" title="[插入1]" />
+        <hr tpl-node="input:insert2x" title="[插入2x]" />
+    </aside>
+</div>
+
+<div class="_body _Source" tpl-name="input:source2"
+    on="create|$('form/') valo('srcset media', null)"
+    by="New.source2(_1)"
+    to="form/|trigger('insert')">
+    <div class="_main _list">
+        <hr tpl-node="inlines:source2" />
+    </div>
+    <aside>
+        <hr tpl-node="input:insert2x" title="[插入2x]" />
     </aside>
 </div>
 

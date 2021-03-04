@@ -49,9 +49,10 @@ const
     BLOCKS      = 1 << 5,   // 行块单元
     SINGLE      = 1 << 6,   // 单一成员（如标题）
     EMPTY       = 1 << 7,   // 空元素（单标签）
-    SEALED      = 1 << 8,   // 密封单元（不可合并）
-    FIXED1      = 1 << 9,   // 位置向前固定
-    FIXED2      = 1 << 10;  // 位置向后固定
+    COVERT      = 1 << 8,   // 隐蔽的（不可选）
+    SEALED      = 1 << 9,   // 密封单元（不可合并）
+    FIXED1      = 1 << 10,  // 位置向前固定
+    FIXED2      = 1 << 11;  // 位置向后固定
 
 
 //
@@ -87,13 +88,14 @@ export const
     // 内联内结构
     /////////////////////////////////////////////
     TRACK           = 100,  // 字幕轨 {kind, src, srclang, label, default?}
-    SOURCE          = 101,  // 媒体资源 {src, srcset, type, media}
-    RB              = 102,  // 注音文本
-    RT              = 103,  // 注音拼音
-    RP              = 104,  // 注音拼音包围
-    EXPLAIN         = 105,  // 插图讲解 {fix}
-    RBPT            = 106,  // 注音分组封装（抽象：用于包含多组注音）
-    SVGITEM         = 107,  // 图形内容（仅用于SVG子元素配置）
+    SOURCE1         = 101,  // 媒体资源 {src, type}
+    SOURCE2         = 102,  // 图片资源 {srcset, media}
+    RB              = 103,  // 注音文本
+    RT              = 104,  // 注音拼音
+    RP              = 105,  // 注音拼音包围
+    EXPLAIN         = 106,  // 插图讲解 {fix}
+    RBPT            = 107,  // 注音分组封装（抽象：用于包含多组注音）
+    SVGITEM         = 108,  // 图形内容（仅用于SVG子元素配置）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -226,19 +228,20 @@ const Properties = {
     [ METER ]:          INLINES | SEALED,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY,
-    [ BR ]:             INLINES | EMPTY,
-    [ WBR ]:            INLINES | EMPTY,
+    [ BR ]:             INLINES | EMPTY | COVERT,
+    [ WBR ]:            INLINES | EMPTY | COVERT,
     //
     // 内联结构子
     /////////////////////////////////////////////
     [ SVGITEM ]:        STRUCT | STRUCTX,
-    [ TRACK ]:          STRUCT | STRUCTX | EMPTY,
-    [ SOURCE ]:         STRUCT | STRUCTX | EMPTY,
+    [ TRACK ]:          STRUCT | STRUCTX | EMPTY | COVERT,
+    [ SOURCE1 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
+    [ SOURCE2 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 解包：先文本化，然后内容提升。
     [ RB ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
-    [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED,
+    [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -446,9 +449,9 @@ const ChildTypes = {
     /////////////////////////////////////////////
     [ $TEXT ]:          null,
 
-    [ AUDIO ]:          [ SOURCE, TRACK ],
-    [ VIDEO ]:          [ SOURCE, TRACK ],
-    [ PICTURE ]:        [ SOURCE, IMG ],
+    [ AUDIO ]:          [ SOURCE1, TRACK ],
+    [ VIDEO ]:          [ SOURCE1, TRACK ],
+    [ PICTURE ]:        [ SOURCE2, IMG ],
     [ SVG ]:            [ SVGITEM ],
     // RBPT 为固定结构组。
     [ RUBY ]:           [ RBPT, RB, RT ],
@@ -462,7 +465,8 @@ const ChildTypes = {
     /////////////////////////////////////////////
     [ SVGITEM ]:        [ SVGITEM ],
     [ TRACK ]:          null,
-    [ SOURCE ]:         null,
+    [ SOURCE1 ]:        null,
+    [ SOURCE2 ]:        null,
     [ RB ]:             [ $TEXT ],
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
@@ -656,6 +660,16 @@ export function isEmpty( tval ) {
  */
 export function isSingle( tval ) {
     return !!( Properties[tval] & SINGLE );
+}
+
+
+/**
+ * 是否为隐蔽成员。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isCovert( tval ) {
+    return !!( Properties[tval] & COVERT );
 }
 
 

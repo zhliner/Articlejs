@@ -511,6 +511,16 @@ export function isEmpty( el ) {
 
 
 /**
+ * 是否为隐蔽元素。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+export function isCovert( el ) {
+    return T.isCovert( getType(el) );
+}
+
+
+/**
  * 是否为内容元素。
  * @param  {Element} el 目标元素
  * @return {Boolean}
