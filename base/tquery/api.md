@@ -201,12 +201,13 @@ $.unique( [3, 11, 2, 11, 12], (a, b) => a - b );
 ```
 
 
-### [$.controls( form, names ): [Element]](docs/$.controls.md)
+### [$.controls( form, names, clean ): [Element]](docs/$.controls.md)
 
 获取表单元素 `form` 内的控件元素集。未传递名称时，仅返回可提交的控件序列。
 
 - `form: Element` 目标表单元素。
 - `names: String` 指定的控件名序列（空格分隔），可选。
+- `clean: Boolean` 清理无效的目标（`null` 成员），可选。
 
 可提交类控件是指包含 `name` 特性（`Attribute`）定义的控件元素。对于 `input:checkbox` 类控件，即便它们中一个都没有被选中，也不影响它们是可提交类控件。
 
