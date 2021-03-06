@@ -1492,19 +1492,36 @@
     </aside>
 </div>
 
-<div class="_body _Explain" tpl-name="input:explain">
+<div class="_body _Source" tpl-name="input:pimg"
+    on="create|$('form/') valo('src alt width height', null)"
+    by="New.pimg(_1)"
+    to="form/|trigger('insfix')">
+    <div class="_main _list">
+        <hr tpl-node="inlines:img" />
+    </div>
+    <aside>
+        <hr tpl-node="input:update" title="[更新]" />
+    </aside>
+</div>
+
+<div class="_body _Explain" obt-src="obts/create.json" tpl-name="input:explain"
+    on="node|ev('detail') $('[name=position]') val or(null) obj('fix')"
+    by="New.explain(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <div class="_option">
-            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+            <label title="连续空白合并">
+                <input type="checkbox" name="clean" checked>空白清理
+            </label>
             <hr />
             <label>定位
                 <section tpl-node="explain:position"></section>
             </label>
         </div>
-        <hr tpl-node="input:insert1" title="[插入1]" />
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
@@ -1553,9 +1570,14 @@
 -->
 
 <!-- SVG子元件（html） -->
-<div class="_body _Inline" tpl-name="input:svgitem">
+<div class="_body _Inline" tpl-name="input:svgitem"
+    on="create|$('pre._code') text dup pass"
+    by="New.svgitem"
+    to="form/|trigger('insert')">
     <div class="_main _list">
-        <div class="_prop _svg">
+        <div class="_prop"
+            on="^nodeok|('<...> xml source </...>')"
+            to="/pre|@-tip">
             <pre tpl-node="prop:codes"></pre>
         </div>
     </div>

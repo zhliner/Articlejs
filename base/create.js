@@ -60,6 +60,7 @@ const Tags = {
     [ T.METER ]:        'meter',
     [ T.SPACE ]:        'span\\space',
     [ T.IMG ]:          'img',
+    [ T.PIMG ]:         'img',
     [ T.BR ]:           'br',
     [ T.WBR ]:          'wbr',
     //
@@ -208,6 +209,15 @@ const CustomMaker = {
     [ T.SVG ]: function() {
         return $.svg();
     },
+
+
+    /**
+     * 创建一个空文档片段容器。
+     * 注：新建内容仅支持XML源码（通用）。
+     */
+    [ T.SVGITEM ]: function() {
+        return $.fragment( '', 'svg' );
+    },
 };
 
 
@@ -246,7 +256,7 @@ const Children = {
      * 内容支持源码和节点数据。
      * 无特性配置。
      * @param {Element|null} ref 插入参考元素
-     * @param {Element} box 普通SVG容器元素
+     * @param {Element|DocumentFragment} box SVG容器元素或片段容器
      * @param {Node|[Node]|String} data
      * @node: {[Node]|data}
      */
@@ -929,6 +939,7 @@ const Children = {
     T.RB,
     // T.RT,  // 作为选项
     // T.RP,  // 作为选项
+    T.EXPLAIN,
 
     // 内联内容元素。
     T.A,
@@ -1036,19 +1047,6 @@ const Builder = {
 
 
     /**
-     * SVG 子单元。
-     * 通用特性设置，由用户控制配置集。
-     * 注记：应该只用于单独新建。
-     * @param  {Element} el 目标元素
-     * @param  {Object} opts 特性配置集
-     * @return {Element} el
-     */
-    [ T.SVGITEM ]: function( el, opts ) {
-        return $.attribute( el, opts );
-    },
-
-
-    /**
      * 时间单元。
      * 文本为空时即默认为datetime的标准格式文本。
      * date/time通常至少需要一个有值。
@@ -1138,6 +1136,7 @@ const Builder = {
     [ T.AUDIO,          ['src', 'autoplay', 'loop', 'controls'] ],
     [ T.VIDEO,          ['src', 'autoplay', 'loop', 'controls', 'poster', 'width', 'height'] ],
     [ T.IMG,            ['src', 'alt', 'width', 'height'] ],
+    [ T.PIMG,           ['src', 'alt', 'width', 'height'] ],
     [ T.SOURCE1,        ['src', 'type'] ],
     [ T.SOURCE2,        ['srcset', 'media'] ],
     [ T.TRACK,          ['kind', 'src', 'srclang', 'label', 'default'] ],
@@ -1180,38 +1179,7 @@ const Builder = {
 // 注记：默认处理无需定义，罗列供参考。
 //-----------------------------------------------
 // [
-    // 结构元素
-    // T.TR,
-    // T.THEAD,
-    // T.TBODY,
-    // T.TFOOT,
-    // T.AH4,
-    // T.TOCCASCADE,
-    // T.FIGIMGBOX,
-    // T.HGROUP,
-    // T.ABSTRACT,
-    // T.TOC,
-    // T.SEEALSO,
-    // T.REFERENCE,
-    // T.HEADER,
-    // T.FOOTER,
-    // T.ARTICLE,
-    // T.S1,
-    // T.S2,
-    // T.S3,
-    // T.S4,
-    // T.S5,
-    // T.SECTION,
-    // T.UL,
-    // T.OL,
-    // T.ULX,
-    // T.OLX,
-    // T.CASCADE,
-    // T.DL,
-    // T.FIGURE,
-    // T.ASIDE,
-    // T.CODEBLOCK,
-    // T.BLANK,
+    // T.SVGITEM
 
     // 内联内容元素
     // T.STRONG,
@@ -1251,6 +1219,39 @@ const Builder = {
     // T.DD,
     // T.TH,
     // T.TD,
+
+    // 结构元素
+    // T.TR,
+    // T.THEAD,
+    // T.TBODY,
+    // T.TFOOT,
+    // T.AH4,
+    // T.TOCCASCADE,
+    // T.FIGIMGBOX,
+    // T.HGROUP,
+    // T.ABSTRACT,
+    // T.TOC,
+    // T.SEEALSO,
+    // T.REFERENCE,
+    // T.HEADER,
+    // T.FOOTER,
+    // T.ARTICLE,
+    // T.S1,
+    // T.S2,
+    // T.S3,
+    // T.S4,
+    // T.S5,
+    // T.SECTION,
+    // T.UL,
+    // T.OL,
+    // T.ULX,
+    // T.OLX,
+    // T.CASCADE,
+    // T.DL,
+    // T.FIGURE,
+    // T.ASIDE,
+    // T.CODEBLOCK,
+    // T.BLANK,
 // ]
 // .forEach( it => Builder[ it ] = el => el );
 
@@ -1840,13 +1841,13 @@ function svgItem( box ) {
  * 插入SVG子内容。
  * 可能需要检索子单元设置类型值。
  * @param  {Element|null} ref 插入参考元素
- * @param  {Element} box SVG容器元素
+ * @param  {Element|DocumentFragment} box SVG子单元容器
  * @param  {Node|[Node]|String} data 数据（集），可选
  * @return {Element|[Element]} 新插入的节点集
  */
 function svgInsert( ref, box, data ) {
     if ( typeof data === 'string' ) {
-        data = svgItem( $.fragment(data, true) );
+        data = svgItem( $.fragment(data, 'svg') );
     }
     return insertChild( ref, box, data );
 }
@@ -2019,9 +2020,11 @@ function error( msg, data ) {
  * @return {Element}
  */
 function elem( tval, data ) {
-    let _el = ( CustomMaker[tval] || _element )(
-        ...Tags[tval].split( '\\' )
-    );
+    let _fn = CustomMaker[ tval ],
+        _el = _fn ?
+            _fn() :
+            _element( ...Tags[tval].split('\\') );
+
     if ( data ) {
         $.append( _el, data );
     }

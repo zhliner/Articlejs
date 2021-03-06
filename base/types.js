@@ -76,7 +76,7 @@ export const
     /////////////////////////////////////////////
     AUDIO           = 1,    // 音频 {src, autoplay, loop, controls}
     VIDEO           = 2,    // 视频 {src, autoplay, loop, controls}
-    PICTURE         = 3,    // 兼容图片
+    PICTURE         = 3,    // 最佳图片
     SVG             = 4,    // 图形 {width, height}
     RUBY            = 5,    // 注音
     METER           = 6,    // 量度 {value, max, min, high, low, optimum}
@@ -90,12 +90,13 @@ export const
     TRACK           = 100,  // 字幕轨 {kind, src, srclang, label, default?}
     SOURCE1         = 101,  // 媒体资源 {src, type}
     SOURCE2         = 102,  // 图片资源 {srcset, media}
-    RB              = 103,  // 注音文本
-    RT              = 104,  // 注音拼音
-    RP              = 105,  // 注音拼音包围
-    EXPLAIN         = 106,  // 插图讲解 {fix}
-    RBPT            = 107,  // 注音分组封装（抽象：用于包含多组注音）
-    SVGITEM         = 108,  // 图形内容（仅用于SVG子元素配置）
+    PIMG            = 103,  // P图片 <picture/img> 注：有位置要求，故单独定义
+    RB              = 104,  // 注音文本
+    RT              = 105,  // 注音拼音
+    RP              = 106,  // 注音拼音包围
+    EXPLAIN         = 107,  // 插图讲解 {fix}
+    RBPT            = 108,  // 注音分组封装（抽象：用于包含多组注音）
+    SVGITEM         = 109,  // 图形内容（仅用于SVG子元素配置）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -237,6 +238,7 @@ const Properties = {
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE1 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE2 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
+    [ PIMG ]:           STRUCT | STRUCTX | EMPTY,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 解包：先文本化，然后内容提升。
     [ RB ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
@@ -438,9 +440,9 @@ const _BLOCKITS =
 // 合法子单元类型。
 // 子数组类型是一种分组抽象，表示使用该组所有类型。
 // 值 null 适用于空元素和文本节点。
-// 注记：
-// - 可用于源码结构检查。
-// - 可用于判断目标的可插入单元（向内）。
+// 参考：
+// - 用于源码结构检查。
+// - 用于判断目标的可插入单元（向内）。
 // - 取父容器可判断平级插入时的合法单元。
 //
 const ChildTypes = {
@@ -451,7 +453,7 @@ const ChildTypes = {
 
     [ AUDIO ]:          [ SOURCE1, TRACK ],
     [ VIDEO ]:          [ SOURCE1, TRACK ],
-    [ PICTURE ]:        [ SOURCE2, IMG ],
+    [ PICTURE ]:        [ SOURCE2, PIMG ],
     [ SVG ]:            [ SVGITEM ],
     // RBPT 为固定结构组。
     [ RUBY ]:           [ RBPT, RB, RT ],
@@ -467,6 +469,7 @@ const ChildTypes = {
     [ TRACK ]:          null,
     [ SOURCE1 ]:        null,
     [ SOURCE2 ]:        null,
+    [ PIMG ]:           null,
     [ RB ]:             [ $TEXT ],
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],

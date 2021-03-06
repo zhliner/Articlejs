@@ -82,11 +82,21 @@ aside#help {
     /* for <hr> */
     min-height: 1.4em;
 }
+.___Content svg ._selected {
+    stroke: blue;
+    stroke-width: 2px;
+    fill-opacity: 0.6;
+}
 
 /* 选取焦点 */
 .___Content ._focus {
     border: 2px #f33 dotted !important;
     border-radius: 4px !important;
+}
+.___Content svg ._focus {
+    stroke: #f33;
+    stroke-width: 3px;
+    stroke-dasharray: 3px;
 }
 
 /* 视觉友好 */

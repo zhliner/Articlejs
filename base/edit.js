@@ -22,7 +22,7 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
-import * as T from "./types.js";
+import * as T from "./types.js";  // ./base.js 之后
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
@@ -1809,18 +1809,30 @@ function sameSets( eset, els ) {
 /**
  * 设置元素位置。
  * 外部需要预先设置元素的 position:absolute 样式。
+ * 注：<svg>子元素无效。
  * @param  {Collector} $els 目标元素集
  * @param  {String} name 样式名（left|top|right|bottom）
  * @param  {Number} inc 递增像素值
  * @return {DOMEdit|void}
  */
 function elementsPostion( $els, name, inc ) {
-    if ( !$els.length ) {
+    if ( !$els.length ||
+        $els.some(cantMoving) ) {
         return;
     }
     let _fx = v => `${(parseFloat(v) || 0) + inc}px`;
 
     return new DOMEdit( __Edits.style, $els, name, _fx );
+}
+
+
+/**
+ * 是否位置不可移动。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+function cantMoving( el ) {
+    return getType(el) === T.SVGITEM || $.css(el, 'position') !== 'absolute';
 }
 
 
@@ -3084,7 +3096,9 @@ const topItemslr = {
 
 
 //
-// 区块内标题配置。
+// 区块内单元配置。
+// self: 单元自身选择器
+// prev: 前部参考元素序列
 //
 const fixItemslr = {
     // <hgroup/h1>
@@ -3153,6 +3167,11 @@ const fixItemslr = {
 
     [ T.FOOTER ]: {
         self: '>footer',
+        prev: [ 'LastChild' ]
+    },
+
+    [ T.PIMG ]: {
+        self: '>img',
         prev: [ 'LastChild' ]
     },
 
@@ -4563,6 +4582,7 @@ export const Edit = {
     // 前提：position:absolute
     // 普通移动为 1px/次，增强移动为 10px/次
     // 操作的是 left/top 两个样式，与 right/bottom 无关。
+    // 注：对<svg>子单元无效。
 
 
     moveToLeft() {

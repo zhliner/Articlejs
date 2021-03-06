@@ -79,6 +79,7 @@ const OnlyChild = new Set([
     T.REFERENCE,
     T.ARTICLE,
     T.EXPLAIN,
+    T.PIMG,
 ]);
 
 
@@ -138,12 +139,23 @@ const CustomStruct = {
     /**
      * 仅两种可能：
      * - SPACE 空白。
-     * - FIGIMGBOX 插图子结构（figure/span/img, i:explain）
+     * - FIGIMGBOX 插图子结构（figure/span/img, i:explain）。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
     SPAN( el ) {
         return el.parentElement.tagName === 'FIGURE' ? T.FIGIMGBOX : T.SPACE
+    },
+
+
+    /**
+     * 仅两种可能：
+     * - 正常普通图片（内联、插图）。
+     * - 最佳图片内的占位图片（:last-child）。
+     * @param {Element} el 当前元素
+     */
+    IMG( el ) {
+        return el.parentElement.tagName === 'PICTURE' ? T.PIMG : T.IMG;
     },
 
 
@@ -272,7 +284,7 @@ function nameType( name ) {
 
 /**
  * 分析节点类型值。
- * 仅处理文本节点和元素。
+ * 仅限于文本节点和元素，其它实参自然出错。
  * @param  {Element|Text} el 目标节点
  * @return {Number} 类型值
  */
@@ -280,15 +292,12 @@ function parseType( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
-    if ( el.nodeType !== 1 ) {
-        return null;
-    }
-    let _tag = el.tagName;
-
     if ( el.namespaceURI === __svgNS ) {
-        return _tag === 'svg' ? T.SVG : T.SVGITEM;
+        return el.tagName === 'svg' ? T.SVG : T.SVGITEM;
     }
-    return CustomStruct[_tag] ? CustomStruct[_tag](el) : nameType( name(el) );
+    let _fn = CustomStruct[ el.tagName ];
+
+    return _fn ? _fn( el ) : nameType( name(el) );
 }
 
 
