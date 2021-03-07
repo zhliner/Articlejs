@@ -204,11 +204,14 @@ const Properties = {
 
 //
 // 不可平级自由插入类型。
-// - <rb,rt,rp>子单元有顺序要求。
+// - <rb,rt,rp> 子单元有顺序要求。
 // - 单元格涉及Table实例列数问题，需由属性修改实现。
+// - <picture>/<img> 有顺序要求（但可选）。
 // - <main>不应当被选取，此处仅表达一种逻辑。
 //
-const siblingNone = new Set( [T.RB, T.RT, T.RP, T.TH, T.TD, T.MAIN] );
+const siblingNone = new Set([
+    T.RB, T.RT, T.RP, T.TH, T.TD, T.PIMG, T.MAIN
+]);
 
 
 

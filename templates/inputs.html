@@ -1505,7 +1505,7 @@
 </div>
 
 <div class="_body _Explain" obt-src="obts/create.json" tpl-name="input:explain"
-    on="node|ev('detail') $('[name=position]') val or(null) obj('fix')"
+    on="node|ev('detail') $('/[name=position]') val or(null) obj('fix')"
     by="New.explain(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1529,7 +1529,7 @@
 <!--注音单元封装：
     这是一个抽象结构，在选取<ruby>且向内插入时使用。-->
 <div class="_body _Ruby" tpl-name="input:rbpt"
-    on="create|$('form/') dup pop(2) value('rb') valo('rt rpl rpr')"
+    on="create|$('/[name=rb]') dup pass $('form/') valo('rt rpl rpr')"
     by="New.ruby(_1) children"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1543,35 +1543,11 @@
     </aside>
 </div>
 
-<!--
-<div class="_body _Rb" tpl-name="input:rb">
-    <div class="_main _list">
-        <hr tpl-node="inlines:text" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:update">
-            [选项1]
-            [更新]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Rt" tpl-name="input:rt">
-    <div class="_main _list">
-        <hr tpl-node="inlines:text" />
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:update">
-            [选项1]
-            [更新]
-        </pre>
-    </aside>
-</div>
--->
+<!-- 注：<rb|rt>不单独创建 -->
 
 <!-- SVG子元件（html） -->
 <div class="_body _Inline" tpl-name="input:svgitem"
-    on="create|$('pre._code') text dup pass"
+    on="create|$('/pre._code') text dup pass"
     by="New.svgitem"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1582,92 +1558,92 @@
         </div>
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
 
-<div class="_body _Inline" tpl-name="input:a">
+<div class="_body _Inline" tpl-name="input:a"
+    on="create|$('/[name=text]') val dup pass $('form/') valo('href target', null)"
+    by="New.a(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:a" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:q">
+<div class="_body _Inline" tpl-name="input:q"
+    on="create|$('/[name=text]') val dup pass $('form/') valo('cite', null)"
+    by="New.q(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:q" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:abbr">
+<div class="_body _Inline" tpl-name="input:abbr"
+    on="create|$('/[name=text]') val dup pass $('form/') valo('title', null)"
+    by="New.abbr(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:abbr" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:del">
+<div class="_body _Inline" tpl-name="input:del"
+    on="create|$('/[name=content]') val dup pass $('form/') valo('date time cite')"
+    by="New.del(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:del" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:ins">
+<div class="_body _Inline" tpl-name="input:ins"
+    on="create|$('/[name=content]') val dup pass $('form/') valo('date time cite')"
+    by="New.ins(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:ins" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:dfn">
+<div class="_body _Inline" tpl-name="input:dfn"
+    on="create|$('/[name=text]') val dup pass $('form/') valo('title', null)"
+    by="New.dfn(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:dfn" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:bdo">
+<div class="_body _Inline" tpl-name="input:bdo"
+    on="create|$('/[name=text]') val dup pass $('/[name=dir]') val obj('dir')"
+    by="New.abbr(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:bdo" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1676,9 +1652,7 @@
         <hr tpl-node="inlines:times" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1692,9 +1666,7 @@
                 <select data-id="code" tpl-node="prop:languages"></select>
             </label>
         </div>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1703,10 +1675,7 @@
         <hr tpl-node="inlines:strong" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1715,10 +1684,7 @@
         <hr tpl-node="inlines:em" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1727,10 +1693,7 @@
         <hr tpl-node="inlines:cite" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1739,10 +1702,7 @@
         <hr tpl-node="inlines:small" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1751,10 +1711,7 @@
         <hr tpl-node="inlines:sub" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1763,10 +1720,7 @@
         <hr tpl-node="inlines:sup" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1775,10 +1729,7 @@
         <hr tpl-node="inlines:mark" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1787,9 +1738,7 @@
         <hr tpl-node="inlines:orz" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1798,10 +1747,7 @@
         <hr tpl-node="inlines:samp" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1810,9 +1756,7 @@
         <hr tpl-node="inlines:kbd" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1821,10 +1765,7 @@
         <hr tpl-node="inlines:s" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1833,10 +1774,7 @@
         <hr tpl-node="inlines:u" />
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1845,8 +1783,6 @@
         <hr tpl-node="inlines:var" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>

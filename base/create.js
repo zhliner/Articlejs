@@ -27,6 +27,7 @@
 import { processProxy } from "./tpb/pbs.by.js";
 import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons } from "./base.js";
 import * as T from "./types.js";
+import { dateTime } from "./common.js";
 import { Sys } from "../config.js";
 
 
@@ -1057,12 +1058,37 @@ const Builder = {
      * @return {Element} el
      */
     [ T.TIME ]: function( el, {date, time} ) {
-        date = date || '';
+        return $.attr( el, 'datetime', dateTime(date, time) );
+    },
 
-        if ( time ) {
-            date = date ? `${date} ${time}` : `${time}`;
-        }
-        return $.attr( el, 'datetime', date || null );
+
+    /**
+     * 可删除单元。
+     * 需要组合日期/时间值为单一值。
+     * @param  {String} cite 解释源
+     * @return {Element} el
+     */
+    [ T.DEL ]: function( el, {date, time, cite} ) {
+        return $.attribute(
+            el,
+            'datetime cite',
+            [ dateTime(date, time), cite || null ]
+        );
+    },
+
+
+    /**
+     * 新插入单元。
+     * 注：同上。
+     * @param  {String} cite 解释源
+     * @return {Element} el
+     */
+    [ T.INS ]: function( el, {date, time, cite} ) {
+        return $.attribute(
+            el,
+            'datetime cite',
+            [ dateTime(date, time), cite || null ]
+        );
     },
 
 
@@ -1152,8 +1178,6 @@ const Builder = {
     [ T.A,              ['href', 'target'] ],
     [ T.Q,              ['cite'] ],
     [ T.ABBR,           ['title'] ],
-    [ T.DEL,            ['datetime', 'cite'] ],
-    [ T.INS,            ['datetime', 'cite'] ],
     [ T.DFN,            ['title'] ],
     [ T.BDO,            ['dir'] ],
 
@@ -1858,17 +1882,20 @@ function svgInsert( ref, box, data ) {
  * 汇集符合目标元素子元素类型的数据。
  * 如果不符合子元素类型，则取其文本内容。
  * 注：仅用于内容元素。
- * @param  {String|Node} data 目标数据
+ * @param  {String|Node|DocumentFragment} data 目标数据
  * @param  {Element} box 容器元素
  * @return {Node|String|[Node|String]} 合法数据（集）
  */
 function dataCons( data, box ) {
-    if ( !data || data.nodeType !== 1 && data.nodeType !== 11 ) {
-        // string
+    if ( !data || data.nodeType === 3 ) {
         return data || '';
     }
     if ( T.onlyText(getType(box)) ) {
         return data.textContent;
+    }
+    // 外部保证片段内容的合法性。
+    if ( data.nodeType === 11 ) {
+        return [ ...data.childNodes ];
     }
     return contents( data ).map(
         nd => T.isChildType( box, getType(nd) ) ? nd : nd.textContent

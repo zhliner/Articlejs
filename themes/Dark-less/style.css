@@ -70,7 +70,7 @@ aside#help {
 
 /* 路径指向 */
 .___Content ._point {
-    background-color: rgba(235,235,235,0.3);
+    background-color: #ebebeb4d;
     background-image: url('images/current.png');
 }
 
@@ -79,11 +79,13 @@ aside#help {
     color: #333;
     background-color: #ffffb8;
     background-image: url('images/selected.png') !important;
+    border-radius: 4px;
+    border: 1px #77858880 solid;
     /* for <hr> */
     min-height: 1.4em;
 }
 .___Content svg ._selected {
-    stroke: blue;
+    stroke: #01839d;
     stroke-width: 2px;
     fill-opacity: 0.6;
 }
@@ -1160,6 +1162,17 @@ menu._cells code {
 }
 .Input ._Inline ._tips i {
     font-style: normal;
+}
+
+/* <ins|del> 美观 */
+.Input ul._prop li._text2 > b {
+    display: none;
+}
+.Input ul._prop li._text2 > span {
+    grid-column: 1 / 3;
+}
+.Input ul._prop li._text2 textarea {
+    overflow-y: auto;
 }
 
 

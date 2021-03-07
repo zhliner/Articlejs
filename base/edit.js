@@ -399,7 +399,7 @@ class RngEdit {
 
 
     redo() {
-        // 使this._subs引用有效
+        // 使this._old引用有效
         this._tmp.back();
 
         this._old
@@ -437,13 +437,14 @@ class RngEdit {
 
     /**
      * 分析构造链接配置。
+     * 链接格式容错两端空白，但文本原样保持。
      * @param  {String} text 链接文本
      * @param  {Range} rng 选取范围
      * @return {[Object, Value]} 配置对象和数据值对
      */
     _a( text, rng ) {
         return [
-            RngEdit.url.test(text) && { href: text },
+            RngEdit.url.test(text.trim()) && { href: text },
             rng.cloneContents()
         ];
     }
@@ -451,12 +452,16 @@ class RngEdit {
 
     /**
      * 分析提取注音配置。
+     * 友好：格式匹配取值忽略两端的空白。
      * @param  {String} text 注音文本
      * @param  {Range} rng 选取范围
      * @return {[Object, Value]} 配置对象和数据值对
      */
     _ruby( text, rng ) {
-        let _vs = text.match( RngEdit.ruby );
+        let _vs = text
+            .trim()
+            .match( RngEdit.ruby );
+
         return _vs ? [ {rt: _vs[2]}, _vs[1] ] : [ null, rng.cloneContents() ];
     }
 }
@@ -473,7 +478,7 @@ RngEdit.url  = /^(?:http|https|ftp|email):\/\/[\w.-]+\/\S+$/i;
 // 文本：任意非空白字符（容许空格）
 // 拼音：[À-ž ㄅ-ㄭ] （容许空格）
 //
-RngEdit.ruby = RegExp( `^([\\S ]+)\\${Sys.rpLeft}([\\w\\u00c0-\\u017e\\u3105-\\u312d ]+)\\${Sys.rpRight}$`, 'i' );
+RngEdit.ruby = RegExp( `^([\\S\\x20]+)\\${Sys.rpLeft}([\\w\\u00c0-\\u017e\\u3105-\\u312d ]+)\\${Sys.rpRight}$`, 'i' );
 
 
 //
@@ -3784,16 +3789,17 @@ export const Edit = {
 
 
     /**
-     * 取消同级兄弟元素选取。
-     * 焦点元素不变。
+     * 取消焦点同级兄弟元素选取。
+     * 包括取消焦点元素的选取，但焦点不变。
      */
     cleanSiblings() {
         let _el = __EHot.get();
         if ( !_el ) return;
 
-        let _els = $.siblings( _el );
+        let _els = $.children( _el.parentElement )
+            .filter( el => __ESet.has(el) );
 
-        _els.some( el => __ESet.has(el) ) && historyPush( new ESEdit(siblingsUnify, _els, _el) );
+        _els.length && historyPush( new ESEdit(() => __Selects.removes(_els)) );
     },
 
 

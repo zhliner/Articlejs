@@ -103,9 +103,9 @@ const CustomStruct = {
         let _sub = el.firstElementChild;
 
         if ( el.childElementCount <= 1 ) {
-            return this._liChild( _sub ) || T.LI;
+            return _liChild( _sub ) || T.LI;
         }
-        return el.childElementCount === 2 && _sub.tagName === 'H4' ? this._liParent(el.parentElement, _sub) : T.LI;
+        return el.childElementCount === 2 && _sub.tagName === 'H4' ? _liParent(el.parentElement, _sub) : T.LI;
     },
 
 
@@ -156,56 +156,6 @@ const CustomStruct = {
      */
     IMG( el ) {
         return el.parentElement.tagName === 'PICTURE' ? T.PIMG : T.IMG;
-    },
-
-
-    //-- 私有辅助 ------------------------------------------------------------
-
-
-    /**
-     * 从列表项子元素判断取值。
-     * 注：兼容<h4>从父元素判断取值。
-     * @param  {Element} el 列表项子元素
-     * @return {Number}
-     */
-    _liChild( el ) {
-        if ( !el || $.siblingNodes(el).length ) {
-            return;
-        }
-        switch ( el.tagName ) {
-            case 'CODE':
-                return T.CODELI;
-            case 'A':
-                return T.ALI;
-        }
-    },
-
-
-    /**
-     * 从父元素判断列表项值。
-     * - 无序级联表小标题
-     * - 有序级联表小标题
-     * - 级联编号表小标题
-     * - 级联编号表链接小标题
-     * - 普通列表项（默认）
-     * @param  {Element} el 列表元素
-     * @param  {Element} h4 小标题元素
-     * @return {Number}
-     */
-    _liParent( el, h4 ) {
-        let _nxt = h4.nextElementSibling;
-
-        if ( _nxt.tagName !== 'OL' && _nxt.tagName !== 'UL' ) {
-            return T.LI;
-        }
-        switch ( name(listRoot(el)) ) {
-            case 'ULX':
-            case 'OLX':
-                return T.XH4LI;
-            case 'CASCADE':
-                return this.H4( h4 ) === T.AH4 ? T.CASCADEAH4LI : T.CASCADEH4LI;
-        }
-        return T.LI;
     },
 
 };
@@ -409,6 +359,53 @@ function _typeNoit( ref, els ) {
         if ( _tv !== getType(el) ) return el;
     }
     return null;
+}
+
+
+/**
+ * 从列表项子元素判断取值。
+ * 注：兼容<h4>从父元素判断取值。
+ * @param  {Element} el 列表项子元素
+ * @return {Number}
+ */
+function _liChild( el ) {
+    if ( !el || $.siblingNodes(el).length ) {
+        return;
+    }
+    switch ( el.tagName ) {
+        case 'CODE':
+            return T.CODELI;
+        case 'A':
+            return T.ALI;
+    }
+}
+
+
+/**
+ * 从父元素判断列表项值。
+ * - 无序级联表小标题
+ * - 有序级联表小标题
+ * - 级联编号表小标题
+ * - 级联编号表链接小标题
+ * - 普通列表项（默认）
+ * @param  {Element} el 列表元素
+ * @param  {Element} h4 小标题元素
+ * @return {Number}
+ */
+function _liParent( el, h4 ) {
+    let _nxt = h4.nextElementSibling;
+
+    if ( _nxt.tagName !== 'OL' && _nxt.tagName !== 'UL' ) {
+        return T.LI;
+    }
+    switch ( name(listRoot(el)) ) {
+        case 'ULX':
+        case 'OLX':
+            return T.XH4LI;
+        case 'CASCADE':
+            return this.H4( h4 ) === T.AH4 ? T.CASCADEAH4LI : T.CASCADEH4LI;
+    }
+    return T.LI;
 }
 
 

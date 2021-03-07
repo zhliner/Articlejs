@@ -210,7 +210,7 @@
 
 <!-- 链接 -->
 <ul class="_prop" tpl-name="inlines:a">
-    <li tpl-node="prop:textrow"></li>
+    <li tpl-node="prop:text1"></li>
     <li tpl-node="prop:href"></li>
     <li tpl-node="prop:target"></li>
 </ul>
@@ -242,7 +242,7 @@
 
 <!-- 短引用 -->
 <ul class="_prop" tpl-name="inlines:q">
-    <hr tpl-node="prop:textrow, prop:cite" />
+    <hr tpl-node="prop:text1, prop:cite" />
 </ul>
 
 <!-- 日期/时间 -->
@@ -251,18 +251,22 @@
 </ul>
 
 <!-- 插入性 -->
-<div class="_prop" tpl-name="inlines:ins">
-    <hr tpl-node="prop:content" />
-</div>
+<ul class="_prop" tpl-name="inlines:ins">
+    <li tpl-node="prop:text2"></li>
+    <li tpl-node="prop:date, prop:time"></li>
+    <li tpl-node="prop:cite2"></li>
+</ul>
 
 <!-- 已删除 -->
-<div class="_prop" tpl-name="inlines:del">
-    <hr tpl-node="prop:content" />
-</div>
+<ul class="_prop" tpl-name="inlines:del">
+    <li tpl-node="prop:text2"></li>
+    <li tpl-node="prop:date, prop:time"></li>
+    <li tpl-node="prop:cite2"></li>
+</ul>
 
 <!-- 缩写 -->
 <ul class="_prop" tpl-name="inlines:abbr">
-    <li tpl-node="prop:textrow, prop:title"></li>
+    <li tpl-node="prop:text1, prop:title"></li>
 </ul>
 
 <!-- 注脚 -->
@@ -294,7 +298,7 @@
 
 <!-- 定义条目 -->
 <ul class="_prop" tpl-name="inlines:dfn">
-    <hr tpl-node="prop:textrow, prop:title" />
+    <hr tpl-node="prop:text1, prop:title" />
 </ul>
 
 <!-- 样本 -->
@@ -332,7 +336,7 @@
 
 <!-- 有向文本 -->
 <ul class="_prop" tpl-name="inlines:bdo">
-    <li tpl-node="prop:textrow, prop:dir"></li>
+    <li tpl-node="prop:text, prop:dir"></li>
 </ul>
 
 <!-- 换行 -->
@@ -434,12 +438,6 @@
 <li tpl-name="prop:capwhere">
     <b>标题位置</b>
     <span><label><input type="checkbox" name="capbelow" />在表格下部</label></span>
-</li>
-
-<!-- table.summary 表格摘要（屏幕阅读器使用） -->
-<li tpl-name="prop:summary">
-    <b>表格摘要</b>
-    <span><textarea name="summary" rows="2"></textarea></span>
 </li>
 
 <li tpl-name="prop:hr">
@@ -615,14 +613,25 @@
 </li>
 
 <!-- 单行文本 -->
-<li tpl-name="prop:textrow">
+<li tpl-name="prop:text">
     <b>文本</b>
-    <span><input type="text" name="textrow" class="_phrase" /></span>
+    <span><input type="text" name="text" /></span>
+</li>
+
+<!-- 单行文本：定宽 -->
+<li tpl-name="prop:text1">
+    <b>文本</b>
+    <span><input type="text" name="text" class="_phrase" /></span>
 </li>
 
 <li tpl-name="prop:cite">
     <b>引用来源</b>
     <span><input type="url" name="cite"  placeholder="https://" /></span>
+</li>
+
+<li tpl-name="prop:cite2">
+    <b>解释源</b>
+    <span><input type="url" name="cite"  placeholder="https:// (可选)" /></span>
 </li>
 
 <li tpl-name="prop:figcapwhere">
@@ -656,7 +665,7 @@
 <!-- 日期/时间文本 -->
 <li tpl-name="prop:datetext">
     <b>文本</b>
-    <span><input type="text" name="datetext" placeholder="（可选）" class="_phrase" /></span>
+    <span><input type="text" name="text" placeholder="（可选）" /></span>
 </li>
 
 <li tpl-name="prop:date">
@@ -728,6 +737,11 @@
     <span><select tpl-node="prop:languages"></select></span>
 </li>
 
+<li class="_text2" tpl-name="prop:text2">
+    <b>文本</b>
+    <span><textarea name="content" rows="3"></textarea></span>
+</li>
+
 <!-- 纯文本录入 -->
 <textarea name="content" tpl-name="prop:content"></textarea>
 
@@ -766,7 +780,7 @@
 <!-- 两个定制结构 -->
 
 <ul class="_prop" tpl-name="prop:cascadeah4li">
-    <li tpl-node="prop:textrow"></li>
+    <li tpl-node="prop:text1"></li>
     <li tpl-node="prop:href, prop:target"></li>
     <li><b>子列表</b>
         <span>

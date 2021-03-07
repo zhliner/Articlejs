@@ -439,6 +439,21 @@ export function createID( text, prefix = '' ) {
 
 
 /**
+ * 构造日期/时间值串。
+ * 由外部保证两个串的格式合法。
+ * @param  {String} date 日期串，可选
+ * @param  {String} time 时间串，可选
+ * @return {String|null}
+ */
+export function dateTime( date, time ) {
+    if ( time ) {
+        date = date ? `${date} ${time}` : `${time}`;
+    }
+    return date || null;
+}
+
+
+/**
  * 获取节点所在父元素内下标位置。
  * 忽略空文本节点和注释节点，位置计数从0开始。
  * @param  {Node} node 目标元素
