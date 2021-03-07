@@ -1576,6 +1576,7 @@ Object.assign( tQuery, {
      * - event/deep/eventdeep参数仅适用于元素节点。
      * - 元素节点默认深层克隆（包含子节点一起）。
      * - 事件处理器也可以克隆，并且可以包含子孙元素的绑定。
+     * 注：文档片段也可正常克隆。
      * @param  {Node} node 目标节点/元素
      * @param  {Boolean} event 是否克隆事件处理器
      * @param  {Boolean} deep 节点深层克隆，可选。默认为真
@@ -1585,7 +1586,7 @@ Object.assign( tQuery, {
     clone( node, event, deep = true, eventdeep = false ) {
         let _new = node.cloneNode(deep);
 
-        if (node.nodeType != 1) {
+        if ( node.nodeType === 3 ) {
             return _new;
         }
         return event || eventdeep ? _cloneEvents(node, _new, event, eventdeep) : _new;

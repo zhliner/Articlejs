@@ -49,9 +49,9 @@
 //  解析结果
 //  --------
 //  Object3 {
-//      text:{String|[Object3]} 匹配的文本或进阶解析结果（集）
-//      type?:{String}          类型名，未定义时text视为普通文本，可选
-//      block?:[String, String] 块数据边界标识对，可选
+//      text:  {String|[Object3]} 匹配的文本或进阶解析结果（集）
+//      type?: {String}           类型名，未定义时text视为普通文本，可选
+//      block?:[String, String]   块数据边界标识对，可选
 //  }
 //  .text:{[Object3]}
 //  当目标类型拥有嵌入的语法解析时，即为嵌入解析的结果集。

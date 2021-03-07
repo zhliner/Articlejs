@@ -2048,6 +2048,22 @@ function dataNodes( data, cnt ) {
 
 
 /**
+ * 数据多份克隆。
+ * @param  {Collector} $data 元素集
+ * @param  {Number} cnt 克隆份数
+ * @return {[Collector]}
+ */
+function dataClones( $data, cnt ) {
+    let _buf = [ $data ];
+
+    for (let i = 0; i < cnt-1; i++) {
+        _buf.push( $data.clone() );
+    }
+    return _buf;
+}
+
+
+/**
  * 普通模式：撤销。
  * @return {Boolean} 是否可以再撤销
  */
@@ -2751,11 +2767,12 @@ function blockCode( code, lang = null, tab = null ) {
  *      lang: 所属语言
  *      data: 子块源码集（与data相同结构）
  * }
+ * make: function(html, lang, tab): [Value]
  * @param  {[String|Object2]} data 源码解析数据
  * @param  {String} lang 所属语言
  * @param  {Function} make 封装创建回调
  * @param  {Number} tab Tab空格数，可选
- * @return {[Element]} 代码元素集（<code>）
+ * @return {[Value]} 封装创建结果集（<code>）
  */
 function codeFlat( data, lang, make, tab ) {
     let _buf = [];
@@ -5278,6 +5295,21 @@ export const Kit = {
 
 
     /**
+     * 合并源码。
+     * 用于内联代码单元构建，通常只有单种语言。
+     * 如果包含多种语言，简单合并（容错）。
+     * @data: [Object3|Object2]
+     * @return {String} 已渲染源码
+     */
+    codehtml( evo ) {
+        return codeFlat( colorHTML(evo.data, htmlBlock), null, html => [html] )
+            .join( '' );
+    },
+
+    __codehtml: 1,
+
+
+    /**
      * 根据内容类型创建图片。
      * 图片选项由安全JSON解析（Worker），故返回一个Promise<Element>。
      * 内容格式：{
@@ -5715,6 +5747,22 @@ export const Kit = {
 
 
     /**
+     * 插入注音子单元集。
+     * 如果选取多个目标，则克隆为多组。
+     * 注意规范的位置。
+     * @data: [Element] <rb|rp|rt|rp>序列
+     * @param  {Boolean} before 向前插入
+     * @param  {String} level 插入层级（siblings|children）
+     * @return {void}
+     */
+    insrbpt( evo, before, level ) {
+        //
+    },
+
+    __insrbpt: 1,
+
+
+    /**
      * 创建表格单元。
      * @data: <table> 数据源
      * @param  {String} caption 表标题内容
@@ -5803,6 +5851,7 @@ processExtend( 'Kit', Kit, [
     'topinsert',
     'fixinsert',
     'instbody',
+    'insrbpt',
     'table',
     'codelang',
 ]);
@@ -5836,6 +5885,7 @@ customGetter( null, Kit, [
     'codeopts',
     'codels',
     'codeblo',
+    'codehtml',
     'image3',
     'mediasubs',
     'picsubs',

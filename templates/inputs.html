@@ -1529,9 +1529,9 @@
 <!--注音单元封装：
     这是一个抽象结构，在选取<ruby>且向内插入时使用。-->
 <div class="_body _Ruby" tpl-name="input:rbpt"
-    on="create|$('/[name=rb]') dup pass $('form/') valo('rt rpl rpr')"
+    on="create|$('/[name=rb]') val dup pass $('form/') valo('rt rpl rpr')"
     by="New.ruby(_1) children"
-    to="form/|trigger('insert')">
+    to="form/|trigger('insrbpt')">
     <div class="_main _list">
         <hr tpl-node="inlines:ruby" />
     </div>
@@ -1637,7 +1637,7 @@
 
 <div class="_body _Inline" tpl-name="input:bdo"
     on="create|$('/[name=text]') val dup pass $('/[name=dir]') val obj('dir')"
-    by="New.abbr(_1)"
+    by="New.bdo(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:bdo" />
@@ -1647,7 +1647,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:times">
+<div class="_body _Inline" tpl-name="input:times"
+    on="create|$('/[name=text]') val $('form/') valo('date time')"
+    by="New.time(_1)"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:times" />
     </div>
@@ -1656,21 +1659,28 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:code">
-    <div class="_main _list">
+<div class="_body _Inline" obt-src="obts/codes.json" tpl-name="input:code"
+    on="node|ev('detail') v.codehtml $('/[name=language]') val obj('lang')"
+    by="New.code(_1)"
+    to="form/|trigger('insert')">
+    <div class="_main _list"
+        on="^nodeok|('建议仅为一行')"
+        to="/pre|@-tip">
         <hr tpl-node="inlines:code" />
     </div>
     <aside>
         <div class="_option">
+            <input type="hidden" name="tabs" value="0" />
             <label>语言
-                <select data-id="code" tpl-node="prop:languages"></select>
+                <select tpl-node="prop:languages"></select>
             </label>
         </div>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:strong">
+<div class="_body _Inline" tpl-name="input:strong"
+    on="create|">
     <div class="_main _list">
         <hr tpl-node="inlines:strong" />
     </div>

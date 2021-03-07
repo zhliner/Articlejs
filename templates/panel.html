@@ -14,14 +14,17 @@
         insert|ev('detail') checked('before') value('level');
         instop|ev('detail') value('level');
         insfix|ev('detail') value('level');
-        instbd|ev('detail') checked('merge') value('level')"
+        instbd|ev('detail') checked('merge') value('level');
+        insrbpt|ev('detail') checked('before') value('level')"
     by="-;-;
         Kit.inserts(_2);
         Kit.topinsert(_1);
         Kit.fixinsert(_1);
-        Kit.instbody(_2)"
+        Kit.instbody(_2);
+        Kit.insrbpt(_2)"
     to="/._body|trigger('create');
         /#con-level|trigger('update');
+        #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');

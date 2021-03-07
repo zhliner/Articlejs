@@ -456,7 +456,7 @@ const ChildTypes = {
     [ PICTURE ]:        [ SOURCE2, PIMG ],
     [ SVG ]:            [ SVGITEM ],
     // RBPT 为固定结构组。
-    [ RUBY ]:           [ RBPT, RB, RT ],
+    [ RUBY ]:           [ RBPT, RB, RT, RP ],
     [ METER ]:          [ $TEXT ],
     [ SPACE ]:          null,
     [ IMG ]:            null,
