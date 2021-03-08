@@ -2290,7 +2290,8 @@ Object.assign( tQuery, {
      * 手动事件激发。
      * - evn可以是一个事件名或一个已经构造好的事件对象。
      * - 自定义事件默认不冒泡但可以被取消，原生事件则保持默认行为。
-     * - 元素上原生的事件类函数可以直接被激发（如 click, focus）。
+     * - 元素上原生的事件类函数直接调用激发（如 click, focus），
+     *   同时会简单地返回true。
      * - 几个可前置on的非事件类方法（submit，load等）可以被激发，但需预先注册绑定。
      *
      * 原生事件激发也可以携带参数，例：
@@ -2308,7 +2309,7 @@ Object.assign( tQuery, {
      * @param  {Mixed} extra 发送数据，可选
      * @param  {Boolean} bubble 是否冒泡，可选
      * @param  {Boolean} cancelable 是否可取消，可选
-     * @return {Boolean} dispatchEvent()的返回值。
+     * @return {Boolean} dispatchEvent()的返回值或true。
      */
     trigger( node, evn, extra, bubble = false, cancelable = true ) {
         if ( !node || !node.dispatchEvent ) {
@@ -5973,58 +5974,49 @@ const
 
 
 /**
- * 激发定制事件。
- * 事件冒泡，不可取消。
- * 返回值：
- * - 返回 null 表示未配置定制事件发送。
- * - 返回 Boolean 类型则为 Element.dispatchEvent() 的返回值。
+ * 定制事件激发（操作前/后）。
+ * 事件冒泡且可取消。
+ * 如果用户在事件处理中调用了Event.preventDefault()，
+ * 会返回false且不会执行操作。
  * @param  {Node} node 目标节点
  * @param  {String} evn 事件名
  * @param  {Value} data 发送数据（Array|Object）
- * @return {Boolean|null}
+ * @return {Boolean|void}
  */
 function varyTrigger( node, evn, data ) {
-    return Options.varyevent &&
-        node.dispatchEvent(
-            new CustomEvent(
-                evn,
-                { detail: data, bubbles: true, cancelable: true }
-            )
-        );
+    if ( !Options.varyevent ) {
+        return;
+    }
+    return node.dispatchEvent(
+        new CustomEvent( evn, {detail: data, bubbles: true, cancelable: true} )
+    );
 }
 
 
 /**
- * 批量激发事件。
- * 主要用于节点插入后对数据节点激发事件。
- * 如果数据为单个节点，返回 EventTarget.dispatchEvent() 的返回值。
- * 如果数据为一个集合，无条件返回true。
- * @param  {Node|[Node]} nodes 节点（集）
+ * 事件批量激发。
+ * 仅用于操作之后且目标为集合。
+ * 因为不再影响操作，故总是返回true（与未配置相异）。
+ * @param  {[Node]} nodes 节点集
  * @param  {String} evn 事件名
  * @param  {Value} data 待发送数据
- * @return {Boolean|null}
+ * @return {true|void}
  */
 function nodesTrigger( nodes, evn, data ) {
     if ( !Options.varyevent ) {
-        return null;
+        return;
     }
-    if ( !isArr(nodes) ) {
-        return varyTrigger( nodes, evn, data );
+    for ( const node of nodes ) {
+        node.dispatchEvent(
+            new CustomEvent( evn, {detail: data, bubbles: true, cancelable: true} )
+        );
     }
-    nodes.forEach(
-        el => el.dispatchEvent(
-            new CustomEvent(
-                evn,
-                { detail: data, bubbles: true, cancelable: true }
-            )
-        )
-    );
     return true;
 }
 
 
 /**
- * 激发事件绑定事件。
+ * 绑定事件的激发。
  * 事件冒泡且可取消（取消对eventclone有用）。
  * 适用：tQuery.on|one, tQuery.off接口。
  * 发送数据：[
@@ -6044,17 +6036,19 @@ function nodesTrigger( nodes, evn, data ) {
  * @param  {Function|EventListener} handler 事件处理器
  * @param  {Boolean} once 是否为单次逻辑
  * @param  {Element} el2 关联元素
- * @return {Boolean|null}
+ * @return {Boolean|void}
  */
 function boundTrigger( el, evn, type, selector, handler, once, el2 ) {
-    return Options.bindevent &&
-        el.dispatchEvent(
-            new CustomEvent( evn, {
-                detail: [ type, selector, handler, once, el2 ],
-                bubbles: true,
-                cancelable: true,
-            })
-        );
+    if ( !Options.bindevent ) {
+        return;
+    }
+    return el.dispatchEvent(
+        new CustomEvent( evn, {
+            detail: [ type, selector, handler, once, el2 ],
+            bubbles: true,
+            cancelable: true,
+        })
+    );
 }
 
 
@@ -6066,10 +6060,10 @@ function boundTrigger( el, evn, type, selector, handler, once, el2 ) {
  * @return {void}
  */
 function removeAttr( el, name ) {
-    if ( !el.hasAttribute(name) ) {
+    if ( !el.hasAttribute(name) ||
+        varyTrigger(el, evnAttrSet, [name, null]) === false ) {
         return;
     }
-    varyTrigger( el, evnAttrSet, [name, null] );
     el.removeAttribute( name );
     varyTrigger( el, evnAttrDone, name );
 }
@@ -6083,9 +6077,10 @@ function removeAttr( el, name ) {
  * @return {void}
  */
 function setAttr( el, name, val ) {
-    varyTrigger( el, evnAttrSet, [name, val] );
-    el.setAttribute( name, val );
-    varyTrigger( el, evnAttrDone, name );
+    if ( varyTrigger(el, evnAttrSet, [name, val]) !== false ) {
+        el.setAttribute( name, val );
+        varyTrigger( el, evnAttrDone, name );
+    }
 }
 
 
@@ -6098,7 +6093,9 @@ function setAttr( el, name, val ) {
  * @return {void}
  */
 function setProp( el, name, dname, val ) {
-    varyTrigger( el, evnPropSet, [name, val] );
+    if ( varyTrigger(el, evnPropSet, [name, val]) === false ) {
+        return;
+    }
     if (dname) {
         el.dataset[ dname ] = val;
     } else {
@@ -6109,41 +6106,39 @@ function setProp( el, name, dname, val ) {
 
 
 /**
- * 控件集选中清除。
+ * 定制：控件集选中清除。
  * 适用 input:checkbox|radio 类控件。
- * 注：
  * 非活动（disabled）控件的状态也会被清除。
- * 无 propfail 事件。
  * @param  {[Element]} els 控件组
  * @return {void}
  */
 function clearChecked( els ) {
     for ( let e of els ) {
-        varyTrigger( e, evnPropSet, ['checked', false] );
-        e.checked = false;
-        varyTrigger( e, evnPropDone, 'checked' );
+        if ( varyTrigger(e, evnPropSet, ['checked', false]) !== false ) {
+            e.checked = false;
+            varyTrigger( e, evnPropDone, 'checked' );
+        }
     }
 }
 
 
 /**
- * <select>控件选取清除。
- * 无 propfail 事件。
+ * 定制：<select>控件选取清除。
  * @param  {Element} el 控件元素
  * @param  {String} name 标识名（虚拟）
  * @return {void}
  */
 function clearSelected( el, name ) {
-    varyTrigger( el, evnPropSet, [name, null] );
-    el.selectedIndex = -1;
-    varyTrigger( el, evnPropDone, name );
+    if ( varyTrigger(el, evnPropSet, [name, null]) !== false ) {
+        el.selectedIndex = -1;
+        varyTrigger( el, evnPropDone, name );
+    }
 }
 
 
 /**
- * <select>控件操作（单选）。
+ * 定制：<select>控件操作（单选）。
  * 即便没有匹配项，原选中条目也会被清除选取。
- * 无 propfail 事件。
  * @param  {Element} el 控件元素
  * @param  {String} name 标识名（虚拟）
  * @param  {Value} 对比值
@@ -6151,7 +6146,9 @@ function clearSelected( el, name ) {
  * @return {void}
  */
 function selectOne( el, name, val, prop ) {
-    varyTrigger( el, evnPropSet, [name, val] );
+    if ( varyTrigger(el, evnPropSet, [name, val]) === false ) {
+        return;
+    }
     el.selectedIndex = -1;
 
     for ( const op of el.options ) {
@@ -6165,7 +6162,7 @@ function selectOne( el, name, val, prop ) {
 
 
 /**
- * <select>控件操作（多选）。
+ * 定制：<select>控件操作（多选）。
  * 匹配项被选取，非匹配项被清除选取。
  * @param  {Element} el 控件元素
  * @param  {String} name 标识名（虚拟）
@@ -6174,15 +6171,15 @@ function selectOne( el, name, val, prop ) {
  * @return {void}
  */
 function selects( el, name, val, prop ) {
-    varyTrigger( el, evnPropSet, [name, val] );
-    el.selectedIndex = -1;
-
-    if ( !isArr(val) ) {
-        val = [val];
+    if ( varyTrigger(el, evnPropSet, [name, val]) === false ) {
+        return;
     }
+    el.selectedIndex = -1;
+    val = new Set( isArr(val) ? val : [val] );
+
     for ( const op of el.options ) {
         if ( prop || !$is(op, ':disabled') ) {
-            op.selected = val.includes( op.value );
+            op.selected = val.has( op.value );
         }
     }
     varyTrigger( el, evnPropDone, name );
@@ -6197,9 +6194,10 @@ function selects( el, name, val, prop ) {
  * @return {void}
  */
 function setStyle( el, name, val ) {
-    varyTrigger( el, evnCssSet, [name, val] );
-    el.style[name] = val;
-    varyTrigger( el, evnCssDone, name );
+    if ( varyTrigger(el, evnCssSet, [name, val]) !== false ) {
+        el.style[name] = val;
+        varyTrigger( el, evnCssDone, name );
+    }
 }
 
 
@@ -6212,7 +6210,9 @@ function setStyle( el, name, val ) {
  * @return {void}
  */
 function addClass( el, names ) {
-    varyTrigger( el, evnClassSet, [names, 'add'] );
+    if ( varyTrigger(el, evnClassSet, [names, 'add']) === false ) {
+        return;
+    }
     names.forEach(
         n => el.classList.add( n )
     );
@@ -6223,19 +6223,19 @@ function addClass( el, names ) {
 /**
  * 类名删除封装。
  * 事件名同上。
- * 如果名称未传递或为null，会删除全部类名（移除class特性）。
+ * 如果传递名称为null，会移除class特性本身（全部类名）。
  * 可一次删除多个名称，但仅发送一次事件。
- * 注记：第二/三个数据项表示动作（移除）。
  * @param  {Element} el 目标元素
  * @param  {[String]|null} names 类名集
  * @return {void}
  */
 function removeClass( el, names ) {
     if ( names === null ) {
-        // 不属attrvary管辖。
-        return el.removeAttribute('class');
+        return removeAttr( el, 'class' );
     }
-    varyTrigger( el, evnClassSet, [names, 'remove'] );
+    if ( varyTrigger(el, evnClassSet, [names, 'remove']) === false ) {
+        return;
+    }
     names.forEach(
         n => el.classList.remove( n )
     );
@@ -6252,7 +6252,9 @@ function removeClass( el, names ) {
  * @return {void}
  */
 function toggleClass( el, names ) {
-    varyTrigger( el, evnClassSet, [names, 'toggle'] );
+    if ( varyTrigger(el, evnClassSet, [names, 'toggle']) === false ) {
+        return;
+    }
     names.forEach(
         n => el.classList.toggle( n )
     );
@@ -6263,16 +6265,18 @@ function toggleClass( el, names ) {
 
 /**
  * 元素内前插入。
+ * 如果用户在事件处理器中调用了 Element.dispatchEvent()，
+ * 会取消插入操作，但依然会返回待插入数据。
  * @param  {Element} el 容器元素
  * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
  */
 function varyPrepend( el, nodes ) {
-    varyTrigger( el, evnNodeIn, [nodes, 'prepend'] );
-    el.prepend(
-        ...detachNodes(nodes)
-    );
-    nodesTrigger( nodes, evnNodeDone, 'prepend' );
+    if ( varyTrigger(el, evnNodeIn, [nodes, 'prepend']) !== false ) {
+        let _els = arrVal( nodes );
+        el.prepend( ...detachNodes(_els) );
+        nodesTrigger( _els, evnNodeDone, 'prepend' );
+    }
     return nodes;
 }
 
@@ -6284,11 +6288,11 @@ function varyPrepend( el, nodes ) {
  * @return {nodes}
  */
 function varyAppend( el, nodes ) {
-    varyTrigger( el, evnNodeIn, [nodes, 'append'] );
-    el.append(
-        ...detachNodes(nodes)
-    );
-    nodesTrigger( nodes, evnNodeDone, 'append' );
+    if ( varyTrigger(el, evnNodeIn, [nodes, 'append']) !== false ) {
+        let _els = arrVal( nodes );
+        el.append( ...detachNodes(_els) );
+        nodesTrigger( _els, evnNodeDone, 'append' );
+    }
     return nodes;
 }
 
@@ -6300,11 +6304,11 @@ function varyAppend( el, nodes ) {
  * @return {nodes}
  */
 function varyAppend2( el, nodes ) {
-    varyTrigger( el, evnNodeIn, [nodes, 'append'] );
-    el.append(
-        ...( isArr(nodes) ? nodes : [nodes] )
-    );
-    nodesTrigger( nodes, evnNodeDone, 'append' );
+    if ( varyTrigger(el, evnNodeIn, [nodes, 'append']) !== false ) {
+        let _els = arrVal( nodes );
+        el.append( ..._els );
+        nodesTrigger( _els, evnNodeDone, 'append' );
+    }
     return nodes;
 }
 
@@ -6316,11 +6320,11 @@ function varyAppend2( el, nodes ) {
  * @return {nodes}
  */
 function varyBefore( el, nodes ) {
-    varyTrigger( el, evnNodeIn, [nodes, 'before'] );
-    el.before(
-        ...detachNodes(nodes)
-    );
-    nodesTrigger( nodes, evnNodeDone, 'before' );
+    if ( varyTrigger(el, evnNodeIn, [nodes, 'before']) !== false ) {
+        let _els = arrVal( nodes );
+        el.before( ...detachNodes(_els) );
+        nodesTrigger( _els, evnNodeDone, 'before' );
+    }
     return nodes;
 }
 
@@ -6332,11 +6336,11 @@ function varyBefore( el, nodes ) {
  * @return {nodes}
  */
 function varyBefore2( el, nodes ) {
-    varyTrigger( el, evnNodeIn, [nodes, 'before'] );
-    el.before(
-        ...( isArr(nodes) ? nodes : [nodes] )
-    );
-    nodesTrigger( nodes, evnNodeDone, 'before' );
+    if ( varyTrigger(el, evnNodeIn, [nodes, 'before']) !== false ) {
+        let _els = arrVal( nodes );
+        el.before( ..._els );
+        nodesTrigger( _els, evnNodeDone, 'before' );
+    }
     return nodes;
 }
 
@@ -6348,11 +6352,11 @@ function varyBefore2( el, nodes ) {
  * @return {nodes}
  */
 function varyAfter( el, nodes ) {
-    varyTrigger( el, evnNodeIn, [nodes, 'after'] );
-    el.after(
-        ...detachNodes(nodes)
-    );
-    nodesTrigger( nodes, evnNodeDone, 'after' );
+    if ( varyTrigger(el, evnNodeIn, [nodes, 'after']) !== false ) {
+        let _els = arrVal( nodes );
+        el.after( ...detachNodes(_els) );
+        nodesTrigger( _els, evnNodeDone, 'after' );
+    }
     return nodes;
 }
 
@@ -6367,11 +6371,11 @@ function varyAfter( el, nodes ) {
  * @return {nodes}
  */
 function varyReplace( el, nodes ) {
-    varyTrigger( el, evnNodeIn, [nodes, 'replace'] );
-    el.replaceWith(
-        ...detachNodes(nodes)
-    );
-    nodesTrigger( nodes, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
+    if ( varyTrigger(el, evnNodeIn, [nodes, 'replace']) !== false ) {
+        let _els = arrVal( nodes );
+        el.replaceWith( ...detachNodes(_els) );
+        nodesTrigger( _els, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
+    }
     return nodes;
 }
 
@@ -6387,8 +6391,7 @@ function varyReplace( el, nodes ) {
 function varyEmpty( el ) {
     let _subs = Arr( el.childNodes );
 
-    if ( _subs.length ) {
-        varyTrigger( el, evnEmpty );
+    if ( _subs.length && varyTrigger(el, evnEmpty) !== false ) {
         el.textContent = '';
         varyTrigger( el, evnEmptied, _subs ) && nodesTrigger( _subs, evnDetached, el );
     }
@@ -6407,8 +6410,7 @@ function varyRemove( node ) {
     // 兼容DocumentFragment
     let _pel = node.parentNode;
 
-    if ( _pel ) {
-        varyTrigger( node, evnDetach );
+    if ( _pel && varyTrigger(node, evnDetach) !== false ) {
         node.remove();
         varyTrigger( node, evnDetached, _pel );
     }
@@ -6422,8 +6424,10 @@ function varyRemove( node ) {
  * @return {Element} el
  */
 function varyNormalize( el ) {
-    if ( el.nodeType === 1 ) {
-        varyTrigger( el, evnNormalize );
+    let _nt = el.nodeType;
+
+    if ( (_nt === 1 || _nt === 11) &&
+        varyTrigger(el, evnNormalize) !== false ) {
         el.normalize();
         varyTrigger( el, evnNormalized );
     }
@@ -6435,6 +6439,9 @@ function varyNormalize( el ) {
  * 元素填充。
  * 包含操作：[empty, append]。
  * 如果数据为假值，仅清空容器。
+ * 注意：
+ * 如果清空事件处理器调用了Event.preventDefault()，
+ * 则填充会变成内部末尾添加。
  * @param  {Element} el 目标元素
  * @param  {Node|[Node]} nodes 数据节点（集）
  * @return {Node|[Node]} nodes
@@ -6451,6 +6458,9 @@ function varyFill( el, nodes ) {
 /**
  * 节点包裹封装。
  * 兼容文档片段为被包裹内容。
+ * 注意：
+ * 如果替换操作处理器调用了Event.preventDefault()，
+ * 则目标节点会从DOM中移除并插入数据容器内前端。
  * @param  {Node|Fragment} node 被包裹节点
  * @param  {Element} root 封装根元素
  * @param  {Element} box 数据容器（插入点）
@@ -6471,6 +6481,11 @@ function varyWrap( node, root, box ) {
  * 1. empty   清空元素，内容脱离。
  * 2. prepend 脱离的内容插入容器内前端。
  * 3. append  容器顶层封装根插入元素内。
+ * 注意：
+ * - 即便清空处理器内调用了Event.preventDefault()，
+ *   封装依然会正常执行，除非内前端插入处理器终止了这一行为。
+ * - 如果append处理器调用了Event.preventDefault()，
+ *   则内容只是简单地被清空（移动到了数据容器内）。
  * @param  {Element} el 目标元素
  * @param  {Element} root 封装顶层根
  * @param  {Element} box  数据容器（插入点）
@@ -6487,7 +6502,8 @@ function varyWrapInner( el, root, box ) {
 /**
  * 集合被包裹封装。
  * box包裹nodes，root替换nodes[0]的位置。
- * 注：数据节点兼容文档片段。
+ * 数据节点兼容文档片段。
+ * 注意的事项与普通包裹（varyWrap）相同。
  * @param  {Element} root 封装根元素
  * @param  {Element} box 数据容器（插入点）
  * @param  {[Node|Fragment]} nodes 节点集
@@ -6513,9 +6529,10 @@ function varyWrapAll( root, box, nodes, ref = nodes[0] ) {
  * @return {[Node]} subs
  */
 function varyReplace2s( el, subs ) {
-    varyTrigger( el, evnNodeIn, [subs, 'replace'] );
-    el.replaceWith( ...subs );
-    nodesTrigger( subs, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
+    if ( varyTrigger(el, evnNodeIn, [subs, 'replace']) !== false ) {
+        el.replaceWith( ...subs );
+        nodesTrigger( subs, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
+    }
     return subs;
 }
 
@@ -6541,16 +6558,22 @@ function varyPrepend2s( el, subs ) {
 /**
  * 让节点脱离父元素。
  * 集合中的空值会被忽略并在返回值中滤除。
- * @param  {Node|[Node]} nodes 节点（集）
+ * @param  {[Node]} nodes 节点（集）
  * @return {[Node]} 节点集
  */
 function detachNodes( nodes ) {
     if ( !nodes ) return '';
-
-    if ( nodes.nodeType ) {
-        return [ varyRemove(nodes) ];
-    }
     return nodes.filter( nd => nd && varyRemove(nd) );
+}
+
+
+/**
+ * 确认返回一个数组。
+ * @param  {Value|[Value]} val 目标值
+ * @return {[Value]}
+ */
+function arrVal( val ) {
+    return isArr( val ) ? val : [ val ];
 }
 
 
