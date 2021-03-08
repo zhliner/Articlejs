@@ -55,7 +55,7 @@
         nodeok:     ev => new Nodedone( ev.target ),
         detach:     ev => new Remove( ev.target ),
         empty:      ev => new Empty( ev.target ),
-        normalize:  ev => new Normalize( ev.target ),
+        normalize:  ev => new Normalize( ev.target, ev ),
         // 替换操作：
         // 只需记录移除行为，数据节点的插入由nodedone记录。
         nodein:     ev => ev.detail[1] === 'replace' && new Remove( ev.target ),
@@ -418,12 +418,14 @@ class Empty {
 //
 class Normalize {
     /**
-     * 准备：
-     * 1. 提取相邻文本节点集分组（并克隆）。
-     * 2. 记录位置参考节点。
+     * 提取相邻文本节点集分组。
+     * 对每一组提前处理。
      * @param {Element} el 事件主元素
+     * @param {Event} ev 事件对象
      */
-    constructor( el ) {
+    constructor( el, ev ) {
+        ev.preventDefault();
+
         let _all = textNodes( el )
             .filter(
                 (nd, i, arr) => adjacent(nd, arr[i - 1], arr[i + 1])
@@ -445,37 +447,35 @@ class Normalize {
 
 //
 // 相邻文本节点处理。
-// 辅助处理normalize的回退。
-// 注记：
-// 需要保持原文本节点的引用（其它节点可能依赖于它）。
+// 辅助处理.normalize()的回退。
+// 注：
+// 上级用户已调用了Event.preventDefault()。
 //
 class Texts {
     /**
      * nodes为一组相邻文本节点集。
+     * 保留首个节点引用。
      * @param {[Text]} nodes 节点集
      */
     constructor( nodes ) {
-        this._prev = nodes[0].previousSibling;
-        this._box  = nodes[0].parentNode;
+        let _ref = nodes.shift(),
+            _all = _ref.wholeText,
+            _txt = _ref.textContent;
 
-        this._orig = nodes;
-        this._data = nodes.map( nd => nd.textContent );
+        nodes.forEach(
+            nd => nd.remove()
+        );
+        _ref.textContent = _all;
+
+        this._node = _ref;
+        this._text = _txt;
+        this._data = nodes;
     }
 
 
-    /**
-     * 注记：
-     * ref实际上是首个原始文本节点（this._orig[0]）。
-     * 但这不影响替换操作（实现会忽略相同的替换目标）。
-     */
     back() {
-        let _ref = this._prev ?
-            this._prev.nextSibling : this._box.firstChild;
-
-        this._orig.forEach(
-            (e, i) => e.textContent = this._data[i]
-        );
-        _ref.replaceWith( ...this._orig );
+        this._node.textContent = this._text;
+        this._node.after( ...this._data );
     }
 }
 
