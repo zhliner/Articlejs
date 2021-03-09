@@ -9,14 +9,15 @@
 //  节点树修改监听/记录历史。
 //  利用 tQuery 节点变化定制事件机制，跟踪对节点的修改，创建历史记录以便于撤销。
 //
-//  改变包含：
-//  - 特性变化：attrvary
-//  - 属性变化：propvary
-//  - 样式变化：stylevary
-//  - 类名变化：classvary
-//  - 内容变化：nodein, detach, replace, empty, normalize
+//  改变之前的事件可能因为其它处理器阻止改变，所以需要监听改变后的事件，
+//  它们包括：
+//  - 特性变化：attrdone
+//  - 属性变化：propdone
+//  - 样式变化：styledone
+//  - 类名变化：classdone
+//  - 内容变化：nodeok, detached, emptied, normalized
 //
-//  事件处理绑定变化：evbound, evunbound, evclone
+//  - 事件处理绑定变化：bound, unbound
 //
 //  适用前提
 //  --------
@@ -30,7 +31,7 @@
 //
 //  注意：
 //  back即为undo的逻辑，redo需要用户自己编写（比如操作实例化）。
-//  监听事件通常绑定在上层容器上，因此脱离节点树的节点的变化会无法监听。
+//  监听事件通常绑定在上层容器上，因此脱离节点树的节点的变化无法监听。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,32 +39,28 @@
 
 
 (function( $ ) {
-
     //
     // 变化处理器映射。
     // event-name: function(event): {.back}
     //
     const __varyHandles = {
-        // 简单值变化处理器。
-        attrvary:   ev => new Attr( ev.target, ev.detail[0] ),
-        propvary:   ev => new Prop( ev.target, ev.detail[0] ),
-        stylevary:  ev => new Style( ev.target ),
-        classvary:  ev => new Class( ev.target ),
+        // 简单值变化。
+        attrdone:   ev => new Attr( ev.target, ev.detail ),
+        propdone:   ev => new Prop( ev.target, ev.detail ),
+        styledone:  ev => new Style( ev.target, ev.detail ),
+        classdone:  ev => new Class( ev.target, ev.detail ),
 
-        // 节点变化处理器。
-        // 共需记录5中情形。
+        // 节点变化。
+        // 共需记录4种情形。
         nodeok:     ev => new Nodedone( ev.target ),
-        detach:     ev => new Remove( ev.target ),
-        empty:      ev => new Empty( ev.target ),
+        detached:   ev => new Remove( ev.target, ev.detail ),
+        emptied:    ev => new Empty( ev.target, ev.detail ),
+        // 拦截处理
         normalize:  ev => new Normalize( ev.target, ev ),
-        // 替换操作：
-        // 只需记录移除行为，数据节点的插入由nodedone记录。
-        nodein:     ev => ev.detail[1] === 'replace' && new Remove( ev.target ),
 
-        // 事件绑定变化处理器。
-        evbound:    ev => new Bound( ev.target, ...ev.detail ),
-        evunbound:  ev => new Unbound( ev.target, ...ev.detail ),
-        evclone:    ev => new EventClone( ...ev.detail ),
+        // 事件绑定变化。
+        bound:      ev => new Bound( ev.target, ...ev.detail ),
+        unbound:    ev => new Unbound( ev.target, ...ev.detail ),
     };
 
 
@@ -75,7 +72,7 @@
 class History {
     /**
      * 构造一个记录器。
-     * 注：缓存池长度由外部管理（.prune）。
+     * 缓存池长度由外部管理（.prune）。
      */
     constructor() {
         this._buf = [];
@@ -90,8 +87,7 @@ class History {
         // 仅记录一次。
         ev.stopPropagation();
 
-        let _obj = __varyHandles[ev.type]( ev );
-        if ( _obj ) this.push( _obj );
+        this._buf.push( __varyHandles[ev.type](ev) );
     }
 
 
@@ -100,23 +96,7 @@ class History {
      * @param {Number} n 回溯项数
      */
     back( n ) {
-        if ( n <= 0 ) return;
-
-        callBack( () =>
-            this._buf.splice( -n )
-                .reverse()
-                .forEach( obj => obj.back() )
-        );
-    }
-
-
-    /**
-     * 压入一个操作实例。
-     * @param  {.back} its 操作实例
-     * @return {Array|false} 被移除的实例集。
-     */
-    push( its ) {
-        return this._buf.push( its );
+        n > 0 && callBack( () => this._backs(this._buf, n) );
     }
 
 
@@ -131,11 +111,11 @@ class History {
 
     /**
      * 缓存池头部剪除。
-     * @param {Number} n
+     * @param {Number} n 清除数量
      */
     prune( n ) {
         if ( n > 0 ) {
-            this._buf.splice( 0, -n );
+            this._buf.splice( 0, n );
         }
     }
 
@@ -146,6 +126,18 @@ class History {
      */
     clear() {
         this._buf.length = 0;
+    }
+
+
+    /**
+     * 批量回退。
+     * @param {[.back]} buf 实例集引用
+     * @param {Number} n 回退数量
+     */
+    _backs( buf, n ) {
+        buf.splice( -n )
+        .reverse()
+        .forEach( obj => obj.back() );
     }
 }
 
@@ -158,43 +150,54 @@ class History {
 
 //
 // 元素特性修改。
-// 关联事件：attrvary
+// 关联事件：attrdone
 //
 class Attr {
     /**
+     * 注：name已为完整的名称。
      * @param {Element} el 目标元素
-     * @param {String} name 目标特性名
+     * @param {String} name 目标特性名（最终）
+     * @param {String|null} val 之前的值
      */
-    constructor( el, name ) {
+    constructor( el, [name, val] ) {
         this._el = el;
         this._name = name;
-        this._old = $.attr( el, name );
+        this._old = val;
     }
 
 
     back() {
-        $.attr( this._el, this._name, this._old );
+        if ( this._old === null ) {
+            return this._el.removeAttribute( this._name );
+        }
+        this._el.setAttribute( this._name, this._old );
     }
 }
 
 
 //
 // 元素属性修改。
-// 关联事件：propvary
+// 关联事件：propdone
 //
 class Prop {
     /**
+     * val为数组时，操作的是<select multiple>
      * @param {Element} el 目标元素
-     * @param {String} name 目标属性名
+     * @param {String} name 目标属性名（最终）
+     * @param {Value|[Value]} val 之前的值
+     * @param {String} dname data名称（驼峰式）
      */
-    constructor( el, name ) {
+    constructor( el, [name, val] ) {
         this._el = el;
         this._name = name;
-        this._old = $.prop( el, name );
+        this._old = val;
     }
 
 
     back() {
+        // 应对复杂情况：
+        // - disabled 的控件可以恢复。
+        // - 多选选单恢复多选。
         $.prop( this._el, this._name, this._old );
     }
 }
@@ -202,52 +205,76 @@ class Prop {
 
 //
 // 内联样式修改。
-// 关联事件：stylevary
-// 注记：使用原生接口。
+// 关联事件：styledone
 //
 class Style {
     /**
      * @param {Element} el 目标元素
+     * @param {String} name 样式属性名
+     * @param {String} val 之前的样式值（已规范）
      */
-    constructor( el ) {
+    constructor( el, [name, val] ) {
         this._el = el;
-        // 简化处理且保持内容顺序。
-        this._old = el.style.cssText;
+        this._name = name;
+        this._old = val;
     }
 
 
+    // 注记：
+    // 浏览器在设置样式时会自动调整style特性值本身。
+    // 因此这里并不寻求恢复style的原始特性值。
     back() {
-        this._el.style.cssText = this._old;
+        this._el.style[ this._name ] = this._old;
     }
 }
 
 
 //
 // 元素类名修改。
-// 关联事件：classvary
-// 注记：使用原生接口。
+// 关联事件：classdone
 //
 class Class {
     /**
      * @param {Element} el 目标元素
+     * @param {[String]} ns 类名集
+     * @param {String} meth 方法（add|remove|toggle）
      */
-    constructor( el ) {
+    constructor( el, [ns, meth] ) {
         this._el = el;
-        this._old = el.className;
+        this._ns = ns;
+        this._meth = meth;
     }
 
 
     back() {
-        if ( !this._old ) {
-            return this._el.removeAttribute( 'class' );
+        switch ( this._meth ) {
+            case 'add':
+                return this._backs( 'remove' );
+            case 'remove':
+                return this._backs( 'add' );
+            case 'toggle':
+                return this._backs( 'toggle' );
         }
-        this._el.className = this._old;
+    }
+
+
+    /**
+     * 匹配回退。
+     * @param {String} meth 操作方法
+     */
+    _backs( meth ) {
+        let _cls = this._el.classList;
+
+        this._ns.forEach(
+            n => _cls[ meth ]( n )
+        );
+        if ( !_cls.length ) this._el.removeAttribute( 'class' );
     }
 }
 
 
 //
-// 事件绑定操作。
+// 事件已绑定。
 // 关联事件：bound
 //
 class Bound {
@@ -258,15 +285,14 @@ class Bound {
      * @param {String} evn 目标事件名
      * @param {String} slr 委托选择器
      * @param {Function|EventListener} handle 事件处理器（用户）
-     * @param {Boolean} once 是否单次逻辑，忽略
-     * @param {Element} src 克隆源元素，可选
+     * @param {Boolean} cap 是否为捕获
      */
-    constructor( el, evn, slr, handle, once, src ) {
+    constructor( el, evn, slr, handle, cap ) {
         this._el = el;
         this._evn = evn;
         this._slr = slr;
         this._handle = handle;
-        this._clone = !!src;
+        this._cap = cap;
     }
 
 
@@ -274,15 +300,17 @@ class Bound {
      * 如果为克隆绑定，由EventClone处理。
      */
     back() {
-        if ( !this._clone ) {
-            $.off( this._el, this._evn, this._slr, this._handle );
-        }
+        $.off(
+            this._el,
+            this._evn, this._slr, this._handle,
+            this._cap
+        );
     }
 }
 
 
 //
-// 事件解绑操作。
+// 事件已解绑。
 // 关联事件：unbound
 //
 class Unbound {
@@ -291,13 +319,15 @@ class Unbound {
      * @param {String} evn 目标事件名
      * @param {String} slr 委托选择器
      * @param {Function|EventListener} handle 事件处理器（用户）
+     * @param {Boolean} cap 是否为捕获
      * @param {Boolean} once 是否为单次绑定
      */
-    constructor( el, evn, slr, handle, once ) {
+    constructor( el, evn, slr, handle, cap, once ) {
         this._el = el;
         this._evn = evn;
         this._slr = slr;
         this._handle = handle;
+        this._cap = cap;
         this._once = once;
     }
 
@@ -306,35 +336,7 @@ class Unbound {
         let _fn = this._once ?
             'one' :
             'on';
-        $[_fn]( this._el, this._evn, this._slr, this._handle );
-    }
-}
-
-
-//
-// 事件克隆处理。
-// 克隆的目标（受者）可能为游离状态，其Bound无法冒泡，
-// 因此在源处理中即无差别解绑。
-//
-class EventClone {
-    /**
-     * 无需区分是否为单次（one）绑定。
-     * @param {String} evn 目标事件名
-     * @param {String} slr 委托选择器
-     * @param {Function|EventListener} handle 事件处理器（用户）
-     * @param {Boolean} once 是否单次，占位忽略
-     * @param {Element} to 克隆目标元素（受者）
-     */
-    constructor( evn, slr, handle, once, to ) {
-        this._el = to;
-        this._evn = evn;
-        this._slr = slr;
-        this._handle = handle;
-    }
-
-
-    back() {
-        $.off( this._el, this._evn, this._slr, this._handle );
+        $[_fn]( this._el, this._evn, this._slr, this._handle, this._cap );
     }
 }
 
@@ -347,9 +349,10 @@ class EventClone {
 
 
 //
-// 节点进入完成。
-// 确定数据节点已事先脱离DOM。
-// 适用方法：.prepend, .append, .before, .after
+// 节点已进入。
+// 关联事件：nodeok
+// 数据节点已事先脱离DOM。
+// 适用方法：.prepend, .append, .before, .after, replace
 //
 class Nodedone {
     /**
@@ -367,18 +370,20 @@ class Nodedone {
 
 
 //
-// 节点移除操作。
-// 确定节点在DOM中（否则不会触发）。
+// 节点已移除。
+// 关联事件：detached
+// 节点在DOM中（否则不会触发）。
 //
 class Remove {
     /**
      * @param {Node} node 待移除节点
+     * @param {Node|null} 前一个节点
+     * @param {Element|DocumentFragment} 容器节点
      */
-    constructor( node ) {
+    constructor( node, [prev, box] ) {
         this._node = node;
-        // 兼容DocumentFragment
-        this._prev = node.previousSibling;
-        this._box = node.parentNode;
+        this._prev = prev;
+        this._box = box;
     }
 
 
@@ -392,17 +397,19 @@ class Remove {
 
 
 //
-// 元素清空操作。
+// 元素已清空。
+// 关联事件：emptied
 // 注记：
 // 已经为空的元素不会触发事件。
 //
 class Empty {
     /**
      * @param {Element} el 容器元素
+     * @param {[Node]} subs 子节点集
      */
-    constructor( el ) {
+    constructor( el, subs ) {
         this._box = el;
-        this._data = [...el.childNodes];
+        this._data = subs;
     }
 
 
@@ -413,8 +420,9 @@ class Empty {
 
 
 //
-// 元素规范化恢复。
-// 处理normalize的回退。
+// 元素规范化之前。
+// 关联事件：normalize
+// 处理.normalize()将有的变化。
 //
 class Normalize {
     /**
@@ -424,6 +432,7 @@ class Normalize {
      * @param {Event} ev 事件对象
      */
     constructor( el, ev ) {
+        // 自行负责。
         ev.preventDefault();
 
         let _all = textNodes( el )
@@ -434,11 +443,6 @@ class Normalize {
     }
 
 
-    /**
-     * 恢复：
-     * 1. 根据参考节点找到被规范文本节点。
-     * 2. 用备份节点替换目标节点。
-     */
     back() {
         this._buf.forEach( obj => obj.back() );
     }
@@ -447,14 +451,13 @@ class Normalize {
 
 //
 // 相邻文本节点处理。
-// 辅助处理.normalize()的回退。
+// 保留首个节点引用，与浏览器的处理相似。
 // 注：
 // 上级用户已调用了Event.preventDefault()。
 //
 class Texts {
     /**
      * nodes为一组相邻文本节点集。
-     * 保留首个节点引用。
      * @param {[Text]} nodes 节点集
      */
     constructor( nodes ) {
@@ -546,8 +549,8 @@ function adjacentTeam( nodes ) {
  */
 function callBack( handle ) {
     let _old = $.config({
-        varyevent: false,
-        bindevent: false,
+        varyevent: null,
+        bindevent: null,
     });
     try {
         return handle();
