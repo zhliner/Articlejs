@@ -903,7 +903,7 @@ option: {
 获取或修改 `el` 元素的属性（Property）值。
 
 - `el: Element` 操作的目标元素。
-- `names: String | Object | Map` 名称序列或**名/值**对配置对象。
+- `names: String | Object | Map` 名称序列或**名/值**对配置对象。名称支持 `data-x` 系简写形式和三个特殊名称：`text`、`html`、`selected`。
 - `value: Value | [Value] | Function | null` 设置的属性值（集）或返回单个值的取值回调。
 
 当 `value` 未定义且 `names` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置属性值。
@@ -915,7 +915,7 @@ option: {
 
 > **注：**<br>
 > 需要转换的属性名会自动转换（如：`class` => `clasName`），用户无需操心，两种形式皆可使用。
-> 定制属性名除了 `html, text` 外，还支持 `<select>` 元素的 `selected` 特性名，返回首个选取的 `<option>` 元素或 `null`（无任何选取）。
+> 定制属性名除了 `html, text` 外，还支持 `<select>` 元素的 `selected` 特性名，返回选取的 `<option>` 元素或元素集，单选时无选取返回 `null`。
 
 
 ### $.prop( el, name, value ): Value | Element

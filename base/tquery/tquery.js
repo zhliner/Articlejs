@@ -83,25 +83,21 @@
     - text:         同上（html）
 
 
-    事件绑定变化事件
-    如果元素绑定或解绑事件处理器时触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
-
-    - evbound       // 事件绑定事件
-    - evunbound     // 事件解绑事件
-    - evclone       // 事件克隆事件（在新元素的 evbound 之前，在源元素上触发）
-
-    注：
-    如果在源元素的 evclone 处理器中调用了 Event.preventDefault()，
-    则会取消新元素上的 evbound 触发。
+    事件绑定事件
+    在元素绑定或解绑之前/后触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
+    如果在元素的 bind 处理器中调用了 Event.preventDefault()，会取消事件处理的绑定。
     开启：tQuery.config({bindevent: true})
 
-    注意：
+    - 绑定      bind, bound
+    - 解绑      unbind, unbound
+
+
+    注记：
     定制事件通知机制不包含用户对选区（Selection/Range）的编辑操作，
     但依然可以辅助实现大部分节点修改类历史记录/回退类应用。
 
-    记录通常是在根容器上绑定，因此需要注意修改的顺序，否则脱离DOM的节点无法冒泡触发事件调用。
+    记录通常是在根容器上绑定，由目标元素上的事件冒泡触发记录，因此可能需要注意修改的顺序。
     比如应先修改特性再替换元素，否则替换下来的元素无法向上冒泡attrvary事件获得历史记录。
-    提示：主要留意 .replace() 方法。
 
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -863,10 +859,10 @@ Object.assign( tQuery, {
      * @return {Element} to
      */
     cloneEvent( to, src, evns ) {
-        if (to === src) {
+        if ( to === src ) {
             return to;
         }
-        if ( typeof evns == 'string' ) {
+        if ( typeof evns === 'string' ) {
             evns = evns.trim().split(__reSpace);
         }
         return Event.clone( to, src, evns );
@@ -1789,7 +1785,7 @@ Object.assign( tQuery, {
      *
      * 取值：
      * - 条件：value为未定义，name为字符串。
-     * - name支持空格分隔多个名称，返回一个名:值对象。
+     * - name支持空格分隔多个名称，返回一个 名:值 对象。
      *
      * 设置：
      * - value有值时，name为名称序列（空格分隔），value若为数组则一一对应。
@@ -1822,7 +1818,7 @@ Object.assign( tQuery, {
     /**
      * 剪取特性。
      * 取出特性值的同时移除该特性。
-     * name支持空格分隔的多个名称，此时返回名:值对象（保留特性名）。
+     * name支持空格分隔的多个名称，此时返回 名:值 对象（保留特性名）。
      * 注：不包含text和html特殊名。
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名/序列
@@ -3533,16 +3529,16 @@ function _first( els, slr, _beg = 0, _step = 1 ) {
  * @return {Element} 目标元素
  */
 function _cloneEvents( src, to, top, deep ) {
-    if (top) {
-        Event.clone(to, src);
+    if ( top ) {
+        Event.clone( to, src );
     }
-    if (!deep || src.childElementCount == 0) {
+    if ( !deep || src.childElementCount == 0 ) {
         return to;
     }
-    let _to = $tag('*', to),
-        _src = $tag('*', src);
+    let _to = $tag( '*', to ),
+        _src = $tag( '*', src );
 
-    for (let i = 0; i < _src.length; i++) {
+    for ( let i = 0; i < _src.length; i++ ) {
         Event.clone( _to[i], _src[i] );
     }
     return to;
@@ -5968,9 +5964,10 @@ const
     evnNormalize    = 'normalize',
     evnNormalized   = 'normalized',
 
-    evnBound        = 'evbound',
-    evnUnbound      = 'evunbound',
-    evnCloneEvent   = 'evclone';
+    evnBind         = 'bind',
+    evnUnbind       = 'unbind',
+    evnBound        = 'bound',
+    evnUnbound      = 'unbound';
 
 
 /**
@@ -6016,35 +6013,33 @@ function nodesTrigger( nodes, evn, data ) {
 
 
 /**
- * 绑定事件的激发。
- * 事件冒泡且可取消（取消对eventclone有用）。
+ * 事件绑定事件的激发。
+ * 事件冒泡且可取消。
  * 适用：tQuery.on|one, tQuery.off接口。
  * 发送数据：[
  *      type,       绑定事件名
  *      selector,   委托选择器
  *      handler,    事件处理器
+ *      cap,        是否为捕获
  *      once,       是否为单次逻辑
- *      el2,        克隆关联元素
  * ]
-  * 返回值：
- * - 返回 null 表示未配置定制事件发送。
- * - 返回 Boolean 类型则为 Element.dispatchEvent() 的返回值。
+ * 注：仅仅是绑定/解绑之后的通知，暂未提供绑定/解绑之前的通知。
 *  @param  {Element} el 目标元素
  * @param  {String} evn 事件名
  * @param  {String} type 绑定事件名
  * @param  {String} selector 委托选择器
  * @param  {Function|EventListener} handler 事件处理器
+ * @param  {Element} cap 是否为捕获
  * @param  {Boolean} once 是否为单次逻辑
- * @param  {Element} el2 关联元素
  * @return {Boolean|void}
  */
-function boundTrigger( el, evn, type, selector, handler, once, el2 ) {
+function bindTrigger( el, evn, type, selector, handler, cap, once ) {
     if ( !Options.bindevent ) {
         return;
     }
     return el.dispatchEvent(
         new CustomEvent( evn, {
-            detail: [ type, selector, handler, once, el2 ],
+            detail: [ type, selector, handler, cap, !!once ],
             bubbles: true,
             cancelable: true,
         })
@@ -6060,12 +6055,14 @@ function boundTrigger( el, evn, type, selector, handler, once, el2 ) {
  * @return {void}
  */
 function removeAttr( el, name ) {
-    if ( !el.hasAttribute(name) ||
-        varyTrigger(el, evnAttrSet, [name, null]) === false ) {
-        return;
+    let _old = el.getAttribute( name );
+
+    if ( _old !== null &&
+        varyTrigger(el, evnAttrSet, [name, null]) !== false ) {
+
+        el.removeAttribute( name );
+        varyTrigger( el, evnAttrDone, [name, _old] );
     }
-    el.removeAttribute( name );
-    varyTrigger( el, evnAttrDone, name );
 }
 
 
@@ -6078,8 +6075,10 @@ function removeAttr( el, name ) {
  */
 function setAttr( el, name, val ) {
     if ( varyTrigger(el, evnAttrSet, [name, val]) !== false ) {
+        let _old = el.getAttribute( name );
+
         el.setAttribute( name, val );
-        varyTrigger( el, evnAttrDone, name );
+        varyTrigger( el, evnAttrDone, [name, _old] );
     }
 }
 
@@ -6093,15 +6092,20 @@ function setAttr( el, name, val ) {
  * @return {void}
  */
 function setProp( el, name, dname, val ) {
+    name = propFix[name] || name;
+
     if ( varyTrigger(el, evnPropSet, [name, val]) === false ) {
         return;
     }
-    if (dname) {
+    let _old;
+    if ( dname ) {
+        _old = el.dataset[ dname ];
         el.dataset[ dname ] = val;
     } else {
-        el[ propFix[name] || name ] = val;
+        _old = el[ name ];
+        el[ name ] = val;
     }
-    varyTrigger( el, evnPropDone, name );
+    varyTrigger( el, evnPropDone, [name, _old] );
 }
 
 
@@ -6115,8 +6119,9 @@ function setProp( el, name, dname, val ) {
 function clearChecked( els ) {
     for ( let e of els ) {
         if ( varyTrigger(e, evnPropSet, ['checked', false]) !== false ) {
+            let _v = e.checked;
             e.checked = false;
-            varyTrigger( e, evnPropDone, 'checked' );
+            varyTrigger( e, evnPropDone, ['checked', _v] );
         }
     }
 }
@@ -6125,13 +6130,13 @@ function clearChecked( els ) {
 /**
  * 定制：<select>控件选取清除。
  * @param  {Element} el 控件元素
- * @param  {String} name 标识名（虚拟）
  * @return {void}
  */
-function clearSelected( el, name ) {
-    if ( varyTrigger(el, evnPropSet, [name, null]) !== false ) {
+function clearSelected( el ) {
+    if ( varyTrigger(el, evnPropSet, ['value', null]) !== false ) {
+        let _v = selectValue( el );
         el.selectedIndex = -1;
-        varyTrigger( el, evnPropDone, name );
+        varyTrigger( el, evnPropDone, ['value', _v] );
     }
 }
 
@@ -6140,15 +6145,15 @@ function clearSelected( el, name ) {
  * 定制：<select>控件操作（单选）。
  * 即便没有匹配项，原选中条目也会被清除选取。
  * @param  {Element} el 控件元素
- * @param  {String} name 标识名（虚拟）
- * @param  {Value} 对比值
+ * @param  {Value} val 对比值
  * @param  {Boolean} prop 属性设置（不检查:disabled）
  * @return {void}
  */
-function selectOne( el, name, val, prop ) {
-    if ( varyTrigger(el, evnPropSet, [name, val]) === false ) {
+function selectOne( el, val, prop ) {
+    if ( varyTrigger(el, evnPropSet, ['value', val]) === false ) {
         return;
     }
+    let _old = selectValue( el );
     el.selectedIndex = -1;
 
     for ( const op of el.options ) {
@@ -6157,7 +6162,7 @@ function selectOne( el, name, val, prop ) {
             break;
         }
     }
-    varyTrigger( el, evnPropDone, name );
+    varyTrigger( el, evnPropDone, ['value', _old] );
 }
 
 
@@ -6165,29 +6170,32 @@ function selectOne( el, name, val, prop ) {
  * 定制：<select>控件操作（多选）。
  * 匹配项被选取，非匹配项被清除选取。
  * @param  {Element} el 控件元素
- * @param  {String} name 标识名（虚拟）
- * @param  {Value|[Value]} 对比值/集
+ * @param  {Value|[Value]} val 对比值/集
  * @param  {Boolean} prop 属性设置（不检查:disabled）
  * @return {void}
  */
-function selects( el, name, val, prop ) {
-    if ( varyTrigger(el, evnPropSet, [name, val]) === false ) {
+function selects( el, val, prop ) {
+    if ( varyTrigger(el, evnPropSet, ['value', val]) === false ) {
         return;
     }
+    let _old = selectValue( el ),
+        _set = new Set( arrVal(val) );
+
     el.selectedIndex = -1;
-    val = new Set( isArr(val) ? val : [val] );
 
     for ( const op of el.options ) {
         if ( prop || !$is(op, ':disabled') ) {
-            op.selected = val.has( op.value );
+            op.selected = _set.has( op.value );
         }
     }
-    varyTrigger( el, evnPropDone, name );
+    varyTrigger( el, evnPropDone, ['value', _old] );
 }
 
 
 /**
  * 样式设置封装。
+ * 注记：
+ * style特性被独立出来，这里并不触发evnAttrDone事件。
  * @param  {Element} el 目标元素
  * @param  {String} name 样式名
  * @param  {Value} val 样式值
@@ -6195,8 +6203,10 @@ function selects( el, name, val, prop ) {
  */
 function setStyle( el, name, val ) {
     if ( varyTrigger(el, evnCssSet, [name, val]) !== false ) {
+        let _v = el.style[name];
+
         el.style[name] = val;
-        varyTrigger( el, evnCssDone, name );
+        varyTrigger( el, evnCssDone, [name, _v] );
     }
 }
 
@@ -6204,7 +6214,9 @@ function setStyle( el, name, val ) {
 /**
  * 类名添加封装。
  * 可一次添加多个名称，但仅发送一次事件。
- * 注记：第二/三个数据项表示动作（添加）。
+ * 注记：
+ * class特性被独立出来，这里并不触发evnAttrDone事件。
+ * 下同。
  * @param  {Element} el 目标元素
  * @param  {[String]} names 类名集
  * @return {void}
@@ -6275,7 +6287,7 @@ function varyPrepend( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'prepend']) !== false ) {
         let _els = arrVal( nodes );
         el.prepend( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, 'prepend' );
+        nodesTrigger( _els, evnNodeDone, [nodes, 'prepend'] );
     }
     return nodes;
 }
@@ -6291,7 +6303,7 @@ function varyAppend( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'append']) !== false ) {
         let _els = arrVal( nodes );
         el.append( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, 'append' );
+        nodesTrigger( _els, evnNodeDone, [nodes, 'append'] );
     }
     return nodes;
 }
@@ -6307,7 +6319,7 @@ function varyAppend2( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'append']) !== false ) {
         let _els = arrVal( nodes );
         el.append( ..._els );
-        nodesTrigger( _els, evnNodeDone, 'append' );
+        nodesTrigger( _els, evnNodeDone, [nodes, 'append'] );
     }
     return nodes;
 }
@@ -6323,7 +6335,7 @@ function varyBefore( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'before']) !== false ) {
         let _els = arrVal( nodes );
         el.before( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, 'before' );
+        nodesTrigger( _els, evnNodeDone, [nodes, 'before'] );
     }
     return nodes;
 }
@@ -6339,7 +6351,7 @@ function varyBefore2( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'before']) !== false ) {
         let _els = arrVal( nodes );
         el.before( ..._els );
-        nodesTrigger( _els, evnNodeDone, 'before' );
+        nodesTrigger( _els, evnNodeDone, [nodes, 'before'] );
     }
     return nodes;
 }
@@ -6355,7 +6367,7 @@ function varyAfter( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'after']) !== false ) {
         let _els = arrVal( nodes );
         el.after( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, 'after' );
+        nodesTrigger( _els, evnNodeDone, [nodes, 'after'] );
     }
     return nodes;
 }
@@ -6371,10 +6383,14 @@ function varyAfter( el, nodes ) {
  * @return {nodes}
  */
 function varyReplace( el, nodes ) {
-    if ( varyTrigger(el, evnNodeIn, [nodes, 'replace']) !== false ) {
-        let _els = arrVal( nodes );
+    let _box = el.parentNode;
+
+    if ( _box && varyTrigger(el, evnNodeIn, [nodes, 'replace']) !== false ) {
+        let _els = arrVal( nodes ),
+            _ref = el.previousSibling;
+
         el.replaceWith( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
+        nodesTrigger( _els, evnNodeDone, [nodes, 'replace'] ) && varyTrigger( el, evnDetached, [_ref, _box] );
     }
     return nodes;
 }
@@ -6382,9 +6398,9 @@ function varyReplace( el, nodes ) {
 
 /**
  * 元素内容清空。
- * 操作之后会激发两种事件：容器清空完成和内容脱离。
- * 如果清空完成事件处理中调用了 Event.preventDefault()，内容脱离事件就不再激发。
- * 注记：空集忽略（无动作）。
+ * 空集忽略（无动作）。
+ * 注记：
+ * 清空完成为单独的事件名，因此不再激发内容的脱离事件。
  * @param  {Element} el 目标容器元素
  * @return {[Node]} 移除的节点集
  */
@@ -6393,7 +6409,7 @@ function varyEmpty( el ) {
 
     if ( _subs.length && varyTrigger(el, evnEmpty) !== false ) {
         el.textContent = '';
-        varyTrigger( el, evnEmptied, _subs ) && nodesTrigger( _subs, evnDetached, el );
+        varyTrigger( el, evnEmptied, _subs );
     }
     return _subs;
 }
@@ -6408,11 +6424,13 @@ function varyEmpty( el ) {
  */
 function varyRemove( node ) {
     // 兼容DocumentFragment
-    let _pel = node.parentNode;
+    let _box = node.parentNode;
 
-    if ( _pel && varyTrigger(node, evnDetach) !== false ) {
+    if ( _box && varyTrigger(node, evnDetach) !== false ) {
+        let _ref = node.previousSibling;
+
         node.remove();
-        varyTrigger( node, evnDetached, _pel );
+        varyTrigger( node, evnDetached, [_ref, _box] );
     }
     return node;
 }
@@ -6428,6 +6446,7 @@ function varyNormalize( el ) {
 
     if ( (_nt === 1 || _nt === 11) &&
         varyTrigger(el, evnNormalize) !== false ) {
+
         el.normalize();
         varyTrigger( el, evnNormalized );
     }
@@ -6529,9 +6548,13 @@ function varyWrapAll( root, box, nodes, ref = nodes[0] ) {
  * @return {[Node]} subs
  */
 function varyReplace2s( el, subs ) {
-    if ( varyTrigger(el, evnNodeIn, [subs, 'replace']) !== false ) {
+    let _box = el.parentNode;
+
+    if ( _box && varyTrigger(el, evnNodeIn, [subs, 'replace']) !== false ) {
+        let _ref = el.previousSibling;
+
         el.replaceWith( ...subs );
-        nodesTrigger( subs, evnNodeDone, 'replace' ) && varyTrigger( el, evnDetached, null );
+        nodesTrigger( subs, evnNodeDone, [subs, 'replace'] ) && varyTrigger( el, evnDetached, [_ref, _box] );
     }
     return subs;
 }
@@ -6546,10 +6569,11 @@ function varyReplace2s( el, subs ) {
  * @return {[Node]} subs
  */
 function varyPrepend2s( el, subs ) {
-    if ( subs.length ) {
-        varyTrigger( el, evnNodeIn, subs );
+    if ( subs.length &&
+        varyTrigger(el, evnNodeIn, [subs, 'prepend']) !== false ) {
+
         el.prepend( ...subs );
-        nodesTrigger( subs, evnNodeDone, 'prepend' );
+        nodesTrigger( subs, evnNodeDone, [subs, 'prepend'] );
     }
     return subs;
 }
@@ -6562,8 +6586,7 @@ function varyPrepend2s( el, subs ) {
  * @return {[Node]} 节点集
  */
 function detachNodes( nodes ) {
-    if ( !nodes ) return '';
-    return nodes.filter( nd => nd && varyRemove(nd) );
+    return nodes ? nodes.filter( nd => nd && varyRemove(nd) ) : '';
 }
 
 
@@ -6577,6 +6600,22 @@ function arrVal( val ) {
 }
 
 
+/**
+ * 获取选单元素的值（集）。
+ * - 多选选单：返回一个值数组（可能为空）。
+ * - 单选选单：返回一个值，若无任何选取返回null。
+ * @param  {Element} el 选单元素
+ * @return {Value|[Value]|null}
+ */
+function selectValue( el ) {
+    if ( el.type === 'select-one' ) {
+        let _el = el.options[ el.selectedIndex ];
+        return _el ? _el.value : null;
+    }
+    return Arr( el.selectedOptions ).map( e => e.value );
+}
+
+
 
 //
 // 特性（Attribute）操作封装。
@@ -6585,8 +6624,8 @@ function arrVal( val ) {
 const elemAttr = {
     /**
      * 获取特性值。
-     * - 特性名可能为data系简写形式；
-     * - 如果属性不存在，返回null；
+     * - data特性名已为完整形式。
+     * - 如果属性不存在，返回null。
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名
      * @return {Value|null} 特性值
@@ -6599,9 +6638,9 @@ const elemAttr = {
 
     /**
      * 设置特性。
+     * - 如果value为null，则删除该特性。
+     * - data特性名已为完整形式。
      * - 部分属性为Boolean性质，特别处理（boolHook）。
-     * - 特性名可能为data系简写形式。
-     * - 如果value为null，则删除该特性（二次把关，批量操作时）。
      * @param {Element} el 目标元素
      * @param {String} name 特性名
      * @param {VAlue} value 设置值
@@ -6623,17 +6662,12 @@ const elemAttr = {
 const elemProp = {
     /**
      * 获取属性值。
-     * 支持一个定制的属性名selected，仅适用<select>元素：
-     * 返回首个选取的<option>元素或null（无任何选取）。
-     * - 属性名可能为data系简写形式。
+     * 属性名可能为data系简写形式。
      * @param  {Element} el  目标元素
      * @param  {String} name 属性名
-     * @return {Value} 结果值
+     * @return {Value|[Value]} 结果值
      */
     get( el, name ) {
-        if ( name === 'selected' ) {
-            return el.selectedOptions[0] || null;
-        }
         return this._get( el, name, dataName(name) );
     },
 
@@ -6643,7 +6677,7 @@ const elemProp = {
     //
     _get( el, name, dname ) {
         if ( dname ) {
-            return el.dataset[dname];
+            return el.dataset[ dname ];
         }
         name = propFix[name] || name;
         let _hook = propHooks[name] || propHooks[el.type];
@@ -6660,7 +6694,8 @@ const elemProp = {
      * @return {void}
      */
     set( el, name, val ) {
-        let _hook = propHooks[el.type];
+        // 只有<select>支持定制设置。
+        let _hook = propHooks[ el.type ];
         _hook && _hook.set && _hook.set(el, name, val) || setProp(el, name, dataName(name), val);
     },
 
@@ -6671,6 +6706,7 @@ const elemProp = {
 // from jQuery 3.x
 const
     focusable = /^(?:input|select|textarea|button)$/i,
+    // 仅用于取值。
     propFix = {
         'for':   'htmlFor',
         'class': 'className',
@@ -6698,6 +6734,7 @@ const
         }
     };
 
+
 const propHooks = {
 
     tabIndex: {
@@ -6709,32 +6746,46 @@ const propHooks = {
     },
 
     // <select>.type
-    // 属性名：value。
-    // @return {Boolean} 返回true表示接收处理。
     'select-one': {
+        // 仅处理value属性名。
+        // @return {true|void} 返回true表示接收处理。
         set: function( el, name, val ) {
             if ( name === 'value' ) {
-                val === null ? clearSelected(el, name) : selectOne(el, name, val, true);
+                val === null ? clearSelected(el) : selectOne(el, val, true);
                 return true;
             }
         }
     },
 
-    // 同上。
-    // 支持数组值设置多选。
     'select-multiple': {
         get: function( el, name ) {
             if ( name === 'value' ) {
-                return Arr(el.selectedOptions || el.options).filter( op => op.selected ).map( e => e.value );
+                return Arr( el.selectedOptions ).map( e => e.value );
             }
             return el[ name ];
         },
 
+        // 仅处理value属性名。
+        // 支持数组值设置多选。
+        // 返回true表示接收处理。
         set: function( el, name, val ) {
             if ( name === 'value' ) {
-                val === null ? clearSelected(el, name) : selects(el, name, val, true);
+                val === null ? clearSelected(el) : selects(el, val, true);
                 return true;
             }
+        }
+    },
+
+    // 定制属性名（仅适用<select>）。
+    'selected': {
+        /**
+         * 获取选单内选中的<option>子元素。
+         * - 多选选单：返回一个数组（可能为空）。
+         * - 单选选单：返回一个元素，未选中时返回null。
+         * @return {Element|[Element]|null}
+         */
+        get: function( el ) {
+            return el.type === 'select-one' ? el.options[el.selectedIndex] || null : [...el.selectedOptions];
         }
     },
 };
@@ -6829,11 +6880,10 @@ const valHooks = {
                 return;
             }
             return val === null ?
-                clearChecked( $A(_cbs) ) :
-                this._set( $A(_cbs), isArr(val) ? val : [val] );
+                clearChecked( $A(_cbs) ) : this._set( $A(_cbs), arrVal(val) );
         },
 
-        _set: (els, val) => {
+        _set: ( els, val ) => {
             for ( let e of els ) {
                 if ( !$is(e, ':disabled') ) setProp( e, 'checked', '', val.includes(e.value) );
             }
@@ -6848,7 +6898,7 @@ const valHooks = {
             }
             return el.type == 'select-one' ?
                 this._get( el.options[el.selectedIndex] ) :
-                this._gets( el.selectedOptions || el.options, [] );
+                this._gets( el.selectedOptions, [] );
         },
 
         _get: el => el && !$is(el, ':disabled') ? el.value : null,
@@ -6882,7 +6932,7 @@ const valHooks = {
     },
 
     // 默认操作。
-    // 对目标元素value属性的直接操作。
+    // 对目标元素的value属性直接操作。
     _default: {
         get: el => valPass(el) && el.value,
         set: (el, val) => valPass(el) && setProp( el, 'value', '', val )
@@ -7013,10 +7063,10 @@ const boxSizing = {
  * @return {Element|null|undefined}
  */
 function valPass( el ) {
-    if (!el.hasAttribute('name')) {
+    if ( !el.hasAttribute('name') ) {
         return;
     }
-    return $is(el, ':disabled') ? null : el;
+    return $is( el, ':disabled' ) ? null : el;
 }
 
 
@@ -7055,8 +7105,10 @@ const Event = {
     // Map{
     //      evname: Map{
     //          selector: Map{
-    //              handle: [ bound, capture, once ]
-    //              //        封装调用, 为捕获, 单次
+    //              handle: [
+    //                  [ bound, once ],  // capture:0:false
+    //                  [ bound, once ]   // capture:1:true
+    //              ]
     //          }
     //      }
     // }
@@ -7137,7 +7189,9 @@ const Event = {
         let [_evn, _cap] = this._evncap(evn, slr, cap),
             [_slr, _get] = this._matches(slr);
 
-        if ( this.isBound(el, _evn, _slr, handle, _cap) ) {
+        if ( this.isBound(el, _evn, _slr, handle, _cap) ||
+            // 确定会绑定才激发通知
+            bindTrigger(el, evnBind, _evn, _slr, handle, _cap) === false ) {
             return;
         }
         let _bound = this._handler(handle, _get, _slr);
@@ -7147,7 +7201,7 @@ const Event = {
             this.setBuffer( this.buffer(el, _evn, _slr), handle, _bound, _cap, false ),
             _cap
         );
-        return boundTrigger( el, evnBound, evn, slr, handle );
+        bindTrigger( el, evnBound, _evn, _slr, handle, _cap );
     },
 
 
@@ -7164,7 +7218,8 @@ const Event = {
         let [_evn, _cap] = this._evncap(evn, slr, cap),
             [_slr, _get] = this._matches(slr);
 
-        if ( this.isBound(el, _evn, _slr, handle, _cap) ) {
+        if ( this.isBound(el, _evn, _slr, handle, _cap) ||
+            bindTrigger(el, evnBind, _evn, _slr, handle, _cap, true) === false ) {
             return;
         }
         let _pool = this.buffer(el, _evn, _slr),
@@ -7176,7 +7231,7 @@ const Event = {
             this._onceHandler( el, _evn, _bound, _cap, _pool, slr, handle ),
             _cap
         );
-        return boundTrigger( el, evnBound, evn, slr, handle, true );
+        bindTrigger( el, evnBound, _evn, _slr, handle, _cap, true );
     },
 
 
@@ -7194,18 +7249,14 @@ const Event = {
      */
     off( el, evn, slr, handle, cap ) {
         let _m1 = this.store.get(el);
+        if ( !_m1 ) return;
 
-        if ( _m1 ) {
-            if ( !evn ) {
-                this._clearAll( el, _m1 );
-            } else {
-                this._clearSome( el, _m1, evn, slr, handle, cap );
-            }
-            if (_m1.size == 0) {
-                this.store.delete(el);
-            }
+        if ( !evn ) {
+            this._clearAll( el, _m1 );
+        } else {
+            this._clearSome( el, _m1, evn, slr, handle, cap );
         }
-        return this;
+        _m1.size || this.store.delete( el );
     },
 
 
@@ -7222,26 +7273,26 @@ const Event = {
         if ( !this.store.has(src) ) {
             return to;
         }
-        let _fltr = this._compRecord(evns);
+        let _fltr = this._compRecord( evns );
 
         for (const [n, nm] of this.store.get(src)) {
             // n:ev-name
             for (const [s, sm] of nm) {
                 // s:selector
-                for (const [h, v3] of sm) {
+                for (const [h, v2] of sm) {
+                    let [fn, c, one] = this._handleV2i( v2 );
                     // h:handle
-                    if ( _fltr(n, s, h ) ) {
+                    if ( _fltr(n, s, h) && bindTrigger(to, evnBind, n, s, h, c, one) !== false ) {
+
                         let _pool = this.buffer( to, n, s ),
-                            _call = this.setBuffer( _pool, h, v3[0], v3[1], v3[2] );
+                            _call = this.setBuffer( _pool, h, fn, c, one );
 
                         to.addEventListener(
                             n,
-                            v3[2] ? this._onceHandler(to, n, _call, v3[1], _pool, s, h) : _call,
-                            v3[1]
+                            one ? this._onceHandler(to, n, _call, c, _pool, s, h) : _call,
+                            c
                         );
-                        // 如果前者的处理器中调用了Event.preventDefault()，
-                        // 返回的false会导致后者不再激发。
-                        boundTrigger(src, evnCloneEvent, n, s, h, v3[2], to) && boundTrigger(to, evnBound, n, s, h, v3[2], src);
+                        bindTrigger( to, evnBound, n, s, h, c, one );
                     }
                 }
             }
@@ -7256,7 +7307,7 @@ const Event = {
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名
      * @param  {String} slr 委托选择器
-     * @return {Map} 末端存储 {handle: Array3}
+     * @return {Map} 末端存储 {handle: Array2}
      */
     buffer( el, evn, slr ) {
         return this._map( this._map( this._map( this.store, el ), evn ), slr )
@@ -7276,7 +7327,10 @@ const Event = {
     setBuffer( pool, handle, bound, capture, once ) {
         pool.set(
             handle,
-            [bound, capture, once]
+            [
+                !capture && [ bound, once ],
+                capture && [ bound, once ]
+            ]
         );
         return bound;
     },
@@ -7287,16 +7341,16 @@ const Event = {
      * @param  {String} evn 事件名
      * @param  {String} slr 委托选择器
      * @param  {Function|EventListener} handle 用户句柄
-     * @param  {Boolean} cap 是否为捕获，可选
+     * @param  {Boolean} cap 是否为捕获
      * @return {Boolean}
      */
     isBound( el, evn, slr, handle, cap ) {
         let _m1 = this.store.get(el),
             _m2 = _m1 && _m1.get(evn),
             _m3 = _m2 && _m2.get(slr),
-            _v3 = _m3 && _m3.get(handle);
+            _v2 = _m3 && _m3.get(handle);
 
-        return !!_v3 && _v3[1] === cap;
+        return !!_v2 && !!_v2[ +cap ];
     },
 
 
@@ -7381,7 +7435,7 @@ const Event = {
     /**
      * 构造单次调用处理器。
      * 执行之后会自动移除绑定和配置存储。
-     * 由用户触发的自动解绑也有解绑通知（evnUnbound）。
+     * 也有解绑和解绑完成通知，外部依然可以阻止解绑实施。
      * @param  {Element} el 目标元素
      * @param  {String} evn 事件名
      * @param  {Function} bound 普通封装处理器
@@ -7393,13 +7447,16 @@ const Event = {
      */
     _onceHandler( el, evn, bound, cap, pool, slr, handle ) {
         return function caller(...args) {
+            let _ok = bindTrigger(el, evnUnbind, evn, slr, handle, cap, true) !== false;
             try {
-                return bound(...args);
+                return _ok && bound(...args);
             }
             finally {
-                pool.delete( handle );
-                el.removeEventListener( evn, caller, cap );
-                boundTrigger( el, evnUnbound, evn, slr, handle, true );
+                if ( _ok ) {
+                    pool.delete( handle );
+                    el.removeEventListener( evn, caller, cap );
+                    bindTrigger( el, evnUnbound, evn, slr, handle, cap, true );
+                }
             }
         };
     },
@@ -7491,9 +7548,10 @@ const Event = {
             _fns.push( (n, s, h) => h === handle );
         }
         if ( cap !== undefined ) {
+            cap = !!cap;
             _fns.push( (n, s, h, c) => c === cap );
         }
-        return _fns.length == 1 ? _fns[0] : (n, s, h, c) => _fns.every(f => f(n, s, h, c));
+        return _fns.length === 1 ? _fns[0] : (n, s, h, c) => _fns.every(f => f(n, s, h, c));
     },
 
 
@@ -7509,7 +7567,9 @@ const Event = {
         if ( isFunc(evns) ) {
             return evns;
         }
-        return name => evns.includes( name );
+        evns = new Set( evns );
+
+        return name => evns.has( name );
     },
 
 
@@ -7539,9 +7599,13 @@ const Event = {
     _clearAll( el, map1 ) {
         for (let [n, m2] of map1) {
             for (const [s, m3] of m2) {
-                for (const [h, v3] of m3) {
-                    el.removeEventListener( n, v3[0], v3[1] );
-                    boundTrigger( el, evnUnbound, n, s, h, v3[2] );
+                for (const [h, v2] of m3) {
+                    let [fn, c, one] = this._handleV2i( v2 );
+
+                    if ( bindTrigger(el, evnUnbind, n, s, h, c, one) !== false ) {
+                        el.removeEventListener( n, fn, c );
+                        bindTrigger( el, evnUnbound, n, s, h, c, one );
+                    }
                 }
             }
         }
@@ -7565,17 +7629,33 @@ const Event = {
 
         for (let [n, m2] of map1) {
             for (const [s, m3] of m2) {
-                for (const [h, v3] of m3) {
-                    if ( _fltr(n, s, h, v3[1]) ) {
-                        el.removeEventListener( n, v3[0], v3[1] );
+                for (const [h, v2] of m3) {
+                    let [fn, c, one] = this._handleV2i( v2 );
+                    // 匹配之后才通知
+                    if ( _fltr(n, s, h, c) &&
+                        bindTrigger(el, evnUnbind, n, s, h, c, one) !== false ) {
+
+                        el.removeEventListener( n, fn, c );
                         m3.delete( h );
-                        boundTrigger( el, evnUnbound, n, s, h, v3[2] );
+                        bindTrigger( el, evnUnbound, n, s, h, c, one );
                     }
                 }
                 if ( m3.size == 0 ) m2.delete( s );
             }
             if ( m2.size == 0 ) map1.delete( n );
         }
+    },
+
+
+    /**
+     * 提取末端存储值对。
+     * 即处理 handle 键对应的值对数组。
+     * @param  {[Array2]} v2 值对数组
+     * @return [bound, capture, once]
+     */
+    _handleV2i( v2 ) {
+        let _v2 = v2[0] || v2[1];
+        return [ _v2[0], !v2[0], _v2[1] ];
     },
 
 
