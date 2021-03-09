@@ -40,7 +40,7 @@ const
     Normalize = $.Fx.History.Normalize,
 
     // 编辑需要监听的变化事件。
-    varyEvents = 'attrvary stylevary nodeok nodein empty detach normalize',
+    varyEvents = 'attrdone styledone nodeok emptied detached normalize',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
@@ -146,33 +146,28 @@ class History {
     /**
      * 入栈一个操作。
      * 仅作为单个实体压入。
-     * @param  {...Instance} obj 操作实例序列
+     * @param  {...Instance} objs 操作实例序列
      * @return {[Instance]|false} 头部被移出的操作实例序列
      */
-    push( ...obj ) {
-        if ( !obj.length ) return;
+    push( ...objs ) {
+        if ( !objs.length ) return;
 
         // 新入截断。
         this._buf.length = ++this._idx;
+        let _len = this._buf.push( objs );
 
-        let _len = this._buf.push(
-            obj.length == 1 ? obj[0] : obj
-        );
         return ( _len - this._max ) > 0 && this._shift();
     }
 
 
     /**
      * 栈顶弹出并执行。
-     * 注记：可用于模拟“取消”行为（微编辑）。
+     * 用于模拟“取消”行为（微编辑）。
      */
     pop() {
         let _obj = this._buf.pop();
         this._idx --;
 
-        if ( !$.isArray(_obj) ) {
-            return _obj.undo();
-        }
         _obj.slice().reverse().forEach( o => o.undo() );
     }
 
@@ -186,9 +181,6 @@ class History {
         }
         let _obj = this._buf[ this._idx-- ];
 
-        if ( !$.isArray(_obj) ) {
-            return _obj.undo();
-        }
         // 副本避免被修改。
         _obj.slice().reverse().forEach( o => o.undo() );
     }
@@ -202,9 +194,7 @@ class History {
         if ( this._idx >= this._buf.length - 1 ) {
             return warn('[redo] overflow.');
         }
-        let _obj = this._buf[ ++this._idx ];
-
-        $.isArray(_obj) ? _obj.forEach( o => o.redo() ) : _obj.redo();
+        this._buf[ ++this._idx ].forEach( o => o.redo() );
     }
 
 
@@ -236,9 +226,9 @@ class History {
      */
     _shift() {
         let _obj = this._buf.shift();
-        this._idx --;
+        this._idx--;
 
-        arrVal( _obj ).forEach( o => o.count && __TQHistory.prune(o.count) );
+        _obj.forEach( o => o.count && __TQHistory.prune(o.count) );
     }
 }
 
