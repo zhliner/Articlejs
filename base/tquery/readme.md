@@ -109,7 +109,7 @@
     - `propvary, propdone` 元素属性设置：`之前/完成` 事件。由 `.prop|.property|.val` 接口触发。
     - `stylevary, styledone` 元素内联样式设置：`之前/完成` 事件。由 `.css|.cssSets` 接口触发。
     - `classvary, classdone` 元素类名设置：`之前/完成` 事件。由 `.addClass|.removeClass|.toggleClass` 接口触发。
-    - `nodein, nodeok` 节点插入DOM：`之前/完成` 事件。由5个接口 `.prepend|.append|.before|.after|.replace` 触发。也可能由复合类操作如 `fill, wrap, wrapInner, html, text` 等触发。
+    - `nodein, nodeok, nodesdone` 节点插入DOM：`之前/完成/全部完成` 事件。由5个接口 `.prepend|.append|.before|.after|.replace` 触发。也可能由复合类操作如 `fill, wrap, wrapInner, html, text` 等触发。
     - `detach, detached` 节点脱离DOM：`之前/完成` 事件。由接口 `.remove` 触发。
     - `empty, emptied` 节点内清空：`之前/完成` 事件。由接口 `.empty` 触发。
     - `normalize, normalized` 节点规范化：`之前/完成` 事件。由接口 `.normalize` 触发。

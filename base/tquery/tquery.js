@@ -58,18 +58,19 @@
     - propvary, propdone        // 属性变化（之前、完成）
     - stylevary, styledone      // 样式变化（之前、完成）
     - classvary, classdone      // 类名变化（之前、完成）
-    注：
+    目标：
     变化之前和之后激发在相同的目标元素上。
 
-    - nodein, nodeok    // 节点进入DOM（之前、完成）
-    - empty, emptied    // 节点内容清空（之前、完成）
-    注：
-    变化之前激发在目标元素上，变化之后激发在数据节点上。
+    - nodein, nodeok, nodesdone // 节点进入DOM（之前、完成、全部完成）
+    - empty, emptied            // 节点内容清空（之前、完成）
+    目标：
+    变化之前激发在参考节点上，变化之后激发在数据节点上。
 
     - detach, detached          // 节点脱离DOM（之前、完成）
+    目标：变化之前激发在目标元素上，脱离DOM之后激发在原容器节点上。
+
     - normalize, normalized     // 节点规范化 （之前、完成）
-    注：
-    变化之前和之后都只激发在目标元素上。
+    目标：变化之前和之后都只激发在目标元素上。
 
 
     另：复合操作由多个基本操作组合而来。
@@ -5695,7 +5696,7 @@ function Insert( node, data, where ) {
     if ( !_fun ) {
         throw new Error(`[${where}] is invalid method.`);
     }
-    if ( data.nodeType === 11 ) {
+    if ( data && data.nodeType === 11 ) {
         data = [ ...data.childNodes ];
     }
     return _fun( node, data );
@@ -5959,7 +5960,8 @@ const
     evnClassDone    = 'classdone',
 
     evnNodeIn       = 'nodein',
-    evnNodeDone     = 'nodeok',
+    evnNodeOk       = 'nodeok',
+    evnNodesDone    = 'nodesdone',
     evnDetach       = 'detach',
     evnDetached     = 'detached',
     evnEmpty        = 'empty',
@@ -5974,6 +5976,23 @@ const
 
 
 /**
+ * 构造事件对象。
+ * 可冒泡可取消。
+ * @param {String} evn 事件名
+ * @param {Value} data 携带数据
+ */
+function customEvent( evn, data ) {
+    return new CustomEvent(
+        evn, {
+            detail:     data,
+            bubbles:    true,
+            cancelable: true
+        }
+    );
+}
+
+
+/**
  * 定制事件激发（操作前/后）。
  * 事件冒泡且可取消。
  * 如果用户在事件处理中调用了Event.preventDefault()，
@@ -5984,33 +6003,34 @@ const
  * @return {Boolean|void}
  */
 function varyTrigger( node, evn, data ) {
-    if ( !Options.varyevent ) {
-        return;
+    if ( Options.varyevent ) {
+        return node.dispatchEvent( customEvent(evn, data) );
     }
-    return node.dispatchEvent(
-        new CustomEvent( evn, {detail: data, bubbles: true, cancelable: true} )
-    );
 }
 
 
 /**
- * 事件批量激发。
- * 仅用于操作之后且目标为集合。
+ * 节点事件批量激发。
+ * 仅用于节点插入类操作。
+ * 插入完成（nodeok）事件发送在每一个数据节点上，
+ * 总完成（nodesdone）事件发送到参考节点上。
+ * 注：
  * 因为不再影响操作，故总是返回true（与未配置相异）。
- * @param  {[Node]} nodes 节点集
- * @param  {String} evn 事件名
- * @param  {Value} data 待发送数据
+ * @param  {Node} ref 插入参考节点
+ * @param  {[Node]} nodes 已插入节点集
+ * @param  {String} meth 插入方法
  * @return {true|void}
  */
-function nodesTrigger( nodes, evn, data ) {
+function nodesTrigger( ref, nodes, meth ) {
     if ( !Options.varyevent ) {
         return;
     }
     for ( const node of nodes ) {
-        node.dispatchEvent(
-            new CustomEvent( evn, {detail: data, bubbles: true, cancelable: true} )
-        );
+        node.dispatchEvent( customEvent(evnNodeOk, meth) );
     }
+    // 总完成通知。
+    ref.dispatchEvent( customEvent(evnNodesDone, [nodes, meth]) )
+
     return true;
 }
 
@@ -6298,8 +6318,9 @@ function toggleClass( el, names ) {
 function varyPrepend( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'prepend']) !== false ) {
         let _els = arrVal( nodes );
+
         el.prepend( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, [nodes, 'prepend'] );
+        nodesTrigger( el, _els, 'prepend' );
     }
     return nodes;
 }
@@ -6314,8 +6335,9 @@ function varyPrepend( el, nodes ) {
 function varyAppend( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'append']) !== false ) {
         let _els = arrVal( nodes );
+
         el.append( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, [nodes, 'append'] );
+        nodesTrigger( el, _els, 'append' );
     }
     return nodes;
 }
@@ -6330,8 +6352,9 @@ function varyAppend( el, nodes ) {
 function varyAppend2( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'append']) !== false ) {
         let _els = arrVal( nodes );
+
         el.append( ..._els );
-        nodesTrigger( _els, evnNodeDone, [nodes, 'append'] );
+        nodesTrigger( el, _els, 'append' );
     }
     return nodes;
 }
@@ -6346,8 +6369,9 @@ function varyAppend2( el, nodes ) {
 function varyBefore( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'before']) !== false ) {
         let _els = arrVal( nodes );
+
         el.before( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, [nodes, 'before'] );
+        nodesTrigger( el, _els, 'before' );
     }
     return nodes;
 }
@@ -6362,8 +6386,9 @@ function varyBefore( el, nodes ) {
 function varyBefore2( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'before']) !== false ) {
         let _els = arrVal( nodes );
+
         el.before( ..._els );
-        nodesTrigger( _els, evnNodeDone, [nodes, 'before'] );
+        nodesTrigger( el, _els, 'before' );
     }
     return nodes;
 }
@@ -6378,8 +6403,9 @@ function varyBefore2( el, nodes ) {
 function varyAfter( el, nodes ) {
     if ( varyTrigger(el, evnNodeIn, [nodes, 'after']) !== false ) {
         let _els = arrVal( nodes );
+
         el.after( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, [nodes, 'after'] );
+        nodesTrigger( el, _els, 'after' );
     }
     return nodes;
 }
@@ -6402,7 +6428,7 @@ function varyReplace( el, nodes ) {
             _ref = el.previousSibling;
 
         el.replaceWith( ...detachNodes(_els) );
-        nodesTrigger( _els, evnNodeDone, [nodes, 'replace'] ) && varyTrigger( el, evnDetached, [_ref, _box] );
+        nodesTrigger( el, _els, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
     }
     return nodes;
 }
@@ -6430,7 +6456,7 @@ function varyEmpty( el ) {
 /**
  * 节点移除。
  * 如果节点游离（无父容器），无任何行为。
- * 完成事件会发送原父容器作为数据。
+ * 因为节点会脱离DOM，所以事件发送给原父容器（携带数据）。
  * @param  {Node} node 待移除节点
  * @return {Node} node
  */
@@ -6442,7 +6468,7 @@ function varyRemove( node ) {
         let _ref = node.previousSibling;
 
         node.remove();
-        varyTrigger( node, evnDetached, [_ref, _box] );
+        varyTrigger( _box, evnDetached, [node, _ref] );
     }
     return node;
 }
@@ -6566,7 +6592,7 @@ function varyReplace2s( el, subs ) {
         let _ref = el.previousSibling;
 
         el.replaceWith( ...subs );
-        nodesTrigger( subs, evnNodeDone, [subs, 'replace'] ) && varyTrigger( el, evnDetached, [_ref, _box] );
+        nodesTrigger( el, subs, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
     }
     return subs;
 }
@@ -6585,7 +6611,7 @@ function varyPrepend2s( el, subs ) {
         varyTrigger(el, evnNodeIn, [subs, 'prepend']) !== false ) {
 
         el.prepend( ...subs );
-        nodesTrigger( subs, evnNodeDone, [subs, 'prepend'] );
+        nodesTrigger( el, subs, 'prepend' );
     }
     return subs;
 }

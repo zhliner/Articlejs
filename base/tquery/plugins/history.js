@@ -52,10 +52,10 @@
 
         // 节点变化。
         // 共需记录4种情形。
-        nodeok:     ev => new Nodedone( ev.target ),
+        nodesdone:  ev => new Nodesdone( ev.detail[0] ),
         detached:   ev => new Remove( ev.target, ev.detail ),
         emptied:    ev => new Empty( ev.target, ev.detail ),
-        // 拦截处理
+        // 事前拦截。
         normalize:  ev => new Normalize( ev.target, ev ),
 
         // 事件绑定变化。
@@ -352,21 +352,21 @@ class Unbound {
 
 //
 // 节点已进入。
-// 关联事件：nodeok
+// 关联事件：nodesdone
 // 数据节点已事先脱离DOM。
 // 适用方法：.prepend, .append, .before, .after, replace
 //
-class Nodedone {
+class Nodesdone {
     /**
-     * @param {Node} node 已插入节点
+     * @param {[Node]} nodes 已插入节点集
      */
-    constructor( node ) {
-        this._node = node;
+    constructor( nodes ) {
+        this._nodes = nodes;
     }
 
 
     back() {
-        this._node.remove();
+        this._nodes.forEach( nd => nd.remove() );
     }
 }
 
@@ -378,14 +378,14 @@ class Nodedone {
 //
 class Remove {
     /**
-     * @param {Node} node 待移除节点
-     * @param {Node|null} 前一个节点
-     * @param {Element|DocumentFragment} 容器节点
+     * @param {Element|DocumentFragment} box 已移除节点的原父节点
+     * @param {Node} node 已移除的节点
+     * @param {Node|null} prev 原前一个节点
      */
-    constructor( node, [prev, box] ) {
+    constructor( box, [node, prev] ) {
+        this._box = box;
         this._node = node;
         this._prev = prev;
-        this._box = box;
     }
 
 
