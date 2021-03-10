@@ -5320,10 +5320,10 @@ function hookSet( el, name, val, scope ) {
  * @param {Object} scope 适用域对象
  */
 function customSet( el, name, value, scope ) {
-    switch (name) {
+    switch ( name ) {
         // null数据为空串，表达清除的效果。
         case 'html':
-            return Insert(el, htmlFrag(el, value, ''), '');
+            return Insert( el, htmlFrag(el, value, ''), '' );
         case 'text':
             value = value === null ? '' : value;
             return Insert(el, el.ownerDocument.createTextNode(value), '');
@@ -5685,7 +5685,7 @@ function nodeItem( data, doc ) {
  * 通用节点（集）插入。
  * 返回实际插入的节点（集）。
  * @param  {Node} node 目标节点
- * @param  {Node|[Node]} data 节点（集）
+ * @param  {Node|[Node]|DocumentFragment} data 节点（集）
  * @param  {String|Number} where 插入位置
  * @return {Node|[Node]} 内容节点（集）
  */
@@ -5694,6 +5694,9 @@ function Insert( node, data, where ) {
 
     if ( !_fun ) {
         throw new Error(`[${where}] is invalid method.`);
+    }
+    if ( data.nodeType === 11 ) {
+        data = [ ...data.childNodes ];
     }
     return _fun( node, data );
 }
@@ -6086,26 +6089,36 @@ function setAttr( el, name, val ) {
 /**
  * 属性设置封装。
  * @param  {Element} el 目标元素
- * @param  {String} name 属性名（普通形式）
- * @param  {String} dname data属性名
+ * @param  {String} name 属性名
  * @param  {Value} val 属性值
  * @return {void}
  */
-function setProp( el, name, dname, val ) {
-    name = propFix[name] || name;
+function setProp( el, name, val ) {
+    if ( varyTrigger(el, evnPropSet, [name, val]) !== false ) {
+        let _old = el[ name ];
 
-    if ( varyTrigger(el, evnPropSet, [name, val]) === false ) {
-        return;
-    }
-    let _old;
-    if ( dname ) {
-        _old = el.dataset[ dname ];
-        el.dataset[ dname ] = val;
-    } else {
-        _old = el[ name ];
         el[ name ] = val;
+        varyTrigger( el, evnPropDone, [name, _old] );
     }
-    varyTrigger( el, evnPropDone, [name, _old] );
+}
+
+
+/**
+ * 设置data属性值。
+ * 即元素的 data-xx 特性的属性（.dataset）。
+ * @param  {Element} el 目标元素
+ * @param  {String} name data名称（驼峰式）
+ * @param  {Value} val 属性值
+ * @return {void}
+ */
+function setPropData( el, name, val ) {
+    // detail[2]: 是否为data-系名称（驼峰式）
+    if ( varyTrigger(el, evnPropSet, [name, val, true]) !== false ) {
+        let _old = el.dataset[ name ];
+
+        el.dataset[ name ] = val;
+        varyTrigger( el, evnPropDone, [name, _old, true] );
+    }
 }
 
 
@@ -6143,13 +6156,12 @@ function clearSelected( el ) {
 
 /**
  * 定制：<select>控件操作（单选）。
- * 即便没有匹配项，原选中条目也会被清除选取。
+ * 即便没有匹配项，原选中条目也会被清除选取（因此总会发送事件）。
  * @param  {Element} el 控件元素
  * @param  {Value} val 对比值
- * @param  {Boolean} prop 属性设置（不检查:disabled）
  * @return {void}
  */
-function selectOne( el, val, prop ) {
+function selectOne( el, val ) {
     if ( varyTrigger(el, evnPropSet, ['value', val]) === false ) {
         return;
     }
@@ -6157,7 +6169,7 @@ function selectOne( el, val, prop ) {
     el.selectedIndex = -1;
 
     for ( const op of el.options ) {
-        if ( op.value === val && (prop || !$is(op, ':disabled')) ) {
+        if ( op.value === val && !$is(op, ':disabled') ) {
             op.selected = true;
             break;
         }
@@ -6174,7 +6186,7 @@ function selectOne( el, val, prop ) {
  * @param  {Boolean} prop 属性设置（不检查:disabled）
  * @return {void}
  */
-function selects( el, val, prop ) {
+function selectMulti( el, val, prop ) {
     if ( varyTrigger(el, evnPropSet, ['value', val]) === false ) {
         return;
     }
@@ -6668,20 +6680,17 @@ const elemProp = {
      * @return {Value|[Value]} 结果值
      */
     get( el, name ) {
-        return this._get( el, name, dataName(name) );
+        let _dname = dataName( name );
+
+        if ( _dname ) {
+            return el.dataset[ _dname ];
+        }
+        return this._get( el, propFix[name] || name );
     },
 
 
-    //
-    // @param {String} dname data-名称
-    //
-    _get( el, name, dname ) {
-        if ( dname ) {
-            return el.dataset[ dname ];
-        }
-        name = propFix[name] || name;
+    _get( el, name ) {
         let _hook = propHooks[name] || propHooks[el.type];
-
         return _hook && _hook.get ? _hook.get(el, name) : el[name];
     },
 
@@ -6694,34 +6703,39 @@ const elemProp = {
      * @return {void}
      */
     set( el, name, val ) {
-        // 只有<select>支持定制设置。
+        let _dname = dataName( name );
+
+        if ( _dname ) {
+            return setPropData( el, _dname, val );
+        }
+        name = propFix[name] || name;
         let _hook = propHooks[ el.type ];
-        _hook && _hook.set && _hook.set(el, name, val) || setProp(el, name, dataName(name), val);
+
+        _hook && _hook.set && _hook.set(el, name, val) || setProp(el, name, val);
     },
 
 };
 
 
 
-// from jQuery 3.x
+// part of jQuery 3.x
 const
-    focusable = /^(?:input|select|textarea|button)$/i,
+    focusable = /^(?:input|select|textarea|button|a|audio|video)$/i,
     // 仅用于取值。
     propFix = {
-        'for':   'htmlFor',
-        'class': 'className',
-        // 取消支持。
-        // 由用户提供正确名称。一致性（驼峰名称不止这些）。
-        // 'tabindex':          'tabIndex',
-        // 'readonly':          'readOnly',
-        // 'maxlength':         'maxLength',
-        // 'cellspacing':       'cellSpacing',
-        // 'cellpadding':       'cellPadding',
-        // 'rowspan':           'rowSpan',
-        // 'colspan':           'colSpan',
-        // 'usemap':            'useMap',
-        // 'frameborder':       'frameBorder',
-        // 'contenteditable':   'contentEditable',
+        'for':              'htmlFor',
+        'class':            'className',
+        // 部分常见，仅简单驼峰式。
+        'tabindex':          'tabIndex',
+        'readonly':          'readOnly',
+        'maxlength':         'maxLength',
+        'cellspacing':       'cellSpacing',
+        'cellpadding':       'cellPadding',
+        'rowspan':           'rowSpan',
+        'colspan':           'colSpan',
+        'usemap':            'useMap',
+        'frameborder':       'frameBorder',
+        'contenteditable':   'contentEditable',
     },
     booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
@@ -6746,17 +6760,6 @@ const propHooks = {
     },
 
     // <select>.type
-    'select-one': {
-        // 仅处理value属性名。
-        // @return {true|void} 返回true表示接收处理。
-        set: function( el, name, val ) {
-            if ( name === 'value' ) {
-                val === null ? clearSelected(el) : selectOne(el, val, true);
-                return true;
-            }
-        }
-    },
-
     'select-multiple': {
         get: function( el, name ) {
             if ( name === 'value' ) {
@@ -6765,12 +6768,12 @@ const propHooks = {
             return el[ name ];
         },
 
-        // 仅处理value属性名。
+        // 仅处理value，其它略过（上级继续）。
         // 支持数组值设置多选。
-        // 返回true表示接收处理。
+        // @return {true|void} true表示已处理。
         set: function( el, name, val ) {
             if ( name === 'value' ) {
-                val === null ? clearSelected(el) : selects(el, val, true);
+                val === null ? clearSelected(el) : selectMulti(el, val, true);
                 return true;
             }
         }
@@ -6797,7 +6800,7 @@ const propHooks = {
 // 与元素的 value 属性或特性不同，这里的取值遵循表单提交逻辑。
 // 即：如果条目未选中或自身处于 disabled 状态，返回 null。
 //
-// 对部分控件的设置是选中与值匹配的条目，而不是改变控件的值本身。
+// 对单选/复选和选单控件，设置是选中与值匹配的条目而不是改变控件的value属性值本身。
 // 如果控件已 disabled，会忽略设置操作。
 //
 // 对于选取类控件，设置时传递 null 值会清除全部选取。
@@ -6809,13 +6812,14 @@ const valHooks = {
         // 返回选中项的值，仅一项。
         get: function( el ) {
             let _res = el.form[el.name];
-            // form[undefined]有效，
+            // form[undefined]可对应到 name="undefined"，
             // 因此需对name再确认。
             return _res && el.name && this._get( _res.nodeType ? [_res] : _res );
         },
 
-        _get: els => {
-            for ( let e of els ) {
+        // for disabled.
+        _get: list => {
+            for ( let e of list ) {
                 if ( e.checked ) {
                     return $is( e, ':disabled' ) ? null : e.value;
                 }
@@ -6824,21 +6828,24 @@ const valHooks = {
         },
 
 
-        // val仅为值，不支持数组。
-        // 注：采用严格相等比较。
+        // val为单值。
         set: function( el, val ) {
             let _res = el.form[el.name];
 
             if (!_res || !el.name) {
                 return;
             }
+            // 清除时包含disabled控件，但设置不含。
             return val === null ? clearChecked( $A(_res) ) : this._set( $A(_res), val );
         },
 
+        // 与jQuery逻辑不同，
+        // 这里不是设置value属性，而是选中与值匹配的控件。这更接近表单提交的逻辑。
+        // 注：属性设置可由.prop()完成。
         _set: (els, val) => {
             for ( let e of els ) {
                 if ( val === e.value ) {
-                    return !$is(e, ':disabled') && setProp( e, 'checked', '', true );
+                    return !$is(e, ':disabled') && setProp( e, 'checked', true );
                 }
             }
         },
@@ -6883,9 +6890,11 @@ const valHooks = {
                 clearChecked( $A(_cbs) ) : this._set( $A(_cbs), arrVal(val) );
         },
 
+        // 不匹配的都会取消选中，
+        // 因为逻辑上复选框是可以取消选中的，而单选按钮组则通常是有一个要选中。
         _set: ( els, val ) => {
             for ( let e of els ) {
-                if ( !$is(e, ':disabled') ) setProp( e, 'checked', '', val.includes(e.value) );
+                if ( !$is(e, ':disabled') ) setProp( e, 'checked', val.includes(e.value) );
             }
         },
     },
@@ -6896,18 +6905,18 @@ const valHooks = {
             if ( !(el = valPass(el)) ) {
                 return el; // null/undefined
             }
-            return el.type == 'select-one' ?
-                this._get( el.options[el.selectedIndex] ) :
-                this._gets( el.selectedOptions, [] );
+            return el.type === 'select-one' ? this._get( el.options[el.selectedIndex] ) : this._gets( el.selectedOptions );
         },
 
         _get: el => el && !$is(el, ':disabled') ? el.value : null,
 
-        _gets: (els, buf) => {
+        _gets: els => {
+            let _buf = [];
+
             for ( const e of els ) {
-                if ( e.selected && !$is(e, ':disabled') ) buf.push(e.value);
+                if ( !$is(e, ':disabled') ) _buf.push(e.value);
             }
-            return buf;
+            return _buf;
         },
 
 
@@ -6918,9 +6927,9 @@ const valHooks = {
                 return;
             }
             if (val === null) {
-                return clearSelected(el, 'value');
+                return clearSelected( el );
             }
-            return el.type == 'select-one' ? selectOne(el, 'value', val) : selects(el, 'value', val);
+            return el.type == 'select-one' ? selectOne( el, val ) : selectMulti( el, val );
         },
     },
 
@@ -6935,7 +6944,7 @@ const valHooks = {
     // 对目标元素的value属性直接操作。
     _default: {
         get: el => valPass(el) && el.value,
-        set: (el, val) => valPass(el) && setProp( el, 'value', '', val )
+        set: (el, val) => valPass(el) && setProp( el, 'value', val )
     },
 };
 

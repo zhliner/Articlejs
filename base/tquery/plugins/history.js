@@ -185,20 +185,22 @@ class Prop {
      * @param {Element} el 目标元素
      * @param {String} name 目标属性名（最终）
      * @param {Value|[Value]} val 之前的值
-     * @param {String} dname data名称（驼峰式）
+     * @param {Boolean} dname 是否为data名称（驼峰式）
      */
-    constructor( el, [name, val] ) {
+    constructor( el, [name, val, dname] ) {
         this._el = el;
         this._name = name;
         this._old = val;
+        this._isdn = dname;
     }
 
 
     back() {
-        // 应对复杂情况：
-        // - disabled 的控件可以恢复。
-        // - 多选选单恢复多选。
-        $.prop( this._el, this._name, this._old );
+        if ( this._isdn ) {
+            this._el.dataset[ this._name ] = this._old;
+        } else {
+            this._el[ this._name ] = this._old;
+        }
     }
 }
 
