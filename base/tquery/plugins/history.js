@@ -56,7 +56,7 @@
         detached:   ev => new Remove( ev.target, ev.detail ),
         emptied:    ev => new Empty( ev.target, ev.detail ),
         // 事前拦截。
-        normalize:  ev => new Normalize( ev.target, ev ),
+        normalize:  ev => ev.preventDefault() || new Normalize( ev.target ),
 
         // 事件绑定变化。
         bound:      ev => new Bound( ev.target, ...ev.detail ),
@@ -431,12 +431,8 @@ class Normalize {
      * 提取相邻文本节点集分组。
      * 对每一组提前处理。
      * @param {Element} el 事件主元素
-     * @param {Event} ev 事件对象
      */
-    constructor( el, ev ) {
-        // 自行负责。
-        ev.preventDefault();
-
+    constructor( el ) {
         let _all = textNodes( el )
             .filter(
                 (nd, i, arr) => adjacent(nd, arr[i - 1], arr[i + 1])
