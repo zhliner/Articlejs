@@ -39,8 +39,8 @@ const
 
     Normalize = $.Fx.History.Normalize,
 
-    // 编辑需要监听的变化事件。
-    varyEvents = 'attrdone styledone nodeok emptied detached normalize',
+    // 编辑区需要监听的变化（历史记录）。
+    varyEvents = 'attrdone styledone nodesdone emptied detached normalize',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
@@ -2054,6 +2054,60 @@ function dataClones( $data, cnt ) {
 
 
 /**
+ * 专用：rbpt
+ * 根据选取的元素找到插入参考位置。
+ * @param  {Element} rb 注音文本元素（选中）
+ * @param  {Boolean} before 是否向前插入
+ * @return {Element|null}
+ */
+function posWithRB( rb, before ) {
+    // 跳过第一个<rp>
+    return before ? rb : $.next( rb.nextElementSibling, 'rp', true );
+}
+
+
+/**
+ * 专用：rbpt
+ * 根据选取的元素找到插入参考位置。
+ * @param  {Element} rt 拼音元素（选中）
+ * @param  {Boolean} before 是否向前插入
+ * @return {Element|null}
+ */
+function posWithRT( rt, before ) {
+    return before ? $.prev( rt, 'rb', true ) : rt.nextElementSibling;
+}
+
+
+/**
+ * 判断获取 T.RBPT 参考元素。
+ * @param  {Element} el 目标元素
+ * @param  {Boolean} before 是否向前插入
+ * @return {Element}
+ */
+function rbptRef( el, before ) {
+    switch ( el.tagName ) {
+        case 'RB': return posWithRB( el, before );
+        case 'RT': return posWithRT( el, before );
+    }
+    // 外部异常（通常不可能）
+    throw new Error( 'element not <rb> or <rt>.' );
+}
+
+
+/**
+ * 提取 T.RBPT 单元插入参考元素。
+ * 只有平级才需要变换参考节点。
+ * @param  {Boolean} before 是否向前插入
+ * @param  {String} level 插入层级（siblings|children）
+ * @return {[Element]}
+ */
+function rbptRefs( before, level ) {
+    let _els = [ ...__ESet ];
+    return level === Sys.levelName1 ? _els.map( el => rbptRef(el, before) ) : _els;
+}
+
+
+/**
  * 普通模式：撤销。
  * @return {Boolean} 是否可以再撤销
  */
@@ -2888,20 +2942,21 @@ function last( els ) {
 /**
  * 提示错误并提供帮助索引。
  * msgid: [hid, tips]
- * 注记：
- * 帮助ID会嵌入到提示链接中，并显示到状态栏。
- * 鼠标指向背影提示关联元素，单击滚动问题元素到视口中间。
+ * el默认为null避免linkElem()变为取值逻辑。
  * @param  {String} msgid 消息ID
  * @param  {Element} el 关联元素，可选
  * @return {true|void}
  */
-function help( msgid, el ) {
+function help( msgid, el = null ) {
     if ( msgid === null ) {
         return $.trigger( errContainer, 'off' );
     }
     let [hid, msg] = Help[ msgid ];
 
+    // 存储关联元素，便于单击定位。
     $.trigger( linkElem(errContainer, el), 'on' );
+
+    // 进阶：帮助ID嵌入到提示链接中。
     $.trigger( $.get('a', errContainer), 'setv', [hid, msg, msg] );
 }
 
@@ -3380,8 +3435,8 @@ function subsGetter( tval ) {
  * @param  {Element} el 代码容器元素
  * @return {[Element]}
  */
-function childrenGetter(el) {
-    return $.children(el);
+function childrenGetter( el ) {
+    return $.children( el );
 }
 
 
@@ -3392,8 +3447,8 @@ function childrenGetter(el) {
  * @param  {Element} el 小区块容器元素
  * @return {[Element]}
  */
-function xblockGetter(el) {
-    return _bodyGets(el, '>h3');
+function xblockGetter( el ) {
+    return _bodyGets( el, '>h3' );
 }
 
 
@@ -3402,8 +3457,8 @@ function xblockGetter(el) {
  * @param  {Element} el 容器元素
  * @return {[Element]}
  */
-function detailsGetter(el) {
-    return _bodyGets(el, '>summary');
+function detailsGetter( el ) {
+    return _bodyGets( el, '>summary' );
 }
 
 
@@ -3413,8 +3468,8 @@ function detailsGetter(el) {
  * @param  {Element} el 片区元素
  * @return {[Element]}
  */
-function sectionGetter(el) {
-    return _bodyGets(el, '>h2');
+function sectionGetter( el ) {
+    return _bodyGets( el, '>h2' );
 }
 
 
@@ -3425,8 +3480,8 @@ function sectionGetter(el) {
  * @param  {Element} el 表格元素
  * @return {[Element]}
  */
-function tableGetter(el) {
-    return _bodyGets(el, '>caption, >thead, >tfoot');
+function tableGetter( el ) {
+    return _bodyGets( el, '>caption, >thead, >tfoot' );
 }
 
 
@@ -3437,10 +3492,10 @@ function tableGetter(el) {
  * @param  {String} hslr 标题选择器
  * @return {[Element]}
  */
-function _bodyGets(el, hslr) {
-    let _subs = $.children(el);
+function _bodyGets( el, hslr ) {
+    let _subs = $.children( el );
 
-    for (const hx of $.find(hslr, el)) {
+    for ( const hx of $.find(hslr, el) ) {
         let _i = _subs.indexOf(hx);
         if (_i >= 0) _subs.splice(_i, 1);
     }
@@ -3450,7 +3505,7 @@ function _bodyGets(el, hslr) {
 
 /**
  * 获取可合并单元内容集。
- * - 全部为内容元素。
+ * - 全部为内容元素但非双向固定单元（如<rb>）。
  * - 全部为相同类型，如果为表格单元，列数必需相同。
  * - 不同类型的行块单元必需兼容。
  * - 容器不能为空元素和密封类型元素。
@@ -3466,8 +3521,7 @@ function canMerges( box, els ) {
     let _btv = getType( box );
 
     if ( T.isContent(_btv) ) {
-        return els.every( isContent ) &&
-            els.map( el => $.contents(el) ).flat();
+        return !T.isFixed(_btv) && els.every(isContent) && $(els).contents().flat();
     }
     let _tvs = [...typeSets(els)];
 
@@ -3499,27 +3553,28 @@ function mergeChildren( els ) {
 
 /**
  * 找到首个不可合并元素。
- * - 容器为内容元素时，找到首个非内容元素。
- * - 容器为表格元素时，找到首个非表格或不同列表格元素。
- * - 容器为普通行块时，找到首个不兼容元素。
- * - 容器为空元素或密封单元时，返回容器本身。
- * @param  {Element} box 合并到的容器元素
+ * - to为内容元素时，找到首个非内容元素。
+ * - to为表格元素时，找到首个非表格或不同列表格元素。
+ * - to为普通行块时，找到首个不兼容元素。
+ * - to为空元素或密封单元时，返回容器本身。
+ * @param  {Element} to 合并到的元素
  * @param  {[Element]} els 待合并元素集
  * @return {Element}
  */
-function mergeBadit( box, els ) {
-    let _btv = getType( box );
+function mergeBadit( to, els ) {
+    let _tv = getType( to );
 
-    if ( T.isContent(_btv) ) {
-        return _contentNoit( els );
+    if ( T.isContent(_tv) ) {
+        // isFixed：主要适用<rb|rt>
+        return T.isFixed(_tv) ? to : _contentNoit( els );
     }
-    if ( _btv === T.TABLE ) {
-        return _tableNoit( box, els );
+    if ( _tv === T.TABLE ) {
+        return _tableNoit( to, els );
     }
-    if ( T.isEmpty(_btv) || T.isSealed(_btv) ) {
-        return box;
+    if ( T.isEmpty(_tv) || T.isSealed(_tv) ) {
+        return to;
     }
-    return compatibleNoit( box, els );
+    return compatibleNoit( to, els );
 }
 
 
@@ -5739,14 +5794,22 @@ export const Kit = {
     /**
      * 插入注音子单元集。
      * 如果选取多个目标，则克隆为多组。
-     * 注意规范的位置。
+     * 注：
+     * 平级插入时需要找到规范的位置。
+     * 焦点移动到首个插入的<rb>元素。
      * @data: [Element] <rb|rp|rt|rp>序列
      * @param  {Boolean} before 向前插入
      * @param  {String} level 插入层级（siblings|children）
      * @return {void}
      */
     insrbpt( evo, before, level ) {
-        //
+        let _els = rbptRefs( before, level ),
+            _dt2 = dataClones( $(evo.data), _els.length ),
+            _op1 = clearSets(),
+            _ops = insertsNodes( _els, _dt2, before, level ),
+            _elx = _dt2.flat().filter( nd => nd.tagName !== 'RP' );
+
+        historyPush( _op1, ..._ops, pushes(_elx), new HotEdit(_elx[0]) );
     },
 
     __insrbpt: 1,

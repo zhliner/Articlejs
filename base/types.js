@@ -697,6 +697,26 @@ export function isFixed2( tval ) {
 
 
 /**
+ * 是否为双向固定。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isFixed( tval ) {
+    return !!( Properties[tval] & FIXED1 && Properties[tval] & FIXED2 );
+}
+
+
+/**
+ * 是否为任一固定。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isFixedAny( tval ) {
+    return !!( Properties[tval] & FIXED1 || Properties[tval] & FIXED2 );
+}
+
+
+/**
  * 是否为密封单元。
  * 可修改但不可新插入，除非已为空。
  * @param  {Number} tval 类型值

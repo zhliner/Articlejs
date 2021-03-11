@@ -597,8 +597,7 @@ export function afterFixed( el ) {
  * @return {Boolean}
  */
 export function isFixed( el ) {
-    let _tv = getType( el );
-    return T.isFixed1( _tv ) || T.isFixed2( _tv );
+    return T.isFixed( getType(el) );
 }
 
 
