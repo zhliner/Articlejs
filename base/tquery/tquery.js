@@ -632,21 +632,22 @@ Object.assign( tQuery, {
 
 
     /**
-     * 创建一个文本节点。
+     * 创建文本节点。
      * - 如果data参数为节点元素，取其文本创建。
-     * - data支持字符串或节点的数组，数组单元转为字符串后连接。
-     * - 串连字符串sep仅在data为数组时才有意义。
-     *
+     * - data支持字符串或节点的数组，数组单元转为字符串后用空格连接。
+     * - 如果传递hasbr为true，返回的是一个节点数组。
+     * 注意：
+     * 数组数据并不对应创建并返回多个节点。
      * @param  {String|[String]|Node|[Node]} data 文本或节点元素或其数组
-     * @param  {String} sep 数组成员间链接符，可选
+     * @param  {Boolean} hasbr 是否换行有效，可选
      * @param  {Document} doc 所属文档
-     * @return {Text} 新文本节点
+     * @return {Text|[Node]} 新文本节点（集）
      */
-    Text( data, sep = ' ', doc = Doc ) {
-        if (typeof data === 'object') {
-            data = data && nodeText(data, sep);
+    Text( data, hasbr, doc = Doc ) {
+        if ( typeof data !== 'string' ) {
+            data = data && nodeText( data, ' ' );
         }
-        return doc.createTextNode( data );
+        return hasbr ? innerTextNodes(data, doc) : doc.createTextNode( data );
     },
 
 
@@ -5595,6 +5596,20 @@ function nodeText( nodes, sep ) {
         );
     }
     return _buf.join( sep );
+}
+
+
+/**
+ * 创建视觉相符的文本节点。
+ * 主要是指换行可以被转换为<br>元素。
+ * @param  {String} text 源文本
+ * @param  {Document} doc 文档对象
+ * @return {[Node]} 节点集
+ */
+function innerTextNodes( text, doc ) {
+    let _box = doc.createElement( 'div' );
+    _box.innerText = text;
+    return  [..._box.childNodes ];
 }
 
 
