@@ -502,18 +502,15 @@ const Children = {
      */
     [ T.FIGIMGBOX ]: function( ref, box, {explain}, data ) {
         let [_img, _end] = appendChild(
-                ref,
-                box,
-                data,
-                () => elem( T.IMG )
-            ),
-            _expl = explain;
-
-        if ( _expl && typeof _expl === 'string' ) {
-            // 换行可转为<br>
-            _expl = $.prop( elem(T.EXPLAIN), 'innerText', explain );
+            ref,
+            box,
+            data,
+            () => elem( T.IMG )
+        );
+        if ( typeof explain === 'string' ) {
+            explain = appendNode( box, create(T.EXPLAIN, null, explain) );
         }
-        return result( _expl && appendNode(box, _expl), _img, _end );
+        return result( explain, _img, _end );
     },
 
 
@@ -1001,19 +998,19 @@ const Children = {
      * 因为需要规范化内容，所以返回的是容器元素本身。
      * @param  {Element|null} ref 插入参考子元素
      * @param  {Element} el 内容根元素
-     * @param  {String|Node|Array} data 内容数据
-     * @return {[Node]} 新插入的节点集
+     * @param  {String|Node|[Node]|DocumentFragment} data 内容数据
+     * @return {Node|[Node]} 新插入的节点（集）
      */
     Children[ its ] = function( ref, el, _, data ) {
         if ( $.isArray(data) ) {
-            data = data.map( dd => dataCons(dd, el) ).flat();
+            data = $.map( data, dd => dataCons(el, dd) ).flat();
         } else {
-            data = dataCons( data, el );
+            data = dataCons( el, data );
         }
-        let _cons = insertChild( ref, el, data );
-        $.normalize( el );
+        insertChild( ref, el, data );
+        data && $.normalize( el );
 
-        return result( null, _cons, true );
+        return result( null, data, true );
     };
 });
 
@@ -1880,25 +1877,26 @@ function svgInsert( ref, box, data ) {
 /**
  * 检查提取数据内容。
  * 汇集符合目标元素子元素类型的数据。
- * 如果不符合子元素类型，则取其文本内容。
+ * - 如果数据是字符串，支持字符串内的换行（创建为<br>）。
+ * - 如果数据是文档片段，外部保证其内容的合法性。
+ * - 如果不符合子元素类型，则取其文本内容创建为文本节点。
  * 注：仅用于内容元素。
- * @param  {String|Node|DocumentFragment} data 目标数据
  * @param  {Element} box 容器元素
- * @return {Node|String|[Node|String]} 合法数据（集）
+ * @param  {String|Node|DocumentFragment} data 目标数据
+ * @return {Node|[Node]} 合法数据（集）
  */
-function dataCons( data, box ) {
-    if ( !data || data.nodeType === 3 ) {
-        return data || '';
+function dataCons( box, data ) {
+    if ( !data || data.nodeType > 1 ) {
+        return data || null;
+    }
+    if ( typeof data === 'string' ) {
+        return $.Text( data, true );
     }
     if ( T.onlyText(getType(box)) ) {
-        return data.textContent;
-    }
-    // 外部保证片段内容的合法性。
-    if ( data.nodeType === 11 ) {
-        return [ ...data.childNodes ];
+        return $.Text( data );
     }
     return contents( data ).map(
-        nd => T.isChildType( box, getType(nd) ) ? nd : nd.textContent
+        nd => T.isChildType( box, getType(nd) ) ? nd : $.Text( nd )
     );
 }
 

@@ -5174,6 +5174,7 @@ export const Kit = {
     /**
      * 文本录入预处理。
      * 可能已强制切分，支持集合处理。
+     * 清理空白时换行作为首个空白会得到保留。
      * @data: String|[String]
      * @param  {Boolean} clean 是否清理空白
      * @return {String|[String]}

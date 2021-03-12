@@ -81,32 +81,32 @@
 </div>
 
 <!-- 注解 -->
-<div class="_body _Note" obt-src="obts/create.json" tpl-name="input:note"
+<div class="_body _Note" obt-src="obts/creates.json" tpl-name="input:note"
     on="node|ev('detail')"
-    by="New.note"
+    by="New2.note"
     to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="note" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
             [插入2]
         </pre>
     </aside>
 </div>
 
 <!-- 提示 -->
-<div class="_body _Tips" obt-src="obts/create.json" tpl-name="input:tips"
+<div class="_body _Tips" obt-src="obts/creates.json" tpl-name="input:tips"
     on="node|ev('detail')"
-    by="New.tips"
+    by="New2.tips"
     to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="tips" placeholder="内容"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
             [插入2]
         </pre>
     </aside>
@@ -1317,9 +1317,7 @@
     on="node|ev('detail') Text"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <div class="_prop">
-            <textarea name="content" placeholder="空行分项（多选对应）"></textarea>
-        </div>
+        <hr tpl-node="inlines:text">
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -1509,7 +1507,9 @@
     by="New.explain(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:text" />
+        <div class="_prop">
+            <textarea name="content"></textarea>
+        </div>
     </div>
     <aside>
         <div class="_option">

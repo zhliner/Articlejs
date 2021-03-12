@@ -25,15 +25,15 @@
 > **注**：同样地，该方法也有一个集合版。
 
 
-### [$.Text( data, sep?, doc? ): Text](docs/$.TextNode.md)
+### [$.Text( data, hasbr?, doc? ): Text|[Node]](docs/$.TextNode.md)
 
 创建一个文本节点。
 
 - `data: String | [String] | Node | [Node]` 文本节点的数据内容。
-- `sep?: String` 数据源为数组时各单元的连接符，可选。默认值为一个空格。
+- `hasbr?: Boolean` 是否支持换行元素（`<br>`）创建，可选。如果为真，返回值将是一个节点数组。
 - `doc?: Document` 文本节点所属文档，可选。
 
-数据源为节点时取其文本（`textContent`）值，数组单元取值为字符串后以 `sep` 串连。
+数据源为节点时取其文本（`textContent`）值，数组单元取值为字符串后以一个空格串连。
 
 
 ### [$.fragment( data, clean, doc? ): DocumentFragment](docs/$.fragment.md)
