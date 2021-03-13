@@ -609,7 +609,7 @@
 
 <!-- 插图 -->
 <div class="_body _Figure" tpl-name="input:figure"
-    on="create|$('/._code') text $('/select') val v.image3(_1) $$('/[name=figcaption],[name=explain]') val gather('figcaption explain')"
+    on="create|$('/._code') text $('/select') val v.image3(_1) $('form/') valo('figcaption explain')"
     by="New.figure(_1)"
     to="form/|trigger('insert')">
     <div class="_main"
@@ -645,7 +645,7 @@
 
 <!-- 引用块 -->
 <div class="_body _Blockquote" obt-src="obts/list2.json" tpl-name="input:blockquote"
-    on="node|ev('detail') wrap('<p>') $$('/[name=h3],[name=cite]') val gather('h3 cite') (true)"
+    on="node|ev('detail') wrap('<p>') $('form/') valo('h3 cite') (true)"
     by="New.blockquote(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -728,14 +728,14 @@
 
 <!-- 分割 -->
 <div class="_body _Hr" tpl-name="input:hr"
-    on="create|$$('#_v') val gather('role thick length space')"
+    on="create|$('form/') valo('role thick length space')"
     by="New.hr(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list"
         on="click(b)|$$('/b');
             setv|ev('detail') pop $('/hr') attr('role')"
         to="=|only('_press')|target goto('setv', _1);
-            /[name=hr]|val">
+            /[name=role]|val">
         <span class="_border content" tabindex="0" tpl-name="hr:border">
             <b title="默认" class="_press"><hr></b>
             <b title="实线（solid）"><hr role="solid"></b>
@@ -746,19 +746,19 @@
             <b title="外槽线（ridge）"><hr role="ridge"></b>
             <b title="内嵌线（inset）"><hr role="inset"></b>
             <b title="外嵌线（outset）"><hr role="outset"></b>
-            <input id="_v" type="hidden" name="hr" value="">
+            <input type="hidden" name="role" value="">
         </span>
     </div>
     <aside>
         <div class="_option">
             <label title="CSS: border-width">厚度
-                <input id="_v" type="text" name="thick" placeholder="10px 0 0" class="_chars">
+                <input type="text" name="thick" placeholder="10px 0 0" class="_chars">
             </label>
             <label title="CSS: width">长度
-                <input id="_v" type="text" name="length" placeholder="92%" class="_chars">
+                <input type="text" name="length" placeholder="92%" class="_chars">
             </label>
             <label title="CSS: height">空白
-                <input id="_v" type="text" name="space" placeholder="0" class="_chars">
+                <input type="text" name="space" placeholder="0" class="_chars">
             </label>
         </div>
         <pre tpl-node="input:insert2"> [插入2] </pre>
@@ -1144,7 +1144,10 @@
     </aside>
 </div>
 
-<div class="_body _Ali" tpl-name="input:ali">
+<div class="_body _Ali" obt-src="obts/alink.json" tpl-name="input:ali"
+    on="node|ev('detail')"
+    by="New.ali"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:a" />
     </div>
@@ -1560,9 +1563,8 @@
 </div>
 
 
-<div class="_body _Inline" tpl-name="input:a"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('href target', null)"
-    by="New.a(_1)"
+<div class="_body _Inline" obt-src="obts/alink.json" tpl-name="input:a"
+    on="node|ev('detail')"
     to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:a" />
@@ -1676,8 +1678,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:strong"
-    on="create|">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:strong"
+    on="node|ev('detail')"
+    by="New2.strong"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:strong" />
     </div>
@@ -1686,7 +1690,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:em">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:em"
+    on="node|ev('detail')"
+    by="New2.em"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:em" />
     </div>
@@ -1695,7 +1702,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:cite">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:cite"
+    on="node|ev('detail')"
+    by="New2.cite"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:cite" />
     </div>
@@ -1704,7 +1714,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:small">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:small"
+    on="node|ev('detail')"
+    by="New2.small"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:small" />
     </div>
@@ -1713,7 +1726,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:sub">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:sub"
+    on="node|ev('detail')"
+    by="New2.sub"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:sub" />
     </div>
@@ -1722,7 +1738,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:sup">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:sup"
+    on="node|ev('detail')"
+    by="New2.sup"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:sup" />
     </div>
@@ -1731,7 +1750,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:mark">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:mark"
+    on="node|ev('detail')"
+    by="New2.mark"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:mark" />
     </div>
@@ -1740,7 +1762,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:orz">
+<div class="_body _Inline" tpl-name="input:orz"
+    on="create|$('/pre._code') val dup pass v.splitx(true) v.pretreat1"
+    by="New2.orz"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:orz" />
     </div>
@@ -1749,7 +1774,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:samp">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:samp"
+    on="node|ev('detail')"
+    by="New2.samp"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:samp" />
     </div>
@@ -1758,7 +1786,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:kbd">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:kbd"
+    on="node|ev('detail')"
+    by="New2.kbd"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:kbd" />
     </div>
@@ -1767,7 +1798,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:s">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:s"
+    on="node|ev('detail')"
+    by="New2.s"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:s" />
     </div>
@@ -1776,7 +1810,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:u">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:u"
+    on="node|ev('detail')"
+    by="New2.u"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:u" />
     </div>
@@ -1785,7 +1822,10 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:var">
+<div class="_body _Inline" obt-src="obts/itexts.json" tpl-name="input:var"
+    on="node|ev('detail')"
+    by="New2.var"
+    to="form/|trigger('insert')">
     <div class="_main _list">
         <hr tpl-node="inlines:var" />
     </div>

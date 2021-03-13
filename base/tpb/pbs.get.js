@@ -629,6 +629,22 @@ const _Gets = {
 
 
     /**
+     * 简单创建元素。
+     * 目标：暂存区1项可选。
+     * 目标为可选的元素内容文本。
+     * 支持数组数据。
+     * @param  {String} tag 标签名
+     * @return {Element|[Element]}
+     */
+    elem( evo, tag ) {
+        let _x = evo.data;
+        return $.isArray(_x) ? $(_x).elem(tag) : $.elem(tag, _x);
+    },
+
+    __elem: -1,
+
+
+    /**
      * 元素克隆。
      * 目标：暂存区/栈顶1项。
      * 可选择同时克隆元素上绑定的事件处理器。
@@ -1480,12 +1496,11 @@ const _Gets = {
 
 //
 // 元素创建。
-// 目标：暂存区1项可选。
-// 目标作为元素的内容或属性配置。
+// 目标：暂存区/栈顶1项。
+// 目标作为元素的内容或特性配置。
 //===============================================
 [
     'Element',  // data: String|Object|Map
-    'elem',     // data: String
     'svg',      // data: String|Object|Map
 ]
 .forEach(function( meth ) {
@@ -1496,7 +1511,7 @@ const _Gets = {
             $(evo.data)[meth]( tag ) : $[meth]( tag, evo.data );
     };
 
-    _Gets[`__${meth}`] = -1;
+    _Gets[`__${meth}`] = 1;
 
 });
 

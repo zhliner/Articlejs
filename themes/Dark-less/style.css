@@ -358,6 +358,10 @@ aside#help {
     /* 撑满限定 */
     height: 100%;
 }
+.___Panel ._prop i._tips {
+    color: gray;
+    font-size: 0.9em;
+}
 
 .___Panel ._submit > label {
     display: block;

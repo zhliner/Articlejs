@@ -1,0 +1,5 @@
+{
+    "//": "提取文本，强制空行分项。用于内联文本单元创建。",
+    "on": "create|$('/textarea') val dup pass v.splitx(true) v.pretreat1",
+    "to": "|trigger('node')"
+}

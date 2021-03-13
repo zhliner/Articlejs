@@ -96,7 +96,11 @@
     <li tpl-node="prop:start, prop:sntype, prop:reversed"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:li" data-label="列表项属性">
+<!--添加一个提示
+    delay 避免新节点after后激发nodeok无限循环。-->
+<ul class="_prop" tpl-name="property:li" data-label="列表项属性"
+    on="^nodeok|({class:'_tips', text:'（不常用）'}) Element('i') delay"
+    to="/[name=type]|after">
     <li tpl-node="prop:value, prop:sntype"></li>
 </ul>
 
@@ -410,8 +414,8 @@
 </li>
 
 <li tpl-name="prop:reversed">
-    <b><!-- 占位 --></b>
-    <span><label><input type="checkbox" name="reversed" />逆序</label></span>
+    <b>设置</b>
+    <span><label><input type="checkbox" name="reversed" />逆序编号</label></span>
 </li>
 
 <li tpl-name="prop:tborder">
@@ -630,7 +634,7 @@
 </li>
 
 <li tpl-name="prop:cite2">
-    <b>解释源</b>
+    <b title="cite">解释源</b>
     <span><input type="url" name="cite"  placeholder="https:// (可选)" /></span>
 </li>
 
