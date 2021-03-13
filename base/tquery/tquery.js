@@ -634,7 +634,7 @@ Object.assign( tQuery, {
     /**
      * 创建文本节点。
      * - 如果data参数为节点元素，取其文本创建。
-     * - data支持字符串或节点的数组，数组单元转为字符串后用空格连接。
+     * - data支持节点数组，数组单元提取文本后用换行连接。
      * - 如果传递hasbr为true，返回的是一个节点数组。
      * 注意：
      * 数组数据并不对应创建并返回多个节点。
@@ -645,7 +645,7 @@ Object.assign( tQuery, {
      */
     Text( data, hasbr, doc = Doc ) {
         if ( typeof data !== 'string' ) {
-            data = data && nodeText( data, ' ' );
+            data = data && nodeText( data, '\n' );
         }
         return hasbr ? innerTextNodes(data, doc) : doc.createTextNode( data );
     },

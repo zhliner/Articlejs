@@ -33,7 +33,7 @@
 - `hasbr?: Boolean` 是否支持换行元素（`<br>`）创建，可选。如果为真，返回值将是一个节点数组。
 - `doc?: Document` 文本节点所属文档，可选。
 
-数据源为节点时取其文本（`textContent`）值，数组单元取值为字符串后以一个空格串连。
+数据源为节点时取其文本（`textContent`）值，数组单元取值为字符串后以一个换行符（`\n`）串连。
 
 
 ### [$.fragment( data, clean, doc? ): DocumentFragment](docs/$.fragment.md)
