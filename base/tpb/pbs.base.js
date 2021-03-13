@@ -1951,6 +1951,7 @@ function rgb16str( val ) {
 
 /**
  * RGBA 16进制值构造。
+ * 零透明度时返回一个命名值 transparent。
  * @param  {String} r Red
  * @param  {String} g Green
  * @param  {String} b Blue
@@ -1959,7 +1960,11 @@ function rgb16str( val ) {
  */
 function rgb16val( r, g, b, a = '' ) {
     if ( a ) {
-        a = (a.includes('%') ? parseFloat(a)/100 : parseFloat(a)) * 256;
+        a = parseFloat( a );
+        if ( a === 0 ) {
+            return 'transparent';
+        }
+        a = (a.includes('%') ? a/100 : a) * 256;
     }
     return `${n16c2(+r)}${n16c2(+g)}${n16c2(+b)}` + ( a && n16c2(a) );
 }
