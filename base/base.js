@@ -393,9 +393,10 @@ function _liChild( el ) {
  * @return {Number}
  */
 function _liParent( el, h4 ) {
-    let _nxt = h4.nextElementSibling;
+    let _nxt = h4.nextElementSibling,
+        _tag = _nxt.tagName;
 
-    if ( _nxt.tagName !== 'OL' && _nxt.tagName !== 'UL' ) {
+    if ( _tag !== 'OL' && _tag !== 'UL' ) {
         return T.LI;
     }
     switch ( name(listRoot(el)) ) {

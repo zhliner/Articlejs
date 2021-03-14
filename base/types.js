@@ -558,7 +558,7 @@ const ChildTypes = {
     [ CODELIST ]:       [ CODELI ],
     [ ULX ]:            [ LI, ALI, XH4LI ],
     [ OLX ]:            [ LI, ALI, XH4LI ],
-    [ CASCADE ]:        [ LI, CASCADEH4LI, ALI, CASCADEAH4LI ],
+    [ CASCADE ]:        [ LI, ALI, CASCADEH4LI, CASCADEAH4LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
     [ FIGURE ]:         [ FIGCAPTION, FIGIMGBOX ],

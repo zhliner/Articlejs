@@ -461,17 +461,17 @@ const Children = {
      * 因为标题不在正常的递进构建流程里。
      * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项容器
-     * @param {Element} ah4 链接标题元素（<h4/a>），可选
+     * @param {Element} h4a 链接标题元素（<h4/a>）
      * @param {Element} data 子列表（<ol>），可选
      */
-    [ T.CASCADEAH4LI ]: function( ref, li, {ah4}, data ) {
+    [ T.CASCADEAH4LI ]: function( ref, li, {h4a}, data ) {
         let [_ol, _end] = appendChild(
             ref,
             li,
             data,
             () => elem( T.OL )
         );
-        return result( ah4 && insertHeading(li, T.AH4, ah4), _ol, _end );
+        return result( h4a && insertHeading(li, T.AH4, h4a), _ol, _end );
     },
 
 
@@ -2117,8 +2117,8 @@ function build( el, opts, data, more ) {
  *      summary     {Value}     详细简介
  *      h1:         {Value}     页面主标题
  *      h3:         {Value}     行块小标题
- *      h4:         {Value}     级联表标题
- *      ah4:        {Element}   级联表标题链接（<a>）
+ *      h4:         {Value}     级联表小标题
+ *      h4a:        {Element}   级联表标题链接
  *      explain:    {Value}     图片讲解
  *      h2:         {Value}     片区（<section>）标题
  *      header:     {Element}   导言元素

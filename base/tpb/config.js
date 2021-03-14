@@ -72,16 +72,19 @@ const
     $ = window.$,
 
     // 指令属性：自动取栈数量
-    EXTENT = Symbol('stack: want-items'),
+    EXTENT = Symbol( 'stack: want-items' ),
 
     // 指令属性：特权方法（操作数据栈）
-    ACCESS = Symbol('stack: accessible'),
+    ACCESS = Symbol( 'stack: accessible' ),
 
     // 前阶指令存储标记。
-    PREVCELL = Symbol('previous Cell'),
+    PREVCELL = Symbol( 'previous Cell' ),
+
+    // jump指令标记。
+    JUMPCELL = Symbol( 'jump Cell' ),
 
     // 调用链头实例标记。
-    HEADCELL = Symbol('first-cell'),
+    HEADCELL = Symbol( 'first-cell' ),
 
     // 全局变量空间。
     Globals = new Map(),
@@ -326,6 +329,7 @@ export {
     EXTENT,
     ACCESS,
     PREVCELL,
+    JUMPCELL,
     HEADCELL,
     bindMethod,
     getMethod,

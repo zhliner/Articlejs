@@ -20,7 +20,7 @@
 
 import { Util } from "./tools/util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./tools/spliter.js";
-import { ACCESS, EXTENT, PREVCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
+import { ACCESS, EXTENT, PREVCELL, JUMPCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
 
 
 const
@@ -727,6 +727,7 @@ class Cell {
         // this._want;  // 取项数量
         // this._rest;  // 补充模板实参数量
         // this._extra; // 初始启动传值
+        // this._next;  // 原始.next（jump指令需要）
         // this.prev;   // 前阶单元（prune指令需要）
 
         if (prev) prev.next = this;
@@ -775,6 +776,21 @@ class Cell {
      */
     setPrev( cell ) {
         this.prev = cell;
+    }
+
+
+    /**
+     * 设置跳跃指令的原始下阶指令。
+     * true用于标记当前指令为jump，
+     * 然后用于下阶指令中做真实的设置。
+     * @param  {Cell|true} cell 下阶指令或确认标记
+     * @return {Cell|true}
+     */
+    setJUMP( cell ) {
+        if ( cell !== undefined ) {
+            this._next = cell;
+        }
+        return this._next;
     }
 
 
@@ -1025,6 +1041,7 @@ class Call {
      * - [ACCESS] 可访问数据栈（特权）
      * 需要检查处理前阶指令存储标记：
      * - [PREVCELL] 极少数指令需要（目前仅prune）。
+     * - [JUMPCELL] jump专用标识。
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 指令集
      * @param  {Cell} prev 前阶指令
@@ -1038,6 +1055,12 @@ class Call {
         }
         if ( _f[PREVCELL] ) {
             cell.setPrev( prev );
+        }
+        if ( _f[JUMPCELL] ) {
+            cell.setJUMP( true );
+        }
+        if ( prev.setJUMP() ) {
+            prev.setJUMP( cell );
         }
         return cell.build( this._args, _f, _f[ACCESS], _f[EXTENT] );
     }

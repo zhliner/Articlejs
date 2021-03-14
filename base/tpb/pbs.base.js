@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals, DEBUG } from "./config.js";
+import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals, DEBUG, JUMPCELL } from "./config.js";
 
 
 const
@@ -1527,6 +1527,8 @@ const _Process = {
      * RGB 16进制颜色值转换。
      * rgb(n, n, n) => #rrggbb。
      * rgba(n, n, n, a) => #rrggbbaa。
+     * 注：
+     * 零透明度时返回一个命名值 transparent。
      * @return {String}
      */
     rgb16( evo ) {
@@ -1906,7 +1908,7 @@ function deepArray( arr, buf = [] ) {
 
 
 /**
- * 获取剪除段之后首个指令。
+ * 获取之后第n个指令。
  * @param  {Cell} cell 起始指令单元
  * @param  {Number} n 指令数量
  * @return {Cell|null} 待衔接指令单元
@@ -2030,6 +2032,32 @@ prune[PREVCELL] = true;
 
 
 /**
+ * 跳过指令序列段。
+ * 用于模拟代码中的 if 分支执行逻辑。
+ * 目标：暂存区/栈顶1项。
+ * 目标值判断值或与val对比的值。
+ * 如果目标或对比结果为真，则跳过后续n个指令。
+ * this: Cell
+ * @param  {Number} n 跳过的指令数
+ * @param  {Value} val 对比值，可选
+ * @return {void}
+ */
+function jump( evo, n, val ) {
+    let _v = evo.data;
+
+    if ( val !== undefined ) {
+        _v = _v === val;
+    }
+    this.next = _v ? lastCell( this._next, n ) : this._next;
+}
+
+jump[EXTENT] = 1;
+
+// 用于指令解析时判断赋值原始next
+jump[JUMPCELL] = true;
+
+
+/**
  * 创建入口。
  * 目标：无。
  * 在执行流中段创建一个入口，使得可以从该处启动执行流。
@@ -2066,7 +2094,7 @@ function propectLoop( id, msg ) {
 
 
 /**
- * 控制台调试打印。
+ * 控制台信息打印。
  * 特殊：是，this为Cell实例，查看调用链。
  * 目标：无。
  * 特权：是，数据栈显示。
@@ -2075,8 +2103,9 @@ function propectLoop( id, msg ) {
  */
 function debug( evo, stack, msg = '' ) {
     window.console.info( msg, {
+        ev: evo.event,
         evo,
-        cmd: this,
+        next: this.next,
         tmp: stack._tmp.slice(),
         buf: stack._buf.slice()
     });
@@ -2101,9 +2130,10 @@ const Control = $.assign( {}, _Control, bindMethod );
 // 特殊控制。
 // 无预绑定处理。this:{Cell}
 //
-Control.prune  = prune;
-Control.entry  = entry;
-Control.debug  = debug;
+Control.prune = prune;
+Control.jump  = jump;
+Control.entry = entry;
+Control.debug = debug;
 
 
 //

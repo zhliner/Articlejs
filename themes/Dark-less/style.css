@@ -350,7 +350,7 @@ aside#help {
     border: 1px #666 solid;
 }
 .___Panel ._prop li>span {
-    max-height: 18em;
+    max-height: 16em;
     box-sizing: border-box;
 }
 .___Panel ._prop pre._code {
@@ -953,9 +953,9 @@ menu._cells code {
     display: flex;
 }
 .Slave ._roll {
-    flex: 1 1 140px;
-    min-width: 120px;
-    max-width: 160px;
+    flex: 1 1 auto;
+    min-width: 140px;
+    max-width: 220px;
     margin-right: 14px;
     flex-direction: column;
 }
@@ -1019,7 +1019,7 @@ menu._cells code {
 .Input > ._body,
 .Attr > ._body,
 .Script > ._body {
-    flex: 8 8 600px;
+    flex: 8 8 500px;
 }
 .Input ._Empty > p {
     color: #c3c6c6;

@@ -259,6 +259,9 @@ vain( n: Number ): void
 prune( n = 1, cnt = 1 ): void
 // 移除后端跟随指令。
 
+jump( n, val ): void
+// 跳过后续n个指令。
+
 entry(): void
 // 创建入口方法。
 

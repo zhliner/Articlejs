@@ -65,7 +65,7 @@
 ----------------------------------------------------------------------------->
 
 <!-- 段落 -->
-<div class="_body _P" obt-src="obts/creates.json" tpl-name="input:p"
+<div class="_body _P" obt-src="obts/list2.json" tpl-name="input:p"
     on="nodes|ev('detail')"
     by="New2.p"
     to="form/|trigger('insert')">
@@ -81,8 +81,8 @@
 </div>
 
 <!-- 注解 -->
-<div class="_body _Note" obt-src="obts/creates.json" tpl-name="input:note"
-    on="node|ev('detail')"
+<div class="_body _Note" obt-src="obts/list2.json" tpl-name="input:note"
+    on="nodes|ev('detail')"
     by="New2.note"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -97,8 +97,8 @@
 </div>
 
 <!-- 提示 -->
-<div class="_body _Tips" obt-src="obts/creates.json" tpl-name="input:tips"
-    on="node|ev('detail')"
+<div class="_body _Tips" obt-src="obts/list2.json" tpl-name="input:tips"
+    on="nodes|ev('detail')"
     by="New2.tips"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -149,7 +149,7 @@
 
 <!--文章标题组
     .hgroup: (data:[String], {h1}, more:true) -->
-<div class="_body _Hgroup" obt-src="obts/createx.json" tpl-name="input:hgroup"
+<div class="_body _Hgroup" obt-src="obts/list1.json" tpl-name="input:hgroup"
     on="node|ev('detail') $('/input[name=h1]') val obj('h1') (true)"
     by="New.hgroup(_2)"
     to="form/|trigger('instop')">
@@ -170,7 +170,7 @@
 <!--文章根
     .article: (data:void, {header}) -->
 <div class="_body _Article" obt-src="obts/list2.json" tpl-name="input:article"
-    on="node|ev('detail') wrap('<p>') wrapAll('<header>') item(0) obj('header')"
+    on="nodes|ev('detail') wrap('<p>') wrapAll('<header>') item(0) obj('header')"
     by="New.article(_1)"
     to="form/|trigger('instop')">
     <div class="_main">
@@ -270,7 +270,7 @@
 
 <!-- 提要 -->
 <div class="_body _Abstract" obt-src="obts/list2.json" tpl-name="input:abstract"
-    on="node|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
+    on="nodes|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
     by="New.abstract(_2)"
     to="form/|trigger('instop')">
     <div class="_main">
@@ -327,7 +327,7 @@
 
 <!-- 导言 -->
 <div class="_body _Header" obt-src="obts/list2.json" tpl-name="input:header"
-    on="node|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
+    on="nodes|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
     by="New.header(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -346,7 +346,7 @@
 
 <!-- 结语 -->
 <div class="_body _Footer" obt-src="obts/list2.json" tpl-name="input:footer"
-    on="node|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
+    on="nodes|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
     by="New.footer(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -645,7 +645,7 @@
 
 <!-- 引用块 -->
 <div class="_body _Blockquote" obt-src="obts/list2.json" tpl-name="input:blockquote"
-    on="node|ev('detail') wrap('<p>') $('form/') valo('h3 cite') (true)"
+    on="nodes|ev('detail') wrap('<p>') $('form/') valo('h3 cite') (true)"
     by="New.blockquote(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -667,7 +667,7 @@
 
 <!-- 批注块 -->
 <div class="_body _Aside" obt-src="obts/list2.json" tpl-name="input:aside"
-    on="node|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
+    on="nodes|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
     by="New.aside(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -687,7 +687,7 @@
 <!--详细内容
     open特性强制为真（内容区单击无法展开） -->
 <div class="_body _Details" obt-src="obts/list2.json" tpl-name="input:details"
-    on="node|ev('detail') wrap('<p>') $('/input') val obj('summary') set('open', true) (true)"
+    on="nodes|ev('detail') wrap('<p>') $('/input') val obj('summary') set('open', true) (true)"
     by="New.details(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -796,7 +796,7 @@
 </div>
 
 <!-- 片区标题 -->
-<div class="_body _H2" obt-src="obts/createx.json" tpl-name="input:h2"
+<div class="_body _H2" obt-src="obts/list1.json" tpl-name="input:h2"
     on="node|ev('detail')"
     by="New2.h2"
     to="form/|trigger('insfix')">
@@ -813,7 +813,7 @@
 </div>
 
 <!-- 小标题 -->
-<div class="_body _H3" obt-src="obts/createx.json" tpl-name="input:h3"
+<div class="_body _H3" obt-src="obts/list1.json" tpl-name="input:h3"
     on="node|ev('detail')"
     by="New2.h3"
     to="form/|trigger('insfix')">
@@ -830,7 +830,7 @@
 </div>
 
 <!-- 副标题 -->
-<div class="_body _H3x" obt-src="obts/createx.json" tpl-name="input:h3x"
+<div class="_body _H3x" obt-src="obts/list1.json" tpl-name="input:h3x"
     on="node|ev('detail')"
     by="New2.h3x"
     to="form/|trigger('insert')">
@@ -846,7 +846,7 @@
 </div>
 
 <!-- 列表项标题 -->
-<div class="_body _H4" obt-src="obts/createx.json" tpl-name="input:h4"
+<div class="_body _H4" obt-src="obts/list1.json" tpl-name="input:h4"
     on="node|ev('detail')"
     by="New2.h4"
     to="form/|trigger('insfix')">
@@ -892,7 +892,7 @@
     </aside>
 </div>
 
-<div class="_body _Summary" obt-src="obts/createx.json" tpl-name="input:summary"
+<div class="_body _Summary" obt-src="obts/list1.json" tpl-name="input:summary"
     on="node|ev('detail')"
     by="New2.summary"
     to="form/|trigger('insfix')">
@@ -907,7 +907,7 @@
     </aside>
 </div>
 
-<div class="_body _Figcap" obt-src="obts/createx.json" tpl-name="input:figcaption"
+<div class="_body _Figcap" obt-src="obts/list1.json" tpl-name="input:figcaption"
     on="node|ev('detail')"
     by="New2.figcaption"
     to="form/|trigger('insfix')">
@@ -922,7 +922,7 @@
     </aside>
 </div>
 
-<div class="_body _Caption" obt-src="obts/createx.json" tpl-name="input:caption"
+<div class="_body _Caption" obt-src="obts/list1.json" tpl-name="input:caption"
     on="node|ev('detail')"
     by="New2.caption"
     to="form/|trigger('insfix')">
@@ -1138,9 +1138,7 @@
                 <select data-id="code" name="language" tpl-node="prop:languages"></select>
             </label>
         </div>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1152,51 +1150,60 @@
         <hr tpl-node="inlines:a" />
     </div>
     <aside>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Ah4" tpl-name="input:ah4">
+<div class="_body _Ah4" obt-src="obts/alink.json" tpl-name="input:ah4"
+    on="node|ev('detail')"
+    by="New.ah4"
+    to="form/|trigger('insfix')">
     <div class="_main _list">
         <hr tpl-node="inlines:a" />
     </div>
     <aside>
-        <pre tpl-node="input:insert1">
-            [插入]
-        </pre>
+        <hr tpl-node="input:update" title="[插入/更新]" />
     </aside>
 </div>
 
-<div class="_body _Xh4li" tpl-name="input:xh4li">
+<div class="_body _Xh4li" obt-src="obts/sublist.json" tpl-name="input:xh4li"
+    on="node|ev('detail') wrap('<li>') $('/[name=box]') val wrapAll(_1) item(0) $('/[name=h4]') val obj('h4')"
+    by="New.xh4li(_1)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <header>
-            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+            <input name="h4" type="text" placeholder="标题项内容" class="_scale" />
         </header>
-        <textarea name="sublist" placeholder="子列表，可选"></textarea>
+        <textarea name="sublist" placeholder="子列表：空行分项"></textarea>
     </div>
     <aside>
         <div class="_option">
             <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
             <hr />
-            <label title="<ol>"><input type="checkbox" name="isol">有序子表</label>
+            <label title="<ol>"
+                on="click(input)|evo(2) prop('checked') $if('<ol>', '<ul>')"
+                to="/[name=box]|val">
+                <input type="checkbox">有序子列表
+                <input type="hidden" name="box" value="<ul>">
+            </label>
         </div>
-        <hr tpl-node="input:insert2" />
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Cascadeh4li" tpl-name="input:cascadeh4li">
+<div class="_body _Cascadeh4li" obt-src="obts/sublist.json" tpl-name="input:cascadeh4li"
+    on="node|ev('detail') wrap('<li>') wrapAll('<ol>') item(0) $('/[name=h4]') val obj('h4')"
+    by="New.cascadeh4li(_1)"
+    to="form/|trigger('insert')">
     <div class="_main">
         <header>
-            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+            <input name="h4" type="text" placeholder="标题项内容" class="_scale" />
         </header>
-        <textarea name="sublist" placeholder="子列表，可选"></textarea>
+        <textarea name="sublist" placeholder="子列表：空行分项"></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option2, input:insert2">
-            [选项2]
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
             [插入2]
         </pre>
     </aside>
@@ -1204,12 +1211,10 @@
 
 <div class="_body _Cascadeah4li" tpl-name="input:cascadeah4li">
     <div class="_main _list">
-        <hr tpl-node="prop:cascadeah4li" />
+        <hr tpl-source="prop:cascadeah4li" />
     </div>
     <aside>
-        <pre tpl-node="input:insert1">
-            [插入]
-        </pre>
+        <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
@@ -1316,7 +1321,7 @@
 
 <!--纯文本
     空行分隔多个条目，多选分别填充。-->
-<div class="_body _Inline" obt-src="obts/createx.json" tpl-name="input:text"
+<div class="_body _Inline" obt-src="obts/list1.json" tpl-name="input:text"
     on="node|ev('detail') Text"
     to="form/|trigger('insert')">
     <div class="_main _list">
