@@ -7771,7 +7771,7 @@ const Event = {
     /**
      * 委托目标匹配。
      * 只返回最深的匹配元素（含target），因此事件处理最多一次。
-     * 委托匹配不测试绑定元素自身。
+     * 委托匹配测试包含绑定元素自身，这可用于某些约束。
      *
      * 仅匹配一次的理由：
      * 1. 解除与标签结构的紧密相关性，上层标签修改不会无意中触发多次调用。
@@ -7779,7 +7779,7 @@ const Event = {
      * 3. 简化和性能考虑，也是设计逻辑的选择。
      * 注：
      * 事件处理器的第二个实参对象中包含了委托元素和选择器，
-     * 如果必要，处理器可以自行向上检索匹配元素激发事件或直接处理。
+     * 如果必要，处理器可以自行向上检索匹配元素并激发事件或直接处理。
      *
      * @param  {Event} ev 原生事件对象
      * @param  {String} slr 选择器
@@ -7807,7 +7807,6 @@ const Event = {
 /**
  * 向上检测委托匹配。
  * 专用于委托绑定时，向上递进到委托容器时止。
- * 不包含容器本身。
  * @param  {Element} box 容器元素
  * @param  {Element} beg 匹配起点元素
  * @param  {String} slr 选择器串（已合法）
@@ -7818,7 +7817,8 @@ function delegateClosest( box, beg, slr ) {
         if ( $is(beg, slr) ) return beg;
         beg = beg.parentNode;
     }
-    return null;
+    // 包含容器自身匹配
+    return $is( beg, slr ) ? beg : null;
 }
 
 
