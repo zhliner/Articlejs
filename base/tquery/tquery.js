@@ -3838,23 +3838,27 @@ class Collector extends Array {
      * - 如果容器是由HTML构建而成且包含子元素，最终的包裹元素会递进到首个最深层子元素。
      * - 目标容器会替换集合中首个节点的位置。
      * 注：
-     * 集合内成员仅支持节点类型。
-     * 空集不会有任何操作且返回空集自身，而不是容器的Collector封装。
+     * 集合内成员必须为节点类型。
+     * 空集不会有实际的封装操作，但依然会返回包裹容器根的Collector封装。
      *
-     * @param  {Element|String} box 目标容器
+     * @param  {Element|String|Function} box 目标容器
      * @param  {Boolean} clone 容器元素是否克隆，可选
      * @param  {Boolean} event 容器元素上的事件绑定是否克隆，可选
      * @param  {Boolean} eventdeep 容器子孙元素上的事件绑定是否克隆，可选
-     * @return {Collector} 包裹容器或空集自身
+     * @return {Collector} 包裹容器根的封装
      */
     wrapAll( box, clone, event, eventdeep ) {
-        if ( this.length == 0 ) {
-            return this;
+        if ( isFunc(box) ) {
+            box = box( this );
         }
-        let [_box, _root] = wrapBox(
-                box, clone, event, eventdeep, this[0].ownerDocument
+        let _nd = this[ 0 ],
+            [_box, _root] = wrapBox(
+                box, clone, event, eventdeep, _nd ? _nd.ownerDocument : Doc
             );
-        return new Collector( varyWrapAll(_root || _box, _box, this), this );
+        if ( _nd ) {
+            varyWrapAll( _root, _box, this, _nd );
+        }
+        return new Collector( _root, this );
     }
 
 
@@ -5112,7 +5116,8 @@ function deepChild( el ) {
 
 /**
  * 获取包裹容器。
- * HTML结构容器会递进到首个最深层子元素。
+ * HTML结构时，数据容器会递进到首个最深层子元素。
+ * 本来就是元素时，数据容器即为原容器或其克隆版。
  * @param  {HTML|Element} box 包裹容器
  * @param  {Boolean} clone 包裹元素是否克隆
  * @param  {Boolean} event 包裹元素上注册的事件处理器是否克隆
@@ -5124,7 +5129,6 @@ function wrapBox( box, clone, event, eventdeep, doc ) {
     if ( box.nodeType ) {
         return [ clone ? tQuery.clone(box, event, true, eventdeep) : box ];
     }
-    // string
     box = buildFragment(box, doc).firstElementChild;
 
     return [ deepChild(box), box ];
@@ -6530,16 +6534,15 @@ function varyFill( el, nodes ) {
 /**
  * 节点包裹封装。
  * 兼容文档片段为被包裹内容。
- * 注意：
- * 如果替换操作处理器调用了Event.preventDefault()，
- * 则目标节点会从DOM中移除并插入数据容器内前端。
+ * 如果替换操作处理器调用了 Event.preventDefault()，
+ * 替换操作会略过，但目标节点依然会从DOM中脱离（插入数据容器内前端）。
  * @param  {Node|Fragment} node 被包裹节点
  * @param  {Element} root 封装根元素
  * @param  {Element} box 数据容器（插入点）
  * @return {Element} root 封装根容器
  */
 function varyWrap( node, root, box ) {
-    if ( node.nodeType === 1 ) {
+    if ( node.nodeType !== 11 ) {
         varyReplace( node, root );
     }
     varyPrepend( box, node );
@@ -6579,10 +6582,10 @@ function varyWrapInner( el, root, box ) {
  * @param  {Element} root 封装根元素
  * @param  {Element} box 数据容器（插入点）
  * @param  {[Node|Fragment]} nodes 节点集
- * @return {Element} 封装根容器
+ * @return {Element} root 封装根容器
  */
-function varyWrapAll( root, box, nodes, ref = nodes[0] ) {
-    if ( ref.nodeType === 1 ) {
+function varyWrapAll( root, box, nodes, ref ) {
+    if ( ref.nodeType !== 11 ) {
         varyReplace( ref, root );
     }
     varyPrepend( box, nodes );
