@@ -1133,6 +1133,7 @@
     </div>
     <aside>
         <div class="_option">
+            <!-- tabs 占位 -->
             <input data-id="code" type="hidden" name="tabs" value="" />
             <label>语言
                 <select data-id="code" name="language" tpl-node="prop:languages"></select>
@@ -1224,16 +1225,17 @@
     </aside>
 </div>
 
-<div class="_body _Figimgbox" tpl-name="input:figimgbox">
+<div class="_body _Figimgbox" tpl-name="input:figimgbox"
+    on="create|">
     <div class="_main _list">
         <hr tpl-source="prop:figimgbox" />
     </div>
     <aside>
         <div class="_option">
             <label title="SVG源码"
-                on="click|$('/input') val $if('svg', 'img')"
+                on="click|$('/input') prop('checked') $if('svg', 'img')"
                 to="._body/._prop|trigger(_1)">
-                <input type="checkbox" name="svgx">矢量图
+                <input type="checkbox" />矢量图
             </label>
         </div>
         <pre tpl-node="input:insert2">

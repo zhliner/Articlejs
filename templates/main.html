@@ -704,8 +704,8 @@
     </div>
     <div class="_state">
         <!-- detail: outerHTML|'' -->
-        <span id="g-covert" class="_tips"
-            on="tips|ev('detail') dup vnot lose(_1)"
+        <span id="g-covert" class="_tips" data-pbo="lost"
+            on="tips|ev('detail') dup vnot evo(3) pop lose(_1)"
             to="/b|text">
             <b><!-- 不可视焦点元素信息 --></b>
         </span>
