@@ -1779,7 +1779,7 @@ function tocH4li( h2 ) {
         { href: h2.id ? `#${h2.id}` : null },
         h2.innerText
     );
-    return build( elem(T.CASCADEAH4LI), { ah4: [_a] }, elem(T.OL) );
+    return build( elem(T.CASCADEAH4LI), { h4a: [_a] }, elem(T.OL) );
 }
 
 

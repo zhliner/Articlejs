@@ -504,7 +504,7 @@ const _Update = {
      */
     _Update[meth] = function( to, handler, evn, slr, ival ) {
         if ( ival !== undefined ) {
-            handler.initVal( ival );
+            handler.setInit( ival );
         }
         if ( $.isArray(to) ) {
             return $(to)[meth]( evn, slr, handler );
@@ -802,7 +802,7 @@ function bindEvns( el, map, evns, slr, ival, type ) {
                 el,
                 nid.split(__chrEvnid, 1)[0],
                 slr,
-                map.get(nid).initVal(ival)
+                map.get(nid).setInit(ival)
             );
         }
     }

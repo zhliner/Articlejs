@@ -830,44 +830,6 @@ menu._cells code {
     background-color: white;
 }
 
-.___Content > ._path {
-    position: absolute;
-    /* 内容之上 */
-    z-index: 10;
-}
-/* 底部路径指示 */
-.___Content ._path {
-    display: flex;
-    flex-wrap: wrap-reverse;
-    font-size: 10pt;
-    width: calc(100% - 17px);
-    bottom: 0;
-    cursor: default;
-}
-.___Content ._path b {
-    font-family: monospace, Consolas, 'Courier New';
-    min-width: 20px;
-    padding: 5px 10px;
-    background-color: #0e4962;
-    text-align: center;
-    font-weight: normal;
-    border-top: 1px #0e4962 solid;
-    border-right: 1px #405e6b solid;
-    color: #ddd;
-}
-.___Content ._path b:hover {
-    color: #fff;
-    background-color: #066375;
-}
-.___Content ._path b._press {
-    color: red;
-    font-weight: bold;
-}
-.___Content ._path b:last-child {
-    color: #fff;
-    background-color: #41a1aa;
-}
-
 .___Content > ._scroll {
     height: 100%;
     overflow-x: auto;
@@ -876,13 +838,60 @@ menu._cells code {
     position: relative;
 }
 
-/* 目录导航 */
-.___Content nav[role=toc] a {
+/* 内容状态区 */
+.___Content > ._state {
+    position: absolute;
+    bottom: 0;
+    max-width: calc(100% - 17px);
+    /* 内容之上 */
+    z-index: 10;
+    /* 紧密堆叠 */
+    display: flex;
+    flex-direction: column;
+}
+.___Content > ._state b {
+    min-width: 20px;
+    font-size: 10pt;
+    font-weight: normal;
+    font-family: monospace, Consolas, 'Courier New';
+}
+/* 不可视元素提示 */
+.___Content ._tips > b {
+    display: inline-block;
+    padding: 5px 14px 4px 6px;
+    background-color: orange;
+    border-top-right-radius: 24px;
+}
+/* 焦点元素路径 */
+.___Content ._path {
+    display: flex;
+    flex-wrap: wrap-reverse;
     cursor: default;
 }
+.___Content ._path > b {
+    padding: 5px 10px;
+    background-color: #0e4962;
+    text-align: center;
+    border-top: 1px #0e4962 solid;
+    border-right: 1px #405e6b solid;
+    color: #ddd;
+}
+.___Content ._path > b:hover {
+    color: #fff;
+    background-color: #066375;
+}
+.___Content ._path > b._press {
+    color: red;
+    font-weight: bold;
+}
+.___Content ._path > b:last-child {
+    color: #fff;
+    background-color: #41a1aa;
+}
 
+
+/* 满宽：微编辑友好 */
 .___Content ol[role=codelist] li > code {
-    /* 微编辑友好 */
     display: block;
 }
 
@@ -1159,16 +1168,8 @@ menu._cells code {
     border-radius: 6px;
     font-size: 80px;
 }
-.Input ._Inline ._tips {
-    color: #999;
-    font-size: 10pt;
-    white-space: nowrap;
-}
-.Input ._Inline ._tips i {
-    font-style: normal;
-}
 
-/* <ins|del> 美观 */
+/* <ins|del> 文本框全宽 */
 .Input ul._prop li._text2 > b {
     display: none;
 }
@@ -1482,7 +1483,7 @@ menu._cells code {
     border-radius: 2px;
 }
 
-.Status > ._tips {
+.Status > ._info {
     min-width: 120px;
     max-width: 200px;
     flex: 1 1 auto;

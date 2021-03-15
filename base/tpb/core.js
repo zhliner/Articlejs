@@ -349,7 +349,7 @@ class Builder {
      */
     chain( ons, bys, query, updates, nexts ) {
         let _stack = new Stack(),
-            _first = Evn.apply( new Cell(_stack), ons[0] ),
+            _first = Evn.apply( new Cell(_stack) ),
             _prev = this._on( _first, _stack, ons[1] );
 
         _prev = this._by( _prev, _stack, bys );
@@ -735,12 +735,28 @@ class Cell {
 
 
     /**
+     * 事件处理器接口。
+     * 即：EventListener.handleEvent()
+     * 返回同步序列最后一个指令单元调用的返回值。
+     * @param  {Event} ev 事件对象
+     * @param  {Object} elo 事件关联对象
+     * @return {Value}
+     */
+    handleEvent( ev, elo ) {
+        elo.event = ev;
+        this[_SID].reset();
+
+        return this.call( elo, this._extra );
+    }
+
+
+    /**
      * 设置初始值。
      * 注：仅绑定类指令（bind）可能会传递该值。
      * @param  {Value} val 初始值
      * @return {this}
      */
-    initVal( val ) {
+    setInit( val ) {
         if ( val !== undefined ) {
             this._extra = val;
         }
@@ -807,22 +823,6 @@ class Cell {
             _cell[_SID] = stack;
         }
         return _cell;
-    }
-
-
-    /**
-     * 事件处理器接口。
-     * 即：EventListener.handleEvent()
-     * 返回同步序列最后一个指令单元调用的返回值。
-     * @param  {Event} ev 事件对象
-     * @param  {Object} elo 事件关联对象
-     * @return {Value}
-     */
-    handleEvent( ev, elo ) {
-        elo.event = ev;
-        this[_SID].reset();
-
-        return this.call( elo, this._extra );
     }
 
 
@@ -987,20 +987,17 @@ class Evn {
 
     /**
      * 起始指令对象绑定。
-     * 绑定事件名序列仅用于控制台查看（调试）。
      * 设置链头标识便于外部判断。
      * @param  {Cell} cell 指令单元
      * @param  {[Evn]} evns 事件名定义集
      * @return {Cell} cell
      */
-    static apply( cell, evns ) {
-        let fn = empty.bind( evns );
-
+    static apply( cell ) {
         Reflect.defineProperty(cell, HEADCELL, {
             value: true,
             enumerable: false,
         });
-        return cell.build( null, fn );
+        return cell.build( null, empty );
     }
 
 }

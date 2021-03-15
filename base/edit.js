@@ -111,6 +111,10 @@ const
         siblings:   siblingOptions,
     },
 
+    // 自动弹出属性框的条目。
+    // 注：在划选创建内联单元时。
+    __popupCells = new Set([ 'a', 'ruby', 'bdo' ]),
+
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
 
@@ -401,10 +405,22 @@ class RngEdit {
 
 
     /**
-     * 获取新建元素。
+     * 获取新创建的元素。
+     * 用于外部获取，如：设置焦点元素。
      */
     elem() {
         return this._el;
+    }
+
+
+    /**
+     * 是否已构建完整。
+     * 针对部分有固定格式的单元（<a>和<ruby>）。
+     * 注：
+     * 如果已为true，则划选创建后不再需要自动弹出属性编辑框。
+     */
+    completed() {
+        return this._whole;
     }
 
 
@@ -421,38 +437,47 @@ class RngEdit {
      */
     _optData( name, rng ) {
         let _fn = this[ `_${name}` ];
-        return _fn ? _fn( rng.toString(), rng ) : [ null, rng.cloneContents() ];
+        return _fn ? _fn( this, rng.toString(), rng ) : [ null, rng.cloneContents() ];
     }
 
 
     /**
      * 分析构造链接配置。
      * 链接格式容错两端空白，但文本原样保持。
+     * @param  {RngEdit} self 实例自身
      * @param  {String} text 链接文本
      * @param  {Range} rng 选取范围
      * @return {[Object, Value]} 配置对象和数据值对
      */
-    _a( text, rng ) {
-        return [
-            RngEdit.url.test(text.trim()) && { href: text },
-            rng.cloneContents()
-        ];
+    _a( self, text, rng ) {
+        self._whole = RngEdit.url
+            .test( text.trim() );
+
+        return [ self._whole && {href: text}, rng.cloneContents() ];
     }
 
 
     /**
      * 分析提取注音配置。
-     * 友好：格式匹配取值忽略两端的空白。
+     * 友好：格式匹配忽略两端的空白。
+     * 注记：
+     * 不匹配时应当有一个<rt>的占位串，以便于修改，
+     * 因为<rb|rt>不支持单独创建。
+     * @param  {RngEdit} self 实例自身
      * @param  {String} text 注音文本
      * @param  {Range} rng 选取范围
      * @return {[Object, Value]} 配置对象和数据值对
      */
-    _ruby( text, rng ) {
-        let _vs = text
-            .trim()
-            .match( RngEdit.ruby );
+    _ruby( self, text, rng ) {
+        let _v = text.trim().match(
+                RngEdit.ruby
+            ),
+            rt = _v ? _v[2] : Sys.rtHolder,
+            rb = _v ? _v[1] : rng.cloneContents();
 
-        return _vs ? [ {rt: _vs[2]}, _vs[1] ] : [ null, rng.cloneContents() ];
+        self._whole = _v;
+
+        return [ {rt}, rb ];
     }
 }
 
@@ -460,7 +485,7 @@ class RngEdit {
 // 链接URL匹配模式。
 // 主机部分严格约束，路径/查询部分宽泛匹配。
 //
-RngEdit.url  = /^(?:http|https|ftp|email):\/\/[\w.-]+\/\S+$/i;
+RngEdit.url  = /^(?:http|https|ftp|email):\/\/\w[\w.-]+\/\S+$/i;
 
 //
 // <ruby>匹配提取模式。
@@ -2905,6 +2930,17 @@ function mediaSubs( [opts1, opts2] ) {
         o => create( T.SOURCE1, o )
     );
     return _buf.concat( opts2.map( o => create(T.TRACK, o) ) );
+}
+
+
+/**
+ * 是否需要弹出属性编辑框。
+ * @param  {String} name 单元名
+ * @param  {RngEdit}} rngop 选区编辑实例
+ * @return {Boolean}
+ */
+function inlinePopup( name, rngop ) {
+    return __popupCells.has( name ) && !rngop.completed();
 }
 
 
@@ -5555,11 +5591,10 @@ export const Kit = {
 
 
     /**
-     * 从范围创建内联单元。
+     * 从划选创建内联单元。
      * 目标：暂存区/栈顶1项。
-     * 新建的内联元素加入选取集并聚焦。
-     * 注意：
-     * 用户可能在已选取元素内划选创建，因此使用add方法添加。
+     * 清除已选取，便于连续划选时可以有效弹出属性编辑框。
+     * 预先规范化，保证 RngEdit.undo 正常。
      * @data: Range
      * @param  {String} name 单元名称
      * @return {void}
@@ -5570,12 +5605,17 @@ export const Kit = {
         if ( _box.nodeType === 3 ) {
             _box = _box.parentElement;
         }
-        let _op = new RngEdit( evo.data, name ),
-            _el = _op.elem();
+        let _op0 = clearSets(),
+            _op1 = new DOMEdit( () => $.normalize(_box) ),
+            _op2 = new RngEdit( evo.data, name ),
+            _hot = _op2.elem();
 
-        // 预先规范化，保证 RngEdit.undo 正常，
-        // 最终聚焦避免用户错觉。
-        historyPush( new DOMEdit(() => $.normalize(_box)), _op, new ESEdit(elementOne, _el, 'add'), new HotEdit(_el) );
+        // 最终聚焦使视觉明显。
+        historyPush( _op0, _op1, _op2, new ESEdit(elementOne, _hot, 'safeAdd'), new HotEdit(_hot) );
+
+        // 友好：立即定义属性。
+        // 但单元已经创建，撤销需手动Undo。
+        inlinePopup(name, _op2) && Edit.properties();
     },
 
     __rngelem: 1,

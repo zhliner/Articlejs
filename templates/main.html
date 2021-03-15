@@ -251,7 +251,7 @@
             to="#g-count|trigger('reset');
                 =|addClass;
                 =|removeClass;
-                #status-tips|trigger('info');
+                #status-info|trigger('info');
                 #g-count|trigger('reset');
                 #g-count|trigger('reset');
                 #g-cells|trigger('store');
@@ -702,26 +702,34 @@
             </article>
         </main>
     </div>
-    <!--元素路径：
-        toggle 快捷键隐显切换。
-        empty  鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
-        click(b:last-child) 微编辑找回编辑点友好。
-        注记：
-        路径信息更新由程序（edit.js）直接执行。
-    -->
-    <div id="g-path" class="_path"
-        on="click(b)|env('minied') end evo(2) v.source scam;
-            mouseenter(b)|('_point') evo(2) v.source pop;
-            mouseleave(b)|stop ('_point') evo(2) v.source pop;
-            empty;
-            click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
-            toggle|evo(3) lose(2)"
-        by="Ed.pathTo(_1) $$('/b')"
-        to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
-            -|addClass;
-            -|removeClass;
-            /b:hover|trigger('mouseleave', true)">
-        <!-- <b> -->
+    <div class="_state">
+        <!-- detail: outerHTML|'' -->
+        <span id="g-covert" class="_tips"
+            on="tips|ev('detail') dup vnot lose(_1)"
+            to="/b|text">
+            <b><!-- 不可视焦点元素信息 --></b>
+        </span>
+        <!--元素路径：
+            toggle 快捷键隐显切换。
+            empty  鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
+            click(b:last-child) 微编辑找回编辑点友好。
+            注记：
+            路径信息更新由程序（edit.js）直接执行。
+        -->
+        <div id="g-path" class="_path"
+            on="click(b)|env('minied') end evo(2) v.source scam;
+                mouseenter(b)|('_point') evo(2) v.source pop;
+                mouseleave(b)|stop ('_point') evo(2) v.source pop;
+                empty;
+                click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
+                toggle|evo(3) lose(2)"
+            by="Ed.pathTo(_1) $$('/b')"
+            to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
+                -|addClass;
+                -|removeClass;
+                /b:hover|trigger('mouseleave', true)">
+            <!-- <b> -->
+        </div>
     </div>
 </div>
 
@@ -779,9 +787,9 @@
 
 <!-- 状态栏 -->
 <div class=" ___Panel Status" tpl-name="main:status">
-    <!-- 提示区 -->
-    <div class="_tips">
-        <span id="status-tips" title=""
+    <!-- 即时信息 -->
+    <div class="_info">
+        <span id="status-info" title=""
             on="info|ev('detail')"
             to="|attribute('title text')"></span>
         <!--计数暂存
@@ -791,8 +799,8 @@
             on="reset|v.esize str('[ ', ' ]') ('');
                 setv|(ESC) evo(3) apply('add', _1) ev('detail') dup;
                 cancel|(ESC) apply('pop')"
-            to="|val|pop fire('#status-tips', 'info');
-                |val|pop fire('#status-tips', 'info');
+            to="|val|pop fire('#status-info', 'info');
+                |val|pop fire('#status-info', 'info');
                 |trigger('reset')" />
     </div>
     <!--指令符：
