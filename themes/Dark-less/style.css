@@ -968,7 +968,7 @@ menu._cells code {
     margin-right: 14px;
     flex-direction: column;
 }
-.Slave ._level {
+.Slave ._minibar {
     height: 32px;
     flex: 0 0 auto;
     display: flex;
@@ -976,12 +976,12 @@ menu._cells code {
     align-items: center;
     padding: 0px 8px 2px 6px;
 }
-.Slave ._level > label {
+.Slave ._minibar > label {
     padding: 3px 6px;
     border-radius: 3px;
 }
-.Slave ._level > label:hover {
-    background-color: #e3e3e3;
+.Slave ._minibar > label:hover {
+    background-color: #f9f9f9;
 }
 .Slave ._body > div,
 .Slave ._body > aside {
@@ -1258,11 +1258,12 @@ menu._cells code {
 }
 
 /* 边距 */
-.Style ._Margin ._where {
+.Style ._Margin ._minibar {
     height: 34px;
-    background-color: #d1dadc;
+    background-color: #ecebeb;
     border-radius: 5px 5px 0 0;
     margin-bottom: -3px;
+    border: 1px #ccc solid;
 }
 .Style ._Margin ._list {
     min-width: 174px;
