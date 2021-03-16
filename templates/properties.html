@@ -795,10 +795,15 @@
 
 <!--插图内容块：图形/图片切换
     svg 显示SVG源码录入框。
-    img 显示普通图片录入条目清单。 -->
+    img 显示普通图片录入条目清单。
+    to:
+    见 input:figimgbox 模板定义。
+-->
 <ul class="_prop" tpl-name="prop:figimgbox"
-    on="svg|evo(3) children not(':last-child') lose(true) $('/li') lose(false);
-        img|evo(3) children not(':last-child') lose(false) $('/li') lose(true)">
+    on="svg|evo(3) children not(':last-child') lose(true) $('/li') lose(false) ('svg');
+        img|evo(3) children not(':last-child') lose(false) $('/li') lose(true) ('img')"
+    to="._body/[name=type]|val;
+        ._body/[name=type]|val">
     <li data-pbo="lost">
         <b>源码</b>
         <!-- 录入提示类别 -->

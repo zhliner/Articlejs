@@ -1225,8 +1225,9 @@
     </aside>
 </div>
 
-<div class="_body _Figimgbox" tpl-name="input:figimgbox"
-    on="create|">
+<div class="_body _Figbox" obt-src="obts/figimg.json figsvg.json" tpl-name="input:figimgbox"
+    on="create|$('/[name=type]') val"
+    to="|trigger(_1)">
     <div class="_main _list">
         <hr tpl-source="prop:figimgbox" />
     </div>
@@ -1237,6 +1238,7 @@
                 to="._body/._prop|trigger(_1)">
                 <input type="checkbox" />矢量图
             </label>
+            <input type="hidden" name="type" value="img">
         </div>
         <pre tpl-node="input:insert2">
             [插入2]

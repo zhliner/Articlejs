@@ -49,6 +49,14 @@ const
         customGet: customGetter,
     },
 
+    // obt-src并列分组分隔符。
+    // 各部分路径独立（都相对于根路径）。
+    __sepPath = ',',
+
+    // obt-src序列分组分隔符
+    // 单一路径之后跟随空格分隔的文件名序列。
+    __sepFile = /\s+/,
+
     // OBT属性选择器
     __obtSlr = `[${OBTA.on}], [${OBTA.src}]`,
 
@@ -87,7 +95,7 @@ function obtAttr( el ) {
         _buf.push( _obtattr(el) );
     }
     if ( el.hasAttribute(OBTA.src) ) {
-        _buf.push( XLoader.json($.attr(el, OBTA.src)) );
+        _buf.push( ..._obtjson($.attr(el, OBTA.src)) )
     }
     $.removeAttr( el, __obtName );
 
@@ -106,6 +114,44 @@ function _obtattr( el ) {
         by: $.attr(el, OBTA.by) || '',
         to: $.attr(el, OBTA.to) || '',
     };
+}
+
+
+/**
+ * 从远端载入OBT配置。
+ * src支持两种分组：
+ * - 并列分组：由逗号（,）分隔，各组的路径独立。
+ * - 序列分组：由空格分隔，为在同一目录下的不同文件名。
+ * @param  {String} src 源定义
+ * @return [Promise<Object3>]
+ */
+function _obtjson( src ) {
+    return src
+        .split( __sepPath )
+        .map( p => _filejson(p.trim()) )
+        .flat()
+        .map( url => XLoader.json(url) );
+}
+
+
+/**
+ * 序列分组分解提取。
+ * 首个定义包含路径，后续为同路径下的不同文件名。
+ * @param  {String} path 序列路径定义
+ * @return {[String]} 各定义的完整路径集
+ */
+function _filejson( path ) {
+    if ( !__sepFile.test(path) ) {
+        return path;
+    }
+    let _i = path.lastIndexOf('/');
+
+    if ( _i < 0 ) {
+        return path.split( __sepFile );
+    }
+    let dir = path.substring( 0, _i );
+
+    return path.substring(_i + 1).split(__sepFile).map( f => `${dir}/${f}` );
 }
 
 

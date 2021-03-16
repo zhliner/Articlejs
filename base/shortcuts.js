@@ -240,6 +240,13 @@ Content: [
         "command":  "cleanSiblings"
     },
 
+    // 取消全部已选取。
+    // 与ESC不同，此保留元素焦点。
+    {
+        "key":      "shift:q",
+        "command":  "cleanOthers"
+    },
+
     // 同级同类兄弟元素
     {
         "key":      ":e",

@@ -114,7 +114,7 @@
         button.redo|ev('detail') vnot;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|(ESC) $('#content') apply('add', _1);
-        ^finish|(edInit) ('#content','#g-path','#err-tips','#outline','#tools-usual','#g-modal','#g-contab','#con-level') exec(_8)"
+        ^finish|(edInit) ('content,g-covert,g-path,err-tips,outline,tools-usual,g-modal,g-contab,con-level') split(',') str('#') exec(_)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');

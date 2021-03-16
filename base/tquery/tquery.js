@@ -6447,7 +6447,9 @@ function varyReplace( el, nodes ) {
             _ref = el.previousSibling;
 
         el.replaceWith( ...detachNodes(_els) );
-        nodesTrigger( el, _els, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
+
+        // el已脱离DOM，故参考节点用_box
+        nodesTrigger( _box, _els, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
     }
     return nodes;
 }
@@ -6610,7 +6612,7 @@ function varyReplace2s( el, subs ) {
         let _ref = el.previousSibling;
 
         el.replaceWith( ...subs );
-        nodesTrigger( el, subs, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
+        nodesTrigger( _box, subs, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
     }
     return subs;
 }

@@ -1210,6 +1210,9 @@ let
     // 内容根元素。
     contentElem = null,
 
+    // 不可见元素提示节点。
+    covertShow = null,
+
     // 路径信息容器。
     pathContainer = null,
 
@@ -1322,13 +1325,17 @@ function elemInfo( el ) {
  * @return {Element|null} 之前的焦点
  */
 function setFocus( el ) {
-    if ( el == null ) {
-        $.empty( pathContainer );
-    } else {
-        $.intoView( el, 0 );
-        $.fill( pathContainer, pathList(el, contentElem) );
+    try {
+        if ( el == null ) {
+            $.empty( pathContainer );
+        } else {
+            $.intoView( el, 0 );
+            $.fill( pathContainer, pathList(el, contentElem) );
+        }
+        return __EHot.set( el );
     }
-    return __EHot.set( el );
+    // 体现焦点类名。
+    finally { covertTips(el) }
 }
 
 
@@ -2945,6 +2952,36 @@ function inlinePopup( name, rngop ) {
 
 
 /**
+ * 设置不可见元素提示。
+ * @param  {Element} el 目标元素
+ * @return {void}
+ */
+function covertTips( el ) {
+    $.trigger(
+        covertShow,
+        Sys.covert,
+        el && isCovert( el ) && covertHTML( el.cloneNode() ) || ''
+    );
+}
+
+
+/**
+ * 提取不可见元素信息。
+ * - 标签名大写（醒目）。
+ * - 考虑简单性，不含选取类名（_selected）。
+ * - 不含结束标签部分（如果有）。
+ * @param  {Element} el 不可见元素
+ * @return {String}
+ */
+function covertHTML( el ) {
+    let _as = [...$.removeClass(el, Sys.selectedClass).attributes]
+        .map( a => `${a.name}="${a.value}"` );
+
+    return `<${el.tagName} ${_as.join(' ')}>`;
+}
+
+
+/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -3663,8 +3700,9 @@ function _tableNoit( ref, els ) {
  * @param {String} inswhere 主面板内容插入位置根容器
  * @param {String} contab 主面板内容标签容器
  */
-export function init( content, pathbox, errbox, outline, midtool, modal, contab, inswhere ) {
+export function init( content, covert, pathbox, errbox, outline, midtool, modal, contab, inswhere ) {
     contentElem   = $.get( content );
+    covertShow    = $.get( covert );
     pathContainer = $.get( pathbox );
     errContainer  = $.get( errbox );
     outlineElem   = $.get( outline );
@@ -3954,6 +3992,20 @@ export const Edit = {
         _els.splice( _els.indexOf(_el), 1 );
 
         _els.length && historyPush( new ESEdit(elementsUnify, _els, _el) );
+    },
+
+
+    /**
+     * 取消其它全部选取。
+     * 仅保留焦点元素（未选取则选取）。
+     */
+    cleanOthers() {
+        let _hot = __EHot.get();
+
+        if ( !_hot || __ESet.size === 1 && __ESet.has(_hot) ) {
+            return;
+        }
+        historyPush( new ESEdit(() => __Selects.empty()), new ESEdit(selectOne, _hot, 'safeAdd') );
     },
 
 
@@ -4897,23 +4949,6 @@ export const Kit = {
     },
 
 
-    /**
-     * 选取集取消。
-     * 如果焦点在选取的元素上/内，则同时取消焦点。
-     * ESC键最底层取消操作。
-     * 注记：固定配置不提供外部定制。
-     * @return {void}
-     */
-    ecancel() {
-        let _els = [...__ESet];
-
-        if ( !_els.length ) {
-            return;
-        }
-        historyPush( cleanHot(_els, true), new ESEdit(() => __Selects.empty()) );
-    },
-
-
     //-- On 扩展 -------------------------------------------------------------
 
 
@@ -5393,13 +5428,14 @@ export const Kit = {
 
     /**
      * 根据内容类型创建图片。
-     * 图片选项由安全JSON解析（Worker），故返回一个Promise<Element>。
-     * 内容格式：{
-     *      url 首行URL，第二行特性配置
-     *      b64 同上，但URL为DataURL
-     *      svg XML源码内容
-     * }
-     * 注：插图单元使用。
+     * 图片配置为JS数组/对象，故由一个Worker解析。
+     * 内容格式：
+     * svg: XML源码内容。
+     * url|b64: [
+     *      URL{String}     图片URL字符串
+     *      Opts{Object}    宽高等配置对象
+     * ]
+     * 注：供创建插图单元时使用。
      * @data: String
      * @param  {String} type 图片类型（url|b64|svg）
      * @return {Element|Promise<Element>} <svg>|Promise<img>
@@ -5448,6 +5484,19 @@ export const Kit = {
 
 
     //-- By 扩展 -------------------------------------------------------------
+
+
+    /**
+     * 选取集取消。
+     * ESC键取消操作（最底层）。
+     * 会同时取消元素焦点。
+     * 注记：固定配置不提供外部定制。
+     * @return {void}
+     */
+    ecancel() {
+        __ESet.size &&
+        historyPush( new HotEdit(null), new ESEdit(() => __Selects.empty()) );
+    },
 
 
     /**
@@ -5929,6 +5978,7 @@ processExtend( 'Ed', Edit, [
 // By: 综合工具集。
 //
 processExtend( 'Kit', Kit, [
+    'ecancel',
     'tips',
     'chapter',
     'save',

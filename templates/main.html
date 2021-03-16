@@ -238,21 +238,22 @@
         -->
         <main id="content" class="content"
             on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) scam;
+                cancel|stop env('minied') end;
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) v.roleinfo(_1) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
-                cancel|stop env('minied') end (Kit) call('ecancel');
                 mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass dup str pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
                 mousedown|env('minied') end sRange str vnot scam('shift') both pop avoid;
                 mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass sRange pop xRange stop"
-            by="Ed.click(_1)"
+            by="Ed.click(_1);
+                Kit.ecancel"
             to="#g-count|trigger('reset');
+                #g-count|trigger('reset');
                 =|addClass;
                 =|removeClass;
                 #status-info|trigger('info');
-                #g-count|trigger('reset');
                 #g-count|trigger('reset');
                 #g-cells|trigger('store');
                 #g-cmenu|trigger('show')">
