@@ -99,7 +99,7 @@ function obtAttr( el ) {
     }
     $.removeAttr( el, __obtName );
 
-    return Promise.all(_buf);
+    return Promise.all( _buf );
 }
 
 

@@ -84,7 +84,7 @@
 </head>
 <!--基本行为:
     - 左右面板大小改变。
-    - 三个面板隐显切换（独立），当前显示面板隐显切换。
+    - 三个面板隐显切换（独立），当前显示面板隐显切换（panel.clearall）。
     - 命令行直达。
     - 通用录入框充满（<textarea>）。
     ESC 原理:
@@ -99,9 +99,9 @@
     on="@mousemove:1|movementX;
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
+        pcheck|data('all') arr filter(e=>$.hasClass(e, '_press'));
         pstore|data('pls') dup apply('clear') ev('detail') applies('add', _);
-        panel.clearall|data('all') data('pls') dup get('size') vnot pop $if(_2) pop;
+        panel.clearall|data('all') data('pls') dup size vnot pop $if(_2) arr pop;
         panel.outline;
         panel.slave;
         panel.help;
