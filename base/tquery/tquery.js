@@ -7574,7 +7574,7 @@ const Event = {
             return [ null, this._current ];
         }
         if ( slr[0] == this.originPrefix) {
-            return [ slr.substring(1), this._target ];
+            return [ slr.substring(1).trim(), this._target ];
         }
         return [ slr, this._delegate ];
     },
@@ -7744,18 +7744,18 @@ const Event = {
      * @return {Element|null}
      */
     _target( ev, slr ) {
-        let _el = ev.target;
+        let _its = ev.target,
+            _box = ev.currentTarget;
 
         if ( !subslr.test(slr) ) {
-            return $is(_el, slr) ? _el : null;
+            return targetElem( _box, _its, slr );
         }
-        let _box = ev.currentTarget;
         try {
             hackAttr(_box, hackFix);
-            return $is( _el, hackSelector(_box, slr, hackFix) ) ? _el : null;
+            return $is( _its, hackSelector(_box, slr, hackFix) ) ? _its : null;
         }
         finally {
-            hackAttrClear(_box, hackFix);
+            hackAttrClear( _box, hackFix );
         }
     },
 
@@ -7792,14 +7792,14 @@ const Event = {
             _box = ev.currentTarget;
 
         if ( !subslr.test(slr) ) {
-            return delegateClosest(_box, _beg, slr);
+            return delegateClosest( _box, _beg, slr );
         }
         try {
             hackAttr(_box, hackFix);
-            return delegateClosest(_box, _beg, hackSelector(_box, slr, hackFix));
+            return delegateClosest( _box, _beg, hackSelector(_box, slr, hackFix) );
         }
         finally {
-            hackAttrClear(_box, hackFix);
+            hackAttrClear( _box, hackFix );
         }
     },
 
@@ -7807,10 +7807,29 @@ const Event = {
 
 
 /**
+ * 起点匹配。
+ * 仅测试起点元素是否匹配选择器。
+ * 支持空选择器表示起点为容器元素自身（特例）。
+ * 注记：
+ * 强制起点为容器元素自身，
+ * 可以很容易地避免节点变化类（nodeok）事件的死循环攻击。
+ * @param  {Element} box 容器元素
+ * @param  {Element} el 起点元素
+ * @param  {String} slr 选择器串（已合法）
+ * @return {Element|null} 匹配的子级元素
+ */
+function targetElem( box, el, slr ) {
+    if ( slr ) {
+        return $is( el, slr ) ? el : null;
+    }
+    return el === box ? el : null;
+}
+
+/**
  * 向上检测委托匹配。
  * 专用于委托绑定时，向上递进到委托容器时止。
  * @param  {Element} box 容器元素
- * @param  {Element} beg 匹配起点元素
+ * @param  {Element} beg 起点元素
  * @param  {String} slr 选择器串（已合法）
  * @return {Element|null} 匹配的子级元素
  */
