@@ -70,6 +70,10 @@ const
     // 章节容器匹配。
     __reSecbox  = /section|article/i,
 
+    // 类名&值模式。
+    // 用于清除提示信息中的该部分。
+    __reClassv  = /\sclass="[\w\s]+"/,
+
     // 微编辑：
     // 智能逻辑行适用集。
     // 源行类型：[新行标签名, 父类型约束]
@@ -113,7 +117,9 @@ const
 
     // 自动弹出属性框的条目。
     // 注：在划选创建内联单元时。
-    __popupCells = new Set([ 'a', 'ruby', 'bdo' ]),
+    __popupCells = new Set([
+        'a', 'ruby', 'bdo'
+    ]),
 
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
@@ -2960,7 +2966,7 @@ function covertTips( el ) {
     $.trigger(
         covertShow,
         Sys.covert,
-        el && isCovert( el ) && covertHTML( el.cloneNode() ) || ''
+        el && isCovert( el ) && elemHTML( el ) || ''
     );
 }
 
@@ -2968,13 +2974,13 @@ function covertTips( el ) {
 /**
  * 提取不可见元素信息。
  * - 标签名大写（醒目）。
- * - 考虑简单性，不含选取类名（_selected）。
  * - 不含结束标签部分（如果有）。
+ * 注：必然存在 _focus 类名。
  * @param  {Element} el 不可见元素
  * @return {String}
  */
-function covertHTML( el ) {
-    let _as = [...$.removeClass(el, Sys.selectedClass).attributes]
+function elemHTML( el ) {
+    let _as = [...el.attributes]
         .map( a => `${a.name}="${a.value}"` );
 
     return `<${el.tagName} ${_as.join(' ')}>`;
@@ -3317,7 +3323,7 @@ const fixItemslr = {
 
     // 抽象位置
     LastChild: {
-        self: ':last-child',
+        self: '>:last-child',
         prev: null
     }
 };
@@ -3936,6 +3942,9 @@ export const Edit = {
             .filter( el => __ESet.has(el) );
 
         _els.length && historyPush( new ESEdit(() => __Selects.removes(_els)) );
+
+        // 无聚焦行为，故必要。
+        covertTips( _el );
     },
 
 
@@ -4962,6 +4971,16 @@ export const Kit = {
 
 
     /**
+     * 获取选取集大小。
+     * 用途：状态栏友好提示。
+     * @return {Number}
+     */
+    esize() {
+        return __ESet.size;
+    },
+
+
+    /**
      * 获取首个选取元素的表格实例。
      * 注：选取元素可能是表格的子单元。
      * @return {Table|null}
@@ -5020,16 +5039,6 @@ export const Kit = {
                 return _el.parentElement;
         }
         throw new Error( `bad type of element.` );
-    },
-
-
-    /**
-     * 获取选取集大小。
-     * 用途：状态栏友好提示。
-     * @return {Number}
-     */
-    esize() {
-        return __ESet.size;
     },
 
 
@@ -5154,6 +5163,21 @@ export const Kit = {
     },
 
     __roleinfo: 1,
+
+
+    /**
+     * 构造元素的HTML信息。
+     * 友好：提示目标元素的特性结构。
+     * 主要用于焦点元素路径上。
+     * @data: Element
+     * @return {String|null}
+     */
+    elemHTML( evo ) {
+        let _el = evo.data;
+        return _el ? elemHTML(_el).replace(__reClassv, '') : null;
+    },
+
+    __elemHTML: 1,
 
 
     /**
@@ -5506,13 +5530,13 @@ export const Kit = {
      * @param  {Set} scam 按下的修饰键集
      * @return {void}
      */
-    tips( evo, scam ) {
+    errmsg( evo, scam ) {
         if ( scamPressed(scam, cfg.Keys.elemFocus) ) {
             setFocus( evo.data );
         }
     },
 
-    __tips: 1,
+    __errmsg: 1,
 
 
     /**
@@ -5979,7 +6003,7 @@ processExtend( 'Ed', Edit, [
 //
 processExtend( 'Kit', Kit, [
     'ecancel',
-    'tips',
+    'errmsg',
     'chapter',
     'save',
     'blankline',
@@ -6006,11 +6030,12 @@ processExtend( 'Kit', Kit, [
 //
 customGetter( null, Kit, [
     'sels',
+    'esize',
+    'elemHTML',
     'tobj',
     'trbox',
     'tsecbox',
     'codebox',
-    'esize',
     'source',
     'rngok',
     'menupos',

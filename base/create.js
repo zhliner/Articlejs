@@ -1172,7 +1172,7 @@ const Builder = {
     [ T.CASCADEAH4LI,   ['value'] ],
     [ T.BLOCKQUOTE,     ['cite'] ],
     [ T.DETAILS,        ['open'] ],
-    [ T.A,              ['href', 'target'] ],
+    [ T.A,              ['href', 'target', 'title'] ],
     [ T.Q,              ['cite'] ],
     [ T.ABBR,           ['title'] ],
     [ T.DFN,            ['title'] ],

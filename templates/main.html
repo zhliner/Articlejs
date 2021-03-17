@@ -715,12 +715,13 @@
             empty  鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
             click(b:last-child) 微编辑找回编辑点友好。
             注记：
-            路径信息更新由程序（edit.js）直接执行。
+            路径信息更新由程序（edit.js）直接执行。on="mouseenter|v.hotHTML" to="|@title"
         -->
         <div id="g-path" class="_path"
             on="click(b)|env('minied') end evo(2) v.source scam;
                 mouseenter(b)|('_point') evo(2) v.source pop;
                 mouseleave(b)|stop ('_point') evo(2) v.source pop;
+                mouseenter(b)|evo(2) v.source v.elemHTML evo(2) pop;
                 empty;
                 click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
                 toggle|evo(3) lose(2)"
@@ -728,6 +729,7 @@
             to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
                 -|addClass;
                 -|removeClass;
+                -|@title;
                 /b:hover|trigger('mouseleave', true)">
             <!-- <b> -->
         </div>
@@ -788,11 +790,12 @@
 
 <!-- 状态栏 -->
 <div class=" ___Panel Status" tpl-name="main:status">
-    <!-- 即时信息 -->
+    <!-- 友好：提示焦点元素outerHTML -->
     <div class="_info">
+        <!-- 即时信息 -->
         <span id="status-info" title=""
             on="info|ev('detail')"
-            to="|attribute('title text')"></span>
+            to="|attribute('text title')"></span>
         <!--计数暂存
             reset: 清空值，提供选取集大小默认显示。
             setv:  设置值并提供该值的显示。-->
@@ -846,13 +849,13 @@
     <!--出错提示：
         click 滚动问题元素（可能为null）到视口中间，主窗口聚焦友好。
         mouseover 问题元素背影提示。-->
-    <div id="err-tips" class="_err" data-pbo="lost"
+    <div id="err-msg" class="_err" data-pbo="lost"
         on="click|evo(3) v.source dup pass dup intoView(2) scam;
             mouseenter|('_warn') evo(3) v.source pop;
             mouseleave|('_warn') evo(3) v.source pop;
             off|evo(3) lose;
             on|evo(3) lose(0)"
-        by="Kit.tips(_1)"
+        by="Kit.errmsg(_1)"
         to="body|trigger('focus.content');
             -|addClass;
             -|removeClass;
@@ -869,7 +872,7 @@
     <div id="x-help" class="_help" title="帮助〔F4〕"
         on="toggle|$$('#help,#lineRight') lose(2) ('_press');
             click;
-            help|$('#help') lost end $('#err-tips > a') attr('-hid')"
+            help|$('#help') lost end $('#err-msg > a') attr('-hid')"
         to="|toggleClass|goto('help');
             |trigger('toggle')|fire('body', 'pcheck');
             #help|trigger('index')">

@@ -348,7 +348,7 @@
 <div class="_body _Footer" obt-src="obts/list2.json" tpl-name="input:footer"
     on="nodes|ev('detail') wrap('<p>') $('/input[name=h3]') val obj('h3') (true)"
     by="New.footer(_2)"
-    to="form/|trigger('insert')">
+    to="form/|trigger('insfix')">
     <div class="_main">
         <header>
             <input name="h3" type="text" class="_scale" value="小结" />
@@ -1211,7 +1211,7 @@
 </div>
 
 <div class="_body _Cascadeah4li" tpl-name="input:cascadeah4li"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('href target', null);
+    on="create|$('/[name=text]') val dup pass $('form/') valo('href title target', null);
         xlist|$('/textarea') val v.splitx(true) wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
     by="New.a(_1);
         New.cascadeah4li(_1)"

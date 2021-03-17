@@ -100,7 +100,7 @@ export const
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    A               = 200,  // 链接 {href, target}
+    A               = 200,  // 链接 {href, target, title}
     Q               = 201,  // 短引用 {cite}
     ABBR            = 202,  // 缩写 {title}
     DEL             = 203,  // 删除 {datetime, cite}
