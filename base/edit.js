@@ -2975,15 +2975,15 @@ function covertTips( el ) {
  * 提取不可见元素信息。
  * - 标签名大写（醒目）。
  * - 不含结束标签部分（如果有）。
- * 注：必然存在 _focus 类名。
  * @param  {Element} el 不可见元素
  * @return {String}
  */
 function elemHTML( el ) {
     let _as = [...el.attributes]
-        .map( a => `${a.name}="${a.value}"` );
+        .map( a => `${a.name}="${a.value}"` )
+        .join( ' ' );
 
-    return `<${el.tagName} ${_as.join(' ')}>`;
+    return _as ? `<${el.tagName} ${_as}>` : `<${el.tagName}>`;
 }
 
 
@@ -4850,6 +4850,21 @@ export const Edit = {
     __paste: 1,
 
 
+    //-- 其它面板 ------------------------------------------------------------
+
+
+    /**
+     * 设置元素内联样式。
+     * @param {String} name 样式名
+     */
+    setStyle( evo, name ) {
+        __ESet.size &&
+        historyPush( new DOMEdit(__Edits.styles, [...__ESet], name, evo.data) );
+    },
+
+    __setStyle: 1,
+
+
     //-- 杂项 ----------------------------------------------------------------
 
     /**
@@ -5991,6 +6006,7 @@ processExtend( 'Ed', Edit, [
     'pathTo',
     'toText',
     'unWrap',
+    'setStyle',
 
     // 配合cut处理
     'deletes',

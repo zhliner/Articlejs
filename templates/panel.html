@@ -6,13 +6,13 @@
     instop 插入顶层固定单元。
     insfix 插入区块内固定性单元，如：标题、表头、导言等。
     instbd 插入表体<tbody>元素（特例）。
-    nodeok(~form) 从其他选项卡切换回来时自动更新（因为选取集可能已变）。
+    nodeok(~) 从其他选项卡切换回来时自动更新（因为选取集可能已变）。
     注：
-    ~form 限定是必要的，否则<select>的nodeok冒泡会导致死循环。
+    (~) 限定是必须的（同 ~form），否则<select>的nodeok冒泡会带来死循环。
 -->
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
-        nodeok(~form)|v.sels;
+        nodeok(~)|v.sels;
         insert|ev('detail') checked('before') value('level');
         instop|ev('detail') value('level');
         insfix|ev('detail') value('level');
