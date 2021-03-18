@@ -284,6 +284,7 @@ aside#help {
 }
 .___Panel select._list {
     padding: 6px 3px 6px 7px;
+    overflow-y: scroll;
 }
 
 /* 属性表 */
@@ -968,9 +969,6 @@ menu._cells code {
     margin-right: 14px;
     flex-direction: column;
 }
-.Slave ._roll select {
-    overflow-y: scroll;
-}
 .Slave ._minibar {
     height: 32px;
     flex: 0 0 auto;
@@ -1236,8 +1234,9 @@ menu._cells code {
 
 /* 字形 */
 .Style ._Fontview ._list {
-    padding: 10px;
+    padding: 8px 3px 8px 10px;
     justify-content: start;
+    overflow-y: scroll;
 }
 .Style div._list > label {
     padding: 4px 10px;
