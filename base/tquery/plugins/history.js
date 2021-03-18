@@ -227,6 +227,7 @@ class Style {
     // 因此这里并不寻求恢复style的原始特性值。
     back() {
         this._el.style[ this._name ] = this._old;
+        this._el.style.cssText || this._el.removeAttribute( 'style' );
     }
 }
 

@@ -1668,8 +1668,8 @@ Object.assign( tQuery, {
         if ( isFunc(names) ) {
             names = names( Arr(el.classList) );
         }
-        if (names == null) {
-            return removeClass(el, null), el;
+        if ( names == null ) {
+            return removeAttr( el, 'class' ), el;
         }
         if ( typeof names == 'string' ) {
             names = names.trim().split(__reSpace);
@@ -2120,8 +2120,7 @@ Object.assign( tQuery, {
      */
     cssSets( el, names, val ) {
         if ( names === null ) {
-            el.removeAttribute('style');
-            return el;
+            return removeAttr(el, 'style'), el;
         }
         cssSets( el, names, val, getStyles(el) );
 
@@ -6701,7 +6700,7 @@ const elemAttr = {
      * - 部分属性为Boolean性质，特别处理（boolHook）。
      * @param {Element} el 目标元素
      * @param {String} name 特性名
-     * @param {VAlue} value 设置值
+     * @param {Value} value 设置值
      */
     set( el, name, value ) {
         if ( value === null ) {
