@@ -97,7 +97,7 @@ const _Update = {
      * @param  {Boolean} cancelable 是否可取消，可选（默认可取消）
      * @return {void}
      */
-    trigger( to, data, evn, bubble, cancelable ) {
+    trigger( to, data, evn, bubble = false, cancelable = true ) {
         if ( !evn ) {
             [evn, data] = data;
         }
@@ -119,7 +119,7 @@ const _Update = {
      * @param  {Boolean} cancelable 是否可取消，可选（默认可取消）
      * @return {void}
      */
-    triggers( tos, data, evn, bubble, cancelable ) {
+    triggers( tos, data, evn, bubble = false, cancelable = true ) {
         tos.forEach(
             (el, i) => $.trigger( el, evn, data[i], bubble, cancelable )
         );

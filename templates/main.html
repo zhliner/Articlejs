@@ -741,15 +741,19 @@
 <!--功能面板：
     mousedown 面板高度调整。
     keydown   面板快捷键处理。
+    nodeok(~form) 从其他选项卡切换回来时自动更新（因为选取集可能已变）。
+    update    内容区选取变化，主面板跟随更新触发。注：不冒泡。
     input.submit  直接快捷提交，保持录入框焦点。
     input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
     input.full    文本录入和表格录入最大化平铺。
     注：
+    (~form) 限定是必要的，否则更深子单元（如<select>）的nodeok冒泡会带来死循环。
     tabindex 使保存键（Ctrl+s）随时有效。 -->
 <div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
     on="@mousemove|movementY neg;
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveResize) pass stop avoid;
+        nodeok(~form) update;
         input.submit(~textarea);
         input.submit(~th, td);
         input.submit2(~textarea, ._code)|evo(2) full(false);
@@ -760,6 +764,7 @@
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');
+        /form|trigger('update');
         /form|trigger('submit')|fire(1, 'focus');
         /form|trigger('submit')|fire(1, 'focus');
         /form|trigger('submit')|fire(1, 'focus');
@@ -770,7 +775,7 @@
         to="1/form|replace;
             =|only('_press')">
         <!--edtype 设置编辑类型：
-            更新模板名，如果当前显示则激发载入。 -->
+            更新模板名，如果当前在显示则激发载入。 -->
         <b id="g-contab" data-tpl="slave:input" class="_press"
             on="edtype|ev('detail');
                 doit|evo(3) dup hasClass('_press') pass click"

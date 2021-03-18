@@ -312,7 +312,7 @@ class ESEdit {
      */
     undo() {
         __ESet.clear().pushes( this._old );
-        delayFire( insertWhere, Sys.evnLevel, this._old );
+        delayFire( slavePanel, Sys.evnFollow, this._old );
     }
 
 
@@ -321,7 +321,7 @@ class ESEdit {
      */
     redo() {
         this._fun( ...this._vals );
-        delayFire( insertWhere, Sys.evnLevel, [...__ESet] );
+        delayFire( slavePanel, Sys.evnFollow, [...__ESet] );
     }
 }
 
@@ -1165,33 +1165,28 @@ class NodeVary {
 
 
     /**
-     * 设置样式（多个）。
+     * 设置样式。
      * 全部元素统一设置为相同的值。
      * 注记：
-     * 单纯的样式设置可以在OBT模板中完成，
-     * 但因为需要进入历史栈，故在此操作。
-     * @param {[Element]} els 元素集
+     * 模板中通过OBT可直接设置样式，但需要可撤销故在单独定义。
+     * @param {Set|[Element]} els 元素集
      * @param {String|Object} names 样式名序列或样式配置对象
-     * @param {Value|[Value]} val
+     * @param {Value|[Value]} val 样式值或值集
      */
     styles( els, names, val ) {
-        els.forEach(
-            el => $.cssSets( el, names, val )
-        );
+        for ( const el of els ) $.cssSets( el, names, val );
     }
 
 
     /**
-     * 样式设置（单个）。
-     * 全部元素统一设置为相同的值。
-     * @param {[Element]} els 元素集
-     * @param {String} name 样式名
-     * @param {Value} val 样式值
+     * 特性设置。
+     * 全部元素统一做相同的设置。
+     * @param {Set|[Element]} els 元素集
+     * @param {String} name 特性名序列或配置对象
+     * @param {Value|[Value]} val 特性值或值集
      */
-    style( els, name, val ) {
-        els.forEach(
-            el => $.css( el, name, val )
-        );
+    attrs( els, name, val ) {
+        for ( const el of els ) $.attribute( el, name, val );
     }
 }
 
@@ -1238,8 +1233,8 @@ let
     // 主面板内容标签容器
     slaveInsert = null,
 
-    // 主面板内容插入位置根容器
-    insertWhere = null,
+    // 主面板根元素
+    slavePanel = null,
 
     // 当前微编辑对象暂存。
     currentMinied = null;
@@ -1921,8 +1916,8 @@ function miniedOk( h2 ) {
     // 主面板恢复普通模式标签。
     $.trigger( slaveInsert, Sys.insType, Sys.normalTpl );
 
-    // 插入位置恢复普通模式
-    delayFire( insertWhere, Sys.evnLevel, [...__ESet] );
+    // 恢复普通模式通知
+    delayFire( slavePanel, Sys.evnFollow, [...__ESet] );
 }
 
 
@@ -2733,8 +2728,9 @@ function propertyEdit( name ) {
  * @param {...Value} rest 剩余参数
  */
 function delayFire( el, evn, ...rest ) {
-    setTimeout( () =>
-        el.isConnected && $.trigger( el, evn, ...rest ), 1
+    setTimeout(
+        () => el.isConnected && $.trigger(el, evn, ...rest),
+        1
     );
 }
 
@@ -3699,23 +3695,23 @@ function _tableNoit( ref, els ) {
  * 用于编辑器设置此模块中操作的全局目标。
  * @param {String} content 编辑器容器（根元素）
  * @param {String} pathbox 路径蓄力容器
+ * @param {String} pslave 主面板根元素
  * @param {String} errbox 出错信息提示容器
  * @param {String} outline 大纲视图容器
  * @param {String} midtool 工具栏动态按钮区
  * @param {String} modal 模态框根容器
- * @param {String} inswhere 主面板内容插入位置根容器
  * @param {String} contab 主面板内容标签容器
  */
-export function init( content, covert, pathbox, errbox, outline, midtool, modal, contab, inswhere ) {
+export function init( content, covert, pslave, pathbox, errbox, outline, midtool, modal, contab ) {
     contentElem   = $.get( content );
     covertShow    = $.get( covert );
+    slavePanel    = $.get( pslave );
     pathContainer = $.get( pathbox );
     errContainer  = $.get( errbox );
     outlineElem   = $.get( outline );
     midtoolElem   = $.get( midtool );
     modalDialog   = $.get( modal );
     slaveInsert   = $.get( contab );
-    insertWhere   = $.get( inswhere );
 
 
     // 开启tQuery变化事件监听。
@@ -4850,19 +4846,73 @@ export const Edit = {
     __paste: 1,
 
 
-    //-- 其它面板 ------------------------------------------------------------
 
+    //-- 其它面板 ------------------------------------------------------------
 
     /**
      * 设置元素内联样式。
+     * 目标：暂存区/栈顶1项。
+     * 对目标元素集批量设置样式。
+     * @data: [Element] 目标元素集
      * @param {String} name 样式名
+     * @param {Value|[Value]} 样式值
      */
-    setStyle( evo, name ) {
-        __ESet.size &&
-        historyPush( new DOMEdit(__Edits.styles, [...__ESet], name, evo.data) );
+    setStyle( evo, name, val ) {
+        evo.data.length &&
+        historyPush( new DOMEdit(__Edits.styles, evo.data, name, val) );
     },
 
     __setStyle: 1,
+
+
+    /**
+     * 样式刷。
+     * 目标：暂存区/栈顶1项。
+     * 将目标元素的样式应用到全部已选取的元素。
+     * 如果目标元素无任何内联样式，则无动作。
+     * 注：
+     * 如果只有目标元素被选取，会简单地取消选取（视觉友好）。
+     * @data: Element 目标元素
+     */
+    brushStyle( evo ) {
+        let _v = $.attr( evo.data, 'style' );
+        if ( !_v ) return;
+
+        let _op0 = __ESet.has(evo.data) &&
+                new ESEdit( __Selects.delete, evo.data ),
+            _op1 = __ESet.size &&
+                new DOMEdit( __Edits.attrs, __ESet, 'style', _v );
+
+        _op0 || _op1 && historyPush( _op0, _op1 );
+    },
+
+    __brushStyle: 1,
+
+
+    /**
+     * 清除全部样式。
+     * 目标：暂存区/栈顶1项。
+     * 清除目标元素集的全部样式。
+     * 至少要有一个元素拥有内联样式定义，否则无动作。
+     * 友好：
+     * 即便多次单击清除按钮，不会导致冗余的历史栈存储。
+     * @data: [Element]
+     */
+    clearStyle( evo ) {
+        let _will = null;
+
+        for ( const el of evo.data ) {
+            if ( $.attr(el, 'style') !== null ) {
+                _will = true;
+                break;
+            }
+        }
+        _will && historyPush( new DOMEdit(__Edits.styles, evo.data, null) );
+
+    },
+
+    __clearStyle: 1,
+
 
 
     //-- 杂项 ----------------------------------------------------------------
@@ -4992,6 +5042,14 @@ export const Kit = {
      */
     esize() {
         return __ESet.size;
+    },
+
+
+    /**
+     * 获取焦点元素。
+     */
+    focus() {
+        return __EHot.get();
     },
 
 
@@ -6007,6 +6065,8 @@ processExtend( 'Ed', Edit, [
     'toText',
     'unWrap',
     'setStyle',
+    'brushStyle',
+    'clearStyle',
 
     // 配合cut处理
     'deletes',
@@ -6047,6 +6107,7 @@ processExtend( 'Kit', Kit, [
 customGetter( null, Kit, [
     'sels',
     'esize',
+    'focus',
     'elemHTML',
     'tobj',
     'trbox',

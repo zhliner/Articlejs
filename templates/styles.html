@@ -6,13 +6,19 @@
 
 <!-- 字形 -->
 <div class="_body _Fontview" tpl-name="style:fontview">
-    <div class="_list">
-        <label>
-            <input type="checkbox" name="bold" />
+    <div class="_list"
+        on="click(input)|('text-decoration') evo(2) val pack(2)"
+        to="form/|trigger('style')">
+        <label
+            on="click(input)|stop ('font-weight') evo(2) val pack(2)"
+            to="form/|trigger('style')">
+            <input type="checkbox" name="bold" value="bold" />
             <span style="font-weight: bold;">粗体</span><small>（font-weight: bold）</small>
         </label>
-        <label>
-            <input type="checkbox" name="italic" />
+        <label
+            on="click(input)|stop ('font-style') evo(2) val pack(2)"
+            to="form/|trigger('style')">
+            <input type="checkbox" name="italic" value="italic" />
             <span style="font-style: italic;">斜体</span><small>（font-style: italic）</small>
         </label>
         <label>
@@ -27,13 +33,20 @@
             <input type="radio" name="decoration" value="overline" />
             <span style="text-decoration: overline;">上划线</span><small>（text-decoration: overline）</small>
         </label>
+        <label>
+            <input type="radio" name="decoration" value="" checked />
+            <span>无划线</span><small>（text-decoration: -）</small>
+        </label>
     </div>
-    <div class="_erase"><b>全部清除</b></div>
+    <div class="_erase"
+        on="click|(['font-weight font-style text-decoration', null])"
+        to="form/|trigger('style')"><b>全部清除</b></div>
 </div>
 
 
 <!-- 字号 -->
-<div class="_body _Fontsize" tpl-name="style:fontsize">
+<div class="_body _Fontsize" tpl-name="style:fontsize"
+    on="modify|">
     <select name="sizename" size="5" class="_list">
         <option>xx-small</option>
         <option>x-small</option>
@@ -65,7 +78,8 @@
 
 
 <!-- 对齐 -->
-<div class="_body _Align" tpl-name="style:align">
+<div class="_body _Align" tpl-name="style:align"
+    on="modify|">
     <div class="_h">
         <label title="text-align">行内</label>
         <select name="align" size="5" class="_list">

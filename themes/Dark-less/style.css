@@ -283,7 +283,7 @@ aside#help {
     overflow-y: auto;
 }
 .___Panel select._list {
-    padding: 6px 1px 6px 6px;
+    padding: 6px 3px 6px 7px;
 }
 
 /* 属性表 */
@@ -962,11 +962,14 @@ menu._cells code {
     display: flex;
 }
 .Slave ._roll {
-    flex: 1 1 auto;
+    flex: 1 1 140px;
     min-width: 140px;
     max-width: 220px;
     margin-right: 14px;
     flex-direction: column;
+}
+.Slave ._roll select {
+    overflow-y: scroll;
 }
 .Slave ._minibar {
     height: 32px;
@@ -1193,6 +1196,7 @@ menu._cells code {
 }
 .Style select._list {
     min-width: 150px;
+    padding-left: 10px;
 }
 .Style ._body > aside {
     max-width: max-content;
@@ -1236,7 +1240,7 @@ menu._cells code {
     justify-content: start;
 }
 .Style div._list > label {
-    padding: 5px;
+    padding: 4px 10px;
     border-radius: 3px;
 }
 .Style div._list > label:hover {

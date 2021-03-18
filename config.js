@@ -153,7 +153,7 @@ const Sys = {
     // 在模板中定义，由程序中激发。
     medIn:      'medin',    // 进入微编辑
     medOk:      'medok',    // 完成微编辑
-    evnLevel:   'update',   // 插入层级选单更新
+    evnFollow:  'update',   // 内容区选取变化跟随激发
     insType:    'edtype',   // 编辑类型更新（普通插入|微编辑）
     covert:     'tips',     // 不可见元素提示
 

@@ -1,18 +1,16 @@
 <!--主面板区
 ----------------------------------------------------------------------------->
 
-<!--录入
+<!--录入：
     insert 插入已创建的元素/集（detail），通用。
     instop 插入顶层固定单元。
     insfix 插入区块内固定性单元，如：标题、表头、导言等。
     instbd 插入表体<tbody>元素（特例）。
-    nodeok(~) 从其他选项卡切换回来时自动更新（因为选取集可能已变）。
-    注：
-    (~) 限定是必须的（同 ~form），否则<select>的nodeok冒泡会带来死循环。
+    update 跟随更新，来源：内容区选取变化、标签页切换。
 -->
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
-        nodeok(~)|v.sels;
+        update|v.sels;
         insert|ev('detail') checked('before') value('level');
         instop|ev('detail') value('level');
         insfix|ev('detail') value('level');
@@ -25,7 +23,7 @@
         Kit.instbody(_2);
         Kit.insrbpt(_2)"
     to="/._body|trigger('create');
-        /#con-level|trigger('update');
+        /#con-level|trigger('renew');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
@@ -34,16 +32,16 @@
     <div class="_roll">
         <!--插入位置：
             ev:detail 已选取元素的集合。
-            update  选单更新。fire非延迟避免闪烁。
+            renew 选单更新。fire非延迟避免闪烁。
             section 片区单元内容混杂检查（标记_mixed类名）。
             click focus 快捷操作友好。 -->
         <div id="con-level" class="_minibar"
-            on="update|ev('detail') $('/input') val('level') v.inslist(_1);
+            on="renew|ev('detail') $('/input') val('level') v.inslist(_1);
                 section|('_mixed') $('/input') val('level') v.ismixed;
                 click(input)|$('1/select') focus v.sels"
             to="1/select|fill|fire(10, 'change', 0) goto('section');
                 1/select|toggleClass(_1);
-                |trigger('update')">
+                |trigger('renew')">
             <label title="平级插入">
                 <input type="radio" name="level" value="siblings" checked /><i id="l-siblings"></i>
             </label>
@@ -137,21 +135,45 @@
 </form>
 
 
-<!-- 样式 -->
-<form class="Style" onsubmit="return false" tpl-name="slave:style">
+<!--样式：
+    style 接收各子区发来的信息（[name,value]），设置内容区元素样式。
+    submit 如果子区有提交逻辑，提交转发为子区修改（modify）事件，各子区因应而为。
+    update 跟随更新：来源：内容区选取变化、标签页切换、样式按钮切换。
+-->
+<form class="Style" tpl-name="slave:style"
+    on="style|v.sels ev('detail');
+        submit|avoid;
+        update|stop v.sels"
+    by="Ed.setStyle(_)"
+    to="#g-scroll|trigger('focus');
+        /._body|trigger('modify');
+        /._body|trigger('follow')">
+    <!-- 切换模板；表达按下，跟随更新。-->
     <div class="_icons"
-        on="click(b)|evo(2) attr('-tpl') pop tpl;
+        on="click(b)|evo(2) attr('-tpl') node(_1);
             click(b)|$$('/b')"
         to="1/._body|replace;
-            =|only('_press')">
-        <b on="click|stop" title="擦除"><i id="b-erase"></i></b>
-        <b on="click|stop" title="样式刷"><i id="b-brush"></i></b>
-        <b data-tpl="style:fontview" title="字形" class="_press"><i id="b-fontview"></i></b>
-        <b data-tpl="style:fontsize" title="字号"><i id="b-fontsize"></i></b>
+            =|only('_press')|fire('form/', 'update')">
+        <!-- 直接执行：click stop 避免触发上层行为。-->
+        <b title="擦除"
+            on="click|stop v.sels"
+            by="Ed.clearStyle"
+            to="#g-scroll|trigger('focus')">
+            <i id="b-erase"></i>
+        </b>
         <b data-tpl="style:align" title="对齐"><i id="b-align"></i></b>
+        <b data-tpl="style:fontview" title="字形" class="_press"><i id="b-fontview"></i></b>
         <b data-tpl="style:width" title="宽/高度"><i id="b-width"></i></b>
+        <b data-tpl="style:fontsize" title="字号"><i id="b-fontsize"></i></b>
         <b data-tpl="style:margin" title="内/外边距"><i id="b-margin"></i></b>
         <b data-tpl="style:color" title="颜色"><i id="b-colors"></i></b>
+        <!-- 直接执行 -->
+        <b title="样式刷"
+            on="click|stop v.focus dup pass"
+            by="Ed.brushStyle"
+            to="#g-scroll|trigger('focus')">
+            <i id="b-brush"></i>
+        </b>
     </div>
     <div class="_body" tpl-source="style:fontview"> [字形] </div>
 </form>

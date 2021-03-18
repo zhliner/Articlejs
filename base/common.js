@@ -157,7 +157,7 @@ export class EHot {
      * 获取焦点元素。
      */
     get() {
-        return this._its;
+        return this._its || null;
     }
 
 

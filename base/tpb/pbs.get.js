@@ -809,14 +809,13 @@ const _Gets = {
 
     /**
      * 获取模板节点（集）。
-     * 目标：暂存区1项可选。
-     * 如果目标有值，取目标为模板名，此时name充当clone实参。
+     * 目标：无。
      * 返回节点元素本身（而不是一个承诺）。
      * 如果只请求单个节点且未找到，返回null（数组成员中未找到的也为null）。
      * name支持空格分隔的多个名称序列。
      * 注记：
      * 用户请求节点时应当知道节点载入情况，节点预先载入有3种方式：
-     * 1. 在主页面中预先导入（通过隐藏的tpl-source或tpl-node语法）。
+     * 1. 在主页面中通过隐藏的tpl-source或tpl-node预先载入。
      * 2. 其它先构建（Tpb.Build）的模板导致节点已经自动载入。
      * 3. 主动使用tpl载入单个节点，于是与该节点定义在同一文件中的其它节点就会自动载入。
      * 注意：
@@ -826,16 +825,13 @@ const _Gets = {
      * @return {Element|[Element|null]|null}
      */
     node( evo, name, clone ) {
-        if ( evo.data !== undefined ) {
-            [name, clone] = [evo.data, name];
-        }
         if ( __reSpace.test(name) ) {
             return Templater.nodes( name.split(__reSpace), clone );
         }
         return Templater.node( name, clone );
     },
 
-    __node: -1,
+    __node: null,
 
 
     /**
