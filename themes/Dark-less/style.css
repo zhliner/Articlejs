@@ -1188,12 +1188,12 @@ menu._cells code {
 .Style ._icons {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 5px 15px;
-    margin: 3px 23px 3px 13px;
+    gap: 8px 18px;
+    margin: 3px 26px 3px 16px;
     max-height: 234px;
 }
 .Style select._list {
-    min-width: 150px;
+    min-width: 160px;
     padding-left: 10px;
 }
 .Style ._body > aside {
@@ -1251,8 +1251,11 @@ menu._cells code {
 }
 
 /* 对齐 */
+.Style ._Align select._list {
+    min-width: 153px;
+}
 .Style ._Align ._v {
-    margin-left: 14px;
+    margin-left: 15px;
 }
 .Style ._Align label {
     color: #82bec9;
@@ -1269,7 +1272,7 @@ menu._cells code {
     border: 1px #ccc solid;
 }
 .Style ._Margin ._list {
-    min-width: 174px;
+    min-width: 175px;
 }
 
 /* 颜色 */

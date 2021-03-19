@@ -138,17 +138,19 @@
 <!--样式：
     style 接收各子区发来的信息（[name,value]），设置内容区元素样式。
     submit 如果子区有提交逻辑，提交转发为子区修改（modify）事件，各子区因应而为。
-    update 跟随更新：来源：内容区选取变化、标签页切换、样式按钮切换。
+    update 跟随更新：来源：内容区选取变化、标签页切换、样式按钮切换、清除/格式刷操作。
 -->
 <form class="Style" tpl-name="slave:style"
     on="style|v.sels ev('detail');
         submit|avoid;
-        update|stop v.sels"
+        update|stop v.sels dup len pass"
     by="Ed.setStyle(_)"
     to="#g-scroll|trigger('focus');
         /._body|trigger('modify');
         /._body|trigger('follow')">
-    <!-- 切换模板；表达按下，跟随更新。-->
+    <!--click(b)：
+        - 切换模板。
+        - 表达按下，跟随更新。-->
     <div class="_icons"
         on="click(b)|evo(2) attr('-tpl') node(_1);
             click(b)|$$('/b')"
@@ -158,7 +160,7 @@
         <b title="擦除"
             on="click|stop v.sels"
             by="Ed.clearStyle"
-            to="#g-scroll|trigger('focus')">
+            to="#g-scroll|trigger('focus')|fire('form/', 'update')">
             <i id="b-erase"></i>
         </b>
         <b data-tpl="style:align" title="对齐"><i id="b-align"></i></b>
@@ -171,7 +173,7 @@
         <b title="样式刷"
             on="click|stop v.focus dup pass"
             by="Ed.brushStyle"
-            to="#g-scroll|trigger('focus')">
+            to="#g-scroll|trigger('focus')|fire('form/', 'update')">
             <i id="b-brush"></i>
         </b>
     </div>

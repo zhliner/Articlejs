@@ -720,7 +720,7 @@
         -->
         <div id="g-path" class="_path"
             on="click(b)|env('minied') end evo(2) v.source scam;
-                mouseenter(b)|evo(2) v.source v.elemHTML evo(2) pop;
+                mouseenter(b)|evo(2) dup attr('title') end v.source v.elemHTML evo(2) pop;
                 mouseenter(b)|('_point') evo(2) v.source pop;
                 mouseleave(b)|stop ('_point') evo(2) v.source pop;
                 empty;
@@ -742,7 +742,7 @@
     mousedown 面板高度调整。
     keydown   面板快捷键处理。
     nodeok(~form) 从其他选项卡切换回来时自动更新（因为选取集可能已变）。
-    update    内容区选取变化，主面板跟随更新触发。注：不冒泡。
+    update    内容区选取变化，主面板跟随更新触发。注：发送相同事件名故不冒泡。
     input.submit  直接快捷提交，保持录入框焦点。
     input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
     input.full    文本录入和表格录入最大化平铺。

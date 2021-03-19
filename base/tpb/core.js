@@ -641,6 +641,16 @@ class Stack {
 
 
     /**
+     * 剪取目标位置条目。
+     * i值支持负数从末尾算起。
+     * @param {Number} i 位置下标
+     */
+    tpick( i ) {
+        this._tmp.push( this._buf.splice(i, 1)[0] );
+    }
+
+
+    /**
      * 引用特定目标位置值。
      * 下标值支持负数从末尾算起。
      * 注：非法的下标位置会导入一个undefined值。

@@ -264,6 +264,22 @@ const _Control = {
 
 
     /**
+     * 剪取目标位置条目（单项）。
+     * idx负值从末尾算起（-1为栈顶1项）。
+     * 例：
+     * pick(-1)  同 pop
+     * pick(-2)  取栈顶之下1项。
+     * @param {Stack} stack 数据栈
+     * @param {Number} idx 位置下标（支持负数）
+     */
+    pick( evo, stack, idx ) {
+        stack.tpick( idx );
+    },
+
+    __pick_x: true,
+
+
+    /**
      * 引用目标位置项。
      * 下标位置支持负数从末尾算起。
      * 注意：非法的下标位置会导入一个undefined值。

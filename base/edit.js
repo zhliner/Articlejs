@@ -312,7 +312,7 @@ class ESEdit {
      */
     undo() {
         __ESet.clear().pushes( this._old );
-        delayFire( slavePanel, Sys.evnFollow, this._old );
+        delayFire( slavePanel, Sys.evnFollow );
     }
 
 
@@ -321,7 +321,7 @@ class ESEdit {
      */
     redo() {
         this._fun( ...this._vals );
-        delayFire( slavePanel, Sys.evnFollow, [...__ESet] );
+        delayFire( slavePanel, Sys.evnFollow );
     }
 }
 
@@ -351,6 +351,25 @@ class HotEdit {
 
     redo() {
         setFocus( this._hot );
+    }
+}
+
+
+//
+// 面板内容跟随。
+// 仅仅只是发送一个同步消息即可。
+// 主要用于 样式、特性、源码 几个面板。
+// 注意：
+// 必须为延迟激发，以等待主操作撤销或重做完成。
+//
+class Follow {
+
+    undo() {
+        delayFire( slavePanel, Sys.evnFollow );
+    }
+
+    redo() {
+        delayFire( slavePanel, Sys.evnFollow );
     }
 }
 
@@ -649,20 +668,11 @@ class MiniEdit {
 //
 // 元素选取操作。
 // 各方法对应到用户的快捷选取操作类型。
+// 注：
+// 返回false表示操作无效。
+// 不含this引用的方法可以独立使用。
 //
 class ElemSels {
-    /**
-     * @param {ESet} eset 选取集实例引用
-     */
-    constructor( eset ) {
-        this._set = eset;
-    }
-
-
-    //-- 基本操作 ------------------------------------------------------------
-    // 注：返回false表示操作无效
-
-
     /**
      * 排它选取。
      * 会先清空整个集合。
@@ -671,11 +681,11 @@ class ElemSels {
      * @param {Element} el 目标元素
      */
     only( el ) {
-        if ( this._set.size == 1 && this._set.has(el) ) {
+        if ( __ESet.size == 1 && __ESet.has(el) ) {
             return false;
         }
-        this._set.clear();
-        this._set.add( el );
+        __ESet.clear();
+        __ESet.add( el );
     }
 
 
@@ -688,10 +698,10 @@ class ElemSels {
      * @param {Element} el 焦点/目标元素
      */
     turn( el ) {
-        if ( this._set.has(el) ) {
-            this._set.delete(el);
+        if ( __ESet.has(el) ) {
+            __ESet.delete(el);
         } else {
-            this.clean(el)._set.add(el);
+            this.clean(el).add(el);
         }
     }
 
@@ -704,7 +714,7 @@ class ElemSels {
      */
     reverse( els ) {
         for ( const el of els ) {
-            this._set.has(el) ? this._set.delete(el) : this._parentAdd(el);
+            __ESet.has(el) ? __ESet.delete(el) : this._parentAdd(el);
         }
     }
 
@@ -716,7 +726,7 @@ class ElemSels {
      * @param {Element} hot 焦点元素引用
      */
     expand( els, hot ) {
-        return this._set.has(hot) ? this.adds(els) : this.removes(els);
+        return __ESet.has(hot) ? this.adds(els) : this.removes(els);
     }
 
 
@@ -728,7 +738,7 @@ class ElemSels {
      */
     adds( els ) {
         els.forEach(
-            el => this._set.has(el) || this._parentAdd(el)
+            el => __ESet.has(el) || this._parentAdd(el)
         );
     }
 
@@ -739,7 +749,7 @@ class ElemSels {
      */
     removes( els ) {
         els.forEach(
-            el => this._set.has(el) && this._set.delete(el)
+            el => __ESet.has(el) && __ESet.delete(el)
         );
     }
 
@@ -749,10 +759,10 @@ class ElemSels {
      * 友好：空集时简单忽略。
      */
     empty() {
-        if ( this._set.size == 0 ) {
+        if ( __ESet.size == 0 ) {
             return false;
         }
-        this._set.clear();
+        __ESet.clear();
     }
 
 
@@ -763,7 +773,7 @@ class ElemSels {
      * @param {Element} el 目标元素
      */
     add( el ) {
-        this._set.has(el) || this.clean(el)._set.add(el);
+        __ESet.has(el) || this.clean(el).add(el);
     }
 
 
@@ -773,7 +783,7 @@ class ElemSels {
      * @param {Element} el 选取元素
      */
     safeAdd( el ) {
-        this._set.has(el) || this._set.add(el);
+        __ESet.has(el) || __ESet.add(el);
     }
 
 
@@ -783,7 +793,7 @@ class ElemSels {
      * @param {[Element]} els 元素集
      */
     safeAdds( els ) {
-        this._set.pushes( els );
+        __ESet.pushes( els );
     }
 
 
@@ -793,7 +803,7 @@ class ElemSels {
      * @return {el|false}
      */
     delete( el ) {
-        return this._set.has(el) && this._set.delete(el);
+        return __ESet.has(el) && __ESet.delete(el);
     }
 
 
@@ -806,10 +816,10 @@ class ElemSels {
      * @param {[Element]} els 元素集
      */
     unshift( els ) {
-        let _tmp = [...this._set];
+        let _tmp = [...__ESet];
 
         if ( _tmp.length ) {
-            this._set.clear();
+            __ESet.clear();
         }
         this.adds( els.concat(_tmp) );
     }
@@ -821,7 +831,7 @@ class ElemSels {
      * 即清理目标元素的上级已选取。
      * 如果不存在上级选取，返回 false。
      * @param  {Element} el 目标子元素
-     * @return {this|false}
+     * @return {ESet|false}
      */
     cleanUp( el ) {
         let _box = this._parentItem(el);
@@ -829,7 +839,7 @@ class ElemSels {
         if ( !_box ) {
             return false;
         }
-        return this._set.delete( _box ), this;
+        return __ESet.delete( _box ), __ESet;
     }
 
 
@@ -839,7 +849,7 @@ class ElemSels {
      * 即清理目标元素的子级已选取，可能包含多个成员。
      * 如果未实际执行清理，返回 false。
      * @param  {Element} el 目标父元素
-     * @return {this|false}
+     * @return {ESet|false}
      */
     cleanDown( el ) {
         let _els = this._contains(el);
@@ -848,9 +858,9 @@ class ElemSels {
             return false;
         }
         _els.forEach(
-            sub => this._set.delete( sub )
+            sub => __ESet.delete( sub )
         )
-        return this;
+        return __ESet;
     }
 
 
@@ -859,10 +869,10 @@ class ElemSels {
      * 检查目标元素与集合内成员的父子关系，如果存在则先移除。
      * 注记：不存在目标元素同时是集合内成员的子元素和父元素的情况。
      * @param  {Element} el 目标元素
-     * @return {this|false} 当前实例
+     * @return {ESet|false}
      */
     clean( el ) {
-        return this.cleanUp(el) || this.cleanDown(el) || this;
+        return this.cleanUp(el) || this.cleanDown(el) || __ESet;
     }
 
 
@@ -876,7 +886,7 @@ class ElemSels {
      */
     _parentAdd( el ) {
         this.cleanDown( el );
-        this._set.add( el );
+        __ESet.add( el );
     }
 
 
@@ -892,7 +902,7 @@ class ElemSels {
      * @return {Element|null}
      */
     _parentItem( sub ) {
-        for ( const el of this._set ) {
+        for ( const el of __ESet ) {
             if ( $.contains(el, sub, true) ) return el;
         }
         return null;
@@ -908,7 +918,7 @@ class ElemSels {
     _contains( el ) {
         let _buf = [];
 
-        this._set.forEach(
+        __ESet.forEach(
             it => $.contains(el, it, true) && _buf.push(it)
         );
         return _buf;
@@ -1169,7 +1179,7 @@ class NodeVary {
      * 全部元素统一设置为相同的值。
      * 注记：
      * 模板中通过OBT可直接设置样式，但需要可撤销故在单独定义。
-     * @param {Set|[Element]} els 元素集
+     * @param {[Element]} els 元素集
      * @param {String|Object} names 样式名序列或样式配置对象
      * @param {Value|[Value]} val 样式值或值集
      */
@@ -1181,7 +1191,7 @@ class NodeVary {
     /**
      * 特性设置。
      * 全部元素统一做相同的设置。
-     * @param {Set|[Element]} els 元素集
+     * @param {[Element]} els 元素集
      * @param {String} name 特性名序列或配置对象
      * @param {Value|[Value]} val 特性值或值集
      */
@@ -1198,7 +1208,7 @@ class NodeVary {
 
 const
     // 元素选取集操作实例。
-    __Selects = new ElemSels( __ESet ),
+    __Selects = new ElemSels(),
 
     // 元素修改操作实例。
     __Edits = new NodeVary(),
@@ -1881,7 +1891,7 @@ function minied( el ) {
 
     // 创建同类新行时为未选取，无需取消。
     if ( __ESet.has(el) ) {
-        _op2 = new ESEdit( () => __Selects.delete(el) );
+        _op2 = new ESEdit( __Selects.delete, el );
     }
     currentMinied = new MiniEdit(
         el,
@@ -1917,7 +1927,7 @@ function miniedOk( h2 ) {
     $.trigger( slaveInsert, Sys.insType, Sys.normalTpl );
 
     // 恢复普通模式通知
-    delayFire( slavePanel, Sys.evnFollow, [...__ESet] );
+    delayFire( slavePanel, Sys.evnFollow );
 }
 
 
@@ -3937,7 +3947,7 @@ export const Edit = {
         let _els = $.children( _el.parentElement )
             .filter( el => __ESet.has(el) );
 
-        _els.length && historyPush( new ESEdit(() => __Selects.removes(_els)) );
+        _els.length && historyPush( new ESEdit(__Selects.removes, _els) );
 
         // 无聚焦行为，故必要。
         covertTips( _el );
@@ -4010,7 +4020,7 @@ export const Edit = {
         if ( !_hot || __ESet.size === 1 && __ESet.has(_hot) ) {
             return;
         }
-        historyPush( new ESEdit(() => __Selects.empty()), new ESEdit(selectOne, _hot, 'safeAdd') );
+        historyPush( new ESEdit(__Selects.empty), new ESEdit(selectOne, _hot, 'safeAdd') );
     },
 
 
@@ -4859,7 +4869,7 @@ export const Edit = {
      */
     setStyle( evo, name, val ) {
         evo.data.length &&
-        historyPush( new DOMEdit(__Edits.styles, evo.data, name, val) );
+        historyPush( new DOMEdit(__Edits.styles, evo.data, name, val), new Follow() );
     },
 
     __setStyle: 1,
@@ -4869,21 +4879,18 @@ export const Edit = {
      * 样式刷。
      * 目标：暂存区/栈顶1项。
      * 将目标元素的样式应用到全部已选取的元素。
-     * 如果目标元素无任何内联样式，则无动作。
-     * 注：
-     * 如果只有目标元素被选取，会简单地取消选取（视觉友好）。
+     * 如果目标元素无任何内联样式，或只有目标元素被选取，则无动作。
      * @data: Element 目标元素
      */
     brushStyle( evo ) {
-        let _v = $.attr( evo.data, 'style' );
-        if ( !_v ) return;
+        let _el = evo.data,
+            _v = $.attr( _el, 'style' ),
+            _n = __ESet.size;
 
-        let _op0 = __ESet.has(evo.data) &&
-                new ESEdit( __Selects.delete, evo.data ),
-            _op1 = __ESet.size &&
-                new DOMEdit( __Edits.attrs, __ESet, 'style', _v );
-
-        _op0 || _op1 && historyPush( _op0, _op1 );
+        if ( !_v || !_n || _n === 1 && __ESet.has(_el) ) {
+            return;
+        }
+        historyPush( new DOMEdit(__Edits.attrs, [...__ESet], 'style', _v), new Follow() );
     },
 
     __brushStyle: 1,
@@ -4907,7 +4914,7 @@ export const Edit = {
                 break;
             }
         }
-        _will && historyPush( new DOMEdit(__Edits.styles, evo.data, null) );
+        _will && historyPush( new DOMEdit(__Edits.styles, evo.data, null), new Follow() );
 
     },
 
@@ -5580,6 +5587,53 @@ export const Kit = {
     __picsubs: 1,
 
 
+    /**
+     * 复选框状态求值。
+     * 检查集合中元素的目标内联样式是否：相同、缺失或混杂。
+     * 返回值：
+     * - [0] checked 属性值
+     * - [1] indeterminate 属性值
+     * 注：用于设置复选框按钮状态。
+     * @data: [Element] 目标元素集
+     * @param  {String} name 样式名
+     * @param  {Value} value 对比样式值
+     * @return {[Boolean, Boolean]} 名值对
+     */
+    cbstate( evo, name, value ) {
+        let _chk = evo.data[0].style[name] === value;
+
+        for ( const el of evo.data.slice(1) ) {
+            let _b = el.style[name] === value;
+            if ( _b !== _chk ) return [ false, true ];
+        }
+        return [ _chk, false ];
+    },
+
+    __cbstate: 1,
+
+
+    /**
+     * 单选按钮求值。
+     * 检查集合中元素的目标内联样式值，
+     * 相同则返回值本身，否则返回null。
+     * 注：用于设置单选按钮状态。
+     * @data: [Element] 目标元素集
+     * @param  {String} name 样式名
+     * @return {String|null}
+     */
+    radioval( evo, name ) {
+        let _val = evo.data[0].style[name];
+
+        for ( const el of evo.data.slice(1) ) {
+            if ( el.style[name] !== _val ) return null;
+        }
+        return _val;
+    },
+
+    __radioval: 1,
+
+
+
     //-- By 扩展 -------------------------------------------------------------
 
 
@@ -5587,12 +5641,14 @@ export const Kit = {
      * 选取集取消。
      * ESC键取消操作（最底层）。
      * 会同时取消元素焦点。
-     * 注记：固定配置不提供外部定制。
+     * 注记：
+     * 固定配置不提供外部定制。
      * @return {void}
      */
     ecancel() {
-        __ESet.size &&
-        historyPush( new HotEdit(null), new ESEdit(() => __Selects.empty()) );
+        // 有选取则必有焦点，故仅检查焦点。
+        __EHot.get() &&
+        historyPush( new HotEdit(null), new ESEdit(__Selects.empty) );
     },
 
 
@@ -6135,6 +6191,8 @@ customGetter( null, Kit, [
     'image3',
     'mediasubs',
     'picsubs',
+    'cbstate',
+    'radioval',
 ]);
 
 
