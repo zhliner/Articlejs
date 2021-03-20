@@ -137,15 +137,20 @@
 
 <!--样式：
     style 接收各子区发来的信息（[name,value]），设置内容区元素样式。
+          惯常：并不自动聚焦到内容区。
+    erase 接收名称序列，擦除部分内联样式。应当激发主面板状态更新。
     submit 如果子区有提交逻辑，提交转发为子区修改（modify）事件，各子区因应而为。
     update 跟随更新：来源：内容区选取变化、标签页切换、样式按钮切换、清除/格式刷操作。
 -->
 <form class="Style" tpl-name="slave:style"
     on="style|v.sels ev('detail');
+        erase|v.sels ev('detail');
         submit|avoid;
         update|stop v.sels dup len pass"
-    by="Ed.setStyle(_)"
-    to="#g-scroll|trigger('focus');
+    by="Ed.setStyle(_);
+        Ed.eraseStyle(_1)"
+    to="-;
+        #g-scroll|trigger('focus')|fire(3, 'update');
         /._body|trigger('modify');
         /._body|trigger('follow')">
     <!--click(b)：
@@ -228,7 +233,7 @@
     </div>
     <aside>
         <div class="_option">
-            <label title="outerHTML"><input type="checkbox" name="outerHtml" />元素自身</label>
+            <label title="outerHTML"><input type="checkbox" name="outerHtml" />包含自身</label>
             <button>结构检查</button>
             <!-- _ok|_err -->
             <div class="_info _ok">OK!</div>

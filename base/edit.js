@@ -2994,6 +2994,52 @@ function elemHTML( el ) {
 
 
 /**
+ * 是否可设置样式。
+ * 至少会有效改变一个元素的内联样式时。
+ * 例外：
+ * 不适用于颜色设置，因为难以统一颜色的字符串表达。
+ * 这会导致历史栈冗余（多次相同设置有多个操作对象）。
+ * @param  {[Element]} els 元素集
+ * @param  {String} name 样式名
+ * @param  {Value} val 将要设置的样式值
+ * @return {Boolean}
+ */
+function willStyle( els, name, val ) {
+    return els.some( el => el.style[name] !== val );
+}
+
+
+/**
+ * 是否存在目标内联样式。
+ * 存在其中任何一个即可。
+ * @param  {Element} el 目标元素
+ * @param  {[String]} names 样式名集
+ * @return {Boolean}
+ */
+function hasStyle( el, names ) {
+    return names.some( n => el.style[n] !== '' );
+}
+
+
+/**
+ * 内联样式求值。
+ * 检查集合中元素的目标内联样式，
+ * 相同则返回值本身，否则返回null（与空串有别，在<select>中体现）。
+ * @param  {[Element]} els 元素集
+ * @param  {String} name 样式名（单个）
+ * @return {String|null}
+ */
+function styleVal( els, name ) {
+    let _val = els[0].style[name];
+
+    for (const el of els.slice(1)) {
+        if (el.style[name] !== _val) return null;
+    }
+    return _val;
+}
+
+
+/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -4868,11 +4914,33 @@ export const Edit = {
      * @param {Value|[Value]} 样式值
      */
     setStyle( evo, name, val ) {
-        evo.data.length &&
+        willStyle( evo.data, name, val ) &&
         historyPush( new DOMEdit(__Edits.styles, evo.data, name, val), new Follow() );
     },
 
     __setStyle: 1,
+
+
+    /**
+     * 清除目标内联样式。
+     * 会验证目标样式至少存在一个才会执行。
+     * 多个名称以空格分隔。
+     * @param {String} names 样式名序列
+     */
+    eraseStyle( evo, names ) {
+        let _will = null;
+        names = names.split( __reSpace );
+
+        for ( const el of evo.data ) {
+            if ( hasStyle(el, names) ) {
+                _will = true;
+                break;
+            }
+        }
+        _will && historyPush( new DOMEdit(__Edits.styles, evo.data, names, null), new Follow() );
+    },
+
+    __eraseStyle: 1,
 
 
     /**
@@ -4914,6 +4982,7 @@ export const Edit = {
                 break;
             }
         }
+        // 注：名称为 null。
         _will && historyPush( new DOMEdit(__Edits.styles, evo.data, null), new Follow() );
 
     },
@@ -5613,24 +5682,42 @@ export const Kit = {
 
 
     /**
-     * 单选按钮求值。
-     * 检查集合中元素的目标内联样式值，
+     * 内联样式求值。
+     * 检查集合中元素的目标内联样式，
      * 相同则返回值本身，否则返回null。
-     * 注：用于设置单选按钮状态。
+     * name支持空格分隔的多个名称，此时返回一个值集。
+     * 注：
+     * 返回的null表示目标集处于未定状态（混杂）。
      * @data: [Element] 目标元素集
-     * @param  {String} name 样式名
-     * @return {String|null}
+     * @param  {String} names 样式名序列
+     * @return {Value|[Value]}
      */
-    radioval( evo, name ) {
-        let _val = evo.data[0].style[name];
+    styVal( evo, names ) {
+        let _vs = names
+            .split( __reSpace )
+            .map( name => styleVal(evo.data, name) );
 
-        for ( const el of evo.data.slice(1) ) {
-            if ( el.style[name] !== _val ) return null;
-        }
-        return _val;
+        return _vs.length > 1 ? _vs : _vs[0];
     },
 
-    __radioval: 1,
+    __styVal: 1,
+
+
+    /**
+     * 判断提取含单位的值。
+     * 如果录入框数值包含单位，则忽略选单选取的单位，
+     * 否则选单的单位附加到录入框数值之后。
+     * @data: [<input>, <select>] 两个控件元素
+     * @return {String} 最终值
+     */
+    unitVal( evo ) {
+        let _tv = evo.data[0].value,
+            _uv = evo.data[1].value;
+
+        return parseFloat(_tv) === _tv ? _tv+_uv : _tv;
+    },
+
+    __unitVal: 1,
 
 
 
@@ -6121,6 +6208,7 @@ processExtend( 'Ed', Edit, [
     'toText',
     'unWrap',
     'setStyle',
+    'eraseStyle',
     'brushStyle',
     'clearStyle',
 
@@ -6192,7 +6280,8 @@ customGetter( null, Kit, [
     'mediasubs',
     'picsubs',
     'cbstate',
-    'radioval',
+    'styVal',
+    'unitVal',
 ]);
 
 

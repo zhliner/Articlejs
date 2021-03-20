@@ -376,13 +376,13 @@ const _INLTEXT =
 [
     Q, ABBR, DFN, BDO, TIME,
     CODE, RUBY,
-    STRONG, EM, CITE, SMALL, SUB, SUP, MARK, ORZ, SAMP, KBD, S, U, VAR,
+    STRONG, EM, CITE, SMALL, SUB, SUP, MARK, ORZ, SAMP, KBD, VAR,
 ];
 
 //
-// 审校元件。
+// 审校&视觉元件。
 //
-const _REVIEW = [ DEL, INS ];
+const _REVIEW = [ DEL, INS, S, U ];
 
 //
 // 视觉控制。

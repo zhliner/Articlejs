@@ -2109,12 +2109,12 @@ Object.assign( tQuery, {
     /**
      * 样式设置（增强版）。
      * - name可以为一个键值对象或Map，值依然可以为一个取值回调。
-     * - name若为空格分隔的名称序列，val可以为值数组分别一一对应。
+     * - name可为名称数组或空格分隔的名称序列，val可以为值数组分别一一对应。
      * - name为null可以删除全部的内联样式（即删除style本身)。
      * - val值支持取值回调，接口：fn.bind(el)( oldval, cso )。
      * - val为空串或null，会删除目标样式。
      * @param  {Element} el 目标元素
-     * @param  {String|Object|Map|null} names 样式名（序列）或配置对象
+     * @param  {String|[String]|Object|Map|null} names 样式名（序列）或配置对象
      * @param  {Value|[Value]|Function|null} val 样式值
      * @return {Element} el
      */
@@ -2122,12 +2122,16 @@ Object.assign( tQuery, {
         if ( names === null ) {
             return removeAttr(el, 'style'), el;
         }
-        cssSets( el, names, val, getStyles(el) );
+        let _cso = getStyles( el );
 
-        if ( !el.style.cssText ) {
-            // 内部清理。
-            el.removeAttribute('style');
+        if ( isArr(names) ) {
+            cssArrSet( el, names, val, _cso );
+        } else {
+            cssSets( el, names, val, _cso );
         }
+        // 内部清理。
+        if ( !el.style.cssText ) el.removeAttribute('style');
+
         return el;
     },
 
@@ -3787,6 +3791,7 @@ class Collector extends Array {
     /**
      * 样式设置（高级版）。
      * 支持名称数组/值数组和元素集成员一一对应。
+     * 名称和值也可以是一个二维数组，先与元素一一对应，然后样式名和值一一对应。
      * @param {String|[String|Object|Map]} name 样式名/序列（集）
      * @param {Value|[Value]} val 样式值
      */

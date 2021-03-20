@@ -13,7 +13,7 @@
     <!-- 单选部分设置 -->
     <div class="_list"
         on="click(input)|('text-decoration') evo(2) val pack(2);
-            state|ev('detail') v.radioval('text-decoration')"
+            state|ev('detail') v.styVal('text-decoration')"
         to="form/|trigger('style');
             /#_tline|val">
         <!-- 两个单独操作 -->
@@ -47,19 +47,31 @@
         </label>
         <label>
             <input type="radio" name="decoration" value="" checked />
-            <span>无划线</span><small>（<del>text-decoration:</del>）</small>
+            <span>未定义</span><small>（<s>text-decoration:</s>）</small>
         </label>
     </div>
     <div class="_erase"
-        on="click|(['font-weight font-style text-decoration', null])"
-        to="form/|trigger('style')|reset"><b>全部清除</b></div>
+        on="click|('font-weight font-style text-decoration')"
+        to="form/|trigger('erase')|reset"><b>全部清除</b></div>
 </div>
 
 
-<!-- 字号 -->
+<!--字号：
+    modify   设置后重置<select>（可能有选取）。
+    follow:2 pass有值才更新（改变用户的输入），友好。
+-->
 <div class="_body _Fontsize" tpl-name="style:fontsize"
-    on="modify|">
-    <select name="sizename" size="5" class="_list">
+    on="modify|('font-size') $$('/#_fsize') v.unitVal pack(2);
+        follow|ev('detail') v.styVal('font-size');
+        follow|ev('detail') v.styVal('font-size') dup float pass ('') pack(2)"
+    to="form/|trigger('style')|fire('/select', 'reset');
+        /#_fsname|val;
+        (/#_fsize)|val">
+    <select id="_fsname" name="sizename" size="5" class="_list"
+        on="change|('font-size') evo(3) val pack(2);
+            reset|(null)"
+        to="form/|trigger('style');
+            |val">
         <option>xx-small</option>
         <option>x-small</option>
         <option>small</option>
@@ -72,11 +84,13 @@
     </select>
     <aside>
         <div class="_assign">
-            <div class="_erase"><b>清除</b></div>
+            <div class="_erase"
+                on="click|('font-size')"
+                to="form/|trigger('erase')|reset"><b>清除</b></div>
             <hr>
             <div><label title="可含单位">字号</label>
-                <input type="text" name="fontsize" placeholder="12pt" class="_chars" />
-                <select name="unit">
+                <input id="_fsize" type="text" name="fontsize" placeholder="12pt" class="_chars" />
+                <select id="_fsize" name="unit">
                     <option value=""> --- </option>
                     <option>pt</option>
                     <option>px</option>
@@ -91,10 +105,13 @@
 
 <!-- 对齐 -->
 <div class="_body _Align" tpl-name="style:align"
-    on="modify|">
+    on="change|evo(1) dup pop(2) attr('-n') val pack(2);
+        follow|ev('detail') v.styVal('text-align vertical-align')"
+    to="form/|trigger('style');
+        (/select)|val">
     <div class="_h">
         <label title="text-align">行内</label>
-        <select name="align" size="5" class="_list">
+        <select name="align" size="5" data-n="text-align" class="_list">
             <option value="" title="无（默认）"> ------ </option>
             <option title="居中对齐">center</option>
             <option title="右对齐">right</option>
@@ -107,7 +124,7 @@
     </div>
     <div class="_v">
         <label title="vertical-align">纵向</label>
-        <select name="valign" size="5" class="_list">
+        <select name="valign" size="5" data-n="vertical-align" class="_list">
             <option value="" title="无（默认）"> ------ </option>
             <option title="基线对齐">baseline</option>
             <option title="下标基线对齐">sub</option>
@@ -223,7 +240,7 @@
             click(b)|evo(2) css('background-color') rgb16"
         to="#color-show|%backgroundColor;
             #color-show|%backgroundColor;
-            #g-color|val trigger('change')">
+            1/#_color|val trigger('change')">
         <span class="_g16">
             <b style="background-color:#000" title="#000"></b>
             <b style="background-color:#111" title="#111"></b>
@@ -253,17 +270,18 @@
             f00,f03,f06,f09,f0c,f0f,f30,f33,f36,f39,f3c,f3f,f60,f63,f66,f69,f6c,f6f,f90,f93,f96,f99,f9c,f9f,fc0,fc3,fc6,fc9,fcc,fcf,ff0,ff3,ff6,ff9,ffc,fff
         </div>
     </div>
+    <!-- 根据单选条目，各别清除。 -->
     <div class="_erase"><b>清除颜色</b></div>
     <aside>
         <div class="_assign">
             <div class="_aim">
-                <label title="文本色">
+                <label title="文本色（color）">
                     <input type="radio" name="colorto" value="color" checked /><i id="l-tcolor"></i>
                 </label>
-                <label title="背景色">
+                <label title="背景色（background-color）">
                     <input type="radio" name="colorto" value="background-color" /><i id="l-bgcolor"></i>
                 </label>
-                <label title="边框色">
+                <label title="边框色（border-color）">
                     <input type="radio" name="colorto" value="border-color" /><i id="l-bcolor"></i>
                 </label>
             </div>
@@ -278,7 +296,7 @@
             <!-- 白底：预防透明色 -->
             <span class="_bgcbox" style="background-color: #fff;">
                 <label id="color-show" class="_bgc" style="background-color: #000;">
-                    <input id="g-color" name="color" type="color"
+                    <input id="_color" name="color" type="color"
                         on="change|evo(3) val caseUpper;
                             change|evo(3) val"
                         to="3/span|@text;
