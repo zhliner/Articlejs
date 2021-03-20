@@ -233,10 +233,11 @@
 
 
 <!-- 颜色 -->
-<div class="_body _Color" tpl-name="style:color">
+<div class="_body _Color" tpl-name="style:color"
+    on="modify|$('/[name=cto]') val ">
     <div class="_cbox"
         on="mouseenter(b)|evo(2) css('background-color');
-            mouseleave|$('#color-info') text;
+            mouseleave|$('1/#_rgba') text;
             click(b)|evo(2) css('background-color') rgb16"
         to="#color-show|%backgroundColor;
             #color-show|%backgroundColor;
@@ -276,23 +277,29 @@
         <div class="_assign">
             <div class="_aim">
                 <label title="文本色（color）">
-                    <input type="radio" name="colorto" value="color" checked /><i id="l-tcolor"></i>
+                    <input type="radio" name="cto" value="color" checked /><i id="l-tcolor"></i>
                 </label>
                 <label title="背景色（background-color）">
-                    <input type="radio" name="colorto" value="background-color" /><i id="l-bgcolor"></i>
+                    <input type="radio" name="cto" value="background-color" /><i id="l-bgcolor"></i>
                 </label>
                 <label title="边框色（border-color）">
-                    <input type="radio" name="colorto" value="border-color" /><i id="l-bcolor"></i>
+                    <input type="radio" name="cto" value="border-color" /><i id="l-bcolor"></i>
                 </label>
             </div>
             <hr>
             <div>
                 <label>Alpha</label>
-                <input type="text" name="alpha" title="0~100" class="_nums" />
+                <input type="number" name="alpha" placeholder="0~255" min="0" max="255" class="_nums"
+                    on="input|evo(3) val int;
+                        renew|;
+                        error|('red', 'yellow');
+                        reset|"
+                    to="-;
+                        |%backgroundColor %color" />
             </div>
         </div>
         <div class="_custom">
-            <span id="color-info" class="_tips">#000000</span>
+            <span id="_rgba" class="_tips">#000000</span>
             <!-- 白底：预防透明色 -->
             <span class="_bgcbox" style="background-color: #fff;">
                 <label id="color-show" class="_bgc" style="background-color: #000;">
@@ -300,7 +307,7 @@
                         on="change|evo(3) val caseUpper;
                             change|evo(3) val"
                         to="3/span|@text;
-                            3/label|%backgroundColor" />
+                            label/|%backgroundColor" />
                 </label>
             </div>
             </span>

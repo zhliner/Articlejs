@@ -49,6 +49,10 @@ const
         /rgba?\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.%]+))?\s*\)/,
     ],
 
+    // RGBA十六进制表示。
+    // 兼容3位安全色表示（如：#999）。
+    __reRGB16 = /^#(?:[0-9A-F]{3}|[0-9A-F]{6}(?:[0-9A-F]{2})?)$/i,
+
     // 选区对象存储池。
     __tmpRanges = {},
 
@@ -1274,6 +1278,17 @@ const _Process = {
 
 
     /**
+     * 是否为一个NaN值。
+     * @return {Boolean|[Boolean]}
+     */
+    isNaN( evo ) {
+        return mapCall( evo.data, v => isNaN(v) );
+    },
+
+    __isNaN: 1,
+
+
+    /**
      * 测试是否包含。
      * 目标：暂存区/栈顶2项。
      * 前者是否为后者的上级容器元素。
@@ -1517,11 +1532,11 @@ const _Process = {
     /**
      * 转为大写。
      * 目标：暂存区/栈顶1项。
-     * @param  {Boolean|1} n 首字母大写，可选
+     * @param  {Boolean|1} A 首字母大写，可选
      * @return {String}
      */
-    caseUpper( evo, n ) {
-        return mapCall( evo.data, s => upperCase(s, n) );
+    caseUpper( evo, A ) {
+        return mapCall( evo.data, s => upperCase(s, A) );
     },
 
     __caseUpper: 1,
@@ -1541,17 +1556,35 @@ const _Process = {
 
     /**
      * RGB 16进制颜色值转换。
-     * rgb(n, n, n) => #rrggbb。
-     * rgba(n, n, n, a) => #rrggbbaa。
-     * 注：
-     * 零透明度时返回一个命名值 transparent。
-     * @return {String}
+     * 如果源串已经是一个正确的表示，则简单返回。
+     * rgb|rgba(n, n, n / a) => #rrggbbaa。
+     * rgb|rgba(n, n, n, a) => #rrggbbaa。
+     * @return {String|[String]}
      */
     rgb16( evo ) {
+        if ( __reRGB16.test(evo.data) ) {
+            return evo.data;
+        }
         return mapCall( evo.data, s => rgb16str(s) );
     },
 
     __rgb16: 1,
+
+
+    /**
+     * 构造RGBA格式串。
+     * 目标：暂存区/栈顶1项。
+     * 目标为一个十六进制格式的颜色值串。
+     * 如果目标串已经包含Alpha，则用实参的alpha替换。
+     * @data: String
+     * @param  {Number} alpha 透明度（0-1）
+     * @return {String}
+     */
+    rgba( evo, alpha ) {
+        return mapCall( evo.data, s => toRGBA(s, alpha) );
+    },
+
+    __rgba: 1,
 
 
 
@@ -1949,6 +1982,36 @@ function upperCase( str, first ) {
 
 
 /**
+ * 合成RGBA格式串。
+ * 如：#369 => #33669980
+ * @param  {String} c16 十六进制颜色值串
+ * @param  {Number} alpha 透明度值（0-1）
+ * @return {String}
+ */
+function toRGBA( c16, alpha ) {
+    if ( c16.length === 4 ) {
+        c16 = rgb3_6( c16 );
+    }
+    else if ( c16.length === 9 ) {
+        c16 = c16.substring(0, 7);
+    }
+    return c16 + n16c2( alpha*255 );
+}
+
+
+/**
+ * 3位安全色转到6位值。
+ * 如：#369 => #336699
+ * @param  {String} str 3位颜色串值
+ * @return {String}
+ */
+function rgb3_6( str ) {
+    return '#' +
+        str.substring(1).split('').map( c => c+c ).join('');
+}
+
+
+/**
  * 获取RGB 16进制值。
  * 主要用于设置颜色控件（input:color）的有效值。
  * rgb(n, n, n) => #rrggbb。
@@ -1963,13 +2026,13 @@ function rgb16str( val ) {
         _vs = val.match( re );
         if ( _vs ) break;
     }
-    return _vs && `#${ rgb16val(..._vs.slice(1)) }`;
+    return _vs && rgb16val( ..._vs.slice(1) );
 }
 
 
 /**
  * RGBA 16进制值构造。
- * 零透明度时返回一个命名值 transparent。
+ * 透明度a实参是一个百分数或 0-1 的小数。
  * @param  {String} r Red
  * @param  {String} g Green
  * @param  {String} b Blue
@@ -1978,24 +2041,21 @@ function rgb16str( val ) {
  */
 function rgb16val( r, g, b, a = '' ) {
     if ( a ) {
-        a = parseFloat( a );
-        if ( a === 0 ) {
-            return 'transparent';
-        }
-        a = (a.includes('%') ? a/100 : a) * 256;
+        let _n = parseFloat( a );
+        a = (a.includes('%') ? _n/100 : _n) * 255;
     }
-    return `${n16c2(+r)}${n16c2(+g)}${n16c2(+b)}` + ( a && n16c2(a) );
+    return `#${n16c2(+r)}${n16c2(+g)}${n16c2(+b)}` + ( a && n16c2(a) );
 }
 
 
 /**
  * 转为16进制字符串。
  * 注：两位字符，不足2位前置0。
- * @param  {Number} n 数值
+ * @param  {Number} n 数值（可为浮点数）
  * @return {String}
  */
 function n16c2( n ) {
-    n = Math.floor(n);
+    n = Math.floor( n );
     return n < 16 ? `0${n.toString(16)}` : n.toString(16);
 }
 

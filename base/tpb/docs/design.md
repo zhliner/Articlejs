@@ -359,6 +359,9 @@ gte( v?: Value ): Boolean    // (x, y) => x >= y
 eqarr( arr?: Array )
 // 数组相等比较。
 
+isNaN(): Boolean
+// 是否为一个NaN值。
+
 contains( strict: Boolean ): Boolean
 // 元素包含测试。
 
@@ -424,6 +427,10 @@ caseLower(): String
 rgb16(): String
 // rgb(n,n,n) => #rrggbb
 // rgba(n,n,n,a) => #rrggbbaa
+
+rgba( alpha ): String
+// #rgb => #rrggbbaa
+// #rrggbb => #rrggbbaa
 
 
 
