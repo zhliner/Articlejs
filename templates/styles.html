@@ -8,20 +8,18 @@
     操作后自动聚焦到内容区。 -->
 <div class="_body _Fontview" tpl-name="style:fontview"
     on="follow|ev('detail');
-        follow|ev('detail');
-        click(input,._erase)"
+        follow|ev('detail')"
     to="(/#_alone)|trigger('state');
-        /._list|trigger('state');
-        #g-scroll|trigger('focus')">
+        /._list|trigger('state')">
     <!-- 单选部分设置 -->
     <div class="_list"
-        on="click([type=radio])|('text-decoration') evo(2) val pack(2);
+        on="click(input)|('text-decoration') evo(2) val pack(2);
             state|ev('detail') v.styVal('text-decoration')"
         to="form/|trigger('style');
             /[type=radio]|val">
         <!-- 两个单独操作 -->
         <label id="_alone"
-            on="click(input)|('font-weight') evo(2) val pack(2);
+            on="click(input)|stop ('font-weight') evo(2) val pack(2);
                 state|ev('detail') v.cbstate('font-weight', 'bold')"
             to="form/|trigger('style');
                 /input|property('checked indeterminate')">
@@ -29,7 +27,7 @@
             <span style="font-weight: bold;">粗体</span><small>（font-weight: bold）</small>
         </label>
         <label id="_alone"
-            on="click(input)|('font-style') evo(2) val pack(2);
+            on="click(input)|stop ('font-style') evo(2) val pack(2);
                 state|ev('detail') v.cbstate('font-style', 'italic')"
             to="form/|trigger('style');
                 /input|property('checked indeterminate')">
@@ -72,10 +70,11 @@
     to="form/|trigger('style')|fire('/select', 'reset');
         /#_fsname|val;
         (/#_fsize)|val">
+    <!-- 友好：焦点回归，0延迟无闪烁。 -->
     <select id="_fsname" name="sizename" size="5" class="_list"
         on="change|('font-size') evo(3) val pack(2);
             reset|(null)"
-        to="form/|trigger('style');
+        to="form/|trigger('style')|fire(3, 'focus', 0);
             |val">
         <option>xx-small</option>
         <option>x-small</option>
@@ -108,11 +107,12 @@
 </div>
 
 
-<!-- 对齐 -->
+<!--对齐：
+    焦点回归友好。-->
 <div class="_body _Align" tpl-name="style:align"
     on="change|evo(1) dup pop(2) attr('-n') val pack(2);
         follow|ev('detail') v.styVal('text-align vertical-align')"
-    to="form/|trigger('style');
+    to="form/|trigger('style')|fire(1, 'focus', 0);
         (/select)|val">
     <div class="_h">
         <label title="text-align">行内</label>
@@ -242,7 +242,7 @@
     友好：修改后内容区获取焦点。-->
 <div class="_body _Color" tpl-name="style:color"
     on="modify|$('/[name=cto]') val $('/#_rgba') text pack(2)"
-    to="form/|trigger('style')|fire('#g-scroll', 'focus')">
+    to="form/|trigger('style')">
     <div class="_cbox"
         on="mouseenter(b)|evo(2) css('background-color');
             mouseleave|$('1/#_rgba') text;
@@ -282,7 +282,7 @@
     <!-- 根据单选条目各别清除。 -->
     <div class="_erase" title="+Ctrl 全部清除"
         on="click|scam('ctrl') $('1/[name=cto]') val $if('color background-color border-color', _1)"
-        to="form/|trigger('erase')|fire('#g-scroll', 'focus')"><b>清除颜色</b></div>
+        to="form/|trigger('erase')"><b>清除颜色</b></div>
     <aside>
         <div class="_assign">
             <div class="_aim">
