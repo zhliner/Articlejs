@@ -4,21 +4,24 @@
 </div>
 
 
-<!-- 字形 -->
+<!--字形：
+    操作后自动聚焦到内容区。 -->
 <div class="_body _Fontview" tpl-name="style:fontview"
     on="follow|ev('detail');
-        follow|ev('detail')"
+        follow|ev('detail');
+        click(input,._erase)"
     to="(/#_alone)|trigger('state');
-        /._list|trigger('state')">
+        /._list|trigger('state');
+        #g-scroll|trigger('focus')">
     <!-- 单选部分设置 -->
     <div class="_list"
-        on="click(input)|('text-decoration') evo(2) val pack(2);
+        on="click([type=radio])|('text-decoration') evo(2) val pack(2);
             state|ev('detail') v.styVal('text-decoration')"
         to="form/|trigger('style');
-            /#_tline|val">
+            /[type=radio]|val">
         <!-- 两个单独操作 -->
         <label id="_alone"
-            on="click(input)|stop ('font-weight') evo(2) val pack(2);
+            on="click(input)|('font-weight') evo(2) val pack(2);
                 state|ev('detail') v.cbstate('font-weight', 'bold')"
             to="form/|trigger('style');
                 /input|property('checked indeterminate')">
@@ -26,7 +29,7 @@
             <span style="font-weight: bold;">粗体</span><small>（font-weight: bold）</small>
         </label>
         <label id="_alone"
-            on="click(input)|stop ('font-style') evo(2) val pack(2);
+            on="click(input)|('font-style') evo(2) val pack(2);
                 state|ev('detail') v.cbstate('font-style', 'italic')"
             to="form/|trigger('style');
                 /input|property('checked indeterminate')">
@@ -34,7 +37,7 @@
             <span style="font-style: italic;">斜体</span><small>（font-style: italic）</small>
         </label>
         <label>
-            <input id="_tline" type="radio" name="decoration" value="underline" />
+            <input type="radio" name="decoration" value="underline" />
             <span style="text-decoration: underline;">下划线</span><small>（text-decoration: underline）</small>
         </label>
         <label>
@@ -50,16 +53,18 @@
             <span>未定义</span><small>（<s>text-decoration:</s>）</small>
         </label>
     </div>
-    <div class="_erase"
+    <label class="_erase"
         on="click|('font-weight font-style text-decoration')"
-        to="form/|trigger('erase')|reset"><b>全部清除</b></div>
+        to="form/|trigger('erase')|reset">
+        <b>全部清除</b>
+    </label>
 </div>
 
 
 <!--字号：
-    modify   设置后重置<select>（可能有选取）。
-    follow:2 pass有值才更新（改变用户的输入），友好。
--->
+    modify   提交后重置<select>（可能有选取）。
+    follow:2 pass 有值才更新，不然保留用户输入，友好。
+    有选单控件时不自动聚焦到内容区，后同。 -->
 <div class="_body _Fontsize" tpl-name="style:fontsize"
     on="modify|('font-size') $$('/#_fsize') v.unitVal pack(2);
         follow|ev('detail') v.styVal('font-size');
@@ -141,7 +146,7 @@
 
 <!-- 宽/高度 -->
 <div class="_body _Width" tpl-name="style:width">
-    <select name="whname" size="5" class="_list">
+    <select name="whname" size="5" multiple class="_list">
         <option title="宽度">width</option>
         <option title="最大宽度">max-width</option>
         <option title="最小宽度">min-width</option>
@@ -183,7 +188,7 @@
             </label>
         </div>
         <!-- 边距：外边距 -->
-        <select name="margin" size="5" class="_list" tpl-name="item:margin">
+        <select name="margin" size="5" multiple class="_list" tpl-name="item:margin">
             <option title="边距">margin</option>
             <option title="顶边距">margin-top</option>
             <option title="右边距">margin-right</option>
@@ -217,7 +222,7 @@
 </div>
 
 <!-- 边距：内填充 -->
-<select name="margin" size="5" class="_list" tpl-name="item:padding">
+<select name="margin" size="5" multiple class="_list" tpl-name="item:padding">
     <option title="填充">padding</option>
     <option title="顶填充">padding-top</option>
     <option title="右填充">padding-right</option>
@@ -232,16 +237,19 @@
 </select>
 
 
-<!-- 颜色 -->
+<!--颜色：
+    不设计样式值跟随，因为视觉直观也无切换逻辑。跟随会改变用户已挑选颜色。
+    友好：修改后内容区获取焦点。-->
 <div class="_body _Color" tpl-name="style:color"
-    on="modify|$('/[name=cto]') val ">
+    on="modify|$('/[name=cto]') val $('/#_rgba') text pack(2)"
+    to="form/|trigger('style')|fire('#g-scroll', 'focus')">
     <div class="_cbox"
         on="mouseenter(b)|evo(2) css('background-color');
             mouseleave|$('1/#_rgba') text;
             click(b)|evo(2) css('background-color') rgb16"
         to="#color-show|%backgroundColor;
             #color-show|%backgroundColor;
-            1/#_color|val trigger('change')">
+            1/#_color|val trigger('change', true)">
         <span class="_g16">
             <b style="background-color:#000" title="#000"></b>
             <b style="background-color:#111" title="#111"></b>
@@ -271,8 +279,10 @@
             f00,f03,f06,f09,f0c,f0f,f30,f33,f36,f39,f3c,f3f,f60,f63,f66,f69,f6c,f6f,f90,f93,f96,f99,f9c,f9f,fc0,fc3,fc6,fc9,fcc,fcf,ff0,ff3,ff6,ff9,ffc,fff
         </div>
     </div>
-    <!-- 根据单选条目，各别清除。 -->
-    <div class="_erase"><b>清除颜色</b></div>
+    <!-- 根据单选条目各别清除。 -->
+    <div class="_erase" title="+Ctrl 全部清除"
+        on="click|scam('ctrl') $('1/[name=cto]') val $if('color background-color border-color', _1)"
+        to="form/|trigger('erase')|fire('#g-scroll', 'focus')"><b>清除颜色</b></div>
     <aside>
         <div class="_assign">
             <div class="_aim">
@@ -289,25 +299,27 @@
             <hr>
             <div>
                 <label>Alpha</label>
-                <input type="number" name="alpha" placeholder="0~255" min="0" max="255" class="_nums"
-                    on="input|evo(3) val int;
-                        renew|;
-                        error|('red', 'yellow');
-                        reset|"
-                    to="-;
-                        |%backgroundColor %color" />
+                <input id="_alpha" type="number" name="alpha" placeholder="0~255" min="0" max="255" class="_nums"
+                    on="input|evo(3) val int gt(255) $if('error', 'renew');
+                        renew|('_err');
+                        error|('_err')"
+                    to="|trigger(_1);
+                        |removeClass|fire('aside/#_color', 'change');
+                        |addClass" />
             </div>
         </div>
         <div class="_custom">
             <span id="_rgba" class="_tips">#000000</span>
-            <!-- 白底：预防透明色 -->
+            <!-- 白底：透明色衬底 -->
             <span class="_bgcbox" style="background-color: #fff;">
-                <label id="color-show" class="_bgc" style="background-color: #000;">
-                    <input id="_color" name="color" type="color"
-                        on="change|evo(3) val caseUpper;
-                            change|evo(3) val"
-                        to="3/span|@text;
-                            label/|%backgroundColor" />
+                <!--色板：
+                    避免<input:color>浏览器默认样式。 -->
+                <label id="color-show" class="_bgc" style="background-color: #000;"
+                    on="change|stop evo(1) val $('aside/#_alpha') val int rgba(_1) dup caseUpper;
+                        bgcolor|ev('detail')"
+                    to="2/#_rgba|text|pop fire(3, 'bgcolor', 0);
+                        |%backgroundColor">
+                    <input id="_color" name="color" type="color" />
                 </label>
             </div>
             </span>

@@ -1064,8 +1064,10 @@ class Call {
             cell.setPrev( prev );
         }
         if ( _f[JUMPCELL] ) {
+            // 初次标记自身。
             cell.setJUMP( true );
         }
+        // jump后阶指令赋值。
         if ( prev.setJUMP() ) {
             prev.setJUMP( cell );
         }

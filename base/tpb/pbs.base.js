@@ -1478,16 +1478,17 @@ const _Process = {
 
     /**
      * 提取子串。
-     * 这是对.substring方法的封装（而不是.substr）。
+     * 这是对.slice方法的封装（而不是 String.substr）。
+     * 结束位置支持负数从末尾算起。
      * @param  {Number} start 起始位置下标
-     * @param  {Number} end 结束位置下标
+     * @param  {Number} end 结束位置下标，可选
      * @return {String}
      */
-    strsub( evo, start, end ) {
-        return mapCall( evo.data, s => s.substring(start, end) );
+    substr( evo, start, end ) {
+        return mapCall( evo.data, s => s.slice(start, end) );
     },
 
-    __strsub: 1,
+    __substr: 1,
 
 
     /**
@@ -1576,11 +1577,15 @@ const _Process = {
      * 目标：暂存区/栈顶1项。
      * 目标为一个十六进制格式的颜色值串。
      * 如果目标串已经包含Alpha，则用实参的alpha替换。
+     * 如果实参alpha非数值，则简单忽略（不应用）。
      * @data: String
-     * @param  {Number} alpha 透明度（0-1）
+     * @param  {Number} alpha 透明度（0-255）
      * @return {String}
      */
     rgba( evo, alpha ) {
+        if ( isNaN(alpha) ) {
+            return evo.data;
+        }
         return mapCall( evo.data, s => toRGBA(s, alpha) );
     },
 
@@ -1995,7 +2000,7 @@ function toRGBA( c16, alpha ) {
     else if ( c16.length === 9 ) {
         c16 = c16.substring(0, 7);
     }
-    return c16 + n16c2( alpha*255 );
+    return c16 + n16c2( alpha );
 }
 
 
@@ -2109,27 +2114,30 @@ prune[PREVCELL] = true;
 
 /**
  * 跳过指令序列段。
- * 用于模拟代码中的 if 分支执行逻辑。
  * 目标：暂存区/栈顶1项。
- * 目标值判断值或与val对比的值。
- * 如果目标或对比结果为真，则跳过后续n个指令。
+ * 目标值为真时，执行cn/dn两个实参的配置。
+ * 用于模拟代码中的 if 分支执行逻辑。
+ * 注记：
+ * 跳过后移除栈顶的数据是必要的，因为它们通常需要由跳过的那些指令处理。
  * this: Cell
- * @param  {Number} n 跳过的指令数
- * @param  {Value} val 对比值，可选
+ * @param  {Stack} stack 数据栈
+ * @param  {Number} cn 跳过的指令数
+ * @param  {Number} dn 从栈顶移除的条目数
  * @return {void}
  */
-function jump( evo, n, val ) {
-    let _v = evo.data;
-
-    if ( val !== undefined ) {
-        _v = _v === val;
+function jump( evo, stack, cn, dn ) {
+    if ( !evo.data ) {
+        this.next = this._next;
+        return;
     }
-    this.next = _v ? lastCell( this._next, n ) : this._next;
+    if ( dn > 0 ) {
+        stack.pops( dn );
+    }
+    this.next = lastCell( this._next, cn );
 }
 
 jump[EXTENT] = 1;
-
-// 用于指令解析时判断赋值原始next
+jump[ACCESS] = true;
 jump[JUMPCELL] = true;
 
 

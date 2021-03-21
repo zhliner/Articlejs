@@ -5714,7 +5714,7 @@ export const Kit = {
         let _tv = evo.data[0].value,
             _uv = evo.data[1].value;
 
-        return parseFloat(_tv) === _tv ? _tv+_uv : _tv;
+        return isNaN(parseFloat(_tv) - _tv) ? _tv : _tv+_uv;
     },
 
     __unitVal: 1,

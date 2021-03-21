@@ -81,6 +81,7 @@ const
     PREVCELL = Symbol( 'previous Cell' ),
 
     // jump指令标记。
+    // 用于指令解析时判断赋值原始next。
     JUMPCELL = Symbol( 'jump Cell' ),
 
     // 调用链头实例标记。
