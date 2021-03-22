@@ -595,9 +595,10 @@ class Stack {
 
     /**
      * 弹出栈顶单项。
+     * 如果数据栈已为空，会压入一个undefined值。
      * 注记：
-     * 如果数据栈已为空，压入取出的undefined是有意义的，
-     * 这是一种明确取值，在后阶指令需要多项时有区别（undefined或[]）。
+     * 与.tindex()和.tpick()不同，这是一种有意的区分，
+     * 如果用户需要undefined值时会有用。
      */
     tpop() {
         this._tmp.push( this._buf.pop() );
@@ -607,8 +608,7 @@ class Stack {
     /**
      * 弹出栈顶n项。
      * 小于2的值无效。
-     * 注记：
-     * 实际压入的项数可能不足（数据栈不足），但这对用户来说是明确的。
+     * 实际压入的项数可能不足（数据栈不足），用户需要自行注意。
      * @param {Number} n 弹出数量
      */
     tpops( n ) {
@@ -643,17 +643,19 @@ class Stack {
     /**
      * 剪取目标位置条目。
      * i值支持负数从末尾算起。
+     * 注：无效的位置下标会导入一个null值。
      * @param {Number} i 位置下标
      */
     tpick( i ) {
-        this._tmp.push( this._buf.splice(i, 1)[0] );
+        let _v = this._buf.splice(i, 1)[0];
+        this._tmp.push( _v === undefined ? null : _v );
     }
 
 
     /**
      * 引用特定目标位置值。
      * 下标值支持负数从末尾算起。
-     * 注：非法的下标位置会导入一个undefined值。
+     * 注：非法的下标位置会导入一个null值。
      * @param {[Number]} ns 下标集
      */
     tindex( ns ) {
@@ -679,7 +681,10 @@ class Stack {
      * @param {Number} i 下标位置
      */
     _index( i ) {
-        return this._buf[ i < 0 ? this._buf.length+i : i ];
+        let _v = this._buf[
+            i < 0 ? this._buf.length+i : i
+        ];
+        return _v === undefined ? null : _v;
     }
 
 
@@ -890,8 +895,7 @@ class Cell {
      */
     args( evo, args, rest ) {
         if ( rest === 0 ) {
-            // 强制展开
-            args = args.concat( ...this[_SID].pop() );
+            args = args.concat( this[_SID].pop() );
         }
         else if ( rest > 0 ) {
             args = args.concat( this[_SID].pops(rest) );

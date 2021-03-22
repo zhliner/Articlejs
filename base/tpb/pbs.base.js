@@ -268,9 +268,9 @@ const _Control = {
 
 
     /**
-     * 引用目标位置项。
+     * 引用数据栈目标位置项。
      * 下标位置支持负数从末尾算起。
-     * 注意：非法的下标位置会导入一个undefined值。
+     * 注意：非法的下标位置会导入一个null值。
      * @param {Stack} stack 数据栈
      * @param {...Number} ns 位置下标序列
      */
@@ -282,7 +282,7 @@ const _Control = {
 
 
     /**
-     * 剪取目标位置条目（单项）。
+     * 剪取数据栈目标位置条目（单项）。
      * idx负值从末尾算起（-1为栈顶1项）。
      * 例：
      * pick(-1)  同 pop
@@ -2193,6 +2193,10 @@ function debug( evo, stack, msg = '' ) {
         tmp: stack._tmp.slice(),
         buf: stack._buf.slice()
     });
+    if ( msg === true ) {
+        // eslint-disable-next-line no-debugger
+        debugger;
+    }
     if ( msg === false ) return Promise.reject();
 }
 

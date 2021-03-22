@@ -60,13 +60,11 @@
 
 
 <!--字号：
-    modify   提交后重置<select>（可能有选取）。
-    follow:2 pass 有值才更新，不然保留用户输入，友好。
-    有选单控件时不自动聚焦到内容区，后同。 -->
+    modify 提交后重置<select>（可能有选取）。-->
 <div class="_body _Fontsize" tpl-name="style:fontsize"
     on="modify|('font-size') $$('/#_fsize') v.unitVal pack(2);
-        follow|ev('detail') v.styVal('font-size');
-        follow|ev('detail') v.styVal('font-size') dup float pass ('') pack(2)"
+        follow|ev('detail') v.styVal('font-size') debug('font-size');
+        follow|ev('detail') v.styVal('font-size') ('') pack(2)"
     to="form/|trigger('style')|fire('/select', 'reset');
         /#_fsname|val;
         (/#_fsize)|val">
@@ -74,7 +72,7 @@
     <select id="_fsname" name="sizename" size="5" class="_list"
         on="change|('font-size') evo(3) val pack(2);
             reset|(null)"
-        to="form/|trigger('style')|fire(3, 'focus', 0);
+        to="form/|trigger('style')|fire(3, 'focus', 0) fire('1/#_fsbox', 'reset');
             |val">
         <option>xx-small</option>
         <option>x-small</option>
@@ -92,7 +90,10 @@
                 on="click|('font-size')"
                 to="form/|trigger('erase')|reset"><b>清除</b></div>
             <hr>
-            <div><label title="可含单位">字号</label>
+            <div id="_fsbox"
+                on="reset|('', '')"
+                to="(/#_fsize)|val">
+                <label title="可含单位">字号</label>
                 <input id="_fsize" type="text" name="fontsize" placeholder="12pt" class="_chars" />
                 <select id="_fsize" name="unit">
                     <option value=""> --- </option>
@@ -111,7 +112,7 @@
     焦点回归友好。-->
 <div class="_body _Align" tpl-name="style:align"
     on="change|evo(1) dup pop(2) attr('-n') val pack(2);
-        follow|ev('detail') v.styVal('text-align vertical-align')"
+        follow|ev('detail') v.styVal(['text-align', 'vertical-align'])"
     to="form/|trigger('style')|fire(1, 'focus', 0);
         (/select)|val">
     <div class="_h">
@@ -144,23 +145,37 @@
 </div>
 
 
-<!-- 宽/高度 -->
-<div class="_body _Width" tpl-name="style:width">
-    <select name="whname" size="5" multiple class="_list">
+<!--宽/高度：
+    follow 更新选取集内同时设置了的样式名。 -->
+<div class="_body _Width" tpl-name="style:width"
+    on="modify|$('/select') val $$('/#_wh') v.unitVal pack(2);
+        follow|ev('detail') $('/[name=ns]') val v.styName(_1)"
+    to="form/|trigger('style');
+        /select|val trigger('change')">
+    <!--change:
+        单选：反馈目标样式的值。
+        多选：反馈目标样式组的值，不同视为空。 -->
+    <select name="whname" size="5" multiple class="_list"
+        on="change|v.sels evo(3) val v.styVal(_1) dup item(0) pick(-2) Set size gt(1) pop $if('', _1) ('') pack(2)"
+        to="(1/#_wh)|val">
         <option title="宽度">width</option>
         <option title="最大宽度">max-width</option>
         <option title="最小宽度">min-width</option>
         <option title="高度">height</option>
-        <option title="最大高度"">max-height</option>
+        <option title="最大高度">max-height</option>
         <option title="最小高度">min-height</option>
     </select>
+    <!-- 状态跟随：取值备用 -->
+    <input type="hidden" name="ns" value="width max-width min-width height max-height min-height">
     <aside>
         <div class="_assign">
-            <div class="_erase"><b>全部清除</b></div>
+            <div class="_erase"
+                on="click|$('._body/[name=ns]') val"
+                to="form/|trigger('erase')|reset"><b>全部清除</b></div>
             <hr>
             <div><label title="可含单位">赋值</label>
-                <input type="text" name="width" placeholder="100%" class="_chars" />
-                <select name="unit">
+                <input id="_wh" type="text" name="width" placeholder="100%" class="_chars" />
+                <select id="_wh" name="unit">
                     <option value=""> --- </option>
                     <option>%</option>
                     <option>px</option>

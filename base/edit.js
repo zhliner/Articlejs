@@ -3000,11 +3000,16 @@ function elemHTML( el ) {
  * 不适用于颜色设置，因为难以统一颜色的字符串表达。
  * 这会导致历史栈冗余（多次相同设置有多个操作对象）。
  * @param  {[Element]} els 元素集
- * @param  {String} name 样式名
+ * @param  {String|[String]} name 样式名（集）
  * @param  {Value} val 将要设置的样式值
  * @return {Boolean}
  */
 function willStyle( els, name, val ) {
+    if ( $.isArray(name) ) {
+        return els.some(
+            el => name.some( n => el.style[n] !== val )
+        );
+    }
     return els.some( el => el.style[name] !== val );
 }
 
@@ -3030,6 +3035,9 @@ function hasStyle( el, names ) {
  * @return {String|null}
  */
 function styleVal( els, name ) {
+    if ( !els.length ) {
+        return null;
+    }
     let _val = els[0].style[name];
 
     for (const el of els.slice(1)) {
@@ -4909,8 +4917,9 @@ export const Edit = {
      * 设置元素内联样式。
      * 目标：暂存区/栈顶1项。
      * 对目标元素集批量设置样式。
+     * name的多名称支持空格分隔或数组形式（tQuery）。
      * @data: [Element] 目标元素集
-     * @param {String} name 样式名
+     * @param {String|[String]} name 样式名序列
      * @param {Value|[Value]} 样式值
      */
     setStyle( evo, name, val ) {
@@ -4925,6 +4934,7 @@ export const Edit = {
      * 清除目标内联样式。
      * 会验证目标样式至少存在一个才会执行。
      * 多个名称以空格分隔。
+     * @data: [Element] 目标元素集
      * @param {String} names 样式名序列
      */
     eraseStyle( evo, names ) {
@@ -5685,19 +5695,17 @@ export const Kit = {
      * 内联样式求值。
      * 检查集合中元素的目标内联样式，
      * 相同则返回值本身，否则返回null。
-     * name支持空格分隔的多个名称，此时返回一个值集。
      * 注：
      * 返回的null表示目标集处于未定状态（混杂）。
      * @data: [Element] 目标元素集
-     * @param  {String} names 样式名序列
+     * @param  {String|[String]} names 样式名序列
      * @return {Value|[Value]}
      */
     styVal( evo, names ) {
-        let _vs = names
-            .split( __reSpace )
-            .map( name => styleVal(evo.data, name) );
-
-        return _vs.length > 1 ? _vs : _vs[0];
+        if ( $.isArray(names) ) {
+            return names.map( n => styleVal(evo.data, n) );
+        }
+        return styleVal( evo.data, names );
     },
 
     __styVal: 1,
@@ -5718,6 +5726,23 @@ export const Kit = {
     },
 
     __unitVal: 1,
+
+
+    /**
+     * 检查过滤有内联样式设置的样式名集。
+     * 样式需在所有目标元素中都有设置才有效，否则忽略。
+     * @data: [Element] 目标元素集
+     * @param  {String} names 样式名序列（空格分隔）
+     * @return {[String]} 样式名集
+     */
+    styName( evo, names ) {
+        let _ns = names.split( __reSpace ),
+            _vs = _ns.map( n => styleVal(evo.data, n) );
+
+        return $.map( _vs, (v, i) => v ? _ns[i] : null )
+    },
+
+    __styName: 1,
 
 
 
@@ -6282,6 +6307,7 @@ customGetter( null, Kit, [
     'cbstate',
     'styVal',
     'unitVal',
+    'styName',
 ]);
 
 

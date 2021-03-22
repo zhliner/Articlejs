@@ -2066,9 +2066,9 @@ Object.assign( tQuery, {
      * 设置：
      * - val值支持取值回调，接口：function( oldval, el )。
      * - val为空串或null，会删除目标样式。
+     * - val需要为规范的格式，比如附带单位符号。
      * 注记：
      * Edge/Chrome/FF已支持短横线样式属性名。
-     *
      * @param  {Element} el 目标元素
      * @param  {String} name 样式名（单个）
      * @param  {Value|Function} val 设置值或取值回调
@@ -5049,18 +5049,18 @@ function cssArrSet( el, names, val, cso ) {
 
 /**
  * 设置单个元素的单个样式值。
- * 样式值可能为纯数字（视为像素）或取值回调。
+ * 样式值应当为规范的格式或取值回调。
  * @param {Element} el 目标元素
  * @param {String} name 样式名
  * @param {Value|Function} val 样式值
  * @param {CSSStyleDeclaration} cso 计算样式集
  */
 function cssSet( el, name, val, cso ) {
-    let _v = isFunc(val) ?
-        val( cso[name], el ) :
-        val;
-
-    setStyle( el, name, isNumeric(_v) ? `${+_v}px` : _v );
+    setStyle(
+        el,
+        name,
+        isFunc(val) ? val(cso[name], el) : val
+    );
 }
 
 
