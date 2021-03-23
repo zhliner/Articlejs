@@ -4958,17 +4958,24 @@ export const Edit = {
      * 目标：暂存区/栈顶1项。
      * 将目标元素的样式应用到全部已选取的元素。
      * 如果目标元素无任何内联样式，或只有目标元素被选取，则无动作。
+     * 注记：
+     * 应用后取消目标元素的选取（如果已选取），表达两者不同，
+     * 同时也隐含表达目标仅需是焦点即可。
      * @data: Element 目标元素
      */
     brushStyle( evo ) {
         let _el = evo.data,
             _v = $.attr( _el, 'style' ),
-            _n = __ESet.size;
+            _n = __ESet.size,
+            _op = null;
 
         if ( !_v || !_n || _n === 1 && __ESet.has(_el) ) {
             return;
         }
-        historyPush( new DOMEdit(__Edits.attrs, [...__ESet], 'style', _v), new Follow() );
+        if ( __ESet.has(_el) ) {
+            _op = new ESEdit( __Selects.delete, _el );
+        }
+        historyPush( _op, new DOMEdit(__Edits.attrs, [...__ESet], 'style', _v), new Follow() );
     },
 
     __brushStyle: 1,

@@ -63,7 +63,7 @@
     modify 提交后重置<select>（可能有选取）。-->
 <div class="_body _Fontsize" tpl-name="style:fontsize"
     on="modify|('font-size') $$('/#_fsize') v.unitVal pack(2);
-        follow|ev('detail') v.styVal('font-size') debug('font-size');
+        follow|ev('detail') v.styVal('font-size');
         follow|ev('detail') v.styVal('font-size') ('') pack(2)"
     to="form/|trigger('style')|fire('/select', 'reset');
         /#_fsname|val;
@@ -190,10 +190,14 @@
 
 
 <!-- 边距 -->
-<div class="_body _Margin" tpl-name="style:margin">
+<div class="_body _Margin" tpl-name="style:margin"
+    on="modify|$('/select') val $$('/#_mp') v.unitVal pack(2);
+        follow|ev('detail') $('/select') attr('-slr') $(_1) val v.styName(_1)"
+    to="form/|trigger('style');
+        /select|val trigger('change')">
     <div>
         <div class="_minibar"
-            on="click(input)|evo(2) val tpl(_1)"
+            on="click(input)|evo(2) val node(_1)"
             to="1/select|replace">
             <label title="外边距">
                 <input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i>
@@ -203,7 +207,9 @@
             </label>
         </div>
         <!-- 边距：外边距 -->
-        <select name="margin" size="5" multiple class="_list" tpl-name="item:margin">
+        <select name="margin" size="5" multiple class="_list" data-slr='[name=ms]' tpl-name="item:margin"
+            on="^obted|$$('/option') text join(' ')"
+            to="1/[name=ms]|val">
             <option title="边距">margin</option>
             <option title="顶边距">margin-top</option>
             <option title="右边距">margin-right</option>
@@ -216,14 +222,33 @@
             <option title="行前边距">margin-inline-start</option>
             <option title="行尾边距">margin-inline-end</option>
         </select>
+        <!-- 边距：内填充（初始脱离） -->
+        <select name="margin" size="5" multiple class="_list" data-slr="[name=ps]" tpl-name="item:padding"
+            on="^obted|$$('/option') text join(' ')"
+            to="1/[name=ps]|val|evo(1) remove">
+            <option title="填充">padding</option>
+            <option title="顶填充">padding-top</option>
+            <option title="右填充">padding-right</option>
+            <option title="底填充">padding-bottom</option>
+            <option title="左填充">padding-left</option>
+            <option title="块填充">padding-block</option>
+            <option title="块前填充">padding-block-start</option>
+            <option title="块尾填充">padding-block-end</option>
+            <option title="行填充">padding-inline</option>
+            <option title="行前填充">padding-inline-start</option>
+            <option title="行尾填充">padding-inline-end</option>
+        </select>
+        <!-- 状态跟随：取值备用 -->
+        <input type="hidden" name="ms" />
+        <input type="hidden" name="ps" />
     </div>
     <aside>
         <div class="_assign">
             <div class="_erase"><b>全部清除</b></div>
             <hr>
             <div><label title="可含单位">赋值</label>
-                <input type="text" name="width" placeholder="10px" class="_chars" />
-                <select name="unit">
+                <input id="_mp" type="text" name="width" placeholder="10px" class="_chars" />
+                <select id="_mp" name="unit">
                     <option value=""> --- </option>
                     <option>px</option>
                     <option>em</option>
@@ -235,21 +260,6 @@
         <hr tpl-node="common:submit" />
     </aside>
 </div>
-
-<!-- 边距：内填充 -->
-<select name="margin" size="5" multiple class="_list" tpl-name="item:padding">
-    <option title="填充">padding</option>
-    <option title="顶填充">padding-top</option>
-    <option title="右填充">padding-right</option>
-    <option title="底填充">padding-bottom</option>
-    <option title="左填充">padding-left</option>
-    <option title="块填充">padding-block</option>
-    <option title="块前填充">padding-block-start</option>
-    <option title="块尾填充">padding-block-end</option>
-    <option title="行填充">padding-inline</option>
-    <option title="行前填充">padding-inline-start</option>
-    <option title="行尾填充">padding-inline-end</option>
-</select>
 
 
 <!--颜色：
