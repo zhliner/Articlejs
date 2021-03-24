@@ -3035,15 +3035,41 @@ function hasStyle( el, names ) {
  * @return {String|null}
  */
 function styleVal( els, name ) {
-    if ( !els.length ) {
-        return null;
-    }
     let _val = els[0].style[name];
 
     for (const el of els.slice(1)) {
         if (el.style[name] !== _val) return null;
     }
     return _val;
+}
+
+
+/**
+ * 内联样式名称检查。
+ * 检查集合内是否都有设置目标样式。
+ * - 从Element.style内检查。
+ * - 适用各自独立的样式（非复合样式名），如：width/max-width等。
+ * @param  {[Element]} els 元素集
+ * @param  {String} name 样式名（单个）
+ * @return {Boolean}
+ */
+function styleName( els, name ) {
+    return els.every( el => el.style[name] !== '' );
+}
+
+
+/**
+ * 内联样式名称检查。
+ * 同上，检查集合内是否都有设置目标样式。
+ * - 从style.cssText字符串匹配检查。
+ * - 适用复合样式（具体样式会自动被设置），如：padding/margin等。
+ * @param  {[Element]} els 元素集
+ * @param  {String} name 样式名（单个）
+ * @return {Boolean}
+ */
+function styleKey( els, name ) {
+    name = name + ':';
+    return els.every( el => el.style.cssText.includes(name) );
 }
 
 
@@ -5686,6 +5712,9 @@ export const Kit = {
      * @return {[Boolean, Boolean]} 名值对
      */
     cbstate( evo, name, value ) {
+        if ( !evo.data.length ) {
+            return null;
+        }
         let _chk = evo.data[0].style[name] === value;
 
         for ( const el of evo.data.slice(1) ) {
@@ -5706,9 +5735,12 @@ export const Kit = {
      * 返回的null表示目标集处于未定状态（混杂）。
      * @data: [Element] 目标元素集
      * @param  {String|[String]} names 样式名序列
-     * @return {Value|[Value]}
+     * @return {Value|[Value]|null}
      */
     styVal( evo, names ) {
+        if ( !evo.data.length ) {
+            return null;
+        }
         if ( $.isArray(names) ) {
             return names.map( n => styleVal(evo.data, n) );
         }
@@ -5739,22 +5771,43 @@ export const Kit = {
      * 检查过滤有内联样式设置的样式名集。
      * 样式需在所有目标元素中都有设置才有效，否则忽略。
      * @data: [Element] 目标元素集
-     * @param  {String} names 样式名序列（空格分隔）
-     * @return {[String]} 样式名集
+     * @param  {String} names 待检查样式名序列（空格分隔）
+     * @return {[String]} 实际存在的样式名集
      */
     styName( evo, names ) {
-        let _ns = names.split( __reSpace ),
-            _vs = _ns.map( n => styleVal(evo.data, n) );
-
-        return $.map( _vs, (v, i) => v ? _ns[i] : null )
+        if ( !evo.data.length ) {
+            return null;
+        }
+        return names.split( __reSpace ).filter( n => styleName(evo.data, n) );
     },
 
     __styName: 1,
 
 
+    /**
+     * 检查内联样式串中的键名集。
+     * 需要在所有的目标元素内都有设置才有效，否则忽略。
+     * 类似styName，但用字符串匹配检查。
+     * 注记：
+     * 设置复合样式时具体样式会同时有值，比如设置 padding，
+     * Element.style中会同时包含 padding-left、padding-top等等。
+     * 此处仅匹配明确设置的值。
+     * @data: [Element] 目标元素集
+     * @param  {String} names 待检查样式名序列（空格分隔）
+     * @return {[String]} 实际存在的样式名集
+     */
+    styKey( evo, names ) {
+        if ( !evo.data.length ) {
+            return null;
+        }
+        return names.split( __reSpace ).filter( n => styleKey(evo.data, n) );
+    },
+
+    __styKey: 1,
+
+
 
     //-- By 扩展 -------------------------------------------------------------
-
 
     /**
      * 选取集取消。
@@ -6315,6 +6368,7 @@ customGetter( null, Kit, [
     'styVal',
     'unitVal',
     'styName',
+    'styKey',
 ]);
 
 
