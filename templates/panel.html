@@ -245,12 +245,17 @@
                 |$disabled val"></textarea>
     </div>
     <aside>
-        <div class="_option">
-            <button
-                on="click|avoid">结构检查</button>
-            <!-- _ok|_err -->
-            <div class="_info _ok">OK!</div>
-            <input type="hidden" name="tabs" value="4" />
+        <div class="_option"
+            on="click(button)|v.sels item(0) $('form/textarea') val"
+            by="Kit.checkhtml(_1) dup len $if('err', 'ok')"
+            to="/pre|trigger('_1')">
+            <button on="click|avoid">结构检查</button>
+            <!-- _ok -->
+            <pre class="_info _ok"
+                on="ok|('_ok', 'Good!');
+                    err|('_ok') ev('detail') join('\n')"
+                to="|text addClass;
+                    |text removeClass">Good!</pre>
         </div>
         <hr tpl-node="common:submit" />
     </aside>

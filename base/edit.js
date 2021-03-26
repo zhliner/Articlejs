@@ -3101,6 +3101,21 @@ function wrongNodes( box, subs ) {
 
 
 /**
+ * 提取节点信息。
+ * - 元素返回其自身的outerHTML前段。
+ * - 文本节点返回文本值本身。
+ * @param  {Node} node 目标节点
+ * @return {String}
+ */
+function nodeInfo( node ) {
+    if ( node.nodeType === 3 ) {
+        return node.textContent;
+    }
+    return node.outerHTML.replace( RegExp(`</${node.tagName}>$`), '' );
+}
+
+
+/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -6355,12 +6370,14 @@ export const Kit = {
      * 逐层检查，按广度优先遍历。
      * 返回结构错误的元素的信息（outerHTML前段）。
      * 注：一次仅返回一个层级。
-     * @data: String 源码
+     * @data: Element 容器元素
      * @return {[String]}
      */
-    checkhtml( evo ) {
-        let _frg = $.fragment( evo.data );
-        //
+    checkhtml( evo, html ) {
+        let _frg = $.fragment( html ),
+            _bad = wrongNodes( evo.data, _frg.childNodes );
+
+        return _bad.map( nodeInfo );
     },
 
     __checkhtml: 1,
@@ -6412,6 +6429,7 @@ processExtend( 'Kit', Kit, [
     'table',
     'codelang',
     'htmlupdate',
+    'checkhtml',
 ]);
 
 

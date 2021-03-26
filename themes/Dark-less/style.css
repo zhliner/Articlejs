@@ -1402,12 +1402,12 @@ menu._cells code {
  ****************************************************************************/
 
 .Source ._main {
-    flex: 5 5 500px;
+    flex: 5 5 600px;
 }
 .Source > aside {
-    flex: 1 1 160px;
-    min-width: 160px;
-    max-width: 240px;
+    flex: 1 1 180px;
+    min-width: 180px;
+    max-width: 300px;
     margin-left: 16px;
     display: flex;
     flex-direction: column;
@@ -1420,30 +1420,31 @@ menu._cells code {
 }
 .Source ._option > button {
     width: max-content;
-    background-color: #fff1d1;
-    border-color: #febe69;
-    border-radius: 14px;
+    background-color: #fcf6e8;
+    border-color: #f8b359;
+    border-radius: 22px 0;
 }
 .Source ._option > button:hover {
-    background-color: #ffd1b6;
+    background-color: #ffdbc7;
 }
 .Source ._info {
     flex: 1 1 auto;
     font-size: 12px;
     border: 1px #e6e6e6 solid;
-    background-color: #f6f6f6;
-    border-radius: 4px;
-    padding: 4px 8px;
-    margin: 3px 4px 10px 0;
+    background-color: black;
+    border-radius: 16px;
+    padding: 5px 10px;
+    margin: 3px 0 10px;
     overflow-y: auto;
     overflow-x: hidden;
+    color: red;
+    cursor: default;
 }
 .Source ._info._ok {
     color: #093;
-}
-.Source ._info._err {
-    color: #a00;
-    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    padding-left: 14px;
 }
 
 
