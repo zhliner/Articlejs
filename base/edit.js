@@ -43,10 +43,10 @@ const
     varyEvents = 'attrdone styledone nodesdone emptied detached normalize',
 
     // 临时类名序列。
-    __tmpcls = `${Sys.selectedClass} ${Sys.focusClass}`,
+    __tmpcls = `${Sys.selectedClass} ${Sys.focusClass} ${Sys.hoverClass} ${Sys.pointClass}`,
 
     // 临时类名选择器。
-    __tmpclsSlr = `.${Sys.selectedClass}, .${Sys.focusClass}`,
+    __tmpclsSlr = `.${Sys.selectedClass}, .${Sys.focusClass}, .${Sys.hoverClass}, .${Sys.pointClass}`,
 
     // 路径单元存储键。
     // 在路径序列元素上存储源元素。
@@ -3074,6 +3074,33 @@ function styleKey( els, name ) {
 
 
 /**
+ * 用源码创建干净的节点集。
+ * 移除可能有的内置类名，它们会在视觉上误导。
+ * @param  {String} html 源码
+ * @return {[Node]} 节点集
+ */
+function htmlNodes( html ) {
+    let _frg = $.fragment( html );
+
+    for ( const el of $.find(__tmpclsSlr, _frg) ) {
+        $.removeClass( el, __tmpcls );
+    }
+    return $.contents( _frg );
+}
+
+
+/**
+ * 非法节点检查。
+ * @param  {Element} box 父容器元素
+ * @param  {[Node]} subs 待检查节点集
+ * @return {[Node]} 非法节点集
+ */
+function wrongNodes( box, subs ) {
+    //
+}
+
+
+/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -5282,7 +5309,8 @@ export const Kit = {
      * @data: Element 菜单元素
      * @param  {Element} box 滚动容器
      * @param  {Number} x 鼠标点x坐标
-     * @return {Number} y 鼠标点y坐标
+     * @param  {Number} y 鼠标点y坐标
+     * @return {[String, String]} 计算后的鼠标点像素坐标对
      */
     menupos( evo, box, [x, y] ) {
         let _mw = $.outerWidth( evo.data ),
@@ -5291,9 +5319,9 @@ export const Kit = {
             _y2 = y - _co.top + $.scrollTop(box) + Limit.popupGapTop;
 
         if ( x + _mw < _bw + _co.left ) {
-            return [ x - _co.left, _y2 ];
+            return [ `${x - _co.left}px`, `${_y2}px` ];
         }
-        return [ _bw - _mw - Limit.popupGapRight, _y2 ];
+        return [ `${_bw - _mw - Limit.popupGapRight}px`, `${_y2}px` ];
     },
 
     __menupos: 1,
@@ -5806,6 +5834,23 @@ export const Kit = {
     __styKey: 1,
 
 
+    /**
+     * 获取干净的源码。
+     * 取元素的outerHTML值但移除内置的类名。
+     * @data: Element 目标元素
+     * @return {String}
+     */
+    cleanHTML( evo ) {
+        // 浅克隆，避免性能开销。
+        let _box = $.removeClass( evo.data.cloneNode(), __tmpcls ),
+            _rex = RegExp( `</${_box.tagName}>$`, 'i' );
+
+        return _box.outerHTML.replace( _rex, end => evo.data.innerHTML + end );
+    },
+
+    __cleanHTML: 1,
+
+
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -6281,6 +6326,45 @@ export const Kit = {
 
     __codelang: 1,
 
+
+    /**
+     * 源码更新。
+     * 以用户输入的HTML源码替换选取的元素。
+     * 注：仅支持单个元素选取。
+     * @data: String 源码数据
+     */
+    htmlupdate( evo ) {
+        if ( __ESet.size !== 1 || !evo.data.length ) {
+            return;
+        }
+        let _ref = first( __ESet ),
+            _nodes = htmlNodes( evo.data );
+
+        historyPush(
+            cleanHot( _ref, true ),
+            clearSets(),
+            new DOMEdit( () => $.replace(_ref, _nodes) )
+        );
+    },
+
+    __htmlupdate: 1,
+
+
+    /**
+     * 检查源码的HTML结构。
+     * 逐层检查，按广度优先遍历。
+     * 返回结构错误的元素的信息（outerHTML前段）。
+     * 注：一次仅返回一个层级。
+     * @data: String 源码
+     * @return {[String]}
+     */
+    checkhtml( evo ) {
+        let _frg = $.fragment( evo.data );
+        //
+    },
+
+    __checkhtml: 1,
+
 };
 
 
@@ -6327,6 +6411,7 @@ processExtend( 'Kit', Kit, [
     'insrbpt',
     'table',
     'codelang',
+    'htmlupdate',
 ]);
 
 
@@ -6369,6 +6454,7 @@ customGetter( null, Kit, [
     'unitVal',
     'styName',
     'styKey',
+    'cleanHTML',
 ]);
 
 

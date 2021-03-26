@@ -125,11 +125,11 @@ const
 
 const Sys = {
 
-    // 元素选取态类名。
-    selectedClass: '_selected',
-
-    // 选取焦点类名。
-    focusClass: '_focus',
+    // 内置类名
+    selectedClass:  '_selected',    // 元素选取态类名
+    focusClass:     '_focus',       // 选取焦点类名
+    hoverClass:     '_hover',       // 鼠标划过类名
+    pointClass:     '_point',       // 路径栏鼠标指向
 
 
     // <rt>包围定义（<rp>）。

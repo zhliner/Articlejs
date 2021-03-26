@@ -1406,7 +1406,7 @@ menu._cells code {
 }
 .Source > aside {
     flex: 1 1 160px;
-    min-width: 140px;
+    min-width: 160px;
     max-width: 240px;
     margin-left: 16px;
     display: flex;
@@ -1416,15 +1416,16 @@ menu._cells code {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    flex: 1 1 auto;
 }
 .Source ._option > button {
     width: max-content;
-    background-color: #d1f1ff;
-    border-color: #93eab7;
-    border-radius: 0 16px;
+    background-color: #fff1d1;
+    border-color: #febe69;
+    border-radius: 14px;
 }
 .Source ._option > button:hover {
-    background-color: #a8effe;
+    background-color: #ffd1b6;
 }
 .Source ._info {
     flex: 1 1 auto;
@@ -1433,8 +1434,7 @@ menu._cells code {
     background-color: #f6f6f6;
     border-radius: 4px;
     padding: 4px 8px;
-    margin: 3px 0 10px;
-    min-height: 50px;
+    margin: 3px 4px 10px 0;
     overflow-y: auto;
     overflow-x: hidden;
 }
