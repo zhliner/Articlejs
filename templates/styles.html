@@ -152,11 +152,11 @@
         follow|ev('detail') $('/[name=ns]') val v.styName(_1)"
     to="form/|trigger('style');
         /select|val trigger('change')">
-    <!--select_valu2: 取值反馈：
+    <!--state2val: 取值反馈：
         change 取目标样式在元素集内的值（相同时有效），多选时多个值也需相同，否则视为空。
         clear  目标样式的求值为null时激发，清空输入框。
         setval 目标有值时设置输入框，多选时判断是否相同。 -->
-    <select name="whname" size="5" multiple class="_list" obt-src="obts/select_valu2.json">
+    <select name="whname" size="5" multiple class="_list" obt-src="obts/state2val.json">
         <option title="宽度">width</option>
         <option title="最大宽度">max-width</option>
         <option title="最小宽度">min-width</option>
@@ -206,8 +206,8 @@
             </label>
         </div>
         <!--边距：外边距
-            select_valu2: 取值反馈。-->
-        <select name="margin" size="5" multiple class="_list" data-slr='[name=ms]' obt-src="obts/select_valu2.json" tpl-name="item:margin"
+            state2val: 取值反馈。-->
+        <select name="margin" size="5" multiple class="_list" data-slr='[name=ms]' obt-src="obts/state2val.json" tpl-name="item:margin"
             on="^obted|$$('/option') text join(' ')"
             to="1/[name=ms]|val">
             <option title="边距">margin</option>
@@ -223,8 +223,8 @@
             <option title="行尾边距">margin-inline-end</option>
         </select>
         <!--边距：内填充（初始脱离）：
-            select_valu2: 取值反馈。-->
-        <select name="margin" size="5" multiple class="_list" data-slr="[name=ps]" obt-src="obts/select_valu2.json" tpl-name="item:padding"
+            state2val: 取值反馈。-->
+        <select name="margin" size="5" multiple class="_list" data-slr="[name=ps]" obt-src="obts/state2val.json" tpl-name="item:padding"
             on="^obted|$$('/option') text join(' ')"
             to="1/[name=ps]|val|evo(1) remove">
             <option title="填充">padding</option>

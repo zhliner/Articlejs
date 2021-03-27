@@ -6368,16 +6368,16 @@ export const Kit = {
     /**
      * 检查源码的HTML结构。
      * 逐层检查，按广度优先遍历。
-     * 返回结构错误的元素的信息（outerHTML前段）。
+     * 返回结构错误的元素的信息，无错时返回null。
      * 注：一次仅返回一个层级。
      * @data: Element 容器元素
-     * @return {[String]}
+     * @return {[String]|null}
      */
     checkhtml( evo, html ) {
         let _frg = $.fragment( html ),
             _bad = wrongNodes( evo.data, _frg.childNodes );
 
-        return _bad.map( nodeInfo );
+        return _bad && _bad.map( nodeInfo );
     },
 
     __checkhtml: 1,

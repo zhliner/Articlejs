@@ -84,9 +84,11 @@ const OnlyChild = new Set([
 
 
 //
-// 定制结构单元取值。
-// 含非独立的中间结构。
+// 定制结构判断取值。
+// 适用：存在于DOM树中已有的节点。
 // {tagName: function(Element): Number}
+// 注记：
+// 优先使用字符串标签名判断，避免类型取值循环可能带来的攻击。
 //
 const CustomStruct = {
     /**
@@ -103,7 +105,7 @@ const CustomStruct = {
         let _sub = el.firstElementChild;
 
         if ( el.childElementCount <= 1 ) {
-            return _liChild( _sub ) || T.LI;
+            return _liChild( _sub, el.parentElement ) || T.LI;
         }
         return el.childElementCount === 2 && _sub.tagName === 'H4' ? _liParent(el.parentElement, _sub) : T.LI;
     },
@@ -111,7 +113,8 @@ const CustomStruct = {
 
     /**
      * 副标题&块标题。
-     * 存在于<hgroup>内为副标题。
+     * - H3X: 标题组<hgroup>内的副标题。
+     * - H3:  普通小区块标题。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
@@ -138,8 +141,8 @@ const CustomStruct = {
 
     /**
      * 仅两种可能：
-     * - SPACE 空白。
-     * - FIGIMGBOX 插图子结构（figure/span/img, i:explain）。
+     * - SPACE: 空白。
+     * - FIGIMGBOX: 插图子结构（figure/span/img, i:explain）。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
@@ -150,12 +153,129 @@ const CustomStruct = {
 
     /**
      * 仅两种可能：
-     * - 正常普通图片（内联、插图）。
-     * - 最佳图片内的占位图片（:last-child）。
+     * - IMG:  正常普通图片（内联、插图）。
+     * - PIMG: 最佳图片内的占位图片（:last-child）。
      * @param {Element} el 当前元素
      */
     IMG( el ) {
         return el.parentElement.tagName === 'PICTURE' ? T.PIMG : T.IMG;
+    },
+
+};
+
+
+//
+// 结构合法性检查。
+// 数据节点为未知类型，相对于将要进入的父容器而验证。
+// 数据节点为游离态（未进入DOM）。
+// 验证：
+// 1. 匹配目标父容器元素的子单元类型值（函数键值）。
+// 2. 验证子单元内部结构是否符合要求（如果需要）。
+// 注记：
+// 仅针对不能直接判断单元类型（parseType）的节点，
+// 它们通常需要借助于所在父容器元素来分析自身的类型。
+//
+const StructVerify = {
+    /**
+     * 列表项。
+     * - CODELI: 代码表条目（li/code）：唯一子元素
+     * - ALI: 目录表普通条目（li/a）：唯一子元素
+     * - XH4LI: 无序级联表项标题（li/h4, ol|ul）
+     * - CASCADEH4LI: 级联编号表项标题（li/h4, ol）
+     * - CASCADEAH4LI: 目录表标题条目（li/[h4/a], ol）
+     * - LI: 普通列表项（li/*）
+     * @param  {Element} el 当前元素
+     * @return {Boolean} 是否达标
+     */
+    LI: {
+        [ T.CODELI ]: el => _onlyChild( el, 'CODE' ),
+
+
+        [ T.ALI ]: el => _onlyChild( el, 'A' ),
+
+
+        [ T.XH4LI ]: function( el ) {
+            let _sub = el.firstElementChild,
+                _nxt = el.lastElementChild;
+
+            return el.childElementCount === 2 && _sub.tagName === 'H4' && ( _nxt.tagName === 'OL' || _nxt.tagName === 'UL' );
+        },
+
+
+        [ T.CASCADEH4LI ]: function( el ) {
+            let _sub = el.firstElementChild,
+                _nxt = el.lastElementChild;
+
+            return el.childElementCount === 2 && _sub.tagName === 'H4' && _nxt.tagName === 'OL';
+        },
+
+
+        [ T.CASCADEAH4LI ]: function( el ) {
+            let _sub = el.firstElementChild,
+                _nxt = el.lastElementChild;
+
+            return el.childElementCount === 2 && _sub.tagName === 'H4' && _onlyChild(_sub, 'A') && _nxt.tagName === 'OL';
+        },
+    },
+
+
+    /**
+     * 副标题&块标题。
+     * - H3X: 标题组<hgroup>内的副标题。
+     * - H3:  普通小区块标题。
+     * @param  {Element} el 当前元素
+     * @param  {Element} box 将要进入的父容器
+     * @return {Boolean} 是否合法
+     */
+    H3: {
+        [ T.H3X ]: function( el ) {
+            //
+        },
+
+
+        [ T.H3 ]: function( el ) {
+            //
+        },
+    },
+
+
+    /**
+     * 仅两种可能：
+     * - SPACE: 空白。
+     * - FIGIMGBOX: 插图子结构（figure/span/img, i:explain）。
+     * @param  {Element} el 当前元素
+     * @param  {Element} box 将要进入的父容器
+     * @return {Boolean} 是否合法
+     */
+    SPAN: {
+        [ T.SPACE ]: function( el ) {
+            //
+        },
+
+
+        [ T.FIGIMGBOX ]: function( el ) {
+            //
+        },
+    },
+
+
+    /**
+     * 仅两种可能：
+     * - IMG:  正常普通图片（内联、插图）。
+     * - PIMG: 最佳图片内的占位图片（:last-child）。
+     * @param  {Element} el 当前元素
+     * @param  {Element} box 将要进入的父容器
+     * @return {Boolean} 是否合法
+     */
+    IMG: {
+        [ T.IMG ]: function( el ) {
+            //
+        },
+
+
+        [ T.PIMG ]: function( el ) {
+            //
+        },
     },
 
 };
@@ -364,20 +484,18 @@ function _typeNoit( ref, els ) {
 
 /**
  * 从列表项子元素判断取值。
- * 注：兼容<h4>从父元素判断取值。
  * @param  {Element} el 列表项子元素
+ * @param  {Element} box 列表项容器元素
  * @return {Number}
  */
-function _liChild( el ) {
+function _liChild( el, box ) {
     if ( !el || $.siblingNodes(el).length ) {
         return;
     }
-    switch ( el.tagName ) {
-        case 'CODE':
-            return T.CODELI;
-        case 'A':
-            return T.ALI;
+    if ( el.tagName === 'A' ) {
+        return T.ALI;
     }
+    return el.tagName === 'CODE' && box.tagName === 'OL' && getType(box) === T.CODELIST && T.CODELI;
 }
 
 
@@ -404,9 +522,21 @@ function _liParent( el, h4 ) {
         case 'OLX':
             return T.XH4LI;
         case 'CASCADE':
-            return this.H4( h4 ) === T.AH4 ? T.CASCADEAH4LI : T.CASCADEH4LI;
+            return CustomStruct.H4( h4 ) === T.AH4 ? T.CASCADEAH4LI : T.CASCADEH4LI;
     }
     return T.LI;
+}
+
+
+/**
+ * 唯一子单元测试。
+ * @param  {Element} box 容器元素
+ * @param  {String} tag 子单元标签名
+ * @return {Boolean}
+ */
+function _onlyChild( box, tag ) {
+    let _sub = box.firstElementChild;
+    return box.childElementCount === 1 && !$.siblingNodes(_sub).length && _sub.tagName === tag;
 }
 
 

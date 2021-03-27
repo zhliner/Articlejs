@@ -1417,12 +1417,14 @@ menu._cells code {
     flex-direction: column;
     overflow: hidden;
     flex: 1 1 auto;
+    margin-bottom: 12px;
 }
 .Source ._option > button {
     width: max-content;
     background-color: #fcf6e8;
     border-color: #f8b359;
     border-radius: 22px 0;
+    margin-bottom: 8px;
 }
 .Source ._option > button:hover {
     background-color: #ffdbc7;
@@ -1431,20 +1433,19 @@ menu._cells code {
     flex: 1 1 auto;
     font-size: 12px;
     border: 1px #e6e6e6 solid;
-    background-color: black;
+    background-color: #111;
     border-radius: 16px;
     padding: 5px 10px;
-    margin: 3px 0 10px;
     overflow-y: auto;
-    overflow-x: hidden;
     color: red;
     cursor: default;
+    outline: none;
 }
 .Source ._info._ok {
     color: #093;
     font-size: 14px;
     font-weight: bold;
-    padding-left: 14px;
+    padding-left: 12px;
 }
 
 

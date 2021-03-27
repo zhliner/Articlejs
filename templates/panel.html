@@ -246,16 +246,25 @@
     </div>
     <aside>
         <div class="_option"
-            on="click(button)|v.sels item(0) $('form/textarea') val"
-            by="Kit.checkhtml(_1) dup len $if('err', 'ok')"
+            on="click(button)|v.sels item(0) $('form/textarea') val trim dup pass"
+            by="Kit.checkhtml(_1) dup $if('err', 'ok')"
             to="/pre|trigger('_1')">
             <button on="click|avoid">结构检查</button>
-            <!-- _ok -->
-            <pre class="_info _ok"
-                on="ok|('_ok', 'Good!');
-                    err|('_ok') ev('detail') join('\n')"
-                to="|text addClass;
-                    |text removeClass">Good!</pre>
+            <!--反馈信息：
+                ok  结构正常。设置_ok类名、文本并取消聚焦能力。
+                err 结构错误。设置提示文本、移除_ok类名、赋予聚焦能力。
+                错误时：
+                focus 获取焦点后即平铺最大化。
+                blur  失焦时取消平铺最大化。
+                keydown 平铺时按 ESC 键聚焦源码框（失焦--取消平铺），stop避免全局ESC执行。 -->
+            <pre class="_info" tabindex="0"
+                on="ok|('_ok', 'Good!', null);
+                    err|(0, '_ok') ev('detail') join('\n');
+                    focus|evo(3) full;
+                    blur|evo(3) full(false);
+                    keydown|evo(3) fulled pass ev('key') pass('Escape') stop $('form/textarea') focus"
+                to="|@tabindex text addClass;
+                    |text removeClass @tabindex"><!-- Good! --></pre>
         </div>
         <hr tpl-node="common:submit" />
     </aside>

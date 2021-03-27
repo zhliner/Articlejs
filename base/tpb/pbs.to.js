@@ -608,6 +608,9 @@ const _Next = {
      * - 10 原始检索结果（evo.primary）
      * - 11 更新后的结果（evo.updated）
      * 默认延迟，可设置具体的时间或0值（不延迟）。
+     * 注记：
+     * 激发的事件默认冒泡，与通常的事件触发行为一致。
+     * 因为这里就是想表达“触发另外的事”，应当冒泡以便于处理。
      * @param {String|Number} rid 目标元素选择器（单个）
      * @param {String} name 事件名
      * @param {Number} delay 延迟时间（毫秒），可选

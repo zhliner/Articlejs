@@ -1707,7 +1707,7 @@ const _Process = {
      * - keydown 捕获键盘按下事件（使得可屏蔽浏览器默认行为）。
      * - GHK 为操作目标，是一个 Hotkey 实例，创建：new HotKey().config(...)。
      * - acmsk ev('key') 为键序列和键值（辅助）实参。
-     *
+     * @data: HotKey
      * @param  {String} key 快捷键序列
      * @param  {...Value} args 发送的数据或实参序列
      * @return {Boolean} 是否已捕获激发

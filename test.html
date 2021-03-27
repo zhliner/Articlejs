@@ -199,7 +199,7 @@
                 focus|$('/form') pop $('input[type=text], textarea, input[type=url]') dup pass focus;
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel');
-                /:first-child|replace|fire('/', 'focus');
+                /form|replace|fire(3, 'focus');
                 #g-scroll|trigger('focus')">
             <form> <!-- 占位 --> </form>
         </div>
