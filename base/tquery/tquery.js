@@ -1310,7 +1310,7 @@ Object.assign( tQuery, {
      * 仅包含元素、非空文本节点和可能的注释节点。
      * @param  {Node} node 当前节点
      * @param  {Boolean} comment 包含注释节点
-     * @return {Node}
+     * @return {[Node]}
      */
     siblingNodes( node, comment ) {
         let _nodes = Arr( node.parentNode.childNodes );
