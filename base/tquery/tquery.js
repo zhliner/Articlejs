@@ -6065,7 +6065,7 @@ function nodesTrigger( ref, nodes, meth ) {
  * 发送数据：[
  *      type,       绑定事件名
  *      selector,   委托选择器
- *      handler,    事件处理器
+ *      handle,     事件处理器
  *      cap,        是否为捕获
  *      once,       是否为单次逻辑
  * ]
@@ -6074,18 +6074,18 @@ function nodesTrigger( ref, nodes, meth ) {
  * @param  {String} evn 事件名
  * @param  {String} type 绑定事件名
  * @param  {String} selector 委托选择器
- * @param  {Function|EventListener} handler 事件处理器
+ * @param  {Function|EventListener} handle 事件处理器
  * @param  {Element} cap 是否为捕获
  * @param  {Boolean} once 是否为单次逻辑
  * @return {Boolean|void}
  */
-function bindTrigger( el, evn, type, selector, handler, cap, once ) {
+function bindTrigger( el, evn, type, selector, handle, cap, once ) {
     if ( !Options.bindevent ) {
         return;
     }
     return el.dispatchEvent(
         new CustomEvent( evn, {
-            detail: [ type, selector, handler, cap, !!once ],
+            detail: [ type, selector, handle, cap, !!once ],
             bubbles: true,
             cancelable: true,
         })
@@ -7253,7 +7253,7 @@ const Event = {
             bindTrigger(el, evnBind, _evn, _slr, handle, _cap) === false ) {
             return;
         }
-        let _bound = this._handler(handle, _get, _slr);
+        let _bound = this.handler(handle, _get, _slr);
 
         el.addEventListener(
             _evn,
@@ -7283,7 +7283,7 @@ const Event = {
         }
         let _pool = this.buffer(el, _evn, _slr),
             // 存储普通封装（便于clone）。
-            _bound = this.setBuffer(_pool, handle, this._handler(handle, _get, _slr), _cap, true);
+            _bound = this.setBuffer(_pool, handle, this.handler(handle, _get, _slr), _cap, true);
 
         el.addEventListener(
             _evn,
@@ -7482,47 +7482,17 @@ const Event = {
      * @param  {String|null} slr 选择器串（已合法）
      * @return {Function} 处理器函数
      */
-    _handler( handle, current, slr ) {
+    handler( handle, current, slr ) {
         if ( !isFunc(handle) ) {
             // EventListener
             handle = handle.handleEvent.bind(handle);
         }
-        return this._wrapCall.bind(this, handle, current, slr);
+        return this.wrapper.bind(this, handle, current, slr);
     },
 
 
     /**
-     * 构造单次调用处理器。
-     * 执行之后会自动移除绑定和配置存储。
-     * 也有解绑和解绑完成通知，外部依然可以阻止解绑实施。
-     * @param  {Element} el 目标元素
-     * @param  {String} evn 事件名
-     * @param  {Function} bound 普通封装处理器
-     * @param  {Boolean} cap 是否为捕获
-     * @param  {Map} pool 末端存储器
-     * @param  {String} slr 委托选择器
-     * @param  {Function} handle 用户处理器
-     * @return {Function} 封装处理器（单次逻辑）
-     */
-    _onceHandler( el, evn, bound, cap, pool, slr, handle ) {
-        return function caller(...args) {
-            let _ok = bindTrigger(el, evnUnbind, evn, slr, handle, cap, true) !== false;
-            try {
-                return _ok && bound(...args);
-            }
-            finally {
-                if ( _ok ) {
-                    pool.delete( handle );
-                    el.removeEventListener( evn, caller, cap );
-                    bindTrigger( el, evnUnbound, evn, slr, handle, cap, true );
-                }
-            }
-        };
-    },
-
-
-    /**
-     * 处理器封装。
+     * 封装的实际处理器。
      * - 普通函数处理器内的this无特殊意义。
      * - 处理器返回false可以阻止原生非事件类方法的调用（trigger）。
      * @param  {Function} handle 用户处理函数
@@ -7531,7 +7501,7 @@ const Event = {
      * @param  {Event} ev 原生事件对象
      * @return {Boolean}
      */
-    _wrapCall( handle, current, slr, ev ) {
+    wrapper( handle, current, slr, ev ) {
         let _cur = current( ev, slr ),
             _elo = _cur && {
                 target:     ev.target,
@@ -7564,6 +7534,36 @@ const Event = {
             return;
         }
         return _fun.bind(el)( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
+    },
+
+
+    /**
+     * 构造单次调用处理器。
+     * 执行之后会自动移除绑定和配置存储。
+     * 也有解绑和解绑完成通知，外部依然可以阻止解绑实施。
+     * @param  {Element} el 目标元素
+     * @param  {String} evn 事件名
+     * @param  {Function} bound 普通封装处理器
+     * @param  {Boolean} cap 是否为捕获
+     * @param  {Map} pool 末端存储器
+     * @param  {String} slr 委托选择器
+     * @param  {Function} handle 用户处理器
+     * @return {Function} 封装处理器（单次逻辑）
+     */
+    _onceHandler( el, evn, bound, cap, pool, slr, handle ) {
+        return function caller(...args) {
+            let _ok = bindTrigger(el, evnUnbind, evn, slr, handle, cap, true) !== false;
+            try {
+                return _ok && bound(...args);
+            }
+            finally {
+                if ( _ok ) {
+                    pool.delete( handle );
+                    el.removeEventListener( evn, caller, cap );
+                    bindTrigger( el, evnUnbound, evn, slr, handle, cap, true );
+                }
+            }
+        };
     },
 
 
