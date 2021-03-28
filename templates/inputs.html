@@ -1192,9 +1192,9 @@
     </aside>
 </div>
 
-<div class="_body _Cascadeh4li" obt-src="obts/sublist.json" tpl-name="input:cascadeh4li"
+<div class="_body _Xolh4li" obt-src="obts/sublist.json" tpl-name="input:xolh4li"
     on="node|ev('detail') wrap('<li>') wrapAll('<ol>') item(0) $('/[name=h4]') val obj('h4')"
-    by="New.cascadeh4li(_1)"
+    by="New.xolh4li(_1)"
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
@@ -1210,15 +1210,15 @@
     </aside>
 </div>
 
-<div class="_body _Cascadeah4li" tpl-name="input:cascadeah4li"
+<div class="_body _Xolah4li" tpl-name="input:xolah4li"
     on="create|$('/[name=text]') val dup pass $('form/') valo('href title target', null);
         xlist|$('/textarea') val v.splitx(true) wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
     by="New.a(_1);
-        New.cascadeah4li(_1)"
+        New.xolah4li(_1)"
     to="|trigger('xlist');
         form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-source="prop:cascadeah4li" />
+        <hr tpl-source="prop:xolah4li" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">

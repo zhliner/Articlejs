@@ -115,8 +115,8 @@ const InputOptions = {
     [ T.ALI ]:          'option:ali',
     [ T.AH4 ]:          'option:ah4',
     [ T.XH4LI ]:        'option:xh4li',
-    [ T.CASCADEH4LI ]:  'option:cascadeh4li',
-    [ T.CASCADEAH4LI ]: 'option:cascadeah4li',
+    [ T.XOLH4LI ]:      'option:xolh4li',
+    [ T.XOLAH4LI ]:     'option:xolah4li',
     [ T.FIGIMGBOX ]:    'option:figimgbox',
 
     [ T.HGROUP ]:       'option:hgroup',
@@ -187,8 +187,8 @@ const Properties = {
     [ T.CODELI ]:       'property:li',          // value
     [ T.ALI ]:          'property:li',          // value
     [ T.XH4LI ]:        'property:li',          // value
-    [ T.CASCADEH4LI ]:  'property:li',          // value
-    [ T.CASCADEAH4LI ]: 'property:li',          // value
+    [ T.XOLH4LI ]:      'property:li',          // value
+    [ T.XOLAH4LI ]:     'property:li',          // value
     [ T.TABLE ]:        'property:table',       // cols, rows, border, th0
     [ T.HR ]:           'property:hr',          // thick, length, space, border
     [ T.BLANK ]:        'property:blank',       // width, height

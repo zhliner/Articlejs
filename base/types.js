@@ -158,9 +158,9 @@ export const
     CODELI          = 419,  // 代码表条目（li/code） {value}
     ALI             = 420,  // 链接列表项（li/a）
     AH4             = 421,  // 链接小标题（h4/a）
-    XH4LI           = 422,  // 级联表标题项（li/h4, ul|ol）
-    CASCADEH4LI     = 423,  // 级联编号表标题项（li/h4, ol）
-    CASCADEAH4LI    = 424,  // 级联编号表链接标题项（li/[h4/a], ol）
+    XH4LI           = 422,  // 级联表标题项（li/h4, ul）
+    XOLH4LI         = 423,  // 级联表有序标题项（li/h4, ol）
+    XOLAH4LI        = 424,  // 级联表有序链接标题项（li/[h4/a], ol）
     TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
     FIGIMGBOX       = 426,  // 插图内容块（span/img, i:explain）
     //
@@ -305,8 +305,8 @@ const Properties = {
     [ ALI ]:            STRUCT | STRUCTX | CONTENT, // 宽容
     [ AH4 ]:            STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
     [ XH4LI ]:          STRUCT | STRUCTX | SEALED,
-    [ CASCADEH4LI ]:    STRUCT | STRUCTX | SEALED,
-    [ CASCADEAH4LI ]:   STRUCT | STRUCTX | SEALED,
+    [ XOLH4LI ]:        STRUCT | STRUCTX | SEALED,
+    [ XOLAH4LI ]:       STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | FIXED1 | FIXED2 | SEALED,
     // 插图内允许多个<span>容器。
     [ FIGIMGBOX ]:      STRUCT | STRUCTX,  // SEALED,
@@ -534,10 +534,10 @@ const ChildTypes = {
     [ CODELI ]:         [ CODE ],
     [ ALI ]:            [ A ],
     [ AH4 ]:            [ A ],
-    [ XH4LI ]:          [ H4, UL, OL ],
-    [ CASCADEH4LI ]:    [ H4, OL ],
-    [ CASCADEAH4LI ]:   [ AH4, OL ],
-    [ TOCCASCADE ]:     [ ALI, CASCADEAH4LI ],
+    [ XH4LI ]:          [ H4, UL ],
+    [ XOLH4LI ]:        [ H4, OL ],
+    [ XOLAH4LI ]:       [ AH4, OL ],
+    [ TOCCASCADE ]:     [ ALI, XOLAH4LI ],
     [ FIGIMGBOX ]:      [ IMG, SVG, EXPLAIN ],
     //
     // 行块结构元素
@@ -556,9 +556,9 @@ const ChildTypes = {
     [ UL ]:             [ LI, ALI ],
     [ OL ]:             [ LI, ALI ],
     [ CODELIST ]:       [ CODELI ],
-    [ ULX ]:            [ LI, ALI, XH4LI ],
-    [ OLX ]:            [ LI, ALI, XH4LI ],
-    [ CASCADE ]:        [ LI, ALI, CASCADEH4LI, CASCADEAH4LI ],
+    [ ULX ]:            [ LI, ALI, XH4LI, XOLH4LI ],
+    [ OLX ]:            [ LI, ALI, XH4LI, XOLH4LI ],
+    [ CASCADE ]:        [ LI, ALI, XOLH4LI, XOLAH4LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
     [ FIGURE ]:         [ FIGCAPTION, FIGIMGBOX ],

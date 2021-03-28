@@ -25,7 +25,7 @@
 //
 
 import { processProxy } from "./tpb/pbs.by.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, cloneElement } from "./base.js";
 import * as T from "./types.js";
 import { dateTime } from "./common.js";
 import { Sys } from "../config.js";
@@ -137,8 +137,8 @@ const Tags = {
     [ T.ALI ]:          'li',
     [ T.AH4 ]:          'h4',
     [ T.XH4LI ]:        'li',
-    [ T.CASCADEH4LI ]:  'li',
-    [ T.CASCADEAH4LI ]: 'li',
+    [ T.XOLH4LI ]:      'li',
+    [ T.XOLAH4LI ]:     'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
     [ T.FIGIMGBOX ]:    'span',
 
@@ -443,7 +443,7 @@ const Children = {
      * @param {Element|String|[Node]} h4 标题元素或其内容，可选
      * @param {Element} data 子列表，可选
      */
-    [ T.CASCADEH4LI ]: function( ref, li, {h4}, data ) {
+    [ T.XOLH4LI ]: function( ref, li, {h4}, data ) {
         let _h4 = $.empty( li ),
             [_ol, _end] = appendChild(
                 ref,
@@ -464,7 +464,7 @@ const Children = {
      * @param {Element} h4a 链接标题元素（<h4/a>）
      * @param {Element} data 子列表（<ol>），可选
      */
-    [ T.CASCADEAH4LI ]: function( ref, li, {h4a}, data ) {
+    [ T.XOLAH4LI ]: function( ref, li, {h4a}, data ) {
         let [_ol, _end] = appendChild(
             ref,
             li,
@@ -1168,8 +1168,8 @@ const Builder = {
     [ T.CODELI,         ['value'] ],
     [ T.ALI,            ['value'] ],
     [ T.XH4LI,          ['value'] ],
-    [ T.CASCADEH4LI,    ['value'] ],
-    [ T.CASCADEAH4LI,   ['value'] ],
+    [ T.XOLH4LI,        ['value'] ],
+    [ T.XOLAH4LI,       ['value'] ],
     [ T.BLOCKQUOTE,     ['cite'] ],
     [ T.DETAILS,        ['open'] ],
     [ T.A,              ['href', 'target', 'title'] ],
@@ -1360,7 +1360,7 @@ const ConvBlocks = {
         }
         // 内容区取消了单击展开能力，故强制。
         opts.open = true;
-        return [ opts, $(_subs).clone() ];
+        return [ opts, _subs.map( cloneElement ) ];
     },
 };
 
@@ -1383,7 +1383,7 @@ const ConvBlocks = {
 .forEach(function( tv ) {
     ConvBlocks[ tv ] = function( el, opts = {} ) {
         opts.open = true;
-        return [ opts, $.children( el ).map( el => $.clone(el) ) ];
+        return [ opts, $.children( el ).map( cloneElement ) ];
     };
 });
 
@@ -1403,7 +1403,7 @@ const ConvLines = {};
 ]
 // @return [Object, Element]
 .forEach(function( tv ) {
-    ConvLines[ tv ] = (el, opts = {}) => [ (opts.open = true, opts), $.clone(el) ];
+    ConvLines[ tv ] = (el, opts = {}) => [ (opts.open = true, opts), cloneElement(el) ];
 });
 
 
@@ -1779,7 +1779,7 @@ function tocH4li( h2 ) {
         { href: h2.id ? `#${h2.id}` : null },
         h2.innerText
     );
-    return build( elem(T.CASCADEAH4LI), { h4a: [_a] }, elem(T.OL) );
+    return build( elem(T.XOLAH4LI), { h4a: [_a] }, elem(T.OL) );
 }
 
 

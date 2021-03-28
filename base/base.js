@@ -95,9 +95,9 @@ const CustomStruct = {
      * 多种列表项判断。
      * - CODELI: 代码表条目（li/code）：唯一子元素
      * - ALI: 目录表普通条目（li/a）：唯一子元素
-     * - XH4LI: 无序级联表项标题（li/h4, ol|ul）
-     * - CASCADEH4LI: 级联编号表项标题（li/h4, ol）
-     * - CASCADEAH4LI: 目录表标题条目（li/[h4/a], ol）
+     * - XH4LI: 级联表项标题（li/h4, ul）
+     * - XOLH4LI: 级联表有序标题项（li/h4, ol）
+     * - XOLAH4LI: 级联表有序链接标题项（li/[h4/a], ol）
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
@@ -107,7 +107,8 @@ const CustomStruct = {
         if ( el.childElementCount <= 1 ) {
             return _liChild( _sub, el.parentElement ) || T.LI;
         }
-        return el.childElementCount === 2 && _sub.tagName === 'H4' ? _liParent(el.parentElement, _sub) : T.LI;
+        // 已无需借助于父容器。
+        return el.childElementCount === 2 && _sub.tagName === 'H4' ? _liXList(_sub) : T.LI;
     },
 
 
@@ -132,10 +133,7 @@ const CustomStruct = {
      * @return {Number} 单元值
      */
     H4( el ) {
-        let _sub = el.firstElementChild;
-
-        return el.childElementCount === 1 && _sub.tagName === 'A' && $.siblingNodes(_sub).length === 0 ?
-            T.AH4 : T.H4
+        return _onlyChild( el, 'A' ) ? T.AH4 : T.H4;
     },
 
 
@@ -181,9 +179,9 @@ const StructVerify = {
      * 按约束严格性排序。
      * - CODELI: 代码表条目（li/code）：唯一子元素
      * - ALI: 目录表普通条目（li/a）：唯一子元素
-     * - CASCADEAH4LI: 目录表标题条目（li/[h4/a], ol）
-     * - CASCADEH4LI: 级联编号表项标题（li/h4, ol）
-     * - XH4LI: 无序级联表项标题（li/h4, ol|ul）
+     * - XOLAH4LI: 级联表有序链接标题项（li/[h4/a], ol）
+     * - XOLH4LI: 级联表有序标题项（li/h4, ol）
+     * - XH4LI: 无序级联表项标题（li/h4, ul）
      * - LI: 普通列表项（li/*）
      * @param  {Element} el 当前元素
      * @return {Boolean} 是否达标
@@ -200,32 +198,26 @@ const StructVerify = {
         },
 
         {
-            type: T.CASCADEAH4LI,
+            type: T.XOLAH4LI,
             check: function( el ) {
-                let _sub = el.firstElementChild,
-                    _nxt = el.lastElementChild;
-
-                return el.childElementCount === 2 && _sub.tagName === 'H4' && _onlyChild(_sub, 'A') && _nxt.tagName === 'OL';
+                let _sub = el.firstElementChild;
+                return el.childElementCount === 2 && _sub.tagName === 'H4' && _liXList(_sub) === T.XOLAH4LI;
             }
         },
 
         {
-            type: T.CASCADEH4LI,
+            type: T.XOLH4LI,
             check: function( el ) {
-                let _sub = el.firstElementChild,
-                    _nxt = el.lastElementChild;
-
-                return el.childElementCount === 2 && _sub.tagName === 'H4' && _nxt.tagName === 'OL';
+                let _sub = el.firstElementChild;
+                return el.childElementCount === 2 && _sub.tagName === 'H4' && _liXList(_sub) === T.XOLH4LI;
             }
         },
 
         {
             type: T.XH4LI,
             check: function( el ) {
-                let _sub = el.firstElementChild,
-                    _nxt = el.lastElementChild;
-
-                return el.childElementCount === 2 && _sub.tagName === 'H4' && ( _nxt.tagName === 'OL' || _nxt.tagName === 'UL' );
+                let _sub = el.firstElementChild;
+                return el.childElementCount === 2 && _sub.tagName === 'H4' && _liXList(_sub) === T.XH4LI;
             }
         },
 
@@ -395,18 +387,6 @@ function parseType( el ) {
 
 
 /**
- * 获取列表根元素。
- * 处理包含3种级联表类型。
- * @param  {Element} el 起点列表
- * @return {<ol>|<ul>}
- */
-function listRoot( el ) {
-    let _li = el.parentElement;
-    return _li.tagName !== 'LI' ? el : listRoot( _li.parentElement );
-}
-
-
-/**
  * 计算表格行逻辑列数。
  * @param  {Element} tr 表格行元素
  * @return {Number} 列数
@@ -507,6 +487,10 @@ function _typeNoit( ref, els ) {
 
 /**
  * 从列表项子元素判断取值。
+ * - 链接列表项（唯一子节点）。
+ * - 代码表项（唯一子节点且在合法容器内）。
+ * 注记：
+ * 需严格约束，避免与普通列表项内的混合文本相混淆。
  * @param  {Element} el 列表项子元素
  * @param  {Element} box 列表项容器元素
  * @return {Number}
@@ -523,29 +507,25 @@ function _liChild( el, box ) {
 
 
 /**
- * 从父元素判断列表项值。
- * - 无序级联表小标题
+ * 判断级联表的标题项。
+ * - 普通级联表小标题
  * - 有序级联表小标题
- * - 级联编号表小标题
- * - 级联编号表链接小标题
+ * - 有序级联表链接小标题
  * - 普通列表项（默认）
- * @param  {Element} el 列表元素
+ * 注记：
+ * 容错混合有文本节点的情况，因为混合文本本来就非法。
+ * 这可以在结构检查中被发现。
  * @param  {Element} h4 小标题元素
  * @return {Number}
  */
-function _liParent( el, h4 ) {
-    let _nxt = h4.nextElementSibling,
-        _tag = _nxt.tagName;
+function _liXList( h4 ) {
+    let _nxt = h4.nextElementSibling;
 
-    if ( _tag !== 'OL' && _tag !== 'UL' ) {
-        return T.LI;
-    }
-    switch ( name(listRoot(el)) ) {
-        case 'ULX':
-        case 'OLX':
+    switch ( _nxt.tagName ) {
+        case 'UL':
             return T.XH4LI;
-        case 'CASCADE':
-            return CustomStruct.H4( h4 ) === T.AH4 ? T.CASCADEAH4LI : T.CASCADEH4LI;
+        case 'OL':
+            return _onlyChild(h4, 'A') ? T.XOLAH4LI : T.XOLH4LI;
     }
     return T.LI;
 }
