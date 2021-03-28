@@ -2,7 +2,7 @@
 
 关联事件，获取各种值。值进入流程数据栈向后传递，数据入栈为 `Array.push` 方式，除了 `undefined` 外，每一个指令（方法）的返回值都会自动入栈。
 
-事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器定义在小括号内，如：`click(p[data-id="xxx"])` 中的 `p[data-id="xxx"]`。选择器串无需引号包围。可选的，我们可以在选择器串末尾附加一个 **捕获** 标记（`@true` 或 `@false`），用于 **明确指示** 后面的行为链绑定到事件流的捕获或冒泡阶段，如 `click(span@true)`。如果没有选择器，括号内可以只是标记本身，如：`click(@true)`。
+事件名可以用空格分隔多个名称同时指定，它们被绑定到同一个行为链。事件名可以是委托形式，选择器定义在小括号内，如：`click(p[data-id="xxx"])` 中的 `p[data-id="xxx"]`。选择器串无需引号包围。可选的，我们可以在选择器串末尾附加一个 **捕获** 标记（`!true` 或 `!false`），用于 **明确指示** 后面的行为链绑定到事件流的捕获或冒泡阶段，如 `click(span!true)`。如果没有选择器，括号内可以只是标记本身，如：`click(!true)`。
 
 > **附：**
 > 没有明确定义捕获标记时，绑定是智能的：
@@ -221,10 +221,10 @@ iskey(...ch:String|Number): Boolean
 // 判断是否为目标键位。
 
 chain( evnid:String, clone:Boolean ): Cell
-// 预绑定调用链提取（单个）。
+// 预存储调用链提取（单个）。
 
 chains( evnid:String, clone:Boolean ): Map<evnid:Cell>
-// 预绑定调用链提取。
+// 预存储调用链提取。
 
 timeOut( delay:Number|null, ...args ): timeoutID | void
 // 创建/清除计时器（单次：setTimeout）。

@@ -21,7 +21,7 @@ import { Templater } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
-import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState } from "./base.js";
+import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
 import * as T from "./types.js";  // ./base.js 之后
 import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
@@ -3091,18 +3091,44 @@ function htmlNodes( html ) {
 
 /**
  * 非法节点检查。
+ * 返回null表示没有非法节点，全部合法。
  * @param  {Element} box 父容器元素
- * @param  {[Node]} subs 待检查节点集
- * @return {[Node]} 非法节点集
+ * @param  {[Node]} nodes 待检查节点集
+ * @return {[Node]|void} 非法节点集
  */
-function wrongNodes( box, subs ) {
-    //
+function wrongNodes( box, nodes ) {
+    let _subs = T.childTypes( box ),
+        _buf = [];
+
+    for ( const nd of nodes ) {
+        if ( !checkStruct(nd, _subs) ) {
+            _buf.push( nd );
+        }
+    }
+    return _buf.length ? _buf : wrongNodesAll( nodes );
+}
+
+
+/**
+ * 非法节点批量检查。
+ * 文本节点作为容器被忽略。
+ * @param  {[Node]} els 目标节点集
+ * @return {[Node]|void}
+ */
+function wrongNodesAll( els ) {
+    for ( const box of els ) {
+        if ( box.nodeType !== 1 ) {
+            continue;
+        }
+        let _buf = wrongNodes( box, $.contents(box) );
+        if ( _buf ) return _buf;
+    }
 }
 
 
 /**
  * 提取节点信息。
- * - 元素返回其自身的outerHTML前段。
+ * - 元素返回其自身的outerHTML前段（无内容）。
  * - 文本节点返回文本值本身。
  * @param  {Node} node 目标节点
  * @return {String}
@@ -3111,7 +3137,7 @@ function nodeInfo( node ) {
     if ( node.nodeType === 3 ) {
         return node.textContent;
     }
-    return node.outerHTML.replace( RegExp(`</${node.tagName}>$`), '' );
+    return node.cloneNode().outerHTML.replace( RegExp(`</${node.tagName}>$`, 'i'), '' );
 }
 
 
@@ -6367,17 +6393,17 @@ export const Kit = {
 
     /**
      * 检查源码的HTML结构。
-     * 逐层检查，按广度优先遍历。
-     * 返回结构错误的元素的信息，无错时返回null。
-     * 注：一次仅返回一个层级。
+     * 按深度优先遍历，但一次返回一个兄弟层级内的非法节点。
+     * 最终无错时返回null。
      * @data: Element 容器元素
      * @return {[String]|null}
      */
     checkhtml( evo, html ) {
         let _frg = $.fragment( html ),
-            _bad = wrongNodes( evo.data, _frg.childNodes );
+            // $.contents()忽略空文本节点
+            _bad = wrongNodes( evo.data.parentElement, $.contents(_frg) );
 
-        return _bad && _bad.map( nodeInfo );
+        return _bad ? _bad.map( nodeInfo ) : null;
     },
 
     __checkhtml: 1,

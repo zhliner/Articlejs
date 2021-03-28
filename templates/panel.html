@@ -248,7 +248,7 @@
         <div class="_option"
             on="click(button)|v.sels item(0) $('form/textarea') val trim dup pass"
             by="Kit.checkhtml(_1) dup $if('err', 'ok')"
-            to="/pre|trigger('_1')">
+            to="/pre|trigger(_1)">
             <button on="click|avoid">结构检查</button>
             <!--反馈信息：
                 ok  结构正常。设置_ok类名、文本并取消聚焦能力。
@@ -263,8 +263,8 @@
                     focus|evo(3) full;
                     blur|evo(3) full(false);
                     keydown|evo(3) fulled pass ev('key') pass('Escape') stop $('form/textarea') focus"
-                to="|@tabindex text addClass;
-                    |text removeClass @tabindex"><!-- Good! --></pre>
+                to="|@tabindex @text addClass;
+                    |@text removeClass @tabindex"><!-- Good! --></pre>
         </div>
         <hr tpl-node="common:submit" />
     </aside>

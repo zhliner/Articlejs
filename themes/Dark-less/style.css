@@ -1441,6 +1441,9 @@ menu._cells code {
     cursor: default;
     outline: none;
 }
+.Source ._info[data-pbo=fulled] {
+    font-size: 14px;
+}
 .Source ._info._ok {
     color: #093;
     font-size: 14px;
