@@ -1168,27 +1168,20 @@
 </div>
 
 <div class="_body _Xh4li" obt-src="obts/sublist.json" tpl-name="input:xh4li"
-    on="node|ev('detail') wrap('<li>') $('/[name=box]') val wrapAll(_1) item(0) $('/[name=h4]') val obj('h4')"
+    on="node|ev('detail') wrap('<li>') wrapAll('<ul>') item(0) $('/[name=h4]') val obj('h4')"
     by="New.xh4li(_1)"
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
-            <input name="h4" type="text" placeholder="标题项内容" class="_scale" />
+            <input name="h4" type="text" placeholder="子表标题" class="_scale" />
         </header>
-        <textarea name="sublist" placeholder="子列表：空行分项"></textarea>
+        <textarea name="sublist" placeholder="无序子表：空行分项"></textarea>
     </div>
     <aside>
-        <div class="_option">
-            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
-            <hr />
-            <label title="<ol>"
-                on="click(input)|evo(2) prop('checked') $if('<ol>', '<ul>')"
-                to="/[name=box]|val">
-                <input type="checkbox">有序子列表
-                <input type="hidden" name="box" value="<ul>">
-            </label>
-        </div>
-        <hr tpl-node="input:insert2" title="[插入2]">
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
     </aside>
 </div>
 
@@ -1198,9 +1191,9 @@
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
-            <input name="h4" type="text" placeholder="标题项内容" class="_scale" />
+            <input name="h4" type="text" placeholder="子表标题" class="_scale" />
         </header>
-        <textarea name="sublist" placeholder="子列表：空行分项"></textarea>
+        <textarea name="sublist" placeholder="有序子表：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">

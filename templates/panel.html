@@ -235,9 +235,9 @@
         /textarea|trigger(_1)">
     <div class="_body _main">
         <!--状态切换
-            失效：设置PB:disabled，清空内容。
-            生效：移除PB:disalbed，填充发送来的源码。
-            注记：不赞成源码编辑，因此这里也不提供编辑友好性（如自动缩进）。 -->
+            失效：设置disabled，清空内容。
+            生效：移除disalbed，填充发送来的源码。
+            注记：源码编辑并不常见，因此暂不提供友好性（如自动缩进）。 -->
         <textarea name="html" spellcheck="false" class="_code"
             on="invalid|(true, null);
                 valid|ev('detail') item(0) v.cleanHTML (false)"
@@ -257,14 +257,14 @@
                 focus 获取焦点后即平铺最大化。
                 blur  失焦时取消平铺最大化。
                 keydown 平铺时按 ESC 键聚焦源码框（失焦--取消平铺），stop避免全局ESC执行。 -->
-            <pre class="_info" tabindex="0"
+            <pre class="_info"
                 on="ok|('_ok', 'Good!', null);
                     err|(0, '_ok') ev('detail') join('\n');
                     focus|evo(3) full;
                     blur|evo(3) full(false);
                     keydown|evo(3) fulled pass ev('key') pass('Escape') stop $('form/textarea') focus"
                 to="|@tabindex @text addClass;
-                    |@text removeClass @tabindex"><!-- Good! --></pre>
+                    |@text removeClass @tabindex">...</pre>
         </div>
         <hr tpl-node="common:submit" />
     </aside>

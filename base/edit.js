@@ -6378,13 +6378,13 @@ export const Kit = {
         if ( __ESet.size !== 1 || !evo.data.length ) {
             return;
         }
-        let _ref = first( __ESet ),
+        let _els = [...__ESet],
             _nodes = htmlNodes( evo.data );
 
         historyPush(
-            cleanHot( _ref, true ),
+            cleanHot( _els, true ),
             clearSets(),
-            new DOMEdit( () => $.replace(_ref, _nodes) )
+            new DOMEdit( () => $.replace(_els[0], _nodes) )
         );
     },
 

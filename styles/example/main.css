@@ -155,13 +155,15 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     position: absolute;
     top: 0;
     left: 0;
-    content: counters(numer, '.');
+    content: counters(numer, '.') ".";
     counter-increment: numer;
+    font-weight: bold;
     white-space: nowrap;
 }
 
 .content ol[role=cascade] li {
     position: relative;
+    padding-left: 4px;
 }
 
 /* 1. */

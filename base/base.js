@@ -352,18 +352,19 @@ function name( el ) {
 
 /**
  * 单元名称对应类型值。
+ * 注记：
+ * 所有未知类型返回null。
+ * 它不存在于任何单元的子单元类型集中，因此结构检查时可以被发现。
  * @param  {String} name 单元名
- * @return {Number}
+ * @return {Number|null}
  */
 function nameType( name ) {
     let _v = +T[ name ];
 
-    if ( isNaN(_v) ) {
-        // 注记：
-        // 可能用弹出框询问操作方式（允许|取消）。
-        throw new Error(`unsupported type: [${name}].`);
-    }
-    return _v;
+    // if ( isNaN(_v) ) {
+    //     throw new Error(`unsupported type: [${name}].`);
+    // }
+    return isNaN( _v ) ? null : _v;
 }
 
 
