@@ -4085,24 +4085,6 @@ export const Edit = {
 
 
     /**
-     * 取消焦点同级兄弟元素选取。
-     * 包括取消焦点元素的选取，但焦点不变。
-     */
-    cleanSiblings() {
-        let _el = __EHot.get();
-        if ( !_el ) return;
-
-        let _els = $.children( _el.parentElement )
-            .filter( el => __ESet.has(el) );
-
-        _els.length && historyPush( new ESEdit(__Selects.removes, _els) );
-
-        // 无聚焦行为，故必要。
-        covertTips( _el );
-    },
-
-
-    /**
      * 同态同类兄弟元素。
      * 焦点元素不变。
      */
@@ -4159,8 +4141,25 @@ export const Edit = {
 
 
     /**
+     * 取消焦点同级兄弟元素选取。
+     * 保留焦点元素的选取，若未选取则选取。
+     */
+    cleanSiblings() {
+        let _hot = __EHot.get();
+
+        if ( !_hot || __ESet.size === 1 && __ESet.has(_hot) ) {
+            return;
+        }
+        let _els = $.children( _hot.parentElement )
+            .filter( el => __ESet.has(el) );
+
+        historyPush( new ESEdit(__Selects.removes, _els), new ESEdit(selectOne, _hot, 'add') );
+    },
+
+
+    /**
      * 取消其它全部选取。
-     * 仅保留焦点元素（未选取则选取）。
+     * 仅保留焦点元素的选取，未选取则选取。
      */
     cleanOthers() {
         let _hot = __EHot.get();

@@ -234,14 +234,15 @@ Content: [
         "command":  "siblings"
     },
 
-    // 取消焦点所在兄弟元素选取
+    // 取消焦点同级兄弟元素选取。
+    // 保留或选取焦点元素本身。
     {
         "key":      ":q",
         "command":  "cleanSiblings"
     },
 
     // 取消全部已选取。
-    // 与ESC不同，此保留元素焦点。
+    // 保留或选取焦点元素本身。
     {
         "key":      "shift:q",
         "command":  "cleanOthers"
