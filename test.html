@@ -54,7 +54,7 @@
         import { Web } from "./base/tpb/config.js";
         import { HotKey, ObjKey } from './base/tpb/tools/hotkey.js';
         import { Edit, init, Kit } from "./base/edit.js";
-        import { ArrSet } from "./base/common.js";
+        import { ESCStack } from "./base/common.js";
         import { Sys } from "./config.js";
 
         window.GHK = new HotKey().config( cfg.Global );
@@ -70,7 +70,7 @@
         window.edInit = init;
 
         // 取消实例栈。
-        window.ESC = new ArrSet();
+        window.ESC = new ESCStack();
 
         Tpb.Build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
@@ -86,14 +86,12 @@
     - 左右面板大小改变。
     - 三个面板隐显切换（独立），当前显示面板隐显切换（panel.clearall）。
     - 命令行直达。
-    - 通用录入框充满（<textarea>）。
     ESC 原理:
-    1. ESC 键触发 escape.cancel 事件。
-    2. 全局 ESC 实例池弹出栈顶实例。
-    3. 向栈顶实例发送 cancel 事件。
+    1. ESC 键触发 escape.cancel 事件，获取全局ESC实例栈栈顶项。
+    2. 向栈顶实例发送 cancel 事件，该事件会引发该实例执行自身UI逻辑，并从栈内移除。
     注：
-    各实例需自行管理自身压入/弹出 ESC 池，
-    如果不弹出自身，会成为最终阻断项（常驻）。
+    各实例自行管理自身在全局ESC栈的压入和移除，不移除者会成为常驻项。
+    内容区的选取集取消会成为常驻项（栈底保留）。
 -->
 <body lang="zh-cn"
     on="@mousemove:1|movementX;
@@ -109,11 +107,11 @@
         cmdline.active|ev('detail');
         focus.content;
         toggle.path;
-        escape.cancel|(ESC) last pop;
+        escape.cancel|(ESC) call('top') pop;
         button.undo|ev('detail') vnot;
         button.redo|ev('detail') vnot;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
-        ^finish|(ESC) $('#content') apply('add', _1);
+        ^finish|(ESC) $('#content') apply('add', 'basic', _1);
         ^finish|(edInit) ('content,g-covert,main-slave,g-path,err-msg,outline,tools-usual,g-modal,g-contab') split(',') str('#') exec(_)"
     to="#outline|width(true);
         #help|width(true);
@@ -194,8 +192,8 @@
             focus 聚焦首个文本输入控件，延迟激发（待子模版就绪） -->
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
-                open|stop (ESC) evo(3) dup lose(0) apply('add', _1) ev('detail');
-                cancel|stop evo(3) lose (ESC) apply('pop');
+                open|stop (ESC) evo(3) dup lose(0) apply('add', 'modal', _1) ev('detail');
+                cancel|stop evo(3) lose (ESC) apply('del', 'modal');
                 focus|$('/form') pop $('input[type=text], textarea, input[type=url]') dup pass focus;
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel');

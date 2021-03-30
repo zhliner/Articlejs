@@ -252,19 +252,22 @@
             <button on="click|avoid">结构检查</button>
             <!--反馈信息：
                 ok  结构正常。设置_ok类名、文本并取消聚焦能力。
+                    3秒后隐藏文本，便于再次检查时反馈更清晰（不变的提示缺乏表达力）。
                 err 结构错误。设置提示文本、移除_ok类名、赋予聚焦能力。
                 错误时：
                 focus 获取焦点后即平铺最大化。
                 blur  失焦时取消平铺最大化。
-                keydown 平铺时按 ESC 键聚焦源码框（失焦--取消平铺），stop避免全局ESC执行。 -->
+                keydown 平铺时按 ESC 键聚焦源码框（失焦--取消平铺），stop避免全局ESC执行。
+                注：
+                信息封装在<i>内便于样式控制。 -->
             <pre class="_info"
-                on="ok|('_ok', 'Good!', null);
-                    err|(0, '_ok') ev('detail') join('\n');
+                on="ok|('_ok', '<i>Good!</i>', null);
+                    err|(0, '_ok') ev('detail') wrap('<i>') prop('outerHTML') join('\n');
                     focus|evo(3) full;
                     blur|evo(3) full(false);
                     keydown|evo(3) fulled pass ev('key') pass('Escape') stop $('form/textarea') focus"
-                to="|@tabindex @text addClass;
-                    |@text removeClass @tabindex">...</pre>
+                to="|@tabindex @html addClass|delay(3000) $('/i') hide;
+                    |@html removeClass @tabindex">...</pre>
         </div>
         <hr tpl-node="common:submit" />
     </aside>
@@ -281,12 +284,15 @@
         <div class="_main"
             on="^nodeok|(null)"
             to="/pre|@-tip">
-            <header>
-                <input type="text" name="prefix" spellcheck="false" placeholder="记忆前缀：script-" class="_prefix" />
-            </header>
             <hr tpl-node="prop:codes" />
         </div>
         <aside>
+            <!--脚本记录：
+                - 执行之后计入脚本历史。
+                - 提供历史条目的置顶和删除能力（简单复用和清理）。
+                - 普通段包含前缀 yyyy-mm-dd[n]: 便于浏览，置顶段可自定义标签。
+                功能：
+                - 非管理模式下，单击某一条记录，自动插入脚本框内光标处。 -->
             <div class="_cmds">
                 <b title="脚本历史"><i id="l-history"></i></b>
             </div>

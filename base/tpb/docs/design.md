@@ -195,9 +195,6 @@ stop( back?: Value ): back|void
 stopAll( back?: Value ): back|void
 // 停止事件冒泡并阻止本事件其它处理器的执行。
 
-sleep( ms:Number ): void
-// 执行流暂停。
-
 
 
 // 暂存区赋值。
@@ -256,8 +253,8 @@ vain( n: Number ): void
 // 需要this为指令单元（Cell），无预绑定。
 //-----------------------------------------------
 
-prune( n = 1, cnt = 1 ): void
-// 移除后端跟随指令。
+delay( ms:Number ): void
+// 执行流延迟并跳跃。
 
 jump( cn, dn ): void
 // 跳过后续cn个指令和dn条数据栈条目。

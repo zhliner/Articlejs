@@ -619,6 +619,7 @@ const _Next = {
      */
     fire( evo, rid, name, delay = 1, bubble = true, cancelable = true ) {
         let _to = _target( evo, rid, true );
+        // window.console.info( _to, name );
         Util.fireEvent( $(_to), name, delay, evo.data, bubble, cancelable );
     },
 

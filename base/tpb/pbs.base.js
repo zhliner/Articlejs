@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, PREVCELL, Globals, DEBUG, JUMPCELL } from "./config.js";
+import { bindMethod, EXTENT, ACCESS, Globals, DEBUG, JUMPCELL } from "./config.js";
 
 
 const
@@ -177,22 +177,6 @@ const _Control = {
     },
 
     __stopAll: -1,
-
-
-    /**
-     * 延迟跳跃。
-     * 这会让执行流的连续性中断，跳过当前的事件处理流。
-     * 这在摆脱事件流的连贯性时有用。
-     * @param  {Number} ms 延时毫秒数
-     * @return {void}
-     */
-    delay( evo, ms = 1 ) {
-        return new Promise(
-            resolve => window.setTimeout( resolve, ms )
-        );
-    },
-
-    __delay: null,
 
 
     /**
@@ -2072,44 +2056,34 @@ function n16c2( n ) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-const
-    // 剪除：跳过计数属性。
-    __PRUNE = Symbol('prune-count'),
+/**
+ * 延迟并跳跃。
+ * 这会让执行流的连续性中断，跳过当前的事件处理流。
+ * 这在摆脱事件流的连贯性时有用。
+ * 也可用于简单的延迟某些UI表达（如延迟隐藏）。
+ * 注记：
+ * 在当前指令单元（Cell）上暂存计数器。
+ * @param  {Number} ms 延时毫秒数
+ * @return {void}
+ */
+function delay( evo, ms = 1 ) {
+    return new Promise(
+        resolve => {
+            window.clearTimeout( this._delay );
+            this._delay = window.setTimeout( resolve, ms );
+        }
+    );
+}
 
+// delay[EXTENT] = null;
+
+
+const
     // 保护计数器。
     __propectLoop = [0, 0],
 
     // 保护上限值。
     __propectMax = 1 << 16;
-
-
-/**
- * 剪除后端跟随指令。
- * 目标：无。
- * 允许后端指令执行cnt次，之后再剪除衔接。
- * 可以指定移除的指令数量，-1表示后续全部指令，0表示当前指令（无意义）。
- * 非法的cnt值无效，取默认值1。
- * 注记：仅适用 On/By/To:Next 链段。
- * @param  {Number} n 移除的指令数，可选
- * @param  {Number} cnt 执行次数，可选
- * @return {void}
- */
-function prune( evo, n = 1, cnt = 1 ) {
-    if ( this[__PRUNE] === undefined ) {
-        this[__PRUNE] = cnt > 0 ? cnt : 1;
-    }
-    if ( --this[__PRUNE] > 0 ) {
-        return;
-    }
-    // 不影响当前继续
-    this.prev.next = lastCell( this.next, n );
-}
-
-// prune[EXTENT] = null;
-
-// 需要前阶指令。
-// 注：在指令解析时判断赋值。
-prune[PREVCELL] = true;
 
 
 /**
@@ -2167,10 +2141,11 @@ function entry( evo ) {
 /**
  * 循环保护。
  * 避免loop/effect指令执行时间过长。
+ * @param {Number} i 计数位置（0|1）
  * @param {String} msg 抛出的信息
  */
-function propectLoop( id, msg ) {
-    if ( __propectLoop[id]++ < __propectMax ) {
+function propectLoop( i, msg ) {
+    if ( __propectLoop[i]++ < __propectMax ) {
         return;
     }
     throw new Error( msg );
@@ -2218,7 +2193,7 @@ const Control = $.assign( {}, _Control, bindMethod );
 // 特殊控制。
 // 无预绑定处理。this:{Cell}
 //
-Control.prune = prune;
+Control.delay = delay;
 Control.jump  = jump;
 Control.entry = entry;
 Control.debug = debug;

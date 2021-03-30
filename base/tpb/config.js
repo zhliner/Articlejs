@@ -74,11 +74,8 @@ const
     // 指令属性：自动取栈数量
     EXTENT = Symbol( 'stack: want-items' ),
 
-    // 指令属性：特权方法（操作数据栈）
+    // 指令属性：需操作数据栈（特权）
     ACCESS = Symbol( 'stack: accessible' ),
-
-    // 前阶指令存储标记。
-    PREVCELL = Symbol( 'previous Cell' ),
 
     // jump指令标记。
     // 用于指令解析时判断赋值原始next。
@@ -329,7 +326,6 @@ export {
     OBTA,
     EXTENT,
     ACCESS,
-    PREVCELL,
     JUMPCELL,
     HEADCELL,
     bindMethod,

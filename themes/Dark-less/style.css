@@ -1450,6 +1450,12 @@ menu._cells code {
     font-weight: bold;
     padding-left: 12px;
 }
+.Source ._info > i {
+    font-style: normal;
+}
+.Source ._ok *[data-pbo~='hidden'] {
+    transition: all 3s 500ms;
+}
 
 
 /* [ 脚本 ]
@@ -1472,9 +1478,9 @@ menu._cells code {
     width: 70%;
 }
 .Script ._cmds > b {
-    width: 28px;
-    height: 28px;
-    border-radius: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
 }
 .Script ._cmds > b:hover {
     background-color: #e6e6e6;

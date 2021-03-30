@@ -17,8 +17,7 @@
 
 *[data-pbo] {
     opacity: 1;
-    transition-property: opacity;
-    transition-duration: 0.2s;
+    transition: opacity 0.2s, visibility 0;
 }
 
 
@@ -27,14 +26,14 @@
 
 /* 隐藏 */
 *[data-pbo~='hidden'] {
-    visibility: hidden !important;
     opacity: 0;
+    visibility: hidden !important;
 }
 
 /* 消失 */
 *[data-pbo~='lost'] {
-    display: none !important;
     opacity: 0;
+    display: none !important;
 }
 
 /* 冻结 */
@@ -50,16 +49,16 @@
  * 隐藏除首个子元素之外的子元素。
  */
 *[data-pbo~='folded'] > :first-child ~ * {
-    display: none !important;
     opacity: 0;
+    display: none !important;
 }
 
 /* 截断：
  * 隐藏后续兄弟元素。
  */
 *[data-pbo~='truncated'] ~ * {
-    display: none !important;
     opacity: 0;
+    display: none !important;
 }
 
 /* 充满容器：

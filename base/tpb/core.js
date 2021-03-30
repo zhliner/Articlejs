@@ -20,7 +20,7 @@
 
 import { Util } from "./tools/util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./tools/spliter.js";
-import { ACCESS, EXTENT, PREVCELL, JUMPCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
+import { ACCESS, EXTENT, JUMPCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
 
 
 const
@@ -743,7 +743,7 @@ class Cell {
         // this._rest;  // 补充模板实参数量
         // this._extra; // 初始启动传值
         // this._next;  // 原始.next（jump指令需要）
-        // this.prev;   // 前阶单元（prune指令需要）
+        // this._delay; // 计数器存储（delay指令需要）
 
         if (prev) prev.next = this;
     }
@@ -797,16 +797,6 @@ class Cell {
             this._rest = _rest;
         }
         return this;
-    }
-
-
-    /**
-     * 设置前阶指令单元。
-     * 注：仅极少数控制类指令需要（prune）。
-     * @param {Cell} cell 指令单元
-     */
-    setPrev( cell ) {
-        this.prev = cell;
     }
 
 
@@ -1024,8 +1014,6 @@ function empty() {}
 //
 // 通用调用定义解析。
 // 模板中指令/方法调用的配置解析存储。
-// 注记：
-// 仅调用类指令支持对链自身的控制（prune）。
 //
 class Call {
     /**
@@ -1047,11 +1035,10 @@ class Call {
 
     /**
      * 应用到指令集。
-     * 两个特别标记：
+     * 两个通用标记：
      * - [EXTENT] 自动取栈条目数
      * - [ACCESS] 可访问数据栈（特权）
-     * 需要检查处理前阶指令存储标记：
-     * - [PREVCELL] 极少数指令需要（目前仅prune）。
+     * 特殊指令标记：
      * - [JUMPCELL] jump专用标识。
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 指令集
@@ -1060,19 +1047,15 @@ class Call {
      */
     apply( cell, pbs, prev ) {
         let _f = methodSelf(this._meth, pbs);
-
         if ( !_f ) {
             throw new Error(`${this._meth} is not in pbs:calls.`);
-        }
-        if ( _f[PREVCELL] ) {
-            cell.setPrev( prev );
         }
         if ( _f[JUMPCELL] ) {
             // 初次标记自身。
             cell.setJUMP( true );
         }
-        // jump后阶指令赋值。
         if ( prev.setJUMP() ) {
+            // 已至jump后阶指令。
             prev.setJUMP( cell );
         }
         return cell.build( this._args, _f, _f[ACCESS], _f[EXTENT] );

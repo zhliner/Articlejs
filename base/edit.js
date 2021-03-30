@@ -5904,7 +5904,7 @@ export const Kit = {
      * @return {void}
      */
     ecancel() {
-        // 有选取则必有焦点，故仅检查焦点。
+        // 有选取则必有焦点，故仅需检查焦点。
         __EHot.get() &&
         historyPush( new HotEdit(null), new ESEdit(__Selects.empty) );
     },
@@ -5934,7 +5934,7 @@ export const Kit = {
      */
     chapter( evo ) {
         let _el = $.get( h2PathSelector(evo.data), $.get('article', contentElem) );
-        if ( _el ) $.intoView( _el, 2, 1 );
+        if ( _el ) $.intoView( _el, 1, 1 );
     },
 
     __chapter: 1,

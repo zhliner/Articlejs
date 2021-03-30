@@ -325,60 +325,43 @@ export class ECursor {
 
 
 //
-// 唯一成员集。
-// 实现几个基本的数组/集合方法。
-// 注记：可用于ESC逐层取消栈功能。
+// ESC取消逻辑栈。
+// 实现为Map结构，加入/推出时目标明确。
+// 注记：
+// 使用Set结构需要依赖于加入的顺序，如果样式中存在动画，容易影响到时间线。
+// 而Map结构中的移除由键标识，不受顺序影响。
 //
-export class ArrSet extends Set {
+export class ESCStack extends Map {
     /**
-     * 逐个入栈。
-     * 重复的值会被忽略。
-     * @param  {...Value} vals 值序列
-     * @return {Number} 栈大小
+     * 加入一项。
+     * @param  {String} key 目标键
+     * @param  {Value} val 目标对象
+     * @return {void}
      */
-    push( ...vals ) {
-        vals.forEach( v => super.add(v) );
-        return this.size;
+    add( key, val ) {
+        super.set( key, val );
     }
 
 
     /**
-     * 弹出末尾值。
-     * @return {Value}
+     * 删除一项。
+     * @param  {String} key 目标键
+     * @return {void}
      */
-    pop() {
-        let _v = this.last();
-        super.delete( _v );
-        return _v;
+    del( key ) {
+        super.delete( key );
     }
 
 
     /**
-     * 移除头部值。
-     * @return {Value}
+     * 获取栈顶值。
+     * 注：数据不弹出。
+     * @return {Value|null}
      */
-    shift() {
-        let _v = this.first();
-        super.delete( _v );
-        return _v;
-    }
-
-
-    /**
-     * 返回首个成员。
-     */
-    first() {
-        for (const it of this) return it;
-    }
-
-
-    /**
-     * 返回最后一个成员。
-     */
-    last() {
-        let it;
-        for ( it of this );
-        return it;
+    top() {
+        let _kv;
+        for ( _kv of this );
+        return _kv ? _kv[1] : null;
     }
 }
 
