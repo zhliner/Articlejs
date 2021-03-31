@@ -693,7 +693,7 @@ menu._cells code {
 }
 
 /* 子表折叠 */
-#outline nav[role=toc] li[data-pbo=folded] {
+#outline nav[role=toc] li[data-pbo~=folded] {
     background-color: #e8f2f2;
     border-radius: 4px 2em 0 0;
 }
@@ -703,7 +703,7 @@ menu._cells code {
     margin-right: 1em;
     color: green;
 }
-#outline nav[role=toc] li[data-pbo=folded] > h4::after {
+#outline nav[role=toc] li[data-pbo~=folded] > h4::after {
     content: '＋';
     color: #e9a279;
 }
@@ -1017,7 +1017,7 @@ menu._cells code {
 }
 
 /* 录入框填充 */
-.Slave textarea[data-pbo=fulled] {
+.Slave textarea[data-pbo~=fulled] {
     border-radius: 0;
     border-width: 1px 0 0;
     margin-top: 0 !important;
@@ -1441,7 +1441,7 @@ menu._cells code {
     cursor: default;
     outline: none;
 }
-.Source ._info[data-pbo=fulled] {
+.Source ._info[data-pbo~=fulled] {
     font-size: 14px;
 }
 .Source ._info._ok {
@@ -1461,15 +1461,35 @@ menu._cells code {
 /* [ 脚本 ]
  ****************************************************************************/
 .Script ._env {
-    min-width: 100px;
+    flex: 1 1 100px;
+    min-width: 120px;
+    max-width: 180px;
     flex-direction: column;
-    padding: 5px;
+    padding: 4px 14px 4px 5px;
 }
 .Script ._env > label {
     margin-bottom: 4px;
 }
-.Script ._env > label:last-child {
+.Script ._env > label._warn {
     color: #b30;
+}
+.Script ._env ._tips {
+    flex: 1 1 auto;
+    font-size: 12px;
+    padding: 4px 12px;
+    color: #777;
+    border: 1px #f80 solid;
+    border-radius: 12px;
+    margin-top: 5px;
+    line-height: 180%;
+    transition: color 0.7s;
+}
+.Script ._env ._tips[data-pbo~=hidden] {
+    color: transparent;
+}
+.Script ._env legend {
+    color: red;
+    padding: 0 4px;
 }
 .Script > ._body > ._main {
     flex: 5 5 450px;

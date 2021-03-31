@@ -276,9 +276,18 @@
 
 <!-- 脚本 -->
 <form class="Script" onsubmit="return false" tpl-name="slave:script">
-    <div class="_env">
-        <label><input type="radio" name="runbox" value="sandbox" checked />沙盒内</label>
-        <label><input type="radio" name="runbox" value="editor" />编辑器内</label>
+    <div class="_env"
+        on="click(input)|evo(2) attr('-v') bool $('/fieldset') pop hide(_1)">
+        <label>
+            <input type="radio" name="runbox" data-v="true" value="sandbox" checked />沙盒内执行
+        </label>
+        <label class="_warn">
+            <input type="radio" name="runbox" value="editor" />编辑器内运行
+        </label>
+        <fieldset class="_tips" data-pbo="hidden">
+            <legend>警告：</legend>
+            操作 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！
+        </fieldset>
     </div>
     <div class="_body">
         <div class="_main"
@@ -295,6 +304,7 @@
                 - 非管理模式下，单击某一条记录，自动插入脚本框内光标处。 -->
             <div class="_cmds">
                 <b title="脚本历史"><i id="l-history"></i></b>
+                <input type="hidden" name="tabs" value="4" />
             </div>
             <div class="_submit">
                 <button type="submit">运行</button>
