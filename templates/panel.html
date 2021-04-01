@@ -192,8 +192,12 @@
             <!-- ✚✛ -->
             <input type="button" value="✛" class="_add" />
         </div>
+        <!--特性清单：
+            - 支持多个选取的元素。
+            - 全部元素都拥有的特性条目设置_all类名，部分元素拥有的特性条目设置_part类名。
+            - 单击目标特性条目，值区域显示首个拥有该特性元素的该特性值。 -->
         <select name="attrs" size="5" class="_list" tpb-for>
-            <option _="$">style</option>
+            <option _class="$.type" _="$.name"></option>
         </select>
     </div>
     <div class="_body">
@@ -286,13 +290,11 @@
         </label>
         <fieldset class="_tips" data-pbo="hidden">
             <legend>警告：</legend>
-            操作 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！
+            <p>操作 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！</p>
         </fieldset>
     </div>
     <div class="_body">
-        <div class="_main"
-            on="^nodeok|(null)"
-            to="/pre|@-tip">
+        <div class="_main" on="^nodeok|(null)" to="/pre|@-tip">
             <hr tpl-node="prop:codes" />
         </div>
         <aside>
@@ -302,12 +304,14 @@
                 - 普通段包含前缀 yyyy-mm-dd[n]: 便于浏览，置顶段可自定义标签。
                 功能：
                 - 非管理模式下，单击某一条记录，自动插入脚本框内光标处。 -->
-            <div class="_cmds">
+            <div class="_cmds"
+                on="click(b)|node('script:history')"
+                to="#g-modal|trigger('open')">
                 <b title="脚本历史"><i id="l-history"></i></b>
                 <input type="hidden" name="tabs" value="4" />
             </div>
             <div class="_submit">
-                <button type="submit">运行</button>
+                <button type="submit">执行</button>
             </div>
         </aside>
     </div>
@@ -405,7 +409,8 @@
 </div>
 
 
-<!-- 模态页（通用） -->
+<!--模态页（通用）
+    注：可供插件开发调用。 -->
 <form class="_page" tpl-name="modal:page"
     on="submit|avoid">
     <header>
@@ -480,7 +485,7 @@
 </form>
 
 
-<!-- 模态页：脚本历史 -->
+<!-- 脚本历史 -->
 <form class="_page _history" tpl-name="script:history"
     on="submit|avoid">
     <header>
@@ -496,7 +501,7 @@
 </form>
 
 
-<!-- 模态页：脚本执行结果 -->
+<!-- 脚本执行结果 -->
 <form class="_page _result" tpl-name="script:result">
     <header>
         <h4>脚本执行结果</h4>
@@ -504,22 +509,22 @@
     </header>
     <ul>
         <li tpb-if="$.error">
-            错误：<i class="_error" _text="$.error"></i>
+            错误：<i class="_error" _="$.error"></i>
         </li>
         <li tpb-if="$.warn">
-            警告：<i class="_warn" _text="$.warn"></i>
+            警告：<i class="_warn" _="$.warn"></i>
         </li>
         <li title="RESULT.type">
-            操作类型：<b _text="$.type"></b>
+            操作类型：<b _="$.type"></b>
         </li>
         <li title="RESULT.to">
-            目标元素：<b _text="$.to"></b>
+            目标元素：<b _="$.to"></b>
         </li>
         <li title="RESULT.selector">
-            选择器：<b _text="$.selector"></b>
+            选择器：<b _="$.selector"></b>
         </li>
         <li title="RESULT.method">
-            插入方式：<b _text="$.method"></b>
+            插入方式：<b _="$.method"></b>
         </li>
         <li>结果数据：</li>
         <li title="RESULT.data" class="_data">

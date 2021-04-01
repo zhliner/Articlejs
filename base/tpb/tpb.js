@@ -9,7 +9,7 @@
 //  基础定义集。
 //
 //  Tpb {
-//      Build: {Function}   节点树OBT构建函数
+//      build: {Function}   节点树OBT构建函数
 //      Lib:   {Object}     用户库空间
 //  }
 //  动态扩展：
@@ -261,17 +261,18 @@ function orderList( vals ) {
 /**
  * OBT构建封装。
  * 可用于DOM节点树和可绑定事件的普通对象（如window）。
- * - 单纯传递 root 可用于页面中既有OBT构建（页面使用或效果测试）。
- * - 传递 conf 为 OBT 配置对象（必含on成员）可用于即时测试外部的OBT配置。
- * - 如果 root 中包含模板语法且需要引入外部子模版，则 conf 可以是配置文件路径或配置对象（{file:[node]}）。
+ * - 单纯传递 root 可用于页面中既有OBT构建。
+ * - 传递 conf 为 OBT 配置对象（必含on）可用于即时测试外部的OBT配置，
+ *   或构建无法直接定义OBT的对象（如Documet）。
+ * - 如果 root 中包含模板语法且需要引入外部子模版，则 conf 可以是配置文件路径或配置对象（{file:[node-name]}）。
  * 注意：
- * 如果conf为子模板配置对象，不应包含“on”文件名（否则视为OBT配置对象）。
- * 返回的承诺对象承诺了根元素内所有的处理逻辑。
+ * 如果conf为子模板配置对象，文件名应当包含扩展名（参考 templates/maps.json）。
+ * 返回的承诺对象承诺了根元素及其子模板内的所有构建。
  * @param  {Element|Document|Object} root 根容器或处理对象
  * @param  {String|Object3} conf 模板节点配置文件路径或配置对象，可选
  * @return {Promise<void>|root}
  */
-function Build( root, conf ) {
+function build( root, conf ) {
     if ( conf && conf.on ) {
         return __obter.build( root, conf );
     }
@@ -279,4 +280,4 @@ function Build( root, conf ) {
 }
 
 
-export default { Lib, Build };
+export default { Lib, build };

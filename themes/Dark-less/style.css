@@ -1463,7 +1463,7 @@ menu._cells code {
 .Script ._env {
     flex: 1 1 100px;
     min-width: 120px;
-    max-width: 180px;
+    max-width: 200px;
     flex-direction: column;
     padding: 4px 14px 4px 5px;
 }
@@ -1481,11 +1481,10 @@ menu._cells code {
     border: 1px #f80 solid;
     border-radius: 12px;
     margin-top: 5px;
-    line-height: 180%;
-    transition: color 0.7s;
+    transition: opacity 0.7s;
 }
-.Script ._env ._tips[data-pbo~=hidden] {
-    color: transparent;
+.Script ._env ._tips p {
+    line-height: 180%;
 }
 .Script ._env legend {
     color: red;
@@ -1696,15 +1695,43 @@ menu._cells code {
     overflow-y: auto;
 }
 
-/* 脚本历史/结果 */
-.Modal ._search ._icon {
-    background: transparent url('images/search.png') no-repeat;
-    width: 48px;
-    height: 22px;
-    border: 1px transparent solid;
-    background-size: 34px;
-    cursor: pointer;
+/* 脚本历史 */
+.Modal ._history main {
+    margin: 4px;
 }
+.Modal ._history ._bar {
+    display: flex;
+    border-bottom: 3px gray double;
+    padding: 5px;
+}
+.Modal ._history ._bar b {
+    width: 28px;
+    height: 28px;
+    font-size: 1.8em;
+    font-weight: bold;
+    border: 1px gray solid;
+    border-radius: 14px;
+    margin: 0 10px;
+}
+.Modal ._history ._bar b:first-of-type {
+    margin-left: auto;
+}
+.Modal ._history hr {
+    margin: 1em 2px;
+}
+.Modal ._history table {
+    width: 90%;
+    margin: 10px auto;
+    border-collapse: collapse;
+}
+.Modal ._search button {
+    background: transparent url('images/search.png') no-repeat;
+    width: 44px;
+    height: 24px;
+    border: 1px transparent solid;
+    background-size: 44px;
+}
+
 /* 脚本运行结果 */
 .Modal ul li._data {
     overflow-y: auto;

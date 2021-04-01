@@ -1622,6 +1622,7 @@ const _Process = {
      * 目标：暂存区/栈顶1项。
      * 注：
      * 无返回值，用于目标对象的设置类操作。
+     * @data: Object
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
      * @return {void}
@@ -1641,6 +1642,7 @@ const _Process = {
      * 数组成员会被展开传入，因此实参可能需要预先封装（二维）。
      * 注：
      * 无返回值，用于目标对象的批量设置。
+     * @data: Object
      * @param  {String} meth 方法名
      * @param  {...[Value]} args 实参组
      * @return {void}

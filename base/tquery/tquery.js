@@ -2209,6 +2209,8 @@ Object.assign( tQuery, {
      * 注意：
      * - handle如果是EventListener实例，方法.handleEvent()中的this为该实例自身。
      * - handle如果是普通函数，函数内的this没有特殊含义（并不指向ev.currentTarget）。
+     * - 目标元素el泛指可绑定事件处理（.addEventListener()）的节点或其它对象，
+     *   包含普通元素、文本节点、Document和Window对象等。
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象

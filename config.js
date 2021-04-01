@@ -31,6 +31,8 @@ const
         popupGapTop:    10,
         popupGapRight:  3,
 
+        // 置顶脚本数量限制。
+        scripts:        999,
     },
 
 

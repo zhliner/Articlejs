@@ -34,18 +34,18 @@
             <hr>
         </span>
         <!--撤销：
-            press 按下并设置是否可继续：
-                  true不可继续，false可继续。同时会激活Redo。-->
+            press 执行状态设置：true不可继续，false可继续。同时会激活Redo。
+            注记：出于简化，用apply指令直接调用（而非by）。-->
         <b id="tools-undo" title="撤消〔u〕" data-pbo="disabled"
             on="press|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (Kit) call('undo');
+                click|evo(3) disabled end (Kit) apply('undo');
                 enable|evo(1) disable(0)"
             to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
         <!--重做：
             press 同上。同时会激活Undo。-->
         <b id="tools-redo" title="重做〔r〕" data-pbo="disabled"
             on="press|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (Kit) call('redo');
+                click|evo(3) disabled end (Kit) apply('redo');
                 enable|evo(1) disable(0)"
             to="#tools-undo|trigger('enable')"><i id="b-redo"></i></b>
     </div>
@@ -746,6 +746,7 @@
     input.submit  直接快捷提交，保持录入框焦点。
     input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
     input.full    文本录入和表格录入最大化平铺。
+    keydown(~textarea, ._code) 友好支持ESC键取消最大化平铺。stop阻止上级ESC栈功能。
     注：
     (~form) 限定是必要的，否则更深子单元（如<select>）的nodeok冒泡会带来死循环。
     tabindex 使保存键（Ctrl+s）随时有效。 -->
@@ -760,7 +761,8 @@
         input.submit2(~th, td)|evo(2) pop $('._list/') full(false);
         input.full(~textarea, ._code)|evo(2) full(2);
         input.full(~th, td)|evo(2) pop $('._list/') full(2);
-        keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop"
+        keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop;
+        keydown(~textarea, ._code)|evo(2) dup fulled pass ev('key') pass('Escape') stop full(false)"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');

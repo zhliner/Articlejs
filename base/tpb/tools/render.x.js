@@ -45,4 +45,14 @@ function update( root ) {
 }
 
 
-export const Render = { parse, clone, update };
+/**
+ * 提取渲染文法配置。
+ * @param  {Element} el 目标元素
+ * @return {Map}
+ */
+function get( el ) {
+    return el && new Map();
+}
+
+
+export const Render = { parse, clone, update, get };

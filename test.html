@@ -72,7 +72,7 @@
         // 取消实例栈。
         window.ESC = new ESCStack();
 
-        Tpb.Build( document, Web.tplmap )
+        Tpb.build( document, Web.tplmap )
         .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug

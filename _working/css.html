@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../themes/Dark-less/style.css">
     <link rel="stylesheet" href="../styles/example/main.css">
     <script src="../base/tquery/tquery.js"></script>
+    <script src="../base/tquery/plugins/history.js"></script>
     <style>
         body > div {
             width: 820px;
@@ -29,9 +30,6 @@
         .panel > .Slave {
             flex: 1 0 auto;
         }
-        .panel.styles {
-            /* display: none; */
-        }
         .Style ._color ._pick {
             background-color: #48cf75;
         }
@@ -40,11 +38,12 @@
             left: 340px;
         }
     </style>
-    <script type="module" async>
+    <script type="module">
         import Tpb from "../base/tpb/tpb.js";
+        import { Kit } from "../base/edit.js";
         window.Tpb = Tpb;
-        window.ESC = new Set();
-        Tpb.Build( editor );
+        window.Kit = Kit;
+        Tpb.build( editor );
     </script>
 </head>
 
@@ -52,56 +51,65 @@
     <div id="editor">
 
 <!-- 模态框：屏蔽层 -->
-<div id="g-modal" class="___Panel Modal" data-pbo="lost"
+<div id="g-modal" class="___Panel Modal" data-pbo=""
     on="click(~._close)|evo(3) lose">
-    <form class="_usual" on="submit|avoid">
+    <form class="_page _history" on="submit|avoid">
         <header>
-            <h4>[标题]</h4>
+            <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
         </header>
-        <p id="modal-note" class="_note" data-pbo="">
-            [这里是当前属性的一些必要说明或提示。]
-        </p>
-        <div class="_list" data-pbo="">
-            <ul class="_prop" tpl-name="inlines:img">
-                <li tpl-name="prop:srcbase">
-                    <b>根路径</b>
-                    <!-- 依配置自动设置 -->
-                    <span><input type="url" name="srcbase" placeholder="/upload" /></span>
-                </li>
-                <li tpl-name="prop:src">
-                    <b>数据源</b>
-                    <span><input type="text" name="source" placeholder="src=..." /></span>
-                </li>
-                <li tpl-name="prop:alt">
-                    <b>图片说明</b>
-                    <span><input type="text" name="alts" placeholder="alt=..." /></span>
-                </li>
-                <li class="_upload" tpl-name="prop:upload">
-                    <b>上传</b>
-                    <span><input type="file" name="upload" value="" @on="change|evo(3) val" @by="x.Fun.upload(null)" />
-                    </span>
-                </li>
-                <li tpl-name="prop:preview">
-                    <b>预览</b>
-                    <span class="_preview">
-                        <!-- img|video|audio --></span>
-                </li>
-                <li tpl-name="prop:wh">
-                    <b>宽/高度</b>
-                    <span>
-                        <input type="text" name="width" title="width" class="_nums" />
-                        x
-                        <input type="text" name="height" title="height" class="_nums" />
-                        像素
-                    </span>
-                </li>
-            </ul>
-        </div>
-        <div class="_submit">
-            <button type="submit">确定</button>
-            <button type="reset">重置</button>
-        </div>
+        <main>
+            <div class="_bar">
+                <label>置顶</label>
+                <!--撤销：成功后会激活Redo。-->
+                <b id="sh-undo" title="撤消" data-pbo="disabled"
+                    on="press|evo(1) ev('detail') disable(_1);
+                        click|evo(3) disabled end (Kit) call('shUndo');
+                        enable|evo(1) disable(0)"
+                    to="#sh-redo|trigger('enable')">↶</b>
+                <!--重做：成功后会激活Undo。-->
+                <b id="sh-redo" title="重做" data-pbo="disabled"
+                    on="press|evo(1) ev('detail') disable(_1);
+                        click|evo(3) disabled end (Kit) call('shRedo');
+                        enable|evo(1) disable(0)"
+                    to="#sh-undo|trigger('enable')">↷</b>
+            </div>
+            <!-- 置顶代码片段 -->
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>标签</th>
+                        <td>代码</td>
+                        <td>管理</td>
+                    </tr>
+                </thead>
+                <tbody tpb-for>
+                    <tr>
+                        <td> [标签：单击编辑，失焦确认] </td>
+                        <td> [代码：单击提取至脚本输入框] </td>
+                        <td> [删除] </td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr>
+            <!-- 普通代码清单 -->
+            <table border="1">
+                <tbody class="_search">
+                    <tr>
+                        <!-- change|blur,select：避免历史遮挡 -->
+                        <td colspan="2"><input type="text" name="word" class="_text" /></td>
+                        <td><button type="submit"></button></td>
+                    </tr>
+                </tbody>
+                <tbody tpb-for>
+                    <tr>
+                        <th _="$.SIZE - $.INDEX"> [逆序号] </th>
+                        <td _="$.code"> [代码] </td>
+                        <td _="$.datetime"> [时间戳] </td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
     </form>
 </div>
 

@@ -242,6 +242,7 @@ const _Gets = {
      * 调用目标的方法。
      * 目标：暂存区/栈顶1项。
      * 目标是一个调用方法的宿主（数组作为单个对象看待）。
+     * @data: Object
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
      * @return {Value} 方法调用的返回值
@@ -254,9 +255,13 @@ const _Gets = {
 
 
     /**
-     * 调用目标的方法（集合）。
+     * 调用多个目标的方法。
      * 目标：暂存区/栈顶1项。
      * 目标需要是一个数组或支持.map方法的对象。
+     * 注记：
+     * - applies: 单一目标对象上，以不同实参作多次调用，无返回值。
+     * - calls:   以同一方法和实参对多个对象进行调用，收集返回值。
+     * @data: [Object]
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
      * @return {[Value]} 全部调用的返回值集

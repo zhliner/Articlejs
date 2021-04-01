@@ -131,8 +131,12 @@ const
     // 仅用于内容元素的微编辑。
     __eCursor = new ECursor(),
 
-    // DOM节点变化历史实例。
-    __TQHistory = new $.Fx.History();
+    // 内容区DOM节点变化历史实例。
+    __EDHistory = new $.Fx.History(),
+
+    // 脚本历史编辑历史栈。
+    // 针对脚本历史模态页内置顶的代码片段删减。
+    __SHHistory = new $.Fx.History();
 
 
 
@@ -145,11 +149,13 @@ class History {
     /**
      * 构造一个编辑实例。
      * @param {Number} size 编辑历史长度
+     * @param {$.Fx.History} history DOM编辑历史栈
      */
-    constructor( size ) {
+    constructor( size, history ) {
         this._max = size;
         this._buf = [];
         this._idx = -1;  // 游标
+        this._hist = history;
     }
 
 
@@ -238,7 +244,7 @@ class History {
         let _obj = this._buf.shift();
         this._idx--;
 
-        _obj.forEach( o => o.count && __TQHistory.prune(o.count) );
+        _obj.forEach( o => o.count && this._hist.prune(o.count) );
     }
 }
 
@@ -246,7 +252,7 @@ class History {
 //
 // 节点编辑类。
 // 封装用户的单次DOM编辑（可能牵涉多个节点变化）。
-// 实际上为操作全局的 __TQHistory 实例。
+// 直接操作全局的 __EDHistory 对象以避免每个实例存储该对象。
 // 注记：
 // 用户需要配置 tQuery:config() 启用节点变化事件通知机制。
 //
@@ -271,7 +277,7 @@ class DOMEdit {
      */
     undo() {
         if ( this.count > 0 ) {
-            __TQHistory.back( this.count );
+            __EDHistory.back( this.count );
         }
     }
 
@@ -280,10 +286,52 @@ class DOMEdit {
      * 重做。
      */
     redo() {
-        let _old = __TQHistory.size();
+        let _old = __EDHistory.size();
 
         this._fun( ...this._vals );
-        this.count = __TQHistory.size() - _old;
+        this.count = __EDHistory.size() - _old;
+    }
+}
+
+
+//
+// 脚本历史编辑类。
+// 封装单次的DOM编辑（可能牵涉多个节点变化）。
+// 直接操作全局的 __SHHistory 对象以避免每个实例存储该对象。
+//
+class SHEdit {
+    /**
+     * 构造一个编辑实例。
+     * @param {Function} handle 操作函数
+     * @param {...Value} args 实参序列
+     */
+    constructor( handle, ...args ) {
+        this._fun = handle;
+        this._vals = args;
+        this.count = null;
+
+        this.redo();
+    }
+
+
+    /**
+     * 撤销。
+     */
+    undo() {
+        if ( this.count > 0 ) {
+            __SHHistory.back( this.count );
+        }
+    }
+
+
+    /**
+     * 重做。
+     */
+    redo() {
+        let _old = __SHHistory.size();
+
+        this._fun( ...this._vals );
+        this.count = __SHHistory.size() - _old;
     }
 }
 
@@ -1214,7 +1262,10 @@ const
     __Edits = new NodeVary(),
 
     // 编辑器操作历史。
-    __History = new History( Limit.history );
+    __History = new History( Limit.history, __EDHistory ),
+
+    // 脚本历史置顶管理器。
+    __SHManager = new History( Limit.scripts, __SHHistory );
 
 
 let
@@ -3877,7 +3928,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         varyevent: true,
         // bindevent: true
     });
-    $.on( contentElem, varyEvents, null, __TQHistory );
+    $.on( contentElem, varyEvents, null, __EDHistory );
 
 
     // 内容数据初始处理。
@@ -5188,29 +5239,7 @@ export const Edit = {
 // 仅供模板中在调用链上使用。
 //
 export const Kit = {
-
-    //-- 功能调用 ------------------------------------------------------------
-
-    /**
-     * 撤销：工具栏按钮。
-     * @return {void}
-     */
-    undo() {
-        Edit.editUndo();
-    },
-
-
-    /**
-     * 重做：工具栏按钮。
-     * @return {void}
-     */
-    redo() {
-        Edit.editRedo();
-    },
-
-
     //-- On 扩展 -------------------------------------------------------------
-
 
     /**
      * 获取选取集。
@@ -5895,6 +5924,40 @@ export const Kit = {
     //-- By 扩展 -------------------------------------------------------------
 
     /**
+     * 撤销：工具栏按钮。
+     * @return {void}
+     */
+    undo() {
+        Edit.editUndo();
+    },
+
+
+    /**
+     * 重做：工具栏按钮。
+     * @return {void}
+     */
+    redo() {
+        Edit.editRedo();
+    },
+
+
+    /**
+     * 脚本历史编辑撤销。
+     */
+    shUndo() {
+        //
+    },
+
+
+    /**
+     * 脚本历史编辑重做。
+     */
+    shRedo() {
+        //
+    },
+
+
+    /**
      * 选取集取消。
      * ESC键取消操作（最底层）。
      * 会同时取消元素焦点。
@@ -6433,6 +6496,10 @@ processExtend( 'Ed', Edit, [
 // By: 综合工具集。
 //
 processExtend( 'Kit', Kit, [
+    'undo',
+    'redo',
+    'shUndo',
+    'shRedo',
     'ecancel',
     'errmsg',
     'chapter',
