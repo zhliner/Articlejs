@@ -1702,19 +1702,26 @@ menu._cells code {
 .Modal ._history ._bar {
     display: flex;
     border-bottom: 3px gray double;
-    padding: 5px;
+    padding: 6px 20px;
+}
+.Modal ._history ._bar label {
+    font-size: 1.1em;
+    font-weight: bold;
 }
 .Modal ._history ._bar b {
-    width: 28px;
-    height: 28px;
-    font-size: 1.8em;
+    width: 24px;
+    height: 24px;
+    font-size: 1.5em;
     font-weight: bold;
     border: 1px gray solid;
     border-radius: 14px;
-    margin: 0 10px;
+    margin-right: 18px;
 }
 .Modal ._history ._bar b:first-of-type {
     margin-left: auto;
+}
+.Modal ._history ._bar button {
+    margin-left: 12px;
 }
 .Modal ._history hr {
     margin: 1em 2px;

@@ -60,55 +60,43 @@
         </header>
         <main>
             <div class="_bar">
-                <label>置顶</label>
+                <label>置顶区</label>
                 <!--撤销：成功后会激活Redo。-->
                 <b id="sh-undo" title="撤消" data-pbo="disabled"
-                    on="press|evo(1) ev('detail') disable(_1);
+                    on="state|evo(1) ev('detail') disable(_1);
                         click|evo(3) disabled end (Kit) call('shUndo');
                         enable|evo(1) disable(0)"
                     to="#sh-redo|trigger('enable')">↶</b>
                 <!--重做：成功后会激活Undo。-->
                 <b id="sh-redo" title="重做" data-pbo="disabled"
-                    on="press|evo(1) ev('detail') disable(_1);
+                    on="state|evo(1) ev('detail') disable(_1);
                         click|evo(3) disabled end (Kit) call('shRedo');
                         enable|evo(1) disable(0)"
                     to="#sh-undo|trigger('enable')">↷</b>
+                <button>管理</button>
             </div>
-            <!-- 置顶代码片段 -->
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>标签</th>
-                        <td>代码</td>
-                        <td>管理</td>
-                    </tr>
-                </thead>
-                <tbody tpb-for>
-                    <tr>
-                        <td> [标签：单击编辑，失焦确认] </td>
-                        <td> [代码：单击提取至脚本输入框] </td>
-                        <td> [删除] </td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- 置顶区代码清单 -->
+            <ol id="sh-top" tpb-for>
+                <li _data-time="$.datetime">
+                    <label _="$.name">标签：单击编辑，失焦确认</label>
+                    <code _="$.code">代码：单击即提取确认</code>
+                    <time _="$.datetime">时间戳|删除按钮（切换）</time>
+                </li>
+            </ol>
+            <div class="_search">
+                <input type="text" name="word" placeholder="空格：AND； 逗号：OR" />
+                <button type="submit"></button>
+            </div>
+            <!-- 分隔：拖动调整上下区域高度 -->
             <hr>
             <!-- 普通代码清单 -->
-            <table border="1">
-                <tbody class="_search">
-                    <tr>
-                        <!-- change|blur,select：避免历史遮挡 -->
-                        <td colspan="2"><input type="text" name="word" class="_text" /></td>
-                        <td><button type="submit"></button></td>
-                    </tr>
-                </tbody>
-                <tbody tpb-for>
-                    <tr>
-                        <th _="$.SIZE - $.INDEX"> [逆序号] </th>
-                        <td _="$.code"> [代码] </td>
-                        <td _="$.datetime"> [时间戳] </td>
-                    </tr>
-                </tbody>
-            </table>
+            <ol reversed tpb-for>
+                <li>
+                    <code _="$.code">[代码]</code>
+                    <time _="$.datetime">[时间戳]</time>
+                    <b title="置顶"><i id="b-fixtop"></i></b>
+                </li>
+            </ol>
         </main>
     </form>
 </div>
