@@ -10,7 +10,7 @@
  *
  *****************************************************************************/
 
- /* 按钮 */
+ /* 按钮类 */
 i[id|=b] {
     display: inline-block;
     width: 22px;
@@ -20,7 +20,7 @@ i[id|=b] {
     background-size: 300px 450px;
 }
 
-/* 标签 */
+/* 标签类 */
 i[id|=l] {
     display: inline-block;
     width: 16px;

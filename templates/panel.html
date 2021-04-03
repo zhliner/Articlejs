@@ -492,12 +492,65 @@
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <div class="_search">
-        <!-- change|blur,select：避免历史遮挡 -->
-        <input type="text" name="word" class="_text" placeholder="标记词" />
-        <button type="submit">过滤</button>
-    </div>
-    <ol reversed tpb-for><li><code _="$"></code></li></ol>
+    <main>
+        <div class="_top">
+            <div class="_bar">
+                <label>置顶区</label>
+                <!--撤销：成功后会激活Redo。-->
+                <b id="sh-undo" title="撤消" data-pbo=""
+                    on="state|evo(1) ev('detail') disable(_1);
+                        click|evo(3) disabled end (Kit) call('shUndo');
+                        enable|evo(1) disable(0)"
+                    to="#sh-redo|trigger('enable')">↶</b>
+                <!--重做：成功后会激活Undo。-->
+                <b id="sh-redo" title="重做" data-pbo="disabled"
+                    on="state|evo(1) ev('detail') disable(_1);
+                        click|evo(3) disabled end (Kit) call('shRedo');
+                        enable|evo(1) disable(0)"
+                    to="#sh-undo|trigger('enable')">↷</b>
+                <button>管理</button>
+            </div>
+            <!-- 置顶区代码清单 -->
+            <ul id="sh-top" class="_list" tpb-for>
+                <li _data-time="$.datetime">
+                    <label _="$.name">标签：单击编辑</label>
+                    <code _="$.code">代码：单击提取并导入脚本录入框。</code>
+                    <time _="$.datetime">时间戳</time>
+                </li>
+                <li _data-time="$.datetime">
+                    <label _="$.name">标签：单击编辑</label>
+                    <code _="$.code">代码：单击提取并导入脚本录入框。</code>
+                    <b>删除</b>
+                </li>
+            </ul>
+        </div>
+        <hr> <!-- 拖动调整上区高度 -->
+        <div class="_search">
+            <input type="text" name="word" placeholder="空格：AND； 逗号：OR" />
+            <button type="submit"></button>
+        </div>
+        <!-- 搜索结果清单 -->
+        <ol id="sh-list" reversed class="_list" tpb-for>
+            <li>
+                <label _="$.SIZE - $.INDEX">[逆序号]</label>
+                <code _="$.code">[代码]</code>
+                <time _="$.datetime">[时间戳]</time>
+                <b title="置顶"><i></i></b>
+            </li>
+            <li>
+                <label _="$.SIZE - $.INDEX">[逆序号]</label>
+                <code _="$.code">[代码]</code>
+                <time _="$.datetime">[时间戳]</time>
+                <b title="置顶"><i></i></b>
+            </li>
+            <li>
+                <label _="$.SIZE - $.INDEX">[逆序号]</label>
+                <code _="$.code">[代码]</code>
+                <time _="$.datetime">[时间戳]</time>
+                <b title="置顶"><i></i></b>
+            </li>
+        </ol>
+    </main>
 </form>
 
 
