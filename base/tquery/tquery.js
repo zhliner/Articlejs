@@ -7779,8 +7779,6 @@ const Event = {
     /**
      * 委托目标匹配。
      * 只返回最深的匹配元素（含target），因此事件处理最多一次。
-     * 委托匹配测试包含绑定元素自身。
-     *
      * 仅匹配一次的理由：
      * 1. 解除与标签结构的紧密相关性，上层标签修改不会无意中触发多次调用。
      * 2. 在节点树上沿路径连串触发事件处理不是一个常见场景。
@@ -7788,7 +7786,9 @@ const Event = {
      * 注：
      * 事件处理器的第二个实参对象中包含了委托元素和选择器，
      * 如果必要，处理器可以自行向上检索匹配元素并激发事件或直接处理。
-     *
+     * 注记：
+     * 委托匹配测试不含绑定元素自身，这在限定子级匹配时很有用。
+     * 委托匹配自身并不是一个常见需求，或许你此时需要的可能是独立前缀（~）选择器。
      * @param  {Event} ev 原生事件对象
      * @param  {String} slr 选择器
      * @return {Element|null} 匹配元素
@@ -7834,7 +7834,7 @@ function targetElem( box, el, slr ) {
 
 /**
  * 向上检测委托匹配。
- * 专用于委托绑定时，向上递进到委托容器时止。
+ * 专用于委托绑定时，向上递进测试直到委托容器（不含）。
  * @param  {Element} box 容器元素
  * @param  {Element} beg 起点元素
  * @param  {String} slr 选择器串（已合法）
@@ -7845,8 +7845,7 @@ function delegateClosest( box, beg, slr ) {
         if ( $is(beg, slr) ) return beg;
         beg = beg.parentNode;
     }
-    // 包含容器自身匹配
-    return $is( beg, slr ) ? beg : null;
+    return null;
 }
 
 
