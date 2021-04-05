@@ -6777,7 +6777,7 @@ const
     propFix = {
         'for':              'htmlFor',
         'class':            'className',
-        // 部分常见，仅简单驼峰式。
+        // 仅部分常见的，简单驼峰变换。
         'tabindex':          'tabIndex',
         'readonly':          'readOnly',
         'maxlength':         'maxLength',
