@@ -53,12 +53,54 @@
 <!-- 模态框：屏蔽层 -->
 <div id="g-modal" class="___Panel Modal" data-pbo=""
     on="click(~._close)|evo(3) lose">
-    <form class="_page _history" on="submit|avoid">
+    <form class="_page _script" tpl-name="script:result" data-pbo="">
+        <header>
+            <h4>脚本执行结果</h4>
+            <b class="_close" title="关闭">✕</b>
+        </header>
+        <!--单击可编辑：
+            - 方便即时微调后使用。
+            - 如果只是简单需要结果文本，便于全选。-->
+        <main class="_result"
+            on="click(~pre)|evo(2) hasClass('_err') end (true);
+                blur(~pre)|(false)"
+            to="=|$contentEditable|fire(10, 'focus');
+                =|$contentEditable">
+            <pre class="_err" _="$.data">
+<label>错误：</label>this is a error massage.
+</pre>
+            <fieldset>
+                <legend>插入选项</legend>
+                <span class="_type">
+                    <i>类型：</i>
+                    <label title="text"><input type="radio" name="type" value="text" checked />文本</label>
+                    <label title="html"><input type="radio" name="type" value="html" />节点</label>
+                </span>
+                <span class="_where">
+                    <i>位置：</i>
+                    <select name="where">
+                        <option title="内部填充">fill</option>
+                        <option title="替换目标">replace</option>
+                        <option title="内部末尾">append</option>
+                        <option title="内部前端">prepend</option>
+                        <option title="目标之前">before</option>
+                        <option title="目标之后">after</option>
+                    </select>
+                </span>
+            </fieldset>
+        </main>
+        <div class="_btn2" tpl-name="modal:okcancel">
+            <button type="submit">确定</button>
+            <button type="button">取消</button>
+        </div>
+    </form>
+
+    <form class="_page _script" on="submit|avoid" data-pbo="lost">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
         </header>
-        <main>
+        <main class="_history">
             <div class="_top">
                 <div class="_bar">
                     <label>置顶区</label>

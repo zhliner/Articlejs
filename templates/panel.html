@@ -485,14 +485,14 @@
 </form>
 
 
-<!-- 脚本历史 -->
-<form class="_page _history" tpl-name="script:history"
+<!-- 脚本：历史记录 -->
+<form class="_page _script" tpl-name="script:history"
     on="submit|avoid">
     <header>
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <main>
+    <main class="_history">
         <div class="_top">
             <div class="_bar">
                 <label>置顶区</label>
@@ -554,34 +554,41 @@
 </form>
 
 
-<!-- 脚本执行结果 -->
-<form class="_page _result" tpl-name="script:result">
+<!-- 脚本：执行结果 -->
+<form class="_page _script" tpl-name="script:result">
     <header>
         <h4>脚本执行结果</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <ul>
-        <li tpb-if="$.error">
-            错误：<i class="_error" _="$.error"></i>
-        </li>
-        <li tpb-if="$.warn">
-            警告：<i class="_warn" _="$.warn"></i>
-        </li>
-        <li title="RESULT.type">
-            操作类型：<b _="$.type"></b>
-        </li>
-        <li title="RESULT.to">
-            目标元素：<b _="$.to"></b>
-        </li>
-        <li title="RESULT.selector">
-            选择器：<b _="$.selector"></b>
-        </li>
-        <li title="RESULT.method">
-            插入方式：<b _="$.method"></b>
-        </li>
-        <li>结果数据：</li>
-        <li title="RESULT.data" class="_data">
-            <div _html="$.data"></div>
-        </li>
-    </ul>
+    <!--单击可编辑：
+        - 方便即时微调后使用。
+        - 如果只是简单需要结果文本，便于全选。-->
+    <main class="_result"
+        on="click(~pre)|evo(2) hasClass('_err') end (true);
+            blur(~pre)|(false)"
+        to="=|$contentEditable|fire(10, 'focus');
+            =|$contentEditable">
+        <pre class="_err" _="$.data">
+<label>错误：</label>this is a error massage. </pre>
+        <fieldset>
+            <legend>插入选项</legend>
+            <span class="_type">
+                <i>类型：</i>
+                <label title="text"><input type="radio" name="type" value="text" checked />文本</label>
+                <label title="html"><input type="radio" name="type" value="html" />节点</label>
+            </span>
+            <span class="_where">
+                <i>位置：</i>
+                <select name="where">
+                    <option title="内部填充">fill</option>
+                    <option title="替换目标">replace</option>
+                    <option title="内部末尾">append</option>
+                    <option title="内部前端">prepend</option>
+                    <option title="目标之前">before</option>
+                    <option title="目标之后">after</option>
+                </select>
+            </span>
+        </fieldset>
+    </main>
+    <hr tpl-node="modal:okcancel" />
 </form>
