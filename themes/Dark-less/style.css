@@ -1773,48 +1773,57 @@ menu._cells code {
     cursor: pointer;
 }
 .Modal ._history ._list {
-    display: grid;
-    gap: 1px 0;
     font-size: 12px;
     margin: 1em 1.6em;
-    padding: 5px;
+    padding: 2px;
     border-radius: 4px;
     border-color: #aaa;
 }
 .Modal ._history ._list > li {
-    display: contents;
+    display: flex;
+    margin: 1px 0;
+    min-height: 22px;
+    border-bottom: 1px #36a8ca dashed;
+    padding: 2px 0 3px;
 }
-.Modal ._history ul._list {
-    grid-template-columns: 120px auto 100px;
+.Modal ._history ._list > li:last-child {
+    border-width: 0;
 }
-.Modal ._history ul._list b {
-    border: 1px #ccc solid;
-    border-radius: 3px;
-    margin: 1px 20px;
-    color: red;
+.Modal ._history ._list > li > * {
+    white-space: nowrap;
+    margin: auto 3px;
 }
-.Modal ._history ul._list b:hover {
-    background-color: #f6f6f6;
+.Modal ._history ._list label {
+    background-color: #f9f9f9;
 }
-.Modal ._history ol._list {
-    grid-template-columns: 5em auto 100px 50px;
+.Modal ._history ._list code {
+    white-space: normal;
+    flex: 1 1 auto;
 }
-.Modal ._history ol._list b {
-    padding: 3px;
+.Modal ._history ._list b {
+    margin: 0 3px;
+    padding: 1px 8px;
     border: 1px transparent solid;
-    border-radius: 4px;
-    margin: 0 7px;
+    border-radius: 3px;
 }
-.Modal ._history ol._list b:hover {
+.Modal ._history ._list b:hover {
     border-color: #9ec2e7;
     background-color: #f0f9ff;
 }
-.Modal ._history ol._list i {
+.Modal ._history ._list i {
     display: inline-block;
     width: 14px;
     height: 14px;
     background: url('images/top.png') no-repeat;
     background-size: 14px;
+}
+/* 删除按钮 */
+.Modal ._history ._list b:last-child {
+    border-color: #ccc;
+    color: red;
+}
+.Modal ._history ._list b:last-child:hover {
+    background-color: #f6f6f6;
 }
 
 /* 脚本：结果

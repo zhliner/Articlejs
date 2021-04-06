@@ -493,7 +493,8 @@ const _Control = {
      * val非空时为设置，否则为取值入栈。
      * val传递null可清除name项的值。
      * 传递name为null，可清除整个Storage存储（谨慎）。
-     * 注：存储的值会被转换为字符串。
+     * 注意：
+     * 存储的值会被自动转换为字符串。
      * @param  {String} name 存储键名
      * @param  {Value} val 存储值，可选
      * @return {Value|void}
@@ -1890,7 +1891,8 @@ function randoms(n, max) {
 
 /**
  * 本地存储（sessionStorage|localStorage）。
- * 设置null值为清除目标值。
+ * 值传递null会清除目标值。
+ * 名称传递null会清除全部存储！
  * @param  {Storage} buf 存储器
  * @param  {String|null} name 存储键
  * @param  {Value|null} val 存储值

@@ -53,7 +53,7 @@
 <!-- 模态框：屏蔽层 -->
 <div id="g-modal" class="___Panel Modal" data-pbo=""
     on="click(~._close)|evo(3) lose">
-    <form class="_page _script" tpl-name="script:result" data-pbo="">
+    <form class="_page _script" tpl-name="script:result" data-pbo="lost">
         <header>
             <h4>脚本执行结果</h4>
             <b class="_close" title="关闭">✕</b>
@@ -95,7 +95,7 @@
         </div>
     </form>
 
-    <form class="_page _script" on="submit|avoid" data-pbo="lost">
+    <form class="_page _script" on="submit|avoid" data-pbo="">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
@@ -116,7 +116,9 @@
                             click|evo(3) disabled end (Kit) call('shRedo');
                             enable|evo(1) disable(0)"
                         to="#sh-undo|trigger('enable')">↷</b>
-                    <button>管理</button>
+                    <button
+                        on="click|$$('main/li>b') lose(2) (['管理', '完成'])"
+                        to="|toggleAttr('text')">完成</button>
                 </div>
                 <!-- 置顶区代码清单 -->
                 <ul id="sh-top" class="_list" tpb-for>
@@ -124,10 +126,14 @@
                         <label _="$.name">标签：单击编辑</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
+                        <b title="置顶"><i></i></b>
+                        <b>删除</b>
                     </li>
                     <li _data-time="$.datetime">
                         <label _="$.name">标签：单击编辑</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
+                        <time _="$.datetime">时间戳</time>
+                        <b title="置顶"><i></i></b>
                         <b>删除</b>
                     </li>
                 </ul>
@@ -145,18 +151,21 @@
                     <code _="$.code">[代码]</code>
                     <time _="$.datetime">[时间戳]</time>
                     <b title="置顶"><i></i></b>
+                    <b>删除</b>
                 </li>
                 <li>
                     <label _="$.SIZE - $.INDEX">[逆序号]</label>
                     <code _="$.code">[代码]</code>
                     <time _="$.datetime">[时间戳]</time>
                     <b title="置顶"><i></i></b>
+                    <b>删除</b>
                 </li>
                 <li>
                     <label _="$.SIZE - $.INDEX">[逆序号]</label>
                     <code _="$.code">[代码]</code>
                     <time _="$.datetime">[时间戳]</time>
                     <b title="置顶"><i></i></b>
+                    <b>删除</b>
                 </li>
             </ol>
         </main>

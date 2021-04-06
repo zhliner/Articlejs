@@ -296,14 +296,16 @@ class DOMEdit {
 
 //
 // 脚本历史编辑类。
-// 封装单次的DOM编辑（可能牵涉多个节点变化）。
+// 包括界面中DOM条目和本地存储的移除和恢复。
 // 直接操作全局的 __SHHistory 对象以避免每个实例存储该对象。
+// 注记：
+// 目前暂时仅支持localStorage存储。
 //
 class SHEdit {
     /**
      * 构造一个编辑实例。
      * @param {Function} handle 操作函数
-     * @param {...Value} args 实参序列
+     * @param {String} shid 脚本存储ID
      */
     constructor( handle, ...args ) {
         this._fun = handle;
@@ -5239,6 +5241,49 @@ export const Edit = {
 // 仅供模板中在调用链上使用。
 //
 export const Kit = {
+
+    //-- 普通工具 ------------------------------------------------------------
+    // 注记：在On中通过call或apply指令调用。
+
+    /**
+     * 撤销：工具栏按钮。
+     * @return {void}
+     */
+    undo() {
+        Edit.editUndo();
+    },
+
+
+    /**
+     * 重做：工具栏按钮。
+     * @return {void}
+     */
+    redo() {
+        Edit.editRedo();
+    },
+
+
+    /**
+     * 脚本历史编辑撤销。
+     * @return {Boolean} 是否可以再撤销
+     */
+    shUndo() {
+        __SHManager.undo();
+        return __SHManager.canUndo();
+    },
+
+
+    /**
+     * 脚本历史编辑重做。
+     * @return {Boolean} 是否可以再重做
+     */
+    shRedo() {
+        __SHManager.redo();
+        return __SHManager.canRedo();
+    },
+
+
+
     //-- On 扩展 -------------------------------------------------------------
 
     /**
@@ -5924,40 +5969,6 @@ export const Kit = {
     //-- By 扩展 -------------------------------------------------------------
 
     /**
-     * 撤销：工具栏按钮。
-     * @return {void}
-     */
-    undo() {
-        Edit.editUndo();
-    },
-
-
-    /**
-     * 重做：工具栏按钮。
-     * @return {void}
-     */
-    redo() {
-        Edit.editRedo();
-    },
-
-
-    /**
-     * 脚本历史编辑撤销。
-     */
-    shUndo() {
-        //
-    },
-
-
-    /**
-     * 脚本历史编辑重做。
-     */
-    shRedo() {
-        //
-    },
-
-
-    /**
      * 选取集取消。
      * ESC键取消操作（最底层）。
      * 会同时取消元素焦点。
@@ -6469,6 +6480,18 @@ export const Kit = {
     },
 
     __checkhtml: 1,
+
+
+    /**
+     * 删除脚本历史条目。
+     * @data: String|[String] 条目ID（集）
+     * @return {void}
+     */
+    delsh( evo ) {
+        //
+    },
+
+    __delsh: 1,
 
 };
 
