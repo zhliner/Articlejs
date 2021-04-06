@@ -1821,7 +1821,7 @@ Object.assign( tQuery, {
      * 剪取特性。
      * 取出特性值的同时移除该特性。
      * name支持空格分隔的多个名称，此时返回 名:值 对象（保留特性名）。
-     * 注：不包含text和html特殊名。
+     * 注：名称text和html不具有特殊含义。
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名/序列
      * @return {Value|Object} 特性值或值集
@@ -1889,6 +1889,7 @@ Object.assign( tQuery, {
      * 删除特性（集）。
      * - 支持空格分隔的名称序列，以及data-系名称的简写。
      * - 支持返回名称序列的取值函数，接口：function(el): String
+     * 注：名称text和html不具有特殊含义。
      * @param  {Element} el 目标元素
      * @param  {String|Function} name 名称/序列
      * @return {Element} el
@@ -1906,9 +1907,10 @@ Object.assign( tQuery, {
 
     /**
      * 切换目标特性值。
-     * 如果val是一个数组，就在前两个成员间切换。
-     * 如果val只是一个值，就在值有无间切换（val|''）。
-     * 如果val未定义或为null，则在属性有无间切换。
+     * name同样支持text和html两个特殊特性名。
+     * - 如果val是一个数组，就在前两个成员间切换。
+     * - 如果val只是一个值，就在值有无间切换（val|''）。
+     * - 如果val未定义或为null，则在属性有无间切换。
      * 注：
      * 数组形式时以val[0]为对比目标，并不检查val[1]值。
      * @param  {Element} el 目标元素
@@ -1918,12 +1920,12 @@ Object.assign( tQuery, {
      */
     toggleAttr( el, name, val ) {
         name = attrName( name );
-        let _old = elemAttr.get( el, name );
+        let _old = customGet( el, name, elemAttr );
 
         if ( isFunc(val) ) {
             val = val( _old, el );
         }
-        elemAttr.set( el, name, toggleValue( val, _old ) );
+        customSet( el, name, toggleValue(val, _old), elemAttr );
 
         return el;
     },
@@ -5371,13 +5373,13 @@ function hookGets( el, names, scope ) {
  * @param {Object} scope 适用域对象
  */
 function customGet( el, name, scope ) {
-    switch (name) {
+    switch ( name ) {
         case 'text':
             return el.textContent;
         case 'html':
             return el.innerHTML;
     }
-    return scope.get(el, name);
+    return scope.get( el, name );
 }
 
 

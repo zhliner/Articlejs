@@ -1198,9 +1198,9 @@ elo: {
 ```
 
 > **注：**<br>
-> 实现 `EventListener` 接口是指对象中包含 `.handleEvent()` 方法的实现。<br>
-> `EventListener` 处理器内的 `this` 为该对象自身。函数处理器内的 `this` 没有特别含义（并不指向 `elo.current`）。<br>
-> 作为特例，支持 `slr` 前置 `~` 字符表示选择器仅测试事件起点元素（`event.target`），单独的一个 `~` 表示起点必须是绑定元素自身。<br>
+> 实现 `EventListener` 接口是指对象中包含 `.handleEvent()` 方法，其中的 `this` 为该对象自身。函数处理器内的 `this` 没有特别含义（并不指向 `elo.current`）。<br>
+> 委托选择器 `slr` 并不包含绑定事件元素自身的匹配，仅限于测试内部的子孙元素。这在限定匹配目标仅为内部元素时很有用（选择器为 `*`）。<br>
+> 作为特例，支持 `slr` 前置 `~` 字符表示选择器仅测试事件起点元素（`event.target`），此时可以匹配委托元素自身（如果它就是 `event.target` 的话）。单独的一个 `~` 表示起点必须是委托元素。<br>
 
 
 ### [$.one( el, evn, slr, handle, cap? ): this](docs/$.one.md)
