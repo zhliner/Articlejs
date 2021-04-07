@@ -41,7 +41,7 @@
 *[data-pbo~='disabled']:hover,
 *[data-pbo~='disabled'] *,
 *[data-pbo~='disabled']:hover * {
-    color: #abc !important;
+    color: #aaa !important;
     filter: grayscale(1) !important;
 }
 

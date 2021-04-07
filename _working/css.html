@@ -116,9 +116,9 @@
                             click|evo(3) disabled end (Kit) call('shRedo');
                             enable|evo(1) disable(0)"
                         to="#sh-undo|trigger('enable')">↷</b>
-                    <button
-                        on="click|$$('main/li>b') lose(2) (['管理', '完成'])"
-                        to="|toggleAttr('text')">完成</button>
+                    <button class="_edit"
+                        on="click|$$('main/li>b') lose(2) ('_edit') (['管理', '完成'])"
+                        to="|^text toggleClass">完成</button>
                 </div>
                 <!-- 置顶区代码清单 -->
                 <ul id="sh-top" class="_list" tpb-for>
@@ -126,17 +126,23 @@
                         <label _="$.name">标签：单击编辑</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
-                        <b title="置顶"><i></i></b>
+                        <b title="取消置顶"><i></i></b>
                         <b>删除</b>
                     </li>
                     <li _data-time="$.datetime">
                         <label _="$.name">标签：单击编辑</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
-                        <b title="置顶"><i></i></b>
+                        <b title="取消置顶"><i></i></b>
                         <b>删除</b>
                     </li>
                 </ul>
+                <nav>
+                    <b data-pbo="disabled"><i id="l-tobeg"></i></b>
+                    <b data-pbo="disabled"><i id="l-prevpage"></i></b>
+                    <b data-pbo="disabled"><i id="l-nextpage"></i></b>
+                    <b data-pbo="disabled"><i id="l-toend"></i></b>
+                </nav>
             </div>
             <!-- 分隔：拖动调整上下区域高度 -->
             <hr>
@@ -168,6 +174,12 @@
                     <b>删除</b>
                 </li>
             </ol>
+            <nav>
+                <b data-pbo="disabled"><i id="l-tobeg"></i></b>
+                <b data-pbo="disabled"><i id="l-prevpage"></i></b>
+                <b><i id="l-nextpage"></i></b>
+                <b><i id="l-toend"></i></b>
+            </nav>
         </main>
     </form>
 </div>

@@ -144,6 +144,22 @@ const _Update = {
 
 
     /**
+     * 特性值切换。
+     * 支持text/html两个特殊属性名（tQuery）。
+     * @param {Element|Collector} to 目标元素（集）
+     * @param {Value} val 特性值
+     * @param {String} name 特性名
+     * @param {Boolean} ignore 对比是否忽略大小写
+     */
+    toggleAttr( to, val, name, ignore) {
+        if ( $.isArray(to) ) {
+            return $(to).toggleAttr( name, val, ignore );
+        }
+        $.toggleAttr( to, name, val, ignore );
+    },
+
+
+    /**
      * 集合包裹。
      * 注：tos视为一个整体作为待插入的内容。
      * @param  {Element|Collector} to 检索目标
@@ -423,7 +439,6 @@ const _Update = {
     'property',
     'css',
     'cssSets',
-    'toggleAttr',
 ]
 .forEach(function( meth ) {
     /**

@@ -518,8 +518,8 @@
             -->
             <ul id="sh-top" class="_list" tpb-for
                 on="click(b)|evo(1) parent dup attr('-id')"
-                by="Kit.delsh pop"
-                to="-|remove|fire('#sh-list', 'clean')">
+                by="Kit.delsh remove"
+                to="-||fire('#sh-list', 'clean')">
 
                 <li _data-time="$.datetime" _data-id="$.shid">
                     <label _="$.name">标签：单击编辑</label>
@@ -541,8 +541,7 @@
         <!--搜索结果清单
             clean 跟随置顶删除动作，移除结果清单中的相同条目（如果有）。 -->
         <ol id="sh-list" reversed class="_list" tpb-for
-            on="clean|ev('detail') slr('/li', '-id', _1) $(_1) dup pass pop"
-            to="-|remove">
+            on="clean|ev('detail') slr('/li', '-id', _1) $(_1) dup pass remove">
             <li _data-id="$.shid">
                 <label _="$.SIZE - $.INDEX">[逆序号]</label>
                 <code _="$.code">[代码]</code>

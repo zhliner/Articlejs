@@ -6545,6 +6545,7 @@ processExtend( 'Kit', Kit, [
     'codelang',
     'htmlupdate',
     'checkhtml',
+    'delsh',
 ]);
 
 
