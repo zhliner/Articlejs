@@ -944,13 +944,14 @@ option: {
 > 不支持特殊的特性名 `html` 和 `text`。
 
 
-### $.toggleAttr( el, name, val ): Element
+### $.toggleAttr( el, name, val, i ): Element
 
-在 `el` 元素上切换 `name` 特性的值。
+在 `el` 元素上切换 `name` 特性的值。支持两个特殊特性名 `text` 和 `html` 分别表示操作元素的内部文本（`textContent`）和源码（`innerHTML`）。
 
 - `el: Element` 目标元素。
 - `name: String` 目标特性，仅支持单个名称。
 - `val: Value | [Value] | Function | null` 切换对比值（对）或取值回调，可选。
+- `i: Boolean` 相等比较是否忽略大小写。
 
 如果 `val` 为简单值（非数组和非 `null`），目标特性值为有无切换（相等则为空，为空则设置）。`val` 可以是一个二元数组，其 `val[0]` 成员用于对比，`val[1]` 用于候选：如果原值与 `val[0]` 相等则设置为 `val[1]`，否则设置为 `val[0]` 自身。如果 `val` 未定义或为 `null`，则为特性名自身的有无切换。
 

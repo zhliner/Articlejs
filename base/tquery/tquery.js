@@ -1913,19 +1913,21 @@ Object.assign( tQuery, {
      * - 如果val未定义或为null，则在属性有无间切换。
      * 注：
      * 数组形式时以val[0]为对比目标，并不检查val[1]值。
+     * 如果指示忽略大小写，值必须是字符串。
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名（单个）
      * @param  {Value|Array2|Function|null} val 切换值获取值回调，可选
+     * @param  {Boolean} i 相等比较忽略大小写，可选
      * @return {Element} el
      */
-    toggleAttr( el, name, val ) {
+    toggleAttr( el, name, val, i ) {
         name = attrName( name );
         let _old = customGet( el, name, elemAttr );
 
         if ( isFunc(val) ) {
             val = val( _old, el );
         }
-        customSet( el, name, toggleValue(val, _old), elemAttr );
+        customSet( el, name, toggleValue(val, _old, i), elemAttr );
 
         return el;
     },
@@ -5387,17 +5389,32 @@ function customGet( el, name, scope ) {
  * 获取切换值。
  * 如果val为数组，则在[0-1]单元间切换（以[0]为对比目标）。
  * 如果val为普通的值，则在有无间切换（val|''）。
- * @param {Value|[Value]} val 值（集）
- * @param {Value} old 原来的值
+ * @param  {Value|[Value]} val 值（集）
+ * @param  {Value} old 原来的值
+ * @param  {Boolean} i 相等比较忽略大小写
+ * @return {Value|null}
  */
-function toggleValue( val, old ) {
+function toggleValue( val, old, i ) {
     if ( val == null ) {
         return old == null ? '' : null;
     }
     if ( isArr(val) ) {
-        return old == val[0] ? val[1] : val[0];
+        return equalValue(old, val[0], i) ? val[1] : val[0];
     }
-    return val == old ? '' : val;
+    return equalValue(val, old, i) ? '' : val;
+}
+
+
+/**
+ * 是否为相等的值。
+ * 如果忽略大小写，值必须是字符串。
+ * @param  {Value} v1 对比值1
+ * @param  {Value} v2 对比值2
+ * @param  {Boolean} i 是否忽略大小写
+ * @return {Boolean}
+ */
+function equalValue( v1, v2, i ) {
+    return i ? v1.toLowerCase() === v2.toLowerCase() : v1 == v2;
 }
 
 
