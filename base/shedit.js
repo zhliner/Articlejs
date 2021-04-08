@@ -75,21 +75,22 @@ class SHDel {
 //
 // 换页编辑操作。
 // 换页作为一个独立的DOM变化来记录。
+// 当前页次记录在容器元素的 data-page 特性上。
 // 注记：
-// 当前页可能已经被编辑（删除条目），故需更新页集缓存器。
+// 当前页可能已经被编辑（删除条目），故需更新页条目缓存器。
+// 支持跳转到任意有效页次。
 //
 class PageEdit {
     /**
      * @param {PageBuf} buf 页集缓存实例
      * @param {Element} box 条目容器
      * @param {[Element]} els 新页条目集
-     * @param {Number} n 当前页次（从0开始）
+     * @param {Number} n 目标页次（从0开始）
      */
     constructor( buf, box, els, n ) {
         this._buf = buf;
         this._box = box;
         this._els = els;
-        this._old = $.children( box );
         this._idx = n;
         // 外部只读
         this.count = null;
@@ -100,25 +101,39 @@ class PageEdit {
 
     /**
      * 撤销。
+     * 撤销前的新页面缓存保持。
      */
     undo() {
         if ( this.count > 0 ) {
             __TQHistory.back( this.count );
         }
-        this._buf.update( this._idx, this._old );
+        this._buf.update( this._idx, this._els );
     }
 
 
     /**
      * 重做。
+     * 换页前页面的信息缓存保持。
      */
     redo() {
+        this._save( this._buf, this._box );
+
         let _old = __TQHistory.size();
 
         $.fill( this._box, this._els );
-        this._buf.update( this._idx+1, this._els );
+        $.attr( this._box, '-page', this._idx );
 
         this.count = __TQHistory.size() - _old;
+    }
+
+
+    /**
+     * 当前页信息保存。
+     * @param {PageBuf} buf 页缓存器
+     * @param {Element} box 条目容器
+     */
+    _save( buf, box ) {
+        buf.update( $.attr(box, '-page'), $.children(box) );
     }
 }
 
