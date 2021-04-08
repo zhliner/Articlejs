@@ -105,43 +105,45 @@
                 <div class="_bar">
                     <label>置顶区</label>
                     <!--撤销：成功后会激活Redo。-->
-                    <b id="sh-undo" title="撤消" data-pbo=""
-                        on="state|evo(1) ev('detail') disable(_1);
-                            click|evo(3) disabled end (Kit) call('shUndo');
-                            enable|evo(1) disable(0)"
-                        to="#sh-redo|trigger('enable')">↶</b>
-                    <!--重做：成功后会激活Undo。-->
-                    <b id="sh-redo" title="重做" data-pbo="disabled"
-                        on="state|evo(1) ev('detail') disable(_1);
-                            click|evo(3) disabled end (Kit) call('shRedo');
-                            enable|evo(1) disable(0)"
-                        to="#sh-undo|trigger('enable')">↷</b>
+                    <span>
+                        <b id="sh-undo" title="撤消" data-pbo=""
+                            on="state|evo(1) ev('detail') disable(_1);
+                                click|evo(3) disabled end (Kit) call('shUndo');
+                                enable|evo(1) disable(0)"
+                            to="#sh-redo|trigger('enable')">↶</b>
+                        <!--重做：成功后会激活Undo。-->
+                        <b id="sh-redo" title="重做" data-pbo="disabled"
+                            on="state|evo(1) ev('detail') disable(_1);
+                                click|evo(3) disabled end (Kit) call('shRedo');
+                                enable|evo(1) disable(0)"
+                            to="#sh-undo|trigger('enable')">↷</b>
+                    </span>
                     <button class="_edit"
                         on="click|$$('main/li>b') lose(2) ('_edit') (['管理', '完成'])"
                         to="|^text toggleClass">完成</button>
                 </div>
                 <!-- 置顶区代码清单 -->
                 <ul id="sh-top" class="_list" tpb-for>
-                    <li _data-time="$.datetime">
+                    <li _data-sid="$.shid">
                         <label _="$.name">标签：单击编辑</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
-                        <b title="取消置顶"><i></i></b>
-                        <b>删除</b>
+                        <b role="untop" title="取消置顶"><i></i></b>
+                        <b role="del">删除</b>
                     </li>
-                    <li _data-time="$.datetime">
+                    <li _data-sid="$.shid">
                         <label _="$.name">标签：单击编辑</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
-                        <b title="取消置顶"><i></i></b>
-                        <b>删除</b>
+                        <b role="untop" title="取消置顶"><i></i></b>
+                        <b role="del">删除</b>
                     </li>
                 </ul>
                 <nav>
-                    <b data-pbo="disabled"><i id="l-tobeg"></i></b>
-                    <b data-pbo="disabled"><i id="l-prevpage"></i></b>
-                    <b data-pbo="disabled"><i id="l-nextpage"></i></b>
-                    <b data-pbo="disabled"><i id="l-toend"></i></b>
+                    <b title="首页" data-pbo="disabled"><i id="l-tobeg"></i></b>
+                    <b title="前一页" data-pbo="disabled"><i id="l-prevpage"></i></b>
+                    <b title="后一页" data-pbo="disabled"><i id="l-nextpage"></i></b>
+                    <b title="末页" data-pbo="disabled"><i id="l-toend"></i></b>
                 </nav>
             </div>
             <!-- 分隔：拖动调整上下区域高度 -->
@@ -156,29 +158,29 @@
                     <label _="$.SIZE - $.INDEX">[逆序号]</label>
                     <code _="$.code">[代码]</code>
                     <time _="$.datetime">[时间戳]</time>
-                    <b title="置顶"><i></i></b>
-                    <b>删除</b>
+                    <b role="top" title="置顶"><i></i></b>
+                    <b role="del">删除</b>
                 </li>
                 <li>
                     <label _="$.SIZE - $.INDEX">[逆序号]</label>
                     <code _="$.code">[代码]</code>
                     <time _="$.datetime">[时间戳]</time>
-                    <b title="置顶"><i></i></b>
-                    <b>删除</b>
+                    <b role="top" title="置顶"><i></i></b>
+                    <b role="del">删除</b>
                 </li>
                 <li>
                     <label _="$.SIZE - $.INDEX">[逆序号]</label>
                     <code _="$.code">[代码]</code>
                     <time _="$.datetime">[时间戳]</time>
-                    <b title="置顶"><i></i></b>
-                    <b>删除</b>
+                    <b role="top" title="置顶"><i></i></b>
+                    <b role="del">删除</b>
                 </li>
             </ol>
             <nav>
-                <b data-pbo="disabled"><i id="l-tobeg"></i></b>
-                <b data-pbo="disabled"><i id="l-prevpage"></i></b>
-                <b><i id="l-nextpage"></i></b>
-                <b><i id="l-toend"></i></b>
+                <b title="首页" data-pbo="disabled"><i id="l-tobeg"></i></b>
+                <b title="前一页" data-pbo="disabled"><i id="l-prevpage"></i></b>
+                <b title="后一页"><i id="l-nextpage"></i></b>
+                <b title="末页"><i id="l-toend"></i></b>
             </nav>
         </main>
     </form>

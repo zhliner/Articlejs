@@ -23,7 +23,7 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
 import * as T from "./types.js";  // ./base.js 之后
-import { ESet, EHot, ECursor, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
+import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, property } from "./templates.js";
@@ -132,127 +132,17 @@ const
     __eCursor = new ECursor(),
 
     // 内容区DOM节点变化历史实例。
-    __EDHistory = new $.Fx.History(),
+    __TQHistory = new $.Fx.History(),
 
-    // 脚本历史编辑历史栈。
-    // 针对脚本历史模态页内置顶的代码片段删减。
-    __SHHistory = new $.Fx.History();
+    // 编辑器关联存储。
+    __EDStore = new CStorage( Sys.prefixEditor );
 
-
-
-//
-// 编辑历史管理器。
-// 管理内部实现了 undo/redo 接口的编辑处理实例。
-// 支持成组的编辑实例一次性操作。
-//
-class History {
-    /**
-     * 构造一个编辑实例。
-     * @param {Number} size 编辑历史长度
-     * @param {$.Fx.History} history DOM编辑历史栈
-     */
-    constructor( size, history ) {
-        this._max = size;
-        this._buf = [];
-        this._idx = -1;  // 游标
-        this._hist = history;
-    }
-
-
-    /**
-     * 入栈一个操作。
-     * 仅作为单个实体压入。
-     * @param  {...Instance} objs 操作实例序列
-     * @return {[Instance]|false} 头部被移出的操作实例序列
-     */
-    push( ...objs ) {
-        if ( !objs.length ) return;
-
-        // 新入截断。
-        this._buf.length = ++this._idx;
-        let _len = this._buf.push( objs );
-
-        return ( _len - this._max ) > 0 && this._shift();
-    }
-
-
-    /**
-     * 栈顶弹出并执行。
-     * 用于模拟“取消”行为（微编辑）。
-     */
-    pop() {
-        let _obj = this._buf.pop();
-        this._idx --;
-
-        _obj.slice().reverse().forEach( o => o.undo() );
-    }
-
-
-    /**
-     * 撤销一步。
-     */
-    undo() {
-        if ( this._idx < 0 ) {
-            return warn('[undo] overflow.');
-        }
-        let _obj = this._buf[ this._idx-- ];
-
-        // 副本避免被修改。
-        _obj.slice().reverse().forEach( o => o.undo() );
-    }
-
-
-    /**
-     * 重做一步。
-     * 操作实例可能是一个数组。
-     */
-    redo() {
-        if ( this._idx >= this._buf.length - 1 ) {
-            return warn('[redo] overflow.');
-        }
-        this._buf[ ++this._idx ].forEach( o => o.redo() );
-    }
-
-
-    /**
-     * 是否可执行撤销。
-     * 注记：撤销在当前实例上执行。
-     * @return {Boolean}
-     */
-    canUndo() {
-        return this._idx >= 0;
-    }
-
-
-    /**
-     * 是否可执行重做。
-     * 注记：重做在下一个实例上开启。
-     * @return {Boolean}
-     */
-    canRedo() {
-        return this._idx < this._buf.length - 1;
-    }
-
-
-    /**
-     * 历史栈头部移除。
-     * 游标从头部算起，因此需要同步减1。
-     * 注记：
-     * 仅 DOMEdit 实例包含 count 属性。
-     */
-    _shift() {
-        let _obj = this._buf.shift();
-        this._idx--;
-
-        _obj.forEach( o => o.count && this._hist.prune(o.count) );
-    }
-}
 
 
 //
 // 节点编辑类。
 // 封装用户的单次DOM编辑（可能牵涉多个节点变化）。
-// 直接操作全局的 __EDHistory 对象以避免每个实例存储该对象。
+// 直接操作全局的 __TQHistory 对象以避免每个实例存储该对象。
 // 注记：
 // 用户需要配置 tQuery:config() 启用节点变化事件通知机制。
 //
@@ -277,7 +167,7 @@ class DOMEdit {
      */
     undo() {
         if ( this.count > 0 ) {
-            __EDHistory.back( this.count );
+            __TQHistory.back( this.count );
         }
     }
 
@@ -286,54 +176,10 @@ class DOMEdit {
      * 重做。
      */
     redo() {
-        let _old = __EDHistory.size();
+        let _old = __TQHistory.size();
 
         this._fun( ...this._vals );
-        this.count = __EDHistory.size() - _old;
-    }
-}
-
-
-//
-// 脚本历史编辑类。
-// 包括界面中DOM条目和本地存储的移除和恢复。
-// 直接操作全局的 __SHHistory 对象以避免每个实例存储该对象。
-// 注记：
-// 目前暂时仅支持localStorage存储。
-//
-class SHEdit {
-    /**
-     * 构造一个编辑实例。
-     * @param {Function} handle 操作函数
-     * @param {String} shid 脚本存储ID
-     */
-    constructor( handle, ...args ) {
-        this._fun = handle;
-        this._vals = args;
-        this.count = null;
-
-        this.redo();
-    }
-
-
-    /**
-     * 撤销。
-     */
-    undo() {
-        if ( this.count > 0 ) {
-            __SHHistory.back( this.count );
-        }
-    }
-
-
-    /**
-     * 重做。
-     */
-    redo() {
-        let _old = __SHHistory.size();
-
-        this._fun( ...this._vals );
-        this.count = __SHHistory.size() - _old;
+        this.count = __TQHistory.size() - _old;
     }
 }
 
@@ -1264,10 +1110,7 @@ const
     __Edits = new NodeVary(),
 
     // 编辑器操作历史。
-    __History = new History( Limit.history, __EDHistory ),
-
-    // 脚本历史置顶管理器。
-    __SHManager = new History( Limit.scripts, __SHHistory );
+    __History = new History( Limit.history, __TQHistory );
 
 
 let
@@ -2543,8 +2386,7 @@ function hasSibling( eset ) {
         _cnt += _box.childElementCount;
 
         if ( _set.add(_box).size === i ) {
-            // true
-            return !warn( 'repeat sibling:', el );
+            return error('repeat sibling:', el), true;
         }
     }
     return _cnt === eset.size;
@@ -3266,17 +3108,6 @@ function cleanCall( handle ) {
 
 
 /**
- * 控制台警告。
- * @param  {String} msg 输出消息
- * @param  {Value} data 关联数据
- * @return {void}
- */
-function warn( msg, data ) {
-    window.console.warn( msg, data || '' );
-}
-
-
-/**
  * 控制台错误提示。
  * @param  {String} msg 输出消息
  * @param  {Value} data 关联数据
@@ -3930,7 +3761,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         varyevent: true,
         // bindevent: true
     });
-    $.on( contentElem, varyEvents, null, __EDHistory );
+    $.on( contentElem, varyEvents, null, __TQHistory );
 
 
     // 内容数据初始处理。
@@ -5238,7 +5069,7 @@ export const Edit = {
 
 //
 // 辅助工具集。
-// 仅供模板中在调用链上使用。
+// 供模板中在调用链上使用。
 //
 export const Kit = {
 
@@ -5260,26 +5091,6 @@ export const Kit = {
      */
     redo() {
         Edit.editRedo();
-    },
-
-
-    /**
-     * 脚本历史编辑撤销。
-     * @return {Boolean} 是否可以再撤销
-     */
-    shUndo() {
-        __SHManager.undo();
-        return __SHManager.canUndo();
-    },
-
-
-    /**
-     * 脚本历史编辑重做。
-     * @return {Boolean} 是否可以再重做
-     */
-    shRedo() {
-        __SHManager.redo();
-        return __SHManager.canRedo();
     },
 
 
@@ -6024,9 +5835,9 @@ export const Kit = {
      */
     save( evo ) {
         $( __tmpclsSlr, evo.data )
-        .removeClass( __tmpcls );
+            .removeClass( __tmpcls );
 
-        window.localStorage.setItem( Sys.storeMain, $.html(evo.data) );
+        __EDStore.add( Sys.storeMain, $.html(evo.data) );
         return Tips.localStoreDone;
     },
 
@@ -6481,18 +6292,6 @@ export const Kit = {
 
     __checkhtml: 1,
 
-
-    /**
-     * 删除脚本历史条目。
-     * @data: String|[String] 条目ID（集）
-     * @return {void}
-     */
-    delsh( evo ) {
-        //
-    },
-
-    __delsh: 1,
-
 };
 
 
@@ -6545,7 +6344,6 @@ processExtend( 'Kit', Kit, [
     'codelang',
     'htmlupdate',
     'checkhtml',
-    'delsh',
 ]);
 
 

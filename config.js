@@ -180,18 +180,23 @@ const Sys = {
     levelName2: 'children', // 向内
 
 
-    // 本地暂存键
-    // 内容存储到 window.localStorage 的键名。
+    // 本地存储键/前缀
     //-------------------------------------------
 
     // 内容主体
-    storeMain: '__cooljHTML',
+    storeMain: 'HTML',
 
     // 编辑器主题
-    storeTheme: '__cooljTheme',
+    storeTheme: 'Theme',
 
     // 内容样式
-    storeStyle: '__cooljStyle',
+    storeStyle: 'Style',
+
+    // 编辑器存储（前缀）
+    prefixEditor: '__coolj',
+
+    // 脚本历史（前缀）
+    prefixScript: '__cjsh_',
 
 };
 

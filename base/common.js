@@ -366,6 +366,187 @@ export class ESCStack extends Map {
 }
 
 
+//
+// 代码存储器。
+// 当前仅用localStorage简单实现。
+//
+export class CStorage {
+    /**
+     * 创建一个存储实例。
+     * @param {String} prefix 键值前缀
+     */
+    constructor( prefix = '' ) {
+        this._fix = prefix;
+    }
+
+
+    /**
+     * 获取目标存储。
+     * @param  {String} id 存储ID
+     * @return {Value|null}
+     */
+    get( id ) {
+        return window.localStorage.getItem( this._fix + id );
+    }
+
+
+    /**
+     * 添加一个存储。
+     * @param  {String} id 存储ID
+     * @param  {Value} val 存储值
+     * @return {Storage}
+     */
+    set( id, val ) {
+        window.localStorage.setItem( this._fix + id, val );
+        return this;
+    }
+
+
+    /**
+     * 删除目标存储。
+     * @param  {String} id 存储ID
+     * @return {void}
+     */
+    del( id ) {
+        window.localStorage.removeItem( this._fix + id );
+    }
+
+
+    /**
+     * 清除全部存储。
+     */
+    clear() {
+        window.localStorage.clear();
+    }
+}
+
+
+//
+// 编辑历史管理器。
+// 管理内部实现了 undo/redo 接口的编辑处理实例。
+// 支持成组的编辑实例一次性操作。
+//
+export class History {
+    /**
+     * 构造一个编辑实例。
+     * @param {Number} size 编辑历史长度
+     * @param {$.Fx.History} history DOM编辑历史栈
+     */
+    constructor( size, history ) {
+        this._max = size;
+        this._buf = [];
+        this._idx = -1;  // 游标
+        this._hist = history;
+    }
+
+
+    /**
+     * 入栈一个操作。
+     * 仅作为单个实体压入。
+     * @param  {...Instance} objs 操作实例序列
+     * @return {[Instance]|false} 头部被移出的操作实例序列
+     */
+    push( ...objs ) {
+        if ( !objs.length ) return;
+
+        // 新入截断。
+        this._buf.length = ++this._idx;
+        let _len = this._buf.push( objs );
+
+        return ( _len - this._max ) > 0 && this._shift();
+    }
+
+
+    /**
+     * 栈顶弹出并执行。
+     * 用于模拟“取消”行为（微编辑）。
+     */
+    pop() {
+        let _obj = this._buf.pop();
+        this._idx --;
+
+        _obj.slice().reverse().forEach( o => o.undo() );
+    }
+
+
+    /**
+     * 撤销一步。
+     */
+    undo() {
+        if ( this._idx < 0 ) {
+            return warn('[undo] overflow.');
+        }
+        let _obj = this._buf[ this._idx-- ];
+
+        // 副本避免被修改。
+        _obj.slice().reverse().forEach( o => o.undo() );
+    }
+
+
+    /**
+     * 重做一步。
+     * 操作实例可能是一个数组。
+     */
+    redo() {
+        if ( this._idx >= this._buf.length - 1 ) {
+            return warn('[redo] overflow.');
+        }
+        this._buf[ ++this._idx ].forEach( o => o.redo() );
+    }
+
+
+    /**
+     * 是否可执行撤销。
+     * 注记：撤销在当前实例上执行。
+     * @return {Boolean}
+     */
+    canUndo() {
+        return this._idx >= 0;
+    }
+
+
+    /**
+     * 是否可执行重做。
+     * 注记：重做在下一个实例上开启。
+     * @return {Boolean}
+     */
+    canRedo() {
+        return this._idx < this._buf.length - 1;
+    }
+
+
+    /**
+     * 历史栈头部移除。
+     * 游标从头部算起，因此需要同步减1。
+     * 注记：
+     * 仅 DOMEdit 实例包含 count 属性。
+     */
+    _shift() {
+        let _obj = this._buf.shift();
+        this._idx--;
+
+        _obj.forEach( o => o.count && this._hist.prune(o.count) );
+    }
+}
+
+
+//
+// 页集缓存器。
+// 缓存已经生成的条目以供复用（引用保持）。
+// 用法：
+// 外部首先从该缓存器中取目标页次的条目，如果没有则新构造。
+//
+export class PageBuf {
+    /**
+     * @param {Number} psize 页大小
+     * @param {Number} total 总条目数
+     */
+    constructor( psize, total ) {
+        //
+    }
+}
+
+
 
 //
 // 工具函数。
@@ -384,6 +565,17 @@ function visibleNode( node ) {
         return true;
     }
     return _nt === 3 && node.textContent.trim() ? true : false;
+}
+
+
+/**
+ * 控制台警告。
+ * @param  {String} msg 输出消息
+ * @param  {Value} data 关联数据
+ * @return {void}
+ */
+function warn( msg, data ) {
+    window.console.warn( msg, data || '' );
 }
 
 
