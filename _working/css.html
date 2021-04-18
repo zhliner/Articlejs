@@ -41,8 +41,11 @@
     <script type="module">
         import Tpb from "../base/tpb/tpb.js";
         import { Kit } from "../base/edit.js";
+        import { Render } from "../base/tpb/tools/render.js";
+        import "../base/shedit.js";
         window.Tpb = Tpb;
         window.Kit = Kit;
+        window.Render = Render;
         Tpb.build( editor );
     </script>
 </head>
@@ -104,23 +107,36 @@
             <div class="_top">
                 <div class="_bar">
                     <label>置顶区</label>
-                    <!--撤销：成功后会激活Redo。-->
-                    <span>
+                    <span data-pbo=""
+                        on="off|(1, false);
+                            on|(0, true);
+                            reset|$$('/b') disable;"
+                        by="Kit.shEdit;
+                            Kit.shEdit"
+                        to="|hide trigger('reset');
+                            |hide trigger('reset')">
+                        <!--撤销：成功后会激活Redo。-->
                         <b id="sh-undo" title="撤消" data-pbo=""
-                            on="state|evo(1) ev('detail') disable(_1);
-                                click|evo(3) disabled end (Kit) call('shUndo');
+                            on="click|evo(3) disabled end;
+                                state|evo(1) ev('detail') disable(_1);
                                 enable|evo(1) disable(0)"
-                            to="#sh-redo|trigger('enable')">↶</b>
+                            by="Kit.shUndo"
+                            to="|trigger('state');
+                                #sh-redo|trigger('enable')">↶</b>
                         <!--重做：成功后会激活Undo。-->
                         <b id="sh-redo" title="重做" data-pbo="disabled"
-                            on="state|evo(1) ev('detail') disable(_1);
-                                click|evo(3) disabled end (Kit) call('shRedo');
+                            on="click|evo(3) disabled end;
+                                state|evo(1) ev('detail') disable(_1);
                                 enable|evo(1) disable(0)"
-                            to="#sh-undo|trigger('enable')">↷</b>
+                            by="Kit.shRedo"
+                            to="|trigger('state');
+                                #sh-undo|trigger('enable')">↷</b>
                     </span>
-                    <button class="_edit"
-                        on="click|$$('main/li>b') lose(2) ('_edit') (['管理', '完成'])"
-                        to="|^text toggleClass">完成</button>
+                    <button class="_edit" data-op="on"
+                        on="click|$$('main/li>b') lose(2) (['on', 'off']) ('_edit') (['管理', '完成']);
+                            bstate|evo(3) attr('-op')"
+                        to="|^text toggleClass ^-op|goto('bstate');
+                            1/span|trigger(_1)">完成</button>
                 </div>
                 <!-- 置顶区代码清单 -->
                 <ul id="sh-top" class="_list" tpb-for>

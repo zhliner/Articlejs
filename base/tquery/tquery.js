@@ -217,8 +217,8 @@
         },
 
         // 元素匹配判断。
-        // - 如果不存在matches，外部需提供polyfill。
         // - 可以辅助过滤掉非元素值。
+        // - 如果不存在matches，外部需提供polyfill。
         // @param  {Element} el
         // @param  {String|Element} slr
         // @return {Boolean}
@@ -226,7 +226,6 @@
             if (typeof slr != 'string') {
                 return el === slr;
             }
-            // 容错文本节点。
             return slr[0] != '>' && !!el.matches && el.matches(slr);
         },
 

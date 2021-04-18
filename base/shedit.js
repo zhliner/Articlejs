@@ -8,15 +8,13 @@
 //
 //  历史脚本编辑支持。
 //
-//  注记：
-//  这属于专业版的内容，单独为一个源码文件。
-//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
 import { Sys, Limit } from "../config.js";
 import { CStorage, History } from "./common.js";
+import { processExtend } from "./tpb/pbs.by.js";
 
 
 const
@@ -250,21 +248,21 @@ function shObj( sid ) {
 const __Kit = {
     /**
      * 脚本历史编辑撤销。
-     * @return {Boolean} 是否可以再撤销
+     * @return {Boolean} 是否不可再撤销
      */
     shUndo() {
         __History.undo();
-        return __History.canUndo();
+        return !__History.canUndo();
     },
 
 
     /**
      * 脚本历史编辑重做。
-     * @return {Boolean} 是否可以再重做
+     * @return {Boolean} 是否不可再重做
      */
     shRedo() {
         __History.redo();
-        return __History.canRedo();
+        return !__History.canRedo();
     },
 
 
@@ -296,7 +294,7 @@ const __Kit = {
     /**
      * 设置脚本名称。
      * 仅置顶条目需要操作，但取消置顶不必移除名称。
-     * 注：可能还会重新置顶。
+     * 存储键：name
      * @data: String 条目ID
      * @param  {String} name 待设置的名称
      * @return {String} name
@@ -311,4 +309,31 @@ const __Kit = {
     },
 
     __shlabel: 1,
+
+
+    /**
+     * 脚本历史条目编辑（管理）。
+     * @data:
+     * - true  开始
+     * - false 结束
+     */
+    shEdit( evo ) {
+        //
+    },
+
+    __shEdit: 1,
 }
+
+
+//
+// 扩展到 By:Kit 空间。
+// 注意与 edit.js 模块相同扩展的名称兼容。
+//
+processExtend( 'Kit', __Kit, [
+    'shUndo',
+    'shRedo',
+    'delsh',
+    'shtop',
+    'shlabel',
+    'shEdit',
+]);

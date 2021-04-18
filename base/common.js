@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Render } from "./tpb/tools/render.js";
 import { beforeFixed, afterFixed } from "./base.js";
 import { Scripter } from "../config.js";
 
@@ -496,6 +497,17 @@ export class History {
 
 
     /**
+     * 清空历史记录栈。
+     * 注：类似于重置。
+     */
+    clear() {
+        this._buf.length = 0;
+        this._idx = -1;
+        this._hist.clear();
+    }
+
+
+    /**
      * 是否可执行撤销。
      * 注记：撤销在当前实例上执行。
      * @return {Boolean}
@@ -531,23 +543,88 @@ export class History {
 
 
 //
-// 页条目缓存器。
-// 缓存已经生成的条目以供复用，
-// 或条目编辑时使引用保持。
-// 用法：
-// 外部首先从该缓存器中取目标页次的条目，如果没有则新构造。
-//
+// 页面管理器。
+// 生成并缓存分页以供换页和复用。
+// - 保留渲染根，每页的创建从一个副本渲染。
+// - 外部取页时先从缓存中获取，没有则新建。
 // 注记：
-// 当前页的条目在删减过程中无需更新缓存，除非换页。
-// 页条目删减编辑完成后，缓存器应当重构。
+// 缓存的是根页面（内含列表条目），缓存可提高效率并保持引用。
+// 条目编辑直接操作根的子元素，自然体现增减。
 //
-export class PageBuf {
+export class Pages {
     /**
-     * @param {Number} psize 页大小
-     * @param {Number} total 总条目数
+     * @param {Element} root 渲染根
+     * @param {[Value]} data 数据集
+     * @param {Number} psize 单页大小
      */
-    constructor( psize, total ) {
+    constructor( root, data, psize ) {
         //
+    }
+
+
+    next() {
+        //
+    }
+
+
+    prev() {
+        //
+    }
+
+
+    first() {
+        //
+    }
+
+
+    last() {
+        //
+    }
+
+
+    canNext() {
+        //
+    }
+
+
+    canPrev() {
+        //
+    }
+
+
+    /**
+     * 获取目标页次的页。
+     * @param  {Number} idx 目标页次（从0开始）
+     * @return {Element} 列表根
+     */
+    get( idx ) {
+        //
+    }
+
+
+    /**
+     * 返回当前页次（从0开始）。
+     */
+    index() {
+        //
+    }
+
+
+    //-- 私有辅助 ----------------------------------------------------------------
+
+    _rander( data ) {
+        //
+    }
+
+
+    /**
+     * 元素克隆。
+     * 包括子节点、事件处理器和渲染文法。
+     * @param  {Element} tpl 模板节点
+     * @return {Element} 新元素
+     */
+    _clone( tpl ) {
+        return Render.clone( tpl, $.clone(tpl, true, true, true) );
     }
 }
 

@@ -6318,10 +6318,6 @@ processExtend( 'Ed', Edit, [
 // By: 综合工具集。
 //
 processExtend( 'Kit', Kit, [
-    'undo',
-    'redo',
-    'shUndo',
-    'shRedo',
     'ecancel',
     'errmsg',
     'chapter',

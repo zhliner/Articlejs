@@ -34,17 +34,17 @@
             <hr>
         </span>
         <!--撤销：
-            press 执行状态设置：true不可继续，false可继续。同时会激活Redo。
+            state 执行状态设置：true不可继续，false可继续。同时会激活Redo。
             注记：出于简化，用apply指令直接调用（而非by）。-->
         <b id="tools-undo" title="撤消〔u〕" data-pbo="disabled"
-            on="press|evo(1) ev('detail') disable(_1);
+            on="state|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Kit) apply('undo');
                 enable|evo(1) disable(0)"
             to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
         <!--重做：
-            press 同上。同时会激活Undo。-->
+            state 同上。同时会激活Undo。-->
         <b id="tools-redo" title="重做〔r〕" data-pbo="disabled"
-            on="press|evo(1) ev('detail') disable(_1);
+            on="state|evo(1) ev('detail') disable(_1);
                 click|evo(3) disabled end (Kit) apply('redo');
                 enable|evo(1) disable(0)"
             to="#tools-undo|trigger('enable')"><i id="b-redo"></i></b>

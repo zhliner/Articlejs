@@ -516,11 +516,7 @@
                 click(label) 编辑标签并存储到本地记录。
                 click(code)  捡取目标代码插入脚本输入框（同时退出模态）。
             -->
-            <ul id="sh-top" class="_list" tpb-for
-                on="click(b)|evo(1) parent dup attr('-id')"
-                by="Kit.delsh remove"
-                to="-||fire('#sh-list', 'clean')">
-
+            <ul id="sh-top" class="_list" tpb-for>
                 <li _data-time="$.datetime" _data-id="$.shid">
                     <label _="$.name">标签：单击编辑</label>
                     <code _="$.code">代码：单击提取并导入脚本录入框。</code>
