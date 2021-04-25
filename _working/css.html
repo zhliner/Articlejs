@@ -47,6 +47,20 @@
         window.Kit = Kit;
         window.Render = Render;
         Tpb.build( editor );
+
+        // 测试数据
+        // 置顶集
+        window.TD1 = [
+            {
+                //
+            }
+        ];
+        // 搜索集
+        window.TD2 = [
+            {
+                //
+            }
+        ]
     </script>
 </head>
 
@@ -98,15 +112,29 @@
         </div>
     </form>
 
-    <form class="_page _script" on="submit|avoid" data-pbo="">
+    <form class="_page _script" on="submit|avoid" data-pbo=""
+        on="click(b[role=del])|evo(2) parent attr('-sid')"
+        by="Kit.delsh">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
         </header>
-        <main class="_history">
-            <div class="_top">
+        <!-- 注：$$('/>*') 确定为3个元素 -->
+        <main class="_history"
+            on="@mousemove|movementY evo(3) $$('/>*') spread;
+                @mouseup|movementY(null);
+                tophei|ev('detail')"
+            by="Kit.sh2panel(_4) spread add('px')"
+            to="/._down|%max-height|goto('tophei', _1);
+                |off('mousemove');
+                /._top|height">
+            <!-- 内置限高：避免初始即溢出（无法通过拖拽调整） -->
+            <div class="_top" style="height: 40%;"
+                on="click(b[role=untop])|evo(2) parent attr('-sid')"
+                by="Kit.shtop(false)">
                 <div class="_bar">
                     <label>置顶区</label>
+                    <!-- 管理时显示，完成后隐藏（hidden） -->
                     <span data-pbo=""
                         on="off|(1, false);
                             on|(0, true);
@@ -138,15 +166,16 @@
                         to="|^text toggleClass ^-op|goto('bstate');
                             1/span|trigger(_1)">完成</button>
                 </div>
-                <!-- 置顶区代码清单 -->
-                <ul id="sh-top" class="_list" tpb-for>
-                    <li _data-sid="$.shid">
-                        <label _="$.name">标签：单击编辑</label>
-                        <code _="$.code">代码：单击提取并导入脚本录入框。</code>
-                        <time _="$.datetime">时间戳</time>
-                        <b role="untop" title="取消置顶"><i></i></b>
-                        <b role="del">删除</b>
-                    </li>
+                <!--置顶区代码清单
+                    blur 失焦即确认。
+                    keydown 键入Enter也可确认。 -->
+                <ul id="sh-top" class="_list" tpb-for
+                    on="blur(label)|evo(2) parent attr('-sid') evo(2) text;
+                        click(label)|(true);
+                        keydown(label)|ev('key') pass('Enter') avoid evo(2) blur"
+                    by="Kit.shlabel(_1) (false)"
+                    to="=|@contenteditable;
+                        =|@contenteditable|focus">
                     <li _data-sid="$.shid">
                         <label _="$.name">标签：单击编辑</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
@@ -162,42 +191,35 @@
                     <b title="末页" data-pbo="disabled"><i id="l-toend"></i></b>
                 </nav>
             </div>
-            <!-- 分隔：拖动调整上下区域高度 -->
-            <hr>
-            <div class="_search">
-                <input type="text" name="word" placeholder="空格：AND； 逗号：OR" />
-                <button type="submit"></button>
+            <!--拖动：调整上下区域高度
+                上区：CSS:height
+                下区：CSS:max-height -->
+            <hr on="mousedown|avoid"
+                to="main/|bind('mousemove') once('mouseup')" />
+            <div class="_down"
+                on="click(b[role=top])|evo(2) parent attr('-sid')"
+                by="Kit.shtop(true)">
+                <div class="_search">
+                    <input type="text" name="word" placeholder="空格：AND； 逗号：OR" />
+                    <button type="submit"></button>
+                </div>
+                <!-- 搜索结果清单 -->
+                <ol id="sh-list" reversed class="_list" tpb-for>
+                    <li>
+                        <label _="$.SIZE - $.INDEX">[逆序号]</label>
+                        <code _="$.code">[代码]</code>
+                        <time _="$.datetime">[时间戳]</time>
+                        <b role="top" title="置顶"><i></i></b>
+                        <b role="del">删除</b>
+                    </li>
+                </ol>
+                <nav>
+                    <b title="首页" data-pbo="disabled"><i id="l-tobeg"></i></b>
+                    <b title="前一页" data-pbo="disabled"><i id="l-prevpage"></i></b>
+                    <b title="后一页"><i id="l-nextpage"></i></b>
+                    <b title="末页"><i id="l-toend"></i></b>
+                </nav>
             </div>
-            <!-- 搜索结果清单 -->
-            <ol id="sh-list" reversed class="_list" tpb-for>
-                <li>
-                    <label _="$.SIZE - $.INDEX">[逆序号]</label>
-                    <code _="$.code">[代码]</code>
-                    <time _="$.datetime">[时间戳]</time>
-                    <b role="top" title="置顶"><i></i></b>
-                    <b role="del">删除</b>
-                </li>
-                <li>
-                    <label _="$.SIZE - $.INDEX">[逆序号]</label>
-                    <code _="$.code">[代码]</code>
-                    <time _="$.datetime">[时间戳]</time>
-                    <b role="top" title="置顶"><i></i></b>
-                    <b role="del">删除</b>
-                </li>
-                <li>
-                    <label _="$.SIZE - $.INDEX">[逆序号]</label>
-                    <code _="$.code">[代码]</code>
-                    <time _="$.datetime">[时间戳]</time>
-                    <b role="top" title="置顶"><i></i></b>
-                    <b role="del">删除</b>
-                </li>
-            </ol>
-            <nav>
-                <b title="首页" data-pbo="disabled"><i id="l-tobeg"></i></b>
-                <b title="前一页" data-pbo="disabled"><i id="l-prevpage"></i></b>
-                <b title="后一页"><i id="l-nextpage"></i></b>
-                <b title="末页"><i id="l-toend"></i></b>
-            </nav>
         </main>
     </form>
 </div>

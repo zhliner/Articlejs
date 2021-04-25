@@ -236,8 +236,8 @@ class SHTop {
  * @return {Object}
  */
 function shObj( sid ) {
-    let _sh = __Store.get( sid ) || '';
-    return typeof _sh === 'string' ? { code: _sh } : _sh;
+    let _sh = __Store.get( sid );
+    return _sh ? JSON.parse( _sh ) : { code: null };
 }
 
 
@@ -297,15 +297,13 @@ const __Kit = {
      * 存储键：name
      * @data: String 条目ID
      * @param  {String} name 待设置的名称
-     * @return {String} name
+     * @return {void}
      */
     shlabel( evo, name ) {
         let _sh = shObj( evo.data );
 
         _sh.name = name;
-        __Store.set( evo.data, _sh );
-
-        return name;
+        __Store.set( evo.data, JSON.stringify(_sh) );
     },
 
     __shlabel: 1,
@@ -322,6 +320,31 @@ const __Kit = {
     },
 
     __shEdit: 1,
+
+
+    /**
+     * 计算获取历史记录面板上下区高度。
+     * 用于历史记录面板中上下部分高度调整。
+     * 注记：
+     * 需同时设置上下两个区高度，便于样式控制内容自动滚动。
+     * @data: Number Y轴变化量（像素）
+     * @param  {Element} box 容器元素
+     * @param  {Element} top 上区元素
+     * @param  {Element} hr  移动手柄元素
+     * @param  {Element} down 下区元素
+     * @return {[Number, Number]} 上区高度, 下区最大高度
+     */
+    sh2panel( evo, box, top, hr, down ) {
+        let _h1 = $.outerHeight(top, true) + $.outerHeight(hr, true),
+            _m2 = $.outerHeight(down, true) - $.height(down);
+
+        return [
+            $.height( top ) + evo.data,
+            $.height( box ) - ( _h1 + _m2 + evo.data )
+        ];
+    },
+
+    __sh2panel: 1,
 }
 
 
@@ -336,4 +359,5 @@ processExtend( 'Kit', __Kit, [
     'shtop',
     'shlabel',
     'shEdit',
+    'sh2panel',
 ]);

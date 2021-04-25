@@ -547,9 +547,9 @@ export class History {
 // 生成并缓存分页以供换页和复用。
 // - 保留渲染根，每页的创建从一个副本渲染。
 // - 外部取页时先从缓存中获取，没有则新建。
-// 注记：
-// 缓存的是根页面（内含列表条目），缓存可提高效率并保持引用。
-// 条目编辑直接操作根的子元素，自然体现增减。
+//
+// 缓存的是页面根元素（内含列表条目），可提高效率并保持引用。
+// 若有条目编辑直接操作子元素，自然体现增减。
 //
 export class Pages {
     /**
@@ -558,37 +558,51 @@ export class Pages {
      * @param {Number} psize 单页大小
      */
     constructor( root, data, psize ) {
-        //
+        this._root = root;
+        this._data = data;
+        this._size = psize;
+
+        this._idx  = 0;  // 当前页次
+        this._pool = []; // 缓存池
     }
 
 
+    /**
+     * 返回下一页。
+     * @return {Element|null}
+     */
     next() {
-        //
+        let _end = this.pages() - 1;
+        return this._idx < _end ? this.index( ++this._idx ) : null;
     }
 
 
+    /**
+     * 返回前一页。
+     * @return {Element|null}
+     */
     prev() {
-        //
+        return this._idx > 0 ? this.index( --this._idx ) : null;
     }
 
 
+    /**
+     * 返回首页。
+     * @return {Element}
+     */
     first() {
-        //
+        this._idx = 0;
+        return this.index( 0 );
     }
 
 
+    /**
+     * 返回最后一页。
+     * @return {Element}
+     */
     last() {
-        //
-    }
-
-
-    canNext() {
-        //
-    }
-
-
-    canPrev() {
-        //
+        this._idx = this.pages() - 1;
+        return this.index( this._idx );
     }
 
 
@@ -597,23 +611,51 @@ export class Pages {
      * @param  {Number} idx 目标页次（从0开始）
      * @return {Element} 列表根
      */
-    get( idx ) {
-        //
+    index( idx ) {
+        this._idx = idx;
+        return this._pool[ idx ] || ( this._pool[idx] = this._build(idx) );
     }
 
 
     /**
-     * 返回当前页次（从0开始）。
+     * 返回页数
+     * @return {Number}
      */
-    index() {
-        //
+    pages() {
+        return Math.ceil( this._data.length / this._size );
+    }
+
+
+    /**
+     * 是否可以向前翻页。
+     * @return {Boolean}
+     */
+    canPrev() {
+        return this._idx > 0;
+    }
+
+
+    /**
+     * 是否可以向后翻页。
+     * @return {Boolean}
+     */
+    canNext() {
+        return this._idx < this.pages() - 1;
     }
 
 
     //-- 私有辅助 ----------------------------------------------------------------
 
-    _rander( data ) {
-        //
+
+    /**
+     * 构造目标页次。
+     * @param  {Number} idx 页次
+     * @param  {Number} size 页大小
+     * @return {Element} 目标页根元素
+     */
+    _build( idx, size ) {
+        let _beg = idx * size;
+        return Render.update( this._clone(this._root), this._data.slice(_beg, _beg + size) );
     }
 
 
