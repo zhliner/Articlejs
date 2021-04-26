@@ -66,16 +66,30 @@ i[id|=l] {
 #l-schar    { background-position: -200px -50px; }
 #l-element  { background-position: -200px -100px; }
 
+
 /* 脚本历史 */
 #l-tobeg    { background-position: -250px 0; }
 #l-toend    { background-position: -250px -50px; }
 #l-prevpage { background-position: -250px -100px; }
 #l-nextpage { background-position: -250px -150px; }
 
+.Modal ._history ._list i {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+}
+.Modal ._history b[role=untop] > i {
+    background: url('images/untop.png') no-repeat;
+    background-size: 14px;
+}
+.Modal ._history b[role=top] > i {
+    background: url('images/top.png') no-repeat;
+    background-size: 14px;
+}
 
 
 /* 上下文菜单前置图标 */
-b[id|=l]::before {
+menu b[id|=l]::before {
     content: "";
     float: left;
     width: 16px;

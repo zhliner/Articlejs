@@ -738,17 +738,20 @@ export function createID( text, prefix = '' ) {
 
 
 /**
- * 构造日期/时间值串。
- * 由外部保证两个串的格式合法。
- * @param  {String} date 日期串，可选
- * @param  {String} time 时间串，可选
- * @return {String|null}
+ * 日期/时间显示。
+ * 未传递时间实参时取当前时间。
+ * 返回值：YYYY-mm-dd hh:mm:ss
+ * @param  {Date|Number} dt 时间对象或时间戳（毫秒），可选
+ * @return {String}
  */
-export function dateTime( date, time ) {
-    if ( time ) {
-        date = date ? `${date} ${time}` : `${time}`;
+export function datetime( dt ) {
+    if ( dt === undefined ) {
+        dt = new Date();
     }
-    return date || null;
+    else if ( typeof dt === 'number' ) {
+        dt = new Date( dt );
+    }
+    return dt.toJSON().substring(0, 19).replace( 'T', ' ' );
 }
 
 

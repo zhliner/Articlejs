@@ -228,9 +228,11 @@ class SHTop {
  * 获取历史脚本存储条目。
  * 如果条目不是一个对象，构造一个对象返回。
  * 对象格式：{
- *      top:    是否置顶
- *      code:   代码文本
+ *      shid:   条目标识
  *      name:   标签名称
+ *      code:   代码文本
+ *      top:    是否置顶
+ *      datetime:   更新时间
  * }
  * @param  {String} sid 历史脚本ID
  * @return {Object}
@@ -272,7 +274,7 @@ const __Kit = {
      * @return {void}
      */
     delsh( evo ) {
-        //
+        __Store.del( evo.data );
     },
 
     __delsh: 1,
@@ -285,7 +287,10 @@ const __Kit = {
      * @return {void}
      */
     shtop( evo, top ) {
-        //
+        let _sh = shObj( evo.data );
+
+        _sh.top = top;
+        __Store.set( evo.data, JSON.stringify(_sh) );
     },
 
     __shtop: 1,
@@ -311,6 +316,7 @@ const __Kit = {
 
     /**
      * 脚本历史条目编辑（管理）。
+     * 进入或完成后，都需重建一个分页对象，重新渲染。
      * @data:
      * - true  开始
      * - false 结束
@@ -345,6 +351,20 @@ const __Kit = {
     },
 
     __sh2panel: 1,
+
+
+    /**
+     * 搜索目标脚本。
+     * - 空格：逻辑 AND
+     * - 逗号：逻辑 OR
+     * @data: String 待搜索串
+     * @return {[Object]}
+     */
+    shsearch( evo ) {
+        //
+    },
+
+    __shsearch: 1,
 }
 
 
@@ -360,4 +380,5 @@ processExtend( 'Kit', __Kit, [
     'shlabel',
     'shEdit',
     'sh2panel',
+    'shsearch',
 ]);

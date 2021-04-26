@@ -52,14 +52,36 @@
         // 置顶集
         window.TD1 = [
             {
-                //
-            }
+                shid:   100,
+                name:   '脚本片段AA',
+                code:   'window.console.info("hello world.")',
+                top:    true,
+                datetime: '2021-04-26 04:30:42'
+            },
+            {
+                shid:   101,
+                name:   '脚本片段BB',
+                code:   'window.console.info("this is some codes.")',
+                top:    true,
+                datetime: '2021-04-26 04:50:22'
+            },
         ];
-        // 搜索集
+        // 搜索集（非置顶）
         window.TD2 = [
             {
-                //
-            }
+                shid:   105,
+                name:   undefined,
+                code:   'window.console.info("hello undefined.")',
+                top:    undefined,
+                datetime: '2021-04-26 04:30:42'
+            },
+            {
+                shid:   108,
+                name:   '脚本BBxx',
+                code:   'window.console.info("some codes at here.")',
+                top:    false,
+                datetime: '2021-04-26 04:50:22'
+            },
         ]
     </script>
 </head>
@@ -112,9 +134,11 @@
         </div>
     </form>
 
-    <form class="_page _script" on="submit|avoid" data-pbo=""
-        on="click(b[role=del])|evo(2) parent attr('-sid')"
-        by="Kit.delsh">
+    <form class="_page _script" data-pbo=""
+        on="submit|avoid value('words');
+            click(b[role=del])|debug stop evo(2) parent dup attr('-sid')"
+        by="Kit.shsearch;
+            Kit.delsh remove">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
@@ -129,9 +153,9 @@
                 |off('mousemove');
                 /._top|height">
             <!-- 内置限高：避免初始即溢出（无法通过拖拽调整） -->
-            <div class="_top" style="height: 40%;"
-                on="click(b[role=untop])|evo(2) parent attr('-sid')"
-                by="Kit.shtop(false)">
+            <div class="_top" style="height: 35%;"
+                on="click(b[role=untop])|stop evo(2) parent dup attr('-sid')"
+                by="Kit.shtop(false) remove">
                 <div class="_bar">
                     <label>置顶区</label>
                     <!-- 管理时显示，完成后隐藏（hidden） -->
@@ -144,7 +168,7 @@
                         to="|hide trigger('reset');
                             |hide trigger('reset')">
                         <!--撤销：成功后会激活Redo。-->
-                        <b id="sh-undo" title="撤消" data-pbo=""
+                        <b id="sh-undo" title="撤消" data-pbo="disabled"
                             on="click|evo(3) disabled end;
                                 state|evo(1) ev('detail') disable(_1);
                                 enable|evo(1) disable(0)"
@@ -167,17 +191,18 @@
                             1/span|trigger(_1)">完成</button>
                 </div>
                 <!--置顶区代码清单
-                    blur 失焦即确认。
+                    click 单击即可编辑。
+                    blur  失焦即编辑确认。
                     keydown 键入Enter也可确认。 -->
                 <ul id="sh-top" class="_list" tpb-for
                     on="blur(label)|evo(2) parent attr('-sid') evo(2) text;
-                        click(label)|(true);
+                        click(label)|stop (true);
                         keydown(label)|ev('key') pass('Enter') avoid evo(2) blur"
                     by="Kit.shlabel(_1) (false)"
                     to="=|@contenteditable;
                         =|@contenteditable|focus">
                     <li _data-sid="$.shid">
-                        <label _="$.name">标签：单击编辑</label>
+                        <label _="$.name">片段名称</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
                         <b role="untop" title="取消置顶"><i></i></b>
@@ -185,10 +210,10 @@
                     </li>
                 </ul>
                 <nav>
-                    <b title="首页" data-pbo="disabled"><i id="l-tobeg"></i></b>
-                    <b title="前一页" data-pbo="disabled"><i id="l-prevpage"></i></b>
-                    <b title="后一页" data-pbo="disabled"><i id="l-nextpage"></i></b>
-                    <b title="末页" data-pbo="disabled"><i id="l-toend"></i></b>
+                    <b title="首页"><i id="l-tobeg"></i></b>
+                    <b title="前一页"><i id="l-prevpage"></i></b>
+                    <b title="后一页"><i id="l-nextpage"></i></b>
+                    <b title="末页"><i id="l-toend"></i></b>
                 </nav>
             </div>
             <!--拖动：调整上下区域高度
@@ -196,11 +221,14 @@
                 下区：CSS:max-height -->
             <hr on="mousedown|avoid"
                 to="main/|bind('mousemove') once('mouseup')" />
+            <!-- 取消置顶无需移除 -->
             <div class="_down"
-                on="click(b[role=top])|evo(2) parent attr('-sid')"
-                by="Kit.shtop(true)">
+                on="click(b[role=top])|stopAll evo(2) parent attr('-sid');
+                    click(b[role=untop])|stop evo(2) parent attr('-sid')"
+                by="Kit.shtop(true);
+                    Kit.shtop(false)">
                 <div class="_search">
-                    <input type="text" name="word" placeholder="空格：AND； 逗号：OR" />
+                    <input type="text" name="words" placeholder="空格：AND； 逗号：OR" />
                     <button type="submit"></button>
                 </div>
                 <!-- 搜索结果清单 -->
@@ -209,13 +237,15 @@
                         <label _="$.SIZE - $.INDEX">[逆序号]</label>
                         <code _="$.code">[代码]</code>
                         <time _="$.datetime">[时间戳]</time>
-                        <b role="top" title="置顶"><i></i></b>
+                        <b role="top" title="置顶" tpb-if="$.top"><i></i></b>
+                        <!-- <b role="untop" title="取消置顶" tpb-else><i></i></b> -->
+                        <!-- <b _role="$.top ? 'top' : 'untop'" _title="$.top ? '置顶' : '取消置顶'"><i></i></b> -->
                         <b role="del">删除</b>
                     </li>
                 </ol>
                 <nav>
-                    <b title="首页" data-pbo="disabled"><i id="l-tobeg"></i></b>
-                    <b title="前一页" data-pbo="disabled"><i id="l-prevpage"></i></b>
+                    <b title="首页"><i id="l-tobeg"></i></b>
+                    <b title="前一页"><i id="l-prevpage"></i></b>
                     <b title="后一页"><i id="l-nextpage"></i></b>
                     <b title="末页"><i id="l-toend"></i></b>
                 </nav>

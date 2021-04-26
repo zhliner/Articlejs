@@ -27,7 +27,6 @@
 import { processProxy } from "./tpb/pbs.by.js";
 import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, cloneElement } from "./base.js";
 import * as T from "./types.js";
-import { dateTime } from "./common.js";
 import { Sys } from "../config.js";
 
 
@@ -1841,6 +1840,21 @@ function dataText( data ) {
  */
 function data( data, i ) {
     return $.isArray(data) ? data[i] : data;
+}
+
+
+/**
+ * 构造日期/时间值串。
+ * 由外部保证两个串的格式合法。
+ * @param  {String} date 日期串，可选
+ * @param  {String} time 时间串，可选
+ * @return {String|null}
+ */
+function dateTime( date, time ) {
+    if ( time ) {
+        date = date ? `${date} ${time}` : `${time}`;
+    }
+    return date || null;
 }
 
 
