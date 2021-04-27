@@ -1748,6 +1748,12 @@ menu._cells code {
     border-color: transparent;
     background-color: transparent;
 }
+.Modal ._history nav > code {
+    display: flex;
+    align-items: center;
+    margin-left: 1em;
+    color: gray;
+}
 .Modal ._history ._bar {
     display: flex;
     border-bottom: 3px #aaa double;
@@ -1834,13 +1840,6 @@ menu._cells code {
     white-space: nowrap;
     margin: auto 3px;
 }
-.Modal ._history ul._list label {
-    min-width: 90px;
-    font-weight: bold;
-}
-.Modal ._history ol._list label {
-    min-width: 50px;
-}
 .Modal ._history ._list code {
     flex: 1 1 auto;
     background-color: #f3f3f3;
@@ -1865,6 +1864,19 @@ menu._cells code {
 .Modal ._history ._list b:last-child:hover {
     background-color: #f6f6f6;
 }
+
+.Modal ._history ul._list label {
+    min-width: 90px;
+    font-weight: bold;
+}
+.Modal ._history ol._list label {
+    min-width: 50px;
+}
+/* 有命名（置顶或曾经置顶） */
+.Modal ._history ol._list label[title] {
+    font-weight: bold;
+}
+
 
 /* 脚本：结果
  *-------------------------*/

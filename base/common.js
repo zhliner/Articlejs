@@ -627,6 +627,17 @@ export class Pages {
 
 
     /**
+     * 重新构建。
+     * 当前页次不变，清空其它页缓存。
+     * @return {Element} 当前页根
+     */
+    rebuild() {
+        this._pool.length = 0;
+        return this.index( this._idx );
+    }
+
+
+    /**
      * 是否可以向前翻页。
      * @return {Boolean}
      */

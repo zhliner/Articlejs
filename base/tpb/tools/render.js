@@ -106,7 +106,8 @@ const
     __switchDisplay = Symbol('switch-display'),
 
     // 过滤切分器。
-    // 识别字符串语法（字符串内的|为普通字符）。
+    // - 识别字符串语法（字符串内的|为普通字符）。
+    // - 排除小括号封装：逻辑或（||）需包含在一对小括号内。
     __pipeSplit = new Spliter( __chrPipe, new UmpCaller(), new UmpString() );
 
 
