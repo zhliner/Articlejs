@@ -31,8 +31,13 @@ const
         popupGapTop:    10,
         popupGapRight:  3,
 
-        // 置顶脚本数量限制。
-        scripts:        999,
+
+        // 脚本编辑步数限制。
+        shEdits:        999,
+
+        // 历史脚本分页大小
+        shListTop:      10,   // 置顶区
+        shListAll:      10,   // 检索区
     },
 
 

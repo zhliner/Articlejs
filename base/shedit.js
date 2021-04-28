@@ -13,7 +13,7 @@
 //
 
 import { Sys, Limit } from "../config.js";
-import { CStorage, History } from "./common.js";
+import { CStorage, History, Pages } from "./common.js";
 import { processExtend } from "./tpb/pbs.by.js";
 
 
@@ -27,7 +27,15 @@ const
     __Store = new CStorage( Sys.prefixScript ),
 
     // 脚本历史编辑器。
-    __History = new History( Limit.scripts, __TQHistory );
+    __History = new History( Limit.shEdits, __TQHistory );
+
+
+let
+    // 置顶区分页实例。
+    __PagesTop = null,
+
+    // 搜索区（混合）分页实例。
+    __PagesAll = null;
 
 
 
@@ -243,6 +251,35 @@ function shObj( sid ) {
 }
 
 
+/**
+ * 提取置顶条目对象集。
+ * @return {[Object]}
+ */
+function objTops() {
+    let _buf = [];
+
+    for ( const k of __Store.keys() ) {
+        let _o = shObj( k );
+        if ( _o.top ) _buf.push( _o );
+    }
+    return _buf;
+}
+
+
+/**
+ * 构造过滤函数。
+ * 关键词集内部为AND关系，关键词集之间为OR关系。
+ * 返回值：function(String): Boolean
+ * @param  {...[String]} words 关键词集序列
+ * @return {Function}
+ */
+function xfilter( ...words ) {
+    return str => words.some(
+        ws => ws.every( w => str.includes(w) )
+    );
+}
+
+
 
 //
 // 辅助工具集。
@@ -265,6 +302,21 @@ const __Kit = {
     shRedo() {
         __History.redo();
         return !__History.canRedo();
+    },
+
+
+    /**
+     * 脚本历史页初始化。
+     * 主要为构建两个列表区的分页实例。
+     * @param  {Element} top 置顶区列表元素（<ul>）
+     * @param  {Element} all 搜索区列表元素（<ol>）
+     * @return {void}
+     */
+    shinit( evo, top, all ) {
+        __PagesAll = new Pages( all, [], Limit.shListAll );
+        __PagesTop = new Pages( top, objTops(), Limit.shListTop );
+        // window.shTop = __PagesTop;
+        // window.shAll = __PagesAll;
     },
 
 
@@ -357,14 +409,35 @@ const __Kit = {
      * 搜索目标脚本。
      * - 空格：逻辑 AND
      * - 逗号：逻辑 OR
-     * @data: String 待搜索串
+     * @data: String 待检索关键词序列
      * @return {[Object]}
      */
     shsearch( evo ) {
-        //
+        let _fun = xfilter(
+                ...evo.data.split( ',' ).map( ws => ws.trim().split(/\s+/) )
+            ),
+            _buf = [];
+
+        for ( const key of __Store.keys() ) {
+            let _obj = shObj( key );
+            _obj.code && _fun( _obj.code ) && _buf.push( _obj )
+        }
+        return _buf;
     },
 
     __shsearch: 1,
+
+
+    /**
+     * 渲染/创建脚本清单。
+     * @param  {Boolean} top 限于置顶区
+     * @return {Element} 清单分页首页根（ul|ol）
+     */
+    shlist( evo, top ) {
+        //
+    },
+
+    __shlist: 1,
 }
 
 
@@ -375,10 +448,12 @@ const __Kit = {
 processExtend( 'Kit', __Kit, [
     'shUndo',
     'shRedo',
+    'shinit',
     'delsh',
     'shtop',
     'shlabel',
     'shEdit',
     'sh2panel',
     'shsearch',
+    'shlist',
 ]);

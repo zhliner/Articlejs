@@ -419,6 +419,19 @@ export class CStorage {
     clear() {
         window.localStorage.clear();
     }
+
+
+    /**
+     * 获取存储键集。
+     * 返回的键名不包含键前缀部分。
+     * @return {[String]}
+     */
+    keys() {
+        let _ks = Object.keys( window.localStorage ),
+            _sz = this._fix.length;
+
+        return _ks.filter( k => k.startsWith(this._fix) ).map( k => k.substring(_sz) );
+    }
 }
 
 
@@ -554,7 +567,7 @@ export class History {
 export class Pages {
     /**
      * @param {Element} root 渲染根
-     * @param {[Value]} data 数据集
+     * @param {[Object]} data 数据集
      * @param {Number} psize 单页大小
      */
     constructor( root, data, psize ) {
@@ -623,6 +636,39 @@ export class Pages {
      */
     pages() {
         return Math.ceil( this._data.length / this._size );
+    }
+
+
+    /**
+     * 获取或设置数据集。
+     * 注意：
+     * 设置数据集后缓存区会清空，当前页重置为首页。
+     * @param  {[Object]} objs 条目对象集
+     * @return {[Object]|void}
+     */
+    data( objs ) {
+        if ( objs === undefined ) {
+            return this._data;
+        }
+        this._data = objs;
+        this._idx = 0;
+        this._pool.length = 0;
+    }
+
+
+    /**
+     * 向数据集插入条目。
+     * 默认插入到数据集前端。
+     * 通常，插入后应当立即重新构建当前页（.rebuild）。
+     * 注记：
+     * 插入后应当即时反映分页情况（页大小限制）。
+     * 但删除时当前页条目减少，不影响页大小限制，故暂不设计删除条目接口。
+     * @param  {Object} obj 条目对象
+     * @param  {Boolean} last 添加到末尾，可选
+     * @return {void}
+     */
+    insert( obj, last ) {
+        last ? this._data.push(obj) : this._data.unshift( obj );
     }
 
 

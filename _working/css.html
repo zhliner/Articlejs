@@ -136,10 +136,12 @@
 
     <form class="_page _script" data-pbo=""
         on="submit|avoid value('words');
-            click(b[role=del])|debug stop evo(2) parent dup attr('-sid')"
-        by="Kit.shsearch;
-            Kit.delsh remove"
-        to="">
+            click(b[role=del])|stop evo(2) parent dup attr('-sid');
+            ^obted|$('#sh-tops') $('#sh-list')"
+        by="Kit.shsearch Kit.shlist;
+            Kit.delsh remove;
+            Kit.shinit(_2)"
+        to="#sh-list|replace">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
@@ -242,7 +244,7 @@
                 </div>
                 <!--搜索结果清单
                     label:title 置顶或曾经置顶的条目有效。 -->
-                <ol id="sh-list" reversed class="_list" tpb-for>
+                <ol id="sh-list" class="_list" tpb-for>
                     <li>
                         <label _title="($.name || null)" _="$.SIZE - $.INDEX">[逆序号]</label>
                         <code _="$.code">[代码]</code>
