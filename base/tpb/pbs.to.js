@@ -130,13 +130,17 @@ const _Update = {
      * 事件处理器克隆。
      * 将内容元素上的事件处理器克隆到目标元素（集）上。
      * 事件名可为空格分隔的多个名称。
+     * 如果目标为一个集合，源也为集合时，则为一一对应关系。
      * @param  {Element|Collector} to 目标元素（集）
-     * @param  {Element} src 事件源元素
+     * @param  {Element|[Element]} src 事件源元素（集）
      * @param  {String|Function} evns 事件名序列或过滤函数，可选
      * @return {void}
      */
     cloneEvent( to, src, evns ) {
         if ( $.isArray(to) ) {
+            if ( $.isArray(src) ) {
+                return to.forEach( (el, i) => $.cloneEvent(el, src[i], evns) );
+            }
             return to.forEach( el => $.cloneEvent( el, src, evns ) );
         }
         $.cloneEvent( to, src, evns );

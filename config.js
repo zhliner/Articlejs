@@ -163,6 +163,7 @@ const Sys = {
     evnFollow:  'update',   // 内容区选取变化跟随激发
     insType:    'edtype',   // 编辑类型更新（普通插入|微编辑）
     covert:     'tips',     // 不可见元素提示
+    shnav:      'reset',    // 脚本历史分页导航重置
 
 
     // 模板名定义

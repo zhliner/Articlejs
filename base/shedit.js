@@ -27,15 +27,13 @@ const
     __Store = new CStorage( Sys.prefixScript ),
 
     // 脚本历史编辑器。
-    __History = new History( Limit.shEdits, __TQHistory );
+    __History = new History( Limit.shEdits, __TQHistory ),
 
+    // 分页对象存储键：置顶区。
+    __navTop = Symbol('shnav:top'),
 
-let
-    // 置顶区分页实例。
-    __PagesTop = null,
-
-    // 搜索区（混合）分页实例。
-    __PagesAll = null;
+    // 分页对象存储键：搜索区。
+    __navAll = Symbol('shnav:all');
 
 
 
@@ -308,15 +306,15 @@ const __Kit = {
     /**
      * 脚本历史页初始化。
      * 主要为构建两个列表区的分页实例。
-     * @param  {Element} top 置顶区列表元素（<ul>）
-     * @param  {Element} all 搜索区列表元素（<ol>）
+     * @param  {Element} top  置顶区列表元素（<ul>）
+     * @param  {Element} all  搜索区列表元素（<ol>）
+     * @param  {Element} nav1 置顶区分页导航元素
+     * @param  {Element} nav2 搜索区分页导航元素
      * @return {void}
      */
-    shinit( evo, top, all ) {
-        __PagesAll = new Pages( all, [], Limit.shListAll );
-        __PagesTop = new Pages( top, objTops(), Limit.shListTop );
-        // window.shTop = __PagesTop;
-        // window.shAll = __PagesAll;
+    shinit( evo, top, all, nav1, nav2 ) {
+        nav2[__navAll] = new Pages( all, [], Limit.shListAll );
+        nav1[__navTop] = new Pages( top, objTops(), Limit.shListTop );
     },
 
 
@@ -367,17 +365,45 @@ const __Kit = {
 
 
     /**
-     * 脚本历史条目编辑（管理）。
-     * 进入或完成后，都需重建一个分页对象，重新渲染。
-     * @data:
-     * - true  开始
-     * - false 结束
+     * 脚本历史导航。
+     * where:
+     * - 0  首页
+     * - 1  前一页
+     * - 2  后一页
+     * - 3  末页
+     * @data: Element 导航根容器（<nav>）
+     * @param  {Number} where 位置代码
+     * @return {Element} 当前页根元素
      */
-    shEdit( evo ) {
+    shpage( evo, where ) {
         //
     },
 
-    __shEdit: 1,
+    __shpage: 1,
+
+
+    /**
+     * 进入历史条目编辑。
+     * @data: Element 分页导航元素
+     * @return {void}
+     */
+    shEdin( evo ) {
+        //
+    },
+
+    __shEdin: 1,
+
+
+    /**
+     * 完成历史条目编辑。
+     * @data: Element 分页导航元素
+     * @return {void}
+     */
+    shEdok( evo ) {
+        //
+    },
+
+    __shEdok: 1,
 
 
     /**
@@ -429,12 +455,12 @@ const __Kit = {
 
 
     /**
-     * 渲染/创建脚本清单。
-     * @param  {Boolean} top 限于置顶区
+     * 渲染/创建脚本历史清单。
+     * @data: [Object] 清单条目集
      * @return {Element} 清单分页首页根（ul|ol）
      */
-    shlist( evo, top ) {
-        //
+    shlist( evo ) {
+        return __PagesAll.data( evo.data ).first();
     },
 
     __shlist: 1,
@@ -452,7 +478,9 @@ processExtend( 'Kit', __Kit, [
     'delsh',
     'shtop',
     'shlabel',
-    'shEdit',
+    'shEdin',
+    'shEdok',
+    'shpage',
     'sh2panel',
     'shsearch',
     'shlist',

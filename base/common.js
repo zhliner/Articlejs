@@ -414,6 +414,16 @@ export class CStorage {
 
 
     /**
+     * 是否存在目标id的存储。
+     * @param  {String} id 存储ID
+     * @return {Boolean}
+     */
+    has( id ) {
+        return !!window.localStorage.getItem( this._fix + id );
+    }
+
+
+    /**
      * 清除全部存储。
      */
     clear() {
@@ -631,6 +641,16 @@ export class Pages {
 
 
     /**
+     * 返回当前页次。
+     * 注：页次计数从1开始。
+     * @return {Number}
+     */
+    page() {
+        return this._idx + 1;
+    }
+
+
+    /**
      * 返回页数
      * @return {Number}
      */
@@ -644,7 +664,7 @@ export class Pages {
      * 注意：
      * 设置数据集后缓存区会清空，当前页重置为首页。
      * @param  {[Object]} objs 条目对象集
-     * @return {[Object]|void}
+     * @return {[Object]|this}
      */
     data( objs ) {
         if ( objs === undefined ) {
@@ -653,6 +673,8 @@ export class Pages {
         this._data = objs;
         this._idx = 0;
         this._pool.length = 0;
+
+        return this;
     }
 
 

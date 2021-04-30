@@ -137,10 +137,10 @@
     <form class="_page _script" data-pbo=""
         on="submit|avoid value('words');
             click(b[role=del])|stop evo(2) parent dup attr('-sid');
-            ^obted|$('#sh-tops') $('#sh-list')"
+            ^obted|$('#sh-tops') $('#sh-list') $$('/nav') spread"
         by="Kit.shsearch Kit.shlist;
             Kit.delsh remove;
-            Kit.shinit(_2)"
+            Kit.shinit(_4)"
         to="#sh-list|replace">
         <header>
             <h4>脚本历史</h4>
@@ -163,13 +163,13 @@
                     <label>置顶区</label>
                     <!-- 管理时显示，完成后隐藏（hidden） -->
                     <span data-pbo=""
-                        on="off|(1, false);
-                            on|(0, true);
+                        on="off|evo(3) hide;
+                            on|evo(3) hide(false);
                             reset|$$('/b') disable;"
-                        by="Kit.shEdit;
-                            Kit.shEdit"
-                        to="|hide trigger('reset');
-                            |hide trigger('reset')">
+                        by="Kit.shEdok;
+                            Kit.shEdin"
+                        to="|trigger('reset');
+                            |trigger('reset')">
                         <!--撤销：成功后会激活Redo。-->
                         <b id="sh-undo" title="撤消" data-pbo="disabled"
                             on="click|evo(3) disabled end;
@@ -219,11 +219,25 @@
                         <b role="del">删除</b>
                     </li>
                 </ul>
-                <nav id="nav-top">
-                    <b data-pbo="disabled" title="首页"><i id="l-tobeg"></i></b>
-                    <b data-pbo="disabled" title="前一页"><i id="l-prevpage"></i></b>
-                    <b data-pbo="disabled" title="后一页"><i id="l-nextpage"></i></b>
-                    <b data-pbo="disabled" title="末页"><i id="l-toend"></i></b>
+                <nav id="nav-tops"
+                    on="state|;
+                        reset|">
+                    <b data-pbo="disabled" title="首页"
+                        on="click|evo(3) parent"
+                        by="Kit.shpage(0)"
+                        to="1/|trigger('state')"><i id="l-tobeg"></i></b>
+                    <b data-pbo="disabled" title="前一页"
+                        on="click|evo(3) parent"
+                        by="Kit.shpage(1)"
+                        to="1/|trigger('state')"><i id="l-prevpage"></i></b>
+                    <b data-pbo="disabled" title="后一页"
+                        on="click|evo(3) parent"
+                        by="Kit.shpage(2)"
+                        to="1/|trigger('state')"><i id="l-nextpage"></i></b>
+                    <b data-pbo="disabled" title="末页"
+                        on="click|evo(3) parent"
+                        by="Kit.shpage(3)"
+                        to="1/|trigger('state')"><i id="l-toend"></i></b>
                     <code>(<i>1</i>/<i>1</i>)</code>
                 </nav>
             </div>
@@ -234,7 +248,7 @@
                 to="main/|bind('mousemove') once('mouseup')" />
             <!-- 取消置顶无需移除 -->
             <div class="_down"
-                on="click(b[role=top])|stopAll evo(2) parent attr('-sid');
+                on="click(b[role=top])|stop evo(2) parent attr('-sid');
                     click(b[role=untop])|stop evo(2) parent attr('-sid')"
                 by="Kit.shtop(true);
                     Kit.shtop(false)">
@@ -246,7 +260,7 @@
                     label:title 置顶或曾经置顶的条目有效。 -->
                 <ol id="sh-list" class="_list" tpb-for>
                     <li>
-                        <label _title="($.name || null)" _="$.SIZE - $.INDEX">[逆序号]</label>
+                        <label _="($.name || '')">[片段名称]</label>
                         <code _="$.code">[代码]</code>
                         <time _="$.datetime">[时间戳]</time>
                         <b role="top" title="置顶" tpb-if="$.top"><i></i></b>
@@ -255,13 +269,9 @@
                         <b role="del">删除</b>
                     </li>
                 </ol>
-                <nav id="nav-misc">
-                    <b title="首页"><i id="l-tobeg"></i></b>
-                    <b title="前一页"><i id="l-prevpage"></i></b>
-                    <b title="后一页"><i id="l-nextpage"></i></b>
-                    <b title="末页"><i id="l-toend"></i></b>
-                    <code>(<i>1</i>/<i>8</i>)</code>
-                </nav>
+                <nav id="nav-misc"
+                    on="^obted|$$('#nav-tops>*') $('#nav-tops')"
+                    to="|cloneEvent append(true, true)"></nav>
             </div>
         </main>
     </form>
