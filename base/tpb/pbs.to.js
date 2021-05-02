@@ -17,7 +17,7 @@
 
 import { Util } from "./tools/util.js";
 import { bindMethod, DataStore, ChainStore, storeChain } from "./config.js";
-import { Get } from "./pbs.get.js";
+import { Get, eachState } from "./pbs.get.js";
 
 // 无渲染占位。
 // import { Render } from "./tools/render.x.js";
@@ -558,21 +558,15 @@ const _Update = {
 
 
 //
-// 状态标识符。
-//
-const __uiState = [ '-', '', '^' ];
-
-
-//
 // 元素自身表现。
+// 支持值数组与元素集成员一一对应。
 // 状态标识 s：
 //      1|true  状态执行，默认
 //      0|false 状态取消
 //      2       状态切换
 // 注记：
 // 与Get部分同名方法功能相同，但目标为Query的结果。
-// 另外状态标识由流程数据提供。
-// 这在根据前阶处理结果来决定状态时便于使用。
+// 且状态标识由流程数据提供。
 //===============================================
 [
     ['hide',     'hidden'],
@@ -585,10 +579,7 @@ const __uiState = [ '-', '', '^' ];
 .forEach(function( names ) {
     // @return {void}
     _Update[ names[0] ] = function( els, s ) {
-        if ( !$.isArray(els) ) {
-            els = [ els ];
-        }
-        els.forEach( el => Util.pbo(el, [`${__uiState[+s]}${names[1]}`]) );
+        eachState( els, s, names[1] );
     };
 
 });

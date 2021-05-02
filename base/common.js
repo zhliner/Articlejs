@@ -705,24 +705,6 @@ export class Pages {
     }
 
 
-    /**
-     * 是否可以向前翻页。
-     * @return {Boolean}
-     */
-    canPrev() {
-        return this._idx > 0;
-    }
-
-
-    /**
-     * 是否可以向后翻页。
-     * @return {Boolean}
-     */
-    canNext() {
-        return this._idx < this.pages() - 1;
-    }
-
-
     //-- 私有辅助 ----------------------------------------------------------------
 
 

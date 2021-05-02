@@ -195,6 +195,12 @@ stop( back?: Value ): back|void
 stopAll( back?: Value ): back|void
 // 停止事件冒泡并阻止本事件其它处理器的执行。
 
+loop( cnt, val ): void
+// 区段循环（entry开始）。
+
+effect( cnt, val ): void
+// 动效启动（entry开始）。
+
 
 
 // 暂存区赋值。
@@ -256,17 +262,14 @@ vain( n: Number ): void
 delay( ms:Number ): void
 // 执行流延迟并跳跃。
 
+prune(): void
+// 截断后续指令序列（会执行一次）。
+
 jump( cn, dn ): void
 // 跳过后续cn个指令和dn条数据栈条目。
 
 entry(): void
 // 创建入口方法。
-
-effect( cnt, val ): void
-// 动效启动（entry开始）。
-
-loop( cnt, val ): void
-// 区段循环（entry开始）。
 
 
 

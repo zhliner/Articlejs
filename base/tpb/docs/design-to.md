@@ -306,6 +306,12 @@ fire( rid, name, delay, bubble, cancelable ): void
 goto( name, extra ): void
 // 跳转到目标事件。
 
+intoView( y, x, rid ): void
+// 滚动到当前视口。
+
+changes( rid, env ): void
+// 表单控件改变通知。
+
 click()
 blur()
 focus()
@@ -318,13 +324,4 @@ submit()
 finisht()
 cancel()
 // 在目标元素上触发。
-
-scroll( x, y )
-// 滚动到目标位置。
-
-intoView( y, x, rid ): void
-// 滚动到当前视口。
-
-changes( rid, env ): void
-// 表单控件改变通知。
 ```

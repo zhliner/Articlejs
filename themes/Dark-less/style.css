@@ -1749,10 +1749,9 @@ menu._cells code {
     background-color: transparent;
 }
 .Modal ._history nav > code {
-    display: flex;
-    align-items: center;
     margin-left: 1em;
     color: gray;
+    align-self: center;
 }
 .Modal ._history ._bar {
     display: flex;

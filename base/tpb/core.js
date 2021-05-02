@@ -20,7 +20,7 @@
 
 import { Util } from "./tools/util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./tools/spliter.js";
-import { ACCESS, EXTENT, JUMPCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
+import { ACCESS, EXTENT, JUMPCELL, PREVCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
 
 
 const
@@ -744,6 +744,7 @@ class Cell {
         // this._extra; // 初始启动传值
         // this._next;  // 原始.next（jump指令需要）
         // this._delay; // 计数器存储（delay指令需要）
+        // this._prev;  // 前阶指令存储
 
         if (prev) prev.next = this;
     }
@@ -1035,11 +1036,12 @@ class Call {
 
     /**
      * 应用到指令集。
-     * 两个通用标记：
+     * 通用标记：
      * - [EXTENT] 自动取栈条目数
      * - [ACCESS] 可访问数据栈（特权）
-     * 特殊指令标记：
+     * 特殊标记：
      * - [JUMPCELL] jump专用标识。
+     * - [PREVCELL] 设置前阶指令标记。
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 指令集
      * @param  {Cell} prev 前阶指令
@@ -1055,8 +1057,11 @@ class Call {
             cell.setJUMP( true );
         }
         if ( prev.setJUMP() ) {
-            // 已至jump后阶指令。
+            // 此为jump跟随指令。
             prev.setJUMP( cell );
+        }
+        if ( cell[PREVCELL] ) {
+            cell._prev = prev;
         }
         return cell.build( this._args, _f, _f[ACCESS], _f[EXTENT] );
     }

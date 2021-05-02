@@ -81,6 +81,10 @@ const
     // 用于指令解析时判断赋值原始next。
     JUMPCELL = Symbol( 'jump Cell' ),
 
+    // 设置前阶指令标记。
+    // 主要用于To.Next:lone指令。
+    PREVCELL = Symbol( 'set prev Cell'),
+
     // 调用链头实例标记。
     HEADCELL = Symbol( 'first-cell' ),
 
@@ -327,6 +331,7 @@ export {
     EXTENT,
     ACCESS,
     JUMPCELL,
+    PREVCELL,
     HEADCELL,
     bindMethod,
     getMethod,

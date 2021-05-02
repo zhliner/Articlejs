@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, EXTENT, ACCESS, Globals, DEBUG, JUMPCELL } from "./config.js";
+import { bindMethod, EXTENT, ACCESS, Globals, DEBUG, JUMPCELL, PREVCELL } from "./config.js";
 
 
 const
@@ -2082,6 +2082,19 @@ function delay( evo, ms = 1 ) {
 // delay[EXTENT] = null;
 
 
+/**
+ * 指令序列截断。
+ * 后续指令会自然执行一次。
+ */
+function prune() {
+    this._prev.next = null;
+}
+
+prune[PREVCELL] = true;
+// prune[EXTENT] = null;
+
+
+
 const
     // 保护计数器。
     __propectLoop = [0, 0],
@@ -2198,6 +2211,7 @@ const Control = $.assign( {}, _Control, bindMethod );
 // 无预绑定处理。this:{Cell}
 //
 Control.delay = delay;
+Control.prune = prune;
 Control.jump  = jump;
 Control.entry = entry;
 Control.debug = debug;

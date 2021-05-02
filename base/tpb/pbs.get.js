@@ -1681,16 +1681,11 @@ const _Gets = {
 // 下面的接口为To部分同名接口在On段的方便性支持。
 //////////////////////////////////////////////////////////////////////////////
 
-//
-// 状态标识符。
-//
-const __uiState = [ '-', '', '^' ];
-
 
 //
 // 元素表现。
 // 目标：暂存区/栈顶1项。
-// 目标为元素或元素集。
+// 目标为元素或元素集。支持值数组与元素集成员一一对应。
 // 状态标识 s：
 //      1|true  状态执行，默认
 //      0|false 状态取消
@@ -1708,10 +1703,7 @@ const __uiState = [ '-', '', '^' ];
 
     // @return {void}
     _Gets[names[0]] = function( evo, s = 1 ) {
-        eachCall(
-            evo.data,
-            el => Util.pbo( el, [__uiState[+s] + names[1]] )
-        );
+        eachState( evo.data, s, names[1] );
     };
 
     _Gets[`__${names[0]}`] = 1;
@@ -1769,7 +1761,10 @@ const __uiState = [ '-', '', '^' ];
 
     // @return {void}
     _Gets[meth] = function( evo ) {
-        eachCall( evo.data, el => $[meth](el) );
+        if ( $.isArray(evo.data) ) {
+            return evo.data.forEach( el => $[meth](el) );
+        }
+        $[meth]( evo.data );
     };
 
     _Gets[`__${meth}`] = 1;
@@ -1794,20 +1789,6 @@ function mapCall( data, handle ) {
         return data.map( v => handle(v) );
     }
     return handle( data );
-}
-
-
-/**
- * 单值/集合调用封装。
- * @param  {Value|[Value]} data 数据/集
- * @param  {Function} handle 调用句柄
- * @return {void}
- */
-function eachCall( data, handle ) {
-    if ( $.isArray(data) ) {
-        return data.forEach( v => handle(v) );
-    }
-    handle( data );
 }
 
 
@@ -2011,6 +1992,37 @@ function elemInfo( el, hasid, hascls ) {
         _s += '.' + [...el.classList].join('.');
     }
     return _s;
+}
+
+
+
+// 工具导出。
+//////////////////////////////////////////////////////////////////////////////
+
+//
+// 状态标识符。
+//
+const __uiState = [ '-', '', '^' ];
+
+
+/**
+ * 逐一调用封装。
+ * 支持值集与元素集成员一一对应。
+ * @param  {Element|[Element]} els 元素集
+ * @param  {Boolean|[Boolean]} s 状态标识/集
+ * @param  {String} name 状态特性名
+ * @return {void}
+ */
+export function eachState( els, s, name ) {
+    if ( !$.isArray(els) ) {
+        els = [ els ];
+    }
+    if ( !$.isArray(s) ) {
+        s = new Array(els.length).fill( s );
+    }
+    els.forEach(
+        (el, i) => s[i] !== undefined && Util.pbo(el, [`${__uiState[+s[i]]}${name}`])
+    );
 }
 
 

@@ -157,8 +157,11 @@
                 /._top|height">
             <!-- 内置限高：避免初始即溢出（无法通过拖拽调整） -->
             <div class="_top" style="height: 35%;"
-                on="click(b[role=untop])|stop evo(2) parent dup attr('-sid')"
-                by="Kit.shtop(false) remove">
+                on="click(b[role=untop])|stop evo(2) parent dup attr('-sid');
+                    page|ev('detail')"
+                by="Kit.shtop(false) remove"
+                to="-;
+                    /ul|replace">
                 <div class="_bar">
                     <label>置顶区</label>
                     <!-- 管理时显示，完成后隐藏（hidden） -->
@@ -205,14 +208,7 @@
                     to="=|@contenteditable;
                         =|@contenteditable|focus">
                     <li _data-sid="$.shid">
-                        <label _="$.name">脚本片段名</label>
-                        <code _="$.code">代码：单击提取并导入脚本录入框。</code>
-                        <time _="$.datetime">时间戳</time>
-                        <b role="untop" title="取消置顶"><i></i></b>
-                        <b role="del">删除</b>
-                    </li>
-                    <li _data-sid="$.shid">
-                        <label _="$.name">脚本片段名</label>
+                        <label _="($.name || '单击修改')">脚本片段名</label>
                         <code _="$.code">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
                         <b role="untop" title="取消置顶"><i></i></b>
@@ -220,25 +216,27 @@
                     </li>
                 </ul>
                 <nav id="nav-tops"
-                    on="state|;
-                        reset|">
-                    <b data-pbo="disabled" title="首页"
-                        on="click|evo(3) parent"
-                        by="Kit.shpage(0)"
-                        to="1/|trigger('state')"><i id="l-tobeg"></i></b>
-                    <b data-pbo="disabled" title="前一页"
-                        on="click|evo(3) parent"
-                        by="Kit.shpage(1)"
-                        to="1/|trigger('state')"><i id="l-prevpage"></i></b>
-                    <b data-pbo="disabled" title="后一页"
-                        on="click|evo(3) parent"
-                        by="Kit.shpage(2)"
-                        to="1/|trigger('state')"><i id="l-nextpage"></i></b>
-                    <b data-pbo="disabled" title="末页"
-                        on="click|evo(3) parent"
-                        by="Kit.shpage(3)"
-                        to="1/|trigger('state')"><i id="l-toend"></i></b>
-                    <code>(<i>1</i>/<i>1</i>)</code>
+                    on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
+                        reset|evo(3);
+                        state|ev('detail') spread"
+                    by="Kit.shpage(_1) spread;
+                        Kit.shnav spread"
+                    to="1/|trigger('page')|pop fire(3, 'state');
+                        (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
+                        (/>b)|trigger('state')|pop fire('/code', 'update')">
+                    <b data-v="0" title="首页"
+                        on="state|evo(3) ev('detail') eq(0) disable(_1)"><i id="l-tobeg"></i></b>
+                    <b data-v="1" title="前一页"
+                        on="state|evo(3) ev('detail') eq(0) disable(_1)"><i id="l-prevpage"></i></b>
+                    <b data-v="2" title="后一页"
+                        on="state|evo(3) ev('detail') eq(1) disable(_1)"><i id="l-nextpage"></i></b>
+                    <b data-v="3" title="末页"
+                        on="state|evo(3) ev('detail') eq(1) disable(_1)"><i id="l-toend"></i></b>
+                    <code
+                        on="update|ev('detail');
+                            reset|stop (1) ev('detail') pack(2)"
+                        to="/i|text;
+                            (/i)|text">(<i>1</i>/<i>1</i>)</code>
                 </nav>
             </div>
             <!--拖动：调整上下区域高度

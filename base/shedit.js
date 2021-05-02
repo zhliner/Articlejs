@@ -29,11 +29,13 @@ const
     // 脚本历史编辑器。
     __History = new History( Limit.shEdits, __TQHistory ),
 
-    // 分页对象存储键：置顶区。
-    __navTop = Symbol('shnav:top'),
+    // 分页对象存储键。
+    __navPage = Symbol('shnav:pages');
 
-    // 分页对象存储键：搜索区。
-    __navAll = Symbol('shnav:all');
+
+// 全局状态：
+// 是否处于编辑状态。
+let __Editing = false;
 
 
 
@@ -313,8 +315,8 @@ const __Kit = {
      * @return {void}
      */
     shinit( evo, top, all, nav1, nav2 ) {
-        nav2[__navAll] = new Pages( all, [], Limit.shListAll );
-        nav1[__navTop] = new Pages( top, objTops(), Limit.shListTop );
+        nav2[__navPage] = new Pages( all, [], Limit.shListAll );
+        nav1[__navPage] = new Pages( top, objTops(), Limit.shListTop );
     },
 
 
@@ -371,9 +373,13 @@ const __Kit = {
      * - 1  前一页
      * - 2  后一页
      * - 3  末页
+     * 页次状态：
+     * - 0  到达首页（点按前一页或首页时）
+     * - 1  到达末页（点按后一页或末页时）
+     * 页次：从 1 开始。
      * @data: Element 导航根容器（<nav>）
      * @param  {Number} where 位置代码
-     * @return {Element} 当前页根元素
+     * @return {[[Number,Number], Element]} [[当前页次,页次状态], 页根元素]
      */
     shpage( evo, where ) {
         //
@@ -383,12 +389,34 @@ const __Kit = {
 
 
     /**
+     * 分页导航配置。
+     * 即分页导航关联元素/按钮的初始状态设置。
+     * - 首个返回值为总页数，用于数值提示。
+     * - 第二个返回值为一个布尔值数组，对应4个页控制按钮状态。
+     * @data: Element 导航根容器（<nav>）
+     * @return {[Number，[Boolean]]} [首页根, 总页数, [disable]]
+     */
+    shnav( evo ) {
+        let _pgo = evo.data[__navPage],
+            _one = _pgo.pages() <= 1;
+        return [
+            _pgo.first(),
+            _pgo.pages(),
+            [ true, true, _one, _one ]
+        ];
+    },
+
+    __shnav: 1,
+
+
+    /**
      * 进入历史条目编辑。
      * @data: Element 分页导航元素
      * @return {void}
      */
     shEdin( evo ) {
         //
+        __Editing = true;
     },
 
     __shEdin: 1,
@@ -401,6 +429,7 @@ const __Kit = {
      */
     shEdok( evo ) {
         //
+        __Editing = false;
     },
 
     __shEdok: 1,
@@ -481,6 +510,7 @@ processExtend( 'Kit', __Kit, [
     'shEdin',
     'shEdok',
     'shpage',
+    'shnav',
     'sh2panel',
     'shsearch',
     'shlist',
