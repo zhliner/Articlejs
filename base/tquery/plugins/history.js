@@ -51,8 +51,8 @@
         classdone:  ev => new Class( ev.target, ev.detail ),
 
         // 节点变化。
-        // 共需记录4种情形。
         nodesdone:  ev => new Nodesdone( ev.detail[0] ),
+        nodeok:     ev => new Nodesdone( [ev.target] ),  // 冗余（方便用户）
         detached:   ev => new Remove( ev.target, ev.detail ),
         emptied:    ev => new Empty( ev.target, ev.detail ),
         // 事前拦截。

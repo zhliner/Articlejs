@@ -14,6 +14,7 @@
 
 import { Sys, Limit } from "../config.js";
 import { CStorage, History, Pages } from "./common.js";
+import { customGetter } from "./tpb/pbs.get.js";
 import { processExtend } from "./tpb/pbs.by.js";
 
 
@@ -30,19 +31,24 @@ const
     __History = new History( Limit.shEdits, __TQHistory ),
 
     // 分页对象存储键。
-    __navPage = Symbol('shnav:pages');
+    __navPage = Symbol( 'shnav:pages' );
 
 
-// 全局状态：
-// 是否处于编辑状态。
-let __Editing = false;
+let
+    // 重做按钮元素
+    __btnRedo = null,
+
+    // 全局状态：
+    // 是否处于编辑状态。
+    __Editing = false;
 
 
 
 //
-// 脚本历史删除操作（DOM部分）。
+// 脚本历史删除
+// 注：DOM部分。
 //
-class SHDel {
+class DOMDel {
     /**
      * 构造一个操作实例。
      * @param {Element|[Element]} els 目标元素（集）
@@ -74,6 +80,88 @@ class SHDel {
 
         this.$els.remove();
         this.count = __TQHistory.size() - _old;
+    }
+}
+
+
+//
+// 脚本历史删除。
+// 注：本地存储部分。
+//
+class SHDel {
+    /**
+     * 构造一个编辑实例。
+     * @param {String} shid 脚本存储ID
+     */
+    constructor( shid ) {
+        this._sid = shid;
+        this._old = __Store.get( shid );
+
+        this.redo();
+    }
+
+
+    /**
+     * 撤销。
+     * 恢复存储，恢复DOM显示。
+     */
+    undo() {
+        __Store.set( this._sid, this._old );
+    }
+
+
+    /**
+     * 重做。
+     * 重新删除，移除DOM显示条目。
+     */
+    redo() {
+        __Store.del( this._sid );
+    }
+}
+
+
+//
+// 置顶编辑。
+// 包含置顶和取消置顶两项操作。
+// 不涉及DOM的操作，完成后外部应当刷新显示。
+//
+class TopEdit {
+    /**
+     * 构造一个编辑实例。
+     * @param {String} shid 脚本存储ID
+     * @param {Boolean} top 是否置顶
+     */
+    constructor( shid, top ) {
+        this._sid = shid;
+        this._top = !!top;
+
+        // 应当已存在。
+        // 初始可能未定义top。
+        this._old = !!__Store.get( shid ).top;
+
+        this.redo();
+    }
+
+
+    /**
+     * 撤销。
+     * 恢复存储，恢复DOM显示。
+     */
+    undo() {
+        let _sh = shObj( this._sid );
+        _sh.top = this._old;
+        __Store.set( this._sid, _sh );
+    }
+
+
+    /**
+     * 重做。
+     * 重新删除，移除DOM显示条目。
+     */
+    redo() {
+        let _sh = shObj( this._sid );
+        _sh.top = this._top;
+        __Store.set( this._sid, _sh );
     }
 }
 
@@ -144,92 +232,23 @@ class PageEdit {
 }
 
 
-//
-// 脚本历史编辑：本地存储。
-//
-class SHEdit {
-    /**
-     * 构造一个编辑实例。
-     * @param {String} shid 脚本存储ID
-     */
-    constructor( shid ) {
-        this._sid = shid;
-        this._old = __Store.get( shid );
-
-        this.redo();
-    }
-
-
-    /**
-     * 撤销。
-     * 恢复存储，恢复DOM显示。
-     */
-    undo() {
-        __Store.set( this._sid, this._old );
-    }
-
-
-    /**
-     * 重做。
-     * 重新删除，移除DOM显示条目。
-     */
-    redo() {
-        __Store.del( this._sid );
-    }
-}
-
-
-//
-// 脚本代码置顶编辑。
-// 对执行过的历史脚本做置顶标记，便于使用（类似代码片段）。
-// 注记：
-// 不涉及DOM的操作，完成后外部应当刷新显示。
-//
-class SHTop {
-    /**
-     * 构造一个编辑实例。
-     * @param {String} shid 脚本存储ID
-     * @param {Boolean} top 是否置顶
-     */
-    constructor( shid, top ) {
-        this._sid = shid;
-        this._top = !!top;
-
-        // 应当已存在。
-        // 初始可能未定义top。
-        this._old = !!__Store.get( shid ).top;
-
-        this.redo();
-    }
-
-
-    /**
-     * 撤销。
-     * 恢复存储，恢复DOM显示。
-     */
-    undo() {
-        let _sh = shObj( this._sid );
-        _sh.top = this._old;
-        __Store.set( this._sid, _sh );
-    }
-
-
-    /**
-     * 重做。
-     * 重新删除，移除DOM显示条目。
-     */
-    redo() {
-        let _sh = shObj( this._sid );
-        _sh.top = this._top;
-        __Store.set( this._sid, _sh );
-    }
-}
-
-
 
 //
 // 工具函数。
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 向历史栈压入编辑操作。
+ * 包含编辑状态判断：仅在编辑状态才需要实际执行。
+ * @param  {...Instance} obj 操作实例序列
+ */
+function historyPush( ...obj ) {
+    if ( __Editing ) {
+        $.trigger( __btnRedo, 'state', true );
+        __History.push( ...obj.filter(v => v) );
+    }
+}
 
 
 /**
@@ -255,7 +274,7 @@ function shObj( sid ) {
  * 提取置顶条目对象集。
  * @return {[Object]}
  */
-function objTops() {
+function topObjs() {
     let _buf = [];
 
     for ( const k of __Store.keys() ) {
@@ -285,6 +304,19 @@ function xfilter( ...words ) {
 // 辅助工具集。
 //
 const __Kit = {
+    //-- On扩展 --------------------------------------------------------------
+
+    /**
+     * 获取置顶条目集。
+     * @return {[Object]}
+     */
+    shtops() {
+        return topObjs();
+    },
+
+
+    //-- By扩展 --------------------------------------------------------------
+
     /**
      * 脚本历史编辑撤销。
      * @return {Boolean} 是否不可再撤销
@@ -308,6 +340,7 @@ const __Kit = {
     /**
      * 脚本历史页初始化。
      * 主要为构建两个列表区的分页实例。
+     * @data: Element 重做按钮元素
      * @param  {Element} top  置顶区列表元素（<ul>）
      * @param  {Element} all  搜索区列表元素（<ol>）
      * @param  {Element} nav1 置顶区分页导航元素
@@ -315,9 +348,27 @@ const __Kit = {
      * @return {void}
      */
     shinit( evo, top, all, nav1, nav2 ) {
+        __btnRedo = evo.data;
+        nav1[__navPage] = new Pages( top, null, Limit.shListTop );
         nav2[__navPage] = new Pages( all, [], Limit.shListAll );
-        nav1[__navPage] = new Pages( top, objTops(), Limit.shListTop );
     },
+
+    __shinit: 1,
+
+
+    /**
+     * 绑定历史编辑记录。
+     * 仅需监测两个操作即可：
+     * - nodeok 单个插入完成。如设置置顶，新条目插入置顶区（首页）。
+     * - detached 删除操作。如直接删除和置顶/取消置顶附带的删除行为。
+     * @data: Element 绑定记录事件的根元素
+     * @return {boid}
+     */
+    shrecord( evo ) {
+        $.on( evo.data, 'nodeok detached', null, __TQHistory );
+    },
+
+    __shrecord: 1,
 
 
     /**
@@ -338,14 +389,14 @@ const __Kit = {
      * @param  {Boolean} top 是否置顶
      * @return {void}
      */
-    shtop( evo, top ) {
+    topsh( evo, top ) {
         let _sh = shObj( evo.data );
 
         _sh.top = top;
         __Store.set( evo.data, JSON.stringify(_sh) );
     },
 
-    __shtop: 1,
+    __topsh: 1,
 
 
     /**
@@ -394,10 +445,11 @@ const __Kit = {
      * - 首个返回值为总页数，用于数值提示。
      * - 第二个返回值为一个布尔值数组，对应4个页控制按钮状态。
      * @data: Element 导航根容器（<nav>）
+     * @param  {[Object]} data 分页数据
      * @return {[Number，[Boolean]]} [首页根, 总页数, [disable]]
      */
-    shnav( evo ) {
-        let _pgo = evo.data[__navPage],
+    shnav( evo, data ) {
+        let _pgo = evo.data[__navPage].data(data),
             _one = _pgo.pages() <= 1;
         return [
             _pgo.first(),
@@ -462,9 +514,10 @@ const __Kit = {
 
     /**
      * 搜索目标脚本。
+     * 返回集按存储的先后顺序逆序排列。
      * - 空格：逻辑 AND
      * - 逗号：逻辑 OR
-     * @data: String 待检索关键词序列
+     * @data: String 待检索关键词串
      * @return {[Object]}
      */
     shsearch( evo ) {
@@ -473,7 +526,7 @@ const __Kit = {
             ),
             _buf = [];
 
-        for ( const key of __Store.keys() ) {
+        for ( const key of __Store.keys().reverse() ) {
             let _obj = shObj( key );
             _obj.code && _fun( _obj.code ) && _buf.push( _obj )
         }
@@ -482,17 +535,6 @@ const __Kit = {
 
     __shsearch: 1,
 
-
-    /**
-     * 渲染/创建脚本历史清单。
-     * @data: [Object] 清单条目集
-     * @return {Element} 清单分页首页根（ul|ol）
-     */
-    shlist( evo ) {
-        return __PagesAll.data( evo.data ).first();
-    },
-
-    __shlist: 1,
 }
 
 
@@ -504,8 +546,9 @@ processExtend( 'Kit', __Kit, [
     'shUndo',
     'shRedo',
     'shinit',
+    'shrecord',
     'delsh',
-    'shtop',
+    'topsh',
     'shlabel',
     'shEdin',
     'shEdok',
@@ -513,5 +556,12 @@ processExtend( 'Kit', __Kit, [
     'shnav',
     'sh2panel',
     'shsearch',
-    'shlist',
+]);
+
+
+//
+// On.v: 杂项取值。
+//
+customGetter( null, __Kit, [
+    'shtops',
 ]);

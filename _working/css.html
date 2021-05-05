@@ -137,11 +137,13 @@
     <form class="_page _script" data-pbo=""
         on="submit|avoid value('words');
             click(b[role=del])|stop evo(2) parent dup attr('-sid');
-            ^obted|$('#sh-tops') $('#sh-list') $$('/nav') spread"
-        by="Kit.shsearch Kit.shlist;
-            Kit.delsh remove;
-            Kit.shinit(_4)"
-        to="#sh-list|replace">
+            ^obted|$('#sh-redo') $('#sh-tops') $('#sh-list') $$('/nav') spread;
+            ^obted|evo(3)"
+        by="Kit.shsearch;
+            Kit.delsh;
+            Kit.shinit(_4);
+            Kit.shrecord"
+        to="#nav-misc|trigger('reset')">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
@@ -159,7 +161,7 @@
             <div class="_top" style="height: 35%;"
                 on="click(b[role=untop])|stop evo(2) parent dup attr('-sid');
                     page|ev('detail')"
-                by="Kit.shtop(false) remove"
+                by="Kit.topsh(false)"
                 to="-;
                     /ul|replace">
                 <div class="_bar">
@@ -171,8 +173,8 @@
                             reset|$$('/b') disable;"
                         by="Kit.shEdok;
                             Kit.shEdin"
-                        to="|trigger('reset');
-                            |trigger('reset')">
+                        to="|trigger('reset')|fire('main/._search', 'on');
+                            |trigger('reset')|fire('main/._search', 'off')">
                         <!--撤销：成功后会激活Redo。-->
                         <b id="sh-undo" title="撤消" data-pbo="disabled"
                             on="click|evo(3) disabled end;
@@ -215,12 +217,13 @@
                         <b role="del">删除</b>
                     </li>
                 </ul>
+                <!-- evn:page 激发上层换页，注意选择器定位通用（事件会被克隆） -->
                 <nav id="nav-tops"
                     on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
-                        reset|evo(3);
+                        reset|evo(3) ev('detail');
                         state|ev('detail') spread"
                     by="Kit.shpage(_1) spread;
-                        Kit.shnav spread"
+                        Kit.shnav(_1) spread"
                     to="1/|trigger('page')|pop fire(3, 'state');
                         (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
                         (/>b)|trigger('state')|pop fire('/code', 'update')">
@@ -247,10 +250,17 @@
             <!-- 取消置顶无需移除 -->
             <div class="_down"
                 on="click(b[role=top])|stop evo(2) parent attr('-sid');
-                    click(b[role=untop])|stop evo(2) parent attr('-sid')"
-                by="Kit.shtop(true);
-                    Kit.shtop(false)">
-                <div class="_search">
+                    click(b[role=untop])|stop evo(2) parent attr('-sid');
+                    page|ev('detail')"
+                by="Kit.topsh(true);
+                    Kit.topsh(false)"
+                to="-;-;
+                    /ol|replace">
+                <div class="_search"
+                    on="on|stop (false);
+                        off|stop (true)"
+                    to="(/>*)|$disabled;
+                        (/>*)|$disabled">
                     <input type="text" name="words" placeholder="空格：AND； 逗号：OR" />
                     <button type="submit"></button>
                 </div>
@@ -267,6 +277,7 @@
                         <b role="del">删除</b>
                     </li>
                 </ol>
+                <!-- 复用：#nav-tops 绑定的事件处理 -->
                 <nav id="nav-misc"
                     on="^obted|$$('#nav-tops>*') $('#nav-tops')"
                     to="|cloneEvent append(true, true)"></nav>

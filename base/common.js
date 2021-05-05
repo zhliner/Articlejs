@@ -465,8 +465,8 @@ export class History {
 
 
     /**
-     * 入栈一个操作。
-     * 仅作为单个实体压入。
+     * 入栈一个操作序列。
+     * 多个实体会被同时处理，因此单次压入。
      * @param  {...Instance} objs 操作实例序列
      * @return {[Instance]|false} 头部被移出的操作实例序列
      */
