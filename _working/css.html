@@ -136,14 +136,20 @@
 
     <form class="_page _script" data-pbo=""
         on="submit|avoid value('words');
+            click(b[role=top])|stop evo(2) parent attr('-sid');
+            click(b[role=untop])|stop evo(2) parent attr('-sid');
             click(b[role=del])|stop evo(2) parent dup attr('-sid');
             ^obted|$('#sh-redo') $('#sh-tops') $('#sh-list') $$('/nav') spread;
             ^obted|evo(3)"
         by="Kit.shsearch;
-            Kit.delsh;
+            Kit.topsh ('untop') evo(2) pop;
+            Kit.untop ('top') evo(2) pop;
+            Kit.delsh(_1);
             Kit.shinit(_4);
             Kit.shrecord"
-        to="#nav-misc|trigger('reset')">
+        to="#nav-misc|trigger('reset');
+            -|@role;
+            -|@role">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
@@ -157,13 +163,11 @@
             to="/._down|%max-height|goto('tophei', _1);
                 |off('mousemove');
                 /._top|height">
-            <!-- 内置限高：避免初始即溢出（无法通过拖拽调整） -->
+            <!--内置限高：
+                避免初始即溢出（无法通过拖拽调整）。 -->
             <div class="_top" style="height: 35%;"
-                on="click(b[role=untop])|stop evo(2) parent dup attr('-sid');
-                    page|ev('detail')"
-                by="Kit.topsh(false)"
-                to="-;
-                    /ul|replace">
+                on="page|ev('detail')"
+                to="/ul|replace">
                 <div class="_bar">
                     <label>置顶区</label>
                     <!-- 管理时显示，完成后隐藏（hidden） -->
@@ -192,8 +196,9 @@
                             to="|trigger('state');
                                 #sh-undo|trigger('enable')">↷</b>
                     </span>
+                    <!-- click avoid 避免提交逻辑 -->
                     <button class="_edit" data-op="on"
-                        on="click|$$('main/li>b') lose(2) (['on', 'off']) ('_edit') (['管理', '完成']);
+                        on="click|avoid $$('main/li>b') lose(2) (['on', 'off']) ('_edit') (['管理', '完成']);
                             bstate|evo(3) attr('-op')"
                         to="|^text toggleClass ^-op|goto('bstate');
                             1/span|trigger(_1)">完成</button>
@@ -221,12 +226,13 @@
                 <nav id="nav-tops"
                     on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
                         reset|evo(3) ev('detail');
-                        state|ev('detail') spread"
-                    by="Kit.shpage(_1) spread;
-                        Kit.shnav(_1) spread"
-                    to="1/|trigger('page')|pop fire(3, 'state');
+                        state|evo(3)"
+                    by="Kit.shpage(_1);
+                        Kit.shconf(_1) spread;
+                        Kit.shnav"
+                    to="|trigger('state');
                         (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
-                        (/>b)|trigger('state')|pop fire('/code', 'update')">
+                        (/>b)|disable|pop fire('/code', 'update')">
                     <b data-v="0" title="首页"
                         on="state|evo(3) ev('detail') eq(0) disable(_1)"><i id="l-tobeg"></i></b>
                     <b data-v="1" title="前一页"
@@ -249,13 +255,8 @@
                 to="main/|bind('mousemove') once('mouseup')" />
             <!-- 取消置顶无需移除 -->
             <div class="_down"
-                on="click(b[role=top])|stop evo(2) parent attr('-sid');
-                    click(b[role=untop])|stop evo(2) parent attr('-sid');
-                    page|ev('detail')"
-                by="Kit.topsh(true);
-                    Kit.topsh(false)"
-                to="-;-;
-                    /ol|replace">
+                on="page|ev('detail')"
+                to="/ol|replace">
                 <div class="_search"
                     on="on|stop (false);
                         off|stop (true)"

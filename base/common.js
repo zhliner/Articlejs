@@ -641,12 +641,24 @@ export class Pages {
 
 
     /**
-     * 返回当前页次。
-     * 注：页次计数从1开始。
-     * @return {Number}
+     * 获取当前页次。
+     * @return {Element} 列表根
      */
-    page() {
-        return this._idx + 1;
+    current() {
+        return this._index( this._idx );
+    }
+
+
+    /**
+     * 更新或返回当前页次。
+     * 页次计数从0开始。
+     * @return {Number|void}
+     */
+    page( idx ) {
+        if ( idx === undefined ) {
+            return this._idx;
+        }
+        this._idx = idx;
     }
 
 
@@ -660,48 +672,26 @@ export class Pages {
 
 
     /**
-     * 获取或设置数据集。
+     * 设置新数据集。
      * 注意：
      * 设置数据集后缓存区会清空，当前页重置为首页。
      * @param  {[Object]} objs 条目对象集
-     * @return {[Object]|this}
+     * @return {this}
      */
     data( objs ) {
-        if ( objs === undefined ) {
-            return this._data;
-        }
         this._data = objs;
         this._idx = 0;
         this._pool.length = 0;
-
         return this;
     }
 
 
     /**
-     * 向数据集插入条目。
-     * 默认插入到数据集前端。
-     * 通常，插入后应当立即重新构建当前页（.rebuild）。
-     * 注记：
-     * 插入后应当即时反映分页情况（页大小限制）。
-     * 但删除时当前页条目减少，不影响页大小限制，故暂不设计删除条目接口。
-     * @param  {Object} obj 条目对象
-     * @param  {Boolean} last 添加到末尾，可选
-     * @return {void}
+     * 是否到达末页。
+     * @return {Boolean}
      */
-    insert( obj, last ) {
-        last ? this._data.push(obj) : this._data.unshift( obj );
-    }
-
-
-    /**
-     * 重新构建。
-     * 当前页次不变，清空其它页缓存。
-     * @return {Element} 当前页根
-     */
-    rebuild() {
-        this._pool.length = 0;
-        return this.index( this._idx );
+    end() {
+        return this._idx === this.pages() - 1;
     }
 
 

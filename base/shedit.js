@@ -8,6 +8,13 @@
 //
 //  历史脚本编辑支持。
 //
+//  历史条目的编辑 撤销/重做 仅包含删除和换页，置顶和标签编辑不纳入。
+//  这是因为置顶区和搜索区可能包含相同的条目，简化设计以回避同步的逻辑处理。
+//
+//  注记：
+//  编辑时，置顶区的取消置顶操作并不会移除条目，而只是简单地切换为可置顶状态，
+//  只有当用户点击完成按钮时，置顶区条目才会重置并清理掉非置顶项。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -57,7 +64,6 @@ class DOMDel {
         this.$els = $( els );
         // 外部只读
         this.count = null;
-
         this.redo();
     }
 
@@ -121,113 +127,43 @@ class SHDel {
 
 
 //
-// 置顶编辑。
-// 包含置顶和取消置顶两项操作。
-// 不涉及DOM的操作，完成后外部应当刷新显示。
+// 换页操作。
+// 因为条目删除进入历史，故换页也需要记录。
 //
-class TopEdit {
+class PageEd {
     /**
-     * 构造一个编辑实例。
-     * @param {String} shid 脚本存储ID
-     * @param {Boolean} top 是否置顶
+     * @param {Pages} pgo 页集缓存实例
+     * @param {Number} n  原先页次
+     * @param {Element} old 原列表
+     * @param {Element} nel 新列表
      */
-    constructor( shid, top ) {
-        this._sid = shid;
-        this._top = !!top;
-
-        // 应当已存在。
-        // 初始可能未定义top。
-        this._old = !!__Store.get( shid ).top;
-
-        this.redo();
-    }
-
-
-    /**
-     * 撤销。
-     * 恢复存储，恢复DOM显示。
-     */
-    undo() {
-        let _sh = shObj( this._sid );
-        _sh.top = this._old;
-        __Store.set( this._sid, _sh );
-    }
-
-
-    /**
-     * 重做。
-     * 重新删除，移除DOM显示条目。
-     */
-    redo() {
-        let _sh = shObj( this._sid );
-        _sh.top = this._top;
-        __Store.set( this._sid, _sh );
-    }
-}
-
-
-//
-// 换页编辑操作。
-// 换页作为一个独立的DOM变化来记录。
-// 当前页次记录在容器元素的 data-page 特性上。
-// 注记：
-// 当前页可能已经被编辑（删除条目），故需更新页条目缓存器。
-// 支持跳转到任意有效页次。
-//
-class PageEdit {
-    /**
-     * @param {PageBuf} buf 页集缓存实例
-     * @param {Element} box 条目容器
-     * @param {[Element]} els 新页条目集
-     * @param {Number} n 目标页次（从0开始）
-     */
-    constructor( buf, box, els, n ) {
-        this._buf = buf;
-        this._box = box;
-        this._els = els;
+    constructor( pgo, n, old, nel ) {
+        this._pgo = pgo;
         this._idx = n;
+        this._old = old;
+        this._new = nel;
+        this._pgn = pgo.page();
         // 外部只读
         this.count = null;
-
         this.redo();
     }
 
 
-    /**
-     * 撤销。
-     * 撤销前的新页面缓存保持。
-     */
     undo() {
         if ( this.count > 0 ) {
             __TQHistory.back( this.count );
         }
-        this._buf.update( this._idx, this._els );
+        this._pgo.page( this._idx );
     }
 
 
-    /**
-     * 重做。
-     * 换页前页面的信息缓存保持。
-     */
     redo() {
-        this._save( this._buf, this._box );
-
         let _old = __TQHistory.size();
 
-        $.fill( this._box, this._els );
-        $.attr( this._box, '-page', this._idx );
+        $.replace( this._old, this._new );
+        this._pgo.page( this._pgn );
 
         this.count = __TQHistory.size() - _old;
-    }
-
-
-    /**
-     * 当前页信息保存。
-     * @param {PageBuf} buf 页缓存器
-     * @param {Element} box 条目容器
-     */
-    _save( buf, box ) {
-        buf.update( $.attr(box, '-page'), $.children(box) );
     }
 }
 
@@ -373,30 +309,47 @@ const __Kit = {
 
     /**
      * 删除脚本历史条目。
-     * @data: String 条目ID
+     * @data: Element 条目元素（<li>）
+     * @param  {String} shid 条目ID
      * @return {void}
      */
-    delsh( evo ) {
-        __Store.del( evo.data );
+    delsh( evo, shid ) {
+        historyPush( new DOMDel(evo.data), new SHDel(shid) );
     },
 
     __delsh: 1,
 
 
     /**
-     * 条目置顶/取消置顶。
+     * 条目置顶。
+     * 注：只会出现在搜索区。
      * @data: String 条目ID
-     * @param  {Boolean} top 是否置顶
      * @return {void}
      */
-    topsh( evo, top ) {
+    topsh( evo ) {
         let _sh = shObj( evo.data );
 
-        _sh.top = top;
+        _sh.top = true;
         __Store.set( evo.data, JSON.stringify(_sh) );
     },
 
     __topsh: 1,
+
+
+    /**
+     * 取消置顶。
+     * 通常针对置顶区，但页可能会出现在搜索区。
+     * @data: String 条目ID
+     * @return {void}
+     */
+    untop( evo ) {
+        let _sh = shObj( evo.data );
+
+        _sh.top = false;
+        __Store.set( evo.data, JSON.stringify(_sh) );
+    },
+
+    __untop: 1,
 
 
     /**
@@ -424,19 +377,43 @@ const __Kit = {
      * - 1  前一页
      * - 2  后一页
      * - 3  末页
-     * 页次状态：
-     * - 0  到达首页（点按前一页或首页时）
-     * - 1  到达末页（点按后一页或末页时）
-     * 页次：从 1 开始。
      * @data: Element 导航根容器（<nav>）
      * @param  {Number} where 位置代码
-     * @return {[[Number,Number], Element]} [[当前页次,页次状态], 页根元素]
+     * @return {void}
      */
     shpage( evo, where ) {
-        //
+        let _pgo = evo.data[__navPage],
+            _cur = _pgo.current(),
+            _idx = _pgo.page(),
+            _new = null;
+
+        switch ( where ) {
+            case 0:
+                _new = _pgo.first(); break;
+            case 1:
+                _new = _pgo.prev(); break;
+            case 2:
+                _new = _pgo.next(); break;
+            case 3:
+                _new = _pgo.last(); break;
+        }
+        historyPush( new PageEd(_pgo, _idx, _cur, _new) );
     },
 
     __shpage: 1,
+
+
+    /**
+     * 分页导航。
+     * 执行分页切换。
+     * @data: Element 导航根容器（<nav>）
+     * @return {[Number, [Boolean]]} [当前页次, [页次状态]]
+     */
+    shnav( evo ) {
+        //
+    },
+
+    __shnav: 1,
 
 
     /**
@@ -446,9 +423,9 @@ const __Kit = {
      * - 第二个返回值为一个布尔值数组，对应4个页控制按钮状态。
      * @data: Element 导航根容器（<nav>）
      * @param  {[Object]} data 分页数据
-     * @return {[Number，[Boolean]]} [首页根, 总页数, [disable]]
+     * @return {[Number，[Boolean]]} [首页根, 总页数, [页次状态]]
      */
-    shnav( evo, data ) {
+    shconf( evo, data ) {
         let _pgo = evo.data[__navPage].data(data),
             _one = _pgo.pages() <= 1;
         return [
@@ -458,7 +435,7 @@ const __Kit = {
         ];
     },
 
-    __shnav: 1,
+    __shconf: 1,
 
 
     /**
@@ -549,11 +526,12 @@ processExtend( 'Kit', __Kit, [
     'shrecord',
     'delsh',
     'topsh',
+    'untop',
     'shlabel',
     'shEdin',
     'shEdok',
     'shpage',
-    'shnav',
+    'shconf',
     'sh2panel',
     'shsearch',
 ]);
