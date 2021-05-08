@@ -35,9 +35,10 @@ const
         // 脚本编辑步数限制。
         shEdits:        999,
 
-        // 历史脚本分页大小
-        shListTop:      10,   // 置顶区
-        shListAll:      10,   // 检索区
+        // 历史脚本面板
+        shListTop:      10,   // 分页大小：置顶区
+        shListAll:      10,   // 分页大小：检索区
+        shCodelen:      60,   // 代码行长度限制
     },
 
 

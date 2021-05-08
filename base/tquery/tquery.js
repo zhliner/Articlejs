@@ -896,7 +896,7 @@ Object.assign( tQuery, {
      * 无效的名称对应到一个null值。
      * @param  {Element} frm 表单元素
      * @param  {String} names 指定的控件名序列
-     * @param  {Boolean} clean 清理null成员
+     * @param  {Boolean} clean 清理null成员（容错无效名称）
      * @return {[Element]} 控件集
      */
     controls( frm, names, clean ) {

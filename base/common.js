@@ -596,7 +596,7 @@ export class Pages {
      */
     next() {
         let _end = this.pages() - 1;
-        return this._idx < _end ? this.index( ++this._idx ) : null;
+        return this._idx < _end ? this._page( ++this._idx ) : null;
     }
 
 
@@ -605,7 +605,7 @@ export class Pages {
      * @return {Element|null}
      */
     prev() {
-        return this._idx > 0 ? this.index( --this._idx ) : null;
+        return this._idx > 0 ? this._page( --this._idx ) : null;
     }
 
 
@@ -615,7 +615,7 @@ export class Pages {
      */
     first() {
         this._idx = 0;
-        return this.index( 0 );
+        return this._page( 0 );
     }
 
 
@@ -625,18 +625,7 @@ export class Pages {
      */
     last() {
         this._idx = this.pages() - 1;
-        return this.index( this._idx );
-    }
-
-
-    /**
-     * 获取目标页次的页。
-     * @param  {Number} idx 目标页次（从0开始）
-     * @return {Element} 列表根
-     */
-    index( idx ) {
-        this._idx = idx;
-        return this._pool[ idx ] || ( this._pool[idx] = this._build(idx) );
+        return this._page( this._idx );
     }
 
 
@@ -645,29 +634,19 @@ export class Pages {
      * @return {Element} 列表根
      */
     current() {
-        return this._index( this._idx );
+        return this._page( this._idx );
     }
 
 
     /**
-     * 更新或返回当前页次。
-     * 页次计数从0开始。
+     * 更新或返回当前页下标。
      * @return {Number|void}
      */
-    page( idx ) {
+    index( idx ) {
         if ( idx === undefined ) {
             return this._idx;
         }
         this._idx = idx;
-    }
-
-
-    /**
-     * 返回页数
-     * @return {Number}
-     */
-    pages() {
-        return Math.ceil( this._data.length / this._size );
     }
 
 
@@ -687,15 +666,26 @@ export class Pages {
 
 
     /**
-     * 是否到达末页。
-     * @return {Boolean}
+     * 返回页数
+     * @return {Number}
      */
-    end() {
-        return this._idx === this.pages() - 1;
+    pages() {
+        return Math.ceil( this._data.length / this._size );
     }
 
 
     //-- 私有辅助 ----------------------------------------------------------------
+
+
+    /**
+     * 获取目标页次的页。
+     * @param  {Number} idx 目标页次（从0开始）
+     * @return {Element} 列表根
+     */
+    _page( idx ) {
+        this._idx = idx;
+        return this._pool[ idx ] || ( this._pool[idx] = this._build(idx) );
+    }
 
 
     /**

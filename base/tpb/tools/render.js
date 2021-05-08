@@ -669,7 +669,7 @@ const Expr = {
         // 包含过滤器。
         let _fxs = _ss.map( filterHandle );
 
-        return data => _fxs.reduce( (d, fx) => fx[0](d, ...fx[1]), _fn(data) );
+        return data => _fxs.reduce( (d, fx) => fx[0](d, ...fx[1](data)), _fn(data) );
     },
 
 };
@@ -692,7 +692,11 @@ const Expr = {
  */
 function filterHandle( call ) {
     let _fn2 = Util.funcArgs( call.trim() );
-    return [ Filter[_fn2.name], _fn2.args ];
+
+    return [
+        Filter[ _fn2.name ],
+        new Function( '$', `return [${_fn2.args}]` )
+    ];
 }
 
 

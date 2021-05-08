@@ -160,18 +160,6 @@ const Util = {
 
 
     /**
-     * 解析参数序列。
-     * 用Function构造，可支持正则表达式或箭头函数等。
-     * 注记：原用JSON解析，但限制太多。
-     * @param  {String} fmt 参数序列串
-     * @return {Array|null}
-     */
-    arrArgs( fmt ) {
-        return fmt ? new Function( `return [${fmt}]` )() : null;
-    },
-
-
-    /**
      * 解析多层子对象引用。
      * 支持字符串中句点（.）的逐层引用格式。
      * 注：外部应保证字符串无多余空格。
@@ -193,21 +181,18 @@ const Util = {
      * - 无法匹配时抛出异常。
      * Object {
      *      name: {String} 调用名
-     *      args: {Array|''} 实参序列
+     *      args: {String} 实参序列
      * }
      * @param  {String} fmt 调用格式串
      * @return {Object} 解析结果
      */
     funcArgs( fmt ) {
-        var _pair = fmt.match(__reCall);
+        var _v2 = fmt.match( __reCall );
 
-        if ( !_pair ) {
-            throw new Error(`${fmt} is not a call().`);
+        if ( !_v2 ) {
+            throw new Error( `${fmt} is not a call().` );
         }
-        return {
-            'name': _pair[1],
-            'args': this.arrArgs( _pair[2] && _pair[2].trim() ) || ''
-        };
+        return { 'name': _v2[1], 'args': _v2[2] };
     },
 
 

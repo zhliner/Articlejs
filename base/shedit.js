@@ -142,7 +142,7 @@ class PageEd {
         this._idx = n;
         this._old = old;
         this._new = nel;
-        this._pgn = pgo.page();
+        this._pgn = pgo.index();
         // 外部只读
         this.count = null;
         this.redo();
@@ -153,7 +153,7 @@ class PageEd {
         if ( this.count > 0 ) {
             __TQHistory.back( this.count );
         }
-        this._pgo.page( this._idx );
+        this._pgo.index( this._idx );
     }
 
 
@@ -161,7 +161,7 @@ class PageEd {
         let _old = __TQHistory.size();
 
         $.replace( this._old, this._new );
-        this._pgo.page( this._pgn );
+        this._pgo.index( this._pgn );
 
         this.count = __TQHistory.size() - _old;
     }
@@ -222,6 +222,26 @@ function topObjs() {
 
 
 /**
+ * 计算页导航状态。
+ * 分别对应4个分页按钮的失效/可用。
+ * 即：[首页, 前一页, 后一页, 末页]
+ * @param {Number} cur 当前页次
+ * @param {Number} sum 总页数
+ */
+function pageState( cur, sum ) {
+    if ( sum <= 1 ) {
+        return [true, true, true, true];
+    }
+    return [
+        cur === 1,
+        cur === 1,
+        cur === sum,
+        cur === sum,
+    ];
+}
+
+
+/**
  * 构造过滤函数。
  * 关键词集内部为AND关系，关键词集之间为OR关系。
  * 返回值：function(String): Boolean
@@ -235,11 +255,31 @@ function xfilter( ...words ) {
 }
 
 
+/**
+ * 搜索目标脚本。
+ * @param  {String} words 检索词序列
+ * @return {[Object]}
+ */
+function search( words ) {
+    let _fun = xfilter(
+            ...words.split(',').map(ws => ws.trim().split(/\s+/))
+        ),
+        _buf = [];
+
+    for ( const key of __Store.keys().reverse() ) {
+        let _obj = shObj(key);
+        _obj.code && _fun(_obj.code) && _buf.push(_obj)
+    }
+    return _buf;
+}
+
+
 
 //
 // 辅助工具集。
 //
 const __Kit = {
+
     //-- On扩展 --------------------------------------------------------------
 
     /**
@@ -247,8 +287,26 @@ const __Kit = {
      * @return {[Object]}
      */
     shtops() {
-        return topObjs();
+        let _buf = topObjs();
+        _buf.cmax = Limit.shCodelen;
+
+        return _buf;
     },
+
+
+    /**
+     * 分页导航状态取值。
+     * @data: Element 导航根容器（<nav>）
+     * @return {[Number, [Boolean]]} [当前页次, [页次状态]]
+     */
+    shnav( evo ) {
+        let _pgo = evo.data[__navPage],
+            _n = _pgo.index() + 1;
+
+        return [ _n, pageState(_n, _pgo.pages()) ];
+    },
+
+    __shnav: 1,
 
 
     //-- By扩展 --------------------------------------------------------------
@@ -371,7 +429,7 @@ const __Kit = {
 
 
     /**
-     * 脚本历史导航。
+     * 脚本历史翻页。
      * where:
      * - 0  首页
      * - 1  前一页
@@ -384,7 +442,7 @@ const __Kit = {
     shpage( evo, where ) {
         let _pgo = evo.data[__navPage],
             _cur = _pgo.current(),
-            _idx = _pgo.page(),
+            _idx = _pgo.index(),
             _new = null;
 
         switch ( where ) {
@@ -404,19 +462,6 @@ const __Kit = {
 
 
     /**
-     * 分页导航。
-     * 执行分页切换。
-     * @data: Element 导航根容器（<nav>）
-     * @return {[Number, [Boolean]]} [当前页次, [页次状态]]
-     */
-    shnav( evo ) {
-        //
-    },
-
-    __shnav: 1,
-
-
-    /**
      * 分页导航配置。
      * 即分页导航关联元素/按钮的初始状态设置。
      * - 首个返回值为总页数，用于数值提示。
@@ -426,12 +471,12 @@ const __Kit = {
      * @return {[Number，[Boolean]]} [首页根, 总页数, [页次状态]]
      */
     shconf( evo, data ) {
-        let _pgo = evo.data[__navPage].data(data),
-            _one = _pgo.pages() <= 1;
+        let _pgo = evo.data[__navPage].data(data);
+
         return [
             _pgo.first(),
             _pgo.pages(),
-            [ true, true, _one, _one ]
+            pageState( _pgo.index()+1, _pgo.pages() )
         ];
     },
 
@@ -440,25 +485,23 @@ const __Kit = {
 
     /**
      * 进入历史条目编辑。
-     * @data: Element 分页导航元素
      * @return {void}
      */
-    shEdin( evo ) {
-        //
+    shEdin() {
         __Editing = true;
     },
 
-    __shEdin: 1,
+    __shEdin: null,
 
 
     /**
      * 完成历史条目编辑。
-     * @data: Element 分页导航元素
+     * @data: Element 置顶区分页导航元素（<nav>）
      * @return {void}
      */
     shEdok( evo ) {
-        //
         __Editing = false;
+        $.trigger( evo.data, 'reset', this.shtops() );
     },
 
     __shEdok: 1,
@@ -498,15 +541,9 @@ const __Kit = {
      * @return {[Object]}
      */
     shsearch( evo ) {
-        let _fun = xfilter(
-                ...evo.data.split( ',' ).map( ws => ws.trim().split(/\s+/) )
-            ),
-            _buf = [];
+        let _buf = search( evo.data );
 
-        for ( const key of __Store.keys().reverse() ) {
-            let _obj = shObj( key );
-            _obj.code && _fun( _obj.code ) && _buf.push( _obj )
-        }
+        _buf.cmax = Limit.shCodelen;
         return _buf;
     },
 
@@ -542,4 +579,5 @@ processExtend( 'Kit', __Kit, [
 //
 customGetter( null, __Kit, [
     'shtops',
+    'shnav',
 ]);

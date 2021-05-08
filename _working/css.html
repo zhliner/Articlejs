@@ -134,9 +134,10 @@
         </div>
     </form>
 
+    <!-- stopAll 置顶后按钮变化，避免立即触发取消置顶操作。-->
     <form class="_page _script" data-pbo=""
         on="submit|avoid value('words');
-            click(b[role=top])|stop evo(2) parent attr('-sid');
+            click(b[role=top])|stopAll evo(2) parent attr('-sid');
             click(b[role=untop])|stop evo(2) parent attr('-sid');
             click(b[role=del])|stop evo(2) parent dup attr('-sid');
             ^obted|$('#sh-redo') $('#sh-tops') $('#sh-list') $$('/nav') spread;
@@ -172,12 +173,12 @@
                     <label>置顶区</label>
                     <!-- 管理时显示，完成后隐藏（hidden） -->
                     <span data-pbo=""
-                        on="off|evo(3) hide;
+                        on="off|$('#nav-tops') evo(3) hide;
                             on|evo(3) hide(false);
                             reset|$$('/b') disable;"
                         by="Kit.shEdok;
                             Kit.shEdin"
-                        to="|trigger('reset')|fire('main/._search', 'on');
+                        to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit');
                             |trigger('reset')|fire('main/._search', 'off')">
                         <!--撤销：成功后会激活Redo。-->
                         <b id="sh-undo" title="撤消" data-pbo="disabled"
@@ -216,7 +217,7 @@
                         =|@contenteditable|focus">
                     <li _data-sid="$.shid">
                         <label _="($.name || '单击修改')">脚本片段名</label>
-                        <code _="$.code">代码：单击提取并导入脚本录入框。</code>
+                        <code _title="$.code" _="$.code|cut($.$.cmax)">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
                         <b role="untop" title="取消置顶"><i></i></b>
                         <b role="del">删除</b>
@@ -226,21 +227,16 @@
                 <nav id="nav-tops"
                     on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
                         reset|evo(3) ev('detail');
-                        state|evo(3)"
+                        state|evo(3) v.shnav"
                     by="Kit.shpage(_1);
-                        Kit.shconf(_1) spread;
-                        Kit.shnav"
+                        Kit.shconf(_1) spread"
                     to="|trigger('state');
                         (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
                         (/>b)|disable|pop fire('/code', 'update')">
-                    <b data-v="0" title="首页"
-                        on="state|evo(3) ev('detail') eq(0) disable(_1)"><i id="l-tobeg"></i></b>
-                    <b data-v="1" title="前一页"
-                        on="state|evo(3) ev('detail') eq(0) disable(_1)"><i id="l-prevpage"></i></b>
-                    <b data-v="2" title="后一页"
-                        on="state|evo(3) ev('detail') eq(1) disable(_1)"><i id="l-nextpage"></i></b>
-                    <b data-v="3" title="末页"
-                        on="state|evo(3) ev('detail') eq(1) disable(_1)"><i id="l-toend"></i></b>
+                    <b data-v="0" title="首页"><i id="l-tobeg"></i></b>
+                    <b data-v="1" title="前一页"><i id="l-prevpage"></i></b>
+                    <b data-v="2" title="后一页"><i id="l-nextpage"></i></b>
+                    <b data-v="3" title="末页"><i id="l-toend"></i></b>
                     <code
                         on="update|ev('detail');
                             reset|stop (1) ev('detail') pack(2)"
@@ -258,8 +254,8 @@
                 on="page|ev('detail')"
                 to="/ol|replace">
                 <div class="_search"
-                    on="on|stop (false);
-                        off|stop (true)"
+                    on="on|stop evo(3) disable(0) (false);
+                        off|stop evo(3) disable (true)"
                     to="(/>*)|$disabled;
                         (/>*)|$disabled">
                     <input type="text" name="words" placeholder="空格：AND； 逗号：OR" />

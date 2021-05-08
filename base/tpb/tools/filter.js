@@ -33,7 +33,7 @@ const Filter = {
      * @param  {String} fix 截断标志串
      * @return {String}
      */
-    cut( data, len, fix = '...') {
+    cut( data, len, fix = '..' ) {
         let _chs = [];
 
         for ( let ch of data ) {
