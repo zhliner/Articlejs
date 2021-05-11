@@ -691,12 +691,11 @@ export class Pages {
     /**
      * 构造目标页次。
      * @param  {Number} idx 页次
-     * @param  {Number} size 页大小
      * @return {Element} 目标页根元素
      */
-    _build( idx, size ) {
-        let _beg = idx * size;
-        return Render.update( this._clone(this._root), this._data.slice(_beg, _beg + size) );
+    _build( idx ) {
+        let _beg = idx * this._size;
+        return Render.update( this._clone(this._root), this._data.slice(_beg, _beg + this._size) );
     }
 
 

@@ -72,17 +72,19 @@
                 shid:   105,
                 name:   undefined,
                 code:   'window.console.info("hello undefined.")',
-                top:    undefined,
+                top:    false,
                 datetime: '2021-04-26 04:30:42'
             },
             {
                 shid:   108,
                 name:   '脚本BBxx',
                 code:   'window.console.info("some codes at here.")',
-                top:    false,
+                top:    true,
                 datetime: '2021-04-26 04:50:22'
             },
-        ]
+        ];
+
+        $.config({ varyevent: true });
     </script>
 </head>
 
@@ -91,7 +93,7 @@
 
 <!-- 模态框：屏蔽层 -->
 <div id="g-modal" class="___Panel Modal" data-pbo=""
-    on="click(~._close)|evo(3) lose">
+    on="close click(~._close)|evo(3) lose">
     <form class="_page _script" tpl-name="script:result" data-pbo="lost">
         <header>
             <h4>脚本执行结果</h4>
@@ -159,11 +161,13 @@
         <main class="_history"
             on="@mousemove|movementY evo(3) $$('/>*') spread;
                 @mouseup|movementY(null);
-                tophei|ev('detail')"
+                tophei|ev('detail');
+                click(li>code)|stop evo(2) attr('title')"
             by="Kit.sh2panel(_4) spread add('px')"
             to="/._down|%max-height|goto('tophei', _1);
                 |off('mousemove');
-                /._top|height">
+                /._top|height;
+                #editor/form|trigger('shcode')|fire('.Modal', 'close')">
             <!--内置限高：
                 避免初始即溢出（无法通过拖拽调整）。 -->
             <div class="_top" style="height: 35%;"
@@ -172,7 +176,7 @@
                 <div class="_bar">
                     <label>置顶区</label>
                     <!-- 管理时显示，完成后隐藏（hidden） -->
-                    <span data-pbo=""
+                    <span data-pbo="hidden"
                         on="off|$('#nav-tops') evo(3) hide;
                             on|evo(3) hide(false);
                             reset|$$('/b') disable;"
@@ -198,11 +202,11 @@
                                 #sh-undo|trigger('enable')">↷</b>
                     </span>
                     <!-- click avoid 避免提交逻辑 -->
-                    <button class="_edit" data-op="on"
+                    <button data-op="off"
                         on="click|avoid $$('main/li>b') lose(2) (['on', 'off']) ('_edit') (['管理', '完成']);
                             bstate|evo(3) attr('-op')"
                         to="|^text toggleClass ^-op|goto('bstate');
-                            1/span|trigger(_1)">完成</button>
+                            1/span|trigger(_1)">管理</button>
                 </div>
                 <!--置顶区代码清单
                     click label单击即可编辑。
@@ -217,10 +221,10 @@
                         =|@contenteditable|focus">
                     <li _data-sid="$.shid">
                         <label _="($.name || '单击修改')">脚本片段名</label>
-                        <code _title="$.code" _="$.code|cut($.$.cmax)">代码：单击提取并导入脚本录入框。</code>
+                        <code _title="$.code" _="$.code|cut($.cmax)">代码：单击提取并导入脚本录入框。</code>
                         <time _="$.datetime">时间戳</time>
-                        <b role="untop" title="取消置顶"><i></i></b>
-                        <b role="del">删除</b>
+                        <b data-pbo="lost" role="untop" title="取消置顶"><i></i></b>
+                        <b data-pbo="lost" role="del">删除</b>
                     </li>
                 </ul>
                 <!-- evn:page 激发上层换页，注意选择器定位通用（事件会被克隆） -->
@@ -241,7 +245,7 @@
                         on="update|ev('detail');
                             reset|stop (1) ev('detail') pack(2)"
                         to="/i|text;
-                            (/i)|text">(<i>1</i>/<i>1</i>)</code>
+                            (/i)|text">(<i>1</i>/<i>0</i>)</code>
                 </nav>
             </div>
             <!--拖动：调整上下区域高度
@@ -264,20 +268,22 @@
                 <!--搜索结果清单
                     label:title 置顶或曾经置顶的条目有效。 -->
                 <ol id="sh-list" class="_list" tpb-for>
-                    <li>
-                        <label _="($.name || '')">[片段名称]</label>
-                        <code _="$.code">[代码]</code>
+                    <li _data-sid="$.shid">
+                        <label _="($.name || '---')">[片段名称]</label>
+                        <code _title="$.code" _="$.code|cut($.cmax)">[代码]</code>
                         <time _="$.datetime">[时间戳]</time>
-                        <b role="top" title="置顶" tpb-if="$.top"><i></i></b>
-                        <!-- <b role="untop" title="取消置顶" tpb-else><i></i></b> -->
+                        <b data-pbo="lost" role="untop" title="置顶" tpb-if="$.top"><i></i></b>
+                        <b data-pbo="lost" role="top" title="取消置顶" tpb-else><i></i></b>
                         <!-- <b _role="$.top ? 'top' : 'untop'" _title="$.top ? '置顶' : '取消置顶'"><i></i></b> -->
-                        <b role="del">删除</b>
+                        <b data-pbo="lost" role="del">删除</b>
                     </li>
                 </ol>
                 <!-- 复用：#nav-tops 绑定的事件处理 -->
                 <nav id="nav-misc"
-                    on="^obted|$$('#nav-tops>*') $('#nav-tops')"
-                    to="|cloneEvent append(true, true)"></nav>
+                    on="^obted|$$('#nav-tops>*') $('#nav-tops');
+                        ^obted|(true)"
+                    to="|cloneEvent append(true, true);
+                        (/>b)|disable"></nav>
             </div>
         </main>
     </form>

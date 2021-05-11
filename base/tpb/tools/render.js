@@ -912,8 +912,8 @@ function hidden( el ) {
  * @param {Element} el 目标元素
  */
 function hideElem( el ) {
-    let _tmp = $.Element(
-        'template', { HasRender: '' }
+    let _tmp = $.attr(
+        $.elem('template'), HasRender, ''
     );
     $.append(
         $.replace(el, _tmp).content, el

@@ -215,7 +215,11 @@ function topObjs() {
 
     for ( const k of __Store.keys() ) {
         let _o = shObj( k );
-        if ( _o.top ) _buf.push( _o );
+
+        if ( _o.top && _o.code ) {
+            _o.cmax = Limit.shCodelen;
+            _buf.push( _o );
+        }
     }
     return _buf;
 }
@@ -268,7 +272,11 @@ function search( words ) {
 
     for ( const key of __Store.keys().reverse() ) {
         let _obj = shObj(key);
-        _obj.code && _fun(_obj.code) && _buf.push(_obj)
+
+        if ( _obj.code && _fun(_obj.code) ) {
+            _obj.cmax = Limit.shCodelen;
+            _buf.push( _obj );
+        }
     }
     return _buf;
 }
@@ -287,10 +295,7 @@ const __Kit = {
      * @return {[Object]}
      */
     shtops() {
-        let _buf = topObjs();
-        _buf.cmax = Limit.shCodelen;
-
-        return _buf;
+        return topObjs();
     },
 
 
@@ -501,7 +506,8 @@ const __Kit = {
      */
     shEdok( evo ) {
         __Editing = false;
-        $.trigger( evo.data, 'reset', this.shtops() );
+        __History.clear();
+        $.trigger( evo.data, 'reset', topObjs() );
     },
 
     __shEdok: 1,
@@ -541,10 +547,7 @@ const __Kit = {
      * @return {[Object]}
      */
     shsearch( evo ) {
-        let _buf = search( evo.data );
-
-        _buf.cmax = Limit.shCodelen;
-        return _buf;
+        return search( evo.data );
     },
 
     __shsearch: 1,

@@ -1844,6 +1844,7 @@ menu._cells code {
     background-color: #f3f3f3;
     padding: 2px 5px;
     border-radius: 2px;
+    cursor: pointer;
 }
 .Modal ._history ._list b {
     margin: 0 3px;
@@ -1864,15 +1865,10 @@ menu._cells code {
     background-color: #f6f6f6;
 }
 
+.Modal ._history ._list label {
+    width: 90px;
+}
 .Modal ._history ul._list label {
-    min-width: 90px;
-    font-weight: bold;
-}
-.Modal ._history ol._list label {
-    min-width: 50px;
-}
-/* 有命名（置顶或曾经置顶） */
-.Modal ._history ol._list label[title] {
     font-weight: bold;
 }
 

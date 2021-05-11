@@ -559,6 +559,7 @@ function tQuery( its, ctx ) {
 // 功能配置。
 // 无参数调用返回内部配置对象。
 // 否则设置时返回原配置对象的一个副本。
+// @return {Object} 原始配置或旧配置对象
 //
 tQuery.config = function( option ) {
     if ( !option ) {

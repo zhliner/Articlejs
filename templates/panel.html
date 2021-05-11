@@ -279,7 +279,11 @@
 
 
 <!-- 脚本 -->
-<form class="Script" onsubmit="return false" tpl-name="slave:script">
+<form class="Script" tpl-name="slave:script"
+    on="submit|avoid;
+        shcode|ev('detail')"
+    to="-;
+        /pre._code|trigger('codes')">
     <div class="_env"
         on="click(input)|evo(2) attr('-v') bool $('/fieldset') pop hide(_1)">
         <label>
