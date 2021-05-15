@@ -33,6 +33,9 @@ import cfg from "./shortcuts.js";
 import { Hicolor } from "../plugins/hlcolor/main.js";
 import { colorHTML, htmlBlock, htmlList } from "./coloring.js";
 
+// 简单执行
+import "./shedit.js";
+
 
 const
     $ = window.$,

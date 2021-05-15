@@ -137,12 +137,12 @@
     </form>
 
     <!-- stopAll 置顶后按钮变化，避免立即触发取消置顶操作。-->
-    <form class="_page _script" data-pbo=""
+    <form class="_page _script" data-pbo="" tpl-name="script:history"
         on="submit|avoid value('words');
             click(b[role=top])|stopAll evo(2) parent attr('-sid');
             click(b[role=untop])|stop evo(2) parent attr('-sid');
             click(b[role=del])|stop evo(2) parent dup attr('-sid');
-            ^obted|$('#sh-redo') $('#sh-tops') $('#sh-list') $$('/nav') spread;
+            ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
             ^obted|evo(3)"
         by="Kit.shsearch;
             Kit.topsh ('untop') evo(2) pop;
@@ -202,7 +202,7 @@
                                 #sh-undo|trigger('enable')">↷</b>
                     </span>
                     <!-- click avoid 避免提交逻辑 -->
-                    <button data-op="off"
+                    <button type="button" data-op="off"
                         on="click|avoid $$('main/li>b') lose(2) (['on', 'off']) ('_edit') (['管理', '完成']);
                             bstate|evo(3) attr('-op')"
                         to="|^text toggleClass ^-op|goto('bstate');
@@ -280,7 +280,7 @@
                 </ol>
                 <!-- 复用：#nav-tops 绑定的事件处理 -->
                 <nav id="nav-misc"
-                    on="^obted|$$('#nav-tops>*') $('#nav-tops');
+                    on="^obted|$$('2/#nav-tops>*') $('2/#nav-tops');
                         ^obted|(true)"
                     to="|cloneEvent append(true, true);
                         (/>b)|disable"></nav>

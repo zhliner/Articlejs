@@ -13,8 +13,8 @@
 //
 //  解析顺序：
 //      1. 导入根模板节点。
-//      2. 解析渲染文法（Render.parse）。
-//      3. 解析OBT配置，构建调用链并绑定。
+//      2. 解析OBT配置，构建调用链并绑定。
+//      3. 解析渲染文法（Render.parse）。
 //      4. 如果有模板中包含子模版，导入并解析之。
 //
 //
@@ -61,8 +61,8 @@ class Templater {
         this._tpls = new Map();
 
         // 临时存储（就绪后移除）
-        this._tplx = new Map();  // 节点 {name: Promise}
-        this._pool = new Map();  // 文档 {root: Promise}
+        this._tplx = new Map();  // 有子模版的模板节点 {name: Promise}
+        this._pool = new Map();  // 初始载入文档片段或元素 {root: Promise}
     }
 
 
@@ -78,7 +78,7 @@ class Templater {
         if ( _tpl ) {
             return Promise.resolve( _tpl );
         }
-        return this._tplx.get(name) || this._load( name );
+        return this._tplx.get( name ) || this._load( name );
     }
 
 
@@ -129,9 +129,13 @@ class Templater {
         if ( this._pool.has(root) ) {
             return this._pool.get(root);
         }
-        Render.parse( root );
+        let _pro = this._obter( root )
+            .then( () => this.picks(root) )
+            .then( () => this._pool.delete(root) );
 
-        return this._obter(root).then( () => this.picks(root) ).then( () => this._pool.delete(root) );
+        this._pool.set( root, _pro );
+
+        return Render.parse( root ) && _pro;
     }
 
 
@@ -146,12 +150,10 @@ class Templater {
         for ( const tpl of $.find(__nameSlr, root, true) ) {
             this.add( tpl );
         }
-        // 不在模板节点内的导入配置。
-        let _ps = this._subs( root ),
-            _pro = _ps ? Promise.all(_ps) : Promise.resolve();
+        // 模板外的导入处理。
+        let _ps = this._subs( root );
 
-        this._pool.set( root, _pro );
-        return _pro;
+        return _ps ? Promise.all(_ps) : Promise.resolve();
     }
 
 
