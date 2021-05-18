@@ -42,6 +42,9 @@ const
 
 
 let
+    // 主面板脚本表单
+    __frmRoot = null,
+
     // 重做按钮元素
     __btnRedo = null,
 
@@ -316,6 +319,17 @@ const __Kit = {
 
     //-- By扩展 --------------------------------------------------------------
 
+
+    /**
+     * 脚本面板初始化。
+     */
+    spinit( evo ) {
+        __frmRoot = evo.data;
+    },
+
+    __spinit: 1,
+
+
     /**
      * 脚本历史编辑撤销。
      * @return {Boolean} 是否不可再撤销
@@ -552,6 +566,17 @@ const __Kit = {
 
     __shsearch: 1,
 
+
+    /**
+     * 历史代码回填。
+     */
+    shcode( evo ) {
+        window.console.info(evo.data);
+        $.trigger( __frmRoot, 'shcode', evo.data );
+    },
+
+    __shcode: 1,
+
 }
 
 
@@ -560,6 +585,7 @@ const __Kit = {
 // 注意与 edit.js 模块相同扩展的名称兼容。
 //
 processExtend( 'Kit', __Kit, [
+    'spinit',
     'shUndo',
     'shRedo',
     'shinit',
@@ -574,6 +600,7 @@ processExtend( 'Kit', __Kit, [
     'shconf',
     'sh2panel',
     'shsearch',
+    'shcode',
 ]);
 
 

@@ -235,7 +235,7 @@ export class TplLoader {
         let _file = this._file(name);
 
         if ( !_file ) {
-            return Promise.reject( `[${name}] not in any file.` );
+            return Promise.reject( `err: [${name}] not in any file.` );
         }
         return this._loader.node( this._url(_file) );
     }

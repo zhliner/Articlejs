@@ -280,9 +280,11 @@
 
 <!-- 脚本 -->
 <form class="Script" tpl-name="slave:script"
-    on="submit|avoid;
+    on="^nodeok|evo(3);
+        submit|avoid;
         shcode|ev('detail')"
-    to="-;
+    by="Kit.spinit"
+    to="-;-;
         /pre._code|trigger('codes')">
     <div class="_env"
         on="click(input)|evo(2) attr('-v') bool $('/fieldset') pop hide(_1)">
@@ -308,10 +310,13 @@
                 - 普通段包含前缀 yyyy-mm-dd[n]: 便于浏览，置顶段可自定义标签。
                 功能：
                 - 非管理模式下，单击某一条记录，自动插入脚本框内光标处。 -->
-            <div class="_cmds"
-                on="click(b)|node('script:history')"
-                to="#g-modal|trigger('open')">
-                <b title="脚本历史"><i id="l-history"></i></b>
+            <div class="_cmds">
+                <b title="脚本历史"
+                    on="click|node('script:history')"
+                    to="#g-modal|trigger('open')"><i id="l-history"></i></b>
+                <b title="执行结果"
+                    on="click|node('script:result')"
+                    to="#g-modal|trigger('open')"><i id="l-result"></i></b>
                 <input type="hidden" name="tabs" value="4" />
             </div>
             <div class="_submit">
@@ -680,5 +685,5 @@
             </span>
         </fieldset>
     </main>
-    <hr tpl-node="modal:okcancel" />
+    <hr tpl-node="modal:okreset" />
 </form>

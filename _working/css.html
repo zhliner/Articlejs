@@ -46,6 +46,7 @@
         window.Tpb = Tpb;
         window.Kit = Kit;
         window.Render = Render;
+
         Tpb.build( editor );
 
         // 测试数据
@@ -91,10 +92,34 @@
 <body lang="zh-cn">
     <div id="editor">
 
+
+<!--临时借用：
+    事件克隆/编辑效果。-->
+<pre id="g-codes" spellcheck="false" class="_code" contenteditable="true" data-pbo="lost"
+    data-tip="粘贴时自动清除多余缩进"
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
+        keydown|scam('shift') pass stop env('paste.shift', true);
+        keyup|env('paste.shift', false);
+        paste|avoid evo(3) clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
+        codes|evo(3) ev('detail') html exeCmd('insertHTML', _1)"
+    by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
+
+
 <!-- 模态框：屏蔽层 -->
 <div id="g-modal" class="___Panel Modal" data-pbo=""
     on="close click(~._close)|evo(3) lose">
-    <form class="_page _script" tpl-name="script:result" data-pbo="lost">
+    <!--执行结果：
+        result 结果数据导入（上级运行时）。
+        error  传递出错信息提示。 -->
+    <form class="_page _script" tpl-name="script:result" data-pbo=""
+        on="submit|avoid;
+            reset;
+            result|ev('detail');
+            error|ev('detail')"
+        to="1/|trigger('close');
+            /pre|trigger('reset');
+            /pre|trigger('value');
+            /pre|trigger('error')">
         <header>
             <h4>脚本执行结果</h4>
             <b class="_close" title="关闭">✕</b>
@@ -103,12 +128,24 @@
             - 方便即时微调后使用。
             - 如果只是简单需要结果文本，便于全选。-->
         <main class="_result"
-            on="click(~pre)|evo(2) hasClass('_err') end (true);
+            on="click(~pre)|stop evo(2) hasClass('_err') end (true);
                 blur(~pre)|(false)"
             to="=|$contentEditable|fire(10, 'focus');
                 =|$contentEditable">
-            <pre class="_err" _="$.data">
-<label>错误：</label>this is a error massage.
+            <!--结果框：
+                value 设置正常的结果内容。
+                reset 提取初始化存储的源码重置。
+                error 错误信息用源码连接。 -->
+            <pre class="_err" _data-s=""
+                on="reset|evo(3) dup hasClass('_err') end prop('-s');
+                    value|ev('detail') html dup ('_err');
+                    error|ev('detail') html str('<label>错误：</label><i>', '</i>') ('_err');
+                    ^obted|$('#g-codes')"
+                to="|html;
+                    |removeClass prop('-s') html;
+                    |addClass html;
+                    |cloneEvent">
+<label>错误：</label><i>this is a error massage.</i>
 </pre>
             <fieldset>
                 <legend>插入选项</legend>
@@ -119,7 +156,9 @@
                 </span>
                 <span class="_where">
                     <i>位置：</i>
+                    <!-- 友好：空值可用于简单关闭对话框 -->
                     <select name="where">
+                        <option value=""> ------ </option>
                         <option title="内部填充">fill</option>
                         <option title="替换目标">replace</option>
                         <option title="内部末尾">append</option>
@@ -132,12 +171,14 @@
         </main>
         <div class="_btn2" tpl-name="modal:okcancel">
             <button type="submit">确定</button>
-            <button type="button">取消</button>
+            <button type="reset">重置</button>
         </div>
     </form>
 
-    <!-- stopAll 置顶后按钮变化，避免立即触发取消置顶操作。-->
-    <form class="_page _script" data-pbo="" tpl-name="script:history"
+    <!--脚本历史：
+        click stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
+        codes 回送用户点选的代码片段。-->
+    <form class="_page _script" data-pbo="lost" tpl-name="script:history"
         on="submit|avoid value('words');
             click(b[role=top])|stopAll evo(2) parent attr('-sid');
             click(b[role=untop])|stop evo(2) parent attr('-sid');
@@ -161,13 +202,15 @@
         <main class="_history"
             on="@mousemove|movementY evo(3) $$('/>*') spread;
                 @mouseup|movementY(null);
-                tophei|ev('detail');
-                click(li>code)|stop evo(2) attr('title')"
-            by="Kit.sh2panel(_4) spread add('px')"
+                click(li>code)|stop evo(2) attr('title');
+                tophei|ev('detail')"
+            by="Kit.sh2panel(_4) spread add('px');
+                -;
+                Kit.shcode"
             to="/._down|%max-height|goto('tophei', _1);
                 |off('mousemove');
-                /._top|height;
-                #editor/form|trigger('shcode')|fire('.Modal', 'close')">
+                .Modal/|trigger('close');
+                /._top|height">
             <!--内置限高：
                 避免初始即溢出（无法通过拖拽调整）。 -->
             <div class="_top" style="height: 35%;"
@@ -288,6 +331,7 @@
         </main>
     </form>
 </div>
+
 
 <!-- 工具栏 -->
 <div class="___Panel Tools" tpl-name="main:tools">

@@ -62,6 +62,7 @@ i[id|=l] {
 #l-bgcolor  { background-position: -150px -250px; }
 #l-bcolor   { background-position: -150px -300px; }
 #l-history  { background-position: -150px -350px; }
+#l-result   { background-position: -250px -350px; }
 #l-close    { background-position: -200px 0; }
 #l-schar    { background-position: -200px -50px; }
 #l-element  { background-position: -200px -100px; }
