@@ -280,7 +280,7 @@
 
 <!-- 脚本 -->
 <form class="Script" tpl-name="slave:script"
-    on="^nodeok|evo(3);
+    on="^nodeok(~)|evo(3);
         submit|avoid;
         shcode|ev('detail')"
     by="Kit.spinit"
@@ -494,24 +494,27 @@
 </form>
 
 
-<!--脚本：历史记录
-    stopAll 置顶后按钮变化，避免立即触发取消置顶操作。-->
-<form class="_page _script" data-pbo="" tpl-name="script:history"
+<!--脚本历史：
+    submit 搜索过滤，空串搜索显示全部。
+    click  stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
+    nodeok 初始载入/展示置顶代码清单，一次即可。-->
+<form class="_page _script" tpl-name="script:history"
     on="submit|avoid value('words');
         click(b[role=top])|stopAll evo(2) parent attr('-sid');
         click(b[role=untop])|stop evo(2) parent attr('-sid');
+        ^nodeok(~)|v.shtops;
         click(b[role=del])|stop evo(2) parent dup attr('-sid');
-        ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
-        ^obted|evo(3)"
+        ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread"
     by="Kit.shsearch;
         Kit.topsh ('untop') evo(2) pop;
         Kit.untop ('top') evo(2) pop;
+        -;
         Kit.delsh(_1);
-        Kit.shinit(_4);
-        Kit.shrecord"
+        Kit.shinit(_4)"
     to="#nav-misc|trigger('reset');
         -|@role;
-        -|@role">
+        -|@role;
+        #nav-tops|trigger('reset')">
     <header>
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
@@ -520,13 +523,15 @@
     <main class="_history"
         on="@mousemove|movementY evo(3) $$('/>*') spread;
             @mouseup|movementY(null);
-            tophei|ev('detail');
-            click(li>code)|stop evo(2) attr('title')"
-        by="Kit.sh2panel(_4) spread add('px')"
+            click(li>code)|stop evo(2) attr('title');
+            tophei|ev('detail')"
+        by="Kit.sh2panel(_4) spread add('px');
+            -;
+            Kit.shcode"
         to="/._down|%max-height|goto('tophei', _1);
             |off('mousemove');
-            /._top|height;
-            #editor/form|trigger('shcode')|fire('.Modal', 'close')">
+            .Modal/|trigger('cancel');
+            /._top|height">
         <!--内置限高：
             避免初始即溢出（无法通过拖拽调整）。 -->
         <div class="_top" style="height: 35%;"
@@ -536,10 +541,10 @@
                 <label>置顶区</label>
                 <!-- 管理时显示，完成后隐藏（hidden） -->
                 <span data-pbo="hidden"
-                    on="off|$('#nav-tops') evo(3) hide;
-                        on|evo(3) hide(false);
+                    on="off|evo(3) hide $('main/') $('#nav-tops');
+                        on|evo(3) hide(false) $('main/');
                         reset|$$('/b') disable;"
-                    by="Kit.shEdok;
+                    by="Kit.shEdok(_1);
                         Kit.shEdin"
                     to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit');
                         |trigger('reset')|fire('main/._search', 'off')">
@@ -586,7 +591,7 @@
                     <b data-pbo="lost" role="del">删除</b>
                 </li>
             </ul>
-            <!-- evn:page 激发上层换页，注意选择器定位通用（事件会被克隆） -->
+            <!-- evn:page 触发上层换页，注意选择器定位通用（事件会被克隆） -->
             <nav id="nav-tops"
                 on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
                     reset|evo(3) ev('detail');
@@ -648,8 +653,19 @@
 </form>
 
 
-<!-- 脚本：执行结果 -->
-<form class="_page _script" tpl-name="script:result">
+<!--执行结果：
+    result 结果数据导入（上级运行时）。
+    error  传递出错信息提示。 -->
+<form class="_page _script" tpl-name="script:result"
+    on="submit|avoid $('/pre') text value('type where');
+        reset;
+        result|ev('detail');
+        error|ev('detail')"
+    by="Kit.sresult(_)"
+    to="1/|trigger('cancel');
+        /pre|trigger('reset');
+        /pre|trigger('value');
+        /pre|trigger('error')">
     <header>
         <h4>脚本执行结果</h4>
         <b class="_close" title="关闭">✕</b>
@@ -658,12 +674,24 @@
         - 方便即时微调后使用。
         - 如果只是简单需要结果文本，便于全选。-->
     <main class="_result"
-        on="click(~pre)|evo(2) hasClass('_err') end (true);
+        on="click(~pre)|stop evo(2) hasClass('_err') end (true);
             blur(~pre)|(false)"
         to="=|$contentEditable|fire(10, 'focus');
             =|$contentEditable">
-        <pre class="_err" _="$.data">
-<label>错误：</label>this is a error massage.
+        <!--结果框：
+            value 设置正常的结果内容。
+            reset 提取初始化存储的源码重置。
+            error 错误信息用源码连接。 -->
+        <pre class="_err" _data-s=""
+            on="reset|evo(3) dup hasClass('_err') end prop('-s');
+                value|ev('detail') html dup ('_err');
+                error|ev('detail') html str('<label>错误：</label><i>', '</i>') ('_err');
+                ^obted|tpl('prop:codes')"
+            to="|html;
+                |removeClass prop('-s') html;
+                |addClass html;
+                |cloneEvent">
+<label>错误：</label><i>this is a error massage.</i>
 </pre>
         <fieldset>
             <legend>插入选项</legend>
@@ -674,7 +702,9 @@
             </span>
             <span class="_where">
                 <i>位置：</i>
+                <!-- 友好：空值可用于简单关闭对话框 -->
                 <select name="where">
+                    <option value=""> ------ </option>
                     <option title="内部填充">fill</option>
                     <option title="替换目标">replace</option>
                     <option title="内部末尾">append</option>

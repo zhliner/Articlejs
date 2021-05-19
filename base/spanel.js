@@ -370,21 +370,6 @@ const __Kit = {
 
 
     /**
-     * 绑定历史编辑记录。
-     * 仅需监测两个操作即可：
-     * - nodeok 单个插入完成。如设置置顶，新条目插入置顶区（首页）。
-     * - detached 删除操作。如直接删除和置顶/取消置顶附带的删除行为。
-     * @data: Element 绑定记录事件的根元素
-     * @return {boid}
-     */
-    shrecord( evo ) {
-        $.on( evo.data, 'nodeok detached', null, __TQHistory );
-    },
-
-    __shrecord: 1,
-
-
-    /**
      * 删除脚本历史条目。
      * @data: Element 条目元素（<li>）
      * @param  {String} shid 条目ID
@@ -504,24 +489,31 @@ const __Kit = {
 
     /**
      * 进入历史条目编辑。
+     * 仅需监测两个操作即可：
+     * - nodeok 单个插入完成。如设置置顶，新条目插入置顶区（首页）。
+     * - detached 删除操作。如直接删除和置顶/取消置顶附带的删除行为。
+     * @data: Element 绑定记录事件的根元素（<main>）
      * @return {void}
      */
-    shEdin() {
+    shEdin( evo ) {
         __Editing = true;
+        $.on( evo.data, 'nodeok detached', null, __TQHistory );
     },
 
-    __shEdin: null,
+    __shEdin: 1,
 
 
     /**
      * 完成历史条目编辑。
-     * @data: Element 置顶区分页导航元素（<nav>）
+     * @data: Element 绑定记录事件的根元素（<main>）
+     * @param  {Element} nav 置顶区分页导航元素
      * @return {void}
      */
-    shEdok( evo ) {
+    shEdok( evo, nav ) {
         __Editing = false;
         __History.clear();
-        $.trigger( evo.data, 'reset', topObjs() );
+        $.off( evo.data, 'nodeok detached', null, __TQHistory );
+        $.trigger( nav, 'reset', topObjs() );
     },
 
     __shEdok: 1,
@@ -571,11 +563,25 @@ const __Kit = {
      * 历史代码回填。
      */
     shcode( evo ) {
-        window.console.info(evo.data);
         $.trigger( __frmRoot, 'shcode', evo.data );
     },
 
     __shcode: 1,
+
+
+    /**
+     * 脚本执行结果插入。
+     * 如果位置未定义（空串），则简单忽略。
+     * 提交的错误信息也可以被执行插入。
+     * @param  {String} type 内容类型（text|html）
+     * @param  {String} where 插入位置（6种基本方法）
+     * @return {void}
+     */
+    sresult( evo, type, where ) {
+        window.console.info( evo.data, type, where );
+    },
+
+    __sresult: 1,
 
 }
 
@@ -589,7 +595,6 @@ processExtend( 'Kit', __Kit, [
     'shUndo',
     'shRedo',
     'shinit',
-    'shrecord',
     'delsh',
     'topsh',
     'untop',
@@ -601,6 +606,7 @@ processExtend( 'Kit', __Kit, [
     'sh2panel',
     'shsearch',
     'shcode',
+    'sresult',
 ]);
 
 

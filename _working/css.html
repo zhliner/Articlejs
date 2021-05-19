@@ -42,7 +42,7 @@
         import Tpb from "../base/tpb/tpb.js";
         import { Kit } from "../base/edit.js";
         import { Render } from "../base/tpb/tools/render.js";
-        import "../base/shedit.js";
+        import "../base/spanel.js";
         window.Tpb = Tpb;
         window.Kit = Kit;
         window.Render = Render;
@@ -107,16 +107,17 @@
 
 <!-- 模态框：屏蔽层 -->
 <div id="g-modal" class="___Panel Modal" data-pbo=""
-    on="close click(~._close)|evo(3) lose">
+    on="cancel click(~._close)|evo(3) lose">
     <!--执行结果：
         result 结果数据导入（上级运行时）。
         error  传递出错信息提示。 -->
-    <form class="_page _script" tpl-name="script:result" data-pbo=""
-        on="submit|avoid;
+    <form class="_page _script" tpl-name="script:result" data-pbo="lost"
+        on="submit|avoid $('/pre') text value('type where');
             reset;
             result|ev('detail');
             error|ev('detail')"
-        to="1/|trigger('close');
+        by="Kit.sresult(_)"
+        to="1/|trigger('cancel');
             /pre|trigger('reset');
             /pre|trigger('value');
             /pre|trigger('error')">
@@ -169,31 +170,33 @@
                 </span>
             </fieldset>
         </main>
-        <div class="_btn2" tpl-name="modal:okcancel">
+        <div class="_btn2" tpl-name="modal:okreset">
             <button type="submit">确定</button>
             <button type="reset">重置</button>
         </div>
     </form>
 
     <!--脚本历史：
-        click stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
-        codes 回送用户点选的代码片段。-->
-    <form class="_page _script" data-pbo="lost" tpl-name="script:history"
+        submit 搜索过滤，空串搜索显示全部。
+        click  stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
+        nodeok 初始载入/展示置顶代码清单，一次即可。-->
+    <form class="_page _script" data-pbo="" tpl-name="script:history"
         on="submit|avoid value('words');
             click(b[role=top])|stopAll evo(2) parent attr('-sid');
             click(b[role=untop])|stop evo(2) parent attr('-sid');
+            ^nodeok(~)|v.shtops;
             click(b[role=del])|stop evo(2) parent dup attr('-sid');
-            ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
-            ^obted|evo(3)"
+            ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread"
         by="Kit.shsearch;
             Kit.topsh ('untop') evo(2) pop;
             Kit.untop ('top') evo(2) pop;
+            -;
             Kit.delsh(_1);
-            Kit.shinit(_4);
-            Kit.shrecord"
+            Kit.shinit(_4)"
         to="#nav-misc|trigger('reset');
             -|@role;
-            -|@role">
+            -|@role;
+            #nav-tops|trigger('reset')">
         <header>
             <h4>脚本历史</h4>
             <b class="_close" title="关闭">✕</b>
@@ -209,7 +212,7 @@
                 Kit.shcode"
             to="/._down|%max-height|goto('tophei', _1);
                 |off('mousemove');
-                .Modal/|trigger('close');
+                .Modal/|trigger('cancel');
                 /._top|height">
             <!--内置限高：
                 避免初始即溢出（无法通过拖拽调整）。 -->
@@ -220,10 +223,10 @@
                     <label>置顶区</label>
                     <!-- 管理时显示，完成后隐藏（hidden） -->
                     <span data-pbo="hidden"
-                        on="off|$('#nav-tops') evo(3) hide;
-                            on|evo(3) hide(false);
+                        on="off|evo(3) hide $('main/') $('#nav-tops');
+                            on|evo(3) hide(false) $('main/');
                             reset|$$('/b') disable;"
-                        by="Kit.shEdok;
+                        by="Kit.shEdok(_1);
                             Kit.shEdin"
                         to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit');
                             |trigger('reset')|fire('main/._search', 'off')">
@@ -270,7 +273,7 @@
                         <b data-pbo="lost" role="del">删除</b>
                     </li>
                 </ul>
-                <!-- evn:page 激发上层换页，注意选择器定位通用（事件会被克隆） -->
+                <!-- evn:page 触发上层换页，注意选择器定位通用（事件会被克隆） -->
                 <nav id="nav-tops"
                     on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
                         reset|evo(3) ev('detail');

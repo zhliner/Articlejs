@@ -196,7 +196,7 @@
             on="click(~._close);
                 open|stop (ESC) evo(3) dup lose(0) apply('add', 'modal', _1) ev('detail');
                 cancel|stop evo(3) lose (ESC) apply('del', 'modal');
-                focus|$('/form') pop $('input[type=text], textarea, input[type=url]') dup pass focus;
+                focus|$('/form') pop $('/input[type=text], textarea, input[type=url]') dup pass focus;
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel');
                 /form|replace|fire(3, 'focus');

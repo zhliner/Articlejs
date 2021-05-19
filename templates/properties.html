@@ -749,14 +749,14 @@
 <!-- 纯文本录入 -->
 <textarea name="content" placeholder="空行分项（多选对应）" tpl-name="prop:content"></textarea>
 
-<!--源码录入
+<!--源码录入：
     初始为空时粘贴自动清除多余缩进，加按Shift取消此功能。
     适用：代码类/颜文字/预排版。
     keydown 插入真实换行或Tab空格序列（需要处理换行后的光标兼容性）。
     keydown 设置Shift键标记，决定是否清除多余缩进。
     keyup   清除Shift标记，注意应当是false（非null）。
     paste   粘贴内容，转换后按HTML方式插入，避免浏览器智能行为（不兼容）。
-    codes   由外部发送消息填充代码内容。
+    codes   由外部发送消息填充代码内容（光标处）。
     另：
     data-tip 初始录入提示（CSS:content:attr）。
 -->
