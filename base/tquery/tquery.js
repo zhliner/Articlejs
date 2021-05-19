@@ -86,7 +86,8 @@
 
     事件绑定事件
     在元素绑定或解绑之前/后触发，仅适用 tQuery.on/one 和 tQuery.off 接口。
-    如果在元素的 bind 处理器中调用了 Event.preventDefault()，会取消事件处理的绑定。
+    如果在元素的 bind/unbind 处理器中调用了 Event.preventDefault()，会取消事件处理器的绑定/解绑。
+    bound/unbound 是绑定或解绑之后的事件通知。
     开启：tQuery.config({bindevent: true})
 
     - 绑定      bind, bound
@@ -2201,6 +2202,10 @@ Object.assign( tQuery, {
      * - 无选择器时为 false
      * - 有选择器时，无法冒泡的事件为true，否则为false。
      *
+     * 选择器slr：
+     * - 支持前置一个 ~ 字符表示仅测试起点元素是否匹配。
+     * - 单独的一个 ~ 字符也是有效的，表示事件起点必须是绑定元素本身。
+     *
      * 处理器接口：function( ev, elo ): false|Any
      * ev: Event 原生的事件对象。
      * elo: {
@@ -2324,7 +2329,7 @@ Object.assign( tQuery, {
             return;
         }
         if ( typeof evn == 'string' ) {
-            if (evn in node && Event.callable(evn)) {
+            if (evn in node && Event.willevent(evn)) {
                 // 原始参数传递
                 node[evn]( ...(isArr(extra) ? extra : [extra]) );
                 return true;
@@ -7456,12 +7461,12 @@ const Event = {
 
 
     /**
-     * 是否为可调用事件。
-     * 即由元素上原生事件函数调用触发的事件。
+     * 调用可激发事件的事件名。
+     * 即是否为可由元素上原生事件函数调用触发的事件。
      * @param  {String} evn 事件名
      * @return {Boolean}
      */
-    callable( evn ) {
+    willevent( evn ) {
         return this.nativeEvents.has(evn);
     },
 
@@ -7521,7 +7526,7 @@ const Event = {
      * @param  {Function} current 获取当前元素的函数
      * @param  {String|null} slr 委托选择器（已合法）
      * @param  {Event} ev 原生事件对象
-     * @return {Boolean}
+     * @return {Boolean|null}
      */
     wrapper( handle, current, slr, ev ) {
         let _cur = current( ev, slr ),
@@ -7533,7 +7538,13 @@ const Event = {
             }
         // 需要调用元素的原生方法完成浏览器逻辑，
         // 如：form:submit, video:load 等。
-        return _elo && handle(ev, _elo) !== false && this._methodCall(ev, _elo.current);
+        // 只要用户调用通过就返回true，Event.preventDefault()已处理。
+        // 即：
+        // - 用户处理器返回false是有效的，此时会向系统返回false。
+        // - 如果用户调用Event.preventDefault()，效果同上，但会向系统返回true。
+        // 注记：
+        // 明确的返回值便于单次处理的解绑判断（._onceHandler）。
+        return _elo && handle(ev, _elo) !== false && !this._methodCall(ev, _elo.current);
     },
 
 
@@ -7542,20 +7553,21 @@ const Event = {
      * 主要为trigger激发原生方法的DOM逻辑完成。
      * 如：form:submit()，它不会产生一个submit事件。
      * 也可用于普通方法，传递定制数据（ev.detail）为其实参。
-     * @param {Event} ev 事件对象
-     * @param {Element} el 目标元素
+     * @param  {Event} ev 事件对象
+     * @param  {Element} el 目标元素
+     * @return {true|void}
      */
     _methodCall( ev, el ) {
         let _evn = ev.type,
             _fun = el[_evn];
 
-        if (ev.defaultPrevented ||
-            // 避免循环触发。
-            this.callable(_evn) ||
+        if ( ev.defaultPrevented ||
+            // 避免循环触发
+            this.willevent(_evn) ||
             !isFunc(_fun) ) {
             return;
         }
-        return _fun.bind(el)( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
+        _fun.bind(el)( ...(isArr(ev.detail) ? ev.detail : [ev.detail]) );
     },
 
 
@@ -7574,12 +7586,14 @@ const Event = {
      */
     _onceHandler( el, evn, bound, cap, pool, slr, handle ) {
         return function caller(...args) {
-            let _ok = bindTrigger(el, evnUnbind, evn, slr, handle, cap, true) !== false;
+            // 是否拦截指示
+            let _pass = bindTrigger(el, evnUnbind, evn, slr, handle, cap, true) !== false;
             try {
-                return _ok && bound(...args);
+                // 是否匹配指示
+                if ( _pass ) _pass = bound( ...args ) !== null;
             }
             finally {
-                if ( _ok ) {
+                if ( _pass ) {
                     pool.delete( handle );
                     el.removeEventListener( evn, caller, cap );
                     bindTrigger( el, evnUnbound, evn, slr, handle, cap, true );
@@ -7792,7 +7806,7 @@ const Event = {
      * @param {Event} ev 事件对象
      */
     _current( ev ) {
-        return ev.currentTarget;
+        return ev.currentTarget || null;
     },
 
 
