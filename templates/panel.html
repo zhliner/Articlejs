@@ -234,7 +234,7 @@
 <form class="Source" tpl-name="slave:source"
     on="submit|avoid $('/textarea') val;
         update|v.sels dup len eq(1) $if('valid', 'invalid')"
-    by="Kit.htmlupdate"
+    by="Ed.htmlUpdate"
     to="#g-scroll|trigger('focus');
         /textarea|trigger(_1)">
     <div class="_body _main">
@@ -280,16 +280,18 @@
 
 <!-- 脚本 -->
 <form class="Script" tpl-name="slave:script"
-    on="^nodeok(~)|evo(3);
-        submit|avoid;
+    on="submit|avoid $('/pre._code') text value('runbox');
+        ^nodeok(~)|evo(3);
         shcode|ev('detail')"
-    by="Kit.spinit"
-    to="-;-;
+    by="Ed.runScript(_1) node('script:result');
+        Kit.spinit"
+    to="#g-modal|trigger('open')|pop fire('#g-modal>._script', 'result');
+        -;
         /pre._code|trigger('codes')">
     <div class="_env"
-        on="click(input)|evo(2) attr('-v') bool $('/fieldset') pop hide(_1)">
+        on="click(input)|evo(2) val eq('sandbox') $('/fieldset') pop hide(_1)">
         <label>
-            <input type="radio" name="runbox" data-v="true" value="sandbox" checked />沙盒内执行
+            <input type="radio" name="runbox" value="sandbox" checked />沙盒内执行
         </label>
         <label class="_warn">
             <input type="radio" name="runbox" value="editor" />编辑器内运行
@@ -654,18 +656,17 @@
 
 
 <!--执行结果：
-    result 结果数据导入（上级运行时）。
-    error  传递出错信息提示。 -->
+    reset  表单重置时手动重置<pre>内的结果数据。
+    result 上级递送的执行结果：{type:'value|error', data:String}。
+-->
 <form class="_page _script" tpl-name="script:result"
     on="submit|avoid $('/pre') text value('type where');
         reset;
-        result|ev('detail');
-        error|ev('detail')"
+        result|ev('detail') get('data type') spread"
     by="Kit.sresult(_)"
     to="1/|trigger('cancel');
         /pre|trigger('reset');
-        /pre|trigger('value');
-        /pre|trigger('error')">
+        /pre|trigger(_1)">
     <header>
         <h4>脚本执行结果</h4>
         <b class="_close" title="关闭">✕</b>
@@ -679,16 +680,17 @@
         to="=|$contentEditable|fire(10, 'focus');
             =|$contentEditable">
         <!--结果框：
-            value 设置正常的结果内容。
-            reset 提取初始化存储的源码重置。
-            error 错误信息用源码连接。 -->
-        <pre class="_err" _data-s=""
-            on="reset|evo(3) dup hasClass('_err') end prop('-s');
+            value 设置正常的结果内容，同时存储备份。
+            reset 提取初始存储的源码重置。
+            error 错误信息手动连接源码封装。
+            obted 代码编辑框友好事件克隆。 -->
+        <pre class="_err" _data-bak=""
+            on="reset|evo(3) dup hasClass('_err') end prop('-bak');
                 value|ev('detail') html dup ('_err');
                 error|ev('detail') html str('<label>错误：</label><i>', '</i>') ('_err');
                 ^obted|tpl('prop:codes')"
             to="|html;
-                |removeClass prop('-s') html;
+                |removeClass prop('-bak') html;
                 |addClass html;
                 |cloneEvent">
 <label>错误：</label><i>this is a error massage.</i>

@@ -4987,6 +4987,59 @@ export const Edit = {
     __clearStyle: 1,
 
 
+    /**
+     * 元素特性更新。
+     */
+    attrUpdate( evo ) {
+        //
+    },
+
+    __attrUpdate: 1,
+
+
+    /**
+     * 源码更新。
+     * 以用户输入的HTML源码替换选取的元素。
+     * 注：仅支持单个元素选取。
+     * @data: String 源码数据
+     */
+    htmlUpdate( evo ) {
+        if ( __ESet.size !== 1 || !evo.data.length ) {
+            return;
+        }
+        let _els = [...__ESet],
+            _nodes = htmlNodes( evo.data );
+
+        historyPush(
+            cleanHot( _els, true ),
+            clearSets(),
+            new DOMEdit( () => $.replace(_els[0], _nodes) )
+        );
+    },
+
+    __htmlUpdate: 1,
+
+
+    /**
+     * 执行脚本。
+     * Object2: {
+     *      type:String 结果类型（error|value）
+     *      data:String 结果字符串（任意）
+     * }
+     * @data: String 脚本源码
+     * @param  {String} rbox 执行环境（sandbox|editor）
+     * @return {Object2} 运行结果
+     */
+    runScript( evo, rbox ) {
+        return {
+            type: 'value',
+            data: 'Hello the <b>world</b>.'
+        };
+    },
+
+    __runScript: 1,
+
+
 
     //-- 杂项 ----------------------------------------------------------------
 
@@ -6256,29 +6309,6 @@ export const Kit = {
 
 
     /**
-     * 源码更新。
-     * 以用户输入的HTML源码替换选取的元素。
-     * 注：仅支持单个元素选取。
-     * @data: String 源码数据
-     */
-    htmlupdate( evo ) {
-        if ( __ESet.size !== 1 || !evo.data.length ) {
-            return;
-        }
-        let _els = [...__ESet],
-            _nodes = htmlNodes( evo.data );
-
-        historyPush(
-            cleanHot( _els, true ),
-            clearSets(),
-            new DOMEdit( () => $.replace(_els[0], _nodes) )
-        );
-    },
-
-    __htmlupdate: 1,
-
-
-    /**
      * 检查源码的HTML结构。
      * 按深度优先遍历，但一次返回一个兄弟层级内的非法节点。
      * 最终无错时返回null。
@@ -6310,6 +6340,9 @@ processExtend( 'Ed', Edit, [
     'eraseStyle',
     'brushStyle',
     'clearStyle',
+    'attrUpdate',
+    'htmlUpdate',
+    'runScript',
 
     // 配合cut处理
     'deletes',
@@ -6341,7 +6374,6 @@ processExtend( 'Kit', Kit, [
     'insrbpt',
     'table',
     'codelang',
-    'htmlupdate',
     'checkhtml',
 ]);
 

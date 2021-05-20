@@ -1709,12 +1709,14 @@ const _Process = {
     /**
      * 选取范围记忆与提取。
      * 目标：暂存区1项可选。
-     * 目标有值时为 Range 对象存储（内部池），否则为取值。
+     * 目标有值时为 Range 对象存储，否则为取值。
      * 通常绑定在离可编辑元素较近的容器元素上。
      * 如：
-     * <main on="mouseup keyup input|Range pop xRange stop">
+     * <main on="mouseup keyup input|sRange pop xRange stop">
      *      <p contenteditable>可编辑区域...</p>
      * </main>
+     * @data: Range?
+     * @param  {String|Symbol} key 存储键
      * @return {Range|void}
      */
     xRange( evo, key = __rngKey ) {

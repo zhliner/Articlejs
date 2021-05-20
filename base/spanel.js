@@ -578,6 +578,9 @@ const __Kit = {
      * @return {void}
      */
     sresult( evo, type, where ) {
+        if ( !where ) {
+            return;
+        }
         window.console.info( evo.data, type, where );
     },
 
