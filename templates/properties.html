@@ -763,7 +763,7 @@
 -->
 <pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
     data-tip="粘贴时自动清除多余缩进"
-    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
         keydown|scam('shift') pass stop env('paste.shift', true);
         keyup|env('paste.shift', false);
         paste|avoid evo(3) clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);

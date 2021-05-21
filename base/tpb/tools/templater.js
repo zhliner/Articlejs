@@ -129,6 +129,12 @@ class Templater {
         if ( this._pool.has(root) ) {
             return this._pool.get(root);
         }
+        // 注记：
+        // 先从总根构建OBT后再处理子模版可以节省解析开销，
+        // 否则子模板克隆会直接复制OBT特性，相同值重复解析。
+        // 提示：
+        // 如果需要在^obted处理中即时移除（脱离DOM）模板节点，可以在remove前添加一个delay。
+        // 否则目标模板可能会丢失（不在存储集内）。
         let _pro = this._obter( root )
             .then( () => this.picks(root) )
             .then( () => this._pool.delete(root) );

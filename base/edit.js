@@ -1747,19 +1747,31 @@ function sameSets( eset, els ) {
  * 设置元素位置。
  * 外部需要预先设置元素的 position:absolute 样式。
  * 注：<svg>子元素无效。
- * @param  {Collector} $els 目标元素集
+ * @param  {[Element]} els 目标元素集
  * @param  {String} name 样式名（left|top|right|bottom）
  * @param  {Number} inc 递增像素值
  * @return {DOMEdit|void}
  */
-function elementsPostion( $els, name, inc ) {
-    if ( !$els.length ||
-        $els.some(cantMoving) ) {
+function elementsPostion( els, name, inc ) {
+    if ( !els.length ||
+        els.some(cantMoving) ) {
         return;
     }
     let _fx = v => `${(parseFloat(v) || 0) + inc}px`;
 
-    return new DOMEdit( __Edits.style, $els, name, _fx );
+    return new DOMEdit( __Edits.styles, els, name, _fx );
+}
+
+
+/**
+ * 定位样式跟随变化。
+ * 当元素的top|left设置具体的值时，其对面样式需设置为auto。
+ * @param  {[Element]} els 目标元素集
+ * @param  {String} type 跟随类型（right|bottom）
+ * @return {DOMEdit} 操作实例
+ */
+function postionFollow( els, type ) {
+    return new DOMEdit( __Edits.styles, els, type, 'auto' );
 }
 
 
@@ -4791,50 +4803,66 @@ export const Edit = {
 
 
     moveToLeft() {
-        let _op = elementsPostion( $(__ESet), 'left', -1 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'left', -1 );
+
+        _op && historyPush( _op, postionFollow(_els, 'right') );
     },
 
 
     moveToLeftTen() {
-        let _op = elementsPostion( $(__ESet), 'left', -10 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'left', -10 );
+
+        _op && historyPush( _op, postionFollow(_els, 'right') );
     },
 
 
     moveToRight() {
-        let _op = elementsPostion( $(__ESet), 'left', 1 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'left', 1 );
+
+        _op && historyPush( _op, postionFollow(_els, 'right') );
     },
 
 
     moveToRightTen() {
-        let _op = elementsPostion( $(__ESet), 'left', 10 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'left', 10 );
+
+        _op && historyPush( _op, postionFollow(_els, 'right') );
     },
 
 
     moveToUp() {
-        let _op = elementsPostion( $(__ESet), 'top', -1 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'top', -1 );
+
+        _op && historyPush( _op, postionFollow(_els, 'bottom') );
     },
 
 
     moveToUpTen() {
-        let _op = elementsPostion( $(__ESet), 'top', -10 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'top', -10 );
+
+        _op && historyPush( _op, postionFollow(_els, 'bottom') );
     },
 
 
     moveToDown() {
-        let _op = elementsPostion( $(__ESet), 'top', 1 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'top', 1 );
+
+        _op && historyPush( _op, postionFollow(_els, 'bottom') );
     },
 
 
     moveToDownTen() {
-        let _op = elementsPostion( $(__ESet), 'top', 10 );
-        _op && historyPush( _op );
+        let _els = [...__ESet],
+            _op = elementsPostion( _els, 'top', 10 );
+
+        _op && historyPush( _op, postionFollow(_els, 'bottom') );
     },
 
 
@@ -5022,16 +5050,22 @@ export const Edit = {
 
     /**
      * 执行脚本。
+     * 脚本合法执行才传递code用于历史存储。
+     * 注：空白脚本无任何行为。
      * Object2: {
      *      type:String 结果类型（error|value）
      *      data:String 结果字符串（任意）
+     *      code:String 当前脚本代码（用于历史存储），可选
      * }
      * @data: String 脚本源码
      * @param  {String} rbox 执行环境（sandbox|editor）
      * @return {Object2} 运行结果
      */
     runScript( evo, rbox ) {
+        let code = evo.data.trim();
+
         return {
+            code,
             type: 'value',
             data: 'Hello the <b>world</b>.'
         };

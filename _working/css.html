@@ -97,7 +97,7 @@
     事件克隆/编辑效果。-->
 <pre id="g-codes" spellcheck="false" class="_code" contenteditable="true" data-pbo="lost"
     data-tip="粘贴时自动清除多余缩进"
-    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('._body/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
         keydown|scam('shift') pass stop env('paste.shift', true);
         keyup|env('paste.shift', false);
         paste|avoid evo(3) clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
@@ -111,53 +111,60 @@
     <!--执行结果：
         result 结果数据导入（上级运行时）。
         error  传递出错信息提示。 -->
-    <form class="_page _script" tpl-name="script:result" data-pbo="lost"
+    <form class="_page _script" tpl-name="script:result" data-pbo=""
         on="submit|avoid $('/pre') text value('type where');
+            shsave|ev('detail') dup pass;
             reset;
-            result|ev('detail');
-            error|ev('detail')"
+            result|ev('detail') get('code data type') spread"
         by="Kit.sresult(_)"
         to="1/|trigger('cancel');
             /pre|trigger('reset');
             /pre|trigger('value');
-            /pre|trigger('error')">
+            /pre|trigger(_1)|goto('shsave', _1)">
         <header>
             <h4>脚本执行结果</h4>
             <b class="_close" title="关闭">✕</b>
         </header>
-        <!--单击可编辑：
-            - 方便即时微调后使用。
-            - 如果只是简单需要结果文本，便于全选。-->
-        <main class="_result"
-            on="click(~pre)|stop evo(2) hasClass('_err') end (true);
-                blur(~pre)|(false)"
-            to="=|$contentEditable|fire(10, 'focus');
-                =|$contentEditable">
+        <main class="_result">
             <!--结果框：
                 value 设置正常的结果内容。
                 reset 提取初始化存储的源码重置。
                 error 错误信息用源码连接。 -->
-            <pre class="_err" _data-s=""
-                on="reset|evo(3) dup hasClass('_err') end prop('-s');
+            <pre class="_err" data-bak="" contenteditable
+                on="reset|evo(3) prop('-bak');
                     value|ev('detail') html dup ('_err');
-                    error|ev('detail') html str('<label>错误：</label><i>', '</i>') ('_err');
+                    error|ev('detail') html str('<label>错误：</label><i>', '</i>') dup ('_err');
                     ^obted|$('#g-codes')"
                 to="|html;
-                    |removeClass prop('-s') html;
-                    |addClass html;
+                    |removeClass prop('-bak') html;
+                    |addClass prop('-bak') html;
                     |cloneEvent">
 <label>错误：</label><i>this is a error massage.</i>
 </pre>
-            <fieldset>
-                <legend>插入选项</legend>
-                <span class="_type">
+            <fieldset
+                on="disable|ev('detail')"
+                to="|$disabled">
+                <legend>内容插入</legend>
+                <span class="_type"
+                    on="click(input)|evo(2) val str('where:') node(_1)"
+                    to="1/._where|replace">
                     <i>类型：</i>
                     <label title="text"><input type="radio" name="type" value="text" checked />文本</label>
                     <label title="html"><input type="radio" name="type" value="html" />节点</label>
                 </span>
-                <span class="_where">
+                <span class="_where" tpl-name="where:text">
                     <i>位置：</i>
                     <!-- 友好：空值可用于简单关闭对话框 -->
+                    <select name="where">
+                        <option value=""> ------ </option>
+                        <option title="内部填充">fill</option>
+                        <option title="内部末尾">append</option>
+                        <option title="内部前端">prepend</option>
+                    </select>
+                </span>
+                <span class="_where" tpl-name="where:html"
+                    on="^obted|evo(3) delay remove">
+                    <i>位置：</i>
                     <select name="where">
                         <option value=""> ------ </option>
                         <option title="内部填充">fill</option>
@@ -167,7 +174,11 @@
                         <option title="目标之前">before</option>
                         <option title="目标之后">after</option>
                     </select>
+                    <em class="_tips">提示：注意源码结构的合法性！</em>
                 </span>
+                <label title="编辑时有用">制表符
+                    <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                </label>
             </fieldset>
         </main>
         <div class="_btn2" tpl-name="modal:okreset">
@@ -180,7 +191,7 @@
         submit 搜索过滤，空串搜索显示全部。
         click  stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
         nodeok 初始载入/展示置顶代码清单，一次即可。-->
-    <form class="_page _script" data-pbo="" tpl-name="script:history"
+    <form class="_page _script" data-pbo="lost" tpl-name="script:history"
         on="submit|avoid value('words');
             click(b[role=top])|stopAll evo(2) parent attr('-sid');
             click(b[role=untop])|stop evo(2) parent attr('-sid');

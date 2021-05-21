@@ -190,7 +190,8 @@
         to="#g-count|trigger('reset');
             #status-info|trigger('info')">
         <!--模态框
-            open 打开模态框，插入目标表单。
+            open  打开模态框，插入目标表单。
+                  向表单发送一个state事件，用于可能需要的初始设置。
             focus 聚焦首个文本输入控件，延迟激发（待子模版就绪） -->
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
@@ -199,7 +200,7 @@
                 focus|$('/form') pop $('/input[type=text], textarea, input[type=url]') dup pass focus;
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel');
-                /form|replace|fire(3, 'focus');
+                /form|replace trigger('state')|fire(3, 'focus');
                 #g-scroll|trigger('focus')">
             <form> <!-- 占位 --> </form>
         </div>

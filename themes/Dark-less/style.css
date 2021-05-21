@@ -1682,7 +1682,6 @@ menu._cells code {
 }
 .Modal fieldset legend {
     font-weight: bold;
-    padding: 0 4px;
 }
 
 .Modal form._page {
@@ -1896,7 +1895,7 @@ menu._cells code {
     outline: none;
 }
 .Modal fieldset {
-    margin: 1.2em 0 0;
+    margin: 1.7em 0 0;
 }
 .Modal ._result fieldset i {
     font-style: normal;
@@ -1905,9 +1904,25 @@ menu._cells code {
 .Modal ._result fieldset > span {
     margin: 0 1em;
 }
+/* 保留<legend>原色 */
+.Modal fieldset:disabled > span * {
+    color: #a0a0a0 !important;
+}
+.Modal ._result ._type label:last-child {
+    margin-left: 0.5em;
+}
+/* 制表符设置 */
+.Modal ._result fieldset > label {
+    float: right;
+}
 .Modal ._result ._err {
     color: red;
 }
 .Modal ._result ._err label {
     font-weight: bold;
+}
+.Modal ._result ._tips {
+    margin-left: 0.6em;
+    color: orange;
+    font-size: small;
 }

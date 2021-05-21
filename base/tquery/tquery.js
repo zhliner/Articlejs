@@ -6894,7 +6894,7 @@ const valHooks = {
             return _res && el.name && this._get( _res.nodeType ? [_res] : _res );
         },
 
-        // for disabled.
+        // check disabled.
         _get: list => {
             for ( let e of list ) {
                 if ( e.checked ) {

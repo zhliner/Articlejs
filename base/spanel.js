@@ -20,7 +20,7 @@
 //
 
 import { Sys, Limit } from "../config.js";
-import { CStorage, History, Pages } from "./common.js";
+import { CStorage, datetime, History, Pages } from "./common.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { processExtend } from "./tpb/pbs.by.js";
 
@@ -198,7 +198,7 @@ function historyPush( ...obj ) {
  *      name:   标签名称
  *      code:   代码文本
  *      top:    是否置顶
- *      datetime:   更新时间
+ *      datetime: 更新时间
  * }
  * @param  {String} sid 历史脚本ID
  * @return {Object}
@@ -282,6 +282,35 @@ function search( words ) {
         }
     }
     return _buf;
+}
+
+
+/**
+ * 是否有相同代码。
+ * @param  {String} code 对比的代码
+ * @return {Boolean}
+ */
+function codeSamed( code ) {
+    let _ks = __Store.keys();
+    return _ks.some( k => shObj(k).code === code );
+}
+
+
+/**
+ * 获取一个唯一键（代码存储）。
+ * 简单地用当前时间的毫秒数表示，若有相同则加一个随机数。
+ * 增量值取10天内的随机毫秒数。
+ * @param  {CStorage} 存储器实例
+ * @param  {Number} base 基础值
+ * @return {String}
+ */
+function uniqueKey( buf, base = 0 ) {
+    let _tm = Date.now() + base;
+
+    if ( !buf.has(_tm) ) {
+        return _tm;
+    }
+    return uniqueKey( buf, parseInt( Math.random()*240*3600*1000 ) );
 }
 
 
@@ -570,6 +599,29 @@ const __Kit = {
 
 
     /**
+     * 脚本保存。
+     * 判断脚本是否相同，不同才存储。
+     * 注：代码已在前阶正常执行且有内容。
+     * @data: String 脚本代码。
+     * @return {void}
+     */
+    shsave( evo ) {
+        if ( codeSamed(evo.data) ) {
+            return;
+        }
+        let _k = uniqueKey(__Store),
+            _o = {
+                shid: _k,
+                code: evo.data,
+                datetime: datetime()
+            };
+        __Store.set( _k, JSON.stringify(_o) );
+    },
+
+    __shsave: 1,
+
+
+    /**
      * 脚本执行结果插入。
      * 如果位置未定义（空串），则简单忽略。
      * 提交的错误信息也可以被执行插入。
@@ -609,6 +661,7 @@ processExtend( 'Kit', __Kit, [
     'sh2panel',
     'shsearch',
     'shcode',
+    'shsave',
     'sresult',
 ]);
 

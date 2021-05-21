@@ -2173,10 +2173,12 @@ function propectLoop( i, msg ) {
 
 /**
  * 控制台信息打印。
+ * 传递消息为false，显示信息并中断执行流。
+ * 传递消息为true，设置断点等待继续。
  * 特殊：是，this为Cell实例，查看调用链。
  * 目标：无。
  * 特权：是，数据栈显示。
- * @param  {Value|false} msg 显示消息，传递false中断执行流
+ * @param  {Value|false|true} msg 显示消息，传递false中断执行流
  * @return {void|reject}
  */
 function debug( evo, stack, msg = '' ) {
