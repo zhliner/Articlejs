@@ -157,7 +157,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     left: 0;
     content: counters(numer, '.') ".";
     counter-increment: numer;
-    font-weight: bold;
     white-space: nowrap;
 }
 

@@ -1904,10 +1904,6 @@ menu._cells code {
 .Modal ._result fieldset > span {
     margin: 0 1em;
 }
-/* 保留<legend>原色 */
-.Modal fieldset:disabled > span * {
-    color: #a0a0a0 !important;
-}
 .Modal ._result ._type label:last-child {
     margin-left: 0.5em;
 }

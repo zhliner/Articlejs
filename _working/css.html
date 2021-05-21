@@ -141,9 +141,10 @@
                     |cloneEvent">
 <label>错误：</label><i>this is a error massage.</i>
 </pre>
+            <!-- 仅部分禁用 -->
             <fieldset
-                on="disable|ev('detail')"
-                to="|$disabled">
+                on="disable|ev('detail') dup $$('/>span') pop disable(_1)"
+                to="(input[name=type], select)|$disabled">
                 <legend>内容插入</legend>
                 <span class="_type"
                     on="click(input)|evo(2) val str('where:') node(_1)"
@@ -162,8 +163,10 @@
                         <option title="内部前端">prepend</option>
                     </select>
                 </span>
-                <span class="_where" tpl-name="where:html"
-                    on="^obted|evo(3) delay remove">
+                <!-- 隐藏不闪烁 -->
+                <span class="_where" data-pbo="lost" tpl-name="where:html"
+                    on="^obted|evo(3) delay remove (null)"
+                    to="|@-pbo">
                     <i>位置：</i>
                     <select name="where">
                         <option value=""> ------ </option>
@@ -176,7 +179,7 @@
                     </select>
                     <em class="_tips">提示：注意源码结构的合法性！</em>
                 </span>
-                <label title="编辑时有用">制表符
+                <label title="编辑时用">制表符
                     <input type="text" name="tabs" class="_char" value="4" title="空格数">
                 </label>
             </fieldset>

@@ -695,9 +695,10 @@
                 |cloneEvent">
 <label>错误：</label><i>this is a error massage.</i>
 </pre>
+        <!-- 仅部分禁用（tabs保留） -->
         <fieldset
-            on="disable|ev('detail')"
-            to="|$disabled">
+            on="disable|ev('detail') dup $$('/>span') pop disable(_1)"
+            to="(input[name=type], select)|$disabled">
             <legend>内容插入</legend>
             <!-- reset 手动切换节点替换。 -->
             <span class="_type"
@@ -732,8 +733,8 @@
                 </select>
                 <em class="_tips">提示：注意源码结构的合法性！</em>
             </span>
-            <label title="编辑时有用">制表符
-                <input type="text" name="tabs" class="_char" title="空格数">
+            <label title="编辑时用">制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
         </fieldset>
     </main>
