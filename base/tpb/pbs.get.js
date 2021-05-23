@@ -813,7 +813,7 @@ const _Gets = {
 
     /**
      * 获取模板节点（集）。
-     * 目标：无。
+     * 目标：暂存区/栈顶1项。
      * 返回节点元素本身（而不是一个承诺）。
      * 如果只请求单个节点且未找到，返回null（数组成员中未找到的也为null）。
      * name支持空格分隔的多个名称序列。
@@ -824,18 +824,20 @@ const _Gets = {
      * 3. 主动使用tpl载入单个节点，于是与该节点定义在同一文件中的其它节点就会自动载入。
      * 注意：
      * 克隆是每次事件都会克隆一组新的节点。
-     * @param  {String} name 名称/序列
+     * @data: String 名称/序列
      * @param  {Boolean} clone 是否克隆
      * @return {Element|[Element|null]|null}
      */
-    node( evo, name, clone ) {
-        if ( __reSpace.test(name) ) {
-            return Templater.nodes( name.split(__reSpace), clone );
+    node( evo, clone ) {
+        let _ns = evo.data;
+
+        if ( __reSpace.test(_ns) ) {
+            return Templater.nodes( _ns.split(__reSpace), clone );
         }
-        return Templater.node( name, clone );
+        return Templater.node( _ns, clone );
     },
 
-    __node: null,
+    __node: 1,
 
 
     /**

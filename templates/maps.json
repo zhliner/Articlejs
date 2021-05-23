@@ -19,6 +19,8 @@
         "modal:plugins",
         "modal:prop",
         "modal:small",
+        "run:sandbox",
+        "run:editor",
         "script:history",
         "script:result",
         "slave:attr",

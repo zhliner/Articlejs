@@ -263,6 +263,9 @@ aside#help {
 .___Panel input {
     outline: none;
 }
+.___Panel legend {
+    padding: 0 4px;
+}
 
 /* 侧栏灰度线 */
 .___Panel aside select,
@@ -1471,22 +1474,29 @@ menu._cells code {
 .Script ._env > label._warn {
     color: #b30;
 }
-.Script ._env ._tips {
+.Script ._env fieldset {
+    padding: 4px 12px;
+    border: 1px #9cc solid;
+    border-radius: 12px;
+    margin-top: 6px;
+}
+.Script ._env fieldset._opts > label {
+    display: block;
+    margin: 3px 4px 5px;
+    color: #678;
+    font-size: small;
+}
+.Script ._env fieldset._warn {
     flex: 1 1 auto;
     font-size: 12px;
-    padding: 4px 12px;
     color: #777;
-    border: 1px #f80 solid;
-    border-radius: 12px;
-    margin-top: 5px;
-    transition: opacity 0.7s;
+    border-color: #f93;
 }
-.Script ._env ._tips p {
-    line-height: 180%;
-}
-.Script ._env legend {
+.Script ._env ._warn legend {
     color: red;
-    padding: 0 4px;
+}
+.Script ._env ._warn p {
+    line-height: 180%;
 }
 .Script > ._body > ._main {
     flex: 5 5 450px;

@@ -155,7 +155,7 @@
         - 切换模板。
         - 表达按下，跟随更新。-->
     <div class="_icons"
-        on="click(b)|evo(2) attr('-tpl') node(_1);
+        on="click(b)|evo(2) attr('-tpl') node;
             click(b)|$$('/b')"
         to="1/._body|replace;
             =|only('_press')|fire('form/', 'update')">
@@ -280,23 +280,34 @@
 
 <!-- 脚本 -->
 <form class="Script" tpl-name="slave:script"
-    on="submit|avoid $('/pre._code') text value('runbox');
+    on="submit|avoid $('/pre._code') text value('runbox itext ihtml');
         ^nodeok(~)|evo(3);
         shcode|ev('detail')"
-    by="Ed.runScript(_1) node('script:result');
+    by="Ed.runScript(_) dup pass ('script:result') node;
         Kit.spinit"
     to="#g-modal|trigger('open')|pop fire('#g-modal>._script', 'result');
         -;
         /pre._code|trigger('codes')">
     <div class="_env"
-        on="click(input)|evo(2) val eq('sandbox') $('/fieldset') pop hide(_1)">
+        on="click([name=runbox])|evo(2) val str('run:') node"
+        to="/fieldset|replace">
         <label>
             <input type="radio" name="runbox" value="sandbox" checked />沙盒内执行
         </label>
         <label class="_warn">
             <input type="radio" name="runbox" value="editor" />编辑器内运行
         </label>
-        <fieldset class="_tips" data-pbo="hidden">
+        <fieldset class="_opts" tpl-name="run:sandbox">
+            <legend>数据：</legend>
+            <label title="选取集文本">
+                <input type="checkbox" name="itext" />TEXT
+            </label>
+            <label title="选取集源码">
+                <input type="checkbox" name="ihtml" />HTML
+            </label>
+        </fieldset>
+        <fieldset class="_warn" tpl-name="run:editor"
+            on="^obted|evo(3) delay remove">
             <legend>警告：</legend>
             <p>操作 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！</p>
         </fieldset>
@@ -314,10 +325,10 @@
                 - 非管理模式下，单击某一条记录，自动插入脚本框内光标处。 -->
             <div class="_cmds">
                 <b title="脚本历史"
-                    on="click|node('script:history')"
+                    on="click|tpl('script:history')"
                     to="#g-modal|trigger('open')"><i id="l-history"></i></b>
                 <b title="执行结果"
-                    on="click|node('script:result')"
+                    on="click|tpl('script:result')"
                     to="#g-modal|trigger('open')"><i id="l-result"></i></b>
                 <input type="hidden" name="tabs" value="4" />
             </div>
@@ -702,7 +713,7 @@
             <legend>内容插入</legend>
             <!-- reset 手动切换节点替换。 -->
             <span class="_type"
-                on="click(input)|evo(2) val str('where:') node(_1);
+                on="click(input)|evo(2) val str('where:') node;
                     reset|$('input') click"
                 to="1/._where|replace">
                 <i>类型：</i>

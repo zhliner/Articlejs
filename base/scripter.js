@@ -15,7 +15,7 @@
 //  - TEXT  选取集的文本数据
 //  - HTML  选举权的源码数据：内容行元素的 innerHTML，内联单元的 outerHTML
 //
-//  注记：
+//  安全性：
 //  Worker 不能访问 window 和文档对象（DOM）。
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,20 +28,16 @@
 // - html:  选取集源码（innerHTML/outerHTML）
 // - code:  需要执行的代码
 // 容错：
-// 可直接传递字符串代码执行，但没有TEXT/HTML两个数据集。
+// 可直接传递字符串代码执行，此时没有TEXT/HTML两个数据集。
 //
 onmessage = function( ev ) {
-    let _val,
-        _o = ev.data;
-    try {
-        _val = new Function(
-                'TEXT',
-                'HTML',
-                _o.code || _o
-            )( _o.text || [], _o.html || [] );
-    }
-    catch ( e ) {
-        throw new Error( `${e.name}: ${e.message}` );
-    }
-    postMessage( _val );
+    let _o = ev.data;
+
+    postMessage(
+        new Function(
+            'TEXT',
+            'HTML',
+            _o.code || _o
+        )( _o.text || [], _o.html || [] )
+    );
 };

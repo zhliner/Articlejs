@@ -713,8 +713,52 @@ export class Pages {
 
 
 //
-// 工具函数。
+// 辅助工具。
 //////////////////////////////////////////////////////////////////////////////
+
+
+//
+// 通用缓存池。
+//
+class Pool extends Set {
+    /**
+     * @param {Function} valuer 值创建器
+     */
+    constructor( valuer ) {
+        super();
+        this._make = valuer;
+    }
+
+
+    /**
+     * 提取一个成员。
+     * 提取的成员会从集合中移除，没有则简单创建一个返回。
+     * 注记：
+     * 新建的值无需进入缓存集，它应当由外部回送。
+     * @return {Value}
+     */
+    pick( ...args ) {
+        return this._pick() || this._make( ...args );
+    }
+
+
+    /**
+     * 提取集合成员。
+     * 提取的成员会从集合中移除。
+     * @return {Value}
+     */
+    _pick() {
+        let _v;
+        for ( _v of this ) break;
+
+        if (_v !== undefined) this.delete(_v);
+        return _v;
+    }
+}
+
+// Worker缓存池。
+// 实例共享，避免冗余创建。
+const __poolWorker = new Pool( Scripter );
 
 
 /**
@@ -756,12 +800,24 @@ function warn( msg, data ) {
  * @return {Promise<Object|Value>}
  */
 export function parseJSON( str ) {
-    let _wk = Scripter();
+    let _wk = __poolWorker.pick();
 
     return new Promise( resolve => {
-        _wk.onmessage = ev => resolve(ev.data);
+        _wk.onmessage = ev => __poolWorker.add(_wk) && resolve(ev.data);
         _wk.postMessage( `return ${str}` );
     });
+}
+
+
+/**
+ * 脚本执行。
+ * @param  {String} code 脚本代码
+ * @param  {[String]} text 文本数据集
+ * @param  {[String]} html 源码数据集
+ * @return {Promise<Value>}
+ */
+function scriptRun( code, text, html ) {
+    //
 }
 
 

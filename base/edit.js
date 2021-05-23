@@ -2882,19 +2882,19 @@ function covertTips( el ) {
     $.trigger(
         covertShow,
         Sys.covert,
-        el && isCovert( el ) && elemHTML( el ) || ''
+        el && isCovert( el ) && selfHTML( el ) || ''
     );
 }
 
 
 /**
- * 提取不可见元素信息。
+ * 提取元素自身信息。
  * - 标签名大写（醒目）。
  * - 不含结束标签部分（如果有）。
- * @param  {Element} el 不可见元素
+ * @param  {Element} el 元素
  * @return {String}
  */
-function elemHTML( el ) {
+function selfHTML( el ) {
     let _as = [...el.attributes]
         .map( a => `${a.name}="${a.value}"` )
         .join( ' ' );
@@ -5059,16 +5059,21 @@ export const Edit = {
      * }
      * @data: String 脚本源码
      * @param  {String} rbox 执行环境（sandbox|editor）
-     * @return {Object2} 运行结果
+     * @param  {Boolean} hastext 含文本集数据
+     * @param  {Boolean} hashtml 含源码集数据
+     * @return {Object2|null} 运行结果
      */
-    runScript( evo, rbox ) {
-        let code = evo.data.trim();
+    runScript( evo, rbox, hastext, hashtml ) {
+        let code = evo.data.trim(),
+            type = 'value',
+            data = '';
 
-        return {
-            code,
-            type: 'value',
-            data: 'Hello the <b>world</b>.'
-        };
+        if ( !code ) return null;
+
+        if ( rbox === 'editor' ) {
+            //
+        }
+        return { code, type, data };
     },
 
     __runScript: 1,
@@ -5401,18 +5406,18 @@ export const Kit = {
 
 
     /**
-     * 构造元素的HTML信息。
-     * 友好：提示目标元素的特性结构。
-     * 主要用于焦点元素路径上。
+     * 构造元素自身的信息。
+     * 友好提示目标元素的特性结构。
+     * 用于焦点元素路径上。
      * @data: Element
      * @return {String|null}
      */
-    elemHTML( evo ) {
+    elemSelf( evo ) {
         let _el = evo.data;
-        return _el ? elemHTML(_el).replace(__reClassv, '') : null;
+        return _el ? selfHTML(_el).replace(__reClassv, '') : null;
     },
 
-    __elemHTML: 1,
+    __elemSelf: 1,
 
 
     /**
@@ -6419,7 +6424,7 @@ customGetter( null, Kit, [
     'sels',
     'esize',
     'focus',
-    'elemHTML',
+    'elemSelf',
     'tobj',
     'trbox',
     'tsecbox',
