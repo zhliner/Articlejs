@@ -23,21 +23,31 @@
 
 
 //
-// ev.data
-// - text:  选取集内容文本（TEXT）
-// - html:  选取集源码（innerHTML/outerHTML）
-// - code:  需要执行的代码
+// 执行传递过来的代码。
+// 源数据 ev.data
+// - text:[String]  选取集内容文本（TEXT）
+// - html:[String]  选取集源码（outerHTML）
+// - code:String    需要执行的代码
 // 容错：
 // 可直接传递字符串代码执行，此时没有TEXT/HTML两个数据集。
 //
+// 返回值：{
+//      result  正常的执行结果
+//      error   异常的错误对象，出错时才有
+// }
+//
 onmessage = function( ev ) {
-    let _o = ev.data;
-
-    postMessage(
-        new Function(
+    let _o = ev.data,
+        _tmp = {};
+    try {
+        _tmp.result = new Function(
             'TEXT',
             'HTML',
             _o.code || _o
-        )( _o.text || [], _o.html || [] )
-    );
+        )( _o.text || [], _o.html || [] );
+    }
+    catch (err) {
+        _tmp.error = err;
+    }
+    postMessage( _tmp );
 };

@@ -803,7 +803,14 @@ export function parseJSON( str ) {
     let _wk = __poolWorker.pick();
 
     return new Promise( resolve => {
-        _wk.onmessage = ev => __poolWorker.add(_wk) && resolve(ev.data);
+        _wk.onmessage = ev => {
+            __poolWorker.add( _wk );
+
+            if ( ev.data.error ) {
+                throw ev.data.error;
+            }
+            resolve( ev.data.result );
+        }
         _wk.postMessage( `return ${str}` );
     });
 }
@@ -811,13 +818,21 @@ export function parseJSON( str ) {
 
 /**
  * 脚本执行。
- * @param  {String} code 脚本代码
- * @param  {[String]} text 文本数据集
- * @param  {[String]} html 源码数据集
+ * 递送的对象包含固定的结构，参见 scripter.js
+ * 注：原样传递，不用return封装。
+ * @param  {Object} data 递送的对象
  * @return {Promise<Value>}
  */
-function scriptRun( code, text, html ) {
-    //
+export function scriptRun( data ) {
+    let _wk = __poolWorker.pick();
+
+    return new Promise( (resolve, reject) => {
+        _wk.onmessage = ev => {
+            __poolWorker.add( _wk );
+            ev.data.error ? reject( ev.data.error) : resolve( ev.data.result );
+        }
+        _wk.postMessage( data );
+    })
 }
 
 

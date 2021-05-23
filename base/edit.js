@@ -23,7 +23,7 @@ import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
 import * as T from "./types.js";  // ./base.js 之后
-import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON } from './common.js';
+import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun } from './common.js';
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, property } from "./templates.js";
@@ -44,6 +44,10 @@ const
 
     // 编辑区需要监听的变化（历史记录）。
     varyEvents = 'attrdone styledone nodesdone emptied detached normalize',
+
+    // 选取集参数名
+    // 编辑器环境下执行脚本时传递选取集的形参。
+    __argName = 'ELS',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass} ${Sys.hoverClass} ${Sys.pointClass}`,
@@ -2904,6 +2908,76 @@ function selfHTML( el ) {
 
 
 /**
+ * 获取干净的源码。
+ * 取元素的outerHTML值但移除内置的类名。
+ * 注记：
+ * 考虑性能，忽略内部的临时类名处理。
+ * @param  {Element} el 目标元素
+ * @return {String}
+ */
+function cleanHTML( el ) {
+    // 浅克隆。
+    let _box = $.removeClass( el.cloneNode(), __tmpcls ),
+        _rex = RegExp(`</${_box.tagName}>$`, 'i');
+
+    return _box.outerHTML.replace(_rex, end => el.innerHTML + end);
+}
+
+
+/**
+ * 封装脚本执行数据。
+ * Object3: {
+ *      text:[String] 选取集内容文本（TEXT）
+ *      html:[String] 选取集源码（outerHTML）
+ *      code:String   需要执行的代码
+ * }
+ * @param  {ESet} eset 当前选取集
+ * @param  {String} code 脚本代码
+ * @param  {Boolean} btext 包含文本集数据
+ * @param  {Boolean} bhtml 包含源码集数据
+ * @return {Object3}
+ */
+function scriptData( eset, code, btext, bhtml ) {
+    let _obj = { code },
+        _els = [...eset];
+
+    if ( btext ) {
+        _obj.text = _els.map( el => el.textContent );
+    }
+    if ( bhtml ) {
+        _obj.html = _els.map( cleanHTML );
+    }
+    return _obj;
+}
+
+
+/**
+ * 编辑器环境下运行脚本代码。
+ * 捕获出错信息向后传递（会递送到打开的结果框）。
+ * Object3: {
+ *      type:String 结果类型（error|value）
+ *      data:Value  执行的结果（任意）
+ *      code:String 当前脚本代码（用于历史存储），可选
+ * }
+ * @param  {ESet} eset 选取集
+ * @param  {String} code 脚本代码
+ * @return {Object3} 结果对象
+ */
+function scriptRun2( eset, code ) {
+    let _fun = new Function( __argName, code ),
+        data = null;
+    try {
+        // 传递选取集实参。
+        data = _fun( [...eset] );
+    }
+    catch (e) {
+        return { type: 'error', data: e };
+    }
+    return { type: 'value', data, code };
+}
+
+
+/**
  * 是否可设置样式。
  * 至少会有效改变一个元素的内联样式时。
  * 例外：
@@ -5052,28 +5126,27 @@ export const Edit = {
      * 执行脚本。
      * 脚本合法执行才传递code用于历史存储。
      * 注：空白脚本无任何行为。
-     * Object2: {
+     * Object3: {
      *      type:String 结果类型（error|value）
-     *      data:String 结果字符串（任意）
+     *      data:Value  执行的结果（任意）
      *      code:String 当前脚本代码（用于历史存储），可选
      * }
      * @data: String 脚本源码
      * @param  {String} rbox 执行环境（sandbox|editor）
-     * @param  {Boolean} hastext 含文本集数据
-     * @param  {Boolean} hashtml 含源码集数据
-     * @return {Object2|null} 运行结果
+     * @param  {Boolean} btext 含文本集数据
+     * @param  {Boolean} bhtml 含源码集数据
+     * @return {Promise<Object3>|Object3|null} 运行结果
      */
-    runScript( evo, rbox, hastext, hashtml ) {
-        let code = evo.data.trim(),
-            type = 'value',
-            data = '';
-
+    runScript( evo, rbox, btext, bhtml ) {
+        let code = evo.data.trim();
         if ( !code ) return null;
 
         if ( rbox === 'editor' ) {
-            //
+            return scriptRun2( __ESet, code );
         }
-        return { code, type, data };
+        return scriptRun( scriptData(__ESet, code, btext, bhtml) )
+            .then( o => ({type: 'value', data: o.result, code}) )
+            .catch( o => ({type: 'error', data: o.error}) )
     },
 
     __runScript: 1,
@@ -5861,11 +5934,7 @@ export const Kit = {
      * @return {String}
      */
     cleanHTML( evo ) {
-        // 浅克隆，避免性能开销。
-        let _box = $.removeClass( evo.data.cloneNode(), __tmpcls ),
-            _rex = RegExp( `</${_box.tagName}>$`, 'i' );
-
-        return _box.outerHTML.replace( _rex, end => evo.data.innerHTML + end );
+        return cleanHTML( evo.data );
     },
 
     __cleanHTML: 1,

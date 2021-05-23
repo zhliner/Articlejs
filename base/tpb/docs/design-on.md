@@ -140,11 +140,14 @@ obj(): Object
 array( size, ...vals ): Array
 // 创建预填充值数组（size大小）。
 
-assign( target:Object, names?:String ): Object
-// 对象克隆赋值。
+arr2j( junk ): [Value]
+// 用状态数组清理目标数组。
 
 gather( names:String ): Object
 // 数组映射聚集。
+
+assign( target:Object, names?:String ): Object
+// 对象克隆赋值。
 
 els( tag:String, n:Number ): Element | [Element]
 // 批量创建元素。

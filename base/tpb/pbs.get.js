@@ -571,6 +571,42 @@ const _Gets = {
 
 
     /**
+     * 用状态数组清理数组。
+     * 目标：暂存区/栈顶1项。
+     * 用依据数组的成员判断目标数组的相应成员是否保留。
+     * 真值保留，假值去除。
+     * 注记：
+     * 这在根据表单控件状态提取另一组值时很有用。
+     * @data: [Value] 目标数组
+     * @param  {[Boolean]} junk 判断集
+     * @return {Value} 结果数组
+     */
+    arr2j( evo, junk ) {
+        return evo.data.filter( (_, i) => !!junk[i] );
+    },
+
+    __arr2j: 1,
+
+
+    /**
+     * 数组映射聚集。
+     * 目标：暂存区/栈顶1项。
+     * 把数组成员映射为一个键值对对象，键名序列由外部提供。
+     * 数组成员和名称序列按下标顺序提取，值不足的部分为undefined值。
+     * 注：支持下标运算的任意数据源皆可（如字符串）。
+     * @data: [Value] => Object
+     * @param  {String} names 属性名序列（空格分隔）
+     * @return {Object}
+     */
+    gather( evo, names ) {
+        return names.split(__reSpace)
+            .reduce( (o, k, i) => (o[k] = evo.data[i], o), {} );
+    },
+
+    __gather: 1,
+
+
+    /**
      * 对象赋值（属性复制）。
      * 目标：暂存区/栈顶1项。
      * 目标作为提供属性值的数据源对象。
@@ -591,24 +627,6 @@ const _Gets = {
     },
 
     __assign: 1,
-
-
-    /**
-     * 数组映射聚集。
-     * 目标：暂存区/栈顶1项。
-     * 把数组成员映射为一个键值对对象，键名序列由外部提供。
-     * 数组成员和名称序列按下标顺序提取，值不足的部分为undefined值。
-     * 注：支持下标运算的任意数据源皆可（如字符串）。
-     * @data: [Value] => Object
-     * @param  {String} names 属性名序列（空格分隔）
-     * @return {Object}
-     */
-    gather( evo, names ) {
-        return names.split(__reSpace)
-            .reduce( (o, k, i) => (o[k] = evo.data[i], o), {} );
-    },
-
-    __gather: 1,
 
 
     /**

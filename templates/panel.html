@@ -297,24 +297,28 @@
         <label class="_warn">
             <input type="radio" name="runbox" value="editor" />编辑器内运行
         </label>
-        <fieldset class="_opts" tpl-name="run:sandbox">
+        <fieldset class="_opts" tpl-name="run:sandbox"
+            on="nodeok click(input)|$$('/label') attr('-tip') $$('/input') val arr2j(_1) join('\n')"
+            to="2/pre|@-tip">
             <legend>数据：</legend>
-            <label title="选取集文本">
+            <label title="选取集文本" data-tip="TEXT 已选取元素文本集">
                 <input type="checkbox" name="itext" />TEXT
             </label>
-            <label title="选取集源码">
+            <label title="选取集源码" data-tip="HTML 已选取元素源码集">
                 <input type="checkbox" name="ihtml" />HTML
             </label>
         </fieldset>
-        <fieldset class="_warn" tpl-name="run:editor"
-            on="^obted|evo(3) delay remove">
+        <fieldset class="_warn" data-tip="ELS 已选取元素集" tpl-name="run:editor"
+            on="nodeok|evo(1) attr('-tip');
+                ^obted|evo(3) delay remove"
+            to="2/pre|@-tip">
             <legend>警告：</legend>
             <p>操作 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！</p>
         </fieldset>
     </div>
     <div class="_body">
         <div class="_main" on="^nodeok|(null)" to="/pre|@-tip">
-            <hr tpl-node="prop:codes" />
+            <pre tpl-node="prop:codes" /></pre>
         </div>
         <aside>
             <!--脚本记录：
@@ -498,7 +502,7 @@
 <form class="_page _plugins" tpl-name="modal:plugins"
     on="submit|avoid">
     <header>
-        <h4>插件</h4>
+        <h4>插件集</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <p class="_list">
@@ -697,8 +701,8 @@
             obted 代码编辑框友好事件克隆。 -->
         <pre class="_err" data-bak="" contenteditable
             on="reset|evo(3) prop('-bak');
-                value|ev('detail') html dup ('_err');
-                error|ev('detail') html str('<label>错误：</label><i>', '</i>') dup ('_err');
+                value|ev('detail') str html dup ('_err');
+                error|ev('detail') str html str('<label>错误：</label><i>', '</i>') dup ('_err');
                 ^obted|tpl('prop:codes')"
             to="|html;
                 |removeClass prop('-bak') html;
