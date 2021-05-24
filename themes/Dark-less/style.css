@@ -1897,6 +1897,8 @@ menu._cells code {
     border-radius: 8px 1px 1px 8px;
     padding: 10px;
     overflow-y: auto;
+    /* 友好 */
+    white-space: pre-wrap;
 }
 .Modal ._result > pre:focus {
     /* 编辑时 */

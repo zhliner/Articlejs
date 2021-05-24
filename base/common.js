@@ -804,6 +804,7 @@ export function parseJSON( str ) {
 
     return new Promise( resolve => {
         _wk.onmessage = ev => {
+            _wk.onmessage = null;
             __poolWorker.add( _wk );
 
             if ( ev.data.error ) {
@@ -828,6 +829,7 @@ export function scriptRun( data ) {
 
     return new Promise( (resolve, reject) => {
         _wk.onmessage = ev => {
+            _wk.onmessage = null;
             __poolWorker.add( _wk );
             ev.data.error ? reject( ev.data.error) : resolve( ev.data.result );
         }

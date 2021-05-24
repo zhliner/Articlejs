@@ -47,7 +47,7 @@ const
 
     // 选取集参数名
     // 编辑器环境下执行脚本时传递选取集的形参。
-    __argName = 'ELS',
+    __argName = 'NODES',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass} ${Sys.hoverClass} ${Sys.pointClass}`,
@@ -5145,11 +5145,29 @@ export const Edit = {
             return scriptRun2( __ESet, code );
         }
         return scriptRun( scriptData(__ESet, code, btext, bhtml) )
-            .then( o => ({type: 'value', data: o.result, code}) )
-            .catch( o => ({type: 'error', data: o.error}) )
+            .then( data => ({type: 'value', data, code}) )
+            .catch( data => ({type: 'error', data}) )
     },
 
     __runScript: 1,
+
+
+    /**
+     * 脚本执行结果插入。
+     * 如果位置未定义（空串），则简单忽略。
+     * 提交的错误信息也可以被执行插入。
+     * @param  {String} type 内容类型（text|html）
+     * @param  {String} where 插入位置（6种基本方法）
+     * @return {void}
+     */
+    insResult( evo, type, where ) {
+        if ( !where ) {
+            return;
+        }
+        window.console.info( evo.data, type, where );
+    },
+
+    __insResult: 1,
 
 
 
@@ -6451,6 +6469,7 @@ processExtend( 'Ed', Edit, [
     'attrUpdate',
     'htmlUpdate',
     'runScript',
+    'insResult',
 
     // 配合cut处理
     'deletes',

@@ -469,7 +469,7 @@ const __Kit = {
      * - 2  后一页
      * - 3  末页
      * @data: Element 导航根容器（<nav>）
-     * @param  {Number} where 位置代码
+     * @param  {String} where 位置代码
      * @return {void}
      */
     shpage( evo, where ) {
@@ -479,13 +479,13 @@ const __Kit = {
             _new = null;
 
         switch ( where ) {
-            case 0:
+            case '0':
                 _new = _pgo.first(); break;
-            case 1:
+            case '1':
                 _new = _pgo.prev(); break;
-            case 2:
+            case '2':
                 _new = _pgo.next(); break;
-            case 3:
+            case '3':
                 _new = _pgo.last(); break;
         }
         historyPush( new PageEd(_pgo, _idx, _cur, _new) );
@@ -620,24 +620,6 @@ const __Kit = {
 
     __shsave: 1,
 
-
-    /**
-     * 脚本执行结果插入。
-     * 如果位置未定义（空串），则简单忽略。
-     * 提交的错误信息也可以被执行插入。
-     * @param  {String} type 内容类型（text|html）
-     * @param  {String} where 插入位置（6种基本方法）
-     * @return {void}
-     */
-    sresult( evo, type, where ) {
-        if ( !where ) {
-            return;
-        }
-        window.console.info( evo.data, type, where );
-    },
-
-    __sresult: 1,
-
 }
 
 
@@ -662,7 +644,6 @@ processExtend( 'Kit', __Kit, [
     'shsearch',
     'shcode',
     'shsave',
-    'sresult',
 ]);
 
 

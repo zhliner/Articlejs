@@ -308,16 +308,18 @@
                 <input type="checkbox" name="ihtml" />HTML
             </label>
         </fieldset>
-        <fieldset class="_warn" data-tip="ELS 已选取元素集" tpl-name="run:editor"
+        <fieldset class="_warn" data-tip="NODES 已选取元素集" tpl-name="run:editor"
             on="nodeok|evo(1) attr('-tip');
                 ^obted|evo(3) delay remove"
             to="2/pre|@-tip">
             <legend>警告：</legend>
-            <p>操作 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！</p>
+            <p>修改 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！</p>
         </fieldset>
     </div>
     <div class="_body">
-        <div class="_main" on="^nodeok|(null)" to="/pre|@-tip">
+        <div class="_main"
+            on="^nodeok|('return 结果数据')"
+            to="/pre|@-tip">
             <pre tpl-node="prop:codes" /></pre>
         </div>
         <aside>
@@ -612,7 +614,7 @@
             <nav id="nav-tops"
                 on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
                     reset|evo(3) ev('detail');
-                    state|evo(3) v.shnav"
+                    state|evo(3) v.shnav spread"
                 by="Kit.shpage(_1);
                     Kit.shconf(_1) spread"
                 to="|trigger('state');
@@ -653,9 +655,7 @@
                     <label _="($.name || '---')">[片段名称]</label>
                     <code _title="$.code" _="$.code|cut($.cmax)">[代码]</code>
                     <time _="$.datetime">[时间戳]</time>
-                    <b data-pbo="lost" role="untop" title="置顶" tpb-if="$.top"><i></i></b>
-                    <b data-pbo="lost" role="top" title="取消置顶" tpb-else><i></i></b>
-                    <!-- <b _role="$.top ? 'top' : 'untop'" _title="$.top ? '置顶' : '取消置顶'"><i></i></b> -->
+                    <b data-pbo="lost" _role="$.top ? 'untop' : 'top'" _title="$.top ? '取消置顶' : '置顶'"><i></i></b>
                     <b data-pbo="lost" role="del">删除</b>
                 </li>
             </ol>
@@ -682,7 +682,7 @@
         reset;
         result|ev('detail') get('code data type') spread;
         state|env('minied') bool"
-    by="Kit.sresult(_);
+    by="Ed.insResult(_);
         Kit.shsave"
     to="1/|trigger('cancel');
         -;
