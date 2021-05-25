@@ -617,7 +617,7 @@
             </ul>
             <!-- evn:page 触发上层换页，注意选择器定位通用（事件会被克隆） -->
             <nav id="nav-tops"
-                on="click(b)|evo(2) dup disabled end attr('-meth') evo(3) pop;
+                on="click(b)|evo(2) dup disabled end attr('-m') evo(3) pop;
                     reset|evo(3) ev('detail');
                     state|evo(3) v.shnav spread"
                 by="Kit.shpage(_1);
@@ -625,11 +625,11 @@
                 to="|trigger('state');
                     (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
                     (/>b)|disable|pop fire('/code', 'update')">
-                <!-- data-meth 对应页操作方法 -->
-                <b data-meth="first" title="首页"><i id="l-tobeg"></i></b>
-                <b data-meth="prev" title="前一页"><i id="l-prevpage"></i></b>
-                <b data-meth="next" title="后一页"><i id="l-nextpage"></i></b>
-                <b data-meth="last" title="末页"><i id="l-toend"></i></b>
+                <!-- data-m 对应页操作方法 -->
+                <b data-m="first" title="首页"><i id="l-tobeg"></i></b>
+                <b data-m="prev" title="前一页"><i id="l-prevpage"></i></b>
+                <b data-m="next" title="后一页"><i id="l-nextpage"></i></b>
+                <b data-m="last" title="末页"><i id="l-toend"></i></b>
                 <code
                     on="update|ev('detail');
                         reset|stop (1) ev('detail') pack(2)"

@@ -568,7 +568,6 @@ export class History {
 //
 // 数据分页器。
 // 根据数据id集的分页逻辑请求数据集。
-// 因为条目内容需要可编辑，简化数据同步故无缓存设计。
 //
 export class DPage {
     /**
@@ -589,7 +588,7 @@ export class DPage {
      */
     next() {
         let _end = this.pages() - 1;
-        return this._idx < _end ? this._page( this._idx + 1 ) : null;
+        return this._idx < _end ? this.page( this._idx + 1 ) : null;
     }
 
 
@@ -598,7 +597,7 @@ export class DPage {
      * @return {[String]|null}
      */
     prev() {
-        return this._idx > 0 ? this._page( this._idx - 1 ) : null;
+        return this._idx > 0 ? this.page( this._idx - 1 ) : null;
     }
 
 
@@ -607,7 +606,7 @@ export class DPage {
      * @return {[String]}
      */
     first() {
-        return this._page( 0 );
+        return this.page( 0 );
     }
 
 
@@ -616,7 +615,7 @@ export class DPage {
      * @return {[String]}
      */
     last() {
-        return this._page( this.pages() - 1 );
+        return this.page( this.pages() - 1 );
     }
 
 
@@ -625,7 +624,20 @@ export class DPage {
      * @return {[String]}
      */
     current() {
-        return this._page( this._idx );
+        return this.page( this._idx );
+    }
+
+
+    /**
+     * 获取特定目标页次。
+     * @param  {Number} idx 目标页次（从0开始）
+     * @return {[String]} ID清单
+     */
+    page( idx ) {
+        let _beg = idx * this._size;
+
+        this._idx = idx;
+        return this._data.slice( _beg, _beg + this._size );
     }
 
 
@@ -661,22 +673,6 @@ export class DPage {
     pages() {
         return Math.ceil( this._data.length / this._size );
     }
-
-
-    //-- 私有辅助 ----------------------------------------------------------------
-
-
-    /**
-     * 获取目标页次的清单。
-     * @param  {Number} idx 目标页次（从0开始）
-     * @return {[String]} ID清单
-     */
-    _page( idx ) {
-        let _beg = idx * this._size;
-
-        this._idx = idx;
-        return this._data.slice( _beg, _beg + this._size );
-    }
 }
 
 
@@ -686,7 +682,7 @@ export class DPage {
 // - 每页作为一个子列表，分页即为子列表替换。
 // - 包含分页导航条的状态跟随。
 // 注记：
-// 同上原因，可编辑状态下无缓存逻辑。
+// 因为条目内容需要可编辑，数据同步故无缓存设计。
 //
 export class Pages {
     /**
