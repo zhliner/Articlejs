@@ -297,7 +297,7 @@ function codeSamed( code ) {
 
 
 /**
- * 获取一个唯一键（代码存储）。
+ * 获取一个唯一键。
  * 简单地用当前时间的毫秒数表示，若有相同则加一个随机数。
  * 增量值取10天内的随机毫秒数。
  * @param  {CStorage} 存储器实例
@@ -447,15 +447,18 @@ const __Kit = {
      * 设置脚本名称。
      * 仅置顶条目需要操作，但取消置顶不必移除名称。
      * 存储键：name
+     * 返回条目ID和名称的二成员数组，用于另一区相同条目的同步。
      * @data: String 条目ID
      * @param  {String} name 待设置的名称
-     * @return {void}
+     * @return {[String]}
      */
     shlabel( evo, name ) {
         let _sh = shObj( evo.data );
 
         _sh.name = name;
         __Store.set( evo.data, JSON.stringify(_sh) );
+
+        return [name, evo.data];
     },
 
     __shlabel: 1,
@@ -463,31 +466,21 @@ const __Kit = {
 
     /**
      * 脚本历史翻页。
-     * where:
-     * - 0  首页
-     * - 1  前一页
-     * - 2  后一页
-     * - 3  末页
+     * meth:
+     * - first  首页
+     * - prev   前一页
+     * - next   后一页
+     * - last   末页
      * @data: Element 导航根容器（<nav>）
-     * @param  {String} where 位置代码
+     * @param  {String} meth 换页方法名
      * @return {void}
      */
-    shpage( evo, where ) {
+    shpage( evo, meth ) {
         let _pgo = evo.data[__navPage],
             _cur = _pgo.current(),
             _idx = _pgo.index(),
-            _new = null;
+            _new = _pgo[meth]();
 
-        switch ( where ) {
-            case '0':
-                _new = _pgo.first(); break;
-            case '1':
-                _new = _pgo.prev(); break;
-            case '2':
-                _new = _pgo.next(); break;
-            case '3':
-                _new = _pgo.last(); break;
-        }
         historyPush( new PageEd(_pgo, _idx, _cur, _new) );
     },
 

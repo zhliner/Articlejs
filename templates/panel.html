@@ -214,7 +214,7 @@
                     <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
                 </label>
             </header>
-            <textarea name="content" spellcheck="false" class="_code"></textarea>
+            <textarea name="content" spellcheck="false" class="_code" placeholder="空白 特性删除&#10;''  空串值标识"></textarea>
         </div>
         <aside>
             <div class="_option">
@@ -519,10 +519,10 @@
     nodeok 初始载入/展示置顶代码清单，一次即可。-->
 <form class="_page _script" tpl-name="script:history"
     on="submit|avoid value('words');
-        click(b[role=top])|stopAll evo(2) parent attr('-sid');
-        click(b[role=untop])|stop evo(2) parent attr('-sid');
+        click(li>b[role=top])|stopAll evo(2) parent attr('-sid');
+        click(li>b[role=untop])|stop evo(2) parent attr('-sid');
         ^nodeok(~)|v.shtops;
-        click(b[role=del])|stop evo(2) parent dup attr('-sid');
+        click(li>b[role=del])|stop evo(2) parent dup attr('-sid');
         ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread"
     by="Kit.shsearch;
         Kit.topsh ('untop') evo(2) pop;
@@ -538,18 +538,32 @@
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <!-- 注：$$('/>*') 确定为3个元素 -->
+    <!--操作定义：
+        click(label)  单击即可编辑（非管理态时）。
+        blur,keydown  失焦即编辑确认。键入Enter也可确认。
+        edsync        相同条目的名称编辑同步（可能有）。
+        mousemove     定义上下区高度调整。$$('/>*') 确定为3个元素。
+        _tophei       跟随设置置顶区高度。
+    -->
     <main class="_history"
-        on="@mousemove|movementY evo(3) $$('/>*') spread;
-            @mouseup|movementY(null);
+        on="@mouseup|movementY(null);
+            @mousemove|movementY evo(3) $$('/>*') spread;
             click(li>code)|stop evo(2) attr('title');
-            tophei|ev('detail')"
-        by="Kit.sh2panel(_4) spread add('px');
-            -;
-            Kit.shcode"
-        to="/._down|%max-height|goto('tophei', _1);
-            |off('mousemove');
+            blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
+            click(li>label)|stop $('/#_urbox') hidden pass evo(2) attr('contenteditable') eq('true') end (true);
+            edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $$(_1) dup len gt(1) pass pop;
+            _tophei|ev('detail');
+            keydown(li>label)|ev('key') pass('Enter') avoid evo(2) blur"
+        by="-;
+            Kit.sh2panel(_4) spread add('px');
+            Kit.shcode;
+            Kit.shlabel(_1) (false)"
+        to="|off('mousemove');
+            /._down|%max-height|goto('_tophei', _1);
             .Modal/|trigger('cancel');
+            =|$contenteditable|goto('edsync', _1);
+            =|$contenteditable|focus select;
+            -|$text;
             /._top|height">
         <!--内置限高：
             避免初始即溢出（无法通过拖拽调整）。 -->
@@ -559,7 +573,7 @@
             <div class="_bar">
                 <label>置顶区</label>
                 <!-- 管理时显示，完成后隐藏（hidden） -->
-                <span data-pbo="hidden"
+                <span id="_urbox" data-pbo="hidden"
                     on="off|evo(3) hide $('main/') $('#nav-tops');
                         on|evo(3) hide(false) $('main/');
                         reset|$$('/b') disable;"
@@ -591,28 +605,19 @@
                     to="|^text toggleClass ^-op|goto('bstate');
                         1/span|trigger(_1)">管理</button>
             </div>
-            <!--置顶区代码清单
-                click label单击即可编辑。
-                blur  失焦即编辑确认。
-                keydown 键入Enter也可确认。 -->
-            <ul id="sh-tops" class="_list" tpb-for
-                on="blur(label)|evo(2) parent attr('-sid') evo(2) text;
-                    click(label)|stop (true);
-                    keydown(label)|ev('key') pass('Enter') avoid evo(2) blur"
-                by="Kit.shlabel(_1) (false)"
-                to="=|@contenteditable;
-                    =|@contenteditable|focus">
+            <!--置顶区代码清单 -->
+            <ul id="sh-tops" class="_list" tpb-for>
                 <li _data-sid="$.shid">
-                    <label _="($.name || '单击修改')">脚本片段名</label>
-                    <code _title="$.code" _="$.code|cut($.cmax)">代码：单击提取并导入脚本录入框。</code>
-                    <time _="$.datetime">时间戳</time>
+                    <label _="($.name || '---')">[片段名称]</label>
+                    <code _title="$.code" _="$.code|cut($.cmax)">[代码：单击提取并导入脚本录入框]</code>
+                    <time _="$.datetime">[时间戳]</time>
                     <b data-pbo="lost" role="untop" title="取消置顶"><i></i></b>
                     <b data-pbo="lost" role="del">删除</b>
                 </li>
             </ul>
             <!-- evn:page 触发上层换页，注意选择器定位通用（事件会被克隆） -->
             <nav id="nav-tops"
-                on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
+                on="click(b)|evo(2) dup disabled end attr('-meth') evo(3) pop;
                     reset|evo(3) ev('detail');
                     state|evo(3) v.shnav spread"
                 by="Kit.shpage(_1);
@@ -620,10 +625,11 @@
                 to="|trigger('state');
                     (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
                     (/>b)|disable|pop fire('/code', 'update')">
-                <b data-v="0" title="首页"><i id="l-tobeg"></i></b>
-                <b data-v="1" title="前一页"><i id="l-prevpage"></i></b>
-                <b data-v="2" title="后一页"><i id="l-nextpage"></i></b>
-                <b data-v="3" title="末页"><i id="l-toend"></i></b>
+                <!-- data-meth 对应页操作方法 -->
+                <b data-meth="first" title="首页"><i id="l-tobeg"></i></b>
+                <b data-meth="prev" title="前一页"><i id="l-prevpage"></i></b>
+                <b data-meth="next" title="后一页"><i id="l-nextpage"></i></b>
+                <b data-meth="last" title="末页"><i id="l-toend"></i></b>
                 <code
                     on="update|ev('detail');
                         reset|stop (1) ev('detail') pack(2)"
@@ -653,7 +659,7 @@
             <ol id="sh-list" class="_list" tpb-for>
                 <li _data-sid="$.shid">
                     <label _="($.name || '---')">[片段名称]</label>
-                    <code _title="$.code" _="$.code|cut($.cmax)">[代码]</code>
+                    <code _title="$.code" _="$.code|cut($.cmax)">[代码：单击提取导入]</code>
                     <time _="$.datetime">[时间戳]</time>
                     <b data-pbo="lost" _role="$.top ? 'untop' : 'top'" _title="$.top ? '取消置顶' : '置顶'"><i></i></b>
                     <b data-pbo="lost" role="del">删除</b>

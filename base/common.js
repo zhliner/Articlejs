@@ -566,27 +566,136 @@ export class History {
 
 
 //
-// 页面管理器。
-// 生成并缓存分页以供换页和复用。
-// - 保留渲染根，每页的创建从一个副本渲染。
-// - 外部取页时先从缓存中获取，没有则新建。
+// 数据分页器。
+// 根据数据id集的分页逻辑请求数据集。
+// 因为条目内容需要可编辑，简化数据同步故无缓存设计。
 //
-// 缓存的是页面根元素（内含列表条目），可提高效率并保持引用。
-// 若有条目编辑直接操作子元素，自然体现增减。
+export class DPage {
+    /**
+     * @param {[String]} data 数据ID总集
+     * @param {Number} psize 单页大小
+     */
+    constructor( data, psize ) {
+        this._data = data;
+        this._size = psize;
+        // 当前页次
+        this._idx = 0;
+    }
+
+
+    /**
+     * 下一页清单。
+     * @return {[String]|null}
+     */
+    next() {
+        let _end = this.pages() - 1;
+        return this._idx < _end ? this._page( this._idx + 1 ) : null;
+    }
+
+
+    /**
+     * 前一页清单。
+     * @return {[String]|null}
+     */
+    prev() {
+        return this._idx > 0 ? this._page( this._idx - 1 ) : null;
+    }
+
+
+    /**
+     * 首页清单。
+     * @return {[String]}
+     */
+    first() {
+        return this._page( 0 );
+    }
+
+
+    /**
+     * 最后一页清单。
+     * @return {[String]}
+     */
+    last() {
+        return this._page( this.pages() - 1 );
+    }
+
+
+    /**
+     * 当前页次清单。
+     * @return {[String]}
+     */
+    current() {
+        return this._page( this._idx );
+    }
+
+
+    /**
+     * 更新或返回当前页下标。
+     * @return {Number|void}
+     */
+    index( idx ) {
+        if ( idx === undefined ) {
+            return this._idx;
+        }
+        this._idx = idx;
+    }
+
+
+    /**
+     * 设置新数据集。
+     * 当前页会重置为首页。
+     * @param  {[String]} data 数据ID总集
+     * @return {this}
+     */
+    data( data ) {
+        this._idx = 0;
+        this._data = data;
+        return this;
+    }
+
+
+    /**
+     * 获取页数
+     * @return {Number}
+     */
+    pages() {
+        return Math.ceil( this._data.length / this._size );
+    }
+
+
+    //-- 私有辅助 ----------------------------------------------------------------
+
+
+    /**
+     * 获取目标页次的清单。
+     * @param  {Number} idx 目标页次（从0开始）
+     * @return {[String]} ID清单
+     */
+    _page( idx ) {
+        let _beg = idx * this._size;
+
+        this._idx = idx;
+        return this._data.slice( _beg, _beg + this._size );
+    }
+}
+
+
+//
+// 分页管理器。
+// 负责页面DOM的渲染逻辑。
+// - 每页作为一个子列表，分页即为子列表替换。
+// - 包含分页导航条的状态跟随。
+// 注记：
+// 同上原因，可编辑状态下无缓存逻辑。
 //
 export class Pages {
     /**
-     * @param {Element} root 渲染根
-     * @param {[Object]} data 数据集
-     * @param {Number} psize 单页大小
+     * @param {Element} root 列表根
+     * @param {Element} nav 导航根
      */
-    constructor( root, data, psize ) {
+    constructor( root, nav ) {
         this._root = root;
-        this._data = data;
-        this._size = psize;
-
-        this._idx  = 0;  // 当前页次
-        this._pool = []; // 缓存池
+        this._nav = nav;
     }
 
 

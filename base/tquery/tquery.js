@@ -51,7 +51,7 @@
     ========
 
     节点变化事件
-    监听元素的特性修改、样式设置、节点插入等各种变化，触发事件通知。
+    监听元素的特性/属性修改、样式设置、节点插入等各种变化，触发事件通知。
     开启：tQuery.config({varyevent: true});
 
     - attrvary, attrdone        // 特性变化（之前、完成）
@@ -4923,7 +4923,7 @@ function fillElem( el, html, frag = buildFragment  ) {
 /**
  * 从配置设置元素。
  * 支持 text|html 特殊名称设置元素内容。
- * 仅用于新创建的元素，无需触发attrvary。
+ * 仅用于内部新元素创建时，无需触发attrvary。
  * @param  {Element} el 目标元素
  * @param  {Object} conf 配置对象
  * @param  {Function} frag 片段创建函数，可选
@@ -5287,7 +5287,7 @@ function hookIsGet( name, val ) {
  * @param  {Element} el 目标元素
  * @param  {[String]|Object|Map} name 名称序列或名/值对象
  * @param  {[Value]|Value|Function} value 设置值（集）或取值回调
- * @param  {Object} scope 适用域对象
+ * @param  {Object} scope 适用域（elemAttr|elemProp）
  * @return {void}
  */
 function hookSets( el, name, value, scope ) {
@@ -5335,20 +5335,23 @@ function hookSet( el, name, val, scope ) {
 
 /**
  * 定制版设置。
- * 支持2个特别的属性：text 和 html（fill方式）。
- * @param {Element} el 设置的目标元素
- * @param {String} name 属性名
- * @param {Value} value 属性值
- * @param {Object} scope 适用域对象
+ * 支持2个特别的属性：text 和 html（仅fill）。
+ * 触发特性/属性类事件。
+ * @param  {Element} el 设置的目标元素
+ * @param  {String} name 属性名
+ * @param  {Value} value 属性值
+ * @param  {Object} scope 适用域（elemAttr|elemProp）
+ * @return {void}
  */
 function customSet( el, name, value, scope ) {
     switch ( name ) {
         // null数据为空串，表达清除的效果。
         case 'html':
-            return Insert( el, htmlFrag(el, value, ''), '' );
+            value = htmlFrag( el, value, '' );
+            return varyFillAttr( el, name, [...value.childNodes], scope.evn );
         case 'text':
             value = value === null ? '' : value;
-            return Insert(el, el.ownerDocument.createTextNode(value), '');
+            return varyFillAttr( el, name, el.ownerDocument.createTextNode(value), scope.evn );
     }
     scope.set( el, name, value );
 }
@@ -6565,6 +6568,36 @@ function varyFill( el, nodes ) {
 
 
 /**
+ * 特殊：特性/属性填充。
+ * 支持 text|html 特殊属性/特性设置时的填充行为。
+ * 数据为字符串新建的节点（集），无原节点脱离行为。
+ * 变化事件：
+ * - attrvary,attrdone | propvary,propdone
+ * - 如果容器元素内有内容，会同时激发清空类事件（empty,emptied）
+ * 注记：
+ * 特性（attr）或属性（prop）的设置效果是一样的，但是激发的事件名不同。
+ * 这给调用者一个选择不同事件监听的可能。
+ * 正常的 .text()|.html() 接口激发普通的节点插入类事件（nodein...）。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 特性/属性名（text|html）
+ * @param  {Node|[Node]} nodes 数据节点（集）
+ * @param  {[String]} evn2 变化事件名对
+ * @return {void}
+ */
+function varyFillAttr( el, name, nodes, evn2 ) {
+    let _old = null;
+
+    if ( el.childNodes.length ) {
+        _old = varyEmpty( el );
+    }
+    if ( varyTrigger(el, evn2[0], [name, nodes]) !== false ) {
+        el.append( ...arrVal(nodes) );
+        varyTrigger( el, evn2[1], [name, _old] );
+    }
+}
+
+
+/**
  * 节点包裹封装。
  * 兼容文档片段为被包裹内容。
  * 如果替换操作处理器调用了 Event.preventDefault()，
@@ -6741,6 +6774,11 @@ const elemAttr = {
         boolAttr.test(name) ? boolHook.set(el, name, value) : setAttr(el, name, value);
     },
 
+
+    // 特性变化事件名对。
+    // 注记：当用text|html设置特性时需要。
+    evn: [ evnAttrSet, evnAttrDone ],
+
 };
 
 
@@ -6790,6 +6828,11 @@ const elemProp = {
 
         _hook && _hook.set && _hook.set(el, name, val) || setProp(el, name, val);
     },
+
+
+    // 属性变化事件名对。
+    // 注记：当用text|html设置属性时需要。
+    evn: [ evnPropSet, evnPropDone ],
 
 };
 

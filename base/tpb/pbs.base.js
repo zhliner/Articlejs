@@ -2178,6 +2178,7 @@ function propectLoop( i, msg ) {
  * 特殊：是，this为Cell实例，查看调用链。
  * 目标：无。
  * 特权：是，数据栈显示。
+ * 注：该指令在To段的使用仅限于Next-Stage部分。
  * @param  {Value|false|true} msg 显示消息，传递false中断执行流
  * @return {void|reject}
  */

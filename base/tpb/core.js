@@ -1229,21 +1229,14 @@ class Update {
 
     /**
      * 应用更新设置。
-     * 更新函数接口：function(Element|Collector, Value, ...): Value|void
-     * 注：取值数量默认为1。
+     * 更新函数接口：function(Element|Collector, dataValue, ...rest): Value|void
      * @param  {Cell} cell 指令单元
      * @param  {Object} pbs 更新方法集
      * @return {Cell} cell
      */
     apply( cell, pbs ) {
-        let _f = methodSelf(this._meth, pbs),
-            _n = _f[EXTENT],
-            _x = _f[ACCESS];
-
-        if ( _n === undefined ) _n = 1;
-        if ( _x === undefined ) _x = false;
-
-        return cell.build( this._args, update.bind(_f), _x, _n );
+        let _f = methodSelf(this._meth, pbs);
+        return cell.build( this._args, update.bind(_f), false, 1 );
     }
 
 
