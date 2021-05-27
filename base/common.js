@@ -567,7 +567,7 @@ export class History {
 
 //
 // 数据分页器。
-// 根据数据id集的分页逻辑请求数据集。
+// 根据数据id集的分页逻辑提供每页面id清单。
 //
 export class DPage {
     /**
@@ -677,130 +677,26 @@ export class DPage {
 
 
 //
-// 分页管理器。
-// 负责页面DOM的渲染逻辑。
-// - 每页作为一个子列表，分页即为子列表替换。
-// - 包含分页导航条的状态跟随。
-// 注记：
-// 因为条目内容需要可编辑，数据同步故无缓存设计。
+// 分页器。
+// 负责新页面DOM的渲染逻辑。
+// 每页作为一个子列表（root的副本）提供。
 //
-export class Pages {
+export class Pager {
     /**
-     * @param {Element} root 列表根
-     * @param {Element} nav 导航根
+     * @param {Element} root 渲染根（列表）
      */
-    constructor( root, nav ) {
-        this._root = root;
-        this._nav = nav;
+    constructor( root ) {
+        this._tpl = root;
     }
 
 
     /**
-     * 返回下一页。
-     * @return {Element|null}
+     * 创建页面。
+     * @param  {[Object]} data 页渲染数据
+     * @return {Element} 新页面
      */
-    next() {
-        let _end = this.pages() - 1;
-        return this._idx < _end ? this._page( ++this._idx ) : null;
-    }
-
-
-    /**
-     * 返回前一页。
-     * @return {Element|null}
-     */
-    prev() {
-        return this._idx > 0 ? this._page( --this._idx ) : null;
-    }
-
-
-    /**
-     * 返回首页。
-     * @return {Element}
-     */
-    first() {
-        this._idx = 0;
-        return this._page( 0 );
-    }
-
-
-    /**
-     * 返回最后一页。
-     * @return {Element}
-     */
-    last() {
-        this._idx = this.pages() - 1;
-        return this._page( this._idx );
-    }
-
-
-    /**
-     * 获取当前页次。
-     * @return {Element} 列表根
-     */
-    current() {
-        return this._page( this._idx );
-    }
-
-
-    /**
-     * 更新或返回当前页下标。
-     * @return {Number|void}
-     */
-    index( idx ) {
-        if ( idx === undefined ) {
-            return this._idx;
-        }
-        this._idx = idx;
-    }
-
-
-    /**
-     * 设置新数据集。
-     * 注意：
-     * 设置数据集后缓存区会清空，当前页重置为首页。
-     * @param  {[Object]} objs 条目对象集
-     * @return {this}
-     */
-    data( objs ) {
-        this._data = objs;
-        this._idx = 0;
-        this._pool.length = 0;
-        return this;
-    }
-
-
-    /**
-     * 返回页数
-     * @return {Number}
-     */
-    pages() {
-        return Math.ceil( this._data.length / this._size );
-    }
-
-
-    //-- 私有辅助 ----------------------------------------------------------------
-
-
-    /**
-     * 获取目标页次的页。
-     * @param  {Number} idx 目标页次（从0开始）
-     * @return {Element} 列表根
-     */
-    _page( idx ) {
-        this._idx = idx;
-        return this._pool[ idx ] || ( this._pool[idx] = this._build(idx) );
-    }
-
-
-    /**
-     * 构造目标页次。
-     * @param  {Number} idx 页次
-     * @return {Element} 目标页根元素
-     */
-    _build( idx ) {
-        let _beg = idx * this._size;
-        return Render.update( this._clone(this._root), this._data.slice(_beg, _beg + this._size) );
+    page( data ) {
+        return Render.update( this._clone(this._tpl), data );
     }
 
 

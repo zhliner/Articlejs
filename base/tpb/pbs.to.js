@@ -111,18 +111,23 @@ const _Update = {
     /**
      * 发送定制事件。
      * 此为多元素分别对应不同的发送值版（内容为一个数组）。
+     * 事件名可以是空格分隔的多个名称，同样一一对应。
      * @data: 发送值序列
      * @param  {[Element]|Collector} tos 待激发元素集
-     * @param  {Value|[Value]} data 内容数据
-     * @param  {String} evn 目标事件名
+     * @param  {[Value]} data 内容数据
+     * @param  {String} evn 目标事件名序列
      * @param  {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
      * @param  {Boolean} cancelable 是否可取消，可选（默认可取消）
      * @return {void}
      */
     triggers( tos, data, evn, bubble = false, cancelable = true ) {
-        tos.forEach(
-            (el, i) => $.trigger( el, evn, data[i], bubble, cancelable )
-        );
+        if ( !__reSpace.test(evn) ) {
+            return tos.forEach(
+                (el, i) => $.trigger( el, evn, data[i], bubble, cancelable )
+            );
+        }
+        evn = evn.split( evn );
+        tos.forEach( (el, i) => $.trigger( el, evn[i], data[i], bubble, cancelable ) );
     },
 
 

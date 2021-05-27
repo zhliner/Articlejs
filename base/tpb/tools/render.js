@@ -368,7 +368,7 @@ const Grammar = {
         this._alignEach( eachList(el, size-_idx), data.length, _idx+1 )
         .forEach(
             // 设置当前域对象。
-            (el, i) => el[__scopeData] = loopCell(data[i], i, data)
+            (el, i) => el[__scopeData] = loopCell( data[i], i, data )
         );
         // 更新计数。
         Grammars.get(el).get('Each')[1] = data.length + _idx;

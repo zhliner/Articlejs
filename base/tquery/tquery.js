@@ -2254,7 +2254,7 @@ Object.assign( tQuery, {
      * }
      * @param  {Element} el 目标元素
      * @param  {String|Object} evn 事件名（序列）或配置对象
-     * @param  {String} slr 委托选择器，可选
+     * @param  {String|Value} slr 委托选择器，可选
      * @param  {Function|EventListener|false|null} handle 处理器函数或对象或特殊值，可选
      * @param  {Boolean} cap 是否为捕获，可选
      * @return {this}
@@ -6493,7 +6493,7 @@ function varyReplace( el, nodes ) {
 /**
  * 元素内容清空。
  * 空集不会有清空动作，因此也无事件激发。
- * 内容中的每一个节点都会接收到节点脱离事件（detached）。
+ * 内容中的每一个可调用.dispatchEvent() 的节点都会接收到节点脱离事件（detached）。
  * @param  {Element} el 目标容器元素
  * @return {[Node]} 移除的节点集
  */
@@ -6505,7 +6505,7 @@ function varyEmpty( el ) {
 
         varyTrigger( el, evnEmptied, _subs ) &&
         _subs.forEach(
-            (nd, i) => varyTrigger( nd, evnDetached, [_subs[i-1], el] )
+            (nd, i) => nd.dispatchEvent && varyTrigger( nd, evnDetached, [_subs[i-1], el] )
         );
     }
     return _subs;
@@ -7381,7 +7381,7 @@ const Event = {
      * - slr的含义参考接口 $.off() 说明。
      * @param {Element} el 目标元素
      * @param {String} evn 事件名
-     * @param {String} slr 委托选择器，可选
+     * @param {String|Value} slr 委托选择器，可选
      * @param {Function|Object} handle 处理函数/对象，可选
      * @param {Boolean} cap 是否为捕获，可选
      */
@@ -7677,10 +7677,9 @@ const Event = {
      * 过滤函数接口：function(evn, slr, handle): Boolean。
      * 三个检查条件可任意组合。
      * slr明确地传递null仅匹配非委托绑定，
-     * 如果需要匹配任意委托绑定，slr可传递空串值。
-     *
+     * 如果需要匹配任意委托和非委托绑定，slr可传递非null假值。
      * @param  {String} evn 事件名
-     * @param  {String} slr 选择器，可选
+     * @param  {String|Value} slr 选择器，可选
      * @param  {Function|Object} handle 用户调用句柄/对象，可选
      * @param  {Boolean} cap 是否为捕获，可选
      * @return {[Function]} 过滤函数集
@@ -7766,7 +7765,7 @@ const Event = {
      * @param  {Element} el 目标元素
      * @param  {Map} map1 一级存储集
      * @param  {String} evn 事件名
-     * @param  {String} slr 委托选择器，可选
+     * @param  {String|Value} slr 委托选择器，可选
      * @param  {Function|Object} handle 处理函数/对象，可选
      * @param  {Boolean} cap 是否为捕获，可选
      * @return {void}

@@ -43,7 +43,7 @@ const
     Normalize = $.Fx.History.Normalize,
 
     // 编辑区需要监听的变化（历史记录）。
-    varyEvents = 'attrdone styledone nodesdone emptied detached normalize',
+    varyEvents = 'attrdone styledone nodesdone emptied detach normalize',
 
     // 选取集参数名
     // 编辑器环境下执行脚本时传递选取集的形参。

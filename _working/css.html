@@ -111,12 +111,12 @@
     <!--执行结果：
         result 结果数据导入（上级运行时）。
         error  传递出错信息提示。 -->
-    <form class="_page _script" tpl-name="script:result" data-pbo=""
+    <form class="_page _script" tpl-name="script:result" data-pbo="lost"
         on="submit|avoid $('/pre') text value('type where');
             shsave|ev('detail') dup pass;
             reset;
             result|ev('detail') get('code data type') spread"
-        by="Kit.sresult(_)"
+        by="Ed.insResult(_)"
         to="1/|trigger('cancel');
             /pre|trigger('reset');
             /pre|trigger('value');
@@ -194,7 +194,7 @@
         submit 搜索过滤，空串搜索显示全部。
         click  stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
         nodeok 初始载入/展示置顶代码清单，一次即可。-->
-    <form class="_page _script" data-pbo="lost" tpl-name="script:history"
+    <form class="_page _script" data-pbo="" tpl-name="script:history"
         on="submit|avoid value('words');
             click(b[role=top])|stopAll evo(2) parent attr('-sid');
             click(b[role=untop])|stop evo(2) parent attr('-sid');

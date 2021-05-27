@@ -514,62 +514,65 @@
 
 
 <!--脚本历史：
-    submit 搜索过滤，空串搜索显示全部。
-    click  stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
-    nodeok 初始载入/展示置顶代码清单，一次即可。-->
+    submit  搜索过滤，空串搜索显示全部。
+    nodeok  初始载入/展示置顶代码清单，一次即可。
+    click   删除目标条目。 -->
 <form class="_page _script" tpl-name="script:history"
     on="submit|avoid value('words');
-        click(li>b[role=top])|stopAll evo(2) parent attr('-sid');
-        click(li>b[role=untop])|stop evo(2) parent attr('-sid');
         ^nodeok(~)|v.shtops;
-        click(li>b[role=del])|stop evo(2) parent dup attr('-sid');
-        ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread"
+        ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
+        click(li>b[role=del])|stop evo(2) parent dup attr('-sid')"
     by="Kit.shsearch;
-        Kit.topsh ('untop') evo(2) pop;
-        Kit.untop ('top') evo(2) pop;
         -;
-        Kit.delsh(_1);
-        Kit.shinit(_4)"
+        Kit.shinit(_4);
+        Kit.delsh(_1)"
     to="#nav-misc|trigger('reset');
-        -|@role;
-        -|@role;
         #nav-tops|trigger('reset')">
     <header>
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
     <!--操作定义：
-        click(label)  单击即可编辑（非管理态时）。
-        blur,keydown  失焦即编辑确认。键入Enter也可确认。
-        edsync        相同条目的名称编辑同步（可能有）。
-        mousemove     定义上下区高度调整。$$('/>*') 确定为3个元素。
-        _tophei       跟随设置置顶区高度。
+        click     code 单击代码确认提取。
+        mousemove 定义上下区高度调整。$$('/>*') 确定为3个元素。
+        _tophei   跟随设置置顶区高度。
+        keydown   label 键入Enter也确认编辑（上下两区）。
     -->
     <main class="_history"
         on="@mouseup|movementY(null);
             @mousemove|movementY evo(3) $$('/>*') spread;
             click(li>code)|stop evo(2) attr('title');
-            blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
-            click(li>label)|stop $('/#_urbox') hidden pass evo(2) attr('contenteditable') eq('true') end (true);
-            edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $$(_1) dup len gt(1) pass pop;
             _tophei|ev('detail');
             keydown(li>label)|ev('key') pass('Enter') avoid evo(2) blur"
         by="-;
             Kit.sh2panel(_4) spread add('px');
-            Kit.shcode;
-            Kit.shlabel(_1) (false)"
+            Kit.shcode"
         to="|off('mousemove');
             /._down|%max-height|goto('_tophei', _1);
             .Modal/|trigger('cancel');
-            =|$contenteditable|goto('edsync', _1);
-            =|$contenteditable|focus select;
-            -|$text;
             /._top|height">
-        <!--内置限高：
-            避免初始即溢出（无法通过拖拽调整）。 -->
+        <!--内置限高：避免初始即溢出。
+            click   li>b  置顶/取消置顶操作，同时激发下区状态同步。stopAll避免立即触发反向操作。
+            click   label 单击即可编辑。
+            blur    label 失焦即编辑确认，同时激发下区名称同步。
+            edsync  相同条目的名称编辑同步（从下区来）。
+            topsync 相同条目的置顶状态同步（从下区来）。-->
         <div class="_top" style="height: 35%;"
-            on="page|ev('detail')"
-            to="/ul|replace">
+            on="click(li>b[role=top])|stopAll evo(2) parent attr('-sid');
+                click(li>b[role=untop])|stop evo(2) parent attr('-sid');
+                blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
+                click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
+                edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
+                topsync|ev('detail') spread pick(-2) slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
+            by="Kit.topsh ('untop') dup;
+                Kit.untop ('top') dup;
+                Kit.shlabel(_1) (false);"
+            to="=|@role|pack(2) pop fire('1/._down', 'topsync');
+                =|@role|pack(2) pop fire('1/._down', 'topsync');
+                =|$contenteditable|pop fire('1/._down', 'edsync');
+                =|$contenteditable|focus select;
+                -|$text;
+                -|@role">
             <div class="_bar">
                 <label>置顶区</label>
                 <!-- 管理时显示，完成后隐藏（hidden） -->
@@ -606,35 +609,31 @@
                         1/span|trigger(_1)">管理</button>
             </div>
             <!--置顶区代码清单 -->
-            <ul id="sh-tops" class="_list" tpb-for>
+            <ul id="sh-tops" class="_list" tpb-for="$.list"
+                on="page|ev('detail')"
+                to="|replace">
                 <li _data-sid="$.shid">
                     <label _="($.name || '---')">[片段名称]</label>
-                    <code _title="$.code" _="$.code|cut($.cmax)">[代码：单击提取并导入脚本录入框]</code>
+                    <code _title="$.code" _="$.code|cut($.$.cmax)">[代码：单击提取并导入脚本录入框]</code>
                     <time _="$.datetime">[时间戳]</time>
-                    <b data-pbo="lost" role="untop" title="取消置顶"><i></i></b>
-                    <b data-pbo="lost" role="del">删除</b>
+                    <b _data-pbo="$.$.edit ? null : 'lost'" role="untop" title="取消置顶"><i></i></b>
+                    <b _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
                 </li>
             </ul>
-            <!-- evn:page 触发上层换页，注意选择器定位通用（事件会被克隆） -->
             <nav id="nav-tops"
-                on="click(b)|evo(2) dup disabled end attr('-m') evo(3) pop;
-                    reset|evo(3) ev('detail');
-                    state|evo(3) v.shnav spread"
-                by="Kit.shpage(_1);
-                    Kit.shconf(_1) spread"
-                to="|trigger('state');
-                    (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
-                    (/>b)|disable|pop fire('/code', 'update')">
+                on="click(b)|evo(2) dup disabled end attr('-m') $('1/._list') evo(3) pop;
+                    state|ev('detail') spread"
+                by="Kit.shpage(_2)"
+                to="-;
+                    (/>b)|disable|pop fire('/code', 'update', 0)">
                 <!-- data-m 对应页操作方法 -->
                 <b data-m="first" title="首页"><i id="l-tobeg"></i></b>
                 <b data-m="prev" title="前一页"><i id="l-prevpage"></i></b>
                 <b data-m="next" title="后一页"><i id="l-nextpage"></i></b>
                 <b data-m="last" title="末页"><i id="l-toend"></i></b>
                 <code
-                    on="update|ev('detail');
-                        reset|stop (1) ev('detail') pack(2)"
-                    to="/i|text;
-                        (/i)|text">(<i>1</i>/<i>0</i>)</code>
+                    on="update|stop ev('detail')"
+                    to="(/i)|text">(<i>1</i>/<i>0</i>)</code>
             </nav>
         </div>
         <!--拖动：调整上下区域高度
@@ -642,10 +641,28 @@
             下区：CSS:max-height -->
         <hr on="mousedown|avoid"
             to="main/|bind('mousemove') once('mouseup')" />
-        <!-- 取消置顶无需移除 -->
+        <!--下区行为：
+            click   li>b  置顶/取消置顶操作，同时激发置顶区状态同步。
+            click   label 单击即可编辑。
+            blur    label 失焦即编辑确认。
+            edsync  相同条目的名称编辑同步（从置顶区来）。
+            topsync 相同条目的置顶状态同步（从置顶区来）。-->
         <div class="_down"
-            on="page|ev('detail')"
-            to="/ol|replace">
+            on="click(li>b[role=top])|stopAll evo(2) parent attr('-sid');
+                click(li>b[role=untop])|stop evo(2) parent attr('-sid');
+                blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
+                click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
+                edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
+                topsync|ev('detail') spread pick(-2) slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
+            by="Kit.topsh ('untop') dup;
+                Kit.untop ('top') dup;
+                Kit.shlabel(_1) (false)"
+            to="=|@role|pack(2) pop fire('1/._top', 'topsync');
+                =|@role|pack(2) pop fire('1/._top', 'topsync');
+                =|$contenteditable|pop fire('1/._top', 'edsync');
+                =|$contenteditable|target pop fire('1/._top', 'edsync');
+                -|$text;
+                -|@role">
             <div class="_search"
                 on="on|stop evo(3) disable(0) (false);
                     off|stop evo(3) disable (true)"
@@ -656,13 +673,15 @@
             </div>
             <!--搜索结果清单
                 label:title 置顶或曾经置顶的条目有效。 -->
-            <ol id="sh-list" class="_list" tpb-for>
+            <ol id="sh-list" class="_list" tpb-for="$.list"
+                on="page|ev('detail')"
+                to="|replace">
                 <li _data-sid="$.shid">
                     <label _="($.name || '---')">[片段名称]</label>
-                    <code _title="$.code" _="$.code|cut($.cmax)">[代码：单击提取导入]</code>
+                    <code _title="$.code" _="$.code|cut($.$.cmax)">[代码：单击提取导入]</code>
                     <time _="$.datetime">[时间戳]</time>
-                    <b data-pbo="lost" _role="$.top ? 'untop' : 'top'" _title="$.top ? '取消置顶' : '置顶'"><i></i></b>
-                    <b data-pbo="lost" role="del">删除</b>
+                    <b _data-pbo="$.$.edit ? null : 'lost'" _role="$.top ? 'untop' : 'top'" _title="$.top ? '取消置顶' : '置顶'"><i></i></b>
+                    <b _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
                 </li>
             </ol>
             <!-- 复用：#nav-tops 绑定的事件处理 -->

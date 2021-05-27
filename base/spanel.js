@@ -415,13 +415,15 @@ const __Kit = {
      * 条目置顶。
      * 注：只会出现在搜索区。
      * @data: String 条目ID
-     * @return {void}
+     * @return {String} 条目ID
      */
     topsh( evo ) {
         let _sh = shObj( evo.data );
 
         _sh.top = true;
         __Store.set( evo.data, JSON.stringify(_sh) );
+
+        return evo.data;
     },
 
     __topsh: 1,
@@ -431,13 +433,15 @@ const __Kit = {
      * 取消置顶。
      * 通常针对置顶区，但页可能会出现在搜索区。
      * @data: String 条目ID
-     * @return {void}
+     * @return {String} 条目ID
      */
     untop( evo ) {
         let _sh = shObj( evo.data );
 
         _sh.top = false;
         __Store.set( evo.data, JSON.stringify(_sh) );
+
+        return evo.data;
     },
 
     __untop: 1,
@@ -458,7 +462,7 @@ const __Kit = {
         _sh.name = name;
         __Store.set( evo.data, JSON.stringify(_sh) );
 
-        return [name, evo.data];
+        return [ name, evo.data ];
     },
 
     __shlabel: 1,
@@ -471,11 +475,16 @@ const __Kit = {
      * - prev   前一页
      * - next   后一页
      * - last   末页
-     * @data: Element 导航根容器（<nav>）
+     * 换页通知：
+     * <._list>: page  列表根替换（ol|ul）
+     * <nav>:    state 页次状态更新
+     *
+     * @data: Element <nav>元素
      * @param  {String} meth 换页方法名
+     * @param  {Element} list 清单元素(._list)
      * @return {void}
      */
-    shpage( evo, meth ) {
+    shpage( evo, meth, list ) {
         let _pgo = evo.data[__navPage],
             _cur = _pgo.current(),
             _idx = _pgo.index(),
@@ -519,7 +528,11 @@ const __Kit = {
      */
     shEdin( evo ) {
         __Editing = true;
-        $.on( evo.data, 'nodeok detached', null, __TQHistory );
+
+        $.on( evo.data, 'nodeok detach', null, __TQHistory );
+
+        // 导航状态可恢复。
+        $.on( evo.data, 'attrdone', 'nav > b', __TQHistory );
     },
 
     __shEdin: 1,
@@ -534,7 +547,8 @@ const __Kit = {
     shEdok( evo, nav ) {
         __Editing = false;
         __History.clear();
-        $.off( evo.data, 'nodeok detached', null, __TQHistory );
+
+        $.off( evo.data, 'nodeok detach attrdone', false, __TQHistory );
         $.trigger( nav, 'reset', topObjs() );
     },
 
