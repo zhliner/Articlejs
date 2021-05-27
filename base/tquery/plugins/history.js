@@ -41,21 +41,22 @@
 (function( $ ) {
     //
     // 变化处理器映射。
-    // event-name: function(event): {.back}
+    // event-type: function(event): {.back}
     //
-    const __varyHandles = {
-        // 简单值变化。
-        attrdone:   ev => new Attr( ev.target, ev.detail ),
-        propdone:   ev => new Prop( ev.target, ev.detail ),
+    const __Handles = {
+        // 简单变化。
+        attrdone:   ev => switchType( ev.target, ev.detail, Attr ),
+        propdone:   ev => switchType( ev.target, ev.detail, Prop ),
         styledone:  ev => new Style( ev.target, ev.detail ),
         classdone:  ev => new Class( ev.target, ev.detail ),
 
         // 节点变化。
         nodesdone:  ev => new Nodesdone( ev.detail[0] ),
         nodeok:     ev => new Nodesdone( [ev.target] ),  // 冗余（方便用户）
-        detached:   ev => new Remove( ev.target, ev.detail ),
-        emptied:    ev => new Empty( ev.target, ev.detail ),
+        detach:     ev => new Remove( ev.target ),
+        emptied:    ev => new Emptied( ev.target, ev.detail ),
         // 事前拦截。
+        // 禁用默认行为以返回false
         normalize:  ev => ev.preventDefault() || new Normalize( ev.target ),
 
         // 事件绑定变化。
@@ -86,8 +87,7 @@ class History {
     handleEvent( ev ) {
         // 仅记录一次。
         ev.stopPropagation();
-
-        this._buf.push( __varyHandles[ev.type](ev) );
+        this._buf.push( __Handles[ev.type](ev) );
     }
 
 
@@ -201,6 +201,28 @@ class Prop {
         } else {
             this._el[ this._name ] = this._old;
         }
+    }
+}
+
+
+//
+// 两个特殊属性/特性修改。
+// 即 $.prop()|.attr() 中的 text|html 设置。
+//
+class Fillx2 {
+    /**
+     * @param {Element} el 目标元素
+     * @param {[Node]} old 之前的内容
+     */
+    constructor( el, old ) {
+        this._box = el;
+        this._nds = old;
+    }
+
+
+    back() {
+        this._box.textContent = '';
+        this._box.append( ...this._nds );
     }
 }
 
@@ -373,20 +395,17 @@ class Nodesdone {
 
 
 //
-// 节点已移除。
-// 关联事件：detached
-// 节点在DOM中（否则不会触发）。
+// 节点待移除。
+// 关联事件：detach
 //
 class Remove {
     /**
-     * @param {Element|DocumentFragment} box 已移除节点的原父节点
-     * @param {Node} node 已移除的节点
-     * @param {Node|null} prev 原前一个节点
+     * @param {Node} node 待移除的节点
      */
-    constructor( box, [node, prev] ) {
-        this._box = box;
+    constructor( node ) {
         this._node = node;
-        this._prev = prev;
+        this._prev = node.previousSibling;
+        this._box = node.parentNode;
     }
 
 
@@ -405,7 +424,7 @@ class Remove {
 // 注记：
 // 已经为空的元素不会触发事件。
 //
-class Empty {
+class Emptied {
     /**
      * @param {Element} el 容器元素
      * @param {[Node]} subs 子节点集
@@ -417,7 +436,7 @@ class Empty {
 
 
     back() {
-        this._box.prepend( ...this._data );
+        this._data.length > 0 && this._box.prepend( ...this._data );
     }
 }
 
@@ -538,6 +557,18 @@ function adjacentTeam( nodes ) {
         _buf.push( (_sub = [nd]) );
     }
     return _buf;
+}
+
+
+/**
+ * 判断创建特殊属性设置类。
+ * @param  {Element} el 目标元素
+ * @param  {[Value]} data 传送的数据
+ * @param  {Class} T  待定类（Attr|Prop）
+ * @return {Fillx2|T}
+ */
+function switchType( el, data, T ) {
+    return ( data[0] === 'text' || data[0] === 'html' ) ? new Fillx2( el, data[1] ) : new T( el, data );
 }
 
 

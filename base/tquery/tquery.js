@@ -5348,10 +5348,10 @@ function customSet( el, name, value, scope ) {
         // null数据为空串，表达清除的效果。
         case 'html':
             value = htmlFrag( el, value, '' );
-            return varyFillAttr( el, name, [...value.childNodes], scope.evn );
+            return varyNameFill( el, name, [...value.childNodes], scope.evn );
         case 'text':
             value = value === null ? '' : value;
-            return varyFillAttr( el, name, el.ownerDocument.createTextNode(value), scope.evn );
+            return varyNameFill( el, name, el.ownerDocument.createTextNode(value), scope.evn );
     }
     scope.set( el, name, value );
 }
@@ -6030,7 +6030,7 @@ const
 
 /**
  * 构造事件对象。
- * 可冒泡可取消。
+ * 事件冒泡且可取消。
  * @param {String} evn 事件名
  * @param {Value} data 携带数据
  */
@@ -6046,10 +6046,9 @@ function customEvent( evn, data ) {
 
 
 /**
- * 定制事件激发（操作前/后）。
- * 事件冒泡且可取消。
+ * 定制事件激发。
  * 如果用户在事件处理中调用了Event.preventDefault()，
- * 会返回false且不会执行操作。
+ * 会返回false。
  * @param  {Node} node 目标节点
  * @param  {String} evn 事件名
  * @param  {Value} data 发送数据（Array|Object）
@@ -6069,12 +6068,12 @@ function varyTrigger( node, evn, data ) {
  * 总完成（nodesdone）事件发送到参考节点上。
  * 注：
  * 因为不再影响操作，故总是返回true（与未配置相异）。
- * @param  {Node} ref 插入参考节点
  * @param  {[Node]} nodes 已插入节点集
+ * @param  {Node} ref 插入参考节点
  * @param  {String} meth 插入方法
  * @return {true|void}
  */
-function nodesTrigger( ref, nodes, meth ) {
+function nodesTrigger( nodes, ref, meth ) {
     if ( !Options.varyevent ) {
         return;
     }
@@ -6373,7 +6372,7 @@ function varyPrepend( el, nodes ) {
         let _els = arrVal( nodes );
 
         el.prepend( ...detachNodes(_els) );
-        nodesTrigger( el, _els, 'prepend' );
+        nodesTrigger( _els, el, 'prepend' );
     }
     return nodes;
 }
@@ -6390,7 +6389,7 @@ function varyAppend( el, nodes ) {
         let _els = arrVal( nodes );
 
         el.append( ...detachNodes(_els) );
-        nodesTrigger( el, _els, 'append' );
+        nodesTrigger( _els, el, 'append' );
     }
     return nodes;
 }
@@ -6407,7 +6406,7 @@ function varyAppend2( el, nodes ) {
         let _els = arrVal( nodes );
 
         el.append( ..._els );
-        nodesTrigger( el, _els, 'append' );
+        nodesTrigger( _els, el, 'append' );
     }
     return nodes;
 }
@@ -6424,7 +6423,7 @@ function varyBefore( el, nodes ) {
         let _els = arrVal( nodes );
 
         el.before( ...detachNodes(_els) );
-        nodesTrigger( el, _els, 'before' );
+        nodesTrigger( _els, el, 'before' );
     }
     return nodes;
 }
@@ -6441,7 +6440,7 @@ function varyBefore2( el, nodes ) {
         let _els = arrVal( nodes );
 
         el.before( ..._els );
-        nodesTrigger( el, _els, 'before' );
+        nodesTrigger( _els, el, 'before' );
     }
     return nodes;
 }
@@ -6458,7 +6457,7 @@ function varyAfter( el, nodes ) {
         let _els = arrVal( nodes );
 
         el.after( ...detachNodes(_els) );
-        nodesTrigger( el, _els, 'after' );
+        nodesTrigger( _els, el, 'after' );
     }
     return nodes;
 }
@@ -6466,9 +6465,9 @@ function varyAfter( el, nodes ) {
 
 /**
  * 节点替换。
- * 完成事件会发送原元素作为数据。
- * 可能会向被替换节点发送节点脱离事件，
- * 除非数据节点为单个且在替换完成事件中调用了 Event.preventDefault()。
+ * 完成后脱离的节点会接受到detached事件。
+ * 每一个插入的新节点都会有nodeok事件，
+ * 总替换完成的nodesdone事件向原节点的节点激发。
  * @param  {Node} el 参考节点
  * @param  {Node|[Node]} nodes 节点数据（集）
  * @return {nodes}
@@ -6482,8 +6481,8 @@ function varyReplace( el, nodes ) {
 
         el.replaceWith( ...detachNodes(_els) );
 
-        // el已脱离DOM，故参考节点用_box
-        nodesTrigger( _box, _els, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
+        // 特例：参考节点为父容器
+        nodesTrigger( _els, _box, 'replace' ) && varyTrigger( el, evnDetached, [_ref, _box] );
     }
     return nodes;
 }
@@ -6491,9 +6490,8 @@ function varyReplace( el, nodes ) {
 
 /**
  * 元素内容清空。
- * 空集忽略（无动作）。
- * 注记：
- * 清空完成为单独的事件名，因此不再激发内容的脱离事件。
+ * 空集不会有清空动作，因此也无事件激发。
+ * 内容中的每一个节点都会接收到节点脱离事件（detached）。
  * @param  {Element} el 目标容器元素
  * @return {[Node]} 移除的节点集
  */
@@ -6502,7 +6500,11 @@ function varyEmpty( el ) {
 
     if ( _subs.length && varyTrigger(el, evnEmpty) !== false ) {
         el.textContent = '';
-        varyTrigger( el, evnEmptied, _subs );
+
+        varyTrigger( el, evnEmptied, _subs ) &&
+        _subs.forEach(
+            (nd, i) => varyTrigger( nd, evnDetached, [_subs[i-1], el] )
+        );
     }
     return _subs;
 }
@@ -6510,8 +6512,11 @@ function varyEmpty( el ) {
 
 /**
  * 节点移除。
- * 如果节点游离（无父容器），无任何行为。
- * 因为节点会脱离DOM，所以事件发送给原父容器（携带数据）。
+ * 如果节点已经脱离父容器，不会产生移除行为。
+ * 因此也不会再有事件通知。
+ * 注记：
+ * detached事件无法再向上冒泡，但它对节点本身是有意义的。
+ * 传递的数据参考节点在前[0]，之后才是原父容。
  * @param  {Node} node 待移除节点
  * @return {Node} node
  */
@@ -6523,7 +6528,7 @@ function varyRemove( node ) {
         let _ref = node.previousSibling;
 
         node.remove();
-        varyTrigger( _box, evnDetached, [node, _ref] );
+        varyTrigger( node, evnDetached, [_ref, _box] );
     }
     return node;
 }
@@ -6570,12 +6575,13 @@ function varyFill( el, nodes ) {
 /**
  * 特殊：特性/属性填充。
  * 支持 text|html 特殊属性/特性设置时的填充行为。
- * 数据为字符串新建的节点（集），无原节点脱离行为。
+ * 数据为由字符串新建的节点（集）。
  * 变化事件：
- * - attrvary,attrdone | propvary,propdone
- * - 如果容器元素内有内容，会同时激发清空类事件（empty,emptied）
+ * - attrvary, attrdone 特性修改
+ * - propvary, propdone 属性修改
  * 注记：
- * 特性（attr）或属性（prop）的设置效果是一样的，但是激发的事件名不同。
+ * 不会激发容器的清空类事件（empty,emptied）。
+ * 特性（attr）或属性（prop）的设置效果是一样的，但是激发的事件名不同，
  * 这给调用者一个选择不同事件监听的可能。
  * 正常的 .text()|.html() 接口激发普通的节点插入类事件（nodein...）。
  * @param  {Element} el 目标元素
@@ -6584,14 +6590,13 @@ function varyFill( el, nodes ) {
  * @param  {[String]} evn2 变化事件名对
  * @return {void}
  */
-function varyFillAttr( el, name, nodes, evn2 ) {
-    let _old = null;
+function varyNameFill( el, name, nodes, evn2 ) {
+    let _old = Arr( el.childNodes );
 
-    if ( el.childNodes.length ) {
-        _old = varyEmpty( el );
-    }
     if ( varyTrigger(el, evn2[0], [name, nodes]) !== false ) {
+        el.textContent = '';
         el.append( ...arrVal(nodes) );
+
         varyTrigger( el, evn2[1], [name, _old] );
     }
 }
@@ -6676,7 +6681,7 @@ function varyReplace2s( el, subs ) {
         let _ref = el.previousSibling;
 
         el.replaceWith( ...subs );
-        nodesTrigger( _box, subs, 'replace' ) && varyTrigger( _box, evnDetached, [el, _ref] );
+        nodesTrigger( subs, _box, 'replace' ) && varyTrigger( el, evnDetached, [_ref, _box] );
     }
     return subs;
 }
@@ -6695,7 +6700,7 @@ function varyPrepend2s( el, subs ) {
         varyTrigger(el, evnNodeIn, [subs, 'prepend']) !== false ) {
 
         el.prepend( ...subs );
-        nodesTrigger( el, subs, 'prepend' );
+        nodesTrigger( subs, el, 'prepend' );
     }
     return subs;
 }
