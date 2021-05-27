@@ -6475,7 +6475,9 @@ function varyAfter( el, nodes ) {
 function varyReplace( el, nodes ) {
     let _box = el.parentNode;
 
-    if ( _box && varyTrigger(el, evnNodeIn, [nodes, 'replace']) !== false ) {
+    if ( _box && varyTrigger(el, evnNodeIn, [nodes, 'replace']) !== false &&
+        varyTrigger(el, evnDetach) !== false ) {
+
         let _els = arrVal( nodes ),
             _ref = el.previousSibling;
 
@@ -6677,10 +6679,12 @@ function varyWrapAll( root, box, nodes, ref ) {
 function varyReplace2s( el, subs ) {
     let _box = el.parentNode;
 
-    if ( _box && varyTrigger(el, evnNodeIn, [subs, 'replace']) !== false ) {
-        let _ref = el.previousSibling;
+    if ( _box && varyTrigger(el, evnNodeIn, [subs, 'replace']) !== false &&
+        varyTrigger(el, evnDetach) !== false ) {
 
+        let _ref = el.previousSibling;
         el.replaceWith( ...subs );
+
         nodesTrigger( subs, _box, 'replace' ) && varyTrigger( el, evnDetached, [_ref, _box] );
     }
     return subs;
