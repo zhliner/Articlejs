@@ -654,12 +654,12 @@ export class DPage {
 
 
     /**
-     * 设置新数据集。
-     * 当前页会重置为首页。
+     * 重置数据集。
+     * 当前页也会重置为首页。
      * @param  {[String]} data 数据ID总集
      * @return {this}
      */
-    data( data ) {
+    reset( data ) {
         this._idx = 0;
         this._data = data;
         return this;

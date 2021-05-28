@@ -84,12 +84,12 @@ const Filter = {
      * 注记：
      * - 借用Date的JSON标准格式分解合成。
      * - 输出的是本地时间。JSON仅为借用（假借）。
-     * @param  {String|Number|Date} data 日期表达
+     * @param  {String|Number|Date} date 日期表达
      * @param  {String} fmt 格式串
      * @return {String}
      */
-    date( data, fmt ) {
-        let _ss = dateCells( getTime(data) );
+    date( date, fmt ) {
+        let _ss = dateCells( getTime(date) );
         return fmt.replace(__dateFormat, w => _ss[w] || w );
     },
 

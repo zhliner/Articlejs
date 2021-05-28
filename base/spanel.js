@@ -20,8 +20,7 @@
 //
 
 import { Sys, Limit } from "../config.js";
-import { CStorage, datetime, History, Pages } from "./common.js";
-import { customGetter } from "./tpb/pbs.get.js";
+import { CStorage, History, DPage, Pager } from "./common.js";
 import { processExtend } from "./tpb/pbs.by.js";
 
 
@@ -37,8 +36,11 @@ const
     // 脚本历史编辑器。
     __History = new History( Limit.shEdits, __TQHistory ),
 
-    // 分页对象存储键。
-    __navPage = Symbol( 'shnav:pages' );
+    // 分页数据对象存储键。
+    __DPage = Symbol( 'sh:dpage' ),
+
+    // 分页器存储键。
+    __Pager = Symbol( 'sh:pager' );
 
 
 let
@@ -191,14 +193,14 @@ function historyPush( ...obj ) {
 
 
 /**
- * 获取历史脚本存储条目。
+ * 获取历史脚本条目。
  * 如果条目不是一个对象，构造一个对象返回。
- * 对象格式：{
+ * 对象成员：{
  *      shid:   条目标识
  *      name:   标签名称
  *      code:   代码文本
  *      top:    是否置顶
- *      datetime: 更新时间
+ *      time:   时间戳（毫秒）
  * }
  * @param  {String} sid 历史脚本ID
  * @return {Object}
@@ -210,28 +212,30 @@ function shObj( sid ) {
 
 
 /**
- * 提取置顶条目对象集。
- * @return {[Object]}
+ * 提取置顶条目ID清单。
+ * @return {[String]} ID总集
  */
-function topObjs() {
+function topList() {
     let _buf = [];
 
     for ( const k of __Store.keys() ) {
         let _o = shObj( k );
 
         if ( _o.top && _o.code ) {
-            _o.cmax = Limit.shCodelen;
-            _buf.push( _o );
+            _buf.push( {id: _o.shid, tm: _o.time} );
         }
     }
-    return _buf;
+    return _buf.sort( (a, b) => b.tm - a.tm ).map( o => o.id );
 }
 
 
 /**
  * 计算页导航状态。
- * 分别对应4个分页按钮的失效/可用。
- * 即：[首页, 前一页, 后一页, 末页]
+ * 分别对应4个分页按钮的失效和可用状态。
+ * 即：[
+ *      首页, 前一页, 后一页, 末页
+ * ]
+ * 注：真值失效，假值可用。
  * @param {Number} cur 当前页次
  * @param {Number} sum 总页数
  */
@@ -245,6 +249,25 @@ function pageState( cur, sum ) {
         cur === sum,
         cur === sum,
     ];
+}
+
+
+/**
+ * 提取脚本历史数据。
+ * 返回值 Object: {
+ *      edit:Boolean    是否可编辑态
+ *      cmax:Number     代码行显示长度限制
+ *      list:[Object]   历史脚本对象集
+ * }
+ * @param {[String]} list ID清单
+ * @return {Object} 数据对象
+ */
+function shData( list ) {
+    return {
+        edit: __Editing,
+        cmax: Limit.shCodelen,
+        list: list.map( shObj )
+    };
 }
 
 
@@ -265,7 +288,7 @@ function xfilter( ...words ) {
 /**
  * 搜索目标脚本。
  * @param  {String} words 检索词序列
- * @return {[Object]}
+ * @return {[String]} 条目ID总集
  */
 function search( words ) {
     let _fun = xfilter(
@@ -273,15 +296,14 @@ function search( words ) {
         ),
         _buf = [];
 
-    for ( const key of __Store.keys().reverse() ) {
-        let _obj = shObj(key);
+    for ( const k of __Store.keys().reverse() ) {
+        let _o = shObj( k );
 
-        if ( _obj.code && _fun(_obj.code) ) {
-            _obj.cmax = Limit.shCodelen;
-            _buf.push( _obj );
+        if ( _o.code && _fun(_o.code) ) {
+            _buf.push( {id: _o.shid, tm: _o.time} );
         }
     }
-    return _buf;
+    return _buf.sort( (a, b) => b.tm - a.tm ).map( o => o.id );
 }
 
 
@@ -316,39 +338,9 @@ function uniqueKey( buf, base = 0 ) {
 
 
 //
-// 辅助工具集。
+// 辅助工具集（By扩展）。
 //
 const __Kit = {
-
-    //-- On扩展 --------------------------------------------------------------
-
-    /**
-     * 获取置顶条目集。
-     * @return {[Object]}
-     */
-    shtops() {
-        return topObjs();
-    },
-
-
-    /**
-     * 分页导航状态取值。
-     * @data: Element 导航根容器（<nav>）
-     * @return {[Number, [Boolean]]} [当前页次, [页次状态]]
-     */
-    shnav( evo ) {
-        let _pgo = evo.data[__navPage],
-            _n = _pgo.index() + 1;
-
-        return [ _n, pageState(_n, _pgo.pages()) ];
-    },
-
-    __shnav: 1,
-
-
-    //-- By扩展 --------------------------------------------------------------
-
-
     /**
      * 脚本面板初始化。
      */
@@ -383,16 +375,18 @@ const __Kit = {
      * 脚本历史页初始化。
      * 主要为构建两个列表区的分页实例。
      * @data: Element 重做按钮元素
-     * @param  {Element} top  置顶区列表元素（<ul>）
-     * @param  {Element} all  搜索区列表元素（<ol>）
+     * @param  {Element} top  置顶区列表（<ul>）
+     * @param  {Element} all  搜索区列表（<ol>）
      * @param  {Element} nav1 置顶区分页导航元素
      * @param  {Element} nav2 搜索区分页导航元素
      * @return {void}
      */
     shinit( evo, top, all, nav1, nav2 ) {
         __btnRedo = evo.data;
-        nav1[__navPage] = new Pages( top, null, Limit.shListTop );
-        nav2[__navPage] = new Pages( all, [], Limit.shListAll );
+        nav1[__DPage] = new DPage( null, Limit.shListTop );
+        nav1[__Pager] = new Pager( top );
+        nav2[__DPage] = new DPage( null, Limit.shListAll );
+        nav2[__Pager] = new Pager( all );
     },
 
     __shinit: 1,
@@ -476,15 +470,14 @@ const __Kit = {
      * - next   后一页
      * - last   末页
      * 换页通知：
-     * <._list>: page  列表根替换（ol|ul）
-     * <nav>:    state 页次状态更新
+     * - page   更新列表清单页
+     * - state  更新导航页次状态
      *
-     * @data: Element <nav>元素
+     * @data: Element 主控元素（<nav>）
      * @param  {String} meth 换页方法名
-     * @param  {Element} list 清单元素(._list)
      * @return {void}
      */
-    shpage( evo, meth, list ) {
+    shpage( evo, meth ) {
         let _pgo = evo.data[__navPage],
             _cur = _pgo.current(),
             _idx = _pgo.index(),
@@ -497,25 +490,26 @@ const __Kit = {
 
 
     /**
-     * 分页导航配置。
-     * 即分页导航关联元素/按钮的初始状态设置。
-     * - 首个返回值为总页数，用于数值提示。
-     * - 第二个返回值为一个布尔值数组，对应4个页控制按钮状态。
-     * @data: Element 导航根容器（<nav>）
-     * @param  {[Object]} data 分页数据
-     * @return {[Number，[Boolean]]} [首页根, 总页数, [页次状态]]
+     * 置顶条目初始设置。
+     * 初始状态设置时为不可编辑态。
+     * 事件通知：
+     * - page   更新列表页。
+     * - state  更新导航状态信息。
+     * @data: Element 置顶分页导航（<nav>）
+     * @return {void}
      */
-    shconf( evo, data ) {
-        let _pgo = evo.data[__navPage].data(data);
+    shtops( evo ) {
+        let nav = evo.data,
+            _dp = nav[__DPage].reset( topList() ),
+            _el = nav[__Pager].page( shData(_dp.current()) ),
+            _ps = _dp.pages();
 
-        return [
-            _pgo.first(),
-            _pgo.pages(),
-            pageState( _pgo.index()+1, _pgo.pages() )
-        ];
+        $.trigger( nav, 'page', _el );
+        // [ [当前页次, 总页数], [Boolean-4] ]
+        $.trigger( nav, 'state', [ [1, _ps], pageState(1, _ps) ] );
     },
 
-    __shconf: 1,
+    __shtops: 1,
 
 
     /**
@@ -523,16 +517,15 @@ const __Kit = {
      * 仅需监测两个操作即可：
      * - nodeok 单个插入完成。如设置置顶，新条目插入置顶区（首页）。
      * - detached 删除操作。如直接删除和置顶/取消置顶附带的删除行为。
-     * @data: Element 绑定记录事件的根元素（<main>）
+     * @data: Element 绑定事件记录的根元素（<main>）
      * @return {void}
      */
     shEdin( evo ) {
         __Editing = true;
 
         $.on( evo.data, 'nodeok detach', null, __TQHistory );
-
         // 导航状态可恢复。
-        $.on( evo.data, 'attrdone', 'nav > b', __TQHistory );
+        $.on( evo.data, 'attrdone', 'nav >b', __TQHistory );
     },
 
     __shEdin: 1,
@@ -549,7 +542,6 @@ const __Kit = {
         __History.clear();
 
         $.off( evo.data, 'nodeok detach attrdone', false, __TQHistory );
-        $.trigger( nav, 'reset', topObjs() );
     },
 
     __shEdok: 1,
@@ -620,7 +612,7 @@ const __Kit = {
             _o = {
                 shid: _k,
                 code: evo.data,
-                datetime: datetime()
+                timestamp: Date.now()
             };
         __Store.set( _k, JSON.stringify(_o) );
     },
@@ -646,7 +638,7 @@ processExtend( 'Kit', __Kit, [
     'shEdin',
     'shEdok',
     'shpage',
-    'shconf',
+    'shtops',
     'sh2panel',
     'shsearch',
     'shcode',
@@ -654,10 +646,4 @@ processExtend( 'Kit', __Kit, [
 ]);
 
 
-//
-// On.v: 杂项取值。
-//
-customGetter( null, __Kit, [
-    'shtops',
-    'shnav',
-]);
+window.__Store = __Store;

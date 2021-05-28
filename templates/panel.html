@@ -519,15 +519,13 @@
     click   删除目标条目。 -->
 <form class="_page _script" tpl-name="script:history"
     on="submit|avoid value('words');
-        ^nodeok(~)|v.shtops;
+        ^nodeok(~)|$('/#nav-tops');
         ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
         click(li>b[role=del])|stop evo(2) parent dup attr('-sid')"
     by="Kit.shsearch;
-        -;
+        Kit.shtops;
         Kit.shinit(_4);
-        Kit.delsh(_1)"
-    to="#nav-misc|trigger('reset');
-        #nav-tops|trigger('reset')">
+        Kit.delsh(_1)">
     <header>
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>
@@ -543,6 +541,7 @@
             @mousemove|movementY evo(3) $$('/>*') spread;
             click(li>code)|stop evo(2) attr('title');
             _tophei|ev('detail');
+            _editon|(false);
             keydown(li>label)|ev('key') pass('Enter') avoid evo(2) blur"
         by="-;
             Kit.sh2panel(_4) spread add('px');
@@ -550,7 +549,8 @@
         to="|off('mousemove');
             /._down|%max-height|goto('_tophei', _1);
             .Modal/|trigger('cancel');
-            /._top|height">
+            /._top|height;
+            (/._list>li>b)|lose">
         <!--内置限高：避免初始即溢出。
             click   li>b  置顶/取消置顶操作，同时激发下区状态同步。stopAll避免立即触发反向操作。
             click   label 单击即可编辑。
@@ -583,7 +583,7 @@
                     by="Kit.shEdok(_1);
                         Kit.shEdin"
                     to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit');
-                        |trigger('reset')|fire('main/._search', 'off')">
+                        |trigger('reset')|fire('main/._search', 'off') fire('main/', 'editon')">
                     <!--撤销：成功后会激活Redo。-->
                     <b id="sh-undo" title="撤消" data-pbo="disabled"
                         on="click|evo(3) disabled end;
@@ -610,21 +610,29 @@
             </div>
             <!--置顶区代码清单 -->
             <ul id="sh-tops" class="_list" tpb-for="$.list"
-                on="page|ev('detail')"
+                on="update|ev('detail')"
                 to="|replace">
                 <li _data-sid="$.shid">
                     <label _="($.name || '---')">[片段名称]</label>
                     <code _title="$.code" _="$.code|cut($.$.cmax)">[代码：单击提取并导入脚本录入框]</code>
-                    <time _="$.datetime">[时间戳]</time>
-                    <b _data-pbo="$.$.edit ? null : 'lost'" role="untop" title="取消置顶"><i></i></b>
-                    <b _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
+                    <time _="$.time|date('yyyy-MM-dd hh:mm')">[时间戳]</time>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" role="untop" title="取消置顶"><i></i></b>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
                 </li>
             </ul>
+            <!--分页主控：
+                click 更新到目标页次。由By全权处理，因为需要可撤销。
+                page  当前页更新。事件接收者，非延迟。
+                state 导航信息更新。事件接收者，非延迟。值格式：[[Number2], [Boolean4]]
+                注：
+                事件会被搜索区导航完整克隆，注意选择器通用。-->
             <nav id="nav-tops"
-                on="click(b)|evo(2) dup disabled end attr('-m') $('1/._list') evo(3) pop;
+                on="click(b)|evo(2) dup disabled end attr('-m') evo(3) pop;
+                    page|ev('detail');
                     state|ev('detail') spread"
-                by="Kit.shpage(_2)"
+                by="Kit.shpage(_1)"
                 to="-;
+                    1/._list|trigger('update');
                     (/>b)|disable|pop fire('/code', 'update', 0)">
                 <!-- data-m 对应页操作方法 -->
                 <b data-m="first" title="首页"><i id="l-tobeg"></i></b>
@@ -674,14 +682,14 @@
             <!--搜索结果清单
                 label:title 置顶或曾经置顶的条目有效。 -->
             <ol id="sh-list" class="_list" tpb-for="$.list"
-                on="page|ev('detail')"
+                on="update|ev('detail')"
                 to="|replace">
                 <li _data-sid="$.shid">
                     <label _="($.name || '---')">[片段名称]</label>
                     <code _title="$.code" _="$.code|cut($.$.cmax)">[代码：单击提取导入]</code>
-                    <time _="$.datetime">[时间戳]</time>
-                    <b _data-pbo="$.$.edit ? null : 'lost'" _role="$.top ? 'untop' : 'top'" _title="$.top ? '取消置顶' : '置顶'"><i></i></b>
-                    <b _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
+                    <time _="$.time|date('yyyy-MM-dd hh:mm')">[时间戳]</time>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" _role="$.top ? 'untop' : 'top'" _title="$.top ? '取消置顶' : '置顶'"><i></i></b>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
                 </li>
             </ol>
             <!-- 复用：#nav-tops 绑定的事件处理 -->
