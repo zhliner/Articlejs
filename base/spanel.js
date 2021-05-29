@@ -36,6 +36,13 @@ const
     // 脚本历史编辑器。
     __History = new History( Limit.shEdits, __TQHistory ),
 
+    // 换页通知事件名。
+    // 注意与模板中保持一致，下同。
+    __evnPage = 'page',
+
+    // 导航更新通知事件名。
+    __evnState = 'state',
+
     // 分页数据对象存储键。
     __DPage = Symbol( 'sh:dpage' ),
 
@@ -134,20 +141,23 @@ class SHDel {
 //
 // 换页操作。
 // 因为条目删除进入历史，故换页也需要记录。
+// 注意：
+// 换页通过事件通知的方式执行，因此模板中的更新不能为延迟。
 //
 class PageEd {
     /**
-     * @param {Pages} pgo 页集缓存实例
-     * @param {Number} n  原先页次
-     * @param {Element} old 原列表
-     * @param {Element} nel 新列表
+     * @param {Element} nav 主控导航元素
+     * @param {String} meth 换页方法（first|prev|next|last）
+     * @param {String} evn1 列表页更新触发事件名（page）
+     * @param {String} evn2 导航更新触发事件名（state）
      */
-    constructor( pgo, n, old, nel ) {
-        this._pgo = pgo;
-        this._idx = n;
-        this._old = old;
-        this._new = nel;
-        this._pgn = pgo.index();
+    constructor( nav, meth, evn1, evn2 ) {
+        this._nav = nav;
+        this._fun = meth;
+        this._evp = evn1;
+        this._evs = evn2;
+        this._idx = nav[__DPage].index();
+
         // 外部只读
         this.count = null;
         this.redo();
@@ -158,16 +168,17 @@ class PageEd {
         if ( this.count > 0 ) {
             __TQHistory.back( this.count );
         }
-        this._pgo.index( this._idx );
+        this._nav[__DPage].index( this._idx );
     }
 
 
     redo() {
         let _old = __TQHistory.size();
 
-        $.replace( this._old, this._new );
-        this._pgo.index( this._pgn );
-
+        // 非延迟更新。
+        navPage(
+            this._nav, null, this._fun, this._evp, this._evs
+        );
         this.count = __TQHistory.size() - _old;
     }
 }
@@ -254,20 +265,49 @@ function pageState( cur, sum ) {
 
 /**
  * 提取脚本历史数据。
- * 返回值 Object: {
+ * 返回值数组附带成员: {
  *      edit:Boolean    是否可编辑态
  *      cmax:Number     代码行显示长度限制
- *      list:[Object]   历史脚本对象集
  * }
- * @param {[String]} list ID清单
- * @return {Object} 数据对象
+ * @param  {[String]} list ID清单
+ * @return {Array} 数据条目集
  */
 function shData( list ) {
-    return {
-        edit: __Editing,
-        cmax: Limit.shCodelen,
-        list: list.map( shObj )
-    };
+    list = list.map( shObj );
+
+    list.edit = __Editing;
+    list.cmax = Limit.shCodelen;
+
+    return list;
+}
+
+
+/**
+ * 换页并导航更新。
+ * 通过事件触发更新换页和导航状态。
+ * 注记：
+ * 模板中定义的更新必须为非延迟执行，
+ * 以使得管理状态下可正常撤销。
+ * @param {Element} nav 分页导航元素
+ * @param {[String]} list 数据ID总集
+ * @param {String} meth 换页方法（first|prev|next|last）
+ * @param {String} evn1 换页通知事件名
+ * @param {String} evn2 导航更新通知事件名
+ */
+function navPage( nav, list, meth, evn1, evn2 ) {
+    let _dp = nav[ __DPage ];
+
+    if ( list ) {
+        _dp.reset( list );
+    }
+    let _el = nav[ __Pager ].page( shData(_dp[meth]()) ),
+        _pn = _dp.index() + 1,
+        _ps = _dp.pages();
+
+    $.trigger( nav, evn1, _el );
+
+    // [ [当前页次, 总页数], [Boolean-4] ]
+    $.trigger( nav, evn2, [ [_pn, _ps], pageState(_pn, _ps)] );
 }
 
 
@@ -478,12 +518,7 @@ const __Kit = {
      * @return {void}
      */
     shpage( evo, meth ) {
-        let _pgo = evo.data[__navPage],
-            _cur = _pgo.current(),
-            _idx = _pgo.index(),
-            _new = _pgo[meth]();
-
-        historyPush( new PageEd(_pgo, _idx, _cur, _new) );
+        historyPush( new PageEd(evo.data, meth, __evnPage, __evnState) );
     },
 
     __shpage: 1,
@@ -499,14 +534,7 @@ const __Kit = {
      * @return {void}
      */
     shtops( evo ) {
-        let nav = evo.data,
-            _dp = nav[__DPage].reset( topList() ),
-            _el = nav[__Pager].page( shData(_dp.current()) ),
-            _ps = _dp.pages();
-
-        $.trigger( nav, 'page', _el );
-        // [ [当前页次, 总页数], [Boolean-4] ]
-        $.trigger( nav, 'state', [ [1, _ps], pageState(1, _ps) ] );
+        navPage( evo.data, topList(), 'first', __evnPage, __evnState );
     },
 
     __shtops: 1,
@@ -514,16 +542,17 @@ const __Kit = {
 
     /**
      * 进入历史条目编辑。
-     * 仅需监测两个操作即可：
-     * - nodeok 单个插入完成。如设置置顶，新条目插入置顶区（首页）。
-     * - detached 删除操作。如直接删除和置顶/取消置顶附带的删除行为。
+     * 监听的变化：
+     * - nodeok 换页插入，导航页次提示更新（text）。
+     * - detach 条目删除。
+     * - attrdone(nav>b) 导航按钮状态更新。
      * @data: Element 绑定事件记录的根元素（<main>）
      * @return {void}
      */
     shEdin( evo ) {
         __Editing = true;
 
-        $.on( evo.data, 'nodeok detach', null, __TQHistory );
+        $.on( evo.data, 'nodeok emptied detach', null, __TQHistory );
         // 导航状态可恢复。
         $.on( evo.data, 'attrdone', 'nav >b', __TQHistory );
     },
@@ -534,14 +563,12 @@ const __Kit = {
     /**
      * 完成历史条目编辑。
      * @data: Element 绑定记录事件的根元素（<main>）
-     * @param  {Element} nav 置顶区分页导航元素
      * @return {void}
      */
-    shEdok( evo, nav ) {
+    shEdok( evo ) {
         __Editing = false;
         __History.clear();
-
-        $.off( evo.data, 'nodeok detach attrdone', false, __TQHistory );
+        $.off( evo.data, 'nodeok emptied detach attrdone', false, __TQHistory );
     },
 
     __shEdok: 1,
@@ -574,14 +601,14 @@ const __Kit = {
 
     /**
      * 搜索目标脚本。
-     * 返回集按存储的先后顺序逆序排列。
      * - 空格：逻辑 AND
      * - 逗号：逻辑 OR
      * @data: String 待检索关键词串
-     * @return {[Object]}
+     * @param  {Element} nav 搜索区分页导航元素
+     * @return {void}
      */
-    shsearch( evo ) {
-        return search( evo.data );
+    shsearch( evo, nav ) {
+        navPage( nav, search(evo.data), 'first', __evnPage, __evnState );
     },
 
     __shsearch: 1,

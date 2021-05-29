@@ -518,11 +518,11 @@
     nodeok  初始载入/展示置顶代码清单，一次即可。
     click   删除目标条目。 -->
 <form class="_page _script" tpl-name="script:history"
-    on="submit|avoid value('words');
-        ^nodeok(~)|$('/#nav-tops');
+    on="submit|avoid value('words') $('/#nav-misc');
+        ^nodeok(~) edited|$('/#nav-tops');
         ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
         click(li>b[role=del])|stop evo(2) parent dup attr('-sid')"
-    by="Kit.shsearch;
+    by="Kit.shsearch(_1);
         Kit.shtops;
         Kit.shinit(_4);
         Kit.delsh(_1)">
@@ -534,7 +534,7 @@
         click     code 单击代码确认提取。
         mousemove 定义上下区高度调整。$$('/>*') 确定为3个元素。
         _tophei   跟随设置置顶区高度。
-        keydown   label 键入Enter也确认编辑（上下两区）。
+        keydown   label 键入Enter也确认编辑（上下两区共享）。
     -->
     <main class="_history"
         on="@mouseup|movementY(null);
@@ -563,7 +563,7 @@
                 blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
                 click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
                 edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
-                topsync|ev('detail') spread pick(-2) slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
+                topsync|ev('detail') spread pick(-2) push slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
             by="Kit.topsh ('untop') dup;
                 Kit.untop ('top') dup;
                 Kit.shlabel(_1) (false);"
@@ -580,9 +580,9 @@
                     on="off|evo(3) hide $('main/') $('#nav-tops');
                         on|evo(3) hide(false) $('main/');
                         reset|$$('/b') disable;"
-                    by="Kit.shEdok(_1);
+                    by="Kit.shEdok;
                         Kit.shEdin"
-                    to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit');
+                    to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit') fire('#nav-tops', 'edited');
                         |trigger('reset')|fire('main/._search', 'off') fire('main/', 'editon')">
                     <!--撤销：成功后会激活Redo。-->
                     <b id="sh-undo" title="撤消" data-pbo="disabled"
@@ -609,7 +609,7 @@
                         1/span|trigger(_1)">管理</button>
             </div>
             <!--置顶区代码清单 -->
-            <ul id="sh-tops" class="_list" tpb-for="$.list"
+            <ul id="sh-tops" class="_list" tpb-for
                 on="update|ev('detail')"
                 to="|replace">
                 <li _data-sid="$.shid">
@@ -639,6 +639,7 @@
                 <b data-m="prev" title="前一页"><i id="l-prevpage"></i></b>
                 <b data-m="next" title="后一页"><i id="l-nextpage"></i></b>
                 <b data-m="last" title="末页"><i id="l-toend"></i></b>
+                <!--text: empied 事件-->
                 <code
                     on="update|stop ev('detail')"
                     to="(/i)|text">(<i>1</i>/<i>0</i>)</code>
@@ -661,14 +662,14 @@
                 blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
                 click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
                 edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
-                topsync|ev('detail') spread pick(-2) slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
+                topsync|ev('detail') spread pick(-2) push slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
             by="Kit.topsh ('untop') dup;
                 Kit.untop ('top') dup;
                 Kit.shlabel(_1) (false)"
             to="=|@role|pack(2) pop fire('1/._top', 'topsync');
                 =|@role|pack(2) pop fire('1/._top', 'topsync');
                 =|$contenteditable|pop fire('1/._top', 'edsync');
-                =|$contenteditable|target pop fire('1/._top', 'edsync');
+                =|$contenteditable|focus select;
                 -|$text;
                 -|@role">
             <div class="_search"
@@ -681,7 +682,7 @@
             </div>
             <!--搜索结果清单
                 label:title 置顶或曾经置顶的条目有效。 -->
-            <ol id="sh-list" class="_list" tpb-for="$.list"
+            <ol id="sh-list" class="_list" tpb-for
                 on="update|ev('detail')"
                 to="|replace">
                 <li _data-sid="$.shid">

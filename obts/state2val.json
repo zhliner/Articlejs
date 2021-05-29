@@ -1,6 +1,6 @@
 {
-    "//1": "依选单条目的选取，跟随更新选取集元素的样式值。选单可多选，但相同的值才显示出来。",
-    "//2": "复用注意：._body/#_valu2 适用多个地方。",
-    "on":  "change|v.sels evo(3) val v.styVal(_1) dup $if('setval', 'clear'); clear|(''); setval|ev('detail') dup item(0) pick(-2) Set size gt(1) pop $if('', _1) ('') pack(2)",
-    "to":  "|trigger(_1); (._body/#_valu2)|val; (._body/#_valu2)|val"
+    "/1": "依选单条目的选取，跟随更新选取集元素的样式值。选单可多选，但相同的值才显示出来。",
+    "/2": "复用注意：._body/#_valu2 适用多个地方。",
+    "on": "change|v.sels evo(3) val v.styVal(_1) dup $if('setval', 'clear'); clear|(''); setval|ev('detail') dup item(0) pick(-2) Set size gt(1) pop $if('', _1) ('') pack(2)",
+    "to": "|trigger(_1); (._body/#_valu2)|val; (._body/#_valu2)|val"
 }

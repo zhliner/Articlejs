@@ -620,15 +620,6 @@ export class DPage {
 
 
     /**
-     * 当前页次清单。
-     * @return {[String]}
-     */
-    current() {
-        return this.page( this._idx );
-    }
-
-
-    /**
      * 获取特定目标页次。
      * @param  {Number} idx 目标页次（从0开始）
      * @return {[String]} ID清单

@@ -1875,7 +1875,8 @@ menu._cells code {
 }
 
 .Modal ._history ._list label {
-    width: 90px;
+    width: 12%;
+    min-width: 90px;
 }
 .Modal ._history ul._list label {
     font-weight: bold;
