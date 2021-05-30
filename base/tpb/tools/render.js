@@ -362,16 +362,16 @@ const Grammar = {
      * @param {Object} data 当前域数据
      */
     Each( el, handle, size, data ) {
-        let _idx = el[__eachIndex] || 0;
-        data = handle( data );
+        let _idx = el[__eachIndex] || 0,
+            _arr = handle( data );
 
-        this._alignEach( eachList(el, size-_idx), data.length, _idx+1 )
+        this._alignEach( eachList(el, size-_idx), _arr.length, _idx+1 )
         .forEach(
             // 设置当前域对象。
-            (el, i) => el[__scopeData] = loopCell( data[i], i, data )
+            (el, i) => el[__scopeData] = loopCell( _arr[i], i, data )
         );
         // 更新计数。
-        Grammars.get(el).get('Each')[1] = data.length + _idx;
+        Grammars.get(el).get('Each')[1] = _arr.length + _idx;
     },
 
 
@@ -390,15 +390,15 @@ const Grammar = {
         if ( hidden(el) ) {
             return;
         }
-        data = handle( data );
+        let _arr = handle( data );
 
         // 需移除子元素中多余的Each。
-        this._alignFor( cleanChildren(el, each), size, data.length )
+        this._alignFor( cleanChildren(el, each), size, _arr.length )
         .forEach(
             (el, n) => {
                 let _i = parseInt( n / size );
                 // 当前域存储。
-                el[__scopeData] = loopCell( data[_i], _i, data );
+                el[__scopeData] = loopCell( _arr[_i], _i, data );
             }
         );
     },

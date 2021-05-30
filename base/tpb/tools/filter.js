@@ -83,7 +83,7 @@ const Filter = {
      *   yy-M-d h:m:s => 17-2-8 16:49:9
      * 注记：
      * - 借用Date的JSON标准格式分解合成。
-     * - 输出的是本地时间。JSON仅为借用（假借）。
+     * - 输出的是本地时间。JSON仅为借用。
      * @param  {String|Number|Date} date 日期表达
      * @param  {String} fmt 格式串
      * @return {String}
@@ -160,7 +160,7 @@ const
     // 2017-02-06T15:29:01.933Z
     __dateJSON = /^(\d{4})-(\d{2})-(\d{2})T(\d+):(\d+):(\d+)\.(\d+)Z$/,
 
-    // 时区与UTC毫秒差
+    // 时区与UTC差（毫秒）
     __timeOffset = new Date().getTimezoneOffset() * 60000,
 
     // date格式合法词匹配

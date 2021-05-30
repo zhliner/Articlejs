@@ -89,6 +89,8 @@ Global: [
     // 录入框铺满
     // 需由样式定义容器范围（position:relative）。
     // 适用：主面板、模态框。
+    // 提示：
+    // 主面板模板中有操作提示，如果修改注意同步信息。
     {
         "key": [
             "alt:f",    // windows
@@ -712,12 +714,15 @@ Content: [
 Slave: [
     {
         // 内容直接提交。
+        // 提示：
+        // 主面板模板中有操作提示，如果修改注意同步信息。
         "key":      "ctrl:enter",
         "command":  "input.submit",
     },
     {
         // 内容直接提交。
         // 若录入框充满则恢复正常。
+        // 提示：（同上）
         "key":      "ctrl+shift:enter",
         "command":  "input.submit2",
     },

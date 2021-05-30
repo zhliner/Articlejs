@@ -214,7 +214,7 @@
                     <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
                 </label>
             </header>
-            <textarea name="content" spellcheck="false" class="_code" placeholder="空白 特性删除&#10;''  空串值标识"></textarea>
+            <textarea name="content" spellcheck="false" class="_code" placeholder="空白 特性删除&#10;''  空串值（特性存在）"></textarea>
         </div>
         <aside>
             <div class="_option">
@@ -577,7 +577,7 @@
                 <label>置顶区</label>
                 <!-- 管理时显示，完成后隐藏（hidden） -->
                 <span id="_urbox" data-pbo="hidden"
-                    on="off|evo(3) hide $('main/') $('#nav-tops');
+                    on="off|evo(3) hide $('main/');
                         on|evo(3) hide(false) $('main/');
                         reset|$$('/b') disable;"
                     by="Kit.shEdok;

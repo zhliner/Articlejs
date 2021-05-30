@@ -987,6 +987,20 @@ class NodeVary {
 
 
     /**
+     * 对齐插入。
+     * 目标集与数据集一一对应插入。
+     * @param {Element} to 目标元素集
+     * @param {String} meth 插入方法（prepend|append|fill|before|after|replace）
+     * @param {[Node|[Node]]} data 待插入节点集组
+     */
+    alignInsert( tos, meth, data ) {
+        tos.forEach(
+            (to, i) => $[meth]( to, data[i] )
+        );
+    }
+
+
+    /**
      * 逆序化。
      * 会保持元素原始的位置。
      * @param {[[Element]]} els2 兄弟元素集组
@@ -1491,7 +1505,7 @@ function textAppend2( els2, data, meth ) {
 
 /**
  * 移动内添加操作。
- * 因为是“移动”逻辑，保留可能绑定的事件处理器。
+ * 因为是“移动”逻辑，保留可能绑定的事件处理器，
  * 当然这只是一种模拟（克隆）。
  * 检查：
  * - 焦点元素不可选取。
@@ -1511,9 +1525,6 @@ function textAppend2( els2, data, meth ) {
  * @return {[Instance]} 操作实例集
  */
 function moveAppend( $els, to, ref, empty ) {
-    if ( $els.length === 0 ) {
-        return;
-    }
     if ( __ESet.has(to) ) {
         return help( 'cannot_selected', to );
     }
@@ -1525,14 +1536,14 @@ function moveAppend( $els, to, ref, empty ) {
     }
     let _op1 = clearSets(),
         _op2 = empty && new DOMEdit( () => $.empty(to) ),
-        $new = appendData( ref, to, $els.clone(true, true, true) );
+        _new = appendData( ref, to, $els.clone(true, true, true) );
 
     return [
         new HotEdit(),
         _op1, _op2,
         new DOMEdit( () => $els.remove() ),
-        $new.length && new DOMEdit( __Edits.insert, ref, to, $new ),
-        ...appendContent( to, $new )
+        _new.length && new DOMEdit( __Edits.insert, ref, to, _new ),
+        ...appendContent( to, _new )
     ];
 }
 
@@ -1542,7 +1553,6 @@ function moveAppend( $els, to, ref, empty ) {
  * 不支持元素上绑定的事件处理器克隆，
  * 如果需要，用户应当有重新绑定的方式（OBT特性会正常克隆）。
  * 检查：
- * - 单选取自我填充忽略。
  * - 目标可以向内添加内容。
  * 操作：
  * - 清空选取集选取。
@@ -1550,32 +1560,26 @@ function moveAppend( $els, to, ref, empty ) {
  * - 插入新元素集。
  * - 新元素集自动选取。
  * - 新元素集首个成员为焦点。
- * @param  {Collector} $els 当前选取集
+ * @param  {[Element]} els 当前选取克隆集
  * @param  {Element} to 目标容器元素
  * @param  {Element} ref 同级参考元素，可选
  * @param  {Boolean} empty 是否清空容器，可选
  * @return {[Instance]} 操作实例集
  */
-function cloneAppend( $els, to, ref, empty ) {
-    if ( !$els.length ) {
-        return;
-    }
-    if ( __ESet.size === 1 && __ESet.has(to) ) {
-        return;  // 自我填充
-    }
+function cloneAppend( els, to, ref, empty ) {
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
     }
     let _op1 = clearSets(),
         _op2 = empty && new DOMEdit( () => $.empty(to) ),
-        $new = appendData( ref, to, $els.clone() );
+        _new = appendData( ref, to, els );
 
     return [
         new HotEdit(),
         _op1,
         _op2,
-        $new.length && new DOMEdit( __Edits.insert, ref, to, $new ),
-        ...appendContent( to, $new )
+        _new.length && new DOMEdit( __Edits.insert, ref, to, _new ),
+        ...appendContent( to, _new )
     ];
 }
 
@@ -1586,17 +1590,17 @@ function cloneAppend( $els, to, ref, empty ) {
  * - 内容元素容器仅需添加容器元素到选取。
  * - 非内容元素容器会选取全部数据元素集，且定位焦点到首个成员。
  * @param  {Element} to 容器元素
- * @param  {[Element]} $els 数据元素集
+ * @param  {[Element]} els 数据元素集
  * @return {[Instance]}
  */
-function appendContent( to, $els ) {
-    if ( !$els.length ) {
+function appendContent( to, els ) {
+    if ( !els.length ) {
         return [];
     }
     if ( isContent(to) ) {
         return [ new ESEdit(() => __ESet.add(to)) ];
     }
-    return [ pushes($els), new HotEdit($els[0]) ];
+    return [ pushes(els), new HotEdit(els[0]) ];
 }
 
 
@@ -1610,17 +1614,39 @@ function appendContent( to, $els ) {
  * 因此会带来先前插入节点的引用丢失问题，导致链式Redo无效。
  * 所以需要用克隆的源数据预先构造出新节点，再用它们重新append。
  *
- * @param {Element|null} ref 兄弟参考
- * @param {Element} box 父容器元素
- * @param {Collector} $data 数据集（克隆版）
+ * @param  {Element|null} ref 兄弟参考
+ * @param  {Element} box 父容器元素
+ * @param  {[Value]} data 数据集（应独立）
+ * @return {[Element]}
  */
-function appendData( ref, box, $data ) {
+function appendData( ref, box, data ) {
     return cleanCall( () =>
-        $data
-        .map( nd => children(ref, box, {}, nd) ).flat()
-        .map( nd => nd && $.remove(nd) )
-        .filter( nd => nd )
+        data.map( nd => children(ref, box, {}, nd) )
+            .flat()
+            .map( nd => nd && $.remove(nd) )
+            .filter( nd => nd )
     );
+}
+
+
+/**
+ * 获取目标位置的合法节点集。
+ * @param  {Element} to 目标元素
+ * @param  {String} meth 插入方法
+ * @param  {[Node]} data 待插入数据集
+ * @return {[Element]} 结果集
+ */
+function validNodes( to, meth, data ) {
+    let _map = {
+        // meth: [ ref, box ]
+        'prepend': [ null, to ],
+        'append':  [ null, to ],
+        'fill':    [ null, to ],
+        'before':  [ to, to.parentElement ],
+        'after':   [ to, to.parentElement ],
+        'replace': [ to, to.parentElement ],
+    };
+    return appendData( ..._map[meth], data );
 }
 
 
@@ -2603,6 +2629,40 @@ function canAppend( el ) {
 
 
 /**
+ * 是否支持meth方法。
+ * @param  {Element} el 目标元素
+ * @param  {String} meth 插入方法
+ * @return {Boolean}
+ */
+function canInsert( el, meth ) {
+    let _box = {
+        'prepend': el,
+        'append':  el,
+        'fill':    el,
+        'before':  el.parentElement,
+        'after':   el.parentElement,
+        'replace': el.parentElement,
+    };
+    return canAppend( _box[meth] );
+}
+
+
+/**
+ * 找到不可插入的目标元素。
+ * 返回null表示全部支持。
+ * @param  {[Element]} els 目标元素集
+ * @param  {String} meth 插入方法
+ * @return {Element|null}
+ */
+function invalidInsert( els, meth ) {
+    for ( const el of els ) {
+        if ( !canInsert(el, meth) ) return el;
+    }
+    return null;
+}
+
+
+/**
  * 构造元素集类型值集
  * @param  {[Element]} els 元素集
  * @return {Set<Number>}
@@ -3107,6 +3167,23 @@ function wrongNodesAll( els ) {
         let _buf = wrongNodes( box, $.contents(box) );
         if ( _buf ) return _buf;
     }
+}
+
+
+/**
+ * 按类型节点集。
+ * @param  {String} type 创建类型（text|html）
+ * @param  {String} data 文本或源码数据
+ * @return {Collector}
+ */
+function $typeNodes( type, data ) {
+    switch ( type ) {
+        case 'text':
+            return $( $.Text(data, true) );
+        case 'html':
+            return $( $.fragment(data).childNodes );
+    }
+    throw new Error( "can't to here." );
 }
 
 
@@ -4622,10 +4699,13 @@ export const Edit = {
      * 遵循编辑器默认的内插入逻辑（逐层测试构建）。
      */
     elementFill() {
-        let _box = __EHot.get();
-        if ( !_box ) return;
+        let _box = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = moveAppend( $(__ESet), _box, null, true );
+        if ( !_box || !$els.length ) {
+            return;
+        }
+        let _ops = moveAppend( $els, _box, null, true );
 
         _ops && historyPush( ..._ops );
     },
@@ -4635,10 +4715,16 @@ export const Edit = {
      * 向内填充（克隆）。
      */
     elementCloneFill() {
-        let _box = __EHot.get();
-        if ( !_box ) return;
+        let _box = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = cloneAppend( $(__ESet), _box, null, true );
+        if ( !_box || !$els.length ) {
+            return;
+        }
+        if ( __ESet.size === 1 && __ESet.has(_box) ) {
+            return;  // 自我填充
+        }
+        let _ops = cloneAppend( $els.clone(), _box, null, true );
 
         _ops && historyPush( ..._ops );
     },
@@ -4648,10 +4734,13 @@ export const Edit = {
      * 向内末尾添加（移动）。
      */
     elementAppend() {
-        let _box = __EHot.get();
-        if ( !_box ) return;
+        let _box = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = moveAppend( $(__ESet), _box );
+        if ( !_box || !$els.length ) {
+            return;
+        }
+        let _ops = moveAppend( $els, _box );
 
         _ops && historyPush( ..._ops );
     },
@@ -4661,10 +4750,13 @@ export const Edit = {
      * 向内末尾添加（克隆）。
      */
     elementCloneAppend() {
-        let _box = __EHot.get();
-        if ( !_box ) return;
+        let _box = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = cloneAppend( $(__ESet), _box );
+        if ( !_box || !$els.length ) {
+            return;
+        }
+        let _ops = cloneAppend( $els.clone(), _box );
 
         _ops && historyPush( ..._ops );
     },
@@ -4674,14 +4766,14 @@ export const Edit = {
      * 同级前插入（移动）。
      */
     elementBefore() {
-        let _to = __EHot.get();
-        if ( !_to ) return;
+        let _to = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = moveAppend(
-                $(__ESet),
-                _to.parentElement,
-                _to
-            );
+        if ( !_to || !$els.length ) {
+            return;
+        }
+        let _ops = moveAppend( $els, _to.parentElement, _to );
+
         _ops && historyPush( ..._ops );
     },
 
@@ -4690,14 +4782,14 @@ export const Edit = {
      * 同级前插入（克隆）。
      */
     elementCloneBefore() {
-        let _to = __EHot.get();
-        if ( !_to ) return;
+        let _to = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = cloneAppend(
-                $(__ESet),
-                _to.parentElement,
-                _to
-            );
+        if ( !_to || !$els.length ) {
+            return;
+        }
+        let _ops = cloneAppend( $els.clone(), _to.parentElement, _to );
+
         _ops && historyPush( ..._ops );
     },
 
@@ -4706,14 +4798,14 @@ export const Edit = {
      * 同级后插入（移动）。
      */
     elementAfter() {
-        let _to = __EHot.get();
-        if ( !_to ) return;
+        let _to = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = moveAppend(
-                $(__ESet),
-                _to.parentElement,
-                $.nextNode( _to )
-            );
+        if ( !_to || !$els.length ) {
+            return;
+        }
+        let _ops = moveAppend( $els, _to.parentElement, $.nextNode(_to) );
+
         _ops && historyPush( ..._ops );
     },
 
@@ -4722,14 +4814,14 @@ export const Edit = {
      * 同级后插入（克隆）。
      */
     elementCloneAfter() {
-        let _to = __EHot.get();
-        if ( !_to ) return;
+        let _to = __EHot.get(),
+            $els = $( __ESet );
 
-        let _ops = cloneAppend(
-                $(__ESet),
-                _to.parentElement,
-                $.nextNode( _to )
-            );
+        if ( !_to || !$els.length ) {
+            return;
+        }
+        let _ops = cloneAppend( $els.clone(), _to.parentElement, $.nextNode(_to) );
+
         _ops && historyPush( ..._ops );
     },
 
@@ -5155,16 +5247,38 @@ export const Edit = {
     /**
      * 脚本执行结果插入。
      * 如果位置未定义（空串），则简单忽略。
-     * 提交的错误信息也可以被执行插入。
+     * 结果文本作为单一数据被复制应用到每一个选取的元素。
+     * 约束：
+     * 判断目标位置是否合法，合法则可简单插入，
+     * 若目标位置不合法，用数据创建一个默认的合法单元（create.js模块）。
+     * 数据：
+     * - 文本类型时，创建为文本节点（换行有效）。
+     * - 源码类型时，顶层的平行节点逐一判断取用或新建。
+     * @data: String 结果文本
      * @param  {String} type 内容类型（text|html）
      * @param  {String} where 插入位置（6种基本方法）
      * @return {void}
      */
     insResult( evo, type, where ) {
-        if ( !where ) {
+        let _tos = [...__ESet];
+
+        if ( !_tos.length || !where || !evo.data.trim() ) {
             return;
         }
-        window.console.info( evo.data, type, where );
+        let _bad = invalidInsert( _tos, where );
+
+        if ( _bad ) {
+            return help( 'cannot_append', _bad );
+        }
+        let $tmp = $typeNodes( type, evo.data ),
+            _op1 = clearSets(),
+            _els2 = _tos.map( to => validNodes(to, where, $tmp.clone()) );
+
+        historyPush(
+            new HotEdit(),
+            _op1,
+            new DOMEdit( __Edits.alignInsert, _tos, where, _els2 )
+        );
     },
 
     __insResult: 1,
@@ -6175,7 +6289,7 @@ export const Kit = {
      * 目标为转换到的单元名称。
      * 注记：
      * 模板中保证选取集转换到的可用清单合法。
-     * @data: String
+     * @data: String 转换目标名
      * @return {void}
      */
     convert( evo ) {
