@@ -236,13 +236,13 @@ export class ECursor {
 
         if ( _ok ) {
             if ( _cc.nodeType === 3 && rng.endOffset === 0 ) {
-                // 向后移动一个字符，
+                // 技巧：向后移动一个字符。
                 // 避免移除光标元素时，内部规范化导致外部规范化的引用失效。
-                rng.setEnd( _cc, 1 );
+                rng.setEnd( rng.endContainer, 1 );
             }
             rng.collapse( false );
 
-            // 上面已保证插入点前存在文本，不会新新空文本节点。
+            // 上面已保证插入点前存在文本，不会新建空文本节点。
             rng.insertNode( this._cel );
         }
         rng.detach();

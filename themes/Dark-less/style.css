@@ -227,7 +227,8 @@ aside#help {
 }
 
 .___Panel textarea,
-.___Panel pre._code {
+.___Panel pre._code,
+.___Panel ol._code {
     color: #ccc;
     padding: 2px 2px 2px 5px;
     flex: 1 1 auto;
@@ -353,6 +354,19 @@ aside#help {
     line-height: 20px;
     background: local url('images/line20.png') repeat #444;
     border: 1px #666 solid;
+}
+.___Panel ol._code {
+    border: 1px #666 solid;
+    padding-left: 34px;
+    padding-right: 0;
+    background-color: #243438;
+    white-space: inherit;
+}
+.___Panel ol._code > li {
+    background-color: #444;
+    outline: none;
+    border-bottom: 1px gray solid;
+    padding: 2px 1px;
 }
 .___Panel ._prop li>span {
     max-height: 16em;
@@ -1380,24 +1394,24 @@ menu._cells code {
 .Attr header._tips {
     display: grid;
     gap: 1px;
-    color: #ddd;
+    color: #62f448;
     margin-bottom: 3px;
 }
 .Attr header._tips > label {
     display: grid;
-    grid-template-columns: 32px auto;
-    background-color: #135d6c;
-    border-top-right-radius: 22px;
+    grid-template-columns: 35px auto;
+    background-color: #666;
+    border-radius: 10px 0 0;
 }
 .Attr header._tips b {
-    font-weight: bold;
-    background-color: #444;
     font-size: 12px;
+    background-color: #225863;
+    border-radius: inherit;
 }
 .Attr header._tips input {
     border: none;
     background-color: transparent;
-    color: #bbb;
+    color: #ddd;
     padding-right: 15px;
 }
 

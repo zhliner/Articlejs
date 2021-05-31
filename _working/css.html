@@ -111,7 +111,7 @@
     <!--执行结果：
         result 结果数据导入（上级运行时）。
         error  传递出错信息提示。 -->
-    <form class="_page _script" tpl-name="script:result" data-pbo="lost"
+    <form class="_page _script" tpl-name="script:result" data-pbo=""
         on="submit|avoid $('/pre') text value('type where');
             shsave|ev('detail') dup pass;
             reset;
@@ -188,164 +188,6 @@
             <button type="submit">确定</button>
             <button type="reset">重置</button>
         </div>
-    </form>
-
-    <!--脚本历史：
-        submit 搜索过滤，空串搜索显示全部。
-        click  stopAll 置顶后按钮变化，避免立即触发取消置顶操作。
-        nodeok 初始载入/展示置顶代码清单，一次即可。-->
-    <form class="_page _script" data-pbo="" tpl-name="script:history"
-        on="submit|avoid value('words');
-            click(b[role=top])|stopAll evo(2) parent attr('-sid');
-            click(b[role=untop])|stop evo(2) parent attr('-sid');
-            ^nodeok(~)|v.shtops;
-            click(b[role=del])|stop evo(2) parent dup attr('-sid');
-            ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread"
-        by="Kit.shsearch;
-            Kit.topsh ('untop') evo(2) pop;
-            Kit.untop ('top') evo(2) pop;
-            -;
-            Kit.delsh(_1);
-            Kit.shinit(_4)"
-        to="#nav-misc|trigger('reset');
-            -|@role;
-            -|@role;
-            #nav-tops|trigger('reset')">
-        <header>
-            <h4>脚本历史</h4>
-            <b class="_close" title="关闭">✕</b>
-        </header>
-        <!-- 注：$$('/>*') 确定为3个元素 -->
-        <main class="_history"
-            on="@mousemove|movementY evo(3) $$('/>*') spread;
-                @mouseup|movementY(null);
-                click(li>code)|stop evo(2) attr('title');
-                tophei|ev('detail')"
-            by="Kit.sh2panel(_4) spread add('px');
-                -;
-                Kit.shcode"
-            to="/._down|%max-height|goto('tophei', _1);
-                |off('mousemove');
-                .Modal/|trigger('cancel');
-                /._top|height">
-            <!--内置限高：
-                避免初始即溢出（无法通过拖拽调整）。 -->
-            <div class="_top" style="height: 35%;"
-                on="page|ev('detail')"
-                to="/ul|replace">
-                <div class="_bar">
-                    <label>置顶区</label>
-                    <!-- 管理时显示，完成后隐藏（hidden） -->
-                    <span data-pbo="hidden"
-                        on="off|evo(3) hide $('main/') $('#nav-tops');
-                            on|evo(3) hide(false) $('main/');
-                            reset|$$('/b') disable;"
-                        by="Kit.shEdok(_1);
-                            Kit.shEdin"
-                        to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit');
-                            |trigger('reset')|fire('main/._search', 'off')">
-                        <!--撤销：成功后会激活Redo。-->
-                        <b id="sh-undo" title="撤消" data-pbo="disabled"
-                            on="click|evo(3) disabled end;
-                                state|evo(1) ev('detail') disable(_1);
-                                enable|evo(1) disable(0)"
-                            by="Kit.shUndo"
-                            to="|trigger('state');
-                                #sh-redo|trigger('enable')">↶</b>
-                        <!--重做：成功后会激活Undo。-->
-                        <b id="sh-redo" title="重做" data-pbo="disabled"
-                            on="click|evo(3) disabled end;
-                                state|evo(1) ev('detail') disable(_1);
-                                enable|evo(1) disable(0)"
-                            by="Kit.shRedo"
-                            to="|trigger('state');
-                                #sh-undo|trigger('enable')">↷</b>
-                    </span>
-                    <!-- click avoid 避免提交逻辑 -->
-                    <button type="button" data-op="off"
-                        on="click|avoid $$('main/li>b') lose(2) (['on', 'off']) ('_edit') (['管理', '完成']);
-                            bstate|evo(3) attr('-op')"
-                        to="|^text toggleClass ^-op|goto('bstate');
-                            1/span|trigger(_1)">管理</button>
-                </div>
-                <!--置顶区代码清单
-                    click label单击即可编辑。
-                    blur  失焦即编辑确认。
-                    keydown 键入Enter也可确认。 -->
-                <ul id="sh-tops" class="_list" tpb-for
-                    on="blur(label)|evo(2) parent attr('-sid') evo(2) text;
-                        click(label)|stop (true);
-                        keydown(label)|ev('key') pass('Enter') avoid evo(2) blur"
-                    by="Kit.shlabel(_1) (false)"
-                    to="=|@contenteditable;
-                        =|@contenteditable|focus">
-                    <li _data-sid="$.shid">
-                        <label _="($.name || '单击修改')">脚本片段名</label>
-                        <code _title="$.code" _="$.code|cut($.cmax)">代码：单击提取并导入脚本录入框。</code>
-                        <time _="$.datetime">时间戳</time>
-                        <b data-pbo="lost" role="untop" title="取消置顶"><i></i></b>
-                        <b data-pbo="lost" role="del">删除</b>
-                    </li>
-                </ul>
-                <!-- evn:page 触发上层换页，注意选择器定位通用（事件会被克隆） -->
-                <nav id="nav-tops"
-                    on="click(b)|evo(2) dup disabled end attr('-v') evo(3) pop;
-                        reset|evo(3) ev('detail');
-                        state|evo(3) v.shnav"
-                    by="Kit.shpage(_1);
-                        Kit.shconf(_1) spread"
-                    to="|trigger('state');
-                        (/>b)|disable|pop fire('/code', 'reset') pop fire('1/', 'page');
-                        (/>b)|disable|pop fire('/code', 'update')">
-                    <b data-v="0" title="首页"><i id="l-tobeg"></i></b>
-                    <b data-v="1" title="前一页"><i id="l-prevpage"></i></b>
-                    <b data-v="2" title="后一页"><i id="l-nextpage"></i></b>
-                    <b data-v="3" title="末页"><i id="l-toend"></i></b>
-                    <code
-                        on="update|ev('detail');
-                            reset|stop (1) ev('detail') pack(2)"
-                        to="/i|text;
-                            (/i)|text">(<i>1</i>/<i>0</i>)</code>
-                </nav>
-            </div>
-            <!--拖动：调整上下区域高度
-                上区：CSS:height
-                下区：CSS:max-height -->
-            <hr on="mousedown|avoid"
-                to="main/|bind('mousemove') once('mouseup')" />
-            <!-- 取消置顶无需移除 -->
-            <div class="_down"
-                on="page|ev('detail')"
-                to="/ol|replace">
-                <div class="_search"
-                    on="on|stop evo(3) disable(0) (false);
-                        off|stop evo(3) disable (true)"
-                    to="(/>*)|$disabled;
-                        (/>*)|$disabled">
-                    <input type="text" name="words" placeholder="空格：AND； 逗号：OR" />
-                    <button type="submit"></button>
-                </div>
-                <!--搜索结果清单
-                    label:title 置顶或曾经置顶的条目有效。 -->
-                <ol id="sh-list" class="_list" tpb-for>
-                    <li _data-sid="$.shid">
-                        <label _="($.name || '---')">[片段名称]</label>
-                        <code _title="$.code" _="$.code|cut($.cmax)">[代码]</code>
-                        <time _="$.datetime">[时间戳]</time>
-                        <b data-pbo="lost" role="untop" title="置顶" tpb-if="$.top"><i></i></b>
-                        <b data-pbo="lost" role="top" title="取消置顶" tpb-else><i></i></b>
-                        <!-- <b _role="$.top ? 'top' : 'untop'" _title="$.top ? '置顶' : '取消置顶'"><i></i></b> -->
-                        <b data-pbo="lost" role="del">删除</b>
-                    </li>
-                </ol>
-                <!-- 复用：#nav-tops 绑定的事件处理 -->
-                <nav id="nav-misc"
-                    on="^obted|$$('2/#nav-tops>*') $('2/#nav-tops');
-                        ^obted|(true)"
-                    to="|cloneEvent append(true, true);
-                        (/>b)|disable"></nav>
-            </div>
-        </main>
     </form>
 </div>
 
@@ -2898,12 +2740,12 @@
 <!-- 其它面板 ------------------------------------------------------------------->
 
     <h4>[面板] 特性</h4>
-    <div class="panel">
+    <div id="attribute" class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
                 <b>内容</b>
-                <b>样式</b>
                 <b class="_press">特性</b>
+                <b>样式</b>
                 <b>源码</b>
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
@@ -2917,6 +2759,8 @@
                     </div>
                     <select name="attrs" size="5" class="_list" tpb-for>
                         <option _="$">style</option>
+                        <!-- 通过on/by/to任一单词添加 -->
+                        <option _="$">on-by-to</option>
                     </select>
                 </div>
                 <div class="_body">
@@ -2924,22 +2768,42 @@
                         <!-- OBT: 分组对应提示 -->
                         <header class="_tips" data-pbo="">
                             <label data-pbo="">
-                                <b>on</b><input type="text" spellcheck="false" class="_code" disabled
-                                    value="^obted|evo(3) dup text clean('') split(',') str('#') dup str('background-color:') elem;" />
+                                <b>on</b>
+                                <textarea name="aon" rows="1" class="_code" disabled>^obted|evo(3) dup text clean('') split(',') str('#') dup str('background-color:') elem; </textarea>
                             </label>
                             <label data-pbo="">
-                                <b>by</b><input type="text" spellcheck="false" class="_code" disabled />
+                                <b>by</b>
+                                <textarea name="aby" rows="1" class="_code" disabled></textarea>
                             </label>
                             <label data-pbo="lost">
-                                <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
+                                <b>to</b>
+                                <textarea name="ato" rows="1" class="_code" disabled></textarea>
                             </label>
                         </header>
-                        <textarea name="content" spellcheck="false" class="_code"></textarea>
+                        <textarea name="content" spellcheck="false" class="_code" data-pbo="lost">
+<li contenteditable>
+    仅列表项内编辑
+</li>
+Enter 切换到下一行。友好：末行时可创建新行。
+Shift + Enter 创建新行。不支持<li>内换行。
+                        </textarea>
+                        <ol spellcheck="false" class="_code" data-pbo="">
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                            <li contenteditable="true"></li>
+                        </ol>
                     </div>
                     <aside>
-                        <div class="_option">
-                            <label>换行符
-                                <input type="text" name="nlchar" class="_char _code" value=";" />
+                        <div class="_option" data-pbo="lost">
+                            <label data-pbo="disabled">换行符
+                                <input type="text" name="nlchar" class="_char _code" value=";" disabled />
                             </label>
                         </div>
                         <div class="_submit" tpl-name="common:submit">
