@@ -794,6 +794,10 @@ Keys: {
     // [Key] + 上下箭头键
     tableCellx: 'Shift',
 
+    // BackSpace增强
+    // 代码框里加按该键向前删除全部缩进。
+    backspaceMore: 'Ctrl',
+
 
     // 以下适用编辑器内容区
 

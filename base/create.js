@@ -25,7 +25,7 @@
 //
 
 import { processProxy } from "./tpb/pbs.by.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, cloneElement } from "./base.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, cloneElement, sectionState } from "./base.js";
 import * as T from "./types.js";
 import { Sys } from "../config.js";
 
@@ -596,8 +596,8 @@ const Children = {
 
     /**
      * 正文区内容插入。
-     * 因为存在互斥的两种情况，故不支持默认单元创建。
-     * 即：内容需合法，否则简单忽略。
+     * 存在互斥的两种情况，判断情形创建目标单元。
+     * 注：纯内容件优先级较高。
      * @param {Element|null} ref 参考子元素
      * @param {Element} art 文章元素
      * @param {Element} opts.header 导言，可选
@@ -610,10 +610,11 @@ const Children = {
             ref,
             art,
             data,
-            () => sectionFitted( ref, art, data )
+            sectionItemHandler( ref, art, data )
         );
         cleanOptions( opts, 'header' );
 
+        // 可无条件结束。
         return result( header && insertHeader(art, header), _new, true );
     },
 
@@ -897,8 +898,6 @@ const Children = {
 ]
 .forEach(function( it ) {
     /**
-     * 内容必需合法，否则会简单忽略。
-     * 因此会无条件终止迭代。
      * @param {Element|null} ref 参考子元素
      * @param {Element} sec 片区元素
      * @param {Element|String|[Node]} opts.h2 标题元素或其内容
@@ -911,12 +910,12 @@ const Children = {
                 h2 && insertHeading( sec, T.H2, h2 ),
                 header && insertHeader( sec, header )
             ];
-        // 忽略第2个返回值
+        // 可直接终止，忽略第2个返回值。
         let [_new] = appendChild(
             ref,
             sec,
             data,
-            () => sectionFitted( ref, sec, data )
+            sectionItemHandler( ref, sec, data )
         );
         cleanOptions( opts, 'h2', 'header' );
 
@@ -992,9 +991,6 @@ const Children = {
 .forEach(function( its ) {
     /**
      * 到内容元素后会终止向下迭代。
-     * 可能有游离文本节点，需要规范化（就近处理）。
-     * 注记：
-     * 因为需要规范化内容，所以返回的是容器元素本身。
      * @param  {Element|null} ref 插入参考子元素
      * @param  {Element} el 内容根元素
      * @param  {String|Node|[Node]|DocumentFragment} data 内容数据
@@ -1007,7 +1003,6 @@ const Children = {
             data = dataCons( el, data );
         }
         insertChild( ref, el, data );
-        data && $.normalize( el );
 
         return result( null, data, true );
     };
@@ -1725,6 +1720,32 @@ function sectionsFitted( sec, n ) {
         el => sectionChange( el, n )
     );
     return sec;
+}
+
+
+/**
+ * 检查选择章节内条目创建器。
+ * 视当前章节容器的状态而定：
+ * - 0 如果仅包含通用项（h2, header, footer, hr），按纯内容件处理。
+ * - 1 如果仅包含纯内容件，创建默认内容件（<p>）。
+ * - 2 如果已包含规范的子章节，仅能创建子章节。
+ * - 3 如果已为混杂模式，不可再自动创建子单元（null）。
+ * @param  {Element} ref 条目参考元素
+ * @param  {Element} sec 章节容器
+ * @param  {Node|[Node]} data 内容数据
+ * @return {Function|null} 创建函数
+ */
+function sectionItemHandler( ref, sec, data ) {
+    let _n = sectionState( sec );
+
+    switch ( _n ) {
+        case 0:
+        case 1:
+            return () => create( T.P, null, data );
+        case 2:
+            return () => sectionFitted( ref, sec, data );
+    }
+    return null;
 }
 
 

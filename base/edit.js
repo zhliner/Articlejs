@@ -536,8 +536,9 @@ class MiniEdit {
 
         // 含可能的光标占位元素。
         let _new = $.clone( el, true, true, true );
+        __eCursor.clean( el );
 
-        return __eCursor.clean( el ), _new;
+        return _new;
     }
 
 
@@ -1594,9 +1595,6 @@ function cloneAppend( els, to, ref, empty ) {
  * @return {[Instance]}
  */
 function appendContent( to, els ) {
-    if ( !els.length ) {
-        return [];
-    }
     if ( isContent(to) ) {
         return [ new ESEdit(() => __ESet.add(to)) ];
     }
@@ -1642,6 +1640,8 @@ function validNodes( to, meth, data ) {
         'prepend': [ null, to ],
         'append':  [ null, to ],
         'fill':    [ null, to ],
+        // ref仅用于创建参考，
+        // 最后的数据会脱离DOM。
         'before':  [ to, to.parentElement ],
         'after':   [ to, to.parentElement ],
         'replace': [ to, to.parentElement ],
@@ -3181,7 +3181,8 @@ function $typeNodes( type, data ) {
         case 'text':
             return $( $.Text(data, true) );
         case 'html':
-            return $( $.fragment(data).childNodes );
+            // 忽略顶层的文本。
+            return $( $.fragment(data).children );
     }
     throw new Error( "can't to here." );
 }
@@ -5260,9 +5261,10 @@ export const Edit = {
      * @return {void}
      */
     insResult( evo, type, where ) {
-        let _tos = [...__ESet];
+        let _txt = evo.data.trim(),
+            _tos = [...__ESet];
 
-        if ( !_tos.length || !where || !evo.data.trim() ) {
+        if ( !_tos.length || !where || !_txt ) {
             return;
         }
         let _bad = invalidInsert( _tos, where );
@@ -5270,7 +5272,7 @@ export const Edit = {
         if ( _bad ) {
             return help( 'cannot_append', _bad );
         }
-        let $tmp = $typeNodes( type, evo.data ),
+        let $tmp = $typeNodes( type, _txt ),
             _op1 = clearSets(),
             _els2 = _tos.map( to => validNodes(to, where, $tmp.clone()) );
 
@@ -5676,7 +5678,7 @@ export const Kit = {
      * 片区内容混杂检查。
      * 即片区内是否同时包含子片区和内容件，这是不规范的结构。
      * 目标：暂存区/栈顶1项。
-     * 目标为插入位置定义（siblings|children）。
+     * @data String 插入位置定义（siblings|children）。
      * @return {Boolean} 是否混杂
      */
     ismixed( evo ) {
@@ -5755,11 +5757,12 @@ export const Kit = {
      * @param  {String} key 键名（上面3个之一）
      * @param  {Range} rng 当前光标点范围
      * @param  {Element} el Tab空格数配置控件（<input>）
+     * @param  {Boolean} bkall 向前移除增强（全部缩进）
      * @return {String}
      */
-    k3edit( evo, key, rng, el ) {
+    k3edit( evo, key, rng, el, bkall ) {
         let _lp = rangeTextLine( rng, true, evo.data ),
-            _n = el && $.val( el );
+            _n = el && +$.val( el );
 
         switch ( key ) {
             case 'Enter':
@@ -5768,9 +5771,12 @@ export const Kit = {
             case 'Tab':
                 return tabSpaces( _lp, _n );
         }
-        // Blankspace
-        // 选取一个缩进序列即可。
+        // Backspace
+        // 选取一个缩进序列，加按增强键选取全部缩进。
         if ( _n > 0 && !rng.toString() && _lp.endsWith(' '.repeat(_n)) ) {
+            if ( bkall ) {
+                _n = _lp.length;
+            }
             rng.setStart( rng.endContainer, rng.endOffset-_n );
             rng.setEnd( rng.endContainer, rng.endOffset );
         }

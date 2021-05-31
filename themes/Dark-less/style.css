@@ -127,13 +127,16 @@ aside#help {
 .___Content main tr >*:empty::after {
     font-size: 0.8em;
 }
-.___Content main hr::after,
-.___Content main track::after,
-.___Content main source::after,
-.___Content main img::after,
-.___Content main div[role=blank]::after {
-    display: none;
+/* 部分提示消除 */
+.___Content main hr:empty::after,
+.___Content main br:empty::after,
+.___Content main track:empty::after,
+.___Content main source:empty::after,
+.___Content main img:empty::after,
+.___Content main div[role=blank]:empty::after {
+    content: none;
 }
+/* 扩展方便点选 */
 .___Content main hr:hover {
     min-height: 1.4em;
 }

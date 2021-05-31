@@ -964,6 +964,7 @@ export function sectionChange( sec, n ) {
 
 /**
  * 检查章节内容状态。
+ * 也适用文章（<article>）根容器。
  * 返回值：{
  *      0   仅包含通用项（h2, header, footer, hr）
  *      1   除通用项外，纯内容件

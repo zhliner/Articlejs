@@ -55,9 +55,8 @@
         nodeok:     ev => new Nodesdone( [ev.target] ),  // 冗余（方便用户）
         detach:     ev => new Remove( ev.target ),
         emptied:    ev => new Emptied( ev.target, ev.detail ),
-        // 事前拦截。
-        // 禁用默认行为以返回false
-        normalize:  ev => ev.preventDefault() || new Normalize( ev.target ),
+        // 事前提取信息。
+        normalize:  ev => new Normalize( ev.target ),
 
         // 事件绑定变化。
         bound:      ev => new Bound( ev.target, ...ev.detail ),
@@ -469,9 +468,14 @@ class Normalize {
 
 //
 // 相邻文本节点处理。
-// 保留首个节点引用，与浏览器的处理相似。
-// 注：
-// 上级用户已调用了Event.preventDefault()。
+// 涉及到划选区域的问题，规范化由浏览器自己执行。
+// 注记：
+// 浏览器执行normalize()后，会维持原选取范围（Range）。
+// 备忘：
+// 如下手动处理方式会导致范围变化，因此不应采用。
+// - 保留首个文本节点引用（同浏览器行为）。
+// - 移除首个文本节点之外的相邻节点。
+// - 首个文本节点赋值textContent属性为wholeText。
 //
 class Texts {
     /**
@@ -479,24 +483,18 @@ class Texts {
      * @param {[Text]} nodes 节点集
      */
     constructor( nodes ) {
-        let _ref = nodes.shift(),
-            _all = _ref.wholeText,
-            _txt = _ref.textContent;
+        let _nd0 = nodes.shift(),
+            _tx0 = _nd0.textContent;
 
-        nodes.forEach(
-            nd => nd.remove()
-        );
-        _ref.textContent = _all;
-
-        this._node = _ref;
-        this._text = _txt;
+        this._ref = _nd0;
+        this._txt0 = _tx0;
         this._data = nodes;
     }
 
 
     back() {
-        this._node.textContent = this._text;
-        this._node.after( ...this._data );
+        this._ref.textContent = this._txt0;
+        this._ref.after( ...this._data );
     }
 }
 

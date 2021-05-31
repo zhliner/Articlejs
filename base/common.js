@@ -225,16 +225,24 @@ export class ECursor {
     /**
      * 植入光标。
      * 在容器元素内植入光标占位元素。
-     * 如果范围对象不在容器元素内则不会植入（返回false）。
+     * 如果范围对象不在容器元素内则不会置入（返回false）。
      * @param  {Element} box 容器元素
      * @param  {Range} rng 范围对象
      * @return {Element|false} box
      */
     cursor( box, rng ) {
-        let _ok = $.contains( box, rng.commonAncestorContainer );
+        let _cc = rng.commonAncestorContainer,
+            _ok = $.contains( box, _cc );
 
         if ( _ok ) {
+            if ( _cc.nodeType === 3 && rng.endOffset === 0 ) {
+                // 向后移动一个字符，
+                // 避免移除光标元素时，内部规范化导致外部规范化的引用失效。
+                rng.setEnd( _cc, 1 );
+            }
             rng.collapse( false );
+
+            // 上面已保证插入点前存在文本，不会新新空文本节点。
             rng.insertNode( this._cel );
         }
         rng.detach();
@@ -300,6 +308,8 @@ export class ECursor {
 
         if ( _cur ) {
             _cur.remove();
+            // 内部规范化，
+            // _cur前已存在有效文本节点，因此不会破坏外部引用。
             el.normalize();
         }
         return _cur && el;

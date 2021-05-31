@@ -278,15 +278,18 @@
 </form>
 
 
-<!-- 脚本 -->
+<!--脚本
+    submit 提交执行代码，打开结构模态框。
+    nodeok focus 友好：存储代码框光标便于历史代码插入。
+    shcode 历史记录模态框回送数据传入。 -->
 <form class="Script" tpl-name="slave:script"
     on="submit|avoid $('/pre._code') text value('runbox itext ihtml');
-        ^nodeok(~)|evo(3);
+        nodeok(~)|evo(3);
         shcode|ev('detail')"
     by="Ed.runScript(_) dup pass ('script:result') node;
         Kit.spinit"
     to="#g-modal|trigger('open')|pop fire('#g-modal>._script', 'result');
-        -;
+        /pre._code||focus;
         /pre._code|trigger('codes')">
     <div class="_env"
         on="click([name=runbox])|evo(2) val str('run:') node"
