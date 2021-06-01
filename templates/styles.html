@@ -226,7 +226,7 @@
             state2val: 取值反馈。-->
         <select name="margin" size="5" multiple class="_list" data-slr="[name=ps]" obt-src="obts/state2val.json" tpl-name="item:padding"
             on="^obted|$$('/option') text join(' ')"
-            to="1/[name=ps]|val|evo(1) remove">
+            to="1/[name=ps]|val|evo(1) delay remove">
             <option title="填充">padding</option>
             <option title="顶填充">padding-top</option>
             <option title="右填充">padding-right</option>

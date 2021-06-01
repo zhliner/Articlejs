@@ -259,10 +259,10 @@ aside#help {
 .___Panel button {
     padding: 1px 20px 2px;
     border: 1px #5798a5 solid;
-    border-radius: 2px;
+    border-radius: 4px;
     font-size: 14px;
     outline: none;
-    background-color: #f3f3f3;
+    min-width: 78px;
 }
 .___Panel input {
     outline: none;
@@ -385,13 +385,15 @@ aside#help {
 .___Panel ._submit > label {
     display: block;
 }
-.___Panel ._submit > button {
-    background-color: #1b839c;
+.___Panel ._submit button,
+.___Panel ._btn2 > button {
+    background-color: #187890;
     color: #fff;
     white-space: nowrap;
 }
-.___Panel ._submit button:hover {
-    background-color: #1a697c;
+.___Panel ._submit button:hover,
+.___Panel ._btn2 > button:hover {
+    background-color: #156477;
 }
 
 /* 图标按钮 */
@@ -1371,20 +1373,20 @@ menu._cells code {
  ****************************************************************************/
 .Attr ._name {
     display: grid;
-    grid-template-columns: auto 30px;
+    grid-template-columns: auto 35px;
     margin-bottom: 5px;
     margin-top: 1px;
 }
 .Attr ._name ._add {
     border: 1px #93c8e2 solid;
-    background-color: #35bf58;
-    border-radius: 0 3px 3px 0;
+    background-color: #279b8c;
+    border-radius: 0 16px 0 0;
     color: #fff;
-    margin-left: -3px;
+    margin-left: -2px;
     font-weight: bold;
 }
 .Attr ._name ._add:hover {
-    background-color: #0fd440;
+    background-color: #0cc066;
 }
 .Attr > ._body > ._main {
     flex: 5 5 400px;
@@ -1400,19 +1402,19 @@ menu._cells code {
 .Attr header._tips > label {
     display: grid;
     grid-template-columns: 35px auto;
-    background-color: #666;
-    border-radius: 10px 0 0;
+    border-radius: 18px 0 0;
+    background-color: #46525d;
 }
 .Attr header._tips b {
     font-size: 12px;
     background-color: #225863;
     border-radius: inherit;
 }
-.Attr header._tips input {
-    border: none;
+.Attr header._tips textarea {
+    background-image: none;
+    border-radius: 0;
     background-color: transparent;
-    color: #ddd;
-    padding-right: 15px;
+    color: #eee;
 }
 
 
@@ -1685,9 +1687,6 @@ menu._cells code {
 .Modal header > ._close:hover {
     color: #bbb;
 }
-.Modal button:hover {
-    background-color: #f9f9f9;
-}
 .Modal form > ._list {
     margin: 10px 30px;
 }
@@ -1696,11 +1695,16 @@ menu._cells code {
 }
 .Modal form > div:last-child {
     margin-top: auto;
-    padding: 20px 7% 35px;
+    padding: 3.7% 7.2% 5.9%;
     text-align: right;
 }
+.Modal ._btn2 {
+    border: 1px #d8d8d8 solid;
+    border-radius: 0 0 9px 9px;
+    background-color: #f6f6f6;
+}
 .Modal ._btn2 > button {
-    margin: auto 1em;
+    margin: auto 0.9em;
 }
 .Modal fieldset {
     border: 1px #93c8e2 solid;
@@ -1925,7 +1929,7 @@ menu._cells code {
     outline: none;
 }
 .Modal fieldset {
-    margin: 1.7em 0 0;
+    margin: 1.7em 0 5em;
 }
 .Modal ._result fieldset i {
     font-style: normal;
