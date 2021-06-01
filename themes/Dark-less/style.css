@@ -1392,25 +1392,29 @@ menu._cells code {
     flex: 5 5 400px;
 }
 
-/* obt提示头 */
-.Attr header._tips {
+.Attr ._obts {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.Attr ._obts header {
     display: grid;
     gap: 1px;
     color: #62f448;
     margin-bottom: 3px;
 }
-.Attr header._tips > label {
+.Attr ._obts header > label {
     display: grid;
     grid-template-columns: 35px auto;
     border-radius: 18px 0 0;
     background-color: #46525d;
 }
-.Attr header._tips b {
+.Attr ._obts header b {
     font-size: 12px;
     background-color: #225863;
     border-radius: inherit;
 }
-.Attr header._tips textarea {
+.Attr ._obts header textarea {
     background-image: none;
     border-radius: 0;
     background-color: transparent;

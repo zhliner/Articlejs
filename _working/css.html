@@ -47,7 +47,7 @@
         window.Kit = Kit;
         window.Render = Render;
 
-        Tpb.build( editor );
+        Tpb.build( attribute );
 
         // 测试数据
         // 置顶集
@@ -164,9 +164,8 @@
                     </select>
                 </span>
                 <!-- 隐藏不闪烁 -->
-                <span class="_where" data-pbo="lost" tpl-name="where:html"
-                    on="^obted|evo(3) delay remove (null)"
-                    to="|@-pbo">
+                <span class="_where" tpl-name="where:html"
+                    on="^obted|evo(3) delay remove">
                     <i>位置：</i>
                     <select name="where">
                         <option value=""> ------ </option>
@@ -2753,59 +2752,71 @@
             <form class="Attr" onsubmit="return false" tpl-name="slave:attr">
                 <div class="_roll">
                     <div class="_name">
+                        <!-- 注：obts可通过on/by/to任一单词添加 -->
                         <input type="text" name="attr" value="" />
                         <!-- ✚✛ -->
                         <input type="button" value="✛" class="_add" />
                     </div>
-                    <select name="attrs" size="5" class="_list" tpb-for>
-                        <option _="$">style</option>
-                        <!-- 通过on/by/to任一单词添加 -->
-                        <option _="$">on-by-to</option>
+                    <!--行为集：
+                        change  1.先判断插入适配的内容模板。
+                                2.提取元素特性值发送到内容更新。
+                        addnew  添加一个新特性，实时更新到源元素。
+                                注：实时创建避免切换丢失，最终的确定按钮完成清理动作。
+                        update  特性名清单初始设置（渲染方式）。 -->
+                    <select name="attrs" size="5" class="_list" tpb-for
+                        on="change|evo(3) prop('selected') attr('-tpl') or('attr:value') node;
+                            change|v.sels item(0) evo(3) val attr(_1);
+                            addnew|;
+                            update|"
+                        to="2/._main>*|replace;
+                            2/._main>*|trigger('setv')">
+                        <option>style</option>
+                        <option data-tpl="attr:obts" value="on">[on-by-to]</option>
+                        <option _data-tpl="($.tpl || null)" _value="$.value" _="$.name">[class]</option>
                     </select>
                 </div>
                 <div class="_body">
                     <div class="_main">
-                        <!-- OBT: 分组对应提示 -->
-                        <header class="_tips" data-pbo="">
-                            <label data-pbo="">
-                                <b>on</b>
-                                <textarea name="aon" rows="1" class="_code" disabled>^obted|evo(3) dup text clean('') split(',') str('#') dup str('background-color:') elem; </textarea>
-                            </label>
-                            <label data-pbo="">
-                                <b>by</b>
-                                <textarea name="aby" rows="1" class="_code" disabled></textarea>
-                            </label>
-                            <label data-pbo="lost">
-                                <b>to</b>
-                                <textarea name="ato" rows="1" class="_code" disabled></textarea>
-                            </label>
-                        </header>
-                        <textarea name="content" spellcheck="false" class="_code" data-pbo="lost">
-<li contenteditable>
-    仅列表项内编辑
-</li>
-Enter 切换到下一行。友好：末行时可创建新行。
-Shift + Enter 创建新行。不支持<li>内换行。
-                        </textarea>
-                        <ol spellcheck="false" class="_code" data-pbo="">
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                            <li contenteditable="true"></li>
-                        </ol>
+                        <!-- setv 设置值，分号切分换行友好。 -->
+                        <textarea name="attr" spellcheck="false" class="_code" tpl-name="attr:value"
+                            on="setv|ev('detail') or('') split(';') trim join(';\n')"
+                            to="|val"></textarea>
+                        <!-- setv 设置内容，自动处理OBT属性集。 -->
+                        <div class="_obts" tpl-name="attr:obts"
+                            on="^obted|evo(3) delay remove">
+                            <!-- OBT: 分组对应提示 -->
+                            <header data-pbo="">
+                                <label data-pbo="">
+                                    <b>on</b>
+                                    <textarea name="aon" rows="1" class="_code" disabled>^obted|evo(3) dup text clean('') split(',') str('#') dup str('background-color:') elem; </textarea>
+                                </label>
+                                <label data-pbo="">
+                                    <b>by</b>
+                                    <textarea name="aby" rows="1" class="_code" disabled></textarea>
+                                </label>
+                                <label data-pbo="lost">
+                                    <b>to</b>
+                                    <textarea name="ato" rows="1" class="_code" disabled></textarea>
+                                </label>
+                            </header>
+                            <!--编辑友好：
+                                Enter 切换到下一行，末行时可创建新行。
+                                Shift + Enter 创建新<li>行。注：文本换行没有意义。 -->
+                            <ol spellcheck="false" class="_code" data-pbo="">
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                                <li contenteditable="true"></li>
+                            </ol>
+                        </div>
                     </div>
                     <aside>
-                        <div class="_option" data-pbo="lost">
-                            <label data-pbo="disabled">换行符
-                                <input type="text" name="nlchar" class="_char _code" value=";" disabled />
-                            </label>
-                        </div>
                         <div class="_submit" tpl-name="common:submit">
                             <button type="submit">确定</button>
                         </div>

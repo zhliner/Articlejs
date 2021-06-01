@@ -5184,9 +5184,12 @@ export const Edit = {
 
     /**
      * 元素特性更新。
+     * 仅支持单个元素选取。
      */
     attrUpdate( evo ) {
-        //
+        if ( __ESet.size !== 1 || !evo.data.length ) {
+            return;
+        }
     },
 
     __attrUpdate: 1,
@@ -5458,6 +5461,16 @@ export const Kit = {
     tsecbox() {
         let _el = __ESet.first();
         return _el.tagName === 'TABLE' ? _el : _el.parentElement;
+    },
+
+
+    /**
+     * 获取首个选取元素的特性集。
+     * @return {[String]|null}
+     */
+    attrs() {
+        let _el = first( __ESet );
+        return _el ? [ ..._el.attributes ] : null;
     },
 
 
@@ -6636,6 +6649,7 @@ customGetter( null, Kit, [
     'tobj',
     'trbox',
     'tsecbox',
+    'attrs',
     'codebox',
     'source',
     'rngok',

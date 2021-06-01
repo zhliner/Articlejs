@@ -6,6 +6,8 @@
         "main:tools"
     ],
     "panel.html": [
+        "attr:obts",
+        "attr:value",
         "input:empty",
         "item:inlines",
         "menu:blocks",
