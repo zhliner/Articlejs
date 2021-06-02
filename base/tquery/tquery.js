@@ -1789,7 +1789,7 @@ Object.assign( tQuery, {
      *
      * 取值：
      * - 条件：value为未定义，name为字符串。
-     * - name支持空格分隔多个名称，返回一个 名:值 对象。
+     * - name支持空格分隔多个名称，返回一个值集。
      *
      * 设置：
      * - value有值时，name为名称序列（空格分隔），value若为数组则一一对应。
@@ -1799,12 +1799,12 @@ Object.assign( tQuery, {
      *
      * 注记：
      * - Attribute 这里译为特性，表示一开始就固定在源码中的，修改借助于方法。
-     * - Property 下面译为属性，表示运行时计算出来的，可直接赋值修改。
+     * - Property  下面译为属性，表示运行时计算出来的，可直接赋值修改。
      *
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|Object|Element}
+     * @return {Value|[Value]|Element}
      */
     attribute( el, names, value ) {
         if ( typeof names == 'string' ) {
@@ -1873,7 +1873,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|Object|Element}
+     * @return {Value|[Value]|Element}
      */
     property( el, names, value ) {
         if ( typeof names == 'string' ) {
@@ -5367,12 +5367,9 @@ function customSet( el, name, value, scope ) {
  */
 function hookGets( el, names, scope ) {
     if ( names.length == 1 ) {
-        return customGet(el, names[0], scope);
+        return customGet( el, names[0], scope );
     }
-    let _obj = {};
-    names.forEach( n => _obj[n] = customGet(el, n, scope) );
-
-    return _obj;
+    return names.map( n => customGet(el, n, scope) );
 }
 
 
