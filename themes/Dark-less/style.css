@@ -357,7 +357,7 @@ aside#help {
 }
 .___Panel ol._code {
     border: 1px #666 solid;
-    padding-left: 34px;
+    padding-left: 40px;
     padding-right: 0;
     background-color: #243438;
     white-space: inherit;
@@ -1402,7 +1402,7 @@ menu._cells code {
 }
 .Attr ._obts > label {
     display: grid;
-    grid-template-columns: 35px auto;
+    grid-template-columns: 41px auto;
     border-radius: 18px 0 0;
     background-color: #46525d;
 }
@@ -1410,7 +1410,7 @@ menu._cells code {
     font-size: 12px;
     background-color: #225863;
     border-radius: inherit;
-    color: #62f448;
+    color: #bbb;
 }
 .Attr ._obts textarea {
     background-image: none;
