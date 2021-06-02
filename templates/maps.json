@@ -6,6 +6,7 @@
         "main:tools"
     ],
     "panel.html": [
+        "attr:items",
         "attr:obts",
         "attr:value",
         "input:empty",
@@ -21,6 +22,10 @@
         "modal:plugins",
         "modal:prop",
         "modal:small",
+        "obts:current",
+        "obts:by",
+        "obts:on",
+        "obts:to",
         "run:sandbox",
         "run:editor",
         "script:history",

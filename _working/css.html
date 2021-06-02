@@ -2752,27 +2752,37 @@
             <form class="Attr" onsubmit="return false" tpl-name="slave:attr">
                 <div class="_roll">
                     <div class="_name">
-                        <!-- 注：obts可通过on/by/to任一单词添加 -->
-                        <input type="text" name="attr" value="" />
+                        <!--说明：
+                            添加on/by/to任一特性会被合并为"on by to"复合名称。
+                            键入Enter也可完成添加（而非提交表单）。-->
+                        <input type="text" name="attr" value=""
+                            on="keydown|iskey('Enter') pass avoid evo(3) next click" />
                         <!-- ✚✛ -->
-                        <input type="button" value="✛" class="_add" />
+                        <input type="button" value="✛" class="_add"
+                            on="click|evo(3) prev val"
+                            to="1/select|trigger('addnew')" />
                     </div>
-                    <!--行为集：
+                    <!--特性选单：
                         change  1.先判断插入适配的内容模板。
                                 2.提取元素特性值发送到内容更新。
-                        addnew  添加一个新特性，实时更新到源元素。
-                                注：实时创建避免切换丢失，最终的确定按钮完成清理动作。
-                        update  特性名清单初始设置（渲染方式）。 -->
-                    <select name="attrs" size="5" class="_list" tpb-for
+                        addnew  添加一个新特性。注：尚未设置到元素上。
+                        update  特性名清单初始设置（渲染方式）。
+                        select  选取接收的值匹配的选单（新建后）。
+                        注记：
+                        特性集可能为空，且手动添加子条目会破坏渲染结构，
+                        因此作为模板每次更新时克隆渲染。 -->
+                    <select name="attrs" size="5" class="_list" tpl-name="attr:items" tpb-for
                         on="change|evo(3) prop('selected') attr('-tpl') or('attr:value') node;
-                            change|v.sels item(0) evo(3) val attr(_1);
-                            addnew|;
-                            update|"
+                            change|v.sel0 evo(3) val attribute(_1);
+                            addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
+                            select|ev('detail');
+                            update|ev('detail') tpl('attr:items', true)"
                         to="2/._main>*|replace;
-                            2/._main>*|trigger('setv')">
-                        <option>style</option>
-                        <option data-tpl="attr:obts" value="on">[on-by-to]</option>
-                        <option _data-tpl="($.tpl || null)" _value="$.value" _="$.name">[class]</option>
+                            2/._main>*|trigger('setv');
+                            |append|goto('select', _1);
+                            |val;
+                            |replace render">
+                        <option _data-tpl="$ == 'on by to'? 'attr:obts': null" _="$">[name]</option>
                     </select>
                 </div>
                 <div class="_body">
@@ -2781,28 +2791,26 @@
                         <textarea name="attr" spellcheck="false" class="_code" tpl-name="attr:value"
                             on="setv|ev('detail') or('') split(';') trim join(';\n')"
                             to="|val"></textarea>
-                        <!-- setv 设置内容，自动处理OBT属性集。 -->
+                        <!--OBT属性集处理：
+                            -->
                         <div class="_obts" tpl-name="attr:obts"
                             on="^obted|evo(3) delay remove">
-                            <!-- OBT: 分组对应提示 -->
-                            <header data-pbo="">
-                                <label data-pbo="">
-                                    <b>on</b>
-                                    <textarea name="aon" rows="1" class="_code" disabled>^obted|evo(3) dup text clean('') split(',') str('#') dup str('background-color:') elem; </textarea>
-                                </label>
-                                <label data-pbo="">
-                                    <b>by</b>
-                                    <textarea name="aby" rows="1" class="_code" disabled></textarea>
-                                </label>
-                                <label data-pbo="lost">
-                                    <b>to</b>
-                                    <textarea name="ato" rows="1" class="_code" disabled></textarea>
-                                </label>
-                            </header>
+                            <label tpl-name="obts:on">
+                                <b title="单击切换">on</b>
+                                <textarea name="aon" rows="1" class="_code">^obted|evo(3) dup text clean('') split(',') str('#') dup str('background-color:') elem; </textarea>
+                            </label>
+                            <label tpl-name="obts:by">
+                                <b title="单击切换">by</b>
+                                <textarea name="aby" rows="1" class="_code"></textarea>
+                            </label>
+                            <label tpl-name="obts:to">
+                                <b title="单击切换">to</b>
+                                <textarea name="ato" rows="1" class="_code"></textarea>
+                            </label>
                             <!--编辑友好：
                                 Enter 切换到下一行，末行时可创建新行。
                                 Shift + Enter 创建新<li>行。注：文本换行没有意义。 -->
-                            <ol spellcheck="false" class="_code" data-pbo="">
+                            <ol spellcheck="false" class="_code" tpl-name="obts:current">
                                 <li contenteditable="true"></li>
                                 <li contenteditable="true"></li>
                                 <li contenteditable="true"></li>
@@ -2817,6 +2825,7 @@
                         </div>
                     </div>
                     <aside>
+                        <!-- 全部特性清理和设置 -->
                         <div class="_submit" tpl-name="common:submit">
                             <button type="submit">确定</button>
                         </div>

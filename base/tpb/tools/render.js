@@ -582,7 +582,7 @@ const Grammar = {
 
     /**
      * For子元素数量适配处理。
-     * 注：必须包含子元素，循环才有意义。
+     * 需要包含子元素循环才有意义。
      * @param  {[Element]} els For子元素集（全部）
      * @param  {Number} size 单次循环子元素数量
      * @param  {Number} count 循环迭代的目标次数
@@ -596,7 +596,7 @@ const Grammar = {
             // 移除超出部分。
             els.splice(_dist * size).forEach( e => $.remove(e) );
         }
-        else if ( _dist > 0 ) {
+        else if ( els.length > 0 && _dist > 0 ) {
             // 补齐不足部分。
             let _new = forClone( els.slice(-size), _dist );
             els.push(
@@ -859,23 +859,26 @@ function forClone( els, cnt ) {
 
 /**
  * 构造循环单元当前域对象。
- * 简单的基本类型需要转换为Object，否则无法添加属性。
- * 设置2个即时成员变量和父域链$。
+ * 设置2个即时成员变量和父域引用。
+ * 注意 undefined 和 null 两个值会直接返回。
+ * 注记：
+ * 基本类型需要转换为Object，否则无法添加属性。
+ * 因此外部对单元数据执行相等比较时，不宜用全等（===）。
  * @param  {Object} data 单元数据
  * @param  {Number} i    当前下标（>= 0）
  * @param  {Object} supObj 父域对象
  * @return {Object} 设置后的数据对象
  */
 function loopCell( data, i, supObj ) {
-    // 自动 Object（除了null）
-    return Object.assign(
-        data,
-        {
-            [__loopIndex]: i,
-            [__loopSize]: supObj.length,
-            $: supObj,
-        }
-    );
+    if ( data == null ) {
+        return data;
+    }
+    // 自动Object化
+    return Object.assign( data, {
+        [__loopIndex]: i,
+        [__loopSize]: supObj.length,
+        $: supObj,
+    });
 }
 
 

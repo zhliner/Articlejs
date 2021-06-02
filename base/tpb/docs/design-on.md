@@ -275,7 +275,7 @@ scrolledY( v:?null ): Number | void
 // 目标：当前条目/栈顶1项。
 // 参数固定：1。
 attr( name ): String | null
-attribute( name ): String | Object | null
+attribute( name ): String | [String] | null
 prop( name ): Value | undefined
 property( name ): Value | Object | undefined
 css( name ): String

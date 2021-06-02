@@ -250,7 +250,7 @@
     </div>
     <aside>
         <div class="_option"
-            on="click(button)|v.sels item(0) $('form/textarea') val trim dup pass"
+            on="click(button)|v.sel0 $('form/textarea') val trim dup pass"
             by="Kit.checkhtml(_1) dup $if('err', 'ok')"
             to="/pre|trigger(_1)">
             <button on="click|avoid">结构检查</button>

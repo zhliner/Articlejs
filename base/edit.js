@@ -5422,6 +5422,14 @@ export const Kit = {
 
 
     /**
+     * 获取选取集首个成员。
+     */
+    sel0() {
+        return first( __ESet ) || null;
+    },
+
+
+    /**
      * 获取焦点元素。
      */
     focus() {
@@ -6644,6 +6652,7 @@ processExtend( 'Kit', Kit, [
 customGetter( null, Kit, [
     'sels',
     'esize',
+    'sel0',
     'focus',
     'elemSelf',
     'tobj',

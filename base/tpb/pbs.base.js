@@ -344,6 +344,7 @@ const _Control = {
      * 复制栈顶项入栈，支持复制多份。
      * 目标：暂存区/栈顶1项。
      * 特权：是，自行入栈。
+     * 注记：不会取出栈顶项，因此复制1份时栈顶即有2份。
      * @param  {Stack} stack 数据栈
      * @param  {Number} cnt 复制份数，可选
      * @return {void}
@@ -384,16 +385,14 @@ const _Control = {
      * @param  {Number} n 条目数，可选
      * @return {void}
      */
-    ddups( evo, stack, n = 1 ) {
-        if ( n <= 0 ) {
-            return;
-        }
-        stack.push(
-            ...stack.tops(n).map(v => $.isArray(v) ? deepArray(v) : v)
+    ddup( evo, stack, n = 1 ) {
+        n > 0 &&
+        stack.push( ...stack.tops(n)
+            .map( v => $.isArray(v) ? deepArray(v) : v )
         );
     },
 
-    __ddups_x: true,
+    __ddup_x: true,
 
 
     /**
@@ -1323,14 +1322,15 @@ const _Process = {
      * 目标是否在实参序列中。
      * 目标：暂存区/栈顶1项。
      * 注：与其中任一值相等（===）。
+     * @data: Value 待比较值
      * @param  {...Value} vals 实参序列
      * @return {Boolean}
      */
-    include( evo, ...vals ) {
+    inside( evo, ...vals ) {
         return vals.includes( evo.data );
     },
 
-    __include: 1,
+    __inside: 1,
 
 
     /**
@@ -1393,30 +1393,22 @@ const _Process = {
 
 
     /**
-     * 目标对象内成员测试。
+     * 对象内成员存在性（非undefined）测试。
      * 目标：暂存区/栈顶1项。
      * name为属性名，支持空格分隔的多个属性名指定。
-     * val为对比值，与目标属性值做全等比较，可选，默认存在性测试（非undefined）。
-     * 如果name为多名称指定，val可以是一个数组（一一对应）。
-     * 当所有的检查/比较都为真时，返回true。
-     * 例：
-     * - inside('selector') // 是否selector属性在目标内。
-     * - inside('AA BB', [1, 2]) // 是否AA成员值为1且BB成员值为2。
-     * 注意：
-     * 对比值通常只是简单类型，对象或数组只取引用本身。
-     * @data: Object
-     * @param  {String} name 成员名称（集）
-     * @param  {Value|[Value]} val 对比值或值集
-     * @return {Boolean}
+     * name若为多个名称，返回一个Boolean值集。
+     * @data: Object 目标对象
+     * @param  {String} name 属性名/序列
+     * @return {Boolean|[Boolean]}
      */
-    inside( evo, name, val ) {
+    exist( evo, name ) {
         if ( __reSpace.test(name) ) {
-            return name.split(__reSpace).every( existHandle(evo.data, val) );
+            return name.split(__reSpace).map( n => evo.data[n] !== undefined )
         }
-        return existValue( evo.data, name, val );
+        return evo.data[name] !== undefined;
     },
 
-    __inside: 1,
+    __exist: 1,
 
 
 
@@ -1908,33 +1900,6 @@ function storage( buf, name, its ) {
         return buf.removeItem( name );
     }
     buf.setItem( name, its );
-}
-
-
-/**
- * 对象属性值测试。
- * 检查目标属性是否在目标对象内或是否与测试值全等。
- * 注：如果测试值未定义，则为存在性检查。
- * @param  {Object} obj 目标对象
- * @param  {String} name 属性名
- * @param  {Value} val 测试值
- * @return {Boolean}
- */
-function existValue( obj, name, val ) {
-    return val === undefined ? obj[name] !== undefined : obj[name] === val;
-}
-
-
-/**
- * 创建属性/值检查函数。
- * 如果对比值是一个数组，则按名称顺序对比检查测试。
- * @param  {Object} obj 检查对象
- * @param  {Value|[Value]} val 对比值（集）
- * @return {Function} 比较函数
- */
-function existHandle( obj, val ) {
-    return $.isArray(val) ?
-        (n, i) => existValue(obj, n, val[i]) : n => existValue(obj, n, val);
 }
 
 

@@ -1397,28 +1397,35 @@ menu._cells code {
     flex-direction: column;
     height: 100%;
 }
-.Attr ._obts header {
-    display: grid;
-    gap: 1px;
-    color: #62f448;
-    margin-bottom: 3px;
+.Attr ._obts[data-pbo=fulled] {
+    background-color: white;
 }
-.Attr ._obts header > label {
+.Attr ._obts > label {
     display: grid;
     grid-template-columns: 35px auto;
     border-radius: 18px 0 0;
     background-color: #46525d;
 }
-.Attr ._obts header b {
+.Attr ._obts label > b {
     font-size: 12px;
     background-color: #225863;
     border-radius: inherit;
+    color: #62f448;
 }
-.Attr ._obts header textarea {
+.Attr ._obts textarea {
     background-image: none;
     border-radius: 0;
     background-color: transparent;
     color: #eee;
+}
+.Attr ._obts[data-pbo=fulled] textarea {
+    height: 4em;
+}
+.Attr ._obts > :first-child {
+    margin-bottom: 1px;
+}
+.Attr ._obts > :last-child {
+    margin-top: 1px;
 }
 
 

@@ -237,7 +237,7 @@ dup( cnt = 1 ): void
 dups( n = 1 ): void
 // 复制栈顶n项（单次）。
 
-ddups( n = 1 ): void
+ddup( n = 1 ): void
 // 深度复制栈顶n项（单次）。
 
 pack( n: Number ): [Value]
@@ -376,7 +376,7 @@ test( str: String ): Boolean
 within( min, max ): Boolean
 // 目标是否在 [min, max] 内（含边界）。
 
-include( ...vals ): Boolean
+inside( ...vals ): Boolean
 // 目标是否在实参序列内。
 
 both( strict: Boolean ): Boolean
@@ -391,8 +391,8 @@ every( expr ): Boolean
 some( expr ): Boolean
 // 集合成员至少1项为真测试。
 
-inside( name: String, val: Value|[Value] ): Boolean
-// 目标对象内成员测试。
+exist( name: String ): Boolean
+// 对象内成员存在与否。
 
 
 

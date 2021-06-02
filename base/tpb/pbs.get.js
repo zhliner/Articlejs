@@ -44,6 +44,7 @@ const
         2:  /^F[0-9]+$|^Escape$/,
         3:  /^Home|End|PgUp|PgDn$/,
         4:  /^Arrow(?:Up|Left|Down|Right)$/,
+        5:  /^Enter|Delete|Backspace$/,
     },
 
     // 修饰键属性名。
@@ -810,14 +811,16 @@ const _Gets = {
      * 获取模板节点。
      * 目标：暂存区1项可选。
      * 如果目标有值，取目标为模板名，此时name充当clone实参。
-     * 注意克隆时是每次都克隆（应当很少使用）。
      * 返回Promise实例，注意调用顺序（应当在avoid等之后）。
      * 例：
      * 1. tpl('abc')  // 模板名为'abc'，clone未定义（假）
      * 2. push('xyz') pop tpl(true)  // 模板名为xyz，clone为真
+     * 注意：
+     * 克隆时是每次都克隆，在需要保留模板原样时有用。
+     * 仅支持单个模板获取/克隆。
      * @param  {String|Boolean} name 模板名或克隆指示
      * @param  {Boolean} clone 是否克隆，可选
-     * @return {Promise}
+     * @return {Promise<Element>}
      */
     tpl( evo, name, clone ) {
         if ( evo.data !== undefined ) {
@@ -841,7 +844,7 @@ const _Gets = {
      * 2. 其它先构建（Tpb.Build）的模板导致节点已经自动载入。
      * 3. 主动使用tpl载入单个节点，于是与该节点定义在同一文件中的其它节点就会自动载入。
      * 注意：
-     * 克隆是每次事件都会克隆一组新的节点。
+     * 与tpl相似，克隆是每次事件都会克隆一组新的节点。
      * @data: String 名称/序列
      * @param  {Boolean} clone 是否克隆
      * @return {Element|[Element|null]|null}
@@ -1030,6 +1033,7 @@ const _Gets = {
      * - 2: F1-F12 功能键系列（含ESC键）。
      * - 3: Home/End/PgUp/PgDn 4个页面键。
      * - 4: 四个箭头键（← → ↑ ↓）。
+     * - 5: 会导致换行变化的3个编辑键（无选取情况下）。
      * @param  {...String|Number} keys 键名序列或键区值
      * @return {Boolean}
      */
