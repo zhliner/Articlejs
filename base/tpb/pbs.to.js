@@ -111,7 +111,7 @@ const _Update = {
     /**
      * 发送定制事件。
      * 此为多元素分别对应不同的发送值版（内容为一个数组）。
-     * 事件名可以是空格分隔的多个名称，同样一一对应。
+     * 事件名可以是空格分隔的多个名称。若为多个名称即为一一对应。
      * @data: 发送值序列
      * @param  {[Element]|Collector} tos 待激发元素集
      * @param  {[Value]} data 内容数据
@@ -121,13 +121,14 @@ const _Update = {
      * @return {void}
      */
     triggers( tos, data, evn, bubble = false, cancelable = true ) {
-        if ( !__reSpace.test(evn) ) {
+        evn = evn.split( evn );
+
+        if ( evn.length === 1 ) {
             return tos.forEach(
-                (el, i) => $.trigger( el, evn, data[i], bubble, cancelable )
+                (el, i) => $.trigger( el, evn[0], data[i], bubble, cancelable )
             );
         }
-        evn = evn.split( evn );
-        tos.forEach( (el, i) => $.trigger( el, evn[i], data[i], bubble, cancelable ) );
+        tos.forEach( (el, i) => $.trigger(el, evn[i], data[i], bubble, cancelable) );
     },
 
 
@@ -660,6 +661,21 @@ const _Next = {
 
 
     /**
+     * 变化事件激发。
+     * 内容：暂存区1项可选。
+     * 如果内容有值，则作为激发事件的目标。
+     * 默认目标为更新的结果/集（evo.updated），如果传递选择器，默认单个目标检索。
+     * @param {String|Number} rid 目标选择标识，可选
+     * @param {Boolean} much 是否检索多个目标，可选
+     */
+    change( evo, rid = 11, much ) {
+        $( evo.data || _target(evo, rid, !much) ).trigger( 'change' );
+    },
+
+    __change: -1,
+
+
+    /**
      * 表单控件默认值改变通知。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
@@ -726,7 +742,7 @@ const _Next = {
 .forEach(function( meth ) {
     /**
      * 默认目标为更新的结果/集（evo.updated），
-     * 或者单个目标检索。
+     * 如果传递选择器，默认单个目标检索。
      * @param {String} rid 目标选择标识，可选
      * @param {Boolean} much 是否检索多个目标，可选
      */

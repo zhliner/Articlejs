@@ -742,11 +742,11 @@
     mousedown 面板高度调整。
     keydown   面板快捷键处理。
     nodeok(~form) 从其他选项卡切换回来时自动更新（因为选取集可能已变）。
-    update    内容区选取变化，主面板跟随更新触发。注：发送相同事件名故不冒泡。
+    update    内容区选取变化，主面板跟随更新触发（不冒泡）。无数据递送，由表单自主负责。
     input.submit  直接快捷提交，保持录入框焦点。
     input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
     input.full    文本录入和表格录入最大化平铺。
-    keydown(~textarea, ._code) 友好支持ESC键取消最大化平铺。stop阻止上级ESC栈功能。
+    keydown([data-pbo=fulled]) 友好支持ESC键取消最大化平铺。stop阻止上级ESC栈功能。
     注：
     (~form) 限定是必要的，否则更深子单元（如<select>）的nodeok冒泡会带来死循环。
     tabindex 使保存键（Ctrl+s）随时有效。 -->
@@ -759,10 +759,10 @@
         input.submit(~th, td);
         input.submit2(~textarea, ._code)|evo(2) full(false);
         input.submit2(~th, td)|evo(2) pop $('._list/') full(false);
-        input.full(~textarea, ._code)|evo(2) full(2);
-        input.full(~th, td)|evo(2) pop $('._list/') full(2);
+        input.full(~textarea, pre._code)|evo(2) full(2);
+        input.full(~th, td, li[contenteditable=true])|evo(2) pop $('._list, ._obts/') full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop;
-        keydown(~textarea, ._code)|evo(2) dup fulled pass ev('key') pass('Escape') stop full(false)"
+        keydown([data-pbo=fulled])|ev('key') pass('Escape') stop evo(2) full(false)"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');

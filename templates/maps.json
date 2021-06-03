@@ -7,6 +7,7 @@
     ],
     "panel.html": [
         "attr:items",
+        "attr:item",
         "attr:obts",
         "attr:value",
         "input:empty",
@@ -22,7 +23,7 @@
         "modal:plugins",
         "modal:prop",
         "modal:small",
-        "obts:current",
+        "obts:active",
         "obts:by",
         "obts:on",
         "obts:to",

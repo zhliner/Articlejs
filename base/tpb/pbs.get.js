@@ -816,7 +816,7 @@ const _Gets = {
      * 1. tpl('abc')  // 模板名为'abc'，clone未定义（假）
      * 2. push('xyz') pop tpl(true)  // 模板名为xyz，clone为真
      * 注意：
-     * 克隆时是每次都克隆，在需要保留模板原样时有用。
+     * 克隆时是每次都克隆，在需要重新渲染模板时很有用。
      * 仅支持单个模板获取/克隆。
      * @param  {String|Boolean} name 模板名或克隆指示
      * @param  {Boolean} clone 是否克隆，可选
@@ -1306,6 +1306,19 @@ const _Gets = {
     },
 
     __intoView: 1,
+
+
+    /**
+     * 触发目标变化事件。
+     * 这是 click,blur等事件系列的延伸（但元素上无此原生方法）。
+     * 理解：重在”调用“。
+     * @data: Element|[Element] 待激发元素
+     */
+    change( evo ) {
+        $( evo.data ).trigger( 'change' );
+    },
+
+    __change: 1,
 
 
 

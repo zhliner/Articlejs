@@ -128,6 +128,15 @@ const
         'a', 'ruby', 'bdo'
     ]),
 
+    // OBT复合特性名。
+    __obtAttr = 'on by to',
+
+    // OBT 特性名检查。
+    // 用于特性名检查构造复合名（__obtAttr）。
+    __obtNames = new Set([
+        'on', 'by', 'to', 'on by to', 'on-by-to'
+    ]),
+
     // 元素选取集实例。
     __ESet = new ESet( Sys.selectedClass ),
 
@@ -5473,16 +5482,6 @@ export const Kit = {
 
 
     /**
-     * 获取首个选取元素的特性集。
-     * @return {[String]|null}
-     */
-    attrs() {
-        let _el = first( __ESet );
-        return _el ? [ ..._el.attributes ] : null;
-    },
-
-
-    /**
      * 获取代码容器。
      * 用于提取语言和Tab设置。
      * 选取元素限于：
@@ -5507,6 +5506,31 @@ export const Kit = {
         }
         throw new Error( `bad type of element.` );
     },
+
+
+    /**
+     * 获取目标元素的特性集。
+     * @return {[String]}
+     */
+    attrs( evo ) {
+        return [ ...evo.data.attributes ];
+    },
+
+    __attrs: 1,
+
+
+    /**
+     * 检查创建OBT特性复合名。
+     * 如果不是on/by/to任一名称，简单通过（自动移除空白）。
+     * @return {String}
+     */
+    obtname( evo ) {
+        return __obtNames.has( evo.data ) ?
+            __obtAttr :
+            evo.data.replace( __reSpace, '' );
+    },
+
+    __obtname: 1,
 
 
     /**
@@ -6659,6 +6683,7 @@ customGetter( null, Kit, [
     'trbox',
     'tsecbox',
     'attrs',
+    'obtname',
     'codebox',
     'source',
     'rngok',

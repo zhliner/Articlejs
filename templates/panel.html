@@ -214,7 +214,7 @@
                     <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
                 </label>
             </header>
-            <textarea name="content" spellcheck="false" class="_code" placeholder="空白 特性删除&#10;''  空串值（特性存在）"></textarea>
+            <textarea name="content" spellcheck="false" class="_code"></textarea>
         </div>
         <aside>
             <!-- <div class="_option">
@@ -261,15 +261,13 @@
                 错误时：
                 focus 获取焦点后即平铺最大化。
                 blur  失焦时取消平铺最大化。
-                keydown 平铺时按 ESC 键聚焦源码框（失焦--取消平铺），stop避免全局ESC执行。
                 注记：
                 信息封装在<i>内便于样式控制。 -->
             <pre class="_info"
                 on="ok|('_ok', '<i>Good!</i>', null);
                     err|(0, '_ok') ev('detail') wrap('<i>') prop('outerHTML') join('\n');
                     focus|evo(3) full;
-                    blur|evo(3) full(false);
-                    keydown|evo(3) fulled pass ev('key') pass('Escape') stop $('form/textarea') focus"
+                    blur|evo(3) full(false)"
                 to="|@tabindex @html addClass|delay(3000) $('/i') hide;
                     |@html removeClass @tabindex">...</pre>
         </div>
