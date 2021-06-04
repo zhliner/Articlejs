@@ -197,6 +197,21 @@ cloneEvent( evns:String|Function ):void
 render(): void
 // 渲染目标元素。
 
+set( name ): void
+// 设置对象成员值。
+
+add(): void
+// 添加成员值。
+
+adds(): void
+// 添加多个成员值。
+
+apply( meth, ...rest ): void
+// 应用目标的方法。
+
+applies( meth ): void
+// 多次应用目标的方法。
+
 tips( long, msg ): void
 // 发送提示消息。
 

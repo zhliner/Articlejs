@@ -687,12 +687,13 @@
 <!--详细内容
     open特性强制为真（内容区单击无法展开） -->
 <div class="_body _Details" obt-src="obts/list2.json" tpl-name="input:details"
-    on="nodes|ev('detail') wrap('<p>') $('/input') val obj('summary') set('open', true) (true)"
+    on="nodes|ev('detail') wrap('<p>') $$('/header input') val obj('summary open') (true)"
     by="New.details(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
-            <input name="summary" type="text" placeholder="摘要" class="_scale" />
+            <input type="text" name="summary" placeholder="摘要" class="_scale" />
+            <input type="hidden" name="open" value="true" />
         </header>
         <textarea name="details" placeholder="详细内容"></textarea>
     </div>

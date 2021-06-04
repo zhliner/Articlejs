@@ -1610,68 +1610,6 @@ const _Process = {
     __calc: 1,
 
 
-    /**
-     * 应用目标的方法。
-     * 目标：暂存区/栈顶1项。
-     * 注：
-     * 无返回值，用于目标对象的设置类操作。
-     * @data: Object
-     * @param  {String} meth 方法名
-     * @param  {...Value} rest 实参序列
-     * @return {void}
-     */
-    apply( evo, meth, ...rest ) {
-        evo.data[meth]( ...rest );
-    },
-
-    __apply: 1,
-
-
-    /**
-     * 应用目标的方法（多次）。
-     * 目标：暂存区/栈顶1项。
-     * 目标是一个接受调用的单个对象。
-     * 实参组成员是每次调用时传入的实参。
-     * 数组成员会被展开传入，因此实参可能需要预先封装（二维）。
-     * 注：
-     * 无返回值，用于目标对象的批量设置。
-     * @data: Object
-     * @param  {String} meth 方法名
-     * @param  {...[Value]} args 实参组
-     * @return {void}
-     */
-    applies( evo, meth, ...args ) {
-        args.forEach(
-            rest => evo.data[meth]( ...[].concat(rest) )
-        );
-    },
-
-    __applies: 1,
-
-
-    /**
-     * 设置目标成员值。
-     * 目标：暂存区/栈顶1项。
-     * name支持空格分隔的多个名称。
-     * 如果名称为多个，值应当是一个序列且与名称一一对应。
-     * 注：会改变原对象自身。
-     * @data: Object
-     * @param  {String} name 名称/序列
-     * @param  {...Value} vals 值序列
-     * @return {@data}
-     */
-    set( evo, name, ...vals ) {
-        name
-        .split(__reSpace)
-        .forEach(
-            (n, i) => evo.data[n] = vals[i]
-        );
-        return evo.data;
-    },
-
-    __set: 1,
-
-
 
     // 实用工具
     //-----------------------------------------------------

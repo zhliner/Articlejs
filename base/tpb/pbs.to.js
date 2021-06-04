@@ -220,6 +220,89 @@ const _Update = {
 
 
     /**
+     * 设置目标成员值。
+     * name支持空格分隔的多个名称。
+     * 如果名称为多个，值应当是一个序列且与名称一一对应。
+     * 如果目标支持set方法，则直接调用，否则用赋值语法设置。
+     * 注：单一目标。
+     * @param  {String} name 名称/序列
+     * @return {void}
+     */
+    set( to, data, name ) {
+        name = name.split( __reSpace );
+
+        if ( name.length === 1 ) {
+            return setObj( to, name[0], data );
+        }
+        name.forEach( (n, i) => setObj(to, n, data[i]) );
+    },
+
+
+    /**
+     * 添加成员值。
+     * 简单执行目标的.add()方法。
+     * 如果目标是数组，添加的值也需要是一个值集，且一一对应。
+     * @param  {...Value} rest 额外的实参序列
+     * @return {void}
+     */
+    add( to, data, ...rest ) {
+        if ( $.isArray(to) ) {
+            return to.forEach( (o, i) => o.add(data[i], ...rest) );
+        }
+        to.add( data, ...rest );
+    },
+
+
+    /**
+     * 添加多个成员值。
+     * 简单调用目标的.add()方法。
+     * 内容数据需要是一个集合（支持.forEach）。
+     * 注记：
+     * 多个目标会添加相同的值序列。
+     * 考虑简单性，不支持单值版本的额外参数序列。
+     * @return {void}
+     */
+    adds( to, vals ) {
+        if ( $.isArray(to) ) {
+            return to.forEach( o => vals.forEach( v => o.add(v) ) );
+        }
+        vals.forEach( v => to.add(v) );
+    },
+
+
+    /**
+     * 应用目标的方法。
+     * @param  {String} meth 方法名
+     * @param  {...Value} rest 除内容之外的更多实参序列
+     * @return {void}
+     */
+    apply( to, data, meth, ...rest ) {
+        if ( $.isArray(to) ) {
+            return to.forEach( o => o[meth]( data, ...rest ) );
+        }
+        to[ meth ]( data, ...rest );
+    },
+
+
+    /**
+     * 多次应用目标的方法。
+     * 内容应当是一个实参组，每次调用提取一个成员传入。
+     * 实参组成员如果是一个子数组，会被展开传入，
+     * 因此如果实参本来就需要一个数组，就需要预先封装（三维）。
+     * 注记：
+     * 多个目标会经历相同的调用和实参传递。
+     * @param  {String} meth 方法名
+     * @return {void}
+     */
+    applies( to, args, meth ) {
+        if ( $.isArray(to) ) {
+            return to.forEach( o => args.forEach( as => o[meth]( ...[].concat(as) ) ) );
+        }
+        args.forEach( as => to[meth]( ...[].concat(as) ) );
+    },
+
+
+    /**
      * 发送提示消息。
      * 内容为发送的消息，显示为元素内的文本（fill）。
      * 持续时间由long定义，0表示永久。
@@ -648,6 +731,7 @@ const _Next = {
      * 内容：暂存区1项可选。
      * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
      * 仅限于当前绑定/委托元素上绑定的事件。
+     * 跳转的事件不冒泡。
      * @param {String} name 事件名
      * @param {Value} extra 附加数据，可选
      */
@@ -700,12 +784,13 @@ const _Next = {
 
     /**
      * 滚动到当前视口。
+     * 内容：暂存区1项可选。
      * y, x 值说明参考On部分同名接口。
-     * 默认操作更新的结果（evo.updated）。
-     * @param  {Number|String|true|false} y 垂直位置标识
-     * @param  {Number} x 水平位置标识
-     * @param  {String|Number} 目标元素标识，可选
-     * @return {void}
+     * 如果暂存区有值，则操作该目标，否则默认操作rid匹配的值。
+     * rid默认匹配evo.updated。
+     * @param {Number|String|true|false} y 垂直位置标识
+     * @param {Number} x 水平位置标识
+     * @param {String|Number} 目标元素标识，可选
      */
     intoView( evo, y, x, rid = 11 ) {
         $.intoView( evo.data || _target(evo, rid), y, x );
@@ -892,6 +977,19 @@ function bindsChain( type, to, ival, evnid, slr ) {
  */
 function chainSaves( el, cmap ) {
     for (const [n, cell] of cmap) storeChain( el, n, cell );
+}
+
+
+/**
+ * 设置对象成员值。
+ * 支持对象上的原生.set()接口，否则用赋值语法设置。
+ * @param  {Object} to 目标对象
+ * @param  {String} key 键名
+ * @param  {Value} data 键值
+ * @return {void}
+ */
+function setObj( to, key, data ) {
+    $.isFunction( to.set ) ? to.set( key, data ) : to[key] = data;
 }
 
 

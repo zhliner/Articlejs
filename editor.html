@@ -65,7 +65,7 @@
         @mousemove:2|movementX neg avoid;
         @mouseup|movementX(null);
         pcheck|data('all') arr dup hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
-        pstore|data('pls') dup apply('clear') ev('detail') applies('add', _);
+        pstore|ev('detail') data('pls') dup clear pop;
         panel.clearall|data('all') data('pls') dup get('size') vnot pop $if(_2) pop;
         panel.outline;
         panel.slave;
@@ -77,7 +77,7 @@
         #help|width(true);
         |off('mousemove');
         |trigger('pstore');
-        -;
+        -|adds;
         -|trigger('toggle');
         #x-outline||click;
         #x-slave||click;

@@ -242,7 +242,8 @@ const _Gets = {
     /**
      * 调用目标的方法。
      * 目标：暂存区/栈顶1项。
-     * 目标是一个调用方法的宿主（数组作为单个对象看待）。
+     * 目标是调用方法的一个宿主。
+     * 注意：数组作为单个对象看待（特例）。
      * @data: Object
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
@@ -259,9 +260,6 @@ const _Gets = {
      * 调用多个目标的方法。
      * 目标：暂存区/栈顶1项。
      * 目标需要是一个数组或支持.map方法的对象。
-     * 注记：
-     * - applies: 单一目标对象上，以不同实参作多次调用，无返回值。
-     * - calls:   以同一方法和实参对多个对象进行调用，收集返回值。
      * @data: [Object]
      * @param  {String} meth 方法名
      * @param  {...Value} rest 实参序列
@@ -528,22 +526,32 @@ const _Gets = {
 
     /**
      * 转换为普通对象。
-     * 如果传递键名，创建一个新对象并设置键值映射。
-     * 如果目标拥有entries接口，可用于Set/Map实例。
-     * 如果目标不包含entries，返回Object()的简单封装。
+     * 可以传递键名，创建一个新对象并设置键值映射。
+     * 键名可以是空格分隔的多个名称，此时如果目标为数组，则为一一对应设置，
+     * 否则单个值映射到多个名称。
      * @param  {String} key 封装键名，可选
      * @return {Object}
      */
     obj( evo, key ) {
-        let _v = evo.data;
-
-        if ( key !== undefined ) {
-            return { [key]: _v };
+        if ( key === undefined ) {
+            return Object( evo.data );
         }
-        return $.isFunction( _v.entries ) ? Object.fromEntries( _v.entries() ) : Object( _v );
+        return __reSpace.test( key ) ? gather( key.split(__reSpace), evo.data ) : { [key]: evo.data };
     },
 
     __obj: 1,
+
+
+    /**
+     * 特殊转换：
+     * 将支持.entries接口的对象（如Set/Map）转换为普通对象。
+     * @return {Object}
+     */
+    objz( evo ) {
+        return Object.fromEntries( evo.data );
+    },
+
+    __objz: 1,
 
 
     /**
@@ -590,35 +598,17 @@ const _Gets = {
 
 
     /**
-     * 数组映射聚集。
-     * 目标：暂存区/栈顶1项。
-     * 把数组成员映射为一个键值对对象，键名序列由外部提供。
-     * 数组成员和名称序列按下标顺序提取，值不足的部分为undefined值。
-     * 注：支持下标运算的任意数据源皆可（如字符串）。
-     * @data: [Value] => Object
-     * @param  {String} names 属性名序列（空格分隔）
-     * @return {Object}
-     */
-    gather( evo, names ) {
-        return names.split(__reSpace)
-            .reduce( (o, k, i) => (o[k] = evo.data[i], o), {} );
-    },
-
-    __gather: 1,
-
-
-    /**
-     * 对象赋值（属性复制）。
+     * 对象属性提取/合并。
      * 目标：暂存区/栈顶1项。
      * 目标作为提供属性值的数据源对象。
-     * 属性仅限于对象自身（非继承）的可枚举属性。
      * 支持由空格分隔的多名称限定，空名称匹配全部属性（含Symbol）。
+     * 注：属性仅限于对象自身（非继承）的可枚举属性。
      * @data: Object => Object
      * @param  {Object} to 接收对象
      * @param  {String} names 取名称序列，可选
      * @return {Object}
      */
-    assign( evo, to, names ) {
+    obj2x( evo, to, names ) {
         if ( !names ) {
             return Object.assign( to, evo.data );
         }
@@ -627,7 +617,7 @@ const _Gets = {
         return $.assign( to, evo.data, (v, n) => _ns.has(n) && [v] );
     },
 
-    __assign: 1,
+    __obj2x: 1,
 
 
     /**
@@ -727,6 +717,20 @@ const _Gets = {
     },
 
     __wrapAll: 1,
+
+
+    /**
+     * 获取绑定句柄。
+     * 目标：暂存区/栈顶1项。
+     * 目标为检索绑定信息的元素。
+     * @param  {String} evn 事件名（单个），可选
+     * @return {Object|[Function|EventListener]|null} 用户调用/处理器集
+     */
+    handles( evo, evn ) {
+        return $.handles( evo.data, evn ) || null;
+    },
+
+    __handles: 1,
 
 
     /**
@@ -1257,9 +1261,10 @@ const _Gets = {
 
 
     /**
-     * 表单控件清空。
+     * 清空操作。
      * 目标：暂存区/栈顶1项。
-     * 目标为待清空的表单元素。
+     * 主要适用表单控件，否则简单调用目标的.clear()方法。
+     * 注：
      * 选取类控件为取消选取，其它为清除value值。
      * @return {void}
      */
@@ -1269,24 +1274,10 @@ const _Gets = {
         if ( !$.isArray(x) ) {
             x = [ x ];
         }
-        x.forEach( el => $.val(el, null) );
+        x.forEach( it => it.nodeType === 1 ? $.val(it, null) : it.clear() );
     },
 
     __clear: 1,
-
-
-    /**
-     * 获取绑定句柄。
-     * 目标：暂存区/栈顶1项。
-     * 目标为检索绑定信息的元素。
-     * @param  {String} evn 事件名（单个），可选
-     * @return {Object[Function|EventListener]|null} 用户调用/处理器集
-     */
-    handles( evo, evn ) {
-        return $.handles( evo.data, evn ) || null;
-    },
-
-    __handles: 1,
 
 
     /**
@@ -1313,6 +1304,7 @@ const _Gets = {
      * 这是 click,blur等事件系列的延伸（但元素上无此原生方法）。
      * 理解：重在”调用“。
      * @data: Element|[Element] 待激发元素
+     * @return {void}
      */
     change( evo ) {
         $( evo.data ).trigger( 'change' );
@@ -1629,9 +1621,12 @@ const _Gets = {
     /**
      * 集合成员取值。
      * @param  {Number|String} its 位置下标或选择器
-     * @return {Value|[Value]|Collector}
+     * @return {Value|[Value]|null}
      */
-    _Gets[meth] = function( evo, its ) { return $(evo.data)[meth]( its ) };
+    _Gets[meth] = function( evo, its ) {
+        let _v = $(evo.data)[meth]( its );
+        return _v !== undefined ? _v : null;
+    };
 
     _Gets[`__${meth}`] = 1;
 
@@ -1982,6 +1977,21 @@ function newElobj( evo ) {
         selector:   evo.selector,
         delegate:   evo.delegate,
     };
+}
+
+
+/**
+ * 名值汇集构造对象。
+ * 如果值为一个数组，则名值一一对应，否则单一值对应到多个名称。
+ * @param  {[String]} names 名称序列
+ * @param  {Value|[Value]} val 值/值集
+ * @return {Object}
+ */
+function gather( names, val ) {
+    if ( $.isArray(val) ) {
+        return names.reduce( (o, k, i) => (o[k] = val[i], o), {} );
+    }
+    return names.reduce( (o, k) => (o[k] = val, o), {} );
 }
 
 

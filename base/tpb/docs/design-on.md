@@ -134,8 +134,11 @@ str( prefix?, suffix? ): String
 arr( wrap:Boolean ): Array
 // 转换/封装为数组。
 
-obj(): Object
+obj( key:String ): Object
 // 将目标转换为普通对象。
+
+objz(): Object
+// 转换.entries接口对象。
 
 array( size, ...vals ): Array
 // 创建预填充值数组（size大小）。
@@ -143,11 +146,8 @@ array( size, ...vals ): Array
 arr2j( junk ): [Value]
 // 用状态数组清理目标数组。
 
-gather( names:String ): Object
-// 数组映射聚集。
-
-assign( target:Object, names?:String ): Object
-// 对象克隆赋值。
+obj2x( target:Object, names?:String ): Object
+// 对象属性提取赋值。
 
 els( tag:String, n:Number ): Element | [Element]
 // 批量创建元素。
@@ -169,6 +169,9 @@ svg( tag?:String ): Element | Collector
 
 wrapAll( box:String ): Collector
 // 元素集封装。
+
+handles( evn:String ): Object | [Function|EventListener]
+// 获取绑定的处理器集。
 
 json( replacer, space ): String
 // JSON 序列化

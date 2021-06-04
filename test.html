@@ -100,7 +100,7 @@
         @mousemove:2|movementX neg;
         @mouseup|movementX(null);
         pcheck|data('all') arr filter(e=>$.hasClass(e, '_press'));
-        pstore|data('pls') dup apply('clear') ev('detail') applies('add', _);
+        pstore|ev('detail') data('pls') dup clear pop;
         panel.clearall|data('all') data('pls') dup size vnot pop $if(_2) arr pop;
         panel.outline;
         panel.slave;
@@ -113,13 +113,13 @@
         button.undo|ev('detail') vnot;
         button.redo|ev('detail') vnot;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
-        ^finish|(ESC) $('#content') apply('add', 'basic', _1);
+        ^finish|$('#content') (ESC) pop;
         ^finish|(edInit) ('content,g-covert,main-slave,g-path,err-msg,outline,tools-usual,g-modal,g-contab') split(',') str('#') exec(_)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
         |trigger('pstore');
-        -;
+        -|adds;
         -|trigger('toggle');
         #x-outline||click;
         #x-slave||click;
@@ -132,7 +132,7 @@
         #tools-undo|trigger('state');
         #tools-redo|trigger('state');
         |data('all pls');
-        |trigger('pcheck');
+        |add('basic')|goto('pcheck');
         -">
     <!-- medok 内容区章节标题微编辑更新跟随。
                注：不支持Undo/Redo变化跟随，用户需手动刷新。-->
@@ -192,16 +192,19 @@
         <!--模态框
             open  打开模态框，插入目标表单。
                   向表单发送一个state事件，用于可能需要的初始设置。
-            focus 聚焦首个文本输入控件，延迟激发（待子模版就绪） -->
+            focus 聚焦首个文本输入控件，延迟激发（待内部子模版就绪）。
+            esced 向ESC添加当前条目。 -->
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
-                open|stop (ESC) evo(3) dup lose(0) apply('add', 'modal', _1) ev('detail');
-                cancel|stop evo(3) lose (ESC) apply('del', 'modal');
+                open|evo(3) lose(0) ev('detail');
+                cancel|evo(3) lose ('modal', ESC) pop;
+                esced|evo(3) (ESC) pop;
                 focus|$('/form') pop $('/input[type=text], textarea, input[type=url]') dup pass focus;
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel');
-                /form|replace trigger('state')|fire(3, 'focus');
-                #g-scroll|trigger('focus')">
+                /form|replace trigger('state')|goto('esced');
+                -|apply('delete')|fire('#g-scroll', 'focus');
+                -|add('modal')|fire(3, 'focus')">
             <form> <!-- 占位 --> </form>
         </div>
         <pre tpl-source="main:tools, main:content, main:slave, main:status">

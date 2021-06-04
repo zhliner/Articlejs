@@ -38,14 +38,14 @@
             注记：出于简化，用apply指令直接调用（而非by）。-->
         <b id="tools-undo" title="撤消〔u〕" data-pbo="disabled"
             on="state|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (Kit) apply('undo');
+                click|evo(3) disabled end (Kit) call('undo');
                 enable|evo(1) disable(0)"
             to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
         <!--重做：
             state 同上。同时会激活Undo。-->
         <b id="tools-redo" title="重做〔r〕" data-pbo="disabled"
             on="state|evo(1) ev('detail') disable(_1);
-                click|evo(3) disabled end (Kit) apply('redo');
+                click|evo(3) disabled end (Kit) call('redo');
                 enable|evo(1) disable(0)"
             to="#tools-undo|trigger('enable')"><i id="b-redo"></i></b>
     </div>
@@ -67,22 +67,28 @@
     medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
                 注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
     info|focus  确认后聚焦根容器，便于键盘控。
+    esced    向ESC栈添加一条记录。
+    escpop   从ESC栈移除一条记录。
     @keydown 微编辑确认专项（退出即解绑）。stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
     @paste   微编辑粘贴（纯文本）。 -->
 <div class="___Content" tpl-name="main:content"
     on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
-        cancel|env('minied') pass (ESC) apply('del', 'med') env('minied', false) stop;
-        medok|env('minied') pass (ESC) apply('del', 'med') env('minied', false) stop;
-        medin|env('minied') end (ESC) evo(3) apply('add', 'med', _1) env('minied', true) stop delay;
+        cancel|env('minied') pass stop;
+        medok|env('minied') pass stop;
+        medin|env('minied') end stop delay;
         info|$('#g-scroll') focus;
+        esced|evo(3) (ESC) pop;
+        escpop|('med', ESC) pop;
         @paste|avoid xRange addRange edbox clipboard exeCmd('insertText', _1)"
     by="Kit.medpass(_1);
         Kit.medcancel"
     to="-;
-        |off('keydown paste')|goto('info');
-        |off('keydown paste')|goto('info');
-        |bind('keydown paste');
-        #g-count|trigger('reset')">
+        |off('keydown paste')|goto('escpop');
+        |off('keydown paste')|goto('escpop');
+        |bind('keydown paste')|goto('esced');
+        #g-count|trigger('reset');
+        -|add('med')|env('minied', true);
+        -|apply('delete')|env('minied', false) goto('info')">
     <!--滚动封装：
         注：不设计在<main>上，避免聚焦影响。
         keydown 普通模式快捷键操作（key, count），会重置状态栏提示。
@@ -120,28 +126,31 @@
             show    菜单显示位置计算/设置。
             submenu 转换子菜单类型判断并导入。
             status  设置菜单条目可用性（注：先disable）。
-            cancel blur 按ESC键或失焦隐藏菜单。
+            blur    失焦即隐藏菜单，也由按ESC键触发。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
             on="cmenudo|evo(3) blur ev('detail');
                 convert|ev('detail');
-                show|(ESC) evo(3) dup hide(false) apply('add', 'cmenu', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
+                show|evo(3) dup hide(false) $('1/') env('pointerXY') v.menupos(_2);
                 submenu|v.convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node;
                 click(li[data-op])|evo(2) dup disabled end attr('-op');
                 keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-val');
                 click(#m-conv li[data-val])|evo(2) attr('-val');
-                cancel blur|evo(3) hide(true) (ESC) apply('del', 'cmenu');
-                status|$$('/>li') dup disable v.cmenable disable(false)"
+                blur|evo(3) hide(true) ('cmenu', ESC) pop;
+                esced|evo(3) (ESC) pop;
+                status|$$('/>li') dup disable v.cmenable disable(false);
+                cancel|evo(3) blur"
             by="Kit.cmenudo;
                 Kit.convert"
             to="#g-scroll|trigger('_focus');
                 #g-scroll|trigger('focus');
-                |cssSets('left top')|goto('status') goto('submenu') fire(10, 'focus');
+                |cssSets('left top')|goto('status') goto('submenu') goto('esced');
                 /menu|replace;
                 |trigger('cmenudo');
                 |trigger('convert');
                 |trigger('convert');
-                #g-scroll|trigger('_focus')">
+                -|apply('delete')|fire('#g-scroll', '_focus');
+                -|add('cmenu')|fire(3, 'focus')">
             <li data-op="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
@@ -172,25 +181,29 @@
                   to|focus 聚焦菜单，延时避免滚动框跳动。
             keydown 快捷键直达（data-k），stop避免上层快捷键触发。
             click   单击条目创建。[data-val] 排除占位<li>。
-            blur    菜单失焦即隐藏，保证快捷键当前场景。
-            cancel  简单失焦调用，不影响内容区划选（友好）。注记：与blur分开定义，否则会两次pop ESC栈。
+            blur    菜单失焦即隐藏，保证快捷键的当前场景合适。注记：不聚焦内容区避免取消划选文本。
+            cancel  简单失焦调用。注记：与blur分开定义，否则会两次触发相同流程。
+            esced/escpop  向ESC栈添加/移除一条记录。
         -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pbo="hidden"
             on="create|data('range') ev('detail');
                 store|ev('detail') dup v.rngok pass;
-                show|(ESC) evo(3) dup hide(false) apply('add', 'cells', _1) evo(3) $('1/') env('pointerXY') v.menupos(_2);
-                blur|evo(3) hide(true) (ESC) apply('del', 'cells') (null);
+                show|evo(3) dup hide(false) $('1/') env('pointerXY') v.menupos(_2);
+                blur|evo(3) hide(true) (null);
                 keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dup pass attr('-val');
                 click(li[data-val])|evo(2) attr('-val');
-                cancel"
+                esced|evo(3) (ESC) pop;
+                escpop|('cells', ESC) pop;
+                cancel|evo(3) blur"
             by="Kit.rngelem(_1)"
             to="#g-scroll|trigger('focus');
                 |data('range')|goto('show');
-                |cssSets('left top')|fire(11, 'focus');
-                |data('range');
+                |cssSets('left top')|goto('esced');
+                |data('range')|goto('escpop');
                 |trigger('create');
                 |trigger('create');
-                |trigger('blur')">
+                -|add('cells')|fire(3, 'focus');
+                -|apply('delete')">
             <!--注记:
                 包含href特性的<a>元素有聚焦能力，单击后会让菜单失焦。-->
             <li data-k="a" data-val="a" title="<a>"><b><a>链接</a></b><kbd>a</kbd></li>
@@ -806,14 +819,16 @@
             to="|attribute('text title')"></span>
         <!--计数暂存
             reset: 清空值，提供选取集大小默认显示。
-            setv:  设置值并提供该值的显示。-->
+            setv:  设置值并提供该值的显示。ESC按键值添加（无重复）。 -->
         <input id="g-count" name="count" type="hidden"
             on="reset|v.esize str('[ ', ' ]') ('');
-                setv|(ESC) evo(3) apply('add', 'info', _1) ev('detail') dup;
-                cancel|(ESC) apply('del', 'info')"
+                setv|ev('detail') dup;
+                cancel|('info', ESC) pop;
+                esced|evo(3) (ESC) pop"
             to="|val|pop fire('#status-info', 'info');
-                |val|pop fire('#status-info', 'info');
-                |trigger('reset')" />
+                |val|pop fire('#status-info', 'info', 0) goto('esced');
+                -|apply('delete')|fire(3, 'reset');
+                -|add('info')" />
     </div>
     <!--指令符：
         > 选择器，焦点元素为起点

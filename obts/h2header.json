@@ -1,5 +1,5 @@
 {
     "//": "提取文本，可选空白清理和空行分段。创建导言元素，提取标题内容设置为配置对象。",
-    "on": "create|$('/textarea') val dup pass $$('/._option input') prop('checked') v.pretreat2(_) $$(_1) wrap('<p>') wrapAll('<header>') item(0) obj('header') $('/input[name=h2]') val set('h2', _1)",
+    "on": "create|$('/textarea') val dup pass $$('/._option input') prop('checked') v.pretreat2(_) $$(_1) wrap('<p>') wrapAll('<header>') item(0) $('/input[name=h2]') val pack(2) obj('header h2')",
     "to": "|trigger('node')"
 }

@@ -345,22 +345,12 @@ export class ECursor {
 export class ESCStack extends Map {
     /**
      * 加入一项。
-     * @param  {String} key 目标键
      * @param  {Value} val 目标对象
-     * @return {void}
-     */
-    add( key, val ) {
-        super.set( key, val );
-    }
-
-
-    /**
-     * 删除一项。
      * @param  {String} key 目标键
      * @return {void}
      */
-    del( key ) {
-        super.delete( key );
+    add( val, key ) {
+        super.set( key, val );
     }
 
 
