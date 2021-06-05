@@ -477,7 +477,7 @@ option: {
 获取 `node` 节点之后的兄弟节点集：包含元素、非空文本节点和可选的注释节点。
 
 
-### [$.children( el, slr ): [Element] | Element](docs/$.children.md)
+### [$.children( el, slr ): [Element] | Element | undefined](docs/$.children.md)
 
 获取 `el` 的直接子元素（集）。
 
@@ -489,7 +489,7 @@ option: {
 允许直接指定位置下标可能更高效，这样就避免了使用位置选择器过滤，并且会直接返回一个元素。
 
 
-### [$.contents( el, idx, comment? ): [Node] | Node](docs/$.contents.md)
+### [$.contents( el, idx, comment? ): [Node] | Node | undefined](docs/$.contents.md)
 
 获取 `el` 元素的内容，包含其中的子元素、文本节点和可选的注释节点。
 
@@ -1331,7 +1331,7 @@ elo: {
 如果包裹容器是一个已经存在的元素，该元素会被直接使用，且包裹内容时使用的是前插（`.prepend()`）方式（原内容会被保留）。
 
 
-### .first( slr ): Value
+### .first( slr ): Value | null
 
 获取集合内首个匹配的成员，无实参时返回集合内首个成员。
 
@@ -1340,7 +1340,7 @@ elo: {
 测试函数接口为：`function( Element ): Boolean`，返回真时为匹配。
 
 
-### .last( slr ): Value
+### .last( slr ): Value | null
 
 获取集合内逆向首个匹配的成员，无实参时返回集合内最后一个成员。
 
@@ -1349,14 +1349,14 @@ elo: {
 测试函数接口：`function( Element ): Boolean`，返回真时为匹配。
 
 
-### .item( idx ): Value | [Value]
+### .item( idx ): Value | [Value] | undefined
 
 获取集合内的某个成员，如果未指定目标位置，返回整个集合的一个数组副本。
 
 - `idx: Number` 目标成员的位置下标，支持负数从末尾算起。
 
 > **注：**
-> 兼容字符串数字，但空串不为0值。-1表示末尾最后一个。
+> 兼容字符串数字，但空串不为0值。-1表示末尾最后一个。超出下标范围时返回一个undefined。
 
 
 ### .add( its, unique ): Collector

@@ -1249,11 +1249,11 @@ Object.assign( tQuery, {
     /**
      * 获取直接子元素（集）。
      * 可以指定具体位置获取单个元素。
-     * 数字位置支持负数从末尾算起。
+     * 数字位置支持负数从末尾算起，超出下标范围时返回一个undefined。
      * 注：兼容字符串数字，但空串不为0。
      * @param  {Element} el 容器元素
      * @param  {String|Number} slr 过滤选择器或下标，可选
-     * @return {[Element]|Element}
+     * @return {[Element]|Element|undefined}
      */
     children( el, slr ) {
         let _els = Arr(el.children);
@@ -1274,7 +1274,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 容器元素
      * @param  {Number|null} idx 子节点位置（从0开始），可选
      * @param  {Boolean} comment 包含注释节点，可选
-     * @return {[Node]|Node}
+     * @return {[Node]|Node|undefined}
      */
     contents( el, idx, comment ) {
         let _proc = comment ?
@@ -3518,9 +3518,10 @@ function _siblingUntil( el, slr, dir ) {
 /**
  * 返回首个匹配的元素。
  * 测试匹配函数接口：function(el): Boolean
+ * 没有匹配的元素时返回一个null。
  * @param  {[Element]} els 元素集（数组）
  * @param  {String|Element|Function} slr 选择器或匹配测试
- * @return {Element|undefined}
+ * @return {Element|null}
  */
 function _first( els, slr, _beg = 0, _step = 1 ) {
     let _fun = slr,
@@ -3533,6 +3534,7 @@ function _first( els, slr, _beg = 0, _step = 1 ) {
         if ( _fun(els[_beg]) ) return els[_beg];
         _beg += _step;
     }
+    return null;
 }
 
 
@@ -3579,7 +3581,7 @@ class Collector extends Array {
     constructor( obj, prev ) {
         super();
         // window.console.info(obj);
-        this.push(...arrayArgs(obj));
+        this.push( ...arrayArgs(obj) );
         this.previous = prev || null;
     }
 
@@ -3881,12 +3883,16 @@ class Collector extends Array {
     /**
      * 获取集合内首个匹配的成员。
      * 取值接口：function( Element ): Boolean
-     * 注意：如果传递了匹配选择器但未匹配，返回undefined.
+     * 注意：
+     * 如果目标不存在或不匹配，返回null，这与.next等接口行为保持一致。
      * @param  {String|Element|Function} slr 匹配选择器
-     * @return {Value|undefined}
+     * @return {Value|null}
      */
     first( slr ) {
-        return slr ? _first( this, slr ) : this[0];
+        if ( slr ) {
+            return _first( this, slr );
+        }
+        return this.length > 0 ? this[0] : null;
     }
 
 
@@ -3895,11 +3901,15 @@ class Collector extends Array {
      * 取值接口：function( Element ): Boolean
      * 注意：（同上）
      * @param  {String|Element|Function} slr 匹配选择器
-     * @return {Value|undefined}
+     * @return {Value|null}
      */
     last( slr ) {
         let _len = this.length;
-        return slr ? _first( this, slr, _len-1, -1 ) : this[ _len-1 ];
+
+        if ( slr ) {
+            return _first( this, slr, _len-1, -1 );
+        }
+        return this.length > 0 ? this[ _len-1 ] : null;
     }
 
 
@@ -3909,7 +3919,7 @@ class Collector extends Array {
      * - 未指定下标返回整个集合的一个普通数组表示。
      * 注：兼容字符串数字，但空串不为0。
      * @param  {Number} idx 下标值，支持负数
-     * @return {Value|[Value]}
+     * @return {Value|[Value]|undefined}
      */
     item( idx ) {
         return idx ? indexItem(this, +idx) : ( idx === 0 ? this[0] : Arr(this) );
@@ -4698,8 +4708,10 @@ function isWindow( obj ) {
 
 /**
  * 获取数组成员，支持负数。
- * @param {Array} list 数据数组
- * @param {Number} idx 位置下标
+ * 超出下标范围返回一个undefined。
+ * @param  {Array} list 数据数组
+ * @param  {Number} idx 位置下标
+ * @return {Value|undefined}
  */
 function indexItem( list, idx ) {
     return list[ idx < 0 ? list.length + idx : idx ];
@@ -4807,7 +4819,7 @@ function isCollector( obj ) {
  * 构造Collector成员实参。
  * - 用于基类构造后添加初始成员。
  * @param  {Element|Iterator|Array|Window|Document} obj 目标对象
- * @return {Iterator|[Value]} 可迭器或数组
+ * @return {.Iterator|[Value]} 可迭代对象或数组
  */
 function arrayArgs( obj ) {
     if ( obj == null ) {
