@@ -71,16 +71,17 @@ const
     __zeroName  = 'push',
 
     // 并列分组切分器。
-    // 注：属性选择器内分号不可用（无需包含）。
+    // 属性选择器内分号不可用（故无需排除）。
     __dlmtSplit = new Spliter( __chrDlmt, new UmpCaller(), new UmpString() ),
 
     // 指令切分器。
-    // 注意：多出的空格被切分为空串。
+    // 多出的空格被切分为空串。
     __cmdSplit  = new Spliter( __chrCmd, new UmpCaller() ),
 
     // 进阶定义切分器。
-    // 需要区分属性选择器、调用式。
-    // 注：字符串不在属性值或调用式之外（无需包含）。
+    // 属性选择器和调用式内可能包含|字符，因此排除。
+    // 注记：
+    // 字符串不在属性值或调用式之外，故无需例外。
     __pipeSplit = new Spliter( __chrPipe, new UmpCaller, new UmpChars('[', ']') ),
 
 

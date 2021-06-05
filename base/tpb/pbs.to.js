@@ -121,7 +121,7 @@ const _Update = {
      * @return {void}
      */
     triggers( tos, data, evn, bubble = false, cancelable = true ) {
-        evn = evn.split( evn );
+        evn = evn.split( __reSpace );
 
         if ( evn.length === 1 ) {
             return tos.forEach(
@@ -334,7 +334,6 @@ const _Update = {
             to = [to];
         }
         els.forEach(
-            // 移除略过目标。
             el => to.includes(el) || $.removeClass(el, name)
         );
         to.forEach( el => $.addClass(el, name) );

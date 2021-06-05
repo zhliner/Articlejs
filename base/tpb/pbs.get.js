@@ -658,11 +658,10 @@ const _Gets = {
 
 
     /**
-     * 元素克隆。
+     * 元素（集）克隆。
      * 目标：暂存区/栈顶1项。
      * 可选择同时克隆元素上绑定的事件处理器。
-     * 注记：
-     * 同时支持Collector实例，下同。
+     * 支持多个元素同时克隆。
      * @data: Element|[Element]
      * @param  {Boolean} event 包含事件处理器，可选
      * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
@@ -677,16 +676,16 @@ const _Gets = {
 
 
     /**
-     * 单元素多次克隆。
+     * 多次克隆（单元素）。
      * 目标：暂存区/栈顶1项。
      * 可选择同时克隆元素上绑定的事件处理器。
-     * 克隆1个时返回单个元素，否则返回一个集合。
+     * 始终返回一个数组。
      * @data: Element
      * @param  {Number} cnt 克隆个数
      * @param  {Boolean} event 包含事件处理器，可选
      * @param  {Boolean} deep 深层克隆（含子元素），可选（默认true）
      * @param  {Boolean} eventdeep 包含子元素的事件处理器，可选
-     * @return {[Element]|Element}
+     * @return {[Element]}
      */
     clones( evo, cnt, event, deep, eventdeep ) {
         let _buf = [];
@@ -696,10 +695,28 @@ const _Gets = {
                 $.clone( evo.data, event, deep, eventdeep )
             );
         }
-        return _buf.length > 1 ? _buf : _buf[0];
+        return _buf;
     },
 
     __clones: 1,
+
+
+    /**
+     * 集合成员提取。
+     * 如果是Collector实例，无实参传递时返回一个原生数组。
+     * 注意：
+     * 越界的下标会返回一个无法入栈的undefined。
+     * @data 可迭代集合（Array|Map|Set...）
+     * @param  {Number} idx 位置下标
+     * @return {Value|[Value]|undefined}
+     */
+    item( evo, idx ) {
+        let x = evo.data;
+        // 友好普通数组。
+        return ( $.isArray(x) && !$.isCollector(x) ) ? x[ idx ] : $(x).item( idx );
+    },
+
+    __item: 1,
 
 
     /**
@@ -1615,18 +1632,17 @@ const _Gets = {
 [
     'first',    // ( slr? ): Value
     'last',     // ( slr? ): Value
-    'item',     // ( idx? ): Value | [Value]
 ]
 .forEach(function( meth ) {
     /**
      * 集合成员取值。
-     * @param  {Number|String} its 位置下标或选择器
+     * 如果传递了过滤选择器但未匹配，返回null。
+     * 注意：
+     * 对空集合取值也会返回一个null。
+     * @param  {Number|String} slr 过滤选择器
      * @return {Value|[Value]|null}
      */
-    _Gets[meth] = function( evo, its ) {
-        let _v = $(evo.data)[meth]( its );
-        return _v !== undefined ? _v : null;
-    };
+    _Gets[meth] = function( evo, slr ) { return $(evo.data)[meth]( slr ) };
 
     _Gets[`__${meth}`] = 1;
 

@@ -33,8 +33,9 @@ import cfg from "./shortcuts.js";
 import { Hicolor } from "../plugins/hlcolor/main.js";
 import { colorHTML, htmlBlock, htmlList } from "./coloring.js";
 
-// 脚本面板专项
+// 专项导入
 import "./shedit.js";
+import { Spliter, UmpString, UmpCaller } from "./tools/spliter.js";
 
 
 const
@@ -151,7 +152,11 @@ const
     __TQHistory = new $.Fx.History(),
 
     // 编辑器关联存储。
-    __EDStore = new CStorage( Sys.prefixEditor );
+    __EDStore = new CStorage( Sys.prefixEditor ),
+
+    // OBT分组切分器。
+    // 排除调用式和字符串内的分号。
+    __dlmtSplit = new Spliter( ';', new UmpCaller(), new UmpString() );
 
 
 
@@ -5434,6 +5439,9 @@ export const Kit = {
      * 获取选取集首个成员。
      */
     sel0() {
+        // debug:
+        __ESet.add( $.get('#obt2test') );
+
         return first( __ESet ) || null;
     },
 
@@ -5531,6 +5539,20 @@ export const Kit = {
     },
 
     __obtname: 1,
+
+
+    /**
+     * OBT片段切分。
+     * 注：顶层分组由分号分隔。
+     * @return {[String]}
+     */
+    obtsplit( evo ) {
+        return evo.data ?
+            [ ...__dlmtSplit.split(evo.data) ].map( s => s.trim() ) :
+            [];
+    },
+
+    __obtsplit: 1,
 
 
     /**
@@ -6682,9 +6704,10 @@ customGetter( null, Kit, [
     'tobj',
     'trbox',
     'tsecbox',
+    'codebox',
     'attrs',
     'obtname',
-    'codebox',
+    'obtsplit',
     'source',
     'rngok',
     'menupos',

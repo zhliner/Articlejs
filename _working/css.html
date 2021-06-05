@@ -2738,7 +2738,8 @@
 
 <!-- 其它面板 ------------------------------------------------------------------->
 
-    <h4>[面板] 特性</h4>
+    <h4 id="obt2test" style="  font-size:large; font-weight: bold; color: blue; background-color: #999; font-style:italic;display: block; padding: 5px 10px;"
+        on="click|evo(3) debug('hello')">[面板] 特性</h4>
     <div id="attribute" class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -2791,21 +2792,24 @@
                 <div class="_body">
                     <div class="_main">
                         <!--特性编辑：
-                            vinit  初始设置值，分号切分换行友好。 -->
+                            vinit  初始设置值，简单分号切分换行友好。 -->
                         <textarea name="attr" spellcheck="false" class="_code" tpl-name="attr:value"
                             on="vinit|ev('detail') or('') split(';') trim join(';\n')"
                             to="|val"></textarea>
                         <!--OBT属性集：
-                            vinit  总设置通知，OBT各组初始赋值。-->
+                            vinit  总设置通知，接收数据为一个3元数组。-->
                         <div class="_obts" data-pbo="[fulled]" tpl-name="attr:obts"
                             on="vinit|ev('detail');
                                 ^obted|evo(3) delay remove"
                             to="(/>*)|triggers('parse')">
-                            <!--编辑友好：
+                            <!--主控编辑框：
+                                parse   初始解析配置，激活首段/行。
+                                编辑友好：
                                 Enter 切换到下一行，末行时可创建新行。
-                                Shift + Enter 创建新<li>行。注：文本换行没有意义。 -->
+                                Shift + Enter 创建新<li>行。注：文本换行没有意义。
+                                Ctrl + ↑↓ 上下移动当前行，关联行安静随动。 -->
                             <ol spellcheck="false" class="_code" tpl-name="obts:active"
-                                on="parse|">
+                                on="parse|ev('detail') v.obtsplit">
                                 <li contenteditable="true"></li>
                                 <li contenteditable="true"></li>
                                 <li contenteditable="true"></li>
