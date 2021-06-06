@@ -8101,6 +8101,7 @@ tQuery.isCollector  = isCollector;
 tQuery.dataName     = dataName;
 tQuery.is           = $is;
 tQuery.type         = $type;
+tQuery.siblingNth   = siblingNth;
 
 
 Object.assign( tQuery, {

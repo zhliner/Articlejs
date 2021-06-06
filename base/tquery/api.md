@@ -1779,3 +1779,11 @@ $.now(true);
 - `val: Any` 获取其类型的任意目标值。
 
 求取的是目标值的构造函数名，如：`$.type(123) => "Number"`，而不是 `typeof` 运算符的返回值。另外有两个特例：`null => "null"`、`undefined => "undefined"`。
+
+
+### $.siblingNth( el, slr? ): Number
+
+检查获取目标元素在兄弟元素中的位置（从1开始）。
+
+- `el: Element` 目标元素。注：仅限于元素，不包含其它如文本节点。
+- `slr: String` 选择器匹配约束，仅匹配的元素才计数。可选。
