@@ -666,6 +666,7 @@ class Stack {
 
     /**
      * 截取数据栈任意段。
+     * 下标支持负值从末尾算起。
      * @param {Number} idx 起始下标
      * @param {Number} cnt 移除计数
      */

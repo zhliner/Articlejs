@@ -2797,44 +2797,60 @@
                             on="vinit|ev('detail') or('') split(';') trim join(';\n')"
                             to="|val"></textarea>
                         <!--OBT属性集：
-                            vinit  总设置通知，接收数据为一个3元数组。-->
+                            vinit   总设置通知，接收数据为一个3元数组。
+                            keydown 主控编辑框友好编辑逻辑。
+                            主控编辑：
+                            Enter 切换到下一行，末行时可创建新行。
+                            Ctrl + ↑↓ 上下移动当前行，关联行静默随动。 -->
                         <div class="_obts" data-pbo="[fulled]" tpl-name="attr:obts"
                             on="vinit|ev('detail');
                                 ^obted|evo(3) delay remove"
                             to="(/>*)|triggers('parse')">
                             <!--主控编辑框：
-                                parse   初始解析配置，激活首段/行。
-                                编辑友好：
-                                Enter 切换到下一行，末行时可创建新行。
-                                Shift + Enter 创建新<li>行。注：文本换行没有意义。
-                                Ctrl + ↑↓ 上下移动当前行，关联行安静随动。 -->
-                            <ol spellcheck="false" class="_code" tpl-name="obts:active"
-                                on="parse|ev('detail') v.obtsplit">
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
-                                <li contenteditable="true"></li>
+                                parse   接收初始配置，构造解析信息递送（value）。
+                                value   解析配置，聚焦到目标行。detail:[i:Number, true, list]
+                                focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。
+                                switch  切换为主控列表，赋值并聚焦到目标行。detail:[i, list, <label>]
+                                        注：首先恢复为所属OBT分组<label>，之后再替换为目标分组的主控列表（重新构造）。
+                                removed 脱离DOM后，切换为目标分组主控列表。
+                                        提示：(true) pick(-2) push 交换栈顶2项位置。
+                                注记：
+                                默认最少10行可用（美观）。 -->
+                            <ol data-x="obts:on" spellcheck="false" class="_code" tpl-name="obts:active"
+                                on="parse|(0, true) ev('detail') v.obtsplit pack(3);
+                                    value|ev('detail') spread dup len max(10) els('li', _1);
+                                    focus(li)|evo(2) siblingNth sub(1);
+                                    switch|ev('detail') evo(3) attr('-x') node;
+                                    removed|ev('detail') spread"
+                                to="|trigger('value');
+                                    |fill $text $contenteditable|target pop item(_1) pop focus;
+                                    (1/>label)|trigger('index');
+                                    |replace|goto('removed', _1);
+                                    |replaceWith|(true) pick(-2) push pack(3) goto('value', _1)">
                                 <li contenteditable="true"></li>
                             </ol>
-                            <label tpl-name="obts:on"
-                                on="^obted|evo(3) delay remove">
+                            <!--自动匹配参考：
+                                parse   初始分解配置，存储结果到共享的父容器上（便于取值）。
+                                        注：从data-n上取键名存储数据，以便于on/by/to通用。
+                                index   接收定位索引号，提取目标行显示供参考。同时存储该下标值（data-i）备用。
+                                click   切换当前特性为主控列表，并聚焦到当前行。
+                                        递送数据：[i:Number, list, <label>] -->
+                            <label data-n="on" tpl-name="obts:on"
+                                on="parse|ev('detail') v.obtsplit evo(3) attr('-n');
+                                    index|ev('detail') dup evo(3) attr('-n') $('1/') pop data(_1) pop item(_1) or(null);
+                                    click(b)|$('/textarea') attr('-i') evo(3) attr('-n') $('1/') pop data(_1) evo(3) pack(3);
+                                    ^obted|evo(3) delay remove"
+                                to="1/|data(_1);
+                                    /textarea|val attr('-i');
+                                    1/ol|trigger('switch')">
                                 <b title="单击切换">on</b>
                                 <textarea name="on" spellcheck="false" rows="1" class="_code"></textarea>
                             </label>
-                            <!--自适应条目：
-                                value   分解设置为OBT目标段（分号分隔）的文本。
-                                click   切换当前特性为主列表。 -->
-                            <label tpl-name="obts:by"
-                                on="parse|">
+                            <label data-n="by" tpl-name="obts:by">
                                 <b title="单击切换">by</b>
                                 <textarea name="by" spellcheck="false" rows="1" class="_code"></textarea>
                             </label>
-                            <label tpl-name="obts:to">
+                            <label data-n="to" tpl-name="obts:to">
                                 <b title="单击切换">to</b>
                                 <textarea name="to" spellcheck="false" rows="1" class="_code"></textarea>
                             </label>

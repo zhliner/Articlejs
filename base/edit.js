@@ -35,7 +35,7 @@ import { colorHTML, htmlBlock, htmlList } from "./coloring.js";
 
 // 专项导入
 import "./shedit.js";
-import { Spliter, UmpString, UmpCaller } from "./tools/spliter.js";
+import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";
 
 
 const

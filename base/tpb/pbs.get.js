@@ -1514,14 +1514,19 @@ const _Gets = {
     'outerWidth',   // ( margin? ): Number
     'outerHeight',  // ( margin? ): Number
     'next',         // ( slr?, until? ): Element | null
-    'prev',         // ( slr?, until? ): Element | null
     'nextAll',      // ( slr? ): [Element]
     'nextUntil',    // ( slr? ): [Element]
+    'nextNode',     // ( comment? ): Node | null
+    'nextNodes',    // ( comment? ): [Node]
+    'prev',         // ( slr?, until? ): Element | null
     'prevAll',      // ( slr? ): [Element]
     'prevUntil',    // ( slr? ): [Element]
+    'prevNode',     // ( comment? ): Node | null
+    'prevNodes',    // ( comment? ): [Node]
     'children',     // ( slr? ): [Element] | Element
     'contents',     // ( idx? ): [Node] | Node
     'siblings',     // ( slr? ): [Element]
+    'siblingNodes', // ( comment? ): [Node]
     'parent',       // ( slr? ): Element | null
     'parents',      // ( slr? ): [Element]
 
@@ -1608,6 +1613,7 @@ const _Gets = {
     'type',         // (): String
     'kvsMap',       // ( kname?, vname? ): [Object2]
     'paths',        // ( end?, slp?, slr? ): [Number]
+    'siblingNth',   // ( slr? ): Number
 
     // 与concat效果类似，但会改变目标本身。
     'mergeArray',   // ( ...src ): Array

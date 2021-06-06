@@ -510,7 +510,7 @@ const _Update = {
      * @param  {Boolean} clone 数据节点是否克隆
      * @param  {Boolean} event 元素上的事件处理器是否克隆
      * @param  {Boolean} eventdeep 元素子元素上的事件处理器是否克隆
-     * @return {Collector} 插入参考节点或克隆插入的节点集的封装
+     * @return {Collector} 参考节点的封装，或新插入节点集（如果克隆）的封装
      */
     _Update[ fns[0] ] = function( els, ref, clone, event, eventdeep  ) {
         ref = $(els)[fns[1]]( ref, clone, event, eventdeep );

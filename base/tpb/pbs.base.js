@@ -268,9 +268,12 @@ const _Control = {
     /**
      * 剪取数据栈目标位置条目（单项）。
      * idx负值从末尾算起（-1为栈顶1项）。
+     * 结合push指令，可用于交换栈顶条目位置。
      * 例：
      * pick(-1)  同 pop
      * pick(-2)  取栈顶之下1项。
+     * (val) pick(-2) push 剪取栈顶之下1项后入栈（交换栈顶2项）。
+     * @temp: Value
      * @param {Stack} stack 数据栈
      * @param {Number} idx 位置下标（支持负数）
      */
@@ -283,6 +286,11 @@ const _Control = {
 
     /**
      * 剪取数据栈任意区段。
+     * 结合push指令，可交换栈顶条目位置：
+     * 例：
+     * (val) clip(-3, 2) push(_)  剪取栈顶-3和-2项，展开入栈。
+     * (val) clip(-3, 2) push     同上剪取，但结果作为单项入栈。
+     * @temp: [Value]
      * @param {Stack} stack 数据栈
      * @param {Number} idx 起始位置
      * @param {Number} cnt 移除计数，可选
@@ -417,9 +425,10 @@ const _Control = {
      * 目标：无。
      * 特权：是，自行操作数据栈。
      * 两个位置下标支持负值从末尾倒算。
-     * @param {Stack} stack 数据栈
-     * @param {Number} beg 起始位置，可选
-     * @param {Number} end 结束位置（不含），可选
+     * @param  {Stack} stack 数据栈
+     * @param  {Number} beg 起始位置，可选
+     * @param  {Number} end 结束位置（不含），可选
+     * @return {[Value]}
      */
     part( evo, stack, beg, end ) {
         return stack.slice( beg, end );
@@ -1151,8 +1160,8 @@ const _Process = {
     /**
      * 取最大值。
      * 目标：暂存区/栈顶1项。
-     * 目标本身即为数值集合，但容错单值。
-     * @param  {Number} v 对比值
+     * 目标本身可为数值集合或单值。
+     * @param  {Number} v 参与值
      * @return {Number}
      */
     max( evo, v ) {
