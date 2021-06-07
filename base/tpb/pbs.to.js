@@ -83,13 +83,9 @@ const _Update = {
 
     /**
      * 发送定制事件。
-     * 如果目标是一个集合，相同的值发送到所有元素（tQuery），
+     * 如果目标是一个集合，相同的值发送到所有元素（同tQuery）。
      * 空集静默忽略。
-     * 可将事件名放在内容中（[0]），从而简单地获取动态性。
-     * 目标：{Element|[Element]|String}
-     * 如果是字符串会被视为选择器，向匹配的元素发送消息。
-     *
-     * @data: 发送值 | [事件名, 发送值]
+     * @data: 待发送值
      * @param  {Element|Collector} to 待激发元素/集
      * @param  {Value|[String, Value]} data 内容数据
      * @param  {String} evn 目标事件名
@@ -98,9 +94,6 @@ const _Update = {
      * @return {void}
      */
     trigger( to, data, evn, bubble = false, cancelable = true ) {
-        if ( !evn ) {
-            [evn, data] = data;
-        }
         if ( $.isArray(to) ) {
             return to.forEach( el => $.trigger(el, evn, data, bubble, cancelable) );
         }
@@ -110,25 +103,19 @@ const _Update = {
 
     /**
      * 发送定制事件。
-     * 此为多元素分别对应不同的发送值版（内容为一个数组）。
-     * 事件名可以是空格分隔的多个名称。若为多个名称即为一一对应。
+     * 此为多元素分别对应不同的发送值版（内容需为一个数组）。
      * @data: 发送值序列
      * @param  {[Element]|Collector} tos 待激发元素集
-     * @param  {[Value]} data 内容数据
-     * @param  {String} evn 目标事件名序列
-     * @param  {Boolean} bubble 是否可冒泡，可选（默认不冒泡）
-     * @param  {Boolean} cancelable 是否可取消，可选（默认可取消）
+     * @param  {[Value]} data 内容数据集
+     * @param  {String} evn 目标事件名
+     * @param  {Boolean} bubble 是否可冒泡，可选
+     * @param  {Boolean} cancelable 是否可取消，可选
      * @return {void}
      */
     triggers( tos, data, evn, bubble = false, cancelable = true ) {
-        evn = evn.split( __reSpace );
-
-        if ( evn.length === 1 ) {
-            return tos.forEach(
-                (el, i) => $.trigger( el, evn[0], data[i], bubble, cancelable )
-            );
-        }
-        tos.forEach( (el, i) => $.trigger(el, evn[i], data[i], bubble, cancelable) );
+        tos.forEach(
+            (el, i) => $.trigger( el, evn, data[i], bubble, cancelable )
+        );
     },
 
 
@@ -706,17 +693,18 @@ const _Next = {
      * - 10 原始检索结果（evo.primary）
      * - 11 更新后的结果（evo.updated）
      * 默认延迟，可设置具体的时间或0值（不延迟）。
+     * 如果传递选择器，检索的是一个集合，用户应当注意这点。
      * 注记：
      * 激发的事件默认冒泡，与通常的事件触发行为一致。
      * 因为这里就是想表达“触发另外的事”，应当冒泡以便于处理。
-     * @param {String|Number} rid 目标元素选择器（单个）
+     * @param {String|Number} rid 目标元素选择器
      * @param {String} name 事件名
      * @param {Number} delay 延迟时间（毫秒），可选
      * @param {Boolean} bubble 是否冒泡，可选。默认冒泡
      * @param {Boolean} cancelable 是否可取消，可选。默认可取消
      */
     fire( evo, rid, name, delay = 1, bubble = true, cancelable = true ) {
-        let _to = _target( evo, rid, true );
+        let _to = _target( evo, rid );
         // window.console.info( _to, name );
         Util.fireEvent( $(_to), name, delay, evo.data, bubble, cancelable );
     },
@@ -771,11 +759,8 @@ const _Next = {
      * @param {String} evn 定制事件名，可选
      */
     changes( evo, rid = 11, evn = 'changed' ) {
-        let _frm = _target( evo, rid );
-
-        for ( const frm of $(_frm) ) {
-            changedTrigger( $.controls(frm), evn, evo.data );
-        }
+        let _frm = _target( evo, rid, true );
+        _frm && changedTrigger( $.controls(_frm), evn, evo.data );
     },
 
     __changes: -1,
@@ -789,10 +774,10 @@ const _Next = {
      * rid默认匹配evo.updated。
      * @param {Number|String|true|false} y 垂直位置标识
      * @param {Number} x 水平位置标识
-     * @param {String|Number} 目标元素标识，可选
+     * @param {String|Number} 目标元素标识（单个），可选
      */
     intoView( evo, y, x, rid = 11 ) {
-        $.intoView( evo.data || _target(evo, rid), y, x );
+        $.intoView( evo.data || _target(evo, rid, true), y, x );
     },
 
     __intoView: -1,

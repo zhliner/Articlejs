@@ -4276,7 +4276,8 @@ elsExfn([
             (typeof name == 'string' || _nia && typeof name[0] == 'string') ) {
             return _customGets( fn, this, name, _nia );
         }
-        return _customSets( fn, this, name, value, _nia ), this;
+        _customSets( fn, this, name, value, _nia );
+        return this;
     }
 );
 

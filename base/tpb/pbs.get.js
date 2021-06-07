@@ -555,28 +555,28 @@ const _Gets = {
 
 
     /**
-     * 创建预填充值集合。
-     * 目标：暂存区条目可选。
-     * 如果目标有值，会合并到实参序列之后（数组会展开）。
+     * 创建预填充值数组。
+     * 目标：暂存区/栈顶1项。
+     * 目标为基准数组，如果不是数组会自动封装为数组。
      * 最后一个值用于剩余重复填充。
      * 如果完全没有填充值，数组成员会填充为undefined。
      * 例：
-     * - array(3, 'a', 'b')  // ['a', 'b', 'b']
-     * - array(3)  // [undefined, undefined, undefined]
-     * - push([10,11]) array(3, _)  // [10, 11, 11]
-     * - push([10,11]) push('xyz') pop array(4, _)  // [10, 11, 'xyz', 'xyz]
+     * - push(10) array(3)      // [10, undefined, undefined]
+     * - push(10) array(3, 'a') // [10, 'a', 'a']
      * @param  {Number} size 集合大小
      * @param  {...Value} vals 填充值序列，可选
      * @return {[Value]}
      */
     array( evo, size, ...vals ) {
-        if ( evo.data !== undefined ) {
-            vals = vals.concat(evo.data);
+        let x = evo.data;
+
+        if ( !$.isArray(x) ) {
+            x = [ x ];
         }
-        return arrayFill( vals, size );
+        return arrayFill( x.concat(vals), size );
     },
 
-    __array: 0,
+    __array: 1,
 
 
     /**
@@ -621,27 +621,6 @@ const _Gets = {
 
 
     /**
-     * 创建元素集。
-     * 目标：暂存区1项可选。
-     * 如果目标有值，作为创建元素的文本内容。
-     * 目标可以是数组，成员值按顺序作为元素集成员的内容。
-     * @param  {String} tag 元素标签名
-     * @param  {Number} n 元素数量
-     * @return {[Element]}
-     */
-    els( evo, tag, n ) {
-        let v = evo.data;
-
-        if ( !$.isArray(v) ) {
-            v = [v];
-        }
-        return arrayFill( v, n ).map( d => $.elem(tag, d) );
-    },
-
-    __els: -1,
-
-
-    /**
      * 简单创建元素。
      * 目标：暂存区1项可选。
      * 目标为可选的元素内容文本。
@@ -651,10 +630,36 @@ const _Gets = {
      */
     elem( evo, tag ) {
         let _x = evo.data;
-        return $.isArray(_x) ? $(_x).elem(tag) : $.elem(tag, _x);
+        return $.isArray( _x ) ? $(_x).elem( tag ) : $.elem( tag, _x );
     },
 
     __elem: -1,
+
+
+    /**
+     * 创建元素集。
+     * 目标：暂存区1项可选。
+     * 如果目标有值，作为创建元素的文本内容。
+     * 目标可以是数组，成员值按顺序作为元素集成员的内容。
+     * 支持HTML标签序列创建，但此时内容数据会被忽略。
+     * 例：
+     * els('li', 10)          创建10个<li>元素
+     * els('<li><input>', 10) 创建10组嵌套（<li><input /></li>）的元素
+     * @param  {String} tag 元素标签名
+     * @param  {Number} n 元素数量
+     * @return {[Element]}
+     */
+    els( evo, tag, n ) {
+        let v = evo.data,
+            f = tag[0] === '<' ? elemTags : d => $.elem(tag, d);
+
+        if ( !$.isArray(v) ) {
+            v = [v];
+        }
+        return arrayFill( v, n ).map( f ).flat();
+    },
+
+    __els: -1,
 
 
     /**
@@ -705,15 +710,16 @@ const _Gets = {
      * 集合成员提取。
      * 如果是Collector实例，无实参传递时返回一个原生数组。
      * 注意：
-     * 越界的下标会返回一个无法入栈的undefined。
+     * undefined会自动转换为null入栈，通常这是因为下标越界所致。
      * @data 可迭代集合（Array|Map|Set...）
      * @param  {Number} idx 位置下标
-     * @return {Value|[Value]|undefined}
+     * @return {Value|[Value]|null}
      */
     item( evo, idx ) {
-        let x = evo.data;
-        // 友好普通数组。
-        return ( $.isArray(x) && !$.isCollector(x) ) ? x[ idx ] : $(x).item( idx );
+        let x = evo.data,
+            v = ($.isArray(x) && !$.isCollector(x)) ? x[idx] : $(x).item(idx);
+
+        return v === undefined ? null : v;
     },
 
     __item: 1,
@@ -2062,6 +2068,16 @@ function elemInfo( el, hasid, hascls ) {
         _s += '.' + [...el.classList].join('.');
     }
     return _s;
+}
+
+
+/**
+ * 用标签序列创建元素集。
+ * @param  {String} tags 标签序列
+ * @return {[Element]}
+ */
+function elemTags( tags ) {
+    return [ ...$.fragment( tags ).children ];
 }
 
 

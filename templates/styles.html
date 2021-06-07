@@ -65,7 +65,7 @@
     on="modify|('font-size') $$('/#_fsize') v.unitVal pack(2);
         follow|ev('detail') v.styVal('font-size');
         follow|ev('detail') v.styVal('font-size') ('') pack(2)"
-    to="form/|trigger('style')|fire('/select', 'reset');
+    to="form/|trigger('style')|fire('/#_fsname', 'reset');
         /#_fsname|val;
         (/#_fsize)|val">
     <!-- 友好：焦点回归，0延迟无闪烁。 -->

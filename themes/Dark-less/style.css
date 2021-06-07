@@ -1419,13 +1419,17 @@ menu._cells code {
     color: #eee;
 }
 .Attr ._obts[data-pbo=fulled] textarea {
-    height: 4em;
+    height: 3em;
 }
 .Attr ._obts > :first-child {
     margin-bottom: 1px;
 }
 .Attr ._obts > :last-child {
     margin-top: 1px;
+}
+.Attr ._obts li._hot {
+    color: #cef;
+    background-color: #333;
 }
 
 

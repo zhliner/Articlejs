@@ -351,3 +351,7 @@ export {
     Templater,
     InitTpl,
 };
+
+
+//:debug
+window.DataStore = DataStore;

@@ -135,7 +135,7 @@ const
     // OBT 特性名检查。
     // 用于特性名检查构造复合名（__obtAttr）。
     __obtNames = new Set([
-        'on', 'by', 'to', 'on by to', 'on-by-to'
+        'on', 'by', 'to', 'on by to'
     ]),
 
     // 元素选取集实例。
@@ -5544,12 +5544,14 @@ export const Kit = {
     /**
      * OBT片段切分。
      * 注：顶层分组由分号分隔。
-     * @return {[String]}
+     * @data: [String] OBT配置串组
+     * @return {[[String]]}
      */
     obtsplit( evo ) {
-        return evo.data ?
-            [ ...__dlmtSplit.split(evo.data) ].map( s => s.trim() ) :
-            [];
+        return evo.data.map(
+            ss =>
+            ss ? [...__dlmtSplit.split(ss)].map(s => s.trim()) : []
+        );
     },
 
     __obtsplit: 1,
