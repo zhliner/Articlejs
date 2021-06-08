@@ -151,7 +151,7 @@
     on="modify|$('/select') val $$('/#_valu2') v.unitVal pack(2);
         follow|ev('detail') $('/[name=ns]') val v.styName(_1)"
     to="form/|trigger('style');
-        /select|val trigger('change')">
+        /select|val|change">
     <!--state2val: 取值反馈：
         change 取目标样式在元素集内的值（相同时有效），多选时多个值也需相同，否则视为空。
         clear  目标样式的求值为null时激发，清空输入框。
@@ -193,7 +193,7 @@
     on="modify|$('/select') val $$('/#_valu2') v.unitVal pack(2);
         follow|ev('detail') $('/select') attr('-slr') $(_1) val v.styKey(_1)"
     to="form/|trigger('style');
-        /select|val trigger('change')">
+        /select|val|change">
     <div>
         <div class="_minibar"
             on="click(input)|evo(2) val node"
@@ -282,7 +282,7 @@
             click(b)|evo(2) css('background-color') rgb16"
         to="#color-show|%backgroundColor;
             #color-show|%backgroundColor;
-            1/#_color|val trigger('change', true)">
+            1/#_color|val|change">
         <span class="_g16">
             <b style="background-color:#000" title="#000"></b>
             <b style="background-color:#111" title="#111"></b>
@@ -337,7 +337,7 @@
                         renew|('_err');
                         error|('_err')"
                     to="|trigger(_1);
-                        |removeClass|fire('aside/#_color', 'change');
+                        |removeClass|change('aside/#_color');
                         |addClass" />
             </div>
         </div>

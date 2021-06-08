@@ -697,7 +697,7 @@ const _Next = {
      * 注记：
      * 激发的事件默认冒泡，与通常的事件触发行为一致。
      * 因为这里就是想表达“触发另外的事”，应当冒泡以便于处理。
-     * @param {String|Number} rid 目标元素选择器
+     * @param {String|Value} rid 目标指示或选择器
      * @param {String} name 事件名
      * @param {Number} delay 延迟时间（毫秒），可选
      * @param {Boolean} bubble 是否冒泡，可选。默认冒泡
@@ -709,6 +709,7 @@ const _Next = {
         Util.fireEvent( $(_to), name, delay, evo.data, bubble, cancelable );
     },
 
+    // 待发送数据。
     __fire: -1,
 
 
@@ -728,68 +729,79 @@ const _Next = {
         }
     },
 
+    // 跳转条件。
     __goto: -1,
 
 
     /**
      * 变化事件激发。
      * 内容：暂存区1项可选。
-     * 如果内容有值，则作为激发事件的目标。
+     * 如果内容有值，则作为事件发送的数据。
      * 默认目标为更新的结果/集（evo.updated），如果传递选择器，默认单个目标检索。
+     * 注记：
+     * 与click等系列事件逻辑类似，保持向上冒泡。
      * @param {String|Number} rid 目标选择标识，可选
      * @param {Boolean} much 是否检索多个目标，可选
      */
     change( evo, rid = 11, much ) {
-        $( evo.data || _target(evo, rid, !much) ).trigger( 'change' );
+        $( _target(evo, rid, !much) ).trigger( 'change', evo.data, true );
     },
 
+    // 待发送数据。
     __change: -1,
 
 
     /**
-     * 表单控件默认值改变通知。
+     * 触发表单控件默认值改变通知。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
      * 行为：
-     * 检查表单控件值是否不再为默认值，激发目标控件上的evn事件，
+     * 检查表单控件值是否不再为默认值，激发目标控件上的changed事件，
      * 如果都没有改变，不会激发事件。
-     * 通常在表单元素（<form>）上绑定监控处理器（changed）。
-     *
-     * @param {String} rid 表单元素选择器（单个）
-     * @param {String} evn 定制事件名，可选
+     * 注记：
+     * 检索目标可能已经是一个集合。
+     * @param {String} rid 表单元素选择器
+     * @param {Boolean} much 是否检索多个目标，可选
      */
-    changes( evo, rid = 11, evn = 'changed' ) {
-        let _frm = _target( evo, rid, true );
-        _frm && changedTrigger( $.controls(_frm), evn, evo.data );
+    changes( evo, rid = 11, much ) {
+        let _frm = _target( evo, rid, !much );
+
+        for ( const frm of $(_frm) ) {
+            changedTrigger( $.controls(frm), 'changed', evo.data );
+        }
     },
 
+    // 待发送数据。
     __changes: -1,
 
 
     /**
      * 滚动到当前视口。
-     * 内容：暂存区1项可选。
      * y, x 值说明参考On部分同名接口。
-     * 如果暂存区有值，则操作该目标，否则默认操作rid匹配的值。
      * rid默认匹配evo.updated。
      * @param {Number|String|true|false} y 垂直位置标识
      * @param {Number} x 水平位置标识
-     * @param {String|Number} 目标元素标识（单个），可选
+     * @param {String|Number} 目标元素标识，可选
+     * @param {Boolean} much 是否检索多个目标，可选
      */
-    intoView( evo, y, x, rid = 11 ) {
-        $.intoView( evo.data || _target(evo, rid, true), y, x );
+    intoView( evo, y, x, rid = 11, much ) {
+        let _to = _target( evo, rid, !much );
+
+        if ( !$.isArray(_to) ) {
+            _to = [ _to ];
+        }
+        _to.forEach( el => $.intoView( el, y, x ) );
     },
 
-    __intoView: -1,
+    __intoView: null,
 
 };
 
 
 //
 // 原生事件/方法调用。
-// 内容：暂存区1项可选。
-// 如果内容有值，作为触发事件的目标元素。
-// 注：覆盖On部分同名方法。
+// 如果内容有值，则作为事件触发的目标元素。
+// 覆盖On部分同名方法。
 // 理解：重在“激发”。
 //===============================================
 [
@@ -805,20 +817,24 @@ const _Next = {
     'finish',
     'cancel',
 
-    // On存在同名集合方法，故此不再定义。
+    // On存在同名集合方法，故此无效。
     // 'reverse',
 ]
 .forEach(function( meth ) {
     /**
      * 默认目标为更新的结果/集（evo.updated），
      * 如果传递选择器，默认单个目标检索。
-     * @param {String} rid 目标选择标识，可选
+     * 注：
+     * 只有在rid传递为选择器时，much指示才有意义。
+     * 否则目标是否为一个集合，由目标自身决定。
+     * @param {String|Value} rid 目标选择标识，可选
      * @param {Boolean} much 是否检索多个目标，可选
      */
     _Next[meth] = function( evo, rid = 11, much ) {
         $( evo.data || _target(evo, rid, !much) )[ meth ]();
     };
 
+    // 触发目标。
     _Next[`__${meth}`] = -1;
 
 });
@@ -1059,8 +1075,9 @@ function selectChanged( sel ) {
  * - 3  事件委托元素（evo.delegate）
  * - 10 原始检索结果（evo.primary）
  * - 11 更新后的结果（evo.updated）
- * 适用：部分接口暂存区1项可选时。
- * @param  {String} rid 目标标识，可选
+ * 如果rid不是字符串或合法的数字，返回rid本身（如为元素）。
+ * one仅在rid传递字符串选择器时有意义。
+ * @param  {String|Value} rid 目标标识，可选
  * @param  {Boolean} one 是否单元素检索，可选
  * @return {Element|Collector}
  */
@@ -1072,7 +1089,7 @@ function _target( evo, rid, one ) {
         case 10: return evo.primary;
         case 11: return evo.updated;
     }
-    return Util.find( rid, evo.delegate, one );
+    return typeof rid === 'string' ? Util.find( rid, evo.delegate, one ) : rid;
 }
 
 
