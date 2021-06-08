@@ -794,6 +794,10 @@ Keys: {
     // [Key] + 上下箭头键
     tableCellx: 'Shift',
 
+    // 主面板：特性OBT行移动辅助
+    // [Key] + 上下箭头键
+    attrOBTmove: 'Ctrl',
+
     // BackSpace增强
     // 代码框里加按该键向前删除全部缩进。
     backspaceMore: 'Ctrl',

@@ -184,7 +184,10 @@ pass( ...vals: Value ): void
 // 通过性检查。
 
 end( ...vals: Value ): void
-// 流程终止。
+// 条件终止执行流。
+
+exit(): void
+// 无条件终止执行流。
 
 avoid( back?: Value ): back|void
 // 停止事件默认的行为。

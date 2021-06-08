@@ -2810,22 +2810,36 @@
                             to="|val"></textarea>
                         <!--OBT属性集：
                             vinit   总设置通知，接收数据为一个3元数组。
-                            keydown 主控编辑框友好编辑逻辑。
+                            newline 在当前行之后新建一个空行并聚焦。
+                            keydown 1.Ctrl+上下箭头键移动当前行。
+                            keydown 2.加按Shift新建行。终止其余Enter行为。
+                            keydown 3.普通键入Enter，移动到下一行。如果到末尾则新建一行。
                             主控编辑：
                             Enter 切换到下一行，末行时可创建新行。
                             Shift + Enter 当前位置之后创建新条目（行内换行无意义）。
-                            Ctrl + ↑↓ 上下移动当前行，关联行静默随动。
+                            Ctrl + ↑↓ 上下移动当前行，关联行随动。
                         -->
                         <div class="_obts" data-pbo="[fulled]" tpl-name="attr:obts"
-                            on="vinit|ev('detail') v.obtsplit;
+                            on="newline|(null) ev('detail') evo(3) data('on by to');
+                                keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') (KM.attrOBTmove) scam(_1) both pass avoid evo(2) ev('key') evo(3) data('on by to');
+                                keydown(li)|iskey('Enter') scam('shift') both pass stopAll avoid evo(2);
+                                keydown(li)|iskey('Enter') pass avoid evo(2) dup next dup vnot jump(2, 1) focus exit;
+                                vinit|ev('detail') v.obtsplit;
                                 ^obted|evo(3) delay remove"
-                            to="|data('on by to')|fire('/ol', 'active')">
+                            by="Kit.obtline(_1) ev('detail') pop;
+                                Kit.obtmove(_2)"
+                            to="-|after $text|focus;
+                                -;
+                                |trigger('newline');
+                                |trigger('newline');
+                                |data('on by to')|fire('/ol', 'active')">
                             <!--主控编辑框：
-                                当前编辑行设置_hot类名以便区分。
+                                当前编辑行设置 _hot 类名以便区分。
                                 active  创建列表清单并逐一赋值，聚焦到目标行。
-                                focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。
+                                focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
                                 switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递。detail:[i, list, <label>]
                                 removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
+                                paste   限定仅支持粘贴纯文本。
                                 注记：
                                 默认最少10行可用（美观）。 -->
                             <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" tpl-name="obts:master"
@@ -2833,9 +2847,10 @@
                                     focus(li)|evo(2) siblingNth sub(1) dup;
                                     focus(li)|evo(2) hasClass('_hot') end $$('/li');
                                     switch|ev('detail') evo(3) attr('-n') str('obts:') node;
-                                    removed|ev('detail') dup attr('-n')"
+                                    removed|ev('detail') dup attr('-n');
+                                    paste(li)|avoid evo(2) clipboard html exeCmd('insertHTML', _1);"
                                 to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
-                                    |@-i|pop fire('1/>label', 'index');
+                                    |@-i|pop fire('1/>label', 'index', 100);
                                     =|only('_hot');
                                     |replace|goto('removed', _1);
                                     |@-n replaceWith|goto('active')">
@@ -2868,7 +2883,7 @@
                         </div>
                     </div>
                     <aside>
-                        <!-- 全部特性清理和设置 -->
+                        <!-- 当前条目确认提交，可选。 -->
                         <div class="_submit" tpl-name="common:submit">
                             <button type="submit">确定</button>
                         </div>

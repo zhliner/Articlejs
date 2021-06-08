@@ -6208,7 +6208,7 @@ export const Kit = {
         $( __tmpclsSlr, evo.data )
             .removeClass( __tmpcls );
 
-        __EDStore.add( Sys.storeMain, $.html(evo.data) );
+        __EDStore.set( Sys.storeMain, $.html(evo.data) );
         return Tips.localStoreDone;
     },
 
@@ -6640,6 +6640,45 @@ export const Kit = {
 
     __checkhtml: 1,
 
+
+    /**
+     * 主控OBT列表新建一行。
+     * 新建的行会在当前行之后插入，
+     * 因此需要在OBT集中相应位置（如果有效）插入一个空条目。
+     * @data: Element 当前行<li>
+     * @param  {[String]} on On配置组引用
+     * @param  {[String]} by By配置组引用
+     * @param  {[String]} to To配置组引用
+     * @return {Element}
+     */
+    obtline( evo, [on, by, to] ) {
+        let _n = $.siblingNth( evo.data );
+
+        if ( _n < on.length ) on.splice( _n, 0, '' );
+        if ( _n < by.length ) by.splice( _n, 0, '' );
+        if ( _n < to.length ) to.splice( _n, 0, '' );
+
+        return $.clone( evo.data );
+    },
+
+    __obtline: 1,
+
+
+    /**
+     * 上下移动当前行。
+     * 注意同步调整OBT数据集。
+     * @data: Element 当前行<li>
+     * @param  {String} arrow 箭头键名（ArrowUp|ArrowDown）
+     * @param  {[String]} on On配置组引用
+     * @param  {[String]} by By配置组引用
+     * @param  {[String]} to To配置组引用
+     * @return {void}
+     */
+    obtmove( evo, arrow, [on, by, to] ) {
+        //
+    },
+
+    __obtmove: 1,
 };
 
 

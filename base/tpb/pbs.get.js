@@ -945,9 +945,7 @@ const _Gets = {
      * 若目标有值，则视为关联元素，否则关联当前委托元素。
      * name支持空格分隔的名称序列。
      * 如果不存在关联存储（Map），返回null。
-     * 注记：
-     * 因为主要是直接使用（如插入DOM），故返回值数组（而不是键值对象）。
-     * 返回null可用于判断状况，但无法区分本来就存储的null。
+     * 注意：返回null可用于判断状况，但无法区分本来就存储的null。
      * @data: Element
      * @param  {String} name 名称/序列
      * @return {Value|[Value]|null}
