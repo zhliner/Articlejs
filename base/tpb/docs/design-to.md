@@ -1,6 +1,6 @@
 ## Tpb: To
 
-用流程传递来的内容数据对检索（`Query`）的目标进行修改/更新（`Update`），并支持后续联动的事件触发和少量的基本功能指令（`Next-Stage`）。
+用流程传递来的内容数据对检索（`Query`）的目标进行修改/更新（`Update`），并支持后续联动的事件触发或衔接（`Next-Stage`）。
 
 `to = "Query | Update | Next-Stage"`
 
@@ -12,26 +12,18 @@
 
 ### Query
 
-定义目标元素（集）的查询表达式。因为值本身被视为字符串，所以无需再用引号包围。如：`to="#xyz|replace"` 而不是 `to="'#xyz'|replace"`（其中 `xyz` 为某元素的id）。
+定义目标元素（集）的查询表达式。因为值本身被视为字符串，所以无需再用引号包围。如：`to="#here|replace"` 而不是 `to="'#here'|replace"`（其中 `here` 为某元素的id）。
 
 
-#### 暂存区为空
+#### 起点元素
 
-当前条目无值（`undefined`）。取事件绑定/委托元素（`evo.delegate`）为二阶查询的起点元素。
+查询表达式的起点元素为事件绑定/委托元素（`evo.delegate`），但也可以通过向暂存区赋值（如 `pop`）来指定查询的起点元素。此时查询表达式有两种情况：
 
-- **选择器为空**：起点元素本身即为最终目标。
-- **选择器非空**：按二阶检索法检索目标元素，如果需要检索一个集合，需要在选择器前置 `+` 标志。
+1. **选择器为空**：起点元素自身即为查询的结果。如果是由前阶提供，它实际上可以是一个集合。
+2. **选择器非空**：按二阶检索法检索目标元素（集）。如果是检索一个集合，可以在选择器之后包含过滤表达式（见下）。
 
-
-#### 暂存区非空
-
-当前条目有值（非 `undefined`）。取当前条目为二阶查询的起点元素，该元素需要由前阶段（`On/By`）的末尾指令预先提取（如 `pop`）。
-
-- **选择器为空**：当前条目即为最终目标。如果目标不为元素，后阶 `Update` 方法段通常为空（`Update` 主要用于元素操作）。
-- **选择器非空**：当前条目为查询的起点元素。如果当前条目是一个集合（非元素），选择器应当只包含进阶提取部分。
-
-> **注：**<br>
-> 允许采用当前条目为起点元素或目标集，使得目标可以是动态的，不受模板定义局限。
+> **注记：**<br>
+> 允许前阶指令指定起点元素或目标集，可以提供一种动态性，不受模板明文的局限。
 
 
 #### 括号语法
@@ -39,22 +31,24 @@
 如果是查询多个元素，查询串需要包含在一对小括号（`(selector)`）中。如果要对查询结果进行进一步过滤，有如下规则：
 
 - `()` 指定不匹配（排除）选择器，格式：`(...)(selector)`，选择器无引号包围。不同于 `:not(...)` 只能用于简单测试，这里可以是复杂的复合选择器（`!$.is(...)`）。
-- `[]` 指定下标范围或特定的位置，格式：`(...)[beg:end]`，冒号分隔起止范围（两值皆可省略，beg默认为0，end默认为集合大小），或 `(...)[x, y, z]`，逗号分隔特定位置。**注意**：两者不可混用。
-- `{}` 用一个表达式实现过滤，接口：`(v:Value, i:Number, c:Collector): Boolean`，参数名固定，表达式无需 `return`。如：`(...){ i%2 && i<=10}`，返回集合中前5个偶数位置成员。
+- `[]` 指定下标范围或特定的位置，格式：`(...)[beg:end]`，冒号分隔起止范围（两值皆可省略，beg默认为0，end默认为集合大小），或 `(...)[x, y, z]`，逗号分隔特定位置。注意两者不可混用。
+- `{}` 用一个表达式实现过滤，接口：`function(v:Value, i:Number, c:Collector): Boolean`，参数名固定，表达式无需 `return`。如：`(...){ i%2 && i<=10}`，返回集合中前5个偶数位置成员。
 
-查询的起点可由前阶指定（On|By 末尾的 `pop` 取出），如果这本身就是一个集合，则正常的查询无法执行。通常，用户是想要在此基础上过滤，则此时查询部分应当为空：一个空括号 `()` 用来表示集合结果，如：`()[10:]` 取集合除前10个成员的后半段。
+查询的起点可由前阶指定（On|By 末尾的 `pop` 取出），如果这本身就是一个集合，则查询无法执行。通常，用户可能是想要在此基础上过滤（如果不是直接采用的话），此时查询部分应当为空，但需要一个空括号 `()` 来占位查询结果，如：`()[10:]` 取集合中第10个成员及之后的部分。
 
 
 #### 特殊字符
 
-有两个单独的特殊字符（`~` 和 `#`）指代两个特别的元素。
+有两个单独的特殊字符（`~` 和 `=`）指代两个特别的目标。
 
 - `~` 事件起点元素（`event.target|elo.target`）。**注**：`~` 也是 `tQuery` 中匹配事件起点元素的标识字符。
-- `=` 事件当前元素（`event.currentTarget|elo.current`）。如：`to="=|append"`，在事件当前元素内插入内容。
+- `=` 委托选择器匹配的事件当前元素（`elo.current`）。如：`to="=|append"`，在事件当前元素内插入内容。
 
-> **另外：**<br>
-> 短横线（`-`）是一个占位符，表示无查询串，目标取起点元素自身。因为默认的起点元素是事件委托元素，所以这隐含地也指代了 `elo.delegate`。通常，这一占位符无需书写，如 `|append` 等同于 `-|append`。<br>
-> 如果前方指令指定了起点元素（`pop`）而又无需进一步查询串，则作为一种编码习惯，此处前置 `-` 字符以示区别。如：`<p on="click|... pop" to="-|append">`，可理解为“接引”之意。<br>
+**另外：**
+
+短横线（`-`）是一个占位符，表示查询串为空，查询结果会是起点元素自身。因为默认的起点元素就是事件委托元素，所以 `-` 隐含地也指代了 `elo.delegate`（即：`event.currentTarget`）。
+
+通常，占位符无需书写，如 `|append` 等同于 `-|append`。但如果前方指令指定了起点元素（`pop` 的结果），而此时查询串为空，则作为一种约定习惯，此处可前置 `-` 占位符以示分别。如：`<p on="click|... pop" to="-|append">`，或可理解为前阶“衔接”之意。
 
 
 ```js
@@ -119,16 +113,20 @@ wrapInner( clone, event, eventdeep:Boolean ): Element|[Element]
 
 wrapAll( clone, event, eventdeep:Boolean ): Collector
 
-html( where?:String|Number, sep?:String): Collector|Node|[Node]
-text( where?:String|Number, sep?:String): Collector|Node|[Node]
+html( where:String|Number, sep:String): Collector|Node|[Node]
+text( where:String|Number, sep:String): Collector|Node|[Node]
 
-empty(): [Element]|Collector
-unwrap(): [Element]|Collector
+empty( clean:Boolean ): [Element]|Collector
+unwrap( clean:Boolean ): [Element]|Collector
+remove( slr:String ): Collector
+
+// 上面方法的动态版。
+nodex( meth, ...rest ): Collector|Node|[Node]
 
 //
 // 逆向插入。
 // 流程数据为目标，Query检索目标为内容。
-/////////////////////////////////////////////////
+//-----------------------------------------------
 beforeWith( clone, event, eventdeep:Boolean ): Collector
 afterWith( clone, event, eventdeep:Boolean ): Collector
 prependWith( clone, event, eventdeep:Boolean ): Collector
@@ -141,14 +139,14 @@ fillWith( clone, event, eventdeep:Boolean ): Collector
 // 简单设置。
 // 注释内为内容类型。
 /////////////////////////////////////////////////
-height( inc?:Boolean ): Collector|void          // {Number}
-width( inc?:Boolean ): Collector|void           // {Number}
+height( inc:Boolean ): Collector|void          // {Number}
+width( inc:Boolean ): Collector|void           // {Number}
 scroll(): Collector|void                        // {top:Number, left:Number}
-scrollTop( inc?:Boolean ): Collector|void       // {Number}
-scrollLeft( inc?:Boolean ): Collector|void      // {Number}
+scrollTop( inc:Boolean ): Collector|void       // {Number}
+scrollLeft( inc:Boolean ): Collector|void      // {Number}
 addClass(): Collector|void                      // {String|Function}
 removeClass(): Collector|void                   // {String|Function}
-toggleClass( force?:Boolean ): Collector|void   // {String|Function|Boolean}
+toggleClass( force:Boolean ): Collector|void   // {String|Function|Boolean}
 removeAttr(): Collector|void                    // {String|Function}
 val(): Collector|void                           // {Value|[Value]|Function}
 offset(): Collector|void                        // {top:Number, left:Number}
@@ -169,21 +167,21 @@ cssSets( names:String ): Collector|void
 //
 // 事件处理。
 /////////////////////////////////////////////////
-bind( evnid:String, slr?:String ): void
+bind( evnid:String, slr:String ): void
 // 绑定预定义调用链。
 
-once( evnid:String, slr?:String ): void
+once( evnid:String, slr:String ): void
 // 绑定预定义调用链单次处理。
 
-on( evn?:String, slr?:String ): Collector|void
-one( evn?:String, slr?:String ): Collector|void
-off( evn?:String, slr?:String ): Collector|void
+on( evn:String, slr:String ): Collector|void
+one( evn:String, slr:String ): Collector|void
+off( evn:String, slr:String ): Collector|void
 // 事件绑定/解绑。
 
-trigger( name:String, bubble?, cancelable?:Boolean ): void
+trigger( name:String, bubble, cancelable:Boolean ): void
 // 发送事件到目标。
 
-triggers( name:String, bubble?, cancelable?:Boolean ): void
+triggers( name:String, bubble, cancelable:Boolean ): void
 // 发送事件到目标（元素与发送值分别对应版）。
 
 cloneEvent( evns:String|Function ):void
@@ -218,7 +216,7 @@ tips( long, msg ): void
 only( name:String ): void
 // 类名独占设置。
 
-data( name?:String ): void
+data( name:String ): void
 // 存储关联数据。
 
 chain( evnid:String ): void
@@ -282,8 +280,7 @@ full( v:Number|Boolean ): void
 
 #### 扩展
 
-- 支持多方法定义，空格分隔，用于多数据同时设置的情况。
-- 特定方法的数据也可以是一个子数组，它们应用到元素集合时遵循tQuery自身的逻辑（数据成员与元素成员一一对应）。
+支持多方法定义，空格分隔，用于多数据同时设置的情况。各方法依然是独立的指令，依次从栈顶取内容数据用于更新操作。
 
 
 例：
@@ -291,18 +288,10 @@ full( v:Number|Boolean ): void
 ```js
 #test|$value, @-val|...
 // 对id为test的目标元素同时设置其value属性和data-val特性。
-// 数据内容可能为数组，对应到方法段各个位置（无对应的被忽略）。
-// 注：
-// 如果定义了多个方法，数据内容通常为数组形式。
-// 同样的数据应用到不同的方法上并不常见（当然也有这样的需求）。
 
-(.Test)|@title|...
-// 对class为Test的元素集设置其title特性。
-// 通常来说，实参可能是一个数组，以便不同的元素有不同的提示。
-
-(.Test)|@title, $value|...
-// 对class为Test的元素集设置其title特性和value属性。
-// 内容通常是一个二维数组（双值数组的数组），以与元素一一对应赋值。
+(.test)|@title, $value|...
+// 对class为test的元素集设置其title特性和value属性。
+// 它们的内容可以是一个数组，这会与元素一一对应赋值。
 ```
 
 
@@ -321,17 +310,26 @@ full( v:Number|Boolean ): void
 target( n?:Number ): Element|[Element]|Collector
 // 获取To目标。
 
-fire( rid, name, delay, bubble, cancelable ): void
-// 延迟激发事件。
-
 goto( name, extra ): void
 // 跳转到目标事件。
 
+fire( rid, name, delay, bubble, cancelable ): void
+// 延迟激发事件。
+
+change( rid, much ): void
+// 触发改变事件。
+
+changes( rid, much ): void
+// 表单控件值改变通知。
+
+normalize( rid, much ): void
+// 元素规范化。
+
+clear( rid, much ): void
+// 清理表单控件。
+
 intoView( y, x, rid ): void
 // 滚动到当前视口。
-
-changes( rid, env ): void
-// 表单控件改变通知。
 
 click()
 blur()

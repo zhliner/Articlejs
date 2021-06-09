@@ -149,8 +149,8 @@ arr2j( junk ): [Value]
 obj2x( target:Object, names?:String ): Object
 // 对象属性提取赋值。
 
-els( tag:String, n:Number ): Element | [Element]
-// 批量创建元素。
+elem( tag:String, n:Number ): Element | Collector
+// 简单创建元素（集）。
 
 clone( event?, deep?, eventdeep?:Boolean ): Element|Collector
 // 元素克隆。
@@ -158,17 +158,8 @@ clone( event?, deep?, eventdeep?:Boolean ): Element|Collector
 clones( cnt:Number, event?, deep?, eventdeep?:Boolean ): [Element]
 // 多次克隆（单元素）。
 
-Element( tag:String ): Element | Collector
-// 创建元素。
-
-elem( tag:String ): Element | Collector
-// 简单创建元素。
-
-svg( tag?:String ): Element | Collector
-// 创建SVG域元素。
-
-wrapAll( box:String ): Collector
-// 元素集封装。
+item( idx? ): Value | [Value] | null
+// 集合成员提取。
 
 handles( evn:String ): Object | [Function|EventListener]
 // 获取绑定的处理器集。
@@ -361,9 +352,8 @@ kvsMap( kname?, vname?: String ): [Object2]
 // 目标：当前条目/栈顶1项。
 // 内容：Value|[Value]|Collector
 // 注意：如果目标不是Collector对象，会自动封装为Collector。
-item( idx? ): Value | [Value]
-first( slr? ): Collector
-last( slr? ): Collector
+first( slr? ): Collector | null
+last( slr? ): Collector | null
 
 
 // 数组处理（兼容Collector）
@@ -382,7 +372,7 @@ lastIndexOf(val: Value, beg?: Number): Number
 
 ### 元素自身行为
 
-此部分为对元素自身的简单改变，不涉及需要额外的数据，因此归为 `On` 而非 `To` 的逻辑。
+此部分为元素自身的简单行为或变化，不涉及外部的内容数据，考虑实用性而提供。
 
 ```js
 // UI表现。
@@ -406,18 +396,37 @@ full( sure?:Boolean )       // 充满容器。需要定义容器元素 position 
 
 wrap( box:String ): Element | Collector
 wrapinner( box:String ): Element | Collector
-wrapall( box:String ): Element | Collector
+wrapAll( box:String ): Element | Collector
 // 节点封装。
-// 与To中的同名方法不同，这里仅支持字符串模板实参。
+// 与To中的同名方法不同，这里应当主要用于构建新元素。
 
 remove( slr?:String|Boolean, back?:Boolean ): void | data
-normalize( depth?:Number|Boolean, back?:Boolean ): void | data
 empty( back?:Boolean ): void | data
 unwrap( back?:Boolean ): void | data
 // slr: 选择器或入栈指示。
 // back: 被移除的节点是否入栈。
 // data: 被移除的节点/集或展开（unwrap）的节点集。
 
+normalize(): void
+clear(): void
 intoView( y:Number|String|true|false, x:Number|String): void
-// 滚动到当前视口。
+
+
+// 事件调用/触发。
+// 目标：当前条目/栈顶1项。
+/////////////////////////////////////////////////
+
+click(): void
+blur(): void
+focus(): void
+load(): void
+play(): void
+pause(): void
+reset(): void
+select(): void
+submit(): void
+finish(): void
+cancel(): void
+
+change(): void
 ```

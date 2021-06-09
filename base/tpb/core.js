@@ -893,6 +893,7 @@ class Cell {
         else if ( rest > 0 ) {
             args = args.concat( this[_SID].pops(rest) );
         }
+        // maybe undefined
         evo.data = this.data( this._want );
 
         return args;

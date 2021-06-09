@@ -40,11 +40,13 @@
     </style>
     <script type="module">
         import Tpb from "../base/tpb/tpb.js";
+        import cfg from "../base/shortcuts.js";
         import { Kit } from "../base/edit.js";
         import { Render } from "../base/tpb/tools/render.js";
         import "../base/shedit.js";
         window.Tpb = Tpb;
         window.Kit = Kit;
+        window.KM = cfg.Keys;
         window.Render = Render;
 
         Tpb.build( attribute );
@@ -2739,19 +2741,19 @@
 <!-- 其它面板 ------------------------------------------------------------------->
 
     <h4 id="obt2test" style="font-size:large; font-weight: bold; color: blue; background-color: #999; font-style:italic;display: block; padding: 5px 10px;"
-        on="parse|(0, true) ev('detail') v.obtsplit pack(3);
-            value|ev('detail') spread dup len max(10) els('li', _1);
-            focus(li)|evo(2) siblingNth sub(1);
-            switch|ev('detail') evo(3) attr('-x') node;
-            removed|ev('detail') spread dup attr('-n') str('obts:')"
-        by="Test.method(1);
-            -;
-            Test.AAA debug(false)"
-        to="|trigger('value');
-            |fill $text $contenteditable|target pop item(_1) pop focus;
-            (1/>label)|triggers('index');
-            |replace|goto('removed', _1);
-            |@-x replaceWith|(true) pick(-2) push pack(3) goto('value', _1)">[面板] 特性</h4>
+        on="1parse|(0, true) ev('detail') v.obtsplit pack(3);
+            2value|ev('detail') spread dup len max(10) elem('li', _1);
+            3focus(li)|evo(2) siblingNth sub(1);
+            4switch|ev('detail') evo(3) attr('-x') node;
+            5removed|ev('detail') spread dup attr('-n') str('obts:')"
+        by="1Test.method(1);
+            2-;
+            3Test.AAA debug(false)"
+        to="1|trigger('value');
+            2|fill $text $contenteditable|target pop item(_1) pop focus;
+            3(1/>label)|triggers('index');
+            4|replace|goto('removed', _1);
+            5|@-x replaceWith|(true) pick(-2) push pack(3) goto('value', _1)">[面板] 特性</h4>
     <div id="attribute" class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -2810,48 +2812,54 @@
                             to="|val"></textarea>
                         <!--OBT属性集：
                             vinit   总设置通知，接收数据为一个3元数组。
-                            newline 在当前行之后新建一个空行并聚焦。
-                            keydown 1.Ctrl+上下箭头键移动当前行。
-                            keydown 2.加按Shift新建行。终止其余Enter行为。
-                            keydown 3.普通键入Enter，移动到下一行。如果到末尾则新建一行。
+                            keydown 1.在当前行之后创建一个新行并聚焦。
+                            keydown 2.删除当前行（不可撤销）。
+                            keydown 3.Ctrl+ArrowUp|ArrowDown 上下移动当前行。
+                                    evo(2) blur 失焦后再移动，避免窗口滚动。delay focus 延迟再聚焦才有效。
+                                    注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
+                            blur    参照组<textarea>失焦保存（空白忽略）。
                             主控编辑：
-                            Enter 切换到下一行，末行时可创建新行。
-                            Shift + Enter 当前位置之后创建新条目（行内换行无意义）。
+                            Enter 创建一个新的空行。
+                            Ctrl+Shift+Del 删除当前行。
                             Ctrl + ↑↓ 上下移动当前行，关联行随动。
                         -->
                         <div class="_obts" data-pbo="[fulled]" tpl-name="attr:obts"
-                            on="newline|(null) ev('detail') evo(3) data('on by to');
-                                keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') (KM.attrOBTmove) scam(_1) both pass avoid evo(2) ev('key') evo(3) data('on by to');
-                                keydown(li)|iskey('Enter') scam('shift') both pass stopAll avoid evo(2);
-                                keydown(li)|iskey('Enter') pass avoid evo(2) dup next dup vnot jump(2, 1) focus exit;
+                            on="keydown(li)|iskey('Enter') pass stopAll avoid evo(2) data('on by to');
+                                keydown(li)|iskey('Delete') (KM.attrOBTdel) scam(_1) both pass avoid evo(2) data('on by to');
+                                keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') (KM.attrOBTmove) scam(_1) both pass avoid evo(2) ev('key') data('on by to');
+                                blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
                                 vinit|ev('detail') v.obtsplit;
                                 ^obted|evo(3) delay remove"
-                            by="Kit.obtline(_1) ev('detail') pop;
-                                Kit.obtmove(_2)"
-                            to="-|after $text|focus;
-                                -;
-                                |trigger('newline');
-                                |trigger('newline');
+                            by="Kit.obtline(_) ('_hot');
+                                Kit.obtdel(_) remove;
+                                Kit.obtswap(_2) dup pass spread evo(2) blur"
+                            to="=|removeClass after|focus;
+                                (/label>textarea)||clear;
+                                =|nodex(_1)|delay focus(10);
+                                -|set(_1);
                                 |data('on by to')|fire('/ol', 'active')">
                             <!--主控编辑框：
                                 当前编辑行设置 _hot 类名以便区分。
                                 active  创建列表清单并逐一赋值，聚焦到目标行。
                                 focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
+                                blur    失焦保存当前编辑条目（OBT配置组内），空白忽略。
                                 switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递。detail:[i, list, <label>]
                                 removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
                                 paste   限定仅支持粘贴纯文本。
                                 注记：
                                 默认最少10行可用（美观）。 -->
                             <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" tpl-name="obts:master"
-                                on="active|evo(3) attribute('-i -x -n') spread $('1/') pop data(_1) dup len max(10) els('li', _1);
+                                on="active|evo(3) attribute('-i -x -n') spread $('1/') pop data(_1) dup len max(10) elem('li', _1);
                                     focus(li)|evo(2) siblingNth sub(1) dup;
                                     focus(li)|evo(2) hasClass('_hot') end $$('/li');
+                                    blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
                                     switch|ev('detail') evo(3) attr('-n') str('obts:') node;
                                     removed|ev('detail') dup attr('-n');
                                     paste(li)|avoid evo(2) clipboard html exeCmd('insertHTML', _1);"
                                 to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
                                     |@-i|pop fire('1/>label', 'index', 100);
                                     =|only('_hot');
+                                    -|set(_1);
                                     |replace|goto('removed', _1);
                                     |@-n replaceWith|goto('active')">
                                 <li contenteditable="true"></li>
@@ -2866,7 +2874,7 @@
                                 to="/textarea|val;
                                     1/ol|trigger('switch')">
                                 <b title="单击切换">on</b>
-                                <textarea data-i="0" name="on" spellcheck="false" rows="1" class="_code"></textarea>
+                                <textarea name="on" spellcheck="false" rows="1" class="_code"></textarea>
                             </label>
                             <label data-n="by" tpl-name="obts:by"
                                 on="^obted|delay tpl('obts:on')"

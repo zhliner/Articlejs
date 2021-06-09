@@ -623,43 +623,25 @@ const _Gets = {
     /**
      * 简单创建元素。
      * 目标：暂存区1项可选。
-     * 目标为可选的元素内容文本。
-     * 支持数组数据。
+     * 目标为元素内容文本，支持数组对应创建多个元素。
+     * 如果指定创建的数量，单个内容重复使有，数组内容截断或末尾填充。
+     * 注意：
+     * 只要指定了数量，就会创建一个集合（Collector），
+     * 否则可能只创建单个元素。
      * @param  {String} tag 标签名
-     * @return {Element|[Element]}
+     * @param  {Number} n 创建个数，可选
+     * @return {Element|Collector}
      */
-    elem( evo, tag ) {
-        let _x = evo.data;
-        return $.isArray( _x ) ? $(_x).elem( tag ) : $.elem( tag, _x );
+    elem( evo, tag, n ) {
+        let x = evo.data;
+
+        if ( n > 0 ) {
+            x = arrayFill( $.isArray(x) ? x : [x], n );
+        }
+        return $.isArray(x) ? $(x).elem(tag) : $.elem(tag, x);
     },
 
     __elem: -1,
-
-
-    /**
-     * 创建元素集。
-     * 目标：暂存区1项可选。
-     * 如果目标有值，作为创建元素的文本内容。
-     * 目标可以是数组，成员值按顺序作为元素集成员的内容。
-     * 支持HTML标签序列创建，但此时内容数据会被忽略。
-     * 例：
-     * els('li', 10)          创建10个<li>元素
-     * els('<li><input>', 10) 创建10组嵌套（<li><input /></li>）的元素
-     * @param  {String} tag 元素标签名
-     * @param  {Number} n 元素数量
-     * @return {[Element]}
-     */
-    els( evo, tag, n ) {
-        let v = evo.data,
-            f = tag[0] === '<' ? elemTags : d => $.elem(tag, d);
-
-        if ( !$.isArray(v) ) {
-            v = [v];
-        }
-        return arrayFill( v, n ).map( f ).flat();
-    },
-
-    __els: -1,
 
 
     /**
@@ -717,6 +699,7 @@ const _Gets = {
      */
     item( evo, idx ) {
         let x = evo.data,
+            // 对数组友好
             v = ($.isArray(x) && !$.isCollector(x)) ? x[idx] : $(x).item(idx);
 
         return v === undefined ? null : v;
@@ -730,7 +713,7 @@ const _Gets = {
      * 目标：暂存区/栈顶1项。
      * 目标只能是节点元素，非集合会被自动转为Collector。
      * 注：
-     * 与To部分的同名方法不同，这里box仅支持字符串，
+     * 与To部分的同名方法不同，这里box应当只是字符串，
      * 即便是通过(_1)标识取元素实参，也不支持克隆选项。
      * @param  {String} box 封装容器HTML
      * @return {Collector}
@@ -1302,6 +1285,20 @@ const _Gets = {
 
 
     /**
+     * 触发目标变化事件。
+     * 这是 click,blur等事件系列的延伸（但元素上无此原生方法）。
+     * 理解：重在”调用“。
+     * @data: Element|[Element] 待激发元素
+     * @return {void}
+     */
+    change( evo ) {
+        $( evo.data ).trigger( 'change' );
+    },
+
+    __change: 1,
+
+
+    /**
      * 滚动到当前视口。
      * y, x: {
      *     0   就近显示（如果需要）（nearest）
@@ -1318,20 +1315,6 @@ const _Gets = {
     },
 
     __intoView: 1,
-
-
-    /**
-     * 触发目标变化事件。
-     * 这是 click,blur等事件系列的延伸（但元素上无此原生方法）。
-     * 理解：重在”调用“。
-     * @data: Element|[Element] 待激发元素
-     * @return {void}
-     */
-    change( evo ) {
-        $( evo.data ).trigger( 'change' );
-    },
-
-    __change: 1,
 
 
 
@@ -1456,7 +1439,7 @@ const _Gets = {
     'is',           // ( slr:String|Element ): Boolean
 
     // To部分存在同名接口
-    // 放在此处方便构造新元素（实用性考虑）。
+    // 此处主要用于构造新元素而非封装DOM中节点。
     'wrap',         // ( box:String ): Element | Collector
     'wrapInner',    // ( box:String ): Element | Collector
 ]
@@ -2066,16 +2049,6 @@ function elemInfo( el, hasid, hascls ) {
         _s += '.' + [...el.classList].join('.');
     }
     return _s;
-}
-
-
-/**
- * 用标签序列创建元素集。
- * @param  {String} tags 标签序列
- * @return {[Element]}
- */
-function elemTags( tags ) {
-    return [ ...$.fragment( tags ).children ];
 }
 
 

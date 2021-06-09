@@ -3218,6 +3218,60 @@ function nodeInfo( node ) {
 
 
 /**
+ * 数组成员位置交换。
+ * 以当前下标位置值与前一个成员交换。
+ * @param  {Number} i 当前位置下标（>0）
+ * @param  {...Array} obts 子数组序列
+ * @return {void}
+ */
+function arraySwap( i, ...obts ) {
+    for ( const v of obts ) {
+        [ v[i], v[i-1] ] = [ v[i-1], v[i] ];
+    }
+}
+
+
+/**
+ * 向前移动当前行。
+ * 注：将目标行移到当前行之后。
+ * @param  {Element} el 当前行元素
+ * @param  {[String]} on On配置组引用
+ * @param  {[String]} by By配置组引用
+ * @param  {[String]} to To配置组引用
+ * @return {[Element, String]|null} [目标行, 换位方法]
+ */
+function obt2prev( el, on, by, to ) {
+    let _to = $.prev( el );
+    if ( !_to ) {
+        return null;
+    }
+    arraySwap( $.siblingNth(_to), on, by, to );
+
+    return [ _to, 'after' ];
+}
+
+
+/**
+ * 向后移动当前行。
+ * 注：将目标行移到当前行之前。
+ * @param  {Element} el 当前行元素
+ * @param  {[String]} on On配置组引用
+ * @param  {[String]} by By配置组引用
+ * @param  {[String]} to To配置组引用
+ * @return {[Element, String]|null} [目标行, 换位方法]
+ */
+function obt2next( el, on, by, to ) {
+    let _to = $.next( el );
+    if ( !_to ) {
+        return null;
+    }
+    arraySwap( $.siblingNth(el), on, by, to );
+
+    return [ _to, 'before' ];
+}
+
+
+/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -6651,34 +6705,58 @@ export const Kit = {
      * @param  {[String]} to To配置组引用
      * @return {Element}
      */
-    obtline( evo, [on, by, to] ) {
+    obtline( evo, on, by, to ) {
         let _n = $.siblingNth( evo.data );
 
         if ( _n < on.length ) on.splice( _n, 0, '' );
         if ( _n < by.length ) by.splice( _n, 0, '' );
         if ( _n < to.length ) to.splice( _n, 0, '' );
 
-        return $.clone( evo.data );
+        // 一个空行。
+        return $.prop( $.clone(evo.data), 'text', null );
     },
 
     __obtline: 1,
 
 
     /**
-     * 上下移动当前行。
-     * 注意同步调整OBT数据集。
+     * 主控OBT列表删除当前行。
      * @data: Element 当前行<li>
-     * @param  {String} arrow 箭头键名（ArrowUp|ArrowDown）
      * @param  {[String]} on On配置组引用
      * @param  {[String]} by By配置组引用
      * @param  {[String]} to To配置组引用
-     * @return {void}
+     * @return {Element} 当前行
      */
-    obtmove( evo, arrow, [on, by, to] ) {
-        //
+    obtdel( evo, on, by, to ) {
+        let _i = $.siblingNth(evo.data) - 1;
+
+        on.splice( _i, 1 );
+        by.splice( _i, 1 );
+        to.splice( _i, 1 );
+
+        return evo.data;
     },
 
-    __obtmove: 1,
+    __obtdel: 1,
+
+
+    /**
+     * 上下移动当前行。
+     * 注意同步调整OBT数据集。
+     * 返回null表示位于端部（顶或底）。
+     * @data: Element 当前行<li>
+     * @param  {String} arrow 箭头键（ArrowUp|ArrowDown）
+     * @param  {[String]} on On配置组引用
+     * @param  {[String]} by By配置组引用
+     * @param  {[String]} to To配置组引用
+     * @return {[Element, String]|null} [相对目标, 换位方法]
+     */
+    obtswap( evo, arrow, [on, by, to] ) {
+        let _el = evo.data;
+        return arrow === 'ArrowUp' ? obt2prev(_el, on, by, to) : obt2next(_el, on, by, to);
+    },
+
+    __obtswap: 1,
 };
 
 
@@ -6730,6 +6808,9 @@ processExtend( 'Kit', Kit, [
     'table',
     'codelang',
     'checkhtml',
+    'obtline',
+    'obtdel',
+    'obtswap',
 ]);
 
 

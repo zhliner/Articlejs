@@ -36,7 +36,15 @@ const
     __reSpace = /\s+/,
 
     // 消息定时器存储键。
-    __TIMER = Symbol('tips-timer');
+    __TIMER = Symbol('tips-timer'),
+
+    // 节点内容变化方法集。
+    __methods = new Set([
+        'before', 'after', 'prepend', 'append', 'fill', 'replace',
+        'wrap', 'wrapInner',
+        'html', 'text',
+        'empty', 'unwrap',
+    ]);
 
 
 
@@ -187,6 +195,29 @@ const _Update = {
             return $(to).scroll( scrollObj(pos) )
         }
         $.scroll( to, scrollObj(pos) );
+    },
+
+
+    /**
+     * 节点修改调用。
+     * 仅限于tQuery中改变节点内容的方法。
+     * 注记：
+     * 与append|after|replace等明确的调用不同，
+     * 这提供一种动态指定方法的能力。
+     * @param  {Element|Collector} to 检索目标
+     * @param  {Value} data 内容数据
+     * @param  {String} meth 方法名（__methods[...]）
+     * @param  {...Value} rest 额外参数
+     * @return {Collector|Node|[Node]}
+     */
+    nodex( to, data, meth, ...rest ) {
+        if ( !__methods.has(meth) ) {
+            throw new Error( `[${meth}] is not a valid method` );
+        }
+        if ( $.isArray(to) ) {
+            return $(to)[meth]( data, ...rest );
+        }
+        return $[meth]( to, data, ...rest );
     },
 
 
@@ -456,20 +487,21 @@ const _Update = {
 //
 // 自我修改。
 // 集合版返回的是二维数组。
-// 内容：{Boolean|void}
+// 内容：{Boolean|String}
 // @return {[Node]|Collector}
 //===============================================
 [
-    'empty',
-    'unwrap',
+    'empty',    // (clean?)
+    'unwrap',   // (clean?)
+    'remove',   // (slr?) 集合版有效
 ]
 .forEach(function( meth ) {
 
-    _Update[meth] = function( to, clean ) {
+    _Update[meth] = function( to, arg ) {
         if ( $.isArray(to) ) {
-            return $( to )[meth]( clean );
+            return $( to )[meth]( arg );
         }
-        return $[meth]( to, clean );
+        return $[meth]( to, arg );
     };
 
 });
@@ -683,6 +715,26 @@ const _Next = {
 
 
     /**
+     * 跳转（可选判断）。
+     * 跳转到目标事件绑定的调用链。
+     * 内容：暂存区1项可选。
+     * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
+     * 仅限于当前绑定/委托元素上绑定的事件。
+     * 跳转的事件不冒泡。
+     * @param {String} name 事件名
+     * @param {Value} extra 附加数据，可选
+     */
+    goto( evo, name, extra ) {
+        if ( evo.data === undefined || evo.data ) {
+            $.trigger( evo.delegate, name, extra, false );
+        }
+    },
+
+    // 跳转条件。
+    __goto: -1,
+
+
+    /**
      * 延迟激发事件。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
@@ -711,26 +763,6 @@ const _Next = {
 
     // 待发送数据。
     __fire: -1,
-
-
-    /**
-     * 跳转（可选判断）。
-     * 跳转到目标事件绑定的调用链。
-     * 内容：暂存区1项可选。
-     * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
-     * 仅限于当前绑定/委托元素上绑定的事件。
-     * 跳转的事件不冒泡。
-     * @param {String} name 事件名
-     * @param {Value} extra 附加数据，可选
-     */
-    goto( evo, name, extra ) {
-        if ( evo.data === undefined || evo.data ) {
-            $.trigger( evo.delegate, name, extra, false );
-        }
-    },
-
-    // 跳转条件。
-    __goto: -1,
 
 
     /**
@@ -776,6 +808,33 @@ const _Next = {
 
 
     /**
+     * 目标规范化。
+     * @param {String} rid 表单元素选择器
+     * @param {Boolean} much 是否检索多个目标，可选
+     */
+    normalize( evo, rid = 11, much ) {
+        $( _target(evo, rid, !much) ).normalize();
+    },
+
+    __normalize: null,
+
+
+    /**
+     * 清理目标集。
+     * @param {String} rid 表单元素选择器
+     * @param {Boolean} much 是否检索多个目标，可选
+     */
+    clear( evo, rid = 11, much ) {
+        $( _target(evo, rid, !much) )
+        .forEach(
+            it => it.nodeType === 1 ? $.val(it, null) : it.clear()
+        );
+    },
+
+    __clear: null,
+
+
+    /**
      * 滚动到当前视口。
      * y, x 值说明参考On部分同名接口。
      * rid默认匹配evo.updated。
@@ -785,12 +844,7 @@ const _Next = {
      * @param {Boolean} much 是否检索多个目标，可选
      */
     intoView( evo, y, x, rid = 11, much ) {
-        let _to = _target( evo, rid, !much );
-
-        if ( !$.isArray(_to) ) {
-            _to = [ _to ];
-        }
-        _to.forEach( el => $.intoView( el, y, x ) );
+        $( _target(evo, rid, !much) ).forEach( el => $.intoView( el, y, x ) );
     },
 
     __intoView: null,
@@ -827,8 +881,9 @@ const _Next = {
      * 注：
      * 只有在rid传递为选择器时，much指示才有意义。
      * 否则目标是否为一个集合，由目标自身决定。
-     * @param {String|Value} rid 目标选择标识，可选
-     * @param {Boolean} much 是否检索多个目标，可选
+     * @param  {String|Value} rid 目标选择标识，可选
+     * @param  {Boolean} much 是否检索多个目标，可选
+     * @return {void}
      */
     _Next[meth] = function( evo, rid = 11, much ) {
         $( evo.data || _target(evo, rid, !much) )[ meth ]();
