@@ -1391,6 +1391,12 @@ menu._cells code {
 .Attr > ._body > ._main {
     flex: 5 5 400px;
 }
+.Attr > ._body ._empty {
+    height: 100%;
+    border: 1px #cfcfcf solid;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+}
 
 .Attr ._obts {
     display: flex;

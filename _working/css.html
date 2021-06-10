@@ -2798,26 +2798,29 @@
                         update  特性名清单初始设置（渲染方式）。
                         select  选取接收的值匹配的选单（新建后）。
                         record  记录当前名称，用于改变前提交应用时取值。注：.val取值已在改变之后。
+                        blank   特性整体更新后空白主区替代。
                         keydown 支持即时删除条目（友好），终止冒泡。
                         注记：
                         特性集可能为空，且手动添加子条目会破坏渲染结构，
                         因此作为模板每次更新时克隆渲染。 -->
                     <select name="attrs" size="5" data-v="" class="_list" tpl-name="attr:items" tpb-for
-                        on="change|evo(3) prop('selected') attr('-tpl') node (null);
+                        on="change|evo(3) prop('selected') attr('-tpl') or('attr:value') node (null);
                             _change|v.sel0 evo(3) val attribute(_1);
                             addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node(true);
                             select|ev('detail');
                             update|ev('detail') tpl('attr:items', true);
+                            blank|tpl('attr:empty') ev('detail') pop;
                             record|evo(3) val;
                             keydown|iskey('Delete') pass stop evo(3) prop('selected') remove"
                         to="form/._main>*|trigger('attrv') replace|goto('_change');
                             form/._main>*|trigger('vinit')|goto('record');
                             |append render|pop fire(3, 'select');
                             |val|change;
-                            |replace render;
+                            |replace render|target goto('blank', _1);
+                            form/._main>*|replace;
                             |@-v">
                         <!-- 单条目模板用于新建。 -->
-                        <option _data-tpl="$ == 'on by to'? 'attr:obts': 'attr:value'" _="$" tpl-name="attr:item">[name]</option>
+                        <option _data-tpl="$ == 'on by to'? 'attr:obts': null" _="$" tpl-name="attr:item">[name]</option>
                     </select>
                 </div>
                 <!-- 激活与禁用，测试一个即可。 -->
@@ -2892,7 +2895,7 @@
                                     |@-n replaceWith|goto('active')">
                                 <li contenteditable="true"></li>
                             </ol>
-                            <!--自动匹配参考：
+                            <!--自动对应参考：
                                 index   接收定位索引号，提取目标行显示供参考。
                                 click   切换当前特性为主控列表，并聚焦到当前行。递送数据：self:<label> -->
                             <label data-n="on" tpl-name="obts:on"
@@ -2917,6 +2920,8 @@
                                 <textarea name="to" spellcheck="false" rows="1" class="_code"></textarea>
                             </label>
                         </div>
+                        <!-- 空白占位 -->
+                        <p class="_empty" tpl-name="attr:empty" on="^obted|evo(3) delay remove"></p>
                     </div>
                     <aside>
                         <!-- 当前条目确认提交，可选。 -->
