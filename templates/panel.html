@@ -184,8 +184,17 @@
 </form>
 
 
-<!-- 特性 -->
-<form class="Attr" onsubmit="return false" tpl-name="slave:attr">
+<!--特性：
+    submit 明确提交才会聚焦到内容区。 -->
+<form class="Attr" tpl-name="slave:attr"
+    on="submit|avoid;
+        apply|ev('detail');
+        update|v.sels dup len eq(1) $if('active', 'disable')"
+    by="-;
+        Ed.htmlUpdate"
+    to="|trigger('apply)|fire('#g-scroll', 'focus');
+        -;
+        (/>div)|trigger(_1)">
     <div class="_roll">
         <div class="_name">
             <input type="text" name="attr" value="" />

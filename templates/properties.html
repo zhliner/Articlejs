@@ -757,17 +757,17 @@
     keydown 设置Shift键标记，决定是否清除多余缩进。
     keyup   清除Shift标记，注意应当是false（非null）。
     codes   由外部发送消息填充代码内容到光标处。注：实际上可以插入其它活动位置（如微编辑元素）。
-    mouseup keyup... 当前光标记忆，便于codes递送的代码插入。
+    mouseup keyup... 当前光标点记忆，否则codes递送只能插入前端。
     另：
     data-tip 初始录入提示（CSS:content:attr）。
 -->
 <pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
     data-tip="粘贴时自动清除多余缩进"
-    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') (KM.backspaceMore) scam(_1) v.k3edit(_4) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
-        paste|avoid evo(3) clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') (KM.backspaceMore) scam(_1) v.k3edit(_4) dup pass avoid exeCmd('insertHTML', _1);
+        paste|avoid clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
         keydown|scam('shift') pass stop env('paste.shift', true);
         keyup|env('paste.shift', false);
-        codes|xRange addRange edbox ev('detail') html exeCmd('insertHTML', _1);
+        codes|ev('detail') html xRange addRange edbox pop exeCmd('insertHTML', _1);
         mouseup keyup input focus|sRange pop xRange"
     by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
 

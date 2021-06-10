@@ -1838,10 +1838,6 @@ function mapCall( data, handle ) {
  * 单值/集合调用封装（tQuery版）。
  * 数据为集合时，返回的集合会封装为Collector。
  * 如果数据为假，简单返回该假值。
- * 注记：
- * 允许假值原样返回，而不是导致后续调用出错。
- * 这是因为构造指令序列的判断分支较为麻烦而如此处理。
- * 出错和pass指令有相似的效果，或可借用。
  * @param  {Element|[Element]|Collector} data 数据（集）
  * @param  {String} meth 方法名
  * @param  {...Value} args 实参序列
@@ -1851,7 +1847,7 @@ function $mapCall( data, meth, ...args ) {
     if ( $.isArray(data) ) {
         return $(data)[meth]( ...args );
     }
-    return data && $[meth]( data, ...args );
+    return $[meth]( data, ...args );
 }
 
 

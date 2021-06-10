@@ -99,11 +99,11 @@
     事件克隆/编辑效果。-->
 <pre id="g-codes" spellcheck="false" class="_code" contenteditable="true" data-pbo="lost"
     data-tip="粘贴时自动清除多余缩进"
-    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') v.k3edit(_3) dup pass avoid evo(3) pop exeCmd('insertHTML', _1);
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') v.k3edit(_3) dup pass avoid exeCmd('insertHTML', _1);
         keydown|scam('shift') pass stop env('paste.shift', true);
         keyup|env('paste.shift', false);
-        paste|avoid evo(3) clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
-        codes|evo(3) ev('detail') html exeCmd('insertHTML', _1)"
+        paste|avoid clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
+        codes|ev('detail') html xRange addRange edbox pop exeCmd('insertHTML', _1)"
     by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
 
 
@@ -2764,8 +2764,21 @@
                 <b>脚本</b>
                 <b class="_close"><i id="l-close" title="关闭"></i></b>
             </div>
-            <form class="Attr" onsubmit="return false" tpl-name="slave:attr">
-                <div class="_roll">
+
+            <!-- submit 明确提交才会聚焦到内容区。 -->
+            <form class="Attr" tpl-name="slave:attr"
+                on="submit|avoid;
+                    apply|ev('detail') $('/select') attr('-v') debug(false);
+                    update|v.sels dup len eq(1) $if('active', 'disable')"
+                by="-;
+                    Ed.attrUpdate"
+                to="|trigger('apply')|fire('#g-scroll', 'focus');
+                    -;
+                    (/>div)|trigger(_1)">
+                <div class="_roll"
+                    on="active|$$('input, select') prop('disabled', null) v.sel0 v.attrs v.obtname;
+                        disable|$$('input, select') prop('disabled', true)"
+                    to="/select|trigger('update')">
                     <div class="_name">
                         <!--说明：
                             添加on/by/to任一特性会被合并为"on by to"复合名称。
@@ -2778,38 +2791,50 @@
                             to="2/select|trigger('addnew')" />
                     </div>
                     <!--特性选单：
-                        change  1.先判断插入适配的内容模板。
-                                2.提取元素特性值发送到内容更新。
+                        主区切换前即更新到目标元素。
+                        change  判断插入适配的内容模板（先发送提交应用attrv）。
+                        _change 提取元素特性值发送到内容更新。
                         addnew  添加一个新特性。注：尚未设置到元素上。
                         update  特性名清单初始设置（渲染方式）。
                         select  选取接收的值匹配的选单（新建后）。
+                        record  记录当前名称，用于改变前提交应用时取值。注：.val取值已在改变之后。
                         keydown 支持即时删除条目（友好），终止冒泡。
                         注记：
                         特性集可能为空，且手动添加子条目会破坏渲染结构，
                         因此作为模板每次更新时克隆渲染。 -->
-                    <select name="attrs" size="5" class="_list" tpl-name="attr:items" tpb-for
-                        on="change|evo(3) prop('selected') attr('-tpl') or('attr:value') node;
-                            change|v.sel0 evo(3) val attribute(_1);
+                    <select name="attrs" size="5" data-v="" class="_list" tpl-name="attr:items" tpb-for
+                        on="change|evo(3) prop('selected') attr('-tpl') node (null);
+                            _change|v.sel0 evo(3) val attribute(_1);
                             addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node(true);
                             select|ev('detail');
                             update|ev('detail') tpl('attr:items', true);
+                            record|evo(3) val;
                             keydown|iskey('Delete') pass stop evo(3) prop('selected') remove"
-                        to="form/._main>*|replace;
-                            form/._main>*|trigger('vinit');
+                        to="form/._main>*|trigger('attrv') replace|goto('_change');
+                            form/._main>*|trigger('vinit')|goto('record');
                             |append render|pop fire(3, 'select');
                             |val|change;
-                            |replace render">
+                            |replace render;
+                            |@-v">
                         <!-- 单条目模板用于新建。 -->
-                        <option _data-tpl="$ == 'on by to'? 'attr:obts': null" _="$" tpl-name="attr:item">[name]</option>
+                        <option _data-tpl="$ == 'on by to'? 'attr:obts': 'attr:value'" _="$" tpl-name="attr:item">[name]</option>
                     </select>
                 </div>
-                <div class="_body">
+                <!-- 激活与禁用，测试一个即可。 -->
+                <div class="_body"
+                    on="disable|$('textarea') prop('disabled') end $$('textarea, [type=submit]') prop('disabled', true) (false);
+                        active|$('textarea') prop('disabled') pass $$('textarea, [type=submit]') prop('disabled', null) (true)"
+                    to="(/ol>li)|$contenteditable;
+                        (/ol>li)|$contenteditable">
                     <div class="_main">
                         <!--特性编辑：
-                            vinit  初始设置值，简单分号切分换行友好。 -->
-                        <textarea name="attr" spellcheck="false" class="_code" tpl-name="attr:value"
-                            on="vinit|ev('detail') or('') split(';') trim join(';\n')"
-                            to="|val"></textarea>
+                            vinit   初始设置值，简单分号切分换行友好。
+                            attrv   提取编辑值（适当构造），发送到表单应用到内容元素上。-->
+                        <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
+                            on="vinit|ev('detail') or('') split(';') trim join(';\n');
+                                attrv|evo(3) val split(';') trim join('; ')"
+                            to="|val;
+                                form/|trigger('apply')"></textarea>
                         <!--OBT属性集：
                             vinit   总设置通知，接收数据为一个3元数组。
                             keydown 1.在当前行之后创建一个新行并聚焦。
@@ -2818,17 +2843,19 @@
                                     evo(2) blur 失焦后再移动，避免窗口滚动。delay focus 延迟再聚焦才有效。
                                     注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
                             blur    参照组<textarea>失焦保存（空白忽略）。
+                            attrv   构造OBT值序列，发送到表单应用到目标元素上。
                             主控编辑：
-                            Enter 创建一个新的空行。
-                            Ctrl+Shift+Del 删除当前行。
-                            Ctrl + ↑↓ 上下移动当前行，关联行随动。
+                            Enter          创建一个新的空行。
+                            Ctrl+Shift+Del 删除当前行内容（可撤销），或空行本身（不可撤销）。注：分两段逻辑更友好。
+                            Ctrl + ↑↓      上下移动当前行，关联行随动。
                         -->
                         <div class="_obts" data-pbo="[fulled]" tpl-name="attr:obts"
                             on="keydown(li)|iskey('Enter') pass stopAll avoid evo(2) data('on by to');
-                                keydown(li)|iskey('Delete') (KM.attrOBTdel) scam(_1) both pass avoid evo(2) data('on by to');
+                                keydown(li)|iskey('Delete') (KM.attrOBTdel) scam(_1) both pass avoid evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
                                 keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') (KM.attrOBTmove) scam(_1) both pass avoid evo(2) ev('key') data('on by to');
                                 blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
                                 vinit|ev('detail') v.obtsplit;
+                                attrv|data('on by to') v.obtval;
                                 ^obted|evo(3) delay remove"
                             by="Kit.obtline(_) ('_hot');
                                 Kit.obtdel(_) remove;
@@ -2837,7 +2864,8 @@
                                 (/label>textarea)||clear;
                                 =|nodex(_1)|delay focus(10);
                                 -|set(_1);
-                                |data('on by to')|fire('/ol', 'active')">
+                                |data('on by to')|fire('/ol', 'active');
+                                form/|trigger('apply')">
                             <!--主控编辑框：
                                 当前编辑行设置 _hot 类名以便区分。
                                 active  创建列表清单并逐一赋值，聚焦到目标行。
@@ -2855,7 +2883,7 @@
                                     blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
                                     switch|ev('detail') evo(3) attr('-n') str('obts:') node;
                                     removed|ev('detail') dup attr('-n');
-                                    paste(li)|avoid evo(2) clipboard html exeCmd('insertHTML', _1);"
+                                    paste(li)|avoid clipboard html exeCmd('insertHTML', _1);"
                                 to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
                                     |@-i|pop fire('1/>label', 'index', 100);
                                     =|only('_hot');

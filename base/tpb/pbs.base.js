@@ -1701,14 +1701,17 @@ const _Process = {
 
     /**
      * 执行document命令。
-     * 目标：暂存区/栈顶1项。
-     * 目标为用户划选或定义的选取范围（Range）。
+     * 目标：暂存区1项可选。
      * 仅适用特性被设置为 contenteditable="true" 的可编辑元素。
      * 示例：
-     * click(b)|xRange addRange evo(2) text exeCmd('insertText', _1)
+     * click(b)|evo(2) text xRange addRange edbox pop exeCmd('insertText', _1)
      * 说明：
-     * 提取预先存储/记忆的选区，添加到全局Selection上。
-     * 激活选区所在可编辑容器元素，执行命令。
+     * - 从非活动区域插入焦点记忆处。
+     * - 提取预先存储/记忆的选区，添加到全局Selection上。
+     * - 激活选区所在可编辑容器元素，执行命令。
+     * 示例：
+     * paste|avoid clipboard exeCmd('insertText', _1)"
+     * 粘贴动作中直接提取剪贴板插入纯文本。
      * 注：
      * 插入的内容可进入浏览器自身撤销/重做栈。
      * @data: Element:contenteditable
@@ -1717,11 +1720,11 @@ const _Process = {
      * @return {Boolean} 是否支持目标命令
      */
     exeCmd( evo, name, data ) {
-        evo.data.focus();
+        evo.data && evo.data.focus();
         return document.execCommand( name, false, data );
     },
 
-    __exeCmd: 1,
+    __exeCmd: -1,
 
 
     /**

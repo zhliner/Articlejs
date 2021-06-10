@@ -801,7 +801,7 @@ Keys: {
 
     // 特性OBT行删除辅助
     // [Key] + Delete
-    // 注意：删除不可撤销。
+    // 先删除内容（可撤销），空行直接删除（不可撤销）。
     attrOBTdel: 'Ctrl Shift',
 
     // BackSpace增强

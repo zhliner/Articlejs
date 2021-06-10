@@ -154,9 +154,12 @@ const
     // 编辑器关联存储。
     __EDStore = new CStorage( Sys.prefixEditor ),
 
+    // OBT顶层并列切分符。
+    __chrDlmt = ';',
+
     // OBT分组切分器。
     // 排除调用式和字符串内的分号。
-    __dlmtSplit = new Spliter( ';', new UmpCaller(), new UmpString() );
+    __dlmtSplit = new Spliter( __chrDlmt, new UmpCaller(), new UmpString() );
 
 
 
@@ -275,7 +278,7 @@ class HotEdit {
 //
 // 面板内容跟随。
 // 仅仅只是发送一个同步消息即可。
-// 主要用于 样式、特性、源码 几个面板。
+// 主要用于样式面板。
 // 注意：
 // 必须为延迟激发，以等待主操作撤销或重做完成。
 //
@@ -3272,6 +3275,18 @@ function obt2next( el, on, by, to ) {
 
 
 /**
+ * 获取合法的OBT配置值。
+ * 检查顶层分号，简单移除。
+ * 即：保证顶层切分不变。
+ * @param  {String} val 配置值
+ * @return {String}
+ */
+function obtVal( val ) {
+    return [ ...__dlmtSplit.split(val) ].join( ' ' ).trim();
+}
+
+
+/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -5253,11 +5268,18 @@ export const Edit = {
     /**
      * 元素特性更新。
      * 仅支持单个元素选取。
+     * 注记：
+     * 静默更新即可，主面板已为最新值。
+     * 因为特性清单采用渲染语法全新构造，不宜跟随新建。
+     * @data String|[String] 特性值（集）
+     * @param {String} name 特性名/序列（如 'on by to'）
      */
-    attrUpdate( evo ) {
+    attrUpdate( evo, name ) {
+        // 冗余检查（表单提交逻辑已保证）。
         if ( __ESet.size !== 1 || !evo.data.length ) {
             return;
         }
+        historyPush( new DOMEdit(__Edits.attrs, [...__ESet], name, evo.data) );
     },
 
     __attrUpdate: 1,
@@ -5572,6 +5594,7 @@ export const Kit = {
 
     /**
      * 获取目标元素的特性集。
+     * @data Element 目标元素
      * @return {[String]}
      */
     attrs( evo ) {
@@ -5584,12 +5607,15 @@ export const Kit = {
     /**
      * 检查创建OBT特性复合名。
      * 如果不是on/by/to任一名称，简单通过（自动移除空白）。
+     * @data: String|[String]
      * @return {String}
      */
     obtname( evo ) {
-        return __obtNames.has( evo.data ) ?
-            __obtAttr :
-            evo.data.replace( __reSpace, '' );
+        let x = evo.data,
+            f = s => __obtNames.has(s) ? __obtAttr : s.replace(__reSpace, '');
+
+        // 排除OBT重复。
+        return $.isArray(x) ? [...new Set(x.map(f))] : f( x );
     },
 
     __obtname: 1,
@@ -5609,6 +5635,24 @@ export const Kit = {
     },
 
     __obtsplit: 1,
+
+
+    /**
+     * 构造OBT配置组序列。
+     * 检查末尾和内部顶层分号，简单移除处理。
+     * 注记：
+     * 因为<select>的change是事后触发，难以设计为出错禁止切换，
+     * 所以只是简单纠错而已（非友好）。
+     * @data: [[String]] OnByTo配置组集引用
+     * @return {[String]} 特性值组
+     */
+    obtval( evo ) {
+        return evo.data.map(
+            list => list.map( obtVal ).join( __chrDlmt + '\n' )
+        );
+    },
+
+    __obtval: 1,
 
 
     /**
@@ -6830,6 +6874,7 @@ customGetter( null, Kit, [
     'attrs',
     'obtname',
     'obtsplit',
+    'obtval',
     'source',
     'rngok',
     'menupos',
