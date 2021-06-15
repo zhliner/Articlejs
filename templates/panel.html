@@ -188,49 +188,168 @@
     submit 明确提交才会聚焦到内容区。 -->
 <form class="Attr" tpl-name="slave:attr"
     on="submit|avoid;
-        apply|ev('detail');
+        apply|ev('detail') $('/select') val;
+        delattr|ev('detail');
         update|v.sels dup len eq(1) $if('active', 'disable')"
     by="-;
-        Ed.htmlUpdate"
-    to="|trigger('apply')|fire('#g-scroll', 'focus');
-        -;
+        Ed.attrUpdate(_1);
+        Ed.deleteAttr"
+    to="/._main>*|trigger('attrok')|fire('#g-scroll', 'focus');
+        -; -;
         (/>div)|trigger(_1)">
-    <div class="_roll">
+    <div class="_roll"
+        on="active|v.sel0 v.attrns v.obtname (null);
+            disable|(true)"
+        to="(/input, select)|$disabled trigger('follow');
+            (/input, select)|$disabled">
         <div class="_name">
-            <input type="text" name="attr" value="" />
+            <!--说明：
+                添加on/by/to任一特性会被合并为"on by to"复合名称。
+                键入Enter也可完成添加（而非提交表单）。-->
+            <input type="text" name="attr" value=""
+                on="keydown|iskey('Enter') pass avoid evo(3) next click" />
             <!-- ✚✛ -->
-            <input type="button" value="✛" class="_add" />
+            <input type="button" value="✛" class="_add"
+                on="click|evo(3) prev val trim v.obtname"
+                to="2/select|trigger('addnew')" />
         </div>
-        <!--特性清单：
-            - 支持多个选取的元素。
-            - 全部元素都拥有的特性条目设置_all类名，部分元素拥有的特性条目设置_part类名。
-            - 单击目标特性条目，值区域显示首个拥有该特性元素的该特性值。 -->
-        <select name="attrs" size="5" class="_list" tpb-for>
-            <option _class="$.type" _="$.name"></option>
+        <!--特性选单：
+            主区切换前即更新到目标元素。
+            follow  特性名清单跟随更新：保留相同，不同则清理或补足。
+            change  插入适配的内容模板，应用之前的修改到内容元素。
+            _change 提取元素特性值发送到编辑框。
+            addnew  添加一个新特性（临时），如果已经存在则忽略。
+            select  选取接收的值匹配的选单（新建后）。
+            blank   特性整体更新后空白主区替代。
+            keydown 支持即时删除条目（友好）。 -->
+        <select name="attrs" size="5" class="_list"
+            on="follow|evo(3) children ev('detail');
+                change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node;
+                _change|evo(3) val dup pass v.sel0 pop attribute(_1);
+                addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
+                select|ev('detail');
+                blank|tpl('attr:empty');
+                keydown|iskey('Delete') pass evo(3) val dup pass evo(3) prop('selected') remove"
+            by="Kit.attrlist(_1) pop elem('option')"
+            to="|append|goto('change');
+                form/._main>*|replace|goto('_change');
+                form/._main>*|trigger('vinit');
+                |append|pop fire(3, 'select');
+                |val|change;
+                form/._main>*|replace;
+                form/|trigger('delattr')|goto('blank')">
+            <!-- <option>[name]</option> -->
         </select>
     </div>
-    <div class="_body">
+    <div class="_body"
+        on="active|(0, null);
+            disable|(1, true)"
+        to="(/[type=submit], textarea)|$disabled disable;
+            (/[type=submit], textarea)|$disabled disable">
         <div class="_main">
-            <!-- OBT: 分组对应提示 -->
-            <header class="_tips" data-pbo="lost">
-                <label data-pbo="">
-                    <b>on</b><input type="text" spellcheck="false" class="_code" disabled />
+            <!-- 空白占位 -->
+            <p class="_empty" tpl-name="attr:empty"></p>
+            <!--特性编辑：
+                vinit   初始设置值，简单分号切分换行友好。
+                attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。-->
+            <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
+                on="vinit|ev('detail') or('') split(';') trim join(';\n');
+                    attrok|evo(3) val split(';') trim join('; ');
+                    ^obted|evo(3) delay remove"
+                to="|val;
+                    form/|trigger('apply')"></textarea>
+            <!--OBT属性集：
+                vinit   总设置通知，接收数据为一个3元数组。
+                keydown 1.在当前行之后创建一个新行并聚焦。
+                keydown 2.删除当前行（不可撤销）。
+                keydown 3.Ctrl+ArrowUp|ArrowDown 上下移动当前行。
+                        evo(2) blur 失焦后再移动，避免窗口滚动。delay focus 延迟再聚焦才有效。
+                        注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
+                blur    参照组<textarea>失焦保存（空白忽略）。
+                attrok  构造OBT值序列，发送到表单应用到目标元素上。
+                主控编辑：
+                Enter          创建一个新的空行。
+                Ctrl+Shift+Del 删除当前行内容（可撤销），或空行本身（不可撤销）。注：分两段逻辑更友好。
+                Ctrl + ↑↓      上下移动当前行，关联行随动。
+            -->
+            <div class="_obts" tpl-name="attr:obts"
+                on="keydown(li)|iskey('Enter') pass stopAll avoid evo(2) data('on by to');
+                    keydown(li)|iskey('Delete') (KM.attrOBTdel) scam(_1) both pass avoid stopAll evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
+                    keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') (KM.attrOBTmove) scam(_1) both pass avoid stop evo(2) ev('key') data('on by to');
+                    blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
+                    vinit|ev('detail') v.obtsplit;
+                    attrok|data('on by to') v.obtval;
+                    ^obted|evo(3) delay remove"
+                by="Kit.obtline(_) ('_hot');
+                    Kit.obtdel(_) remove;
+                    Kit.obtswap(_2) dup pass spread evo(2) blur"
+                to="=|removeClass after|focus;
+                    (/label>textarea)||clear;
+                    =|nodex(_1)|delay focus(10);
+                    -|set(_1);
+                    |data('on by to')|fire('/ol', 'active');
+                    form/|trigger('apply')">
+                <!--主控编辑框：
+                    当前编辑行设置 _hot 类名以便区分。
+                    active  创建列表清单并逐一赋值，聚焦到目标行。尽量保留用户行数。
+                    focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
+                    blur    失焦保存当前编辑条目（OBT配置组内），空白忽略。
+                    switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递。detail:[i, list, <label>]
+                    removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
+                    paste   限定仅支持粘贴纯文本。 -->
+                <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" tpl-name="obts:master"
+                    on="active|evo(3) attribute('-i -x -n') spread $('1/') pop data(_1) dup len evo(3) prop('childElementCount') pack(2) max elem('li', _1);
+                        focus(li)|evo(2) siblingNth sub(1) dup;
+                        focus(li)|evo(2) hasClass('_hot') end $$('/li');
+                        blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
+                        switch|ev('detail') evo(3) attr('-n') str('obts:') node;
+                        removed|ev('detail') dup attr('-n');
+                        paste(li)|avoid clipboard html exeCmd('insertHTML', _1)"
+                    to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
+                        |@-i|pop fire('1/>label', 'index', 100);
+                        =|only('_hot');
+                        -|set(_1);
+                        |replace|goto('removed', _1);
+                        |@-n replaceWith|goto('active')">
+                    <!-- 初始默认9条 -->
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                </ol>
+                <!--自动对应参考：
+                    index   接收定位索引号，提取目标行显示供参考。
+                    click   切换当前特性为主控列表，并聚焦到当前行。递送数据：self:<label>
+                    obted   主控表占用，延迟移出DOM。 -->
+                <label data-n="on" tpl-name="obts:on"
+                    on="index|ev('detail') evo(3) attr('-n') $('1/') pop data(_1) pop item(_1);
+                        click(b)|evo(3);
+                        ^obted|evo(3) delay remove"
+                    to="/textarea|val;
+                        1/ol|trigger('switch')">
+                    <b title="单击切换">on</b>
+                    <textarea name="on" spellcheck="false" rows="1" class="_code"></textarea>
                 </label>
-                <label data-pbo="">
-                    <b>by</b><input type="text" spellcheck="false" class="_code" disabled />
+                <label data-n="by" tpl-name="obts:by"
+                    on="^obted|delay tpl('obts:on')"
+                    to="|cloneEvent">
+                    <b title="单击切换">by</b>
+                    <textarea name="by" spellcheck="false" rows="1" class="_code"></textarea>
                 </label>
-                <label data-pbo="lost">
-                    <b>to</b><input type="text" spellcheck="false" class="_code" disabled />
+                <label data-n="to" tpl-name="obts:to"
+                    on="^obted|delay tpl('obts:on')"
+                    to="|cloneEvent">
+                    <b title="单击切换">to</b>
+                    <textarea name="to" spellcheck="false" rows="1" class="_code"></textarea>
                 </label>
-            </header>
-            <textarea name="content" spellcheck="false" class="_code"></textarea>
+            </div>
         </div>
         <aside>
-            <!-- <div class="_option">
-                <label>换行符
-                    <input type="text" name="nlchar" class="_char _code" value=";" />
-                </label>
-            </div> -->
             <hr tpl-node="common:submit" />
         </aside>
     </div>

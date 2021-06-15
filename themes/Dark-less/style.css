@@ -1403,7 +1403,7 @@ menu._cells code {
     flex-direction: column;
     height: 100%;
 }
-.Attr ._obts[data-pbo=fulled] {
+.Attr ._obts[data-pbo~=fulled] {
     background-color: white;
 }
 .Attr ._obts > label {
@@ -1424,7 +1424,7 @@ menu._cells code {
     background-color: transparent;
     color: #eee;
 }
-.Attr ._obts[data-pbo=fulled] textarea {
+.Attr ._obts[data-pbo~=fulled] textarea {
     height: 3em;
 }
 .Attr ._obts > :first-child {

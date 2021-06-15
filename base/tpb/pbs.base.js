@@ -585,9 +585,10 @@ const _Control = {
      * 注：
      * 仅取首个真值对应的实参值入栈。
      * 实参序列通常与目标集长度相同，若末尾多出一个，视为无匹配时的默认值。
+     * 无任何匹配时，返回null值。
      * @data: [Boolean]
      * @param  {...Value} vals 入栈值候选
-     * @return {Value}
+     * @return {Value|null}
      */
     $switch( evo, ...vals ) {
         let i, b;
@@ -595,7 +596,9 @@ const _Control = {
         for ( [i, b] of evo.data.entries() ) {
             if ( b ) return vals[ i ];
         }
-        return vals[ i+1 ];
+        let _v = vals[ i+1 ];
+
+        return _v === undefined ? null : _v;
     },
 
     __$switch: 1,
@@ -1172,12 +1175,12 @@ const _Process = {
     /**
      * 取最大值。
      * 目标：暂存区/栈顶1项。
-     * 目标本身可为数值集合或单值。
-     * @param  {Number} v 参与值
+     * 目标本身可为数值或单值。
+     * @param  {...Number} vs 参与值序列
      * @return {Number}
      */
-    max( evo, v ) {
-        return Math.max( ...[].concat(evo.data), v );
+    max( evo, ...vs ) {
+        return Math.max( ...vs.concat(evo.data) );
     },
 
     __max: 1,
@@ -1186,12 +1189,12 @@ const _Process = {
     /**
      * 取最小值。
      * 目标：暂存区/栈顶1项。
-     * 目标本身即为数值集合，但容错单值。
-     * @param  {Number} v 对比值
+     * 目标本身可为数值或单值。
+     * @param  {...Number} vs 对比值序列
      * @return {Number}
      */
-    min( evo, v ) {
-        return Math.min( ...[].concat(evo.data), v );
+    min( evo, ...vs ) {
+        return Math.min( ...vs.concat(evo.data) );
     },
 
     __min: 1,

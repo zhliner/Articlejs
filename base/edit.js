@@ -3275,11 +3275,10 @@ function obt2next( el, on, by, to ) {
 
 
 /**
- * 获取合法的OBT配置值。
- * 检查顶层分号，简单移除。
- * 即：保证顶层切分不变。
+ * 获取合法的OBT配置值（单条）。
+ * 简单移除单条内的分号（容错），维护顶层切分逻辑。
  * @param  {String} val 配置值
- * @return {String}
+ * @return {String|null}
  */
 function obtVal( val ) {
     return [ ...__dlmtSplit.split(val) ].join( ' ' ).trim();
@@ -5279,10 +5278,25 @@ export const Edit = {
         if ( __ESet.size !== 1 || !evo.data.length ) {
             return;
         }
-        historyPush( new DOMEdit(__Edits.attrs, [...__ESet], name, evo.data) );
+        historyPush( new DOMEdit(__Edits.attrs, [...__ESet], name, evo.data), new Follow() );
     },
 
     __attrUpdate: 1,
+
+
+    /**
+     * 删除特性。
+     * 撤销时需要更新，故依然需要一个Follow实例。
+     * @data: {String} 特性名
+     */
+    deleteAttr( evo ) {
+        historyPush(
+            new DOMEdit( __Edits.attrs, [...__ESet], evo.data, null ),
+            new Follow()
+        );
+    },
+
+    __deleteAttr: 1,
 
 
     /**
@@ -5515,9 +5529,6 @@ export const Kit = {
      * 获取选取集首个成员。
      */
     sel0() {
-        // debug:
-        __ESet.add( $.get('#obt2test') );
-
         return first( __ESet ) || null;
     },
 
@@ -5597,11 +5608,11 @@ export const Kit = {
      * @data Element 目标元素
      * @return {[String]}
      */
-    attrs( evo ) {
-        return [ ...evo.data.attributes ];
+    attrns( evo ) {
+        return [ ...evo.data.attributes ].map( nd => nd.name );
     },
 
-    __attrs: 1,
+    __attrns: 1,
 
 
     /**
@@ -5648,7 +5659,7 @@ export const Kit = {
      */
     obtval( evo ) {
         return evo.data.map(
-            list => list.map( obtVal ).join( __chrDlmt + '\n' )
+            list => list.map( obtVal ).join( __chrDlmt + '\n' ) || null
         );
     },
 
@@ -6740,6 +6751,30 @@ export const Kit = {
 
 
     /**
+     * 构建特性名清单。
+     * 移除新集合中不存在的旧条目。
+     * 如果名称条目已存在，保留以不影响选取状态。
+     * 注记：
+     * 条目更新可以使内容自适应。
+     * @data: Collector 原选项集（<option>）
+     * @param  {[String]} vals 更新集（值）
+     * @return {[String]} 补充集
+     */
+    attrlist( evo, vals ) {
+        let _new = new Set( vals );
+
+        for ( const el of evo.data ) {
+            let _v = $.prop(el, 'value');
+
+            _new.has(_v) ? _new.delete(_v) : $.remove(el);
+        }
+        return [ ..._new ];
+    },
+
+    __attrlist: 1,
+
+
+    /**
      * 主控OBT列表新建一行。
      * 新建的行会在当前行之后插入，
      * 因此需要在OBT集中相应位置（如果有效）插入一个空条目。
@@ -6801,6 +6836,7 @@ export const Kit = {
     },
 
     __obtswap: 1,
+
 };
 
 
@@ -6817,6 +6853,7 @@ processExtend( 'Ed', Edit, [
     'brushStyle',
     'clearStyle',
     'attrUpdate',
+    'deleteAttr',
     'htmlUpdate',
     'runScript',
     'insResult',
@@ -6852,6 +6889,7 @@ processExtend( 'Kit', Kit, [
     'table',
     'codelang',
     'checkhtml',
+    'attrlist',
     'obtline',
     'obtdel',
     'obtswap',
@@ -6871,7 +6909,7 @@ customGetter( null, Kit, [
     'trbox',
     'tsecbox',
     'codebox',
-    'attrs',
+    'attrns',
     'obtname',
     'obtsplit',
     'obtval',

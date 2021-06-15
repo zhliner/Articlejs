@@ -628,6 +628,7 @@ const _Gets = {
      * 注意：
      * 只要指定了数量，就会创建一个集合（Collector），
      * 否则可能只创建单个元素。
+     * @data: Value|[Value]
      * @param  {String} tag 标签名
      * @param  {Number} n 创建个数，可选
      * @return {Element|Collector}

@@ -759,7 +759,7 @@
     input.submit  直接快捷提交，保持录入框焦点。
     input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
     input.full    文本录入和表格录入最大化平铺。
-    keydown([data-pbo=fulled]) 友好支持ESC键取消最大化平铺。stop阻止上级ESC栈功能。
+    keydown([data-pbo~=fulled]) 友好支持ESC键取消最大化平铺。stop阻止上级ESC栈功能。
     注：
     (~form) 限定是必要的，否则更深子单元（如<select>）的nodeok冒泡会带来死循环。
     tabindex 使保存键（Ctrl+s）随时有效。 -->
@@ -775,7 +775,7 @@
         input.full(~textarea, pre._code)|evo(2) full(2);
         input.full(~th, td, li[contenteditable=true])|evo(2) pop $('._list, ._obts/') full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop;
-        keydown([data-pbo=fulled])|ev('key') pass('Escape') stop evo(2) full(false)"
+        keydown([data-pbo~=fulled])|ev('key') pass('Escape') stop evo(2) full(false)"
     to="|height(true);
         |off('mousemove');
         |bind('mousemove') once('mouseup');

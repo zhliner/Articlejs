@@ -2768,15 +2768,15 @@
             <!-- submit 明确提交才会聚焦到内容区。 -->
             <form class="Attr" tpl-name="slave:attr"
                 on="submit|avoid;
-                    apply|ev('detail') $('/select') attr('-v') debug(false);
+                    apply|ev('detail') $('/select') attr('-v');
                     update|v.sels dup len eq(1) $if('active', 'disable')"
                 by="-;
-                    Ed.attrUpdate"
+                    Ed.attrUpdate(_1)"
                 to="|trigger('apply')|fire('#g-scroll', 'focus');
                     -;
                     (/>div)|trigger(_1)">
                 <div class="_roll"
-                    on="active|$$('input, select') prop('disabled', null) v.sel0 v.attrs v.obtname;
+                    on="active|$$('input, select') prop('disabled', null) v.sel0 v.attrns v.obtname;
                         disable|$$('input, select') prop('disabled', true)"
                     to="/select|trigger('update')">
                     <div class="_name">
@@ -2792,35 +2792,33 @@
                     </div>
                     <!--特性选单：
                         主区切换前即更新到目标元素。
-                        change  判断插入适配的内容模板（先发送提交应用attrv）。
-                        _change 提取元素特性值发送到内容更新。
-                        addnew  添加一个新特性。注：尚未设置到元素上。
-                        update  特性名清单初始设置（渲染方式）。
+                        update  特性名清单更新，保留相同，不同则清理或补足。
+                        change  插入适配的内容模板，应用之前的修改到内容元素。
+                        _change 提取元素特性值发送到编辑框。
+                        addnew  添加一个新特性（临时），如果已经存在则忽略。
                         select  选取接收的值匹配的选单（新建后）。
                         record  记录当前名称，用于改变前提交应用时取值。注：.val取值已在改变之后。
                         blank   特性整体更新后空白主区替代。
-                        keydown 支持即时删除条目（友好），终止冒泡。
-                        注记：
-                        特性集可能为空，且手动添加子条目会破坏渲染结构，
-                        因此作为模板每次更新时克隆渲染。 -->
-                    <select name="attrs" size="5" data-v="" class="_list" tpl-name="attr:items" tpb-for
-                        on="change|evo(3) prop('selected') attr('-tpl') or('attr:value') node (null);
-                            _change|v.sel0 evo(3) val attribute(_1);
+                        keydown 支持即时删除条目（友好）。 -->
+                    <select name="attrs" size="5" data-v="" class="_list"
+                        on="update|evo(3) children ev('detail');
+                            change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node (null);
+                            _change|evo(3) val dup pass v.sel0 pop attribute(_1);
                             addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node(true);
                             select|ev('detail');
-                            update|ev('detail') tpl('attr:items', true);
-                            blank|tpl('attr:empty') ev('detail') pop;
+                            blank|tpl('attr:empty');
                             record|evo(3) val;
-                            keydown|iskey('Delete') pass stop evo(3) prop('selected') remove"
-                        to="form/._main>*|trigger('attrv') replace|goto('_change');
+                            keydown|iskey('Delete') pass evo(3) prop('selected') dup pass remove"
+                        by="Kit.attrlist(_1) pop elem('option')"
+                        to="|append|goto('change');
+                            form/._main>*|trigger('attrok') replace|goto('_change');
                             form/._main>*|trigger('vinit')|goto('record');
                             |append render|pop fire(3, 'select');
                             |val|change;
-                            |replace render|target goto('blank', _1);
                             form/._main>*|replace;
-                            |@-v">
-                        <!-- 单条目模板用于新建。 -->
-                        <option _data-tpl="$ == 'on by to'? 'attr:obts': null" _="$" tpl-name="attr:item">[name]</option>
+                            |@-v;
+                            |trigger('blank')|goto('record')">
+                        <!-- <option>[name]</option> -->
                     </select>
                 </div>
                 <!-- 激活与禁用，测试一个即可。 -->
@@ -2832,10 +2830,10 @@
                     <div class="_main">
                         <!--特性编辑：
                             vinit   初始设置值，简单分号切分换行友好。
-                            attrv   提取编辑值（适当构造），发送到表单应用到内容元素上。-->
+                            attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。-->
                         <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
                             on="vinit|ev('detail') or('') split(';') trim join(';\n');
-                                attrv|evo(3) val split(';') trim join('; ')"
+                                attrok|evo(3) val split(';') trim join('; ')"
                             to="|val;
                                 form/|trigger('apply')"></textarea>
                         <!--OBT属性集：
@@ -2846,7 +2844,7 @@
                                     evo(2) blur 失焦后再移动，避免窗口滚动。delay focus 延迟再聚焦才有效。
                                     注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
                             blur    参照组<textarea>失焦保存（空白忽略）。
-                            attrv   构造OBT值序列，发送到表单应用到目标元素上。
+                            attrok  构造OBT值序列，发送到表单应用到目标元素上。
                             主控编辑：
                             Enter          创建一个新的空行。
                             Ctrl+Shift+Del 删除当前行内容（可撤销），或空行本身（不可撤销）。注：分两段逻辑更友好。
@@ -2858,7 +2856,7 @@
                                 keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') (KM.attrOBTmove) scam(_1) both pass avoid evo(2) ev('key') data('on by to');
                                 blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
                                 vinit|ev('detail') v.obtsplit;
-                                attrv|data('on by to') v.obtval;
+                                attrok|data('on by to') v.obtval;
                                 ^obted|evo(3) delay remove"
                             by="Kit.obtline(_) ('_hot');
                                 Kit.obtdel(_) remove;

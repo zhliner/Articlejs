@@ -6,8 +6,7 @@
         "main:tools"
     ],
     "panel.html": [
-        "attr:items",
-        "attr:item",
+        "attr:empty",
         "attr:obts",
         "attr:value",
         "input:empty",
