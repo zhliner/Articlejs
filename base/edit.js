@@ -36,6 +36,7 @@ import { colorHTML, htmlBlock, htmlList } from "./coloring.js";
 // 专项导入
 import "./shedit.js";
 import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";
+import { OBTA } from "./tpb/config.js";
 
 
 const
@@ -130,12 +131,14 @@ const
     ]),
 
     // OBT复合特性名。
-    __obtAttr = 'on by to',
+    // 'on by to'
+    __obtAttr = `${OBTA.on} ${OBTA.by} ${OBTA.to}`,
 
     // OBT 特性名检查。
     // 用于特性名检查构造复合名（__obtAttr）。
     __obtNames = new Set([
-        'on', 'by', 'to', 'on by to'
+        // 'on', 'by', 'to', 'on by to'
+        OBTA.on, OBTA.by, OBTA.to, __obtAttr
     ]),
 
     // 元素选取集实例。

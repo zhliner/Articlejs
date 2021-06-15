@@ -764,6 +764,9 @@ class Cell {
         elo.event = ev;
         this[_SID].reset();
 
+        //:debug
+        DEBUG && window.DEBUG && window.console.info( ev.type, elo );
+
         return this.call( elo, this._extra );
     }
 
@@ -914,10 +917,7 @@ class Cell {
             // 保持线性，避免后续avoid无效。
             return this.next.call(evo, val);
         }
-        //:release
         val.then( v => this.next.call(evo, v), rejectInfo );
-        //:debug
-        // val.then( v => this.next.call(evo, v), () => rejectInfo(evo) );
     }
 
 
