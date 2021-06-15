@@ -190,7 +190,7 @@
     on="submit|avoid;
         apply|ev('detail') $('/select') val;
         delattr|ev('detail');
-        update|v.sels dup len eq(1) $if('active', 'disable')"
+        update|v.sels dup len eq(1) $if('valid', 'invalid')"
     by="-;
         Ed.attrUpdate(_1);
         Ed.deleteAttr"
@@ -198,8 +198,8 @@
         -; -;
         (/>div)|trigger(_1)">
     <div class="_roll"
-        on="active|v.sel0 v.attrns v.obtname (null);
-            disable|(true)"
+        on="valid|v.sel0 v.attrns v.obtname (null);
+            invalid|(true)"
         to="(/input, select)|$disabled trigger('follow');
             (/input, select)|$disabled">
         <div class="_name">
@@ -242,8 +242,8 @@
         </select>
     </div>
     <div class="_body"
-        on="active|(0, null);
-            disable|(1, true)"
+        on="valid|(0, null);
+            invalid|(1, true)"
         to="(/[type=submit], textarea)|$disabled disable;
             (/[type=submit], textarea)|$disabled disable">
         <div class="_main">
@@ -364,19 +364,23 @@
         update|v.sels dup len eq(1) $if('valid', 'invalid')"
     by="Ed.htmlUpdate"
     to="#g-scroll|trigger('focus');
-        /textarea|trigger(_1)">
-    <div class="_body _main">
+        (/>*)|trigger(_1)">
+    <div class="_body _main"
+        on="invalid|(true, null);
+            valid|ev('detail') item(0) v.cleanHTML (false)"
+        to="/textarea|val $disabled;
+            /textarea|$disabled val">
         <!--状态切换
             失效：设置disabled，清空内容。
             生效：移除disalbed，填充发送来的源码。
             注记：源码编辑并不常见，因此未提供友好性（如自动缩进）。 -->
-        <textarea name="html" spellcheck="false" class="_code"
-            on="invalid|(true, null);
-                valid|ev('detail') item(0) v.cleanHTML (false)"
-            to="|val $disabled;
-                |$disabled val"></textarea>
+        <textarea name="html" spellcheck="false" class="_code"></textarea>
     </div>
-    <aside>
+    <aside
+        on="invalid|(1, true);
+            valid|(0, false)"
+        to="(/button)|$disabled disable;
+            (/button)|$disabled disable">
         <div class="_option"
             on="click(button)|v.sel0 $('form/textarea') val trim dup pass"
             by="Kit.checkhtml(_1) dup $if('err', 'ok')"
