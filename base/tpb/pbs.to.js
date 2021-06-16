@@ -17,7 +17,7 @@
 
 import { Util } from "./tools/util.js";
 import { bindMethod, DataStore, ChainStore, storeChain } from "./config.js";
-import { Get, eachState } from "./pbs.get.js";
+import { Get } from "./pbs.get.js";
 
 // 无渲染占位。
 // import { Render } from "./tools/render.x.js";
@@ -686,7 +686,11 @@ const _Update = {
 .forEach(function( names ) {
     // @return {void}
     _Update[ names[0] ] = function( els, s ) {
-        eachState( els, s, names[1] );
+        if ( $.isArray(els) ) {
+            return $.isArray(s) ?
+                eachState2( els, s, names[1] ) : eachState(els, s, names[1]);
+        }
+        oneState( els, s, names[1] );
     };
 
 });
@@ -1080,6 +1084,53 @@ function scrollObj( pos ) {
     }
     return { left: pos[0], top: [1] };
 }
+
+
+//
+// 状态标识符。
+//
+const __uiState = [ '-', '', '^' ];
+
+
+/**
+ * PBO状态单个设置。
+ * @param  {Element} el 目标元素
+ * @param  {Boolean} s 状态标识
+ * @param  {String} name 状态特性名
+ * @return {void}
+ */
+function oneState( el, s, name ) {
+    Util.pbo( el, [`${__uiState[ +s ]}${name}`] );
+}
+
+
+/**
+ * PBO状态逐一设置。
+ * @param  {[Element]} els 元素集
+ * @param  {Boolean} s 状态标识
+ * @param  {String} name 状态特性名
+ * @return {void}
+ */
+function eachState( els, s, name ) {
+    els.forEach( el => oneState( el, s, name ) );
+}
+
+
+/**
+ * PBO状态逐一设置。
+ * 值集与元素集成员一一对应。
+ * @param  {[Element]} els 元素集
+ * @param  {Boolean]} ss 状态标识集
+ * @param  {String} name 状态特性名
+ * @return {void}
+ */
+function eachState2( els, ss, name ) {
+    els.forEach(
+        (el, i) =>
+        ss[i] !== undefined && oneState( el, ss[i], name )
+    );
+}
+
 
 
 /**

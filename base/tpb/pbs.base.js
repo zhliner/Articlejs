@@ -1557,28 +1557,32 @@ const _Process = {
 
 
     /**
-     * RGB 16进制颜色值转换。
-     * 如果源串已经是一个正确的表示，则简单返回。
-     * rgb|rgba(n, n, n / a) => #rrggbbaa。
-     * rgb|rgba(n, n, n, a) => #rrggbbaa。
+     * 函数型颜色值转换到 RGB 16进制。
+     * 如果源串已经是6-8位16进制，则简单返回。
+     * 3位安全色简化表示转换位6位。
+     * #rgb => #rrggbb
+     * rgb|rgba(n, n, n / a) => #rrggbbaa|#rrggbb
+     * rgb|rgba(n, n, n, a) => #rrggbbaa|#rrggbb
      * @return {String|[String]}
      */
     rgb16( evo ) {
-        if ( __reRGB16.test(evo.data) ) {
-            return evo.data;
+        let x = evo.data;
+
+        if ( __reRGB16.test(x) ) {
+            return x.length === 4 ? rgb3_6(x) : x;
         }
-        return mapCall( evo.data, s => rgb16str(s) );
+        return mapCall( x, s => rgb16str(s) );
     },
 
     __rgb16: 1,
 
 
     /**
-     * 构造RGBA格式串。
+     * 构造RGBA 16进制格式串。
      * 目标：暂存区/栈顶1项。
      * 目标为一个十六进制格式的颜色值串。
      * 如果目标串已经包含Alpha，则用实参的alpha替换。
-     * 如果实参alpha非数值，则简单忽略（不应用）。
+     * 如果实参alpha非数值，则简单忽略。
      * @data: String
      * @param  {Number} alpha 透明度（0-255）
      * @return {String}

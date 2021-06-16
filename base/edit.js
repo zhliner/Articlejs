@@ -22,11 +22,11 @@ import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
-import * as T from "./types.js";  // ./base.js 之后
+import * as T from "./types.js";  // 在 ./base.js 之后
 import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun } from './common.js';
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
-import { options, property } from "./templates.js";
+import { options, propertyTpl } from "./templates.js";
 import cfg from "./shortcuts.js";
 
 // 代码解析&高亮
@@ -2714,8 +2714,8 @@ function parentsSet( els ) {
 
 
 /**
- * 打开目标属性编辑模态框。
- * @param {String} name 条目模板名
+ * 打开元素的属性编辑模态框。
+ * @param {String} name 元素类型对应的根模板名
  */
 function propertyEdit( name ) {
     Templater.get( Sys.modalProp )
@@ -3738,11 +3738,11 @@ function canDeletes( els ) {
 /**
  * 属性编辑。
  * 全部选取必需相同且可编辑属性。
- * @return {Boolean}
+ * @return {String|false|null} 模板名或假值
  */
 function canProperty( els ) {
     let _tvs = [...typeSets(els)];
-    return _tvs.length === 1 && !!property( _tvs[0] );
+    return _tvs.length === 1 && propertyTpl( _tvs[0] );
 }
 
 
@@ -4026,8 +4026,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
 
 //
 // 内容区编辑处理集。
-// 注：仅供快捷键映射对应。
-// 2. 可供导入执行流直接调用（其方法）。
+// 导出供创建快捷键映射集（ObjKey）。
 //
 export const Edit = {
 
@@ -5396,6 +5395,15 @@ export const Edit = {
     __insResult: 1,
 
 
+    /**
+     * 元素属性更新。
+     * @return {void}
+     */
+    propUpdate( evo ) {
+        //
+    },
+
+
 
     //-- 杂项 ----------------------------------------------------------------
 
@@ -5466,14 +5474,16 @@ export const Edit = {
 
     /**
      * 弹出属性编辑框。
+     * 支持多个相同单元同时设置。
      */
     properties() {
-        let $els = $(__ESet);
+        let $els = $( __ESet ),
+            _tpl = canProperty( $els );
 
-        if ( !canProperty($els) ) {
+        if ( !_tpl ) {
             return help( 'not_property', $els[0] );
         }
-        propertyEdit( property( getType($els[0]) ) );
+        propertyEdit( _tpl );
     },
 
 };
@@ -5481,7 +5491,7 @@ export const Edit = {
 
 //
 // 辅助工具集。
-// 供模板中在调用链上使用。
+// 导出供模板中在调用链上直接使用（其方法）。
 //
 export const Kit = {
 

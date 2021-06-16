@@ -159,12 +159,13 @@
             click(b)|$$('/b')"
         to="1/._body|replace;
             =|only('_press')|fire('form/', 'update')">
-        <!-- 直接执行：click stop 避免触发上层行为。-->
-        <b title="擦除"
-            on="click|stop v.sels"
-            by="Ed.clearStyle"
+        <!--直接执行：
+            click stop 避免触发上层行为。-->
+        <b title="样式刷"
+            on="click|stop v.focus dup pass"
+            by="Ed.brushStyle"
             to="#g-scroll|trigger('focus')|fire('form/', 'update')">
-            <i id="b-erase"></i>
+            <i id="b-brush"></i>
         </b>
         <b data-tpl="style:align" title="对齐"><i id="b-align"></i></b>
         <b data-tpl="style:fontview" title="字形" class="_press"><i id="b-fontview"></i></b>
@@ -173,11 +174,11 @@
         <b data-tpl="style:margin" title="内/外边距"><i id="b-margin"></i></b>
         <b data-tpl="style:color" title="颜色"><i id="b-colors"></i></b>
         <!-- 直接执行 -->
-        <b title="样式刷"
-            on="click|stop v.focus dup pass"
-            by="Ed.brushStyle"
+        <b title="擦除全部"
+            on="click|stop v.sels"
+            by="Ed.clearStyle"
             to="#g-scroll|trigger('focus')|fire('form/', 'update')">
-            <i id="b-brush"></i>
+            <i id="b-erase"></i>
         </b>
     </div>
     <div class="_body" tpl-source="style:fontview"> [字形] </div>
@@ -259,7 +260,7 @@
                 to="|val;
                     form/|trigger('apply')"></textarea>
             <!--OBT属性集：
-                vinit   总设置通知，接收数据为一个3元数组。
+                vinit   总设置通知，接收数据为一个3元数组。暂存到当前元素。
                 keydown 1.在当前行之后创建一个新行并聚焦。
                 keydown 2.删除当前行（不可撤销）。
                 keydown 3.Ctrl+ArrowUp|ArrowDown 上下移动当前行。
@@ -291,7 +292,8 @@
                     form/|trigger('apply')">
                 <!--主控编辑框：
                     当前编辑行设置 _hot 类名以便区分。
-                    active  创建列表清单并逐一赋值，聚焦到目标行。尽量保留用户行数。
+                    active  创建列表清单，从上级取值逐一赋值并聚焦到目标行。
+                            维持用户编辑的行数（如果可以）。
                     focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
                     blur    失焦保存当前编辑条目（OBT配置组内），空白忽略。
                     switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递。detail:[i, list, <label>]
@@ -589,7 +591,7 @@
 
 <!-- 模态框：属性 -->
 <form class="_usual" tpl-name="modal:prop"
-    on="init|ev('detail') pop tpl;
+    on="init|ev('detail') node;
         label|$('/._prop') attr('-label');
         submit|avoid"
     to="/>._list|fill|goto('label');
@@ -649,6 +651,7 @@
 <!--脚本历史：
     submit  搜索过滤，空串搜索显示全部。
     nodeok  初始载入/展示置顶代码清单，一次即可。
+    edited  管理编辑完成后，置顶区重构。
     click   删除目标条目。 -->
 <form class="_page _script" tpl-name="script:history"
     on="submit|avoid value('words') $('/#nav-misc');
@@ -711,12 +714,12 @@
                 <!-- 管理时显示，完成后隐藏（hidden） -->
                 <span id="_urbox" data-pbo="hidden"
                     on="off|evo(3) hide $('main/');
-                        on|evo(3) hide(false) $('main/');
+                        on|evo(3) hide(false) $$('main/li>b') lose(0) $('main/');
                         reset|$$('/b') disable;"
                     by="Kit.shEdok;
                         Kit.shEdin"
-                    to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit') fire('#nav-tops', 'edited');
-                        |trigger('reset')|fire('main/._search', 'off') fire('main/', 'editon')">
+                    to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit') fire('form/', 'edited');
+                        |trigger('reset')|fire('main/._search', 'off')">
                     <!--撤销：成功后会激活Redo。-->
                     <b id="sh-undo" title="撤消" data-pbo="disabled"
                         on="click|evo(3) disabled end;
@@ -734,9 +737,11 @@
                         to="|trigger('state');
                             #sh-undo|trigger('enable')">↷</b>
                 </span>
-                <!-- click avoid 避免提交逻辑 -->
+                <!--编辑管理：
+                    click avoid 避免提交逻辑。
+                    bstate 管理状态切换。 -->
                 <button type="button" data-op="off"
-                    on="click|avoid $$('main/li>b') lose(2) (['on', 'off']) ('_edit') (['管理', '完成']);
+                    on="click|avoid (['on', 'off']) ('_edit') (['管理', '完成']);
                         bstate|evo(3) attr('-op')"
                     to="|^text toggleClass ^-op|goto('bstate');
                         1/span|trigger(_1)">管理</button>

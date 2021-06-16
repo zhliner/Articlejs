@@ -277,7 +277,7 @@
     on="modify|$('/[name=cto]') val $('/#_rgba') text pack(2)"
     to="form/|trigger('style')">
     <div class="_cbox"
-        on="mouseenter(b)|evo(2) css('background-color');
+        on="mouseenter(b)|evo(2) attr('title') $('1/#_alpha') val int rgba(_1);
             mouseleave|$('1/#_rgba') text;
             click(b)|evo(2) css('background-color') rgb16"
         to="#color-show|%backgroundColor;

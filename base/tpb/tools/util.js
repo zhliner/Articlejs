@@ -22,8 +22,8 @@ const
     __chrSp2    = '/',
 
     // PB属性名。
-    __attrPBo   = 'data-pbo',   // 选项词
-    __attrPBa   = 'data-pba',   // 参数序列
+    __attrPBO   = 'data-pbo',   // 选项词
+    __attrPBA   = 'data-pba',   // 参数序列
 
     __chrOpt1   = '-',  // 选项词：减
     __chrOpt2   = '^',  // 选项词：切换
@@ -116,17 +116,17 @@ const Util = {
      * @return {[String]|void}
      */
     pba( el, wds ) {
-        let _v = el.getAttribute( __attrPBa );
+        let _v = el.getAttribute( __attrPBA );
 
         if ( wds === undefined ) {
             // 末尾-会切分出一个空串。
             return _v ? _v.split('-').slice(0, -1) : [];
         }
         if ( wds === null ) {
-            return _v && $.removeAttr( el, __attrPBa );
+            return _v && $.removeAttr( el, __attrPBA );
         }
         // 末尾需要一个-，以匹配 |= 选择器。
-        $.attr( el, __attrPBa, wds.join('-') + '-' );
+        $.attr( el, __attrPBA, wds.join('-') + '-' );
     },
 
 
@@ -146,16 +146,16 @@ const Util = {
      * @return {[String]|void}
      */
     pbo( el, wds ) {
-        let _v = el.getAttribute( __attrPBo ),
+        let _v = el.getAttribute( __attrPBO ),
             _o = _v ? _v.split(/\s+/) : [];
 
         if ( wds === undefined ) {
             return _o;
         }
         if ( wds === null ) {
-            return _v && $.removeAttr( el, __attrPBo );
+            return _v && $.removeAttr( el, __attrPBO );
         }
-        $.attr( el, __attrPBo, pboSet(wds, _o).join(' ') );
+        $.attr( el, __attrPBO, pboSet(wds, _o).join(' ') );
     },
 
 

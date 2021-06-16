@@ -1728,11 +1728,13 @@ const _Gets = {
 //
 // 元素表现。
 // 目标：暂存区/栈顶1项。
-// 目标为元素或元素集。支持值数组与元素集成员一一对应。
+// 目标为元素或元素集。
 // 状态标识 s：
 //      1|true  状态执行，默认
 //      0|false 状态取消
 //      2       状态切换
+// 注记：
+// To:Update版本支持值数组与元素集成员一一对应。
 //===============================================
 [
     ['hide',     'hidden'],
@@ -1746,7 +1748,7 @@ const _Gets = {
 
     // @return {void}
     _Gets[names[0]] = function( evo, s = 1 ) {
-        eachState( evo.data, s, names[1] );
+        mapCall( evo.data, el => pboState(el, s, names[1]) )
     };
 
     _Gets[`__${names[0]}`] = 1;
@@ -2049,34 +2051,21 @@ function elemInfo( el, hasid, hascls ) {
 }
 
 
-
-// 工具导出。
-//////////////////////////////////////////////////////////////////////////////
-
 //
-// 状态标识符。
+// PBO状态标识符。
 //
 const __uiState = [ '-', '', '^' ];
 
 
 /**
- * 逐一调用封装。
- * 支持值集与元素集成员一一对应。
- * @param  {Element|[Element]} els 元素集
- * @param  {Boolean|[Boolean]} s 状态标识/集
+ * PBO状态单个设置。
+ * @param  {Element} el 目标元素
+ * @param  {Boolean} s 状态标识
  * @param  {String} name 状态特性名
  * @return {void}
  */
-export function eachState( els, s, name ) {
-    if ( !$.isArray(els) ) {
-        els = [ els ];
-    }
-    if ( !$.isArray(s) ) {
-        s = new Array(els.length).fill( s );
-    }
-    els.forEach(
-        (el, i) => s[i] !== undefined && Util.pbo(el, [`${__uiState[+s[i]]}${name}`])
-    );
+function pboState( el, s, name ) {
+    Util.pbo( el, [`${__uiState[ +s ]}${name}`] );
 }
 
 

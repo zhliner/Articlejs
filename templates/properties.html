@@ -97,7 +97,7 @@
 </ul>
 
 <!--添加一个提示
-    delay 避免新节点after后激发nodeok无限循环。-->
+    delay 跳过当前事件流程以便解绑，避免after后激发nodeok无限循环。-->
 <ul class="_prop" tpl-name="property:li" data-label="列表项属性"
     on="^nodeok|({class:'_tips', text:'（不常用）'}) Element('i') delay"
     to="/[name=type]|after">

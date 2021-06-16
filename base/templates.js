@@ -251,6 +251,6 @@ export function options( els ) {
  * @param  {Number} tval 目标元素类型值
  * @return {String|null}
  */
-export function property( tval ) {
+export function propertyTpl( tval ) {
     return Properties[ tval ] || null;
 }
