@@ -843,17 +843,20 @@
 
 
 <!--执行结果：
-    reset  表单重置时手动重置部分内容。
-    result 上级递送的执行结果：{type:'value|error', data:String}。
-    shsave 脚本历史存储（有值才执行）。
-    state  表单初始状态设置：微编辑下内容插入不可用。
+    submit  插入文本或节点，微编辑下无效果通过。
+    reset   表单重置时手动重置部分内容。
+    result  上级递送的执行结果：{type:'value|error', data:String}。
+    shsave  脚本历史存储（有值才执行）。
+    state   表单初始状态设置：微编辑下内容插入不可用。
+    submit  微编辑状态下插入纯文本结果。
 -->
 <form class="_page _script" tpl-name="script:result"
     on="submit|avoid $('/pre') text value('type where');
         shsave|ev('detail') dup pass;
         reset;
         result|ev('detail') get('code data type') spread;
-        state|env('minied') bool"
+        state|env('minied') bool;
+        submit|env('minied') pass $('/pre') text html xRange addRange edbox dup pop(2) exeCmd('insertHTML', _1) focus"
     by="Ed.insResult(_);
         Kit.shsave"
     to="1/|trigger('cancel');
@@ -870,16 +873,18 @@
             value 设置正常的结果内容，同时存储备份。
             reset 提取初始存储的源码重置。
             error 错误信息手动连接源码封装。
-            obted 代码编辑框友好事件克隆。 -->
+            obted 代码编辑框友好操作克隆（不含记录焦点的事件，否则会覆盖原插入点）。
+            keyup 补充Shift键释放效果。注：因该事件也为焦点记录而未克隆。 -->
         <pre class="_err" data-bak="" contenteditable
             on="reset|evo(3) prop('-bak');
                 value|ev('detail') str html dup ('_err');
                 error|ev('detail') str html str('<label>错误：</label><i>', '</i>') dup ('_err');
-                ^obted|tpl('prop:codes')"
+                ^obted|tpl('prop:codes');
+                keyup|env('paste.shift', false)"
             to="|html;
                 |removeClass prop('-bak') html;
                 |addClass prop('-bak') html;
-                |cloneEvent">
+                |cloneEvent('keydown paste')">
 <label>错误：</label><i>this is a error massage.</i>
 </pre>
         <!-- 仅部分禁用（tabs保留） -->

@@ -61,16 +61,18 @@
 
 
 <!--内容区
-    cancel 取消微编辑（按ESE）
-    medok 确认微编辑（Sys.medOk）
-    medin 进入微编辑（Sys.medIn）
+    cancel  取消微编辑（按ESE）
+    medok   确认微编辑（Sys.medOk）
+    medin   进入微编辑（Sys.medIn）
     medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
                 注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
     info|focus  确认后聚焦根容器，便于键盘控。
-    esced    向ESC栈添加一条记录。
-    escpop   从ESC栈移除一条记录。
-    @keydown 微编辑确认专项（退出即解绑）。stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
-    @paste   微编辑粘贴（纯文本）。 -->
+    esced       向ESC栈添加一条记录。
+    escpop      从ESC栈移除一条记录。
+    @paste      微编辑粘贴纯文本，清理多余空白（空格替换）。
+    @keydown    微编辑确认（退出即解绑）。stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
+    @keydown:x  屏蔽浏览器内置的3个编辑快捷键（<b><i><u>）。
+-->
 <div class="___Content" tpl-name="main:content"
     on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
         cancel|env('minied') pass stop;
@@ -79,13 +81,14 @@
         info|$('#g-scroll') focus;
         esced|evo(3) (ESC) pop;
         escpop|('med', ESC) pop;
-        @paste|avoid clipboard exeCmd('insertText', _1)"
+        @paste|avoid clipboard clean(' ') html exeCmd('insertHTML', _1);
+        @keydown:x|scam('ctrl') scam('meta') either pass ev('key') pass('b', 'i', 'u') avoid"
     by="Kit.medpass(_1);
         Kit.medcancel"
     to="-;
         |off('keydown paste')|goto('escpop');
         |off('keydown paste')|goto('escpop');
-        |bind('keydown paste')|goto('esced');
+        |bind('keydown paste keydown:x')|goto('esced');
         #g-count|trigger('reset');
         -|add('med')|env('minied', true);
         -|apply('delete')|env('minied', false) goto('info')">
@@ -247,7 +250,7 @@
             mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
             mouseleave|end 重置状态栏，除非已有计数指定。
             mousedown|...avoid 避免 Shift+单击 变成划选（已经有划选除外）。
-            mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。
+            mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。注：keyup-全选，focus-无点击进入。
         -->
         <main id="content" class="content"
             on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) scam;
@@ -259,7 +262,7 @@
                 mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass dup str pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
                 mousedown|env('minied') end sRange str vnot scam('shift') both pop avoid;
-                mouseup([contenteditable]) keyup([contenteditable]) input|env('minied') pass sRange pop xRange stop"
+                mouseup([contenteditable]) keyup([contenteditable]) input focus([contenteditable])|env('minied') pass sRange pop xRange stop"
             by="Ed.click(_1);
                 Kit.ecancel"
             to="#g-count|trigger('reset');

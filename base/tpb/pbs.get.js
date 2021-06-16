@@ -515,10 +515,7 @@ const _Gets = {
         if ( wrap ) {
             return [ evo.data ];
         }
-        if ( $.isArray(evo.data) ) {
-            return evo.data;
-        }
-        return Array.from( evo.data );
+        return $.isArray( evo.data ) ? evo.data : Array.from( evo.data );
     },
 
     __arr: 1,

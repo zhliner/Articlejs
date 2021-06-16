@@ -188,10 +188,11 @@
         to="#g-count|trigger('reset');
             #status-info|trigger('info')">
         <!--模态框
-            open  打开模态框，插入目标表单。
-                  向表单发送一个state事件，用于可能需要的初始设置。
-            focus 聚焦首个文本输入控件，延迟激发（待内部子模版就绪）。
-            esced 向ESC添加当前条目。 -->
+            open    打开模态框，插入目标表单。
+                    向表单发送一个state事件，用于可能需要的初始设置。
+            focus   聚焦首个文本输入控件，延迟激发（待内部子模版就绪）。
+            cancel  取消/隐藏模态框，聚焦回归主区（零延迟便于微编辑时聚焦覆盖）。
+            esced   向ESC添加当前条目。 -->
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
                 open|evo(3) lose(0) ev('detail');
@@ -201,7 +202,7 @@
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel');
                 /form|replace trigger('state')|goto('esced');
-                -|apply('delete')|fire('#g-scroll', 'focus');
+                -|apply('delete')|fire('#g-scroll', 'focus', 0);
                 -|add('modal')|fire(3, 'focus')">
             <form> <!-- 占位 --> </form>
         </div>

@@ -5373,6 +5373,7 @@ export const Edit = {
         let _txt = evo.data.trim(),
             _tos = [...__ESet];
 
+        // 微编辑下或无插入要求。
         if ( !_tos.length || !where || !_txt ) {
             return;
         }
