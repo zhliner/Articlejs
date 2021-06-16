@@ -755,7 +755,7 @@
     keydown 插入真实换行或Tab空格序列（需要处理换行后的光标兼容性）。
     paste   粘贴内容，转换后按HTML方式插入，避免浏览器智能行为（不兼容）。
     keydown 设置Shift键标记，决定是否清除多余缩进。
-    keydown 禁止3个浏览器编辑快捷键（创建<b><i><u>）。
+    keydown 禁止3个浏览器编辑快捷键（创建<b><i><u>）。兼容性：windows, linux。
     keyup   清除Shift标记，注意应当是false（非null）。
     codes   由外部发送消息填充代码内容到光标处。注：实际上可以插入其它活动位置（如微编辑元素）。
     mouseup keyup... 当前光标点记忆，否则codes递送只能插入前端。
@@ -767,7 +767,7 @@
     on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') (KM.backspaceMore) scam(_1) v.k3edit(_4) dup pass avoid exeCmd('insertHTML', _1);
         paste|avoid clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
         keydown|scam('shift') pass stop env('paste.shift', true);
-        keydown|scam('ctrl') scam('meta') either pass ev('key') pass('b','i','u','B','I','U') avoid;
+        keydown|scam('ctrl') iskey(6) both pass avoid;
         keyup|env('paste.shift', false);
         codes|ev('detail') html xRange addRange edbox pop exeCmd('insertHTML', _1);
         mouseup input keyup focus|sRange pop xRange"

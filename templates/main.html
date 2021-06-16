@@ -71,7 +71,7 @@
     escpop      从ESC栈移除一条记录。
     @paste      微编辑粘贴纯文本，清理多余空白（空格替换）。
     @keydown    微编辑确认（退出即解绑）。stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
-    @keydown:x  屏蔽浏览器内置的3个编辑快捷键（<b><i><u>）。
+    @keydown:x  屏蔽浏览器内置的3个编辑快捷键。兼容性：windows, linux。
 -->
 <div class="___Content" tpl-name="main:content"
     on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
@@ -82,7 +82,7 @@
         esced|evo(3) (ESC) pop;
         escpop|('med', ESC) pop;
         @paste|avoid clipboard clean(' ') html exeCmd('insertHTML', _1);
-        @keydown:x|scam('ctrl') scam('meta') either pass ev('key') pass('b','i','u','B','I','U') avoid"
+        @keydown:x|scam('ctrl') iskey(6) both pass avoid"
     by="Kit.medpass(_1);
         Kit.medcancel"
     to="-;

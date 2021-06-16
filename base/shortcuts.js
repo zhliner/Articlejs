@@ -93,7 +93,7 @@ Global: [
     // 主面板模板中有操作提示，如果修改注意同步信息。
     {
         "key": [
-            "alt:f",    // windows
+            "alt:f",    // windows, ...
             "meta:f"    // MacOS
         ],
         "command":  "input.full",

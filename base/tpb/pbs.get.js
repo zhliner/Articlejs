@@ -45,6 +45,9 @@ const
         3:  /^Home|End|PgUp|PgDn$/,
         4:  /^Arrow(?:Up|Left|Down|Right)$/,
         5:  /^Enter|Delete|Backspace$/,
+
+        // 浏览器编辑快捷键目标（<b><i><u>）
+        6:  /^b|i|u$/i,
     },
 
     // 修饰键属性名。
