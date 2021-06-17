@@ -208,7 +208,10 @@ einfo( hasid:Boolean, hascls:Boolean ): String | [String]
 hasRange( el:Element|String ): Boolean
 // 元素是否含有选区。
 
-scam( names?:String ): Boolean | Object
+scam( names?:String ): Boolean
+// 修饰键{Alt|Ctrl|Shift|Meta}按下检查（排他性）。
+
+SCAM( ...names:String ): Boolean | [String]
 // 修饰键{Alt|Ctrl|Shift|Meta}状态检查|封装。
 
 acmsk(): String

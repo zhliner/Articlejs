@@ -981,29 +981,42 @@ const _Gets = {
 
 
     /**
-     * 修饰键按下检测集。
+     * 修饰键按下检测。
      * 修饰键指 shift/ctrl/alt/meta 4个键。
      * 目标：无。
-     * 如果指定键名则为检查，否则简单返回按下键名集（全小写）。
-     * names支持空格分隔的多个名称，And关系。
+     * 排他性约束，names支持空格分隔的多个名称，And关系。
+     * 键名忽略大小写。
      * 例：
-     * scam('shift ctrl')  // 是否同时按下了Shift和Ctrl键。
-     * scam('Ctrl', true)  // 是否只按下了Ctrl键。
+     * scam('shift ctrl')  // 是否同时按下Shift和Ctrl键。
      * @param  {String} names 键名序列，可选
-     * @param  {Boolean} strict 是否为严格匹配（排他性）
-     * @return {Set|Boolean}
+     * @return {Boolean}
      */
-    scam( evo, names, strict ) {
-        let _ks = new Set( scamKeys(evo.event) );
-        if ( !names ) return _ks;
-
-        let _ns = names.split( __reSpace ),
-            _ok = _ns.every( n => _ks.has(n.toLowerCase()) );
-
-        return strict ? _ok && _ns.length === _ks.size : _ok;
+    scam( evo, names ) {
+        return strictMatch( names.split(__reSpace), new Set(scamKeys(evo.event)) );
     },
 
     __scam: null,
+
+
+    /**
+     * 修饰键按下检测。
+     * 目标：无。
+     * 键名忽略大小写，多个实参键名为Or关系。
+     * 单个实参键名支持空格分隔的多个键名（And关系且排他性）。
+     * 如果未传递键名，返回按下的键名集（全小写）。
+     * @param  {...String} names 键名序列
+     * @return {Set|Boolean}
+     */
+    SCAM( evo, ...names ) {
+        let _set = new Set( scamKeys(evo.event) );
+
+        if ( !names.length ) {
+            return _set;
+        }
+        return names.some( n => strictMatch(n.split(__reSpace), _set) );
+    },
+
+    __SCAM: null,
 
 
     /**
@@ -1049,8 +1062,8 @@ const _Gets = {
     iskey( evo, ...keys ) {
         let _k = evo.event.key;
 
-        return keys.some( v =>
-            typeof v === 'number' ? __keyArea[v].test(_k) : _k === v
+        return keys.some(
+            v => typeof v === 'number' ? __keyArea[v].test(_k) : _k === v
         );
     },
 
@@ -2010,8 +2023,7 @@ function gather( names, val ) {
  * @return {[String]}
  */
 function scamKeys( ev ) {
-    return __modKeys
-        .filter( n => ev[n] ).map( n => n.slice(0, -3) );
+    return __modKeys.filter( n => ev[n] ).map( n => n.slice(0, -3) );
 }
 
 
@@ -2048,6 +2060,19 @@ function elemInfo( el, hasid, hascls ) {
         _s += '.' + [...el.classList].join('.');
     }
     return _s;
+}
+
+
+/**
+ * 严格匹配。
+ * 名称序列是否与定义集内完全符合。
+ * 对比忽略大小写。
+ * @param  {[String]} names 名称序列
+ * @param  {Set} set 名称定义集
+ * @return {Boolean}
+ */
+function strictMatch( names, set ) {
+    return names.length === set.size && names.every( n => set.has(n.toLowerCase()) );
 }
 
 

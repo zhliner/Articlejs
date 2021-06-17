@@ -275,8 +275,8 @@
             -->
             <div class="_obts" tpl-name="attr:obts"
                 on="keydown(li)|iskey('Enter') pass stopAll avoid evo(2) data('on by to');
-                    keydown(li)|iskey('Delete') (KM.attrOBTdel) scam(_1) both pass avoid stopAll evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
-                    keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') (KM.attrOBTmove) scam(_1) both pass avoid stop evo(2) ev('key') data('on by to');
+                    keydown(li)|iskey('Delete') scam(KM.attrOBTdel) both pass avoid stopAll evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
+                    keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.attrOBTmove) both pass avoid stop evo(2) ev('key') data('on by to');
                     blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
                     vinit|ev('detail') v.obtsplit;
                     attrok|data('on by to') v.obtval;

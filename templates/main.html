@@ -70,11 +70,11 @@
     esced       向ESC栈添加一条记录。
     escpop      从ESC栈移除一条记录。
     @paste      微编辑粘贴纯文本，清理多余空白（空格替换）。
-    @keydown    微编辑确认（退出即解绑）。stop 避免上层快捷键操作（放过ESC、Shift和Fn系列键）。
-    @keydown:x  屏蔽浏览器内置的3个编辑快捷键。兼容性：windows, linux。
+    @keydown    微编辑确认（退出即解绑）。stop 避免上层快捷键操作（放过Shift和Fn+ESC系列）。
+    @keydown:x  屏蔽浏览器内置的3个编辑快捷键。兼容性：windows, MacOS。
 -->
 <div class="___Content" tpl-name="main:content"
-    on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') scam;
+    on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') SCAM;
         cancel|env('minied') pass stop;
         medok|env('minied') pass stop;
         medin|env('minied') end stop delay;
@@ -82,7 +82,7 @@
         esced|evo(3) (ESC) pop;
         escpop|('med', ESC) pop;
         @paste|avoid clipboard clean(' ') html exeCmd('insertHTML', _1);
-        @keydown:x|scam('ctrl') iskey(6) both pass avoid"
+        @keydown:x|SCAM('ctrl', 'meta') pass iskey(6) pass avoid"
     by="Kit.medpass(_1);
         Kit.medcancel"
     to="-;
@@ -99,7 +99,7 @@
         focus 设置选取范围到内部，以捕获copy|cut事件。
         copy Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），clean清理内容中的换行，规范换行符用途。
         paste 普通模式下的粘贴。
-        keydown|scam('shift') 设置末尾追加式粘贴标记。
+        keydown|ev('shiftKey') 设置末尾追加式粘贴标记。
         keyup|env('paste:append', null) 清除追加粘贴标记（重置）。
         _focus 编辑区聚焦（微编辑除外，否则影响光标）。使得上下文菜单显示时，操作非菜单快捷键可取消菜单。
     -->
@@ -110,7 +110,7 @@
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste:append');
             focus|env('minied') end $('/main') nodeRange(true) addRange;
             copy|env('minied') end sRange str end avoid v.sels text clean(' ') trim join('\n') pop clipboard;
-            keydown|env('minied') end scam('shift') pass env('paste:append', true);
+            keydown|env('minied') end ev('shiftKey') pass env('paste:append', true);
             keyup|env('minied') end env('paste:append', null);
             _focus|env('minied') end evo(3) focus"
         by="-;-;
@@ -253,7 +253,7 @@
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。注：keyup-全选，focus-无点击进入。
         -->
         <main id="content" class="content"
-            on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) scam;
+            on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) SCAM;
                 cancel|stop env('minied') end;
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
@@ -261,7 +261,7 @@
                 mouseleave|env('minied') end $('#g-count') val end;
                 mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass dup str pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
-                mousedown|env('minied') end sRange str vnot scam('shift') both pop avoid;
+                mousedown|env('minied') end sRange str vnot ev('shiftKey') both pop avoid;
                 mouseup([contenteditable]) keyup([contenteditable]) input focus([contenteditable])|env('minied') pass sRange pop xRange stop"
             by="Ed.click(_1);
                 Kit.ecancel"
@@ -762,7 +762,7 @@
             路径信息更新由程序（edit.js）直接执行。
         -->
         <div id="g-path" class="_path"
-            on="click(b)|env('minied') end evo(2) v.source scam;
+            on="click(b)|env('minied') end evo(2) v.source SCAM;
                 mouseenter(b)|evo(2) dup attr('title') end v.source v.elemSelf evo(2) pop;
                 mouseenter(b)|('_point') evo(2) v.source pop;
                 mouseleave(b)|stop ('_point') evo(2) v.source pop;
@@ -907,7 +907,7 @@
         click 滚动问题元素（可能为null）到视口中间，主窗口聚焦友好。
         mouseover 问题元素背影提示。-->
     <div id="err-msg" class="_err" data-pbo="lost"
-        on="click|evo(3) v.source dup pass dup intoView(2) scam;
+        on="click|evo(3) v.source dup pass dup intoView(2) SCAM;
             mouseenter|('_warn') evo(3) v.source pop;
             mouseleave|('_warn') evo(3) v.source pop;
             off|evo(3) lose;

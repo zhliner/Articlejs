@@ -1772,6 +1772,9 @@ function topCall( hot, handle ) {
  * @return {[Element]}
  */
 function siblingTo( beg, to ) {
+    if ( beg === to ) {
+        return [];
+    }
     let _dir = $.next( beg, to, true ),
         _els = _dir ? $.nextUntil( beg, to ) : $.prevUntil( beg, to );
 
@@ -2174,7 +2177,7 @@ function hasChildElement( els ) {
  */
 function scamPressed( set, keys ) {
     let _ns = keys.split( __reSpace );
-    return _ns.every( n => set.has(n.toLowerCase()) ) && _ns.length === set.size;
+    return _ns.length === set.size && _ns.every( n => set.has(n.toLowerCase()) );
 }
 
 
@@ -2399,7 +2402,7 @@ function columnCells2( tbo, [beg, end], tsec ) {
 
 
 /**
- * 获取与焦点同级的起点元素的父容器。
+ * 获取与焦点同级的起点元素。
  * 如果焦点与起始元素不在同一父容器下，返回null。
  * 用途：单击跨选或浮选。
  * @param  {Element} hot 焦点元素
@@ -4131,7 +4134,7 @@ export const Edit = {
             let _to = closestFocus( _hot, _el ),
                 _els = _to && siblingTo( _hot, _to );
             return _to && _els.length &&
-                historyPush( new ESEdit(siblingsUnify, _els, _hot), new HotEdit(_hot) );
+                historyPush( new ESEdit(siblingsUnify, _els, _hot), new HotEdit(_to) );
         }
         // 浮选（焦点同级）
         if ( scamPressed(scam, cfg.Keys.smartSelect) ) {
