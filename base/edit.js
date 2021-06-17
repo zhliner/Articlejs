@@ -2722,7 +2722,7 @@ function parentsSet( els ) {
  */
 function propertyEdit( name ) {
     Templater.get( Sys.modalProp )
-    .then( frm => $.trigger(frm, 'init', name) && $.trigger(modalDialog, 'open', frm) );
+        .then( frm => $.trigger(modalDialog, 'open', [name, frm]) );
 }
 
 
@@ -5407,6 +5407,8 @@ export const Edit = {
         //
     },
 
+    __propUpdate: 1,
+
 
 
     //-- 杂项 ----------------------------------------------------------------
@@ -6140,7 +6142,7 @@ export const Kit = {
 
 
     /**
-     * 创建最佳图片（<picture>）子单元。
+     * 创建自适应图片（<picture>）子单元。
      * 即：<source>元素集（不含<img>子单元）。
      * @data: String 配置格式串
      * @return {Promise<[Element]>}
@@ -6874,6 +6876,7 @@ processExtend( 'Ed', Edit, [
     'htmlUpdate',
     'runScript',
     'insResult',
+    'propUpdate',
 
     // 配合cut处理
     'deletes',

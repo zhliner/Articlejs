@@ -723,7 +723,7 @@ Slave: [
         // 内容直接提交。
         // 若录入框充满则恢复正常。
         // 提示：（同上）
-        "key":      "ctrl+shift:enter",
+        "key":      "alt+ctrl:enter",
         "command":  "input.submit2",
     },
 

@@ -17,7 +17,7 @@
     <li tpl-node="prop:sources1, prop:tracks"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:picture" data-label="最佳图片属性">
+<ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性">
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
     <li tpl-node="prop:sources2"></li>
@@ -182,7 +182,7 @@
     <li tpl-node="prop:sources1, prop:tracks"></li>
 </ul>
 
-<!-- 最佳图片 -->
+<!-- 自适应图片 -->
 <ul class="_prop" tpl-name="inlines:picture">
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
@@ -507,7 +507,7 @@
     </span>
 </li>
 
-<!-- 最佳图片用 -->
+<!-- 自适应图片用 -->
 <li tpl-name="prop:sources2">
     <b>候选图片</b>
     <span title="<source>"
@@ -755,7 +755,7 @@
     keydown 插入真实换行或Tab空格序列（需要处理换行后的光标兼容性）。
     paste   粘贴内容，转换后按HTML方式插入，避免浏览器智能行为（不兼容）。
     keydown 设置Shift键标记，决定是否清除多余缩进。
-    keydown 禁止3个浏览器编辑快捷键（创建<b><i><u>）。兼容性：windows, MacOS。
+    keydown SCAM...禁止3个浏览器编辑快捷键（创建<b><i><u>）。兼容性：windows, MacOS。
     keyup   清除Shift标记，注意应当是false（非null）。
     codes   由外部发送消息填充代码内容到光标处。注：实际上可以插入其它活动位置（如微编辑元素）。
     mouseup keyup... 当前光标点记忆，否则codes递送只能插入前端。

@@ -453,13 +453,14 @@ const _Control = {
      * 将条目展开入栈。
      * 目标：暂存区/栈顶1项。
      * 特权：是，自行入栈。
-     * 目标若为字符串，会展开为单个字符序列入栈。
-     * 注：目标中的undefined值会被丢弃。
-     * @data: [Value]|Iterator|String
+     * 目标中的undefined值会被丢弃。
+     * 容错单值展开（无效果）。
+     * @data: [Value]|Value
      * @param {Stack} stack 数据栈
      */
     spread( evo, stack ) {
-        stack.push( ...evo.data );
+        let x = evo.data;
+        stack.push( ...( $.isArray(x) ? x : [x] ) );
     },
 
     __spread: 1,

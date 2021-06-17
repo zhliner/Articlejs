@@ -152,11 +152,22 @@ const CustomStruct = {
     /**
      * 仅两种可能：
      * - IMG:  正常普通图片（内联、插图）。
-     * - PIMG: 最佳图片内的占位图片（:last-child）。
+     * - PIMG: 自适应图片内的占位图片（:last-child）。
      * @param {Element} el 当前元素
      */
     IMG( el ) {
         return el.parentElement.tagName === 'PICTURE' ? T.PIMG : T.IMG;
+    },
+
+
+    /**
+     * 媒体资源分2种：
+     * - SOURCE1 包含 [src, type] 两个特性的音/视频资源。
+     * - SOURCE2 包含 [srcset, media] 两个特性的最适图片资源。
+     * @param {Element} el 当前元素
+     */
+    SOURCE( el ) {
+        return el.parentElement.tagName === 'PICTURE' ? T.SOURCE2 : T.SOURCE1;
     },
 
 };
@@ -275,7 +286,7 @@ const StructVerify = {
     /**
      * 仅两种可能：
      * 类型本身受目标父容器约束，没有重叠，可简单返回true。
-     * - PIMG: 最佳图片内的占位图片（:last-child）。
+     * - PIMG: 自适应图片内的占位图片（:last-child）。
      * - IMG:  正常普通图片（内联、插图）。
      * @param  {Element} el 当前元素
      * @param  {Element} box 将要进入的父容器

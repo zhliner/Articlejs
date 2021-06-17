@@ -395,7 +395,7 @@ const _Gets = {
      *      undefined 元素为选取状态（无折叠）
      * }
      * @data: Element
-     * @param  {Boolean} collapse 选区折叠位置，可选
+     * @param  {Boolean} collapse 选区折叠，可选
      * @return {Range}
      */
     nodeRange( evo, collapse ) {
@@ -972,7 +972,7 @@ const _Gets = {
      */
     hasRange( evo, el ) {
         if ( typeof el === 'string' ) {
-            el = Util.find( el, evo.delegate );
+            el = Util.find( el, evo.delegate, true );
         }
         return $.contains( el, evo.data.commonAncestorContainer );
     },
@@ -1001,8 +1001,8 @@ const _Gets = {
     /**
      * 修饰键按下检测。
      * 目标：无。
-     * 键名忽略大小写，多个实参键名为Or关系。
-     * 单个实参键名支持空格分隔的多个键名（And关系且排他性）。
+     * 同上排他性约束，键名忽略大小写。
+     * 多个实参键名为Or关系，单个实参键名支持空格分隔的多键名（And关系）。
      * 如果未传递键名，返回按下的键名集（全小写）。
      * @param  {...String} names 键名序列
      * @return {Set|Boolean}

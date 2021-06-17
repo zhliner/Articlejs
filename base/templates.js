@@ -164,8 +164,9 @@ const InputOptions = {
 const Properties = {
     [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls, sources
     [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster, sources
-    [ T.IMG ]:          'property:picture',     // src, width, height, alt, sources
+    [ T.PICTURE ]:      'property:picture',     // src, width, height, alt, sources
     [ T.IMG ]:          'property:img',         // src, width, height, alt
+    [ T.PIMG ]:         'property:img',         // 同上
     [ T.SVG ]:          'property:svg',         // width, height
     [ T.RUBY ]:         'property:ruby',        // rb, rt, rp
     [ T.TIME ]:         'property:times',       // datetime: date, time

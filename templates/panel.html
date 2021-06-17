@@ -67,7 +67,7 @@
             <code>[Alt]</code> + 拖动改变面板高度<br>
             <code>[ Alt+F ]</code> 录入框最大化<br>
             <code>[ Ctrl+Enter ]</code> 录入框内直接提交<br>
-            <code>[ Ctrl+Shift+Enter ]</code> 录入框内直接提交并取消最大化<br>
+            <code>[ Alt+Ctrl+Enter ]</code> 录入框内直接提交并取消最大化<br>
         </p>
     </div>
 </form>
@@ -591,10 +591,12 @@
 
 <!-- 模态框：属性 -->
 <form class="_usual" tpl-name="modal:prop"
-    on="init|ev('detail') node;
-        label|$('/._prop') attr('-label');
-        submit|avoid"
-    to="/>._list|fill|goto('label');
+    on="submit|avoid;
+        state|ev('detail') node;
+        label|$('/._prop') attr('-label')"
+    by="Ed.propUpdate"
+    to="#g-scroll|trigger('focus');
+        />._list|fill|goto('label');
         /h4|text">
     <header>
         <h4>[标题]</h4>
@@ -643,7 +645,7 @@
         <b class="_close" title="关闭">✕</b>
     </header>
     <p class="_list">
-        <!-- 点击执行：<b>... -->
+        分栏列表，点击插件大图标执行。
     </p>
 </form>
 
@@ -695,7 +697,7 @@
             topsync 相同条目的置顶状态同步（从下区来）。-->
         <div class="_top" style="height: 35%;"
             on="click(li>b[role=top])|stopAll evo(2) parent attr('-sid');
-                click(li>b[role=untop])|stop evo(2) parent attr('-sid');
+                click(li>b[role=untop])|stopAll evo(2) parent attr('-sid');
                 blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
                 click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
                 edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
