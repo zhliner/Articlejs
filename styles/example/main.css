@@ -646,7 +646,6 @@ div[role=blank] > * {
     box-shadow: 1px 1px 4px #bbb;
 }
 
-
 /* 音频/视频/图画 */
 .content audio {
     max-width: 260px;
@@ -666,7 +665,6 @@ div[role=blank] > * {
     display: inline-block;
 }
 
-
 /* 表情 */
 .content code[role=orz] {
     display: inline-block;
@@ -677,11 +675,22 @@ div[role=blank] > * {
     line-height: 100%;
 }
 
+.content kbd {
+    border: 4px #ccc outset;
+    border-radius: 4px;
+    background-color: #f3f3f3;
+    margin: auto 3px;
+    padding: 1px 6px;
+}
 
 /* 空白 */
-span[role=space] {
-    width: 1em;
+.content span[role=space] {
+    height: 1em;
+    width: 2em;
     display: inline-block;
+    border: 1px #ccc dotted;
+    border-radius: 3px;
+    vertical-align: middle;
 }
 
 

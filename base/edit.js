@@ -5401,9 +5401,13 @@ export const Edit = {
 
     /**
      * 元素属性更新。
+     * 传递特性名时，表示为普通的特性修改，内容为值集。
+     * 否则为定制的属性修改函数。
+     * @data: [Value]|Function 值集或定制更新函数
+     * @param  {[String]|null} names 特性名集，可选
      * @return {void}
      */
-    propUpdate( evo ) {
+    propUpdate( evo, names ) {
         //
     },
 
@@ -5955,7 +5959,7 @@ export const Kit = {
      * @param  {Range} rng 当前光标点范围
      * @param  {Element} el Tab空格数配置控件（<input>）
      * @param  {Boolean} bkall 向前移除增强（全部缩进）
-     * @return {String}
+     * @return {String|null}
      */
     k3edit( evo, key, rng, el, bkall ) {
         let _lp = rangeTextLine( rng, true, evo.data ),

@@ -163,7 +163,7 @@ const InputOptions = {
 //
 const Properties = {
     [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls, sources
-    [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster, sources
+    [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster, sources, tracks
     [ T.PICTURE ]:      'property:picture',     // src, width, height, alt, sources
     [ T.IMG ]:          'property:img',         // src, width, height, alt
     [ T.PIMG ]:         'property:img',         // 同上

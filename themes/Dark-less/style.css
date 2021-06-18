@@ -133,6 +133,8 @@ aside#help {
 .___Content main track:empty::after,
 .___Content main source:empty::after,
 .___Content main img:empty::after,
+.___Content main meter:empty::after,
+.___Content main span[role=space]:empty::after,
 .___Content main div[role=blank]:empty::after {
     content: none;
 }

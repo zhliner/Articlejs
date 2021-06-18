@@ -671,23 +671,53 @@ export class DPage {
 // 分页器。
 // 负责新页面DOM的渲染逻辑。
 // 每页作为一个子列表（root的副本）提供。
+// 注记：
+// 包含一个缓存池，用于保留DOM节点的引用，
+// 避免条目删除的撤销和重做失效。
 //
 export class Pager {
     /**
-     * @param {Element} root 渲染根（列表）
+     * @param {Element} root 渲染模板根
      */
     constructor( root ) {
         this._tpl = root;
+
+        // [页次] = 列表根
+        this._pool = [];
     }
 
 
     /**
      * 创建页面。
-     * @param  {[Object]} data 页渲染数据
+     * @param  {Number} i 目标页次。
+     * @param  {[Object]} data 目标页渲染数据，可选
      * @return {Element} 新页面
      */
-    page( data ) {
-        return Render.update( this._clone(this._tpl), data );
+    page( i, data ) {
+        return this._pool[i] ||
+            this._render( i, this._clone(this._tpl), data );
+    }
+
+
+    /**
+     * 清除缓存池。
+     */
+    reset() {
+        this._pool.length = 0;
+        return this;
+    }
+
+
+    /**
+     * 渲染目标页。
+     * 会缓存渲染的目标元素。
+     * @param  {Number} i 目标页次
+     * @param  {Element} tpl 模板根
+     * @param  {[Object]} data 渲染数据集
+     * @return {Element} tpl 渲染后的元素
+     */
+    _render( i, tpl, data ) {
+        return ( this._pool[i] = Render.update(tpl, data) );
     }
 
 

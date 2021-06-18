@@ -148,15 +148,19 @@ class PageEd {
     /**
      * @param {Element} nav 主控导航元素
      * @param {String} meth 换页方法（first|prev|next|last）
-     * @param {String} evn1 列表页更新触发事件名（page）
-     * @param {String} evn2 导航更新触发事件名（state）
      */
-    constructor( nav, meth, evn1, evn2 ) {
+    constructor( nav, meth ) {
+        let _dp = nav[__DPage];
+        // 旧下标
+        this._idx = _dp.index();
+
+        let _dds = shData( _dp[meth]() ),
+            _i = _dp.index();
+
         this._nav = nav;
-        this._fun = meth;
-        this._evp = evn1;
-        this._evs = evn2;
-        this._idx = nav[__DPage].index();
+        this._new = nav[__Pager].page( _i, _dds );
+        this._pgn = _i + 1;
+        this._pgs = _dp.pages();
 
         // 外部只读
         this.count = null;
@@ -175,9 +179,8 @@ class PageEd {
     redo() {
         let _old = __TQHistory.size();
 
-        // 非延迟更新。
         navPage(
-            this._nav, null, this._fun, this._evp, this._evs
+            this._nav, __evnPage, this._new, __evnState, this._pgn, this._pgs
         );
         this.count = __TQHistory.size() - _old;
     }
@@ -196,10 +199,8 @@ class PageEd {
  * @param  {...Instance} obj 操作实例序列
  */
 function historyPush( ...obj ) {
-    if ( __Editing ) {
-        $.trigger( __btnRedo, 'state', true );
-        __History.push( ...obj.filter(v => v) );
-    }
+    $.trigger( __btnRedo, 'state', true );
+    __History.push( ...obj.filter(v => v) );
 }
 
 
@@ -218,7 +219,7 @@ function historyPush( ...obj ) {
  */
 function shObj( sid ) {
     let _sh = __Store.get( sid );
-    return _sh ? JSON.parse( _sh ) : { code: null };
+    return _sh ? JSON.parse( _sh ) : { code: '' };
 }
 
 
@@ -286,28 +287,30 @@ function shData( list ) {
  * 换页并导航更新。
  * 通过事件触发更新换页和导航状态。
  * 注记：
- * 模板中定义的更新必须为非延迟执行，
- * 以使得管理状态下可正常撤销。
+ * 模板中定义的更新必须为非延迟执行，以使得管理状态下可正常撤销。
  * @param {Element} nav 分页导航元素
- * @param {[String]} list 数据ID总集
- * @param {String} meth 换页方法（first|prev|next|last）
  * @param {String} evn1 换页通知事件名
+ * @param {Element} el  目标列表页（新页）
  * @param {String} evn2 导航更新通知事件名
+ * @param {Number} n    新目标页次
+ * @param {Number} total 总页数
  */
-function navPage( nav, list, meth, evn1, evn2 ) {
-    let _dp = nav[ __DPage ];
-
-    if ( list ) {
-        _dp.reset( list );
-    }
-    let _el = nav[ __Pager ].page( shData(_dp[meth]()) ),
-        _pn = _dp.index() + 1,
-        _ps = _dp.pages();
-
-    $.trigger( nav, evn1, _el );
+function navPage( nav, evn1, el, evn2, n, total ) {
+    $.trigger( nav, evn1, el );
 
     // [ [当前页次, 总页数], [Boolean-4] ]
-    $.trigger( nav, evn2, [ [_pn, _ps], pageState(_pn, _ps)] );
+    $.trigger( nav, evn2, [ [n, total], pageState(n, total)] );
+}
+
+
+/**
+ * 构建当前页。
+ * @param  {Element} nav 分页导航元素
+ * @return {Element} 新的列表页
+ */
+function buildPage( dpo, epg ) {
+    let _i = dpo.index();
+    return epg.page( _i, shData(dpo.page(_i)) );
 }
 
 
@@ -439,6 +442,7 @@ const __Kit = {
      * @return {void}
      */
     delsh( evo, shid ) {
+        __Editing &&
         historyPush( new DOMDel(evo.data), new SHDel(shid) );
     },
 
@@ -518,7 +522,8 @@ const __Kit = {
      * @return {void}
      */
     shpage( evo, meth ) {
-        historyPush( new PageEd(evo.data, meth, __evnPage, __evnState) );
+        let _obj = new PageEd( evo.data, meth );
+        if ( __Editing ) historyPush( _obj );
     },
 
     __shpage: 1,
@@ -534,10 +539,31 @@ const __Kit = {
      * @return {void}
      */
     shtops( evo ) {
-        navPage( evo.data, topList(), 'first', __evnPage, __evnState );
+        let nav = evo.data,
+            _dp = nav[__DPage].reset( topList() ),
+            _el = buildPage( _dp, nav[__Pager].reset() );
+
+        navPage( nav, __evnPage, _el, __evnState, _dp.index()+1, _dp.pages() );
     },
 
     __shtops: 1,
+
+
+    /**
+     * 重构当前页。
+     * 用于进入编辑后重构并缓存当前页。
+     * @data: [Element] 两个分页导航元素（<nav>）
+     * @return {[Element]} 两个新列表根（分别对应）。
+     */
+    shIndex( evo ) {
+        __Editing = true;
+
+        return evo.data.map(
+            nav => buildPage( nav[__DPage], nav[__Pager].reset() )
+        );
+    },
+
+    __shIndex: 1,
 
 
     /**
@@ -550,7 +576,7 @@ const __Kit = {
      * @return {void}
      */
     shEdin( evo ) {
-        __Editing = true;
+        __History.clear();
 
         $.on( evo.data, 'nodeok emptied detach', null, __TQHistory );
         // 导航状态可恢复。
@@ -608,7 +634,10 @@ const __Kit = {
      * @return {void}
      */
     shsearch( evo, nav ) {
-        navPage( nav, search(evo.data), 'first', __evnPage, __evnState );
+        let _dp = nav[__DPage].reset( search(evo.data) ),
+            _el = buildPage( _dp, nav[__Pager].reset() );
+
+        navPage( nav, __evnPage, _el, __evnState, _dp.index()+1, _dp.pages() );
     },
 
     __shsearch: 1,
@@ -662,10 +691,11 @@ processExtend( 'Kit', __Kit, [
     'topsh',
     'untop',
     'shlabel',
-    'shEdin',
-    'shEdok',
     'shpage',
     'shtops',
+    'shEdin',
+    'shEdok',
+    'shIndex',
     'sh2panel',
     'shsearch',
     'shcode',

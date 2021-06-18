@@ -40,14 +40,14 @@ const
     // 归类键区。
     // 用于 iskey 方法判断键位（Event.key）。
     __keyArea = {
-        1:  /^F[0-9]+$/,
-        2:  /^F[0-9]+$|^Escape$/,
-        3:  /^Home|End|PgUp|PgDn$/,
-        4:  /^Arrow(?:Up|Left|Down|Right)$/,
-        5:  /^Enter|Delete|Backspace$/,
+        1:  /^(?:F[0-9]+)$/,
+        2:  /^(?:F[0-9]+$|^Escape)$/,
+        3:  /^(?:Home|End|PgUp|PgDn)$/,
+        4:  /^(?:Arrow(?:Up|Left|Down|Right))$/,
+        5:  /^(?:Enter|Delete|Backspace)$/,
 
         // 浏览器编辑快捷键目标（<b><i><u>）
-        6:  /^b|i|u$/i,
+        6:  /^(?:b|i|u)$/i,
     },
 
     // 修饰键属性名。
@@ -974,7 +974,7 @@ const _Gets = {
         if ( typeof el === 'string' ) {
             el = Util.find( el, evo.delegate, true );
         }
-        return $.contains( el, evo.data.commonAncestorContainer );
+        return evo.data && $.contains( el, evo.data.commonAncestorContainer );
     },
 
     __hasRange: 1,
