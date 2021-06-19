@@ -15,8 +15,14 @@
 
 import * as T from "./types.js";
 
+const $ = window.$;
 
-const customEdit = {
+
+//
+// 定制处理器集。
+// 接口：function(el, names, values): void
+//
+const customHandles = {
     [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls, sources
     [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster, sources
     [ T.PICTURE ]:      'property:picture',     // src, width, height, alt, sources
@@ -58,11 +64,21 @@ const customEdit = {
 
 
 /**
+ * 默认的属性处理器。
+ * @param  {Element} el 目标元素
+ * @param  {[String]} names 特性名集
+ * @param  {[Value]} values 特性值集
+ * @return {void}
+ */
+const property = ( el, names, values ) => $.attribute( el, names, values );
+
+
+/**
  * 获取定制处理器。
  * 无需定制的返回null。
  * @param  {Number} tval 单元类型值
- * @return {Function|null}
+ * @return {Function}
  */
 export function propertyProcess( tval ) {
-    return customEdit[ tval ] || null;
+    return customHandles[ tval ] || property;
 }

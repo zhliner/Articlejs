@@ -593,13 +593,13 @@
     submit  提交后向具体的属性列表发送bulid事件。
     apply   具体的列表bulid后回送应用事件，传递修改操作函数。
     state   初始状态更新：插入特定属性编辑根，转到label。
-    label   更新属性框标题条，激发属性集取值初始化事件。 -->
+    label   更新属性框标题条，激发属性集取值初始化事件vinit。 -->
 <form class="_usual" tpl-name="modal:prop"
     on="apply|ev('detail') spread;
         submit|avoid;
         state|ev('detail') node;
         label|$('/._prop') attr('-label')"
-    by="Ed.propUpdate(_1)"
+    by="Ed.propUpdate(_)"
     to="#g-scroll|trigger('focus');
         /._list>ul|trigger('build');
         />._list|fill|goto('label');

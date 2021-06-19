@@ -1,9 +1,14 @@
 <!--单元属性：（property:xx）
     - 由上下文菜单中的“属性”条目激发。
     - data-label 用于模态框标题栏文本。
+    vinit   初始从首个选取的元素上取属性值填充。注：交由具体的<li>:value自行负责。
+    bulid   构建属性[值集, 名集]，发送到表单应用（apply）。
 ----------------------------------------------------------------------------->
 
-<ul class="_prop" tpl-name="property:audio" data-label="音频属性">
+<ul class="_prop" tpl-name="property:audio" data-label="音频属性"
+    on="vinit|v.sel0;
+        build|"
+    to="(/>li)|trigger('value')">
     <li tpl-node="prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
@@ -156,8 +161,8 @@
 
 
 <!--内联单元（数据）
-    - 微编辑直接引用。
-    - 普通模式下内联单元插入的嵌入引用。
+    微编辑直接引用。
+    普通模式下内联单元插入的嵌入引用。
 ----------------------------------------------------------------------------->
 
 <!-- 图片 -->
@@ -367,6 +372,9 @@
 
 <!--属性条目：（prop:xxx）
     用于内联单元的普通插入和微编辑，以及属性修改（模态框）。
+    注记：
+    取值事件（value）仅用到属性编辑框取初始值，
+    内容插入面板中不会激发该事件，绑定被克隆但无害。
 ----------------------------------------------------------------------------->
 
 <li tpl-name="prop:thick">
@@ -466,7 +474,9 @@
     </span>
 </li>
 
-<li tpl-name="prop:src">
+<li tpl-name="prop:src"
+    on="value|ev('detail') attr('src')"
+    to="/input|val">
     <b title="src">源路径</b>
     <span><input type="text" name="src" /></span>
 </li>
@@ -757,7 +767,7 @@
     keydown 设置Shift键标记，决定是否清除多余缩进。
     keydown SCAM...禁止3个浏览器编辑快捷键（创建<b><i><u>）。兼容性：windows, MacOS。
     keyup   清除Shift标记，注意应当是false（非null）。
-    codes   由外部发送消息填充代码内容到光标处。注：实际上可以插入其它活动位置（如微编辑元素）。
+    codes   由外部发送消息填充代码内容到光标处。注：需先点击，否则可能插入其它活动位置。
     mouseup keyup... 当前光标点记忆，否则codes递送只能插入前端。
     另：
     data-tip 初始录入提示（CSS:content:attr）。

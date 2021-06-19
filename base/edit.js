@@ -27,6 +27,7 @@ import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
+import { propertyProcess } from "./property.js";
 import cfg from "./shortcuts.js";
 
 // 代码解析&高亮
@@ -46,6 +47,12 @@ const
 
     // 编辑区需要监听的变化（历史记录）。
     varyEvents = 'attrdone styledone nodesdone emptied detach normalize',
+
+    // 空白占位符
+    __chrZero = '-',
+
+    // OBT顶层并列切分符。
+    __chrDlmt = ';',
 
     // 选取集参数名
     // 编辑器环境下执行脚本时传递选取集的形参。
@@ -156,9 +163,6 @@ const
 
     // 编辑器关联存储。
     __EDStore = new CStorage( Sys.prefixEditor ),
-
-    // OBT顶层并列切分符。
-    __chrDlmt = ';',
 
     // OBT分组切分器。
     // 排除调用式和字符串内的分号。
@@ -3284,10 +3288,49 @@ function obt2next( el, on, by, to ) {
  * 获取合法的OBT配置值（单条）。
  * 简单移除单条内的分号（容错），维护顶层切分逻辑。
  * @param  {String} val 配置值
- * @return {String|null}
+ * @return {String}
  */
 function obtVal( val ) {
     return [ ...__dlmtSplit.split(val) ].join( ' ' ).trim();
+}
+
+
+/**
+ * OBT配置集精简。
+ * 移除末尾的空白条目。
+ * - By, To 末尾的空白条无条件移除。
+ * - On 集合维持OnByTo公共最长长度。
+ * 注：
+ * 实际上On应当是最长集合，但如果ByTo更长（是一种错误），
+ * On保留末尾空白以使等长，作为一种错误提示。
+ * @param  {[String]} on On配置集
+ * @param  {[String]} by By配置集
+ * @param  {[String]} to To配置集
+ * @return {[[String]]} 清理后的OBT配置集组
+ */
+function obtsClean( [on, by, to] ) {
+    by.length = arraySize( by );
+    to.length = arraySize( to );
+    on.length = Math.max( arraySize(on), by.length, to.length );
+
+    return [ on, by, to ];
+}
+
+
+/**
+ * 获取数组有效长度。
+ * 即排除末尾连续的假值序列。
+ * @param  {[Value]} list 值数组
+ * @param  {String} zero 空白占位符，可选
+ * @return {Number} 含有非假值的长度。
+ */
+function arraySize( list, zero = __chrZero ) {
+    let _n = list.length;
+
+    while ( _n-- ) {
+        if ( list[_n] && list[_n] !== zero ) break;
+    }
+    return _n + 1;
 }
 
 
@@ -5401,14 +5444,19 @@ export const Edit = {
 
     /**
      * 元素属性更新。
-     * 传递特性名时，表示为普通的特性修改，内容为值集。
-     * 否则为定制的属性修改函数。
-     * @data: [Value]|Function 值集或定制更新函数
-     * @param  {[String]|null} names 特性名集，可选
+     * 处理器接口：function(el, names, values): void
+     * 注：在此处理以便于压入编辑历史栈。
+     * @data: [Value] 属性值集
+     * @param  {[String]} names 特性名序列
      * @return {void}
      */
     propUpdate( evo, names ) {
-        //
+        let els = [ ...__ESet ],
+            fun = propertyProcess( getType(els[0]) );
+
+        historyPush(
+            ...els.map( el => new DOMEdit(() => fun(el, names, evo.data)) )
+        );
     },
 
     __propUpdate: 1,
@@ -5674,6 +5722,7 @@ export const Kit = {
     /**
      * 构造OBT配置组序列。
      * 检查末尾和内部顶层分号，简单移除处理。
+     * OnByTo集合中的空白条目设置为占位符，末尾多余的空白条目被移除。
      * 注记：
      * 因为<select>的change是事后触发，难以设计为出错禁止切换，
      * 所以只是简单纠错而已（非友好）。
@@ -5681,9 +5730,12 @@ export const Kit = {
      * @return {[String]} 特性值组
      */
     obtval( evo ) {
-        return evo.data.map(
-            list => list.map( obtVal ).join( __chrDlmt + '\n' ) || null
+        // 单条合法性处理。
+        let _obts = evo.data.map(
+            list => list.map( obtVal ).map( v => v || __chrZero )
         );
+        // 集合清理并合成。
+        return obtsClean( _obts ).map( list => list.join(__chrDlmt + '\n') || null );
     },
 
     __obtval: 1,

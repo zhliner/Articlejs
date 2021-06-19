@@ -157,7 +157,7 @@ aside#help {
 }
 
 /* 代码框提示 */
-.___Panel.Slave ._main pre:empty::after {
+.___Panel form pre:empty::after {
     content: attr(data-tip);
     color: darkgray;
     font-style: italic;
