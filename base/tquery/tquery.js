@@ -1784,31 +1784,31 @@ Object.assign( tQuery, {
      * names: String
      * - "xx"       普通名称
      * - "aa -val"  名称序列，空格分隔（依然支持data-系简写）
-     * - "text"     （同上）
-     * - "html"     （同上）
+     * - "text"     取元素纯文本
+     * - "html"     取元素内源码
      *
      * 取值：
      * - 条件：value为未定义，name为字符串。
-     * - name支持空格分隔多个名称，返回一个值集。
+     * - name支持空格分隔多个名称，返回一个键:值对象。键名保留原始传入形式。
      *
      * 设置：
-     * - value有值时，name为名称序列（空格分隔），value若为数组则一一对应。
+     * - value有值时，name为名称序列，value若为数组则一一对应。
      * - value支持取值回调获取目标值，接口：function(el, name): Value。
      * - value传递null会删除目标特性。
      * - value无值时，name为名值对象或Map，其中值同样支持取值回调。
      *
      * 注记：
-     * - Attribute 这里译为特性，表示一开始就固定在源码中的，修改借助于方法。
-     * - Property  下面译为属性，表示运行时计算出来的，可直接赋值修改。
+     * Attribute 这里译为特性，表示一开始就固定在源码中的，修改借助于方法。
+     * Property  下面译为属性，表示运行时计算出来的，可直接赋值修改。
      *
      * @param  {Element} el 目标元素
-     * @param  {String|Object|Map} names 名称序列或名/值对象
+     * @param  {String|[String]|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|[Value]|Element}
+     * @return {Value|Object|Element}
      */
     attribute( el, names, value ) {
-        if ( typeof names == 'string' ) {
-            names = names.split(__reSpace).map( n => attrName(n) );
+        if ( typeof names === 'string' ) {
+            names = names.split( __reSpace );
         }
         if ( hookIsGet(names, value) ) {
             return hookGets( el, names, elemAttr );
@@ -1822,20 +1822,20 @@ Object.assign( tQuery, {
     /**
      * 剪取特性。
      * 取出特性值的同时移除该特性。
-     * name支持空格分隔的多个名称，此时返回 名:值 对象（保留特性名）。
+     * name支持空格分隔的多个名称，此时返回一个值集。
      * 注：名称text和html不具有特殊含义。
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名/序列
-     * @return {Value|Object} 特性值或值集
+     * @return {Value|[Value]} 特性值或值集
      */
     xattr( el, name ) {
         let _its;
-        name = name.split(__reSpace).map( n => attrName(n) );
+        name = name.split(__reSpace).map(attrName);
 
         if ( name.length == 1 ) {
             _its = elemAttr.get( el, name[0] );
         } else {
-            _its = name.reduce( (o, n) => (o[n] = elemAttr.get(el, n), o), {} );
+            _its = name.map( n => elemAttr.get(el, n) );
         }
         name.forEach( n => removeAttr(el, n) );
 
@@ -1846,10 +1846,11 @@ Object.assign( tQuery, {
     /**
      * 属性（Property）获取/设置。
      * name: String
-     * - "xx"   普通名称
-     * - "-xx"  data系名称简写
-     * - "text" 针对节点文本内容
-     * - "html" 针对元素内源码（innerHTML）
+     * - "xx"       普通名称
+     * - "-xx"      data系名称简写
+     * - "text"     针对节点文本内容
+     * - "html"     针对元素内源码（innerHTML）
+     * - "selected" 当前选单条目所属的<option>子元素。
      * 注：
      * 仅适用单个特性名。
      * value仅支持简单标量值和取值回调。
@@ -1871,18 +1872,19 @@ Object.assign( tQuery, {
      * - 参数说参考.attribute()接口。
      * - 与.attribute()不同，value传递null会赋值为null，可能让元素回到默认状态。
      * @param  {Element} el 目标元素
-     * @param  {String|Object|Map} names 名称序列或名/值对象
+     * @param  {String|[String]|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|[Value]|Element}
+     * @return {Value|Object|Element}
      */
     property( el, names, value ) {
-        if ( typeof names == 'string' ) {
-            names = names.split(__reSpace);
+        if ( typeof names === 'string' ) {
+            names = names.split( __reSpace );
         }
         if ( hookIsGet(names, value) ) {
             return hookGets( el, names, elemProp );
         }
         hookSets( el, names, value, elemProp );
+
         return el;
     },
 
@@ -5308,7 +5310,7 @@ function hookSets( el, name, value, scope ) {
         hookArrSet( el, name, value, scope );
         return;
     }
-    for (let [k, v] of entries(name)) hookSet(el, attrName(k), v, scope);
+    for (let [k, v] of entries(name)) hookSet(el, k, v, scope);
 }
 
 
@@ -5339,6 +5341,8 @@ function hookArrSet( el, names, val, scope ) {
  * @param {Object} scope 适用域对象
  */
 function hookSet( el, name, val, scope ) {
+    name = attrName( name );
+
     if ( isFunc(val) ) {
         val = val( el, name );
     }
@@ -5351,7 +5355,7 @@ function hookSet( el, name, val, scope ) {
  * 支持2个特别的属性：text 和 html（仅fill）。
  * 触发特性/属性类事件。
  * @param  {Element} el 设置的目标元素
- * @param  {String} name 属性名
+ * @param  {String} name 属性名（全名）
  * @param  {Value} value 属性值
  * @param  {Object} scope 适用域（elemAttr|elemProp）
  * @return {void}
@@ -5382,7 +5386,7 @@ function hookGets( el, names, scope ) {
     if ( names.length == 1 ) {
         return customGet( el, names[0], scope );
     }
-    return names.map( n => customGet(el, n, scope) );
+    return names.reduce( (o, n) => (o[n] = customGet(el, n, scope), o), {} );
 }
 
 
@@ -5400,7 +5404,7 @@ function customGet( el, name, scope ) {
         case 'html':
             return el.innerHTML;
     }
-    return scope.get( el, name );
+    return scope.get( el, attrName(name) );
 }
 
 

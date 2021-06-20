@@ -853,18 +853,18 @@ option: {
 如果元素上没有任何 `class` 的定义，返回一个空数组。
 
 
-### [$.attribute( el, names, value ): Value | [Value] | Element](docs/$.attribute.md)
+### [$.attribute( el, names, value ): Value | Object | Element](docs/$.attribute.md)
 
 获取或修改 `el` 元素的特性（Attribute）值。**注**：`Attribute` 这里译为特性，后面的 `Property` 译为属性。
 
 - `el: Element` 操作的目标元素。
-- `names: String | Object | Map` 名称序列或**名/值**对配置对象。
+- `names: String | [String] | Object | Map` 名称序列或**名/值**对配置对象。字符串名称也支持空格分隔的多个名称，但若为名称数组，则名称为具体名。
 - `value: Value | [Value] | Function | null` 设置的特性值（集）或返回单个值的取值回调。传递 `null` 值会删除目标特性。
 
-当 `value` 未定义且 `names` 为字符串时为获取特性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置特性值。
+当 `value` 未定义且 `names` 为字符串或字符串数组时为获取特性值。当 `value` 传递值或 `names` 为 **名:值** 对配置对象时为设置特性值。
 
-- 取值时：`names` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个值集。
-- 设置时：`names` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。
+- 取值时：`names` 为字符串，单个名称或空格分隔的多个名称或单名称数组。单个名称时返回单个值，多个名称时返回一个 **名:值** 对象，其中名称保持原始传入形式。
+- 设置时：`names` 为字符串名称或名称数组且 `value` 有值，或者为 `名/值对` 配置对象（`Object | Map`）。所有情况下 `value` 都可以是一个取值函数。
 
 支持两个特别的特性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
@@ -891,31 +891,31 @@ option: {
 - `el: Element` 目标元素
 - `name: String` 特性名，支持空格分隔多个名称。支持 `data-x` 系名称简写。**注**：不支持 `text` 和 `html` 名称。
 
-如果名称为多个，返回一个名值对对象，否则返回一个简单值。
+如果名称为多个，返回一个值集，否则返回一个单值。
 
 > **集合版：**<br>
 > 声明：`$( name: String|[String]): Collector`。<br>
 > 名称支持数组形式，与集合元素一一对应。名称本身（可能为数组成员）支持空格分隔的名称序列。<br>
 
 
-### [$.property( el, names, value ): Value | [Value] | Element](docs/$.property.md)
+### [$.property( el, names, value ): Value | Object | Element](docs/$.property.md)
 
 获取或修改 `el` 元素的属性（Property）值。
 
 - `el: Element` 操作的目标元素。
-- `names: String | Object | Map` 名称序列或**名/值**对配置对象。名称支持 `data-x` 系简写形式和三个特殊名称：`text`、`html`、`selected`。
+- `names: String | [String] | Object | Map` 名称序列或**名/值**对配置对象。名称支持 `data-x` 系简写形式和三个特殊名称：`text`、`html`、`selected`。
 - `value: Value | [Value] | Function | null` 设置的属性值（集）或返回单个值的取值回调。
 
-当 `value` 未定义且 `names` 为字符串时为获取属性值，支持空格分隔的多个名称序列。当 `value` 传递值或 `names` 为**名/值**对配置对象时为设置属性值。
+当 `value` 未定义且 `names` 为字符串或字符串数组时为获取属性值。当 `value` 传递值或 `names` 为 **名:值** 对配置对象时为设置属性值。
 
-- 取值时：`names` 为字符串，单个名称或空格分隔的多个名称序列。单个名称时返回单个值，多个名称时返回一个值集。
-- 设置时：`names` 为字符串名称（序列）或 `名/值对` 配置对象（`Object | Map`），`value` 可以是一个取值函数。返回被操作的目标元素（即实参 `el`）。
+- 取值时：`names` 为字符串，单个名称或空格分隔的多个名称或单名称数组。单个名称时返回单个值，多个名称时返回一个 **名:值** 对象，其中名称保持原始传入形式。
+- 设置时：`names` 为字符串名称或名称数组且 `value` 有值，或者为 `名/值对` 配置对象（`Object | Map`），所有情况下 `value` 都可以是一个取值函数。
 
 与 `$.attribute()` 相同，支持两个特别的属性名 `html` 和 `text`，分别用于表达元素内的源码和文本，支持 `data-xx` 系名称的简写形式 `-xx`（前置短横线）。
 
 > **注：**<br>
-> 需要转换的属性名会自动转换（如：`class` => `clasName`），用户无需操心，两种形式皆可使用。
-> 定制属性名除了 `html, text` 外，还支持 `<select>` 元素的 `selected` 特性名，返回选取的 `<option>` 元素或元素集，单选时无选取返回 `null`。
+> 部分常见的需要转换的属性名会自动转换（如：`class` => `clasName`），因此两种形式皆可使用。但并不是所有的名称都会自动转换。<br>
+> 定制属性名除了 `html, text` 外，还支持 `<select>` 元素的 `selected` 特性名，返回选取的 `<option>` 元素或元素集，单选时无选取返回 `null`。<br>
 
 
 ### $.prop( el, name, value ): Value | Element
