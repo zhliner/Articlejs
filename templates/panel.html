@@ -226,7 +226,7 @@
         <select name="attrs" size="5" class="_list"
             on="follow|evo(3) children ev('detail');
                 change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node;
-                _change|evo(3) val dup pass v.sel0 pop attribute(_1);
+                _change|evo(3) val dup pass v.sel0 pop attrs(_1);
                 addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
                 select|ev('detail');
                 blank|tpl('attr:empty');
@@ -300,7 +300,7 @@
                     removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
                     paste   限定仅支持粘贴纯文本。 -->
                 <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" tpl-name="obts:master"
-                    on="active|evo(3) attribute('-i -x -n') spread $('1/') pop data(_1) dup len evo(3) prop('childElementCount') pack(2) max elem('li', _1);
+                    on="active|evo(3) attrs('-i -x -n') spread $('1/') pop data(_1) dup len evo(3) prop('childElementCount') pack(2) max elem('li', _1);
                         focus(li)|evo(2) siblingNth sub(1) dup;
                         focus(li)|evo(2) hasClass('_hot') end $$('/li');
                         blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
@@ -612,6 +612,7 @@
     <div class="_list" data-pbo="">
         <!-- <ul> -->
     </div>
+    <input type="hidden" name="tabs" value="4">
     <hr tpl-node="modal:okreset" />
 </form>
 

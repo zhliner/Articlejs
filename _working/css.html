@@ -2803,7 +2803,7 @@
                     <select name="attrs" size="5" data-v="" class="_list"
                         on="update|evo(3) children ev('detail');
                             change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node (null);
-                            _change|evo(3) val dup pass v.sel0 pop attribute(_1);
+                            _change|evo(3) val dup pass v.sel0 pop attrs(_1);
                             addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node(true);
                             select|ev('detail');
                             blank|tpl('attr:empty');
@@ -2878,7 +2878,7 @@
                                 注记：
                                 默认最少10行可用（美观）。 -->
                             <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" tpl-name="obts:master"
-                                on="active|evo(3) attribute('-i -x -n') spread $('1/') pop data(_1) dup len max(10) elem('li', _1);
+                                on="active|evo(3) attrs('-i -x -n') spread $('1/') pop data(_1) dup len max(10) elem('li', _1);
                                     focus(li)|evo(2) siblingNth sub(1) dup;
                                     focus(li)|evo(2) hasClass('_hot') end $$('/li');
                                     blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;

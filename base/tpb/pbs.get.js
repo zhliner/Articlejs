@@ -209,7 +209,7 @@ const _Gets = {
      * 注：数值名称针对数组。
      * @data: Object|[Object]
      * @param  {String|Number} names 名称（序列）
-     * @return {Value|[Value]}
+     * @return {Value|[Value]|[[Value]]}
      */
     get( evo, names ) {
         return mapCall( evo.data, o => namesValue(names+'', o) );
@@ -741,6 +741,37 @@ const _Gets = {
 
 
     /**
+     * 提取元素多个特性值。
+     * 始终会返回值数组，即便名称仅为单个（注：此时应当使有.attr）。
+     * 如果目标是一个集合，会返回一个二维的值数组。
+     * @data: Element|[Element]
+     * @param  {String} names 名称序列
+     * @return {[Value]|[[Value]]} 值集或值集组
+     */
+    attrs( evo, names ) {
+        names = names.split( __reSpace );
+        return mapCall( evo.data, el => names.map( n => $.attr(el, n) ) );
+    },
+
+    __attrs: 1,
+
+
+    /**
+     * 提取元素的多个属性值。
+     * 说明参考上面的.attrs指令。
+     * @data: Element|[Element]
+     * @param  {String} names 属性名序列
+     * @return {[Value]|[[Value]]} 值集或值集组
+     */
+    props( evo, names ) {
+        names = names.split( __reSpace );
+        return mapCall( evo.data, el => names.map( n => $.prop(el, n) ) );
+    },
+
+    __props: 1,
+
+
+    /**
      * JSON 序列化。
      * @data: JSON对象
      * @param  {[String]|Function|null} replacer 属性名或处理器
@@ -750,6 +781,8 @@ const _Gets = {
     json( evo, replacer, space ) {
         return JSON.stringify( evo.data, replacer, space );
     },
+
+    __json: 1,
 
 
     /**
@@ -761,6 +794,8 @@ const _Gets = {
     JSON( evo, reviver ) {
         return mapCall( evo.data, s => JSON.parse(s, reviver) );
     },
+
+    __JSON: 1,
 
 
     /**
@@ -1857,13 +1892,22 @@ function mapCall( data, handle ) {
  * @param  {Element|[Element]|Collector} data 数据（集）
  * @param  {String} meth 方法名
  * @param  {...Value} args 实参序列
- * @return {Value|Collector|data}
+ * @return {Value|Collector}
  */
 function $mapCall( data, meth, ...args ) {
     if ( $.isArray(data) ) {
-        return $(data)[meth]( ...args );
+        return $(data)[meth]( ...args ).map( nullVal );
     }
-    return $[meth]( data, ...args );
+    return nullVal( $[meth](data, ...args) );
+}
+
+
+/**
+ * 将undefined值转换为null值。
+ * @param {Value} v 目标值
+ */
+function nullVal( v ) {
+    return v === undefined ? null : v;
 }
 
 
