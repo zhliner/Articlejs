@@ -254,9 +254,9 @@
                 vinit   初始设置值，简单分号切分换行友好。
                 attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。-->
             <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
-                on="vinit|ev('detail') or('') split(';') trim join(';\n');
-                    attrok|evo(3) val split(';') trim join('; ');
-                    ^obted|evo(3) delay remove"
+                on="vinit|ev('detail') item(0) or('') split(';') trim join(';\n');
+                    attrok|evo(3) val trim split(';') trim join('; ');
+                    ^tpled|evo(3) remove"
                 to="|val;
                     form/|trigger('apply')"></textarea>
             <!--OBT属性集：
@@ -266,7 +266,7 @@
                 keydown 3.Ctrl+ArrowUp|ArrowDown 上下移动当前行。
                         evo(2) blur 失焦后再移动，避免窗口滚动。delay focus 延迟再聚焦才有效。
                         注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
-                blur    参照组<textarea>失焦保存（空白忽略）。
+                blur    参照组<textarea>失焦保存。
                 attrok  构造OBT值序列，发送到表单应用到目标元素上。
                 主控编辑：
                 Enter          创建一个新的空行。
@@ -277,10 +277,10 @@
                 on="keydown(li)|iskey('Enter') pass stopAll avoid evo(2) data('on by to');
                     keydown(li)|iskey('Delete') scam(KM.attrOBTdel) both pass avoid stopAll evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
                     keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.attrOBTmove) both pass avoid stop evo(2) ev('key') data('on by to');
-                    blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
+                    blur(textarea)|evo(1) val trim $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
                     vinit|ev('detail') v.obtsplit;
                     attrok|data('on by to') v.obtval;
-                    ^obted|evo(3) delay remove"
+                    ^tpled|evo(3) remove"
                 by="Kit.obtline(_) ('_hot');
                     Kit.obtdel(_) remove;
                     Kit.obtswap(_2) dup pass spread evo(2) blur"
@@ -295,18 +295,17 @@
                     active  创建列表清单，从上级取值逐一赋值并聚焦到目标行。
                             维持用户编辑的行数（如果可以）。
                     focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
-                    blur    失焦保存当前编辑条目（OBT配置组内），空白忽略。
+                    blur    失焦保存当前编辑条目（OBT配置组内）。
                     switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递。detail:[i, list, <label>]
                     removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
-                    paste   限定仅支持粘贴纯文本。 -->
-                <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" tpl-name="obts:master"
+                    pastes.json 智能粘贴：内容以换行切分，分别粘贴到连续的兄弟单元内。 -->
+                <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" obt-src="obts/pastes.json" tpl-name="obts:master"
                     on="active|evo(3) attrs('-i -x -n') spread $('1/') pop data(_1) dup len evo(3) prop('childElementCount') pack(2) max elem('li', _1);
                         focus(li)|evo(2) siblingNth sub(1) dup;
                         focus(li)|evo(2) hasClass('_hot') end $$('/li');
-                        blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
+                        blur(li)|evo(1) text trim evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
                         switch|ev('detail') evo(3) attr('-n') str('obts:') node;
-                        removed|ev('detail') dup attr('-n');
-                        paste(li)|avoid clipboard html exeCmd('insertHTML', _1)"
+                        removed|ev('detail') dup attr('-n')"
                     to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
                         |@-i|pop fire('1/>label', 'index', 100);
                         =|only('_hot');
@@ -331,7 +330,7 @@
                 <label data-n="on" tpl-name="obts:on"
                     on="index|ev('detail') evo(3) attr('-n') $('1/') pop data(_1) pop item(_1);
                         click(b)|evo(3);
-                        ^obted|evo(3) delay remove"
+                        ^tpled|evo(3) remove"
                     to="/textarea|val;
                         1/ol|trigger('switch')">
                     <b title="单击切换">on</b>
@@ -445,7 +444,7 @@
         </fieldset>
         <fieldset class="_warn" data-tip="NODES 已选取元素集" tpl-name="run:editor"
             on="nodeok|evo(1) attr('-tip');
-                ^obted|evo(3) delay remove"
+                ^tpled|evo(3) remove"
             to="2/pre|@-tip">
             <legend>警告：</legend>
             <p>修改 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！</p>
@@ -922,7 +921,7 @@
                 </select>
             </span>
             <span class="_where" tpl-name="where:html"
-                on="^obted|evo(3) delay remove">
+                on="^tpled|evo(3) remove">
                 <i>位置：</i>
                 <select name="where">
                     <option value=""> ------ </option>

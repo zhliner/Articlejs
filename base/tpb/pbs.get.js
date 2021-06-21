@@ -1697,6 +1697,7 @@ const _Gets = {
 // 目标需要是一个数组，返回一个具体的值。
 //////////////////////////////////////////////////////////////////////////////
 [
+    'shift',        // (): Value
     'join',         // (chr?: String): String
     'includes',     // (val: Value, beg?: Number): Boolean
     'indexOf',      // (val: Value, beg?: Number): Number
@@ -1708,7 +1709,7 @@ const _Gets = {
      * 注：v1 默认空串为 join 优化。
      * @param  {Value} v1 首个实参，可选
      * @param  {Value} v2 第二个实参，可选
-     * @return {Value}
+     * @return {Value} 具体值
      */
     _Gets[meth] = function( evo, v1 = '', v2 ) {
         return evo.data[meth]( v1, v2 );

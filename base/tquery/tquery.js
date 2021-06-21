@@ -7462,7 +7462,7 @@ const Event = {
      * @return {Map} 末端存储 {handle: Array2}
      */
     buffer( el, evn, slr ) {
-        return this._map( this._map( this._map( this.store, el ), evn ), slr )
+        return this._map( this._map( this._map( this.store, el ), evn ), slr );
     },
 
 

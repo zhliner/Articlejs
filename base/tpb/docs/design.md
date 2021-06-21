@@ -25,7 +25,7 @@ HTML的代码有着严格的嵌套结构，虽然浏览器可以解析混乱的H
     - `by`：具体的业务处理，可选。复杂时可划分为 `CMV`（`Control`, `Model`, `View`）三个层次。
     - `to`：用业务环节来的数据更新UI。可选，但通常都会存在。
 
-    另外，支持一个 `obt-src` 属性导入外部的 `On/By/To` 定义，格式：`{ on, by?, to? }`。**注**：该配置可以独立出来，用一个 `selector` 属性定位目标元素。
+    另外，支持一个 `obt-src` 属性导入外部的 `On/By/To` 定义，文件为JSON格式（`{ on, by?, to? }`）。同一属性支持逗号分隔的并列多个配置文件，如：`obt-src="obts/111.json, obts/aaa.json"`，并列的各组路径独立。
 
 2. **节点渲染：**<br>
     由九个渲染属性 `tpb-[for|each|if|else|with|var|switch|case|last]` 表达模板的语法结构，以及一个 **属性名前置下划线** 指定属性赋值的规则，如：`_href="$.url"` 表示对 `href` 属性赋值为变量 `url` 的值。
@@ -214,14 +214,14 @@ effect( cnt, val ): void
 pop( n?: Number ): void
 // 弹出栈顶n项。
 
-shift( n?: Number ): void
-// 取出栈底n项。
-
-index( ...ns: Number ): void
-// 引用目标位置项。
+pick( i?: Number ): void
+// 剪取目标位置项。
 
 clip( idx, cnt:Number ): void
 // 剪取栈任意段。
+
+index( ...ns: Number ): void
+// 引用目标位置项。
 
 
 

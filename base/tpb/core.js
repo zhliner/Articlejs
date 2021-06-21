@@ -315,7 +315,9 @@ class Builder {
      * 构建OBT逻辑（元素/对象自身）
      * OBT解析、创建调用链、绑定，存储预定义等。
      * 返回已解析绑定好的原始元素。
-     * 注：构建完毕后会向元素发送结束事件（obted）。
+     * 注：
+     * 构建完毕后会向元素发送完成事件obted。
+     * 激发的事件不冒泡不可取消。
      * @param  {Element|Object} obj 绑定目标
      * @param  {Object3} conf OBT配置集（{on,by,to}）
      * @return {Element|Object} obj
@@ -615,28 +617,6 @@ class Stack {
     tpops( n ) {
         if ( n > 1 ) {
             this._tmp.push( ...this._buf.splice(-n) );
-        }
-    }
-
-
-    /**
-     * 移除栈底项。
-     * 注记参考pop()。
-     */
-    tshift() {
-        this._tmp.push( this._buf.shift() );
-    }
-
-
-    /**
-     * 移除栈底多项。
-     * 小于2的值无效。
-     * 注记参考pops()。
-     * @param {Number} n 移除数量
-     */
-    tshifts( n ) {
-        if ( n > 1 ) {
-            this._tmp.push( ...this._buf.splice(0, n) );
         }
     }
 

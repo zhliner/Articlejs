@@ -39,6 +39,9 @@ const
     __tplNode   = 'tpl-node',   // 模板节点引入（克隆）
     __tplSource = 'tpl-source', // 模板节点引入（原始）
 
+    // 模板添加完成事件。
+    __tplDone   = 'tpled',
+
     // 选择器。
     __nameSlr   = `[${__tplName}]`,
     __nodeSlr   = `[${__tplNode}], [${__tplSource}]`;
@@ -132,9 +135,6 @@ class Templater {
         // 注记：
         // 先从总根构建OBT后再处理子模版可以节省解析开销，
         // 否则子模板克隆会直接复制OBT特性，相同值重复解析。
-        // 提示：
-        // 如果需要在^obted处理中即时移除（脱离DOM）模板节点，可以在remove前添加一个delay。
-        // 否则目标模板可能会丢失（不在存储集内）。
         let _pro = this._obter( root )
             .then( () => this.picks(root) )
             .then( () => this._pool.delete(root) );
@@ -155,6 +155,8 @@ class Templater {
         // 先提取命名模板。
         for ( const tpl of $.find(__nameSlr, root, true) ) {
             this.add( tpl );
+            // 可用于即时移除节点（脱离DOM）。
+            $.trigger( tpl, __tplDone, null, false, false );
         }
         // 模板外的导入处理。
         let _ps = this._subs( root );

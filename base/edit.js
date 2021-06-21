@@ -49,9 +49,11 @@ const
     varyEvents = 'attrdone styledone nodesdone emptied detach normalize',
 
     // 空白占位符
+    // 用于特性：OBT串构造。
     __chrZero = '-',
 
     // OBT顶层并列切分符。
+    // 用于特性面板操作可能有的'on by to'特性。
     __chrDlmt = ';',
 
     // 选取集参数名

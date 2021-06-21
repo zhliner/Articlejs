@@ -119,39 +119,14 @@ function _obtattr( el ) {
 
 /**
  * 从远端载入OBT配置。
- * src支持同时多目标定义：
- * - 并列分隔：由逗号（,）分隔，各成员的路径独立。
- * - 序列分隔：由空格分隔，为在同一目录下的不同文件名。
+ * 支持逗号分隔的多目标并列导入，如：obt-src="obts/aaa.json, obts/bbb.json"。
  * @param  {String} src 源定义
  * @return [Promise<Object3>]
  */
 function _obtjson( src ) {
     return src
         .split( __sepPath )
-        .map( p => _filejson(p.trim()) )
-        .flat()
         .map( url => XLoader.json(url) );
-}
-
-
-/**
- * 序列分组分解提取。
- * 首个定义包含路径，后续为同路径下的不同文件名。
- * @param  {String} path 序列路径定义
- * @return {[String]} 各定义的完整路径集
- */
-function _filejson( path ) {
-    if ( !__sepFile.test(path) ) {
-        return path;
-    }
-    let _i = path.lastIndexOf('/');
-
-    if ( _i < 0 ) {
-        return path.split( __sepFile );
-    }
-    let dir = path.substring( 0, _i );
-
-    return path.substring(_i + 1).split(__sepFile).map( f => `${dir}/${f}` );
 }
 
 

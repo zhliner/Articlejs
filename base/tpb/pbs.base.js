@@ -250,34 +250,6 @@ const _Control = {
 
 
     /**
-     * 取出栈底n项。
-     * 移除栈底n项压入暂存区，无实参调用视为1项。
-     * n负值无用（简单忽略）。
-     * @param {Stack} stack 数据栈
-     * @param {Number} n 移除条目数
-     */
-    shift( evo, stack, n = 1 ) {
-        n == 1 ? stack.tshift() : stack.tshifts( n );
-    },
-
-    __shift_x: true,
-
-
-    /**
-     * 引用数据栈目标位置项。
-     * 下标位置支持负数从末尾算起。
-     * 注意：非法的下标位置会导入一个null值。
-     * @param {Stack} stack 数据栈
-     * @param {...Number} ns 位置下标序列
-     */
-    index( evo, stack, ...ns ) {
-        stack.tindex( ns );
-    },
-
-    __index_x: true,
-
-
-    /**
      * 剪取数据栈目标位置条目（单项）。
      * idx负值从末尾算起（-1为栈顶1项）。
      * 结合push指令，可用于交换栈顶条目位置。
@@ -312,6 +284,20 @@ const _Control = {
     },
 
     __clip_x: true,
+
+
+    /**
+     * 引用数据栈目标位置项。
+     * 下标位置支持负数从末尾算起。
+     * 注意：非法的下标位置会导入一个null值。
+     * @param {Stack} stack 数据栈
+     * @param {...Number} ns 位置下标序列
+     */
+    index( evo, stack, ...ns ) {
+        stack.tindex( ns );
+    },
+
+    __index_x: true,
 
 
 
@@ -1718,10 +1704,11 @@ const _Process = {
      * - 提取预先存储/记忆的选区，添加到全局Selection上。
      * - 激活选区所在可编辑容器元素，执行命令。
      * 示例：
-     * paste|avoid clipboard exeCmd('insertText', _1)"
+     * paste|avoid clipboard html exeCmd('insertHTML', _1)"
      * 粘贴动作中直接提取剪贴板插入纯文本。
      * 注：
      * 插入的内容可进入浏览器自身撤销/重做栈。
+     * 为避免换行引起的浏览器不兼容行为，先转换为HTML后插入。
      * @data: Element:contenteditable
      * @param  {String} name 命令名称
      * @param  {Value} data 待使用的数据
@@ -1792,7 +1779,7 @@ const _Process = {
 // 数组操作（兼容Collector）。
 // 目标：暂存区/栈顶1项。
 // 目标已经为数组或Collector实例。
-// 注记：pop/shift/push 方法被数据栈处理占用。
+// 注记：pop/push 方法被数据栈处理占用。
 //////////////////////////////////////////////////////////////////////////////
 [
     'slice',    // (beg, end?: Number): Array | Collector
