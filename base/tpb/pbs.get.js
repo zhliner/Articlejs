@@ -774,11 +774,11 @@ const _Gets = {
     /**
      * JSON 序列化。
      * @data: JSON对象
-     * @param  {[String]|Function|null} replacer 属性名或处理器
-     * @param  {String} space 缩进序列（美化）
+     * @param  {String|Number} space 缩进字符序列或空格数，可选
+     * @param  {[String]|Function|null} replacer 属性名或处理器，可选
      * @return {String} JSON的字符串表示
      */
-    json( evo, replacer, space ) {
+    json( evo, space, replacer ) {
         return JSON.stringify( evo.data, replacer, space );
     },
 
@@ -787,7 +787,7 @@ const _Gets = {
 
     /**
      * JSON 解析。
-     * @data: String
+     * @data: String JSON格式串
      * @param  {Function} reviver 解析处理器
      * @return {Object|Value}
      */
@@ -1021,13 +1021,18 @@ const _Gets = {
      * 目标：无。
      * 排他性约束，names支持空格分隔的多个名称，And关系。
      * 键名忽略大小写。
+     * 如果为指定键名，表示未按下任何修饰键。
      * 例：
      * scam('shift ctrl')  // 是否同时按下Shift和Ctrl键。
      * @param  {String} names 键名序列，可选
      * @return {Boolean}
      */
     scam( evo, names ) {
-        return strictMatch( names.split(__reSpace), new Set(scamKeys(evo.event)) );
+        let _set = new Set( scamKeys(evo.event) );
+        if ( !names ) {
+            return !_set.size;
+        }
+        return strictMatch( names.split(__reSpace), _set );
     },
 
     __scam: null,

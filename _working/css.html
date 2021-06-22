@@ -2832,7 +2832,7 @@
                             vinit   初始设置值，简单分号切分换行友好。
                             attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。-->
                         <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
-                            on="vinit|ev('detail') or('') split(';') trim join(';\n');
+                            on="vinit|ev('detail') item(0) or('') split(';') trim join(';\n');
                                 attrok|evo(3) val split(';') trim join('; ')"
                             to="|val;
                                 form/|trigger('apply')"></textarea>

@@ -226,6 +226,7 @@ class Spliter {
     /**
      * 判断器重置。
      * 用于出错之后的状态恢复。
+     * @return {void}
      */
     reset() {
         this._umps.forEach( ump => ump.reset() );

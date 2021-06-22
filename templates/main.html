@@ -817,10 +817,8 @@
         @mouseup|movementY(null);
         mousedown|scam(KM.slaveResize) pass stop avoid;
         nodeok(~form) update;
-        input.submit(~textarea);
-        input.submit(~th, td);
-        input.submit2(~textarea, ._code)|evo(2) full(false);
-        input.submit2(~th, td)|evo(2) pop $('._list/') full(false);
+        input.submit(~textarea, th,td, ._code, li)|evo(2) is(':read-write') pass;
+        input.submit2([data-pbo~=fulled])|evo(2) full(false);
         input.full(~textarea, pre._code)|evo(2) full(2);
         input.full(~th, td, li[contenteditable=true])|evo(2) pop $('._list, ._obts/') full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop;
@@ -829,10 +827,8 @@
         |off('mousemove');
         |bind('mousemove') once('mouseup');
         /form|trigger('update');
-        /form|trigger('submit')|fire(1, 'focus');
-        /form|trigger('submit')|fire(1, 'focus');
-        /form|trigger('submit')|fire(1, 'focus');
-        /form|trigger('submit')|fire(1, 'focus')">
+        /form|trigger('submit')|fire(2, 'focus');
+        /form|trigger('submit')|fire(2, 'focus')">
     <div class="_tabs"
         on="click(b)|evo(2) attr('-tpl') pop tpl;
             click(b)|evo(2) hasClass('_press') end $$('/b')"

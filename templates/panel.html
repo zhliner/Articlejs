@@ -264,7 +264,8 @@
                 keydown 1.在当前行之后创建一个新行并聚焦。
                 keydown 2.删除当前行（不可撤销）。
                 keydown 3.Ctrl+ArrowUp|ArrowDown 上下移动当前行。
-                        evo(2) blur 失焦后再移动，避免窗口滚动。delay focus 延迟再聚焦才有效。
+                        evo(2) blur 先失焦，之后的移动不会带来窗口滚动（浏览器行为）。注意需在条目交换之前（失焦有保存行为）。
+                        delay focus 延迟再聚焦才有效。
                         注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
                 blur    参照组<textarea>失焦保存。
                 attrok  构造OBT值序列，发送到表单应用到目标元素上。
@@ -274,16 +275,16 @@
                 Ctrl + ↑↓      上下移动当前行，关联行随动。
             -->
             <div class="_obts" tpl-name="attr:obts"
-                on="keydown(li)|iskey('Enter') pass stopAll avoid evo(2) data('on by to');
+                on="keydown(li)|iskey('Enter') pass scam pass avoid evo(2) data('on by to');
                     keydown(li)|iskey('Delete') scam(KM.attrOBTdel) both pass avoid stopAll evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
-                    keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.attrOBTmove) both pass avoid stop evo(2) ev('key') data('on by to');
+                    keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.attrOBTmove) both pass avoid stop evo(2) ev('key') data('on by to') evo(2) blur;
                     blur(textarea)|evo(1) val trim $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
                     vinit|ev('detail') v.obtsplit;
                     attrok|data('on by to') v.obtval;
                     ^tpled|evo(3) remove"
                 by="Kit.obtline(_) ('_hot');
                     Kit.obtdel(_) remove;
-                    Kit.obtswap(_2) dup pass spread evo(2) blur"
+                    Kit.obtswap(_2) dup pass spread"
                 to="=|removeClass after|focus;
                     (/label>textarea)||clear;
                     =|nodex(_1)|delay focus(10);
