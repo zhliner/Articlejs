@@ -7,8 +7,10 @@
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
     on="vinit|v.sel0;
+        reset;
         build|"
-    to="(/>li)|trigger('value')">
+    to="(/>li)|trigger('value');
+        (/>li)[-2:]|trigger('reset')">
     <li tpl-node="prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
@@ -17,8 +19,10 @@
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
     on="vinit|v.sel0;
+        reset;
         build|"
-    to="(/>li)|trigger('value')">
+    to="(/>li)|trigger('value');
+        (/>li)[-2:]|trigger('reset')">
     <li tpl-node="prop:src, prop:poster"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:wh, prop:mediaopts"></li>
@@ -28,9 +32,11 @@
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
     on="vinit|v.sel0 pop $('/img');
         vinit|v.sel0;
+        reset;
         build|"
     to="(/>li)(:last-child)|trigger('value');
-        /li:last-child|trigger('value')">
+        /li:last-child|trigger('value');
+        /li:last-child|trigger('reset')">
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
     <li tpl-node="prop:sources2"></li>
@@ -596,8 +602,10 @@
     注记：
     资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。-->
 <li tpl-name="prop:sources1"
-    on="value|ev('detail') children('source') attribute('src type') json(4)"
-    to="/pre|text">
+    on="value|ev('detail') children('source') attribute('src type') json(4) dup;
+        reset|$('/pre') attr('-v')"
+    to="/pre|@-v text;
+        /pre|text">
     <b>候选资源</b>
     <span title="<source>"
         on="^nodeok|(`[ {src: '...', type: '...'}, ... ]`)"
@@ -608,8 +616,10 @@
 
 <!-- 值为null的特性忽略 -->
 <li tpl-name="prop:tracks"
-    on="value|ev('detail') children('track') attribute('kind srclang src label default') clean(null) json(4)"
-    to="/pre|text">
+    on="value|ev('detail') children('track') attribute('kind srclang src label default') clean(null) json(4) dup;
+        reset|$('/pre') attr('-v')"
+    to="/pre|@-v text;
+        /pre|text">
     <b>字幕轨</b>
     <span title="<track>"
         on="^nodeok|(`[ {kind, srclang, src, label, default?: ''}, ... ]`)"
@@ -620,8 +630,10 @@
 
 <!-- 自适应图片用 -->
 <li tpl-name="prop:sources2"
-    on="value|ev('detail') children('source') attribute('srcset media') json(4)"
-    to="/pre|text">
+    on="value|ev('detail') children('source') attribute('srcset media') json(4) dup;
+        reset|$('/pre') attr('-v')"
+    to="/pre|@-v text;
+        /pre|text">
     <b>候选图片</b>
     <span title="<source>"
         on="^nodeok|(`[ {srcset: '...', media: '...'}, ... ]`)"
@@ -652,7 +664,7 @@
 
 <li tpl-name="prop:mediaopts"
     on="value|ev('detail') props('autoplay loop controls')"
-    to="(/input)|$checked">
+    to="(/input)|$defaultChecked">
     <b>设置</b>
     <span>
         <label><input type="checkbox" name="autoplay" />自动播放</label>
