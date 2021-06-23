@@ -38,7 +38,7 @@ const
 
     // 至少1个空白。
     // 保留首个匹配字符和剩余部分记忆。
-    // 注：clean专用。
+    // 注：trims专用。
     __reSpace1n = /(\s)(\s*)/g,
 
     // 颜色值：RGB|RGBA
@@ -727,6 +727,26 @@ const _Process = {
     },
 
     __sum: 1,
+
+
+    /**
+     * 对象清理。
+     * 移除对象内与目标值相等的成员条目。
+     * 相等判断采用 Array.includes() 实现。
+     * 不传递任何实参时会移除值为undefined的条目。
+     * 注意：
+     * undefined和null条目并不会同时移除，需分别传入两个值。
+     * 操作会影响传入的流程数据本身。
+     * @data: Object|[Object]
+     * @param  {Value} val 匹配值，默认undefined
+     * @param  {...Value} rest 匹配值序列，可选
+     * @return {Object} 流程数据
+     */
+    clean( evo, val, ...rest ) {
+        return mapCall( evo.data, o => cleanObj(o, val, ...rest) );
+    },
+
+    __clean: 1,
 
 
 
@@ -1450,18 +1470,18 @@ const _Process = {
 
 
     /**
-     * 空白清理。
+     * 整体空白修剪。
      * 将字符串内连续的空白替换为指定的字符序列，
      * 首尾空白只会在传递 rch 为空串时才有清除的效果。
      * 默认替换为空白匹配序列的首个空白。
      * @param  {String|Function} rch 空白替换符，可选
      * @return {String|[String]}
      */
-    clean( evo, rch = '$1' ) {
+    trims( evo, rch = '$1' ) {
         return mapCall( evo.data, s => s.replace(__reSpace1n, rch) );
     },
 
-    __clean: 1,
+    __trims: 1,
 
 
     /**
@@ -1974,6 +1994,21 @@ function rgb16val( r, g, b, a = '' ) {
 function n16c2( n ) {
     n = Math.floor( n );
     return n < 16 ? `0${n.toString(16)}` : n.toString(16);
+}
+
+
+/**
+ * 对象成员清理。
+ * 移除值为val的属性条目。
+ * @param  {Object} obj 清理目标
+ * @param  {...Value} vals 匹配值序列
+ * @return {Object} obj
+ */
+function cleanObj( obj, ...vals ) {
+    for ( const k of Object.keys(obj) ) {
+        if ( vals.includes(obj[k]) ) delete obj[k];
+    }
+    return obj;
 }
 
 

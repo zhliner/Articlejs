@@ -1,0 +1,5 @@
+{
+    "//": "属性框初始取值赋值。单特性取值",
+    "on": "value|ev('detail') $('/input') attr('name') attr(_1)",
+    "to": "/input|val"
+}

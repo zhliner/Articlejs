@@ -26,9 +26,11 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sel0 pop $('/img');
+        vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
+    to="(/>li)(:last-child)|trigger('value');
+        /li:last-child|trigger('value')">
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
     <li tpl-node="prop:sources2"></li>
@@ -568,21 +570,19 @@
     </span>
 </li>
 
-<li tpl-name="prop:src"
-    on="value|ev('detail') attr('src')"
-    to="/input|val">
+<li obt-src="obts/a2prop.json" tpl-name="prop:src">
     <b title="src">源路径</b>
     <span><input type="text" name="src" /></span>
 </li>
 
-<li tpl-name="prop:alt"
-    on="value|ev('detail') attr('alt')"
-    to="/input|val">
+<li obt-src="obts/a2prop.json" tpl-name="prop:alt">
     <b title="alt">说明</b>
     <span><input type="text" name="alt" /></span>
 </li>
 
-<li tpl-name="prop:wh">
+<li tpl-name="prop:wh"
+    on="value|ev('detail') attrs('width height')"
+    to="(/input)|val">
     <b>宽/高度</b>
     <span>
         <input type="text" name="width" title="width" class="_nums" />
@@ -606,17 +606,22 @@
     </span>
 </li>
 
-<li tpl-name="prop:tracks">
+<!-- 值为null的特性忽略 -->
+<li tpl-name="prop:tracks"
+    on="value|ev('detail') children('track') attribute('kind srclang src label default') clean(null) json(4)"
+    to="/pre|text">
     <b>字幕轨</b>
     <span title="<track>"
-        on="^nodeok|(`[ {kind, srclang, src, label, default?: true}, ... ]`)"
+        on="^nodeok|(`[ {kind, srclang, src, label, default?: ''}, ... ]`)"
         to="/pre|@-tip">
         <pre tpl-node="prop:codes"></pre>
     </span>
 </li>
 
 <!-- 自适应图片用 -->
-<li tpl-name="prop:sources2">
+<li tpl-name="prop:sources2"
+    on="value|ev('detail') children('source') attribute('srcset media') json(4)"
+    to="/pre|text">
     <b>候选图片</b>
     <span title="<source>"
         on="^nodeok|(`[ {srcset: '...', media: '...'}, ... ]`)"
@@ -632,15 +637,15 @@
 
 <li tpl-name="prop:height">
     <b>高度</b>
-    <span><input type="text" name="width" placeholder="90%" class="_chars"></span>
+    <span><input type="text" name="height" placeholder="90%" class="_chars"></span>
 </li>
 
-<li tpl-name="prop:id">
+<li obt-src="obts/a2prop.json" tpl-name="prop:id">
     <b>ID定义</b>
-    <span><input type="text" name="width" class="_phrase"></span>
+    <span><input type="text" name="id" class="_phrase"></span>
 </li>
 
-<li tpl-name="prop:poster">
+<li obt-src="obts/a2prop.json" tpl-name="prop:poster">
     <b>视频画面</b>
     <span><input type="text" name="poster" placeholder="(poster)" /></span>
 </li>

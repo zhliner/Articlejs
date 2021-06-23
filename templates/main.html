@@ -81,7 +81,7 @@
         info|$('#g-scroll') focus;
         esced|evo(3) (ESC) pop;
         escpop|('med', ESC) pop;
-        @paste|avoid clipboard clean(' ') html exeCmd('insertHTML', _1);
+        @paste|avoid clipboard trims(' ') html exeCmd('insertHTML', _1);
         @keydown:x|SCAM('ctrl', 'meta') pass iskey(6) pass avoid"
     by="Kit.medpass(_1);
         Kit.medcancel"
@@ -106,10 +106,10 @@
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass stop;
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
-            cut|env('minied') end avoid v.sels text clean(' ') trim join('\n');
+            cut|env('minied') end avoid v.sels text trims(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste:append');
             focus|env('minied') end sRange(true) hasRange('/main') end $('/main') nodeRange(true) addRange;
-            copy|env('minied') end sRange str end avoid v.sels text clean(' ') trim join('\n') pop clipboard;
+            copy|env('minied') end sRange str end avoid v.sels text trims(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end ev('shiftKey') pass env('paste:append', true);
             keyup|env('minied') end env('paste:append', null);
             _focus|env('minied') end evo(3) focus"
@@ -819,8 +819,8 @@
         nodeok(~form) update;
         input.submit(~textarea, th,td, ._code, li)|evo(2) is(':read-write') pass;
         input.submit2([data-pbo~=fulled])|evo(2) full(false);
-        input.full(~textarea, pre._code)|evo(2) full(2);
-        input.full(~th, td, li[contenteditable=true])|evo(2) pop $('._list, ._obts/') full(2);
+        input.full(~textarea, pre._code)|stopAll evo(2) full(2);
+        input.full(~th, td, li[contenteditable])|evo(2) pop $('._list, ._obts/') full(2);
         keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop;
         keydown([data-pbo~=fulled])|ev('key') pass('Escape') stop evo(2) full(false)"
     to="|height(true);

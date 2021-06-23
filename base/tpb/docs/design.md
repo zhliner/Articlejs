@@ -406,8 +406,8 @@ exist( name: String ): Boolean
 trim( where = 0 ): String
 // 首尾空白修整。
 
-clean( all ): String
-// 空白清理。
+trims( rch ): String
+// 全部空白清理。
 
 strsub( start, end ): String
 // 子串截取（substring）
@@ -527,6 +527,9 @@ mix( n ): Array
 
 sum(): Number
 // 集合成员值累计。
+
+clean( val, ...rest ): Object|[Object]
+// 对象成员清理。
 ```
 
 
