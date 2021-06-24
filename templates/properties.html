@@ -603,8 +603,8 @@
     资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。-->
 <li tpl-name="prop:sources1"
     on="value|ev('detail') children('source') attribute('src type') json(4) dup;
-        reset|$('/pre') attr('-v')"
-    to="/pre|@-v text;
+        reset|$('/pre') attr('-iv')"
+    to="/pre|@-iv text;
         /pre|text">
     <b>候选资源</b>
     <span title="<source>"
@@ -617,8 +617,8 @@
 <!-- 值为null的特性忽略 -->
 <li tpl-name="prop:tracks"
     on="value|ev('detail') children('track') attribute('kind srclang src label default') clean(null) json(4) dup;
-        reset|$('/pre') attr('-v')"
-    to="/pre|@-v text;
+        reset|$('/pre') attr('-iv')"
+    to="/pre|@-iv text;
         /pre|text">
     <b>字幕轨</b>
     <span title="<track>"
@@ -631,8 +631,8 @@
 <!-- 自适应图片用 -->
 <li tpl-name="prop:sources2"
     on="value|ev('detail') children('source') attribute('srcset media') json(4) dup;
-        reset|$('/pre') attr('-v')"
-    to="/pre|@-v text;
+        reset|$('/pre') attr('-iv')"
+    to="/pre|@-iv text;
         /pre|text">
     <b>候选图片</b>
     <span title="<source>"
