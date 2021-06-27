@@ -16,9 +16,10 @@
 
 
 const
-    // 脚本执行器创建器
-    // 路径视实际部署情况调整。
-    Scripter = () => new Worker( '/base/scripter.js' ),
+    Setup = {
+        // 上载根目录
+        upload:     '/upload/data'
+    },
 
 
     Limit = {
@@ -123,7 +124,13 @@ const
             '没有可编辑的属性'
         ]
 
-    };
+    },
+
+
+    // 脚本执行器创建器
+    // 路径视实际部署情况调整。
+    Scripter = () => new Worker( '/base/scripter.js' );
+
 
 
 //
@@ -208,4 +215,4 @@ const Sys = {
 };
 
 
-export { Scripter, Limit, Tips, Help, Sys };
+export { Setup, Limit, Tips, Help, Scripter, Sys };

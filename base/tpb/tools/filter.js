@@ -17,6 +17,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { format } from "./date.js";
+
+
 const $ = window.$;
 
 
@@ -78,19 +81,12 @@ const Filter = {
      *      s|ss    秒
      *      S       毫秒
      * }
-     * 例：
-     *   yyyy-MM-dd hh:mm:ss.S => 2017-02-08 16:49:09.643
-     *   yy-M-d h:m:s => 17-2-8 16:49:9
-     * 注记：
-     * - 借用Date的JSON标准格式分解合成。
-     * - 输出的是本地时间。JSON仅为借用。
      * @param  {String|Number|Date} date 日期表达
      * @param  {String} fmt 格式串
      * @return {String}
      */
     date( date, fmt ) {
-        let _ss = dateCells( getTime(date) );
-        return fmt.replace(__dateFormat, w => _ss[w] || w );
+        return format( date, fmt );
     },
 
 
@@ -152,42 +148,6 @@ const Filter = {
 ].forEach(function( name ) {
     Filter[name] = data => $.Element( name, data );
 });
-
-
-// date过滤器辅助数据。
-const
-    // JSON日期格式
-    // 2017-02-06T15:29:01.933Z
-    __dateJSON = /^(\d{4})-(\d{2})-(\d{2})T(\d+):(\d+):(\d+)\.(\d+)Z$/,
-
-    // 时区与UTC差（毫秒）
-    __timeOffset = new Date().getTimezoneOffset() * 60000,
-
-    // date格式合法词匹配
-    __dateFormat = /\by+\b|\bM+\b|\bd+\b|\bh+\b|\bm+\b|\bs+\b|\bS\b/g,
-
-    // 提取对象时间值
-    getTime = obj => obj.getTime ? obj.getTime() : parseInt(obj) || __timeOffset;
-
-
-/**
- * 分解提取Date各部分。
- * @param  {Number} tm 标准毫秒数
- * @return {Object} 各配置组成对象
- */
-function dateCells( tm ) {
-    tm -= __timeOffset;
-    let [ _, yyyy, MM, dd, hh, mm, ss, S ] = new Date(tm).toJSON().match(__dateJSON);
-    return {
-        yyyy, yy: yyyy.slice(2),
-        MM,   M:  +MM,
-        dd,   d:  +dd,
-        hh,   h:  +hh,
-        mm,   m:  +mm,
-        ss,   s:  +ss,
-        S, _,
-    };
-}
 
 
 // cut文本截断辅助。

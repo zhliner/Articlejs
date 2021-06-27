@@ -114,7 +114,7 @@ export const By = $.proto(
  * 函数：
  * 支持单个函数扩展到目标子域，此时args为取栈数量实参。
  *
- * @param  {String} name 目标域（子域由句点分隔）
+ * @param  {String} name 目标域或名称序列（子域可由句点分隔）
  * @param  {Object|Instance|Function} exts 扩展集或类实例或操作句柄
  * @param  {Boolean|[String]|Number} args 是否无需绑定或方法名集或取栈数量，可选。
  * @return {void}

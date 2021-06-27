@@ -576,12 +576,12 @@
     </span>
 </li>
 
-<li obt-src="obts/a2prop.json" tpl-name="prop:src">
+<li obt-src="obts/prop1.json" tpl-name="prop:src">
     <b title="src">源路径</b>
     <span><input type="text" name="src" /></span>
 </li>
 
-<li obt-src="obts/a2prop.json" tpl-name="prop:alt">
+<li obt-src="obts/prop1.json" tpl-name="prop:alt">
     <b title="alt">说明</b>
     <span><input type="text" name="alt" /></span>
 </li>
@@ -642,22 +642,26 @@
     </span>
 </li>
 
-<li tpl-name="prop:width">
+<li tpl-name="prop:width"
+    on="value|ev('detail') attr('width')"
+    to="(/input)|val">
     <b>宽度</b>
     <span><input type="text" name="width" placeholder="90%" class="_chars"></span>
 </li>
 
-<li tpl-name="prop:height">
+<li tpl-name="prop:height"
+    on="value|ev('detail') attr('height')"
+    to="(/input)|val">
     <b>高度</b>
     <span><input type="text" name="height" placeholder="90%" class="_chars"></span>
 </li>
 
-<li obt-src="obts/a2prop.json" tpl-name="prop:id">
+<li obt-src="obts/prop1.json" tpl-name="prop:id">
     <b>ID定义</b>
     <span><input type="text" name="id" class="_phrase"></span>
 </li>
 
-<li obt-src="obts/a2prop.json" tpl-name="prop:poster">
+<li obt-src="obts/prop1.json" tpl-name="prop:poster">
     <b>视频画面</b>
     <span><input type="text" name="poster" placeholder="(poster)" /></span>
 </li>
@@ -673,7 +677,9 @@
     </span>
 </li>
 
-<li tpl-name="prop:open">
+<li tpl-name="prop:open"
+    on="value|ev('detail') prop('open')"
+    to="(/input)|$defaultChecked">
     <b><!-- 占位 --></b>
     <span><label><input type="checkbox" name="open" />详细展开</label></span>
 </li>
@@ -682,7 +688,7 @@
     <b>上传</b>
     <span><input type="file" name="upload" value=""
             @on="change|evo(3) val"
-            @by="x.Fun.upload(null)" />
+            @by="x.Upload.go" />
     </span>
 </li>
 
@@ -775,7 +781,9 @@
     <span><input type="text" name="rb" placeholder="<rb>" class="_phrase" /></span>
 </li>
 
-<li tpl-name="prop:rt">
+<li tpl-name="prop:rt"
+    on="value|ev('detail') pop $('/rt') text"
+    to="/input|val">
     <b>拼音</b>
     <span><input type="text" name="rt" placeholder="<rt>" /></span>
 </li>
@@ -784,7 +792,6 @@
     由程序配置以支持<ruby>的格式化解析创建。-->
 <li tpl-name="prop:rp">
     <b>&lt;rp&gt;</b>
-    <!-- 注：input:disabled 下 $.val() 方法忽略赋值 -->
     <span data-pbo="disabled"
         on="^obted|([Sys.rpLeft, Sys.rpRight])"
         to="(/input)|@value">
@@ -799,12 +806,16 @@
     <span><input type="text" name="text" placeholder="（可选）" /></span>
 </li>
 
-<li tpl-name="prop:date">
+<li tpl-name="prop:date"
+    on="value|ev('detail') attr('datetime') dup pass Date date"
+    to="/input|val">
     <b>日期</b>
-    <span><input type="date" name="date" placeholder="YYYY-MM-DD"></span>
+    <span><input type="date" name="date" placeholder="yyyy-MM-dd"></span>
 </li>
 
-<li tpl-name="prop:time">
+<li tpl-name="prop:time"
+    on="value|ev('detail') attr('datetime') dup pass Date time"
+    to="/input|val">
     <b>时间</b>
     <span><input type="time" name="time" placeholder="hh:mm:ss"></span>
 </li>

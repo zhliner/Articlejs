@@ -20,6 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { format } from "./tools/date.js";
 import { bindMethod, EXTENT, ACCESS, Globals, DEBUG, JUMPCELL, PREVCELL } from "./config.js";
 
 
@@ -749,6 +750,52 @@ const _Process = {
     __clean: 1,
 
 
+    /**
+     * 提取日期对象的日期部分。
+     * 默认返回4位年份的日期格式（yyyy-MM-dd）。
+     * @data: Date
+     * @param  {Boolean} y4 显示4位年份，可选
+     * @return {String}
+     */
+    date( evo, y4 = true ) {
+        return format( evo.data, `yy${y4 ? 'yy' : ''}-MM-dd` );
+    },
+
+    __date: 1,
+
+
+    /**
+     * 提取日期对象的时间部分。
+     * 默认为智能格式：
+     * 如果秒数为零，则省略秒数，否则显示秒数。
+     * @data: Date
+     * @param  {Boolean} second 是否显示秒数，可选
+     * @return {String}
+     */
+    time( evo, second ) {
+        if ( second === undefined ) {
+            second = !!evo.data.getSeconds();
+        }
+        return format( evo.data, second ? 'hh:mm:ss' : 'hh:mm' );
+    },
+
+    __time: 1,
+
+
+    /**
+     * 格式化日期/时间。
+     * 默认返回规范的 yyyy-MM-dd hh:mm 格式。
+     * @data: Date
+     * @param  {String} fmt 格式定义，可选
+     * @return {String}
+     */
+    datetime( evo, fmt = 'yy-MM-dd hh:mm' ) {
+        return format( evo.data, fmt );
+    },
+
+    __datetime: 1,
+
+
 
     // 数学运算。
     // 多数方法有一个集合版（对成员计算）。
@@ -886,7 +933,6 @@ const _Process = {
     __divmod: 1,
 
 
-    //
     // Math大部分方法。
     // @data: Number|[Number]
     /////////////////////////////////////////////

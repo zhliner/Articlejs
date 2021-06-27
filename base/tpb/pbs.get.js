@@ -803,14 +803,14 @@ const _Gets = {
      * 目标：暂存区条目可选。
      * 目标如果有值，补充到模板实参序列之后（数组会展开）。
      * 无实参无目标时构造一个当前时间对象。
-     * @param  {...Value} vals 实参值
+     * @param  {...Value} rest 实参值
      * @return {Date}
      */
-    Date( evo, ...vals ) {
-        return new Date( ...vals );
+    Date( evo, ...rest ) {
+        return new Date( evo.data, ...rest );
     },
 
-    __Date: null,
+    __Date: 1,
 
 
     /**

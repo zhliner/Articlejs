@@ -34,9 +34,6 @@ import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader, Web } from "./confi
 // 模板功能支持。
 import { Templater } from "./tools/templater.js";
 
-// 初始化支持。
-import './lib.x.js';
-
 
 const
     $ = window.$,
@@ -52,10 +49,6 @@ const
     // obt-src并列分隔符。
     // 各部分路径独立（都相对于根路径）。
     __sepPath = ',',
-
-    // obt-src序列分隔符
-    // 单一路径之后跟随空格分隔的文件名序列。
-    __sepFile = /\s+/,
 
     // OBT属性选择器
     __obtSlr = `[${OBTA.on}], [${OBTA.src}]`,
