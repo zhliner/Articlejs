@@ -915,7 +915,7 @@ option: {
 
 > **注：**<br>
 > 部分常见的需要转换的属性名会自动转换（如：`class` => `clasName`），因此两种形式皆可使用。但并不是所有的名称都会自动转换。<br>
-> 定制属性名除了 `html, text` 外，还支持 `<select>` 元素的 `selected` 特性名，返回选取的 `<option>` 元素或元素集，单选时无选取返回 `null`。<br>
+> 定制属性名除了 `html, text` 外，还支持选单 `<select>` 元素的 `selected` 和选取按钮 `<input>` 的 `checkedNode` 属性名。前者返回选取的 `<option>` 子元素（集），后者返回选中的按钮。无选取时返回 `null` 或一个空数组。<br>
 
 
 ### $.prop( el, name, value ): Value | Element

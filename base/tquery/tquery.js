@@ -6922,7 +6922,7 @@ const propHooks = {
         }
     },
 
-    // 定制属性名（仅适用<select>）。
+    // 定制属性名（适用<select>）。
     'selected': {
         /**
          * 获取选单内选中的<option>子元素。
@@ -6933,6 +6933,42 @@ const propHooks = {
         get: function( el ) {
             return el.type === 'select-one' ? el.options[el.selectedIndex] || null : [...el.selectedOptions];
         }
+    },
+
+    // 定制属性名（适用 input:radio）
+    'checkedNode': {
+        /**
+         * 获取选中的控件元素。
+         * @return {Element|null}
+         */
+        get( el ) {
+            let _els = el.form[ el.name ];
+
+            if ( !_els || !el.name ) {
+                return null;
+            }
+            return this[ el.type ]( _els );
+        },
+
+        // 单选按钮获取。
+        // @return {Element|null}
+        radio( els ) {
+            for ( const e of els ) {
+                if ( e.checked ) return e;
+            }
+            return null;
+        },
+
+        // 复选按钮获取。
+        // @return {[Element]}
+        checkbox( els ) {
+            let _buf = [];
+
+            for ( const e of els ) {
+                if ( e.checked ) _buf.push( e );
+            }
+            return _buf;
+        },
     },
 };
 
