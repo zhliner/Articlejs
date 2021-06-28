@@ -903,7 +903,7 @@ option: {
 获取或修改 `el` 元素的属性（Property）值。
 
 - `el: Element` 操作的目标元素。
-- `names: String | [String] | Object | Map` 名称序列或**名/值**对配置对象。名称支持 `data-x` 系简写形式和三个特殊名称：`text`、`html`、`selected`。
+- `names: String | [String] | Object | Map` 名称序列或**名/值**对配置对象。名称支持 `data-x` 系简写形式和两个个特殊名称：`text`、`html`。
 - `value: Value | [Value] | Function | null` 设置的属性值（集）或返回单个值的取值回调。
 
 当 `value` 未定义且 `names` 为字符串或字符串数组时为获取属性值。当 `value` 传递值或 `names` 为 **名:值** 对配置对象时为设置属性值。
@@ -915,7 +915,7 @@ option: {
 
 > **注：**<br>
 > 部分常见的需要转换的属性名会自动转换（如：`class` => `clasName`），因此两种形式皆可使用。但并不是所有的名称都会自动转换。<br>
-> 定制属性名除了 `html, text` 外，还支持选单 `<select>` 元素的 `selected` 和选取按钮 `<input>` 的 `checkedNode` 属性名。前者返回选取的 `<option>` 子元素（集），后者返回选中的按钮。无选取时返回 `null` 或一个空数组。<br>
+> 特殊的属性名除了 `html, text` 外，`selected` 还适用选单 `<select>` 元素，返回选取的 `<option>` 子元素（集）。另外还有一个 `checkedNode` 属性，返回当前选取的按钮控件，适用单选和复选框。<br>
 
 
 ### $.prop( el, name, value ): Value | Element

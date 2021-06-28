@@ -1850,7 +1850,8 @@ Object.assign( tQuery, {
      * - "-xx"      data系名称简写
      * - "text"     针对节点文本内容
      * - "html"     针对元素内源码（innerHTML）
-     * - "selected" 当前选单条目所属的<option>子元素。
+     * - "selected"     当前选单条目所属的<option>子元素。
+     * - "checkedNode"  当前选中的单选/复选按钮（集）
      * 注：
      * 仅适用单个特性名。
      * value仅支持简单标量值和取值回调。
@@ -6922,7 +6923,7 @@ const propHooks = {
         }
     },
 
-    // 定制属性名（适用<select>）。
+    // 可适用<select>元素。
     'selected': {
         /**
          * 获取选单内选中的<option>子元素。
@@ -6931,8 +6932,11 @@ const propHooks = {
          * @return {Element|[Element]|null}
          */
         get: function( el ) {
+            if ( el.tagName !== 'SELECT' ) {
+                return el.selected;
+            }
             return el.type === 'select-one' ? el.options[el.selectedIndex] || null : [...el.selectedOptions];
-        }
+        },
     },
 
     // 定制属性名（适用 input:radio）
