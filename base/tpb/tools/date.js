@@ -25,6 +25,7 @@ const
     __dateFormat = /\by+\b|\bM+\b|\bd+\b|\bh+\b|\bm+\b|\bs+\b|\bS\b/g,
 
     // 提取对象时间值
+    // 容错：零值取UTC标准起点时间。
     getTime = obj => obj.getTime ? obj.getTime() : parseInt(obj) || __timeOffset;
 
 

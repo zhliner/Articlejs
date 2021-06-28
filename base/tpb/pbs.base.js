@@ -239,7 +239,7 @@ const _Control = {
     /**
      * 弹出栈顶n项。
      * 弹出n项压入暂存区，无实参调用视为1项。
-     * n负值无用（简单忽略）。
+     * n负值无用（自动忽略）。
      * @param {Stack} stack 数据栈
      * @param {Number} n 弹出的条目数
      */
@@ -627,6 +627,25 @@ const _Control = {
 
     __and: 1,
 
+
+    /**
+     * 取首个真值成员。
+     * 如果没有真值成员，返回null。
+     * 通常应当前置 pop(n) 指令且 n>1，或者 pop(1) 时数据为一个集合。
+     * 类似于 pack(n) filter(v=>v) item(0) 指令序列。
+     * @data: [Value]|Iterator
+     * @param  {Number} n 栈顶条目数
+     * @return {Value|null}
+     */
+    vtrue( evo ) {
+        for ( const v of evo.data ) {
+            if ( v ) return v;
+        }
+        return null;
+    },
+
+    __vtrue: 0,
+
 };
 
 
@@ -751,24 +770,24 @@ const _Process = {
 
 
     /**
-     * 提取日期对象的日期部分。
-     * 默认返回4位年份的日期格式（yyyy-MM-dd）。
-     * @data: Date
-     * @param  {Boolean} y4 显示4位年份，可选
+     * 格式化日期/时间。
+     * 默认返回规范的 yyyy-MM-dd hh:mm 格式。
+     * @data: Date|Number
+     * @param  {String} fmt 格式定义，可选
      * @return {String}
      */
-    date( evo, y4 = true ) {
-        return format( evo.data, `yy${y4 ? 'yy' : ''}-MM-dd` );
+    datetime( evo, fmt = 'yyyy-MM-dd hh:mm' ) {
+        return format( evo.data, fmt );
     },
 
-    __date: 1,
+    __datetime: 1,
 
 
     /**
      * 提取日期对象的时间部分。
      * 默认为智能格式：
      * 如果秒数为零，则省略秒数，否则显示秒数。
-     * @data: Date
+     * @data: Date|Number
      * @param  {Boolean} second 是否显示秒数，可选
      * @return {String}
      */
@@ -780,20 +799,6 @@ const _Process = {
     },
 
     __time: 1,
-
-
-    /**
-     * 格式化日期/时间。
-     * 默认返回规范的 yyyy-MM-dd hh:mm 格式。
-     * @data: Date
-     * @param  {String} fmt 格式定义，可选
-     * @return {String}
-     */
-    datetime( evo, fmt = 'yy-MM-dd hh:mm' ) {
-        return format( evo.data, fmt );
-    },
-
-    __datetime: 1,
 
 
 

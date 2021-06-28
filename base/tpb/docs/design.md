@@ -531,14 +531,11 @@ sum(): Number
 clean( val, ...rest ): Object|[Object]
 // 对象成员清理。
 
-date( y2:Boolean ): String
-// 提取日期对象的日期。
+datetime( fmt:String ): String
+// 格式化日期显示。
 
 time( second:Boolean ): String
 // 提取日期对象的时间。
-
-datetime( fmt:String ): String
-// 格式化日期显示。
 ```
 
 

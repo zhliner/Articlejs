@@ -101,6 +101,9 @@ value( name:String ): Value | [Value] | null
 checked( name:String ): Boolean | [Boolean] | null
 // 获取选取按钮状态。
 
+style( name:String ): String | [String] | [[String]]
+// 获取元素内联样式。
+
 sRange( loose:Boolean ): Range | null | false
 // 获取当前选取范围。
 

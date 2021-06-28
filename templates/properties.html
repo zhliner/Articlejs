@@ -60,7 +60,7 @@
 <ul class="_prop" tpl-name="property:ruby" data-label="注音拼音"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
+    to="/>li|trigger('value')">
     <li tpl-node="prop:rt, prop:rp"></li>
 </ul>
 
@@ -71,7 +71,7 @@
     <li tpl-node="prop:date, prop:time"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:meter" data-label="量度属性"
+<ul class="_prop" tpl-name="property:meter" data-label="度量属性"
     on="vinit|v.sel0;
         build|"
     to="(/>li)|trigger('value')">
@@ -81,8 +81,8 @@
 <ul class="_prop" tpl-name="property:space" data-label="空白属性"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:width"></li>
+    to="/>li|trigger('value')">
+    <li tpl-node="prop:spwidth"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:a" data-label="链接属性"
@@ -95,14 +95,14 @@
 <ul class="_prop" tpl-name="property:q" data-label="短引用属性"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
+    to="/>li|trigger('value')">
     <li tpl-node="prop:cite"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:abbr" data-label="缩写属性"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
+    to="/>li|trigger('value')">
     <li tpl-node="prop:title"></li>
 </ul>
 
@@ -111,6 +111,7 @@
         build|"
     to="(/>li)|trigger('value')">
     <li tpl-node="prop:date, prop:time"></li>
+    <li tpl-node="prop:cite2"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:ins" data-label="插入属性"
@@ -118,6 +119,7 @@
         build|"
     to="(/>li)|trigger('value')">
     <li tpl-node="prop:date, prop:time"></li>
+    <li tpl-node="prop:cite2"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:code" data-label="代码属性"
@@ -130,21 +132,21 @@
 <ul class="_prop" tpl-name="property:dfn" data-label="定义词属性"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
+    to="/>li|trigger('value')">
     <li tpl-node="prop:title"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:bdo" data-label="方向定义"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
+    to="/>li|trigger('value')">
     <li tpl-node="prop:dir"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:blockquote" data-label="引用块属性"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
+    to="/>li|trigger('value')">
     <li tpl-node="prop:cite"></li>
 </ul>
 
@@ -174,7 +176,7 @@
 <ul class="_prop" tpl-name="property:li" data-label="列表项属性"
     on="vinit|v.sel0;
         build|;
-        ^nodeok|({class:'_tips', text:'（不常用）'}) Element('i') delay"
+        ^nodeok(~li)|({class:'_tips', text:'（不常用）'}) Element('i')"
     to="(/>li)|trigger('value');
         form/|trigger('apply');
         /[name=type]|after">
@@ -205,9 +207,10 @@
 <ul class="_prop" tpl-name="property:explain" data-label="插图讲解属性"
     on="vinit|v.sel0;
         build|"
-    to="(/>li)|trigger('value')">
-    <li><b>定位</b>
-        <span><select name="position" tpl-name="explain:position">
+    to="/>li|trigger('value')">
+    <li obt-src="obts/prop2select.json">
+        <b>定位</b>
+        <span><select data-attr="-pba" name="position" tpl-name="explain:position">
                 <option value=""> ------ </option>
                 <option value="fix-lt">左上方</option>
                 <option value="fix-rt">右上方</option>
@@ -499,9 +502,9 @@
     <span><hr tpl-node="hr:border"></span>
 </li>
 
-<li tpl-name="prop:sntype">
+<li obt-src="obts/prop2select.json" tpl-name="prop:sntype">
     <b>编号类型</b>
-    <span><select name="type">
+    <span><select data-attr="type" name="type">
             <option value=""> ------ </option>
             <option>1</option>
             <option>a</option>
@@ -512,18 +515,20 @@
     </span>
 </li>
 
-<li tpl-name="prop:start">
+<li obt-src="obts/prop1.json" tpl-name="prop:start">
     <b>起始行号</b>
     <span><input type="text" name="start" class="_chars" placeholder="1" /></span>
 </li>
 
 <!-- 适用：<li> -->
-<li tpl-name="prop:value">
+<li obt-src="obts/prop1.json" tpl-name="prop:value">
     <b>起始行号</b>
     <span><input type="text" name="value" class="_chars" placeholder="1" /></span>
 </li>
 
-<li tpl-name="prop:reversed">
+<li tpl-name="prop:reversed"
+    on="value|ev('detail') prop('reversed')"
+    to="/input|$defaultChecked">
     <b>设置</b>
     <span><label><input type="checkbox" name="reversed" />逆序编号</label></span>
 </li>
@@ -559,14 +564,14 @@
     <span><hr tpl-node="hr:border" /></span>
 </li>
 
-<li tpl-name="prop:href">
+<li obt-src="obts/prop1.json" tpl-name="prop:href">
     <b>链接目标</b>
     <span><input type="text" name="href" /></span>
 </li>
 
-<li tpl-name="prop:target">
+<li obt-src="obts/prop2select.json" tpl-name="prop:target">
     <b>窗口</b>
-    <span><select name="target">
+    <span><select data-attr="target" name="target">
             <option value=""> ------ </option>
             <option value="_blank">_blank</option>
             <option value="_parent">_parent</option>
@@ -588,7 +593,7 @@
 
 <li tpl-name="prop:wh"
     on="value|ev('detail') attrs('width height')"
-    to="(/input)|val">
+    to="(/input)|@value">
     <b>宽/高度</b>
     <span>
         <input type="text" name="width" title="width" class="_nums" />
@@ -644,14 +649,14 @@
 
 <li tpl-name="prop:width"
     on="value|ev('detail') attr('width')"
-    to="(/input)|val">
+    to="(/input)|@value">
     <b>宽度</b>
     <span><input type="text" name="width" placeholder="90%" class="_chars"></span>
 </li>
 
 <li tpl-name="prop:height"
     on="value|ev('detail') attr('height')"
-    to="(/input)|val">
+    to="(/input)|@value">
     <b>高度</b>
     <span><input type="text" name="height" placeholder="90%" class="_chars"></span>
 </li>
@@ -679,7 +684,7 @@
 
 <li tpl-name="prop:open"
     on="value|ev('detail') prop('open')"
-    to="(/input)|$defaultChecked">
+    to="/input|$defaultChecked">
     <b><!-- 占位 --></b>
     <span><label><input type="checkbox" name="open" />详细展开</label></span>
 </li>
@@ -761,12 +766,12 @@
     <span><input type="text" name="text" class="_phrase" /></span>
 </li>
 
-<li tpl-name="prop:cite">
+<li obt-src="obts/prop1.json" tpl-name="prop:cite">
     <b>引用来源</b>
     <span><input type="url" name="cite"  placeholder="https://" /></span>
 </li>
 
-<li tpl-name="prop:cite2">
+<li obt-src="obts/prop1.json" tpl-name="prop:cite2">
     <b title="cite">解释源</b>
     <span><input type="url" name="cite"  placeholder="https:// (可选)" /></span>
 </li>
@@ -783,7 +788,7 @@
 
 <li tpl-name="prop:rt"
     on="value|ev('detail') pop $('/rt') text"
-    to="/input|val">
+    to="/input|@value">
     <b>拼音</b>
     <span><input type="text" name="rt" placeholder="<rt>" /></span>
 </li>
@@ -807,25 +812,27 @@
 </li>
 
 <li tpl-name="prop:date"
-    on="value|ev('detail') attr('datetime') dup pass Date date"
-    to="/input|val">
+    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date datetime('yyyy-MM-dd')"
+    to="/input|@value">
     <b>日期</b>
     <span><input type="date" name="date" placeholder="yyyy-MM-dd"></span>
 </li>
 
 <li tpl-name="prop:time"
-    on="value|ev('detail') attr('datetime') dup pass Date time"
-    to="/input|val">
+    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date time"
+    to="/input|@value">
     <b>时间</b>
     <span><input type="time" name="time" placeholder="hh:mm:ss"></span>
 </li>
 
-<li tpl-name="prop:number">
+<li obt-src="obts/prop1.json" tpl-name="prop:number">
     <b>数值</b>
     <span><input type="text" name="value" title="value" class="_chars" /></span>
 </li>
 
-<li tpl-name="prop:maxmin">
+<li tpl-name="prop:maxmin"
+    on="value|ev('detail') attrs('max min')"
+    to="(/input)|@value">
     <b>最大/最小值</b>
     <span>
         <input type="text" name="max" title="max" class="_nums" />
@@ -833,7 +840,9 @@
     </span>
 </li>
 
-<li tpl-name="prop:highlow">
+<li tpl-name="prop:highlow"
+    on="value|ev('detail') attrs('high low')"
+    to="(/input)|@value">
     <b>高/低值</b>
     <span>
         <input type="text" name="high" title="high" class="_nums" />
@@ -841,12 +850,22 @@
     </span>
 </li>
 
-<li tpl-name="prop:optimum">
+<li obt-src="obts/prop1.json" tpl-name="prop:optimum">
     <b>最佳值</b>
     <span><input type="text" name="optimum" class="_nums" title="optimum" /></span>
 </li>
 
-<li tpl-name="prop:dir">
+<!--三步：
+    1. 初始设置。or(null) 容错空值特性。
+    2. 清理默认。
+    3. 设置值设置为默认（重置正确）。 -->
+<li tpl-name="prop:dir"
+    on="value|ev('detail') attr('dir') or(null);
+        _clear|(false);
+        _defchk|(true) $('/input') prop('checkedNode') dup pass pop"
+    to="/input|val|goto('_clear');
+        (/input)|$defaultChecked|goto('_defchk');
+        -|$defaultChecked">
     <b>方向</b>
     <span>
         <label title="ltr"><input type="radio" name="dir" value="ltr">从左到右</label>
@@ -859,24 +878,32 @@
     <span><input type="text" name="amount" class="_nums" value="1" /></span>
 </li>
 
-<li tpl-name="prop:title">
+<li obt-src="obts/prop1.json" tpl-name="prop:title">
     <b>提示</b>
     <span><input type="text" name="title" placeholder="(title)" /></span>
 </li>
 
-<li tpl-name="prop:spwidth">
+<li tpl-name="prop:spwidth"
+    on="value|ev('detail') style('width')"
+    to="/input|@value">
     <b>空白宽</b>
     <span><input type="text" name="width" class="_chars" placeholder="2.45em" /></span>
 </li>
 
-<li tpl-name="prop:tab">
+<li tpl-name="prop:tab"
+    on="value|ev('detail') attr('-tab')"
+    to="/input|@value">
     <b>制表符</b>
     <span><input type="text" name="tabs" class="_char" value="4" title="空格数"></span>
 </li>
 
-<li tpl-name="prop:lang">
+<!--三步：
+    1. 清理默认<option>。
+    2. 设置选单条目。
+    3. 设置默认<option>。 -->
+<li obt-src="obts/prop2select.json" tpl-name="prop:lang">
     <b>语言</b>
-    <span><select tpl-node="prop:languages"></select></span>
+    <span><select data-attr="-lang" tpl-node="prop:languages"></select></span>
 </li>
 
 <li class="_text2" tpl-name="prop:text2">
@@ -913,8 +940,10 @@
 
 
 <!--代码语言清单
-    normal 普通代码，仅标记字符串和注释（//）。-->
-<select id="g-languages" data-id="code" name="language" tpl-name="prop:languages">
+    data-id     用于$$统一检索。
+    data-attr   用于属性修改中，统一取目标特性。
+    normal      普通代码，仅标记字符串和注释（//）。-->
+<select id="g-languages" data-id="code" data-attr="-lang" name="language" tpl-name="prop:languages">
     <option value=""> ------ </option>
     <option value="normal">Normal</option>
     <option value="golang">Golang</option>

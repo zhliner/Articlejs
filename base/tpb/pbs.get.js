@@ -358,6 +358,23 @@ const _Gets = {
 
 
     /**
+     * 获取元素内联样式。
+     * 样式名支持空格分隔的多个名称，返回一个值数组。
+     * @data: Element|[Element]
+     * @param  {String} name 样式名
+     * @return {String|[String]|[[String]]}
+     */
+    style( evo, name ) {
+        return mapCall(
+            evo.data,
+            el => namesValue( name, el.style )
+        );
+    },
+
+    __style: 1,
+
+
+    /**
      * 获取当前选取范围。
      * 目标：无。
      * 即获取用户在页面中的划选部分。

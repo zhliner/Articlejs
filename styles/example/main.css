@@ -676,11 +676,12 @@ div[role=blank] > * {
 }
 
 .content kbd {
+    font-size: small;
     border: 4px #ccc outset;
     border-radius: 4px;
     background-color: #f3f3f3;
     margin: auto 3px;
-    padding: 1px 6px;
+    padding: 1px 5px;
 }
 
 /* 空白 */
