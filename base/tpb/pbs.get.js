@@ -901,6 +901,7 @@ const _Gets = {
      * 返回节点元素本身（而不是一个承诺）。
      * 如果只请求单个节点且未找到，返回null（数组成员中未找到的也为null）。
      * name支持空格分隔的多个名称序列。
+     * 明确传递clone为null表示移出模板节点。
      * 注记：
      * 用户请求节点时应当知道节点载入情况，节点预先载入有3种方式：
      * 1. 在主页面中通过隐藏的tpl-source或tpl-node预先载入。
@@ -909,16 +910,17 @@ const _Gets = {
      * 注意：
      * 与tpl相似，克隆是每次事件都会克隆一组新的节点。
      * @data: String 名称/序列
-     * @param  {Boolean} clone 是否克隆
+     * @param  {Boolean|null} clone 是否克隆或移除
      * @return {Element|[Element|null]|null}
      */
     node( evo, clone ) {
-        let _ns = evo.data;
+        let _ns = evo.data,
+            _fn = clone === null ? 'del' : 'node';
 
         if ( __reSpace.test(_ns) ) {
-            return Templater.nodes( _ns.split(__reSpace), clone );
+            return _ns.split(__reSpace).map( n => Templater[_fn](n, clone) );
         }
-        return Templater.node( _ns, clone );
+        return Templater[_fn]( _ns, clone );
     },
 
     __node: 1,

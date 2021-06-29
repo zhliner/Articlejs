@@ -1678,10 +1678,7 @@ const _Process = {
      * 目标为源数据。
      * JS表达式支持一个默认的变量名$，源数据即为其实参。
      * 例：
-     * push('123456') calc('$[0]+$[2]+$[4]')
-     * => '135'
-     * Date calls('getMonth getDate getFullYear') calc('`${$[0]+1}/${$[1]}-${$[2]}`')
-     * => '3/17-2020'
+     * push('123456') calc('$[0]+$[2]+$[4]') => '135'
      * @param  {String|Function} expr 表达式或函数
      * @return {Any}
      */

@@ -5927,7 +5927,7 @@ export const Kit = {
         }
         let _ns = __levelHandles[type]( evo.data )
 
-        return _ns.length > 0 ? Templater.nodes(_ns) : null;
+        return _ns.length ? _ns.map( n => Templater.node(n) ) : null;
     },
 
     __inslist: 1,

@@ -104,20 +104,37 @@ class Templater {
      * @return {Element|null}
      */
     node( name, clone ) {
-        let _tpl = this._tpls.get( name ) || null;
+        let _tpl = this._tpls.get( name );
+
+        if ( !_tpl ) {
+            return null;
+        }
         return clone ? this._clone( _tpl ) : _tpl;
     }
 
 
     /**
-     * 获取既有模板节点集。
-     * 未找到的节点值为 null。
-     * @param  {[String]} names 名称集
-     * @param  {Boolean} clone 是否克隆（含渲染文法）
-     * @return {[Element|null]}
+     * 移除模板。
+     * 如果某模板是最后一次使用，可用该方法使存储集精简。
+     * @param  {String} name 模板名
+     * @return {Element|null} 被移除的模板
      */
-    nodes( names, clone ) {
-        return names.map( n => this.node(n, clone) );
+    del( name ) {
+        let _tpl = this._tpls.get( name );
+
+        if ( _tpl ) {
+            this._tpls.delete( name );
+        }
+        return _tpl || null;
+    }
+
+
+    /**
+     * 情况模板存储集。
+     * @return {void}
+     */
+    clear() {
+        this._tpls.clear();
     }
 
 
@@ -208,7 +225,7 @@ class Templater {
      * @return {Element} 克隆的新节点
      */
     _clone( tpl ) {
-        return tpl && Render.clone(
+        return Render.clone(
             tpl,
             $.clone( tpl, true, true, true )
         );
