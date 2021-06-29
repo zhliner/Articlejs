@@ -965,13 +965,13 @@ const _Gets = {
     /**
      * 函数创建。
      * 目标：暂存区/栈顶1项。
-     * 取目标为函数体表达式（无return）构造函数。
+     * 取目标为函数体构造函数，函数体通常应当包含return语句。
      * 实参即为函数参数名序列。
      * @param  {...String} names 参数名序列
      * @return {Function}
      */
     func( evo, ...names ) {
-        return new Function( ...names, `return ${evo.data};` );
+        return new Function( ...names, evo.data );
     },
 
     __func: 1,

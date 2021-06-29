@@ -1673,7 +1673,7 @@ const _Process = {
 
 
     /**
-     * 表达式/函数运算。
+     * 表达式运算。
      * 目标：暂存区/栈顶1项。
      * 目标为源数据。
      * JS表达式支持一个默认的变量名$，源数据即为其实参。
@@ -1683,9 +1683,6 @@ const _Process = {
      * @return {Any}
      */
     calc( evo, expr ) {
-        if ( $.isFunction(expr) ) {
-            return expr( evo.data );
-        }
         return new Function( '$', `return ${expr};` )( evo.data );
     },
 
