@@ -631,8 +631,7 @@ const _Control = {
     /**
      * 取首个真值成员。
      * 如果没有真值成员，返回null。
-     * 通常应当前置 pop(n) 指令且 n>1，或者 pop(1) 时数据为一个集合。
-     * 类似于 pack(n) filter(v=>v) item(0) 指令序列。
+     * 这是 arr filter(v=>v) item(0) 指令序列的简化版。
      * @data: [Value]|Iterator
      * @param  {Number} n 栈顶条目数
      * @return {Value|null}
@@ -644,7 +643,7 @@ const _Control = {
         return null;
     },
 
-    __vtrue: 0,
+    __vtrue: 1,
 
 };
 

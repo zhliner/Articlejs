@@ -2803,6 +2803,23 @@ class Table {
 
 
     /**
+     * 是否包含列头。
+     * 返回null表示未定，此时表格为空或仅包含<thead>单元。
+     * @param  {Boolean} last 检查末尾列
+     * @return {Boolean|null}
+     */
+    hasVth( last ) {
+        let _tr = this.tr(-1),
+            _tds = _tr.cells;
+
+        if ( !_tds.length || _tr.parentElement.tagName === 'THEAD' ) {
+            return null;
+        }
+        return _tds[ last ? _tds.length-1 : 0 ].tagName === 'TH';
+    }
+
+
+    /**
      * 返回原始的表格元素。
      * @return {Element}
      */
@@ -8436,7 +8453,7 @@ Object.assign( tQuery, {
 
 
     /**
-     * 当前时间毫秒数。
+     * 获取当前时间。
      * - 自纪元（1970-01-01T00:00:00）开始后的毫秒数（与时区无关）；
      * - 传递json为真，返回JSON标准格式串；
      * @param  {Boolean} json JSON格式串

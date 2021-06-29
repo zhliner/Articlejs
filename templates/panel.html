@@ -867,7 +867,7 @@
     on="submit|avoid $('/pre') text value('type where');
         shsave|ev('detail') dup pass;
         reset;
-        result|ev('detail') get('code data type') spread;
+        result|ev('detail') its('code data type') spread;
         state|env('minied') bool;
         submit|env('minied') pass $('/pre') text html xRange addRange edbox dup pop(2) exeCmd('insertHTML', _1) focus"
     by="Ed.insResult(_);

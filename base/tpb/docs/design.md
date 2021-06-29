@@ -304,6 +304,9 @@ or( val, strict ): Value
 and( val, strict ): Value
 // 真值替换
 
+vtrue(): Value
+// 返回首个真值。
+
 
 
 // 其它

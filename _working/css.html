@@ -117,7 +117,7 @@
         on="submit|avoid $('/pre') text value('type where');
             shsave|ev('detail') dup pass;
             reset;
-            result|ev('detail') get('code data type') spread"
+            result|ev('detail') its('code data type') spread"
         by="Ed.insResult(_)"
         to="1/|trigger('cancel');
             /pre|trigger('reset');
@@ -609,7 +609,7 @@
                                     keydown(td,th)|ev('key') eq('Enter') scam('shift') vnot both pass avoid evo(2);
                                     downcell|data('tbo') ev('detail') call('columnNextCell', _1) dup pass pop;
                                     upcell|data('tbo') ev('detail') call('columnPrevCell', _1) dup pass pop;
-                                    ^obted|evo(1) table(_1)"
+                                    ^obted|evo(1) table"
                                 by="ev('key') $case('ArrowUp', 'ArrowDown') $switch('upcell', 'downcell')"
                                 to="|trigger(_1);
                                     |trigger('downcell');

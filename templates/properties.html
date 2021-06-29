@@ -187,7 +187,7 @@
     on="vinit|v.sel0;
         build|"
     to="(/>li)|trigger('value')">
-    <li tpl-node="prop:columns, prop:rows, prop:tborder, prop:th0"></li>
+    <li tpl-node="prop:tborder, prop:vth"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:hr" data-label="分隔线属性"
@@ -504,7 +504,7 @@
 
 <li obt-src="obts/prop2select.json" tpl-name="prop:sntype">
     <b>编号类型</b>
-    <span><select data-attr="type" name="type">
+    <span><select name="type">
             <option value=""> ------ </option>
             <option>1</option>
             <option>a</option>
@@ -533,25 +533,19 @@
     <span><label><input type="checkbox" name="reversed" />逆序编号</label></span>
 </li>
 
-<li tpl-name="prop:tborder">
-    <b>表格边框</b>
-    <span><hr tpl-node="table:border"></span>
+<li obt-src="obts/prop2select.json" tpl-name="prop:tborder">
+    <b>边框</b>
+    <span><select name="border" tpl-node="table:border"></select></span>
 </li>
 
-<li tpl-name="prop:columns">
-    <b>列数</b>
-    <span><input type="text" name="columns" class="_nums" /></span>
-</li>
-
-<li tpl-name="prop:rows">
-    <b>行数</b>
-    <span><input type="text" name="rows" class="_nums" /></span>
-</li>
-
-<!-- 无关现状，提供插入多列表头能力 -->
-<li tpl-name="prop:th0">
-    <b><!-- 占位 --></b>
-    <span><label><input type="checkbox" name="th0" />插入表头列</label></span>
+<li tpl-name="prop:vth"
+    on="value|ev('detail') table dup pop(2) call('hasVth') call('hasVth', true) pack(2)"
+    to="(/input)|$defaultChecked">
+    <b>列表头</b>
+    <span>
+        <label><input type="checkbox" name="th0" />首列</label>
+        <label><input type="checkbox" name="th1" />末列</label>
+    </span>
 </li>
 
 <li tpl-name="prop:capwhere">
@@ -571,7 +565,7 @@
 
 <li obt-src="obts/prop2select.json" tpl-name="prop:target">
     <b>窗口</b>
-    <span><select data-attr="target" name="target">
+    <span><select name="target">
             <option value=""> ------ </option>
             <option value="_blank">_blank</option>
             <option value="_parent">_parent</option>

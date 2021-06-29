@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, Web, deepExtend, namedExtend, subObj, hostSet, funcSets } from "./config.js";
+import { bindMethod, Web, deepExtend, namedExtend, subObj, hostSet, funcSets, TLoader } from "./config.js";
 import { Get } from "./pbs.get.js";
 import { App__ } from "./app.js";
 
@@ -49,29 +49,6 @@ const
 
 const _By = {
     /**
-     * 数据拉取（简单）。
-     * 目标：暂存区1项可选。
-     * 暂存区的流程数据会作为查询串上传。
-     * 注：仅支持 GET 方法。
-     * @data: [[key, value]]|{key: value}
-     * @param  {String} meth 请求方法。可选，默认index
-     * @return {Promise} data:json
-     */
-    pull( evo, meth = 'index' ) {
-        let _url = `${pullRoot}/${meth}`;
-
-        if ( evo.data != null ) {
-            _url += '?' + new URLSearchParams(evo.data);
-        }
-        return fetch(_url).then(
-            resp => resp.ok ? resp.json() : Promise.reject(resp.statusText)
-        );
-    },
-
-    __pull: -1,
-
-
-    /**
      * 元素渲染（单个）。
      * 目标：暂存区/栈顶1项。
      * 仅支持单个元素渲染，因为数据与元素紧密相关（也易于封装为单个元素）。
@@ -86,7 +63,63 @@ const _By = {
 
     __render: 1,
 
+
+    /**
+     * 载入模板配置。
+     * @data: String|Object 配置文件或对象
+     * @param  {Boolean} reset 清理旧存储
+     * @return {Promise<void>}
+     */
+    Tpls( evo, reset ) {
+        if ( reset ) {
+            TLoader.clear();
+        }
+        return TLoader.config( evo.data ).then( () => undefined );
+    },
+
+    __Tpl: 1,
+
+
+    /**
+     * 数据获取。
+     * 目标：暂存区1项可选。
+     * 暂存区的流程数据会作为查询串上传。
+     * 注记：
+     * 大写的名称以突出有网络行为。
+     * @data: [[key, value]]|{key: value}
+     * @param  {String} path 远端处理器，可选
+     * @return {Promise<json>}
+     */
+    GET( evo, path = 'index' ) {
+        let _url = `${pullRoot}/${path}`;
+
+        if ( evo.data != null ) {
+            _url += '?' + new URLSearchParams(evo.data);
+        }
+        return fetch(_url).then(
+            resp => resp.ok ? resp.json() : Promise.reject(resp.statusText)
+        );
+    },
+
+    __GET: -1,
+
+
+    /**
+     * 数据递送。
+     * 目标：暂存区全部数据可选。
+     * 目标作为提交的数据集。
+     * @param  {String} path 远端处理器
+     * @param  {String} 提交数据的编码方法，可选
+     * @return {Promise<json>}
+     */
+    POST( evo, path, enctype ) {
+        //
+    },
+
+    __POST: 0,
+
 };
+
 
 
 //

@@ -200,7 +200,7 @@ const _Gets = {
 
 
     /**
-     * 从目标上取成员值。
+     * 获取目标的成员值。
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称，返回一个值数组。
      * 单个名称时返回一个值。
@@ -211,11 +211,11 @@ const _Gets = {
      * @param  {String|Number} names 名称（序列）
      * @return {Value|[Value]|[[Value]]}
      */
-    get( evo, names ) {
+    its( evo, names ) {
         return mapCall( evo.data, o => namesValue(names+'', o) );
     },
 
-    __get: 1,
+    __its: 1,
 
 
     /**
@@ -1637,12 +1637,24 @@ const _Gets = {
 // 注：多余实参无副作用。
 //===============================================
 [
-    'table',        // ( cols?, rows?, th0?, doc? ): $.Table
-    'dataName',     // ( attr? ): String
-    'tags',         // ( code? ): String
-    'slr',          // ( tag, attr?, val?, op? ): String
-    'range',        // ( beg?, size?, step? ): [Number]|[String]
-    'now',          // ( json? ): Number|String
+    'table',    // ( cols, rows?, th0?, doc? ): $.Table
+    'dataName', // ( attr ): String
+    'tags',     // ( code ): String
+    'range',    // ( beg, size?, step? ): [Number]|[String]
+]
+.forEach(function( meth ) {
+
+    // @return {Value}
+    _Gets[meth] = function( evo, ...rest ) { return $[meth]( evo.data, ...rest ) };
+
+    _Gets[`__${meth}`] = 1;
+
+});
+
+
+[
+    'slr',  // ( tag?, attr?, val?, op? ): String
+    'now',  // ( json? ): Number|String
 ]
 .forEach(function( meth ) {
 

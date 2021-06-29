@@ -37,7 +37,7 @@ const
         // 格式：{文件: [节点]}
         tplmap: 'templates/maps.json',
 
-        // x.pull根目录
+        // 拉取数据根目录
         pulls:  'xdata',
     };
 

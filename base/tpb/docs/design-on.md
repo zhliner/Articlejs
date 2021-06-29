@@ -77,8 +77,8 @@ evo( name:String|Number ): Value
 ev( name?:String ): Value|[Value]
 // 从事件对象上取值入栈。
 
-get( name:String ): Value|[Value]
-// 对象成员取值。
+its( name:String ): Value|[Value]
+// 获取对象成员值。
 
 len(): Number
 // 获取数据值长度。

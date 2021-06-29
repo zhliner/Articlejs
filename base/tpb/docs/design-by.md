@@ -8,12 +8,6 @@
 当前条目（目标）为指令操作的对象。仅包含极少量的几个顶级基础指令。
 
 ```js
-pull( meth?:String ): Promise<json>
-// 数据从远端拉取。
-// 目标：当前条目，可选。
-// 暂存区的流程数据会作为查询串上传。
-// 注：仅支持 GET 方法。
-
 render( data?:Value ): Element
 // 模板节点渲染。
 // 通常是对tpl指令获取的元素进行渲染，
@@ -24,6 +18,15 @@ render( data?:Value ): Element
 // 模板实参data是可选的，如果为空则取栈顶2项（或当前条目展开）。
 // 注记：
 // 在By段定义此方法，是因为模板可能从远端获取，渲染之后需要插入（To）DOM中。
+
+Tpls( reset:Boolean ): Promise<void>
+// 载入模板配置。
+
+GET( path?:String ): Promise<json>
+// 获取远端数据。
+
+POST( path, enctype:String ): Promise<json>
+// 向远端递送信息。
 ```
 
 

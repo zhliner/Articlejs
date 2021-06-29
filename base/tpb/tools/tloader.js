@@ -210,12 +210,9 @@ export class TplLoader {
      * 也可以是URL实例，此时为全路径。
      * 可以传递一个现成的配置对象，格式：{file: [tpl-name]}
      * @param  {String|URL|Object} maps 映射文件或配置对象
-     * @return {Promise<map>}
+     * @return {Promise<Map>}
      */
     config( maps ) {
-        if ( !maps ) {
-            return Promise.resolve();
-        }
         if ( $.type(maps) == 'Object' ) {
             return Promise.resolve( this._config(maps) );
         }
