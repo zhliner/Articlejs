@@ -34,6 +34,9 @@ const
     // 子模版分隔符
     __loadSplit = ',',
 
+    // 取出标记字符。
+    __pickFlag  = '^',
+
     // 特性名定义。
     __tplName   = 'tpl-name',   // 模板节点命名
     __tplNode   = 'tpl-node',   // 模板节点引入（克隆）
@@ -114,6 +117,20 @@ class Templater {
 
 
     /**
+     * 取出模板节点。
+     * 如果模板节点已经不存在，会导致 .get() 重新导入，
+     * 这会因重复添加同源节点（同一文件内定义）而出错。
+     * @param  {String} name 模板名
+     * @return {Promise<Element>}
+     */
+    pick( name ) {
+        return this.get( name ).then(
+            el => ( this._tpls.delete(name) || this._tplx.delete(name) ) && el
+        );
+    }
+
+
+    /**
      * 移除模板。
      * 如果某模板是最后一次使用，可用该方法使存储集精简。
      * @param  {String} name 模板名
@@ -153,7 +170,7 @@ class Templater {
         // 先从总根构建OBT后再处理子模版可以节省解析开销，
         // 否则子模板克隆会直接复制OBT特性，相同值重复解析。
         let _pro = this._obter( root )
-            .then( () => this.picks(root) )
+            .then( () => this.tpls(root) )
             .then( () => this._pool.delete(root) );
 
         this._pool.set( root, _pro );
@@ -163,12 +180,12 @@ class Templater {
 
 
     /**
-     * 提取并存储命名的模板节点。
+     * 提取命名的模板节点。
      * 检查不在命名模版节点内的子模版导入配置。
      * @param  {Element|DocumentFragment} root 根容器
      * @return {[Promise<void>]}
      */
-    picks( root ) {
+    tpls( root ) {
         // 先提取命名模板。
         for ( const tpl of $.find(__nameSlr, root, true) ) {
             this.add( tpl );
@@ -186,17 +203,17 @@ class Templater {
      * 添加模板节点。
      * 元素应当包含tpl-name特性值。
      * @param  {Element} tpl 模板节点元素
-     * @return {Map|void}
+     * @return {void}
      */
     add( tpl ) {
         let _name = $.xattr( tpl, __tplName ),
             _subs = this._subs( tpl );
 
         if ( !_subs ) {
-            return this._tpls.set( _name, tpl );
+            return this._add( _name, tpl );
         }
         let _pro = Promise.all( _subs )
-            .then( () => this._tpls.set(_name, tpl) )
+            .then( () => this._add(_name, tpl) )
             .then( () => this._tplx.delete(_name) && tpl );
 
         this._tplx.set( _name, _pro );
@@ -204,6 +221,23 @@ class Templater {
 
 
     //-- 私有辅助 -------------------------------------------------------------
+
+
+    /**
+     * 安全添加。
+     * 抛出错误以及时发现问题。
+     * 可能由于存在重复的模板名而出现，
+     * 也可能由于 文件:模板 配置错误重复载入而出现。
+     * @param  {String} name 模板名
+     * @param  {Element} tpl 模板节点
+     * @return {void}
+     */
+    _add( name, tpl ) {
+        if ( this._tpls.has(name) ) {
+            throw new Error( `[${name}] node was exist.` );
+        }
+        this._tpls.set( name, tpl );
+    }
 
 
     /**
@@ -253,14 +287,12 @@ class Templater {
      * 子模版定义可能是一个列表（有序）。
      * 可能返回null，调用者应当滤除。
      * @param  {Element} el 配置元素
-     * @return {Promise<void>|null}
+     * @return {Promise<void>|void}
      */
     _imports( el ) {
         let [meth, val] = this._reference(el);
+        if ( !val ) return;
 
-        if ( !val ) {
-            return null;
-        }
         return Promise.all(
             val.split(__loadSplit).map( n => this[meth](n.trim()) )
         )
@@ -279,9 +311,14 @@ class Templater {
      */
     _reference( el ) {
         let _n = el.hasAttribute(__tplNode) ? __tplNode : __tplSource,
-            _v = $.xattr( el, _n );
+            _v = $.xattr(el, _n).trim(),
+            _f = 'get';
 
-        return [ _n == __tplNode ? 'clone' : 'get', _v.trim() ];
+        if ( _v[0] === __pickFlag ) {
+            _f = 'pick';
+            _v = _v.substring(1).trimLeft();
+        }
+        return [ _n == __tplNode ? 'clone' : _f, _v ];
     }
 }
 

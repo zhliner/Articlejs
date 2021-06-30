@@ -200,7 +200,7 @@ export class TplLoader {
 
         // 节点名:文件名映射。
         // { tpl-name: file }
-        this._tmap = Object.create(null);
+        this._tmap = new Map();
     }
 
 
@@ -244,7 +244,7 @@ export class TplLoader {
      * @return {void}
      */
     clear() {
-        this._tmap = Object.create(null);
+        this._tmap.clear();
     }
 
 
@@ -268,9 +268,9 @@ export class TplLoader {
      */
     _file(name, file) {
         if (file === undefined) {
-            return this._tmap[name] || null;
+            return this._tmap.get(name) || null;
         }
-        this._tmap[name] = file;
+        this._tmap.set( name, file );
     }
 
 

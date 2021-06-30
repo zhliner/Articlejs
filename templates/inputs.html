@@ -732,12 +732,12 @@
     on="create|$('form/') valo('role thick length space')"
     by="New.hr(_1)"
     to="form/|trigger('insert')">
-    <div class="_main _list"
-        on="click(b)|$$('/b');
-            setv|ev('detail') pop $('/hr') attr('role')"
-        to="=|only('_press')|target goto('setv', _1);
-            /[name=role]|val">
-        <span class="_border content" tabindex="0" tpl-name="hr:border">
+    <div class="_main _list">
+        <span class="_border content" tabindex="0" tpl-name="hr:border"
+            on="click(b)|$$('/b');
+                setv|ev('detail') pop $('/hr') attr('role')"
+            to="=|only('_press')|target goto('setv', _1);
+                /[name=role]|val">
             <b title="默认" class="_press"><hr></b>
             <b title="实线（solid）"><hr role="solid"></b>
             <b title="虚线（dashed）"><hr role="dashed"></b>
@@ -747,7 +747,7 @@
             <b title="外槽线（ridge）"><hr role="ridge"></b>
             <b title="内嵌线（inset）"><hr role="inset"></b>
             <b title="外嵌线（outset）"><hr role="outset"></b>
-            <input type="hidden" name="role" value="">
+            <input type="hidden" name="role" value="" />
         </span>
     </div>
     <aside>
@@ -983,32 +983,6 @@
     </aside>
 </div>
 
-<!--
-<div class="_body _Th" tpl-name="input:th">
-    <div class="_main">
-        <textarea name="th" placeholder="头单元格内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
-<div class="_body _Td" tpl-name="input:td">
-    <div class="_main">
-        <textarea name="td" placeholder="单元格内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
--->
-
 <div class="_body _Tr" tpl-name="input:tr"
     on="create|$('textarea') val dup pass v.splitx $('/input[name=clean]') prop('checked') v.pretreat1(_1) v.trbox obj('tsec')"
     by="New.tr(_1)"
@@ -1212,7 +1186,7 @@
     to="|trigger('xlist');
         form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-source="prop:xolah4li" />
+        <hr tpl-source="^prop:xolah4li" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1223,7 +1197,7 @@
     on="create|$('/[name=type]') val"
     to="|trigger(_1)">
     <div class="_main _list">
-        <hr tpl-source="prop:figimgbox" />
+        <hr tpl-source="^prop:figimgbox" />
     </div>
     <aside>
         <div class="_option">

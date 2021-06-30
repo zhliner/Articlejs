@@ -1495,9 +1495,9 @@ $.dataName('-abc-def-xxx');  // 'abcDefXxx'
 根据选择器的各个组成部分构造一个完整的 `标签[特性]` 选择器。
 
 - `tag: String` 标签名。
-- `attr?: String` 特性名。可选。
-- `val?: String` 特性值。可选。
-- `op?: String` 匹配方式（`~ | * ^ $`）。可选。
+- `attr?: String` 特性名，可选。
+- `val?: String|null` 特性值，可选。明确传递 `null` 表示无属性部分。
+- `op?: String` 匹配方式（`~ | * ^ $`），可选。
 
 支持 `data-` 系特性名的简写形式。
 

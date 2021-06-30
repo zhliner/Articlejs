@@ -192,8 +192,10 @@
 
 <ul class="_prop" tpl-name="property:hr" data-label="分隔线属性"
     on="vinit|v.sel0;
+        reset;
         build|"
-    to="(/>li)|trigger('value')">
+    to="(/>li)|trigger('value');
+        /li:last-child|trigger('reset')">
     <li tpl-node="prop:thick, prop:length, prop:space, prop:hrstyle"></li>
 </ul>
 
@@ -482,24 +484,39 @@
     内容插入面板中不会激发该事件，绑定被克隆但无害。
 ----------------------------------------------------------------------------->
 
-<li tpl-name="prop:thick">
+<li tpl-name="prop:thick"
+    on="value|ev('detail') style('borderWidth')"
+    to="/input|@value">
     <b title="CSS: border-width">厚度</b>
-    <span><input type="text" name="thick" class="_chars" /></span>
+    <span><input type="text" name="thick" class="_words" /></span>
 </li>
 
-<li tpl-name="prop:length">
+<li tpl-name="prop:length"
+    on="value|ev('detail') style('width')"
+    to="/input|@value">
     <b title="CSS: width">长度</b>
     <span><input type="text" name="length" class="_chars" /></span>
 </li>
 
-<li tpl-name="prop:space">
+<li tpl-name="prop:space"
+    on="value|ev('detail') style('height')"
+    to="/input|@value">
     <b title="CSS: height">空白</b>
     <span><input type="text" name="height" class="_chars" /></span>
 </li>
 
-<li tpl-name="prop:hrstyle">
-    <b>分隔风格</b>
-    <span><hr tpl-node="hr:border"></span>
+<!--定制处理：
+    value 设置当前值，暂存初始值。nil占位click发送用数据。
+    reset 手工重置。 -->
+<li data-iv="" tpl-name="prop:hrstyle"
+    on="value|ev('detail') attr('role') dup slr('/hr', 'role', _1) $(_1) nil pick(-2);
+        reset|evo(3) attr('-iv') slr('/hr', 'role', _1) $(_1) pop;
+        _ival|ev('detail')"
+    to="-|trigger('click')|goto('_ival', _1);
+        -|trigger('click');
+        |@-iv">
+    <b>线型</b>
+    <hr tpl-node="hr:border">
 </li>
 
 <li obt-src="obts/prop2select.json" tpl-name="prop:sntype">
@@ -543,19 +560,14 @@
     to="(/input)|$defaultChecked">
     <b>列表头</b>
     <span>
-        <label><input type="checkbox" name="th0" />首列</label>
-        <label><input type="checkbox" name="th1" />末列</label>
+        <label><input type="checkbox" name="th0" />列首</label>
+        <label><input type="checkbox" name="th1" />列尾</label>
     </span>
 </li>
 
 <li tpl-name="prop:capwhere">
     <b>标题位置</b>
     <span><label><input type="checkbox" name="capbelow" />在表格下部</label></span>
-</li>
-
-<li tpl-name="prop:hr">
-    <b>线条风格</b>
-    <span><hr tpl-node="hr:border" /></span>
 </li>
 
 <li obt-src="obts/prop1.json" tpl-name="prop:href">

@@ -4057,11 +4057,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
     slaveInsert   = $.get( contab );
 
 
-    // 开启tQuery变化事件监听。
-    $.config({
-        varyevent: true,
-        // bindevent: true
-    });
+    // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
 
 

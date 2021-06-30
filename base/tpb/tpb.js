@@ -161,6 +161,7 @@ if (DEBUG) {
     window.Tpl = __Tpl;
     window.Lib = Lib;
     window.namedTpls = namedTpls;
+    window.TLoader = TLoader;
 
 }
 

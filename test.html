@@ -72,8 +72,13 @@
         // 取消实例栈。
         window.ESC = new ESCStack();
 
+        // 开启tQuery变化事件监听。
+        $.config({
+            varyevent: true,
+            // bindevent: true
+        });
         Tpb.build( document, Web.tplmap )
-        .then( () => $.trigger(document.body, 'finish') );
+            .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
         window.Tpb = Tpb;
@@ -210,9 +215,9 @@
                 /form|replace trigger('state')|goto('esced');
                 -|apply('delete')|fire('#g-scroll', 'focus', 0);
                 -|add('modal')|fire(3, '_focus')">
-            <form> <!-- 占位 --> </form>
+            <form><!-- 占位 --></form>
         </div>
-        <pre tpl-source="main:tools, main:content, main:slave, main:status">
+        <pre tpl-source="^main:tools, main:content, main:slave, main:status">
             [工具栏]
             [内容区]
             [功能区]

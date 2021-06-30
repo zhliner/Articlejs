@@ -204,7 +204,8 @@ aside#help {
 }
 
 .___Panel input[type=text],
-.___Panel input[type=url] {
+.___Panel input[type=url],
+.___Panel input[type=search] {
     padding: 1px 4px;
     border: 1px #93c8e2 solid;
     border-radius: 2px;
@@ -345,6 +346,9 @@ aside#help {
 .___Panel input._chars {
     width: 80px;
 }
+.___Panel input._words {
+    width: 100px;
+}
 .___Panel input._scale {
     padding-top: 4px;
     border: 1px #60acd2 solid;
@@ -385,6 +389,9 @@ aside#help {
 .___Panel ._prop i._tips {
     color: gray;
     font-size: 0.9em;
+}
+.___Panel ._prop input._words {
+    width: 150px;
 }
 
 .___Panel ._submit > label {
@@ -442,6 +449,11 @@ aside#help {
     height: 0;
     width: 92%;
     border-width: 10px;
+    margin: 10px auto;
+}
+/* 选中 */
+.___Panel span._border > b._press {
+    background-color: #f57d3d;
 }
 
 
@@ -1035,7 +1047,7 @@ menu._cells code {
 .Slave ._submit > button {
     margin-top: 4px;
 }
-.Slave hr {
+.Slave aside hr {
     border: 1px #d5d5d5 solid;
     border-bottom-color: #f8f8f8;
     margin: 6px 0 7px;
@@ -1154,10 +1166,6 @@ menu._cells code {
 }
 .Input ._Hr ._border > b {
     border-radius: 16px;
-}
-/* 选中 */
-.Input ._Hr ._border > b._press {
-    background-color: #f57d3d;
 }
 
 /* 白板 */

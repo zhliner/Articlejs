@@ -591,7 +591,7 @@
 
 <!--模态框：属性
     submit  提交后向具体的属性列表发送bulid事件。
-    reset   非表单控件手动重置（<pre>）。
+    reset   非表单控件手动重置（如 <pre>），由特定的<ul>自行实现。
     apply   具体的列表bulid后回送应用事件，传递修改操作函数。
     state   初始状态更新：插入特定属性编辑根，转到label。
     label   更新属性框标题条，激发属性集取值初始化事件vinit。 -->
@@ -828,7 +828,7 @@
                     off|stop evo(3) disable (true)"
                 to="(/>*)|$disabled;
                     (/>*)|$disabled">
-                <input type="text" name="words" placeholder="空格：AND； 逗号：OR" />
+                <input type="search" name="words" placeholder="空格：AND； 逗号：OR" />
                 <button type="submit"></button>
             </div>
             <!--搜索结果清单
