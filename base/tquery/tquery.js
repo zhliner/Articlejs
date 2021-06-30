@@ -2328,9 +2328,6 @@ Object.assign( tQuery, {
      * @return {Boolean} dispatchEvent()的返回值或true。
      */
     trigger( node, evn, extra, bubble = false, cancelable = true ) {
-        if ( !node || !node.dispatchEvent ) {
-            return;
-        }
         if ( typeof evn == 'string' ) {
             if (evn in node && Event.willevent(evn)) {
                 // 原始参数传递
