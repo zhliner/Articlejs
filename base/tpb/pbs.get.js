@@ -522,17 +522,17 @@ const _Gets = {
 
     /**
      * 转换为数组。
-     * 传递wrap为真会强制封装为一个单成员数组，否则：
-     * - 如果数据源本就是一个数组会简单返回。
-     * - 转换为数组（Array.from），不能转换的会返回一个空数组。
+     * - 如果数据源已经是一个数组则简单返回。
+     * - 如果源数据包含[Symbol.iterator]成员（字符串除外），则用Array.from转换。
+     * - 其它单值被封装为一个单成员数组。
      * 注：
-     * $$ 有类似能力，但会始终创建为一个新集合。
-     * 传递wrap为真的效果类似于 pack(1) 调用的结果。
-     * @param  {Boolean} wrap 简单封装，可选
-     * @return {Array|data}
+     * 如果要强制封装为一个单成员数组，可以用 pack(1) 指令。
+     * 非字符串的转换效果与$$指令类似，但节点的转换结果可能不同。
+     * @return {Array}
      */
-    arr( evo, wrap ) {
-        if ( wrap ) {
+    arr( evo ) {
+        if ( typeof evo.data === 'string' ||
+            !evo.data[ Symbol.iterator ] ) {
             return [ evo.data ];
         }
         return $.isArray( evo.data ) ? evo.data : Array.from( evo.data );
