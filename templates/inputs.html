@@ -130,11 +130,11 @@
 
 <!-- 预排版 -->
 <div class="_body _Pre" tpl-name="input:pre"
-    on="create|$('/textarea') val dup pass"
+    on="create|$('/pre._code') text val dup pass"
     by="New.pre"
     to="form/|trigger('insert')">
     <div class="_main">
-        <textarea tpl-node="prop:codes"></textarea>
+        <pre tpl-node="prop:codes"></pre>
     </div>
     <aside>
         <div class="_option">
@@ -401,7 +401,7 @@
     by="New.codelist(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
-        <textarea tpl-node="prop:codes"></textarea>
+        <pre tpl-node="prop:codes"></pre>
     </div>
     <aside>
         <div class="_option">
@@ -613,7 +613,7 @@
     by="New.figure(_1)"
     to="form/|trigger('insert')">
     <div class="_main"
-        on="^nodeok;
+        on="^nodeok(pre);
             focus(pre,textarea)|$$('/pre,textarea') dup evo(2) not(_1) pop"
         to="1/select|trigger('change');
             -|only('_inert')">
@@ -621,9 +621,7 @@
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
             <label><input name="below" type="checkbox" />标题在下</label>
         </header>
-        <pre class="_code" data-tip="" tpl-node="prop:codes">
-            [代码编辑框]
-        </pre>
+        <pre tpl-node="prop:codes"></pre>
         <textarea name="explain" placeholder="讲解文字，可选" class="_inert"></textarea>
     </div>
     <aside>
@@ -1104,7 +1102,9 @@
     to="form/|trigger('insert');
         (/[data-id=code])|val">
     <div class="_main _list">
-        <hr tpl-node="inlines:code" />
+        <div class="_prop">
+            <pre tpl-node="prop:codes"></pre>
+        </div>
     </div>
     <aside>
         <div class="_option">
@@ -1222,7 +1222,7 @@
 <!-- 右侧主栏：内联单元录入 -->
 <div class="_body _Inline" tpl-name="minied:inlines">
     <div class="_main _list">
-        <!-- <ul tpl-node="inlines:img"></ul> -->
+        <!-- <*._prop> -->
     </div>
     <aside>
         <hr tpl-node="input:insert1" title="[插入1]" />
@@ -1294,7 +1294,8 @@
 
 
 
-<!-- 普通插入：内联单元
+<!--普通插入：内联单元
+    部分create定义在._prop元素上，以兼容微编辑插入。
 ----------------------------------------------------------------------------->
 
 <!--纯文本
@@ -1303,7 +1304,9 @@
     on="node|ev('detail') Text"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:text">
+        <div class="_prop">
+            <textarea name="content"></textarea>
+        </div>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -1313,76 +1316,62 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:audio"
-    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src autoplay loop controls') (true)"
-    by="New.audio(_2)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:audio">
     <div class="_main _list">
-        <hr tpl-node="inlines:audio" />
+        <ul tpl-node="inlines:audio"></ul>
     </div>
     <aside>
-        <!-- Tab备用友好 -->
-        <input type="hidden" name="tabs" value="">
+        <input type="hidden" name="tabs" value="4">
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
-<!--valo(..., null)
-    避免宽高未设置时空串添加空特性。 -->
-<div class="_body _Inline" tpl-name="input:video"
-    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src poster autoplay loop controls width height', null) (true)"
-    by="New.video(_2)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:video">
     <div class="_main _list">
-        <hr tpl-node="inlines:video" />
+        <ul tpl-node="inlines:video"></ul>
     </div>
     <aside>
-        <!-- Tab备用友好 -->
-        <input type="hidden" name="tabs" value="">
+        <input type="hidden" name="tabs" value="4">
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:picture"
-    on="create|$('/pre._code') text v.picsubs nil $('form/') valo('src alt width height', null)"
-    by="New.img(_1) concat(_1) (null, true) New.picture(_2)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:picture">
     <div class="_main _list">
-        <hr tpl-node="inlines:picture" />
+        <ul tpl-node="inlines:picture"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
-<!-- 从源码创建，未用New.svg -->
+<!--图形（svg）
+    从源码创建，未用New.svg -->
 <div class="_body _Inline" tpl-name="input:svg"
-    on="create|$('/pre._code') text fragment('svg') children(0)"
-    to="form/|trigger('insert')">
+    on="create|$('/pre._code') text fragment('svg') children(0);
+        ^nodeok|('<svg>...</svg>')"
+    to="form/|trigger('insert');
+        /pre|@-tip">
     <div class="_main _list">
-        <hr tpl-node="inlines:svg" />
+        <div class="_prop">
+            <hr tpl-node="prop:codes" />
+        </div>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:ruby"
-    on="create|$('form/') dup pop(2) value('rb') valo('rt rpl rpr')"
-    by="New.ruby(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:ruby">
     <div class="_main _list">
-        <hr tpl-node="inlines:ruby" />
+        <ul tpl-node="inlines:ruby"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:meter"
-    on="create|$('form/') valo('value max min high low optimum', null)"
-    by="New.meter(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:meter">
     <div class="_main _list">
         <hr tpl-node="inlines:meter" />
     </div>
@@ -1391,22 +1380,16 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:space"
-    on="create|$('/[name=width]') val obj('width')"
-    by="New.space(_1) $('[name=amount]') val int or(1) clones(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:space">
     <div class="_main _list">
-        <hr tpl-node="inlines:space" />
+        <ul tpl-node="inlines:space"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:img"
-    on="create|$('form/') valo('src alt width height', null)"
-    by="New.img(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:img">
     <div class="_main _list">
         <hr tpl-node="inlines:img" />
     </div>
@@ -1415,24 +1398,18 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:br"
-    on="create"
-    by="New.br $('[name=amount]') val int or(1) clones(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:br">
     <div class="_main _list">
-        <hr tpl-node="inlines:br" />
+        <ul tpl-node="inlines:br"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert1" title="[插入1]" />
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:wbr"
-    on="create"
-    by="New.wbr $('[name=amount]') val int or(1) clones(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:wbr">
     <div class="_main _list">
-        <hr tpl-node="inlines:wbr" />
+        <ul tpl-node="inlines:wbr"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert1" title="[插入1]" />
@@ -1519,7 +1496,7 @@
     by="New.ruby(_1) children"
     to="form/|trigger('insrbpt')">
     <div class="_main _list">
-        <hr tpl-node="inlines:ruby" />
+        <hr tpl-node="item:rbpt" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1546,109 +1523,100 @@
 </div>
 
 
-<div class="_body _Inline" obt-src="obts/alink.json" tpl-name="input:a"
-    on="node|ev('detail')"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:a">
     <div class="_main _list">
-        <hr tpl-node="inlines:a" />
+        <ul tpl-node="inlines:a"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:q"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('cite', null)"
-    by="New.q(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:q">
     <div class="_main _list">
-        <hr tpl-node="inlines:q" />
+        <ul tpl-node="inlines:q"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:abbr"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('title', null)"
-    by="New.abbr(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:abbr">
     <div class="_main _list">
-        <hr tpl-node="inlines:abbr" />
+        <ul tpl-node="inlines:abbr"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:del"
-    on="create|$('/[name=content]') val dup pass $('form/') valo('date time cite')"
-    by="New.del(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:del">
     <div class="_main _list">
-        <hr tpl-node="inlines:del" />
+        <ul tpl-node="inlines:del"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:ins"
-    on="create|$('/[name=content]') val dup pass $('form/') valo('date time cite')"
-    by="New.ins(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:ins">
     <div class="_main _list">
-        <hr tpl-node="inlines:ins" />
+        <ul tpl-node="inlines:ins"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:dfn"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('title', null)"
-    by="New.dfn(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:dfn">
     <div class="_main _list">
-        <hr tpl-node="inlines:dfn" />
+        <ul tpl-node="inlines:dfn"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:bdo"
-    on="create|$('/[name=text]') val dup pass $('/[name=dir]') val obj('dir')"
-    by="New.bdo(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:bdo">
     <div class="_main _list">
-        <hr tpl-node="inlines:bdo" />
+        <ul tpl-node="inlines:bdo"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:times"
-    on="create|$('/[name=text]') val $('form/') valo('date time')"
-    by="New.time(_1)"
-    to="form/|trigger('insert')">
+<div class="_body _Inline" tpl-name="input:times">
     <div class="_main _list">
-        <hr tpl-node="inlines:times" />
+        <ul tpl-node="inlines:times"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
     </aside>
 </div>
 
+<div class="_body _Inline" tpl-name="input:orz">
+    <div class="_main _list">
+        <hr tpl-node="inlines:orz" />
+    </div>
+    <aside>
+        <hr tpl-node="input:insert2" title="[插入2]">
+    </aside>
+</div>
+
+
+<!--内联代码：
+    包含所属语言和Tab处理。 -->
 <div class="_body _Inline" obt-src="obts/codes.json" tpl-name="input:code"
     on="node|ev('detail') v.codehtml $('/[name=language]') val obj('lang')"
     by="New.code(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list"
-        on="^nodeok|('建议仅为一行')"
+        on="^nodeok|('应当仅为一行')"
         to="/pre|@-tip">
-        <hr tpl-node="inlines:code" />
+        <div class="_prop">
+            <pre tpl-node="prop:codes"></pre>
+        </div>
     </div>
     <aside>
         <div class="_option">
@@ -1666,7 +1634,7 @@
     by="New2.strong"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:strong" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1678,7 +1646,7 @@
     by="New2.em"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:em" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1690,7 +1658,7 @@
     by="New2.cite"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:cite" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1702,7 +1670,7 @@
     by="New2.small"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:small" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1714,7 +1682,7 @@
     by="New2.sub"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:sub" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1726,7 +1694,7 @@
     by="New2.sup"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:sup" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1738,19 +1706,7 @@
     by="New2.mark"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:mark" />
-    </div>
-    <aside>
-        <hr tpl-node="input:insert2" title="[插入2]">
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:orz"
-    on="create|$('/pre._code') val dup pass v.splitx(true) v.pretreat1"
-    by="New2.orz"
-    to="form/|trigger('insert')">
-    <div class="_main _list">
-        <hr tpl-node="inlines:orz" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1762,7 +1718,7 @@
     by="New2.samp"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:samp" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1774,7 +1730,7 @@
     by="New2.kbd"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:kbd" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1786,7 +1742,7 @@
     by="New2.s"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:s" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1798,7 +1754,7 @@
     by="New2.u"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:u" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1810,7 +1766,7 @@
     by="New2.var"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:var" />
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">

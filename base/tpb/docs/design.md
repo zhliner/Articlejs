@@ -238,13 +238,13 @@ dup( cnt = 1 ): void
 // 复制栈顶项，可多份。
 
 dups( n = 1 ): void
-// 复制栈顶n项（单次）。
-
-ddup( n = 1 ): void
-// 深度复制栈顶n项（单次）。
+// 栈顶n项复制（单份）。
 
 pack( n: Number ): [Value]
 // 栈顶n项打包封装。
+
+move( i, cnt:Number ): [Value]
+// 任意区段移动。
 
 part( begin: Number, end:Number ): [Value]
 // 任意区段打包。

@@ -1324,6 +1324,7 @@ menu._cells code {
     grid-template-columns: repeat(36, 1fr);
 }
 .Style ._cbox b {
+    display: inline-block;
     border: 1px transparent solid;
 }
 .Style ._cbox b:hover {

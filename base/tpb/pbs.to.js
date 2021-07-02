@@ -105,8 +105,7 @@ const _Update = {
         if ( $.isArray(to) ) {
             return to.forEach( el => $.trigger(el, evn, data, bubble, cancelable) );
         }
-        // 容错空目标。
-        to && $.trigger( to, evn, data, bubble, cancelable );
+        $.trigger( to, evn, data, bubble, cancelable );
     },
 
 

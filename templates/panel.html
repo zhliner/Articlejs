@@ -2,11 +2,13 @@
 ----------------------------------------------------------------------------->
 
 <!--录入：
-    insert 插入已创建的元素/集（detail），通用。
-    instop 插入顶层固定单元。
-    insfix 插入区块内固定性单元，如：标题、表头、导言等。
-    instbd 插入表体<tbody>元素（特例）。
-    update 跟随更新，来源：内容区选取变化、标签页切换。
+    submit  向具体的单元根发送创建通知。
+            目标含._prop以兼容微编辑插入（此时._body无create）。
+    insert  插入已创建的元素/集（detail），通用。
+    instop  插入顶层固定单元。
+    insfix  插入区块内固定性单元，如：标题、表头、导言等。
+    instbd  插入表体<tbody>元素（特例）。
+    update  跟随更新，来源：内容区选取变化、标签页切换。
 -->
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
@@ -22,7 +24,7 @@
         Kit.fixinsert(_1);
         Kit.instbody(_2);
         Kit.insrbpt(_2)"
-    to="/._body|trigger('create');
+    to="(/._body, ._prop)|trigger('create');
         /#con-level|trigger('renew');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
@@ -74,7 +76,10 @@
 
 
 <!-- 微编辑 -->
-<form class="Input Minied" onsubmit="return false" tpl-name="slave:minied">
+<form class="Input Minied" tpl-name="slave:minied"
+    on="submit|avoid;
+        insert|ev('detail') prop('outerHTML') xRange addRange edbox pop exeCmd('insertHTML', _1)"
+    to="/._main>._prop|trigger('create')">
     <div class="_roll">
         <div class="_minibar"
             on="click(input)|evo(2) val pop tpl;
@@ -131,7 +136,7 @@
                 option:var"></option>
         </select>
     </div>
-    <div tpl-source="minied:inlines"> [主栏：单元属性] </div>
+    <div class="_body" tpl-source="minied:inlines"> [主栏：单元属性] </div>
 </form>
 
 

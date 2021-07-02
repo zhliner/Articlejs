@@ -1,0 +1,5 @@
+{
+    "//": "属性框初始赋值：特性优先，兼容同名内联样式取值。",
+    "on": "value|ev('detail') $('/input') attr('name') dup index(0) attr(_1) move(0, 2) style(_1) pack(2) vtrue",
+    "to": "/input|@value"
+}

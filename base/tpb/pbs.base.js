@@ -349,7 +349,7 @@ const _Control = {
     /**
      * 栈顶复制（浅）。
      * 复制栈顶项入栈，支持复制多份。
-     * 目标：暂存区/栈顶1项。
+     * 目标：无。
      * 特权：是，自行入栈。
      * 注记：不会取出栈顶项，因此复制1份时栈顶即有2份。
      * @param  {Stack} stack 数据栈
@@ -383,26 +383,6 @@ const _Control = {
 
 
     /**
-     * 栈顶复制（深度）。
-     * 深度克隆栈顶n项并入栈（原样展开）。
-     * 目标：无。
-     * 特权：是，灵活取栈&自行入栈。
-     * 注：非数组项保持原值/引用。
-     * @param  {Stack} stack 数据栈
-     * @param  {Number} n 条目数，可选
-     * @return {void}
-     */
-    ddup( evo, stack, n = 1 ) {
-        n > 0 &&
-        stack.push( ...stack.tops(n)
-            .map( v => $.isArray(v) ? deepArray(v) : v )
-        );
-    },
-
-    __ddup_x: true,
-
-
-    /**
      * 栈顶条目打包封装。
      * 取出栈顶的n项打包为一个数组入栈。
      * 目标：无。
@@ -420,7 +400,27 @@ const _Control = {
 
 
     /**
-     * 任意区段打包（克隆）。
+     * 任意片段移动到栈顶。
+     * 片段内的条目原样展开。
+     * 目标：无。
+     * 特权：是，灵活取栈&自行入栈。
+     * 注：
+     * 相当于 clip(...) push spread 指令序列。
+     * @param {Stack} stack 数据栈
+     * @param {Number} idx 起始位置
+     * @param {Number} cnt 移除计数，可选
+     */
+    move( evo, stack, idx, cnt = 1 ) {
+        stack.push(
+            ...stack.splice( idx, cnt )
+        );
+    },
+
+    __move_x: true,
+
+
+    /**
+     * 任意片段打包（克隆到栈顶）。
      * 目标：无。
      * 特权：是，自行操作数据栈。
      * 两个位置下标支持负值从末尾倒算。
@@ -1921,19 +1921,6 @@ function storage( buf, name, its ) {
         return buf.removeItem( name );
     }
     buf.setItem( name, its );
-}
-
-
-/**
- * 数组深层复制。
- * @param {Array} arr 源数组
- * @param {Array} buf 存储区，可选
- */
-function deepArray( arr, buf = [] ) {
-    for (const v of arr) {
-        buf.push( $.isArray(v) ? deepArray(v) : v );
-    }
-    return buf;
 }
 
 

@@ -6182,9 +6182,11 @@ export const Kit = {
 
     /**
      * 创建媒体类子单元。
-     * 即：<source>和<track>元素集。
-     * 限于音频/视频容器。
-     * @data: [String, String] 两个配置串（对象或对象数组格式）
+     * 即<source>和<track>元素集，仅限于视频/音频容器。
+     * 注：
+     * 配置串支持单个对象或对象数组格式。
+     * 音频内无<track>单元。
+     * @data: [String, String] 两个配置串
      * @return {Promise<[Element]>}
      */
     mediasubs( evo ) {
@@ -6192,7 +6194,7 @@ export const Kit = {
 
         return Promise.all([
                 parseJSON( ss.trim() || '[]' ),
-                parseJSON( ts.trim() || '[]' )
+                parseJSON( ts && ts.trim() || '[]' )
             ]).then( mediaSubs );
     },
 

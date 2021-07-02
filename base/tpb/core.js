@@ -555,11 +555,23 @@ class Stack {
 
     /**
      * 复制特定范围的成员。
-     * @param {Number} beg 起始位置
-     * @param {Number} end 结束位置（不含）
+     * @param  {Number} beg 起始位置
+     * @param  {Number} end 结束位置（不含）
+     * @return {[Value]}
      */
     slice( beg, end ) {
         return this._buf.slice( beg, end );
+    }
+
+
+    /**
+     * 数据栈片段移除。
+     * @param  {Number} idx 起始下标
+     * @param  {Number} cnt 移除数量
+     * @return {[Value]}
+     */
+    splice( idx, cnt ) {
+        return this._buf.splice( idx, cnt );
     }
 
 

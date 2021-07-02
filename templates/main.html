@@ -773,10 +773,12 @@
             <b><!-- 不可视焦点元素信息 --></b>
         </span>
         <!--元素路径：
-            toggle 快捷键隐显切换。
-            empty  鼠标停留路径单元时，键盘移动焦点会有指向残留，清除之。
-            click(b:last-child) 微编辑找回编辑点友好。
+            click(b)  单击选取/聚焦支持。
             mouseenter elemSelf 提示元素特性结构友好。
+            mouseenter/mouseleave 路径关联目标友好指示。
+            empty  鼠标停留路径单元时，键盘移动焦点会有指向（_point）残留，清除之。
+            click(b:last-child) 微编辑时找回编辑目标。
+            toggle 隐显切换（快捷键操作）。
             注记：
             路径信息更新由程序（edit.js）直接执行。
         -->
@@ -785,7 +787,7 @@
                 mouseenter(b)|evo(2) dup attr('title') end v.source v.elemSelf evo(2) pop;
                 mouseenter(b)|('_point') evo(2) v.source pop;
                 mouseleave(b)|stop ('_point') evo(2) v.source pop;
-                empty;
+                empty|$('/b:hover') dup pass pop;
                 click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
                 toggle|evo(3) lose(2)"
             by="Ed.pathTo(_1) $$('/b')"
@@ -793,7 +795,7 @@
                 -|@title;
                 -|addClass;
                 -|removeClass;
-                /b:hover|trigger('mouseleave', true)">
+                -|trigger('mouseleave', true)">
             <!-- <b> -->
         </div>
     </div>
