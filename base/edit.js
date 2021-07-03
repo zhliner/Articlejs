@@ -5454,7 +5454,9 @@ export const Edit = {
             fun = propertyProcess( getType(els[0]) );
 
         historyPush(
-            ...els.map( el => new DOMEdit(() => fun(el, names, evo.data)) )
+            ...els.map(
+                el => new DOMEdit( () => fun(el, names, evo.data) )
+            )
         );
     },
 

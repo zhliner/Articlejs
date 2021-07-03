@@ -23,8 +23,8 @@ const $ = window.$;
 // 接口：function(el, names, values): void
 //
 const customHandles = {
-    [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls, sources
-    [ T.VIDEO ]:        'property:video',       // src, width, height, autoplay, loop, controls, poster, sources
+    [ T.AUDIO ]:        processAudio,
+    [ T.VIDEO ]:        processVideo,
     [ T.PICTURE ]:      'property:picture',     // src, width, height, alt, sources
     [ T.IMG ]:          'property:img',         // src, width, height, alt
     [ T.SVG ]:          'property:svg',         // width, height
@@ -54,23 +54,57 @@ const customHandles = {
     [ T.HR ]:           'property:hr',          // thick, length, space, border
     [ T.BLANK ]:        'property:blank',       // width, height
     [ T.EXPLAIN ]:      'property:explain',     // position
-    // [ T.H1 ]:           'property:h1',          // id
-    // [ T.H2 ]:           'property:h2',          // id
-    // [ T.H3 ]:           'property:h3',          // id
-    // [ T.H4 ]:           'property:h4',          // id
-    // [ T.H5 ]:           'property:h5',          // id
-    // [ T.H6 ]:           'property:h6',          // id
+}
+
+
+//
+// 处理器定义。
+// @param  {Element} el 目标元素
+// @param  {[String]} names 特性名集
+// @param  {[Value]} values 特性值集
+// @return {void}
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 音频处理。
+ * names:
+ * [0]  'src autoplay loop controls'
+ * [1]  'source' // tag
+ * values:
+ * [0]  [String, Boolean...]
+ * [1]  JSON<[Object]>
+ */
+function processAudio( el, names, values ) {
+    //
 }
 
 
 /**
- * 默认的属性处理器。
- * @param  {Element} el 目标元素
- * @param  {[String]} names 特性名集
- * @param  {[Value]} values 特性值集
- * @return {void}
+ * 视频处理。
+ * names:
+ * [0]  'src poster width height autoplay loop controls'
+ * [1]  'source' // tag
+ * [2]  'track'  // tag
+ * values:
+ * [0]  [String, Boolean...]
+ * [1]  JSON<[Object]>
+ * [2]  JSON<[Object]>
+ */
+function processVideo( el, names, values ) {
+    //
+}
+
+
+/**
+ * 默认的通用处理。
  */
 const property = ( el, names, values ) => $.attribute( el, names, values );
+
+
+//
+// 导出
+//////////////////////////////////////////////////////////////////////////////
 
 
 /**

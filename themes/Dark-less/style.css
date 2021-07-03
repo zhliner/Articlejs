@@ -142,7 +142,6 @@ aside#help {
 .___Content main hr:hover {
     min-height: 1.4em;
 }
-
 /* 出错警告背影提示 */
 .___Content ._warn {
     background-color: #ff572240 !important;
@@ -151,6 +150,9 @@ aside#help {
 
 .___Content a {
     color: #3355ff;
+}
+.___Content span[role=space] {
+    vertical-align: middle;
 }
 .___Content picture {
     display: inline-block;

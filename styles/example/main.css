@@ -686,12 +686,9 @@ div[role=blank] > * {
 
 /* 空白 */
 .content span[role=space] {
-    height: 1em;
-    width: 2em;
     display: inline-block;
-    border: 1px #ccc dotted;
-    border-radius: 3px;
-    vertical-align: middle;
+    width: 2em;
+    height: 0.8em;
 }
 
 
