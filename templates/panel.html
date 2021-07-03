@@ -55,7 +55,8 @@
             input.select 快捷键选取。从data-k特性取值触发（仅部分）。
             change 空选单时采用empty模板，str 用前缀构造最终模板名。
             备忘：
-            scroll 聚焦便于快捷键定位。取消本设计：内容区切换选取后选单重构会激发此事件，使内容区失焦（不友好）。 -->
+            用scroll聚焦便于快捷键定位。
+            取消此设计：因为内容区切换选取后选单重构会激发此事件，使内容区失焦（不友好）。 -->
         <select id="input-items" name="items" size="5" class="_list"
             on="change|evo(3) val or('empty') str('input:') pop tpl;
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
@@ -81,11 +82,12 @@
         insert|ev('detail') prop('outerHTML') xRange addRange edbox pop exeCmd('insertHTML', _1)"
     to="/._main>._prop|trigger('create')">
     <div class="_roll">
+        <!-- 先插入右侧主区，再更新选单以使change有效。 -->
         <div class="_minibar"
-            on="click(input)|evo(2) val pop tpl;
-                click(input)|evo(2) attr('-val') pop tpl"
-            to="1/select|replace|focus change;
-                2/._body|replace">
+            on="click(input)|evo(2) attr('-val') node;
+                click(input)|evo(2) val node"
+            to="2/._body|replace;
+                1/select|replace|focus change">
             <label title="内联元素">
                 <input type="radio" name="ctype" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
             </label>
@@ -101,39 +103,47 @@
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="2/._main|fill;
                 |val|change">
-            <option tpl-node="
-                option:audio,
-                option:video,
-                option:picture,
-                option:svg,
-                option:ruby,
-                option:meter,
-                option:space,
-                option:img,
-                option:br,
-                option:wbr,
-                option:a,
-                option:q,
-                option:abbr,
-                option:del,
-                option:ins,
-                option:dfn,
-                option:bdo,
-                option:times,
-                option:code,
-                option:strong,
-                option:em,
-                option:cite,
-                option:small,
-                option:sub,
-                option:sup,
-                option:mark,
-                option:orz,
-                option:samp,
-                option:kbd,
-                option:s,
-                option:u,
-                option:var"></option>
+            <optgroup label="实体类">
+                <option tpl-node="
+                    option:audio,
+                    option:video,
+                    option:picture,
+                    option:img,
+                    option:svg,
+                    option:meter,
+                    option:space,
+                    option:br,
+                    option:wbr"></option>
+            </optgroup>
+            <optgroup label="复杂类">
+                <option tpl-node="
+                    option:a,
+                    option:times,
+                    option:q,
+                    option:abbr,
+                    option:del,
+                    option:ins,
+                    option:dfn,
+                    option:bdo,
+                    option:ruby"></option>
+            </optgroup>
+            <optgroup label="纯文本类">
+                <option tpl-node="
+                    option:strong,
+                    option:em,
+                    option:cite,
+                    option:small,
+                    option:sub,
+                    option:sup,
+                    option:mark,
+                    option:samp,
+                    option:kbd,
+                    option:s,
+                    option:u,
+                    option:var,
+                    option:code,
+                    option:orz"></option>
+            </optgroup>
         </select>
     </div>
     <div class="_body" tpl-source="minied:inlines"> [主栏：单元属性] </div>

@@ -81,7 +81,7 @@
             <!-- [子模版：字符表] -->
             <div class="_body _Inline" tpl-name="minied:chars">
                 <div class="_main _list" tpl-name="data:chars"
-                    on="init|evo(1) text split wrap('<b>');
+                    on="init|evo(1) text split('') wrap('<b>');
                         save|ev('detail') dup xattr('-val');
                         ^obted;
                         ^done"

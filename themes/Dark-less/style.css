@@ -192,17 +192,20 @@ aside#help {
 }
 
 .___Panel option {
-    padding: 3px 6px;
+    padding: 3px 0.5em;
     margin: 1px 0;
     border-radius: 3px;
 }
 .___Panel option:hover {
     background-color: #9ce2d0;
 }
+.___Panel optgroup > option {
+    padding: 1px 5px;
+}
+
 .___Panel {
     font-size: 12pt;
 }
-
 .___Panel input[type=text],
 .___Panel input[type=url],
 .___Panel input[type=search] {
@@ -1000,9 +1003,9 @@ menu._cells code {
     display: flex;
 }
 .Slave ._roll {
-    flex: 1 1 140px;
-    min-width: 140px;
-    max-width: 220px;
+    flex: 1 1 150px;
+    min-width: 150px;
+    max-width: 240px;
     margin-right: 14px;
     flex-direction: column;
 }

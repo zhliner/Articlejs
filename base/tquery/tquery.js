@@ -8330,14 +8330,15 @@ Object.assign( tQuery, {
      * 字符串切分。
      * 支持4子节Unicode字符的空串切分。
      * 如果传递切分数量（结果集大小），多出的部分会被丢弃。
-     * 注：修复String.split()行为。
+     * 修订String.split()切分空串的行为。
      * @param  {String} str 目标字符串
      * @param  {String|RegExp} sep 切分字符串或模式
      * @param  {Number} cnt 切分数量上限，可选
      * @return {[String]}
      */
     split( str, sep, cnt ) {
-        return sep ? str.split( sep, cnt ) : str.split( /(?:)/u, cnt );
+        return sep === '' ?
+            str.split( /(?:)/u, cnt ) : str.split( sep, cnt );
     },
 
 

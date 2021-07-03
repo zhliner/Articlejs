@@ -10,11 +10,12 @@
         reset;
         build|"
     to="(/>li)|trigger('value');
-        (/>li)[-2:]|trigger('reset')">
+        (/>li)[-2:]|trigger('reset');
+        form/|trigger('apply')">
     <li tpl-node="prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
-    <li tpl-node="prop:sources1, prop:tracks"></li>
+    <li tpl-node="prop:sources1"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
@@ -451,14 +452,6 @@
     <li tpl-node="prop:spwidth"></li>
 </ul>
 
-<!-- 表情 -->
-<div class="_prop" tpl-name="inlines:orz"
-    on="create|$('/pre._code') text dup pass"
-    by="New.orz"
-    to="form/|trigger('insert')">
-    <hr tpl-node="prop:codes" />
-</div>
-
 <!-- 换行：未使用New.br -->
 <ul class="_prop" tpl-name="inlines:br"
     on="create|elem('br')"
@@ -475,11 +468,6 @@
 
 
 <!--纯文本单元：不含属性，不采用 New.xxx 创建。-->
-
-<!-- 代码 -->
-<div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:code">
-    <textarea name="code"></textarea>
-</div>
 
 <!-- 重点 -->
 <div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:strong">
@@ -539,6 +527,19 @@
 <!-- 变量 -->
 <div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:var">
     <textarea name="var"></textarea>
+</div>
+
+<!-- 代码 -->
+<div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:code">
+    <textarea name="code" class="_code"></textarea>
+</div>
+
+<!-- 表情 -->
+<div class="_prop" tpl-name="inlines:orz"
+    on="create|$('/textarea') val dup pass"
+    by="New.orz"
+    to="form/|trigger('insert')">
+    <textarea name="code" class="_code"></textarea>
 </div>
 
 
@@ -676,6 +677,7 @@
 </li>
 
 <!--音频/视频用
+    data-iv 缓存当前的初始值（供表单reset用）。
     注记：
     资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。-->
 <li tpl-name="prop:sources1"

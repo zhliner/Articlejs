@@ -208,10 +208,11 @@ const Properties = {
 // - <rb,rt,rp> 子单元有顺序要求。
 // - 单元格涉及Table实例列数问题，需由属性修改实现。
 // - <picture>/<img> 有顺序要求（但可选）。
+// - <wbr>仅能通过微编辑插入。
 // - <main>不应当被选取，此处仅表达一种逻辑。
 //
 const siblingNone = new Set([
-    T.RB, T.RT, T.RP, T.TH, T.TD, T.PIMG, T.MAIN
+    T.RB, T.RT, T.RP, T.TH, T.TD, T.PIMG, T.WBR, T.MAIN
 ]);
 
 

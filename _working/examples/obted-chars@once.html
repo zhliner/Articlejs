@@ -9,7 +9,7 @@
     存储键名与对应目标元素分开不是一个好的设计。
 -->
 <div tpl-name="data:chars"
-    on="^init|$$('/span') text split map(ss=>$(ss).wrap('<b>'));
+    on="^init|$$('/span') text split('') map(ss=>$(ss).wrap('<b>'));
         ^save|$$('/span');
         ^obted"
      to="(/span)|fill|goto('save');

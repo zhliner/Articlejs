@@ -504,12 +504,12 @@
         <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
             <label>
-                <input name="cols" type="text" class="_nums" title="列数（不含列头）" value="3"
-                    on="change|evo(3) val int"
+                <input name="cols" type="text" class="_nums" title="列数（不含列头）" placeholder="列数" value="3"
+                    on="change|evo(3) val int dup pass"
                     to="._main/table|trigger('cols')" />
                 ×
-                <input name="rows" type="text" class="_nums" title="行数（<tbody>）" value="4"
-                    on="change|evo(3) val int"
+                <input name="rows" type="text" class="_nums" title="行数（<tbody>）" placeholder="行数" value="4"
+                    on="change|evo(3) val int dup pass"
                     to="._main/tbody|trigger('rows')" />
             </label>
         </header>
@@ -517,7 +517,7 @@
             <!--初始默认表格规格
                 cols 表格列裁剪为目标列数。-->
             <table border="1" obt-src="obts/table.json"
-                on="cols|evo(3) ev('detail') or(0)"
+                on="cols|evo(3) ev('detail')"
                 by="Kit.colcrop(_1)">
                 <!-- pastes.json 智能粘贴（下同）。 -->
                 <thead obt-src="obts/pastes.json">
@@ -530,7 +530,7 @@
                 </thead>
                 <!-- rows 表格行裁剪为目标行数。 -->
                 <tbody obt-src="obts/pastes.json"
-                    on="rows|evo(3) ev('detail') or(0)"
+                    on="rows|evo(3) ev('detail')"
                     by="Kit.croptr(_1)"
                     to="._body/#_th0|trigger('check')">
                     <tr>
@@ -1237,18 +1237,18 @@
         input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
     to="2/._main|fill;
         |val|change">
-    <option data-k="c" value="custom" selected>常用 [c]</option>
-    <option data-k="u" value="unit">单位 [u]</option>
-    <option data-k="p" value="punctuation">标点 [p]</option>
-    <option data-k="n" value="number">序号 [n]</option>
-    <option data-k="m" value="math">数学 [m]</option>
-    <option data-k="s" value="special">特殊 [s]</option>
-    <option data-k="a" value="alphabet">字母 [a]</option>
-    <option data-k="g" value="geometric">几何 [g]</option>
-    <option data-k="e" value="emotion">表情 [e]</option>
-    <option data-k="i" value="ipa87">音标 [i]</option>
-    <option data-k="z" value="phonetic">拼音 [z]</option>
-    <option data-k="r" value="radical">偏旁部首 [r]</option>
+    <option data-k="c" value="custom">.. 常用〔c〕</option>
+    <option data-k="u" value="unit">㎞ 单位〔u〕</option>
+    <option data-k="p" value="punctuation">， 标点〔p〕</option>
+    <option data-k="n" value="number">③ 序号〔n〕</option>
+    <option data-k="m" value="math">∬ 数学〔m〕</option>
+    <option data-k="s" value="special">® 特殊〔s〕</option>
+    <option data-k="a" value="alphabet">グ 字母〔a〕</option>
+    <option data-k="g" value="geometric">▱ 几何〔g〕</option>
+    <option data-k="e" value="emotion">🙂 表情〔e〕</option>
+    <option data-k="i" value="ipa87">æ 音标〔i〕</option>
+    <option data-k="z" value="phonetic">á 拼音〔z〕</option>
+    <option data-k="r" value="radical">亻 偏旁部首〔r〕</option>
 </select>
 
 <!-- 字符录入：右侧主栏字符清单 -->
@@ -1269,7 +1269,7 @@
     - 解析构造为：<b>...</b>序列填充。
     - 各字符集清单（<span>）存储在data中备用（data-n值为键名）。 -->
 <div tpl-name="data:chars"
-    on="init|evo(1) text split wrap('<b>');
+    on="init|evo(1) text split('') wrap('<b>');
         save|ev('detail') dup xattr('-n');
         ^obted;
         ^done"
@@ -1403,16 +1403,7 @@
         <ul tpl-node="inlines:br"></ul>
     </div>
     <aside>
-        <hr tpl-node="input:insert1" title="[插入1]" />
-    </aside>
-</div>
-
-<div class="_body _Inline" tpl-name="input:wbr">
-    <div class="_main _list">
-        <ul tpl-node="inlines:wbr"></ul>
-    </div>
-    <aside>
-        <hr tpl-node="input:insert1" title="[插入1]" />
+        <hr tpl-node="input:insert2" title="[插入2]" />
     </aside>
 </div>
 
