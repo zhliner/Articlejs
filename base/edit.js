@@ -2000,15 +2000,16 @@ function insertsNodes( els, nodes2, before, level ) {
 /**
  * 创建数据节点集。
  * 用于多个选取目标时创建待插入的克隆集。
- * 注：
- * 单个选取时，多项数据合并为一。
+ * - 单个选取时，多项数据合并为一（二维封装）。
+ * - 单数据多目标时，克隆为相同集合大小。
+ * - 多数据多目标时，保持原始各别对应。
  * @param  {Collector} $data 数据节点集
  * @param  {Number} cnt 克隆次数
- * @return {[Collector]} 节点集组
+ * @return {[Collector]|Collector} 节点集（组）
  */
 function dataNodes2( $data, cnt ) {
     if ( cnt < 2 ) {
-        return [ $data ];  // 合一
+        return [ $data ];  // 封装
     }
     if ( $data.length > 1 ) {
         return $data;  // 原始各别
@@ -2057,6 +2058,9 @@ function dataNodes( data, cnt ) {
  * @return {[Collector]}
  */
 function dataClones( $data, cnt ) {
+    if ( !$data.length ) {
+        return $data;
+    }
     let _buf = [ $data ];
 
     for (let i = 0; i < cnt-1; i++) {
@@ -5447,15 +5451,17 @@ export const Edit = {
      * 注：在此处理以便于压入编辑历史栈。
      * @data: [Value] 属性值集
      * @param  {[String]} names 特性名序列
+     * @param  {[Node]} 子节点集，可选
      * @return {void}
      */
-    propUpdate( evo, names ) {
+    propUpdate( evo, names, subs ) {
         let els = [ ...__ESet ],
+            dt2 = dataClones( $(subs), els.length ),
             fun = propertyProcess( getType(els[0]) );
 
         historyPush(
             ...els.map(
-                el => new DOMEdit( () => fun(el, names, evo.data) )
+                (el, i) => new DOMEdit( fun, el, names, evo.data, dt2[i] )
             )
         );
     },

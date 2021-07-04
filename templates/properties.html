@@ -59,7 +59,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:ruby" data-label="注音拼音"
-    on="vinit|v.sel0;
+    on="vinit|v.sel0 pop $$('/rt');
         build|"
     to="/>li|trigger('value')">
     <li tpl-node="prop:rt, prop:rp"></li>
@@ -858,7 +858,7 @@
 </li>
 
 <li tpl-name="prop:rt"
-    on="value|ev('detail') pop $('/rt') text"
+    on="value|ev('detail') text join(' ')"
     to="/input|@value">
     <b>拼音</b>
     <span><input type="text" name="rt" placeholder="<rt>" /></span>
@@ -950,7 +950,7 @@
 </li>
 
 <li obt-src="obts/prop1.json" tpl-name="prop:title">
-    <b title="title">提示</b>
+    <b title="title">信息提示</b>
     <span><input type="text" name="title" /></span>
 </li>
 
