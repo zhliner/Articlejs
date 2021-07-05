@@ -719,12 +719,8 @@ Object.assign( tQuery, {
      * @return {Table} 表格实例
      */
     table( cols, rows, th0, doc = Doc ) {
-        let _tbo = new Table(
-                cols.nodeType === 1 && cols,
-                doc
-            );
-        // 可能是一个空<table>
-        _tbo.build( +cols || 0, rows );
+        let _tbl = cols.nodeType ? cols : doc.createElement( 'table' ),
+            _tbo = new Table( _tbl, cols, rows );
 
         if ( th0 ) {
             _tbo.insertColumn( _tbo.newColumn(true), 0 );
@@ -2364,34 +2360,16 @@ Reflect.defineProperty(tQuery, 'version', {
 class Table {
     /**
      * 创建表格实例。
-     * @param {Element} tbl 表格元素，可选
-     * @param {Document} 所属文档对象，可选
+     * 如果是一个空表格，可以传递行列数进行构造。
+     * @param {Element} tbl 表格元素
+     * @param {Number} cols 表格列数，可选
+     * @param {Number} rows 表格行数，可选
      */
-    constructor( tbl, doc = Doc ) {
-        this._tbl = tbl || doc.createElement('table');
-        this._cols = null;
-    }
+    constructor( tbl, cols, rows ) {
+        this._tbl = tbl;
+        this._cols = +cols || 0;
 
-
-    /**
-     * 表格初始构建。
-     * 如果表格是一个空元素，则用实参构建。
-     * 如果表格已经存在行元素，则解析设置列数并返回之。
-     * 注：不包含表头/表脚部分。
-     * @param  {Number} cols 列数，可选
-     * @param  {Number} rows 行数，可选
-     * @return {Number|void} 解析的列数或无值
-     */
-    build( cols, rows ) {
-        let _tr0 = this._tbl.rows[0];
-
-        if ( _tr0 ) {
-            return this._cols = columnCount( _tr0 );
-        }
-        this._cols = cols;
-
-        // 并不默认创建新表体
-        if ( rows ) this._init( this.body(true), rows );
+        this._init( cols, rows );
     }
 
 
@@ -2806,7 +2784,7 @@ class Table {
      * @return {Boolean|null}
      */
     hasVth( last ) {
-        let _tr = this.tr(-1),
+        let _tr = this.tr( -1 ),
             _tds = _tr.cells;
 
         if ( !_tds.length || _tr.parentElement.tagName === 'THEAD' ) {
@@ -2883,9 +2861,8 @@ class Table {
      * @return {Table} 新表格元素的Table实例
      */
     clone( rows, head = 0, foot = 0 ) {
-        let _tbo = new Table();
-
-        _tbo._cols = this._cols;
+        let _tbl = this._tbl.ownerDocument.createElement( 'table' ),
+            _tbo = new Table( _tbl, this._cols );
 
         if ( head > 0 ) {
             this.inserts( head, 0, _tbo.head(true) );
@@ -2904,15 +2881,37 @@ class Table {
 
 
     /**
-     * 表体初始化。
+     * 表格状态初始化。
+     * 如果表格是一个空元素，则用实参构建。
+     * 如果表格已经存在行元素，则解析并重置列数。
+     * 注：不包含表头/表脚部分。
+     * @param  {Number} cols 列数，可选
+     * @param  {Number} rows 行数，可选
+     * @return {Number|void} 解析的列数或无值
+     */
+    _init( cols, rows ) {
+        let _tr0 = this._tbl.rows[0];
+
+        if ( _tr0 ) {
+            // 列数修正
+            return this._cols = columnCount( _tr0 );
+        }
+        // 必要时才新建表体
+        if ( cols && rows ) this._build( this.body(true), rows );
+    }
+
+
+    /**
+     * 表体内容构建。
      * 初始仅创建为<td>单元格。
      * 注：初始创建不发送变化事件。
      * @param {TableSection} body 表体元素
      * @param {Number} rows 行数
+     * @param {String} tag 单元格标签名
      */
-    _init( body, rows ) {
+    _build( body, rows, tag = 'td' ) {
         for ( let r = 0; r < rows; r++ ) {
-            this._buildTR( body.insertRow(), 'td' );
+            this._buildTR( body.insertRow(), tag );
         }
     }
 
