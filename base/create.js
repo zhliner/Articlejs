@@ -1128,14 +1128,11 @@ const Builder = {
      * @return {Element} tbl
      */
     [ T.TABLE ]: function( tbl, {cols, border} ) {
-        let _tbo = new $.Table( tbl );
+        let _tbo = new $.Table( tbl, cols );
 
         if ( border ) {
             $.attr( tbl, 'border', border );
         }
-        // 非空表格自然忽略。
-        _tbo.build( cols, 0 );
-
         return tableObj( tbl, _tbo ), tbl;
     },
 

@@ -27,7 +27,7 @@ import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
-import { propertyProcess } from "./property.js";
+import { propertyProcess, propertyData } from "./property.js";
 import cfg from "./shortcuts.js";
 
 // 代码解析&高亮
@@ -2058,9 +2058,6 @@ function dataNodes( data, cnt ) {
  * @return {[Collector]}
  */
 function dataClones( $data, cnt ) {
-    if ( !$data.length ) {
-        return $data;
-    }
     let _buf = [ $data ];
 
     for (let i = 0; i < cnt-1; i++) {
@@ -5447,17 +5444,20 @@ export const Edit = {
 
     /**
      * 元素属性更新。
-     * 处理器接口：function(el, names, values): void
-     * 注：在此处理以便于压入编辑历史栈。
+     * 处理器接口：function(el, names, values, subs): void
+     * 注记：
+     * 在此处理以便于压入编辑历史栈。
+     * 预先获取额外数据（如节点集）以避免Redo时的引用失效。
      * @data: [Value] 属性值集
      * @param  {[String]} names 特性名序列
-     * @param  {[Node]} 子节点集，可选
+     * @param  {...Value} 额外参数序列
      * @return {void}
      */
-    propUpdate( evo, names, subs ) {
+    propUpdate( evo, names, ...rest ) {
         let els = [ ...__ESet ],
-            dt2 = dataClones( $(subs), els.length ),
-            fun = propertyProcess( getType(els[0]) );
+            etv = getType( els[0] ),
+            dt2 = propertyData( etv, els, ...rest ),
+            fun = propertyProcess( etv );
 
         historyPush(
             ...els.map(

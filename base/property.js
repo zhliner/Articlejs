@@ -32,7 +32,7 @@ const customHandles = {
     [ T.PICTURE ]:      processPicture,     // src width height alt, [<sources>]
     // [ T.IMG ]:          property,        // src, width, height, alt
     // [ T.SVG ]:          property,        // width, height
-    [ T.RUBY ]:         processRuby,        // rb, rt, rp
+    [ T.RUBY ]:         processRuby,        // rt, rp
     [ T.TIME ]:         processDatetime,    // datetime: date, time
     // [ T.METER ]:        property,        // max, min, high, low, value, optimum
     [ T.SPACE ]:        processCSS,         // CSS:width
@@ -68,6 +68,18 @@ const customHandles = {
 
 
 //
+// 额外实参创建器。
+//
+const customData = {
+    [ T.AUDIO ]:        dataNodes,          // [<source>]
+    [ T.VIDEO ]:        dataNodes,          // [<source>, <track>]
+    [ T.PICTURE ]:      dataNodes,          // [<sources>]
+    [ T.RUBY ]:         dataRuby,           // rt
+    [ T.TABLE ]:        dataTable,          // [Cells, Cells]
+}
+
+
+//
 // 处理器定义。
 //////////////////////////////////////////////////////////////////////////////
 
@@ -97,9 +109,9 @@ function processPicture( el, names, vals, subs ) {
 // 注记：
 // 不会创建新的节点（即便是文本节点），避免redo时原始引用丢失。
 // <rt|rb>内原始的文本节点引用也会被保留。
-// @param {Node} rt 拼音文本节点
+// @param {Text} rt 拼音文本节点
 //
-function processRuby( el, _, rt ) {
+function processRuby( el, _, _v, rt ) {
     let $rts = $( 'rt', el ),
         _rt0 = $rts.shift();
 
@@ -140,12 +152,18 @@ function processDatetime( el, _, vals ) {
 // 表格设置。
 // - 边框类型（border）。
 // - 列头添加/移除（首尾两处）。
-// vals[0]: border 边框值
-// vals[1]: vth0:Boolean 首列头
-// vals[2]: vth1:Boolean 尾列头
+// val: border 边框值
+// subs[0]: [Element]|null  首列单元格集
+// subs[1]: [Element]|null  尾列单元格集
 //
-function processTable( el, _, vals ) {
-    //
+function processTable( el, _, val, subs ) {
+    let [c0, c1] = subs,
+        _tbo = new $.Table( el );
+
+    tableVth( _tbo, c0, 0 );
+    tableVth( _tbo, c1, -1 );
+
+    $.attr( el, 'border', val );
 }
 
 
@@ -195,15 +213,120 @@ function property( el, names, vals, subs ) {
 }
 
 
+
+//
+// 数据创建器定制
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 节点集多份克隆。
+ * @param  {[Element]} els 选取目标集
+ * @param  {Collector} $sub 子节点集
+ * @return {[Collector]}
+ */
+function dataNodes( els, $sub ) {
+    if ( !$sub.length ) {
+        return [];
+    }
+    let _buf = [ $sub ],
+        _cnt = els.length;
+
+    for ( let i = 0; i < _cnt-1; i++ ) {
+        _buf.push( $sub.clone() );
+    }
+    return _buf;
+}
+
+
+/**
+ * 拼音文本节点创建。
+ * @param  {[Element]} els 选取目标集
+ * @param  {String} rt 拼音文本
+ * @return {[Text]} 拼音文本节点集
+ */
+function dataRuby( els, rt ) {
+    let _rt0 = $.Text( rt ),
+        _buf = [ _rt0 ],
+        _cnt = els.length;
+
+    for ( let i = 0; i < _cnt-1; i++ ) {
+        _buf.push( $.clone(_rt0) );
+    }
+    return _buf;
+}
+
+
+/**
+ * 表格列头数据集。
+ * @param  {[Element]} els 选取的表格集
+ * @param  {Boolean} vth0  含首列表头
+ * @param  {Boolean} vth1  含末列表头
+ * @return {[[Element|true|null], [Element|true|null]]} 列单元格集组
+ */
+function dataTable( els, vth0, vth1 ) {
+    let _buf = [];
+
+    for ( const el of els ) {
+        let _tbo = new $.Table( el ),
+            _v0 = _tbo.hasVth(),
+            _v1 = _tbo.hasVth( true );
+
+        _buf.push([
+            vth0 ? ( _v0 || _tbo.newColumn(true) ) : null,
+            vth1 ? ( _v1 || _tbo.newColumn(true) ) : null
+        ]);
+    }
+    return _buf;
+}
+
+
+
 //
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 表格列头设置/移除。
+ * col为true时，表示原表格已有列头，且需保留。
+ * col为null时，表示需要删除列头（无论有无）。
+ * @param {Table} tbo 表格实例
+ * @param {[Element]|true|null} col 列单元格集
+ * @param {Number} pos 设置位置（0|-1）
+ */
+function tableVth( tbo, col, pos ) {
+    let _v = tbo.hasVth( !!pos );
+
+    if ( col ) {
+        _v || tbo.insertColumn( col, pos );
+    } else {
+        _v && tbo.removeColumn( pos );
+    }
+}
 
 
 
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 获取目标类型的额外数据集。
+ * 此处的返回值为一个数组，与选取的目标集成员一一对应，作为其额外的实参。
+ * 注记：
+ * 提供此接口以便于创建目标的子元素集，避免Redo时元素的引用失效（如果新建的话）。
+ * 多个目标时，子元素集通常只是简单的克隆而已。
+ * @param  {Number} tval 目标单元类型值
+ * @param  {[Element]} els 选取的目标元素集
+ * @param  {...Value} rest 额外参数序列（依不同的属性目标而异）
+ * @return {[Value]} 额外实参集
+ */
+export function propertyData( tval, els, ...rest ) {
+    let _fx = customData[ tval ];
+    return _fx ? _fx( els, ...rest ) : [];
+}
 
 
 /**
