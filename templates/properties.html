@@ -36,7 +36,7 @@
         vinit|v.sel0;
         reset;
         build|"
-    to="(/>li)(:last-child)|trigger('value');
+    to="(/li:not(:last-child))|trigger('value');
         /li:last-child|trigger('value');
         /li:last-child|trigger('reset')">
     <li tpl-node="prop:src, prop:alt"></li>
@@ -60,7 +60,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:ruby" data-label="注音拼音"
-    on="vinit|v.sel0 pop $$('/rt');
+    on="vinit|v.sel0;
         build|"
     to="/>li|trigger('value')">
     <li tpl-node="prop:rt, prop:rp"></li>
@@ -553,22 +553,22 @@
 ----------------------------------------------------------------------------->
 
 <li tpl-name="prop:thick"
-    on="value|ev('detail') style('borderWidth')"
-    to="/input|@value">
+    on="value|ev('detail') style('borderWidth') dup"
+    to="/input|@value val">
     <b title="CSS: border-width">厚度</b>
     <span><input type="text" name="thick" class="_words" /></span>
 </li>
 
 <li tpl-name="prop:length"
-    on="value|ev('detail') style('width')"
-    to="/input|@value">
+    on="value|ev('detail') style('width') dup"
+    to="/input|@value val">
     <b title="CSS: width">长度</b>
     <span><input type="text" name="length" class="_chars" /></span>
 </li>
 
 <li tpl-name="prop:space"
-    on="value|ev('detail') style('height')"
-    to="/input|@value">
+    on="value|ev('detail') style('height') dup"
+    to="/input|@value val">
     <b title="CSS: height">空白</b>
     <span><input type="text" name="height" class="_chars" /></span>
 </li>
@@ -612,8 +612,8 @@
 </li>
 
 <li tpl-name="prop:reversed"
-    on="value|ev('detail') prop('reversed')"
-    to="/input|$defaultChecked">
+    on="value|ev('detail') prop('reversed') dup"
+    to="/input|$defaultChecked $checked">
     <b>编号</b>
     <span><label><input type="checkbox" name="reversed" />逆序</label></span>
 </li>
@@ -624,8 +624,8 @@
 </li>
 
 <li tpl-name="prop:vth"
-    on="value|ev('detail') table dup pop(2) call('hasVth') call('hasVth', true) pack(2)"
-    to="(/input)|$defaultChecked">
+    on="value|ev('detail') table dup pop(2) call('hasVth') call('hasVth', true) pack(2) dup"
+    to="(/input)|$defaultChecked $checked">
     <b>列表头</b>
     <span>
         <label><input type="checkbox" name="th0" />列首</label>
@@ -666,8 +666,8 @@
 </li>
 
 <li tpl-name="prop:wh"
-    on="value|ev('detail') attrs('width height')"
-    to="(/input)|@value">
+    on="value|ev('detail') attrs('width height') dup"
+    to="(/input)|@value val">
     <b>宽/高度</b>
     <span>
         <input type="text" name="width" placeholder="width" class="_nums" />
@@ -746,8 +746,8 @@
 </li>
 
 <li tpl-name="prop:mediaopts"
-    on="value|ev('detail') props('autoplay loop controls')"
-    to="(/input)|$defaultChecked">
+    on="value|ev('detail') props('autoplay loop controls') dup"
+    to="(/input)|$defaultChecked $checked">
     <b>设置</b>
     <span>
         <label><input type="checkbox" name="autoplay" />自动播放</label>
@@ -757,8 +757,8 @@
 </li>
 
 <li tpl-name="prop:open"
-    on="value|ev('detail') prop('open')"
-    to="/input|$defaultChecked">
+    on="value|ev('detail') prop('open') dup"
+    to="/input|$defaultChecked $checked">
     <b><!-- 占位 --></b>
     <span><label><input type="checkbox" name="open" />详细展开</label></span>
 </li>
@@ -859,8 +859,8 @@
 </li>
 
 <li tpl-name="prop:rt"
-    on="value|ev('detail') text join(' ')"
-    to="/input|@value">
+    on="value|ev('detail') pop $$('/rt') text join(' ') dup"
+    to="/input|@value val">
     <b>拼音</b>
     <span><input type="text" name="rt" placeholder="<rt>" /></span>
 </li>
@@ -884,15 +884,15 @@
 </li>
 
 <li tpl-name="prop:date"
-    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date datetime('yyyy-MM-dd')"
-    to="/input|@value">
+    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date datetime('yyyy-MM-dd') dup"
+    to="/input|@value val">
     <b>日期</b>
     <span><input type="date" name="date" placeholder="yyyy-MM-dd"></span>
 </li>
 
 <li tpl-name="prop:time"
-    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date time"
-    to="/input|@value">
+    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date time dup"
+    to="/input|@value val">
     <b>时间</b>
     <span><input type="time" name="time" placeholder="hh:mm:ss"></span>
 </li>
@@ -903,8 +903,8 @@
 </li>
 
 <li tpl-name="prop:maxmin"
-    on="value|ev('detail') attrs('max min')"
-    to="(/input)|@value">
+    on="value|ev('detail') attrs('max min') dup"
+    to="(/input)|@value val">
     <b>最大/最小值</b>
     <span>
         <input type="text" name="max" placeholder="max" class="_nums" />
@@ -913,8 +913,8 @@
 </li>
 
 <li tpl-name="prop:highlow"
-    on="value|ev('detail') attrs('high low')"
-    to="(/input)|@value">
+    on="value|ev('detail') attrs('high low') dup"
+    to="(/input)|@value val">
     <b>高/低值</b>
     <span>
         <input type="text" name="high" placeholder="high" class="_nums" />
@@ -956,15 +956,15 @@
 </li>
 
 <li tpl-name="prop:spwidth"
-    on="value|ev('detail') style('width')"
-    to="/input|@value">
+    on="value|ev('detail') style('width') dup"
+    to="/input|@value val">
     <b>空白宽</b>
     <span><input type="text" name="width" class="_chars" placeholder="2.45em" /></span>
 </li>
 
 <li tpl-name="prop:tab"
-    on="value|ev('detail') attr('-tab')"
-    to="/input|@value">
+    on="value|ev('detail') attr('-tab') dup"
+    to="/input|@value val">
     <b>制表符</b>
     <span><input type="text" name="tabs" class="_char" value="4" title="空格数"></span>
 </li>

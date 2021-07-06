@@ -1,5 +1,5 @@
 {
     "//": "属性框初始赋值：单特性取值，文本行赋值。",
-    "on": "value|ev('detail') $('/input') attr('name') attr(_1)",
-    "to": "/input|@value"
+    "on": "value|ev('detail') $('/input') attr('name') attr(_1) dup",
+    "to": "/input|@value val"
 }
