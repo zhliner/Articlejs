@@ -8,7 +8,7 @@
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
     on="vinit|v.sel0;
         reset;
-        build|"
+        build|('src autoplay loop controls') dup $('form/') pop value(_1) $('/pre._code') text arr v.mediasubs pack(3)"
     to="(/>li)|trigger('value');
         (/>li)[-2:]|trigger('reset');
         form/|trigger('apply')">
@@ -21,9 +21,10 @@
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
     on="vinit|v.sel0;
         reset;
-        build|"
+        build|('src poster autoplay loop controls width height') dup $('form/') pop value(_1) $$('/pre._code') text v.mediasubs pack(3)"
     to="(/>li)|trigger('value');
-        (/>li)[-2:]|trigger('reset')">
+        (/>li)[-2:]|trigger('reset');
+        form/|trigger('apply')">
     <li tpl-node="prop:src, prop:poster"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
     <li tpl-node="prop:wh, prop:mediaopts"></li>
@@ -282,7 +283,7 @@
 
 <!-- 音频 -->
 <ul class="_prop" data-new="audio" tpl-name="inlines:audio"
-    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src autoplay loop controls') (true)"
+    on="create|$('/pre._code') text arr v.mediasubs $('form/') valo('src autoplay loop controls') (true)"
     by="New.audio(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src"></li>

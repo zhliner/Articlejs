@@ -5447,13 +5447,13 @@ export const Edit = {
      * 处理器接口：function(el, names, values, subs): void
      * 注记：
      * 在此处理以便于压入编辑历史栈。
-     * 预先获取额外数据（如节点集）以避免Redo时的引用失效。
-     * @data: [Value] 属性值集
-     * @param  {[String]} names 特性名序列
-     * @param  {...Value} 额外参数序列
+     * 预先获取额外数据而非在处理中新建（节点），避免Redo后的原引用失效。
+     * @data: String 属性名序列
+     * @param  {[Value]} vals 特性值集
+     * @param  {...Value} rest 额外值序列
      * @return {void}
      */
-    propUpdate( evo, names, ...rest ) {
+    propUpdate( evo, vals, ...rest ) {
         let els = [ ...__ESet ],
             etv = getType( els[0] ),
             dt2 = propertyData( etv, els, ...rest ),
@@ -5461,7 +5461,7 @@ export const Edit = {
 
         historyPush(
             ...els.map(
-                (el, i) => new DOMEdit( fun, el, names, evo.data, dt2[i] )
+                (el, i) => new DOMEdit( fun, el, evo.data, vals, dt2[i] )
             )
         );
     },

@@ -280,9 +280,6 @@ const _Gets = {
      * 目标：暂存区/栈顶1项。
      * 支持假值默认替换值，比如用于元素特性设置为null，
      * 这样就不会因为一个空串而在元素上设置一个无值的空特性。
-     * 注记：
-     * 如果需要一个值数组，可以：controls(...) val
-     * 注意控件需要包含name属性。
      * @data: <form>
      * @param  {String} names 控件名序列
      * @param  {Value} orval 假值默认值，可选

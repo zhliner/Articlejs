@@ -20,11 +20,7 @@ const $ = window.$;
 
 //
 // 定制处理器集。
-// function( el, names, vals, subs ): void
-// @param  {Element} el 目标元素
-// @param  {String|[String]} names 名称序列
-// @param  {Value|[Value]} vals 名称对应值（集）
-// @param  {Node|[Node]} subs  子节点集，可选
+// function( el, names, vals, rest ): void
 //
 const customHandles = {
     // [ T.AUDIO ]:        property,        // src autoplay loop controls, [<source>]
@@ -71,11 +67,12 @@ const customHandles = {
 // 额外实参创建器。
 //
 const customData = {
-    [ T.AUDIO ]:        dataNodes,          // [<source>]
-    [ T.VIDEO ]:        dataNodes,          // [<source>, <track>]
-    [ T.PICTURE ]:      dataNodes,          // [<sources>]
-    [ T.RUBY ]:         dataRuby,           // rt
-    [ T.TABLE ]:        dataTable,          // [Cells, Cells]
+    [ T.AUDIO ]:        dataNodes,          // [ Collector(<source>) ]
+    [ T.VIDEO ]:        dataNodes,          // [ Collector(<source>, <track>) ]
+    [ T.PICTURE ]:      dataNodes,          // [ Collector(<sources>) ]
+    [ T.RUBY ]:         dataRuby,           // [ <rt> ]
+    [ T.TABLE ]:        dataTable,          // [ [Cells|true|null, Cells|true|null] ]
+    [ T.HR ]:           dataHr,             // [ border ]
 }
 
 
@@ -144,7 +141,7 @@ function processDatetime( el, _, vals ) {
     if ( time ) {
         date = date ? `${date} ${time}` : `${time}`;
     }
-    $.attr( 'datetime', date );
+    $.attr( el, 'datetime', date );
 }
 
 
@@ -170,12 +167,13 @@ function processTable( el, _, val, subs ) {
 //
 // 线条设置。
 // 3个样式值，一个role特性值。
-// names:   `borderWidth width height'
-// vals[0]: [Value]
-// vals[1]: role  // 线型值
+// names:  `borderWidth width height'
+// vals:   [Value]
+// border: // 线型值（role）
 //
-function processHr( el, names, vals ) {
-    //
+function processHr( el, names, vals, border ) {
+    $.attr( 'role', border );
+    $.cssSets( el, names, vals );
 }
 
 
@@ -185,7 +183,7 @@ function processHr( el, names, vals ) {
 // vals:  Value]  样式值集
 //
 function processCSS( el, names, vals ) {
-    //
+    $.cssSets( el, names, vals );
 }
 
 
@@ -222,17 +220,17 @@ function property( el, names, vals, subs ) {
 /**
  * 节点集多份克隆。
  * @param  {[Element]} els 选取目标集
- * @param  {Collector} $sub 子节点集
+ * @param  {[Element]} sub 子节点集
  * @return {[Collector]}
  */
-function dataNodes( els, $sub ) {
-    if ( !$sub.length ) {
+function dataNodes( els, sub ) {
+    if ( !sub.length ) {
         return [];
     }
-    let _buf = [ $sub ],
-        _cnt = els.length;
+    let $sub = $( sub ),
+        _buf = [ $sub ];
 
-    for ( let i = 0; i < _cnt-1; i++ ) {
+    for ( let i = 0; i < els.length-1; i++ ) {
         _buf.push( $sub.clone() );
     }
     return _buf;
@@ -247,10 +245,9 @@ function dataNodes( els, $sub ) {
  */
 function dataRuby( els, rt ) {
     let _rt0 = $.Text( rt ),
-        _buf = [ _rt0 ],
-        _cnt = els.length;
+        _buf = [ _rt0 ];
 
-    for ( let i = 0; i < _cnt-1; i++ ) {
+    for ( let i = 0; i < els.length-1; i++ ) {
         _buf.push( $.clone(_rt0) );
     }
     return _buf;
@@ -278,6 +275,18 @@ function dataTable( els, vth0, vth1 ) {
         ]);
     }
     return _buf;
+}
+
+
+/**
+ * 分隔线数据集。
+ * 将特性值作为额外参数对待。
+ * @param  {[Element]} els 选取的元素集
+ * @param  {String} border 线型值（role）
+ * @return {[String]}
+ */
+function dataHr( els, border ) {
+    return new Array( els.length ).fill( border );
 }
 
 
