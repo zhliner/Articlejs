@@ -6,11 +6,11 @@
 ----------------------------------------------------------------------------->
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         reset;
         build|('src autoplay loop controls') dup $('form/') pop value(_1) $('/pre._code') text arr v.mediasubs pack(3)"
-    to="(/>li)|trigger('value');
-        (/>li)[-2:]|trigger('reset');
+    to="(/>li)|trigger(_1);
+        (/>li:last-child|trigger('reset');
         form/|trigger('apply')">
     <li tpl-node="prop:src"></li>
     <li tpl-node="prop:upload, prop:preview"></li>
@@ -628,8 +628,8 @@
     to="(/input)|$defaultChecked $checked">
     <b>列表头</b>
     <span>
-        <label><input type="checkbox" name="th0" />列首</label>
-        <label><input type="checkbox" name="th1" />列尾</label>
+        <label><input type="checkbox" name="th0" />首列</label>
+        <label><input type="checkbox" name="th1" />尾列</label>
     </span>
 </li>
 
@@ -932,7 +932,7 @@
     2. 清理默认。
     3. 设置值设置为默认（重置正确）。 -->
 <li tpl-name="prop:dir"
-    on="value|ev('detail') attr('dir') or(null);
+    on="value|ev('detail') attr('dir') or('');
         _clear|(false);
         _defchk|(true) $('/input') prop('checkedNode') dup pass pop"
     to="/input|val|goto('_clear');
@@ -940,8 +940,9 @@
         -|$defaultChecked">
     <b title="dir">方向</b>
     <span>
-        <label title="ltr"><input type="radio" name="dir" value="ltr">从左到右</label>
-        <label title="rtl"><input type="radio" name="dir" value="rtl">从右到左</label>
+        <label><input type="radio" name="dir" value="">无</label>
+        <label title="ltr"><input type="radio" name="dir" value="ltr">左到右</label>
+        <label title="rtl"><input type="radio" name="dir" value="rtl">右到左</label>
     </span>
 </li>
 

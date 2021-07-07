@@ -72,7 +72,6 @@ const customData = {
     [ T.PICTURE ]:      dataNodes,          // [ Collector(<sources>) ]
     [ T.RUBY ]:         dataRuby,           // [ <rt> ]
     [ T.TABLE ]:        dataTable,          // [ [Cells|true|null, Cells|true|null] ]
-    [ T.HR ]:           dataHr,             // [ border ]
 }
 
 
@@ -150,17 +149,15 @@ function processDatetime( el, _, vals ) {
 // - 边框类型（border）。
 // - 列头添加/移除（首尾两处）。
 // val: border 边框值
-// subs[0]: [Element]|null  首列单元格集
-// subs[1]: [Element]|null  尾列单元格集
+// cs0: [Element]|null|void 首列单元格集
+// cs1: [Element]|null|void 尾列单元格集
 //
-function processTable( el, _, val, subs ) {
-    let [c0, c1] = subs,
-        _tbo = new $.Table( el );
+function processTable( el, _, val, cs0, cs1 ) {
+    let _tbo = new $.Table( el );
 
-    tableVth( _tbo, c0, 0 );
-    tableVth( _tbo, c1, -1 );
-
-    $.attr( el, 'border', val );
+    if ( cs0 !== undefined ) tableVth( _tbo, cs0, 0 );
+    if ( cs1 !== undefined ) tableVth( _tbo, cs1, -1 );
+    if ( val !== undefined ) $.attr( el, 'border', val );
 }
 
 
@@ -206,8 +203,10 @@ function processAttr( el, name, val ) {
  * @return {void}
  */
 function property( el, names, vals, subs ) {
-    $.attribute( el, names, vals );
-    subs && $.fill( el, subs );
+    if ( vals !== undefined ) {
+        $.attribute( el, names, vals );
+    }
+    subs !== undefined && $.fill( el, subs );
 }
 
 
@@ -220,18 +219,16 @@ function property( el, names, vals, subs ) {
 /**
  * 节点集多份克隆。
  * @param  {[Element]} els 选取目标集
- * @param  {[Element]} sub 子节点集
- * @return {[Collector]}
+ * @param  {[Value]} vals 特性值序列
+ * @param  {[Element]|''} subs 子节点集
+ * @return {[Value, Collector]}
  */
-function dataNodes( els, sub ) {
-    if ( !sub.length ) {
-        return [];
-    }
-    let $sub = $( sub ),
-        _buf = [ $sub ];
+function dataNodes( els, vals, subs ) {
+    let $subs = subs && $( subs ),
+        _buf = [ $subs ];
 
     for ( let i = 0; i < els.length-1; i++ ) {
-        _buf.push( $sub.clone() );
+        _buf.push( $subs.clone() );
     }
     return _buf;
 }
@@ -257,11 +254,12 @@ function dataRuby( els, rt ) {
 /**
  * 表格列头数据集。
  * @param  {[Element]} els 选取的表格集
+ * @param  {String} border 边框值
  * @param  {Boolean} vth0  含首列表头
  * @param  {Boolean} vth1  含末列表头
  * @return {[[Element|true|null], [Element|true|null]]} 列单元格集组
  */
-function dataTable( els, vth0, vth1 ) {
+function dataTable( els, border, vth0, vth1 ) {
     let _buf = [];
 
     for ( const el of els ) {
@@ -270,23 +268,12 @@ function dataTable( els, vth0, vth1 ) {
             _v1 = _tbo.hasVth( true );
 
         _buf.push([
+            border,
             vth0 ? ( _v0 || _tbo.newColumn(true) ) : null,
             vth1 ? ( _v1 || _tbo.newColumn(true) ) : null
         ]);
     }
-    return _buf;
-}
-
-
-/**
- * 分隔线数据集。
- * 将特性值作为额外参数对待。
- * @param  {[Element]} els 选取的元素集
- * @param  {String} border 线型值（role）
- * @return {[String]}
- */
-function dataHr( els, border ) {
-    return new Array( els.length ).fill( border );
+    return _buf.length === 1 ? _buf[0] : _buf;
 }
 
 
@@ -315,6 +302,18 @@ function tableVth( tbo, col, pos ) {
 }
 
 
+/**
+ * 值扩展为数组。
+ * 克隆为与目标元素集相同大小。
+ * @param  {[Element]} els 目标元素集
+ * @param  {Value|[Value]} val 成员值
+ * @return {[Value|[Value]]}
+ */
+function arrValues( els, val ) {
+    return new Array( els.length ).fill( val );
+}
+
+
 
 //
 // 导出
@@ -329,12 +328,16 @@ function tableVth( tbo, col, pos ) {
  * 多个目标时，子元素集通常只是简单的克隆而已。
  * @param  {Number} tval 目标单元类型值
  * @param  {[Element]} els 选取的目标元素集
- * @param  {...Value} rest 额外参数序列（依不同的属性目标而异）
+ * @param  {...Value} vals 初始值序列（依不同的属性目标而异）
  * @return {[Value]} 额外实参集
  */
-export function propertyData( tval, els, ...rest ) {
-    let _fx = customData[ tval ];
-    return _fx ? _fx( els, ...rest ) : [];
+export function propertyData( tval, els, ...vals ) {
+    let _fun = customData[ tval ];
+
+    if ( _fun ) {
+        return _fun( els, ...vals );
+    }
+    return els.length === 1 ? vals : arrValues( els, vals );
 }
 
 

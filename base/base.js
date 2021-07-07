@@ -458,8 +458,10 @@ function entityRoot( beg, end ) {
  * @return {Boolean}
  */
 function isCodeCon( node, subs ) {
-    return $.find( '*', node, true )
-        .every( nd => subs.has(getType(nd)) );
+    if ( node.nodeType === 3 ) {
+        return true;
+    }
+    return $.find( '*', node, true ).every( nd => subs.has(getType(nd)) );
 }
 
 

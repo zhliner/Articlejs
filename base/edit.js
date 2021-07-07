@@ -5315,15 +5315,14 @@ export const Edit = {
     /**
      * 元素特性更新。
      * 仅支持单个元素选取。
-     * 注记：
-     * 静默更新即可，主面板已为最新值。
-     * 因为特性清单采用渲染语法全新构造，不宜跟随新建。
+     * 注：
+     * 若需删除目标特性本身，可在选单列表中直接按Delete键完成。
      * @data String|[String] 特性值（集）
      * @param {String} name 特性名/序列（如 'on by to'）
      */
     attrUpdate( evo, name ) {
         // 冗余检查（表单提交逻辑已保证）。
-        if ( __ESet.size !== 1 || !evo.data.length ) {
+        if ( __ESet.size !== 1 ) {
             return;
         }
         historyPush( new DOMEdit(__Edits.attrs, [...__ESet], name, evo.data), new Follow() );
@@ -5444,25 +5443,32 @@ export const Edit = {
 
     /**
      * 元素属性更新。
-     * 处理器接口：function(el, names, values, subs): void
+     * 处理器接口：function(el, names, values, args): void
+     * 为对多个目标的部分属性进行修改，
+     * 有如下值规则：
+     * - 文本框输入的值，空串表示无操作（维持原值）。
+     * - 单选按钮无任何选中时表示“不确定”状态，维持原属性值不变。
+     * - 复选框在 indeterminate 为真时同上，维持原属性值。
+     * - 选单的不确定状态为无任何选取，维持原值。
+     * - 单个目标时，文本框空串会移除该属性（友好）。
      * 注记：
      * 在此处理以便于压入编辑历史栈。
      * 预先获取额外数据而非在处理中新建（节点），避免Redo后的原引用失效。
      * @data: String 属性名序列
-     * @param  {[Value]} vals 特性值集
-     * @param  {...Value} rest 额外值序列
+     * @param  {...Value} vals 值序列
      * @return {void}
      */
-    propUpdate( evo, vals, ...rest ) {
+    propUpdate( evo, ...vals ) {
         let els = [ ...__ESet ],
             etv = getType( els[0] ),
-            dt2 = propertyData( etv, els, ...rest ),
+            dt2 = propertyData( etv, els, ...vals ),
             fun = propertyProcess( etv );
 
+        if ( els.length === 1 ) {
+            return historyPush( new DOMEdit(fun, els[0], evo.data, ...vals) )
+        }
         historyPush(
-            ...els.map(
-                (el, i) => new DOMEdit( fun, el, evo.data, vals, dt2[i] )
-            )
+            ...els.map( (el, i) => new DOMEdit(fun, el, evo.data, ...dt2[i]) )
         );
     },
 
@@ -6572,6 +6578,10 @@ export const Kit = {
             [op3, _new] = convertTo( evo.data, _els );
 
         historyPush( _op1, _op2, op3, pushes(_new) );
+
+        // 友好：
+        // 部分内联转换会立即弹出属性编辑框。
+        __popupCells.has(evo.data) && Edit.properties();
     },
 
     __convert: 1,

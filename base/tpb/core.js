@@ -536,6 +536,7 @@ class Stack {
     /**
      * 压入一个undefined。
      * 注：正常的入栈不包含undefined。
+     * @return {void}
      */
     undefined() {
         this._buf.push( undefined );

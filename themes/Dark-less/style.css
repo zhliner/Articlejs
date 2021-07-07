@@ -389,7 +389,7 @@ aside#help {
     height: 100%;
 }
 .___Panel ._prop span>label {
-    margin: 0 4px;
+    margin-left: 6px;
 }
 .___Panel ._prop i._tips {
     color: gray;

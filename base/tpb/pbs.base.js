@@ -308,14 +308,25 @@ const _Control = {
     /**
      * 空值入栈。
      * 压入特殊值undefined。
+     * 目标：暂存区1项可选。
      * 特权：是，特殊操作。
+     * 如果目标有值，则为判断入栈逻辑：
+     * - 真值入栈 undefined。
+     * - 假值入栈候选值 val。
+     * - 如果未传递val，条件假不会入栈值（返回的undefined被忽略）。
      * 可用于向栈内填充无需实参的占位值。
-     * @param {Stack} stack 数据栈
+     * @param  {Stack} stack 数据栈
+     * @param  {Value} val 候补值，可选
+     * @return {Value|void}
      */
-    nil( evo, stack ) {
-        stack.undefined();
+    nil( evo, stack, val ) {
+        if ( evo.data === undefined ) {
+            return stack.undefined();
+        }
+        return evo.data ? stack.undefined() : val;
     },
 
+    __nil: -1,
     __nil_x: true,
 
 
