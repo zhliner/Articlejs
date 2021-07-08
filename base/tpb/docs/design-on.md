@@ -187,10 +187,10 @@ Set( n:Number ): Set
 // 复杂取值。
 //-----------------------------------------------
 
-tpl( name:String, clone?:Boolean ): Promise<Element>
+tpl( name:String, clone?, bound?:Boolean ): Promise<Element>
 // 获取name模板节点。
 
-node( name:String, clone?:Boolean ): Element | [Element|null] | null
+node( name:String, clone?, bound?:Boolean ): Element | [Element|null] | null
 // 获取模板节点（集）。
 
 keys(): [Value]

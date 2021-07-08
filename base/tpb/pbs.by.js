@@ -21,8 +21,6 @@
 //  App创建：
 //      import { cmvApp } from "./pbs.by.js";
 //      cmvApp( 'MyApp', conf, meths );
-//      // processExtend(...)
-//      // 也可以在MyApp域上用 processExtend 扩展任意普通方法。
 //
 //      模板使用：
 //      by="MyApp.run('meth', ...)"
@@ -150,14 +148,15 @@ export const By = $.proto(
  * @param  {String} name 目标域或名称序列（子域可由句点分隔）
  * @param  {Object|Instance|Function} exts 扩展集或类实例或操作句柄
  * @param  {Boolean|[String]|Number} args 是否无需绑定或方法名集或取栈数量，可选。
+ * @param  {Number} n 默认取栈数量，在args为方法名集时有用。可选
  * @return {void}
  */
-export function processExtend( name, exts, args ) {
+export function processExtend( name, exts, args, n ) {
     if ( $.isFunction(exts) ) {
         return hostSet( By, name, exts, args );
     }
     if ( $.isArray(args) ) {
-        return namedExtend( name, exts, args, By );
+        return namedExtend( name, exts, args, n, By );
     }
     deepExtend( name, exts, args, By );
 }
@@ -198,21 +197,25 @@ export function processProxy( name, getter, n ) {
  * }
  * 注：
  * 与By普通用户扩展一样，占用By顶层空间。
- * 如果程序名称（name）重复，会抛出异常（而非静默覆盖）。
+ * 如果程序名称（name）已经存在，会抛出异常（而非静默覆盖）。
  *
  * @param  {String} name 程序名
  * @param  {Object} conf CMV配置对象
- * @param  {[String]} meths 方法名序列，可选
+ * @param  {[String]} meths 方法名集，可选
  * @return {void}
  */
 export function cmvApp( name, conf, meths = [] ) {
-    if ( By[name] != null ) {
+    let obj = By[ name ];
+
+    if ( obj != null ) {
         throw new Error(`By[${name}] is already exist.`);
     }
-    let app = new App__( conf.control, conf.model, conf.view ),
-        obj = subObj( name, By );
-
-    obj.run = app.run.bind(app);
+    let app = new App__(
+            conf.control,
+            conf.model,
+            conf.view
+        );
+    obj.run = app.run.bind( app );
 
     // 可能覆盖.run
     meths.forEach( m => obj[m] = app.call.bind(app, m) );

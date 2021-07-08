@@ -1,8 +1,10 @@
 <!--单元属性：（property:xx）
-    - 由上下文菜单中的“属性”条目激发。
-    - data-label 用于模态框标题栏文本。
-    vinit   初始从首个选取的元素上取属性值填充。注：交由具体的<li>:value自行负责。
-    bulid   构建属性[值集, 名集]，发送到表单应用（apply）。
+    由上下文菜单中的“属性”条目激发。
+    data-label 用于模态框标题栏文本。
+    此部分的子单元（<li>）导入需要克隆其事件处理器。
+    vinit   属性框初始赋值。
+            单个和多个选取目标的赋值逻辑稍有不同，交由具体的<li>:value|values自行负责。
+    bulid   构造属性名值序列，发送到表单应用（apply）修改。
 ----------------------------------------------------------------------------->
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
@@ -10,208 +12,206 @@
         reset;
         build|('src autoplay loop controls') dup $('form/') pop value(_1) $('/pre._code') text arr v.mediasubs pack(3)"
     to="(/>li)|trigger(_1);
-        (/>li:last-child|trigger('reset');
+        (/>li:last-child)|trigger('reset');
         form/|trigger('apply')">
-    <li tpl-node="prop:src"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
-    <li tpl-node="prop:mediaopts"></li>
-    <li tpl-node="prop:sources1"></li>
+    <li tpl-node="!prop:src"></li>
+    <li tpl-node="!prop:upload, prop:preview"></li>
+    <li tpl-node="!prop:mediaopts"></li>
+    <li tpl-node="!prop:sources1"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         reset;
         build|('src poster autoplay loop controls width height') dup $('form/') pop value(_1) $$('/pre._code') text v.mediasubs pack(3)"
-    to="(/>li)|trigger('value');
+    to="(/>li)|trigger(_1);
         (/>li)[-2:]|trigger('reset');
         form/|trigger('apply')">
-    <li tpl-node="prop:src, prop:poster"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
-    <li tpl-node="prop:wh, prop:mediaopts"></li>
-    <li tpl-node="prop:sources1, prop:tracks"></li>
+    <li tpl-node="!prop:src, prop:poster"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="!prop:mediaopts"></li>
+    <li tpl-node="!prop:sources1, prop:tracks"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
-    on="vinit|v.sel0 pop $('/img');
-        vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         reset;
         build|"
-    to="(/li:not(:last-child))|trigger('value');
-        /li:last-child|trigger('value');
+    to="(/>li)|trigger(_1);
         /li:last-child|trigger('reset')">
-    <li tpl-node="prop:src, prop:alt"></li>
-    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
-    <li tpl-node="prop:sources2"></li>
+    <li tpl-node="!prop:src, prop:alt"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="!prop:sources2"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:img" data-label="图片属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:src, prop:alt"></li>
-    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:src, prop:alt"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:svg" data-label="SVG属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:width, prop:height"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:width, prop:height"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:ruby" data-label="注音拼音"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:rt, prop:rp"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:rt, prop:rp"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:times" data-label="时间设定"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:date, prop:time"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:date, prop:time"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:meter" data-label="度量属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:number, prop:maxmin, prop:highlow, prop:optimum"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:number, prop:maxmin, prop:highlow, prop:optimum"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:space" data-label="空白属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:spwidth"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:spwidth"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:a" data-label="链接属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:href, prop:target, prop:title"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:href, prop:target, prop:title"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:q" data-label="短引用属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:cite"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:cite"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:abbr" data-label="缩写属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:title"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:title"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:del" data-label="删除属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:date, prop:time"></li>
-    <li tpl-node="prop:cite2"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:date, prop:time"></li>
+    <li tpl-node="!prop:cite2"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:ins" data-label="插入属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:date, prop:time"></li>
-    <li tpl-node="prop:cite2"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:date, prop:time"></li>
+    <li tpl-node="!prop:cite2"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:code" data-label="代码属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:tab, prop:lang"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:tab, prop:lang"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:dfn" data-label="定义词属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:title"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:title"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:bdo" data-label="方向定义"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:dir"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:dir"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:blockquote" data-label="引用块属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:cite"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:cite"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:codelist" data-label="代码表属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:tab, prop:lang, prop:start"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:tab, prop:lang, prop:start"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:ol" data-label="有序列表属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:start, prop:sntype, prop:reversed"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:start, prop:sntype, prop:reversed"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:olx" data-label="有序级联表属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:start, prop:sntype, prop:reversed"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:start, prop:sntype, prop:reversed"></li>
 </ul>
 
 <!--添加一个提示
     delay 跳过当前事件流程以便解绑，避免after后激发nodeok无限循环。-->
 <ul class="_prop" tpl-name="property:li" data-label="列表项属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|;
         ^nodeok(~li)|({class:'_tips', text:'（不常用）'}) Element('i')"
-    to="(/>li)|trigger('value');
+    to="(/>li)|trigger(_1);
         form/|trigger('apply');
         /[name=type]|after">
-    <li tpl-node="prop:value, prop:sntype"></li>
+    <li tpl-node="!prop:value, prop:sntype"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:table" data-label="表格属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:tborder, prop:vth"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:tborder, prop:vth"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:hr" data-label="分隔线属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         reset;
         build|"
-    to="(/>li)|trigger('value');
+    to="(/>li)|trigger(_1);
         /li:last-child|trigger('reset')">
-    <li tpl-node="prop:thick, prop:length, prop:space, prop:hrstyle"></li>
+    <li tpl-node="!prop:thick, prop:length, prop:space, prop:hrstyle"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:blank" data-label="白板属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:width, prop:height"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:width, prop:height"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:explain" data-label="插图讲解属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
+    to="/>li|trigger(_1)">
     <li obt-src="obts/prop2select.json">
         <b>定位</b>
         <span><select data-attr="-pba" name="position" tpl-name="explain:position">
@@ -226,51 +226,51 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:h1" data-label="主标题属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="(/>li)|trigger('value')">
-    <li tpl-node="prop:id"></li>
+    to="(/>li)|trigger(_1)">
+    <li tpl-node="!prop:id"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:h2" data-label="标题属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:id"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:id"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:h3" data-label="标题属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:id"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:id"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:h4" data-label="标题属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:id"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:id"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:h5" data-label="标题属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:id"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:id"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:h6" data-label="标题属性"
-    on="vinit|v.sel0;
+    on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
-    to="/>li|trigger('value')">
-    <li tpl-node="prop:id"></li>
+    to="/>li|trigger(_1)">
+    <li tpl-node="!prop:id"></li>
 </ul>
 
 
 
 <!--内联单元：
-    微编辑直接插入。
+    微编辑下待插入单元引用。
     普通模式下内联单元插入的嵌入引用（部分）。
 ----------------------------------------------------------------------------->
 
@@ -287,7 +287,7 @@
     by="New.audio(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
+    <li tpl-node="!prop:upload, prop:preview"></li>
     <li tpl-node="prop:mediaopts"></li>
     <li tpl-node="prop:sources1"></li>
 </ul>
@@ -299,8 +299,8 @@
     by="New.video(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:poster"></li>
-    <li tpl-node="prop:upload, prop:preview"></li>
-    <li tpl-node="prop:wh, prop:mediaopts"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="prop:mediaopts"></li>
     <li tpl-node="prop:sources1, prop:tracks"></li>
 </ul>
 
@@ -310,7 +310,7 @@
     by="New.img(_1) concat(_1) (null, true) New.picture(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:alt"></li>
-    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
     <li tpl-node="prop:sources2"></li>
 </ul>
 
@@ -336,7 +336,7 @@
     by="New.img(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:alt"></li>
-    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
 </ul>
 
 <!--图形：微编辑
@@ -432,14 +432,6 @@
     on="create|$('/[name=rb]') val dup pass $('form/') valo('rt rpl rpr')"
     by="New.ruby(_1)"
     to="form/|trigger('insert')">
-    <li tpl-node="prop:rb"></li>
-    <li tpl-node="prop:rt"></li>
-    <li tpl-node="prop:rp"></li>
-</ul>
-
-<!--注音单元组：
-    内联普通插入，create逻辑不同故单独定义。 -->
-<ul class="_prop" tpl-name="item:rbpt">
     <li tpl-node="prop:rb"></li>
     <li tpl-node="prop:rt"></li>
     <li tpl-node="prop:rp"></li>
@@ -547,14 +539,15 @@
 
 <!--属性条目：（prop:xxx）
     用于内联单元的普通插入和微编辑，以及属性修改（模态框）。
-    注记：
-    取值事件（value）仅用到属性编辑框取初始值，
-    内容插入面板中不会激发该事件，绑定被克隆但无害。
+    value  属性编辑框取初始值赋值（单元素）。
+    values 同上，但选取的是多个元素（相同类型）。
 ----------------------------------------------------------------------------->
 
 <li tpl-name="prop:thick"
-    on="value|ev('detail') style('borderWidth') dup"
-    to="/input|@value val">
+    on="value|v.sel0 style('borderWidth') dup;
+        values|v.sels style('borderWidth') v.p.vals1 dup"
+    to="/input|@value val;
+        /input|@value val">
     <b title="CSS: border-width">厚度</b>
     <span><input type="text" name="thick" class="_words" /></span>
 </li>
@@ -584,7 +577,7 @@
         -|trigger('click');
         |@-iv">
     <b>线型</b>
-    <hr tpl-node="hr:border">
+    <hr tpl-node="!hr:border">
 </li>
 
 <li obt-src="obts/prop2select.json" tpl-name="prop:sntype">
@@ -690,7 +683,7 @@
     <span
         on="^nodeok|(`[ {src: '...', type: '...'}, ... ]`)"
         to="/pre|@-tip">
-        <pre tpl-node="prop:codes"></pre>
+        <pre tpl-node="!prop:codes"></pre>
     </span>
 </li>
 
@@ -704,7 +697,7 @@
     <span
         on="^nodeok|(`[ {kind, srclang, src, label, default?: ''}, ... ]`)"
         to="/pre|@-tip">
-        <pre tpl-node="prop:codes"></pre>
+        <pre tpl-node="!prop:codes"></pre>
     </span>
 </li>
 
@@ -718,7 +711,7 @@
     <span
         on="^nodeok|(`[ {srcset: '...', media: '...'}, ... ]`)"
         to="/pre|@-tip">
-        <pre tpl-node="prop:codes"></pre>
+        <pre tpl-node="!prop:codes"></pre>
     </span>
 </li>
 
@@ -1054,11 +1047,11 @@
         <b>源码</b>
         <!-- 录入提示类别 -->
         <span on="^nodeok|('<svg>...</svg>')" to="/pre|@-tip">
-            <pre tpl-node="prop:codes"></pre>
+            <pre tpl-node="!prop:codes"></pre>
         </span>
     </li>
     <li tpl-node="prop:src, prop:alt"></li>
-    <li tpl-node="prop:upload, prop:preview, prop:wh"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
     <li><b>讲解</b>
         <span><textarea name="explain" rows="4" placeholder="（可选）"></textarea></span>
     </li>

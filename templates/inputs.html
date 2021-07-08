@@ -134,7 +134,7 @@
     by="New.pre"
     to="form/|trigger('insert')">
     <div class="_main">
-        <pre tpl-node="prop:codes"></pre>
+        <pre tpl-node="!prop:codes"></pre>
     </div>
     <aside>
         <div class="_option">
@@ -401,7 +401,7 @@
     by="New.codelist(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
-        <pre tpl-node="prop:codes"></pre>
+        <pre tpl-node="!prop:codes"></pre>
     </div>
     <aside>
         <div class="_option">
@@ -621,7 +621,7 @@
             <input name="figcaption" type="text" placeholder="标题" class="_scale" />
             <label><input name="below" type="checkbox" />标题在下</label>
         </header>
-        <pre tpl-node="prop:codes"></pre>
+        <pre tpl-node="!prop:codes"></pre>
         <textarea name="explain" placeholder="讲解文字，可选" class="_inert"></textarea>
     </div>
     <aside>
@@ -709,7 +709,7 @@
     by="New.codeblock(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
-        <pre tpl-node="prop:codes"></pre>
+        <pre tpl-node="!prop:codes"></pre>
     </div>
     <aside>
         <div class="_option">
@@ -1103,7 +1103,7 @@
         (/[data-id=code])|val">
     <div class="_main _list">
         <div class="_prop">
-            <pre tpl-node="prop:codes"></pre>
+            <pre tpl-node="!prop:codes"></pre>
         </div>
     </div>
     <aside>
@@ -1186,7 +1186,7 @@
     to="|trigger('xlist');
         form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-source="^prop:xolah4li" />
+        <hr tpl-source="~prop:xolah4li" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1197,7 +1197,7 @@
     on="create|$('/[name=type]') val"
     to="|trigger(_1)">
     <div class="_main _list">
-        <hr tpl-source="^prop:figimgbox" />
+        <hr tpl-source="~prop:figimgbox" />
     </div>
     <aside>
         <div class="_option">
@@ -1318,7 +1318,7 @@
 
 <div class="_body _Inline" tpl-name="input:audio">
     <div class="_main _list">
-        <ul tpl-node="inlines:audio"></ul>
+        <ul tpl-node="!inlines:audio"></ul>
     </div>
     <aside>
         <input type="hidden" name="tabs" value="4">
@@ -1328,7 +1328,7 @@
 
 <div class="_body _Inline" tpl-name="input:video">
     <div class="_main _list">
-        <ul tpl-node="inlines:video"></ul>
+        <ul tpl-node="!inlines:video"></ul>
     </div>
     <aside>
         <input type="hidden" name="tabs" value="4">
@@ -1338,7 +1338,7 @@
 
 <div class="_body _Inline" tpl-name="input:picture">
     <div class="_main _list">
-        <ul tpl-node="inlines:picture"></ul>
+        <ul tpl-node="!inlines:picture"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1354,7 +1354,7 @@
         /pre|@-tip">
     <div class="_main _list">
         <div class="_prop">
-            <hr tpl-node="prop:codes" />
+            <hr tpl-node="!prop:codes" />
         </div>
     </div>
     <aside>
@@ -1364,7 +1364,7 @@
 
 <div class="_body _Inline" tpl-name="input:ruby">
     <div class="_main _list">
-        <ul tpl-node="inlines:ruby"></ul>
+        <ul tpl-node="!inlines:ruby"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1373,7 +1373,7 @@
 
 <div class="_body _Inline" tpl-name="input:meter">
     <div class="_main _list">
-        <hr tpl-node="inlines:meter" />
+        <hr tpl-node="!inlines:meter" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1382,7 +1382,7 @@
 
 <div class="_body _Inline" tpl-name="input:space">
     <div class="_main _list">
-        <ul tpl-node="inlines:space"></ul>
+        <ul tpl-node="!inlines:space"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1391,7 +1391,7 @@
 
 <div class="_body _Inline" tpl-name="input:img">
     <div class="_main _list">
-        <hr tpl-node="inlines:img" />
+        <hr tpl-node="!inlines:img" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1400,7 +1400,7 @@
 
 <div class="_body _Inline" tpl-name="input:br">
     <div class="_main _list">
-        <ul tpl-node="inlines:br"></ul>
+        <ul tpl-node="!inlines:br"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1487,7 +1487,7 @@
     by="New.ruby(_1) children"
     to="form/|trigger('insrbpt')">
     <div class="_main _list">
-        <hr tpl-node="item:rbpt" />
+        <hr tpl-node="inlines:ruby" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]" />
@@ -1505,7 +1505,7 @@
         <div class="_prop"
             on="^nodeok|('<...> xml source </...>')"
             to="/pre|@-tip">
-            <pre tpl-node="prop:codes"></pre>
+            <pre tpl-node="!prop:codes"></pre>
         </div>
     </div>
     <aside>
@@ -1516,7 +1516,7 @@
 
 <div class="_body _Inline" tpl-name="input:a">
     <div class="_main _list">
-        <ul tpl-node="inlines:a"></ul>
+        <ul tpl-node="!inlines:a"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1525,7 +1525,7 @@
 
 <div class="_body _Inline" tpl-name="input:q">
     <div class="_main _list">
-        <ul tpl-node="inlines:q"></ul>
+        <ul tpl-node="!inlines:q"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1534,7 +1534,7 @@
 
 <div class="_body _Inline" tpl-name="input:abbr">
     <div class="_main _list">
-        <ul tpl-node="inlines:abbr"></ul>
+        <ul tpl-node="!inlines:abbr"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1543,7 +1543,7 @@
 
 <div class="_body _Inline" tpl-name="input:del">
     <div class="_main _list">
-        <ul tpl-node="inlines:del"></ul>
+        <ul tpl-node="!inlines:del"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1552,7 +1552,7 @@
 
 <div class="_body _Inline" tpl-name="input:ins">
     <div class="_main _list">
-        <ul tpl-node="inlines:ins"></ul>
+        <ul tpl-node="!inlines:ins"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1561,7 +1561,7 @@
 
 <div class="_body _Inline" tpl-name="input:dfn">
     <div class="_main _list">
-        <ul tpl-node="inlines:dfn"></ul>
+        <ul tpl-node="!inlines:dfn"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1570,7 +1570,7 @@
 
 <div class="_body _Inline" tpl-name="input:bdo">
     <div class="_main _list">
-        <ul tpl-node="inlines:bdo"></ul>
+        <ul tpl-node="!inlines:bdo"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1579,7 +1579,7 @@
 
 <div class="_body _Inline" tpl-name="input:times">
     <div class="_main _list">
-        <ul tpl-node="inlines:times"></ul>
+        <ul tpl-node="!inlines:times"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1588,7 +1588,7 @@
 
 <div class="_body _Inline" tpl-name="input:orz">
     <div class="_main _list">
-        <hr tpl-node="inlines:orz" />
+        <hr tpl-node="!inlines:orz" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1606,7 +1606,7 @@
         on="^nodeok|('应当仅为一行')"
         to="/pre|@-tip">
         <div class="_prop">
-            <pre tpl-node="prop:codes"></pre>
+            <pre tpl-node="!prop:codes"></pre>
         </div>
     </div>
     <aside>

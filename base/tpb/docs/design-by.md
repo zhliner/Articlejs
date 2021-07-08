@@ -35,7 +35,7 @@ POST( path, enctype:String ): Promise<json>
 用户可以通过如下几个接口扩展自己的处理集。
 
 ```js
-processExtend( name, exts, args ): void
+processExtend( name, exts, args, n ): void
 // 普通扩展
 
 processProxy( name, getter, n ): void

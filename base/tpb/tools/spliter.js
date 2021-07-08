@@ -95,6 +95,7 @@ class UmpCaller {
      * 构造切分器。
      */
     constructor() {
+        // 括号嵌套计数
         this._cnt = 0;
     }
 
@@ -226,10 +227,13 @@ class Spliter {
     /**
      * 判断器重置。
      * 用于出错之后的状态恢复。
-     * @return {void}
+     * @return {this}
      */
     reset() {
-        this._umps.forEach( ump => ump.reset() );
+        this._umps.forEach(
+            ump => ump.reset()
+        );
+        return this;
     }
 
 

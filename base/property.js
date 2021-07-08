@@ -14,6 +14,8 @@
 //
 
 import * as T from "./types.js";
+import { customGetter } from "./tpb/pbs.get.js";
+
 
 const $ = window.$;
 
@@ -316,6 +318,33 @@ function arrValues( els, val ) {
 
 
 //
+// 取值函数集。
+// 区分单选取和多选取而有不同的状态。
+// - 文本框输入的值，空串表示无操作（维持原值）。
+// - 单选按钮无任何选中时表示“不确定”状态，维持原属性值不变。
+// - 复选框在 indeterminate 为真时同上，维持原属性值。
+// - 选单的不确定状态为无任何选取，维持原值。
+// - 单个目标时，文本框空串会移除该属性（友好）。
+//
+const __Kit = {
+    /**
+     * 值集单一取值。
+     * 如果值集为相同单一值，取该值，否则取值为null。
+     * 用于多目标检测取值初始赋值。
+     * @data: [Value] 值集
+     * @return {Value|null}
+     */
+    vals1( evo ) {
+        // PBS: item(0) pick(-2) Set size gt(1) pop $if(null, _1)
+        return new Set(evo.data).size === 1 ? evo.data[0] : null;
+    },
+
+    __vals1: 1,
+};
+
+
+
+//
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
@@ -355,3 +384,13 @@ export function propertyData( tval, els, ...vals ) {
 export function propertyProcess( tval ) {
     return customHandles[ tval ] || property;
 }
+
+
+
+//
+// 取值集扩展。
+// 引用：v.p.xxx
+//
+customGetter( 'p', __Kit,
+    Object.keys( __Kit ).filter( n => n[0] !== '_' )
+);

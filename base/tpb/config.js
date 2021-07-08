@@ -262,7 +262,6 @@ function subObj( names, obj ) {
  * 如果方法需要访问指令单元（this:Cell），可以传递nobind为真。
  * 可无exts实参调用，返回子域本身。
  * 源定义支持取栈数量（__[name]）和特权（__[name]_x）配置。
- *
  * @param  {String} name 接受域标识
  * @param  {Object} exts 待扩展目标集，可选
  * @param  {Boolean} nobind 无需绑定，可选。
@@ -282,20 +281,28 @@ function deepExtend( name, exts, nobind, base ) {
  * 具名扩展。
  * 需要指定待扩展的目标方法，且仅限于成员的直接引用。
  * 适用普通对象和任意直接使用的类实例。
- * 如果接收域标识为空字符串，则接收域会是base本身。
+ * 如果从类实例扩展，通常需要传递一个统一的取栈数量n实参。
+ * 通过方法名前置双下划线设置的取栈数量可以覆盖默认的n值。
+ * 如果接收域标识为空字符串或假值，则接收域为base本身。
  * 注记同上。
  * @param {String} name 接收域标识
  * @param {Instance} obj 待扩展对象或类实例
  * @param {[String]} methods 方法名集
+ * @param {Number} n 默认取栈数量，可选
  * @param {Object} base 扩展根域
  */
-function namedExtend( name, obj, methods, base ) {
+function namedExtend( name, obj, methods, n, base ) {
     let host = subObj(
             name && name.split('.'),
             base
         );
     for ( const m of methods ) {
-        host[ m ] = funcSets( obj[m].bind(obj), obj[`__${m}`], obj[`__${m}_x`] )
+        let _n = obj[ `__${m}` ];
+
+        if ( _n === undefined ) {
+            _n = n;
+        }
+        host[ m ] = funcSets( obj[m].bind(obj), _n, obj[`__${m}_x`] )
     }
 }
 

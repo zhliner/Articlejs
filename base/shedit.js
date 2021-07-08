@@ -675,7 +675,7 @@ const __Kit = {
 
     __shsave: 1,
 
-}
+};
 
 
 //
@@ -702,5 +702,5 @@ processExtend( 'Kit', __Kit, [
     'shsave',
 ]);
 
-
-window.__Store = __Store;
+//:debug
+// window.__Store = __Store;

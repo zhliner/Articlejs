@@ -82,7 +82,7 @@ const
     // 属性选择器和调用式内可能包含|字符，因此排除。
     // 注记：
     // 字符串不在属性值或调用式之外，故无需例外。
-    __pipeSplit = new Spliter( __chrPipe, new UmpCaller, new UmpChars('[', ']') ),
+    __pipeSplit = new Spliter( __chrPipe, new UmpCaller(), new UmpChars('[', ']') ),
 
 
     // On事件定义模式。
@@ -169,10 +169,9 @@ const Parser = {
             i = 0;
 
         for (let on of __dlmtSplit.split(conf.on)) {
+            on = zeroPass( on );
             // 容错末尾;
-            if ( !(on = zeroPass(on)) ) {
-                continue;
-            }
+            if ( !on ) continue;
             yield {
                 on: on,
                 by: zeroPass( bys[i] ),
@@ -951,7 +950,7 @@ class Evn {
     constructor( name ) {
         let _vs = name.match(__onEvent);
         if ( !_vs ) {
-            throw new Error('on-attr config is invalid.');
+            throw new Error(`[${name}] is invalid`);
         }
         this.name     = _vs[1];
         this.selector = null;

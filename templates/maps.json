@@ -301,7 +301,6 @@
         "inlines:var",
         "inlines:video",
         "inlines:wbr",
-        "item:rbpt",
         "prop:alt",
         "prop:amount",
         "prop:capwhere",

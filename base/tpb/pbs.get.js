@@ -878,15 +878,19 @@ const _Gets = {
      * 注意：
      * 克隆时是每次都克隆，在需要重新渲染模板时很有用。
      * 仅支持单个模板获取/克隆。
+     * 如果clone为假，bound实参没有意义。
+     * @data: String 模板名
      * @param  {String} name 模板名
      * @param  {Boolean} clone 是否克隆，可选
+     * @param  {Boolean} bound 克隆包含绑定是事件处理器，可选
      * @return {Promise<Element>}
      */
-    tpl( evo, name, clone ) {
+    tpl( evo, name, clone, bound = true ) {
         if ( evo.data !== undefined ) {
             [name, clone] = [evo.data, name];
         }
-        return Templater[clone ? 'clone' : 'get']( name );
+        // .get() 多余的实参无副作用。
+        return Templater[clone ? 'clone' : 'get']( name, bound );
     },
 
     __tpl: -1,
@@ -906,18 +910,21 @@ const _Gets = {
      * 3. 主动使用tpl载入单个节点，于是与该节点定义在同一文件中的其它节点就会自动载入。
      * 注意：
      * 与tpl相似，克隆是每次事件都会克隆一组新的节点。
+     * 如果clone为假，bound实参没有意义。
      * @data: String 名称/序列
      * @param  {Boolean|null} clone 是否克隆或移出
+     * @param  {Boolean} bound 克隆包含绑定是事件处理器，可选
      * @return {Element|[Element|null]|null}
      */
-    node( evo, clone ) {
+    node( evo, clone, bound = true ) {
         let _ns = evo.data,
             _fn = clone === null ? 'del' : 'node';
 
+        // .del() 多余的实参无副作用
         if ( __reSpace.test(_ns) ) {
-            return _ns.split(__reSpace).map( n => Templater[_fn](n, clone) );
+            return _ns.split(__reSpace).map( n => Templater[_fn](n, clone, bound) );
         }
-        return Templater[_fn]( _ns, clone );
+        return Templater[_fn]( _ns, clone, bound );
     },
 
     __node: 1,
@@ -2215,13 +2222,14 @@ Get.v = {};
  * - 这是简化版的 By:processExtend 逻辑。
  * - 只能在 On.v 空间设置。
  * @param  {String|null} name 目标子域序列
- * @param  {Object|Function} exts 扩展集或取值函数
+ * @param  {Object|Instance|Function} exts 扩展集或类实例或取值函数
  * @param  {[String]|Number} args 方法名集或取栈数量，可选。
+ * @param  {Number} n 默认取栈数量，在args为方法名集时有用。可选
  * @return {void}
  */
-export function customGetter( name, exts, args ) {
+export function customGetter( name, exts, args, n ) {
     if ( $.isFunction(exts) ) {
         return hostSet( Get.v, name, exts, args );
     }
-    namedExtend( name, exts, args, Get.v );
+    namedExtend( name, exts, args, n, Get.v );
 }

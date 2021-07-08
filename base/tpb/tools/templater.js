@@ -35,7 +35,12 @@ const
     __loadSplit = ',',
 
     // 取出标记字符。
-    __pickFlag  = '^',
+    // 适用 tpl-source 语法。
+    __flagPick  = '~',
+
+    // 绑定的事件处理器一起克隆标记。
+    // 适用 tpl-node 语法。
+    __flagBound = '!',
 
     // 特性名定义。
     __tplName   = 'tpl-name',   // 模板节点命名
@@ -93,10 +98,11 @@ class Templater {
      * 如果模板不存在，会自动尝试载入。
      * 注：克隆包含渲染文法。
      * @param  {String} name 模板名
+     * @param  {Boolean} bound 包含绑定的事件处理器，可选
      * @return {Promise<Element>} 承诺对象
      */
-    clone( name ) {
-        return this.get( name ).then( el => this._clone(el) );
+    clone( name, bound ) {
+        return this.get( name ).then( el => this._clone(el, bound) );
     }
 
 
@@ -104,15 +110,16 @@ class Templater {
      * 返回既有模板节点或其副本。
      * @param  {String} name 节点名
      * @param  {Boolean} clone 是否克隆（含渲染文法）
+     * @param  {Boolean} bound 克隆包含绑定的事件处理器，可选
      * @return {Element|null}
      */
-    node( name, clone ) {
+    node( name, clone, bound ) {
         let _tpl = this._tpls.get( name );
 
         if ( !_tpl ) {
             return null;
         }
-        return clone ? this._clone( _tpl ) : _tpl;
+        return clone ? this._clone( _tpl, bound ) : _tpl;
     }
 
 
@@ -254,14 +261,16 @@ class Templater {
 
     /**
      * 克隆模板节点。
-     * 会同时克隆渲染文法（如果有）以及绑定的事件处理器。
+     * - 渲染文法（如果有）会被无条件克隆。
+     * - 是否克隆事件处理器由bound实参控制。
      * @param  {Element} tpl 原模板节点
+     * @param  {Boolean} bound 包含绑定的事件处理器，可选
      * @return {Element} 克隆的新节点
      */
-    _clone( tpl ) {
+    _clone( tpl, bound ) {
         return Render.clone(
             tpl,
-            $.clone( tpl, true, true, true )
+            $.clone( tpl, bound, true, bound )
         );
     }
 
@@ -284,17 +293,21 @@ class Templater {
 
     /**
      * 导入元素引用的子模版。
-     * 子模版定义可能是一个列表（有序）。
-     * 可能返回null，调用者应当滤除。
+     * 子模版定义可以是一个逗号分隔的列表（有序）。
      * @param  {Element} el 配置元素
-     * @return {Promise<void>|void}
+     * @return {Promise<void>}
      */
     _imports( el ) {
-        let [meth, val] = this._reference(el);
-        if ( !val ) return;
+        let [meth, val] = this._reference(el),
+            _bound = false;
 
+        if ( val[0] === __flagBound ) {
+            _bound = true;
+            val = val.substring( 1 );
+        }
         return Promise.all(
-            val.split(__loadSplit).map( n => this[meth](n.trim()) )
+            // 多余的_bound无副作用。
+            val.split(__loadSplit).map( n => this[meth](n.trim(), _bound) )
         )
         // $.replace
         // tQuery:nodeok 定制事件可提供初始处理机制。
@@ -304,7 +317,8 @@ class Templater {
 
     /**
      * 获取节点引用。
-     * tpl-node与tpl-source不能同时配置，否则后者无效。
+     * tpl-node优先于tpl-source，两者不应同时配置。
+     * 取出标识符^用在tpl-node上无效，它会被简单忽略掉。
      * 返回取值方法名和配置值。
      * @param  {Element} el 配置元素
      * @return {[method, value]}
@@ -314,9 +328,9 @@ class Templater {
             _v = $.xattr(el, _n).trim(),
             _f = 'get';
 
-        if ( _v[0] === __pickFlag ) {
+        if ( _v[0] === __flagPick ) {
             _f = 'pick';
-            _v = _v.substring(1).trimLeft();
+            _v = _v.substring( 1 );
         }
         return [ _n == __tplNode ? 'clone' : _f, _v ];
     }
