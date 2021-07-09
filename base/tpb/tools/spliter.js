@@ -53,6 +53,11 @@ class UmpString {
     }
 
 
+    ready() {
+        return this._qch === '' && !this._esc;
+    }
+
+
     //-- 私有辅助 -------------------------------------------------------------
 
 
@@ -119,6 +124,11 @@ class UmpCaller {
     reset() {
         this._cnt = 0;
     }
+
+
+    ready() {
+        return this._cnt === 0;
+    }
 }
 
 
@@ -158,6 +168,11 @@ class UmpChars {
 
     reset() {
         this._cnt = 0;
+    }
+
+
+    ready() {
+        return this._cnt === 0;
     }
 }
 
@@ -234,6 +249,16 @@ class Spliter {
             ump => ump.reset()
         );
         return this;
+    }
+
+
+    /**
+     * 是否为就绪状态。
+     * 非此则为解析未完成，不应启动新的解析。
+     * @return {Boolean}
+     */
+    ready() {
+        return this._umps.every( ump => ump.ready() );
     }
 
 

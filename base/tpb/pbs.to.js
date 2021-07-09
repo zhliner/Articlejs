@@ -151,10 +151,11 @@ const _Update = {
     /**
      * 特性值切换。
      * 支持text/html两个特殊属性名（tQuery）。
-     * @param {Element|Collector} to 目标元素（集）
-     * @param {Value} val 特性值
-     * @param {String} name 特性名
-     * @param {Boolean} ignore 对比是否忽略大小写
+     * @param  {Element|Collector} to 目标元素（集）
+     * @param  {Value} val 特性值
+     * @param  {String} name 特性名
+     * @param  {Boolean} ignore 对比是否忽略大小写
+     * @return {Collector|void}
      */
     toggleAttr( to, val, name, ignore) {
         if ( $.isArray(to) ) {
@@ -475,6 +476,9 @@ const _Update = {
      * @return {Collector|Node|[Node]} 新插入的节点/集
      */
     _Update[meth] = function( to, data, where, sep ) {
+        if ( data === undefined ) {
+            return;
+        }
         if ( $.isArray(to) ) {
             return $(to)[meth]( data, where, sep );
         }
@@ -561,6 +565,9 @@ const _Update = {
      * @return {Collector|void}
      */
     _Update[meth] = function( to, val, name ) {
+        if ( val === undefined ) {
+            return;
+        }
         if ( $.isArray(to) ) {
             return $(to)[meth]( name, val );
         }
@@ -597,6 +604,9 @@ const _Update = {
      * @return {Collector|void}
      */
     _Update[meth] = function( to, data, ...args ) {
+        if ( data === undefined ) {
+            return;
+        }
         if ( $.isArray(to) ) {
             return $(to)[meth]( data, ...args );
         }
@@ -630,6 +640,7 @@ const _Update = {
      */
     _Update[meth] = function( to, handler, evn, slr, ival ) {
         if ( ival !== undefined ) {
+            // 适用 Cell
             handler.setInit( ival );
         }
         if ( $.isArray(to) ) {
@@ -1082,7 +1093,7 @@ function scrollObj( pos ) {
     if ( typeof pos == 'number' ) {
         return { top: pos };
     }
-    return { left: pos[0], top: [1] };
+    return { left: pos[0], top: pos[1] };
 }
 
 

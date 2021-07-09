@@ -340,6 +340,19 @@ const __Kit = {
     },
 
     __vals1: 1,
+
+
+    /**
+     * 值集单一判断。
+     * 如果值集为相同单一值，取该值，indeterminate 为 false，
+     * 否则取值为 null，indeterminate 为 true。
+     * @return {[Value|null, false|true]} 值和状态 [value, indeterminate]
+     */
+    vals2( evo ) {
+        return new Set(evo.data).size === 1 ? [ evo.data[0], false ] : [ null, true ];
+    },
+
+    __vals2: 1,
 };
 
 

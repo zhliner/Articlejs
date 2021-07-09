@@ -168,7 +168,12 @@ const Parser = {
             tos = [...__dlmtSplit.split(conf.to)],
             i = 0;
 
-        for (let on of __dlmtSplit.split(conf.on)) {
+        // 及时提醒。
+        if ( !__dlmtSplit.ready() ) {
+            throw new Error( `{\nby: ${conf.by}\nto: ${conf.to}\n} has something bad.` );
+        }
+
+        for ( let on of __dlmtSplit.split(conf.on) ) {
             on = zeroPass( on );
             // 容错末尾;
             if ( !on ) continue;

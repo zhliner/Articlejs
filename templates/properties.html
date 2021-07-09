@@ -84,7 +84,7 @@
     on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
     to="/>li|trigger(_1)">
-    <li tpl-node="!prop:spwidth"></li>
+    <li tpl-node="!prop:cwidth"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:a" data-label="链接属性"
@@ -205,7 +205,7 @@
     on="vinit|v.sels len gt(1) $if('values', 'value');
         build|"
     to="(/>li)|trigger(_1)">
-    <li tpl-node="!prop:width, prop:height"></li>
+    <li tpl-node="!prop:cwidth, prop:cheight"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:explain" data-label="插图讲解属性"
@@ -442,7 +442,7 @@
     on="create|$('/[name=width]') val obj('width')"
     by="New.space(_1)"
     to="form/|trigger('insert')">
-    <li tpl-node="prop:spwidth"></li>
+    <li tpl-node="prop:cwidth"></li>
 </ul>
 
 <!-- 换行：未使用New.br -->
@@ -543,39 +543,39 @@
     values 同上，但选取的是多个元素（相同类型）。
 ----------------------------------------------------------------------------->
 
-<li tpl-name="prop:thick"
-    on="value|v.sel0 style('borderWidth') dup;
-        values|v.sels style('borderWidth') v.p.vals1 dup"
-    to="/input|@value val;
-        /input|@value val">
+<li obt-src="obts/propcss.json" tpl-name="prop:thick">
     <b title="CSS: border-width">厚度</b>
-    <span><input type="text" name="thick" class="_words" /></span>
+    <span><input type="text" data-css="borderWidth" name="thick" class="_words" /></span>
 </li>
 
-<li tpl-name="prop:length"
-    on="value|ev('detail') style('width') dup"
-    to="/input|@value val">
+<li obt-src="obts/propcss.json" tpl-name="prop:length">
     <b title="CSS: width">长度</b>
-    <span><input type="text" name="length" class="_chars" /></span>
+    <span><input type="text" data-css="width" name="length" class="_chars" /></span>
 </li>
 
-<li tpl-name="prop:space"
-    on="value|ev('detail') style('height') dup"
-    to="/input|@value val">
+<li obt-src="obts/propcss.json" tpl-name="prop:space">
     <b title="CSS: height">空白</b>
-    <span><input type="text" name="height" class="_chars" /></span>
+    <span><input type="text" data-css="height" name="height" class="_chars" /></span>
 </li>
 
 <!--定制处理：
-    value 设置当前值，暂存初始值。nil占位click发送用数据。
-    reset 手工重置。 -->
-<li data-iv="" tpl-name="prop:hrstyle"
-    on="value|ev('detail') attr('role') dup slr('/hr', 'role', _1) $(_1) nil pick(-2);
-        reset|evo(3) attr('-iv') slr('/hr', 'role', _1) $(_1) pop;
-        _ival|ev('detail')"
+    data-iv 初始值存储（reset用）。
+    data-uv 是否为不确定态（多选时有用）。
+    value   设置当前值，暂存初始值。nil占位click发送用数据。
+    reset   手工重置。 -->
+<li data-iv="" data-uv="" tpl-name="prop:hrstyle"
+    on="value|v.sel0 attr('role') dup slr('/hr', 'role', _1) $(_1) nil pick(-2);
+        values|v.sels attr('role') v.p.vals2;
+        reset|evo(3) attr('-uv') $if('_fire2', '_fire1');
+        _fire1|evo(3) attr('-iv') slr('/hr', 'role', _1) $(_1) pop;
+        _fire2|(null);
+        _ival|(null) ev('detail')"
     to="-|trigger('click')|goto('_ival', _1);
+        -;
+        |-|goto(_1);
         -|trigger('click');
-        |@-iv">
+        /._border|trigger('setv');
+        |@-iv @-uv">
     <b>线型</b>
     <hr tpl-node="!hr:border">
 </li>
@@ -715,17 +715,14 @@
     </span>
 </li>
 
-<!--宽度：
-    从特性或内联样式上取值。适用图片<img>和白板<div> -->
-<li obt-src="obts/prop2.json" tpl-name="prop:width">
+<li obt-src="obts/prop1.json" tpl-name="prop:width">
     <b title="width">宽度</b>
     <span><input type="text" name="width" placeholder="90%" class="_chars"></span>
 </li>
 
-<!-- 高度：（同上） -->
-<li obt-src="obts/prop2.json" tpl-name="prop:height">
+<li obt-src="obts/prop1.json" tpl-name="prop:height">
     <b title="height">高度</b>
-    <span><input type="text" name="height" placeholder="90%" class="_chars"></span>
+    <span><input type="text" name="height" placeholder="50%" class="_chars"></span>
 </li>
 
 <li obt-src="obts/prop1.json" tpl-name="prop:id">
@@ -949,11 +946,14 @@
     <span><input type="text" name="title" /></span>
 </li>
 
-<li tpl-name="prop:spwidth"
-    on="value|ev('detail') style('width') dup"
-    to="/input|@value val">
-    <b>空白宽</b>
-    <span><input type="text" name="width" class="_chars" placeholder="2.45em" /></span>
+<li obt-src="obts/propcss.json" tpl-name="prop:cwidth">
+    <b>宽度</b>
+    <span><input type="text" data-css="width" name="width" class="_chars" placeholder="12.5em" /></span>
+</li>
+
+<li obt-src="obts/propcss.json" tpl-name="prop:cheight">
+    <b>高度</b>
+    <span><input type="text" data-css="height" name="width" class="_chars" placeholder="30%" /></span>
 </li>
 
 <li tpl-name="prop:tab"

@@ -1,5 +1,5 @@
 {
     "//": "属性框初始赋值：选单赋值。三步：1. 清理默认<option>；2. 设置选单；3. 设置默认<option>。",
-    "on": "value|(false); _select|ev('detail') $('/select') attrs('-attr name') vtrue attr(_1) or(''); _defopt|(true) $('/select') prop('selected') pop",
-    "to": "(/option)|@selected|ev('detail') goto('_select', _1); /select|val|goto('_defopt'); -|@selected"
+    "on": "value|(false); _select|v.sel0 $('/select') attrs('-attr name') vtrue attr(_1) or(''); _defopt|(true) $('/select') prop('selected') pop",
+    "to": "(/option)|@selected|goto('_select'); /select|val|goto('_defopt'); -|@selected"
 }

@@ -731,11 +731,15 @@
     by="New.hr(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <span class="_border content" tabindex="0" tpl-name="hr:border"
-            on="click(b)|$$('/b');
-                setv|ev('detail') pop $('/hr') attr('role')"
-            to="=|only('_press')|target goto('setv', _1);
-                /[name=role]|val">
+        <!--线型设置：
+            click   用户点选，改变了不确定状态。构造3项数据发送到设置。
+            setv    接收3项数据，设置到控件上的属性。
+                    detail: [是否不确定, 属性值, 初始默认值] -->
+        <span class="_border content" tpl-name="hr:border"
+            on="click(b)|evo(2) pop $('/hr') attr('role') (false) pack(2);
+                setv|ev('detail') spread"
+            to="|trigger('setv');
+                /[name=role]|$indeterminate val @-iv">
             <b title="默认" class="_press"><hr></b>
             <b title="实线（solid）"><hr role="solid"></b>
             <b title="虚线（dashed）"><hr role="dashed"></b>
@@ -745,7 +749,24 @@
             <b title="外槽线（ridge）"><hr role="ridge"></b>
             <b title="内嵌线（inset）"><hr role="inset"></b>
             <b title="外嵌线（outset）"><hr role="outset"></b>
-            <input type="hidden" name="role" value="" />
+            <!--状态主导：
+                根据属性变化，设置相应的UI表现。
+                - 不确定态：清除条目选取态类（_press）。
+                - 确定态：  构造目标选择器，定位设置选取类。
+                不确定状态在修改多个选取目标的属性时有用（原状维持）。
+                data-iv 初始值。
+                data-uv 初始为不确定。用特性赋值较好。
+                indet   不确定态固化记录。用于初始设置和重置时。
+                reset   手动重置，支持不确定态和确定态。 -->
+            <input type="hidden" name="role" data-uv="" data-iv="" value=""
+                on="propvary|ev('detail') spread index(0) pass('indeterminate') pass ('_press');
+                    propvary|evo(3) prop('indeterminate') end ev('detail') spread pick(0) pass('value') slr('1/hr', 'role', _1) $(_1) parent $$('1/b') pick(-2);
+                    indet|(true);
+                    reset|evo(3) attr('-iv') evo(3) attr('-uv') bool"
+                to="(1/b)|removeClass|goto('indet');
+                    -|only('_press');
+                    |attr('-uv');
+                    |$indeterminate val" />
         </span>
     </div>
     <aside>

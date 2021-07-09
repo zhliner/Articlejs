@@ -641,15 +641,17 @@ const _Control = {
 
     /**
      * 取首个真值成员。
+     * 如果arr指定为真，成员应当为数组，空数组视为假。
      * 如果没有真值成员，返回null。
-     * 这是 arr filter(v=>v) item(0) 指令序列的简化版。
      * @data: [Value]|Iterator
-     * @param  {Number} n 栈顶条目数
-     * @return {Value|null}
+     * @param  {Boolean} arr 扩展对比，可选
+     * @return {Value|[Value]|null}
      */
-    vtrue( evo ) {
+    vtrue( evo, arr ) {
         for ( const v of evo.data ) {
-            if ( v ) return v;
+            if ( v && (!arr || v.length > 0) ) {
+                return v;
+            }
         }
         return null;
     },
