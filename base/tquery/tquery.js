@@ -5341,7 +5341,7 @@ function hookArrSet( el, names, val, scope ) {
         return hookSet(el, names[0], val, scope);
     }
     if ( isArr(val) ) {
-        return names.forEach( (n, i) => val[i] !== undefined && hookSet(el, n, val[i], scope) );
+        return names.forEach( (n, i) => hookSet(el, n, val[i], scope) );
     }
     names.forEach( n => hookSet(el, n, val, scope) );
 }
@@ -5349,12 +5349,19 @@ function hookArrSet( el, names, val, scope ) {
 
 /**
  * 属性/特性设置。
+ * 忽略 undefined 值，
+ * 这在多名称多值一一对应设置时是一种友好。
+ * 浏览器默认会将 undefined 值视为相同形式的字符串，
+ * 如果需要这样的结果，请明确传递字符串。
  * @param {Element} el 目标元素
  * @param {String} name 名称
  * @param {Value|Function} val 设置值
  * @param {Object} scope 适用域对象
  */
 function hookSet( el, name, val, scope ) {
+    if ( val === undefined ) {
+        return;
+    }
     name = attrName( name );
 
     if ( isFunc(val) ) {
