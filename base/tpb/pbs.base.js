@@ -607,13 +607,14 @@ const _Control = {
      * 假值替换。
      * 目标：暂存区/栈顶1项。
      * 如果目标为假，返回传递的替换值。
+     * 如果传递对比值，目标必须与对比值全等才满足条件。
      * @param  {Value} val 替换值
-     * @param  {Boolean} strict 严格相等比较（===）
+     * @param  {Value} eqv 对比值（===）
      * @return {Value} 替换值或原始值
      */
-    or( evo, val, strict ) {
-        if ( strict ) {
-            return evo.data === false ? val : evo.data;
+    or( evo, val, eqv ) {
+        if ( eqv !== undefined ) {
+            return evo.data === eqv ? val : evo.data;
         }
         return evo.data || val;
     },
@@ -625,13 +626,14 @@ const _Control = {
      * 真值替换。
      * 目标：暂存区/栈顶1项。
      * 如果目标为真，返回传递的替换值。
+     * 如果传递对比值，目标必须与对比值全等才满足条件。
      * @param  {Value} val 替换值
-     * @param  {Boolean} strict 严格相等比较（===）
+     * @param  {Value} eqv 对比值（===）
      * @return {Value} 替换值或原始值
      */
-    and( evo, val, strict ) {
-        if ( strict ) {
-            return evo.data === true ? val : evo.data;
+    and( evo, val, eqv ) {
+        if ( eqv !== undefined ) {
+            return evo.data === eqv ? val : evo.data;
         }
         return evo.data && val;
     },

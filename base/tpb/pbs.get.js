@@ -187,9 +187,9 @@ const _Gets = {
      * 从事件对象上取值。
      * 目标：无。
      * 无实参调用取事件对象自身入栈。
-     * 传递单个名称时返回单个值，否则为一个数组。
+     * 支持空格分隔的多个名称指定，返回一个值数组。
      * @param  {String} names 事件属性名（序列）
-     * @return {Value|[Value]} 值或值集
+     * @return {Value|[Value]|Event} 值或值集
      */
     ev( evo, names ) {
         return names == null ?
@@ -204,7 +204,6 @@ const _Gets = {
      * 目标：暂存区/栈顶1项。
      * name支持空格分隔的多个名称，返回一个值数组。
      * 单个名称时返回一个值。
-     * 单个名称可为包含句点（.）连接形式的递进取值。
      * 如果目标是一个数组且取多个值，返回的将是一个二维数组。
      * 注：数值名称针对数组。
      * @data: Object|[Object]
@@ -756,7 +755,7 @@ const _Gets = {
 
     /**
      * 提取元素多个特性值。
-     * 始终会返回值数组，即便名称仅为单个（注：此时应当使有.attr）。
+     * 始终会返回值数组，即便名称仅为单个。
      * 如果目标是一个集合，会返回一个二维的值数组。
      * @data: Element|[Element]
      * @param  {String} names 名称序列
@@ -773,16 +772,65 @@ const _Gets = {
     /**
      * 提取元素的多个属性值。
      * 说明参考上面的.attrs指令。
+     * 会保证提取的undefined值转换为null。
+     * 注记：
+     * 因为数组可能被展开，因此保证值不为undefined。
      * @data: Element|[Element]
      * @param  {String} names 属性名序列
+     * @param  {Boolean} indet 是否检查不确定态，可选
      * @return {[Value]|[[Value]]} 值集或值集组
      */
-    props( evo, names ) {
+    props( evo, names, indet ) {
+        let _fun = indet ? indetProp : $.prop;
+
         names = names.split( __reSpace );
-        return mapCall( evo.data, el => names.map( n => $.prop(el, n) ) );
+        return mapCall( evo.data, el => names.map( n => nullVal(_fun(el, n)) ) );
     },
 
     __props: 1,
+
+
+    /**
+     * 提取元素属性值。
+     * 覆盖 tQuery.prop() 实现以支持不确定态判断。
+     * 支持多个元素返回一个值数组。
+     * @param  {String} name 属性名（单个）
+     * @param  {Boolean} indet 是否检查不确定态（indeterminate），可选
+     * @return {Value|[Value]}
+     */
+    prop( evo, name, indet ) {
+        let _fun = indet ? indetProp : $.prop;
+        return mapCall( evo.data, el => nullVal(_fun(el, name)) );
+    },
+
+    __prop: 1,
+
+
+    /**
+     * 提取元素的多个属性值。
+     * 覆盖 tQuery.property() 实现以支持不确定态判断。
+     * 支持多个元素返回一个值数组。
+     * 注记：
+     * 因为返回值为对象或对象数组，不存在展开不能入栈的问题，
+     * 所以取值可以为 undefined。
+     * 这与原生的 tQuery.property() 值状态兼容。
+     * @param  {String} names 属性名序列
+     * @param  {Boolean} indet 是否检查不确定态（indeterminate），可选
+     * @return {Object|[Object]}
+     */
+    property( evo, names, indet ) {
+        names = names.split( __reSpace );
+
+        if ( !indet ) {
+            return $mapCall( evo.data, 'property', names )
+        }
+        return mapCall(
+            evo.data,
+            el => names.reduce( (o, n) => (o[n] = indetProp(el, n), o), {} )
+        );
+    },
+
+    __property: 1,
 
 
     /**
@@ -1504,10 +1552,8 @@ const _Gets = {
 [
                     // 单元素版参数说明
     'attr',         // ( name:String ): String | null
-    'attribute',    // ( name:String ): String | Object | null
+    'attribute',    // ( name:String ): String | Object
     'xattr',        // ( name:String|[String]): String | Object | [String|null] | [Object] | null
-    'prop',         // ( name:String ): Value | undefined
-    'property',     // ( name:String ): Value | Object | undefined
     'css',          // ( name:String ): String
     'cssGets',      // ( name:String ): Object
     'hasClass',     // ( name:String ): Boolean
@@ -1823,7 +1869,7 @@ const _Gets = {
 //      0|false 状态取消
 //      2       状态切换
 // 注记：
-// To:Update版本支持值数组与元素集成员一一对应。
+// To:Update版本支持状态数组与元素集成员一一对应。
 //===============================================
 [
     ['hide',     'hidden'],
@@ -1937,18 +1983,9 @@ function mapCall( data, handle ) {
  */
 function $mapCall( data, meth, ...args ) {
     if ( $.isArray(data) ) {
-        return $(data)[meth]( ...args ).map( nullVal );
+        return $(data)[meth]( ...args );
     }
-    return nullVal( $[meth](data, ...args) );
-}
-
-
-/**
- * 将undefined值转换为null值。
- * @param {Value} v 目标值
- */
-function nullVal( v ) {
-    return v === undefined ? null : v;
+    return $[meth]( data, ...args );
 }
 
 
@@ -1963,26 +2000,9 @@ function nullVal( v ) {
  */
 function namesValue( name, obj ) {
     if ( __reSpace.test(name) ) {
-        return name.split(__reSpace).map( n => subVal(n, obj) );
+        return name.split( __reSpace ).map( n => nullVal(obj[n]) );
     }
-    return subVal( name, obj );
-}
-
-
-/**
- * 子级递进取值。
- * 如果成员不存在，返回null而非undefined，
- * 这使得值可以有效入栈。
- * @param  {String} name 名称序列
- * @param  {Object} obj 取值对象
- * @return {Value} 结果值
- */
-function subVal( name, obj ) {
-    return name.split( '.' )
-        .reduce(
-            (d, k) => d[k] === undefined ? null : d[k],
-            obj
-        );
+    return nullVal( obj[name] );
 }
 
 
@@ -2145,6 +2165,32 @@ function elemInfo( el, hasid, hascls ) {
         _s += '.' + [...el.classList].join('.');
     }
     return _s;
+}
+
+
+/**
+ * 属性判断取值。
+ * 包含对不确定态检查，
+ * 如果indeterminate属性为真，返回null而非属性值。
+ * 注记：
+ * 无法区分属性值本来就为null的情况，主要用于表单控件。
+ * 注：表单控件值为null时通常就应当是不确定态。
+ * @param  {Element} el 目标元素
+ * @param  {String} name 属性名
+ * @return {Value|null|undefined}
+ */
+function indetProp( el, name ) {
+    return el.indeterminate ? null : $.prop( el, name );
+}
+
+
+/**
+ * null值保证。
+ * 将undefined值转换为null值，保证可以正常入栈。
+ * @param {Value} v 目标值
+ */
+function nullVal( v ) {
+    return v === undefined ? null : v;
 }
 
 

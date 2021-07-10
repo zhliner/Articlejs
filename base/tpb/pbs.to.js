@@ -1131,7 +1131,7 @@ function eachState( els, s, name ) {
  * PBO状态逐一设置。
  * 值集与元素集成员一一对应。
  * @param  {[Element]} els 元素集
- * @param  {Boolean]} ss 状态标识集
+ * @param  {[Boolean]} ss 状态标识集
  * @param  {String} name 状态特性名
  * @return {void}
  */
