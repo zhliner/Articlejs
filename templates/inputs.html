@@ -749,22 +749,26 @@
             <b title="外槽线（ridge）"><hr role="ridge"></b>
             <b title="内嵌线（inset）"><hr role="inset"></b>
             <b title="外嵌线（outset）"><hr role="outset"></b>
-            <!--状态主导：
-                根据属性变化，设置相应的UI表现。
-                - 不确定态：清除条目选取态类（_press）。
-                - 确定态：  构造目标选择器，定位设置选取类。
-                不确定状态在修改多个选取目标的属性时有用（原状维持）。
-                data-iv 初始值。
-                data-uv 初始为不确定。用特性赋值较好。
-                indet   不确定态固化记录。用于初始设置和重置时。
-                reset   手动重置，支持不确定态和确定态。 -->
-            <input type="hidden" name="role" data-uv="" data-iv="" value=""
-                on="propvary|ev('detail') spread index(0) pass('indeterminate') pass ('_press');
-                    propvary|evo(3) prop('indeterminate') end ev('detail') spread pick(0) pass('value') slr('1/hr', 'role', _1) $(_1) parent $$('1/b') pick(-2);
-                    indet|(true);
+            <!--状态自主：
+                根据属性的改变，检查不确定态（indeterminate）和控件值（value）。
+                不确定态在修改多个目标的属性时有用（比如维持原状）。
+                - indeterminate 保持记忆（indetValue，可用于重置事件），激发 indeted 事件对外通知。
+                - value         提取新值，对外发送 valued 通知。
+                属性监听：
+                propvary    1.确认为indeterminate属性并保持记忆。如果为真，激发 indeted 事件（可用于外部UI表现）。
+                propvary    2.确认为value属性，提取新值激发 valued 对外通知。
+                跟随响应：
+                indeted     清除UI选中表现的类名（_press）。
+                valued      检索相应目标按钮，设置选中状态（_press），取消不确定态。
+                reset       手动重置。恢复为初始的不确定态（indetValue为真时），或有值确定态（defaultValue）。 -->
+            <input type="hidden" name="role" value=""
+                on="propvary|ev('detail') spread index(0) pass('indeterminate') dup;
+                    propvary|ev('detail') spread pick(0) pass('value') dup(2);
+                    indeted|(true);
+                    valued|slr('1/hr', 'role', _1) $(_1) parent $$('1/b') pick(-2);
                     reset|evo(3) attr('-iv') evo(3) attr('-uv') bool"
-                to="(1/b)|removeClass|goto('indet');
-                    -|only('_press');
+                to="|$indetValue|pop goto('indeted');
+                    |$defaultValue val|target prop('indeterminate') pop goto('valued');
                     |attr('-uv');
                     |$indeterminate val" />
         </span>
@@ -1294,7 +1298,7 @@
         save|ev('detail') dup xattr('-n');
         ^obted;
         ^done"
-    to="~|fill|target(0) goto('save', _1);
+    to="~|fill|target(0) pop goto('save');
         |data(_1)|fire(11, 'done');
         (/span)|trigger('init', true);
         |off('init save')">

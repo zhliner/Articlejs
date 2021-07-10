@@ -8309,7 +8309,10 @@ Object.assign( tQuery, {
     /**
      * 构造选择器。
      * 主要用于属性选择器构造。
-     * 如果明确传递属性值val为null，表示无该属性。
+     * 属性值val：
+     * - null       表示无该属性（废除attr实参）
+     * - undefined  表示无值，仅属性名（[name]）
+     * - ''         空串是一个有效值（[name=""]）
      * op: {
      *      ~   空格分隔的单词匹配
      *      |   -分隔的词组前置匹配
@@ -8318,16 +8321,19 @@ Object.assign( tQuery, {
      *      $   尾部字串匹配
      * }
      * @param  {String} tag  标签名
-     * @param  {String} attr 属性名，可选
-     * @param  {String|null} val  属性值，可选
-     * @param  {String} op   属性匹配符，可选
+     * @param  {String} attr 属性名
+     * @param  {String|null} val 属性值
+     * @param  {String} op 属性匹配符
      * @return {String}
      */
-    slr( tag, attr = '', val = '', op = '' ) {
+    slr( tag, attr, val, op = '' ) {
         if ( !attr || val === null ) {
             return tag;
         }
-        return `${tag || ''}[${attrName(attr)}` + (val && `${op}="${val}"`) + ']';
+        if ( val === undefined ) {
+            return `${tag}[${attrName(attr)}]`;
+        }
+        return `${tag}[${attrName(attr)}${op}="${val}"]`;
     },
 
 

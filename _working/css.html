@@ -122,7 +122,7 @@
         to="1/|trigger('cancel');
             /pre|trigger('reset');
             /pre|trigger('value');
-            /pre|trigger(_1)|goto('shsave', _1)">
+            /pre|trigger(_1)|pop goto('shsave')">
         <header>
             <h4>脚本执行结果</h4>
             <b class="_close" title="关闭">✕</b>
@@ -2752,8 +2752,8 @@
         to="1|trigger('value');
             2|fill $text $contenteditable|target pop item(_1) pop focus;
             3(1/>label)|triggers('index');
-            4|replace|goto('removed', _1);
-            5|@-x replaceWith|(true) pick(-2) push pack(3) goto('value', _1)">[面板] 特性</h4>
+            4|replace|pop goto('removed');
+            5|@-x replaceWith|(true) pick(-2) push pack(3) pop goto('value')">[面板] 特性</h4>
     <div id="attribute" class="panel">
         <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
             <div class="_tabs">
@@ -2889,7 +2889,7 @@
                                     |@-i|pop fire('1/>label', 'index', 100);
                                     =|only('_hot');
                                     -|set(_1);
-                                    |replace|goto('removed', _1);
+                                    |replace|pop goto('removed');
                                     |@-n replaceWith|goto('active')">
                                 <li contenteditable="true"></li>
                             </ol>

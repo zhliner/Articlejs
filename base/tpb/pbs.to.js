@@ -730,22 +730,17 @@ const _Next = {
 
 
     /**
-     * 跳转（可选判断）。
-     * 跳转到目标事件绑定的调用链。
+     * 执行流跳转。
+     * 跳转到目标事件绑定的调用链（仅限当前元素）。
      * 内容：暂存区1项可选。
-     * 如果内容有值，则真值（广义）跳转，否则无条件跳转。
-     * 仅限于当前绑定/委托元素上绑定的事件。
-     * 跳转的事件不冒泡。
+     * 如果内容有值，则为发送的内容。
+     * 注：跳转的事件不冒泡。
      * @param {String} name 事件名
-     * @param {Value} extra 附加数据，可选
      */
-    goto( evo, name, extra ) {
-        if ( evo.data === undefined || evo.data ) {
-            $.trigger( evo.delegate, name, extra, false );
-        }
+    goto( evo, name ) {
+        $.trigger( evo.delegate, name, evo.data, false );
     },
 
-    // 跳转条件。
     __goto: -1,
 
 

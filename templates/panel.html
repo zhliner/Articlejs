@@ -312,7 +312,7 @@
                             维持用户编辑的行数（如果可以）。
                     focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
                     blur    失焦保存当前编辑条目（OBT配置组内）。
-                    switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递。detail:[i, list, <label>]
+                    switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递 detail:<label>
                     removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
                     pastes.json 智能粘贴：内容以换行切分，分别粘贴到连续的兄弟单元内。 -->
                 <ol data-i="0" data-x="true" data-n="on" spellcheck="false" class="_code" obt-src="obts/pastes.json" tpl-name="obts:master"
@@ -326,7 +326,7 @@
                         |@-i|pop fire('1/>label', 'index', 100);
                         =|only('_hot');
                         -|set(_1);
-                        |replace|goto('removed', _1);
+                        |replace|pop goto('removed');
                         |@-n replaceWith|goto('active')">
                     <!-- 初始默认9条 -->
                     <li contenteditable="true"></li>
@@ -707,7 +707,7 @@
             Kit.sh2panel(_4) spread add('px');
             Kit.shcode"
         to="|off('mousemove');
-            /._down|%max-height|goto('_tophei', _1);
+            /._down|%max-height|pop goto('_tophei');
             .Modal/|trigger('cancel');
             /._top|height">
         <!--内置限高：避免初始即溢出。
@@ -890,7 +890,7 @@
     to="1/|trigger('cancel');
         -;
         (/pre, ._type)|trigger('reset');
-        /pre|trigger(_1)|goto('shsave', _1);
+        /pre|trigger(_1)|pop goto('shsave');
         /fieldset|trigger('disable')">
     <header>
         <h4>脚本执行结果</h4>
