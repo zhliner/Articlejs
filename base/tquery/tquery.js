@@ -1761,7 +1761,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String} name 特性名（单个）
      * @param  {Value|Function|null} value 特性值或取值回调
-     * @return {Value|Element}
+     * @return {Value|Element|null}
      */
     attr( el, name, value ) {
         name = attrName( name );
@@ -1784,7 +1784,7 @@ Object.assign( tQuery, {
      * - "html"     取元素内源码
      *
      * 取值：
-     * - 条件：value为未定义，name为字符串。
+     * - 条件：value为未定义，name为字符串或字符串数组。
      * - name支持空格分隔多个名称，返回一个键:值对象。键名保留原始传入形式。
      *
      * 设置：
@@ -1800,7 +1800,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String|[String]|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|Object|Element}
+     * @return {Object|Element}
      */
     attribute( el, names, value ) {
         if ( typeof names === 'string' ) {
@@ -1855,7 +1855,7 @@ Object.assign( tQuery, {
      * @param  {Element} el 目标元素
      * @param  {String} name 属性名（单个）
      * @param  {Value|Function|null} value 属性值或取值回调
-     * @return {Value|Element}
+     * @return {Value|Element|undefined}
      */
     prop( el, name, value ) {
         return value === undefined ?
@@ -1867,11 +1867,11 @@ Object.assign( tQuery, {
     /**
      * 属性获取/设置（增强版）。
      * - 参数说参考.attribute()接口。
-     * - 与.attribute()不同，value传递null会赋值为null，可能让元素回到默认状态。
+     * - value传递null会赋值为null，可能让元素回到默认状态。
      * @param  {Element} el 目标元素
      * @param  {String|[String]|Object|Map} names 名称序列或名/值对象
      * @param  {Value|[Value]|Function|null} value 新值（集）或取值回调，可选
-     * @return {Value|Object|Element}
+     * @return {Object|Element}
      */
     property( el, names, value ) {
         if ( typeof names === 'string' ) {
@@ -5401,13 +5401,13 @@ function customSet( el, name, value, scope ) {
  * @param  {Element} el 目标元素
  * @param  {[String]} names 名称集
  * @param  {Object} scope 适用域对象
- * @return {String|Object} 值或名/值对象
+ * @return {Object} 名/值对象
  */
 function hookGets( el, names, scope ) {
-    if ( names.length == 1 ) {
-        return customGet( el, names[0], scope );
-    }
-    return names.reduce( (o, n) => (o[n] = customGet(el, n, scope), o), {} );
+    return names.reduce(
+        (o, n) => (o[n] = customGet(el, n, scope), o),
+        {}
+    );
 }
 
 
@@ -6849,7 +6849,9 @@ const elemProp = {
 
 
     _get( el, name ) {
-        let _hook = propHooks[name] || propHooks[el.type];
+        let _hook = propHooks[name] ||
+            propHooks[el.type];
+
         return _hook && _hook.get ? _hook.get(el, name) : el[name];
     },
 
@@ -6868,9 +6870,10 @@ const elemProp = {
             return setPropData( el, _dname, val );
         }
         name = propFix[name] || name;
-        let _hook = propHooks[ el.type ];
 
-        _hook && _hook.set && _hook.set(el, name, val) || setProp(el, name, val);
+        let _hook = propHooks[name] || propHooks[el.type];
+
+        _hook && _hook.set ? _hook.set(el, name, val) : setProp(el, name, val);
     },
 
 
@@ -6890,16 +6893,18 @@ const
         'for':              'htmlFor',
         'class':            'className',
         // 仅部分常见的，简单驼峰变换。
-        'tabindex':          'tabIndex',
-        'readonly':          'readOnly',
-        'maxlength':         'maxLength',
-        'cellspacing':       'cellSpacing',
-        'cellpadding':       'cellPadding',
-        'rowspan':           'rowSpan',
-        'colspan':           'colSpan',
-        'usemap':            'useMap',
-        'frameborder':       'frameBorder',
-        'contenteditable':   'contentEditable',
+        'tabindex':         'tabIndex',
+        'readonly':         'readOnly',
+        'maxlength':        'maxLength',
+        'cellspacing':      'cellSpacing',
+        'cellpadding':      'cellPadding',
+        'rowspan':          'rowSpan',
+        'colspan':          'colSpan',
+        'usemap':           'useMap',
+        'frameborder':      'frameBorder',
+        'contenteditable':  'contentEditable',
+        // 定制支持。
+        'checkednode':      'checkedNode',
     },
     booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
@@ -6923,6 +6928,14 @@ const propHooks = {
         }
     },
 
+    // 不确定状态。
+    // 转换为明确的Boolean类型，便于propvary信息传递。
+    'indeterminate': {
+        set: function( el, _, val ) {
+            setProp( el, 'propHooks[name]', !!val );
+        }
+    },
+
     // <select>.type
     'select-multiple': {
         get: function( el, name ) {
@@ -6936,10 +6949,10 @@ const propHooks = {
         // 支持数组值设置多选。
         // @return {true|void} true表示已处理。
         set: function( el, name, val ) {
-            if ( name === 'value' ) {
-                val === null ? clearSelected(el) : selectMulti(el, val, true);
-                return true;
+            if ( name !== 'value' ) {
+                return setProp( el, name, val );
             }
+            val === null ? clearSelected(el) : selectMulti(el, val, true);
         }
     },
 
@@ -6959,7 +6972,7 @@ const propHooks = {
         },
     },
 
-    // 定制属性名（适用 input:radio）
+    // 定制属性名（适用单选/复选框）
     'checkedNode': {
         /**
          * 获取选中的控件元素。
@@ -7103,7 +7116,8 @@ const valHooks = {
     },
 
     select: {
-        // 选中时返回一个值或值数组，否则返回null。
+        // 选中时返回一个值或值数组，
+        // 否则返回null或一个空数组。
         get: function( el ) {
             if ( !(el = valPass(el)) ) {
                 return el; // null/undefined
