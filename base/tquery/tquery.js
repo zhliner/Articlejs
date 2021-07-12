@@ -6932,7 +6932,7 @@ const propHooks = {
     // 转换为明确的Boolean类型，便于propvary信息传递。
     'indeterminate': {
         set: function( el, _, val ) {
-            setProp( el, 'propHooks[name]', !!val );
+            setProp( el, 'indeterminate', !!val );
         }
     },
 
@@ -6997,10 +6997,15 @@ const propHooks = {
         },
 
         // 复选按钮获取。
-        // @return {[Element]}
+        // 如果是单个复选框，选中时返回它，否则返回null。
+        // 如果是一个同名复选框组，返回一个数组（可能为空）。
+        // @return {Element|[Element]}
         checkbox( els ) {
             let _buf = [];
 
+            if ( els.nodeType === 1 ) {
+                return els.checked ? els : null;
+            }
             for ( const e of els ) {
                 if ( e.checked ) _buf.push( e );
             }
