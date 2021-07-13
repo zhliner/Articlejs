@@ -898,20 +898,13 @@ Object.assign( tQuery, {
      * @return {[Element]} 控件集
      */
     controls( frm, names, clean ) {
-        if ( names ) {
-            let _els = names.split(__reSpace).map(
-                n => namedElem( frm, n )
-            );
-            return clean ? _els.filter( e => e != null ) : _els;
+        if ( !names ) {
+            return controls( frm );
         }
-        let _map = new Map();
-
-        for ( const el of frm.elements ) {
-            if ( submittable(el) ) {
-                _map.has(el.name) || _map.set( el.name, el );
-            }
-        }
-        return [ ..._map.values() ];
+        let _els = names.split(__reSpace).map(
+            n => namedElem( frm, n )
+        );
+        return clean ? _els.filter( e => e != null ) : _els;
     },
 
 
@@ -953,6 +946,29 @@ Object.assign( tQuery, {
             target = $A( entries(target) );
         }
         return new URLSearchParams(target).toString();
+    },
+
+
+    /**
+     * 检查表单控件值是否变化并通知。
+     * 针对每一个可提交的命名控件，检查其当前值是否与初始的默认相同，
+     * 如果不同则发送changed事件，否则略过。
+     * 注记：
+     * 可用于表单的reset事件处理器中发现哪些控件值已变化。
+     * @param {Element} frm 表单元素
+     * @param {Value} extra 附加的发送数据，可选
+     * @param {String} evn 事件名，可选
+     */
+    changes( frm, extra, evn = 'changed' ) {
+
+        for ( const el of controls(frm) ) {
+            if ( el.options ) {
+                selectChanged( el ) && el.dispatchEvent( customEvent(evn, extra) );
+            }
+            else if ( controlChanged(el) ) {
+                el.dispatchEvent( customEvent(evn, extra) );
+            }
+        }
     },
 
 
@@ -5281,6 +5297,47 @@ function submitValue( ctrl, value ) {
 
 
 /**
+ * 获取表单内的控件集。
+ * 仅限于包含name定义且可提交的控件。
+ * @param  {Element} frm 表单元素
+ * @return {[Element]} 控件集
+ */
+function controls( frm ) {
+    let _map = new Map();
+
+    for ( const el of frm.elements ) {
+        if ( submittable(el) ) {
+            _map.has(el.name) || _map.set( el.name, el );
+        }
+    }
+    return [ ..._map.values() ];
+}
+
+
+/**
+ * 普通表单控件元素是否改变默认值。
+ * @param  {Element} el 控件元素
+ * @return {Boolean}
+ */
+function controlChanged( el ) {
+    return el.defaultChecked !== el.checked || el.defaultValue !== el.value;
+}
+
+
+/**
+ * 选单控件是否改变默认选取。
+ * @param  {Element} sel 选单控件<select>
+ * @return {Boolean}
+ */
+function selectChanged( sel ) {
+    for ( const oe of sel.options ) {
+        if ( oe.defaultSelected !== oe.selected ) return true;
+    }
+    return false;
+}
+
+
+/**
  * 双成员数组展开（合并）。
  * 注：成员是二维数组才会扁平化展开。
  * @param  {[Array2|[Array2]]} src 源数组
@@ -6065,7 +6122,7 @@ const
 
 /**
  * 构造事件对象。
- * 事件冒泡且可取消。
+ * 事件无条件冒泡且可取消。
  * @param {String} evn 事件名
  * @param {Value} data 携带数据
  */
