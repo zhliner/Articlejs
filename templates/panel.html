@@ -238,7 +238,7 @@
             select  选取接收的值匹配的选单（新建后）。
             blank   特性整体更新后空白主区替代。
             keydown 支持即时删除条目（友好）。 -->
-        <select name="attrs" size="5" class="_list"
+        <select name="attrs" size="5" class="_list" title="删除〔Delete〕"
             on="follow|evo(3) children ev('detail');
                 change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node;
                 _change|evo(3) val dup pass v.sel0 pop attrs(_1);
@@ -609,7 +609,7 @@
     reset   非表单控件手动重置（如 <pre>），由特定的<ul>自行实现。
     apply   具体的列表bulid后回送应用事件，传递修改操作函数。
     state   初始状态更新：插入特定属性编辑根，转到label。
-    label   更新属性框标题条，激发属性集取值初始化事件vinit。 -->
+    label   更新属性框标题条，激发属性集取值初始化事件 vinit。 -->
 <form class="_usual" tpl-name="modal:prop"
     on="apply|ev('detail') spread;
         submit|avoid;

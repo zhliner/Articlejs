@@ -320,7 +320,7 @@ change( rid, much ): void
 // 触发改变事件。
 
 changes( rid, much ): void
-// 表单控件值改变通知。
+// 表单控件值已改变通知。
 
 normalize( rid, much ): void
 // 元素规范化。

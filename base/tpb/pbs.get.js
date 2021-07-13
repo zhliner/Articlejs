@@ -1424,6 +1424,20 @@ const _Gets = {
 
 
     /**
+     * 表单控件变化通知。
+     * 目标：暂存区/栈顶1项。
+     * 目标需要为一个表单元素或元素集。
+     * @param  {Value} extra 发送数据
+     * @return {void}
+     */
+    changes( evo, extra ) {
+        mapCall( evo.data, frm => $.changes(frm, extra) );
+    },
+
+    __changes: 1,
+
+
+    /**
      * 滚动到当前视口。
      * y, x: {
      *     0   就近显示（如果需要）（nearest）

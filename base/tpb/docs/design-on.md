@@ -415,6 +415,7 @@ unwrap( back?:Boolean ): void | data
 
 normalize(): void
 clear(): void
+changes( extra?:Value ): void
 intoView( y:Number|String|true|false, x:Number|String): void
 
 

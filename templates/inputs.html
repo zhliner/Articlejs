@@ -733,13 +733,13 @@
     <div class="_main _list">
         <!--线型设置：
             click   用户点选，设置UI表现。赋值目标值到控件上。
-            value   正常的赋值，取消了不确定态。
+            _value  正常的赋值，取消了不确定态。
             vinit   接收2项数据，设置到目标控件上。detail: [indetValue, defaultValue] -->
         <span class="_border content" tpl-name="hr:border"
             on="click(b)|$$('/>b');
-                value|(false) ev('detail');
+                _value|(false) ev('detail');
                 vinit|ev('detail')"
-            to="=|only('_press')|target pop $('/hr') attr('role') pop goto('value');
+            to="=|only('_press')|target pop $('/hr') attr('role') pop goto('_value');
                 /[name=role]|val $indeterminate;
                 /[name=role]|property('indetValue defaultValue')">
             <b title="默认" class="_press"><hr></b>

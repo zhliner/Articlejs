@@ -794,23 +794,22 @@ const _Next = {
 
 
     /**
-     * 触发表单控件默认值改变通知。
+     * 检查表单控件值改变并通知。
      * 内容：暂存区1项可选。
      * 如果内容有值，则为激发事件附带的数据。
      * 行为：
      * 检查表单控件值是否不再为默认值，激发目标控件上的changed事件，
      * 如果都没有改变，不会激发事件。
      * 注记：
-     * 检索目标可能已经是一个集合。
+     * 表单上需要监听changed事件来接收值改变的控件通知。
+     * 可用于表单重置时，发现值已经被改变的控件（外部调用本方法来检查并通知），
+     * 如绑定表单的reset事件，在事件处理中调用本方法。
      * @param {String} rid 表单元素选择器
      * @param {Boolean} much 是否检索多个目标，可选
      */
     changes( evo, rid = 11, much ) {
         let _frm = _target( evo, rid, !much );
-
-        for ( const frm of $(_frm) ) {
-            changedTrigger( $.controls(frm), 'changed', evo.data );
-        }
+        for ( const frm of $(_frm) ) $.changes( frm, evo.data );
     },
 
     // 待发送数据。
@@ -1135,48 +1134,6 @@ function eachState2( els, ss, name ) {
         (el, i) =>
         ss[i] !== undefined && oneState( el, ss[i], name )
     );
-}
-
-
-
-/**
- * 表单控件默认值改变检查。
- * 如果改变，触发目标控件上的evn事件（通常为changed）。
- * @param  {[Element]} els 控件集
- * @param  {String} evn 触发的事件名
- * @param  {Value} data 发送的数据，可选
- * @return {void}
- */
-function changedTrigger( els, evn, data ) {
-    for ( const el of els ) {
-        if ( el.options ) {
-            if ( selectChanged(el) ) $.trigger( el, evn, data, true );
-        }
-        else if ( controlChanged(el) ) $.trigger( el, evn, data, true );
-    }
-}
-
-
-/**
- * 普通表单控件元素是否改变默认值。
- * @param  {Element} el 控件元素
- * @return {Boolean}
- */
-function controlChanged( el ) {
-    return el.defaultChecked !== el.checked || el.defaultValue !== el.value;
-}
-
-
-/**
- * 选单控件是否改变默认选取。
- * @param  {Element} sel 选单控件<select>
- * @return {Boolean}
- */
-function selectChanged( sel ) {
-    for ( const oe of sel.options ) {
-        if ( oe.defaultSelected !== oe.selected ) return true;
-    }
-    return false;
 }
 
 
