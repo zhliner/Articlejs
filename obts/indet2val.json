@@ -2,5 +2,5 @@
     "/1": "不确定态（indeterminate）与值（value）的初始化：由外部设置 indetValue defaultValue 两个属性引发。",
     "/2": "如果不确定态为真，转到当前元素的 indeted 事件，否则转到 valued 事件（传递设置值）。",
     "on": "propvary|ev('detail') spread pick(0) pass('indetValue') dup; propvary|ev('detail') spread pick(0) pass('defaultValue') dup",
-    "to": "|$indeterminate|pass goto('indeted'); |$value|target prop('indeterminate') end pop goto('valued')"
+    "to": "|$indeterminate|pass goto('indeted'); |val|target prop('indeterminate') end pop goto('valued')"
 }

@@ -331,13 +331,13 @@ const __Kit = {
      * 值集单一取值。
      * 如果值集为相同单一值，取该值，否则取值为null。
      * 用于多目标检测取值。
-     * 注：适用value赋值类控件，空值即为不确定（无需indeterminate）。
+     * 适用：value赋值类控件，空值即为不确定（无需indeterminate）。
      * @data: [Value] 值集
      * @return {Value|null}
      */
     vals1( evo ) {
-        // ... item(0) pick(-2) Set size gt(1) pop $if(null, _1)
-        return new Set(evo.data).size === 1 ? evo.data[0] : null;
+        return evo.data.length === 1 || new Set(evo.data).size === 1 ?
+            evo.data[0] : null;
     },
 
     __vals1: 1,
@@ -347,13 +347,26 @@ const __Kit = {
      * 值集单一判断。
      * 如果值集为相同单一值，取该值，indeterminate 为 false，
      * 否则取值为 null，indeterminate 为 true。
+     * 适用：需明确设置不确定态的控件（如复选框，自定义类）。
      * @return {[Boolean, Value|null]} 状态和值 [indeterminate, value]
      */
     vals2( evo ) {
-        return new Set(evo.data).size === 1 ? [ false, evo.data[0] ] : [ true, null ];
+        return evo.data.length === 1 || new Set(evo.data).size === 1 ?
+            [ false, evo.data[0] ] : [ true, null ];
     },
 
     __vals2: 1,
+
+
+    /**
+     * 值集选单设置。
+     * 值集逻辑同上，需明确设置indeterminate值。
+     */
+    select( evo ) {
+        //
+    },
+
+    __select: 1,
 };
 
 

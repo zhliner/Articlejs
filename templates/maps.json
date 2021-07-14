@@ -150,8 +150,7 @@
         "minied:chars",
         "minied:inlines",
         "part:rows",
-        "part:section",
-        "table:border"
+        "part:section"
     ],
     "styles.html": [
         "common:submit",
@@ -395,7 +394,8 @@
         "property:svg",
         "property:table",
         "property:times",
-        "property:video"
+        "property:video",
+        "table:border"
     ],
     "help.html": []
 }
