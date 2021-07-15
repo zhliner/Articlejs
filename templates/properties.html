@@ -8,11 +8,9 @@
 ----------------------------------------------------------------------------->
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
-    on="vinit;
-        reset;
+    on="vinit reset;
         build|('src autoplay loop controls') dup $('form/') pop value(_1) $('/pre._code') text arr v.mediasubs pack(3)"
     to="(/>li)|trigger('value');
-        (/>li)|trigger('reset');
         form/|trigger('apply')">
     <li tpl-node="!prop:src"></li>
     <li tpl-node="!prop:upload, prop:preview"></li>
@@ -21,11 +19,9 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
-    on="vinit;
-        reset;
+    on="vinit reset;
         build|('src poster autoplay loop controls width height') dup $('form/') pop value(_1) $$('/pre._code') text v.mediasubs pack(3)"
     to="(/>li)|trigger('value');
-        (/>li)|trigger('reset');
         form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:poster"></li>
     <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
@@ -34,11 +30,10 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
-    on="vinit;
-        reset;
+    on="vinit reset;
         build|"
     to="(/>li)|trigger('value');
-        (/>li)|trigger('reset')">
+        form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:alt"></li>
     <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
     <li tpl-node="!prop:sources2"></li>
@@ -559,19 +554,17 @@
 </li>
 
 <li tpl-name="prop:hrstyle"
-    on="value|v.sels attr('role') v.p.vals2;
-        reset"
-    to="/>span|trigger('vinit');
-        /input[name=role]|trigger('reset')">
+    on="value|v.sels attr('role') v.p.vals2"
+    to="/>span|trigger('indval')">
     <b>线型</b>
-    <hr tpl-node="!hr:border">
+    <span tpl-node="!hr:border"></span>
 </li>
 
 <li tpl-name="prop:sntype"
-    on="value|v.sels attr('type') v.p.vals2"
-    to="/select|property('indetValue defaultValue')">
+    on="value reset|v.sels attr('type') v.p.vals2"
+    to="/select|property('indeterminate value')">
     <b title="type">类型</b>
-    <span><select name="type" obt-src="obts/indet2val.json">
+    <span><select name="type">
             <option value=""> ------ </option>
             <option>1</option>
             <option>a</option>

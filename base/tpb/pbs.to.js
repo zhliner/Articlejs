@@ -557,19 +557,14 @@ const _Update = {
 ]
 .forEach(function( meth ) {
     /**
-     * 目标为数组时返回目标的Collector封装。
-     * 目标为元素时保持不变。
      * @param  {Element|Collector} to 目标元素/集
      * @param  {Value|[Value]|Function|null} val 内容
      * @param  {String} name 名称/序列
-     * @return {Collector|void}
+     * @return {void}
      */
     _Update[meth] = function( to, val, name ) {
-        if ( val === undefined ) {
-            return;
-        }
         if ( $.isArray(to) ) {
-            return $(to)[meth]( name, val );
+            return to.forEach( el => $[meth](el, name, val) );
         }
         $[meth]( to, name, val );
     };
@@ -596,19 +591,14 @@ const _Update = {
 ]
 .forEach(function( meth ) {
     /**
-     * 目标为数组时返回目标的Collector封装。
-     * 目标为元素时保持不变。
      * @param  {Element|Collector} to 目标元素/集
      * @param  {Value} data 数据内容
      * @param  {...Value} args 额外参数
-     * @return {Collector|void}
+     * @return {void}
      */
     _Update[meth] = function( to, data, ...args ) {
-        if ( data === undefined ) {
-            return;
-        }
         if ( $.isArray(to) ) {
-            return $(to)[meth]( data, ...args );
+            return to.forEach( el => $[meth]( el, data, ...args) );
         }
         $[meth]( to, data, ...args );
     };

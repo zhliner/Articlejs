@@ -380,6 +380,8 @@ const _Control = {
      * 复制栈顶n项并入栈（原样展开）。
      * 目标：无。
      * 特权：是，灵活取栈&自行入栈。
+     * 例：
+     * dups(1) 与 dup(1) 效果相同。
      * @param  {Stack} stack 数据栈
      * @param  {Number} n 条目数，可选
      * @return {void}

@@ -724,16 +724,13 @@
     to="form/|trigger('insert')">
     <div class="_main _list">
         <!--线型设置：
-            click   用户点选，设置UI表现。赋值目标值到控件上。
-            _value  正常的赋值，取消了不确定态。
-            vinit   接收2项数据，设置到目标控件上。detail: [indetValue, defaultValue] -->
+            click   用户点选。构造值对（[value, indeterminate]）发送。
+            indval  接收2项数据，设置到目标控件上。 -->
         <span class="_border content" tpl-name="hr:border"
-            on="click(b)|$$('/>b');
-                _value|(false) ev('detail');
-                vinit|ev('detail')"
-            to="=|only('_press')|target pop $('/hr') attr('role') pop goto('_value');
-                /[name=role]|val $indeterminate;
-                /[name=role]|property('indetValue defaultValue')">
+            on="click(b)|evo(2) pop $('/hr') attr('role') (false) pack(2);
+                indval|ev('detail') spread"
+            to="|trigger('indval');
+                /[name=role]|$indeterminate val">
             <b title="默认" class="_press"><hr></b>
             <b title="实线（solid）"><hr role="solid"></b>
             <b title="虚线（dashed）"><hr role="dashed"></b>
@@ -743,18 +740,14 @@
             <b title="外槽线（ridge）"><hr role="ridge"></b>
             <b title="内嵌线（inset）"><hr role="inset"></b>
             <b title="外嵌线（outset）"><hr role="outset"></b>
-            <!--初始设置响应：
-                indetValue不确定态初始值，defaultValue普通初始值。
-                indeted 清除选中类名（_press）。
-                valued  正常设置值时的UI表现。
-                reset   手动重置。提取两个初始值由上层重新发送即可。 -->
-            <input type="hidden" name="role" obt-src="obts/indet2val.json" value=""
+            <!--设置响应：
+                indeted 不确定态UI表现：清除选中类名（_press）。
+                valued  正常设置值时的UI表现。 -->
+            <input type="hidden" name="role" value="" obt-src="obts/indet2val.json"
                 on="indeted|('_press');
-                    valued|$$('1/>b') ev('detail') slr('1/hr', 'role', _1) $(_1) parent pop;
-                    reset|evo(3) props('indetValue defaultValue')"
+                    valued|$$('1/>b') ev('detail') slr('1/hr', 'role', _1) $(_1) parent pop"
                 to="(1/>b)|removeClass;
-                    -|only('_press');
-                    1/|trigger('vinit')" />
+                    -|only('_press')" />
         </span>
     </div>
     <aside>

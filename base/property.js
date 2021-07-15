@@ -348,11 +348,11 @@ const __Kit = {
      * 如果值集为相同单一值，取该值，indeterminate 为 false，
      * 否则取值为 null，indeterminate 为 true。
      * 适用：需明确设置不确定态的控件（如复选框，自定义类）。
-     * @return {[Boolean, Value|null]} 状态和值 [indeterminate, value]
+     * @return {[Value|null, Boolean]} 状态和值 [value, indeterminate]
      */
     vals2( evo ) {
         return evo.data.length === 1 || new Set(evo.data).size === 1 ?
-            [ false, evo.data[0] ] : [ true, null ];
+            [ evo.data[0], false ] : [ null, true ];
     },
 
     __vals2: 1,
