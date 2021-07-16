@@ -5863,7 +5863,7 @@ const insertHandles = {
     // after
     '-1': (node, data) => data && data !== node ? varyAfter(node, data) : data,
 
-    '': (el, data) => data && varyFill( el, data ),
+    '': varyFill,
     // append
     '-2': (el, data) => data && varyAppend( trContainer(el, data), data ),
     // prepend
@@ -6662,7 +6662,7 @@ function varyFill( el, nodes ) {
     if ( el.childNodes.length ) {
         varyEmpty( el );
     }
-    return varyAppend( el, nodes );
+    return nodes && varyAppend( el, nodes );
 }
 
 

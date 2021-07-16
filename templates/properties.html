@@ -181,7 +181,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:table" data-label="表格属性"
-    on="vinit;
+    on="vinit reset;
         build|"
     to="(/>li)|trigger('value')">
     <li tpl-node="!prop:tborder, prop:vth"></li>
@@ -207,10 +207,10 @@
     on="vinit;
         build|"
     to="/>li|trigger('value')">
-    <li on="value|v.sels attr('-pba') v.p.vals2"
-        to="/select|property('indetValue defaultValue')">
+    <li on="value|v.sels attr('-pba') v.p.vals2 spread"
+        to="/select|$indeterminate val">
         <b>定位</b>
-        <span><select name="position" obt-src="obts/indet2val.json" tpl-name="explain:position">
+        <span><select name="position" tpl-name="explain:position">
                 <option value=""> ------ </option>
                 <option value="fix-lt">左上角</option>
                 <option value="fix-rt">右上角</option>
@@ -561,8 +561,8 @@
 </li>
 
 <li tpl-name="prop:sntype"
-    on="value reset|v.sels attr('type') v.p.vals2"
-    to="/select|property('indeterminate value')">
+    on="value|v.sels attr('type') v.p.vals2 spread"
+    to="/select|$indeterminate val">
     <b title="type">类型</b>
     <span><select name="type">
             <option value=""> ------ </option>
@@ -587,18 +587,18 @@
 </li>
 
 <li tpl-name="prop:reversed"
-    on="value|ev('detail') prop('reversed') dup"
-    to="/input|$defaultChecked $checked">
+    on="value|v.sels prop('reversed') v.p.vals2 spread"
+    to="/input|$indeterminate $checked">
     <b>编号</b>
     <span><label><input type="checkbox" name="reversed" />逆序</label></span>
 </li>
 
 <li tpl-name="prop:tborder"
-    on="value|v.sels attr('border') v.p.vals2"
-    to="/select|property('indetValue defaultValue')">
+    on="value|v.sels attr('border') v.p.vals2 spread"
+    to="/select|$indeterminate val">
     <b>边框</b>
     <span>
-        <select name="border" obt-src="obts/indet2val.json" tpl-name="table:border">
+        <select name="border" tpl-name="table:border">
             <option value=""> ------ </option>
             <option title="1" value="1">普通</option>
             <option title="r" value="r">外围</option>
@@ -611,8 +611,8 @@
 </li>
 
 <li tpl-name="prop:vth"
-    on="value|ev('detail') table dup pop(2) call('hasVth') call('hasVth', true) pack(2) dup"
-    to="(/input)|$defaultChecked $checked">
+    on="value|v.sels v.p.tableVth"
+    to="(/input)|property('checked indeterminate')">
     <b>列表头</b>
     <span>
         <label><input type="checkbox" name="th0" />首列</label>
@@ -631,10 +631,10 @@
 </li>
 
 <li tpl-name="prop:target"
-    on="value|v.sels attr('target') v.p.vals2"
-    to="/select|property('indetValue defaultValue')">
+    on="value|v.sels attr('target') v.p.vals2 spread"
+    to="/select|$indeterminate val">
     <b title="target">目标</b>
-    <span><select name="target" obt-src="obts/indet2val.json">
+    <span><select name="target">
             <option value=""> ------ </option>
             <option value="_blank">_blank</option>
             <option value="_parent">_parent</option>
@@ -655,8 +655,8 @@
 </li>
 
 <li tpl-name="prop:wh"
-    on="value|ev('detail') attrs('width height') dup"
-    to="(/input)|@value val">
+    on="value|v.sels attr('width') v.p.vals1 v.sels attr('height') v.p.vals1 pack(2)"
+    to="(/input)|val">
     <b>宽/高度</b>
     <span>
         <input type="text" name="width" placeholder="width" class="_nums" />
@@ -667,14 +667,11 @@
 </li>
 
 <!--音频/视频用
-    data-iv 缓存当前的初始值（供表单reset用）。
-    注记：
-    资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。-->
+    资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。
+    属性设置方式（$text）可让null值为清空。 -->
 <li tpl-name="prop:sources1"
-    on="value|ev('detail') children('source') attribute('src type') json(4) dup;
-        reset|$('/pre') attr('-iv')"
-    to="/pre|@-iv text;
-        /pre|text">
+    on="value|v.sels children('source') attribute('src type') clean(null) jsons(4) v.p.vals1"
+    to="/pre|$text">
     <b title="<source>">候选资源</b>
     <span
         on="^nodeok|(`[ {src: '...', type: '...'}, ... ]`)"
@@ -685,10 +682,8 @@
 
 <!-- 值为null的特性忽略 -->
 <li tpl-name="prop:tracks"
-    on="value|ev('detail') children('track') attribute('kind srclang src label default') clean(null) json(4) dup;
-        reset|$('/pre') attr('-iv')"
-    to="/pre|@-iv text;
-        /pre|text">
+    on="value|v.sels children('track') attribute('kind srclang src label default') clean(null) jsons(4) v.p.vals1"
+    to="/pre|$text">
     <b title="<track>">字幕轨</b>
     <span
         on="^nodeok|(`[ {kind, srclang, src, label, default?: ''}, ... ]`)"
@@ -699,10 +694,8 @@
 
 <!-- 自适应图片用 -->
 <li tpl-name="prop:sources2"
-    on="value|ev('detail') children('source') attribute('srcset media') json(4) dup;
-        reset|$('/pre') attr('-iv')"
-    to="/pre|@-iv text;
-        /pre|text">
+    on="value|v.sels children('source') attribute('srcset media') clean(null) jsons(4) v.p.vals1"
+    to="/pre|$text">
     <b title="<source>">候选图片</b>
     <span
         on="^nodeok|(`[ {srcset: '...', media: '...'}, ... ]`)"
@@ -960,8 +953,8 @@
 </li>
 
 <li tpl-name="prop:lang"
-    on="value|v.sels attr('-lang') v.p.vals2"
-    to="/select|property('indetValue defaultValue')">
+    on="value|v.sels attr('-lang') v.p.vals2 spread"
+    to="/select|$indeterminate val">
     <b>语言</b>
     <span><select tpl-node="!prop:languages"></select></span>
 </li>
@@ -1003,7 +996,7 @@
     data-id     用于$$统一检索。
     normal      普通代码，仅标记字符串和注释（//）。
     indet2val   属性初始设置处理。 -->
-<select id="g-languages" data-id="code" name="language" obt-src="obts/indet2val.json" tpl-name="prop:languages">
+<select id="g-languages" data-id="code" name="language" tpl-name="prop:languages">
     <option value=""> ------ </option>
     <option value="normal">Normal</option>
     <option value="golang">Golang</option>

@@ -564,9 +564,10 @@ const _Update = {
      */
     _Update[meth] = function( to, val, name ) {
         if ( $.isArray(to) ) {
-            return to.forEach( el => $[meth](el, name, val) );
+            $(to)[meth]( name, val );
+        } else {
+            $[meth]( to, name, val );
         }
-        $[meth]( to, name, val );
     };
 
 });
@@ -598,9 +599,10 @@ const _Update = {
      */
     _Update[meth] = function( to, data, ...args ) {
         if ( $.isArray(to) ) {
-            return to.forEach( el => $[meth]( el, data, ...args) );
+            $(to)[meth]( data, ...args );
+        } else {
+            $[meth]( to, data, ...args );
         }
-        $[meth]( to, data, ...args );
     };
 
 });

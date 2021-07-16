@@ -167,8 +167,11 @@ item( idx? ): Value | [Value] | null
 handles( evn:String ): Object | [Function|EventListener]
 // 获取绑定的处理器集。
 
-json( replacer, space ): String
+json( space, replacer ): String
 // JSON 序列化
+
+jsons( space, replacer ): [String]
+// 多个 JSON 序列化。
 
 JSON( reviver ): Object | Value
 // JSON 解析

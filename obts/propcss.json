@@ -1,5 +1,5 @@
 {
     "//": "属性框初始赋值：内联样式取值。",
-    "on": "value|v.sels $('/input') attr('-css') style(_1) v.p.vals1 dup",
-    "to": "/input|$defaultValue val"
+    "on": "value|v.sels $('/input') attr('-css') style(_1) v.p.vals1",
+    "to": "/input|val"
 }

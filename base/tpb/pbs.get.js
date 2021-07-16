@@ -835,7 +835,7 @@ const _Gets = {
 
     /**
      * JSON 序列化。
-     * @data: JSON对象
+     * @data: Object JSON对象
      * @param  {String|Number} space 缩进字符序列或空格数，可选
      * @param  {[String]|Function|null} replacer 属性名或处理器，可选
      * @return {String} JSON的字符串表示
@@ -845,6 +845,22 @@ const _Gets = {
     },
 
     __json: 1,
+
+
+    /**
+     * JSON 序列化（多目标）。
+     * @data: [Object] JSON对象集
+     * @param  {String|Number} space 缩进字符序列或空格数，可选
+     * @param  {[String]|Function|null} replacer 属性名或处理器，可选
+     * @return {String} JSON的字符串表示
+     */
+    jsons( evo, space, replacer ) {
+        return evo.data.map(
+            o => JSON.stringify( o, replacer, space )
+        );
+    },
+
+    __jsons: 1,
 
 
     /**
@@ -1696,28 +1712,11 @@ const _Gets = {
 // tQuery专有
 //////////////////////////////////////////////////////////////////////////////
 
-
 //
 // 简单工具。
 // 目标：无。
 // 注：多余实参无副作用。
 //===============================================
-[
-    'table',    // ( cols, rows?, th0?, doc? ): $.Table
-    'dataName', // ( attr ): String
-    'tags',     // ( code ): String
-    'range',    // ( beg, size?, step? ): [Number]|[String]
-]
-.forEach(function( meth ) {
-
-    // @return {Value}
-    _Gets[meth] = function( evo, ...rest ) { return $[meth]( evo.data, ...rest ) };
-
-    _Gets[`__${meth}`] = 1;
-
-});
-
-
 [
     'slr',  // ( tag?, attr?, val?, op? ): String
     'now',  // ( json? ): Number|String
@@ -1725,7 +1724,9 @@ const _Gets = {
 .forEach(function( meth ) {
 
     // @return {Value}
-    _Gets[meth] = function( evo, ...args ) { return $[meth](...args) };
+    _Gets[meth] = function( evo, ...args ) {
+        return $[meth]( ...args );
+    };
 
     _Gets[`__${meth}`] = null;
 
@@ -1738,27 +1739,34 @@ const _Gets = {
 // 目标作为方法的首个实参。多余实参无副作用。
 //===============================================
 [
-    'isXML',        // (): Boolean
-    'controls',     // ( names ): [Element]
-    'serialize',    // ( names ): [Array2]
-    'queryURL',     // (): String
-    'isArray',      // (): Boolean
-    'isNumeric',    // (): Boolean
-    'isFunction',   // (): Boolean
-    'isCollector',  // (): Boolean
-    'type',         // (): String
-    'kvsMap',       // ( kname?, vname? ): [Object2]
-    'paths',        // ( end?, slp?, slr? ): [Number]
-    'siblingNth',   // ( slr? ): Number
+    'table',        // ( cols, rows?, th0?, doc? ): $.Table
+    'dataName',     // ( attr ): String
+    'tags',         // ( code ): String
+    'range',        // ( beg, size?, step? ): [Number]|[String]
+
+    'isXML',        // ( el:Element ): Boolean
+    'controls',     // ( frm:Element, names ): [Element]
+    'serialize',    // ( frm:Element, names ): [Array2]
+    'queryURL',     // ( target ): String
+    'isArray',      // ( val ): Boolean
+    'isNumeric',    // ( val ): Boolean
+    'isFunction',   // ( val ): Boolean
+    'isCollector',  // ( val ): Boolean
+    'type',         // ( val ): String
+    'kvsMap',       // ( map, kname?, vname? ): [Object2]
+    'paths',        // ( el:Element, end?, slp?, slr? ): [Number]
+    'siblingNth',   // ( el:Element, slr? ): Number
 
     // 与concat效果类似，但会改变目标本身。
-    'mergeArray',   // ( ...src ): Array
+    'mergeArray',   // ( des, ...src ): Array
 ]
 .forEach(function( meth ) {
     /**
      * @return {Value}
      */
-    _Gets[meth] = function( evo, ...rest ) { return $[meth](evo.data, ...rest) };
+    _Gets[meth] = function( evo, ...rest ) {
+        return $[meth]( evo.data, ...rest );
+    };
 
     _Gets[`__${meth}`] = 1;
 
@@ -1784,7 +1792,9 @@ const _Gets = {
      * @param  {Number|String} slr 过滤选择器
      * @return {Value|[Value]|null}
      */
-    _Gets[meth] = function( evo, slr ) { return $(evo.data)[meth]( slr ) };
+    _Gets[meth] = function( evo, slr ) {
+        return $(evo.data)[meth]( slr );
+    };
 
     _Gets[`__${meth}`] = 1;
 

@@ -770,6 +770,7 @@ const _Process = {
      * 移除对象内与目标值相等的成员条目。
      * 相等判断采用 Array.includes() 实现。
      * 不传递任何实参时会移除值为undefined的条目。
+     * 支持多层次嵌套的对象数组。
      * 注意：
      * undefined和null条目并不会同时移除，需分别传入两个值。
      * 操作会影响传入的流程数据本身。
@@ -779,7 +780,11 @@ const _Process = {
      * @return {Object} 流程数据
      */
     clean( evo, val, ...rest ) {
-        return mapCall( evo.data, o => cleanObj(o, val, ...rest) );
+        let _fun = $.isArray( evo.data ) ?
+            cleanObjs :
+            cleanObj;
+
+        return _fun( evo.data, val, ...rest );
     },
 
     __clean: 1,
@@ -2046,8 +2051,28 @@ function n16c2( n ) {
 
 
 /**
+ * 对象集成员清理。
+ * 移除属性值在 vals 中的属性条目。
+ * 如果成员为数组，会递进清理其成员。
+ * @param  {[Object]} objs 对象集
+ * @param  {...Value} vals 匹配值序列
+ * @return {[Object]} objs
+ */
+function cleanObjs( objs, ...vals ) {
+    for ( const its of objs ) {
+        if ( $.isArray(its) ) {
+            cleanObjs( its, ...vals );
+        } else {
+            cleanObj( its, ...vals );
+        }
+    }
+    return objs;
+}
+
+
+/**
  * 对象成员清理。
- * 移除值为val的属性条目。
+ * 移除属性值在 vals 中的属性条目。
  * @param  {Object} obj 清理目标
  * @param  {...Value} vals 匹配值序列
  * @return {Object} obj

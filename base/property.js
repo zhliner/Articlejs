@@ -317,6 +317,21 @@ function arrValues( els, val ) {
 
 
 
+/**
+ * 表格列头检查。
+ * @param  {[Table]} tbs 表格对象集
+ * @param  {Boolean} pos 是否尾列检查，可选
+ * @return {[Boolean, indeterminate]} [是否包含, 不确定]
+ */
+function tablesVth( tbs, pos ) {
+    let _vs = tbs.map(
+            tbo => tbo.hasVth( !!pos )
+        );
+    return _vs.length === 1 || new Set(_vs).size === 1 ? [ _vs[0], false ] : [ null, true ];
+}
+
+
+
 //
 // 取值函数集。
 // 区分单选取和多选取而有不同的状态。
@@ -347,7 +362,8 @@ const __Kit = {
      * 值集单一判断。
      * 如果值集为相同单一值，取该值，indeterminate 为 false，
      * 否则取值为 null，indeterminate 为 true。
-     * 适用：需明确设置不确定态的控件（如复选框，自定义类）。
+     * 适用：
+     * 需明确设置不确定态的控件（如复选框，自定义类）。
      * @return {[Value|null, Boolean]} 状态和值 [value, indeterminate]
      */
     vals2( evo ) {
@@ -359,14 +375,21 @@ const __Kit = {
 
 
     /**
-     * 值集选单设置。
-     * 值集逻辑同上，需明确设置indeterminate值。
+     * 表格列头判断。
+     * 如果全部表格都有或无列头，取确定值，否则为不确定。
+     * 列头有两个位置，首列和尾列。
+     * 适用：专用于表格类型。
+     * @data: [Element]
+     * @return {[[Boolean, indeterminate], [Boolean, indeterminate]]} [首列状态, 尾列状态]
      */
-    select( evo ) {
-        //
+    tableVth( evo ) {
+        let _tbs = evo.data
+            .map( el => new $.Table(el) );
+
+        return [ tablesVth(_tbs), tablesVth(_tbs, true) ];
     },
 
-    __select: 1,
+    __tableVth: 1,
 };
 
 
