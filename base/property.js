@@ -17,7 +17,12 @@ import * as T from "./types.js";
 import { customGetter } from "./tpb/pbs.get.js";
 
 
-const $ = window.$;
+const
+    $ = window.$,
+
+    // 空白匹配。
+    __reSpace = /\s+/g;
+
 
 
 //
@@ -331,6 +336,37 @@ function tablesVth( tbs, pos ) {
 }
 
 
+/**
+ * 特性取值集判断。
+ * 全部相同则取值，否则返回null。
+ * @param  {[Element]} els 目标元素集
+ * @param  {String} name 特性名
+ * @return {Value|null}
+ */
+function attrVal( els, name ) {
+    let _vs = new Set(
+        els.map( el => $.attr(el, name) )
+    );
+    return _vs.length === 1 ? _vs[0] : null;
+}
+
+
+/**
+ * 特性取值集判断。
+ * 全部相同则取值，结果确定（[Boolean, indeterminate:false]），
+ * 否则为不确定（[null, indeterminate:true]）。
+ * @param  {[Element]} els 目标元素集
+ * @param  {String} name 特性名
+ * @return {Value|null}
+ */
+function attr2Bool( els, name ) {
+    let _vs = new Set(
+        els.map( el => $.attr(el, name) )
+    );
+    return _vs.length === 1 ? [_vs[0] !== null, false] : [null, true];
+}
+
+
 
 //
 // 取值函数集。
@@ -390,6 +426,38 @@ const __Kit = {
     },
 
     __tableVth: 1,
+
+
+    /**
+     * 多特性取值判断。
+     * 支持空格分隔的多个名称。
+     * 如果值全部相同，取确定值，否则为不确定。
+     * @data: [Element] 目标元素集
+     * @param  {String} names 名称序列
+     * @return {[Value]} 值集
+     */
+    attrVal( evo, names ) {
+        return names.split( __reSpace )
+            .map( name => attrVal(evo.data, name) );
+    },
+
+    __attrVal: 1,
+
+
+    /**
+     * 多特性取值判断。
+     * 支持空格分隔的多个名称。
+     * 如果值全部相同，取确定值，否则为不确定。
+     * @data: [Element] 目标元素集
+     * @param  {String} names 名称序列
+     * @return {[[Boolean, indeterminate]]} 状态值对集
+     */
+    attrBool( evo, names ) {
+        return names.split( __reSpace )
+            .map( name => attr2Bool(evo.data, name) );
+    },
+
+    __attrBool: 1,
 };
 
 

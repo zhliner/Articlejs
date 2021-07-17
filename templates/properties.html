@@ -655,7 +655,7 @@
 </li>
 
 <li tpl-name="prop:wh"
-    on="value|v.sels attr('width') v.p.vals1 v.sels attr('height') v.p.vals1 pack(2)"
+    on="value|v.sels v.p.attrVal('width height')"
     to="(/input)|val">
     <b>宽/高度</b>
     <span>
@@ -725,8 +725,8 @@
 </li>
 
 <li tpl-name="prop:mediaopts"
-    on="value|ev('detail') props('autoplay loop controls') dup"
-    to="(/input)|$defaultChecked $checked">
+    on="value|v.sels v.p.attrBool('autoplay loop controls')"
+    to="(/input)|property('checked indeterminate')">
     <b>设置</b>
     <span>
         <label><input type="checkbox" name="autoplay" />自动播放</label>
@@ -736,8 +736,8 @@
 </li>
 
 <li tpl-name="prop:open"
-    on="value|ev('detail') prop('open') dup"
-    to="/input|$defaultChecked $checked">
+    on="value|v.sels v.p.attrBool('open') item(0)"
+    to="/input|property('checked indeterminate')">
     <b><!-- 占位 --></b>
     <span><label><input type="checkbox" name="open" />详细展开</label></span>
 </li>
@@ -800,11 +800,6 @@
     <span><input type="text" name="media" class="_phrase" /></span>
 </li>
 
-<li tpl-name="prop:heading">
-    <b>标题</b>
-    <span><input type="text" name="heading" placeholder="无标题请置空"></span>
-</li>
-
 <!-- 单行文本 -->
 <li tpl-name="prop:text">
     <b>文本</b>
@@ -827,25 +822,24 @@
     <span><input type="url" name="cite"  placeholder="https:// (可选)" /></span>
 </li>
 
-<li tpl-name="prop:figcapwhere">
-    <b>标题位于</b>
-    <span><label><input type="checkbox" name="figcapbelow" value="below" />在图画之下</label></span>
-</li>
-
 <li tpl-name="prop:rb">
     <b>文本</b>
     <span><input type="text" name="rb" placeholder="<rb>" class="_phrase" /></span>
 </li>
 
+<!--行为说明：
+    <ruby>内多个<rt>内容会合并显示（空格连接）。
+    多个<ruby>需内部<rt>合并文本相同，即为相同。
+    如果为不确定态（文本置空），处理器会合并各<ruby>内部<rt>单元。 -->
 <li tpl-name="prop:rt"
-    on="value|ev('detail') pop $$('/rt') text join(' ') dup"
-    to="/input|@value val">
+    on="value|v.sels find('/rt') text map(ts=>ts.join(' ')) v.p.vals1"
+    to="/input|val">
     <b>拼音</b>
     <span><input type="text" name="rt" placeholder="<rt>" /></span>
 </li>
 
-<!--仅友好提示：
-    由程序配置以支持<ruby>的格式化解析创建。-->
+<!--不可编辑：
+    仅由程序配置以支持<ruby>的格式化解析。-->
 <li tpl-name="prop:rp">
     <b>&lt;rp&gt;</b>
     <span data-pbo="disabled"
@@ -863,15 +857,15 @@
 </li>
 
 <li tpl-name="prop:date"
-    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date datetime('yyyy-MM-dd') dup"
-    to="/input|@value val">
+    on="value|v.sels attr('datetime') v.p.vals1 dup vnot jump(2) Date datetime('yyyy-MM-dd')"
+    to="/input|val">
     <b>日期</b>
     <span><input type="date" name="date" placeholder="yyyy-MM-dd"></span>
 </li>
 
 <li tpl-name="prop:time"
-    on="value|ev('detail') attr('datetime') dup vnot jump(2) Date time dup"
-    to="/input|@value val">
+    on="value|v.sels attr('datetime') v.p.vals1 dup vnot jump(2) Date time"
+    to="/input|val">
     <b>时间</b>
     <span><input type="time" name="time" placeholder="hh:mm:ss"></span>
 </li>
@@ -882,8 +876,8 @@
 </li>
 
 <li tpl-name="prop:maxmin"
-    on="value|ev('detail') attrs('max min') dup"
-    to="(/input)|@value val">
+    on="value|v.sels v.p.attrVal('max min')"
+    to="(/input)|val">
     <b>最大/最小值</b>
     <span>
         <input type="text" name="max" placeholder="max" class="_nums" />
@@ -892,8 +886,8 @@
 </li>
 
 <li tpl-name="prop:highlow"
-    on="value|ev('detail') attrs('high low') dup"
-    to="(/input)|@value val">
+    on="value|v.sels v.p.attrVal('high low')"
+    to="(/input)|val">
     <b>高/低值</b>
     <span>
         <input type="text" name="high" placeholder="high" class="_nums" />
@@ -906,17 +900,10 @@
     <span><input type="text" name="optimum" class="_nums" /></span>
 </li>
 
-<!--三步：
-    1. 初始设置。or(null) 容错空值特性。
-    2. 清理默认。
-    3. 设置值设置为默认（重置正确）。 -->
+<!-- 注：无特性时prop取值为空串 -->
 <li tpl-name="prop:dir"
-    on="value|ev('detail') attr('dir') or('');
-        _clear|(false);
-        _defchk|(true) $('/input') prop('checkedNode') dup pass pop"
-    to="/input|val|goto('_clear');
-        (/input)|$defaultChecked|goto('_defchk');
-        -|$defaultChecked">
+    on="value|v.sels prop('dir') v.p.vals1"
+    to="/input|val">
     <b title="dir">方向</b>
     <span>
         <label><input type="radio" name="dir" value="">无</label>
@@ -946,8 +933,8 @@
 </li>
 
 <li tpl-name="prop:tab"
-    on="value|ev('detail') attr('-tab') dup"
-    to="/input|@value val">
+    on="value|v.sels attr('-tab') v.p.vals1"
+    to="/input|val">
     <b>制表符</b>
     <span><input type="text" name="tabs" class="_char" value="4" title="空格数"></span>
 </li>
@@ -956,7 +943,7 @@
     on="value|v.sels attr('-lang') v.p.vals2 spread"
     to="/select|$indeterminate val">
     <b>语言</b>
-    <span><select tpl-node="!prop:languages"></select></span>
+    <span><select tpl-node="prop:languages"></select></span>
 </li>
 
 <li class="_text2" tpl-name="prop:text2">
@@ -994,8 +981,7 @@
 
 <!--代码语言清单
     data-id     用于$$统一检索。
-    normal      普通代码，仅标记字符串和注释（//）。
-    indet2val   属性初始设置处理。 -->
+    normal      普通代码，仅标记字符串和注释（//）。 -->
 <select id="g-languages" data-id="code" name="language" tpl-name="prop:languages">
     <option value=""> ------ </option>
     <option value="normal">Normal</option>
