@@ -7,7 +7,7 @@
 ----------------------------------------------------------------------------->
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
-    on="vinit reset;
+    on="vinit reset|v.sels;
         build|('src autoplay loop controls') dup $('form/') pop value(_1) $('/pre._code') text arr v.mediasubs pack(3)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
@@ -18,7 +18,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
-    on="vinit reset;
+    on="vinit reset|v.sels;
         build|('src poster autoplay loop controls width height') dup $('form/') pop value(_1) $$('/pre._code') text v.mediasubs pack(3)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
@@ -29,9 +29,11 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
-    on="vinit reset;
+    on="vinit reset|v.sels children('img') flat;
+        vinit reset|v.sels;
         build|"
-    to="(/>li)|trigger('value');
+    to="(/>li)(:last-child)|trigger('value');
+        />li:last-child|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:alt"></li>
     <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
@@ -39,7 +41,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:img" data-label="图片属性"
-    on="vinit reset;
+    on="vinit reset|v.sels;
         build|"
     to="(/>li)|trigger('value')">
     <li tpl-node="!prop:src, prop:alt"></li>
@@ -653,8 +655,10 @@
     <span><input type="text" name="alt" /></span>
 </li>
 
+<!--兼容图片和自适应图片：
+    从 ev('detail') 接收数据。 -->
 <li tpl-name="prop:wh"
-    on="value|v.sels v.p.attrVal('width height')"
+    on="value|ev('detail') v.p.attrVal('width height')"
     to="(/input)|val">
     <b>宽/高度</b>
     <span>
@@ -667,9 +671,10 @@
 
 <!--音频/视频用
     资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。
-    属性设置方式（$text）可让null值为清空。 -->
+    属性设置方式（$text）可让null值为清空。
+    从 ev('detail') 接收数据以保持发送方式一致（与prop:wh）。 -->
 <li tpl-name="prop:sources1"
-    on="value|v.sels children('source') attribute('src type') clean(null) jsons(4) v.p.vals1"
+    on="value|ev('detail') children('source') attribute('src type') clean(null) jsons(4) v.p.vals1"
     to="/pre|$text">
     <b title="<source>">候选资源</b>
     <span
@@ -681,7 +686,7 @@
 
 <!-- 值为null的特性忽略 -->
 <li tpl-name="prop:tracks"
-    on="value|v.sels children('track') attribute('kind srclang src label default') clean(null) jsons(4) v.p.vals1"
+    on="value|ev('detail') children('track') attribute('kind srclang src label default') clean(null) jsons(4) v.p.vals1"
     to="/pre|$text">
     <b title="<track>">字幕轨</b>
     <span
@@ -693,7 +698,7 @@
 
 <!-- 自适应图片用 -->
 <li tpl-name="prop:sources2"
-    on="value|v.sels children('source') attribute('srcset media') clean(null) jsons(4) v.p.vals1"
+    on="value|ev('detail') children('source') attribute('srcset media') clean(null) jsons(4) v.p.vals1"
     to="/pre|$text">
     <b title="<source>">候选图片</b>
     <span
@@ -702,6 +707,7 @@
         <pre tpl-node="!prop:codes"></pre>
     </span>
 </li>
+
 
 <li obt-src="obts/prop1.json" tpl-name="prop:width">
     <b title="width">宽度</b>

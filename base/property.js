@@ -344,10 +344,10 @@ function tablesVth( tbs, pos ) {
  * @return {Value|null}
  */
 function attrVal( els, name ) {
-    let _vs = new Set(
-        els.map( el => $.attr(el, name) )
+    let _vs = els.map(
+        el => $.attr( el, name )
     );
-    return _vs.length === 1 ? _vs[0] || '' : null;
+    return _vs.length === 1 || new Set(_vs).size === 1 ? _vs[0] || '' : null;
 }
 
 
@@ -360,10 +360,10 @@ function attrVal( els, name ) {
  * @return {Value|null}
  */
 function attr2Bool( els, name ) {
-    let _vs = new Set(
-        els.map( el => $.attr(el, name) )
+    let _vs = els.map(
+        el => $.attr( el, name )
     );
-    return _vs.length === 1 ? [_vs[0] !== null, false] : [null, true];
+    return _vs.length === 1 || new Set(_vs).size === 1 ? [_vs[0] !== null, false] : [null, true];
 }
 
 
