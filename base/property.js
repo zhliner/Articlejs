@@ -338,7 +338,7 @@ function tablesVth( tbs, pos ) {
 
 /**
  * 特性取值集判断。
- * 全部相同则取值，否则返回null。
+ * 全部相同则取值（假值转为空串），否则返回null。
  * @param  {[Element]} els 目标元素集
  * @param  {String} name 特性名
  * @return {Value|null}
@@ -347,7 +347,7 @@ function attrVal( els, name ) {
     let _vs = new Set(
         els.map( el => $.attr(el, name) )
     );
-    return _vs.length === 1 ? _vs[0] : null;
+    return _vs.length === 1 ? _vs[0] || '' : null;
 }
 
 
@@ -381,14 +381,15 @@ const __Kit = {
     /**
      * 值集单一取值。
      * 如果值集为相同单一值，取该值，否则取值为null。
-     * 用于多目标检测取值。
-     * 适用：value赋值类控件，空值即为不确定（无需indeterminate）。
+     * 所取值如果非真，会转为空串以与null值相区别。
+     * 适用：
+     * value赋值类控件，空值即为不确定（无需indeterminate）。
      * @data: [Value] 值集
      * @return {Value|null}
      */
     vals1( evo ) {
         return evo.data.length === 1 || new Set(evo.data).size === 1 ?
-            evo.data[0] : null;
+            evo.data[0] || '' : null;
     },
 
     __vals1: 1,
@@ -398,13 +399,14 @@ const __Kit = {
      * 值集单一判断。
      * 如果值集为相同单一值，取该值，indeterminate 为 false，
      * 否则取值为 null，indeterminate 为 true。
+     * 所取值如果非真，会转为空串以与null值相区别。
      * 适用：
      * 需明确设置不确定态的控件（如复选框，自定义类）。
      * @return {[Value|null, Boolean]} 状态和值 [value, indeterminate]
      */
     vals2( evo ) {
         return evo.data.length === 1 || new Set(evo.data).size === 1 ?
-            [ evo.data[0], false ] : [ null, true ];
+            [ evo.data[0] || '', false ] : [ null, true ];
     },
 
     __vals2: 1,
