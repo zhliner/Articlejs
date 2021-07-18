@@ -30,7 +30,7 @@
 
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
     on="vinit reset|v.sels children('img') flat;
-        vinit reset|v.sels;
+        vinit reset;
         build|"
     to="(/>li)(:last-child)|trigger('value');
         />li:last-child|trigger('value');
@@ -645,12 +645,16 @@
     </span>
 </li>
 
-<li obt-src="obts/prop1.json" tpl-name="prop:src">
+<li tpl-name="prop:src"
+    on="value|ev('detail') attr('src') v.p.vals1"
+    to="/input|val">
     <b title="src">源路径</b>
     <span><input type="text" name="src" /></span>
 </li>
 
-<li obt-src="obts/prop1.json" tpl-name="prop:alt">
+<li tpl-name="prop:alt"
+    on="value|ev('detail') attr('alt') v.p.vals1"
+    to="/input|val">
     <b title="alt">说明</b>
     <span><input type="text" name="alt" /></span>
 </li>
@@ -671,10 +675,9 @@
 
 <!--音频/视频用
     资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。
-    属性设置方式（$text）可让null值为清空。
-    从 ev('detail') 接收数据以保持发送方式一致（与prop:wh）。 -->
+    属性设置方式（$text）可让null值为清空。 -->
 <li tpl-name="prop:sources1"
-    on="value|ev('detail') children('source') attribute('src type') clean(null) jsons(4) v.p.vals1"
+    on="value|v.sels children('source') attribute('src type') clean(null) jsons(4) v.p.vals1"
     to="/pre|$text">
     <b title="<source>">候选资源</b>
     <span
@@ -686,7 +689,7 @@
 
 <!-- 值为null的特性忽略 -->
 <li tpl-name="prop:tracks"
-    on="value|ev('detail') children('track') attribute('kind srclang src label default') clean(null) jsons(4) v.p.vals1"
+    on="value|v.sels children('track') attribute('kind srclang src label default') clean(null) jsons(4) v.p.vals1"
     to="/pre|$text">
     <b title="<track>">字幕轨</b>
     <span
@@ -698,7 +701,7 @@
 
 <!-- 自适应图片用 -->
 <li tpl-name="prop:sources2"
-    on="value|ev('detail') children('source') attribute('srcset media') clean(null) jsons(4) v.p.vals1"
+    on="value|v.sels children('source') attribute('srcset media') clean(null) jsons(4) v.p.vals1"
     to="/pre|$text">
     <b title="<source>">候选图片</b>
     <span
