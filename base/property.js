@@ -27,46 +27,46 @@ const
 
 //
 // 定制处理器集。
-// function( el, names, vals, rest ): void
+// function( el, names, ...rest ): void
 //
 const customHandles = {
-    // [ T.AUDIO ]:        property,        // src autoplay loop controls, [<source>]
-    // [ T.VIDEO ]:        property,        // src poster width height autoplay loop controls, [<source>, <track>]
+    [ T.AUDIO ]:        processSubs,        // src autoplay loop controls, [<source>]
+    [ T.VIDEO ]:        processSubs,        // src poster width height autoplay loop controls, [<source>, <track>]
     [ T.PICTURE ]:      processPicture,     // src width height alt, [<sources>]
-    // [ T.IMG ]:          property,        // src, width, height, alt
-    // [ T.SVG ]:          property,        // width, height
+    [ T.IMG ]:          processAttr,        // src, width, height, alt
+    [ T.SVG ]:          processAttr,        // width, height
     [ T.RUBY ]:         processRuby,        // rt, rp
     [ T.TIME ]:         processDatetime,    // datetime: date, time
-    // [ T.METER ]:        property,        // max, min, high, low, value, optimum
+    [ T.METER ]:        processAttr,        // max, min, high, low, value, optimum
     [ T.SPACE ]:        processCSS,         // CSS:width
-    // [ T.A ]:            property,        // href, target
-    [ T.Q ]:            processAttr,        // cite
-    [ T.ABBR ]:         processAttr,        // title
+    [ T.A ]:            processAttr,        // href, target
+    // [ T.Q ]:                             // cite
+    // [ T.ABBR ]:                          // title
     [ T.DEL ]:          processDatetime,    // datetime: date, time
     [ T.INS ]:          processDatetime,    // datetime: date, time
-    // [ T.CODE ]:         property,        // -lang, -tab
-    [ T.DFN ]:          processAttr,        // title
-    [ T.BDO ]:          processAttr,        // dir
-    [ T.BLOCKQUOTE ]:   processAttr,        // cite
-    // [ T.CODELIST ]:     property,        // -lang, -tab, start
-    // [ T.OL ]:           property,        // start, type, reversed
-    // [ T.OLX ]:          property,        // start, type, reversed
-    [ T.LI ]:           processAttr,        // value
-    [ T.CODELI ]:       processAttr,        // value
-    [ T.ALI ]:          processAttr,        // value
-    [ T.XH4LI ]:        processAttr,        // value
-    [ T.XOLH4LI ]:      processAttr,        // value
-    [ T.XOLAH4LI ]:     processAttr,        // value
+    [ T.CODE ]:         processAttr,        // -lang, -tab
+    // [ T.DFN ]:                           // title
+    // [ T.BDO ]:                           // dir
+    // [ T.BLOCKQUOTE ]:                    // cite
+    [ T.CODELIST ]:     processAttr,        // -lang, -tab, start
+    [ T.OL ]:           processAttr,        // start, type, reversed
+    [ T.OLX ]:          processAttr,        // start, type, reversed
+    // [ T.LI ]:                            // value
+    // [ T.CODELI ]:                        // value
+    // [ T.ALI ]:                           // value
+    // [ T.XH4LI ]:                         // value
+    // [ T.XOLH4LI ]:                       // value
+    // [ T.XOLAH4LI ]:                      // value
     [ T.TABLE ]:        processTable,       // border, vth
     [ T.HR ]:           processHr,          // thick, length, space, border
     [ T.BLANK ]:        processCSS,         // CSS: width, height
-    [ T.EXPLAIN ]:      processAttr,        // -pba
-    [ T.H1 ]:           processAttr,        // id
-    [ T.H2 ]:           processAttr,        // id
-    [ T.H3 ]:           processAttr,        // id
-    [ T.H4 ]:           processAttr,        // id
-    [ T.H5 ]:           processAttr,        // id
-    [ T.H6 ]:           processAttr,        // id
+    // [ T.EXPLAIN ]:                       // -pba
+    // [ T.H1 ]:                            // id
+    // [ T.H2 ]:                            // id
+    // [ T.H3 ]:                            // id
+    // [ T.H4 ]:                            // id
+    // [ T.H5 ]:                            // id
+    // [ T.H6 ]:                            // id
 }
 
 
@@ -74,11 +74,11 @@ const customHandles = {
 // 额外实参创建器。
 //
 const customData = {
-    [ T.AUDIO ]:        dataNodes,          // [ Collector(<source>) ]
-    [ T.VIDEO ]:        dataNodes,          // [ Collector(<source>, <track>) ]
-    [ T.PICTURE ]:      dataNodes,          // [ Collector(<sources>) ]
-    [ T.RUBY ]:         dataRuby,           // [ <rt> ]
-    [ T.TABLE ]:        dataTable,          // [ [Cells|true|null, Cells|true|null] ]
+    [ T.AUDIO ]:        dataMedia,
+    [ T.VIDEO ]:        dataMedia,
+    [ T.PICTURE ]:      dataPicture,
+    [ T.RUBY ]:         dataRuby,
+    [ T.TABLE ]:        dataTable,
 }
 
 
@@ -108,30 +108,27 @@ function processPicture( el, names, vals, subs ) {
 //
 // 注音拼音更新。
 // 保留首个<rb>, <rt>子元素引用。
-// 多个拼音子单元会被合并，<rb>也对应合并。
+// 多个拼音子单元会被合并，<rb>也会合并。
 // 注记：
-// 不会创建新的节点（即便是文本节点），避免redo时原始引用丢失。
-// <rt|rb>内原始的文本节点引用也会被保留。
+// 新插入文本时，至少保留首个文本节点，避免redo时原始引用丢失。
 // @param {Text} rt 拼音文本节点
 //
 function processRuby( el, _, _v, rt ) {
     let $rts = $( 'rt', el ),
-        _rt0 = $rts.shift();
+        _rt0 = $rts.shift(),
+        $rbs = $( 'rb', el ),
+        _rb0 = $rbs.shift();
 
     $.fill( _rt0, rt );
-    if ( !$rts.length ) return;
 
-    // <rb>合并。
-    let _rb0 = $.get( 'rb', el ),
-        _tts = $('rb', el).slice(1).remove().text();
-
-    // append:
-    // 保留_rb0原文本节点引用。
-    $.text( _rb0, _tts, 'append' );
-    $.normalize( _rb0 );
-
-    // 清除多余。
-    $rts.remove();
+    if ( $rts.length ) {
+        $rts.remove();
+    }
+    if ( $rbs.length ) {
+        // 保留_rb0原文本节点引用。
+        $.text( _rb0, $rbs.remove().text(), 'append' );
+        $.normalize( _rb0 );
+    }
     $('rp', el).slice(2).remove();
 }
 
@@ -192,28 +189,25 @@ function processCSS( el, names, vals ) {
 
 
 //
-// 单特性设置。
+// 纯特性设置。
 //
-function processAttr( el, name, val ) {
-    $.attr( el, name, val );
+function processAttr( el, names, vals ) {
+    $.attribute( el, names, vals );
 }
 
 
 /**
- * 默认的通用处理。
+ * 包含子单元的属性处理。
  * - 目标元素纯特性赋值。
  * - 目标元素子单元全替换。
  * @param  {Element} el 目标元素
  * @param  {String} names 属性名序列
  * @param  {[Value]} vals 属性值集
- * @param  {[Node]} subs 子节点集，可选
+ * @param  {[Node]} subs 子节点集
  * @return {void}
  */
-function property( el, names, vals, subs ) {
-    if ( vals !== undefined ) {
-        $.attribute( el, names, vals );
-    }
-    subs !== undefined && $.fill( el, subs );
+function processSubs( el, names, vals, subs ) {
+    $.fill( $.attribute(el, names, vals), subs );
 }
 
 
@@ -225,19 +219,31 @@ function property( el, names, vals, subs ) {
 
 /**
  * 节点集多份克隆。
+ * 返回值中的null：
+ * - 多目标时，表示不确定态，处理时保留原值。
+ * - 单目标时，表示移除目标项。
  * @param  {[Element]} els 选取目标集
- * @param  {[Value]} vals 特性值序列
- * @param  {[Element]|''} subs 子节点集
- * @return {[Value, Collector]}
+ * @param  {Object} valo 属性名:值对象
+ * @param  {[Boolean]} chk3 三个播放控制属性值（autoplay loop controls）
+ * @param  {String} src 子节点JSON配置串
+ * @return {[Value|null, Collector|null]}
  */
-function dataNodes( els, vals, subs ) {
+function dataMedia( els, valo, chk3, src ) {
+    if ( els.length === 1 ) {
+        //
+    }
     let $subs = subs && $( subs ),
         _buf = [ $subs ];
 
     for ( let i = 0; i < els.length-1; i++ ) {
-        _buf.push( $subs.clone() );
+        _buf.push( $subs && $subs.clone() );
     }
     return _buf;
+}
+
+
+function dataPicture( els, valo, srcs ) {
+    //
 }
 
 
@@ -248,18 +254,21 @@ function dataNodes( els, vals, subs ) {
  * @return {[Text]} 拼音文本节点集
  */
 function dataRuby( els, rt ) {
-    let _rt0 = $.Text( rt ),
-        _buf = [ _rt0 ];
-
-    for ( let i = 0; i < els.length-1; i++ ) {
-        _buf.push( $.clone(_rt0) );
+    if ( els.length === 1 ) {
+        return rt && $.Text( rt );
     }
-    return _buf;
+    if ( rt === null ) {
+        // 不确定态
+        // 各自提取合并。
+        return els.map( el => $.Text( $.find('rt', el).text().join('') ) );
+    }
+    return els.map( () => $.Text(rt) );
 }
 
 
 /**
  * 表格列头数据集。
+ * 返回值：[单元格集|已经存在|删除]
  * @param  {[Element]} els 选取的表格集
  * @param  {String} border 边框值
  * @param  {Boolean} vth0  含首列表头
@@ -399,14 +408,13 @@ const __Kit = {
      * 值集单一判断。
      * 如果值集为相同单一值，取该值，indeterminate 为 false，
      * 否则取值为 null，indeterminate 为 true。
-     * 所取值如果非真，会转为空串以与null值相区别。
      * 适用：
      * 需明确设置不确定态的控件（如复选框，自定义类）。
      * @return {[Value|null, Boolean]} 状态和值 [value, indeterminate]
      */
     vals2( evo ) {
         return evo.data.length === 1 || new Set(evo.data).size === 1 ?
-            [ evo.data[0] || '', false ] : [ null, true ];
+            [ evo.data[0], false ] : [ null, true ];
     },
 
     __vals2: 1,
@@ -477,7 +485,7 @@ const __Kit = {
  * 多个目标时，子元素集通常只是简单的克隆而已。
  * @param  {Number} tval 目标单元类型值
  * @param  {[Element]} els 选取的目标元素集
- * @param  {...Value} vals 初始值序列（依不同的属性目标而异）
+ * @param  {...Value} vals 取值序列（依不同的属性目标而异）
  * @return {[Value]} 额外实参集
  */
 export function propertyData( tval, els, ...vals ) {
@@ -492,17 +500,17 @@ export function propertyData( tval, els, ...vals ) {
 
 /**
  * 获取定制处理器。
- * 接口：function(
- *      el:Element,       // 目标元素
- *      names:String,     // 属性名序列
- *      values:[Value],   // 属性值集
- *      subs:[Element]    // 子元素集，可选
- * ): void
+ * 接口：function(el, names, ...rest): void
+ * - el:Element     目标元素
+ * - names:String   属性名序列
+ * - ...rest:Value  属性值序列
  * @param  {Number} tval 单元类型值
  * @return {Function}
  */
 export function propertyProcess( tval ) {
-    return customHandles[ tval ] || property;
+    return customHandles[ tval ] ||
+        // 默认单特性设置。
+        ( (el, name, val) => $.attr(el, name, val) );
 }
 
 

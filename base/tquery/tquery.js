@@ -887,14 +887,14 @@ Object.assign( tQuery, {
 
     /**
      * 获取表单元素内控件集。
-     * 如果未指定名称，则仅返回可提交的控件集。
+     * 如果未指定名称，返回可提交的控件集。
      * 控件名以空格分隔，同名控件中用首个控件代表（可用.val获取值集）。
      * 返回的控件集成员遵循传入的名称顺序。
      * 注：
      * 无效的名称对应到一个null值。
      * @param  {Element} frm 表单元素
      * @param  {String} names 指定的控件名序列
-     * @param  {Boolean} clean 清理null成员（容错无效名称）
+     * @param  {Boolean} clean 是否清理null成员，可选
      * @return {[Element]} 控件集
      */
     controls( frm, names, clean ) {
@@ -5247,7 +5247,7 @@ function submittable( ctrl ) {
 
 
 /**
- * 获取表单控件。
+ * 获取表单命名控件。
  * 通过控件名的方式检索控件元素。
  * 注意：
  * 控件名称可能与表单的方法重名。
@@ -5299,6 +5299,7 @@ function submitValue( ctrl, value ) {
 /**
  * 获取表单内的控件集。
  * 仅限于包含name定义且可提交的控件。
+ * 重名控件仅保留首个。
  * @param  {Element} frm 表单元素
  * @return {[Element]} 控件集
  */

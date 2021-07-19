@@ -277,20 +277,14 @@ const _Gets = {
     /**
      * 获取表单控件值集。
      * 目标：暂存区/栈顶1项。
-     * 支持假值默认替换值，比如用于元素特性设置为null，
-     * 这样就不会因为一个空串而在元素上设置一个无值的空特性。
+     * 行为与 $.val() 类似，但用控件名定位元素，且返回一个对象。
      * @data: <form>
      * @param  {String} names 控件名序列
-     * @param  {Value} orval 假值默认值，可选
      * @return {Object} 名:值对对象
      */
-    valo( evo, names, orval ) {
-        let _vf = e => $.val(e),
-            _df = e => $.val(e) || orval,
-            _fx = orval === undefined ? _vf : _df;
-
+    valo( evo, names ) {
         return $.controls( evo.data, names )
-            .reduce( (o, el) => (o[el.name] = _fx(el), o), {} );
+            .reduce( (o, el) => (o[el.name] = $.val(el), o), {} );
     },
 
     __valo: 1,
@@ -300,9 +294,8 @@ const _Gets = {
      * 获取表单控件值。
      * 目标：暂存区1项可选。
      * 如果暂存区有值，需为表单元素，否则取当前绑定的表单元素。
-     * 多个名称返回目标控件值的序列，与名称一一对应。
-     * 如果名称未对应到一个控件，取值为一个null。
-     * 如果所有名称都未对应到控件且非严格取值，返回一个null。
+     * 多个名称返回目标控件值的序列，与名称一一对应。单个名称返回单个值。
+     * 如果一个名称未对应到控件，会取值为一个null。
      * 注：
      * 与tQuery.val行为相同，但此用控件名定位元素。
      * @data: <form>
@@ -311,15 +304,13 @@ const _Gets = {
      * @return {Value|[Value]|[[Value]]}
      */
     value( evo, names, strict ) {
-        let _els = $.controls(
-            evo.data || evo.delegate,
-            names,
-            !strict
-        );
-        if ( !_els.length ) {
-            return null;
-        }
-        return _els.length > 1 ? _els.map( e => $.val(e) ) : $.val( _els[0] );
+        let _vs = $.controls(
+                evo.data || evo.delegate,
+                names,
+                !strict
+            ).map( el => el && $.val(el) );
+
+        return _vs.length === 1 ? _vs[0] : _vs;
     },
 
     __value: -1,
@@ -331,23 +322,22 @@ const _Gets = {
      * 如果暂存区无值，取当前上下文表单元素（友好表单元素）。
      * 单个名称返回单值，否则返回一个值数组。
      * 注意名称应当有效（有name或id属性），否则无法取值。
-     * 注：
-     * 仅用于复选框（checkbox）控件，重名复选框仅认可首个。
+     * 注意：
+     * 应当仅用于复选框（checkbox）控件，重名复选框仅认可首个。
+     * 如果复选框为不确定态，返回的值为null而非布尔类型。
      * @data: <form>
      * @param  {String} names 控件名序列
-     *  @param  {Boolean} strict 严格对应模式（null成员保留）
-     * @return {Boolean|[Boolean]|null}
+     * @param  {Boolean} strict 严格对应模式（null成员保留），可选
+     * @return {Boolean|null|[Boolean|null]}
      */
     checked( evo, names, strict ) {
-        let _els = $.controls(
-            evo.data || evo.delegate,
-            names,
-            !strict
-        );
-        if ( !_els.length ) {
-            return null;
-        }
-        return _els.length > 1 ? _els.map( e => e.checked ) : _els[0].checked;
+        let _vs = $.controls(
+                evo.data || evo.delegate,
+                names,
+                !strict
+            ).map( el => el && (el.indeterminate ? null : el.checked) );
+
+        return _vs.length === 1 ? _vs[0] : _vs;
     },
 
     __checked: -1,

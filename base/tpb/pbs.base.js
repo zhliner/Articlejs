@@ -766,25 +766,24 @@ const _Process = {
 
 
     /**
-     * 对象清理。
-     * 移除对象内与目标值相等的成员条目。
-     * 相等判断采用 Array.includes() 实现。
-     * 不传递任何实参时会移除值为undefined的条目。
+     * 对象属性清理。
+     * 检查对象内与目标值相等的属性条目，替换或移除。
+     * 如果替换值未传递（undefined），表示移除该属性条目。
+     * 不传递任何实参会移除值为undefined的条目。
      * 支持多层次嵌套的对象数组。
      * 注意：
-     * undefined和null条目并不会同时移除，需分别传入两个值。
      * 操作会影响传入的流程数据本身。
      * @data: Object|[Object]
-     * @param  {Value} val 匹配值，默认undefined
-     * @param  {...Value} rest 匹配值序列，可选
-     * @return {Object} 流程数据
+     * @param  {Value} val 匹配值，可选
+     * @param  {Value} rep 替换值，可选
+     * @return {Object|[Object]} 流程数据
      */
-    clean( evo, val, ...rest ) {
+    clean( evo, val, rep ) {
         let _fun = $.isArray( evo.data ) ?
             cleanObjs :
             cleanObj;
 
-        return _fun( evo.data, val, ...rest );
+        return _fun( evo.data, val, rep );
     },
 
     __clean: 1,
@@ -2055,15 +2054,16 @@ function n16c2( n ) {
  * 移除属性值在 vals 中的属性条目。
  * 如果成员为数组，会递进清理其成员。
  * @param  {[Object]} objs 对象集
- * @param  {...Value} vals 匹配值序列
+ * @param  {Value} val 匹配值，可选
+ * @param  {Value} rep 替换值，可选
  * @return {[Object]} objs
  */
-function cleanObjs( objs, ...vals ) {
+function cleanObjs( objs, val, rep ) {
     for ( const its of objs ) {
         if ( $.isArray(its) ) {
-            cleanObjs( its, ...vals );
+            cleanObjs( its, val, rep );
         } else {
-            cleanObj( its, ...vals );
+            cleanObj( its, val, rep );
         }
     }
     return objs;
@@ -2074,12 +2074,17 @@ function cleanObjs( objs, ...vals ) {
  * 对象成员清理。
  * 移除属性值在 vals 中的属性条目。
  * @param  {Object} obj 清理目标
- * @param  {...Value} vals 匹配值序列
+ * @param  {Value} val 匹配值，可选
+ * @param  {Value} rep 替换值，可选
  * @return {Object} obj
  */
-function cleanObj( obj, ...vals ) {
+function cleanObj( obj, val, rep ) {
     for ( const k of Object.keys(obj) ) {
-        if ( vals.includes(obj[k]) ) delete obj[k];
+        if ( obj[k] !== val ) {
+            continue;
+        }
+        obj[k] = rep;
+        obj[k] === undefined && delete obj[k];
     }
     return obj;
 }

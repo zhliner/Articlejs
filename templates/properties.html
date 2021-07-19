@@ -8,7 +8,7 @@
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
     on="vinit reset|v.sels;
-        build|('src autoplay loop controls') dup $('form/') pop value(_1) $('/pre._code') text arr v.mediasubs pack(3)"
+        build|(null) $('form/') dup pop(2) valo('src') checked('autoplay loop controls') $('/pre._code') text trim pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src"></li>
@@ -19,7 +19,7 @@
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
     on="vinit reset|v.sels;
-        build|('src poster autoplay loop controls width height') dup $('form/') pop value(_1) $$('/pre._code') text v.mediasubs pack(3)"
+        build|(null) $('form/') dup pop(2) valo('src poster width height') checked('autoplay loop controls') $$('/pre._code') text trim pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:poster"></li>
@@ -31,7 +31,7 @@
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
     on="vinit reset|v.sels children('img') flat;
         vinit reset;
-        build|"
+        build|(null) $('form/') valo('src alt width height') $('/pre._code') text trim pack(2) pack(2)"
     to="(/>li)(:last-child)|trigger('value');
         />li:last-child|trigger('value');
         form/|trigger('apply')">
@@ -42,8 +42,9 @@
 
 <ul class="_prop" tpl-name="property:img" data-label="图片属性"
     on="vinit reset|v.sels;
-        build|"
-    to="(/>li)|trigger('value')">
+        build|('src alt width height') dup $('form/') pop value(_1) pack(2)"
+    to="(/>li)|trigger('value');
+        form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:alt"></li>
     <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
 </ul>
@@ -208,8 +209,8 @@
     on="vinit reset;
         build|"
     to="/>li|trigger('value')">
-    <li on="value|v.sels attr('-pba') v.p.vals2 spread"
-        to="/select|$indeterminate val">
+    <li on="value|v.sels attr('-pba') v.p.vals1"
+        to="/select|val">
         <b>定位</b>
         <span><select name="position" tpl-name="explain:position">
                 <option value=""> ------ </option>
@@ -289,10 +290,8 @@
     <li tpl-node="prop:sources1"></li>
 </ul>
 
-<!--视频：
-    valo(..., null) 避免宽高未设置时空串添加空特性。 -->
 <ul class="_prop" tpl-name="inlines:video"
-    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src poster autoplay loop controls width height', null) (true)"
+    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src poster autoplay loop controls width height') clean('', null) (true)"
     by="New.video(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:poster"></li>
@@ -303,7 +302,7 @@
 
 <!-- 自适应图片 -->
 <ul class="_prop" tpl-name="inlines:picture"
-    on="create|$('/pre._code') text v.picsubs nil $('form/') valo('src alt width height', null)"
+    on="create|$('/pre._code') text v.picsubs nil $('form/') valo('src alt width height') clean('', null)"
     by="New.img(_1) concat(_1) (null, true) New.picture(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:alt"></li>
@@ -329,7 +328,7 @@
 
 <!-- 图片 -->
 <ul class="_prop" tpl-name="inlines:img"
-    on="create|$('form/') valo('src alt width height', null)"
+    on="create|$('form/') valo('src alt width height') clean('', null)"
     by="New.img(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:alt"></li>
@@ -355,7 +354,7 @@
 
 <!-- 短引用 -->
 <ul class="_prop" tpl-name="inlines:q"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('cite', null)"
+    on="create|$('/[name=text]') val dup pass $('form/') valo('cite') clean('', null)"
     by="New.q(_1)"
     to="form/|trigger('insert')">
     <hr tpl-node="prop:text1, prop:cite" />
@@ -391,7 +390,7 @@
 
 <!-- 缩写 -->
 <ul class="_prop" tpl-name="inlines:abbr"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('title', null)"
+    on="create|$('/[name=text]') val dup pass $('form/') valo('title') clean('', null)"
     by="New.abbr(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:text1, prop:title"></li>
@@ -399,7 +398,7 @@
 
 <!-- 定义条目 -->
 <ul class="_prop" tpl-name="inlines:dfn"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('title', null)"
+    on="create|$('/[name=text]') val dup pass $('form/') valo('title') clean('', null)"
     by="New.dfn(_1)"
     to="form/|trigger('insert')">
     <hr tpl-node="prop:text1, prop:title" />
@@ -407,7 +406,7 @@
 
 <!-- 量度标示 -->
 <ul class="_prop" tpl-name="inlines:meter"
-    on="create|$('form/') valo('value max min high low optimum', null)"
+    on="create|$('form/') valo('value max min high low optimum') clean('', null)"
     by="New.meter(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:number"></li>
@@ -562,8 +561,8 @@
 </li>
 
 <li tpl-name="prop:sntype"
-    on="value|v.sels attr('type') v.p.vals2 spread"
-    to="/select|$indeterminate val">
+    on="value|v.sels attr('type') v.p.vals1"
+    to="/select|val">
     <b title="type">类型</b>
     <span><select name="type">
             <option value=""> ------ </option>
@@ -595,8 +594,8 @@
 </li>
 
 <li tpl-name="prop:tborder"
-    on="value|v.sels attr('border') v.p.vals2 spread"
-    to="/select|$indeterminate val">
+    on="value|v.sels attr('border') v.p.vals1"
+    to="/select|val">
     <b>边框</b>
     <span>
         <select name="border" tpl-name="table:border">
@@ -632,8 +631,8 @@
 </li>
 
 <li tpl-name="prop:target"
-    on="value|v.sels attr('target') v.p.vals2 spread"
-    to="/select|$indeterminate val">
+    on="value|v.sels attr('target') v.p.vals1"
+    to="/select|val">
     <b title="target">目标</b>
     <span><select name="target">
             <option value=""> ------ </option>
@@ -744,8 +743,8 @@
 </li>
 
 <li tpl-name="prop:open"
-    on="value|v.sels v.p.attrBool('open') item(0)"
-    to="/input|property('checked indeterminate')">
+    on="value|v.sels prop('open') v.p.vals2 spread"
+    to="/input|$indeterminate $checked">
     <b><!-- 占位 --></b>
     <span><label><input type="checkbox" name="open" />详细展开</label></span>
 </li>
@@ -947,8 +946,8 @@
 </li>
 
 <li tpl-name="prop:lang"
-    on="value|v.sels attr('-lang') v.p.vals2 spread"
-    to="/select|$indeterminate val">
+    on="value|v.sels attr('-lang') v.p.vals1"
+    to="/select|val">
     <b>语言</b>
     <span><select tpl-node="prop:languages"></select></span>
 </li>

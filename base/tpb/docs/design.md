@@ -531,7 +531,7 @@ mix( n ): Array
 sum(): Number
 // 集合成员值累计。
 
-clean( val, ...rest ): Object|[Object]
+clean( val, rep ): Object|[Object]
 // 对象成员清理。
 
 datetime( fmt:String ): String

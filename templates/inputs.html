@@ -745,7 +745,7 @@
                 valued  正常设置值时的UI表现。 -->
             <input type="hidden" name="role" value="" obt-src="obts/indet2val.json"
                 on="indeted|('_press');
-                    valued|$$('1/>b') ev('detail') or(null) slr('1/hr', 'role', _1) $(_1) parent pop"
+                    valued|$$('1/>b') ev('detail') slr('1/hr', 'role', _1) $(_1) parent pop"
                 to="(1/>b)|removeClass;
                     -|only('_press')" />
         </span>
@@ -1181,7 +1181,7 @@
 </div>
 
 <div class="_body _Xolah4li" tpl-name="input:xolah4li"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('href title target', null);
+    on="create|$('/[name=text]') val dup pass $('form/') valo('href title target') clean('', null);
         xlist|$('/textarea') val v.splitx(true) wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
     by="New.a(_1);
         New.xolah4li(_1)"
@@ -1423,7 +1423,7 @@
 </div>
 
 <div class="_body _Source" tpl-name="input:source1"
-    on="create|$('form/') valo('src type', null)"
+    on="create|$('form/') valo('src type') clean('', null)"
     by="New.source1(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1435,7 +1435,7 @@
 </div>
 
 <div class="_body _Source" tpl-name="input:source2"
-    on="create|$('form/') valo('srcset media', null)"
+    on="create|$('form/') valo('srcset media') clean('', null)"
     by="New.source2(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1447,7 +1447,7 @@
 </div>
 
 <div class="_body _Source" tpl-name="input:pimg"
-    on="create|$('form/') valo('src alt width height', null)"
+    on="create|$('form/') valo('src alt width height') clean('', null)"
     by="New.pimg(_1)"
     to="form/|trigger('insfix')">
     <div class="_main _list">
