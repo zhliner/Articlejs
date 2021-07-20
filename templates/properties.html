@@ -8,7 +8,7 @@
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
     on="vinit reset|v.sels;
-        build|(null) $('form/') dup pop(2) valo('src') checked('autoplay loop controls') $('/pre._code') text trim pack(3) pack(2)"
+        build|(null) $('form/') dup pop(2) valo('src') checked('autoplay loop controls') $('/pre._code') text v.mediasubs pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src"></li>
@@ -19,7 +19,7 @@
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
     on="vinit reset|v.sels;
-        build|(null) $('form/') dup pop(2) valo('src poster width height') checked('autoplay loop controls') $$('/pre._code') text trim pack(3) pack(2)"
+        build|(null) $('form/') dup pop(2) valo('src poster width height') checked('autoplay loop controls') $$('/pre._code') text spread v.mediasubs(_1) pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:poster"></li>
@@ -31,7 +31,7 @@
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
     on="vinit reset|v.sels children('img') flat;
         vinit reset;
-        build|(null) $('form/') valo('src alt width height') $('/pre._code') text trim pack(2) pack(2)"
+        build|(null) $('form/') valo('src alt width height') $('/pre._code') text v.picsubs pack(2) pack(2)"
     to="(/>li)(:last-child)|trigger('value');
         />li:last-child|trigger('value');
         form/|trigger('apply')">
@@ -281,7 +281,7 @@
 
 <!-- 音频 -->
 <ul class="_prop" data-new="audio" tpl-name="inlines:audio"
-    on="create|$('/pre._code') text arr v.mediasubs $('form/') valo('src autoplay loop controls') (true)"
+    on="create|$('/pre._code') text v.mediasubs $('form/') valo('src autoplay loop controls') (true)"
     by="New.audio(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src"></li>
@@ -291,7 +291,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="inlines:video"
-    on="create|$$('/pre._code') text v.mediasubs $('form/') valo('src poster autoplay loop controls width height') clean('', null) (true)"
+    on="create|$$('/pre._code') text spread v.mediasubs(_1) $('form/') valo('src poster autoplay loop controls width height') clean('', null) (true)"
     by="New.video(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:poster"></li>

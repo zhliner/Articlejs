@@ -15,6 +15,7 @@
 
 import * as T from "./types.js";
 import { customGetter } from "./tpb/pbs.get.js";
+import { getType } from "./base.js";
 
 
 const
@@ -71,15 +72,27 @@ const customHandles = {
 
 
 //
-// 额外实参创建器。
+// 实参创建器（单目标）。
 //
 const customData = {
     [ T.AUDIO ]:        dataMedia,
     [ T.VIDEO ]:        dataMedia,
     [ T.PICTURE ]:      dataPicture,
     [ T.RUBY ]:         dataRuby,
+    [ T.TABLE ]:        tableData,
+};
+
+
+//
+// 实参创建器（多目标）。
+//
+const customDataMore = {
+    [ T.AUDIO ]:        dataMedia2,
+    [ T.VIDEO ]:        dataMedia2,
+    [ T.PICTURE ]:      dataPicture2,
+    [ T.RUBY ]:         dataRuby2,
     [ T.TABLE ]:        dataTable,
-}
+};
 
 
 //
@@ -159,8 +172,8 @@ function processDatetime( el, _, vals ) {
 function processTable( el, _, val, cs0, cs1 ) {
     let _tbo = new $.Table( el );
 
-    if ( cs0 !== undefined ) tableVth( _tbo, cs0, 0 );
-    if ( cs1 !== undefined ) tableVth( _tbo, cs1, -1 );
+    if ( cs0 !== undefined ) setTableVth( _tbo, cs0, 0 );
+    if ( cs1 !== undefined ) setTableVth( _tbo, cs1, -1 );
     if ( val !== undefined ) $.attr( el, 'border', val );
 }
 
@@ -207,43 +220,100 @@ function processAttr( el, names, vals ) {
  * @return {void}
  */
 function processSubs( el, names, vals, subs ) {
-    $.fill( $.attribute(el, names, vals), subs );
+    $.attribute( el, names, vals );
+    // 未定义时原样保留
+    subs !== undefined && $.fill( el, subs );
 }
 
 
 
 //
 // 数据创建器定制
+// 返回值：
+// - 单目标时，文本空串转换为null，移除目标特性。
+// - 多目标时，文本空串或null表示不确定态，转换为undefined以便原样保留。
 //////////////////////////////////////////////////////////////////////////////
 
 
 /**
- * 节点集多份克隆。
- * 返回值中的null：
- * - 多目标时，表示不确定态，处理时保留原值。
- * - 单目标时，表示移除目标项。
- * @param  {[Element]} els 选取目标集
+ * 媒体数据处理（单目标）。
+ * @param  {Element} el  选取目标
  * @param  {Object} valo 属性名:值对象
- * @param  {[Boolean]} chk3 三个播放控制属性值（autoplay loop controls）
- * @param  {String} src 子节点JSON配置串
- * @return {[Value|null, Collector|null]}
+ * @param  {[Boolean]|null} chk3 三个播放控制属性值（autoplay loop controls）
+ * @param  {[Element]|''} subs 子节点集
+ * @return {[Object, [Element]|'']}
  */
-function dataMedia( els, valo, chk3, src ) {
-    if ( els.length === 1 ) {
-        //
-    }
-    let $subs = subs && $( subs ),
-        _buf = [ $subs ];
+function dataMedia( el, valo, chk3, subs ) {
+    valo.autoplay = chk3[0];
+    valo.loop = chk3[1];
+    valo.controls = chk3[2];
 
-    for ( let i = 0; i < els.length-1; i++ ) {
-        _buf.push( $subs && $subs.clone() );
-    }
-    return _buf;
+    return [ objectValue(valo, '', null), subs ];
 }
 
 
-function dataPicture( els, valo, srcs ) {
-    //
+/**
+ * 媒体数据处理（多目标）。
+ * @param  {[Element]} els 选取目标集
+ * @param  {Object} valo 属性名:值对象
+ * @param  {[Boolean]|null} chk3 播放控制属性值
+ * @param  {[Element]|''} subs 子节点集
+ * @return {[Object, Collector|void]}
+ */
+function dataMedia2( els, valo, chk3, subs ) {
+    let $subs = subs && $( subs );
+
+    valo.autoplay = chk3[0];
+    valo.loop = chk3[1];
+    valo.controls = chk3[2];
+
+    objectValue(valo, '', undefined);
+    objectValue(valo, null, undefined);
+
+    return els.map(
+        () => [ valo, $subs ? $subs.clone() : undefined ]
+    );
+}
+
+
+/**
+ * 自适应图片数据处理（单目标）。
+ * @param  {Element} el 选取目标集
+ * @param  {Object} valo 属性名:值对象
+ * @param  {[Element]|''} subs 子节点集（<source>）
+ * @return {[Object, [Element]|'']}
+ */
+function dataPicture( el, valo, subs ) {
+    return [ objectValue(valo, '', null), subs ];
+}
+
+
+/**
+ * 自适应图片数据处理（多目标）。
+ * @param  {[Element]} els 选取目标集
+ * @param  {Object} valo 属性名:值对象
+ * @param  {[Element]|''} subs 子节点集
+ * @return {[Object, Collector|void]}
+ */
+function dataPicture2( els, valo, subs ) {
+    let $subs = subs && $( subs );
+
+    objectValue(valo, '', undefined);
+
+    return els.map(
+        () => [ valo, $subs ? $subs.clone() : undefined ]
+    );
+}
+
+
+/**
+ * 拼音文本节点创建。
+ * @param  {Element} el 目标元素
+ * @param  {String} rt 拼音文本
+ * @return {Text} 拼音文本节点
+ */
+function dataRuby( el, rt ) {
+    return rt && $.Text( rt );
 }
 
 
@@ -253,13 +323,9 @@ function dataPicture( els, valo, srcs ) {
  * @param  {String} rt 拼音文本
  * @return {[Text]} 拼音文本节点集
  */
-function dataRuby( els, rt ) {
-    if ( els.length === 1 ) {
-        return rt && $.Text( rt );
-    }
-    if ( rt === null ) {
-        // 不确定态
-        // 各自提取合并。
+function dataRuby2( els, rt ) {
+    if ( !rt ) {
+        // 不确定态：各自提取合并。
         return els.map( el => $.Text( $.find('rt', el).text().join('') ) );
     }
     return els.map( () => $.Text(rt) );
@@ -276,20 +342,31 @@ function dataRuby( els, rt ) {
  * @return {[[Element|true|null], [Element|true|null]]} 列单元格集组
  */
 function dataTable( els, border, vth0, vth1 ) {
-    let _buf = [];
+    return els.map(
+        el => tableData( el, border, vth0, vth1 )
+    );
+}
 
-    for ( const el of els ) {
-        let _tbo = new $.Table( el ),
-            _v0 = _tbo.hasVth(),
-            _v1 = _tbo.hasVth( true );
 
-        _buf.push([
-            border,
-            vth0 ? ( _v0 || _tbo.newColumn(true) ) : null,
-            vth1 ? ( _v1 || _tbo.newColumn(true) ) : null
-        ]);
-    }
-    return _buf.length === 1 ? _buf[0] : _buf;
+/**
+ * 属性值简单处理。
+ * 针对单一目标时，空串替换为null。
+ * @param  {[Value]} vals 属性值序列
+ * @return {[Value]}
+ */
+function dataValue( vals ) {
+    return vals.map( v => v === '' ? null : v );
+}
+
+
+/**
+ * 属性值简单处理。
+ * 针对多目标时，空串和null值转换为undefined（不确定态）。
+ * @param  {[Value]} vals 属性值序列
+ * @return {[Value]}
+ */
+function dataValue2( vals ) {
+    return vals.map( v => v === '' || v === null ? undefined : v );
 }
 
 
@@ -307,7 +384,7 @@ function dataTable( els, border, vth0, vth1 ) {
  * @param {[Element]|true|null} col 列单元格集
  * @param {Number} pos 设置位置（0|-1）
  */
-function tableVth( tbo, col, pos ) {
+function setTableVth( tbo, col, pos ) {
     let _v = tbo.hasVth( !!pos );
 
     if ( col ) {
@@ -319,16 +396,51 @@ function tableVth( tbo, col, pos ) {
 
 
 /**
+ * 创建表格属性数据
+ * 列表头null值表示不确定态，这仅在多目标时才会存在。
+ * 返回值：[边框, 单元格集|已经存在|删除]
+ * @param  {[Element]} els 选取的表格集
+ * @param  {String} border 边框值
+ * @param  {Boolean|null} vth0  含首列表头
+ * @param  {Boolean|null} vth1  含末列表头
+ * @return {[String, [Element]|true|null]}
+ */
+function tableData( el, border, vth0, vth1 ) {
+    let _tbo = new $.Table( el ),
+        _v0 = _tbo.hasVth(),
+        _v1 = _tbo.hasVth( true );
+    return [
+        border,
+        vth0 ? ( _v0 || _tbo.newColumn(true) ) : (vth0 === null ? undefined : null),
+        vth1 ? ( _v1 || _tbo.newColumn(true) ) : (vth1 === null ? undefined : null)
+    ];
+}
+
+
+/**
+ * 对象成员值转换。
+ * @param {Object} obj 目标对象
+ * @param {Value} val 检查值
+ * @param {Value} rep 替换值
+ */
+function objectValue( obj, val, rep ) {
+    for ( const k of Object.keys(obj) ) {
+        if ( obj[k] === val ) obj[k] = rep;
+    }
+    return obj;
+}
+
+
+/**
  * 值扩展为数组。
  * 克隆为与目标元素集相同大小。
  * @param  {[Element]} els 目标元素集
  * @param  {Value|[Value]} val 成员值
  * @return {[Value|[Value]]}
  */
-function arrValues( els, val ) {
+function arrayValue( els, val ) {
     return new Array( els.length ).fill( val );
 }
-
 
 
 /**
@@ -478,23 +590,31 @@ const __Kit = {
 
 
 /**
- * 获取目标类型的额外数据集。
- * 此处的返回值为一个数组，与选取的目标集成员一一对应，作为其额外的实参。
+ * 获取目标类型的数据集（单目标版）。
  * 注记：
- * 提供此接口以便于创建目标的子元素集，避免Redo时元素的引用失效（如果新建的话）。
- * 多个目标时，子元素集通常只是简单的克隆而已。
- * @param  {Number} tval 目标单元类型值
+ * 提供此接口以便于创建目标的子元素集，避免Redo时元素的引用失效。
+ * @param  {Element} el  选取的目标元素
+ * @param  {...Value} vals 取值序列（依不同的属性目标而异）
+ * @return {[Value]} 实参集
+ */
+export function propertyData( el, ...vals ) {
+    let _fun = customData[ getType(el) ];
+    return _fun ? _fun( el, ...vals ) : dataValue( vals );
+}
+
+
+/**
+ * 获取目标类型的数据集（多目标版）。
+ * 此处返回值的数组与选取的目标集成员一一对应，作为其实参序列。
  * @param  {[Element]} els 选取的目标元素集
  * @param  {...Value} vals 取值序列（依不同的属性目标而异）
  * @return {[Value]} 额外实参集
  */
-export function propertyData( tval, els, ...vals ) {
-    let _fun = customData[ tval ];
+export function propertyData2( els, ...vals ) {
+    let _typ = getType( els[0] ),
+        _fun = customDataMore[ _typ ];
 
-    if ( _fun ) {
-        return _fun( els, ...vals );
-    }
-    return els.length === 1 ? vals : arrValues( els, vals );
+    return _fun ? _fun( els, ...vals ) : arrayValue( els, dataValue2(vals) );
 }
 
 

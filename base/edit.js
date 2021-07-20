@@ -27,7 +27,7 @@ import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap
 import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
-import { propertyProcess, propertyData } from "./property.js";
+import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import cfg from "./shortcuts.js";
 
 // 代码解析&高亮
@@ -2940,19 +2940,20 @@ function imgOpts( pair ) {
 
 /**
  * 媒体子单元创建。
- * 注：兼容单个对象（非数组）。
- * @param  {[Object]|Object} opts1 资源配置（集）
- * @param  {[Object]|Object} opts1 字幕轨配置（集）
- * @return {[Element]} <source>和<track>的混合集
+ * 配置为JSON格式串，兼容单个对象（非数组）。
+ * tval 限于 T.SOURCE1, T.SOURCE2, T.TRACK 3种类型。
+ * 注：
+ * 空串表示没有配置，这在属性编辑多个目标时有特殊意义，
+ * 所以分别空串是必须的。
+ * @param  {String} conf 资源配置串
+ * @param  {Number} tval 单元类型值
+ * @return {Promise<[Element]>|''} 承诺对象或空串
  */
-function mediaSubs( [opts1, opts2] ) {
-    opts1 = arrVal( opts1 );
-    opts2 = arrVal( opts2 );
-
-    let _buf = opts1.map(
-        o => create( T.SOURCE1, o )
-    );
-    return _buf.concat( opts2.map( o => create(T.TRACK, o) ) );
+function mediaSubs( conf, tval ) {
+    return conf &&
+        parseJSON( conf ).then(
+            opt => opt ? arrVal(opt).map( o => create(tval, o) ) : []
+        );
 }
 
 
@@ -5459,17 +5460,17 @@ export const Edit = {
      * @return {void}
      */
     propUpdate( evo, ...vals ) {
-        let els = [ ...__ESet ],
-            etv = getType( els[0] ),
-            dt2 = propertyData( etv, els, ...vals ),
-            fun = propertyProcess( etv );
+        let _els = [ ...__ESet ],
+            _fun = propertyProcess( getType(_els[0]) );
 
-        if ( els.length === 1 ) {
-            return historyPush( new DOMEdit(fun, els[0], evo.data, ...vals) )
+        // 单目标简单处理。
+        if ( _els.length === 1 ) {
+            return historyPush( new DOMEdit(_fun, _els[0], evo.data, ...propertyData(_els[0], vals)) )
         }
-        historyPush(
-            ...els.map( (el, i) => new DOMEdit(fun, el, evo.data, ...dt2[i]) )
-        );
+        // 多目标特别处理。
+        let val2 = propertyData2( _els, vals );
+
+        historyPush( ..._els.map( (el, i) => new DOMEdit(_fun, el, evo.data, ...val2[i]) ) );
     },
 
     __propUpdate: 1,
@@ -6197,19 +6198,19 @@ export const Kit = {
     /**
      * 创建媒体类子单元。
      * 即<source>和<track>元素集，仅限于视频/音频容器。
-     * 注：
      * 配置串支持单个对象或对象数组格式。
-     * 音频内无<track>单元。
-     * @data: [String, String] 两个配置串
-     * @return {Promise<[Element]>}
+     * 注：音频内无<track>单元。
+     * @data: String 资源配置串（<source>）
+     * @param  {String} track 字幕配置串（<track>），可选
+     * @return {Promise<[Element]>|''}
      */
-    mediasubs( evo ) {
-        let [ss, ts] = evo.data;
+    mediasubs( evo, track ) {
+        let _p1 = mediaSubs( evo.data.trim(), T.SOURCE1 );
 
-        return Promise.all([
-                parseJSON( ss.trim() || '[]' ),
-                parseJSON( ts && ts.trim() || '[]' )
-            ]).then( mediaSubs );
+        if ( track === undefined ) {
+            return _p1;
+        }
+        return Promise.all([ _p1, mediaSubs(track.trim(), T.TRACK) ]).then( el2 => el2.flat() );
     },
 
     __mediasubs: 1,
@@ -6219,11 +6220,10 @@ export const Kit = {
      * 创建自适应图片（<picture>）子单元。
      * 即：<source>元素集（不含<img>子单元）。
      * @data: String 配置格式串
-     * @return {Promise<[Element]>}
+     * @return {Promise<[Element]>|''}
      */
     picsubs( evo ) {
-        return parseJSON( evo.data.trim() )
-            .then( v => v ? arrVal(v).map(o => create(T.SOURCE2, o)) : [] );
+        return mediaSubs( evo.data.trim(), T.SOURCE2 )
     },
 
     __picsubs: 1,
