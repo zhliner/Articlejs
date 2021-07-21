@@ -5465,10 +5465,10 @@ export const Edit = {
 
         // 单目标简单处理。
         if ( _els.length === 1 ) {
-            return historyPush( new DOMEdit(_fun, _els[0], evo.data, ...propertyData(_els[0], vals)) )
+            return historyPush( new DOMEdit(_fun, _els[0], evo.data, ...propertyData(_els[0], ...vals)) )
         }
         // 多目标特别处理。
-        let val2 = propertyData2( _els, vals );
+        let val2 = propertyData2( _els, ...vals );
 
         historyPush( ..._els.map( (el, i) => new DOMEdit(_fun, el, evo.data, ...val2[i]) ) );
     },
@@ -6210,7 +6210,8 @@ export const Kit = {
         if ( track === undefined ) {
             return _p1;
         }
-        return Promise.all([ _p1, mediaSubs(track.trim(), T.TRACK) ]).then( el2 => el2.flat() );
+        // Promise<[[Element]|'', [Element]|'']>
+        return Promise.all([ _p1, mediaSubs(track.trim(), T.TRACK) ]);
     },
 
     __mediasubs: 1,

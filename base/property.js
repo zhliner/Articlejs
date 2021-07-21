@@ -31,20 +31,20 @@ const
 // function( el, names, ...rest ): void
 //
 const customHandles = {
-    [ T.AUDIO ]:        processSubs,        // src autoplay loop controls, [<source>]
-    [ T.VIDEO ]:        processSubs,        // src poster width height autoplay loop controls, [<source>, <track>]
+    [ T.AUDIO ]:        processAudio,       // src autoplay loop controls, [<source>]
+    [ T.VIDEO ]:        processVideo,       // src poster width height autoplay loop controls, [<source>, <track>]
     [ T.PICTURE ]:      processPicture,     // src width height alt, [<sources>]
     [ T.IMG ]:          processAttr,        // src, width, height, alt
     [ T.SVG ]:          processAttr,        // width, height
     [ T.RUBY ]:         processRuby,        // rt, rp
-    [ T.TIME ]:         processDatetime,    // datetime: date, time
+    // [ T.TIME ]:                          // datetime: date, time
     [ T.METER ]:        processAttr,        // max, min, high, low, value, optimum
     [ T.SPACE ]:        processCSS,         // CSS:width
     [ T.A ]:            processAttr,        // href, target
     // [ T.Q ]:                             // cite
     // [ T.ABBR ]:                          // title
-    [ T.DEL ]:          processDatetime,    // datetime: date, time
-    [ T.INS ]:          processDatetime,    // datetime: date, time
+    // [ T.DEL ]:                           // datetime: date, time
+    // [ T.INS ]:                           // datetime: date, time
     [ T.CODE ]:         processAttr,        // -lang, -tab
     // [ T.DFN ]:                           // title
     // [ T.BDO ]:                           // dir
@@ -75,11 +75,14 @@ const customHandles = {
 // 实参创建器（单目标）。
 //
 const customData = {
-    [ T.AUDIO ]:        dataMedia,
-    [ T.VIDEO ]:        dataMedia,
+    [ T.AUDIO ]:        dataAudio,
+    [ T.VIDEO ]:        dataVideo,
     [ T.PICTURE ]:      dataPicture,
     [ T.RUBY ]:         dataRuby,
     [ T.TABLE ]:        tableData,
+    [ T.TIME ]:         dataDatetime,
+    [ T.DEL ]:          dataDatetime,
+    [ T.INS ]:          dataDatetime,
 };
 
 
@@ -87,11 +90,14 @@ const customData = {
 // 实参创建器（多目标）。
 //
 const customDataMore = {
-    [ T.AUDIO ]:        dataMedia2,
-    [ T.VIDEO ]:        dataMedia2,
+    [ T.AUDIO ]:        dataAudio2,
+    [ T.VIDEO ]:        dataVideo2,
     [ T.PICTURE ]:      dataPicture2,
     [ T.RUBY ]:         dataRuby2,
     [ T.TABLE ]:        dataTable,
+    [ T.TIME ]:         dataDatetime2,
+    [ T.DEL ]:          dataDatetime2,
+    [ T.INS ]:          dataDatetime2,
 };
 
 
@@ -100,21 +106,67 @@ const customDataMore = {
 //////////////////////////////////////////////////////////////////////////////
 
 
-//
-// 自适应图片。
-// 注意保持<img>的正确位置。
-// <img>:names: 'src, width, height, alt'
-// <source>...  可选
-//
-function processPicture( el, names, vals, subs ) {
+/**
+ * 音频属性处理。
+ * 包含资源（<source>）子单元的处理。
+ * - 目标元素纯特性赋值。
+ * - 目标元素子单元全替换。
+ * @param  {Element} el 目标元素
+ * @param  {String} names 属性名序列（占位）
+ * @param  {Object} valo 属性名值对象
+ * @param  {[Element]|''|void} subs 资源子节点集
+ * @return {void}
+ */
+function processAudio( el, names, valo, subs ) {
+    $.attribute( el, valo );
+    // 未定义时原样保留
+    subs !== undefined && replaceSubs( el, 'source', subs );
+}
+
+
+/**
+ * 视频属性处理。
+ * 包含资源（<source>）和字幕（<track>）子单元的处理。
+ * - 目标元素纯特性赋值。
+ * - 目标元素特定子单元全替换。
+ * @param  {Element} el 目标元素
+ * @param  {String} names 属性名序列（占位）
+ * @param  {Object} valo 属性名值对象
+ * @param  {[Element]|''|void} ssub 资源子节点集
+ * @param  {[Element]|''|void} tubs 字幕子节点集
+ * @return {void}
+ */
+function processVideo( el, names, valo, ssub, tsub ) {
+    $.attribute( el, valo );
+
+    // 未定义时原样保留
+    if ( ssub !== undefined ) {
+        replaceSubs( el, 'source', ssub );
+    }
+    if ( tsub !== undefined ) {
+        replaceSubs( el, 'track', tsub );
+    }
+}
+
+
+/**
+ * 自适应图片。
+ * 注意保持<img>的正确位置。
+ * @param  {Element} el 目标元素
+ * @param  {String} names 属性名序列（占位）
+ * @param  {Object} valo 属性名值对象
+ * @param  {[Element]|''|void} subs 资源子节点集
+ * @return {void}
+ */
+function processPicture( el, names, valo, subs ) {
     let _img = $.get( 'img', el );
 
-    if ( subs ) {
+    if ( subs !== undefined ) {
         $.fill( el, subs );
-        // 在末尾
+        // 保证在末尾
         $.append( el, _img );
     }
-    $.attribute( _img, names, vals );
+    $.attribute( _img, valo );
 }
 
 
@@ -126,7 +178,7 @@ function processPicture( el, names, vals, subs ) {
 // 新插入文本时，至少保留首个文本节点，避免redo时原始引用丢失。
 // @param {Text} rt 拼音文本节点
 //
-function processRuby( el, _, _v, rt ) {
+function processRuby( el, _, rt ) {
     let $rts = $( 'rt', el ),
         _rt0 = $rts.shift(),
         $rbs = $( 'rb', el ),
@@ -143,21 +195,6 @@ function processRuby( el, _, _v, rt ) {
         $.normalize( _rb0 );
     }
     $('rp', el).slice(2).remove();
-}
-
-
-//
-// 时间设置。
-// vals[0]: date?: String
-// vals[1]: time?: String
-//
-function processDatetime( el, _, vals ) {
-    let [date, time] = vals;
-
-    if ( time ) {
-        date = date ? `${date} ${time}` : `${time}`;
-    }
-    $.attr( el, 'datetime', date );
 }
 
 
@@ -209,23 +246,6 @@ function processAttr( el, names, vals ) {
 }
 
 
-/**
- * 包含子单元的属性处理。
- * - 目标元素纯特性赋值。
- * - 目标元素子单元全替换。
- * @param  {Element} el 目标元素
- * @param  {String} names 属性名序列
- * @param  {[Value]} vals 属性值集
- * @param  {[Node]} subs 子节点集
- * @return {void}
- */
-function processSubs( el, names, vals, subs ) {
-    $.attribute( el, names, vals );
-    // 未定义时原样保留
-    subs !== undefined && $.fill( el, subs );
-}
-
-
 
 //
 // 数据创建器定制
@@ -236,14 +256,14 @@ function processSubs( el, names, vals, subs ) {
 
 
 /**
- * 媒体数据处理（单目标）。
+ * 音频数据处理（单目标）。
  * @param  {Element} el  选取目标
  * @param  {Object} valo 属性名:值对象
  * @param  {[Boolean]|null} chk3 三个播放控制属性值（autoplay loop controls）
  * @param  {[Element]|''} subs 子节点集
- * @return {[Object, [Element]|'']}
+ * @return {[Object, [Element]|'']} 2成员数组
  */
-function dataMedia( el, valo, chk3, subs ) {
+function dataAudio( el, valo, chk3, subs ) {
     valo.autoplay = chk3[0];
     valo.loop = chk3[1];
     valo.controls = chk3[2];
@@ -253,22 +273,23 @@ function dataMedia( el, valo, chk3, subs ) {
 
 
 /**
- * 媒体数据处理（多目标）。
+ * 音频数据处理（多目标）。
+ * 子节点集为空串时表示忽略（原样保持）。
  * @param  {[Element]} els 选取目标集
  * @param  {Object} valo 属性名:值对象
  * @param  {[Boolean]|null} chk3 播放控制属性值
  * @param  {[Element]|''} subs 子节点集
- * @return {[Object, Collector|void]}
+ * @return {[Object, Collector|void]} 2成员数组
  */
-function dataMedia2( els, valo, chk3, subs ) {
+function dataAudio2( els, valo, chk3, subs ) {
     let $subs = subs && $( subs );
 
     valo.autoplay = chk3[0];
     valo.loop = chk3[1];
     valo.controls = chk3[2];
 
-    objectValue(valo, '', undefined);
-    objectValue(valo, null, undefined);
+    objectValue( valo, '', undefined );
+    objectValue( valo, null, undefined );
 
     return els.map(
         () => [ valo, $subs ? $subs.clone() : undefined ]
@@ -277,10 +298,57 @@ function dataMedia2( els, valo, chk3, subs ) {
 
 
 /**
+ * 视频数据处理（单目标）。
+ * @param  {Element} el  选取目标
+ * @param  {Object} valo 属性名:值对象
+ * @param  {[Boolean]|null} chk3 三个播放控制属性值（autoplay loop controls）
+ * @param  {[Element]|''} subs1 资源子节点集
+ * @param  {[Element]|''} subs2 字幕子节点集
+ * @return {[Object, [Element]|'', [Element|'']]} 3成员数组
+ */
+function dataVideo( el, valo, chk3, [subs1, subs2] ) {
+    valo.autoplay = chk3[0];
+    valo.loop = chk3[1];
+    valo.controls = chk3[2];
+
+    return [ objectValue(valo, '', null), subs1, subs2 ];
+}
+
+
+/**
+ * 视频数据处理（多目标）。
+ * 子节点集为空串时表示忽略（原样保持）。
+ * @param  {[Element]} els 选取目标集
+ * @param  {Object} valo 属性名:值对象
+ * @param  {[Boolean]|null} chk3 播放控制属性值
+ * @param  {[Element]|''} subs1 资源子节点集
+ * @param  {[Element]|''} subs2 字幕子节点集
+ * @return {[Object, Collector|void, Collector|void]} 3成员数组
+ */
+function dataVideo2( els, valo, chk3, [subs1, subs2] ) {
+    let $subs1 = subs1 && $( subs1 ),
+        $subs2 = subs2 && $( subs2 );
+
+    valo.autoplay = chk3[0];
+    valo.loop = chk3[1];
+    valo.controls = chk3[2];
+
+    objectValue(valo, '', undefined);
+    objectValue(valo, null, undefined);
+
+    return els.map( () => [
+        valo,
+        $subs1 ? $subs1.clone() : undefined,
+        $subs2 ? $subs2.clone() : undefined
+    ]);
+}
+
+
+/**
  * 自适应图片数据处理（单目标）。
  * @param  {Element} el 选取目标集
  * @param  {Object} valo 属性名:值对象
- * @param  {[Element]|''} subs 子节点集（<source>）
+ * @param  {[Element]|''} subs 资源节点集（<source>）
  * @return {[Object, [Element]|'']}
  */
 function dataPicture( el, valo, subs ) {
@@ -292,7 +360,7 @@ function dataPicture( el, valo, subs ) {
  * 自适应图片数据处理（多目标）。
  * @param  {[Element]} els 选取目标集
  * @param  {Object} valo 属性名:值对象
- * @param  {[Element]|''} subs 子节点集
+ * @param  {[Element]|''} subs 资源节点集
  * @return {[Object, Collector|void]}
  */
 function dataPicture2( els, valo, subs ) {
@@ -313,7 +381,7 @@ function dataPicture2( els, valo, subs ) {
  * @return {Text} 拼音文本节点
  */
 function dataRuby( el, rt ) {
-    return rt && $.Text( rt );
+    return rt && [ $.Text(rt) ];
 }
 
 
@@ -326,9 +394,9 @@ function dataRuby( el, rt ) {
 function dataRuby2( els, rt ) {
     if ( !rt ) {
         // 不确定态：各自提取合并。
-        return els.map( el => $.Text( $.find('rt', el).text().join('') ) );
+        return els.map( el => [ $.Text( $.find('rt', el).text().join('') ) ] );
     }
-    return els.map( () => $.Text(rt) );
+    return els.map( () => [ $.Text(rt) ] );
 }
 
 
@@ -345,6 +413,31 @@ function dataTable( els, border, vth0, vth1 ) {
     return els.map(
         el => tableData( el, border, vth0, vth1 )
     );
+}
+
+
+/**
+ * 日期/时间数据（单目标版）。
+ * @param {Element} el 目标元素
+ * @param {String} date 日期串
+ * @param {String} time 时间串，可选
+ */
+function dataDatetime( el, _, date, time ) {
+    if ( time ) {
+        date = date ? `${date} ${time}` : `${time}`;
+    }
+    return [ date ];
+}
+
+
+/**
+ * 日期/时间数据（多目标版）。
+ * @param {Element} el 目标元素
+ * @param {String} date 日期串
+ * @param {String} time 时间串，可选
+ */
+function dataDatetime2( els, _, date, time ) {
+    return arrayValue( els, dataDatetime(null, '', date, time) );
 }
 
 
@@ -396,14 +489,28 @@ function setTableVth( tbo, col, pos ) {
 
 
 /**
+ * 替换目标子节点集。
+ * @param {Element} box 容器元素
+ * @param {String} tag  子单元标签名
+ * @param {[Element]} subs 子节点集
+ */
+function replaceSubs( box, tag, subs ) {
+    $.find( tag, box )
+        .forEach( el => $.remove(el) );
+
+    $.append( box, subs );
+}
+
+
+/**
  * 创建表格属性数据
  * 列表头null值表示不确定态，这仅在多目标时才会存在。
- * 返回值：[边框, 单元格集|已经存在|删除]
+ * 返回值：[边框, 单元格集|已经存在|删除|原样]
  * @param  {[Element]} els 选取的表格集
  * @param  {String} border 边框值
  * @param  {Boolean|null} vth0  含首列表头
  * @param  {Boolean|null} vth1  含末列表头
- * @return {[String, [Element]|true|null]}
+ * @return {[String, [Element]|true|null|void]}
  */
 function tableData( el, border, vth0, vth1 ) {
     let _tbo = new $.Table( el ),
@@ -433,7 +540,7 @@ function objectValue( obj, val, rep ) {
 
 /**
  * 值扩展为数组。
- * 克隆为与目标元素集相同大小。
+ * 简单复制，结果数组大小与目标元素集相同。
  * @param  {[Element]} els 目标元素集
  * @param  {Value|[Value]} val 成员值
  * @return {[Value|[Value]]}

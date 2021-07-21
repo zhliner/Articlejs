@@ -771,10 +771,10 @@ const Children = {
      * 注：无默认的子单元逻辑。
      * @param {Element|null} ref 插入参考（占位）
      * @param {Element} el 媒体容器元素
-     * @param {Element} sub 资源/字幕元素
+     * @param {Element|''} sub 资源/字幕元素
      */
     Children[ it ] = function( ref, el, _, sub ) {
-        let _tv = getType( sub );
+        let _tv = sub && getType( sub );
 
         if ( T.isChildType(el, _tv) ) {
             $.append( el, sub );
