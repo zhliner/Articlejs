@@ -157,7 +157,7 @@ $.isXML( document.body );  // false
 与标准的元素 `.contains` 方法稍有差异，增加了严格子级约束选项。**注**：也与 `jQuery.contains()` 的行为稍有不同。
 
 
-### $.cloneEvent( to, src, evns ): Element
+### $.cloneEvents( to, src, evns ): Element
 
 把元素 `src` 上绑定的事件处理器克隆到 `to` 元素上。
 

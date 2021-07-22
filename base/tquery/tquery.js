@@ -858,7 +858,7 @@ Object.assign( tQuery, {
      * @param  {String|Function} evns 事件名序列或过滤函数，可选
      * @return {Element} to
      */
-    cloneEvent( to, src, evns ) {
+    cloneEvents( to, src, evns ) {
         if ( to === src ) {
             return to;
         }
@@ -1601,7 +1601,7 @@ Object.assign( tQuery, {
         if ( node.nodeType === 3 ) {
             return _new;
         }
-        return event || eventdeep ? _cloneEvents(node, _new, event, eventdeep) : _new;
+        return event || eventdeep ? _cloneEventsDeep(node, _new, event, eventdeep) : _new;
     },
 
 
@@ -2870,7 +2870,7 @@ class Table {
      * 即便行数全为零，新表格实例也包含了相同列数属性。
      * 注意：
      * - 不包含单元格内容的克隆（新表）。
-     * - 不包含事件处理器的克隆（可另用.cloneEvent完成）。
+     * - 不包含事件处理器的克隆（可另用.cloneEvents完成）。
      * @param  {Number} rows 表体行数
      * @param  {Number} head 表头行数，可选
      * @param  {Number} foot 表脚行数，可选
@@ -3579,7 +3579,7 @@ function _first( els, slr, _beg = 0, _step = 1 ) {
  * @param  {Boolean} deep 是否深层克隆
  * @return {Element} 目标元素
  */
-function _cloneEvents( src, to, top, deep ) {
+function _cloneEventsDeep( src, to, top, deep ) {
     if ( top ) {
         Event.clone( to, src );
     }
@@ -6964,11 +6964,12 @@ const
         // 定制支持。
         'checkednode':      'checkedNode',
     },
-    booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
+    booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped|reversed",
     boolAttr = new RegExp("^(?:" + booleans + ")$", "i"),
     boolHook = {
         set: function( el, name, val ) {
-            val === false ? removeAttr(el, name) : setAttr(el, name, name);
+            // 设置仅添加特性名，与习惯用法一致。
+            val === false ? removeAttr(el, name) : setAttr(el, name, '');
         },
         get: function( el, name ) {
             return el.hasAttribute(name) ? name : null;
