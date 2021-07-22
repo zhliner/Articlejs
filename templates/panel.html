@@ -353,14 +353,14 @@
                     <textarea name="on" spellcheck="false" rows="1" class="_code"></textarea>
                 </label>
                 <label data-n="by" tpl-name="obts:by"
-                    on="^obted|delay tpl('obts:on')"
-                    to="|cloneEvent">
+                    on="^tpled|tpl('obts:on')"
+                    to="|cloneEvents">
                     <b title="单击切换">by</b>
                     <textarea name="by" spellcheck="false" rows="1" class="_code"></textarea>
                 </label>
                 <label data-n="to" tpl-name="obts:to"
-                    on="^obted|delay tpl('obts:on')"
-                    to="|cloneEvent">
+                    on="^tpled|tpl('obts:on')"
+                    to="|cloneEvents">
                     <b title="单击切换">to</b>
                     <textarea name="to" spellcheck="false" rows="1" class="_code"></textarea>
                 </label>
@@ -863,7 +863,7 @@
             <nav id="nav-misc"
                 on="^obted|$$('2/#nav-tops>*') $('2/#nav-tops');
                     ^obted|(true)"
-                to="|cloneEvent append(true, true);
+                to="|cloneEvents append(true, true);
                     (/>b)|disable"></nav>
         </div>
     </main>
@@ -912,7 +912,7 @@
             to="|html;
                 |removeClass prop('-bak') html;
                 |addClass prop('-bak') html;
-                |cloneEvent('keydown paste')">
+                |cloneEvents('keydown paste')">
 <label>错误：</label><i>this is a error massage.</i>
 </pre>
         <!-- 仅部分禁用（tabs保留） -->

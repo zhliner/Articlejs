@@ -108,6 +108,8 @@ class Templater {
 
     /**
      * 返回既有模板节点或其副本。
+     * 需确信模板节点已经添加到内部存储，
+     * 并且该节点的内部子节点已经就绪（tpl-node|source完成）。
      * @param  {String} name 节点名
      * @param  {Boolean} clone 是否克隆（含渲染文法）
      * @param  {Boolean} bound 克隆包含绑定的事件处理器，可选

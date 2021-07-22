@@ -418,26 +418,33 @@ function dataTable( els, border, vth0, vth1 ) {
 
 /**
  * 日期/时间数据（单目标版）。
- * @param {Element} el 目标元素
- * @param {String} date 日期串
- * @param {String} time 时间串，可选
+ * @param  {Element} el 目标元素
+ * @param  {String} date 日期串
+ * @param  {String} time 时间串，可选
+ * @param  {String} cite 来源，可选
+ * @return {[String]}
  */
-function dataDatetime( el, _, date, time ) {
+function dataDatetime( el, _, date, time, cite ) {
     if ( time ) {
         date = date ? `${date} ${time}` : `${time}`;
     }
-    return [ date ];
+    return [ date || null, cite || null ];
 }
 
 
 /**
  * 日期/时间数据（多目标版）。
- * @param {Element} el 目标元素
- * @param {String} date 日期串
- * @param {String} time 时间串，可选
+ * @param  {Element} el 目标元素
+ * @param  {String} date 日期串
+ * @param  {String} time 时间串，可选
+ * @param  {String} cite 来源，可选
+ * @return {[[String]]}
  */
-function dataDatetime2( els, _, date, time ) {
-    return arrayValue( els, dataDatetime(null, '', date, time) );
+function dataDatetime2( els, _, date, time, cite ) {
+    if ( time ) {
+        date = date ? `${date} ${time}` : `${time}`;
+    }
+    return arrayValue( els, [date || undefined, cite || undefined] );
 }
 
 

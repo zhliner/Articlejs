@@ -137,14 +137,14 @@ const _Update = {
      * @param  {String|Function} evns 事件名序列或过滤函数，可选
      * @return {void}
      */
-    cloneEvent( to, src, evns ) {
+    cloneEvents( to, src, evns ) {
         if ( $.isArray(to) ) {
             if ( $.isArray(src) ) {
-                return to.forEach( (el, i) => $.cloneEvent(el, src[i], evns) );
+                return to.forEach( (el, i) => $.cloneEvents(el, src[i], evns) );
             }
-            return to.forEach( el => $.cloneEvent( el, src, evns ) );
+            return to.forEach( el => $.cloneEvents( el, src, evns ) );
         }
-        $.cloneEvent( to, src, evns );
+        $.cloneEvents( to, src, evns );
     },
 
 
