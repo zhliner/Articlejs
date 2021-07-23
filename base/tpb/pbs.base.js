@@ -1834,15 +1834,18 @@ const _Process = {
 
 
 //
-// Collector操作（部分兼容数组）。
+// Collector操作。
 // 目标：暂存区/栈顶1项。
-// 注：map、each方法操作的目标支持Object。
+// 目标必须是 Collector 实例才会调用实例的版本，
+// 否则为 tQuery.xxx 版。
+// 注：
+// map、each方法操作的目标支持Object。
 //////////////////////////////////////////////////////////////////////////////
 [
     'not',      // ( fltr?: String|Function )
     'has',      // ( slr?: String )
-    'filter',   // ( fltr?: String|Function ) 兼容数组
-    'map',      // ( proc?: Function ) 兼容数组
+    'filter',   // ( fltr?: String|Function )
+    'map',      // ( proc?: Function )
     'each',     // ( proc?: Function )
 ]
 .forEach(function( meth ) {

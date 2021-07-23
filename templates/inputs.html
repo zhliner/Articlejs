@@ -332,7 +332,7 @@
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
-            <input name="h3" type="text" class="_scale" value="导言" />
+            <input name="h3" type="text" class="_scale" placeholder="标题" value="导言" />
         </header>
         <textarea name="header" placeholder="导言内容"></textarea>
     </div>
@@ -803,7 +803,7 @@
     to="form/|trigger('insfix')">
     <div class="_main">
         <!-- 多选时各别更新 -->
-        <textarea name="h2" placeholder="标题内容：空行分项"></textarea>
+        <textarea name="h2" placeholder="标题内容（多选时空行分项）"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">

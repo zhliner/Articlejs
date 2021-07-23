@@ -6961,6 +6961,7 @@ const
         'usemap':           'useMap',
         'frameborder':      'frameBorder',
         'contenteditable':  'contentEditable',
+        'datetime':         'dateTime',
         // 定制支持。
         'checkednode':      'checkedNode',
     },

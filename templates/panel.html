@@ -439,13 +439,10 @@
         /pre._code||focus;
         /pre._code|trigger('codes')">
     <div class="_env"
-        on="click([name=runbox])|evo(2) val str('run:') node"
-        to="/fieldset|replace">
+        on="click([name=runbox])|$('/fieldset') remove evo(2) val str('run:') node evo(2) parent pop"
+        to="-|after">
         <label>
             <input type="radio" name="runbox" value="sandbox" checked />沙盒内执行
-        </label>
-        <label class="_warn">
-            <input type="radio" name="runbox" value="editor" />编辑器内运行
         </label>
         <fieldset class="_opts" tpl-name="run:sandbox"
             on="nodeok click(input)|$$('/label') attr('-tip') $$('/input') val arr2j(_1) join('\n')"
@@ -458,12 +455,15 @@
                 <input type="checkbox" name="ihtml" />HTML
             </label>
         </fieldset>
-        <fieldset class="_warn" data-tip="NODES 已选取元素集" tpl-name="run:editor"
+        <label class="_warn">
+            <input type="radio" name="runbox" value="editor" />编辑器内运行
+        </label>
+        <fieldset class="_warn" data-tip="$$ 已选取元素集" tpl-name="run:editor"
             on="nodeok|evo(1) attr('-tip');
                 ^tpled|evo(3) remove"
             to="2/pre|@-tip">
             <legend>警告：</legend>
-            <p>修改 DOM 可能会带来破坏性，导致编辑器不可用或内容丢失！</p>
+            <p>跨越内容区修改 DOM 可能带来破坏，导致编辑器不可用或内容丢失！</p>
         </fieldset>
     </div>
     <div class="_body">
@@ -617,7 +617,7 @@
         state|ev('detail') node;
         label|$('/._prop') attr('-label')"
     by="Ed.propUpdate(_)"
-    to="#g-scroll|trigger('focus');
+    to="/._close|trigger('click')|fire('#g-scroll', 'focus');
         /._list>ul|trigger('build');
         /._list>ul|trigger('reset');
         />._list|fill|goto('label');

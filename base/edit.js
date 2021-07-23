@@ -58,7 +58,7 @@ const
 
     // 选取集参数名
     // 编辑器环境下执行脚本时传递选取集的形参。
-    __argName = 'NODES',
+    __argName = '$$',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass} ${Sys.hoverClass} ${Sys.pointClass}`,

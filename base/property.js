@@ -209,9 +209,9 @@ function processRuby( el, _, rt ) {
 function processTable( el, _, val, cs0, cs1 ) {
     let _tbo = new $.Table( el );
 
+    if ( val !== undefined ) $.attr( el, 'border', val );
     if ( cs0 !== undefined ) setTableVth( _tbo, cs0, 0 );
     if ( cs1 !== undefined ) setTableVth( _tbo, cs1, -1 );
-    if ( val !== undefined ) $.attr( el, 'border', val );
 }
 
 
@@ -223,8 +223,8 @@ function processTable( el, _, val, cs0, cs1 ) {
 // border: // 线型值（role）
 //
 function processHr( el, names, vals, border ) {
-    $.attr( 'role', border );
     $.cssSets( el, names, vals );
+    $.attr( el, 'role', border );
 }
 
 
@@ -233,7 +233,7 @@ function processHr( el, names, vals, border ) {
 // names: String  名称序列
 // vals:  Value]  样式值集
 //
-function processCSS( el, names, vals ) {
+function processCSS( el, names, ...vals ) {
     $.cssSets( el, names, vals );
 }
 
@@ -241,7 +241,7 @@ function processCSS( el, names, vals ) {
 //
 // 纯特性设置。
 //
-function processAttr( el, names, vals ) {
+function processAttr( el, names, ...vals ) {
     $.attribute( el, names, vals );
 }
 

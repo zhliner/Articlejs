@@ -1527,17 +1527,15 @@ menu._cells code {
     flex-direction: column;
     padding: 4px 14px 4px 5px;
 }
-.Script ._env > label {
-    margin-bottom: 4px;
-}
 .Script ._env > label._warn {
     color: #b30;
+    margin-top: 6px;
 }
 .Script ._env fieldset {
     padding: 4px 12px;
     border: 1px #9cc solid;
     border-radius: 12px;
-    margin-top: 6px;
+    margin-top: 5px;
 }
 .Script ._env fieldset._opts > label {
     display: block;
