@@ -1522,10 +1522,11 @@ menu._cells code {
  ****************************************************************************/
 .Script ._env {
     flex: 1 1 100px;
-    min-width: 120px;
+    min-width: 140px;
     max-width: 200px;
     flex-direction: column;
     padding: 4px 14px 4px 5px;
+    text-align: justify;
 }
 .Script ._env > label._warn {
     color: #b30;

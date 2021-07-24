@@ -426,7 +426,7 @@
 
 
 <!--脚本
-    submit 提交执行代码，打开结构模态框。
+    submit 执行代码，如果结果非假，打开结果模态框并递送结果数据。
     nodeok focus 友好：存储代码框光标便于历史代码插入。
     shcode 历史记录模态框回送数据传入。 -->
 <form class="Script" tpl-name="slave:script"
@@ -451,25 +451,30 @@
             <label title="选取集文本" data-tip="TEXT 已选取元素文本集">
                 <input type="checkbox" name="itext" />TEXT
             </label>
-            <label title="选取集源码" data-tip="HTML 已选取元素源码集">
+            <label title="选取集源码" data-tip="HTML 已选取元素源码集 (outerHTML)">
                 <input type="checkbox" name="ihtml" />HTML
             </label>
         </fieldset>
         <label class="_warn">
             <input type="radio" name="runbox" value="editor" />编辑器内运行
         </label>
-        <fieldset class="_warn" data-tip="$$ 已选取元素集" tpl-name="run:editor"
+        <fieldset class="_warn" data-tip="$$ 已选取元素集 (Collector)&#10;_  编辑器内容区根容器" tpl-name="run:editor"
             on="nodeok|evo(1) attr('-tip');
                 ^tpled|evo(3) remove"
             to="2/pre|@-tip">
             <legend>警告：</legend>
-            <p>跨越内容区修改 DOM 可能带来破坏，导致编辑器不可用或内容丢失！</p>
+            <p>跨越内容区修改节点可能带来破坏，导致编辑器不可用或内容丢失！</p>
         </fieldset>
     </div>
     <div class="_body">
         <div class="_main"
             on="^nodeok|('return 结果数据')"
             to="/pre|@-tip">
+            <!--注意！
+                脚本可以改变DOM（会进入历史栈），但不应当创建新节点，
+                否则Redo时会丢失原来新建的节点引用。
+                注记：
+                系统监听包括节点改变、特性、样式、属性改变，但不包含类名改变。 -->
             <pre tpl-node="!prop:codes" /></pre>
         </div>
         <aside>
@@ -723,9 +728,9 @@
                 click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
                 edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
                 topsync|ev('detail') spread pick(-2) push slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
-            by="Kit.topsh ('untop') dup;
-                Kit.untop ('top') dup;
-                Kit.shlabel(_1) (false);"
+            by="Kit.topsh dup pass ('untop') dup;
+                Kit.untop dup pass ('top') dup;
+                Kit.shlabel(_1) dup pass (false);"
             to="=|@role|pack(2) pop fire('1/._down', 'topsync');
                 =|@role|pack(2) pop fire('1/._down', 'topsync');
                 =|$contenteditable|pop fire('1/._down', 'edsync');
@@ -829,9 +834,9 @@
                 click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
                 edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
                 topsync|ev('detail') spread pick(-2) push slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
-            by="Kit.topsh ('untop') dup;
-                Kit.untop ('top') dup;
-                Kit.shlabel(_1) (false)"
+            by="Kit.topsh dup pass ('untop') dup;
+                Kit.untop dup pass ('top') dup;
+                Kit.shlabel(_1) dup pass (false)"
             to="=|@role|pack(2) pop fire('1/._top', 'topsync');
                 =|@role|pack(2) pop fire('1/._top', 'topsync');
                 =|$contenteditable|pop fire('1/._top', 'edsync');

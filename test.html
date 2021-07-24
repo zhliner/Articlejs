@@ -203,16 +203,16 @@
                     可接收一个二元数组，前一个值会被用于激发state事件递送的数据。
             _focus  聚焦首个文本输入控件（延迟激发待内部子模版就绪）。注记：非原生focus避免聚焦锁死鼠标划选。
             cancel  取消/隐藏模态框，聚焦回归主区（零延迟便于微编辑时聚焦覆盖）。
-            esced   向ESC添加当前条目。 -->
+            _esced  向ESC添加当前条目。 -->
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
                 open|evo(3) lose(0) ev('detail') spread;
                 cancel|evo(3) lose ('modal', ESC) pop;
-                esced|evo(3) (ESC) pop;
-                _focus|$('/form') pop $('/input[type=text], textarea, input[type=url]') dup pass focus;
+                _esced|evo(3) (ESC) pop;
+                _focus|$('/form') pop $('/[type=text], textarea, [type=url], [type=search]') dup pass focus;
                 keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
             to="|trigger('cancel');
-                /form|replace trigger('state')|goto('esced');
+                /form|replace trigger('state')|goto('_esced');
                 -|apply('delete')|fire('#g-scroll', 'focus', 0);
                 -|add('modal')|fire(3, '_focus')">
             <form><!-- 占位 --></form>

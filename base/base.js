@@ -841,17 +841,21 @@ export function isHeadTR( tr ) {
 
 /**
  * 缓存/检索表格实例。
- * 如果tbo有值，表示仅存储。
- * 容错没有主动缓存的表格实例，即时解析（应当非空<table>）。
+ * 如果tbo有值，表示仅存储，返回null。
+ * 容错没有主动缓存的表格实例，即时解析。
+ * 注记：
+ * 返回前会重新检查列数，因为外部可能已经修改了表格。
  * @param  {Element} tbl 表格元素
  * @param  {$.Table} 表格实例
  * @return {Table|null}
  */
 export function tableObj( tbl, tbo ) {
     if ( tbo ) {
-        return __tablePool.set( tbl, tbo );
+        return __tablePool.set( tbl, tbo ) && null;
     }
-    return __tablePool.get(tbl) || __tablePool.set( tbl, $.table(tbl) ).get( tbl );
+    tbo = __tablePool.get(tbl) || __tablePool.set( tbl, new $.Table(tbl) ).get( tbl );
+
+    return tbo.checkCols();
 }
 
 

@@ -1133,7 +1133,7 @@ const Builder = {
         if ( border ) {
             $.attr( tbl, 'border', border );
         }
-        return tableObj( tbl, _tbo ), tbl;
+        return tableObj( tbl, _tbo ) || tbl;
     },
 
 };

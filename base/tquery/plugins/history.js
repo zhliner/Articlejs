@@ -52,7 +52,7 @@
 
         // 节点变化。
         nodesdone:  ev => new Nodesdone( ev.detail[0] ),
-        nodeok:     ev => new Nodesdone( [ev.target] ),  // 冗余（方便用户）
+        nodeok:     ev => new Nodesdone( [ev.target] ),  // 冗余无害（方便用户）
         detach:     ev => new Remove( ev.target ),
         emptied:    ev => new Emptied( ev.target, ev.detail ),
         // 事前提取信息。

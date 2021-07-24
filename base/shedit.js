@@ -219,7 +219,7 @@ function historyPush( ...obj ) {
  */
 function shObj( sid ) {
     let _sh = __Store.get( sid );
-    return _sh ? JSON.parse( _sh ) : { code: '' };
+    return _sh ? JSON.parse( _sh ) : null;
 }
 
 
@@ -233,7 +233,7 @@ function topList() {
     for ( const k of __Store.keys() ) {
         let _o = shObj( k );
 
-        if ( _o.top && _o.code ) {
+        if ( _o && _o.top && _o.code ) {
             _buf.push( {id: _o.shid, tm: _o.time} );
         }
     }
@@ -274,7 +274,7 @@ function pageState( cur, sum ) {
  * @return {Array} 数据条目集
  */
 function shData( list ) {
-    list = list.map( shObj );
+    list = $.map( list, shObj );
 
     list.edit = __Editing;
     list.cmax = Limit.shCodelen;
@@ -342,7 +342,7 @@ function search( words ) {
     for ( const k of __Store.keys().reverse() ) {
         let _o = shObj( k );
 
-        if ( _o.code && _fun(_o.code) ) {
+        if ( _o && _o.code && _fun(_o.code) ) {
             _buf.push( {id: _o.shid, tm: _o.time} );
         }
     }
@@ -376,6 +376,25 @@ function uniqueKey( buf, base = 0 ) {
         return _tm;
     }
     return uniqueKey( buf, parseInt( Math.random()*240*3600*1000 ) );
+}
+
+
+/**
+ * 存储代码。
+ * @param  {String} code 代码文本
+ * @return {void}
+ */
+function saveCode( code ) {
+    if ( !code || codeSamed(code) ) {
+        return;
+    }
+    let _k = uniqueKey(__Store),
+        _o = {
+            shid: _k,
+            code: code,
+            time: Date.now()
+        };
+    __Store.set( _k, JSON.stringify(_o) );
 }
 
 
@@ -453,15 +472,16 @@ const __Kit = {
      * 条目置顶。
      * 注：只会出现在搜索区。
      * @data: String 条目ID
-     * @return {String} 条目ID
+     * @return {String|null} 条目ID
      */
     topsh( evo ) {
         let _sh = shObj( evo.data );
 
-        _sh.top = true;
-        __Store.set( evo.data, JSON.stringify(_sh) );
-
-        return evo.data;
+        if ( _sh ) {
+            _sh.top = true;
+            __Store.set( evo.data, JSON.stringify(_sh) );
+        }
+        return _sh && evo.data;
     },
 
     __topsh: 1,
@@ -471,15 +491,16 @@ const __Kit = {
      * 取消置顶。
      * 通常针对置顶区，但页可能会出现在搜索区。
      * @data: String 条目ID
-     * @return {String} 条目ID
+     * @return {String|null} 条目ID
      */
     untop( evo ) {
         let _sh = shObj( evo.data );
 
-        _sh.top = false;
-        __Store.set( evo.data, JSON.stringify(_sh) );
-
-        return evo.data;
+        if ( _sh ) {
+            _sh.top = false;
+            __Store.set( evo.data, JSON.stringify(_sh) );
+        }
+        return _sh && evo.data;
     },
 
     __untop: 1,
@@ -492,15 +513,16 @@ const __Kit = {
      * 返回条目ID和名称的二成员数组，用于另一区相同条目的同步。
      * @data: String 条目ID
      * @param  {String} name 待设置的名称
-     * @return {[String]}
+     * @return {[String]|null} [设置的名称, 条目ID]
      */
     shlabel( evo, name ) {
         let _sh = shObj( evo.data );
 
-        _sh.name = name;
-        __Store.set( evo.data, JSON.stringify(_sh) );
-
-        return [ name, evo.data ];
+        if ( _sh ) {
+            _sh.name = name;
+            __Store.set( evo.data, JSON.stringify(_sh) );
+        }
+        return _sh && [ name, evo.data ];
     },
 
     __shlabel: 1,
@@ -661,16 +683,7 @@ const __Kit = {
      * @return {void}
      */
     shsave( evo ) {
-        if ( codeSamed(evo.data) ) {
-            return;
-        }
-        let _k = uniqueKey(__Store),
-            _o = {
-                shid: _k,
-                code: evo.data,
-                time: Date.now()
-            };
-        __Store.set( _k, JSON.stringify(_o) );
+        saveCode( evo.data );
     },
 
     __shsave: 1,
@@ -701,6 +714,13 @@ processExtend( 'Kit', __Kit, [
     'shcode',
     'shsave',
 ]);
+
+
+//
+// 导出共享。
+//
+export { saveCode };
+
 
 //:debug
 // window.__Store = __Store;

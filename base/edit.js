@@ -35,7 +35,7 @@ import { Hicolor } from "../plugins/hlcolor/main.js";
 import { colorHTML, htmlBlock, htmlList } from "./coloring.js";
 
 // 专项导入
-import "./shedit.js";
+import { saveCode } from "./shedit.js";
 import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";
 import { OBTA } from "./tpb/config.js";
 
@@ -46,7 +46,8 @@ const
     Normalize = $.Fx.History.Normalize,
 
     // 编辑区需要监听的变化（历史记录）。
-    varyEvents = 'attrdone styledone nodesdone emptied detach normalize',
+    // 注：propdone用于用户执行脚本中可能的修改监听。
+    varyEvents = 'attrdone styledone nodesdone emptied detach normalize propdone',
 
     // 空白占位符
     // 用于特性：OBT串构造。
@@ -213,6 +214,70 @@ class DOMEdit {
 
         this._fun( ...this._vals );
         this.count = __TQHistory.size() - _old;
+    }
+}
+
+
+
+//
+// 脚本执行类。
+// 限于脚本在当前编辑器内执行的情况。
+// 暂时仅支持普通DOM修改跟踪：节点、特性、属性、样式变化。
+// 不支持用户划选（Selection）的修改。
+// 注记：
+// 类似 DOMEdit 实现，但会保存脚本的返回值。
+//
+class CodeRun {
+    /**
+     * 构造一个编辑实例。
+     * @param {String} code 脚本代码
+     */
+    constructor( code ) {
+        this._code = code;
+        this._data;
+        // 外部只读
+        this.count = null;
+
+        this.redo();
+    }
+
+
+    /**
+     * 撤销。
+     */
+    undo() {
+        if ( this.count > 0 ) {
+            __TQHistory.back( this.count );
+        }
+    }
+
+
+    /**
+     * 重做。
+     */
+    redo() {
+        let _old = __TQHistory.size();
+
+        this._data = scriptRun2( __ESet, this._code );
+        this.count = __TQHistory.size() - _old;
+    }
+
+
+    /**
+     * 是否改变了DOM。
+     * @return {Boolean}
+     */
+    changed() {
+        return this.count > 0;
+    }
+
+
+    /**
+     * 脚本执行结果。
+     * @return {Value|void}
+     */
+    result() {
+        return this._data;
     }
 }
 
@@ -3044,28 +3109,42 @@ function scriptData( eset, code, btext, bhtml ) {
 
 /**
  * 编辑器环境下运行脚本代码。
- * 捕获出错信息向后传递（会递送到打开的结果框）。
+ * 捕获出错信息或结果向后传递（会递送到打开的结果框）。
+ * 如果代码没有返回值，返回null（不会打开结果框）。
  * Object3: {
  *      type:String 结果类型（error|value）
  *      data:Value  执行的结果（任意）
  *      code:String 当前脚本代码（用于历史存储），可选
  * }
+ * 封装：
+ * - 全局的 $ 被封装为一个代理对象，$() 的默认上下文为编辑区根元素（<main>）。
+ * - 代码的局部执行环境包含一个变量 _，指代编辑区根元素。
+ * - 特殊的变量 $$ 表示当前选取集，已封装为 Collector 实例。
  * @param  {ESet} eset 选取集
  * @param  {String} code 脚本代码
- * @return {Object3} 结果对象
+ * @return {Object3|null} 结果对象
  */
 function scriptRun2( eset, code ) {
-    let _fun = new Function( __argName, code ),
-        data = null;
+    let data,
+        _fun = new Function( __argName, '$', '_', code );
     try {
         // 传递选取集实参。
-        data = _fun( [...eset] );
+        data = _fun( $(eset), $proxy, contentElem );
     }
     catch (e) {
         return { type: 'error', data: e };
     }
-    return { type: 'value', data, code };
+    return data === undefined ? null : { type: 'value', data, code };
 }
+
+
+//
+// $ 代理版。
+// 限定默认上下文为编辑器内容根元素，专用于脚本在当前编辑器内执行。
+//
+const $proxy = new Proxy( $, {
+    apply: (self, ctx, args) => self( args[0], args[1] || contentElem )
+});
 
 
 /**
@@ -3789,11 +3868,18 @@ function canDeletes( els ) {
 /**
  * 属性编辑。
  * 全部选取必需相同且可编辑属性。
+ * 特例：
+ * <li> 必须从属于<ol>才有属性可修改。
  * @return {String|false|null} 模板名或假值
  */
 function canProperty( els ) {
     let _tvs = [...typeSets(els)];
-    return _tvs.length === 1 && propertyTpl( _tvs[0] );
+
+    if ( _tvs.length > 1 ||
+        _tvs[0] === T.LI && els[0].parentElement.tagName !== 'OL' ) {
+        return null;
+    }
+    return propertyTpl( _tvs[0] );
 }
 
 
@@ -4066,7 +4152,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
     // 内容数据初始处理。
     // 预存储保留表格列特征。
     $( 'table', contentElem )
-    .forEach( tbl => tableObj(tbl, $.table(tbl)) );
+    .forEach( tbl => tableObj(tbl, new $.Table(tbl)) );
 }
 
 
@@ -5372,8 +5458,8 @@ export const Edit = {
 
     /**
      * 执行脚本。
-     * 脚本合法执行才传递code用于历史存储。
-     * 注：空白脚本无任何行为。
+     * 空白脚本无任何行为。
+     * 执行无结果时向后传递null值（注：不会打开结果模态框）。
      * Object3: {
      *      type:String 结果类型（error|value）
      *      data:Value  执行的结果（任意）
@@ -5390,11 +5476,17 @@ export const Edit = {
         if ( !code ) return null;
 
         if ( rbox === 'editor' ) {
-            return scriptRun2( __ESet, code );
+            let _op = new CodeRun( code );
+
+            // 若改变DOM就进入历史栈。
+            if ( _op.changed() ) {
+                historyPush( _op );
+            }
+            return _op.result() || saveCode( code ) || null;
         }
         return scriptRun( scriptData(__ESet, code, btext, bhtml) )
             .then( data => ({type: 'value', data, code}) )
-            .catch( data => ({type: 'error', data}) )
+            .catch( data => ({type: 'error', data, code: ''}) )
     },
 
     __runScript: 1,

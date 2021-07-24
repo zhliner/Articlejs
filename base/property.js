@@ -211,7 +211,7 @@ function processTable( el, _, val, cs0, cs1 ) {
 
     if ( val !== undefined ) $.attr( el, 'border', val );
     if ( cs0 !== undefined ) setTableVth( _tbo, cs0, 0 );
-    if ( cs1 !== undefined ) setTableVth( _tbo, cs1, -1 );
+    if ( cs1 !== undefined ) setTableVth( _tbo, cs1, null );
 }
 
 
@@ -482,15 +482,15 @@ function dataValue2( vals ) {
  * col为null时，表示需要删除列头（无论有无）。
  * @param {Table} tbo 表格实例
  * @param {[Element]|true|null} col 列单元格集
- * @param {Number} pos 设置位置（0|-1）
+ * @param {Number} pos 设置位置（0|null）
  */
 function setTableVth( tbo, col, pos ) {
-    let _v = tbo.hasVth( !!pos );
+    let _v = tbo.hasVth( pos == null );
 
     if ( col ) {
         _v || tbo.insertColumn( col, pos );
     } else {
-        _v && tbo.removeColumn( pos );
+        _v && tbo.removeColumn( pos == null ? -1 : pos );
     }
 }
 
