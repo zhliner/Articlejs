@@ -2794,6 +2794,21 @@ class Table {
 
 
     /**
+     * 重新检查列数（并更新）。
+     * 仅在存在表格行元素时才会重新检查/更新。
+     * @return {Table} this
+     */
+    checkCols() {
+        let _tr0 = this._tbl.rows[0];
+
+        if ( _tr0 ) {
+            this._cols = columnCount( _tr0 );
+        }
+        return this;
+    }
+
+
+    /**
      * 是否包含列头。
      * 返回null表示未定，此时表格为空或仅包含<thead>单元。
      * @param  {Boolean} last 检查末尾列
