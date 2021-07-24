@@ -470,7 +470,8 @@ const __Kit = {
 
     /**
      * 条目置顶。
-     * 注：只会出现在搜索区。
+     * 无效条目（比如刚被删除）返回null，
+     * 这样可使得置顶操作无效，从而提供一种“无效”的表意。
      * @data: String 条目ID
      * @return {String|null} 条目ID
      */
@@ -489,7 +490,7 @@ const __Kit = {
 
     /**
      * 取消置顶。
-     * 通常针对置顶区，但页可能会出现在搜索区。
+     * 注：返回null值的含义同上。
      * @data: String 条目ID
      * @return {String|null} 条目ID
      */
@@ -508,9 +509,9 @@ const __Kit = {
 
     /**
      * 设置脚本名称。
-     * 仅置顶条目需要操作，但取消置顶不必移除名称。
-     * 存储键：name
+     * 通常仅用于置顶的条目（便于记忆）。
      * 返回条目ID和名称的二成员数组，用于另一区相同条目的同步。
+     * 返回null时，UI通常会终止执行流。
      * @data: String 条目ID
      * @param  {String} name 待设置的名称
      * @return {[String]|null} [设置的名称, 条目ID]
