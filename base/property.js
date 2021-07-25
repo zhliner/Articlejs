@@ -253,10 +253,10 @@ function processAttr( el, names, ...vals ) {
 //
 // 代码属性设置。
 // 如果语言改变，subs会有值，填充替换。
-// @param {Object} valo 特性名值对象（-lang, -tab）
-// @param {[Node]} subs  着色节点集（[<b>, <i>, #text]）
+// @param {String} lang 代码语言（-lang）
+// @param {[Node]} subs 着色节点集（[<b>, <i>, #text]）
 //
-function processCode( el, _, valo, subs ) {
+function processCode( el, _, lang, subs ) {
     //
 }
 
@@ -265,7 +265,7 @@ function processCode( el, _, valo, subs ) {
 // 代码表属性设置。
 // 语言改变仅限于表全局，subs会有值。
 // 填充替换也仅限于没有局部语言定义的行（有局部定义的由undefined占位）。
-// @param {Object} valo 特性名值对象（-lang, -tab, start）
+// @param {Object} valo 特性名值对象（start, -lang）
 // @param {[Element]} subs 着色代码行集（[<code>]）
 //
 function processCodeList( el, _, valo, subs ) {
@@ -478,11 +478,10 @@ function dataDatetime2( els, date, time, cite ) {
 /**
  * 代码语言解析处理（单目标）。
  * @param  {Element} el 代码元素
- * @param  {Number} tab 制表符空格数
  * @param  {String} lang 代码语言
  * @return {[Node]} 着色节点集（<b>,<i>,#text）
  */
-function dataCode( el, tab, lang ) {
+function dataCode( el, lang ) {
     //
 }
 
@@ -490,11 +489,10 @@ function dataCode( el, tab, lang ) {
 /**
  * 代码语言解析处理（多目标）。
  * @param  {[Element]} els 代码元素集
- * @param  {Number} tab 制表符空格数
  * @param  {String} lang 代码语言
  * @return {[Node]} 着色节点集（<b>,<i>,#text）
  */
-function dataCode2( els, tab, lang ) {
+function dataCode2( els, lang ) {
     //
 }
 
@@ -502,11 +500,10 @@ function dataCode2( els, tab, lang ) {
 /**
  * 代码表语言解析处理（单目标）。
  * @param  {Element} el 代码元素
- * @param  {Number} tab 制表符空格数
  * @param  {String} lang 代码语言
  * @return {[Element]} 行代码集（[<code>]）
  */
-function dataCodeList( el, tab, lang ) {
+function dataCodeList( el, lang ) {
     //
 }
 
@@ -514,11 +511,10 @@ function dataCodeList( el, tab, lang ) {
 /**
  * 代码表语言解析处理（多目标）。
  * @param  {[Element]} els 代码元素集
- * @param  {Number} tab 制表符空格数
  * @param  {String} lang 代码语言
  * @return {[[Element]]} 行代码集组（[[<code>], ...]）
  */
-function dataCodeList2( els, tab, lang ) {
+function dataCodeList2( els, lang ) {
     //
 }
 

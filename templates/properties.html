@@ -133,9 +133,9 @@
 <ul class="_prop" tpl-name="property:code" data-label="代码属性"
     on="vinit reset;
         build|('-tab -lang') $('form/') pop value('tabs language') pack(2)"
-    to="(/>li)|trigger('value');
+    to="/>li|trigger('value');
         form/|trigger('apply')">
-    <li tpl-node="!prop:tab, prop:lang"></li>
+    <li tpl-node="!prop:lang"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:dfn" data-label="定义词属性"
@@ -167,7 +167,7 @@
         build|('-tab -lang start') $('form/') pop value('tabs language start') pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
-    <li tpl-node="!prop:tab, prop:lang, prop:start"></li>
+    <li tpl-node="!prop:start, prop:lang"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:ol" data-label="有序列表属性"
@@ -963,17 +963,10 @@
     <span><input type="text" data-css="height" name="width" class="_chars" placeholder="30%" /></span>
 </li>
 
-<li tpl-name="prop:tab"
-    on="value|v.sels attr('-tab') v.p.vals1"
-    to="/input|val">
-    <b>制表符</b>
-    <span><input type="text" name="tabs" class="_char" value="4" title="空格数"></span>
-</li>
-
 <li tpl-name="prop:lang"
     on="value|v.sels attr('-lang') v.p.vals1"
     to="/select|val">
-    <b>语言</b>
+    <b>代码语言</b>
     <span><select tpl-node="prop:languages"></select></span>
 </li>
 
