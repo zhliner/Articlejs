@@ -169,7 +169,7 @@
         // 选择器支持“>”表示上下文元素限定。
         // fn: {String} querySelector[All]
         // @return {NodeList}
-        $find = ( slr, ctx, fn ) => subslr.test(slr) ? $sub(slr, ctx, s => ctx[fn](s)) : ctx[fn](slr || null),
+        $query = ( slr, ctx, fn ) => subslr.test(slr) ? $sub(slr, ctx, s => ctx[fn](s)) : ctx[fn](slr || null),
 
         // 单一目标。
         // slr 首字符 > 表示当前上下文父级限定。
@@ -181,7 +181,7 @@
                 // 优化
                 return $id(slr, ctx);
             }
-            return $find( slr, ctx, 'querySelector' );
+            return $query( slr, ctx, 'querySelector' );
         },
 
         // 多目标。
@@ -200,7 +200,7 @@
             if ( __reCLASS.test(slr) && ctx.nodeType != 11 ) {
                 return Arr( $class(slr, ctx) );
             }
-            return Arr( $find(slr, ctx, 'querySelectorAll') );
+            return Arr( $query(slr, ctx, 'querySelectorAll') );
         };
 
 
@@ -1045,14 +1045,7 @@ Object.assign( tQuery, {
      * @return {[Element]}
      */
     find( slr, ctx, andOwn = false ) {
-        slr = slr || '';
-        ctx = ctx || Doc;
-        let _els = $all( slr.trim(), ctx );
-
-        if ( andOwn && $is(ctx, slr) ) {
-            _els.unshift(ctx);
-        }
-        return _els;
+        return _find( slr || '', ctx || Doc, andOwn );
     },
 
 
@@ -3611,6 +3604,23 @@ function _cloneEventsDeep( src, to, top, deep ) {
 }
 
 
+/**
+ * 向内查找子元素。
+ * @param  {String} slr 选择器
+ * @param  {Element|Document} ctx 查询上下文
+ * @param  {Boolean} andOwn 包含上下文自身匹配测试，可选
+ * @return {[Element]}
+ */
+function _find( slr, ctx, andOwn ) {
+    let _els = $all( slr, ctx );
+
+    if ( andOwn && $is(ctx, slr) ) {
+        _els.unshift( ctx );
+    }
+    return _els;
+}
+
+
 
 //
 // 元素收集器。
@@ -3800,16 +3810,18 @@ class Collector extends Array {
 
     /**
      * 查找匹配的元素集。
-     * 注：返回值是单元素版find结果的数组（二维）。
+     * 在集合成员中向内查找子元素，上下文为集合成员。
+     * 返回值是单元素版find结果的数组（二维）。
      * @param  {String} slr 选择器
      * @param  {Boolean} andOwn 包含上下文自身匹配
      * @return {Collector}
      */
     find( slr, andOwn ) {
-        let _buf = this.map(
-                el => tQuery.find(slr, el, andOwn)
-            );
-        return new Collector( _buf, this );
+        slr = slr || '';
+        return new Collector(
+            super.map( el => _find(slr, el, andOwn) ),
+            this
+        );
     }
 
 

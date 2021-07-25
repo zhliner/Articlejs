@@ -43,21 +43,21 @@ const customHandles = {
     [ T.A ]:            processAttr,        // href, target
     // [ T.Q ]:                             // cite
     // [ T.ABBR ]:                          // title
-    // [ T.DEL ]:                           // datetime: date, time
-    // [ T.INS ]:                           // datetime: date, time
-    [ T.CODE ]:         processAttr,        // -lang, -tab
+    [ T.DEL ]:          processAttr,        // datetime(date, time), cite
+    [ T.INS ]:          processAttr,        // datetime(date, time), cite
+    [ T.CODE ]:         processCode,        // -lang, -tab
     // [ T.DFN ]:                           // title
     // [ T.BDO ]:                           // dir
     // [ T.BLOCKQUOTE ]:                    // cite
-    [ T.CODELIST ]:     processAttr,        // -lang, -tab, start
+    [ T.CODELIST ]:     processCodeList,    // -lang, -tab, start
     [ T.OL ]:           processAttr,        // start, type, reversed
     [ T.OLX ]:          processAttr,        // start, type, reversed
-    // [ T.LI ]:                            // value
-    // [ T.CODELI ]:                        // value
-    // [ T.ALI ]:                           // value
-    // [ T.XH4LI ]:                         // value
-    // [ T.XOLH4LI ]:                       // value
-    // [ T.XOLAH4LI ]:                      // value
+    [ T.LI ]:           processAttr,        // value, types
+    [ T.CODELI ]:       processAttr,        // value, types
+    [ T.ALI ]:          processAttr,        // value, types
+    [ T.XH4LI ]:        processAttr,        // value, types
+    [ T.XOLH4LI ]:      processAttr,        // value, types
+    [ T.XOLAH4LI ]:     processAttr,        // value, types
     [ T.TABLE ]:        processTable,       // border, vth
     [ T.HR ]:           processHr,          // thick, length, space, border
     [ T.BLANK ]:        processCSS,         // CSS: width, height
@@ -83,6 +83,8 @@ const customData = {
     [ T.TIME ]:         dataDatetime,
     [ T.DEL ]:          dataDatetime,
     [ T.INS ]:          dataDatetime,
+    [ T.CODE ]:         dataCode,
+    [ T.CODELIST ]:     dataCodeList,
 };
 
 
@@ -98,6 +100,8 @@ const customDataMore = {
     [ T.TIME ]:         dataDatetime2,
     [ T.DEL ]:          dataDatetime2,
     [ T.INS ]:          dataDatetime2,
+    [ T.CODE ]:         dataCode2,
+    [ T.CODELIST ]:     dataCodeList2,
 };
 
 
@@ -243,6 +247,29 @@ function processCSS( el, names, ...vals ) {
 //
 function processAttr( el, names, ...vals ) {
     $.attribute( el, names, vals );
+}
+
+
+//
+// 代码属性设置。
+// 如果语言改变，subs会有值，填充替换。
+// @param {Object} valo 特性名值对象（-lang, -tab）
+// @param {[Node]} subs  着色节点集（[<b>, <i>, #text]）
+//
+function processCode( el, _, valo, subs ) {
+    //
+}
+
+
+//
+// 代码表属性设置。
+// 语言改变仅限于表全局，subs会有值。
+// 填充替换也仅限于没有局部语言定义的行（有局部定义的由undefined占位）。
+// @param {Object} valo 特性名值对象（-lang, -tab, start）
+// @param {[Element]} subs 着色代码行集（[<code>]）
+//
+function processCodeList( el, _, valo, subs ) {
+    //
 }
 
 
@@ -424,7 +451,7 @@ function dataTable( els, border, vth0, vth1 ) {
  * @param  {String} cite 来源，可选
  * @return {[String]}
  */
-function dataDatetime( el, _, date, time, cite ) {
+function dataDatetime( el, date, time, cite ) {
     if ( time ) {
         date = date ? `${date} ${time}` : `${time}`;
     }
@@ -440,11 +467,59 @@ function dataDatetime( el, _, date, time, cite ) {
  * @param  {String} cite 来源，可选
  * @return {[[String]]}
  */
-function dataDatetime2( els, _, date, time, cite ) {
+function dataDatetime2( els, date, time, cite ) {
     if ( time ) {
         date = date ? `${date} ${time}` : `${time}`;
     }
     return arrayValue( els, [date || undefined, cite || undefined] );
+}
+
+
+/**
+ * 代码语言解析处理（单目标）。
+ * @param  {Element} el 代码元素
+ * @param  {Number} tab 制表符空格数
+ * @param  {String} lang 代码语言
+ * @return {[Node]} 着色节点集（<b>,<i>,#text）
+ */
+function dataCode( el, tab, lang ) {
+    //
+}
+
+
+/**
+ * 代码语言解析处理（多目标）。
+ * @param  {[Element]} els 代码元素集
+ * @param  {Number} tab 制表符空格数
+ * @param  {String} lang 代码语言
+ * @return {[Node]} 着色节点集（<b>,<i>,#text）
+ */
+function dataCode2( els, tab, lang ) {
+    //
+}
+
+
+/**
+ * 代码表语言解析处理（单目标）。
+ * @param  {Element} el 代码元素
+ * @param  {Number} tab 制表符空格数
+ * @param  {String} lang 代码语言
+ * @return {[Element]} 行代码集（[<code>]）
+ */
+function dataCodeList( el, tab, lang ) {
+    //
+}
+
+
+/**
+ * 代码表语言解析处理（多目标）。
+ * @param  {[Element]} els 代码元素集
+ * @param  {Number} tab 制表符空格数
+ * @param  {String} lang 代码语言
+ * @return {[[Element]]} 行代码集组（[[<code>], ...]）
+ */
+function dataCodeList2( els, tab, lang ) {
+    //
 }
 
 

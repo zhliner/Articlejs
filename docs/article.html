@@ -644,14 +644,14 @@
                     </section>
                     <section role="s3">
                         <h2 id="代码表">代码表</h2>
-                        <p>包含 <code>data-lang</code> 属性用于指定代码语言，<code>data-tab</code> 属性指定制表符（<code>Tab</code>）对应的空格数。可以有两级定义：</p>
+                        <p>包含 <code>data-lang</code> 属性用于指定代码的语言。可以有两级定义：</p>
                         <ol>
                             <li>根级。书写在 <code>&lt;ol&gt;</code> 元素上，对应整个代码表的默认值。</li>
-                            <li>行级。书写在 <code>&lt;code&gt;</code> 元素上，对应当前行的语言和制表符宽度（可选）。</li>
+                            <li>行级。书写在 <code>&lt;code&gt;</code> 元素上，对应当前行代码的语言（可选）。</li>
                         </ol>
                         <p>元素的 <code>start</code> 属性在引用代码片段时很有用。例：<a href="#源码2（代码表）">源码2（代码表）</a>。</p>
                         <pre role="codeblock">
-<code role="html">&lt;<b role="tag">ol</b> role=<s>"codelist"</s> data-lang=<s>"xx"</s> data-tab=<s>"4"</s> start=<s>"n"</s>&gt;
+<code role="html">&lt;<b role="tag">ol</b> role=<s>"codelist"</s> data-lang=<s>"xx"</s> start=<s>"n"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt; <i>&lt;!-- 根封装 --&gt;</i>
         ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;... <i>&lt;!-- 代码内容，&lt;b&gt;着色封装，&lt;i&gt;注释封装 --&gt;</i>
     &lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
@@ -661,17 +661,16 @@
 &lt;/<b role="tag">ol</b>&gt;
 </code></pre>
                     <aside>
-                        <h3>说明：</h3>
-                        <p><code>data-tab</code> 只是一个参考值，这在往代码元素中插入新的源码并解析时有用。</p>
+                        <h3>注意：</h3>
                         <p>行级配置指定在 <code>&lt;code&gt;</code> 元素上（而不是 <code>&lt;li&gt;</code>），使得与其它代码单元（代码块/代码段）行为一致。</p>
                     </aside>
                     </section>
                     <section role="s3">
                         <h2 id="代码块">代码块</h2>
-                        <p>与代码表相似，包含 <code>data-lang</code> 和 <code>data-tab</code> 两个属性定义代码的特性，<strong>注意</strong>：是设置在 <code>&lt;code&gt;</code> 元素上。</p>
+                        <p>与代码表相似，包含 <code>data-lang</code>属性定义代码的特性，<strong>注意</strong>：是设置在 <code>&lt;code&gt;</code> 元素上。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">pre</b> role=<s>"codeblock"</s>&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
-&lt;<b role="tag">code</b> data-lang=<s>"xx"</s> data-tab=<s>"4"</s>&gt; ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;...
+&lt;<b role="tag">code</b> data-lang=<s>"xx"</s>&gt; ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;...
     <i>&lt;!-- 制表符会被转换为空格 --&gt;</i>
 &lt;/<b role="tag">code</b>&gt;
 <i>&lt;!-- 可包含多个&lt;code&gt;块 --&gt;</i>
@@ -884,7 +883,7 @@
                         <h2 id="预排版">预排版</h2>
                         <p>与包含特定语言标注的代码表/代码块不同，这是一种需要保留原始版式的通用结构。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">pre</b> data-tab=<s>"4"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">pre</b>&gt;
     <i>&lt;!--文本或内联单元
         首个换行会被浏览器友好清理，末尾换行会被原样保留。 --&gt;</i>
 &lt;/<b role="tag">pre</b>&gt;

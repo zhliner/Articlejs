@@ -5685,10 +5685,10 @@ export const Kit = {
 
     /**
      * 获取选取集。
-     * @return {[Element]}
+     * @return {Collector}
      */
     sels() {
-        return [ ...__ESet ];
+        return $( __ESet );
     },
 
 

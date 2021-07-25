@@ -864,7 +864,7 @@
     多个<ruby>需内部<rt>合并文本相同，即为相同。
     如果为不确定态（文本置空），处理器会合并各<ruby>内部<rt>单元。 -->
 <li tpl-name="prop:rt"
-    on="value|v.sels find('/rt') text map(ts=>ts.join(' ')) v.p.vals1"
+    on="value|v.sels find('rt') text map(ts=>ts.join(' ')) v.p.vals1"
     to="/input|val">
     <b>拼音</b>
     <span><input type="text" name="rt" placeholder="<rt>" /></span>
