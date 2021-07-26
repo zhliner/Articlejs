@@ -132,7 +132,7 @@
 
 <ul class="_prop" tpl-name="property:code" data-label="代码属性"
     on="vinit reset;
-        build|('-tab -lang') $('form/') pop value('tabs language') pack(2)"
+        build|(null) $('/select') val pack(2)"
     to="/>li|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:lang"></li>
@@ -164,7 +164,7 @@
 
 <ul class="_prop" tpl-name="property:codelist" data-label="代码表属性"
     on="vinit reset;
-        build|('-tab -lang start') $('form/') pop value('tabs language start') pack(2)"
+        build|(null) $('form/') pop value('lang start') pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:start, prop:lang"></li>
@@ -967,7 +967,7 @@
     on="value|v.sels attr('-lang') v.p.vals1"
     to="/select|val">
     <b>代码语言</b>
-    <span><select tpl-node="prop:languages"></select></span>
+    <span><select tpl-node="item:languages"></select></span>
 </li>
 
 <li class="_text2" tpl-name="prop:text2">
@@ -1004,9 +1004,8 @@
 
 
 <!--代码语言清单
-    data-id     用于$$统一检索。
-    normal      普通代码，仅标记字符串和注释（//）。 -->
-<select id="g-languages" data-id="code" name="language" tpl-name="prop:languages">
+    normal  普通代码，仅标记字符串和注释（//）。 -->
+<select id="g-languages" name="lang" tpl-name="item:languages">
     <option value=""> ------ </option>
     <option value="normal">Normal</option>
     <option value="golang">Golang</option>

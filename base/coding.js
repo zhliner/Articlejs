@@ -18,6 +18,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Hicolor } from "../plugins/hlcolor/main.js";
+
+
 const
     $ = window.$,
 
@@ -132,20 +135,14 @@ function cursorNext( node, idx, end ) {
 }
 
 
-
-//
-// 导出函数集。
-//////////////////////////////////////////////////////////////////////////////
-
-
 /**
- * 检查获取最小缩进量。
+ * 检查获取缩进量。
  * 缩进字符仅限于空格和Tab字符。
  * @param  {String} str 待检查字符串
  * @param  {Number} max 最大检查长度
  * @return {Number}
  */
-export function minInds( str, max ) {
+function minInds( str, max ) {
     let _i = 0;
 
     for ( ; _i < max; _i++ ) {
@@ -156,19 +153,33 @@ export function minInds( str, max ) {
 
 
 /**
- * 查找并返回最短缩进。
- * @param  {[String]} ss 文本行集
- * @return {String} 最短的缩进字符串
+ * 空格缩进替换。
+ * 包含前导的缩进和文内的Tab键。
+ * @param  {String} text 源文本（单行）
+ * @param  {Number} tabs Tab空格数，可选
+ * @return {String} 处理后的文本
  */
-export function shortIndent( ss ) {
-    let _len = Infinity;
+function tabToSpace( text, tabs = 4 ) {
+    let _buf = [],
+        _s1 = '',
+        _s2 = text;
 
-    for ( const str of ss ) {
-        _len = minInds( str, _len );
-        if ( !_len ) return 0;
+    while ( _s2 ) {
+        [_s1, _s2] = tabSplit( _s2 );
+        if ( _s2 ) {
+            _s1 = _s1 + ' '.repeat(tabs - halfWidth(_s1)%tabs);
+            if ( _s2 === true ) _s2 = null;
+        }
+        _buf.push( _s1 );
     }
-    return _len;
+    return _buf.join( '' );
 }
+
+
+
+//
+// 导出函数集。
+//////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -192,26 +203,41 @@ export function halfWidth( str ) {
 
 
 /**
- * 空格缩进替换。
- * 包含前导的缩进和文内的Tab键。
- * @param  {String} text 源文本（单行）
- * @param  {Number} tabs Tab空格数，可选
- * @return {String} 处理后的文本
+ * 查找并返回最短缩进。
+ * @param  {[String]} ss 文本行集
+ * @return {String} 最短的缩进字符串
  */
-export function tabToSpace( text, tabs = 4 ) {
-    let _buf = [],
-        _s1 = '',
-        _s2 = text;
+export function shortIndent( ss ) {
+    let _len = Infinity;
 
-    while ( _s2 ) {
-        [_s1, _s2] = tabSplit( _s2 );
-        if ( _s2 ) {
-            _s1 = _s1 + ' '.repeat(tabs - halfWidth(_s1)%tabs);
-            if ( _s2 === true ) _s2 = null;
-        }
-        _buf.push( _s1 );
+    for ( const str of ss ) {
+        _len = minInds( str, _len );
+        if ( !_len ) return 0;
     }
-    return _buf.join( '' );
+    return _len;
+}
+
+
+/**
+ * 获取行文本的前端缩进序列。
+ * 前端缩进字符仅限于空格和Tab字符。
+ * @param  {String} line 行文本
+ * @return {String}
+ */
+export function indentedPart( line ) {
+    return line.substring( 0, minInds(line, Infinity) );
+}
+
+
+/**
+ * 制表符对应空格序列。
+ * 如果n不为数字，表示不替换，返回一个真实的Tab符。
+ * @param  {String} line 插入点前段文本
+ * @param  {Number} n Tab对应空格数
+ * @return {String} 空格序列或Tab
+ */
+export function tabSpaces( line, n ) {
+    return n > 0 ? ' '.repeat( n - halfWidth(line)%n ) : '\t';
 }
 
 
@@ -244,4 +270,22 @@ export function rangeTextLine( rng, flag, box ) {
         return cursorNext( _node, _idx, '\n' )[0];
     }
     return cursorPrev(_node, _idx, '\n')[0] + cursorNext(_node, _idx, '\n')[0];
+}
+
+
+/**
+ * 解析获取高亮代码配置集。
+ * 如果需要替换Tab为空格，源码需要按行切分，否则无此要求。
+ * @param  {[String]} codes 源码（行）集
+ * @param  {String} lang 所属语言
+ * @param  {Number} tab  Tab 空格数
+ * @return {[Object3|Object2]} 高亮配置对象集
+ */
+export function highLight( codes, lang, tab ) {
+    if ( tab > 0 ) {
+        codes = codes.map( s => tabToSpace(s, tab) );
+    }
+    codes = codes.join( '\n' );
+
+    return lang ? new Hicolor(lang, codes).effect() : [{text: codes}];
 }

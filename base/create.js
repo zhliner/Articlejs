@@ -1171,8 +1171,8 @@ const Builder = {
 
     // 含定制取值名
     // '配置名:取值特性名'
-    [ T.CODELIST,       ['lang:-lang', 'tab:-tab', 'start'] ],
-    [ T.CODE,           ['lang:-lang', 'tab:-tab'] ],
+    [ T.CODELIST,       ['lang:-lang', 'start'] ],
+    [ T.CODE,           ['lang:-lang'] ],
     [ T.EXPLAIN,        ['fix:-pba'] ],
 ]
 .forEach(function( its ) {
@@ -2096,7 +2096,6 @@ function elem( tval, data ) {
  *      date:   {String}  日期
  *      time:   {String}  时间
  *      lang:   {String}  代码语言（data-lang）
- *      tab:    {Number}  Tab键空格数（data-tab）
  *      thick:  {String}  分割线厚度（CSS: border-width）
  *      length: {String}  分割线长度（CSS: width）
  *      space:  {String}  分割线空白（CSS: height）

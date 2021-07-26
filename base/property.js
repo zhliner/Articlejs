@@ -16,6 +16,9 @@
 import * as T from "./types.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { getType } from "./base.js";
+import { blockColorHTML, codeFlat, listColorHTML } from "./coloring.js";
+import { highLight } from "./coding.js";
+import { create } from "./create.js";
 
 
 const
@@ -257,7 +260,8 @@ function processAttr( el, names, ...vals ) {
 // @param {[Node]} subs 着色节点集（[<b>, <i>, #text]）
 //
 function processCode( el, _, lang, subs ) {
-    //
+    if ( lang !== undefined ) $.attr( el, '-lang', lang );
+    if ( subs !== undefined ) $.fill( el, subs );
 }
 
 
@@ -477,12 +481,26 @@ function dataDatetime2( els, date, time, cite ) {
 
 /**
  * 代码语言解析处理（单目标）。
+ * 如果目标语言与原语言相同，则简单忽略。
  * @param  {Element} el 代码元素
  * @param  {String} lang 代码语言
- * @return {[Node]} 着色节点集（<b>,<i>,#text）
+ * @return {[String, Node|NodeList]} 语言&着色节点集（lang, [<b>,<i>,#text]）
  */
 function dataCode( el, lang ) {
-    //
+    let _lang = $.attr(el, '-lang') || '',
+        _code = el.textContent;
+
+    if ( lang === _lang ) {
+        return [];
+    }
+    if ( lang === '' ) {
+        [ null, $.Text( _code ) ];
+    }
+    let _html = blockColorHTML(
+        highLight( [_code], lang )
+    );
+
+    return [ lang, $.fragment(_html).childNodes ];
 }
 
 
@@ -490,21 +508,30 @@ function dataCode( el, lang ) {
  * 代码语言解析处理（多目标）。
  * @param  {[Element]} els 代码元素集
  * @param  {String} lang 代码语言
- * @return {[Node]} 着色节点集（<b>,<i>,#text）
+ * @return {[[String, Node|NodeList]]} 语言&着色节点集组
  */
 function dataCode2( els, lang ) {
-    //
+    return els.map( el => dataCode(el, lang) );
 }
 
 
 /**
  * 代码表语言解析处理（单目标）。
- * @param  {Element} el 代码元素
+ * @param  {Element} el 代码表元素（<ol>）
  * @param  {String} lang 代码语言
- * @return {[Element]} 行代码集（[<code>]）
+ * @param  {Number} start 首行行号，可选
+ * @return {[Object, [Element]]} 配置对象&行代码集（lang, [<code>]）
  */
-function dataCodeList( el, lang ) {
-    //
+function dataCodeList( el, lang, start ) {
+    let _obj = { '-lang': lang, start },
+        _lang = $.attr( el, '-lang' ) || '';
+
+    objectValue( _obj, '', null );
+
+    if ( lang === _lang ) {
+        return [ _obj ];
+    }
+    return [ _obj, codeList(el, lang) ];
 }
 
 
@@ -512,10 +539,11 @@ function dataCodeList( el, lang ) {
  * 代码表语言解析处理（多目标）。
  * @param  {[Element]} els 代码元素集
  * @param  {String} lang 代码语言
- * @return {[[Element]]} 行代码集组（[[<code>], ...]）
+ * @param  {Number} start 首行行号，可选
+ * @return {[[Object, [Element]]]} 配置对象&行代码集组
  */
-function dataCodeList2( els, lang ) {
-    //
+function dataCodeList2( els, lang, start ) {
+    return els.map( el => _dataCodeList(el, lang, start) );
 }
 
 
@@ -670,6 +698,62 @@ function attr2Bool( els, name ) {
         el => $.attr( el, name )
     );
     return _vs.length === 1 || new Set(_vs).size === 1 ? [_vs[0] !== null, false] : [null, true];
+}
+
+
+/**
+ * 创建代码表代码行集。
+ * 属性实参null值可保证清除该特性。
+ * 注记：不含<li>容器更灵活。
+ * @param  {String} code 已解析源码
+ * @param  {String} lang 所属语言
+ * @param  {Number} tab Tab空格数，可选
+ * @return {[Element]} <code>行集
+ */
+function listCode( code, lang = null ) {
+    return code
+        .split( '\n' )
+        .map( html => create(T.CODE, {lang}, html) );
+}
+
+
+/**
+ * 根据语言解析代码构造代码表项。
+ * 可能包含嵌套的子语言块，会被扁平化。
+ * @param  {Element} el 代码表根（<ol>）
+ * @param  {String} lang 代码语言
+ * @return {[Element]} <code>行集
+ */
+function codeList( el, lang ) {
+    let _txts = $.children( el ).map( e => e.textContent );
+
+    if ( lang === '' ) {
+        return $( _txts ).elem( 'code' );
+    }
+    let _html = listColorHTML( highLight(_txts, lang) );
+
+    return codeFlat( _html, null, listCode );
+}
+
+
+/**
+ * 代码表语言解析处理（多目标）。
+ * @param  {[Element]} els 代码元素集
+ * @param  {String} lang 代码语言
+ * @param  {Number} start 首行行号，可选
+ * @return {[[Object, [Element]]]} 配置对象&行代码集组
+ */
+function _dataCodeList( el, lang, start ) {
+    let _obj = { '-lang': lang, start },
+        _lang = $.attr( el, '-lang' ) || '';
+
+    objectValue( _obj, '', undefined );
+    objectValue( _obj, null, undefined );
+
+    if ( lang === _lang || lang === null ) {
+        return [ _obj ];
+    }
+    return [ _obj, codeList(el, lang) ];
 }
 
 

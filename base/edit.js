@@ -24,15 +24,14 @@ import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
 import * as T from "./types.js";  // 在 ./base.js 之后
 import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun } from './common.js';
-import { halfWidth, rangeTextLine, minInds, shortIndent, tabToSpace } from "./coding.js";
+import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import cfg from "./shortcuts.js";
 
-// 代码解析&高亮
-import { Hicolor } from "../plugins/hlcolor/main.js";
-import { colorHTML, htmlBlock, htmlList } from "./coloring.js";
+// 代码高亮
+import { blockColorHTML, listColorHTML, codeFlat } from "./coloring.js";
 
 // 专项导入
 import { saveCode } from "./shedit.js";
@@ -2898,10 +2897,10 @@ function cropTrs( tbo, cnt, tsec ) {
  * @param  {Number} tab Tab空格数，可选
  * @return {[Element]} <code>行集
  */
-function listCode( code, lang = null, tab = null ) {
+function listCode( code, lang = null ) {
     return code
         .split( '\n' )
-        .map( html => create(T.CODE, {lang, tab}, html) );
+        .map( html => create(T.CODE, {lang}, html) );
 }
 
 
@@ -2912,36 +2911,8 @@ function listCode( code, lang = null, tab = null ) {
  * @param  {Number} tab Tab空格数，可选
  * @return {[Element]} 子块代码（<code>）
  */
-function blockCode( code, lang = null, tab = null ) {
-    return [ create(T.CODE, {lang, tab}, code) ];
-}
-
-
-/**
- * 汇合解析结果集。
- * 如果包含其它语言代码子块，会被扁平化。
- * Object2: {
- *      lang: 所属语言
- *      data: 子块源码集（与data相同结构）
- * }
- * make: function(html, lang, tab): [Value]
- * @param  {[String|Object2]} data 源码解析数据
- * @param  {String} lang 所属语言
- * @param  {Function} make 封装创建回调
- * @param  {Number} tab Tab空格数，可选
- * @return {[Value]} 封装创建结果集（<code>）
- */
-function codeFlat( data, lang, make, tab ) {
-    let _buf = [];
-
-    for ( const its of data ) {
-        if ( typeof its === 'string' ) {
-            _buf.push( ...make(its, lang, tab) );
-            continue;
-        }
-        _buf.push( ...codeFlat(its.data, its.lang, make, tab) );
-    }
-    return _buf;
+function blockCode( code, lang = null ) {
+    return [ create(T.CODE, {lang}, code) ];
 }
 
 
@@ -2961,29 +2932,6 @@ function tableCells( tsec, slr, meth = 'text' ) {
         return null;
     }
     return $( 'tr', tsec ).find( slr )[ meth ]();
-}
-
-
-/**
- * 制表符对应空格序列。
- * 如果n为值null，表示不替换，返回一个真实的Tab符。
- * @param  {String} line 光标前段文本
- * @param  {Number} n Tab对应空格数
- * @return {String} 空格序列或Tab
- */
-function tabSpaces( line, n ) {
-    return n > 0 ? ' '.repeat( n - halfWidth(line)%n ) : '\t';
-}
-
-
-/**
- * 获取行文本的前端缩进序列。
- * 前端缩进字符仅限于空格和Tab字符。
- * @param  {String} line 行文本
- * @return {String}
- */
-function indentedPart( line ) {
-    return line.substring( 0, minInds(line, Infinity) );
 }
 
 
@@ -6179,35 +6127,10 @@ export const Kit = {
      * @return {[Object3|Object2]} 高亮配置对象集
      */
     hlcode( evo, tab, lang ) {
-        let _code = evo.data.split( __reNewline );
-
-        if ( tab > 0 ) {
-            _code = _code.map( s => tabToSpace(s, tab) );
-        }
-        _code = _code.join( '\n' );
-
-        return lang ? new Hicolor(lang, _code).effect() : [{text: _code}];
+        return highLight( evo.data.split(__reNewline), lang, tab );
     },
 
     __hlcode: 1,
-
-
-    /**
-     * 提取并构造代码选项对象。
-     * @param  {Element} lang 语言定义控件
-     * @param  {Element} tab Tab配置控件
-     * @param  {Element} start 起始行定义控件
-     * @return {Object3} 配置选项
-     */
-    codeopts( evo, tab, lang, start ) {
-        return {
-            lang:  $.val( lang ),
-            tab:   $.val( tab ) || null,
-            start: start && $.val( start ) || null,
-        };
-    },
-
-    __codeopts: null,
 
 
     /**
@@ -6218,11 +6141,7 @@ export const Kit = {
      * @return {[Element]} 代码行集（[<code>]）
      */
     codels( evo ) {
-        return codeFlat(
-            colorHTML( evo.data, htmlList ),
-            null,
-            listCode
-        );
+        return codeFlat( listColorHTML(evo.data), null, listCode );
     },
 
     __codels: 1,
@@ -6233,16 +6152,10 @@ export const Kit = {
      * 如果有嵌入其它语言，会有子块存在。
      * @data: [Object3|Object2]
      * @param  {String} lang 所属语言（顶层）
-     * @param  {Number} tab Tab空格数
      * @return {[Element]} 代码块子块集（[<code>]）
      */
-    codeblo( evo, {lang, tab} ) {
-        return codeFlat(
-            colorHTML( evo.data, htmlBlock ),
-            lang,
-            blockCode,
-            tab
-        );
+    codeblo( evo, {lang} ) {
+        return codeFlat( blockColorHTML(evo.data), lang, blockCode );
     },
 
     __codeblo: 1,
@@ -6256,7 +6169,7 @@ export const Kit = {
      * @return {String} 已渲染源码
      */
     codehtml( evo ) {
-        return codeFlat( colorHTML(evo.data, htmlBlock), null, html => [html] )
+        return codeFlat( blockColorHTML(evo.data), null, html => [html] )
             .join( '' );
     },
 
@@ -7119,7 +7032,6 @@ customGetter( null, Kit, [
     'k3edit',
     'indentcut',
     'hlcode',
-    'codeopts',
     'codels',
     'codeblo',
     'codehtml',

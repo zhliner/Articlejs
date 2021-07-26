@@ -68,7 +68,7 @@ const
     __cmtName = 'comments',
 
     // 缺位边界符存储特性。
-    __atnVac = 'data-v',
+    __atnVac = 'data-vac',
 
     // 缺位边界符分隔符。
     __vacSplit = ',';
@@ -81,12 +81,12 @@ const
 
 
 /**
- * 代码HTML封装。
+ * 代码着色封装。
  * @param  {String} text 待封装文本
  * @param  {String} type 代码类型名
  * @return {String} 封装的源码
  */
-function codeHTML( text, type ) {
+function colorCode( text, type ) {
     if ( type == null ) {
         return text;
     }
@@ -107,7 +107,7 @@ function codeHTML( text, type ) {
  * @param  {String} vac  边界符（,b|a,b|a,）
  * @return {String} HTML高亮源码
  */
-function htmlVac( text, type, vac ) {
+function colorVac( text, type, vac ) {
     vac = ` ${__atnVac}="${vac}"`;
 
     if ( type == __strName ) {
@@ -143,8 +143,8 @@ function vacant( v1, v2 ) {
  * 将临时的存储集合并压入结果对象集，
  * 同时清空临时存储集。
  * @param  {[String]} tmp 源码存储集
- * @param  {[Object]} buf 渲染结果对象集
- * @return {[Object]} buf
+ * @param  {[Object|String]} buf 渲染结果集
+ * @return {[Object|String]} buf
  */
 function htmlMerge( tmp, buf ) {
     if ( tmp.length > 0 ) {
@@ -155,12 +155,6 @@ function htmlMerge( tmp, buf ) {
 }
 
 
-
-//
-// 导出函数
-//////////////////////////////////////////////////////////////////////////////
-
-
 /**
  * 代码块高亮源码构建。
  * 块数据边界符完整，简单封装即可，无需标注。
@@ -169,40 +163,40 @@ function htmlMerge( tmp, buf ) {
  * @param  {Object} obj 解析结果对象集
  * @return {String} HTML高亮源码
  */
-export function htmlBlock( obj ) {
+function htmlBlock( obj ) {
     let {text, type} = obj;
-    return codeHTML( text, type );
+    return colorCode( text, type );
 }
 
 
 /**
  * 代码表高亮源码构建。
  * 如果是块类数据，需要检查多行并标注缺失边界符（单行无需标注）。
- * 返回值依然以换行符连接。
+ * 返回值依然以换行符连接，用于代码表按行切分。
  * Object: {
  *      text, type, block?
  * }
  * @param  {Object} obj 解析结果对象集
  * @return {String} HTML高亮源码
  */
-export function htmlList( obj ) {
+function htmlList( obj ) {
     let {text, type, block} = obj,
         _rows = text.split( '\n' );
 
     if ( !block || _rows.length < 2 ) {
-        return codeHTML( text, type );
+        return colorCode( text, type );
     }
     let _s1 = _rows.shift(),
         _s2 = _rows.pop(),
         [v1, vv, v2] = vacant( ...block ),
         _buf = [
-            htmlVac(_s1, type, v1)
+            colorVac(_s1, type, v1)
         ];
 
     if ( _rows.length > 0 ) {
-        _buf.push( ..._rows.map(s => htmlVac(s, type, vv)) );
+        _buf.push( ..._rows.map(s => colorVac(s, type, vv)) );
     }
-    _buf.push( htmlVac(_s2, type, v2) );
+    _buf.push( colorVac(_s2, type, v2) );
 
     return _buf.join( '\n' );
 }
@@ -210,24 +204,25 @@ export function htmlList( obj ) {
 
 /**
  * HTML源码构造（渲染）。
- * 将解析结果对象中的文本进行HTML封装，
- * 如果有内嵌子块，则递进处理。
+ * 将解析结果对象中的文本进行HTML封装，如果有内嵌子块，则递进处理。
  * Object: {
  *      text, type?, block?
  * }
  * 实参 Object2: {
  *      lang: 子块语言
- *      data: 子块解析集（{[Object|Object2]}）
+ *      data: 子块解析集（{[Object3|Object2]}）
  * }
- * 返回值 Object2: {
+ * 返回值：
+ * String: 已渲染源码（<b>,<s>,<i>, #text）。
+ * Object2: {
  *      lang: 子块语言
  *      data: 子块源码集（{[String|Object2]）
  * }
- * @param  {[Object|Object2]} objs 解析结果集
+ * @param  {[Object3|Object2]} objs 解析结果集
  * @param  {Function} html HTML渲染函数（htmlBlock|htmlList）
  * @return {[String|Object2]} 渲染结果集
  */
-export function colorHTML( objs, html ) {
+function colorHTML( objs, html ) {
     let _buf = [],
         _tmp = [];
 
@@ -241,6 +236,63 @@ export function colorHTML( objs, html ) {
     }
 
     return htmlMerge( _tmp, _buf );
+}
+
+
+
+//
+// 导出函数
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 代码块渲染构造。
+ * @param  {[Object3|Object2]} objs 解析结果集
+ * @return {[String|Object2]} 渲染结果集
+ */
+export function blockColorHTML( objs ) {
+    return colorHTML( objs, htmlBlock );
+}
+
+
+/**
+ * 代码表渲染构造。
+ * 需要对块类数据逐行进行边界符标注（首行、中段、尾行）。
+ * @param  {[Object3|Object2]} objs 解析结果集
+ * @return {[String|Object2]} 渲染结果集
+ */
+export function listColorHTML( objs ) {
+    return colorHTML( objs, htmlList );
+}
+
+
+/**
+ * 汇合解析结果集并扁平化。
+ * Object2: {
+ *      lang: 所属语言
+ *      data: 子块源码集（与data相同结构）
+ * }
+ * 注记：
+ * 如果包含其它语言代码的子块，需要扁平化以便于HTML展示，
+ * 如插入平级的<li>列表，或者<pre:codeblock>容器内（多个根<code>）。
+ *
+ * make: function(html, lang): [Element|HTML]
+ * @param  {[String|Object2]} data 源码解析数据
+ * @param  {String} lang 所属语言
+ * @param  {Function} make 每种语言代码的封装回调（<code>|html）
+ * @return {[Element|String]} 封装结果集（<code>|html）
+ */
+export function codeFlat( data, lang, make ) {
+    let _buf = [];
+
+    for ( const its of data ) {
+        if ( typeof its === 'string' ) {
+            _buf.push( ...make(its, lang) );
+            continue;
+        }
+        _buf.push( ...codeFlat(its.data, its.lang, make) );
+    }
+    return _buf;
 }
 
 

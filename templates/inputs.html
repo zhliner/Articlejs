@@ -397,7 +397,7 @@
 
 <!-- 代码表 -->
 <div class="_body _Codelist" obt-src="obts/codes.json" tpl-name="input:codelist"
-    on="node|ev('detail') v.codels $$('/[data-id=code]') v.codeopts(_) (true)"
+    on="node|ev('detail') v.codels $('from/') valo('lang start') (true)"
     by="New.codelist(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -406,13 +406,13 @@
     <aside>
         <div class="_option">
             <label>制表符
-                <input data-id="code" type="text" name="tabs" class="_char" value="4" title="空格数">
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
             <label>语言
-                <select data-id="code" tpl-node="prop:languages"></select>
+                <select tpl-node="item:languages"></select>
             </label>
             <label title="起始行号">首行
-                <input data-id="code" type="text" name="start" placeholder="1" class="_chars">
+                <input type="text" name="start" placeholder="1" class="_chars">
             </label>
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
@@ -697,7 +697,7 @@
 
 <!-- 代码块 -->
 <div class="_body _Codeblock" obt-src="obts/codes.json" tpl-name="input:codeblock"
-    on="node|ev('detail') $$('/[data-id=code]') v.codeopts(_) v.codeblo(_1) (null, true)"
+    on="node|ev('detail') $$('/select') val obj('lang') v.codeblo(_1) (null, true)"
     by="New.codeblock(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -706,10 +706,10 @@
     <aside>
         <div class="_option">
             <label>制表符
-                <input data-id="code" type="text" name="tabs" class="_char" value="4" title="空格数">
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
             <label>语言
-                <select data-id="code" tpl-node="prop:languages"></select>
+                <select tpl-node="item:languages"></select>
             </label>
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
@@ -1098,11 +1098,11 @@
 <!-- 定制结构 -->
 
 <div class="_body _Codeli" obt-src="obts/codes.json" tpl-name="input:codeli"
-    on="node|ev('detail') v.codels $('/[name=language]') val v.codebox;
-        nodeok|v.codebox dup(2) pass pop(2) attr('-tab') attr('-lang') or('') pack(2)"
+    on="node|ev('detail') v.codels $('/[name=lang]') val v.codebox;
+        nodeok|v.codebox dup pass attr('-lang') or('')"
     by="Kit.codelang(_2) New2.codeli"
     to="form/|trigger('insert');
-        (/[data-id=code])|val">
+        /select|val">
     <div class="_main _list">
         <div class="_prop">
             <pre tpl-node="!prop:codes"></pre>
@@ -1110,10 +1110,11 @@
     </div>
     <aside>
         <div class="_option">
-            <!-- tabs 占位 -->
-            <input data-id="code" type="hidden" name="tabs" value="" />
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
             <label>语言
-                <select data-id="code" name="language" tpl-node="prop:languages"></select>
+                <select tpl-node="item:languages"></select>
             </label>
         </div>
         <hr tpl-node="input:insert2" title="[插入2]">
@@ -1601,7 +1602,7 @@
 <!--内联代码：
     包含所属语言和Tab处理。 -->
 <div class="_body _Inline" obt-src="obts/codes.json" tpl-name="input:code"
-    on="node|ev('detail') v.codehtml $('/[name=language]') val obj('lang')"
+    on="node|ev('detail') v.codehtml $('/[name=lang]') val obj('lang')"
     by="New.code(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list"
@@ -1613,9 +1614,8 @@
     </div>
     <aside>
         <div class="_option">
-            <input type="hidden" name="tabs" value="0" />
             <label>语言
-                <select tpl-node="prop:languages"></select>
+                <select tpl-node="item:languages"></select>
             </label>
         </div>
         <hr tpl-node="input:insert2" title="[插入2]">
