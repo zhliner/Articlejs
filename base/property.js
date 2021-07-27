@@ -273,7 +273,8 @@ function processCode( el, _, lang, subs ) {
 // @param {[Element]} subs 着色代码行集（[<code>]）
 //
 function processCodeList( el, _, valo, subs ) {
-    //
+    $.attribute( el, valo );
+    subs !== undefined && $.fill( el, $(subs).elem('li') );
 }
 
 
@@ -543,7 +544,7 @@ function dataCodeList( el, lang, start ) {
  * @return {[[Object, [Element]]]} 配置对象&行代码集组
  */
 function dataCodeList2( els, lang, start ) {
-    return els.map( el => _dataCodeList(el, lang, start) );
+    return els.map( el => codeListData(el, lang, start) );
 }
 
 
@@ -737,13 +738,15 @@ function codeList( el, lang ) {
 
 
 /**
- * 代码表语言解析处理（多目标）。
- * @param  {[Element]} els 代码元素集
+ * 代码表语言解析处理（多目标时）。
+ * 起始行号为空或语言为null，表示不确定态，原样维持。
+ * 如果目标语言与原语言相同，简单忽略（不再解析重构）。
+ * @param  {Element} el  代码元素（<ol>）
  * @param  {String} lang 代码语言
  * @param  {Number} start 首行行号，可选
- * @return {[[Object, [Element]]]} 配置对象&行代码集组
+ * @return {[Object, [Element]]} 配置对象&行代码集
  */
-function _dataCodeList( el, lang, start ) {
+function codeListData( el, lang, start ) {
     let _obj = { '-lang': lang, start },
         _lang = $.attr( el, '-lang' ) || '';
 

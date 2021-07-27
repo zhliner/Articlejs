@@ -8,11 +8,18 @@
 //
 //  Go语言的高亮配置/实现。
 //
+//  可配置项：
+//  - type:     {String} 类型名，约定俗成的规范名称。
+//  - begin:    {RegExp} 起始匹配式。
+//  - end:      {RegExp} 结束匹配式。复杂格式的块数据才需要，可选。
+//  - handle:   {Function} 匹配结果进阶处理，可选。
+//  - block:    [String] 块数据边界标识对，辅助块代码拆分成多行后的标注，可选。
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, Fx } from "../base.js";
+import { Hicode, RE, htmlEscape} from "../base.js";
 
 
 const
@@ -43,59 +50,66 @@ class Go extends Hicode {
     constructor() {
         super([
             {
-                begin: keyword,
-                type:  'keyword'
+                type:   'keyword',
+                begin:  keyword,
             },
             {
-                begin: literal,
-                type:  'literal'
+                type:   'literal',
+                begin:  literal,
             },
             {
-                begin: datatype,
-                type:  'datatype'
+                type:   'datatype',
+                begin:  datatype,
             },
             {
-                begin: built_in,
-                type:  'function'
+                type:   'function',
+                begin:  built_in,
             },
             {
-                begin: RE.COMMENTS,
-                type:  Fx.escapeComment
+                type:   'comments',
+                begin:  RE.COMMENTS,
+                handle: htmlEscape,
             },
             {
-                begin: RE.COMMENT_B,
-                type:  Fx.escapeComment,
-                block: [ '/*', '*/' ]
+                type:   'comments',
+                begin:  RE.COMMENT_B,
+                handle: htmlEscape,
+                block:  [ '/*', '*/' ]
             },
             {
-                begin: RE.STRING,
-                type:  Fx.escapeString
+                type:   'string',
+                begin:  RE.STRING,
+                handle: htmlEscape,
             },
             {
-                begin: RE.STRING_RAW,
-                type:  Fx.escapeString,
-                block: [ '`', '`' ]
+                type:   'string',
+                begin:  RE.STRING_RAW,
+                handle: htmlEscape,
+                block:  [ '`', '`' ]
             },
             {
-                begin: /^('.*[^\\]')/,
-                type:  'number'  // rune
+                // runes
+                type:   'number',
+                begin:  /^('.*[^\\]')/
             },
             {
-                begin: RE.NUMBER_B,
-                type:  'number'
+                type:   'number',
+                begin:  RE.NUMBER_B,
             },
             {
-                begin: RE.NUMBER_C,
-                type:  'number'
+                type:   'number',
+                begin:  RE.NUMBER_C,
             },
             {
                 // 基础集缺失补充
-                begin: /^(&\^|:=)/,
-                type:  Fx.escapeOperator
+                type:   'operator',
+                begin:  /^(&\^|:=)/,
+                handle: htmlEscape,
             },
             {
-                begin: RE.OPERATOR,
-                type:  Fx.escapeOperator
+                type:   'operator',
+                begin:  RE.OPERATOR,
+                handle: htmlEscape,
             },
         ]);
     }
