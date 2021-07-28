@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, Fx } from "../base.js";
+import { Hicode, RE } from "../base.js";
 
 
 class Normal extends Hicode {
@@ -23,17 +23,17 @@ class Normal extends Hicode {
     constructor() {
         super([
             {
-                begin: RE.COMMENTS,
-                type:  Fx.escapeComment
+                type:   'comments',
+                begin:  RE.COMMENTS,
             },
             {
-                begin: RE.COMMENT_B,
-                type:  Fx.escapeComment,
-                block: ['/*', '*/']
+                type:   'comments',
+                begin:  RE.COMMENT_B,
+                block:  ['/*', '*/']
             },
             {
-                begin: RE.STRING,
-                type:  Fx.escapeString
+                type:   'string',
+                begin:  RE.STRING,
             },
         ]);
     }

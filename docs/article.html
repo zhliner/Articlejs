@@ -316,7 +316,7 @@
                 </section>
                 <section role="s2">
                     <h2 id="内联单元">内联单元</h2>
-                    <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的<ruby><rb>注音</rb><rp>(</rp><rt>zhùyīn</rt><rp>)</rp></ruby>（<code>&lt;ruby&gt;/&lt;rb&gt;,&lt;rp&gt;,&lt;rt&gt;</code>）、或媒体类的图片（<code>&lt;img&gt;</code>）、音频（<code>&lt;audio&gt;</code>）等。</p>
+                    <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的<ruby>注音<rp>(</rp><rt>zhùyīn</rt><rp>)</rp></ruby>（<code>&lt;ruby&gt;/&lt;rp&gt;,&lt;rt&gt;</code>）、或媒体类的图片（<code>&lt;img&gt;</code>）、音频（<code>&lt;audio&gt;</code>）等。</p>
                     <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，而必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;li&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
                     <table border="1">
                         <thead>
@@ -439,7 +439,7 @@
                             <tr>
                                 <th>注音</th>
                                 <td><code>&lt;<b role="tag">ruby</b>&gt;&lt;/<b role="tag">ruby</b>&gt;</code></td>
-                                <td><code><i>RUBY /rb,rp,rt</i></code></td>
+                                <td><code><i>RUBY /rp,rt</i></code></td>
                                 <td>19</td>
                             </tr>
                             <tr>
@@ -908,7 +908,7 @@
                         <h2 id="注音">注音</h2>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ruby</b>&gt;
-    &lt;<b role="tag">rb</b>&gt;漢&lt;/<b role="tag">rb</b>&gt;&lt;<b role="tag">rp</b>&gt;(&lt;/<b role="tag">rp</b>&gt;&lt;<b role="tag">rt</b>&gt;ㄏㄢˋ&lt;/<b role="tag">rt</b>&gt;&lt;<b role="tag">rp</b>&gt;)&lt;/<b role="tag">rp</b>&gt;
+    漢&lt;<b role="tag">rp</b>&gt;(&lt;/<b role="tag">rp</b>&gt;&lt;<b role="tag">rt</b>&gt;ㄏㄢˋ&lt;/<b role="tag">rt</b>&gt;&lt;<b role="tag">rp</b>&gt;)&lt;/<b role="tag">rp</b>&gt;
 &lt;/<b role="tag">ruby</b>&gt;
 </code></pre>
                     </section>
@@ -1002,13 +1002,7 @@
                                 <td>颜色值</td>
                                 <td><code><b role="kw">rgb</b></code></td>
                                 <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>rgb]</code></td>
-                                <td>#fff, #f0f0f0, #f0f0f080, rgb(214, 86, 0)</td>
-                            </tr>
-                            <tr>
-                                <td>颜色值</td>
-                                <td><code><b role="kw">hsl</b></code></td>
-                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>hsl]</code></td>
-                                <td>hsl(24deg, 100%, 42%)</td>
+                                <td>#fff, #f0f0f0, #f0f0f080</td>
                             </tr>
                             <tr>
                                 <td>单位</td>
@@ -1046,8 +1040,8 @@
                         <h3>注记：</h3>
                         <ul>
                             <li>用 <code>&lt;b&gt;</code> 封装着色文本可减少书写，在没有样式渲染时，默认的粗体显示也较为友好。</li>
-                            <li>用 <code>&lt;i&gt;</code> 封装注释也有类似的功用，斜体的附加说明感受明确。</li>
-                            <li>用 <code>&lt;s&gt;</code> 封装字符串，除了<code>string</code>首字符相同外，默认的贯穿线或许醒目并表达非可执行的意思。</li>
+                            <li>用 <code>&lt;i&gt;</code> 封装注释也有类似的效果，斜体的“附加说明”感受较为明确。</li>
+                            <li>用 <code>&lt;s&gt;</code> 封装字符串，除了<code>string</code>首字符相同外，默认的贯穿线醒目，或也表达了非执行的意思。</li>
                         </ul>
                     </aside>
                 </section>

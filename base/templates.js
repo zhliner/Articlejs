@@ -51,10 +51,6 @@ const InputOptions = {
     [ T.SOURCE2 ]:      'option:source2',
     [ T.PIMG ]:         'option:pimg',
     [ T.EXPLAIN ]:      'option:explain',
-    // <ruby>子单元。
-    [ T.RBPT ]:         'option:rbpt',
-    // [ T.RB ]:           'option:rb',
-    // [ T.RT ]:           'option:rt',
     // <svg>向内插入时可用条目。
     // <svg>子元素平级和向内插入时可用条目。
     [ T.SVGITEM ]:      'option:svgitem',
@@ -168,7 +164,7 @@ const Properties = {
     [ T.IMG ]:          'property:img',         // src, width, height, alt
     [ T.PIMG ]:         'property:img',         // 同上
     [ T.SVG ]:          'property:svg',         // width, height
-    [ T.RUBY ]:         'property:ruby',        // rb, rt, rp
+    [ T.RUBY ]:         'property:ruby',        // #text, rt, rp
     [ T.TIME ]:         'property:times',       // datetime: date, time
     [ T.METER ]:        'property:meter',       // max, min, high, low, value, optimum
     [ T.SPACE ]:        'property:space',       // width
@@ -205,14 +201,14 @@ const Properties = {
 
 //
 // 不可平级自由插入类型。
-// - <rb,rt,rp> 子单元有顺序要求。
+// - <rt,rp> 子单元有顺序要求。
 // - 单元格涉及Table实例列数问题，需由属性修改实现。
 // - <picture>/<img> 有顺序要求（但可选）。
 // - <wbr>仅能通过微编辑插入。
 // - <main>不应当被选取，此处仅表达一种逻辑。
 //
 const siblingNone = new Set([
-    T.RB, T.RT, T.RP, T.TH, T.TD, T.PIMG, T.WBR, T.MAIN
+    T.RT, T.RP, T.TH, T.TD, T.PIMG, T.WBR, T.MAIN
 ]);
 
 

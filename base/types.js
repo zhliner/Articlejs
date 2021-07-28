@@ -91,12 +91,10 @@ export const
     SOURCE1         = 101,  // 媒体资源 {src, type}
     SOURCE2         = 102,  // 图片资源 {srcset, media}
     PIMG            = 103,  // P图片 <picture/img> 注：有位置要求，故单独定义
-    RB              = 104,  // 注音文本
-    RT              = 105,  // 注音拼音
-    RP              = 106,  // 注音拼音包围
-    EXPLAIN         = 107,  // 插图讲解 {fix}
-    RBPT            = 108,  // 注音分组封装（抽象：用于包含多组注音）
-    SVGITEM         = 109,  // 图形内容（仅用于SVG子元素配置）
+    RT              = 104,  // 注音拼音
+    RP              = 105,  // 注音拼音包围
+    EXPLAIN         = 106,  // 插图讲解 {fix}
+    SVGITEM         = 107,  // 图形内容（仅用于SVG子元素配置）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -225,7 +223,7 @@ const Properties = {
     [ VIDEO ]:          INLINES | STRUCT,
     [ PICTURE ]:        INLINES | STRUCT,
     [ SVG ]:            INLINES | STRUCT,
-    [ RUBY ]:           INLINES | STRUCT, // SEALED 可合并
+    [ RUBY ]:           INLINES | STRUCT | SEALED,
     [ METER ]:          INLINES | SEALED,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY,
@@ -241,7 +239,6 @@ const Properties = {
     [ PIMG ]:           STRUCT | STRUCTX | EMPTY,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 解包：先文本化，然后内容提升。
-    [ RB ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT,
     //
@@ -455,8 +452,7 @@ const ChildTypes = {
     [ VIDEO ]:          [ $TEXT, SOURCE1, TRACK ],
     [ PICTURE ]:        [ SOURCE2, PIMG ],
     [ SVG ]:            [ SVGITEM ],
-    // RBPT 为固定结构组。
-    [ RUBY ]:           [ RBPT, RB, RT, RP ],
+    [ RUBY ]:           [ $TEXT, RT, RP ],
     [ METER ]:          [ $TEXT ],
     [ SPACE ]:          null,
     [ IMG ]:            null,
@@ -470,7 +466,6 @@ const ChildTypes = {
     [ SOURCE1 ]:        null,
     [ SOURCE2 ]:        null,
     [ PIMG ]:           null,
-    [ RB ]:             [ $TEXT ],
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
     [ EXPLAIN ]:        [ $TEXT, A, ..._NOMEDIA ], // 插图讲解

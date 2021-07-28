@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, escape } from "../base.js";
+import { Hicode, RE, htmlEscape } from "../base.js";
 
 
 class HTML extends Hicode {
@@ -20,8 +20,9 @@ class HTML extends Hicode {
     constructor() {
         super([
             {
-                begin: /^<!DOCTYPE [^>]+>/i,
-                type:  str => ({ text: escape(str), type: 'doctype' })
+                type:   'doctype',
+                begin:  /^<!DOCTYPE [^>]+>/i,
+                handle: htmlEscape,
             }
         ]);
     }

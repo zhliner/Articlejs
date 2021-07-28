@@ -836,8 +836,7 @@ code > b[role=slr] {
 }
 
 /* 颜色值 */
-code > b[role=rgb],
-code > b[role=hsl] {
+code > b[role=rgb] {
     color: #e60;
 }
 

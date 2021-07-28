@@ -1482,23 +1482,6 @@
     </aside>
 </div>
 
-
-<!--注音单元封装：
-    这是一个抽象结构，在选取<ruby>且向内插入时使用。-->
-<div class="_body _Ruby" tpl-name="input:rbpt"
-    on="create|$('/[name=rb]') val dup pass $('form/') valo('rt rpl rpr')"
-    by="New.ruby(_1) children"
-    to="form/|trigger('insrbpt')">
-    <div class="_main _list">
-        <hr tpl-node="inlines:ruby" />
-    </div>
-    <aside>
-        <hr tpl-node="input:insert2" title="[插入2]" />
-    </aside>
-</div>
-
-<!-- 注：<rb|rt>不单独创建 -->
-
 <!-- SVG子元件（html） -->
 <div class="_body _Inline" tpl-name="input:svgitem"
     on="create|$('/pre._code') text dup pass"

@@ -480,7 +480,7 @@ class RngEdit {
      * 友好：格式匹配忽略两端的空白。
      * 注记：
      * 不匹配时应当有一个<rt>的占位串，以便于修改，
-     * 因为<rb|rt>不支持单独创建。
+     * 因为<rt>不支持单独创建。
      * @param  {RngEdit} self 实例自身
      * @param  {String} text 注音文本
      * @param  {Range} rng 选取范围
@@ -491,11 +491,11 @@ class RngEdit {
                 RngEdit.ruby
             ),
             rt = _v ? _v[2] : Sys.rtHolder,
-            rb = _v ? _v[1] : rng.cloneContents();
+            rc = _v ? _v[1] : rng.cloneContents();
 
         self._whole = _v;
 
-        return [ {rt}, rb ];
+        return [ {rt}, rc ];
     }
 }
 
@@ -2112,76 +2112,6 @@ function dataNodes( data, cnt ) {
         data.push( $.clone(_node) );
     }
     return data;
-}
-
-
-/**
- * 数据多份克隆。
- * @param  {Collector} $data 元素集
- * @param  {Number} cnt 克隆份数
- * @return {[Collector]}
- */
-function dataClones( $data, cnt ) {
-    let _buf = [ $data ];
-
-    for (let i = 0; i < cnt-1; i++) {
-        _buf.push( $data.clone() );
-    }
-    return _buf;
-}
-
-
-/**
- * 专用：rbpt
- * 根据选取的元素找到插入参考位置。
- * @param  {Element} rb 注音文本元素（选中）
- * @param  {Boolean} before 是否向前插入
- * @return {Element|null}
- */
-function posWithRB( rb, before ) {
-    // 跳过第一个<rp>
-    return before ? rb : $.next( rb.nextElementSibling, 'rp', true );
-}
-
-
-/**
- * 专用：rbpt
- * 根据选取的元素找到插入参考位置。
- * @param  {Element} rt 拼音元素（选中）
- * @param  {Boolean} before 是否向前插入
- * @return {Element|null}
- */
-function posWithRT( rt, before ) {
-    return before ? $.prev( rt, 'rb', true ) : rt.nextElementSibling;
-}
-
-
-/**
- * 判断获取 T.RBPT 参考元素。
- * @param  {Element} el 目标元素
- * @param  {Boolean} before 是否向前插入
- * @return {Element}
- */
-function rbptRef( el, before ) {
-    switch ( el.tagName ) {
-        case 'RB': return posWithRB( el, before );
-        case 'RT': return posWithRT( el, before );
-    }
-    // 外部异常（通常不可能）
-    throw new Error( 'element not <rb> or <rt>.' );
-}
-
-
-/**
- * 提取 T.RBPT 单元插入参考元素。
- * 只有平级才需要变换参考节点。
- * @param  {Boolean} before 是否向前插入
- * @param  {String} level 插入层级（siblings|children）
- * @return {[Element]}
- */
-function rbptRefs( before, level ) {
-    let _els = [ ...__ESet ];
-    return level === Sys.levelName1 ? _els.map( el => rbptRef(el, before) ) : _els;
 }
 
 
@@ -3959,7 +3889,7 @@ function _bodyGets( el, hslr ) {
 
 /**
  * 获取可合并单元内容集。
- * - 全部为内容元素但非双向固定单元（如<rb>）。
+ * - 全部为内容元素但非双向固定单元。
  * - 全部为相同类型，如果为表格单元，列数必需相同。
  * - 不同类型的行块单元必需兼容。
  * - 容器不能为空元素和密封类型元素。
@@ -4019,7 +3949,7 @@ function mergeBadit( to, els ) {
     let _tv = getType( to );
 
     if ( T.isContent(_tv) ) {
-        // isFixed：主要适用<rb|rt>
+        // isFixed：主要适用<rt>
         return T.isFixed(_tv) ? to : _contentNoit( els );
     }
     if ( _tv === T.TABLE ) {
@@ -6760,30 +6690,6 @@ export const Kit = {
 
 
     /**
-     * 插入注音子单元集。
-     * 如果选取多个目标，则克隆为多组。
-     * 注：
-     * 平级插入时需要找到规范的位置。
-     * 焦点移动到首个插入的<rb>元素。
-     * @data: [Element] <rb|rp|rt|rp>序列
-     * @param  {Boolean} before 向前插入
-     * @param  {String} level 插入层级（siblings|children）
-     * @return {void}
-     */
-    insrbpt( evo, before, level ) {
-        let _els = rbptRefs( before, level ),
-            _dt2 = dataClones( $(evo.data), _els.length ),
-            _op1 = clearSets(),
-            _ops = insertsNodes( _els, _dt2, before, level ),
-            _elx = _dt2.flat().filter( nd => nd.tagName !== 'RP' );
-
-        historyPush( _op1, ..._ops, pushes(_elx), new HotEdit(_elx[0]) );
-    },
-
-    __insrbpt: 1,
-
-
-    /**
      * 创建表格单元。
      * @data: <table> 数据源
      * @param  {String} caption 表标题内容
@@ -6989,7 +6895,6 @@ processExtend( 'Kit', Kit, [
     'topinsert',
     'fixinsert',
     'instbody',
-    'insrbpt',
     'table',
     'codelang',
     'checkhtml',

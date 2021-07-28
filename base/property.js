@@ -179,29 +179,18 @@ function processPicture( el, names, valo, subs ) {
 
 //
 // 注音拼音更新。
-// 保留首个<rb>, <rt>子元素引用。
-// 多个拼音子单元会被合并，<rb>也会合并。
-// 注记：
-// 新插入文本时，至少保留首个文本节点，避免redo时原始引用丢失。
 // @param {Text} rt 拼音文本节点
+// @param {Text} text 内容文本节点
 //
-function processRuby( el, _, rt ) {
-    let $rts = $( 'rt', el ),
-        _rt0 = $rts.shift(),
-        $rbs = $( 'rb', el ),
-        _rb0 = $rbs.shift();
+function processRuby( el, _, rt, text ) {
+    let _rp = $( 'rp', el ),
+        _rt = $.get( 'rt', el );
 
-    $.fill( _rt0, rt );
-
-    if ( $rts.length ) {
-        $rts.remove();
+    if ( text !== undefined ) {
+        $.fill( el, text );
+        $.append( el, [ _rp[0], _rt, _rp[1] ] );
     }
-    if ( $rbs.length ) {
-        // 保留_rb0原文本节点引用。
-        $.text( _rb0, $rbs.remove().text(), 'append' );
-        $.normalize( _rb0 );
-    }
-    $('rp', el).slice(2).remove();
+    rt !== undefined && $.fill( _rt, rt );
 }
 
 
@@ -407,28 +396,35 @@ function dataPicture2( els, valo, subs ) {
 
 
 /**
- * 拼音文本节点创建。
+ * 拼音文本节点创建（单目标）。
  * @param  {Element} el 目标元素
  * @param  {String} rt 拼音文本
- * @return {Text} 拼音文本节点
+ * @param  {String} text 注音文本
+ * @return {[Text2]} 注音和拼音文本节点
  */
-function dataRuby( el, rt ) {
-    return rt && [ $.Text(rt) ];
+function dataRuby( el, rt, text ) {
+    return $( [rt, text] ).Text();
 }
 
 
 /**
- * 拼音文本节点创建。
+ * 拼音文本节点创建（多目标）。
  * @param  {[Element]} els 选取目标集
  * @param  {String} rt 拼音文本
- * @return {[Text]} 拼音文本节点集
+ * @param  {String} text 注音文本
+ * @return {[[Text2]]} 注音和拼音文本节点组集
  */
-function dataRuby2( els, rt ) {
-    if ( !rt ) {
-        // 不确定态：各自提取合并。
-        return els.map( el => [ $.Text( $.find('rt', el).text().join('') ) ] );
+function dataRuby2( els, rt, text ) {
+    let _buf = [
+        undefined, undefined
+    ];
+    if ( rt ) {
+        _buf[0] = $.Text( rt );
     }
-    return els.map( () => [ $.Text(rt) ] );
+    if ( text ) {
+        _buf[1] = $.Text( text );
+    }
+    return els.map( () => _buf );
 }
 
 

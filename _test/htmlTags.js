@@ -99,7 +99,6 @@ let tags = [
     'pre',
     'progress',
     'q',
-    'rb',
     'rp',
     'rt',
     'rtc',

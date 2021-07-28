@@ -296,6 +296,20 @@ class CSS extends Hicode {
                 // 属性&组合 选择器操作符
                 begin:  /^(=|~=|\|=|\^=|\$=|\*=|>|\+|~)/,
             },
+            {
+                type:   'function',
+                // 如 rgb(128.0, 128, 128, 0.6)
+                begin:  /^(\w+)\((.*)\)/,
+            },
+            {
+                type:   'rgba',
+                // #rrggbb, #rgb, #rrggbbaa
+                begin:  /^#(?:[0-9A-F]{3}|[0-9A-F]{6}(?:[0-9A-F]{2})?)$/i,
+            },
+            {
+                type:   'important',
+                begin:  /^!important\b/,
+            }
         ]);
     }
 }

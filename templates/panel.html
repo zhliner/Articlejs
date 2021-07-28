@@ -16,17 +16,14 @@
         insert|ev('detail') checked('before') value('level');
         instop|ev('detail') value('level');
         insfix|ev('detail') value('level');
-        instbd|ev('detail') checked('merge') value('level');
-        insrbpt|ev('detail') checked('before') value('level')"
+        instbd|ev('detail') checked('merge') value('level')"
     by="-;-;
         Kit.inserts(_2);
         Kit.topinsert(_1);
         Kit.fixinsert(_1);
-        Kit.instbody(_2);
-        Kit.insrbpt(_2)"
+        Kit.instbody(_2)"
     to="(/._body, ._prop)|trigger('create');
         /#con-level|trigger('renew');
-        #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
@@ -525,8 +522,7 @@
     <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
     <li data-k="m" data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
     <li data-k="r" data-val="ruby" title="<ruby>">
-        <b><ruby>
-                <rb>注音</rb>
+        <b><ruby>注音
                 <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
             </ruby></b>
         <kbd>r</kbd>

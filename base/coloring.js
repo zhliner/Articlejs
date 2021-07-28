@@ -40,7 +40,6 @@ const
     __Roles = {
         'keyword':      'kw',   // 关键字
         'literal':      'lit',  // 字面值（如 true, iota）
-        'string':       'str',  // 字符串
         'number':       'num',  // 数值
         'function':     'fn',   // 函数名
         'operator':     'op',   // 运算符
@@ -49,8 +48,7 @@ const
         'attribute':    'atn',  // 属性名（attribute-name）
         'regex':        're',   // 正则表达式
         'selector':     'slr',  // 选择器（ID, class, 伪类）
-        'rgba':         'rgb',  // RGB, RGBA: #fff, #f0f0f0, rgb(214, 86, 0)
-        'hsla':         'hsl',  // HSL, HSLA: hsl(24deg, 100%, 42%)
+        'rgba':         'rgb',  // RGB, RGBA: #fff, #f0f0f0, #999
         'unit':         'un',   // CSS单位
         'important':    'imp',  // 重要（CSS: !important; C/C++: 预处理器）
         'doctype':      'doc',  // <!DOCTYPE ...>

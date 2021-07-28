@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, Fx } from "../base.js";
+import { Hicode, RE } from "../base.js";
 
 
 class JavaScript extends Hicode {
@@ -20,8 +20,8 @@ class JavaScript extends Hicode {
     constructor() {
         super([
             {
+                type:  'regex',
                 begin: RE.REGEX,
-                type:  Fx.escapeRegex
             },
         ]);
     }

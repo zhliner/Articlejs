@@ -71,10 +71,8 @@ const Tags = {
     [ T.SOURCE1 ]:      'source',
     [ T.SOURCE2 ]:      'source',
     [ T.EXPLAIN ]:      'i\\explain',
-    [ T.RB ]:           'rb',
     [ T.RT ]:           'rt',
     [ T.RP ]:           'rp',
-    [ T.RBPT ]:         null,  // 异常阻断。
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -932,7 +930,6 @@ const Children = {
 [
     // 内联结构内容元素。
     T.METER,
-    T.RB,
     // T.RT,  // 作为选项
     // T.RP,  // 作为选项
     T.EXPLAIN,
@@ -1823,7 +1820,7 @@ function tocLi( h2 ) {
  */
 function rubySubs( rpl, rt, rpr, data ) {
     let _els = [
-        elem( T.RB, data )
+        $.Text( data )
     ];
     if ( rt ) {
         _els.push(

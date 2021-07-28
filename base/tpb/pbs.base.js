@@ -42,8 +42,8 @@ const
     // 注：trims专用。
     __reSpace1n = /(\s)(\s*)/g,
 
-    // 颜色值：RGB|RGBA
-    __reRGBa = [
+    // 颜色函数形式
+    __reRGBfx = [
         // rgb(128.0, 128, 128, 0.6)
         /rgba?\(\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.%]+))?\s*\)/,
         // rgb(34 12 64 / 0.6)
@@ -2014,7 +2014,7 @@ function rgb3_6( str ) {
 function rgb16str( val ) {
     let _vs = null;
 
-    for ( const re of __reRGBa ) {
+    for ( const re of __reRGBfx ) {
         _vs = val.match( re );
         if ( _vs ) break;
     }

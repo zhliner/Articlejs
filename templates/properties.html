@@ -57,12 +57,12 @@
     <li tpl-node="!prop:width, prop:height"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:ruby" data-label="注音拼音"
+<ul class="_prop" tpl-name="property:ruby" data-label="注音属性"
     on="vinit reset;
-        build|('rt') $('/input') val pack(2)"
-    to="/>li|trigger('value');
+        build|(null) $('form/') pop value('rt rbt') pack(2)"
+    to="(/>li)|trigger('value');
         form/|trigger('apply')">
-    <li tpl-node="!prop:rt, prop:rp"></li>
+    <li tpl-node="!prop:rt, prop:rbt, prop:rp"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:times" data-label="时间设定"
@@ -450,10 +450,10 @@
 
 <!-- 注音单元 -->
 <ul class="_prop" tpl-name="inlines:ruby"
-    on="create|$('/[name=rb]') val dup pass $('form/') valo('rt rpl rpr')"
+    on="create|$('/[name=rbt]') val dup pass $('form/') valo('rt rpl rpr')"
     by="New.ruby(_1)"
     to="form/|trigger('insert')">
-    <li tpl-node="prop:rb"></li>
+    <li tpl-node="prop:rbt"></li>
     <li tpl-node="prop:rt"></li>
     <li tpl-node="prop:rp"></li>
 </ul>
@@ -854,15 +854,18 @@
     <span><input type="url" name="cite"  placeholder="https:// (可选)" /></span>
 </li>
 
-<li tpl-name="prop:rb">
+<!--注记：
+    此为<ruby>内的文本，不再使用<rb>元素。
+    一是因为包含<rb>的结构复杂（已被弃用），二来直接的文本节点单击后可直接定位到<ruby>本身（友好）。 -->
+<li tpl-name="prop:rbt"
+    on="value|v.sels contents('') text map(ts=>ts.join(' ')) v.p.vals1"
+    to="/input|val">
     <b>文本</b>
-    <span><input type="text" name="rb" placeholder="<rb>" class="_phrase" /></span>
+    <span><input type="text" name="rbt" class="_phrase" /></span>
 </li>
 
-<!--行为说明：
-    <ruby>内多个<rt>内容会合并显示（空格连接）。
-    多个<ruby>需内部<rt>合并文本相同，即为相同。
-    如果为不确定态（文本置空），处理器会合并各<ruby>内部<rt>单元。 -->
+<!--说明：
+    本设计中不支持<ruby>内多个<rt>，但容错此情况：内容会被合并。 -->
 <li tpl-name="prop:rt"
     on="value|v.sels find('rt') text map(ts=>ts.join(' ')) v.p.vals1"
     to="/input|val">
