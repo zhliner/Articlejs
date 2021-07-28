@@ -62,7 +62,7 @@ function languageClass( lang ) {
 
 //
 // 语法高亮处理器。
-// 使用 LangMap 中配置的具体实现。
+// 使用 __langMap 中配置的具体实现。
 //
 class Hicolor {
     /**

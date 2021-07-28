@@ -283,7 +283,7 @@ class Hicode {
         if ( !chs.length ) {
             return;
         }
-        buf.push( {text: escape( chs.join('') )} );
+        buf.push( {text: htmlEscape( chs.join('') )} );
         chs.length = 0;
     }
 

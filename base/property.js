@@ -510,7 +510,7 @@ function dataDatetime2( els, date, time, cite ) {
  * 如果目标语言与原语言相同，则简单忽略。
  * @param  {Element} el 代码元素
  * @param  {String} lang 代码语言
- * @return {[String, Node|NodeList]} 语言&着色节点集（lang, [<b>,<i>,#text]）
+ * @return {[String, [Node]]} 语言&着色节点集（lang, [<b>,<i>,#text]）
  */
 function dataCode( el, lang ) {
     let _lang = $.attr(el, '-lang') || '',
@@ -523,10 +523,10 @@ function dataCode( el, lang ) {
         [ null, $.Text( _code ) ];
     }
     let _html = blockColorHTML(
-        highLight( [_code], lang )
-    );
+            highLight( [_code], lang )
+        ).join('');
 
-    return [ lang, $.fragment(_html).childNodes ];
+    return [ lang, [...$.fragment(_html).childNodes] ];
 }
 
 
@@ -534,7 +534,7 @@ function dataCode( el, lang ) {
  * 代码语言解析处理（多目标）。
  * @param  {[Element]} els 代码元素集
  * @param  {String} lang 代码语言
- * @return {[[String, Node|NodeList]]} 语言&着色节点集组
+ * @return {[[String, [Node]]]} 语言&着色节点集组
  */
 function dataCode2( els, lang ) {
     return els.map( el => dataCode(el, lang) );
