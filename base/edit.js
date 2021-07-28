@@ -1112,7 +1112,7 @@ class NodeVary {
      * 如果可以，会移除被合并内容的父元素。
      * @param {Element} box 目标容器
      * @param {[Element]} subs 待合并的子元素集
-     * @param {Collector} $els 父元素集引用
+     * @param {Collector} $els subs父元素集引用
      */
     merges( box, subs, $els ) {
         $.append( box, subs );
@@ -3889,7 +3889,7 @@ function _bodyGets( el, hslr ) {
 
 /**
  * 获取可合并单元内容集。
- * - 全部为内容元素但非双向固定单元。
+ * - 全部为内容元素但非双向固定单元（如<rt>）。
  * - 全部为相同类型，如果为表格单元，列数必需相同。
  * - 不同类型的行块单元必需兼容。
  * - 容器不能为空元素和密封类型元素。

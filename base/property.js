@@ -20,12 +20,18 @@ import { blockColorHTML, codeFlat, listColorHTML } from "./coloring.js";
 import { highLight } from "./coding.js";
 import { create } from "./create.js";
 
+import { Sys } from "../config.js";
+
 
 const
     $ = window.$,
 
     // 空白匹配。
-    __reSpace = /\s+/g;
+    __reSpace = /\s+/g,
+
+    // Ruby子单元备用。
+    // 用于<ruby>结构破坏后的修复。
+    __$rps = $( [Sys.rpLeft, Sys.rpRight] ).elem( 'rp' );
 
 
 
@@ -179,18 +185,24 @@ function processPicture( el, names, valo, subs ) {
 
 //
 // 注音拼音更新。
-// @param {Text} rt 拼音文本节点
-// @param {Text} text 内容文本节点
+// 附带的两个<rp>用于可能的结构破坏后的修复。
+// @param {Text} rt 拼音文本节点，可选
+// @param {Text} text 内容文本节点，可选
+// @param {Element} rpl 左包围（<rp>），可选
+// @param {Element} rpr 右包围（<rp>），可选
 //
-function processRuby( el, _, rt, text ) {
+function processRuby( el, _, rt, text, rpl, rpr ) {
     let _rp = $( 'rp', el ),
         _rt = $.get( 'rt', el );
 
     if ( text !== undefined ) {
         $.fill( el, text );
-        $.append( el, [ _rp[0], _rt, _rp[1] ] );
+        _rt && $.append( el, [ _rp[0], _rt, _rp[1] ] );
     }
-    rt !== undefined && $.fill( _rt, rt );
+    if ( rt === undefined ) {
+        return;
+    }
+    _rt ? $.fill( _rt, rt ) : $.append( el, [rpl, $.elem('rt', rt), rpr] );
 }
 
 
@@ -400,10 +412,12 @@ function dataPicture2( els, valo, subs ) {
  * @param  {Element} el 目标元素
  * @param  {String} rt 拼音文本
  * @param  {String} text 注音文本
- * @return {[Text2]} 注音和拼音文本节点
+ * @return {[Text2, Element2]} 注音&拼音文本节点和两个<rp>
  */
 function dataRuby( el, rt, text ) {
-    return $( [rt, text] ).Text();
+    return $( [rt, text] )
+        .Text()
+        .concat( __$rps.clone() );
 }
 
 
@@ -424,7 +438,7 @@ function dataRuby2( els, rt, text ) {
     if ( text ) {
         _buf[1] = $.Text( text );
     }
-    return els.map( () => _buf );
+    return els.map( () => _buf.concat(__$rps.clone()) );
 }
 
 

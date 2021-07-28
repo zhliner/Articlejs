@@ -622,7 +622,7 @@ Object.assign( tQuery, {
      * 创建简单内容元素。
      * 仅限文本内容，不支持名称空间指定。
      * @param  {String} tag 标签名
-     * @param  {String} text 内容文本，可选
+     * @param  {String|Text} text 内容文本，可选
      * @param  {Document} doc 所属文档，可选
      * @return {Element}
      */
