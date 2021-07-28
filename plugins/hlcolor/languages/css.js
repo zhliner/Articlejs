@@ -307,7 +307,7 @@ class CSS extends Hicode {
             },
             {
                 type:   'important',
-                begin:  /^!important\b/,
+                begin:  /^(!important|@\w[\w-]*)\b/,
             }
         ]);
     }

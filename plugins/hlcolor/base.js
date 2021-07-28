@@ -74,8 +74,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { languageClass } from "./main.js";
-
 
 const
     // HTML转义字符。
@@ -88,82 +86,11 @@ const
 
 
 //
-// 语法高亮处理器。
-// 使用 LangMap 中配置的具体实现。
-//
-class Hicolor {
-    /**
-     * @param {String} lang 语言名
-     * @param {String} text 待解析文本
-     */
-    constructor( lang, text ) {
-        this._code = text;
-        this._lang = lang;
-        this._inst = lang && new ( languageClass(lang) )();
-    }
-
-
-    /**
-     * 执行语法着色解析。
-     * 源文本中可能嵌入其它语言代码，会执行其Hicolor解析，
-     * 因此结果集里可能包含子块封装。
-     * 返回值：
-     * Object3 {
-     *      type?: {String}
-     *      text:  {String|[Object3]}
-     *      block?:[String, String]
-     * }
-     * Object2 {
-     *      // 子块封装
-     *      lang: 子块语言。
-     *      data: 子块解析集{[Object3|Object2]}，结构相同。
-     * }
-     * @return {[Object3|Object2]} 结果集
-     */
-    effect() {
-        let _buf = [];
-
-        for ( const obj of this._inst.parse(this._code) ) {
-            let _hi = obj instanceof Hicolor;
-            if ( !_hi ) {
-                _buf.push( obj );
-                continue;
-            }
-            _buf.push( {lang: obj.lang(), data: obj.effect()} );
-        }
-
-        return _buf;
-    }
-
-
-    /**
-     * 返回语法解析器。
-     * 主要用于调用其analyze()实时解析。
-     * @return {Hicode} 解析实例（子类）
-     */
-    parser() {
-        return this._inst;
-    }
-
-
-    /**
-     * 返回语言名。
-     * @return {string|null}
-     */
-    lang() {
-        return this._lang || null;
-    }
-}
-
-
-
-//
 // 代码解析器。
 // 实现默认的解析匹配处理。
-// 如果需要，通过进阶处理器可以很容易实现定制调整。
-// 注意：
-// 这里并不对匹配的值进行HTML转义，这由语言实现自己负责。
-// 因此也就支持处理器返回HTML（不常见）。
+// 如果需要，通过进阶处理器可以很容易实现定制处理，如子语法块，HTML转义等。
+// 内部接口：
+// 由 languages/ 中的各语言继承实现自身语法解析。
 //
 class Hicode {
     /**
@@ -448,11 +375,8 @@ function reWords( str ) {
 
 
 //
-// 导出
+// 导出（内部接口）
 //////////////////////////////////////////////////////////////////////////////
 
-export { Hicolor, Hicode, RE, htmlEscape, reWords };
 
-
-//:debug
-// window.Hicolor = Hicolor;
+export { Hicode, RE, htmlEscape, reWords };

@@ -70,7 +70,7 @@ const customHandles = {
     [ T.TABLE ]:        processTable,       // border, vth
     [ T.HR ]:           processHr,          // thick, length, space, border
     [ T.BLANK ]:        processCSS,         // CSS: width, height
-    // [ T.EXPLAIN ]:                       // -pba
+    [ T.EXPLAIN ]:      processExplain,     // -pba
     // [ T.H1 ]:                            // id
     // [ T.H2 ]:                            // id
     // [ T.H3 ]:                            // id
@@ -279,6 +279,19 @@ function processCodeList( el, _, valo, subs ) {
 }
 
 
+/**
+ * 插图讲解属性处理。
+ * 需要清除内联的定位设置（如果有），否则没有效果。
+ * @param {Element} el 目标元素
+ * @param {String} name 属性名（-pba）
+ * @param {String} val  属性值
+ */
+function processExplain( el, name, val ) {
+    $.attr( el, name, val );
+    $.cssSets( el, 'top right bottom left', null );
+}
+
+
 
 //
 // 数据创建器定制
@@ -415,9 +428,11 @@ function dataPicture2( els, valo, subs ) {
  * @return {[Text2, Element2]} 注音&拼音文本节点和两个<rp>
  */
 function dataRuby( el, rt, text ) {
+    let _rt = $.get( 'rt', el );
+
     return $( [rt, text] )
         .Text()
-        .concat( __$rps.clone() );
+        .concat( _rt ? [] : __$rps.clone() );
 }
 
 
@@ -438,7 +453,7 @@ function dataRuby2( els, rt, text ) {
     if ( text ) {
         _buf[1] = $.Text( text );
     }
-    return els.map( () => _buf.concat(__$rps.clone()) );
+    return els.map( el => _buf.concat( $.get('rt', el) ? [] : __$rps.clone()) );
 }
 
 
