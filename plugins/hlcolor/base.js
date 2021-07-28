@@ -19,7 +19,7 @@
 //  配置对象
 //  --------
 //  Object5 {
-//      type:   {String} 类型名，约定俗成的规范名称
+//      type:   {String} 类型名，约定俗成的规范名，可选
 //      begin:  {RegExp} 起始匹配式
 //      end:    {RegExp} 结束匹配式，可选
 //      handle: {Function} 匹配结果进阶处理器，可选
@@ -27,6 +27,7 @@
 //  }
 //  .type:
 //      语法类型名。如：keyword, string, operator ...
+//      如果是匹配一个内部子语法块，type即为可选。
 //  .begin
 //      起始匹配。独立词汇本身或块数据的起始位置，块数据取值从匹配串之后开始。
 //      如果end缺失，即为独立词汇，取值为匹配结果本身。
@@ -108,8 +109,8 @@ class Hicolor {
      * 因此结果集里可能包含子块封装。
      * 返回值：
      * Object3 {
-     *      text:  {String|[Object3]}
      *      type?: {String}
+     *      text:  {String|[Object3]}
      *      block?:[String, String]
      * }
      * Object2 {
@@ -431,11 +432,26 @@ function htmlEscape( txt ) {
 }
 
 
+/**
+ * 词序列转为正则表达式。
+ * 所有的空白都会被清除，词区分大小写。
+ * 返回值：
+ * 仅匹配单个词，且从头部开始。
+ * @param  {String} str 词序列（空白分隔）
+ * @return {RegExp} 单词匹配式
+ */
+function reWords( str ) {
+    return new RegExp(
+        '^(' + str.trim().split( /\s+/ ).join( '|' ) + ')\\b'
+    );
+}
+
+
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { Hicolor, Hicode, RE, htmlEscape };
+export { Hicolor, Hicode, RE, htmlEscape, reWords };
 
 
 //:debug

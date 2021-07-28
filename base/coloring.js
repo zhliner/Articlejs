@@ -66,7 +66,7 @@ const
     __cmtName = 'comments',
 
     // 缺位边界符存储特性。
-    __atnVac = 'data-vac',
+    __atnVac = 'data-b',
 
     // 缺位边界符分隔符。
     __vacSplit = ',';
@@ -140,14 +140,14 @@ function vacant( v1, v2 ) {
  * 源码集合并处理。
  * 将临时的存储集合并压入结果对象集，
  * 同时清空临时存储集。
- * @param  {[String]} tmp 源码存储集
+ * @param  {[String]} txt 源码存储集
  * @param  {[Object|String]} buf 渲染结果集
  * @return {[Object|String]} buf
  */
-function htmlMerge( tmp, buf ) {
-    if ( tmp.length > 0 ) {
-        buf.push( tmp.join('') );
-        tmp.length = 0;
+function htmlMerge( txt, buf ) {
+    if ( txt.length > 0 ) {
+        buf.push( txt.join('') );
+        txt.length = 0;
     }
     return buf;
 }
@@ -222,18 +222,18 @@ function htmlList( obj ) {
  */
 function colorHTML( objs, html ) {
     let _buf = [],
-        _tmp = [];
+        _txt = [];
 
     for ( const o of objs ) {
         if ( o.text !== undefined ) {
-            _tmp.push( html(o) );
+            _txt.push( html(o) );
             continue;
         }
-        htmlMerge( _tmp, _buf );
+        htmlMerge( _txt, _buf );
         _buf.push( {lang: o.lang, data: colorHTML(o.data, html)} );
     }
 
-    return htmlMerge( _tmp, _buf );
+    return htmlMerge( _txt, _buf );
 }
 
 

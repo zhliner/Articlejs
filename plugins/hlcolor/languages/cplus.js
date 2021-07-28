@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, htmlEscape } from "../base.js";
+import { Hicode, RE, htmlEscape, reWords } from "../base.js";
 
 
 const
@@ -23,15 +23,16 @@ const
     datatype = /^(int|float|char|bool|long|short|double|atomic_bool|atomic_char|atomic_schar|atomic_uchar|atomic_short|atomic_ushort|atomic_int|atomic_uint|atomic_long|atomic_ulong|atomic_llong|atomic_ullong)\b/,
 
     // 关键字
-    _keyword = `
+    keyword = reWords(`
         while private catch import module export virtual operator sizeof typedef const struct for union namespace
         unsigned volatile static protected template mutable if public friend
         do goto auto void enum else break extern using class asm case typeid
         default register explicit signed typename try this switch continue inline delete alignof constexpr decltype
-        noexcept static_assert thread_local restrict _Bool complex _Complex _Imaginary new throw return`,
+        noexcept static_assert thread_local restrict _Bool complex _Complex _Imaginary new throw return
+    `),
 
     // 内建函数
-    _built_in = `
+    built_in = reWords(`
         std string cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream
         auto_ptr deque list queue stack vector map set bitset multiset multimap unordered_set
         unordered_map unordered_multiset unordered_multimap array shared_ptr abort abs acos
@@ -40,10 +41,8 @@ const
         isxdigit tolower toupper labs ldexp log10 log malloc realloc memchr memcmp memcpy memset modf pow
         printf putchar puts scanf sinh sin snprintf sprintf sqrt sscanf strcat strchr strcmp
         strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr tanh tan
-        vfprintf vprintf vsprintf endl initializer_list unique_ptr`;
-
-
-let keyword, built_in;
+        vfprintf vprintf vsprintf endl initializer_list unique_ptr
+    `);
 
 
 class CPP extends Hicode {
@@ -105,20 +104,6 @@ class CPP extends Hicode {
         ]);
     }
 }
-
-
-(function init() {
-    keyword = new RegExp(
-        '^(' +
-        _keyword.trim().split( /\s+/ ).join( '|' ) +
-        ')\\b'
-    );
-    built_in = new RegExp(
-        '^(' +
-        _built_in.trim().split( /\s+/ ).join( '|' ) +
-        ')\\b'
-    );
-})();
 
 
 export { CPP };

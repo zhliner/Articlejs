@@ -12,12 +12,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, htmlEscape } from "../base.js";
+import { Hicode, RE, htmlEscape, reWords } from "../base.js";
 
 
 const
     // 标签名
-    _xmltag = `
+    xmltag = reWords(`
         a abbr address area article aside audio
         b base bdi bdo blockquote body br button
         canvas caption cite code col colgroup
@@ -38,10 +38,11 @@ const
         table tbody td template textarea tfoot th thead time title tr track
         u ul
         var vide
-        wbr`,
+        wbr
+    `),
 
     // 属性名
-    _attribute = `
+    attribute = reWords(`
         align-content
         align-items
         align-self
@@ -244,10 +245,8 @@ const
         word-break
         word-spacing
         word-wrap
-        z-inde`;
-
-
-let xmltag, attribute;
+        z-inde
+    `);
 
 
 class CSS extends Hicode {
@@ -313,20 +312,6 @@ class CSS extends Hicode {
         ]);
     }
 }
-
-
-(function init() {
-    xmltag = new RegExp(
-        '^(' +
-        _xmltag.trim().split( /\s+/ ).join( '|' ) +
-        ')\\b'
-    );
-    attribute = new RegExp(
-        '^(' +
-        _attribute.trim().split( /\s+/ ).join( '|' ) +
-        ')\\b'
-    );
-})();
 
 
 export { CSS };
