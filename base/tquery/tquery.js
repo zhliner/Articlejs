@@ -1276,10 +1276,11 @@ Object.assign( tQuery, {
      * - 传递 comment 为真表示包含注释节点。
      * - 可以指定仅返回目标位置的一个子节点。
      * - 位置计数不含空文本节点，支持负值从末尾算起。
+     * - idx空串表示获取内部非空纯文本节点。
      * @param  {Element} el 容器元素
      * @param  {Number|null} idx 子节点位置（从0开始），可选
      * @param  {Boolean} comment 包含注释节点，可选
-     * @return {[Node]|Node|undefined}
+     * @return {[Node]|Node}
      */
     contents( el, idx, comment ) {
         let _proc = comment ?
@@ -1287,8 +1288,11 @@ Object.assign( tQuery, {
                 masterNode,
             _nds = Arr(el.childNodes).filter(_proc);
 
-        // 兼容字符串数字，但空串不为0。
-        return idx ? indexItem(_nds, +idx) : (idx === 0 ? _nds[0] : _nds);
+        if ( idx || idx === 0 ) {
+            // 兼容字符串数字
+            return indexItem( _nds, +idx );
+        }
+        return idx === '' ? _nds.filter( nd => nd.nodeType === 3 ) : _nds;
     },
 
 
