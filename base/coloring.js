@@ -42,7 +42,7 @@ const
         'literal':      'lit',  // 字面值（如 true, iota）
         'number':       'num',  // 数值
         'function':     'fn',   // 函数名
-        'operator':     'op',   // 运算符
+        'operator':     'op',   // 运算&操作符
         'datatype':     'dt',   // 数据类型
         'xmltag':       'tag',  // 标签名
         'attribute':    'atn',  // 属性名（attribute-name）

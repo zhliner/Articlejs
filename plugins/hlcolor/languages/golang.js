@@ -111,6 +111,7 @@ class Go extends Hicode {
                 begin:  RE.OPERATOR,
                 handle: htmlEscape,
             },
+
         ]);
     }
 }

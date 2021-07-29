@@ -21,7 +21,7 @@ const
         a abbr address area article aside audio
         b base bdi bdo blockquote body br button
         canvas caption cite code col colgroup
-        data datalist dd del details dfn div dl dt
+        datalist dd del details dfn div dl dt
         em embed
         fieldset figcaption figure footer form
         h1 h2 h3 h4 h5 h6 head header hgroup hr html
@@ -39,7 +39,10 @@ const
         u ul
         var vide
         wbr
-    `),
+    `,
+    // 不跟随短横线（-）。如 pre-wrap 非标签
+    '(?!-)\\b' ),
+
 
     // 属性名
     attribute = reWords(`
@@ -57,7 +60,6 @@ const
         animation-timing-function
         auto
         backface-visibility
-        background
         background-attachment
         background-clip
         background-color
@@ -66,39 +68,40 @@ const
         background-position
         background-repeat
         background-size
-        border
-        border-bottom
+        background
         border-bottom-color
         border-bottom-left-radius
         border-bottom-right-radius
         border-bottom-style
         border-bottom-width
+        border-bottom
         border-collapse
         border-color
-        border-image
         border-image-outset
         border-image-repeat
         border-image-slice
         border-image-source
         border-image-width
-        border-left
+        border-image
         border-left-color
         border-left-style
         border-left-width
+        border-left
         border-radius
-        border-right
         border-right-color
         border-right-style
         border-right-width
+        border-right
         border-spacing
         border-style
-        border-top
         border-top-color
         border-top-left-radius
         border-top-right-radius
         border-top-style
         border-top-width
+        border-top
         border-width
+        border
         bottom
         box-decoration-break
         box-shadow
@@ -114,10 +117,10 @@ const
         column-count
         column-fill
         column-gap
-        column-rule
         column-rule-color
         column-rule-style
         column-rule-width
+        column-rule
         column-span
         column-width
         columns
@@ -129,26 +132,42 @@ const
         display
         empty-cells
         filter
-        flex
         flex-basis
         flex-direction
         flex-flow
         flex-grow
         flex-shrink
         flex-wrap
+        flex
         float
-        font
         font-family
         font-feature-settings
         font-kerning
         font-language-override
-        font-size
         font-size-adjust
+        font-size
         font-stretch
         font-style
-        font-variant
         font-variant-ligatures
+        font-variant
         font-weight
+        font
+        gap
+        grid-area
+        grid-auto-columns
+        grid-auto-flow
+        grid-auto-rows
+        grid-column-end
+        grid-column-start
+        grid-column
+        grid-row-end
+        grid-row-start
+        grid-row
+        grid-template-areas
+        grid-template-columns
+        grid-template-rows
+        grid-template
+        grid
         height
         hyphens
         icon
@@ -162,15 +181,15 @@ const
         left
         letter-spacing
         line-height
-        list-style
         list-style-image
         list-style-position
         list-style-type
-        margin
+        list-style
         margin-bottom
         margin-left
         margin-right
         margin-top
+        margin
         marks
         mask
         max-height
@@ -189,38 +208,39 @@ const
         opacity
         order
         orphans
-        outline
         outline-color
         outline-offset
         outline-style
         outline-width
-        overflow
+        outline
         overflow-wrap
         overflow-x
         overflow-y
-        padding
+        overflow
         padding-bottom
         padding-left
         padding-right
         padding-top
+        padding
         page-break-after
         page-break-before
         page-break-inside
-        perspective
         perspective-origin
+        perspective
         pointer-events
         position
         quotes
         resize
         right
+        row-gap
         tab-size
         table-layout
-        text-align
         text-align-last
-        text-decoration
+        text-align
         text-decoration-color
         text-decoration-line
         text-decoration-style
+        text-decoration
         text-indent
         text-overflow
         text-rendering
@@ -228,14 +248,14 @@ const
         text-transform
         text-underline-position
         top
-        transform
         transform-origin
         transform-style
-        transition
+        transform
         transition-delay
         transition-duration
         transition-property
         transition-timing-function
+        transition
         unicode-bidi
         vertical-align
         visibility
@@ -245,8 +265,15 @@ const
         word-break
         word-spacing
         word-wrap
-        z-inde
-    `);
+        z-index
+    `,
+    // 属性名后必须跟随冒号（:）
+    '(?=:)' ),
+
+
+    // 普通跳过匹配。
+    __reSkip = /^([a-zA-Z][\w-]*|\s\s+)/;
+
 
 
 class CSS extends Hicode {
@@ -279,21 +306,39 @@ class CSS extends Hicode {
             },
             {
                 type:   'unit',
-                begin:  /^(%|em|ex|ch|rem|vw|vh|vmin|vmax|cm|mm|in|pt|pc|px|deg|grad|rad|turn|s|ms|Hz|kHz|dpi|dpcm|dppx)\b/,
+                begin:  /^%|^(em|ex|ch|fr|rem|vw|vh|vmin|vmax|cm|mm|in|pt|pc|px|deg|grad|rad|turn|s|ms|Hz|kHz|dpi|dpcm|dppx)\b/,
             },
             {
                 type:   'number',
                 begin:  RE.NUMBER_C,
             },
             {
-                type:   'selector',
-                // id, class, ::pseudo, :pseudo
-                begin:  /^(#[\w-]+|\.[\w-]+|::?[\w+()"'.-]+)\b/,
+                type:   'rgba',
+                // #rrggbb, #rgb, #rrggbbaa
+                begin:  /^#(?:[0-9A-F]{3}|[0-9A-F]{6}(?:[0-9A-F]{2})?)\b/i,
             },
             {
                 type:   'selector',
-                // 属性&组合 选择器操作符
-                begin:  /^(=|~=|\|=|\^=|\$=|\*=|>|\+|~)/,
+                // id, class, ::pseudo, :pseudo
+                begin:  /^(#\w[\w-]*|\.[\w-]+|::?[\w+()"'.-]+)\b/,
+            },
+            {
+                type:   'selector',
+                // 属性选择器
+                // 提取如 [data-pbo~=fulled] 中的 data-pbo 和 ~=
+                begin:  /^\[([\w-]+)(=|~=|\|=|\^=|\$=|\*=)?(.*?\])/,
+                // 3段匹配：
+                handle: (_, $1, $2, $3) => [
+                        { text: '[' },
+                        $1,
+                        $2 && { type: 'operator', text: $2 },
+                        { text: $3 }
+                    ],
+            },
+            {
+                type:   'operator',
+                // 组合选择器操作符
+                begin:  /^(>|\+|~)/,
             },
             {
                 type:   'function',
@@ -301,15 +346,11 @@ class CSS extends Hicode {
                 begin:  /^(\w+)\((.*)\)/,
             },
             {
-                type:   'rgba',
-                // #rrggbb, #rgb, #rrggbbaa
-                begin:  /^#(?:[0-9A-F]{3}|[0-9A-F]{6}(?:[0-9A-F]{2})?)$/i,
-            },
-            {
                 type:   'important',
                 begin:  /^(!important|@\w[\w-]*)\b/,
-            }
-        ]);
+            },
+
+        ], __reSkip );
     }
 }
 

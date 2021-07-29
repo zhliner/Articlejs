@@ -37,13 +37,26 @@
 //      0   数据起始标识（如块注释的 /*）
 //      1   数据结尾标识（如块注释的 */）
 //  ]
+//
+//
 //  进阶处理器：
+//  进一步检查&处理匹配的文本，如果不合法应当返回false，让当前轮匹配测试继续。
+//  这可以弥补复杂情况下单纯正则表达式无法应对的情况（如 JS 里正则封装与除法符相同）。
 //  - begin (无end)
-//    function( ...beg:String ): Object3|Hicolor|[...]
+//    function( ...beg:String ): String|Hicolor|Object3|[...]
 //    参数：匹配结果序列
 //  - begin, end
-//    function( beg:[String], text:String, end:[String] ): Object3|Hicolor|[...]
+//    function( beg:[String], text:String, end:[String] ): String|Hicolor|Object3|[...]
 //    参数：起始匹配集, 中间段文本, 结束匹配集
+//
+//  返回值：
+//  - String    转义处理后的匹配串源码。
+//  - Hicolor   子语法块的高亮处理器。
+//  - Object3   单个配置对象（{type, text, block}）。
+//    混合数组成员：
+//  - [String]      目标类型的文本串。
+//  - [Object3]     配置对象集。注：可能内部也需要进一步解析，如：CSS: [data-pbo~=fulled]
+//  - [Hicolor]     也可以是子语法块高亮处理器。
 //
 //
 //  解析结果
@@ -76,6 +89,12 @@
 
 
 const
+    $ = window.$,
+
+    // 忽略匹配式
+    // 用户匹配式之外的普通文本简单跳过，避免局部匹配。
+    __reIgnore = /^(\w+|\s\s+)/,
+
     // HTML转义字符。
     __escapeMap = {
         '<':    '&lt;',
@@ -96,8 +115,9 @@ class Hicode {
     /**
      * Object5说明见页顶。
      * @param {[Object5]} matches 匹配器集
+     * @param {RegExp|[RegExp]} skip 简单跳过匹配式（集）
      */
-    constructor( matches ) {
+    constructor( matches, skip = __reIgnore ) {
         // 避免/gy标记
         for ( const {begin, end} of matches ) {
             let _err = this._check(begin) || this._check(end);
@@ -105,7 +125,7 @@ class Hicode {
                 throw new Error( `[${_err}] global or sticky flag cannot be set.` );
             }
         }
-        this._rexs = matches;
+        this._rexs = matches.concat( this._skipObj(skip) );
     }
 
 
@@ -189,20 +209,20 @@ class Hicode {
      * [1]  已封装的文本长度（告诉上级跳过量）。
      * @param  {String} ss 目标子串
      * @param  {[RegExp]} res 匹配式集合
-     * @return {[Object3|[Object3]|Hicolor, Number]|null}
+     * @return {[Object3|Hicolor|[Object3|Hicolor], Number]|null}
      */
     _parseOne( ss, res ) {
         for ( let {type, begin, end, handle, block} of res ) {
-            let _beg = begin.exec( ss );
+            let _beg = begin.exec( ss ),
+                _sure;
 
             // 仅从开头匹配，容错不规范正则式。
-            if ( !_beg || _beg.index > 0 ) {
-                continue;
+            if ( _beg && _beg.index === 0 ) {
+                _sure = end ?
+                    this._range( _beg.slice(), ss.substring(_beg[0].length), end, type, handle, block ) :
+                    this._alone( _beg, type, handle, block );
             }
-            if ( end ) {
-                return this._range( _beg.slice(), ss.substring(_beg[0].length), end, type, handle, block );
-            }
-            return this._alone( _beg, type, handle, block );
+            if ( _sure ) return _sure;
         }
         return null;
     }
@@ -216,22 +236,19 @@ class Hicode {
      * @param  {String} ss 待处理截取串
      * @param  {RegExp} rend 终止匹配式
      * @param  {String} type 类型名
-     * @param  {Function} handle 进阶处理器
+     * @param  {Function} handle 进阶处理器，可选
      * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {[Object3|[Object3]|Hicolor, Number]}
+     * @return {[Object3|[Object3]|Hicolor, Number]|false}
      */
     _range( beg, ss, rend, type, handle, pair ) {
         let [text, end] = this._text( ss, rend ),
-            _obj = {
-                type,
-                text: handle ? handle(beg, text, end) : text
-            },
-            _len = end ? end[0].length : 0;
+            _txt = handle && handle( beg, text, end );
 
-        if ( pair ) {
-            _obj.block = pair;
-        }
-        return [ _obj, beg[0].length + text.length + _len ];
+        return _txt !== false &&
+        [
+            this._custom( _txt, type, text, pair ),
+            beg[0].length + text.length + (end ? end[0].length : 0)
+        ];
     }
 
 
@@ -240,19 +257,18 @@ class Hicode {
      * 处理器实参为匹配集序列。
      * @param  {String} beg 起始匹配集
      * @param  {String} type 类型名
-     * @param  {Function} handle 进阶处理器
+     * @param  {Function} handle 进阶处理器，可选
      * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {[Object3|[Object3]|Hicolor, Number]}
+     * @return {[Object3|[Object3]|Hicolor, Number]|false}
      */
     _alone( beg, type, handle, pair ) {
-        let _obj = {
-            type,
-            text: handle ? handle(...beg) : beg[0]
-        };
-        if ( pair ) {
-            _obj.block = pair;
-        }
-        return [ _obj, beg[0].length ];
+        let _txt = handle && handle( ...beg );
+
+        return _txt !== false &&
+        [
+            this._custom( _txt, type, beg[0], pair ),
+            beg[0].length
+        ];
     }
 
 
@@ -309,6 +325,58 @@ class Hicode {
     _check( re ) {
         return re && (re.global || re.sticky) && re;
     }
+
+
+    /**
+     * 跳过匹配式对象构建。
+     * @param  {RegExp|[RegExp]} res 匹配式（集）
+     * @return {Object5|[Object5]}
+     */
+    _skipObj( res ) {
+        if ( $.isArray(res) ) {
+            return res.map( re => ({ begin: re }) );
+        }
+        return { begin: res };
+    }
+
+
+    /**
+     * 定制处理结果判断构造。
+     * @param  {String|[String]|Hicolor} result 定制处理返回值
+     * @param  {String} type 类型名
+     * @param  {String} text 原匹配文本
+     * @param  {[String]} block 块数据标识符对，可选
+     * @return {Object3|Hicolor|[Object3|Hicolor]}
+     */
+    _custom( result, type, text, block ) {
+        // 未处理
+        if ( result === undefined ) {
+            return { type, text, block };
+        }
+        if ( $.isArray(result) ) {
+            return this._obj3s( result, type, block );
+        }
+        // 源码或子语法块（Hicolor）或 Object3
+        return typeof result === 'string' ? { type, text: result, block } : result;
+    }
+
+
+    /**
+     * 数值返回集处理。
+     * 如果成员为字符串，表示其为匹配目标类型的文本。
+     * 否则应当是一个 Object3 对象（包含 type 定义）。
+     * 会滤除值为 null|undefined 的成员。
+     * @param  {[String]} vals 三段文本集
+     * @param  {String} type 目标类型名
+     * @param  {[String]} block 块数据标识符对
+     * @return {[Object3]}
+     */
+    _obj3s( vals, type, block ) {
+        return $.map(
+            vals,
+            it => typeof it === 'string' ? { type, text: it, block } : it
+        );
+    }
 }
 
 
@@ -322,15 +390,14 @@ const RE = {
     // 行注释 //
     COMMENTS:   /^\/\/.*$/m,
     // 块注释 /**/
-    COMMENT_B:  /^\/\*[^]*\*\//,
-    // 偶数\\合法
+    COMMENT_B:  /^\/\*[^]*?\*\//,
+    // 双引号包围
+    // 偶数 \\ 可正确匹配。
     STRING:     /^"(?:(?:\\\\)*|.*?(?:[^\\](?:\\\\)+|[^\\]))"/,
     // 原生字符串（撇号）
-    STRING_RAW: /^`[^]*`/,
+    STRING_RAW: /^`[^]*?`/,
     // 单引号包围
     STRING_1:   /^'(?:(?:\\\\)*|.*?(?:[^\\](?:\\\\)+|[^\\]))'/,
-    // 正则表达式（JS）
-    REGEX:      /^\/[^/].*\/[gimsuy]*/,
     // 简单数字
     NUMBER:     /^(-?\d+(?:\.\d+)?)\b/,
     // 复杂数字 0x..., 0..., decimal, float
@@ -365,11 +432,12 @@ function htmlEscape( txt ) {
  * 返回值：
  * 仅匹配单个词，且从头部开始。
  * @param  {String} str 词序列（空白分隔）
+ * @param  {String} fix 后端修饰/隔离符，可选
  * @return {RegExp} 单词匹配式
  */
-function reWords( str ) {
+function reWords( str, fix = '\\b' ) {
     return new RegExp(
-        '^(' + str.trim().split( /\s+/ ).join( '|' ) + ')\\b'
+        '^(' + str.trim().split( /\s+/ ).join( '|' ) + ')' + fix
     );
 }
 
@@ -380,3 +448,7 @@ function reWords( str ) {
 
 
 export { Hicode, RE, htmlEscape, reWords };
+
+
+// debug
+window.RE = RE;

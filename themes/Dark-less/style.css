@@ -135,7 +135,8 @@ aside#help {
 .___Content main img:empty::after,
 .___Content main meter:empty::after,
 .___Content main span[role=space]:empty::after,
-.___Content main div[role=blank]:empty::after {
+.___Content main div[role=blank]:empty::after,
+.___Content main li>code:empty::after {
     content: none;
 }
 /* 扩展方便点选 */

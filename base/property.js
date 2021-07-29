@@ -520,7 +520,7 @@ function dataCode( el, lang ) {
         return [];
     }
     if ( lang === '' ) {
-        [ null, $.Text( _code ) ];
+        return [ null, $.Text( _code ) ];
     }
     let _html = blockColorHTML(
             highLight( [_code], lang )

@@ -737,10 +737,10 @@ div[role=blank] > * {
  * ------------------------------------
  */
 .content ol[role=codelist] {
-    font-size: 12px;
+    font-size: 9pt;
     padding: 1px;
     background-color: #39898e;
-    padding-left: 60px;
+    padding-left: 4.3em;
     color: #c8e4e4;
     border-radius: 5px;
     overflow-x: auto;
@@ -748,7 +748,7 @@ div[role=blank] > * {
 }
 .content ol[role=codelist] li {
     padding: 1px 6px;
-    background-color: #fffbeb;
+    background-color: #fffcf0;
     border-bottom: 1px #eee dashed;
     border-top-right-radius: inherit;
     line-height: 150%;
@@ -763,120 +763,6 @@ div[role=blank] > * {
     color: #000;
     background-color: transparent;
     border-width: 0;
-}
-
-
-/* 高亮着色：通用
- ****************************************************************************/
-
-code > b {
-    font-weight: normal;
-}
-/* string */
-code > s {
-    text-decoration-line: none;
-    color: #03c;
-}
-/* comments */
-code > i {
-    font-style: normal;
-    color: #909090;
-}
-
-/* keywords */
-code > b[role=kw] {
-    color: #9c1d1d;
-    font-weight: bold;
-}
-
-/* literal */
-code > b[role=lit] {
-    color: #a70fce;
-}
-
-/* number */
-code > b[role=num] {
-    color: #6c1b80;
-}
-
-/* function-name */
-code > b[role=fn] {
-    color: #33beff;
-}
-
-/* operator */
-code > b[role=op] {
-    color: #f12828;
-}
-
-/* data-type */
-code > b[role=dt] {
-    color: #23ad00;
-}
-
-/* tag-name */
-code > b[role=tag] {
-    color: #d03;
-    font-weight: bold;
-}
-
-/* attribute-name */
-code > b[role=atn] {
-    color: #090;
-}
-
-/* RegExp */
-code > b[role=re] {
-    color: #e60;
-}
-
-/* selector: id|class|:pseudo */
-code > b[role=slr] {
-    color: #d65600;
-}
-
-/* 颜色值 */
-code > b[role=rgb] {
-    color: #e60;
-}
-
-/* CSS单位 */
-code > b[role=un] {
-    color: #b10099;
-}
-
-/* css: !important
- * cpp: #include...
- * shell: #!/bin/bash
- * js: $
- */
-code > b[role=imp] {
-    color: #bf5200;
-    font-weight: bold;
-}
-
-/* <!DOCTYPE ...> */
-code > b[role=doc] {
-    color: #bb5;
-}
-
-/* error|warn */
-code > b[role=err] {
-    color: #c00;
-}
-
-/* 未定义占位 */
-code > b[role=non] {
-    color: #774968;
-}
-
-
-/* 高亮覆盖
- * ------------------------------------
- */
-code[data-lang="css"] b[role=tag] {
-    color: #f0b;
-    font-weight: normal;
 }
 
 

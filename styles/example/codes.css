@@ -1,0 +1,124 @@
+/*! codes.css 2021.07.29 Articlejs.Style $
+ +++++++++++++++++++++++++++++++++++++++++++
+ *
+ *  代码着色专项样式。
+ *  可用于其它内容风格中导入不同的代码样式。
+ *
+ *  @name   Example
+ *  @author 风林 zhliner@gmail.com
+ *
+ *****************************************************************************/
+
+
+code > b {
+    font-weight: normal;
+}
+/* string */
+code > s {
+    text-decoration-line: none;
+    color: #05c;
+}
+/* comments */
+code > i {
+    font-style: normal;
+    color: #909090;
+}
+
+/* keywords */
+code > b[role=kw] {
+    color: #9c1d1d;
+    font-weight: bold;
+}
+
+/* literal */
+code > b[role=lit] {
+    color: #a70fce;
+}
+
+/* number */
+code > b[role=num] {
+    color: #6c1b80;
+}
+
+/* function-name */
+code > b[role=fn] {
+    color: #33beff;
+}
+
+/* operator */
+code > b[role=op] {
+    color: #f0e;
+}
+
+/* data-type */
+code > b[role=dt] {
+    color: #23ad00;
+}
+
+/* tag-name */
+code > b[role=tag] {
+    color: #d03;
+    font-weight: bold;
+}
+
+/* attribute-name */
+code > b[role=atn] {
+    color: #005fcc;
+}
+
+/* RegExp */
+code > b[role=re] {
+    color: #e60;
+}
+
+/* selector: id|class|:pseudo */
+code > b[role=slr] {
+    color: #0b8e15;
+}
+
+/* 颜色值 */
+code > b[role=rgb] {
+    color: #b46021;
+}
+
+/* CSS单位 */
+code > b[role=un] {
+    color: #177782;
+}
+
+/* css: !important
+ * cpp: #include...
+ * shell: #!/bin/bash
+ * js: $
+ */
+code > b[role=imp] {
+    color: #bf5200;
+    font-weight: bold;
+}
+
+/* <!DOCTYPE ...> */
+code > b[role=doc] {
+    color: #bb5;
+}
+
+/* error|warn */
+code > b[role=err] {
+    color: #c00;
+}
+
+/* 未定义占位 */
+code > b[role=non] {
+    color: #774968;
+}
+
+
+/* 高亮覆盖
+ ****************************************************************************/
+
+[data-lang=css] s {
+    color: #00aed1;
+}
+
+[data-lang=css] b[role=tag] {
+    font-weight: normal;
+}
