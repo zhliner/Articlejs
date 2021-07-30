@@ -39,8 +39,8 @@ const __langMap = {
     javascript: JavaScript,
     js:         JavaScript,
     css:        CSS,
-    c:          CPP,
     cpp:        CPP,
+    c:          CPP,
     cplus:      CPP,
 };
 

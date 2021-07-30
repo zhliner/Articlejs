@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, htmlEscape, reWords } from "../base.js";
+import { Hicode, RE, htmlEscape, reWords, stringEscape } from "../base.js";
 
 
 const
@@ -79,7 +79,7 @@ class CPP extends Hicode {
             {
                 type:   'string',
                 begin:  RE.STRING,
-                handle: htmlEscape,
+                handle: stringEscape,
             },
             {
                 // 原生字符串

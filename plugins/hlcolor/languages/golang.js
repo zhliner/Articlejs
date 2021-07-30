@@ -19,7 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, htmlEscape} from "../base.js";
+import { Hicode, RE, htmlEscape, stringEscape} from "../base.js";
 
 
 const
@@ -79,7 +79,7 @@ class Go extends Hicode {
             {
                 type:   'string',
                 begin:  RE.STRING,
-                handle: htmlEscape,
+                handle: stringEscape,
             },
             {
                 type:   'string',

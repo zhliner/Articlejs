@@ -12,7 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, htmlEscape, reWords } from "../base.js";
+import { Hicode, RE, htmlEscape, reWords, stringEscape } from "../base.js";
+import { Hicolor } from "../main.js";
 
 
 const
@@ -47,8 +48,9 @@ class JavaScript extends Hicode {
             },
             {
                 type:   'keyword',
-                // class extends
-                begin:  /^/,
+                // class, extends
+                begin:  /^(class)(?:\s+(extends))?(?=\s*\{)/,
+                handle: (_, $1, $2) => [ $1, $2 ],
             },
             {
                 type:   'literal',
@@ -77,19 +79,19 @@ class JavaScript extends Hicode {
             {
                 type:   'string',
                 begin:  RE.STRING,
-                handle: htmlEscape,
+                handle: stringEscape,
             },
             {
                 type:   'string',
                 begin:  RE.STRING_1,
-                handle: htmlEscape,
+                handle: stringEscape,
             },
             {
                 // 原生字符串
                 // handle 需处理内部 ${} 结构。
                 type:   'string',
                 begin:  RE.STRING_RAW,
-                handle: null,
+                handle: substMatches,
                 block:  [ '`', '`' ]
             },
             {
@@ -99,8 +101,7 @@ class JavaScript extends Hicode {
             {
                 // 基础集缺失补充
                 type:   'operator',
-                begin:  /^(===)/,
-                handle: htmlEscape,
+                begin:  /^(===|!==)/,
             },
             {
                 type:   'operator',
@@ -109,6 +110,45 @@ class JavaScript extends Hicode {
             },
         ]);
     }
+}
+
+
+//
+// 模板字符串内嵌子表达式
+// 例：`Hello ${name} welcome!`
+//
+const __reSubst = /(\$\{)([^]+?)(\})/g;
+
+
+/**
+ * 模板字符串内嵌JS代码分离。
+ * @param  {String} ts 模板字符串
+ * @return {String|[String|Object|Hicolor]}
+ */
+function substMatches( ts ) {
+    let _buf = [],
+        _arr,
+        _i = 0;
+
+    while ( (_arr = __reSubst.exec(ts)) !== null ) {
+        if ( _arr.index > 0 ) {
+            // 纯字符串适配外部type
+            _buf.push(
+                stringEscape( ts.substring(_i, _arr.index) )
+            );
+        }
+        _buf.push(
+            { type: 'operator', text: _arr[1] },
+            new Hicolor( 'javascript', _arr[2] ),
+            { type: 'operator', text: _arr[3] }
+        );
+        _i = __reSubst.lastIndex;
+    }
+    if ( _i > 0 ) {
+        _buf.push( stringEscape( ts.substring(_i) ) );
+    }
+
+    return _buf.length ? _buf : stringEscape( ts );
 }
 
 

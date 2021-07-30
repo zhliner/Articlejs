@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE } from "../base.js";
+import { Hicode, RE, htmlEscape, stringEscape } from "../base.js";
 
 
 class Normal extends Hicode {
@@ -25,18 +25,22 @@ class Normal extends Hicode {
             {
                 type:   'comments',
                 begin:  RE.COMMENTS,
+                handle: htmlEscape,
             },
             {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
+                handle: htmlEscape,
                 block:  ['/*', '*/']
             },
             {
                 type:   'string',
                 begin:  RE.STRING,
+                handle: stringEscape,
             },
         ]);
     }
 }
+
 
 export { Normal };

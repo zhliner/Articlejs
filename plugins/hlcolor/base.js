@@ -50,12 +50,13 @@
 //    参数：起始匹配集, 中间段文本, 结束匹配集
 //
 //  返回值：
-//  - String    转义处理后的匹配串源码。
-//  - Hicolor   子语法块的高亮处理器。
-//  - Object3   单个配置对象（{type, text, block}）。
+//  - String        匹配目标类型（type）的文本。应已转义。
+//  - Hicolor       子语法块的高亮处理器。
+//  - Object3       单个配置对象（{type, text, block}）。
 //    混合数组成员：
-//  - [String]      目标类型的文本串。
-//  - [Object3]     配置对象集。注：可能内部也需要进一步解析，如：CSS: [data-pbo~=fulled]
+//  - [String]      匹配目标类型（type）的文本串，type已知。
+//  - [Object3]     既成的配置对象集。需要包含自身的type名称。
+//                  参考：/languages/css.js 属性选择器实现（[data-pbo~=fulled]）。
 //  - [Hicolor]     也可以是子语法块高亮处理器。
 //
 //
@@ -94,6 +95,9 @@ const
     // 忽略匹配式
     // 用户匹配式之外的普通文本简单跳过，避免局部匹配。
     __reIgnore = /^(\w+|\s\s+)/,
+
+    // 字符串转义序列（基础）
+    __escStr = /\\(?:0|a|b|f|n|r|t|v|'|"|\\|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/g,
 
     // HTML转义字符。
     __escapeMap = {
@@ -442,13 +446,55 @@ function reWords( str, fix = '\\b' ) {
 }
 
 
+/**
+ * 字符串转义序列封装。
+ * 实现基本的转义序列标记（操作符：operator）。
+ * 参见 __escStr 定义。
+ * \0       空字符
+ * \a       响铃
+ * \b       退格
+ * \f       换页
+ * \n       换行
+ * \r       回车
+ * \t       制表符
+ * \v       垂直制表符
+ * \'       单引号
+ * \"       双引号
+ * \\       反斜杠
+ * \xhh     十六进制的 Latin-1
+ * \uXXXX   十六进制的 Unicode 码点
+ * 注：
+ * 结果中的字符串部分已经进行了HTML转义。
+ * @param  {String} str 目标字符串
+ * @return {String|[String|Object]}
+ */
+function stringEscape( str ) {
+    let _buf = [],
+        _arr,
+        _i = 0;
+
+    while ( (_arr = __escStr.exec(str)) !== null ) {
+        if ( _arr.index > 0 ) {
+            _buf.push(
+                htmlEscape( str.substring(_i, _arr.index) )
+            );
+        }
+        _buf.push(
+            { type: 'operator', text: _arr[0] }
+        );
+        _i = __escStr.lastIndex;
+    }
+    if ( _i > 0 ) {
+        _buf.push( htmlEscape( str.substring(_i) ) );
+    }
+
+    return _buf.length ? _buf : htmlEscape( str );
+}
+
+
 //
 // 导出（内部接口）
 //////////////////////////////////////////////////////////////////////////////
 
 
-export { Hicode, RE, htmlEscape, reWords };
-
-
-// debug
-window.RE = RE;
+export { Hicode, RE, htmlEscape, reWords, stringEscape };
