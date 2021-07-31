@@ -237,7 +237,7 @@ class Hicode {
      * - 如果有进阶处理，传递3个实参：起始匹配集, 中间截取串, 结束匹配集。
      * - 如果没有进阶处理，取值文本为中间截取串。
      * @param  {[String]} beg 起始匹配集
-     * @param  {String} ss 待处理截取串
+     * @param  {String} ss 待处理截取串（起始匹配之后）
      * @param  {RegExp} rend 终止匹配式
      * @param  {String} type 类型名
      * @param  {Function} handle 进阶处理器，可选
@@ -278,7 +278,7 @@ class Hicode {
 
     /**
      * 文本截取。
-     * 无终点匹配时子串为目标串本身。
+     * 结束匹配式没有匹配时，子串即为目标串本身。
      * @param  {String} str 目标串
      * @param  {RegExp} end 终止匹配式
      * @return {[String, [String]|null]} 截取串和匹配集
@@ -340,7 +340,7 @@ class Hicode {
         if ( $.isArray(res) ) {
             return res.map( re => ({ begin: re }) );
         }
-        return { begin: res };
+        return res ? { begin: res } : [];
     }
 
 

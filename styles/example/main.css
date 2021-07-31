@@ -217,14 +217,14 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     border-radius: 4px;
     font-size: 10pt;
     box-shadow: 1px 1px 4px #bbb;
-    min-width: 18em;
+    min-width: 19em;
 }
 
 /* 页面固定 */
 .content nav[role=toc] {
     position: fixed;
-    top: 5px;
-    left: 24px;
+    top: 0.5em;
+    left: 1em;
     box-sizing: border-box;
     height: 98%;
     cursor: default;

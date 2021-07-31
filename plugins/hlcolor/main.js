@@ -6,13 +6,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  语言名称:实现映射配置
-//
+//  语言支持配置。
 //  多个名称（别名）可映射到同一类名。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
+
+import { Hicode } from "./base.js";
 
 //
 // 支持的语言清单。
@@ -66,13 +67,18 @@ function languageClass( lang ) {
 //
 class Hicolor {
     /**
-     * @param {String} lang 语言名
      * @param {String} text 待解析文本
+     * @param {String|Hicode} lang 语言名或解析器实例
      */
-    constructor( lang, text ) {
+    constructor( text, lang ) {
         this._code = text;
-        this._lang = lang;
-        this._inst = lang && new ( languageClass(lang) )();
+
+        if ( lang instanceof Hicode ) {
+            this._inst = lang;
+        } else {
+            this._inst = new ( languageClass(lang) )();
+            this._lang = lang;
+        }
     }
 
 

@@ -35,9 +35,9 @@ const
         q
         rp rt ruby
         s samp script section select small source span strong style sub summary sup
-        table tbody td template textarea tfoot th thead time title tr track
+        table tbody td textarea tfoot th thead time title tr track
         u ul
-        var vide
+        var video
         wbr
     `,
     // 不跟随短横线（-）。如 pre-wrap 非标签

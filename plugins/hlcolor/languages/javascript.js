@@ -49,8 +49,8 @@ class JavaScript extends Hicode {
             {
                 type:   'keyword',
                 // class, extends
-                begin:  /^(class)(?:\s+(extends))?(?=\s*\{)/,
-                handle: (_, $1, $2) => [ $1, $2 ],
+                begin:  /^(class)(?:(\s+)(extends))?(?=\s*\{)/,
+                handle: (_, $1, $2, $3) => [ $1, {text: $2}, $3 ],
             },
             {
                 type:   'literal',
