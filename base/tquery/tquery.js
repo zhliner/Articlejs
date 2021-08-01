@@ -4652,21 +4652,45 @@ class Spliter {
 
     /**
      * 序列切分。
-     * 可以限制切分的最大次数，如：1次两片，2次3片。
+     * 可以限制切分的最多片数。
      * @param  {String} fmt 字符序列
-     * @param  {Number} cnt 切分的最大计数，可选
+     * @param  {Number} cnt 切分的最多片数，可选
      * @return {Iterator} 切分迭代器
      */
-    *split( fmt, cnt = -1 ) {
+    *split( fmt, cnt = Infinity ) {
+        if ( cnt === 0 ) {
+            return [];
+        }
         let _ss = '',
             _ew = fmt.endsWith(this._sep);
 
-        while ( fmt && cnt-- ) {
+        while ( fmt && --cnt ) {
             [_ss, fmt] = this._pair(fmt, this._sep);
             yield _ss;
         }
         // 末端分隔符切出空串。
         if ( fmt || _ew ) yield fmt;
+    }
+
+
+    /**
+     * 查找目标字符的位置。
+     * 如果目标字符在引号内，会被简单忽略。
+     * 注：仅限于单个字符。
+     * @param  {String} fmt 目标串
+     * @param  {String} ch  待检查字符
+     * @return {Number} 下标位置
+     */
+    index( fmt, ch ) {
+        let _i = 0;
+
+        for ( const _ch of fmt ) {
+            if ( !this._inside(_ch) && _ch === ch ) {
+                break;
+            }
+            _i += ch.length;
+        }
+        return _i;
     }
 
 
@@ -4688,15 +4712,8 @@ class Spliter {
      * @return {[String, String]} 前段和后段
      */
     _pair( fmt, sep ) {
-        let _len = 0;
-
-        for ( let ch of fmt ) {
-            if ( !this._inside(ch) && ch == sep ) {
-                break;
-            }
-            _len += ch.length;
-        }
-        return [ fmt.substring(0, _len), fmt.substring(_len+sep.length) ];
+        let _i = this.index( fmt, sep );
+        return [ fmt.substring(0, _i), fmt.substring(_i+sep.length) ];
     }
 
 
@@ -4747,6 +4764,13 @@ class Spliter {
 // 并列选择器切分器。
 //
 const spliter = new Spliter(',');
+
+
+//
+// 导出作为基本工具。
+// 注意仅支持字符串内目标回避。
+//
+tQuery.Spliter = Spliter;
 
 
 /**
@@ -8452,15 +8476,22 @@ Object.assign( tQuery, {
      * 字符串切分。
      * 支持4子节Unicode字符的空串切分。
      * 如果传递切分数量（结果集大小），多出的部分会被丢弃。
-     * 修订String.split()切分空串的行为。
+     * 如果切分字符为单个字符，支持字符串格式内排除。
+     * 注记：
+     * 空串切分时，修复了String.split()原生方法处理4字节Unicode的问题。
      * @param  {String} str 目标字符串
      * @param  {String|RegExp} sep 切分字符串或模式
      * @param  {Number} cnt 切分数量上限，可选
+     * @param  {Boolean} qs 忽略字符串格式（由 '"` 包围）内的目标字符
      * @return {[String]}
      */
-    split( str, sep, cnt ) {
-        return sep === '' ?
-            str.split( /(?:)/u, cnt ) : str.split( sep, cnt );
+    split( str, sep, cnt, qs ) {
+        if ( !qs ) {
+            return sep === '' ? str.split( /(?:)/u, cnt ) : str.split( sep, cnt );
+        }
+        let _op = new Spliter( sep );
+
+        return [ ..._op.split(str, cnt) ];
     },
 
 
