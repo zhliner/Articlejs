@@ -192,7 +192,7 @@ function tagHandle( beg, txt, end ) {
     return [
         { text: '<' },
         beg[1],
-        new Hicolor( txt, new Attr() ),
+        txt && new Hicolor( txt, new Attr() ) || null,
         { text: end[0] }
     ];
 }
@@ -235,7 +235,8 @@ function langHandle( beg, txt, end, lang ) {
 
     return tagHandle( beg, tac, tend )
         .concat([
-            new Hicolor( _code, lang ),
+            // 可能不含内容
+            _code.trim() ? new Hicolor( _code, lang ) : (_code.length ? {text: _code} : null),
             // 结束标签
             { text: end[1] }, end[2], { text: end[3] }
         ]);
