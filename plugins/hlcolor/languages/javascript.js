@@ -139,7 +139,7 @@ function substMatches( ts ) {
         }
         _buf.push(
             { type: 'operator', text: _arr[1] },
-            new Hicolor( 'javascript', _arr[2] ),
+            new Hicolor( 'js', _arr[2] ),
             { type: 'operator', text: _arr[3] }
         );
         _i = __reSubst.lastIndex;

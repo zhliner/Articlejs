@@ -19,20 +19,26 @@
 //  配置对象
 //  --------
 //  Object5 {
-//      type:   {String} 类型名，约定俗成的规范名，可选
-//      begin:  {RegExp} 起始匹配式
-//      end:    {RegExp} 结束匹配式，可选
-//      handle: {Function} 匹配结果进阶处理器，可选
+//      type:   {String}    类型名，约定俗成的规范名，可选
+//      begin:  {RegExp}    起始匹配式
+//      end:    {Function}  匹配结束检测器，可选
+//      handle: {Function}  匹配结果进阶处理器，可选
 //      block:  [String, String] 块数据边界标识对，辅助代码表中行的标注，可选
 //  }
 //  .type:
 //      语法类型名。如：keyword, string, operator ...
 //      如果是匹配一个内部子语法块，type即为可选。
 //  .begin
-//      起始匹配。独立词汇本身或块数据的起始位置，块数据取值从匹配串之后开始。
-//      如果end缺失，即为独立词汇，取值为匹配结果本身。
+//      起始匹配。独立词汇本身或包含子域的起始匹配式，子域数据取值从匹配之后开始。
+//      如果end缺失，取值为匹配结果本身或交由进阶处理器（handle）处理。
 //  .end
-//      块数据的结束匹配。取值不含匹配串本身，若无匹配则取目标串本身。
+//      子域数据的匹配结束检测函数，接受两个实参：(后段文本, 起始匹配集)
+//      返回一个二成员数组：[子域数据段, 结束匹配集]
+//      其中：
+//      - 后段文本指起始匹配串之后的原串部分。
+//      - 子域数据段作为取值文本。如果 handle 有定义，它是传入的第二个实参。
+//      - 结束匹配集是一个字符串数组，其中首个成员为结束匹配串本身（类似exec()的结果）。
+//        它会作为 handle（如果有） 的第三个实参传入。
 //  .block: [
 //      0   数据起始标识（如块注释的 /*）
 //      1   数据结尾标识（如块注释的 */）
@@ -238,14 +244,14 @@ class Hicode {
      * - 如果没有进阶处理，取值文本为中间截取串。
      * @param  {[String]} beg 起始匹配集
      * @param  {String} ss 待处理截取串（起始匹配之后）
-     * @param  {RegExp} rend 终止匹配式
+     * @param  {Function} fend 匹配终止检测器
      * @param  {String} type 类型名
      * @param  {Function} handle 进阶处理器，可选
      * @param  {[String]} pair 块数据边界标识对，可选
      * @return {[Object3|[Object3]|Hicolor, Number]|false}
      */
-    _range( beg, ss, rend, type, handle, pair ) {
-        let [text, end] = this._text( ss, rend ),
+    _range( beg, ss, fend, type, handle, pair ) {
+        let [text, end] = fend( ss, beg ),
             _txt = handle && handle( beg, text, end );
 
         return _txt !== false &&
@@ -273,22 +279,6 @@ class Hicode {
             this._custom( _txt, type, beg[0], pair ),
             beg[0].length
         ];
-    }
-
-
-    /**
-     * 文本截取。
-     * 结束匹配式没有匹配时，子串即为目标串本身。
-     * @param  {String} str 目标串
-     * @param  {RegExp} end 终止匹配式
-     * @return {[String, [String]|null]} 截取串和匹配集
-     */
-    _text( str, end ) {
-        let _v = end.exec( str );
-        if ( !_v ) {
-            return [ str, null ];
-        }
-        return [ str.substring(0, _v.index), _v.slice() ];
     }
 
 
@@ -447,6 +437,39 @@ function reWords( str, fix = '\\b' ) {
 
 
 /**
+ * 按模式匹配切分封装。
+ * 将目标文本内的模式文本切分提取出来，标记为目标类型Object3。
+ * 返回的文本已经进行了HTML转义。
+ * 注记：
+ * 用于外部用户简单的分解目标模式文本。
+ * @param  {String} txt 目标文本
+ * @param  {RegExp} re  匹配模式
+ * @param  {String} type 模式类型名
+ * @return {String|[String|Object]}
+ */
+function regexpEscape( txt, re, type ) {
+    let _buf = [],
+        _arr,
+        _i = 0;
+
+    while ( (_arr = re.exec(txt)) !== null ) {
+        if ( _arr.index > 0 ) {
+            _buf.push(
+                htmlEscape( txt.substring(_i, _arr.index) )
+            );
+        }
+        _buf.push( {type, text: _arr[0]} );
+        _i = re.lastIndex;
+    }
+    if ( _i > 0 ) {
+        _buf.push( htmlEscape( txt.substring(_i) ) );
+    }
+
+    return _buf.length ? _buf : htmlEscape( txt );
+}
+
+
+/**
  * 字符串转义序列封装。
  * 实现基本的转义序列标记（操作符：operator）。
  * 参见 __escStr 定义。
@@ -469,26 +492,7 @@ function reWords( str, fix = '\\b' ) {
  * @return {String|[String|Object]}
  */
 function stringEscape( str ) {
-    let _buf = [],
-        _arr,
-        _i = 0;
-
-    while ( (_arr = __escStr.exec(str)) !== null ) {
-        if ( _arr.index > 0 ) {
-            _buf.push(
-                htmlEscape( str.substring(_i, _arr.index) )
-            );
-        }
-        _buf.push(
-            { type: 'operator', text: _arr[0] }
-        );
-        _i = __escStr.lastIndex;
-    }
-    if ( _i > 0 ) {
-        _buf.push( htmlEscape( str.substring(_i) ) );
-    }
-
-    return _buf.length ? _buf : htmlEscape( str );
+    return regexpEscape( str, __escStr, 'operator' );
 }
 
 
@@ -497,4 +501,4 @@ function stringEscape( str ) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-export { Hicode, RE, htmlEscape, reWords, stringEscape };
+export { Hicode, RE, htmlEscape, reWords, regexpEscape, stringEscape };

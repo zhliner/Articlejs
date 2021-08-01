@@ -1588,10 +1588,11 @@ const _Process = {
      * 支持4子节Unicode字符空白切分。
      * @param  {String|RegExp} sep 分隔符，可选
      * @param  {Number} cnt 最多切分数量，可选
+     * @param  {String} qs  在字符串格式内忽略（参考 $.Spliter）
      * @return {[String]|[[String]]}
      */
-    split( evo, sep, cnt ) {
-        return mapCall( evo.data, s => $.split(s, sep, cnt) );
+    split( evo, sep, cnt, qs ) {
+        return mapCall( evo.data, s => $.split(s, sep, cnt, qs) );
     },
 
     __split: 1,
