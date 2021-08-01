@@ -4652,19 +4652,20 @@ class Spliter {
 
     /**
      * 序列切分。
-     * 可以限制切分的最多片数。
+     * 可以限制切分的最大次数。1次2片，2次3片。
+     * 零次切分会返回原始的字符串。
+     * 注意：
+     * 未完成的切分会保留原样，这与 String.split() 中的计数逻辑不同。
+     * 因为这里是返回一个迭代器而不是数组。
      * @param  {String} fmt 字符序列
-     * @param  {Number} cnt 切分的最多片数，可选
+     * @param  {Number} cnt 切分的最大次数，可选
      * @return {Iterator} 切分迭代器
      */
     *split( fmt, cnt = Infinity ) {
-        if ( cnt === 0 ) {
-            return [];
-        }
         let _ss = '',
             _ew = fmt.endsWith(this._sep);
 
-        while ( fmt && --cnt ) {
+        while ( fmt && cnt-- ) {
             [_ss, fmt] = this._pair(fmt, this._sep);
             yield _ss;
         }
@@ -8478,11 +8479,12 @@ Object.assign( tQuery, {
      * 如果传递切分数量（结果集大小），多出的部分会被丢弃。
      * 如果切分字符为单个字符，支持字符串格式内排除。
      * 注记：
-     * 空串切分时，修复了String.split()原生方法处理4字节Unicode的问题。
+     * 空串切分时，修复了 String.split() 原生方法处理4字节Unicode的问题。
+     * 计数逻辑与 String.split() 保持一致。
      * @param  {String} str 目标字符串
      * @param  {String|RegExp} sep 切分字符串或模式
      * @param  {Number} cnt 切分数量上限，可选
-     * @param  {Boolean} qs 忽略字符串格式（由 '"` 包围）内的目标字符
+     * @param  {Boolean} qs 忽略字符串格式（由 '"` 包围）内的目标字符，可选
      * @return {[String]}
      */
     split( str, sep, cnt, qs ) {
@@ -8491,7 +8493,7 @@ Object.assign( tQuery, {
         }
         let _op = new Spliter( sep );
 
-        return [ ..._op.split(str, cnt) ];
+        return [..._op.split(str, cnt)].slice( 0, cnt );
     },
 
 
