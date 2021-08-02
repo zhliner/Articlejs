@@ -43,6 +43,7 @@ const
         'number':       'num',  // 数值
         'function':     'fn',   // 函数名
         'operator':     'op',   // 运算&操作符
+        'builtin':      'bin',  // 内置
         'datatype':     'dt',   // 数据类型
         'xmltag':       'tag',  // 标签名
         'attribute':    'atn',  // 属性名（attribute-name）
@@ -137,23 +138,6 @@ function vacant( v1, v2 ) {
 
 
 /**
- * 源码集合并处理。
- * 将临时的存储集合并压入结果对象集，
- * 同时清空临时存储集。
- * @param  {[String]} txt 源码存储集
- * @param  {[Object|String]} buf 渲染结果集
- * @return {[Object|String]} buf
- */
-function htmlMerge( txt, buf ) {
-    if ( txt.length > 0 ) {
-        buf.push( txt.join('') );
-        txt.length = 0;
-    }
-    return buf;
-}
-
-
-/**
  * 代码块高亮源码构建。
  * 块数据边界符完整，简单封装即可，无需标注。
  * 注记：结果会被插入到<pre/code>内。
@@ -201,13 +185,32 @@ function htmlList( obj ) {
 
 
 /**
- * HTML源码构造（渲染）。
+ * 源码集合并处理。
+ * 将临时的存储集合并压入结果对象集，
+ * 同时清空临时存储集。
+ * @param  {[Object|String]} buf 渲染结果集
+ * @param  {[String]} txt 源码存储集
+ * @param  {String} sep   文本连接字符，可选
+ * @return {[Object|String]} buf
+ */
+function merge2Buf( buf, txt, sep = '' ) {
+    if ( txt.length > 0 ) {
+        buf.push( txt.join(sep) );
+        txt.length = 0;
+    }
+    return buf;
+}
+
+
+/**
+ * HTML高亮源码渲染。
  * 将解析结果对象中的文本进行HTML封装，如果有内嵌子块，则递进处理。
+ * 渲染的着色源码为内容，不含容器根（<code>）。
  * Object: {
  *      text, type?, block?
  * }
  * 实参 Object2: {
- *      lang: 子块语言
+ *      lang: 子块语言，可选
  *      data: 子块解析集（{[Object3|Object2]}）
  * }
  * 返回值：
@@ -229,11 +232,82 @@ function colorHTML( objs, html ) {
             _txt.push( html(o) );
             continue;
         }
-        htmlMerge( _txt, _buf );
+        merge2Buf( _buf, _txt );
         _buf.push( {lang: o.lang, data: colorHTML(o.data, html)} );
     }
 
-    return htmlMerge( _txt, _buf );
+    return merge2Buf( _buf, _txt );
+}
+
+
+/**
+ * 代码数据扁平化。
+ * 将内部没有语言定义的 Object2 提取展开到上级。
+ * 注记：
+ * 没有语言的定义的 Hicolor 可用于内部辅助，但依然属于相同的语言。
+ * @param  {[String|Object2]} data 渲染结果集
+ * @return {[String|Object2]}
+ */
+function codeFlat( data ) {
+    let _buf = [];
+
+    for ( const its of data ) {
+        if ( typeof its === 'string' ) {
+            _buf.push( its );
+            continue;
+        }
+        if ( !its.lang ) {
+            _buf.push( ...codeFlat(its.data) );
+            continue;
+        }
+        _buf.push( { lang: its.lang, data: codeFlat(its.data) } );
+    }
+    return _buf;
+}
+
+
+/**
+ * 连续文本合并。
+ * 连续的文本属于同一语言。
+ * @param  {[String|Object2]} list 渲染结果集
+ * @return {[String|Object2]}
+ */
+function stringMerge( list ) {
+    let _buf = [],
+        _txt = [];
+
+    for ( const its of list ) {
+        if ( typeof its === 'string' ) {
+            _txt.push( its );
+            continue;
+        }
+        merge2Buf( _buf, _txt ).push( its );
+    }
+
+    return merge2Buf( _buf, _txt );
+}
+
+
+/**
+ * 逐层合并渲染的代码。
+ * 每一层都可能包含连续但分开的相同语言代码块，合并之。
+ * 最终的结果是每一个String成员就是一个语言块代码，
+ * String 之后跟随 Object2，
+ * Object2 之后跟随 String。
+ * @param  {[String|Object2]} data 渲染数据集
+ * @return {[String|Object2]}
+ */
+function mergeCodes( data ) {
+    let _buf = [];
+
+    for ( const its of stringMerge(data) ) {
+        if ( typeof its === 'string' ) {
+            _buf.push( its );
+            continue;
+        }
+        _buf.push( {lang: its.lang, data: mergeCodes(its.data)} );
+    }
+    return _buf;
 }
 
 
@@ -265,7 +339,7 @@ export function listColorHTML( objs ) {
 
 
 /**
- * 汇合解析结果集并扁平化。
+ * 扁平化渲染集创建代码元素。
  * Object2: {
  *      lang: 所属语言
  *      data: 子块源码集（与data相同结构）
@@ -274,21 +348,21 @@ export function listColorHTML( objs ) {
  * 如果包含其它语言代码的子块，需要扁平化以便于HTML展示，
  * 如插入平级的<li>列表，或者<pre:codeblock>容器内（多个根<code>）。
  *
- * make: function(html, lang): [Element|HTML]
+ * make: function(html, lang): [Element]
  * @param  {[String|Object2]} data 源码解析数据
  * @param  {String} lang 所属语言
- * @param  {Function} make 每种语言代码的封装回调（<code>|html）
- * @return {[Element|String]} 封装结果集（<code>|html）
+ * @param  {Function} make 每种语言代码的封装回调（<code>）
+ * @return {[Element]} 封装结果集（<code>）
  */
-export function codeFlat( data, lang, make ) {
+export function flatMake( data, lang, make ) {
     let _buf = [];
 
-    for ( const its of data ) {
+    for ( const its of mergeCodes( codeFlat(data) ) ) {
         if ( typeof its === 'string' ) {
             _buf.push( ...make(its, lang) );
             continue;
         }
-        _buf.push( ...codeFlat(its.data, its.lang, make) );
+        _buf.push( ...flatMake(its.data, its.lang, make) );
     }
     return _buf;
 }

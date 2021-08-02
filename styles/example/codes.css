@@ -50,6 +50,11 @@ code > b[role=op] {
     color: #f0e;
 }
 
+/* built_in */
+code > b[role=bin] {
+    color: #f09;
+}
+
 /* data-type */
 code > b[role=dt] {
     color: #23ad00;
@@ -121,4 +126,8 @@ code > b[role=non] {
 
 [data-lang=css] b[role=tag] {
     font-weight: normal;
+}
+
+[data-lang=html] s {
+    color: #ca7c00;
 }

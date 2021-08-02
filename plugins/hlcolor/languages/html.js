@@ -77,7 +77,7 @@ class HTML extends Hicode {
             // 样式元素（<style>）处理
             {
                 type:   'xmltag',
-                begin:  /^<(style)\b/i,
+                begin:  /^(<)(style)\b/i,
                 end:    toEndTag,
                 handle: (beg, txt, end) => langHandle( beg, txt, end, 'css' ),
             },
@@ -85,16 +85,16 @@ class HTML extends Hicode {
             // 脚本元素（<script>）处理
             {
                 type:   'xmltag',
-                begin:  /^<(script)\b/i,
+                begin:  /^(<)(script)\b/i,
                 end:    toEndTag,
-                handle: (beg, txt, end) => langHandle( beg, txt, end, 'js' ),
+                handle: (beg, txt, end) => langHandle( beg, txt, end, 'javascript' ),
             },
 
             // 普通元素处理
             {
                 type:   'xmltag',
                 // 起始标签
-                begin:  /^<(\w[\w-]*)/,
+                begin:  /^(<)([a-zA-Z][\w.:-]*)/,
                 // 至标签结束匹配
                 end:    toTagEnd,
                 handle: tagHandle,
@@ -102,8 +102,15 @@ class HTML extends Hicode {
             {
                 type:   'xmltag',
                 // 结束标签
-                begin:  /^(<\/)(\w[\w-]*)/,
-                handle: (_, $1, $2) => [ {text: $1}, $2 ],
+                begin:  /^<\/(\w[\w.:-]*)/,
+                handle: (_, $1) => [ {text: '&lt;/'}, $1 ],
+            },
+            {
+                // 执行器，如 <!DOCTYPE
+                type:   'important',
+                begin:  /^(<!)([a-zA-Z][\w.:-]*)/,
+                end:    toTagEnd,
+                handle: tagHandle,
             },
             {
                 // <![CDATA[ ... ]]>
@@ -135,7 +142,7 @@ class Attr extends Hicode {
                 begin:  /^(style)=(["'])/i,
                 end:    styleCode,
 
-                // 此处引号视为普通文本。
+                // 引号视为普通文本。
                 handle: (beg, txt, end) => [
                     beg[1],
                     { text: '=' + beg[2] },
@@ -150,7 +157,7 @@ class Attr extends Hicode {
                 begin:  /^[$a-zA-Z][$\w-]*/,
             },
 
-            // 普通属性值标记为字符串
+            // 属性值实体替换
             {
                 type:   'string',
                 begin:  RE.STRING,
@@ -190,10 +197,10 @@ function toTagEnd( txt ) {
  */
 function tagHandle( beg, txt, end ) {
     return [
-        { text: '<' },
-        beg[1],
+        { text: htmlEscape(beg[1]) },
+        beg[2],
         txt && new Hicolor( txt, new Attr() ) || null,
-        { text: end[0] }
+        { text: htmlEscape(end[0]) }
     ];
 }
 
@@ -206,7 +213,7 @@ function tagHandle( beg, txt, end ) {
  * @return {[String, [String]]} [属性文本段, 结束匹配集]
  */
 function toEndTag( txt, beg ) {
-    let _end = new RegExp( `(</)(${beg[1]})(>)`, 'i' ),
+    let _end = new RegExp( `(</)(${beg[2]})(>)`, 'i' ),
         _val = _end.exec( txt );
 
     if ( !_val ) {
@@ -231,14 +238,17 @@ function toEndTag( txt, beg ) {
  */
 function langHandle( beg, txt, end, lang ) {
     let [tac, tend] = toTagEnd( txt ),
-        _code = txt.substring( tac.length + tend[0].length );
+        _code = txt.substring( tac.length + tend[0].length ),
+        _lang = _code.trim() && new Hicolor( _code, lang );
 
     return tagHandle( beg, tac, tend )
         .concat([
             // 可能不含内容
-            _code.trim() ? new Hicolor( _code, lang ) : (_code.length ? {text: _code} : null),
+            _lang || ( _code.length ? {text: _code} : null ),
             // 结束标签
-            { text: end[1] }, end[2], { text: end[3] }
+            end[1] && { text: htmlEscape(end[1]) },
+            end[2],
+            end[3] && { text: htmlEscape(end[3]) }
         ]);
 }
 
@@ -253,6 +263,7 @@ function styleCode( txt, beg ) {
     let ch = beg[2],
         _i = __Split.index( txt, ch );
 
+    // ch: "|'
     return [ txt.substring(0, _i), [ch] ];
 }
 

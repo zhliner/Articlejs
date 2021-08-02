@@ -16,7 +16,7 @@
 import * as T from "./types.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { getType } from "./base.js";
-import { blockColorHTML, codeFlat, listColorHTML } from "./coloring.js";
+import { blockColorHTML, flatMake, listColorHTML } from "./coloring.js";
 import { highLight } from "./coding.js";
 import { create } from "./create.js";
 
@@ -758,7 +758,7 @@ function codeList( el, lang ) {
     }
     let _html = listColorHTML( highLight(_txts, lang) );
 
-    return codeFlat( _html, null, listCode );
+    return flatMake( _html, null, listCode );
 }
 
 

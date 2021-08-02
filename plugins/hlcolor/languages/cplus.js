@@ -31,7 +31,7 @@ const
         noexcept static_assert thread_local restrict _Bool complex _Complex _Imaginary new throw return
     `),
 
-    // 内建函数
+    // 内置函数&对象
     built_in = reWords(`
         std string cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream
         auto_ptr deque list queue stack vector map set bitset multiset multimap unordered_set
@@ -62,7 +62,7 @@ class CPP extends Hicode {
                 begin:  datatype,
             },
             {
-                type:   'function',
+                type:   'builtin',
                 begin:  built_in,
             },
             {

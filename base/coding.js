@@ -287,5 +287,5 @@ export function highLight( codes, lang, tab ) {
     }
     codes = codes.join( '\n' );
 
-    return lang ? new Hicolor(codes, lang).effect() : [{text: codes}];
+    return lang ? new Hicolor(codes, lang).effect() : [{text: $.html(codes)}];
 }

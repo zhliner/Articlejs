@@ -62,7 +62,7 @@ class Go extends Hicode {
                 begin:  datatype,
             },
             {
-                type:   'function',
+                type:   'builtin',
                 begin:  built_in,
             },
             {

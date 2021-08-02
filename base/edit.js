@@ -31,7 +31,7 @@ import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import cfg from "./shortcuts.js";
 
 // 代码高亮
-import { blockColorHTML, listColorHTML, codeFlat } from "./coloring.js";
+import { blockColorHTML, listColorHTML, flatMake } from "./coloring.js";
 
 // 专项导入
 import { saveCode } from "./shedit.js";
@@ -6072,7 +6072,7 @@ export const Kit = {
      * @return {[Element]} 代码行集（[<code>]）
      */
     codels( evo ) {
-        return codeFlat( listColorHTML(evo.data), null, listCode );
+        return flatMake( listColorHTML(evo.data), null, listCode );
     },
 
     __codels: 1,
@@ -6086,7 +6086,7 @@ export const Kit = {
      * @return {[Element]} 代码块子块集（[<code>]）
      */
     codeblo( evo, {lang} ) {
-        return codeFlat( blockColorHTML(evo.data), lang, blockCode );
+        return flatMake( blockColorHTML(evo.data), lang, blockCode );
     },
 
     __codeblo: 1,
@@ -6100,7 +6100,7 @@ export const Kit = {
      * @return {String} 已渲染源码
      */
     codehtml( evo ) {
-        return codeFlat( blockColorHTML(evo.data), null, html => [html] )
+        return flatMake( blockColorHTML(evo.data), null, html => [html] )
             .join( '' );
     },
 

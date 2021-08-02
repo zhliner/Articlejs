@@ -935,6 +935,7 @@ menu._cells code {
 
 
 /* 满宽：微编辑友好 */
+.___Content pre[role=codeblock] > code,
 .___Content ol[role=codelist] li > code {
     display: block;
 }

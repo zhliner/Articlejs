@@ -57,7 +57,7 @@ class JavaScript extends Hicode {
                 begin:  literal,
             },
             {
-                type:   'function',
+                type:   'builtin',
                 begin:  built_in,
             },
             {
