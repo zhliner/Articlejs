@@ -2829,9 +2829,14 @@ function cropTrs( tbo, cnt, tsec ) {
  * @return {[Element]} <code>行集
  */
 function listCode( code, lang = null ) {
-    return code
-        .split( '\n' )
-        .map( html => create(T.CODE, {lang}, html) );
+    let _lis = code.split( '\n' );
+
+    // 友好：忽略首个空换行
+    // 针对内部子语法块开始标记后的换行。
+    if ( _lis[0] === '' ) {
+        _lis.shift();
+    }
+    return _lis.map( html => create(T.CODE, {lang}, html) );
 }
 
 
@@ -2843,6 +2848,10 @@ function listCode( code, lang = null ) {
  * @return {[Element]} 子块代码（<code>）
  */
 function blockCode( code, lang = null ) {
+    // 友好：忽略首个空换行。
+    if ( code[0] === '\n' ) {
+        code = code.substring( 1 );
+    }
     return [ create(T.CODE, {lang}, code) ];
 }
 

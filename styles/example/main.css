@@ -721,6 +721,7 @@ div[role=blank] > * {
     box-shadow: 1px 1px 4px #eee;
 }
 .content pre[role=codeblock] > code {
+    display: block;
     font-size: 10pt;
     border-radius: 5px;
     overflow: auto;
