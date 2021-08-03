@@ -134,5 +134,5 @@ code b[role=non] {
 }
 
 /* HTML内联样式 */
-[data-lang=html] > s > b[role=atn] { color: green }
-[data-lang=html] > s > b[role=un] { color: #333 }
+[data-lang=html] s > b[role=atn] { color: green }
+[data-lang=html] s > b[role=un] { color: #333 }

@@ -140,6 +140,25 @@ function vacant( v1, v2 ) {
 
 
 /**
+ * 创建块数据代码清单。
+ * 对块数据分解的行集添加边界标识符。
+ * @param  {[String]} list 代码行集
+ * @return {[String]}
+ */
+function vaclist( list, type, block ) {
+    let _s1 = list.shift(),
+        _s2 = list.pop(),
+        [v1, vv, v2] = vacant( ...block );
+
+    return [
+        colorVac( _s1, type, v1 ),
+        ...list.map( s => colorVac(s, type, vv) ),
+        colorVac( _s2, type, v2 )
+    ];
+}
+
+
+/**
  * 代码块高亮源码构建。
  * 块数据边界符完整，简单封装即可，无需标注。
  * 注记：结果会被插入到<pre/code>内。
@@ -153,6 +172,7 @@ function htmlBlock( obj ) {
     if ( $.isArray(text) ) {
         text = textSubs( text );
     }
+    // 着色子块封装
     return colorCode( text, type );
 }
 
@@ -169,25 +189,13 @@ function htmlBlock( obj ) {
  */
 function htmlList( obj ) {
     let {text, type, block} = obj,
-        _rows = ( $.isArray(text) ? textSubs(text) : text )
-            .split( '\n' );
+        _text = $.isArray(text) ? textSubs(text) : text,
+        _rows = _text.split( '\n' );
 
     if ( !block || _rows.length < 2 ) {
-        return colorCode( text, type );
+        return colorCode( _text, type );
     }
-    let _s1 = _rows.shift(),
-        _s2 = _rows.pop(),
-        [v1, vv, v2] = vacant( ...block ),
-        _buf = [
-            colorVac(_s1, type, v1)
-        ];
-
-    if ( _rows.length > 0 ) {
-        _buf.push( ..._rows.map(s => colorVac(s, type, vv)) );
-    }
-    _buf.push( colorVac(_s2, type, v2) );
-
-    return _buf.join( '\n' );
+    return vaclist( _rows, type, block ).join( '\n' );
 }
 
 
