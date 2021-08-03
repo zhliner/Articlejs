@@ -279,7 +279,7 @@ export function rangeTextLine( rng, flag, box ) {
  * @param  {[String]} codes 源码（行）集
  * @param  {String} lang 所属语言
  * @param  {Number} tab  Tab 空格数
- * @return {[Object3|Object2]} 高亮配置对象集
+ * @return {[Object3|Object2]} 高亮解析结果集
  */
 export function highLight( codes, lang, tab ) {
     if ( tab > 0 ) {

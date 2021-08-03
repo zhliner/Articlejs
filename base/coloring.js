@@ -34,6 +34,8 @@
 //
 
 const
+    $ = window.$,
+
     // 高亮名:角色映射。
     // 高亮名用于具体语言中使用，角色名用于封装元素<b>中的role值。
     // 此处的高亮名用于语言实现中的规范名称（type）。
@@ -147,6 +149,10 @@ function vacant( v1, v2 ) {
  */
 function htmlBlock( obj ) {
     let {text, type} = obj;
+
+    if ( $.isArray(text) ) {
+        text = textSubs( text );
+    }
     return colorCode( text, type );
 }
 
@@ -163,7 +169,8 @@ function htmlBlock( obj ) {
  */
 function htmlList( obj ) {
     let {text, type, block} = obj,
-        _rows = text.split( '\n' );
+        _rows = ( $.isArray(text) ? textSubs(text) : text )
+            .split( '\n' );
 
     if ( !block || _rows.length < 2 ) {
         return colorCode( text, type );
@@ -241,32 +248,6 @@ function colorHTML( objs, html ) {
 
 
 /**
- * 代码数据扁平化。
- * 将内部没有语言定义的 Object2 提取展开到上级。
- * 注记：
- * 没有语言的定义的 Hicolor 可用于内部辅助，但依然属于相同的语言。
- * @param  {[String|Object2]} data 渲染结果集
- * @return {[String|Object2]}
- */
-function codeFlat( data ) {
-    let _buf = [];
-
-    for ( const its of data ) {
-        if ( typeof its === 'string' ) {
-            _buf.push( its );
-            continue;
-        }
-        if ( !its.lang ) {
-            _buf.push( ...codeFlat(its.data) );
-            continue;
-        }
-        _buf.push( { lang: its.lang, data: codeFlat(its.data) } );
-    }
-    return _buf;
-}
-
-
-/**
  * 连续文本合并。
  * 连续的文本属于同一语言。
  * @param  {[String|Object2]} list 渲染结果集
@@ -311,6 +292,21 @@ function mergeCodes( data ) {
 }
 
 
+/**
+ * 结果集渲染。
+ * 主要用于特定类型之内的子块，
+ * 如字符串或注释内的子解析。
+ * @param  {[Object3]} objs 解析结果集
+ * @return {String} 渲染源码
+ */
+function textSubs( objs ) {
+    return objs.map(
+            o =>
+            typeof o === 'string' ? o : colorCode( o.text, o.type )
+        ).join( '' );
+}
+
+
 
 //
 // 导出函数
@@ -349,7 +345,7 @@ export function listColorHTML( objs ) {
  * 如插入平级的<li>列表，或者<pre:codeblock>容器内（多个根<code>）。
  *
  * make: function(html, lang): [Element]
- * @param  {[String|Object2]} data 源码解析数据
+ * @param  {[String|Object2]} data 源码渲染集
  * @param  {String} lang 所属语言
  * @param  {Function} make 每种语言代码的封装回调（<code>）
  * @return {[Element]} 封装结果集（<code>）
@@ -357,7 +353,7 @@ export function listColorHTML( objs ) {
 export function flatMake( data, lang, make ) {
     let _buf = [];
 
-    for ( const its of mergeCodes( codeFlat(data) ) ) {
+    for ( const its of mergeCodes( data ) ) {
         if ( typeof its === 'string' ) {
             _buf.push( ...make(its, lang) );
             continue;

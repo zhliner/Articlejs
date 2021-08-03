@@ -24,6 +24,7 @@
 
 import { Hicode, RE, htmlEscape, regexpEscape } from "../base.js";
 import { Hicolor } from "../main.js";
+import { CSSAttr } from "./css.js";
 
 
 const
@@ -145,9 +146,8 @@ class Attr extends Hicode {
                 // 引号视为普通文本。
                 handle: (beg, txt, end) => [
                     beg[1],
-                    { text: '=' + beg[2] },
-                    new Hicolor( txt, 'css' ),
-                    { text: end[0] }
+                    { text: '=' },
+                    inlineStyles( beg[2], txt, end[0] ),
                 ],
             },
             // 普通属性处理。
@@ -261,10 +261,25 @@ function langHandle( beg, txt, end, lang ) {
  */
 function styleCode( txt, beg ) {
     let ch = beg[2],
-        _i = __Split.index( txt, ch );
-
+        _i = txt.indexOf( ch );
     // ch: "|'
     return [ txt.substring(0, _i), [ch] ];
+}
+
+
+/**
+ * 内联样式解析集。
+ * 由字符串类型封装。
+ * @param  {String} q1 起始引号
+ * @param  {String} txt 样式文本
+ * @param  {String} q2 结束引号
+ * @return {[String|Object3]}
+ */
+function inlineStyles( q1, txt, q2 ) {
+    return {
+        type: 'string',
+        text: [ q1, ...new Hicolor( txt, new CSSAttr() ).effect(), q2 ]
+    };
 }
 
 

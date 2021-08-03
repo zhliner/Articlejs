@@ -13,6 +13,7 @@
 //
 
 import { Hicode, RE, htmlEscape, reWords } from "../base.js";
+import { Hicolor } from "../main.js";
 
 
 const
@@ -39,9 +40,7 @@ const
         u ul
         var video
         wbr
-    `,
-    // 不跟随短横线（-）。如 pre-wrap 非标签
-    '(?!-)\\b' ),
+    `),
 
 
     // 属性名
@@ -285,6 +284,50 @@ class CSS extends Hicode {
                 begin:  xmltag,
             },
             {
+                type:   'comments',
+                begin:  RE.COMMENT_B,
+                handle: htmlEscape,
+                block:  [ '/*', '*/' ]
+            },
+            {
+                type:   'selector',
+                // id, class, ::pseudo, :pseudo
+                begin:  /^(#\w[\w-]*|\.[\w-]+|::?[\w+()"'.-]+)\b/,
+            },
+            {
+                type:   'selector',
+                // 属性选择器
+                // 提取如 [data-pbo~=fulled] 中的 data-pbo 和 ~=
+                begin:  /^\[([\w-]+)(?:(=|~=|\|=|\^=|\$=|\*=)(.+?\]))/,
+                // 3段匹配：
+                handle: (_, $1, $2, $3) => [
+                        { text: '[' },
+                        $1,
+                        $2 && { type: 'operator', text: $2 },
+                        $3 && { text: $3 }
+                    ],
+            },
+            // 属性定义子语法块
+            {
+                // type:   null,
+                begin:  /^\{([^]*?)\}/,
+                handle: (_, $1) => [ '{', new Hicolor( $1, new CSSAttr() ), '}' ],
+            },
+
+        ], __reSkip );
+    }
+}
+
+
+//
+// 属性子语法块。
+// 即花括号（{...}）内的部分。
+//
+class CSSAttr extends Hicode {
+
+    constructor() {
+        super([
+            {
                 type:   'attribute',
                 begin:  attribute,
             },
@@ -318,24 +361,6 @@ class CSS extends Hicode {
                 begin:  /^#(?:[0-9A-F]{3}|[0-9A-F]{6}(?:[0-9A-F]{2})?)\b/i,
             },
             {
-                type:   'selector',
-                // id, class, ::pseudo, :pseudo
-                begin:  /^(#\w[\w-]*|\.[\w-]+|::?[\w+()"'.-]+)\b/,
-            },
-            {
-                type:   'selector',
-                // 属性选择器
-                // 提取如 [data-pbo~=fulled] 中的 data-pbo 和 ~=
-                begin:  /^\[([\w-]+)(=|~=|\|=|\^=|\$=|\*=)?(.*?\])/,
-                // 3段匹配：
-                handle: (_, $1, $2, $3) => [
-                        { text: '[' },
-                        $1,
-                        $2 && { type: 'operator', text: $2 },
-                        { text: $3 }
-                    ],
-            },
-            {
                 type:   'operator',
                 // 组合选择器操作符
                 begin:  /^(>|\+|~)/,
@@ -350,9 +375,13 @@ class CSS extends Hicode {
                 begin:  /^(!important|@\w[\w-]*)\b/,
             },
 
-        ], __reSkip );
+        ], __reSkip);
     }
 }
 
 
-export { CSS };
+//
+// CSSAttr 导出分享
+// 可用于HTML解析中的内联样式标记。
+//
+export { CSS, CSSAttr };
