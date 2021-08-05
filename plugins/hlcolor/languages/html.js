@@ -73,6 +73,7 @@ class HTML extends Hicode {
                 type:   'comments',
                 begin:  /^<!--[^]*?-->/,
                 handle: htmlEscape,
+                block:  [ '<!--', '-->' ],
             },
 
             // 样式元素（<style>）处理
@@ -118,6 +119,7 @@ class HTML extends Hicode {
                 type:   'important',
                 begin:  /^(<!\[CDATA\[)([^]+?)(\]\]>)/i,
                 handle: (_, $1, $2, $3) => [ $1, {text: htmlEscape($2)}, $3 ],
+                block:  [ '<![CDATA[', ']]>' ],
             },
             {
                 // HTML 实体
@@ -157,16 +159,19 @@ class Attr extends Hicode {
                 begin:  /^[$a-zA-Z][$\w-]*/,
             },
 
-            // 属性值实体替换
             {
+                // 双引号包围
                 type:   'string',
-                begin:  RE.STRING,
+                begin:  /^"([^]*?)"/,
                 handle: escapeEntity,
+                block:  ['&quot;', '&quot;']
             },
             {
+                // 单引号包围
                 type:   'string',
-                begin:  RE.STRING_1,
+                begin:  /^'([^]*?)'/,
                 handle: escapeEntity,
+                block:  ["&apos;", "&apos;"]
             },
         ]);
     }

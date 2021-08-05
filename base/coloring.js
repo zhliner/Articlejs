@@ -356,7 +356,7 @@ export function listColorHTML( objs ) {
  * @param  {[String|Object2]} data 源码渲染集
  * @param  {String} lang 所属语言
  * @param  {Function} make 每种语言代码的封装回调（<code>）
- * @return {[Element]} 封装结果集（<code>）
+ * @return {[Value]} 封装结果集（make的返回值展开集）
  */
 export function flatMake( data, lang, make ) {
     let _buf = [];

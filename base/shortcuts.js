@@ -797,12 +797,12 @@ Keys: {
 
     // 特性OBT行移动辅助
     // [Key] + 上下箭头键
-    attrOBTmove: 'Ctrl',
+    obtRowMove: 'Ctrl',
 
     // 特性OBT行删除辅助
     // [Key] + Delete
     // 先删除内容（可撤销），空行直接删除（不可撤销）。
-    attrOBTdel: 'Ctrl Shift',
+    obtRowDel: 'Ctrl Shift',
 
     // BackSpace增强
     // 代码框里加按该键向前删除全部缩进。
