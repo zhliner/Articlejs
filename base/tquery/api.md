@@ -1019,7 +1019,7 @@ option: {
 - 源数据为文本节点或元素时，取其 `textContent` 或 `outerHTML` 值作为赋值源码（可视为一种简单的克隆）。
 - 数据源也可是字符串/节点/元素的数组或集合（需支持 `.values` 接口），取值成员之间以指定的分隔符串连（默认空格）。
 
-与 jQuery 中同名接口不同，这里可以指定内容插入的位置（相对于 `el` 元素）：`before|after|begin|end|prepend|append|fill|replace` 等，并且因为只是**文本逻辑**，原节点不受影响。
+与 jQuery 中同名接口不同，这里可以指定内容插入的位置（相对于 `el` 元素）：`before|after|prepend|append|fill|replace` 等，并且因为只是**文本逻辑**，原节点不受影响。
 
 返回新创建的节点集（数组）或转换后的HTML源码。
 

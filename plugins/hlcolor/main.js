@@ -29,10 +29,12 @@
 //  类型内的子语法块：
 //  如果子语法块存在于有特定类型的源码中，此时不能直接返回 Hicolor 实例，
 //  而只能在解析结果 Object3{type, text, block} 中，将内部的解析结果集附加在 text 属性上。
-//  此时解析结果只能是 {[String|Object3]}，而不能再嵌入 Hicolor 实例了。
+//  此时解析结果只能是 {[String|Object3]}，且其中 Object3 不再支持 block。
 //  例：
 //  - HTML 中内联样式值属于字符串（string）类型，但内部也可以进行 CSSAttr 解析。
 //  - 注释内对 @xxx 类格式的解析也同此，上层属于 comments 类型。
+//  注记：
+//  容器元素只能标注一个块的边界，因此内部不再支持子块数据。
 //
 //
 //
@@ -115,7 +117,7 @@ class Hicolor {
      * 返回值：
      * Object3 {
      *      type?: {String}
-     *      text:  {String|[Object3|String]}  // 嵌入块支持
+     *      text:  {String|[Object3|String]}  // 嵌入支持
      *      block?:[String, String]
      * }
      * Object2 {

@@ -30,8 +30,8 @@ import { options, propertyTpl } from "./templates.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import cfg from "./shortcuts.js";
 
-// 代码高亮
-import { blockColorHTML, listColorHTML, flatMake } from "./coloring.js";
+// 代码高亮封装
+import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 
 // 专项导入
 import { saveCode } from "./shedit.js";
@@ -2919,41 +2919,6 @@ function cropTrs( tbo, cnt, tsec ) {
     .map( tr => [...tr.children] )
     .flat()
     .forEach( cell => $.attr(cell, 'contenteditable', true) );
-}
-
-
-/**
- * 创建代码表代码行集。
- * 属性实参null值可保证清除该特性。
- * 注记：不含<li>容器更灵活。
- * @param  {String} code 已解析源码
- * @param  {String} lang 所属语言
- * @return {[Element]} <code>行集
- */
-function listCode( code, lang = null ) {
-    let _lis = code.split( '\n' );
-
-    // 友好：忽略首个空换行
-    // 针对内部子语法块开始标记后的换行。
-    if ( _lis[0] === '' ) {
-        _lis.shift();
-    }
-    return _lis.map( html => create(T.CODE, { lang }, html) );
-}
-
-
-/**
- * 创建代码块子块。
- * @param  {String} code 已解析源码
- * @param  {String} lang 所属语言
- * @return {[Element]} 子块代码（<code>）
- */
-function blockCode( code, lang = null ) {
-    // 友好：忽略首个空换行。
-    if ( code[0] === '\n' ) {
-        code = code.substring( 1 );
-    }
-    return [ create(T.CODE, {lang}, code) ];
 }
 
 
@@ -6182,7 +6147,7 @@ export const Kit = {
      * @return {[Element]} 代码行集（[<code>]）
      */
     codels( evo ) {
-        return flatMake( listColorHTML(evo.data), null, listCode );
+        return codeWraps( null, evo.data, htmlList );
     },
 
     __codels: 1,
@@ -6196,21 +6161,22 @@ export const Kit = {
      * @return {[Element]} 代码块子块集（[<code>]）
      */
     codeblo( evo, {lang} ) {
-        return flatMake( blockColorHTML(evo.data), lang, blockCode );
+        return codeWraps( lang, evo.data, htmlBlock );
     },
 
     __codeblo: 1,
 
 
     /**
-     * 合并源码。
+     * 合并提取源码。
      * 用于内联代码单元构建，通常只有单种语言。
-     * 如果包含多种语言，简单合并（容错）。
+     * 如果有多种语言代码，会被简单合并。
      * @data: [Object3|Object2]
      * @return {String} 已渲染源码
      */
     codehtml( evo ) {
-        return flatMake( blockColorHTML(evo.data), null, html => [html] )
+        return codeWraps( null, evo.data, htmlBlock )
+            .map( el => el.innerHTML )
             .join( '' );
     },
 

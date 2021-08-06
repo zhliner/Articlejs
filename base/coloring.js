@@ -33,6 +33,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import * as T from "./types.js";
+import { create } from "./create.js";
+
+
 const
     $ = window.$,
 
@@ -102,26 +106,6 @@ function colorCode( text, type ) {
 
 
 /**
- * 含边界符补充的源码封装。
- * @param  {String} text 待封装文本行
- * @param  {String} type 代码类型
- * @param  {String} vac  边界符（,b|a,b|a,）
- * @return {String} HTML高亮源码
- */
-function colorVac( text, type, vac ) {
-    vac = ` ${__atnVac}="${vac}"`;
-
-    if ( type == __strName ) {
-        return `<s${vac}>${text}</s>`;
-    }
-    if ( type == __cmtName ) {
-        return `<i${vac}>${text}</i>`;
-    }
-    return `<b role="${__Roles[type] || __nonRole}"${vac}>${text}</b>`;
-}
-
-
-/**
  * 边界符构造。
  * - 首行补充结尾（',b'）
  * - 中间行补充两端（'a,b'）
@@ -140,170 +124,51 @@ function vacant( v1, v2 ) {
 
 
 /**
+ * 含边界符补充的源码封装。
+ * @param  {Element} code 代码容器元素
+ * @param  {String} text 待封装文本行
+ * @param  {String} type 代码类型
+ * @param  {String} vac  边界符（,b|a,b|a,），可选
+ * @return {Element} code 容器元素
+ */
+function codeVac( code, text, type, vac, ) {
+    $.html(
+        code,
+        colorCode( text, type ),
+        // 接续前源码
+        'append'
+    );
+    return vac ? $.attr( code, __atnVac, vac ) : code;
+}
+
+
+/**
  * 创建块数据代码清单。
  * 对块数据分解的行集添加边界标识符。
+ * 代码容器会自动克隆，但仅为容器元素自身（及其属性）。
  * @param  {[String]} list 代码行集
- * @return {[String]}
+ * @param  {String} type 着色类型名
+ * @param  {[String]} block 块数据边界符对
+ * @param  {Element} code 代码容器元素（<code>）
+ * @return {[Element]} 容器元素集
  */
-function vaclist( list, type, block ) {
+function vaclist( list, type, block, code ) {
     let _s1 = list.shift(),
         _s2 = list.pop(),
         [v1, vv, v2] = vacant( ...block );
 
     return [
-        colorVac( _s1, type, v1 ),
-        ...list.map( s => colorVac(s, type, vv) ),
-        colorVac( _s2, type, v2 )
+        codeVac( code, _s1, type, v1 ),
+        ...list.map( s => codeVac(code.cloneNode(), s, type, vv) ),
+        codeVac( code.cloneNode(), _s2, type, v2 )
     ];
-}
-
-
-/**
- * 代码块高亮源码构建。
- * 块数据边界符完整，简单封装即可，无需标注。
- * 注记：结果会被插入到<pre/code>内。
- * Object: { text, type? }
- * @param  {Object} obj 解析结果对象集
- * @return {String} HTML高亮源码
- */
-function htmlBlock( obj ) {
-    let {text, type} = obj;
-
-    if ( $.isArray(text) ) {
-        text = textSubs( text );
-    }
-    // 着色子块封装
-    return colorCode( text, type );
-}
-
-
-/**
- * 代码表高亮源码构建。
- * 如果是块类数据，需要检查多行并标注缺失边界符（单行无需标注）。
- * 返回值依然以换行符连接，用于代码表按行切分。
- * Object: {
- *      text, type, block?
- * }
- * @param  {Object} obj 解析结果对象集
- * @return {String} HTML高亮源码
- */
-function htmlList( obj ) {
-    let {text, type, block} = obj,
-        _text = $.isArray(text) ? textSubs(text) : text,
-        _rows = _text.split( '\n' );
-
-    if ( !block || _rows.length < 2 ) {
-        return colorCode( _text, type );
-    }
-    return vaclist( _rows, type, block ).join( '\n' );
-}
-
-
-/**
- * 源码集合并处理。
- * 将临时的存储集合并压入结果对象集，
- * 同时清空临时存储集。
- * @param  {[Object|String]} buf 渲染结果集
- * @param  {[String]} txt 源码存储集
- * @param  {String} sep   文本连接字符，可选
- * @return {[Object|String]} buf
- */
-function merge2Buf( buf, txt, sep = '' ) {
-    if ( txt.length > 0 ) {
-        buf.push( txt.join(sep) );
-        txt.length = 0;
-    }
-    return buf;
-}
-
-
-/**
- * HTML高亮源码渲染。
- * 将解析结果对象中的文本进行HTML封装，如果有内嵌子块，则递进处理。
- * 渲染的着色源码为内容，不含容器根（<code>）。
- * Object: {
- *      text, type?, block?
- * }
- * 实参 Object2: {
- *      lang: 子块语言，可选
- *      data: 子块解析集（{[Object3|Object2]}）
- * }
- * 返回值：
- * String: 已渲染源码（<b>,<s>,<i>, #text）。
- * Object2: {
- *      lang: 子块语言
- *      data: 子块源码集（{[String|Object2]）
- * }
- * @param  {[Object3|Object2]} objs 解析结果集
- * @param  {Function} html HTML渲染函数（htmlBlock|htmlList）
- * @return {[String|Object2]} 渲染结果集
- */
-function colorHTML( objs, html ) {
-    let _buf = [],
-        _txt = [];
-
-    for ( const o of objs ) {
-        if ( o.text !== undefined ) {
-            _txt.push( html(o) );
-            continue;
-        }
-        merge2Buf( _buf, _txt );
-        _buf.push( {lang: o.lang, data: colorHTML(o.data, html)} );
-    }
-
-    return merge2Buf( _buf, _txt );
-}
-
-
-/**
- * 连续文本合并。
- * 连续的文本属于同一语言。
- * @param  {[String|Object2]} list 渲染结果集
- * @return {[String|Object2]}
- */
-function stringMerge( list ) {
-    let _buf = [],
-        _txt = [];
-
-    for ( const its of list ) {
-        if ( typeof its === 'string' ) {
-            _txt.push( its );
-            continue;
-        }
-        merge2Buf( _buf, _txt ).push( its );
-    }
-
-    return merge2Buf( _buf, _txt );
-}
-
-
-/**
- * 逐层合并渲染的代码。
- * 每一层都可能包含连续但分开的相同语言代码块，合并之。
- * 最终的结果是每一个String成员就是一个语言块代码，
- * String 之后跟随 Object2，
- * Object2 之后跟随 String。
- * @param  {[String|Object2]} data 渲染数据集
- * @return {[String|Object2]}
- */
-function mergeCodes( data ) {
-    let _buf = [];
-
-    for ( const its of stringMerge(data) ) {
-        if ( typeof its === 'string' ) {
-            _buf.push( its );
-            continue;
-        }
-        _buf.push( {lang: its.lang, data: mergeCodes(its.data)} );
-    }
-    return _buf;
 }
 
 
 /**
  * 结果集渲染。
  * 主要用于特定类型之内的子块，
- * 如字符串或注释内的子解析。
+ * 如字符串或注释内的子语法解析。
  * @param  {[Object3]} objs 解析结果集
  * @return {String} 渲染源码
  */
@@ -322,76 +187,81 @@ function textSubs( objs ) {
 
 
 /**
- * 代码块渲染构造。
- * @param  {[Object3|Object2]} objs 解析结果集
- * @return {[String|Object2]} 渲染结果集
+ * 代码块高亮源码构建。
+ * 块数据边界符完整，简单封装即可，无需标注。
+ * 注记：结果会被插入到<pre/code>内。
+ * Object: { text, type? }
+ * @param  {Object} obj 解析结果对象集
+ * @param  {Element} code 代码容器元素（<code>）
+ * @return {[Element]} HTML高亮源码
  */
-export function blockColorHTML( objs ) {
-    return colorHTML( objs, htmlBlock );
+export function htmlBlock( obj, code ) {
+    let {text, type} = obj;
+
+    if ( $.isArray(text) ) {
+        text = textSubs( text );
+    }
+    // 着色子块封装
+    return [ codeVac(code, text, type) ];
 }
 
 
 /**
- * 代码表渲染构造。
- * 需要对块类数据逐行进行边界符标注（首行、中段、尾行）。
- * @param  {[Object3|Object2]} objs 解析结果集
- * @return {[String|Object2]} 渲染结果集
- */
-export function listColorHTML( objs ) {
-    return colorHTML( objs, htmlList );
-}
-
-
-/**
- * 扁平化渲染集创建代码元素。
- * Object2: {
- *      lang: 所属语言
- *      data: 子块源码集（与data相同结构）
+ * 代码表高亮源码构建。
+ * 如果是块类数据，需要检查多行并标注缺失边界符（单行无需标注）。
+ * 返回值依然以换行符连接，用于代码表按行切分。
+ * Object: {
+ *      text, type, block?
  * }
- * 注记：
- * 如果包含其它语言代码的子块，需要扁平化以便于HTML展示，
- * 如插入平级的<li>列表，或者<pre:codeblock>容器内（多个根<code>）。
- *
- * make: function(html, lang): [Element]
- * @param  {[String|Object2]} data 源码渲染集
- * @param  {String} lang 所属语言
- * @param  {Function} make 每种语言代码的封装回调（<code>）
- * @return {[Value]} 封装结果集（make的返回值展开集）
+ * @param  {Object} obj 解析结果对象集
+ * @param  {Element} code 代码容器元素（<code>）
+ * @return {[Element]} 容器元素集（[<code>]）
  */
-export function flatMake( data, lang, make ) {
-    let _buf = [];
+export function htmlList( obj, code ) {
+    let {text, type, block} = obj,
+        _text = $.isArray(text) ? textSubs(text) : text,
+        _rows = _text.split( '\n' );
 
-    for ( const its of mergeCodes( data ) ) {
-        if ( typeof its === 'string' ) {
-            _buf.push( ...make(its, lang) );
+    if ( !block || _rows.length < 2 ) {
+        return [ codeVac(code, _text, type) ];
+    }
+    return vaclist( _rows, type, block, code );
+}
+
+
+/**
+ * HTML高亮源码渲染封装。
+ * 将解析结果对象中的文本进行封装，如果有内嵌子块，则递进处理。
+ * Object3: {
+ *      text, type?, block?
+ * }
+ * 实参 Object2: {
+ *      lang: 子块语言，可选
+ *      data: 子块解析集（{[Object3|Object2]}）
+ * }
+ * 返回值：
+ * String: 已渲染源码（<b>,<s>,<i>, #text）。
+ * Object2: {
+ *      lang: 子块语言
+ *      data: 子块源码集（{[String|Object2]）
+ * }
+ * @param  {[Object3|Object2]} objs 解析结果集
+ * @param  {Function} wrap 封装函数（htmlBlock|htmlList）
+ * @param  {Element} code 封装容器元素（<code>）
+ * @return {[Element]} 封装元素集（[<code>]）
+ */
+export function codeWraps( lang, objs, wrap ) {
+    let _buf = [],
+        _box = create( T.CODE, {lang} );
+
+    for ( const o of objs ) {
+        if ( o.text !== undefined ) {
+            _buf.push( ...wrap(o, _box) );
+            _box = _buf[ _buf.length-1 ];
             continue;
         }
-        _buf.push( ...flatMake(its.data, its.lang, make) );
+        _buf.push( ...codeWraps(o.lang, o.data, wrap) );
     }
-    return _buf;
-}
-
-
-/**
- * 提取需要重新分析的代码段。
- * 如果光标容器为Text：
- * 分析：取 .wholeText 成员。
- * 替换：
- * - 若在顶层，替换.wholeText本身。
- *   查找前后边界节点：Range.setStartBefore()/Range.setEndAfter()
- * - 若在内部着色容器内，范围为元素自身：Range.selectNode()
- *
- * 如果光标容器为Element：
- * 分析：取 .textContent 成员。
- * 替换：
- * - 若属于顶层元素容器，范围：Range.selectNodeContents()
- * - 若属于内部着色容器，范围为元素自身：Range.selectNode()
- * 注：
- * 用于代码编辑时的实时着色辅助。
- * 如果处理的是代码表行，需要考虑块数据的边界辅助补齐。
- * @param  {Range} rng 光标点范围
- * @return {String}
- */
-export function dirtyPart( rng ) {
-    //
+    // 可能重复，唯一化
+    return [...new Set(_buf)].filter( el => !el.normalize() );
 }

@@ -718,13 +718,11 @@ div[role=blank] > * {
  */
 .content pre[role=codeblock] {
     border: 1px #eee solid;
+    overflow: auto;
     box-shadow: 1px 1px 4px #eee;
 }
 .content pre[role=codeblock] > code {
-    display: block;
     font-size: 10pt;
-    border-radius: 5px;
-    overflow: auto;
     border-width: 0;
     background-color: transparent;
     line-height: 160%;

@@ -16,9 +16,9 @@
 import * as T from "./types.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { getType } from "./base.js";
-import { blockColorHTML, flatMake, listColorHTML } from "./coloring.js";
-import { highLight } from "./coding.js";
 import { create } from "./create.js";
+import { highLight } from "./coding.js";
+import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 
 import { Sys } from "../config.js";
 
@@ -522,11 +522,12 @@ function dataCode( el, lang ) {
     if ( lang === '' ) {
         return [ null, $.Text( _code ) ];
     }
-    let _html = blockColorHTML(
-            highLight( [_code], lang )
-        ).join('');
-
-    return [ lang, [...$.fragment(_html).childNodes] ];
+    let _els = codeWraps(
+        null,
+        highLight( [_code], lang ),
+        htmlBlock
+    );
+    return [ lang, codeSubs( _els ) ];
 }
 
 
@@ -728,22 +729,6 @@ function attr2Bool( els, name ) {
 
 
 /**
- * 创建代码表代码行集。
- * 属性实参null值可保证清除该特性。
- * 注记：不含<li>容器更灵活。
- * @param  {String} code 已解析源码
- * @param  {String} lang 所属语言
- * @param  {Number} tab Tab空格数，可选
- * @return {[Element]} <code>行集
- */
-function listCode( code, lang = null ) {
-    return code
-        .split( '\n' )
-        .map( html => create(T.CODE, {lang}, html) );
-}
-
-
-/**
  * 根据语言解析代码构造代码表项。
  * 可能包含嵌套的子语言块，会被扁平化。
  * @param  {Element} el 代码表根（<ol>）
@@ -756,9 +741,7 @@ function codeList( el, lang ) {
     if ( lang === '' ) {
         return $( _txts ).elem( 'code' );
     }
-    let _html = listColorHTML( highLight(_txts, lang) );
-
-    return flatMake( _html, null, listCode );
+    return codeWraps( null, highLight(_txts, lang), htmlList );
 }
 
 
@@ -782,6 +765,16 @@ function codeListData( el, lang, start ) {
         return [ _obj ];
     }
     return [ _obj, codeList(el, lang) ];
+}
+
+
+/**
+ * 获取代码的内容集。
+ * @param  {[Element]} els 容器元素集（[<code>]）
+ * @return {[Node]}
+ */
+function codeSubs( els ) {
+    return els.map( el => [...el.childNodes] ).flat();
 }
 
 

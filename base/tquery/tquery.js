@@ -359,10 +359,8 @@
         // {
         //      before  =  1    元素之前
         //      after   = -1    元素之后
-        //      begin   =  2    元素内起始点（头部）
-        //      prepend =  2    同上
-        //      end     = -2    元素内结束点（末尾）
-        //      append  = -2    同上
+        //      prepend =  2    元素内头部
+        //      append  = -2    元素内末端
         //      replace =  0    替换
         //      fill    = ''    内容填充（清除原有）
         // }
@@ -384,9 +382,7 @@
         Wheres = {
             'before':   1,
             'after':   -1,
-            'begin':    2,
             'prepend':  2,
-            'end':     -2,
             'append':  -2,
             'replace':  0,
             'fill':    '',
