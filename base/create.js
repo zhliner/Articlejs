@@ -293,12 +293,12 @@ const Children = {
      * @param {String|[Node]|Node} data 已解析源码或节点集
      */
     [ T.CODE ]: function( ref, code, _, data ) {
-        if ( typeof data === 'string' ) {
-            data = $.fragment( data, false );
-        } else {
-            data = isCodeCons( data ) && data;
-        }
         if ( data ) {
+            if ( typeof data === 'string' ) {
+                data = $.fragment( data, false );
+            } else {
+                data = isCodeCons( data ) && data;
+            }
             $.append( code, data );
         }
         return result( null, code, true );

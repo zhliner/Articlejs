@@ -155,13 +155,24 @@ function codeVac( code, text, type, vac, ) {
 function vaclist( list, type, block, code ) {
     let _s1 = list.shift(),
         _s2 = list.pop(),
-        [v1, vv, v2] = vacant( ...block );
+        [v1, vv, v2] = block ? vacant(...block) : [];
 
     return [
         codeVac( code, _s1, type, v1 ),
-        ...list.map( s => codeVac(code.cloneNode(), s, type, vv) ),
-        codeVac( code.cloneNode(), _s2, type, v2 )
+        ...list.map( s => codeVac(codeNode(code), s, type, vv) ),
+        codeVac( codeNode(code), _s2, type, v2 )
     ];
+}
+
+
+/**
+ * 代码元素克隆。
+ * 需要移除块数据边界标识属性。
+ * @param  {Element} code 代码元素
+ * @return {Element}
+ */
+function codeNode( code ) {
+    return $.attr( code.cloneNode(), __atnVac, null );
 }
 
 
@@ -177,6 +188,26 @@ function textSubs( objs ) {
             o =>
             typeof o === 'string' ? o : colorCode( o.text, o.type )
         ).join( '' );
+}
+
+
+/**
+ * 子块首尾换行清除。
+ * 在一个新的子语法块的两端，如果是一个单纯的换行，则清除之。
+ * 避免代码表将之视为一个空行。
+ * @param {[Object3|Object2]} objs 解析结果集
+ */
+function trimNL( objs ) {
+    let _o1 = objs[ 0 ],
+        _o2 = objs[ objs.length-1 ];
+
+    if ( _o1.text && _o1.text.startsWith('\n') ) {
+        _o1.text = _o1.text.substring( 1 );
+    }
+    if ( _o2.text && _o2.text.endsWith('\n') ) {
+        _o2.text = _o2.text.slice( 0, -1 );
+    }
+    return objs;
 }
 
 
@@ -218,11 +249,11 @@ export function htmlBlock( obj, code ) {
  * @return {[Element]} 容器元素集（[<code>]）
  */
 export function htmlList( obj, code ) {
-    let {text, type, block} = obj,
+    let {text, type, block = ''} = obj,
         _text = $.isArray(text) ? textSubs(text) : text,
         _rows = _text.split( '\n' );
 
-    if ( !block || _rows.length < 2 ) {
+    if ( _rows.length < 2 ) {
         return [ codeVac(code, _text, type) ];
     }
     return vaclist( _rows, type, block, code );
@@ -245,9 +276,9 @@ export function htmlList( obj, code ) {
  *      lang: 子块语言
  *      data: 子块源码集（{[String|Object2]）
  * }
+ * @param  {String} lang 所属语言
  * @param  {[Object3|Object2]} objs 解析结果集
  * @param  {Function} wrap 封装函数（htmlBlock|htmlList）
- * @param  {Element} code 封装容器元素（<code>）
  * @return {[Element]} 封装元素集（[<code>]）
  */
 export function codeWraps( lang, objs, wrap ) {
@@ -260,8 +291,11 @@ export function codeWraps( lang, objs, wrap ) {
             _box = _buf[ _buf.length-1 ];
             continue;
         }
-        _buf.push( ...codeWraps(o.lang, o.data, wrap) );
+        _buf.push( ...codeWraps(o.lang, trimNL(o.data), wrap) );
+        // 子块结束，
+        // 开启一个同语种新容器。
+        _box = create( T.CODE, {lang} );
     }
-    // 可能重复，唯一化
+    // 通常有重复，唯一化
     return [...new Set(_buf)].filter( el => !el.normalize() );
 }

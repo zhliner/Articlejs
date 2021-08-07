@@ -722,6 +722,7 @@ div[role=blank] > * {
     box-shadow: 1px 1px 4px #eee;
 }
 .content pre[role=codeblock] > code {
+    display: block;
     font-size: 10pt;
     border-width: 0;
     background-color: transparent;
@@ -733,7 +734,7 @@ div[role=blank] > * {
  * ------------------------------------
  */
 .content ol[role=codelist] {
-    font-size: 9pt;
+    font-size: 10pt;
     padding: 1px;
     background-color: #39898e;
     padding-left: 4.3em;

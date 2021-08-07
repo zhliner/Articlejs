@@ -164,14 +164,14 @@ class Attr extends Hicode {
                 type:   'string',
                 begin:  /^"([^]*?)"/,
                 handle: escapeEntity,
-                block:  ['&quot;', '&quot;']
+                block:  ['"', '"']
             },
             {
                 // 单引号包围
                 type:   'string',
                 begin:  /^'([^]*?)'/,
                 handle: escapeEntity,
-                block:  ["&apos;", "&apos;"]
+                block:  ["'", "'"]
             },
         ]);
     }

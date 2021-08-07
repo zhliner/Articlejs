@@ -139,7 +139,7 @@ class Hicolor {
             _buf.push( {lang: obj.lang(), data: obj.effect()} );
         }
 
-        return this.flat( _buf );
+        return this.merge( this.flat(_buf) );
     }
 
 
@@ -183,6 +183,41 @@ class Hicolor {
             }
         }
         return _buf;
+    }
+
+
+    /**
+     * 将连续的纯文本（没有类型）的结果合并。
+     * @param  {[Object3|Object2]} objs 解析结果集
+     * @return {[Object3|Object2]}
+     */
+    merge( objs ) {
+        let _buf = [], _txt = [];
+
+        for ( const o of objs ) {
+            if ( o.text && !o.type ) {
+                _txt.push( o.text );
+                continue;
+            }
+            this._txtbuf(_buf, _txt).push( o );
+        }
+        return this._txtbuf( _buf, _txt );
+    }
+
+
+    /**
+     * 纯文本结果集处理。
+     * 合并文本创建为一个纯文本对象（{text}）。
+     * @param  {[Object3|Object2]} buf 结果集
+     * @param  {[Object3]} txt 纯文本结构集
+     * @return {[Object3|Object2]} buf
+     */
+    _txtbuf( buf, txt ) {
+        if ( txt.length > 0 ) {
+            buf.push( { text: txt.join('') } );
+            txt.length = 0;
+        }
+        return buf;
     }
 }
 

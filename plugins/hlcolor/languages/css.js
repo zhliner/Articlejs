@@ -307,6 +307,10 @@ class CSS extends Hicode {
                         $3 && { text: $3 }
                     ],
             },
+            {
+                type:   'keyword',
+                begin:  /^(@[a-zA-Z][\w-]*)/,
+            },
             // 属性定义子语法块
             {
                 // type:   null,
