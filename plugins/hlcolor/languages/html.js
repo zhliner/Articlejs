@@ -164,14 +164,14 @@ class Attr extends Hicode {
                 type:   'string',
                 begin:  /^"([^]*?)"/,
                 handle: escapeEntity,
-                block:  ['"', '"']
+                // 二级子块边界符无效
+                // block:  ['"', '"']
             },
             {
                 // 单引号包围
                 type:   'string',
                 begin:  /^'([^]*?)'/,
                 handle: escapeEntity,
-                block:  ["'", "'"]
             },
         ]);
     }
@@ -187,7 +187,9 @@ class Attr extends Hicode {
  */
 function toTagEnd( txt ) {
     let _i = __Split.index( txt, '>' );
-    return [ txt.substring(0, _i), ['>'] ];
+    // 按位置截取“>”。
+    // 兼容未关闭标签，这在编辑代码表单行时有用。
+    return [ txt.substring(0, _i), [txt.substring(_i, _i+1)] ];
 }
 
 

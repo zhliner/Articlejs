@@ -5715,7 +5715,7 @@ function scrollSet( dom, val, xy ) {
  */
 function usualNode( node ) {
     let _nt = node.nodeType;
-    return _nt == 1 || (_nt == 3 && node.textContent.trim()) || _nt == 8;
+    return _nt == 1 || (_nt == 3 && node.textContent) || _nt == 8;
 }
 
 
@@ -5727,7 +5727,7 @@ function usualNode( node ) {
  */
 function masterNode( node ) {
     let _nt = node.nodeType;
-    return _nt === 1 || _nt === 3 && node.textContent.trim();
+    return _nt === 1 || _nt === 3 && node.textContent;
 }
 
 

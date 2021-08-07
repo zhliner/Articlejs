@@ -684,15 +684,17 @@ class MiniEdit {
         let _lang = this._codelang( el );
         if ( !_lang ) return;
 
-        let _code = blockColorHTML(
-                highLight( [this._codetext(el)], _lang )
+        let [v1, v2] = this._codeVac( el ),
+            _data = highLight(
+                [`${v1}${el.textContent}${v2}`], _lang
             );
-        $.fill( el, this._codeSubs(flatMake(_code, null, html => [html])) );
+        $.fill( el, this._codeSubs(codeWraps(null, _data, htmlBlock), v1, v2) );
     }
 
 
     /**
      * 获取代码元素所属的语言。
+     * 仅限于<code>和<ol:codelist>元素有效。
      * @param  {Element} el 代码元素
      * @return {String|false}
      */
@@ -709,50 +711,36 @@ class MiniEdit {
 
 
     /**
-     * 提取容器代码文本。
-     * 会补足块类数据的边界字符，以便于局部解析匹配。
-     * 支持多层嵌套中的缺位补足。
-     * @param  {Element} el 容器元素（<code>|<i>...）
-     * @return {String}
+     * 构造获取代码内容。
+     * 检查是否存在边界符补足，截除补充的部分。
+     * @param  {[Element]} codes 代码元素集
+     * @param  {String} v1 块数据左边界符
+     * @param  {String} v2 块数据右边界符
+     * @return {[Node]} 内容节点集
      */
-    _codetext( el ) {
-        let _txt = [];
+    _codeSubs( codes, v1, v2 ) {
+        let _nds = $(codes).contents().flat(),
+            _nd1 = _nds[ 0 ],
+            _nd2 = _nds[ _nds.length-1 ];
 
-        for ( const nd of el.childNodes ) {
-            if ( nd.nodeType !== 1 ) {
-                _txt.push( nd.textContent );
-                continue;
-            }
-            let _vac = $.attr( nd, __atnVac );
-            // 状态存储。
-            this._b2c = _vac ? _vac.split(__vacSplit) : ['', ''];
-
-            _txt.push( this._b2c[0], this._codetext(nd), this._b2c[1] );
+        if ( v1 ) {
+            _nd1.textContent = _nd1.textContent.substring( v1.length );
         }
-        return _txt.join( '' );
+        if ( v2 ) {
+            _nd2.textContent = _nd2.textContent.slice( 0, -v2.length );
+        }
+        return _nds;
     }
 
 
     /**
-     * 获取源码。
-     * 检查是否存在边界符补足，截除补充的部分。
-     * @param  {[String]} codes 着色源码集
-     * @return {String}
+     * 检查提取块数据边界符对。
+     * @param  {Element} el 代码元素（<code>）
+     * @return {[String]}
      */
-    _codeSubs( codes ) {
-        let _frg = $.fragment( codes.join('') ),
-            _nd1 = _frg.childNodes[ 0 ],
-            _nd2 = _frg.childNodes[ _frg.childNodes.length-1 ],
-            _sz1 = this._b2c[0].length,
-            _sz2 = this._b2c[1].length;
-
-        if ( _sz1 ) {
-            _nd1.textContent = _nd1.textContent.substring( _sz1 );
-        }
-        if ( _sz2 ) {
-            _nd2.textContent = _nd2.textContent.slice( 0, -_sz2 );
-        }
-        return [ ..._frg.childNodes ];
+    _codeVac( el ) {
+        let _vac = $.attr( el, __atnVac );
+        return _vac ? _vac.split( __vacSplit ) : [ '', '' ];
     }
 }
 

@@ -339,7 +339,8 @@ class CSSAttr extends Hicode {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
                 handle: htmlEscape,
-                block:  [ '/*', '*/' ]
+                // 二级子块边界符无效
+                // block:  [ '/*', '*/' ]
             },
             {
                 type:   'string',
