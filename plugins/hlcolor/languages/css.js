@@ -370,7 +370,7 @@ class CSSAttr extends Hicode {
             {
                 type:   'function',
                 // 如 rgb(128.0, 128, 128, 0.6)
-                begin:  /^(\w+)\((.*)\)/,
+                begin:  /^(\w+(?=\())/,
             },
             {
                 type:   'important',

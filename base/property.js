@@ -14,9 +14,8 @@
 //
 
 import * as T from "./types.js";
-import { customGetter } from "./tpb/pbs.get.js";
 import { getType } from "./base.js";
-import { create } from "./create.js";
+import { customGetter } from "./tpb/pbs.get.js";
 import { highLight } from "./coding.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 
@@ -256,13 +255,18 @@ function processAttr( el, names, ...vals ) {
 
 //
 // 代码属性设置。
-// 如果语言改变，subs会有值，填充替换。
+// 包括代码块和代码表中的代码行，以及单独的代码元素。
+// 如果是代码行，语言设置参考根容器处理：
+// - 相同，移除当前<code>语言设置。
+// - 不同，设置当前<code>语言属性。
 // @param {String} lang 代码语言（-lang）
 // @param {[Node]} subs 着色节点集（[<b>, <i>, #text]）
 //
 function processCode( el, _, lang, subs ) {
-    if ( lang !== undefined ) $.attr( el, '-lang', lang );
-    if ( subs !== undefined ) $.fill( el, subs );
+    if ( lang !== undefined ) {
+        $.attr( el, '-lang', codeLang(el, lang) );
+    }
+    subs !== undefined && $.fill( el, subs );
 }
 
 
@@ -771,6 +775,30 @@ function codeListData( el, lang, start ) {
  */
 function codeSubs( els ) {
     return els.map( el => [...el.childNodes] ).flat();
+}
+
+
+/**
+ * 获取代码所属语言。
+ * 如果是代码表内的代码行<code>元素。
+ * 与容器根语言对比：
+ * - 相同，代码行无需设置（返回null）。
+ * - 不同，定制设置。
+ * 其它普通代码元素，需要设置，原样返回。
+ * 返回null以移除当前语言设定。
+ * @param  {Element} el 代码元素
+ * @return {String|null}
+ */
+function codeLang( el, lang ) {
+    let _box = el.parentElement.parentElement,
+        _type = getType( _box );
+
+    if ( _type !== T.CODELIST ) {
+        return lang;
+    }
+    let _lang = $.attr( _box, '-lang' );
+
+    return _lang === lang ? null : lang;
 }
 
 
