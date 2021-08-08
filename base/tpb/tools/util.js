@@ -85,16 +85,17 @@ const Util = {
      * @param  {String}  slr 选择器串（外部trim）
      * @param  {Element} beg 起点元素，可选
      * @param  {Boolean} one 是否单元素检索，可选
+     * @param  {Element} top 全局上下文，可选
      * @return {Collector|Element|null} 目标元素（集）
      */
-    find( slr, beg, one ) {
+    find( slr, beg, one, top ) {
         if ( !slr || slr == __chrSp2 ) {
             return beg;
         }
         if ( slr.includes(__chrSp2) ) {
-            [slr, beg] = fmtSplit( slr, beg );
+            [slr, beg] = fmtSplit( slr, beg, top );
         } else {
-            beg = undefined; // 全局
+            beg = top || undefined;
         }
         return one ? query1( slr, beg ) : query2( slr, beg );
     },
@@ -243,16 +244,18 @@ const Util = {
 /**
  * 二阶选择器解构。
  * 用SSpliter实现准确切分（/可能包含在属性值内）。
+ * 如果实际上不是二阶选择器，起点即为全局上下文。
  * @param  {String} slr 选择器串
  * @param  {Element} beg 起点元素
+ * @param  {Element} top 全局上下文，可选
  * @return {[String, Element]} 向下选择器和上下文元素
  */
-function fmtSplit( fmt, beg ) {
+function fmtSplit( fmt, beg, top ) {
     let _s2 = [
         ...__slrSplit.split(fmt, 1)
     ];
     if ( _s2.length == 1 ) {
-        return [ fmt ];
+        return [ fmt, top || undefined ];
     }
     return [ _s2[1], closest(_s2[0].trim(), beg) ];
 }
