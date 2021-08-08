@@ -650,98 +650,25 @@ class MiniEdit {
      *   确保不同浏览器的兼容性。
      * - 解包非代码内的 <b> 和 <i> 直接子元素，
      *   它们由浏览器默认行为带来（格式元素删除后遗留了样式）。
-     * - 存在语言定义的代码重解析和着色。
+     * 注记：
+     * 代码与普通内容单元相同对待，不会自动重解析着色。
+     * 如果需要重新解析着色，可通过属性对话框选取目标语言进行处理。
+     * 理由：
+     * 因为代码表中的行很难单独解析（缺乏上下文），而微编辑只是一种修订模式，
+     * 且用户可以选择着色元素（<b>|<i>...）本身进行编辑。
+     * 通过属性框重新解析很简单，拆解出这一单独步骤是可取的。
      * @param  {Element} el 目标元素
      * @return {void}
      */
     _clean( el ) {
         let _tv = getType( el );
 
-        if ( _tv === T.PRE ) {
+        if ( _tv === T.PRE || _tv === T.CODE ) {
             cleanCall( () => $('br', el).replace('\n') );
-        }
-        else if ( _tv === T.CODE ) {
-            cleanCall(
-                () => $('br', el).replace( '\n' ) && this._codeRender( el )
-            );
         }
         else cleanCall( () => $('>b, >i', el).unwrap() );
     }
 
-
-    // 代码定制处理
-    //------------------------------------------------------------------------
-
-
-    /**
-     * 代码着色渲染。
-     * 根据代码元素或上级<ol:codelist>上定义的语言，
-     * 解析源码并着色渲染。
-     * @param  {Element} el 代码元素
-     * @return {void}
-     */
-    _codeRender( el ) {
-        let _lang = this._codelang( el );
-        if ( !_lang ) return;
-
-        let [v1, v2] = this._codeVac( el ),
-            _data = highLight(
-                [`${v1}${el.textContent}${v2}`], _lang
-            );
-        $.fill( el, this._codeSubs(codeWraps(null, _data, htmlBlock), v1, v2) );
-    }
-
-
-    /**
-     * 获取代码元素所属的语言。
-     * 仅限于<code>和<ol:codelist>元素有效。
-     * @param  {Element} el 代码元素
-     * @return {String|false}
-     */
-    _codelang( el ) {
-        let _lang = $.attr( el, '-lang' );
-
-        if ( _lang !== null ) {
-            return _lang;
-        }
-        let _box = el.parentElement.parentElement;
-
-        return _box.tagName === 'OL' && $.attr( _box, '-lang' );
-    }
-
-
-    /**
-     * 构造获取代码内容。
-     * 检查是否存在边界符补足，截除补充的部分。
-     * @param  {[Element]} codes 代码元素集
-     * @param  {String} v1 块数据左边界符
-     * @param  {String} v2 块数据右边界符
-     * @return {[Node]} 内容节点集
-     */
-    _codeSubs( codes, v1, v2 ) {
-        let _nds = $(codes).contents().flat(),
-            _nd1 = _nds[ 0 ],
-            _nd2 = _nds[ _nds.length-1 ];
-
-        if ( v1 ) {
-            _nd1.textContent = _nd1.textContent.substring( v1.length );
-        }
-        if ( v2 ) {
-            _nd2.textContent = _nd2.textContent.slice( 0, -v2.length );
-        }
-        return _nds;
-    }
-
-
-    /**
-     * 检查提取块数据边界符对。
-     * @param  {Element} el 代码元素（<code>）
-     * @return {[String]}
-     */
-    _codeVac( el ) {
-        let _vac = $.attr( el, __atnVac );
-        return _vac ? _vac.split( __vacSplit ) : [ '', '' ];
-    }
 }
 
 

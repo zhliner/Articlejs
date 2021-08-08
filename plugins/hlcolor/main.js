@@ -28,14 +28,11 @@
 //
 //  类型内的子语法块：
 //  如果子语法块存在于有特定类型的源码中，此时不能直接返回 Hicolor 实例，
-//  而只能在解析结果 Object3{type, text, block} 中，将内部的解析结果集附加在 text 属性上。
-//  此时解析结果只能是 {[String|Object3]}，且其中 Object3 不再支持 block。
+//  而只能在解析结果 Object2{type, text} 中，将内部的解析结果集附加在 text 属性上。
+//  此时解析结果只能是 {[String|Object2]}。
 //  例：
 //  - HTML 中内联样式值属于字符串（string）类型，但内部也可以进行 CSSAttr 解析。
 //  - 注释内对 @xxx 类格式的解析也同此，上层属于 comments 类型。
-//  注记：
-//  容器元素只能标注一个块的边界，因此内部不再支持子块数据。
-//
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,17 +112,16 @@ class Hicolor {
      * 源文本中可能嵌入其它语言代码，会执行其Hicolor解析，
      * 因此结果集里可能包含子块封装。
      * 返回值：
-     * Object3 {
-     *      type?: {String}
-     *      text:  {String|[Object3|String]}  // 嵌入支持
-     *      block?:[String, String]
-     * }
      * Object2 {
+     *      type?: {String}
+     *      text:  {String|[Object2|String]}  // 嵌入支持
+     * }
+     * Object2x {
      *      // 子语法块封装
      *      lang:String  子块语言，可选
-     *      data:[Object3|Object2]  子块解析集，结构相同。
+     *      data:[Object2|Object2x]  子块解析集，结构相同。
      * }
-     * @return {[Object3|Object2]} 结果集
+     * @return {[Object2|Object2x]} 结果集
      */
     effect() {
         let _buf = [];
@@ -169,8 +165,8 @@ class Hicolor {
      * 注记：
      * 同一语言内局部的子语法块可以创建为Hicolor，此时语言无需指定。
      * 这一策略可以分解复杂性。
-     * @param  {[Object3|Object2]} objs 解析结果集
-     * @return {[Object3|Object2]}
+     * @param  {[Object2|Object2x]} objs 解析结果集
+     * @return {[Object2|Object2x]}
      */
     flat( objs ) {
         let _buf = [];
@@ -188,8 +184,8 @@ class Hicolor {
 
     /**
      * 将连续的纯文本（没有类型）的结果合并。
-     * @param  {[Object3|Object2]} objs 解析结果集
-     * @return {[Object3|Object2]}
+     * @param  {[Object2|Object2x]} objs 解析结果集
+     * @return {[Object2|Object2x]}
      */
     merge( objs ) {
         let _buf = [], _txt = [];
@@ -208,9 +204,9 @@ class Hicolor {
     /**
      * 纯文本结果集处理。
      * 合并文本创建为一个纯文本对象（{text}）。
-     * @param  {[Object3|Object2]} buf 结果集
-     * @param  {[Object3]} txt 纯文本结构集
-     * @return {[Object3|Object2]} buf
+     * @param  {[Object2|Object2x]} buf 结果集
+     * @param  {[Object2]} txt 纯文本结构集
+     * @return {[Object2|Object2x]} buf
      */
     _txtbuf( buf, txt ) {
         if ( txt.length > 0 ) {

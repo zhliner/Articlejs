@@ -70,13 +70,7 @@ const
     __strName = 'string',
 
     // 注释类型名。
-    __cmtName = 'comments',
-
-    // 缺位边界符存储特性。
-    __atnVac = 'data-b',
-
-    // 缺位边界符分隔符。
-    __vacSplit = ',';
+    __cmtName = 'comments';
 
 
 
@@ -106,73 +100,20 @@ function colorCode( text, type ) {
 
 
 /**
- * 边界符构造。
- * - 首行补充结尾（',b'）
- * - 中间行补充两端（'a,b'）
- * - 末行补充开头（'a,'）
- * @param  {String} v1 起始边界符序列
- * @param  {String} v2 结尾边界符序列
- * @return {[String]} [首, 中, 末]
- */
-function vacant( v1, v2 ) {
-    return [
-        `${__vacSplit}${v2}`,      // ',b'
-        `${v1}${__vacSplit}${v2}`, // 'a,b'
-        `${v1}${__vacSplit}`,      // 'a,'
-    ];
-}
-
-
-/**
  * 含边界符补充的源码封装。
  * @param  {Element} code 代码容器元素
  * @param  {String} text 待封装文本行
  * @param  {String} type 代码类型
- * @param  {String} vac  边界符（,b|a,b|a,），可选
  * @return {Element} code 容器元素
  */
-function codeVac( code, text, type, vac, ) {
+function addCode( code, text, type ) {
     $.html(
         code,
         colorCode( text, type ),
         // 接续前源码
         'append'
     );
-    return vac ? $.attr( code, __atnVac, vac ) : code;
-}
-
-
-/**
- * 创建块数据代码清单。
- * 对块数据分解的行集添加边界标识符。
- * 代码容器会自动克隆，但仅为容器元素自身（及其属性）。
- * @param  {[String]} list 代码行集
- * @param  {String} type 着色类型名
- * @param  {[String]} block 块数据边界符对
- * @param  {Element} code 代码容器元素（<code>）
- * @return {[Element]} 容器元素集
- */
-function vaclist( list, type, block, code ) {
-    let _s1 = list.shift(),
-        _s2 = list.pop(),
-        [v1, vv, v2] = block ? vacant(...block) : [];
-
-    return [
-        codeVac( code, _s1, type, v1 ),
-        ...list.map( s => codeVac(codeNode(code), s, type, vv) ),
-        codeVac( codeNode(code), _s2, type, v2 )
-    ];
-}
-
-
-/**
- * 代码元素克隆。
- * 需要移除块数据边界标识属性。
- * @param  {Element} code 代码元素
- * @return {Element}
- */
-function codeNode( code ) {
-    return $.attr( code.cloneNode(), __atnVac, null );
+    return code;
 }
 
 
@@ -233,7 +174,7 @@ export function htmlBlock( obj, code ) {
         text = textSubs( text );
     }
     // 着色子块封装
-    return [ codeVac(code, text, type) ];
+    return [ addCode(code, text, type) ];
 }
 
 
@@ -242,21 +183,21 @@ export function htmlBlock( obj, code ) {
  * 如果是块类数据，需要检查多行并标注缺失边界符（单行无需标注）。
  * 返回值依然以换行符连接，用于代码表按行切分。
  * Object: {
- *      text, type, block?
+ *      text, type
  * }
  * @param  {Object} obj 解析结果对象集
  * @param  {Element} code 代码容器元素（<code>）
  * @return {[Element]} 容器元素集（[<code>]）
  */
 export function htmlList( obj, code ) {
-    let {text, type, block = ''} = obj,
+    let {text, type} = obj,
         _text = $.isArray(text) ? textSubs(text) : text,
         _rows = _text.split( '\n' );
 
-    if ( _rows.length < 2 ) {
-        return [ codeVac(code, _text, type) ];
-    }
-    return vaclist( _rows, type, block, code );
+    return [
+        addCode( code, _rows.shift(), type ),
+        ..._rows.map( txt => addCode(code.cloneNode(), txt, type) )
+    ];
 }
 
 

@@ -23,7 +23,6 @@
 //      begin:  {RegExp}    起始匹配式
 //      end:    {Function}  匹配结束检测器，可选
 //      handle: {Function}  匹配结果进阶处理器，可选
-//      block:  [String, String] 块数据边界标识对，辅助代码表中行的标注，可选
 //  }
 //  .type:
 //      语法类型名。如：keyword, string, operator ...
@@ -36,48 +35,39 @@
 //      返回一个二成员数组：[子域数据段, 结束匹配集]
 //      其中：
 //      - 后段文本指起始匹配串之后的原串部分。
-//      - 子域数据段作为取值文本。如果 handle 有定义，它是传入的第二个实参。
+//      - 子域数据段作为取值文本，如果 handle 有定义，它是传入的第二个实参。
 //      - 结束匹配集是一个字符串数组，其中首个成员为结束匹配串本身（类似exec()的结果）。
 //        它会作为 handle（如果有） 的第三个实参传入。
-//  .block: [
-//      0   数据起始标识（如块注释的 /*）
-//      1   数据结尾标识（如块注释的 */）
-//  ]
-//  注意：
-//  block 配置仅对顶层语法块有效，内部的子块需要顶层结构限定，所以无法单独辅助解析。
 //
 //
 //  进阶处理器：
 //  进一步检查&处理匹配的文本，如果不合法应当返回false，让当前轮匹配测试继续。
 //  这可以弥补复杂情况下单纯正则表达式无法应对的情况（如 JS 里正则封装与除法符相同）。
 //  - begin (无end)
-//    function( ...beg:String ): String|Hicolor|Object3|[...]
+//    function( ...beg:String ): String|Hicolor|Object2|[...]
 //    参数：匹配结果序列
 //  - begin, end
-//    function( beg:[String], text:String, end:[String] ): String|Hicolor|Object3|[...]
+//    function( beg:[String], text:String, end:[String] ): String|Hicolor|Object2|[...]
 //    参数：起始匹配集, 中间段文本, 结束匹配集
 //
 //  返回值：
 //  - String        匹配目标类型（type）的文本。应已转义。
 //  - Hicolor       子语法块的高亮处理器。
-//  - Object3       单个配置对象（{type, text, block}）。
+//  - Object2       单个配置对象（{type, text}）。
 //    混合数组成员：
 //  - [String]      匹配目标类型（type）的文本串，type已知。
-//  - [Object3]     既成的配置对象集。需要包含自身的type名称。
-//                  参考：/languages/css.js 属性选择器实现（[data-pbo~=fulled]）。
+//  - [Object2]     既成的配置对象集。参考：/languages/css.js 属性选择器实现。
 //  - [Hicolor]     也可以是子语法块高亮处理器。
 //
 //
 //  解析结果
 //  --------
-//  Object3 {
-//      text:  {String|[Object3]} 匹配的文本或进阶解析结果（集）
-//      type?: {String}           类型名，未定义时text视为普通文本，可选
-//      block?:[String, String]   块数据边界标识对，可选
+//  Object2 {
+//      type:  {String}  类型名，未定义时text视为普通文本，可选
+//      text:  {String|[String|Object2]}  匹配的文本或进阶解析结果（集）
 //  }
 //  成员.text:
-//  - 当匹配目标拥有嵌入的语法子块时，text 即为嵌入子块的解析结果集（[Object3]）。
-//  - 所有层级/子块的解析结果（Object3）结构相同，因此逻辑上可无限递进。
+//  当匹配目标拥有嵌入的语法子块时，text即为嵌入子块的解析结果集（[Object2]）。
 //
 //
 //  进阶处理器用例：
@@ -86,11 +76,7 @@
 //  此时返回集应当是 Object2 和CSS处理器 Hicolor 实例的混合。
 //  2.
 //  源码中的注释如果需要进阶标记，注释的范围标识 /*...*/ 属于注释本身，
-//  此时处理器可能返回一个 Object2 的集合。
-//
-//  注记：
-//  Object4.type 作为进阶处理可以支持复杂的嵌入逻辑。
-//  Hicolor/Hicode 提供了基础性的解析和管理，可以简单复用。
+//  此时处理器应当是返回一个 Object2 的集合。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,10 +145,9 @@ class Hicode {
      * 重点是code提取的合理性（范围和效率）。
      * code所属语言可从代码容器上获取，可从Hicolor创建Hicode实例。
      *
-     * 返回值：见页顶 Object3 说明。
      * @param  {String} code 源码文本
      * @param  {[RegExp]} res 定制匹配式集合，可选
-     * @return {[Object3|Hicolor]} 解析结果对象集
+     * @return {[Object2|Hicolor]} 解析结果对象集（参见页顶说明）
      */
     parse( code, res ) {
         res = res || this._rexs;
@@ -222,18 +207,18 @@ class Hicode {
      * [1]  已封装的文本长度（告诉上级跳过量）。
      * @param  {String} ss 目标子串
      * @param  {[RegExp]} res 匹配式集合
-     * @return {[Object3|Hicolor|[Object3|Hicolor], Number]|null}
+     * @return {[Object2|Hicolor|[Object2|Hicolor], Number]|null}
      */
     _parseOne( ss, res ) {
-        for ( let {type, begin, end, handle, block} of res ) {
+        for ( let {type, begin, end, handle} of res ) {
             let _beg = begin.exec( ss ),
                 _sure;
 
             // 仅从开头匹配，容错不规范正则式。
             if ( _beg && _beg.index === 0 ) {
                 _sure = end ?
-                    this._range( _beg.slice(), ss.substring(_beg[0].length), end, type, handle, block ) :
-                    this._alone( _beg, type, handle, block );
+                    this._range( _beg.slice(), ss.substring(_beg[0].length), end, type, handle ) :
+                    this._alone( _beg, type, handle );
             }
             if ( _sure ) return _sure;
         }
@@ -250,16 +235,15 @@ class Hicode {
      * @param  {Function} fend 匹配终止检测器
      * @param  {String} type 类型名
      * @param  {Function} handle 进阶处理器，可选
-     * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {[Object3|[Object3]|Hicolor, Number]|false}
+     * @return {[Object2|[Object2]|Hicolor, Number]|false}
      */
-    _range( beg, ss, fend, type, handle, pair ) {
+    _range( beg, ss, fend, type, handle ) {
         let [text, end] = fend( ss, beg ),
             _txt = handle && handle( beg, text, end );
 
         return _txt !== false &&
         [
-            this._custom( _txt, type, text, pair ),
+            this._custom( _txt, type, text ),
             beg[0].length + text.length + (end ? end[0].length : 0)
         ];
     }
@@ -271,15 +255,14 @@ class Hicode {
      * @param  {String} beg 起始匹配集
      * @param  {String} type 类型名
      * @param  {Function} handle 进阶处理器，可选
-     * @param  {[String]} pair 块数据边界标识对，可选
-     * @return {[Object3|[Object3]|Hicolor, Number]|false}
+     * @return {[Object2|[Object2]|Hicolor, Number]|false}
      */
-    _alone( beg, type, handle, pair ) {
+    _alone( beg, type, handle ) {
         let _txt = handle && handle( ...beg );
 
         return _txt !== false &&
         [
-            this._custom( _txt, type, beg[0], pair ),
+            this._custom( _txt, type, beg[0] ),
             beg[0].length
         ];
     }
@@ -289,7 +272,7 @@ class Hicode {
      * 添加纯文本对象。
      * 如果添加了对象，原字符缓存会被清空。
      * @param  {[String]} chs 字符缓存引用
-     * @param  {[Object3]} buf 结果缓存引用
+     * @param  {[Object2]} buf 结果缓存引用
      * @return {void}
      */
     _plain( chs, buf ) {
@@ -342,36 +325,34 @@ class Hicode {
      * @param  {String|[String]|Hicolor} result 定制处理返回值
      * @param  {String} type 类型名
      * @param  {String} text 原匹配文本
-     * @param  {[String]} block 块数据标识符对，可选
-     * @return {Object3|Hicolor|[Object3|Hicolor]}
+     * @return {Object2|Hicolor|[Object2|Hicolor]}
      */
-    _custom( result, type, text, block ) {
+    _custom( result, type, text ) {
         // 未处理
         if ( result === undefined ) {
-            return { type, text, block };
+            return { type, text };
         }
         if ( $.isArray(result) ) {
-            return this._obj3s( result, type, block );
+            return this._obj2s( result, type );
         }
-        // 源码或子语法块（Hicolor）或 Object3
-        return typeof result === 'string' ? { type, text: result, block } : result;
+        // 源码或子语法块（Hicolor）或 Object2
+        return typeof result === 'string' ? { type, text: result } : result;
     }
 
 
     /**
      * 数值返回集处理。
      * 如果成员为字符串，表示其为匹配目标类型的文本。
-     * 否则应当是一个 Object3 对象（包含 type 定义）。
+     * 否则应当是一个 Object2 对象（包含 type 定义）。
      * 会滤除值为 null|undefined 的成员。
      * @param  {[String]} vals 三段文本集
      * @param  {String} type 目标类型名
-     * @param  {[String]} block 块数据标识符对
-     * @return {[Object3]}
+     * @return {[Object2]}
      */
-    _obj3s( vals, type, block ) {
+    _obj2s( vals, type ) {
         return $.map(
             vals,
-            it => typeof it === 'string' ? { type, text: it, block } : it
+            it => typeof it === 'string' ? { type, text: it } : it
         );
     }
 }

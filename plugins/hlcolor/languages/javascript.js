@@ -69,7 +69,6 @@ class JavaScript extends Hicode {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
                 handle: htmlEscape,
-                block:  [ '/*', '*/' ]
             },
             {
                 // 在字符串匹配之前。
@@ -92,7 +91,6 @@ class JavaScript extends Hicode {
                 type:   'string',
                 begin:  RE.STRING_RAW,
                 handle: substMatches,
-                block:  [ '`', '`' ]
             },
             {
                 type:   'regex',

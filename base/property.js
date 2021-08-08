@@ -513,12 +513,8 @@ function dataDatetime2( els, date, time, cite ) {
  * @return {[String, [Node]]} 语言&着色节点集（lang, [<b>,<i>,#text]）
  */
 function dataCode( el, lang ) {
-    let _lang = $.attr(el, '-lang') || '',
-        _code = el.textContent;
+    let _code = el.textContent;
 
-    if ( lang === _lang ) {
-        return [];
-    }
     if ( lang === '' ) {
         return [ null, $.Text( _code ) ];
     }

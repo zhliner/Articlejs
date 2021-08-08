@@ -31,7 +31,6 @@ class Normal extends Hicode {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
                 handle: htmlEscape,
-                block:  ['/*', '*/']
             },
             {
                 type:   'string',

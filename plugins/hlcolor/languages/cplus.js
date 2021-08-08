@@ -74,7 +74,6 @@ class CPP extends Hicode {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
                 handle: htmlEscape,
-                block:  [ '/*', '*/' ]
             },
             {
                 type:   'string',
@@ -86,7 +85,6 @@ class CPP extends Hicode {
                 type:   'string',
                 begin:  /^R"\([^]*\)"/,
                 handle: htmlEscape,
-                block:  [ 'R"(', ')"' ],
             },
             {
                 type:   'number',

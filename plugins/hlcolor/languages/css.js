@@ -287,7 +287,6 @@ class CSS extends Hicode {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
                 handle: htmlEscape,
-                block:  [ '/*', '*/' ]
             },
             {
                 type:   'selector',
@@ -339,8 +338,6 @@ class CSSAttr extends Hicode {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
                 handle: htmlEscape,
-                // 二级子块边界符无效
-                // block:  [ '/*', '*/' ]
             },
             {
                 type:   'string',
