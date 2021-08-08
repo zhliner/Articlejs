@@ -1,4 +1,4 @@
-//! $ID: command.js 2021.08.08 Articlejs.Config $
+//! $ID: cmdline.js 2021.08.08 Articlejs.Config $
 // ++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
