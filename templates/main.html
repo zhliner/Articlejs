@@ -879,8 +879,7 @@
         | 选取集过滤，支持 PB:To 的 []{} 语法
         / 文本搜索（选取/替换）
         : 普通命令
-        = 简单计算
-        ! 扩展命令（高级）-->
+        = 简单计算 -->
     <div class="_cmdx">
         <span class="_code" tabindex="0" data-pbo="lost"
             on="click(b)|evo(1) text;
@@ -891,7 +890,7 @@
             <b title="文本搜索">/</b>
             <b title="普通命令">:</b>
             <b title="简单计算">=</b>
-            <b title="扩展指令...">!</b>
+            <!-- <b title="扩展指令...">!</b> -->
         </span>
         <!-- data-v: CSS辅助 -->
         <code id="g-cmdx" data-v=">"
@@ -901,16 +900,18 @@
             to="|@text @-v|goto('done');
                 #cmd-input|-|focus">&gt;</code>
     </div>
-    <!-- 命令行 -->
-    <div class="_cmdline">
-        <!-- 交互：
-            1. 回车执行命令行，自动选取结果。
-            2. 手动键入内容为搜索历史匹配。
-            3. 上下箭头和翻页键匹配当前键入词导航。
-            4. Ctrl+U 清空命令行内容（惯用法）。
-            x. Tab键展开当前键入内容匹配清单。
-        -->
-        <input id="cmd-input" type="text" spellcheck="false" class="_code" data-tips="> | / : = ! 直达此处"
+    <!--命令行交互：
+        1. 回车执行命令行。
+        2. 键入内容时即时匹配历史记录。
+        3. 上下箭头键导航历史匹配。
+        4. Ctrl+U 全选文本以便于清空（趋近习惯用法）。
+    -->
+    <div class="_cmdline"
+        on="keydown(input)|iskey('Enter') pass stopAll evo(2) val $('#g-cmdx') text;
+            keydown(input)|iskey('u') scam('ctrl') both pass stop avoid evo(2) select"
+        by="Cmd.run(_1)"
+        to="=||select">
+        <input id="cmd-input" type="text" name="cmd" spellcheck="false" class="_code" data-tips="> | / : = 直达此处"
             on="focus|evo(3) ('');
                 ^obted blur|evo(3) attr('-tips')"
             to="|@placeholder;

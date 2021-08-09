@@ -131,7 +131,7 @@ Global: [
             ":/",       // /  文本搜索
             "shift::",  // :  普通命令
             ":=",       // =  简单计算
-            "shift:!",  // !  扩展指令（高级）
+            // "shift:!",  // !  扩展指令（高级）
         ],
         "command":  "cmdline.active",
         "exclude":  "textarea,input,[contenteditable]"

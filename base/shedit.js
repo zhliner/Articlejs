@@ -721,7 +721,3 @@ processExtend( 'Kit', __Kit, [
 // 导出共享。
 //
 export { saveCode };
-
-
-//:debug
-// window.__Store = __Store;

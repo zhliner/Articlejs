@@ -33,6 +33,9 @@ import cfg from "./shortcuts.js";
 // 代码高亮封装
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 
+// 命令行处理
+import "./cmdline.js";
+
 // 专项导入
 import { saveCode } from "./shedit.js";
 import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";

@@ -61,10 +61,93 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-const $ = window.$;
+import { processExtend } from "./tpb/pbs.by.js";
+
+
+// const $ = window.$;
+
+
+//
+// 选择指令实现。
+//
+class Select {
+
+    constructor() {
+        //
+    }
+}
+
+
+//
+// 选取集过滤实现。
+//
+class Filter {
+
+    constructor() {
+        //
+    }
+}
+
+
+class Search {
+
+    constructor() {
+        //
+    }
+}
+
+
+class Command {
+
+    constructor() {
+        //
+    }
+}
+
+
+class Calcuate {
+
+    constructor() {
+        //
+    }
+}
+
+
+
+//
+// 命令行配置。
+//
+const __Cmdx = {
+    '>':    new Select(),
+    '|':    new Filter(),
+    '/':    new Search(),
+    ':':    new Command(),
+    '=':    new Calcuate(),
+};
+
+
+//
+// 命令行处理集。
+//
+const __Cmds = {
+    /**
+     * 命令行执行。
+     * @param {String} type 指令类型
+     */
+    run( evo, type ) {
+        let _op = __Cmdx[type];
+
+        window.console.info( evo.data, type, _op);
+    },
+
+    __run: 1,
+};
 
 
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
+processExtend( 'Cmd', __Cmds, [
+    'run',
+]);
