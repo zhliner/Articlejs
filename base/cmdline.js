@@ -7,8 +7,14 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //  命令行模块
+//  接口：
+//  - .exec() 执行指令，返回恰当的值。
+//  - .type() 返回值类型。返回值含义如下：
+//      nodes   表示 exec() 返回节点集，外部执行重新选取。
+//      value   表示 exec() 返回普通值，会回显到命令行处。
+//      null    外部没有任何额外的操作。
 //
-//  支持6种不同类型的命令，以一个特殊的开启字符表达：
+//  支持如下几种不同类型的命令。以一个特殊的字符开启：
 //      >   选取：内容为选择器。全局上下文为编辑器内容区。
 //      |   过滤：内容为过滤条件。对当前选取集执行过滤。
 //      /   搜索：内容为目标文本。在选取集或全文搜索目标文本并标记（<mark>）。
@@ -16,7 +22,7 @@
 //      =   计算：将内容视为JS表达式，执行计算并返回到当前位置。
 //      !   扩展：一些高级的指令，待开发。
 //  开启：
-//  在非光标处键入目标字符，光标会自动聚焦到命令行，同时会切换到该模式。
+//  在非编辑区域键入目标字符，光标会自动聚焦到命令行，同时会切换到该模式。
 //  这些字符只是快捷键和标识，并不需要在命令行键入它们。
 //
 //
@@ -64,16 +70,39 @@
 import { processExtend } from "./tpb/pbs.by.js";
 
 
-// const $ = window.$;
+// const $ = window.$,
+
+let __Root;
 
 
 //
 // 选择指令实现。
 //
 class Select {
-
-    constructor() {
+    /**
+     * @param {Element} root 全局上下文
+     */
+    constructor( root ) {
         //
+    }
+
+
+    /**
+     * 执行指令。
+     * @param  {String} slr 选择器
+     * @return {[Element]} 新选取集
+     */
+    exec( slr ) {
+        //
+    }
+
+
+    /**
+     * 返回值类型。
+     * @return {String}
+     */
+    type() {
+        return 'nodes';  // 节点操作类
     }
 }
 
@@ -86,13 +115,33 @@ class Filter {
     constructor() {
         //
     }
+
+
+    /**
+     * 返回值类型。
+     * @return {String}
+     */
+    type() {
+        return 'nodes';
+    }
 }
 
 
 class Search {
-
-    constructor() {
+    /**
+     * @param {Element} root 全局上下文
+     */
+    constructor( root ) {
         //
+    }
+
+
+    /**
+     * 返回值类型。
+     * @return {String}
+     */
+    type() {
+        return 'nodes';
     }
 }
 
@@ -102,6 +151,15 @@ class Command {
     constructor() {
         //
     }
+
+
+    /**
+     * 返回值类型。
+     * @return {String}
+     */
+    type() {
+        return null;
+    }
 }
 
 
@@ -109,6 +167,15 @@ class Calcuate {
 
     constructor() {
         //
+    }
+
+
+    /**
+     * 返回值类型。
+     * @return {String}
+     */
+    type() {
+        return 'value';
     }
 }
 
@@ -118,9 +185,9 @@ class Calcuate {
 // 命令行配置。
 //
 const __Cmdx = {
-    '>':    new Select(),
+    '>':    new Select( __Root ),
     '|':    new Filter(),
-    '/':    new Search(),
+    '/':    new Search( __Root ),
     ':':    new Command(),
     '=':    new Calcuate(),
 };
@@ -132,12 +199,12 @@ const __Cmdx = {
 const __Cmds = {
     /**
      * 命令行执行。
-     * @param {String} type 指令类型
+     * @param  {String} key 指令类型键
+     * @return [String, Value] [返回值类型, 运行结果]
      */
-    run( evo, type ) {
-        let _op = __Cmdx[type];
-
-        window.console.info( evo.data, type, _op);
+    run( evo, key ) {
+        let _op = __Cmdx[key];
+        return [ _op.type(), _op.exec(evo.data) ];
     },
 
     __run: 1,
@@ -147,6 +214,16 @@ const __Cmds = {
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 初始化变量赋值。
+ * @param {Element} ebox 编辑器内容区根
+ */
+export function cmdInit( ebox ) {
+    __Root = ebox;
+}
+
 
 processExtend( 'Cmd', __Cmds, [
     'run',

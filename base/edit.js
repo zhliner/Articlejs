@@ -34,7 +34,7 @@ import cfg from "./shortcuts.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 
 // 命令行处理
-import "./cmdline.js";
+import { cmdInit } from "./cmdline.js";
 
 // 专项导入
 import { saveCode } from "./shedit.js";
@@ -4016,15 +4016,10 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
     modalDialog   = $.get( modal );
     slaveInsert   = $.get( contab );
 
+    cmdInit( contentElem );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
-
-
-    // 内容数据初始处理。
-    // 预存储保留表格列特征。
-    $( 'table', contentElem )
-    .forEach( tbl => tableObj(tbl, new $.Table(tbl)) );
 }
 
 
