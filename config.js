@@ -43,17 +43,20 @@ const
     },
 
 
-    // 系统级提示信息（可本地化）。
+    // 提示信息集（可本地化）。
     Tips = {
 
         // 章节空标题占位
-        sectionH2:      '[ Empty heading ]',
+        sectionH2: '[ Empty heading ]',
 
-        // 本地暂存完成提示。
-        localStoreDone: 'saving done.',
+        // 本地暂存
+        localStoreDone: '保存完毕！',
 
-        // 顶层章节不可再提升
-        sectionNotUp:   'section:s1 can not up again.',
+        // section:s1
+        sectionNotUp: '顶层章节不可再提升。',
+
+        // 撤销副作用警告
+        undoWarn: '原操作包含创建新节点的能力，撤销后重做可能导致旧节点引用丢失，使得之后的重做失效。是否继续？',
 
     },
 

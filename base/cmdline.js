@@ -40,7 +40,7 @@
 //
 //  注意：
 //  Collector成员函数主要针对 .fiter|.has|.not 等专用过滤。返回值会被重新选取。
-//  也可以使用其它函数，但不应当是会改变DOM节点的操作，且返回值也需要是DOM中的元素。
+//  也可以使用其它函数（如 find、get 等），但不应当是会改变DOM节点的操作。
 //
 //
 //  - 搜索（/）
@@ -67,12 +67,46 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Util } from "./tpb/tools/util.js";
+import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
+
 import { processExtend } from "./tpb/pbs.by.js";
 
 
-// const $ = window.$,
+const
+    $ = window.$,
 
-let __Root;
+    // 数值定位匹配
+    // [x:y] 或 [m,n,...]
+    // 取值：[1]
+    __reNumber = /^\[([\d:,\s]*)\]$/,
+
+    // 范围分隔符
+    // 在 __reNumber 之内
+    __reRange = /\s*:\s*/,
+
+    // 表达式匹配
+    // {expression|.func}
+    // 取值：[1]
+    __reFilter = /^\{(.*)\}$/,
+
+    // 当前选取集变量名
+    __chrSels = '$$',
+
+    // 进阶过滤切分器。
+    // 排除属性选择器、调用式和表达式内值。
+    __pipeSplit = new Spliter( '|', new UmpCaller(), new UmpChars('[', ']'), new UmpChars('{', '}') );
+
+
+let
+    // 编辑器内容区根
+    __Root,
+
+    // 选取焦点类实例
+    __EHot,
+
+    // 元素选取集实例
+    __ESet;
 
 
 //
@@ -83,17 +117,21 @@ class Select {
      * @param {Element} root 全局上下文
      */
     constructor( root ) {
-        //
+        this._ctx = root;
     }
 
 
     /**
      * 执行指令。
      * @param  {String} slr 选择器
-     * @return {[Element]} 新选取集
+     * @param  {Element} hot 焦点元素
+     * @return {Collector} 新选取集
      */
-    exec( slr ) {
-        //
+    exec( slr, hot = __EHot.get() ) {
+        let _ss = [
+                ...__pipeSplit.reset().split( slr.trim() )
+            ];
+        return filters( _ss, Util.find(_ss.shift(), hot, false, this._ctx) );
     }
 
 
@@ -108,12 +146,41 @@ class Select {
 
 
 //
-// 选取集过滤实现。
+// 元素集过滤实现。
 //
 class Filter {
+    /**
+     * @param {Set} set 初始集合引用
+     */
+    constructor( set ) {
+        this._set = set;
+    }
 
-    constructor() {
-        //
+
+    /**
+     * 执行指令。
+     * 支持多段过滤表达式（| 分隔）。
+     * @param  {String} str 筛选表达式
+     * @return {Collector} 结果集
+     */
+    exec( str ) {
+        let _ss = [
+            ...__pipeSplit.reset().split( str.trim() )
+        ]
+        return filters( _ss, this._set );
+    }
+
+
+    /**
+     * 执行指令。
+     * 筛选表达式为单个过滤表示。
+     * @param  {String} str 筛选表达式
+     * @param  {[Element]} els 待过滤集
+     * @return {Collector} 结果集
+     */
+    execOne( str, els ) {
+        let _fun = this._handle( str.trim() );
+        return _fun( $(els) );
     }
 
 
@@ -124,14 +191,96 @@ class Filter {
     type() {
         return 'nodes';
     }
+
+
+    // -- 私有辅助 -----------------------------------------------------------
+
+
+    /**
+     * 创建过滤函数。
+     * 接口：function( all:Collector ): Collector|[Element]
+     * @param  {String} fmt 格式串
+     * @return {Function} 取值函数
+     */
+    _handle( fmt ) {
+        if ( __reNumber.test(fmt) ) {
+            return this._number( fmt.match(__reNumber)[1] );
+        }
+        if ( __reFilter.test(fmt) ) {
+            return this._filter( fmt.match(__reFilter)[1] );
+        }
+        // 选择器模式。
+        return all => all.filter( fmt );
+    }
+
+
+    /**
+     * 数值定位提取。
+     * @param  {String} fmt 定位串：[x:y]|[m,n,...]
+     * @return {Function}
+     */
+    _number( fmt ) {
+        let _vs = fmt.split(__reRange);
+
+        if ( _vs.length > 1 ) {
+            return this._range( _vs );
+        }
+        _vs = JSON.parse( `[${fmt}]` );
+
+        // 越界下标的值被滤除。
+        return all => _vs.map( i => all[i] ).filter( v => v );
+    }
+
+
+    /**
+     * 按范围提取。
+     * @param  {String} beg 起始下标，可选
+     * @param  {String} end 终点下标，可选
+     * @return {Function}
+     */
+    _range( [beg, end] ) {
+        beg = Math.trunc( beg ) || 0;
+        end = end.trim() ? Math.trunc( end ) : undefined;
+
+        return all => all.slice( beg, end );
+    }
+
+
+    /**
+     * 过滤器提取。
+     * @param  {String} fmt 过滤表达式
+     * @return {Function}
+     */
+    _filter( fmt ) {
+        if ( fmt[0] === '.' ) {
+            return new Function( __chrSels, `return $$${fmt}` );
+        }
+        let _fn = new Function( `return ${fmt}` )();
+
+        return all => all.filter( _fn );
+    }
 }
 
 
+//
+// 搜索目标词
+// 匹配的目标词会构造为<mark:tmp>元素。
+//
 class Search {
     /**
      * @param {Element} root 全局上下文
      */
     constructor( root ) {
+        this._ctx = root;
+    }
+
+
+    /**
+     * 执行指令。
+     * @param  {String} word 待搜索词
+     * @return {Collector} 搜索词标记集（<mark:tmp>）
+     */
+    exec( word ) {
         //
     }
 
@@ -146,9 +295,22 @@ class Search {
 }
 
 
+//
+// 内置命令执行器。
+//
 class Command {
 
     constructor() {
+        //
+    }
+
+
+    /**
+     * 执行指令。
+     * @param  {String} expr 指令调用式
+     * @return {void}
+     */
+    exec( expr ) {
         //
     }
 
@@ -163,10 +325,22 @@ class Command {
 }
 
 
+//
+// 简单计算器。
+// 支持 $$ 引用当前选取集（Collector），因此可以执行较多的功能。
+// 但应当仅使用读取类接口，而不要改变DOM本身。
+//
+// 执行结果会回显到命令行，这是另一种便捷。
+//
 class Calcuate {
-
-    constructor() {
-        //
+    /**
+     * 执行指令。
+     * 表达式内可使用 $$ 表示当前选取集（Collector）。
+     * @param  {String} expr 表达式串
+     * @return {Value} 执行结果
+     */
+    exec( expr ) {
+        return new Function( __chrSels, `return ${expr}` )( $(__ESet) );
     }
 
 
@@ -182,11 +356,34 @@ class Calcuate {
 
 
 //
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 连续过滤。
+ * @param {[String]} strs 过滤标识串集
+ * @param {[Element]} els0 初始集合
+ */
+function filters( strs, els0 ) {
+    return strs.reduce(
+        (els, flr) => new Filter().execOne( flr, els ), els0
+    );
+}
+
+
+
+//
+// 基本配置
+//////////////////////////////////////////////////////////////////////////////
+
+
+//
 // 命令行配置。
 //
 const __Cmdx = {
     '>':    new Select( __Root ),
-    '|':    new Filter(),
+    '|':    new Filter( __ESet ),
     '/':    new Search( __Root ),
     ':':    new Command(),
     '=':    new Calcuate(),
@@ -199,16 +396,20 @@ const __Cmdx = {
 const __Cmds = {
     /**
      * 命令行执行。
+     * 执行空白不会有任何效果（返回null）。
      * @param  {String} key 指令类型键
-     * @return [String, Value] [返回值类型, 运行结果]
+     * @return {[Value, String]|null} [运行结果, 结果值类型]
      */
     run( evo, key ) {
-        let _op = __Cmdx[key];
-        return [ _op.type(), _op.exec(evo.data) ];
+        let _op = __Cmdx[key],
+            _ss = evo.data.trim() || null;
+
+        return _ss && [ _op.exec(_ss), _op.type() ];
     },
 
     __run: 1,
 };
+
 
 
 //
@@ -220,8 +421,9 @@ const __Cmds = {
  * 初始化变量赋值。
  * @param {Element} ebox 编辑器内容区根
  */
-export function cmdInit( ebox ) {
+export function cmdInit( ebox, ihot ) {
     __Root = ebox;
+    __EHot = ihot;
 }
 
 

@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Templater } from "./tpb/config.js";
+import { Templater, OBTA } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
@@ -39,7 +39,6 @@ import { cmdInit } from "./cmdline.js";
 // 专项导入
 import { saveCode } from "./shedit.js";
 import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";
-import { OBTA } from "./tpb/config.js";
 
 
 const
@@ -62,14 +61,6 @@ const
     // 脚本执行：
     // 编辑器环境下执行脚本时传递选取集的形参。
     __argName = '$$',
-
-    // 代码解析：
-    // 块类数据缺位边界符存储特性。
-    __atnVac = 'data-b',
-
-    // 代码解析：
-    // 缺位边界符分隔符。
-    __vacSplit = ',',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass} ${Sys.hoverClass} ${Sys.pointClass}`,
@@ -236,6 +227,7 @@ class DOMEdit {
 // 不含类名修改接口（$:addClass, $:removeClass, $:toggleClass）触发的变化。
 // 注记：
 // 类似 DOMEdit 实现，但会保存脚本的返回值。
+// 同时包含撤销警告功能。
 // 不支持对划选（Selection）区域的修改（基础库）。
 //
 class CodeRun {
@@ -289,6 +281,21 @@ class CodeRun {
      */
     result() {
         return this._data;
+    }
+
+
+    /**
+     * 设置/获取警告信息。
+     * 如果重做会创建新节点，就会让后续的 Redo 失去原引用。
+     * 警告用户是否撤销该步（提示后果）。
+     * @param  {String} msg 警告信息
+     * @return {String}
+     */
+    warn( msg ) {
+        if ( msg === undefined ) {
+            return this._msg;
+        }
+        this._msg = msg;
     }
 }
 
@@ -4016,7 +4023,8 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
     modalDialog   = $.get( modal );
     slaveInsert   = $.get( contab );
 
-    cmdInit( contentElem );
+    // 命令行环境变量。
+    cmdInit( contentElem, __EHot, __ESet );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
@@ -5347,6 +5355,7 @@ export const Edit = {
 
             // 若改变DOM就进入历史栈。
             if ( _op.changed() ) {
+                _op.warn( Tips.undoWarn );
                 historyPush( _op );
             }
             return _op.result() || saveCode( code ) || null;
@@ -5433,6 +5442,21 @@ export const Edit = {
     },
 
     __propUpdate: 1,
+
+
+    /**
+     * 命令行执行反馈。
+     * 根据命令行执行结果的值类型，完成不同的编辑行为。
+     * 如果结果为普通值，原样返回（命令行回显）。
+     * @data: Value|Collector
+     * @param  {String} type 值类型
+     * @return {Value|void}
+     */
+    cmdLine( evo, type ) {
+        //
+    },
+
+    __cmdLine: 1,
 
 
 
@@ -6857,6 +6881,7 @@ processExtend( 'Ed', Edit, [
     'runScript',
     'insResult',
     'propUpdate',
+    'cmdLine',
 
     // 配合cut处理
     'deletes',

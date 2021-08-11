@@ -500,10 +500,13 @@ export class History {
         if ( this._idx < 0 ) {
             return warn('[undo] overflow.');
         }
-        let _obj = this._buf[ this._idx-- ];
+        let _obj = this._buf[ this._idx ],
+            _pas = this._confirm( _obj );
 
-        // 副本避免被修改。
-        _obj.slice().reverse().forEach( o => o.undo() );
+        if ( _pas ) {
+            this._idx--;
+            _obj.slice().reverse().forEach( o => o.undo() );
+        }
     }
 
 
@@ -547,6 +550,26 @@ export class History {
      */
     canRedo() {
         return this._idx < this._buf.length - 1;
+    }
+
+
+    /**
+     * 确认是否撤销。
+     * 检查操作实例集内是否包含需警告实例，征求用户选择决定是否撤销。
+     * 如有多个需警告实例，只要其中之一取消，则不可撤销。
+     * @param  {[Object]} objs 操作实例集
+     * @return {Boolean} 确实撤销
+     */
+    _confirm( objs ) {
+        let _pass = true;
+
+        for ( const o of objs ) {
+            if ( o.warn ) {
+                _pass = window.confirm( o.warn() );
+                if ( !_pass ) break;
+            }
+        }
+        return _pass;
     }
 
 

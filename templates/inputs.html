@@ -503,7 +503,9 @@
     <div class="_main">
         <header class="_affix">
             <input name="caption" type="text" placeholder="标题" class="_scale" />
-            <label>
+            <!--覆盖：
+                keydown 避免Enter默认提交行为。 -->
+            <label on="keydown(input)|iskey('Enter') pass stop avoid evo(2) blur">
                 <input name="cols" type="text" class="_nums" title="列数（不含列头）" placeholder="列数" value="3"
                     on="change|evo(3) val int dup pass"
                     to="._main/table|trigger('cols')" />
@@ -520,7 +522,7 @@
                 on="cols|evo(3) ev('detail')"
                 by="Kit.colcrop(_1)">
                 <!-- pastes.json 智能粘贴（下同）。 -->
-                <thead obt-src="obts/pastes.json">
+                <thead obt-src="obts/pastes.json" data-pbo="lost">
                     <tr>
                         <th contenteditable="true" data-pbo="lost"></th>
                         <th contenteditable="true"></th>
@@ -578,7 +580,7 @@
             <label title="<thead>"
                 on="click|$('/input') val vnot"
                 to="._body/thead|lose">
-                <input name="thead" type="checkbox" checked />包含表头
+                <input name="thead" type="checkbox" />包含表头
             </label>
             <!-- check 增加新行时需要列表头状态同步 -->
             <label id="_th0" title="首列为<th>"

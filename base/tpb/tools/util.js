@@ -255,7 +255,7 @@ function fmtSplit( fmt, beg, top ) {
         ...__slrSplit.split(fmt, 1)
     ];
     if ( _s2.length == 1 ) {
-        return [ fmt, top || undefined ];
+        return [ fmt, top ];
     }
     return [ _s2[1], closest(_s2[0].trim(), beg) ];
 }
