@@ -12,6 +12,7 @@
 //  - .type() 返回值类型。返回值含义如下：
 //      nodes   表示 exec() 返回节点集，外部执行重新选取。
 //      value   表示 exec() 返回普通值，会回显到命令行处。
+//      range   表示 exec() 返回范围对象，上级用于构造转换实例（RngEdit）。
 //      null    外部没有任何额外的操作。
 //
 //  支持如下几种不同类型的命令。以一个特殊的字符开启：
@@ -264,7 +265,7 @@ class Filter {
 
 //
 // 搜索目标词
-// 匹配的目标词会构造为<mark:tmp>元素。
+// 返回的是检索词的Range对象集，以便于外部构造<mark:tmp>元素。
 //
 class Search {
     /**
@@ -278,7 +279,7 @@ class Search {
     /**
      * 执行指令。
      * @param  {String} word 待搜索词
-     * @return {Collector} 搜索词标记集（<mark:tmp>）
+     * @return {[Range]} 搜索词范围对象集
      */
     exec( word ) {
         //
@@ -290,7 +291,7 @@ class Search {
      * @return {String}
      */
     type() {
-        return 'nodes';
+        return 'range';
     }
 }
 

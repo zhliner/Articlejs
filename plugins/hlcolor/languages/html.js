@@ -22,7 +22,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode, RE, htmlEscape, regexpEscape } from "../base.js";
+import { Hicode, htmlEscape, regexpEscape } from "../base.js";
 import { Hicolor } from "../main.js";
 import { CSSAttr } from "./css.js";
 
