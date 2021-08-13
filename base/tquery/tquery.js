@@ -6454,10 +6454,12 @@ function addClass( el, names ) {
     if ( varyTrigger(el, evnClassSet, [names, 'add']) === false ) {
         return;
     }
+    let _old = [ ...el.classList ];
+
     names.forEach(
         n => el.classList.add( n )
     );
-    varyTrigger( el, evnClassDone, [names, 'add'] );
+    varyTrigger( el, evnClassDone, [names, 'add', _old] );
 }
 
 
@@ -6477,10 +6479,12 @@ function removeClass( el, names ) {
     if ( varyTrigger(el, evnClassSet, [names, 'remove']) === false ) {
         return;
     }
+    let _old = [ ...el.classList ];
+
     names.forEach(
         n => el.classList.remove( n )
     );
-    varyTrigger( el, evnClassDone, [names, 'remove'] );
+    varyTrigger( el, evnClassDone, [names, 'remove', _old] );
 }
 
 
@@ -6496,10 +6500,12 @@ function toggleClass( el, names ) {
     if ( varyTrigger(el, evnClassSet, [names, 'toggle']) === false ) {
         return;
     }
+    let _old = [ ...el.classList ];
+
     names.forEach(
         n => el.classList.toggle( n )
     );
-    varyTrigger( el, evnClassDone, [names, 'toggle'] );
+    varyTrigger( el, evnClassDone, [names, 'toggle', _old] );
 }
 
 
