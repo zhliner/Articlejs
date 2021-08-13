@@ -48,7 +48,7 @@
         attrdone:   ev => switchType( ev.target, ev.detail, Attr ),
         propdone:   ev => switchType( ev.target, ev.detail, Prop ),
         styledone:  ev => new Style( ev.target, ev.detail ),
-        classdone:  ev => new Class( ev.target, ev.detail ),
+        classdone:  ev => new Class( ev.target, ev.detail[2] ),
 
         // 节点变化。
         nodesdone:  ev => new Nodesdone( ev.detail[0] ),
@@ -81,12 +81,15 @@ class History {
 
     /**
      * 事件触发处理器。
-     * @param {CustomEvent} ev 定制事件对象
+     * @param {Event} ev 定制事件对象
      */
     handleEvent( ev ) {
-        // 仅记录一次。
-        ev.stopPropagation();
-        this._buf.push( __Handles[ev.type](ev) );
+        let _o = __Handles[ev.type]( ev );
+
+        if ( _o.changed() ) {
+            this._buf.push( _o );
+        }
+        ev.stopPropagation();  // 避免重复记录。
     }
 
 
@@ -171,6 +174,14 @@ class Attr {
         }
         this._el.setAttribute( this._name, this._old );
     }
+
+
+    /**
+     * 特性值是否已改变。
+     */
+    changed() {
+        return this._el.getAttribute( this._name ) !== this._old;
+    }
 }
 
 
@@ -201,6 +212,17 @@ class Prop {
             this._el[ this._name ] = this._old;
         }
     }
+
+
+    /**
+     * 属性值是否已改变。
+     */
+    changed() {
+        if ( this._isdn ) {
+            return this._el.dataset[ this._name ] !== this._old;
+        }
+        return this._el[ this._name ] !== this._old;
+    }
 }
 
 
@@ -222,6 +244,16 @@ class Fillx2 {
     back() {
         this._box.textContent = '';
         this._box.append( ...this._nds );
+    }
+
+
+    /**
+     * 内容值是否已改变。
+     * 改变之前和之后任一时刻有值即为真。
+     * 注：值本身没有可比较性。
+     */
+    changed() {
+        return this._nds.length > 0 || this._box.textContent !== '';
     }
 }
 
@@ -250,6 +282,14 @@ class Style {
         this._el.style[ this._name ] = this._old;
         this._el.style.cssText || this._el.removeAttribute( 'style' );
     }
+
+
+    /**
+     * 样式值是否已改变。
+     */
+    changed() {
+        return this._el.style[ this._name ] !== this._old;
+    }
 }
 
 
@@ -260,39 +300,30 @@ class Style {
 class Class {
     /**
      * @param {Element} el 目标元素
-     * @param {[String]} ns 类名集
-     * @param {String} meth 方法（add|remove|toggle）
+     * @param {[String]} old 之前的类名集
      */
-    constructor( el, [ns, meth] ) {
+    constructor( el, old ) {
         this._el = el;
-        this._ns = ns;
-        this._meth = meth;
+        this._ns = old;
     }
 
 
     back() {
-        switch ( this._meth ) {
-            case 'add':
-                return this._backs( 'remove' );
-            case 'remove':
-                return this._backs( 'add' );
-            case 'toggle':
-                return this._backs( 'toggle' );
-        }
+        this._el.removeAttribute( 'class' );
+
+        this._ns.length &&
+        this._ns.forEach( n => this._el.classList.add(n) );
     }
 
 
     /**
-     * 匹配回退。
-     * @param {String} meth 操作方法
+     * 类名集是否已改变。
      */
-    _backs( meth ) {
-        let _cls = this._el.classList;
-
-        this._ns.forEach(
-            n => _cls[ meth ]( n )
+    changed() {
+        let _set = new Set(
+            this._el.classList
         );
-        if ( !_cls.length ) this._el.removeAttribute( 'class' );
+        return this._ns.length !== _set.size || this._ns.some( n => !_set.has(n) );
     }
 }
 
@@ -304,7 +335,7 @@ class Class {
 class Bound {
     /**
      * 注记：
-     * 无需区分是否为单次（one）绑定，所以once参数仅为占位用。
+     * 不需区分是否为单次（one）绑定。
      * @param {Element} el 目标元素
      * @param {String} evn 目标事件名
      * @param {String} slr 委托选择器
@@ -329,6 +360,15 @@ class Bound {
             this._evn, this._slr, this._handle,
             this._cap
         );
+    }
+
+
+    /**
+     * 绑定状况是否已改变。
+     * 外部已保证确实有绑定操作才会激发事件，因此无条件返回true。
+     */
+    changed() {
+        return true;
     }
 }
 
@@ -362,6 +402,15 @@ class Unbound {
             'on';
         $[_fn]( this._el, this._evn, this._slr, this._handle, this._cap );
     }
+
+
+    /**
+     * 绑定状况是否已改变。
+     * 外部已保证确实已绑定才会解绑，因此返回true。
+     */
+    changed() {
+        return true;
+    }
 }
 
 
@@ -390,6 +439,14 @@ class Nodesdone {
     back() {
         this._nodes.forEach( nd => nd.remove() );
     }
+
+
+    /**
+     * 外部已保证确实有内容插入，因此简单返回true。
+     */
+    changed() {
+        return true;
+    }
 }
 
 
@@ -414,6 +471,14 @@ class Remove {
         }
         this._box.prepend( this._node );
     }
+
+
+    /**
+     * 外部已保证确实有删除才会激发事件，因此返回true。
+     */
+    changed() {
+        return true;
+    }
 }
 
 
@@ -436,6 +501,14 @@ class Emptied {
 
     back() {
         this._data.length > 0 && this._box.prepend( ...this._data );
+    }
+
+
+    /**
+     * 外部已保证确实有内容才会清空，因此返回true。
+     */
+    changed() {
+        return true;
     }
 }
 
@@ -462,6 +535,14 @@ class Normalize {
 
     back() {
         this._buf.forEach( obj => obj.back() );
+    }
+
+
+    /**
+     * 是否存在改变。
+     */
+    changed() {
+        return this._buf.length > 0;
     }
 }
 
@@ -511,7 +592,7 @@ class Texts {
  * @return {[Node]}
  */
 function textNodes( el, buf = [] ) {
-    for (const nd of el.childNodes) {
+    for ( const nd of el.childNodes ) {
         let _t = nd.nodeType;
         if ( _t === 1 ) textNodes( nd, buf );
         else if ( _t === 3 ) buf.push( nd );
