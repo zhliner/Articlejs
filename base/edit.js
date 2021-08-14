@@ -27,18 +27,14 @@ import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
-import { propertyProcess, propertyData, propertyData2 } from "./property.js";
+import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";
 import cfg from "./shortcuts.js";
-
-// 代码高亮封装
-import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
-
-// 命令行处理
-import { cmdInit } from "./cmdline.js";
 
 // 专项导入
 import { saveCode } from "./shedit.js";
-import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";
+import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
+import { propertyProcess, propertyData, propertyData2 } from "./property.js";
+import { Select, Filter, Search, Command, Calcuate } from "./cmdline.js";
 
 
 const
@@ -3381,6 +3377,75 @@ function error( msg, data ) {
 
 
 //
+// 命令行部分。
+//----------------------------------------------------------------------------
+
+
+//
+// 标识符映射执行器。
+//
+const __Cmder = {
+    '>':    new Select( contentElem ),
+    '|':    new Filter( __ESet ),
+    '/':    new Search( contentElem ),
+    ':':    new Command(),
+    '=':    new Calcuate(),
+};
+
+
+//
+// 命令行处理器。
+// 返回数组表示操作实例集，否则为字符串（用于回显）。
+// @return {[Instance]|String}
+//
+const __Cmdops = {
+    '>':    cmdxSelect,
+    '|':    cmdxFilter,
+    '/':    cmdxSearch,
+    ':':    cmdxCommand,
+    '=':    cmdxCalcuate,
+};
+
+
+/**
+ * 选取指令处理。
+ * @param  {Select} oper 处理器实例
+ * @param  {String} str 命令行代码文本
+ * @return {[Instance]} 操作实例集（ESEdit）
+ */
+function cmdxSelect( oper, str ) {
+    //
+}
+
+
+function cmdxFilter( oper, str ) {
+    //
+}
+
+
+function cmdxSearch( oper, str ) {
+    //
+}
+
+
+function cmdxCommand( oper, str ) {
+    //
+}
+
+
+/**
+ * 计算指令处理。
+ * @param  {Calcuate} oper 处理器实例
+ * @param  {String} str 命令行代码文本
+ * @return {String} 结果值（命令行回显）
+ */
+function cmdxCalcuate( oper, str ) {
+    //
+}
+
+
+
+//
 // 单元批量转换。
 //----------------------------------------------------------------------------
 
@@ -4022,9 +4087,6 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
     midtoolElem   = $.get( midtool );
     modalDialog   = $.get( modal );
     slaveInsert   = $.get( contab );
-
-    // 命令行环境变量。
-    cmdInit( contentElem, __EHot, __ESet );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
@@ -5445,18 +5507,21 @@ export const Edit = {
 
 
     /**
-     * 命令行执行反馈。
-     * 根据命令行执行结果的值类型，完成不同的编辑行为。
-     * 如果结果为普通值，原样返回（命令行回显）。
-     * @data: Value|Collector
-     * @param  {String} type 值类型
-     * @return {Value|void}
+     * 命令行执行。
+     * 执行空白不会有任何效果。
+     * @data: String 命令行代码
+     * @param  {String} key 指令类型键
+     * @return {[Value, String]|null} [运行结果, 结果值类型]
      */
-    cmdLine( evo, type ) {
-        //
+    cmdRun( evo, key ) {
+        let _ss = evo.data.trim(),
+            _op = _ss &&
+                __Cmdops[ key ]( __Cmder[key], _ss );
+
+        return $.isArray( _op ) ? historyPush( ..._op ) || null : _op;
     },
 
-    __cmdLine: 1,
+    __cmdRun: 1,
 
 
 
@@ -6881,7 +6946,7 @@ processExtend( 'Ed', Edit, [
     'runScript',
     'insResult',
     'propUpdate',
-    'cmdLine',
+    'cmdRun',
 
     // 配合cut处理
     'deletes',

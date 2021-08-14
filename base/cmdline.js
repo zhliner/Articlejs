@@ -7,15 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //  命令行模块
-//  接口：
-//  - .exec() 执行指令，返回恰当的值。
-//  - .type() 返回值类型。返回值含义如下：
-//      nodes   表示 exec() 返回节点集，外部执行重新选取。
-//      value   表示 exec() 返回普通值，会回显到命令行处。
-//      range   表示 exec() 返回范围对象，上级用于构造转换实例（RngEdit）。
-//      null    外部没有任何额外的操作。
-//
-//  支持如下几种不同类型的命令。以一个特殊的字符开启：
+//  支持几种不同类型的命令，以一个特殊字符开启：
 //      >   选取：内容为选择器。全局上下文为编辑器内容区。
 //      |   过滤：内容为过滤条件。对当前选取集执行过滤。
 //      /   搜索：内容为目标文本。在选取集或全文搜索目标文本并标记（<mark>）。
@@ -71,8 +63,6 @@
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
 
-import { processExtend } from "./tpb/pbs.by.js";
-
 
 const
     $ = window.$,
@@ -99,16 +89,6 @@ const
     __pipeSplit = new Spliter( '|', new UmpCaller(), new UmpChars('[', ']'), new UmpChars('{', '}') );
 
 
-let
-    // 编辑器内容区根
-    __Root,
-
-    // 选取焦点类实例
-    __EHot,
-
-    // 元素选取集实例
-    __ESet;
-
 
 //
 // 选择指令实现。
@@ -128,20 +108,11 @@ class Select {
      * @param  {Element} hot 焦点元素
      * @return {Collector} 新选取集
      */
-    exec( slr, hot = __EHot.get() ) {
+    exec( slr, hot ) {
         let _ss = [
                 ...__pipeSplit.reset().split( slr.trim() )
             ];
         return filters( _ss, Util.find(_ss.shift(), hot, false, this._ctx) );
-    }
-
-
-    /**
-     * 返回值类型。
-     * @return {String}
-     */
-    type() {
-        return 'nodes';  // 节点操作类
     }
 }
 
@@ -182,15 +153,6 @@ class Filter {
     execOne( str, els ) {
         let _fun = this._handle( str.trim() );
         return _fun( $(els) );
-    }
-
-
-    /**
-     * 返回值类型。
-     * @return {String}
-     */
-    type() {
-        return 'nodes';
     }
 
 
@@ -284,15 +246,6 @@ class Search {
     exec( word ) {
         //
     }
-
-
-    /**
-     * 返回值类型。
-     * @return {String}
-     */
-    type() {
-        return 'range';
-    }
 }
 
 
@@ -314,15 +267,6 @@ class Command {
     exec( expr ) {
         //
     }
-
-
-    /**
-     * 返回值类型。
-     * @return {String}
-     */
-    type() {
-        return null;
-    }
 }
 
 
@@ -335,34 +279,29 @@ class Command {
 //
 class Calcuate {
     /**
+     * @param {Set} set 当前选取集引用
+     */
+    constructor( set ) {
+        this._set = set;
+    }
+
+
+    /**
      * 执行指令。
      * 表达式内可使用 $$ 表示当前选取集（Collector）。
      * @param  {String} expr 表达式串
      * @return {Value} 执行结果
      */
     exec( expr ) {
-        return new Function( __chrSels, `return ${expr}` )( $(__ESet) );
-    }
-
-
-    /**
-     * 返回值类型。
-     * @return {String}
-     */
-    type() {
-        return 'value';
+        return new Function( __chrSels, `return ${expr}` )( $(this._set) );
     }
 }
 
 
 
-//
-// 工具函数
-//////////////////////////////////////////////////////////////////////////////
-
-
 /**
  * 连续过滤。
+ * 比如通过管道符（|）的选取集过滤。
  * @param {[String]} strs 过滤标识串集
  * @param {[Element]} els0 初始集合
  */
@@ -373,61 +312,4 @@ function filters( strs, els0 ) {
 }
 
 
-
-//
-// 基本配置
-//////////////////////////////////////////////////////////////////////////////
-
-
-//
-// 命令行配置。
-//
-const __Cmdx = {
-    '>':    new Select( __Root ),
-    '|':    new Filter( __ESet ),
-    '/':    new Search( __Root ),
-    ':':    new Command(),
-    '=':    new Calcuate(),
-};
-
-
-//
-// 命令行处理集。
-//
-const __Cmds = {
-    /**
-     * 命令行执行。
-     * 执行空白不会有任何效果（返回null）。
-     * @param  {String} key 指令类型键
-     * @return {[Value, String]|null} [运行结果, 结果值类型]
-     */
-    run( evo, key ) {
-        let _op = __Cmdx[key],
-            _ss = evo.data.trim() || null;
-
-        return _ss && [ _op.exec(_ss), _op.type() ];
-    },
-
-    __run: 1,
-};
-
-
-
-//
-// 导出
-//////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 初始化变量赋值。
- * @param {Element} ebox 编辑器内容区根
- */
-export function cmdInit( ebox, ihot ) {
-    __Root = ebox;
-    __EHot = ihot;
-}
-
-
-processExtend( 'Cmd', __Cmds, [
-    'run',
-]);
+export { Select, Filter, Search, Command, Calcuate };
