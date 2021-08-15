@@ -45,8 +45,8 @@
 //
 //  - 命令（:）
 //  基础性工具集：
-//      plug-ins    插件安装。
-//      plug-del    插件移除。
+//      plugIns     插件安装。
+//      plugDel     插件移除。
 //      theme       列出当前可用主题，或应用目标主题。
 //      style       列出当前可用内容样式，或应用目标样式。
 //      help        开启帮助窗口并定位到指定的关键字条目。
@@ -83,6 +83,12 @@ const
 
     // 当前选取集变量名
     __chrSels = '$$',
+
+    // 当前焦点元素变量名
+    __chrHot  = '$',
+
+    // 内容区根元素变量名
+    __chrRoot = '_',
 
     // 进阶过滤切分器。
     // 排除属性选择器、调用式和表达式内值。
@@ -227,7 +233,7 @@ class Filter {
 
 //
 // 搜索目标词
-// 返回的是检索词的Range对象集，以便于外部构造<mark:tmp>元素。
+// 返回的是检索词的Range对象集，以便于外部构造<mark>元素。
 //
 class Search {
     /**
@@ -235,16 +241,65 @@ class Search {
      */
     constructor( root ) {
         this._ctx = root;
+        this._doc = root.ownerDocument;
     }
 
 
     /**
      * 执行指令。
+     * 外部应当先执行一次 $.normalize() 规范化，
+     * 以合并无意中创建的片段文本。
      * @param  {String} word 待搜索词
+     * @param  {[Text]} nodes 目标节点集（文本节点）
      * @return {[Range]} 搜索词范围对象集
      */
-    exec( word ) {
-        //
+    exec( word, nodes ) {
+        let _buf = [];
+
+        for ( const nd of nodes ) {
+            _buf.push( ...this._ranges(nd, word) );
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 构造检索词范围。
+     * @param  {Text} txt 待检索文本节点
+     * @param  {String} word 检索词
+     * @return {[Range]} 范围对象集
+     */
+    _ranges( txt, word ) {
+        let _buf = [],
+            _len = word.length,
+            _i = 0;
+
+        while ( _i >= 0 ) {
+            _i = txt.textContent.indexOf( word, _i );
+            if ( _i < 0 ) {
+                break;
+            }
+            _buf.push( this._range(txt, _i, _len) );
+            _i += _len;
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 创建一个范围。
+     * @param  {Text} txt 文本节点
+     * @param  {Number} i 起点位置
+     * @param  {Number} len 范围长度
+     * @return {Range}
+     */
+    _range( txt, i, len ) {
+        let _rng = this._doc.createRange();
+
+        _rng.setStart( txt, i );
+        _rng.setEnd( txt, i+len );
+
+        return _rng;
     }
 }
 
@@ -255,17 +310,25 @@ class Search {
 class Command {
 
     constructor() {
-        //
+        // 支持的命令清单
+        this._cmds = new Set([
+            'help',
+            'plugIns',
+            'plugDel',
+            'theme',
+            'style',
+            'setconfig',
+        ]);
     }
 
 
     /**
      * 执行指令。
-     * @param  {String} expr 指令调用式
-     * @return {void}
+     * @param  {String} str 命令调用串
+     * @return {String} 回显信息（状态）
      */
-    exec( expr ) {
-        //
+    exec( str ) {
+        return '开发中....谢谢！';
     }
 }
 
@@ -281,19 +344,27 @@ class Calcuate {
     /**
      * @param {Set} set 当前选取集引用
      */
-    constructor( set ) {
+    constructor( set, root ) {
         this._set = set;
+        this._ctx = root;
     }
 
 
     /**
      * 执行指令。
-     * 表达式内可使用 $$ 表示当前选取集（Collector）。
+     * 表达式内可使用如下变量名：
+     * - $$ 指代当前选取集（Collector）。
+     * - $  指代当前焦点元素（覆盖全局 $ 变量）。
+     * - _  指代内容区根元素（<main>）
      * @param  {String} expr 表达式串
      * @return {Value} 执行结果
      */
-    exec( expr ) {
-        return new Function( __chrSels, `return ${expr}` )( $(this._set) );
+    exec( expr, hot ) {
+        return new Function(
+            __chrSels, __chrHot, __chrRoot, `return ${expr}`
+        )(
+            $(this._set), hot, this._ctx
+        );
     }
 }
 

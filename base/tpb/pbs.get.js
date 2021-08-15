@@ -1659,6 +1659,7 @@ const _Gets = {
     'siblingNodes', // ( comment? ): [Node]
     'parent',       // ( slr? ): Element | null
     'parents',      // ( slr? ): [Element]
+    'textNodes',    // ( real? ): [Text]
 
     'Text',         // ( hasbr?:Boolean, doc?:Document ): Text|[Node]
     'fragment',     // ( clean?:Function|'svg', doc?:Document ): DocumentFragment
