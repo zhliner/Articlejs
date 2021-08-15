@@ -525,7 +525,7 @@ class Normalize {
      * @param {Element} el 事件主元素
      */
     constructor( el ) {
-        let _all = textNodes( el )
+        let _all = $.textNodes( el )
             .filter(
                 (nd, i, arr) => adjacent(nd, arr[i - 1], arr[i + 1])
             );
@@ -583,22 +583,6 @@ class Texts {
 //
 // 工具函数
 ///////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 提取元素内的文本节点。
- * @param  {Element} el 容器元素
- * @param  {Array} buf 缓存区
- * @return {[Node]}
- */
-function textNodes( el, buf = [] ) {
-    for ( const nd of el.childNodes ) {
-        let _t = nd.nodeType;
-        if ( _t === 1 ) textNodes( nd, buf );
-        else if ( _t === 3 ) buf.push( nd );
-    }
-    return buf;
-}
 
 
 /**

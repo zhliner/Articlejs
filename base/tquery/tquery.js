@@ -866,22 +866,6 @@ Object.assign( tQuery, {
 
 
     /**
-     * 集合去重&排序。
-     * comp无实参传递时仅去重（无排序）。
-     * comp: {
-     *      true  DOM节点元素类排序
-     *      null  重置为默认排序规则，用于非元素类
-     * }
-     * @param  {[Node]|Array|Object|.values} list 值集
-     * @param  {Function|null|true} comp 排序比较函数，可选
-     * @return {Array}
-     */
-    unique( list, comp ) {
-        return uniqueSort( values(list), comp === true ? sortElements : comp );
-    },
-
-
-    /**
      * 获取表单元素内控件集。
      * 如果未指定名称，返回可提交的控件集。
      * 控件名以空格分隔，同名控件中用首个控件代表（可用.val获取值集）。
@@ -901,6 +885,52 @@ Object.assign( tQuery, {
             n => namedElem( frm, n )
         );
         return clean ? _els.filter( e => e != null ) : _els;
+    },
+
+
+    /**
+     * 检查表单控件值是否变化并通知。
+     * 针对每一个可提交的命名控件，检查其当前值是否与初始的默认相同，
+     * 如果不同则发送changed事件，否则略过。
+     * 注记：
+     * 可用于表单的reset事件处理器中发现哪些控件值已变化。
+     * @param {Element} frm 表单元素
+     * @param {Value} extra 附加的发送数据，可选
+     * @param {String} evn 事件名，可选
+     */
+    changes( frm, extra, evn = 'changed' ) {
+
+        for ( const el of controls(frm) ) {
+            if ( el.options ) {
+                selectChanged( el ) && el.dispatchEvent( customEvent(evn, extra) );
+            }
+            else if ( controlChanged(el) ) {
+                el.dispatchEvent( customEvent(evn, extra) );
+            }
+        }
+    },
+
+
+    /**
+     * 提取元素内的文本节点。
+     * @param  {Element} el 目标元素
+     * @param  {Boolean} real 确实包含内容（非空白），可选
+     * @return {[Text]} 文本节点集
+     */
+    textNodes( el, real ) {
+        let _buf = [];
+
+        for ( const nd of el.childNodes ) {
+            let _t = nd.nodeType;
+
+            if ( _t === 1 ) {
+                _buf.push( ...tQuery.textNodes(nd, real) );
+            }
+            else if ( _t === 3 && (!real || nd.textContent.trim()) ) {
+                _buf.push( nd );
+            }
+        }
+        return _buf;
     },
 
 
@@ -946,25 +976,18 @@ Object.assign( tQuery, {
 
 
     /**
-     * 检查表单控件值是否变化并通知。
-     * 针对每一个可提交的命名控件，检查其当前值是否与初始的默认相同，
-     * 如果不同则发送changed事件，否则略过。
-     * 注记：
-     * 可用于表单的reset事件处理器中发现哪些控件值已变化。
-     * @param {Element} frm 表单元素
-     * @param {Value} extra 附加的发送数据，可选
-     * @param {String} evn 事件名，可选
+     * 集合去重&排序。
+     * comp无实参传递时仅去重（无排序）。
+     * comp: {
+     *      true  DOM节点元素类排序
+     *      null  重置为默认排序规则，用于非元素类
+     * }
+     * @param  {[Node]|Array|Object|.values} list 值集
+     * @param  {Function|null|true} comp 排序比较函数，可选
+     * @return {Array}
      */
-    changes( frm, extra, evn = 'changed' ) {
-
-        for ( const el of controls(frm) ) {
-            if ( el.options ) {
-                selectChanged( el ) && el.dispatchEvent( customEvent(evn, extra) );
-            }
-            else if ( controlChanged(el) ) {
-                el.dispatchEvent( customEvent(evn, extra) );
-            }
-        }
+    unique( list, comp ) {
+        return uniqueSort( values(list), comp === true ? sortElements : comp );
     },
 
 
@@ -1268,11 +1291,11 @@ Object.assign( tQuery, {
 
     /**
      * 获取元素内容。
-     * - 默认返回元素内的全部子元素和非空文本节点。
+     * - 默认返回元素内的全部子元素和文本节点。
      * - 传递 comment 为真表示包含注释节点。
      * - 可以指定仅返回目标位置的一个子节点。
      * - 位置计数不含空文本节点，支持负值从末尾算起。
-     * - idx空串表示获取内部非空纯文本节点。
+     * - idx 空串表示仅获取内部纯文本节点。
      * @param  {Element} el 容器元素
      * @param  {Number|null} idx 子节点位置（从0开始），可选
      * @param  {Boolean} comment 包含注释节点，可选
@@ -4083,8 +4106,7 @@ elsEx([
     ],
     // @param {String} tag 元素标签
     // @param {...Value} rest 除数据外的剩余参数
-    (fn, list, tag, ...rest) =>
-        list.map( data => tQuery[fn](tag, data, ...rest) )
+    (fn, list, tag, ...rest) => list.map( data => tQuery[fn](tag, data, ...rest) )
 );
 
 
@@ -4107,7 +4129,7 @@ elsEx([
 /////////////////////////////////////////////////
 elsEx([
         // 单节点/元素，结果中可能包含null。
-        // next/prev因until参数可能导致重复。
+        // next/prev/textNodes 结果中可能存在重复。
         'next',
         'prev',
         'nextNode',
@@ -4123,6 +4145,7 @@ elsEx([
         'nextAll',
         'nextUntil',
         'nextNodes',
+        'textNodes',
         'parents',
         'siblings',
         'siblingNodes',
@@ -5496,10 +5519,10 @@ function customSet( el, name, value, scope ) {
         // null数据为空串，表达清除的效果。
         case 'html':
             value = htmlFrag( el, value, '' );
-            return varyNameFill( el, name, [...value.childNodes], scope.evn );
+            return varyFillx2( el, name, [...value.childNodes], scope.evn );
         case 'text':
             value = value === null ? '' : value;
-            return varyNameFill( el, name, el.ownerDocument.createTextNode(value), scope.evn );
+            return varyFillx2( el, name, el.ownerDocument.createTextNode(value), scope.evn );
     }
     scope.set( el, name, value );
 }
@@ -6743,7 +6766,7 @@ function varyFill( el, nodes ) {
  * @param  {[String]} evn2 变化事件名对
  * @return {void}
  */
-function varyNameFill( el, name, nodes, evn2 ) {
+function varyFillx2( el, name, nodes, evn2 ) {
     let _old = Arr( el.childNodes );
 
     if ( varyTrigger(el, evn2[0], [name, nodes]) !== false ) {
