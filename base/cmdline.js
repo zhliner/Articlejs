@@ -20,12 +20,14 @@
 //
 //
 //  - 选取（>）
+//  在全局范围（内容区）检索目标选择器匹配的元素集。
 //  支持以焦点元素为起点的二阶检索（斜线分隔上/下阶选择器）。格式参考 Util.find() 接口。
 //  无条件多元素检索，没有单一检索的格式。
 //
 //
 //  - 过滤（|）
-//  以当前选取集为总集，支持选择器、数组范围/下标、和过滤函数格式。
+//  以当前选取集为总集，过滤出目标元素集。
+//  支持选择器、数组范围/下标、以及过滤函数的筛选形式。
 //      String      选择器。
 //      [n : m]     数组下标范围（空格可选）。
 //      [a,b,c]     数组下标定点。
@@ -80,6 +82,9 @@ const
     // {expression|.func}
     // 取值：[1]
     __reFilter = /^\{(.*)\}$/,
+
+    // 正则表达式格式串
+    __reRegExp = /^\/(.*)\/([gimsuy]*)$/,
 
     // 当前选取集变量名
     __chrSels = '$$',
@@ -270,19 +275,35 @@ class Search {
      * @return {[Range]} 范围对象集
      */
     _ranges( txt, word ) {
-        let _buf = [],
-            _len = word.length,
-            _i = 0;
+        let _buf = [];
 
-        while ( _i >= 0 ) {
-            _i = txt.textContent.indexOf( word, _i );
-            if ( _i < 0 ) {
+        if ( __reRegExp.test(word.trim()) ) {
+            word = RegExp(
+                ...word.trim().match(__reRegExp).slice(1)
+            );
+        }
+        /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
+        while ( true ) {
+            let [i, len] = this._search(txt.textContent, word, i);
+            if ( i < 0 ) {
                 break;
             }
-            _buf.push( this._range(txt, _i, _len) );
-            _i += _len;
+            _buf.push( this._range(txt, i, len) );
+            i += len;
         }
         return _buf;
+    }
+
+
+    /**
+     * 目标搜索。
+     * @param  {String} text 目标文本
+     * @param  {String|RegExp} word 待搜索词或正则表达式
+     * @param  {Number} i 起始检索位置
+     * @return {[Number, Number]} 目标词起点和长度
+     */
+    _search( text, word, i ) {
+        //text.indexOf( word, i )
     }
 
 

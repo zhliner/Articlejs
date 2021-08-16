@@ -212,6 +212,15 @@ class DOMEdit {
         this._fun( ...this._vals );
         this.count = __TQHistory.size() - _old;
     }
+
+
+    /**
+     * 是否发生了实际改变。
+     * @return {Boolean}
+     */
+    changed() {
+        return this.count > 0;
+    }
 }
 
 
@@ -527,6 +536,59 @@ RngEdit.url  = /^(?:http|https|ftp|email):\/\/\w[\w.-]+\/\S+$/i;
 // 拼音：[À-ž ㄅ-ㄭ] （容许空格）
 //
 RngEdit.ruby = RegExp( `^([\\S\\x20]+)\\${Sys.rpLeft}([\\w\\u00c0-\\u017e\\u3105-\\u312d ]+)\\${Sys.rpRight}$`, 'i' );
+
+
+//
+// 搜索标记。
+// 可撤销，可搜索累积。
+//
+class MarkTmp {
+    /**
+     * @param {Range} rng 范围对象
+     */
+    constructor( rng ) {
+        this._el = $.attr(
+            $.elem('mark', rng.toString()), 'role', 'tmp'
+        );
+        this._old = [ ...rng.extractContents().childNodes ];
+
+        rng.detach();
+        rng.insertNode( this._el );
+
+        this._tmp = null;
+    }
+
+
+    undo() {
+        let _box = this._el.parentElement;
+
+        this._el.replaceWith( ...this._old );
+        this._tmp = new Normalize( _box );
+
+        // 原生接口
+        _box.normalize();
+    }
+
+
+    redo() {
+        this._tmp.back();
+
+        this._old
+            .slice(1)
+            .forEach( nd => nd.remove() );
+
+        this._old[0].replaceWith( this._el );
+    }
+
+
+    /**
+     * 获取新创建的元素。
+     */
+    elem() {
+        return this._el;
+    }
+
+}
 
 
 //
@@ -3435,7 +3497,12 @@ function cmdxFilter( oper, str ) {
  * @return {[Instance]} 操作实例集
  */
 function cmdxSearch( oper, str ) {
-    //
+    let _op0 = new DOMEdit(
+            () => $.normalize(contentElem)
+        );
+    if ( _op0.changed() ) historyPush( _op0 );
+
+    let _rngs = oper.exec( str, textNodes(__ESet) );
 }
 
 
@@ -3452,6 +3519,20 @@ function cmdxCommand( oper, str ) {
  */
 function cmdxCalcuate( oper, str ) {
     //
+}
+
+
+/**
+ * 获取目标内的文本节点集
+ * 如果当前选取集为空，目标为内容区全部子元素。
+ * @param  {Set} set 当前选取集
+ * @return {[Text]}
+ */
+function textNodes( set ) {
+    let _els = set.size > 0 ?
+        [...set] : $.children( contentElem );
+
+    return _els.map( el => $.textNodes(el, true) ).flat();
 }
 
 
