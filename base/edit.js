@@ -3487,11 +3487,7 @@ function cmdxFilter( oper, str ) {
 
 /**
  * 搜索指令处理。
- * 特例：
- * 会先执行一个 $.normalize() 操作并视情况压入历史栈。
- * 注记：
- * 规范化操作独立于检索处理本身，以优化文档文本的规范化状态。
- * 如果实际有变化，会需要多一步撤销（用户体验影响不大）。
+ * 提示：用户可以先执行一次全文规范化（Alt+z）。
  * @param  {Search} oper 搜索实例
  * @param  {String} str 命令行代码文本
  * @return {[Instance]} 操作实例集
@@ -5619,14 +5615,14 @@ export const Edit = {
 
     /**
      * 命令行执行。
-     * 执行空白不会有任何效果。
+     * 空白序列不会被执行（没有任何效果）。
      * @data: String 命令行代码
      * @param  {String} key 指令类型键
-     * @return {[Value, String]|null} [运行结果, 结果值类型]
+     * @return {Value|null} 运行结果（用于回显）
      */
     cmdRun( evo, key ) {
-        let _str = evo.data.trim(),
-            _ops = _str &&
+        let _str = evo.data,
+            _ops = _str.trim() &&
                 __Cmdops[ key ]( __Cmder[key], _str );
 
         return $.isArray( _ops ) ? historyPush( ..._ops ) || null : _ops;

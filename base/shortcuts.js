@@ -614,7 +614,8 @@ Content: [
         "command":  "contentsMerge"
     },
 
-    // 内容区规范化。
+    // 内容区规范化
+    // 连续文本节点合并。
     {
         "key":      "alt:z",
         "command":  "normalize"
