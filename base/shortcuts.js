@@ -614,6 +614,12 @@ Content: [
         "command":  "contentsMerge"
     },
 
+    // 内容区规范化。
+    {
+        "key":      "alt:z",
+        "command":  "normalize"
+    },
+
 
     //
     // 定位移动。

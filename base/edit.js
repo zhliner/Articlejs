@@ -3447,11 +3447,11 @@ function error( msg, data ) {
 // 标识符映射执行器。
 //
 const __Cmder = {
-    '>':    new Select( contentElem ),
-    '|':    new Filter( __ESet ),
-    '/':    new Search( contentElem ),
-    ':':    new Command(),
-    '=':    new Calcuate(),
+    '>':    null,   // new Select()
+    '|':    null,   // new Filter()
+    '/':    null,   // new Search()
+    ':':    null,   // new Command()
+    '=':    null,   // new Calcuate()
 };
 
 
@@ -3497,11 +3497,6 @@ function cmdxFilter( oper, str ) {
  * @return {[Instance]} 操作实例集
  */
 function cmdxSearch( oper, str ) {
-    let _op0 = new DOMEdit(
-            () => $.normalize(contentElem)
-        );
-    if ( _op0.changed() ) historyPush( _op0 );
-
     let _rngs = oper.exec( str, textNodes(__ESet) );
 }
 
@@ -4179,6 +4174,15 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
     midtoolElem   = $.get( midtool );
     modalDialog   = $.get( modal );
     slaveInsert   = $.get( contab );
+
+    // 命令行处理器。
+    Object.assign( __Cmder, {
+        '>':    new Select(contentElem),
+        '|':    new Filter(__ESet),
+        '/':    new Search(contentElem),
+        ':':    new Command(),
+        '=':    new Calcuate(),
+    });
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
@@ -5205,6 +5209,21 @@ export const Edit = {
             new DOMEdit( __Edits.merges, _box, _subs, $els ),
             ...selectOne( _box, 'safeAdd' ),
         );
+    },
+
+
+    /**
+     * 内容区规范化。
+     * 通常在命令行执行搜索前需要，因为搜索是以文本节点为天然分区的。
+     * 注记：
+     * 并不在搜索时自动执行，因为文本节点数量太多。
+     */
+    normalize() {
+        let _op = new DOMEdit(
+                () => $.normalize(contentElem)
+            );
+        // 仅在有变化时才入栈。
+        if ( _op.changed() ) historyPush( _op );
     },
 
 

@@ -261,6 +261,9 @@ class Search {
     exec( word, nodes ) {
         let _buf = [];
 
+        if ( __reRegExp.test(word) ) {
+            word = RegExp( ...word.match(__reRegExp).slice(1) );
+        }
         for ( const nd of nodes ) {
             _buf.push( ...this._ranges(nd, word) );
         }
@@ -270,18 +273,16 @@ class Search {
 
     /**
      * 构造检索词范围。
+     * 技巧：
+     * 如果需要搜索一个正则表达式本身（文本），
+     * 可以在前或后附加一个空格，这样它就不会被视为一个正则表达式了。
      * @param  {Text} txt 待检索文本节点
-     * @param  {String} word 检索词
+     * @param  {String|RegExp} word 检索词或正则表达式
      * @return {[Range]} 范围对象集
      */
     _ranges( txt, word ) {
         let _buf = [];
 
-        if ( __reRegExp.test(word.trim()) ) {
-            word = RegExp(
-                ...word.trim().match(__reRegExp).slice(1)
-            );
-        }
         /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
         while ( true ) {
             let [i, len] = this._search(txt.textContent, word, i);
@@ -303,7 +304,12 @@ class Search {
      * @return {[Number, Number]} 目标词起点和长度
      */
     _search( text, word, i ) {
-        //text.indexOf( word, i )
+        if ( typeof word === 'string' ) {
+            return [ text.indexOf(word, i), word.length ];
+        }
+        let _v = text.match( word );
+
+        return _v ? [ _v.index, _v[0].length ] : [ -1, 0 ];
     }
 
 
@@ -349,7 +355,7 @@ class Command {
      * @return {String} 回显信息（状态）
      */
     exec( str ) {
-        return '开发中....谢谢！';
+        return `开发中....[${str}] ^_^`;
     }
 }
 
@@ -382,7 +388,7 @@ class Calcuate {
      */
     exec( expr, hot ) {
         return new Function(
-            __chrSels, __chrHot, __chrRoot, `return ${expr}`
+            __chrSels, __chrHot, __chrRoot, `return ${expr};`
         )(
             $(this._set), hot, this._ctx
         );
