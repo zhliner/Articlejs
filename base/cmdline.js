@@ -47,8 +47,8 @@
 //
 //  - 命令（:）
 //  基础性工具集：
-//      plugIns     插件安装。
-//      plugDel     插件移除。
+//      plug-ins    插件安装。
+//      plug-del    插件移除。
 //      theme       列出当前可用主题，或应用目标主题。
 //      style       列出当前可用内容样式，或应用目标样式。
 //      help        开启帮助窗口并定位到指定的关键字条目。
@@ -86,6 +86,12 @@ const
     // 正则表达式格式串
     __reRegExp = /^\/(.*)\/([gimsuy]*)$/,
 
+    // 字符串形式匹配
+    __reString = /^(['"`])(.*)\1$/,
+
+    // 实参序列分隔符（单字符）
+    __chrArgs = ' ',
+
     // 当前选取集变量名
     __chrSels = '$$',
 
@@ -103,6 +109,7 @@ const
 
 //
 // 选择指令实现。
+// 支持选择器之后直接附加过滤表达式（| 分隔）。
 //
 class Select {
     /**
@@ -123,13 +130,17 @@ class Select {
         let _ss = [
                 ...__pipeSplit.reset().split( slr.trim() )
             ];
-        return filters( _ss, Util.find(_ss.shift(), hot, false, this._ctx) );
+        return filters(
+            _ss,
+            Util.find( _ss.shift(), hot, false, this._ctx )
+        );
     }
 }
 
 
 //
 // 元素集过滤实现。
+// 支持多段过滤表达式（| 分隔）。
 //
 class Filter {
     /**
@@ -142,7 +153,6 @@ class Filter {
 
     /**
      * 执行指令。
-     * 支持多段过滤表达式（| 分隔）。
      * @param  {String} str 筛选表达式
      * @return {Collector} 结果集
      */
@@ -333,18 +343,19 @@ class Search {
 
 //
 // 内置命令执行器。
+// 命令之后为空格分隔的实参序列。
 //
 class Command {
 
     constructor() {
-        // 支持的命令清单
-        this._cmds = new Set([
-            'help',
-            'plugIns',
-            'plugDel',
-            'theme',
-            'style',
-            'setconfig',
+        // 命令清单映射：{命令名：操作函数}
+        this._cmds = new Map([
+            [ 'help',       null ],
+            [ 'plug-ins',   null ],
+            [ 'plug-del',   null ],
+            [ 'theme',      null ],
+            [ 'style',      null ],
+            [ 'setconfig',  null ],
         ]);
     }
 
@@ -355,7 +366,41 @@ class Command {
      * @return {String} 回显信息（状态）
      */
     exec( str ) {
-        return `开发中....[${str}] ^_^`;
+        let [name, args] = this._cmdArgs( str ),
+            _fun = this._cmds[ name ];
+
+        return name ? `[${name}] ... 开发中 ^_^` : '目标命令不被支持！';
+    }
+
+
+    /**
+     * 提取命令和实参序列。
+     * @param  {String} str 命令行序列
+     * @return {[String, [String]]} [命令名, [实参序列]]
+     */
+    _cmdArgs( str ) {
+        for ( const n of this._cmds.keys() ) {
+            if ( str.startsWith(n + ' ') ) {
+                return [
+                    n,
+                    this._args( str.substring(n.length+1) )
+                ];
+            }
+        }
+        return [];
+    }
+
+
+    /**
+     * 获取实参序列。
+     * 切分的值为字符串，容错字符串包围字符（"'`）的字符串。
+     * @param  {String} str 实参序列字符串
+     * @return {[String]}
+     */
+    _args( str ) {
+        return $.split( str, __chrArgs, Infinity, true )
+            .filter( s => s )
+            .map( s => __reString.test(s) ? s.match(__reString)[2] : s );
     }
 }
 
@@ -370,6 +415,7 @@ class Command {
 class Calcuate {
     /**
      * @param {Set} set 当前选取集引用
+     * @param {Element} root 内容区根元素
      */
     constructor( set, root ) {
         this._set = set;

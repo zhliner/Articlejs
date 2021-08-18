@@ -8507,7 +8507,7 @@ Object.assign( tQuery, {
      * 空串切分时，修复了 String.split() 原生方法处理4字节Unicode的问题。
      * 计数逻辑与 String.split() 保持一致。
      * @param  {String} str 目标字符串
-     * @param  {String|RegExp} sep 切分字符串或模式
+     * @param  {String|RegExp} sep 切分字符串或正则表达式
      * @param  {Number} cnt 切分数量上限，可选
      * @param  {Boolean} qs 忽略字符串格式（由 '"` 包围）内的目标字符，可选
      * @return {[String]}

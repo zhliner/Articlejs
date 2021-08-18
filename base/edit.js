@@ -238,10 +238,11 @@ class DOMEdit {
 class CodeRun {
     /**
      * 构造一个编辑实例。
-     * @param {String} code 脚本代码
+     * @param {...Value} args 参数序列
      */
-    constructor( code ) {
-        this._code = code;
+    constructor( handle, ...args ) {
+        this._fun = handle;
+        this._args = args;
         this._data;
         // 外部只读
         this.count = null;
@@ -266,7 +267,7 @@ class CodeRun {
     redo() {
         let _old = __TQHistory.size();
 
-        this._data = scriptRun2( __ESet, this._code );
+        this._data = this._fun( ...this._args );
         this.count = __TQHistory.size() - _old;
     }
 
@@ -3057,16 +3058,16 @@ function scriptData( eset, code, btext, bhtml ) {
  * - 全局的 $ 被封装为一个代理对象，$() 的默认上下文为编辑区根元素（<main>）。
  * - 代码的局部执行环境包含一个变量 _，指代编辑区根元素。
  * - 特殊的变量 $$ 表示当前选取集，已封装为 Collector 实例。
- * @param  {ESet} eset 选取集
  * @param  {String} code 脚本代码
+ * @param  {Collector} $els 选取集
  * @return {Object3|null} 结果对象
  */
-function scriptRun2( eset, code ) {
+function scriptRun2( code, $els ) {
     let data,
         _fun = new Function( __argName, '$', '_', code );
     try {
         // 传递选取集实参。
-        data = _fun( $(eset), $proxy, contentElem );
+        data = _fun( $els, $proxy, contentElem );
     }
     catch (e) {
         return { type: 'error', data: e };
@@ -3080,7 +3081,7 @@ function scriptRun2( eset, code ) {
 // 限定默认上下文为编辑器内容根元素，专用于脚本在当前编辑器内执行。
 //
 const $proxy = new Proxy( $, {
-    apply: (self, ctx, args) => self( args[0], args[1] || contentElem )
+    apply: (orig, _, args) => orig( args[0], args[1] || contentElem )
 });
 
 
@@ -3476,12 +3477,18 @@ const __Cmdops = {
  * @return {[Instance]} 操作实例集（ESEdit）
  */
 function cmdxSelect( oper, str ) {
-    //
+    return selectResult( [], oper.exec(str, __EHot.get()) );
 }
 
 
+/**
+ * 过滤指令处理。
+ * @param  {Filter} oper 过滤器实例
+ * @param  {String} str 过滤表达式序列
+ * @return {[Instance]} 操作实例集
+ */
 function cmdxFilter( oper, str ) {
-    //
+    return selectResult( [], oper.exec(str) );
 }
 
 
@@ -3494,22 +3501,43 @@ function cmdxFilter( oper, str ) {
  */
 function cmdxSearch( oper, str ) {
     let _rngs = oper.exec( str, textNodes(__ESet) );
+
+    if ( !_rngs.length ) {
+        return Tips.searchNothing;
+    }
+    let _ops = _rngs.map( rng => new MarkTmp(rng) );
+
+    return selectResult( _ops, _ops.map(op => op.elem()) );
 }
 
 
+/**
+ * 普通命令执行。
+ * @param  {Command} oper 命令执行器实例
+ * @param  {String} str 命令行序列
+ * @return {String} 命令状态回显信息
+ */
 function cmdxCommand( oper, str ) {
-    //
+    return oper.exec( str );
 }
 
 
 /**
  * 计算指令处理。
+ * 放在代码执行器内执行，如果改变了DOM，则进入历史栈以便于撤销。
  * @param  {Calcuate} oper 处理器实例
  * @param  {String} str 命令行代码文本
  * @return {String} 结果值（命令行回显）
  */
 function cmdxCalcuate( oper, str ) {
-    //
+    let _fn = oper.exec.bind( oper ),
+        _op = new CodeRun( _fn, str, __EHot.get() );
+
+    if ( _op.changed() ) {
+        _op.warn( Tips.undoWarn );
+        historyPush( _op );
+    }
+    return _op.result();
 }
 
 
@@ -3524,6 +3552,23 @@ function textNodes( set ) {
         [...set] : $.children( contentElem );
 
     return _els.map( el => $.textNodes(el, true) ).flat();
+}
+
+
+/**
+ * 汇集操作集和选取结果。
+ * 在原有操作集内附加一些操作，包含：
+ * - 清除原选取集。
+ * - 选取新目标元素。
+ * - 首个新目标元素设置焦点。
+ * 注：
+ * 专用于命令行执行结果（元素类）选取。
+ * @param  {[Instance]} ops 原操作集
+ * @param  {[Element]} els 新目标元素集
+ * @return {[Instance]} 完整操作集
+ */
+function selectResult( ops, els ) {
+    return ops.concat( clearSets(), pushes(els), new HotEdit(els[0]) );
 }
 
 
@@ -4173,11 +4218,11 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
 
     // 命令行处理器。
     Object.assign( __Cmder, {
-        '>':    new Select(contentElem),
-        '|':    new Filter(__ESet),
-        '/':    new Search(contentElem),
+        '>':    new Select( contentElem ),
+        '|':    new Filter( __ESet ),
+        '/':    new Search( contentElem ),
         ':':    new Command(),
-        '=':    new Calcuate(),
+        '=':    new Calcuate( __ESet, contentElem ),
     });
 
     // 监听内容区变化事件。
@@ -5520,13 +5565,15 @@ export const Edit = {
         if ( !code ) return null;
 
         if ( rbox === 'editor' ) {
-            let _op = new CodeRun( code );
+            let _op = new CodeRun( scriptRun2, code, $(__ESet) );
 
             // 若改变DOM就进入历史栈。
             if ( _op.changed() ) {
                 _op.warn( Tips.undoWarn );
                 historyPush( _op );
             }
+            // 结果为假表示正常执行，保存代码并返回null。
+            // 结果为Object3，合法性未定，交由后阶处理（是否保存代码）。
             return _op.result() || saveCode( code ) || null;
         }
         return scriptRun( scriptData(__ESet, code, btext, bhtml) )
@@ -5615,7 +5662,7 @@ export const Edit = {
 
     /**
      * 命令行执行。
-     * 空白序列不会被执行（没有任何效果）。
+     * 空白序列不会被执行，但文本首尾的空白是有意义的。
      * @data: String 命令行代码
      * @param  {String} key 指令类型键
      * @return {Value|null} 运行结果（用于回显）
