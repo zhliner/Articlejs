@@ -58,6 +58,9 @@ const
     // 编辑器环境下执行脚本时传递选取集的形参。
     __argName = '$$',
 
+    // 搜索标记角色名。
+    __tmpRole = 'tmp',
+
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass} ${Sys.hoverClass} ${Sys.pointClass}`,
 
@@ -549,7 +552,7 @@ class MarkTmp {
      */
     constructor( rng ) {
         this._el = $.attr(
-            $.elem('mark', rng.toString()), 'role', 'tmp'
+            $.elem('mark', rng.toString()), 'role', __tmpRole
         );
         this._old = [ ...rng.extractContents().childNodes ];
 
