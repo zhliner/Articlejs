@@ -1,4 +1,4 @@
-//! $Id: history.js 2020.06.18 tQuery.Plugins $
+//! $ID: history.js 2020.06.18 tQuery.Plugins $
 //+++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: dom-history v0.1.0
 //  E-Mail:  zhliner@gmail.com

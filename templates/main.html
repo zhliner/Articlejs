@@ -892,13 +892,15 @@
             <b title="简单计算">=</b>
             <!-- <b title="扩展指令...">!</b> -->
         </span>
-        <!-- data-v: CSS辅助 -->
+        <!--说明：
+            click focus 便于失焦后隐藏。
+            data-v: CSS辅助。 -->
         <code id="g-cmdx" data-v=">"
             on="setv|ev('detail') dup;
                 done|$('1/span') lose;
                 click|$('1/span') dup lose(0) focus"
             to="|@text @-v|goto('done');
-                #cmd-input|-|focus">&gt;</code>
+                #cmd-input|-|focus select">&gt;</code>
     </div>
     <!--命令行交互：
         1. 回车执行命令行。
@@ -909,7 +911,7 @@
     <div class="_cmdline"
         on="keydown(input)|iskey('Enter') pass stopAll evo(2) val $('#g-cmdx') text;
             keydown(input)|iskey('u') scam('ctrl') both pass stop avoid evo(2) select"
-        by="Ed.cmdRun(_1) pass"
+        by="Ed.cmdRun(_1) dup pass"
         to="=|val|focus select">
         <input id="cmd-input" type="text" name="cmd" spellcheck="false" class="_code" data-tips="> | / : = 直达此处"
             on="focus|evo(3) ('');

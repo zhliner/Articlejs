@@ -1,4 +1,4 @@
-/*! $Id: tabler.js 2017.03.20 tQuery.Plugins $
+/*! $ID: tabler.js 2017.03.20 tQuery.Plugins $
 *******************************************************************************
             Copyright (c) 铁皮工作室 2017 MIT License
 

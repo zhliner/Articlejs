@@ -1,4 +1,4 @@
-//! $Id: shedit.js 2021.04.08 Articlejs.Libs $
+//! $ID: shedit.js 2021.04.08 Articlejs.Libs $
 //++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

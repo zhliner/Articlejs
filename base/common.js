@@ -1,4 +1,4 @@
-//! $Id: common.js 2019.09.07 Articlejs.Libs $
+//! $ID: common.js 2019.09.07 Articlejs.Libs $
 //++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

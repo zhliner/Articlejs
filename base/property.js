@@ -1,4 +1,4 @@
-//! $Id: property.js 2021.06.16 Articlejs.Libs $
+//! $ID: property.js 2021.06.16 Articlejs.Libs $
 //++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

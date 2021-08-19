@@ -1,4 +1,4 @@
-//! $Id: main.js 2019.11.16 Articlejs.User $
+//! $ID: main.js 2019.11.16 Articlejs.User $
 // +++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

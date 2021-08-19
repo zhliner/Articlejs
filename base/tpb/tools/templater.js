@@ -1,4 +1,4 @@
-// $Id: templater.js 2019.09.02 Tpb.Tools $
+// $ID: templater.js 2019.09.02 Tpb.Tools $
 // ++++++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com

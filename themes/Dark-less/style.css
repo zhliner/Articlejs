@@ -158,6 +158,9 @@ aside#help {
 .___Content picture {
     display: inline-block;
 }
+.___Content mark[role=tmp] {
+    background-color: orange;
+}
 
 /* 代码框提示 */
 .___Panel form pre:empty::after {

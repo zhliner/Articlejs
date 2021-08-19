@@ -1,4 +1,4 @@
-//! $Id: scripter.js 2021.02.01 Articlejs.Libs $
+//! $ID: scripter.js 2021.02.01 Articlejs.Libs $
 //++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

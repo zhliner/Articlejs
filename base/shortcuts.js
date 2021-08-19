@@ -1,4 +1,4 @@
-//! $Id: shortcuts.js 2019.10.11 Articlejs.Config $
+//! $ID: shortcuts.js 2019.10.11 Articlejs.Config $
 // ++++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

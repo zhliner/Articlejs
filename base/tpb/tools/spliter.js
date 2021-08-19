@@ -1,4 +1,4 @@
-//! $Id: spliter.js 2019.08.19 Tpb.Tools $
+//! $ID: spliter.js 2019.08.19 Tpb.Tools $
 // +++++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com

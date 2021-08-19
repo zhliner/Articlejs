@@ -1,4 +1,4 @@
-//! $Id: util.js 2019.08.18 Tpb.Tools $
+//! $ID: util.js 2019.08.18 Tpb.Tools $
 // ++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com

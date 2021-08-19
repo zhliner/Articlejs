@@ -1,4 +1,4 @@
-//! $Id: edit.js 2019.09.07 Articlejs.Libs $
+//! $ID: edit.js 2019.09.07 Articlejs.Libs $
 //++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
@@ -60,6 +60,9 @@ const
 
     // 搜索标记角色名。
     __tmpRole = 'tmp',
+
+    // 内容区聚焦事件名。
+    __evnFocus = 'focus.content',
 
     // 临时类名序列。
     __tmpcls = `${Sys.selectedClass} ${Sys.focusClass} ${Sys.hoverClass} ${Sys.pointClass}`,
@@ -5675,7 +5678,12 @@ export const Edit = {
             _ops = _str.trim() &&
                 __Cmdops[ key ]( __Cmder[key], _str );
 
-        return $.isArray( _ops ) ? historyPush( ..._ops ) || null : _ops;
+        if ( !$.isArray(_ops) ) {
+            return _ops;
+        }
+        $.trigger( contentElem, __evnFocus, null, true );
+
+        return historyPush( ..._ops ) || null;
     },
 
     __cmdRun: 1,

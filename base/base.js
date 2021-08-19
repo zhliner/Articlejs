@@ -1,4 +1,4 @@
-//! $Id: base.js 2020.05.10 Articlejs.Libs $
+//! $ID: base.js 2020.05.10 Articlejs.Libs $
 // +++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

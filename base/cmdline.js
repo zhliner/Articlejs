@@ -1,5 +1,5 @@
-//! $ID: cmdline.js 2021.08.08 Articlejs.Config $
-// ++++++++++++++++++++++++++++++++++++++++++++++++
+//! $ID: cmdline.js 2021.08.08 Articlejs.Libs $
+// ++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  MIT License
@@ -13,7 +13,7 @@
 //      /   搜索：内容为目标文本。在选取集或全文搜索目标文本并标记（<mark>）。
 //      :   命令：内容为编辑器支持的命令。主要是一些基本的工具函数。
 //      =   计算：将内容视为JS表达式，执行计算并返回到当前位置。
-//      !   扩展：一些高级的指令，待开发。
+//      !   扩展：一些高级指令（待定）。
 //  开启：
 //  在非编辑区域键入目标字符，光标会自动聚焦到命令行，同时会切换到该模式。
 //  这些字符只是快捷键和标识，并不需要在命令行键入它们。
@@ -42,11 +42,11 @@
 //  搜索词以当前选取集内文本节点为上下文，不支持跨节点词汇的搜索。注：节点被视为意义域。
 //  支持正则表达式匹配文本搜索，上下文边界同上。
 //      String      普通搜索文本词。
-//      /.../x      正则表达式搜索。
+//      /.../x      正则表达式搜索，x必须为合法的标志字符。
 //
 //
 //  - 命令（:）
-//  基础性工具集：
+//  基础工具集：
 //      plug-ins    插件安装。
 //      plug-del    插件移除。
 //      theme       列出当前可用主题，或应用目标主题。
@@ -84,7 +84,7 @@ const
     __reFilter = /^\{(.*)\}$/,
 
     // 正则表达式格式串
-    __reRegExp = /^\/(.*)\/([gimsuy]*)$/,
+    __reRegExp = /^\/(.*)\/([imsugy]*)$/,
 
     // 字符串形式匹配
     __reString = /^(['"`])(.*)\1$/,
@@ -272,7 +272,7 @@ class Search {
         let _buf = [];
 
         if ( __reRegExp.test(word) ) {
-            word = RegExp( ...word.match(__reRegExp).slice(1) );
+            word = this._regexp( word );
         }
         for ( const nd of nodes ) {
             _buf.push( ...this._ranges(nd, word) );
@@ -291,11 +291,13 @@ class Search {
      * @return {[Range]} 范围对象集
      */
     _ranges( txt, word ) {
-        let _buf = [];
+        let _buf = [],
+            i = 0,
+            len = 0;
 
         /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
         while ( true ) {
-            let [i, len] = this._search(txt.textContent, word, i);
+            [i, len] = this._search(txt.textContent, word, i);
             if ( i < 0 ) {
                 break;
             }
@@ -317,9 +319,10 @@ class Search {
         if ( typeof word === 'string' ) {
             return [ text.indexOf(word, i), word.length ];
         }
-        let _v = text.match( word );
+        let _s = text.substring( i ),
+            _v = _s && _s.match( word );
 
-        return _v ? [ _v.index, _v[0].length ] : [ -1, 0 ];
+        return _v ? [ i+_v.index, _v[0].length ] : [ -1, 0 ];
     }
 
 
@@ -338,6 +341,22 @@ class Search {
 
         return _rng;
     }
+
+
+    /**
+     * 构造正则表达式。
+     * 需要除去全局标志（g），以约束返回值格式。
+     * @param  {String} word 正则式字符串
+     * @return {RegExp}
+     */
+    _regexp( word ) {
+        let [main, flag] = word.match(__reRegExp).slice(1);
+
+        if ( flag ) {
+            flag = flag.split('').filter( s => s !== 'g' ).join('');
+        }
+        return new RegExp( main, flag );
+    }
 }
 
 
@@ -350,12 +369,12 @@ class Command {
     constructor() {
         // 命令清单映射：{命令名：操作函数}
         this._cmds = new Map([
-            [ 'help',       null ],
-            [ 'plug-ins',   null ],
-            [ 'plug-del',   null ],
-            [ 'theme',      null ],
-            [ 'style',      null ],
-            [ 'setconfig',  null ],
+            [ 'help',       this._help ],
+            [ 'plug-ins',   this._plugIns ],
+            [ 'plug-del',   this._plugDel ],
+            [ 'theme',      this._theme ],
+            [ 'style',      this._style ],
+            [ 'setconfig',  this._setconfig ],
         ]);
     }
 
@@ -401,6 +420,69 @@ class Command {
         return $.split( str, __chrArgs, Infinity, true )
             .filter( s => s )
             .map( s => __reString.test(s) ? s.match(__reString)[2] : s );
+    }
+
+
+    //-- 命令操作 ----------------------------------------------------------------
+
+
+    /**
+     * 打开帮助提示
+     * @param  {String} key 索引键
+     * @return {String} 索引路径（友好提示）
+     */
+    _help( key ) {
+        //
+    }
+
+
+    /**
+     * 插件安装。
+     * @param  {String} url 插件路径
+     * @return {String} 状态信息（成功|失败）
+     */
+    _plugIns( url ) {
+        //
+    }
+
+
+    /**
+     * 插件移除。
+     * @param  {String} name 插件名（键）
+     * @return {String} 提示信息
+     */
+    _plugDel( name ) {
+        //
+    }
+
+
+    /**
+     * 罗列或设置编辑器主题。
+     * @param  {String} url 主题路径
+     * @return {[String]|String} 主题清单或结果提示
+     */
+    _theme( url ) {
+        //
+    }
+
+
+    /**
+     * 罗列或设置内容样式。
+     * @param  {String} url 样式路径
+     * @return {[String]|String} 样式清单或结果提示
+     */
+    _style( url ) {
+        //
+    }
+
+
+    /**
+     * 系统变量设置。
+     * @param  {Object} map 键值映射集
+     * @return {String} 结果提示
+     */
+    _setconfig( map ) {
+        //
     }
 }
 

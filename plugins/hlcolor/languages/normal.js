@@ -1,4 +1,4 @@
-//! $Id: normal.js 2021.01.24 Articlejs.Plugins.hlcolor $
+//! $ID: normal.js 2021.01.24 Articlejs.Plugins.hlcolor $
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

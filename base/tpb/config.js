@@ -1,4 +1,4 @@
-//! $Id: config.js 2019.09.28 Tpb.Config $
+//! $ID: config.js 2019.09.28 Tpb.Config $
 // +++++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com

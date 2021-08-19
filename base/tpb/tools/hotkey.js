@@ -1,4 +1,4 @@
-//! $Id: hotkey.js 2020.04.06 Tpb.Tools $
+//! $ID: hotkey.js 2020.04.06 Tpb.Tools $
 // ++++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com

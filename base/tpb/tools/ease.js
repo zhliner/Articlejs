@@ -1,4 +1,4 @@
-// $Id: ease.js 2020.09.14 Tpb.Tools $
+// $ID: ease.js 2020.09.14 Tpb.Tools $
 // +++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com

@@ -1,4 +1,4 @@
-//! $Id: templates.js 2020.05.09 Articlejs.Config $
+//! $ID: templates.js 2020.05.09 Articlejs.Config $
 // ++++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

@@ -1,4 +1,4 @@
-//! $Id: coding.js 2020.02.07 Articlejs.Libs $
+//! $ID: coding.js 2020.02.07 Articlejs.Libs $
 //++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com

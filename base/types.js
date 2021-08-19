@@ -1,4 +1,4 @@
-//! $Id: types.js 2020.05.09 Articlejs.Libs $
+//! $ID: types.js 2020.05.09 Articlejs.Libs $
 // ++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
