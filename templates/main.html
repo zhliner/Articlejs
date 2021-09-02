@@ -906,17 +906,22 @@
         1. 回车执行命令行。
         2. 键入内容时即时匹配历史记录。
         3. 上下箭头键导航历史匹配。
-        4. Ctrl+U 全选文本以便于清空（趋近习惯用法）。
+        4. Ctrl+U 全选以便于清空（非直接清空以便于可撤销）。
     -->
     <div class="_cmdline"
         on="keydown(input)|iskey('Enter') pass stopAll evo(2) val $('#g-cmdx') text;
             keydown(input)|iskey('u') scam('ctrl') both pass stop avoid evo(2) select"
         by="Ed.cmdRun(_1) dup pass"
         to="=|val|focus select">
+        <!--交互：
+            input 键入内容时即时匹配历史记录。 -->
         <input id="cmd-input" type="text" name="cmd" spellcheck="false" class="_code" data-tips="> | / : = 直达此处"
-            on="focus|evo(3) ('');
+            on="input|;
+                focus|evo(3) ('');
                 ^obted blur|evo(3) attr('-tips')"
-            to="|@placeholder;
+            by=""
+            to="-;
+                |@placeholder;
                 |@placeholder" />
     </div>
     <!--出错提示：

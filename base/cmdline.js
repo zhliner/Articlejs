@@ -20,9 +20,11 @@
 //
 //
 //  - 选取（>）
-//  在全局范围（内容区）检索目标选择器匹配的元素集。
-//  支持以焦点元素为起点的二阶检索（斜线分隔上/下阶选择器）。格式参考 Util.find() 接口。
-//  无条件多元素检索，没有单一检索的格式。
+//  在当前选取集或内容区内检索目标选择器匹配的元素集。
+//  支持二阶检索选择器（斜线分隔上/下阶选择器），此时以焦点元素为起点。
+//  注：格式参考 Util.find()，无条件多元素检索。
+//
+//  支持竖线分隔的过滤表达式（见下）。
 //
 //
 //  - 过滤（|）
@@ -31,8 +33,8 @@
 //      String      选择器。
 //      [n : m]     数组下标范围（空格可选）。
 //      [a,b,c]     数组下标定点。
-//      {function}  过滤函数。如果以句点（.）开始，视为Collector成员函数。
-//
+//      {function}  过滤函数。如箭头函数（参考 tQuery.filter）。
+//                  如果以句点（.）开始，视为Collector成员函数。
 //  注意：
 //  Collector成员函数主要针对 .fiter|.has|.not 等专用过滤。返回值会被重新选取。
 //  也可以使用其它函数（如 find、get 等），但不应当是会改变DOM节点的操作。
@@ -64,6 +66,7 @@
 
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
+import { Cmdx } from "../config.js";
 
 
 const
@@ -113,9 +116,11 @@ const
 //
 class Select {
     /**
+     * @param {Set} eset 当前选取集
      * @param {Element} root 全局上下文
      */
-    constructor( root ) {
+    constructor( eset, root ) {
+        this._set = eset;
         this._ctx = root;
     }
 
@@ -129,11 +134,35 @@ class Select {
     exec( slr, hot ) {
         let _ss = [
                 ...__pipeSplit.reset().split( slr.trim() )
-            ];
-        return filters(
-            _ss,
-            Util.find( _ss.shift(), hot, false, this._ctx )
-        );
+            ],
+            _slr = _ss.shift(),
+            _els = this._set.size > 0 ? this._finds(_slr, hot, [...this._set]) : this._find(_slr, hot, this._ctx);
+
+        return filters( _ss, _els );
+    }
+
+
+    /**
+     * 获取目标元素集。
+     * @param  {String} slr 选择器
+     * @param  {Element} hot 焦点元素（起点）
+     * @param  {Element} ctx 查询上下文
+     * @return {[Element]}
+     */
+    _find( slr, hot, ctx ) {
+        return Util.find( slr, hot, false, ctx );
+    }
+
+
+    /**
+     * 获取目标元素集。
+     * @param  {String} slr 选择器
+     * @param  {Element} hot 焦点元素（起点）
+     * @param  {[Element]} els 查询上下文集
+     * @return {[Element]}
+     */
+    _finds( slr, hot, els ) {
+        return els.map( el => Util.find(slr, hot, false, el) ).flat();
     }
 }
 
@@ -160,7 +189,7 @@ class Filter {
         let _ss = [
             ...__pipeSplit.reset().split( str.trim() )
         ]
-        return filters( _ss, this._set );
+        return filters( _ss, $(this._set) );
     }
 
 
@@ -239,7 +268,8 @@ class Filter {
         if ( fmt[0] === '.' ) {
             return new Function( __chrSels, `return $$${fmt}` );
         }
-        let _fn = new Function( `return ${fmt}` )();
+        // fmt 为一个完整的函数表达式。
+        let _fn = new Function( `return (${fmt});` )();
 
         return all => all.filter( _fn );
     }
@@ -515,14 +545,142 @@ class Calcuate {
      * @return {Value} 执行结果
      */
     exec( expr, hot ) {
-        return new Function(
-            __chrSels, __chrHot, __chrRoot, `return ${expr};`
-        )(
-            $(this._set), hot, this._ctx
-        );
+        let _fun = new Function(
+                __chrSels,
+                __chrHot,
+                __chrRoot,
+                `return ${expr};`
+            ),
+            _val = null;
+
+        try {
+            _val = _fun( $(this._set), hot, this._ctx );
+        }
+        catch (e) {
+            _val = `[${e.name}]: ${e.message}`;
+        }
+        return '' + _val;
     }
 }
 
+
+
+//
+// 指令执行记录器
+// 注记：
+// 指令的历史记录仅在当前浏览器窗口下有效，未作本地存储。
+//
+class Record {
+
+    constructor() {
+        this._buf = [];
+    }
+
+
+    /**
+     * 添加一条指令。
+     * 连续的相同指令仅记录一条。
+     * @param  {String} cmd 指令序列
+     * @return {void}
+     */
+    add( cmd ) {
+        let _last = this._buf[ this._buf.length-1 ];
+        _last !== cmd && this._buf.push( cmd );
+    }
+
+
+    /**
+     * 获取一条指令。
+     * 超出合法下标时返回一个空串。
+     * @param  {Number} idx 记录位置下标
+     * @return {String}
+     */
+    get( idx ) {
+        return this._buf[ idx ] || '';
+    }
+
+
+    /**
+     * 查找匹配的目标指令记录。
+     * 逆向查找，返回最先匹配的指令串。
+     * @param  {String} val 匹配值
+     * @return {String|''} 完整的指令序列
+     */
+    find( val ) {
+        let _buf = this._buf
+            .slice()
+            .reverse();
+
+        return _buf[ this._indexOf(val, _buf) ] || '';
+    }
+
+
+    /**
+     * 查找匹配的目标指令记录集。
+     * 逆向查找，返回一个匹配的集合。
+     * @param  {String} val 匹配值
+     * @return {[String]}
+     */
+    finds( val ) {
+        let _all = this._buf.slice().reverse();
+        if ( val === '' ) _all;
+
+        let _buf = [],
+            _i = 0;
+
+        while ( _i >= 0 ) {
+            _i = this._indexOf( val, _all, _i )
+            if ( _i >= 0 ) _buf.push( _all[_i] );
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 记录集大小。
+     * @return {Number}
+     */
+    size() {
+        return this._buf.length;
+    }
+
+
+    /**
+     * 检索匹配的目标。
+     * 为前端匹配。匹配时返回匹配目标的下标，否则返回-1。
+     * @param  {String} val 待匹配串
+     * @param  {[String]} buf 待查找源串集
+     * @param  {Number} i 集合起始位置
+     * @return {Number} 位置下标
+     */
+    _indexOf( val, buf, i = 0 ) {
+        for ( ; i < buf.length; i++ ) {
+            if ( buf[i].startsWith(val) ) return i;
+        }
+        return -1;
+    }
+}
+
+
+//
+// 指令导航。
+// 仅支持向前/向后单条导航提取。
+// 依赖：CmdRecord
+//
+class CmdNav {
+    /**
+     * @param {[String]} list 导航集
+     */
+    constructor( list ) {
+        this._buf = list;
+    }
+}
+
+
+
+//
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
 
 
 /**

@@ -18,7 +18,7 @@
 //
 
 import { Templater, OBTA } from "./tpb/config.js";
-import { Sys, Limit, Help, Tips } from "../config.js";
+import { Sys, Limit, Help, Tips, Cmdx } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
@@ -3454,11 +3454,11 @@ function error( msg, data ) {
 // 标识符映射执行器。
 //
 const __Cmder = {
-    '>':    null,   // new Select()
-    '|':    null,   // new Filter()
-    '/':    null,   // new Search()
-    ':':    null,   // new Command()
-    '=':    null,   // new Calcuate()
+    [ Cmdx.select ]:    null,   // new Select()
+    [ Cmdx.filter ]:    null,   // new Filter()
+    [ Cmdx.search ]:    null,   // new Search()
+    [ Cmdx.command ]:   null,   // new Command()
+    [ Cmdx.calcuate ]:  null,   // new Calcuate()
 };
 
 
@@ -3468,11 +3468,11 @@ const __Cmder = {
 // @return {[Instance]|String}
 //
 const __Cmdops = {
-    '>':    cmdxSelect,
-    '|':    cmdxFilter,
-    '/':    cmdxSearch,
-    ':':    cmdxCommand,
-    '=':    cmdxCalcuate,
+    [ Cmdx.select ]:    cmdxSelect,
+    [ Cmdx.filter ]:    cmdxFilter,
+    [ Cmdx.search ]:    cmdxSearch,
+    [ Cmdx.command ]:   cmdxCommand,
+    [ Cmdx.calcuate ]:  cmdxCalcuate,
 };
 
 
@@ -3509,7 +3509,7 @@ function cmdxSearch( oper, str ) {
     let _rngs = oper.exec( str, textNodes(__ESet) );
 
     if ( !_rngs.length ) {
-        return Tips.searchNothing;
+        return `${Tips.searchNothing} ${str}`;
     }
     let _ops = _rngs.map( rng => new MarkTmp(rng) );
 
@@ -4224,11 +4224,11 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
 
     // 命令行处理器。
     Object.assign( __Cmder, {
-        '>':    new Select( contentElem ),
-        '|':    new Filter( __ESet ),
-        '/':    new Search( contentElem ),
-        ':':    new Command(),
-        '=':    new Calcuate( __ESet, contentElem ),
+        [ Cmdx.select ]:    new Select( __ESet, contentElem ),
+        [ Cmdx.filter ]:    new Filter( __ESet ),
+        [ Cmdx.search ]:    new Search( contentElem ),
+        [ Cmdx.command ]:   new Command(),
+        [ Cmdx.calcuate ]:  new Calcuate( __ESet, contentElem ),
     });
 
     // 监听内容区变化事件。

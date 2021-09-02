@@ -59,7 +59,7 @@ const
         undoWarn: '原操作包含创建新节点的能力，撤销后重做可能导致旧节点引用丢失，使得之后的重做失效。是否继续？',
 
         // 命令行搜索回馈
-        searchNothing: `没有搜索到目标！`,
+        searchNothing: `没有搜索到`,
 
     },
 
@@ -140,8 +140,7 @@ const
 
 
 //
-// 系统配置集。
-// 不可修改！
+// 内部配置集，不可修改！
 //////////////////////////////////////////////////////////////////////////////
 
 const Sys = {
@@ -221,4 +220,17 @@ const Sys = {
 };
 
 
-export { Setup, Limit, Tips, Help, Scripter, Sys };
+//
+// 命令行指令类型符。
+// 注意快捷键配置（shortcuts.js）和模板中与此保持一致。
+//
+const Cmdx = {
+    select:     '>',
+    filter:     '|',
+    search:     '/',
+    command:    ':',
+    calcuate:   '=',
+}
+
+
+export { Setup, Limit, Tips, Help, Scripter, Sys, Cmdx };
