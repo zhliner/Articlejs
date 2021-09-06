@@ -43,6 +43,7 @@ const customHandles = {
     [ T.VIDEO ]:        processVideo,       // src poster width height autoplay loop controls, [<source>, <track>]
     [ T.PICTURE ]:      processPicture,     // src width height alt, [<sources>]
     [ T.IMG ]:          processAttr,        // src, width, height, alt
+    [ T.PIMG ]:         processAttr,        // 同上
     [ T.SVG ]:          processAttr,        // width, height
     [ T.RUBY ]:         processRuby,        // rt, rp
     // [ T.TIME ]:                          // datetime: date, time

@@ -568,7 +568,7 @@ class Calcuate {
 //
 // 指令执行记录器
 // 注记：
-// 指令的历史记录仅在当前浏览器窗口下有效，未作本地存储。
+// 指令的历史记录仅在当前窗口下有效，无本地存储。
 //
 class Record {
 
@@ -603,6 +603,7 @@ class Record {
     /**
      * 查找匹配的目标指令记录。
      * 逆向查找，返回最先匹配的指令串。
+     * 注：头部匹配。
      * @param  {String} val 匹配值
      * @return {String|''} 完整的指令序列
      */
@@ -611,13 +612,14 @@ class Record {
             .slice()
             .reverse();
 
-        return _buf[ this._indexOf(val, _buf) ] || '';
+        return val && _buf[ this._indexOf(val, _buf) ] || '';
     }
 
 
     /**
      * 查找匹配的目标指令记录集。
      * 逆向查找，返回一个匹配的集合。
+     * 注：同上。
      * @param  {String} val 匹配值
      * @return {[String]}
      */
@@ -647,7 +649,7 @@ class Record {
 
     /**
      * 检索匹配的目标。
-     * 为前端匹配。匹配时返回匹配目标的下标，否则返回-1。
+     * 头部/前端匹配，返回匹配目标的下标，或者返回-1。
      * @param  {String} val 待匹配串
      * @param  {[String]} buf 待查找源串集
      * @param  {Number} i 集合起始位置
@@ -663,9 +665,11 @@ class Record {
 
 
 //
-// 指令导航。
-// 仅支持向前/向后单条导航提取。
-// 依赖：CmdRecord
+// 指令导航器。
+// 仅支持简单的向前/向后逐条导航，以及头部和末尾条目提取。
+// 注记：
+// 由指令记录器（Record）即时检索（.finds）后创建，
+// 供上下箭头和Home/End键导航历史。
 //
 class CmdNav {
     /**
@@ -673,8 +677,84 @@ class CmdNav {
      */
     constructor( list ) {
         this._buf = list;
+        this._idx = 0;
+    }
+
+
+    /**
+     * 提取下一条记录。
+     * 返回null表示已到达末尾。
+     * @return {Value|null}
+     */
+    next() {
+        let _end = this.size() - 1;
+        return this._idx < _end ? this._buf[++this._idx] : null;
+    }
+
+
+    /**
+     * 提取前一条记录。
+     * 返回null表示已到达头部。
+     * @return {Value|null}
+     */
+    prev() {
+        return this._idx > 0 ? this._buf[--this._idx] : null;
+    }
+
+
+    /**
+     * 提取第一项。
+     * 如果集合本来为空，返回null。
+     * @return {Value|null}
+     */
+    first() {
+        this._idx = 0;
+        return this._buf[ 0 ] || null;
+    }
+
+
+    /**
+     * 提取最后一项。
+     * 如果集合本来为空，返回null。
+     * @return {Value|null}
+     */
+    last() {
+        this._idx = this._buf.length - 1;
+        return this._buf[ this._idx ] || null;
+    }
+
+
+    /**
+     * 重置内部游标。
+     * @return {CmdNav} this
+     */
+    reset() {
+        this._idx = 0;
+        return this;
+    }
+
+
+    /**
+     * 内部集合大小。
+     * @return {Number}
+     */
+    size() {
+        return this._buf.length;
     }
 }
+
+
+//
+// 五类指令历史记录器。
+// 仅在当前窗口（内存）中有效，不提供本地存储。
+//
+const __cmdBuffer = {
+    [ Cmdx.select ]:    new Record(),
+    [ Cmdx.filter ]:    new Record(),
+    [ Cmdx.search ]:    new Record(),
+    [ Cmdx.command ]:   new Record(),
+    [ Cmdx.calcuate ]:  new Record(),
+};
 
 
 
@@ -694,6 +774,12 @@ function filters( strs, els0 ) {
         (els, flr) => new Filter().execOne( flr, els ), els0
     );
 }
+
+
+
+//
+// 导出
+//////////////////////////////////////////////////////////////////////////////
 
 
 export { Select, Filter, Search, Command, Calcuate };
