@@ -48,17 +48,18 @@
 //
 //
 //  - 命令（:）
-//  基础工具集：
+//  基本工具集：
 //      plug-ins    插件安装。
 //      plug-del    插件移除。
 //      theme       列出当前可用主题，或应用目标主题。
 //      style       列出当前可用内容样式，或应用目标样式。
 //      help        开启帮助窗口并定位到指定的关键字条目。
-//      setconfig   系统配置运行时调整。
+//      config      显示系统配置或即时调整。
 //
 //
-//  另外：
-//  系统保留了问号（?）用于未来可能的交互逻辑领域。
+//  - 计算（=）
+//  用户的输入会直接在顶层（window）执行，用户需要注意指令内容的安全性。
+//  如不应当在表达式中修改文档的树结构（DOM）。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,7 @@
 
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
-import { Cmdx } from "../config.js";
+import { Cmdx, Tips } from "../config.js";
 
 
 const
@@ -404,7 +405,7 @@ class Command {
             [ 'plug-del',   this._plugDel ],
             [ 'theme',      this._theme ],
             [ 'style',      this._style ],
-            [ 'setconfig',  this._setconfig ],
+            [ 'config',     this._config ],
         ]);
     }
 
@@ -418,7 +419,15 @@ class Command {
         let [name, args] = this._cmdArgs( str ),
             _fun = this._cmds[ name ];
 
-        return name ? `[${name}] ... 开发中 ^_^` : '目标命令不被支持！';
+        if ( !name ) {
+            return Tips.commandInvalid;
+        }
+        try {
+            return _fun( ...args ) || '';
+        }
+        catch ( e ) {
+            return `[${e.name}] ${e.message}`;
+        }
     }
 
 
@@ -429,7 +438,7 @@ class Command {
      */
     _cmdArgs( str ) {
         for ( const n of this._cmds.keys() ) {
-            if ( str.startsWith(n + ' ') ) {
+            if ( str === n || str.startsWith(n + ' ') ) {
                 return [
                     n,
                     this._args( str.substring(n.length+1) )
@@ -458,8 +467,10 @@ class Command {
 
     /**
      * 打开帮助提示
+     * 会直接打开帮助侧栏，因此不应当返回提示。
+     * 除非没有目标条目的帮助信息。
      * @param  {String} key 索引键
-     * @return {String} 索引路径（友好提示）
+     * @return {void|String} 静默通过或错误提示
      */
     _help( key ) {
         //
@@ -507,11 +518,12 @@ class Command {
 
 
     /**
-     * 系统变量设置。
-     * @param  {Object} map 键值映射集
-     * @return {String} 结果提示
+     * 系统变量提取或设置。
+     * @param  {String} name 变量名
+     * @param  {Value} value 配置值，可选
+     * @return {String} 结果或提示
      */
-    _setconfig( map ) {
+    _config( name, value ) {
         //
     }
 }
@@ -523,6 +535,9 @@ class Command {
 // 但应当仅使用读取类接口，而不要改变DOM本身。
 //
 // 执行结果会回显到命令行，这是另一种便捷。
+//
+// 安全性：
+// 用户不应当在该模式下执行修改DOM的操作，这可能改变编辑器的结构和功能。
 //
 class Calcuate {
     /**
@@ -782,4 +797,14 @@ function filters( strs, els0 ) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-export { Select, Filter, Search, Command, Calcuate };
+/**
+ * 获取目标类型的记录器。
+ * @param  {String} type 指令类型标识符
+ * @return {Record} 记录器
+ */
+export function typeRecord( type ) {
+    return __cmdBuffer[ type ];
+}
+
+
+export { Select, Filter, Search, Command, Calcuate, CmdNav };

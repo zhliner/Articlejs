@@ -61,6 +61,9 @@ const
         // 命令行搜索回馈
         searchNothing: `没有搜索到`,
 
+        // 命令行非法命令提示
+        commandInvalid: '目标命令不被支持！',
+
     },
 
 
