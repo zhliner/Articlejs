@@ -4660,6 +4660,7 @@ class Spliter {
     /**
      * 切分器构造。
      * 一个分隔符对应一个实例。
+     * 注意：分隔符不可为空串。
      * @param {String} sep 分隔符
      */
     constructor( sep ) {
@@ -4676,6 +4677,7 @@ class Spliter {
      * 注意：
      * 未完成的切分会保留原样，这与 String.split() 中的计数逻辑不同。
      * 因为这里是返回一个迭代器而不是数组。
+     * 空串切分无迭代值，因此解构迭代器会是一个空集。
      * @param  {String} fmt 字符序列
      * @param  {Number} cnt 切分的最大次数，可选
      * @return {Iterator} 切分迭代器
@@ -8513,12 +8515,12 @@ Object.assign( tQuery, {
      * @return {[String]}
      */
     split( str, sep, cnt, qs ) {
-        if ( !qs ) {
+        if ( !qs || !str ) {
             return sep === '' ? str.split( /(?:)/u, cnt ) : str.split( sep, cnt );
         }
         let _op = new Spliter( sep );
 
-        return [..._op.split(str, cnt)].slice( 0, cnt );
+        return [..._op.split(str, cnt)].slice( 0, cnt < 0 ? Infinity : cnt );
     },
 
 
