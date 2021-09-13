@@ -34,7 +34,7 @@ import cfg from "./shortcuts.js";
 import { saveCode } from "./shedit.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
-import { Select, Filter, Search, Command, Calcuate } from "./cmdline.js";
+import { Select, Filter, Search, Command, Calcuate, typeRecord, CmdNav } from "./cmdline.js";
 
 
 const
@@ -7090,6 +7090,70 @@ export const Kit = {
 
     __obtswap: 1,
 
+
+    /**
+     * 命令行处理：
+     * 键入内容时即时匹配历史记录。
+     * UI表现：
+     * 键入的内容匹配历史记录，
+     * 若有匹配则设置该值，同时选中光标之后的部分（便于继续键入）。
+     * 注记：
+     * 配合cmdwheel操作，清除匹配集临时表引用。
+     * @data: String 指令类型符（>|/:=）
+     * @param  {Element} el 输入条
+     * @return {void}
+     */
+    cmdmatch( evo, el ) {
+        let _buf = typeRecord( evo.data ),
+            _beg = el.selectionStart,
+            _val = _buf.find( el.value );
+
+        if ( _val ) {
+            $.val( el, _val )
+            .setSelectionRange( _beg, _val.length );
+        }
+        this.cmdNavTemp = null;
+    },
+
+    __cmdmatch: 1,
+
+
+    /**
+     * 命令行处理：
+     * 上下箭头键滚动历史记录。
+     * UI表现：
+     * 取文本到光标开始点的内容查询匹配集，
+     * 若有匹配则设置，同时选中光标之后的部分。
+     * @data: String 指令类型符
+     * @param  {Element} el 输入条
+     * @return {void}
+     */
+    cmdwheel( evo, el ) {
+        let _i = el.selectionStart,
+            _v = null;
+
+        if ( this.cmdNavTemp ) {
+            _v = this.cmdNavTemp.next();
+        } else {
+            let _lst = typeRecord( evo.data ).finds( el.value.substring(0, _i) );
+            this.cmdNavTemp = new CmdNav( _lst );
+            _v = this.cmdNavTemp.first();
+        }
+        _v && $.val( el, _v ).setSelectionRange( _i, _v.length );
+    },
+
+    __cmdwheel: 1,
+
+
+
+    //-- 属性成员 ------------------------------------------------------------
+
+
+    //
+    // 命令历史匹配集导航引用。
+    //
+    cmdNavTemp: null,
+
 };
 
 
@@ -7147,6 +7211,8 @@ processExtend( 'Kit', Kit, [
     'obtline',
     'obtdel',
     'obtswap',
+    'cmdmatch',
+    'cmdwheel',
 ]);
 
 

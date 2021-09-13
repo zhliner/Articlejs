@@ -904,17 +904,16 @@
     </div>
     <!--命令行交互：
         1. 回车执行命令行。
-        2. 键入内容时即时匹配历史记录。
-        3. 上下箭头键导航历史匹配。
-        4. Ctrl+U 全选以便于清空（非直接清空以便于可撤销）。
+        2. Ctrl+U 全选以便于清空（非直接清空以便于可撤销）。
     -->
     <div class="_cmdline"
         on="keydown(input)|iskey('Enter') pass stopAll evo(2) val $('#g-cmdx') text;
             keydown(input)|iskey('u') scam('ctrl') both pass stop avoid evo(2) select"
         by="Ed.cmdRun(_1) dup pass"
         to="=|val|focus select">
-        <!--交互：
-            input 键入内容时即时匹配历史记录。 -->
+        <!--即时交互：
+            1. 键入内容时即时匹配历史记录。
+            2. 上下箭头键导航历史匹配。 -->
         <input id="cmd-input" type="text" name="cmd" spellcheck="false" class="_code" data-tips="> | / : = 直达此处"
             on="input|;
                 focus|evo(3) ('');
