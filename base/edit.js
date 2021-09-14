@@ -382,11 +382,17 @@ class HotEdit {
 //
 // 面板内容跟随。
 // 仅仅只是发送一个同步消息即可。
-// 主要用于样式面板。
+// 主要用于样式&特性面板。
 // 注意：
 // 必须为延迟激发，以等待主操作撤销或重做完成。
 //
 class Follow {
+    /**
+     * @param {Boolean} fire 是否立即触发
+     */
+    constructor( fire ) {
+        fire && this.redo();
+    }
 
     undo() {
         delayFire( slavePanel, Sys.evnFollow );
@@ -5655,7 +5661,9 @@ export const Edit = {
 
         // 单目标简单处理。
         if ( _els.length === 1 ) {
-            return historyPush( new DOMEdit(_fun, _els[0], evo.data, ...propertyData(_els[0], ...vals)) )
+            // new Follow:
+            // 特性面板即时更新特性值（如果选单未变）。
+            return historyPush( new DOMEdit(_fun, _els[0], evo.data, ...propertyData(_els[0], ...vals)), new Follow(true) )
         }
         // 多目标特别处理。
         let val2 = propertyData2( _els, ...vals );
