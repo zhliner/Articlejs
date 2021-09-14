@@ -904,23 +904,26 @@
     </div>
     <!--命令行交互：
         1. 回车执行命令行。
-        2. Ctrl+U 全选以便于清空（非直接清空以便于可撤销）。
-    -->
+        2. Tab键匹配最新一条历史记录，如果同时按住Sift键，逆向匹配最老的。
+        3. 上/下箭头键导航历史匹配集条目。
+        4. Ctrl+U 全选以便于清空（非直接清空以便于可撤销） -->
     <div class="_cmdline"
         on="keydown(input)|iskey('Enter') pass stopAll evo(2) val $('#g-cmdx') text;
+            keydown(input)|iskey('Tab') pass stopAll avoid $('#g-cmdx') text evo(2) scam('shift');
+            keydown(input)|iskey('ArrowUp') pass stopAll avoid evo(2);
+            keydown(input)|iskey('ArrowDown') pass stopAll avoid evo(2);
             keydown(input)|iskey('u') scam('ctrl') both pass stop avoid evo(2) select"
-        by="Ed.cmdRun(_1) dup pass"
+        by="Ed.cmdRun(_1) dup pass;
+            Kit.cmdlast(_2);
+            Kit.cmdnext;
+            Kit.cmdprev"
         to="=|val|focus select">
-        <!--即时交互：
-            1. 键入内容时即时匹配历史记录。
-            2. 上下箭头键导航历史匹配。 -->
+        <!-- input 清除临时检索集 -->
         <input id="cmd-input" type="text" name="cmd" spellcheck="false" class="_code" data-tips="> | / : = 直达此处"
-            on="input|;
-                focus|evo(3) ('');
-                ^obted blur|evo(3) attr('-tips')"
-            by=""
-            to="-;
-                |@placeholder;
+            on="focus|evo(3) ('');
+                ^obted blur|evo(3) attr('-tips');
+                input|v.cmdclear"
+            to="|@placeholder;
                 |@placeholder" />
     </div>
     <!--出错提示：

@@ -3467,7 +3467,7 @@ const __Cmder = {
 // 返回数组表示操作实例集，否则为字符串（用于回显）。
 // @return {[Instance]|String}
 //
-const __Cmdops = {
+const __Cmdoper = {
     [ Cmdx.select ]:    cmdxSelect,
     [ Cmdx.filter ]:    cmdxFilter,
     [ Cmdx.search ]:    cmdxSearch,
@@ -5675,15 +5675,18 @@ export const Edit = {
      */
     cmdRun( evo, key ) {
         let _str = evo.data,
-            _ops = _str.trim() &&
-                __Cmdops[ key ]( __Cmder[key], _str );
+            _val = _str.trim() &&
+                __Cmdoper[ key ]( __Cmder[key], _str );
 
-        if ( !$.isArray(_ops) ) {
-            return _ops;
+        // 命令序列记录。
+        typeRecord( key ).add( evo.data );
+
+        if ( !$.isArray(_val) ) {
+            return _val;
         }
         $.trigger( contentElem, __evnFocus, null, true );
 
-        return historyPush( ..._ops ) || null;
+        return historyPush( ..._val ) || null;
     },
 
     __cmdRun: 1,
@@ -6529,6 +6532,15 @@ export const Kit = {
     __cleanHTML: 1,
 
 
+    /**
+     * 命令行键入内容。
+     * 清除匹配集临时表引用，配合cmdnext/cmdprev操作。
+     */
+    cmdclear() {
+        this.cmdNavTemp = null;
+    },
+
+
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -7092,57 +7104,66 @@ export const Kit = {
 
 
     /**
-     * 命令行处理：
-     * 键入内容时即时匹配历史记录。
+     * 命令行历史：
+     * 键入Tab键匹配最新一条历史记录。
      * UI表现：
-     * 键入的内容匹配历史记录，
+     * 取光标之前的文本匹配历史记录，
      * 若有匹配则设置该值，同时选中光标之后的部分（便于继续键入）。
-     * 注记：
-     * 配合cmdwheel操作，清除匹配集临时表引用。
      * @data: String 指令类型符（>|/:=）
      * @param  {Element} el 输入条
+     * @param  {Boolean} rev 是否逆向匹配
      * @return {void}
      */
-    cmdmatch( evo, el ) {
-        let _buf = typeRecord( evo.data ),
-            _beg = el.selectionStart,
-            _val = _buf.find( el.value );
+    cmdlast( evo, el, rev ) {
+        let _beg = el.selectionStart,
+            _lst = typeRecord( evo.data ).find( el.value.substring(0, _beg) );
 
-        if ( _val ) {
-            $.val( el, _val )
-            .setSelectionRange( _beg, _val.length );
-        }
-        this.cmdNavTemp = null;
+        this.cmdNavTemp = new CmdNav( _lst );
+
+        let _val = rev ?
+            this.cmdNavTemp.last() :
+            this.cmdNavTemp.first();
+
+        _val && $.val( el, _val ).setSelectionRange( _beg, _val.length );
     },
 
-    __cmdmatch: 1,
+    __cmdlast: 1,
 
 
     /**
-     * 命令行处理：
-     * 上下箭头键滚动历史记录。
-     * UI表现：
-     * 取文本到光标开始点的内容查询匹配集，
-     * 若有匹配则设置，同时选中光标之后的部分。
-     * @data: String 指令类型符
-     * @param  {Element} el 输入条
+     * 命令行历史：
+     * 向上箭头键滚动历史记录的下一条。
+     * 注：检索集需要已经创建（由Tab触发）。
+     * @data: Element 输入条
      * @return {void}
      */
-    cmdwheel( evo, el ) {
-        let _i = el.selectionStart,
-            _v = null;
+    cmdnext( evo ) {
+        let el = evo.data,
+            _i = el.selectionStart,
+            _v = this.cmdNavTemp && this.cmdNavTemp.next();
 
-        if ( this.cmdNavTemp ) {
-            _v = this.cmdNavTemp.next();
-        } else {
-            let _lst = typeRecord( evo.data ).finds( el.value.substring(0, _i) );
-            this.cmdNavTemp = new CmdNav( _lst );
-            _v = this.cmdNavTemp.first();
-        }
         _v && $.val( el, _v ).setSelectionRange( _i, _v.length );
     },
 
-    __cmdwheel: 1,
+    __cmdnext: 1,
+
+
+    /**
+     * 命令行历史：
+     * 向下箭头键滚动历史记录的前一条。
+     * 注：同上。
+     * @data: Element 输入条
+     * @return {void}
+     */
+    cmdprev( evo ) {
+        let el = evo.data,
+            _i = el.selectionStart,
+            _v = this.cmdNavTemp && this.cmdNavTemp.prev();
+
+        _v && $.val( el, _v ).setSelectionRange( _i, _v.length );
+    },
+
+    __cmdprev: 1,
 
 
 
@@ -7211,8 +7232,9 @@ processExtend( 'Kit', Kit, [
     'obtline',
     'obtdel',
     'obtswap',
-    'cmdmatch',
-    'cmdwheel',
+    'cmdlast',
+    'cmdnext',
+    'cmdprev',
 ]);
 
 
@@ -7260,6 +7282,9 @@ customGetter( null, Kit, [
     'styName',
     'styKey',
     'cleanHTML',
+
+    // 简单操作类（非取值）。
+    'cmdclear',
 ]);
 
 

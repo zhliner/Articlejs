@@ -594,7 +594,7 @@ class Record {
 
     /**
      * 添加一条指令。
-     * 连续的相同指令仅记录一条。
+     * 友好：连续的相同指令仅记录一条。
      * @param  {String} cmd 指令序列
      * @return {void}
      */
@@ -605,49 +605,24 @@ class Record {
 
 
     /**
-     * 获取一条指令。
-     * 超出合法下标时返回一个空串。
-     * @param  {Number} idx 记录位置下标
-     * @return {String}
-     */
-    get( idx ) {
-        return this._buf[ idx ] || '';
-    }
-
-
-    /**
-     * 查找匹配的目标指令记录。
-     * 逆向查找，返回最先匹配的指令串。
-     * 注：头部匹配。
-     * @param  {String} val 匹配值
-     * @return {String|''} 完整的指令序列
-     */
-    find( val ) {
-        let _buf = this._buf
-            .slice()
-            .reverse();
-
-        return val && _buf[ this._indexOf(val, _buf) ] || '';
-    }
-
-
-    /**
      * 查找匹配的目标指令记录集。
      * 逆向查找，返回一个匹配的集合。
-     * 注：同上。
+     * 返回集已按时间近远排序（最新的指令在前）。
+     * 注：头部匹配。
      * @param  {String} val 匹配值
      * @return {[String]}
      */
-    finds( val ) {
-        let _all = this._buf.slice().reverse();
-        if ( val === '' ) _all;
-
-        let _buf = [],
+    find( val ) {
+        let _all = this._buf.slice().reverse(),
+            _buf = [],
             _i = 0;
 
         while ( _i >= 0 ) {
             _i = this._indexOf( val, _all, _i )
-            if ( _i >= 0 ) _buf.push( _all[_i] );
+
+            if ( _i >= 0 ) {
+                _buf.push( _all[_i++] );
+            }
         }
         return _buf;
     }
