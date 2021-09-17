@@ -760,10 +760,10 @@ Object.assign( tQuery, {
      * - 可以传递一个包含href配置的对象插入<link>元素，返回一个Promise对象。
      * - 默认插入head内部末尾，否则插入next之前。
      * 配置对象：{
-     *      href:  {String}  <link>元素的CSS资源定位。
-     *      rel:   {String}  <link>元素的属性（stylesheet）。可选
-     *      text:  {String}  <style>元素的内容，也是决定创建<style>或<link>的判断依据
-     *      scope: {Boolean} <style>元素的一个可选属性。
+     *      href:   {String}    <link>元素的CSS资源定位。
+     *      rel:    {String}    <link>元素的属性（stylesheet）。可选
+     *      text:   {String}    <style>元素的内容，也是决定创建<style>或<link>的判断依据
+     *      ...     {String}    其它普通属性。
      * }
      * @param  {String|Object} data 样式代码或配置对象
      * @param  {Element} next 参考元素，可选
@@ -5207,7 +5207,7 @@ function cssSet( el, name, val, cso ) {
  * @return {Node} 插入节点
  */
 function switchInsert( node, next, box ) {
-    if (next) {
+    if ( next ) {
         return next.parentNode.insertBefore(node, next);
     }
     return box.appendChild(node);
@@ -5222,7 +5222,7 @@ function switchInsert( node, next, box ) {
  * @param  {Element} el  目标元素
  * @param  {Node} next 下一个参考节点
  * @param  {Element} box 容器元素，可选
- * @param  {Boolean} tmp 为临时插入（成功后移除）
+ * @param  {Boolean} tmp 为临时插入（成功后移除），适用脚本元素
  * @return {Promise}
  */
 function loadElement( el, next, box, tmp ) {
@@ -5232,9 +5232,9 @@ function loadElement( el, next, box, tmp ) {
     return new Promise( function(resolve, reject) {
         tQuery.one(el, {
             'load':  () => resolve( tmp ? varyRemove(el) : el ),
-            'error': err => reject(err),
+            'error': err => reject( err ),
         });
-        switchInsert(el, next, box);
+        switchInsert( el, next, box );
     });
 }
 

@@ -54,7 +54,7 @@
 //      theme       列出当前可用主题，或应用目标主题。
 //      style       列出当前可用内容样式，或应用目标样式。
 //      help        开启帮助窗口并定位到指定的关键字条目。
-//      config      显示系统配置或即时调整。
+//      config      显示系统配置值。
 //
 //
 //  - 计算（=）
@@ -67,7 +67,7 @@
 
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
-import { Cmdx, Tips } from "../config.js";
+import { Cmdx, Tips, Setup, Limit } from "../config.js";
 
 
 const
@@ -104,6 +104,15 @@ const
 
     // 内容区根元素变量名
     __chrRoot = '_',
+
+    // 内容样式目录
+    __dirStyle = 'styles',
+
+    // 编辑器主题样式目录
+    __dirTheme = 'themes',
+
+    // 插件根目录
+    __dirPlugs = 'plugins',
 
     // 进阶过滤切分器。
     // 排除属性选择器、调用式和表达式内值。
@@ -490,17 +499,17 @@ class Command {
     /**
      * 插件安装。
      * 用户需先将插件文件存放到/plugins目录内。
-     * @param  {String} url 插件路径
+     * @param  {String} name 插件名
      * @return {String} 状态信息（成功|失败）
      */
-    _plugIns( url ) {
+    _plugIns( name ) {
         //
     }
 
 
     /**
      * 插件移除。
-     * @param  {String} name 插件名（键）
+     * @param  {String} name 插件名
      * @return {String} 提示信息
      */
     _plugDel( name ) {
@@ -514,28 +523,52 @@ class Command {
      * @return {[String]|String} 主题清单或结果提示
      */
     _theme( url ) {
-        //
+        insertStyle(
+            `#${Setup.styleTheme}`,
+            {
+                id:  Setup.styleTheme,
+                url: `${Setup.root}${__dirTheme}/${url}/style.css`,
+            }
+        );
     }
 
 
     /**
      * 罗列或设置内容样式。
-     * @param  {String} url 样式路径
+     * 如果只需要改变代码着色样式，可传递main实参为null。
+     * @param  {String} main 主样式名（文件夹），可选
+     * @param  {String} code 代码着色样式名（文件夹），可选
      * @return {[String]|String} 样式清单或结果提示
      */
-    _style( url ) {
-        //
+    _style( main, code ) {
+        if ( main ) {
+            insertStyle(
+                `#${Setup.styleMain}`,
+                {
+                    id:  Setup.styleMain,
+                    url: `${Setup.root}${__dirStyle}/${main}/main.css`,
+                }
+            );
+        }
+        if ( code ) {
+            insertStyle(
+                `#${Setup.styleCodes}`,
+                {
+                    id:  Setup.styleCodes,
+                    url: `${Setup.root}${__dirStyle}/${code}/codes.css`,
+                }
+            );
+        }
     }
 
 
     /**
-     * 系统变量提取或设置。
+     * 部分系统变量查看。
      * @param  {String} name 变量名
-     * @param  {Value} value 配置值，可选
-     * @return {String} 结果或提示
+     * @return {Value} 结果值
      */
-    _config( name, value ) {
-        //
+    _config( name ) {
+        return Limit[ name ] || 'nothing!';
     }
 }
 
@@ -774,6 +807,24 @@ function filters( strs, els0 ) {
     return strs.reduce(
         (els, flr) => new Filter().execOne( flr, els ), els0
     );
+}
+
+
+/**
+ * 替换/插入样式元素。
+ * 存在目标则替换，否则为新插入。
+ * @param  {String} slr 原样式元素选择器
+ * @param  {Object} conf 新元素配置对象（{href, id}）
+ * @return {boid}
+ */
+function insertStyle( slr, conf ) {
+    let _el = $.get( slr );
+
+    $.style(
+        conf,
+        _el && _el.nextElementSibling
+    );
+    _el && $.remove( _el );
 }
 
 

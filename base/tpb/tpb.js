@@ -10,7 +10,7 @@
 //
 //  Tpb {
 //      build: {Function}   节点树OBT构建函数
-//      Lib:   {Object}     用户库空间
+//      Lib:   {Object}     OBT库扩展动态调用集
 //  }
 //  动态扩展：
 //  - 普通处理器：Tpb.Lib.extend( ... )
@@ -38,7 +38,8 @@ import { Templater } from "./tools/templater.js";
 const
     $ = window.$,
 
-    // 用户库空间。
+    // OBT库扩展调用集
+    // 主要用于第三方插件动态扩展所需的OBT库。
     Lib = {
         App: cmvApp,
         extend: processExtend,

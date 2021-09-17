@@ -17,8 +17,24 @@
 
 const
     Setup = {
+        //
+        // 编辑器安装根
+        //
+        root:   '/',
+
+        //
         // 上载根目录
-        upload:     '/upload/data'
+        // 与上面的root安装根无关（独立配置）
+        //
+        upload: '/upload/data',
+
+        //
+        // 样式元素ID
+        // 注意与主模板文件中的值保持一致。
+        //
+        styleMain:  's-main',   // 文章内容
+        styleCodes: 's-codes',  // 代码着色（文章内容）
+        styleTheme: 's-theme',  // 编辑器主题
     },
 
 
