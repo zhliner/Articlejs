@@ -1,5 +1,5 @@
-//! $ID: base.js 2021.01.19 Articlejs.Plugins.hlcolor $
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//! $ID: base.js 2021.01.19 Articlejs.Libs $
+// +++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2020 - 2021 铁皮工作室  MIT License

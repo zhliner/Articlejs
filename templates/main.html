@@ -5,17 +5,17 @@
         <!--click|stop:
             保持现有焦点不转移。-->
         <b id="x-outline" title="大纲〔F2〕" class="_press"
-            on="toggle|$$('#outline,#lineLeft') lose(2) ('_press');
-                click|stop"
-            to="|toggleClass;
-                |trigger('toggle')|fire('body', 'pcheck')">
+            on="click|stop;
+                _toggle|$$('#outline,#lineLeft') lose(2) ('_press')"
+            to="|trigger('_toggle')|fire('body', 'pcheck');
+                toggleClass">
             <i id="b-outline"></i>
         </b>
         <b id="x-slave" title="功能区〔F3〕" class="_press"
-            on="toggle|$('#main-slave') lose(2) ('_press');
-                click|stop"
-            to="|toggleClass;
-                |trigger('toggle')|fire('body', 'pcheck')">
+            on="click|stop;
+                _toggle|$('#main-slave') lose(2) ('_press')"
+            to="|trigger('_toggle')|fire('body', 'pcheck');
+                |toggleClass">
             <i id="b-slave"></i>
         </b>
     </div>
@@ -931,12 +931,14 @@
         mouseover 问题元素背影提示。-->
     <div id="err-msg" class="_err" data-pbo="lost"
         on="click|evo(3) v.source dup pass dup intoView(2) SCAM;
+            tips|$('/>a') attr('-hid');
             mouseenter|('_warn') evo(3) v.source pop;
             mouseleave|('_warn') evo(3) v.source pop;
             off|evo(3) lose;
             on|evo(3) lose(0)"
         by="Kit.errmsg(_1)"
-        to="body|trigger('focus.content');
+        to="body|trigger('focus.content') goto('tips');
+            #x-help|trigger('help');
             -|addClass;
             -|removeClass;
             /a|trigger('clear')">
@@ -947,15 +949,19 @@
                 |attribute('-hid title text')">[提示内容]</a>
     </div>
     <!--帮助入口：
-        click toggle 打开/关闭帮助栏。
-        help 如果帮助栏开启，获取问题ID，发送帮助索引请求。-->
+        click 打开/关闭帮助栏。
+        open  单纯打开帮助面板。如果面板已打开则无行为。
+        help  提取帮助ID，发送帮助索引请求。注：仅在帮助栏开启时有效。
+        _toggle 帮助按钮切换。-->
     <div id="x-help" class="_help" title="帮助〔F4〕"
-        on="toggle|$$('#help,#lineRight') lose(2) ('_press');
-            click;
-            help|$('#help') lost end $('#err-msg > a') attr('-hid')"
-        to="|toggleClass|goto('help');
-            |trigger('toggle')|fire('body', 'pcheck');
-            #help|trigger('index')">
+        on="click;
+            open|$('#help') lost pass;
+            help|$('#help') lost end ev('detail');
+            _toggle|$$('#help,#lineRight') lose(2) ('_press')"
+        to="|trigger('_toggle')|fire('body', 'pcheck');
+            |trigger('click');
+            #help|trigger('index');
+            |toggleClass">
         <code>?</code>
     </div>
 </div>

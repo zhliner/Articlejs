@@ -34,7 +34,7 @@ import cfg from "./shortcuts.js";
 import { saveCode } from "./shedit.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
-import { Select, Filter, Search, Command, Calcuate, typeRecord, CmdNav } from "./cmdline.js";
+import { Select, Filter, Search, Command, Calcuate, typeRecord, CmdNav, cmdlineInit } from "./cmdline.js";
 
 
 const
@@ -4236,6 +4236,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         [ Cmdx.command ]:   new Command(),
         [ Cmdx.calcuate ]:  new Calcuate( __ESet, contentElem ),
     });
+    cmdlineInit( '#help' );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
@@ -5283,7 +5284,7 @@ export const Edit = {
     //-- 定位移动 ------------------------------------------------------------
     // 前提：position:absolute
     // 普通移动为 1px/次，增强移动为 10px/次
-    // 操作的是 left/top 两个样式，与 right/bottom 无关。
+    // 操作的是 left/top 两个内联样式，与 right/bottom 无关。
     // 注：对<svg>子单元无效。
 
 
@@ -5291,7 +5292,8 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'left', -1 );
 
-        _op && historyPush( _op, postionFollow(_els, 'right') );
+        // new Follow: 特性面板实时更新，下同。
+        _op && historyPush( _op, postionFollow(_els, 'right'), new Follow(true) );
     },
 
 
@@ -5299,7 +5301,7 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'left', -10 );
 
-        _op && historyPush( _op, postionFollow(_els, 'right') );
+        _op && historyPush( _op, postionFollow(_els, 'right'), new Follow(true) );
     },
 
 
@@ -5307,7 +5309,7 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'left', 1 );
 
-        _op && historyPush( _op, postionFollow(_els, 'right') );
+        _op && historyPush( _op, postionFollow(_els, 'right'), new Follow(true) );
     },
 
 
@@ -5315,7 +5317,7 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'left', 10 );
 
-        _op && historyPush( _op, postionFollow(_els, 'right') );
+        _op && historyPush( _op, postionFollow(_els, 'right'), new Follow(true) );
     },
 
 
@@ -5323,7 +5325,7 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'top', -1 );
 
-        _op && historyPush( _op, postionFollow(_els, 'bottom') );
+        _op && historyPush( _op, postionFollow(_els, 'bottom'), new Follow(true) );
     },
 
 
@@ -5331,7 +5333,7 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'top', -10 );
 
-        _op && historyPush( _op, postionFollow(_els, 'bottom') );
+        _op && historyPush( _op, postionFollow(_els, 'bottom'), new Follow(true) );
     },
 
 
@@ -5339,7 +5341,7 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'top', 1 );
 
-        _op && historyPush( _op, postionFollow(_els, 'bottom') );
+        _op && historyPush( _op, postionFollow(_els, 'bottom'), new Follow(true) );
     },
 
 
@@ -5347,7 +5349,7 @@ export const Edit = {
         let _els = [...__ESet],
             _op = elementsPostion( _els, 'top', 10 );
 
-        _op && historyPush( _op, postionFollow(_els, 'bottom') );
+        _op && historyPush( _op, postionFollow(_els, 'bottom'), new Follow(true) );
     },
 
 

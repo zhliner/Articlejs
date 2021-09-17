@@ -1402,14 +1402,14 @@ menu._cells code {
 }
 .Attr ._name ._add {
     border: 1px #93c8e2 solid;
-    background-color: #279b8c;
+    background-color: #0cc066;
     border-radius: 0 16px 0 0;
     color: #fff;
     margin-left: -2px;
     font-weight: bold;
 }
 .Attr ._name ._add:hover {
-    background-color: #0cc066;
+    background-color: #ff9705;
 }
 .Attr > ._body > ._main {
     flex: 5 5 400px;

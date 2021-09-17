@@ -200,11 +200,10 @@ const _Update = {
 
 
     /**
-     * 节点修改调用。
+     * 节点修改。
      * 仅限于tQuery中改变节点内容的方法。
      * 注记：
-     * 与append|after|replace等明确的调用不同，
-     * 这提供一种动态指定方法的能力。
+     * 与append|after|replace等明确的调用不同，这提供一种动态指定方法的能力。
      * @param  {Element|Collector} to 检索目标
      * @param  {Value} data 内容数据
      * @param  {String} meth 方法名（__methods[...]）

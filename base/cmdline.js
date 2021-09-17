@@ -110,6 +110,14 @@ const
     __pipeSplit = new Spliter( '|', new UmpCaller(), new UmpChars('[', ']'), new UmpChars('{', '}') );
 
 
+//
+// 全局变量存储
+//
+let
+    // 帮助面板
+    __help = null;
+
+
 
 //
 // 选择指令实现。
@@ -434,7 +442,7 @@ class Command {
     /**
      * 提取命令和实参序列。
      * @param  {String} str 命令行序列
-     * @return {[String, [String]]} [命令名, [实参序列]]
+     * @return {[String, [String]|'']} [命令名, [实参序列]]
      */
     _cmdArgs( str ) {
         for ( const n of this._cmds.keys() ) {
@@ -468,17 +476,20 @@ class Command {
     /**
      * 打开帮助提示
      * 会直接打开帮助侧栏，因此不应当返回提示。
-     * 除非没有目标条目的帮助信息。
+     * 注记：
+     * 如果没有目标条目的帮助信息，会在帮助面板中提示。
      * @param  {String} key 索引键
      * @return {void|String} 静默通过或错误提示
      */
     _help( key ) {
-        //
+        $.trigger( __help, 'open' );
+        $.trigger( __help, 'help', key );
     }
 
 
     /**
      * 插件安装。
+     * 用户需先将插件文件存放到/plugins目录内。
      * @param  {String} url 插件路径
      * @return {String} 状态信息（成功|失败）
      */
@@ -770,6 +781,15 @@ function filters( strs, els0 ) {
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 模块初始化。
+ * @param {String} help 帮助面板ID
+ */
+export function cmdlineInit( help ) {
+    __help = $.get( help );
+}
 
 
 /**

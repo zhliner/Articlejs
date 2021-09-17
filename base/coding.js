@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicolor } from "../plugins/hlcolor/main.js";
+import { Hicolor } from "./highlight/main.js";
 
 
 const
