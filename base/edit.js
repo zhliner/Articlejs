@@ -4236,7 +4236,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         [ Cmdx.command ]:   new Command(),
         [ Cmdx.calcuate ]:  new Calcuate( __ESet, contentElem ),
     });
-    cmdlineInit( '#help' );
+    cmdlineInit( '#x-help' );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );

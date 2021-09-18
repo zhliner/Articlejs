@@ -434,7 +434,7 @@ class Command {
      */
     exec( str ) {
         let [name, args] = this._cmdArgs( str ),
-            _fun = this._cmds[ name ];
+            _fun = this._cmds.get( name );
 
         if ( !name ) {
             return Tips.commandInvalid;
@@ -479,6 +479,7 @@ class Command {
     }
 
 
+
     //-- 命令操作 ----------------------------------------------------------------
 
 
@@ -519,17 +520,22 @@ class Command {
 
     /**
      * 罗列或设置编辑器主题。
-     * @param  {String} url 主题路径
+     * @param  {String} name 主题名称
      * @return {[String]|String} 主题清单或结果提示
      */
-    _theme( url ) {
+    _theme( name ) {
+        if ( !name ) {
+            // 待开发
+            return "请键入准确的主题ID，目前暂不支持清单罗列。";
+        }
         insertStyle(
             `#${Setup.styleTheme}`,
             {
                 id:  Setup.styleTheme,
-                url: `${Setup.root}${__dirTheme}/${url}/style.css`,
+                url: `${Setup.root}${__dirTheme}/${name}/style.css`,
             }
         );
+        return `[${name}] theme installed.`
     }
 
 
@@ -541,6 +547,10 @@ class Command {
      * @return {[String]|String} 样式清单或结果提示
      */
     _style( main, code ) {
+        if ( !main && !code ) {
+            // 待开发
+            return "请键入准确的样式ID，目前暂不支持清单罗列。";
+        }
         if ( main ) {
             insertStyle(
                 `#${Setup.styleMain}`,
@@ -559,6 +569,7 @@ class Command {
                 }
             );
         }
+        return `[${main} ${code}] style installed.`
     }
 
 
@@ -568,7 +579,7 @@ class Command {
      * @return {Value} 结果值
      */
     _config( name ) {
-        return Limit[ name ] || 'nothing!';
+        return Limit[ name ] || Tips.configNothing;
     }
 }
 
