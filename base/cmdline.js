@@ -500,6 +500,9 @@ class Command {
     /**
      * 插件安装。
      * 用户需先将插件文件存放到/plugins目录内。
+     * 注记：
+     * 考虑安全性和避免全局环境污染，插件以worker方式执行。
+     * 因此这里的安装只是插入一个目标定位。
      * @param  {String} name 插件名
      * @return {String} 状态信息（成功|失败）
      */

@@ -661,16 +661,25 @@
 </form>
 
 
-<!-- 插件页 -->
+<!--插件面板：
+    install    插件安装。接收图标和脚本文件名，添加到面板。
+    uninstall  插件卸载。移除插件条目即可。 -->
 <form class="_page _plugins" tpl-name="modal:plugins"
     on="submit|avoid">
     <header>
-        <h4>插件集</h4>
+        <h4>插件窗</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <p class="_list">
-        分栏列表，点击插件大图标执行。
-    </p>
+    <!--分栏列表：点击插件图标执行。
+        注记：配置存储在内部的引用池（WeakMap）中。 -->
+    <div class="_list">
+        <button type="button" title="示例插件">
+            <img src="/plugins/example/logo.png">
+        </button>
+        <button type="button" title="示例插件"><img src="/plugins/example/logo.png"></button>
+        <button type="button" title="示例插件"><img src="/plugins/example/logo.png"></button>
+        <button type="button" title="示例插件"><img src="/plugins/example/logo.png"></button>
+    </div>
 </form>
 
 
