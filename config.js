@@ -17,15 +17,16 @@
 
 const
     Setup = {
-        //
+
         // 编辑器安装根
-        //
-        root:   '/',
-        //
+        root: '/',
+
         // 上载根目录
-        // 与上面的root安装根无关（独立配置）
-        //
-        upload: '/upload/data',
+        upload: 'upload/data',
+
+        // 插件根目录
+        plugins: 'plugins',
+
 
         //
         // 样式元素ID

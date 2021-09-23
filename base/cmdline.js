@@ -111,9 +111,6 @@ const
     // 编辑器主题样式目录
     __dirTheme = 'themes',
 
-    // 插件根目录
-    __dirPlugs = 'plugins',
-
     // 进阶过滤切分器。
     // 排除属性选择器、调用式和表达式内值。
     __pipeSplit = new Spliter( '|', new UmpCaller(), new UmpChars('[', ']'), new UmpChars('{', '}') );

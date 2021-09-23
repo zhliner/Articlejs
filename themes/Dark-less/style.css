@@ -1713,13 +1713,14 @@ menu._cells code {
     box-shadow: 1px 3px 9px 1px #555;
 }
 .Modal header {
-    display: grid;
-    grid-template-columns: auto 42px;
     height: 40px;
     background-color: #2b5663;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: auto 42px;
+    flex-shrink: 0;
 }
 .Modal header > h4 {
     color: #eee;
@@ -1729,12 +1730,13 @@ menu._cells code {
 .Modal header > ._close {
     color: #999;
     font-size: 14pt;
+    margin-right: 2px;
 }
 .Modal header > ._close:hover {
     color: #ccc;
 }
 .Modal form > ._list {
-    margin: 10px 30px;
+    margin: 10px 30px 42px;
 }
 .Modal form > p {
     padding: 8px 35px 5px;
@@ -1784,27 +1786,31 @@ menu._cells code {
 /* 插件窗
  *-------------------------*/
 .Modal ._plugins div._list {
-    height: 85%;
+    height: 100%;
     border: 1px #f90 solid;
     box-shadow: 1px 0px 8px #ffe0a1;
     border-radius: 1.2em;
+    padding: 2.6em 3em;
     display: grid;
-    grid-auto-rows: 64px;
-    grid-auto-columns: 66px;
-    grid-auto-flow: column;
-    gap: 1.4em;
-    padding: 1.4em 2em;
+    gap: 2.4em 1.5em;
+    grid-template: repeat(auto-fill, 60px) / repeat(auto-fill, 60px);
 }
 .Modal ._plugins button {
     padding: 0;
     background-color: transparent;
     border: 1px #115165 solid;
-    border-radius: 1.2em;
+    border-radius: 30px;
     min-width: 0;
     box-shadow: 1px 0px 4px #a4e5f9;
+    /* 溢出时保持 */
+    height: 60px;
 }
 .Modal ._plugins button:hover {
-    border-radius: 35px;
+    border-radius: 1.2em;
+}
+.Modal ._plugins button > img {
+    max-width: 48px;
+    max-height: 48px;
 }
 
 
