@@ -5062,7 +5062,7 @@ function setElem( el, conf, frag ) {
         case 'text':
             el.textContent = v; break;
         default:
-            el.setAttribute( attrName(k), v );
+            v !== null && el.setAttribute( attrName(k), v );
         }
     }
     return el;
