@@ -879,7 +879,37 @@ export function scriptRun( data ) {
             ev.data.error ? reject( ev.data.error) : resolve( ev.data.result );
         }
         _wk.postMessage( data );
-    })
+    });
+}
+
+
+/**
+ * 插件执行。
+ * 将插件的执行封装在一个Worker中（沙盒）。
+ * 插件内需要通过 postMessage 向外部递送数据或请求。
+ * 数据属性的含义：{
+ *      data:Value      普通数据，作为插件运行的结果
+ *      error:String    错误信息
+ *      done:Boolean    插件执行结束
+ *      load:String     导入的模板名
+ *      build:Boolean   模板是否即时构建（默认true）
+ * }
+ * @param {String} url 插件执行
+ * @param {Object} info 系统全局信息
+ */
+export function pluginsRun( url, info ) {
+    let _wk = __poolWorker.pick( url );
+
+    return new Promise( (resolve, reject) => {
+        _wk.onmessage = ev => {
+            if ( ev.data.done ) {
+                _wk.onmessage = null;
+                __poolWorker.add( _wk );
+            }
+            ev.data.error ? reject( ev.data.error) : resolve( ev.data );
+        }
+        _wk.postMessage( info || {} );
+    });
 }
 
 

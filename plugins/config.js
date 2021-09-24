@@ -18,15 +18,13 @@ import { Setup } from "../config.js";
 const
     $ = window.$,
 
-    // 可用插件清单
-    // [目录, 提示]
-    __List = [
-        [ 'example',    '示例插件' ],
-    ],
-
     // 插件缓存集
     // {name: Element}
-    __Pool = new Map();
+    __Pool = new Map(),
+
+    // 插件配置集
+    // {Element: String}
+    __btnPool = new WeakMap();
 
 
 
@@ -48,10 +46,15 @@ export function pluginsInsert( name, tips = null ) {
         return null;
     }
     let _img = $.Element(
-        'img',
-        { src: `${Setup.root}${Setup.plugins}/${name}/logo.png` }
-    );
-    return $.wrap( _img, $.Element('button', {title: tips}) );
+            'img',
+            { src: `${Setup.root}${Setup.plugdir}/${name}/logo.png` }
+        ),
+        _btn = $.wrap( _img, $.Element('button', {title: tips}) );
+
+    __Pool.set( name, _btn );
+    __btnPool.set( _btn, name );
+
+    return _btn;
 }
 
 
@@ -66,15 +69,28 @@ export function pluginsDelete( name ) {
 
     if ( _el ) {
         __Pool.delete( name );
+        __btnPool.delete( _el );
     }
     return _el || null;
 }
 
 
 /**
+ * 插件执行。
+ * @param  {Element} btn 插件按钮
+ * @return {Promise<Object>}
+ */
+export function pluginsRun( btn ) {
+    let _name = __btnPool.get( btn );
+    //
+}
+
+
+/**
  * 插件集初始化。
+ * @param  {[Array2]} 插件清单
  * @return {[Element]} 插件按钮集
  */
-export function pluginsInit() {
-    return $.map( __List, vv => pluginsInsert(vv[0], vv[1]) );
+export function pluginsInit( list ) {
+    return $.map( list, vv => pluginsInsert(vv[0], vv[1]) );
 }

@@ -25,7 +25,7 @@
 //
 // 执行传递过来的代码。
 // 源数据 ev.data
-// - text:[String]  选取集内容文本（TEXT）
+// - text:[String]  选取集内容文本
 // - html:[String]  选取集源码（outerHTML）
 // - code:String    需要执行的代码
 // 容错：

@@ -3033,7 +3033,7 @@ function cleanHTML( el ) {
 /**
  * 封装脚本执行数据。
  * Object3: {
- *      text:[String] 选取集内容文本（TEXT）
+ *      text:[String] 选取集内容文本
  *      html:[String] 选取集源码（outerHTML）
  *      code:String   需要执行的代码
  * }
@@ -4236,7 +4236,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         [ Cmdx.command ]:   new Command(),
         [ Cmdx.calcuate ]:  new Calcuate( __ESet, contentElem ),
     });
-    cmdlineInit( '#x-help' );
+    cmdlineInit( $.get('#x-help'), Templater.node( Sys.modalPlug) );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );

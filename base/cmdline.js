@@ -69,6 +69,9 @@ import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
 import { Cmdx, Tips, Setup, Limit } from "../config.js";
 
+// 工具支持
+import { pluginsInit, pluginsInsert, pluginsDelete } from "../plugins/config.js";
+
 
 const
     $ = window.$,
@@ -111,6 +114,11 @@ const
     // 编辑器主题样式目录
     __dirTheme = 'themes',
 
+    // 插件面板事件名
+    __evnPlugInit = 'init',         // 插件表初始化
+    __evnPlugIns  = 'install',      // 插件安装
+    __evnPlugDel  = 'uninstall',    // 插件卸载
+
     // 进阶过滤切分器。
     // 排除属性选择器、调用式和表达式内值。
     __pipeSplit = new Spliter( '|', new UmpCaller(), new UmpChars('[', ']'), new UmpChars('{', '}') );
@@ -120,8 +128,11 @@ const
 // 全局变量存储
 //
 let
-    // 帮助面板
-    __help = null;
+    // 帮助按钮
+    __helpBtn = null,
+
+    // 插件面板
+    __plugPanel = null;
 
 
 
@@ -489,8 +500,8 @@ class Command {
      * @return {void|String} 静默通过或错误提示
      */
     _help( key ) {
-        $.trigger( __help, 'open' );
-        $.trigger( __help, 'help', key );
+        $.trigger( __helpBtn, 'open' );
+        $.trigger( __helpBtn, 'help', key );
     }
 
 
@@ -501,10 +512,11 @@ class Command {
      * 考虑安全性和避免全局环境污染，插件以worker方式执行。
      * 因此这里的安装只是插入一个目标定位。
      * @param  {String} name 插件名
+     * @param  {String} tips 按钮提示
      * @return {String} 状态信息（成功|失败）
      */
-    _plugIns( name ) {
-        //
+    _plugIns( name, tips ) {
+        $.trigger( __plugPanel, __evnPlugIns, pluginsInsert(name, tips) );
     }
 
 
@@ -514,7 +526,7 @@ class Command {
      * @return {String} 提示信息
      */
     _plugDel( name ) {
-        //
+        $.trigger( __plugPanel, __evnPlugDel, pluginsDelete(name) );
     }
 
 
@@ -633,6 +645,11 @@ class Calcuate {
     }
 }
 
+
+
+//
+// 工具类
+//////////////////////////////////////////////////////////////////////////////
 
 
 //
@@ -847,10 +864,15 @@ function insertStyle( slr, conf ) {
 
 /**
  * 模块初始化。
- * @param {String} help 帮助面板ID
+ * @param {Element} help 帮助面板
+ * @param {Element} plug 插件面板
  */
-export function cmdlineInit( help ) {
-    __help = $.get( help );
+export function cmdlineInit( help, plug ) {
+    __helpBtn = help;
+    __plugPanel = plug;
+
+    // 初始插件清单构建
+    $.trigger( plug, __evnPlugInit, pluginsInit(Setup.pluglist) );
 }
 
 

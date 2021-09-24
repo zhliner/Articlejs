@@ -25,7 +25,13 @@ const
         upload: 'upload/data',
 
         // 插件根目录
-        plugins: 'plugins',
+        plugdir: 'plugins',
+
+        // 默认插件配置
+        // [目录, 提示]
+        pluglist: [
+            ['example', '示例插件'],
+        ],
 
 
         //
@@ -157,7 +163,7 @@ const
 
     // 脚本执行器创建器
     // 路径视实际部署情况调整。
-    Scripter = () => new Worker( '/base/scripter.js' );
+    Scripter = url => new Worker( url || '/base/scripter.js' );
 
 
 
@@ -206,6 +212,7 @@ const Sys = {
     miniedTpl:  'slave:minied',     // 微编辑
     normalTpl:  'slave:input',      // 普通录入
     modalProp:  'modal:prop',       // 属性编辑模态框
+    modalPlug:  'modal:plugins',    // 插件面板
 
 
     // 转换类型标识名
