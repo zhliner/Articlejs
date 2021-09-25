@@ -67,7 +67,7 @@
 
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
-import { Cmdx, Tips, Setup, Limit } from "../config.js";
+import { Cmdx, Tips, Setup, Limit, Sys } from "../config.js";
 
 // 工具支持
 import { pluginsInit, pluginsInsert, pluginsDelete } from "../plugins/config.js";
@@ -107,17 +107,6 @@ const
 
     // 内容区根元素变量名
     __chrRoot = '_',
-
-    // 内容样式目录
-    __dirStyle = 'styles',
-
-    // 编辑器主题样式目录
-    __dirTheme = 'themes',
-
-    // 插件面板事件名
-    __evnPlugInit = 'init',         // 插件表初始化
-    __evnPlugIns  = 'install',      // 插件安装
-    __evnPlugDel  = 'uninstall',    // 插件卸载
 
     // 进阶过滤切分器。
     // 排除属性选择器、调用式和表达式内值。
@@ -516,7 +505,7 @@ class Command {
      * @return {String} 状态信息（成功|失败）
      */
     _plugIns( name, tips ) {
-        $.trigger( __plugPanel, __evnPlugIns, pluginsInsert(name, tips) );
+        $.trigger( __plugPanel, Sys.plugIns, pluginsInsert(name, tips) );
     }
 
 
@@ -526,7 +515,7 @@ class Command {
      * @return {String} 提示信息
      */
     _plugDel( name ) {
-        $.trigger( __plugPanel, __evnPlugDel, pluginsDelete(name) );
+        $.trigger( __plugPanel, Sys.plugDel, pluginsDelete(name) );
     }
 
 
@@ -544,7 +533,7 @@ class Command {
             `#${Setup.styleTheme}`,
             {
                 id:  Setup.styleTheme,
-                url: `${Setup.root}${__dirTheme}/${name}/style.css`,
+                url: `${Setup.root}${Setup.themes}/${name}/style.css`,
             }
         );
         return `[${name}] theme installed.`
@@ -568,7 +557,7 @@ class Command {
                 `#${Setup.styleMain}`,
                 {
                     id:  Setup.styleMain,
-                    url: `${Setup.root}${__dirStyle}/${main}/main.css`,
+                    url: `${Setup.root}${Setup.styles}/${main}/main.css`,
                 }
             );
         }
@@ -577,7 +566,7 @@ class Command {
                 `#${Setup.styleCodes}`,
                 {
                     id:  Setup.styleCodes,
-                    url: `${Setup.root}${__dirStyle}/${code}/codes.css`,
+                    url: `${Setup.root}${Setup.styles}/${code}/codes.css`,
                 }
             );
         }
@@ -872,7 +861,7 @@ export function cmdlineInit( help, plug ) {
     __plugPanel = plug;
 
     // 初始插件清单构建
-    $.trigger( plug, __evnPlugInit, pluginsInit(Setup.pluglist) );
+    $.trigger( plug, Sys.plugInit, pluginsInit(Setup.pluglist) );
 }
 
 

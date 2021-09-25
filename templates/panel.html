@@ -666,7 +666,7 @@
     uninstall   插件卸载。移除传递来的插件按钮。
     init        初始插件清单插入。-->
 <form class="_page _plugins" onsubmit="return false" tpl-name="modal:plugins"
-    on="install|ev('detail') dup pass;
+    on="install init|ev('detail') dup pass;
         uninstall|ev('detail') dup pass remove"
     to="/div._list|append">
     <header>
@@ -677,22 +677,14 @@
         点击图标即执行目标插件。
         注记：配置存储在内部的引用池中，此处仅为UI表达。 -->
     <div class="_list"
-        on="click(button)">
-        <button title="示例插件">
+        on="click(button);
+            _run|ev('detail')"
+        by="-;
+            Kit.plugRun"
+        to="#g-modal|trigger('cancel')|evo(2) pop goto('_run')">
+        <!-- <button title="提示说明">
             <img src="/plugins/example/logo.png">
-        </button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
-        <button title="示例插件"><img src="/plugins/example/logo.png"></button>
+        </button> -->
     </div>
 </form>
 

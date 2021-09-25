@@ -21,6 +21,12 @@ const
         // 编辑器安装根
         root: '/',
 
+        // 内容样式目录
+        styles: 'styles',
+
+        // 编辑器主题目录
+        themes: 'themes',
+
         // 上载根目录
         upload: 'upload/data',
 
@@ -37,6 +43,8 @@ const
         //
         // 样式元素ID
         // 注意与主模板文件中的值保持一致。
+        // 注记：
+        // 用于命令行修改主题/内容样式时对样式元素的检索（替换）。
         //
         styleMain:  's-main',   // 文章内容
         styleCodes: 's-codes',  // 代码着色（文章内容）
@@ -163,7 +171,7 @@ const
 
     // 脚本执行器创建器
     // 路径视实际部署情况调整。
-    Scripter = url => new Worker( url || '/base/scripter.js' );
+    Scripter = () => new Worker( '/base/scripter.js' );
 
 
 
@@ -199,12 +207,15 @@ const Sys = {
 
     // 事件名定义
     // 在模板中定义，由程序中激发。
-    medIn:      'medin',    // 进入微编辑
-    medOk:      'medok',    // 完成微编辑
-    evnFollow:  'update',   // 内容区选取变化跟随激发
-    insType:    'edtype',   // 编辑类型更新（普通插入|微编辑）
-    covert:     'tips',     // 不可见元素提示
-    shnav:      'reset',    // 脚本历史分页导航重置
+    medIn:      'medin',        // 进入微编辑
+    medOk:      'medok',        // 完成微编辑
+    evnFollow:  'update',       // 内容区选取变化跟随激发
+    insType:    'edtype',       // 编辑类型更新（普通插入|微编辑）
+    covert:     'tips',         // 不可见元素提示
+    shnav:      'reset',        // 脚本历史分页导航重置
+    plugInit:   'init',         // 插件表初始化
+    plugIns:    'install',      // 插件安装
+    plugDel:    'uninstall',    // 插件卸载
 
 
     // 模板名定义
