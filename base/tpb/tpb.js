@@ -144,7 +144,7 @@ function nodeBuild( root ) {
 
 
 // 模板对象。
-const __Tpl = InitTpl( new Templater(nodeBuild, TLoader.load.bind(TLoader)) );
+const __Tpl = InitTpl( new Templater(nodeBuild, TLoader) );
 
 
 

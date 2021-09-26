@@ -37,7 +37,7 @@ const $ = window.$;
 
 export class Loader {
     /**
-     * 如果存在子路径，末尾应当包含/
+     * 末尾应当包含/
      * @param {String} base Web路径跟
      */
     constructor( base ) {
@@ -46,7 +46,7 @@ export class Loader {
 
         // 已载入暂存。
         // 避免短时间内的重复请求。
-        // {file: Promise}
+        // {url: Promise}
         this._pool = new Map();
     }
 
@@ -77,14 +77,14 @@ export class Loader {
      * @return {Promise<DocumentFragment>}
      */
     node( file ) {
-        return this._load( this._url(file), 'node' );
+        return this._load( this._url(file), 'text', true );
     }
 
 
     /**
      * 获取Blob数据。
      * @param  {String|URL} file 文件名/URL
-     * @return {Promise<String>}
+     * @return {Promise<Blob>}
      */
     blob( file ) {
         return this._load( this._url(file), 'blob' );
@@ -121,12 +121,22 @@ export class Loader {
 
 
     /**
-     * 清空文件承诺池。
-     * 此承诺池主要为避免短时间内的重复请求，
-     * 如果数据已经完全获取，可以清空以节省内存。
+     * 清空缓存池。
+     * @return {void}
      */
     clear() {
-        return this._pool.clear(), this;
+        this._pool.clear();
+    }
+
+
+    /**
+     * 清理文件承诺池。
+     * 如果数据已经获取则可以清除以节省内存。
+     * @param  {String|URL} file 文件名/URL
+     * @return {Boolean} 是否成功清除
+     */
+    clean( file ) {
+        return this._pool.delete( this._url(file).href );
     }
 
 
@@ -135,7 +145,8 @@ export class Loader {
 
     /**
      * 获取文件URL（全）。
-     * @param {String|URL} file 文件名/URL
+     * @param  {String|URL} file 文件名/URL
+     * @return {URL} 资源定位
      */
     _url( file ) {
         return typeof file == 'string' ? new URL( file, this._base ) : file;
@@ -147,16 +158,17 @@ export class Loader {
      * type: "json|text|formData|blob|arrayBuffer|node"
      * @param  {URL} url 目标URL
      * @param  {String} type 载入类型
+     * @param  {Boolean} node 构造为文档片段，可选
      * @return {Promise<...>}
      */
-    _load( url, type ) {
+    _load( url, type, node ) {
         let _pro = this._pool.get(url.href);
 
         if ( !_pro ) {
             if ( DEBUG ) {
                 window.console.log( `loading for "${url}"` );
             }
-            _pro = this._fetch( url, type );
+            _pro = this._fetch( url, type, node );
 
             this._pool.set( url.href, _pro );
         }
@@ -168,14 +180,10 @@ export class Loader {
      * 拉取目标数据。
      * @param  {URL} url 目标URL
      * @param  {String} type 载入类型
-     * @param  {Boolean} node 是否构造节点
+     * @param  {Boolean} node 构造为文档片段，可选
      * @return {Promise<...>}
      */
-    _fetch( url, type, node = false ) {
-        if ( type == 'node' ) {
-            node = true;
-            type = 'text';
-        }
+    _fetch( url, type, node ) {
         let _pro = fetch(url).then(
                 resp => resp.ok ? resp[type]() : Promise.reject(resp.statusText)
             );
@@ -185,6 +193,10 @@ export class Loader {
 }
 
 
+//
+// 模板节点载入器。
+// 专用于Tpb的模板节点载入（节点名与文件名相互关联）。
+//
 export class TplLoader {
     /**
      * @param {String} dir 模板根目录
@@ -198,8 +210,12 @@ export class TplLoader {
         }
         this._path = loader.base() + dir;
 
-        // 节点名:文件名映射。
-        // { tpl-name: file }
+        // 文件名:节点名集
+        // { file-name: [tpl-name] }
+        this._fmap = new Map();
+
+        // 节点名:文件名
+        // { tpl-name: file-name }
         this._tmap = new Map();
     }
 
@@ -210,9 +226,13 @@ export class TplLoader {
      * 也可以是URL实例，此时为全路径。
      * 可以传递一个现成的配置对象，格式：{file: [tpl-name]}
      * @param  {String|URL|Object} maps 映射文件或配置对象
+     * @param  {Boolean} clear 清除之前的旧配置缓存，可选
      * @return {Promise<Map>}
      */
-    config( maps ) {
+    config( maps, clear ) {
+        if ( clear ) {
+            this._tmap.clear();
+        }
         if ( $.type(maps) == 'Object' ) {
             return Promise.resolve( this._config(maps) );
         }
@@ -226,25 +246,48 @@ export class TplLoader {
      * 注记：
      * 由后续在单线程中处理重复解析的问题。
      * @param  {String} name 节点名称
-     * @return {Promise<DocumentFragment>} 承诺对象
+     * @return {Promise<[DocumentFragment, String]>} 承诺对象
      */
     load( name ) {
-        let _file = this._file(name);
+        let _file = this._file( name );
 
         if ( !_file ) {
             return Promise.reject( `err: [${name}] not in any file.` );
         }
-        return this._loader.node( this._url(_file) );
+        // 附带文件名返回以完整化信息。
+        return this._loader.node( this._url(_file) ).then( frg => [frg, _file] );
     }
 
 
     /**
      * 清空配置集。
-     * 节省内存占用，可在全新的配置开始前使用。
+     * 需在下一次编译（Tpb.build）之前执行。
      * @return {void}
      */
     clear() {
         this._tmap.clear();
+        this._fmap.clear();
+    }
+
+
+    /**
+     * 清理模板文件的关联配置。
+     * 应当在文档片段内的全部模板节点编译完成之后执行。
+     * - 节点名到模板文件名的映射（._tmap）。
+     * - 模板文件名到节点名集的条目（._fmap）。
+     * @param  {String} file 模板文件名
+     * @return {void}
+     */
+    clean( file ) {
+        let _list = this._fmap.get( file );
+
+        if ( _list ) {
+            _list.forEach( tn => this._tmap.delete(tn) );
+        }
+        this._fmap.delete( file );
+
+        // 载入器清理，因为对应文档片段已使用完毕。
+        this._loader.clean( this._url(file) );
     }
 
 
@@ -253,7 +296,8 @@ export class TplLoader {
 
     /**
      * 获取文件URL（全）。
-     * @param {String|URL} file 文件名/URL
+     * @param  {String|URL} file 文件名/URL
+     * @return {URL} 资源定位
      */
     _url( file ) {
         return typeof file == 'string' ? new URL( file, this._path ) : file;
@@ -266,8 +310,8 @@ export class TplLoader {
      * @param  {String} file 节点所在文件名
      * @return {String} 文件名
      */
-    _file(name, file) {
-        if (file === undefined) {
+    _file( name, file ) {
+        if ( file === undefined ) {
             return this._tmap.get(name) || null;
         }
         this._tmap.set( name, file );
@@ -283,8 +327,10 @@ export class TplLoader {
      */
     _config( map ) {
         for ( const [file, names] of Object.entries(map) ) {
-            names
-            .forEach( name => this._file(name, file) );
+            names.forEach(
+                name => this._file( name, file )
+            );
+            this._fmap.set( file, names );
         }
         return this._tmap;
     }

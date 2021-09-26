@@ -43,7 +43,7 @@ const
 /**
  * 插件文件导入（执行）。
  * 将插件的执行封装在一个Worker中（沙盒）。
- * 插件内需要通过 postMessage 向外部递送数据或请求。
+ * 插件内需要通过 postMessage 向外部递送请求和数据。
  * 数据属性的含义：{
  *      result:Value    插件运行的结果数据
  *      error:String    错误信息
@@ -54,17 +54,17 @@ const
  * 插件按钮实际上只是一个入口，之后如果需要DOM交互，只能由模板实现。
  * 模板中的OBT格式简单且固定，因此便于安全性审核。
  * @param  {String} url 主文件路径
- * @param  {Object} info 系统全局信息
+ * @param  {Object} data 编辑器数据（HTML, TEXT, INFO）
  * @return {Promise<Object>}
  */
-function plugLoad( url, info ) {
+function plugLoad( url, data ) {
     let _wk = new Worker( url );
 
     return new Promise( (resolve, reject) => {
         _wk.onmessage = ev => {
             ev.data.error ? reject( ev.data.error) : resolve( ev.data );
         }
-        _wk.postMessage( info || {} );
+        _wk.postMessage( data );
     });
 }
 
@@ -90,11 +90,12 @@ function plugResult( obj ) {
  * - 模态框会被自动关闭。
  * - 如果插件中请求了导入模板，则导入并构建。
  * @data: Element 插件按钮
+ * @param  {Object} data 编辑器数据（HTML, TEXT, INFO）
  * @return {void}
  */
-function pluginsRun( evo ) {
+function pluginsRun( evo, data ) {
     let _name = __btnPool.get( evo.data );
-    plugLoad( `${Setup.root}${Setup.plugdir}/${_name}/${__file}` ).then( plugResult );
+    plugLoad( `${Setup.root}${Setup.plugdir}/${_name}/${__file}`, data ).then( plugResult );
 }
 
 

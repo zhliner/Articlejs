@@ -61,7 +61,7 @@ class Templater {
      * obter: function( Element ): Promise<void>
      * loader: function( String ): Promise<DocumentFragment>
      * @param {Function} obter OBT解析回调
-     * @param {Function} loader 节点载入回调
+     * @param {TplLoader} loader 节点载入器
      */
     constructor( obter, loader ) {
         this._obter = obter;
@@ -166,12 +166,14 @@ class Templater {
 
     /**
      * 模板构建。
-     * 元素实参主要用于初始或手动调用，
+     * 元素实参主要用于初始或手动调用。
      * 系统自动载入并构建时，实参为文档片段。
+     * file参数仅在系统自动构建时有用。
      * @param  {Element|Document|DocumentFragment} root 构建目标
+     * @param  {String} file 文档片段对应的文件名，可选
      * @return {Promise<true>}
      */
-    build( root ) {
+    build( root, file ) {
         if ( this._pool.has(root) ) {
             return this._pool.get(root);
         }
@@ -180,7 +182,8 @@ class Templater {
         // 否则子模板克隆会直接复制OBT特性，相同值重复解析。
         let _pro = this._obter( root )
             .then( () => this.tpls(root) )
-            .then( () => this._pool.delete(root) );
+            .then( () => this._pool.delete(root) )
+            .then( () => file && this._loader.clean(file) );
 
         this._pool.set( root, _pro );
 
@@ -255,8 +258,8 @@ class Templater {
      * @return {Promise<Element>}
      */
     _load( name ) {
-        return this._loader( name )
-            .then( fg => this.build(fg) )
+        return this._loader.load( name )
+            .then( ([fg, file]) => this.build(fg, file) )
             .then( () => this._tpls.get(name) || this._tplx.get(name) );
     }
 
