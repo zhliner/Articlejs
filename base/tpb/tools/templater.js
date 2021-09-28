@@ -141,7 +141,7 @@ class Templater {
 
     /**
      * 移除模板。
-     * 如果某模板是最后一次使用，可用该方法使存储集精简。
+     * 可用于存储集清理或精简。
      * @param  {String} name 模板名
      * @return {Element|null} 被移除的模板
      */
@@ -171,7 +171,7 @@ class Templater {
      * file参数仅在系统自动构建时有用。
      * @param  {Element|Document|DocumentFragment} root 构建目标
      * @param  {String} file 文档片段对应的文件名，可选
-     * @return {Promise<true>}
+     * @return {Promise<(true)>}
      */
     build( root, file ) {
         if ( this._pool.has(root) ) {
@@ -183,7 +183,7 @@ class Templater {
         let _pro = this._obter( root )
             .then( () => this.tpls(root) )
             .then( () => this._pool.delete(root) )
-            .then( () => file && this._loader.clean(file) );
+            .then( () => !file || !this._loader.clean(file) );
 
         this._pool.set( root, _pro );
 

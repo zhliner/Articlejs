@@ -226,13 +226,9 @@ export class TplLoader {
      * 也可以是URL实例，此时为全路径。
      * 可以传递一个现成的配置对象，格式：{file: [tpl-name]}
      * @param  {String|URL|Object} maps 映射文件或配置对象
-     * @param  {Boolean} clear 清除之前的旧配置缓存，可选
      * @return {Promise<Map>}
      */
-    config( maps, clear ) {
-        if ( clear ) {
-            this._tmap.clear();
-        }
+    config( maps ) {
         if ( $.type(maps) == 'Object' ) {
             return Promise.resolve( this._config(maps) );
         }
@@ -249,7 +245,7 @@ export class TplLoader {
      * @return {Promise<[DocumentFragment, String]>} 承诺对象
      */
     load( name ) {
-        let _file = this._file( name );
+        let _file = this._tmap.get( name );
 
         if ( !_file ) {
             return Promise.reject( `err: [${name}] not in any file.` );
@@ -305,20 +301,6 @@ export class TplLoader {
 
 
     /**
-     * 设置/提取节点所属文件名。
-     * @param  {String} name 节点名
-     * @param  {String} file 节点所在文件名
-     * @return {String} 文件名
-     */
-    _file( name, file ) {
-        if ( file === undefined ) {
-            return this._tmap.get(name) || null;
-        }
-        this._tmap.set( name, file );
-    }
-
-
-    /**
      * 设置节点/文件映射配置。
      * map: {文件名: [节点名]}
      * 转换为：{节点名: 文件名}
@@ -328,7 +310,7 @@ export class TplLoader {
     _config( map ) {
         for ( const [file, names] of Object.entries(map) ) {
             names.forEach(
-                name => this._file( name, file )
+                name => this._tmap.set( name, file )
             );
             this._fmap.set( file, names );
         }

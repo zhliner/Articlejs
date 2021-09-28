@@ -185,7 +185,7 @@ function namedTpls( files, sort ) {
     // 先插入以保留原始顺序。
     files.forEach( f => _buf.set(f, null) );
 
-    // 重置。
+    // 避免之前构建影响。
     XLoader.clear();
 
     Promise.all(

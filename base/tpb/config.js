@@ -24,7 +24,7 @@ const
 
     Web = {
         // URL根
-        // 注意含末尾斜线（/）。
+        // 如果是子路径，必须包含末尾斜线（/）。
         base:   'http://localhost:8080/',
 
         //---------------------
@@ -35,8 +35,7 @@ const
         tpldir: 'templates',
 
         // 模板映射集文件
-        // 格式：{文件: [节点]}
-        tplmap: 'templates/maps.json',
+        tplmap: `${Web.tpldir}/maps.json`,
 
         // 拉取数据根目录
         pulls:  'xdata',

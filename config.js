@@ -19,7 +19,7 @@ const
     Setup = {
 
         // 编辑器安装根
-        root: '/',
+        root:   '/',
 
         // 内容样式目录
         styles: 'styles',
@@ -30,12 +30,20 @@ const
         // 上载根目录
         upload: 'upload/data',
 
-        // 插件根目录
-        plugdir: 'plugins',
+
+        //
+        // 插件相关配置
+        ///////////////////////////////////////////////////
+
+        plugDir:    'plugins',      // 根目录
+        plugMain:   'main.js',      // 主程序文件
+        plugMaps:   'maps.json',    // 模板配置文件
+        plugTpl:    'index.html',   // 主模板文件
+        plugLogo:   'logo.png',     // 按钮图标（插件面板）
 
         // 默认插件配置
         // [目录, 提示]
-        pluglist: [
+        plugList: [
             ['example', '示例插件'],
         ],
 
@@ -44,8 +52,9 @@ const
         // 样式元素ID
         // 注意与主模板文件中的值保持一致。
         // 注记：
-        // 用于命令行修改主题/内容样式时对样式元素的检索（替换）。
-        //
+        // 用于命令行修改主题/内容样式时对样式元素的检索。
+        ///////////////////////////////////////////////////
+
         styleMain:  's-main',   // 文章内容
         styleCodes: 's-codes',  // 代码着色（文章内容）
         styleTheme: 's-theme',  // 编辑器主题

@@ -861,7 +861,7 @@ export function cmdlineInit( help, plug ) {
     __plugPanel = plug;
 
     // 初始插件清单构建
-    $.trigger( plug, Sys.plugInit, pluginsInit(Setup.pluglist) );
+    $.trigger( plug, Sys.plugInit, pluginsInit(Setup.plugList) );
 }
 
 

@@ -13,23 +13,17 @@
 //
 
 import { Setup } from "../config.js";
-import { processExtend } from "../base/tpb/pbs.by.js";
+import { XLoader, TLoader, Templater } from "../base/tpb/config.js";
 
 
 const
     $ = window.$,
 
-    // 插件图标文件名
-    __logo = 'logo.png',
-
-    // 插件主文件名
-    __file = 'main.js',
-
-    // 插件缓存集
-    // {name: Element}
+    // 插件配置缓存
+    // {name: {button:Element, tpls:[String]}}
     __Pool = new Map(),
 
-    // 插件配置集
+    // 插件名记忆
     // {Element: String}
     __btnPool = new WeakMap();
 
@@ -38,6 +32,28 @@ const
 //
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 导入并解析模板节点。
+ * - 导入模板节点清单文件并配置全局载入器。
+ * - 导入主模板文件并构建解析。
+ * 返回节点名数组承诺。
+ * @param  {String} path 目标插件根（全路径）
+ * @return {Promise<[String]|null>}
+ */
+function plugTpls( path ) {
+    let _maps = `${path}${Setup.plugMaps}`,
+        _file = `${path}${Setup.plugTpl}`;
+
+    TLoader.config( _maps )
+        .then( maps => [...maps.keys()] )
+        // 未配置时不会执行下面的.then
+        .then( tpls => [XLoader.node(_file), tpls] )
+        // 无模板或未配置，静默通过。
+        .catch( () => null )
+        .then( vv => vv && Templater.build(vv[0], Setup.plugTpl).then(() => vv[1]) );
+}
 
 
 /**
@@ -95,7 +111,8 @@ function plugResult( obj ) {
  */
 function pluginsRun( evo, data ) {
     let _name = __btnPool.get( evo.data );
-    plugLoad( `${Setup.root}${Setup.plugdir}/${_name}/${__file}`, data ).then( plugResult );
+
+    plugLoad( `${Setup.root}${Setup.plugDir}/${_name}/${Setup.plugMain}`, data ).then( plugResult );
 }
 
 
@@ -106,44 +123,43 @@ function pluginsRun( evo, data ) {
 
 
 /**
- * 插入插件。
- * 外部应当保证插件（目录）已经存在。
+ * 插件安装。
+ * 会导入模板配置和模板，并自动构建模板的OBT逻辑。
  * 如果插件已经安装，则返回null。
+ * 注意：
+ * 外部应当保证插件（目录）已经存在。
  * @param  {String} name 插件名
  * @param  {String} tips 按钮提示（title），可选
- * @return {Element|null} 插件按钮（<button/img>）
+ * @return {Promise<Element>|null} 插件按钮（<button/img>）
  */
 export function pluginsInsert( name, tips = null ) {
     if ( __Pool.has(name) ) {
         return null;
     }
-    let _img = $.Element(
-            'img',
-            { src: `${Setup.root}${Setup.plugdir}/${name}/${__logo}` }
-        ),
+    let _dir = `${Setup.root}${Setup.plugDir}/${name}/`,
+        _img = $.Element( 'img', {src: `${_dir}${Setup.plugLogo}`} ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
-    __Pool.set( name, _btn );
-    __btnPool.set( _btn, name );
-
-    return _btn;
+    return plugTpls( _dir ).then( ns => __Pool.set(name, { button:_btn, tpls:ns }) && __btnPool.set(_btn, name) && _btn );
 }
 
 
 /**
  * 移除插件。
+ * 同时会清除插件导入的模板节点（全局缓存器内）。
  * 如果目标插件不存在，返回null。
  * @param  {String} name 插件名
  * @return {Element|null} 插件按钮
  */
 export function pluginsDelete( name ) {
-    let _el = __Pool.get( name );
+    let _conf = __Pool.get( name );
 
-    if ( _el ) {
+    if ( _conf ) {
         __Pool.delete( name );
-        __btnPool.delete( _el );
+        __btnPool.delete( _conf.button );
+        _conf.tpls && _conf.tpls.forEach( name => Templater.del(name) );
     }
-    return _el || null;
+    return _conf ? _conf.button : null;
 }
 
 
@@ -159,7 +175,11 @@ export function pluginsInit( list ) {
 }
 
 
-//
-// OBT:By 扩展（模板中用）
-//
-processExtend( 'Kit.plugRun', pluginsRun.bind(null), 1 );
+/**
+ * 获取插件名。
+ * @param  {Element} btn 插件按钮
+ * @return {String} 插件名
+ */
+export function pluginsName( btn ) {
+    return __btnPool.get( btn ) || null;
+}
