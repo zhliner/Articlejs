@@ -18,7 +18,7 @@
 //
 
 import { Templater, OBTA } from "./tpb/config.js";
-import { Sys, Limit, Help, Tips, Cmdx } from "../config.js";
+import { Sys, Limit, Help, Tips, Cmdx, Setup } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
@@ -35,6 +35,8 @@ import { saveCode } from "./shedit.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import { Select, Filter, Search, Command, Calcuate, typeRecord, CmdNav, cmdlineInit } from "./cmdline.js";
+import { pluginsName } from "../plugins/base.js";
+import { Render } from "../base/tpb/tools/render.js";
 
 
 const
@@ -3032,28 +3034,26 @@ function cleanHTML( el ) {
 
 /**
  * 封装脚本执行数据。
- * Object3: {
- *      text:[String] 选取集内容文本
- *      html:[String] 选取集源码（outerHTML）
- *      code:String   需要执行的代码
+ * Object: {
+ *      TEXT:[String] 选取集内容文本
+ *      HTML:[String] 选取集源码（outerHTML）
  * }
  * @param  {ESet} eset 当前选取集
- * @param  {String} code 脚本代码
- * @param  {Boolean} btext 包含文本集数据
- * @param  {Boolean} bhtml 包含源码集数据
- * @return {Object3}
+ * @param  {Object} obj 存储对象
+ * @param  {Boolean} itext 包含文本集数据
+ * @param  {Boolean} ihtml 包含源码集数据
+ * @return {Object} obj
  */
-function scriptData( eset, code, btext, bhtml ) {
-    let _obj = { code },
-        _els = [...eset];
+function scriptData( eset, obj, itext, ihtml ) {
+    let _els = [...eset];
 
-    if ( btext ) {
-        _obj.text = _els.map( el => el.textContent );
+    if ( itext ) {
+        obj.TEXT = _els.map( el => el.textContent );
     }
-    if ( bhtml ) {
-        _obj.html = _els.map( cleanHTML );
+    if ( ihtml ) {
+        obj.HTML = _els.map( cleanHTML );
     }
-    return _obj;
+    return obj;
 }
 
 
@@ -3061,7 +3061,7 @@ function scriptData( eset, code, btext, bhtml ) {
  * 编辑器环境下运行脚本代码。
  * 捕获出错信息或结果向后传递（会递送到打开的结果框）。
  * 如果代码没有返回值，返回null（不会打开结果框）。
- * Object3: {
+ * 返回值 Object3: {
  *      type:String 结果类型（error|value）
  *      data:Value  执行的结果（任意）
  *      code:String 当前脚本代码（用于历史存储），可选
@@ -3095,6 +3095,54 @@ function scriptRun2( code, $els ) {
 const $proxy = new Proxy( $, {
     apply: (orig, _, args) => orig( args[0], args[1] || contentElem )
 });
+
+
+/**
+ * 插件主文件导入。
+ * 将插件的执行封装在一个Worker中（沙盒）。
+ * 插件内需要通过 postMessage 向外部递送请求和数据。
+ * 数据项：{
+ *      result:Value    插件运行的结果数据
+ *      error:String    错误信息
+ *      node:String     需引入的根模板节点名
+ * }
+ * 注记：
+ * 插件按钮实际上只是一个入口，之后如果需要DOM交互，只能由模板实现。
+ * 模板中的OBT格式简单且固定，因此便于安全性审核。
+ * @param  {String} url 主文件路径
+ * @param  {Object} data 编辑器数据（HTML, TEXT, INFO）
+ * @return {Promise<Object>}
+ */
+function plugLoad( url, data ) {
+    let _wk = new Worker( url );
+
+    return new Promise( (resolve, reject) => {
+        _wk.onmessage = ev => {
+            ev.data.error ? reject( ev.data.error) : resolve( ev.data );
+        }
+        _wk.postMessage( data );
+    });
+}
+
+
+/**
+ * 插件结果处理。
+ * - 插件需要申请模板来获得UI交互。
+ * - 如果申请了模板，结果数据（result）将用于模板渲染的源数据。
+ * - 如果没有申请模板，结果数据会简单向后传递（模态框内显示）。
+ * obj: {
+ *      result: 插件结果数据
+ *      node:   引入的模板节点名
+ * }
+ * @param  {Object} obj 结果数据对象
+ * @return {Value|Element}
+ */
+function plugResult( obj ) {
+    if ( !obj.node ) {
+        return obj.result;
+    }
+    return Render.update( Templater.node( obj.node ) );
+}
 
 
 /**
@@ -5590,7 +5638,7 @@ export const Edit = {
             // 结果为Object3，合法性未定，交由后阶处理（是否保存代码）。
             return _op.result() || saveCode( code ) || null;
         }
-        return scriptRun( scriptData(__ESet, code, btext, bhtml) )
+        return scriptRun( scriptData(__ESet, {code}, btext, bhtml) )
             .then( data => ({type: 'value', data, code}) )
             .catch( data => ({type: 'error', data, code: ''}) )
     },
@@ -5700,6 +5748,32 @@ export const Edit = {
     },
 
     __cmdRun: 1,
+
+
+    /**
+     * 插件执行。
+     * 在用户单击插件面板中的目标插件按钮时发生。
+     * - 模态框会被自动关闭。
+     * - 如果插件中请求了导入模板，则导入并构建。
+     * @return {void}
+     */
+    pluginsRun( evo ) {
+        let _name = pluginsName( evo.data ),
+            // 全局信息在此设置
+            _data = { INFO: {} };
+
+        if ( !_name ) {
+            throw new Error( 'not found the plugins.' );
+        }
+        plugLoad(
+            `${Setup.root}${Setup.plugDir}/${_name}/${Setup.plugMain}`,
+            // 递送数据 {INFO, HTML, TEXT}
+            scriptData( __ESet, _data, true, true )
+        )
+        .then( plugResult );
+    },
+
+    __pluginsRun: 1,
 
 
 
@@ -7207,6 +7281,7 @@ processExtend( 'Ed', Edit, [
     'insResult',
     'propUpdate',
     'cmdRun',
+    'pluginsRun',
 
     // 配合cut处理
     'deletes',

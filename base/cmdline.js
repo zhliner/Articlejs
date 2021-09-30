@@ -70,7 +70,7 @@ import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
 import { Cmdx, Tips, Setup, Limit, Sys } from "../config.js";
 
 // 工具支持
-import { pluginsInit, pluginsInsert, pluginsDelete } from "../plugins/config.js";
+import { pluginsInit, pluginsInsert, pluginsDelete } from "../plugins/base.js";
 
 
 const

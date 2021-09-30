@@ -25,8 +25,8 @@
 //
 // 执行传递过来的代码。
 // 源数据 ev.data
-// - text:[String]  选取集内容文本
-// - html:[String]  选取集源码（outerHTML）
+// - TEXT:[String]  选取集内容文本
+// - HTML:[String]  选取集源码（outerHTML）
 // - code:String    需要执行的代码
 // 容错：
 // 可直接传递字符串代码执行，此时没有TEXT/HTML两个数据集。
@@ -44,7 +44,7 @@ onmessage = function( ev ) {
             'TEXT',
             'HTML',
             _o.code || _o
-        )( _o.text || [], _o.html || [] );
+        )( _o.TEXT || [], _o.HTML || [] );
     }
     catch (err) {
         _tmp.error = err;

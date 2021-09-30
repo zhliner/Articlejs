@@ -1,12 +1,12 @@
-//! $ID: config.js 2021.09.23 Articlejs.Plugins $
-// ++++++++++++++++++++++++++++++++++++++++++++++++
+//! $ID: base.js 2021.09.23 Articlejs.Plugins $
+// ++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  插件默认配置
+//  插件基础实现。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@ function plugTpls( path ) {
     let _maps = `${path}${Setup.plugMaps}`,
         _file = `${path}${Setup.plugTpl}`;
 
+    // 清理之前的残余（可能有）。
+    TLoader.clear();
+
     TLoader.config( _maps )
         .then( maps => [...maps.keys()] )
         // 未配置时不会执行下面的.then
@@ -53,66 +56,6 @@ function plugTpls( path ) {
         // 无模板或未配置，静默通过。
         .catch( () => null )
         .then( vv => vv && Templater.build(vv[0], Setup.plugTpl).then(() => vv[1]) );
-}
-
-
-/**
- * 插件文件导入（执行）。
- * 将插件的执行封装在一个Worker中（沙盒）。
- * 插件内需要通过 postMessage 向外部递送请求和数据。
- * 数据属性的含义：{
- *      result:Value    插件运行的结果数据
- *      error:String    错误信息
- *      load:String     导入的模板名
- *      build:Boolean   模板是否即时构建（默认true）
- * }
- * 注记：
- * 插件按钮实际上只是一个入口，之后如果需要DOM交互，只能由模板实现。
- * 模板中的OBT格式简单且固定，因此便于安全性审核。
- * @param  {String} url 主文件路径
- * @param  {Object} data 编辑器数据（HTML, TEXT, INFO）
- * @return {Promise<Object>}
- */
-function plugLoad( url, data ) {
-    let _wk = new Worker( url );
-
-    return new Promise( (resolve, reject) => {
-        _wk.onmessage = ev => {
-            ev.data.error ? reject( ev.data.error) : resolve( ev.data );
-        }
-        _wk.postMessage( data );
-    });
-}
-
-
-/**
- * 插件结果处理。
- * - 插件需要申请模板来显示结果或UI交互。
- * - 结果对象中的.result会用于模板渲染的源数据。
- * obj: {
- *      result, load, build
- * }
- * @param  {Object} obj 结果数据对象
- * @return {void}
- */
-function plugResult( obj ) {
-    //
-}
-
-
-/**
- * 插件执行。
- * 在用户单击插件面板中的目标插件按钮时发生。
- * - 模态框会被自动关闭。
- * - 如果插件中请求了导入模板，则导入并构建。
- * @data: Element 插件按钮
- * @param  {Object} data 编辑器数据（HTML, TEXT, INFO）
- * @return {void}
- */
-function pluginsRun( evo, data ) {
-    let _name = __btnPool.get( evo.data );
-
-    plugLoad( `${Setup.root}${Setup.plugDir}/${_name}/${Setup.plugMain}`, data ).then( plugResult );
 }
 
 
@@ -169,8 +112,8 @@ export function pluginsDelete( name ) {
  * @return {[Element]} 插件按钮集
  */
 export function pluginsInit( list ) {
-    // 插件需要的OBT扩展
-    // ...
+    // 注意：
+    // 需要提前导入插件所需的OBT扩展。
     return $.map( list, vv => pluginsInsert(vv[0], vv[1]) );
 }
 
