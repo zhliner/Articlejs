@@ -588,20 +588,23 @@
 </div>
 
 
-<!--模态页（通用）
-    注：可供插件开发调用。 -->
+<!--模态页（插件应用）
+    state   获取数据为一个二元数组：[节点（集）, 标题条文本]
+    _node   填充应用的根节点（集）。 -->
 <form class="_page" tpl-name="modal:page"
-    on="submit|avoid">
+    on="state|ev('detail') spread;
+        _node|ev('detail');
+        submit|avoid"
+    to="/h4|@title|pop goto('_node');
+        /main|fill">
     <header>
         <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <div class="_list">
+    <main>
         <!-- [node] -->
-    </div>
+    </main>
     <hr tpl-node="modal:okreset" />
-    <!-- 条目标记 -->
-    <input type="hidden" name="item" value="" />
 </form>
 
 
@@ -677,11 +680,11 @@
         点击图标即执行目标插件。
         注记：配置存储在内部的引用池中，此处仅为UI表达。 -->
     <div class="_list"
-        on="click(button);
-            _run|ev('detail')"
-        by="-;
-            Ed.pluginsRun"
-        to="#g-modal|trigger('cancel')|evo(2) pop goto('_run')">
+        on="_run|ev('detail');
+            click(button)"
+        by="Ed.pluginsRun node('modal:page') pack(2)"
+        to="#g-modal|trigger('open');
+            #g-modal|trigger('cancel')|evo(2) pop goto('_run')">
         <!-- <button title="提示说明">
             <img src="/plugins/example/logo.png">
         </button> -->

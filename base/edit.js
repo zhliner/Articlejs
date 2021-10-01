@@ -3104,7 +3104,8 @@ const $proxy = new Proxy( $, {
  * 数据项：{
  *      result:Value    插件运行的结果数据
  *      error:String    错误信息
- *      node:String     需引入的根模板节点名
+ *      node:String     展示结果的根模板节点名
+ *      title:String    展示框标题条文本
  * }
  * 注记：
  * 插件按钮实际上只是一个入口，之后如果需要DOM交互，只能由模板实现。
@@ -3129,19 +3130,27 @@ function plugLoad( url, data ) {
  * 插件结果处理。
  * - 插件需要申请模板来获得UI交互。
  * - 如果申请了模板，结果数据（result）将用于模板渲染的源数据。
- * - 如果没有申请模板，结果数据会简单向后传递（模态框内显示）。
+ * - 如果没有申请模板，结果数据填充到一个文本框内向后传递。
  * obj: {
  *      result: 插件结果数据
- *      node:   引入的模板节点名
+ *      node:   引入的模板节点名，可选
+ *      title:  展示框标题条文本，可选
  * }
  * @param  {Object} obj 结果数据对象
- * @return {Value|Element}
+ * @param  {String} ttl 插件按钮提示文本
+ * @return {[Element, String]} [展示根元素, 标题条文本]
  */
-function plugResult( obj ) {
-    if ( !obj.node ) {
-        return obj.result;
+function plugResult( obj, ttl ) {
+    ttl = obj.title || ttl;
+
+    if ( obj.node ) {
+        // 渲染的是模板的一个克隆副本。
+        return [
+            Render.update( Templater.node(obj.node, true, true), obj.result ),
+            ttl
+        ];
     }
-    return Render.update( Templater.node( obj.node ) );
+    return [ $.elem( 'textarea', JSON.stringify(obj.result, null, 4) ), ttl ];
 }
 
 
@@ -5754,23 +5763,25 @@ export const Edit = {
      * 插件执行。
      * 在用户单击插件面板中的目标插件按钮时发生。
      * - 模态框会被自动关闭。
-     * - 如果插件中请求了导入模板，则导入并构建。
-     * @return {void}
+     * - 如果插件请求了模板节点（名称），则导入（一个副本）并渲染。
+     * @data: Element 插件按钮
+     * @return {Promise<Element>}
      */
     pluginsRun( evo ) {
         let _name = pluginsName( evo.data ),
+            _ttl = $.attr( evo.data, 'title' ) || '',
             // 全局信息在此设置
             _data = { INFO: {} };
 
         if ( !_name ) {
             throw new Error( 'not found the plugins.' );
         }
-        plugLoad(
+        return plugLoad(
             `${Setup.root}${Setup.plugDir}/${_name}/${Setup.plugMain}`,
-            // 递送数据 {INFO, HTML, TEXT}
+            // {INFO, HTML, TEXT}
             scriptData( __ESet, _data, true, true )
         )
-        .then( plugResult );
+        .then( obj => plugResult(obj, _ttl) );
     },
 
     __pluginsRun: 1,
