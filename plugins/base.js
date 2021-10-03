@@ -46,10 +46,7 @@ function plugTpls( path ) {
     let _maps = `${path}${Setup.plugMaps}`,
         _file = `${path}${Setup.plugTpl}`;
 
-    // 清理之前的残余（可能有）。
-    TLoader.clear();
-
-    TLoader.config( _maps )
+    return TLoader.config( _maps )
         .then( maps => [...maps.keys()] )
         // 未配置时不会执行下面的.then
         .then( tpls => [XLoader.node(_file), tpls] )
@@ -73,11 +70,11 @@ function plugTpls( path ) {
  * 外部应当保证插件（目录）已经存在。
  * @param  {String} name 插件名
  * @param  {String} tips 按钮提示（title），可选
- * @return {Promise<Element>|null} 插件按钮（<button/img>）
+ * @return {Promise<Element|null>} 插件按钮（<button/img>）
  */
 export function pluginsInsert( name, tips = null ) {
     if ( __Pool.has(name) ) {
-        return null;
+        return Promise.resolve(null);
     }
     let _dir = `${Setup.root}${Setup.plugDir}/${name}/`,
         _img = $.Element( 'img', {src: `${_dir}${Setup.plugLogo}`} ),
@@ -109,12 +106,13 @@ export function pluginsDelete( name ) {
 /**
  * 插件集初始化。
  * @param  {[Array2]} 插件清单
- * @return {[Element]} 插件按钮集
+ * @return {Promise<[Element]>} 插件按钮集
  */
 export function pluginsInit( list ) {
     // 注意：
     // 需要提前导入插件所需的OBT扩展。
-    return $.map( list, vv => pluginsInsert(vv[0], vv[1]) );
+    // null成员添加到数组中无害（会被$.append自动滤除）。
+    return list.reduce( (buf, vv) => pluginsInsert(vv[0], vv[1]).then(el => buf.push(el) && buf), [] );
 }
 
 

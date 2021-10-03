@@ -35,7 +35,7 @@ const
         tpldir: 'templates',
 
         // 模板映射集文件
-        tplmap: `${Web.tpldir}/maps.json`,
+        tplmap: `templates/maps.json`,
 
         // 拉取数据根目录
         pulls:  'xdata',
