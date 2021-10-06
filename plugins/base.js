@@ -13,7 +13,10 @@
 //
 
 import { Setup } from "../config.js";
-import { XLoader, TLoader, Templater } from "../base/tpb/config.js";
+import Tpb from "../base/tpb/tpb.js";
+import { XLoader, Templates, TplPool } from "../base/tpb/config.js";
+import { TplLoader } from "../base/tpb/tools/tloader.js";
+import { Templater } from "../base/tpb/tools/templater.js";
 
 
 const
@@ -39,20 +42,20 @@ const
  * - 导入模板节点清单文件并配置全局载入器。
  * - 导入主模板文件并构建解析。
  * 返回节点名数组承诺。
- * @param  {String} path 目标插件根（全路径）
+ * @param  {String} dir 目标插件目录（相对于安装根）
  * @return {Promise<[String]|null>}
  */
-function plugTpls( path ) {
-    let _maps = `${path}${Setup.plugMaps}`,
-        _file = `${path}${Setup.plugTpl}`;
+function plugTpls( dir ) {
+    let _load = new TplLoader( dir, XLoader ),
+        _Tpls = new Templater( _load, Tpb.buildNode, TplPool );
 
-    return TLoader.config( _maps )
+    return _load.config( Setup.plugMaps )
         .then( maps => [...maps.keys()] )
         // 未配置时不会执行下面的.then
-        .then( tpls => [XLoader.node(_file), tpls] )
+        .then( tpls => [XLoader.node(`${dir}/${Setup.plugTpl}`), tpls] )
         // 无模板或未配置，静默通过。
         .catch( () => null )
-        .then( vv => vv && Templater.build(vv[0], Setup.plugTpl).then(() => vv[1]) );
+        .then( vv => vv && _Tpls.build(vv[0], Setup.plugTpl).then(() => vv[1]) );
 }
 
 
@@ -76,8 +79,8 @@ export function pluginsInsert( name, tips = null ) {
     if ( __Pool.has(name) ) {
         return Promise.resolve(null);
     }
-    let _dir = `${Setup.root}${Setup.plugDir}/${name}/`,
-        _img = $.Element( 'img', {src: `${_dir}${Setup.plugLogo}`} ),
+    let _dir = `${Setup.plugDir}/${name}`,
+        _img = $.Element('img', { src: `${Setup.root}${_dir}/${Setup.plugLogo}`} ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
     return plugTpls( _dir ).then( ns => __Pool.set(name, { button:_btn, tpls:ns }) && __btnPool.set(_btn, name) && _btn );
@@ -97,7 +100,7 @@ export function pluginsDelete( name ) {
     if ( _conf ) {
         __Pool.delete( name );
         __btnPool.delete( _conf.button );
-        _conf.tpls && _conf.tpls.forEach( name => Templater.del(name) );
+        _conf.tpls && _conf.tpls.forEach( name => Templates.del(name) );
     }
     return _conf ? _conf.button : null;
 }
@@ -112,7 +115,10 @@ export function pluginsInit( list ) {
     // 注意：
     // 需要提前导入插件所需的OBT扩展。
     // null成员添加到数组中无害（会被$.append自动滤除）。
-    return list.reduce( (buf, vv) => pluginsInsert(vv[0], vv[1]).then(el => buf.push(el) && buf), [] );
+    return list.reduce(
+        (bp, vv) => bp.then( buf => pluginsInsert(vv[0], vv[1]).then(el => buf.push(el) && buf) ),
+        Promise.resolve( [] )
+    );
 }
 
 

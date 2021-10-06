@@ -29,7 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, Web, deepExtend, namedExtend, hostSet, funcSets, TLoader } from "./config.js";
+import { bindMethod, Web, deepExtend, namedExtend, hostSet, funcSets } from "./config.js";
 import { Get } from "./pbs.get.js";
 import { App__ } from "./app.js";
 
@@ -60,22 +60,6 @@ const _By = {
     },
 
     __render: 1,
-
-
-    /**
-     * 载入模板配置。
-     * @data: String|Object 配置文件或对象
-     * @param  {Boolean} reset 清理旧存储
-     * @return {Promise<void>}
-     */
-    Tpls( evo, reset ) {
-        if ( reset ) {
-            TLoader.clear();
-        }
-        return TLoader.config( evo.data ).then( () => undefined );
-    },
-
-    __Tpl: 1,
 
 
     /**

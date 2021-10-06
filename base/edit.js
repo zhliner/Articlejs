@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Templater, OBTA } from "./tpb/config.js";
+import { Templates, OBTA } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips, Cmdx, Setup } from "../config.js";
 import { processExtend } from "./tpb/pbs.by.js";
 import { customGetter } from "./tpb/pbs.get.js";
@@ -2824,7 +2824,7 @@ function parentsSet( els ) {
  * @param {String} name 元素类型对应的根模板名
  */
 function propertyEdit( name ) {
-    Templater.get( Sys.modalProp )
+    Templates.get( Sys.modalProp )
         .then( frm => $.trigger(modalDialog, 'open', [name, frm]) );
 }
 
@@ -3146,7 +3146,7 @@ function plugResult( obj, ttl ) {
     if ( obj.node ) {
         // 渲染的是模板的一个克隆副本。
         return [
-            Render.update( Templater.node(obj.node, true, true), obj.result ),
+            Render.update( Templates.node(obj.node, true, true), obj.result ),
             ttl
         ];
     }
@@ -4293,7 +4293,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         [ Cmdx.command ]:   new Command(),
         [ Cmdx.calcuate ]:  new Calcuate( __ESet, contentElem ),
     });
-    cmdlineInit( $.get('#x-help'), Templater.node( Sys.modalPlug) );
+    cmdlineInit( $.get('#x-help'), Templates.node( Sys.modalPlug) );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
@@ -6249,7 +6249,7 @@ export const Kit = {
         }
         let _ns = __levelHandles[type]( evo.data )
 
-        return _ns.length ? _ns.map( n => Templater.node(n) ) : null;
+        return _ns.length ? _ns.map( n => Templates.node(n) ) : null;
     },
 
     __inslist: 1,

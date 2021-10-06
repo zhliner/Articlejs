@@ -58,18 +58,16 @@ const
 class Templater {
     /**
      * 创建实例。
-     * obter: function( Element ): Promise<void>
      * loader: function( String ): Promise<DocumentFragment>
-     * @param {Function} obter OBT解析回调
+     * obter: function( Element ): Promise<void>
      * @param {TplLoader} loader 节点载入器
+     * @param {Function} obter OBT解析回调
+     * @param {Map} buf 共享节点存储区，可选
      */
-    constructor( obter, loader ) {
-        this._obter = obter;
+    constructor( loader, obter, buf ) {
         this._loader = loader;
-
-        // 模板节点存储（已就绪）
-        // { String: Element }
-        this._tpls = new Map();
+        this._obter = obter;
+        this._tpls = buf || new Map();
 
         // 临时存储（就绪后移除）
         this._tplx = new Map();  // 有子模版的模板节点 {name: Promise}
@@ -156,7 +154,7 @@ class Templater {
 
 
     /**
-     * 情况模板存储集。
+     * 清空模板存储集。
      * @return {void}
      */
     clear() {

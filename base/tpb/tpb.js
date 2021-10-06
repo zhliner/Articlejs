@@ -27,7 +27,7 @@ import { By, processExtend, cmvApp, processProxy } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
 import { Builder } from "./core.js";
-import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader, Web } from "./config.js";
+import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader, TplPool, Web } from "./config.js";
 
 // 无需模板支持。
 // import { Templater } from "./tools/templater.x.js";
@@ -124,27 +124,8 @@ function _obtjson( src ) {
 }
 
 
-/**
- * 节点OBT构建。
- * 返回承诺以支持外部OBT配置（obt-src）导入。
- * @param  {Element|DocumentFragment} root 根节点
- * @return {Promise<void>}
- */
-function nodeBuild( root ) {
-    let _buf = [];
-
-    for ( const el of $.find(__obtSlr, root, true) ) {
-        _buf.push(
-            obtAttr( el )
-            .then( obts => obts.forEach(obt => __obter.build(el, obt)) )
-        );
-    }
-    return Promise.all( _buf );
-}
-
-
-// 模板对象。
-const __Tpl = InitTpl( new Templater(nodeBuild, TLoader) );
+// 全局模板对象。
+const __Tpl = InitTpl( new Templater(TLoader, buildNode, TplPool) );
 
 
 
@@ -153,7 +134,7 @@ const __Tpl = InitTpl( new Templater(nodeBuild, TLoader) );
 //////////////////////////////////////////////////////////////////////////////
 
 
-if (DEBUG) {
+if ( DEBUG ) {
 
     window.On = On;
     window.By = By;
@@ -229,6 +210,25 @@ function orderList( vals ) {
 
 
 /**
+ * 节点OBT构建。
+ * 返回承诺以支持外部OBT配置（obt-src）导入。
+ * @param  {Element|DocumentFragment} root 根节点
+ * @return {Promise<void>}
+ */
+function buildNode( root ) {
+    let _buf = [];
+
+    for ( const el of $.find(__obtSlr, root, true) ) {
+        _buf.push(
+            obtAttr( el )
+            .then( obts => obts.forEach(obt => __obter.build(el, obt)) )
+        );
+    }
+    return Promise.all( _buf );
+}
+
+
+/**
  * OBT构建封装。
  * 可用于DOM节点树和可绑定事件的普通对象（如window）。
  * - 单纯传递 root 可用于页面中既有OBT构建。
@@ -250,4 +250,4 @@ function build( root, conf ) {
 }
 
 
-export default { Lib, build };
+export default { Lib, buildNode, build };

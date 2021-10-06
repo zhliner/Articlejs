@@ -16,7 +16,7 @@
 
 import { Util } from "./tools/util.js";
 import { Ease } from "./tools/ease.js";
-import { bindMethod, DataStore, Templater, ChainStore, DEBUG, hostSet, namedExtend } from "./config.js";
+import { bindMethod, DataStore, Templates, ChainStore, DEBUG, hostSet, namedExtend } from "./config.js";
 import { Process } from "./pbs.base.js";
 import { Stack } from "./core.js";
 
@@ -944,7 +944,7 @@ const _Gets = {
             [name, clone] = [evo.data, name];
         }
         // .get() 多余的实参无副作用。
-        return Templater[clone ? 'clone' : 'get']( name, bound );
+        return Templates[clone ? 'clone' : 'get']( name, bound );
     },
 
     __tpl: -1,
@@ -976,9 +976,9 @@ const _Gets = {
 
         // .del() 多余的实参无副作用
         if ( __reSpace.test(_ns) ) {
-            return _ns.split(__reSpace).map( n => Templater[_fn](n, clone, bound) );
+            return _ns.split(__reSpace).map(n => Templates[_fn](n, clone, bound) );
         }
-        return Templater[_fn]( _ns, clone, bound );
+        return Templates[_fn]( _ns, clone, bound );
     },
 
     __node: 1,

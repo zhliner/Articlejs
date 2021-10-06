@@ -232,7 +232,7 @@ export class TplLoader {
         if ( $.type(maps) == 'Object' ) {
             return Promise.resolve( this._config(maps) );
         }
-        return this._loader.json(maps).then( cfg => this._config(cfg) );
+        return this._loader.json( this._url(maps) ).then( cfg => this._config(cfg) );
     }
 
 

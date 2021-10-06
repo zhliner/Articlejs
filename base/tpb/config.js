@@ -27,17 +27,17 @@ const
         // 如果是子路径，必须包含末尾斜线（/）。
         base:   'http://localhost:8080/',
 
-        //---------------------
-        // 子路径（相对于base）
-        //---------------------
 
         // 模板根目录
+        // 注：相对于base
         tpldir: 'templates',
 
-        // 模板映射集文件
-        tplmap: `templates/maps.json`,
+        // 模板映射集配置
+        // 注：相对于上面的tpldir。
+        tplmap: `maps.json`,
 
         // 拉取数据根目录
+        // 注：相对于base
         pulls:  'xdata',
     };
 
@@ -103,15 +103,20 @@ const
     // 通用载入器。
     XLoader = new Loader( Web.base ),
 
-    // 模板载入器。
-    TLoader = new TplLoader( Web.tpldir, XLoader);
+    // 模板默认载入器。
+    TLoader = new TplLoader( Web.tpldir, XLoader),
+
+    // 模板节点共享存储。
+    // 供第三方模板引用并存储（new Templater(...)）。
+    // { name:String: Element }
+    TplPool = new Map();
 
 
 
 //
 // 全局模板存储。
 //
-let Templater = null;
+let Templates = null;
 
 
 
@@ -323,7 +328,7 @@ function methodSelf( name, obj ) {
  * @param  {Templater} tplr 模板管理器
  * @return {Templater} tplr
 */
-const InitTpl = tplr => Templater = tplr;
+const InitTpl = tplr => Templates = tplr;
 
 
 
@@ -354,8 +359,9 @@ export {
     ChainStore,
     XLoader,
     TLoader,
+    TplPool,
     storeChain,
-    Templater,
+    Templates,
     InitTpl,
 };
 
