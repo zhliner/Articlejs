@@ -35,16 +35,16 @@ const
         // 插件相关配置
         ///////////////////////////////////////////////////
 
-        plugDir:    'plugins',      // 插件根目录
-
-        plugConf:   'project.json', // 插件配置文件（相对于plugDir）
-        plugLogo:   'logo.png',     // 按钮图标文件（相对于plugDir）
+        plugDir:    'plugins',  // 插件根目录
 
         // 默认插件配置
         // [插件/目录名, 按钮提示]
         plugList: [
             ['example', '示例插件'],
         ],
+
+        plugConf:   'project.json', // 配置文件（插件目录下）
+        plugLogo:   'logo.png',     // 按钮图标文件（插件目录下）
 
 
         //
