@@ -5777,7 +5777,7 @@ export const Edit = {
             throw new Error( 'not found the plugins.' );
         }
         return plugLoad(
-            `${Setup.root}${Setup.plugDir}/${_name}/${Setup.plugMain}`,
+            `${Setup.root}${Setup.plugRoot}/${_name}/${Setup.plugMain}`,
             // {INFO, HTML, TEXT}
             scriptData( __ESet, _data, true, true )
         )

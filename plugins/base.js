@@ -107,7 +107,7 @@ export function pluginsInsert( name, tips = null ) {
     if ( __Pool.has(name) ) {
         return Promise.resolve(null);
     }
-    let _dir = `${Setup.plugDir}/${name}`,
+    let _dir = `${Setup.plugRoot}/${name}`,
         _img = $.Element('img', { src: `${Setup.root}${_dir}/${Setup.plugLogo}`} ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 

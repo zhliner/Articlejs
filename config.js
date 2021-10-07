@@ -35,7 +35,7 @@ const
         // 插件相关配置
         ///////////////////////////////////////////////////
 
-        plugDir:    'plugins',  // 插件根目录
+        plugRoot:   'plugins',  // 插件根目录
 
         // 默认插件配置
         // [插件/目录名, 按钮提示]
@@ -43,8 +43,10 @@ const
             ['example', '示例插件'],
         ],
 
-        plugConf:   'project.json', // 配置文件（插件目录下）
-        plugLogo:   'logo.png',     // 按钮图标文件（插件目录下）
+        // 目标插件内文件
+        plugMain:   'main.js',      // 主文件
+        plugLogo:   'logo.png',     // 按钮图标文件
+        plugConf:   'project.json', // 配置文件
 
 
         //
