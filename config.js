@@ -35,14 +35,13 @@ const
         // 插件相关配置
         ///////////////////////////////////////////////////
 
-        plugDir:    'plugins',      // 根目录
-        plugMain:   'main.js',      // 主程序文件
-        plugMaps:   'maps.json',    // 模板配置文件
-        plugTpl:    'index.html',   // 主模板文件
-        plugLogo:   'logo.png',     // 按钮图标（插件面板）
+        plugDir:    'plugins',      // 插件根目录
+
+        plugConf:   'project.json', // 插件配置文件（相对于plugDir）
+        plugLogo:   'logo.png',     // 按钮图标文件（相对于plugDir）
 
         // 默认插件配置
-        // [目录, 提示]
+        // [插件/目录名, 按钮提示]
         plugList: [
             ['example', '示例插件'],
         ],

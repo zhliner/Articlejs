@@ -5223,7 +5223,7 @@ function switchInsert( node, next, box ) {
  * @param  {Node} next 下一个参考节点
  * @param  {Element} box 容器元素，可选
  * @param  {Boolean} tmp 为临时插入（成功后移除），适用脚本元素
- * @return {Promise}
+ * @return {Promise<Element|Error>}
  */
 function loadElement( el, next, box, tmp ) {
     if (el.nodeType != 1) {

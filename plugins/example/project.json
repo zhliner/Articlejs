@@ -1,0 +1,6 @@
+{
+    "main":     "main.js",
+    "node":     "index.html",
+    "maps":     "maps.json",
+    "style":    "styles.css"
+}

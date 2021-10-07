@@ -38,24 +38,52 @@ const
 
 
 /**
- * 导入并解析模板节点。
- * - 导入模板节点清单文件并配置全局载入器。
- * - 导入主模板文件并构建解析。
- * 返回节点名数组承诺。
- * @param  {String} dir 目标插件目录（相对于安装根）
- * @return {Promise<[String]|null>}
+ * 载入插件配置。
+ * @param  {String} dir 插件目录（相对于安装根）
+ * @param  {String} file 配置文件名
+ * @return {Promise<>}
  */
-function plugTpls( dir ) {
+function plugConf( dir, file ) {
+    return XLoader.json( `${dir}/${file}` )
+        .then( obj => plugStyle(dir, obj) )
+        .then( obj => plugTpls(dir, obj) )
+}
+
+
+/**
+ * 载入插件样式。
+ * 原样返回配置对象以便于下一步的模板解析。
+ * @param  {String} dir 插件目录
+ * @param  {Object} conf 插件配置对象
+ * @return {Promise<Object>}
+ */
+function plugStyle( dir, conf ) {
+    if ( conf.style ) {
+        return $.style( {href: `${dir}/${conf.style}`} ).then( () => conf );
+    }
+    return conf;
+}
+
+
+/**
+ * 导入并解析模板节点。
+ * - 导入模板节点清单文件配置。
+ * - 导入主模板文件并执行系列（子模版）解析构建。
+ * 返回节点名数组以记录插件的模板安装。
+ * @param  {String} dir 插件目录
+ * @param  {Object} conf 插件配置对象
+ * @return {Promise<[String]>|null}
+ */
+function plugTpls( dir, conf ) {
+    if ( !conf.maps ) return null;
+
     let _load = new TplLoader( dir, XLoader ),
         _Tpls = new Templater( _load, Tpb.buildNode, TplPool );
 
-    return _load.config( Setup.plugMaps )
+    return _load.config( conf.maps )
         .then( maps => [...maps.keys()] )
-        // 未配置时不会执行下面的.then
-        .then( tpls => [XLoader.node(`${dir}/${Setup.plugTpl}`), tpls] )
-        // 无模板或未配置，静默通过。
-        .catch( () => null )
-        .then( vv => vv && _Tpls.build(vv[0], Setup.plugTpl).then(() => vv[1]) );
+        .then( names => XLoader.node(`${dir}/${conf.node}`).then(frg => [frg, names]) )
+        .then( vv => vv && _Tpls.build(vv[0], conf.node).then(() => vv[1]) );
 }
 
 
@@ -83,7 +111,7 @@ export function pluginsInsert( name, tips = null ) {
         _img = $.Element('img', { src: `${Setup.root}${_dir}/${Setup.plugLogo}`} ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
-    return plugTpls( _dir ).then( ns => __Pool.set(name, { button:_btn, tpls:ns }) && __btnPool.set(_btn, name) && _btn );
+    return plugConf( _dir, Setup.plugConf ).then( ns => __Pool.set(name, { button:_btn, tpls:ns }) && __btnPool.set(_btn, name) && _btn );
 }
 
 
