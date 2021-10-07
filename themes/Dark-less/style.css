@@ -1788,7 +1788,7 @@ menu._cells code {
 .Modal ._plugins div._list {
     height: 100%;
     border: 1px #f90 solid;
-    box-shadow: 1px 0px 8px #ffe0a1;
+    box-shadow: inset 1px 0px 6px #ffe0a1;
     border-radius: 1.2em;
     padding: 2.6em 3em;
     display: grid;

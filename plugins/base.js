@@ -105,10 +105,10 @@ function plugTpls( dir, conf ) {
  */
 export function pluginsInsert( name, tips = null ) {
     if ( __Pool.has(name) ) {
-        return Promise.resolve(null);
+        return Promise.resolve( null );
     }
     let _dir = `${Setup.plugRoot}/${name}`,
-        _img = $.Element('img', { src: `${Setup.root}${_dir}/${Setup.plugLogo}`} ),
+        _img = $.Element( 'img', { src: `${Setup.root}${_dir}/${Setup.plugLogo}` } ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
     return plugConf( _dir, Setup.plugConf ).then( ns => __Pool.set(name, { button:_btn, tpls:ns }) && __btnPool.set(_btn, name) && _btn );
