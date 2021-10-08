@@ -1736,7 +1736,7 @@ menu._cells code {
     color: #ccc;
 }
 .Modal form > ._list {
-    margin: 10px 30px 42px;
+    margin: 10px 30px 45px;
 }
 .Modal form > p {
     padding: 8px 35px 5px;
@@ -1799,7 +1799,7 @@ menu._cells code {
     padding: 0;
     background-color: transparent;
     border: 1px #115165 solid;
-    border-radius: 30px;
+    border-radius: 50%;
     min-width: 0;
     box-shadow: 1px 0px 4px #a4e5f9;
     /* 溢出时保持 */

@@ -23,7 +23,7 @@ const
     $ = window.$,
 
     // 插件配置缓存
-    // {name: {button:Element, tpls:[String]}}
+    // {name: {button:Element, tpls:[String]|null}}
     __Pool = new Map(),
 
     // 插件名记忆

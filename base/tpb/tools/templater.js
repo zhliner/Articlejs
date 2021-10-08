@@ -31,7 +31,8 @@ import { Render } from "./render.js";
 const
     $ = window.$,
 
-    // 子模版分隔符
+    // 子模板分隔符
+    // 注：tpl-node/source可定义多个子模板引用。
     __loadSplit = ',',
 
     // 取出标记字符。
