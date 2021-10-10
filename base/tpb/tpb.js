@@ -125,7 +125,7 @@ function _obtjson( src ) {
 
 
 // 全局模板对象。
-const __Tpl = InitTpl( new Templater(TLoader, buildNode, TplPool) );
+const __Tpl = InitTpl( new Templater(TLoader, buildTree, TplPool) );
 
 
 
@@ -210,12 +210,12 @@ function orderList( vals ) {
 
 
 /**
- * 节点OBT构建。
- * 返回承诺以支持外部OBT配置（obt-src）导入。
+ * 节点树OBT构建。
+ * 因为可能包含外部OBT配置（obt-src），故返回一个承诺。
  * @param  {Element|DocumentFragment} root 根节点
  * @return {Promise<void>}
  */
-function buildNode( root ) {
+function buildTree( root ) {
     let _buf = [];
 
     for ( const el of $.find(__obtSlr, root, true) ) {
@@ -250,4 +250,4 @@ function build( root, conf ) {
 }
 
 
-export default { Lib, buildNode, build };
+export default { Lib, buildTree, build };

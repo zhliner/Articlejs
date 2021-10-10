@@ -78,7 +78,7 @@ function plugTpls( dir, conf ) {
     if ( !conf.maps ) return null;
 
     let _load = new TplLoader( dir, XLoader ),
-        _Tpls = new Templater( _load, Tpb.buildNode, TplPool );
+        _Tpls = new Templater( _load, Tpb.buildTree, TplPool );
 
     return _load.config( conf.maps )
         .then( maps => [...maps.keys()] )

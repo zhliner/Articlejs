@@ -5932,7 +5932,7 @@ export const Kit = {
     /**
      * 获取焦点元素。
      */
-    focus() {
+    efocus() {
         return __EHot.get();
     },
 
@@ -7341,7 +7341,7 @@ customGetter( null, Kit, [
     'sels',
     'esize',
     'sel0',
-    'focus',
+    'efocus',
     'elemSelf',
     'tobj',
     'trbox',
