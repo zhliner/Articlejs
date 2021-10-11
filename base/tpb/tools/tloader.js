@@ -57,7 +57,7 @@ export class Loader {
      * @return {Promise<json>}
      */
     json( file ) {
-        return this._load( this._url(file), 'json' );
+        return this._load( this.url(file), 'json' );
     }
 
 
@@ -67,7 +67,7 @@ export class Loader {
      * @return {Promise<String>}
      */
     text( file ) {
-        return this._load( this._url(file), 'text' );
+        return this._load( this.url(file), 'text' );
     }
 
 
@@ -77,7 +77,7 @@ export class Loader {
      * @return {Promise<DocumentFragment>}
      */
     node( file ) {
-        return this._load( this._url(file), 'text', true );
+        return this._load( this.url(file), 'text', true );
     }
 
 
@@ -87,7 +87,7 @@ export class Loader {
      * @return {Promise<Blob>}
      */
     blob( file ) {
-        return this._load( this._url(file), 'blob' );
+        return this._load( this.url(file), 'blob' );
     }
 
 
@@ -97,7 +97,7 @@ export class Loader {
      * @return {Promise<fromData>}
      */
     formData( file ) {
-        return this._load( this._url(file), 'formData' );
+        return this._load( this.url(file), 'formData' );
     }
 
 
@@ -107,7 +107,7 @@ export class Loader {
      * @return {Promise<fromData>}
      */
     arrayBuffer( file ) {
-        return this._load( this._url(file), 'arrayBuffer' );
+        return this._load( this.url(file), 'arrayBuffer' );
     }
 
 
@@ -136,21 +136,21 @@ export class Loader {
      * @return {Boolean} 是否成功清除
      */
     clean( file ) {
-        return this._pool.delete( this._url(file).href );
+        return this._pool.delete( this.url(file).href );
+    }
+
+
+    /**
+     * 获取文件URL（全路径）。
+     * @param  {String|URL} file 文件名/URL
+     * @return {URL} 资源定位实例
+     */
+    url( file ) {
+        return typeof file == 'string' ? new URL( file, this._base ) : file;
     }
 
 
     // -- 私有辅助 ---------------------------------------------------------------
-
-
-    /**
-     * 获取文件URL（全）。
-     * @param  {String|URL} file 文件名/URL
-     * @return {URL} 资源定位
-     */
-    _url( file ) {
-        return typeof file == 'string' ? new URL( file, this._base ) : file;
-    }
 
 
     /**
@@ -232,7 +232,7 @@ export class TplLoader {
         if ( $.type(maps) == 'Object' ) {
             return Promise.resolve( this._config(maps) );
         }
-        return this._loader.json( this._url(maps) ).then( cfg => this._config(cfg) );
+        return this._loader.json( this.url(maps) ).then( cfg => this._config(cfg) );
     }
 
 
@@ -251,7 +251,7 @@ export class TplLoader {
             return Promise.reject( `err: [${name}] not in any file.` );
         }
         // 附带文件名返回以完整化信息。
-        return this._loader.node( this._url(_file) ).then( frg => [frg, _file] );
+        return this._loader.node( this.url(_file) ).then( frg => [frg, _file] );
     }
 
 
@@ -283,21 +283,21 @@ export class TplLoader {
         this._fmap.delete( file );
 
         // 载入器清理，因为对应文档片段已使用完毕。
-        this._loader.clean( this._url(file) );
+        this._loader.clean( this.url(file) );
+    }
+
+
+    /**
+     * 获取文件URL（全路径）。
+     * @param  {String|URL} file 文件名/URL
+     * @return {URL} 资源定位实例
+     */
+    url( file ) {
+        return typeof file == 'string' ? new URL( file, this._path ) : file;
     }
 
 
     // -- 私有辅助 ---------------------------------------------------------------
-
-
-    /**
-     * 获取文件URL（全）。
-     * @param  {String|URL} file 文件名/URL
-     * @return {URL} 资源定位
-     */
-    _url( file ) {
-        return typeof file == 'string' ? new URL( file, this._path ) : file;
-    }
 
 
     /**

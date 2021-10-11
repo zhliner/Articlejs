@@ -20,7 +20,7 @@
 
 import { Util } from "./tools/util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./tools/spliter.js";
-import { ACCESS, EXTENT, JUMPCELL, PREVCELL, DEBUG, methodSelf, HEADCELL } from "./config.js";
+import { ACCESS, EXTENT, JUMPCELL, PREVCELL, DEBUG, HEADCELL } from "./config.js";
 
 
 const
@@ -1294,6 +1294,17 @@ function arrArgs( args ) {
     return new Function( ...Object.keys(__fromStack), `return [${args}]` )(
         ...Object.values(__fromStack)
     );
+}
+
+
+//
+// 获取对象方法自身。
+// 方法名支持句点（.）分隔的多级引用。
+// 仅能获取已经存在的成员。
+//
+function methodSelf( name, obj ) {
+    name = name.split( '.' );
+    return name.length > 1 ? Util.subObj( name, obj ) : obj[ name[0] ];
 }
 
 

@@ -26,10 +26,12 @@ import { On, customGetter } from "./pbs.get.js";
 import { By, processExtend, cmvApp, processProxy } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
-import { Builder } from "./core.js";
-import { OBTA, DEBUG, InitTpl, storeChain, TLoader, XLoader, TplPool, Web } from "./config.js";
+import { DEBUG, TLoader, XLoader, TplPool, Web, Templates, tplInit } from "./config.js";
+import { storeChain } from "./base.js";
 
-// 无需模板支持。
+import { Builder } from "./core.js";
+
+// 无模板支持。
 // import { Templater } from "./tools/templater.x.js";
 // 模板功能支持。
 import { Templater } from "./tools/templater.js";
@@ -45,87 +47,7 @@ const
         extend: processExtend,
         extendProxy: processProxy,
         customGet: customGetter,
-    },
-
-    // obt-src并列分隔符。
-    // 各部分路径独立（都相对于根路径）。
-    __sepPath = ',',
-
-    // OBT属性选择器
-    __obtSlr = `[${OBTA.on}], [${OBTA.src}]`,
-
-    // OBT名称序列。
-    __obtName = `${OBTA.on} ${OBTA.by} ${OBTA.to} ${OBTA.src}`;
-
-
-
-//
-// 基础支持
-//=========================================================
-
-
-// OBT构造器
-const __obter = new Builder( {
-        on:     On,
-        by:     By,
-        update: To.Update,
-        next:   To.Next,
-    },
-    storeChain
-);
-
-
-/**
- * 获取目标元素的OBT配置。
- * - 本地（节点）配置优先，因此会先绑定本地定义。
- * - 会移除元素上的OBT属性，如果需要请预先取出。
- * @param  {Element} el 目标元素
- * @return {[Promise<Object3>]} OBT配置<{on, by, to}>
- */
-function obtAttr( el ) {
-    let _buf = [];
-
-    if ( el.hasAttribute(OBTA.on) ) {
-        _buf.push( _obtattr(el) );
-    }
-    if ( el.hasAttribute(OBTA.src) ) {
-        _buf.push( ..._obtjson($.attr(el, OBTA.src)) )
-    }
-    $.removeAttr( el, __obtName );
-
-    return Promise.all( _buf );
-}
-
-
-/**
- * 取OBT特性值。
- * @param  {Element} el 取值元素
- * @return {Object3}
- */
-function _obtattr( el ) {
-    return {
-        on: $.attr(el, OBTA.on) || '',
-        by: $.attr(el, OBTA.by) || '',
-        to: $.attr(el, OBTA.to) || '',
     };
-}
-
-
-/**
- * 从远端载入OBT配置。
- * 支持逗号分隔的多目标并列导入，如：obt-src="obts/aaa.json, obts/bbb.json"。
- * @param  {String} src 源定义
- * @return [Promise<Object3>]
- */
-function _obtjson( src ) {
-    return src
-        .split( __sepPath )
-        .map( url => XLoader.json(url) );
-}
-
-
-// 全局模板对象。
-const __Tpl = InitTpl( new Templater(TLoader, buildTree, TplPool) );
 
 
 
@@ -140,7 +62,7 @@ if ( DEBUG ) {
     window.By = By;
     window.Update = To.Update;
     window.Next = To.Next;
-    window.Tpl = __Tpl;
+    window.Tpl = Templates;
     window.Lib = Lib;
     window.namedTpls = namedTpls;
     window.TLoader = TLoader;
@@ -210,44 +132,71 @@ function orderList( vals ) {
 
 
 /**
- * 节点树OBT构建。
- * 因为可能包含外部OBT配置（obt-src），故返回一个承诺。
- * @param  {Element|DocumentFragment} root 根节点
- * @return {Promise<void>}
+ * 获取OBT构建器。
+ * 注记：
+ * To部分不支持用户扩展，因此无参数传入。
+ * @param  {Object} on On定义集，可选
+ * @param  {Object} by By定义集，可选
+ * @return {Builder}
  */
-function buildTree( root ) {
-    let _buf = [];
-
-    for ( const el of $.find(__obtSlr, root, true) ) {
-        _buf.push(
-            obtAttr( el )
-            .then( obts => obts.forEach(obt => __obter.build(el, obt)) )
-        );
-    }
-    return Promise.all( _buf );
+function obtBuilder( on = On, by = By ) {
+    return new Builder({
+            on,
+            by,
+            update: To.Update,
+            next:   To.Next,
+        },
+        storeChain
+    );
 }
 
 
 /**
- * OBT构建封装。
- * 可用于DOM节点树和可绑定事件的普通对象（如window）。
- * - 单纯传递 root 可用于页面中既有OBT构建。
- * - 传递 conf 为 OBT 配置对象（必含on）可用于即时测试外部的OBT配置，
- *   或构建无法直接定义OBT的对象（如Documet）。
- * - 如果 root 中包含模板语法且需要引入外部子模版，则 conf 可以是配置文件路径或配置对象（{file:[node-name]}）。
- * 注意：
- * 如果conf为子模板配置对象，文件名应当包含扩展名（参考 templates/maps.json）。
- * 返回的承诺对象承诺了根元素及其子模板内的所有构建。
- * @param  {Element|Document|Object} root 根容器或处理对象
- * @param  {String|Object3} conf 模板节点配置文件路径或配置对象，可选
- * @return {Promise<void>|root}
- */
-function build( root, conf ) {
-    if ( conf && conf.on ) {
-        return __obter.build( root, conf );
-    }
-    return TLoader.config(conf).then( () => __Tpl.build(root) );
+ * Tpb初始化。
+ * 设置全局模板管理器，在一个应用启动之前调用。
+ * 强制模板存放在默认配置的目录内（TLoader）。
+ * @param  {Object} on On定义集，可选
+ * @param  {Object} by By定义集，可选
+ * @return {void}
+*/
+function Init( on, by ) {
+    tplInit( new Templater(TLoader, obtBuilder(on, by), TplPool) );
 }
 
 
-export default { Lib, buildTree, build };
+/**
+ * 单元素OBT构建。
+ * 可用于即时测试外部的OBT配置，或构建无法直接定义OBT的对象（如Documet）。
+ * 仅OBT处理，不包含渲染语法的解析。
+ * @param  {Element} el 目标元素
+ * @param  {Object} conf OBT配置对象（{on, by, to}）
+ * @param  {Object} ob On/By方法集，可选
+ * @return {Element} el
+ */
+function buildNode( el, conf, ob = {} ) {
+    return obtBuilder( ob.on, ob.by ).build( el, conf );
+}
+
+
+/**
+ * 通用OBT全构建。
+ * 包括节点树内引入的子模版的连锁解析构建。
+ * 可用于DOM节点树和可绑定事件的普通对象（如window）。
+ * - 单纯传递 root 可用于页面中既有OBT构建（没有子模版逻辑）。
+ * - 如果 root 中包含模板语法且需要引入外部子模版，则 conf 是必需的。
+ * - 如果模板存放在非默认目录内，可以传递一个自定义的模板管理器实例（tplr）。
+ * 注意：
+ * conf为子模板配置对象时，格式参考 templates/maps.json。
+ * 返回的承诺对象承诺了根元素及其子模板内的所有构建。
+ * @param  {Element|Document|Object} root 根容器或处理对象
+ * @param  {String|Object} conf 模板节点配置文件或配置对象，可选
+ * @param  {Templater} tplr 模板管理器实例，可选
+ * @return {Promise<void>}
+ */
+function build( root, conf, tplr = Templates ) {
+    return tplr.tloader()
+        .config( conf || {} ).then( () => tplr.build(root) );
+}
+
+
+export default { Lib, Init, obtBuilder, buildNode, build };
