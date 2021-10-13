@@ -9,14 +9,21 @@
 //  基础定义集。
 //
 //  Tpb {
-//      build: {Function}   节点树OBT构建函数
-//      Lib:   {Object}     OBT库扩展动态调用集
+//      Init:{Function}     应用初始化
+//      build:{Function}    节点树构建（OBT&渲染语法）
+//      obtBuild:{Function} 单元素OBT构建
 //  }
-//  动态扩展：
-//  - 普通处理器：Tpb.Lib.extend( ... )
-//  - App 创建：Tpl.Lib.App( ... )
+//  On 扩展：
+//      customGetter
 //
-//  支持模板的动态导入、模板和既有DOM元素的渲染。
+//  By 扩展：
+//      processExtend
+//      processProxy
+//      cmvApp
+//
+//  支持：
+//  - 子模板系列自动动态导入（根据 文件:节点名 配置）。
+//  - 特性（Attribute）定义式元素渲染。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,7 +36,7 @@ import { To } from "./pbs.to.js";
 import { DEBUG, XLoader, TplPool, Web, Templates, tplInit } from "./config.js";
 import { storeChain, hostSet, namedExtend, deepExtend, funcSets } from "./base.js";
 
-import { App__ } from "./app.js";
+import { App } from "./app.js";
 import { Builder } from "./core.js";
 
 // 无模板支持。
@@ -228,7 +235,7 @@ function cmvApp( by, name, conf, meths = [] ) {
     }
     by[ name ] = obj = {};
 
-    let app = new App__(
+    let app = new App(
             conf.control,
             conf.model,
             conf.view
@@ -267,6 +274,21 @@ function obtBuilder( on = On, by = By ) {
 
 
 /**
+ * 单元素OBT构建。
+ * 可用于即时测试外部的OBT配置，或构建无法直接定义OBT的对象（如Documet）。
+ * 仅OBT处理，不包含渲染语法的解析。
+ * 如果没有传递ob定义集，则默认支持基础OnBy方法集。
+ * @param  {Element} el 目标元素
+ * @param  {Object} conf OBT配置对象（{on, by, to}）
+ * @param  {Object} ob On/By方法集，可选。默认全局On/By定义集
+ * @return {Element} el
+ */
+function obtBuild( el, conf, ob = {} ) {
+    return obtBuilder( ob.on, ob.by ).build( el, conf );
+}
+
+
+/**
  * Tpb初始化。
  * 设置全局模板管理器，在一个应用启动之前调用。
  * 强制模板存放在默认配置的目录内（Web.tpldir）。
@@ -276,20 +298,6 @@ function obtBuilder( on = On, by = By ) {
 */
 function Init( on, by ) {
     tplInit( new Templater(obtBuilder(on, by), Web.tpldir, TplPool) );
-}
-
-
-/**
- * 单元素OBT构建。
- * 可用于即时测试外部的OBT配置，或构建无法直接定义OBT的对象（如Documet）。
- * 仅OBT处理，不包含渲染语法的解析。
- * @param  {Element} el 目标元素
- * @param  {Object} conf OBT配置对象（{on, by, to}）
- * @param  {Object} ob On/By方法集，可选。默认全局On/By定义集
- * @return {Element} el
- */
-function buildNode( el, conf, ob = {} ) {
-    return obtBuilder( ob.on, ob.by ).build( el, conf );
 }
 
 
@@ -330,4 +338,4 @@ export {
     obtBuilder,
 };
 
-export default { Init, buildNode, build };
+export default { Init, build, obtBuild };

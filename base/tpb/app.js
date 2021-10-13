@@ -31,7 +31,7 @@
 //
 
 
-export class App__ {
+export class App {
     /**
      * 构建一个App。
      * @param {Object} ctrl 控制调用集
