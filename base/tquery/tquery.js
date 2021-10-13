@@ -4065,7 +4065,7 @@ class Collector extends Array {
 
 
 // 已封装标志。
-Reflect.defineProperty(Collector.prototype, ownerToken, {
+Reflect.defineProperty( Collector.prototype, ownerToken, {
     value: true,
     enumerable: false,
 });

@@ -21,7 +21,8 @@
 //
 
 import { format } from "./tools/date.js";
-import { bindMethod, EXTENT, ACCESS, Globals, DEBUG, JUMPCELL, PREVCELL } from "./config.js";
+import { EXTENT, ACCESS, Globals, DEBUG, JUMPCELL, PREVCELL } from "./config.js";
+import { bindMethod } from "./base.js";
 
 
 const

@@ -29,9 +29,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { bindMethod, Web, deepExtend, namedExtend, hostSet, funcSets } from "./config.js";
+import { Web } from "./config.js";
+import { bindMethod } from "./base.js";
 import { Get } from "./pbs.get.js";
-import { App__ } from "./app.js";
 
 // 无渲染占位。
 // import { Render } from "./tools/render.x.js";
@@ -105,102 +105,15 @@ const _By = {
 
 
 //
-// 预处理/导出。
+// 预处理&导出。
 //////////////////////////////////////////////////////////////////////////////
 
 
 // 绑定：this固化。
 // @proto: Get < Process < Control
-export const By = $.proto(
+const By = $.proto(
     $.assign( {}, _By, bindMethod ),
     Get
 );
 
-
-/**
- * 接口：用户扩展。
- * 对象：
- * - 扩展中的方法默认会绑定（bind）到所属宿主对象。
- * - 支持多层嵌套的子域，子域是一种分组，由普通的Object封装。
- * - 扩展时会自动创建不存在的中间子域。
- * - 如果方法需要访问指令单元（this:Cell），传递args为true。
- * 类实例：
- * 支持扩展类实例的方法，此时args需要是一个方法名数组。
- * 函数：
- * 支持单个函数扩展到目标子域，此时args为取栈数量实参。
- *
- * @param  {String} name 目标域或名称序列（子域由句点分隔）
- * @param  {Object|Instance|Function} exts 扩展集或类实例或操作句柄
- * @param  {Boolean|[String]|Number} args 是否无需绑定或方法名集或取栈数量，可选。
- * @param  {Number} n 默认取栈数量，在args为方法名集时有用。可选
- * @return {void}
- */
-export function processExtend( name, exts, args, n ) {
-    if ( $.isFunction(exts) ) {
-        return hostSet( By, name, exts, args );
-    }
-    if ( $.isArray(args) ) {
-        return namedExtend( name, exts, args, n, By );
-    }
-    deepExtend( name, exts, args, By );
-}
-
-
-/**
- * 接口：代理扩展。
- * 仅支持取值代理：function( name ): Function。
- * 通常，取值代理会返回一个操作函数或结果值。
- * @param  {String} name 目标域（子域由句点分隔）
- * @param  {Function} getter 取值函数
- * @param  {Number} n 取栈数量
- * @return {void}
- */
-export function processProxy( name, getter, n ) {
-    let _pro = new Proxy(
-            {},
-            { get: (_, k) => funcSets(getter(k), n) }
-        );
-    hostSet( By, name, _pro );
-}
-
-
-/**
- * 接口：创建CMV程序。
- * 每个程序遵循 CMV（Control/Model/View）三层划分，
- * 三层逻辑各自实现，依靠相同的方法名称达成关联。
- *
- * 模板调用：[MyApp].run([meth], ...)
- * 可传递 methods 构造友好的调用集：[MyApp].[meth](...)。
- * 注意 run 为总调用方法，不应覆盖（除非你希望这样）。
- *
- * 每一层逻辑实现为一个调用集。
- * conf: {
- *      control: Object[n]:function( data, ...rest ): Promise,
- *      model:   Object[n]:function( data ): Value,
- *      view:    Object[n]:function( data ): Value,
- * }
- * 注：
- * 与By普通用户扩展一样，占用By顶层空间。
- * 如果程序名称（name）已经存在，会抛出异常（而非静默覆盖）。
- *
- * @param  {String} name 程序名
- * @param  {Object} conf CMV配置对象
- * @param  {[String]} meths 方法名集，可选
- * @return {void}
- */
-export function cmvApp( name, conf, meths = [] ) {
-    let obj = By[ name ];
-
-    if ( obj != null ) {
-        throw new Error(`By[${name}] is already exist.`);
-    }
-    let app = new App__(
-            conf.control,
-            conf.model,
-            conf.view
-        );
-    obj.run = app.run.bind( app );
-
-    // 可能覆盖.run
-    meths.forEach( m => obj[m] = app.call.bind(app, m) );
-}
+export { By };

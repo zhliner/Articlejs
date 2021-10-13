@@ -157,7 +157,7 @@ function subObj( names, obj ) {
 /**
  * 深度扩展。
  * 对待扩展集内的所有方法进行扩展，支持对象嵌套（递进处理）。
- * 被扩展的方法默认会绑定（bind）到所属宿主对象（父容器）。
+ * 被扩展的方法默认会绑定（bind）到所属宿主对象。
  * 接受扩展的目标子域可以是深层的（句点连接），重名方法会被覆盖。
  * 注记：
  * 如果目标子域不存在，会自动创建，包括中间层级的子域。
@@ -195,7 +195,7 @@ function deepExtend( name, exts, nobind, base ) {
  */
 function namedExtend( name, obj, methods, n, base ) {
     let host = subObj(
-            name && name.split( '.' ),
+            name ? name.split( '.' ) : [],
             base
         );
     for ( const m of methods ) {

@@ -16,7 +16,8 @@
 //
 
 import { Util } from "./tools/util.js";
-import { bindMethod, DataStore, ChainStore, storeChain } from "./config.js";
+import { DataStore, ChainStore } from "./config.js";
+import { bindMethod, storeChain } from "./base.js";
 import { Get } from "./pbs.get.js";
 
 // 无渲染占位。
@@ -1156,22 +1157,20 @@ function _target( evo, rid, one ) {
 
 
 //
-// 预处理，导出。
-// 设置和下一阶用两个子集表达。
+// 预处理&导出。
 ///////////////////////////////////////////////////////////////////////////////
 
 
-// 名称空间。
-export const To = {};
+//
+// To空间。
+// 由两个子集表达。
+//
+const To = {
+    // 不继承任何基础指令集
+    Update: $.assign( {}, _Update, bindMethod ),
 
+    // @proto: Get < Process < Control
+    Next:   $.proto( $.assign({}, _Next, bindMethod), Get )
+};
 
-// 绑定：this固化。
-// 注：不继承任何基础指令集。
-To.Update = $.assign( {}, _Update, bindMethod )
-
-
-// 绑定：this固化。
-// @proto: Get < Process < Control
-To.Next = $.proto(
-    $.assign( {}, _Next, bindMethod ), Get
-);
+export { To };

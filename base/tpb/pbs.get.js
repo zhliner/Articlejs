@@ -16,7 +16,8 @@
 
 import { Util } from "./tools/util.js";
 import { Ease } from "./tools/ease.js";
-import { bindMethod, DataStore, Templates, ChainStore, DEBUG, hostSet, namedExtend } from "./config.js";
+import { DataStore, Templates, ChainStore, DEBUG } from "./config.js";
+import { bindMethod } from "./base.js";
 import { Process } from "./pbs.base.js";
 import { Stack } from "./core.js";
 
@@ -2252,45 +2253,15 @@ function pboState( el, s, name ) {
 // 取值指令集。
 // @proto: Process < Control
 //
-export const Get = $.proto(
+const Get = $.proto(
     $.assign( {}, _Gets, bindMethod ), Process
 );
-
 
 //
 // On指令集。
 // 结构：{ 取值 < 处理 < 控制 }。
 //
-export const On = Get;
+const On = Get;
 
 
-//
-// 用户自定义取值方法空间。
-//
-Get.v = {};
-
-
-/**
- * 自定义取值方法。
- * 对象/类实例：
- * - 方法默认会绑定（bind）到所属宿主对象。
- * - 可以注入到深层子域，但扩展集本身不支持深层嵌套（不用于By）。
- * - 如果目标中间子域不存在，会自动创建。
- * 函数：
- * 支持单个函数扩展到目标子域，此时args为取栈数量实参。
- * 这在简单扩展单个函数时有用（避免构造一个对象）。
- * 注记：
- * - 这是简化版的 By:processExtend 逻辑。
- * - 只能在 On.v 空间设置。
- * @param  {String|null} name 目标子域序列
- * @param  {Object|Instance|Function} exts 扩展集或类实例或取值函数
- * @param  {[String]|Number} args 方法名集或取栈数量，可选。
- * @param  {Number} n 默认取栈数量，在args为方法名集时有用。可选
- * @return {void}
- */
-export function customGetter( name, exts, args, n ) {
-    if ( $.isFunction(exts) ) {
-        return hostSet( Get.v, name, exts, args );
-    }
-    namedExtend( name, exts, args, n, Get.v );
-}
+export { On, Get };
