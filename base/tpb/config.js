@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Loader, TplLoader } from "./tools/tloader.js";
+import { Loader } from "./tools/tloader.js";
 
 
 //
@@ -100,9 +100,6 @@ const
     // 通用载入器。
     XLoader = new Loader( Web.base ),
 
-    // 模板默认载入器。
-    TLoader = new TplLoader( Web.tpldir, XLoader),
-
     // 模板节点共享存储。
     // 供第三方模板引用并存储（new Templater(...)）。
     // { name:String: Element }
@@ -144,7 +141,6 @@ export {
     DataStore,
     ChainStore,
     XLoader,
-    TLoader,
     TplPool,
     Templates,
     tplInit,

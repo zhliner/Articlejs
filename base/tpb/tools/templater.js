@@ -27,6 +27,7 @@ import { OBTA, XLoader } from "../config.js";
 // import { Render } from "./render.x.js";
 // 有渲染支持。
 import { Render } from "./render.js";
+import { TplLoader } from "./tloader.js";
 
 
 const
@@ -56,6 +57,7 @@ const
     __nameSlr   = `[${__tplName}]`,
     __nodeSlr   = `[${__tplNode}], [${__tplSource}]`,
 
+
     // obt-src并列分隔符。
     // 各部分路径独立（都相对于根路径）。
     __sepPath = ',',
@@ -71,18 +73,18 @@ const
 class Templater {
     /**
      * 创建实例。
-     * @param {TplLoader} loader 节点载入器
      * @param {Builder} obter OBT构建器
+     * @param {String} dir 模板根目录
      * @param {Map} buf 共享节点存储区，可选
      */
-    constructor( loader, obter, buf ) {
-        this._loader = loader;
+    constructor( obter, dir, buf ) {
         this._obter = obter;
+        this._loader = new TplLoader( dir, XLoader );
         this._tpls = buf || new Map();
 
         // 临时存储（就绪后移除）
         this._tplx = new Map();  // 有子模版的模板节点 {name: Promise}
-        this._pool = new Map();  // 初始载入文档片段或元素 {root: Promise}
+        this._pool = new Map();  // 载入的文档片段承诺 {root: Promise}
     }
 
 
@@ -137,7 +139,8 @@ class Templater {
     /**
      * 取出模板节点。
      * 如果模板节点已经不存在，会导致 .get() 重新导入，
-     * 这会因重复添加同源节点（同一文件内定义）而出错。
+     * 此时节点对应文件的映射已经清除，因此会因无配置而出错。
+     * 因此取出是不可逆操作。
      * @param  {String} name 模板名
      * @return {Promise<Element>}
      */
@@ -150,6 +153,7 @@ class Templater {
 
     /**
      * 移除模板。
+     * 这是不可逆的，移除之后的节点不会因.get()而重新引入。
      * 可用于存储集清理或精简。
      * @param  {String} name 模板名
      * @return {Element|null} 被移除的模板
@@ -175,28 +179,11 @@ class Templater {
 
     /**
      * 模板构建。
-     * 元素实参主要用于初始或手动调用。
-     * 系统自动载入并构建时，实参为文档片段。
-     * file参数仅在系统自动构建时有用。
      * @param  {Element|Document|DocumentFragment} root 构建目标
-     * @param  {String} _file 文档片段对应的文件名，可选
      * @return {Promise<(true)>}
      */
-    build( root, _file ) {
-        if ( this._pool.has(root) ) {
-            return this._pool.get(root);
-        }
-        // 注记：
-        // 先从总根构建OBT后再处理子模版可以节省解析开销，
-        // 否则子模板克隆会直接复制OBT特性，相同值重复解析。
-        let _pro = buildTree( root, this._obter )
-            .then( () => this.tpls(root) )
-            .then( () => this._pool.delete(root) )
-            .then( () => !_file || !this._loader.clean(_file) );
-
-        this._pool.set( root, _pro );
-
-        return Render.parse( root ) && _pro;
+    build( root ) {
+        return this._build( root );
     }
 
 
@@ -256,6 +243,34 @@ class Templater {
 
 
     /**
+     * 模板构建。
+     * 元素实参主要用于初始或手动调用。
+     * 系统自动载入并构建时，实参为文档片段，此时file实参存在。
+     * 注记：
+     * 参数file仅用于清理自动载入器内的配置存储。
+     * @param  {Element|Document|DocumentFragment} root 构建目标
+     * @param  {String} file 文档片段对应的文件名，可选
+     * @return {Promise<(true)>}
+     */
+    _build( root, file ) {
+        if ( this._pool.has(root) ) {
+            return this._pool.get(root);
+        }
+        // 注记：
+        // 先从总根构建OBT后再处理子模版可以节省解析开销，
+        // 否则子模板克隆会直接复制OBT特性，相同值重复解析。
+        let _pro = this._buildx( root )
+            .then( () => this.tpls(root) )
+            .then( () => this._pool.delete(root) )
+            .then( () => !file || !this._loader.clean(file) );
+
+        this._pool.set( root, _pro );
+
+        return Render.parse( root ) && _pro;
+    }
+
+
+    /**
      * 安全添加。
      * 抛出错误以及时发现问题。
      * 可能由于存在重复的模板名而出现，
@@ -279,7 +294,7 @@ class Templater {
      */
     _load( name ) {
         return this._loader.load( name )
-            .then( ([fg, file]) => this.build(fg, file) )
+            .then( ([fg, file]) => this._build(fg, file) )
             .then( () => this._tpls.get(name) || this._tplx.get(name) );
     }
 
@@ -359,80 +374,83 @@ class Templater {
         }
         return [ _n == __tplNode ? 'clone' : _f, _v ];
     }
-}
 
 
-//
-// 工具函数
-//////////////////////////////////////////////////////////////////////////////
+    //
+    // OBT定义提取和处理
+    ///////////////////////////////////////////////////////
 
 
-/**
- * 获取目标元素的OBT配置。
- * - 本地（节点）配置优先，因此会先绑定本地定义。
- * - 会移除元素上的OBT属性，如果需要请预先取出。
- * @param  {Element} el 目标元素
- * @return {[Promise<Object3>]} OBT配置<{on, by, to}>
- */
-function obtAttr( el ) {
-    let _buf = [];
-
-    if ( el.hasAttribute(OBTA.on) ) {
-        _buf.push( _obtattr(el) );
+    /**
+     * 取OBT特性值。
+     * @param  {Element} el 取值元素
+     * @return {Object3}
+     */
+    _obtattr( el ) {
+        return {
+            on: $.attr(el, OBTA.on) || '',
+            by: $.attr(el, OBTA.by) || '',
+            to: $.attr(el, OBTA.to) || '',
+        };
     }
-    if ( el.hasAttribute(OBTA.src) ) {
-        _buf.push( ..._obtjson($.attr(el, OBTA.src)) )
+
+
+    /**
+     * 从远端载入OBT配置。
+     * 支持逗号分隔的多目标并列导入，如：obt-src="obts/aaa.json, obts/bbb.json"。
+     * 路径相对于模板根目录。
+     * @param  {String} src 源定义
+     * @return {[Promise<Object3>]}
+     */
+    _obtjson( src ) {
+        return src
+            .split( __sepPath )
+            .map( path => this._loader.json(path) );
     }
-    $.removeAttr( el, __obtName );
-
-    return Promise.all( _buf );
-}
 
 
-/**
- * 取OBT特性值。
- * @param  {Element} el 取值元素
- * @return {Object3}
- */
-function _obtattr( el ) {
-    return {
-        on: $.attr(el, OBTA.on) || '',
-        by: $.attr(el, OBTA.by) || '',
-        to: $.attr(el, OBTA.to) || '',
-    };
-}
+    /**
+     * 获取目标元素的OBT配置。
+     * - 本地配置优先，因此会先绑定本地定义。
+     * - 会移除元素上的OBT配置属性，如果需要请预先取出。
+     * @param  {Element} el 目标元素
+     * @return {[Promise<Object3>]} OBT配置<{on, by, to}>
+     */
+    _obtall( el ) {
+        let _buf = [];
 
+        // 本地配置先处理。
+        if ( el.hasAttribute(OBTA.on) ) {
+            _buf.push( this._obtattr(el) );
+        }
+        // 外部配置。
+        if ( el.hasAttribute(OBTA.src) ) {
+            _buf.push( ...this._obtjson($.attr(el, OBTA.src)) )
+        }
+        $.removeAttr( el, __obtName );
 
-/**
- * 从远端载入OBT配置。
- * 支持逗号分隔的多目标并列导入，如：obt-src="obts/aaa.json, obts/bbb.json"。
- * @param  {String} src 源定义
- * @return [Promise<Object3>]
- */
-function _obtjson( src ) {
-    return src
-        .split( __sepPath )
-        .map( url => XLoader.json(url) );
-}
-
-
-/**
- * 节点树OBT构建。
- * 仅OBT处理，不包含渲染语法的解析。
- * @param  {Element|DocumentFragment} root 根节点
- * @param  {Builder} obter OBT建造器实例
- * @return {Promise<void>}
- */
-function buildTree( root, obter ) {
-    let _buf = [];
-
-    for ( const el of $.find(__obtSlr, root, true) ) {
-        _buf.push(
-            obtAttr( el )
-            .then( obts => obts.forEach(obt => obter.build(el, obt)) )
-        );
+        return Promise.all( _buf );
     }
-    return Promise.all( _buf );
+
+
+    /**
+    * 节点树OBT构建。
+    * 仅OBT处理，不包含渲染语法的解析。
+    * @param  {Element|DocumentFragment} root 根节点
+    * @param  {Builder} obter OBT建造器实例
+    * @return {Promise<void>}
+    */
+    _buildx( root ) {
+        let _buf = [];
+
+        for ( const el of $.find(__obtSlr, root, true) ) {
+            _buf.push(
+                this._obtall( el )
+                .then( obts => obts.forEach(obt => this._obter.build(el, obt)) )
+            );
+        }
+        return Promise.all( _buf );
+    }
 }
 
 

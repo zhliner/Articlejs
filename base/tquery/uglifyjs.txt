@@ -1,0 +1,2 @@
+JS压缩：
+#> uglifyjs tquery.js -m -c -o tquery-0.5.3.min.js

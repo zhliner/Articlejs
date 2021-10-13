@@ -256,6 +256,18 @@ export class TplLoader {
 
 
     /**
+     * 载入目标文件。
+     * 主要用于元素上 obt-src 属性处理（引用json文件）。
+     * 注：路径相对于模板根目录。
+     * @param  {String} path 目标文件路径
+     * @return {Promise<json>}
+     */
+    json( path ) {
+        return this._loader.json( this.url(path) );
+    }
+
+
+    /**
      * 清空配置集。
      * 需在下一次编译（Tpb.build）之前执行。
      * @return {void}

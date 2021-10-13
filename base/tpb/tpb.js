@@ -26,7 +26,7 @@ import { On, customGetter } from "./pbs.get.js";
 import { By, processExtend, cmvApp, processProxy } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
-import { DEBUG, TLoader, XLoader, TplPool, Web, Templates, tplInit } from "./config.js";
+import { DEBUG, XLoader, TplPool, Web, Templates, tplInit } from "./config.js";
 import { storeChain } from "./base.js";
 
 import { Builder } from "./core.js";
@@ -65,7 +65,6 @@ if ( DEBUG ) {
     window.Tpl = Templates;
     window.Lib = Lib;
     window.namedTpls = namedTpls;
-    window.TLoader = TLoader;
 
 }
 
@@ -154,13 +153,13 @@ function obtBuilder( on = On, by = By ) {
 /**
  * Tpb初始化。
  * 设置全局模板管理器，在一个应用启动之前调用。
- * 强制模板存放在默认配置的目录内（TLoader）。
+ * 强制模板存放在默认配置的目录内（Web.tpldir）。
  * @param  {Object} on On定义集，可选
  * @param  {Object} by By定义集，可选
  * @return {void}
 */
 function Init( on, by ) {
-    tplInit( new Templater(TLoader, obtBuilder(on, by), TplPool) );
+    tplInit( new Templater(obtBuilder(on, by), Web.tpldir, TplPool) );
 }
 
 
@@ -170,7 +169,7 @@ function Init( on, by ) {
  * 仅OBT处理，不包含渲染语法的解析。
  * @param  {Element} el 目标元素
  * @param  {Object} conf OBT配置对象（{on, by, to}）
- * @param  {Object} ob On/By方法集，可选
+ * @param  {Object} ob On/By方法集，可选。默认全局On/By定义集
  * @return {Element} el
  */
 function buildNode( el, conf, ob = {} ) {
@@ -180,8 +179,8 @@ function buildNode( el, conf, ob = {} ) {
 
 /**
  * 通用OBT全构建。
- * 包括节点树内引入的子模版的连锁解析构建。
- * 可用于DOM节点树和可绑定事件的普通对象（如window）。
+ * 包括节点树内引入的子模版的连锁解析构建（tplr）。
+ * 可用于DOM节点和可绑定事件的普通对象（如window）。
  * - 单纯传递 root 可用于页面中既有OBT构建（没有子模版逻辑）。
  * - 如果 root 中包含模板语法且需要引入外部子模版，则 conf 是必需的。
  * - 如果模板存放在非默认目录内，可以传递一个自定义的模板管理器实例（tplr）。

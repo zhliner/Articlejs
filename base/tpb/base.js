@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { ACCESS, EXTENT, ChainStore, TLoader, XLoader, TplPool } from "./config.js";
+import { ACCESS, EXTENT, ChainStore } from "./config.js";
 
 
 const $ = window.$;
@@ -222,8 +222,5 @@ export {
     subObj,
     deepExtend,
     namedExtend,
-    XLoader,
-    TLoader,
-    TplPool,
     storeChain,
 };
