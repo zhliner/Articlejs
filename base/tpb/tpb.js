@@ -58,7 +58,6 @@ if ( DEBUG ) {
 
     window.Update = To.Update;
     window.Next = To.Next;
-    window.Tpls = Templates;
     window.namedTpls = namedTpls;
 
 }

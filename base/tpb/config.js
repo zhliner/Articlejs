@@ -28,11 +28,11 @@ const
 
 
         // 模板根目录
-        // 注：相对于base
+        // 相对于base
         tpldir: 'templates',
 
         // 模板映射集配置
-        // 注：相对于上面的tpldir。
+        // 相对于模板根目录（tpldir）。
         tplmap: `maps.json`,
 
         // 拉取数据根目录
