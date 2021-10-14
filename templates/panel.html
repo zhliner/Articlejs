@@ -12,7 +12,7 @@
 -->
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
-        update|v.sels;
+        update|sels;
         insert|ev('detail') checked('before') value('level');
         instop|ev('detail') value('level');
         insfix|ev('detail') value('level');
@@ -35,9 +35,9 @@
             section 片区单元内容混杂检查（标记_mixed类名）。
             click focus 快捷操作友好。 -->
         <div id="con-level" class="_minibar"
-            on="renew|ev('detail') $('/input') val('level') v.inslist(_1);
-                section|('_mixed') $('/input') val('level') v.ismixed;
-                click(input)|$('1/select') focus v.sels"
+            on="renew|ev('detail') $('/input') val('level') inslist(_1);
+                section|('_mixed') $('/input') val('level') ismixed;
+                click(input)|$('1/select') focus sels"
             to="1/select|fill|change(10) goto('section');
                 1/select|toggleClass(_1);
                 |trigger('renew')">
@@ -153,10 +153,10 @@
     submit 如果子区有提交逻辑，提交转发为子区修改（modify）事件，各子区因应而为。
     update 跟随更新：来源：内容区选取变化、标签页切换、样式按钮切换、清除/格式刷操作。 -->
 <form class="Style" tpl-name="slave:style"
-    on="style|v.sels ev('detail');
-        erase|v.sels ev('detail');
+    on="style|sels ev('detail');
+        erase|sels ev('detail');
         submit|avoid;
-        update|stop v.sels"
+        update|stop sels"
     by="Ed.setStyle(_);
         Ed.eraseStyle(_1)"
     to="#g-scroll|trigger('focus');
@@ -174,7 +174,7 @@
         <!--直接执行：
             click stop 避免触发上层行为。-->
         <b title="样式刷"
-            on="click|stop v.efocus dup pass"
+            on="click|stop efocus dup pass"
             by="Ed.brushStyle"
             to="#g-scroll|trigger('focus')|fire('form/', 'update')">
             <i id="b-brush"></i>
@@ -187,7 +187,7 @@
         <b data-tpl="style:color" title="颜色"><i id="b-colors"></i></b>
         <!-- 直接执行 -->
         <b title="擦除全部"
-            on="click|stop v.sels"
+            on="click|stop sels"
             by="Ed.clearStyle"
             to="#g-scroll|trigger('focus')|fire('form/', 'update')">
             <i id="b-erase"></i>
@@ -203,7 +203,7 @@
     on="apply|ev('detail') $('/select') val;
         delattr|ev('detail');
         submit|avoid;
-        update|v.sels dup len eq(1) $if('valid', 'invalid')"
+        update|sels dup len eq(1) $if('valid', 'invalid')"
     by="Ed.attrUpdate(_1);
         Ed.deleteAttr"
     to="#g-scroll|trigger('focus');
@@ -211,7 +211,7 @@
         /._main>*|trigger('attrok');
         (/>div)|trigger(_1)">
     <div class="_roll"
-        on="valid|v.sel0 v.attrns v.obtname (null);
+        on="valid|sel0 attrns obtname (null);
             invalid|(true)"
         to="(/input, select)|$disabled trigger('follow');
             (/input, select)|$disabled">
@@ -223,7 +223,7 @@
                 on="keydown|iskey('Enter') pass avoid evo(3) next click" />
             <!-- ✚✛ -->
             <input type="button" value="✛" class="_add"
-                on="click|evo(3) prev val trim v.obtname"
+                on="click|evo(3) prev val trim obtname"
                 to="2/select|trigger('addnew')" />
         </div>
         <!--特性选单：
@@ -238,7 +238,7 @@
         <select name="attrs" size="5" class="_list" title="删除〔Delete〕"
             on="follow|evo(3) children ev('detail');
                 change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node;
-                _change|evo(3) val dup pass v.sel0 pop attrs(_1);
+                _change|evo(3) val dup pass sel0 pop attrs(_1);
                 addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
                 select|ev('detail');
                 blank|tpl('attr:empty');
@@ -291,8 +291,8 @@
                     keydown(li)|iskey('Delete') scam(KM.obtRowDel) both pass avoid stopAll evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
                     keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.obtRowMove) both pass avoid stop evo(2) ev('key') data('on by to') evo(2) blur;
                     blur(textarea)|evo(1) val trim $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
-                    vinit|ev('detail') v.obtsplit;
-                    attrok|data('on by to') v.obtval;
+                    vinit|ev('detail') obtsplit;
+                    attrok|data('on by to') obtval;
                     ^tpled|evo(3) remove"
                 by="Kit.obtline(_) ('_hot');
                     Kit.obtdel(_) remove;
@@ -375,13 +375,13 @@
     内容区多元素选取时，源码录入框失效。 -->
 <form class="Source" tpl-name="slave:source"
     on="submit|avoid $('/textarea') val;
-        update|v.sels dup len eq(1) $if('valid', 'invalid')"
+        update|sels dup len eq(1) $if('valid', 'invalid')"
     by="Ed.htmlUpdate"
     to="#g-scroll|trigger('focus');
         (/>*)|trigger(_1)">
     <div class="_body _main"
         on="invalid|(true, null);
-            valid|ev('detail') item(0) v.cleanHTML (false)"
+            valid|ev('detail') item(0) cleanHTML (false)"
         to="/textarea|val $disabled;
             /textarea|$disabled val">
         <!--状态切换
@@ -396,7 +396,7 @@
         to="(/button)|$disabled disable;
             (/button)|$disabled disable">
         <div class="_option"
-            on="click(button)|v.sel0 $('form/textarea') val trim dup pass"
+            on="click(button)|sel0 $('form/textarea') val trim dup pass"
             by="Kit.checkhtml(_1) dup $if('err', 'ok')"
             to="/pre|trigger(_1)">
             <button on="click|avoid">结构检查</button>

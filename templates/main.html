@@ -106,10 +106,10 @@
     <div id="g-scroll" class="_scroll" tabindex="0"
         on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass stop;
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
-            cut|env('minied') end avoid v.sels text trims(' ') trim join('\n');
+            cut|env('minied') end avoid sels text trims(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste:append');
             focus|env('minied') end sRange(true) hasRange('/main') end $('/main') nodeRange(true) addRange;
-            copy|env('minied') end sRange str end avoid v.sels text trims(' ') trim join('\n') pop clipboard;
+            copy|env('minied') end sRange str end avoid sels text trims(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end ev('shiftKey') pass env('paste:append', true);
             keyup|env('minied') end env('paste:append', null);
             _focus|env('minied') end evo(3) focus"
@@ -134,14 +134,14 @@
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
             on="cmenudo|evo(3) blur ev('detail');
                 convert|ev('detail');
-                show|evo(3) dup hide(false) $('1/') env('pointerXY') v.menupos(_2);
-                submenu|v.convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node;
+                show|evo(3) dup hide(false) $('1/') env('pointerXY') menupos(_2);
+                submenu|convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node;
                 click(li[data-op])|evo(2) dup disabled end attr('-op');
                 keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-val');
                 click(#m-conv li[data-val])|evo(2) attr('-val');
                 blur|evo(3) hide(true) ('cmenu', ESC) pop;
                 esced|evo(3) (ESC) pop;
-                status|$$('/>li') dup disable v.cmenable disable(false);
+                status|$$('/>li') dup disable cmenable disable(false);
                 cancel|evo(3) blur"
             by="Kit.cmenudo;
                 Kit.convert"
@@ -159,7 +159,7 @@
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
             <li id="m-conv" role="menubar" data-pbo="folded"
-                on="@sm-1|evo(3) dup(2) disabled end fold(0) v.submenu;
+                on="@sm-1|evo(3) dup(2) disabled end fold(0) submenu;
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
                     mouseleave|data('tk-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
@@ -190,8 +190,8 @@
         -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pbo="hidden"
             on="create|data('range') ev('detail');
-                store|ev('detail') dup v.rngok pass;
-                show|evo(3) dup hide(false) $('1/') env('pointerXY') v.menupos(_2);
+                store|ev('detail') dup rngok pass;
+                show|evo(3) dup hide(false) $('1/') env('pointerXY') menupos(_2);
                 blur|evo(3) hide(true) (null);
                 keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dup pass attr('-val');
                 click(li[data-val])|evo(2) attr('-val');
@@ -256,7 +256,7 @@
                 cancel|stop env('minied') end;
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
-                mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) v.roleinfo(_1) str('<', '>');
+                mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
                 mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass dup str pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
@@ -780,12 +780,12 @@
             路径信息更新由程序（edit.js）直接执行。
         -->
         <div id="g-path" class="_path"
-            on="click(b)|env('minied') end evo(2) v.source SCAM;
-                mouseenter(b)|evo(2) dup attr('title') end v.source v.elemSelf evo(2) pop;
-                mouseenter(b)|('_point') evo(2) v.source pop;
-                mouseleave(b)|stop ('_point') evo(2) v.source pop;
+            on="click(b)|env('minied') end evo(2) source SCAM;
+                mouseenter(b)|evo(2) dup attr('title') end source elemSelf evo(2) pop;
+                mouseenter(b)|('_point') evo(2) source pop;
+                mouseleave(b)|stop ('_point') evo(2) source pop;
                 empty|$('/b:hover') dup pass pop;
-                click(b:last-child)|env('minied') pass evo(2) v.source intoView(2);
+                click(b:last-child)|env('minied') pass evo(2) source intoView(2);
                 toggle|evo(3) lose(2)"
             by="Ed.pathTo(_1) $$('/b')"
             to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
@@ -865,7 +865,7 @@
             reset: 清空值，提供选取集大小默认显示。
             setv:  设置值并提供该值的显示。ESC按键值添加（无重复）。 -->
         <input id="g-count" name="count" type="hidden"
-            on="reset|v.esize str('[ ', ' ]') ('');
+            on="reset|esize str('[ ', ' ]') ('');
                 setv|ev('detail') dup;
                 cancel|('info', ESC) pop;
                 esced|evo(3) (ESC) pop"
@@ -922,7 +922,7 @@
         <input id="cmd-input" type="text" name="cmd" spellcheck="false" class="_code" data-tips="> | / : = 直达此处"
             on="focus|evo(3) ('');
                 ^obted blur|evo(3) attr('-tips');
-                input|v.cmdclear"
+                input|cmdclear"
             to="|@placeholder;
                 |@placeholder" />
     </div>
@@ -930,10 +930,10 @@
         click 滚动问题元素（可能为null）到视口中间，主窗口聚焦友好。
         mouseover 问题元素背影提示。-->
     <div id="err-msg" class="_err" data-pbo="lost"
-        on="click|evo(3) v.source dup pass dup intoView(2) SCAM;
+        on="click|evo(3) source dup pass dup intoView(2) SCAM;
             tips|$('/>a') attr('-hid');
-            mouseenter|('_warn') evo(3) v.source pop;
-            mouseleave|('_warn') evo(3) v.source pop;
+            mouseenter|('_warn') evo(3) source pop;
+            mouseleave|('_warn') evo(3) source pop;
             off|evo(3) lose;
             on|evo(3) lose(0)"
         by="Kit.errmsg(_1)"

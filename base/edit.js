@@ -17,10 +17,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Templates, OBTA } from "./tpb/config.js";
-import { Sys, Limit, Help, Tips, Cmdx, Setup } from "../config.js";
-import { processExtend } from "./tpb/pbs.by.js";
-import { customGetter } from "./tpb/pbs.get.js";
+import { OBTA, Templates } from "./tpb/config.js";
+import { Sys, Limit, Help, Tips, Cmdx, Setup, On, By } from "../config.js";
+import { customGetter, processExtend } from "./tpb/tpb.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
 import * as T from "./types.js";  // 在 ./base.js 之后
 import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun } from './common.js';
@@ -7276,7 +7275,7 @@ export const Kit = {
 //
 // By: 编辑操作（部分）。
 //
-processExtend( 'Ed', Edit, [
+processExtend( By, 'Ed', Edit, [
     'click',
     'pathTo',
     'toText',
@@ -7303,7 +7302,7 @@ processExtend( 'Ed', Edit, [
 //
 // By: 综合工具集。
 //
-processExtend( 'Kit', Kit, [
+processExtend( By, 'Kit', Kit, [
     'ecancel',
     'errmsg',
     'chapter',
@@ -7335,9 +7334,10 @@ processExtend( 'Kit', Kit, [
 
 
 //
-// On.v: 杂项取值。
+// On 杂项取值。
+// 注意：名称不应当覆盖上层基础集。
 //
-customGetter( null, Kit, [
+customGetter( On, null, Kit, [
     'sels',
     'esize',
     'sel0',

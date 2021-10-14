@@ -15,11 +15,11 @@
 
 import * as T from "./types.js";
 import { getType } from "./base.js";
-import { customGetter } from "./tpb/pbs.get.js";
+import { customGetter } from "./tpb/tpb.js";
 import { highLight } from "./coding.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 
-import { Sys } from "../config.js";
+import { Sys, On } from "../config.js";
 
 
 const
@@ -952,8 +952,7 @@ export function propertyProcess( tval ) {
 
 //
 // 取值集扩展。
-// 引用：v.p.xxx
 //
-customGetter( 'p', __Kit,
+customGetter( On, 'p', __Kit,
     Object.keys( __Kit ).filter( n => n[0] !== '_' )
 );

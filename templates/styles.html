@@ -14,13 +14,13 @@
     <!-- 单选部分设置 -->
     <div class="_list"
         on="click(input)|('text-decoration') evo(2) val pack(2);
-            state|ev('detail') v.styVal('text-decoration')"
+            state|ev('detail') styVal('text-decoration')"
         to="form/|trigger('style');
             /[type=radio]|val">
         <!-- 两个单独操作 -->
         <label id="_alone"
             on="click(input)|stop ('font-weight') evo(2) val pack(2);
-                state|ev('detail') v.cbstate('font-weight', 'bold')"
+                state|ev('detail') cbstate('font-weight', 'bold')"
             to="form/|trigger('style');
                 /input|property('checked indeterminate')">
             <input type="checkbox" name="bold" value="bold" />
@@ -28,7 +28,7 @@
         </label>
         <label id="_alone"
             on="click(input)|stop ('font-style') evo(2) val pack(2);
-                state|ev('detail') v.cbstate('font-style', 'italic')"
+                state|ev('detail') cbstate('font-style', 'italic')"
             to="form/|trigger('style');
                 /input|property('checked indeterminate')">
             <input type="checkbox" name="italic" value="italic" />
@@ -62,9 +62,9 @@
 <!--字号：
     modify 提交后重置<select>（可能有选取）。-->
 <div class="_body _Fontsize" tpl-name="style:fontsize"
-    on="modify|('font-size') $$('/#_fsize') v.unitVal pack(2);
-        follow|ev('detail') v.styVal('font-size');
-        follow|ev('detail') v.styVal('font-size') ('') pack(2)"
+    on="modify|('font-size') $$('/#_fsize') unitVal pack(2);
+        follow|ev('detail') styVal('font-size');
+        follow|ev('detail') styVal('font-size') ('') pack(2)"
     to="form/|trigger('style')|fire('/#_fsname', 'reset');
         /#_fsname|val;
         (/#_fsize)|val">
@@ -112,7 +112,7 @@
     焦点回归友好。-->
 <div class="_body _Align" tpl-name="style:align"
     on="change|evo(1) dup pop(2) attr('-n') val pack(2);
-        follow|ev('detail') v.styVal(['text-align', 'vertical-align'])"
+        follow|ev('detail') styVal(['text-align', 'vertical-align'])"
     to="form/|trigger('style')|fire(1, 'focus', 0);
         (/select)|val">
     <div class="_h">
@@ -148,8 +148,8 @@
 <!--宽/高度：
     follow 更新选取集内同时设置了的样式名。 -->
 <div class="_body _Width" tpl-name="style:width"
-    on="modify|$('/select') val $$('/#_valu2') v.unitVal pack(2);
-        follow|ev('detail') $('/[name=ns]') val v.styName(_1)"
+    on="modify|$('/select') val $$('/#_valu2') unitVal pack(2);
+        follow|ev('detail') $('/[name=ns]') val styName(_1)"
     to="form/|trigger('style');
         /select|val|change">
     <!--state2val: 取值反馈：
@@ -190,8 +190,8 @@
 
 <!-- 边距 -->
 <div class="_body _Margin" tpl-name="style:margin"
-    on="modify|$('/select') val $$('/#_valu2') v.unitVal pack(2);
-        follow|ev('detail') $('/select') attr('-slr') $(_1) val v.styKey(_1)"
+    on="modify|$('/select') val $$('/#_valu2') unitVal pack(2);
+        follow|ev('detail') $('/select') attr('-slr') $(_1) val styKey(_1)"
     to="form/|trigger('style');
         /select|val|change">
     <div>

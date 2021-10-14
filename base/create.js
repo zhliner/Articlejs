@@ -24,10 +24,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { processProxy } from "./tpb/pbs.by.js";
+import { processProxy } from "./tpb/tpb.js";
 import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, cloneElement, sectionState } from "./base.js";
 import * as T from "./types.js";
-import { Sys } from "../config.js";
+import { Sys, By } from "../config.js";
 
 
 const
@@ -2296,10 +2296,10 @@ function convToType( name ) {
 
 
 // 单个顶层单元创建。
-processProxy( 'New', creater, 1 );
+processProxy( By, 'New', creater, 1 );
 
 // 多个顶层单元创建。
-processProxy( 'New2', creater2, 1 );
+processProxy( By, 'New2', creater2, 1 );
 
 
 //

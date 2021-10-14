@@ -7,8 +7,8 @@
 ----------------------------------------------------------------------------->
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
-    on="vinit reset|v.sels;
-        build|(null) $('form/') dup pop(2) valo('src') checked('autoplay loop controls') $('/pre._code') text v.mediasubs pack(3) pack(2)"
+    on="vinit reset|sels;
+        build|(null) $('form/') dup pop(2) valo('src') checked('autoplay loop controls') $('/pre._code') text mediasubs pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src"></li>
@@ -18,8 +18,8 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
-    on="vinit reset|v.sels;
-        build|(null) $('form/') dup pop(2) valo('src poster width height') checked('autoplay loop controls') $$('/pre._code') text spread v.mediasubs(_1) pack(3) pack(2)"
+    on="vinit reset|sels;
+        build|(null) $('form/') dup pop(2) valo('src poster width height') checked('autoplay loop controls') $$('/pre._code') text spread mediasubs(_1) pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:poster"></li>
@@ -29,9 +29,9 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
-    on="vinit reset|v.sels children('img') flat;
+    on="vinit reset|sels children('img') flat;
         vinit reset;
-        build|(null) $('form/') valo('src alt width height') $('/pre._code') text v.picsubs pack(2) pack(2)"
+        build|(null) $('form/') valo('src alt width height') $('/pre._code') text picsubs pack(2) pack(2)"
     to="(/>li)(:last-child)|trigger('value');
         />li:last-child|trigger('value');
         form/|trigger('apply')">
@@ -41,7 +41,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="property:img" data-label="图片属性"
-    on="vinit reset|v.sels;
+    on="vinit reset|sels;
         build|('src alt width height') dup $('form/') pop value(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
@@ -228,7 +228,7 @@
         build|('-pba') $('/select') val pack(2)"
     to="/>li|trigger('value');
         form/|trigger('apply')">
-    <li on="value|v.sels attr('-pba') v.p.vals1"
+    <li on="value|sels attr('-pba') p.vals1"
         to="/select|val">
         <b>定位</b>
         <span><select name="position" tpl-name="explain:position">
@@ -306,7 +306,7 @@
 
 <!-- 音频 -->
 <ul class="_prop" data-new="audio" tpl-name="inlines:audio"
-    on="create|$('/pre._code') text v.mediasubs $('form/') valo('src autoplay loop controls') (true)"
+    on="create|$('/pre._code') text mediasubs $('form/') valo('src autoplay loop controls') (true)"
     by="New.audio(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src"></li>
@@ -316,7 +316,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="inlines:video"
-    on="create|$$('/pre._code') text spread v.mediasubs(_1) flat $('form/') valo('src poster autoplay loop controls width height') clean('', null) (true)"
+    on="create|$$('/pre._code') text spread mediasubs(_1) flat $('form/') valo('src poster autoplay loop controls width height') clean('', null) (true)"
     by="New.video(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:poster"></li>
@@ -327,7 +327,7 @@
 
 <!-- 自适应图片 -->
 <ul class="_prop" tpl-name="inlines:picture"
-    on="create|$('/pre._code') text v.picsubs nil $('form/') valo('src alt width height') clean('', null)"
+    on="create|$('/pre._code') text picsubs nil $('form/') valo('src alt width height') clean('', null)"
     by="New.img(_1) concat(_1) (null, true) New.picture(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:alt"></li>
@@ -579,14 +579,14 @@
 </li>
 
 <li tpl-name="prop:hrstyle"
-    on="value|v.sels attr('role') v.p.vals2"
+    on="value|sels attr('role') p.vals2"
     to="/>span|trigger('indval')">
     <b>线型</b>
     <span tpl-node="!hr:border"></span>
 </li>
 
 <li tpl-name="prop:sntype"
-    on="value|v.sels attr('type') v.p.vals1"
+    on="value|sels attr('type') p.vals1"
     to="/select|val">
     <b title="type">类型</b>
     <span><select name="type">
@@ -612,14 +612,14 @@
 </li>
 
 <li tpl-name="prop:reversed"
-    on="value|v.sels prop('reversed') v.p.vals2 spread"
+    on="value|sels prop('reversed') p.vals2 spread"
     to="/input|$indeterminate $checked">
     <b>编号</b>
     <span><label><input type="checkbox" name="reversed" />逆序</label></span>
 </li>
 
 <li tpl-name="prop:tborder"
-    on="value|v.sels attr('border') v.p.vals1"
+    on="value|sels attr('border') p.vals1"
     to="/select|val">
     <b>边框</b>
     <span>
@@ -636,7 +636,7 @@
 </li>
 
 <li tpl-name="prop:vth"
-    on="value|v.sels v.p.tableVth"
+    on="value|sels p.tableVth"
     to="(/input)|property('checked indeterminate')">
     <b>列表头</b>
     <span>
@@ -656,7 +656,7 @@
 </li>
 
 <li tpl-name="prop:target"
-    on="value|v.sels attr('target') v.p.vals1"
+    on="value|sels attr('target') p.vals1"
     to="/select|val">
     <b title="target">目标</b>
     <span><select name="target">
@@ -670,14 +670,14 @@
 </li>
 
 <li tpl-name="prop:src"
-    on="value|ev('detail') attr('src') v.p.vals1"
+    on="value|ev('detail') attr('src') p.vals1"
     to="/input|val">
     <b title="src">源路径</b>
     <span><input type="text" name="src" /></span>
 </li>
 
 <li tpl-name="prop:alt"
-    on="value|ev('detail') attr('alt') v.p.vals1"
+    on="value|ev('detail') attr('alt') p.vals1"
     to="/input|val">
     <b title="alt">说明</b>
     <span><input type="text" name="alt" /></span>
@@ -686,7 +686,7 @@
 <!--兼容图片和自适应图片：
     从 ev('detail') 接收数据。 -->
 <li tpl-name="prop:wh"
-    on="value|ev('detail') v.p.attrVal('width height')"
+    on="value|ev('detail') p.attrVal('width height')"
     to="(/input)|val">
     <b>宽/高度</b>
     <span>
@@ -701,7 +701,7 @@
     资源和字幕轨元素不可视，不能通过属性编辑方式修改。故提供文本对象方式设置。
     属性设置方式（$text）可让null值为清空。 -->
 <li tpl-name="prop:sources1"
-    on="value|v.sels children('source') attribute('src type') clean(null) jsons(4) v.p.vals1"
+    on="value|sels children('source') attribute('src type') clean(null) jsons(4) p.vals1"
     to="/pre|$text">
     <b title="<source>">候选资源</b>
     <span
@@ -713,7 +713,7 @@
 
 <!-- 值为null的特性忽略 -->
 <li tpl-name="prop:tracks"
-    on="value|v.sels children('track') attribute('kind srclang src label default') clean(null) jsons(4) v.p.vals1"
+    on="value|sels children('track') attribute('kind srclang src label default') clean(null) jsons(4) p.vals1"
     to="/pre|$text">
     <b title="<track>">字幕轨</b>
     <span
@@ -725,7 +725,7 @@
 
 <!-- 自适应图片用 -->
 <li tpl-name="prop:sources2"
-    on="value|v.sels children('source') attribute('srcset media') clean(null) jsons(4) v.p.vals1"
+    on="value|sels children('source') attribute('srcset media') clean(null) jsons(4) p.vals1"
     to="/pre|$text">
     <b title="<source>">候选图片</b>
     <span
@@ -757,7 +757,7 @@
 </li>
 
 <li tpl-name="prop:mediaopts"
-    on="value|v.sels v.p.attrBool('autoplay loop controls')"
+    on="value|sels p.attrBool('autoplay loop controls')"
     to="(/input)|property('checked indeterminate')">
     <b>设置</b>
     <span>
@@ -768,7 +768,7 @@
 </li>
 
 <li tpl-name="prop:open"
-    on="value|v.sels prop('open') v.p.vals2 spread"
+    on="value|sels prop('open') p.vals2 spread"
     to="/input|$indeterminate $checked">
     <b><!-- 占位 --></b>
     <span><label><input type="checkbox" name="open" />详细展开</label></span>
@@ -858,7 +858,7 @@
     此为<ruby>内的文本，不再使用<rb>元素。
     一是因为包含<rb>的结构复杂（已被弃用），二来直接的文本节点单击后可直接定位到<ruby>本身（友好）。 -->
 <li tpl-name="prop:rbt"
-    on="value|v.sels contents('') text map(ts=>ts.join(' ')) v.p.vals1"
+    on="value|sels contents('') text map(ts=>ts.join(' ')) p.vals1"
     to="/input|val">
     <b>文本</b>
     <span><input type="text" name="rbt" class="_phrase" /></span>
@@ -867,7 +867,7 @@
 <!--说明：
     本设计中不支持<ruby>内多个<rt>，但容错此情况：内容会被合并。 -->
 <li tpl-name="prop:rt"
-    on="value|v.sels find('rt') text map(ts=>ts.join(' ')) v.p.vals1"
+    on="value|sels find('rt') text map(ts=>ts.join(' ')) p.vals1"
     to="/input|val">
     <b>拼音</b>
     <span><input type="text" name="rt" spellcheck="false" placeholder="<rt>" /></span>
@@ -892,14 +892,14 @@
 </li>
 
 <li tpl-name="prop:date"
-    on="value|v.sels attr('datetime') v.p.vals1 dup vnot jump(2) Date datetime('yyyy-MM-dd')"
+    on="value|sels attr('datetime') p.vals1 dup vnot jump(2) Date datetime('yyyy-MM-dd')"
     to="/input|val">
     <b>日期</b>
     <span><input type="date" name="date" placeholder="yyyy-MM-dd"></span>
 </li>
 
 <li tpl-name="prop:time"
-    on="value|v.sels attr('datetime') v.p.vals1 dup vnot jump(2) Date time"
+    on="value|sels attr('datetime') p.vals1 dup vnot jump(2) Date time"
     to="/input|val">
     <b>时间</b>
     <span><input type="time" name="time" placeholder="hh:mm:ss"></span>
@@ -911,7 +911,7 @@
 </li>
 
 <li tpl-name="prop:maxmin"
-    on="value|v.sels v.p.attrVal('max min')"
+    on="value|sels p.attrVal('max min')"
     to="(/input)|val">
     <b>最大/最小值</b>
     <span>
@@ -921,7 +921,7 @@
 </li>
 
 <li tpl-name="prop:highlow"
-    on="value|v.sels v.p.attrVal('high low')"
+    on="value|sels p.attrVal('high low')"
     to="(/input)|val">
     <b>高/低值</b>
     <span>
@@ -936,7 +936,7 @@
 </li>
 
 <li tpl-name="prop:dir"
-    on="value|v.sels attr('dir') v.p.vals1"
+    on="value|sels attr('dir') p.vals1"
     to="/input|val">
     <b title="dir">阅读方向</b>
     <span>
@@ -967,7 +967,7 @@
 </li>
 
 <li tpl-name="prop:lang"
-    on="value|v.sels attr('-lang') v.p.vals1"
+    on="value|sels attr('-lang') p.vals1"
     to="/select|val">
     <b>代码语言</b>
     <span><select tpl-node="item:languages"></select></span>
@@ -996,8 +996,8 @@
 -->
 <pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
     data-tip="粘贴时自动清除多余缩进"
-    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') scam(KM.backspaceMore) v.k3edit(_4) dup pass avoid exeCmd('insertHTML', _1);
-        paste|avoid clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') scam(KM.backspaceMore) k3edit(_4) dup pass avoid exeCmd('insertHTML', _1);
+        paste|avoid clipboard env('paste.shift') indentcut(_1) html exeCmd('insertHTML', _1);
         keydown|ev('shiftKey') pass stop env('paste.shift', true);
         keydown|SCAM('ctrl', 'meta') pass iskey(6) pass avoid;
         keyup|env('paste.shift', false);

@@ -50,13 +50,13 @@
     </script>
 
     <script type="module" async>
-        import Tpb from "./base/tpb/tpb.js";
+        import { Tpb } from "./base/tpb/tpb.js";
         import cfg from "./base/shortcuts.js";
         import { Web } from "./base/tpb/config.js";
         import { HotKey, ObjKey } from './base/tpb/tools/hotkey.js';
         import { Edit, init, Kit } from "./base/edit.js";
         import { ESCStack } from "./base/common.js";
-        import { Sys } from "./config.js";
+        import { Sys, On, By } from "./config.js";
 
         window.GHK = new HotKey().config( cfg.Global );
         window.SHK = new HotKey().config( cfg.Slave );
@@ -78,10 +78,12 @@
             varyevent: true,
             // bindevent: true
         });
-        Tpb.build( document, Web.tplmap )
-            .then( () => $.trigger(document.body, 'finish') );
+        Tpb.Init( On, By );
+        Tpb.build( document, Web.tplmap ).then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
+        window.On = On;
+        window.By = By;
         window.Tpb = Tpb;
         import { Render } from "./base/tpb/tools/render.js";
         window.Render = Render;

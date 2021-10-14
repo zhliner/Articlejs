@@ -85,8 +85,13 @@ function getMethod( f, k, obj, to ) {
  * @return {Function}
  */
 function funcSets( f, n, ix ) {
-    if ( ix ) f[ACCESS] = true;
-    return ( f[EXTENT] = n, f );
+    if ( ix ) {
+        f[ ACCESS ] = true;
+    }
+    if ( n !== undefined ) {
+        f[ EXTENT ] = n;
+    }
+    return f;
 }
 
 

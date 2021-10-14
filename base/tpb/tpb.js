@@ -54,13 +54,11 @@ const $ = window.$;
 //////////////////////////////////////////////////////////////////////////////
 
 
-if ( DEBUG && window ) {
+if ( DEBUG ) {
 
-    window.On = On;
-    window.By = By;
     window.Update = To.Update;
     window.Next = To.Next;
-    window.Tpl = Templates;
+    window.Tpls = Templates;
     window.namedTpls = namedTpls;
 
 }
@@ -317,8 +315,7 @@ function Init( on, by ) {
  * @return {Promise<void>}
  */
 function build( root, conf, tplr = Templates ) {
-    return tplr.tloader()
-        .config( conf || {} ).then( () => tplr.build(root) );
+    return tplr.config( conf ).then( () => tplr.build(root) );
 }
 
 
@@ -329,8 +326,8 @@ function build( root, conf, tplr = Templates ) {
 
 
 export {
-    On,  // 基础On集
-    By,  // 基础By集
+    On as BaseOn,
+    By as BaseBy,
     customGetter,
     processExtend,
     processProxy,
@@ -338,4 +335,4 @@ export {
     obtBuilder,
 };
 
-export default { Init, build, obtBuild };
+export const Tpb = { Init, build, obtBuild };

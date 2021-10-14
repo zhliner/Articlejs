@@ -99,10 +99,10 @@
     事件克隆/编辑效果。-->
 <pre id="g-codes" spellcheck="false" class="_code" contenteditable="true" data-pbo="lost"
     data-tip="粘贴时自动清除多余缩进"
-    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') v.k3edit(_3) dup pass avoid exeCmd('insertHTML', _1);
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') k3edit(_3) dup pass avoid exeCmd('insertHTML', _1);
         keydown|ev('shiftKey') pass stop env('paste.shift', true);
         keyup|env('paste.shift', false);
-        paste|avoid clipboard env('paste.shift') v.indentcut(_1) html exeCmd('insertHTML', _1);
+        paste|avoid clipboard env('paste.shift') indentcut(_1) html exeCmd('insertHTML', _1);
         codes|ev('detail') html xRange addRange edbox pop exeCmd('insertHTML', _1)"
     by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
 
@@ -2739,7 +2739,7 @@
 <!-- 其它面板 ------------------------------------------------------------------->
 
     <h4 id="obt2test" style="font-size:large; font-weight: bold; color: blue; background-color: #999; font-style:italic;display: block; padding: 5px 10px;"
-        on="1parse|(0, true) ev('detail') v.obtsplit pack(3);
+        on="1parse|(0, true) ev('detail') obtsplit pack(3);
             2value|ev('detail') spread dup len max(10) elem('li', _1);
             3focus(li)|evo(2) siblingNth sub(1);
             4switch|ev('detail') evo(3) attr('-x') node;
@@ -2767,14 +2767,14 @@
             <form class="Attr" tpl-name="slave:attr"
                 on="submit|avoid;
                     apply|ev('detail') $('/select') attr('-v');
-                    update|v.sels dup len eq(1) $if('active', 'disable')"
+                    update|sels dup len eq(1) $if('active', 'disable')"
                 by="-;
                     Ed.attrUpdate(_1)"
                 to="|trigger('apply')|fire('#g-scroll', 'focus');
                     -;
                     (/>div)|trigger(_1)">
                 <div class="_roll"
-                    on="active|$$('input, select') prop('disabled', null) v.sel0 v.attrns v.obtname;
+                    on="active|$$('input, select') prop('disabled', null) sel0 attrns obtname;
                         disable|$$('input, select') prop('disabled', true)"
                     to="/select|trigger('update')">
                     <div class="_name">
@@ -2785,7 +2785,7 @@
                             on="keydown|iskey('Enter') pass avoid evo(3) next click" />
                         <!-- ✚✛ -->
                         <input type="button" value="✛" class="_add"
-                            on="click|evo(3) prev val trim v.obtname"
+                            on="click|evo(3) prev val trim obtname"
                             to="2/select|trigger('addnew')" />
                     </div>
                     <!--特性选单：
@@ -2801,7 +2801,7 @@
                     <select name="attrs" size="5" data-v="" class="_list"
                         on="update|evo(3) children ev('detail');
                             change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node (null);
-                            _change|evo(3) val dup pass v.sel0 pop attrs(_1);
+                            _change|evo(3) val dup pass sel0 pop attrs(_1);
                             addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node(true);
                             select|ev('detail');
                             blank|tpl('attr:empty');
@@ -2853,8 +2853,8 @@
                                 keydown(li)|iskey('Delete') scam(KM.obtRowDel) both pass avoid evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
                                 keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.obtRowMove) both pass avoid evo(2) ev('key') data('on by to');
                                 blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
-                                vinit|ev('detail') v.obtsplit;
-                                attrok|data('on by to') v.obtval;
+                                vinit|ev('detail') obtsplit;
+                                attrok|data('on by to') obtval;
                                 ^tpled|evo(3) remove"
                             by="Kit.obtline(_) ('_hot');
                                 Kit.obtdel(_) remove;

@@ -19,9 +19,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Sys, Limit } from "../config.js";
+import { Sys, Limit, By } from "../config.js";
 import { CStorage, History, DPage, Pager } from "./common.js";
-import { processExtend } from "./tpb/pbs.by.js";
+import { processExtend } from "./tpb/tpb.js";
 
 
 const
@@ -696,7 +696,7 @@ const __Kit = {
 // 扩展到 By:Kit 空间。
 // 注意与 edit.js 模块相同扩展的名称兼容。
 //
-processExtend( 'Kit', __Kit, [
+processExtend( By, 'Kit', __Kit, [
     'spinit',
     'shUndo',
     'shRedo',

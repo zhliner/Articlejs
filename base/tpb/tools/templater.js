@@ -74,7 +74,7 @@ class Templater {
     /**
      * 创建实例。
      * @param {Builder} obter OBT构建器
-     * @param {String} dir 模板根目录
+     * @param {String} dir 模板根目录（相对于安装根）
      * @param {Map} buf 共享节点存储区，可选
      */
     constructor( obter, dir, buf ) {
@@ -229,13 +229,26 @@ class Templater {
 
 
     /**
-     * 获取所用节点载入器。
+     * 配置模板节点映射。
+     * 即配置内部的模板节点载入器本身。
      * 注记：
-     * 当外部需要载入模板节点配置时需要（TplLoader.config）。
-     * @return {TplLoader}
+     * 模板管理器与节点配置紧密相关，所以应当可以在此配置。
+     * @param  {String|URL|Object} maps 映射文件或配置对象
+     * @return {Promise<Map>}
      */
-    tloader() {
-        return this._loader;
+    config( maps ) {
+        return this._loader.config( maps || {} );
+    }
+
+
+    /**
+     * 获取模板节点名集
+     * 若done无值表示取配置文件中的全部节点名。
+     * @param  {Boolean} done 已完成的节点
+     * @return {[String]}
+     */
+    names( done ) {
+        return done ? [ ...this._tpls.keys() ] : this._loader.names();
     }
 
 

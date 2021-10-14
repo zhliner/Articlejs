@@ -268,6 +268,15 @@ export class TplLoader {
 
 
     /**
+     * 获取节点名集。
+     * @return {[String]}
+     */
+    names() {
+        return [ ...this._tmap.keys() ];
+    }
+
+
+    /**
      * 清空配置集。
      * 需在下一次编译（Tpb.build）之前执行。
      * @return {void}

@@ -13,21 +13,32 @@
 //
 
 import { Setup } from "../config.js";
-import Tpb from "../base/tpb/tpb.js";
-import { XLoader, Templates, TplPool } from "../base/tpb/config.js";
-import { TplLoader } from "../base/tpb/tools/tloader.js";
+import { XLoader, TplPool } from "../base/tpb/config.js";
+import { obtBuilder, BaseOn, BaseBy } from "../base/tpb/tpb.js";
 import { Templater } from "../base/tpb/tools/templater.js";
 
 
 const
     $ = window.$,
 
+    // 插件专用On定义集
+    // 用于所有插件，可能在外部被扩展。
+    PlugOn = Object.create( BaseOn ),
+
+    // 插件专用By定义集
+    // （说明同上）
+    PlugBy = Object.create( BaseBy ),
+
+    // OBT构建器
+    // 针对插件On/By定义集。
+    __obter = obtBuilder( PlugOn, PlugBy ),
+
     // 插件配置缓存
-    // {name: {button:Element, tpls:[String]|null}}
+    // { name: {button:Element, tpls:Templater} }
     __Pool = new Map(),
 
     // 插件名记忆
-    // {Element: String}
+    // {Element: name:String}
     __btnPool = new WeakMap();
 
 
@@ -39,14 +50,15 @@ const
 
 /**
  * 载入插件配置。
+ * 在插件安装时调用。
  * @param  {String} dir 插件目录（相对于安装根）
  * @param  {String} file 配置文件名
- * @return {Promise<>}
+ * @return {Promise<Templater>}
  */
 function plugConf( dir, file ) {
     return XLoader.json( `${dir}/${file}` )
         .then( obj => plugStyle(dir, obj) )
-        .then( obj => plugTpls(dir, obj) )
+        .then( obj => plugTpls(dir, obj) );
 }
 
 
@@ -72,18 +84,18 @@ function plugStyle( dir, conf ) {
  * 返回节点名数组以记录插件的模板安装。
  * @param  {String} dir 插件目录
  * @param  {Object} conf 插件配置对象
- * @return {Promise<[String]>|null}
+ * @return {Promise<Templater>|null}
  */
 function plugTpls( dir, conf ) {
-    if ( !conf.maps ) return null;
+    if ( !conf.maps ) {
+        return null;
+    }
+    let _Tpls = new Templater( __obter, dir, TplPool );
 
-    let _load = new TplLoader( dir, XLoader ),
-        _Tpls = new Templater( _load, Tpb.buildTree, TplPool );
-
-    return _load.config( conf.maps )
-        .then( maps => [...maps.keys()] )
-        .then( names => XLoader.node(`${dir}/${conf.node}`).then(frg => [frg, names]) )
-        .then( vv => vv && _Tpls.build(vv[0], conf.node).then(() => vv[1]) );
+    return _Tpls.config( conf.maps )
+        .then( () => XLoader.node(`${dir}/${conf.node}`) )
+        .then( frg => _Tpls.build(frg, conf.node) )
+        .then( () => _Tpls );
 }
 
 
@@ -111,14 +123,16 @@ export function pluginsInsert( name, tips = null ) {
         _img = $.Element( 'img', { src: `${Setup.root}${_dir}/${Setup.plugLogo}` } ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
-    return plugConf( _dir, Setup.plugConf ).then( ns => __Pool.set(name, { button:_btn, tpls:ns }) && __btnPool.set(_btn, name) && _btn );
+    // 存储 名称:按钮 以便于插件卸载。
+    return plugConf( _dir, Setup.plugConf ).then( tpls => __Pool.set(name, {button:_btn, tpls}) && __btnPool.set(_btn, name) && _btn );
 }
 
 
 /**
  * 移除插件。
- * 同时会清除插件导入的模板节点（全局缓存器内）。
+ * 同时会清除插件导入的模板节点（全局缓存中）。
  * 如果目标插件不存在，返回null。
+ * 返回按钮以用于UI中移除。
  * @param  {String} name 插件名
  * @return {Element|null} 插件按钮
  */
@@ -127,8 +141,8 @@ export function pluginsDelete( name ) {
 
     if ( _conf ) {
         __Pool.delete( name );
-        __btnPool.delete( _conf.button );
-        _conf.tpls && _conf.tpls.forEach( name => Templates.del(name) );
+        // 实际操作的是全局存储。
+        _conf.tpls.names().forEach( name => _conf.tpls.del(name) );
     }
     return _conf ? _conf.button : null;
 }

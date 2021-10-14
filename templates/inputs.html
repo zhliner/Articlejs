@@ -397,7 +397,7 @@
 
 <!-- 代码表 -->
 <div class="_body _Codelist" obt-src="obts/codes.json" tpl-name="input:codelist"
-    on="node|ev('detail') v.codels $('form/') valo('lang start') (true)"
+    on="node|ev('detail') codels $('form/') valo('lang start') (true)"
     by="New.codelist(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -603,7 +603,7 @@
 
 <!-- 插图 -->
 <div class="_body _Figure" tpl-name="input:figure"
-    on="create|$('/._code') text $('/select') val v.image3(_1) $('form/') valo('figcaption explain')"
+    on="create|$('/._code') text $('/select') val image3(_1) $('form/') valo('figcaption explain')"
     by="New.figure(_1)"
     to="form/|trigger('insert')">
     <div class="_main"
@@ -699,7 +699,7 @@
 
 <!-- 代码块 -->
 <div class="_body _Codeblock" obt-src="obts/codes.json" tpl-name="input:codeblock"
-    on="node|ev('detail') $('/select') val obj('lang') v.codeblo(_1) (null, true)"
+    on="node|ev('detail') $('/select') val obj('lang') codeblo(_1) (null, true)"
     by="New.codeblock(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -986,7 +986,7 @@
 </div>
 
 <div class="_body _Tr" tpl-name="input:tr"
-    on="create|$('textarea') val dup pass v.splitx $('/input[name=clean]') prop('checked') v.pretreat1(_1) v.trbox obj('tsec')"
+    on="create|$('textarea') val dup pass splitx $('/input[name=clean]') prop('checked') pretreat1(_1) trbox obj('tsec')"
     by="New.tr(_1)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -1001,8 +1001,8 @@
 </div>
 
 <div class="_body _Table" tpl-name="input:thead"
-    on="create|$$('/thead>tr') find('th') text v.tsecbox obj('table') (true);
-        nodeok|stop v.tobj dup pass dup(2) data('tbo') eq(_1) end"
+    on="create|$$('/thead>tr') find('th') text tsecbox obj('table') (true);
+        nodeok|stop tobj dup pass dup(2) data('tbo') eq(_1) end"
     by="New.thead(_2)"
     to="form/|trigger('insfix');
         |data('tbo')|pop fire('/thead', 'new')">
@@ -1034,8 +1034,8 @@
     构造表格实例发送到<tbody>创建同类表格录入。
     会暂存实例，选单简单切换不影响已录入。 -->
 <div class="_body _Table" tpl-name="input:tbody"
-    on="create|$$('/tbody>tr') find('th,td') text v.tsecbox obj('table') (true);
-        nodeok|stop v.tobj dup pass dup(2) data('tbo') eq(_1) end"
+    on="create|$$('/tbody>tr') find('th,td') text tsecbox obj('table') (true);
+        nodeok|stop tobj dup pass dup(2) data('tbo') eq(_1) end"
     by="New.tbody(_2)"
     to="form/|trigger('instbd');
         |data('tbo')|pop fire('/tbody', 'new')">
@@ -1067,8 +1067,8 @@
 </div>
 
 <div class="_body _Table" tpl-name="input:tfoot"
-    on="create|$$('/tfoot>tr') find('th,td') text v.tsecbox obj('table') (true);
-        nodeok|stop v.tobj dup pass dup(2) data('tbo') eq(_1) end"
+    on="create|$$('/tfoot>tr') find('th,td') text tsecbox obj('table') (true);
+        nodeok|stop tobj dup pass dup(2) data('tbo') eq(_1) end"
     by="New.tfoot(_2)"
     to="form/|trigger('insfix');
         |data('tbo')|pop fire('/tfoot', 'new')">
@@ -1100,8 +1100,8 @@
 <!-- 定制结构 -->
 
 <div class="_body _Codeli" obt-src="obts/codes.json" tpl-name="input:codeli"
-    on="node|ev('detail') v.codels $('/[name=lang]') val v.codebox;
-        nodeok|v.codebox dup pass attr('-lang') or('')"
+    on="node|ev('detail') codels $('/[name=lang]') val codebox;
+        nodeok|codebox dup pass attr('-lang') or('')"
     by="Kit.codelang(_2) New2.codeli"
     to="form/|trigger('insert');
         /select|val">
@@ -1185,7 +1185,7 @@
 
 <div class="_body _Xolah4li" tpl-name="input:xolah4li"
     on="create|$('/[name=text]') val dup pass $('form/') valo('href title target') clean('', null);
-        xlist|$('/textarea') val v.splitx(true) wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
+        xlist|$('/textarea') val splitx(true) wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
     by="New.a(_1);
         New.xolah4li(_1)"
     to="|trigger('xlist');
@@ -1587,7 +1587,7 @@
 <!--内联代码：
     包括代码块内的<code>子单元。 -->
 <div class="_body _Inline" obt-src="obts/codes.json" tpl-name="input:code"
-    on="node|ev('detail') v.codehtml $('/[name=lang]') val obj('lang')"
+    on="node|ev('detail') codehtml $('/[name=lang]') val obj('lang')"
     by="New.code(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">

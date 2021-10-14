@@ -14,6 +14,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { BaseOn, BaseBy } from "./base/tpb/tpb.js";
+
 
 const
     Setup = {
@@ -283,4 +285,12 @@ const Cmdx = {
 }
 
 
-export { Setup, Limit, Tips, Help, Scripter, Sys, Cmdx };
+//
+// 待扩展自定义集。
+//
+const
+    On = Object.create( BaseOn ),
+    By = Object.create( BaseBy );
+
+
+export { Setup, Limit, Tips, Help, Scripter, Sys, Cmdx, On, By };

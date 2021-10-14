@@ -1,5 +1,5 @@
 {
     "//": "属性框初始赋值：单特性取值，文本行赋值。",
-    "on": "value|v.sels $('/input') attr('name') attr(_1) v.p.vals1",
+    "on": "value|sels $('/input') attr('name') attr(_1) p.vals1",
     "to": "/input|val"
 }
