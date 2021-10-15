@@ -26,15 +26,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $, { HasRender } from "../config.js";
 import { Filter } from "./filter.js";
 import { Spliter, UmpString, UmpCaller } from "./spliter.js";
 import { Util } from "./util.js";
-import { HasRender } from "../config.js";
 
 
 const
-    $ = window.$,
-
     // 元素文法存储。
     // 包含原始模板中和页面中采用渲染处理的元素。
     // Map {

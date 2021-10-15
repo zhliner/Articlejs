@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { OBTA, XLoader } from "../config.js";
+import $, { OBTA, XLoader } from "../config.js";
 
 // 无渲染支持。
 // import { Render } from "./render.x.js";
@@ -31,8 +31,6 @@ import { TplLoader } from "./tloader.js";
 
 
 const
-    $ = window.$,
-
     // 子模板分隔符
     // 注：tpl-node/source可定义多个子模板引用。
     __loadSplit = ',',

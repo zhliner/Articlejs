@@ -12,15 +12,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Setup } from "../config.js";
-import { XLoader, TplPool } from "../base/tpb/config.js";
+import $, { XLoader, TplPool } from "../base/tpb/config.js";
 import { obtBuilder, BaseOn, BaseBy } from "../base/tpb/tpb.js";
 import { Templater } from "../base/tpb/tools/templater.js";
 
+import { Setup } from "../config.js";
+
 
 const
-    $ = window.$,
-
     // 插件专用On定义集
     // 用于所有插件，可能在外部被扩展。
     PlugOn = Object.create( BaseOn ),

@@ -147,5 +147,7 @@ export {
 };
 
 
-//:debug
-window.DataStore = DataStore;
+//
+// 供统一引用。
+//
+export default window.$;

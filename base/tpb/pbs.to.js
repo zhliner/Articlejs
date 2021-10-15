@@ -15,10 +15,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Util } from "./tools/util.js";
-import { DataStore, ChainStore } from "./config.js";
+import $, { DataStore, ChainStore } from "./config.js";
 import { bindMethod, storeChain } from "./base.js";
 import { Get } from "./pbs.get.js";
+import { Util } from "./tools/util.js";
 
 // 无渲染占位。
 // import { Render } from "./tools/render.x.js";
@@ -26,8 +26,6 @@ import { Render } from "./tools/render.js";
 
 
 const
-    $ = window.$,
-
     // 事件名：ID分隔符。
     // 用于bind()事件名ID的分离提取。
     __chrEvnid = ':',

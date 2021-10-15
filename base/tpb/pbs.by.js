@@ -29,7 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Web } from "./config.js";
+import $, { Web } from "./config.js";
 import { bindMethod } from "./base.js";
 import { Get } from "./pbs.get.js";
 
@@ -39,8 +39,6 @@ import { Render } from "./tools/render.js";
 
 
 const
-    $ = window.$,
-
     // 请求根路径。
     pullRoot = new URL( Web.pulls, Web.base );
 

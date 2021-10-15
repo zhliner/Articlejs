@@ -24,9 +24,6 @@
 import { Render } from "./render.js";
 
 
-const $ = window.$;
-
-
 class Templater {
     /**
      * 注：仅需obter实参。

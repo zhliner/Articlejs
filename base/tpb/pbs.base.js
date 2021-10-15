@@ -20,14 +20,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { format } from "./tools/date.js";
-import { EXTENT, ACCESS, Globals, DEBUG, JUMPCELL, PREVCELL } from "./config.js";
+import $, { EXTENT, ACCESS, Globals, DEBUG, JUMPCELL, PREVCELL } from "./config.js";
 import { bindMethod } from "./base.js";
+import { format } from "./tools/date.js";
 
 
 const
-    $ = window.$,
-
     // 字符串空白清理方法集。
     trimFunc = {
         '1':    'trimLeft',

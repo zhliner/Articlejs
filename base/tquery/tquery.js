@@ -122,7 +122,7 @@
                 return factory( w );
             };
     } else {
-        factory( global );
+        return factory( global );
     }
 
 // Pass this if window is not defined yet

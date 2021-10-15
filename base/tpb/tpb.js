@@ -33,7 +33,7 @@ import { On } from "./pbs.get.js";
 import { By } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
-import { DEBUG, XLoader, TplPool, Web, Templates, tplInit } from "./config.js";
+import $, { DEBUG, XLoader, TplPool, Web, Templates, tplInit, DataStore } from "./config.js";
 import { storeChain, hostSet, namedExtend, deepExtend, funcSets } from "./base.js";
 
 import { App } from "./app.js";
@@ -43,10 +43,6 @@ import { Builder } from "./core.js";
 // import { Templater } from "./tools/templater.x.js";
 // 模板功能支持。
 import { Templater } from "./tools/templater.js";
-
-
-const $ = window.$;
-
 
 
 //
@@ -59,6 +55,7 @@ if ( DEBUG ) {
     window.Update = To.Update;
     window.Next = To.Next;
     window.namedTpls = namedTpls;
+    window.DataStore = DataStore;
 
 }
 

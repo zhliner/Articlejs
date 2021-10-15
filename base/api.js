@@ -19,9 +19,6 @@
 //
 
 
-const $ = window.$;
-
-
 //
 // 根元素集：{
 //      outline,    大纲元素根（<aside>）

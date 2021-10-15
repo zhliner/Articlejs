@@ -12,12 +12,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "../config.js";
 import { Spliter, UmpString } from "./spliter.js";
 
 
 const
-    $ = window.$,
-
     // 二阶选择器切分字符
     __chrSp2    = '/',
 

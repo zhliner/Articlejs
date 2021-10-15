@@ -18,12 +18,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
 import { Hicolor } from "./highlight/main.js";
 
 
 const
-    $ = window.$,
-
     // 全角字符码值起始
     // 字符：⅏ （概略）。
     __fullBegin = 0x214f,

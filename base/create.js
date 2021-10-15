@@ -24,14 +24,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
 import { processProxy } from "./tpb/tpb.js";
 import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, cloneElement, sectionState } from "./base.js";
 import * as T from "./types.js";
 import { Sys, By } from "../config.js";
-
-
-const
-    $ = window.$;
 
 
 //

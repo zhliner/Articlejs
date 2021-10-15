@@ -33,13 +33,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
 import * as T from "./types.js";
 import { create } from "./create.js";
 
 
 const
-    $ = window.$,
-
     // 高亮名:角色映射。
     // 高亮名用于具体语言中使用，角色名用于封装元素<b>中的role值。
     // 此处的高亮名用于语言实现中的规范名称（type）。

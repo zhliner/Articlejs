@@ -12,14 +12,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
+
 //
 // 注意：
 // 与 ./types.js 存在交叉引用，
 // 用户需先加载 ./base.js，之后再加载 ./types.js
 //
 import { getType, sectionState } from "./base.js";
-
-const $ = window.$;
 
 
 //

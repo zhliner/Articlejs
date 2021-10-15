@@ -65,6 +65,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
 import { Cmdx, Tips, Setup, Limit, Sys } from "../config.js";
@@ -74,8 +75,6 @@ import { pluginsInit, pluginsInsert, pluginsDelete } from "../plugins/base.js";
 
 
 const
-    $ = window.$,
-
     // 数值定位匹配
     // [x:y] 或 [m,n,...]
     // 取值：[1]

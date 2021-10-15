@@ -14,17 +14,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $, { DataStore, Templates, ChainStore, DEBUG } from "./config.js";
 import { Util } from "./tools/util.js";
 import { Ease } from "./tools/ease.js";
-import { DataStore, Templates, ChainStore, DEBUG } from "./config.js";
 import { bindMethod } from "./base.js";
 import { Process } from "./pbs.base.js";
 import { Stack } from "./core.js";
 
 
 const
-    $ = window.$,
-
     // evo成员名/值键。
     evoIndex = {
         0: 'event',     // 原生事件对象（注：ev指令可直接获取）

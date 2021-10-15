@@ -13,6 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
 import * as T from "./types.js";
 import { getType } from "./base.js";
 import { customGetter } from "./tpb/tpb.js";
@@ -23,8 +24,6 @@ import { Sys, On } from "../config.js";
 
 
 const
-    $ = window.$,
-
     // 空白匹配。
     __reSpace = /\s+/g,
 

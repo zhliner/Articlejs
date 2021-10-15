@@ -22,14 +22,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "../../tpb/config.js";
+
 import { Hicode, htmlEscape, regexpEscape } from "../base.js";
 import { Hicolor } from "../main.js";
 import { CSSAttr } from "./css.js";
 
 
 const
-    $ = window.$,
-
     // HTML 实体模式。
     __reEntity = /^&(\w+|#\d+|#x[0-9a-fA-F]+);/g,
 

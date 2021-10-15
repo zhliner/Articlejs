@@ -12,10 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { ACCESS, EXTENT, ChainStore } from "./config.js";
-
-
-const $ = window.$;
+import $, { ACCESS, EXTENT, ChainStore } from "./config.js";
 
 
 //

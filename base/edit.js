@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { OBTA, Templates } from "./tpb/config.js";
+import $, { OBTA, Templates } from "./tpb/config.js";
 import { Sys, Limit, Help, Tips, Cmdx, Setup, On, By } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
@@ -39,8 +39,7 @@ import { Render } from "../base/tpb/tools/render.js";
 
 
 const
-    $ = window.$,
-
+    // 局部使用。
     Normalize = $.Fx.History.Normalize,
 
     // 编辑区需要监听的变化（历史记录）。

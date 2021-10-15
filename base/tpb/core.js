@@ -18,14 +18,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $, { ACCESS, EXTENT, JUMPCELL, PREVCELL, DEBUG, HEADCELL } from "./config.js";
 import { Util } from "./tools/util.js";
 import { Spliter, UmpString, UmpCaller, UmpChars } from "./tools/spliter.js";
-import { ACCESS, EXTENT, JUMPCELL, PREVCELL, DEBUG, HEADCELL } from "./config.js";
 
 
 const
-    $ = window.$,
-
     // 数据栈输出标识名。
     // 在浏览器控制台设置该变量为true，即可显示数据入栈情况。
     __STACKX    = 'STACKDATA',

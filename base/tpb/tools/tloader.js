@@ -29,10 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { DEBUG } from "../config.js";
-
-
-const $ = window.$;
+import $, { DEBUG } from "../config.js";
 
 
 export class Loader {

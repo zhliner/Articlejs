@@ -12,13 +12,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
 import { Render } from "./tpb/tools/render.js";
 import { beforeFixed, afterFixed } from "./base.js";
 import { Scripter } from "../config.js";
 
 const
-    $ = window.$,
-
     // ID标识字符限定
     __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
 

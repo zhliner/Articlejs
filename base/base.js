@@ -12,6 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
+
 //
 // 注意：
 // ./types.js 中引用了本模块中的 getType() 方法，
@@ -21,8 +23,6 @@ import * as T from "./types.js";
 
 
 const
-    $ = window.$,
-
     // 类型值存储键。
     // 数值的类型存储在元素对象上。
     __typeKey = Symbol('type-value'),

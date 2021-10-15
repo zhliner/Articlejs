@@ -19,14 +19,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
+import { processExtend } from "./tpb/tpb.js";
 import { Sys, Limit, By } from "../config.js";
 import { CStorage, History, DPage, Pager } from "./common.js";
-import { processExtend } from "./tpb/tpb.js";
 
 
 const
-    $ = window.$,
-
     // 脚本历史DOM编辑历史栈。
     __TQHistory = new $.Fx.History(),
 
