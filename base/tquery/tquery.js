@@ -1006,7 +1006,7 @@ Object.assign( tQuery, {
             handle,
             // 如果被holdReady，不会实际执行handle，但可标记loaded
             // 然后hold释放完就会调用handle了
-            () => (domReady.ready(), domReady.loaded = true)
+            () => ( domReady.ready(), domReady.loaded = true )
         );
         return this;
     },
@@ -1022,7 +1022,7 @@ Object.assign( tQuery, {
      * @return {void}
      */
     holdReady( hold ) {
-        if (domReady.passed) {
+        if ( domReady.passed ) {
             return;
         }
         domReady.waits += hold ? 1 : -1;
@@ -8276,10 +8276,10 @@ const domReady = {
      * 如果就绪调用已实施，新的绑定立即执行。
      */
     ready() {
-        if (this.waits) {
+        if ( this.waits ) {
             return;
         }
-        while (this.bounds.length) this.bounds.shift()();
+        while ( this.bounds.length ) this.bounds.shift()();
         this.passed = true;
     },
 
@@ -8292,7 +8292,7 @@ const domReady = {
      */
     bind( handle, bound ) {
         this.bounds.push(
-            () => this.completed(handle, bound)
+            () => this.completed( handle, bound )
         );
         document.addEventListener( "DOMContentLoaded", bound );
         window.addEventListener( "load", bound );
@@ -8309,7 +8309,7 @@ const domReady = {
     completed( handle, bound ) {
         window.removeEventListener( "load", bound );
         document.removeEventListener( "DOMContentLoaded", bound );
-        return handle && handle(tQuery);
+        return handle && handle( tQuery );
     },
 
 };

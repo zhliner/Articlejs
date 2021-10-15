@@ -3099,13 +3099,14 @@ const $proxy = new Proxy( $, {
 /**
  * 插件主文件导入。
  * 将插件的执行封装在一个Worker中（沙盒）。
- * 插件内需要通过 postMessage 向外部递送请求和数据。
+ * 插件内需要通过 postMessage() 向外部递送请求和数据。
  * 数据项：{
  *      result:Value    插件运行的结果数据
  *      error:String    错误信息
  *      node:String     展示结果的根模板节点名
  *      title:String    展示框标题条文本
  * }
+ * 插件只被允许执行一次，即向上层postMessage之后即被终止。
  * 注记：
  * 插件按钮实际上只是一个入口，之后如果需要DOM交互，只能由模板实现。
  * 模板中的OBT格式简单且固定，因此便于安全性审核。
@@ -3118,6 +3119,7 @@ function plugLoad( url, data ) {
 
     return new Promise( (resolve, reject) => {
         _wk.onmessage = ev => {
+            _wk.terminate();
             ev.data.error ? reject( ev.data.error) : resolve( ev.data );
         }
         _wk.postMessage( data );
