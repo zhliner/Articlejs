@@ -1,6 +1,6 @@
-/*! $ID: tquery.js 2019.10.31 tQuery $
+/*! $ID: tquery.js 2021.10.20 tQuery $
 *******************************************************************************
-            Copyright (c) 铁皮工作室 2019 - 2021 MIT License
+            Copyright (c) 铁皮工作室 2021 MIT License
 
                 @Project: tQuery v0.5.x
                 @Author:  风林子 zhliner@gmail.com
@@ -104,328 +104,303 @@
 
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 */
-(function( global, factory ) {
 
-    "use strict";
+const
+    Win = this || window,
+    Doc = Win.document,
 
-    // eslint-disable-next-line no-undef
-    if ( typeof module === "object" && typeof module.exports === "object" ) {
+    // 扩展选择器支持，可选
+    Sizzle = Win.Sizzle,
 
-        // jQuery v3.4.1.
-        // eslint-disable-next-line no-undef
-        module.exports = global.document ?
-            factory( global, true ) :
-            function( w ) {
-                if ( !w.document ) {
-                    throw new Error( "tQuery requires a window with a document" );
-                }
-                return factory( w );
-            };
-    } else {
-        return factory( global );
-    }
+    isArr = Array.isArray,
 
-// Pass this if window is not defined yet
-})( typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
+    // 转换为数组。
+    // 无条件转换，应当仅用于DOM原生元素集类。
+    Arr = its => Array.from(its || ''),
 
-    "use strict";
+    // 数组的检测转换。
+    // 如果原参数为数组，直接返回。
+    // 节点会被封装为数组，其它执行from转换。
+    // @param  {Array|Node|.values} its
+    // @return {Array}
+    $A = its => isArr(its) ? its : its.nodeType && [its] || Array.from(its),
 
-    const
-        Doc = window.document,
+    // 单一目标。
+    // slr: 包含前置#字符。
+    // @param  {Document|DocumentFragment} ctx 上下文文档
+    // @return {Element|null}
+    $id = ( slr, ctx ) => ctx.getElementById( slr.substring(1) ),
 
-        // 主要用于扩展选择器。
-        // 可选，默认无。
-        Sizzle = window.Sizzle,
+    // 简单选择器。
+    // @return {HtmlCollection}
+    $tag = ( tag, ctx ) => ctx.getElementsByTagName(tag),
 
-        isArr = Array.isArray,
+    // 简单选择器。
+    // slr: 包含前置.字符
+    // @return {HtmlCollection}
+    $class = ( slr, ctx ) => ctx.getElementsByClassName(slr.substring(1)),
 
-        // 转换为数组。
-        // 无条件转换，应当仅用于DOM原生元素集类。
-        Arr = its => Array.from(its || ''),
+    // 检索元素或元素集。
+    // 选择器支持“>”表示上下文元素限定。
+    // fn: {String} querySelector[All]
+    // @return {NodeList}
+    $query = ( slr, ctx, fn ) => subslr.test(slr) ? $sub(slr, ctx, s => ctx[fn](s)) : ctx[fn](slr || null),
 
-        // 数组的检测转换。
-        // 如果原参数为数组，直接返回。
-        // 节点会被封装为数组，其它执行from转换。
-        // @param  {Array|Node|.values} its
-        // @return {Array}
-        $A = its => isArr(its) ? its : its.nodeType && [its] || Array.from(its),
+    // 单一目标。
+    // slr 首字符 > 表示当前上下文父级限定。
+    // @param  {String} slr 选择器。
+    // @param  {Element|Document|DocumentFragment} ctx 上下文
+    // @return {Element|null}
+    $one = function( slr, ctx ) {
+        if ( __reID.test(slr) && ctx.nodeType >= 9 ) {
+            // 优化
+            return $id(slr, ctx);
+        }
+        return $query( slr, ctx, 'querySelector' );
+    },
 
-        // 单一目标。
-        // slr: 包含前置#字符。
-        // @param  {Document|DocumentFragment} ctx 上下文文档
-        // @return {Element|null}
-        $id = ( slr, ctx ) => ctx.getElementById( slr.substring(1) ),
-
-        // 简单选择器。
-        // @return {HtmlCollection}
-        $tag = ( tag, ctx ) => ctx.getElementsByTagName(tag),
-
-        // 简单选择器。
-        // slr: 包含前置.字符
-        // @return {HtmlCollection}
-        $class = ( slr, ctx ) => ctx.getElementsByClassName(slr.substring(1)),
-
-        // 检索元素或元素集。
-        // 选择器支持“>”表示上下文元素限定。
-        // fn: {String} querySelector[All]
-        // @return {NodeList}
-        $query = ( slr, ctx, fn ) => subslr.test(slr) ? $sub(slr, ctx, s => ctx[fn](s)) : ctx[fn](slr || null),
-
-        // 单一目标。
-        // slr 首字符 > 表示当前上下文父级限定。
-        // @param  {String} slr 选择器。
-        // @param  {Element|Document|DocumentFragment} ctx 上下文
-        // @return {Element|null}
-        $one = function( slr, ctx ) {
-            if ( __reID.test(slr) && ctx.nodeType >= 9 ) {
-                // 优化
-                return $id(slr, ctx);
-            }
-            return $query( slr, ctx, 'querySelector' );
-        },
-
-        // 多目标。
-        // slr 首字符 > 表示当前上下文父级限定。
-        // 注记：不测试简单id，多id有效。
-        // @param  {String} slr 选择器。
-        // @param  {Element|Document|DocumentFragment} ctx 上下文
-        // @return {[Element]}
-        $all = Sizzle || function( slr, ctx ) {
-            // if ( __reID.test(slr) ) {
-            //     return new Array($id(slr, ctx) || 0);
-            // }
-            if ( __reTAG.test(slr) && ctx.nodeType != 11 ) {
-                return Arr( $tag(slr, ctx) );
-            }
-            if ( __reCLASS.test(slr) && ctx.nodeType != 11 ) {
-                return Arr( $class(slr, ctx) );
-            }
-            return Arr( $query(slr, ctx, 'querySelectorAll') );
-        };
-
-
-    const
-        // 返回目标的类型。
-        // 注：返回的是目标对象构造函数的名称，不会转为小写；
-        // @param  {mixed} val 目标数据
-        // @return {String} 类型名（如 "Array"）
-        $type = function( val ) {
-            if ( val == null ) {
-                return String( val );
-            }
-            // Object.create(null) with no prototype.
-            return Object.getPrototypeOf( val ) ? val.constructor.name : 'Object';
-        },
-
-        // 元素匹配判断。
-        // - 可以辅助过滤掉非元素值。
-        // - 如果不存在matches，外部需提供polyfill。
-        // @param  {Element} el
-        // @param  {String|Element} slr
-        // @return {Boolean}
-        $is = Sizzle && Sizzle.matchesSelector || function( el, slr ) {
-            if (typeof slr != 'string') {
-                return el === slr;
-            }
-            return slr[0] != '>' && !!el.matches && el.matches(slr);
-        },
-
-        // 是否包含判断。
-        // @param  {Element} box 容器元素
-        // @param  {Node} sub 子节点
-        // @param  {Boolean} strict 严格包含（子孙级）
-        // @return {Boolean}
-        $contains = function( box, sub, strict ) {
-            let _is = !!(box.compareDocumentPosition(sub) & 16);
-            return _is || !strict && box === sub;
-        },
-
-        // 去除重复并排序。
-        // 未传递comp实参时仅去除重复。
-        // comp支持传递null获取默认的排序规则。
-        // @param  {Array|Iterator} els
-        // @param  {Function|null} comp 比较函数，可选
-        // @return {Array} 结果集（新数组）
-        uniqueSort = function( els, comp ) {
-            els = [ ...new Set(els) ];
-
-            if ( els.length == 1 ) {
-                return els;
-            }
-            return comp === undefined ? els : els.sort(comp || undefined);
-        },
-
-        // 检查获取特性名。
-        // 支持前置 '-' 为 data- 系名称简写。
-        // @return {String}
-        attrName = n => n[0] === '-' ? `data${n}` : n,
-
-        // 获取data-系属性名。
-        // 返回的名称已经转换为驼峰表示。
-        // 如：data-abc-def | -abc-def => abcDef
-        // @return {String|''}
-        dataName = n => __dataName.test(n) && camelCase( n.match(__dataName)[1] ) || '';
-
-
-    const
-        // http://www.w3.org/TR/css3-selectors/#whitespace
-        whitespace = "[\\x20\\t\\r\\n\\f]",
-
-        // identifier: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
-        identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
-
-        // 元素/实体类。
-        ihtml = /<|&#?\w+;/,
-
-        // HTML节点标志。
-        xhtml = /HTML$/i,
-
-        // 像素值表示
-        rpixel = /^[+-]?\d[\d.e]*px$/i,
-
-        // 并列选择器起始 > 模式
-        // 如：`>p > em, >b a`
-        // 注意！无法区分属性选择器属性值内包含的 ,> 字符序列。
-        subslr = /^>|,\s*>/,
-
-        // 伪Tag开始字符匹配（[）
-        // 注：前置\时为转义，不匹配，偶数\\时匹配。
-        tagLeft = /(^|[^\\]|[^\\](?:\\\\)+)\[/g,
-
-        // 转义脱出 \[ => [
-        // 注：在tagLeft替换之后采用。
-        tagLeft0 = /\\\[/g,
-
-        // 伪Tag结束字符匹配（]）
-        // 注：同上
-        tagRight = /([^\\]|[^\\](?:\\\\)+)\]/g,
-
-        // 转义脱出 \] => ]
-        // 注：在tagRight替换之后采用。
-        tagRight0 = /\\\]/g,
-
-        // 安全性：
-        // 创建文档片段时清除的元素。
-        // 注：用户应当使用 $.script()/$.style() 接口来导入资源。
-        clearTags = ['script', 'style', 'link'],
-
-        // 安全性：
-        // 创建文档片段时清除的脚本类属性。
-        // 注：用户应当使用 $.on 来绑定处理器。
-        clearAttrs = ['onerror', 'onload', 'onabort'],
-
-        // 表单控件值序列化。
-        // 参考：jQuery-3.4.1 .serializeArray...
-        rCRLF = /\r?\n/g,
-        rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
-        rsubmittable = /^(?:input|select|textarea|keygen)/i,
-
-        // SVG元素名称空间。
-        svgNS = 'http://www.w3.org/2000/svg',
-
-        // 简单选择器。
-        // 用于原生ID/Class/Tag优先检索。
-        __reID      = new RegExp( "^#(" + identifier + ")$" ),
-        __reCLASS   = new RegExp( "^\\.(" + identifier + ")$" ),
-        __reTAG     = new RegExp( "^(" + identifier + "|[*])$" ),
-
-        // 空白匹配
-        // 注：仅测试和切分（无需g）。
-        __reSpace   = new RegExp( whitespace + "+" ),
-
-        // data系属性名匹配。
-        // 包含简写匹配，如：-val => data-val
-        __dataName  = new RegExp( "^(?:data)?-(" + identifier + ")$" ),
-
-        // 私有存储 {Element: String}
-        // 用于toggleClass整体切换元素类名。
-        __classNames = new WeakMap();
-
-
-    const
-        version = 'tQuery-0.5.3',
-
-        // 临时属性名
-        // 固定异样+动态，避免应用冲突。
-        // 注：限制长度，约50天（0xffffffff）。
-        hackFix = `___tquery_${ (Date.now() % 0xffffffff).toString(16) }_`,
-
-        // 自我标志
-        ownerToken = Symbol && Symbol() || hackFix,
-
-        //
-        // 位置值定义。
-        // 用于插入元素的位置指定，可以混用名称与数值。
-        // {
-        //      before  =  1    元素之前
-        //      after   = -1    元素之后
-        //      prepend =  2    元素内头部
-        //      append  = -2    元素内末端
-        //      replace =  0    替换
-        //      fill    = ''    内容填充（清除原有）
+    // 多目标。
+    // slr 首字符 > 表示当前上下文父级限定。
+    // 注记：不测试简单id，多id有效。
+    // @param  {String} slr 选择器。
+    // @param  {Element|Document|DocumentFragment} ctx 上下文
+    // @return {[Element]}
+    $all = Sizzle || function( slr, ctx ) {
+        // if ( __reID.test(slr) ) {
+        //     return new Array($id(slr, ctx) || 0);
         // }
-        // 示意：
-        //   <!-- 1 -->
-        //   <p>
-        //      <!-- 2 -->
-        //      <span>...</span>
-        //      <!-- -2 -->
-        //   </p>
-        //   <!-- -1 -->
-        //
-        // 理解（记忆）：
-        //   1： 表示与目标同级，只有1个层次。负值反向取后。
-        //   2： 表示为目标子级元素，2个层次。负值取末尾。
-        //   0： 替换。原目标已无（游离）。
-        //   '': 填充。先设置内容为空串（拥有破坏性）。
-        //
-        Wheres = {
-            'before':   1,
-            'after':   -1,
-            'prepend':  2,
-            'append':  -2,
-            'replace':  0,
-            'fill':    '',
+        if ( __reTAG.test(slr) && ctx.nodeType != 11 ) {
+            return Arr( $tag(slr, ctx) );
+        }
+        if ( __reCLASS.test(slr) && ctx.nodeType != 11 ) {
+            return Arr( $class(slr, ctx) );
+        }
+        return Arr( $query(slr, ctx, 'querySelectorAll') );
+    };
 
-            '1': 1,  '-1': -1,  '2': 2,  '-2': -2, '0': 0, '': '',
-        },
 
-        //
-        // 子级位置集。
-        // 填充也属于子级操作。
-        //
-        childWhere = new Set( [-2, '', 2] ),
+const
+    // 返回目标的类型。
+    // 注：返回的是目标对象构造函数的名称，不会转为小写；
+    // @param  {mixed} val 目标数据
+    // @return {String} 类型名（如 "Array"）
+    $type = function( val ) {
+        if ( val == null ) {
+            return String( val );
+        }
+        // Object.create(null) with no prototype.
+        return Object.getPrototypeOf( val ) ? val.constructor.name : 'Object';
+    },
 
-        //
-        // 可调用原生方法名（事件类）。
-        // 它们被定义在元素上，同时存在如 xxx() 方法和 onxxx 属性。
-        // 注：
-        // 其中 submit() 和 load() 调用不会触发相应事件。
-        //
-        callableNative = [
-            'click',
-            'blur',
-            'focus',
-            'load',
-            'play',
-            'pause',
-            'reset',
-            // 'scroll',  // 定制
-            // 'select',  // 定制
-            'submit',
-            'finish',
-            'cancel',
-        ],
+    // 元素匹配判断。
+    // - 可以辅助过滤掉非元素值。
+    // - 如果不存在matches，外部需提供polyfill。
+    // @param  {Element} el
+    // @param  {String|Element} slr
+    // @return {Boolean}
+    $is = Sizzle && Sizzle.matchesSelector || function( el, slr ) {
+        if (typeof slr != 'string') {
+            return el === slr;
+        }
+        return slr[0] != '>' && !!el.matches && el.matches(slr);
+    },
 
-        //
-        // 功能配置集。
-        // 目前仅支持定制事件激发配置，默认关闭。
-        // 通过 $.config({...}) 开启。
-        //
-        Options  = {
-            varyevent: null, // 节点变化类事件
-            bindevent: null, // 事件注册类事件
-        };
+    // 是否包含判断。
+    // @param  {Element} box 容器元素
+    // @param  {Node} sub 子节点
+    // @param  {Boolean} strict 严格包含（子孙级）
+    // @return {Boolean}
+    $contains = function( box, sub, strict ) {
+        let _is = !!(box.compareDocumentPosition(sub) & 16);
+        return _is || !strict && box === sub;
+    },
+
+    // 去除重复并排序。
+    // 未传递comp实参时仅去除重复。
+    // comp支持传递null获取默认的排序规则。
+    // @param  {Array|Iterator} els
+    // @param  {Function|null} comp 比较函数，可选
+    // @return {Array} 结果集（新数组）
+    uniqueSort = function( els, comp ) {
+        els = [ ...new Set(els) ];
+
+        if ( els.length == 1 ) {
+            return els;
+        }
+        return comp === undefined ? els : els.sort(comp || undefined);
+    },
+
+    // 检查获取特性名。
+    // 支持前置 '-' 为 data- 系名称简写。
+    // @return {String}
+    attrName = n => n[0] === '-' ? `data${n}` : n,
+
+    // 获取data-系属性名。
+    // 返回的名称已经转换为驼峰表示。
+    // 如：data-abc-def | -abc-def => abcDef
+    // @return {String|''}
+    dataName = n => __dataName.test(n) && camelCase( n.match(__dataName)[1] ) || '';
+
+
+const
+    // http://www.w3.org/TR/css3-selectors/#whitespace
+    whitespace = "[\\x20\\t\\r\\n\\f]",
+
+    // identifier: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
+    identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
+
+    // 元素/实体类。
+    ihtml = /<|&#?\w+;/,
+
+    // HTML节点标志。
+    xhtml = /HTML$/i,
+
+    // 像素值表示
+    rpixel = /^[+-]?\d[\d.e]*px$/i,
+
+    // 并列选择器起始 > 模式
+    // 如：`>p > em, >b a`
+    // 注意！无法区分属性选择器属性值内包含的 ,> 字符序列。
+    subslr = /^>|,\s*>/,
+
+    // 伪Tag开始字符匹配（[）
+    // 注：前置\时为转义，不匹配，偶数\\时匹配。
+    tagLeft = /(^|[^\\]|[^\\](?:\\\\)+)\[/g,
+
+    // 转义脱出 \[ => [
+    // 注：在tagLeft替换之后采用。
+    tagLeft0 = /\\\[/g,
+
+    // 伪Tag结束字符匹配（]）
+    // 注：同上
+    tagRight = /([^\\]|[^\\](?:\\\\)+)\]/g,
+
+    // 转义脱出 \] => ]
+    // 注：在tagRight替换之后采用。
+    tagRight0 = /\\\]/g,
+
+    // 安全性：
+    // 创建文档片段时清除的元素。
+    // 注：用户应当使用 $.script()/$.style() 接口来导入资源。
+    clearTags = ['script', 'style', 'link'],
+
+    // 安全性：
+    // 创建文档片段时清除的脚本类属性。
+    // 注：用户应当使用 $.on 来绑定处理器。
+    clearAttrs = ['onerror', 'onload', 'onabort'],
+
+    // 表单控件值序列化。
+    // 参考：jQuery-3.4.1 .serializeArray...
+    rCRLF = /\r?\n/g,
+    rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
+    rsubmittable = /^(?:input|select|textarea|keygen)/i,
+
+    // SVG元素名称空间。
+    svgNS = 'http://www.w3.org/2000/svg',
+
+    // 简单选择器。
+    // 用于原生ID/Class/Tag优先检索。
+    __reID      = new RegExp( "^#(" + identifier + ")$" ),
+    __reCLASS   = new RegExp( "^\\.(" + identifier + ")$" ),
+    __reTAG     = new RegExp( "^(" + identifier + "|[*])$" ),
+
+    // 空白匹配
+    // 注：仅测试和切分（无需g）。
+    __reSpace   = new RegExp( whitespace + "+" ),
+
+    // data系属性名匹配。
+    // 包含简写匹配，如：-val => data-val
+    __dataName  = new RegExp( "^(?:data)?-(" + identifier + ")$" ),
+
+    // 私有存储 {Element: String}
+    // 用于toggleClass整体切换元素类名。
+    __classNames = new WeakMap();
+
+
+const
+    version = 'tQuery-0.5.3',
+
+    // 临时属性名
+    // 固定异样+动态，避免应用冲突。
+    // 注：限制长度，约50天（0xffffffff）。
+    hackFix = `___tquery_${ (Date.now() % 0xffffffff).toString(16) }_`,
+
+    // 自我标志
+    ownerToken = Symbol && Symbol() || hackFix,
+
+    //
+    // 位置值定义。
+    // 用于插入元素的位置指定，可以混用名称与数值。
+    // {
+    //      before  =  1    元素之前
+    //      after   = -1    元素之后
+    //      prepend =  2    元素内头部
+    //      append  = -2    元素内末端
+    //      replace =  0    替换
+    //      fill    = ''    内容填充（清除原有）
+    // }
+    // 示意：
+    //   <!-- 1 -->
+    //   <p>
+    //      <!-- 2 -->
+    //      <span>...</span>
+    //      <!-- -2 -->
+    //   </p>
+    //   <!-- -1 -->
+    //
+    // 理解（记忆）：
+    //   1： 表示与目标同级，只有1个层次。负值反向取后。
+    //   2： 表示为目标子级元素，2个层次。负值取末尾。
+    //   0： 替换。原目标已无（游离）。
+    //   '': 填充。先设置内容为空串（拥有破坏性）。
+    //
+    Wheres = {
+        'before':   1,
+        'after':   -1,
+        'prepend':  2,
+        'append':  -2,
+        'replace':  0,
+        'fill':    '',
+
+        '1': 1,  '-1': -1,  '2': 2,  '-2': -2, '0': 0, '': '',
+    },
+
+    //
+    // 子级位置集。
+    // 填充也属于子级操作。
+    //
+    childWhere = new Set( [-2, '', 2] ),
+
+    //
+    // 可调用原生方法名（事件类）。
+    // 它们被定义在元素上，同时存在如 xxx() 方法和 onxxx 属性。
+    // 注：
+    // 其中 submit() 和 load() 调用不会触发相应事件。
+    //
+    callableNative = [
+        'click',
+        'blur',
+        'focus',
+        'load',
+        'play',
+        'pause',
+        'reset',
+        // 'scroll',  // 定制
+        // 'select',  // 定制
+        'submit',
+        'finish',
+        'cancel',
+    ],
+
+    //
+    // 功能配置集。
+    // 目前仅支持定制事件激发配置，默认关闭。
+    // 通过 $.config({...}) 开启。
+    //
+    Options  = {
+        varyevent: null, // 节点变化类事件
+        bindevent: null, // 事件注册类事件
+    };
 
 
 
@@ -1771,7 +1746,7 @@ Object.assign( tQuery, {
      */
     classAll( el ) {
         if ( el.nodeType != 1 ) {
-            window.console.error('el is not a element.');
+            Win.console.error('el is not a element.');
             return null;
         }
         return Arr( el.classList );
@@ -3499,7 +3474,7 @@ tQuery.select = function( el ) {
     if ( 'select' in el ) {
         return el.select();
     }
-    let _sel = window.getSelection(),
+    let _sel = Win.getSelection(),
         _rng = el.ownerDocument.createRange();
 
     _sel.removeAllRanges();
@@ -3660,7 +3635,7 @@ class Collector extends Array {
      */
     constructor( obj, prev ) {
         super();
-        // window.console.info(obj);
+        // Win.console.info(obj);
         this.push( ...arrayArgs(obj) );
         this.previous = prev || null;
     }
@@ -5102,7 +5077,7 @@ function getStyles( el ) {
     var view = el.ownerDocument.defaultView;
 
     if ( !view || !view.opener ) {
-        view = window;
+        view = Win;
     }
 
     return view.getComputedStyle(el);
@@ -5846,7 +5821,7 @@ function htmlText( code ) {
         _tpl.innerHTML = code;
     }
     catch (e) {
-        return window.console.error(e);
+        return Win.console.error(e);
     }
     return _tpl.content.textContent;
 }
@@ -6046,7 +6021,7 @@ function cleanFragment( frg ) {
         for (const el of _els) {
             el.remove();
         }
-        window.console.warn('html-code contains forbidden tag! removed.');
+        Win.console.warn('html-code contains forbidden tag! removed.');
     }
     _els = $all( _cleanAttrs, frg );
 
@@ -6054,7 +6029,7 @@ function cleanFragment( frg ) {
         for (const el of _els) {
             clearAttrs.forEach( n => el.removeAttribute(n) );
         }
-        window.console.warn('html-code contains forbidden attribute! removed.');
+        Win.console.warn('html-code contains forbidden attribute! removed.');
     }
 }
 
@@ -8294,8 +8269,8 @@ const domReady = {
         this.bounds.push(
             () => this.completed( handle, bound )
         );
-        document.addEventListener( "DOMContentLoaded", bound );
-        window.addEventListener( "load", bound );
+        Doc.addEventListener( "DOMContentLoaded", bound );
+        Win.addEventListener( "load", bound );
 
         return this.loaded && this.ready();
     },
@@ -8307,8 +8282,8 @@ const domReady = {
      * @param {Function} bound  绑定句柄
      */
     completed( handle, bound ) {
-        window.removeEventListener( "load", bound );
-        document.removeEventListener( "DOMContentLoaded", bound );
+        Win.removeEventListener( "load", bound );
+        Doc.removeEventListener( "DOMContentLoaded", bound );
         return handle && handle( tQuery );
     },
 
@@ -8714,30 +8689,4 @@ Object.assign( tQuery, {
 
 });
 
-
-
-//
-// Expose only $
-///////////////////////////////////////////////////////////////////////////////
-
-let _w$ = window.$;
-
-
-/**
- * 恢复外部原始引用。
- * @return {tQuery}
- */
-tQuery.noConflict = function() {
-    if ( window.$ === tQuery ) window.$ = _w$;
-    return tQuery;
-};
-
-
-if ( !noGlobal ) {
-    window.$ = tQuery;
-}
-
-
-return tQuery;
-
-});
+export default tQuery;
