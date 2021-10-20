@@ -1,13 +1,27 @@
 <!DOCTYPE html>
+<!--快捷键：
+    1. 全局捕获按键按下。
+    2. 依按键序列检索目标指令（定制事件）。
+    3. 在按键关联目标元素上激发指令（冒泡）。
+    4. 在较高层（如<body>）定义指令处理序列，接收冒泡的指令。
+    5. 触发指令序列执行。
+    灵活性：
+    - 指令触发定义可以设计选择器过滤，匹配才触发。
+    - 若在较低层级定义指令处理，可以约束事件起点来源。
+    - 按键捕获可以是DOM树局部的，实现分层次快捷键布局设计（有不同键映射表）。
+-->
 <html on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
-    <title>编辑器结构页面</title>
+    <title>编辑器主页</title>
+    <link rel="shortcut icon" href="favicon.ico">
     <link rel="stylesheet" href="base/tpb/default.css">
-    <link id="tstyle" rel="stylesheet" href="themes/Dark-less/style.css">
-    <link id="cstyle" rel="stylesheet" href="styles/example/main.css">
-    <script src="base/tquery/tquery.js"></script>
+    <link id="s-main" rel="stylesheet" href="styles/example/main.css">
+    <link id="s-codes" rel="stylesheet" href="styles/example/codes.css">
+    <link id="s-theme" rel="stylesheet" href="themes/Dark-less/style.css">
+    <script src="base/tquery/tquery.min.js"></script>
+    <script src="base/tquery/plugins/history.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -32,47 +46,46 @@
         // save     内容本地存储通知
         // append   内容添加通知
         // earse    内容条目删除通知
-
         // 自适应。
         window.onresize = function() {
             document.body.style.height = `${window.innerHeight}px`;
         }
         $.ready( () => $.trigger(window, 'resize') );
     </script>
-
-    <script type="module" async>
-        import Api from "./base/api.js";
-        import Tpb from "./base/tpb/tpb.js";
-        import { Web } from "./base/tpb/config.js";
-        import HotKey from './base/tpb/tools/hotkey.js';
-        import cfg from "./base/shortcuts.js";
-
-        window.Api = Api.init({
-            outline, editor, help, beeptip
-        });
-        window.KM = cfg.Keys;
-        window.GHK = new HotKey().init( cfg.Global );
-        window.EHK = new HotKey().init( cfg.Editor );
-        window.SHK = new HotKey().init( cfg.Slave );
-
-        Tpb.Build( document, Web.tplmap )
-        .then( () => $.trigger(document.body, 'finish') );
-    </script>
+    <!-- 入口文件 -->
+    <script type="module" src="main.js"></script>
 </head>
-
+<!--基本行为:
+    - 左右面板大小改变。
+    - 三个面板隐显切换（独立），当前显示面板隐显切换（panel.clearall）。
+    - 命令行直达。
+    ESC 原理:
+    1. ESC 键触发 escape.cancel 事件，获取全局ESC实例栈栈顶项。
+    2. 向栈顶实例发送 cancel 事件，该事件会引发该实例执行自身UI逻辑，并从栈内移除。
+    注：
+    各实例自行管理自身在全局ESC栈的压入和移除，不移除者会成为常驻项。
+    内容区的选取集取消会成为常驻项（栈底保留）。
+-->
 <body lang="zh-cn"
-    on="@mousemove:1|movementX avoid;
-        @mousemove:2|movementX neg avoid;
+    on="@mousemove:1|movementX;
+        @mousemove:2|movementX neg;
         @mouseup|movementX(null);
-        pcheck|data('all') arr dup hasClass('_press') mix(2) map(v => v[1]?v[0]:null);
+        pcheck|data('all') arr filter(e=>$.hasClass(e, '_press'));
         pstore|ev('detail') data('pls') dup clear pop;
-        panel.clearall|data('all') data('pls') dup its('size') vnot pop $if(_2) pop;
+        panel.clearall|data('all') data('pls') dup size vnot pop $if(_2) arr pop;
         panel.outline;
         panel.slave;
         panel.help;
         panel.plugins;
+        cmdline.active|ev('detail');
+        focus.content;
+        toggle.path;
+        escape.cancel|(ESC) call('top') pop;
+        button.undo|ev('detail') vnot;
+        button.redo|ev('detail') vnot;
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
-        ^finish|(KM.slaveResize)"
+        ^finish|$('#content') (ESC) pop;
+        ^finish|(edInit) ('content,g-covert,main-slave,g-path,err-msg,outline,tools-usual,g-modal,g-contab') split(',') str('#') exec(_)"
     to="#outline|width(true);
         #help|width(true);
         |off('mousemove');
@@ -83,54 +96,89 @@
         #x-slave||click;
         #x-help||click;
         #x-plugins||click;
+        #g-cmdx|trigger('setv');
+        #g-scroll|trigger('focus');
+        #g-path|trigger('toggle');
+        -|trigger('cancel');
+        #tools-undo|trigger('state');
+        #tools-redo|trigger('state');
         |data('all pls');
-        #g-keytip|text">
-
-    <aside id="outline" class="___Panel" data-pbo="">
+        |add('basic')|goto('pcheck');
+        -">
+    <!-- medok 内容区章节标题微编辑更新跟随。
+               注：不支持Undo/Redo变化跟随，用户需手动刷新。-->
+    <aside id="outline" class="___Panel" data-pbo=""
+        on="medok|ev('detail') dup paths('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
+        to="-|text">
+        <!-- click 构造章节选择器，定位显示到视口（非id定位） -->
+        <nav role="toc"
+            on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
+            <h3>大纲视图 <b title="刷新"
+                on="click|$('#content article')"
+                by="Kit.toclist"
+                to="nav/ol|fill">↻</b>
+            </h3>
+            <!-- click 单击子表标题（非<a>）折叠切换 -->
+            <ol role="cascade" on="click(~h4)|evo(2) parent fold(2)"></ol>
+        </nav>
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
-
-    <hr id="lineLeft"
-        on="mousedown"
+    <hr id="lineLeft" data-pbo=""
+        on="mousedown|avoid"
         to="body|bind('mousemove:1') once('mouseup')" />
-
-    <!-- 主编辑器 -->
-    <div id="editor">
+    <!--杂项功能：
+        适用主区激活范围。 -->
+    <div id="editor"
+        on="main.chapter|$('#g-count') val split('.');
+            main.saving|$('/main') clone;
+            main.export"
+        by="Kit.chapter;
+            Kit.save"
+        to="#g-count|trigger('reset');
+            #status-info|trigger('info')">
+        <!--模态框
+            open    打开模态框，插入目标表单。向表单发送一个state事件，用于可能需要的初始设置。
+                    可接收一个二元数组，前一个值会被用于激发state事件递送的数据。
+            _focus  聚焦首个文本输入控件（延迟激发待内部子模版就绪）。注记：非原生focus避免聚焦锁死鼠标划选。
+            cancel  取消/隐藏模态框，聚焦回归主区（零延迟便于微编辑时聚焦覆盖）。
+            _escin  向ESC添加当前条目。 -->
         <div id="g-modal" class="___Panel Modal" tabindex="0" data-pbo="lost"
             on="click(~._close);
-                open|evo(3) lose(0) stop;
-                close|evo(3) lose stop"
-            to="|trigger('close')">
+                open|evo(3) lose(0) ev('detail') spread;
+                cancel|evo(3) lose ('modal', ESC) pop;
+                _escin|evo(3) (ESC) pop;
+                _focus|$('/form') pop $('/[type=text], textarea, [type=url], [type=search]') dup pass focus;
+                keydown|(DHK) acmsk ev('key') hotKey(_2) pop stop"
+            to="|trigger('cancel');
+                /form|replace trigger('state')|goto('_escin');
+                -|apply('delete')|fire('#g-scroll', 'focus', 0);
+                -|add('modal')|fire(3, '_focus')">
             <form><!-- 占位 --></form>
         </div>
         <pre tpl-source="~ main:tools, main:content, main:slave, main:status">
             [工具栏]
             [内容区]
-            [功能面板]
+            [功能区]
             [状态栏]
         </pre>
     </div>
-
-    <hr id="lineRight"
-        on="mousedown"
+    <hr id="lineRight" data-pbo="lost"
+        on="mousedown|avoid"
         to="body|bind('mousemove:2') once('mouseup')" />
-
-    <!-- 帮助栏 -->
-    <aside id="help" class="___Panel _docs" data-pbo="">
-        <span class="_walk">
+    <aside id="help" class="___Panel _docs" data-pbo="lost"
+        on="index|ev('detail') debug('hai')">
+        <div class="_walk">
             <b title="上一项">◀</b>
             <b title="目录" class="_top">▤</b>
             <b title="下一项" data-pbo="disabled">▶</b>
+            <!-- ⚘ -->
             <b title="关于..." class="_about">⚘</b>
-        </span>
-        <hr>
+        </div>
         <div id="help-xbox" class="_xbox">
             <!-- dl/dt,dd -->
         </div>
     </aside>
-
-    <!-- 友好：阻挡提示音 -->
+    <!-- 播放 -->
     <audio id="beeptip" src="themes/beep.ogg"></audio>
-
 </body>
 </html>

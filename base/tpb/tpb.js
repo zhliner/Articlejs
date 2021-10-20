@@ -35,13 +35,9 @@ import { To } from "./pbs.to.js";
 
 import $, { DEBUG, XLoader, TplPool, Web, Templates, tplInit, DataStore } from "./config.js";
 import { storeChain, hostSet, namedExtend, deepExtend, funcSets } from "./base.js";
-
 import { App } from "./app.js";
 import { Builder } from "./core.js";
 
-// 无模板支持。
-// import { Templater } from "./tools/templater.x.js";
-// 模板功能支持。
 import { Templater } from "./tools/templater.js";
 
 

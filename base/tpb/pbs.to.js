@@ -18,11 +18,9 @@
 import $, { DataStore, ChainStore } from "./config.js";
 import { bindMethod, storeChain } from "./base.js";
 import { Get } from "./pbs.get.js";
-import { Util } from "./tools/util.js";
 
-// 无渲染占位。
-// import { Render } from "./tools/render.x.js";
 import { Render } from "./tools/render.js";
+import { Util } from "./tools/util.js";
 
 
 const

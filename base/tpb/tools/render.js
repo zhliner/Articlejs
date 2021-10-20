@@ -26,13 +26,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { HasRender } from "../config.js";
 import { Filter } from "./filter.js";
 import { Spliter, UmpString, UmpCaller } from "./spliter.js";
 import { Util } from "./util.js";
 
 
 const
+    $ = (this || window).$,
+
+    // 渲染标识特性。
+    // 标记存在渲染定义的元素，用于高效检索（如配置克隆）。
+    // 这一特性名会保留在DOM元素上。
+    HasRender = '_',
+
     // 元素文法存储。
     // 包含原始模板中和页面中采用渲染处理的元素。
     // Map {

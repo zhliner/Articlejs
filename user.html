@@ -3,14 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="no-cache">
-    <title>编辑器用户测试页</title>
-    <script src="main.js"></script>
+    <title>编辑器用户页（上层）</title>
+    <script src="top.js"></script>
     <style>
         main {
             margin: 40px auto;
-        }
-        #content {
-            display: none;
         }
         #editorBox {
         }
@@ -31,7 +28,7 @@
     <main>
         <h2>编辑器使用测试</h2>
         <form action="">
-            <textarea name="content" id="content"><!-- 隐藏 --></textarea>
+            <textarea name="content" id="content" style="display: none;"><!-- 隐藏 --></textarea>
             <div id="editorBox">
                 <iframe src="templates/editor.html" scrolling="no"></iframe>
             </div>

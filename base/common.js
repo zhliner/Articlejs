@@ -13,9 +13,9 @@
 //
 
 import $ from "./tpb/config.js";
-import { Render } from "./tpb/tools/render.js";
 import { beforeFixed, afterFixed } from "./base.js";
 import { Scripter } from "../config.js";
+import { Render } from "./tpb/tools/render.js";
 
 const
     // ID标识字符限定

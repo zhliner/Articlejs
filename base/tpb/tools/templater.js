@@ -2,7 +2,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++
 //  Project: Tpb v0.4.0
 //  E-Mail:  zhliner@gmail.com
-//  Copyright (c) 2019 - 2020 铁皮工作室  MIT License
+//  Copyright (c) 2021 铁皮工作室  MIT License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -21,16 +21,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { OBTA, XLoader } from "../config.js";
-
-// 无渲染支持。
-// import { Render } from "./render.x.js";
-// 有渲染支持。
-import { Render } from "./render.js";
+import { OBTA, XLoader } from "../config.js";
 import { TplLoader } from "./tloader.js";
+import { Render } from "./render.js";
 
 
 const
+    $ = (this || window).$,
+
     // 子模板分隔符
     // 注：tpl-node/source可定义多个子模板引用。
     __loadSplit = ',',

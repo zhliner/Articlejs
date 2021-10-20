@@ -53,12 +53,7 @@ const
         by:     'by',
         to:     'to',
         src:    'obt-src',
-    },
-
-    // 渲染标识属性。
-    // 用于高效检索渲染元素（如配置克隆）。
-    // 注：这一属性名会保留在DOM元素上。
-    HasRender   = '_';
+    };
 
 
 
@@ -130,7 +125,6 @@ const tplInit = tplr => Templates = tplr;
 export {
     DEBUG,
     Web,
-    HasRender,
     OBTA,
     EXTENT,
     ACCESS,

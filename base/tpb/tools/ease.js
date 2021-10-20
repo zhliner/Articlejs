@@ -314,5 +314,4 @@ const Easings = {
             return this.Out(t * 2 - d, d) * 0.5 + 0.5;
         }
     },
-
 };

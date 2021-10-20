@@ -33,8 +33,6 @@ import $, { Web } from "./config.js";
 import { bindMethod } from "./base.js";
 import { Get } from "./pbs.get.js";
 
-// 无渲染占位。
-// import { Render } from "./tools/render.x.js";
 import { Render } from "./tools/render.js";
 
 

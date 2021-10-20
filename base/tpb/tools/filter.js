@@ -17,8 +17,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $ from "../config.js";
 import { format } from "./date.js";
+
+const $ = (this || window).$;
 
 
 //

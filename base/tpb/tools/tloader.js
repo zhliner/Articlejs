@@ -29,7 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { DEBUG } from "../config.js";
+const $ = (this || window).$;
 
 
 export class Loader {
@@ -162,12 +162,10 @@ export class Loader {
         let _pro = this._pool.get(url.href);
 
         if ( !_pro ) {
-            if ( DEBUG ) {
-                window.console.log( `loading for "${url}"` );
-            }
             _pro = this._fetch( url, type, node );
-
             this._pool.set( url.href, _pro );
+            //:debug
+            window.console.log(`loading for "${url}"`);
         }
         return _pro;
     }
