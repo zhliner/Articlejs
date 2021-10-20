@@ -1,5 +1,5 @@
-//! $ID: history.js 2020.06.18 tQuery.Plugins $
-//+++++++++++++++++++++++++++++++++++++++++++++++
+;//! $ID: history.js 2021.10.20 tQuery.Plugins $
+//++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: dom-history v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2020 - 2021 铁皮工作室  MIT License
@@ -37,31 +37,32 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+const $ = (this || window).$;
 
-(function( $ ) {
-    //
-    // 变化处理器映射。
-    // event-type: function(event): {.back}
-    //
-    const __Handles = {
-        // 简单变化。
-        attrdone:   ev => switchType( ev.target, ev.detail, Attr ),
-        propdone:   ev => switchType( ev.target, ev.detail, Prop ),
-        styledone:  ev => new Style( ev.target, ev.detail ),
-        classdone:  ev => new Class( ev.target, ev.detail[2] ),
 
-        // 节点变化。
-        nodesdone:  ev => new Nodesdone( ev.detail[0] ),
-        nodeok:     ev => new Nodesdone( [ev.target] ),  // 冗余无害（方便用户）
-        detach:     ev => new Remove( ev.target ),
-        emptied:    ev => new Emptied( ev.target, ev.detail ),
-        // 事前提取信息。
-        normalize:  ev => new Normalize( ev.target ),
+//
+// 变化处理器映射。
+// event-type: function(event): {.back}
+//
+const __Handles = {
+    // 简单变化。
+    attrdone:   ev => switchType( ev.target, ev.detail, Attr ),
+    propdone:   ev => switchType( ev.target, ev.detail, Prop ),
+    styledone:  ev => new Style( ev.target, ev.detail ),
+    classdone:  ev => new Class( ev.target, ev.detail[2] ),
 
-        // 事件绑定变化。
-        bound:      ev => new Bound( ev.target, ...ev.detail ),
-        unbound:    ev => new Unbound( ev.target, ...ev.detail ),
-    };
+    // 节点变化。
+    nodesdone:  ev => new Nodesdone( ev.detail[0] ),
+    nodeok:     ev => new Nodesdone( [ev.target] ),  // 冗余无害（方便用户）
+    detach:     ev => new Remove( ev.target ),
+    emptied:    ev => new Emptied( ev.target, ev.detail ),
+    // 事前提取信息。
+    normalize:  ev => new Normalize( ev.target ),
+
+    // 事件绑定变化。
+    bound:      ev => new Bound( ev.target, ...ev.detail ),
+    unbound:    ev => new Unbound( ev.target, ...ev.detail ),
+};
 
 
 
@@ -652,14 +653,8 @@ function callBack( handle ) {
 }
 
 
-
-// Expose
-///////////////////////////////////////////////////////////////////////////////
-
-$.Fx.History = History;
-
 // 友好导出备用。
-$.Fx.History.Normalize = Normalize;
+History.Normalize = Normalize;
 
 
-})( window.$ );
+export default History;
