@@ -16,27 +16,29 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+const
+    $ = window.$,
 
-//
-// 根元素集：{
-//      outline,    大纲元素根（<aside>）
-//      editor,     编辑器容器根（<div>）
-//      content,    编辑器内容根（<main>）
-//      help,       帮助面板根（<aside>）
-//      beeptip,    提示音元素（<audio>）
-// }
-//
-let __ROOTS = null;
+    // 各主要区域根元素集
+    ROOTS = {};
 
 
 const Api = {
     /**
      * 初始数据设置。
-     * @param  {Object} roots 根元素集
-     * @return {this}
+     * @param  {String} outline 大纲元素根（<aside>）选择器
+     * @param  {String} editor 编辑器容器根（<div>）选择器
+     * @param  {String} content 编辑器内容根（<main>）选择器
+     * @param  {String} help 帮助面板根（<aside>）选择器
+     * @param  {String} beeptip 提示音元素（<audio>）选择器
+     * @return {void}
      */
-    init( roots ) {
-        __ROOTS = roots;
+    init( outline, editor, content, help, beeptip ) {
+        ROOTS.outline = $.get( outline );
+        ROOTS.editor  = $.get( editor );
+        ROOTS.content = $.get( content );
+        ROOTS.help    = $.get( help );
+        ROOTS.beeptip = $.get( beeptip );
     },
 
 

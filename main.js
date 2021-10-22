@@ -21,6 +21,7 @@ import { HotKey, ObjKey } from './base/tpb/tools/hotkey.js';
 import { Edit, init, Kit } from "./base/edit.js";
 import { ESCStack } from "./base/common.js";
 import { Sys, On, By } from "./config.js";
+import Api from "./base/api.js";
 
 window.GHK = new HotKey().config( cfg.Global );
 window.SHK = new HotKey().config( cfg.Slave );
@@ -33,6 +34,7 @@ window.Sys = Sys;
 window.Kit = Kit;
 window.KM = cfg.Keys;
 window.edInit = init;
+window.Api = Api;
 
 // 取消实例栈。
 window.ESC = new ESCStack();
@@ -43,7 +45,10 @@ $.config({
     // bindevent: true
 });
 Tpb.Init( On, By );
-Tpb.build( document, Web.tplmap ).then( () => $.trigger(document.body, 'finish') );
+
+Tpb.build( document, Web.tplmap )
+    .then( () => Api.init('#outline', '#editor', '#content', '#help', '#beeptip') )
+    .then( () => $.trigger(document.body, 'finish') );
 
 
 if ( DEBUG ) {

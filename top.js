@@ -15,14 +15,16 @@
 //      ecitor.init().then( ... );
 //
 //      // 将编辑器插入box容器。
+//      // 这是一种兼容性比较好的做法，当然也可以直接使用<iframe>作为外框架，
+//      // 此时通常应该设置宽高样式以覆盖默认的100%。
 //      box.append( editor.frame() );
 //
 //  option {
 //      name: String            编辑器实例命名（关联本地存储）
 //      theme: String           默认主题，可选
 //      style: String           默认样式，可选
-//      width: Number|String    宽度（可含单位），可选，默认900px
-//      height: Number|String   高度（可含单位），可选，默认700px
+//      width: Number|String    宽度（数值时表示像素），可选，默认100%
+//      height: Number|String   高度（数值时表示像素），可选，默认100%
 //      updatetime: Number      上次更新时间，仅修改时存在。可选
 //      recover: Boolean        需要本地内容恢复（localStorage），可选
 //
@@ -46,12 +48,15 @@
 //      .style( name:String, isurl:Boolean ): String    获取/设置内容样式
 //
 //
-//  兼容性:
-//  - Firefox 不支持<iframe>元素的resize，因此无法直接拖动框架来改变编辑器大小。
-//  - Chrome 的<iframe>会遮盖住上级包装元素的resize拖拽脚（右下角）。
-//  解决：
-//  - Chrome 对<iframe>设置允许resize操作。
-//  - Firefox 设置包装元素（<div>）允许resize，同时传递编辑器的宽/高度为"100%"。
+//  [兼容性]
+//
+//  - Firefox
+//  不支持<iframe>元素的resize，因此无法直接拖动框架来改变编辑器大小。
+//  解决：将<iframe>嵌入一个可resize的<div>或<span>元素。
+//
+//  - Chrome
+//  元素<iframe>可以直接resize，但旧版本会遮盖住上级包装元素的resize拖拽角。
+//  解决：如果要同时兼顾Firefox，可以将上级容器padding一个距离，以便操作。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,10 +78,8 @@ const coolj = {};
     // - Edge/IE 无效。
     //
     const __frameStyles = {
-            width:      '900px',
-            height:     '700px',
-            // 可调大小
-            resize:     'both',
+            width:      '100%',
+            height:     '100%',
             overflow:   'hidden',
             // 预防性设置
             border:     'none',
@@ -117,7 +120,7 @@ class Editor {
     /**
      * 创建编辑器。
      * @param {Object} option 配置集
-     * @param {String} root 编辑器根目录
+     * @param {String} root 编辑器根目录路径
      */
     constructor( option, root ) {
         let _ifrm = editorFrame( option.width, option.height );
@@ -336,9 +339,12 @@ function editorFrame( width, height ) {
     for ( let [k, v] of Object.entries(__frameStyles) ) {
         _frm.style[k] = v;
     }
-    if ( width ) _frm.style.width = sizeValue(width);
-    if ( height ) _frm.style.height = sizeValue(height);
-
+    if ( width !== undefined ) {
+        _frm.style.width = sizeValue( width );
+    }
+    if ( height !== undefined ) {
+        _frm.style.height = sizeValue( height );
+    }
     return _frm;
 }
 

@@ -12,48 +12,48 @@
 -->
 <html on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="no-cache">
-    <title>编辑器主页</title>
-    <link rel="shortcut icon" href="favicon.ico">
-    <link rel="stylesheet" href="base/tpb/default.css">
-    <link id="s-main" rel="stylesheet" href="styles/example/main.css">
-    <link id="s-codes" rel="stylesheet" href="styles/example/codes.css">
-    <link id="s-theme" rel="stylesheet" href="themes/Dark-less/style.css">
-    <script src="base/tquery/tquery.min.js"></script>
-    <script src="base/tquery/plugins/history.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-        }
-        body > * {
-            flex-shrink: 0;
-        }
-        div#editor {
-            flex: 1 1 auto;
-        }
-    </style>
-    <script>
-        window.Config = frameElement.Config;
-        // name     编辑器实例名（存储键）
-        // theme    默认主题
-        // style    默认内容样式
-        // update   上次更新时间
-        // recover  是否恢复内容
-        // ready    就绪回调
-        // maximize 最大化请求
-        // save     内容本地存储通知
-        // append   内容添加通知
-        // earse    内容条目删除通知
-        // 自适应。
-        window.onresize = function() {
-            document.body.style.height = `${window.innerHeight}px`;
-        }
-        $.ready( () => $.trigger(window, 'resize') );
-    </script>
-    <!-- 入口文件 -->
-    <script type="module" src="main.js"></script>
+<meta charset="utf-8" />
+<meta http-equiv="no-cache">
+<title>编辑器主页</title>
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="stylesheet" href="base/tpb/default.css">
+<link id="s-main" rel="stylesheet" href="styles/example/main.css">
+<link id="s-codes" rel="stylesheet" href="styles/example/codes.css">
+<link id="s-theme" rel="stylesheet" href="themes/Dark-less/style.css">
+<script src="base/tquery/tquery.min.js"></script>
+<script src="base/tquery/plugins/history.min.js"></script>
+<style>
+    body {
+        margin: 0;
+        display: flex;
+    }
+    body > * {
+        flex-shrink: 0;
+    }
+    div#editor {
+        flex: 1 1 auto;
+    }
+</style>
+<script>
+    window.Config = frameElement.Config;
+    // name     编辑器实例名（存储键）
+    // theme    默认主题
+    // style    默认内容样式
+    // update   上次更新时间
+    // recover  是否恢复内容
+    // ready    就绪回调
+    // maximize 最大化请求
+    // save     内容本地存储通知
+    // append   内容添加通知
+    // earse    内容条目删除通知
+    // 自适应。
+    window.onresize = function() {
+        document.body.style.height = `${window.innerHeight}px`;
+    }
+    $.ready( () => $.trigger(window, 'resize') );
+</script>
+<!-- 入口文件 -->
+<script type="module" src="main.js"></script>
 </head>
 <!--基本行为:
     - 左右面板大小改变。

@@ -12,43 +12,43 @@
 -->
 <html on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="no-cache">
-    <title>编辑器主体页测试</title>
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="base/tpb/default.css">
-    <link id="s-main" rel="stylesheet" href="styles/example/main.css">
-    <link id="s-codes" rel="stylesheet" href="styles/example/codes.css">
-    <link id="s-theme" rel="stylesheet" href="themes/Dark-less/style.css">
-    <script src="base/tquery/tquery.min.js"></script>
-    <script src="base/tquery/plugins/history.min.js"></script>
-    <style>
-        body {
-            margin: 100px 40px;
-            display: flex;
-        }
-        body > * {
-            flex-shrink: 0;
-        }
-        aside#outline {
-            width: 200px;
-        }
-        /* 侧面板宽度调整 */
-        aside#help {
-            width: 260px;
-        }
-    </style>
-    <script>
-        // 窗口大小自适应。
-        window.onresize = function () {
-            document.body.style.height = `${window.innerHeight*8/10}px`;
-        };
-        $.ready( () => $.trigger(window, 'resize') );
+<meta charset="utf-8" />
+<meta http-equiv="no-cache">
+<title>编辑器主体页测试</title>
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="stylesheet" href="base/tpb/default.css">
+<link id="s-main" rel="stylesheet" href="styles/example/main.css">
+<link id="s-codes" rel="stylesheet" href="styles/example/codes.css">
+<link id="s-theme" rel="stylesheet" href="themes/Dark-less/style.css">
+<script src="base/tquery/tquery.min.js"></script>
+<script src="base/tquery/plugins/history.min.js"></script>
+<style>
+    body {
+        margin: 100px 40px;
+        display: flex;
+    }
+    body > * {
+        flex-shrink: 0;
+    }
+    aside#outline {
+        width: 200px;
+    }
+    /* 侧面板宽度调整 */
+    aside#help {
+        width: 260px;
+    }
+</style>
+<script>
+    // 窗口大小自适应。
+    window.onresize = function () {
+        document.body.style.height = `${window.innerHeight*8/10}px`;
+    };
+    $.ready( () => $.trigger(window, 'resize') );
 
-        window.Config = {};
-    </script>
-    <!-- 入口文件 -->
-    <script type="module" src="main.js"></script>
+    window.Config = {};
+</script>
+<!-- 入口文件 -->
+<script type="module" src="main.js"></script>
 </head>
 <!--基本行为:
     - 左右面板大小改变。

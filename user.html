@@ -1,37 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="no-cache">
-    <title>编辑器用户页（上层）</title>
-    <script src="top.js"></script>
-    <style>
-        main {
-            margin: 40px auto;
-        }
-        #editorBox {
-        }
-        #editorBox > iframe {
-            width: 1000px;
-            height: 700px;
-            resize: both;
-            overflow: hidden;
-            border: none;
-            box-sizing: border-box;
-        }
-    </style>
-    <script>
-        // 创建编辑器并使用。
-    </script>
+<meta charset="utf-8" />
+<meta http-equiv="no-cache">
+<title>编辑器用户页（上层）</title>
+<link rel="stylesheet" href="user.css">
+<script src="top.js"></script>
+<script>
+    // 创建编辑器并使用。
+</script>
 </head>
 <body>
     <main>
         <h2>编辑器使用测试</h2>
         <form action="">
-            <textarea name="content" id="content" style="display: none;"><!-- 隐藏 --></textarea>
-            <div id="editorBox">
-                <iframe src="templates/editor.html" scrolling="no"></iframe>
-            </div>
+            <textarea name="content" style="display: none;"></textarea>
+            <span id="editorBox"><iframe src="blank.html" frameborder="0"></iframe></span>
         </form>
     </main>
 </body>
