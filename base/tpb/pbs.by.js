@@ -14,9 +14,10 @@
 //  用户的扩展存在于By的顶层（By对象自身），但也可以扩展到任意子域上。
 //
 //  用户扩展：
-//      import { processExtend } from "./pbs.by.js";
-//      processExtend( 'Name', extobj );
-//      processExtend( 'Name.Sub', extobj );  // 扩展到 Sub 子域
+//      import { processExtend } from "./tpb/tpb.js";
+//      // import By, then
+//      processExtend( By, 'Name', extobj );
+//      processExtend( By, 'Name.Sub', extobj );  // 扩展到 Sub 子域
 //
 //  App创建：
 //      import { cmvApp } from "./pbs.by.js";

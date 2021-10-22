@@ -16,11 +16,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-const
-    $ = window.$,
+import $ from "./tpb/config.js";
+import { Setup } from "../config.js";
 
-    // 各主要区域根元素集
-    ROOTS = {};
+
+// 各主要区域根元素集
+const ROOTS = {};
 
 
 const Api = {
@@ -77,17 +78,26 @@ const Api = {
 
 
     theme( name, isurl ) {
-        //
+        if ( name === undefined ) {
+            //
+        }
+        // isurl ? name : `${this._path}/${Setup.themes}/${name}/${Setup.themeFile}`
     },
 
 
     style( name, isurl ) {
-        //
+        if ( name === undefined ) {
+            //
+        }
+        // isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleFile}`
     },
 
 
     codes( name, isurl ) {
-        //
+        if ( name === undefined ) {
+            //
+        }
+        // isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleCode}`
     },
 
 };

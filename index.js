@@ -8,6 +8,7 @@
 //
 //  用法：
 //      // 创建一个编辑器实例。
+//      import coolj from './index.js';
 //      let editor = coolj.create( option, root );
 //
 //      // 编辑器初始化，
@@ -61,8 +62,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-
-import { Setup } from "./config.js";
 
 
 //
@@ -235,10 +234,7 @@ class Editor {
         if ( name === undefined ) {
             return this._value( 'theme' );
         }
-        return this._value(
-            'theme',
-            isurl ? name : `${this._path}/${Setup.themes}/${name}/${Setup.themeFile}`
-        );
+        return this._value( 'theme', name, isurl );
     }
 
 
@@ -252,10 +248,7 @@ class Editor {
         if ( name === undefined ) {
             return this._value( 'style' );
         }
-        return this._value(
-            'style',
-            isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleFile}`
-        );
+        return this._value( 'style', name, isurl );
     }
 
 
@@ -269,10 +262,7 @@ class Editor {
         if ( name === undefined ) {
             return this._value( 'codes' );
         }
-        return this._value(
-            'codes',
-            isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleCode}`
-        );
+        return this._value( 'codes', name, isurl );
     }
 
 
@@ -305,16 +295,16 @@ class Editor {
      *      .codes()      设置/获取内容代码风格
      * }
      * @param  {String} name 取值名
-     * @param  {String} html 待设置源码
+     * @param  {...Value} rest 待设置实参序列
      * @return {String|this}
      */
-    _value( name, html ) {
+    _value( name, ...rest ) {
         let _fn = this._ifrm.contentWindow.Api[name];
 
-        if ( html === undefined ) {
+        if ( rest.length === 0 ) {
             return _fn();
         }
-        return ( _fn(html), this );
+        return ( _fn(...rest), this );
     }
 
 }
