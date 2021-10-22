@@ -121,6 +121,7 @@ class Editor {
 
     /**
      * 编辑器初始化。
+     * 可传入自定义的根模板文件，相对于编辑器根。
      * @param  {String} file 编辑器根模板文件，可选
      * @return {Promise<void>}
      */
