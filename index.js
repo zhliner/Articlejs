@@ -1,5 +1,5 @@
-//! $ID: top.js 2019.11.16 Articlejs.User $
-// ++++++++++++++++++++++++++++++++++++++++++
+//! $ID: index.js 2019.11.16 Articlejs.User $
+// ++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Articlejs v0.1.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  MIT License
@@ -21,8 +21,8 @@
 //
 //  option {
 //      name: String            编辑器实例命名（关联本地存储）
-//      theme: String           默认主题，可选
-//      style: String           默认样式，可选
+//      theme: String           默认主题名称，可选
+//      style: String           默认内容样式名称，可选
 //      width: Number|String    宽度（数值时表示像素），可选，默认100%
 //      height: Number|String   高度（数值时表示像素），可选，默认100%
 //      updatetime: Number      上次更新时间，仅修改时存在。可选
@@ -62,54 +62,32 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Setup } from "./config.js";
+
+
 //
-// 名称空间。
-// 可更改，注意与末端导入名称匹配。
+// 编辑器框架样式默认值。
+// resize：
+// - chrome 正常。
+// - firefox 需通过容器resize实现。
+// - Edge/IE 无效。
 //
-const coolj = {};
+const
+    __frameStyles = {
+        width:      '100%',
+        height:     '100%',
+        overflow:   'hidden',
+        // 预防性设置
+        border:     'none',
+        boxSizing:  'border-box',
+    },
 
+    // 编辑器默认名。
+    __saveName  = 'coolj',
 
-(function( Ed ) {
-    //
-    // 编辑器框架样式默认值。
-    // resize：
-    // - chrome 正常。
-    // - firefox 需通过容器resize实现。
-    // - Edge/IE 无效。
-    //
-    const __frameStyles = {
-            width:      '100%',
-            height:     '100%',
-            overflow:   'hidden',
-            // 预防性设置
-            border:     'none',
-            boxSizing:  'border-box',
-        };
+    // 编辑器根文件（模板）
+    __tplRoot   = 'templates/editor.html';
 
-
-    const
-        // 默认主题配置
-        themeDir    = 'themes',
-        themeFile   = 'style.css',
-
-        // 默认内容配置
-        styleDir    = 'styles',
-        styleFile   = 'main.css',
-
-        // 编辑器根文件（模板）
-        __tplRoot   = 'templates/editor.html';
-
-
-
-/**
- * 编辑器创建。
- * 非常规的提交可能不需要<textarea>容器。
- * basefile相对于编辑器根目录。
- * @param  {Object} option 配置集
- * @param  {String} path 编辑器所在目录路径（相对于Web根）
- * @return {Editor} 编辑器实例
- */
-Ed.create = (option, path) => new Editor( option, path );
 
 
 //
@@ -126,13 +104,13 @@ class Editor {
         let _ifrm = editorFrame( option.width, option.height );
 
         _ifrm.Config = {
-            name:       option.name,
+            name:       option.name || __saveName,
             theme:      option.theme,
             style:      option.style,
             updatetime: option.updatetime,
             recover:    option.recover,
-            save:       option.onsaved,
-            maximize:   option.onmaximize,
+            save:       option.onsaved || empty,
+            maximize:   option.onmaximize || empty,
         };
         this._path = root;
         this._ifrm = _ifrm;
@@ -259,7 +237,7 @@ class Editor {
         }
         return this._value(
             'theme',
-            isurl ? name : `${this._path}/${themeDir}/${name}/${themeFile}`
+            isurl ? name : `${this._path}/${Setup.themes}/${name}/${Setup.themeFile}`
         );
     }
 
@@ -276,7 +254,24 @@ class Editor {
         }
         return this._value(
             'style',
-            isurl ? name : `${this._path}/${styleDir}/${name}/${styleFile}`
+            isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleFile}`
+        );
+    }
+
+
+    /**
+     * 获取/设置内容代码样式。
+     * @param  {String} name 主样式文件
+     * @param  {Boolean} isurl 自定义URL
+     * @return {String|this}
+     */
+    codes( name, isurl ) {
+        if ( name === undefined ) {
+            return this._value( 'codes' );
+        }
+        return this._value(
+            'codes',
+            isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleCode}`
         );
     }
 
@@ -307,6 +302,7 @@ class Editor {
      *      .reference()  设置/获取参考文献
      *      .theme()      设置/获取编辑器主题
      *      .style()      设置/获取内容风格
+     *      .codes()      设置/获取内容代码风格
      * }
      * @param  {String} name 取值名
      * @param  {String} html 待设置源码
@@ -359,4 +355,22 @@ function sizeValue( val ) {
     return isNaN( val - parseFloat(val) ) ? val : `${val}px`;
 }
 
-})( coolj );
+
+// 空操作占位
+function empty() {}
+
+
+/**
+ * 编辑器创建。
+ * 非常规的提交可能不需要<textarea>容器。
+ * @param  {Object} option 配置集
+ * @param  {String} path 编辑器所在目录路径（相对于Web根）
+ * @return {Editor} 编辑器实例
+ */
+const create = (option, path) => new Editor( option, path );
+
+
+// 导出
+//////////////////////////////////////////////////////////////////////////////
+
+export default { create }

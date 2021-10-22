@@ -14,14 +14,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { Web, Templates, DEBUG } from "./base/tpb/config.js";
-import { Tpb } from "./base/tpb/tpb.js";
-import cfg from "./base/shortcuts.js";
-import { HotKey, ObjKey } from './base/tpb/tools/hotkey.js';
-import { Edit, init, Kit } from "./base/edit.js";
-import { ESCStack } from "./base/common.js";
-import { Sys, On, By } from "./config.js";
-import Api from "./base/api.js";
+import $, { Web, Templates, DEBUG } from "./tpb/config.js";
+import { Tpb } from "./tpb/tpb.js";
+import cfg from "./shortcuts.js";
+import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
+import { Edit, init, Kit } from "./edit.js";
+import { ESCStack } from "./common.js";
+import { Sys, On, By } from "../config.js";
+import Api from "./api.js";
 
 window.GHK = new HotKey().config( cfg.Global );
 window.SHK = new HotKey().config( cfg.Slave );

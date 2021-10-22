@@ -70,7 +70,7 @@ function plugConf( dir, file ) {
  */
 function plugStyle( dir, conf ) {
     if ( conf.style ) {
-        return $.style( {href: `${dir}/${conf.style}`} ).then( () => conf );
+        return $.style( {href: `${Setup.root}${dir}/${conf.style}`} ).then( () => conf );
     }
     return conf;
 }

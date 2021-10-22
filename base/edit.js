@@ -168,7 +168,7 @@ const
     __TQHistory = new $.Fx.History(),
 
     // 编辑器关联存储。
-    __EDStore = new CStorage( Sys.prefixEditor ),
+    __EDStore = new CStorage( `${Sys.nameEditor}_` ),
 
     // OBT分组切分器。
     // 排除调用式和字符串内的分号。

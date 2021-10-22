@@ -85,6 +85,11 @@ const Api = {
         //
     },
 
+
+    codes( name, isurl ) {
+        //
+    },
+
 };
 
 

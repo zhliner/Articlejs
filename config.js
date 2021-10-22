@@ -25,9 +25,15 @@ const
 
         // 内容样式目录
         styles: 'styles',
+        // 内容样式文件名
+        styleFile: 'main.css',
+        // 代码样式文件名
+        styleCode: 'codes.css',
 
         // 编辑器主题目录
         themes: 'themes',
+        // 主题样式文件名
+        themeFile: 'style.css',
 
         // 上载根目录
         upload: 'upload/data',
@@ -251,7 +257,8 @@ const Sys = {
     levelName2: 'children', // 向内
 
 
-    // 本地存储键/前缀
+    // 本地存储键
+    // 会被自动附加编辑器名称前缀。
     //-------------------------------------------
 
     // 内容主体
@@ -263,11 +270,35 @@ const Sys = {
     // 内容样式
     storeStyle: 'Style',
 
-    // 编辑器存储（前缀）
-    prefixEditor: '__coolj',
-
     // 脚本历史（前缀）
-    prefixScript: '__cjsh_',
+    scriptList: 'Script_',
+
+
+    // 实例配置覆盖
+    //-------------------------------------------
+
+    // 编辑器名称
+    // 会作为本地存储的键前缀。
+    nameEditor: '_',
+
+    // 最大化回调
+    maximizeCall: null,
+
+    // 保存回调
+    // 一般是在用户按[s]键时触发。
+    saveCall:   null,
+
+    // 载入就绪回调
+    readyCall:  null,
+
+    // 出错通知回调
+    failCall:   null,
+
+    // 内容上次更新时间
+    updateTime: null,
+
+    // 是否恢复内容
+    toRecover:  null,
 
 };
 

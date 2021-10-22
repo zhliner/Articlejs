@@ -24,8 +24,9 @@
 <script src="base/tquery/plugins/history.min.js"></script>
 <style>
     body {
-        margin: 0;
         display: flex;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     body > * {
         flex-shrink: 0;
@@ -34,26 +35,37 @@
         flex: 1 1 auto;
     }
 </style>
+<!-- 样式即时更新 -->
 <script>
-    window.Config = frameElement.Config;
-    // name     编辑器实例名（存储键）
-    // theme    默认主题
-    // style    默认内容样式
-    // update   上次更新时间
-    // recover  是否恢复内容
-    // ready    就绪回调
-    // maximize 最大化请求
-    // save     内容本地存储通知
-    // append   内容添加通知
-    // earse    内容条目删除通知
+    let {theme, style} = frameElement.Config;
+
+    if ( theme ) {
+        $.get('#s-theme').href = ``;
+    }
+    if ( style ) {
+        $.get('#s-main').href = ``;
+        $.get('#s-codes').href = ``;
+    }
     // 自适应。
     window.onresize = function() {
         document.body.style.height = `${window.innerHeight}px`;
     }
     $.ready( () => $.trigger(window, 'resize') );
 </script>
+<script type="module">
+    import { Sys } from "../config.js";
+    let _conf = frameElement.Config;
+    // 当前环境配置覆盖。
+    Sys.nameEditor = _conf.name;
+    Sys.toRecover  = _conf.recover;
+    Sys.updateTime = _conf.updatetime;
+    Sys.readyCall  = _conf.ready;
+    Sys.failCall   = _conf.fail;
+    Sys.saveCall   = _conf.save;
+    Sys.maximizeCall = _conf.maximize;
+</script>
 <!-- 入口文件 -->
-<script type="module" src="main.js"></script>
+<script type="module" src="base/main.js"></script>
 </head>
 <!--基本行为:
     - 左右面板大小改变。

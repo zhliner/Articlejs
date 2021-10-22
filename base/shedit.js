@@ -30,7 +30,7 @@ const
     __TQHistory = new $.Fx.History(),
 
     // 脚本历史存储器。
-    __Store = new CStorage( Sys.prefixScript ),
+    __Store = new CStorage( `${Sys.nameEditor}_${Sys.scriptList}` ),
 
     // 脚本历史编辑器。
     __History = new History( Limit.shEdits, __TQHistory ),
