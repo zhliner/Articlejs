@@ -23,7 +23,8 @@
 //  option {
 //      name: String            编辑器实例命名（关联本地存储）
 //      theme: String           默认主题名称，可选
-//      style: String           默认内容样式名称，可选
+//      style: String           默认内容样式名，可选
+//      codes: String           默认的代码样式名，可选
 //      width: Number|String    宽度（数值时表示像素），可选，默认100%
 //      height: Number|String   高度（数值时表示像素），可选，默认100%
 //      updatetime: Number      上次更新时间，仅修改时存在。可选
@@ -106,6 +107,7 @@ class Editor {
             name:       option.name || __saveName,
             theme:      option.theme,
             style:      option.style,
+            codes:      option.codes,
             updatetime: option.updatetime,
             recover:    option.recover,
             save:       option.onsaved || empty,
@@ -123,7 +125,7 @@ class Editor {
      * 编辑器初始化。
      * 可传入自定义的根模板文件，相对于编辑器根。
      * @param  {String} file 编辑器根模板文件，可选
-     * @return {Promise<void>}
+     * @return {Promise<Editor>}
      */
     init( file = __tplRoot ) {
         this._ifrm.setAttribute(
@@ -278,7 +280,7 @@ class Editor {
      */
     _init( resolve, reject ) {
         this._ifrm.Config.fail = reject;
-        this._ifrm.Config.ready = resolve;
+        this._ifrm.Config.ready = () => resolve( this );
     }
 
 

@@ -6,10 +6,13 @@
 <title>编辑器用户页（上层）</title>
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="styles.css">
+<script src="base/tquery/tquery.min.js"></script>
 
 <script type="module">
     import coolj from "./index.js";
-    // coolj.create({});
+    coolj.create({}, '/')
+        .init()
+        .then( ed => $.get('#editorBox').append(ed.frame()) );
 </script>
 </head>
 <body>
@@ -17,7 +20,7 @@
         <h2>==编辑器用户页==</h2>
         <form action="">
             <textarea name="content" style="display: none;"></textarea>
-            <span id="editorBox"><iframe src="_test/blank.html" frameborder="0"></iframe></span>
+            <span id="editorBox"></span>
         </form>
     </main>
 </body>

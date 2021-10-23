@@ -34,17 +34,7 @@
         flex: 1 1 auto;
     }
 </style>
-<!-- 样式即时更新 -->
 <script>
-    let {theme, style} = frameElement.Config;
-
-    if ( theme ) {
-        $.get('#s-theme').href = ``;
-    }
-    if ( style ) {
-        $.get('#s-main').href = ``;
-        $.get('#s-codes').href = ``;
-    }
     // 自适应。
     window.onresize = function() {
         document.body.style.height = `${window.innerHeight}px`;
@@ -54,6 +44,7 @@
 <script type="module">
     import { Sys } from "../config.js";
     let _conf = frameElement.Config;
+
     // 当前环境配置覆盖。
     Sys.nameEditor = _conf.name;
     Sys.toRecover  = _conf.recover;
@@ -62,6 +53,16 @@
     Sys.failCall   = _conf.fail;
     Sys.saveCall   = _conf.save;
     Sys.maximizeCall = _conf.maximize;
+
+    if ( _conf.theme ) {
+        $.get('#s-theme').href = `../themes/${_conf.theme}/style.css`;
+    }
+    if ( _conf.style ) {
+        $.get('#s-main').href = `../styles/${_conf.style}/main.css`;
+    }
+    if ( _conf.codes ) {
+        $.get('#s-codes').href = `../styles/${_conf.codes}/codes.css`;
+    }
 </script>
 <!-- 入口文件 -->
 <script type="module" src="../base/main.js"></script>

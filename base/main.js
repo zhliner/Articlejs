@@ -47,8 +47,10 @@ $.config({
 Tpb.Init( On, By );
 
 Tpb.build( document, Web.tplmap )
+    .then( () => Sys.readyCall() )
+    .then( () => $.trigger(document.body, 'finish') )
     .then( () => Api.init('#outline', '#editor', '#content', '#help', '#beeptip') )
-    .then( () => $.trigger(document.body, 'finish') );
+    .catch( e => Sys.failCall(e) );
 
 
 if ( DEBUG ) {
