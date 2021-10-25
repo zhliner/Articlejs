@@ -17,7 +17,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { Setup } from "../config.js";
+import { Local } from "../config.js";
 
 
 // 各主要区域根元素集
@@ -81,7 +81,7 @@ const Api = {
         if ( name === undefined ) {
             //
         }
-        // isurl ? name : `${this._path}/${Setup.themes}/${name}/${Setup.themeFile}`
+        // isurl ? name : `${this._path}/${Local.themes}/${name}/${Local.themeFile}`
     },
 
 
@@ -89,7 +89,7 @@ const Api = {
         if ( name === undefined ) {
             //
         }
-        // isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleFile}`
+        // isurl ? name : `${this._path}/${Local.styles}/${name}/${Local.styleFile}`
     },
 
 
@@ -97,7 +97,7 @@ const Api = {
         if ( name === undefined ) {
             //
         }
-        // isurl ? name : `${this._path}/${Setup.styles}/${name}/${Setup.styleCode}`
+        // isurl ? name : `${this._path}/${Local.styles}/${name}/${Local.styleCode}`
     },
 
 };

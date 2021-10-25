@@ -9,10 +9,11 @@
 <script src="base/tquery/tquery.min.js"></script>
 
 <script type="module">
-    import coolj from "./index.js";
-    coolj.create({}, '/')
-        .init()
-        .then( ed => $.get('#editorBox').append(ed.frame()) );
+    import coolj, {setupRoot} from "./index.js";
+
+    coolj.create( null, setupRoot )
+        .init( $.get('#editorBox') )
+        .then( ed => window.console.info('上层用户页逻辑') || ed.frame().contentWindow.focus() );
 </script>
 </head>
 <body>

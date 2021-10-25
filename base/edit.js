@@ -18,7 +18,8 @@
 //
 
 import $, { OBTA, Templates } from "./tpb/config.js";
-import { Sys, Limit, Help, Tips, Cmdx, Setup, On, By } from "../config.js";
+import { setupRoot } from "../index.js";
+import { Sys, Limit, Help, Tips, Cmdx, Local, On, By } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
 import * as T from "./types.js";  // 在 ./base.js 之后
@@ -5777,7 +5778,7 @@ export const Edit = {
             throw new Error( 'not found the plugins.' );
         }
         return plugLoad(
-            `${Setup.root}${Setup.plugRoot}/${_name}/${Setup.plugMain}`,
+            `${setupRoot}${Local.plugRoot}/${_name}/${Local.plugMain}`,
             // {INFO, HTML, TEXT}
             scriptData( __ESet, _data, true, true )
         )

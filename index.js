@@ -11,14 +11,13 @@
 //      import coolj from './index.js';
 //      let editor = coolj.create( option, root );
 //
-//      // 编辑器初始化，
-//      // 完成之后即可执行用户页逻辑。
-//      ecitor.init().then( ... );
-//
-//      // 将编辑器插入box容器。
-//      // 这是一种兼容性比较好的做法，当然也可以直接使用<iframe>作为外框架，
-//      // 此时通常应该设置宽高样式以覆盖默认的100%。
-//      box.append( editor.frame() );
+//      // 编辑器初始化。
+//      // 传入编辑器的容器元素，之后即为用户页逻辑。
+//      // 注意：
+//      // 编辑器的默认高/宽样式为 100%，可能需要一个空容器。
+//      // 最后把焦点交给编辑器窗口可便于快捷键操作。
+//      ecitor.init( box )
+//          .then( ed => ... ed.frame().contentWindow.focus() );
 //
 //  option {
 //      name: String            编辑器实例命名（关联本地存储）
@@ -58,7 +57,7 @@
 //
 //  - Chrome
 //  元素<iframe>可以直接resize，但旧版本会遮盖住上级包装元素的resize拖拽角。
-//  解决：如果要同时兼顾Firefox，可以将上级容器padding一个距离，以便操作。
+//  解决：如果要同时兼顾Firefox，可将上级容器padding一个距离，便于操作。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -124,16 +123,18 @@ class Editor {
     /**
      * 编辑器初始化。
      * 可传入自定义的根模板文件，相对于编辑器根。
+     * @param  {Element} box 容器元素
      * @param  {String} file 编辑器根模板文件，可选
      * @return {Promise<Editor>}
      */
-    init( file = __tplRoot ) {
+    init( box, file = __tplRoot ) {
         this._ifrm.setAttribute(
             'src',
-            `${this._path}/${file}`
+            `${this._path}${file}`
         );
         this._file = file;
-        return new Promise( this._init.bind(this) );
+
+        return new Promise( this._init.bind(this, box) );
     }
 
 
@@ -274,13 +275,16 @@ class Editor {
 
     /**
      * 初始化回调设置。
+     * @param  {Element} box 容器元素
      * @param  {Function} resolve 载入就绪回调
      * @param  {Function} reject 载入失败回调
      * @return {void}
      */
-    _init( resolve, reject ) {
+    _init( box, resolve, reject ) {
         this._ifrm.Config.fail = reject;
         this._ifrm.Config.ready = () => resolve( this );
+
+        box.append( this._ifrm );
     }
 
 
@@ -360,10 +364,18 @@ function empty() {}
  * @param  {String} path 编辑器所在目录路径（相对于Web根）
  * @return {Editor} 编辑器实例
  */
-const create = (option, path) => new Editor( option, path );
+const create = (option, path) => new Editor( option || {}, path );
 
 
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
+
 export default { create }
+
+
+//
+// 配置导出：
+// 编辑器安装根，由用户安装后修改设置。
+//
+export const setupRoot = '/';

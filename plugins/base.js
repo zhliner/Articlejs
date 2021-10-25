@@ -16,7 +16,8 @@ import $, { XLoader, TplPool } from "../base/tpb/config.js";
 import { obtBuilder, BaseOn, BaseBy } from "../base/tpb/tpb.js";
 import { Templater } from "../base/tpb/tools/templater.js";
 
-import { Setup } from "../config.js";
+import { setupRoot } from "../index.js";
+import { Local } from "../config.js";
 
 
 const
@@ -70,7 +71,7 @@ function plugConf( dir, file ) {
  */
 function plugStyle( dir, conf ) {
     if ( conf.style ) {
-        return $.style( {href: `${Setup.root}${dir}/${conf.style}`} ).then( () => conf );
+        return $.style( {href: `${setupRoot}${dir}/${conf.style}`} ).then( () => conf );
     }
     return conf;
 }
@@ -118,12 +119,12 @@ export function pluginsInsert( name, tips = null ) {
     if ( __Pool.has(name) ) {
         return Promise.resolve( null );
     }
-    let _dir = `${Setup.plugRoot}/${name}`,
-        _img = $.Element( 'img', { src: `${Setup.root}${_dir}/${Setup.plugLogo}` } ),
+    let _dir = `${Local.plugRoot}/${name}`,
+        _img = $.Element( 'img', { src: `${setupRoot}${_dir}/${Local.plugLogo}` } ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
     // 存储 名称:按钮 以便于插件卸载。
-    return plugConf( _dir, Setup.plugConf ).then( tpls => __Pool.set(name, {button:_btn, tpls}) && __btnPool.set(_btn, name) && _btn );
+    return plugConf( _dir, Local.plugConf ).then( tpls => __Pool.set(name, {button:_btn, tpls}) && __btnPool.set(_btn, name) && _btn );
 }
 
 

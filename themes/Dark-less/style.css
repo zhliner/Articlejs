@@ -25,7 +25,7 @@ body > hr {
     width: 3px;
     border: 1px #fff solid;
     border-radius: 3px;
-    /* background-color: #5c869c; */
+    background-color: #5f9ea0;
     cursor: ew-resize;
 }
 
@@ -33,7 +33,7 @@ body > hr {
 aside#outline {
     width: 200px;
     min-width: 180px;
-    background-color: rgba(245, 245, 245, 0.55);
+    background-color: #f9f9f9;
 }
 /* 编辑器容器 */
 div#editor {
@@ -43,12 +43,13 @@ div#editor {
     border: 1px #5c869c solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
+    background-color: white;
 }
 /* 帮助面板 */
 aside#help {
     width: 240px;
     min-width: 200px;
-    background-color: rgba(245, 245, 245, 0.55);
+    background-color: #f9f9f9;
 }
 
 

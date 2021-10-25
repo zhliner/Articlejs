@@ -6,7 +6,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  用户配置定义。
+//  编辑器配置定义。
 //
 //  安装根路径（URL）和模板根目录配置文件：base/tpb/config.js。
 //
@@ -18,10 +18,7 @@ import { BaseOn, BaseBy } from "./base/tpb/tpb.js";
 
 
 const
-    Setup = {
-
-        // 编辑器安装根
-        root:   '/',
+    Local = {
 
         // 内容样式目录
         styles: 'styles',
@@ -324,4 +321,4 @@ const
     By = Object.create( BaseBy );
 
 
-export { Setup, Limit, Tips, Help, Scripter, Sys, Cmdx, On, By };
+export { Local, Limit, Tips, Help, Scripter, Sys, Cmdx, On, By };

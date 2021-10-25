@@ -11,20 +11,10 @@ main {
     margin: 40px auto;
 }
 #editorBox {
-    width: 900px;
-    height: 700px;
+    width: 1000px;
+    height: 760px;
     resize: both;
     overflow: hidden;
     display: inline-block;
-    background-color: green;
     padding: 8px;
-    border-radius: 20px;
-}
-#editorBox > iframe {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border: none;
-    box-sizing: border-box;
-    border-radius: 8px;
 }

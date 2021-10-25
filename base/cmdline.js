@@ -68,7 +68,8 @@
 import $ from "./tpb/config.js";
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
-import { Cmdx, Tips, Setup, Limit, Sys } from "../config.js";
+import { setupRoot } from "../index.js";
+import { Cmdx, Tips, Local, Limit, Sys } from "../config.js";
 
 // 工具支持
 import { pluginsInit, pluginsInsert, pluginsDelete } from "../plugins/base.js";
@@ -529,10 +530,10 @@ class Command {
             return "请键入准确的主题ID，目前暂不支持清单罗列。";
         }
         insertStyle(
-            `#${Setup.styleTheme}`,
+            `#${Local.styleTheme}`,
             {
-                id:  Setup.styleTheme,
-                url: `${Setup.root}${Setup.themes}/${name}/style.css`,
+                id:  Local.styleTheme,
+                url: `${setupRoot}${Local.themes}/${name}/style.css`,
             }
         );
         return `[${name}] theme installed.`
@@ -553,19 +554,19 @@ class Command {
         }
         if ( main ) {
             insertStyle(
-                `#${Setup.styleMain}`,
+                `#${Local.styleMain}`,
                 {
-                    id:  Setup.styleMain,
-                    url: `${Setup.root}${Setup.styles}/${main}/main.css`,
+                    id:  Local.styleMain,
+                    url: `${setupRoot}${Local.styles}/${main}/main.css`,
                 }
             );
         }
         if ( code ) {
             insertStyle(
-                `#${Setup.styleCodes}`,
+                `#${Local.styleCodes}`,
                 {
-                    id:  Setup.styleCodes,
-                    url: `${Setup.root}${Setup.styles}/${code}/codes.css`,
+                    id:  Local.styleCodes,
+                    url: `${setupRoot}${Local.styles}/${code}/codes.css`,
                 }
             );
         }
@@ -860,7 +861,7 @@ export function cmdlineInit( help, plug ) {
     __plugPanel = plug;
 
     // 初始插件清单构建
-    $.trigger( plug, Sys.plugInit, pluginsInit(Setup.plugList) );
+    $.trigger( plug, Sys.plugInit, pluginsInit(Local.plugList) );
 }
 
 

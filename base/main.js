@@ -35,7 +35,6 @@ window.Kit = Kit;
 window.KM = cfg.Keys;
 window.edInit = init;
 window.Api = Api;
-
 // 取消实例栈。
 window.ESC = new ESCStack();
 
@@ -44,17 +43,21 @@ $.config({
     varyevent: true,
     // bindevent: true
 });
+
+// 当前On/By空间
 Tpb.Init( On, By );
 
+// 构建&完成
 Tpb.build( document, Web.tplmap )
-    .then( () => Sys.readyCall() )
     .then( () => $.trigger(document.body, 'finish') )
     .then( () => Api.init('#outline', '#editor', '#content', '#help', '#beeptip') )
+    .then( () => Sys.readyCall() )
     .catch( e => Sys.failCall(e) );
 
 
 if ( DEBUG ) {
     window.On = On;
     window.By = By;
+    // Tpb.Init() 之后
     window.Tpls = Templates;
 }
