@@ -940,7 +940,7 @@ export function siblingIndex( node ) {
  * @return {Node|null}
  */
 export function prevNodeN( beg, n = 1 ) {
-    let nodes = $.prevNodes( beg ),
+    let nodes = $.prevNodes( beg, false, true ),
         i = 0;
 
     for ( ; i < nodes.length; i++ ) {
@@ -959,7 +959,7 @@ export function prevNodeN( beg, n = 1 ) {
  * @return {Boolean}
  */
 export function prevMoveEnd( el ) {
-    let _nd = $.prevNode( el );
+    let _nd = $.prevNode( el, false, true );
     return !_nd || beforeFixed( _nd );
 }
 
@@ -973,7 +973,7 @@ export function prevMoveEnd( el ) {
  * @return {Node|null}
  */
 export function nextNodeN( beg, n = 1 ) {
-    let nodes = $.nextNodes( beg ),
+    let nodes = $.nextNodes( beg, false, true ),
         i = 0;
 
     for ( ; i < nodes.length; i++ ) {
@@ -992,7 +992,7 @@ export function nextNodeN( beg, n = 1 ) {
  * @return {Boolean}
  */
 export function nextMoveEnd( el ) {
-    let _nd = $.nextNode( el );
+    let _nd = $.nextNode( el, false, true );
     return !_nd || afterFixed( _nd );
 }
 
