@@ -14,6 +14,15 @@
 @import 'icons.css';
 
 
+body {
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+body > * {
+    flex-shrink: 0;
+}
+
 /* 侧面板 */
 body > aside {
     border: 1px #5c869c solid;
