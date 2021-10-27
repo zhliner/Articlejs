@@ -72,7 +72,7 @@ import { setupRoot } from "../index.js";
 import { Cmdx, Tips, Local, Limit, Sys } from "../config.js";
 
 // 工具支持
-import { pluginsInit, pluginsInsert, pluginsDelete } from "../plugins/base.js";
+import { pluginsInit, pluginsInsert, pluginsDelete } from "./plugins.js";
 
 
 const

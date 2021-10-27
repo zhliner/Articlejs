@@ -35,8 +35,8 @@ import { saveCode } from "./shedit.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import { Select, Filter, Search, Command, Calcuate, typeRecord, CmdNav, cmdlineInit } from "./cmdline.js";
-import { pluginsName } from "../plugins/base.js";
-import { Render } from "../base/tpb/tools/render.js";
+import { pluginsName } from "./plugins.js";
+import { Render } from "./tpb/tools/render.js";
 
 
 const

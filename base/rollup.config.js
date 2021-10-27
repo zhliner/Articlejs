@@ -13,7 +13,8 @@ export default {
     ],
     // 排除工具集和配置文件捆绑。
     external: [
-        './config.js',
-        /\/tools\/\w+\.js/,
+        '../config.js',
+        '../index.js',
+        /\/(?:tpb|tquery|highlight)\//,
     ],
 }

@@ -1,8 +1,8 @@
-//! $ID: base.js 2021.09.23 Articlejs.Plugins $
-// ++++++++++++++++++++++++++++++++++++++++++++++
-//  Project: Articlejs v0.1.0
+//! $ID: plugins.js 2021.09.23 Cooljed.Plugins $
+// +++++++++++++++++++++++++++++++++++++++++++++++++
+//  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
-//  Copyright (c) 2021 铁皮工作室  MIT License
+//  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -12,9 +12,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { XLoader, TplPool } from "../base/tpb/config.js";
-import { obtBuilder, BaseOn, BaseBy } from "../base/tpb/tpb.js";
-import { Templater } from "../base/tpb/tools/templater.js";
+import $, { XLoader, TplPool } from "./tpb/config.js";
+import { obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.js";
+import { Templater } from "./tpb/tools/templater.js";
 
 import { setupRoot } from "../index.js";
 import { Local } from "../config.js";
