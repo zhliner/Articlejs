@@ -1,8 +1,8 @@
-//! $ID: index.js 2019.11.16 Articlejs.User $
+//! $ID: index.js 2019.11.16 Cooljed.User $
 // ++++++++++++++++++++++++++++++++++++++++++++
-//  Project: Articlejs v0.1.0
+//  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
-//  Copyright (c) 2021 铁皮工作室  MIT License
+//  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
 //
 //////////////////////////////////////////////////////////////////////////////
 //

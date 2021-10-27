@@ -1,8 +1,8 @@
-//! $ID: shortcuts.js 2019.10.11 Articlejs.Config $
+//! $ID: shortcuts.js 2019.10.11 Cooljed.Config $
 // ++++++++++++++++++++++++++++++++++++++++++++++++++
-//  Project: Articlejs v0.1.0
+//  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
-//  Copyright (c) 2020 铁皮工作室  MIT License
+//  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
 //
 //////////////////////////////////////////////////////////////////////////////
 //

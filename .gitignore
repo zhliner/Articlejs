@@ -3,5 +3,3 @@ _libs/vue-2.6.10
 _libs/vue.js
 node_modules
 package-lock.json
-base/tquery/tquery.min.js.map
-base/tquery/plugins/history.min.js.map

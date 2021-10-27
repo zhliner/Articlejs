@@ -7,6 +7,7 @@ export default {
         format: 'iife',
         name: '$.Fx.History',
         banner: '/*! history/tQuery v0.1.2 | (c) zhliner@gmail.com 2021.10.20 | MIT License */',
+        sourcemapExcludeSources: true,
     },
     plugins: [
         terser()
