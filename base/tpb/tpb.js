@@ -33,12 +33,19 @@ import { On } from "./pbs.get.js";
 import { By } from "./pbs.by.js";
 import { To } from "./pbs.to.js";
 
-import $, { DEBUG, XLoader, TplPool, Web, Templates, tplInit, DataStore } from "./config.js";
+import $, { DEBUG, XLoader, Web, tplInit, DataStore } from "./config.js";
 import { storeChain, hostSet, namedExtend, deepExtend, funcSets } from "./base.js";
 import { App } from "./app.js";
 import { Builder } from "./core.js";
 
 import { Templater } from "./tools/templater.js";
+
+
+//
+// 本系模板管理器。
+// 即应用中未命名的模板域对应的默认模板管理器。
+//
+let __Tpls = null;
 
 
 //
@@ -287,7 +294,7 @@ function obtBuild( el, conf, ob = {} ) {
  * @return {void}
 */
 function Init( on, by ) {
-    tplInit( new Templater(obtBuilder(on, by), Web.tpldir, TplPool) );
+    __Tpls = tplInit( new Templater(obtBuilder(on, by), Web.tpldir) );
 }
 
 
@@ -306,7 +313,8 @@ function Init( on, by ) {
  * @param  {Templater} tplr 模板管理器实例，可选
  * @return {Promise<void>}
  */
-function build( root, conf, tplr = Templates ) {
+function build( root, conf, tplr ) {
+    tplr = tplr || __Tpls;
     return tplr.config( conf ).then( () => tplr.build(root) );
 }
 

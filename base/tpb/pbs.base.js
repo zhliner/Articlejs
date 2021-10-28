@@ -288,16 +288,36 @@ const _Control = {
 
     /**
      * 引用数据栈目标位置项。
+     * 如果传入数组表示目标位置，则视为一个范围。
      * 下标位置支持负数从末尾算起。
      * 注意：非法的下标位置会导入一个null值。
      * @param {Stack} stack 数据栈
      * @param {...Number} ns 位置下标序列
      */
     index( evo, stack, ...ns ) {
-        stack.tindex( ns );
+        let _v1 = ns[0];
+
+        if ( $.isArray(_v1) ) {
+            // return undefined
+            return stack.tslice( _v1[0], _v1[1] );
+        }
+        stack.tindex( _v1, ...ns );
     },
 
     __index_x: true,
+
+
+    /**
+     * 直接暂存值。
+     * 这是 push(val) pop 指令序列的简化版。
+     * @param {Stack} stack 数据栈
+     * @param {...Value} vals 目标值序列
+     */
+    tmp( evo, stack, ...vals ) {
+        stack.tpush( ...vals );
+    },
+
+    __tmp_x: true,
 
 
 
@@ -349,7 +369,7 @@ const _Control = {
         if ( evo.data !== undefined ) {
             vals.push( evo.data );
         }
-        stack.push( ...vals );
+        if ( vals.length > 0 ) stack.push( ...vals );
     },
 
     __push: 0,

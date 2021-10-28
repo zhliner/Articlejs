@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { OBTA, Templates } from "./tpb/config.js";
+import $, { OBTA, TplrName, TplsPool } from "./tpb/config.js";
 import { setupRoot } from "../index.js";
 import { Sys, Limit, Help, Tips, Cmdx, Local, On, By } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.js";
@@ -2823,7 +2823,8 @@ function parentsSet( els ) {
  * @param {String} name 元素类型对应的根模板名
  */
 function propertyEdit( name ) {
-    Templates.get( Sys.modalProp )
+    TplsPool.get( TplrName )
+        .get( Sys.modalProp )
         .then( frm => $.trigger(modalDialog, 'open', [name, frm]) );
 }
 
@@ -3128,7 +3129,7 @@ function plugLoad( url, data ) {
 
 
 /**
- * 插件结果处理。
+ * 插件运行结果处理。
  * - 插件需要申请模板来获得UI交互。
  * - 如果申请了模板，结果数据（result）将用于模板渲染的源数据。
  * - 如果没有申请模板，结果数据填充到一个文本框内向后传递。
@@ -3138,16 +3139,18 @@ function plugLoad( url, data ) {
  *      title:  展示框标题条文本，可选
  * }
  * @param  {Object} obj 结果数据对象
+ * @param  {String} name
  * @param  {String} ttl 插件按钮提示文本
  * @return {[Element, String]} [展示根元素, 标题条文本]
  */
-function plugResult( obj, ttl ) {
+function plugResult( obj, name, ttl ) {
+    let _tplr = TplsPool.get( name );
+
     ttl = obj.title || ttl;
 
     if ( obj.node ) {
-        // 渲染的是模板的一个克隆副本。
         return [
-            Render.update( Templates.node(obj.node, true, true), obj.result ),
+            Render.update( _tplr.node(obj.node), obj.result ),
             ttl
         ];
     }
@@ -4294,7 +4297,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         [ Cmdx.command ]:   new Command(),
         [ Cmdx.calcuate ]:  new Calcuate( __ESet, contentElem ),
     });
-    cmdlineInit( $.get('#x-help'), Templates.node( Sys.modalPlug) );
+    cmdlineInit( $.get('#x-help'), TplsPool.get(TplrName).node( Sys.modalPlug) );
 
     // 监听内容区变化事件。
     $.on( contentElem, varyEvents, null, __TQHistory );
@@ -5764,9 +5767,10 @@ export const Edit = {
      * 插件执行。
      * 在用户单击插件面板中的目标插件按钮时发生。
      * - 模态框会被自动关闭。
-     * - 如果插件请求了模板节点（名称），则导入（一个副本）并渲染。
+     * - 如果插件请求了模板节点（名称），则导入并渲染。
+     * - 插件请求的模板会在模态框之上（面板内）。
      * @data: Element 插件按钮
-     * @return {Promise<Element>}
+     * @return {Promise<[Element, String]>}
      */
     pluginsRun( evo ) {
         let _name = pluginsName( evo.data ),
@@ -5782,7 +5786,7 @@ export const Edit = {
             // {INFO, HTML, TEXT}
             scriptData( __ESet, _data, true, true )
         )
-        .then( obj => plugResult(obj, _ttl) );
+        .then( obj => plugResult(obj, _name, _ttl) );
     },
 
     __pluginsRun: 1,
@@ -6248,9 +6252,10 @@ export const Kit = {
         if ( !evo.data.length ) {
             return null;
         }
-        let _ns = __levelHandles[type]( evo.data )
+        let _ts = TplsPool.get( TplrName ),
+            _ns = __levelHandles[type]( evo.data );
 
-        return _ns.length ? _ns.map( n => Templates.node(n) ) : null;
+        return _ns.length ? _ns.map( n => _ts.node(n) ) : null;
     },
 
     __inslist: 1,

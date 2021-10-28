@@ -54,7 +54,10 @@ const
         by:     'by',
         to:     'to',
         src:    'obt-src',
-    };
+    },
+
+    // 本系模板管理器名称
+    TplrName = '';
 
 
 
@@ -96,25 +99,20 @@ const
     // 通用载入器。
     XLoader = new Loader( Web.base ),
 
-    // 模板节点共享存储。
-    // 供第三方模板引用并存储（new Templater(...)）。
-    // { name:String: Element }
-    TplPool = new Map();
+    // 模板管理器池。
+    // 每一个独立模板系列对应一个模板管理器。
+    // { name:String: Templater }
+    TplsPool = new Map();
 
-
-
-//
-// 全局模板存储。
-//
-let Templates = null;
 
 
 /**
- * 设置全局模板管理器。
+ * 添加本系模板管理器。
+ * 注：编辑器自身的模板系列的域名称用一个空串表示。
  * @param  {Templater} tplr 模板管理器
  * @return {Templater} tplr
  */
-const tplInit = tplr => Templates = tplr;
+const tplInit = tplr => TplsPool.set( TplrName, tplr ) && tplr;
 
 
 
@@ -127,6 +125,7 @@ export {
     DEBUG,
     Web,
     OBTA,
+    TplrName,
     EXTENT,
     ACCESS,
     JUMPCELL,
@@ -136,8 +135,7 @@ export {
     DataStore,
     ChainStore,
     XLoader,
-    TplPool,
-    Templates,
+    TplsPool,
     tplInit,
 };
 

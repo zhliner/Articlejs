@@ -652,9 +652,9 @@ class Stack {
      * 引用特定目标位置值。
      * 下标值支持负数从末尾算起。
      * 注：非法的下标位置会导入一个null值。
-     * @param {[Number]} ns 下标集
+     * @param {...Number} ns 位置序列
      */
-    tindex( ns ) {
+    tindex( ...ns ) {
         this._tmp.push( ...ns.map( i => this._index(i) ) );
     }
 
@@ -667,6 +667,25 @@ class Stack {
      */
     tsplice( idx, cnt ) {
         this._tmp.push( ...this._buf.splice(idx, cnt) );
+    }
+
+
+    /**
+     * 引用数据栈任意段。
+     * @param {Number} beg 起始位置
+     * @param {Number} end 结束位置（不含），可选
+     */
+    tslice( beg, end ) {
+        this._tmp.push( ...this._buf.slice(beg, end) );
+    }
+
+
+    /**
+     * 直接向暂存区赋值。
+     * @param {...Value} vals 目标值序列
+     */
+    tpush( ...vals ) {
+        this._tmp.push( ...vals );
     }
 
 

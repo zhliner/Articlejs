@@ -103,7 +103,7 @@ class Templater {
     /**
      * 克隆模板节点。
      * 如果模板不存在，会自动尝试载入。
-     * 注：克隆包含渲染文法。
+     * 克隆包含渲染文法。
      * @param  {String} name 模板名
      * @param  {Boolean} bound 包含绑定的事件处理器，可选
      * @return {Promise<Element>} 承诺对象
@@ -116,7 +116,8 @@ class Templater {
     /**
      * 返回既有模板节点或其副本。
      * 需确信模板节点已经添加到内部存储，
-     * 并且该节点的内部子节点已经就绪（tpl-node|source完成）。
+     * 并且该节点的内部子节点已经就绪（tpl-node|source 完成）。
+     * 注：bound 仅在 clone 为真时有意义。
      * @param  {String} name 节点名
      * @param  {Boolean} clone 是否克隆（含渲染文法）
      * @param  {Boolean} bound 克隆包含绑定的事件处理器，可选
@@ -129,21 +130,6 @@ class Templater {
             return null;
         }
         return clone ? this._clone( _tpl, bound ) : _tpl;
-    }
-
-
-    /**
-     * 取出模板节点。
-     * 如果模板节点已经不存在，会导致 .get() 重新导入，
-     * 此时节点对应文件的映射已经清除，因此会因无配置而出错。
-     * 因此取出是不可逆操作。
-     * @param  {String} name 模板名
-     * @return {Promise<Element>}
-     */
-    pick( name ) {
-        return this.get( name ).then(
-            el => ( this._tpls.delete(name) || this._tplx.delete(name) ) && el
-        );
     }
 
 
@@ -234,17 +220,6 @@ class Templater {
      */
     config( maps ) {
         return this._loader.config( maps || {} );
-    }
-
-
-    /**
-     * 获取模板节点名集
-     * 若done无值表示取配置文件中的全部节点名。
-     * @param  {Boolean} done 已完成的节点
-     * @return {[String]}
-     */
-    names( done ) {
-        return done ? [ ...this._tpls.keys() ] : this._loader.names();
     }
 
 
@@ -341,6 +316,21 @@ class Templater {
 
 
     /**
+     * 取出模板节点。
+     * 如果模板节点已经不存在，会导致 .get() 重新导入，
+     * 此时节点对应文件的映射已经清除，因此会因无配置而出错。
+     * 因此取出是不可逆操作。
+     * @param  {String} name 模板名
+     * @return {Promise<Element>}
+     */
+    _pick( name ) {
+        return this.get( name ).then(
+            el => ( this._tpls.delete(name) || this._tplx.delete(name) ) && el
+        );
+    }
+
+
+    /**
      * 导入元素引用的子模版。
      * 子模版定义可以是一个逗号分隔的列表（有序）。
      * @param  {Element} el 配置元素
@@ -378,7 +368,7 @@ class Templater {
             _f = 'get';
 
         if ( _v[0] === __flagPick ) {
-            _f = 'pick';
+            _f = '_pick';
             _v = _v.substring( 1 );
         }
         return [ _n == __tplNode ? 'clone' : _f, _v ];

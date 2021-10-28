@@ -1,13 +1,15 @@
 /*! default.css 2019.11.16. Tpb.CSS $
- ++++++++++++++++++++++++++++++++++++++
+ ++++++++++++++++++++++++++++++++++++++++
  *
  *  基础PB样式定义
  *  实现一些基础性的效果，比如元素隐藏、折叠/子菜单、禁用等。
  *
- *  元素的 data-pbo 特性值用于表达一种选项逻辑，如：<span data-pbo="opt1 opt2"></span>，
+ *  元素的 data-pbo 特性值用于表达一种选项逻辑，如：
+ *      <span data-pbo="opt1 opt2">
  *  这有点类似于类名特性。CSS样式通过 ~= 选择器定位。
  *
- *  元素的 data-pba 特性值用于表达一种有序的参数逻辑，如：<span data-pba="one-two-"></span>，
+ *  元素的 data-pba 特性值用于表达一种有序的参数逻辑，如：
+ *      <span data-pba="one-two-">
  *  这可方便样式的分段共享设计。CSS通过 |= 选择器定位。
  *
  *  @author 风林 zhliner@gmail.com

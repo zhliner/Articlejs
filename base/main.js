@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { Web, Templates, DEBUG } from "./tpb/config.js";
+import $, { Web, TplrName, TplsPool, DEBUG } from "./tpb/config.js";
 import { Tpb } from "./tpb/tpb.js";
 import cfg from "./shortcuts.js";
 import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
@@ -59,5 +59,5 @@ if ( DEBUG ) {
     window.On = On;
     window.By = By;
     // Tpb.Init() 之后
-    window.Tpls = Templates;
+    window.Tpls = TplsPool.get( TplrName );
 }

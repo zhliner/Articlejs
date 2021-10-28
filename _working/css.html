@@ -149,7 +149,7 @@
                 to="(input[name=type], select)|$disabled">
                 <legend>内容插入</legend>
                 <span class="_type"
-                    on="click(input)|evo(2) val str('where:') node"
+                    on="click(input)|evo(2) val str('where:') node(_1)"
                     to="1/._where|replace">
                     <i>类型：</i>
                     <label title="text"><input type="radio" name="type" value="text" checked />文本</label>
@@ -2742,7 +2742,7 @@
         on="1parse|(0, true) ev('detail') obtsplit pack(3);
             2value|ev('detail') spread dup len max(10) elem('li', _1);
             3focus(li)|evo(2) siblingNth sub(1);
-            4switch|ev('detail') evo(3) attr('-x') node;
+            4switch|ev('detail') evo(3) attr('-x') node(_1);
             5removed|ev('detail') spread dup attr('-n') str('obts:')"
         by="1Test.method(1);
             2-;
@@ -2800,9 +2800,9 @@
                         keydown 支持即时删除条目（友好）。 -->
                     <select name="attrs" size="5" data-v="" class="_list"
                         on="update|evo(3) children ev('detail');
-                            change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node (null);
+                            change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node(_1) (null);
                             _change|evo(3) val dup pass sel0 pop attrs(_1);
-                            addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node(true);
+                            addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node2(_1);
                             select|ev('detail');
                             blank|tpl('attr:empty');
                             record|evo(3) val;
@@ -2880,7 +2880,7 @@
                                     focus(li)|evo(2) siblingNth sub(1) dup;
                                     focus(li)|evo(2) hasClass('_hot') end $$('/li');
                                     blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
-                                    switch|ev('detail') evo(3) attr('-n') str('obts:') node;
+                                    switch|ev('detail') evo(3) attr('-n') str('obts:') node(_1);
                                     removed|ev('detail') dup attr('-n');
                                     paste(li)|avoid clipboard html exeCmd('insertHTML', _1);"
                                 to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;

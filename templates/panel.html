@@ -55,7 +55,7 @@
             用scroll聚焦便于快捷键定位。
             取消此设计：因为内容区切换选取后选单重构会激发此事件，使内容区失焦（不友好）。 -->
         <select id="input-items" name="items" size="5" class="_list"
-            on="change|evo(3) val or('empty') str('input:') pop tpl;
+            on="change|evo(3) val or('empty') str('input:') tpl(_1);
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="form/._body|replace;
                 |val|goto('change')">
@@ -81,8 +81,8 @@
     <div class="_roll">
         <!-- 先插入右侧主区，再更新选单以使change有效。 -->
         <div class="_minibar"
-            on="click(input)|evo(2) attr('-val') node;
-                click(input)|evo(2) val node"
+            on="click(input)|evo(2) attr('-val') node(_1);
+                click(input)|evo(2) val node(_1)"
             to="2/._body|replace;
                 1/select|replace|focus change">
             <label title="内联元素">
@@ -96,7 +96,7 @@
             input.select 快捷键选取。从data-k特性取值触发。
             change str 用前缀（inlines:）构造模板名。 -->
         <select name="inlines" size="5" class="_list _inlines" tpl-name="item:inlines"
-            on="change|evo(3) val dup pass str('inlines:') pop tpl;
+            on="change|evo(3) val dup pass str('inlines:') tpl(_1);
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="2/._main|fill;
                 |val|change">
@@ -167,7 +167,7 @@
         - 切换模板。
         - 表达按下，跟随更新。-->
     <div class="_icons"
-        on="click(b)|evo(2) attr('-tpl') node;
+        on="click(b)|evo(2) attr('-tpl') node(_1);
             click(b)|$$('/b')"
         to="1/._body|replace;
             =|only('_press')|fire('form/', 'update')">
@@ -237,7 +237,7 @@
             keydown 支持即时删除条目（友好）。 -->
         <select name="attrs" size="5" class="_list" title="删除〔Delete〕"
             on="follow|evo(3) children ev('detail');
-                change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node;
+                change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node(_1);
                 _change|evo(3) val dup pass sel0 pop attrs(_1);
                 addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
                 select|ev('detail');
@@ -317,7 +317,7 @@
                         focus(li)|evo(2) siblingNth sub(1) dup;
                         focus(li)|evo(2) hasClass('_hot') end $$('/li');
                         blur(li)|evo(1) text trim evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
-                        switch|ev('detail') evo(3) attr('-n') str('obts:') node;
+                        switch|ev('detail') evo(3) attr('-n') str('obts:') node(_1);
                         removed|ev('detail') dup attr('-n')"
                     to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
                         |@-i|pop fire('1/>label', 'index', 100);
@@ -430,13 +430,13 @@
     on="submit|avoid $('/pre._code') text value('runbox itext ihtml');
         nodeok(~)|evo(3);
         shcode|ev('detail')"
-    by="Ed.runScript(_) dup pass ('script:result') node;
+    by="Ed.runScript(_) dup pass node('script:result');
         Kit.spinit"
     to="#g-modal|trigger('open')|pop fire('#g-modal>._script', 'result');
         /pre._code||focus;
         /pre._code|trigger('codes')">
     <div class="_env"
-        on="click([name=runbox])|$('/fieldset') remove evo(2) val str('run:') node evo(2) parent pop"
+        on="click([name=runbox])|$('/fieldset') remove evo(2) val str('run:') node(_1) evo(2) parent pop"
         to="-|after">
         <label title="in Worker">
             <input type="radio" name="runbox" value="sandbox" checked />沙盒内执行
@@ -618,7 +618,7 @@
     on="apply|ev('detail') spread;
         submit|avoid;
         reset|avoid;
-        state|ev('detail') node;
+        state|ev('detail') node(_1);
         label|$('/._prop') attr('-label')"
     by="Ed.propUpdate(_)"
     to="/._close|trigger('click')|fire('#g-scroll', 'focus');
@@ -941,7 +941,7 @@
             <legend>内容插入</legend>
             <!-- reset 手动切换节点替换。 -->
             <span class="_type"
-                on="click(input)|evo(2) val str('where:') node;
+                on="click(input)|evo(2) val str('where:') node(_1);
                     reset|$('input') click"
                 to="1/._where|replace">
                 <i>类型：</i>

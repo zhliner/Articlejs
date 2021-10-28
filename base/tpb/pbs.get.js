@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { DataStore, Templates, ChainStore, DEBUG } from "./config.js";
+import $, { DataStore, TplsPool, ChainStore, DEBUG, TplrName } from "./config.js";
 import { Util } from "./tools/util.js";
 import { Ease } from "./tools/ease.js";
 import { bindMethod } from "./base.js";
@@ -923,64 +923,90 @@ const _Gets = {
     /**
      * 获取模板节点。
      * 目标：暂存区1项可选。
-     * 如果目标有值，取目标为模板名，此时name充当clone实参。
-     * 返回Promise实例，注意应当在avoid等之后使用。
-     * 例：
-     * 1. tpl('abc')  // 模板名为'abc'，clone未定义（假）
-     * 2. push('xyz') pop tpl(true)  // 模板名为xyz，clone为真
-     * 注意：
-     * 克隆时是每次都克隆，在需要重新渲染模板时很有用。
-     * 仅支持单个模板获取/克隆。
-     * 如果clone为假，bound实参没有意义。
-     * @data: String 模板名
+     * 目标为模板系列所属的域，仅在有多个模板系列时才需要。
+     * 注记：
+     * 因为返回Promise实例，所以注意avoid等操作应当在此之前。
+     * @data: String 模板域
      * @param  {String} name 模板名
-     * @param  {Boolean} clone 是否克隆，可选
-     * @param  {Boolean} bound 克隆包含绑定是事件处理器，可选
      * @return {Promise<Element>}
      */
-    tpl( evo, name, clone, bound = true ) {
-        if ( evo.data !== undefined ) {
-            [name, clone] = [evo.data, name];
-        }
-        // .get() 多余的实参无副作用。
-        return Templates[clone ? 'clone' : 'get']( name, bound );
+    tpl( evo, name ) {
+        return TplsPool.get( evo.data || TplrName ).get( name );
     },
 
     __tpl: -1,
 
 
     /**
+     * 获取克隆的模板节点。
+     * 目标：暂存区1项可选。
+     * 注意：
+     * 克隆时是每次都克隆，这在需要重新渲染模板时会有用。
+     * 仅支持单个模板获取/克隆。
+     * 注记：
+     * 因为返回Promise实例，所以注意avoid等操作应当在此之前。
+     * @data: String 模板域
+     * @param  {String} name 模板名
+     * @param  {Boolean} bound 包含绑定的事件处理器，可选
+     * @return {Promise<Element>}
+     */
+    tpl2( evo, name, bound = true ) {
+        return TplsPool.get( evo.data || TplrName ).clone( name, bound );
+    },
+
+    __tpl2: -1,
+
+
+    /**
      * 获取模板节点（集）。
-     * 目标：暂存区/栈顶1项。
-     * 返回节点元素本身（而不是一个承诺）。
+     * 目标：暂存区1项可选。
+     * 与上面的 .tpl 不同，直接返回节点元素而不是一个承诺。
      * 如果只请求单个节点且未找到，返回null（数组成员中未找到的也为null）。
      * name支持空格分隔的多个名称序列。
-     * 明确传递clone为null表示移出模板节点。
      * 注记：
      * 用户请求节点时应当知道节点载入情况，节点预先载入有3种方式：
      * 1. 在主页面中通过隐藏的tpl-source或tpl-node预先载入。
-     * 2. 其它先构建（Tpb.Build）的模板导致节点已经自动载入。
+     * 2. 其它先构建（Tpb.build）的模板导致节点已经自动载入。
      * 3. 主动使用tpl载入单个节点，于是与该节点定义在同一文件中的其它节点就会自动载入。
+     * @data: String 模板域
+     * @param  {String} name 模板名/序列
+     * @param  {Boolean} out 是否从节点缓存中移除
+     * @return {Element|[Element|null]|null}
+     */
+    node( evo, name, out ) {
+        let _fn = out ? 'del' : 'node',
+            _ts = TplsPool.get( evo.data || TplrName );
+
+        if ( __reSpace.test(name) ) {
+            return name.split( __reSpace ).map( n => _ts[_fn](n) );
+        }
+        return _ts[_fn]( name );
+    },
+
+    __node: -1,
+
+
+    /**
+     * 获取模板节点（集）副本。
+     * 目标：暂存区1项可选。
+     * 说明参考上面.node()接口，但不存在移出逻辑。
      * 注意：
-     * 与tpl相似，克隆是每次事件都会克隆一组新的节点。
-     * 如果clone为假，bound实参没有意义。
-     * @data: String 名称/序列
+     * 与.tpl2()相似，克隆是每次触发都会克隆一个/组新的节点。
+     * @data: String 模板域
      * @param  {Boolean|null} clone 是否克隆或移出
      * @param  {Boolean} bound 克隆包含绑定是事件处理器，可选
      * @return {Element|[Element|null]|null}
      */
-    node( evo, clone, bound = true ) {
-        let _ns = evo.data,
-            _fn = clone === null ? 'del' : 'node';
+    node2( evo, name, bound = true ) {
+        let _ts = TplsPool.get( evo.data || TplrName );
 
-        // .del() 多余的实参无副作用
-        if ( __reSpace.test(_ns) ) {
-            return _ns.split(__reSpace).map(n => Templates[_fn](n, clone, bound) );
+        if ( __reSpace.test(name) ) {
+            return name.split( __reSpace ).map( n => _ts.node(n, true, bound) );
         }
-        return Templates[_fn]( _ns, clone, bound );
+        return _ts.node( name, true, bound );
     },
 
-    __node: 1,
+    __node2: -1,
 
 
     /**

@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { XLoader, TplPool } from "./tpb/config.js";
+import $, { XLoader, TplsPool } from "./tpb/config.js";
 import { obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.js";
 import { Templater } from "./tpb/tools/templater.js";
 
@@ -33,12 +33,14 @@ const
     // 针对插件On/By定义集。
     __obter = obtBuilder( PlugOn, PlugBy ),
 
-    // 插件配置缓存
-    // { name: {button:Element, tpls:Templater} }
+    // 插件按钮缓存
+    // 在按名称卸载插件时有用。
+    // { name => button:Element }
     __Pool = new Map(),
 
     // 插件名记忆
-    // {Element: name:String}
+    // 在单击按钮执行插件时有用。
+    // {Element => name:String}
     __btnPool = new WeakMap();
 
 
@@ -90,12 +92,12 @@ function plugTpls( dir, conf ) {
     if ( !conf.maps ) {
         return null;
     }
-    let _Tpls = new Templater( __obter, dir, TplPool );
+    let _tpls = new Templater( __obter, dir );
 
-    return _Tpls.config( conf.maps )
+    return _tpls.config( conf.maps )
         .then( () => XLoader.node(`${dir}/${conf.node}`) )
-        .then( frg => _Tpls.build(frg, conf.node) )
-        .then( () => _Tpls );
+        .then( frg => _tpls.build(frg, conf.node) )
+        .then( () => _tpls );
 }
 
 
@@ -123,8 +125,8 @@ export function pluginsInsert( name, tips = null ) {
         _img = $.Element( 'img', { src: `${setupRoot}${_dir}/${Local.plugLogo}` } ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
-    // 存储 名称:按钮 以便于插件卸载。
-    return plugConf( _dir, Local.plugConf ).then( tpls => __Pool.set(name, {button:_btn, tpls}) && __btnPool.set(_btn, name) && _btn );
+    return plugConf( _dir, Local.plugConf )
+        .then( tpls => __Pool.set(name, _btn) && TplsPool.set(name, tpls) && __btnPool.set(_btn, name) && _btn );
 }
 
 
@@ -137,14 +139,13 @@ export function pluginsInsert( name, tips = null ) {
  * @return {Element|null} 插件按钮
  */
 export function pluginsDelete( name ) {
-    let _conf = __Pool.get( name );
+    let _btn = __Pool.get( name );
 
-    if ( _conf ) {
+    if ( _btn ) {
         __Pool.delete( name );
-        // 实际操作的是全局存储。
-        _conf.tpls.names().forEach( name => _conf.tpls.del(name) );
+        TplsPool.delete( name );
     }
-    return _conf ? _conf.button : null;
+    return _btn || null;
 }
 
 
