@@ -224,6 +224,9 @@ clip( idx, cnt:Number ): void
 index( ...ns: Number ): void
 // 引用目标位置项。
 
+tmp( ...vals:Value ): void
+// 直接赋值序列
+
 
 
 // 数据栈操作。
