@@ -17,6 +17,7 @@
 
 import $ from "./tpb/config.js";
 import * as T from "./types.js";
+import { childTypes, isChildType } from "./base.js";
 
 
 //
@@ -231,11 +232,11 @@ export function options( els ) {
     if ( !_ref || _ref.tagName === 'TABLE' && els.length > 0 ) {
         return [];
     }
-    let _subs = [...T.childTypes(_ref)];
+    let _subs = [...childTypes(_ref)];
 
     if ( els.length > 0 ) {
         _subs = _subs.filter(
-            tv => els.every( box => T.isChildType(box, tv) )
+            tv => els.every( box => isChildType(box, tv) )
         );
     }
     return $.map( _subs.filter(tv => !siblingNone.has(tv)), tv => InputOptions[tv] );

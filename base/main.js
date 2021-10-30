@@ -15,8 +15,8 @@
 //
 
 import $, { Web, TplrName, TplsPool, DEBUG } from "./tpb/config.js";
-import { Tpb } from "./tpb/tpb.js";
 import cfg from "./shortcuts.js";
+import { Tpb } from "./tpb/tpb.min.js";
 import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
 import { Edit, init, Kit } from "./edit.js";
 import { ESCStack } from "./common.js";

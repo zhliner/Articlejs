@@ -14,13 +14,6 @@
 
 import $ from "./tpb/config.js";
 
-//
-// 注意：
-// 与 ./types.js 存在交叉引用，
-// 用户需先加载 ./base.js，之后再加载 ./types.js
-//
-import { getType, sectionState } from "./base.js";
-
 
 //
 // 分类定义：
@@ -56,6 +49,7 @@ const
 
 
 //
+// 导出：
 // 单元值定义。
 // 用于标识元素的类型，便于简单高效地判断（而不是每次都作复杂的检查）。
 //
@@ -434,6 +428,7 @@ const _BLOCKITS =
 
 
 //
+// 导出：
 // 合法子单元类型。
 // 子数组类型是一种分组抽象，表示使用该组所有类型。
 // 值 null 适用于空元素和文本节点。
@@ -442,7 +437,7 @@ const _BLOCKITS =
 // - 用于判断目标的可插入单元（向内）。
 // - 取父容器可判断平级插入时的合法单元。
 //
-const ChildTypes = {
+export const ChildTypes = {
     //
     // 内联结构元素。
     /////////////////////////////////////////////
@@ -590,14 +585,15 @@ $.each(
 
 
 //
-// 片区子类型定义：
+// 导出：
+// 片区子类型定义。
 // 片区与内容件互斥，但允许子片区与内容件临时并列。
 // 判断合法子类型时需根据源容器即时构造子集。
 // 如：结构检查、选单构造。
 // 通用项：
 // 标题、导言、结语、分隔
 //
-const ChildTypesX = {
+export const ChildTypesX = {
     [ ARTICLE ]:    [ HEADER, FOOTER, HR, S1 ],
     [ S1 ]:         [ H2, HEADER, FOOTER, HR, S2 ],
     [ S2 ]:         [ H2, HEADER, FOOTER, HR, S3 ],
@@ -608,36 +604,9 @@ const ChildTypesX = {
 };
 
 
-//
-// 工具集
-//////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * 构造目标容器的合法子集。
- * 实时检查容器的内容情况。
- * 除通用项外：
- * - 仅包含内容件。
- * - 仅包含子片区。
- * - 为空或子片区与内容件混杂。
- * @param  {Element} box 容器元素
- * @param  {[Number]} subs 子集定义（ChildTypesX[n]）
- * @return {[Number]}
- */
-function sectionSubs( box, subs ) {
-    let _n = sectionState( box );
-
-    switch ( _n ) {
-        case 1: return subs.slice(0, -1).concat(_BLOCKITS);
-        case 2: return subs;
-    }
-    return subs.concat( _BLOCKITS );
-}
-
-
 
 //
-// 导出
+// 工具函数导出
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -801,30 +770,49 @@ export function onlyText( tval ) {
 
 
 /**
- * 是否为合法子类型。
- * @param  {Element} box 目标父容器
- * @param  {Number} subv 子类型值
- * @return {Boolean}
+ * 检查章节内容状态。
+ * 也适用文章（<article>）根容器。
+ * 返回值：{
+ *      0   仅包含通用项（h2, header, footer, hr）
+ *      1   除通用项外，纯内容件
+ *      2   除通用项外，纯子片区
+ *      3   子片区和内容件混杂状态
+ * }
+ * @param  {Element} sec 章节/片区元素
+ * @return {Number} 状态码
  */
-export function isChildType( box, subv ) {
-    let _subs = childTypes( box );
-    return !!_subs && _subs.has( subv );
+export function sectionState( sec ) {
+    let _els = $.not( $.children(sec), 'h2,header,footer,hr' ),
+        _ses = $.filter( _els, 'section' );
+
+    // 未定
+    if ( !_els.length ) return 0;
+    // 纯内容件
+    if ( !_ses.length ) return 1;
+    // 纯片区
+    if ( _els.length === _ses.length ) return 2;
+    // 混杂
+    return 3;
 }
 
 
 /**
- * 获取目标的合法子类型集。
- * 如果传递类型值，则简单返回子类型值集。
- * 返回空串可便于展开为空集。
- * @param  {Element|Number} box 目标容器元素或类型值
- * @return {Set|''}
+ * 构造目标容器的合法子集。
+ * 实时检查容器的内容情况。
+ * 除通用项外：
+ * - 仅包含内容件。
+ * - 仅包含子片区。
+ * - 为空或子片区与内容件混杂。
+ * @param  {Element} box 容器元素
+ * @param  {[Number]} subs 子集定义（ChildTypesX[n]）
+ * @return {[Number]}
  */
-export function childTypes( box ) {
-    if ( typeof box === 'number' ) {
-        return ChildTypes[ box ];
-    }
-    let _tval = getType( box ),
-        _subs = ChildTypesX[ _tval ];
+export function sectionSubs( box, subs ) {
+    let _n = sectionState( box );
 
-    return _subs ? new Set( sectionSubs(box, _subs) ) : ChildTypes[ _tval ] || '';
+    switch ( _n ) {
+        case 1: return subs.slice(0, -1).concat(_BLOCKITS);
+        case 2: return subs;
+    }
+    return subs.concat( _BLOCKITS );
 }

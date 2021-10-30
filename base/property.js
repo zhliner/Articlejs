@@ -14,12 +14,11 @@
 //
 
 import $ from "./tpb/config.js";
+import { customGetter } from "./tpb/tpb.min.js";
 import * as T from "./types.js";
 import { getType } from "./base.js";
-import { customGetter } from "./tpb/tpb.js";
 import { highLight } from "./coding.js";
 import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
-
 import { Sys, On } from "../config.js";
 
 

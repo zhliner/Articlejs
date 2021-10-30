@@ -307,6 +307,7 @@ function Init( on, by ) {
  * - 如果模板存放在非默认目录内，可以传递一个自定义的模板管理器实例（tplr）。
  * 注意：
  * conf为子模板配置对象时，格式参考 templates/maps.json。
+ * 如果没有自定义的模板管理器，则需要先初始化默认的模板管理器（.Init()）。
  * 返回的承诺对象承诺了根元素及其子模板内的所有构建。
  * @param  {Element|Document|Object} root 根容器或处理对象
  * @param  {String|Object} conf 模板节点配置文件或配置对象，可选

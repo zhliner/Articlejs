@@ -13,13 +13,6 @@
 //
 
 import $ from "./tpb/config.js";
-
-
-//
-// 注意：
-// ./types.js 中引用了本模块中的 getType() 方法，
-// 因此本模块应当先于 ./types.js 加载。
-//
 import * as T from "./types.js";
 
 
@@ -618,6 +611,36 @@ export function setType( el, tval ) {
 
 
 /**
+ * 是否为合法子类型。
+ * @param  {Element} box 目标父容器
+ * @param  {Number} subv 子类型值
+ * @return {Boolean}
+ */
+export function isChildType( box, subv ) {
+    let _subs = childTypes( box );
+    return !!_subs && _subs.has( subv );
+}
+
+
+/**
+ * 获取目标的合法子类型集。
+ * 如果传递类型值，则简单返回子类型值集。
+ * 返回空串可便于展开为空集。
+ * @param  {Element|Number} box 目标容器元素或类型值
+ * @return {Set|''}
+ */
+export function childTypes( box ) {
+    if ( typeof box === 'number' ) {
+        return T.ChildTypes[ box ];
+    }
+    let _tval = getType( box ),
+        _subs = T.ChildTypesX[ _tval ];
+
+    return _subs ? new Set( T.sectionSubs(box, _subs) ) : T.ChildTypes[ _tval ] || '';
+}
+
+
+/**
  * 单元克隆（深度）。
  * 包括元素上绑定的事件处理器和类型值。
  * @param  {Element} src 源元素
@@ -781,7 +804,7 @@ export function isChapter( el ) {
  * @return {Boolean}
  */
 export function isCodeCons( nodes ) {
-    let _subs = T.childTypes( T.CODE );
+    let _subs = childTypes( T.CODE );
 
     if ( $.isArray(nodes) ) {
         return nodes.every( nd => isCodeCon(nd, _subs) );
@@ -977,33 +1000,6 @@ export function sectionChange( sec, n ) {
         return false;
     }
     Reflect.deleteProperty( $.attr(sec, 'role', _v), __typeKey );
-}
-
-
-/**
- * 检查章节内容状态。
- * 也适用文章（<article>）根容器。
- * 返回值：{
- *      0   仅包含通用项（h2, header, footer, hr）
- *      1   除通用项外，纯内容件
- *      2   除通用项外，纯子片区
- *      3   子片区和内容件混杂状态
- * }
- * @param  {Element} sec 章节/片区元素
- * @return {Number} 状态码
- */
-export function sectionState( sec ) {
-    let _els = $.not( $.children(sec), 'h2,header,footer,hr' ),
-        _ses = $.filter( _els, 'section' );
-
-    // 未定
-    if ( !_els.length ) return 0;
-    // 纯内容件
-    if ( !_ses.length ) return 1;
-    // 纯片区
-    if ( _els.length === _ses.length ) return 2;
-    // 混杂
-    return 3;
 }
 
 

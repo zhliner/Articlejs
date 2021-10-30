@@ -6,8 +6,7 @@
 <link rel="stylesheet" href="../styles/example/main.css" />
 <link rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
-<script src="../base/tquery/tquery.js"></script>
-<script src="../base/tquery/plugins/history.js"></script>
+<script src="../base/tquery/tquery.min.js"></script>
 <style>
     body {
         margin: 0;
@@ -23,15 +22,9 @@
     }
 </style>
 <script type="module" async>
-    import Tpb from "../base/tpb/tpb.js";
-    import "../base/create.js";
-    import "../base/edit.js";
-    import {EXTENT} from '../base/tpb/config.js';
-    import { parseJSON } from "../base/common.js";
-
+    import { Tpb } from "../base/tpb/tpb.js";
+    Tpb.Init();
     window.Tpb = Tpb;
-    window.EXTENT = EXTENT;
-    window.parseJSON = parseJSON;
 </script>
 </head>
 <body>

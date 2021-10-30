@@ -20,9 +20,9 @@
 import $, { OBTA, TplrName, TplsPool } from "./tpb/config.js";
 import { setupRoot } from "../index.js";
 import { Sys, Limit, Help, Tips, Cmdx, Local, On, By } from "../config.js";
-import { customGetter, processExtend } from "./tpb/tpb.js";
-import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, compatibleNoit, sectionState, checkStruct } from "./base.js";
-import * as T from "./types.js";  // 在 ./base.js 之后
+import { customGetter, processExtend } from "./tpb/tpb.min.js";
+import * as T from "./types.js";
+import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, compatibleNoit, checkStruct } from "./base.js";
 import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
@@ -3262,7 +3262,7 @@ function htmlNodes( html ) {
  * @return {[Node]|void} 非法节点集
  */
 function wrongNodes( box, nodes ) {
-    let _subs = T.childTypes( box ),
+    let _subs = childTypes( box ),
         _buf = [];
 
     for ( const nd of nodes ) {
@@ -6273,7 +6273,7 @@ export const Kit = {
             [...parentsSet(__ESet)] :
             [...__ESet];
 
-        return _els.some( el => __reSecbox.test(el.tagName) && sectionState(el) === 3 );
+        return _els.some( el => __reSecbox.test(el.tagName) && T.sectionState(el) === 3 );
     },
 
     __ismixed: 1,

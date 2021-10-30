@@ -25,9 +25,9 @@
 //
 
 import $ from "./tpb/config.js";
-import { processProxy } from "./tpb/tpb.js";
-import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, cloneElement, sectionState } from "./base.js";
+import { processProxy } from "./tpb/tpb.min.js";
 import * as T from "./types.js";
+import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, isChildType, cloneElement } from "./base.js";
 import { Sys, By } from "../config.js";
 
 
@@ -771,7 +771,7 @@ const Children = {
     Children[ it ] = function( ref, el, _, sub ) {
         let _tv = sub && getType( sub );
 
-        if ( T.isChildType(el, _tv) ) {
+        if ( isChildType(el, _tv) ) {
             $.append( el, sub );
         }
         return result( null, el, true );
@@ -1596,7 +1596,7 @@ function appendChild( ref, box, sub, maker ) {
     }
     let _tv = sub.nodeType ? getType( sub ) : 0;
 
-    if ( T.isChildType(box, _tv) && !T.isSingle(_tv) ) {
+    if ( isChildType(box, _tv) && !T.isSingle(_tv) ) {
         return [insertChild(ref, box, sub), true];
     }
     return [insertChild(ref, box, maker()), false];
@@ -1669,7 +1669,7 @@ function appendNode( box, node ) {
     if ( !$.isArray(node) ) {
         _nodes = [ node ];
     }
-    if ( _nodes.some( el => !T.isChildType(box, getType(el))) ) {
+    if ( _nodes.some( el => !isChildType(box, getType(el))) ) {
         return null;
     }
     return $.append( box, node );
@@ -1727,7 +1727,7 @@ function sectionsFitted( sec, n ) {
  * @return {Function|null} 创建函数
  */
 function sectionItemHandler( ref, sec, data ) {
-    let _n = sectionState( sec );
+    let _n = T.sectionState( sec );
 
     switch ( _n ) {
         case 0:
@@ -1922,7 +1922,7 @@ function dataCons( box, data ) {
         return $.Text( data );
     }
     return contents( data ).map(
-        nd => T.isChildType( box, getType(nd) ) ? nd : $.Text( nd )
+        nd => isChildType( box, getType(nd) ) ? nd : $.Text( nd )
     );
 }
 

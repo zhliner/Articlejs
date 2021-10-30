@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { BaseOn, BaseBy } from "./base/tpb/tpb.js";
+import { BaseOn, BaseBy } from "./base/tpb/tpb.min.js";
 
 
 const

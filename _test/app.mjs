@@ -72,4 +72,4 @@ export class App {
     }
 }
 
-window.console.info( window.Hai );
+window.console.info( self );

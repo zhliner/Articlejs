@@ -119,7 +119,7 @@ class Templater {
      * 并且该节点的内部子节点已经就绪（tpl-node|source 完成）。
      * 注：bound 仅在 clone 为真时有意义。
      * @param  {String} name 节点名
-     * @param  {Boolean} clone 是否克隆（含渲染文法）
+     * @param  {Boolean} clone 是否克隆（含渲染文法），可选
      * @param  {Boolean} bound 克隆包含绑定的事件处理器，可选
      * @return {Element|null}
      */
