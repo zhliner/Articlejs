@@ -1,8 +1,8 @@
-//! $ID: main.js 2021.09.19 Articlejs.Plugins $
+//! $ID: main.js 2021.09.19 Cooljed.Plugins $
 // ++++++++++++++++++++++++++++++++++++++++++++++
-//  Project: Articlejs v0.1.0
+//  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
-//  Copyright (c) 2021 铁皮工作室  MIT License
+//  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
