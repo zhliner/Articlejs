@@ -15,12 +15,12 @@
 //
 
 import $, { Web, TplrName, TplsPool, DEBUG } from "./tpb/config.js";
-import cfg from "./shortcuts.js";
-import { Tpb } from "./tpb/tpb.min.js";
+import { Tpb } from "./tpb/tpb.esm.js";
 import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
-import { Edit, init, Kit } from "./edit.js";
-import { ESCStack } from "./common.js";
 import { Sys, On, By } from "../config.js";
+import cfg from "./shortcuts.js";
+import { ESCStack } from "./common.js";
+import { Edit, init, Kit } from "./edit.js";
 import Api from "./api.js";
 
 window.GHK = new HotKey().config( cfg.Global );

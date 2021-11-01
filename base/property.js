@@ -14,7 +14,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { customGetter } from "./tpb/tpb.min.js";
+import { customGetter } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { getType } from "./base.js";
 import { highLight } from "./coding.js";

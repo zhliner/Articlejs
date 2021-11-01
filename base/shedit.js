@@ -20,7 +20,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { processExtend } from "./tpb/tpb.min.js";
+import { processExtend } from "./tpb/tpb.esm.js";
 import { Sys, Limit, By } from "../config.js";
 import { CStorage, History, DPage, Pager } from "./common.js";
 

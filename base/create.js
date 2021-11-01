@@ -25,7 +25,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { processProxy } from "./tpb/tpb.min.js";
+import { processProxy } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { getType, setType, tableObj, contents, isValidTR, sectionChange, sectionLevel, isHeadTR, contentBoxes, isBlockCode, isCodeCons, isChildType, cloneElement } from "./base.js";
 import { Sys, By } from "../config.js";

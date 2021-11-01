@@ -13,7 +13,7 @@
 //
 
 import $, { XLoader, TplsPool } from "./tpb/config.js";
-import { obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.min.js";
+import { obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.esm.js";
 import { Templater } from "./tpb/tools/templater.js";
 
 import { setupRoot } from "../index.js";
