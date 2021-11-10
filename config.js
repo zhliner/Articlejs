@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { Web } from "./base/tpb/config.js";
 import { BaseOn, BaseBy } from "./base/tpb/tpb.esm.js";
 
 
@@ -186,7 +187,7 @@ const
 
     // 脚本执行器创建器
     // 路径视实际部署情况调整。
-    Scripter = () => new Worker( '/base/scripter.js' );
+    Scripter = () => new Worker( `${Web.base}base/scripter.js` );
 
 
 
