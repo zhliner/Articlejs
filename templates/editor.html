@@ -38,8 +38,8 @@
     Sys.updateTime = _conf.updatetime;
     Sys.readyCall  = _conf.ready;
     Sys.failCall   = _conf.fail;
-    Sys.saveCall   = _conf.save;
-    Sys.maximizeCall = _conf.maximize;
+    Sys.saver      = _conf.save;
+    Sys.maximizer  = _conf.maximize;
 
     if ( _conf.theme ) {
         $.get('#s-theme').href = `../themes/${_conf.theme}/style.css`;
@@ -52,7 +52,7 @@
     }
 </script>
 <!-- 入口文件 -->
-<script type="module" src="../base/main.min.js"></script>
+<script type="module" src="../base/main.js"></script>
 </head>
 <!--基本行为:
     - 左右面板大小改变。
@@ -130,11 +130,13 @@
     <div id="editor"
         on="main.chapter|$('#g-count') val split('.');
             main.saving|$('/main#content') clone;
-            main.export"
+            main.export|$('/main#content') clone"
         by="Kit.chapter;
-            Kit.save"
+            Kit.save;
+            Kit.export"
         to="#g-count|trigger('reset');
-            #status-info|trigger('info')">
+            #status-info|trigger('info');
+            -">
         <!--模态框
             open    打开模态框，插入目标表单。向表单发送一个state事件，用于可能需要的初始设置。
                     可接收一个二元数组，前一个值会被用于激发state事件递送的数据。

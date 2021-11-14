@@ -279,12 +279,13 @@ const Sys = {
     // 会作为本地存储的键前缀。
     nameEditor: '_',
 
-    // 最大化回调
-    maximizeCall: null,
+    // 最大化处理器
+    // 在用户点击工具栏的最大化按钮时触发。
+    maximizer: null,
 
-    // 保存回调
+    // 存储处理器
     // 一般是在用户按[s]键时触发。
-    saveCall:   null,
+    saver:   null,
 
     // 载入就绪回调
     readyCall:  null,

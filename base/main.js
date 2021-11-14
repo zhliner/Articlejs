@@ -28,8 +28,8 @@ window.SHK = new HotKey().config( cfg.Slave );
 window.DHK = new HotKey().config( cfg.Modal );
 window.CHK = new ObjKey(Edit).config( cfg.Content );
 
-// 供模板中直接使用。
-// 主要用于调用链中使用其方法。
+// 全局变量输出
+// 用于模板中在调用链中提取&使用。
 window.Sys = Sys;
 window.Kit = Kit;
 window.KM = cfg.Keys;

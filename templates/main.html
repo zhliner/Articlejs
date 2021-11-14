@@ -55,7 +55,10 @@
             to="#g-modal|trigger('open')">
             <i id="b-plugins"></i>
         </b>
-        <b title="最大化"><i id="b-maximize"></i></b>
+        <b title="最大化切换" data-max="0"
+            on="click|([0, 1]);
+                send|(Sys.maximizer) evo(3) attr('-max') exec(_1)"
+            to="|toggleAttr('-max')|goto('send')"><i id="b-maximize"></i></b>
     </div>
 </div>
 

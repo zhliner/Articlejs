@@ -159,9 +159,9 @@ Global: [
     // 内容导出。
     // 打开一个导出对话框，导出源码。
     {
-        "key":      "shift:p",
+        "key":      "alt:p",
         "command":  "main.export",
-        "exclude":  "textarea,input,[contenteditable]"
+        // "exclude":  "textarea,input,[contenteditable]"
     },
 
 ],

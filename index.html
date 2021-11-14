@@ -7,13 +7,30 @@
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="styles.css">
 <script src="base/tquery/tquery.min.js"></script>
-
+<style>
+/* 编辑器最大化 */
+#editorBox > iframe._full {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+</style>
 <script type="module">
     import coolj, {setupRoot} from "./index.js";
 
-    coolj.create( null, setupRoot )
+    let _ifrm = null,
+        _fmax = [
+            () => $.removeClass( _ifrm, '_full' ),
+            () => $.addClass( _ifrm, '_full' )
+        ],
+        _opts = {
+            onsaved: html => window.console.info(html),
+            onmaximize: num => _fmax[num](),
+        };
+
+    coolj.create( _opts, setupRoot )
         .init( $.get('#editorBox') )
-        .then( ed => window.console.info('上层用户页逻辑') || ed.frame().contentWindow.focus() );
+        .then( ed => (_ifrm = ed.frame()).contentWindow.focus() );
 </script>
 </head>
 <body>
