@@ -5768,7 +5768,7 @@ export const Edit = {
      * 在用户单击插件面板中的目标插件按钮时发生。
      * - 模态框会被自动关闭。
      * - 如果插件请求了模板节点（名称），则导入并渲染。
-     * - 插件请求的模板会在模态框之上（面板内）。
+     * - 插件请求的模板会在模态框之上。
      * @data: Element 插件按钮
      * @return {Promise<[Element, String]>}
      */
@@ -6694,16 +6694,18 @@ export const Kit = {
      * 本地暂存。
      * 存储数据元素的内容HTML源码。
      * 会清除临时的状态类名（焦点、选取）。
-     * 注记：
-     * 出于简化和浏览器空间局限，仅支持单个编辑器实例存储。
      * @data: Element
      * @return {String} 存储完成提示
      */
     save( evo ) {
-        $( __tmpclsSlr, evo.data )
-            .removeClass( __tmpcls );
+        // 清理临时类名
+        $( __tmpclsSlr, evo.data ).removeClass( __tmpcls );
 
-        __EDStore.set( Sys.storeMain, $.html(evo.data) );
+        let _html = $.html( evo.data );
+
+        if ( !Sys.saver(_html) ) {
+            __EDStore.set( Sys.storeMain, _html );
+        }
         return Tips.localStoreDone;
     },
 
@@ -6714,12 +6716,13 @@ export const Kit = {
      * 导出内容源码。
      * 提取内容源码，发送到源码导出模态框。
      * @data: Element 内容区跟容器（<main>）
+     * @return {String} 结果源码
      */
     export( evo ) {
         //
     },
 
-    __htmlExport: 1,
+    __export: 1,
 
 
     /**
@@ -7326,6 +7329,7 @@ processExtend( By, 'Kit', Kit, [
     'errmsg',
     'chapter',
     'save',
+    'export',
     'blankline',
     'toclist',
     'medpass',

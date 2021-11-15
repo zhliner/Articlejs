@@ -269,13 +269,13 @@ const Sys = {
     storeStyle: 'Style',
 
     // 脚本历史（前缀）
-    scriptList: 'Script_',
+    scriptList: 'script_',
 
 
     // 实例配置覆盖
     //-------------------------------------------
 
-    // 编辑器名称
+    // 默认编辑器名称
     // 会作为本地存储的键前缀。
     nameEditor: '_',
 

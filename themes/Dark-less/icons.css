@@ -35,7 +35,8 @@ i[id|=l] {
 #b-outline  { background-position: 0 0; }
 #b-slave    { background-position: 0 -50px; }
 #b-plugins  { background-position: 0 -100px; }
-#b-maximize { background-position: 0 -150px; }
+[data-max='0'] > #b-maximize { background-position: 0 -150px; }
+[data-max='1'] > #b-maximize { background-position: -25px -150px; }
 #b-totext   { background-position: 0 -200px; }
 #b-conup    { background-position: 0 -250px; }
 #b-undo     { background-position: 0 -300px; }

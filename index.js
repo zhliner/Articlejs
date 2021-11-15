@@ -29,7 +29,8 @@
 //      updatetime: Number      上次更新时间，仅修改时存在。可选
 //      recover: Boolean        需要本地内容恢复（localStorage），可选
 //
-//      onsaved: Function       存储回调（用户按[s]键），接口：function( html ): void
+//      onsaved: Function       存储回调（用户按[s]键），接口：function( html ): Boolean
+//                              返回true则取消本地存储。
 //      onmaximize: Function    最大化请求，接口：function( state:0|1 ): void
 //                              其中state: 0 取消最大化，1 最大化
 //  }
