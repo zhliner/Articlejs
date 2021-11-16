@@ -1057,7 +1057,27 @@
 </ul>
 
 
-<div>
-    <!-- 源码导出 -->
-    <!-- 格式化（按钮） -->
+<!-- 内容源码导出 -->
+<div class="_export" tpl-name="misc:export">
+    <div class="_top">
+        <span>
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
+            <button type="button">格式化</button>
+        </span>
+        <label
+            on="click(input)|(['true', 'false'])"
+            to="2/textarea|^spellcheck">
+            <input type="checkbox" name="spell" />拼写检查
+        </label>
+    </div>
+    <textarea name="html" class="_code" spellcheck="false"></textarea>
+    <fieldset>
+        <legend>说明：</legend>
+        <ul>
+            <li>将源码插入容器元素内（通常是一个 <code>&lt;main&gt;</code>），然后在页面头部引入内容样式即可。</li>
+            <li>如果内容包含 <code>OBT</code> 交互，则还需要引入 <code>tpb/default.css</code> 系统样式。</li>
+        </ul>
+    </fieldset>
 </div>

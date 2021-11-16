@@ -582,15 +582,21 @@
     <button type="button">取消</button>
 </div>
 
-<!-- 确定 -->
+<!-- 单确定 -->
 <div class="_submit" tpl-name="modal:ok">
     <button type="submit">确定</button>
+</div>
+
+<!-- 单重置 -->
+<div class="_btn2" tpl-name="modal:reset">
+    <button type="reset">重置</button>
 </div>
 
 
 <!--通用模态页（如插件应用）
     state   获取数据为一个二元数组：[节点（集）, 标题条文本]
-    _node   填充应用的根节点（集）。 -->
+    _node   填充应用的根节点（集）。
+    submit  屏蔽提交即可。 -->
 <form class="_page" tpl-name="modal:page"
     on="state|ev('detail') spread;
         _node|ev('detail');
@@ -604,7 +610,7 @@
     <main>
         <!-- [node] -->
     </main>
-    <hr tpl-node="modal:okreset" />
+    <hr tpl-node="modal:reset" />
 </form>
 
 

@@ -7,9 +7,12 @@
     <link rel="stylesheet" href="../base/tpb/default.css">
     <link rel="stylesheet" href="../themes/Dark-less/style.css">
     <link rel="stylesheet" href="../styles/example/main.css">
-    <script src="../base/tquery/tquery.js"></script>
-    <script src="../base/tquery/plugins/history.js"></script>
+    <script src="../base/tquery/tquery.min.js"></script>
+    <script src="../base/tquery/plugins/history.min.js"></script>
     <style>
+        body {
+            display: block;
+        }
         body > div {
             width: 820px;
             height: 240px;
@@ -39,8 +42,10 @@
         }
     </style>
     <script type="module">
-        import Tpb from "../base/tpb/tpb.js";
+        import { TplsPool, TplrName } from "../base/tpb/config.js";
+        import { Tpb } from "../base/tpb/tpb.esm.js";
         import cfg from "../base/shortcuts.js";
+        import { On, By } from "../config.js";
         import { Kit } from "../base/edit.js";
         import { Render } from "../base/tpb/tools/render.js";
         import "../base/shedit.js";
@@ -49,8 +54,12 @@
         window.KM = cfg.Keys;
         window.Render = Render;
 
-        Tpb.build( attribute, {} );
+        Tpb.Init( On, By );
+        Tpb.build( $.get('#g-codes') );
 
+        window.On = On;
+        window.By = By;
+        window.Tpls = TplsPool.get( TplrName );
         // 测试数据
         // 置顶集
         window.TD1 = [
@@ -124,69 +133,35 @@
             /pre|trigger('value');
             /pre|trigger(_1)|pop goto('shsave')">
         <header>
-            <h4>脚本执行结果</h4>
+            <h4>内容源码</h4>
             <b class="_close" title="关闭">✕</b>
         </header>
-        <main class="_result">
-            <!--结果框：
-                value 设置正常的结果内容。
-                reset 提取初始化存储的源码重置。
-                error 错误信息用源码连接。 -->
-            <pre class="_err" data-bak="" contenteditable
-                on="reset|evo(3) prop('-bak');
-                    value|ev('detail') html dup ('_err');
-                    error|ev('detail') html str('<label>错误：</label><i>', '</i>') dup ('_err');
-                    ^obted|$('#g-codes')"
-                to="|html;
-                    |removeClass prop('-bak') html;
-                    |addClass prop('-bak') html;
-                    |cloneEvents">
-<label>错误：</label><i>this is a error massage.</i>
-</pre>
-            <!-- 仅部分禁用 -->
-            <fieldset
-                on="disable|ev('detail') dup $$('/>span') pop disable(_1)"
-                to="(input[name=type], select)|$disabled">
-                <legend>内容插入</legend>
-                <span class="_type"
-                    on="click(input)|evo(2) val str('where:') node(_1)"
-                    to="1/._where|replace">
-                    <i>类型：</i>
-                    <label title="text"><input type="radio" name="type" value="text" checked />文本</label>
-                    <label title="html"><input type="radio" name="type" value="html" />节点</label>
-                </span>
-                <span class="_where" tpl-name="where:text">
-                    <i>位置：</i>
-                    <!-- 友好：空值可用于简单关闭对话框 -->
-                    <select name="where">
-                        <option value=""> ------ </option>
-                        <option title="内部填充">fill</option>
-                        <option title="内部末尾">append</option>
-                        <option title="内部前端">prepend</option>
-                    </select>
-                </span>
-                <!-- 隐藏不闪烁 -->
-                <span class="_where" tpl-name="where:html"
-                    on="^tpled|evo(3) remove">
-                    <i>位置：</i>
-                    <select name="where">
-                        <option value=""> ------ </option>
-                        <option title="内部填充">fill</option>
-                        <option title="替换目标">replace</option>
-                        <option title="内部末尾">append</option>
-                        <option title="内部前端">prepend</option>
-                        <option title="目标之前">before</option>
-                        <option title="目标之后">after</option>
-                    </select>
-                    <em class="_tips">提示：注意源码结构的合法性！</em>
-                </span>
-                <label title="编辑时用">制表符
-                    <input type="text" name="tabs" class="_char" value="4" title="空格数">
-                </label>
-            </fieldset>
+        <main>
+            <div class="_export">
+                <div class="_top">
+                    <span>
+                        <label>制表符
+                            <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                        </label>
+                        <button type="button">格式化</button>
+                    </span>
+                    <label
+                        on="click(input)|(['true', 'false'])"
+                        to="2/textarea|^spellcheck">
+                        <input type="checkbox" name="spell" />拼写检查
+                    </label>
+                </div>
+                <textarea name="html" class="_code" spellcheck="false"></textarea>
+                <fieldset>
+                    <legend>说明：</legend>
+                    <ul>
+                        <li>将源码插入容器元素内（通常是一个 <code>&lt;main&gt;</code>），然后在页面头部引入内容样式即可。</li>
+                        <li>如果内容包含 <code>OBT</code> 交互，则还需要引入 <code>tpb/default.css</code> 系统样式。</li>
+                    </ul>
+                </fieldset>
+            </div>
         </main>
         <div class="_btn2" tpl-name="modal:okreset">
-            <button type="submit">确定</button>
             <button type="reset">重置</button>
         </div>
     </form>

@@ -2043,3 +2043,45 @@ menu._cells code {
     color: orange;
     font-size: small;
 }
+
+
+/* 通用页
+ *-------------------------*/
+.Modal ._page > main {
+    margin: 0 1em;
+    height: calc(100% - 150px);
+}
+.Modal ._page ._export {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 源码导出 */
+.Modal ._export ._top {
+    margin-bottom: 6px;
+    padding: 0 5px;
+}
+.Modal ._export ._top > label {
+    float: right;
+}
+.Modal ._export ._top button {
+    margin-left: 10px;
+    background-color: #cdffde;
+}
+.Modal ._export ._top button:hover {
+    background-color: #fff0e5;
+}
+.Modal ._export fieldset {
+    margin: 1em 0 2em;
+    border-radius: 30px;
+}
+.Modal ._export fieldset > ul {
+    padding-left: 2em;
+    padding-bottom: 0.5em;
+    color: green;
+}
+.Modal ._export fieldset > legend {
+    color: green;
+    margin-left: 10px;
+}
