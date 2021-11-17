@@ -1064,7 +1064,10 @@
             <label>制表符
                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
-            <button type="button">格式化</button>
+            <button type="button"
+                on="click|$('3/textarea') val $('1/input') val int"
+                by="Kit.nicehtml(_1)"
+                to="3/textarea|val">格式化</button>
         </span>
         <label
             on="click(input)|(['true', 'false'])"
@@ -1076,7 +1079,7 @@
     <fieldset>
         <legend>说明：</legend>
         <ul>
-            <li>将源码插入容器元素内（通常是一个 <code>&lt;main&gt;</code>），然后在页面头部引入内容样式即可。</li>
+            <li>复制源码插入容器元素内（通常是一个 <code>&lt;main&gt;</code>），然后在页面头部引入内容样式即可。</li>
             <li>如果内容包含 <code>OBT</code> 交互，则还需要引入 <code>tpb/default.css</code> 系统样式。</li>
         </ul>
     </fieldset>

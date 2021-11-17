@@ -430,6 +430,9 @@ class RngEdit {
         rng.detach();
         rng.insertNode( this._el );
 
+        // 取消划选高亮（快捷键创建时）
+        rng.collapse();
+
         this._tmp = null;
     }
 
@@ -6726,6 +6729,21 @@ export const Kit = {
 
 
     /**
+     * 源码美化（换行&缩进）。
+     * 制表符空格数实参非数值（NaN）时，缩进采用一个Tab。
+     * 0值空格数有效，即没有缩进（但有换行）。
+     * @data: String 内容源码
+     * @param  {Number|NaN} tabs 制表符空格数，可选
+     * @return {String}
+     */
+    nicehtml( evo, tabs ) {
+        //
+    },
+
+    __nicehtml: 1,
+
+
+    /**
      * 代码编辑：
      * 空行检查处理。
      * 换行之后跟随单个空格视为空行。
@@ -7330,6 +7348,7 @@ processExtend( By, 'Kit', Kit, [
     'chapter',
     'save',
     'export',
+    'nicehtml',
     'blankline',
     'toclist',
     'medpass',
