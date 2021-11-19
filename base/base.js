@@ -713,7 +713,7 @@ export function isCovert( el ) {
 
 
 /**
- * 是否为内容元素。
+ * 是否为内联元素。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
@@ -723,7 +723,7 @@ export function isInlines( el ) {
 
 
 /**
- * 是否为内容元素。
+ * 是否为块级元素。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
@@ -740,7 +740,8 @@ export function isBlocks( el ) {
  */
 export function isContent( el ) {
     return T.isContent( getType(el) ) ||
-        el.childElementCount === 0 && el.innerText.trim();
+        // SVG系元素不含.innerText成员
+        el.childElementCount === 0 && el.innerText && el.innerText.trim();
 }
 
 

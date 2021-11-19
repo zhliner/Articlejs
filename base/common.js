@@ -13,7 +13,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { beforeFixed, afterFixed } from "./base.js";
+import { beforeFixed, afterFixed, isInlines, isEmpty, isContent } from "./base.js";
 import { Scripter } from "../config.js";
 import { Render } from "./tpb/tools/render.js";
 
@@ -832,6 +832,96 @@ function warn( msg, data ) {
 }
 
 
+//
+// HTML格式化
+//----------------------------------------------------------------------------
+
+
+/**
+ * 元素自身格式化。
+ * - 内联元素自身和内部不起新行；
+ * - 块级元素自身强制起新行；
+ * - 块级元素内仅含单个文本节点时不起新行；
+ * @param  {Element} el 当前元素
+ * @param  {String} ind 缩进字符串
+ * @param  {String} prefix 前阶缩进字符串
+ * @return {String} 格式串
+ */
+function stringElement( el, ind, prefix ) {
+	let _tag = el.tagName.toLowerCase(),
+		_html = `<${_tag}${stringAttr(el.attributes)}`,
+        _con = '';
+
+    if ( isEmpty(el) ) {
+		return _html + ' />';
+	}
+    _html += '>';
+
+    for ( const nd of el.childNodes ) {
+        _con += niceHtml( nd, ind, prefix + ind );
+    }
+	return _html + _con + newLineClose(el, prefix) + `</${_tag}>`;
+}
+
+
+/**
+ * 元素属性序列。
+ * - 指目标元素内的属性序列，不含内容和结尾标签。
+ * - 空值属性保持为单属性标志状态（无=）。
+ * @param  {NamedNodeMap} attrs 元素属性集
+ * @return {String}
+ */
+function stringAttr( attrs ) {
+	let _ats = '';
+
+	for ( let i = 0; i < attrs.length; i++ ) {
+		let _at = attrs[i];
+		_ats += ` ${_at.name}` + (_at.value === '' ? '' : `="${_at.value}"`);
+	}
+	return _ats;
+}
+
+
+/**
+ * 新行缩进（开始标签）。
+ * 用于块级元素自身换行&缩进。
+ * @param  {Element} el 目标元素
+ * @param  {String} indent 缩进字符串（前阶）
+ * @return {String}
+ */
+function newLineStart( el, indent ) {
+	return el.nodeType === 3 || isInlines( el ) ? '' : '\n' + indent;
+}
+
+
+/**
+ * 新行缩进（结束标签）
+ * 内容元素的关闭标签不需要换行。
+ * <li>被用作定制结构（非通用内容元素），但也无需换行关闭。
+ * @param  {Element} el 目标元素
+ * @param  {String} indent 缩进字符串
+ * @return {String}
+ */
+function newLineClose( el, indent ) {
+    return el.nodeType === 3 ||
+        isInlines( el ) || isContent( el ) || el.tagName === 'LI' ?
+        '' : '\n' + indent;
+}
+
+
+/**
+ * 返回原始保持内容。
+ * - 仅用于<code>和<pre>元素。
+ * - 源码取outerHTML，故返回空串表示元素不匹配。
+ * @param  {Element} el 目标元素
+ * @return {String} 源码
+ */
+function keepHTML( el ) {
+	let _tag = el.nodeName;
+	return _tag == 'CODE' || _tag == 'PRE' ? $.prop(el, 'outerHTML') : '';
+}
+
+
 
 //
 // 基本函数集。
@@ -1009,3 +1099,33 @@ export function elem2Swap( a, b ) {
     $.replace( a, b );
     return _ref ? $.after( _ref, a ) : $.prepend( _box, a );
 }
+
+
+/**
+ * 提取换行/缩进良好的源码。
+ * - 行块单元内不换行，内联单元间不换行。
+ * - 缩进0空格数是有效的，表示不缩进。
+ * - 非数值空格数缩进为一个Tab字符。
+ * @param  {Node} node 目标节点
+ * @param  {String} tabs 缩进字符串（对应一个Tab）
+ * @param  {String} prefix 前阶缩进字符串，可选
+ * @return {String} 格式良好的源码
+ */
+export function niceHtml( node, tabs, prefix = '' ) {
+    let _n = node.nodeType,
+        _nl = newLineStart( node, prefix );
+
+    if ( _n === 1 ) {
+        return _nl + ( keepHTML(node) || stringElement(node, tabs, prefix) )
+    }
+    if ( _n === 3 ) {
+        return node.textContent.trim();
+    }
+    if ( _n === 8 ) {
+        return _nl + `<!--${node.data}-->`;
+    }
+    return node.outerHTML || node + '';
+}
+
+
+window.niceHtml = niceHtml;
