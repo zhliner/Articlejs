@@ -132,14 +132,18 @@ const CustomStruct = {
 
 
     /**
-     * 仅两种可能：
+     * 两种可能：
      * - SPACE: 空白。
      * - FIGIMGBOX: 插图子结构（figure/span/img, i:explain）。
+     * 非此两种时返回null标识（非法）。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
     SPAN( el ) {
-        return el.parentElement.tagName === 'FIGURE' ? T.FIGIMGBOX : T.SPACE
+        if ( el.parentElement.tagName === 'FIGURE' ) {
+            return T.FIGIMGBOX;
+        }
+        return el.hasAttribute('space') ? T.SPACE : null;
     },
 
 

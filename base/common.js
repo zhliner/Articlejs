@@ -890,7 +890,7 @@ function stringAttr( attrs ) {
  * @return {String}
  */
 function newLineStart( el, indent ) {
-	return el.nodeType === 3 || isInlines( el ) ? '' : '\n' + indent;
+	return el.nodeType === 3 || el.nodeType === 1 && isInlines( el ) ? '' : '\n' + indent;
 }
 
 
@@ -903,9 +903,9 @@ function newLineStart( el, indent ) {
  * @return {String}
  */
 function newLineClose( el, indent ) {
-    return el.nodeType === 3 ||
-        isInlines( el ) || isContent( el ) || el.tagName === 'LI' ?
-        '' : '\n' + indent;
+    return el.nodeType === 3 || isInlines( el ) || isContent( el ) || el.tagName === 'LI' ?
+        '' :
+        '\n' + indent;
 }
 
 
