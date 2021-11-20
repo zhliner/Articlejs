@@ -161,6 +161,7 @@ Global: [
     {
         "key":      "alt:p",
         "command":  "main.export",
+        // key定义为 shift:p 时需要
         // "exclude":  "textarea,input,[contenteditable]"
     },
 

@@ -897,7 +897,7 @@ function newLineStart( el, indent ) {
 /**
  * 新行缩进（结束标签）
  * 内容元素的关闭标签不需要换行。
- * <li>被用作定制结构（非通用内容元素），但也无需换行关闭。
+ * <li>被用作定制结构（非通用内容元素），也无需换行关闭。
  * @param  {Element} el 目标元素
  * @param  {String} indent 缩进字符串
  * @return {String}
@@ -1126,6 +1126,3 @@ export function niceHtml( node, tabs, prefix = '' ) {
     }
     return node.outerHTML || node + '';
 }
-
-
-window.niceHtml = niceHtml;

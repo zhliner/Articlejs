@@ -1058,7 +1058,9 @@
 
 
 <!-- 内容源码导出 -->
-<div class="_export" tpl-name="misc:export">
+<div class="_export" tpl-name="misc:export"
+    on="vinit|ev('detail') dup"
+    to="/textarea|$defaultValue val">
     <div class="_top">
         <span>
             <label>制表符

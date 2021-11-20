@@ -594,20 +594,21 @@
 
 
 <!--通用模态页（如插件应用）
-    state   获取数据为一个二元数组：[节点（集）, 标题条文本]
-    _node   填充应用的根节点（集）。
+    state   获取数据为一个三元数组：[应用数据, 节点（集）, 标题条文本]
+            其中应用数据会作为vinit通知的附带数据发送。
+    _node   填充应用的根节点（集）。同时会向新插入的节点集发送一个vinit通知。
     submit  屏蔽提交即可。 -->
 <form class="_page" tpl-name="modal:page"
     on="state|ev('detail') spread;
-        _node|ev('detail');
+        _node|ev('detail') spread;
         submit|avoid"
-    to="/h4|@title|pop goto('_node');
-        /main|fill">
+    to="/h4|text|pack(2) pop goto('_node');
+        /main|fill|pop fire('/main>*', 'vinit')">
     <header>
         <h4>[标题]</h4>
         <b class="_close" title="关闭">✕</b>
     </header>
-    <main>
+    <main on="vinit|stop">
         <!-- [node] -->
     </main>
     <hr tpl-node="modal:reset" />

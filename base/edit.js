@@ -23,7 +23,7 @@ import { Sys, Limit, Help, Tips, Cmdx, Local, On, By } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, compatibleNoit, checkStruct } from "./base.js";
-import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun } from './common.js';
+import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
@@ -36,7 +36,6 @@ import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import { Select, Filter, Search, Command, Calcuate, typeRecord, CmdNav, cmdlineInit } from "./cmdline.js";
 import { pluginsName } from "./plugins.js";
-import { Render } from "./tpb/tools/render.js";
 
 
 const
@@ -3134,8 +3133,8 @@ function plugLoad( url, data ) {
 /**
  * 插件运行结果处理。
  * - 插件需要申请模板来获得UI交互。
- * - 如果申请了模板，结果数据（result）将用于模板渲染的源数据。
- * - 如果没有申请模板，结果数据填充到一个文本框内向后传递。
+ * - 如果申请了模板，结果数据（result）会通过vinit事件发送到新插入的模板根。
+ * - 如果没有申请模板，结果数据会填充到一个文本框内向后传递。
  * obj: {
  *      result: 插件结果数据
  *      node:   引入的模板节点名，可选
@@ -3148,14 +3147,10 @@ function plugLoad( url, data ) {
  */
 function plugResult( obj, name, ttl ) {
     let _tplr = TplsPool.get( name );
-
     ttl = obj.title || ttl;
 
     if ( obj.node ) {
-        return [
-            Render.update( _tplr.node(obj.node), obj.result ),
-            ttl
-        ];
+        return [ obj.result, _tplr.node(obj.node), ttl ];
     }
     return [ $.elem( 'textarea', JSON.stringify(obj.result, null, 4) ), ttl ];
 }
@@ -6697,7 +6692,7 @@ export const Kit = {
      * 本地暂存。
      * 存储数据元素的内容HTML源码。
      * 会清除临时的状态类名（焦点、选取）。
-     * @data: Element
+     * @data: Element 内容区根（<main>）副本
      * @return {String} 存储完成提示
      */
     save( evo ) {
@@ -6718,11 +6713,12 @@ export const Kit = {
     /**
      * 导出内容源码。
      * 提取内容源码，发送到源码导出模态框。
-     * @data: Element 内容区跟容器（<main>）
+     * @data: Element 内容区根（<main>）副本
      * @return {String} 结果源码
      */
     export( evo ) {
-        //
+        $( __tmpclsSlr, evo.data ).removeClass( __tmpcls );
+        return $.html( evo.data );
     },
 
     __export: 1,
@@ -6737,7 +6733,10 @@ export const Kit = {
      * @return {String}
      */
     nicehtml( evo, tabs ) {
-        //
+        let _ind = isNaN(tabs) ? '\t' : ' '.repeat(tabs),
+            _els = [...$.fragment(evo.data).children];
+
+        return _els.map( el => niceHtml(el, _ind) ).join( '' ).trim();
     },
 
     __nicehtml: 1,
