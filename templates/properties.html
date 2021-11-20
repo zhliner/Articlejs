@@ -776,7 +776,8 @@
 
 <li class="_upload" tpl-name="prop:upload">
     <b>上传</b>
-    <span><input type="file" name="upload" value=""
+    <!-- disabled 临时禁用 -->
+    <span><input type="file" name="upload" value="" disabled
             @on="change|evo(3) val"
             @by="x.Upload.go" />
     </span>

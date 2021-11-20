@@ -876,7 +876,7 @@ function stringAttr( attrs ) {
 
 	for ( let i = 0; i < attrs.length; i++ ) {
 		let _at = attrs[i];
-		_ats += ` ${_at.name}` + (_at.value === '' ? '' : `="${_at.value}"`);
+		_ats += ` ${_at.name}` + (_at.value === '' ? '' : `="${quoteEscape(_at.value)}"`);
 	}
 	return _ats;
 }
@@ -919,6 +919,17 @@ function newLineClose( el, indent ) {
 function keepHTML( el ) {
 	let _tag = el.nodeName;
 	return _tag == 'CODE' || _tag == 'PRE' ? $.prop(el, 'outerHTML') : '';
+}
+
+
+/**
+ * 双引号转换为HTML实体。
+ * 仅用于属性值串构造HTML源码。
+ * @param  {String} str 属性值字符串
+ * @return {String}
+ */
+function quoteEscape( str ) {
+    return str.replace( /"/g, '&quot;' );
 }
 
 
