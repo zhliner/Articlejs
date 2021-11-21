@@ -10,7 +10,7 @@
 //  格式：{
 //      key:     映射键（支持数组）,
 //      command: 指令标识,
-//      exclude: 排除选择器（匹配则不执行）,
+//      exclude: 排除选择器（事件起点元素匹配则不执行）,
 //  }
 //
 //  指令标识：
@@ -80,7 +80,7 @@ Global: [
         "command":  "panel.plugins"
     },
 
-    // 编辑器最大化
+    // 编辑器最大化切换
     {
         "key":      ":f10",
         "command":  "panel.maximize"

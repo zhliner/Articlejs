@@ -56,8 +56,8 @@
             <i id="b-plugins"></i>
         </b>
         <!-- data-max: 0 普通窗口；1 已最大化。 -->
-        <b title="最大化" data-max="0"
-            on="click|(['最大化', '向下还原']) ([0, 1]);
+        <b id="x-maximize" title="最大化〔F10〕" data-max="0"
+            on="click|(['最大化〔F10〕', '向下还原〔F10〕']) ([0, 1]);
                 send|(Sys.maximizer) evo(3) attr('-max') exec(_1)"
             to="|toggleAttr('-max') toggleAttr('title')|goto('send')"><i id="b-maximize"></i></b>
     </div>

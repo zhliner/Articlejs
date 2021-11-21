@@ -10,7 +10,20 @@
 main {
     margin: 40px auto;
 }
-#editorBox {
+main h1 {
+    margin-left: 6.5em;
+}
+main h1::before {
+    content: '';
+    display: inline-block;
+    width: 72px;
+    height: 72px;
+    background-image: url('docs/images/cooljed.png');
+    background-size: 72px;
+    margin-bottom: -5px;
+    filter: grayscale(0.87);
+}
+main #editorBox {
     width: 1000px;
     height: 760px;
     resize: both;
