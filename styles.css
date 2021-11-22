@@ -8,10 +8,13 @@
  */
 
 main {
-    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    width: min-content;
 }
 main h1 {
-    margin-left: 6.5em;
+    margin: auto;
+    padding-bottom: 1.7em;
 }
 main h1::before {
     content: '';
@@ -21,13 +24,29 @@ main h1::before {
     background-image: url('docs/images/cooljed.png');
     background-size: 72px;
     margin-bottom: -5px;
-    filter: grayscale(0.87);
+    filter: grayscale(1);
 }
-main #editorBox {
-    width: 1000px;
-    height: 760px;
+main nav {
+    display: flex;
+    gap: 1em;
+    padding: 0 10px;
+}
+nav > b {
+    font-style: italic;
+    cursor: pointer;
+    color: #007dfa;
+}
+nav label {
+    color: #01839d;
+}
+nav > span:nth-of-type(1) {
+    margin-left: auto;
+}
+#editorBox {
+    flex: 1 1 auto;
+    width: 1024px;
+    height: 800px;
     resize: both;
     overflow: hidden;
-    display: inline-block;
     padding: 8px;
 }

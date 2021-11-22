@@ -17,6 +17,7 @@
 </style>
 <script type="module">
     import coolj, {setupRoot} from "./index.js";
+    import { Tpb } from "./base/tpb/tpb.esm.js";
 
     let _ifrm = null,
         _fmax = [
@@ -31,15 +32,39 @@
     coolj.create( _opts, setupRoot )
         .init( $.get('#editorBox') )
         .then( ed => (_ifrm = ed.frame()).contentWindow.focus() );
+
+    Tpb.Init();
+    Tpb.build( document.body )
+        .then( () => window.console.info('build done!') );
 </script>
 </head>
 <body>
-    <main>
-        <h1>◡酷几◡编辑器在线版</h1>
-        <form action="">
-            <textarea name="content" style="display: none;"></textarea>
+    <form action="">
+        <textarea name="content" style="display: none;"></textarea>
+        <main>
+            <h1>◡酷几◡编辑器在线版</h1>
+            <nav>
+                <b title="单击导入">操作手册</b>
+                <b title="单击导入">文章结构说明</b>
+                <span>
+                    <label>主题</label>
+                    <select name="themes">
+                        <option value="Dark-less">蓝调的传说</option>
+                        <option value="classic-gray">经典50度灰</option>
+                        <option value="Dark-less">光明之夜</option>
+                    </select>
+                </span>
+                <span>
+                    <label>内容样式</label>
+                    <select name="styles">
+                        <option value="">乡愁</option>
+                        <option value="">平庸的白暮</option>
+                        <option value="">旷野无垠</option>
+                    </select>
+                </span>
+            </nav>
             <span id="editorBox"></span>
-        </form>
-    </main>
+        </main>
+    </form>
 </body>
 </html>
