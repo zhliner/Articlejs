@@ -29,7 +29,7 @@ main h1::before {
 main nav {
     display: flex;
     gap: 1em;
-    padding: 0 10px;
+    padding: 0 15px;
 }
 nav > b {
     font-style: italic;
@@ -41,6 +41,17 @@ nav label {
 }
 nav > span:nth-of-type(1) {
     margin-left: auto;
+}
+nav small {
+    display: inline-block;
+    width: 1.5em;
+    text-align: center;
+    cursor: pointer;
+    color: orange;
+    font-size: 0.7em;
+    border: 1px orange dotted;
+    border-radius: 10px;
+    font-family: monospace;
 }
 #editorBox {
     flex: 1 1 auto;
