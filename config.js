@@ -254,6 +254,9 @@ const Sys = {
     levelName1: 'siblings', // 平级
     levelName2: 'children', // 向内
 
+    // 内容源码导入通知
+    importCons: 'cimport',
+
 
     // 本地存储键
     // 会被自动附加编辑器名称前缀。
@@ -287,17 +290,14 @@ const Sys = {
     // 一般是在用户按[s]键时触发。
     saver:   null,
 
+    // 内容源码导入器
+    contenter:  null,
+
     // 载入就绪回调
     readyCall:  null,
 
     // 出错通知回调
     failCall:   null,
-
-    // 内容上次更新时间
-    updateTime: null,
-
-    // 是否恢复内容
-    toRecover:  null,
 
 };
 

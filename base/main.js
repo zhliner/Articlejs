@@ -52,7 +52,11 @@ Tpb.build( document, Web.tplmap )
     .then( () => $.trigger(document.body, 'finish') )
     .then( () => Api.init('#outline', '#editor', '#content', '#help', '#beeptip') )
     .then( () => Sys.readyCall() )
-    .catch( e => Sys.failCall(e) );
+    .catch( e => Sys.failCall(e) )
+    // 初始内容填充
+    // 特殊值null表示不填充。
+    .then( () => Sys.contenter() )
+    .then( html => html !== null && $.html($.get('main#content'), html) );
 
 
 if ( DEBUG ) {

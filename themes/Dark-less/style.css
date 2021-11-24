@@ -877,10 +877,11 @@ menu._cells code {
     /* 视觉友好 */
     padding: 0 2em 24em;
     cursor: default;
-    /* 内容充满 */
+    /* 顶部充满 */
     border: 1px transparent solid;
-    /* 初始可点击 */
+    /* 初始可聚焦 */
     min-height: 100%;
+    box-sizing: border-box;
 
     /* 聚焦辅助 */
     margin: 0 2px 0 1pt;

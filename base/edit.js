@@ -239,7 +239,7 @@ class DOMEdit {
 // 注记：
 // 类似 DOMEdit 实现，但会保存脚本的返回值。
 // 同时包含撤销警告功能。
-// 不支持对划选（Selection）区域的修改（基础库）。
+// 不支持对划选（Selection）区域的修改。
 //
 class CodeRun {
     /**
@@ -1392,6 +1392,20 @@ function stateNewEdit() {
 
 
 /**
+ * 重置编辑器状态。
+ * - 编辑历史栈清空。
+ * - 工具栏撤销/重做按钮重置。
+ * 注：
+ * 主要导出用于外部重新设置编辑器内容时。
+ */
+function resetState() {
+    __History.clear();
+    $.trigger( contentElem, Sys.undoEvent, false, true );
+    $.trigger( contentElem, Sys.redoEvent, false, true );
+}
+
+
+/**
  * 构建元素路径序列。
  * 返回沿DOM树正向逐层元素信息的一个<b>封装序列。
  * @param  {Element} el 起点元素
@@ -1661,14 +1675,13 @@ function elementsEmpty( els ) {
 
 /**
  * 填充元素集。
- * 如果值为数组，与成员一一对应填充（tQuery）。
  * @param  {[Element]} els 容器元素集
- * @param  {String|[String]} data 数据（集）
- * @param  {String} meth 插入方法（append|fill），可选
+ * @param  {String} data 数据
+ * @param  {String} meth 插入方法（appends|fills）
  * @return {DOMEdit|null} 操作实例
  */
 function textAppend( els, data, meth ) {
-    return els.length > 0 && new DOMEdit( __Edits[meth], $(els), data );
+    return els.length > 0 && new DOMEdit( __Edits[meth], els, data );
 }
 
 
@@ -1682,7 +1695,7 @@ function textAppend( els, data, meth ) {
  * 也可用于外部多行文本内容分别填充到多个选取目标。
  * @param  {[[Element]]} els2 元素集组（2维）
  * @param  {[String]} data 数据组（1维）
- * @param  {String} meth 插入方法（appends|fills），可选
+ * @param  {String} meth 插入方法（appends|fills）
  * @return {[DOMEdit]} 操作实例集
  */
 function textAppend2( els2, data, meth ) {
@@ -6659,6 +6672,22 @@ export const Kit = {
 
 
     /**
+     * 设置内容源码（整体）。
+     * 与其它设置（如 Api.content(...)）不同，此操作进入编辑历史栈。
+     * @data: String 内容源码
+     * @return {void}
+     */
+    puthtml( evo ) {
+        let _frm = $.fragment( evo.data ),
+            _fun = els => $.fill( contentElem, els );
+
+        historyPush( new HotEdit(null), clearSets(), new DOMEdit(_fun, [..._frm.childNodes]) );
+    },
+
+    __puthtml: 1,
+
+
+    /**
      * 错误元素提示。
      * 按住聚焦辅助键单击设置焦点。
      * @data: Element 问题元素
@@ -7343,6 +7372,7 @@ processExtend( By, 'Ed', Edit, [
 //
 processExtend( By, 'Kit', Kit, [
     'ecancel',
+    'puthtml',
     'errmsg',
     'chapter',
     'save',
@@ -7423,6 +7453,12 @@ customGetter( On, null, Kit, [
     // 简单操作类（非取值）。
     'cmdclear',
 ]);
+
+
+// 工具导出
+//////////////////////////////////////////////////////////////////////////////
+
+export { resetState };
 
 
 // debug:

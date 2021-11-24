@@ -26,13 +26,17 @@
 //      codes: String           默认的代码样式名，可选
 //      width: Number|String    宽度（数值时表示像素），可选，默认100%
 //      height: Number|String   高度（数值时表示像素），可选，默认100%
-//      updatetime: Number      上次更新时间，仅修改时存在。可选
-//      recover: Boolean        需要本地内容恢复（localStorage），可选
 //
-//      onsaved: Function       存储回调（用户按[s]键），接口：function( html ): Boolean
+//      onsaved: Function       存储回调（用户按[s]键），接口：function(html): Boolean
 //                              返回true则取消本地存储。
 //      onmaximize: Function    最大化请求，接口：function( state:0|1 ): void
 //                              其中state: 0 取消最大化，1 最大化
+//      oncontent: Function     内容源码导入请求，接口：function(): Promise<html|null>
+//                              会在编辑器构建就绪后自动触发。
+//                              承诺返回的源码会填充到编辑器内容区，但null值表示略过。
+//      注：
+//      上级用户也可以对<iframe>通过cimport事件递送数据导入源码内容，
+//      该导入会进入编辑历史栈，即可撤销。
 //  }
 //
 //  Editor接口：
@@ -44,9 +48,10 @@
 //      .heading( html:String ): String     获取/设置主标题
 //      .subtitle( html:String ): String    获取/设置副标题
 //      .abstract( html:String ): String    获取/设置文章提要
-//      .content( html:String ): String     获取/设置正文（源码）
+//      .article( html:String ): String     获取/设置文章主体内容
 //      .seealso( html:String ): String     获取/设置另参见
 //      .reference( html:String ): Strin    获取/设置文献参考
+//      .content( html:String ): String     获取/设置文章全部内容
 //      .theme( name:String, isurl:Boolean ): String    获取/设置主题
 //      .style( name:String, isurl:Boolean ): String    获取/设置内容样式
 //
@@ -86,8 +91,12 @@ const
     // 编辑器默认名。
     __saveName  = 'coolj',
 
-    // 编辑器根文件（模板）
-    __tplRoot   = 'templates/editor.html';
+    // 编辑器根模板文件
+    __tplRoot   = 'templates/editor.html',
+
+    // 触发导入内容源码事件名
+    // 注：需与编辑器config.js配置中相同。
+    __import    = 'cimport';
 
 
 
@@ -109,10 +118,10 @@ class Editor {
             theme:      option.theme,
             style:      option.style,
             codes:      option.codes,
-            updatetime: option.updatetime,
-            recover:    option.recover,
-            save:       option.onsaved || empty,
-            maximize:   option.onmaximize || empty,
+            saver:      option.onsaved || empty,
+            maximizer:  option.onmaximize || empty,
+            // 默认传递null，不改变内容。
+            contenter:  option.oncontent || ( () => Promise.resolve(null) ),
         };
         this._path = root;
         this._ifrm = _ifrm;
@@ -151,21 +160,22 @@ class Editor {
 
     /**
      * 编辑器重载。
-     * 会自动恢复本地存储，因此执行前用户可能需要先保存（[s]）。
-     * 与.init()的逻辑相似。
-     * 注记：
-     * 并不会自动保存编辑器当前最新内容，这给用户一个移除自上次保存以来新内容的可能。
-     * file参数提供重载入另一套模板的可能性。
+     * 会自动恢复当前编辑器内容。
+     * 如果传入新的模板根文件，可用于改变界面语言。
      * @param  {String} file 编辑器根模板文件，可选
-     * @return {Promise<void>}
+     * @return {Promise<Editor>}
      */
     reload( file ) {
-        this._ifrm.Config.recover = true;
+        let _cons = this.content();
+        this._ifrm.Config.contenter = () => Promise.resolve( this.content(_cons) || (_cons = null) );
+
         return this.init( file || this._file );
     }
 
 
+    //
     // 内容存取接口
+    // 注：设置的内容不进入编辑历史栈。
     ////////////////////////////////////////////////////////////////
 
 
@@ -204,8 +214,8 @@ class Editor {
      * @param  {String} html 内容源码
      * @return {String|this}
      */
-    content( html ) {
-        return this._value( 'content', html );
+    article( html ) {
+        return this._value( 'article', html );
     }
 
 
@@ -226,6 +236,16 @@ class Editor {
      */
     reference( html ) {
         return this._value( 'reference', html );
+    }
+
+
+    /**
+     * 获取/设置内容整体。
+     * @param  {String} html 内容源码
+     * @return {String|this}
+     */
+    content( html ) {
+        return this._value( 'content', html );
     }
 
 
@@ -296,9 +316,10 @@ class Editor {
      *      .heading()    设置/获取标题
      *      .subtitle()   设置/获取子标题
      *      .abstract()   设置/获取文章提要
-     *      .content()    设置/获取正文内容
+     *      .article()    设置/获取主体内容
      *      .seealso()    设置/获取另参见
      *      .reference()  设置/获取参考文献
+     *      .content()    设置/获取文章全部内容
      *      .theme()      设置/获取编辑器主题
      *      .style()      设置/获取内容风格
      *      .codes()      设置/获取内容代码风格
@@ -328,8 +349,8 @@ class Editor {
 function editorFrame( width, height ) {
     let _frm = document.createElement('iframe');
 
-    _frm.setAttribute('scrolling', 'no');
-    _frm.setAttribute('frameborder', '0');
+    _frm.setAttribute( 'scrolling', 'no' );
+    _frm.setAttribute( 'frameborder', '0' );
 
     for ( let [k, v] of Object.entries(__frameStyles) ) {
         _frm.style[k] = v;
@@ -340,7 +361,27 @@ function editorFrame( width, height ) {
     if ( height !== undefined ) {
         _frm.style.height = sizeValue( height );
     }
+    // 内容导入请求监听
+    _frm.addEventListener( __import, ev => trigger(_frm.contentWindow, __import, ev.detail) );
+
     return _frm;
+}
+
+
+/**
+ * 激发事件通知。
+ * @param {Window} its 编辑器窗口
+ * @param {String} evn 事件名
+ * @param {Value} extra 发送的数据（内容源码）
+ */
+function trigger( its, evn, extra ) {
+    its.dispatchEvent(
+        new CustomEvent( evn, {
+            detail: extra,
+            bubbles: false,
+            cancelable: true,
+        })
+    );
 }
 
 

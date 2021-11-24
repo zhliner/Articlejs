@@ -6,11 +6,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  编辑器开发Api定义集。
-//  主要包含内容区各种内容条目的引用提取、大纲列表内容和帮助侧栏部分。
+//  编辑器基础Api定义集。
+//  主要包含内容区各条目的提取/设置、大纲列表内容和帮助侧栏等部分。
 //
-//  注记：
-//  内容区内容单元结构规范，因此可以为Api提供稳定的目标定位。
+//  注意：
+//  如果对内容区执行了设置操作，会清空编辑历史栈。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 
 import $ from "./tpb/config.js";
 import { Local } from "../config.js";
+import { resetState } from "./edit.js";
 
 
 // 各主要区域根元素集
@@ -44,35 +45,82 @@ const Api = {
 
 
     /**
-     * 获取/设置标题。
-     * @param {String} html 源码
+     * 获取/设置主标题。
+     * 仅指标题内容，不含标题元素（<h1>）自身。
+     * @param  {String} cons 标题源码
+     * @return {String|void}
      */
-    heading( html ) {
+    heading( cons ) {
         //
     },
 
 
-    subtitle( html ) {
+    /**
+     * 获取/设置副标题。
+     * 仅指标题内容，不含副标题元素（<h3>）自身。
+     * @param  {String|[String]} cons 副标题源码（组）
+     * @return {[String]|void}
+     */
+    subtitle( cons ) {
         //
     },
 
 
-    abstract( html ) {
+    /**
+     * 获取/设置文章提要。
+     * 返回值是一个两成员数组，其中：
+     * [0] 提要名称源码。
+     * [1] 内容源码（顶层outerHTML）。
+     * @param  {String} h3 提要名称
+     * @param  {String} cons 内容源码（顶层outerHTML）
+     * @return {[String]|void}
+     */
+    abstract( h3, cons ) {
         //
     },
 
 
+    /**
+     * 获取/设置文章主区内容。
+     * 不含封装内容的<article>容器元素自身。
+     * @param  {String} cons 内容源码
+     * @return {String|void}
+     */
+    article( cons ) {
+        //
+    },
+
+
+    /**
+     * 获取/设置另见条目集。
+     * @param  {[String]} cons 内容源码集
+     * @return {[String]|void}
+     */
+    seealso( cons ) {
+        //
+    },
+
+
+    /**
+     * 获取/设置参考条目集。
+     * @param  {[String]} cons 内容源码集
+     * @return {[String]|void}
+     */
+    reference( cons ) {
+        //
+    },
+
+
+    /**
+     * 获取全部内容
+     * 包括主/副标题、提要、文章主体（<article>）和另见/参考等。
+     * 为各部分的outerHTML源码本身。
+     * 注意：
+     * 此处不再强约束，内容应当符合文章结构规范。
+     * @param  {String} html 全部内容源码
+     * @return {String|void}
+     */
     content( html ) {
-        //
-    },
-
-
-    seealso( html ) {
-        //
-    },
-
-
-    reference( html ) {
         //
     },
 
@@ -101,6 +149,11 @@ const Api = {
     },
 
 };
+
+
+//
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
 
 
 // expose

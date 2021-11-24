@@ -35,12 +35,11 @@
 
     // 当前环境配置覆盖。
     Sys.nameEditor = _conf.name;
-    Sys.toRecover  = _conf.recover;
-    Sys.updateTime = _conf.updatetime;
     Sys.readyCall  = _conf.ready;
     Sys.failCall   = _conf.fail;
-    Sys.saver      = _conf.save;
-    Sys.maximizer  = _conf.maximize;
+    Sys.saver      = _conf.saver;
+    Sys.maximizer  = _conf.maximizer;
+    Sys.contenter  = _conf.contenter;
 
     if ( _conf.theme ) {
         $.get('#s-theme').href = `../themes/${_conf.theme}/style.css`;
@@ -51,6 +50,14 @@
     if ( _conf.codes ) {
         $.get('#s-codes').href = `../styles/${_conf.codes}/codes.css`;
     }
+
+    // 上级导入通知监听
+    $.on(
+        window,
+        Sys.importCons,
+        null,
+        ev => $.trigger( $.get('main#content'), 'puthtml', ev.detail )
+    );
 </script>
 <!-- 入口文件 -->
 <script type="module" src="../base/main.js"></script>
