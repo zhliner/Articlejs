@@ -1385,6 +1385,7 @@ function historyPush( ...obj ) {
 /**
  * 执行了一个新编辑。
  * 重做不可用，更新 Undo/Redo 按钮状态。
+ * @return {void}
  */
 function stateNewEdit() {
     $.trigger( contentElem, Sys.redoEvent, false, true );
@@ -1397,6 +1398,7 @@ function stateNewEdit() {
  * - 工具栏撤销/重做按钮重置。
  * 注：
  * 主要导出用于外部重新设置编辑器内容时。
+ * @return {void}
  */
 function resetState() {
     __History.clear();

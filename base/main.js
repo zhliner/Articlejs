@@ -54,9 +54,9 @@ Tpb.build( document, Web.tplmap )
     .then( () => Sys.readyCall() )
     .catch( e => Sys.failCall(e) )
     // 初始内容填充
-    // 特殊值null表示不填充。
+    // 特殊值null/undefined表示不填充。
     .then( () => Sys.contenter() )
-    .then( html => html !== null && $.html($.get('main#content'), html) );
+    .then( html => html != null && $.html($.get('main#content'), html) );
 
 
 if ( DEBUG ) {

@@ -22,7 +22,12 @@ import { resetState } from "./edit.js";
 
 
 // 各主要区域根元素集
-const ROOTS = {};
+let
+    __outline,
+    __editor ,
+    __content,
+    __help,
+    __beeptip;
 
 
 const Api = {
@@ -36,33 +41,60 @@ const Api = {
      * @return {void}
      */
     init( outline, editor, content, help, beeptip ) {
-        ROOTS.outline = $.get( outline );
-        ROOTS.editor  = $.get( editor );
-        ROOTS.content = $.get( content );
-        ROOTS.help    = $.get( help );
-        ROOTS.beeptip = $.get( beeptip );
+        __outline = $.get( outline );
+        __editor  = $.get( editor );
+        __content = $.get( content );
+        __help    = $.get( help );
+        __beeptip = $.get( beeptip );
+
+        window.console.info( __outline, __editor, __content, __help, __beeptip );
     },
 
 
     /**
      * 获取/设置主标题。
      * 仅指标题内容，不含标题元素（<h1>）自身。
+     * 如果标题元素不存在，设置时会新建一个<h1>标题元素。
      * @param  {String} cons 标题源码
      * @return {String|void}
      */
     heading( cons ) {
-        //
+        let _h1 = $.get( 'h1', __content );
+
+        if ( cons === undefined ) {
+            return _h1 && $.html( _h1 );
+        }
+        resetState();
+        if ( !_h1 ) {
+            _h1 = $.prepend( __content, $.elem('h1') );
+        }
+        $.html( _h1, cons );
     },
 
 
     /**
      * 获取/设置副标题。
      * 仅指标题内容，不含副标题元素（<h3>）自身。
+     * 设置时默认会移除原有的副标题集，除非传递add实参为true。
      * @param  {String|[String]} cons 副标题源码（组）
+     * @param  {Boolean} add 为添加模式，可选
      * @return {[String]|void}
      */
-    subtitle( cons ) {
-        //
+    subtitle( cons, add ) {
+        let _hg = $.get( 'hgroup', __content ),
+            _h3s = _hg ? $.find( '>h3', _hg ) : [];
+
+        if ( cons === undefined ) {
+            return _h3s.map( h3 => $.html(h3) );
+        }
+        resetState();
+        if ( !_hg ) {
+            _hg = $.prepend( __content, $.elem('hgroup') );
+        }
+        if ( !add ) {
+            _h3s.forEach( h3 => $.remove(h3) );
+        }
+        $.append( _hg, $(arrValue(cons)).Element('h3') );
     },
 
 
@@ -154,6 +186,17 @@ const Api = {
 //
 // 工具函数
 //////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 检查&构造为数组返回。
+ * @param  {Value|[Value]} val 目标值
+ * @return {[Value]}
+ */
+function arrValue( val ) {
+    return $.isArray( val ) ? val : [ val ];
+}
+
 
 
 // expose
