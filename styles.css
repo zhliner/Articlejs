@@ -42,7 +42,7 @@ nav label {
 nav > span:nth-of-type(1) {
     margin-left: auto;
 }
-nav small {
+nav > span > a {
     display: inline-block;
     width: 1.5em;
     text-align: center;

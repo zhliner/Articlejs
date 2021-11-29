@@ -101,14 +101,33 @@ const Api = {
     /**
      * 获取/设置文章提要。
      * 返回值是一个两成员数组，其中：
-     * [0] 提要名称源码。
-     * [1] 内容源码（顶层outerHTML）。
+     * [0] 提要名称源码（不含<h3>本身）。
+     * [1] 内容源码（顶层条目outerHTML合并串）。
+     * 如果提要单元本就不存在，返回null。
      * @param  {String} h3 提要名称
      * @param  {String} cons 内容源码（顶层outerHTML）
-     * @return {[String]|void}
+     * @return {[String]|void|null}
      */
     abstract( h3, cons ) {
-        //
+        let _box = $.get( 'header[role=abstract]', __content ),
+            _h3  = $.get( 'h3', _box ),
+            $els = $( '>*', _box ).not( 'h3' );
+
+        if ( h3 === undefined && cons === undefined ) {
+            return _box &&
+            [
+                $.html( _h3 ),
+                $els.prop( 'outerHTML' ).join( '' ),
+            ];
+        }
+        resetState();
+        if ( h3 !== undefined ) {
+            $.html( _h3, h3 );
+        }
+        if ( cons !== undefined ) {
+            $els.remove();
+            $.html( _box, cons, 'append' );
+        }
     },
 
 
