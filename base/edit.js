@@ -3968,6 +3968,25 @@ function insFixnode( pels, subs ) {
 }
 
 
+/**
+ * 插入顶层单元。
+ * @param  {Number} type 条目类型值
+ * @param  {Element} el 条目元素
+ * @return {Element} el
+ */
+function topInsert( type, el, cobj = topItemslr ) {
+    let _cfg = cobj[ type ],
+        _its = $.get( _cfg.self, contentElem );
+
+    if ( _its ) {
+        return $.replace( _its, el );
+    }
+    let _ref = beforeRef( contentElem, _cfg.prev, cobj );
+
+    return _ref ? $.after(_ref, el) : $.prepend(contentElem, el);
+}
+
+
 
 //
 // 上下文菜单条目可用性判断
@@ -7460,7 +7479,7 @@ customGetter( On, null, Kit, [
 // 工具导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { resetState };
+export { resetState, topInsert };
 
 
 // debug:

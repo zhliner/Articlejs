@@ -827,7 +827,7 @@ const Children = {
 .forEach(function( it ) {
     /**
      * 标题项为可选。
-     * @param {Element|null} ref 参考子元素
+     * @param {Element|null} ref 参考子元素（插入点）
      * @param {Element} box 容器元素
      * @param {Element|String|[Node]} opts.h3 小标题元素或其内容，可选
      * @param {Element} data 子单元数据
@@ -2184,7 +2184,7 @@ function children( ref, box, opts, cons ) {
  * @param  {String|Number} name 目标名或类型值
  * @param  {Object} opts 特性配置集
  * @param  {Node|[Node]|String} data 源数据
- * @param  {Boolean} more 是否重复子单元创建
+ * @param  {Boolean} more 是否多个子单元创建
  * @return {Element} 目标单元
  */
 function create( name, opts, data, more ) {

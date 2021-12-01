@@ -18,7 +18,9 @@
 
 import $ from "./tpb/config.js";
 import { Local } from "../config.js";
-import { resetState } from "./edit.js";
+import * as T from "./types.js";
+import { create } from "./create.js";
+import { resetState, topInsert } from "./edit.js";
 
 
 // 各主要区域根元素集
@@ -66,7 +68,7 @@ const Api = {
         }
         resetState();
         if ( !_h1 ) {
-            _h1 = $.prepend( __content, $.elem('h1') );
+            _h1 = $.prepend( $.get('hgroup', __content) || __content, $.elem('h1') );
         }
         $.html( _h1, cons );
     },
@@ -104,30 +106,33 @@ const Api = {
      * [0] 提要名称源码（不含<h3>本身）。
      * [1] 内容源码（顶层条目outerHTML合并串）。
      * 如果提要单元本就不存在，返回null。
+     * 设置时，假值实参对于的目标会保持原始内容（无修改）。
      * @param  {String} h3 提要名称
      * @param  {String} cons 内容源码（顶层outerHTML）
      * @return {[String]|void|null}
      */
     abstract( h3, cons ) {
-        let _box = $.get( 'header[role=abstract]', __content ),
+        let _box = $.get( '>header[role=abstract]', __content ),
             _h3  = $.get( 'h3', _box ),
             $els = $( '>*', _box ).not( 'h3' );
 
         if ( h3 === undefined && cons === undefined ) {
             return _box &&
             [
-                $.html( _h3 ),
+                _h3 && $.html( _h3 ),
                 $els.prop( 'outerHTML' ).join( '' ),
             ];
         }
+        topInsert(
+            T.ABSTRACT,
+            create(
+                T.ABSTRACT,
+                { h3: h3 || _h3 && $.text(_h3) },
+                cons ? [...$.fragment(cons).children] : $els,
+                true
+            )
+        );
         resetState();
-        if ( h3 !== undefined ) {
-            $.html( _h3, h3 );
-        }
-        if ( cons !== undefined ) {
-            $els.remove();
-            $.html( _box, cons, 'append' );
-        }
     },
 
 
@@ -138,33 +143,91 @@ const Api = {
      * @return {String|void}
      */
     article( cons ) {
-        //
+        let _el = $.get( 'article', __content );
+
+        if ( cons === undefined ) {
+            return _el && $.html( _el );
+        }
+        resetState();
+        topInsert( T.ARTICLE, $.Element('article', cons) );
     },
 
 
     /**
      * 获取/设置另见条目集。
+     * 返回的条目集不包含条目容器<li>元素，而是内容的源码。
+     * 仅在设置时需要提供可选的小标题。
      * @param  {[String]} cons 内容源码集
+     * @param  {String} h3 小标题（如：'另参见'），可选
      * @return {[String]|void}
      */
-    seealso( cons ) {
-        //
+    seealso( cons, h3 ) {
+        let _box = $.get( '>aside[role=seealso]', __content ),
+            _h3 = $.get( '>h3', _box ),
+            _ul = $.get( '>ul', _box );
+
+        if ( cons === undefined ) {
+            return $.children( _ul ).map( li => $.html(li) );
+        }
+        if ( cons ) {
+            _ul = $.elem( 'ul' );
+            $.append( _ul, $(arrValue(cons)).wrap('<li>') );
+        }
+        topInsert(
+            T.SEEALSO,
+            create( T.SEEALSO, { h3: h3 || _h3 && $.text(_h3) }, _ul )
+        )
+        resetState();
     },
 
 
     /**
      * 获取/设置参考条目集。
+     * 返回的条目集不包含条目容器<li>元素，而是内容的源码。
+     * 仅在设置时需要提供可选的小标题。
      * @param  {[String]} cons 内容源码集
+     * @param  {String} h3 小标题（如：'文献参考'），可选
      * @return {[String]|void}
      */
-    reference( cons ) {
+    reference( cons, h3 ) {
+        let _box = $.get( '>nav[role=reference]', __content ),
+            _h3 = $.get( '>h3', _box ),
+            _ol = $.get( '>ol', _box );
+
+        if ( cons === undefined ) {
+            return $.children( _ol ).map( li => $.html(li) );
+        }
+        if ( cons ) {
+            _ol = $.elem( 'ol' );
+            $.append( _ol, $(arrValue(cons)).wrap('<li>') );
+        }
+        topInsert(
+            T.REFERENCE,
+            create( T.REFERENCE, { h3: h3 || _h3 && $.text(_h3) }, _ol )
+        )
+        resetState();
+    },
+
+
+    /**
+     * 获取/设置文章声明。
+     * 返回值是一个两成员数组，其中：
+     * [0] 声明名称源码（不含<h3>本身）。
+     * [1] 内容源码（顶层条目outerHTML合并串）。
+     * 如果声明单元本就不存在，返回null。
+     * 设置时，假值实参对于的目标会保持原始内容（无修改）。
+     * @param  {String} h3 声明名称
+     * @param  {String} cons 内容源码（顶层outerHTML）
+     * @return {[String]|void|null}
+     */
+    footer( h3, cons ) {
         //
     },
 
 
     /**
      * 获取全部内容
-     * 包括主/副标题、提要、文章主体（<article>）和另见/参考等。
+     * 包括主/副标题、提要、文章主体（<article>）和另见/参考/声明等。
      * 为各部分的outerHTML源码本身。
      * 注意：
      * 此处不再强约束，内容应当符合文章结构规范。
@@ -172,7 +235,10 @@ const Api = {
      * @return {String|void}
      */
     content( html ) {
-        //
+        if ( html === undefined ) {
+            return $.html( __content );
+        }
+        $.html( __content, html );
     },
 
 
