@@ -19,7 +19,6 @@
 <link id="s-main" rel="stylesheet" href="../styles/example/main.css">
 <link id="s-codes" rel="stylesheet" href="../styles/example/codes.css">
 <link id="s-theme" rel="stylesheet" href="../themes/Dark-less/style.css">
-<!-- <script src="../_working/tquery.js"></script> -->
 <script src="../base/tquery/tquery.min.js"></script>
 <script src="../base/tquery/plugins/history.min.js"></script>
 <script>
@@ -30,7 +29,7 @@
     $.ready( () => $.trigger(window, 'resize') );
 </script>
 <script type="module">
-    import { Sys } from "../config.js";
+    import { Sys, Local } from "../config.js";
     let _conf = frameElement.Config;
 
     // 当前环境配置覆盖。
@@ -42,13 +41,13 @@
     Sys.contenter  = _conf.contenter;
 
     if ( _conf.theme ) {
-        $.get('#s-theme').href = `../themes/${_conf.theme}/style.css`;
+        $.get(Local.styleTheme).href = `../${Local.themes}/${_conf.theme}/${Local.themeStyle}`;
     }
     if ( _conf.style ) {
-        $.get('#s-main').href = `../styles/${_conf.style}/main.css`;
+        $.get(Local.styleMain).href = `../${Local.styles}/${_conf.style}/${Local.mainStyle}`;
     }
     if ( _conf.codes ) {
-        $.get('#s-codes').href = `../styles/${_conf.codes}/codes.css`;
+        $.get(Local.styleCodes).href = `../${Local.styles}/${_conf.codes}/${Local.codeStyle}`;
     }
 
     // 上级导入通知监听
@@ -56,7 +55,7 @@
         window,
         Sys.importCons,
         null,
-        ev => $.trigger( $.get('main#content'), 'puthtml', ev.detail )
+        ev => $.trigger( $.get('main.content'), 'puthtml', ev.detail )
     );
 </script>
 <!-- 入口文件 -->

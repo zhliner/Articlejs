@@ -51,8 +51,6 @@
 //  基本工具集：
 //      plug-ins    插件安装。
 //      plug-del    插件移除。
-//      theme       列出当前可用主题，或应用目标主题。
-//      style       列出当前可用内容样式，或应用目标样式。
 //      help        开启帮助窗口并定位到指定的关键字条目。
 //      config      显示系统配置值。
 //
@@ -68,7 +66,6 @@
 import $ from "./tpb/config.js";
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
-import { setupRoot } from "../index.js";
 import { Cmdx, Tips, Local, Limit, Sys } from "../config.js";
 
 // 工具支持
@@ -414,11 +411,9 @@ class Command {
     constructor() {
         // 命令清单映射：{命令名：操作函数}
         this._cmds = new Map([
-            [ 'help',       this._help ],
             [ 'plug-ins',   this._plugIns ],
             [ 'plug-del',   this._plugDel ],
-            [ 'theme',      this._theme ],
-            [ 'style',      this._style ],
+            [ 'help',       this._help ],
             [ 'config',     this._config ],
         ]);
     }
@@ -516,61 +511,6 @@ class Command {
      */
     _plugDel( name ) {
         $.trigger( __plugPanel, Sys.plugDel, pluginsDelete(name) );
-    }
-
-
-    /**
-     * 罗列或设置编辑器主题。
-     * @param  {String} name 主题名称
-     * @return {[String]|String} 主题清单或结果提示
-     */
-    _theme( name ) {
-        if ( !name ) {
-            // 待开发
-            return "请键入准确的主题ID，目前暂不支持清单罗列。";
-        }
-        insertStyle(
-            `#${Local.styleTheme}`,
-            {
-                id:  Local.styleTheme,
-                url: `${setupRoot}${Local.themes}/${name}/style.css`,
-            }
-        );
-        return `[${name}] theme installed.`
-    }
-
-
-    /**
-     * 罗列或设置内容样式。
-     * 如果只需要改变代码着色样式，可传递main实参为null。
-     * @param  {String} main 主样式名（文件夹），可选
-     * @param  {String} code 代码着色样式名（文件夹），可选
-     * @return {[String]|String} 样式清单或结果提示
-     */
-    _style( main, code ) {
-        if ( !main && !code ) {
-            // 待开发
-            return "请键入准确的样式ID，目前暂不支持清单罗列。";
-        }
-        if ( main ) {
-            insertStyle(
-                `#${Local.styleMain}`,
-                {
-                    id:  Local.styleMain,
-                    url: `${setupRoot}${Local.styles}/${main}/main.css`,
-                }
-            );
-        }
-        if ( code ) {
-            insertStyle(
-                `#${Local.styleCodes}`,
-                {
-                    id:  Local.styleCodes,
-                    url: `${setupRoot}${Local.styles}/${code}/codes.css`,
-                }
-            );
-        }
-        return `[${main} ${code}] style installed.`
     }
 
 
@@ -825,24 +765,6 @@ function filters( strs, els0 ) {
     return strs.reduce(
         (els, flr) => new Filter().execOne( flr, els ), els0
     );
-}
-
-
-/**
- * 替换/插入样式元素。
- * 存在目标则替换，否则为新插入。
- * @param  {String} slr 原样式元素选择器
- * @param  {Object} conf 新元素配置对象（{href, id}）
- * @return {boid}
- */
-function insertStyle( slr, conf ) {
-    let _el = $.get( slr );
-
-    $.style(
-        conf,
-        _el && _el.nextElementSibling
-    );
-    _el && $.remove( _el );
 }
 
 

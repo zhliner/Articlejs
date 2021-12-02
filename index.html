@@ -33,6 +33,7 @@
         .init( $.get('#editorBox') )
         .then( ed => (_ifrm = ed.frame()).contentWindow.focus() );
 
+    // Tpb支持。
     Tpb.Init();
     Tpb.build( document.body )
         .then( () => window.console.info('build done!') );

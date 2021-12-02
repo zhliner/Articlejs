@@ -8,8 +8,8 @@
 //
 //  用法：
 //      // 创建一个编辑器实例。
-//      import coolj from './index.js';
-//      let editor = coolj.create( option, root );
+//      import coolj, {setupRoot} from './index.js';
+//      let editor = coolj.create( option, setupRoot );
 //
 //      // 编辑器初始化。
 //      // 传入编辑器的容器元素，之后即为用户页逻辑。
@@ -35,8 +35,9 @@
 //                              会在编辑器构建就绪后自动触发。
 //                              承诺返回的源码会填充到编辑器内容区，但null值表示略过。
 //      注：
-//      上级用户也可以对<iframe>通过cimport事件递送数据导入源码内容，
-//      该导入会进入编辑历史栈，即可撤销。
+//      - 上级用户也可以对<iframe>通过cimport事件递送数据导入源码内容，
+//        该导入会进入编辑历史栈，即可撤销。
+//      - 若指定主题、内容、代码的默认样式名，仅限于本地安装的样式。
 //  }
 //
 //  Editor接口：
@@ -45,15 +46,18 @@
 //      .reload(): Promise      重新载入编辑器
 //
 //      下面接口由编辑器实现提供
-//      .heading( html:String ): String     获取/设置主标题
-//      .subtitle( html:String ): String    获取/设置副标题
-//      .abstract( html:String ): String    获取/设置文章提要
-//      .article( html:String ): String     获取/设置文章主体内容
-//      .seealso( html:String ): String     获取/设置另参见
-//      .reference( html:String ): Strin    获取/设置文献参考
-//      .content( html:String ): String     获取/设置文章全部内容
-//      .theme( name:String, isurl:Boolean ): String    获取/设置主题
-//      .style( name:String, isurl:Boolean ): String    获取/设置内容样式
+//      .heading( html ): String        获取/设置主标题
+//      .subtitle( html, add ): String  获取/设置副标题
+//      .abstract( h3, html ): String   获取/设置文章提要
+//      .article( html ): String        获取/设置文章主体内容
+//      .seealso( h3, html ): String    获取/设置另参见
+//      .reference( h3, html ): Strin   获取/设置文献参考
+//      .footer( h3, html ): Strin      获取/设置文章声明
+//      .content( html ): String        获取/设置文章全部内容
+//
+//      .theme( url:String ): String    获取/设置主题
+//      .style( url:String ): String    获取/设置内容样式
+//      .codes( url:String ): String    获取/设置内容代码样式
 //
 //
 //  [兼容性]
@@ -69,6 +73,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
+
+import { Sys } from "./config.js";
 
 
 //
@@ -94,9 +100,13 @@ const
     // 编辑器根模板文件
     __tplRoot   = 'templates/editor.html',
 
-    // 触发导入内容源码事件名
-    // 注：需与编辑器config.js配置中相同。
-    __import    = 'cimport';
+
+    // 本地存储键
+    //-------------------------------------------
+
+    storeTheme  = 'Theme',  // 编辑器主题
+    storeStyle  = 'Style',  // 内容样式
+    storeCodes  = 'Codes';  // 内容代码样式
 
 
 
@@ -128,6 +138,8 @@ class Editor {
 
         // 编辑器根模板文件
         this._file = null;
+        // 编辑器用户容器元素
+        this._ebox = null;
     }
 
 
@@ -144,6 +156,7 @@ class Editor {
             `${this._path}${file}`
         );
         this._file = file;
+        this._ebox = box;
 
         return new Promise( this._init.bind(this, box) );
     }
@@ -169,7 +182,7 @@ class Editor {
         let _cons = this.content();
         this._ifrm.Config.contenter = () => Promise.resolve( this.content(_cons) || (_cons = null) );
 
-        return this.init( file || this._file );
+        return this.init( this._ebox, file || this._file );
     }
 
 
@@ -182,7 +195,7 @@ class Editor {
     /**
      * 获取/设置主标题。
      * @param  {String} html 内容源码
-     * @return {String|this}
+     * @return {String|null|this}
      */
     heading( html ) {
         return this._value( 'heading', html );
@@ -192,27 +205,29 @@ class Editor {
     /**
      * 获取/设置副标题。
      * @param  {String} html 内容源码
-     * @return {String|this}
+     * @param  {Boolean} add 末尾追加模式，可选
+     * @return {[String]|this}
      */
-    subtitle( html ) {
-        return this._value( 'subtitle', html );
+    subtitle( html, add ) {
+        return this._value( 'subtitle', html, add );
     }
 
 
     /**
      * 获取/设置文章提要。
+     * @param  {String} h3 小标题
      * @param  {String} html 内容源码
-     * @return {String|this}
+     * @return {[String2]|null|this}
      */
-    abstract( html ) {
-        return this._value( 'abstract', html );
+    abstract( h3, html ) {
+        return this._value( 'abstract', h3, html );
     }
 
 
     /**
      * 获取/设置正文内容。
      * @param  {String} html 内容源码
-     * @return {String|this}
+     * @return {String|null|this}
      */
     article( html ) {
         return this._value( 'article', html );
@@ -221,21 +236,34 @@ class Editor {
 
     /**
      * 获取/设置另参见。
+     * @param  {String} h3 小标题
      * @param  {String} html 内容源码
-     * @return {String|this}
+     * @return {[String, [String]]|null|this} [小标题, 内容清单（<li>内容集）]
      */
-    seealso( html ) {
-        return this._value( 'seealso', html );
+    seealso( h3, html ) {
+        return this._value( 'seealso', h3, html );
     }
 
 
     /**
      * 获取/设置文献参考。
+     * @param  {String} h3 小标题
      * @param  {String} html 内容源码
-     * @return {String|this}
+     * @return {[String, [String]]|null|this} [小标题, 内容清单（<li>内容集）]
      */
-    reference( html ) {
-        return this._value( 'reference', html );
+    reference( h3, html ) {
+        return this._value( 'reference', h3, html );
+    }
+
+
+    /**
+     * 获取/设置文章声明。
+     * @param  {String} h3 小标题
+     * @param  {String} html 内容源码
+     * @return {[String2]|null|this} [小标题, 内容源码]
+     */
+    footer( h3, html ) {
+        return this._value( 'reference', h3, html );
     }
 
 
@@ -252,43 +280,40 @@ class Editor {
     /**
      * 获取/设置编辑器主题。
      * 传递custom为真，表示用定制样式文件（全URL）。
-     * @param  {String} name 主题名称
-     * @param  {Boolean} isurl 自定义URL
+     * @param  {String} url 主题样式URL
      * @return {String|this}
      */
-    theme( name, isurl ) {
-        if ( name === undefined ) {
+    theme( url ) {
+        if ( url === undefined ) {
             return this._value( 'theme' );
         }
-        return this._value( 'theme', name, isurl );
+        return this._value( 'theme', url );
     }
 
 
     /**
      * 获取/设置内容样式。
-     * @param  {String} name 主样式文件
-     * @param  {Boolean} isurl 自定义URL
+     * @param  {String} url 主样式URL
      * @return {String|this}
      */
-    style( name, isurl ) {
-        if ( name === undefined ) {
+    style( url ) {
+        if ( url === undefined ) {
             return this._value( 'style' );
         }
-        return this._value( 'style', name, isurl );
+        return this._value( 'style', url );
     }
 
 
     /**
      * 获取/设置内容代码样式。
-     * @param  {String} name 主样式文件
-     * @param  {Boolean} isurl 自定义URL
+     * @param  {String} url 主样式URL
      * @return {String|this}
      */
-    codes( name, isurl ) {
-        if ( name === undefined ) {
+    codes( url ) {
+        if ( url === undefined ) {
             return this._value( 'codes' );
         }
-        return this._value( 'codes', name, isurl );
+        return this._value( 'codes', url );
     }
 
 
@@ -362,7 +387,7 @@ function editorFrame( width, height ) {
         _frm.style.height = sizeValue( height );
     }
     // 内容导入请求监听
-    _frm.addEventListener( __import, ev => trigger(_frm.contentWindow, __import, ev.detail) );
+    _frm.addEventListener( Sys.importCons, ev => trigger(_frm.contentWindow, Sys.importCons, ev.detail) );
 
     return _frm;
 }

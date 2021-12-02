@@ -109,30 +109,16 @@ const Api = {
      * 设置时，假值实参对于的目标会保持原始内容（无修改）。
      * @param  {String} h3 提要名称
      * @param  {String} cons 内容源码（顶层outerHTML）
-     * @return {[String]|void|null}
+     * @return {[String2]|null|void} [小标题, 内容源码]
      */
     abstract( h3, cons ) {
-        let _box = $.get( '>header[role=abstract]', __content ),
-            _h3  = $.get( 'h3', _box ),
-            $els = $( '>*', _box ).not( 'h3' );
+        let _box = $.get( '>header[role=abstract]', __content );
 
         if ( h3 === undefined && cons === undefined ) {
-            return _box &&
-            [
-                _h3 && $.html( _h3 ),
-                $els.prop( 'outerHTML' ).join( '' ),
-            ];
+            return _box && getBlock1( _box );
         }
-        topInsert(
-            T.ABSTRACT,
-            create(
-                T.ABSTRACT,
-                { h3: h3 || _h3 && $.text(_h3) },
-                cons ? [...$.fragment(cons).children] : $els,
-                true
-            )
-        );
         resetState();
+        return updateBlock1( h3, cons, _box, T.ABSTRACT );
     },
 
 
@@ -140,7 +126,7 @@ const Api = {
      * 获取/设置文章主区内容。
      * 不含封装内容的<article>容器元素自身。
      * @param  {String} cons 内容源码
-     * @return {String|void}
+     * @return {String|null|void}
      */
     article( cons ) {
         let _el = $.get( 'article', __content );
@@ -157,27 +143,18 @@ const Api = {
      * 获取/设置另见条目集。
      * 返回的条目集不包含条目容器<li>元素，而是内容的源码。
      * 仅在设置时需要提供可选的小标题。
-     * @param  {[String]} cons 内容源码集
      * @param  {String} h3 小标题（如：'另参见'），可选
-     * @return {[String]|void}
+     * @param  {[String]} cons 内容源码集
+     * @return {[String, [String]]|null|void} [小标题, 内容清单（<li>内容集）]
      */
-    seealso( cons, h3 ) {
-        let _box = $.get( '>aside[role=seealso]', __content ),
-            _h3 = $.get( '>h3', _box ),
-            _ul = $.get( '>ul', _box );
+    seealso( h3, cons ) {
+        let _box = $.get( '>aside[role=seealso]', __content );
 
-        if ( cons === undefined ) {
-            return $.children( _ul ).map( li => $.html(li) );
+        if ( h3 === undefined && cons === undefined ) {
+            return _box && getBlock2( _box, 'ul' );
         }
-        if ( cons ) {
-            _ul = $.elem( 'ul' );
-            $.append( _ul, $(arrValue(cons)).wrap('<li>') );
-        }
-        topInsert(
-            T.SEEALSO,
-            create( T.SEEALSO, { h3: h3 || _h3 && $.text(_h3) }, _ul )
-        )
         resetState();
+        return updateBlock2( h3, cons, _box, 'ul', T.SEEALSO );
     },
 
 
@@ -187,25 +164,16 @@ const Api = {
      * 仅在设置时需要提供可选的小标题。
      * @param  {[String]} cons 内容源码集
      * @param  {String} h3 小标题（如：'文献参考'），可选
-     * @return {[String]|void}
+     * @return {[String, [String]]|null|void} [小标题, 内容清单（<li>内容集）]
      */
     reference( cons, h3 ) {
-        let _box = $.get( '>nav[role=reference]', __content ),
-            _h3 = $.get( '>h3', _box ),
-            _ol = $.get( '>ol', _box );
+        let _box = $.get( '>nav[role=reference]', __content );
 
-        if ( cons === undefined ) {
-            return $.children( _ol ).map( li => $.html(li) );
+        if ( h3 === undefined && cons === undefined ) {
+            return _box && getBlock2( _box, 'ol' );
         }
-        if ( cons ) {
-            _ol = $.elem( 'ol' );
-            $.append( _ol, $(arrValue(cons)).wrap('<li>') );
-        }
-        topInsert(
-            T.REFERENCE,
-            create( T.REFERENCE, { h3: h3 || _h3 && $.text(_h3) }, _ol )
-        )
         resetState();
+        return updateBlock2( h3, cons, _box, 'ol', T.REFERENCE );
     },
 
 
@@ -218,10 +186,16 @@ const Api = {
      * 设置时，假值实参对于的目标会保持原始内容（无修改）。
      * @param  {String} h3 声明名称
      * @param  {String} cons 内容源码（顶层outerHTML）
-     * @return {[String]|void|null}
+     * @return {[String2]|null|void} [小标题, 内容源码]
      */
     footer( h3, cons ) {
-        //
+        let _box = $.get( '>footer', __content );
+
+        if ( h3 === undefined && cons === undefined ) {
+            return _box && getBlock1( _box );
+        }
+        resetState();
+        return updateBlock1( h3, cons, _box, T.FOOTER );
     },
 
 
@@ -242,27 +216,36 @@ const Api = {
     },
 
 
-    theme( name, isurl ) {
-        if ( name === undefined ) {
-            //
-        }
-        // isurl ? name : `${this._path}/${Local.themes}/${name}/${Local.themeFile}`
+    /**
+     * 获取/设置主题样式。
+     * @param  {String} url 主题样式URL
+     * @return {String|Promise<Element|Error>}
+     */
+    theme( url ) {
+        let _el = $.get( Local.styleTheme );
+        return url === undefined ? _el.href : loadStyle( _el, url );
     },
 
 
-    style( name, isurl ) {
-        if ( name === undefined ) {
-            //
-        }
-        // isurl ? name : `${this._path}/${Local.styles}/${name}/${Local.styleFile}`
+    /**
+     * 获取/设置内容样式。
+     * @param  {String} url 内容样式URL
+     * @return {String|Promise<Element|Error>}
+     */
+    style( url ) {
+        let _el = $.get( Local.styleMain );
+        return url === undefined ? _el.href : loadStyle( _el, url );
     },
 
 
-    codes( name, isurl ) {
-        if ( name === undefined ) {
-            //
-        }
-        // isurl ? name : `${this._path}/${Local.styles}/${name}/${Local.styleCode}`
+    /**
+     * 获取/设置内容代码样式。
+     * @param  {String} url 内容代码样式URL
+     * @return {String|Promise<Element|Error>}
+     */
+    codes( url ) {
+        let _el = $.get( Local.styleCodes );
+        return url === undefined ? _el.href : loadStyle( _el, url );
     },
 
 };
@@ -280,6 +263,96 @@ const Api = {
  */
 function arrValue( val ) {
     return $.isArray( val ) ? val : [ val ];
+}
+
+
+/**
+ * 获取块单元内容（h3+内容集）。
+ * @param  {Element} box 单元根容器
+ * @return {[String2]} [小标题, 内容源码]
+ */
+function getBlock1( box ) {
+    let _h3 = $.get( 'h3', box );
+
+    return [
+        _h3 && $.html( _h3 ),
+        $( '>*', box ).not( 'h3' ).prop( 'outerHTML' ).join( '' )
+    ];
+}
+
+
+/**
+ * 更新块单元（h3+内容集）
+ * h3 和 cons 为假值者，不会更新相应的项（保持原值）。
+ * @param  {String} h3 小标题
+ * @param  {String} cons 内容源码（顶层outerHTML）
+ * @param  {Element} box 块元素
+ * @param  {Number} type 单元类型值
+ * @return {void}
+ */
+function updateBlock1( h3, cons, box, type ) {
+    let _h3 = box && $.get( 'h3', box ),
+        $els = box && $( '>*', box ).not( 'h3' );
+
+    topInsert(
+        type,
+        create( type, {h3: h3 || _h3 && $.text(_h3)}, cons ? [...$.fragment(cons).children] : $els, true )
+    );
+}
+
+
+/**
+ * 获取块单元内容（h3+列表）
+ * @param  {Element} box 块单元容器
+ * @return {[String, [String]]} [小标题, 内容清单（<li>内容集）]
+ */
+function getBlock2( box, tag ) {
+    let _h3 = $.get( 'h3', box ),
+        _xl = $.get( `>${tag}`, box );
+
+    return [
+        _h3 && $.html( _h3 ),
+        _xl && $.children( _xl ).map( li => $.html(li) )
+    ];
+}
+
+
+/**
+ * 更新块单元（h3+列表）
+ * 如果条目源码集实参为假，则不会改变清单内容。
+ * @param  {String} h3 小标题
+ * @param  {[String]} cons 条目源码集
+ * @param  {Element} box 块容器
+ * @param  {String} tag 清单容器标签（ul|ol）
+ * @param  {Number} type 块类型值
+ * @return {void}
+ */
+function updateBlock2( h3, cons, box, tag, type ) {
+    let _h3 = box && $.get( 'h3', box ),
+        _xl = box && $.get( `>${tag}`, box );
+
+    if ( cons ) {
+        _xl = $.elem( tag );
+        $.append( _xl, $(arrValue(cons)).wrap('<li>') );
+    }
+    topInsert( type, create(type, {h3: h3 || _h3 && $.text(_h3)}, _xl) );
+}
+
+
+/**
+ * 导入样式。
+ * @param  {Element} el 样式元素（<link>）
+ * @param  {String} url 样式文件URL
+ * @return {Promise<Element|Error>}
+ */
+function loadStyle( el, url ) {
+    return new Promise( function(resolve, reject) {
+        $.one(el, {
+            'load':  () => resolve( el ),
+            'error': err => reject( err ),
+        });
+        $.attr( el, 'href', url );
+    });
 }
 
 

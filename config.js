@@ -21,25 +21,22 @@ import { BaseOn, BaseBy } from "./base/tpb/tpb.esm.js";
 const
     Local = {
 
-        // 内容样式目录
-        styles: 'styles',
-        // 内容样式文件名
-        styleFile: 'main.css',
-        // 代码样式文件名
-        styleCode: 'codes.css',
-
-        // 编辑器主题目录
-        themes: 'themes',
-        // 主题样式文件名
-        themeFile: 'style.css',
-
         // 上载根目录
         upload: 'upload/data',
 
 
-        //
+        // 样式目录/文件配置
+        /////////////////////////////////////////////
+
+        styles:     'styles',       // 内容样式目录
+        themes:     'themes',       // 编辑器主题目录
+        mainStyle:  'main.css',     // 内容样式文件名
+        codeStyle:  'codes.css',    // 代码样式文件名
+        themeStyle: 'style.css',    // 主题样式文件名
+
+
         // 插件相关配置
-        ///////////////////////////////////////////////////
+        /////////////////////////////////////////////
 
         plugRoot:   'plugins',  // 插件根目录
 
@@ -55,16 +52,14 @@ const
         plugConf:   'project.json', // 配置文件
 
 
-        //
-        // 样式元素ID
-        // 注意与主模板文件中的值保持一致。
-        // 注记：
-        // 用于命令行修改主题/内容样式时对样式元素的检索。
-        ///////////////////////////////////////////////////
+        // 样式元素选择器
+        // 参考主模板文件（editor.html）中的值定义。
+        // 用于Api中修改主题/内容样式时。
+        /////////////////////////////////////////////
 
-        styleMain:  's-main',   // 文章内容
-        styleCodes: 's-codes',  // 代码着色（文章内容）
-        styleTheme: 's-theme',  // 编辑器主题
+        styleMain:  '#s-main',      // 文章内容
+        styleCodes: '#s-codes',     // 内容代码着色
+        styleTheme: '#s-theme',     // 编辑器主题
     },
 
 
@@ -232,6 +227,7 @@ const Sys = {
     plugInit:   'init',         // 插件表初始化
     plugIns:    'install',      // 插件安装
     plugDel:    'uninstall',    // 插件卸载
+    importCons: 'cimport',      // 内容源码导入通知
 
 
     // 模板名定义
@@ -254,29 +250,20 @@ const Sys = {
     levelName1: 'siblings', // 平级
     levelName2: 'children', // 向内
 
-    // 内容源码导入通知
-    importCons: 'cimport',
-
 
     // 本地存储键
     // 会被自动附加编辑器名称前缀。
-    //-------------------------------------------
+    /////////////////////////////////////////////
 
     // 内容主体
     storeMain: 'HTML',
-
-    // 编辑器主题
-    storeTheme: 'Theme',
-
-    // 内容样式
-    storeStyle: 'Style',
 
     // 脚本历史（前缀）
     scriptList: 'script_',
 
 
     // 实例配置覆盖
-    //-------------------------------------------
+    /////////////////////////////////////////////
 
     // 默认编辑器名称
     // 会作为本地存储的键前缀。
