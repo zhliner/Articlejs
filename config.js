@@ -52,14 +52,14 @@ const
         plugConf:   'project.json', // 配置文件
 
 
-        // 样式元素选择器
-        // 参考主模板文件（editor.html）中的值定义。
+        // 样式元素ID
+        // 参考主模板文件（editor.html）中的值设定。
         // 用于Api中修改主题/内容样式时。
         /////////////////////////////////////////////
 
-        styleMain:  '#s-main',      // 文章内容
-        styleCodes: '#s-codes',     // 内容代码着色
-        styleTheme: '#s-theme',     // 编辑器主题
+        styleMain:  's-main',       // 文章内容
+        styleCodes: 's-codes',      // 内容代码着色
+        styleTheme: 's-theme',      // 编辑器主题
     },
 
 

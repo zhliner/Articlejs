@@ -222,7 +222,7 @@ const Api = {
      * @return {String|Promise<Element|Error>}
      */
     theme( url ) {
-        let _el = $.get( Local.styleTheme );
+        let _el = $.get( `#${Local.styleTheme}` );
         return url === undefined ? _el.href : loadStyle( _el, url );
     },
 
@@ -233,7 +233,7 @@ const Api = {
      * @return {String|Promise<Element|Error>}
      */
     style( url ) {
-        let _el = $.get( Local.styleMain );
+        let _el = $.get( `#${Local.styleMain}` );
         return url === undefined ? _el.href : loadStyle( _el, url );
     },
 
@@ -244,7 +244,7 @@ const Api = {
      * @return {String|Promise<Element|Error>}
      */
     codes( url ) {
-        let _el = $.get( Local.styleCodes );
+        let _el = $.get( `#${Local.styleCodes}` );
         return url === undefined ? _el.href : loadStyle( _el, url );
     },
 
@@ -347,11 +347,15 @@ function updateBlock2( h3, cons, box, tag, type ) {
  */
 function loadStyle( el, url ) {
     return new Promise( function(resolve, reject) {
-        $.one(el, {
-            'load':  () => resolve( el ),
+        let _el = $.Element(
+            'link',
+            { id: el.id, rel: 'stylesheet', href: url }
+        );
+        $.one( _el, {
+            'load':  () => resolve( _el ),
             'error': err => reject( err ),
         });
-        $.attr( el, 'href', url );
+        $.replace( el, _el );
     });
 }
 
