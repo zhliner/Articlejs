@@ -676,7 +676,7 @@
     uninstall   插件卸载。移除传递来的插件按钮。
     init        初始插件清单插入。-->
 <form class="_page _plugins" onsubmit="return false" tpl-name="modal:plugins"
-    on="install init|ev('detail') dup pass;
+    on="init install|ev('detail') dup pass;
         uninstall|ev('detail') dup pass remove"
     to="/div._list|append">
     <header>

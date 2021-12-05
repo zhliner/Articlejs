@@ -129,7 +129,7 @@ export function pluginsInsert( name, tips = null ) {
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
     return plugConf( _dir, Local.plugConf )
-        .then( tr => __Pool.set(name, _btn) && Tpb.templater(name, tr) && __btnPool.set(_btn, name) && _btn );
+        .then( tr => __Pool.set(name, _btn) && Tpb.templater(name, tr) || __btnPool.set(_btn, name) && _btn );
 }
 
 

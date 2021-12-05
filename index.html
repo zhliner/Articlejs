@@ -31,6 +31,7 @@
 
     coolj.create( _opts )
         .init( $.get('#editorBox') )
+        // .then( ed => window.console.info(ed) || ed )
         .then( ed => (_ifrm = ed.frame()).contentWindow.focus() );
 
     // Tpb支持。
