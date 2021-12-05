@@ -31,11 +31,13 @@
     </script>
 
     <script type="module" async>
-        import Tpb from "../base/tpb/tpb.js";
-        import { Web } from "../base/tpb/config.js";
+        import { Tpb } from "../base/tpb/tpb.esm.js";
+        import { tplMaps } from "../base/tpb/config.js";
 
-        Tpb.Build( document, Web.tplmap )
-        .then( () => $.trigger(document.body, 'finish') );
+        Tpb.init()
+            .config( tplMaps )
+            .then( tr => tr.build(document) )
+            .then( () => $.trigger(document.body, 'finish') );
 
         //:Debug
         window.Tpb = Tpb;

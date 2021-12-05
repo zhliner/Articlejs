@@ -16,8 +16,8 @@
 }
 </style>
 <script type="module">
-    import coolj, {setupRoot} from "./index.js";
     import { Tpb } from "./base/tpb/tpb.esm.js";
+    import coolj from "./user.js";
 
     let _ifrm = null,
         _fmax = [
@@ -29,7 +29,7 @@
             onmaximize: num => _fmax[num](),
         };
 
-    coolj.create( _opts, setupRoot )
+    coolj.create( _opts )
         .init( $.get('#editorBox') )
         .then( ed => (_ifrm = ed.frame()).contentWindow.focus() );
 

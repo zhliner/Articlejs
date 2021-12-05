@@ -18,8 +18,7 @@
 //
 
 import $, { OBTA, TplrName, TplsPool } from "./tpb/config.js";
-import { setupRoot } from "../index.js";
-import { Sys, Limit, Help, Tips, Cmdx, Local, On, By } from "../config.js";
+import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, compatibleNoit, checkStruct } from "./base.js";
@@ -5814,7 +5813,7 @@ export const Edit = {
             throw new Error( 'not found the plugins.' );
         }
         return plugLoad(
-            `${setupRoot}${Local.plugRoot}/${_name}/${Local.plugMain}`,
+            `${ROOT}${Local.plugRoot}/${_name}/${Local.plugMain}`,
             // {INFO, HTML, TEXT}
             scriptData( __ESet, _data, true, true )
         )

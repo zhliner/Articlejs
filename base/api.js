@@ -162,11 +162,11 @@ const Api = {
      * 获取/设置参考条目集。
      * 返回的条目集不包含条目容器<li>元素，而是内容的源码。
      * 仅在设置时需要提供可选的小标题。
-     * @param  {[String]} cons 内容源码集
      * @param  {String} h3 小标题（如：'文献参考'），可选
+     * @param  {[String]} cons 内容源码集
      * @return {[String, [String]]|null|void} [小标题, 内容清单（<li>内容集）]
      */
-    reference( cons, h3 ) {
+    reference( h3, cons ) {
         let _box = $.get( '>nav[role=reference]', __content );
 
         if ( h3 === undefined && cons === undefined ) {

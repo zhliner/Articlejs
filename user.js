@@ -1,5 +1,5 @@
-//! $ID: index.js 2019.11.16 Cooljed.User $
-// ++++++++++++++++++++++++++++++++++++++++++++
+//! $ID: user.js 2019.11.16 Cooljed.User $
+// +++++++++++++++++++++++++++++++++++++++++++
 //  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
@@ -8,8 +8,8 @@
 //
 //  用法：
 //      // 创建一个编辑器实例。
-//      import coolj, {setupRoot} from './index.js';
-//      let editor = coolj.create( option, setupRoot );
+//      import coolj from './user.js';
+//      let editor = coolj.create( option );
 //
 //      // 编辑器初始化。
 //      // 传入编辑器的容器元素，之后即为用户页逻辑。
@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Sys } from "./config.js";
+import { ROOT, Local, Sys } from "./config.js";
 
 
 //
@@ -97,16 +97,15 @@ const
     // 编辑器默认名。
     __saveName  = 'coolj',
 
-    // 编辑器根模板文件
-    __tplRoot   = 'templates/editor.html',
-
 
     // 本地存储键
     //-------------------------------------------
 
-    storeTheme  = 'Theme',  // 编辑器主题
-    storeStyle  = 'Style',  // 内容样式
-    storeCodes  = 'Codes';  // 内容代码样式
+    storeStyle = {
+        theme:  'Theme',    // 编辑器主题
+        style:  'Style',    // 内容样式
+        codes:  'Codes',    // 内容代码样式
+    };
 
 
 
@@ -118,9 +117,8 @@ class Editor {
     /**
      * 创建编辑器。
      * @param {Object} option 配置集
-     * @param {String} root 编辑器根目录路径
      */
-    constructor( option, root ) {
+    constructor( option ) {
         let _ifrm = editorFrame( option.width, option.height );
 
         _ifrm.Config = {
@@ -133,7 +131,6 @@ class Editor {
             // 默认传递null，不改变内容。
             contenter:  option.oncontent || ( () => Promise.resolve(null) ),
         };
-        this._path = root;
         this._ifrm = _ifrm;
 
         // 编辑器根模板文件
@@ -150,10 +147,10 @@ class Editor {
      * @param  {String} file 编辑器根模板文件，可选
      * @return {Promise<Editor>}
      */
-    init( box, file = __tplRoot ) {
+    init( box, file = Local.editor ) {
         this._ifrm.setAttribute(
             'src',
-            `${this._path}${file}`
+            `${ROOT}${file}`
         );
         this._file = file;
         this._ebox = box;
@@ -263,7 +260,7 @@ class Editor {
      * @return {[String2]|null|this} [小标题, 内容源码]
      */
     footer( h3, html ) {
-        return this._value( 'reference', h3, html );
+        return this._value( 'footer', h3, html );
     }
 
 
@@ -344,6 +341,7 @@ class Editor {
      *      .article()    设置/获取主体内容
      *      .seealso()    设置/获取另参见
      *      .reference()  设置/获取参考文献
+     *      .footer()     设置/获取文章声明
      *      .content()    设置/获取文章全部内容
      *      .theme()      设置/获取编辑器主题
      *      .style()      设置/获取内容风格
@@ -426,24 +424,53 @@ function empty() {}
 
 
 /**
+ * 获取目标样式URL的本地存储键。
+ * @param  {String} name 样式类型名（theme|style|codes）
+ * @return {String}
+ */
+function styleKey( name ) {
+    return `${__saveName}_${storeStyle[name]}`;
+}
+
+
+/**
+ * 获取目标类型样式URL的本地储存。
+ * @param  {String} name 样式类型名（theme|style|codes）
+ * @return {String|null}
+ */
+function localStyle( name ) {
+    return window.localStorage.getItem( styleKey(name) ) || null;
+}
+
+
+/**
+ * 复原本地存储的样式。
+ * 在用户重新打开编辑器的时候有用。
+ * @param  {Editor} ed 编辑器实例
+ * @return {Editor} ed
+ */
+function recoverStyles( ed ) {
+    let _theme = localStyle( 'theme' ),
+        _main  = localStyle( 'style' ),
+        _codes = localStyle( 'codes' );
+
+    if ( _theme ) ed.theme( _theme );
+    if ( _main )  ed.style( _main );
+    if ( _codes ) ed.codes( _codes );
+}
+
+
+/**
  * 编辑器创建。
  * 非常规的提交可能不需要<textarea>容器。
  * @param  {Object} option 配置集
- * @param  {String} path 编辑器所在目录路径（相对于Web根）
  * @return {Editor} 编辑器实例
  */
-const create = (option, path) => new Editor( option || {}, path );
+const create = option => new Editor( option || {} );
 
 
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
 
-export default { create }
-
-
-//
-// 配置导出：
-// 编辑器安装根，由用户安装后修改设置。
-//
-export const setupRoot = '/';
+export default { create, styleKey, recoverStyles  };

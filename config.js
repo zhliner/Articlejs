@@ -8,21 +8,29 @@
 //
 //  编辑器配置定义。
 //
-//  安装根路径（URL）和模板根目录配置文件：base/tpb/config.js。
-//
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Web } from "./base/tpb/config.js";
 import { BaseOn, BaseBy } from "./base/tpb/tpb.esm.js";
 
 
 const
-    Local = {
+    //
+    // 编辑器安装根
+    // 由用户安装后修改，注意末尾的斜线/。
+    // 请同时调整Tpb配置文件（base/tpb/config.js）内的本系模板根URL（tplRoot）。
+    //
+    ROOT = 'http://localhost:8080/',
 
+
+    Local = {
         // 上载根目录
         upload: 'upload/data',
+
+        // 编辑器根模板
+        // 相对于上面的安装根（ROOT）。
+        editor: 'templates/editor.html',
 
 
         // 样式目录/文件配置
@@ -181,8 +189,7 @@ const
 
 
     // 脚本执行器创建器
-    // 路径视实际部署情况调整。
-    Scripter = () => new Worker( `${Web.base}base/scripter.js` );
+    Scripter = () => new Worker( `${ROOT}base/scripter.js` );
 
 
 
@@ -310,4 +317,14 @@ const
     By = Object.create( BaseBy );
 
 
-export { Local, Limit, Tips, Help, Scripter, Sys, Cmdx, On, By };
+export {
+    ROOT,
+    Local,
+    Limit,
+    Tips,
+    Help,
+    Scripter,
+    Sys,
+    Cmdx,
+    On, By
+};

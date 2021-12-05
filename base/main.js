@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { Web, TplrName, TplsPool, DEBUG } from "./tpb/config.js";
+import $, { tplMaps, TplrName, TplsPool, DEBUG } from "./tpb/config.js";
 import { Tpb } from "./tpb/tpb.esm.js";
 import { HotKey, ObjKey } from './tpb/tools/hotkey.js';
 import { Sys, On, By } from "../config.js";
@@ -45,10 +45,9 @@ $.config({
 });
 
 // 当前On/By空间
-Tpb.Init( On, By );
-
-// 构建&完成
-Tpb.build( document, Web.tplmap )
+Tpb.init( On, By )
+    .config( tplMaps )
+    .then( tr => tr.build(document) )
     .then( () => $.trigger(document.body, 'finish') )
     .then( () => Api.init('#outline', '#editor', '#content', '#help', '#beeptip') )
     .then( () => Sys.readyCall() )
@@ -62,6 +61,5 @@ Tpb.build( document, Web.tplmap )
 if ( DEBUG ) {
     window.On = On;
     window.By = By;
-    // Tpb.Init() 之后
     window.Tpls = TplsPool.get( TplrName );
 }

@@ -12,12 +12,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { XLoader, TplsPool } from "./tpb/config.js";
-import { obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.esm.js";
+import $ from "./tpb/config.js";
+import { Tpb, obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.esm.js";
 import { Templater } from "./tpb/tools/templater.js";
 
-import { setupRoot } from "../index.js";
-import { Local } from "../config.js";
+import { ROOT, Local } from "../config.js";
+import { Loader, TplLoader } from "./tpb/tools/tloader.js";
 
 
 const
@@ -32,6 +32,9 @@ const
     // OBT构建器
     // 针对插件On/By定义集。
     __obter = obtBuilder( PlugOn, PlugBy ),
+
+    // 通用载入器。
+    __loader = new Loader( ROOT ),
 
     // 插件按钮缓存
     // 在按名称卸载插件时有用。
@@ -58,7 +61,8 @@ const
  * @return {Promise<Templater>}
  */
 function plugConf( dir, file ) {
-    return XLoader.json( `${dir}/${file}` )
+    return __loader
+        .json( `${dir}/${file}` )
         .then( obj => plugStyle(dir, obj) )
         .then( obj => plugTpls(dir, obj) );
 }
@@ -73,7 +77,7 @@ function plugConf( dir, file ) {
  */
 function plugStyle( dir, conf ) {
     if ( conf.style ) {
-        return $.style( {href: `${setupRoot}${dir}/${conf.style}`} ).then( () => conf );
+        return $.style( {href: `${ROOT}${dir}/${conf.style}`} ).then( () => conf );
     }
     return conf;
 }
@@ -83,7 +87,7 @@ function plugStyle( dir, conf ) {
  * 导入并解析模板节点。
  * - 导入模板节点清单文件配置。
  * - 导入主模板文件并执行系列（子模版）解析构建。
- * 返回节点名数组以记录插件的模板安装。
+ * 返回模板管理器实例，以便于插件的卸载。
  * @param  {String} dir 插件目录
  * @param  {Object} conf 插件配置对象
  * @return {Promise<Templater>|null}
@@ -92,12 +96,11 @@ function plugTpls( dir, conf ) {
     if ( !conf.maps ) {
         return null;
     }
-    let _tpls = new Templater( __obter, dir );
+    let _tplr = new Templater( __obter, new TplLoader(dir, __loader) );
 
-    return _tpls.config( conf.maps )
-        .then( () => XLoader.node(`${dir}/${conf.node}`) )
-        .then( frg => _tpls.build(frg, conf.node) )
-        .then( () => _tpls );
+    return _tplr.config( conf.maps )
+        .then( () => __loader.node(`${dir}/${conf.node}`) )
+        .then( frg => _tplr.build(frg, conf.node) );
 }
 
 
@@ -122,11 +125,11 @@ export function pluginsInsert( name, tips = null ) {
         return Promise.resolve( null );
     }
     let _dir = `${Local.plugRoot}/${name}`,
-        _img = $.Element( 'img', { src: `${setupRoot}${_dir}/${Local.plugLogo}` } ),
+        _img = $.Element( 'img', { src: `${ROOT}${_dir}/${Local.plugLogo}` } ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
     return plugConf( _dir, Local.plugConf )
-        .then( tpls => __Pool.set(name, _btn) && TplsPool.set(name, tpls) && __btnPool.set(_btn, name) && _btn );
+        .then( tr => __Pool.set(name, _btn) && Tpb.templater(name, tr) && __btnPool.set(_btn, name) && _btn );
 }
 
 
@@ -143,7 +146,7 @@ export function pluginsDelete( name ) {
 
     if ( _btn ) {
         __Pool.delete( name );
-        TplsPool.delete( name );
+        Tpb.templater( name, null );
     }
     return _btn || null;
 }
