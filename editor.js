@@ -1,5 +1,5 @@
-//! $ID: user.js 2019.11.16 Cooljed.User $
-// +++++++++++++++++++++++++++++++++++++++++++
+//! $ID: editor.js 2021.12.25 Cooljed.Base $
+// +++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
@@ -8,7 +8,7 @@
 //
 //  用法：
 //      // 创建一个编辑器实例。
-//      import coolj from './user.js';
+//      import coolj from './editor.js';
 //      let editor = coolj.create( option );
 //
 //      // 编辑器初始化。

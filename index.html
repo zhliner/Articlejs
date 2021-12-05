@@ -17,7 +17,7 @@
 </style>
 <script type="module">
     import { Tpb } from "./base/tpb/tpb.esm.js";
-    import coolj from "./user.js";
+    import coolj from "./editor.js";
 
     let _ifrm = null,
         _fmax = [
@@ -34,9 +34,9 @@
         .then( ed => (_ifrm = ed.frame()).contentWindow.focus() );
 
     // Tpb支持。
-    Tpb.Init();
-    Tpb.build( document.body )
-        .then( () => window.console.info('build done!') );
+    Tpb.init()
+        .build( document.body )
+        .then( tr => window.console.info('build done!', tr) );
 </script>
 </head>
 <body>
