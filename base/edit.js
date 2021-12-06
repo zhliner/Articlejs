@@ -6692,9 +6692,10 @@ export const Kit = {
 
 
     /**
-     * 设置内容源码（整体）。
+     * 设置内容源码。
      * 与其它设置（如 Api.content(...)）不同，此操作进入编辑历史栈。
-     * @data: String 内容源码
+     * 内容数据支持源码或节点数据（集）。
+     * @data: String|Element|[Element]
      * @return {void}
      */
     puthtml( evo ) {

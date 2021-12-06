@@ -9,30 +9,33 @@
 <script src="base/tquery/tquery.min.js"></script>
 <style>
 /* 编辑器最大化 */
-#editorBox > iframe._full {
+#editorBox._full > iframe {
     position: absolute;
     top: 0;
     left: 0;
+    width: 100% !important;
+    height: 100% !important;
 }
 </style>
 <script type="module">
     import { Tpb } from "./base/tpb/tpb.esm.js";
     import coolj from "./editor.js";
 
-    let _ifrm = null,
+    let _ebox = $.get( '#editorBox' ),
         _fmax = [
-            () => $.removeClass( _ifrm, '_full' ),
-            () => $.addClass( _ifrm, '_full' )
+            () => $.removeClass( _ebox, '_full' ),
+            () => $.addClass( _ebox, '_full' )
         ],
         _opts = {
             onsaved: html => window.console.info(html),
             onmaximize: num => _fmax[num](),
-        };
+        },
+        _edor = null;
 
     coolj.create( _opts )
-        .init( $.get('#editorBox') )
-        // .then( ed => window.console.info(ed) || ed )
-        .then( ed => (_ifrm = ed.frame()).contentWindow.focus() );
+        .init( _ebox )
+        .then( ed => _edor = ed )
+        .then( ed => ed.frame().contentWindow.focus() );
 
     // Tpb支持。
     Tpb.init()
@@ -41,13 +44,17 @@
 </script>
 </head>
 <body>
-    <form action="">
+    <form onsubmit="return false" action="">
         <textarea name="content" style="display: none;"></textarea>
         <main>
             <h1>◡酷几◡编辑器在线版</h1>
-            <nav>
-                <b title="单击导入">操作手册</b>
-                <b title="单击导入">文章结构说明</b>
+            <nav
+                on="click(>b)|evo(1) attr('-url')"
+                by="GET('text', _1) fragment pop $('/main.content') children not('nav')"
+                to="1/iframe|trigger('cimport')">
+                <b title="单击导入" data-url="docs/intro.html">简介</b>
+                <b title="单击导入" data-url="docs/manual.html">操作手册</b>
+                <b title="单击导入" data-url="docs/article.html">文章结构规范</b>
                 <span>
                     <label>主题</label>
                     <select name="themes">
@@ -67,7 +74,7 @@
                     <a title="制作包">?</a>
                 </span>
             </nav>
-            <span id="editorBox"></span>
+            <span id="editorBox"><!-- 编辑器容器 --></span>
         </main>
     </form>
 </body>

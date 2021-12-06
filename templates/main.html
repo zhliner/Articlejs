@@ -254,12 +254,12 @@
             mouseleave|end 重置状态栏，除非已有计数指定。
             mousedown|...avoid 避免 Shift+单击 变成划选（已经有划选除外）。
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。注：keyup-全选，focus-无点击进入。
-            puthtml 整体导入内容源码（可撤销）。
+            puthtml 整体导入内容源码（可撤销），同时滚动到顶部。
         -->
         <main id="content" class="content"
             on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) SCAM;
-                puthtml|ev('detail');
                 cancel|stop env('minied') end;
+                puthtml|ev('detail');
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
@@ -269,11 +269,11 @@
                 mousedown|env('minied') end sRange str vnot ev('shiftKey') both pop avoid;
                 mouseup([contenteditable]) keyup([contenteditable]) input focus([contenteditable])|env('minied') pass sRange pop xRange stop"
             by="Ed.click(_1);
-                Kit.puthtml;
-                Kit.ecancel"
+                Kit.ecancel;
+                Kit.puthtml (0)"
             to="#g-count|trigger('reset');
                 #g-count|trigger('reset');
-                #g-count|trigger('reset');
+                ._scroll/|scrollTop|fire('#g-count', 'reset');
                 =|addClass;
                 =|removeClass;
                 #status-info|trigger('info');
