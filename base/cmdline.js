@@ -53,6 +53,7 @@
 //      plug-del    插件移除。
 //      help        开启帮助窗口并定位到指定的关键字条目。
 //      config      显示系统配置值。
+//      eval        在全局环境执行JS代码（非JS eval函数）。
 //
 //
 //  - 计算（=）
@@ -415,6 +416,7 @@ class Command {
             [ 'plug-del',   this._plugDel ],
             [ 'help',       this._help ],
             [ 'config',     this._config ],
+            [ 'eval',       this._eval ],
         ]);
     }
 
@@ -435,17 +437,21 @@ class Command {
             return _fun( ...args ) || '';
         }
         catch ( e ) {
-            return `[${e.name}] ${e.message}`;
+            return `[${e.name}]: ${e.message}`;
         }
     }
 
 
     /**
      * 提取命令和实参序列。
+     * 注：eval命令特殊对待：后续内容为一段整体JS代码。
      * @param  {String} str 命令行序列
      * @return {[String, [String]|'']} [命令名, [实参序列]]
      */
     _cmdArgs( str ) {
+        if ( str.startsWith('eval ') ) {
+            return [ 'eval', [str.substring(5)] ];
+        }
         for ( const n of this._cmds.keys() ) {
             if ( str === n || str.startsWith(n + ' ') ) {
                 return [
@@ -521,6 +527,16 @@ class Command {
      */
     _config( name ) {
         return Limit[ name ] || Tips.configNothing;
+    }
+
+
+    /**
+     * 执行JS代码。
+     * 在全局（window）范围内执行而非系统eval。
+     * @param {String} code JS代码
+     */
+    _eval( code ) {
+        return new Function( code )();
     }
 }
 
