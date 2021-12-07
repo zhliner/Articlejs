@@ -19,28 +19,33 @@
 </style>
 <script type="module">
     import { Tpb } from "./base/tpb/tpb.esm.js";
+    import { Local } from "./config.js";
     import coolj from "./editor.js";
 
     let _ebox = $.get( '#editorBox' ),
-        _fmax = [
-            () => $.removeClass( _ebox, '_full' ),
-            () => $.addClass( _ebox, '_full' )
-        ],
+        _fun2 = [ $.removeClass, $.addClass ],
         _opts = {
             onsaved: html => window.console.info(html),
-            onmaximize: num => _fmax[num](),
-        },
-        _edor = null;
+            onmaximize: num => _fun2[ num ]( _ebox, '_full' ),
+        };
 
     coolj.create( _opts )
         .init( _ebox )
-        .then( ed => _edor = ed )
+        .then( ed => window.editor = ed )
         .then( ed => ed.frame().contentWindow.focus() );
 
     // Tpb支持。
     Tpb.init()
         .build( document.body )
         .then( tr => window.console.info('build done!', tr) );
+
+
+    // 3个样式URL构建函数
+    window.styleURL = {
+        theme:  name => `${Local.themes}/${name}/${Local.themeStyle}`,
+        main:   name => `${Local.styles}/${name}/${Local.mainStyle}`,
+        codes:  name => `${Local.styles}/${name}/${Local.codeStyle}`,
+    };
 </script>
 </head>
 <body>
@@ -57,21 +62,22 @@
                 <b title="单击导入" data-url="docs/article.html">文章结构规范</b>
                 <span>
                     <label>主题</label>
-                    <select name="themes">
-                        <option value="Dark-less">蓝调的传说</option>
-                        <option value="classic-gray">经典50度灰</option>
+                    <select name="themes"
+                        on="change|">
+                        <option value="The-blue">蓝调的传说</option>
+                        <option value="Classic-gray">经典50度灰</option>
                         <option value="Dark-less">光明之夜</option>
                     </select>
-                    <a title="制作包">?</a>
+                    <a title="主题制作包" href="docs/theme2pack.zip">?</a>
                 </span>
                 <span>
                     <label>内容样式</label>
                     <select name="styles">
-                        <option value="">乡愁</option>
-                        <option value="">平庸的白暮</option>
-                        <option value="">旷野无垠</option>
+                        <option value="nostalgia">乡愁</option>
+                        <option value="paleness">平庸的白暮</option>
+                        <option value="wildwide">旷野无垠</option>
                     </select>
-                    <a title="制作包">?</a>
+                    <a title="内容样式制作包" href="docs/style2pack.zip">?</a>
                 </span>
             </nav>
             <span id="editorBox"><!-- 编辑器容器 --></span>

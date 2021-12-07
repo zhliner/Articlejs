@@ -12,10 +12,10 @@
 //      let editor = coolj.create( option );
 //
 //      // 编辑器初始化。
-//      // 传入编辑器的容器元素，之后即为用户页逻辑。
+//      // 传递编辑器插入需要的容器元素，之后即为用户页逻辑。
 //      // 注意：
-//      // 编辑器的默认高/宽样式为 100%，可能需要一个空容器。
-//      // 最后把焦点交给编辑器窗口可便于快捷键操作。
+//      // - 编辑器的默认高/宽样式为 100%，通常需要一个空容器。
+//      // - 最后把焦点交给编辑器窗口可便于快捷键操作。
 //      ecitor.init( box )
 //          .then( ed => ... ed.frame().contentWindow.focus() );
 //
@@ -41,7 +41,7 @@
 //  }
 //
 //  Editor接口：
-//      .init(): Promise<void>  编辑器初始化
+//      .init(): Promise<Editor> 编辑器初始化
 //      .frame(): Element       获取编辑器根元素（<iframe>）
 //      .reload(): Promise      重新载入编辑器
 //
@@ -177,7 +177,7 @@ class Editor {
      */
     reload( file ) {
         let _cons = this.content();
-        this._ifrm.Config.contenter = () => Promise.resolve( this.content(_cons) || (_cons = null) );
+        this._ifrm.Config.contenter = () => Promise.resolve( _cons );
 
         return this.init( this._ebox, file || this._file );
     }
