@@ -18,9 +18,8 @@
 }
 </style>
 <script type="module">
-    import { Tpb } from "./base/tpb/tpb.esm.js";
-    import { Local } from "./config.js";
     import coolj from "./editor.js";
+    import { saveEditor } from "./index.js";
 
     let _ebox = $.get( '#editorBox' ),
         _fun2 = [ $.removeClass, $.addClass ],
@@ -30,23 +29,12 @@
         };
 
     coolj.create( _opts )
-        .init( _ebox )
-        .then( ed => window.editor = ed )
+        .load( _ebox )
+        .then( ed => saveEditor(ed) )
         .then( ed => ed.frame().contentWindow.focus() );
-
-    // Tpb支持。
-    Tpb.init()
-        .build( document.body )
-        .then( tr => window.console.info('build done!', tr) );
-
-
-    // 3个样式URL构建函数
-    window.styleURL = {
-        theme:  name => `${Local.themes}/${name}/${Local.themeStyle}`,
-        main:   name => `${Local.styles}/${name}/${Local.mainStyle}`,
-        codes:  name => `${Local.styles}/${name}/${Local.codeStyle}`,
-    };
 </script>
+<!-- Tpb支持 -->
+<script type="module" src="./index.js"></script>
 </head>
 <body>
     <form onsubmit="return false" action="">

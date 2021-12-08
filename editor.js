@@ -16,7 +16,7 @@
 //      // 注意：
 //      // - 编辑器的默认高/宽样式为 100%，通常需要一个空容器。
 //      // - 最后把焦点交给编辑器窗口可便于快捷键操作。
-//      ecitor.init( box )
+//      ecitor.load( box )
 //          .then( ed => ... ed.frame().contentWindow.focus() );
 //
 //  option {
@@ -41,7 +41,7 @@
 //  }
 //
 //  Editor接口：
-//      .init(): Promise<Editor> 编辑器初始化
+//      .load(): Promise<Editor> 编辑器初始化
 //      .frame(): Element       获取编辑器根元素（<iframe>）
 //      .reload(): Promise      重新载入编辑器
 //
@@ -147,7 +147,7 @@ class Editor {
      * @param  {String} file 编辑器根模板文件，可选
      * @return {Promise<Editor>}
      */
-    init( box, file = Local.editor ) {
+    load( box, file = Local.editor ) {
         this._ifrm.setAttribute(
             'src',
             `${ROOT}${file}`
@@ -179,7 +179,7 @@ class Editor {
         let _cons = this.content();
         this._ifrm.Config.contenter = () => Promise.resolve( _cons );
 
-        return this.init( this._ebox, file || this._file );
+        return this.load( this._ebox, file || this._file );
     }
 
 
