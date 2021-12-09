@@ -30,7 +30,7 @@
 
     coolj.create( _opts )
         .load( _ebox )
-        .then( ed => saveEditor(ed) )
+        .then( ed => coolj.recoverStyles(ed) && saveEditor(ed) )
         .then( ed => ed.frame().contentWindow.focus() );
 </script>
 <!-- Tpb支持 -->
@@ -61,8 +61,8 @@
             <span>
                 <label>内容样式</label>
                 <select name="styles"
-                    on="change|evo(3) val mainURL"
-                    by="Kit.style('style')"
+                    on="change|evo(3) val dup pop(2) codesURL mainURL"
+                    by="Kit.style('style') Kit.style('codes')"
                     to="#editorBox|trigger('active')">
                     <option value="nostalgia">乡愁</option>
                     <option value="paleness">平庸的白暮</option>

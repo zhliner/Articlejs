@@ -69,13 +69,13 @@ const Kit = {
 
 
     /**
-     * 设置样式。
+     * 设置&保存样式。
      * 包括主题、内容和代码风格的样式。
      * @data: String 样式文件URL
      * @param {String} name 接口名（theme|style|codes）
      */
     style( evo, name ) {
-        __editor[ name ]( evo.data );
+        __editor[ name ]( evo.data, true );
     },
 
     __style: 1,
