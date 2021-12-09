@@ -31,32 +31,38 @@ let __editor = null;
 const Kit = {
     /**
      * 获取主题样式文件URL。
-     * @param  {String} name 主题名
+     * @data: String 主题名
      * @return {String}
      */
-    themeURL: function( name ) {
-        return `${ROOT}${Local.themes}/${name}/${Local.themeStyle}`;
+    themeURL: function( evo ) {
+        return `${ROOT}${Local.themes}/${evo.data}/${Local.themeStyle}`;
     },
+
+    __themeURL: 1,
 
 
     /**
      * 获取内容样式文件URL。
-     * @param  {String} 内容样式名
+     * @data: String 内容样式名
      * @return {String}
      */
-    mainURL: function( name ) {
-        return `${ROOT}${Local.styles}/${name}/${Local.mainStyle}`;
+    mainURL: function( evo ) {
+        return `${ROOT}${Local.styles}/${evo.data}/${Local.mainStyle}`;
     },
+
+    __mainURL: 1,
 
 
     /**
      * 获取代码样式文件URL。
-     * @param  {String} name 代码样式名
+     * @data: String 代码样式名
      * @return {String}
      */
-    codesURL: function( name ) {
-        return `${ROOT}${Local.styles}/${name}/${Local.codeStyle}`;
+    codesURL: function( evo ) {
+        return `${ROOT}${Local.styles}/${evo.data}/${Local.codeStyle}`;
     },
+
+    __codesURL: 1,
 
 
     //-- By ------------------------------------------------------------------
@@ -66,7 +72,7 @@ const Kit = {
      * 设置样式。
      * 包括主题、内容和代码风格的样式。
      * @data: String 样式文件URL
-     * @param {String} name 风格名
+     * @param {String} name 接口名（theme|style|codes）
      */
     style( evo, name ) {
         __editor[ name ]( evo.data );

@@ -37,39 +37,47 @@
 <script type="module" src="./index.js"></script>
 </head>
 <body>
-    <form onsubmit="return false" action="">
-        <textarea name="content" style="display: none;"></textarea>
-        <main>
-            <h1>◡酷几◡编辑器在线版</h1>
-            <nav
-                on="click(>b)|evo(1) attr('-url')"
-                by="GET('text', _1) fragment pop $('/main.content') children not('nav')"
-                to="1/iframe|trigger('cimport')">
-                <b title="单击导入" data-url="docs/intro.html">简介</b>
-                <b title="单击导入" data-url="docs/manual.html">操作手册</b>
-                <b title="单击导入" data-url="docs/article.html">文章结构规范</b>
-                <span>
-                    <label>主题</label>
-                    <select name="themes"
-                        on="change|">
-                        <option value="The-blue">蓝调的传说</option>
-                        <option value="Classic-gray">经典50度灰</option>
-                        <option value="Dark-less">光明之夜</option>
-                    </select>
-                    <a title="主题制作包" href="docs/theme2pack.zip">?</a>
-                </span>
-                <span>
-                    <label>内容样式</label>
-                    <select name="styles">
-                        <option value="nostalgia">乡愁</option>
-                        <option value="paleness">平庸的白暮</option>
-                        <option value="wildwide">旷野无垠</option>
-                    </select>
-                    <a title="内容样式制作包" href="docs/style2pack.zip">?</a>
-                </span>
-            </nav>
-            <span id="editorBox"><!-- 编辑器容器 --></span>
-        </main>
-    </form>
+    <main>
+        <h1>◡酷几◡编辑器在线版</h1>
+        <nav
+            on="click(>b)|evo(1) attr('-file')"
+            by="GET('text', _1) fragment pop $('/main.content') children not('nav')"
+            to="1/iframe|trigger('cimport')">
+            <b title="单击导入" data-file="docs/intro.html">简介</b>
+            <b title="单击导入" data-file="docs/manual.html">操作手册</b>
+            <b title="单击导入" data-file="docs/article.html">文章结构规范</b>
+            <span>
+                <label>主题</label>
+                <select name="themes"
+                    on="change|evo(3) val themeURL"
+                    by="Kit.style('theme')"
+                    to="#editorBox|trigger('active')">
+                    <option value="The-blue">蓝调的传说</option>
+                    <option value="Classic-gray">经典50度灰</option>
+                    <option value="Dark-less">光明之夜</option>
+                </select>
+                <a title="主题制作包" href="docs/theme2pack.zip">?</a>
+            </span>
+            <span>
+                <label>内容样式</label>
+                <select name="styles"
+                    on="change|evo(3) val mainURL"
+                    by="Kit.style('style')"
+                    to="#editorBox|trigger('active')">
+                    <option value="nostalgia">乡愁</option>
+                    <option value="paleness">平庸的白暮</option>
+                    <option value="wildwide">旷野无垠</option>
+                </select>
+                <a title="内容样式制作包" href="docs/style2pack.zip">?</a>
+            </span>
+        </nav>
+        <form onsubmit="return false" action="">
+            <textarea name="content" style="display: none;"></textarea>
+            <!-- active 激活：向内聚焦便于快捷键操作。 -->
+            <span id="editorBox"
+                on="active|$('/iframe') its('contentWindow') pop"
+                to="-|apply('focus')"><!-- 编辑器容器 --></span>
+        </form>
+    </main>
 </body>
 </html>

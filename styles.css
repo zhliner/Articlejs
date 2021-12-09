@@ -54,6 +54,7 @@ nav > span > a {
     text-decoration: none;
 }
 #editorBox {
+    display: inline-block;
     flex: 1 1 auto;
     width: 1050px;
     height: 800px;
