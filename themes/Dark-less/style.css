@@ -29,9 +29,10 @@ body > aside {
 /* 侧面板宽度调整线 */
 body > hr {
     width: 3px;
-    border: 1px #1e2b33 solid;
+    border: 1px #c28a42 solid;
     border-radius: 3px;
-    background-color: #f7f4e9;
+    background-color: #1e2b33;
+
     cursor: ew-resize;
 }
 
@@ -46,7 +47,7 @@ div#editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    border: 1px #0e1e29 solid;
+    border: 2px #0e1e29 solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
     background-color: white;
@@ -236,7 +237,7 @@ aside#help {
     background-color: #3e7471;
 }
 .___Panel input::placeholder {
-    color: #ccc;
+    color: #777;
 }
 .___Panel input[type=radio],
 .___Panel input[type=checkbox] {
@@ -270,7 +271,7 @@ aside#help {
     background: local url(images/txtline.png) repeat #0c1e27;
 }
 .___Panel textarea::placeholder {
-    color: #aaa;
+    color: #888;
     font-style: italic;
 }
 
@@ -728,7 +729,7 @@ menu._cells code {
     font-size: 1.1em;
     margin-top: -3px;
     margin-right: -3px;
-    color: #28db80;
+    color: #25a1c9;
 }
 #outline nav[role=toc] h3 > b:hover {
     background-color: #147664;
@@ -821,8 +822,8 @@ menu._cells code {
     height: 44px;
     background-color: #1e2b33;
     box-shadow: 0 4px 5px -2px #ff853e;
-    border-top-left-radius: inherit;
-    border-top-right-radius: inherit;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
     border-bottom: inherit;
     padding-left: 10px;
 
@@ -1102,7 +1103,7 @@ menu._cells code {
     flex: 8 8 500px;
 }
 .Input ._Empty > p {
-    color: #c3c6c6;
+    color: #325a67;
     margin: auto;
     font-size: 12px;
     line-height: 2.3em;
@@ -1605,8 +1606,8 @@ menu._cells code {
     flex: 0 0 auto;
     display: flex;
     height: 32px;
-    border-bottom-left-radius: inherit;
-    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
     border-top: 1px #0e4354 solid;
     background-color: #062b2d;
     font-size: 12px;
@@ -1735,7 +1736,7 @@ menu._cells code {
 }
 .Modal form {
     display: flex;
-    background-color: #fff;
+    background-color: #282824;
     border-radius: 10px;
     flex-direction: column;
     margin: auto;
@@ -1743,7 +1744,7 @@ menu._cells code {
 }
 .Modal header {
     height: 40px;
-    background-color: #2b5663;
+    background-color: #0b3a49;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     margin-bottom: 10px;
@@ -1752,7 +1753,7 @@ menu._cells code {
     flex-shrink: 0;
 }
 .Modal header > h4 {
-    color: #eee;
+    color: #c1d7e1;
     font-size: 11pt;
     margin: auto 16px;
 }
@@ -1816,8 +1817,8 @@ menu._cells code {
  *-------------------------*/
 .Modal ._plugins div._list {
     height: 100%;
-    border: 1px #f90 solid;
-    box-shadow: inset 1px 0px 6px #ffe0a1;
+    border: 1px #bbb solid;
+    box-shadow: 1px 0px 6px #fff;
     border-radius: 1.2em;
     padding: 2.6em 3em;
     display: grid;
@@ -1827,10 +1828,9 @@ menu._cells code {
 .Modal ._plugins button {
     padding: 0;
     background-color: transparent;
-    border: 1px #115165 solid;
+    border: 1px #ba9c42 solid;
     border-radius: 50%;
     min-width: 0;
-    box-shadow: 1px 0px 4px #a4e5f9;
     /* 溢出时保持 */
     height: 60px;
 }

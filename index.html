@@ -7,16 +7,6 @@
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="styles.css">
 <script src="base/tquery/tquery.min.js"></script>
-<style>
-/* 编辑器最大化 */
-#editorBox._full > iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-}
-</style>
 <script type="module">
     import coolj from "./editor.js";
     import { saveEditor } from "./index.js";
@@ -30,7 +20,8 @@
 
     coolj.create( _opts )
         .load( _ebox )
-        .then( ed => coolj.recoverStyles(ed) && saveEditor(ed) )
+        // .then( ed => coolj.recoverStyles(ed) && saveEditor(ed) )
+        .then( ed => saveEditor(ed) )
         .then( ed => ed.frame().contentWindow.focus() );
 </script>
 <!-- Tpb支持 -->
