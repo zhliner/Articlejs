@@ -15,6 +15,7 @@ body {
     display: flex;
     margin: 0;
     padding: 0;
+    background-color: #333;
 }
 body > * {
     flex-shrink: 0;
@@ -207,6 +208,8 @@ aside#help {
     padding: 3px;
     border-radius: 3px 1px 1px 3px;
     outline: none;
+    background-color: #46463f;
+    color: #bbd6e3;
 }
 
 .___Panel option {
@@ -226,7 +229,8 @@ aside#help {
 }
 .___Panel input[type=text],
 .___Panel input[type=url],
-.___Panel input[type=search] {
+.___Panel input[type=search],
+.___Panel input[type=number] {
     padding: 1px 4px;
     border: 1px #3ba5d9 solid;
     border-radius: 2px;
@@ -237,7 +241,7 @@ aside#help {
     background-color: #3e7471;
 }
 .___Panel input::placeholder {
-    color: #777;
+    color: #888;
 }
 .___Panel input[type=radio],
 .___Panel input[type=checkbox] {
@@ -316,8 +320,6 @@ aside#help {
 .___Panel select._list {
     padding: 6px 3px 6px 7px;
     overflow-y: scroll;
-    background-color: #46463f;
-    color: #bbd6e3;
 }
 
 /* 属性表 */
@@ -791,14 +793,13 @@ menu._cells code {
     margin: 1px;
     padding: 2px 7px;
     border: 1px transparent solid;
-    border-radius: 3px;
+    border-radius: 6px;
     font-size: 1.1em;
 }
 #help > ._walk > b._top {
     font-weight: bold;
 }
 #help > ._walk > b:hover {
-    border-color: #25648b;
     background-color: #3e717a;
 }
 #help > ._walk > ._about {
@@ -807,10 +808,6 @@ menu._cells code {
     margin-left: auto;
     border-radius: 18px 0;
     color: #e1780c;
-}
-#help > ._walk > ._about:hover {
-    border-color: transparent;
-    box-shadow: 0.5px 0.6px 1px #999;
 }
 
 
@@ -940,7 +937,7 @@ menu._cells code {
 }
 .___Content ._path > b {
     padding: 5px 10px;
-    background-color: #0e4962;
+    background-color: #116285;
     text-align: center;
     border-top: 1px #0e4962 solid;
     border-right: 1px #405e6b solid;
@@ -948,7 +945,7 @@ menu._cells code {
 }
 .___Content ._path > b:hover {
     color: #fff;
-    background-color: #066375;
+    background-color: #055260;
 }
 .___Content ._path > b._press {
     color: red;
@@ -1423,7 +1420,7 @@ menu._cells code {
     margin-top: 1px;
 }
 .Attr ._name ._add {
-    border: 1px #eed710 solid;
+    border: 1px #3d808b solid;
     background-color: #46463f;
     border-radius: 0 16px 0 0;
     color: #f24300;
@@ -1614,7 +1611,7 @@ menu._cells code {
 }
 .Status > div {
     border: 1px #816b37 solid;
-    margin: 3px 0 3px 4px;
+    margin: 3px 2px 3px 4px;
     background-color: #1e2b33;
     line-height: 22px;
     white-space: nowrap;
