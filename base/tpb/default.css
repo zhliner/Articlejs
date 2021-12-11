@@ -45,6 +45,8 @@
 *[data-pbo~='disabled']:hover * {
     color: #aaa !important;
     filter: grayscale(1) !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
 }
 
 /* 折叠：

@@ -1,9 +1,9 @@
-/*! $id: Dark-less/style.css 2020.01.02 Cooljed.Theme $
- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*! $id: Example/style.css 2020.01.02 Cooljed.Theme $
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *
- *  主题：光明之夜
+ *  主题：示例样本
  *
- *  @name: Dark-less
+ *  @name: Example
  *  @author: 风林子 zhliner@gmail.com
  *
  *****************************************************************************/
@@ -29,9 +29,9 @@ body > aside {
 /* 侧面板宽度调整线 */
 body > hr {
     width: 3px;
-    border: 1px #1e2b33 solid;
+    border: 1px #fff solid;
     border-radius: 3px;
-    background-color: #f7f4e9;
+    background-color: #5f9ea0;
     cursor: ew-resize;
 }
 
@@ -39,14 +39,14 @@ body > hr {
 aside#outline {
     width: 220px;
     min-width: 180px;
-    background-color: #282824;
+    background-color: #f9f9f9;
 }
 /* 编辑器容器 */
 div#editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    border: 1px #0e1e29 solid;
+    border: 1px #5c869c solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
     background-color: white;
@@ -55,7 +55,7 @@ div#editor {
 aside#help {
     width: 240px;
     min-width: 200px;
-    background-color: #282824;
+    background-color: #f9f9f9;
 }
 
 
@@ -180,10 +180,6 @@ aside#help {
 /* [ 全局默认 ]
  ****************************************************************************/
 
-.___Panel {
-    color: #ccc;
-}
-
 /* 兼容 */
 .___Panel * {
     line-height: 150%;
@@ -214,7 +210,7 @@ aside#help {
     border-radius: 3px;
 }
 .___Panel option:hover {
-    background-color: #033f49;
+    background-color: #9ce2d0;
 }
 .___Panel optgroup > option {
     padding: 1px 5px;
@@ -227,13 +223,11 @@ aside#help {
 .___Panel input[type=url],
 .___Panel input[type=search] {
     padding: 1px 4px;
-    border: 1px #3ba5d9 solid;
+    border: 1px #93c8e2 solid;
     border-radius: 2px;
     font-size: 14px;
     width: 100%;
     box-sizing: border-box;
-    color: #ccc;
-    background-color: #3e7471;
 }
 .___Panel input::placeholder {
     color: #ccc;
@@ -267,7 +261,7 @@ aside#help {
     font-size: 12pt;
     border: 1px #355c64 solid;
     line-height: 30px;
-    background: local url(images/txtline.png) repeat #0c1e27;
+    background: local url('images/txtline.png') repeat #173745;
 }
 .___Panel textarea::placeholder {
     color: #aaa;
@@ -283,7 +277,7 @@ aside#help {
 }
 .___Panel button {
     padding: 1px 20px 2px;
-    border: 1px #1b859b solid;
+    border: 1px #5798a5 solid;
     border-radius: 4px;
     font-size: 14px;
     outline: none;
@@ -307,16 +301,14 @@ aside#help {
  ****************************************************************************/
 
 .___Panel ._list {
-    border: 1px #416981 solid;
+    border: 1px #93c8e2 solid;
     border-radius: 5px 1px 1px 5px;
-    background-color: #4c4c4c;
+    background-color: #fff;
     overflow-y: auto;
 }
 .___Panel select._list {
     padding: 6px 3px 6px 7px;
     overflow-y: scroll;
-    background-color: #46463f;
-    color: #bbd6e3;
 }
 
 /* 属性表 */
@@ -375,8 +367,8 @@ aside#help {
 }
 .___Panel input._scale {
     padding-top: 4px;
-    border: 1px #268791 solid;
-    background: #00302d url(images/heading.png) 4px 0 repeat-x;
+    border: 1px #60acd2 solid;
+    background: #ffe url('images/heading.png') 4px 0 repeat-x;
     font-weight: bold;
 }
 .___Panel pre._code,
@@ -423,14 +415,13 @@ aside#help {
 }
 .___Panel ._submit button,
 .___Panel ._btn2 > button {
-    background-color: #074d5e;
-    color: #90c5d6;
+    background-color: #187890;
+    color: #fff;
     white-space: nowrap;
 }
 .___Panel ._submit button:hover,
 .___Panel ._btn2 > button:hover {
     background-color: #156477;
-    color: orange;
 }
 
 /* 图标按钮 */
@@ -441,12 +432,12 @@ aside#help {
     border-radius: 20%;
 }
 .___Panel ._icons > b:hover {
-    border-color: #5392bf;
-    background-color: #3e717a;
+    border-color: #dbdbdb;
+    background-color: #ededed;
 }
 .___Panel ._icons > b._press {
-    border-color: #1e2b33;
-    background-color: #3e717a;
+    border-color: #cfcfcf;
+    background-color: #f3f4f5;
 }
 
 /* 字符表情 */
@@ -652,9 +643,6 @@ menu._cells code {
 #outline ol[role=cascade] li {
     position: relative;
 }
-#outline ol[role=cascade] li::before {
-    color: #d35c17;
-}
 
 /* 1. */
 #outline ol[role=cascade] > li {
@@ -712,13 +700,12 @@ menu._cells code {
 #outline nav[role=toc] h3 {
     font-size: 1.1em;
     padding: 12px 1em 10px;
-    border-bottom: 1px #0b6266 inset;
+    border-bottom: 1px #bbb inset;
     font-weight: normal;
-    background-color: #1e2b33;
+    background-color: #f0f0f0;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    color: #d4960c;
 }
 #outline nav[role=toc] h3 > b {
     float: right;
@@ -728,12 +715,11 @@ menu._cells code {
     font-size: 1.1em;
     margin-top: -3px;
     margin-right: -3px;
-    color: #28db80;
+    color: green;
 }
 #outline nav[role=toc] h3 > b:hover {
-    background-color: #147664;
+    background-color: #b3ebb8;
     border-radius: 16px;
-    color: orange;
 }
 #outline nav[role=toc] > ol {
     margin: 0;
@@ -751,7 +737,7 @@ menu._cells code {
 }
 
 #outline nav[role=toc] a {
-    color: #8cabba;
+    color: #36a;
     text-decoration: none;
 }
 
@@ -761,7 +747,7 @@ menu._cells code {
 
 /* 子表折叠 */
 #outline nav[role=toc] li[data-pbo~=folded] {
-    background-color: #3b3b38;
+    background-color: #e8f2f2;
     border-radius: 4px 2em 0 0;
 }
 #outline nav[role=toc] li > h4::after {
@@ -779,8 +765,8 @@ menu._cells code {
 /* 帮助栏 */
 #help > ._walk {
     padding: 4px 6px;
-    border-bottom: 1px #0b6266 inset;
-    background-color: #1e2b33;
+    border-bottom: 1px #bbb inset;
+    background-color: #f0f0f0;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -797,15 +783,15 @@ menu._cells code {
     font-weight: bold;
 }
 #help > ._walk > b:hover {
-    border-color: #25648b;
-    background-color: #3e717a;
+    border-color: #f1f1f1;
+    background-color: #f9f9f9;
 }
 #help > ._walk > ._about {
     padding: 0;
     width: 24px;
     margin-left: auto;
     border-radius: 18px 0;
-    color: #e1780c;
+    color: #090;
 }
 #help > ._walk > ._about:hover {
     border-color: transparent;
@@ -819,8 +805,8 @@ menu._cells code {
 .Tools {
     display: flex;
     height: 44px;
-    background-color: #1e2b33;
-    box-shadow: 0 4px 5px -2px #ff853e;
+    background-color: #f0efef;
+    box-shadow: 0 4px 5px -2px grey;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     border-bottom: inherit;
@@ -868,8 +854,8 @@ menu._cells code {
     padding: 0px 6px 2px 8px;
 }
 .Tools > ._end > b:last-child:hover {
-    border-color: #57829d;
-    background-color: #487a83;
+    border-color: #e4e4e4;
+    background-color: #e8e8e8;
 }
 
 
@@ -971,7 +957,7 @@ menu._cells code {
 .Slave {
     flex: 0 0 auto;
     min-height: 240px;
-    background-color: #282824;
+    background-color: #f0efef;
     display: flex;
     flex-direction: column;
 
@@ -984,10 +970,10 @@ menu._cells code {
 .Slave ._tabs {
     display: flex;
     height: 36px;
-    border-top: 1px #1a4e6a solid;
-    background-color: #0b3a49;
+    border-top: 1px #5c869c solid;
+    background-color: #01839d;
     font-size: 12pt;
-    color: #84a9b5;
+    color: #fff;
     padding: 4px 0 0 8px;
     box-sizing: border-box;
     align-items: flex-end;
@@ -1000,10 +986,8 @@ menu._cells code {
 }
 .Slave ._tabs > b:hover,
 .Slave ._tabs > b._press {
-    background-color: #282824;
-    color: #c48b23;
-}
-.Slave ._tabs > b._press {
+    background-color: #f0efef;
+    color: #000;
     font-weight: bold;
 }
 .Slave ._tabs > b._close {
@@ -1052,7 +1036,7 @@ menu._cells code {
     border-radius: 3px;
 }
 .Slave ._minibar > label:hover {
-    background-color: #998164;
+    background-color: #f9f9f9;
 }
 .Slave ._body > div,
 .Slave ._body > aside {
@@ -1081,8 +1065,8 @@ menu._cells code {
     margin-top: 4px;
 }
 .Slave aside hr {
-    border: 1px #666 solid;
-    border-bottom-color: #111;
+    border: 1px #d5d5d5 solid;
+    border-bottom-color: #f8f8f8;
     margin: 6px 0 7px;
 }
 
@@ -1106,6 +1090,7 @@ menu._cells code {
     margin: auto;
     font-size: 12px;
     line-height: 2.3em;
+    text-shadow: 1px 1px 3px #fff;
 }
 .Input ._Empty code {
     font-weight: bold;
@@ -1140,7 +1125,7 @@ menu._cells code {
 /* 表格 */
 .Input ._Table ._list {
     flex: 1 1 auto;
-    background-color: #06252c;
+    background-color: #32575f;
     overflow-y: scroll;
 }
 .Input ._Table ._affix > label {
@@ -1150,10 +1135,12 @@ menu._cells code {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    color: #eee;
+    background-color: #32575f;
 }
 .Input ._Table table[border] tr > * {
     padding: 2px;
-    border: 1px #2b7f84 solid;
+    border: 1px #aaa solid;
 }
 .Input ._Table table[border] tr > *:focus {
     background-color: #333;
@@ -1186,9 +1173,8 @@ menu._cells code {
     margin-bottom: 3px;
 }
 .Input ._Blockquote ._cite input {
-    border-color: #268791;
+    border-color: #8fbac2;
     border-top-right-radius: 25px;
-    background-color: #00302d;
 }
 
 /* 分割（覆盖） */
@@ -1268,7 +1254,7 @@ menu._cells code {
 .Style ._erase {
     text-align: center;
     padding: 4px;
-    border: 1px #666 solid;
+    border: 1px #ddd solid;
     border-radius: 6px;
     cursor: pointer;
 }
@@ -1276,14 +1262,14 @@ menu._cells code {
     width: 100%;
     height: 100%;
     border: 1px #ccc dotted;
-    background-color: #9b3403;
-    color: #b7abab;
+    background-color: #ffc;
+    color: #ddd;
     box-sizing: border-box;
     padding: 1px;
 }
 .Style ._erase > b:hover {
-    border: 1px #c5bbbb solid;
-    color: #d5d5d5;
+    border: 1px #ecc solid;
+    color: #999;
 }
 /* 垂直清除 */
 .Style ._Fontview ._erase,
@@ -1307,7 +1293,7 @@ menu._cells code {
     border-radius: 3px;
 }
 .Style div._list > label:hover {
-    background-color: #1b6b56;
+    background-color: #9ce2d0;
 }
 
 .Style div._list small {
@@ -1322,6 +1308,7 @@ menu._cells code {
     margin-left: 15px;
 }
 .Style ._Align label {
+    color: #82bec9;
     font-style: italic;
     padding-left: 6px;
 }
@@ -1329,10 +1316,10 @@ menu._cells code {
 /* 边距 */
 .Style ._Margin ._minibar {
     height: 34px;
-    background-color: #5e574f;
+    background-color: #ecebeb;
     border-radius: 5px 5px 0 0;
     margin-bottom: -3px;
-    border: 1px #447c93 solid;
+    border: 1px #ccc solid;
 }
 .Style ._Margin ._list {
     min-width: 175px;
@@ -1422,25 +1409,24 @@ menu._cells code {
     margin-top: 1px;
 }
 .Attr ._name ._add {
-    border: 1px #eed710 solid;
-    background-color: #46463f;
+    border: 1px #93c8e2 solid;
+    background-color: #0cc066;
     border-radius: 0 16px 0 0;
-    color: #f24300;
+    color: #fff;
     margin-left: -2px;
     font-weight: bold;
 }
 .Attr ._name ._add:hover {
-    background-color: #0b9b4c;
-    color: white;
+    background-color: #ff9705;
 }
 .Attr > ._body > ._main {
     flex: 5 5 400px;
 }
 .Attr > ._body ._empty {
     height: 100%;
-    border: 1px #565656 solid;
+    border: 1px #cfcfcf solid;
     border-radius: 5px;
-    background-color: #3b3b38;
+    background-color: #f8f8f8;
 }
 
 .Attr ._obts {
@@ -1507,7 +1493,7 @@ menu._cells code {
 }
 .Source ._option > button {
     width: max-content;
-    background-color: #b39e6e;
+    background-color: #fcf6e8;
     border-color: #f8b359;
     border-radius: 22px 0;
     margin-bottom: 8px;
@@ -1518,7 +1504,7 @@ menu._cells code {
 .Source ._info {
     flex: 1 1 auto;
     font-size: 12px;
-    border: 1px #884906 solid;
+    border: 1px #e6e6e6 solid;
     background-color: #111;
     border-radius: 16px;
     padding: 5px 10px;
@@ -1577,11 +1563,10 @@ menu._cells code {
     border-color: #f93;
 }
 .Script ._env ._warn legend {
-    color: orange;
+    color: red;
 }
 .Script ._env ._warn p {
     line-height: 180%;
-    color: #ccc;
 }
 .Script > ._body > ._main {
     flex: 5 5 450px;
@@ -1595,7 +1580,7 @@ menu._cells code {
     border-radius: 16px;
 }
 .Script ._cmds > b:hover {
-    background-color: #777777;
+    background-color: #e6e6e6;
 }
 
 
@@ -1607,14 +1592,14 @@ menu._cells code {
     height: 32px;
     border-bottom-left-radius: inherit;
     border-bottom-right-radius: inherit;
-    border-top: 1px #0e4354 solid;
-    background-color: #062b2d;
+    border-top: 1px #7c9eb0 solid;
+    background-color: #eee;
     font-size: 12px;
 }
 .Status > div {
-    border: 1px #816b37 solid;
+    border: 1px #c9c9c9 solid;
     margin: 3px 0 3px 4px;
-    background-color: #1e2b33;
+    background-color: #efefdf;
     line-height: 22px;
     white-space: nowrap;
     border-radius: 2px;
@@ -1628,7 +1613,6 @@ menu._cells code {
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: default;
-    color: #eee;
 }
 
 .Status > ._cmdx,
@@ -1642,7 +1626,7 @@ menu._cells code {
 .Status > div > code {
     width: 100%;
     height: 100%;
-    color: #e66102;
+    color: #0b6;
     /* 居中 */
     display: flex;
     justify-content: center;
@@ -1657,22 +1641,21 @@ menu._cells code {
     bottom: 27px;
     display: flex;
     flex-direction: column-reverse;
-    border: 1px #7c4e05 solid;
+    border: 1px #80a1b3 solid;
     border-top-right-radius: 14px;
-    background-color: #523a0e;
+    background-color: #f1f1e4;
     padding-top: 14px;
     border-bottom-color: transparent;
     left: -1px;
     outline: none;
-    color: #dff;
 }
 .Status > ._cmdx b {
     height: 23px;
-    border-top: 1px #af6836 dotted;
+    border-top: 1px #999 dotted;
 }
 .Status > ._cmdx b:hover {
     color: #fff;
-    background-color: #133a52;
+    background-color: #1b839c;
 }
 
 .Status > ._cmdline {
@@ -1681,9 +1664,8 @@ menu._cells code {
 .Status > ._cmdline > input {
     height: 100%;
     border: none;
-    background-color: #03151f;
+    background-color: #ffffe5;
     float: left;
-    color: #ddd;
 }
 .Status > ._cmdline > input::placeholder {
     color: #aaa;
@@ -1708,14 +1690,11 @@ menu._cells code {
     border-radius: 50%;
 }
 .Status > ._help._press {
-    border-color: #1d372f;
-    background-color: #555;
+    border-color: #ddd;
+    background-color: #f4f5f6;
 }
 .Status > ._help > code {
-    color: #bf8d01;
-}
-.Status > ._help._press > code {
-    color: orange;
+    color: #01839d;
 }
 
 
