@@ -446,6 +446,12 @@ aside#outline {
     border-color: #1e2b33;
     background-color: #1b5660;
 }
+/* 冻结效果 */
+.___Panel b[data-pbo~=disabled]:hover,
+.___Panel b[data-pbo~=disabled]:hover {
+    border-color: transparent;
+    background-color: transparent;
+}
 
 /* 字符表情 */
 .___Panel code._orz {
@@ -726,16 +732,16 @@ menu._cells code {
 #outline nav[role=toc] h3 > b {
     float: right;
     font-family: monospace;
-    padding: 2px 8px;
+    padding: 3px 9px;
     cursor: pointer;
     font-size: 1.1em;
-    margin-top: -3px;
+    margin-top: -5px;
     margin-right: -3px;
     color: #25a1c9;
 }
 #outline nav[role=toc] h3 > b:hover {
-    background-color: #147664;
-    border-radius: 16px;
+    background-color: #1b6028;
+    border-radius: 50%;
     color: orange;
 }
 #outline nav[role=toc] > ol {
@@ -780,8 +786,8 @@ menu._cells code {
 
 
 /* 帮助栏 */
-#help > ._walk {
-    padding: 4px 6px;
+#help > ._icons {
+    padding: 5px;
     border-bottom: 1px #0b6266 inset;
     background-color: #1e2b33;
     border-radius: inherit;
@@ -789,20 +795,14 @@ menu._cells code {
     border-bottom-right-radius: 0;
     display: flex;
 }
-#help > ._walk > b {
-    margin: 1px;
-    padding: 2px 7px;
-    border: 1px transparent solid;
-    border-radius: 6px;
+#help > ._icons > b {
+    margin: auto 4px;
     font-size: 1.1em;
 }
-#help > ._walk > b._top {
+#help > ._icons > b._top {
     font-weight: bold;
 }
-#help > ._walk > b:hover {
-    background-color: #3e717a;
-}
-#help > ._walk > ._about {
+#help > ._icons > ._about {
     padding: 0;
     width: 24px;
     margin-left: auto;
@@ -836,12 +836,6 @@ menu._cells code {
 }
 .Tools b {
     margin: auto 4px;
-}
-
-/* 冻结效果 */
-.Tools b[data-pbo~=disabled]:hover {
-    border-color: transparent;
-    background-color: transparent;
 }
 
 .Tools hr {
