@@ -20,8 +20,8 @@
 
     coolj.create( _opts )
         .load( _ebox )
-        // .then( ed => coolj.recoverStyles(ed) && saveEditor(ed) )
-        .then( ed => saveEditor(ed) )
+        .then( ed => coolj.recoverStyles(ed) && saveEditor(ed) )
+        // .then( ed => saveEditor(ed) )
         .then( ed => ed.frame().contentWindow.focus() );
 </script>
 <!-- Tpb支持 -->

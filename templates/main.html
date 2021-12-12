@@ -135,15 +135,15 @@
             status  设置菜单条目可用性（注：先disable）。
             blur    失焦即隐藏菜单，也由按ESC键触发。
         -->
-        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="hidden"
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="lost"
             on="cmenudo|evo(3) blur ev('detail');
                 convert|ev('detail');
-                show|evo(3) dup hide(false) $('1/') env('pointerXY') menupos(_2);
+                show|evo(3) dup lose(false) $('1/') env('pointerXY') menupos(_2);
                 submenu|convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node(_1);
                 click(li[data-op])|evo(2) dup disabled end attr('-op');
                 keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-val');
                 click(#m-conv li[data-val])|evo(2) attr('-val');
-                blur|evo(3) hide(true) ('cmenu', ESC) pop;
+                blur|evo(3) lose(true) ('cmenu', ESC) pop;
                 esced|evo(3) (ESC) pop;
                 status|$$('/>li') dup disable cmenable disable(false);
                 cancel|evo(3) blur"
@@ -192,11 +192,11 @@
             cancel  简单失焦调用。注记：与blur分开定义，否则会两次触发相同流程。
             esced/escpop  向ESC栈添加/移除一条记录。
         -->
-        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="hidden"
+        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="lost"
             on="create|data('range') ev('detail');
                 store|ev('detail') dup rngok pass;
-                show|evo(3) dup hide(false) $('1/') env('pointerXY') menupos(_2);
-                blur|evo(3) hide(true) (null);
+                show|evo(3) dup lose(false) $('1/') env('pointerXY') menupos(_2);
+                blur|evo(3) lose(true) (null);
                 keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dup pass attr('-val');
                 click(li[data-val])|evo(2) attr('-val');
                 esced|evo(3) (ESC) pop;
@@ -255,11 +255,12 @@
             mousedown|...avoid 避免 Shift+单击 变成划选（已经有划选除外）。
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。注：keyup-全选，focus-无点击进入。
             puthtml 整体导入内容源码（可撤销），同时滚动到顶部。
+                    注：微编辑状态下无效，否则新内容中普通操作无效。
         -->
         <main id="content" class="content"
             on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) SCAM;
                 cancel|stop env('minied') end;
-                puthtml|ev('detail');
+                puthtml|env('minied') end ev('detail');
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
@@ -445,7 +446,7 @@
             Kit.cmdprev"
         to="=|val|focus select">
         <!-- input 清除临时检索集 -->
-        <input id="cmd-input" type="text" name="cmd" spellcheck="false" class="_code" data-tips="> | / : = 直达此处"
+        <input id="cmd-input" type="text" name="cmd" spellcheck="false" autocomplete="off" class="_code" data-tips="> | / : = 直达此处"
             on="focus|evo(3) ('');
                 ^obted blur|evo(3) attr('-tips');
                 input|cmdclear"

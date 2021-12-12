@@ -340,23 +340,15 @@ function updateBlock2( h3, cons, box, tag, type ) {
 
 
 /**
- * 导入样式。
- * @param  {Element} el 样式元素（<link>）
+ * 导入&替换新样式。
+ * 注记：
+ * 将新样式链接插入原样式之前，可实现平缓切换。
+ * @param  {Element} el 原样式（<link>）
  * @param  {String} url 样式文件URL
  * @return {Promise<Element|Error>}
  */
 function loadStyle( el, url ) {
-    return new Promise( function(resolve, reject) {
-        let _el = $.Element(
-            'link',
-            { id: el.id, rel: 'stylesheet', href: url }
-        );
-        $.one( _el, {
-            'load':  () => resolve( _el ),
-            'error': err => reject( err ),
-        });
-        $.replace( el, _el );
-    });
+    return $.style( {id: el.id, href : url}, el ).then( () => $.remove(el) );
 }
 
 

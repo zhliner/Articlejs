@@ -238,7 +238,7 @@ aside#help {
     width: 100%;
     box-sizing: border-box;
     color: #ccc;
-    background-color: #3e7471;
+    background-color: #2f6461;
 }
 .___Panel input::placeholder {
     color: #888;
@@ -379,7 +379,7 @@ aside#help {
 .___Panel input._scale {
     padding-top: 4px;
     border: 1px #268791 solid;
-    background: #00302d url(images/heading.png) 4px 0 repeat-x;
+    background: url(images/heading.png) 4px 0 repeat-x;
     font-weight: bold;
 }
 .___Panel pre._code,
@@ -503,8 +503,8 @@ menu {
 
 menu > hr {
     margin: 3px 1px;
-    border: 1px #c8c8c8 solid;
-    border-bottom-color: #f3f3f3;
+    border: 1px #815136 solid;
+    border-bottom-color: #503426;
 }
 menu > li {
     list-style: none;
@@ -524,7 +524,7 @@ menu li > kbd {
 
 menu li:not([role=menubar]):hover {
     color: #fff;
-    background-color: #444;
+    background-color: #9f4216;
     text-shadow: none;
 }
 menu li:not([role=menubar]):hover > kbd {
@@ -554,7 +554,7 @@ menu li:hover > h4::after {
     color: #a3a3a3;
 }
 menu li[role=menubar]:hover {
-    background-color: #ccc;
+    background-color: #774933;
     text-shadow: none;
 }
 
@@ -570,14 +570,15 @@ menu {
     z-index: 10;
     outline: none;
     padding: 1px 1px 0;
-    background-color: #f6f6f6;
+    background-color: #043747;
+    color: white;
 }
 
 /* 上下文菜单 */
 menu._cmenu {
     padding: 5px 1px;
-    text-shadow: 1px 1px 1px #f9f9f9;
-    background-color: #eeeeed;
+    text-shadow: 1px 1px 1px #333;
+    background-color: #561d02;
 }
 menu._cmenu > li {
     padding: 4px 10px;
@@ -590,9 +591,10 @@ menu._cmenu > li > kbd {
 /* 子菜单 */
 menu[role=submenu] {
     min-width: 146px;
+    background-color: #561d02;
 }
 menu[role=submenu] > li {
-    border-bottom: 1px #ccc solid;
+    border-bottom: 1px #815136 solid;
     margin: 1px 0;
     padding: 3px 12px 4px 24px;
     column-gap: 14px;
@@ -609,12 +611,15 @@ menu._cells > li {
     padding: 3px 10px 3px 24px;
     display: grid;
     grid-template-columns: 2fr 1fr;
-    border: 0 #bbb solid;
+    border: 0 #435c6d solid;
     border-width: 0 1px 1px 0;
 
     /* 覆盖上下文菜单子菜单 */
     margin: 0;
     column-gap: 0;
+}
+menu._cells li[role=menubar]:hover {
+    background-color: #097b83;
 }
 menu._cells > li:nth-child(2n) {
     /* 右栏右边0 */
@@ -1772,9 +1777,9 @@ menu._cells code {
     margin-top: auto;
     padding: 3.7% 7.2% 5.9%;
     text-align: right;
-    border: 1px #d8d8d8 solid;
+    border: 1px #0c4659 solid;
     border-radius: 0 0 9px 9px;
-    background-color: #f6f6f6;
+    background-color: #1e2b33;
 }
 .Modal div._btn2 > button {
     margin: auto 0.9em;
@@ -1852,8 +1857,8 @@ menu._cells code {
     margin: 14px 0;
     height: 8px;
     border-style: ridge;
-    border-color: #e9e9e9;
-    background-color: #f9f9f9;
+    border-color: #2f5763;
+    background-color: #1a4956;
     flex: 0 0 auto;
 }
 .Modal ._history > div {
@@ -1888,13 +1893,13 @@ menu._cells code {
 }
 .Modal ._history ._bar {
     display: flex;
-    border-bottom: 3px #aaa double;
+    border-bottom: 3px gray double;
     padding: 6px 20px;
 }
 .Modal ._history ._bar label {
     padding-top: 3px;
     font-weight: bold;
-    color: #050;
+    color: #deac51;
     font-size: 1.1em;
     margin-left: 5px;
 }
@@ -1923,14 +1928,17 @@ menu._cells code {
 .Modal ._history ._bar button {
     margin-right: 9px;
     border-radius: 0 21px;
-    background-color: #f5fff5;
+    background-color: #aa6e01;
+    color: white;
+    border-color: #ad2e08;
 }
 .Modal ._history ._bar button._edit {
     border-radius: 21px;
-    background-color: #fff6f3;
+    background-color: #cb8402;
+    color: white;
 }
 .Modal ._history ._bar button:hover {
-    background-color: #f0f6f9;
+    background-color: #2da679;
 }
 .Modal ._history hr:hover {
     cursor: ns-resize;
@@ -1955,14 +1963,14 @@ menu._cells code {
     margin: 1em 1.6em;
     padding: 2px;
     border-radius: 5px 1px 1px 5px;
-    border-color: #aaa;
+    border-color: gray;
     min-height: 2.5em;
 }
 .Modal ._history ._list > li {
     display: flex;
     margin: 1px 0;
     min-height: 22px;
-    border-bottom: 1px #36a8ca dashed;
+    border-bottom: 1px gray dashed;
     padding: 2px 0 3px;
 }
 .Modal ._history ._list > li:last-child {
@@ -1974,7 +1982,7 @@ menu._cells code {
 }
 .Modal ._history ._list code {
     flex: 1 1 auto;
-    background-color: #f3f3f3;
+    background-color: #444;
     padding: 2px 5px;
     border-radius: 2px;
     cursor: pointer;
@@ -1987,7 +1995,7 @@ menu._cells code {
 }
 .Modal ._history ._list b:hover {
     border-color: #9ec2e7;
-    background-color: #f0f9ff;
+    background-color: #111;
 }
 /* 删除按钮 */
 .Modal ._history ._list b:last-child {
@@ -1995,7 +2003,6 @@ menu._cells code {
     color: #ff5200;
 }
 .Modal ._history ._list b:last-child:hover {
-    background-color: #f6f6f6;
 }
 
 .Modal ._history ._list label {
@@ -2017,7 +2024,7 @@ menu._cells code {
 }
 .Modal ._result > pre {
     flex: 1 1 auto;
-    font-size: 12px;
+    font-size: 10pt;
     border: 1px gray solid;
     border-radius: 8px 1px 1px 8px;
     padding: 10px;
@@ -2027,8 +2034,8 @@ menu._cells code {
 }
 .Modal ._result > pre:focus {
     /* 编辑时 */
-    border-color: orange;
-    background-color: #fff9f3;
+    border-color: #ab6f00;
+    background-color: #111;
     outline: none;
 }
 .Modal fieldset {
