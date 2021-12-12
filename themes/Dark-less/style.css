@@ -439,12 +439,12 @@ aside#outline {
     border-radius: 20%;
 }
 .___Panel ._icons > b:hover {
-    border-color: #5392bf;
-    background-color: #3e717a;
+    border-color: #507b99;
+    background-color: #1b5660;
 }
 .___Panel ._icons > b._press {
     border-color: #1e2b33;
-    background-color: #3e717a;
+    background-color: #1b5660;
 }
 
 /* 字符表情 */
@@ -866,8 +866,8 @@ menu._cells code {
     padding: 0px 6px 2px 8px;
 }
 .Tools > ._end > b:last-child:hover {
-    border-color: #57829d;
-    background-color: #487a83;
+    border-color: #1f567a;
+    background-color: #0f3f4a;
 }
 
 
@@ -992,7 +992,7 @@ menu._cells code {
 }
 .Slave ._tabs > b {
     min-width: 60px;
-    border-radius: 4px 4px 0 0;
+    border-radius: 6px 6px 0 0;
     margin: 0 2px;
     padding: 2px 6px 4px;
 }
@@ -1007,14 +1007,14 @@ menu._cells code {
 .Slave ._tabs > b._close {
     min-width: 16px;
     align-self: center;
-    padding: 8px 11px 9px 13px;
+    padding: 9px 11px 10px 13px;
     margin-left: auto;
     border-radius: 0;
     margin-top: -5px;
     margin-right: 0;
 }
 .Slave ._tabs > b._close:hover {
-    background-color: #14768f;
+    background-color: #0f5263;
 }
 
 
