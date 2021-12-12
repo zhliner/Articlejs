@@ -37,12 +37,6 @@ body > hr {
     cursor: ew-resize;
 }
 
-/* 大纲面板 */
-aside#outline {
-    width: 220px;
-    min-width: 180px;
-    background-color: #282824;
-}
 /* 编辑器容器 */
 div#editor {
     flex: 1 1 auto;
@@ -53,10 +47,11 @@ div#editor {
     position: relative;
     background-color: white;
 }
-/* 帮助面板 */
-aside#help {
+/* 大纲&帮助面板 */
+aside#help,
+aside#outline {
     width: 240px;
-    min-width: 200px;
+    min-width: 180px;
     background-color: #282824;
 }
 
