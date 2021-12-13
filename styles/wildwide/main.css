@@ -118,11 +118,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content header[role=abstract] {
-    border: 1px #eee solid;
+    border: 1px #3f545f solid;
     border-radius: 10px;
     margin: 2em 0;
     padding: 10px 30px;
-    background-color: #324e5e;
+    background-color: #292b2c;
+    box-shadow: inset 1px 1px 8px #464639;
 }
 .content header[role=abstract] > h3 {
     font-size: 1.17em;
@@ -665,7 +666,7 @@ div[role=blank] > * {
     word-break: break-word;
     white-space: pre-wrap;
     padding: 0 2px;
-    background-color: #223e4f;
+    background-color: #29343b;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
