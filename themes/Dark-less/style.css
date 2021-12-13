@@ -1207,19 +1207,19 @@ menu._cells code {
     width: 35px;
     height: 35px;
     margin: 6px 0 0 6px;
-    background-color: #f3f3f3;
+    background-color: green;
     border-radius: 3px;
-    box-shadow: 0 0 1px 1px #ccc;
+    border: 1px gray solid;
 }
 .Input ._Inline span > b:hover {
-    background-color: #ccc;
+    background-color: #222;
     font-weight: bold;
 }
 .Input ._Inline ._zoomin {
     width: 115px;
     height: 115px;
     border: 1px #ccc solid;
-    background-color: #fff !important;
+    background-color: #000 !important;
     border-radius: 6px;
     font-size: 80px;
 }
