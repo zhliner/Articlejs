@@ -683,9 +683,9 @@
     by="New.details(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
-        <header>
+        <header class="_affix">
             <input type="text" name="summary" placeholder="摘要" class="_scale" />
-            <input type="hidden" name="open" value="true" />
+            <label><input type="checkbox" name="open" checked />默认展开</label>
         </header>
         <textarea name="details" placeholder="详细内容"></textarea>
     </div>

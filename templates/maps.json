@@ -366,6 +366,7 @@
         "property:bdo",
         "property:blank",
         "property:blockquote",
+        "property:details",
         "property:code",
         "property:codelist",
         "property:del",

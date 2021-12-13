@@ -16,12 +16,12 @@ code b {
 /* string */
 code s {
     text-decoration-line: none;
-    color: #05c;
+    color: #ca7c00;
 }
 /* comments */
 code i {
     font-style: normal;
-    color: #909090;
+    color: #999;
 }
 
 /* keywords */
@@ -127,10 +127,6 @@ code b[role=non] {
 
 [data-lang=css] b[role=tag] {
     font-weight: normal;
-}
-
-[data-lang=html] s {
-    color: #ca7c00;
 }
 
 /* HTML内联样式 */

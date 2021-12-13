@@ -156,13 +156,16 @@ Global: [
         "command":  "main.saving"
     },
 
-    // 内容导出。
-    // 打开一个导出对话框，导出源码。
+    // 内容源码导出。
+    // 会开启一个导出对话框。
     {
         "key":      "alt:p",
         "command":  "main.export",
-        // key定义为 shift:p 时需要
-        // "exclude":  "textarea,input,[contenteditable]"
+    },
+    // 同上导出但包含目录。
+    {
+        "key":      "alt+shift:p",
+        "command":  "main.export2",
     },
 
 ],

@@ -162,6 +162,14 @@
     <li tpl-node="!prop:cite"></li>
 </ul>
 
+<ul class="_prop" tpl-name="property:details" data-label="详细块属性"
+    on="vinit reset;
+        build|('open') $('/input') prop('checked') pack(2)"
+    to="/>li|trigger('value');
+        form/|trigger('apply')">
+    <li tpl-source="~prop:open"></li>
+</ul>
+
 <ul class="_prop" tpl-name="property:codelist" data-label="代码表属性"
     on="vinit reset;
         build|(null) $('form/') pop value('lang start') pack(2)"
@@ -770,8 +778,8 @@
 <li tpl-name="prop:open"
     on="value|sels prop('open') p.vals2 spread"
     to="/input|$indeterminate $checked">
-    <b><!-- 占位 --></b>
-    <span><label><input type="checkbox" name="open" />详细展开</label></span>
+    <b>详细展开</b>
+    <span><label><input type="checkbox" name="open" />展开</label></span>
 </li>
 
 <li class="_upload" tpl-name="prop:upload">
@@ -1082,7 +1090,7 @@
     <fieldset>
         <legend>说明：</legend>
         <ul>
-            <li>复制源码插入容器元素内（通常是一个 <code>&lt;main&gt;</code>），然后在页面头部引入内容样式即可。</li>
+            <li>复制源码插入容器元素内（通常是一个 <code>&lt;main&gt;</code>），然后在页面头部引入内容和代码样式即可。</li>
             <li>如果内容包含 <code>OBT</code> 交互，则还需要引入 <code>tpb/default.css</code> 系统样式。</li>
         </ul>
     </fieldset>

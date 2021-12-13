@@ -35,6 +35,8 @@ const
 //
 // 定制处理器集。
 // function( el, names, ...rest ): void
+// 注：
+// 单特性处理注销掉，由默认的处理器处理。
 //
 const customHandles = {
     [ T.AUDIO ]:        processAudio,       // src autoplay loop controls, [<source>]
@@ -56,6 +58,7 @@ const customHandles = {
     // [ T.DFN ]:                           // title
     // [ T.BDO ]:                           // dir
     // [ T.BLOCKQUOTE ]:                    // cite
+    // [ T.DETAILS ]:                       // open
     [ T.CODELIST ]:     processCodeList,    // -lang, -tab, start
     [ T.OL ]:           processAttr,        // start, type, reversed
     [ T.OLX ]:          processAttr,        // start, type, reversed

@@ -3969,20 +3969,23 @@ function insFixnode( pels, subs ) {
 
 /**
  * 插入顶层单元。
+ * 仅在一个副本容器中插入时才需要box实参，
+ * 必须获取源码时添加目录。
  * @param  {Number} type 条目类型值
- * @param  {Element} el 条目元素
+ * @param  {Element} el  条目元素
+ * @param  {Element} box 顶层内容容器（<main>），可选
  * @return {Element} el
  */
-function topInsert( type, el, cobj = topItemslr ) {
-    let _cfg = cobj[ type ],
-        _its = $.get( _cfg.self, contentElem );
+function topInsert( type, el, box = contentElem ) {
+    let _cfg = topItemslr[ type ],
+        _its = $.get( _cfg.self, box );
 
     if ( _its ) {
         return $.replace( _its, el );
     }
-    let _ref = beforeRef( contentElem, _cfg.prev, cobj );
+    let _ref = beforeRef( box, _cfg.prev, topItemslr );
 
-    return _ref ? $.after(_ref, el) : $.prepend(contentElem, el);
+    return _ref ? $.after(_ref, el) : $.prepend(box, el);
 }
 
 
@@ -6764,10 +6767,18 @@ export const Kit = {
      * 导出内容源码。
      * 提取内容源码，发送到源码导出模态框。
      * @data: Element 内容区根（<main>）副本
+     * @param  {String} h3 目录标题条，可选
      * @return {String} 结果源码
      */
-    export( evo ) {
+    export( evo, h3 ) {
         $( __tmpclsSlr, evo.data ).removeClass( __tmpcls );
+
+        if ( h3 !== undefined ) {
+            let _art = $.get(
+                'article', evo.data
+            );
+            topInsert( T.TOC, create(T.TOC, {h3}, _art), evo.data );
+        }
         return $.html( evo.data );
     },
 

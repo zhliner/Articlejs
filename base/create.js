@@ -472,15 +472,16 @@ const Children = {
     /**
      * 目录级联编号表。
      * 与普通级联表不同，列表条目为链接（单击定位目标）。
-     * 注：定制创建，不参与编辑（无ref实参）。
+     * 注：定制创建，不参与编辑。
+     * @param {null} ref 参考位置（占位）
      * @param {Element} ol 级联表根元素
      * @param {Element} root 正文根元素（<article）
      * @node: {[Element]} [<li>]
      */
-    [ T.TOCCASCADE ]: function( ol, _, root ) {
+    [ T.TOCCASCADE ]: function( ref, ol, _, root ) {
         let _ses = $.children(
             root,
-            // 不含role，需要nth-of-type()
+            // 不含role，宽容检索
             'section'
         );
         return result( null, $.append(ol, tocList(_ses)), true );

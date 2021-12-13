@@ -154,7 +154,9 @@ const InputOptions = {
 // 即上下文菜单中“属性”条目匹配的模板。
 // 仅针对常见单元的常见属性，其它属性可通过特性面板直接编辑（attribute）。
 //////////////////////////////////////////////////////////////////////////////
-// 注记：选取集单元必须相同，才能调出属性编辑框。
+// 注记：
+// 选取集单元必须相同，才能调出属性编辑框。
+// 同时这也是决定单元是否有属性可修改的判断依据。
 //
 const Properties = {
     [ T.AUDIO ]:        'property:audio',       // src, autoplay, loop, controls, sources
@@ -176,6 +178,7 @@ const Properties = {
     [ T.DFN ]:          'property:dfn',         // title
     [ T.BDO ]:          'property:bdo',         // dir
     [ T.BLOCKQUOTE ]:   'property:blockquote',  // cite
+    [ T.DETAILS ]:      'property:details',     // open
     [ T.CODELIST ]:     'property:codelist',    // data-lang, data-tab, start
     [ T.OL ]:           'property:ol',          // start, type, reversed
     [ T.OLX ]:          'property:olx',         // start, type, reversed

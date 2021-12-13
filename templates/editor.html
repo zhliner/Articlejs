@@ -16,9 +16,9 @@
 <meta http-equiv="no-cache">
 <title>编辑器主页</title>
 <link rel="stylesheet" href="../base/tpb/default.css">
+<link id="s-theme" rel="stylesheet" href="../themes/Example/style.css">
 <link id="s-main" rel="stylesheet" href="../styles/example/main.css">
 <link id="s-codes" rel="stylesheet" href="../styles/example/codes.css">
-<link id="s-theme" rel="stylesheet" href="../themes/Example/style.css">
 <script src="../base/tquery/tquery.min.js"></script>
 <script src="../base/tquery/plugins/history.min.js"></script>
 <script>
@@ -121,10 +121,11 @@
         <!-- click 构造章节选择器，定位显示到视口（非id定位） -->
         <nav role="toc"
             on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
-            <h3>大纲视图 <b title="刷新"
-                on="click|$('#content article')"
-                by="Kit.toclist"
-                to="nav/ol|fill">↻</b>
+            <h3>大纲视图
+                <b title="刷新"
+                    on="click|$('#content article')"
+                    by="Kit.toclist"
+                    to="nav/ol|fill">↻</b>
             </h3>
             <!-- click 单击子表标题（非<a>）折叠切换 -->
             <ol role="cascade" on="click(~h4)|evo(2) parent fold(2)"></ol>
@@ -139,12 +140,17 @@
     <div id="editor"
         on="main.chapter|$('#g-count') val split('.');
             main.saving|$('/main#content') clone;
-            main.export|$('/main#content') clone"
+            main.export|$('/main#content') clone;
+            main.export2|$('/main#content') clone;
+            _export|ev('detail') node('misc:export') ('内容源码') pack(3) node('modal:page') pack(2)"
         by="Kit.chapter;
             Kit.save;
-            Kit.export node('misc:export') ('内容源码') pack(3) node('modal:page') pack(2)"
+            Kit.export;
+            Kit.export('目录')"
         to="#g-count|trigger('reset');
             #status-info|trigger('info');
+            |trigger('_export');
+            |trigger('_export');
             #g-modal|trigger('open')">
         <!--模态框
             open    打开模态框，插入目标表单。

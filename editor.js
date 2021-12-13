@@ -54,6 +54,7 @@
 //      .reference( h3, html ): Strin   获取/设置文献参考
 //      .footer( h3, html ): Strin      获取/设置文章声明
 //      .content( html ): String        获取/设置文章全部内容
+//      .toc( h3 ): String              获取文章目录源码
 //
 //      .theme( url:String ): String    获取/设置主题
 //      .style( url:String ): String    获取/设置内容样式
@@ -284,6 +285,18 @@ class Editor {
 
 
     /**
+     * 获取目录（大纲）。
+     * 注：没有设置的功能。
+     * h3 的默认值为 config.js 中的 Tips.tocLabel 配置。
+     * @param  {String} h3 目录标题条文本，可选
+     * @return {String}
+     */
+    toc( h3 ) {
+        return this._value( 'toc', h3 );
+    }
+
+
+    /**
      * 获取/设置&保存编辑器主题。
      * @param  {String} url 主题样式URL
      * @param  {Boolean} save 是否同时保存在本地
@@ -372,12 +385,8 @@ class Editor {
      * @return {String|this}
      */
     _value( name, ...rest ) {
-        let _fn = this._ifrm.contentWindow.Api[name];
-
-        if ( rest.length === 0 ) {
-            return _fn();
-        }
-        return ( _fn(...rest), this );
+        let _val = this._ifrm.contentWindow.Api[name]( ...rest );
+        return _val !== undefined ? _val : this;
     }
 
 }

@@ -30,10 +30,9 @@ body > aside {
 /* 侧面板宽度调整线 */
 body > hr {
     width: 3px;
-    border: 1px #c28a42 solid;
+    border: 1px transparent solid;
     border-radius: 3px;
     background-color: #1e2b33;
-
     cursor: ew-resize;
 }
 
@@ -64,7 +63,7 @@ aside#outline {
     outline: none;
 }
 .___Content ._scroll:focus {
-    background-color: #aac6d5;
+    background-color: orange;
 }
 
 /* 鼠标滑过 */
@@ -80,8 +79,8 @@ aside#outline {
 
 /* 已选取 */
 .___Content ._selected {
-    color: #333;
-    background-color: #ffffb8;
+    color: white;
+    background-color: #000;
     background-image: url('images/selected.png') !important;
     border-radius: 4px;
     border: 1px #77858880 solid;
@@ -227,7 +226,7 @@ aside#outline {
 .___Panel input[type=search],
 .___Panel input[type=number] {
     padding: 1px 4px;
-    border: 1px #3ba5d9 solid;
+    border: 1px #3795c3 solid;
     border-radius: 2px;
     font-size: 14px;
     width: 100%;
@@ -888,7 +887,6 @@ menu._cells code {
 
     /* 聚焦辅助 */
     margin: 0 2px 0 1pt;
-    background-color: white;
 }
 
 .___Content > ._scroll {
@@ -933,8 +931,8 @@ menu._cells code {
     padding: 5px 10px;
     background-color: #116285;
     text-align: center;
-    border-top: 1px #0e4962 solid;
-    border-right: 1px #405e6b solid;
+    border-top: 1px #975d00 solid;
+    border-right: 1px #0b86bb solid;
     color: #ddd;
 }
 .___Content ._path > b:hover {
@@ -1094,7 +1092,7 @@ menu._cells code {
     flex: 8 8 500px;
 }
 .Input ._Empty > p {
-    color: #325a67;
+    color: #436a77;
     margin: auto;
     font-size: 12px;
     line-height: 2.3em;
@@ -1552,7 +1550,7 @@ menu._cells code {
 }
 .Script ._env fieldset {
     padding: 4px 12px;
-    border: 1px #9cc solid;
+    border: 1px #2a5c6c solid;
     border-radius: 12px;
     margin-top: 5px;
 }
@@ -1774,7 +1772,7 @@ menu._cells code {
     margin: auto 0.9em;
 }
 .Modal fieldset {
-    border: 1px #93c8e2 solid;
+    border: 1px #286482 solid;
     border-radius: 6px;
     padding: 10px 1.2em;
 }
@@ -2087,13 +2085,12 @@ menu._cells code {
 .Modal ._export fieldset {
     margin: 1em 0 2em;
     border-radius: 30px;
+    color: #23a028;
 }
 .Modal ._export fieldset > ul {
     padding-left: 2em;
     padding-bottom: 0.5em;
-    color: green;
 }
 .Modal ._export fieldset > legend {
-    color: green;
     margin-left: 10px;
 }

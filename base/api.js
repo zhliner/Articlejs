@@ -17,7 +17,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { Local } from "../config.js";
+import { Local, Tips } from "../config.js";
 import * as T from "./types.js";
 import { create } from "./create.js";
 import { resetState, topInsert } from "./edit.js";
@@ -118,7 +118,7 @@ const Api = {
             return _box && getBlock1( _box );
         }
         resetState();
-        return updateBlock1( h3, cons, _box, T.ABSTRACT );
+        updateBlock1( h3, cons, _box, T.ABSTRACT );
     },
 
 
@@ -154,7 +154,7 @@ const Api = {
             return _box && getBlock2( _box, 'ul' );
         }
         resetState();
-        return updateBlock2( h3, cons, _box, 'ul', T.SEEALSO );
+        updateBlock2( h3, cons, _box, 'ul', T.SEEALSO );
     },
 
 
@@ -173,7 +173,7 @@ const Api = {
             return _box && getBlock2( _box, 'ol' );
         }
         resetState();
-        return updateBlock2( h3, cons, _box, 'ol', T.REFERENCE );
+        updateBlock2( h3, cons, _box, 'ol', T.REFERENCE );
     },
 
 
@@ -195,7 +195,7 @@ const Api = {
             return _box && getBlock1( _box );
         }
         resetState();
-        return updateBlock1( h3, cons, _box, T.FOOTER );
+        updateBlock1( h3, cons, _box, T.FOOTER );
     },
 
 
@@ -213,6 +213,15 @@ const Api = {
             return $.html( __content );
         }
         $.html( __content, html );
+    },
+
+
+    /**
+     * 获取文章目录源码。
+     * @return {String}
+     */
+    toc( h3 = Tips.tocLabel ) {
+        return create( T.TOC, {h3}, $.get('article', __content) ).outerHTML;
     },
 
 
