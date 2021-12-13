@@ -18,7 +18,20 @@ import { Tpb, BaseOn, BaseBy, customGetter, processExtend } from "./base/tpb/tpb
 
 const
     On = Object.create( BaseOn ),
-    By = Object.create( BaseBy );
+    By = Object.create( BaseBy ),
+
+    // 本地存储键
+    //-------------------------------------------
+
+    storeStyle = {
+        theme:  'Theme',    // 编辑器主题
+        style:  'Style',    // 内容样式
+        codes:  'Codes',    // 内容代码样式
+    },
+
+    // 保存编辑器实例。
+    saveEditor = ed => ( __editor = ed );
+
 
 
 //
@@ -30,63 +43,101 @@ let __editor = null;
 
 const Kit = {
     /**
-     * 获取主题样式文件URL。
+     * 获取本地存储的样式风格名。
+     * @param  {...String} names 样式类型名（theme|style|codes）
+     * @return {[String]}
+     */
+    styles( evo, ...types ) {
+        let _fix = __editor.name();
+        return types.map( k => localStyle(_fix, k) );
+    },
+
+
+    /**
+     * 设置&保存主题样式。
      * @data: String 主题名
-     * @return {String}
+     * @return {void}
      */
-    themeURL: function( evo ) {
-        return `${ROOT}${Local.themes}/${evo.data}/${Local.themeStyle}`;
+    theme: function( evo ) {
+        __editor.theme(
+            `${ROOT}${Local.themes}/${evo.data}/${Local.themeStyle}`
+        );
+        localStyle( __editor.name(), 'theme', evo.data );
     },
 
-    __themeURL: 1,
+    __theme: 1,
 
 
     /**
-     * 获取内容样式文件URL。
+     * 设置&保存内容样式。
      * @data: String 内容样式名
-     * @return {String}
+     * @return {void}
      */
-    mainURL: function( evo ) {
-        return `${ROOT}${Local.styles}/${evo.data}/${Local.mainStyle}`;
+    main: function( evo ) {
+        __editor.style(
+            `${ROOT}${Local.styles}/${evo.data}/${Local.mainStyle}`
+        );
+        localStyle( __editor.name(), 'style', evo.data );
     },
 
-    __mainURL: 1,
+    __main: 1,
 
 
     /**
-     * 获取代码样式文件URL。
+     * 设置&保存代码样式。
      * @data: String 代码样式名
-     * @return {String}
+     * @return {void}
      */
-    codesURL: function( evo ) {
-        return `${ROOT}${Local.styles}/${evo.data}/${Local.codeStyle}`;
+    codes: function( evo ) {
+        __editor.codes(
+            `${ROOT}${Local.styles}/${evo.data}/${Local.codeStyle}`
+        );
+        localStyle( __editor.name(), 'codes', evo.data );
     },
 
-    __codesURL: 1,
-
-
-    //-- By ------------------------------------------------------------------
-
-
-    /**
-     * 设置&保存样式。
-     * 包括主题、内容和代码风格的样式。
-     * @data: String 样式文件URL
-     * @param {String} name 接口名（theme|style|codes）
-     */
-    style( evo, name ) {
-        __editor[ name ]( evo.data, true );
-    },
-
-    __style: 1,
+    __codes: 1,
 
 };
 
 
 //
+// 工具函数
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 获取目标样式URL的本地存储键。
+ * @param  {String} prefix 存储键前缀
+ * @param  {String} type 样式类型名（theme|style|codes）
+ * @return {String}
+ */
+function styleKey( prefix, type ) {
+    return `${prefix}_${storeStyle[type]}`;
+}
+
+
+/**
+ * 获取/存储目标类型样式的本地值。
+ * name实参未定义时为获取。
+ * @param  {String} prefix 存储键前缀
+ * @param  {String} type 样式类型名（theme|style|codes）
+ * @param  {String} name 待保存的样式风格名，可选
+ * @return {String|null}
+ */
+function localStyle( prefix, type, name ) {
+    let _key = styleKey( prefix, type );
+
+    if ( name === undefined ) {
+        return window.localStorage.getItem( _key ) || null;
+    }
+    window.localStorage.setItem( _key, name );
+}
+
+
+//
 // 导入Tpb支持。
 // 自动从<body>开始OBT构建。
-//
+//////////////////////////////////////////////////////////////////////////////
+
 Tpb.init( On, By )
     .build( document.body )
     .then( tr => window.console.info('build done!', tr) );
@@ -97,18 +148,15 @@ Tpb.init( On, By )
 // On/By 扩展
 //////////////////////////////////////////////////////////////////////////////
 
-
-// 简单取值
-customGetter( On, null, Kit, [
-    'themeURL',
-    'mainURL',
-    'codesURL',
-]);
+// 简单取值。
+customGetter( On, 'styles', Kit.styles );
 
 
 // 简单设置。
 processExtend( By, 'Kit', Kit, [
-    'style',
+    'theme',
+    'main',
+    'codes',
 ]);
 
 
@@ -117,13 +165,7 @@ processExtend( By, 'Kit', Kit, [
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-
-/**
- * 保存编辑器实例。
- * @param  {Editor} ed 编辑器实例
- * @return {Editor} ed
- */
-export const saveEditor = ed => ( __editor = ed );
+export { saveEditor };
 
 
 //:debug

@@ -96,17 +96,7 @@ const
     },
 
     // 编辑器默认名。
-    __saveName  = 'coolj',
-
-
-    // 本地存储键
-    //-------------------------------------------
-
-    storeStyle = {
-        theme:  'Theme',    // 编辑器主题
-        style:  'Style',    // 内容样式
-        codes:  'Codes',    // 内容代码样式
-    };
+    __saveName  = 'coolj';
 
 
 
@@ -297,51 +287,39 @@ class Editor {
 
 
     /**
-     * 获取/设置&保存编辑器主题。
+     * 获取/设置编辑器主题。
      * @param  {String} url 主题样式URL
-     * @param  {Boolean} save 是否同时保存在本地
      * @return {String|this}
      */
-    theme( url, save ) {
+    theme( url ) {
         if ( url === undefined ) {
             return this._value( 'theme' );
-        }
-        if ( save ) {
-            localStyle( this.name(), 'theme', url );
         }
         return this._value( 'theme', url );
     }
 
 
     /**
-     * 获取/设置&保存内容样式。
+     * 获取/设置内容样式。
      * @param  {String} url 主样式URL
-     * @param  {Boolean} save 是否同时保存在本地
      * @return {String|this}
      */
-    style( url, save ) {
+    style( url ) {
         if ( url === undefined ) {
             return this._value( 'style' );
-        }
-        if ( save ) {
-            localStyle( this.name(), 'style', url );
         }
         return this._value( 'style', url );
     }
 
 
     /**
-     * 获取/设置&保存内容代码样式。
+     * 获取/设置内容代码样式。
      * @param  {String} url 主样式URL
-     * @param  {Boolean} save 是否同时保存在本地
      * @return {String|this}
      */
-    codes( url, save ) {
+    codes( url ) {
         if ( url === undefined ) {
             return this._value( 'codes' );
-        }
-        if ( save ) {
-            localStyle( this.name(), 'codes', url );
         }
         return this._value( 'codes', url );
     }
@@ -453,56 +431,6 @@ function empty() {}
 
 
 /**
- * 获取目标样式URL的本地存储键。
- * @param  {String} prefix 存储键前缀
- * @param  {String} name 样式类型名（theme|style|codes）
- * @return {String}
- */
-function styleKey( prefix, name ) {
-    return `${prefix}_${storeStyle[name]}`;
-}
-
-
-/**
- * 获取/存储目标类型样式URL的本地值。
- * furl实参未定义时为获取。
- * @param  {String} prefix 存储键前缀
- * @param  {String} name 样式类型名（theme|style|codes）
- * @param  {String} furl 待保存的样式文件URL，可选
- * @return {String|null}
- */
-function localStyle( prefix, name, furl ) {
-    let _key = styleKey( prefix, name );
-
-    if ( furl === undefined ) {
-        return window.localStorage.getItem( _key ) || null;
-    }
-    window.localStorage.setItem( _key, furl );
-}
-
-
-/**
- * 恢复本地存储的样式。
- * 如果本地没有存储，则简单忽略。
- * 这在用户重新打开编辑器的时候有用。
- * @param  {Editor} ed 编辑器实例
- * @return {Editor} ed
- */
-function recoverStyles( ed ) {
-    let _fix = ed.name(),
-        _theme = localStyle( _fix, 'theme' ),
-        _main  = localStyle( _fix, 'style' ),
-        _codes = localStyle( _fix, 'codes' );
-
-    if ( _theme ) ed.theme( _theme );
-    if ( _main )  ed.style( _main );
-    if ( _codes ) ed.codes( _codes );
-
-    return ed;
-}
-
-
-/**
  * 编辑器创建。
  * 非常规的提交可能不需要<textarea>容器。
  * @param  {Object} option 配置集
@@ -515,4 +443,4 @@ const create = option => new Editor( option || {} );
 //////////////////////////////////////////////////////////////////////////////
 
 
-export default { create, recoverStyles  };
+export default { create  };

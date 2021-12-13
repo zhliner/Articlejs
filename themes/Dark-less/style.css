@@ -1729,7 +1729,7 @@ menu._cells code {
     border-radius: 10px;
     flex-direction: column;
     margin: auto;
-    box-shadow: 1px 3px 9px 1px #555;
+    box-shadow: 1px 3px 9px 1px #fff;
 }
 .Modal header {
     height: 40px;
@@ -1807,12 +1807,12 @@ menu._cells code {
 .Modal ._plugins div._list {
     height: 100%;
     border: 1px #bbb solid;
-    box-shadow: 1px 0px 6px #fff;
     border-radius: 1.2em;
     padding: 2.6em 3em;
     display: grid;
     gap: 2.4em 1.5em;
     grid-template: repeat(auto-fill, 60px) / repeat(auto-fill, 60px);
+    background-color: #777;
 }
 .Modal ._plugins button {
     padding: 0;

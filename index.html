@@ -16,34 +16,35 @@
         _opts = {
             onsaved: html => window.console.info(html),
             onmaximize: num => _fun2[ num ]( _ebox, '_full' ),
-        };
+        },
+        _nav = $.get( '#navbar' );
 
     coolj.create( _opts )
         .load( _ebox )
-        .then( ed => coolj.recoverStyles(ed) && saveEditor(ed) )
-        // .then( ed => saveEditor(ed) )
+        .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && ed )
         .then( ed => ed.frame().contentWindow.focus() );
 </script>
-<!-- Tpb支持 -->
-<script type="module" src="./index.js"></script>
 </head>
 <body>
     <main>
         <h1>◡酷几◡编辑器在线版</h1>
-        <nav
-            on="click(>b)|evo(1) attr('-file')"
+        <nav id="navbar"
+            on="click(>b)|evo(1) attr('-file');
+                recover|styles('theme', 'style')"
             by="GET('text', _1) fragment pop $('/main.content') children not('nav')"
-            to="1/iframe|trigger('cimport')">
+            to="1/iframe|trigger('cimport');
+                (/select)|triggers('recover')">
             <b title="单击导入" data-file="docs/intro.html">简介</b>
             <b title="单击导入" data-file="docs/manual.html">操作手册</b>
             <b title="单击导入" data-file="docs/article.html">文章结构规范</b>
             <span>
                 <label>主题</label>
                 <select name="themes"
-                    on="change|evo(3) val dup pass themeURL"
-                    by="Kit.style('theme')"
-                    to="#editorBox|trigger('active')">
-                    <option value=""> ------ </option>
+                    on="change|evo(3) val dup pass;
+                        recover|ev('detail')"
+                    by="Kit.theme"
+                    to="#editorBox|trigger('active');
+                        |val|goto('change')">
                     <option value="The-blue">蓝调的传说</option>
                     <option value="Classic-gray">经典50度灰</option>
                     <option value="Dark-less">光明之夜</option>
@@ -53,10 +54,11 @@
             <span>
                 <label>内容样式</label>
                 <select name="styles"
-                    on="change|evo(3) val dup(2) pass pop(2) codesURL mainURL"
-                    by="Kit.style('style') Kit.style('codes')"
-                    to="#editorBox|trigger('active')">
-                    <option value=""> ------ </option>
+                    on="change|evo(3) val dup(2) pass;
+                        recover|ev('detail')"
+                    by="Kit.main Kit.codes"
+                    to="#editorBox|trigger('active');
+                        |val|goto('change')">
                     <option value="nostalgia">乡愁</option>
                     <option value="paleness">平庸的白暮</option>
                     <option value="wildwide">旷野无垠</option>
