@@ -55,12 +55,19 @@ const Kit = {
 
     /**
      * 设置&保存主题样式。
+     * 如果主题名以 .css 结尾，表示已经是一个样式文件，
+     * 但该文件依然局限于主题目录之下。
      * @data: String 主题名
      * @return {void}
      */
     theme: function( evo ) {
+        let _pf = evo.data;
+
+        if ( !_pf.endsWith('.css') ) {
+            _pf = `${evo.data}/${Local.themeStyle}`;
+        }
         __editor.theme(
-            `${ROOT}${Local.themes}/${evo.data}/${Local.themeStyle}`
+            `${ROOT}${Local.themes}/${_pf}`
         );
         localStyle( __editor.name(), 'theme', evo.data );
     },

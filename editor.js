@@ -31,13 +31,12 @@
 //                              返回true则取消本地存储。
 //      onmaximize: Function    最大化请求，接口：function( state:0|1 ): void
 //                              其中state: 0 取消最大化，1 最大化
-//      oncontent: Function     内容源码导入请求，接口：function(): Promise<html|null>
-//                              会在编辑器构建就绪后自动触发。
-//                              承诺返回的源码会填充到编辑器内容区，但null值表示略过。
+//      oncontent: Function     内容源码导入回调，会在编辑器构建就绪后自动触发。
+//                              接口：function(): html|null|Promise<html|null>
+//                              源码会填充到编辑器内容区，null表示忽略。
 //      注：
-//      - 上级用户也可以对<iframe>通过cimport事件递送数据导入源码内容，
-//        该导入会进入编辑历史栈，即可撤销。
-//      - 若指定主题、内容、代码的默认样式名，仅限于本地安装的样式。
+//      上级用户也可以对 <iframe> 通过 cimport 事件递送数据导入源码内容，
+//      该导入会进入编辑历史栈，即可撤销（Undo/Redo）。
 //  }
 //
 //  Editor接口：
