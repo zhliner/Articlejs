@@ -437,6 +437,11 @@ aside#outline {
     border-color: #cfcfcf;
     background-color: #f3f4f5;
 }
+/* 冻结效果 */
+.___Panel b[data-pbo~=disabled]:hover {
+    border-color: transparent;
+    background-color: transparent;
+}
 
 /* 字符表情 */
 .___Panel code._orz {
@@ -761,8 +766,8 @@ menu._cells code {
 
 
 /* 帮助栏 */
-#help > ._walk {
-    padding: 4px 6px;
+#help > ._icons {
+    padding: 5px;
     border-bottom: 1px #bbb inset;
     background-color: #f0f0f0;
     border-radius: inherit;
@@ -770,28 +775,21 @@ menu._cells code {
     border-bottom-right-radius: 0;
     display: flex;
 }
-#help > ._walk > b {
-    margin: 1px;
-    padding: 2px 7px;
-    border: 1px transparent solid;
-    border-radius: 3px;
+#help > ._icons > b {
+    margin: auto 4px;
     font-size: 1.1em;
 }
-#help > ._walk > b._top {
+#help > ._icons > b._top {
     font-weight: bold;
 }
-#help > ._walk > b:hover {
-    border-color: #f1f1f1;
-    background-color: #f9f9f9;
-}
-#help > ._walk > ._about {
+#help > ._icons > ._about {
     padding: 0;
     width: 24px;
     margin-left: auto;
     border-radius: 18px 0;
     color: #090;
 }
-#help > ._walk > ._about:hover {
+#help > ._icons > ._about:hover {
     border-color: transparent;
     box-shadow: 0.5px 0.6px 1px #999;
 }
@@ -805,8 +803,8 @@ menu._cells code {
     height: 44px;
     background-color: #f0efef;
     box-shadow: 0 4px 5px -2px grey;
-    border-top-left-radius: inherit;
-    border-top-right-radius: inherit;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     border-bottom: inherit;
     padding-left: 10px;
 
@@ -1587,8 +1585,8 @@ menu._cells code {
     flex: 0 0 auto;
     display: flex;
     height: 32px;
-    border-bottom-left-radius: inherit;
-    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
     border-top: 1px #7c9eb0 solid;
     background-color: #eee;
     font-size: 12px;

@@ -577,9 +577,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 章间隔 */
 .content > article > hr {
-    margin: 50px auto 40px;
-    border: 2px #b3b3b3 solid;
-    box-shadow: #aaa 0px -6px 12px;
+    margin: 80px auto 54px;
+    border: 2px #303030 solid;
+    box-shadow: #5c5c5c 0px -6px 12px;
     border-radius: 10px;
 }
 

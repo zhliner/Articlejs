@@ -446,7 +446,6 @@ aside#outline {
     background-color: #1b5660;
 }
 /* 冻结效果 */
-.___Panel b[data-pbo~=disabled]:hover,
 .___Panel b[data-pbo~=disabled]:hover {
     border-color: transparent;
     background-color: transparent;
@@ -1585,7 +1584,7 @@ menu._cells code {
     border-radius: 16px;
 }
 .Script ._cmds > b:hover {
-    background-color: #777777;
+    background-color: #194e58;
 }
 
 

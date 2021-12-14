@@ -25,7 +25,7 @@ body > * {
 
 /* 侧面板 */
 body > aside {
-    border: 1px #5c869c solid;
+    border: 1px #06495c solid;
     border-radius: 5px;
 }
 
@@ -34,7 +34,7 @@ body > hr {
     width: 3px;
     border: 1px #fff solid;
     border-radius: 3px;
-    background-color: #5f9ea0;
+    background-color: #429b53;
     cursor: ew-resize;
 }
 
@@ -43,7 +43,7 @@ div#editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    border: 1px #5c869c solid;
+    border: 2px #258475 solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
     background-color: white;
@@ -259,7 +259,7 @@ aside#outline {
     font-size: 12pt;
     border: 1px #355c64 solid;
     line-height: 30px;
-    background: local url('images/txtline.png') repeat #173745;
+    background: local url(images/txtline.png) repeat #0b3141;
 }
 .___Panel textarea::placeholder {
     color: #aaa;
@@ -430,12 +430,17 @@ aside#outline {
     border-radius: 20%;
 }
 .___Panel ._icons > b:hover {
-    border-color: #dbdbdb;
-    background-color: #ededed;
+    border-color: #51b0b5;
+    background-color: #2d858d;
 }
 .___Panel ._icons > b._press {
-    border-color: #cfcfcf;
-    background-color: #f3f4f5;
+    border-color: #51b0b5;
+    background-color: #176980;
+}
+/* 冻结效果 */
+.___Panel b[data-pbo~=disabled]:hover {
+    border-color: transparent;
+    background-color: transparent;
 }
 
 /* 字符表情 */
@@ -489,8 +494,8 @@ menu {
 
 menu > hr {
     margin: 3px 1px;
-    border: 1px #c8c8c8 solid;
-    border-bottom-color: #f3f3f3;
+    border: 1px #8dd1b9 solid;
+    border-bottom-color: #ffffff;
 }
 menu > li {
     list-style: none;
@@ -510,7 +515,7 @@ menu li > kbd {
 
 menu li:not([role=menubar]):hover {
     color: #fff;
-    background-color: #444;
+    background-color: #1c8487;
     text-shadow: none;
 }
 menu li:not([role=menubar]):hover > kbd {
@@ -540,7 +545,7 @@ menu li:hover > h4::after {
     color: #a3a3a3;
 }
 menu li[role=menubar]:hover {
-    background-color: #ccc;
+    background-color: #98dcde;
     text-shadow: none;
 }
 
@@ -556,14 +561,12 @@ menu {
     z-index: 10;
     outline: none;
     padding: 1px 1px 0;
-    background-color: #f6f6f6;
+    background-color: #e0faf8;
 }
 
 /* 上下文菜单 */
 menu._cmenu {
     padding: 5px 1px;
-    text-shadow: 1px 1px 1px #f9f9f9;
-    background-color: #eeeeed;
 }
 menu._cmenu > li {
     padding: 4px 10px;
@@ -590,6 +593,7 @@ menu._cells {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1px;
+    background-color: #d5fae0;
 }
 menu._cells > li {
     padding: 3px 10px 3px 24px;
@@ -697,13 +701,13 @@ menu._cells code {
 }
 #outline nav[role=toc] h3 {
     font-size: 1.1em;
-    padding: 12px 1em 10px;
-    border-bottom: 1px #bbb inset;
+    padding: 12px 1em;
     font-weight: normal;
-    background-color: #f0f0f0;
+    background-color: #176980;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+    color: white;
 }
 #outline nav[role=toc] h3 > b {
     float: right;
@@ -713,10 +717,9 @@ menu._cells code {
     font-size: 1.1em;
     margin-top: -3px;
     margin-right: -3px;
-    color: green;
 }
 #outline nav[role=toc] h3 > b:hover {
-    background-color: #b3ebb8;
+    background-color: #18b361;
     border-radius: 16px;
 }
 #outline nav[role=toc] > ol {
@@ -761,37 +764,31 @@ menu._cells code {
 
 
 /* 帮助栏 */
-#help > ._walk {
-    padding: 4px 6px;
+#help > ._icons {
+    display: flex;
+    padding: 5px;
     border-bottom: 1px #bbb inset;
-    background-color: #f0f0f0;
+    background-color: #176980;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    display: flex;
+    color: #ddd;
 }
-#help > ._walk > b {
-    margin: 1px;
-    padding: 2px 7px;
-    border: 1px transparent solid;
-    border-radius: 3px;
+#help > ._icons > b {
+    margin: auto 4px;
     font-size: 1.1em;
 }
-#help > ._walk > b._top {
+#help > ._icons > b._top {
     font-weight: bold;
 }
-#help > ._walk > b:hover {
-    border-color: #f1f1f1;
-    background-color: #f9f9f9;
-}
-#help > ._walk > ._about {
+#help > ._icons > ._about {
     padding: 0;
     width: 24px;
     margin-left: auto;
     border-radius: 18px 0;
-    color: #090;
+    color: orange;
 }
-#help > ._walk > ._about:hover {
+#help > ._icons > ._about:hover {
     border-color: transparent;
     box-shadow: 0.5px 0.6px 1px #999;
 }
@@ -802,11 +799,11 @@ menu._cells code {
 
 .Tools {
     display: flex;
-    height: 44px;
-    background-color: #f0efef;
+    height: 45px;
+    background-color: #297d94;
     box-shadow: 0 4px 5px -2px grey;
-    border-top-left-radius: inherit;
-    border-top-right-radius: inherit;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     border-bottom: inherit;
     padding-left: 10px;
 
@@ -844,16 +841,16 @@ menu._cells code {
 }
 .Tools > ._end > b:last-child {
     height: 30px;
-    margin-top: 0;
+    margin-top: -1px;
     margin-right: 0;
     border-top-left-radius: 0;
     border-top-right-radius: inherit;
     border-bottom-right-radius: 0;
-    padding: 0px 6px 2px 8px;
+    padding: 0px 6px 3px 8px;
 }
 .Tools > ._end > b:last-child:hover {
-    border-color: #e4e4e4;
-    background-color: #e8e8e8;
+    border-color: #389bb5;
+    background-color: #2d858d;
 }
 
 
@@ -922,15 +919,15 @@ menu._cells code {
 }
 .___Content ._path > b {
     padding: 5px 10px;
-    background-color: #0e4962;
+    background-color: #0d8f4a;
     text-align: center;
-    border-top: 1px #0e4962 solid;
-    border-right: 1px #405e6b solid;
-    color: #ddd;
+    border-top: 1px #16892b solid;
+    border-right: 1px #5fbb2e solid;
+    color: white;
 }
 .___Content ._path > b:hover {
     color: #fff;
-    background-color: #066375;
+    background-color: #117939;
 }
 .___Content ._path > b._press {
     color: red;
@@ -938,7 +935,7 @@ menu._cells code {
 }
 .___Content ._path > b:last-child {
     color: #fff;
-    background-color: #41a1aa;
+    background-color: #73c92c;
 }
 
 
@@ -966,9 +963,9 @@ menu._cells code {
 
 .Slave ._tabs {
     display: flex;
-    height: 36px;
+    height: 40px;
     border-top: 1px #5c869c solid;
-    background-color: #01839d;
+    background-color: #1a687d;
     font-size: 12pt;
     color: #fff;
     padding: 4px 0 0 8px;
@@ -979,7 +976,7 @@ menu._cells code {
     min-width: 60px;
     border-radius: 4px 4px 0 0;
     margin: 0 2px;
-    padding: 2px 6px 4px;
+    padding: 3px 6px 5px;
 }
 .Slave ._tabs > b:hover,
 .Slave ._tabs > b._press {
@@ -990,14 +987,14 @@ menu._cells code {
 .Slave ._tabs > b._close {
     min-width: 16px;
     align-self: center;
-    padding: 8px 11px 9px 13px;
+    padding: 10px 11px 11px 13px;
     margin-left: auto;
     border-radius: 0;
     margin-top: -5px;
     margin-right: 0;
 }
 .Slave ._tabs > b._close:hover {
-    background-color: #14768f;
+    background-color: #0c5d73;
 }
 
 
@@ -1238,6 +1235,10 @@ menu._cells code {
     gap: 8px 18px;
     margin: 3px 26px 3px 16px;
     max-height: 234px;
+}
+.Style ._icons > b._press {
+    border-color: #51b0b5;
+    background-color: #ffffff;
 }
 .Style select._list {
     min-width: 160px;
@@ -1490,8 +1491,8 @@ menu._cells code {
 }
 .Source ._option > button {
     width: max-content;
-    background-color: #fcf6e8;
-    border-color: #f8b359;
+    background-color: #b2fdba;
+    border-color: #2ce25d;
     border-radius: 22px 0;
     margin-bottom: 8px;
 }
@@ -1587,8 +1588,8 @@ menu._cells code {
     flex: 0 0 auto;
     display: flex;
     height: 32px;
-    border-bottom-left-radius: inherit;
-    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
     border-top: 1px #7c9eb0 solid;
     background-color: #eee;
     font-size: 12px;
@@ -1661,7 +1662,7 @@ menu._cells code {
 .Status > ._cmdline > input {
     height: 100%;
     border: none;
-    background-color: #ffffe5;
+    background-color: #defaf2;
     float: left;
 }
 .Status > ._cmdline > input::placeholder {
@@ -1687,8 +1688,8 @@ menu._cells code {
     border-radius: 50%;
 }
 .Status > ._help._press {
-    border-color: #ddd;
-    background-color: #f4f5f6;
+    border-color: #fcc74c;
+    background-color: #defae3;
 }
 .Status > ._help > code {
     color: #01839d;
@@ -1719,7 +1720,7 @@ menu._cells code {
 }
 .Modal header {
     height: 40px;
-    background-color: #2b5663;
+    background-color: #0e647c;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     margin-bottom: 10px;
@@ -1902,14 +1903,14 @@ menu._cells code {
 .Modal ._history ._bar button {
     margin-right: 9px;
     border-radius: 0 21px;
-    background-color: #f5fff5;
+    background-color: #5be075;
 }
 .Modal ._history ._bar button._edit {
     border-radius: 21px;
-    background-color: #fff6f3;
+    background-color: #fbcfc0;
 }
 .Modal ._history ._bar button:hover {
-    background-color: #f0f6f9;
+    background-color: #ffba78;
 }
 .Modal ._history hr:hover {
     cursor: ns-resize;
