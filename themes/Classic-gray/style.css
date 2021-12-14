@@ -430,11 +430,11 @@ aside#outline {
     border-radius: 20%;
 }
 .___Panel ._icons > b:hover {
-    border-color: #dbdbdb;
+    border-color: #b2d2a3;
     background-color: #ededed;
 }
 .___Panel ._icons > b._press {
-    border-color: #cfcfcf;
+    border-color: #b2d2a3;
     background-color: #f3f4f5;
 }
 /* 冻结效果 */
@@ -920,15 +920,15 @@ menu._cells code {
 }
 .___Content ._path > b {
     padding: 5px 10px;
-    background-color: #0e4962;
+    background-color: #496874;
     text-align: center;
     border-top: 1px #0e4962 solid;
-    border-right: 1px #405e6b solid;
+    border-right: 1px #4a7d93 solid;
     color: #ddd;
 }
 .___Content ._path > b:hover {
     color: #fff;
-    background-color: #066375;
+    background-color: #3a5458;
 }
 .___Content ._path > b._press {
     color: red;
@@ -936,7 +936,7 @@ menu._cells code {
 }
 .___Content ._path > b:last-child {
     color: #fff;
-    background-color: #41a1aa;
+    background-color: #6f94a5;
 }
 
 
@@ -964,9 +964,9 @@ menu._cells code {
 
 .Slave ._tabs {
     display: flex;
-    height: 36px;
+    height: 38px;
     border-top: 1px #5c869c solid;
-    background-color: #01839d;
+    background-color: #1d7081;
     font-size: 12pt;
     color: #fff;
     padding: 4px 0 0 8px;
@@ -975,9 +975,9 @@ menu._cells code {
 }
 .Slave ._tabs > b {
     min-width: 60px;
-    border-radius: 4px 4px 0 0;
+    border-radius: 6px 6px 0 0;
     margin: 0 2px;
-    padding: 2px 6px 4px;
+    padding: 2px 6px 5px;
 }
 .Slave ._tabs > b:hover,
 .Slave ._tabs > b._press {
@@ -988,7 +988,7 @@ menu._cells code {
 .Slave ._tabs > b._close {
     min-width: 16px;
     align-self: center;
-    padding: 8px 11px 9px 13px;
+    padding: 9px 12px 10px 14px;
     margin-left: auto;
     border-radius: 0;
     margin-top: -5px;
@@ -1716,8 +1716,8 @@ menu._cells code {
     box-shadow: 1px 3px 9px 1px #555;
 }
 .Modal header {
-    height: 40px;
-    background-color: #2b5663;
+    height: 42px;
+    background-color: #2d4d56;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     margin-bottom: 10px;
@@ -1733,7 +1733,7 @@ menu._cells code {
 .Modal header > ._close {
     color: #999;
     font-size: 14pt;
-    margin-right: 2px;
+    margin-right: 4px;
 }
 .Modal header > ._close:hover {
     color: #ccc;

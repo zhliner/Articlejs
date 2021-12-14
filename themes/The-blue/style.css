@@ -1236,6 +1236,7 @@ menu._cells code {
     margin: 3px 26px 3px 16px;
     max-height: 234px;
 }
+.Style ._icons > b:hover,
 .Style ._icons > b._press {
     border-color: #51b0b5;
     background-color: #ffffff;
@@ -1753,7 +1754,7 @@ menu._cells code {
     text-align: right;
     border: 1px #d8d8d8 solid;
     border-radius: 0 0 9px 9px;
-    background-color: #f6f6f6;
+    background-color: #eee;
 }
 .Modal div._btn2 > button {
     margin: auto 0.9em;
