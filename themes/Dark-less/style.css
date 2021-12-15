@@ -1594,8 +1594,8 @@ menu._cells code {
     flex: 0 0 auto;
     display: flex;
     height: 32px;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
     border-top: 1px #0e4354 solid;
     background-color: #062b2d;
     font-size: 12px;

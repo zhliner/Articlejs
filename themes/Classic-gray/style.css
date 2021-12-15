@@ -25,7 +25,7 @@ body > * {
 
 /* 侧面板 */
 body > aside {
-    border: 1px #5c869c solid;
+    border: 1px #666 solid;
     border-radius: 5px;
 }
 
@@ -34,7 +34,7 @@ body > hr {
     width: 3px;
     border: 1px #fff solid;
     border-radius: 3px;
-    background-color: #5f9ea0;
+    background-color: #6f94a3;
     cursor: ew-resize;
 }
 
@@ -43,7 +43,7 @@ div#editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    border: 1px #5c869c solid;
+    border: 1px #666 solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
     background-color: white;
@@ -702,10 +702,10 @@ menu._cells code {
 }
 #outline nav[role=toc] h3 {
     font-size: 1.1em;
-    padding: 12px 1em 10px;
+    padding: 10px 1em;
     border-bottom: 1px #bbb inset;
     font-weight: normal;
-    background-color: #f0f0f0;
+    background-color: #edece3;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -769,7 +769,7 @@ menu._cells code {
 #help > ._icons {
     padding: 5px;
     border-bottom: 1px #bbb inset;
-    background-color: #f0f0f0;
+    background-color: #edece3;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -801,7 +801,7 @@ menu._cells code {
 .Tools {
     display: flex;
     height: 44px;
-    background-color: #f0efef;
+    background-color: #efefdf;
     box-shadow: 0 4px 5px -2px grey;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -952,7 +952,7 @@ menu._cells code {
 .Slave {
     flex: 0 0 auto;
     min-height: 240px;
-    background-color: #f0efef;
+    background-color: #efede6;
     display: flex;
     flex-direction: column;
 
@@ -966,7 +966,7 @@ menu._cells code {
     display: flex;
     height: 38px;
     border-top: 1px #5c869c solid;
-    background-color: #1d7081;
+    background-color: #367585;
     font-size: 12pt;
     color: #fff;
     padding: 4px 0 0 8px;
@@ -1585,8 +1585,8 @@ menu._cells code {
     flex: 0 0 auto;
     display: flex;
     height: 32px;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
     border-top: 1px #7c9eb0 solid;
     background-color: #eee;
     font-size: 12px;
@@ -1594,7 +1594,7 @@ menu._cells code {
 .Status > div {
     border: 1px #c9c9c9 solid;
     margin: 3px 0 3px 4px;
-    background-color: #efefdf;
+    background-color: #efefdc;
     line-height: 22px;
     white-space: nowrap;
     border-radius: 2px;
@@ -1659,7 +1659,7 @@ menu._cells code {
 .Status > ._cmdline > input {
     height: 100%;
     border: none;
-    background-color: #ffffe5;
+    background-color: #ffffe3;
     float: left;
 }
 .Status > ._cmdline > input::placeholder {
@@ -1686,7 +1686,7 @@ menu._cells code {
 }
 .Status > ._help._press {
     border-color: #ddd;
-    background-color: #f4f5f6;
+    background-color: #f1f8f7;
 }
 .Status > ._help > code {
     color: #01839d;
