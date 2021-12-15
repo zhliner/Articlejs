@@ -1663,7 +1663,7 @@ menu._cells code {
 .Status > ._cmdline > input {
     height: 100%;
     border: none;
-    background-color: #defaf2;
+    background-color: #edfcf8;
     float: left;
 }
 .Status > ._cmdline > input::placeholder {

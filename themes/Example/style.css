@@ -961,7 +961,7 @@ menu._cells code {
 
 .Slave ._tabs {
     display: flex;
-    height: 36px;
+    height: 38px;
     border-top: 1px #5c869c solid;
     background-color: #01839d;
     font-size: 12pt;
@@ -972,9 +972,9 @@ menu._cells code {
 }
 .Slave ._tabs > b {
     min-width: 60px;
-    border-radius: 4px 4px 0 0;
+    border-radius: 6px 6px 0 0;
     margin: 0 2px;
-    padding: 2px 6px 4px;
+    padding: 2px 6px 5px;
 }
 .Slave ._tabs > b:hover,
 .Slave ._tabs > b._press {
@@ -985,7 +985,7 @@ menu._cells code {
 .Slave ._tabs > b._close {
     min-width: 16px;
     align-self: center;
-    padding: 8px 11px 9px 13px;
+    padding: 9px 12px 10px 14px;
     margin-left: auto;
     border-radius: 0;
     margin-top: -5px;
@@ -1730,7 +1730,7 @@ menu._cells code {
 .Modal header > ._close {
     color: #999;
     font-size: 14pt;
-    margin-right: 2px;
+    margin-right: 4px;
 }
 .Modal header > ._close:hover {
     color: #ccc;
