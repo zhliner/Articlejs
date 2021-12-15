@@ -305,10 +305,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  */
 .content section[role=s1] > h2 {
     font-size: 1.5em;
-    padding: 4px 14px;
+    padding: 4px 1.1em;
     background-color: #555;
     border-bottom: 1px #aaa solid;
     color: orange;
+    border-radius: 1.2em 0 3em;
 }
 
 
@@ -319,7 +320,8 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content section[role=s2] > h2 {
     font-size: 1.3em;
     padding: 6px 2px;
-    border-bottom: 1px green solid;
+    border-bottom: 1px #664700 solid;
+    color: #e0e0e0;
 }
 
 
