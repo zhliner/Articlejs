@@ -156,13 +156,14 @@ Global: [
         "command":  "main.saving"
     },
 
-    // 内容源码导出。
-    // 会开启一个导出对话框。
+    // 源码导出。
+    // 如果没有选取元素，则针对全部内容。
     {
         "key":      "alt:p",
         "command":  "main.export",
     },
     // 同上导出但包含目录。
+    // 仅适用导出全部内容，会忽略已选取元素。
     {
         "key":      "alt+shift:p",
         "command":  "main.export2",

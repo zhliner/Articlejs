@@ -6766,13 +6766,14 @@ export const Kit = {
     /**
      * 导出内容源码。
      * 提取内容源码，发送到源码导出模态框。
-     * 如果当前没有选取元素，取内容区全部顶层单元。
-     * h3实参仅在导出包含目录的全部源码（无选取）时有效。
+     * 如果当前没有选取元素，取内容区全部内容。
+     * h3实参仅在导出包含目录的全部源码时有效。
      * @data: [Element]|nil 当前选取集
      * @param  {String} h3 目录标题条，可选
      * @return {String} 结果源码
      */
     export( evo, h3 ) {
+        // 已选取集。
         if ( evo.data && evo.data.length ) {
             return $( evo.data )
                 .clone()
@@ -6781,6 +6782,7 @@ export const Kit = {
                 .prop( 'outerHTML' )
                 .join( '' );
         }
+        // 全部内容。
         let _box = $.clone( contentElem );
 
         $.find( __tmpclsSlr, _box )
