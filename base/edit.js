@@ -6817,7 +6817,7 @@ export const Kit = {
         }
         catch( e ) {
             // 源码结构出错提示。
-            $.trigger( $.get(`#${Local.sourceTips}`), 'tips' )
+            $.trigger( $.get(`#${Local.sourceTips}`), 'show' )
         }
     },
 
