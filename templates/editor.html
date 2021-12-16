@@ -140,8 +140,8 @@
     <div id="editor"
         on="main.chapter|$('#g-count') val split('.');
             main.saving|$('/main#content') clone;
-            main.export|$('/main#content') clone;
-            main.export2|$('/main#content') clone;
+            main.export|sels;
+            main.export2;
             _export|ev('detail') node('misc:export') ('内容源码') pack(3) node('modal:page') pack(2)"
         by="Kit.chapter;
             Kit.save;

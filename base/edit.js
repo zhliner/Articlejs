@@ -4303,7 +4303,7 @@ function _tableNoit( ref, els ) {
 /**
  * 初始化全局数据。
  * 用于编辑器设置此模块中操作的全局目标。
- * @param {String} content 编辑器容器（根元素）
+ * @param {String} content 编辑器内容根（<main>）
  * @param {String} pathbox 路径蓄力容器
  * @param {String} pslave 主面板根元素
  * @param {String} errbox 出错信息提示容器
@@ -6766,20 +6766,35 @@ export const Kit = {
     /**
      * 导出内容源码。
      * 提取内容源码，发送到源码导出模态框。
-     * @data: Element 内容区根（<main>）副本
+     * 如果当前没有选取元素，取内容区全部顶层单元。
+     * h3实参仅在导出包含目录的全部源码（无选取）时有效。
+     * @data: [Element]|nil 当前选取集
      * @param  {String} h3 目录标题条，可选
      * @return {String} 结果源码
      */
     export( evo, h3 ) {
-        $( __tmpclsSlr, evo.data ).removeClass( __tmpcls );
+        if ( evo.data && evo.data.length ) {
+            return $( evo.data )
+                .clone()
+                .find( __tmpclsSlr, true )
+                .removeClass( __tmpcls )
+                .prop( 'outerHTML' )
+                .join( '' );
+        }
+        let _box = $.clone( contentElem );
 
+        $.find( __tmpclsSlr, _box )
+            .forEach(
+                el => $.removeClass( el, __tmpcls )
+            );
         if ( h3 !== undefined ) {
             let _art = $.get(
-                'article', evo.data
+                'article',
+                _box
             );
-            topInsert( T.TOC, create(T.TOC, {h3}, _art), evo.data );
+            topInsert( T.TOC, create(T.TOC, {h3}, _art), _box );
         }
-        return $.html( evo.data );
+        return $.html( _box );
     },
 
     __export: 1,
@@ -6797,7 +6812,13 @@ export const Kit = {
         let _ind = isNaN(tabs) ? '\t' : ' '.repeat(tabs),
             _els = [...$.fragment(evo.data).children];
 
-        return _els.map( el => niceHtml(el, _ind) ).join( '' ).trim();
+        try {
+            return _els.map( el => niceHtml(el, _ind) ).join( '' ).trim();
+        }
+        catch( e ) {
+            // 源码结构出错提示。
+            $.trigger( $.get(`#${Local.sourceTips}`), 'tips' )
+        }
     },
 
     __nicehtml: 1,
@@ -7048,9 +7069,8 @@ export const Kit = {
     /**
      * 插入顶层单元。
      * 每个单元都有固定的位置。
-     * 注：
-     * where实际上只可能是siblings
-     * 顶层单元没有多选克隆逻辑。
+     * 注记：
+     * level实际上只可能是siblings，因为children不会执行到这儿。
      * @data: Element
      * @param  {String} level 目标层级（siblings|children）
      * @return {void}

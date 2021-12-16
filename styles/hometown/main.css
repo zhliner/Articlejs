@@ -131,6 +131,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 1.17em;
     margin: 10px;
     text-align: center;
+    color: #cb5c0e;
 }
 .content header[role=abstract] > blockquote {
     margin: 0 1.4em;

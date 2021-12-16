@@ -16,10 +16,17 @@ import $ from "./tpb/config.js";
 import { beforeFixed, afterFixed, isInlines, isEmpty, isContent } from "./base.js";
 import { Scripter } from "../config.js";
 import { Render } from "./tpb/tools/render.js";
+import { Spliter, UmpCaller, UmpString } from "./tpb/tools/spliter.js";
 
 const
     // ID标识字符限定
-    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g;
+    __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g,
+
+    // OBT顶层分组分隔符。
+    __chrDlmt   = ';',
+
+    // OBT顶层分组切分器。
+    __dlmtSplit = new Spliter( __chrDlmt, new UmpCaller(), new UmpString() );
 
 
 
@@ -849,7 +856,7 @@ function warn( msg, data ) {
  */
 function stringElement( el, ind, prefix ) {
 	let _tag = el.tagName.toLowerCase(),
-		_html = `<${_tag}${stringAttr(el.attributes)}`,
+		_html = `<${_tag}${stringAttr(el.attributes, ind, prefix)}`,
         _con = '';
 
     if ( isEmpty(el) ) {
@@ -865,20 +872,29 @@ function stringElement( el, ind, prefix ) {
 
 
 /**
- * 元素属性序列。
+ * 构造元素特性序列。
  * - 指目标元素内的属性序列，不含内容和结尾标签。
  * - 空值属性保持为单属性标志状态（无=）。
+ * - 支持OBT标准特性名（on/by/to）换行书写（在最后）。
  * @param  {NamedNodeMap} attrs 元素属性集
- * @return {String}
+ * @param  {String} ind 一个缩进串
+ * @param  {String} prefix 属性名前置缩进（含头部换行）
+ * @return {String} 全部特性名值串
  */
-function stringAttr( attrs ) {
-	let _ats = '';
+function stringAttr( attrs, ind, prefix ) {
+	let _ats = '',
+        _obt = new Map([ ['on'], ['by'], ['to'] ]);
 
 	for ( let i = 0; i < attrs.length; i++ ) {
-		let _at = attrs[i];
+        let _at = attrs[i];
+
+        if ( _obt.has(_at.name) ) {
+            _obt.set( _at.name, _at.value );
+            continue;
+        }
 		_ats += ` ${_at.name}` + (_at.value === '' ? '' : `="${quoteEscape(_at.value)}"`);
 	}
-	return _ats;
+	return _ats + obtsNice( _obt, ind, prefix );
 }
 
 
@@ -930,6 +946,45 @@ function keepHTML( el ) {
  */
 function quoteEscape( str ) {
     return str.replace( /"/g, '&quot;' );
+}
+
+
+/**
+ * OBT特性集格式化。
+ * 换行书写，比所在元素多一个缩进。
+ * @param  {Map} obt3 OBT名值对集
+ * @param  {String} ind 一个缩进串
+ * @param  {String} prefix 所属元素缩进串
+ * @return {String} 节点名值序列串
+ */
+function obtsNice( obt3, ind, prefix ) {
+    let _buf = [];
+    prefix = `${prefix}${ind}`;
+
+    for ( const [k, v] of obt3 ) {
+        if ( !v ) {
+            continue;
+        }
+        _buf.push( `${k}="${obtNice(v, ind, prefix)}"` );
+    }
+    return _buf.length ? `\n${prefix}` + _buf.join( `\n${prefix}` ) : '';
+}
+
+
+/**
+ * OBT特性值格式化。
+ * 按顶级分隔符（;）切分，每段一行，比特性名多一个缩进。
+ * @param  {String} fmt 原格式串
+ * @param  {String} ind 一个缩进串
+ * @param  {String} prefix 属性名前置缩进
+ * @return {String}
+ */
+function obtNice( fmt, ind, prefix ) {
+    __dlmtSplit.reset();
+
+    return [ ...__dlmtSplit.split(fmt) ]
+        .map( s => quoteEscape(s.trim()) )
+        .join( `${__chrDlmt}\n${prefix}${ind}` );
 }
 
 
@@ -1113,10 +1168,12 @@ export function elem2Swap( a, b ) {
 
 
 /**
- * 提取换行/缩进良好的源码。
+ * 生成换行/缩进良好的源码。
  * - 行块单元内不换行，内联单元间不换行。
- * - 缩进0空格数是有效的，表示不缩进。
- * - 非数值空格数缩进为一个Tab字符。
+ * - 0空格数是有效的，表示不缩进。非数值空格数缩进为一个Tab字符。
+ * 注记：
+ * 不适用任意元素的源码美化，因为单元类型判断涉及父子结构逻辑。
+ * 如果目标元素是一个完整的单元则没有问题。
  * @param  {Node} node 目标节点
  * @param  {String} tabs 缩进字符串（对应一个Tab）
  * @param  {String} prefix 前阶缩进字符串，可选

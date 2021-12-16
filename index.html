@@ -9,7 +9,7 @@
 <script src="base/tquery/tquery.min.js"></script>
 <script type="module">
     import coolj from "./editor.js";
-    import { saveEditor } from "./index.js";
+    import { saveEditor, tickdoing } from "./index.js";
 
     let _ebox = $.get( '#editorBox' ),
         _fun2 = [ $.removeClass, $.addClass ],
@@ -22,7 +22,9 @@
     coolj.create( _opts )
         .load( _ebox )
         .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && ed )
-        .then( ed => ed.frame().contentWindow.focus() );
+        .then( ed => ed.frame().contentWindow.focus() )
+        // 1小时内点亮Logo
+        .then( () => tickdoing(36000) );
 </script>
 </head>
 <body>

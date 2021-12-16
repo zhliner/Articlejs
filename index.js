@@ -140,6 +140,38 @@ function localStyle( prefix, type, name ) {
 }
 
 
+// 小玩具
+//0000000000000000000000000000000000000
+
+const $ = window.$;
+
+/**
+ * 间歇执行器（玩具）。
+ * 如果用户执行器返回true则终止计时器。
+ * @param {Number} sec 间隔秒数
+ * @param {Function} handle 执行器
+ */
+function tickdoing( sec, handle = logoColor ) {
+    handle() ||
+    setTimeout( () => tickdoing(sec, handle), sec );
+}
+
+
+let _val = 100, _sel = null;
+
+// 点亮Logo彩色
+function logoColor() {
+    if ( _val < 0 ) {
+        return true;
+    }
+    if ( _sel ) {
+        $.remove( _sel );
+    }
+    _sel = $.style( `main>h1::before{filter:grayscale(${_val--/100})}` );
+}
+
+
+
 //
 // 导入Tpb支持。
 // 自动从<body>开始OBT构建。
@@ -172,7 +204,7 @@ processExtend( By, 'Kit', Kit, [
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { saveEditor };
+export { saveEditor, tickdoing };
 
 
 //:debug

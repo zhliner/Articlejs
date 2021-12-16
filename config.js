@@ -68,6 +68,10 @@ const
         styleMain:  's-main',       // 文章内容
         styleCodes: 's-codes',      // 内容代码着色
         styleTheme: 's-theme',      // 编辑器主题
+
+
+        // 源码格式化出错提示元素ID
+        sourceTips: 'x-fmthtml'
     },
 
 

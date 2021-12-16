@@ -472,6 +472,11 @@ aside#outline {
     background-color: #f57d3d;
 }
 
+/* 出错提示 */
+.___Panel ._err {
+    color: red;
+}
+
 
 /* 菜单
  ****************************************************************************/
@@ -1361,7 +1366,6 @@ menu._cells code {
     width: 80px;
 }
 .Style ._Color ._err {
-    color: red;
     background-color: yellow;
 }
 .Style ._Color ._custom {
@@ -2022,9 +2026,6 @@ menu._cells code {
 .Modal ._result fieldset > label {
     float: right;
 }
-.Modal ._result ._err {
-    color: red;
-}
 .Modal ._result ._err label {
     font-weight: bold;
 }
@@ -2056,11 +2057,17 @@ menu._cells code {
     float: right;
 }
 .Modal ._export ._top button {
-    margin-left: 10px;
+    margin: auto 10px;
     background-color: #cdffde;
 }
 .Modal ._export ._top button:hover {
     background-color: #fff0e5;
+}
+.Modal ._export ._err {
+    font-style: italic;
+}
+.Modal ._export ._err[data-pbo=hidden] {
+    transition: all 2s;
 }
 .Modal ._export fieldset {
     margin: 1em 0 2em;

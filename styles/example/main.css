@@ -122,14 +122,16 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     border-radius: 10px;
     margin: 2em 0;
     padding: 10px 30px;
-    background-color: #f7f7f7;
+    background-color: #fbfeff;
     color: #58859c;
     text-shadow: 0.3px 0.3px 5px #cfe5ed;
+    box-shadow: 0px 1px 3px #e3a24f;
 }
 .content header[role=abstract] > h3 {
     font-size: 1.17em;
     margin: 10px;
     text-align: center;
+    color: #d95a00;
 }
 .content header[role=abstract] > blockquote {
     margin: 0 1.4em;

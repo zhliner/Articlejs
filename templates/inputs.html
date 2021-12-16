@@ -6,7 +6,7 @@
 <!-- 选项：2 -->
 <div class="_option" tpl-name="input:option2">
     <label title="清除连续空白"><input type="checkbox" name="clean" checked>空白清理</label>
-    <label title="连续多个空行视为一个"><input type="checkbox" name="split">空行分段</label>
+    <label title="连续多个空行视为一个"><input type="checkbox" name="split" checked>空行分段</label>
 </div>
 
 
@@ -168,11 +168,17 @@
 </div>
 
 <!--文章根
-    .article: (data:void, {header}) -->
-<div class="_body _Article" obt-src="obts/list2ps.json" tpl-name="input:article"
-    on="nodes|ev('detail') wrap('<p>') wrapAll('<header>') item(0) obj('header')"
-    by="New.article(_1)"
-    to="form/|trigger('instop')">
+    article 无导言，创建一个空<article>容器元素。
+    headers 构造包含导言部分的<article>元素。 -->
+<div class="_body _Article" tpl-name="input:article"
+    on="article;
+        headers|ev('detail') $$('/._option input') prop('checked') pretreat2(_) wrap('<p>') wrapAll('<header>') item(0) obj('header');
+        create|$('/textarea') val dup $if('headers', 'article');"
+    by="New.article;
+        New.article(_1)"
+    to="form/|trigger('instop');
+        form/|trigger('instop');
+        |trigger(_1)">
     <div class="_main">
         <textarea name="header" placeholder="导言（可选）"></textarea>
     </div>
