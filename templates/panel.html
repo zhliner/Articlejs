@@ -399,7 +399,7 @@
             on="click(button)|sel0 $('form/textarea') val trim dup pass"
             by="Kit.checkhtml(_1) dup $if('err', 'ok')"
             to="/pre|trigger(_1)">
-            <button on="click|avoid">结构检查</button>
+            <button type="button">结构检查</button>
             <!--反馈信息：
                 ok  结构正常。设置_ok类名、文本并取消聚焦能力。
                     3秒后隐藏文本，便于再次检查时反馈更清晰（不变的提示缺乏表达力）。

@@ -3278,6 +3278,10 @@ function wrongNodes( box, nodes ) {
         _buf = [];
 
     for ( const nd of nodes ) {
+        // 空白文本包容。
+        if ( nd.nodeType === 3 && !nd.textContent.trim() ) {
+            continue;
+        }
         if ( !checkStruct(nd, _subs) ) {
             _buf.push( nd );
         }
