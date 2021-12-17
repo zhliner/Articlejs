@@ -76,6 +76,10 @@ const
 
 
     Limit = {
+        // 保存间隔时间（ms）
+        // 设置为0可以取消自动保存。
+        interval:       6*60000,
+
         // 历史栈长度
         // 注意定位移动可能会占据大量的步数。
         history:        999,
@@ -119,6 +123,9 @@ const
 
         // 命令行非法命令提示
         commandInvalid: '目标命令不被支持！',
+
+        // 命令行选取指令提示。
+        selectNone: '没有目标被选中',
 
         // 系统变量不存在提示
         configNothing:  '(^_^)',
@@ -241,7 +248,10 @@ const Sys = {
     plugInit:   'init',         // 插件表初始化
     plugIns:    'install',      // 插件安装
     plugDel:    'uninstall',    // 插件卸载
-    importCons: 'cimport',      // 内容源码导入通知
+
+    // 用户接口类事件
+    importCons: 'cimport',      // 内容源码递送通知
+    recover:    'recover',      // 请求从本地存储中恢复（如果有）
 
 
     // 模板名定义

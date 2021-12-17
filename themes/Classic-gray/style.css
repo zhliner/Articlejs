@@ -68,11 +68,6 @@ aside#outline {
     background-color: #aac6d5;
 }
 
-/* 鼠标滑过 */
-.___Content ._hover{
-    /* 略：干扰视觉 */
-}
-
 /* 路径指向 */
 .___Content ._point {
     background-color: #ebebeb4d;
@@ -624,6 +619,12 @@ menu._cells code {
 /* [ 顶层 ]
  ****************************************************************************/
 
+#outline > nav > h3,
+#help > nav {
+    height: 44px;
+    box-sizing: border-box;
+}
+
 /* 级联表 */
 #outline ol[role=cascade],
 #outline ol[role=cascade] ol {
@@ -702,10 +703,10 @@ menu._cells code {
 }
 #outline nav[role=toc] h3 {
     font-size: 1.1em;
-    padding: 10px 1em;
+    padding: 11px 1em;
     border-bottom: 1px #bbb inset;
     font-weight: normal;
-    background-color: #edece3;
+    background-color: #f0efe6;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -769,7 +770,7 @@ menu._cells code {
 #help > ._icons {
     padding: 5px;
     border-bottom: 1px #bbb inset;
-    background-color: #edece3;
+    background-color: #f0efe6;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -801,7 +802,7 @@ menu._cells code {
 .Tools {
     display: flex;
     height: 44px;
-    background-color: #efefdf;
+    background-color: #efeee6;
     box-shadow: 0 4px 5px -2px grey;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -1659,7 +1660,7 @@ menu._cells code {
 .Status > ._cmdline > input {
     height: 100%;
     border: none;
-    background-color: #ffffe3;
+    background-color: #ffe;
     float: left;
 }
 .Status > ._cmdline > input::placeholder {

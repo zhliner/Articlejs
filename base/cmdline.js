@@ -33,8 +33,8 @@
 //      String      选择器。
 //      [n : m]     数组下标范围（空格可选）。
 //      [a,b,c]     数组下标定点。
-//      {function}  过滤函数。如箭头函数（参考 tQuery.filter）。
-//                  如果以句点（.）开始，视为Collector成员函数。
+//      {function}  过滤函数。如箭头函数（可参考 tQuery.filter）。
+//                  如果花括号内以句点（.）开始，视为Collector成员函数。
 //  注意：
 //  Collector成员函数主要针对 .fiter|.has|.not 等专用过滤。返回值会被重新选取。
 //  也可以使用其它函数（如 find、get 等），但不应当是会改变DOM节点的操作。
@@ -140,6 +140,7 @@ class Select {
 
     /**
      * 执行指令。
+     * 如果当前选取集为空，则在全局（内容根）内检索。
      * @param  {String} slr 选择器
      * @param  {Element} hot 焦点元素
      * @return {Collector} 新选取集

@@ -50,7 +50,8 @@
         $.get(Local.styleCodes).href = `../${Local.styles}/${_conf.codes}/${Local.codeStyle}`;
     }
 
-    // 上级导入通知监听
+    // 接口：
+    // 上级导入通知监听。
     $.on(
         window,
         Sys.importCons,
@@ -139,7 +140,7 @@
         适用主区激活范围。 -->
     <div id="editor"
         on="main.chapter|$('#g-count') val split('.');
-            main.saving|$('/main#content') clone;
+            main.saving|$('/main#content');
             main.export|sels;
             main.export2;
             _export|ev('detail') node('misc:export') ('内容源码') pack(3) node('modal:page') pack(2)"
@@ -185,13 +186,13 @@
         to="body|bind('mousemove:2') once('mouseup')" />
     <aside id="help" class="___Panel" data-pbo="lost"
         on="index|ev('detail') debug('hai')">
-        <div class="_icons">
+        <nav class="_icons">
             <b title="上一项">◀</b>
             <b title="目录" class="_top">▤</b>
             <b title="下一项" data-pbo="disabled">▶</b>
             <!-- ⚘ -->
             <b title="关于..." class="_about">⚘</b>
-        </div>
+        </nav>
         <div id="help-xbox" class="_xbox">
             <!-- dl/dt,dd -->
         </div>

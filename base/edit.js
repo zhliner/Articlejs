@@ -2030,14 +2030,13 @@ function cantMoving( el ) {
  * - 将微编辑实例赋值到一个全局变量。
  * - 移除目标元素的选取。
  * - 将目标元素的可编辑副本设置为焦点。
- * 注：
- * 内联内容元素合并会带来文本节点离散，故先合并。
  * @param  {Element} el 目标元素
  * @return {[Instance]} 编辑历史记录实例序列
  */
 function minied( el ) {
     let _op1 = new HotEdit( null ),
         _op2 = null,
+        // 内联内容元素合并会带来文本节点离散，故先合并。
         _op3 = new DOMEdit( () => $.normalize(el) );
 
     // 创建同类新行时为未选取，无需取消。
@@ -2084,7 +2083,8 @@ function miniedOk( h2 ) {
 
 /**
  * 微编辑创建同类新行。
- * 注记：游离元素的特性设置不会进入历史栈。
+ * 注记：
+ * 游离元素的特性设置不会进入历史栈。
  * @param  {Element} src 源行元素
  * @return {[Instance]} 编辑实例序列
  */
@@ -3566,6 +3566,11 @@ const __Cmdoper = {
  * @return {[Instance]} 操作实例集（ESEdit）
  */
 function cmdxSelect( oper, str ) {
+    let _els = oper.exec( str, __EHot.get() );
+
+    if ( !_els.length ) {
+        return Tips.selectNone;
+    }
     return selectResult( [], oper.exec(str, __EHot.get()) );
 }
 
@@ -5784,8 +5789,7 @@ export const Edit = {
      */
     cmdRun( evo, key ) {
         let _str = evo.data,
-            _val = _str.trim() &&
-                __Cmdoper[ key ]( __Cmder[key], _str );
+            _val = _str.trim() && __Cmdoper[ key ]( __Cmder[key], _str );
 
         // 命令序列记录。
         typeRecord( key ).add( evo.data );
@@ -6674,9 +6678,19 @@ export const Kit = {
     /**
      * 命令行键入内容。
      * 清除匹配集临时表引用，配合cmdnext/cmdprev操作。
+     * 注：
+     * 简单自我操作，故放在On部分（书写友好）。
      */
     cmdclear() {
         this.cmdNavTemp = null;
+    },
+
+
+    /**
+     * 提取保存的源码。
+     */
+    savedhtml() {
+        return __EDStore.get( Sys.storeMain );
     },
 
 
@@ -6749,14 +6763,16 @@ export const Kit = {
      * 本地暂存。
      * 存储数据元素的内容HTML源码。
      * 会清除临时的状态类名（焦点、选取）。
-     * @data: Element 内容区根（<main>）副本
+     * @data: Element 内容区根（<main>）
      * @return {String} 存储完成提示
      */
     save( evo ) {
-        // 清理临时类名
-        $( __tmpclsSlr, evo.data ).removeClass( __tmpcls );
+        let _box = $.clone( evo.data );
 
-        let _html = $.html( evo.data );
+        // 清理临时类名
+        $( __tmpclsSlr, _box ).removeClass( __tmpcls );
+
+        let _html = $.html( _box );
 
         if ( !Sys.saver(_html) ) {
             __EDStore.set( Sys.storeMain, _html );
@@ -7507,6 +7523,7 @@ customGetter( On, null, Kit, [
     'styName',
     'styKey',
     'cleanHTML',
+    'savedhtml',
 
     // 简单操作类（非取值）。
     'cmdclear',

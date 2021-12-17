@@ -637,6 +637,12 @@ menu._cells code {
 /* [ 顶层 ]
  ****************************************************************************/
 
+#outline > nav > h3,
+#help > nav {
+    height: 44px;
+    box-sizing: border-box;
+}
+
 /* 级联表 */
 #outline ol[role=cascade],
 #outline ol[role=cascade] ol {

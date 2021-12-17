@@ -44,6 +44,17 @@ $.config({
     // bindevent: true
 });
 
+// 接口：
+// 本地恢复通知。
+Tpb.build(
+    window,
+    {
+        on: `${Sys.recover}|savedhtml dup pass`,
+        to: "main.content|html"
+    },
+    On, By
+);
+
 // 当前On/By空间
 Tpb.init( On, By )
     .config( tplMaps )

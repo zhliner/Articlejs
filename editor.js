@@ -34,10 +34,13 @@
 //      oncontent: Function     内容源码导入回调，会在编辑器构建就绪后自动触发。
 //                              接口：function(): html|null|Promise<html|null>
 //                              源码会填充到编辑器内容区，null表示忽略。
-//      注：
-//      上级用户也可以对 <iframe> 通过 cimport 事件递送数据导入源码内容，
-//      该导入会进入编辑历史栈，即可撤销（Undo/Redo）。
 //  }
+//
+//  事件接口：
+//      用户可以对编辑器实例内的 <iframe> 元素发送事件执行一些功能。
+//      - recover   请求编辑器从本地存储中恢复内容（如果有）。
+//      - cimport   递送源码作为内容导入，该操作会进入历史栈（可被 Undo）。
+//
 //
 //  Editor接口：
 //      .load(): Promise<Editor> 编辑器初始化
@@ -390,8 +393,12 @@ function editorFrame( width, height ) {
     if ( height !== undefined ) {
         _frm.style.height = sizeValue( height );
     }
+
     // 内容导入请求监听
     _frm.addEventListener( Sys.importCons, ev => trigger(_frm.contentWindow, Sys.importCons, ev.detail) );
+
+    // 从本地存储恢复请求监听
+    _frm.addEventListener( Sys.recover, () => trigger(_frm.contentWindow, Sys.recover) );
 
     return _frm;
 }

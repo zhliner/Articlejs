@@ -14,14 +14,15 @@
     let _ebox = $.get( '#editorBox' ),
         _fun2 = [ $.removeClass, $.addClass ],
         _opts = {
-            onsaved: html => window.console.info(html),
+            onsaved: html => window.console.info(`${html.length} bytes content was saved.`),
             onmaximize: num => _fun2[ num ]( _ebox, '_full' ),
         },
         _nav = $.get( '#navbar' );
 
     coolj.create( _opts )
         .load( _ebox )
-        .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && ed )
+        // 恢复：样式 && 内容
+        .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && $.trigger(ed.frame(), 'recover') && ed )
         .then( ed => ed.frame().contentWindow.focus() )
         // 1小时内点亮Logo
         .then( () => tickdoing(36000) );

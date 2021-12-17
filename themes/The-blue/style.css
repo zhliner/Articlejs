@@ -623,6 +623,12 @@ menu._cells code {
 /* [ 顶层 ]
  ****************************************************************************/
 
+#outline > nav > h3,
+#help > nav {
+    height: 46px;
+    box-sizing: border-box;
+}
+
 /* 级联表 */
 #outline ol[role=cascade],
 #outline ol[role=cascade] ol {
@@ -703,7 +709,7 @@ menu._cells code {
     font-size: 1.1em;
     padding: 12px 1em;
     font-weight: normal;
-    background-color: #176980;
+    background-color: #297d94;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -768,7 +774,7 @@ menu._cells code {
     display: flex;
     padding: 5px;
     border-bottom: 1px #bbb inset;
-    background-color: #176980;
+    background-color: #297d94;
     border-radius: inherit;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -1663,7 +1669,7 @@ menu._cells code {
 .Status > ._cmdline > input {
     height: 100%;
     border: none;
-    background-color: #edfcf8;
+    background-color: #edfafc;
     float: left;
 }
 .Status > ._cmdline > input::placeholder {

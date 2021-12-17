@@ -163,6 +163,7 @@
             <header>
                 <p>文章结构良好有着十分重要的意义，它不但让大纲清晰，易于理解，而且也可以让样式共享成为可能。共享样式意义重大，它使得样式可以由专业的人员来制作，设计精美，而文章的作者也可以只专注于内容本身。</p>
                 <p>依通常的情形和需求，这里提供最多5个层级的支持，分别命名为：<strong>章</strong>、<strong>节</strong>、<strong>区</strong>、<strong>段</strong>、<strong>末</strong>。它们逐层嵌套，每一层都由一个 <code>&lt;section&gt;</code> 封装，为便于识别和定位，<code>&lt;section&gt;</code> 元素上分别定义 <code>role</code> 属性值为：<code>s1 ~ s5</code>。</p>
+                <p>设计合理并规范化的层次结构，能让文章的<strong>大纲</strong>层次清晰，便于阅读甚至<strong>按章节</strong>进行引用和分享。</p>
             </header>
             <section role="s1">
                 <h2 id="层次">层次</h2>
@@ -937,12 +938,6 @@
                                 <td><code><b role="kw">lit</b></code></td>
                                 <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>lit]</code></td>
                                 <td>literal (true, iota, ...)</td>
-                            </tr>
-                            <tr style="display: none;">
-                                <td>字符串</td>
-                                <td><code><b role="kw">str</b></code></td>
-                                <td><code><b role="tag">b</b>[<b role="atn">role</b><b role="op">=</b>str]</code></td>
-                                <td>string</td>
                             </tr>
                             <tr>
                                 <td>数值</td>
