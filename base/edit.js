@@ -1356,7 +1356,7 @@ let
     // 主面板根元素
     slavePanel = null,
 
-    // 当前微编辑对象暂存。
+    // 当前微编辑对象暂存
     currentMinied = null;
 
 
