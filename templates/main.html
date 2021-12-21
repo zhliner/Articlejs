@@ -462,12 +462,12 @@
             off|evo(3) lose;
             on|evo(3) lose(0)"
         by="Kit.errmsg(_1)"
-        to="body|trigger('focus.content') goto('tips');
+        to="body|trigger('focus.content')|goto('tips');
             #x-help|trigger('help');
             -|addClass;
             -|removeClass;
             /a|trigger('clear')">
-        <a data-hid="" title="这里也设置提示，便于超长的信息可以简单查看"
+        <a data-hid="" title="超长信息便于简单查看"
             on="setv|ev('detail');
                 clear|(null)"
             to="|attribute('-hid title text');
