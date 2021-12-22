@@ -6282,11 +6282,9 @@ export const Kit = {
 
     /**
      * 构造可插入的条目选单集。
-     * 目标：暂存区/栈顶1项。
-     * 目标为内容区已选取元素集。
      * 注记：
      * 选单条目定义在同一个模板文件中且已经载入。
-     * @data: [Element]
+     * @data: [Element] 已选取集
      * @param  {String} type 位置类型（siblings|children）
      * @return {[Element]|null} 选单元素集（[<option>]）
      */
@@ -6294,8 +6292,8 @@ export const Kit = {
         if ( !evo.data.length ) {
             return null;
         }
-        let _ts = TplsPool.get( TplrName ),
-            _ns = __levelHandles[type]( evo.data );
+        let _ns = __levelHandles[type]( evo.data ),
+            _ts = TplsPool.get( TplrName );
 
         return _ns.length ? _ns.map( n => _ts.node(n) ) : null;
     },
@@ -6727,6 +6725,26 @@ export const Kit = {
     },
 
     __puthtml: 1,
+
+
+    /**
+     * 主动插入主标题（h1）。
+     * 用于内容区为空时初始的录入定位，
+     * 否则缺乏位置参考，录入面板的条目选单无内容。
+     * 注记：
+     * 进入编辑历史栈，因为内容区为空可能由用户删除全部内容导致。
+     * @data: String 标题内容（提示文本）
+     */
+    heading( evo ) {
+        if ( contentElem.childElementCount > 0 ) {
+            return;
+        }
+        let _fn = h1 => $.prepend( contentElem, h1 );
+
+        historyPush( new DOMEdit(_fn, $.elem('h1', evo.data)) );
+    },
+
+    __heading: 1,
 
 
     /**
@@ -7447,6 +7465,7 @@ processExtend( By, 'Ed', Edit, [
 processExtend( By, 'Kit', Kit, [
     'ecancel',
     'puthtml',
+    'heading',
     'errmsg',
     'chapter',
     'save',

@@ -248,7 +248,7 @@
         <!--内容区：
             click(*)|avoid 取消链接单击跳转。
             focus(audio,video) 单击选取在音/视频元素上无效，故借助聚焦（但无键盘按键信息）。
-            cancel 选取集取消（ESC）。
+            cancel  选取集取消（ESC）。
             mouseup 弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
             mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
             mouseleave|end 重置状态栏，除非已有计数指定。
@@ -256,11 +256,13 @@
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。注：keyup-全选，focus-无点击进入。
             puthtml 整体导入内容源码（可撤销），同时滚动到顶部。
                     注：微编辑状态下无效，否则新内容中普通操作无效。
+            click(~) 在内容区为空时主动插入一个主标题。
         -->
         <main id="content" class="content"
             on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) SCAM;
                 cancel|stop env('minied') end;
                 puthtml|env('minied') end ev('detail');
+                click(~)|stopAll ('请在此输入标题内容');
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
@@ -271,20 +273,19 @@
                 mouseup([contenteditable]) keyup([contenteditable]) input focus([contenteditable])|env('minied') pass sRange pop xRange stop"
             by="Ed.click(_1);
                 Kit.ecancel;
-                Kit.puthtml (0)"
+                Kit.puthtml (0);
+                Kit.heading"
             to="#g-count|trigger('reset');
                 #g-count|trigger('reset');
                 ._scroll/|scrollTop|fire('#g-count', 'reset');
+                -;
                 =|addClass;
                 =|removeClass;
                 #status-info|trigger('info');
                 #g-count|trigger('reset');
                 #g-cells|trigger('store');
                 #g-cmenu|trigger('show')">
-            <hgroup>
-                <h1>文章内容的规范化结构</h1>
-                <h3>—— 简单干净的源码，清爽愉悦的阅读</h3>
-            </hgroup>
+            <h1>请在此输入标题内容</h1>
         </main>
     </div>
     <div class="_state">
