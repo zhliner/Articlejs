@@ -13,7 +13,6 @@
 //  - begin:    {RegExp} 起始匹配式。
 //  - end:      {RegExp} 结束匹配式。复杂格式的块数据才需要，可选。
 //  - handle:   {Function} 匹配结果进阶处理，可选。
-//  - block:    [String] 块数据边界标识对，辅助块代码拆分成多行后的标注，可选。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,7 +73,6 @@ class Go extends Hicode {
                 type:   'comments',
                 begin:  RE.COMMENT_B,
                 handle: htmlEscape,
-                block:  [ '/*', '*/' ]
             },
             {
                 type:   'string',
@@ -85,7 +83,6 @@ class Go extends Hicode {
                 type:   'string',
                 begin:  RE.STRING_RAW,
                 handle: htmlEscape,
-                block:  [ '`', '`' ]
             },
             {
                 // runes

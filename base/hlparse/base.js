@@ -8,7 +8,7 @@
 //
 //  代码高亮解析通用框架。
 //
-//  各语言继承 Hicode 基类，定义匹配器序列（Object5）或实现定制处理（Object5.handle）。
+//  各语言继承 Hicode 基类，定义匹配器序列（Object4）或实现定制处理（Object4.handle）。
 //  如果需要复用其它语言的实现，创建 Hicolor 实例即可，
 //  比如 HTML 中对 Javascript 或 CSS 的嵌入处理。
 //
@@ -18,7 +18,7 @@
 //
 //  配置对象
 //  --------
-//  Object5 {
+//  Object4 {
 //      type:   {String}    类型名，约定俗成的规范名，可选
 //      begin:  {RegExp}    起始匹配式
 //      end:    {Function}  匹配结束检测器，可选
@@ -119,8 +119,8 @@ const
 //
 class Hicode {
     /**
-     * Object5说明见页顶。
-     * @param {[Object5]} matches 匹配器集
+     * Object4说明见页顶。
+     * @param {[Object4]} matches 匹配器集
      * @param {RegExp|[RegExp]} skip 简单跳过匹配式（集）
      */
     constructor( matches, skip = __reIgnore ) {
@@ -180,25 +180,6 @@ class Hicode {
         this._plain( _chs, _buf );
 
         return _buf.flat();
-    }
-
-
-    /**
-     * 创建注释。
-     * 默认实现为C语言风格的行注释和块注释。
-     * 具体的语言可覆盖本实现。
-     * 可用于代码编辑中即时注释目标内容。
-     * 返回值：
-     * 块注释返回单个字符串，行注释返回一个行集合。
-     * @param  {String} text 待注释文本
-     * @param  {Boolean} block 为块注释，可选
-     * @return {String|[String]}
-     */
-    comment( text, block ) {
-        if ( block ) {
-            return `/* ${text} */`;
-        }
-        return text.split( '\n' ).map( s => `// ${s}` );
     }
 
 
@@ -317,7 +298,7 @@ class Hicode {
     /**
      * 跳过匹配式对象构建。
      * @param  {RegExp|[RegExp]} res 匹配式（集）
-     * @return {Object5|[Object5]}
+     * @return {Object4|[Object4]}
      */
     _skipObj( res ) {
         if ( $.isArray(res) ) {
@@ -402,16 +383,6 @@ const RE = {
 
 
 /**
- * HTML转义处理。
- * @param  {String} txt 目标字符串
- * @return {String}
- */
-function htmlEscape( txt ) {
-    return txt.replace( /[&<>]/gm, ch => __escapeMap[ch] );
-}
-
-
-/**
  * 词序列转为正则表达式。
  * 所有的空白都会被清除，词区分大小写。
  * 返回值：
@@ -457,6 +428,16 @@ function regexpEscape( txt, re, type ) {
     }
 
     return _buf.length ? _buf : htmlEscape( txt );
+}
+
+
+/**
+ * HTML转义处理。
+ * @param  {String} txt 目标字符串
+ * @return {String}
+ */
+function htmlEscape( txt ) {
+    return txt.replace( /[&<>]/gm, ch => __escapeMap[ch] );
 }
 
 
