@@ -18,7 +18,7 @@ import { customGetter } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { getType } from "./base.js";
 import { highLight } from "./coding.js";
-import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
+import { htmlBlock, htmlList, codeWraps } from "./highlight.js";
 import { Sys, On } from "../config.js";
 
 

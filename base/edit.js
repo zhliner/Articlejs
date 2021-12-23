@@ -31,7 +31,7 @@ import cfg from "./shortcuts.js";
 
 // 专项导入
 import { saveCode } from "./shedit.js";
-import { htmlBlock, htmlList, codeWraps } from "./coloring.js";
+import { htmlBlock, htmlList, codeWraps } from "./highlight.js";
 import { propertyProcess, propertyData, propertyData2 } from "./property.js";
 import { Select, Filter, Search, Command, Calcuate, typeRecord, CmdNav, cmdlineInit } from "./cmdline.js";
 import { pluginsName } from "./plugins.js";

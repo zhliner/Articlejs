@@ -1,5 +1,5 @@
-//! $ID: main.js 2021.01.19 Cooljed.Highlight $
-// ++++++++++++++++++++++++++++++++++++++++++++++++
+//! $ID: main.js 2021.01.19 Cooljed.HLParse $
+// ++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
@@ -114,7 +114,7 @@ class Hicolor {
      * 返回值：
      * Object2 {
      *      type?: {String}
-     *      text:  {String|[Object2|String]}  // 嵌入支持
+     *      text:  {String|[Object2|String]}
      * }
      * Object2x {
      *      // 子语法块封装
@@ -127,8 +127,7 @@ class Hicolor {
         let _buf = [];
 
         for ( const obj of this._inst.parse(this._code) ) {
-            let _hi = obj instanceof Hicolor;
-            if ( !_hi ) {
+            if ( !(obj instanceof Hicolor) ) {
                 _buf.push( obj );
                 continue;
             }

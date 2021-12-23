@@ -262,7 +262,7 @@
             on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) SCAM;
                 cancel|stop env('minied') end;
                 puthtml|env('minied') end ev('detail');
-                click(~)|stopAll ('请在此输入标题内容');
+                click(~)|stopAll ('文章主标题，单击开启');
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
@@ -285,7 +285,6 @@
                 #g-count|trigger('reset');
                 #g-cells|trigger('store');
                 #g-cmenu|trigger('show')">
-            <h1>请在此输入标题内容</h1>
         </main>
     </div>
     <div class="_state">

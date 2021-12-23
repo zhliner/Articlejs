@@ -15,11 +15,6 @@
         width: 800px;
         margin-left: 21em;
     }
-    .main header[role=abstract] {
-        width: 700px;
-        margin: 50px;
-        box-sizing: border-box;
-    }
 </style>
 <script type="module" async>
     import { Tpb } from "../base/tpb/tpb.esm.js";
@@ -43,8 +38,7 @@
             <p>最后，内容块其实并不是最终的实体文本，最终的实体文本是纯文本或内联单元，如：重点（<code>&lt;strong&gt;</code>）、强调（<code>&lt;em&gt;</code>）、代码（<code>&lt;code&gt;</code>）、注音（<code>&lt;ruby&gt;</code>）、缩写（<code>&lt;abbr&gt;</code>）、标记（<code>&lt;mark&gt;</code>）、图片（<code>&lt;img&gt;</code>）、视频（<code>&lt;video&gt;</code>）等等。</p>
             <p><strong>注：</strong>一篇层级适当的文章通常只有<strong>3-4</strong>个层级，即：<strong>章/节/区/段</strong>。再多的层级并不常见，阅读友好性也会变差。</p>
         </header>
-        <!--On: 构造章节选择器，定位显示到视口。
-                兼容ID锚跳转（不取消默认行为：avoid） -->
+        <!-- click(a) 构造章节选择器，定位显示到视口。兼容ID锚跳转（未设置avoid） -->
         <nav role="toc"
             on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h3>【目 录】</h3>
@@ -227,10 +221,10 @@
                     <aside>
                         <h3>附：Markdown解析</h3>
                         <ul>
-                            <li>每一级标题之后的内容即为该标题相关的 <code>&lt;section&gt;</code>。</li>
-                            <li>如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为 <code>&lt;header&gt;</code>。</li>
-                            <li>如果内容中已经没有下级标题，则视为正文内容。</li>
-                            <li>如果子标题不是顺次递减而是跨级，也视为正文内容，但内部子标题继续解析。但这通常是内容组织不太合理的表现。</li>
+                            <li>每一级标题之后的内容即为该标题关联的片区（<code>&lt;section&gt;</code>）。</li>
+                            <li>如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为导言部分（<code>&lt;header&gt;</code>）。</li>
+                            <li>如果内容中已经没有下级标题，即视为正文内容。</li>
+                            <li>如果子标题不是顺次递减而是跨级，也可视为正文内容，内部子标题继续递进解析。但这通常是内容组织不合理的表现，应当改进。</li>
                         </ul>
                     </aside>
                 </section>

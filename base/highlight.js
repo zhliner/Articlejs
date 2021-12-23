@@ -1,5 +1,5 @@
-//! $ID: coloring.js 2020.02.07 Cooljed.Libs $
-//++++++++++++++++++++++++++++++++++++++++++++++++
+//! $ID: highlight.js 2020.02.07 Cooljed.Libs $
+//+++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
@@ -8,7 +8,7 @@
 //
 //  代码高亮着色渲染工具集。
 //
-//  将代码高亮解析器（/highlight）解析的结果进行HTML封装。
+//  将代码高亮解析器（hlparse/）解析的结果进行HTML封装。
 //  同时也提供代码即时编辑时提取必要的修订文本段。
 //
 //  跨行语法：
@@ -203,12 +203,12 @@ export function htmlList( obj, code ) {
 /**
  * HTML高亮源码渲染封装。
  * 将解析结果对象中的文本进行封装，如果有内嵌子块，则递进处理。
- * Object3: {
- *      text, type?, block?
+ * Object2: {
+ *      text, type?
  * }
- * 实参 Object2: {
+ * 实参 Object2x: {
  *      lang: 子块语言，可选
- *      data: 子块解析集（{[Object3|Object2]}）
+ *      data: 子块解析集（{[Object2|Object2x]}）
  * }
  * 返回值：
  * String: 已渲染源码（<b>,<s>,<i>, #text）。
@@ -217,7 +217,7 @@ export function htmlList( obj, code ) {
  *      data: 子块源码集（{[String|Object2]）
  * }
  * @param  {String} lang 所属语言
- * @param  {[Object3|Object2]} objs 解析结果集
+ * @param  {[Object2|Object2x]} objs 解析结果集
  * @param  {Function} wrap 封装函数（htmlBlock|htmlList）
  * @return {[Element]} 封装元素集（[<code>]）
  */

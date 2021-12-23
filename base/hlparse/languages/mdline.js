@@ -1,4 +1,4 @@
-//! $ID: normal.js 2021.01.24 Cooljed.Highlight $
+//! $ID: mdline.js 2021.12.23 Cooljed.HLParse $
 // ++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
@@ -6,8 +6,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  普通代码简单格式。
-//  仅包含常见的C风格注释（行/块）和单/双引号字符串标记。
+//  MarkDown 单行语法。
+//  这是对 MarkDown 语法的逻辑拆解：行块+单行 之一。
+//  注：
+//  主要用于用户在 Cooljed 编辑器中粘贴从 .md 文件中拷贝而来的代码。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,7 +18,7 @@
 import { Hicode, RE, htmlEscape, stringEscape } from "../base.js";
 
 
-class Normal extends Hicode {
+class MdLine extends Hicode {
     /**
      * 传递匹配集构造。
      */
@@ -47,4 +49,4 @@ class Normal extends Hicode {
 }
 
 
-export { Normal };
+export { MdLine };

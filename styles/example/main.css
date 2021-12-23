@@ -1,8 +1,14 @@
-/*! example/main.css 2019.11.16 Cooljed.Style $
+/*! example/main.css 2021.12.23 Cooljed.Style $
  ++++++++++++++++++++++++++++++++++++++++++++++++++
  *
- *  基本样式的格式示例，
- *  其它样式可据此结构修改创建。
+ *  基本样式的格式范例。
+ *  其它样式可据此结构修改或创建。
+ *
+ *  说明：
+ *  文章内容通常在一个<main>元素内，但这里并不作强制限定，
+ *  取而代之的，是内容容器需要设置为 content 类名。
+ *
+ *  因此这里目标定位中的前置 .content 不应当省略。
  *
  *  @name   example
  *  @author 风林 zhliner@gmail.com
@@ -233,7 +239,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     cursor: default;
 }
 
-/* 目录级联编号 */
+/* 目录级联表 */
 .content nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 70px);
     overflow-y: auto;

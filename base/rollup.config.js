@@ -16,6 +16,6 @@ export default {
         '../config.js',
         './shortcuts.js',
         '../index.js',
-        /\/(?:tpb|tquery|highlight)\//,
+        /\/(?:tpb|tquery|hlparse)\//,
     ],
 }
