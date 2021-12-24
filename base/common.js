@@ -1194,3 +1194,14 @@ export function niceHtml( node, tabs, prefix = '' ) {
     }
     return node.outerHTML || node + '';
 }
+
+
+/**
+ * MarkDown单行解析。
+ * 用于自动处理录入框中粘贴的MD标记源码。
+ * @param  {String} code MD源码
+ * @return {String} 解析并构造的HTML源码
+ */
+export function markdownLine( code ) {
+    //
+}

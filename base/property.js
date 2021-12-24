@@ -513,6 +513,8 @@ function dataDatetime2( els, date, time, cite ) {
 
 /**
  * 代码语言解析处理（单目标）。
+ * 如果解析得多个子语法块，会合并在一起，
+ * 也因此子块不应当清除首尾换行。
  * @param  {Element} el 代码元素
  * @param  {String} lang 代码语言
  * @return {[String, [Node]]} 语言&着色节点集（lang, [<b>,<i>,#text]）
@@ -526,9 +528,9 @@ function dataCode( el, lang ) {
     let _els = codeWraps(
         null,
         highLight( [_code], lang ),
-        htmlBlock
+        htmlBlock,
+        false
     );
-    // 如果解析得多个子语法块，会合并在一起。
     return [ lang, codeSubs( _els ) ];
 }
 

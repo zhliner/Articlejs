@@ -632,9 +632,6 @@ class MiniEdit {
         // 原生调用。
         el.replaceWith( this._cp );
         this._cp.setAttribute( 'contenteditable', true );
-
-        // 块数据边界符补足。
-        // this._b2c = [];
     }
 
 
@@ -743,7 +740,10 @@ class MiniEdit {
 
         if ( _tv === T.PRE || _tv === T.CODE ) {
             cleanCall( () => $('br', el).replace('\n') );
-            if ( _tv === T.CODE ) this._codeparse( el );
+
+            if ( _tv === T.CODE ) {
+                cleanCall( () => this._codeparse(el) );
+            }
         }
         else {
             cleanCall( () => $('>b, >i', el).unwrap() );
@@ -766,7 +766,7 @@ class MiniEdit {
             el,
             // 如果存在多个子语法块，简单合并。
             // 注记：与属性修改的重新解析保持一致行为。
-            codeWraps( null, highLight([el.textContent], _lang), htmlBlock ).map( e => e.innerHTML ).join( '' )
+            codeWraps( null, highLight([el.textContent], _lang), htmlBlock, false ).map( e => e.innerHTML ).join( '' )
         );
     }
 

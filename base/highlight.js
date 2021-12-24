@@ -122,9 +122,9 @@ function textSubs( objs ) {
 
 /**
  * 子块首尾换行清除。
- * 在一个新的子语法块的两端，如果是一个单纯的换行，则清除之。
- * 避免代码表将之视为一个空行。
- * @param {[Object3|Object2]} objs 解析结果集
+ * 在一个新的子语法块的两端，如果只是一个单纯的换行，则清除之。
+ * 这可以避免被视为一个空行，因为它实际上只是两块不同语言代码的切换（而不应当再有一个空行）。
+ * @param {[Object2|Object2x]} objs 解析结果集
  */
 function trimNL( objs ) {
     let _o1 = objs[ 0 ],
@@ -205,9 +205,10 @@ export function htmlList( obj, code ) {
  * @param  {String} lang 所属语言
  * @param  {[Object2|Object2x]} objs 解析结果集
  * @param  {Function} wrap 封装函数（htmlBlock|htmlList）
+ * @param  {Boolean} clean 子语法块首尾换行清理，可选
  * @return {[Element]} 封装元素集（[<code>]）
  */
-export function codeWraps( lang, objs, wrap ) {
+export function codeWraps( lang, objs, wrap, clean = true ) {
     let _buf = [],
         _box = create( T.CODE, {lang} );
 
@@ -217,7 +218,7 @@ export function codeWraps( lang, objs, wrap ) {
             _box = _buf[ _buf.length-1 ];
             continue;
         }
-        _buf.push( ...codeWraps(o.lang, trimNL(o.data), wrap) );
+        _buf.push( ...codeWraps(o.lang, clean ? trimNL(o.data) : o.data, wrap) );
         // 子块结束，
         // 开启一个同语种新容器。
         _box = create( T.CODE, {lang} );
