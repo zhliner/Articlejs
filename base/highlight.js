@@ -192,16 +192,16 @@ export function htmlList( obj, code ) {
  * Object2: {
  *      text, type?
  * }
- * 实参 Object2x: {
+ * Object2x: {
  *      lang: 子块语言，可选
  *      data: 子块解析集（{[Object2|Object2x]}）
  * }
- * 返回值：
- * String: 已渲染源码（<b>,<s>,<i>, #text）。
- * Object2: {
- *      lang: 子块语言
- *      data: 子块源码集（{[String|Object2]）
- * }
+ * 注记：
+ * 不同子语法块可能被封装在不同的<code>内，形成天然的分隔，
+ * 因此源码中不同子块间的换行分隔应当清除，避免被当作一个有效空行。
+ *
+ * 如果不同子语法块混合在一个<code>内，则这样的分隔就需要保留，因此clean参数是必要的。
+ * 这在代码的属性修改和微编辑中会牵涉到（被合并）。
  * @param  {String} lang 所属语言
  * @param  {[Object2|Object2x]} objs 解析结果集
  * @param  {Function} wrap 封装函数（htmlBlock|htmlList）
