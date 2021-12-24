@@ -729,17 +729,12 @@ class MiniEdit {
 
     /**
      * 清理目标元素内容。
-     * - 替换 <pre> 和 <code> 内的 <br> 元素为换行字符（\n），
-     *   确保不同浏览器的兼容性。
-     * - 解包非代码内的 <b> 和 <i> 直接子元素，
-     *   它们由浏览器默认行为带来（格式元素删除后遗留了样式）。
+     * - 替换 <pre> 和 <code> 内的 <br> 元素为换行字符（\n），确保不同浏览器的兼容性。
+     * - 解包非代码内的 <b> 和 <i> 直接子元素，它们由浏览器默认行为带来（格式元素删除后遗留了样式）。
+     * - 如果是代码元素且有语言定义，重新解析语法高亮。
      * 注记：
-     * 代码与普通内容单元相同对待，不会自动重解析着色。
-     * 如果需要重新解析着色，可通过属性对话框选取目标语言进行处理。
-     * 理由：
-     * 因为代码表中的行很难单独解析（缺乏上下文），而微编辑只是一种修订模式，
-     * 且用户可以选择着色元素（<b>|<i>...）本身进行编辑。
-     * 通过属性框重新解析很简单，拆解出这一单独步骤是可取的。
+     * 仅在<code>上有语言定义时才解析，这通常适用代码块单元。
+     * 对于代码表中的子语法块行，可能因为缺乏上下文而解析错误，但此友好大多数情况。
      * @param  {Element} el 目标元素
      * @return {void}
      */
@@ -748,8 +743,31 @@ class MiniEdit {
 
         if ( _tv === T.PRE || _tv === T.CODE ) {
             cleanCall( () => $('br', el).replace('\n') );
+            if ( _tv === T.CODE ) this._codeparse( el );
         }
-        else cleanCall( () => $('>b, >i', el).unwrap() );
+        else {
+            cleanCall( () => $('>b, >i', el).unwrap() );
+        }
+    }
+
+
+    /**
+     * 代码高亮解析。
+     * 注记：
+     * 代码表中的行通常没有语言定义（非子语法块时），
+     * 如果需要重新解析高亮，用户可通过属性框对该行或整个代码表重新解析。
+     * @param  {Element} el 目标元素
+     * @return {void}
+     */
+    _codeparse( el ) {
+        let _lang = $.attr( el, '-lang' );
+
+        _lang && $.html(
+            el,
+            // 如果存在多个子语法块，简单合并。
+            // 注记：与属性修改的重新解析保持一致行为。
+            codeWraps( null, highLight([el.textContent], _lang), htmlBlock ).map( e => e.innerHTML ).join( '' )
+        );
     }
 
 }
@@ -6441,7 +6459,7 @@ export const Kit = {
      * @data: String 原始代码
      * @param  {Number} tab Tab空格数
      * @param  {String} lang 代码语言
-     * @return {[Object3|Object2]} 高亮配置对象集
+     * @return {[Object2|Object2x]} 高亮配置对象集
      */
     hlcode( evo, tab, lang ) {
         return highLight( evo.data.split(__reNewline), lang, tab );
@@ -6454,7 +6472,7 @@ export const Kit = {
      * 分解构造代码集。
      * 顶层不需要传递语言实参（已解析）。
      * 返回合法的子元素序列，无需再设置<code>属性。
-     * @data: [Object3|Object2]
+     * @data: [Object2|Object2x]
      * @return {[Element]} 代码行集（[<code>]）
      */
     codels( evo ) {
@@ -6467,7 +6485,7 @@ export const Kit = {
     /**
      * 分解构造代码块。
      * 如果有嵌入其它语言，会有子块存在。
-     * @data: [Object3|Object2]
+     * @data: [Object2|Object2x]
      * @param  {String} lang 所属语言（顶层）
      * @return {[Element]} 代码块子块集（[<code>]）
      */
@@ -6476,22 +6494,6 @@ export const Kit = {
     },
 
     __codeblo: 1,
-
-
-    /**
-     * 合并提取源码。
-     * 用于内联代码单元构建，通常只有单种语言。
-     * 如果有多种语言代码，会被简单合并。
-     * @data: [Object3|Object2]
-     * @return {String} 已渲染源码
-     */
-    codehtml( evo ) {
-        return codeWraps( null, evo.data, htmlBlock )
-            .map( el => el.innerHTML )
-            .join( '' );
-    },
-
-    __codehtml: 1,
 
 
     /**
@@ -7532,7 +7534,6 @@ customGetter( On, null, Kit, [
     'hlcode',
     'codels',
     'codeblo',
-    'codehtml',
     'image3',
     'mediasubs',
     'picsubs',

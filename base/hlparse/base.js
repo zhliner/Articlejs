@@ -200,15 +200,15 @@ class Hicode {
     _parseOne( ss, res ) {
         for ( let {type, begin, end, handle} of res ) {
             let _beg = begin.exec( ss ),
-                _sure;
+                _val;
 
             // 仅从开头匹配，容错不规范正则式。
             if ( _beg && _beg.index === 0 ) {
-                _sure = end ?
+                _val = end ?
                     this._range( _beg.slice(), ss.substring(_beg[0].length), end, type, handle ) :
                     this._alone( _beg, type, handle );
             }
-            if ( _sure ) return _sure;
+            if ( _val ) return _val;
         }
         return null;
     }
@@ -249,10 +249,7 @@ class Hicode {
         let _txt = handle && handle( ...beg );
 
         return _txt !== false &&
-        [
-            this._custom( _txt, type, beg[0] ),
-            beg[0].length
-        ];
+            [ this._custom(_txt, type, beg[0]), beg[0].length ];
     }
 
 
@@ -329,7 +326,7 @@ class Hicode {
 
 
     /**
-     * 数值返回集处理。
+     * 数组返回集处理。
      * 如果成员为字符串，表示其为匹配目标类型的文本。
      * 否则应当是一个 Object2 对象（包含 type 定义）。
      * 会滤除值为 null|undefined 的成员。

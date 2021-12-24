@@ -21,7 +21,7 @@ const
     // 由用户安装后修改，注意末尾的斜线/。
     // 请同时调整Tpb配置文件（base/tpb/config.js）内的本系模板根URL（tplRoot）。
     //
-    ROOT = 'http://localhost:8080/',
+    ROOT = 'http://localhost:8080/articlejs/',
 
 
     Local = {

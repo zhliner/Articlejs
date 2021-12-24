@@ -276,8 +276,8 @@ export function rangeTextLine( rng, flag, box ) {
  * 如果需要替换Tab为空格，源码需要按行切分，否则无此要求。
  * @param  {[String]} codes 源码（行）集
  * @param  {String} lang 所属语言
- * @param  {Number} tab  Tab 空格数
- * @return {[Object3|Object2]} 高亮解析结果集
+ * @param  {Number} tab  Tab 空格数，可选
+ * @return {[Object2|Object2x]} 高亮解析结果集
  */
 export function highLight( codes, lang, tab ) {
     if ( tab > 0 ) {

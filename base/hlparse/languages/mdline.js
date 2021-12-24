@@ -29,7 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { Hicode } from "../base.js";
+import { Hicode, htmlEscape } from "../base.js";
 
 
 //
@@ -43,13 +43,47 @@ import { Hicode } from "../base.js";
 class MdLine extends Hicode {
     /**
      * 传递匹配集构造。
+     * - type为标签名，对匹配文本进行源码（html）封装。
+     * - 没有type定义时，简单视为源码，无需封装。
      */
     constructor() {
         super([
             {
                 type:   'strong',
                 begin:  /^\*\*(.*?)\*\*/,
-                handle: (_, $1) => $1,
+                handle: (_, $1) => htmlEscape( $1 ),
+            },
+            {
+                type:   'em',
+                begin:  /^\*(.*?)\*/,
+                handle: (_, $1) => htmlEscape( $1 ),
+            },
+            {
+                type:   'code',
+                begin:  /^``(.*?)``/,   // ``xxx`yy`zz``
+                handle: (_, $1) => htmlEscape( $1 ),
+            },
+            {
+                type:   'code',
+                begin:  /^`(.*?)`/,   // `xxx`
+                handle: (_, $1) => htmlEscape( $1 ),
+            },
+            {
+                // type:   'img',
+                begin:  /^!\[(.*?)\]\(\s*([^\s\n\r]+)(?:\s+(["'])(.*?)\3)?\s*\)/,
+                handle: (_, $1, $2, $3, $4) => `<img src="${$2}" alt="${htmlEscape($1)}"${$4 ? ` title="${htmlEscape($4)}"` : ''} />`,
+            },
+            {
+                // type:   'a',
+                // [xxx](url "title"?)
+                begin:  /^\[(.*?)\]\(\s*([^\s\n\r]+)(?:\s+(["'])(.*?)\3)?\s*\)/,
+                handle: (_, $1, $2, $3, $4) => `<a href="${$2}"${$4 ? ` title="${htmlEscape($4)}"` : ''}>${htmlEscape($1)}</a>`,
+            },
+            {
+                // type:   'a',
+                // <url>
+                begin:  /^<((?:https?|ftps?):\/\/[^\s\n\r]+)>/,
+                handle: (_, $1) => `<a href="${$1}">${htmlEscape($1)}</a>`,
             },
         ]);
     }

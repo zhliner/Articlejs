@@ -513,7 +513,6 @@ function dataDatetime2( els, date, time, cite ) {
 
 /**
  * 代码语言解析处理（单目标）。
- * 如果目标语言与原语言相同，则简单忽略。
  * @param  {Element} el 代码元素
  * @param  {String} lang 代码语言
  * @return {[String, [Node]]} 语言&着色节点集（lang, [<b>,<i>,#text]）
@@ -529,6 +528,7 @@ function dataCode( el, lang ) {
         highLight( [_code], lang ),
         htmlBlock
     );
+    // 如果解析得多个子语法块，会合并在一起。
     return [ lang, codeSubs( _els ) ];
 }
 
@@ -546,18 +546,20 @@ function dataCode2( els, lang ) {
 
 /**
  * 代码表语言解析处理（单目标）。
+ * 如果目标语言与原语言相同，默认忽略。
  * @param  {Element} el 代码表元素（<ol>）
  * @param  {String} lang 代码语言
  * @param  {Number} start 首行行号，可选
+ * @param  {Boolean} parse 强制重新解析
  * @return {[Object, [Element]]} 配置对象&行代码集（lang, [<code>]）
  */
-function dataCodeList( el, lang, start ) {
+function dataCodeList( el, lang, start, parse ) {
     let _obj = { '-lang': lang, start },
         _lang = $.attr( el, '-lang' ) || '';
 
     objectValue( _obj, '', null );
 
-    if ( lang === _lang ) {
+    if ( !parse && lang === _lang ) {
         return [ _obj ];
     }
     return [ _obj, codeList(el, lang) ];

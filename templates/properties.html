@@ -172,10 +172,20 @@
 
 <ul class="_prop" tpl-name="property:codelist" data-label="代码表属性"
     on="vinit reset;
-        build|(null) $('form/') pop value('lang start') pack(2)"
+        build|(null) $('form/') pop value('lang start parse') pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
-    <li tpl-node="!prop:start, prop:lang"></li>
+    <li tpl-node="!prop:start"></li>
+    <li
+        on="value|sels attr('-lang') p.vals1"
+        to="/select|val">
+        <b>代码语言</b>
+        <span>
+            <select tpl-node="item:languages"></select>
+            <!-- 未改变语言时有用，如微编辑之后。 -->
+            <label><input type="checkbox" name="parse">重新解析</label>
+        </span>
+    </li>
 </ul>
 
 <ul class="_prop" tpl-name="property:ol" data-label="有序列表属性"

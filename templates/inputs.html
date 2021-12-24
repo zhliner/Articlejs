@@ -130,7 +130,7 @@
 
 <!-- 预排版 -->
 <div class="_body _Pre" tpl-name="input:pre"
-    on="create|$('/pre._code') text val dup pass"
+    on="create|$('/pre._code') text dup pass"
     by="New.pre"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -1591,10 +1591,10 @@
 
 
 <!--内联代码：
-    包括代码块内的<code>子单元。 -->
+    包括代码块内的<code>子单元。
+    源码可能被分解为多个子语法块（如HTML）。 -->
 <div class="_body _Inline" obt-src="obts/codes.json" tpl-name="input:code"
-    on="node|ev('detail') codehtml $('/[name=lang]') val obj('lang')"
-    by="New.code(_1)"
+    on="node|ev('detail') $('/select') val obj('lang') codeblo(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
         <div class="_prop">
@@ -1603,6 +1603,9 @@
     </div>
     <aside>
         <div class="_option">
+            <label>制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
             <label>语言
                 <select tpl-node="item:languages"></select>
             </label>

@@ -23,7 +23,7 @@ const
 
     // 本系模板根URL
     // 用于获取模板节点的Tpb接口，注意末尾的斜线/。
-    tplRoot = 'http://localhost:8080/templates/',
+    tplRoot = 'http://localhost:8080/articlejs/templates/',
 
     // 模板映射集配置
     // 相对于上面的根路径URL。
