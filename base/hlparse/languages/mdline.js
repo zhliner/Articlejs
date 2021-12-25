@@ -79,6 +79,7 @@ class MdLine extends Hicode {
             },
             {
                 // type:   'img',
+                // ![alt](url "title"?)
                 begin:  /^!\[(.*?)\]\(\s*([^\s\n\r]+)(?:\s+(["'])(.*?)\3)?\s*\)/,
                 handle: (_, $1, $2, $3, $4) => `<img src="${$2}" alt="${htmlEscape($1)}"${$4 ? ` title="${htmlEscape($4)}"` : ''} />`,
             },

@@ -6685,7 +6685,7 @@ export const Kit = {
      * @return {String|[String]|DocumentFragment|[DocumentFragment]}
      */
     mdline( evo ) {
-        if ( !Tools.mdline ) {
+        if ( !Tools.mdline || !evo.data ) {
             return evo.data;
         }
         if ( $.isArray(evo.data) ) {

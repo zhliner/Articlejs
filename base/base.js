@@ -584,6 +584,9 @@ export function getType( el ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
+    if ( el.nodeType === 11 ) {
+        return null;
+    }
     let _v = el[ __typeKey ];
 
     if ( _v === undefined ) {

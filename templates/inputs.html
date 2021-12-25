@@ -114,7 +114,7 @@
 
 <!-- 地址 -->
 <div class="_body _Address" obt-src="obts/create.json" tpl-name="input:address"
-    on="node|ev('detail')"
+    on="node|ev('detail') mdline"
     by="New.address"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -150,7 +150,7 @@
 <!--文章标题组
     .hgroup: (data:[String], {h1}, more:true) -->
 <div class="_body _Hgroup" obt-src="obts/list2.json" tpl-name="input:hgroup"
-    on="node|ev('detail') $('/input[name=h1]') val obj('h1') (true)"
+    on="node|ev('detail') mdline $('/input[name=h1]') val obj('h1') (true)"
     by="New.hgroup(_2)"
     to="form/|trigger('instop')">
     <div class="_main">
@@ -475,7 +475,7 @@
 
 <!-- 描述列表 -->
 <div class="_body _Dl" obt-src="obts/list2.json" tpl-name="input:dl"
-    on="node|ev('detail') wrap('<dd>') $('/input[name=dt]') val obj('dt') (true)"
+    on="node|ev('detail') mdline wrap('<dd>') $('/input[name=dt]') val obj('dt') (true)"
     by="New.dl(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -902,7 +902,7 @@
 </div>
 
 <div class="_body _Summary" obt-src="obts/list2.json" tpl-name="input:summary"
-    on="node|ev('detail')"
+    on="node|ev('detail') mdline"
     by="New2.summary"
     to="form/|trigger('insfix')">
     <div class="_main">
@@ -917,7 +917,7 @@
 </div>
 
 <div class="_body _Figcap" obt-src="obts/list2.json" tpl-name="input:figcaption"
-    on="node|ev('detail')"
+    on="node|ev('detail') mdline"
     by="New2.figcaption"
     to="form/|trigger('insfix')">
     <div class="_main">
@@ -932,7 +932,7 @@
 </div>
 
 <div class="_body _Caption" obt-src="obts/list2.json" tpl-name="input:caption"
-    on="node|ev('detail')"
+    on="node|ev('detail') mdline"
     by="New2.caption"
     to="form/|trigger('insfix')">
     <div class="_main">
@@ -962,7 +962,7 @@
 </div>
 
 <div class="_body _Dt" obt-src="obts/list2.json" tpl-name="input:dt"
-    on="node|ev('detail') wrap('<li>')"
+    on="node|ev('detail') mdline"
     by="New2.dt"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -977,7 +977,7 @@
 </div>
 
 <div class="_body _Dd" obt-src="obts/list2.json" tpl-name="input:dd"
-    on="node|ev('detail') wrap('<li>')"
+    on="node|ev('detail') mdline"
     by="New2.dd"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -1191,7 +1191,7 @@
 
 <div class="_body _Xolah4li" tpl-name="input:xolah4li"
     on="create|$('/[name=text]') val dup pass $('form/') valo('href title target') clean('', null);
-        xlist|$('/textarea') val splitx(true) wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
+        xlist|$('/textarea') val splitx(true) mdline wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
     by="New.a(_1);
         New.xolah4li(_1)"
     to="|trigger('xlist');
@@ -1468,7 +1468,7 @@
 </div>
 
 <div class="_body _Explain" obt-src="obts/create.json" tpl-name="input:explain"
-    on="node|ev('detail') $('/[name=position]') val or(null) obj('fix')"
+    on="node|ev('detail') mdline $('/[name=position]') val or(null) obj('fix')"
     by="New.explain(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">

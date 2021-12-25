@@ -1,5 +1,5 @@
 {
     "//": "提取文本，可选空白清理和空行分段。",
-    "on": "create|$('/textarea') val dup pass $$('/._option input') prop('checked') pretreat2(_)",
+    "on": "create|$('/textarea') val dup pass $$('/._option input') prop('checked') pretreat2(_) mdline",
     "to": "|trigger('nodes')"
 }
