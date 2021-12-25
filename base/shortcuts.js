@@ -496,7 +496,7 @@ Content: [
 
     // 原地克隆（成组）。
     // 选取集内相邻元素分组克隆，插入原组之前（before）。
-    // 注记：与焦点元素无关。
+    // 注：与焦点元素无关。
     {
         "key":      ":c",
         "command":  "elementCloneTeam"
@@ -504,70 +504,70 @@ Content: [
 
     // 原地克隆（各别）。
     // 选取集成员克隆插入原元素之前（before），各自独立。
-    // 注记：与焦点元素无关。
+    // 注：与焦点元素无关。
     {
         "key":      "shift:c",
         "command":  "elementCloneSelf"
     },
 
 
-    // 克隆填充。
+    // 移动填充。
     // 将选取元素或其内容填充到焦点元素内。
     {
         "key":      ":f",
-        "command":  "elementCloneFill"
-    },
-
-    // 移动填充。
-    {
-        "key":      "shift:f",
         "command":  "elementFill"
     },
 
-    // 克隆内插入。
+    // 克隆填充。
+    {
+        "key":      "shift:f",
+        "command":  "elementCloneFill"
+    },
+
+
+    // 移动内插入。
     // 即普通子单元添加，将选取元素或其内容添加到焦点元素内。
     {
         "key":      ":d",
-        "command":  "elementCloneAppend"
-    },
-
-    // 移动内插入。
-    {
-        "key":      "shift:d",
         "command":  "elementAppend"
     },
 
-
-    // 克隆式前插入。
-    // 将选取元素插入到焦点元素之前。
-    // 如果位置非法，会提取内容构建默认单元插入。
-    // 注记：焦点元素可以作为数据源。
+    // 克隆内插入。
     {
-        "key":      ":i",
-        "command":  "elementCloneBefore"
+        "key":      "shift:d",
+        "command":  "elementCloneAppend"
     },
 
+
     // 移动式前插入。
-    // 说明参考上面，焦点元素不可选取。
+    // 将选取元素插入到焦点元素之前，如果位置非法，会提取内容构建默认单元插入。
+    // 焦点元素不可选取。
     {
-        "key":      "shift:i",
+        "key":      ":i",
         "command":  "elementBefore"
     },
 
-    // 克隆式后插入。
-    // 将选取元素插入到焦点元素之后。
-    // 如果位置非法，自动提取内容构建默认单元插入。
-    // 注记：焦点元素可以作为数据源。
+    // 克隆式前插入。
+    // 同上规则。但焦点元素可以作为数据源。
     {
-        "key":      ":b",
-        "command":  "elementCloneAfter"
+        "key":      "shift:i",
+        "command":  "elementCloneBefore"
     },
 
+
     // 移动式后插入。
-    // 说明参考上面，焦点元素不可选取。
+    // 将选取元素插入到焦点元素之后，如果位置非法，自动提取内容构建默认单元插入。
+    // 焦点元素不可选取。
+    {
+        "key":      ":b",
+        "command":  "elementAfter"
+    },
+
+    // 克隆式后插入。
+    // 同上规则，但焦点元素可以作为数据源。
     {
         "key":      "shift:b",
-        "command":  "elementAfter"
+        "command":  "elementCloneAfter"
     },
 
 

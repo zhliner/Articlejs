@@ -89,6 +89,7 @@ function languageClass( lang ) {
 //
 // 语法高亮处理器。
 // 使用 __langMap 中配置的具体实现。
+// 支持混入其它语法块，只要通过lang实参构造即可。
 //
 class Hicolor {
     /**

@@ -434,7 +434,7 @@ function regexpEscape( txt, re, type ) {
  * @return {String}
  */
 function htmlEscape( txt ) {
-    return txt.replace( /[&<>]/gm, ch => __escapeMap[ch] );
+    return txt.replace( /[&<>"]/gm, ch => __escapeMap[ch] );
 }
 
 

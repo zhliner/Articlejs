@@ -18,6 +18,8 @@ import { Scripter } from "../config.js";
 import { Render } from "./tpb/tools/render.js";
 import { Spliter, UmpCaller, UmpString } from "./tpb/tools/spliter.js";
 
+import { MdLine } from "./hlparse/languages/mdline.js";
+
 const
     // ID标识字符限定
     __reIDs = /(?:\\.|[\w-]|[^\0-\xa0])+/g,
@@ -26,7 +28,10 @@ const
     __chrDlmt   = ';',
 
     // OBT顶层分组切分器。
-    __dlmtSplit = new Spliter( __chrDlmt, new UmpCaller(), new UmpString() );
+    __dlmtSplit = new Spliter( __chrDlmt, new UmpCaller(), new UmpString() ),
+
+    // 单行MD解析器。
+    __mdLine = new MdLine();
 
 
 
@@ -839,6 +844,17 @@ function warn( msg, data ) {
 }
 
 
+/**
+ * 标签封装。
+ * @param  {String} tag 标签名，可选
+ * @param  {String} html 待封装源码文本
+ * @return {String} 结果源码
+ */
+function tagWrap( tag, html ) {
+    return tag ? `<${tag}>${html}</${tag}>` : html;
+}
+
+
 //
 // HTML格式化
 //----------------------------------------------------------------------------
@@ -1199,9 +1215,11 @@ export function niceHtml( node, tabs, prefix = '' ) {
 /**
  * MarkDown单行解析。
  * 用于自动处理录入框中粘贴的MD标记源码。
+ * 注记：
+ * MdLine只支持顶层标记，因此解析结果是平的（无嵌套子语法块）。
  * @param  {String} code MD源码
  * @return {String} 解析并构造的HTML源码
  */
 export function markdownLine( code ) {
-    //
+    return __mdLine.parse( code ).map( o => tagWrap(o.type, o.text) ).join( '' );
 }

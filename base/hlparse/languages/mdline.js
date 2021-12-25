@@ -32,6 +32,15 @@
 import { Hicode, htmlEscape } from "../base.js";
 
 
+// HTML基本转义集
+const __htmlEntity = {
+    '&':    '&amp;',
+    '<':    '&lt;',
+    '>':    '&gt;',
+    '"':    '&quot;',
+};
+
+
 //
 // type:
 // - strong:    **xx**
@@ -50,22 +59,22 @@ class MdLine extends Hicode {
         super([
             {
                 type:   'strong',
-                begin:  /^\*\*(.*?)\*\*/,
+                begin:  /^\*\*(.+?)\*\*/,
                 handle: (_, $1) => htmlEscape( $1 ),
             },
             {
                 type:   'em',
-                begin:  /^\*(.*?)\*/,
+                begin:  /^\*(.+?)\*/,
                 handle: (_, $1) => htmlEscape( $1 ),
             },
             {
                 type:   'code',
-                begin:  /^``(.*?)``/,   // ``xxx`yy`zz``
+                begin:  /^``(.+?)``/,   // ``xxx`yy`zz``
                 handle: (_, $1) => htmlEscape( $1 ),
             },
             {
                 type:   'code',
-                begin:  /^`(.*?)`/,   // `xxx`
+                begin:  /^`(.+?)`/,   // `xxx`
                 handle: (_, $1) => htmlEscape( $1 ),
             },
             {
@@ -85,7 +94,14 @@ class MdLine extends Hicode {
                 begin:  /^<((?:https?|ftps?):\/\/[^\s\n\r]+)>/,
                 handle: (_, $1) => `<a href="${$1}">${htmlEscape($1)}</a>`,
             },
-        ]);
+
+            {
+                // 特殊HTML字符
+                begin:  /^[&<>"]/,
+                handle: $1 => __htmlEntity[ $1 ],
+            }
+
+        ], null);
     }
 }
 

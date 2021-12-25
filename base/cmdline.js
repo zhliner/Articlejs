@@ -52,7 +52,7 @@
 //      plug-ins    插件安装。
 //      plug-del    插件移除。
 //      help        开启帮助窗口并定位到指定的关键字条目。
-//      config      显示系统配置值。
+//      config      显示&设置系统配置。
 //      eval        在全局环境执行JS代码（非JS eval函数）。
 //
 //
@@ -67,7 +67,7 @@
 import $ from "./tpb/config.js";
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
-import { Cmdx, Tips, Local, Limit, Sys } from "../config.js";
+import { Cmdx, Tips, Local, Limit, Sys, Tools } from "../config.js";
 
 // 工具支持
 import { pluginsInit, pluginsInsert, pluginsDelete } from "./plugins.js";
@@ -524,10 +524,14 @@ class Command {
     /**
      * 部分系统变量查看。
      * @param  {String} name 变量名
+     * @param  {Value} val 设置值，可选
      * @return {Value} 结果值
      */
-    _config( name ) {
-        return Limit[ name ] || Tips.configNothing;
+    _config( name, val ) {
+        if ( val === undefined ) {
+            return Limit[ name ] || Tips.configNothing;
+        }
+        return `Tools.${name}="${Tools[ name ] = val}"`;
     }
 
 

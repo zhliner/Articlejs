@@ -18,11 +18,11 @@
 //
 
 import $, { OBTA, TplrName, TplsPool } from "./tpb/config.js";
-import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By } from "../config.js";
+import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Tools } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, compatibleNoit, checkStruct } from "./base.js";
-import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml } from './common.js';
+import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
@@ -6361,7 +6361,7 @@ export const Kit = {
     /**
      * 文本录入预处理。
      * 可能已强制切分，支持集合处理。
-     * 清理空白时换行作为首个空白会得到保留。
+     * 清理空白时保留首个空白移除剩余空白，首个空白可能是换行符。
      * @data: String|[String]
      * @param  {Boolean} clean 是否清理空白
      * @return {String|[String]}
@@ -6673,6 +6673,27 @@ export const Kit = {
     },
 
     __cleanHTML: 1,
+
+
+    /**
+     * 创建单行MD节点片段。
+     * 根据系统设置，解析单行MarkDown源码构造节点集（文档片段）。
+     * 注记：
+     * 新建内容元素支持文档片段数据。
+     * @data: String|[String] 文本行（集）
+     * @return {String|[String]|DocumentFragment|[DocumentFragment]}
+     */
+    mdline( evo ) {
+        if ( !Tools.mdline ) {
+            return evo.data;
+        }
+        if ( $.isArray(evo.data) ) {
+            return evo.data.map( tt => $.fragment(markdownLine(tt)) );
+        }
+        return $.fragment( markdownLine(evo.data) );
+    },
+
+    __mdline: 1,
 
 
     /**
@@ -7543,6 +7564,7 @@ customGetter( On, null, Kit, [
     'styName',
     'styKey',
     'cleanHTML',
+    'mdline',
     'savedhtml',
 
     // 简单操作类（非取值）。

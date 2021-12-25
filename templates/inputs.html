@@ -172,7 +172,7 @@
     headers 构造包含导言部分的<article>元素。 -->
 <div class="_body _Article" tpl-name="input:article"
     on="article;
-        headers|ev('detail') $$('/._option input') prop('checked') pretreat2(_) wrap('<p>') wrapAll('<header>') item(0) obj('header');
+        headers|ev('detail') $$('/._option input') prop('checked') pretreat2(_) mdline wrap('<p>') wrapAll('<header>') item(0) obj('header');
         create|$('/textarea') val dup $if('headers', 'article');"
     by="New.article;
         New.article(_1)"
@@ -860,7 +860,7 @@
     by="New2.h4"
     to="form/|trigger('insfix')">
     <div class="_main">
-        <textarea name="h4" placeholder="列表项标题：：空行分项"></textarea>
+        <textarea name="h4" placeholder="列表项标题：多选时空行分项，各别更新"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">

@@ -24,6 +24,19 @@ const
     ROOT = 'http://localhost:8080/articlejs/',
 
 
+    //
+    // 功能集配置。
+    // 可由用户在运行时开启或关闭（命令行config指令）。
+    //
+    Tools = {
+
+        // MdLine自动解析开关
+        // 内容录入文本框中自动MarkDown单行解析。
+        mdline:     false,
+
+    },
+
+
     Local = {
         // 上载根目录
         upload: 'upload/data',
@@ -75,11 +88,9 @@ const
     },
 
 
+    // 本地限制参数配置
+    // 用户可在命令行通过config指令查看。
     Limit = {
-        // 保存间隔时间（ms）
-        // 设置为0可以取消自动保存。
-        interval:       6*60000,
-
         // 历史栈长度
         // 注意定位移动可能会占据大量的步数。
         history:        999,
@@ -336,6 +347,7 @@ const
 
 export {
     ROOT,
+    Tools,
     Local,
     Limit,
     Tips,
