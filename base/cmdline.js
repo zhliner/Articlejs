@@ -524,14 +524,14 @@ class Command {
     /**
      * 部分系统变量查看。
      * @param  {String} name 变量名
-     * @param  {Value} val 设置值，可选
-     * @return {Value} 结果值
+     * @param  {String} val 设置值，可选
+     * @return {Value|String} 结果值或提示文本
      */
     _config( name, val ) {
         if ( val === undefined ) {
             return Limit[ name ] || Tips.configNothing;
         }
-        return `Tools.${name}="${Tools[ name ] = val}"`;
+        return `Tools.${name}=${Tools[ name ] = val && JSON.parse(val)}`;
     }
 
 

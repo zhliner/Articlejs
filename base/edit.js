@@ -5813,6 +5813,7 @@ export const Edit = {
         typeRecord( key ).add( evo.data );
 
         if ( !$.isArray(_val) ) {
+            // 非编辑区操作实例集，返回值回显
             return _val;
         }
         $.trigger( contentElem, __evnFocus, null, true );

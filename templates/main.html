@@ -438,7 +438,7 @@
             keydown(input)|iskey('ArrowUp') pass stopAll avoid evo(2);
             keydown(input)|iskey('ArrowDown') pass stopAll avoid evo(2);
             keydown(input)|iskey('u') scam('ctrl') both pass stop avoid evo(2) select"
-        by="Ed.cmdRun(_1) dup pass;
+        by="Ed.cmdRun(_1) or(null);
             Kit.cmdlast(_2);
             Kit.cmdnext;
             Kit.cmdprev"

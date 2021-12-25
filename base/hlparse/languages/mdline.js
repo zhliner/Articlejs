@@ -37,7 +37,7 @@ const __htmlEntity = {
     '&':    '&amp;',
     '<':    '&lt;',
     '>':    '&gt;',
-    '"':    '&quot;',
+    // '"':    '&quot;',  // 不涉及HTML属性书写，因此取消
 };
 
 
@@ -97,7 +97,7 @@ class MdLine extends Hicode {
 
             {
                 // 特殊HTML字符
-                begin:  /^[&<>"]/,
+                begin:  /^[&<>]/,
                 handle: $1 => __htmlEntity[ $1 ],
             }
 
