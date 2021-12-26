@@ -68,6 +68,9 @@
 //  }
 //  成员.text:
 //  当匹配目标拥有嵌入的语法子块时，text即为嵌入子块的解析结果集（[Object2]）。
+//  只要用户定义了匹配，无论是否存在type，返回的text都视为HTML源码。
+//  注：
+//  没有匹配的视为纯文本，基类实现会自动执行HTML转义。
 //
 //
 //  进阶处理器用例：
@@ -100,12 +103,12 @@ const
     // 字符串转义序列（基础）
     __escStr = /\\(?:0|a|b|f|n|r|t|v|'|"|\\|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/g,
 
-    // HTML转义字符。
+    // HTML基本转义字符。
     __escapeMap = {
         '&':    '&amp;',
         '<':    '&lt;',
         '>':    '&gt;',
-        '"':    '&quot;',
+        // '"':    '&quot;',  // HTML属性值本身无法直接书写"，故忽略
     };
 
 
@@ -256,7 +259,8 @@ class Hicode {
     /**
      * 添加纯文本对象。
      * 如果添加了对象，原字符缓存会被清空。
-     * @param  {[String]} chs 字符缓存引用
+     * 未匹配的普通纯文本自动执行HTML基本转义。
+     * @param  {[String]} chs 未匹配字符缓存引用
      * @param  {[Object2]} buf 结果缓存引用
      * @return {void}
      */
@@ -397,7 +401,7 @@ function reWords( str, fix = '\\b' ) {
 
 /**
  * 按模式匹配切分封装。
- * 将目标文本内的模式文本切分提取出来，标记为目标类型Object3。
+ * 将目标文本内的模式文本切分提取出来，标记为目标类型Object2。
  * 返回的文本已经进行了HTML转义。
  * 注记：
  * 用于外部用户简单的分解目标模式文本。
@@ -434,7 +438,7 @@ function regexpEscape( txt, re, type ) {
  * @return {String}
  */
 function htmlEscape( txt ) {
-    return txt.replace( /[&<>"]/gm, ch => __escapeMap[ch] );
+    return txt.replace( /[&<>]/g, ch => __escapeMap[ch] );
 }
 
 

@@ -273,7 +273,7 @@ export function rangeTextLine( rng, flag, box ) {
 
 /**
  * 解析获取高亮代码配置集。
- * 如果需要替换Tab为空格，源码需要按行切分，否则无此要求。
+ * 无语言定义时会自动将源码进行HTML转换。
  * @param  {[String]} codes 源码（行）集
  * @param  {String} lang 所属语言
  * @param  {Number} tab  Tab 空格数，可选

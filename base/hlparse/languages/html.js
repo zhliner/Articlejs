@@ -131,7 +131,7 @@ class HTML extends Hicode {
 
 //
 // 标签内属性解析器。
-// 分解出属性和字符串属性值、以及样式属性内的CSS语法。
+// 分解出属性名和属性值、以及样式属性内的CSS语法。
 //
 class Attr extends Hicode {
 
@@ -263,7 +263,7 @@ function langHandle( beg, txt, end, lang ) {
 function styleCode( txt, beg ) {
     let ch = beg[2],
         _i = txt.indexOf( ch );
-    // ch: "|'
+    // ch: ["']
     return [ txt.substring(0, _i), [ch] ];
 }
 
