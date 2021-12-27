@@ -12,7 +12,7 @@ main {
 }
 main h1 {
     text-align: center;
-    padding-bottom: 1.7em;
+    padding-bottom: 1.5em;
 }
 main h1::before {
     content: '';

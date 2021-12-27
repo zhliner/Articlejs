@@ -28,7 +28,7 @@ const
     // 功能集配置。
     // 可由用户在运行时开启或关闭（命令行config指令）。
     //
-    Tools = {
+    Fx = {
 
         // MdLine自动解析开关
         // 内容录入文本框中自动MarkDown单行解析。
@@ -347,7 +347,7 @@ const
 
 export {
     ROOT,
-    Tools,
+    Fx,
     Local,
     Limit,
     Tips,

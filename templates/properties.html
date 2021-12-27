@@ -1012,6 +1012,7 @@
     mouseup keyup... 当前光标点记忆，否则codes递送只能插入前端。
     另：
     data-tip 初始录入提示（CSS:content:attr）。
+    拦截了Enter按键自行处理，因此上层绑定的快捷提交失效了。
 -->
 <pre spellcheck="false" class="_code" contenteditable="true" tpl-name="prop:codes"
     data-tip="粘贴时自动清除多余缩进"
@@ -1103,9 +1104,9 @@
     </div>
     <textarea name="html" class="_code" spellcheck="false"></textarea>
     <fieldset>
-        <legend>全文说明：</legend>
+        <legend>说明：</legend>
         <ul>
-            <li>将内容源码插入容器元素（<code>&lt;main.content&gt;</code>）内，然后在页面头部引入内容和代码样式即可。</li>
+            <li>将全文内容源码插入容器元素（<code>&lt;main.content&gt;</code>）内，然后在页面头部引入内容和代码样式即可。</li>
             <li>如果内容包含有 <code>OBT</code> 交互，则还需要引入 <code>tpb/default.css</code> 系统样式。</li>
         </ul>
     </fieldset>

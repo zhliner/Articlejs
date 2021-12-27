@@ -64,7 +64,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     color: #387180;
     text-shadow: 0 1px 1px #e6e6e6;
     text-align: center;
-    font-size: 2.2em;
+    font-size: 2.3em;
 }
 /* 副标题 */
 .content hgroup > h3 {
@@ -74,6 +74,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     padding: 0 20px;
     color: #52bb03;
     text-align: right;
+}
+/* 单独主标题 */
+.content > h1 {
+    margin: 1em auto;
 }
 
 .content section > h2 {
@@ -296,11 +300,13 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * 用逐层递进定位可能的正文区。
  *----------------------------------------------------------------------------
  */
-
-.content article {color: #1c7097;}
+.content article {
+    color: #1f5d7a;
+    /* margin 隔离体现 */
+    border: 1px transparent solid;
+}
 .content article > header {
     margin: 2em 0;
-    border: 1px transparent solid;
 }
 
 
@@ -308,9 +314,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * section:s1/[h2,header,section:s2,footer]
  * ----------------------------------------------
  */
+.content section[role=s1] {
+    margin-top: 3.6em;
+}
 .content section[role=s1] > h2 {
     font-size: 1.7em;
-    padding-left: 21%;
+    padding-left: 20%;
     background-color: #9af070;
     border-bottom: 3px #bd913d double;
     border-radius: 50%;

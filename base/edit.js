@@ -18,7 +18,7 @@
 //
 
 import $, { OBTA, TplrName, TplsPool } from "./tpb/config.js";
-import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Tools } from "../config.js";
+import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Fx } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, compatibleNoit, checkStruct } from "./base.js";
@@ -6685,7 +6685,7 @@ export const Kit = {
      * @return {String|[String]|DocumentFragment|[DocumentFragment]}
      */
     mdline( evo ) {
-        if ( !Tools.mdline || !evo.data ) {
+        if ( !Fx.mdline || !evo.data ) {
             return evo.data;
         }
         if ( $.isArray(evo.data) ) {
@@ -6723,14 +6723,13 @@ export const Kit = {
      * 选取集取消。
      * ESC键取消操作（最底层）。
      * 会同时取消元素焦点。
-     * 注记：
-     * 固定配置不提供外部定制。
+     * 注记：固定配置不提供外部定制。
      * @return {void}
      */
     ecancel() {
-        // 有选取则必有焦点，故仅需检查焦点。
-        __EHot.get() &&
-        historyPush( new HotEdit(null), new ESEdit(__Selects.empty) );
+        if ( __ESet.size || __EHot.get() ) {
+            historyPush( new HotEdit(null), new ESEdit(__Selects.empty) );
+        }
     },
 
 

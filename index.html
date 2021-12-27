@@ -22,7 +22,7 @@
     coolj.create( _opts )
         .load( _ebox )
         // 恢复：样式 && 内容
-        .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && $.trigger(ed.frame(), '_recover') && ed )
+        .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && $.trigger(ed.frame(), 'recover') && ed )
         .then( ed => ed.frame().contentWindow.focus() )
         // 1小时内点亮Logo
         .then( () => tickdoing(36000) );

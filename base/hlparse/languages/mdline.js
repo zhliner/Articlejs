@@ -17,9 +17,10 @@
 //      **重要`代码`在这里**
 //      [![链接图片](img-url)](a-href)
 //
-//  - 不支持内嵌的HTML标签形式，非标记类文本被视为纯文本。
+//  - 部分内联的文本类标签嵌入有效，但其它标签被视为纯文本。
 //      如：
-//      need a line-break.<br>
+//      Press the <kbd>P</kbd> character to open the properties dialog.<br>
+//      其中<kbd>有效，但末尾的<br>不被支持。
 //
 //
 //  主要用于用户在 Cooljed 编辑器中粘贴从 .md 文件中拷贝而来的代码。
@@ -30,15 +31,6 @@
 //
 
 import { Hicode, htmlEscape } from "../base.js";
-
-
-// HTML基本转义集
-const __htmlEntity = {
-    '&':    '&amp;',
-    '<':    '&lt;',
-    '>':    '&gt;',
-    // '"':    '&quot;',  // 不涉及HTML属性书写，因此取消
-};
 
 
 //
@@ -96,15 +88,16 @@ class MdLine extends Hicode {
                 handle: (_, $1) => `<a href="${$1}">${htmlEscape($1)}</a>`,
             },
 
+            // 内联标签内嵌支持（部分）
             {
-                // 特殊HTML字符
-                begin:  /^[&<>]/,
-                handle: $1 => __htmlEntity[ $1 ],
+                // type: '...',
+                // 单纯的标签封装有效，不支持元素特性定义。
+                begin:  /^<(q|abbr|del|ins|dfn|bdo|time|cite|small|sub|sup|mark|samp|kbd|s|u|var|code|strong|em)>(.+?)<\/\1>/,
+                handle: (_, $1, $2) => `<${$1}>${$2}</${$1}>`
             }
 
-        ], null);
+        ]);
     }
 }
-
 
 export { MdLine };

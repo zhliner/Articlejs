@@ -64,7 +64,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 主标题 */
 .content h1 {
     text-align: center;
-    font-size: 2.2em;
+    font-size: 2.3em;
 }
 /* 副标题 */
 .content hgroup > h3 {
@@ -74,6 +74,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     padding: 0 20px;
     color: #999;
     text-align: right;
+}
+/* 单独主标题 */
+.content > h1 {
+    margin: 1em auto;
 }
 
 .content section > h2 {
@@ -293,9 +297,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * 用逐层递进定位可能的正文区。
  *----------------------------------------------------------------------------
  */
+.content article {
+    /* margin 隔离体现 */
+    border: 1px transparent solid;
+}
 .content article > header {
     margin: 2em 0;
-    border: 1px transparent solid;
 }
 
 
@@ -303,6 +310,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * section:s1/[h2,header,section:s2,footer]
  * ----------------------------------------------
  */
+.content section[role=s1] {
+    margin-top: 3.6em;
+}
 .content section[role=s1] > h2 {
     font-size: 1.5em;
     padding: 4px 1.1em;
@@ -651,6 +661,7 @@ div[role=blank] > * {
     background-color: #f3f3f3;
     margin: auto 3px;
     padding: 1px 5px;
+    color: black;
 }
 
 /* 空白 */
@@ -668,7 +679,7 @@ div[role=blank] > * {
     word-break: break-word;
     white-space: pre-wrap;
     padding: 0 2px;
-    background-color: #29343b;
+    background-color: #3f505a;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 

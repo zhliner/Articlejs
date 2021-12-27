@@ -169,11 +169,11 @@
 
 <!--文章根
     article 无导言，创建一个空<article>容器元素。
-    headers 构造包含导言部分的<article>元素。 -->
+    xheader 构造包含导言部分的<article>元素。 -->
 <div class="_body _Article" tpl-name="input:article"
     on="article;
-        headers|ev('detail') $$('/._option input') prop('checked') pretreat2(_) mdline wrap('<p>') wrapAll('<header>') item(0) obj('header');
-        create|$('/textarea') val dup $if('headers', 'article');"
+        xheader|ev('detail') $$('/._option input') prop('checked') pretreat2(_) mdline wrap('<p>') wrapAll('<header>') item(0) obj('header');
+        create|$('/textarea') val dup $if('xheader', 'article');"
     by="New.article;
         New.article(_1)"
     to="form/|trigger('instop');

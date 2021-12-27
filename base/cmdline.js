@@ -67,7 +67,7 @@
 import $ from "./tpb/config.js";
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
-import { Cmdx, Tips, Local, Limit, Sys, Tools } from "../config.js";
+import { Cmdx, Tips, Local, Limit, Sys, Fx } from "../config.js";
 
 // 工具支持
 import { pluginsInit, pluginsInsert, pluginsDelete } from "./plugins.js";
@@ -531,7 +531,10 @@ class Command {
         if ( val === undefined ) {
             return Limit[ name ] || Tips.configNothing;
         }
-        return `Tools.${name}=${Tools[ name ] = val && JSON.parse(val)}`;
+        if ( Fx[name] === undefined ) {
+            throw new Error( `${name} option is not supported` );
+        }
+        return `Fx.${name}=${Fx[ name ] = val && JSON.parse(val)}`;
     }
 
 

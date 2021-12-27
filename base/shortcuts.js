@@ -299,21 +299,21 @@ Content: [
     // 同级向前（↑）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "ctrl+shift:k",
+        "key":      "shift:k",
         "command":  "onlyPrevious"
     },
 
     // 同级向后（↓）
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "ctrl+shift:j",
+        "key":      "shift:j",
         "command":  "onlyNext"
     },
 
     // 父级选取（←）
     // 支持前置数字指定上升层级（准确值）。
     {
-        "key":      "ctrl+shift:h",
+        "key":      "shift:h",
         "command":  "onlyParent"
     },
 
@@ -321,13 +321,13 @@ Content: [
     // 支持前置数字指定子元素下标，
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
-        "key":      "ctrl+shift:l",
+        "key":      "shift:l",
         "command":  "onlyChild"
     },
 
     // 顶元素选取。
     {
-        "key":      "ctrl+shift:t",
+        "key":      "shift:t",
         "command":  "onlyItemTop"
     },
 
@@ -340,21 +340,21 @@ Content: [
     // 同级向前（↑）扩选
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "shift:k",
+        "key":      "ctrl+shift:k",
         "command":  "previous"
     },
 
     // 同级向后（↓）扩选
     // 接受前置数字指定扩展距离（默认值1）。
     {
-        "key":      "shift:j",
+        "key":      "ctrl+shift:j",
         "command":  "next"
     },
 
     // 父级换选（←）
     // 支持前置数字指定上升层级（准确值）。
     {
-        "key":      "shift:h",
+        "key":      "ctrl+shift:h",
         "command":  "parent"
     },
 
@@ -362,7 +362,7 @@ Content: [
     // 支持前置数字指定子元素下标，
     // 下标支持负数从末尾算起（-1表示末尾一个）。
     {
-        "key":      "shift:l",
+        "key":      "ctrl+shift:l",
         "command":  "child"
     },
 
@@ -370,7 +370,7 @@ Content: [
     // - 内联元素的顶元素为内容行元素（或<td>,<th>）。
     // - 结构元素的顶元素为所属单元的根元素。
     {
-        "key":      "shift:t",
+        "key":      "ctrl+shift:t",
         "command":  "itemTop"
     },
 
