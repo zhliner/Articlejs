@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="../styles/example/main.css" />
 <link rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
+<script src="../base/tquery/tquery.min.js"></script>
 <style>
     body {
         margin: 0;
@@ -15,6 +16,24 @@
         margin-left: 21em;
     }
 </style>
+<script type="module" async>
+    import { Tpb } from "../base/tpb/tpb.esm.js";
+    // 大纲导航：
+    // 单击链接条目定位到目标章节。
+    Tpb.build(
+        document.querySelector('nav'),
+        { on: "click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView" }
+    );
+    // 列表滚动隐显
+    // 单击目录标题条子表折叠
+    Tpb.build(
+        document.querySelector('nav>ol'),
+        {
+            on: "mouseenter|('auto'); mouseleave|('hidden'); click(~h4)|evo(2) parent fold(2)",
+            to: "|css('overflow-y'); |css('overflow-y')"
+        }
+    )
+</script>
 </head>
 <body>
     <main class="content">

@@ -1203,7 +1203,7 @@ export function niceHtml( node, tabs, prefix = '' ) {
         return _nl + ( keepHTML(node) || stringElement(node, tabs, prefix) )
     }
     if ( _n === 3 ) {
-        return node.textContent.trim();
+        return node.textContent.trim() && $.html( node.textContent );
     }
     if ( _n === 8 ) {
         return _nl + `<!--${node.data}-->`;

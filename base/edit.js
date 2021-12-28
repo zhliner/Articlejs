@@ -2625,10 +2625,7 @@ function sameTable( ref, els ) {
 
 /**
  * 章节提升。
- * 包含内部全部子章节的升级。
- * 如果章节根已为顶层，会解包内容并返回内容。
- * 注记：
- * 返回内容时，外部无需在异地插入。
+ * 包含内部子孙章节的同时升级。
  * @param  {Element} sec 章节根
  * @return {void|false}
  */
@@ -2644,6 +2641,7 @@ function sectionUpTree( sec ) {
 /**
  * 章节提升。
  * 顶层章节被简单忽略，避免结构混乱（不易被察觉）。
+ * 被提升的章节插入原所属章节之后。
  * @param {Element} sec 章节元素
  */
 function sectionUp( sec ) {
@@ -2653,7 +2651,7 @@ function sectionUp( sec ) {
     if ( _sxn === 's1' ) {
         return error( Tips.sectionNotUp );
     }
-    $.before( _pel, sectionUpTree(sec) || sec );
+    $.after( _pel, sectionUpTree(sec) || sec );
 }
 
 

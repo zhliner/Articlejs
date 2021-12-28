@@ -990,8 +990,7 @@ export function sectionLevel( el ) {
 
 /**
  * 章节层级修改。
- * - 修改 role 特性值，超出层级的深片区无role特性。
- * - 移除元素的类型值（简化处理，避免Undo/Redo的复杂性）。
+ * 修改 role 特性值，超出层级的深片区无role特性。
  * 返回false表示超过顶层章节（无修改）。
  * @param  {Element} sec 章节元素
  * @param  {Number} n 增减层级数
@@ -1004,6 +1003,7 @@ export function sectionChange( sec, n ) {
     if ( n === 0 ) {
         return false;
     }
+    // 移除类型值以简化处理，避免Undo/Redo的复杂性
     Reflect.deleteProperty( $.attr(sec, 'role', _v), __typeKey );
 }
 
