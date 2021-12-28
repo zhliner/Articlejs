@@ -156,7 +156,7 @@ const
 
         'both_conelem': [
             'type:contents',
-            '选取元素及其父元素都必须为内容元素'
+            '选中的元素及其父元素都必须为内容元素'
         ],
 
         'merge_types': [
@@ -187,7 +187,7 @@ const
 
         'cannot_selected': [
             'edit:insert',
-            '插入的目标元素不可为已选取'
+            '插入到的目标元素不可为已选中'
         ],
 
         'cannot_append': [
@@ -225,8 +225,8 @@ const
 const Sys = {
 
     // 内置类名
-    selectedClass:  '_selected',    // 元素选取态类名
-    focusClass:     '_focus',       // 选取焦点类名
+    selectedClass:  '_selected',    // 元素选中状态类名
+    focusClass:     '_focus',       // 焦点元素类名
     hoverClass:     '_hover',       // 鼠标划过类名
     pointClass:     '_point',       // 路径栏鼠标指向
 
@@ -237,7 +237,7 @@ const Sys = {
     rpRight:    ')',
 
     // <rt>占位符，当划选创建<ruby>缺乏rt部分时用。
-    // 应当醒目，便于单击选取修改。
+    // 应当醒目，便于单击选中修改。
     rtHolder:   '(^m^)',
 
 
@@ -252,7 +252,7 @@ const Sys = {
     // 在模板中定义，由程序中激发。
     medIn:      'medin',        // 进入微编辑
     medOk:      'medok',        // 完成微编辑
-    evnFollow:  'update',       // 内容区选取变化跟随激发
+    evnFollow:  'update',       // 内容区选中变化跟随激发
     insType:    'edtype',       // 编辑类型更新（普通插入|微编辑）
     covert:     'tips',         // 不可见元素提示
     shnav:      'reset',        // 脚本历史分页导航重置

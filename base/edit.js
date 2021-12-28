@@ -1751,9 +1751,6 @@ function textAppend2( els2, data, meth ) {
  * @return {[Instance]} 操作实例集
  */
 function moveAppend( $els, to, ref, empty ) {
-    if ( __ESet.has(to) ) {
-        return help( 'cannot_selected', to );
-    }
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
     }
@@ -5124,13 +5121,15 @@ export const Edit = {
      * 遵循编辑器默认的内插入逻辑（逐层测试构建）。
      */
     elementFill() {
-        let _box = __EHot.get(),
-            $els = $( __ESet );
+        let _box = __EHot.get();
 
-        if ( !_box || !$els.length ) {
+        if ( !_box || !__ESet.size ) {
             return;
         }
-        let _ops = moveAppend( $els, _box, null, true );
+        if ( __ESet.has(_box) ) {
+            return help( 'cannot_selected', _box );
+        }
+        let _ops = moveAppend( $(__ESet), _box, null, true );
 
         _ops && historyPush( ..._ops );
     },
@@ -5140,16 +5139,16 @@ export const Edit = {
      * 向内填充（克隆）。
      */
     elementCloneFill() {
-        let _box = __EHot.get(),
-            $els = $( __ESet );
+        let _box = __EHot.get();
 
-        if ( !_box || !$els.length ) {
+        if ( !_box || !__ESet.size ) {
             return;
         }
+        // 自我填充简单忽略
         if ( __ESet.size === 1 && __ESet.has(_box) ) {
-            return;  // 自我填充
+            return;
         }
-        let _ops = cloneAppend( $els.clone(), _box, null, true );
+        let _ops = cloneAppend( $(__ESet).clone(), _box, null, true );
 
         _ops && historyPush( ..._ops );
     },
@@ -5159,13 +5158,15 @@ export const Edit = {
      * 向内末尾添加（移动）。
      */
     elementAppend() {
-        let _box = __EHot.get(),
-            $els = $( __ESet );
+        let _box = __EHot.get();
 
-        if ( !_box || !$els.length ) {
+        if ( !_box || !__ESet.size ) {
             return;
         }
-        let _ops = moveAppend( $els, _box );
+        if ( __ESet.has(_box) ) {
+            return help( 'cannot_selected', _box );
+        }
+        let _ops = moveAppend( $(__ESet), _box );
 
         _ops && historyPush( ..._ops );
     },
@@ -5175,13 +5176,12 @@ export const Edit = {
      * 向内末尾添加（克隆）。
      */
     elementCloneAppend() {
-        let _box = __EHot.get(),
-            $els = $( __ESet );
+        let _box = __EHot.get();
 
-        if ( !_box || !$els.length ) {
+        if ( !_box || !__ESet.size ) {
             return;
         }
-        let _ops = cloneAppend( $els.clone(), _box );
+        let _ops = cloneAppend( $(__ESet).clone(), _box );
 
         _ops && historyPush( ..._ops );
     },
@@ -5191,13 +5191,15 @@ export const Edit = {
      * 同级前插入（移动）。
      */
     elementBefore() {
-        let _to = __EHot.get(),
-            $els = $( __ESet );
+        let _to = __EHot.get();
 
-        if ( !_to || !$els.length ) {
+        if ( !_to || !__ESet.size ) {
             return;
         }
-        let _ops = moveAppend( $els, _to.parentElement, _to );
+        if ( __ESet.has(_to) ) {
+            return help( 'cannot_selected', _to );
+        }
+        let _ops = moveAppend( $(__ESet), _to.parentElement, _to );
 
         _ops && historyPush( ..._ops );
     },
@@ -5207,13 +5209,12 @@ export const Edit = {
      * 同级前插入（克隆）。
      */
     elementCloneBefore() {
-        let _to = __EHot.get(),
-            $els = $( __ESet );
+        let _to = __EHot.get();
 
-        if ( !_to || !$els.length ) {
+        if ( !_to || !__ESet.size ) {
             return;
         }
-        let _ops = cloneAppend( $els.clone(), _to.parentElement, _to );
+        let _ops = cloneAppend( $(__ESet).clone(), _to.parentElement, _to );
 
         _ops && historyPush( ..._ops );
     },
@@ -5223,13 +5224,15 @@ export const Edit = {
      * 同级后插入（移动）。
      */
     elementAfter() {
-        let _to = __EHot.get(),
-            $els = $( __ESet );
+        let _to = __EHot.get();
 
-        if ( !_to || !$els.length ) {
+        if ( !_to || !__ESet.size ) {
             return;
         }
-        let _ops = moveAppend( $els, _to.parentElement, $.nextNode(_to) );
+        if ( __ESet.has(_to) ) {
+            return help( 'cannot_selected', _to );
+        }
+        let _ops = moveAppend( $(__ESet), _to.parentElement, $.nextNode(_to) );
 
         _ops && historyPush( ..._ops );
     },
@@ -5239,13 +5242,12 @@ export const Edit = {
      * 同级后插入（克隆）。
      */
     elementCloneAfter() {
-        let _to = __EHot.get(),
-            $els = $( __ESet );
+        let _to = __EHot.get();
 
-        if ( !_to || !$els.length ) {
+        if ( !_to || !__ESet.size ) {
             return;
         }
-        let _ops = cloneAppend( $els.clone(), _to.parentElement, $.nextNode(_to) );
+        let _ops = cloneAppend( $(__ESet).clone(), _to.parentElement, $.nextNode(_to) );
 
         _ops && historyPush( ..._ops );
     },
