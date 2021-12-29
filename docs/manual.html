@@ -67,7 +67,7 @@
                                 <li><a>移动与缩进</a></li>
                                 <li><a>进入微编辑</a></li>
                                 <li><a>定位移动</a></li>
-                                <li><a>系统级复制/剪切与粘贴</a></li>
+                                <li><a>复制和粘贴事件</a></li>
                             </ol></li>
                         <li><a>杂项功能</a></li>
                         <li><a>关于格式刷</a></li>
@@ -98,7 +98,6 @@
                     <h4><a>注记</a></h4>
                     <ol>
                         <li><a>单元移动/转换</a></li>
-                        <li><a>内容提升</a></li>
                         <li><a>表格的容错编辑</a></li>
                         <li><a>兼容性依赖</a></li>
                     </ol></li>
@@ -354,7 +353,7 @@
                         </aside>
                     </section>
                     <section role="s3">
-                        <h2>系统级复制/剪切与粘贴</h2>
+                        <h2>复制和粘贴事件</h2>
                         <p>普通模式下支持选取集元素的<strong>复制、剪切和粘贴</strong>，这些操作由系统的复制、剪切和粘贴操作触发。普通模式下元素并不是可编辑的，因此这里的操作规则如下。</p>
                         <ul>
                             <li><strong>复制</strong>：提取被选取元素的文本内容（<code>textContent</code>）到剪贴板，多个选取元素的内容以换行符分隔。</li>
@@ -494,18 +493,13 @@
                     </ul>
                 </section>
                 <section role="s2">
-                    <h2>内容提升</h2>
-                    <p>在严格的规范化内容结构里，片区与内容单元是互斥的逻辑。为便于用户操作，编辑器提供写作时的容错，但在文章提交类操作中提供规范化合并选项。</p>
-                    <p role="tips"><strong>另</strong>：工具栏的内容提升按钮除了支持内容元素外，片区单元（容器）也是适用的。</p>
-                </section>
-                <section role="s2">
                     <h2>表格的容错编辑</h2>
                     <p>通过特性编辑面板，用户可以修改单元格的 <code>rowspan</code> 和 <code>colspan</code> 特性，因此对于懂得 HTML 结构的专业用户来说，他们可以自由构建不规整的表格结构。因此，编辑器不阻止用户删除/插入独立的单元格。</p>
                     <p>但这种能力是用户自有的，如果克隆表格行（<code>&lt;tr&gt;</code>），编辑器并不检查单元格的这两个特性，而只是简单地参考表格的 <code>$.Table</code> 实例的内在状态值（列头和列数）进行处理。</p>
                 </section>
                 <section role="s2">
                     <h2>兼容性依赖</h2>
-                    <p>修订模式下需要浏览器的 <code>document.execCommand</code> 支持，以实现从外部插入内容时，可以直接使用浏览器的<strong>Undo/Redo</strong>能力，否则撤销和重做需要编写复杂的代码。</p>
+                    <p>修订模式下需要浏览器的 <code>document.execCommand</code> 支持，以实现从外部插入内容时，可以直接使用浏览器的<strong>Undo/Redo</strong>功能，避免编写复杂的撤销和重做代码。</p>
                 </section>
             </section>
         </article>
