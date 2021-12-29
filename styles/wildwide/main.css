@@ -489,11 +489,26 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 注解
  *----------------------------------------------------------------------------
  */
+.content p[role=note] {
+    background-color: #444;
+    padding: 2px 0.6em;
+    border-radius: 4px;
+}
 
 
 /* 提示
  *----------------------------------------------------------------------------
  */
+.content p[role=tips] {
+    border: 1px #288d28 dotted;
+    background-color: #21462b;
+    border-bottom-left-radius: 1.4em;
+    padding: 2px 1em;
+    color: #c8dada;
+}
+.content p[role=tips] > strong:first-child {
+    color: #e23d00;
+}
 
 
 /* 预排版

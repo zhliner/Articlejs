@@ -22,7 +22,7 @@ import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Fx } from "../config
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, compatibleNoit, checkStruct } from "./base.js";
-import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine } from './common.js';
+import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInline } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
@@ -738,16 +738,36 @@ class MiniEdit {
     _clean( el ) {
         let _tv = getType( el );
 
-        if ( _tv === T.PRE || _tv === T.CODE ) {
-            cleanCall( () => $('br', el).replace('\n') );
+        cleanCall( () => this._inlines(el) );
 
-            if ( _tv === T.CODE ) {
-                cleanCall( () => this._codeparse(el) );
+        if ( _tv === T.PRE ) {
+            return cleanCall( () => $('br', el).replace('\n') );
+        }
+        if ( _tv === T.CODE ) {
+            return cleanCall( () => this._codeparse(el) );
+        }
+    }
+
+
+    /**
+     * 清理非合法内联子元素。
+     * @param  {Element} el 容器元素
+     * @return {void}
+     */
+    _inlines( el ) {
+        let _buf = [];
+
+        for ( const nd of el.childNodes ) {
+            let _t = nd.nodeType;
+
+            if ( _t === 3 || _t === 8 ) {
+                _buf.push( nd );
+            }
+            else if ( _t === 1 ) {
+                _buf.push( cleanInline(nd) )
             }
         }
-        else {
-            cleanCall( () => $('>b, >i', el).unwrap() );
-        }
+        $.fill( el, _buf );
     }
 
 
@@ -762,10 +782,13 @@ class MiniEdit {
     _codeparse( el ) {
         let _lang = $.attr( el, '-lang' );
 
-        _lang && $.html(
+        if ( !_lang ) {
+            return $( 'br', el ).replace( '\n' );
+        }
+        $.html(
             el,
             // 如果存在多个子语法块，简单合并。
-            // 注记：与属性修改的重新解析保持一致行为。
+            // 这与属性修改的重新解析行为保持一致。
             codeWraps( null, highLight([el.textContent], _lang), htmlBlock, false ).map( e => e.innerHTML ).join( '' )
         );
     }

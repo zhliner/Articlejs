@@ -537,8 +537,8 @@ export const ChildTypes = {
     [ TOC ]:            [ H3, TOCCASCADE ],
     [ REFERENCE ]:      [ H3, OL ],
     [ SEEALSO ]:        [ H3, UL ],
-    [ HEADER ]:         [ H3, P, ..._BLOLIMIT, ULX, OLX ],
-    [ FOOTER ]:         [ H3, P, ..._BLOLIMIT, ADDRESS ],
+    [ HEADER ]:         [ H3, P, TIPS, NOTE, ..._BLOLIMIT, ULX, OLX ],
+    [ FOOTER ]:         [ H3, P, TIPS, NOTE, ..._BLOLIMIT, ADDRESS ],
 
     // ARTICLE
     // S1-5, SECTION 另配置

@@ -493,11 +493,25 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 注解
  *----------------------------------------------------------------------------
  */
+.content p[role=note] {
+    background-color: #eafafb;
+    padding: 2px 0.6em;
+    border-radius: 4px;
+}
 
 
 /* 提示
  *----------------------------------------------------------------------------
  */
+.content p[role=tips] {
+    border: 1px green dotted;
+    background-color: #e3fce4;
+    border-bottom-left-radius: 1.2em;
+    padding: 2px 1em;
+}
+.content p[role=tips] > strong:first-child {
+    color: green;
+}
 
 
 /* 预排版

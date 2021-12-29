@@ -1223,3 +1223,30 @@ export function niceHtml( node, tabs, prefix = '' ) {
 export function markdownLine( code ) {
     return __mdLine.parse( code ).map( o => tagWrap(o.type, o.text) ).join( '' );
 }
+
+
+/**
+ * 清理非合法内联元素。
+ * 仅合法的内联元素被原样保留，非此则仅取其文本。
+ * 注释节点被简单保留。
+ * @param  {Element} el 内容元素
+ * @return {Element|String}
+ */
+export function cleanInline( el ) {
+    let _buf = [];
+
+    for ( const nd of el.childNodes ) {
+        let _t = nd.nodeType;
+
+        if ( _t === 1 ) {
+            _buf.push( cleanInline(nd) );
+        }
+        else if ( _t === 3 || _t === 8 ) {
+            _buf.push( nd );
+        }
+    }
+    if ( _buf.length ) {
+        $.fill( el, _buf );
+    }
+    return isInlines( el ) ? el : el.textContent;
+}

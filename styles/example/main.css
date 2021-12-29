@@ -522,6 +522,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content p[role=note] {
+    background-color: #f7f7f7;
+    padding: 2px 0.6em;
+    border-radius: 4px;
 }
 
 
@@ -529,6 +532,13 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content p[role=tips] {
+    border: 1px gray dotted;
+    background-color: #f7f7fb;
+    border-bottom-left-radius: 1.2em;
+    padding: 2px 1em;
+}
+.content p[role=tips] > strong:first-child {
+    color: #2d3346;
 }
 
 
