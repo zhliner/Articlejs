@@ -5839,7 +5839,7 @@ export const Edit = {
             // 非编辑区操作实例集，返回值回显
             return _val;
         }
-        $.trigger( contentElem, __evnFocus, null, true );
+        delayFire( contentElem, __evnFocus, null, true );
 
         return historyPush( ..._val ) || null;
     },
