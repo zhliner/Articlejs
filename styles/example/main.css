@@ -342,6 +342,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * ----------------------------------------------
  */
 .content section[role=s2] {
+    margin-top: 1.8em;
 }
 .content section[role=s2] > h2 {
     font-size: 1.3em;
@@ -356,6 +357,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * ----------------------------------------------
  */
 .content section[role=s3] {
+    margin-top: 1.6em;
 }
 .content section[role=s3] > h2 {
     font-size: 1.2em;
@@ -522,9 +524,11 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content p[role=note] {
-    background-color: #f7f7f7;
-    padding: 2px 0.6em;
-    border-radius: 4px;
+    border: 1px #ccd solid;
+    background-color: #f4f6fb;
+    border-bottom-left-radius: 1.3em;
+    padding: 2px 1em;
+    margin-bottom: 1.6em;
 }
 
 
@@ -532,13 +536,13 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content p[role=tips] {
-    border: 1px gray dotted;
-    background-color: #f7f7fb;
-    border-bottom-left-radius: 1.2em;
-    padding: 2px 1em;
+    background-color: #ecf9f1;
+    padding: 4px 0.7em;
+    border-radius: 4px;
+    margin-bottom: 1.6em;
 }
 .content p[role=tips] > strong:first-child {
-    color: #2d3346;
+    color: #00a800;
 }
 
 
@@ -700,10 +704,10 @@ div[role=blank] > * {
 }
 
 .content kbd {
-    font-size: small;
-    border: 4px #ccc outset;
-    border-radius: 4px;
-    background-color: #f3f3f3;
+    font-size: 0.9em;
+    border: 3px #ccc outset;
+    border-radius: 3px;
+    background-color: #f6f9ff;
     margin: auto 3px;
     padding: 1px 5px;
 }

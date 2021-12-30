@@ -425,11 +425,11 @@ class RngEdit {
         this._old = [
             ...rng.extractContents().childNodes
         ];
-        rng.detach();
         rng.insertNode( this._el );
 
-        // 取消划选高亮（快捷键创建时）
+        // 取消划选高亮
         rng.collapse();
+        rng.detach();
 
         this._tmp = null;
     }
@@ -438,7 +438,7 @@ class RngEdit {
     undo() {
         let _box = this._el.parentElement;
 
-        // DOM内使用原生接口
+        // 使用原生接口
         this._el.replaceWith( ...this._old );
 
         // 碎片记忆（便于redo）
@@ -493,8 +493,10 @@ class RngEdit {
      * @return {[Object, Value]} 配置对象和数据值对
      */
     _optData( name, rng ) {
-        let _fn = this[ `_${name}` ];
-        return _fn ? _fn( this, rng.toString(), rng ) : [ null, rng.cloneContents() ];
+        let _fn = this[ `_${name}` ],
+            _fd = rng.cloneContents();
+
+        return _fn ? _fn( this, rng.toString(), _fd ) : [ null, _fd ];
     }
 
 
@@ -503,14 +505,14 @@ class RngEdit {
      * 链接格式容错两端空白，但文本原样保持。
      * @param  {RngEdit} self 实例自身
      * @param  {String} text 链接文本
-     * @param  {Range} rng 选取范围
+     * @param  {Fragmentt} frg 选取内容的文档片段副本
      * @return {[Object, Value]} 配置对象和数据值对
      */
-    _a( self, text, rng ) {
+    _a( self, text, frg ) {
         self._whole = RngEdit.url
             .test( text.trim() );
 
-        return [ self._whole && {href: text}, rng.cloneContents() ];
+        return [ self._whole && {href: text}, frg ];
     }
 
 
@@ -522,15 +524,15 @@ class RngEdit {
      * 因为<rt>不支持单独创建。
      * @param  {RngEdit} self 实例自身
      * @param  {String} text 注音文本
-     * @param  {Range} rng 选取范围
+     * @param  {Fragmentt} frg 选取内容的文档片段副本
      * @return {[Object, Value]} 配置对象和数据值对
      */
-    _ruby( self, text, rng ) {
+    _ruby( self, text, frg ) {
         let _v = text.trim().match(
                 RngEdit.ruby
             ),
             rt = _v ? _v[2] : Sys.rtHolder,
-            rc = _v ? _v[1] : rng.cloneContents();
+            rc = _v ? _v[1] : frg;
 
         self._whole = _v;
 
@@ -657,16 +659,14 @@ class MiniEdit {
 
     /**
      * 微编辑完成。
-     * @return {Element} 新完成的元素
+     * 新建一个游离副本用于清理（避免进入历史栈）。
      */
     done() {
-        this._clean( this._cp );
-
-        // 原生调用不进入历史栈。
-        this._cp.normalize();
-        this._cp.removeAttribute( 'contenteditable' );
-
-        return this._cp;
+        let _nds = this._clean(
+            $.clone( this._cp ),
+            getType( this._cp )
+        );
+        cleanCall( () => $.fill($.removeAttr(this._cp, 'contenteditable'), _nds) );
     }
 
 
@@ -726,26 +726,27 @@ class MiniEdit {
 
     /**
      * 清理目标元素内容。
-     * - 替换 <pre> 和 <code> 内的 <br> 元素为换行字符（\n），确保不同浏览器的兼容性。
-     * - 解包非代码内的 <b> 和 <i> 直接子元素，它们由浏览器默认行为带来（格式元素删除后遗留了样式）。
+     * - 将非合法内联元素文本化。
+     * - 替换<pre>和<code>内的<br>为换行字符（\n）。
      * - 如果是代码元素且有语言定义，重新解析语法高亮。
      * 注记：
      * 仅在<code>上有语言定义时才解析，这通常适用代码块单元。
      * 对于代码表中的子语法块行，可能因为缺乏上下文而解析错误，但此友好大多数情况。
+     * 处理的是一个游离于DOM的副本元素。
      * @param  {Element} el 目标元素
-     * @return {void}
+     * @param  {Number} tval 元素类型值
+     * @return {[Node]} 合法子节点集
      */
-    _clean( el ) {
-        let _tv = getType( el );
+    _clean( el, tval ) {
+        this._inlines( $.normalize(el) );
 
-        cleanCall( () => this._inlines(el) );
-
-        if ( _tv === T.PRE ) {
-            return cleanCall( () => $('br', el).replace('\n') );
+        if ( tval === T.PRE ) {
+            $( 'br', el ).replace( '\n' );
         }
-        if ( _tv === T.CODE ) {
-            return cleanCall( () => this._codeparse(el) );
+        else if ( tval === T.CODE ) {
+            this._codeparse( el );
         }
+        return [ ...el.childNodes ];
     }
 
 
@@ -2097,14 +2098,15 @@ function minied( el ) {
  * 微编辑确认。
  * 如果编辑的是章节/片区的标题，会发送通知用于更新目录。
  * 回到普通模式工具栏Undo/Redo按钮需重置。
- * @param {Element|false} 章节/片区标题
+ * @return {Element} 微编辑完成的元素
  */
-function miniedOk( h2 ) {
+function miniedOk() {
     currentMinied.done();
-    currentMinied = null;
+    let _el = currentMinied.elem();
+
     stateNewEdit();
-    if ( h2 ) {
-        $.trigger( outlineElem, Sys.medOk, h2 );
+    if ( _el.tagName === 'H2' ) {
+        $.trigger( outlineElem, Sys.medOk, _el );
     }
     $.trigger( contentElem, Sys.medOk, null, true );
 
@@ -2116,6 +2118,10 @@ function miniedOk( h2 ) {
 
     // 恢复普通模式通知
     delayFire( slavePanel, Sys.evnFollow );
+
+    currentMinied = null;
+
+    return _el;
 }
 
 
@@ -6965,9 +6971,7 @@ export const Kit = {
      * @return {void}
      */
     medpass( evo, scam ) {
-        let _src = currentMinied.elem();
-
-        miniedOk( _src.tagName === 'H2' && _src );
+        let _src = miniedOk();
 
         if ( evo.data === 'Tab' ) {
             return Edit.miniedIn();
@@ -7004,7 +7008,6 @@ export const Kit = {
      * 从划选创建内联单元。
      * 目标：暂存区/栈顶1项。
      * 清除已选取，便于连续划选时可以有效弹出属性编辑框。
-     * 预先规范化，保证 RngEdit.undo 正常。
      * @data: Range
      * @param  {String} name 单元名称
      * @return {void}
@@ -7016,6 +7019,7 @@ export const Kit = {
             _box = _box.parentElement;
         }
         let _op0 = clearSets(),
+            // 预先规范化，保证RngEdit.undo正常。
             _op1 = new DOMEdit( () => $.normalize(_box) ),
             _op2 = new RngEdit( evo.data, name ),
             _hot = _op2.elem();
@@ -7603,3 +7607,4 @@ export { resetState, topInsert };
 
 // debug:
 window.ESet = __ESet;
+window.History = __History;
