@@ -53,7 +53,7 @@
 //      plug-del    插件移除。
 //      help        开启帮助窗口并定位到指定的关键字条目。
 //      config      显示&设置系统配置。
-//      eval        在全局环境执行JS代码（非JS eval函数）。
+//      replace     替换选取集文本内容，仅适用内容元素。
 //
 //
 //  - 计算（=）
@@ -68,6 +68,7 @@ import $ from "./tpb/config.js";
 import { Util } from "./tpb/tools/util.js";
 import { Spliter, UmpCaller, UmpChars } from "./tpb/tools/spliter.js";
 import { Cmdx, Tips, Local, Limit, Sys, Fx } from "../config.js";
+import { isContent } from "./base.js";
 
 // 工具支持
 import { pluginsInit, pluginsInsert, pluginsDelete } from "./plugins.js";
@@ -409,16 +410,19 @@ class Search {
 // 命令之后为空格分隔的实参序列。
 //
 class Command {
-
-    constructor() {
+    /**
+     * @param {ESet} eset 选取集对象
+     */
+    constructor( eset ) {
         // 命令清单映射：{命令名：操作函数}
         this._cmds = new Map([
             [ 'plug-ins',   this._plugIns ],
             [ 'plug-del',   this._plugDel ],
             [ 'help',       this._help ],
             [ 'config',     this._config ],
-            [ 'eval',       this._eval ],
+            [ 'replace',    this._replace.bind(this) ],
         ]);
+        this._eset = eset;
     }
 
 
@@ -443,16 +447,14 @@ class Command {
     }
 
 
+    //-- 私有辅助 ----------------------------------------------------------------
+
     /**
      * 提取命令和实参序列。
-     * 注：eval命令特殊对待：后续内容为一段整体JS代码。
      * @param  {String} str 命令行序列
      * @return {[String, [String]|'']} [命令名, [实参序列]]
      */
     _cmdArgs( str ) {
-        if ( str.startsWith('eval ') ) {
-            return [ 'eval', [str.substring(5)] ];
-        }
         for ( const n of this._cmds.keys() ) {
             if ( str === n || str.startsWith(n + ' ') ) {
                 return [
@@ -468,6 +470,8 @@ class Command {
     /**
      * 获取实参序列。
      * 切分的值为字符串，容错字符串包围字符（"'`）的字符串。
+     * 实参序列以空格分隔，连续的空格视为一个分隔符。
+     * 如果实参本身需要包含空格，可用引号包围。
      * @param  {String} str 实参序列字符串
      * @return {[String]}
      */
@@ -478,17 +482,14 @@ class Command {
     }
 
 
-
     //-- 命令操作 ----------------------------------------------------------------
-
 
     /**
      * 打开帮助提示
      * 会直接打开帮助侧栏，因此不应当返回提示。
      * 注记：
      * 如果没有目标条目的帮助信息，会在帮助面板中提示。
-     * @param  {String} key 索引键
-     * @return {void|String} 静默通过或错误提示
+     * @param {String} key 索引键
      */
     _help( key ) {
         $.trigger( __helpBtn, 'open' );
@@ -501,10 +502,10 @@ class Command {
      * 用户需先将插件文件存放到/plugins目录内。
      * 注记：
      * 考虑安全性和避免全局环境污染，插件以worker方式执行。
-     * 因此这里的安装只是插入一个目标定位。
-     * @param  {String} name 插件名
-     * @param  {String} tips 按钮提示
-     * @return {String} 状态信息（成功|失败）
+     * 因此这里的安装只是插入一个执行按钮。
+     * 发送一个返回按钮的承诺对象即可，OBT流程可正确处理Promise对象。
+     * @param {String} name 插件名
+     * @param {String} tips 按钮提示
      */
     _plugIns( name, tips ) {
         $.trigger( __plugPanel, Sys.plugIns, pluginsInsert(name, tips) );
@@ -513,8 +514,7 @@ class Command {
 
     /**
      * 插件移除。
-     * @param  {String} name 插件名
-     * @return {String} 提示信息
+     * @param {String} name 插件名
      */
     _plugDel( name ) {
         $.trigger( __plugPanel, Sys.plugDel, pluginsDelete(name) );
@@ -525,11 +525,11 @@ class Command {
      * 部分系统变量查看。
      * @param  {String} name 变量名
      * @param  {String} val 设置值，可选
-     * @return {Value|String} 结果值或提示文本
+     * @return {String} 结果值或提示文本
      */
     _config( name, val ) {
         if ( val === undefined ) {
-            return Limit[ name ] || Tips.configNothing;
+            return Limit[ name ].toString() || Tips.configNothing;
         }
         if ( Fx[name] === undefined ) {
             throw new Error( `${name} option is not supported` );
@@ -539,12 +539,19 @@ class Command {
 
 
     /**
-     * 执行JS代码。
-     * 在全局（window）范围内执行而非系统eval。
-     * @param {String} code JS代码
+     * 文本替换。
+     * 注记：针对选取的元素替换其内容。
+     * @param  {...String} texts
+     * @return {String|[Replace]} 提示文本或操作实例（数组封装）
      */
-    _eval( code ) {
-        return new Function( code )();
+    _replace( ...texts ) {
+        if ( !texts.length ) {
+            return Tips.missContent;
+        }
+        if ( !this._eset.size ) {
+            return Tips.selectNone;
+        }
+        return [ new Replace([...this._eset], ...texts) ];
     }
 }
 
@@ -771,6 +778,89 @@ const __cmdBuffer = {
     [ Cmdx.command ]:   new Record(),
     [ Cmdx.calcuate ]:  new Record(),
 };
+
+
+
+//
+// 编辑类命令
+// 仅用于Command指令。
+//////////////////////////////////////////////////////////////////////////////
+
+
+//
+// 文本替换类。
+// 替换选取集成员的文本内容，仅适用内容元素。
+// 不改变选取集选取状态。
+// 需支持 undo/redo 接口。
+//
+class Replace {
+    /**
+     * @param {[Element]} els 目标元素集
+     * @param {...String} txts 替换文本序列
+     */
+    constructor( els, ...txts ) {
+        if ( !this._checks(els) ) {
+            throw new Error( Tips.needContent );
+        }
+        if ( txts.length === 1 ) {
+            txts = new Array(els.length).fill( txts );
+        }
+        this._els = els;
+        this._tts = $( txts ).Text();
+
+        // 二维节点组数据。
+        this._old = els.map( (el, i) => this._fill(el, this._tts[i]) );
+    }
+
+
+    undo() {
+        this._els
+        .forEach(
+            (el, i) => this._fill( el, this._old[i] )
+        );
+    }
+
+
+    redo() {
+        this._els
+        .forEach(
+            (el, i) => this._fill( el, this._tts[i] )
+        );
+    }
+
+
+    //-- 私有辅助 ----------------------------------------------------------------
+
+    /**
+     * 检查目标元素是否合法。
+     * @param  {[Element]} els 目标元素集
+     * @return {Boolean}
+     */
+    _checks( els ) {
+        return els.every( el => isContent(el) );
+    }
+
+
+    /**
+     * 内容填充。
+     * 使用DOM原生接口。
+     * 没有数据节点时返回null，外部可据此忽略。
+     * @param  {Element} el 容器元素
+     * @param  {Node|[Node]} nd 数据节点（集）
+     * @return {[Node]|null} 原内容节点集
+     */
+    _fill( el, nd ) {
+        if ( nd == null ) {
+            return null;
+        }
+        let _old = [ ...el.childNodes ];
+
+        el.textContent = '';
+        el.append( ...($.isArray(nd) ? nd : [nd]) );
+
+        return _old;
+    }
+}
 
 
 

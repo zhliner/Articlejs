@@ -141,6 +141,12 @@ const
         // 系统变量不存在提示
         configNothing:  '(^_^)',
 
+        // 命令行replace指令提示
+        needContent: '目标必须是内容元素！',
+
+        // 命令行replace指令提示
+        missContent: '缺少替换的数据文本',
+
     },
 
 

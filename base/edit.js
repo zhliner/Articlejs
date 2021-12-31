@@ -569,8 +569,8 @@ class MarkTmp {
         );
         this._old = [ ...rng.extractContents().childNodes ];
 
-        rng.detach();
         rng.insertNode( this._el );
+        rng.detach();
 
         this._tmp = null;
     }
@@ -3649,9 +3649,10 @@ function cmdxSearch( oper, str ) {
 
 /**
  * 普通命令执行。
+ * 已知的编辑系统命令，拥有明确的返回值类型。
  * @param  {Command} oper 命令执行器实例
  * @param  {String} str 命令行序列
- * @return {String} 命令状态回显信息
+ * @return {String|[Instance]} 命令状态回显信息或操作实例集
  */
 function cmdxCommand( oper, str ) {
     return oper.exec( str );
@@ -4379,7 +4380,7 @@ export function init( content, covert, pslave, pathbox, errbox, outline, midtool
         [ Cmdx.select ]:    new Select( __ESet, contentElem ),
         [ Cmdx.filter ]:    new Filter( __ESet ),
         [ Cmdx.search ]:    new Search( contentElem ),
-        [ Cmdx.command ]:   new Command(),
+        [ Cmdx.command ]:   new Command( __ESet ),
         [ Cmdx.calcuate ]:  new Calcuate( __ESet, contentElem ),
     });
     cmdlineInit( $.get('#x-help'), TplsPool.get(TplrName).node( Sys.modalPlug) );

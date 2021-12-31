@@ -311,6 +311,8 @@ export class ECursor {
      * 元素光标清理。
      * 移除插入的光标元素并规范化元素文本。
      * 返回false表示无占位光标元素。
+     * 注记：
+     * 原生DOM接口调用，不会进入变化历史栈。
      * @param  {Element} el 容器元素
      * @return {Element|false}
      */
