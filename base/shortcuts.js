@@ -707,13 +707,6 @@ Content: [
         "command":  "properties"
     },
 
-    // 新建直达。
-    // 显示或切换到内容新建面板。
-    {
-        "key":      ":n",
-        "command":  "contentMake"
-    },
-
 ],
 
 
