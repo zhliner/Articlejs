@@ -806,7 +806,8 @@ class Replace {
             txts = new Array(els.length).fill( txts );
         }
         this._els = els;
-        this._tts = $( txts ).Text();
+        // 空串有效（清空）。
+        this._tts = $(txts).Text();
 
         // 二维节点组数据。
         this._old = els.map( (el, i) => this._fill(el, this._tts[i]) );
@@ -843,16 +844,14 @@ class Replace {
 
     /**
      * 内容填充。
-     * 使用DOM原生接口。
-     * 没有数据节点时返回null，外部可据此忽略。
+     * 没有数据节点时忽略操作，以支持局部变化（前段）。
+     * 注：使用DOM原生接口。
      * @param  {Element} el 容器元素
      * @param  {Node|[Node]} nd 数据节点（集）
      * @return {[Node]|null} 原内容节点集
      */
     _fill( el, nd ) {
-        if ( nd == null ) {
-            return null;
-        }
+        if ( !nd ) return;
         let _old = [ ...el.childNodes ];
 
         el.textContent = '';

@@ -443,9 +443,6 @@ class RngEdit {
 
         // 碎片记忆（便于redo）
         this._tmp = new Normalize( _box );
-
-        // 原生接口
-        _box.normalize();
     }
 
 
@@ -581,9 +578,6 @@ class MarkTmp {
 
         this._el.replaceWith( ...this._old );
         this._tmp = new Normalize( _box );
-
-        // 原生接口
-        _box.normalize();
     }
 
 
@@ -732,12 +726,12 @@ class MiniEdit {
      * 注记：
      * 仅在<code>上有语言定义时才解析，这通常适用代码块单元。
      * 对于代码表中的子语法块行，可能因为缺乏上下文而解析错误，但此友好大多数情况。
-     * 处理的是一个游离于DOM的副本元素。
-     * @param  {Element} el 目标元素
+     * @param  {Element} el 目标元素游离副本
      * @param  {Number} tval 元素类型值
      * @return {[Node]} 合法子节点集
      */
     _clean( el, tval ) {
+        // 游离副本规范化无害
         this._inlines( $.normalize(el) );
 
         if ( tval === T.PRE ) {
