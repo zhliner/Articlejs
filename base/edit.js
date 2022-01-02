@@ -98,7 +98,8 @@ const
     // 微编辑：
     // 智能逻辑行适用集。
     // 源行类型：[新行标签名, 父类型约束]
-    // 注记：不支持 <td|th> ~ <tr>（新行单元格选取逻辑问题）
+    // 注记：
+    // 不支持<td|th>到<tr>，存在新行单元格选取逻辑问题。
     __medLLineMap = {
         [ T.DT ]:       [ 'dd', T.DL ],
         [ T.SUMMARY ]:  [ 'p',  T.DETAILS ],
@@ -406,9 +407,7 @@ class Follow {
 //
 // 选区编辑。
 // 用于鼠标划选创建内联单元时。
-// 外部：
-// - 范围的首尾点需要在同一父元素内（完整嵌套）。
-// - 范围所在的容器元素需要预先.normalize。
+// 范围的首尾点需要在同一父元素内（完整嵌套）。
 // 注记：
 // 部分内联单元也有结构（如<ruby>），因此由create创建。
 //
@@ -731,28 +730,31 @@ class MiniEdit {
      * @return {[Node]} 合法子节点集
      */
     _clean( el, tval ) {
-        // 游离副本规范化无害
-        this._inlines( $.normalize(el) );
-
+        $.fill(
+            el,
+            this._inlines( el.childNodes )
+        );
         if ( tval === T.PRE ) {
             $( 'br', el ).replace( '\n' );
         }
         else if ( tval === T.CODE ) {
             this._codeparse( el );
         }
-        return [ ...el.childNodes ];
+        // 游离元素规范化无害
+        return [ ...$.normalize(el).childNodes ];
     }
 
 
     /**
      * 清理非合法内联子元素。
-     * @param  {Element} el 容器元素
-     * @return {void}
+     * 如果有非法元素，返回集内就会有离散文本。
+     * @param  {NodeList} nodes 子节点集
+     * @return {[Node]} 合法子节点集
      */
-    _inlines( el ) {
+    _inlines( nodes ) {
         let _buf = [];
 
-        for ( const nd of el.childNodes ) {
+        for ( const nd of nodes ) {
             let _t = nd.nodeType;
 
             if ( _t === 3 || _t === 8 ) {
@@ -762,7 +764,7 @@ class MiniEdit {
                 _buf.push( cleanInline(nd) )
             }
         }
-        $.fill( el, _buf );
+        return _buf;
     }
 
 
@@ -7014,17 +7016,15 @@ export const Kit = {
             _box = _box.parentElement;
         }
         let _op0 = clearSets(),
-            // 预先规范化，保证RngEdit.undo正常。
-            _op1 = new DOMEdit( () => $.normalize(_box) ),
-            _op2 = new RngEdit( evo.data, name ),
-            _hot = _op2.elem();
+            _op1 = new RngEdit( evo.data, name ),
+            _hot = _op1.elem();
 
         // 最终聚焦使视觉明显。
-        historyPush( _op0, _op1, _op2, new ESEdit(elementOne, _hot, 'safeAdd'), new HotEdit(_hot) );
+        historyPush( _op0, _op1, new ESEdit(elementOne, _hot, 'safeAdd'), new HotEdit(_hot) );
 
         // 友好：立即定义属性。
         // 但单元已经创建，撤销需手动Undo。
-        inlinePopup(name, _op2) && Edit.properties();
+        inlinePopup(name, _op1) && Edit.properties();
     },
 
     __rngelem: 1,

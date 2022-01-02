@@ -41,6 +41,7 @@
         <nav role="toc">
             <h3>目录</h3>
             <ol role="cascade">
+                <li><a>全局热键</a></li>
                 <li>
                     <h4><a>普通模式</a></h4>
                     <ol>
@@ -78,26 +79,25 @@
                         <li>
                             <h4><a>快捷键</a></h4>
                             <ol>
-                                <li><a>录入文本框&lt;textarea&gt;</a></li>
-                                <li><a>表格单元录入&lt;th|td&gt;</a></li>
+                                <li><a>文本框&lt;textarea&gt;</a></li>
+                                <li><a>表格单元&lt;th|td&gt;</a></li>
+                                <li><a>代码框&lt;pre._code&gt;</a></li>
                             </ol></li>
                     </ol></li>
-                <li>
-                    <h4><a>修订模式</a></h4>
-                    <ol>
-                        <li><a>代码元素</a></li>
-                    </ol></li>
+                <li><a>修订模式</a></li>
                 <li><a>属性框</a></li>
                 <li>
                     <h4><a>命令行</a></h4>
                     <ol>
+                        <li><a>选取（&gt;）</a></li>
+                        <li><a>过滤（|）</a></li>
                         <li><a>搜索（/）</a></li>
-                        <li><a>查询（?）</a></li>
+                        <li><a>命令（:）</a></li>
+                        <li><a>计算（=）</a></li>
                     </ol></li>
                 <li>
-                    <h4><a>注记</a></h4>
+                    <h4><a>其它</a></h4>
                     <ol>
-                        <li><a>单元移动/转换</a></li>
                         <li><a>表格的容错编辑</a></li>
                         <li><a>兼容性依赖</a></li>
                     </ol></li>
@@ -110,8 +110,30 @@
                     <li><strong>普通模式</strong>。键盘友好，用户可以通过快捷键（通常就是一个字符键）执行各种操作，如：复制、移动、删除、章节缩进、本地保存、源码导出、撤销或重做等。同时，这也是从下方<strong>主面板区</strong>插入各种内容的模式。</li>
                     <li><strong>修订模式</strong>。对录入的内容作小量修改时使用，此时回车键被严格限制，以兼容不同浏览器对<code>contenteditable</code>元素的<kbd>Enter</kbd>行为。该模式有时也称为<strong>微编辑</strong>模式。考虑便捷性，该模式下也支持创建<em>同类或逻辑新行</em>的能力。</li>
                 </ol>
-                <p>进入<em>修订模式</em>很简单：选中目标元素，键入热键<kbd>M</kbd>或<kbd>Tab</kbd>键（后者适用多个选中目标的连续进入）。或者，右击鼠标展开上下文菜单，点选<em>修改</em>条目进入。</p>
+                <p>进入<em>修订模式</em>很简单：选中目标元素，键入热键<kbd>M</kbd>或<kbd>Tab</kbd>键（后者适用多个选中目标的连续进入）。或者，右击鼠标打开上下文菜单，点选<em>修改</em>条目进入。</p>
             </header>
+            <section role="s1">
+                <h2>全局热键</h2>
+                <p>本编辑器的操作设计借鉴于大名鼎鼎的<strong>Vim</strong>，普通模式下通过<strong>热键</strong>完成大部分操作，内容录入主要从下方主面板上的内容标签页实现。</p>
+                <p role="note"><strong>注记</strong>：<br />要让一个普通的字符按键起作用，需要编辑器区域拥有<em>节点焦点</em>，以便让DOM节点树可以监听<em>按键事件</em>。</p>
+                <p>编辑器有两个<em>聚焦区域</em>：</p>
+                <ol>
+                    <li><strong>编辑器</strong>。即编辑器自身整个界面（<em>全局</em>），单击编辑器任意位置即可。</li>
+                    <li><strong>内容区</strong>。显示文章内容的中间区域。部分与文章内容紧密相关的操作需要此处聚焦。单击内容区任意元素或顶部的工具栏、或者按压全局热键<kbd>F8</kbd>也可以完成。</li>
+                </ol>
+                <p>当全局区域聚焦时（编辑器载入后自动完成），<strong>全局热键</strong>即可使用，当内容区聚焦时，内容区热键即有效。如果内容区的热键没有覆盖全局热键，内容区聚焦也同样就是全局聚焦。</p>
+                <p>几个基本的全局热键如下：</p>
+                <ul>
+                    <li><kbd>F2</kbd>：左侧大纲面板<em>隐显</em>切换。</li>
+                    <li><kbd>F3</kbd>：下方功能区主面板<em>隐显</em>切换。</li>
+                    <li><kbd>F4</kbd>：右侧帮助面板<em>隐显</em>切换。</li>
+                    <li><kbd>F6</kbd>：内容区底部焦点元素DOM路径提示栏<em>隐显</em>切换。</li>
+                    <li><kbd>F7</kbd>：打开插件对话框（可按<kbd>ESC</kbd>键取消或手动关闭）。</li>
+                    <li><kbd>F8</kbd>：内容区聚焦。</li>
+                    <li><kbd>F9</kbd>：当前在显主面板（大纲、功能区、帮助）状态切换，方便用户充分预览内容区。</li>
+                    <li><kbd>F10</kbd>：当前窗口最大化切换。</li>
+                </ul>
+            </section>
             <section role="s1">
                 <h2>普通模式</h2>
                 <header>
@@ -142,9 +164,7 @@
                     <h2>焦点元素</h2>
                     <header>
                         <p>选取集是元素按选中的先后顺序加入集合的，通常最后添加的元素拥有焦点。焦点是为了方便元素选取而设计的一个热点，大部分选取操作就是针对焦点元素而来。拥有焦点的元素即是焦点元素。</p>
-                        <p role="tips"><strong style="
-            /* color: #328ec3; */
-        ">提示</strong>：内容区底部的路径栏显示的即是<em>焦点元素</em>的DOM路径信息。</p>
+                        <p role="tips"><strong>提示</strong>：内容区底部的路径栏显示的即是<em>焦点元素</em>的DOM路径信息。</p>
                         <p>焦点可以在任意元素间移动，通过鼠标单击点选，或者键入方向键来实现。这里的焦点与浏览器DOM元素焦点并不是同一个东西，为了与之相区别，我们可以视之为一种<strong>选取焦点</strong>。但下面为简单起见，统一称之为<strong>焦点</strong>。</p>
                     </header>
                     <section role="s3">
@@ -161,11 +181,11 @@
                             <li><kbd>←/H</kbd>：<strong>纵向移动</strong>，定位到父元素（<em>父级方向</em>）。支持数字指定移动层级，默认值 <code>1</code>（即父元素）。</li>
                             <li><kbd>→/L</kbd>：<strong>纵向移动</strong>，定位到子元素（<em>子级方向</em>），支持数字指定子元素位置下标，默认值 <code>0</code>（即首个子元素），负值表示从末尾算起（<code>-1</code>&nbsp;为最后一个子元素）。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：在内容区拥有浏览器焦点时（可按<kbd>F8</kbd>），键入数字可设置之后操作的前置计数。左下角状态栏有数字提示，按<kbd>ESC</kbd>取消计数。</p>
+                        <p role="tips"><strong>提示</strong>：<br />在内容区拥有浏览器焦点时，键入数字可设置之后操作的前置计数。左下角状态栏有数字提示，按<kbd>ESC</kbd>取消计数。</p>
                     </section>
                     <section role="s3">
                         <h2>附：顶元素</h2>
-                        <p>顶元素是一个<strong style="line-height: 26.4px;">虚拟</strong>的根元素，方便用户快速定位到经常操作的目标。热键<kbd>T</kbd>可以将焦点移动到当前焦点元素的<strong>顶元素</strong>上。</p>
+                        <p>顶元素是一个<strong>虚拟</strong>的根元素，方便用户快速定位到经常操作的目标。热键<kbd>T</kbd>可以将焦点移动到当前焦点元素的<strong>顶元素</strong>上。</p>
                         <ul>
                             <li>对于内联单元来说，顶元素是其所在行块的<strong>内容行</strong>元素。如<code>&lt;p&gt;</code>、<code>&lt;li&gt;</code>、<code>&lt;dd&gt;</code>和<code>&lt;td&gt;</code>等。</li>
                             <li>对于行块单元内的中间结构元素来说，其顶元素为单元自身的<strong>根元素</strong>。如<code>&lt;tr&gt;</code>的顶元素为<code>&lt;table&gt;</code>，<code>&lt;li&gt;</code>的顶元素为其所在的<code>&lt;ol&gt;</code>或<code>&lt;ul&gt;</code>等。</li>
@@ -217,7 +237,7 @@
                             <li><kbd>Shift</kbd> + <kbd>E</kbd>：定位<strong>叔伯</strong>元素（父元素的兄弟元素）内的<em>相同标签</em>子元素，使之与焦点元素状态相同。焦点不变。这在选取同一父章节下的子章节的标题时很有用，或者选取表格中的列头（<code>&lt;th&gt;</code>）时有用。</li>
                             <li><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>：定位叔伯元素中<strong>标签相同</strong>且所在<strong>位置也相同</strong>的子元素，使之与焦点元素状态相同。焦点不变。这在选取<em>表格中的一列</em>时很有用。或者选取一个列表中<em>每一行的首个子元素</em>（如果标签相同）时有用。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：新添加的元素位于选取集内的后部，这样的顺序可能并不是你想要的。按<kbd>S</kbd>键可以按DOM节点流顺序排序选取集。</p>
+                        <p role="tips"><strong>提示</strong>：<br />新添加的元素位于选取集内的后部，这样的顺序可能并不是你想要的。按<kbd>S</kbd>键可以按DOM节点流顺序排序选取集。</p>
                         <p>下面的热键在移动焦点的同时会执行<strong>同态</strong>操作。</p>
                         <ul>
                             <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd>：同级<strong>向前</strong>（<code>previous</code>）扩展，支持前置数字指定扩展距离。焦点会移动到最终的元素上。</li>
@@ -258,7 +278,7 @@
                     <section role="s3">
                         <h2>路径辅助选取</h2>
                         <p>在编辑器内容区的底部会显示当前焦点元素的<strong>DOM树路径</strong>，用鼠标单击其中任何一段，即可<strong>选取</strong>相应的元素。路径提供了清晰的节点树层次，可用于精确选取。</p>
-                        <p>从路径上添加选取也可以是单选或多选，多选时按住<kbd>Ctrl</kbd>键单击即可。如果仅仅只需要从路径上<strong>聚焦</strong>目标元素，按住<kbd>Alt</kbd>即可，注意此时只是改变焦点，路径序列并不会重构，这样可以很方便的切换回来。</p>
+                        <p>从路径上添加选取也可以是切换方式，按住<kbd>Ctrl</kbd>键单击即为切换，无辅助键则为简单多选。如果只需要从路径上<strong>聚焦</strong>目标元素，可按住<kbd>Alt</kbd>单击。注意此时只是改变焦点，路径序列并不会重构。</p>
                         <p role="tips"><strong>提示</strong>：将鼠标滑过路径上的不同部分，会有其对应元素的背景阴影提示。</p>
                     </section>
                     <section role="s3">
@@ -324,8 +344,8 @@
                         </ul>
                         <aside>
                             <h3>注：</h3>
-                            <p>顶层章节的升级会被简单忽略，因为已经没有更高的层级可用了。</p>
-                            <p>末层章节（<code>s5</code>）再降级会变成没有 <code>role</code> 定义的普通<strong>深片区</strong>，深片区可以无限向下缩进。</p>
+                            <p>同级兄弟元素间可自由移动，但不能跨越固定性单元，如标题（<code>&lt;h3&gt;</code>）元素。</p>
+                            <p>顶层章节的升级会被简单忽略，末层章节（<code>&lt;section role="s5"&gt;</code>）再降级会变成没有 <code>role</code> 定义的普通<strong>深片区。</strong></p>
                         </aside>
                     </section>
                     <section role="s3">
@@ -350,7 +370,7 @@
                             <li><kbd>Ctrl+↓</kbd>：向下移动<strong>1</strong>像素。加按<kbd>Shift</kbd> 键同上。</li>
                         </ul>
                         <aside>
-                            <h3>提示：</h3>
+                            <h3>注意：</h3>
                             <p>对于没有设置绝对定位的元素，这些组合键操作会被简单忽略。<em>插图</em>单元在内容样式文件中通常有其<em>图片讲解</em>的<code>position: absolute</code>和容器的<code>position：relative</code>定义，因此无需手动设置。</p>
                         </aside>
                     </section>
@@ -372,7 +392,7 @@
                 <section role="s2">
                     <h2>杂项功能</h2>
                     <ul>
-                        <li><kbd>P</kbd>：快捷打开目标单元的<strong>属性</strong>面板。<em><strong>注</strong>：从右击鼠标弹出的上下文菜单中也可以。</em></li>
+                        <li><kbd>P</kbd>：打开目标单元的<strong>属性</strong>编辑框。<em><strong>注</strong>：从右击鼠标弹出的上下文菜单中也可以。</em></li>
                         <li><kbd>Alt+P</kbd>：<strong>导出</strong>文章内容<em>源码</em>，会自动打开导出对话框。</li>
                         <li><kbd>Alt+Shift+P</kbd>：同上<strong>导出</strong>内容<em>源码</em>，但会在适当的位置插入文章<strong>目录</strong>（大纲）。</li>
                         <li><kbd>Ctrl+S</kbd>：手动执行<strong>本地暂存</strong>（<code>localStorage</code>）。<em><strong>注</strong>：刷新页面会自动恢复之前保存的内容。</em></li>
@@ -381,125 +401,172 @@
                 </section>
                 <section role="s2">
                     <h2>格式刷</h2>
-                    <p>样式标签栏有一个<strong>格式刷</strong>按钮，可以对选取集内的元素应用<strong>焦点元素</strong>的样式。</p>
+                    <p>样式标签栏有一个<strong>格式刷</strong>按钮，可以对选取集内的元素应用<strong>焦点元素</strong>的样式。这种操作并不像普通编辑器（如Word）里那样，用刷子去同步样式，而是反过来先选取元素，再定位同步的样式源（选取焦点）。</p>
+                    <p>虽然<strong>内联的样式</strong>很方便设置，但文档编写者应当<strong>注意</strong>，这些内联的样式是一种<strong>硬编码</strong>，并不方便应用<em>外部共享</em>的样式。</p>
+                    <p role="tips"><strong>提示</strong>：这里编辑的文档有着规范化的HTML结构，样式共享很容易。你的读者可能希望使用他喜欢的样式来阅读。</p>
                 </section>
             </section>
             <section role="s1">
                 <h2>录入面板</h2>
                 <header>
-                    <p>与普通编辑器的原地输入不同，本设计中的内容录入主要通过内容面板来实现。</p>
-                    <p>因为文章的内容单元有结构性限制，即该内容只能出现在什么位置（比如 <code>&lt;address&gt;</code> 应当只存在于 <code>&lt;footer&gt;</code> 内），所以录入面板的创建方式更合理，因为这样可以很方便的限定可以在目标位置创建什么内容。</p>
-                    <p>目标位置用选取元素来标识，新的内容可以插入到该位置之前、之后或内部。如果选取了多个元素，可插入项目是各目标可插入项目的交集，且内容会同时插入到多个目标位置处。</p>
+                    <p>与普通编辑器的原地输入不同，本设计的内容录入主要通过内容面板来实现。</p>
+                    <p>因为文章的内容单元有<em>结构性</em>限制，内容只能出现在<em>合法的位置</em>（比如<code>&lt;caption&gt;</code>只能在表格内），所以录入面板的创建方式更合理，这样可以很方便地限定在什么位置创建什么内容。</p>
+                    <p>目标位置用<strong>选取集</strong>元素来标识，新的内容可以插入到该位置<em>之前</em>、<em>之后</em>或<em>内部</em>。如果选取了多个元素，可插入项目是各个目标可插入项目的交集，而内容也会同时插入到各个目标位置处。</p>
                 </header>
                 <section role="s2">
                     <h2>快捷键</h2>
                     <section role="s3">
-                        <h2>录入文本框&lt;textarea&gt;</h2>
+                        <h2>文本框&lt;textarea&gt;</h2>
                         <ul>
-                            <li><code>Alt+F</code><strong>切换</strong>录入框最大化（充满面板）。</li>
-                            <li><code>Ctrl+Enter</code> 直接<strong>提交</strong>插入，效果同单击插入按钮。<strong>注</strong>：焦点会保持在录入框内。</li>
-                            <li><code>Alt+Ctrl+Enter</code> 同上直接提交。但如果录入框已铺满，恢复为普通状态。</li>
+                            <li><kbd>Alt+F</kbd>：录入框最大化<strong>切换</strong>（相对于面板）。<em><strong>注</strong>：也可以按<kbd>ESC</kbd>键取消最大化。</em></li>
+                            <li><kbd>Ctrl+Enter</kbd>：直接<strong>提交</strong>插入，效果同单击<code>插入</code>按钮。焦点会保持在录入框内。</li>
+                            <li><kbd>Alt+Ctrl+Enter</kbd>：同上直接<strong>提交</strong>。但如果录入框已最大化，会恢复到普通状态。</li>
                         </ul>
                     </section>
                     <section role="s3">
-                        <h2>表格单元录入&lt;th|td&gt;</h2>
+                        <h2>表格单元&lt;th|td&gt;</h2>
                         <ul>
-                            <li><code>Enter</code> 纵向向下切换单元格（并选取）。</li>
-                            <li><code>Shift + ↓</code> 同上效果。</li>
-                            <li><code>Shift + ↑</code> 纵向向上切换单元格并选取。</li>
-                            <li><code>Shift + Enter</code> 插入换行符（浏览器自身功能）。</li>
+                            <li><kbd>Enter</kbd>：切换到当前列的<strong>下一个</strong>单元格。</li>
+                            <li><kbd>Shift+↓</kbd>：同上当前列<em>向下</em>切换。</li>
+                            <li><kbd>Shift+↑</kbd>：切换到当前列的<strong>上一个</strong>单元格。</li>
+                            <li><kbd>Shift+Enter</kbd>：插入<strong>换行符</strong>（浏览器自身功能保留）。</li>
                         </ul>
                         <ul>
-                            <li><code>粘贴</code> 内容以换行符切分，从焦点单元格开始，同行后续单元格连续粘贴（内容覆盖式）。</li>
-                            <li><code>Shift + 粘贴</code> 普通方式粘贴，可能为纯文本（浏览器能力）。</li>
+                            <li><kbd>Ctrl+V</kbd>：浏览器<em>粘贴</em>功能，但内容以换行符分段，从当前单元格开始向后<em>连续覆盖</em>。</li>
+                            <li><kbd>Shift+Ctrl+V</kbd>&nbsp;保留浏览器普通方式粘贴（纯文本）。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：智能切分粘贴只支持单行单元格序列。如果需要一次性对多行粘贴，可以插入后在内容区操作。</p>
+                        <p role="tips"><strong>提示</strong>：智能切分粘贴只支持<em>当前行</em>单元格。如果需要一次性对<em>多行粘贴</em>，可在内容区的普通模式下进行。</p>
+                    </section>
+                    <section role="s3">
+                        <h2>代码框&lt;pre._code&gt;</h2>
+                        <p>录入代码的文本框支持一些简单的<strong>友好编辑</strong>行为：比如回车<em>自动缩进</em>，初始粘贴自动<em>去除多余缩进</em>，<kbd>Tab</kbd>键自动插入多个空格（一个缩进），而退格键<kbd>Backspace</kbd>则自动删除一个缩进等。</p>
+                        <p>因为代码框拦截了<kbd>Enter</kbd>键的行为，所以前面普通文本框里的<em>快捷提交</em>功能就没有了。你需要明确点按<code>插入</code>按钮来完成提交。</p>
                     </section>
                 </section>
             </section>
             <section role="s1">
                 <h2>修订模式</h2>
                 <header>
-                    <p>内容元素的 <code>contenteditable</code> 特性被设置为 <code>true</code>，此时即进入修订模式，编辑范围严格受限于容器元素之内。这种模式应当仅用于简单的文本修改。</p>
-                    <p>在这种模式中，<code>Enter</code> 键的功能被严格限制，以回避不同浏览器的兼容性问题。</p>
+                    <p>内容元素的<code>contenteditable</code>特性被设置为<code>true</code>时即进入了修订模式。因为浏览器处理<code>contenteditable</code>元素的差异较大，所以这里进行了严格约束，编辑范围也被严格限制。这种模式应当仅用于简单的文本修改和新行创建。</p>
+                    <p>约束主要体现在对<kbd>Enter</kbd>键的限制上：</p>
                     <ul>
-                        <li><code>Enter</code> 确认并退出。<strong>注</strong>：会提前执行 <code>normalize</code>。</li>
-                        <li><code>Shift + Enter</code> 插入一个换行元素 <code>&lt;br&gt;</code>，或者在 <code>&lt;pre&gt;</code> 元素内插入一个换行字符 <code>\n</code>。<strong>注</strong>：浏览器默认行为。</li>
-                        <li><code>Ctrl + Enter</code> 新建一个同类空行，原行确认，光标在新行内。仅限于段落类 <code>&lt;p:xx&gt;</code> 和列表项元素 <code>&lt;li&gt;, &lt;dt&gt;, &lt;dd&gt;</code>。</li>
-                        <li><code>Alt + Enter</code> 新建一个逻辑空行。特定于 <code>dt &gt; dd</code> 和 <code>td|th ~ tr</code> 两种情况。</li>
-                        <li><code>Tab</code> 完成并切换。功能与 <code>Enter</code> 类似，但会取消当前元素的选取并进入下一个已选取元素的微编辑（如果有）。</li>
-                        <li><code>ESC</code> 取消当前修订并退出微编辑。元素选取保持。</li>
+                        <li><kbd>Enter</kbd>：确认当前修订并退出。</li>
+                        <li><kbd>Shift+Enter</kbd>：插入一个换行<code>&lt;br&gt;</code>元素，在<code>&lt;pre&gt;</code>元素内会插入一个换行字符<code>\n</code>。<em><strong>注</strong>：浏览器自身功能。</em></li>
+                        <li><kbd>Ctrl+Enter</kbd>：新建一个<em>同类</em>空行，原行自动确认。适用于段落类和列表项元素<code>&lt;li&gt;</code>, <code>&lt;dt&gt;,</code><code>&lt;dd&gt;</code>。</li>
+                        <li><kbd>Alt+Enter</kbd>：新建一个<em>逻辑</em>空行，原行自动确认。适用诸如<code>&lt;dt&gt;</code>之后的<code>&lt;dd&gt;</code>，或者<code>&lt;summary&gt;</code>之后的<code>&lt;p&gt;</code>等。</li>
+                        <li><kbd>Tab</kbd>：完成当前修订并切换到下一个选取的元素。如果没有其它已选取的元素，则同<kbd>Enter</kbd>。</li>
+                        <li><kbd>ESC</kbd>：取消当前修订并退出微编辑。</li>
                     </ul>
                     <aside>
-                        <h3>附：换行兼容性</h3>
-                        <p><code>Enter</code> 的行为在不同浏览器之间差异较大，<code>Shift+Enter</code> 则较为一致。</p>
-                        <p><code>&lt;pre&gt;</code> 元素微编辑修订后，其中的换行元素 <code>&lt;br&gt;</code> 会被强制替换为换行字符 <code>\n</code>，以保证内容的一致性。</p>
+                        <h3>换行兼容性：</h3>
+                        <p><kbd>Enter</kbd>的行为在不同浏览器之间差异较大，<kbd>Shift+Enter</kbd>则较为一致。</p>
+                        <p><code>&lt;pre&gt;</code>元素在微编辑修订后，其中的换行元素<code>&lt;br&gt;</code>会被强制替换为换行字符<code>\n</code>，以保证内容的一致性。</p>
                     </aside>
+                    <p>对于<strong>代码元素</strong><code>&lt;code&gt;</code>，如果元素上有语言定义（<code>data-lang</code>），完成后自动解析语法高亮。</p>
                 </header>
-                <section role="s2">
-                    <h2>代码元素</h2>
-                    <p>对于普通的内容元素，修订时是所见即所得的。但对于代码内容，则是纯文本的（语法标注 <code>&lt;b&gt;</code> 会被清除），系统会在确认提交时重新解析语法。</p>
-                    <p role="tips"><strong>提示</strong>：后期可能提供代码编辑时的即时解析高亮能力。</p>
-                </section>
             </section>
             <section role="s1">
                 <h2>属性框</h2>
-                <p>选中目标元素或相同类型的多个单元，如果该类型有属性可修改，键入快捷键 <code>P</code> 或从上下文菜单中单击属性条目，可打开属性编辑对话框。</p>
-                <p>如果目标只是单个单元，修改的属性条目会逐一应用：文本框内的空串会导致该条目的属性被移除，其它形式的控件则遵循所显示的意义。</p>
-                <p>但如果目标是多个单元，则属性对应的条目控件存在<strong>不确定</strong>态，即 <code>indeterminate</code>。不确定态的条目如果未作修改（控件保持原样），则表示各条目的对应属性也会保持原样。这为多个目标的部分属性执行批量修改提供了可能性。表示不确定态的控件状态约定如下：</p>
+                <p>如果选中的元素有属性可修改，键入热键<kbd>P</kbd>可以打开属性编辑框。也可以从上下文菜单中点选属性条目打开。如果选中多个同类元素，打开的属性修改将应用到多个目标上。</p>
+                <p>操作单个目标时，修改的属性会逐一应用：文本框内的<em>空串</em>会使该属性被<em>移除</em>。</p>
+                <p>操作多个目标时，如果各个目标的某属性的值不一样，则出现<strong>不确定</strong>（<code>indeterminate</code>）态。如果不确定态的条目未作改变，则对应属性则保持原样。<em>不确定</em>态的控件表现约定如下：</p>
                 <ul>
-                    <li>文本框： 包含 <code>&lt;input:text&gt;</code> 和 <code>&lt;textarea&gt;</code> 两种，无值（空串）时表示不确定态。<code>$.val()</code> 取值为一个空串。</li>
-                    <li>单选按钮组： 没有任一按钮被选中时，表示不确定态。<code>$.val()</code> 取值为 <code>null</code>。</li>
-                    <li>复选按钮： 浏览器支持其不确定态的特殊外观（通常是小方框内一个短横线），同时该控件的 <code>indeterminate</code> 属性值为 <code>true</code>。取值时应当检查 <code>indeterminate</code> 属性而不是简单地调用 <code>$.val()</code>。</li>
-                    <li>条目选单： 即 <code>&lt;select&gt;</code>，类似单选按钮组，没有任一条目被选中时为不确定态。<code>$.val()</code> 取值为 <code>null</code>。</li>
+                    <li><strong>文本框</strong>：包含<code>&lt;input:text&gt;</code>和<code>&lt;textarea&gt;</code>两种，无值时表示不确定态。</li>
+                    <li><strong>单选按钮</strong>：同一组单选按钮没有任一按钮被选中时，表示不确定态。</li>
+                    <li><strong>复选按钮</strong>：浏览器支持其<em>不确定</em>态的特殊外观（可能是小方框内一个短横线）。</li>
+                    <li><strong>条目选单</strong>：即<code>&lt;select&gt;</code>元素，类似单选按钮组，没有任一条目被选中时为不确定态。</li>
                 </ul>
-                <p role="tips"><strong>注意</strong>：不确定态区分仅适用于多目标选取时。</p>
+                <p role="tips"><strong>提示</strong>：如果选取的多个目标类型不同，热键<kbd>P</kbd>不会有反应，展开上下文菜单时会发现<em>属性</em>条目为<em>禁用</em>状态。</p>
             </section>
             <section role="s1">
                 <h2>命令行</h2>
+                <header>
+                    <p>编辑器底部状态栏上的文本输入条即是<strong>命令行</strong>，在这里可以执行一些高级操作。命令行支持简单的<em>历史搜索</em>：键入<kbd>Tab</kbd>键会显示上一次执行的命令，<em>在此基础上</em>键入<strong>上下箭头</strong>键可以在历史栈中游历。</p>
+                    <p>命令行支持<strong>5</strong>种指令类型，分别由5个特殊字符标识：</p>
+                    <ul>
+                        <li><kbd>&gt;</kbd>： <strong>选取</strong>。命令行内容为<code>CSS</code>选择器，可在当前选取集或全局范围（内容区）内检索选取目标元素。</li>
+                        <li><kbd>|</kbd>： <strong>过滤</strong>。命令行内容为过滤条件，可对当前选取集执行过滤。</li>
+                        <li><kbd>/</kbd>： <strong>搜索</strong>。命令行内容为搜索的<em>目标文本</em>，在选取集或全局搜索范围搜索目标文本并<em>标记</em>。</li>
+                        <li><kbd>:</kbd>： <strong>命令</strong>。命令行内容为编辑器支持的<em>命令</em>，主要是一些基本的工具函数。</li>
+                        <li><kbd>=</kbd>： <strong>计算</strong>。将命令行内容视为<code>JS</code>表达式，执行简单的计算并返回到命令行<em>回显</em>。</li>
+                    </ul>
+                    <p>命令行有全局的热键可以直达：键入代表指令类型的<strong>特殊字符</strong>即可，这会自动<em>切换</em>命令行指令类型，并将输入焦点定位到命令行中。当然用鼠标单击命令行前的<em>特殊字符框</em>也可以实现切换。</p>
+                </header>
                 <section role="s2">
-                    <h2>搜索（/）</h2>
-                    <p>可以对全文或已选取的集合范围执行文本搜索，搜索的结果会被标记为特殊的 `&lt;mark&gt;` 元素。</p>
-                    <p>文本的搜索以文本节点为上下文，不支持跨节点文本的搜索。这既是一种简化方便，也可能有它的合理性：既然文本被断开了，就认为横贯断点的文本不应当被匹配。</p>
-                    <p>激活搜索的指令符为斜线（`/`）。焦点进入命令行后，遵循如下格式：</p>
-                    <ul>
-                        <li><code>Hello</code> 检索文本 <code>Hello</code>，回车后执行。如果已经存在选取集，则在选取集范围内执行检索。下同。</li>
-                        <li><code>abc/xyz/ok</code> 检索文本 <code>abc/xyz/ok</code>，文本内的斜线只是普通字符。</li>
-                    </ul>
-                    <ul>
-                        <li><code>/[0-9a-f]/i</code> 这是一个正则表达式，由前置的 <code>/</code> 标示出来。</li>
-                        <li><code>/[0-9a-f]</code> 正则表达式<strong>格式错误</strong>，缺乏结尾 <code>/</code>。会被视为一个普通的字符串。</li>
-                        <li><code>/[0-9a-f]/</code> 合法的正则表达式。</li>
-                        <li><code>/[0-9a-f]/ </code> 末尾的空格使得这只是一个普通字符串，这也是搜索正则式串本身的一个小技巧。</li>
-                    </ul>
+                    <h2>选取（<kbd>&gt;</kbd>）</h2>
+                    <p>在当前选取集范围内检索目标选择器匹配的元素。支持二阶检索选择器：斜线分隔向上和向下选择器，焦点元素为起点。如果没有已选取的元素，则在全局范围（内容区）内检索。</p>
                     <aside>
-                        <h3>注记：</h3>
-                        <p>不支持直接在表达式中定义替换功能，仅仅只是简单地检索文本内容。</p>
-                        <p>检索结果会封装为（<code>&lt;mark&gt;</code>）并选取，因此可以通过其它方式操作目标。比如替换（粘贴+内容提升）、封装（转换）或删除（按 <code>Delete</code>）。</p>
+                        <h3>二阶检索</h3>
+                        <p>这是一种<em>最近路径</em>检索法：首先向上查找与目标元素最近的<strong>共同祖先</strong>容器，然后向下检索目标元素。这可以压缩范围以提高效率，同时还可以回避标识名全局唯一性的约束（小范围内唯一即可）。</p>
+                        <p>二阶检索需要存在<strong>起点元素</strong>，即从一个起点元素查找另一个元素，类似于相对路径的逻辑。通常应用在一个元素的事件处理器中（以当前元素为起点）。</p>
+                        <p>二阶检索通过<em>二阶选择器</em>来实现，格式：<code style="font-weight: bold;">Up-selector/Down-selector</code></p>
+                        <ol>
+                            <li><code style="">Up-selector</code>：从起点元素向上检索共同祖先的<code>CSS</code>选择器。也可以是数字，表示上升的DOM层级。</li>
+                            <li><code style="">Down-selector</code>：当向上抵达共同祖先节点后，向下检索目标的<code>CSS</code>选择器。</li>
+                        </ol>
+                        <p style="font-weight: bold;">示例：</p>
+                        <ul>
+                            <li><code style="font-weight: bold;">/</code>：单独的斜线分隔符表示起点元素自身。同：<code>0/</code>。</li>
+                            <li><code style="font-weight: bold;">2/</code>：祖父元素自身（父元素的父元素）。</li>
+                            <li><code style="font-weight: bold;">form/input</code>：当前表单内的首个&lt;input&gt;元素。</li>
+                            <li><code style="font-weight: bold;">.abc</code>：整个文档（<code>document</code>）内类名为<code>abc</code>的元素。没有斜线分隔视为普通的<code>CSS</code>选择器。</li>
+                            <li><code style="font-weight: bold;">/#xyz</code>：起点元素内id为<code>xyz</code>的元素。即便其它地方存在同名的id，也会正常检索到目标。</li>
+                        </ul>
                     </aside>
                 </section>
                 <section role="s2">
-                    <h2>查询（?）</h2>
-                    <p>保留问号（<code>?</code>）指令符用于未来的社区交互逻辑。</p>
-                </section>
-            </section>
-            <section role="s1">
-                <h2>注记</h2>
-                <section role="s2">
-                    <h2>单元移动/转换</h2>
+                    <h2>过滤（<kbd>|</kbd>）</h2>
+                    <p>以当前选取集为总集，过滤出目标元素集。支持<em>选择器</em>、<em>数组定位</em>以及<em>过滤函数</em>的筛选形式。</p>
                     <ul>
-                        <li>同级兄弟元素间可自由移动，但不能跨越固定性单元。</li>
-                        <li>跨容器单元的移动涉及转换，如果目标位置合法则简单移动，否则转换构造为默认的合法单元插入。</li>
+                        <li><code>String</code>：普通CSS选择器。</li>
+                        <li><code>[n:m]</code>：冒号分隔的数组下标范围（空格可选），如：<code>[5:10]</code>、<code>[5:]</code>等。</li>
+                        <li><code>[x,y,z]</code>：数组下标定位选取，如：<code>[0,3,4]</code>。</li>
+                        <li><code>{function}</code>：花括号包围的过滤函数。通常应当使用箭头函数。</li>
                     </ul>
                 </section>
                 <section role="s2">
+                    <h2>搜索（<kbd>/</kbd>）</h2>
+                    <p>对已选取的集合执行文本搜索，并把结果标记为特殊的<code>&lt;mark&gt;</code>元素。如果当前无选取，则以内容区为范围。</p>
+                    <p>文本搜索以<em>文本节点</em>为上下文，因此跨节点的文本无法组词。如果必要，你可以执行一次节点合并操作（<kbd>Alt+Z</kbd>），以避免无意中断开了连续的文本。这种简化有它的合理性：既然文本被断开了，它们就不应当成为一个<em>词组</em>。</p>
+                    <p>搜索支持正则表达，格式如下：</p>
+                    <ul>
+                        <li><code>Hello</code>：普通文本，回车后执行检索。</li>
+                        <li><code>abc/xyz/ok</code>：普通文本，文本内的斜线只是普通字符。</li>
+                    </ul>
+                    <ul>
+                        <li><code>/[0-9a-f]/i</code>：正则表达式，由前置的<code>/</code>标示出来。</li>
+                        <li><code>/[0-9a-f]</code>：并非正则表达式，缺乏结尾<code>/</code>。会被视为一个普通的字符串。</li>
+                        <li><code>/[0-9a-f]/</code>：合法的正则表达式。</li>
+                        <li><code>/[0-9a-f]/ </code>：末尾的空格不是合法的正则表达式标志，因此这只是一个普通字符串。</li>
+                    </ul>
+                    <p role="tips"><strong>提示</strong>：<br />并不能在搜索表达式中直接使用替换操作，如果需要替换，可以在命令模式下执行<code>replace</code>指令来实现。</p>
+                </section>
+                <section role="s2">
+                    <h2>命令（<kbd>:</kbd>）</h2>
+                    <p>支持几个基本的工具命令：</p>
+                    <ul>
+                        <li><code>plug-ins</code>：插件安装。</li>
+                        <li><code>plug-del</code>：插件移除。</li>
+                        <li><code>help</code>：开启帮助窗口并定位到指定的关键字条目。</li>
+                        <li><code>config</code>：显示&amp;设置系统配置。</li>
+                        <li><code>replace</code>：替换选取集文本内容，仅适用于内容元素。</li>
+                    </ul>
+                </section>
+                <section role="s2">
+                    <h2>计算（<kbd>=</kbd>）</h2>
+                    <p>用户的输入会直接在顶层（<strong>window</strong>）执行，用户需要注意代码的<em style="color: rgb(204, 0, 0);">安全性</em>，<em>不应当</em>在表达式中修改DOM树结构！</p>
+                </section>
+            </section>
+            <section role="s1">
+                <h2>其它</h2>
+                <section role="s2">
                     <h2>表格的容错编辑</h2>
-                    <p>通过特性编辑面板，用户可以修改单元格的 <code>rowspan</code> 和 <code>colspan</code> 特性，因此对于懂得 HTML 结构的专业用户来说，他们可以自由构建不规整的表格结构。因此，编辑器不阻止用户删除/插入独立的单元格。</p>
-                    <p>但这种能力是用户自有的，如果克隆表格行（<code>&lt;tr&gt;</code>），编辑器并不检查单元格的这两个特性，而只是简单地参考表格的 <code>$.Table</code> 实例的内在状态值（列头和列数）进行处理。</p>
+                    <p>通过特性编辑面板，用户可以修改表格单元格的<code>rowspan</code>和<code>colspan</code>特性，因此对于了解HTML的用户来说，他们可以自由构建不规整的表格结构。编辑器不阻止用户<em>删除</em>或<em>插入</em>独立的单元格。</p>
+                    <p>这种能力是用户自己的，如果克隆表格行（<code>&lt;tr&gt;</code>），编辑器并不会检查单元格的这两个特性值。</p>
                 </section>
                 <section role="s2">
                     <h2>兼容性依赖</h2>
-                    <p>修订模式下需要浏览器的 <code>document.execCommand</code> 支持，以实现从外部插入内容时，可以直接使用浏览器的<strong>Undo/Redo</strong>功能，避免编写复杂的撤销和重做代码。</p>
+                    <p>修订模式下需要浏览器的<code>document.execCommand</code>支持，以实现从外部插入内容时，可以直接沿用浏览器自身的<strong>Undo</strong>和<strong>Redo</strong>功能。这简化了编码复杂性。</p>
                 </section>
             </section>
         </article>

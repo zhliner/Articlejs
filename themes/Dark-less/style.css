@@ -1649,6 +1649,7 @@ menu._cells code {
 .Status > ._cmdx > ._code {
     width: 100%;
     position: absolute;
+    z-index: 100;
     bottom: 27px;
     display: flex;
     flex-direction: column-reverse;
