@@ -5206,15 +5206,17 @@ export const Edit = {
 
 
     /**
-     * 仅首字符转为大写。
+     * 首字符转为大写。
+     * 以选取的元素为范围，只检索其首个非空文本节点。
      */
     toUpperCase1() {
         if ( !__ESet.size ) {
             return;
         }
         let _nds = textNodes( $(__ESet) ).map( nds => nds[0] ),
-            // 忽略空白，替换首个匹配。
-            _fun = txt => txt.replace( /^(\s*)([a-z])/, (_, c0, c1) => c0 + c1.toUpperCase() );
+            // 任意位置首个匹配替换。
+            // 这样更灵活性，可忽略非字母包围等。
+            _fun = txt => txt.replace( /[a-z]/, ch => ch.toUpperCase() );
 
         _nds.length &&
         historyPush( new TextModify(_nds, _fun) );
