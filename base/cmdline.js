@@ -294,6 +294,9 @@ class Filter {
 //
 // 搜索目标词
 // 返回的是检索词的Range对象集，以便于外部构造<mark>元素。
+// 搜索词默认视为字符串，也可以是正则表达式。
+// 字符串容错引号包围，
+// 因此如果需要搜索正则表达式本身，可用引号包围。
 //
 class Search {
     /**
@@ -307,22 +310,18 @@ class Search {
 
     /**
      * 执行指令。
-     * 外部应当先执行一次 $.normalize() 规范化，
+     * 外部可能需要先执行一次规范化（normalize），
      * 以合并无意中创建的片段文本。
      * @param  {String} word 待搜索词
      * @param  {[Text]} nodes 目标节点集（文本节点）
      * @return {[Range]} 搜索词范围对象集
      */
     exec( word, nodes ) {
-        let _buf = [];
+        word = __reRegExp.test( word ) ?
+            this._regexp( word ) :
+            strValue( word );
 
-        if ( __reRegExp.test(word) ) {
-            word = this._regexp( word );
-        }
-        for ( const nd of nodes ) {
-            _buf.push( ...this._ranges(nd, word) );
-        }
-        return _buf;
+        return nodes.map( nd => this._ranges(nd, word) ).flat();
     }
 
 
@@ -331,22 +330,22 @@ class Search {
      * 技巧：
      * 如果需要搜索一个正则表达式本身（文本），
      * 可以在前或后附加一个空格，这样它就不会被视为一个正则表达式了。
-     * @param  {Text} txt 待检索文本节点
+     * @param  {Text} node 待检索文本节点
      * @param  {String|RegExp} word 检索词或正则表达式
      * @return {[Range]} 范围对象集
      */
-    _ranges( txt, word ) {
+    _ranges( node, word ) {
         let _buf = [],
             i = 0,
             len = 0;
 
         /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
         while ( true ) {
-            [i, len] = this._search(txt.textContent, word, i);
+            [i, len] = this._search(node.textContent, word, i);
             if ( i < 0 ) {
                 break;
             }
-            _buf.push( this._range(txt, i, len) );
+            _buf.push( this._range(node, i, len) );
             i += len;
         }
         return _buf;
@@ -476,9 +475,7 @@ class Command {
      * @return {[String]}
      */
     _args( str ) {
-        return $.split( str, __chrArgs, Infinity, true )
-            .filter( s => s )
-            .map( s => __reString.test(s) ? s.match(__reString)[2] : s );
+        return $.split(str, __chrArgs, Infinity, true).filter(s => s).map( strValue );
     }
 
 
@@ -560,9 +557,7 @@ class Command {
 // 简单计算器。
 // 支持 $$ 引用当前选取集（Collector），因此可以执行较多的功能。
 // 但应当仅使用读取类接口，而不要改变DOM本身。
-//
 // 执行结果会回显到命令行，这是另一种便捷。
-//
 // 安全性：
 // 表达式会构造为一个函数并在全局环境下执行，
 // 因此用户代码可以修改DOM，但这是不安全的（可能破坏编辑器的结构和功能）。
@@ -795,19 +790,35 @@ const __cmdBuffer = {
 //
 class Replace {
     /**
+     * 如果newstr未定义，表示pattern即为newstr，
+     * 也即目标内容全部替换。
+     * 如果pattern是一个正则表达式，newstr中可以使用特殊变量名：
+     * $$   插入一个 "$"。
+     * $&   插入匹配的子串。
+     * $`   插入当前匹配的子串左边的内容（撇号）。
+     * $'   插入当前匹配的子串右边的内容（单引号）。
+     * $n   插入第 n 个括号匹配的字符串（n<100）。
+     * 注：
+     * 即浏览器 String.prototype.replace() 支持的特性。
+     *
      * @param {[Element]} els 目标元素集
-     * @param {...String} txts 替换文本序列
+     * @param {String|RegExp} pattern 匹配式或替换的文本表达式
+     * @param {String} newstr 替换的文本表达式，可选
      */
-    constructor( els, ...txts ) {
+    constructor( els, pattern, newstr ) {
         if ( !this._checks(els) ) {
             throw new Error( Tips.needContent );
         }
-        if ( txts.length === 1 ) {
-            txts = new Array(els.length).fill( txts );
+        if ( newstr === undefined ) {
+            // 整体匹配
+            [pattern, newstr] = [/[^]+/, pattern];
+        } else {
+            pattern = this._regstr( pattern );
         }
+        this._tts = $(els)
+            .map( el => el.textContent.replace(pattern, newstr) )
+            .Text();
         this._els = els;
-        // 空串有效（清空）。
-        this._tts = $(txts).Text();
 
         // 二维节点组数据。
         this._old = els.map( (el, i) => this._fill(el, this._tts[i]) );
@@ -843,15 +854,26 @@ class Replace {
 
 
     /**
+     * 测试构造正则式。
+     * 如果不是合法的格式则视为普通字符串。
+     * @param  {String} str 目标字符串
+     */
+    _regstr( str ) {
+        if ( !__reRegExp.test(str) ) {
+            return str;
+        }
+        return new RegExp( ...str.match(__reRegExp).slice(1) );
+    }
+
+
+    /**
      * 内容填充。
-     * 没有数据节点时忽略操作，以支持局部变化（前段）。
      * 注：使用DOM原生接口。
      * @param  {Element} el 容器元素
      * @param  {Node|[Node]} nd 数据节点（集）
      * @return {[Node]|null} 原内容节点集
      */
     _fill( el, nd ) {
-        if ( !nd ) return;
         let _old = [ ...el.childNodes ];
 
         el.textContent = '';
@@ -878,6 +900,17 @@ function filters( strs, els0 ) {
     return strs.reduce(
         (els, flr) => new Filter().execOne( flr, els ), els0
     );
+}
+
+
+/**
+ * 提取容错字符串。
+ * 容错引号包围的字符串，取其内容。
+ * @param  {String} txt 文本串
+ * @return {String}
+ */
+function strValue( txt ) {
+    return __reString.test( txt ) ? txt.match(__reString)[2] : txt;
 }
 
 

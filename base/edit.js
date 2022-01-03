@@ -3072,17 +3072,17 @@ function selfHTML( el ) {
 /**
  * 获取干净的源码。
  * 取元素的outerHTML值但移除内置的类名。
- * 注记：
- * 考虑性能，忽略内部的临时类名处理。
  * @param  {Element} el 目标元素
  * @return {String}
  */
 function cleanHTML( el ) {
-    // 浅克隆。
-    let _box = $.removeClass( el.cloneNode(), __tmpcls ),
-        _rex = RegExp(`</${_box.tagName}>$`, 'i');
+    let _new = $.clone( el );
 
-    return _box.outerHTML.replace(_rex, end => el.innerHTML + end);
+    $.find(__tmpclsSlr, _new, true)
+        .forEach(
+            el => $.removeClass( el, __tmpcls )
+        );
+    return _new.outerHTML;
 }
 
 
@@ -6854,39 +6854,40 @@ export const Kit = {
      * 导出内容源码。
      * 提取内容源码，发送到源码导出模态框。
      * 如果当前没有选取元素，取内容区全部内容。
-     * h3实参仅在导出包含目录的全部源码时有效。
-     * @data: [Element]|nil 当前选取集
+     * @data: [Element] 当前选取集
      * @param  {String} h3 目录标题条，可选
      * @return {String} 结果源码
      */
-    export( evo, h3 ) {
-        // 已选取集。
-        if ( evo.data && evo.data.length ) {
-            return $( evo.data )
-                .clone()
-                .find( __tmpclsSlr, true )
-                .removeClass( __tmpcls )
-                .prop( 'outerHTML' )
-                .join( '' );
-        }
-        // 全部内容。
-        let _box = $.clone( contentElem );
+    export( evo, ) {
+        let _els = evo.data.length ?
+            evo.data :
+            $.children( contentElem );
 
-        $.find( __tmpclsSlr, _box )
-            .forEach(
-                el => $.removeClass( el, __tmpcls )
-            );
-        if ( h3 !== undefined ) {
-            let _art = $.get(
-                'article',
-                _box
-            );
-            topInsert( T.TOC, create(T.TOC, {h3}, _art), _box );
-        }
-        return $.html( _box );
+        return _els.map( cleanHTML ).join( '' );
     },
 
     __export: 1,
+
+
+    /**
+     * 导出包含目录的内容源码。
+     * @data: [String] 目标标签
+     * @return {String} 结果源码
+     */
+    export2( evo ) {
+        let _box = $.clone( contentElem ),
+            _art = $.get( 'article', _box );
+
+        $.find( __tmpclsSlr, _box )
+        .forEach(
+            el => $.removeClass( el, __tmpcls )
+        );
+        topInsert( T.TOC, create(T.TOC, {h3: evo.data}, _art), _box );
+
+        return $.html( _box );
+    },
+
+    __export2: 1,
 
 
     /**
@@ -7515,6 +7516,7 @@ processExtend( By, 'Kit', Kit, [
     'chapter',
     'save',
     'export',
+    'export2',
     'nicehtml',
     'blankline',
     'toclist',
