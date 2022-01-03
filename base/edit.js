@@ -313,6 +313,42 @@ class CodeRun {
 
 
 //
+// 文本操作类。
+// 直接修改文本节点内容，不影响引用。
+// 主要用于大小写转换。
+//
+class TextModify {
+    /**
+     * handle:
+     * function( String ): String
+     * @param {[Text]} nodes 文本节点集
+     * @param {Function} handle 修改函数
+     */
+    constructor( nodes, handle ) {
+        this._nds = nodes;
+        this._old = nodes.map( nd => nd.textContent );
+        this._tts = this._old.map( handle );
+
+        this.redo();
+    }
+
+
+    undo() {
+        this._nds.forEach(
+            (nd, i) => nd.textContent = this._old[i]
+        );
+    }
+
+
+    redo() {
+        this._nds.forEach(
+            (nd, i) => nd.textContent = this._tts[i]
+        );
+    }
+}
+
+
+//
 // 元素选取集编辑。
 //
 class ESEdit {
@@ -5141,6 +5177,52 @@ export const Edit = {
         historyPush( new HotEdit(), clearSets(), new DOMEdit(__Edits.cloneAfter, _refs, _new2), pushes(_new2.flat()) );
     },
 
+
+    //-- 大小写转换 ----------------------------------------------------------
+
+    toUpperCase() {
+        if ( !__ESet.size ) {
+            return;
+        }
+        let _nds = $(__ESet).textNodes(true).flat(),
+            _fun = txt => txt.toUpperCase();
+
+        _nds.length &&
+        historyPush( new TextModify(_nds, _fun) );
+    },
+
+
+    /**
+     * 仅首字符转为大写。
+     */
+    toUpperCase1() {
+        if ( !__ESet.size ) {
+            return;
+        }
+        let _nds = $(__ESet).textNodes(true).map(
+                nds => nds.filter( nd => nd.textContent.trim() )[0]
+            ).filter( n => n ),
+            // 忽略空白，替换首个匹配。
+            _fun = txt => txt.replace( /^(\s*)([a-z])/, (_, c0, c1) => c0 + c1.toUpperCase() );
+
+        _nds.length &&
+        historyPush( new TextModify(_nds, _fun) );
+    },
+
+
+    toLowerCase() {
+        if ( !__ESet.size ) {
+            return;
+        }
+        let _nds = $(__ESet).textNodes(true).flat(),
+            _fun = txt => txt.toLowerCase();
+
+        _nds.length &&
+        historyPush( new TextModify(_nds, _fun) );
+    },
+
+
+    //-- 焦点元素相关 --------------------------------------------------------
 
     /**
      * 向内填充（移动）。
