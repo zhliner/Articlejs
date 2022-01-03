@@ -3520,6 +3520,18 @@ function arraySize( list, zero = __chrZero ) {
 
 
 /**
+ * 提取元素集内的非空文本节点。
+ * @param  {Collector} $els 元素集
+ * @return {[[Text]]} 文本节点集数组
+ */
+function textNodes( $els ) {
+    return $els.textNodes().map(
+        nds => nds.filter( nd => nd.textContent.trim() )
+    );
+}
+
+
+/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -3662,13 +3674,18 @@ function cmdxFilter( oper, str ) {
 
 /**
  * 搜索指令处理。
- * 提示：用户可以先执行一次全文规范化（Alt+z）。
+ * 搜索目标包含纯空白文本节点，这样用户可以检索它们并删除。
+ * 提示：
+ * 用户可能需要先执行一次全文规范化（Alt+Z）。
  * @param  {Search} oper 搜索实例
  * @param  {String} str 命令行代码文本
  * @return {[Instance]} 操作实例集
  */
 function cmdxSearch( oper, str ) {
-    let _rngs = oper.exec( str, textNodes(__ESet) );
+    let _tts = targetElements()
+            .map( el => $.textNodes(el, true) )
+            .flat(),
+        _rngs = _tts.length && oper.exec( str, _tts );
 
     if ( !_rngs.length ) {
         return `${Tips.searchNothing} ${str}`;
@@ -3711,16 +3728,12 @@ function cmdxCalcuate( oper, str ) {
 
 
 /**
- * 获取目标内的文本节点集
+ * 获取目标元素集。
  * 如果当前选取集为空，目标为内容区全部子元素。
- * @param  {Set} set 当前选取集
- * @return {[Text]}
+ * @return {[Element]}
  */
-function textNodes( set ) {
-    let _els = set.size > 0 ?
-        [...set] : $.children( contentElem );
-
-    return _els.map( el => $.textNodes(el, true) ).flat();
+function targetElements() {
+    return __ESet.size ? [...__ESet] : [...contentElem.children];
 }
 
 
@@ -5184,7 +5197,7 @@ export const Edit = {
         if ( !__ESet.size ) {
             return;
         }
-        let _nds = $(__ESet).textNodes(true).flat(),
+        let _nds = textNodes( $(__ESet) ).flat(),
             _fun = txt => txt.toUpperCase();
 
         _nds.length &&
@@ -5199,9 +5212,7 @@ export const Edit = {
         if ( !__ESet.size ) {
             return;
         }
-        let _nds = $(__ESet).textNodes(true).map(
-                nds => nds.filter( nd => nd.textContent.trim() )[0]
-            ).filter( n => n ),
+        let _nds = textNodes( $(__ESet) ).map( nds => nds[0] ),
             // 忽略空白，替换首个匹配。
             _fun = txt => txt.replace( /^(\s*)([a-z])/, (_, c0, c1) => c0 + c1.toUpperCase() );
 
@@ -5214,7 +5225,7 @@ export const Edit = {
         if ( !__ESet.size ) {
             return;
         }
-        let _nds = $(__ESet).textNodes(true).flat(),
+        let _nds = textNodes( $(__ESet) ).flat(),
             _fun = txt => txt.toLowerCase();
 
         _nds.length &&
