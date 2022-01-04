@@ -183,7 +183,7 @@
                             <li><kbd>→/L</kbd>：<strong>纵向移动</strong>，定位到子元素（<em>子级方向</em>），支持数字指定子元素位置下标，默认值 <code>0</code>（即首个子元素），负值表示从末尾算起（<code>-1</code>&nbsp;为最后一个子元素）。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：<br />在内容区拥有浏览器焦点时，键入数字可设置之后操作的前置计数。左下角状态栏有数字提示，按<kbd>ESC</kbd>取消计数。</p>
-                        <p><kbd>Tab</kbd>：普通模式下，在当前选取集成员间按<em>选取顺序</em>移动焦点。</p>
+                        <p><kbd>Tab</kbd>：普通模式下，在当前选取集成员间按<em>选取顺序</em>移动焦点。加按<kbd>Shift</kbd>则逆向移动。</p>
                     </section>
                     <section role="s3">
                         <h2>附：顶元素</h2>
@@ -364,17 +364,17 @@
                             <li><kbd>Enter</kbd>：确认当前修订（退出微编辑）。</li>
                             <li><kbd>Tab</kbd>：确认当前修订。如果有多个选取，按选取顺序进入到下一个元素的修订。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：非内容元素不能直接进入微编辑，此时可以按 <kbd>W</kbd> 或 <kbd>Shift+W</kbd> 选取其内容元素然后再继续。</p>
+                        <p role="tips"><strong>提示</strong>：非内容元素不能直接进入微编辑，此时可以按<kbd>W</kbd>或<kbd>Shift+W</kbd>选取其内容元素然后再继续。</p>
                     </section>
                     <section role="s3">
                         <h2>定位移动</h2>
                         <p>有时侯需要内容处于准确的平面位置，通常是设置其绝对样式（<code>position:absolute</code>以及<code>left</code>或<code>top</code>值）。这种定位方法需要用户了解一些CSS知识，如对容器设置<code>position:relative</code>样式。</p>
                         <p>如果容器已经设置了<code>position:relative</code>，元素自身设置了<code>position:absolute</code>，通过下面的操作就可以简单调整位置。</p>
                         <ul>
-                            <li><kbd>Ctrl+←</kbd>：向左移动<strong>1</strong>像素。加按 <kbd>Shift</kbd> 则以<strong>10</strong>像素为单位。</li>
-                            <li><kbd>Ctrl+→</kbd>：向右移动<strong>1</strong>像素。加按<kbd>Shift</kbd> 键同上。</li>
-                            <li><kbd>Ctrl+↑</kbd>：向上移动<strong>1</strong>像素。加按<kbd>Shift</kbd> 键同上。</li>
-                            <li><kbd>Ctrl+↓</kbd>：向下移动<strong>1</strong>像素。加按<kbd>Shift</kbd> 键同上。</li>
+                            <li><kbd>Ctrl+←</kbd>：向左移动<strong>1</strong>像素。加按<kbd>Shift</kbd>则以<strong>10</strong>像素为单位。</li>
+                            <li><kbd>Ctrl+→</kbd>：向右移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
+                            <li><kbd>Ctrl+↑</kbd>：向上移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
+                            <li><kbd>Ctrl+↓</kbd>：向下移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
                         </ul>
                         <aside>
                             <h3>注意：</h3>
@@ -400,10 +400,10 @@
                     <h2>杂项功能</h2>
                     <ul>
                         <li><kbd>P</kbd>：打开目标单元的<strong>属性</strong>编辑框。<em><strong>注</strong>：从右击鼠标弹出的上下文菜单中也可以。</em></li>
-                        <li><kbd>Alt+P</kbd>：<strong>导出</strong>文章内容<em>源码</em>，会自动打开导出对话框。</li>
-                        <li><kbd>Alt+Shift+P</kbd>：同上<strong>导出</strong>内容<em>源码</em>，但会在适当的位置插入文章<strong>目录</strong>（大纲）。</li>
-                        <li><kbd>Ctrl+S</kbd>：手动执行<strong>本地暂存</strong>（<code>localStorage</code>）。<em><strong>注</strong>：刷新页面会自动恢复之前保存的内容。</em></li>
-                        <li><kbd>G</kbd>：<strong>章节跳转</strong>。根据键入的章节序列（如：<code>3.12.5</code>），将目标章节滚动到当前视口。<em><strong>注</strong>：需要内容区聚焦。</em></li>
+                        <li><kbd>Alt+P</kbd>：<strong>导出</strong>选取单元或全文内容<em>源码</em>，会自动打开导出对话框。</li>
+                        <li><kbd>Alt+Shift+P</kbd>：<strong>导出</strong>全文内容<em>源码</em>，同时会在适当的位置插入文章<strong>目录</strong>（大纲）。与选取元素无关。</li>
+                        <li><kbd>Ctrl+S</kbd>：内容源码<strong>本地暂存</strong>（<code>localStorage</code>）。<em><strong>注</strong>：刷新页面会自动导入之前保存的内容。</em></li>
+                        <li><kbd>G</kbd>：<strong>章节跳转</strong>。根据键入的章节序列（如：<code>3.12.5</code>），将目标章节滚动到当前视口。<em><strong>注</strong>：需内容区聚焦。</em></li>
                     </ul>
                 </section>
                 <section role="s2">
