@@ -183,6 +183,7 @@
                             <li><kbd>→/L</kbd>：<strong>纵向移动</strong>，定位到子元素（<em>子级方向</em>），支持数字指定子元素位置下标，默认值 <code>0</code>（即首个子元素），负值表示从末尾算起（<code>-1</code>&nbsp;为最后一个子元素）。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：<br />在内容区拥有浏览器焦点时，键入数字可设置之后操作的前置计数。左下角状态栏有数字提示，按<kbd>ESC</kbd>取消计数。</p>
+                        <p><kbd>Tab</kbd>：普通模式下，在当前选取集成员间按<em>选取顺序</em>移动焦点。</p>
                     </section>
                     <section role="s3">
                         <h2>附：顶元素</h2>
@@ -355,12 +356,13 @@
                     </section>
                     <section role="s3">
                         <h2>进入微编辑</h2>
-                        <p>可以对元素内容进行简单的修订（<code>Modify</code>），这通过进入一种<strong>微编辑</strong>的状态实现。这种修订仅适用于<em>内容元素</em>。</p>
-                        <p>有多个选取元素时，微编辑按选取的元素顺序逐个进入，编辑完成后按<kbd>Enter</kbd>或<kbd>Tab</kbd>键退出。同一时刻只有一个元素处于微编辑状态。</p>
+                        <p>可以对元素内容进行简单的修订（<code>Modify</code>），这通过进入一种<strong>微编辑</strong>的状态实现。这种修订仅适用于<em>内容元素</em>。有多个选取元素时，微编辑可按选取元素的顺序逐个进入。</p>
+                        <p>编辑完成后按<kbd>Enter</kbd>或<kbd>Tab</kbd>键确认并退出。如果是<kbd>Tab</kbd>且选取集内还有元素，则切换到下一个成员。</p>
                         <ul>
                             <li><kbd>M</kbd>：进入微编辑，光标定位到单击点。如果单击点不在元素内，进入后为全选状态。</li>
                             <li><kbd>Shift+M</kbd>：进入微编辑，光标定位到元素内容的末端。</li>
-                            <li><kbd>Tab</kbd>：进入微编辑（同<kbd>M</kbd>）。如果有多个选取则按顺序进入，进入下一个之后前一个会自动确认。</li>
+                            <li><kbd>Enter</kbd>：确认当前修订（退出微编辑）。</li>
+                            <li><kbd>Tab</kbd>：确认当前修订。如果有多个选取，按选取顺序进入到下一个元素的修订。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：非内容元素不能直接进入微编辑，此时可以按 <kbd>W</kbd> 或 <kbd>Shift+W</kbd> 选取其内容元素然后再继续。</p>
                     </section>

@@ -210,8 +210,21 @@ Content: [
     },
 
     {
+        // 到顶元素。
         "key":      ":t",
         "command":  "focusItemTop"
+    },
+
+    {
+        // 按顺序下一个
+        "key":      ":tab",
+        "command":  "focusSetNext"
+    },
+
+    {
+        // 按顺序前一个
+        "key":      "shift:tab",
+        "command":  "focusSetPrev"
     },
 
 
@@ -708,7 +721,7 @@ Content: [
     // 进入微编辑。
     // 支持当前单击点为光标。
     {
-        "key":      [":m", ":tab"],
+        "key":      ":m",
         "command":  "miniedIn"
     },
 

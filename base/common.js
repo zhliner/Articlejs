@@ -106,6 +106,42 @@ export class ESet extends Set {
     }
 
 
+    /**
+     * 返回el的下一个成员。
+     * 如果未找到则返回首个成员。
+     * 如果已经抵达末尾则返回首个（循环）。
+     * @param  {Element} el 起点元素
+     * @return {Element|undefined}
+     */
+    next( el ) {
+        let _els = [ ...this ],
+            _i = _els.indexOf( el );
+
+        if ( _i < 0 ) {
+            return _els[0];
+        }
+        return _els[ _i+1 ] || _els[0];
+    }
+
+
+    /**
+     * 返回el的前一个成员。
+     * 如果未找到则返回最后一个成员。
+     * 如果已经抵达头部则返回最后一个（循环）。
+     * @param  {Element} el 起点元素
+     * @return {Element|undefined}
+     */
+    prev( el ) {
+        let _els = [ ...this ],
+            _i = _els.indexOf( el );
+
+        if ( _i < 0 ) {
+            return _els[ _els.length-1 ];
+        }
+        return _els[ _i-1 ] || _els[ _els.length-1 ];
+    }
+
+
     //-- 批量接口 ------------------------------------------------------------
     // 主要用于外部undo/redo操作。
 

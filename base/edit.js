@@ -4514,6 +4514,29 @@ export const Edit = {
     },
 
 
+    /**
+     * 焦点切换到下一个选取集成员。
+     * 如果选取成员很分散（比如搜索），这会很有用。
+     */
+    focusSetNext() {
+        let _hot = __EHot.get(),
+            _nxt = __ESet.next( _hot );
+
+        if ( _nxt ) setFocus( _nxt );
+    },
+
+
+    /**
+     * 焦点切换到前一个选取集成员。
+     */
+    focusSetPrev() {
+        let _hot = __EHot.get(),
+            _nxt = __ESet.prev( _hot );
+
+        if ( _nxt ) setFocus( _nxt );
+    },
+
+
     //-- 元素选取 ------------------------------------------------------------
     // 原地扩展，焦点不会移动。
 

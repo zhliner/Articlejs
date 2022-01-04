@@ -14,16 +14,12 @@
 
 import { BaseOn, BaseBy } from "./base/tpb/tpb.esm.js";
 
+// 编辑器安装根
+// 配置在Tpb框架里的文件上便于正式版发布。
+import { ROOT } from "./base/tpb/user.js";
+
 
 const
-    //
-    // 编辑器安装根
-    // 由用户安装后修改，注意末尾的斜线/。
-    // 请同时调整Tpb配置文件（base/tpb/config.js）内的本系模板根URL（tplRoot）。
-    //
-    ROOT = 'http://localhost:8080/articlejs/',
-
-
     //
     // 功能集配置。
     // 可由用户在运行时开启或关闭（命令行config指令）。

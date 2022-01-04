@@ -11,24 +11,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import { tplRoot } from "./user.js";
 import { Loader, TplLoader } from "./tools/tloader.js";
-
-
-//
-// 用户配置。
-//////////////////////////////////////////////////////////////////////////////
-
-const
-    DEBUG = true,
-
-    // 本系模板根URL
-    // 用于获取模板节点的Tpb接口，注意末尾的斜线/。
-    tplRoot = 'http://localhost:8080/articlejs/templates/',
-
-    // 模板映射集配置
-    // 相对于上面的根路径URL。
-    tplMaps = 'maps.json';
-
 
 
 //
@@ -36,6 +20,8 @@ const
 //////////////////////////////////////////////////////////////////////////////
 
 const
+    DEBUG = true,
+
     // OBT属性名定义
     OBTA = {
         on:     'on',
@@ -46,7 +32,11 @@ const
 
     // 本系模板管理器名称
     // 上级应用默认的模板系名称用一个空串表示。
-    TplrName = '';
+    TplrName = '',
+
+    // 模板映射集配置
+    // 相对于上面的 tplRoot 根路径。
+    tplMaps = 'maps.json';
 
 
 
