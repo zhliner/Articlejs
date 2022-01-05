@@ -6,7 +6,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  插件OnBy扩展
+//  插件 OnBy 扩展
+//  导出的对象中需包含 On 和 By 两个成员。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,10 +18,6 @@ import { BaseOn, BaseBy } from "../../base/tpb/tpb.esm.js";
 const
     On = Object.create( BaseOn ),
     By = Object.create( BaseBy );
-
-
-On.test = "Cool-md On";
-By.test = "Cool-md By";
 
 
 export { On, By };
